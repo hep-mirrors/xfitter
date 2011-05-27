@@ -10,9 +10,9 @@
      + VAL_K(NSET,NMAX)
 
 
-      double precision DATEN(NTOT),E_UNC(NTOT),E_TOT(NTOT),KFACT(NDAT37),kFACTCUT
+      double precision DATEN(NTOT),E_UNC(NTOT),E_TOT(NTOT)
       double precision E_STA(NTOT)  ! stat. errors
-      integer JSET(NTOT),USED40(NDAT40),USED38(NDAT38)
+      integer JSET(NTOT)
       double precision VX(NTOT),VQ2(NTOT),VY(NTOT)
       double precision VKP(NTOT),VKM(NTOT),VK(NTOT)
 
@@ -26,9 +26,9 @@ C SG:  k-factors:
       double precision KFactors(NKFactMax,NTOT)
 
       common/indata2/
-     + VX,VQ2,VY,DATEN,E_UNC,E_TOT,KFACT,kFACTCUT, E_STA,
+     + VX,VQ2,VY,DATEN,E_UNC,E_TOT, E_STA,
      + Y_low, Y_high, M_low, M_high, VKM, VKP, VK,
-     + JSET, USED40, USED38
+     + JSET
 
       common/CAbstractBins/AbstractBins,KFactors
 

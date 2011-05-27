@@ -255,142 +255,11 @@ cv=f2cc h1+zeus
       ISBOTTOMANY = .false.
 
 
-C     -- Systematics for HERA I inclusive data  - cdf H1Pdf2k paper
-      SYSTEM(1)  = 'L1'
-      SYSTEM(2)  = 'E1'
-      SYSTEM(3)  = 'T1'
-      SYSTEM(4)  = 'H1'
-      SYSTEM(5)  = 'N1'
-      SYSTEM(6)  = 'B1'
-      SYSTEM(7)  = 'L2'
-      SYSTEM(8)  = 'L3'
-      SYSTEM(9)  = 'E2'
-      SYSTEM(10) = 'T2'
-      SYSTEM(11) = 'H2'
-      SYSTEM(12) = 'B2'
-      SYSTEM(13) = 'V1'
-      SYSTEM(14) = 'L4'
-      SYSTEM(15) = 'T3'
-      SYSTEM(16) = 'S1'
-      SYSTEM(17) = 'V2'
-      SYSTEM(18) = 'L5'
-
-C     -- Systematics for HERA II polarised data
-      SYSTEM(19) = 'L6'
-      SYSTEM(20) = 'E3'
-      SYSTEM(21) = 'T4'
-      SYSTEM(22) = 'H3'
-      SYSTEM(23) = 'B3'
-      SYSTEM(24) = 'V3'
-      SYSTEM(25) = 'L7'
-      SYSTEM(26) = 'L8'
-      SYSTEM(27) = 'L9'
-
-C     -- more or less dummy... for checks for polar, but no sensitive..
-      SYSTEM(28) = 'P1'
-      SYSTEM(29) = 'P2'
-      SYSTEM(30) = 'P3'
-      SYSTEM(31) = 'P4'
-
-C     -- Correlated part of lumi uncertainties
-      SYSTEM(32) = 'NM'
-
-C     -- model dependence for inc. jets 95-97
-      SYSTEM(33) = 'MO'   
-
-C     -- Systematics for HERA I F2cc and F2bb (impact param. method)
-      SYSTEM(34) = 'IPres'
-      SYSTEM(35) = 't_eff'
-      SYSTEM(36) = 'Dmul'
-      SYSTEM(37) = 'Bmul'
-      SYSTEM(38) = 'frag'
-      SYSTEM(39) = 'model'
-      SYSTEM(40) = 'uds'
-      SYSTEM(41) = 'phiq'
-
-cv systematics for iset =25 
-cv... iset=25 (bulk 2000 data - Jan and Alexei)
-      SYSTEM(42) = 'Lnew00'
-      SYSTEM(43) = 'Enew00'
-      SYSTEM(44) = 'Tnew00'
-      SYSTEM(45) = 'Hnew00'
-      SYSTEM(46) = 'Nnew00'
-      SYSTEM(47) = 'HSnew00'
-      SYSTEM(48) = 'Bnew00'
-      SYSTEM(49) = 'ELnew00'
-      SYSTEM(50) = 'sys009'
-      SYSTEM(51) = 'sys0010'
-      SYSTEM(52) = 'sys0011'
-      SYSTEM(53) = 'sys0012'
-      SYSTEM(54) = 'sys0013'
-      SYSTEM(55) = 'sys0014'
-
-
-
-cv  new systematics for iset=26
-cv... iset=26 (Minimum Bias Data -A. Vargas)      
-      SYSTEM(56) = 'Lmbsvx'   !serves as global normalization 
-      do insys=57, 81
-         SYSTEM(insys) = 'diagsys'
-      enddo
-
-cv systematics for iset=27 
-cv ......iset=27 : High Y LArdata - Shiraz and Voica      
-      SYSTEM(82) = 'lumi'
-      SYSTEM(83) = 'asymm'
-      SYSTEM(84) = 'trigg'
-      SYSTEM(85) = 'elec'
-      SYSTEM(86) = 'track'
-      SYSTEM(87) = 'energy'
-      SYSTEM(88) = 'theta'
-      SYSTEM(89) = 'hfs'
-      SYSTEM(90) = 'radcorr'
-
-cv .... H1+ZEUS Combo:  first data      
-
-      do iss=91,NSYS
-         SYSTEM(iss) = 'sys'
-      enddo
-      SYSTEM(100) = 'lumi'
-      SYSTEM(99) = 'corre/mu'
-      SYSTEM(200) = 'lumi low q2'
-      SYSTEM(300) = 'flL'
-
-cv .... end H1+ZEUS
-      SYSTEM(340) = 'f2cL'
-      
-      SYSTEM(375) = 'jeteeHI_II'
-      SYSTEM(376) = 'jeteaHI_II'
-      SYSTEM(377) = 'jetheHI_II'
-      SYSTEM(378) = 'lumiHI'
-      SYSTEM(379) = 'jeteeSpC_HI'
-      SYSTEM(380) = 'jeteaSpC_HI'
-      SYSTEM(381) = 'jetheHI'
-      SYSTEM(382) = 'jetmoHI'
-      SYSTEM(383) = 'jeteeLaR_HI'
-      SYSTEM(384) = 'jeteaLaR_HI'
-      
-      SYSTEM(385) = 'jetehLaR_ZEUS_9697 '
-      SYSTEM(386) = 'lumi_ZEUS_9697'
-      SYSTEM(387) = 'lumi_ZEUS_9800'
-      SYSTEM(388) = 'jetehLaR_ZEUS_9800 '
-
-      SYSTEM(400) = 'lumi HERA TOT'
       pi = 4.d0 * datan(1.d0)
       twopi = 2.d0 * pi
       alphaem = 1.d0 / 137.035999d0
 
 
-C-1- 05/08/2010: added systematic for dataset 24 --
-      do iss = 551, 574
-        SYSTEM(iss) = 'lowEp'
-      enddo
-
-      system(575)='nSLAC'
-      system(576)='nNMC'
-      system(577)='nBCDMS'
-      system(578)='LBCDMS'
-      system(579)='totBCDMS'
 C-2- 05/08/2010: end of the addition --------------
 
 
@@ -723,6 +592,12 @@ C Apply cuts:
 
 C Add a point:
          npoints = npoints+1
+         
+         if (npoints.ge.NTOT) then
+            print '('' ReadDataFile Error, increase NTOT value inside ntot.inc'')'
+            stop
+         endif
+
          NDATAPOINTS(NDATASETS) = NDATAPOINTS(NDATASETS) + 1
          DATASETIDX(NDATASETS,NDATAPOINTS(NDATASETS)) = npoints
 
@@ -738,7 +613,6 @@ C Translate errors in %:
          do i=1,NSyst
             if (.not.Percent(i)) then
                syst(i) = syst(i)/XSections(j)*100.
-               print *,'hhhhh'
             endif
    
             TotalError = TotalError + Syst(i)**2
@@ -763,6 +637,13 @@ C Uncorrelated error:
          ALPHA(npoints) = sqrt(UncorError**2+StatErrors(j)**2)*DATEN(npoints)
          do i=1,NSyst
             if (SystematicType(i).gt.0) then
+               if (SystematicType(i).gt. NSys) then
+                  print '(''ReadDataFile Error: requested error source'',i6,'' larger than NSYST='',i6)'
+     $                 ,SystematicType(i),NSys
+                  print '(''Check SystematicType or increase NSys in systematics.inc'')'
+                  stop
+               endif
+
                BETA(SystematicType(i),npoints) = syst(i)
             endif
          enddo

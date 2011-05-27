@@ -109,8 +109,6 @@ C     Count function calls and print:
       write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
       open(95,file='output/kfactors.dat', status='unknown')
 
-cv hayk's ci sf out
-      open(97,file='output/h1fitter_ci.dat', status='unknown')
 CV ======================================================
 CV===========================================================
       f = 0.d0
@@ -147,12 +145,6 @@ C SG, 22 Apr 2011: CT parameterisation:
       if ((iflag.eq.1).or.(iflag.ge.10)) then
 
 
-         if ((LFitDY).and.
-     $        ((h1iset.eq.100).or.(h1iset.eq.101).or.
-     $        (h1iset.eq.102).or.(h1iset.eq.103).or.
-     $         (h1iset.eq.111).or.(h1iset.eq.112).or.(h1iset.eq.104))) then
-            print *,'LFitDY=T, Force DY calculation for Z->ee or W->enu'
-         endif
          if (iflag.ge.10) ifirstACOT=iflag
          
 
