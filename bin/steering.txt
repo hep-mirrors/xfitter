@@ -1,0 +1,417 @@
+LIST
+
+C ---- Which datasets to fit
+C================
+c LDOFIT1 = for H1 only
+c            1-9 -> H1PDF2000
+c            3-11 -> H1PDF2009
+c            10-11, 13-16 -> H1PDF2010 (?) 
+C================     
+C     -- HERA I inclusive data, as included in H1Pdf2k     
+C     Dataset 1 : Minimum bias 97
+C     Dataset 2 : Low Q2 96-97
+C     Dataset 3 : High Q2 NC, e+p 94-97     (Tab 8 DESY 99-107)
+C     Dataset 4 : High Q2 CC, e+p 94-97     (Tab 9 DESY 99-107)
+C     Dataset 5 : High Q2, NC, e-p, 98-99   (Tab 6 DESY 00-187)
+C     Dataset 6 : High Q2, CC, e-p, 98-99   (Tab 8 DESY 00-187)
+c     Dataset 7 : High Q2 NC, e-p, 98-99, high y    (Tab 13 2003 paper)
+c     Dataset 8 : High Q2 NC, e+p, 99-00  	(Tab 11 2003 paper)
+c     Dataset 9 : CC e+p, 99-00		(Tab 12 2003 paper)
+C---- Voica -- 01/03/07
+C     Dataset 10(25) : bulk 2000 A. Petrukhin/J. Kretzschmar - will replace dataset2
+C     Dataset 11(26) : MB97+99+SVX95+00 - will replace dataset1
+C--- HERA I+II
+C     Dataset 12(27) : high Y LAr + 25+26 combo - will replace dataset7
+C     -- HERAI +HERA II preliminary data, 2003-2005     
+c     Dataset 13(10) : NC highq2 combo e+
+c     Dataset 14(11) : NC highq2 combo e-
+c     Dataset 15(12) : CC highq2 combo e+
+c     Dataset 16(13) : CC highq2 combo e-
+
+C  ---- OLD STUFF!! polarised Xsections
+     
+c     Dataset 17(14) : CC 03-04, e+, Left
+c     Dataset 18(15) : CC 03-04, e+, Right
+c     Dataset 19(16) : CC 05, e-, Left
+c     Dataset 20(17) : CC 05, e-, Right
+C     
+C     -- HERA I  F2cc and F2bb measurements
+C     
+C     Dataset 21(21) : F2cc low Q2, DESY-05-110
+C     Dataset 22(22) : F2bb low Q2, DESY-05-110
+C     Dataset 23(24) : F2cc D* low Q2, DESY-01-100
+c     .
+c     .
+c     .
+c     up to 30 datasets!
+c============================================
+C LDOFIT2 for Jets
+C     is from 1-30 (datasetXX-30)
+
+C     Dataset 31(18) : incl. jets 95/97, e+
+C     Dataset 32(19) : incl. jets 96/97, e+, low Q2
+C     Dataset 33(20) : dijets, 95/96, e+
+c     Dataset 34(23) : incl. jets 99-00, e+
+C     Dataset 35(33) Incl-Jets/DIS+ 99/00
+C     Dataset 36(34) Incl-Jets/DIS+ 99/07
+C     Dataset 37(39) Low Q2 inclusive jets data 99/00 (DESY-09-162)
+C     Dataset 38:     2-Jets /DIS+ 99/07  (DESY-09-032)
+C     Dataset 39:     3-Jets /DIS+ 99/07  (DESY-09-032)
+c     .
+c     Dataset 40: dijet photoproduction 96/97, ZEUS (DESY-01-220)
+c     Dataset 41: jet high Q2 data ZEUS 96/97, ZEUS (DESY-02-112)
+c     Dataset 42: jet high Q2 data ZEUS 98/00, ZEUS (DESY-06-128)
+c     .
+c     .
+c     up to 60 datasets!
+c============================================
+C LDOFIT3 for H1ZEUS 
+C --- H1ZEUS combined data (and lowQ2 )
+C     Dataset 61(28) NCe-
+C     Dataset 62(29) NCe+
+C     Dataset 63(30) CCe-
+C     Dataset 64(31) CCe+
+C     Dataset 65(32) : F2cc combined H1+ZEUS
+C --- H1ZEUS combined FL(low energy) data
+C     Dataset 66(36) FL 450-575 GeV 27/2010
+C --- HERA II+I H1ZEUS
+C     Dataset 67 NCe-
+C     Dataset 68 NCe+
+C     Dataset 69 CCe-
+C     Dataset 70 CCe+
+c    .
+c    .
+c    .
+c     upt to 90 datasets!
+c============================================
+C LDOFIT4 for 
+c  other data sets, fixed target, LHC, LHeC..
+
+
+C                     1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3
+C   1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 
+DO1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+DO2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+DO3 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+DO4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+
+C flags for the H1ZEUS data concerning the error treatment:
+
+C nlowq2 = 0  data H1ZEUS no low q2 data => produces HERAPDF0.1
+C nlowq2 = 1  data H1ZEUS with low q2 data from H1
+C nlowq2 = 2  data H1ZEUS with low q2 data from H1 and ZEUS
+
+nlowq2 2
+
+C nocorrel = 0  all errors correlated 
+C nocorrel = 1  all errors uncorrelated  (including procedural)
+C nocorrel = 2  procedural set to correlated, all other errors uncorrelated.
+C nocorrel = 3  a mixed, depending on nfirst === FOR JOEL ONLY!
+C nocorrel = 4  procedural errors set to 0, all others uncorrelated.
+C nocorrel = 7  procedural and jet errors set to correlated, all other uncorrelated 
+C NFIRST relevant only for NOCORREL = 3
+C     nfirst = 0 => nocorrel=1
+C     nfirst = nsyshz => nocorrel=0
+
+nocorrel 4
+nfirst 0
+
+C --- itheory: =0 use collinear factorisation with QCDNUM
+C --- itheory: =1 use kt factorisation with CASCADE
+C --- itheory: =2 use Dipole model <--- added 22/07/2010
+C --- itheory: =3 use in order to combine QCDNUM and Dipole model 
+C ---             added 29/07/2010
+Itheory  0
+
+C ----26/07/2010: Type of the Dipole model --------
+C --- DIPMODEL: = 0 <-- default GBW
+C --- DIPMODEL: = 1 <-- IIC
+C --- DIPMODEL: = 2 <-- Kowalski ...
+DIPMODEL  0
+
+
+C--------------------------------------------------
+C --- Enable lamfit -------------------------------
+LAMFIT  0
+
+C--------------------------------------------------
+C --- Type of the Lambda fit: FITLAMBDA2
+C --- FALSE - standart lambda fit
+C --- TRUE  - new lambda fit
+FITLAMBDA2  FALSE
+
+C--------------------------------------------------
+C ---  Parameters of the new Lambda fit
+
+RVALUE  0.25
+
+LVALUE  0.25
+
+
+
+C --- For itheory =0 (collinear factorisation) : LO fit (1) or NLO (2) or NNLO (3)
+IORDER   2
+
+C --- Starting scale of the fit, Q_0^2, in GeV^2
+C Q02     1.5 for negative gluon!
+Q02 1.9
+
+C --- strange sea fraction at Q02
+C --- common choices: 0.33 (Q02=4) or 0.31 (Q02=1.9) or 0.2 (ZEUS params)
+FSTRANGE 0.31
+
+C --- charm sea fraction at Q02
+FCHARM 0.0
+
+C --- ALPHAS for the RT HF scheme - this must be set here in addition
+C --- to the alphas transmitted by minuit.in.txt (for now)
+RTALPHAS     0.1176
+
+C --- Scheme for heavy flavors :
+C ---  HFSCHEME = 0 : ZM-VFNS (massless),
+C ---  HFSCHEME = 2 :  Thorne-Roberts VFNS (massive)
+C ---  HFSCHEME = 3 :   F.Olness ACOT (massive)
+C ---  HFSCHEME = 4 :   FFNS Alechin BMNS ! only F2c is provided -> at NNLO for now
+C ---                   in principle one should run this for IORDER 3, however for 
+C ---                 FFNS scheme the evolution of PDFS for nf=3 is not working in 
+C ---                 QCDNUM17.2, this is claimed to be fixed for new versions
+C ---                 so for now PDFs can be evolved using VFNS.. which is not consistent!!
+
+HFSCHEME   2
+
+C - vfnsINDX is used only when F2c or F2b data is used
+C ---   = 2 :  Thorne-Roberts VFNS (massive) F2c, F2b at NLO
+C ---   = 3 :  F.Olness ACOT (massive)  F2c,F2b at NLO 
+C ---   = 4 :  FFNS Alechin BMNS F2c at NNLO -> should need PDFs at NNLO 
+ 
+vfnsINDX 0
+
+C --- FOR HFSCHEME =3 ONLY:  a flag that selects which calculation to use!
+c          If(Isch.eq.0)   !*** NLO MASSLESS MS-BAR
+c          If(Isch.eq.1)   !*** FULL ACOT
+c          If(Isch.eq.5)   !*** LO
+c          If(Isch.eq.6)   !*** Massless LO
+c          If(Isch.eq.7)   !*** Short-cut2: ACOT  w/ Massless NLO-Q
+c          If(Isch.eq.8)   !*** ACOT-CHI 
+
+ISCH 1
+
+C --- Fudging FL
+C --- FAFL=0 -> no fudge
+C --- FAFL=1 -> constant R term 
+C --- FAFL=2 -> q2 dependent R term 
+C --- FAFL=3 -> q2 dependent R term q2<25 
+
+FAFL 0
+
+
+C --- Fudging F2
+C --- FAF2=0 -> no fudge
+C --- FAF2=1 -> HT 
+
+FAF2 0
+
+
+
+C --- Charm and bottom thresholds, in GeV, for the massless scheme.
+C ---    The bottom threshold has to be larger than the charm threshold.
+C ---    So far, the bottom threshold has to be larger than the starting scale.
+C ---    If HFSCHEME = 1 (massive scheme) the thresholds are set internally
+C ---    to a value > highest Q2.
+C --- for H1ZEUS DIS 08:
+C HFTHRES   1.40    4.75
+
+HFTHRES   1.4    4.75
+
+C --- Charm and bottom mass, in GeV
+C --- for H1ZEUS DIS 08:
+C HFMAS    1.40    4.75
+
+HFMAS    1.4    4.75
+
+
+C ---- Choice of parametrisation for collinear factorisation case
+C
+C IPAR = 1 : H1PDF2k-like			use minuit_1(m,h).in.txt
+C IPAR = 2 : Fit g, uval, dval, Ubar,Dbar	use minuit_2(m,h).in.txt
+C IPAR = 4 : ZEUS JET parametrization		use minuit_4(m,h).in.txt
+C IPAR = 11 : a la H1PDF2k, but no assumption on fcharm (not yet)
+C IPAR = 21 : H1PDF2k-like opt. by Li   	use minuit_21.in.txt
+C IPAR = 22 : g, uval, dval, Ubar,Dbar          use minuit_22.in.txt (HERA)
+C                                               use minuit_h109.in.txt (H12009)
+C IPAR = 221 : g, uval, dval, Ubar,Dbar   bdv=/=buv      use minuit_221.in.txt
+C IPAR = 222 : g, uval, dval, Ubar,Dbar   negative gluon use minuit_222.in.txt
+C IPAR = 225 : g, uval, dval, Ubar,Dbar   ubar=/=dbar    use minuit_225.in.txt
+C IPAR = 24 : ZEUS JET parametrization opt.AMCS see minuit_24.in.txt
+C IPAR = 171717 : CTEQ-like parameterisation: use minuit.in.txt-171717
+C !!!! USER: USE PROPER MINUIT.IN.TXT!!!!
+
+C  for each chosen parametrization there are various options: 
+C   1) h -- humpy gluon (a la h1)
+C   2) m -- straight gluon (a la zeus)
+
+C
+
+IPAR    22
+
+
+C -- Choice of the chi2 function
+C    ICHI2 = 1 : Pascaud-like : system. shifts applied to theory
+C    ICHI2 = 2 : CTEQ-like    : system. shifts applied to data
+C    ICHI2 = 3 : use full covariant matrix
+C    ICHI2 = 11: Pascaud-like + "mixed error scaling"
+C    ICHI2 = 21: Pascaud-like + "linear error scaling"
+C    ICHI2 = 31: Pascaud-like + "sqrt error scaling"
+C  Comments : ICHI2 = 1 was used for H1PDF2k.
+C             ICHI2 = 2 and = 3 are mathematically equivalent. 
+C             
+ICHI2   11
+
+C -- only for ICHI2 = 3 : compute (FIRST = true) or read (FIRST = false)
+C    the covariance matrix. The file containing the cov. matrix is
+C    covmat.dat
+C
+FIRST   TRUE
+
+
+C -- ONLINE flag
+C    for interactive running : the chi2 and some parameters are printed
+C    at each iteration.
+ONLINE  true
+
+
+C -- DEBUG flag
+DEBUG   FALSE
+
+
+C -- Error bands on parton distributions
+BANDS    False
+
+C -- Q2 values at which the pdfs & errors are done (up to 20)
+C Line length limited to ~80 chars, up to 20 more values using Q3VAL key
+Q2VAL  1.9 4 10 100 6464 8317
+
+
+
+C dumping files from grids specified in fcn.f on fort.96
+C --  IDSIGDQ2  (single diff and total cross sections refined grids)
+C --  H1QCDFUNC (f2, fl, xf3for h1qcdfunc)
+C --  IDFLPRINT  (FL print outs for h1zeus)
+C --  IDDIPOLE  (F2,FL, double diff cross sections for low x, range defined by OUTXRANGE)
+C --  IDFLDIPOLE  FL ave for LEP paper (H1)
+C --  H1CI produced the ouput needed for the CI program
+C --  CIMODEL flag to turn ON the CI fits
+C ---------           MODELHP works only in the CIMODEL loop, 
+C                     0 is  for quark radius -->minuit_ci_radius.in.txt
+C                     1-14  for leptoquarks  -->minuit_ci_lq.in.txt
+C                     15-33 for compositness -->minuit_ci_lq.in.txt
+IDDIPOLE FALSE
+IDFLDIPOLE FALSE
+H1CI FALSE
+CIMODEL FALSE
+MODELHP 0 
+
+
+
+C ---- Further configuration of the output tables (at the above Q2 values)
+C
+C OUTFORM = 0 : standard dump: only PDFs
+C OUTFORM = 1 : extended dump: PDFs + NC structure functions
+C OUTFORM = 2 : full dump: PDFs + NC+CC structure functions (not yet implemented!)
+C
+OUTFORM 0
+
+C How many x points to write (standard = 101)
+OUTNX 101
+
+C x-range of output (standard = 1E-4 1.0)
+OUTXRANGE 1E-4 0.9999
+
+C --- ISEED for CASCADE
+ISEED   2313134
+
+C -- ISDRN for random shifts, default 42, then 31,77,2008,
+ISDRN 1967
+
+C-----xmax cut  :  -1. means no cut
+Xmax   -1.
+C-----xmin cut  :  -1. means no cut
+Xmin   -1.
+C---- Q2min cut :  -1. means no cut
+Q2min  30.5
+C---- Q2max cut :  -1. means no cut <--- added 26/07/2010
+Q2max  -1.
+
+C
+C Saturation cut:  Q^2 > ASAT * X ** LSAT 
+C
+ASAT 0.0
+LSAT 0.0
+
+
+C --------------------------------------------------------------------
+C
+C     The following steering cards are there for checks...
+C
+C --------------------------------------------------------------------
+
+C --- Normalisations are minuit parameters if NORMA = TRUE - instead of
+C     being calculated using the correlated errors.
+C     (to be used only for ICHI2 = 1 or 2)
+C     in the minuit input file, the corresponding parameters should be released !
+NORMA   FALSE
+
+C --- Fit the measured data of the smeared theo, x-sections
+THEO    FALSE
+
+C --- Fit the measured randomly SMEARED  x-sections data 
+RAND    FALSE
+SEED  123456 
+
+C --- Choose what distribution for the random number generator 
+C STATYPE (SYS_TYPE)  =   1  gauss
+C STATYPE (SYS_TYPE)  =   2  uniform
+C STATYPE (SYS_TYPE)  =   3  lognormal
+STATYPE  1
+SYSTYPE  1
+
+C -- Chi2 with full errors (CORR = TRUE) or only uncorrelated errors
+CORR    true
+
+C -- With the following flag set to TRUE, the EW corrections are not
+C -- calculated. E.g. when one reads data which are ALREADY EW-corrected.
+C -- Should not be used for an EW fit since the EW corrections depend on
+C -- the EW parameters.
+CORWEAK   FALSE
+
+C --------------------------------------------------------------------
+
+C
+C Enable/disable Z->ee total x-section calculation
+C Enable/disable w->nue total x-section calculation
+C
+LDYFIT false
+
+C
+C Number of applgrid grids to use. 0 = no applgrid
+C
+
+C NAPPLGRIDS   2
+
+END
+STOP
+EXIT
+
+*
+*  Extra namelist to control input data
+*
+&InFiles
+    NInputFiles = 5
+    InputFileNames(1) = 'DATA_FILES/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'DATA_FILES/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(3) = 'DATA_FILES/H1ZEUS_CC_e-p_HERA1.0.dat'
+    InputFileNames(4) = 'DATA_FILES/H1ZEUS_CC_e+p_HERA1.0.dat'
+    InputFileNames(5) = 'DATA_FILES/ATLAS_DY_CC_ASYMMETRY.dat'
+&End
+
