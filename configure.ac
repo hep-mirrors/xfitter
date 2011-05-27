@@ -57,8 +57,7 @@ fi
 AC_F77_LIBRARY_LDFLAGS
 
 # Output
-AC_CONFIG_FILES([include/Makefile
-                 src/Makefile
+AC_CONFIG_FILES([src/Makefile
                  Makefile])
 AC_CONFIG_SUBDIRS([minuit DY])
 AC_OUTPUT
