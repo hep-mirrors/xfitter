@@ -45,7 +45,8 @@ C
       parameter (alphaem = 1./137.0D0)
       parameter (pi = 3.141592653589793D0)
       parameter (convfac = 3.893796D8)
-
+      
+      double precision alpha_run
 
       double precision eu,ed, e2u,e2d ,pz
       double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d
@@ -58,6 +59,7 @@ C Functions:
       integer GetBinIndex
       integer GetInfoIndex
       double precision DSIMPS
+      double precision AEMRUN
 C-----------------------------------------------------------------
 
 
@@ -128,6 +130,8 @@ C QCDNUM, caclulate FL, F2 and xF3 for all bins:
          B_u = -ae*PZ*2.*eu*au + 2.*ve*ae*(PZ**2)*2.*vu*au
          B_d = -ae*PZ*2.*ed*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
+         alpha_run = AEMRUN(q2(0,i))
+
 C Get x-sections:
          do j=0,NSplit
             y = q2(j,i)/(S*X(j,i))
@@ -145,7 +149,7 @@ C Get x-sections:
             else
                XSec(j) = yplus*F2 + yminus*xF3 - y*y*FL
             endif
-            XSec(j) = XSec(j) * (2*pi*alphaem*alphaem)/ 
+            XSec(j) = XSec(j) * (2*pi*alpha_run**2)/ 
      $           (q2(j,i)**2*x(j,i))*convfac
 C            print *,'hihi',q2(j,i),x(j,i),y,Xsec(j),F2
          enddo
@@ -298,7 +302,6 @@ C Get x-sections:
          THEO(idx) =  XSec
 
       enddo
-
 
 
       end
