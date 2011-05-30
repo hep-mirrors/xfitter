@@ -22,42 +22,17 @@ c
       character   adum 
       character*1   a1dum 
 
-      double precision weak,pi,twopi,alphaem,Gf,convfac
-C     -jf
       double precision ECM
 c     
-      dimension WEAK(NMAX)
 
       double precision fac
 
-      logical FailCuts
       logical FIRST             !  true : cov matrix recalculated
       logical GNORM             !  correlated part for the luminosity errors
 
-      real*4 q2,x,y,s,stat,tot,dum,cor,sta,sys
-      real*4 e1,e2,e3,e4,e5,e6
 
-      real*4 new1,new2,new3,new4,new5,new6
-      real*4 new7,new8,new9,new10,new11,new12
-      real*4 new13,new14
-      integer insys
-      real*4 phi
-      real*4 dall,df2,df3,dfl
-      real*4 stheo
-      real*4 hcor,z0cor,uncp,uncm,e4p,e4m,totp,totm,hcorerr
-      real*4 ehcorp,ehcorm
-      real*4 sysp,sysm
 
-      real*4 proc
 
-      double precision Q2mean(6)
-      double precision ETmean(24)
-      double precision Xmean(24)
-
-C      // Gouzevitch 2009/03/31
-
-      double precision Width_q2(7),Width_e(5)
-      double precision q2bin(7),ebin(5)
       
 
 cv ///// study of PDF uncertainties
@@ -76,8 +51,7 @@ cv
       integer numsys
       real rndsh, ranflat
       integer num,iseedrand, idate,is,ntime, ndate
-      integer*4  timeArray(3)
-      real voica_def, voica_deh, voica_lo
+
       real f_un
       COMMON/SLATE/IS(40)
       real alumlognorm(300)
@@ -86,166 +60,8 @@ cv
 cv////////
  
 
-      integer i,j,k,iset,n0,isys,iq2bin,iebin,jsys,idx
-      integer ixbin, ietabin, ietbin, used
-      double precision xlum0,corlum,xlum,dp
-      double precision newunc,unc,ee,ep,sep,epolar,syst,phicc
-      double precision eres,eeff,edmul,ebmul,efrag,emod,euds,ephi
-      double precision f2_dglap,stat_dglap,sysu_dglap,sysd_dglap
-      double precision f2_ccfm,stat_ccfm,sysu_ccfm,sysd_ccfm
-      double precision sysu,sysd,kfac
-      
-      double precision ed1,ed2,ed3,ed4,ed5
-      double precision ed6,ed7,ed8,ed9,ed10,ed11
-      double precision ed12,ed13,ed14,ed15,ed16,ed17
-      double precision ed18,ed19,ed20, ed21,ed22,ed23,ed24,ed25,ed26
-      double precision fl, corr
+      integer i,j,k,iset,n0,isys,iq2bin,iebin,jsys
 
-      double precision dum1, dum2, dum3, dum4
-      double precision dum5, dum6, dum7, dum8
-cv fltoy
-      double precision col1, col2, col3
-cv ZEUS, H1:
-      double precision cor1, cor2
-
-
-******
-      integer iss,n1,n2,n3,n4,jj,icombo1
-      double precision dumsys(nsys),factorCC
-      double precision sys35, sysel, sysmu,coel,comu
-
-*new2009 jf
-* nocorrel = 0, all  (=nsyshz) correl kept in data sets 28 to 31
-* nocorrel = 1, all correl removed in data sets 28 to 31
-* nocorrel = 2, all correl except the last four or two (i.e., (nsyshz - nsyshzm4))
-* nocorrel = 3 and nfirst = number of correlated errors, ranked by decreasing size:
-* which are kept  while (nsyshz-nfirst) errors become uncorrelated 
-*     if nfirst =nsyshz => nocorrel 3=0
-*     if nfirst =0 => nocorrel 3=1
-*
-*new4 jf
-* nlowq2 = 1, new average of H1-ZEUS data sets includung new H1-MB
-* number of systematics nsyshz increases from 47 to 96 -> 102
-* number of data points in set 29 increases 
-* 
-      integer isup,nsyshz, nsyshzp150
-      integer nsyshzp100,nsyshzm3,nsyshzm4,newdat62
-      double precision totot,totot2,tototm
-      real aaaa
-* 22 Jan jf : unc2 double precision and nfirst integer introduced for the 
-* nocorrel = 3 option
-      double precision unc2
-      
-cv+sh **********
-* Add sys info for FL data (low energy)
-* 25 experimental errors, 3 procedural
-* nsysfl=28, nsysflm3=28-3, nsysflp300 (max slot!)
-      integer nsysfl, nsysflm3, nsysflp300
-cv+sh **********
-cv new herai+ii data
-      integer ntothz,ntothzm3, ntothzp400
-cv=highq2
-      integer nsyshiq, nsyshiq250
-cv=lowq2
-      integer nsysloq, nsysloq200
-cv=f2cc h1+zeus
-      integer nsysfc, nsysfcm1, nsysfcp340
-*      integer nfirst
-
-cv      double precision f2, norm, whad2,statqcd, sysqcd, f2qcd, shift
-
-
-      double precision f2, norm, whad2,statqcd, sysqcd, f2qcd,lambda, shift
-cv atlas
-      double precision ymin, ymax, mcsta,kfactor, kfactorm, kfactorp
-
-cv ... THIS FOR MC STUDY!
-cv saving the lumi uncertainties in an array to be used for lognormal random shifts
-      alumierr(1) = 1.7
-      alumierr(7) = 1.7
-      alumierr(8) = 1.5
-      alumierr(14) =1.8
-      alumierr(18) =1.5
-      alumierr(19) =2.2
-      alumierr(32) = 0.005
-
-
-      do i=1,31
-         if (alumierr(i).gt.0) then
-            alumierr(i) = sqrt((0.01*alumierr(i))**2-alumierr(32)**2)
-         endif
-      enddo
-
-cv end of saving the lumi ...
-! new data set for nlowq1=1, otherwis =0
-cv NOW IN THE STEERING!
-c      nlowq2 = 1
-c: default values correspond to the PRELIM DIS data
-
-
-
-cv+sh  comment: p100(300) means allocating the slot for
-cv+sh  maximum number of sys in the total sys array
-      nsysfl = 28 ! total number of sys
-      nsysflm3=nsysfl-3 ! remove procedural errors
-      nsysflp300 = nsysfl + 300
-
-
-cv+herai+ii data
-      ntothz = 134
-      ntothzm3 =ntothz-3
-      ntothzp400=ntothz+400
-
-cv=highq2
-
-      nsyshiq=32
-      nsyshiq250=nsyshiq+250
-
-cv=lowq2
-
-      nsysloq=46
-      nsysloq200=nsysloq+200
-
-
-
-      if (nlowq2.eq.0) then
-         nsyshz = 47
-         newdat62 = 383
-
-
-         nsyshzp100 = nsyshz + 100
-         nsyshzm3 = nsyshz - 3      
-         nsyshzm4 = nsyshzm3 - 1
-        
-
-      elseif (nlowq2.eq.1) then
-cv new data set has 100+2 systematic uncertainties, and the new data has 527 points..
-         nsyshz = 102
-         newdat62 = 527
-cv  last two are the procedural errors, this is used with nocorrel=2 case 
-cv (errors added in quadrature, up to last two procedural errors)
-         nsyshzm4=nsyshz-2
-      elseif (nlowq2.eq.2) then
-cv new data set has 110+3 systematic uncertainties, and the new data has 528 points..
-         nsyshz = 113
-         newdat62 = 528
-cv  last three are the procedural errors, this is used with nocorrel=2 case 
-cv (errors added in quadrature, up to last two procedural errors)
-         nsyshzm4=nsyshz-3
-      endif
-
-
-cv=f2cc h1+zeus
-      nsysfc = 2 ! total number of sys
-      nsysfcm1=nsysfc-1 ! remove procedural errors
-      nsysfcp340 = nsysfc + 340
-
-
-*18 Jan 2009 jf
-      nsyshzp100 = nsyshz + 100
-*     end special initialisation
-
-      DEBUG = lDEBUG
       ONLINE = lONLINE
       FIRST = lFIRST
 
@@ -255,18 +71,6 @@ cv=f2cc h1+zeus
       ISBOTTOMANY = .false.
 
 
-      pi = 4.d0 * datan(1.d0)
-      twopi = 2.d0 * pi
-      alphaem = 1.d0 / 137.035999d0
-
-
-C-2- 05/08/2010: end of the addition --------------
-
-
-      Gf = 1.16637d-5
-      convfac = 3.893796D8
-      Mw = 80.41d0
-      factorCC=0.d0
       do iset=1,nset
          POLAR(iset) = 0.d0
       enddo
@@ -302,12 +106,6 @@ C-2- 05/08/2010: end of the addition --------------
          NDATAPOINTS(i) = 0
       enddo
       npoints = 0
-      ndis=0
-      n0 = 0
-      n1 = 0
-      n2 = 0
-      n3 = 0
-      n4 = 0
 
 cv============
 cv RANDOM SHIFTS
@@ -315,12 +113,6 @@ cv RANDOM SHIFTS
 
       if (lRAND) then
          f_un = 2.
-c         sys=3
-c         sta=1
-
-cv         call system_clock(icount)
-cv         call itime(now)
-cv         icount=now(1)+now(2)+now(3)
          icount= time()
          print*,' clock = ', icount
          
@@ -371,12 +163,6 @@ cv save shifts for lumi uncertainties only (but we are not using it)
 
 cv ============done with initializing=========
 
-      xlum0 = 1.8d0
-                                !
-      corlum = 0.5d0 
-                                ! common for all data sets (theoretical uncertainties on BH xsec)
-
-
 
 C
 C Read data from namelists:
@@ -387,6 +173,12 @@ C
 
 C-----------------------------------------
       print*,'number of points', npoints
+
+
+
+C
+C MINUIT PARAMETERS FOR NORMALISATIONS !!!!!!!
+C
 
 
 *     ------------------------------------------------------------------
@@ -647,6 +439,7 @@ C Uncorrelated error:
                BETA(SystematicType(i),npoints) = syst(i)
             endif
          enddo
+
 
 C         print *,'hhhh',alpha(npoints),e_sta(npoints)
 

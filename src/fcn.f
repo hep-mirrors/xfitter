@@ -1,7 +1,11 @@
 c     ---------------------------------------------------------------------
       subroutine  fcn(npar,g,f,p,iflag,futil)
-c     ---------------------------------------------------------------------
-      implicit double precision (a-h,o-z)
+C----------------------------------------------------------------------
+C
+C Main minimization subroutine for MINUIT
+C
+c---------------------------------------------------------------------
+      implicit none
 
       include 'steering.inc'
       include 'pdfparam.inc'
@@ -19,56 +23,64 @@ c     ---------------------------------------------------------------------
       INCLUDE 'thresholds.inc'
       include 'hadcor.inc'
 cv
-      include 'CONSTCOM.'
-      INCLUDE 'APSCOM5.'
+C      include 'CONSTCOM.'
+C      INCLUDE 'APSCOM5.'
 
-C-1- 26/07/2010: added for Dipole model ----------
-      INCLUDE 'dippar.inc'
-      INCLUDE 'dip.inc'
-C-2- 26/07/2010: end of the addtition ------------
-      include 'fitlam.inc'
+      integer npar,iflag
+      double precision g(*),p(*),f,futil
 
+      external futil
 
 
+      double precision chisq,fchi2
 
-      dimension BSYS(NSYS), RSYS(NSYS)
-      dimension EBSYS(NSYS),ERSYS(NSYS)
-      dimension dx(npoints), dq2(npoints)
+      double precision d,t,error,errorunc
+      double precision errorsta, fac, fcorchi2
+
+      double precision d_i, t_i, error_i, d_j, error_j, t_j
+      double precision DeltaLength
+
+      double precision time1,time2,time3
+
+      double precision x
+
+      double precision quv,qdv, qus, qds, qst, qch, qbt, qgl
+      double precision sub
+
+      double precision BSYS(NSYS), RSYS(NSYS)
+      double precision EBSYS(NSYS),ERSYS(NSYS)
 
       integer kpr,cdebug
-      dimension xpr(9)
+      double precision xpr(9)
       data xpr/0.00008d0,0.0008d0,0.008d0,0.08d0,
      $     0.13d0,0.18d0,0.25d0,0.4d0,0.65d0/
       data kpr,cdebug/9,1/
       Integer Icount
       integer iq, ix, nndi, ndi,ndi2
       character*25 base_pdfname
-      integer npar,iflag
       integer ir(nsys)
       integer npts
       dimension npts(nset)
-      dimension g(*),p(*)
 cv for saving sm predictions
-      dimension  phiSM(npoints), dataold(npoints)
       double precision f2SM,f1SM,flSM
-      dimension pchi2(nset)
+      double precision pchi2(nset)
       integer i,j,kflag,jsys,ndf,n0,h1iset,jflag,k,pr
       integer ipoints_jet(NSET)
       logical refresh, refresh_DIS
       integer isys,ipoint,jpoint,ifail
 
+      integer nflav , ierr
 
+      integer idataset
 
 cv voica
-
+      double precision alphaS0
       COMMON/INPUT/alphaS0
 
 
-C SG: x-dependent fs:
-      double precision fs,fs0
+C  x-dependent fs:
+      double precision fs0
       double precision fshermes
-
-
 
 
 CV ======================================================
@@ -96,11 +108,13 @@ C----------------------------------------------------
       data IfcnCount,Iprint  /0,0/ 
       save IfcnCount,iPrint
 
+C
+C Functions:
+C
+      double precision gluon, singlet, Uminus,Dminus,Sea
+      double precision asfunc
 
-
-      Inlo=0   !*** Add in NNNLO
-      Ihmass=1 !*** Keep Hmass terms
-
+C------------------------------------------------------------------------
       Iset =11  !** pdf set-> force by hand to use external pdfs
       Iflg=0    !*** dummy: not yet used 
       Ihad=1    !*** proton
@@ -112,11 +126,6 @@ C     Count function calls and print:
 CV ======================================================
 CV===========================================================
       f = 0.d0
-
-      Gf = 1.16637d-5
-cv use mandy's
-cv      Gf = 1.16639d-5
-      Pi = 4. * datan(1.d0)
 
 C-1- 29/07/2010: add Itheory=3 condition ----------
       if (Itheory.eq.3) then
@@ -130,16 +139,15 @@ C-2- 29/07/2010: end of the addition --------------
          ifirstGRID=1
       endif
 
-C SG, 25 Jan 2011: Poly params for valence:
+C  25 Jan 2011: Poly params for valence:
       if (NPOLYVAL.gt.0) then
          Call StorePoly(p,iflag)
       endif
 
-C SG, 22 Apr 2011: CT parameterisation:
+C  22 Apr 2011: CT parameterisation:
       if (IPARAM.eq.171717) then
          Call DecodeCtPara(p)
          alphas = p(14)
-         IParamSav = IParam
       endif
 
       if ((iflag.eq.1).or.(iflag.ge.10)) then
@@ -164,13 +172,11 @@ c=======
 *     set fstrange via steering
          fstrange = strange_frac
          
-C 31 Oct 2009: SG: add x-dependent strange 
+C 31 Oct 2009:  add x-dependent strange 
 C
          if (ifsttype.eq.0) then
-            fs = fstrange
             fs0 = fstrange 
          else
-            fs = fshermes(x)
             fs0 = fshermes(0.D0)  ! strange fraction at x=0
          endif
 
@@ -246,7 +252,7 @@ cv electroweak starting values, modified later
                Dg = p(11)
                Alphas = p(12)
 C
-C SG, Chebyshev param. for the gluon:
+C  Chebyshev param. for the gluon:
 C
                if (NCHEBGLU.gt.0) then
                   do i=1,NCHEBGLU
@@ -283,7 +289,7 @@ C
                Euv = p(14)
 
 C
-C SG, Chebyshev param. for the gluon:
+C  Chebyshev param. for the gluon:
 C
                if (NCHEBGLU.gt.0) then
                   do i=1,NCHEBGLU
@@ -344,7 +350,7 @@ C
                endif
 
 C
-C SG, Chebyshev param. for the gluon:
+C  Chebyshev param. for the gluon:
 C
                if (NCHEBGLU.gt.0) then
                   do i=1,NCHEBGLU
@@ -367,7 +373,7 @@ C
                Cdv = p(6)
 
                Adbar = p(7)
-C SG: fstrange -> fs0
+C  fstrange -> fs0
 c               Aubar = Adbar * (1.-fs0)/(1.-fcharm)
                Aubar = p(15)
 
@@ -386,7 +392,7 @@ c               Bubar = Bdbar
                Alphas = p(14)
 
 C
-C SG, Chebyshev param. for the gluon:
+C  Chebyshev param. for the gluon:
 C
                if (NCHEBGLU.gt.0) then
                   do i=1,NCHEBGLU
@@ -498,7 +504,7 @@ C
                Alphas = p(12)
                Euv = p(13)
 C
-C SG, Chebyshev param. for the gluon:
+C  Chebyshev param. for the gluon:
 C
                if (NCHEBGLU.gt.0) then
                   do i=1,NCHEBGLU
@@ -507,11 +513,11 @@ C
                   call ChebToPoly
                endif
 C
-C SG, Chebyshev param. for the sea:
+C  Chebyshev param. for the sea:
 C
                if (NCHEBSea.gt.0) then
                   do i=1,NCHEBSea
-C SG: Offset is now steering parameter (default = 20, params start from 41)
+C  Offset is now steering parameter (default = 20, params start from 41)
                      ChebParsSea(i) = p(20+IOFFSETCHEBSEA+i)
                   enddo
                endif
@@ -651,7 +657,6 @@ C-2- 27/07/2010: end of the addition --------------
       fchi2 = 0.d0
       ndf = -npar
       n0 = 0
-      nn0 = 0
 *     ---------------------------------------------------------
 *     -- a first loop to fill in the theoretical x-sections
 *     ---------------------------------------------------------
@@ -667,15 +672,6 @@ C-2- 27/07/2010: end of the addition --------------
          enddo
       endif
 
-cv initialise...
-      f2ch=0.d0
-      flch=0.d0
-      f2bt=0.d0
-      flbt=0.d0
-      f2c=0.d0
-      flc=0.d0
-      f2b=0.d0
-      flb=0.d0
 
 *     --------------------------------------------------
 
@@ -700,36 +696,18 @@ cv initialise...
       endif
 
       if ((HFSCHEME.eq.4).or.(vfnsINDX.eq.4)) then
-         call omegridini(xbmin,nxpgrid,nsmgrid)
-         call apeqsgrid(q2min,q2max,xbmin)
-         call fillvfngrid
+c         call omegridini(xbmin,nxpgrid,nsmgrid)
+c         call apeqsgrid(q2min,q2max,xbmin)
+c         call fillvfngrid
       endif
       print*,'after evolution'
-cv========
-cv NEW 
-cv not in the qcd16
-
-      do i=1,npoints
-         nn0 = nn0 +1
-         dx(i) = 1.D0*VX(nn0)
-         dq2(i) = 1.D0*VQ2(nn0)         
-      enddo
 
 
-C SG: Calculate theory for datasets:
+C Calculate theory for datasets:
       do idataset=1,NDATASETS
          call GetTheoryForDataset(idataset)
       enddo
 
-
-cv CC     
-     
-      Phi_old=0.d0
-
-      do i=1, npoints
-         PhiSM(i)=0.d0
-         dataold(i)=0.d0
-      enddo
 
       call cpu_time(time1)
       do 100 i=1,npoints
@@ -742,8 +720,6 @@ cv CC
          n0 = n0 + 1
          ndf = ndf + 1
 
-         sigma = DATEN(n0)
-         error = alpha(n0)
          
          
  100  continue
@@ -1016,7 +992,6 @@ c...........................
 
             chisq = (d_i-t_i)**2 / error_i**2
             fchi2 = fchi2 + chisq
-c     write(6,*) ' test ',d_i,t_i,chisq,fchi2,n0,error_i 
 
             do jsys=1,nsys
                bsys(jsys) = bsys(jsys)
@@ -1082,7 +1057,7 @@ c write out data points with fitted theory
 
       endif
 
-C SG, June 27 2009, add pdf lenght term:
+C  June 27 2009, add pdf lenght term:
       if (ILenPdf.gt.0) then
          call  PDFLength(DeltaLength)
       
@@ -1107,19 +1082,11 @@ C-2- 27/10/2010: end of the addition --------------
             if (icount.eq.1.and.cdebug.eq.1) then
                do i = 1,kpr
                   x = xpr(i)
-c     x=i*0.0001d0
-
                   write(6,*) ' '
-c     write(6,*) 'x,q2',x,q0,ag,bg,cg
                   call Get_Partons(x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl)
-c     write(66,600) x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl
                   write(6,600) x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl
                   write(6,*) 'gluon,singlet,uval,dval,sea'
      +                 ,gluon(x),singlet(x),Uminus(x),Dminus(x),sea(x)
-c     v               write(6,*) 'Ubar,Dbar,qstrange'
-c     v     +,Ubar(x),Dbar(x),qstrange(x)
-cv               write(6,*)'Uplus,Dplus,Splus,Cplus,Bplus'
-c     v     +,Uplus(x),Dplus(x),Splus(x),Cplus(x),Bplus(x)
                enddo
  600     format(1x, 10(F16.8,2x))
             endif
@@ -1128,8 +1095,6 @@ C-1- 27/07/2010: added condition 'Itheory<>2' -----
         endif   ! Itheory.ne.2
 C-2- 27/10/2010: end of the addition --------------
 
-* end DEBUG
-*      stop
       endif
 
       if (iflag.eq.1) then
