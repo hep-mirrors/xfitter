@@ -89,17 +89,6 @@ cv////////
          enddo
       enddo
 
-      do i=1,nset
-         do j=1,nmax
-            VAL_Q2(i,j) = 0.d0
-            VAL_X(I,J)  = 0.D0
-            VAL_Y(I,J)  = 0.D0
-            VAL_S(I,J)  = 0.D0
-            VAL_E(I,J)  = 0.D0
-            VAL_STA(I,J) = 0.D0
-            VAL_UNC(I,J) = 0.D0
-         enddo
-      enddo
 
 
       do i=1,nset

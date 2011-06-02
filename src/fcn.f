@@ -916,10 +916,16 @@ c              write(6,*) 'ipoint fac chisq fchi2',ipoint,fac, chisq, fchi2
             endif
 
             if (iflag.eq.1) then
-               write(87,880) h1iset,vx(ipoint),vq2(ipoint), vy(ipoint), t,d,(d-t)/error
+               write(87,880) h1iset, 
+     $              AbstractBins(1,ipoint),
+     $              AbstractBins(2,ipoint),AbstractBins(3,ipoint),
+     $              t,d,(d-t)/error
             endif
             if (iflag.eq.3) then
-               write(88,880) h1iset,vx(ipoint),vq2(ipoint), vy(ipoint), t,d,(d-t)/error
+               write(88,880) h1iset,
+     $              AbstractBins(1,ipoint),
+     $              AbstractBins(2,ipoint),AbstractBins(3,ipoint),
+     $              t,d,(d-t)/error
  880           format(1x, i2, 2x, F9.6, 2x, F10.4, 2x, F9.6, 3(2x, F9.4))
             endif
 

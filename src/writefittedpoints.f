@@ -22,13 +22,15 @@
          index = 0
          do j=1,NQ2BINS(i)
             index = index + NXBINS(i,j)
-            write(90,*)VAL_Q2(i,index),NXBINS(i,j)
+            write(90,*)0,0
          enddo
          write(90,*) '     q2          x        y    data     +- uncorr.err'//
      &        '   +-toterr      theory      pull     dataset'
          do j=1,NDATAPOINTS(i)
             index = DATASETIDX(i,j)
-            write(90,'(1X,8(e11.5,1X),i4)') VQ2(index),VX(index), VY(index),
+            write(90,'(1X,8(e11.5,1X),i4)') 
+     $              AbstractBins(1,index),
+     $              AbstractBins(2,index),AbstractBins(3,index),
      &           DATEN(index),ALPHA(index),
      &           E_TOT(index)/100.*DATEN(index),THEO(index),
      &           (DATEN(index)-THEO(index))/ALPHA(index),
