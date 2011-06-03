@@ -344,6 +344,8 @@ C Extra info:
       enddo
       NQ2BINS(NDATASETS) = 0            ! uff
 
+C Theory file if present:
+      DATASETTheoryFile(NDATASETS) = TheoryInfoFile
 C Check if we need to read kfactor file:
       if (TheoryInfoFile.ne.' ') then
          if (TheoryType.eq.'kfactor') then
