@@ -33,6 +33,11 @@ C-2- 29/07/2010: end of the addition --------------
 c          here goes a call to a CASCADE ini subroutine, if needed         
       endif
 
+*
+* Initialise calculations for each dataset:
+*
+      call Init_theory_datasets
+
 *     ------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------
