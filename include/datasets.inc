@@ -7,6 +7,9 @@ C SG: add DYZ and DYW
       character*80 DATASETLABEL
 C SG: reaction type:
       character*80 DATASETReaction
+
+C SG: extra theory file:
+      character*80 DATASETTheoryFile
       
 C SG: relation to bins:
       integer DATASETBinningDimension
@@ -25,6 +28,8 @@ C SG: relation to bins:
       integer NInputFiles
       character*80 InputFileNames
 
+      integer DATASETTheoryIndex
+
 C Dimension of k-factors
       integer DATASETNKfactors
       character*80 DATASETKFactorNames
@@ -32,15 +37,17 @@ C Dimension of k-factors
       common/datasets/
      $     DATASETInfo(NInfoDimensionMax,NSET)
      $     ,DATASETKFactorNames(NKFactMax,NSET)
-     $     ,DATASETLABEL(NSET),POLAR(NSET),EPOL(NSET),
-     +     NDATAPOINTS(NSET),NQ2BINS(NSET),DATASETIDX(NSET,NMAX),
-     +     NXBINS(NSET,MAXQ2BINS),DATASETNUMBER(NSET),
-     +     ISNC(NSET),ISEPLUS(NSET),ISJET(NSET),
-     +     ISCHARM(NSET),ISBOTTOM(NSET),NDATASETS,
-     +     ISCHARMANY,ISBOTTOMANY,ISDYZ(NSET),ISDYW(NSET),
-     $     DATASETREACTION(NSET),DATASETBinNames(NBinDimensionMax,NSET)
+     $     ,DATASETTheoryFile(NSet)
+     $     ,DATASETLABEL(NSET),POLAR(NSET),EPOL(NSET)
+     +     ,NDATAPOINTS(NSET),NQ2BINS(NSET),DATASETIDX(NSET,NMAX)
+     +     ,NXBINS(NSET,MAXQ2BINS),DATASETNUMBER(NSET)
+     +     ,ISNC(NSET),ISEPLUS(NSET),ISJET(NSET)
+     +     ,ISCHARM(NSET),ISBOTTOM(NSET),NDATASETS
+     +     ,ISCHARMANY,ISBOTTOMANY,ISDYZ(NSET),ISDYW(NSET)
+     $     ,DATASETREACTION(NSET),DATASETBinNames(NBinDimensionMax,NSET)
      $     ,DATASETInfoNames(NInfoDimensionMax,NSET)
      $     ,DATASETInfoDimension(NSET)
      $     ,DATASETBinningDimension(NSET)
      $     ,InputFileNames(NSET),DATASETNKfactors(NSET),NInputFiles
+     $     ,DATASETTheoryIndex(NSET)
 

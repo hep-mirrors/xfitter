@@ -11,9 +11,12 @@ C SG: Abstract binning:
 C SG:  k-factors:
       double precision KFactors(NKFactMax,NTOT)
 
+C SG: index of theory bin, if needed
+      integer IndexTheoryBin(NTOT)
+
       common/indata2/
      + DATEN,E_UNC,E_TOT, E_STA,
-     + JSET
+     + JSET,IndexTheoryBin
 
       common/CAbstractBins/AbstractBins,KFactors
 
