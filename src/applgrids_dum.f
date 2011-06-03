@@ -57,3 +57,36 @@ c----------------------------------------------------------
       return 
       end
 
+
+      subroutine appl_readgrid
+      print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
+      stop
+      end
+
+      subroutine appl_getbinnumber
+      print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
+      stop
+      end
+
+      subroutine appl_getbinlowedge
+      print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
+      stop
+      end
+
+      subroutine appl_getbinwidth
+      print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
+      stop
+      end
+
+      subroutine appl_ngrids(n)
+      integer n
+C
+      n = 0
+      print *,'NO APPLGRIDs INITIALIZED'
+      print *,'NO APPLGRID interface comiled'
+      print *,'DUMMY version applgrids_dum has been called!'
+C
+      end
+
+
+
