@@ -18,6 +18,8 @@ C-------------------------------------------------------------------
          Call GetCCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC pp') then
          Call GetDYCCXsection(IDataSet)
+      elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
+         Call GetJetsPPApplGrid(IDataSet)
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
       endif
