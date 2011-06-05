@@ -133,3 +133,39 @@ C-------------------------------------
       print *, n, ' applgrid grids have been read'
 C-------------------------------------
       end
+
+
+      Subroutine Init_EW_parameters
+C-----------------------------------------------------
+C
+C  Initialise electroweak parameters. Created 5 June 2011
+C
+C-----------------------------------------------------
+      implicit none
+      include 'couplings.inc'
+C-----------------------------------------------------
+
+C
+C Masses:
+C
+      Mz = 91.187d0
+      Mw = 80.41d0
+      sin2thw = 1.d0 - Mw**2/Mz**2
+
+cv use mandy's
+cv      sin2thw = 0.2315
+      cos2thw = 1.d0 - sin2thw
+
+
+cv electroweak starting values, modified later
+
+      cvu = 0.196
+      cau = 0.5
+      cvd = -0.346
+      cad = -0.5
+      
+C  DELTA-R AND EFFECTIVE WEAK MIXING ANGLE FROM ZNCV
+      call EPRC_INIT(.true.)
+
+C-----------------------------------------------------
+      end

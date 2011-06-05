@@ -29,14 +29,6 @@ C---------
 *     Initialise basic parameters
 *     ------------------------------------------------
 
-      Mz = 91.187d0
-      Mw = 80.41d0
-      sin2thw = 1.d0 - Mw**2/Mz**2
-
-cv use mandy's
-cv      sin2thw = 0.2315
-      cos2thw = 1.d0 - sin2thw
-
       CALL FFINIT(6000)
       StdCin  = 5
       StdCout = 6
@@ -46,33 +38,12 @@ cv      sin2thw = 0.2315
       CALL FFSET ( 'LOUT' , StdCout)
       CALL FFSET ( 'SIZE' , 10)
 
-      do i=1,30
-       LDOFIT1(i) = 0
-       LDOFIT2(i) = 0
-       LDOFIT3(i) = 0
-       LDOFIT4(i) = 0
-      enddo
-
-      CALL FFKEY('DO1',LDOFIT1,30,'MIXE')
-      CALL FFKEY('DO2',LDOFIT2,30,'MIXE')
-      CALL FFKEY('DO3',LDOFIT3,30,'MIXE')
-      CALL FFKEY('DO4',LDOFIT4,30,'MIXE')
-
-
-      nocorrel = 3
-      CALL FFKEY('nocorrel',nocorrel,1,'INTE')
-
-      nlowq2 = 1
-      CALL FFKEY('nlowq2',nlowq2,1,'INTE')
-
-      nfirst = 0
-      CALL FFKEY('nfirst',nfirst,1,'INTE')
 
       Itheory = 0
       CALL FFKEY('itheory',ITHEORY,1,'INTE')
 
       ISEED = 2313134
-         CALL FFKEY('ISEED',Iseed,1,'INTE')
+      CALL FFKEY('ISEED',Iseed,1,'INTE')
 
       ISDRN = 42
       Call FFKEY('ISDRN',IsdRN,1,'INTE')
@@ -80,23 +51,6 @@ cv      sin2thw = 0.2315
       I_FIT_ORDER = 2
       CALL FFKEY('IORDER',I_FIT_ORDER,1,'INTE')
 
-C==== 26/07/2010: ADDED FOR DIPOLE MODEL =========
-      Idipole = 0
-      CALL FFKEY('DIPMODEL',Idipole,1,'INTE')
-C=================================================
-
-C==== 26/08/2010: ADDED FOR LAMBDA FITTING =======
-      IDLAMFIT = 0
-      CALL FFKEY('LAMFIT',IDLAMFIT,1,'INTE')
-
-      FITLAMBDA2 = .FALSE.
-      CALL FFKEY('FITLAMBDA2',FITLAMBDA2,1,'LOGICAL')
-
-      RF = 0.25
-      CALL FFKEY('RVALUE',RF,1,'REAL')
-
-      LAM_CONST = 0.25
-      CALL FFKEY('LVALUE',LAM_CONST,1,'REAL')
 C=================================================
 
 
@@ -129,15 +83,6 @@ C SG: Type of Chebyshev parameterization:
       ichebtypeSea = 0
       Call FFKEY('CHTSEA',ichebtypeSea,1,'INTE')
 
-      if (ichebtypeGlu.ne.0) then
-         print *,' Set Chebyshev Gluon parameterization type=',
-     $        ichebtypeGlu
-      endif
-
-      if (ichebtypeSea.ne.0) then
-         print *,' Set Chebyshev Sea parameterization type=',
-     $        ichebtypeSea
-      endif
 
 C 25 Jan 2011, SG
 C SG: Pure polinomial param for the valence quarks:
@@ -279,37 +224,6 @@ C==== 24/08/2010: Add Saturation inspired cut ====
       LSatur = 0.0
       Call FFKEY('LSat',LSatur,1,'REAL')
 
-c==== flags from teh steering card!
-       MODELHP = 15
-       Call FFKEY('MODELHP',modelhp,1,'INTE')
-       CImodel = .false.
-       Call FFKEY('cimodel',cimodel,1,'LOGICAL')
-
-
-C Add DY:
-      lfitDY = .false.
-      Call FFKEY('ldyfit',lfitdy,1,'LOGICAL')
-      lTOY = .false.
-      Call FFKEY('lTOY',lTOY,1,'LOGICAL')
-
-C AS: add applgrid
-      useapplg = .false.
-      napplgrids = 0
-      call FFKEY('NAPPLGRIDS',napplgrids,1,'INTE')
-
-C Add flags for Grids to be tried
-      iddipole=.false.
-      Call FFKEY('iddipole',iddipole,1,'LOGICAL')
-      idfldipole=.false.
-      Call FFKEY('idfldipole',idfldipole,1,'LOGICAL')
-      h1qcdfunc=.false.
-      Call FFKEY('h1qcdfunc',h1qcdfunc,1,'LOGICAL')
-      h1ci=.false.
-      Call FFKEY('h1ci',h1ci,1,'LOGICAL')
-      idflprint=.false.
-      Call FFKEY('idflprint',idflprint,1,'LOGICAL')
-      idsigdq2=.false.
-      Call FFKEY('idsigdq2',idSIGDQ2,1,'LOGICAL')
 
 C=================================================
 

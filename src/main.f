@@ -20,6 +20,12 @@
 *     ------------------------------------------------
       call read_data
 
+*
+* Initialise EW parameters
+*
+      call Init_EW_parameters
+
+
 *     ------------------------------------------------
 *     Initialise theory module
 *     ------------------------------------------------

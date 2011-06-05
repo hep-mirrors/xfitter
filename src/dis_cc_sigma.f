@@ -33,10 +33,6 @@ C----------------------------------------------------------------
 
       logical IsReduced
 
-      Double Precision Gf, convfac, pi
-      parameter (pi = 3.141592653589793D0)
-      parameter (convfac = 3.893796D8)
-      parameter (Gf = 1.16637d-5)
 
 C Functions:
       integer GetBinIndex
@@ -102,8 +98,6 @@ C----------------------------------------------------------
 
          idx =  DATASETIDX(IDataSet,i)
          THEO(idx) =  XSec
-         
-
 
       enddo
 

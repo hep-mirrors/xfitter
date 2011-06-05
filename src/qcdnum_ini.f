@@ -11,11 +11,10 @@
       INCLUDE 'couplings.inc'
       INCLUDE 'datasets.inc'
 cv FFNS
-      INCLUDE 'CONSTCOM.'
-      INCLUDE 'APSCOM5.'
+c      INCLUDE 'CONSTCOM.'
+c      INCLUDE 'APSCOM5.'
 c set-up of the constants
       data nc,nf,nfe,cf,ffnscg,tr /3,6,3,1.33333d0,3.d0,0.5d0/
-      data pi /3.1415927d0/
       data zeta2 /1.6449340668482264365D0/
       data zeta3 /1.2020569031595942854D0/
       data zeta4 /1.0823232337111381916D0/
@@ -176,9 +175,9 @@ cv this is passed to BMSN code!
 
 cvasfunc(q20alphas,nflav,ierr)
 c     c-quark mass
-        rmass(8)=HF_THRE(1)
+c        rmass(8)=HF_THRE(1)
 c     b-quark mass
-        rmass(10)=HF_THRE(2)
+c        rmass(10)=HF_THRE(2)
 
       endif
       

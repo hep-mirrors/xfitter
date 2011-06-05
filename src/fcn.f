@@ -160,7 +160,7 @@ C  22 Apr 2011: CT parameterisation:
 c======
 ! OBSOLETE
 ! this will be overwritten
-         if (Itheory.eq.0) call EPRC_INIT(.true.)
+C         if (Itheory.eq.0) call EPRC_INIT(.true.)
 
 c=======
          if (q0.ge.qc) then
@@ -188,12 +188,6 @@ C
       endif
 
 
-cv electroweak starting values, modified later
-
-      cvu = 0.196
-      cau = 0.5
-      cvd = -0.346
-      cad = -0.5
 
       if (Itheory.eq.1) then    !  Kt factorisation
 
@@ -561,11 +555,12 @@ C  Offset is now steering parameter (default = 20, params start from 41)
       endif 
 
 
+
+C 
+C Extra constraints on input PDF due to momentum and quark counting sum rules:
+C
       kflag=0
-
       if (Itheory.eq.0)  call SumRules(kflag)
-
-
       if (kflag.eq.1) then
          write(6,*) ' --- problem in SumRules, kflag = 1'
          stop

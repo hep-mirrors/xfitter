@@ -36,24 +36,11 @@ C-----------------------------------------------------------------
      $     ,FLm(0:NSplit,NQ2Max)
       double precision F2,xF3,FL
       double precision XSec(0:NSplit),Xsint
-
-
-C
-C Constants: should be somewhere else ...
-C
-      double precision alphaem,pi,convfac
-      parameter (alphaem = 1./137.0D0)
-      parameter (pi = 3.141592653589793D0)
-      parameter (convfac = 3.893796D8)
       
+
+      double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d,pz
       double precision alpha_run
 
-      double precision eu,ed, e2u,e2d ,pz
-      double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d
-      parameter (eu =  2./3.)
-      parameter (ed = -1./3.)
-      parameter (e2u = eu*eu)
-      parameter (e2d = ed*ed)      
 
 C Functions:
       integer GetBinIndex
@@ -62,19 +49,20 @@ C Functions:
       double precision AEMRUN
 C-----------------------------------------------------------------
 
-
+C
+C Electron couplings 
+C
       ve = -0.5d0 + 2.*sin2thw
       ae = -0.5d0                  
+
+C
+C u-type and d-type couplings:
+C
       au = cau
-      ad = cad
-                  
+      ad = cad                  
       vu = au - (4.d0/3.d0)*sin2thw
       vd = ad + (2.d0/3.d0)*sin2thw
-                  
-
-
-                                  
-
+                                                   
       if (NDATAPOINTS(IDataSet).gt.NQ2Max) then
          print *,'ERROR IN GetIntegratedNCXsection'
          print *,'INCREASE NQ2Max to ',NDATAPOINTS(IDataSet)
@@ -125,10 +113,10 @@ C QCDNUM, caclulate FL, F2 and xF3 for all bins:
 
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(0,i))
          PZ = 1./Pz
-         A_u = e2u - ve*PZ*2.*eu*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-         A_d = e2d - ve*PZ*2.*ed*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-         B_u = -ae*PZ*2.*eu*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-         B_d = -ae*PZ*2.*ed*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
          alpha_run = AEMRUN(q2(0,i))
 
@@ -190,21 +178,7 @@ C---------------------------------------------------------------
 
       integer IDataSet
 
-C
-C Constants: should be somewhere else ...
-C
-      double precision alphaem,pi,convfac
-      parameter (alphaem = 1./137.0D0)
-      parameter (pi = 3.141592653589793D0)
-      parameter (convfac = 3.893796D8)
-
-
-      double precision eu,ed, e2u,e2d ,pz
-      double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d
-      parameter (eu =  2./3.)
-      parameter (ed = -1./3.)
-      parameter (e2u = eu*eu)
-      parameter (e2d = ed*ed)      
+      double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d,pz
 
       integer idxQ2, idxX, idxY, i,  idx
       
@@ -277,10 +251,10 @@ C QCDNUM, caclulate FL, F2 and xF3 for all bins:
 
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
          PZ = 1./Pz
-         A_u = e2u - ve*PZ*2.*eu*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-         A_d = e2d - ve*PZ*2.*ed*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-         B_u = -ae*PZ*2.*eu*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-         B_d = -ae*PZ*2.*ed*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
 C Get x-sections:
          yplus  = 1+(1-y(i))**2
