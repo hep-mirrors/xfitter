@@ -15,7 +15,6 @@
       integer LDOFIT1(30),Itheory,Iseed,I_FIT_ORDER,IPARAM,ICHI2
       integer isdrn, ifudgef2, ifudgefl
       integer LDOFIT2(30), LDOFIT3(30), LDOFIT4(30)    
-      integer nocorrel, nfirst, nlowq2
       integer HFSCHEME,STATYPE,SYSTYPE, vfnsINDX
       logical lfirst,lcorr,lCORWEAK,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS
       logical lRAND, LTOY
@@ -28,11 +27,6 @@
       real*4 outxrange(2)
       integer outform, outnx
 
-C --- 26/08/2010: ADDED FOR LAMBDA FITTING -------
-      logical FITLAMBDA2
-      real RF
-      real LAM_CONST
-      integer idlamfit
 C-------------------------------------------------
 
 C SG: add flag for PDF length, chebyshev param. for gluon      
@@ -55,8 +49,8 @@ C SG, 23 Jan 2010: Select random number seed for lRand = true
       integer iSeeDmc
 
 C SG, 3 Aug 2010: To fit or not to fit DY data
-          logical LFitDY,IDDIPOLE,IDFLPRINT,H1QCDFUNC,idsigdq2
-	logical idfldipole
+      logical LFitDY,IDDIPOLE,IDFLPRINT,H1QCDFUNC,idsigdq2
+      logical idfldipole
 
 C SG, 25 Jan 2011, add polynomial param for valence quarks
       integer NPOLYVAL,IZPOPOLY
@@ -65,9 +59,6 @@ C SG, 1 Feb 2011, use forced positive parameterisation for IPOLYSQR=1
 
 C 26/07/2010 added Q2max cut variable: pq2max
 
-C HP, 16 NOV 2010 flag for CI
-	logical h1ci, cimodel
-	integer modelHP
 
 C AS, 07 APR 2011 applgrid flags
       logical useapplg
@@ -78,13 +69,12 @@ C AS, 07 APR 2011 applgrid flags
      $     HF_MASS,HF_THRE,pxmax,pxmin,pq2min,pq2max,charm_frac,
      &     lfirst,lcorr,lCORWEAK,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS,
      &     LDOFIT1,Itheory,Iseed,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
-     $     isdrn,lRAND,STATYPE,SYSTYPE, nfirst, nocorrel,nlowq2,
+     $     isdrn,lRAND,STATYPE,SYSTYPE,
      $     outxrange, outform, outnx,ILENPDF,nchebGLU,chebxmin,
      $     nchebSEA,wmnlen,wmxlen, ifudgef2, ifudgefl
-     $     ,ichebtypeGlu, ichebtypeSea, 
-     $      h1ci,modelhp,ltoy, cimodel
+     $     ,ichebtypeGlu, ichebtypeSea, ltoy
      $     ,ifsttype,iSeeDmc, LDOFIT2, LDOFIT3, LDOFIT4
-     $     ,IOFFSETCHEBSEA,vfnsINDX,lfitDY,IDDIPOLE
+     $     ,IOFFSETCHEBSEA,vfnsINDX,lfitDY
      $     ,IDFLprint,h1qcdfunc,IDSIGDQ2,idfldipole
-     $     ,asatur,lsatur,FITLAMBDA2,RF,LAM_CONST,idlamfit,npolyval
+     $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids
