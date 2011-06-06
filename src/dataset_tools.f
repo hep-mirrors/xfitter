@@ -22,7 +22,7 @@ C----------------------------------------------------------------
       enddo
       
       GetBinIndex = 0
-      print *,'ERROR: Could not find index for variable',cname
+c      print *,'ERROR: Could not find index for variable',cname
 
       end
 
