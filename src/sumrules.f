@@ -213,8 +213,8 @@ c     endif
             tg=0.001
          endif
          
-         print *,'ag and tg,apg,tgmrst,bpg,cpg, tub,tdb',
-     $        ag,tg,apg,tgmrst,bpg,cpg,tUb,tDb
+c         print *,'ag and tg,apg,tgmrst,bpg,cpg, tub,tdb',
+c     $        ag,tg,apg,tgmrst,bpg,cpg,tUb,tDb
          
          if (iparam.eq.222.or.iparam.eq.229) then
             ag=(ag+Apg*tgMRST)/tg
