@@ -11,6 +11,9 @@ c----------------------------------------------------------
       end
 
 
+      subroutine appl_readfastnlogrids
+      end
+
 
       subroutine ag_ngrids( ng )
       integer ng
