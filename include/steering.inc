@@ -13,10 +13,10 @@
       parameter (NBANDS=40)
 
       integer LDOFIT1(30),Itheory,Iseed,I_FIT_ORDER,IPARAM,ICHI2
-      integer isdrn, ifudgef2, ifudgefl
+      integer isdrn
       integer LDOFIT2(30), LDOFIT3(30), LDOFIT4(30)    
       integer HFSCHEME,STATYPE,SYSTYPE, vfnsINDX
-      logical lfirst,lcorr,lCORWEAK,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS
+      logical lfirst,lcorr,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS
       logical lRAND, LTOY
       real pxmax,pxmin,pq2min,pq2max
       real asatur,lsatur
@@ -48,9 +48,7 @@ C SG, 31 Oct 2009: Add x-dependent fstrange:
 C SG, 23 Jan 2010: Select random number seed for lRand = true
       integer iSeeDmc
 
-C SG, 3 Aug 2010: To fit or not to fit DY data
-      logical LFitDY,IDDIPOLE,IDFLPRINT,H1QCDFUNC,idsigdq2
-      logical idfldipole
+      logical IDDIPOLE,IDFLPRINT,H1QCDFUNC,idsigdq2
 
 C SG, 25 Jan 2011, add polynomial param for valence quarks
       integer NPOLYVAL,IZPOPOLY
@@ -67,14 +65,14 @@ C AS, 07 APR 2011 applgrid flags
       common/STEERING/
      &     Q2VAL,starting_scale,rtalphas,strange_frac,
      $     HF_MASS,HF_THRE,pxmax,pxmin,pq2min,pq2max,charm_frac,
-     &     lfirst,lcorr,lCORWEAK,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS,
+     &     lfirst,lcorr,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS,
      &     LDOFIT1,Itheory,Iseed,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
      $     isdrn,lRAND,STATYPE,SYSTYPE,
      $     outxrange, outform, outnx,ILENPDF,nchebGLU,chebxmin,
-     $     nchebSEA,wmnlen,wmxlen, ifudgef2, ifudgefl
+     $     nchebSEA,wmnlen,wmxlen
      $     ,ichebtypeGlu, ichebtypeSea, ltoy
      $     ,ifsttype,iSeeDmc, LDOFIT2, LDOFIT3, LDOFIT4
-     $     ,IOFFSETCHEBSEA,vfnsINDX,lfitDY
-     $     ,IDFLprint,h1qcdfunc,IDSIGDQ2,idfldipole
+     $     ,IOFFSETCHEBSEA,vfnsINDX
+     $     ,IDFLprint,h1qcdfunc,IDSIGDQ2
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids
