@@ -1,3 +1,396 @@
+      Subroutine PDF_param_iteration(p,iflag)
+C-------------------------------------------------------
+C
+C Created 5 June 2011. Move PDF parameterisation setting from FCN 
+C
+C  Input:  p(*)  -- input minuit parameters
+C          iflag -- minuit flag 
+C
+C--------------------------------------------------------
+      implicit none
+      double precision p(*)
+      integer iflag
+      include 'pdfparam.inc'
+      include 'steering.inc'
+      include 'alphas.inc'
+      integer i
+C-------------------------------------------------------
+
+C  25 Jan 2011: Poly params for valence:
+      if (NPOLYVAL.gt.0) then
+         Call StorePoly(p,iflag)
+      endif
+
+C  22 Apr 2011: CT parameterisation:
+      if (IPARAM.eq.171717) then
+         Call DecodeCtPara(p)
+         alphas = p(14)
+      endif
+
+      if (iparam.eq.1) then     !  H1PDF2k like
+         
+         Bg  = p(1)
+         Cg  = p(2)
+         Dg  = p(3)
+         
+         Bu  = p(4)
+         Cu  = p(5)
+         Fu  = p(6)
+         
+         Ad  = p(7)
+         Cd  = p(8)
+
+         Cubar = p(9)
+         Cdbar = p(10)
+         
+         Bd = Bu
+         Bubar = Bu
+         Bdbar = Bu
+         Adbar = Ad
+         aU = aD * (1.-fstrange)/(1.-fcharm)
+         aUbar = aU
+         
+* fixed for H1param
+         alphas = p(11)
+         Eu = p(12)
+
+      elseif (iparam.eq.21) then
+         
+         Bg  = p(1)
+         Cg  = p(2)
+
+         Bu  = p(3)
+         Cu  = p(4)
+         Eu = p(5)
+         Fu  = p(6)
+         
+         Ad  = p(7)
+         Cd  = p(8)
+         
+         Cubar = p(9)
+         Cdbar = p(10)
+         
+         Bd = Bu
+         Bubar = Bu
+         Bdbar = Bu
+         Adbar = Ad
+         aU = aD * (1.-fstrange)/(1.-fcharm)
+         aUbar = aU
+
+* fixed for optimized H1param
+         Dg = p(11)
+         Alphas = p(12)
+C
+C  Chebyshev param. for the gluon:
+C
+         if (NCHEBGLU.gt.0) then
+            do i=1,NCHEBGLU
+               ChebPars(i) = p(20+i)
+            enddo
+            call ChebToPoly
+         endif
+         
+      elseif (iparam.eq.2) then
+
+         Bg = p(1)
+         Cg = p(2)
+         Dg = p(3)
+
+         Buv = p(4)
+         Bdv = Buv
+         Cuv = p(5)
+         Duv = p(6)
+         
+         Cdv = p(7)
+         Ddv = p(8)
+
+         Adbar = p(9)
+         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
+
+         Bdbar = p(10)
+         Bubar = Bdbar
+         
+         Cdbar = p(11)
+         Cubar = p(12)
+
+* fixed for inbetween
+         Alphas = p(13)
+         Euv = p(14)
+
+C
+C  Chebyshev param. for the gluon:
+C
+         if (NCHEBGLU.gt.0) then
+            do i=1,NCHEBGLU
+               ChebPars(i) = p(20+i)
+            enddo
+            call ChebToPoly
+         endif
+
+
+
+      elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.222)) then
+         
+         Bg = p(1)
+         Cg = p(2)
+
+         Buv = p(3)
+               
+         if (iparam.eq.221) then               
+            Bdv=p(17)
+         else
+            Bdv = Buv
+         endif
+               
+         Cuv = p(4)
+         Duv = p(5)
+         
+         Cdv = p(6)
+         
+         Adbar = p(7)
+         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
+         
+         Bdbar = p(8)
+         Bubar = Bdbar
+         
+         Cdbar = p(9)
+         Cubar = p(10)
+         
+         Euv = p(11)
+               
+* fixed for optimized in between
+         Dg = p(12)
+         Ddv = p(13)
+         Alphas = p(14)
+         
+         Ddbar=p(15)
+         Dubar=p(16)	
+         
+         Apg=p(18)
+         Bpg=p(19)
+         
+         Rfudge=p(20)
+         afudge=p(21)
+         f2ht1=p(22)
+         
+         f2ht2=p(23)
+         if (iparam.eq.222) then
+            Cpg=25.
+         endif
+
+C
+C  Chebyshev param. for the gluon:
+C     
+         if (NCHEBGLU.gt.0) then
+            do i=1,NCHEBGLU
+               ChebPars(i) = p(20+i)
+            enddo
+            call ChebToPoly
+         endif
+
+
+      elseif (iparam.eq.225) then
+
+         Bg = p(1)
+         Cg = p(2)
+
+         Buv = p(3)
+         Bdv = Buv
+         Cuv = p(4)
+         Duv = p(5)
+
+         Cdv = p(6)
+
+         Adbar = p(7)
+C  fstrange -> fs0
+c               Aubar = Adbar * (1.-fs0)/(1.-fcharm)
+         Aubar = p(15)
+
+         Bdbar = p(8)
+c               Bubar = Bdbar
+         Bubar = p(16)
+
+         Cdbar = p(9)
+         Cubar = p(10)
+
+         Euv = p(11)
+
+* fixed for optimized in between
+         Dg = p(12)
+         Ddv = p(13)
+         Alphas = p(14)
+
+C
+C  Chebyshev param. for the gluon:
+C
+         if (NCHEBGLU.gt.0) then
+            do i=1,NCHEBGLU
+               ChebPars(i) = p(20+i)
+            enddo
+            call ChebToPoly
+         endif
+
+
+
+      elseif (iparam.eq.229) then
+         
+         Bg = p(1)
+         Cg = p(2)
+         
+         Buv = p(3)
+               
+
+         Bdv=p(17)
+               
+         Cuv = p(4)
+         Duv = p(5)
+
+         Cdv = p(6)
+               
+         Adbar = p(7)
+         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
+
+         Bdbar = p(8)
+         Bubar = Bdbar
+               
+         Cdbar = p(9)
+         Cubar = p(10)
+               
+         Euv = p(11)
+               
+* fixed for optimized in between
+         Dg = p(12)
+         Ddv = p(13)
+         Alphas = p(14)
+               
+         Ddbar=p(15)
+         Dubar=p(16)	
+
+         Apg=p(18)
+         Bpg=p(19)
+               
+         Rfudge=p(20)
+         afudge=p(21)
+         Cpg=25.
+
+         if (NCHEBGLU.gt.0) then
+            do i=1,NCHEBGLU
+               ChebPars(i) = p(20+i)
+            enddo
+            call ChebToPoly
+         endif
+
+      elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
+         
+         Bg = p(1)
+         Cg = p(2)
+         Dg = 0.                ! Different from H1PDF2k
+         
+         Cuv = p(3)
+         Buv = 0.5
+         Duv = p(4)
+         Fuv=0.
+               
+         Cdv = p(5)
+         Bdv = 0.5
+         Ddv = p(6)
+         Fdv=0.
+         
+         Asea = p(7)
+         Bsea = p(8)
+         Csea = p(9)
+         Dsea = p(10)
+         
+         Adel = p(11)
+         Bdel = 0.5
+         Cdel = Csea +2.
+
+      elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
+         
+         Bg = p(1)
+         Cg = p(2)
+         Dg = p(3)         
+         
+         Buv = p(4)
+         Cuv = p(5)
+         Duv = p(6)
+         
+         Bdv = Buv
+         Cdv = p(7)
+         Ddv = p(8)
+         
+         Asea = p(9)
+         Bsea = p(10)
+         Csea = p(11)
+
+*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
+ 
+         Adel = 0.27          
+         Bdel = 0.5
+         Cdel = Csea +2.
+
+* fixed for ZEUS-JETS
+         Alphas = p(12)
+         Euv = p(13)
+C
+C  Chebyshev param. for the gluon:
+C
+         if (NCHEBGLU.gt.0) then
+            do i=1,NCHEBGLU
+               ChebPars(i) = p(20+i)
+            enddo
+            call ChebToPoly
+         endif
+C
+C  Chebyshev param. for the sea:
+C
+         if (NCHEBSea.gt.0) then
+            do i=1,NCHEBSea
+C  Offset is now steering parameter (default = 20, params start from 41)
+               ChebParsSea(i) = p(20+IOFFSETCHEBSEA+i)
+            enddo
+         endif
+
+         if (NChebGlu.gt.0 .or. NChebSea.gt.0) then
+            call ChebToPoly
+         endif
+
+
+      elseif (iparam.eq.24) then ! g,uval,dval,sea as in ZEUS-JET fit
+
+         Bg = p(1)
+         Cg = p(2)
+         Dg = p(3)         
+         
+         Buv = p(4)
+         Cuv = p(5)
+         Duv = p(6)
+         
+         Bdv = Buv
+         Cdv = p(7)
+
+         Euv = p(8)
+               
+         Asea = p(9)
+         Bsea = p(10)
+         Csea = p(11)
+
+*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
+         
+         Adel = 0.27          
+         Bdel = 0.5
+         Cdel = Csea +2.
+
+* fixed for ZEUS-JETS optimized
+              
+         Ddv = p(12)
+         Alphas = p(13)
+         
+      endif         
+
+      
+      end
+
 
 * -------------------------------------------------------
       double precision function flav_number(q)

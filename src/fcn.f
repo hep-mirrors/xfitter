@@ -139,33 +139,16 @@ C-2- 29/07/2010: end of the addition --------------
          ifirstGRID=1
       endif
 
-C  25 Jan 2011: Poly params for valence:
-      if (NPOLYVAL.gt.0) then
-         Call StorePoly(p,iflag)
-      endif
-
-C  22 Apr 2011: CT parameterisation:
-      if (IPARAM.eq.171717) then
-         Call DecodeCtPara(p)
-         alphas = p(14)
-      endif
 
       if ((iflag.eq.1).or.(iflag.ge.10)) then
 
-
          if (iflag.ge.10) ifirstACOT=iflag
          
-
          mpar0 = npar
-c======
-! OBSOLETE
-! this will be overwritten
-C         if (Itheory.eq.0) call EPRC_INIT(.true.)
-
-c=======
+         
          if (q0.ge.qc) then
             fcharm=charm_frac
-        else
+         else
             fcharm = 0.
          endif
 
@@ -188,372 +171,11 @@ C
       endif
 
 
-
-      if (Itheory.eq.1) then    !  Kt factorisation
-
-         
-      elseif (iparam.eq.1) then !  H1PDF2k like
-
-               Bg  = p(1)
-               Cg  = p(2)
-               Dg  = p(3)
-
-               Bu  = p(4)
-               Cu  = p(5)
-               Fu  = p(6)
-
-               Ad  = p(7)
-               Cd  = p(8)
-
-               Cubar = p(9)
-               Cdbar = p(10)
-              
-               Bd = Bu
-               Bubar = Bu
-               Bdbar = Bu
-               Adbar = Ad
-               aU = aD * (1.-fstrange)/(1.-fcharm)
-               aUbar = aU
-
-* fixed for H1param
-               alphas = p(11)
-               Eu = p(12)
-
-        elseif (iparam.eq.21) then
-
-               Bg  = p(1)
-               Cg  = p(2)
-
-               Bu  = p(3)
-               Cu  = p(4)
-               Eu = p(5)
-               Fu  = p(6)
-
-               Ad  = p(7)
-               Cd  = p(8)
-
-               Cubar = p(9)
-               Cdbar = p(10)
-
-               Bd = Bu
-               Bubar = Bu
-               Bdbar = Bu
-               Adbar = Ad
-               aU = aD * (1.-fstrange)/(1.-fcharm)
-               aUbar = aU
-
-* fixed for optimized H1param
-               Dg = p(11)
-               Alphas = p(12)
 C
-C  Chebyshev param. for the gluon:
+C PDF parameterisation at the starting scale
 C
-               if (NCHEBGLU.gt.0) then
-                  do i=1,NCHEBGLU
-                     ChebPars(i) = p(20+i)
-                  enddo
-                  call ChebToPoly
-               endif
 
-            elseif (iparam.eq.2) then
-
-               Bg = p(1)
-               Cg = p(2)
-               Dg = p(3)
-
-               Buv = p(4)
-               Bdv = Buv
-               Cuv = p(5)
-               Duv = p(6)
-
-               Cdv = p(7)
-               Ddv = p(8)
-
-               Adbar = p(9)
-               Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-
-               Bdbar = p(10)
-               Bubar = Bdbar
-
-               Cdbar = p(11)
-               Cubar = p(12)
-
-* fixed for inbetween
-               Alphas = p(13)
-               Euv = p(14)
-
-C
-C  Chebyshev param. for the gluon:
-C
-               if (NCHEBGLU.gt.0) then
-                  do i=1,NCHEBGLU
-                     ChebPars(i) = p(20+i)
-                  enddo
-                  call ChebToPoly
-               endif
-
-
-
-            elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.222)) then
-
-               Bg = p(1)
-               Cg = p(2)
-
-               Buv = p(3)
-               
-               if (iparam.eq.221) then               
-                  Bdv=p(17)
-               else
-                  Bdv = Buv
-               endif
-               
-               Cuv = p(4)
-               Duv = p(5)
-
-               Cdv = p(6)
-               
-               Adbar = p(7)
-               Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-
-               Bdbar = p(8)
-               Bubar = Bdbar
-               
-               Cdbar = p(9)
-               Cubar = p(10)
-               
-               Euv = p(11)
-               
-* fixed for optimized in between
-               Dg = p(12)
-               Ddv = p(13)
-               Alphas = p(14)
-               
-               Ddbar=p(15)
-               Dubar=p(16)	
-
-               Apg=p(18)
-               Bpg=p(19)
-
-               Rfudge=p(20)
-               afudge=p(21)
-               f2ht1=p(22)
-
-               f2ht2=p(23)
-               if (iparam.eq.222) then
-                  Cpg=25.
-               endif
-
-C
-C  Chebyshev param. for the gluon:
-C
-               if (NCHEBGLU.gt.0) then
-                  do i=1,NCHEBGLU
-                     ChebPars(i) = p(20+i)
-                  enddo
-                  call ChebToPoly
-               endif
-
-
-            elseif (iparam.eq.225) then
-
-               Bg = p(1)
-               Cg = p(2)
-
-               Buv = p(3)
-               Bdv = Buv
-               Cuv = p(4)
-               Duv = p(5)
-
-               Cdv = p(6)
-
-               Adbar = p(7)
-C  fstrange -> fs0
-c               Aubar = Adbar * (1.-fs0)/(1.-fcharm)
-               Aubar = p(15)
-
-               Bdbar = p(8)
-c               Bubar = Bdbar
-               Bubar = p(16)
-
-               Cdbar = p(9)
-               Cubar = p(10)
-
-               Euv = p(11)
-
-* fixed for optimized in between
-               Dg = p(12)
-               Ddv = p(13)
-               Alphas = p(14)
-
-C
-C  Chebyshev param. for the gluon:
-C
-               if (NCHEBGLU.gt.0) then
-                  do i=1,NCHEBGLU
-                     ChebPars(i) = p(20+i)
-                  enddo
-                  call ChebToPoly
-               endif
-
-
-
-            elseif (iparam.eq.229) then
-
-               Bg = p(1)
-               Cg = p(2)
-
-               Buv = p(3)
-               
-
-               Bdv=p(17)
-               
-               Cuv = p(4)
-               Duv = p(5)
-
-               Cdv = p(6)
-               
-               Adbar = p(7)
-               Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-
-               Bdbar = p(8)
-               Bubar = Bdbar
-               
-               Cdbar = p(9)
-               Cubar = p(10)
-               
-               Euv = p(11)
-               
-* fixed for optimized in between
-               Dg = p(12)
-               Ddv = p(13)
-               Alphas = p(14)
-               
-               Ddbar=p(15)
-               Dubar=p(16)	
-
-               Apg=p(18)
-               Bpg=p(19)
-
-               Rfudge=p(20)
-               afudge=p(21)
-               Cpg=25.
-
-              if (NCHEBGLU.gt.0) then
-                  do i=1,NCHEBGLU
-                     ChebPars(i) = p(20+i)
-                  enddo
-                  call ChebToPoly
-               endif
-
-            elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
-               
-               Bg = p(1)
-               Cg = p(2)
-               Dg = 0.          ! Different from H1PDF2k
-               
-               Cuv = p(3)
-               Buv = 0.5
-               Duv = p(4)
-               Fuv=0.
-               
-               Cdv = p(5)
-               Bdv = 0.5
-               Ddv = p(6)
-               Fdv=0.
-               
-               Asea = p(7)
-               Bsea = p(8)
-               Csea = p(9)
-               Dsea = p(10)
-               
-               Adel = p(11)
-               Bdel = 0.5
-               Cdel = Csea +2.
-
-            elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
-
-               Bg = p(1)
-               Cg = p(2)
-               Dg = p(3)         
-               
-               Buv = p(4)
-               Cuv = p(5)
-               Duv = p(6)
-               
-               Bdv = Buv
-               Cdv = p(7)
-               Ddv = p(8)
-               
-               Asea = p(9)
-               Bsea = p(10)
-               Csea = p(11)
-
-*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
- 
-               Adel = 0.27          
-               Bdel = 0.5
-               Cdel = Csea +2.
-
-* fixed for ZEUS-JETS
-               Alphas = p(12)
-               Euv = p(13)
-C
-C  Chebyshev param. for the gluon:
-C
-               if (NCHEBGLU.gt.0) then
-                  do i=1,NCHEBGLU
-                     ChebPars(i) = p(20+i)
-                  enddo
-                  call ChebToPoly
-               endif
-C
-C  Chebyshev param. for the sea:
-C
-               if (NCHEBSea.gt.0) then
-                  do i=1,NCHEBSea
-C  Offset is now steering parameter (default = 20, params start from 41)
-                     ChebParsSea(i) = p(20+IOFFSETCHEBSEA+i)
-                  enddo
-               endif
-
-               if (NChebGlu.gt.0 .or. NChebSea.gt.0) then
-                  call ChebToPoly
-               endif
-
-
-            elseif (iparam.eq.24) then ! g,uval,dval,sea as in ZEUS-JET fit
-
-               Bg = p(1)
-               Cg = p(2)
-               Dg = p(3)         
-               
-               Buv = p(4)
-               Cuv = p(5)
-               Duv = p(6)
-               
-               Bdv = Buv
-               Cdv = p(7)
-
-               Euv = p(8)
-               
-               Asea = p(9)
-               Bsea = p(10)
-               Csea = p(11)
-
-*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
- 
-               Adel = 0.27          
-               Bdel = 0.5
-               Cdel = Csea +2.
-
-* fixed for ZEUS-JETS optimized
-              
-               Ddv = p(12)
-               Alphas = p(13)
-
-         
-      endif 
-
+      call PDF_Param_Iteration(p,iflag)
 
 
 C 
@@ -589,6 +211,7 @@ C
          THEO(i) = 0.d0
       enddo
 
+
       if(itheory.eq.0) then 
          call setalf(dble(alphas),Mz*Mz)
          alphas0=asfunc(1.0D0,nflav,ierr)
@@ -615,20 +238,19 @@ C-2- 27/10/2010: end of the addition --------------
 
          elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
      $           .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-            write(6,*) 'hayks eta, lambda, radius', 
-     $           p(74), p(75) !sqrt(abs(4*3.1415/p(74))),p(75)
-            write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
-            write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
-            write(6,*) 'aUv,bUv,cUv,dUv,eUv,fUv ',
-     +           aUv,bUv,cUv,dUv,eUv,fUv
-            write(6,*) 'aDv,bDv,cDv,dDv,fDv ',
-     +           aDv,bDv,cDv,dDv,fDv
-            write(6,*) 'aUb,bUb,cUb,dUb ',
-     +           aUbar,bUbar,cUbar,dUbar
-            write(6,*) 'aDb,bDb,cDb,dDb ',
-     +           aDbar,bDbar,cDbar,dDbar
-            write(6,*) 'Rfudge, afudge, F2ht1, f2ht2 ',
-     +           Rfudge, afudge, f2ht1, f2ht2
+
+c            write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
+c            write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
+c            write(6,*) 'aUv,bUv,cUv,dUv,eUv,fUv ',
+c     +           aUv,bUv,cUv,dUv,eUv,fUv
+c            write(6,*) 'aDv,bDv,cDv,dDv,fDv ',
+c     +           aDv,bDv,cDv,dDv,fDv
+c            write(6,*) 'aUb,bUb,cUb,dUb ',
+c     +           aUbar,bUbar,cUbar,dUbar
+c            write(6,*) 'aDb,bDb,cDb,dDb ',
+c     +           aDbar,bDbar,cDbar,dDbar
+c            write(6,*) 'Rfudge, afudge, F2ht1, f2ht2 ',
+c     +           Rfudge, afudge, f2ht1, f2ht2
          elseif (iparam.eq.4) then
             write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
             write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
@@ -680,8 +302,9 @@ C-2- 27/07/2010: end of the addition --------------
 *     ---------------------------------------------------------  	 
 *     -- start of loop over data points: 	 
 *     ---------------------------------------------------------
-      print*,'before evolution'
-      
+      if (Debug) then
+         print*,'before evolution'
+      endif
 
       if (Itheory.eq.0) then
          
@@ -695,8 +318,10 @@ c         call omegridini(xbmin,nxpgrid,nsmgrid)
 c         call apeqsgrid(q2min,q2max,xbmin)
 c         call fillvfngrid
       endif
-      print*,'after evolution'
 
+      if (Debug) then
+         print*,'after evolution'
+      endif
 
 C Calculate theory for datasets:
       do idataset=1,NDATASETS
@@ -719,9 +344,9 @@ C Calculate theory for datasets:
          
  100  continue
 
-
-      print*,'after data loop'
-
+      if (Debug) then
+         print*,'after data loop'
+      endif
 
 *     ---------------------------------------------------------------------------
 *     Pascaud-like chi2 plus error scaled modifications
@@ -847,8 +472,9 @@ C Calculate theory for datasets:
 *     ---------------------------------------------------------
 
 
-         write(6,*) 'iflag ICHI2 lTHEO',iflag, ICHI2, lTHEO
-         
+         if (Debug) then
+            write(6,*) 'iflag ICHI2 lTHEO',iflag, ICHI2, lTHEO
+         endif
 
          do ipoint=1,n0
 
@@ -892,12 +518,13 @@ c            if (h1iset.eq.102) print*,'voica atlas', ipoint,d,t,error
 
             fac = 1.d0
             do isys=1,nsys
-               fac = fac - rsys(isys)*beta(isys,ipoint) 
+               fac = fac - rsys(isys)*beta(isys,ipoint)                
             enddo 
 
             if (DEBUG.and.iflag.eq.1) then
                write(78,*) 'ipoint fac ',ipoint,fac
             endif
+
 
             t = t*fac
             chisq = (d-t)**2/error**2
