@@ -68,9 +68,15 @@ C------------------------------------------------------------
       include 'datasets.inc'
       include 'ntot.inc'
       include 'indata.inc'
+
+      integer NfnloGrids
+      parameter (NfnloGrids=100)
+      integer IGridIDfnlo(Nfnlogrids)
+
       integer IGridID
-      integer i,ibin,idx
+      integer i,ibin,idx,n,n2
       integer idxPt1,idxPt2
+      integer idxEta,idxEtaAdd
       double precision ptLow, ptHigh, Center
       double precision ptLowAP, ptHighAP
 C functions:
@@ -78,12 +84,35 @@ C functions:
       integer GetBinIndex
       integer appl_getnbins, appl_getbinnumber
       double precision appl_getbinlowedge,appl_getbinwidth
+
+      character *80 ct
+
 C------------------------------------------------------------
       
-      call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
+      
+      if (DATASETTheoryType(IDataSet).eq.'FastNLO') then
+         call appl_ngrids(n)
+         ct = DATASETTheoryFile(IDataSet)
+         call appl_readfastnlogrids(IGridIDfnlo,ct(1:Index(ct,' ')-1)//char(0))
+         call appl_ngrids(n2)
 
+         if (n2-n+1.gt. Nfnlogrids) then
+            print *,'ERROR in InitJetsPPApplGridDataSet'
+            print *,'INCREASE Nfnlogrids to',n2-n+1
+            stop
+         endif
+
+         print *,'ho',n,n2
+C Store first index:
+         DATASETTheoryIndex(IDataSet) = IGridIDfnlo(1)
+         IGridID = IGridIDfnlo(1)
+
+      else
+         call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
 C Store index:
-      DATASETTheoryIndex(IDataSet) = IGridID
+         DATASETTheoryIndex(IDataSet) = IGridID
+      endif
+
 
 C Do some checks:
 C      print *,'ho',appl_getnbins(IGridID)
@@ -91,23 +120,30 @@ C      print *,'ho',appl_getnbins(IGridID)
 C Get low/high Pt indicies
       idxPt1 = GetBinIndex(IDataSet,'pt1')
       idxPt2 = GetBinIndex(IDataSet,'pt2')
+      idxEta = GetBinIndex(IDataSet,'EtaBinNumber')
 
       do i=1,NDATAPOINTS(IDataSet)
          idx = DATASETIDX(IDataSet,i)
          ptLow  = AbstractBins(idxPt1,idx)
          ptHigh = AbstractBins(idxPt2,idx)
          center = 0.5*(ptLow + ptHigh)  
-         ibin = appl_getbinnumber(IGridID,center)
+
+         if (idxEta.gt.0) then
+            idxEtaAdd = int(AbstractBins(idxEta,idx)+0.1)-1 ! Eta index
+         else
+            idxEtaAdd = 0
+         endif
+
+         ibin = appl_getbinnumber(IGridID+idxEtaAdd,center)
 C Store index:
-         IndexTheoryBin(idx) = ibin + 1  ! +1 due to C->Fortran
+         IndexTheoryBin(idx) = ibin + 1 ! +1 due to C->Fortran
 
 C Check consistency:
-         ptLowAP  = appl_getbinlowedge(IGridID,ibin)
-         ptHighAP = ptLowAP + appl_getbinwidth(IGridID,ibin)
-
-C         print *,'hoho',ibin,ptLow, ptHigh, ptLowAP, ptHighAP
+         ptLowAP  = appl_getbinlowedge(IGridID+idxEtaAdd,ibin)
+         ptHighAP = ptLowAP + appl_getbinwidth(IGridID+idxEtaAdd,ibin)
+         
+c         print *,'hoho',ibin,idxEtaAdd,ptLow, ptHigh, ptLowAP, ptHighAP
       enddo
-
 C------------------------------------------------------------      
       end
 
@@ -132,6 +168,7 @@ C-------------------------------------
       call appl_ngrids(n)
       print *, n, ' applgrid grids have been read'
 C-------------------------------------
+c      stop
       end
 
 

@@ -346,6 +346,7 @@ C Extra info:
 
 C Theory file if present:
       DATASETTheoryFile(NDATASETS) = TheoryInfoFile
+      DATASETTheoryType(NDATASETS) = TheoryType
 C Check if we need to read kfactor file:
       if (TheoryInfoFile.ne.' ') then
          if (TheoryType.eq.'kfactor') then

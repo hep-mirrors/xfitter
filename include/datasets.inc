@@ -10,7 +10,8 @@ C SG: reaction type:
 
 C SG: extra theory file:
       character*80 DATASETTheoryFile
-      
+      character*80 DATASETTheoryType      
+
 C SG: relation to bins:
       integer DATASETBinningDimension
       character*80 DATASETBinNames 
@@ -38,6 +39,7 @@ C Dimension of k-factors
      $     DATASETInfo(NInfoDimensionMax,NSET)
      $     ,DATASETKFactorNames(NKFactMax,NSET)
      $     ,DATASETTheoryFile(NSet)
+     $     ,DATASETTheoryType(NSET)
      $     ,DATASETLABEL(NSET),POLAR(NSET),EPOL(NSET)
      +     ,NDATAPOINTS(NSET),NQ2BINS(NSET),DATASETIDX(NSET,NMAX)
      +     ,NXBINS(NSET,MAXQ2BINS),DATASETNUMBER(NSET)
