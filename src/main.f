@@ -9,6 +9,11 @@
       include 'lprint.inc'
 
       integer icond
+C-----------------------------------------------------
+*     ------------------------------------------------
+*     Print info message
+*     ------------------------------------------------
+      call h1fitterInfo
 
 *     ------------------------------------------------
 *     Read the steering file steering.txt
@@ -69,3 +74,23 @@ c          here goes a call to a CASCADE ini subroutine, if needed
       stop
       end
 
+
+      Subroutine H1fitterinfo
+      print *,' '
+      print *,' '
+      print *,'-------------------------------------------------------------------'
+      print *,'                                                               '
+      print *,'  HH   HH  OO  FFFFFFF  II  TTTTTTTT  TTTTTTTT  EEEEEEE  RRRRR   '
+      print *,'  HH   HH  OO  FF       II     TT        TT     EE       RR   RR '
+      print *,'  HHHHHHH  OO  FFFFF    II     TT        TT     EEEEEE   RR   RR '
+      print *,'  HH   HH  OO  FF       II     TT        TT     EE       RRRRR   '
+      print *,'  HH   HH  OO  FF       II     TT        TT     EE       RR  RR  '
+      print *,'  HH   HH  OO  FF       II     TT        TT     EEEEEEE  RR   RR '
+      print *,'                                                                  '
+      print *,'  Version 0.0.0.1                                                 '
+      print *,'  https://svnsrv.desy.de/desy/h1fitter             www-h1.desy.de '
+      print *,'-------------------------------------------------------------------'
+      print *,' '
+      print *,' '
+c      stop
+      end
