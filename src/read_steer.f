@@ -126,8 +126,6 @@ C SG: Hermes-like strange:
       lcorr = .false.
       CALL FFKEY('CORR',lcorr,1,'LOGICAL')
 
-      lCORWEAK = .false.
-      CALL FFKEY('CORWEAK',lCORWEAK,1,'LOGICAL')
 
       lONLINE = .true.
       CALL FFKEY('ONLINE',lONLINE,1,'LOGICAL')
@@ -185,12 +183,6 @@ C SG: Hermes-like strange:
       HF_MASS(1) = 1.4
       HF_MASS(2) = 4.5
       call ffkey('HFMAS',HF_MASS,2,'REAL') 
-
-      IFUDGEFL = 0
-      CALL FFKEY('FAFL',IFUDGEFL,1,'INTE')
-	
-      IFUDGEF2 = 0
-      CALL FFKEY('FAF2',IFUDGEF2,1,'INTE')
 
       HFSCHEME = 0
       call ffkey('HFSCHEME',HFSCHEME,1,'INTE')
@@ -289,16 +281,6 @@ C
       if (NCHEBGLU.ne.0) then
          print *,'Use Chebyshev polynoms for gluon with N=',NCHEBGLU
       endif
-
-
-      if (IFUDGEF2.ne.0) then
-         print *,'Use Fudge for F2 in the HFSCHEME=2 (HT effects)',IFUDGEF2
-      endif
-      if (IFUDGEFL.ne.0) then
-         print *,'Use Fudge for FL in the HFSCHEME=2 ', IFUDGEFL
-      endif
-
-
 
       if (NCHEBSEA.ne.0) then
          print *,'Use Chebyshev polynoms for sea with N=',NCHEBSEA
