@@ -7,16 +7,13 @@ c
 
       implicit none
       include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-
-      
+      include 'datasets.inc'      
       include 'ntot.inc'
       include 'systematics.inc'
       include 'hadcor.inc'
       include 'indata.inc'
       include 'couplings.inc'
-
+      include 'for_debug.inc'
 
       character*10  cdummy
       character   adum 
@@ -29,10 +26,6 @@ c
 
       logical FIRST             !  true : cov matrix recalculated
       logical GNORM             !  correlated part for the luminosity errors
-
-
-
-
       
 
 cv ///// study of PDF uncertainties
@@ -63,6 +56,7 @@ cv////////
       integer i,j,k,iset,n0,isys,iq2bin,iebin,jsys
 
       ONLINE = lONLINE
+      DEBUG  = lDEBUG
       FIRST = lFIRST
 
       GNORM = .true.
@@ -231,7 +225,16 @@ C
          call Systematics
       endif
 
-
+      if (LDebug) then
+C
+C Dump beta,alpha matricies
+C
+         open (61,file='beta.dat',status='unknown')
+         do k=1,npoints
+            write (61,'(I5,500(F6.2))') (k,Beta(i,k)*100.0,i=1,NSYS)
+         enddo
+         close(61)
+      endif
 
       return
       end
@@ -247,7 +250,6 @@ C
 C------------------------------------------------------------------------
       implicit none
       include 'steering.inc'
-      include 'for_debug.inc'
       include 'datasets.inc'
       include 'ntot.inc'
       include 'indata.inc'

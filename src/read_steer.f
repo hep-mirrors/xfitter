@@ -8,9 +8,8 @@
       include 'pdflength.inc'
       include 'pdfparam.inc'
       include 'datasets.inc'
-
-C==== 26/07/2010: ADDED FOR DIPOLE MODEL =========
-      INCLUDE 'dip.inc'
+      include 'ntot.inc'
+      include 'systematics.inc'
 C=================================================
 
       integer i, ilastq2
@@ -21,8 +20,12 @@ C=================================================
       integer Isch, Iset, Iflg, Ihad
       Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to ACOT
 
-C SG: add namelist for datafiles to read
+C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
+
+C Names of syst. errors
+      namelist/SysNames/System
+
 C---------
 
 *     ------------------------------------------------
@@ -223,13 +226,22 @@ C=================================================
       CALL FFGO
 
 C
-C SG 25/05/11
-C
 C  Read the data namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=InFiles,END=71,ERR=72)
       print '(''Read '',I4,'' data files'')',NInputFiles
+      close (51)
+
+C
+C Names of syst. error sources:
+C
+      do i=1,NSYS
+         System(i) = ' '
+      enddo
+
+      open (51,file='steering.txt',status='old')
+      read (51,NML=SysNames,END=71,ERR=72)
       close (51)
       goto 73
 C 
