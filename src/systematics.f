@@ -31,32 +31,56 @@ c
        enddo
       enddo
 
-      if (DEBUG) then
-        do i=1,nsys
-         write(6,'(18f7.2)')
-     +            sysa(i,1),sysa(i,2),sysa(i,3),sysa(i,4),
-     +            sysa(i,5),sysa(i,6),sysa(i,7),sysa(i,8),
-     +            sysa(i,9),sysa(i,10),sysa(i,11),sysa(i,12),
-     +            sysa(i,13),sysa(i,14),sysa(i,15),sysa(i,16),
-     +            sysa(i,17),sysa(i,18)
-        enddo
-      endif
 
-      CALL DINV  (NSYS,sysa,NSYS,IR,IFAIL)
-
-      if (DEBUG) then
-        write(6,*)
-        write(6,*) 'after inversion '
-        do i=1,nsys
-         write(6,'(18f5.2)') 
-     +            sysa(i,1),sysa(i,2),sysa(i,3),sysa(i,4),
-     +            sysa(i,5),sysa(i,6),sysa(i,7),sysa(i,8),
-     +            sysa(i,9),sysa(i,10),sysa(i,11),sysa(i,12),
-     +            sysa(i,13),sysa(i,14),sysa(i,15),sysa(i,16),
-     +            sysa(i,17),sysa(i,18)
-        enddo
-       endif
+      CALL DINV  (NSYS,sysa,NSYSMAX,IR,IFAIL)
 
 
       return
+      end
+
+
+      Subroutine CompressSystematics
+C-----------------------------------------
+C
+C-----------------------------------------
+      implicit none
+C-----------------------------------------
+      include 'steering.inc'
+      include 'datasets.inc'      
+      include 'ntot.inc'
+      include 'systematics.inc'
+      integer i,j,nsyssav
+      double precision anorm
+C-----------------------------------------
+      nsyssav = nsys
+C Diagonal reference
+      do i=1,NSYS
+         CompressIdx(i) = i
+      enddo
+
+      i = 1
+      do while ( i.le.NSYS) 
+C Check if
+         do j=1,Npoints
+            if (Beta(i,j).ne.0) then
+C Something present, to the next potential candidate for empty line:
+               i = i + 1
+               goto 17
+            endif 
+         enddo
+C Empty line... Move top line here
+         
+         CompressIdx(i) = CompressIdx(NSYS)
+         do j=1,Npoints
+            Beta(i,j) = Beta(NSYS,j)
+         enddo
+         NSYS = NSYS - 1
+         
+
+ 17      continue
+      enddo
+
+      print '(''Compress the systematcs array'')'
+      print '(''Dimension before conversion='',i4,'' after='',i4)',nsyssav,nsys
+
       end

@@ -39,8 +39,8 @@ cv
       integer vi,icount
       double precision  voica, voica_fl, voica_un
       real ranmflat
-      double precision rand_shift(NSYS)
-      double precision r_sh_fl(NSYS)
+      double precision rand_shift(NSYSMAX)
+      double precision r_sh_fl(NSYSMAX)
       integer numsys
       real rndsh, ranflat
       integer num,iseedrand, idate,is,ntime, ndate
@@ -54,6 +54,8 @@ cv////////
  
 
       integer i,j,k,iset,n0,isys,iq2bin,iebin,jsys
+
+      NSYS = 0
 
       ONLINE = lONLINE
       DEBUG  = lDEBUG
@@ -77,7 +79,7 @@ cv////////
          ISDYW(iset) = .false.
       enddo
 
-      do i=1,nsys
+      do i=1,nsysMax
          do j=1,ntot
             BETA(i,j) = 0.d0
          enddo
@@ -104,7 +106,7 @@ cv RANDOM SHIFTS
          icount=ntime
 
 cv initialise the random shifts
-         do numsys=1,nsys
+         do numsys=1,nsysMax
             rand_shift(numsys)=0.
             r_sh_fl(numsys)=0.
          enddo
@@ -120,7 +122,7 @@ C SG: Overwrite seed to one selected in the steering:
          print*,'initialize smeering with a seed isdrn = ',icount
          
 c         stop
-         do numsys=1,nsys
+         do numsys=1,nsysMax
             call rnorml(rndsh,1)    ! gauss random number
             call ranlux(ranflat,1)   ! uniform random number
 
@@ -169,7 +171,7 @@ C
 
       if (lNORMA) then
 
-         do jsys=1,nsys
+         do jsys=1,nsysMax
             do k=1,npoints
                if (jsys.eq.1.or.jsys.eq.7.or.jsys.eq.8.or.
      +              jsys.eq.14.or.jsys.eq.18.or.jsys.eq.19.or.
@@ -185,7 +187,7 @@ C
 
 
 
-      do i=1,nsys
+      do i=1,nsysMax
          do k=1,npoints
             beta(i,k) = beta(i,k) / 100.
             if (.not.lCORR) beta(i,k)=0.d0
@@ -199,9 +201,12 @@ C
       enddo
 
 
+C
+C Compress systematics matrix:
+C      
+      call CompressSystematics
 
-
-
+c      stop
 *     ------------------------------------------------------------------
 *     -- Calculate or read the full covariance matrix
 
@@ -231,7 +236,7 @@ C Dump beta,alpha matricies
 C
          open (61,file='beta.dat',status='unknown')
          do k=1,npoints
-            write (61,'(I5,500(F6.2))') (k,Beta(i,k)*100.0,i=1,NSYS)
+            write (61,'(I5,500(F6.2))') (k,Beta(i,k)*100.0,i=1,NSYSMAX)
          enddo
          close(61)
       endif
@@ -423,12 +428,14 @@ C Uncorrelated error:
          ALPHA(npoints) = sqrt(UncorError**2+StatErrors(j)**2)*DATEN(npoints)
          do i=1,NSyst
             if (SystematicType(i).gt.0) then
-               if (SystematicType(i).gt. NSys) then
+               if (SystematicType(i).gt. NSysMax) then
                   print '(''ReadDataFile Error: requested error source'',i6,'' larger than NSYST='',i6)'
-     $                 ,SystematicType(i),NSys
-                  print '(''Check SystematicType or increase NSys in systematics.inc'')'
+     $                 ,SystematicType(i),NSysMax
+                  print '(''Check SystematicType or increase NSysMax in systematics.inc'')'
                   stop
                endif
+
+               NSYS = max(NSYS,SystematicType(i))
 
                BETA(SystematicType(i),npoints) = syst(i)
             endif

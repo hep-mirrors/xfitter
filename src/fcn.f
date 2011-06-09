@@ -47,8 +47,8 @@ C      INCLUDE 'APSCOM5.'
       double precision quv,qdv, qus, qds, qst, qch, qbt, qgl
       double precision sub
 
-      double precision BSYS(NSYS), RSYS(NSYS)
-      double precision EBSYS(NSYS),ERSYS(NSYS)
+      double precision BSYS(NSYSMax), RSYS(NSYSMax)
+      double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
 
       integer kpr,cdebug
       double precision xpr(9)
@@ -58,7 +58,7 @@ C      INCLUDE 'APSCOM5.'
       Integer Icount
       integer iq, ix, nndi, ndi,ndi2
       character*25 base_pdfname
-      integer ir(nsys)
+      integer ir(nsysmax)
       integer npts
       dimension npts(nset)
 cv for saving sm predictions
@@ -422,33 +422,11 @@ C Calculate theory for datasets:
 *     ---------------------------------------------------------
 
 
-            if (DEBUG.and.iflag.eq.1) then
-
-               do i=1,nsys
-                  write(78,'(18f7.2)')
-     +                 sysa(i,1),sysa(i,2),sysa(i,3),sysa(i,4),
-     +                 sysa(i,5),sysa(i,6),sysa(i,7),sysa(i,8),
-     +                 sysa(i,9),sysa(i,10),sysa(i,11),sysa(i,12),
-     +                 sysa(i,13),sysa(i,14),sysa(i,15),sysa(i,16),
-     +                 sysa(i,17),sysa(i,18)
-               enddo
-
-               write(78,*)
-               do i=1,nsys
-                  write(78,'(14f7.2)')
-     +                 sysa(i,19),sysa(i,20),sysa(i,21),sysa(i,22),
-     +                 sysa(i,23),sysa(i,24),sysa(i,25),sysa(i,26),
-     +                 sysa(i,27),sysa(i,28),sysa(i,29),sysa(i,30),
-     +                 sysa(i,31),sysa(i,32)
-               enddo
-
-            endif
-
 *            do isys=1,nsys
 *              write(6,*) 'isys rsys ',isys,rsys(isys)
 *            enddo
 
-            CALL DINV  (NSYS,sysa,NSYS,IR,IFAIL)
+            CALL DINV  (NSys,sysa,NSYSMAX,IR,IFAIL)
             do isys=1,nsys
                do jsys=1,nsys
                   rsys(isys) = rsys(isys)-sysa(isys,jsys)*bsys(jsys)
@@ -700,7 +678,7 @@ C  June 27 2009, add pdf lenght term:
       if (ONLINE.and.lprint) then
          call cpu_time(time3)
          print*,'cpu_time', time1, time3, time3-time1 
-         write(6,*) ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf
+         write(6,*) ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf,nsys
 *START DEBUG
 
 C-1- 27/07/2010: added condition 'Itheory<>2' -----
@@ -774,8 +752,8 @@ C-2- 22/07/2010: end of the addition -------------
        write(85,*) 'Systematic shifts '
        open(unit=77,file='output/systematics_polar.txt')
        do jsys=1,nsys
-          write(77,*)jsys, SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
-          write(85,*)jsys, SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
+          write(77,*)CompressIdx(jsys),' ', SYSTEM(CompressIdx(jsys)),rsys(jsys),' +/- ',ersys(jsys)
+          write(85,*)CompressIdx(jsys),' ', SYSTEM(CompressIdx(jsys)),rsys(jsys),' +/- ',ersys(jsys)
        enddo
        close(77)
 
