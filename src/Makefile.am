@@ -22,16 +22,16 @@ endif
 # FORTRAN compiler flags to be used for the main target
 AM_FFLAGS = -I$(srcdir)/../include -fno-automatic -finit-local-zero -ffixed-line-length-132
 
-# This is actually only needed for the libcascade_util_a target
+# 
 AM_CPPFLAGS = -I$(srcdir)/../include 
 if ENABLE_APPLGRID 
   AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
 endif
 
 # libraries to be linked to the main target
-LDADD = ../../qcdnum-17-00-03/lib/libhqstf.a ../../qcdnum-17-00-03/lib/libzmstf.a   ../../qcdnum-17-00-03/lib/libqcdnum.a ../../qcdnum-17-00-03/lib/libmbutil.a \
-../DY/src/libmydy.a\
-../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
+LDADD = $(QCDNUMLIBS) \
+ ../DY/src/libmydy.a\
+ ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
 -lgsl -lgslcblas -lstdc++
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )

@@ -22,6 +22,14 @@ else
   AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib -lphtools -llapack3 -lkernlib -lpacklib ])
 fi
 
+AC_MSG_CHECKING([for QCDNUM libraries])
+if test "x$QCDNUM_ROOT" = "x"; then
+   AC_MSG_ERROR([QCDNUM enviroment not set ! QCDNUM_ROOT/lib must point to libhqstf.a  libmbutil.a  libqcdnum.a  libzmstf.a])
+else
+  AC_SUBST([QCDNUMLIBS], ["-L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil"])
+  AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
+fi
+
 # check for applgrid installation
 AC_ARG_ENABLE([applgrid],
   [AC_HELP_STRING(--enable-applgrid, [use applgrid for fast pdf convolutions (default=no)])])
