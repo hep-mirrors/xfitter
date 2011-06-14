@@ -151,8 +151,8 @@ C     $        ,q2(0,i),x(0,i),y
          
          idx =  DATASETIDX(IDataSet,i)
          THEO(idx) =  xsint
-      enddo
 
+      enddo
 
 
 C-----------------------------------------------------------------
@@ -164,7 +164,7 @@ C----------------------------------------------------------------
 C
 C  Created by SG, 25/05/2011
 C  Start with zero mass implementation
-C
+C                 14/06/2011 : re-introduce RT code
 C---------------------------------------------------------------
       implicit none
       include 'steering.inc'
@@ -196,6 +196,13 @@ C---------------------------------------------------------------
       double precision Xv,Yv,Q2v
 
       double precision Charge, S
+
+
+      double precision FLGamma, F2Gamma
+C RT:
+      Double precision f2pRT,flpRT,f1pRT,rpRT,f2nRT,flnRT,f1nRT,rnRT,
+     $     f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT, F2rt, FLrt
+      integer mode
 
 C Functions:
       integer GetBinIndex
@@ -247,10 +254,13 @@ C QCDNUM, caclulate FL, F2 and xF3 for all bins:
       CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,NDATAPOINTS(IDataSet),0)
       CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,NDATAPOINTS(IDataSet),0) 
 
+
       do i=1,NDATAPOINTS(IDataSet)
 
+C Kinematic factor PZ
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
          PZ = 1./Pz
+C EW couplings of u-type and d-type quarks
          A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
          A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
          B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
@@ -264,18 +274,44 @@ C Get x-sections:
          XF3  = B_U*XF3p(i)  + B_D*XF3m(i)
          F2   = A_U*F2p(i)   + A_D*F2m(i)
          FL   = A_U*FLp(i)   + A_D*FLm(i)
+
+         
+C Call RT code:
+        if (HFSCHEME.eq.2) then 
+           mode = 1
+           call sfun(x(i),q2(i),mode
+     $          ,f2pRT,flpRT,f1pRT,
+     +          rpRT,f2nRT,flnRT,
+     +          f1nRT,rnRT,f2cRT,
+     +          flcRT,f1cRT,f2bRT,
+     +          flbRT,f1bRT)
+           
+
+           F2Gamma = 4.D0/9.D0 * F2p(i)  + 1.D0/9.D0 * F2m(i)
+           FLGamma = 4.D0/9.D0 * FLp(i)  + 1.D0/9.D0 * FLm(i)
+
+C RT does not provide terms beyond gamma exchange. Since they occur at high Q2,
+C use QCDNUM to take them into account.
+
+           F2rt = F2pRT*F2/F2Gamma
+           FLrt = FLpRT*FL/FLGamma
+
+C Replace F2,FL from QCDNUM by RT values
+
+           F2 = F2rt
+           FL = FLrt
+        endif
+
          
 
-         if (charge.gt.0) then
-            XSec = F2 - yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
-         else
-            XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
-         endif
+        if (charge.gt.0) then
+           XSec = F2 - yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
+        else
+           XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
+        endif
 
-         idx =  DATASETIDX(IDataSet,i)
-         THEO(idx) =  XSec
-
+        idx =  DATASETIDX(IDataSet,i)
+        THEO(idx) =  XSec
       enddo
-
 
       end

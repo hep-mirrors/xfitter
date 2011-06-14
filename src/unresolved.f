@@ -1,5 +1,3 @@
-      subroutine wate96
-      end
 
       subroutine omegridini
       end

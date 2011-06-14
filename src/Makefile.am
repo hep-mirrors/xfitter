@@ -31,6 +31,7 @@ endif
 # libraries to be linked to the main target
 LDADD = $(QCDNUMLIBS) \
  ../DY/src/libmydy.a\
+ ../RT/src/libmyrt.a \
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
 -lgsl -lgslcblas -lstdc++
 

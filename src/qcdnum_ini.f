@@ -26,17 +26,17 @@ c set-up of the constants
       COMMON/INPUT/alphaS0,alambda,flavor,qsct,qsdt,iord,inull
       dimension xmin(5)
       integer  iwt(5)
-      PARAMETER (NQGRID=10)
+      PARAMETER (NQGRID=11)
       PARAMETER (NXGRID=5)
 
       DIMENSION QARR(NQGRID),WGT(NQGRID)
       data iosp/2/                   !x grid, lin/qua/spli
 c      DATA WGT/2.d0,  1.d0,  1.d0,  1.d0,  1.d0, 1.d0,
       DATA WGT/1.d0,  1.d0,  1.d0,  1.d0, 1.d0,
-     $     1.d0, 2.d0, 2.d0, 1.d0, 2.d0/
+     $     1.d0, 1.d0, 2.d0, 2.d0, 1.d0, 2.d0/
 c      DATA QARR/0.25, 1., 1.1, 1.2,1.6, 1.8, 1.9,
       DATA QARR/1., 1.1, 1.2,1.6, 1.8, 1.9,
-     $     1.95,22.5625,30625.,500000000./
+     $     1.95,2.89,22.5625,30625.,500000000./
 c--   linear x grid
       data xmin/9.9d-7,0.01d0,0.10d0,0.40d0,0.70d0/
 
@@ -95,7 +95,7 @@ cv         call dmpwgt(1,22,'unpolarised.wgt')
          call zmfillw(nwords)
 cv         call zmdumpw(22,'zmstf.wgt')
       else 
-         print*,' ERRRROR in read zmstf wieght', ierr
+         print*,' ERRRROR in read zmstf weight', ierr
       endif      
       write(lunout,'(/'' ZMSTF: words used ='',I10)') nwords      
 
