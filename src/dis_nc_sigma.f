@@ -162,6 +162,9 @@ C-----------------------------------------------------------------
       Subroutine GetReducedNCXsection(IDataSet)
 C----------------------------------------------------------------
 C
+C  NC Double differential reduced cross section calculation for dataset IDataSet
+C  Fills global array THEO.
+C
 C  Created by SG, 25/05/2011
 C  Start with zero mass implementation
 C                 14/06/2011 : re-introduce RT code
@@ -210,22 +213,33 @@ C Functions:
 
 C---------------------------------------------------------
 
+C
+C EW couplings of the electron
+C
       ve = -0.5d0 + 2.*sin2thw
-      ae = -0.5d0                  
+      ae = -0.5d0         
+
+C
+C and quarks
+C         
       au = cau
       ad = cad
                   
       vu = au - (4.d0/3.d0)*sin2thw
       vd = ad + (2.d0/3.d0)*sin2thw
  
-
+C
+C Protect against overflow of internal arrays:
+C
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN GetReducedNCXsection'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
          stop
       endif
 
-C Get indexes for Q2, x and y:
+C
+C Get indexes for Q2, x and y bins:
+C
       idxQ2 = GetBinIndex(IDataSet,'Q2')
       idxX  = GetBinIndex(IDataSet,'x')
       idxY = GetBinIndex(IDataSet,'y')
@@ -236,31 +250,45 @@ C Get indexes for Q2, x and y:
 
 C prepare bins:
       do i=1,NDATAPOINTS(IDataSet)
+C
+C Reference from the dataset to a global data index:
+C
          idx =  DATASETIDX(IDataSet,i)
-
+C
+C Local X,Y,Q2 arrays, used for QCDNUM SF caclulations:
+C
          X(i)   = AbstractBins(idxX,idx)
          Y(i)   = AbstractBins(idxY,idx)
          Q2(i)  = AbstractBins(idxQ2,idx)
       enddo
-     
-C QCDNUM, caclulate FL, F2 and xF3 for all bins:
+
+C
+C Get charge and CME information:
+C
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
+     
+C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 
+C u-type ( u+c ) contributions 
       CALL ZMSTFUN(1,CNEP2F,X,Q2,FLp,NDATAPOINTS(IDataSet),0)
       CALL ZMSTFUN(2,CNEP2F,X,Q2,F2p,NDATAPOINTS(IDataSet),0)
       CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3p,NDATAPOINTS(IDataSet),0)    
+
+C d-type (d + s + b) contributions
       CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,NDATAPOINTS(IDataSet),0)
       CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,NDATAPOINTS(IDataSet),0)
       CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,NDATAPOINTS(IDataSet),0) 
 
-
+C
+C Prepare theory prediction for chi2 calculation:
+C
       do i=1,NDATAPOINTS(IDataSet)
 
-C Kinematic factor PZ
+C Propagator factor PZ
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
          PZ = 1./Pz
-C EW couplings of u-type and d-type quarks
+C EW couplings of u-type and d-type quarks at the scale Q2
          A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
          A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
          B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
@@ -270,13 +298,20 @@ C Get x-sections:
          yplus  = 1+(1-y(i))**2
          yminus = 1-(1-y(i))**2
 
-
+C
+C xF3, F2, FL from QCDNUM:
+C
          XF3  = B_U*XF3p(i)  + B_D*XF3m(i)
          F2   = A_U*F2p(i)   + A_D*F2m(i)
          FL   = A_U*FLp(i)   + A_D*FLm(i)
 
+C-----------------------------------------------------------------------
+C  Extra heavy flavour schemes
+C
          
-C Call RT code:
+C 
+C RT scheme 
+C
         if (HFSCHEME.eq.2) then 
            mode = 1
            call sfun(x(i),q2(i),mode
@@ -287,16 +322,22 @@ C Call RT code:
      +          flbRT,f1bRT)
            
 
+C RT does not provide terms beyond gamma exchange. Since they occur at high Q2,
+C use QCDNUM to take them into account as a "k"-factor 
+C
+C  F2_total^{RT} =  F2_{\gamma}^{RT}  *  (  F2_{total}^{QCDNUM}/F2_{\gamma}^{QCDNUM}   
+C
+
            F2Gamma = 4.D0/9.D0 * F2p(i)  + 1.D0/9.D0 * F2m(i)
            FLGamma = 4.D0/9.D0 * FLp(i)  + 1.D0/9.D0 * FLm(i)
 
-C RT does not provide terms beyond gamma exchange. Since they occur at high Q2,
-C use QCDNUM to take them into account.
 
-           F2rt = F2pRT*F2/F2Gamma
-           FLrt = FLpRT*FL/FLGamma
+           F2rt = F2pRT * (F2/F2Gamma)
+           FLrt = FLpRT * (FL/FLGamma)
+
 
 C Replace F2,FL from QCDNUM by RT values
+C Keep xF3 from QCDNUM
 
            F2 = F2rt
            FL = FLrt
@@ -310,6 +351,9 @@ C Replace F2,FL from QCDNUM by RT values
            XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
         endif
 
+C
+C Store cross-section prediction in the global cross-sections table:
+C
         idx =  DATASETIDX(IDataSet,i)
         THEO(idx) =  XSec
       enddo
