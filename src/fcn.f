@@ -22,9 +22,7 @@ c---------------------------------------------------------------------
       INCLUDE 'indata.inc'
       INCLUDE 'thresholds.inc'
       include 'hadcor.inc'
-cv
-C      include 'CONSTCOM.'
-C      INCLUDE 'APSCOM5.'
+      include 'fcn.inc'
 
       integer npar,iflag
       double precision g(*),p(*),f,futil
@@ -115,6 +113,12 @@ C
       double precision asfunc
 
 C------------------------------------------------------------------------
+
+C
+C Store FCN parameters:
+C
+      IFlagFCN = IFlag
+
       Iset =11  !** pdf set-> force by hand to use external pdfs
       Iflg=0    !*** dummy: not yet used 
       Ihad=1    !*** proton
