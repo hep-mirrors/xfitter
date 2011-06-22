@@ -1478,7 +1478,7 @@ c Subtraction term for NLO clg in VFNS
 C
 C Jan 24, 2010 SG: protect against negative beta2:
 C
-      beta=dsqrt(max(beta2,0))
+      beta=dsqrt(max(beta2,0d0))
       xi=1./eps
 
       term1 = 2./3.*(32.*z*dlog(z)+16.+16.*z-32.*z**2)*(dlog(xi))

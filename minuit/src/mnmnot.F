@@ -115,7 +115,7 @@ C                                        . error successfully calculated
       EROS = XMIDCR-UT + AOPT*XDIRCR
       IF (ISW(5) .GT. 1) WRITE (ISYSWR,808)  CSIG,ILAX,CPNAM(ILAX),EROS
   808 FORMAT (/9X,4HTHE ,A4,  29HTIVE MINOS ERROR OF PARAMETER,I3,   2H
-     +, ,A10,      4H, IS ,E12.4)
+     +, A10,      4H, IS ,E12.4)
       GO TO 480
 C                                        . . . . . . . . failure returns
   440 IF (ISW(5) .GE. 1) WRITE(ISYSWR,807)  CSIG,ILAX,CPNAM(ILAX)

@@ -20,7 +20,8 @@ endif
 #$(FASTNLOSOURCES)
 
 # FORTRAN compiler flags to be used for the main target
-AM_FFLAGS = -I$(srcdir)/../include -fno-automatic -finit-local-zero -ffixed-line-length-132
+AM_FFLAGS = -I$(srcdir)/../include -fno-automatic
+#AM_FFLAGS = -I$(srcdir)/../include -fno-automatic -finit-local-zero -ffixed-line-length-132
 
 # 
 AM_CPPFLAGS = -I$(srcdir)/../include 
@@ -37,6 +38,7 @@ LDADD = $(QCDNUMLIBS) \
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
+#GFRTLIB  = -L/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0 -lgfortran
 
 #if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)

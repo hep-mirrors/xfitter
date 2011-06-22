@@ -83,7 +83,7 @@ cv         print*,'voicaaaaa', iq2, q2val(iq2), nbands
         h1name = base//tag(iq2)//'.txt'
       endif
         open(81,file=name)
-        open(82,file=h1name)
+c        open(82,file=h1name)
 
         totstr=  0.d0
         totDbar= 0.d0
@@ -185,7 +185,7 @@ cv         print*,'voicaaaaa', iq2, q2val(iq2), nbands
       endif
 * end special
       close(81)
-      close(82)
+c      close(82)
       
 999   continue
 

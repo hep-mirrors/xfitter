@@ -4,10 +4,20 @@ AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(${HOME})
 
 # Checks for programs.
-AC_PROG_F77
+AC_PROG_FC([gfortran])
+AC_PROG_F77([gfortran])
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_RANLIB
+
+# Fortran configures
+AC_FC_LIBRARY_LDFLAGS
+AC_FC_WRAPPERS
+AC_F77_WRAPPERS
+#AC_FC_FREEFORM
+
+FCFLAGS="$(FCFLAGS) -ffixed-line-length-132"
+FFLAGS="$(FFLAGS) -ffixed-line-length-132"
 
 # Checks for sources.
 AC_CONFIG_SRCDIR([src/main.f])
@@ -62,7 +72,7 @@ if test x$enable_applgrid == xyes; then
   fi
 fi
 
-AC_F77_LIBRARY_LDFLAGS
+#AC_F77_LIBRARY_LDFLAGS
 
 # Output
 AC_CONFIG_FILES([src/Makefile

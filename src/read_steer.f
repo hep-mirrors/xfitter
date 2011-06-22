@@ -36,7 +36,7 @@ C---------
       StdCin  = 5
       StdCout = 6
 
-      OPEN(UNIT=StdCin,FILE='steering.txt',STATUS='unknown')
+c      OPEN(UNIT=StdCin,FILE='steering.txt',STATUS='unknown')
       CALL FFSET ( 'LINP' , StdCin )
       CALL FFSET ( 'LOUT' , StdCout)
       CALL FFSET ( 'SIZE' , 10)
