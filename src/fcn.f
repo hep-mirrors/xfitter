@@ -328,6 +328,9 @@ c         call fillvfngrid
          print*,'after evolution'
       endif
 
+C Initialise theory calculation per iteration
+      call GetTheoryIteration
+      
 C Calculate theory for datasets:
       do idataset=1,NDATASETS
          call GetTheoryForDataset(idataset)
@@ -682,8 +685,8 @@ C  June 27 2009, add pdf lenght term:
       icount = icount + 1
       if (ONLINE.and.lprint) then
          call cpu_time(time3)
-         print*,'cpu_time', time1, time3, time3-time1 
-         write(6,*) ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf,nsys
+         print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
+         write(6,'(A20,i6,F12.2,i4,F12.2)') ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf
 *START DEBUG
 
 C-1- 27/07/2010: added condition 'Itheory<>2' -----
@@ -720,8 +723,8 @@ C-2- 27/10/2010: end of the addition --------------
       endif
 
 
-      if (lprint.and.ONLINE) 
-     +     write(6,*) 'RSYS ',rsys(1),rsys(2),rsys(3),rsys(4)
+c      if (lprint.and.ONLINE) 
+c     +     write(6,'(''RSYS'',4g8.2)') rsys(1),rsys(2),rsys(3),rsys(4)
       if (lNORMA.and.ONLINE) then
          if (lprint) 
      +        write(6,*) ' fitted norm ',
@@ -768,7 +771,7 @@ c AS applgrid example
           call ag_releasegrids
        endif
        call cpu_time(time2)
-       print*,'cpu_time', time1, time2, time2-time1
+       print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
 
        
       endif

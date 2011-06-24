@@ -19,15 +19,17 @@ C-------------------------------------------
       parameter(NPmax=100)
       
 
-      double precision wmp_bsigs(NPmax)
+      double precision wmp_bsigs(NPmax),BinSize
 
 
       integer i,idx
       integer idxKfactWplus, idxKfactWminus
-      logical LAsymmetry
+      logical LAsymmetry,LWplus
+      integer idxBinEta1,idxBinEta2
 C Functions:
       integer GetInfoIndex
       integer GetKFactIndex
+      integer GetBinIndex
 C------------------------------------------------------------
 
       if (NDATAPOINTS(IDataSet)*2.gt.NPmax) then
@@ -41,8 +43,6 @@ c      if (IFlagFCN.eq.1) then
 c         call initDYtmp(IDataSet)
 c      endif
 
-C Calculate prediction:
-      call dy_do_calc
 
       call dy_get_res(IDataSet, wmp_bsigs)
 
@@ -64,10 +64,24 @@ C Check type of the data
       LAsymmetry =  
      $     DATASETInfo( GetInfoIndex(IDataSet,'asymmetry'), IDataSet).gt.0
 
+      if (.not. LAsymmetry) then
+         LWplus = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet).gt.0
+C Need also bin sizes:
+         idxBinEta1 = GetBinIndex(IDataSet,'eta1')
+         idxBinEta2 = GetBinIndex(IDataSet,'eta2')
+      endif
+
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
          if (LAsymmetry) then
             THEO(idx) = (wmp_bsigs(2*i)-wmp_bsigs(2*i-1) )/(wmp_bsigs(2*i)+wmp_bsigs(2*i-1))
+         else
+            BinSize = AbstractBins(idxBinEta2,idx)-AbstractBins(idxBinEta1,idx)
+            if (LWplus) then
+               THEO(idx) = wmp_bsigs(2*i)/BinSize
+            else
+               THEO(idx) = wmp_bsigs(2*i-1)/BinSize         
+            endif
          endif
       enddo
       end

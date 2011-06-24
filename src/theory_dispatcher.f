@@ -1,6 +1,6 @@
       Subroutine GetTheoryForDataset(IDataSet)
 C---------------------------------------------------------------
-C Created by SG 24/05/11
+C Created  24/05/11
 C
 C Distribute calculation of theory prediction for a dataset IDataSet
 C---------------------------------------------------------------
@@ -22,6 +22,21 @@ C-------------------------------------------------------------------
          Call GetJetsPPApplGrid(IDataSet)
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
+      endif
+
+      end
+
+      Subroutine GetTheoryIteration
+C---------------------------------------------------------------------
+C
+C Created 24/06/2011. Get theory calculation per iteration, before going into  individual datasets
+C
+C---------------------------------------------------------------------
+      include 'steering.inc'
+C--------------------------------------------------------------------
+C Drell-Yan:
+      if (LFitDY) then
+         call dy_do_calc
       endif
 
       end

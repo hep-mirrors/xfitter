@@ -85,6 +85,8 @@ C----------------------------------------------------------
          stop
       endif
 
+C Set global parameter:
+      LFitDY = .true.
 
       pt_cut=25.
       dy_mass(1) = 1.
