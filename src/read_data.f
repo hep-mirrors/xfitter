@@ -453,7 +453,8 @@ C Store k-factors:
             enddo
          endif
          
- 1717 enddo
+ 1717  continue
+      enddo
 
       close (51)
       if (lreadkfactor) then

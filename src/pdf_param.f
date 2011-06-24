@@ -487,7 +487,7 @@ C---------------------------------
       double precision x
 
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-       H1U = au * x**bu * (1.-x)**cu * (1. + du*x + + eu *x**2+ fu*x**3)
+       H1U = au * x**bu * (1.-x)**cu * (1. + du*x +  eu *x**2+ fu*x**3)
       endif
 
       return

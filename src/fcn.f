@@ -54,6 +54,7 @@ c---------------------------------------------------------------------
      $     0.13d0,0.18d0,0.25d0,0.4d0,0.65d0/
       data kpr,cdebug/9,1/
       Integer Icount
+      data icount/0/
       integer iq, ix, nndi, ndi,ndi2
       character*25 base_pdfname
       integer ir(nsysmax)

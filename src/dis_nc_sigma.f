@@ -178,6 +178,7 @@ C---------------------------------------------------------------
       include 'theo.inc'
       include 'couplings.inc'
       include 'qcdnumhelper.inc'
+      include 'fcn.inc'
 
       integer IDataSet
 
@@ -205,13 +206,25 @@ C---------------------------------------------------------------
 C RT:
       Double precision f2pRT,flpRT,f1pRT,rpRT,f2nRT,flnRT,f1nRT,rnRT,
      $     f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT, F2rt, FLrt
-      integer mode
+      logical UseKFactors
+
 
 C Functions:
       integer GetBinIndex
       integer GetInfoIndex
 
 C---------------------------------------------------------
+
+      if (IFlagFCN.eq.1) then
+C
+C Execute for the first iteration only.
+C
+         if (HFSCHEME.eq.22) then
+            UseKFactors = .true.
+         else
+            UseKFactors = .false.
+         endif
+      endif
 
 C
 C EW couplings of the electron
@@ -285,6 +298,9 @@ C Prepare theory prediction for chi2 calculation:
 C
       do i=1,NDATAPOINTS(IDataSet)
 
+C Get the index of the point in the global data table:
+         idx =  DATASETIDX(IDataSet,i)
+
 C Propagator factor PZ
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
          PZ = 1./Pz
@@ -312,15 +328,7 @@ C
 C 
 C RT scheme 
 C
-        if (HFSCHEME.eq.2) then 
-           mode = 1
-           call sfun(x(i),q2(i),mode
-     $          ,f2pRT,flpRT,f1pRT,
-     +          rpRT,f2nRT,flnRT,
-     +          f1nRT,rnRT,f2cRT,
-     +          flcRT,f1cRT,f2bRT,
-     +          flbRT,f1bRT)
-           
+        if (mod(HFSCHEME,10).eq.2) then 
 
 C RT does not provide terms beyond gamma exchange. Since they occur at high Q2,
 C use QCDNUM to take them into account as a "k"-factor 
@@ -330,6 +338,21 @@ C
 
            F2Gamma = 4.D0/9.D0 * F2p(i)  + 1.D0/9.D0 * F2m(i)
            FLGamma = 4.D0/9.D0 * FLp(i)  + 1.D0/9.D0 * FLm(i)
+
+
+           call sfun_wrap(x(i),q2(i)
+     $          ,f2pRT,flpRT,f1pRT,
+     +          rpRT,f2nRT,flnRT,
+     +          f1nRT,rnRT,f2cRT,
+     +          flcRT,f1cRT,f2bRT,
+     +          flbRT,f1bRT
+           ! Input:
+     $          ,iFlagFCN,idx    ! fcn flag, data point index
+     $          ,F2Gamma,FLGamma
+     $          ,UseKFactors
+     $          )
+           
+
 
 
            F2rt = F2pRT * (F2/F2Gamma)
@@ -354,7 +377,6 @@ C Keep xF3 from QCDNUM
 C
 C Store cross-section prediction in the global cross-sections table:
 C
-        idx =  DATASETIDX(IDataSet,i)
         THEO(idx) =  XSec
       enddo
 

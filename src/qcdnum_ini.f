@@ -105,7 +105,7 @@ cv         call zmdumpw(22,'zmstf.wgt')
 c      call SETABR(1.D0,0.D0)  ! mur scale variation
 c      call ZMDEFQ2(1.D0,0.D0) ! muf scale variation
 
-      if ((HFSCHEME.eq.2).or.(vfnsINDX.eq.2)) then
+      if ((mod(HFSCHEME,10).eq.2).or.(vfnsINDX.eq.2)) then
          alambda=0.307
          qs0=1.d0
          alphas0=asfunc(qs0,nflav,ierr)
