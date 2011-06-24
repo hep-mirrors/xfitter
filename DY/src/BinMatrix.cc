@@ -5,6 +5,7 @@
 #include "PhysPar.h"
 #include "BinMatrix.h"
 #include "IntSteps.h"
+#include <stdlib.h>
 
 using namespace std;
 

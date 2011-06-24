@@ -9,6 +9,7 @@
 #include "IntSteps.h"
 #include "PDFconv.h"
 #include "BinMatrix.h"
+#include <stdlib.h>
 
 using namespace std;
 
@@ -53,7 +54,7 @@ int dy_create_calc_(const int *ds_id, const int *chg_prod,
       if ( string(boz) != bm->getBozName() ) {
         cout << "Simultaneous calculation of DY charged and neutral \n\
 	         is not supported. Abort. " << endl;
-        exit(1);
+	exit(1);
       }
       break;
     }
@@ -75,7 +76,7 @@ int dy_create_calc_(const int *ds_id, const int *chg_prod,
       if ( string(boz) != pc->getBozName() ) {
         cout << "Simultaneous calculation of DY charged and neutral \n\
 	         is not supported. Abort. " << endl;
-        exit(1);
+	exit(1);
       }
       break;
     }

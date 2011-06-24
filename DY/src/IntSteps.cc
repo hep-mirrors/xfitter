@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <stdlib.h>
 
 #include "IntSteps.h"
 
