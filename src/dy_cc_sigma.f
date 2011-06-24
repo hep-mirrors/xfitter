@@ -45,7 +45,6 @@ C Calculate prediction:
       call dy_do_calc
 
       call dy_get_res(IDataSet, wmp_bsigs)
-      print *, wmp_bsigs
 
       idxKfactWplus  = GetKFactIndex(IDataSet,'Wplus')
       idxKfactWminus = GetKFactIndex(IDataSet,'Wminus') 
