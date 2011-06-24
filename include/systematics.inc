@@ -1,6 +1,6 @@
       integer NSYSMAX
 
-      parameter (NSYSMAX = 200)
+      parameter (NSYSMAX = 300)
 
       integer nSys
 

@@ -27,6 +27,8 @@
       real*4 outxrange(2)
       integer outform, outnx
 
+      logical LFitDY
+
 C-------------------------------------------------
 
 C SG: add flag for PDF length, chebyshev param. for gluon      
@@ -75,4 +77,4 @@ C AS, 07 APR 2011 applgrid flags
      $     ,IOFFSETCHEBSEA,vfnsINDX
      $     ,IDFLprint,h1qcdfunc,IDSIGDQ2
      $     ,asatur,lsatur,npolyval
-     $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids
+     $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
