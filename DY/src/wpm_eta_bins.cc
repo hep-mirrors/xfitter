@@ -162,7 +162,7 @@ int iy(int imp, double *pars, double *iyval){
     iyval[ib] = 0.;
     iyval[neb+ib] = 0.;
   }
-  //exit(1);
+//      cout << ica[0] << "\t" << ica[neb] << endl;
 
   for (int iyb=0;iyb<nyb;iyb++){
     double ya = ybins[iyb];
@@ -184,6 +184,19 @@ int iy(int imp, double *pars, double *iyval){
       ica[ieb] = icb[ieb];
       ica[neb+ieb] = icb[neb+ieb];
     }
+    
+   /* 
+      if ( icb[0] != 0 && icb[2*neb-1] != 0 ) {
+      cout << m << "\t"  << iyb << "\n";
+      for(int ib=0; ib<neb; ib++) {
+        cout<<  icb[ib] << "\n";
+	cout << icb[ib+neb] << "\n";
+      }
+  exit(1);
+  }
+  */
+  
+  
   }
       
   return 1;

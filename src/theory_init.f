@@ -51,8 +51,72 @@ C---------------------------------------------------------
       subroutine InitCCXsectionDataset(IDataSet)
       end
 
+
       subroutine InitDYCCXsectionDataset(IDataSet)
+C------------------------------------------------------------
+C
+C Initialise tables for DY process
+C
+C------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
+ 
+
+      integer IDataSet
+      integer GetBinIndex                                                                                                                                    
+      double precision dy_mass(2)                                                                                                                            
+      double precision dy_y(2)
+      double precision pt_cut
+      integer NPmax
+      parameter(NPmax=100)
+      double precision eb(Npmax+1)
+
+      integer idx, idxEta1, idxEta2,i 
+
+C----------------------------------------------------------
+
+      if (NDATAPOINTS(IDataSet).gt.NPmax) then
+         print *,'ERROR IN InitDYCCXsectionDataset'
+         print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)                                                                                                  
+         stop
+      endif
+
+
+      pt_cut=25.
+      dy_mass(1) = 1.
+      dy_mass(2) = 7000.
+      
+      dy_y(1) = -10.
+      dy_y(2) =  10.
+
+C Get indicies:
+      idxEta1 = GetBinIndex(IDataSet,'eta1')
+      idxEta2 = GetBinIndex(IDataSet,'eta2')
+
+      if (idxEta1.eq.0 .or. idxEta2.eq.0) then
+         print 
+     $        '(''ERROR in GetDYCCXsection, can not find bin index for Eta1, Eta2'',2i6)'
+     $        ,idxEta1,idxEta2
+         stop
+      endif
+
+C Define bins:
+      do i=1,NDATAPOINTS(IDataSet) 
+         idx =  DATASETIDX(IDataSet,i)
+         eb(i)   =  AbstractBins(idxEta1,idx)
+         eb(i+1) =  AbstractBins(idxEta2,idx)
+      enddo
+
+      print *,'Initialise DY calculations for dataset', IDataSet
+      call dy_create_calc(IDataSet, 1, 7000d0, 'W'//char(0), dy_mass, dy_y, pt_cut)
+      call dy_set_bins(IDataSet,'eta'//char(0), NDATAPOINTS(IDataSet), eb)
+
       end
+
 
       subroutine InitJetsPPApplGridDataSet(IDataSet)
 C------------------------------------------------------------

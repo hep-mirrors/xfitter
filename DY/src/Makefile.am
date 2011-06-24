@@ -5,6 +5,8 @@ noinst_LIBRARIES = libmydy.a
 
 # Next files will be processed by g77 (and automatically gcc for *.c) compiler
 libmydy_a_SOURCES = PhysPar.cc \
+                    finterface.cc \
+                    BinMatrix.cc IntSteps.cc PDFconv.cc DYcalc.cc\
 			zee_integ.cc \
 			wpenu_integ.cc \
 			wmenu_integ.cc \

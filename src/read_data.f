@@ -38,6 +38,7 @@ cv
       real dummy, dummy_st
       integer vi,icount
       double precision  voica, voica_fl, voica_un
+      double precision  andrey_lol
       real ranmflat
       double precision rand_shift(NSYSMAX)
       double precision r_sh_fl(NSYSMAX)
