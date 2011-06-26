@@ -37,16 +37,12 @@ cv
       real lsig, lmu, lrunif
       real dummy, dummy_st
       integer vi,icount
-      double precision  voica, voica_fl, voica_un
-      double precision  andrey_lol
       real ranmflat
       double precision rand_shift(NSYSMAX)
       double precision r_sh_fl(NSYSMAX)
-      integer numsys
       real rndsh, ranflat
       integer num,iseedrand, idate,is,ntime, ndate
 
-      real f_un
       COMMON/SLATE/IS(40)
       real alumlognorm(300)
       real alumierr(300)
@@ -92,60 +88,6 @@ cv////////
          NDATAPOINTS(i) = 0
       enddo
       npoints = 0
-
-cv============
-cv RANDOM SHIFTS
-
-
-      if (lRAND) then
-         f_un = 2.
-         icount= time()
-         print*,' clock = ', icount
-         
-         call datime(ndate,ntime)
-         ntime = ntime*1000000+is(6)
-         icount=ntime
-
-cv initialise the random shifts
-         do numsys=1,nsysMax
-            rand_shift(numsys)=0.
-            r_sh_fl(numsys)=0.
-         enddo
-
-cv initialise the random seed gener
-         if (iseedmc.ne.0) then
-C SG: Overwrite seed to one selected in the steering:
-            icount = iseedmc
-         endif
-
-         call rmarin(icount,0,0)
-         call rluxgo(3,icount,0,0)
-         print*,'initialize smeering with a seed isdrn = ',icount
-         
-c         stop
-         do numsys=1,nsysMax
-            call rnorml(rndsh,1)    ! gauss random number
-            call ranlux(ranflat,1)   ! uniform random number
-
-            rand_shift(numsys) = rndsh
-            r_sh_fl(numsys) = ranflat
-
-            print*,'random numbers: sys, gauss, flat ',
-     $           numsys,rand_shift(numsys),
-     $           r_sh_fl(numsys)
-
-cv save shifts for lumi uncertainties only (but we are not using it)            
-            if ((numsys.eq.1).or.(numsys.eq.7).or. (numsys.eq.14)
-     $           .or.(numsys.eq.18).or.(numsys.eq.19)
-     $           .or.(numsys.eq.25).or.(numsys.eq.26).or.(numsys.eq.27)
-     $           .or.(numsys.eq.32).or.(numsys.eq.8)) then
-               alumlognorm(numsys) = alnorm(1.,alumierr(numsys))
-            else
-               
-            endif
-         enddo
-
-      endif
 
 cv ============done with initializing=========
 
@@ -240,6 +182,13 @@ C
             write (61,'(I5,500(F6.2))') (k,Beta(i,k)*100.0,i=1,NSYSMAX)
          enddo
          close(61)
+      endif
+
+C
+C MC method: fluctuate data according to their uncertainteis.
+C
+      if (lrand) then
+         call MC_method
       endif
 
       return
@@ -386,7 +335,8 @@ C Add a point:
          npoints = npoints+1
          
          if (npoints.ge.NTOT) then
-            print '('' ReadDataFile Error, increase NTOT value inside ntot.inc'')'
+            print 
+     $ '('' ReadDataFile Error, increase NTOT value inside ntot.inc'')'
             stop
          endif
 
@@ -488,3 +438,135 @@ C Store k-factors:
       end
 
 
+      Subroutine MC_method
+C------------------------------------------------------------
+C
+C MC method for propagating of the data uncertainties. Creat a replica
+C of the data, which fluctuates accoding to their uncertainteis.
+C
+C------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'datasets.inc'      
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'indata.inc'
+      include 'for_debug.inc'
+
+C To be used as a seed:
+      integer icount
+      integer isys,ntime,ndate
+C Common from CERNLIB datime:
+      integer IS
+      common/SLATE/ IS(40)
+
+      integer n0
+      double precision s,voica,dummy_st
+
+C Single precision here:
+      real rndsh,ranflat
+C 
+      double precision rand_shift(NSYS)
+      double precision r_sh_fl(NSYS)
+      double precision f_un
+      parameter (f_un = 2.0)   ! translate 0.:-1 to -1.:1. 
+C For log normal random shifts:
+      real lsig, lmu,lrunif
+C functions:
+      real logshift
+      double precision alnorm
+C------------------------------------------------------------
+
+      if (iseedmc.ne.0) then
+C Seed from the steering:
+         icount = iseedmc         
+      else
+C Seed from current time
+         call datime(ndate,ntime)
+         ntime = ntime*1000000+is(6)
+         icount=ntime
+      endif
+      
+
+cv initialise the random shifts
+      do isys=1,nsys
+         rand_shift(isys)=0.
+         r_sh_fl(isys)=0.
+      enddo
+
+cv initialise the random seed gener
+
+      call rmarin(icount,0,0)
+      call rluxgo(3,icount,0,0)
+      print*,'initialize smeering with a seed isdrn = ',icount
+
+C
+C Loop over systematic sources:
+C         
+      do isys=1,nsys
+         call rnorml(rndsh,1)   ! gauss random number
+         call ranlux(ranflat,1) ! uniform random number
+
+         rand_shift(isys) = rndsh
+         r_sh_fl(isys) = (ranflat-0.5)*f_un
+
+         print '(''random numbers: sys, gauss, flat '',2i6,2F8.2)',
+     $        isys,CompressIdx(isys), rand_shift(isys),
+     $        r_sh_fl(isys)
+      enddo
+
+C
+C Loop over the data:
+C
+      do n0=1,npoints
+         call rnorml(rndsh,1)   
+         call ranlux(ranflat,1)
+
+         s = DATEN(n0)
+
+         do isys=1,nsys
+
+cv  test different distributions
+cv  first for systematic uncert, then for stat.                    
+
+            if (systype.eq.1) then ! gauss
+               s = s*(1.+ beta(isys,n0) * rand_shift(isys))
+               
+            elseif (systype.eq.2) then ! uniform
+               s = s*(1. + beta(isys,n0) * r_sh_fl(isys))
+               
+            elseif (systype.eq.3) then ! lognormal
+               if (beta(isys,n0).ne.0) then
+                  lsig=beta(isys,n0) 
+                  lmu=1.
+                  lrunif=r_sh_fl(isys)
+                  s=s*logshift(lmu,lsig,lrunif)
+                  print*,'log...', n0,isys,
+     $                 lrunif, beta(isys,n0), 
+     $                 s,logshift(lmu,lsig,lrunif)
+               endif
+            endif               ! endif (sys for systematic shifts)
+         enddo                  ! end loop over the systematic shifts
+               
+         voica=s                ! save cross section before the stat shift
+
+CV now choose sta (advised gauss)  
+              
+         if (statype.eq.1) then ! gauss
+            s = s + rndsh * alpha(n0)
+         elseif (statype.eq.3.) then ! lognormal
+            dummy_st=alpha(n0)
+            s= s*alnorm(1.,dummy_st)
+         elseif (statype.eq.2) then ! uniform
+            s = s + alpha(n0)*f_un*(ranflat-0.5)
+         endif
+         
+ 
+         print 
+     $ '(''Original, systematics and stat. shifted data:'',i4,3E12.4)'
+     $        , n0,DATEN(n0), voica,s
+         DATEN(n0) = s
+      enddo   
+
+C------------------------------------------------------------
+      end
