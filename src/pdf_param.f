@@ -1274,7 +1274,11 @@ C simple copy first:
 C Extra constrains:
       ctubar(0) = ctdbar(0) * (1.-strange_frac) ! normalization ubar = dbar 
       ctubar(1) = ctdbar(1)                     ! Bubar = Bdbar
-      ctuval(1) = ctdval(1)                     ! Buv = Bdv
+
+C Impose Buv = Bdv if parameter for Buv = 0.
+      if (pars(20+1).eq.0) then
+         ctuval(1) = ctdval(1)  ! Buv = Bdv
+      endif
 C (other constraints from sum-rules)
 
 
