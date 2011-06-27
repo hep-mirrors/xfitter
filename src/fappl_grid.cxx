@@ -25,70 +25,70 @@ using namespace std;
 
 /// externally defined alpha_s and pdf routines for fortran 
 /// callable convolution wrapper
-extern "C" double appl_fnalphas__(const double& Q); 
-extern "C" void   appl_fnpdf__(const double& x, const double& Q, double* f);
+extern "C" double appl_fnalphas_(const double& Q); 
+extern "C" void   appl_fnpdf_(const double& x, const double& Q, double* f);
 
 /// create a grid
-extern "C" void appl_bookgrid__(int& id, const int& Nobs, const double* binlims);
+extern "C" void appl_bookgrid_(int& id, const int& Nobs, const double* binlims);
 
 /// delete a grid
-extern "C" void appl_releasegrid__(int& id);
+extern "C" void appl_releasegrid_(int& id);
 
 /// delete all grids
-extern "C" void appl_releasegrids__();
+extern "C" void appl_releasegrids_();
 
 /// read a grid from a file
-extern "C" void appl_readgrid__(int& id, const char* s);
+extern "C" void appl_readgrid_(int& id, const char* s);
 
 /// write to a file 
-extern "C" void appl_writegrid__(int& id, const char* s);
+extern "C" void appl_writegrid_(int& id, const char* s);
 
 /// add an entry 
-extern "C" void appl_fillgrid__(int& id, 
+extern "C" void appl_fillgrid_(int& id, 
 			  const int& ix1, const int& ix2, const int& iQ, 
 			  const int& iobs, 
 			  const double* w,
 			  const int& iorder );  
 
 /// redefine the grid dimensions
-extern "C" void appl_redefine__(int& id, 
+extern "C" void appl_redefine_(int& id, 
 			  const int& iobs, const int& iorder, 
 			  const int& NQ2, const double& Q2min, const double& Q2max, 
 			  const int& Nx,  const double&  xmin, const double&  xmax); 
 
 /// get number of observable bins for a grid 
-extern "C" int appl_getnbins__(int& id);
+extern "C" int appl_getnbins_(int& id);
 
 
 /// get bin number for a grid
-extern "C" int appl_getbinnumber__(int& id, double& data);
+extern "C" int appl_getbinnumber_(int& id, double& data);
 
 /// get low edge for a grid/bin number
-extern "C" double appl_getbinlowedge__(int& id, int& bin);
+extern "C" double appl_getbinlowedge_(int& id, int& bin);
 
 /// get bin width for a grid/bin number
-extern "C" double appl_getbinwidth__(int& id, int& bin);
+extern "C" double appl_getbinwidth_(int& id, int& bin);
 
 /// do the convolution!! hooray!!
-extern "C" void appl_convolute__(int& id, double* data);
-extern "C" void appl_convoluteorder__(int& id, int& nloops, double* data);
+extern "C" void appl_convolute_(int& id, double* data);
+extern "C" void appl_convoluteorder_(int& id, int& nloops, double* data);
 
-extern "C" void appl_convolutewrap__(int& id, double* data, 
+extern "C" void appl_convolutewrap_(int& id, double* data, 
 			       void (*pdf)(const double& , const double&, double* ),
 			       double (*alphas)(const double& ) );
 
 
 /// print a grid
-extern "C" void appl_printgrid__(int& id);
+extern "C" void appl_printgrid_(int& id);
 
 /// print all grids
-extern "C" void appl_printgrids__();
+extern "C" void appl_printgrids_();
 
 /// print the grid documentation
-extern "C" void appl_printgriddoc__(int& id);
+extern "C" void appl_printgriddoc_(int& id);
 
 /// create grids from fastnlo
-extern "C" void appl_readfastnlogrids__(  int* ids, const char* s );
+extern "C" void appl_readfastnlogrids_(  int* ids, const char* s );
 
 
 static int idcounter = 0;
@@ -97,16 +97,16 @@ static std::map<int,appl::grid*> _grid;
 
 /// grid map management
 
-extern "C" void appl_ngrids__(int& n) { n=_grid.size(); }
+extern "C" void appl_ngrids_(int& n) { n=_grid.size(); }
 
-extern "C" void appl_gridids__(int* ids) { 
+extern "C" void appl_gridids_(int* ids) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.begin();
   for ( int i=0 ; gitr!=_grid.end() ; gitr++, i++ ) ids[i] = gitr->first;
 }
 
 
 
-void appl_bookgrid__(int& id, const int& Nobs, const double* binlims) 
+void appl_bookgrid_(int& id, const int& Nobs, const double* binlims) 
 {
   id = idcounter++;
 
@@ -125,7 +125,7 @@ void appl_bookgrid__(int& id, const int& Nobs, const double* binlims)
 }
 
 
-void appl_readgrid__(int& id, const char* s) {
+void appl_readgrid_(int& id, const char* s) {
   // fix string from fortran input -- AS
   stringstream istr(stringstream::in | stringstream::out);
   istr << string(s);
@@ -141,7 +141,7 @@ void appl_readgrid__(int& id, const char* s) {
 
 
   
-void appl_printgrid__(int& id) { 
+void appl_printgrid_(int& id) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) { 
     std::cout << "grid id " << id << "\n" << *gitr->second << std::endl;
@@ -150,7 +150,7 @@ void appl_printgrid__(int& id) {
 }
 
 
-void appl_printgrids__() { 
+void appl_printgrids_() { 
   std::map<int,appl::grid*>::iterator gitr = _grid.begin();
   for ( ; gitr!=_grid.end() ; gitr++ ) { 
     std::cout << "grid id " << gitr->first << "\n" << *gitr->second << std::endl;
@@ -158,7 +158,7 @@ void appl_printgrids__() {
 }
 
   
-void appl_printgriddoc__(int& id) { 
+void appl_printgriddoc_(int& id) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) { 
     std::cout << "grid id " << id << "\n" << gitr->second->getDocumentation() << std::endl;
@@ -167,7 +167,7 @@ void appl_printgriddoc__(int& id) {
 }
 
 
-void appl_releasegrid__(int& id) { 
+void appl_releasegrid_(int& id) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() )     { 
     delete gitr->second; 
@@ -177,7 +177,7 @@ void appl_releasegrid__(int& id) {
 }
 
 
-void appl_releasegrids__() { 
+void appl_releasegrids_() { 
   std::map<int,appl::grid*>::iterator gitr = _grid.begin();
   for ( ; gitr!=_grid.end() ; gitr++ ) { 
     delete gitr->second; 
@@ -186,7 +186,7 @@ void appl_releasegrids__() {
 }
 
 
-void appl_redefine__(int& id, 
+void appl_redefine_(int& id, 
 	       const int& iobs, const int& iorder, 
 	       const int& NQ2, const double& Q2min, const double& Q2max, 
 	       const int& Nx,  const double&  xmin, const double&  xmax) 
@@ -203,47 +203,47 @@ void appl_redefine__(int& id,
 
 
 
-int appl_getnbins__(int& id) { 
+int appl_getnbins_(int& id) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->Nobs();
   else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
-int appl_getbinnumber__(int& id, double& data) { 
+int appl_getbinnumber_(int& id, double& data) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->obsbin(data);
   else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
-double appl_getbinlowedge__(int& id, int& bin) { 
+double appl_getbinlowedge_(int& id, int& bin) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->obslow(bin);
   else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
-double appl_getbinwidth__(int& id, int& bin) { 
+double appl_getbinwidth_(int& id, int& bin) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->deltaobs(bin);
   else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 
-void appl_convolute__(int& id, double* data) { 
-  appl_convolutewrap__(id, data, appl_fnpdf__, appl_fnalphas__); 
+void appl_convolute_(int& id, double* data) { 
+  appl_convolutewrap_(id, data, appl_fnpdf_, appl_fnalphas_); 
 }
 
 
-void appl_convoluteorder__(int& id, int& nloops, double* data) { 
+void appl_convoluteorder_(int& id, int& nloops, double* data) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) { 
     appl::grid*    g = gitr->second;
-    vector<double> v = g->vconvolute(appl_fnpdf__, appl_fnalphas__, nloops);
+    vector<double> v = g->vconvolute(appl_fnpdf_, appl_fnalphas_, nloops);
     for ( unsigned i=0 ; i<v.size() ; i++ ) data[i] = v[i];      
   }
   else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
-void appl_convolutewrap__(int& id, double* data, 
+void appl_convolutewrap_(int& id, double* data, 
 		       void (*pdf)(const double& , const double&, double* ),  
 		       double (*alphas)(const double& ) ) {  
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
@@ -258,7 +258,7 @@ void appl_convolutewrap__(int& id, double* data,
 
 
 
-void _appl_writegrid__(int& id, const char* s) { 
+void _appl_writegrid_(int& id, const char* s) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) { 
     cout << "writegrid_() writing " << s << "\tid " << id << endl;
@@ -272,7 +272,7 @@ void _appl_writegrid__(int& id, const char* s) {
 
 
 
-void appl_fillgrid__(int& id, 
+void appl_fillgrid_(int& id, 
 	       const int& ix1, const int& ix2, const int& iQ,  
 	       const int& iobs, 
 	       const double* w, 
@@ -287,7 +287,7 @@ void appl_fillgrid__(int& id,
 }
 
 
-void appl_readfastnlogrids__( int* ids, const char* s ) { 
+void appl_readfastnlogrids_( int* ids, const char* s ) { 
 
   /// create the fastnlo grids
   fastnlo f(s);
