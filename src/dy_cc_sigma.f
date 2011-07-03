@@ -1,4 +1,86 @@
       Subroutine GetDYCCXsection(IDataSet)
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
+      include 'theo.inc'
+      include 'fcn.inc'
+      integer IDataSet
+C-------------------------------------------------
+      if (DATASETTheoryType(IDataSet).eq.'kfactor') then
+         call GetDYCCXsection_kfactor(IDataSet)
+      elseif (DATASETTheoryType(IDataSet).eq.'applgrid') then
+         call GetDYXsection_applgrid(IDataSet)         
+      endif
+      end
+
+
+      Subroutine GetDYNCXsection(IDataSet)
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
+      include 'theo.inc'
+      include 'fcn.inc'
+      integer IDataSet
+C-------------------------------------------------
+      if (DATASETTheoryType(IDataSet).eq.'kfactor') then
+         call GetDYNCXsection_kfactor(IDataSet)
+      elseif (DATASETTheoryType(IDataSet).eq.'applgrid') then
+         call GetDYXsection_applgrid(IDataSet)         
+      endif
+      end
+
+      
+      
+
+      Subroutine GetDYXsection_applgrid(IDataSet)         
+C---------------------------------------------------
+C
+C Calculate DY CC cross section using APPLGRID interface.
+C
+C---------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
+      include 'theo.inc'
+
+      integer IDataSet      ! data set index
+      integer NPMax         ! max. number of DY points
+      parameter (NPMax = 200)
+      double precision XSec(NPMax) ! applgrid convolution result
+
+      integer i,idx,idxUnit
+      double precision TheoryUnit  ! scale factor for theory to bring to data units.
+
+      integer GetInfoIndex         ! function thet returns index of an information string.
+C----------------------------------------------------      
+      call ag_convolute( DATASETTheoryIndex(IDataSet),XSec)
+
+C check if we have to divide APPLGRID prediction to convert units to data units:
+      idxUnit = GetInfoIndex(IDataSet,'theoryunit')
+      if (idxUnit.gt.0) then
+         Theoryunit = DATASETInfo(idxUnit,IDataSet)
+      else
+         Theoryunit = 1.
+      endif
+
+      do i=1, NDATAPOINTS(IDataSet)
+         idx =  DATASETIDX(IDataSet,i)
+         THEO(idx) = XSec(i) / TheoryUnit
+
+c         print *,'hady', idx, THEO(idx), DATEN(idx)
+      enddo
+      end
+
+      Subroutine GetDYCCXsection_kfactor(IDataSet)
 C-----------------------------------------------------------
 C
 C Created by SG, 26/05/2011
@@ -87,6 +169,14 @@ C Need also bin sizes:
       end
 
 
+      subroutine  GetDYNCXsection_kfactor(IDataSet)
+      implicit none
+      integer IDataSet
+C--------------------------------------------------
+      print *,'Call dummy GetDYNCXsection_kfactor'
+      end
+
+
 c      subroutine Initdytmp(IDataSet)
 cC------------------------------------------------------------
 cC
@@ -151,3 +241,4 @@ c      call dy_create_calc(IDataSet, 1, 7000d0, 'W'//char(0), dy_mass, dy_y, pt_
 c      call dy_set_bins(IDataSet,'eta'//char(0), NDATAPOINTS(IDataSet), eb)
 c
 c      end
+

@@ -25,6 +25,8 @@ C
             Call InitCCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'CC pp') then
             Call InitDYCCXsectionDataset(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'NC pp') then
+            Call InitDYNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
             Call InitJetsPPApplGridDataSet(IDataSet)
          else
@@ -55,7 +57,86 @@ C---------------------------------------------------------
       subroutine InitDYCCXsectionDataset(IDataSet)
 C------------------------------------------------------------
 C
-C Initialise tables for DY process
+C Initialise tables for DY process for calculations
+C
+C------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      integer IDataSet
+C---------------------------------------------------------
+
+
+      if (DATASETTheoryType(IDataSet).eq.'kfactor') then
+         call InitDYCCXsectionDataset_kfactor(IDataSet)
+      elseif (DATASETTheoryType(IDataSet).eq.'applgrid') then
+         call InitDYXsectionDataset_applgrid(IDataSet)         
+      else
+         print *,'InitDYCCXsectionDataset: unknown theory type'
+     $        ,DATASETTheoryType(IDataSet), ' for set ', IDataSet
+         print *,'stop'
+         stop
+      endif
+
+      end
+
+
+      subroutine InitDYNCXsectionDataset(IDataSet)
+C------------------------------------------------------------
+C
+C Initialise tables for DY process for calculations
+C
+C------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      integer IDataSet
+C---------------------------------------------------------
+
+
+      if (DATASETTheoryType(IDataSet).eq.'kfactor') then
+         call InitDYNCXsectionDataset_kfactor(IDataSet)
+      elseif (DATASETTheoryType(IDataSet).eq.'applgrid') then
+         call InitDYXsectionDataset_applgrid(IDataSet)         
+      else
+         print *,'InitDYNCXsectionDataset: unknown theory type'
+     $        ,DATASETTheoryType(IDataSet), ' for set ', IDataSet
+         print *,'stop'
+         stop
+      endif
+
+      end
+
+      subroutine InitDYNCXsectionDataset_kfactor
+      end
+
+      subroutine InitDYXsectionDataset_applgrid(IDataSet)
+C------------------------------------------------------------
+C
+C Initialise tables for DY process for calculations using applgrid
+C
+C------------------------------------------------------------     
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
+      integer IDataSet, IGridID
+C---------------------------------------------------------------
+      call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
+C Store index:
+      DATASETTheoryIndex(IDataSet) = IGridID
+
+
+      end
+
+      subroutine InitDYCCXsectionDataset_kfactor(IDataSet)
+C------------------------------------------------------------
+C
+C Initialise tables for DY process for calculations using k-factors
 C
 C------------------------------------------------------------
       implicit none
@@ -64,9 +145,8 @@ C------------------------------------------------------------
       include 'datasets.inc'
       include 'ntot.inc'
       include 'indata.inc'
- 
-
       integer IDataSet
+
       integer GetBinIndex                                                                                                                                    
       double precision dy_mass(2)                                                                                                                            
       double precision dy_y(2)
@@ -78,6 +158,7 @@ C------------------------------------------------------------
       integer idx, idxEta1, idxEta2,i 
 
 C----------------------------------------------------------
+
 
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN InitDYCCXsectionDataset'
