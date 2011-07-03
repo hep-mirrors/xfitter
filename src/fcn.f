@@ -52,7 +52,7 @@ c---------------------------------------------------------------------
       double precision xpr(9)
       data xpr/0.00008d0,0.0008d0,0.008d0,0.08d0,
      $     0.13d0,0.18d0,0.25d0,0.4d0,0.65d0/
-      data kpr,cdebug/9,1/
+      data kpr,cdebug/9,0/
       Integer Icount
       data icount/0/
       integer iq, ix, nndi, ndi,ndi2
@@ -715,10 +715,10 @@ C-2- 27/10/2010: end of the addition --------------
          write(85,*) 'First iteration ',f,ndf,f/ndf
       endif
       if (iflag.eq.3) then
-         write(85,*) 'After minimisation ',f,ndf,f/ndf
+         write(85,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
          write(85,*)
          write(6,*)
-         write(6,*) 'After minimisation ',f,ndf,f/ndf
+         write(6,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
          write(6,*)
       endif
 
@@ -738,8 +738,10 @@ c     +     write(6,'(''RSYS'',4g8.2)') rsys(1),rsys(2),rsys(3),rsys(4)
          endif
          write(85,*) ' Partial chi2s '
          do h1iset=1,nset
-            write(6,*) 'Dataset ',h1iset,pchi2(h1iset),npts(h1iset)
-            write(85,*) 'Dataset ',h1iset,pchi2(h1iset),npts(h1iset)
+            write(6,'(''Dataset '',i4,F10.2,i6)')
+     $           ,h1iset,pchi2(h1iset),npts(h1iset)
+            write(85,'(''Dataset '',i4,F10.2,i6)')
+     $           ,h1iset,pchi2(h1iset),npts(h1iset)
          enddo
          write(85,*)
 
