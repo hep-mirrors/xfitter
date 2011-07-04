@@ -305,6 +305,7 @@ void set_m_bins(){
     else if ( a>=101. ) d = 5.*exp(a/2000.);
     
     nmb++;
+    cout << nmb<<endl;
     if ( b>=m_up ) break;
 
     a= b;
@@ -353,6 +354,7 @@ void set_y_bins(){
     else if ( a>=6. ) d = 0.5;
   
     nyb++;
+    cout << nyb<<endl;
     if ( b>=y_up ) break;
 
     a= b;

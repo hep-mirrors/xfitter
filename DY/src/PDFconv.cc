@@ -19,6 +19,7 @@ void fastfxq_(const int *ibuf, const double *xq, const int *nint);
 }
 
 const int PDFconv::_nfl = 13;
+
 PDFconv::PDFconv(const int chg_prod, const double * beam_en,
          const IntSteps *ist):IntSteps(*ist){
 
@@ -55,6 +56,20 @@ PDFconv::PDFconv(const int chg_prod, const double * beam_en,
   } else if ( string("Z") == _boz ){
     getPDFconv=&PDFconv::getPDFconvZ;
   }
+
+  this->init();
+}
+
+PDFconv::PDFconv(const PDFconv & pc){
+  _chg_prod = pc._chg_prod;
+  _beam_en = pc._beam_en;
+
+  _fdef = new double[_nfl*_nfl];
+  for (int ifl2=0; ifl2<_nfl*_nfl; ifl2++){
+    _fdef[ifl2] = pc._fdef[ifl2];
+  }
+
+  getPDFconv=pc.getPDFconv;
 
   this->init();
 }

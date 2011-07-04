@@ -23,10 +23,10 @@ void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs, int *ic
 }
 
 extern "C" {
-  int w_set_etabins_(void *mass_range, void *y_range, double *pel_pt_cut, 
+  int w_set_etabins__(void *mass_range, void *y_range, double *pel_pt_cut, 
       int *pneb, void *eb );
-  int w_get_etabins_xs_(void *bs_wm, void *bs_wp);
-  int w_free_etabins_();
+  int w_get_etabins_xs__(void *bs_wm, void *bs_wp);
+  int w_free_etabins__();
 }
 
 namespace IntW_EB
@@ -363,7 +363,7 @@ void fill_bin_matrix(){
 
 // set cos binning corresponding to eta one
 // and fill the bins matrix
-int w_set_etabins_( void *mass_range, void *y_range, double *pel_pt_cut,
+int w_set_etabins__( void *mass_range, void *y_range, double *pel_pt_cut,
                      int *pneb, void *eb){
   using namespace IntW_EB;
   neb = *pneb;
@@ -406,7 +406,7 @@ int w_set_etabins_( void *mass_range, void *y_range, double *pel_pt_cut,
   return 1;
 }
 
-int w_get_etabins_xs_(void *bs_wm, void *bs_wp){
+int w_get_etabins_xs__(void *bs_wm, void *bs_wp){
 //clock_t start, finish;
 //start = clock();
 
@@ -432,7 +432,7 @@ int w_get_etabins_xs_(void *bs_wm, void *bs_wp){
   return 1;
 }
 
-int w_free_etabins_(){
+int w_free_etabins__(){
   using namespace IntW_EB;
   for (int imb=0;imb<2*nmb+1;imb++){
     for (int iyb=0;iyb<2*nyb+1;iyb++){
