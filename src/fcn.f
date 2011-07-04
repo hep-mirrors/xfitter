@@ -1,10 +1,10 @@
-c     ---------------------------------------------------------------------
+c----------------------------------------------------------------------
       subroutine  fcn(npar,g,f,p,iflag,futil)
 C----------------------------------------------------------------------
 C
 C Main minimization subroutine for MINUIT
 C
-c---------------------------------------------------------------------
+c----------------------------------------------------------------------
       implicit none
 
       include 'steering.inc'
@@ -85,10 +85,10 @@ C  x-dependent fs:
 CV ======================================================
 CV ======================================================
 CV passing info from ACOT codes to h1fitter
-CV
-CV 
+
       integer Isch, Iset, Iflg, Ihad
-      Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
+!*** pass info out to Fnc123 and Fcc123
+      Common /Ischeme/ Isch, Iset, Iflg, Ihad  
 C----------------------------------------------------
 c     First time through ACOT, we'll compute and store K-factors 
 c     After that, we'll use a massive LO calc
@@ -96,14 +96,17 @@ c     After that, we'll use a massive LO calc
 c     IfirstACOT = 1  Calculate K-Factor Table (First pass)
 c     IfirstACOT = 0  Use K-Factor Table  (2nd Pass) 
 c     IfirstACOT =-1  Compute Full NLO each time (Over-ride: VERY SLOW)
-      Common /acotBLK/ IfirstACOT, Idata  !*** pass switch & data point # to ACOT 
+!*** pass switch & data point # to ACOT 
+      Common /acotBLK/ IfirstACOT, Idata  
+
 
 
       data   IfirstACOT /1/  !*** We'll set to zero after first pass
       integer ifirstGRID
       data   IfirstGRID /1/  !*** We'll set to zero after first pass
 C----------------------------------------------------
-      integer IfcnCount, Iprint  !*** count FCN calls,  Iprint=0 suppress printing
+!*** count FCN calls,  Iprint=0 suppress printing
+      integer IfcnCount, Iprint  
       data IfcnCount,Iprint  /0,0/ 
       save IfcnCount,iPrint
 
@@ -130,6 +133,7 @@ C     Count function calls and print:
 
 CV ======================================================
 CV===========================================================
+c what's this f?
       f = 0.d0
 
 C-1- 29/07/2010: add Itheory=3 condition ----------
@@ -146,7 +150,6 @@ C-2- 29/07/2010: end of the addition --------------
 
 
       if ((iflag.eq.1).or.(iflag.ge.10)) then
-
          if (iflag.ge.10) ifirstACOT=iflag
          
          mpar0 = npar
@@ -173,7 +176,7 @@ C
 *     set fcharm via steering
             fcharm =charm_frac
          endif
-      endif
+      endif ! iflag.eq.1
 
 
 C
@@ -242,7 +245,8 @@ C-2- 27/10/2010: end of the addition --------------
             write(6,*) 'alphas_s(M_Z) ',alphas
 
          elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
-     $           .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
+     $           .or.iparam.eq.221.or.iparam.eq.222
+     $           .or.iparam.eq.229.or.iparam.eq.227) then
 
 c            write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
 c            write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg

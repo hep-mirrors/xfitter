@@ -307,6 +307,49 @@ C
                Bdel = 0.5
                Cdel = Csea +2.
 
+            elseif (iparam.eq.229) then
+         
+               Bg = a(1)
+               Cg = a(2)
+         
+               Buv = a(3)
+               
+               
+               Bdv=a(17)
+               
+               Cuv = a(4)
+               Duv = a(5)
+         
+               Cdv = a(6)
+               
+               Adbar = a(7)
+               Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
+               
+               Bdbar = a(8)
+               Bubar = Bdbar
+               
+               Cdbar = a(9)
+               Cubar = a(10)
+               
+               Euv = a(11)
+               
+* fixed for optimized in between
+               Dg = a(12)
+               Ddv = a(13)
+               Alphas = a(14)
+               
+               Ddbar=a(15)
+               Dubar=a(16)	
+               
+               Apg=a(18)
+               Bpg=a(19)
+               
+               Rfudge=a(20)
+               afudge=a(21)
+               Cpg=25.
+               
+
+
             elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
 
                Bg = a(1)
