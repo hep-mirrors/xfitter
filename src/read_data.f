@@ -274,6 +274,11 @@ C Reset to default:
       TheoryInfoFile = ' '
       LReadKFactor = .false.
 
+C Reset scales to 1.0
+      do i=1,nsysmax
+         SystScales(i) = 1.0
+      enddo
+
       open(51,file=CFile,status='old',err=99)
 
       print *,'Reading data file ...'
@@ -321,6 +326,11 @@ C Read data info:
       do j=1,NData
          read(51,*)(allbins(i,j),i=1,NBinDimension),XSections(j)
      $        ,StatErrors(j),(syst(i),i=1,NSyst)
+
+C Scale the syst. erros:
+         do i=1,NSyst
+            Syst(i) = Syst(i) * SystScales(i)
+         enddo
 
          if (lreadkfactor) then
             read (52,*) (akfact(i),i=1,NKFactor)
