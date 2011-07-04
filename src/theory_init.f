@@ -148,9 +148,8 @@ C------------------------------------------------------------
       integer IDataSet
 
       integer GetBinIndex                                                                                                                                    
-      double precision dy_mass(2)                                                                                                                            
-      double precision dy_y(2)
-      double precision pt_cut
+      double precision ranges(7)
+
       integer NPmax
       parameter(NPmax=100)
       double precision eb(Npmax+1)
@@ -169,12 +168,18 @@ C----------------------------------------------------------
 C Set global parameter:
       LFitDY = .true.
 
-      pt_cut=25.
-      dy_mass(1) = 1.
-      dy_mass(2) = 7000.
+      ! pt
+      ranges(7)=25.d0
+      ! mass
+      ranges(1) = 1.d0
+      ranges(2) = 7000.d0
       
-      dy_y(1) = -10.
-      dy_y(2) =  10.
+      ! rap
+      ranges(3) = -10.d0
+      ranges(4) =  10.d0
+      ! eta
+      ranges(5) = -10.d0
+      ranges(6) =  10.d0
 
 C Get indicies:
       idxEta1 = GetBinIndex(IDataSet,'eta1')
@@ -195,9 +200,9 @@ C Define bins:
       enddo
 
       print *,'Initialise DY calculations for dataset', IDataSet
-      call dy_create_calc(IDataSet, 1, 7000d0, 'W'//char(0), dy_mass, dy_y, pt_cut)
-      call dy_set_bins(IDataSet,'eta'//char(0), NDATAPOINTS(IDataSet), eb)
-
+      call dy_create_calc(IDataSet, 1, 7000d0, 'W'//char(0), ranges, 
+     $   'eta'//char(0), NDATAPOINTS(IDataSet), eb)
+      
       end
 
 
