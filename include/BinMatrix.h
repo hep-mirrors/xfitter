@@ -13,26 +13,24 @@ class BinMatrix : public IntSteps
   BinMatrix(){};
   ~BinMatrix();
 
-  BinMatrix(const double *be, const IntSteps* ist):IntSteps(*ist)
-  { _beam_en = *be; }
+  BinMatrix(const double *be, const IntSteps* ist);
 
  public:
   double4d BM;
 
  protected:
-  void BuildBM_Z();
-  void BuildBM_W();
-  double CosthAnIntW(const double &, const double &, const int );
+  void BuildBM_W_eta();
+  void BuildBM_Z_eta();
+  void BuildBM_Z_y();
+  double CosthAnIntW(const double &, const double &, 
+    const double &, const double&);
+  double CosthAnIntZ(const double &, const double &, const int,
+    const double &, const double&);
 
   double _beam_en;
 
-  std::string _var_name;
-  int _nbins;
-  double *_bins;
-
  public:
   double getBeamEn() { return _beam_en;}
-  void setBins(const std::string&, const int, const double*);
   int getNbins() { return _nbins; }
 
  private:

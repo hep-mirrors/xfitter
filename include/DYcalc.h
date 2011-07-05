@@ -20,6 +20,7 @@ class DYcalc : public IntSteps
   int (DYcalc::*intY)(const int, double *);
   int intY_W(const int , double *);
   int intY_Z(const int , double *);
+  int intYbins_Z(const int , double *);
 
  private:
   BinMatrix *_bm;
@@ -32,7 +33,6 @@ class DYcalc : public IntSteps
   BinMatrix* getBM() { return _bm; }
   PDFconv* getPC() { return _pc; }
   void getCalcRes(double *);
-  void updateBins();
 };
 
 #endif

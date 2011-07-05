@@ -10,13 +10,19 @@ class IntSteps
   ~IntSteps();
 
   IntSteps(const IntSteps&);
-  IntSteps(const std::string, const double *, const double *, const double);
+  IntSteps(const std::string, const double *, const std::string, 
+    const int, const double*);
 
  protected:
   std::string _boz;
+  std::string _var_name;
+  int _nbins;
+  double *_bins;
+  static const int _nsib; // number of steps in bin
 
   double *_mr;
   double *_yr;
+  double *_etar;
 
   int _nms;
   int _nys;
@@ -29,6 +35,7 @@ class IntSteps
   void _makeMstepsZ();
   void _makeMstepsW();
   void _makeYsteps();
+  void _makeYstepsBinned();
 
  public:
   std::string getBozName(){ return _boz;}

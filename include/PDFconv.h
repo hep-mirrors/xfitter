@@ -12,6 +12,7 @@ class PDFconv:public IntSteps
   ~PDFconv();
 
   PDFconv(const int , const double*, const IntSteps*);
+  PDFconv(const PDFconv&);
 
   int interpPDF();
 
