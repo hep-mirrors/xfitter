@@ -14,16 +14,16 @@
 using namespace std;
 
 extern "C" {
-  int dy_create_calc__(const int *ds_id, const int *chg_prod, 
+  int dy_create_calc_(const int *ds_id, const int *chg_prod, 
       const double *beam_en, const char *boz,
       const double *ranges, const char *var_name, 
       const int *n_bins, const double *bin_edges);
 
-  int dy_do_calc__();
+  int dy_do_calc_();
 
-  int dy_get_res__(const int *ds_id, double *calc_res);
+  int dy_get_res_(const int *ds_id, double *calc_res);
 
-  int dy_release__();
+  int dy_release_();
 }
 
 typedef map <int, DYcalc* > DCmap;
@@ -33,7 +33,7 @@ vector<BinMatrix*> gBinMatrices;
 
 // initializes Drell-Yan LO calculations with info on
 // beam, process, kinematic cuts, and bins.
-int dy_create_calc__(const int *ds_id, const int *chg_prod, 
+int dy_create_calc_(const int *ds_id, const int *chg_prod, 
     const double *beam_en, const char *boz,
     const double *ranges, const char *var_name, 
     const int *n_bins, const double *bin_edges)
@@ -97,7 +97,7 @@ int dy_create_calc__(const int *ds_id, const int *chg_prod,
 
 
 // calculate Drell-Yan LO cross sections for all data sets
-int dy_do_calc__()
+int dy_do_calc_()
 {
   // evolve convolutions
   vector<PDFconv*>::iterator ipc = gPDFconvs.begin();
@@ -119,7 +119,7 @@ int dy_do_calc__()
 
 
 // return DY calculations for data set ds_name
-int dy_get_res__(const int *ds_id, double *calc_res)
+int dy_get_res_(const int *ds_id, double *calc_res)
 {
   DYcalc * dc = gCalcs.find(*ds_id)->second;
   dc->getCalcRes(calc_res);
@@ -128,7 +128,7 @@ int dy_get_res__(const int *ds_id, double *calc_res)
 }
 
 
-int dy_release__()
+int dy_release_()
 {
   vector<PDFconv*>::iterator ipc = gPDFconvs.begin();
   for (; ipc!=gPDFconvs.end(); ipc++){
