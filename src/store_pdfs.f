@@ -212,6 +212,10 @@ cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot
          xvalpdf(jx) = x
       enddo
 
+C Prepare LHAPDF output
+
+      open (76,file='output/lhapdf.block.txt',status='unknown')
+
       do iq2=1,23
          write (76,'(7E12.4)') (q2valpdf((iq2-1)*7+j),j=0,6)
       enddo
@@ -244,6 +248,8 @@ cv       grid(1+jx)=x
 
          enddo
       ENDDO
+
+      close (76)
 
  666   format(8(2x,G12.6))
 

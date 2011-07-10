@@ -75,7 +75,7 @@ c     &        chm,cbar,bot,bbar,glu,phot)
           dsea=pdfSF(-1)
           chm=pdfSF(-4)
           bot=pdfSF(-5)
-          write(42,*) upv,dnv,usea,dsea,str,chm,bot,glu
+C          write(42,*) upv,dnv,usea,dsea,str,chm,bot,glu
       if(epsc.gt.1.) chm=0.
       if(epsb.gt.1.) bot=0.
       fp=(4.*upv+dnv+8.*usea+2.*dsea+2.*str)/9.
