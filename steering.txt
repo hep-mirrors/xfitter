@@ -1,0 +1,360 @@
+LIST
+C --- itheory: =0 use collinear factorisation with QCDNUM
+Itheory  0
+
+C --- For itheory =0 (collinear factorisation) : LO fit (1) or NLO (2) or NNLO (3)
+IORDER   2
+
+C --- Starting scale of the fit, Q_0^2, in GeV^2
+C Q02     1.5 for negative gluon!
+Q02 1.9
+
+C --- strange sea fraction at Q02
+C --- common choices: 0.33 (Q02=4) or 0.31 (Q02=1.9) or 0.2 (ZEUS params)
+FSTRANGE 0.31
+
+C --- charm sea fraction at Q02
+FCHARM 0.0
+
+C --- ALPHAS for the RT HF scheme - this must be set here in addition
+C --- to the alphas transmitted by minuit.in.txt (for now)
+RTALPHAS     0.1176
+
+C --- Scheme for heavy flavors :
+C ---  HFSCHEME = 0 : ZM-VFNS (massless),
+C ---  HFSCHEME = 2 :  Thorne-Roberts VFNS (massive)
+C ---  HFSCHEME = 3 :   F.Olness ACOT (massive)
+C ---  HFSCHEME = 4 :   FFNS Alechin BMNS ! only F2c is provided -> at NNLO for now
+C ---                   in principle one should run this for IORDER 3, however for 
+C ---                 FFNS scheme the evolution of PDFS for nf=3 is not working in 
+C ---                 QCDNUM17.2, this is claimed to be fixed for new versions
+C ---                 so for now PDFs can be evolved using VFNS.. which is not consistent!!
+
+HFSCHEME   2
+
+C - vfnsINDX is used only when F2c or F2b data is used
+C ---   = 2 :  Thorne-Roberts VFNS (massive) F2c, F2b at NLO
+C ---   = 3 :  F.Olness ACOT (massive)  F2c,F2b at NLO 
+C ---   = 4 :  FFNS Alechin BMNS F2c at NNLO -> should need PDFs at NNLO 
+ 
+vfnsINDX 0
+
+C --- FOR HFSCHEME =3 ONLY:  a flag that selects which calculation to use!
+c          If(Isch.eq.0)   !*** NLO MASSLESS MS-BAR
+c          If(Isch.eq.1)   !*** FULL ACOT
+c          If(Isch.eq.5)   !*** LO
+c          If(Isch.eq.6)   !*** Massless LO
+c          If(Isch.eq.7)   !*** Short-cut2: ACOT  w/ Massless NLO-Q
+c          If(Isch.eq.8)   !*** ACOT-CHI 
+
+ISCH 1
+
+C --- Charm and bottom thresholds, in GeV, for the massless scheme.
+C ---    The bottom threshold has to be larger than the charm threshold.
+C ---    So far, the bottom threshold has to be larger than the starting scale.
+C ---    If HFSCHEME = 1 (massive scheme) the thresholds are set internally
+C ---    to a value > highest Q2.
+C --- for H1ZEUS DIS 08:
+C HFTHRES   1.40    4.75
+
+HFTHRES   1.4    4.75
+
+C --- Charm and bottom mass, in GeV
+C --- for H1ZEUS DIS 08:
+C HFMAS    1.40    4.75
+
+HFMAS    1.4    4.75
+
+
+C ---- Choice of parametrisation for collinear factorisation case
+C
+C IPAR = 1 : H1PDF2k-like			use minuit_1(m,h).in.txt
+C IPAR = 2 : Fit g, uval, dval, Ubar,Dbar	use minuit_2(m,h).in.txt
+C IPAR = 4 : ZEUS JET parametrization		use minuit_4(m,h).in.txt
+C IPAR = 11 : a la H1PDF2k, but no assumption on fcharm (not yet)
+C IPAR = 21 : H1PDF2k-like opt. by Li   	use minuit_21.in.txt
+C IPAR = 22 : g, uval, dval, Ubar,Dbar          use minuit_22.in.txt (HERA)
+C                                               use minuit_h109.in.txt (H12009)
+C IPAR = 221 : g, uval, dval, Ubar,Dbar   bdv=/=buv      use minuit_221.in.txt
+C IPAR = 222 : g, uval, dval, Ubar,Dbar   negative gluon use minuit_222.in.txt
+C IPAR = 225 : g, uval, dval, Ubar,Dbar   ubar=/=dbar    use minuit_225.in.txt
+C IPAR = 24 : ZEUS JET parametrization opt.AMCS see minuit_24.in.txt
+C IPAR = 171717 : CTEQ-like parameterisation: use minuit.in.txt-171717
+C !!!! USER: USE PROPER MINUIT.IN.TXT!!!!
+
+C  for each chosen parametrization there are various options: 
+C   1) h -- humpy gluon (a la h1)
+C   2) m -- straight gluon (a la zeus)
+
+C
+
+IPAR    22
+
+
+C -- Choice of the chi2 function
+C    ICHI2 = 1 : Pascaud-like : system. shifts applied to theory
+C    ICHI2 = 2 : CTEQ-like    : system. shifts applied to data
+C    ICHI2 = 3 : use full covariant matrix
+C    ICHI2 = 11: Pascaud-like + "mixed error scaling"
+C    ICHI2 = 21: Pascaud-like + "linear error scaling"
+C    ICHI2 = 31: Pascaud-like + "sqrt error scaling"
+C  Comments : ICHI2 = 1 was used for H1PDF2k.
+C             ICHI2 = 2 and = 3 are mathematically equivalent. 
+C             
+ICHI2   11
+
+C -- only for ICHI2 = 3 : compute (FIRST = true) or read (FIRST = false)
+C    the covariance matrix. The file containing the cov. matrix is
+C    covmat.dat
+C
+FIRST   TRUE
+
+
+C -- ONLINE flag
+C    for interactive running : the chi2 and some parameters are printed
+C    at each iteration.
+ONLINE  true
+
+
+C -- DEBUG flag
+DEBUG   FALSE
+
+
+C -- Error bands on parton distributions
+BANDS    False
+
+C -- Q2 values at which the pdfs & errors are done (up to 20)
+C Line length limited to ~80 chars, up to 20 more values using Q3VAL key
+Q2VAL  1.9 4 10 100 6464 8317
+
+C ---- Further configuration of the output tables (at the above Q2 values)
+C
+C OUTFORM = 0 : standard dump: only PDFs
+C OUTFORM = 1 : extended dump: PDFs + NC structure functions
+C OUTFORM = 2 : full dump: PDFs + NC+CC structure functions (not yet implemented!)
+C
+OUTFORM 0
+
+C How many x points to write (standard = 101)
+OUTNX 101
+
+C x-range of output (standard = 1E-4 1.0)
+OUTXRANGE 1E-4 0.9999
+
+
+C --- ISEED for CASCADE
+ISEED   2313134
+C -- ISDRN for random shifts, default 42, then 31,77,2008,
+ISDRN 1967
+
+C-----xmax cut  :  -1. means no cut
+Xmax   -1.
+C-----xmin cut  :  -1. means no cut
+Xmin   -1.
+C---- Q2min cut :  -1. means no cut
+Q2min  30.5
+C---- Q2max cut :  -1. means no cut <--- added 26/07/2010
+Q2max  -1.
+
+C
+C Saturation cut:  Q^2 > ASAT * X ** LSAT 
+C
+ASAT 0.0
+LSAT 0.0
+
+
+C --------------------------------------------------------------------
+C
+C     The following steering cards are there for checks...
+C
+C --------------------------------------------------------------------
+
+C --- Normalisations are minuit parameters if NORMA = TRUE - instead of
+C     being calculated using the correlated errors.
+C     (to be used only for ICHI2 = 1 or 2)
+C     in the minuit input file, the corresponding parameters should be released !
+NORMA   FALSE
+
+C --- Fit the measured data of the smeared theo, x-sections
+THEO    FALSE
+
+C --- Fit the measured randomly SMEARED  x-sections data 
+RAND    FALSE
+SEED  123456 
+
+C --- Choose what distribution for the random number generator 
+C STATYPE (SYS_TYPE)  =   1  gauss
+C STATYPE (SYS_TYPE)  =   2  uniform
+C STATYPE (SYS_TYPE)  =   3  lognormal
+STATYPE  1
+SYSTYPE  1
+
+C -- Chi2 with full errors (CORR = TRUE) or only uncorrelated errors
+CORR    true
+
+C -- With the following flag set to TRUE, the EW corrections are not
+C -- calculated. E.g. when one reads data which are ALREADY EW-corrected.
+C -- Should not be used for an EW fit since the EW corrections depend on
+C -- the EW parameters.
+CORWEAK   FALSE
+
+C --------------------------------------------------------------------
+
+
+END
+STOP
+EXIT
+
+*
+*  Namelist to control input data
+*
+&InFiles
+    NInputFiles = 5
+    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
+    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
+    InputFileNames(5) = 'datafiles/ATLAS_DY_CC_ASYMMETRY.dat'
+&End
+
+*
+* Names of syst. errors
+*
+&SysNames
+   system(  1) = 'HERA1.0 001' 
+   system(  2) = 'HERA1.0 002' 
+   system(  3) = 'HERA1.0 003' 
+   system(  4) = 'HERA1.0 004' 
+   system(  5) = 'HERA1.0 005' 
+   system(  6) = 'HERA1.0 006' 
+   system(  7) = 'HERA1.0 007' 
+   system(  8) = 'HERA1.0 008' 
+   system(  9) = 'HERA1.0 009' 
+   system( 10) = 'HERA1.0 010' 
+   system( 11) = 'HERA1.0 011' 
+   system( 12) = 'HERA1.0 012' 
+   system( 13) = 'HERA1.0 013' 
+   system( 14) = 'HERA1.0 014' 
+   system( 15) = 'HERA1.0 015' 
+   system( 16) = 'HERA1.0 016' 
+   system( 17) = 'HERA1.0 017' 
+   system( 18) = 'HERA1.0 018' 
+   system( 19) = 'HERA1.0 019' 
+   system( 20) = 'HERA1.0 020' 
+   system( 21) = 'HERA1.0 021' 
+   system( 22) = 'HERA1.0 022' 
+   system( 23) = 'HERA1.0 023' 
+   system( 24) = 'HERA1.0 024' 
+   system( 25) = 'HERA1.0 025' 
+   system( 26) = 'HERA1.0 026' 
+   system( 27) = 'HERA1.0 027' 
+   system( 28) = 'HERA1.0 028' 
+   system( 29) = 'HERA1.0 029' 
+   system( 30) = 'HERA1.0 030' 
+   system( 31) = 'HERA1.0 031' 
+   system( 32) = 'HERA1.0 032' 
+   system( 33) = 'HERA1.0 033' 
+   system( 34) = 'HERA1.0 034' 
+   system( 35) = 'HERA1.0 035' 
+   system( 36) = 'HERA1.0 036' 
+   system( 37) = 'HERA1.0 037' 
+   system( 38) = 'HERA1.0 038' 
+   system( 39) = 'HERA1.0 039' 
+   system( 40) = 'HERA1.0 040' 
+   system( 41) = 'HERA1.0 041' 
+   system( 42) = 'HERA1.0 042' 
+   system( 43) = 'HERA1.0 043' 
+   system( 44) = 'HERA1.0 044' 
+   system( 45) = 'HERA1.0 045' 
+   system( 46) = 'HERA1.0 046' 
+   system( 47) = 'HERA1.0 047' 
+   system( 48) = 'HERA1.0 048' 
+   system( 49) = 'HERA1.0 049' 
+   system( 50) = 'HERA1.0 050' 
+   system( 51) = 'HERA1.0 051' 
+   system( 52) = 'HERA1.0 052' 
+   system( 53) = 'HERA1.0 053' 
+   system( 54) = 'HERA1.0 054' 
+   system( 55) = 'HERA1.0 055' 
+   system( 56) = 'HERA1.0 056' 
+   system( 57) = 'HERA1.0 057' 
+   system( 58) = 'HERA1.0 058' 
+   system( 59) = 'HERA1.0 059' 
+   system( 60) = 'HERA1.0 060' 
+   system( 61) = 'HERA1.0 061' 
+   system( 62) = 'HERA1.0 062' 
+   system( 63) = 'HERA1.0 063' 
+   system( 64) = 'HERA1.0 064' 
+   system( 65) = 'HERA1.0 065' 
+   system( 66) = 'HERA1.0 066' 
+   system( 67) = 'HERA1.0 067' 
+   system( 68) = 'HERA1.0 068' 
+   system( 69) = 'HERA1.0 069' 
+   system( 70) = 'HERA1.0 070' 
+   system( 71) = 'HERA1.0 071' 
+   system( 72) = 'HERA1.0 072' 
+   system( 73) = 'HERA1.0 073' 
+   system( 74) = 'HERA1.0 074' 
+   system( 75) = 'HERA1.0 075' 
+   system( 76) = 'HERA1.0 076' 
+   system( 77) = 'HERA1.0 077' 
+   system( 78) = 'HERA1.0 078' 
+   system( 79) = 'HERA1.0 079' 
+   system( 80) = 'HERA1.0 080' 
+   system( 81) = 'HERA1.0 081' 
+   system( 82) = 'HERA1.0 082' 
+   system( 83) = 'HERA1.0 083' 
+   system( 84) = 'HERA1.0 084' 
+   system( 85) = 'HERA1.0 085' 
+   system( 86) = 'HERA1.0 086' 
+   system( 87) = 'HERA1.0 087' 
+   system( 88) = 'HERA1.0 088' 
+   system( 89) = 'HERA1.0 089' 
+   system( 90) = 'HERA1.0 090' 
+   system( 91) = 'HERA1.0 091' 
+   system( 92) = 'HERA1.0 092' 
+   system( 93) = 'HERA1.0 093' 
+   system( 94) = 'HERA1.0 094' 
+   system( 95) = 'HERA1.0 095' 
+   system( 96) = 'HERA1.0 096' 
+   system( 97) = 'HERA1.0 097' 
+   system( 98) = 'HERA1.0 098' 
+   system( 99) = 'HERA1.0 099' 
+   system(100) = 'HERA1.0 100' 
+   system(101) = 'HERA1.0 101' 
+   system(102) = 'HERA1.0 102' 
+   system(103) = 'HERA1.0 103' 
+   system(104) = 'HERA1.0 104' 
+   system(105) = 'HERA1.0 105' 
+   system(106) = 'HERA1.0 106' 
+   system(107) = 'HERA1.0 107' 
+   system(108) = 'HERA1.0 108' 
+   system(109) = 'HERA1.0 109' 
+   system(110) = 'HERA1.0 110' 
+   system(111) = 'HERA1.0 111' 
+   system(112) = 'HERA1.0 112' 
+   system(113) = 'HERA1.0 113' 
+   system(114) = 'HERA1.0 114' 
+   system(115) = 'HERA1.0 115' 
+   system(116) = 'HERA1.0 116' 
+   system(117) = 'HERA1.0 117' 
+   system(118) = 'HERA1.0 118' 
+   system(119) = 'HERA1.0 119' 
+   system(120) = 'HERA1.0 120' 
+   system(121) = 'HERA1.0 121' 
+   system(122) = 'HERA1.0 122' 
+   system(123) = 'HERA1.0 123' 
+   system(124) = 'HERA1.0 124' 
+   system(125) = 'HERA1.0 125' 
+   system(126) = 'HERA1.0 126' 
+   system(127) = 'HERA1.0 127' 
+   system(128) = 'HERA1.0 128' 
+   system(129) = 'HERA1.0 129' 
+   system(130) = 'HERA1.0 130' 
+   system(131) = 'HERA1.0 131' 
+   system(132) = 'HERA1.0 132' 
+   system(133) = 'HERA1.0 133' 
+   system(134) = 'HERA1.0 134' 
+   system(135) = 'HERA1.0 135' 
+   system(136) = 'HERA1.0 136' 
+&End
