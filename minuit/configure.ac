@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([libmyminuit], [1.0], [thomas.kluge@desy.de])
+AC_INIT([libmyminuit], [1.0], [glazov@mail.desy.de])
 AM_INIT_AUTOMAKE([libmyminuit], [1.0])
 AC_PREFIX_DEFAULT(${HOME})
 
