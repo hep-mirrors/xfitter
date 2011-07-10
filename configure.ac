@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([h1fitter], [0.0.1], [glazov@mail.desy.de])
 AM_INIT_AUTOMAKE
-AC_PREFIX_DEFAULT(${HOME})
+AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
 AC_PROG_FC([gfortran])
