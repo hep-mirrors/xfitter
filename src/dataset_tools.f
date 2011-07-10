@@ -91,21 +91,89 @@ C
 C  Apply selection cuts for reaction
 C
 C----------------------------------------------------------------------
-      integer nbin
-      double precision bins(nbin)
-      character *(*) reaction,binnames(nbin)
+      integer nbin                                  ! number of variables
+      double precision bins(nbin)                   ! values of variables
+      character *(*) reaction                       ! reaction type
+      character *(*) binnames(nbin)                 ! variable names 
 
+C Extra DIS selection
       logical FailDISSelection
+
+      logical LFirst /.true./
+
+      
+C Namelist variables:
+      integer NProcMax,NRulesMax
+      parameter (NProcMax  = 20)  ! Cuts for 20 process types at most
+      parameter (NRulesMax = 20)  ! For each process, at most 20 rules
+      integer NProcesses          ! actual number of processes
+      character*80 ProcessName(NProcMax)         ! names of the processes
+      integer NRules(NProcMax)    ! actual number of rules per process
+      character *80 Variable(NRulesMax,NProcMax)  ! names of variables to apply cuts
+      double precision CutValueMin(NRulesMax,NProcMax)  ! Min. value of the cut
+      double precision CutValueMax(NRulesMax,NProcMax)  ! Max. value of the cut
+
+      namelist  /Cuts/NProcesses, NRules,Variable,CutValueMin,CutValueMax,ProcessName
+
+      integer i,j,k
 C------------------------------------------------
 
       FailSelectionCuts = .false. 
 
+      if (LFirst) then
+         LFirst = .false.
+         print 
+     $ '(''First time in FailSelectionCuts. Read the cut definitions'')'
+
+         open (52,file='steering.txt',status='old')
+         read (52,NML=Cuts,END=71,ERR=72)
+         print '(''Read  cut rules for '',i5,'' processes'')',NProcesses
+         close (52)
+
+      endif
+
+C-- Check if the reaction is on the process list
+      do i=1,NProcesses
+         if (reaction .eq. processname(i)) then
+C-- Run over all rules, check for appropriate variable
+            do j=1,NRules(i)
+               do k=1,nbin
+                  if (Variable(j,i).eq.BinNames(k)) then
+                     if (
+     $                        bins(k).lt.CutValueMin(j,i)
+     $                    .or.bins(k).ge.CutValueMax(j,i)) then
+                        FailSelectionCuts = .true.  ! Fail Cut
+                        Return
+                     endif
+                     goto 17  ! next rule
+                  endif
+               enddo
+               print 
+     $ '(''Error in FailSelectionCuts: variable '',A8,'' not found'')'
+     $              ,Variable(j,i)
+               print '(''Check reaction '',a16)', reaction
+               stop
+ 17            continue
+            enddo
+         endif
+      enddo
+
+C Extra DIS cuts 
       if (Reaction .eq. 'NC e+-p') then
          FailSelectionCuts = FailDISSelection(nbin,bins,BinNames)
       else 
       endif
       
-      
+      Return
+ 71   continue
+      print 
+     $  '(''Error in FailSelectionCuts: EOD reading namelist Cuts'')'
+      stop
+ 72   continue
+      print 
+     $  '(''Error in FailSelectionCuts: Error reading namelist Cuts'')'
+      stop
+
       end
 
       logical Function FailDISSelection(NBin,Bins,BinNames)
