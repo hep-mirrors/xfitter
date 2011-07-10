@@ -11,8 +11,6 @@
       double precision sysa(nsysMAX,nsysMAX)
       integer npoints,ndis
 
-      integer CompressIdx(NSYSMAX)
-      common/systema/ALPHA,BETA,sysa,npoints,ndis,SYSTEM,NSys,
-     $     CompressIdx
+      common/systema/ALPHA,BETA,sysa,npoints,ndis,SYSTEM,NSys
 
       

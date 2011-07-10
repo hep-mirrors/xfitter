@@ -23,9 +23,6 @@ C=================================================
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
 
-C Names of syst. errors
-      namelist/SysNames/System
-
 C---------
 
 *     ------------------------------------------------
@@ -240,9 +237,6 @@ C
          System(i) = ' '
       enddo
 
-      open (51,file='steering.txt',status='old')
-      read (51,NML=SysNames,END=71,ERR=72)
-      close (51)
       goto 73
 C 
  71   continue

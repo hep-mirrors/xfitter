@@ -144,10 +144,6 @@ C
       enddo
 
 
-C
-C Compress systematics matrix:
-C      
-      call CompressSystematics
 
 c      stop
 *     ------------------------------------------------------------------
@@ -228,8 +224,14 @@ C Namelist  variables:
       double precision datainfo(ninfoMax)
       character *80 CInfo(ninfoMax)
       character *80 Reaction
+      
+C Systematics:
       logical Percent(0:nsystMax)
-      integer SystematicType(nsystMax)
+      character *16 SystematicType(nsystMax)
+
+C Reference table
+      integer CompressIdx(nsystMax)
+
       integer IndexDataset
       double precision SystScales(nsystMax)
 C Extra info about k-factors, applegrid file(s):
@@ -284,6 +286,16 @@ C Reset scales to 1.0
       print *,'Reading data file ...'
       print *,CFile
       read(51,NML=Data,err=98)
+
+C
+C Check dimensions
+C
+      if (NSyst.gt. nsysmax) then
+         print '(''Error in ReadDataFile for File='',A80)',cfile
+         print '(''NSyst = '',i6,'' exeeds NSysMax='',i6)',nsyst,nsysmax
+         print '(''Increase NSysMax in systematics.inc'')'
+         stop
+      endif
 C
 C Store 
 C
@@ -291,13 +303,16 @@ C
       DATASETNUMBER(NDATASETS)   = 10000+NDATASETS
       DATASETLABEL(NDATASETS)    = Name
       DATASETNUMBER(NDATASETS)   = IndexDataset   !!!  
+
 C Reaction info:
       DATASETREACTION(NDATASETS) = Reaction
+
 C Binning info:
       DATASETBinningDimension(NDATASETS) = NBinDimension
       do i=1,NBinDimension
          DATASETBinNames(i,NDATASETS) = BinName(i)
       enddo
+
 C Extra info:
       DATASETInfoDimension(NDATASETS) = NInfo
       do i=1,NInfo
@@ -306,9 +321,38 @@ C Extra info:
       enddo
       NQ2BINS(NDATASETS) = 0            ! uff
 
+C Prepare systematics:
+      do i=1,NSyst
+C--- Uncorrelated: special case
+         if (SystematicType(i).eq.'uncor') then
+         else
+C--- Check if the source already exists:         
+            do j=1,NSYS            
+               if ( system(j).eq.SystematicType(i) ) then
+                  CompressIdx(i) = j
+                  goto 80
+               endif
+            enddo
+C--- Add new source
+            NSYS = NSYS + 1
+            if (NSYS.gt.NSysMax) then
+               print 
+     $              '(''ReadDataFile Error: exeeding NSysMax'')'
+               print '(''Current NSysMax='',i6)',NSysMax
+               print '(''Increase NSysMax in systematics.inc'')'
+               stop
+            endif
+
+            System(NSYS) = SystematicType(i)
+            CompressIdx(i) = NSYS
+ 80         continue
+         endif
+      enddo
+
 C Theory file if present:
       DATASETTheoryFile(NDATASETS) = TheoryInfoFile
       DATASETTheoryType(NDATASETS) = TheoryType
+
 C Check if we need to read kfactor file:
       if (TheoryInfoFile.ne.' ') then
          if (TheoryType.eq.'kfactor') then
@@ -368,7 +412,7 @@ C Translate errors in %:
             endif
    
             TotalError = TotalError + Syst(i)**2
-            if (SystematicType(i).eq.0) then
+            if (SystematicType(i).eq.'uncor') then
 C Uncorrelated error:
                UncorError = UncorError +  Syst(i)**2
             endif
@@ -388,24 +432,14 @@ C Uncorrelated error:
 
          ALPHA(npoints) = sqrt(UncorError**2+StatErrors(j)**2)*DATEN(npoints)
          do i=1,NSyst
-            if (SystematicType(i).gt.0) then
-               if (SystematicType(i).gt. NSysMax) then
-                  print '(''ReadDataFile Error: requested error source'',i6,'' larger than NSYST='',i6)'
-     $                 ,SystematicType(i),NSysMax
-                  print '(''Check SystematicType or increase NSysMax in systematics.inc'')'
-                  stop
-               endif
+            if (SystematicType(i).ne.'uncor') then
 
-               NSYS = max(NSYS,SystematicType(i))
-
-               BETA(SystematicType(i),npoints) = syst(i)
+               BETA(CompressIdx(i),npoints) = syst(i)
             endif
          enddo
 
 
-C         print *,'hhhh',alpha(npoints),e_sta(npoints)
-
-         JSET(npoints) = IndexDataset  ! XXXXXXXXXXXX
+         JSET(npoints) = IndexDataset  
 
 C Store k-factors:
          if (lreadkfactor) then
@@ -521,7 +555,7 @@ C
          r_sh_fl(isys) = (ranflat-0.5)*f_un
 
          print '(''random numbers: sys, gauss, flat '',2i6,2F8.2)',
-     $        isys,CompressIdx(isys), rand_shift(isys),
+     $        isys,isys, rand_shift(isys),
      $        r_sh_fl(isys)
       enddo
 

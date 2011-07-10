@@ -18,7 +18,7 @@
    NKFactor       = 2
    KFactorNames = 'Wplus', 'Wminus'
 
-   SystematicType = 0
+   SystematicType = 'uncor'
    Percent   = False, False
 &End
 0.0  0.21 0.147 0.011 0.017

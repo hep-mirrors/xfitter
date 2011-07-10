@@ -766,8 +766,8 @@ C-2- 22/07/2010: end of the addition -------------
        write(85,*) 'Systematic shifts '
        open(unit=77,file='output/systematics_polar.txt')
        do jsys=1,nsys
-          write(77,*)CompressIdx(jsys),' ', SYSTEM(CompressIdx(jsys)),rsys(jsys),' +/- ',ersys(jsys)
-          write(85,*)CompressIdx(jsys),' ', SYSTEM(CompressIdx(jsys)),rsys(jsys),' +/- ',ersys(jsys)
+          write(77,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
+          write(85,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
        enddo
        close(77)
 
