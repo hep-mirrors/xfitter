@@ -63,8 +63,8 @@ int DYcalc::Integrate()
     for (int ib = 0; ib<_nbins; ib++){
       _bin_int[ib]+=(b-a)/6.*(qya[ib]+4.*qym[ib]+qyb[ib]);
       qya[ib]=qyb[ib];
-  //    cout << qya[ib] << endl;
     }
+      //cout << _bin_int[7] << endl;
    // exit(1);
   }
 
@@ -187,12 +187,11 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
   (_pc->*(_pc->getPDFconv))(imp, 0, -1., scale, xfxc[2], xfxc[3]);
   for (int ib=0;ib<_nbins;ib++){
     for (int icdf = 0; icdf<12; icdf ++){
-      qca[ib] += xfxc[icdf%4]*_bm->BM[imp][ib*_nsib][0][icdf];
+      qca[ib] += xfxc[icdf%4]*_bm->BM[imp][ib*2*_nsib][0][icdf];
     }
     qy[ib] = 0.;
   }
 
-  int ib(0);
   for (int iys=0;iys<_nys;iys++){
     double ya = _ysteps[iys];
     double yb = _ysteps[iys+1];
@@ -210,7 +209,6 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
     qy[ib] += (yb-ya)/6.*(qca[ib]+4*qcm[ib]+qcb[ib]);
     qca[ib] = qcb[ib];
   }
-      
   
   return 1;
 }

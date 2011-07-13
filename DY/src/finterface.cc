@@ -40,7 +40,7 @@ int dy_create_calc_(const int *ds_id, const int *chg_prod,
 {
 
   // initialize integration grid if didn't yet.
-  static const IntSteps *int_steps = new IntSteps(string(boz), ranges, 
+  const IntSteps *int_steps = new IntSteps(string(boz), ranges, 
     var_name, *n_bins, bin_edges);
 
   BinMatrix *bm = NULL;
@@ -48,13 +48,16 @@ int dy_create_calc_(const int *ds_id, const int *chg_prod,
   DCmap::iterator idc = gCalcs.begin(); 
   for ( ;idc!=gCalcs.end();idc++ ) {
     BinMatrix *tbm = idc->second->getBM();
-    if ( tbm->getBeamEn() == *beam_en ){
+    if ( (tbm->getBeamEn() == *beam_en )
+      && (string(boz) == tbm->getBozName()) ){
       bm = tbm;
+      /*
       if ( string(boz) != bm->getBozName() ) {
         cout << "Simultaneous calculation of DY charged and neutral \n\
 	         is not supported. Abort. " << endl;
 	exit(1);
       }
+      */
       break;
     }
   }
@@ -70,13 +73,16 @@ int dy_create_calc_(const int *ds_id, const int *chg_prod,
   idc = gCalcs.begin(); 
   for ( ;idc!=gCalcs.end();idc++ ) {
     PDFconv *tpc = idc->second->getPC();
-    if ( tpc->isSameBeam(*chg_prod, beam_en) ){
+    if ( tpc->isSameBeam(*chg_prod, beam_en) && 
+         (string(boz) == tpc->getBozName() )){
       pc = tpc;
+      /*
       if ( string(boz) != pc->getBozName() ) {
         cout << "Simultaneous calculation of DY charged and neutral \n\
 	         is not supported. Abort. " << endl;
 	exit(1);
       }
+      */
       break;
     }
   }

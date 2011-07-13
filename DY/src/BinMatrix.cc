@@ -93,6 +93,7 @@ void BinMatrix::BuildBM_Z_eta()
 	  //double dir = pow(-1.,idf/2); // 0, 1 -> 1 (forw) ; 2,3 -> -1 (bw);
 	  double AI = CosthAnIntZ(m,y,icdf, _bins[ib], _bins[ib+1]);
 	  BM[imp][iyp][ib][icdf] = X[icdf/4]*AI;
+	  //cout << y << "\t" << _bins[ib] << "\t" << _bins[ib+1] << "\t" << BM[imp][iyp][ib][icdf]  << endl;
 	}
       }
     }

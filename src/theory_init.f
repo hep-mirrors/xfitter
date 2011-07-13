@@ -40,6 +40,7 @@ C
       Call InitReducedNCXsection
       Call InitCCXsection
       Call InitDYCCXsection
+      Call InitDYNCXsection
       Call InitJetsPPApplGrid
 C---------------------------------------------------------
       end
@@ -109,7 +110,76 @@ C---------------------------------------------------------
 
       end
 
-      subroutine InitDYNCXsectionDataset_kfactor
+      subroutine InitDYNCXsectionDataset_kfactor(IDataSet)
+C------------------------------------------------------------
+C
+C Initialise tables for DY process for calculations using k-factors
+C
+C------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
+      integer IDataSet
+
+      integer GetBinIndex                                                                                                                                    
+      double precision ranges(7)
+
+      integer NPmax
+      parameter(NPmax=100)
+      double precision yb(Npmax+1)
+
+      integer idx, idxY1, idxY2,i 
+
+C----------------------------------------------------------
+
+
+      if (NDATAPOINTS(IDataSet).gt.NPmax) then
+         print *,'ERROR IN InitDYNCXsectionDataset'
+         print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)                                                                                                  
+         stop
+      endif
+
+C Set global parameter:
+      LFitDY = .true.
+
+      ! pt
+      ranges(7)=20.d0
+      ! mass
+      ranges(1) = 66.d0
+      ranges(2) = 116.d0
+      
+      ! rap
+      ranges(3) = -10.d0
+      ranges(4) =  10.d0
+      ! eta
+      ranges(5) = -10.d0
+      ranges(6) =  10.d0
+
+C Get indicies:
+      idxY1 = GetBinIndex(IDataSet,'y1')
+      idxY2 = GetBinIndex(IDataSet,'y2')
+
+      if (idxY1.eq.0 .or. idxY2.eq.0) then
+         print 
+     $        '(''ERROR in GetDYNCXsection, can not find bin index for y1, y2'',2i6)'
+     $        ,idxY1,idxY2
+         stop
+      endif
+
+C Define bins:
+      do i=1,NDATAPOINTS(IDataSet) 
+         idx =  DATASETIDX(IDataSet,i)
+         yb(i)   =  AbstractBins(idxY1,idx)
+         yb(i+1) =  AbstractBins(idxY2,idx)
+      enddo
+
+      print *,'Initialise DY calculations for dataset', IDataSet
+      call dy_create_calc(IDataSet, 1, 7000d0, 'Z'//char(0), ranges, 
+     $   'y'//char(0), NDATAPOINTS(IDataSet), yb)
+      
       end
 
       subroutine InitDYXsectionDataset_applgrid(IDataSet)
@@ -310,6 +380,9 @@ C------------------------------------------------------------
       end
 
       subroutine InitDYCCXsection
+      end
+
+      subroutine InitDYNCXsection
       end
 
       subroutine InitJetsPPApplGrid
