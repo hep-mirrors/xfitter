@@ -12,7 +12,7 @@
  CInfo    = 'sqrt(S)','pte cut'
  IndexDataset = 91
  Reaction = 'NC pp'
- TheoryInfoFile = 'DATA_FILES/DY_NC_ATLAS_KFACTORS.dat'
+ TheoryInfoFile = 'datafiles/DY_NC_ATLAS_KFACTORS.dat'
  TheoryType     = 'kfactor'
  NKFactor       = 1
  KFactorNames = 'Z0' 
