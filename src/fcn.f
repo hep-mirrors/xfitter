@@ -27,6 +27,9 @@ c----------------------------------------------------------------------
       integer npar,iflag
       double precision g(*),p(*),f,futil
 
+C For RT code, transfer alpha S
+      double precision alphaszero
+
       external futil
 
 
@@ -71,10 +74,6 @@ cv for saving sm predictions
       integer nflav , ierr
 
       integer idataset
-
-cv voica
-      double precision alphaS0
-      COMMON/INPUT/alphaS0
 
 
 C  x-dependent fs:
@@ -222,7 +221,8 @@ C
 
       if(itheory.eq.0) then 
          call setalf(dble(alphas),Mz*Mz)
-         alphas0=asfunc(1.0D0,nflav,ierr)
+         alphaSzero=asfunc(1.0D0,nflav,ierr)
+         call RT_SetAlphaS(alphaSzero)
       endif 
 
 *     -- set alphas
