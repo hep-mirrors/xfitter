@@ -1272,8 +1272,10 @@ C simple copy first:
       enddo
 
 C Extra constrains:
-      ctubar(0) = ctdbar(0) * (1.-strange_frac) ! normalization ubar = dbar 
-      ctubar(1) = ctdbar(1)                     ! Bubar = Bdbar
+      if (pars(40).eq.0) then
+         ctubar(0) = ctdbar(0) * (1.-strange_frac) ! normalization ubar = dbar 
+         ctubar(1) = ctdbar(1)  ! Bubar = Bdbar
+      endif
 
 C Impose Buv = Bdv if parameter for Buv = 0.
       if (pars(20+1).eq.0) then
