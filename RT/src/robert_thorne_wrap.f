@@ -47,3 +47,45 @@ C Use k-factor:
          flp = FLQCDNUM*akfactFL(index) 
       endif
       end
+
+
+      Subroutine RT_SetAlphaS(alphaSzero)
+C--------------------------------------------------------------
+C  Wraper for INPUT common, to set alphaS
+C--------------------------------------------------------------
+      implicit none
+C Parameter:
+      double precision alphaSzero
+c Common:
+      double precision alphaS0
+      COMMON/INPUT/alphaS0   
+C-----------------------------------------
+      alphaS0 = alphaSZero
+C-----------------------------------------
+      end
+
+      Subroutine RT_Set_Input(alphaS0in,alambdain,flavorin,qsctin,
+     $     qsdtin,iordin,inullin)
+C---------------------------------------------------------------------------
+C  Wraper for INPUT common, set parameters
+C---------------------------------------------------------------------------
+      implicit none
+C Input variables:
+      double precision alphaS0in,alambdain,flavorin,qsctin,qsdtin
+      integer iordin,inullin
+      
+C Common variables:
+      double precision alphaS0,alambda,flavor,qsct,qsdt
+      integer iord,inull
+      COMMON/INPUT/alphaS0,alambda,flavor,qsct,qsdt,iord,inull
+C-------------------------------      
+
+      alphaS0  = alphaS0in
+      alambda  = alambdain
+      flavor   = flavorin
+      qsct     = qsctin
+      qsdt     = qsdtin
+      iord     = iordin
+      inull    = inullin
+C--------------------------------------------------------------------------
+      end
