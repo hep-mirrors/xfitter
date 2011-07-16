@@ -214,27 +214,24 @@ c      endif
 
 
       call dy_get_res(IDataSet, z_bsigs)
-
       idxKfactZ  = GetKFactIndex(IDataSet,'Z0')
 
+
 C Apply k-factors:
-      do i=1,NDATAPOINTS(IDataSet)
-         idx =  DATASETIDX(IDataSet,i)
-         if (idxKfactZ.gt.0) then
-            z_bsigs(2*i-1) = z_bsigs(2*i-1)*Kfactors(idxKfactZ,idx)
-         endif
-      enddo
+      if (idxKfactZ.gt.0) then
+         do i=1,NDATAPOINTS(IDataSet)
+            idx =  DATASETIDX(IDataSet,i)
+            z_bsigs(i) = z_bsigs(i)*Kfactors(idxKfactZ,idx)
+         enddo
+      else
+         print '(''GetDYNCXsection_kfactor: no kfactor found'')'
+      endif
 
-C Check type of the data
-c      LAsymmetry =  
-c     $     DATASETInfo( GetInfoIndex(IDataSet,'asymmetry'), IDataSet).gt.0
 
-c      if (.not. LAsymmetry) then
-c         LZ = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet).gt.0
 C Need also bin sizes:
-         idxBinY1 = GetBinIndex(IDataSet,'y1')
-         idxBinY2 = GetBinIndex(IDataSet,'y2')
-c      endif
+      idxBinY1 = GetBinIndex(IDataSet,'y1')
+      idxBinY2 = GetBinIndex(IDataSet,'y2')
+
 
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
