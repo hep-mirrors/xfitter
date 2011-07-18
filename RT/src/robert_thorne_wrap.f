@@ -56,9 +56,11 @@ C--------------------------------------------------------------
       implicit none
 C Parameter:
       double precision alphaSzero
-c Common:
-      double precision alphaS0
-      COMMON/INPUT/alphaS0   
+C Common variables:
+      double precision alphaS0,alambda,flavor,qsct,qsdt
+      integer iord,inull
+      COMMON/INPUT/alphaS0,alambda,flavor,qsct,qsdt,iord,inull
+
 C-----------------------------------------
       alphaS0 = alphaSZero
 C-----------------------------------------
