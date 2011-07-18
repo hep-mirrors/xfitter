@@ -190,7 +190,7 @@ STATYPE  1
 SYSTYPE  1
 
 C -- Chi2 with full errors (CORR = TRUE) or only uncorrelated errors
-C CORR    true
+CORR    true
 
 
 C --------------------------------------------------------------------
