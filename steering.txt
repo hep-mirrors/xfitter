@@ -32,12 +32,6 @@ C ---                 so for now PDFs can be evolved using VFNS.. which is not c
 
 HFSCHEME   2
 
-C - vfnsINDX is used only when F2c or F2b data is used
-C ---   = 2 :  Thorne-Roberts VFNS (massive) F2c, F2b at NLO
-C ---   = 3 :  F.Olness ACOT (massive)  F2c,F2b at NLO 
-C ---   = 4 :  FFNS Alechin BMNS F2c at NNLO -> should need PDFs at NNLO 
- 
-vfnsINDX 0
 
 C --- FOR HFSCHEME =3 ONLY:  a flag that selects which calculation to use!
 c          If(Isch.eq.0)   !*** NLO MASSLESS MS-BAR
@@ -68,23 +62,19 @@ HFMAS    1.4    4.75
 
 C ---- Choice of parametrisation for collinear factorisation case
 C
-C IPAR = 1 : H1PDF2k-like			use minuit_1(m,h).in.txt
-C IPAR = 2 : Fit g, uval, dval, Ubar,Dbar	use minuit_2(m,h).in.txt
-C IPAR = 4 : ZEUS JET parametrization		use minuit_4(m,h).in.txt
+C IPAR = 1 : H1PDF2k-like			
+C IPAR = 2 : Fit g, uval, dval, Ubar,Dbar	
+C IPAR = 4 : ZEUS JET parametrization		
 C IPAR = 11 : a la H1PDF2k, but no assumption on fcharm (not yet)
-C IPAR = 21 : H1PDF2k-like opt. by Li   	use minuit_21.in.txt
-C IPAR = 22 : g, uval, dval, Ubar,Dbar          use minuit_22.in.txt (HERA)
-C                                               use minuit_h109.in.txt (H12009)
-C IPAR = 221 : g, uval, dval, Ubar,Dbar   bdv=/=buv      use minuit_221.in.txt
-C IPAR = 222 : g, uval, dval, Ubar,Dbar   negative gluon use minuit_222.in.txt
-C IPAR = 225 : g, uval, dval, Ubar,Dbar   ubar=/=dbar    use minuit_225.in.txt
-C IPAR = 24 : ZEUS JET parametrization opt.AMCS see minuit_24.in.txt
-C IPAR = 171717 : CTEQ-like parameterisation: use minuit.in.txt-171717
+C IPAR = 21 : H1PDF2k-like opt. by Li   	
+C IPAR = 22 : g, uval, dval, Ubar,Dbar          
+C IPAR = 221 : g, uval, dval, Ubar,Dbar   bdv=/=buv 
+C IPAR = 222 : g, uval, dval, Ubar,Dbar   negative gluon 
+C IPAR = 225 : g, uval, dval, Ubar,Dbar   ubar=/=dbar  
+C IPAR = 229 : g, uval, dval, Ubar,Dbar   ubar=/=dbar, negative gluon  
+C IPAR = 24 : ZEUS JET parametrization opt.AMCS 
+C IPAR = 171717 : CTEQ-like parameterisation:
 C !!!! USER: USE PROPER MINUIT.IN.TXT!!!!
-
-C  for each chosen parametrization there are various options: 
-C   1) h -- humpy gluon (a la h1)
-C   2) m -- straight gluon (a la zeus)
 
 C
 
@@ -139,11 +129,9 @@ C How many x points to write (standard = 101)
 OUTNX 101
 
 C x-range of output (standard = 1E-4 1.0)
-OUTXRANGE 1E-4 0.9999
+OUTXRANGE 1E-6 0.9999
 
 
-C --- ISEED for CASCADE
-ISEED   2313134
 C -- ISDRN for random shifts, default 42, then 31,77,2008,
 ISDRN 1967
 
@@ -236,7 +224,7 @@ EXIT
    ProcessName(2)     = 'CC e+-p'
    NRules(2)          = 2
    Variable(1,2)      = 'Q2'
-   CutValueMin(1,2)   = 30.5 
+   CutValueMin(1,2)   = 3.5 
    CutValueMax(1,2)   = 1000000.0
 
    Variable(2,2)      = 'x'
