@@ -84,8 +84,8 @@ int DYcalc::intY_W(const int imp, double *qy){
   //  dir \ chrg  |   - |   +
   //  1           |   0 |   1
   //  -1          |   2 |   3
-  (_pc->*(_pc->getPDFconv))(imp, 0, 1., scale, xfxc[0], xfxc[1]);
-  (_pc->*(_pc->getPDFconv))(imp, 0, -1., scale, xfxc[2], xfxc[3]);
+  (_pc->*(_pc->getPDFconv))(imp, 0, 1., xfxc[0], xfxc[1]);
+  (_pc->*(_pc->getPDFconv))(imp, 0, -1., xfxc[2], xfxc[3]);
   for (int ib=0;ib<_nbins;ib++){
     for (int icd = 0; icd<4; icd ++){
     // even - Wm, odd - Wp
@@ -93,16 +93,15 @@ int DYcalc::intY_W(const int imp, double *qy){
     }
     qy[ib] = 0.;
   }
-    //cout << qcb[0] << "\t" << qcb[_nbins/2] << endl;
 
   for (int iys=0;iys<_nys;iys++){
     double ya = _ysteps[iys];
     double yb = _ysteps[iys+1];
     double xfxcb[4]={0.}, xfxcm[4]={0.};
-    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  ,  1., scale, xfxcb[0], xfxcb[1]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1., scale, xfxcb[2], xfxcb[3]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1., scale, xfxcm[0], xfxcm[1]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1., scale, xfxcm[2], xfxcm[3]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  ,  1., xfxcb[0], xfxcb[1]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1., xfxcb[2], xfxcb[3]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1., xfxcm[0], xfxcm[1]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1., xfxcm[2], xfxcm[3]);
     for(int ib=0;ib<_nbins;ib++){
       qcb[ib] = 0.; qcm[ib] = 0.;
       for (int icd = 0; icd<4; icd ++){
@@ -113,16 +112,6 @@ int DYcalc::intY_W(const int imp, double *qy){
       qca[ib] = qcb[ib];
     }
 
-/*
-    if(qy[0]<0 ){
-  double m = (_msteps[imp/2]+_msteps[(imp+1)/2])/2.;
-    cout << m << "\t" << yb << "\t" << ya << "\n";
-    for(int ib=0; ib<_nbins; ib++) 
-      cout << qy[ib] << "\t" <<  qcb[ib] << "\n";
-    exit(1);
-    }
-    */
-    
   }
     
       
@@ -140,8 +129,8 @@ int DYcalc::intY_Z(const int imp, double *qy){
   //  dir \ flav  |   d |   u
   //  1           |   0 |   1
   //  -1          |   2 |   3
-  (_pc->*(_pc->getPDFconv))(imp, 0, 1., scale, xfxc[0], xfxc[1]);
-  (_pc->*(_pc->getPDFconv))(imp, 0, -1., scale, xfxc[2], xfxc[3]);
+  (_pc->*(_pc->getPDFconv))(imp, 0, 1., xfxc[0], xfxc[1]);
+  (_pc->*(_pc->getPDFconv))(imp, 0, -1., xfxc[2], xfxc[3]);
   for (int ib=0;ib<_nbins;ib++){
     for (int icdf = 0; icdf<12; icdf ++){
       qca[ib] += xfxc[icdf%4]*_bm->BM[imp][0][ib][icdf];
@@ -153,10 +142,10 @@ int DYcalc::intY_Z(const int imp, double *qy){
     double ya = _ysteps[iys];
     double yb = _ysteps[iys+1];
     double pcb[4]={0.}, pcm[4]={0.};
-    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  ,  1., scale, pcb[0], pcb[1]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1., scale, pcb[2], pcb[3]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1., scale, pcm[0], pcm[1]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1., scale, pcm[2], pcm[3]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  ,  1.,  pcb[0], pcb[1]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1.,  pcb[2], pcb[3]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1.,  pcm[0], pcm[1]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1.,  pcm[2], pcm[3]);
     for(int ieb=0;ieb<_nbins;ieb++){
       qcb[ieb] = 0.; qcm[ieb] = 0.;
       for (int icdf = 0; icdf<12; icdf ++){
@@ -183,8 +172,8 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
   //  dir \ flav  |   d |   u
   //  1           |   0 |   1
   //  -1          |   2 |   3
-  (_pc->*(_pc->getPDFconv))(imp, 0, 1., scale, xfxc[0], xfxc[1]);
-  (_pc->*(_pc->getPDFconv))(imp, 0, -1., scale, xfxc[2], xfxc[3]);
+  (_pc->*(_pc->getPDFconv))(imp, 0, 1., xfxc[0], xfxc[1]);
+  (_pc->*(_pc->getPDFconv))(imp, 0, -1., xfxc[2], xfxc[3]);
   for (int ib=0;ib<_nbins;ib++){
     for (int icdf = 0; icdf<12; icdf ++){
       qca[ib] += xfxc[icdf%4]*_bm->BM[imp][ib*2*_nsib][0][icdf];
@@ -196,10 +185,10 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
     double ya = _ysteps[iys];
     double yb = _ysteps[iys+1];
     double pcb[4]={0.}, pcm[4]={0.};
-    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  ,  1., scale, pcb[0], pcb[1]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1., scale, pcb[2], pcb[3]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1., scale, pcm[0], pcm[1]);
-    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1., scale, pcm[2], pcm[3]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  ,  1., pcb[0], pcb[1]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1., pcb[2], pcb[3]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1., pcm[0], pcm[1]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1., pcm[2], pcm[3]);
     int ib = iys/_nsib;
     qcb[ib] = 0.; qcm[ib] = 0.;
     for (int icdf = 0; icdf<12; icdf ++){

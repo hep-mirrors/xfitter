@@ -1,14 +1,14 @@
-/**
- * @file PhysPar.cc
- * @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
- * @date Sun May 17 2009
- *
- * Copyright (c) 2008-2009 Andrey Sapronov
- *
- * @breif The values are assigned here.
- *
- * Adjusted to comply with MCFM
- *
+/*!
+  @file PhysPar.cc
+  @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
+  @date Sun May 17 2009
+ 
+  Copyright (c) 2008-2009 Andrey Sapronov
+ 
+  The values are assigned here.
+ 
+  Adjusted to comply with MCFM
+ 
  */
  /*****************************************************************************/
 

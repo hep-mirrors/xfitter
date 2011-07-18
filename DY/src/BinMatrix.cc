@@ -85,21 +85,17 @@ void BinMatrix::BuildBM_Z_eta()
       
       for(int ib=0;ib<_nbins;ib++){
         for(int icdf = 0; icdf<12; icdf++){
-	  // first 4 are for photon component
-	  // second 4 are for interference component
-	  // third 4 are for Z component
-	  //int idf = icdf%4;
-	  //int flav = idf%2; // 0 -> 0 (d), 1 -> 1(u), 2 -> 0(d), 3 -> 1(u)
-	  //double dir = pow(-1.,idf/2); // 0, 1 -> 1 (forw) ; 2,3 -> -1 (bw);
 	  double AI = CosthAnIntZ(m,y,icdf, _bins[ib], _bins[ib+1]);
 	  BM[imp][iyp][ib][icdf] = X[icdf/4]*AI;
-	  //cout << y << "\t" << _bins[ib] << "\t" << _bins[ib+1] << "\t" << BM[imp][iyp][ib][icdf]  << endl;
 	}
       }
     }
   }
 }
 
+/**
+ * Builds bin matrix for Z process with rapidity binning.
+ */
 void BinMatrix::BuildBM_Z_y()
 {
   int nmp=2*_nms+1, nyp=2*_nys+1;
@@ -138,13 +134,6 @@ void BinMatrix::BuildBM_Z_y()
       
       for(int ieb=0;ieb<1;ieb++){
         for(int icdf = 0; icdf<12; icdf++){
-	  // first 4 are for photon component
-	  // second 4 are for interference component
-	  // third 4 are for Z component
-	  //int idf = icdf%4;
-	  //int flav = idf%2; // 0 -> 0 (d), 1 -> 1(u), 2 -> 0(d), 3 -> 1(u)
-	  //double dir = pow(-1.,idf/2); // 0, 1 -> 1 (forw) ; 2,3 -> -1 (bw);
-	  //cout << tanh(_etar[0])<<"\t" <<  tanh(_etar[1]) << endl;
 	  double AI = CosthAnIntZ(m,y,icdf, tanh(_etar[0]), tanh(_etar[1]) );
 	  BM[imp][iyp][ieb][icdf] = X[icdf/4]*AI;
 	}
@@ -181,12 +170,6 @@ void BinMatrix::BuildBM_W_eta()
     for(int iyp=0;iyp<nyp;iyp++){
       double y = (_ysteps[iyp/2]+_ysteps[(iyp+1)/2])/2.;
       for(int ib=0;ib<_nbins;ib++){
-        // using +- index to specify different directions
-	// add 1 since we start with 0 and -0 == +0
-	/*
-        BM[imp][iyp][ib][0] = X*CosthAnIntW(m,y, ib+1)/2.;
-        BM[imp][iyp][ib][1] = X*CosthAnIntW(m,-y, -(ib+1))/2.;
-	*/
         BM[imp][iyp][ib][0] = X*CosthAnIntW(m,y, _bins[ib], _bins[ib+1])/2.;
         BM[imp][iyp][ib][1] = X*CosthAnIntW(m,-y, -_bins[ib+1], -_bins[ib])/2.;
       }
@@ -198,17 +181,6 @@ void BinMatrix::BuildBM_W_eta()
 // integrate in costheta analytically
 double BinMatrix::CosthAnIntW(const double &m,const double &y,
             const double &c_low_eta_lab, const double &c_up_eta_lab){
-
-/*
-  double c_low_eta_lab(0.), c_up_eta_lab(0.);
-  if ( ibp1 > 0 ) {
-    c_low_eta_lab = _bins[ibp1-1];
-    c_up_eta_lab = _bins[ibp1];
-  } else if ( ibp1 < 0 ) {
-    c_low_eta_lab = -_bins[-ibp1];
-    c_up_eta_lab = -_bins[-ibp1-1];
-  }
-  */
 
   // calculate actual costh range applying lorentz transformation
   // to LAB cos_theta cuts
@@ -223,7 +195,6 @@ double BinMatrix::CosthAnIntW(const double &m,const double &y,
   double c_up_pt_cms  = sqrt(1.-4.*pow(_leptPtCut/m,2));
   double c_low_pt_lab = costhLT ( -b, c_low_pt_cms);
   double c_up_pt_lab = costhLT ( -b, c_up_pt_cms);
-  //cout << c_up_eta_lab << "\t" << c_up_eta << "\t" << b << endl;
 
   double c_low_cms(-1.), c_low_lab(-1.), c_up_cms(1.), c_up_lab(1.);
   if ( c_low_eta_cms < c_low_pt_cms ){
@@ -242,7 +213,6 @@ double BinMatrix::CosthAnIntW(const double &m,const double &y,
     c_up_lab = c_up_eta_lab;
   }
   if ( c_up_cms < c_low_cms ) return 0.;
-  //cout << c_low_cms << "\t" << c_up_cms << endl;
 
   double ai = - pow(1.-c_up_cms,3)/3. + pow(1.-c_low_cms,3)/3.;
   return ai;

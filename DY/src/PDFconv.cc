@@ -26,9 +26,6 @@ PDFconv::PDFconv(const int chg_prod, const double * beam_en,
   _chg_prod = chg_prod;
   _beam_en = *beam_en;
   // initialuze fdef matrix
-  // numbering:
-//\bar{t   b   c   s   u   d}  g   d   u   s   c   b   t
-//     0   1   2   3   4   5   6   7   8   9  10  11  12
   const double fdef[_nfl*_nfl] = {
        1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., // tb
        0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., // bb
@@ -182,7 +179,7 @@ int PDFconv::interpPDF(){
 
 // Calculate PDF convolution for Z production
 int PDFconv::getPDFconvZ(const int imp, const int iyp, double dir, 
-    const double &scale, double &xfxcD, double &xfxcU)
+    double &xfxcD, double &xfxcU)
 {
   using namespace PhysPar;
 
@@ -194,10 +191,6 @@ int PDFconv::getPDFconvZ(const int imp, const int iyp, double dir,
 
   double xq1[_nfl]={0.};
   double xq2[_nfl]={0.};
-  //double sxq1[_nfl]={0.};
-  //double sxq2[_nfl]={0.};
-  //int   ichk = 0;
-  //int   iset = 1;
 
   //double q2 = (scale) * (scale);
 
@@ -207,9 +200,6 @@ int PDFconv::getPDFconvZ(const int imp, const int iyp, double dir,
     return 0;
   }
   else{
-  // Access QCDNUM pdfs:
-    //fpdfxq_(&iset,&x1,&q2,sxq1,&ichk);
-    //fpdfxq_(&iset,&x2,&q2,sxq2,&ichk);
   // Access fast QCDNUM pdfs:
     if ( 0 < dir ){
       for (int ifl=0; ifl<_nfl; ifl++){
@@ -223,11 +213,6 @@ int PDFconv::getPDFconvZ(const int imp, const int iyp, double dir,
       }
     }
   }
-/*
-  for (int ifl=0; ifl<13; ifl++){
-    cout << ifl << "\t" << setw(14) << sxq1[ifl] <<  setw(14) <<xq1[ifl] << setw(14) <<sxq1[ifl]-xq1[ifl] << endl;
-    cout << ifl << "\t" << setw(14) << sxq2[ifl] <<  setw(14) <<xq2[ifl] << setw(14) <<sxq2[ifl]-xq2[ifl] << endl;
-  }*/
 
   // apply beam composition
   double xqt[_nfl] = {0.};
@@ -240,17 +225,7 @@ int PDFconv::getPDFconvZ(const int imp, const int iyp, double dir,
       for (int iq=0; iq<_nfl; iq++)  xq2[iq]=xqt[_nfl-1-iq];
     }
   }
-  /*
-  if ( -1 == ih2 ) {
-    if ( 0 < dir ){
-      for (int iq=0; iq<_nfl; iq++)  xqt[iq]=xq2[iq];
-      for (int iq=0; iq<_nfl; iq++)  xq2[iq]=xqt[_nfl-1-iq];
-    } else {
-      for (int iq=0; iq<_nfl; iq++)  xqt[iq]=xq1[iq];
-      for (int iq=0; iq<_nfl; iq++)  xq1[iq]=xqt[_nfl-1-iq];
-    }
-  }
-  */
+
   // numbering:
   // \bar{t  b  c  s  u  d} g  d  u  s  c  b  t
   //      0  1  2  3  4  5  6  7  8  9 10 11 12
@@ -270,7 +245,7 @@ int PDFconv::getPDFconvZ(const int imp, const int iyp, double dir,
 
 // Calculate PDF convolution for W production
 int PDFconv::getPDFconvW(const int imp, const int iyp, double dir, 
-    const double &scale, double &xfxcWm, double &xfxcWp)
+    double &xfxcWm, double &xfxcWp)
 {
   using namespace PhysPar;
 
@@ -282,12 +257,6 @@ int PDFconv::getPDFconvW(const int imp, const int iyp, double dir,
 
   double xq1[_nfl]={0.};
   double xq2[_nfl]={0.};
-  //double sxq1[_nfl]={0.};
-  //double sxq2[_nfl]={0.};
-  //int   ichk = 0;
-  //int   iset = 1;
-
-  //double q2 = (scale) * (scale);
 
   if ( (x1< 1.e-6)||(x2<1.e-6)||(x1>1.-1.e-6)||(x2>1.-1.e-6)) {
     xfxcWm=0.;
@@ -295,9 +264,6 @@ int PDFconv::getPDFconvW(const int imp, const int iyp, double dir,
     return 0;
   }
   else{
-  // Access QCDNUM pdfs:
-    //fpdfxq_(&iset,&x1,&q2,sxq1,&ichk);
-    //fpdfxq_(&iset,&x2,&q2,sxq2,&ichk);
   // Access fast QCDNUM pdfs:
     if ( 0 < dir ){
       for (int ifl=0; ifl<_nfl; ifl++){
@@ -311,11 +277,6 @@ int PDFconv::getPDFconvW(const int imp, const int iyp, double dir,
       }
     }
   }
-/*
-  for (int ifl=0; ifl<13; ifl++){
-    cout << ifl << "\t" << setw(14) << sxq1[ifl] <<  setw(14) <<xq1[ifl] << setw(14) <<sxq1[ifl]-xq1[ifl] << endl;
-    cout << ifl << "\t" << setw(14) << sxq2[ifl] <<  setw(14) <<xq2[ifl] << setw(14) <<sxq2[ifl]-xq2[ifl] << endl;
-  }*/
 
   // apply beam composition
   double xqt[_nfl] = {0.};
@@ -328,17 +289,6 @@ int PDFconv::getPDFconvW(const int imp, const int iyp, double dir,
       for (int iq=0; iq<_nfl; iq++)  xq2[iq]=xqt[_nfl-1-iq];
     }
   }
-  /*
-  if ( -1 == ih2 ) {
-    if ( 0 < dir ){
-      for (int iq=0; iq<_nfl; iq++)  xqt[iq]=xq2[iq];
-      for (int iq=0; iq<_nfl; iq++)  xq2[iq]=xqt[_nfl-1-iq];
-    } else {
-      for (int iq=0; iq<_nfl; iq++)  xqt[iq]=xq1[iq];
-      for (int iq=0; iq<_nfl; iq++)  xq1[iq]=xqt[_nfl-1-iq];
-    }
-  }
-  */
   // numbering:
   // \bar{t  b  c  s  u  d} g  d  u  s  c  b  t
   //      0  1  2  3  4  5  6  7  8  9 10 11 12

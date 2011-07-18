@@ -125,7 +125,6 @@ void IntSteps::_makeMstepsZ()
 }
 
 
-
 void IntSteps::_makeMstepsW()
 {
   double m_low(_mr[0]), m_up(_mr[1]);
@@ -158,6 +157,7 @@ void IntSteps::_makeMstepsW()
   //for (int ims=0; ims<_nms+1; ims++) cout << ims << " " << _msteps[ims] << endl;
 }
 
+
 void IntSteps::_makeYsteps()
 {
   double y_low(_yr[0]), y_up(_yr[1]);
@@ -186,6 +186,7 @@ void IntSteps::_makeYsteps()
   //for (int iys=0; iys<_nys+1; iys++) std::cout << iys << " " << _ysteps[iys] << std::endl;
 
 }
+
 
 void IntSteps::_makeYstepsBinned()
 {

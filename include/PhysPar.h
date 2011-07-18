@@ -1,13 +1,13 @@
-/**
- * @file PhysPar.h
- * @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
- * @date Sun May 17 2009
- *
- * Copyright (c) 2008-2009 Andrey Sapronov
- *
- * @breif Namespace for physical parameters. Values are LesHouches 
- *        for LHC are assigned in PhysPar.cc
- *
+/*!
+  @file PhysPar.h
+  @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
+  @date Sun May 17 2009
+ 
+  Copyright (c) 2008-2009 Andrey Sapronov
+ 
+  Namespace for physical parameters. Values are LesHouches 
+         for LHC are assigned in PhysPar.cc
+ 
  */
  /*****************************************************************************/
 
