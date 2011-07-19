@@ -256,6 +256,8 @@ C Namelist definition:
       double precision UncorError  ! uncorrelated systematics
       double precision TotalError  ! total uncertainty
 
+      double precision TotalErrorRead ! total error, provided by the data file
+
       integer i,j
       logical LReadKFactor
 
@@ -325,6 +327,13 @@ C Prepare systematics:
       do i=1,NSyst
 C--- Uncorrelated: special case
          if (SystematicType(i).eq.'uncor') then
+
+C--- Total error: special case
+         else if (SystematicType(i).eq.'total') then
+
+C--- Ignore: special case
+         else if (SystematicType(i).eq.'ignore') then
+
          else
 C--- Check if the source already exists:         
             do j=1,NSYS            
@@ -401,6 +410,8 @@ C Translate errors in %:
          TotalError = 0.
          UncorError = 0.
 
+         TotalErrorRead = 0.
+
          if (.not.Percent(0)) then
             StatErrors(j) = StatErrors(j)/XSections(j)*100.
          endif
@@ -410,8 +421,14 @@ C Translate errors in %:
             if (.not.Percent(i)) then
                syst(i) = syst(i)/XSections(j)*100.
             endif
-   
-            TotalError = TotalError + Syst(i)**2
+
+            if (SystematicType(i).eq.'total') then
+               TotalErrorRead = Syst(i)
+            elseif (SystematicType(i).eq.'ignore') then
+C Ignore error source called 'ignore'
+            else
+               TotalError = TotalError + Syst(i)**2
+            endif
             if (SystematicType(i).eq.'uncor') then
 C Uncorrelated error:
                UncorError = UncorError +  Syst(i)**2
@@ -425,6 +442,16 @@ C Uncorrelated error:
          E_UNC(npoints)  = UncorError
          E_TOT(npoints)  = TotalError
          E_STA(npoints)  = StatErrors(j)
+
+         ! > Check total error
+         if (TotalErrorRead.ne.0) then
+            if ( abs(TotalError -TotalErrorRead)/TotalErrorRead.gt.0.01) then
+               print 
+     $'(''WARRNING IN READDATA, LARGE DEVIATION FOR TOTAL ERROR'')'
+               print '(''Total calculated='',G10.4,'' READ='',G10.4)',
+     $              totalError,TotalErrorRead
+            endif
+         endif
 
          do i=1,NBinDimension
             AbstractBins(i,npoints) = allbins(i,j)
