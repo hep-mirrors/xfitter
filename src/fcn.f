@@ -438,7 +438,10 @@ C Calculate theory for datasets:
 *              write(6,*) 'isys rsys ',isys,rsys(isys)
 *            enddo
 
-            CALL DINV  (NSys,sysa,NSYSMAX,IR,IFAIL)
+            if (nsys.gt.0) then
+               CALL DINV  (NSys,sysa,NSYSMAX,IR,IFAIL)
+            endif
+
             do isys=1,nsys
                do jsys=1,nsys
                   rsys(isys) = rsys(isys)-sysa(isys,jsys)*bsys(jsys)
