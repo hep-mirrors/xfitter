@@ -1,11 +1,13 @@
       subroutine read_data
-      
-c     
-c     Read data
-c     
+
+*     ------------------------------------------------
+*     Read data     
+*     ------------------------------------------------
+
 
 
       implicit none
+*     ------------------------------------------------
       include 'steering.inc'
       include 'datasets.inc'      
       include 'ntot.inc'
@@ -19,17 +21,17 @@ c
       character   adum 
       character*1   a1dum 
 
-      double precision ECM
-c     
-
+      double precision ECM     
       double precision fac
 
       logical FIRST             !  true : cov matrix recalculated
       logical GNORM             !  correlated part for the luminosity errors
       
 
-cv ///// study of PDF uncertainties
-cv
+*     ------------------------------------------------
+*     study of PDF uncertainties using MC method
+*     ------------------------------------------------
+     
       double precision alnorm
       external alnorm
       real logshift
@@ -47,19 +49,20 @@ cv
       real alumlognorm(300)
       real alumierr(300)
       data alumierr/300*0.0/
-cv////////
+*     ------------------------------------------------end MC
  
 
       integer i,j,k,iset,n0,isys,iq2bin,iebin,jsys
 
-      NSYS = 0
+*     ------------------------------------------------
+*     initilialising
+*     ------------------------------------------------
 
+      NSYS = 0
       ONLINE = lONLINE
       DEBUG  = lDEBUG
       FIRST = lFIRST
-
       GNORM = .true.
-
       ISCHARMANY  = .false.
       ISBOTTOMANY = .false.
 
@@ -83,18 +86,18 @@ cv////////
       enddo
 
 
-
       do i=1,nset
          NDATAPOINTS(i) = 0
       enddo
       npoints = 0
 
-cv ============done with initializing=========
+*     --------------------------------------------end initialising
 
 
-C
-C Read data from namelists:
-C
+*     ------------------------------------------------
+*     Read data from namelists:
+*     ------------------------------------------------
+
       do i=1,NInputFiles
          call ReadDataFile(InputFileNames(i))
       enddo
@@ -215,7 +218,7 @@ C Namelist  variables:
 
       character *80 Name
       integer  NData
-      integer  NSyst
+      integer  NUncert
       integer  NInfo
       integer  NBinDimension
 
@@ -226,7 +229,7 @@ C Namelist  variables:
       character *80 Reaction
       
 C Systematics:
-      logical Percent(0:nsystMax)
+      logical Percent(1:nsystMax)
       character *16 SystematicType(nsystMax)
 
 C Reference table
@@ -239,20 +242,18 @@ C Extra info about k-factors, applegrid file(s):
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
 C Namelist definition:
-      namelist/Data/Name,NData,NSyst,NBinDimension
+      namelist/Data/Name,NData,NUncert,NBinDimension
      $     ,BinName,NInfo,datainfo,CInfo,Reaction,Percent
      $     ,SystematicType, SystScales, IndexDataset
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
 
       double precision XSections(ndataMax)
-      double precision StatErrors(ndataMax)
       double precision AllBins(10,ndataMax)
       double precision Syst(nsystmax)
 
       double precision Akfact(NKFactMax)
 
-      double precision StatError
-
+      double precision StatError   ! stat
       double precision UncorError  ! uncorrelated systematics
       double precision TotalError  ! total uncertainty
 
@@ -267,7 +268,7 @@ C Function to check cuts
 C-------------------------------------------------------      
 
 C Reset to default:
-      NSYST = 0
+      NUncert = 0
       NData = 0
       NInfo = 0
       NBinDimension = 0
@@ -292,9 +293,9 @@ C Reset scales to 1.0
 C
 C Check dimensions
 C
-      if (NSyst.gt. nsysmax) then
+      if (NUncert.gt. nsysmax) then
          print '(''Error in ReadDataFile for File='',A80)',cfile
-         print '(''NSyst = '',i6,'' exeeds NSysMax='',i6)',nsyst,nsysmax
+         print '(''NUncert = '',i6,'' exeeds NSysMax='',i6)',nuncert,nsysmax
          print '(''Increase NSysMax in systematics.inc'')'
          stop
       endif
@@ -324,13 +325,13 @@ C Extra info:
       NQ2BINS(NDATASETS) = 0            ! uff
 
 C Prepare systematics:
-      do i=1,NSyst
+      do i=1,NUncert
+C--- Statistical: special case
+         if (SystematicType(i).eq.'stat') then
 C--- Uncorrelated: special case
-         if (SystematicType(i).eq.'uncor') then
-
+         else if (SystematicType(i).eq.'uncor') then
 C--- Total error: special case
          else if (SystematicType(i).eq.'total') then
-
 C--- Ignore: special case
          else if (SystematicType(i).eq.'ignore') then
 
@@ -378,10 +379,10 @@ C Check if we need to read kfactor file:
 C Read data info:
       do j=1,NData
          read(51,*)(allbins(i,j),i=1,NBinDimension),XSections(j)
-     $        ,StatErrors(j),(syst(i),i=1,NSyst)
+     $        ,(syst(i),i=1,NUncert)
 
 C Scale the syst. erros:
-         do i=1,NSyst
+         do i=1,NUncert
             Syst(i) = Syst(i) * SystScales(i)
          enddo
 
@@ -409,18 +410,16 @@ C Add a point:
 C Translate errors in %:
          TotalError = 0.
          UncorError = 0.
-
+         StatError = 0.
          TotalErrorRead = 0.
 
-         if (.not.Percent(0)) then
-            StatErrors(j) = StatErrors(j)/XSections(j)*100.
-         endif
-         TotalError = TotalError + StatErrors(j)**2
 
-         do i=1,NSyst
+         do i=1,NUncert
             if (.not.Percent(i)) then
                syst(i) = syst(i)/XSections(j)*100.
             endif
+
+
 
             if (SystematicType(i).eq.'total') then
                TotalErrorRead = Syst(i)
@@ -433,15 +432,21 @@ C Ignore error source called 'ignore'
 C Uncorrelated error:
                UncorError = UncorError +  Syst(i)**2
             endif
+            if (SystematicType(i).eq.'stat') then
+C Stat error:
+               StatError = StatError +  Syst(i)**2
+            endif
+
          enddo
 
+         StatError = sqrt(StatError)
          UncorError = sqrt(UncorError)
          TotalError = sqrt(TotalError)
 
          DATEN(npoints) = XSections(j)
          E_UNC(npoints)  = UncorError
          E_TOT(npoints)  = TotalError
-         E_STA(npoints)  = StatErrors(j)
+         E_STA(npoints)  = StatError
 
          ! > Check total error
          if (TotalErrorRead.ne.0) then
@@ -457,8 +462,8 @@ C Uncorrelated error:
             AbstractBins(i,npoints) = allbins(i,j)
          enddo
 
-         ALPHA(npoints) = sqrt(UncorError**2+StatErrors(j)**2)*DATEN(npoints)
-         do i=1,NSyst
+         ALPHA(npoints) = sqrt(UncorError**2+StatError**2)*DATEN(npoints)
+         do i=1,NUncert
             if (SystematicType(i).ne.'uncor') then
 
                BETA(CompressIdx(i),npoints) = syst(i)
@@ -486,10 +491,10 @@ C Store k-factors:
       print '(''Read'',i8,'' data points for '',A80)',NData,Name
       print '(''Printing first'',i5,'' data points'')',min(Ndata,5)
       print '(20A14)',(BinName(i),i=1,NBinDimension),' sigma'
-     $     ,' stat. err'
+    
       do j=1,min(NData,5)
          print '(20E14.4)',(Allbins(i,j),i=1,NBinDimension),XSections(j)
-     $        ,StatErrors(j)
+    
       enddo
       return
 
