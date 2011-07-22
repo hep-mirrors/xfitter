@@ -25,29 +25,10 @@ C-----------------------------------------------------
 *     ------------------------------------------------
       call read_data
 
-*
-* Initialise EW parameters
-*
-      call Init_EW_parameters
-
-
 *     ------------------------------------------------
-*     Initialise theory module
+*     Initialise theory modules
 *     ------------------------------------------------
-C-1- 29/07/2010 -----------------------------------
-C---  added '.or.itheory.eq.3' into the condition
-C---  to enable the Dipole model
-      if(itheory.eq.0.or.itheory.eq.3) then
-C-2- 29/07/2010: end of the addition --------------
-         call qcdnum_ini
-      elseif(itheory.eq.1) then       
-c          here goes a call to a CASCADE ini subroutine, if needed         
-      endif
-
-*
-* Initialise calculations for each dataset:
-*
-      call Init_theory_datasets
+      call init_theory_modules
 
 *     ------------------------------------------------
 *     Do the fit
@@ -74,8 +55,12 @@ c          here goes a call to a CASCADE ini subroutine, if needed
       stop
       end
 
+C-----------------------------------------------------
+
+
 
       Subroutine H1fitterinfo
+*     ------------------------------------------------
       print *,' '
       print *,' '
       print *,'-------------------------------------------------------------------'
@@ -94,3 +79,5 @@ c          here goes a call to a CASCADE ini subroutine, if needed
       print *,' '
 c      stop
       end
+
+*     ------------------------------------------------
