@@ -412,10 +412,10 @@ C Masses:
 C
       Mz = 91.187d0
       Mw = 80.41d0
-      sin2thw = 1.d0 - Mw**2/Mz**2
+c      sin2thw = 1.d0 - Mw**2/Mz**2
 
 cv use mandy's
-cv      sin2thw = 0.2315
+      sin2thw = 0.2315
       cos2thw = 1.d0 - sin2thw
 
 
