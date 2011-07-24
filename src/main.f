@@ -6,7 +6,7 @@
       include 'steering.inc'
       include 'thresholds.inc'
       include 'couplings.inc'
-      include 'lprint.inc'
+      include 'for_debug.inc'
 
       integer icond
 C-----------------------------------------------------
