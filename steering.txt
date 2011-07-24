@@ -192,19 +192,19 @@ EXIT
 *  Namelist to control input data
 *
 &InFiles
-    NInputFiles = 5
+    NInputFiles = 4
     InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
     InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
     InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
     InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
-    InputFileNames(5) = 'datafiles/ATLAS_DY_CC_ASYMMETRY.dat'
+!    InputFileNames(5) = 'datafiles/ATLAS_DY_CC_ASYMMETRY.dat'
 &End
 
 *
 * Process dependent cuts
 *
 &Cuts
-   NProcesses = 3
+   NProcesses = 0
 
   !--------------------- NC ep  --------------------------
 
