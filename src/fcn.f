@@ -1,10 +1,8 @@
 c----------------------------------------------------------------------
       subroutine  fcn(npar,g,f,p,iflag,futil)
-C----------------------------------------------------------------------
-C
-C Main minimization subroutine for MINUIT
-C
-c----------------------------------------------------------------------
+*     ---------------------------------------------------------
+*     Main minimization subroutine for MINUIT
+*     ---------------------------------------------------------
       implicit none
 
       include 'steering.inc'
@@ -13,7 +11,6 @@ c----------------------------------------------------------------------
       include 'endmini.inc'
       include 'for_debug.inc'
       include 'couplings.inc'
-      include 'lprint.inc'
       include 'ntot.inc'
       include 'covar_chi2.inc'
       include 'datasets.inc'
@@ -24,32 +21,37 @@ c----------------------------------------------------------------------
       include 'hadcor.inc'
       include 'fcn.inc'
 
+
+*     ---------------------------------------------------------
+*     declaration related to minuit
+*     ---------------------------------------------------------
       integer npar,iflag
       double precision g(*),p(*),f,futil
-
-C For RT code, transfer alpha S
-      double precision alphaszero
-
       external futil
 
+*     ---------------------------------------------------------
+*     declaration related to alphas
+*     for RT code, transfer alpha S
+*     ---------------------------------------------------------
+      double precision alphaszero
+      double precision asfunc
 
-      double precision chisq,fchi2
-
-      double precision d,t,error,errorunc
-      double precision errorsta, fac, fcorchi2
-
-      double precision d_i, t_i, error_i, d_j, error_j, t_j
+*     ---------------------------------------------------------
+*     declaration related to chisquare
+*     ---------------------------------------------------------
+      double precision fchi2, fcorchi2
       double precision DeltaLength
-
-      double precision time1,time2,time3
-
-      double precision x
-
-      double precision quv,qdv, qus, qds, qst, qch, qbt, qgl
-      double precision sub
-
       double precision BSYS(NSYSMax), RSYS(NSYSMax)
       double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
+      double precision pchi2(nset)
+
+
+
+*     ---------------------------------------------------------
+*     declaration related to code flow/debug
+*     ---------------------------------------------------------
+
+      double precision time1,time2,time3
 
       integer kpr,cdebug
       double precision xpr(9)
@@ -58,31 +60,35 @@ C For RT code, transfer alpha S
       data kpr,cdebug/9,0/
       Integer Icount
       data icount/0/
+
+!*** count FCN calls,  Iprint=0 suppress printing
+      integer IfcnCount, Iprint  
+      data IfcnCount,Iprint  /0,0/ 
+      save IfcnCount,iPrint
+
+*     ---------------------------------------------------------
+*     declaration related to others
+*     ---------------------------------------------------------
+      double precision x
+      double precision quv,qdv, qus, qds, qst, qch, qbt, qgl
       integer iq, ix, nndi, ndi,ndi2
       character*25 base_pdfname
-      integer ir(nsysmax)
-      integer npts
-      dimension npts(nset)
-cv for saving sm predictions
+      integer npts(nset)
       double precision f2SM,f1SM,flSM
-      double precision pchi2(nset)
       integer i,j,kflag,jsys,ndf,n0,h1iset,jflag,k,pr
       integer ipoints_jet(NSET)
       logical refresh, refresh_DIS
-      integer isys,ipoint,jpoint,ifail
-
+      integer isys,ipoint,jpoint
       integer nflav , ierr
-
       integer idataset
-
-
 C  x-dependent fs:
       double precision fs0
       double precision fshermes
 
+*     ---------------------------------------------------------
+*     declaration related to ACOT --- to be adjusted!
+*     ---------------------------------------------------------
 
-CV ======================================================
-CV ======================================================
 CV passing info from ACOT codes to h1fitter
 
       integer Isch, Iset, Iflg, Ihad
@@ -103,17 +109,11 @@ c     IfirstACOT =-1  Compute Full NLO each time (Over-ride: VERY SLOW)
       data   IfirstACOT /1/  !*** We'll set to zero after first pass
       integer ifirstGRID
       data   IfirstGRID /1/  !*** We'll set to zero after first pass
-C----------------------------------------------------
-!*** count FCN calls,  Iprint=0 suppress printing
-      integer IfcnCount, Iprint  
-      data IfcnCount,Iprint  /0,0/ 
-      save IfcnCount,iPrint
-
 C
 C Functions:
 C
       double precision gluon, singlet, Uminus,Dminus,Sea
-      double precision asfunc
+
 
 C------------------------------------------------------------------------
 
@@ -132,16 +132,41 @@ C     Count function calls and print:
 
 CV ======================================================
 CV===========================================================
-c what's this f?
-      f = 0.d0
 
-C-1- 29/07/2010: add Itheory=3 condition ----------
+
+*     ---------------------------------------------------------
+*     initilise variables 
+*     ---------------------------------------------------------
+      f = 0.d0
+      fchi2 = 0.d0
+      ndf = -npar
+      n0 = 0
+
+
+      do jsys=1,nsys
+         bsys(jsys) = 0.d0
+         rsys(jsys) = 0.d0
+         ebsys(jsys) = 0.d0
+         ersys(jsys) = 0.d0
+      enddo
+
+
+      do i=1,ntot
+         THEO(i) = 0.d0
+      enddo
+
+
+
       if (Itheory.eq.3) then
         Itheory = 0
       endif
-C-2- 29/07/2010: end of the addition --------------
 
 
+
+
+*     ---------------------------------------------------------
+*     ACOT related: for kfactors
+*     -----------------------------------------------------
       if (iflag.eq.3) then 
          ifirstACOT=3
          ifirstGRID=1
@@ -158,13 +183,12 @@ C-2- 29/07/2010: end of the addition --------------
          else
             fcharm = 0.
          endif
-
+*     -----------------------------------------------------
 *     set fstrange via steering
+*     -----------------------------------------------------
          fstrange = strange_frac
-         
-C 31 Oct 2009:  add x-dependent strange 
-C
-         if (ifsttype.eq.0) then
+
+         if (ifsttype.eq.0) then ! add x-dependent strange 
             fs0 = fstrange 
          else
             fs0 = fshermes(0.D0)  ! strange fraction at x=0
@@ -172,22 +196,24 @@ C
 
 
          if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
+*     -----------------------------------------------------
 *     set fcharm via steering
+*     -----------------------------------------------------
             fcharm =charm_frac
          endif
       endif ! iflag.eq.1
 
 
-C
-C PDF parameterisation at the starting scale
-C
-
+*     ---------------------------------------------------------
+*     PDF parameterisation at the starting scale
+*     ---------------------------------------------------------
       call PDF_Param_Iteration(p,iflag)
 
 
-C 
-C Extra constraints on input PDF due to momentum and quark counting sum rules:
-C
+*     ---------------------------------------------------------
+*     Extra constraints on input PDF due to momentum and quark 
+*     counting sum rules:
+*     ---------------------------------------------------------
       kflag=0
       if (Itheory.eq.0)  call SumRules(kflag)
       if (kflag.eq.1) then
@@ -195,29 +221,9 @@ C
          stop
       endif
 
-      do jsys=1,nsys
-         bsys(jsys) = 0.d0
-         rsys(jsys) = 0.d0
-         ebsys(jsys) = 0.d0
-         ersys(jsys) = 0.d0
-      enddo
-
-
-*     -- for ICHI2=2, the matrix sysa is filled already in Systematics
-
-      if (ICHI2.ne.2) then
-         do isys=1,nsys
-            do jsys=1,nsys
-               sysa(isys,jsys) = 0.d0
-               if (jsys.eq.isys) sysa(isys,jsys) = 1.d0
-            enddo
-         enddo
-      endif
-
-      do i=1,ntot
-         THEO(i) = 0.d0
-      enddo
-
+*     -----------------------------------------------------
+*      set alphas
+*     -----------------------------------------------------
 
       if(itheory.eq.0) then 
          call setalf(dble(alphas),Mz*Mz)
@@ -225,67 +231,58 @@ C
          call RT_SetAlphaS(alphaSzero)
       endif 
 
-*     -- set alphas
+      
+*     -----------------------------------------------------
+*      prntouts for debuging - online is set in steering.txt
+*     -----------------------------------------------------      
+      if (debug.and.ONLINE) then
+         if (Itheory.ne.2) then
+            if (itheory.eq.1) then
+            elseif (iparam.eq.1) then
+               write(6,*) 'couplings ',cvu,cau,cvd,cad
+               write(6,*) 'ag bg cg dg ',ag,bg,cg,dg
+               write(6,*) 'au ad aubar adbar fu ',
+     +              au,ad,aubar,adbar,fu
+               write(6,*) 'dd du bu cu cd cub cdb ',
+     +              dd,du,bu,cu,cd,Cubar,Cdbar
+               write(6,*) 'alphas_s(M_Z) ',alphas
+               
+            elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
+     $              .or.iparam.eq.221.or.iparam.eq.222
+     $              .or.iparam.eq.229.or.iparam.eq.227) then
+               
+               write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
+               write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
+               write(6,*) 'aUv,bUv,cUv,dUv,eUv,fUv ',
+     +              aUv,bUv,cUv,dUv,eUv,fUv
+               write(6,*) 'aDv,bDv,cDv,dDv,fDv ',
+     +              aDv,bDv,cDv,dDv,fDv
+               write(6,*) 'aUb,bUb,cUb,dUb ',
+     +              aUbar,bUbar,cUbar,dUbar
+               write(6,*) 'aDb,bDb,cDb,dDb ',
+     +              aDbar,bDbar,cDbar,dDbar
+               write(6,*) 'Rfudge, afudge, F2ht1, f2ht2 ',
+     +              Rfudge, afudge, f2ht1, f2ht2
+            elseif (iparam.eq.4) then
+               write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
+               write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
+               write(6,*) 'auv,buv,cuv,duv,euv,fuv ',
+     +              aUv,bUv,cUv,dUv,eUv,fUv
+               write(6,*) 'adv,bdv,cdv,ddv,fdv ',
+     +              aDv,bDv,cDv,dDv,fDv
+               write(6,*) 'asea,bsea,csea',
+     +              asea,bsea,csea
+               
+            endif               ! end itheory =1 
+            
+            
+         endif                  ! Itheory<>2
+         
 
-      if (lprint.and.ONLINE) then
-
-C-1- 27/07/2010: added condition 'Itheory<>2' -----
-        if (Itheory.ne.2) then
-C-2- 27/10/2010: end of the addition --------------
-
-         if (itheory.eq.1) then
-
-         elseif (iparam.eq.1) then
-	    write(6,*) 'couplings ',cvu,cau,cvd,cad
-            write(6,*) 'ag bg cg dg ',ag,bg,cg,dg
-            write(6,*) 'au ad aubar adbar fu ',
-     +           au,ad,aubar,adbar,fu
-            write(6,*) 'dd du bu cu cd cub cdb ',
-     +           dd,du,bu,cu,cd,Cubar,Cdbar
-            write(6,*) 'alphas_s(M_Z) ',alphas
-
-         elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
-     $           .or.iparam.eq.221.or.iparam.eq.222
-     $           .or.iparam.eq.229.or.iparam.eq.227) then
-
-c            write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
-c            write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
-c            write(6,*) 'aUv,bUv,cUv,dUv,eUv,fUv ',
-c     +           aUv,bUv,cUv,dUv,eUv,fUv
-c            write(6,*) 'aDv,bDv,cDv,dDv,fDv ',
-c     +           aDv,bDv,cDv,dDv,fDv
-c            write(6,*) 'aUb,bUb,cUb,dUb ',
-c     +           aUbar,bUbar,cUbar,dUbar
-c            write(6,*) 'aDb,bDb,cDb,dDb ',
-c     +           aDbar,bDbar,cDbar,dDbar
-c            write(6,*) 'Rfudge, afudge, F2ht1, f2ht2 ',
-c     +           Rfudge, afudge, f2ht1, f2ht2
-         elseif (iparam.eq.4) then
-            write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
-            write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
-            write(6,*) 'auv,buv,cuv,duv,euv,fuv ',
-     +           aUv,bUv,cUv,dUv,eUv,fUv
-            write(6,*) 'adv,bdv,cdv,ddv,fdv ',
-     +           aDv,bDv,cDv,dDv,fDv
-            write(6,*) 'asea,bsea,csea',
-     +           asea,bsea,csea
-
-         endif
-
-C-1- 27/07/2010: closing of added condition -------
-        endif   ! Itheory<>2
-C-2- 27/07/2010: end of the addition --------------
-
-      endif                     ! (lprint.and.ONLINE)
+      endif                     ! (debug.and.ONLINE)
 
 
-      chisq=0.d0
-      fchi2 = 0.d0
-      ndf = -npar
-      n0 = 0
-*     ---------------------------------------------------------
-*     -- a first loop to fill in the theoretical x-sections
-*     ---------------------------------------------------------
+*     --------------------------------------------------
 
       if (iflag.eq.1) then
          open(87,file='output/pulls.first.txt')
@@ -299,8 +296,6 @@ C-2- 27/07/2010: end of the addition --------------
       endif
 
 
-*     --------------------------------------------------
-
 
       do i=31,42
          ipoints_jet(i) = 0
@@ -309,39 +304,41 @@ C-2- 27/07/2010: end of the addition --------------
 
 
 *     ---------------------------------------------------------  	 
-*     -- start of loop over data points: 	 
-*     ---------------------------------------------------------
+*     Call evolution
+*     ---------------------------------------------------------  	 
       if (Debug) then
          print*,'before evolution'
       endif
 
-      if (Itheory.eq.0) then
-         
+      if (Itheory.eq.0) then         
          call Evolution
       else
          print*,'ITHEORY ne 0'
       endif
 
-      if ((HFSCHEME.eq.4).or.(vfnsINDX.eq.4)) then
-c         call omegridini(xbmin,nxpgrid,nsmgrid)
-c         call apeqsgrid(q2min,q2max,xbmin)
-c         call fillvfngrid
-      endif
-
       if (Debug) then
          print*,'after evolution'
       endif
-
-C Initialise theory calculation per iteration
+*     ---------------------------------------------------------  	 
+*     Initialise theory calculation per iteration
+*     ---------------------------------------------------------  	 
       call GetTheoryIteration
-      
-C Calculate theory for datasets:
+
+*     ---------------------------------------------------------  	       
+*     Calculate theory for datasets:
+*     ---------------------------------------------------------  	 
       do idataset=1,NDATASETS
          call GetTheoryForDataset(idataset)
       enddo
 
 
+
       call cpu_time(time1)
+
+*     ---------------------------------------------------------  	 
+*     Start of loop over data points: 	 
+*     ---------------------------------------------------------
+
       do 100 i=1,npoints
          idata=i                !*** Pass this to ACOT for K-Factor use
          
@@ -355,25 +352,224 @@ C Calculate theory for datasets:
          
          
  100  continue
-
+*     ---------------------------------------------------------
+*     end of data loop
+*     ---------------------------------------------------------
       if (Debug) then
          print*,'after data loop'
       endif
 
-*     ---------------------------------------------------------------------------
+
+*     ---------------------------------------------------------
+*     calculate chisquare
+*     ---------------------------------------------------------
+      call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+
+
+
+      if (iflag.eq.1) close(87)
+
+
+      if (iflag.eq.3) then
+         mpar = npar
+         do i=1,mpar0
+            pkeep(i) = p(i)
+         enddo
+
+*     ---------------------------------------------------------
+*     write out data points with fitted theory
+*     ---------------------------------------------------------
+         call writefittedpoints
+      endif
+
+*     ---------------------------------------------------------
+*     pdf lenght term -- used for Chebyshev Polynomial
+*     ---------------------------------------------------------
+      if (ILenPdf.gt.0) then
+         call  PDFLength(DeltaLength)      
+         print *,'Chi2 from PDF length:',DeltaLength,fchi2
+      else
+         DeltaLength = 0.
+      endif
+
+      f = fchi2 + DeltaLength
+
+      icount = icount + 1
+
+      if (ONLINE.and.lprint) then
+         call cpu_time(time3)
+         print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
+         write(6,'(A20,i6,F12.2,i4,F12.2)') ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf
+
+
+       if (Itheory.ne.2) then
+
+
+          if (icount.eq.1.and.cdebug.eq.1) then
+             do i = 1,kpr
+                x = xpr(i)
+                write(6,*) ' '
+                call Get_Partons(x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl)
+                write(6,600) x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl
+                write(6,*) 'gluon,singlet,uval,dval,sea'
+     +               ,gluon(x),singlet(x),Uminus(x),Dminus(x),sea(x)
+             enddo
+ 600         format(1x, 10(F16.8,2x))
+          endif
+
+        endif   ! Itheory.ne.2
+
+      endif ! end online, lprint
+
+
+      if (iflag.eq.1) then
+         write(85,*) 'First iteration ',f,ndf,f/ndf
+      endif
+
+      if (iflag.eq.3) then
+         write(85,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
+         write(85,*)
+         write(6,*)
+         write(6,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
+         write(6,*)
+      endif
+
+
+      if (lNORMA.and.ONLINE) then
+         if (lprint) 
+     +        write(6,*) ' fitted norm ',
+     +        p(15),p(16),p(17),p(18),p(19),p(20),
+     +        p(21),p(22),p(23)
+      endif
+
+
+      if (iflag.eq.3) then
+         if(itheory.eq.0) then      
+         endif
+         write(85,*) ' Partial chi2s '
+         do h1iset=1,nset
+            write(6,'(''Dataset '',i4,F10.2,i6)')
+     $           ,h1iset,pchi2(h1iset),npts(h1iset)
+            write(85,'(''Dataset '',i4,F10.2,i6)')
+     $           ,h1iset,pchi2(h1iset),npts(h1iset)
+         enddo
+         write(85,*)
+
+         write(6,*) 'Correlated Chi2 ', fcorchi2
+         write(85,*) 'Correlated Chi2 ', fcorchi2
+
+       base_pdfname = 'output/pdfs_q2val_'
+
+       if (ITheory.ne.2) then
+          call Evolution
+          call store_pdfs(base_pdfname)
+       endif
+
+       write(85,*) 'Systematic shifts '
+       open(unit=77,file='output/systematics_polar.txt')
+       do jsys=1,nsys
+          write(77,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
+          write(85,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
+       enddo
+       close(77)
+
+c AS release applgrids
+c AS applgrid example
+       if ( useapplg ) then
+          call ag_releasegrids
+       endif
+       call cpu_time(time2)
+       print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
+
+       
+      endif
+
+ 999  continue
+      return
+      end
+
+
+
+*     ---------------------------------------------------------  	 
+*     Calculate chisquare:
+*      - first get error matrix
+*      - invert error matric to get errors
+*      - calculate chisquare
+*     ---------------------------------------------------------
+
+
+      subroutine GetChisquare(flag_in,n0_in,fchi2_in,rsys_in,ersys_in,pchi2_in,fcorchi2_in)
+
+      implicit none
+
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'covar_chi2.inc'
+      include 'datasets.inc'
+      include 'indata.inc'
+      include 'for_debug.inc'
+      include 'systematics.inc'
+      INCLUDE 'theo.inc'
+
+
+      integer ir(nsysmax),n0_in 
+      integer isys,ipoint,jpoint,ifail,flag_in
+      double precision chisq,fchi2_in
+      double precision d,t,error,errorunc
+      double precision errorsta, fac, fcorchi2_in
+      double precision d_i, t_i, error_i, d_j, error_j, t_j         
+      integer i,j,jsys,h1iset
+      double precision pchi2_in(nset)
+      double precision EBSYS_in(NSYSMax),ERSYS_in(NSYSMax)
+      double precision BSYS_in(NSYSMax),RSYS_in(NSYSMax)
+      double precision sub
+
+
+*     ----------------------------------------------------------
+*     Initialise
+*     ----------------------------------------------------------
+      chisq=0.d0
+      fchi2_in = 0.d0
+
+      sub = 0.d0
+
+      do jsys=1,nsys
+         ir(nsys)=0.d0
+         bsys_in(jsys) = 0.d0
+         rsys_in(jsys) = 0.d0
+         ebsys_in(jsys) = 0.d0
+         ersys_in(jsys) = 0.d0
+      enddo
+
+      do i=1,nset
+         pchi2_in(i)=0.d0
+      enddo
+*     -- for ICHI2=2, the matrix sysa is filled already in Systematics
+
+      if (ICHI2.ne.2) then
+         do isys=1,nsys
+            do jsys=1,nsys
+               sysa(isys,jsys) = 0.d0
+               if (jsys.eq.isys) sysa(isys,jsys) = 1.d0
+            enddo
+         enddo
+      endif
+
+
+*     ----------------------------------------------------------
 *     Pascaud-like chi2 plus error scaled modifications
+*     ----------------------------------------------------------
       if (mod(ICHI2, 10).eq.1) then
 
 
          if (.not.lTHEO) then
-
 *     ---------------------------------------------------------
-*     -- now calculate the bsys(nsys) and the sysa matrix
+*     now calculate the bsys(nsys) and the sysa matrix
 *     ---------------------------------------------------------
 
             do isys = 1,nsys
 
-               do 200 ipoint=1,n0
+               do 200 ipoint=1,n0_in
 
                   d = DATEN(ipoint)
                   t = THEO(ipoint)
@@ -397,10 +593,10 @@ C Calculate theory for datasets:
                      error = dsqrt(errorsta**2+errorunc**2)
 
 
-                    if ((h1iset.eq.101).or.(h1iset.eq.102)
-     $                    .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
-                        error = alpha(ipoint)
-                     endif
+c                    if ((h1iset.eq.101).or.(h1iset.eq.102)
+c     $                    .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
+c                        error = alpha(ipoint)
+c                     endif
 
 
 
@@ -412,10 +608,10 @@ C Calculate theory for datasets:
                      error = error*dsqrt(abs(t/d))
                   endif
                   
-                  bsys(isys) = bsys(isys) 
+                  bsys_in(isys) = bsys_in(isys) 
      +                 + t*(d-t)*BETA(isys,ipoint)/error**2 
 
-                  ebsys(isys) = ebsys(isys)
+                  ebsys_in(isys) = ebsys_in(isys)
      +                 + t * BETA(isys,ipoint)/error
 
                   do 300 jsys=1,nsys
@@ -430,28 +626,24 @@ C Calculate theory for datasets:
 
 
 *     ---------------------------------------------------------
-*     --  inverse sysa and find the shifts
+*     inverse sysa and find the shifts
 *     ---------------------------------------------------------
 
 
-*            do isys=1,nsys
-*              write(6,*) 'isys rsys ',isys,rsys(isys)
-*            enddo
-
             if (nsys.gt.0) then
-               CALL DINV  (NSys,sysa,NSYSMAX,IR,IFAIL)
+               CALL DINV (NSys,sysa,NSYSMAX,IR,IFAIL)
             endif
 
             do isys=1,nsys
                do jsys=1,nsys
-                  rsys(isys) = rsys(isys)-sysa(isys,jsys)*bsys(jsys)
+                  rsys_in(isys) = rsys_in(isys)-sysa(isys,jsys)*bsys_in(jsys)
                enddo
             enddo
 
-            if (DEBUG.and.iflag.eq.1) then
+            if (DEBUG.and.flag_in.eq.1) then
                write(78,*)
                do isys=1,nsys
-                  write(78,*) 'isys rsys ',isys,rsys(isys)
+                  write(78,*) 'isys rsys ',isys,rsys_in(isys)
                enddo
                write(78,*)
             endif
@@ -461,23 +653,20 @@ C Calculate theory for datasets:
 
 
 *     ---------------------------------------------------------
-*     -- now calculate the chi2
+*     now calculate the chi2
 *     ---------------------------------------------------------
 
-
          if (Debug) then
-            write(6,*) 'iflag ICHI2 lTHEO',iflag, ICHI2, lTHEO
+            write(6,*) 'flag_in ICHI2 lTHEO',flag_in, ICHI2, lTHEO
          endif
 
-         do ipoint=1,n0
+         do ipoint=1,n0_in
 
             h1iset = JSET(ipoint)
             d = daten(ipoint)
             t = theo(ipoint)
 
             error = alpha(ipoint)
-
-c            if (h1iset.eq.102) print*,'voica atlas', ipoint,d,t,error
 
 ***   scale errors for chi2 calculation - as above!
             if (ICHI2.eq.11) then
@@ -511,32 +700,29 @@ c            if (h1iset.eq.102) print*,'voica atlas', ipoint,d,t,error
 
             fac = 1.d0
             do isys=1,nsys
-               fac = fac - rsys(isys)*beta(isys,ipoint)                
+               fac = fac - rsys_in(isys)*beta(isys,ipoint)                
             enddo 
 
-            if (DEBUG.and.iflag.eq.1) then
+            if (DEBUG.and.flag_in.eq.1) then
                write(78,*) 'ipoint fac ',ipoint,fac
             endif
 
 
             t = t*fac
             chisq = (d-t)**2/error**2
-            fchi2 = fchi2 + chisq
+            fchi2_in = fchi2_in + chisq
 
-c              write(6,*) 'ipoint d t error/d*100', ipoint, d, t, error/d*100 
-c              write(6,*) 'ipoint fac chisq fchi2',ipoint,fac, chisq, fchi2
-
-            if (iflag.eq.3) then
-               pchi2(h1iset) = pchi2(h1iset)+chisq
+            if (flag_in.eq.3) then
+               pchi2_in(h1iset) = pchi2_in(h1iset)+chisq
             endif
 
-            if (iflag.eq.1) then
+            if (flag_in.eq.1) then
                write(87,880) h1iset, 
      $              AbstractBins(1,ipoint),
      $              AbstractBins(2,ipoint),AbstractBins(3,ipoint),
      $              t,d,(d-t)/error
             endif
-            if (iflag.eq.3) then
+            if (flag_in.eq.3) then
                write(88,880) h1iset,
      $              AbstractBins(1,ipoint),
      $              AbstractBins(2,ipoint),AbstractBins(3,ipoint),
@@ -546,54 +732,54 @@ c              write(6,*) 'ipoint fac chisq fchi2',ipoint,fac, chisq, fchi2
 
 *     -- errors on the shifts (correct ??)
             do isys=1,nsys
-               ersys(isys) = ersys(isys) + 2.*theo(ipoint)**2
+               ersys_in(isys) = ersys_in(isys) + 2.*theo(ipoint)**2
      +              *beta(isys,ipoint)**2 / error**2
             enddo
 
-cv            print*,'testvvv', ipoint, d,t,t/fac,chisq, fchi2
          enddo
 
          do isys=1,nsys
-            fchi2 = fchi2 + rsys(isys)**2
-            if (ersys(isys).gt.0) then
-               ersys(isys) = dsqrt(2. / ersys(isys))
+            fchi2_in = fchi2_in + rsys_in(isys)**2
+            if (ersys_in(isys).gt.0) then
+               ersys_in(isys) = dsqrt(2. / ersys_in(isys))
             endif
          enddo
 
          
 
-c.... added by JF 05/03/07
 c....print out the correlated chi2
-         if (iflag.eq.3) then
-            fcorchi2=0.0d0
+         if (flag_in.eq.3) then
+            fcorchi2_in=0.0d0
             do isys=1,nsys
-               fcorchi2= fcorchi2 +rsys(isys)**2
+               fcorchi2_in= fcorchi2_in +rsys_in(isys)**2
             enddo
          endif
+
+
 c...........................
 
 
 
       elseif (ICHI2.eq.3) then  ! full covariance matrix
 
-         do ipoint=1,n0
+         do ipoint=1,n0_in
 
             d_i = daten(ipoint)
             t_i = theo(ipoint)
             error_i = alpha(ipoint)
 
 
-            do jpoint=1,n0
+            do jpoint=1,n0_in
                d_j = daten(jpoint)
                t_j = theo(jpoint)
                error_j = alpha(jpoint)
 
                chisq = (d_i-t_i)*cov(ipoint,jpoint)*(d_j-t_j)
-               fchi2 = fchi2 + chisq
+               fchi2_in = fchi2_in + chisq
 
-               if (iflag.eq.3) then
+               if (flag_in.eq.3) then
                   h1iset = JSET(ipoint)
-                  pchi2(h1iset) = pchi2(h1iset)+chisq
+                  pchi2_in(h1iset) = pchi2_in(h1iset)+chisq
                endif
 
             enddo
@@ -605,23 +791,23 @@ c...........................
 
       elseif (ICHI2.eq.2) then  !  CTEQ-like chi2
 
-         do ipoint=1,n0
+         do ipoint=1,n0_in
 
             d_i = daten(ipoint)
             t_i = theo(ipoint)
             error_i = alpha(ipoint)
 
             chisq = (d_i-t_i)**2 / error_i**2
-            fchi2 = fchi2 + chisq
+            fchi2_in = fchi2_in + chisq
 
             do jsys=1,nsys
-               bsys(jsys) = bsys(jsys)
+               bsys_in(jsys) = bsys_in(jsys)
      +              + beta(jsys,ipoint)*(d_i-t_i)/error_i**2
             enddo
 
-            if (iflag.eq.3) then
+            if (flag_in.eq.3) then
                h1iset = JSET(ipoint)
-               pchi2(h1iset) = pchi2(h1iset)+chisq
+               pchi2_in(h1iset) = pchi2_in(h1iset)+chisq
             endif
 
 
@@ -630,164 +816,35 @@ c...........................
 *     
 *     - Now calculate the term to subtract from chi2 (cf CTEQ)
 
-         sub = 0.d0
-
          do i=1,nsys
             do j=1,nsys
-               sub = sub + bsys(i) * sysa(i,j) * bsys(j)
+               sub = sub + bsys_in(i) * sysa(i,j) * bsys_in(j)
             enddo
          enddo
 
-         fchi2 = fchi2 - sub
+         fchi2_In = fchi2_in - sub
 
 
 *     -- and get the systematic shifts :
 
          do i=1,nsys
-            RSYS(i) = 0.
+            RSYS_in(i) = 0.
             do j=1,nsys
-               rsys(i) = rsys(i) + sysa(i,j) * bsys(j)
+               rsys_in(i) = rsys_in(i) + sysa(i,j) * bsys_in(j)
             enddo
          enddo
 
-c.... added by JF 05/03/07
 c....print out the correlated chi2
-         if (iflag.eq.3) then
-            fcorchi2=0.0d0
+         if (flag_in.eq.3) then
+            fcorchi2_in=0.0d0
             do isys=1,nsys
-               fcorchi2= fcorchi2 +rsys(isys)**2
+               fcorchi2_in= fcorchi2_in +rsys_in(isys)**2
             enddo
          endif
 c...........................
 
       endif
 
-*     ---------------------------------------------------------
-
-
-      if (iflag.eq.1) close(87)
-
-      if (iflag.eq.3) then
-         mpar = npar
-         do i=1,mpar0
-            pkeep(i) = p(i)
-         enddo
-
-c write out data points with fitted theory
-         call writefittedpoints
-
-      endif
-
-C  June 27 2009, add pdf lenght term:
-      if (ILenPdf.gt.0) then
-         call  PDFLength(DeltaLength)
-      
-         print *,'Chi2 from PDF length:',DeltaLength,fchi2
-      else
-         DeltaLength = 0.
-      endif
-
-      f = fchi2 + DeltaLength
-
-      icount = icount + 1
-      if (ONLINE.and.lprint) then
-         call cpu_time(time3)
-         print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
-         write(6,'(A20,i6,F12.2,i4,F12.2)') ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf
-*START DEBUG
-
-C-1- 27/07/2010: added condition 'Itheory<>2' -----
-       if (Itheory.ne.2) then
-C-2- 27/10/2010: end of the addition --------------
-
-            if (icount.eq.1.and.cdebug.eq.1) then
-               do i = 1,kpr
-                  x = xpr(i)
-                  write(6,*) ' '
-                  call Get_Partons(x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl)
-                  write(6,600) x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl
-                  write(6,*) 'gluon,singlet,uval,dval,sea'
-     +                 ,gluon(x),singlet(x),Uminus(x),Dminus(x),sea(x)
-               enddo
- 600     format(1x, 10(F16.8,2x))
-            endif
-
-C-1- 27/07/2010: added condition 'Itheory<>2' -----
-        endif   ! Itheory.ne.2
-C-2- 27/10/2010: end of the addition --------------
-
-      endif
-
-      if (iflag.eq.1) then
-         write(85,*) 'First iteration ',f,ndf,f/ndf
-      endif
-      if (iflag.eq.3) then
-         write(85,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
-         write(85,*)
-         write(6,*)
-         write(6,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
-         write(6,*)
-      endif
-
-
-c      if (lprint.and.ONLINE) 
-c     +     write(6,'(''RSYS'',4g8.2)') rsys(1),rsys(2),rsys(3),rsys(4)
-      if (lNORMA.and.ONLINE) then
-         if (lprint) 
-     +        write(6,*) ' fitted norm ',
-     +        p(15),p(16),p(17),p(18),p(19),p(20),
-     +        p(21),p(22),p(23)
-      endif
-
-
-      if (iflag.eq.3) then
-         if(itheory.eq.0) then      
-         endif
-         write(85,*) ' Partial chi2s '
-         do h1iset=1,nset
-            write(6,'(''Dataset '',i4,F10.2,i6)')
-     $           ,h1iset,pchi2(h1iset),npts(h1iset)
-            write(85,'(''Dataset '',i4,F10.2,i6)')
-     $           ,h1iset,pchi2(h1iset),npts(h1iset)
-         enddo
-         write(85,*)
-
-c.... added by JF 05/03/07
-         write(6,*) 'Correlated Chi2 ', fcorchi2
-         write(85,*) 'Correlated Chi2 ', fcorchi2
-c.................................
-
-       base_pdfname = 'output/pdfs_q2val_'
-
-C-1- 22/07/2010: added the condition -------------
-       if (ITheory.ne.2) then
-          call Evolution
-          call store_pdfs(base_pdfname)
-       endif
-C-2- 22/07/2010: end of the addition -------------
-
-       write(85,*) 'Systematic shifts '
-       open(unit=77,file='output/systematics_polar.txt')
-       do jsys=1,nsys
-          write(77,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
-          write(85,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
-       enddo
-       close(77)
-
-c AS release applgrids
-c AS applgrid example
-       if ( useapplg ) then
-          call ag_releasegrids
-       endif
-       call cpu_time(time2)
-       print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
-
-       
-      endif
-
- 999  continue
       return
       end
-
-
 
