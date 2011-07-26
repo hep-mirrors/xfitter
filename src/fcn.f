@@ -53,11 +53,6 @@ c----------------------------------------------------------------------
 
       double precision time1,time2,time3
 
-      integer kpr,cdebug
-      double precision xpr(9)
-      data xpr/0.00008d0,0.0008d0,0.008d0,0.08d0,
-     $     0.13d0,0.18d0,0.25d0,0.4d0,0.65d0/
-      data kpr,cdebug/9,0/
       Integer Icount
       data icount/0/
 
@@ -402,22 +397,6 @@ CV===========================================================
          write(6,'(A20,i6,F12.2,i4,F12.2)') ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf
 
 
-       if (Itheory.ne.2) then
-
-
-          if (icount.eq.1.and.cdebug.eq.1) then
-             do i = 1,kpr
-                x = xpr(i)
-                write(6,*) ' '
-                call Get_Partons(x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl)
-                write(6,600) x,q0,quv,qdv,qus,qds,qst,qch,qbt,qgl
-                write(6,*) 'gluon,singlet,uval,dval,sea'
-     +               ,gluon(x),singlet(x),Uminus(x),Dminus(x),sea(x)
-             enddo
- 600         format(1x, 10(F16.8,2x))
-          endif
-
-        endif   ! Itheory.ne.2
 
       endif ! end online, lprint
 
