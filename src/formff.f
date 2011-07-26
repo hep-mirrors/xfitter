@@ -1931,15 +1931,32 @@ C       PI=3.1415926535897932384
         X=DREAL(Z)
         Y=DIMAG(Z)
         R=ABS(Z)
-        IF (X)  10,20,30
-20      PHI=SIGN(1.5707963267948966192D0,Y)
-        GOTO 100
-10      IF (Y .EQ. 0D0) GOTO 40
-        PHI=DATAN(Y/X)+SIGN(3.1415926535897932384D0,Y)
-        GOTO 100
-40      PHI=3.1415926535897932384D0
-        GOTO 100
-30      PHI=DATAN(Y/X)
+
+
+cv        IF (X)  10,20,30
+cv20      PHI=SIGN(1.5707963267948966192D0,Y)
+cv        GOTO 100
+cv10      IF (Y .EQ. 0D0) GOTO 40
+cv        PHI=DATAN(Y/X)+SIGN(3.1415926535897932384D0,Y)
+cv        GOTO 100
+cv40      PHI=3.1415926535897932384D0
+cv        GOTO 100
+cv30      PHI=DATAN(Y/X)
+
+        IF (X.eq.0) then
+           PHI=SIGN(1.5707963267948966192D0,Y)
+           GOTO 100
+        elseif (x.lt.0) then
+           IF (Y .EQ. 0D0) GOTO 40
+           PHI=DATAN(Y/X)+SIGN(3.1415926535897932384D0,Y)
+           GOTO 100
+ 40        PHI=3.1415926535897932384D0
+           GOTO 100
+        elseif (x.gt.0) then
+           PHI=DATAN(Y/X)
+        endif
+
+
 100     CLN=DCMPLX(DLOG(R),PHI)
         RETURN
         END
@@ -1948,12 +1965,20 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C       SIGN(X,Y)=|X|*SGN(Y) IM GEGENSATZ ZUR INTRINSIC FUNCTION
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         REAL*8 SIGN,X,Y
-        IF (Y)  10,20,30
-10      SIGN=-DABS(X)
-        RETURN
-20      SIGN=0D0
-        RETURN
-30      SIGN=DABS(X)
+cv        IF (Y)  10,20,30
+cv10      SIGN=-DABS(X)
+cv        RETURN
+cv20      SIGN=0D0
+cv        RETURN
+cv30      SIGN=DABS(X)
+        if (Y.lt.0D0) then
+           SIGN=-DABS(X)
+        elseif (Y.eq.0D0) then
+           SIGN=0D0
+        elseif (Y.ge.0D0) then
+           SIGN=DABS(X)
+        endif
+
         RETURN
         END
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2055,16 +2080,30 @@ C
       IMPLICIT REAL*8 (A-H,M,O-Z)
       COMPLEX*16 CLAMB1
       COMMON /KONST/  PI,ALPHA,ALP1PI,ALP2PI,ALP4PI,E,GF,SXNORM,SX1NRM
-      IF (Q2) 10,20,30
-10    AMB1 = DLOG(-Q2/MF2)
-     1         +4D0*(PI*PI/12D0 - 1D0)
-      CLAMB1=DCMPLX(AMB1)
-      GOTO 40
-20    CLAMB1 = (0D0,0D0)
-      GOTO 40
-30    AMB1 = DLOG(Q2/MF2)
-     1         +4D0*(PI*PI/3D0 - 1D0)
-      CLAMB1=DCMPLX(AMB1)
+cv      IF (Q2) 10,20,30
+cv10    AMB1 = DLOG(-Q2/MF2)
+cv     1         +4D0*(PI*PI/12D0 - 1D0)
+cv      CLAMB1=DCMPLX(AMB1)
+cv      GOTO 40
+cv20    CLAMB1 = (0D0,0D0)
+cv      GOTO 40
+cv30    AMB1 = DLOG(Q2/MF2)
+cv     1         +4D0*(PI*PI/3D0 - 1D0)
+cv      CLAMB1=DCMPLX(AMB1)
+      if (Q2.lt.0.d0) then
+         AMB1 = DLOG(-Q2/MF2)
+     $        +4D0*(PI*PI/12D0 - 1D0)
+         CLAMB1=DCMPLX(AMB1)
+         GOTO 40
+      elseif (Q2.eq.0.d0) then
+         CLAMB1 = (0D0,0D0)
+         GOTO 40
+      elseif (Q2.gt.0.d0) then
+         AMB1 = DLOG(Q2/MF2)
+     $        +4D0*(PI*PI/3D0 - 1D0)
+         CLAMB1=DCMPLX(AMB1)
+      endif
+
 40    RETURN
       END
 C=======================================================================
@@ -2095,18 +2134,37 @@ C=======================================================================
       CLAMB3=5D0/6D0-2D0/3D0*W+(2D0*W+1D0)/3D0*CHI*CLH
      1        +2D0/3D0*W*(W+2D0)*CLH*CLH
       GOTO 400
-100   IF (Q2 - 4D0*dREAL(CM2)) 200,300,300
-200   CHI=SQRT(4D0*W-1D0)
-      CLH=ATAN(1D0/DREAL(CHI))
-      CLAMB3=5D0/6D0-2D0/3D0*W+2D0/3D0*(2D0*W+1D0)*CHI*CLH
+cv100   IF (Q2 - 4D0*dREAL(CM2)) 200,300,300
+cv200   CHI=SQRT(4D0*W-1D0)
+cv      CLH=ATAN(1D0/DREAL(CHI))
+cv      CLAMB3=5D0/6D0-2D0/3D0*W+2D0/3D0*(2D0*W+1D0)*CHI*CLH
+cv     1        -8D0/3D0*W*(W+2D0)*CLH*CLH
+cv      GOTO 400
+cv300   CHI=SQRT(1D0-4D0*W)
+cv      CLH=CLN( (1D0+CHI)/(1D0-CHI) )
+cv      CLAMB3=5D0/6D0-2D0*W/3D0+(2D0*W+1D0)/3D0*CHI*CLH
+cv     1       +2D0/3D0*W*(W+2D0)*(CLH*CLH - PI*PI)
+cv     2       -DCMPLX(0D0,1D0)*PI*((2D0*W+1D0)/3D0*CHI+
+cv     3                            2D0/3D0*W*(W+2D0)*CLH)
+
+
+ 100  IF ((Q2 - 4D0*dREAL(CM2)).lt.0D0) then
+         CHI=SQRT(4D0*W-1D0)
+         CLH=ATAN(1D0/DREAL(CHI))
+         CLAMB3=5D0/6D0-2D0/3D0*W+2D0/3D0*(2D0*W+1D0)*CHI*CLH
      1        -8D0/3D0*W*(W+2D0)*CLH*CLH
-      GOTO 400
-300   CHI=SQRT(1D0-4D0*W)
-      CLH=CLN( (1D0+CHI)/(1D0-CHI) )
-      CLAMB3=5D0/6D0-2D0*W/3D0+(2D0*W+1D0)/3D0*CHI*CLH
-     1       +2D0/3D0*W*(W+2D0)*(CLH*CLH - PI*PI)
-     2       -DCMPLX(0D0,1D0)*PI*((2D0*W+1D0)/3D0*CHI+
-     3                            2D0/3D0*W*(W+2D0)*CLH)
+         GOTO 400
+      elseif ((Q2 - 4D0*dREAL(CM2)).ge.0D0) then
+         CHI=SQRT(1D0-4D0*W)
+         CLH=CLN( (1D0+CHI)/(1D0-CHI) )
+         CLAMB3=5D0/6D0-2D0*W/3D0+(2D0*W+1D0)/3D0*CHI*CLH
+     1        +2D0/3D0*W*(W+2D0)*(CLH*CLH - PI*PI)
+     2           -DCMPLX(0D0,1D0)*PI*((2D0*W+1D0)/3D0*CHI+
+     3        2D0/3D0*W*(W+2D0)*CLH)
+         
+      endif
+      
+
 400   CONTINUE
       RETURN
       END
