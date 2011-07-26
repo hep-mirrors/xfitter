@@ -169,8 +169,11 @@ c    &        chm,cbar,bot,bbar,glu,phot)
       fflp=fflp+.5*(1.-x)*wi(i)*(al*f1lq-2*0.0*y**2/q2)*fpxy
       ffln=ffln+.5*(1.-x)*wi(i)*al*f1lq*fnxy
 
-      IF(IFL-1) 23,23,24
-   24 CONTINUE
+cv      IF(IFL-1) 23,23,24
+cv   24 CONTINUE
+
+      if ((ifl-1).gt.0) then
+         
 
       ffp=ffp+.5*(1.-X)*WI(I)*AL*CG2*gluxy
       ffn=ffn+.5*(1.-X)*WI(I)*AL*CG2*gluxy
@@ -201,12 +204,15 @@ c    &        chm,cbar,bot,bbar,glu,phot)
       ffln=ffln+0.5*(1.-x)*WI(I)*AL*AL*
      X(FNS2LQ*fnxy+FS2LQ*FSXY+DPSI2*F2LG*gluxy)
 
+      elseif ((ifl-1).le.0) then
+      endif
 
-
-   23 CONTINUE
-   
+ 23   CONTINUE
+ ! cv end
+  
       if(epsc.gt.1.) go to 81 
       if(epsc.lt.1.) go to 82
+
 
   81  xcmax=1./(1.+epsc4)
       eps=epsc
