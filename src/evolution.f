@@ -91,4 +91,60 @@ cv      call allpdf(0.000103523178d0,1.95d0,pdfv,0)
 
       return
       end
+
+*     ----------------------------------------------------
+      double precision function func1(id,x)
+*     ----------------------------------------------------
+      implicit double precision (a-h,o-z)
+      include 'pdfparam.inc'
+
+      if (id.eq.0) func1=gluon(x)
+      if (id.eq.1) func1=H1D(x)
+      if (id.eq.2) func1=H1U(x)
+      if (id.eq.3) func1=Ubar(x)
+      if (id.eq.4) func1=Dbar(x)
+      if (id.eq.6) func1=2*qstrange(x)
+      if (id.eq.5) func1=0.d0
+
+
+      return
+      end
       
+
+*     ----------------------------------------------------
+      double precision function func22(id,x)
+*     ----------------------------------------------------
+      implicit double precision (a-h,o-z)
+      include 'pdfparam.inc'
+      include 'steering.inc'
+
+      func22 = 0.D0
+      if (id.eq.0) func22=gluon(x)
+      if (id.eq.1) func22=dval(x)
+      if (id.eq.2) func22=uval(x)
+      if (id.eq.3) func22=2*qstrange(x)
+      if (id.eq.4) func22=Ubar(x)
+      if (id.eq.5) func22=Dbar(x)
+      if (id.eq.6) func22=0.d0
+
+      return
+      end
+
+*     ----------------------------------------------------
+      double precision function func24(id,x)
+*     ----------------------------------------------------
+
+      implicit double precision (a-h,o-z)
+      include 'pdfparam.inc'
+
+
+      if (id.eq.0) func24=gluon(x)
+      if (id.eq.1) func24=dval(x)
+      if (id.eq.2) func24=uval(x)
+      if (id.eq.3) func24=sea(x)
+      if (id.eq.4) func24=dbmub(x)
+      if (id.eq.5) func24=0.d0
+      if (id.eq.6) func24=0.d0
+
+      return
+      end
