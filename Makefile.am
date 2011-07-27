@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = minuit  DY RT src 
+SUBDIRS = minuit  DY RT src tools/H1FitterDrawResults
 
 # DOXYGEN SUPPORT
 include $(top_srcdir)/aminclude.am

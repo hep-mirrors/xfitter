@@ -58,18 +58,18 @@ if test x$enable_applgrid == xyes; then
 fi
 AM_CONDITIONAL(ENABLE_APPLGRID, [test x$enable_applgrid == xyes])
 
-if test x$enable_applgrid == xyes; then
-  AC_MSG_CHECKING([for root installation, needed for applgrid])
-  root_config=`which root-config`
-  if test x$root_config == x; then
-    AC_MSG_ERROR([Unable to find root-config.])
-  else 
-    AC_MSG_RESULT([Using $root_config])
-    ROOT_CFLAGS=`root-config --cflags`
-    ROOT_LDFLAGS=`root-config --ldflags`
-    AC_SUBST(ROOT_CFLAGS)
-    AC_SUBST(ROOT_LDFLAGS)
-  fi
+AC_MSG_CHECKING([for root installation])
+root_config=`which root-config`
+if test x$root_config == x; then
+  AC_MSG_ERROR([Unable to find root-config.])
+else 
+  AC_MSG_RESULT([Using $root_config])
+  ROOT_CFLAGS=`root-config --cflags`
+  ROOT_LDFLAGS=`root-config --ldflags`
+  ROOT_LIBS=`root-config --libs`
+  AC_SUBST(ROOT_CFLAGS)
+  AC_SUBST(ROOT_LDFLAGS)
+  AC_SUBST(ROOT_LIBS)
 fi
 
 #AC_F77_LIBRARY_LDFLAGS
@@ -89,6 +89,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 
 # Output
 AC_CONFIG_FILES([src/Makefile
+                 tools/H1FitterDrawResults/Makefile
                  Makefile])
 AC_CONFIG_SUBDIRS([minuit DY RT])
 AC_OUTPUT
