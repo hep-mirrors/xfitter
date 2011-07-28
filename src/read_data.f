@@ -230,7 +230,7 @@ C Namelist  variables:
       
 C Systematics:
       logical Percent(1:nsystMax)
-      character *16 SystematicType(nsystMax)
+      character *20 SystematicType(nsystMax)
 
 C Reference table
       integer CompressIdx(nsystMax)
