@@ -7,6 +7,6 @@ noinst_LIBRARIES = libmydy.a
 libmydy_a_SOURCES = PhysPar.cc \
                     finterface.cc \
                     BinMatrix.cc IntSteps.cc PDFconv.cc DYcalc.cc
-AM_FFLAGS = -I$(srcdir)/../../include -fno-automatic -finit-local-zero -ffixed-line-length-132
+AM_FFLAGS = -I$(srcdir)/../include -fno-automatic -finit-local-zero -ffixed-line-length-132
 
-AM_CXXFLAGS = -I$(srcdir)/../../include -O -Wall -fPIC -Wno-deprecated
+AM_CXXFLAGS = -I$(srcdir)/../include -O -Wall -fPIC -Wno-deprecated

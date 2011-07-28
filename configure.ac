@@ -90,6 +90,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 # Output
 AC_CONFIG_FILES([src/Makefile
                  tools/H1FitterDrawResults/Makefile
+                 tools/FastNLO/Makefile
                  Makefile])
 AC_CONFIG_SUBDIRS([minuit DY RT])
 AC_OUTPUT

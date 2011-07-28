@@ -28,6 +28,7 @@ endif
 LDADD = $(QCDNUMLIBS) \
  ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
+ ../tools/FastNLO/libFastNLO.a \
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
 -lgsl -lgslcblas -lstdc++
 
@@ -39,3 +40,4 @@ GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
 #endif
 
 
+LDADD+=$(ROOT_LIBS)
