@@ -136,6 +136,8 @@ class FastNLOReader { //: public TObject {
   vector < double > XSectionRefQ2;
   vector < double > XSectionRefMufQ2MuRMixed;
 
+  // ----  reference tables ---- //
+
  private:
 
   void ReadTable();
@@ -151,6 +153,8 @@ class FastNLOReader { //: public TObject {
   void FillBlockBPDFLCsWithLHAPDF( FastNLOBlockB* B );
   void FillBlockBPDFLCsWithH1Fitter( FastNLOBlockB* B );
   vector<double> CalcPDFLinearComb(vector<double> pdfx1, vector<double> pdfx2, int IPDFdef1, int IPDFdef2, int NSubproc );
+  vector<double> CalcPDFLinearCombPPMuVar(vector<double> pdfx1, vector<double> pdfx2 );
+  vector<double> CalcPDFLinearCombPPbarMuVar(vector<double> pdfx1, vector<double> pdfx2 );
   vector<double> CalcPDFLinearCombDIS(vector<double> pdfx1, int NSubproc );
   void FillAlphasCacheInBlockB( FastNLOBlockB* B );
   double GetAlphas(double Q);
