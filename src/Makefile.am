@@ -28,7 +28,7 @@ endif
 LDADD = $(QCDNUMLIBS) \
  ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
- ../tools/FastNLO/libFastNLO.a \
+ ../FastNLO/src/libFastNLO.a \
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
 -lgsl -lgslcblas -lstdc++
 
