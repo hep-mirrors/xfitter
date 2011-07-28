@@ -31,12 +31,14 @@ H1FitterPainter::~H1FitterPainter(){
 }
 
 Int_t H1FitterPainter::Prepare() {
-  fPsFileName->Append("(");
   fH1FitterOutput = new H1FitterOutput(fPath->Data());
   if(fPath->CompareTo(fPathRef->Data())) 
     fH1FitterOutputRef = new H1FitterOutput(fPathRef->Data());
   else 
     fH1FitterOutputRef = NULL;
+
+  if(fH1FitterOutputRef == NULL) fPsFileName->Form("%s/DrawResults.ps", fPathRef->Data());
+  fPsFileName->Append("(");
 
   fH1FitterOutput->Prepare();
   if(fH1FitterOutputRef) fH1FitterOutputRef->Prepare(); 
@@ -480,10 +482,10 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
 void H1FitterPainter::PrintCanvas(TCanvas* can) {
   can->Print(fPsFileName->Data());
   fPsFileName->ReplaceAll("(","");
-  TString* temp = new TString;
-  static Int_t idx = 0;
-  idx++;
-  temp->Form("EpsFiles/DrawResults_%03d.eps",idx);
-  can->Print(temp->Data());
-  delete temp;
+//  TString* temp = new TString;
+//  static Int_t idx = 0;
+//  idx++;
+//  temp->Form("EpsFiles/DrawResults_%03d.eps",idx);
+//  can->Print(temp->Data());
+//  delete temp;
 }
