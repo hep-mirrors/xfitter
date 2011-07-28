@@ -1,5 +1,6 @@
 #include "H1FitterOutput.h"
 #include <fstream>
+#include <dirent.h>
 #include <TObjString.h>
 
 H1FitterOutput::H1FitterOutput(const Char_t* directory) {
@@ -22,10 +23,24 @@ H1FitterOutput::~H1FitterOutput(){
 }
 
 Int_t H1FitterOutput::Prepare() {
+  if(! this->CheckDirectory() ) {
+    cerr << "Can not open directory " << fDirectory->Data() << endl; 
+    exit(1);
+  }
   this->PreparePdf();
   this->PrepareDataSets();
 }
 
+Bool_t H1FitterOutput::CheckDirectory() {
+  DIR *pDir;
+  bool bExists = false;
+  pDir = opendir (fDirectory->Data());
+  if (pDir != NULL) {
+    bExists = true;    
+    (void) closedir (pDir);
+  }
+  return bExists;
+}
 
 Int_t H1FitterOutput::PreparePdf() {
   Double_t x, gluon, U, D, d_Ubar, d_Dbar, umin, dmin, sea, u_sea, d_sea, str, chm, bot;
@@ -60,8 +75,8 @@ Int_t H1FitterOutput::GetNsets() {
 }
 
 TGraph* H1FitterOutput::GetPdf(H1FitterOutput::pdf ipdf, Int_t Q2bin) {
-  if(ipdf >= fNpdfs) {cout << "GetPdf, wrong ipdf: "<< ipdf << endl; return NULL;}
-  if(Q2bin >= fPdfs[ipdf]->GetEntries()) {cout << "GetPdf, wrong iq2: "<< Q2bin << endl; return NULL;}
+  if(ipdf >= fNpdfs) {cout << "GetPdf, wrong ipdf: "<< ipdf << endl; exit(1);}
+  if(Q2bin >= fPdfs[ipdf]->GetEntries()) {cout << "GetPdf, wrong iq2: "<< Q2bin << endl; exit(1);}
   return ((TGraph*)fPdfs[ipdf]->At(Q2bin));
 }
 

@@ -44,5 +44,6 @@ class  H1FitterOutput {
    Int_t PrepareDataSets();
    Int_t PreparePdf();
    void SetPdfPoint(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t y);
-      };
+   Bool_t CheckDirectory();
+};
 #endif

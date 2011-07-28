@@ -23,6 +23,7 @@ H1FitterPainter::~H1FitterPainter(){
   if(fH1FitterOutputRef) delete fH1FitterOutputRef;
 
   TCanvas* can = new TCanvas;
+  cout << "Output stored in " << fPsFileName->Data() << " file"<<endl;
   fPsFileName->Append(")");
   can->Print(fPsFileName->Data());
   delete can;
@@ -485,7 +486,7 @@ void H1FitterPainter::PrintCanvas(TCanvas* can) {
 //  TString* temp = new TString;
 //  static Int_t idx = 0;
 //  idx++;
-//  temp->Form("EpsFiles/DrawResults_%03d.eps",idx);
+//  temp->Form("DrawResults_%03d.eps",idx);
 //  can->Print(temp->Data());
 //  delete temp;
 }
