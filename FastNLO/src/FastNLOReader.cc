@@ -572,26 +572,55 @@ void FastNLOReader::CalcCrossSection( ){
     		    double muf2 = Q2;
 
  		    for(int x=0;x<nxmax;x++){ 
-		      // LO Block
-		      for(int n=0;n<BlockB_LO->NSubproc;n++){ 
-			double as	= BlockB_LO->AlphasTwoPi[i][jQ][jPt];
-			double pdflc	= BlockB_LO->PdfLcMuVar[i][x][jQ][jPt][n];
-			XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                     as * pdflc * BinSize[i];
-			XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2/Q2) * as * pdflc * BinSize[i];
-			XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2/Q2) * as * pdflc * BinSize[i];
+		      
+		      //  -----  DIS ---- //
+		      if ( BlockB_LO->NPDFDim == 0 ) {
+			// LO Block
+			for(int n=0;n<BlockB_LO->NSubproc;n++){ 
+			  double as	= BlockB_LO->AlphasTwoPi[i][jQ][jPt];
+			  double pdflc	= BlockB_LO->PdfLcMuVar[i][x][jQ][jPt][n];
+			  XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                     as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2/Q2) * as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2/Q2) * as * pdflc * BinSize[i];
 
-			XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                     as * pdflc * BinSize[i];
-			XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2/Q2) * as * pdflc * BinSize[i];
-			XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2/Q2) * as * pdflc * BinSize[i];
-		      }
-		      // NLO Block
-		      for(int n=0;n<BlockB_NLO->NSubproc;n++){ 
-			double as	= BlockB_NLO->AlphasTwoPi[i][jQ][jPt];
-			double pdflc	= BlockB_NLO->PdfLcMuVar[i][x][jQ][jPt][n];
-			XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                     as * pdflc * BinSize[i];
-			XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2/Q2) * as * pdflc * BinSize[i];
-			XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2/Q2) * as * pdflc * BinSize[i];
+			  XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                     as * pdflc * BinSize[i];
+			  XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2/Q2) * as * pdflc * BinSize[i];
+			  XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2/Q2) * as * pdflc * BinSize[i];
+			}
+			// NLO Block
+			for(int n=0;n<BlockB_NLO->NSubproc;n++){ 
+			  double as	= BlockB_NLO->AlphasTwoPi[i][jQ][jPt];
+			  double pdflc	= BlockB_NLO->PdfLcMuVar[i][x][jQ][jPt][n];
+			  XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                     as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2/Q2) * as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2/Q2) * as * pdflc * BinSize[i];
 			
+			}
+		      }
+		      
+		      //  -----  pp, ppbar ---- //
+		      if ( BlockB_LO->NPDFDim == 1 ) {
+			// LO Block
+			for(int n=0;n<BlockB_LO->NSubproc;n++){ 
+			  double as	= BlockB_LO->AlphasTwoPi[i][jQ][jPt];
+			  double pdflc	= BlockB_LO->PdfLcMuVar[i][x][jQ][jPt][n];
+			  XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                  as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2) * as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_LO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2) * as * pdflc * BinSize[i];
+
+			  XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                  as * pdflc * BinSize[i];
+			  XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2) * as * pdflc * BinSize[i];
+			  XSectionMuVar_LO[i]	+=  BlockB_LO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2) * as * pdflc * BinSize[i];
+			}
+			// NLO Block
+			for(int n=0;n<BlockB_NLO->NSubproc;n++){ 
+			  double as	= BlockB_NLO->AlphasTwoPi[i][jQ][jPt];
+			  double pdflc	= BlockB_NLO->PdfLcMuVar[i][x][jQ][jPt][n];
+			  XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuIndep[i][x][jQ][jPt][n] *                  as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuFDep [i][x][jQ][jPt][n] * std::log(muf2) * as * pdflc * BinSize[i];
+			  XSectionMuVar[i]	+=  BlockB_NLO->SigmaTildeMuRDep [i][x][jQ][jPt][n] * std::log(mur2) * as * pdflc * BinSize[i];
+			
+			}
 		      }
 		    }
 	}
