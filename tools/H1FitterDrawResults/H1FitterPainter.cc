@@ -14,6 +14,8 @@ H1FitterPainter::H1FitterPainter(){
   cout << endl;
   cout << "TO DO: pdfs_q2val_*.txt should provide the information about Q2"<<endl;
   cout << "TO DO: in fittedresults.txt q2 and x for sets 61-64 are switched"<<endl;
+  fColor = kRed;
+  fColorRef = kBlue;
 }
 
 H1FitterPainter::~H1FitterPainter(){ 
@@ -70,7 +72,7 @@ Int_t H1FitterPainter::Draw() {
   }
   for (Int_t iref=0; iref<NRefDataSets; iref++) {
     if(!RefSetsDrawn[iref])
-      DrawDataSet(fH1FitterOutputRef->GetSet(iref), NULL, kBlue);
+      DrawDataSet(fH1FitterOutputRef->GetSet(iref), NULL, fColorRef);
   }
 }
 
@@ -134,61 +136,105 @@ Int_t H1FitterPainter::DrawPDF(Int_t ival) {
 Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H1FitterOutput* FitterRef, 
 				  Int_t Q2Bin, const Char_t* Title, H1FitterOutput::pdf pdf1, H1FitterOutput::pdf pdf2,
 				  TVirtualPad* legend, TObjArray* TrashBin) {
-
-  Int_t Color = kRed;
-  Int_t RColor = kBlue;
-  Int_t Color_Ratio = kBlack;
-  Int_t Style_Ratio = 2;
-
-  pad->cd(); pad->SetLogx();
-
   TGraph* graph =   FitterOut->GetPdf(pdf1, Q2Bin);
-  TGraph* graphR = NULL; if(FitterRef) graphR = FitterRef->GetPdf(pdf1, Q2Bin);
-
-  TGraph* ref_ratio = (TGraph*) (graph->Clone()); TrashBin->AddLast(ref_ratio);
-  TGaxis* AxisRatio = NULL;
-
-  if(!graph) {cout << "Graph = NULL, return" << endl; return 1;}
-  graph->SetTitle("");
-  graph->GetXaxis()->SetTitle("x");   graph->GetYaxis()->SetTitle("xP(x)");
-  graph->GetXaxis()->SetTitleOffset(1.2);  graph->GetYaxis()->SetTitleOffset(1.5);  
-  graph->GetXaxis()->SetLabelSize(0.05); graph->GetXaxis()->SetLabelOffset(0.02);
-  graph->GetYaxis()->SetLabelSize(0.05); graph->GetYaxis()->SetNdivisions(506);  graph->GetYaxis()->SetLabelOffset(0.02);
-  graph->SetLineColor(Color);
-  if(graphR) {
-    graphR->SetLineColor(RColor);
-  }
-
+  TGraph* graphR = NULL; 
   TGraph* graph2 = NULL;
   TGraph* graphR2 = NULL;
-  TLine* line = NULL;
+  Double_t RatioSize = 0.;
+
+  if(FitterRef) {
+    graphR = FitterRef->GetPdf(pdf1, Q2Bin);
+    RatioSize = 0.3;
+  }
   if(pdf2 != H1FitterOutput::kNULL) {
     graph2 =   FitterOut->GetPdf(pdf2, Q2Bin);
     if(FitterRef) graphR2 =  FitterRef->GetPdf(pdf2, Q2Bin);
-    graph2->SetLineColor(Color);
-    if(FitterRef)  graphR2->SetLineColor(RColor);
   }
- 
 
-  if(graphR) {
-    for(Int_t i=0; i<graph->GetN(); i++) {
-      ref_ratio->SetPoint(i, graph->GetX()[i], graph->GetY()[i] / graphR->GetY()[i]);
-    }    
-    ScaleGraph2ToGraph1(graph,    ref_ratio,   line, AxisRatio, 1.0);
-    TrashBin->AddLast(line); TrashBin->AddLast(AxisRatio);
-    ref_ratio->SetLineColor(Color_Ratio);  ref_ratio->SetLineStyle(Style_Ratio);  ref_ratio->SetFillColor(Color_Ratio);
-    line->SetLineColor(Color_Ratio);       line->SetLineStyle(3);
+  if(graph2) {
+    graph2->SetLineColor(fColor);
   }
+  if(graphR) {
+    graphR->SetLineColor(fColorRef);
+  }
+  if(graphR2) {
+    graphR2->SetLineColor(fColorRef);
+  }
+
+
+  pad->cd();
+  TPad* pad1 = new TPad("pad1","pad1", 0., RatioSize, 1., 1.);   TrashBin->AddLast(pad1);
+  pad1->Draw();
+  pad1->cd();
+  pad1->SetLogx();
+
+  graph->SetTitle("");
+  graph->GetYaxis()->SetTitle("xP(x)");
+  graph->GetYaxis()->SetTitleOffset(1.5);  
+  graph->GetYaxis()->SetLabelSize(0.05); 
+  graph->GetYaxis()->SetNdivisions(506); 
+  graph->GetYaxis()->SetLabelOffset(0.02);
+  graph->SetLineColor(fColor);
+  graph->GetXaxis()->SetTitle("x");
+  graph->GetXaxis()->SetTitleOffset(0.5);  
+  graph->GetXaxis()->SetTitleSize(.06);  
+  graph->GetXaxis()->SetLabelSize(0.04); 
+  graph->GetXaxis()->SetLabelOffset(0.015);
+
 
   graph->Draw("ALX");
   if(graphR) graphR->Draw("L3X same");
   if(graph2)  graph2->Draw("L3X same");
   if(graphR2) graphR2->Draw("L3X same");
 
+  TPaveLabel* box = new TPaveLabel(0.0, 0.75, 0.09, 0.91, "xP(x)", "NDC"); TrashBin->AddLast(box);
+  box->SetFillColor(kWhite); box->SetBorderSize(0); box->SetTextAngle(90.); box->SetTextSize(0.35);
+  box->Draw();
+
+  // Plotting the ratio pad if needed
   if(graphR) {
-    ref_ratio->Draw("L same");
-    AxisRatio->Draw("C same");
-    line->Draw();
+    Int_t Color_Ratio = kBlack;
+    Int_t Style_Ratio = 2;
+
+    graph->GetYaxis()->SetTitle("xP(x)");
+    graph->GetYaxis()->SetTitleOffset(1.);  
+    graph->GetYaxis()->SetLabelSize(0.04); 
+    graph->GetYaxis()->SetNdivisions(506); 
+    graph->GetYaxis()->SetLabelOffset(0.02);
+ 
+    TGraph* ref_ratio = (TGraph*) (graph->Clone()); TrashBin->AddLast(ref_ratio);
+    for(Int_t i=0; i<graph->GetN(); i++) {
+      ref_ratio->SetPoint(i, graph->GetX()[i], graph->GetY()[i] / graphR->GetY()[i]);
+    }
+
+    pad->cd();
+    TPad* pad2 = new TPad("pad2","pad2", 0., 0., 1., RatioSize);   TrashBin->AddLast(pad2);
+    pad2->Draw();
+
+    pad1->SetBottomMargin(0.);
+    pad2->SetTopMargin(0.);
+    pad2->SetBottomMargin(0.2);
+
+    pad2->cd();
+    pad2->SetLogx();
+
+    ref_ratio->SetLineColor(Color_Ratio);  
+    ref_ratio->SetLineStyle(Style_Ratio);  
+    ref_ratio->SetFillColor(Color_Ratio);
+    ref_ratio->GetYaxis()->SetTitle("ratio                ");
+    ref_ratio->GetYaxis()->SetTitleSize(0.13);
+    ref_ratio->GetYaxis()->SetTitleOffset(0.35);
+    ref_ratio->GetYaxis()->SetNdivisions(505);
+    ref_ratio->GetYaxis()->SetLabelSize(0.11);
+    ref_ratio->GetXaxis()->SetLabelSize(0.11);
+    ref_ratio->GetXaxis()->SetLabelOffset(0.03);
+    ref_ratio->GetXaxis()->SetTitle("x  ");
+    ref_ratio->GetXaxis()->SetTitleOffset(0.5);  
+    ref_ratio->GetXaxis()->SetTitleSize(.15);  
+    
+    ref_ratio->SetMaximum(1.19);
+    ref_ratio->SetMinimum(0.81);
+    ref_ratio->Draw("ALX");
   }
 
   TPaveLabel* label = new TPaveLabel(0.49, 0.85, 0.51, 0.87, Title,"NDC"); TrashBin->AddLast(label);
@@ -196,18 +242,15 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
   pad->cd();
   label->Draw();
 
-  TPaveLabel* box = new TPaveLabel(0.0, 0.75, 0.08, 0.91, "xP(x)", "NDC"); TrashBin->AddLast(box);
-  box->SetFillColor(kWhite); box->SetBorderSize(0); box->SetTextAngle(90.); box->SetTextSize(0.35);
-  box->Draw();
  
   if(legend) {
     legend->cd();
     TPaveLabel* lab1 = new TPaveLabel(0., 0.4, 1.0, 0.5, FitterOut->GetDirectory()->Data(), "NDC");
-    TrashBin->AddLast(lab1); lab1->SetFillColor(kWhite); lab1->SetBorderSize(0); lab1->SetTextColor(Color);
+    TrashBin->AddLast(lab1); lab1->SetFillColor(kWhite); lab1->SetBorderSize(0); lab1->SetTextColor(fColor);
     lab1->Draw();
     if(FitterRef) {
       TPaveLabel* lab2 = new TPaveLabel(0., 0.6, 1.0, 0.7, FitterRef->GetDirectory()->Data(), "NDC");
-      TrashBin->AddLast(lab2); lab2->SetFillColor(kWhite); lab2->SetBorderSize(0); lab2->SetTextColor(RColor);
+      TrashBin->AddLast(lab2); lab2->SetFillColor(kWhite); lab2->SetBorderSize(0); lab2->SetTextColor(fColorRef);
       lab2->Draw();
     }
   }
@@ -343,7 +386,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       labelchi2->SetFillColor(kWhite);
       labelchi2->SetBorderSize(0);
       labelchi2->SetTextSize(1.0);
-      labelchi2->SetTextColor(kRed);
+      labelchi2->SetTextColor(fColor);
 
       TPaveLabel* labelchi2ref = NULL;
       if(datasetref) {
@@ -358,7 +401,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
 	labelchi2ref->SetFillColor(kWhite);
 	labelchi2ref->SetBorderSize(0);
 	labelchi2ref->SetTextSize(1.0);
-	labelchi2ref->SetTextColor(kBlue);
+	labelchi2ref->SetTextColor(fColorRef);
       }
 
 
@@ -367,7 +410,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       gDUnc->SetMarkerSize(MarkerSize);
       
       gTheo->SetLineColor(color);
-      if(gTheoRef) gTheoRef->SetLineColor(kBlue);
+      if(gTheoRef) gTheoRef->SetLineColor(fColorRef);
 
       can->cd(i+1);
       gPad->SetLogx();
@@ -415,7 +458,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
     gDTot->SetMarkerSize(0.05);
     
     gTheo->SetLineColor(color);
-    if(gTheoRef) gTheoRef->SetLineColor(kBlue);
+    if(gTheoRef) gTheoRef->SetLineColor(fColorRef);
     
     TH1F* h = new TH1F("","", gDUnc->GetN(), -0.5, gDUnc->GetN()-0.5);
     h->SetMaximum(gDUnc->GetHistogram()->GetMaximum()*1.1);
@@ -455,7 +498,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       labelchi2ref->SetFillColor(kWhite);
       labelchi2ref->SetBorderSize(0);
       labelchi2ref->SetTextSize(1.5);
-      labelchi2ref->SetTextColor(kBlue);
+      labelchi2ref->SetTextColor(fColorRef);
     }
 
 

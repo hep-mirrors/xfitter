@@ -48,6 +48,8 @@ class H1FitterPainter  {
   H1FitterOutput* fH1FitterOutput;
   H1FitterOutput* fH1FitterOutputRef;
   TString* fPsFileName;
+  EColor fColor;
+  EColor fColorRef;
 
 };
 
