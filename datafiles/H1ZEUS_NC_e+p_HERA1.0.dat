@@ -5,9 +5,9 @@
    NBinDimension = 3                   ! Number of columns describing the binning
    BinName  =  'x','Q2','y'            ! Type of bin
 
-   NInfo    = 2 
-   DataInfo =  318.,        1.
-   CInfo    = 'sqrt(S)','e charge'                       
+   NInfo    = 3
+   DataInfo =  318.,        1.,		0.
+   CInfo    = 'sqrt(S)','e charge','e polarity'                       
 
    IndexDataset = 62
 
