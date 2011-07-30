@@ -27,7 +27,7 @@ C-----------------------------------------------------------------
 
       integer Npt
 
-      double precision charge,S,y,yplus,yminus
+      double precision charge,S,y,yplus,yminus,polarity
       double precision xmin,xmax,q2v,x(0:NSplit,NQ2Max)
      $     ,q2(0:NSplit,NQ2Max)
       double precision F2p(0:NSplit,NQ2Max),xF3p(0:NSplit,NQ2Max)
@@ -62,7 +62,8 @@ C
       ad = cad                  
       vu = au - (4.d0/3.d0)*sin2thw
       vd = ad + (2.d0/3.d0)*sin2thw
-                                                   
+
+      polarity=0.d0
       if (NDATAPOINTS(IDataSet).gt.NQ2Max) then
          print *,'ERROR IN GetIntegratedNCXsection'
          print *,'INCREASE NQ2Max to ',NDATAPOINTS(IDataSet)
@@ -98,6 +99,7 @@ C prepare bins:
 
 
 C QCDNUM, caclulate FL, F2 and xF3 for all bins:
+      polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'), IDataSet)
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
 
@@ -110,13 +112,45 @@ C QCDNUM, caclulate FL, F2 and xF3 for all bins:
 
 
       do i=1,NDATAPOINTS(IDataSet)
-
+         
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(0,i))
          PZ = 1./Pz
-         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+
+         if (charge.gt.0) then
+            A_u = e2u           ! gamma
+     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
+     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+            
+            A_d = e2d 
+     $           - (-ve-polarity*ae)*PZ*2.*edq*vd 
+     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+            
+            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
+     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+         else
+            A_u = e2u           ! gamma
+     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
+     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+            
+            A_d = e2d 
+     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
+     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+            
+            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
+     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+            
+         endif
+
+cv in case polarity=0 it reduces to: (eminus case)
+c            A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+c            A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+c            B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+c            B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+
 
          alpha_run = AEMRUN(q2(0,i))
 
@@ -132,23 +166,17 @@ C Get x-sections:
             FL   = A_U*FLp(j,i)   + A_D*FLm(j,i)
 
 
-            if (charge.gt.0) then
-               XSec(j) = yplus*F2 - yminus*xF3 - y*y*FL
-            else
-               XSec(j) = yplus*F2 + yminus*xF3 - y*y*FL
-            endif
+C polarisation already taken into account in the coupling
+            XSec(j) = yplus*F2 + yminus*xF3 - y*y*FL
             XSec(j) = XSec(j) * (2*pi*alpha_run**2)/ 
      $           (q2(j,i)**2*x(j,i))*convfac
-C            print *,'hihi',q2(j,i),x(j,i),y,Xsec(j),F2
+
          enddo
 
 
 C Integrate:
          xsint = DSIMPS(XSec(0),x(0,i),x(NSplit,i),NSplit)
 
-C         print *,'hahaha',xsint,x(0,i),x(NSplit,i),S,XSec(5), A_U*F2p(0,i)   + A_D*F2m(0,i)
-C     $        ,q2(0,i),x(0,i),y
-         
          idx =  DATASETIDX(IDataSet,i)
          THEO(idx) =  xsint
 
@@ -199,7 +227,7 @@ C---------------------------------------------------------------
 
       double precision Xv,Yv,Q2v
 
-      double precision Charge, S
+      double precision Charge, S, polarity
 
 
       double precision FLGamma, F2Gamma
@@ -278,6 +306,7 @@ C
 C
 C Get charge and CME information:
 C
+      polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'), IDataSet)
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
      
@@ -305,10 +334,41 @@ C Propagator factor PZ
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
          PZ = 1./Pz
 C EW couplings of u-type and d-type quarks at the scale Q2
-         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+
+         if (charge.gt.0) then
+            A_u = e2u           ! gamma
+     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
+     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+            
+            A_d = e2d 
+     $           - (-ve-polarity*ae)*PZ*2.*edq*vd 
+     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+            
+            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
+     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+         else
+            A_u = e2u           ! gamma
+     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
+     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+            
+            A_d = e2d 
+     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
+     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+            
+            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
+     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+            
+         endif
+
+
+c         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+c         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+c         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+c         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
 C Get x-sections:
          yplus  = 1+(1-y(i))**2
@@ -368,11 +428,8 @@ C Keep xF3 from QCDNUM
 
          
 
-        if (charge.gt.0) then
-           XSec = F2 - yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
-        else
-           XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
-        endif
+C polarisation already taken into account in the couplings (A_q,B_q)
+        XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
 
 C
 C Store cross-section prediction in the global cross-sections table:
