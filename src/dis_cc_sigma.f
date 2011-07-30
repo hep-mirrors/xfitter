@@ -29,7 +29,7 @@ C----------------------------------------------------------------
 
       double precision Xv,Yv,Q2v
 
-      double precision Charge, S, FactorCC
+      double precision Charge, S, FactorCC, polarity
 
       logical IsReduced
 
@@ -41,7 +41,7 @@ C Functions:
 
 C-------------------------------------------------------------
 
-
+      polarity=0.d0
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN GetReducedNCXsection'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
@@ -67,6 +67,7 @@ C prepare bins:
      
 C QCDNUM, caclulate FL, F2 and xF3 for all bins:
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
+      polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'), IDataSet)
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
       IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
 
@@ -87,8 +88,10 @@ C----------------------------------------------------------
          yminus = 1-(1-y(i))**2
          if (charge.gt.0) then
             XSec = 0.5*(yplus*F2(i) - yminus*xF3(i) - y(i)*y(i)*FL(i))
+            Xsec = Xsec*(1+polarity)
          else
             XSec = 0.5*(yplus*F2(i) + yminus*xF3(i) - y(i)*y(i)*FL(i))
+            Xsec = Xsec*(1-polarity)
          endif
 
          if (.not. IsReduced) then
