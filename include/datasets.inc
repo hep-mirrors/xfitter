@@ -3,7 +3,6 @@
 C SG: add DYZ and DYW
       logical ISNC,ISEPLUS,ISJET,ISCHARM,ISBOTTOM,ISDYZ,ISDYW
       logical ISCHARMANY,ISBOTTOMANY
-      double precision POLAR,EPOL
       character*80 DATASETLABEL
 C SG: reaction type:
       character*80 DATASETReaction
@@ -40,7 +39,7 @@ C Dimension of k-factors
      $     ,DATASETKFactorNames(NKFactMax,NSET)
      $     ,DATASETTheoryFile(NSet)
      $     ,DATASETTheoryType(NSET)
-     $     ,DATASETLABEL(NSET),POLAR(NSET),EPOL(NSET)
+     $     ,DATASETLABEL(NSET)
      +     ,NDATAPOINTS(NSET),NQ2BINS(NSET),DATASETIDX(NSET,NMAX)
      +     ,NXBINS(NSET,MAXQ2BINS),DATASETNUMBER(NSET)
      +     ,ISNC(NSET),ISEPLUS(NSET),ISJET(NSET)
