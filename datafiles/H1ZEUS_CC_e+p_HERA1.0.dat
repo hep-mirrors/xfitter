@@ -5,9 +5,9 @@
    NBinDimension = 3             
    BinName  =  'x','Q2','y'                 
 
-   NInfo    = 3 
-   DataInfo =  318.,         1.,   0.
-   CInfo    = 'sqrt(S)','e charge', 'reduced'                       
+   NInfo    = 4
+   DataInfo =  318.,         1.,   0.,		0.
+   CInfo    = 'sqrt(S)','e charge', 'reduced','e polarity'                       
 
    IndexDataset = 64
 
