@@ -68,10 +68,6 @@
 
 
       do iset=1,nset
-         POLAR(iset) = 0.d0
-      enddo
-
-      do iset=1,nset
          ISJET(iset) = .false.
          ISCHARM(iset) = .false.
          ISBOTTOM(iset) = .false.
