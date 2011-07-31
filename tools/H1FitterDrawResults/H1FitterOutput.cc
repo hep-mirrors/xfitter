@@ -2,6 +2,7 @@
 #include <fstream>
 #include <dirent.h>
 #include <TObjString.h>
+#include <stdlib.h>
 
 H1FitterOutput::H1FitterOutput(const Char_t* directory) {
   fDirectory    = new TString(directory);
