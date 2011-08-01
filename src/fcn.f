@@ -80,54 +80,10 @@ C  x-dependent fs:
       double precision fs0
       double precision fshermes
 
-*     ---------------------------------------------------------
-*     declaration related to ACOT --- to be adjusted!
-*     ---------------------------------------------------------
 
-CV passing info from ACOT codes to h1fitter
-
-      integer Isch, Iset, Iflg, Ihad
-!*** pass info out to Fnc123 and Fcc123
-      Common /Ischeme/ Isch, Iset, Iflg, Ihad  
-C----------------------------------------------------
-c     First time through ACOT, we'll compute and store K-factors 
-c     After that, we'll use a massive LO calc
-      integer IfirstACOT, Idata  !*** 
-c     IfirstACOT = 1  Calculate K-Factor Table (First pass)
-c     IfirstACOT = 0  Use K-Factor Table  (2nd Pass) 
-c     IfirstACOT =-1  Compute Full NLO each time (Over-ride: VERY SLOW)
-!*** pass switch & data point # to ACOT 
-      Common /acotBLK/ IfirstACOT, Idata  
-
-
-
-      data   IfirstACOT /1/  !*** We'll set to zero after first pass
-      integer ifirstGRID
-      data   IfirstGRID /1/  !*** We'll set to zero after first pass
-C
-C Functions:
-C
-      double precision gluon, singlet, Uminus,Dminus,Sea
-
-
-C------------------------------------------------------------------------
-
-C
-C Store FCN parameters:
-C
-      IFlagFCN = IFlag
-
-      Iset =11  !** pdf set-> force by hand to use external pdfs
-      Iflg=0    !*** dummy: not yet used 
-      Ihad=1    !*** proton
-C     Count function calls and print:
       IfcnCount=IfcnCount+1
       write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
       open(95,file='output/kfactors.dat', status='unknown')
-
-CV ======================================================
-CV===========================================================
-
 
 *     ---------------------------------------------------------
 *     initilise variables 
@@ -159,17 +115,7 @@ CV===========================================================
 
 
 
-*     ---------------------------------------------------------
-*     ACOT related: for kfactors
-*     -----------------------------------------------------
-      if (iflag.eq.3) then 
-         ifirstACOT=3
-         ifirstGRID=1
-      endif
-
-
-      if ((iflag.eq.1).or.(iflag.ge.10)) then
-         if (iflag.ge.10) ifirstACOT=iflag
+      if (iflag.eq.1) then
          
          mpar0 = npar
          
@@ -335,7 +281,6 @@ CV===========================================================
 *     ---------------------------------------------------------
 
       do 100 i=1,npoints
-         idata=i                !*** Pass this to ACOT for K-Factor use
          
          h1iset = JSET(i)
          
