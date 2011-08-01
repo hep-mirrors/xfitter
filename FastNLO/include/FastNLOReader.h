@@ -1,7 +1,7 @@
 // Author: Daniel Britzger
 // DESY, 23/07/2011
 
-//  Version 0.1, 
+//  Version 0.2, 
 //
 //  History:
 //    Version 0, initial version
@@ -31,38 +31,57 @@
 using namespace std;
 
 class FastNLOReader { //: public TObject {
- private:
-   void InitFastNLOREader(void);     // initialize all data members
- public:
-   enum EPDFInterface {
-      kLHAPDF	= 0,	// use LHAPDF
-      kH1FITTER = 1	// use H1Fitter for determining the pdflc
-   };
 
-   enum EAlphasEvolution {
-      kGRV = 0,
-      kNLOJET = 1,      
-      kCTEQpdf = 2,      
-      kFastNLO = 3,
-      kLHAPDFInternal = 4		// use: double 	LHAPDF::alphasPDF (double Q)
-   };
+public:
+  enum EMuX {
+    kMuR	= 0,	// renormalization scale
+    kMuF	= 1	// factorization scale
+  };
+  
+  enum EScaleFunctionalForm {
+    kScale1			= 0,
+    kScale2			= 1,
+    kQuadraticSum		= 2,
+    kQuadraticMean		= 3,
+    kQuadraticSumOver4		= 4,
+    kLinearMean			= 5,
+    kLinearSum			= 5,
+    kScaleMax			= 6,
+    kScaleMin			= 7
+  };
 
-   enum EScaleVariationDefinition {
-      kMuRVar		= 0,	// vary only MuR var by a factor 2 up and down
-      kMuRMuFSimultaneously	= 1,	// vary MuR and MuF simulataneously up and down
-      kMuRTimesMuFVar	= 2,	// vary MuR x MuF up and down by a factor of 2
-      kUpDownMax	= 3	// performa a scan for maximum up an down value between 0.5 < cR x cF < 2
-   };
+  enum EPDFInterface {
+    kLHAPDF	= 0,	// use LHAPDF
+    kH1FITTER = 1	// use H1Fitter for determining the pdflc
+  };
+
+  enum EAlphasEvolution {
+    kGRV = 0,
+    kNLOJET = 1,      
+    kCTEQpdf = 2,      
+    kFastNLO = 3,
+    kLHAPDFInternal = 4		// use: double 	LHAPDF::alphasPDF (double Q)
+  };
+
+  enum EScaleVariationDefinition {
+    kMuRVar		= 0,	// vary only MuR var by a factor 2 up and down
+    kMuRMuFSimultaneously	= 1,	// vary MuR and MuF simulataneously up and down
+    kMuRTimesMuFVar	= 2,	// vary MuR x MuF up and down by a factor of 2
+    kUpDownMax	= 3	// performa a scan for maximum up an down value between 0.5 < cR x cF < 2
+  };
 
   static const double TWOPI = 6.28318530717958647692528;
   static const double TWOPISQR = 39.47841760435743447533796;
 
- protected:
-  // put all the stuff in here!
+protected:
 
   static const int tablemagicno	= 1234567890;
   string ffilename;
+
+  // ---- scale variations ---- //
   int fScalevar;
+  double fScaleFacMuR;
+  double fScaleFacMuF;
 
   // ---- LHAPDF vars ---- //
   string fLHAPDFfilename;
@@ -73,8 +92,10 @@ class FastNLOReader { //: public TObject {
   EPDFInterface	fPDFInterface;
   EAlphasEvolution fAlphasEvolution;
   EScaleVariationDefinition fScaleVariationDefinition;
+  EScaleFunctionalForm fMuRFunc;
+  EScaleFunctionalForm fMuFFunc;
 
-  // ---- LHAPDF vars ---- //
+  // ---- alpha_s vars ---- //
   double fAlphasMz;
 
   // ---- Block A1 ---- //
@@ -136,10 +157,9 @@ class FastNLOReader { //: public TObject {
   vector < double > XSectionRefQ2;
   vector < double > XSectionRefMufQ2MuRMixed;
 
-  // ----  reference tables ---- //
+private:
 
- private:
-
+  void Init() ;
   void ReadTable();
 
   void ReadBlockA1(istream *table);
@@ -161,40 +181,88 @@ class FastNLOReader { //: public TObject {
 
   void CalcReferenceCrossSection();
 
+  void FillAlphasCache();						// prepare for recalculation of cross section with new alpha_s value.
+
   double GetAlphasLHAPDF(double Q);
   double GetAlphasNLOJET(double Q, double alphasMz);
   double GetAlphasGRV(double Q, double alphasMz);
   double GetAlphasCTEQpdf(double Q, double alphasMz);
   double GetAlphasFastNLO(double Q, double alphasMz);
   
-  
- protected:
-//    TUnfold(void);              // for derived classes
-//    virtual Double_t DoUnfold(void);     // the unfolding algorithm
-//    virtual void ClearResults(void);     // clear all results
+  double CalcMu(FastNLOReader::EMuX kMuX, double scale1 , double scale2 , double scalefactor);
+  double FuncMixedOver1 ( double scale1 , double scale2 ) ;
+  double FuncMixedOver2 ( double scale1 , double scale2 ) ;
+  double FuncMixedOver4 ( double scale1 , double scale2 ) ;
+  double FuncLinearMean ( double scale1 , double scale2 ) ;
+  double FuncLinearSum ( double scale1 , double scale2 ) ;
+  double FuncMax ( double scale1 , double scale2 ) ;
+  double FuncMin ( double scale1 , double scale2 ) ;
+
+
+protected:
+  //    TUnfold(void);              // for derived classes
+  //    virtual Double_t DoUnfold(void);     // the unfolding algorithm
+  //    virtual void ClearResults(void);     // clear all results
   
 public:
   FastNLOReader(void);
   FastNLOReader(string filename);
 
-  void SetFilename(string filename) { ffilename = filename;};
+  void SetFilename(string filename) ;
+  void InitScalevariation();
   void SetLHAPDFfilename( string filename ) { fLHAPDFfilename = filename; };
   void SetLHAPDFpath( string path ) { fLHAPDFpath = path; };
   void SetLHAPDFset( int set ) { fiPDFSet = set; };
   void SetAlphasMz( double AlphasMz );
   void SetPDFInterface( EPDFInterface PDFInterface)	{ fPDFInterface = PDFInterface; };
   void SetAlphasEvolution( EAlphasEvolution AlphasEvolution ) { fAlphasEvolution = AlphasEvolution; if (AlphasEvolution==kLHAPDFInternal) cout << "Warning. You cannot change the Alpha_s value."<<endl; };
-  void SetScaleVariationDefinition( EScaleVariationDefinition ScaleVariationDefinition ) { fScaleVariationDefinition = ScaleVariationDefinition ;};
+  void SetScaleVariationDefinition( EScaleVariationDefinition ScaleVariationDefinition ) { fScaleVariationDefinition = ScaleVariationDefinition ;}; // no impact yet.
 
+  // ---- setters for scales of MuVar tables ---- //
+  void SetMuRFunctionalForm( EScaleFunctionalForm func );				// Set the functional form of Mu_R
+  void SetMuFFunctionalForm( EScaleFunctionalForm func );				// Set the functional form of Mu_F
+  void SetFunctionalForm( EScaleFunctionalForm func , FastNLOReader::EMuX kMuX );	// Set functional form of MuX
+  void SetScaleFactorMuR( double fac );							// Set scale factor for MuR
+  void SetScaleFactorMuF( double fac );							// Set scale facotr for MuF
+  
+  // ---- setters for scale variation in v2.0 tables  ---- //
   double SetScaleVariation(int scalevar);
-  void FillPDFCache();
-  void FillAlphasCache();
+  
+  // ---- Pdf interface ---- //
+  void FillPDFCache();							// Prepare for recalculation of cross section with 'new'/updated pdf.
 
+  // ---- Getters ---- //
   vector < double > GetXSection();
   vector < double > GetReferenceXSection();
 
+  int GetNcontrib() { return Ncontrib; };
+  int GetIExpUnit() { return Ipublunits; };				// exponent of xs units (like -12 for pb)
+  string GetScenarioName() { return ScenName; };			// Get Scenario/Table name
+  vector < string > GetScenarioDescription() { return ScDescript; };	// Get Description of scenario
+  double GetCMSEnergy() { return Ecms; };				// Get center of mass energy
+  int GetILOord() { return ILOord; };					// Get number of alpha_s in leading order (1 or 2 usually)
+  int GetNObsBins() { return NObsBin; };				// Get number of measured bins
+  int GetNDiffBin() { return NDim; };					// Get number of differential measurement. 1: single differential; 2: double differential
+  vector < int > GetRapidityIndex() { return RapIndex;};		// Get rapidity indices
+  vector < string > GetDimensionLabel() { return DimLabel;};		// Get label for measured dimensions
+  vector < int > GetIDiffBin() { return IDiffBin;};			// Get number of differential bins
+  vector < vector < double > > GetLowBinEdge() { return LoBin; };	// Get Lower Bin edge [ObsBin][DiffBin]
+  vector < vector < double > > GetUpBinEdge() { return UpBin; };	// Get Upper Bin edge [ObsBin][DiffBin]
+  vector < double > GetBinSize() { return BinSize; };			// Get Binsize = BinSizeDim1 < * BinSizeDim2 >
+  int IsNormalized() { return INormFlag; };				// Normalized Cross sections?
+  //   string DenomTable;
+  //   vector <int> IDivLoPointer;
+  //   vector <int> IDivUpPointer;
+
+  // Getters about scale-interpolations
+  string GetScaleDescription() { return BlockB_NLO->ScaleDescript[0][0]; };		// Description of renormalization and facorization scale choice
+  int GetNScaleVariations() { return BlockB_NLO->Nscalevar[0]; };			// Get number of available scale variations
+  vector < double > GetScaleFactors() { return BlockB_NLO->ScaleFac[0]; };		// Get list of available scale factors
+  
+
   void CalcCrossSection();
   void Print();
+  void PrintCrossSections();
 
   //  ClassDef(FastNLOReader, 0) // FastNLOReader. Standalone code for reading FastNLO v2.0 and v2.0+ tables
 
