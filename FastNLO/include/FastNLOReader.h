@@ -208,7 +208,7 @@ public:
   FastNLOReader(void);
   FastNLOReader(string filename);
 
-  void SetFilename(string filename) ;
+  void SetFilename(string filename) { ffilename = filename;};
   void InitScalevariation();
   void SetLHAPDFfilename( string filename ) { fLHAPDFfilename = filename; };
   void SetLHAPDFpath( string path ) { fLHAPDFpath = path; };

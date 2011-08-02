@@ -29,6 +29,8 @@ C
             Call InitDYNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
             Call InitJetsPPApplGridDataSet(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
+            Call InitJetsFastNLODataSet(IDataSet)
          else
 C     C         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
          endif
@@ -42,6 +44,7 @@ C
       Call InitDYCCXsection
       Call InitDYNCXsection
       Call InitJetsPPApplGrid
+      Call InitJetsFastNLO
 C---------------------------------------------------------
       end
 
@@ -369,6 +372,19 @@ c         print *,'hoho',ibin,idxEtaAdd,ptLow, ptHigh, ptLowAP, ptHighAP
 C------------------------------------------------------------      
       end
 
+      subroutine InitJetsFastNLODataSet(IDataSet)
+C------------------------------------------------------------
+C
+C Initialize FastNLO reader
+C
+C------------------------------------------------------------
+      implicit none
+      integer IDataSet
+      include 'steering.inc'
+      include 'datasets.inc'
+      call fastnloinit(DATASETLABEL(IDataSet),IDataSet);
+      end
+
 
       subroutine InitIntegratedNCXsection
       end
@@ -394,6 +410,9 @@ C-------------------------------------
       print *, n, ' applgrid grids have been read'
 C-------------------------------------
 c      stop
+      end
+
+      subroutine InitJetsFastNLO
       end
 
 
@@ -431,3 +450,4 @@ C  DELTA-R AND EFFECTIVE WEAK MIXING ANGLE FROM ZNCV
 
 C-----------------------------------------------------
       end
+

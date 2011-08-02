@@ -22,6 +22,8 @@ C-------------------------------------------------------------------
          Call GetDYNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
          Call GetJetsPPApplGrid(IDataSet)
+      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
+         Call GetJetsFastNLOXsection(IDataSet)
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
       endif

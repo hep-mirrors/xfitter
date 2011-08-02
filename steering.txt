@@ -252,6 +252,7 @@ EXIT
     InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
     InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
    ! InputFileNames(5) = 'datafiles/ATLAS_DY_CC_ASYMMETRY.dat'
+   ! InputFileNames(6) = 'datafiles/DESY-07-073.dat'
 &End
 
 *
