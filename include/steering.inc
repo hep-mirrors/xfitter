@@ -22,7 +22,7 @@
       real asatur,lsatur
 
       real*4 starting_scale,rtalphas,strange_frac,
-     $     HF_MASS(2),HF_THRE(2),Q2VAL(NBANDS),charm_frac
+     $     HF_MASS(2),Q2VAL(NBANDS),charm_frac
 
       real*4 outxrange(2)
       integer outform, outnx
@@ -66,7 +66,7 @@ C AS, 07 APR 2011 applgrid flags
 
       common/STEERING/
      &     Q2VAL,starting_scale,rtalphas,strange_frac,
-     $     HF_MASS,HF_THRE,pxmax,pxmin,pq2min,pq2max,charm_frac,
+     $     HF_MASS,pxmax,pxmin,pq2min,pq2max,charm_frac,
      &     lfirst,lcorr,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS,
      &     LDOFIT1,Itheory,Iseed,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
      $     isdrn,lRAND,STATYPE,SYSTYPE,

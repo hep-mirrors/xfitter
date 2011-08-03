@@ -28,13 +28,9 @@ HFSCHEME   2
 
 
 C --- Charm and bottom thresholds, in GeV,
-C ---    The bottom threshold has to be larger than the charm threshold.
+C ---    The bottom mass threshold has to be larger than the charm threshold.
 
-HFTHRES   1.4    4.75
-
-C --- Charm and bottom mass, in GeV
-
-HFMAS    1.4    4.75
+HFMAS   1.4    4.75
 
 
 C ---- Choice of parametrisation for collinear factorisation case

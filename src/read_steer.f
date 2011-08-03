@@ -187,16 +187,6 @@ C SG: Hermes-like strange:
       HFSCHEME = 0
       call ffkey('HFSCHEME',HFSCHEME,1,'INTE')
 
-      vfnsINDX =0 
-      call ffkey('vfnsINDX',vfnsINDX,1,'INTE')
-
-      ISCH = 1
-      call ffkey('ISCH',ISCH,1,'INTE')
-
-      HF_THRE(1) = 1.4
-      HF_THRE(2) = 4.5
-      call ffkey('HFTHRES',HF_THRE,2,'REAL')
-
       pxmax = -1.
       CALL FFKEY('xmax',pxmax,1,'REAL')
       pxmin = -1.
@@ -261,28 +251,20 @@ C
 
 * --- Check the consistency of the steering file
 
-      if (HFSCHEME.eq.1.and.HF_THRE(2)**2.lt.starting_scale) then
+      if (HFSCHEME.eq.1.and.HF_MASS(2)**2.lt.starting_scale) then
        write(6,*)
        write(6,*) 'Bottom thres. has to be larger than starting scale'
        write(6,*)
        stop
       endif
 
-      if (HFSCHEME.eq.1.and.HF_THRE(2).lt.HF_THRE(1)) then
+      if (HFSCHEME.eq.1.and.HF_MASS(2).lt.HF_MASS(1)) then
        write(6,*)
        write(6,*) 'Bottom thres. has to be larger than charm thres.'
        write(6,*)
        stop
       endif
 
-      if (HFSCHEME.eq.1.and.(LDOFIT1(4).eq.1.or.
-     +                       LDOFIT1(6).eq.1.or.
-     +                       LDOFIT1(9).eq.1)) then
-       write(6,*)
-       write(6,*) 'Do not include CC in massive scheme'
-       write(6,*)
-       stop
-      endif
 
       if (NCHEBGLU.ne.0) then
          print *,'Use Chebyshev polynoms for gluon with N=',NCHEBGLU
