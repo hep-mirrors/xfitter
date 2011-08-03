@@ -23,39 +23,16 @@ RTALPHAS     0.1176
 C --- Scheme for heavy flavors :
 C ---  HFSCHEME = 0 : ZM-VFNS (massless),
 C ---  HFSCHEME = 2 :  Thorne-Roberts VFNS (massive)
-C ---  HFSCHEME = 3 :   F.Olness ACOT (massive)
-C ---  HFSCHEME = 4 :   FFNS Alechin BMNS ! only F2c is provided -> at NNLO for now
-C ---                   in principle one should run this for IORDER 3, however for 
-C ---                 FFNS scheme the evolution of PDFS for nf=3 is not working in 
-C ---                 QCDNUM17.2, this is claimed to be fixed for new versions
-C ---                 so for now PDFs can be evolved using VFNS.. which is not consistent!!
 
 HFSCHEME   2
 
 
-C --- FOR HFSCHEME =3 ONLY:  a flag that selects which calculation to use!
-c          If(Isch.eq.0)   !*** NLO MASSLESS MS-BAR
-c          If(Isch.eq.1)   !*** FULL ACOT
-c          If(Isch.eq.5)   !*** LO
-c          If(Isch.eq.6)   !*** Massless LO
-c          If(Isch.eq.7)   !*** Short-cut2: ACOT  w/ Massless NLO-Q
-c          If(Isch.eq.8)   !*** ACOT-CHI 
-
-ISCH 1
-
-C --- Charm and bottom thresholds, in GeV, for the massless scheme.
+C --- Charm and bottom thresholds, in GeV,
 C ---    The bottom threshold has to be larger than the charm threshold.
-C ---    So far, the bottom threshold has to be larger than the starting scale.
-C ---    If HFSCHEME = 1 (massive scheme) the thresholds are set internally
-C ---    to a value > highest Q2.
-C --- for H1ZEUS DIS 08:
-C HFTHRES   1.40    4.75
 
 HFTHRES   1.4    4.75
 
 C --- Charm and bottom mass, in GeV
-C --- for H1ZEUS DIS 08:
-C HFMAS    1.40    4.75
 
 HFMAS    1.4    4.75
 
@@ -251,8 +228,6 @@ EXIT
     InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
     InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
     InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
-   ! InputFileNames(5) = 'datafiles/ATLAS_DY_CC_ASYMMETRY.dat'
-   ! InputFileNames(6) = 'datafiles/DESY-07-073.dat'
 &End
 
 *

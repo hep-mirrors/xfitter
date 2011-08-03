@@ -24,6 +24,6 @@ set eps 1.0e-11
 call fcn 3
 * migrad
 *hesse
-set print 3
+*set print 3
 
 return
