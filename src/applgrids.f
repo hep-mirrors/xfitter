@@ -2,7 +2,9 @@ c----------------------------------------------------------
 c     read ngrids applgrids from "applgrids_list.txt"
 c----------------------------------------------------------
       subroutine getAPPLgrids(ng)
-      integer ng, n
+      implicit none
+C-------------
+      integer ng, n, ig
       integer fid
       integer dummy
       parameter (fid = 44)
@@ -26,12 +28,17 @@ c     routines that call  the pdf and alphas routines
 c     from QCDNUM
 c----------------------------------------------------------
       double precision function appl_fnalphas(Q)
+C-     
+      implicit none
+C-
       double precision Q, Q2      ! fact scale
       double precision mur2       ! renorm scale
       double precision alphaspdf
+      double precision RFROMF,ASFUNC
       integer nfl, ialerr
       Q2 = Q**2
       mur2 = RFROMF(Q2) ! get renorm scale from factscale in QCDNUM
+
 
       ialerr = 0
 c     get alpha_s interpolation
@@ -75,30 +82,35 @@ c      integer ng
 
 
       subroutine ag_gridids(igrids)
-
-c      integer igrids(100)
+      implicit none
+      integer igrids(100)
       call appl_gridids(igrids)
 
       return 
       end
 
       integer function ag_getnbins(igrid)
-
+      implicit none
+C--
+      integer igrid
       integer appl_getnbins
       ag_getnbins = appl_getnbins(igrid)
       return 
       end
 
       subroutine ag_convolute(igrid, xsec)
-
+C-----------------
+      implicit none
+C---------
       double precision xsec(100)
-c      integer igrid
+      integer igrid
 
       call appl_convolute(igrid,xsec)
       return 
       end
 
       subroutine ag_releasegrids
+      implicit none
       call appl_releasegrids
       return 
       end
