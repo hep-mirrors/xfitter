@@ -2,10 +2,12 @@
    Name = 'ATLAS W asymmetry'
    Reaction  = 'CC pp'
 
-   NDATA = 11
-   NUncert =  2
-   NBinDimension = 2
-   BinName = 'eta1', 'eta2'
+ ! Description of the data table
+   NDATA = 11 
+   NColumn = 5 
+   ColumnType = 2*'Bin','Sigma',2*'Error'  ! 2 bins, Asymmetry, 2 errors
+   ColumnName = 'eta1','eta2','Asymmetry','stat','uncor'
+ !
 
    NInfo   = 4
    DataInfo = 7000.,  1., 20., 25.
@@ -13,13 +15,12 @@
    
    IndexDataset = 76
 
-   TheoryInfoFile = 'datafiles/DY_CC_ATLAS_KFACTORS.dat'
+   TheoryInfoFile = 'theoryfiles/DY_CC_ATLAS_KFACTORS.dat'
    TheoryType     = 'kfactor'
    NKFactor       = 2
    KFactorNames = 'Wplus', 'Wminus'
 
-   SystematicType ='stat', 'uncor'
-   Percent   = False, False
+   Percent   = False, False    ! For asymmetry: absolute errors
 &End
 0.0  0.21 0.147 0.011 0.017
 0.21 0.42 0.150 0.010 0.012
