@@ -180,7 +180,7 @@ C  x-dependent fs:
          if (Itheory.ne.2) then
             if (itheory.eq.1) then
             elseif (iparam.eq.1) then
-               write(6,*) 'couplings ',cvu,cau,cvd,cad
+c               write(6,*) 'couplings ',cvu,cau,cvd,cad
                write(6,*) 'ag bg cg dg ',ag,bg,cg,dg
                write(6,*) 'au ad aubar adbar fu ',
      +              au,ad,aubar,adbar,fu
@@ -192,7 +192,7 @@ C  x-dependent fs:
      $              .or.iparam.eq.221.or.iparam.eq.222
      $              .or.iparam.eq.229.or.iparam.eq.227) then
                
-               write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
+               write(6,*) 'iparam alphas couplings ',iparam,alphas!,cvu,cau,cvd,cad
                write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
                write(6,*) 'aUv,bUv,cUv,dUv,eUv,fUv ',
      +              aUv,bUv,cUv,dUv,eUv,fUv
@@ -205,7 +205,7 @@ C  x-dependent fs:
                write(6,*) 'Rfudge, afudge, F2ht1, f2ht2 ',
      +              Rfudge, afudge, f2ht1, f2ht2
             elseif (iparam.eq.4) then
-               write(6,*) 'iparam alphas couplings ',iparam,alphas,cvu,cau,cvd,cad
+               write(6,*) 'iparam alphas couplings ',iparam,alphas!,cvu,cau,cvd,cad
                write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
                write(6,*) 'auv,buv,cuv,duv,euv,fuv ',
      +              aUv,bUv,cUv,dUv,eUv,fUv

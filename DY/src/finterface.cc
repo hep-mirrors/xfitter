@@ -24,6 +24,7 @@ extern "C" {
   int dy_get_res_(const int *ds_id, double *calc_res);
 
   int dy_release_();
+  int dy_set_ewpars_();
 }
 
 typedef map <int, DYcalc* > DCmap;
@@ -133,6 +134,9 @@ int dy_get_res_(const int *ds_id, double *calc_res)
   return 1;
 }
 
+int dy_set_ewpars_(){
+  PhysPar::setPhysPar();
+}
 
 int dy_release_()
 {

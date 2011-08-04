@@ -3,24 +3,15 @@
   @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
   @date Sun May 17 2009
  
-  Copyright (c) 2008-2009 Andrey Sapronov
- 
-  The values are assigned here.
- 
-  Adjusted to comply with MCFM
+  Function to set DY electroweak parameters from h1fitter EW common blocks
  
  */
- /*****************************************************************************/
 
 #include <cmath>
 
-namespace PhysPar {
-  int ih1		= 1;
-  int ih2		= 1;
-  double ebeam		= 7000.;
-  // scales
-  double omega		= 1e-5;
+#include "couplings.icc"
 
+namespace PhysPar {
   // constants
   double conhc		= 0.389379323e9; // conversion constant (hc)^2, GeV*pb (?)
   double alphai		= 128.89;
@@ -74,14 +65,83 @@ namespace PhysPar {
   double vl		= I3l-chl*sw2;
 
   // ckm
-  //double V2[4]		= { pow(0.9742,2), pow(0.9733,2), pow(0.226,2), pow(0.226,2) };
-  double V2[4]		= { pow(0.97419,2), pow(0.97334,2), pow(0.22570,2), pow(0.22560,2) }; // MCFM
+  double V2[6]		= { pow(0.97419,2), pow(0.97334,2), 
+  			    pow(0.22570,2), pow(0.22560,2), 0.,0. }; // MCFM
   				
   // current run parameters
   int idlept		= 11;
-  double ml		= mel;
-  double m2l		= pow(mel,2);
-  double mq		= mup;
-  double m2q		= pow(mup,2);
+
+  // Function to set parameters according to H1FITTER electroweak
+  // common block
+  void setPhysPar();
+};
+
+void PhysPar::setPhysPar()
+{
+  // constants
+  conhc		= constants_.convfac;
+  gfermi	= constants_.gf;
+  
+  // widths
+  wz		= widths_.wz;
+  ww		= widths_.ww;
+  wh		= widths_.wh;
+  wtp		= widths_.wtp;
+  
+  // boson masses
+  mh		= boson_masses_.mh;
+  m2h		= pow(mh,2);
+  mw		= boson_masses_.mw;
+  m2w		= pow(mw,2);
+  mz		= boson_masses_.mz;
+  m2z		= pow(mz,2);
+  
+  // fermion masses
+  men		= fermion_masses_.men;
+  mel		= fermion_masses_.mel;
+  mmn		= fermion_masses_.mmn;
+  mmo		= fermion_masses_.mmo;
+  mtn		= fermion_masses_.mtn;
+  mta		= fermion_masses_.mta;
+  mup		= fermion_masses_.mup;
+  mdn		= fermion_masses_.mdn;
+  mch		= fermion_masses_.mch;
+  mst		= fermion_masses_.mst;
+  mtp		= fermion_masses_.mtp;
+  mbt		= fermion_masses_.mbt;
+
+  // fermion charges
+  chq[0]	= -1./3.; // d
+  chq[1]	= 2./3.;  // u
+  chl		= -1;
+
+  // isospin
+  I3q[0]	= -0.5;
+  I3q[1]	= 0.5;
+  I3l		= -0.5;
+
+  // currently DY uses electroweak G-fermi scheme as in MCFM 
+  // weinberg angle
+  cw2		= pow(mw/mz,2);
+  sw2		= 1 - cw2;
+  // alpha_em derived from Gf
+  alpha		= 1./M_PI*gfermi*sqrt(2.)*sw2*cw2*m2z;
+  alphai	= 1./alpha;
+
+  // couplings derived from sin2thw
+  vq[0]		=  -1. + 4./3.*sw2;
+  vq[1]		= 1.-8./3.*sw2;
+  vl		= I3l-2.*chl*sw2;
+
+  // ckm
+  V2[0]		= pow(ckm_matrix_.Vud,2);
+  V2[1]		= pow(ckm_matrix_.Vcs,2);
+  V2[2]		= pow(ckm_matrix_.Vus,2);
+  V2[3]		= pow(ckm_matrix_.Vcd,2);
+  V2[4]		= pow(ckm_matrix_.Vub,2);
+  V2[5]		= pow(ckm_matrix_.Vcb,2);
+  				
+  // current run parameters
+  idlept		= 11;
 };
 

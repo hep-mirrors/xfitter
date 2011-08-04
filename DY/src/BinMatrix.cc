@@ -69,7 +69,6 @@ void BinMatrix::BuildBM_Z_eta()
   for (int imp=0; imp<nmp; imp++){
     double m = (_msteps[imp/2]+_msteps[(imp+1)/2])/2.;
     double m2 = m*m;
-    alpha = 1./M_PI*gfermi*sqrt(2.)*sw2*cw2*m2z;
     const double denZ = pow(m2-m2z,2)+pow(wz*mz,2);
     double X[3] = {0.};
     X[0] = conhc*M_PI*pow(alpha,2)/(3.*m*pow(_beam_en,2));
@@ -118,7 +117,6 @@ void BinMatrix::BuildBM_Z_y()
   for (int imp=0; imp<nmp; imp++){
     double m = (_msteps[imp/2]+_msteps[(imp+1)/2])/2.;
     double m2 = m*m;
-    alpha = 1./M_PI*gfermi*sqrt(2.)*sw2*cw2*m2z;
     const double denZ = pow(m2-m2z,2)+pow(wz*mz,2);
     double X[3] = {0.};
     X[0] = conhc*M_PI*pow(alpha,2)/(3.*m*pow(_beam_en,2));

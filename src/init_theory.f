@@ -645,32 +645,45 @@ C
 C-----------------------------------------------------
       implicit none
       include 'couplings.inc'
+      namelist/EWpars/alphaem, gf, sin2thw, convfac,
+     $ Mz, Mw, Mh, wz, ww, wh, wtp,
+     $ Vud, Vus, Vub, Vcd, Vcs, Vcb,
+     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
+     $ mch, mst, mtp, mbt
 C-----------------------------------------------------
 
-C
-C Masses:
-C
-      Mz = 91.187d0
-      Mw = 80.41d0
-c      sin2thw = 1.d0 - Mw**2/Mz**2
+      open (51,file='ewparam.txt',status='old')
+      read (51,NML=EWpars,END=71,ERR=72)
+      close (51)
 
-cv use mandy's
-      sin2thw = 0.2315
+      goto 73
+C 
+ 71   continue
+      print '(''Namelist @EWPars NOT found'')'
+      goto 73
+ 72   continue
+      print '(''Error reading namelist @EWPars, STOP'')'
+      stop
+ 73   continue
+
+C
+C set derived values
+C
       cos2thw = 1.d0 - sin2thw
 
+C
+C set same values for DY calculations
+C
+      call dy_set_ewpars
 
 cv electroweak starting values, modified later
-
-      cvu = 0.196
-      cau = 0.5
-      cvd = -0.346
-      cad = -0.5
+c      cvu = 0.196
+c      cau = 0.5
+c      cvd = -0.346
+c      cad = -0.5
       
 C  DELTA-R AND EFFECTIVE WEAK MIXING ANGLE FROM ZNCV
-      call EPRC_INIT(.true.)
+C      call EPRC_INIT(.true.)
 
 C-----------------------------------------------------
       end
-
-
-

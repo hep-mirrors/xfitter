@@ -1,12 +1,6 @@
-C alpha electromagnetic, pi and conversion factor:
-      double precision alphaem,pi,convfac
-      parameter (alphaem = 1./137.0D0)
+C  pi :
+      double precision pi
       parameter (pi = 3.141592653589793D0)
-      parameter (convfac = 3.893796D8)
-
-C Fermi constant:
-      Double Precision Gf
-      parameter (Gf = 1.16637d-5)
 
 C Electric charges:
       double precision euq,edq, e2u,e2d 
@@ -15,6 +9,20 @@ C Electric charges:
       parameter (e2u = euq*euq)
       parameter (e2d = edq*edq)      
 
-      double precision sin2thw,cos2thw,Mz,Mw,cau,cvu,cad,cvd
-      common/couplings/sin2thw,cos2thw,Mz,Mw,
-     +     cau,cvu,cad,cvd
+C Electroweak common blocks
+      double precision gf, convfac
+      double precision alphaem,sin2thw,cos2thw
+      double precision Mz, Mw, Mh
+      double precision wz, ww, wh, wtp
+      double precision Vud, Vus, Vub, Vcd, Vcs, Vcb
+      double precision men, mel, mmn, mmo, mtn, mta, mup, mdn,
+     + mch, mst, mtp, mbt
+
+      common/constants/ gf, convfac
+      common/ew_couplings/alphaem,sin2thw,cos2thw
+      common/boson_masses/ Mz, Mw, Mh
+      common/widths/wz, ww, wh, wtp
+      common/ckm_matrix/ Vud, Vus, Vub, Vcd, Vcs, Vcb
+      common/fermion_masses/men, mel, mmn, mmo, mtn, mta, mup, mdn,
+     + mch, mst, mtp, mbt
+      

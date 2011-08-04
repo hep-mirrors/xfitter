@@ -58,8 +58,8 @@ C
 C
 C u-type and d-type couplings:
 C
-      au = cau
-      ad = cad                  
+      au = 0.5d0
+      ad = -0.5d0
       vu = au - (4.d0/3.d0)*sin2thw
       vd = ad + (2.d0/3.d0)*sin2thw
 
@@ -263,8 +263,8 @@ C
 C
 C and quarks
 C         
-      au = cau
-      ad = cad
+      au = 0.5d0
+      ad = -0.5d0
                   
       vu = au - (4.d0/3.d0)*sin2thw
       vd = ad + (2.d0/3.d0)*sin2thw
