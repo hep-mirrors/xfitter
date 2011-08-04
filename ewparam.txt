@@ -1,0 +1,53 @@
+*
+*  Electroweak parameters
+*
+
+* Note: DIS uses on-shell electroweak scheme, 
+* DY uses GFermi scheme
+
+&EWpars
+
+  ! 1/137 = 7.29927d-3
+  alphaem		= 7.29927d-3
+  gf			= 1.16637d-5
+  sin2thw		= 0.2315d0
+  ! alphas		= 0.1176d0
+  convfac		= 0.389379323d9
+
+  ! boson masses
+  Mz			= 91.187d0
+  Mw			= 80.41d0
+  Mh			= 120d0
+
+  ! widths
+  wz			= 2.4935d0
+  ww			= 2.1054d0
+  wh			= 1d-3
+  wtp			= 1.551d0
+
+  ! CKM ( todo: add Vub & Vcb to DY)
+  Vud			= 0.97419d0
+  Vus			= 0.22570d0
+  Vub			= 0.35900d-2
+  Vcd			= 0.22560d0
+  Vcs			= 0.97334d0
+  Vcb			= 0.41500d-1
+
+  ! fermion masses
+  men			= 1d-10
+  mel			= 0.51099892d-3
+  mmn			= 1d-10
+  mmo			= 0.105658369d0
+  mtn			= 1d-10
+  mta			= 1.77699d0
+  mup			= 0.06983d0
+  mdn			= 0.06983d0
+  mch			= 1.2d0
+  mst			= 0.150d0
+  mtp			= 174d0
+  mbt			= 4.6d0
+  
+   
+&end
+
+
