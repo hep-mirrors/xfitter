@@ -207,10 +207,12 @@ C------------------------------------------------------------------------
 
       character *(*) CFile
 C Namelist  variables:    
-      integer ndataMax,ninfomax,nsystMax
+      integer ndataMax,ninfomax,nsystMax,ncolumnMax
       parameter (ndataMax=1000)
       parameter (ninfoMax=100)
       parameter (nsystMax=500)
+
+      parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
 
       character *80 Name
       integer  NData
@@ -223,10 +225,19 @@ C Namelist  variables:
       double precision datainfo(ninfoMax)
       character *80 CInfo(ninfoMax)
       character *80 Reaction
-      
+
+      double precision buffer(ncolumnMax)
+
+C
+C Name and type of columns:
+C      
+      integer   NColumn 
+      character *32 ColumnName(ncolumnMax)
+      character *32 ColumnType(ncolumnMax)
+
 C Systematics:
+      character *32 SystematicType(nsystMax)
       logical Percent(1:nsystMax)
-      character *20 SystematicType(nsystMax)
 
 C Reference table
       integer CompressIdx(nsystMax)
@@ -238,10 +249,11 @@ C Extra info about k-factors, applegrid file(s):
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
 C Namelist definition:
-      namelist/Data/Name,NData,NUncert,NBinDimension
-     $     ,BinName,NInfo,datainfo,CInfo,Reaction,Percent
-     $     ,SystematicType, SystScales, IndexDataset
+      namelist/Data/Name,NData
+     $     ,NInfo,datainfo,CInfo,Reaction,Percent
+     $     ,SystScales, IndexDataset
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
+     $     ,ColumnName, ColumnType, NColumn
 
       double precision XSections(ndataMax)
       double precision AllBins(10,ndataMax)
@@ -255,8 +267,13 @@ C Namelist definition:
 
       double precision TotalErrorRead ! total error, provided by the data file
 
-      integer i,j
+      integer idxSigma
+
+      integer i,j,iBin,iError
       logical LReadKFactor
+
+C Temporary buffer to read the data (allows for comments starting with *)
+      character *4096 CTmp
 
 C Function to check cuts
       logical FailSelectionCuts
@@ -271,6 +288,7 @@ C Reset to default:
       Reaction = ' '
       Name     = ' '
       IndexDataSet = 0
+      idxSigma = 0
       NKFactor = 0
       TheoryInfoFile = ' '
       LReadKFactor = .false.
@@ -289,10 +307,9 @@ C Reset scales to 1.0
 C
 C Check dimensions
 C
-      if (NUncert.gt. nsysmax) then
+      if (NColumn.gt. Ncolumnmax) then
          print '(''Error in ReadDataFile for File='',A80)',cfile
-         print '(''NUncert = '',i6,'' exeeds NSysMax='',i6)',nuncert,nsysmax
-         print '(''Increase NSysMax in systematics.inc'')'
+         print '(''NColumn = '',i6,'' exeeds NColumnMax='',i6)',ncolumn,ncolumnmax
          stop
       endif
 C
@@ -305,6 +322,26 @@ C
 
 C Reaction info:
       DATASETREACTION(NDATASETS) = Reaction
+
+C Parse ColumnType, count systematics, etc
+      do i=1,NColumn
+         if (ColumnType(i).eq.'Bin') then
+            NBinDimension = NBinDimension + 1
+            BinName(NBinDimension) = ColumnName(i)
+         elseif (ColumnType(i).eq.'Sigma') then
+            idxSigma = i
+         elseif (ColumnType(i).eq.'Error') then
+            NUncert = NUncert + 1
+            SystematicType(NUncert) = ColumnName(i)
+         elseif (ColumnType(i).eq.'Dummy') then
+! Ignore dummy column
+         else
+            print '(''Unknown Column type for dataset'',A80)',CFile
+            print '(''Column='',i5,'' type='',A32)',i,ColumnType(i)
+            print '(''STOP in ReadDataFile'')'
+            stop
+         endif
+      enddo
 
 C Binning info:
       DATASETBinningDimension(NDATASETS) = NBinDimension
@@ -374,8 +411,33 @@ C Check if we need to read kfactor file:
 
 C Read data info:
       do j=1,NData
-         read(51,*)(allbins(i,j),i=1,NBinDimension),XSections(j)
-     $        ,(syst(i),i=1,NUncert)
+C Allow for comments:
+ 89      read (51,'(A)',err=1017,end=1018) ctmp
+         if (ctmp(1:1).eq.'*') then
+C     Comment line, read another one
+            goto 89
+         endif
+
+C Read the colums
+         read (ctmp,*,err=1019)(buffer(i),i=1,NColumn)
+
+C Decode the columns
+         iBin   = 0
+         iError = 0
+         do i=1,NColumn
+            if (ColumnType(i).eq.'Bin') then
+               iBin = iBin + 1
+               allbins(iBin,j) = buffer(i)
+            elseif (ColumnType(i).eq.'Sigma') then
+               XSections(j) = buffer(i)
+            elseif (ColumnType(i).eq.'Error') then
+               iError = iError + 1
+               syst(iError) = buffer(i)
+            endif
+         enddo
+
+c         read(51,*)(allbins(i,j),i=1,NBinDimension),XSections(j)
+c     $        ,(syst(i),i=1,NUncert)
 
 C Scale the syst. erros:
          do i=1,NUncert
@@ -507,5 +569,16 @@ C Store k-factors:
       print '(''Can not open file '')'
       print *,TheoryInfoFile
       stop
+
+ 1017 continue
+      print '(''Error reading file'')'
+      stop
+ 1018 continue
+      print '(''End of file while reading file'')'
+      stop
+ 1019 continue
+      print '(''Problem interpreting data line='',i6)',j
+      stop
+
       end
 
