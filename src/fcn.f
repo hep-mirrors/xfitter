@@ -79,6 +79,10 @@ c----------------------------------------------------------------------
 C  x-dependent fs:
       double precision fs0
       double precision fshermes
+C-----------------------------------------------------------------
+      
+C Store FCN flag in a common block:
+      IFlagFCN = IFlag
 
 
       IfcnCount=IfcnCount+1
