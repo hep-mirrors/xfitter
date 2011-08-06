@@ -372,10 +372,12 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
          endif
          write(85,*) ' Partial chi2s '
          do h1iset=1,nset
-            write(6,'(''Dataset '',i4,F10.2,i6)')
-     $           ,h1iset,pchi2(h1iset),npts(h1iset)
-            write(85,'(''Dataset '',i4,F10.2,i6)')
-     $           ,h1iset,pchi2(h1iset),npts(h1iset)
+            if (npts(h1iset).gt.0) then
+               write(6,'(''Dataset '',i4,F10.2,i6)')
+     $              ,h1iset,pchi2(h1iset),npts(h1iset)
+               write(85,'(''Dataset '',i4,F10.2,i6)')
+     $              ,h1iset,pchi2(h1iset),npts(h1iset)
+            endif
          enddo
          write(85,*)
 
@@ -390,12 +392,13 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
        endif
 
        write(85,*) 'Systematic shifts '
-       open(unit=77,file='output/systematics_polar.txt')
+c       open(unit=77,file='output/systematics_polar.txt')
        do jsys=1,nsys
-          write(77,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
-          write(85,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
+c          write(77,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
+          write(85,'(I5,'' '',A20,'' '',F9.4,''   +/-'',F9.4)')
+     $         jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys)
        enddo
-       close(77)
+c       close(77)
 
 c AS release applgrids
 c AS applgrid example
@@ -651,7 +654,7 @@ c                     endif
      $              AbstractBins(1,ipoint),
      $              AbstractBins(2,ipoint),AbstractBins(3,ipoint),
      $              t,d,(d-t)/error
- 880           format(1x, i2, 2x, F9.6, 2x, F10.4, 2x, F9.6, 3(2x, F9.4))
+ 880           format(1x, i2, 2x, G12.6, 2x, G12.4, 2x, G12.6, 3(2x, G12.4))
             endif
 
 *     -- errors on the shifts (correct ??)
