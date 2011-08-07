@@ -36,6 +36,7 @@ C
 C Created 24/06/2011. Get theory calculation per iteration, before going into  individual datasets
 C
 C---------------------------------------------------------------------
+      implicit none
       include 'steering.inc'
 C--------------------------------------------------------------------
 C Drell-Yan:
@@ -43,4 +44,7 @@ C Drell-Yan:
          call dy_do_calc
       endif
 
+      if (LFastAPPLGRID) then
+         call Calc_pdf_applgrid_fast
+      endif
       end

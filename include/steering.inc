@@ -78,3 +78,10 @@ C AS, 07 APR 2011 applgrid flags
      $     ,IDFLprint,h1qcdfunc,IDSIGDQ2
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
+
+C
+C Fast/slow mode for APPLGRID PDF convolution. Since the gain in speed is 
+C small, set false by default
+C
+      logical LFastAPPLGRID
+      data LFastAPPLGRID/.false./
