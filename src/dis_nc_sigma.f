@@ -341,7 +341,7 @@ C EW couplings of u-type and d-type quarks at the scale Q2
      $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
             
             A_d = e2d 
-     $           - (-ve-polarity*ae)*PZ*2.*edq*vd 
+     $           + (-ve-polarity*ae)*PZ*2.*edq*vd 
      $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
             
             B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
@@ -384,8 +384,8 @@ C
 C-----------------------------------------------------------------------
 C  Extra heavy flavour schemes
 C
-         
-C 
+
+c
 C RT scheme 
 C
         if (mod(HFSCHEME,10).eq.2) then 
