@@ -337,7 +337,6 @@ C
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
 
-      print*,'voica is asking about polarity', polarity     
 C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 
 C u-type ( u+c ) contributions 
