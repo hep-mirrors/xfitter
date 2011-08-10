@@ -116,40 +116,44 @@ C QCDNUM, caclulate FL, F2 and xF3 for all bins:
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(0,i))
          PZ = 1./Pz
 
-         if (charge.gt.0) then
-            A_u = e2u           ! gamma
-     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-            
-            A_d = e2d 
-     $           - (-ve-polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-         else
-            A_u = e2u           ! gamma
-     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-            
-            A_d = e2d 
-     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-            
-         endif
+
+c         if (charge.gt.0) then
+c            A_u = e2u           ! gamma
+c     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
+c     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+c           
+c            A_d = e2d 
+c     $           + (-ve-polarity*ae)*PZ*2.*edq*vd 
+c     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+c            
+c            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+c     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+c            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
+c     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+
+
+c         else
+c            A_u = e2u           ! gamma
+c     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
+c     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+c           
+c            A_d = e2d 
+c     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
+c     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+c            
+c            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+c     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+c            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
+c     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+c            
+c         endif
+
 
 cv in case polarity=0 it reduces to: (eminus case)
-c            A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-c            A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-c            B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-c            B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
 
          alpha_run = AEMRUN(q2(0,i))
@@ -167,7 +171,13 @@ C Get x-sections:
 
 
 C polarisation already taken into account in the coupling
+         if (charge.gt.0) then
+            
+            XSec(j) = yplus*F2 - yminus*xF3 - y*y*FL
+         else
             XSec(j) = yplus*F2 + yminus*xF3 - y*y*FL
+
+         endif
             XSec(j) = XSec(j) * (2*pi*alpha_run**2)/ 
      $           (q2(j,i)**2*x(j,i))*convfac
 
@@ -176,6 +186,7 @@ C polarisation already taken into account in the coupling
 
 C Integrate:
          xsint = DSIMPS(XSec(0),x(0,i),x(NSplit,i),NSplit)
+
 
          idx =  DATASETIDX(IDataSet,i)
          THEO(idx) =  xsint
@@ -335,40 +346,40 @@ C Propagator factor PZ
          PZ = 1./Pz
 C EW couplings of u-type and d-type quarks at the scale Q2
 
-         if (charge.gt.0) then
-            A_u = e2u           ! gamma
-     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-            
-            A_d = e2d 
-     $           + (-ve-polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-         else
-            A_u = e2u           ! gamma
-     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-            
-            A_d = e2d 
-     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-            
-         endif
+c         if (charge.gt.0) then
+c            A_u = e2u           ! gamma
+c     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
+c     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+c            
+c            A_d = e2d 
+c     $           + (-ve-polarity*ae)*PZ*2.*edq*vd 
+c     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+c            
+c            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+c     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+c            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
+c     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+c         else
+c            A_u = e2u           ! gamma
+c     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
+c     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+c            
+c            A_d = e2d 
+c     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
+c     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+c            
+c            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+c     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+c            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
+c     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+c            
+c         endif
 
 
-c         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-c         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-c         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-c         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
 C Get x-sections:
          yplus  = 1+(1-y(i))**2
@@ -429,8 +440,16 @@ C Keep xF3 from QCDNUM
          
 
 C polarisation already taken into account in the couplings (A_q,B_q)
-        XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
 
+
+
+        if (charge.gt.0) then
+
+           XSec = F2 - yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
+
+        else
+           XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
+        endif
 C
 C Store cross-section prediction in the global cross-sections table:
 C
