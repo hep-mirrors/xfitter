@@ -4,7 +4,7 @@
 
       integer nSys
 
-      character*16 SYSTEM
+      character*32 SYSTEM
       dimension SYSTEM(NSYSMAX)
       double precision BETA(NSYSMAX,NTOT)
       double precision ALPHA(NTOT)

@@ -521,9 +521,10 @@ C Stat error:
          enddo
 
          ALPHA(npoints) = sqrt(UncorError**2+StatError**2)*DATEN(npoints)
-         do i=1,NUncert
-            if (SystematicType(i).ne.'uncor') then
 
+         do i=1,NUncert
+            if (SystematicType(i).ne.'uncor' .and. 
+     $           SystematicType(i).ne.'ignore') then
                BETA(CompressIdx(i),npoints) = syst(i)
             endif
          enddo
