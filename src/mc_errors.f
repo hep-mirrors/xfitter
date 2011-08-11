@@ -7,9 +7,9 @@ C of the data, which fluctuates accoding to their uncertainteis.
 C
 C------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'datasets.inc'      
-      include 'ntot.inc'
       include 'systematics.inc'
       include 'indata.inc'
       include 'for_debug.inc'

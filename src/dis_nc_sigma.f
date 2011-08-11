@@ -6,10 +6,10 @@ C  Calculate x-integrated  cross section.
 C
 C-----------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
       include 'couplings.inc'
@@ -216,10 +216,10 @@ C  Start with zero mass implementation
 C                 14/06/2011 : re-introduce RT code
 C---------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
       include 'couplings.inc'

@@ -1,9 +1,9 @@
       Subroutine GetDYCCXsection(IDataSet)
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
       include 'fcn.inc'
@@ -19,10 +19,10 @@ C-------------------------------------------------
 
       Subroutine GetDYNCXsection(IDataSet)
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
       include 'fcn.inc'
@@ -45,10 +45,10 @@ C Calculate DY CC cross section using APPLGRID interface.
 C
 C---------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
 
@@ -76,7 +76,7 @@ C check if we have to divide APPLGRID prediction to convert units to data units:
          idx =  DATASETIDX(IDataSet,i)
          THEO(idx) = XSec(i) / TheoryUnit
 
-c         print *,'hady', idx, THEO(idx), DATEN(idx)
+c         print *,'hady', idx, THEO(idx), DATEN(idx),TheoryUnit
       enddo
       end
 
@@ -88,10 +88,10 @@ C Calculate DY W+, W- and asymmetry cross sections
 C
 C------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
       include 'fcn.inc'
@@ -177,10 +177,10 @@ C C&P from CC by AS 06/07/2011
 C
 C------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
       include 'fcn.inc'

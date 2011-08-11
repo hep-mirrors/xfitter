@@ -3,6 +3,7 @@
 *     ------------------------------------------------
 
       implicit none 
+      include 'ntot.inc'
       include 'steering.inc'
       include 'thresholds.inc'
       include 'couplings.inc'
@@ -50,6 +51,7 @@ c          here goes a call to non-DGLAP
 
       implicit none
 
+      include 'ntot.inc'
       INCLUDE 'steering.inc'
       INCLUDE 'thresholds.inc'
       INCLUDE 'couplings.inc'
@@ -226,6 +228,7 @@ C June 2, 2011, Initialise theory for different data and theory models
 C
 C---------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
@@ -286,6 +289,7 @@ C Initialise tables for DY process for calculations
 C
 C------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
@@ -314,6 +318,7 @@ C Initialise tables for DY process for calculations
 C
 C------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
@@ -341,10 +346,10 @@ C Initialise tables for DY process for calculations using k-factors
 C
 C------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       integer IDataSet
 
@@ -388,7 +393,7 @@ C Get indicies:
 
       if (idxY1.eq.0 .or. idxY2.eq.0) then
          print 
-     $        '(''ERROR in GetDYNCXsection, can not find bin index for y1, y2'',2i6)'
+     $'(''ERROR in GetDYNCXsection, can not find bin index for y1, y2'',2i6)'
      $        ,idxY1,idxY2
          stop
       endif
@@ -413,10 +418,10 @@ C Initialise tables for DY process for calculations using applgrid
 C
 C------------------------------------------------------------     
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       integer IDataSet, IGridID
 C---------------------------------------------------------------
@@ -434,10 +439,10 @@ C Initialise tables for DY process for calculations using k-factors
 C
 C------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       integer IDataSet
 
@@ -509,10 +514,10 @@ C------------------------------------------------------------
       implicit none
       integer IDataSet
 C------------------------------------------------------------
-      include 'steering.inc'
+      include 'ntot.inc'
+C      include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
 
       integer NfnloGrids
@@ -601,7 +606,8 @@ C
 C------------------------------------------------------------
       implicit none
       integer IDataSet
-      include 'steering.inc'
+      include 'ntot.inc'
+c      include 'steering.inc'
       include 'datasets.inc'
       call fastnloinit(DATASETLABEL(IDataSet),IDataSet);
       end

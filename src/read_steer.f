@@ -3,12 +3,12 @@
       implicit none
 
 
+      include 'ntot.inc'
       include 'steering.inc'
       include 'couplings.inc'
       include 'pdflength.inc'
       include 'pdfparam.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'systematics.inc'
 C=================================================
 

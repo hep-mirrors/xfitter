@@ -5,6 +5,7 @@ C
 C Distribute calculation of theory prediction for a dataset IDataSet
 C---------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
@@ -37,6 +38,7 @@ C Created 24/06/2011. Get theory calculation per iteration, before going into  i
 C
 C---------------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
 C--------------------------------------------------------------------
 C Drell-Yan:

@@ -5,10 +5,10 @@ C  Created 03/06/2011.  Convolution of apple grid for PP jet cross sections
 C
 C---------------------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
 

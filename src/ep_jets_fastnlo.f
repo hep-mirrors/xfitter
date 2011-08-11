@@ -5,10 +5,10 @@ C  Created 01/08/2011.  Calculate ep jets cross sections
 C
 C---------------------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
 

@@ -8,9 +8,9 @@
 
       implicit none
 *     ------------------------------------------------
+      include 'ntot.inc'
       include 'steering.inc'
       include 'datasets.inc'      
-      include 'ntot.inc'
       include 'systematics.inc'
       include 'hadcor.inc'
       include 'indata.inc'
@@ -190,9 +190,9 @@ C   Read data set using namelist format
 C
 C------------------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'systematics.inc'
 

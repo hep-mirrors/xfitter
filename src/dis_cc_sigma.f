@@ -5,10 +5,10 @@ C  Created by SG, 26/05/2011
 C
 C----------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      include 'ntot.inc'
       include 'indata.inc'
       include 'theo.inc'
       include 'couplings.inc'

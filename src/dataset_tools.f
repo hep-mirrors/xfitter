@@ -6,7 +6,8 @@ C  Return bin index corresponding to name CName
 C
 C-----------------------------------------------------------------
       implicit none
-      include 'steering.inc'
+      include 'ntot.inc'
+c      include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
       integer IDataSet
@@ -34,7 +35,8 @@ C  Return info index corresponding to name CName
 C
 C-----------------------------------------------------------------
       implicit none
-      include 'steering.inc'
+      include 'ntot.inc'
+c      include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
       integer IDataSet
@@ -63,7 +65,8 @@ C  Return info index corresponding to kfactor name CName
 C
 C-----------------------------------------------------------------
       implicit none
-      include 'steering.inc'
+      include 'ntot.inc'
+c      include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
       integer IDataSet
@@ -186,6 +189,7 @@ C--------------------------------------------------------------
       integer NBin
       Double Precision Bins(NBin)
       character *(*) BinNames(NBin)
+      include 'ntot.inc'
       include 'steering.inc'
 
       integer idxQ2,idxX,idxY,i
