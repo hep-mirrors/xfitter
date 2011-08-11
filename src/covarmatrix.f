@@ -3,6 +3,7 @@
       implicit none
 
       include 'ntot.inc'
+      include 'indata.inc'
       include 'systematics.inc'
       include 'covar_chi2.inc'
 
