@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign
 bin_PROGRAMS = FitPDF
 
 # all source files which go into the main target
-FitPDF_SOURCES = main.f init_theory.f fcn.f minuit_ini.f covarmatrix.f fail_cuts.f read_covarmatrix.f read_data.f store_pdfs.f\
+FitPDF_SOURCES = main.f init_theory.f fcn.f minuit_ini.f  fail_cuts.f read_data.f store_pdfs.f\
 sumrules.f read_steer.f error_bands_pumplin.f formff.f pdf_param.f systematics.f\
 ssdint.f writefittedpoints.f\
 evolution.f pdflength.f mc_errors.f ep_jets_fastnlo.f\

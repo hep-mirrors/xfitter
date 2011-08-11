@@ -134,22 +134,6 @@ C
       enddo
 
 
-
-c      stop
-*     ------------------------------------------------------------------
-*     -- Calculate or read the full covariance matrix
-
-      if (ICHI2.eq.3) then
-
-         if (FIRST) then
-            call CoVarMatrix
-         else
-            call Read_CoVarMatrix
-         endif
-
-      endif
-
-
 *     ----------------------------------------------------------------------
 *     -- CTEQ-like chi2 :
 *     -- compute the matrix (A) as given in Eq. (B.4) of JHEP07 (2002) 012
