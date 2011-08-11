@@ -15,6 +15,4 @@ C
       parameter (NBinDimensionMax=10)      
 
 
-
-      integer npoints       !> Actual number of data points
-      common/CNDataPoints/NPoints
+      

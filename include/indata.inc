@@ -1,8 +1,15 @@
+C
+C Data information
+C
+      integer npoints       !> Actual number of data points
+      common/CNDataPoints/NPoints
 
 
-      double precision DATEN(NTOT),E_UNC(NTOT),E_TOT(NTOT)
-      double precision E_STA(NTOT)  ! stat. errors
-      integer JSET(NTOT)
+      double precision DATEN(NTOT)   !> Data values
+     $     ,E_UNC(NTOT)              !> Uncorelated uncertainty 
+     $     ,E_TOT(NTOT)              !> Total uncertainty
+      double precision E_STA(NTOT)   !> Stat. errors
+      integer JSET(NTOT)             !> Reference to dataset index
 
 
 C SG: Abstract binning:
