@@ -1,0 +1,224 @@
+------------------------------------------------
+    H1FITTER   --- PDF fit program from HERA.
+------------------------------------------------
+
+(for support info, see https://znwiki3.ifh.de/H1Fitter)
+
+
+0) Pre-requirements.
+====================
+
+-- QCDNUM version at least qcdnum-17-00/04, can be found at 
+  http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html
+
+-- CERNLIB. Note that for CERNLIB one can use /afs/ installation from CERN:
+  /afs/cern.ch/sw/lcg/external/cernlib/
+
+-- Link to recent Root libraries (e.g. version 5.26)
+
+-- Optional: APPLGRID
+
+-- h1fitter has been tested on various platforms: 
+   SL4, SL5 (32 and 64 bit),  Ubuntu 10.10,  [ MAC-OS(X) ??]
+
+1) INSTALLATION (without APPLGRID)
+====================================
+
+  a) Specify CERN_ROOT and QCDNUM_ROOT variables such that 
+     $CERN_ROOT/lib  and $QCDNUM_ROOT/lib point to the corresponding libraries
+
+  b) Run:
+
+    autoreconf --install
+    ./configure
+    make 
+    make install
+
+    --> you should get bin/FitPDF executable file installed
+
+  c) Run a check
+
+    bin/FitPDF < steering.txt
+
+1B) INSTALLATION (with APPLGRID)
+=================================
+
+  a) Specify CERN_ROOT and QCDNUM_ROOT variables such that 
+     $CERN_ROOT/lib  and $QCDNUM_ROOT/lib point to the corresponding libraries
+
+     Install APPLGRID version 1.1.6 or later. Description can be found at
+     
+  b) Run:
+
+    autoreconf --install
+    ./configure
+    make 
+    make install
+
+    --> you should get bin/FitPDF executable file installed
+
+  c) Run a check
+
+    bin/FitPDF < steering.txt
+
+
+2) MINI DESCRIPTION
+=====================
+  a) Steering cards
+--------------------
+    The software behaviour is controlled by two files with steering commands.
+    These files have predefined names:
+
+      steering.txt   --  controls main "stable" (un-modified during 
+                         minimisation) parameters. The file contains
+                         names of data files to be fitted to, definition 
+                         of kinematic cuts and electroweak
+                         parameters.
+                        
+      minuit.in.txt  --  controls minimisation parameters and minimisation 
+                         strategy. Standard Minuit commands can be provided
+                         in this file
+
+
+  b) Inclusion of data files
+-------------------------------
+    Inclusion of the data files is controlled by &InFiles namelist in the 
+    steering.txt file. For example, by default the following four HERA-I
+    files are included:
+
+&InFiles
+    NInputFiles = 4
+    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
+    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
+&End
+
+    To include more files:
+       -- Increase NInputFiles
+       -- Specify  InputFileNames()
+
+
+
+  c) Data files format 
+--------------------------
+
+   Experimental data are provided by the standard ASCII text files. The files
+   contain a "header" which describes the data format and the "data" in terms
+   of a 2-dimensional table. Each line of the data table corresponds to a
+   data point, the meaning of the columns is specified in the file header.
+
+   For example, a header for HERA-I combined H1-ZEUS data for e+p neutral 
+   current scattering cross section is given in the file
+
+       datafiles/H1ZEUS_NC_e-p_HERA1.0.dat
+
+   The format of the file follows standard "namelist" conventions. Comments 
+   start with exclamation mark.  Pre-defined variables are:
+
+      Name        --- (string) provides a name of the data set
+
+      Reaction    --- (string) reaction type of the data set. Reaction type is used 
+                      to trigger corresponding theory calculation. The following 
+                      reaction types  are currently supported by the H1Fitter:
+                        'NC e+-p'  -- double differential NC ep scattering
+                                      (ZMVFS and RT-VFS) 
+                        'CC e+-p'  -- double differential CC ep scattering
+                                      (ZMVFS)
+                        'CC pp'    -- single differential d sigma (W^{+,-})/d eta
+                                      production and W asymmetry at pp and ppbar 
+                                      colliders (LO+kfactors and APPLGRID interface)
+                        'NC pp'    -- single differential d sigma Z/d y_Z at pp and
+                                      ppbar colliders
+                                      (LO+kfactors and APPLGRID interface)
+
+                        'pp jets APPLGRID' -- pp->inclusive jet production, using
+                                     APPLGRID
+
+                        
+
+      NData       --- (integer) specifies number of data points in the file. 
+                     This corresponds to the number of table rows which 
+                     follow after the header.
+
+      NColumn     --- (integer) number of columns in the data table.
+
+      ColumnType  --- (array of strings)
+                      Defines layout of the data table. The following column types
+                      are pre-defined: 'Bin', 'Sigma', 'Error' and 'Dummy'
+                      The keywords are case sensitive. 'Bin' correspond to an
+                      abstract bin definition, 'Sigma' corresponds to the data
+                      measurement, 'Error' - to various type of uncertainties and
+                      'Dummy' indicates that the column should be ignored.
+
+      ColumnName  --- (array of strings)
+                      Defines names of the columns. The meaning of the name depends
+                      on the ColumnType. For ColumnType 'Bin', ColumnName gives a
+                      name of the abstract bin. The abstract bins can contain
+                      any variable names, but some of them must be present for 
+                      correct cross section calculation. For example, 'x', 'Q2' and
+                      'y' are required for DIS NC cross-section calculation.
+ 
+                      For ColumnType 'Sigma', ColumnName provides a label for 
+                      the observable, which can be any string.
+ 
+                      For ColumnType 'Error', the following names have special meaning:
+                       'stat'  -- specifies column with statistical uncertainties
+                       'uncor' -- specifies column with uncorrelated uncertainties  
+                       'total' -- specifies column with total uncertainties. 
+                                  Total uncertainties are not used in the fit,
+                                  however there is an additional check is performed
+                                  if 'total' column is specified: sum in quadrature
+                                  of statistical, uncorrelated and correlated 
+                                  systematic uncertainties is compared to the total
+                                  and a warning is issued if they differ significantly.
+                       'ignore' - specifies column to be ignored (for special studies).
+                      Other names specifies columns of correlated systematic 
+                      uncertainty. For a given data file, each column of the correlated
+                      uncertainty must have unique name. To specify correlation across
+                      data files, same name must be used for different files.  
+                       
+      SystScales  --- (array of float)
+                      For special studies, systematic uncertainties can be scaled
+                      The numbering of uncertainties starts from the first column
+                      with the ColumnType 'Error'. For example, setting 
+
+                           SystScale(1) = 2.  
+
+                      in datafiles/H1ZEUS_NC_e-p_HERA1.0.dat would scale stat. 
+                      uncertainty by factor of two.
+                       
+
+      Percent     --- (array of bool) For each uncertainty specify if it is given in 
+                      absolute ("false") or in percent ("true").  The numbering of 
+                      uncertainties starts from the first column with the 
+                      ColumnType 'Error' (see example above).
+
+      NInfo       --- (integer) Calculation of the cross-section predictions may 
+                      require  additional information about the data set. The number of 
+                      information strings is given by NInfo
+
+      CInfo       --- (array of strings) Names of the information strings. 
+                      Several of them are predefined for different cross-section 
+                      calculations.
+ 
+      DataInfo    --- (array of float) Values, corresponding to CInfo names.
+
+      IndexDataset -- (integer) Internal H1 Fitter index of the data set. Provide unique
+                      numbers to get extra info for chi2/dof for each data set.
+      
+      TheoryInfoFile --- (string) Optional additional theory file with extra 
+                     information for cross-section calculation. This could be k-factors,
+                     APPLGRID file or FastNLO table.
+  
+      TheoryType --- (string) Theory file type ('kfactor', 'applgrid' or 'fastnlo')
+      
+      NKFactor   --- (integer) For kfactor files, number of columns in
+                     TheoryInfoFile
+
+      KFactorNames - (array of strings) For kfactor files, names of columns in 
+                     TheoryInfoFile
+
+  c) Minuit cards
+--------------------------
+
