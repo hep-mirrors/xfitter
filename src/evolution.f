@@ -7,12 +7,14 @@
 * but needed when one store all pdfs.
 *
      
-      implicit double precision (a-h,o-z)
+      implicit none
+c double precision (a-h,o-z)
       include 'steering.inc'
       include 'pdfparam.inc'
-      common/thresholds/q0,qc,qb
+      include 'thresholds.inc'
+c      common/thresholds/q0,qc,qb
 
-
+      double precision func1,func24,func22
 
       external func1            !input parton dists: iparam=1
       external func24           !input parton dists: iparam=24
@@ -20,11 +22,11 @@
       
       double precision def1, def24, def22,pdfv,glu,glu1,x
       dimension pdfv(-6:6)
-
-
       dimension def22(-6:6,12)    !flavor composition
       dimension def1(-6:6,12)    !flavor composition
       dimension def24(-6:6,12)    !flavor composition
+      integer iq0, iqfrmq
+      double precision eps
 cv======
 cv Remark:
 cv need to make it working for h12k parametrisation 
