@@ -5,7 +5,7 @@ bin_PROGRAMS = FitPDF
 
 # all source files which go into the main target
 FitPDF_SOURCES = main.f init_theory.f fcn.f minuit_ini.f read_data.f store_pdfs.f\
-sumrules.f read_steer.f error_bands_pumplin.f formff.f pdf_param.f systematics.f\
+sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 ssdint.f writefittedpoints.f\
 evolution.f pdflength.f mc_errors.f ep_jets_fastnlo.f\
   dis_nc_sigma.f dis_cc_sigma.f dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f
@@ -28,6 +28,7 @@ endif
 LDADD = $(QCDNUMLIBS) \
  ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
+../HS/src/libmyhs.a \
  ../FastNLO/src/libFastNLO.a \
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
 -lgsl -lgslcblas -lstdc++
