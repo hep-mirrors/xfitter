@@ -63,17 +63,8 @@
       DEBUG  = lDEBUG
       FIRST = lFIRST
       GNORM = .true.
-      ISCHARMANY  = .false.
-      ISBOTTOMANY = .false.
 
 
-      do iset=1,nset
-         ISJET(iset) = .false.
-         ISCHARM(iset) = .false.
-         ISBOTTOM(iset) = .false.
-         ISDYZ(iset) = .false.
-         ISDYW(iset) = .false.
-      enddo
 
       do i=1,nsysMax
          do j=1,ntot
@@ -362,7 +353,6 @@ C Extra info:
          DATASETInfoNames(i,NDATASETS) = CInfo(i)
          DATASETInfo(i,NDATASETS) =      DataInfo(i)
       enddo
-      NQ2BINS(NDATASETS) = 0            ! uff
 
 C Prepare systematics:
       do i=1,NUncert

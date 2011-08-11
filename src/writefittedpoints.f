@@ -18,14 +18,13 @@
       do i=1,ndatasets
          write(90,*)DATASETNUMBER(i)
          write(90,*)DATASETLABEL(i)
-         write(90,*)NQ2BINS(i)
-         index = 0
-         do j=1,NQ2BINS(i)
-            index = index + NXBINS(i,j)
-            write(90,*)0,0
-         enddo
-         write(90,*) '     q2          x        y    data     +- uncorr.err'//
-     &        '   +-toterr      theory      pull     dataset'
+c         write(90,*) '     q2          x        y    data     +- uncorr.err'//
+c     &        '   +-toterr      theory      pull     dataset'
+
+         write (90,17) (DATASETBinNames(j,i),j=1,3),'data    '
+     $        ,' +- uncor  ',' +- tot   ',' theory   ', ' pull   ', 'iset'
+ 17      format(1X,8(A11,1X),A4)
+
          do j=1,NDATAPOINTS(i)
             index = DATASETIDX(i,j)
             write(90,'(1X,8(e11.5,1X),i4)') 

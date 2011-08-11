@@ -1,3 +1,3 @@
-
-      real*4 ALPHAS
+CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      real*4 ALPHAS               !>  ALPHA_S (why real*4 ???)        
       common/C_ALPHAs/ALPHAS

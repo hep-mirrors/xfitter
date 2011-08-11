@@ -1,54 +1,63 @@
-      integer NDATASETS, NDATAPOINTS,DATASETIDX,NQ2BINS,NXBINS
-      integer DATASETNUMBER
-C SG: add DYZ and DYW
-      logical ISNC,ISEPLUS,ISJET,ISCHARM,ISBOTTOM,ISDYZ,ISDYW
-      logical ISCHARMANY,ISBOTTOMANY
-      character*80 DATASETLABEL
+!>
+!>  Declarations for datasets
+!>
+
+C Namelist for data set declarations
+      integer NInputFiles                !> Number of input files
+      character*80 InputFileNames(NSET)  !> Names of input files
+
+C General dataset info
+      integer 
+     $      NDATASETS                 !> Number of datasets 
+     $     ,NDATAPOINTS(NSET)         !> Number of data points per dataset
+     $     ,DATASETIDX(NSET,NMAX)     !> Index from dataset point to global data array
+      integer DATASETNUMBER(NSET)     !> H1Fitter dataset number
+
+      character*80 DATASETLABEL(NSET) !> Dataset name
 C SG: reaction type:
-      character*80 DATASETReaction
-
+      character*80 DATASETReaction(NSET)    !> Dataset reaction type
 C SG: extra theory file:
-      character*80 DATASETTheoryFile
-      character*80 DATASETTheoryType      
-
-C SG: relation to bins:
-      integer DATASETBinningDimension
-      character*80 DATASETBinNames 
-      character*80 DATASETInfoNames
-      integer DATASETInfoDimension
-      
-      double precision DATASETInfo
-
-      INTEGER MAXQ2BINS
-      parameter(MAXQ2BINS=21)
-
-      integer NInfoDimensionMax
-      parameter (NInfoDimensionMax=10)
-
-      integer NInputFiles
-      character*80 InputFileNames
-
-      integer DATASETTheoryIndex
+      character*80 DATASETTheoryFile(NSet)  !> File containing extra info for theory predictions
+      character*80 DATASETTheoryType(NSET)  !> Theory type. Currently: kfactor, applgrid, fastnlo    
+      integer      DATASETTheoryIndex(NSET) !> Theory index: utility for FastNLO/applgrid interface
 
 C Dimension of k-factors
-      integer DATASETNKfactors
-      character*80 DATASETKFactorNames
+      integer DATASETNKfactors(NSET)                      !> Number of k-factors
+      character*80 DATASETKFactorNames(NKFactMax,NSET)    !> Names of k-factors
+
+
+C SG: relation to bins:
+      integer DATASETBinningDimension(NSET)                        !> Number of abstract bins
+      character*80 DATASETBinNames(NBinDimensionMax,NSET)          !> Names of abstract bins
+
+
+
+C SG: Extra info:
+C
+      integer    NInfoDimensionMax                                 !> Max. number of info entries per dataset
+      parameter (NInfoDimensionMax=10)
+C
+      integer DATASETInfoDimension(NSET)                           !> Number of info entries
+      character*80 DATASETInfoNames(NInfoDimensionMax,NSET)        !> Names of info entries
+      double precision DATASETInfo(NInfoDimensionMax,NSET)         !> info values.
+
 
       common/datasets/
-     $     DATASETInfo(NInfoDimensionMax,NSET)
-     $     ,DATASETKFactorNames(NKFactMax,NSET)
-     $     ,DATASETTheoryFile(NSet)
-     $     ,DATASETTheoryType(NSET)
-     $     ,DATASETLABEL(NSET)
-     +     ,NDATAPOINTS(NSET),NQ2BINS(NSET),DATASETIDX(NSET,NMAX)
-     +     ,NXBINS(NSET,MAXQ2BINS),DATASETNUMBER(NSET)
-     +     ,ISNC(NSET),ISEPLUS(NSET),ISJET(NSET)
-     +     ,ISCHARM(NSET),ISBOTTOM(NSET),NDATASETS
-     +     ,ISCHARMANY,ISBOTTOMANY,ISDYZ(NSET),ISDYW(NSET)
-     $     ,DATASETREACTION(NSET),DATASETBinNames(NBinDimensionMax,NSET)
-     $     ,DATASETInfoNames(NInfoDimensionMax,NSET)
-     $     ,DATASETInfoDimension(NSET)
-     $     ,DATASETBinningDimension(NSET)
-     $     ,InputFileNames(NSET),DATASETNKfactors(NSET),NInputFiles
-     $     ,DATASETTheoryIndex(NSET)
+     $     DATASETInfo
+     $     ,DATASETKFactorNames
+     $     ,DATASETTheoryFile
+     $     ,DATASETTheoryType
+     $     ,DATASETLABEL
+     +     ,NDATAPOINTS,DATASETIDX
+     +     ,DATASETNUMBER
+     $     ,NDATASETS
+     $     ,DATASETREACTION
+     $     ,DATASETBinNames
+     $     ,DATASETInfoNames
+     $     ,DATASETInfoDimension
+     $     ,DATASETBinningDimension
+     $     ,NInputFiles
+     $     ,InputFileNames
+     $     ,DATASETNKfactors
+     $     ,DATASETTheoryIndex
 
