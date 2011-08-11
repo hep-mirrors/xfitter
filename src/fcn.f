@@ -12,7 +12,6 @@ c----------------------------------------------------------------------
       include 'for_debug.inc'
       include 'couplings.inc'
       include 'ntot.inc'
-      include 'covar_chi2.inc'
       include 'datasets.inc'
       include 'systematics.inc'
       INCLUDE 'theo.inc'
@@ -689,36 +688,6 @@ c....print out the correlated chi2
 
 c...........................
 
-
-
-      elseif (ICHI2.eq.3) then  ! full covariance matrix
-
-         do ipoint=1,n0_in
-
-            d_i = daten(ipoint)
-            t_i = theo(ipoint)
-            error_i = alpha(ipoint)
-
-
-            do jpoint=1,n0_in
-               d_j = daten(jpoint)
-               t_j = theo(jpoint)
-               error_j = alpha(jpoint)
-
-               chisq = (d_i-t_i)*cov(ipoint,jpoint)*(d_j-t_j)
-               fchi2_in = fchi2_in + chisq
-
-               if (flag_in.eq.3) then
-                  h1iset = JSET(ipoint)
-                  pchi2_in(h1iset) = pchi2_in(h1iset)+chisq
-               endif
-
-            enddo
-
-         enddo
-
-
-*     ---------------------------------------------------------
 
       elseif (ICHI2.eq.2) then  !  CTEQ-like chi2
 
