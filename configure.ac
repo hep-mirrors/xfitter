@@ -92,5 +92,5 @@ AC_CONFIG_FILES([src/Makefile
                  tools/H1FitterDrawResults/Makefile
                  FastNLO/src/Makefile
                  Makefile])
-AC_CONFIG_SUBDIRS([minuit DY RT])
+AC_CONFIG_SUBDIRS([minuit DY RT HS])
 AC_OUTPUT
