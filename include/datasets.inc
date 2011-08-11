@@ -10,7 +10,7 @@ C General dataset info
       integer 
      $      NDATASETS                 !> Number of datasets 
      $     ,NDATAPOINTS(NSET)         !> Number of data points per dataset
-     $     ,DATASETIDX(NSET,NMAX)     !> Index from dataset point to global data array
+     $     ,DATASETIDX(NSET,NTOT)     !> Index from dataset point to global data array
       integer DATASETNUMBER(NSET)     !> H1Fitter dataset number
 
       character*80 DATASETLABEL(NSET) !> Dataset name

@@ -1,14 +1,4 @@
-      integer nset
-      parameter (NSET = 120)
-      integer nmax
-      parameter(NMAX=1500)
 
-      integer NBinDimensionMax
-      parameter (NBinDimensionMax=10)      
-
-      integer NKFactMax
-      parameter (NKFactMax = 10)
-      
       integer NBANDS
       parameter (NBANDS=40)
 
