@@ -296,6 +296,8 @@ C Reset to default:
 C Reset scales to 1.0
       do i=1,nsysmax
          SystScales(i) = 1.0
+         ColumnType(i) = ' '
+         ColumnName(i) = ' '
       enddo
 
       open(51,file=CFile,status='old',err=99)
@@ -332,7 +334,12 @@ C Parse ColumnType, count systematics, etc
             idxSigma = i
          elseif (ColumnType(i).eq.'Error') then
             NUncert = NUncert + 1
-            SystematicType(NUncert) = ColumnName(i)
+            ! Special case: uncorrelated errors
+            if (index(ColumnName(i),'uncor').gt.0) then
+               SystematicType(NUncert) = 'uncor'
+            else
+               SystematicType(NUncert) = ColumnName(i)
+            endif
          elseif (ColumnType(i).eq.'Dummy') then
 ! Ignore dummy column
          else
@@ -417,6 +424,22 @@ C Allow for comments:
 C     Comment line, read another one
             goto 89
          endif
+
+C Check coherence of the table info
+         if (idxSigma.eq.0) then
+            print *,
+     $'No column contains Sigma keyword for the x-section info!!!'
+            print *,'STOP'
+            stop
+         endif
+         do i=1,NColumn
+            if (ColumnName(i) .eq. ' ') then
+               print *,'Undefined ColumnName !!!'
+               print *,'Check name for column number = ',i
+               print *,'STOP'
+               stop
+            endif
+         enddo
 
 C Read the colums
          read (ctmp,*,err=1019)(buffer(i),i=1,NColumn)
