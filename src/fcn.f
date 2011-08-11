@@ -17,7 +17,6 @@ c----------------------------------------------------------------------
       INCLUDE 'theo.inc'
       INCLUDE 'indata.inc'
       INCLUDE 'thresholds.inc'
-      include 'hadcor.inc'
       include 'fcn.inc'
 
 
@@ -434,7 +433,6 @@ c AS applgrid example
 
       include 'ntot.inc'
       include 'steering.inc'
-      include 'covar_chi2.inc'
       include 'datasets.inc'
       include 'indata.inc'
       include 'for_debug.inc'

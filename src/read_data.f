@@ -12,7 +12,6 @@
       include 'steering.inc'
       include 'datasets.inc'      
       include 'systematics.inc'
-      include 'hadcor.inc'
       include 'indata.inc'
       include 'couplings.inc'
       include 'for_debug.inc'
