@@ -176,9 +176,9 @@ C Store FCN flag in a common block:
 
       
 *     -----------------------------------------------------
-*      prntouts for debuging - online is set in steering.txt
+*      prntouts for debug is set in steering.txt
 *     -----------------------------------------------------      
-      if (debug.and.ONLINE) then
+      if (debug) then
          if (Itheory.ne.2) then
             if (itheory.eq.1) then
             elseif (iparam.eq.1) then
@@ -222,7 +222,7 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
          endif                  ! Itheory<>2
          
 
-      endif                     ! (debug.and.ONLINE)
+      endif                     ! (debug)
 
 
 *     --------------------------------------------------
@@ -338,14 +338,14 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
 
       icount = icount + 1
 
-      if (ONLINE.and.lprint) then
+      if (lprint) then
          call cpu_time(time3)
          print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
          write(6,'(A20,i6,F12.2,i4,F12.2)') ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf
 
 
 
-      endif ! end online, lprint
+      endif ! end  lprint
 
 
       if (iflag.eq.1) then
@@ -360,13 +360,6 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
          write(6,*)
       endif
 
-
-      if (lNORMA.and.ONLINE) then
-         if (lprint) 
-     +        write(6,*) ' fitted norm ',
-     +        p(15),p(16),p(17),p(18),p(19),p(20),
-     +        p(21),p(22),p(23)
-      endif
 
 
       if (iflag.eq.3) then
@@ -576,7 +569,6 @@ c                     endif
                write(78,*)
             endif
 
-
          endif
 
 
@@ -658,19 +650,15 @@ c                     endif
  880           format(1x, i2, 2x, G12.6, 2x, G12.4, 2x, G12.6, 3(2x, G12.4))
             endif
 
-*     -- errors on the shifts (correct ??)
+*     -- errors on the shifts 
             do isys=1,nsys
-               ersys_in(isys) = ersys_in(isys) + 2.*theo(ipoint)**2
-     +              *beta(isys,ipoint)**2 / error**2
+               ersys_in(isys) = sqrt(sysa(isys,isys))
             enddo
 
          enddo
 
          do isys=1,nsys
             fchi2_in = fchi2_in + rsys_in(isys)**2
-            if (ersys_in(isys).gt.0) then
-               ersys_in(isys) = dsqrt(2. / ersys_in(isys))
-            endif
          enddo
 
          
@@ -720,6 +708,8 @@ c...........................
             enddo
          enddo
 
+
+         print *,'haha',fchi2_in,sub
          fchi2_In = fchi2_in - sub
 
 
