@@ -36,7 +36,7 @@
  !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
  !  'CTEQ'        -- CTEQ-like parameterisation
 
-  PDFStyle = '13p HERAPDF'
+  PDFStyle = '10p HERAPDF'
 
  ! -- Choice of the chi2 function
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
