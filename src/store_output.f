@@ -293,9 +293,9 @@ c     &        '   +-toterr      theory      pull     dataset'
             write(90,'(1X,9(e11.5,1X),i4)') 
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),AbstractBins(3,index),
-     &           DATEN(index),ALPHA(index),
+     &           DATEN(index),ALPHA_MOD(index),
      &           E_TOT(index)/100.*DATEN(index),THEO(index), THEO_MOD(index),
-     &           (DATEN(index)-THEO_MOD(index))/ALPHA(index),
+     &           (DATEN(index)-THEO_MOD(index))/ALPHA_MOD(index),
      &           DATASETNUMBER(i)
 cv
 c            write(44,111) VQ2(index),VX(index), f2sh(index),flsh(index),
