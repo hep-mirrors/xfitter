@@ -3,9 +3,11 @@
    Reaction  = 'FastNLO ep jets'
 
    NDATA = 24
-   NUncert =  6
-   NBinDimension = 4
-   BinName = 'q2min', 'q2max', 'ptmin', 'ptmax'
+   NColumn = 11
+
+   ColumnType = 4*'Bin','Sigma',6*'Error'
+   ColumnName = 'q2min', 'q2max', 'ptmin', 'ptmax','Sigma', 'stat', 'uncor', 
+              'model_DESY-07-073', 'elecE_DESY-07-073', 'hfs_DESY-07-073', 'lumi_DESY-07-073'
 
    NInfo   = 1
    DataInfo = 319.,  
@@ -13,12 +15,8 @@
    
    IndexDataset = 35
 
-   TheoryInfoFile = ' '
-   TheoryType     = ' '
-   NKFactor       = 0
-   KFactorNames = 
+   TheoryInfoFile = 'theoryfiles/fnhdesy07073incjets_10G.tab'
 
-   SystematicType ='stat', 'uncor', 'model_DESY-07-073', 'elecE_DESY-07-073', 'hfs_DESY-07-073', 'lumi_DESY-07-073'
    Percent   = True, True, True, True, True, True
 &End
 150.0  200.0   7.0  11.0  73.81   2.1  4.9  3.5  0.7  2.6  1.5
