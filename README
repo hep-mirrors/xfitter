@@ -59,7 +59,7 @@
 
   c) Run a check
 
-    bin/FitPDF < steering.txt
+    bin/FitPDF 
 
 
 2) MINI DESCRIPTION
@@ -70,14 +70,15 @@
     These files have predefined names:
 
       steering.txt   --  controls main "stable" (un-modified during 
-                         minimisation) parameters. The file contains
+                         minimisation) parameters. The file also contains
                          names of data files to be fitted to, definition 
-                         of kinematic cuts and electroweak
-                         parameters.
+                         of kinematic cuts                        
                         
       minuit.in.txt  --  controls minimisation parameters and minimisation 
                          strategy. Standard Minuit commands can be provided
                          in this file
+
+      ewparam.txt    --  controls electroweak parameters.
 
 
   b) Inclusion of data files
@@ -219,6 +220,68 @@
       KFactorNames - (array of strings) For kfactor files, names of columns in 
                      TheoryInfoFile
 
-  c) Minuit cards
+  d) Minuit cards
 --------------------------
+
+
+  e) Applying cuts
+--------------------------
+  The namelist &Cuts, located inside the steering.txt file can be used to apply
+  simple process dependent cuts. The cuts are limitted to bin variables.
+  Simple low and high limits are allowed. For example, a cut on Q2>3.5 for
+  NC ep scattering is specified as
+
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 3.5 
+   CutValueMax(1)     = 1000000.0
+
+  Maximum 100 cuts can be used by default.
+
+  f) Understanding the output
+------------------------------
+  The results of the minimization are printed to the standard output and written
+  to the files in the output/ directory. 
+
+  The quality of the fit can be judged based on total chi2 per degrees of freedom.
+  It is printed for each iteration as 
+                      Iteration   Chi2   NDF       Chi2/NDF
+   FitPDF f,ndf,f/ndf      3      588.64 579        1.02
+  
+  The resulting chi2 is reported for each data set and for correlated 
+  systematic uncertainties separately. This information is printed and written
+  to the output/Results.txt file. The Results.txt file contains additional 
+  information about shifts of the correlated systematic uncertainties.
+
+  The minimization information from the minuit is stored in the output/minuit.out.txt
+  file. The verboseness level of this information can be changed by minuit commands
+  in the minuit.in.txt file. Make sure that the minuit does not report any errors
+  or warnings at the end of minimisation.
+  
+  Point by point comparison of the data and predictions after the minimization 
+  is provided in output/fittedresults.txt file. The file reports three columns
+  corresponding to three first bins of the input tables, data value, sum in 
+  quadrature of statistical and uncorrelated systematic uncertainty, total
+  uncertainty, the predicted value, after applying correlated systematic shifts,
+  pull between data and theory (calculated as (data-theory)/uncorrelated_error),
+  data set index. Similar information is stored in pulls.first.txt and pulls.last.txt
+  ( dataset index, first bin, second bin, third bin, data, theory, pull), however
+  theory is not adjusted for systematic error shifts in this case.
+
+  The output PDFs are stored in forms of tables in output/pdfs_q2val_XX.txt files.
+  Each of the files reports values of gluon, and quark PDFs as a function of x
+  for fixed Q^2 points. The Q^2 values and x grid are specified by 
+  &Output namelist in the steering.txt
+  
+  The PDF information and data to theory comparisons can be plotted using 
+  the bin/DrawResults program.  Calling it without arguments plots results from
+  output/ directory. Given the program one argument specifies sub-directory 
+  where the information is read. Calling the bin/DrawResults program with two
+  arguments provides comparison of the PDFs obtained in the two fits.
+  
+  Finally, the H1Fitter package provides PDFs in LHAPDF format. To obtain the
+  LHAPDF grid file, run tools/tolhapdf.cmd script. The script produces 
+  PDFs.LHgrid file which can be read by lhapdf version  lhapdf-5.8.6.tar.gz
+  or later
 
