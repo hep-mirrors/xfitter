@@ -7,6 +7,7 @@
       include 'pdfparam.inc'
       include 'endmini.inc'
       include 'alphas.inc'
+      include 'thresholds.inc'
       
       double precision hquad, umat, vmat,
      &     tvec, errmat
@@ -46,7 +47,7 @@ C SG: x-dependent fs:
 C---------------------------------------------------------------
       
 C
-C 22 Dec 2010: SG: Fix relation between internal and external params.
+C  Fix relation between internal and external params.
 C
       do ind=1,mpar0
          call mnpout(ind,parname,parval,parerr,parlolim,
@@ -67,17 +68,6 @@ C
       do ind=1,mpar
          write (6,*) 'internal=',ind,' external=',iexint(ind)
       enddo
-      
-
-C
-C 31 Oct 2009: SG: add x-dependent strange 
-C
-      if (ifsttype.eq.0) then
-         fs0 = fstrange
-      else
-         fs0 = fshermes(0.D0)
-      endif
-
 
       write(6,*) 'mpar = ',mpar,mpar0
 
@@ -131,22 +121,85 @@ C
 
             enddo
 
-            if (iparam.eq.1) then
+C
+C Initialise the parameters
+C
+            Ag=a(1)
+            Bg=a(2)
+            Cg=a(3)
+            Dg=a(4)
+            Eg=a(5)
+            Fg=a(6)
+            Apg=a(7)
+            Bpg=a(8)
+            Cpg=a(9)
 
-               Bg  = a(1)
-               Cg  = a(2)
-               Dg  = a(3)
+            Auv=a(11)
+            Buv=a(12)
+            Cuv=a(13)
+            Duv=a(14)
+            Euv=a(15)
+            Fuv=a(16)
+            
+            Adv=a(21)
+            Bdv=a(22)
+            Cdv=a(23)
+            Ddv=a(24)
+            Edv=a(25)
+            Fdv=a(26)
 
-               Bu  = a(4)
-               Cu  = a(5)
-               Fu  = a(6)
+            Aubar=a(31)
+            Bubar=a(32)
+            Cubar=a(33)
+            Dubar=a(34)
+            
+            AU=a(51)
+            BU=a(52)
+            CU=a(53)
+            DU=a(54)
+            
+            Adbar=a(41)
+            Bdbar=a(42)
+            Cdbar=a(43)
+            Ddbar=a(44)
+            
+            AD=a(61)
+            BD=a(62)
+            CD=a(63)
+            DD=a(64)
+            
 
-               Ad  = a(7)
-               Cd  = a(8)
+            Asea=a(71)
+            Bsea=a(72)
+            Csea=a(73)
+            Dsea=a(74)
+            
+            Adel=a(81)
+            Bdel=a(82)
+            Cdel=a(83)
+            Ddel=a(84)
+      
 
-               Cubar = a(9)
-               Cdbar = a(10)
-              
+
+            alphas=a(95)
+            fstrange=a(96)
+
+            if (q0.ge.qc) then
+               fcharm=a(97)
+            else
+               fcharm=0.
+            endif
+C
+C  add x-dependent strange 
+C
+            if (ifsttype.eq.0) then
+               fs0 = fstrange
+            else
+               fs0 = fshermes(0.D0)
+            endif
+
+
+            if ((iparam.eq.1).or.(iparam.eq.11)) then
                Bd = Bu
                Bubar = Bu
                Bdbar = Bu
@@ -155,24 +208,7 @@ C
                aUbar = aU
 
 * fixed for H1param
-               Alphas = a(11)
-               Eu = a(12)
-
             elseif (iparam.eq.11) then
-
-               Bg  = a(1)
-               Cg  = a(2)
-
-               Bu  = a(3)
-               Cu  = a(4)
-               Eu = a(5)
-               Fu  = a(6)
-
-               Ad  = a(7)
-               Cd  = a(8)
-
-               Cubar = a(9)
-               Cdbar = a(10)
 
                Bd = Bu
                Bubar = Bu
@@ -182,231 +218,42 @@ C
                aUbar = aU
 
 * fixed for optimized H1param
-               Dg = a(11)
-               Alphas = a(12)
 
             elseif (iparam.eq.2) then
-
-               Bg = a(1)
-               Cg = a(2)
-               Dg = a(3)
-
-               Buv = a(4)
-               Bdv = Buv
-               Cuv = a(5)
-               Duv = a(6)
-
-               Cdv = a(7)
-               Ddv = a(8)
-
-               Adbar = a(9)
                Aubar = Adbar * (1.-fs0)/(1.-fcharm)
-
-               Bdbar = a(10)
                Bubar = Bdbar
-
-               Cdbar = a(11)
-               Cubar = a(12)
-
-* fixed for inbetween
-               Alphas = a(13)
-               Euv = a(14)
-
             elseif (iparam.eq.22.or.iparam.eq.222.or.iparam.eq.221) then
 
-               Bg = a(1)
-               Cg = a(2)
 
-               Buv = a(3)
-               if (iparam.eq.221) then
-                  Bdv=a(17)
-		else
-               Bdv = Buv
+               if (iparam.ne.221) then
+                  Bdv = Buv
                endif
-               Cuv = a(4)
-               Duv = a(5)
 
-               Cdv = a(6)
-
-               Adbar = a(7)
                Aubar = Adbar * (1.-fs0)/(1.-fcharm)
-
-               Bdbar = a(8)
                Bubar = Bdbar
-
-               Cdbar = a(9)
-               Cubar = a(10)
-
-               Euv = a(11)
-
-* fixed for optimized in between
-               Dg = a(12)
-               Ddv = a(13)
-               Ddbar=a(15)
-               Dubar=a(16)	
-               Apg=a(18)
-               Bpg=a(19)
-               Rfudge=a(20)
-               afudge=a(21)
-               f2ht1=a(22)
-               f2ht2=a(23)
-               if (iparam.eq.222) then
-                  Cpg=25.
-               endif
-               Alphas = a(14)
-            elseif (iparam.eq.225) then
-
-               Bg = a(1)
-               Cg = a(2)
-
-               Buv = a(3)
-               Bdv = Buv
-               Cuv = a(4)
-               Duv = a(5)
-
-               Cdv = a(6)
-
-               Adbar = a(7)
-               Aubar = a(15)
-
-               Bdbar = a(8)
-               Bubar = a(16)
-
-               Cdbar = a(9)
-               Cubar = a(10)
-
-               Euv = a(11)
-
-* fixed for optimized in between
-               Dg = a(12)
-               Ddv = a(13)
-               Alphas = a(14)
 
             elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
                
-               Bg = a(1)
-               Cg = a(2)
-               Dg = 0.          ! Different from H1PDF2k
-               
-               Cuv = a(3)
+
                Buv = 0.5
-               Duv = a(4)
-               Fuv=0.
-               
-               Cdv = a(5)
                Bdv = 0.5
-               Ddv = a(6)
-               Fdv=0.
-               
-               Asea = a(7)
-               Bsea = a(8)
-               Csea = a(9)
-               Dsea = a(10)
-               
-               Adel = a(11)
                Bdel = 0.5
                Cdel = Csea +2.
 
             elseif (iparam.eq.229) then
          
-               Bg = a(1)
-               Cg = a(2)
-         
-               Buv = a(3)
-               
-               
-               Bdv=a(17)
-               
-               Cuv = a(4)
-               Duv = a(5)
-         
-               Cdv = a(6)
-               
-               Adbar = a(7)
+
                Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-               
-               Bdbar = a(8)
                Bubar = Bdbar
-               
-               Cdbar = a(9)
-               Cubar = a(10)
-               
-               Euv = a(11)
-               
-* fixed for optimized in between
-               Dg = a(12)
-               Ddv = a(13)
-               Alphas = a(14)
-               
-               Ddbar=a(15)
-               Dubar=a(16)	
-               
-               Apg=a(18)
-               Bpg=a(19)
-               
-               Rfudge=a(20)
-               afudge=a(21)
-               Cpg=25.
-               
 
-
-            elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
-
-               Bg = a(1)
-               Cg = a(2)
-               Dg = a(3)         
-               
-               Buv = a(4)
-               Cuv = a(5)
-               Duv = a(6)
+            elseif ((iparam.eq.4).or.(iparam.eq.24)) then ! g,uval,dval,sea as in ZEUS-JET fit
                
                Bdv = Buv
-               Cdv = a(7)
-               Ddv = a(8)
-               
-               Asea = a(9)
-               Bsea = a(10)
-               Csea = a(11)
-
 *  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
  
                Adel = 0.27          
                Bdel = 0.5
                Cdel = Csea +2.
-
-* fixed for ZEUS-JETS
-               Alphas = a(12)
-               Euv = a(13)
-
-            elseif (iparam.eq.24) then ! g,uval,dval,sea as in ZEUS-JET fit
-
-               Bg = a(1)
-               Cg = a(2)
-               Dg = a(3)         
-               
-               Buv = a(4)
-               Cuv = a(5)
-               Duv = a(6)
-               
-               Bdv = Buv
-               Cdv = a(7)
-
-               Euv = a(8)
-               
-               Asea = a(9)
-               Bsea = a(10)
-               Csea = a(11)
-
-*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
- 
-               Adel = 0.27          
-               Bdel = 0.5
-               Cdel = Csea +2.
-
-* fixed for ZEUS-JETS optimized
-              
-               Ddv = a(12)
-               Alphas = a(13)
 
             endif 
 
