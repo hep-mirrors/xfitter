@@ -24,7 +24,7 @@
 *new joel feltesse
       double precision tuv,tdv,tub,tdb,tsea,tdel
       double precision polyvalint,polyvalint0
-      double precision x
+      double precision para,x
       double precision ubar,dbar,uval,dval,gluon
       integer i
 C-----------------------------------------
@@ -179,18 +179,14 @@ C
 
          tDb = CalcIntegral(bDbar, cDbar)
      $        + dDbar * CalcIntegral(bDbar+1., cDbar)
-cv         print*,'debugvubar', bUbar,cUbar,dUbar, CalcIntegral(bUbar, cUbar),CalcIntegral(bUbar+1., cUbar)
-cv         print*,'debugvdbar', bDbar,cDbar,dDbar, CalcIntegral(bDbar, cDbar),CalcIntegral(bDbar+1., cDbar)
 
-*     new2, mini bug corrected, jf
+
          if (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
      $        .or.iparam.eq.221
      $        .or.iparam.eq.222.or.iparam.eq.229) then
             ag = 1.d0 - ( Auv * tUv + Adv * tDv
      +           + 2*(Aubar * tUb + Adbar * tDb))
 
-cv         print*,'voica in sumrule after mom: ag,auv,adv,aubar,adbar'
-cv         print*, ag,auv,adv,aubar,adbar
 
          endif
          
@@ -213,16 +209,10 @@ C
      +           + Asea * tsea)
          endif
          
-c     if (tg.eq.0) then
-c     kflag=1
-c     goto 999
-c     endif
          if (tg.le.0) then
             tg=0.001
          endif
          
-c         print *,'ag and tg,apg,tgmrst,bpg,cpg, tub,tdb',
-c     $        ag,tg,apg,tgmrst,bpg,cpg,tUb,tDb
          
          if (iparam.eq.222.or.iparam.eq.229) then
             ag=(ag+Apg*tgMRST)/tg
@@ -232,6 +222,27 @@ c     $        ag,tg,apg,tgmrst,bpg,cpg,tUb,tDb
          
       endif
 
+C     propagate the normalisations and other parameters to 
+C     standard parametrisation
+
+      paru(4)=du
+      pard(4)=dd
+      parglue(1)=ag
+      paruval(1)=auv
+      pardval(1)=adv
+      paru(1)=au
+      parsea(1)=asea
+      pard(1)=ad
+
+
+         
+c      if (IDebug.eq.1) then
+      print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
+      print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
+      print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
+      print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
+      print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
+c      endif
       
       
  999  continue
@@ -860,29 +871,28 @@ C---------------------------------------------------------------
 
 C Counting sum-rule for uv:
       sumUv = SumRuleCTEQ(-1,ctuval)
-      ctuval(0) = 2.0D0 / sumUv
+      ctuval(1) = 2.0D0 / sumUv
 
 C Counting sum-rule for dv:
       sumDv = SumRuleCTEQ(-1,ctdval)
-      ctdval(0) = 1.0D0 / sumDv
+      ctdval(1) = 1.0D0 / sumDv
 
 C Momentum sum rule:
-      sumMom = 2.D0*ctubar(0)*SumRuleCTEQ(0,ctubar) +
-     $         2.D0*ctdbar(0)*SumRuleCTEQ(0,ctdbar) +
-     $         ctuval(0)*SumRuleCTEQ(0,ctuval) +
-     $         ctdval(0)*SumRuleCTEQ(0,ctdval) 
+      sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
+     $         2.D0*ctdbar(1)*SumRuleCTEQ(0,ctdbar) +
+     $         ctuval(1)*SumRuleCTEQ(0,ctuval) +
+     $         ctdval(1)*SumRuleCTEQ(0,ctdval) 
       sumGlue = SumRuleCTEQ(0,ctglue)
-      ctglue(0) = (1.0 - SumMom)/sumGlue
+      ctglue(1) = (1.0 - SumMom)/sumGlue
 
 
-C      print *,'haha',sumDv,sumMom,sumGlue,sumUv
 
       if (IDebug.eq.1) then
-         print '(''uv:'',6F10.4)',(ctuval(i),i=0,5)
-         print '(''dv:'',6F10.4)',(ctdval(i),i=0,5)
-         print '(''Ub:'',6F10.4)',(ctubar(i),i=0,5)
-         print '(''Db:'',6F10.4)',(ctdbar(i),i=0,5)
-         print '(''GL:'',6F10.4)',(ctglue(i),i=0,5)
+         print '(''uv:'',6F10.4)',(ctuval(i),i=1,6)
+         print '(''dv:'',6F10.4)',(ctdval(i),i=1,6)
+         print '(''Ub:'',6F10.4)',(ctubar(i),i=1,6)
+         print '(''Db:'',6F10.4)',(ctdbar(i),i=1,6)
+         print '(''GL:'',6F10.4)',(ctglue(i),i=1,6)
       endif
       if (IDebug.eq.10) then
          do i=1,8
@@ -907,24 +917,24 @@ C parameterisation where n = 0 (momentum sum-rule) or -1 ( counting sum rule)
 C---------------------------------------------------------------
       implicit none 
       integer n
-      double precision acteq(0:5)
+      double precision acteq(1:6)
       double precision YF
       double precision DGammF,HypG1F1r, HypG1F1
 C-----------------------------------------------------
       YF = (
-     &  DGammF(1 + acteq(2) )*DGammF(1 + acteq(1) + n)*(
-     &   Hypg1F1(1 + acteq(1) + n,2 + acteq(1) + acteq(2) + n,
-     $     acteq(3)) + 
-     &   (1 + acteq(1) + n)*DGammF(2 + acteq(1) + acteq(2) + n)*
-     &   ( exp(acteq(4))*
-     &    Hypg1F1R(2 + acteq(1) + n,3 + acteq(1)
-     $     + acteq(2) + n,acteq(3)) + 
-     &     exp(acteq(5))*(2 + acteq(1) + n)*
-     &    Hypg1F1R(3 + acteq(1) + n,4 + acteq(1)
-     $     + acteq(2) + n,acteq(3))
+     &  DGammF(1 + acteq(3) )*DGammF(1 + acteq(2) + n)*(
+     &   Hypg1F1(1 + acteq(2) + n,2 + acteq(2) + acteq(3) + n,
+     $     acteq(4)) + 
+     &   (1 + acteq(2) + n)*DGammF(2 + acteq(2) + acteq(3) + n)*
+     &   ( exp(acteq(5))*
+     &    Hypg1F1R(2 + acteq(2) + n,3 + acteq(2)
+     $     + acteq(3) + n,acteq(4)) + 
+     &     exp(acteq(6))*(2 + acteq(2) + n)*
+     &    Hypg1F1R(3 + acteq(2) + n,4 + acteq(2)
+     $     + acteq(3) + n,acteq(4))
      &   )
      &  )
-     & )/DGammF(2 + acteq(1) + acteq(2) + n)
+     & )/DGammF(2 + acteq(2) + acteq(3) + n)
 
       SumRuleCTEQ = YF
 
