@@ -115,38 +115,6 @@ C Store FCN flag in a common block:
       endif
 
 
-
-
-      if (iflag.eq.1) then
-         
-         mpar0 = npar
-         
-         if (q0.ge.qc) then
-            fcharm=charm_frac
-         else
-            fcharm = 0.
-         endif
-*     -----------------------------------------------------
-*     set fstrange via steering
-*     -----------------------------------------------------
-         fstrange = strange_frac
-
-         if (ifsttype.eq.0) then ! add x-dependent strange 
-            fs0 = fstrange 
-         else
-            fs0 = fshermes(0.D0)  ! strange fraction at x=0
-         endif
-
-
-         if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
-*     -----------------------------------------------------
-*     set fcharm via steering
-*     -----------------------------------------------------
-            fcharm =charm_frac
-         endif
-      endif ! iflag.eq.1
-
-
 *     ---------------------------------------------------------
 *     PDF parameterisation at the starting scale
 *     ---------------------------------------------------------
@@ -204,8 +172,6 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
      +              aUbar,bUbar,cUbar,dUbar
                write(6,*) 'aDb,bDb,cDb,dDb ',
      +              aDbar,bDbar,cDbar,dDbar
-               write(6,*) 'Rfudge, afudge, F2ht1, f2ht2 ',
-     +              Rfudge, afudge, f2ht1, f2ht2
             elseif (iparam.eq.4) then
                write(6,*) 'iparam alphas couplings ',iparam,alphas!,cvu,cau,cvd,cad
                write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
