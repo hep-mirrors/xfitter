@@ -8,13 +8,89 @@ C          iflag -- minuit flag
 C
 C--------------------------------------------------------
       implicit none
+
+
       double precision p(*)
       integer iflag
       include 'pdfparam.inc'
       include 'steering.inc'
       include 'alphas.inc'
-      integer i
+      include 'thresholds.inc'
+
 C-------------------------------------------------------
+
+      Ag=p(1)
+      Bg=p(2)
+      Cg=p(3)
+      Dg=p(4)
+      Eg=p(5)
+      Fg=p(6)
+  
+      Apg=p(7)
+      Bpg=p(8)
+      Cpg=p(9)
+
+      Auv=p(11)
+      Buv=p(12)
+      Cuv=p(13)
+      Duv=p(14)
+      Euv=p(15)
+      Fuv=p(16)
+
+      Adv=p(21)
+      Bdv=p(22)
+      Cdv=p(23)
+      Ddv=p(24)
+      Edv=p(25)
+      Fdv=p(26)
+
+      Aubar=p(31)
+      Bubar=p(32)
+      Cubar=p(33)
+      Dubar=p(34)
+      Eubar=p(35)
+
+
+      AU=p(51)
+      BU=p(52)
+      CU=p(53)
+      DU=p(54)
+
+      Adbar=p(41)
+      Bdbar=p(42)
+      Cdbar=p(43)
+      Ddbar=p(44)
+
+      AD=p(61)
+      BD=p(62)
+      CD=p(63)
+      DD=p(64)
+
+
+      Asea=p(71)
+      Bsea=p(72)
+      Csea=p(73)
+      Dsea=p(74)
+
+      Adel=p(81)
+      Bdel=p(82)
+      Cdel=p(83)
+      Ddel=p(84)
+
+
+
+      alphas=p(95)
+      fstrange=p(96)
+
+      if (q0.ge.qc) then
+         fcharm=p(97)
+      else
+         fcharm=0.
+      endif
+
+C 10 Aug 2011: Standard parametrisation:
+      Call DecodePara(p)
+
 
 C  25 Jan 2011: Poly params for valence:
       if (NPOLYVAL.gt.0) then
@@ -24,52 +100,12 @@ C  25 Jan 2011: Poly params for valence:
 C  22 Apr 2011: CT parameterisation:
       if (IPARAM.eq.171717) then
          Call DecodeCtPara(p)
-         alphas = p(14)
       endif
 
-      if (iparam.eq.1) then     !  H1PDF2k like
-         
-         Bg  = p(1)
-         Cg  = p(2)
-         Dg  = p(3)
-         
-         Bu  = p(4)
-         Cu  = p(5)
-         Fu  = p(6)
-         
-         Ad  = p(7)
-         Cd  = p(8)
 
-         Cubar = p(9)
-         Cdbar = p(10)
-         
-         Bd = Bu
-         Bubar = Bu
-         Bdbar = Bu
-         Adbar = Ad
-         aU = aD * (1.-fstrange)/(1.-fcharm)
-         aUbar = aU
-         
-* fixed for H1param
-         alphas = p(11)
-         Eu = p(12)
+C different cases of parametrisation type
+      if ((iparam.eq.1).or.(iparam.eq.21)) then     !  H1PDF2k like
 
-      elseif (iparam.eq.21) then
-         
-         Bg  = p(1)
-         Cg  = p(2)
-
-         Bu  = p(3)
-         Cu  = p(4)
-         Eu = p(5)
-         Fu  = p(6)
-         
-         Ad  = p(7)
-         Cd  = p(8)
-         
-         Cubar = p(9)
-         Cdbar = p(10)
-         
          Bd = Bu
          Bubar = Bu
          Bdbar = Bu
@@ -77,52 +113,29 @@ C  22 Apr 2011: CT parameterisation:
          aU = aD * (1.-fstrange)/(1.-fcharm)
          aUbar = aU
 
-* fixed for optimized H1param
-         Dg = p(11)
-         Alphas = p(12)
-C
-C  Chebyshev param. for the gluon:
+C     Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(20+i)
+               ChebPars(i) = p(70+i)
             enddo
             call ChebToPoly
          endif
          
       elseif (iparam.eq.2) then
 
-         Bg = p(1)
-         Cg = p(2)
-         Dg = p(3)
 
-         Buv = p(4)
          Bdv = Buv
-         Cuv = p(5)
-         Duv = p(6)
-         
-         Cdv = p(7)
-         Ddv = p(8)
-
-         Adbar = p(9)
          Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-
-         Bdbar = p(10)
          Bubar = Bdbar
          
-         Cdbar = p(11)
-         Cubar = p(12)
-
-* fixed for inbetween
-         Alphas = p(13)
-         Euv = p(14)
 
 C
 C  Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(20+i)
+               ChebPars(i) = p(70+i)
             enddo
             call ChebToPoly
          endif
@@ -131,59 +144,23 @@ C
 
       elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.222)) then
          
-         Bg = p(1)
-         Cg = p(2)
-
-         Buv = p(3)
-               
-         if (iparam.eq.221) then               
-            Bdv=p(17)
-         else
+         if (iparam.ne.221) then               
             Bdv = Buv
          endif
                
-         Cuv = p(4)
-         Duv = p(5)
-         
-         Cdv = p(6)
-         
-         Adbar = p(7)
-         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-         
-         Bdbar = p(8)
+         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)         
          Bubar = Bdbar
-         
-         Cdbar = p(9)
-         Cubar = p(10)
-         
-         Euv = p(11)
-               
-* fixed for optimized in between
-         Dg = p(12)
-         Ddv = p(13)
-         Alphas = p(14)
-         
-         Ddbar=p(15)
-         Dubar=p(16)	
-         
-         Apg=p(18)
-         Bpg=p(19)
-         
-         Rfudge=p(20)
-         afudge=p(21)
-         f2ht1=p(22)
-         
-         f2ht2=p(23)
          if (iparam.eq.222) then
             Cpg=25.
          endif
+
 
 C
 C  Chebyshev param. for the gluon:
 C     
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(20+i)
+               ChebPars(i) = p(70+i)
             enddo
             call ChebToPoly
          endif
@@ -191,41 +168,12 @@ C
 
       elseif (iparam.eq.225) then
 
-         Bg = p(1)
-         Cg = p(2)
-
-         Buv = p(3)
-         Bdv = Buv
-         Cuv = p(4)
-         Duv = p(5)
-
-         Cdv = p(6)
-
-         Adbar = p(7)
-C  fstrange -> fs0
-c               Aubar = Adbar * (1.-fs0)/(1.-fcharm)
-         Aubar = p(15)
-
-         Bdbar = p(8)
-c               Bubar = Bdbar
-         Bubar = p(16)
-
-         Cdbar = p(9)
-         Cubar = p(10)
-
-         Euv = p(11)
-
-* fixed for optimized in between
-         Dg = p(12)
-         Ddv = p(13)
-         Alphas = p(14)
-
 C
 C  Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(20+i)
+               ChebPars(i) = p(70+i)
             enddo
             call ChebToPoly
          endif
@@ -233,95 +181,28 @@ C
 
 
       elseif (iparam.eq.229) then
-         
-         Bg = p(1)
-         Cg = p(2)
-         
-         Buv = p(3)
-               
-
-         Bdv=p(17)
-               
-         Cuv = p(4)
-         Duv = p(5)
-
-         Cdv = p(6)
-               
-         Adbar = p(7)
-         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-
-         Bdbar = p(8)
-         Bubar = Bdbar
-               
-         Cdbar = p(9)
-         Cubar = p(10)
-               
-         Euv = p(11)
-               
-* fixed for optimized in between
-         Dg = p(12)
-         Ddv = p(13)
-         Alphas = p(14)
-               
-         Ddbar=p(15)
-         Dubar=p(16)	
-
-         Apg=p(18)
-         Bpg=p(19)
-               
-         Rfudge=p(20)
-         afudge=p(21)
          Cpg=25.
+         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
+         Bubar = Bdbar
 
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(20+i)
+               ChebPars(i) = p(70+i)
             enddo
             call ChebToPoly
          endif
 
       elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
          
-         Bg = p(1)
-         Cg = p(2)
-         Dg = 0.                ! Different from H1PDF2k
-         
-         Cuv = p(3)
+
          Buv = 0.5
-         Duv = p(4)
-         Fuv=0.
-               
-         Cdv = p(5)
          Bdv = 0.5
-         Ddv = p(6)
-         Fdv=0.
-         
-         Asea = p(7)
-         Bsea = p(8)
-         Csea = p(9)
-         Dsea = p(10)
-         
-         Adel = p(11)
          Bdel = 0.5
          Cdel = Csea +2.
-
-      elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
          
-         Bg = p(1)
-         Cg = p(2)
-         Dg = p(3)         
-         
-         Buv = p(4)
-         Cuv = p(5)
-         Duv = p(6)
+      elseif ((iparam.eq.4).or.(iparam.eq.24)) then ! g,uval,dval,sea as in ZEUS-JET fit
          
          Bdv = Buv
-         Cdv = p(7)
-         Ddv = p(8)
-         
-         Asea = p(9)
-         Bsea = p(10)
-         Csea = p(11)
 
 *  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
  
@@ -329,10 +210,6 @@ C
          Bdel = 0.5
          Cdel = Csea +2.
 
-* fixed for ZEUS-JETS
-         Alphas = p(12)
-         Euv = p(13)
-C
 C  Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
@@ -346,8 +223,8 @@ C  Chebyshev param. for the sea:
 C
          if (NCHEBSea.gt.0) then
             do i=1,NCHEBSea
-C  Offset is now steering parameter (default = 20, params start from 41)
-               ChebParsSea(i) = p(20+IOFFSETCHEBSEA+i)
+C  Offset is now steering parameter (default = 70, params start from 41)
+               ChebParsSea(i) = p(70+IOFFSETCHEBSEA+i)
             enddo
          endif
 
@@ -355,40 +232,8 @@ C  Offset is now steering parameter (default = 20, params start from 41)
             call ChebToPoly
          endif
 
-
-      elseif (iparam.eq.24) then ! g,uval,dval,sea as in ZEUS-JET fit
-
-         Bg = p(1)
-         Cg = p(2)
-         Dg = p(3)         
-         
-         Buv = p(4)
-         Cuv = p(5)
-         Duv = p(6)
-         
-         Bdv = Buv
-         Cdv = p(7)
-
-         Euv = p(8)
-               
-         Asea = p(9)
-         Bsea = p(10)
-         Csea = p(11)
-
-*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
-         
-         Adel = 0.27          
-         Bdel = 0.5
-         Cdel = Csea +2.
-
-* fixed for ZEUS-JETS optimized
-              
-         Ddv = p(12)
-         Alphas = p(13)
-         
       endif         
 
-      
       end
 
 
@@ -408,6 +253,206 @@ C  Offset is now steering parameter (default = 20, params start from 41)
       return
       end
 
+
+      subroutine DecodePara(pars)
+C-------------------------------------------------------
+C Created 22 Apr 11 by SG. Decode minuit input for CTEQ-like param.
+C   pars(1-10)  - gluon
+C   pars(11-20)  - Uv
+C   pars(21-30)  - Dv
+C   pars(31-40)  - Ubar, U
+C   pars(41-50)  - Dbar, D
+C   pars(51-60)  - sea, delta
+C   pars(91-100)  - others
+C------------------------------------------------------
+      implicit none 
+      include 'pdfparam.inc'
+      include 'steering.inc'
+      include 'for_debug.inc'
+      double precision pars(*)
+      integer i,j
+      logical lfirstt
+      data lfirstt /.true./
+
+C---------------------------------------------------------
+      if (lfirstt) then
+         lfirstt = .false.
+         print *,'DecodePara INFO: First time call'        
+      endif
+C     simple copy first:
+      do i=1,10
+         parglue(i) = pars(i)
+         paruval(i) = pars(10+i)
+         pardval(i) = pars(20+i)
+         parubar(i) = pars(30+i)
+         pardbar(i) = pars(40+i)
+         parsea(i) = pars(70+i)
+         paru(i) = pars(50+i)
+         pard(i) = pars(60+i)
+         pardel(i) = pars(80+i)
+         parother(i) = pars(90+i)
+      enddo
+
+
+      if ((iparam.eq.1).or.(iparam.eq.21)) then     !  H1PDF2k like
+
+         pard(2)=paru(2)
+         parubar(2)=paru(2)
+         pardbar(2)=paru(2)
+         pardbar(1)=pard(1)
+         parU(1)=pard(1)*(1.-parother(6))/(1.-parother(7))
+         parUbar(1)=parU(1)
+         
+      elseif (iparam.eq.2) then
+
+         pardval(2)=paruval(2)
+         parubar(2)=pardbar(2)
+         parUbar(1)=pardbar(1)*(1.-parother(6))/(1.-parother(7))
+
+      elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.222)) then
+         
+         if (iparam.ne.221) then               
+            pardval(2)=paruval(2)
+         endif
+         parubar(2)=pardbar(2)
+         parUbar(1)=pardbar(1)*(1.-parother(6))/(1.-parother(7))
+
+cv         if (iparam.eq.222) then
+cv            parglue(9)=25.
+cv         endif
+
+      elseif (iparam.eq.229) then
+cv         parglue(9)=25.
+         parUbar(2)=parDbar(2)
+         parUbar(1)=parDbar(1)*(1.-parother(6))/(1.-parother(7))
+
+      elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
+         
+         paruval(2)=0.5
+         pardval(2)=0.5
+         pardel(2)=0.5
+         pardel(3)=parsea(3)+2.
+         
+      elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
+         pardval(2)=paruval(2)
+        
+
+*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
+         pardel(1)=0.27
+         pardel(2)=0.5
+         pardel(3)=parsea(3)+2.
+
+      elseif (iparam.eq.24) then ! g,uval,dval,sea as in ZEUS-JET fit
+         pardval(2)=paruval(2)
+         pardel(1)=0.27
+         pardel(2)=0.5
+         pardel(3)=parsea(3)+2.
+         
+      endif         
+
+      if (debug) then
+         print '(''1uv:'',11F10.4)',(paruval(i),i=1,10)
+         print '(''1dv:'',11F10.4)',(pardval(i),i=1,10)
+         print '(''1Ub:'',11F10.4)',(parubar(i),i=1,10)
+         print '(''1Db:'',11F10.4)',(pardbar(i),i=1,10)
+         print '(''1GL:'',11F10.4)',(parglue(i),i=1,10)
+      endif
+
+C---------------------------------------------------------
+      end
+
+C---------------------------------------------------------
+
+      double precision function para(x,a)
+C----------------------------------------------------
+C
+C standard-like parameterisation: 
+C  AF = (a*x**b)*(1 - x)**c*(1 + d*x + e*x**2+f*x**3)-
+C     - (ap*x**bp)*(1-x)**cp
+C
+C-----------------------------------------------------
+      implicit none
+      double precision x,a(1:10)
+      double precision AF
+      
+         AF = a(1)*x**a(2)*(1 - x)**a(3)*(1 + a(4)*x
+     $        + a(5)*x**2+a(6)*x**3+a(10)*x**0.5)-a(7)*x**a(8)*(1-x)**a(9)
+
+      para = AF
+
+      end
+
+
+
+      subroutine DecodeCtPara(pars)
+C-------------------------------------------------------
+C Created 22 Apr 11 by SG. Decode minuit input for CTEQ-like param.
+C   pars(1-6)  - gluon
+C   pars(11-16)  - Uv
+C   pars(21-26)  - Dv
+C   pars(31-36)  - Ubar
+C   pars(41-46)  - Dbar
+C   pars(95-100)  - alphas, fstrange, fcharm
+C------------------------------------------------------
+      implicit none 
+      include 'pdfparam.inc'
+      include 'steering.inc'
+      double precision pars(*)
+      integer i
+      logical lfirstt
+      data lfirstt /.true./
+
+C---------------------------------------------------------
+      if (lfirstt) then
+         lfirstt = .false.
+         print *,'DecodeCtPara INFO: First time call'        
+      endif
+C simple copy first:
+      do i=1,6
+         ctglue(i) = pars(i)
+         ctuval(i) = pars(10+i)
+         ctdval(i) = pars(20+i)
+         ctubar(i) = pars(30+i)
+         ctdbar(i) = pars(40+i)
+         ctother(i)= pars(94+i)
+      enddo
+
+C Extra constrains:
+      if (pars(31).eq.0) then
+         ctubar(1) = ctdbar(1) * (1.-ctother(2)) ! normalization ubar = dbar 
+         ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
+      endif
+
+C Impose Buv = Bdv if parameter for Buv = 0.
+      if (pars(12).eq.0) then
+         ctuval(2) = ctdval(2)  ! Buv = Bdv
+      endif
+C (other constraints from sum-rules)
+
+
+C---------------------------------------------------------
+      end
+
+      double precision function ctpara(x,a)
+C----------------------------------------------------
+C
+C cteq-like parameterisation: 
+C  UF = a0*E**(a3*x)*(1 - x)**a2*x**(a1 + n)*(1 + E**a4*x + E**a5*x**2)
+C
+C-----------------------------------------------------
+      implicit none
+      double precision x,a(1:6)
+      double precision UF
+      UF = a(1)*exp(a(4)*x)*(1 - x)**a(3)*x**(a(2))*(1 + exp(a(5))*x 
+     $     + exp(a(6))*x**2)
+      
+      ctpara = UF
+
+      end
+
+
+
+
 * -------------------------------------------------------
       double precision function gluon(x)
 * -------------------------------------------------------
@@ -417,10 +462,11 @@ C  Offset is now steering parameter (default = 20, params start from 41)
       include 'pdfparam.inc'
       include 'steering.inc'
       double precision x
-
+      integer i
 C External function:
-      double precision PolyParam,ctpara
+      double precision PolyParam,ctpara,para
 C-------------------------------------------------
+
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.171717) then
@@ -430,16 +476,9 @@ C    22 Apr 11, SG, Add CTEQ-like
 
 
       if (nchebglu.eq.0) then
-C
-C new2 jf to test term fg
-C
-         if ((iparam.eq.222.).or.(iparam.eq.229)) then
-            gluon = ag * x**bg * (1.-x)**cg * (1. + dg * x + fg * x**3)-
-     $           apg*x**bpg*(1.-x)**cpg
 
-         else
-            gluon = ag * x**bg * (1.-x)**cg * (1. + dg * x + fg * x**3)
-         endif
+         gluon=para(x,parglue)
+         
       else
 C
 C SG: Use polynomial representation of cheb. 
@@ -484,10 +523,12 @@ C---------------------------------
       implicit none
       include 'steering.inc'
       include 'pdfparam.inc'
-      double precision x
+      double precision x,para
+
 
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-       H1U = au * x**bu * (1.-x)**cu * (1. + du*x +  eu *x**2+ fu*x**3)
+         H1U=para(x,paru)
+cv       H1U = au * x**bu * (1.-x)**cu * (1. + du*x +  eu *x**2+ fu*x**3)
       endif
 
       return
@@ -499,10 +540,11 @@ C---------------------------------
       implicit none
       include 'steering.inc'
       include 'pdfparam.inc'
-      double precision x
+      double precision x,para
 
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-       H1D = ad * x**bd * (1.-x)**cd * (1. + dd*x)
+         H1D=para(x,pard)
+cv       H1D = ad * x**bd * (1.-x)**cd * (1. + dd*x)
       endif
 
       return
@@ -515,7 +557,7 @@ C---------------------------------
       include 'steering.inc'
       include 'pdfparam.inc'
       double precision x,x23
-      double precision PolyVal,ctpara
+      double precision PolyVal,ctpara,para
 C---------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
@@ -532,8 +574,10 @@ C
 C 25 Jan 2011: add polynomial param 
 C
          if (NPOLYVAL.eq.0) then
-            Uval = aUv * x**bUv * (1.-x)**cUv
-     +           * (1. + dUv*x + eUv *x**2+  fUV *x**3)
+            Uval=para(x,paruval)
+
+cv            Uval = aUv * x**bUv * (1.-x)**cUv
+cv     +           * (1. + dUv*x + eUv *x**2+  fUV *x**3)
          else
 C 
 C PDFs are parameterised as a function of x23 = x^{2/3}
@@ -554,7 +598,7 @@ C
       include 'steering.inc'
       include 'pdfparam.inc'
       double precision x,x23
-      double precision PolyVal,ctpara
+      double precision PolyVal,ctpara,para
 C--------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
@@ -571,8 +615,10 @@ C
 C 25 Jan 2011: add polynomial param 
 C
          if (NPOLYVAL.eq.0) then
-            Dval = aDv * x**bDv * (1.-x)**cDv
-     +           * (1. + dDv*x + fDv * x**3)
+            Dval=para(x,pardval)
+
+cv            Dval = aDv * x**bDv * (1.-x)**cDv
+cv     +           * (1. + dDv*x + fDv * x**3)
          else
 C
 C PDFs are parameterised as a function of x23 = x^{2/3}
@@ -614,7 +660,7 @@ C------------------------------------------------
       include 'pdfparam.inc'
       double precision x,Ubar,Dbar
 C External function:
-      double precision PolyParam
+      double precision PolyParam,para
 C--------------------------------------------------
 
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
@@ -625,8 +671,10 @@ C--------------------------------------------------
 * warning for iparam = 3 or 4, the sea is 2 * sum (ubar +dbar + sbar + cbar)
 
          if (nchebSea.eq.0) then
-            sea = Asea * x**Bsea * (1.-x)**Csea
-     +           * (1. + Dsea*x)
+            sea=para(x,parsea)
+
+cv            sea = Asea * x**Bsea * (1.-x)**Csea
+cv     +           * (1. + Dsea*x)
          else
 
             sea = PolyParam(x,nchebSea,polyParsSea,chebxminlog)
@@ -669,10 +717,11 @@ C-------------------------------------------------
       implicit none
       include 'steering.inc'
       include 'pdfparam.inc'
-      double precision x
+      double precision x,para
       
       if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
-         dbmub = Adel * x**Bdel * (1.-x)**Cdel
+         dbmub=para(x,pardel)
+cv         dbmub = Adel * x**Bdel * (1.-x)**Cdel
       endif
  
       return
@@ -750,7 +799,7 @@ C----------------------------------------------------
       double precision x,sea,dbmub,qstrange,cbar
       double precision sing,flav_number,QPDFXQ
       integer iflag,iq0,iqb,iqc,iqfromq,jtest
-      double precision ctpara
+      double precision ctpara,para
 C----------------------------------------------
 * new2 jf SPECIAL TEST with dubar
 
@@ -765,7 +814,9 @@ C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
      $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
      $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-         Ubar = aubar * x**bubar * (1.-x)**cubar * (1. + dubar *x)
+cv         Ubar = aubar * x**bubar * (1.-x)**cubar * (1. + dubar *x)
+         Ubar=para(x,parubar)
+
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
  
          Ubar = (0.5d0 * sea(x) - dbmub(x) - qstrange (x) + cbar(x))/2.d0
@@ -783,7 +834,7 @@ C    22 Apr 11, SG, Add CTEQ-like
       include 'steering.inc'
       include 'pdfparam.inc'
       double precision x,sea,Ubar
-      double precision ctpara
+      double precision ctpara,para
 C------------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
@@ -797,7 +848,10 @@ C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
      $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
      $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-         Dbar = adbar * x**bdbar * (1.-x)**cdbar * (1. + ddbar *x)
+         
+cv         Dbar = adbar * x**bdbar * (1.-x)**cdbar * (1. + ddbar *x)
+         Dbar=para(x,pardbar)
+
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
          Dbar = sea(x) * 0.5d0 - Ubar(x)
       endif
@@ -1240,66 +1294,181 @@ C--------------------------------------------------
 
       end
 
-      subroutine DecodeCtPara(pars)
-C-------------------------------------------------------
-C Created 22 Apr 11 by SG. Decode minuit input for CTEQ-like param.
-C   pars(20-25)  - Uv
-C   pars(30-35)  - Dv
-C   pars(40-45)  - Ubar
-C   pars(50-55)  - Dbar
-C   pars(60-65)  - gluon
-C------------------------------------------------------
-      implicit none 
-      include 'pdfparam.inc'
+
+
+
+C-----------------------------------------------------
+      Subroutine PDFLength(DeltaChi2)
+C
+C Created 27 June 2009 by SG
+C Add extra constraint for the PDF "length" = int_wmin^wmax \sqrt{1+pdf'(W)**2} dw
+C
+      implicit none
+      
       include 'steering.inc'
-      double precision pars(*)
+      include 'pdfparam.inc'
+      include 'pdflength.inc'
+      double precision DeltaChi2
+      double precision pdflen(5)
+      double precision zero
       integer i
-      logical lfirstt
-      data lfirstt /.true./
-
-C---------------------------------------------------------
-      if (lfirstt) then
-         lfirstt = .false.
-         print *,'DecodeCtPara INFO: First time call'        
-      endif
-C simple copy first:
-      do i=0,5
-         ctuval(i) = pars(20+i)
-         ctdval(i) = pars(30+i)
-         ctubar(i) = pars(40+i)
-         ctdbar(i) = pars(50+i)
-         ctglue(i) = pars(60+i)
-      enddo
-
-C Extra constrains:
-      if (pars(40).eq.0) then
-         ctubar(0) = ctdbar(0) * (1.-strange_frac) ! normalization ubar = dbar 
-         ctubar(1) = ctdbar(1)  ! Bubar = Bdbar
+      integer ngrid
+      parameter(ngrid=500)
+      double precision grid(ngrid+1),d0,dst,val,wmin,wmax
+C External functions
+      double precision glulen,sealen
+      double precision ssdint
+      external glulen,sealen
+      logical LFirstIn
+      data LFirstIn /.true./
+C----------------------------------------------------
+C
+C
+      if (LFirstIn) then
+        Wmin = WMNLEN
+        Wmax = WMXLEN
+        LFirstIn = .false.
+        print '(''PDFLENGTH INITIALIZATION: Set Wmin,Wmax to '',2F8.2)',
+     $        Wmin,Wmax
       endif
 
-C Impose Buv = Bdv if parameter for Buv = 0.
-      if (pars(20+1).eq.0) then
-         ctuval(1) = ctdval(1)  ! Buv = Bdv
+      DeltaChi2 = 0
+
+      if (pdfLenWeight(1).gt.0) then
+         pdflen(1) = ssdint(Wmin,glulen,Wmax)
+     $     -(Wmax-Wmin)
+         
+         DeltaChi2 = DeltaChi2 + pdflen(1)*pdfLenWeight(1)
+      else
+         pdflen(1) = 0.
       endif
-C (other constraints from sum-rules)
+
+      if (pdfLenWeight(2).gt.0) then
+         pdflen(2) = ssdint(Wmin,sealen,Wmax)
+     $     -(Wmax-Wmin)
+         
+         DeltaChi2 = DeltaChi2 + pdflen(2)*pdfLenWeight(2)
+      else
+         pdflen(2) = 0.
+      endif
+ 
+
+      print *,'Gluon length=',pdflen(1),ag,bg,cg,dg,fg
+      print *,'Sea length=',pdflen(2)
 
 
 C---------------------------------------------------------
       end
 
-      double precision function ctpara(x,a)
-C----------------------------------------------------
+      double precision function powerLen(W,a,b,c,d,f)
 C
-C cteq-like parameterisation: 
-C  UF = a0*E**(a3*x)*(1 - x)**a2*x**(a1 + n)*(1 + E**a4*x + E**a5*x**2)
+C Utility to calculate pdf length element in W for power parameterization.
 C
-C-----------------------------------------------------
       implicit none
-      double precision x,a(0:5)
-      double precision UF
-      UF = a(0)*exp(a(3)*x)*(1 - x)**a(2)*x**(a(1))*(1 + exp(a(4))*x 
-     $     + exp(a(5))*x**2)
-      
-      ctpara = UF
+      double precision W,a,b,c,d,f,q2,x,der,derw,p
+C----------------------------------------------------
+C Assume Q2=4
+      Q2 = 4.D0
+      X = Q2/(Q2 + W*W)
 
+      p   = (1.D0+d*x+f*x*x*x)
+      der = a*x**b*(1.D0-x)**c*p*
+     $     (b/x 
+     $     - c/(1.0D0-x) 
+     $     + (d+3.D0*f*x*x)/p)
+C W derrivative:
+      derw = - der* (2*W*Q2)/((W*W+Q2)*(W*W+Q2))
+
+      PowerLen = sqrt(1.D0+derw*derw)      
+C----------------------------------------------------
+      end
+
+      
+      double precision function ChebLen(W,ncheb,poly,a,xminlog,iType)
+C
+C Utility to calculate pdf length element in W for chebyshev parameterization.
+C
+      implicit none
+      integer ncheb,iType
+      double precision W,poly(ncheb),a,xminlog
+      double precision Q2,X,XX,Sum,der,derw,sum2
+      integer i
+      logical LFirst
+      data LFirst /.true./
+C------------------------------------------------------
+      if (LFirst) then
+         print *,'First time in ChebLen. IType=',itype
+         LFirst = .false.
+      endif
+C Assume Q2=4
+      Q2 = 4.D0
+      X = Q2/(Q2 + W*W)
+C
+C get derrivative:
+C
+      xx =  (2.D0*log(x)-xminlog)/(-xminlog)
+      sum = poly(ncheb)*(ncheb-1)
+         
+      do i=ncheb-1,2,-1
+         sum = sum*xx + poly(i)*(i-1.D0)
+      enddo
+
+C SG: Fix for (1-x) dumping:
+      if (iType.eq.0) then
+C do nothing
+      else if (iType.eq.1) then        
+C subract term corresponding to -x:
+         sum2 = poly(ncheb)*ncheb
+         do i=ncheb-1,1,-1
+            sum2 = sum2*xx + poly(i)*i
+         enddo
+         sum = sum - sum2
+      endif
+
+      der = sum * a * 2.D0/(-xminlog) / x
+C W derrivative:
+      derw = - der* (2*W*Q2)/((W*W+Q2)*(W*W+Q2))
+
+      ChebLen = sqrt(1.D0 + derw*derw)
+C-------------------------------------------------------
+      end
+      
+
+
+      double precision function glulen(W)
+      implicit none
+      double precision W
+      include 'pdfparam.inc'
+      include 'steering.inc'
+C
+      double precision PowerLen,ChebLen
+C----------------------------------------------------
+
+
+      if (nchebglu.eq.0) then
+         glulen = powerlen(W,ag,bg,cg,dg,fg)
+      else
+         glulen = cheblen(W,nchebGlu,polyPars,ag,chebxminlog,
+     $        ichebtypeGlu)
+      endif
+      end
+
+
+      double precision function Sealen(W)
+      implicit none
+      double precision W
+      include 'pdfparam.inc'
+      include 'steering.inc'
+C
+      double precision PowerLen,ChebLen
+C----------------------------------------------------
+
+
+      if (nchebsea.eq.0) then
+         Sealen = powerlen(W,aSea,bSea,cSea,dSea,0.0D0)
+      else
+         Sealen = cheblen(W,nchebSea,polyParsSea,1.D0,chebxminlog,
+     $        ichebtypeSea)
+
+      endif
       end
