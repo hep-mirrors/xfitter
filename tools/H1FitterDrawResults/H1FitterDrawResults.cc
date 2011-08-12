@@ -10,8 +10,8 @@ using std::endl;
 
 int main(int argc, char **argv) {
 
-  TString OutputPath("../../output/");
-  TString OutputPathRef("../../output/");
+  TString OutputPath("output/");
+  TString OutputPathRef("output/");
   
   if(argc == 2) {
     OutputPath.Form(argv[1]);

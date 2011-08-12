@@ -61,7 +61,7 @@ Int_t DataSet::GetNpts(Int_t i) {
 }
 Double_t DataSet::GetChi2(Int_t i) {
   if(i<0 || i>=fTheo->GetEntries()) return 0.;
-  TGraphErrors* gDTot = (TGraphErrors*) fDTot->At(i);
+  TGraphErrors* gDTot = (TGraphErrors*) fDUnc->At(i);
   TGraphErrors* gTheo = (TGraphErrors*) fTheo->At(i);
  
   Double_t* Data = gDTot->GetY();

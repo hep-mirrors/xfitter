@@ -94,7 +94,7 @@ Int_t H1FitterOutput::PrepareDataSets() {
   TString* filename = new TString;
   filename->Form("%s/fittedresults.txt",fDirectory->Data());
 
-  Double_t v1, v2, v3, data, uncorrerr, toterr, theory, pull;
+  Double_t v1, v2, v3, data, uncorrerr, toterr, theory, theory_mod,pull;
   Int_t dataset;
   Char_t buffer[120];
   TString V1, V2, V3, str, Name;
@@ -110,12 +110,12 @@ Int_t H1FitterOutput::PrepareDataSets() {
   infile.getline(buffer, 120);
   str.Form(buffer); 
   dataset = str.Atoi();
-  // v1     v2    v3    data     +- uncorr.err   +-toterr      theory      pull     dataset
+  // v1     v2    v3    data     +- uncorr.err   +-toterr      theory  theory_mod     pull     dataset
   while(!infile.eof()) {
     infile.getline(buffer, 120);
     Name.Form(buffer);
     infile.getline(buffer, 120);
-    infile.getline(buffer, 120); 
+    //    infile.getline(buffer, 120); 
     str.Form(buffer);
     TObjArray* array = str.Tokenize(" ");
     if(array->GetEntries() < 3) {cout << "something is wrong in fittedresults.txt" << endl; delete array; continue;}
@@ -132,7 +132,8 @@ Int_t H1FitterOutput::PrepareDataSets() {
       str.Form(buffer);
       TObjArray* array = str.Tokenize(" ");
       if(array->GetEntries() == 1) {dataset = ((TObjString*)array->At(0))->GetString().Atoi(); delete array; break;}
-      if(array->GetEntries() != 9) {delete array; break;}
+      if(array->GetEntries() != 10) {delete array; break;}
+
       
       v1        = ((TObjString*)array->At(0))->GetString().Atof();
       v2        = ((TObjString*)array->At(1))->GetString().Atof();
@@ -141,10 +142,14 @@ Int_t H1FitterOutput::PrepareDataSets() {
       uncorrerr = ((TObjString*)array->At(4))->GetString().Atof();
       toterr    = ((TObjString*)array->At(5))->GetString().Atof();
       theory    = ((TObjString*)array->At(6))->GetString().Atof();
-      pull      = ((TObjString*)array->At(7))->GetString().Atof();
-      dataset   = ((TObjString*)array->At(8))->GetString().Atoi();	
+      theory_mod  = ((TObjString*)array->At(7))->GetString().Atof();
+      pull      = ((TObjString*)array->At(8))->GetString().Atof();
+      dataset   = ((TObjString*)array->At(9))->GetString().Atoi();	
       delete array;
-      NewDataSet->AddPoint(v1, v2, v3, data, uncorrerr, toterr, theory, pull);
+
+      // cout << "haha" << dataset << " "<< data << endl;
+
+      NewDataSet->AddPoint(v1, v2, v3, data, uncorrerr, toterr, theory_mod, pull);
 
       fPull->Fill(pull);
     }
