@@ -597,6 +597,7 @@ c                     endif
 
             t = t*fac
             THEO_MOD(ipoint)=t
+            ALPHA_MOD(ipoint)=error
             chisq = (d-t)**2/error**2
             fchi2_in = fchi2_in + chisq
 
