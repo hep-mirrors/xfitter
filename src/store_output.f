@@ -63,10 +63,10 @@
       write(6,*) '--------- in store-pdfs -------'
 
       idx = index(base,' ')-1
-      namefsfc = 'output/fsfc'//'.txt'
-      print *,namefsfc
-      open (83,file=namefsfc)
-      write(83,*) 'iparam,q2,strange,Dbar,fs,charm,Ubar,fc'
+c      namefsfc = 'output/fsfc'//'.txt'
+c      print *,namefsfc
+c      open (83,file=namefsfc)
+c      write(83,*) 'iparam,q2,strange,Dbar,fs,charm,Ubar,fc'
       do 999 iq2=1,NBANDS
 cv         print*,'voicaaaaa', iq2, q2val(iq2), nbands
       q2 = Q2VAL(iq2)
@@ -156,14 +156,14 @@ c        open(82,file=h1name)
       totUbar = totUbar +d_Ubar*delx
       totusea = totusea + u_sea*delx
       totdsea = totdsea + d_sea*delx
-      if(q2.le.6.) then
-      if(ix.eq.1) then
-       write(83,*) 'ix,x,q2,totstr,totDbar,totcha,totUbar,
-     +totusea,totdsea'
-      endif
-      write(83,*) ix,x,q2,totstr,totDbar,totcha,totUbar
-     +,totusea,totdsea
-      endif
+c      if(q2.le.6.) then
+c      if(ix.eq.1) then
+c       write(83,*) 'ix,x,q2,totstr,totDbar,totcha,totUbar,
+c     +totusea,totdsea'
+c      endif
+c      write(83,*) ix,x,q2,totstr,totDbar,totcha,totUbar
+c     +,totusea,totdsea
+c      endif
 
       write(81,810)
      +     x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,chm,bot
@@ -173,21 +173,22 @@ c        open(82,file=h1name)
 
       enddo
 * special
-      if(q2.le.6.) then
-      afs = totstr/totDbar
-      afc = totcha/totUbar
-      afs_ud = totstr/(totusea+totdsea)
-      write(83,*) iparam,q2,totstr,totDbar,afs,totcha,totUbar,afc
-      write(83,*) totusea,totdsea,afs_ud
-      endif
+c     if(q2.le.6.) then
+c      afs = totstr/totDbar
+c      afc = totcha/totUbar
+c      afs_ud = totstr/(totusea+totdsea)
+c      write(83,*) iparam,q2,totstr,totDbar,afs,totcha,totUbar,afc
+c      write(83,*) totusea,totdsea,afs_ud
+c      endif
 * end special
+
       close(81)
 c      close(82)
       
 999   continue
 
 
-      close(83)
+c      close(83)
 
 
 cv store for LHAPDF
