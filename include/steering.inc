@@ -10,8 +10,7 @@
 
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
-      logical lTHEO            !> Fit theory instead of data
-     $     ,DOBANDS            !> Produce PDF error bands 
+      logical DOBANDS            !> Produce PDF error bands 
       logical lRAND            !> MC method activation flag 
 
       real asatur,             !> Saturation inspired cut for DIS data
@@ -64,7 +63,7 @@ C Applgrid flags
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac,
      $     HF_MASS,charm_frac,
-     &     lDEBUG,lTHEO,DOBANDS,
+     &     lDEBUG,DOBANDS,
      &     Itheory,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,
