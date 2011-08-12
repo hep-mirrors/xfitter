@@ -2,27 +2,39 @@
       integer NBANDS
       parameter (NBANDS=40)
 
-      integer LDOFIT1(30),Itheory,Iseed,I_FIT_ORDER,IPARAM,ICHI2
-      integer isdrn
-      integer LDOFIT2(30), LDOFIT3(30), LDOFIT4(30)    
-      integer HFSCHEME,STATYPE,SYSTYPE, vfnsINDX
-      logical lfirst,lcorr,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS
-      logical lRAND, LTOY
-      real pxmax,pxmin,pq2min,pq2max
-      real asatur,lsatur
+      integer Itheory          !>  Theory type
+     $     ,I_FIT_ORDER        !>  Fit order (LO=0, NLO=1, NNLO=2)
+     $     ,IPARAM             !>  Internal flag for parameterisation type
+     $     ,ICHI2              !>  Internal flag for chi2-type
+      integer HFSCHEME         !>  Heavy flavour scheme (0 -- zero mass, 2 -- RT)
 
-      real*4 starting_scale,rtalphas,strange_frac,
-     $     HF_MASS(2),Q2VAL(NBANDS),charm_frac
+      integer STATYPE,SYSTYPE  !> For MC method, type of errors.
+      logical lDEBUG           !> Debug flag
+      logical lTHEO            !> Fit theory instead of data
+     $     ,DOBANDS            !> Produce PDF error bands 
+      logical lRAND            !> MC method activation flag 
 
-      real*4 outxrange(2)
-      integer outform, outnx
+      real asatur,             !> Saturation inspired cut for DIS data
+     $     lsatur              !> Saturation inspired cut for DIS data
 
-      logical LFitDY
+      real*4 
+     $     starting_scale,     !> Evolution starting scale
+     $     strange_frac, 
+     $     HF_MASS(3),         !> masses of charm, bottom and top
+     $     charm_frac
+
+      real*4 outxrange(2),     !> x-range for PDF text output 
+     $     Q2VAL(NBANDS)       !> Q2 values for PDF printout
+      integer  outnx           !> number of x points for PDF text output
+
+      logical LFitDY           !> k-factor fit to DY data
 
 C-------------------------------------------------
 
-C SG: add flag for PDF length, chebyshev param. for gluon      
+C Flag for PDF length, chebyshev param. for gluon      
       integer ILENPDF
+      real WMNLEN,WMXLEN   ! W range used for pdf length calculation
+
 C Number of checbyshev parameters for gluon and sea (0 - standard param.)
       integer nchebGLU,nchebSEA,IOFFSETCHEBSEA
 C Type of cheb. parameterization:
@@ -31,41 +43,35 @@ C 1 - (1-x) suppression.
 C
       integer ichebtypeGlu, ichebtypeSea
  
-      real chebxmin        ! low X-range to map with Cheb. polynoms
-      real WMNLEN,WMXLEN   ! W range used for pdf length calculation
+      real chebxmin        !> low X-range to map with Cheb. polynoms
 
-C SG, 31 Oct 2009: Add x-dependent fstrange:
-      integer ifsttype  ! 0 - default, 1 - hermes-like
+C X-dependent fstrange:
+      integer ifsttype  !> 0 - default, 1 - hermes-like
 
-C SG, 23 Jan 2010: Select random number seed for lRand = true
+C Random number seed for lRand = true
       integer iSeeDmc
 
-      logical IDDIPOLE,IDFLPRINT,H1QCDFUNC,idsigdq2
-
-C SG, 25 Jan 2011, add polynomial param for valence quarks
+C Polynomial param for valence quarks
       integer NPOLYVAL,IZPOPOLY
-C SG, 1 Feb 2011, use forced positive parameterisation for IPOLYSQR=1
+C Use forced positive parameterisation for IPOLYSQR=1
       integer IPOLYSQR
 
-C 26/07/2010 added Q2max cut variable: pq2max
 
-
-C AS, 07 APR 2011 applgrid flags
+C Applgrid flags
       logical useapplg
       integer napplgrids
 
       common/STEERING/
-     &     Q2VAL,starting_scale,rtalphas,strange_frac,
-     $     HF_MASS,pxmax,pxmin,pq2min,pq2max,charm_frac,
-     &     lfirst,lcorr,lONLINE,lDEBUG,lNORMA,lTHEO,DOBANDS,
-     &     LDOFIT1,Itheory,Iseed,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
-     $     isdrn,lRAND,STATYPE,SYSTYPE,
-     $     outxrange, outform, outnx,ILENPDF,nchebGLU,chebxmin,
+     &     Q2VAL,starting_scale,strange_frac,
+     $     HF_MASS,charm_frac,
+     &     lDEBUG,lTHEO,DOBANDS,
+     &     Itheory,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
+     $     lRAND,STATYPE,SYSTYPE,
+     $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,
      $     nchebSEA,wmnlen,wmxlen
-     $     ,ichebtypeGlu, ichebtypeSea, ltoy
-     $     ,ifsttype,iSeeDmc, LDOFIT2, LDOFIT3, LDOFIT4
-     $     ,IOFFSETCHEBSEA,vfnsINDX
-     $     ,IDFLprint,h1qcdfunc,IDSIGDQ2
+     $     ,ichebtypeGlu, ichebtypeSea
+     $     ,ifsttype,iSeeDmc
+     $     ,IOFFSETCHEBSEA
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
 
