@@ -85,7 +85,7 @@ C Store FCN flag in a common block:
 
       IfcnCount=IfcnCount+1
       write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
-      open(95,file='output/kfactors.dat', status='unknown')
+
 
 *     ---------------------------------------------------------
 *     initilise variables 
