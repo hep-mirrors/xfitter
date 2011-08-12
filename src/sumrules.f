@@ -24,7 +24,7 @@
 *new joel feltesse
       double precision tuv,tdv,tub,tdb,tsea,tdel
       double precision polyvalint,polyvalint0
-      double precision para,x
+      double precision x
       double precision ubar,dbar,uval,dval,gluon
       integer i
 C-----------------------------------------
@@ -232,39 +232,6 @@ c     $        ag,tg,apg,tgmrst,bpg,cpg,tUb,tDb
          
       endif
 
-      paru(4)=du
-      pard(4)=dd
-      parglue(1)=ag
-      paruval(1)=auv
-      pardval(1)=adv
-      paru(1)=au
-      parsea(1)=asea
-      pard(1)=ad
-
-
-cv      print*,'voica...in sumrule'
-cv      print*,'Bg,Cg,Buv,Bdv,Cuv,Cdv,Duv'
-cv      print*, Bg,Cg,Buv,Bdv,pardval(2),Cuv,Cdv,Duv
-cv      print*,'fs,fch,aub,adb,bub,bdb'
-cv      print*, fstrange,fcharm,aubar,adbar,bubar,parubar(2),bdbar
-cv      print*,'....cub,cdb,apg,bpg,cpg'
-cv      print*, cubar,cdbar,apg, bpg, cpg
-         
-c      if (IDebug.eq.1) then
-cv      print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
-cv      print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
-cv      print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
-cv      print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
-cv      print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
-c      endif
-c      if (IDebug.eq.10) then
-c         do i=1,8
-c            x = 10**(-i/2.)
-c            print '(11F12.5)',x,para(x,paruval),para(x,pardval),
-c     $           para(x,parubar),para(x,pardbar),para(x,parglue)
-ccv            print '(6F12.5)',x,uval(x),dval(x),ubar(x),dbar(x),gluon(x)
-c         enddo
-c      endif
       
       
  999  continue
