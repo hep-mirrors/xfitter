@@ -70,16 +70,22 @@ C RT parameters:
       double precision xmin(5)
       integer  iwt(5)
       integer NQGRID, NXGRID
-      PARAMETER (NQGRID=11)
+      PARAMETER (NQGRID=2)
       PARAMETER (NXGRID=5)
       
 
+      integer NQGridHF  !> Increase number of Q2 grid points to ensure that HF thresholds and the starting
+                        !> Q2 scale are in.
+      parameter (NQGridHF=NQGrid+4)  
+
+      integer NQall     !> Actual number of grid points
+      double precision Q2Grid(NQGridHF)
+      double precision WQGrid(NQGridHF)
+
       double precision  QARR(NQGRID),WGT(NQGRID)
       data iosp/2/                   !x grid, lin/qua/spli
-      DATA WGT/1.d0,  1.d0,  1.d0,  1.d0, 1.d0,
-     $     1.d0, 1.d0, 2.d0, 2.d0, 1.d0, 2.d0/
-      DATA QARR/1., 1.1, 1.2,1.6, 1.8, 1.9,
-     $     1.96,2.89,22.5625,30625.,500000000./
+      DATA WGT/1.d0,  2.d0/
+      DATA QARR/1.,   500000000./
 
 
 c      DATA WGT/2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
@@ -130,13 +136,12 @@ c--   linear x grid
 
 
 
-      double precision qmas, hqmass
-      dimension qmas(3), hqmass(3)
+      double precision  tmp
 
 
       double precision as0,r20
       data as0/0.364/, r20/2.D0/!, nfin/0/ !alphas, NNLO, VFNS
-      integer I,ndum,ierr
+      integer I,ndum,ierr,j
 
       double precision a,b
       double precision aq2,bq2,qs0,qt
@@ -154,27 +159,93 @@ C-------------------------------------------------------------------------------
       q0 = starting_scale
       qc = HF_MASS(1)**2
       qb = HF_MASS(2)**2
+      qt = HF_MASS(3)**2
+
+C Check that scales are in proper order:
+      if (q0.gt.qc) then
+         print *,'Starting scale must be below charm threshold, stop'
+         stop
+      endif
+      
+      if (qc.gt.qb) then
+         print *,'Charm mass must be below bottom mass, stop'
+         stop
+      endif
+      
+      if (qb.gt.qt) then
+         print *,'Bottom mass must be below top mass, stop'
+      endif
+
+      do i=1,NQGrid 
+         Q2Grid(i) = QARR(i)
+         WQGrid(i) = WGT(i)
+      enddo
+C Add extra points:
+      Q2Grid(NQGrid+1) = q0
+      Q2Grid(NQGrid+2) = qc
+      Q2Grid(NQGrid+3) = qb
+      Q2Grid(NQGrid+4) = qt
+      WQGrid(NQGrid+1) = 1
+      WQGrid(NQGrid+2) = 1
+      WQGrid(NQGrid+3) = 1
+      WQGrid(NQGrid+4) = 1
+
+C Sort the Q2Grid:
+      do i=1,NQGridHF
+         do j=i+1,NQGridHF
+            if ( Q2Grid(j) .lt. Q2GRID(i) ) then
+               tmp =  Q2GRID(j)
+               Q2Grid(j) = Q2GRID(i)
+               Q2GRID(i) = tmp
+               tmp =  WQGRID(j)
+               WQGrid(j) = WQGRID(i)
+               WQGRID(i) = tmp               
+            endif
+         enddo
+      enddo
+
+      NQAll = NQGridHF
+
+
+C Remove duplicates:
+      i = 1
+      do while (i.lt.NQAll)
+         if (  abs(Q2Grid(i)-Q2Grid(i+1)).lt.1.D-5 ) then
+            do j=i+1,NQAll
+               Q2Grid(j) = Q2Grid(j+1)
+               WQGrid(j) = WQGrid(j+1)
+            enddo
+            NQAll = NQAll-1
+         else
+            i = i + 1
+         endif
+      enddo
+
+      print *,' '
+      print *,'Info FROM QCDNUM_INI'
+      print '('' Init Q2 grid with number of nodes='',i5)',NQALL      
+      print '('' Q2 values at:'',20F14.2)',(Q2grid(i),i=1,NQALL)
+      print '('' Weights are :'',20F14.2)',(Q2grid(i),i=1,NQALL)
+      print *,' '
+
 
       call qcinit(6,' ')        !initialize
       call setord(I_FIT_ORDER)         !LO, NLO, NNLO
 
 
       call gxmake(xmin,iwt,nxgrid,200,nx,iosp)        !x-grid
-      call gqmake(qarr,wgt,nqgrid,120,nqout)          !mu2-grid
+      call gqmake(Q2Grid,WQGrid,NQAll,120,nqout)          !mu2-grid
       iq0 =iqfrmq(q0)
       iqc =iqfrmq(qc)
       iqb =iqfrmq(qb)
 
 
 
-!SG: hardwire top mass
-
-      qt = 200.**2
+ !> Top:
       iqt =iqfrmq(qt)
 
 
       call setcbt(0,iqc,iqb,iqt) !thesholds in the ffns
-      call setalf(dble(rtalphas), Mz*Mz) !input alphas
 
       call readwt(22,'unpolarised.wgt',id1,id2,nw,ierr)
       if(ierr.ne.0) then
@@ -200,7 +271,7 @@ cv         call zmdumpw(22,'zmstf.wgt')
 c      call SETABR(1.D0,0.D0)  ! mur scale variation
 c      call ZMDEFQ2(1.D0,0.D0) ! muf scale variation
 
-      if ((mod(HFSCHEME,10).eq.2).or.(vfnsINDX.eq.2)) then
+      if ((mod(HFSCHEME,10).eq.2)) then
          alambdaIn=0.307
          qs0=1.d0
          alphas0in =asfunc(qs0,nflav,ierr)
@@ -648,30 +719,12 @@ C-----------------------------------------------------
 C
 C  Initialise electroweak parameters. Created 5 June 2011
 C
+C  Comments:
+C    12/08/2011: Move reading of the namelist to read_steer
+C
 C-----------------------------------------------------
       implicit none
       include 'couplings.inc'
-      namelist/EWpars/alphaem, gf, sin2thw, convfac,
-     $ Mz, Mw, Mh, wz, ww, wh, wtp,
-     $ Vud, Vus, Vub, Vcd, Vcs, Vcb,
-     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
-     $ mch, mst, mtp, mbt
-C-----------------------------------------------------
-
-      open (51,file='ewparam.txt',status='old')
-      read (51,NML=EWpars,END=71,ERR=72)
-      close (51)
-
-      goto 73
-C 
- 71   continue
-      print '(''Namelist @EWPars NOT found'')'
-      goto 73
- 72   continue
-      print '(''Error reading namelist @EWPars, STOP'')'
-      stop
- 73   continue
-
 C
 C set derived values
 C
