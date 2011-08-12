@@ -1,5 +1,10 @@
 
       subroutine read_steer
+C---------------------------------------------------
+C 
+C> Read steering file steer.txt
+C
+C---------------------------------------------------
       implicit none
 
 
@@ -12,16 +17,48 @@
       include 'systematics.inc'
 C=================================================
 
+
+C Define namelists:
+
+      character*32 PDFStyle, Chi2Style
+
+      real*8 Q02       ! Starting scale
+      integer IOrder   ! Evolution order
+C Main steering parameters namelist
+      namelist/H1Fitter/ITheory, IOrder, Q02, HFSCHEME, PDFStyle, 
+     $     Chi2Style, LDebug, ifsttype, ASatur, LSatur
+
+
+C Output style namelist
+      namelist/Output/DoBands, Q2VAL, OutNX, OutXRange
+
+C (Optional) MC method namelist
+      namelist/MCErrors/LTheo, LRand, ISeeDMC, StaType, SysType
+ 
+C (Optional) Chebyshev namelist
+      namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
+     $     ,IOFFSETCHEBSEA,ichebtypeGlu,ichebtypeSea
+     $     ,WMNlen,WMXlen, ChebXMin
+
+C (Optional) Polynomial parameterisation for valence
+      namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
+
       integer i, ilastq2
       integer StdCin,StdCout
 
-      real*4 SPACE
-      common/CFREAD/SPACE(6000)
-      integer Isch, Iset, Iflg, Ihad
-      Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to ACOT
 
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
+
+
+C Namelist for EW parameters:
+      namelist/EWpars/alphaem, gf, sin2thw, convfac,
+     $ Mz, Mw, Mh, wz, ww, wh, wtp,
+     $ Vud, Vus, Vub, Vcd, Vcs, Vcb,
+     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
+     $ mch, mst, mtp, mbt
+C-----------------------------------------------------
+
 
 C---------
 
@@ -29,188 +66,156 @@ C---------
 *     Initialise basic parameters
 *     ------------------------------------------------
 
-      CALL FFINIT(6000)
-      StdCin  = 5
-      StdCout = 6
 
-c      OPEN(UNIT=StdCin,FILE='steering.txt',STATUS='unknown')
-      CALL FFSET ( 'LINP' , StdCin )
-      CALL FFSET ( 'LOUT' , StdCout)
-      CALL FFSET ( 'SIZE' , 10)
 
 
       Itheory = 0
-      CALL FFKEY('itheory',ITHEORY,1,'INTE')
 
-      ISEED = 2313134
-      CALL FFKEY('ISEED',Iseed,1,'INTE')
 
-      ISDRN = 42
-      Call FFKEY('ISDRN',IsdRN,1,'INTE')
-
-      I_FIT_ORDER = 2
-      CALL FFKEY('IORDER',I_FIT_ORDER,1,'INTE')
 
 C=================================================
 
 
-C SG: Key for PDF length:
+C  PDF length on/off:
       ILENPDF = 0
-      Call FFKEY('ILENPDF',ILENPDF,1,'INTE')
 
-C SG: Key for PDF length weight factor:
+C PDF length weight factor:
       do i=1,5
          pdfLenWeight(i) = 0.
       enddo
-      Call FFKEY('PDFLENWEIGHT',pdfLenWeight,5,'REAL')
-
-C SG: Key for Chebyshev param. of the gluon:
-C
+C Chebyshev param. of the gluon:
       NCHEBGLU = 0
-      Call FFKEY('NCHGLU',NCHEBGLU,1,'INTE')
 
-C SG: Key for Chebyshev param. of the Sea:
+C Chebyshev param. of the Sea:
       NCHEBSEA = 0
-      Call FFKEY('NCHSEA',NCHEBSEA,1,'INTE')
 
-C 2 Feb 2010 SG: Offset for the Sea chebyshev parameters (default:20)
+C Offset for the Sea chebyshev parameters (default:20)
       IOFFSETCHEBSEA = 20
-      Call FFKEY('IOFS',IOFFSETCHEBSEA,1,'INTE')
 
-C SG: Type of Chebyshev parameterization:
+C Type of Chebyshev parameterization:
       ichebtypeGlu = 0
-      Call FFKEY('CHTGLU',ichebtypeGlu,1,'INTE')
       ichebtypeSea = 0
-      Call FFKEY('CHTSEA',ichebtypeSea,1,'INTE')
 
 
-C 25 Jan 2011, SG
-C SG: Pure polinomial param for the valence quarks:
+C 25 Jan 2011
+C     Pure polinomial param for the valence quarks:
 C     by default starting from N=61 for Uv and N=71 for Dv
       NPOLYVAL = 0
-      Call FFKEY('NPVA',NPOLYVAL,1,'INTE')
 
 C Add option to change Z of valence PDFs at x=1 from  (1-x) to (1-x)^2
       IZPOPOLY = 1
-      Call FFKEY('IZPO',IZPOPOLY,1,'INTE')
 
 C Square polynom before calculating dv,uv. This forces positivity
       IPOLYSQR = 0
-      Call FFKEY('IPSQ',IPOLYSQR,1,'INTE')
 
-C SG: Key for W range 
+C  Key for W range 
       WMNlen =  20.
       WMXlen = 320.
-      Call FFKEY('WMNLEN',WMNlen,1,'REAL')
-      Call FFKEY('WMXLEN',WMXlen,1,'REAL')
 
-      IPARAM = 1
-      CALL FFKEY('IPAR',IPARAM,1,'INTE')
 
       chebxmin = 1.E-5
-      Call FFKEY('CHEBXMIN',chebxmin,1,'REAL')
 
-C SG: Hermes-like strange:
+C  Hermes-like strange:
       ifsttype = 0
-      Call FFKEY('IFSTTYPE',ifsttype,1,'INTE')
 
-*     ICHI2 = 1 : Pascaud-like, +10/20/30 for scaled error variants
-*     ICHI2 = 2 : CTEQ-like
-*     ICHI2 = 3 : use full covariant matrix
-      ICHI2 = 1
-      CALL FFKEY('ICHI2',ICHI2,1,'INTE')
-
-      lfirst = .true. 
-      CALL FFKEY('FIRST',lfirst,1,'LOGICAL')
-
-      lcorr = .false.
-      CALL FFKEY('CORR',lcorr,1,'LOGICAL')
+* 
+      PDFStyle  = '13p HERAPDF'
+      Chi2Style = 'HERAPDF'
 
 
-      lONLINE = .true.
-      CALL FFKEY('ONLINE',lONLINE,1,'LOGICAL')
-
-      lDEBUG = .false.
-      CALL FFKEY('DEBUG',lDEBUG,1,'LOGICAL')
-
-      lNORMA = .false.
-      CALL FFKEY('NORMA',lNORMA,1,'LOGICAL')
-
+C MC Errors defaults:
       lTHEO = .false.
-      CALL FFKEY('THEO',lTHEO,1,'LOGICAL')
-
       lRAND = .false.
-      CALL FFKEY('RAND',lRAND,1,'LOGICAL')
-
       iSEEDmc = 0
-      Call FFKEY('SEED',iSeeDmc,1,'INTE')
-
       STATYPE = 1
-      CALL FFKEY('STATYPE',STATYPE,1,'INTE')
-
       SYSTYPE = 1
-      CALL FFKEY('SYSTYPE',SYSTYPE,1,'INTE')
 
-      DOBANDS = .false.
-      call ffkey('BANDS',DOBANDS,1,'LOGICAL')
-
+C PDF output options:
+      outnx = 101
       do i=1,NBANDS
        Q2VAL(i) = -1.
       enddo
-      call ffkey('Q2VAL',Q2VAL,NBANDS/2,'REAL')
-      call ffkey('Q3VAL',Q2VAL(21),NBANDS/2,'REAL')
-         
-      outform = 0
-      CALL FFKEY('OUTFORM',outform,1,'INTE')
-      outnx = 101
-      CALL FFKEY('OUTNX',outnx,1,'INTE')
       outxrange(1) = 1e-4
       outxrange(2) = 1.0
-      CALL FFKEY('OUTXRANGE',outxrange,2,'REAL')
 
-      starting_scale = 4.
-      call ffkey('Q02',starting_scale,1,'REAL')
+C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      strange_frac = 0.31
+      charm_frac = 0.00
 
-      strange_frac = 0.33
-      call ffkey('FSTRANGE',strange_frac,1,'REAL')
 
-      charm_frac = 0.15
-      call ffkey('FCHARM',charm_frac,1,'REAL')
-
-      rtalphas = 0.1185
-      call ffkey('RTALPHAS',rtalphas,1,'REAL')
-
-      HF_MASS(1) = 1.4
-      HF_MASS(2) = 4.5
-      call ffkey('HFMAS',HF_MASS,2,'REAL') 
+      mch        = 1.4D0
+      mbt        = 4.75D0
+      mtp        = 174.D0
 
       HFSCHEME = 0
-      call ffkey('HFSCHEME',HFSCHEME,1,'INTE')
-
-      pxmax = -1.
-      CALL FFKEY('xmax',pxmax,1,'REAL')
-      pxmin = -1.
-      CALL FFKEY('xmin',pxmin,1,'REAL') 
-
-      pq2min = -1.
-      CALL FFKEY('q2min',pq2min,1,'REAL')
-
-C==== 26/07/2010: ADDED Q2MAX CUT ================
-      pq2max = -1.
-      CALL FFKEY('q2max',pq2max,1,'REAL')
 
 
 C==== 24/08/2010: Add Saturation inspired cut ====
       ASatur = 0.0
-      Call FFKEY('ASat',ASatur,1,'REAL')
       LSatur = 0.0
-      Call FFKEY('LSat',LSatur,1,'REAL')
 
 
 C=================================================
 
 
-      CALL FFGO
+
+C
+C  Read the main H1Fitter namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=H1Fitter,END=41,ERR=42)
+      close (51)
+
+
+      open (51,file='ewparam.txt',status='old')
+      read (51,NML=EWpars,END=43,ERR=44)
+      close (51)
+
+C
+C  Read the output namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Output,END=51,ERR=52)
+      close (51)
+
+C
+C Decode PDF style:
+C      
+      call SetPDFStyle(PDFStyle)
+
+C
+C Decode Chi2 style:
+C
+      call SetChi2Style(Chi2Style)
+
+      HF_MASS(1) = mch
+      HF_MASS(2) = mbt
+      HF_MASS(3) = mtp
+
+C
+C  Read the MC method namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=MCErrors,ERR=62,end=61)
+ 61   continue
+      close (51)
+
+C
+C  Read the Chebyshev namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Cheb,ERR=64,end=63)
+ 63   continue
+      close (51)
+
+C
+C  Read the Poly namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Poly,ERR=66,end=65)
+ 65   continue
+      close (51)
+
 
 C
 C  Read the data namelist:
@@ -219,6 +224,23 @@ C
       read (51,NML=InFiles,END=71,ERR=72)
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+
+
+      if (lDebug) then
+C Print the namelists:
+         print *,'Input Namelists:'
+         print H1Fitter
+         print Output
+         print MCErrors
+         print InFiles
+         print EWpars
+      endif
+
+
+      I_FIT_ORDER = IOrder
+      starting_scale = Q02
+
+
 
 C
 C Names of syst. error sources:
@@ -229,12 +251,41 @@ C
 
       goto 73
 C 
+ 41   continue
+      print '(''Namelist &H1Fitter NOT found'')'
+      goto 73
+ 42   continue
+      print '(''Error reading namelist &H1Fitter, STOP'')'
+      stop
+ 43   continue
+      print '(''Namelist @EWPars NOT found, STOP'')'
+      stop
+ 44   continue
+      print '(''Error reading namelist @EWPars, STOP'')'
+      stop
+ 51   continue
+      print '(''Namelist &Output NOT found'')'
+      goto 73
+ 52   continue
+      print '(''Error reading namelist &Output, STOP'')'
+      stop
+ 62   continue
+      print '(''Error reading namelist &MCErrors, STOP'')'
+      stop
+ 64   continue
+      print '(''Error reading namelist &Cheb, STOP'')'
+      stop
+ 66   continue
+      print '(''Error reading namelist &Poly, STOP'')'
+      stop
  71   continue
-      print '(''Namelist @InFiles NOT found'')'
+      print '(''Namelist &InFiles NOT found'')'
       goto 73
  72   continue
-      print '(''Error reading namelist @InFiles, STOP'')'
+      print '(''Error reading namelist &InFiles, STOP'')'
       stop
+
+
  73   continue
 
       chebxminlog = log(chebxmin)
@@ -247,7 +298,7 @@ C
       do i=1,NBANDS/2
        Q2VAL(i+ilastq2) = Q2VAL(i+NBANDS/2)
       enddo
-      print *,'q2val ', (q2val(i),i=1,NBANDS)
+c      print *,'q2val ', (q2val(i),i=1,NBANDS)
 
 * --- Check the consistency of the steering file
 
@@ -275,11 +326,63 @@ C
          print *,'Offset for minuit parameters is',IOFFSETCHEBSEA
       endif
 
-      if ( napplgrids .ne. 0 ) useapplg = .true.
-      if ( useapplg ) then
-        call getAPPLgrids(napplgrids)
-      endif
-
       return
       end
 
+
+      Subroutine SetPDFStyle(PDFStyle)
+C---------------------------------------
+C
+C>  Set PDF parameterisation type
+C
+C---------------------------------------
+      implicit none
+      character*(*) PDFStyle
+      include 'steering.inc'
+C---------------------------------
+      
+      if (PDFStyle.eq.'10p HERAPDF') then
+         iparam = 22
+      elseif (PDFStyle.eq.'13p HERAPDF') then
+         iparam = 229
+      elseif (PDFStyle.eq.'CTEQ') then
+         iparam = 171717
+      else
+         print *,'Unsupported PDFStyle =',PDFStyle
+         print *,'Check value in steering.txt'
+         print *,'STOP'
+         stop
+      endif
+
+      end
+
+
+      Subroutine SetChi2Style(Chi2Style)
+C---------------------------------------
+C
+C>  Set Chi2 style
+C
+C---------------------------------------
+      implicit none
+      character*(*) Chi2Style
+      include 'steering.inc'
+C---------------------------------
+
+      if (Chi2Style.eq.'HERAPDF') then
+         ICHI2 = 11
+      elseif (Chi2Style.eq.'HERAPDF Sqrt') then
+         ICHI2 = 31
+      elseif (Chi2Style.eq.'HERAPDF Linear') then
+         ICHI2 = 21
+      elseif (Chi2Style.eq.'CTEQ') then
+         ICHI2 = 2
+      elseif (Chi2Style.eq.'H12000') then
+         ICHI2 = 1        
+      else
+         print *,'Unsupported Chi2Style =',Chi2Style
+         print *,'Check value in steering.txt'
+         print *,'STOP'
+         stop
+      endif
+      
+      end
