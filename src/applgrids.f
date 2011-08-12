@@ -1,29 +1,4 @@
 c----------------------------------------------------------
-c     read ngrids applgrids from "applgrids_list.txt"
-c----------------------------------------------------------
-      subroutine getAPPLgrids(ng)
-      implicit none
-C-------------
-      integer ng, n, ig
-      integer fid
-      integer dummy
-      parameter (fid = 44)
-      character(256) grid_file
-
-      open(unit=fid,FILE='applgrids_list.txt',STATUS='unknown')
-      do ig=1,ng
-        read(fid, '(A)') grid_file
-	call appl_readgrid( dummy, grid_file//char(0) )
-      enddo
-
-      call appl_ngrids(n)
-      print *, n, ' applgrid grids have been read'
-      close(fid)
-
-      return 
-      end
-
-c----------------------------------------------------------
 c     routines that call  the pdf and alphas routines
 c     from QCDNUM
 c----------------------------------------------------------

@@ -1,4 +1,9 @@
-      program FitPDF
+      program H1Fitter 
+C--------------------------------------------------------
+C
+C> H1 PDF Fit Program
+C
+C-------------------------------------------------------
 
       implicit none
       external fcn

@@ -165,11 +165,8 @@ c        open(82,file=h1name)
      +,totusea,totdsea
       endif
 
-      if (outform.eq.0) then
-*     old "standard" writing - no structure functions!
-        write(81,810)
+      write(81,810)
      +     x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,chm,bot
-      endif
  810     format(14(2x,G12.6))
  811     format(I3,2x,23(2x,G12.6))
 
