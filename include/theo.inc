@@ -1,4 +1,4 @@
       double precision
-     & THEO(NTOT)             !> Theory predictions, filled for each iteration
+     & THEO(NTOT),THEO_MOD(NTOT)             !> Theory predictions, filled for each iteration
       
-      common/c_theo/theo
+      common/c_theo/theo,theo_mod
