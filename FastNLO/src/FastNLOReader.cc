@@ -1055,14 +1055,20 @@ void FastNLOReader::FillBlockBPDFLCsWithH1Fitter( FastNLOBlockB* B ){
      vector<double> xfx; // PDFs of all 13 partons
      xfx.resize(13);
      
+     double test[13];
+
      for(int i=0;i<NObsBin;i++){				// loop over all observation bins.
        int nxmax = B->GetNxmax(i);		
        for(int j=0;j<B->Nscalenode[0];j++){			// loop over all 'scale'-nodes. Those are nodes of Mu_f in each ObsBin.
 	 for(int k=0;k<nxmax;k++){				// loop over all 'x'-nodes where you want to determine your pdf.
 	   double xp	= B->XNode1[i][k];			// calculate x
 	   double muf	= B->ScaleNode[i][0][fScalevar][j];	// calculate muf
+	   double muf2 = muf*muf;
 
-	   fpdfxq_(&iqnset, &xp, &muf, &xfx[0], &iqnchk);
+	   fpdfxq_(&iqnset, &xp, &muf2, &xfx[0], &iqnchk);
+
+	   //	   cout << " hoho " << iqnset << " " << xp << " " << muf2 << " " << xfx[0] << " " << xfx[6] <<" "<< xfx[12] << endl;
+
 	   vector < double > buffer = CalcPDFLinearComb(xfx,xfx,B->IPDFdef1, B->IPDFdef2, B->NSubproc ); //calculate linear combinations as used in fastNLO
 	   for(int l=0;l<B->NSubproc;l++){ 
 	     B->PdfLc[i][j][k][l] = buffer[l];			// fill the pdf cache within BlockB here!

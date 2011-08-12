@@ -24,13 +24,13 @@ using namespace std;
 
 
 extern "C" {
-  int fastnloinit_(const char *s, const int *idataset);
+  int fastnloinit_(const char *s, const int *idataset, const char *thfile );
   int fastnlocalc_(const int *idataset, double *xsec);
 }
 
 map<int, FastNLOReader*> gFastNLO_array;
 
-int fastnloinit_(const char *s, const int *idataset) {
+int fastnloinit_(const char *s, const int *idataset, const char *thfile  ) {
 
   map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
   if(FastNLOIterator != gFastNLO_array.end( )) 
@@ -38,7 +38,7 @@ int fastnloinit_(const char *s, const int *idataset) {
   
   FastNLOReader* fnloreader = NULL;
   if(string(s).compare( "H1 inclusive jet 99-00 data"))
-    fnloreader = new FastNLOReader( "FastNLO/tables/fnhdesy07073incjets_10G.tab" );  
+    fnloreader = new FastNLOReader( thfile );  
   else {
     cerr << "fastnloinit did not recognize data set <" << s << ">" <<  endl;
     return 1;
@@ -50,7 +50,7 @@ int fastnloinit_(const char *s, const int *idataset) {
   fnloreader->SetScaleVariation(0);
   fnloreader->SetAlphasMz( 0.1178 );
 
-  fnloreader->FillPDFCache();   // pdf is 'external'! you always have to call FillPDFCache();
+  //fnloreader->FillPDFCache();   // pdf is 'external'! you always have to call FillPDFCache();
   
   gFastNLO_array.insert(pair<int, FastNLOReader*>(*idataset, fnloreader) );
   return 0;
@@ -59,11 +59,14 @@ int fastnloinit_(const char *s, const int *idataset) {
 
 int fastnlocalc_(const int *idataset, double *xsec) {
 
+
   map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
   if(FastNLOIterator == gFastNLO_array.end( )) 
     return 1;
 
   FastNLOReader* fnloreader = FastNLOIterator->second;
+  fnloreader->FillPDFCache();   // pdf is 'external'! you always have to call FillPDFCache();
+
   fnloreader->CalcCrossSection();
   
   vector < double > xs = fnloreader->GetXSection();
