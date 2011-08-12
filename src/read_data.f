@@ -491,7 +491,6 @@ C Stat error:
      $           SystematicType(i).ne.'ignore'.and.
      $           SystematicType(i).ne.'stat'
      $           ) then
-               print *,CompressIdx(i),npoints,SystematicType(i)
                BETA(CompressIdx(i),npoints) = syst(i)
             endif
          enddo
