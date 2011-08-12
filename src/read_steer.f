@@ -20,12 +20,12 @@ C=================================================
 
 C Define namelists:
 
-      character*32 PDFStyle, Chi2Style
+      character*32 PDFStyle, Chi2Style, HF_SCHEME
 
       real*8 Q02       ! Starting scale
       integer IOrder   ! Evolution order
 C Main steering parameters namelist
-      namelist/H1Fitter/ITheory, IOrder, Q02, HFSCHEME, PDFStyle, 
+      namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
      $     Chi2Style, LDebug, ifsttype, ASatur, LSatur
 
 
@@ -176,6 +176,12 @@ C
       open (51,file='steering.txt',status='old')
       read (51,NML=Output,END=51,ERR=52)
       close (51)
+
+C
+C Decode HFSCHEME:
+C      
+      call SetHFSCHEME(HF_SCHEME)
+
 
 C
 C Decode PDF style:
@@ -350,6 +356,34 @@ C---------------------------------
          iparam = 4
       else
          print *,'Unsupported PDFStyle =',PDFStyle
+         print *,'Check value in steering.txt'
+         print *,'STOP'
+         stop
+      endif
+
+      end
+
+
+
+      Subroutine SetHFSCHEME(HF_SCHEME)
+C---------------------------------------
+C
+C>  Set PDF parameterisation type
+C
+C---------------------------------------
+      implicit none
+      character*(*) HF_SCHEME
+      include 'steering.inc'
+C---------------------------------
+      
+      if (HF_SCHEME.eq.'ZMVFNS') then
+          HFSCHEME = 0 
+      elseif (HF_SCHEME.eq.'RT') then
+          HFSCHEME = 2
+      elseif (HF_SCHEME.eq.'RT FAST') then
+          HFSCHEME = 22 
+      else
+         print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'
          print *,'STOP'
          stop
