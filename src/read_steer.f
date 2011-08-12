@@ -33,7 +33,7 @@ C Output style namelist
       namelist/Output/DoBands, Q2VAL, OutNX, OutXRange
 
 C (Optional) MC method namelist
-      namelist/MCErrors/LTheo, LRand, ISeeDMC, StaType, SysType
+      namelist/MCErrors/LRand, ISeeDMC, StaType, SysType
  
 C (Optional) Chebyshev namelist
       namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
@@ -124,7 +124,6 @@ C  Hermes-like strange:
 
 
 C MC Errors defaults:
-      lTHEO = .false.
       lRAND = .false.
       iSEEDmc = 0
       STATYPE = 1
