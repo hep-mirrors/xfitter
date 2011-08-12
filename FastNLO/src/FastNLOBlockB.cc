@@ -3,13 +3,11 @@
 
 //  Version 0.1, 
 
-////////////////////////////////////////////////////////////////////////
-//
-// FastNLOReader
-//
-//  ... more documentation ...
-//
-//
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+//  Data storage class for 'BlockB'-variables                           //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 #include "FastNLOBlockB.h"
 
@@ -51,12 +49,12 @@ void FastNLOBlockB::ReadBlockB(istream *table){
       printf("FastNLOBlockB::Read: Cannot read from file.\n");
       return;
    }
-
+   
    int key = 0;
    *table >> key;
    if(key != tablemagicno){
-      printf("FastNLOBlockB::Read: At beginning of block found %d instead of %d.\n",key,tablemagicno);
-      return;
+     printf("FastNLOBlockB::Read: At beginning of block found %d instead of %d.\n",key,tablemagicno);
+     return;
    };
 
    *table >> IXsectUnits;
@@ -68,7 +66,7 @@ void FastNLOBlockB::ReadBlockB(istream *table){
    IContrFlag3 = 0;
    *table >> NScaleDep;
    *table >> NContrDescr;
-   //   printf("  *  inFastNLOBlockB::Read().  IDataFlag: %d, IAddMultFlag: %d, IContrFlag1: %d, IContrFlag2: %d, IContrFlag3: %d, NScaleDep: %d\n",IDataFlag,IAddMultFlag,IContrFlag1,IContrFlag2,IContrFlag3,NScaleDep );
+   //   printf("  *  FastNLOBlockB::Read().  IDataFlag: %d, IAddMultFlag: %d, IContrFlag1: %d, IContrFlag2: %d, IContrFlag3: %d, NScaleDep: %d\n",IDataFlag,IAddMultFlag,IContrFlag1,IContrFlag2,IContrFlag3,NScaleDep );
    CtrbDescript.resize(NContrDescr);
    char buffer[257];
    table->getline(buffer,256);
@@ -200,7 +198,7 @@ void FastNLOBlockB::ReadBlockB(istream *table){
       *table >> IPDFdef1;
       *table >> IPDFdef2;
       *table >> IPDFdef3;
-      //printf("  *  inFastNLOBlockB::Read(). IRef : %d, IScaleDep: %d, Nevt: %d, Npow: %d, NPDF: %d, NPDFDim: %d\n", IRef ,IScaleDep  ,Nevt  , Npow ,NPDF , NPDFDim  );
+      //printf("  *  FastNLOBlockB::Read(). IRef : %d, IScaleDep: %d, Nevt: %d, Npow: %d, NPDF: %d, NPDFDim: %d\n", IRef ,IScaleDep  ,Nevt  , Npow ,NPDF , NPDFDim  );
 
       if(IPDFdef1==0){
          for(int i=0;i<NSubproc;i++){
@@ -270,7 +268,7 @@ void FastNLOBlockB::ReadBlockB(istream *table){
          *table >> Nscalenode[i];
       }
 
-      //printf("  *  inFastNLOBlockB::Read().bins %d, NScalevar[0] %d, Nscalenode[0] %d,  NScaleDim %d  \n",fNObsBins, Nscalevar[0] , Nscalenode[0] , NScaleDim );
+      //printf("  *  FastNLOBlockB::Read().bins %d, NScalevar[0] %d, Nscalenode[0] %d,  NScaleDim %d  \n",fNObsBins, Nscalevar[0] , Nscalenode[0] , NScaleDim );
 
       ScaleFac.resize(NScaleDim);
       for(int i=0;i<NScaleDim;i++){
@@ -280,17 +278,19 @@ void FastNLOBlockB::ReadBlockB(istream *table){
          }
       }
 
-      //printf("  *  inFastNLOBlockB::Read().bins %d, NScalevar[0] %d, Nscalenode[0] %d, ScaleFac[0][0] %d,  NScaleDim %d  \n",fNObsBins, Nscalevar[0] , Nscalenode[0] , ScaleFac[0][0], NScaleDim );
+      //printf("  *  FastNLOBlockB::Read().bins %d, NScalevar[0] %d, Nscalenode[0] %d, ScaleFac[0][0] %d,  NScaleDim %d  \n",fNObsBins, Nscalevar[0] , Nscalenode[0] , ScaleFac[0][0], NScaleDim );
       ResizeTable( &ScaleNode , fNObsBins, 1 , Nscalevar[0] , Nscalenode[0] ); // should work, since NScaleDim==1, but is not yet tested for 100%
+
       int nsn = ReadTable  ( &ScaleNode , table );
-      //printf("  *  inFastNLOBlockB::Read(). Read %d lines of ScaleNode.\n",nsn);
+      //printf("  *  FastNLOBlockB::Read(). Read %d lines of ScaleNode.\n",nsn);
 
       int XmaxFromI[1] = {0};
       //printf(" &SigmaTilde  %i  %i  %i  *%i  %i\n", fNObsBins, GetTotalScalevars(), GetTotalScalenodes(), XmaxFromI[0], NSubproc);
       ResizeTable( &SigmaTilde , fNObsBins, GetTotalScalevars(), GetTotalScalenodes(), XmaxFromI, NSubproc );
+
       int nst = ReadTable  ( &SigmaTilde , table );
-      //printf("  *  inFastNLOBlockB::Read(). Read %d lines of SigmaTilde.\n",nst);
-      printf("  *  inFastNLOBlockB::Read(). Read %d lines of FNLO v2.0 tables.\n",nst+nsn);
+      //printf("  *  FastNLOBlockB::Read(). Read %d lines of SigmaTilde.\n",nst);
+      //printf(" *  FastNLOBlockB::Read(). Read %d lines of FNLO v2.0 tables.\n",nst+nsn);
 
       //printf(" &PdfLc  %i  %i  #%i  %i\n", fNObsBins, GetTotalScalenodes(), XmaxFromI[0], NSubproc);
       ResizeTable( &PdfLc , fNObsBins, GetTotalScalenodes(), XmaxFromI, NSubproc );
@@ -335,7 +335,7 @@ void FastNLOBlockB::ReadBlockB(istream *table){
         //printf(" &SigmaRef2Scales  %i  %i  %i  %i\n",fNObsBins , ScaleFactorsScale1.size(), ScaleFactorsScale2.size(), NSubproc );
         ResizeTable( &SigmaRef2Scales , fNObsBins , ScaleFactorsScale1.size(), ScaleFactorsScale2.size(), NSubproc );
         nn2 += ReadTable  ( &SigmaRef2Scales , table );
-        printf("  *  inFastNLOBlockB::Read(). Read %d lines of NScaleDep==2 Tables.\n",nn2);
+        //printf(" *  FastNLOBlockB::Read(). Read %d lines of NScaleDep==2 Tables.\n",nn2);
 
       }
 
@@ -381,7 +381,7 @@ void FastNLOBlockB::ReadBlockB(istream *table){
 
         ResizeTable( &SigmaRefMufQ2MuRMixed , fNObsBins , NSubproc );
         nn3 += ReadTable  ( &SigmaRefMufQ2MuRMixed , table );
-        printf("  *  inFastNLOBlockB::Read(). Read %d lines of NScaleDep==3 Tables.\n",nn3);
+        //printf(" *  FastNLOBlockB::Read(). Read %d lines of NScaleDep==3 Tables.\n",nn3);
 
       }
 
@@ -440,13 +440,13 @@ void FastNLOBlockB::Print(){
   if(!(IDataFlag==1) && !(IAddMultFlag==1)){ // that's the usual case
     printf(" B   IRef                          %d\n",IRef);
     printf(" B   IScaleDep                     %d\n",IScaleDep);
-    printf(" B   Nevt                          %u\n",Nevt);
-    printf(" B   Nevt                          %i\n",Nevt);
-    printf(" B   Nevt                          %d\n",Nevt);
-    printf(" B   Nevt                          %e\n",Nevt);
+    //     printf(" B   Nevt                          %u\n",Nevt);
+    //     printf(" B   Nevt                          %i\n",Nevt);
+    //     printf(" B   Nevt                          %d\n",Nevt);
+    //     printf(" B   Nevt                          %e\n",Nevt);
+    //printf(" B   Nevt                          %.4e\n",Nevt);
     printf(" B   Nevt                          %e\n",Nevt*1.);
-    printf(" B   Nevt                          %.4e\n",Nevt);
-    printf(" B   Nevt                          %.e\n",Nevt*1.);
+    printf(" B   Nevt                          %5.3e\n",Nevt*1.);
     printf(" B   Npow                          %d\n",Npow);
     printf(" B   NPDF                          %d\n",NPDF);
     if(NPDF>0){
