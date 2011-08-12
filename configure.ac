@@ -17,6 +17,7 @@ AC_F77_WRAPPERS
 #AC_FC_FREEFORM
 
 FCFLAGS="$(FCFLAGS) -ffixed-line-length-132"
+# FFLAGS="$(FFLAGS) -ffixed-line-length-132 -ffpe-trap='invalid,overflow' "
 FFLAGS="$(FFLAGS) -ffixed-line-length-132"
 
 # Checks for sources.
@@ -90,6 +91,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 # Output
 AC_CONFIG_FILES([src/Makefile
                  tools/H1FitterDrawResults/Makefile
+                 tools/MakeLHAPDF/Makefile
                  FastNLO/src/Makefile
                  Makefile])
 AC_CONFIG_SUBDIRS([minuit DY RT HS])
