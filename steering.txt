@@ -23,11 +23,11 @@
   Q02     = 1.9 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
- ! ---  HFSCHEME = 0 : ZM-VFNS (massless),
- ! ---  HFSCHEME = 2 :  Thorne-Roberts VFNS (massive)
- ! ---  HFSCHEME =22 : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'ZMVFNS' : ZM-VFNS (massless),
+ ! ---  HF_SCHEME = 'RT' :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT FAST' : Fast approximate TR VFNS scheme, usign k-factor
 
-  HFSCHEME = 2
+  HF_SCHEME = 'RT'
 
 
  ! PDF parameterisation style. Possible styles are currently available:
@@ -35,6 +35,7 @@
  !  '13p HERAPDF' -- HERAPDF-like with Buv and Bdv floated independently
  !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
  !  'CTEQ'        -- CTEQ-like parameterisation
+ !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
 
   PDFStyle = '10p HERAPDF'
 
