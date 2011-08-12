@@ -24,6 +24,8 @@
 *new joel feltesse
       double precision tuv,tdv,tub,tdb,tsea,tdel
       double precision polyvalint,polyvalint0
+      double precision para,x
+      double precision ubar,dbar,uval,dval,gluon
       integer i
 C-----------------------------------------
       kflag=0
@@ -111,7 +113,8 @@ C
      $        .or.iparam.eq.22.or.iparam.eq.225
      $        .or.iparam.eq.24) then
 
-
+cv         print*,'voica in sumrule:bdv,cdv,buv,cuv,euv'
+cv         print*, bdv,cdv,buv,cuv,euv
          
 *     -- sum rule : D - Dbar = 1   :  gives ADval         
          if (NPOLYVAL.eq.0) then
@@ -138,7 +141,8 @@ C
             Auv = 2.D0/t1
          endif
 
-         
+cv         print*,'voica in sumrule after ferm: adv,auv'
+cv         print*, adv,auv
 *     -- sum rule : x ( gluon + Sigma) = 1  :  gives Ag
          
 C
@@ -184,6 +188,10 @@ cv         print*,'debugvdbar', bDbar,cDbar,dDbar, CalcIntegral(bDbar, cDbar),Ca
      $        .or.iparam.eq.222.or.iparam.eq.229) then
             ag = 1.d0 - ( Auv * tUv + Adv * tDv
      +           + 2*(Aubar * tUb + Adbar * tDb))
+
+cv         print*,'voica in sumrule after mom: ag,auv,adv,aubar,adbar'
+cv         print*, ag,auv,adv,aubar,adbar
+
          endif
          
 *     new2,  simplification for the total sea with ipar = 3 or 4, jf
@@ -223,6 +231,40 @@ c     $        ag,tg,apg,tgmrst,bpg,cpg,tUb,tDb
          endif
          
       endif
+
+      paru(4)=du
+      pard(4)=dd
+      parglue(1)=ag
+      paruval(1)=auv
+      pardval(1)=adv
+      paru(1)=au
+      parsea(1)=asea
+      pard(1)=ad
+
+
+cv      print*,'voica...in sumrule'
+cv      print*,'Bg,Cg,Buv,Bdv,Cuv,Cdv,Duv'
+cv      print*, Bg,Cg,Buv,Bdv,pardval(2),Cuv,Cdv,Duv
+cv      print*,'fs,fch,aub,adb,bub,bdb'
+cv      print*, fstrange,fcharm,aubar,adbar,bubar,parubar(2),bdbar
+cv      print*,'....cub,cdb,apg,bpg,cpg'
+cv      print*, cubar,cdbar,apg, bpg, cpg
+         
+c      if (IDebug.eq.1) then
+cv      print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
+cv      print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
+cv      print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
+cv      print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
+cv      print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
+c      endif
+c      if (IDebug.eq.10) then
+c         do i=1,8
+c            x = 10**(-i/2.)
+c            print '(11F12.5)',x,para(x,paruval),para(x,pardval),
+c     $           para(x,parubar),para(x,pardbar),para(x,parglue)
+ccv            print '(6F12.5)',x,uval(x),dval(x),ubar(x),dbar(x),gluon(x)
+c         enddo
+c      endif
       
       
  999  continue
@@ -878,7 +920,8 @@ C      print *,'haha',sumDv,sumMom,sumGlue,sumUv
       if (IDebug.eq.10) then
          do i=1,8
             x = 10**(-i/2.)
-            print '(6F12.5)',x,ctpara(x,ctuval),ctpara(x,ctdval),ctpara(x,ctubar),ctpara(x,ctdbar),ctpara(x,ctglue)
+            print '(6F12.5)',x,ctpara(x,ctuval),ctpara(x,ctdval),
+     $           ctpara(x,ctubar),ctpara(x,ctdbar),ctpara(x,ctglue)
             print '(6F12.5)',x,uval(x),dval(x),ubar(x),dbar(x),gluon(x)
          enddo
       endif
@@ -990,5 +1033,136 @@ c      print *,'HYPG1F1: n=',n,' hpyg1f1=',hypg1f1,abnzfact,z
 
       return
       end
+
+      REAL*8 FUNCTION SSDINT(XL,F,XR)
+C-----------------------------------------------------------------------
+C     Integrate REAL*8 F over REAL*8 (XL,XR)
+C     Note quadrature constants R and W have been converted to explicit
+C     REAL*8 (.xxxxxDxx) form.
+C
+C     Bisset's XINTH
+C-----------------------------------------------------------------------
+      IMPLICIT NONE
+*KEEP,SSLUN.
+*KEND.
+      EXTERNAL F
+      INTEGER NMAX
+      REAL*8 TOLABS,TOLREL,XLIMS(200)
+      REAL*8 R(93),W(93)
+      INTEGER PTR(4),NORD(4)
+      INTEGER ICOUNT
+      REAL*8 XL,XR,F
+      REAL*8 AA,BB,TVAL,VAL,TOL
+      INTEGER NLIMS,I,J,KKK
+C
+      DATA PTR,NORD/4,10,22,46,  6,12,24,48/
+      DATA (R(KKK),KKK=1,48)/
+     + .2386191860D0,.6612093865D0,.9324695142D0,.1252334085D0,
+     + .3678314990D0,.5873179543D0,.7699026742D0,.9041172563D0,
+     + .9815606342D0,.0640568929D0,.1911188675D0,.3150426797D0,
+     + .4337935076D0,.5454214714D0,.6480936519D0,.7401241916D0,
+     + .8200019860D0,.8864155270D0,.9382745520D0,.9747285560D0,
+     + .9951872200D0,.0323801710D0,.0970046992D0,.1612223561D0,
+     + .2247637903D0,.2873624873D0,.3487558863D0,.4086864820D0,
+     + .4669029048D0,.5231609747D0,.5772247261D0,.6288673968D0,
+     + .6778723796D0,.7240341309D0,.7671590325D0,.8070662040D0,
+     + .8435882616D0,.8765720203D0,.9058791367D0,.9313866907D0,
+     + .9529877032D0,.9705915925D0,.9841245837D0,.9935301723D0,
+     + .9987710073D0,.0162767488D0,.0488129851D0,.0812974955D0/
+      DATA (R(KKK),KKK=49,93)/
+     + .1136958501D0,.1459737146D0,.1780968824D0,.2100313105D0,
+     + .2417431561D0,.2731988126D0,.3043649444D0,.3352085229D0,
+     + .3656968614D0,.3957976498D0,.4254789884D0,.4547094222D0,
+     + .4834579739D0,.5116941772D0,.5393881083D0,.5665104186D0,
+     + .5930323648D0,.6189258401D0,.6441634037D0,.6687183100D0,
+     + .6925645366D0,.7156768123D0,.7380306437D0,.7596023411D0,
+     + .7803690438D0,.8003087441D0,.8194003107D0,.8376235112D0,
+     + .8549590334D0,.8713885059D0,.8868945174D0,.9014606353D0,
+     + .9150714231D0,.9277124567D0,.9393703398D0,.9500327178D0,
+     + .9596882914D0,.9683268285D0,.9759391746D0,.9825172636D0,
+     + .9880541263D0,.9925439003D0,.9959818430D0,.9983643759D0,
+     + .9996895039/
+      DATA (W(KKK),KKK=1,48)/ .4679139346D0,.3607615730D0,
+     +.1713244924D0,.2491470458D0, .2334925365D0,.2031674267D0,
+     +.1600783285D0,.1069393260D0, .0471753364D0,.1279381953D0,
+     +.1258374563D0,.1216704729D0, .1155056681D0,.1074442701D0,
+     +.0976186521D0,.0861901615D0, .0733464814D0,.0592985849D0,
+     +.0442774388D0,.0285313886D0, .0123412298D0,.0647376968D0,
+     +.0644661644D0,.0639242386D0, .0631141923D0,.0620394232D0,
+     +.0607044392D0,.0591148397D0, .0572772921D0,.0551995037D0,
+     +.0528901894D0,.0503590356D0, .0476166585D0,.0446745609D0,
+     +.0415450829D0,.0382413511D0, .0347772226D0,.0311672278D0,
+     +.0274265097D0,.0235707608D0, .0196161605D0,.0155793157D0,
+     +.0114772346D0,.0073275539D0, .0031533461D0,.0325506145D0,
+     +.0325161187D0,.0324471637D0/
+      DATA (W(KKK),KKK=49,93)/
+     + .0323438226D0,.0322062048D0,.0320344562D0,.0318287589D0,
+     + .0315893308D0,.0313164256D0,.0310103326D0,.0306713761D0,
+     + .0302999154D0,.0298963441D0,.0294610900D0,.0289946142D0,
+     + .0284974111D0,.0279700076D0,.0274129627D0,.0268268667D0,
+     + .0262123407D0,.0255700360D0,.0249006332D0,.0242048418D0,
+     + .0234833991D0,.0227370697D0,.0219666444D0,.0211729399D0,
+     + .0203567972D0,.0195190811D0,.0186606796D0,.0177825023D0,
+     + .0168854799D0,.0159705629D0,.0150387210D0,.0140909418D0,
+     + .0131282296D0,.0121516047D0,.0111621020D0,.0101607705D0,
+     + .0091486712D0,.0081268769D0,.0070964708D0,.0060585455D0,
+     + .0050142027D0,.0039645543D0,.0029107318D0,.0018539608D0,
+     + .0007967921/
+C
+C      DATA TOLABS,TOLREL,NMAX/1.D-35,5.D-5,100/
+C      DATA TOLABS,TOLREL,NMAX/1.D-30,5.D-4,200/
+
+      DATA TOLABS,TOLREL,NMAX/1.D-15,2.D-2,100/
+
+C
+      SSDINT=0
+      NLIMS=2
+      XLIMS(1)=XL
+      XLIMS(2)=XR
+      ICOUNT=0
+C
+   10 AA=(XLIMS(NLIMS)-XLIMS(NLIMS-1))/2
+      BB=(XLIMS(NLIMS)+XLIMS(NLIMS-1))/2
+      TVAL=0
+      DO 20 I=1,3
+   20 TVAL=TVAL+W(I)*(F(BB+AA*R(I))+F(BB-AA*R(I)))
+      TVAL=TVAL*AA
+      DO 40 J=1,4
+       VAL=0
+       DO 30 I=PTR(J),PTR(J)-1+NORD(J)
+        ICOUNT=ICOUNT+1
+        IF(ICOUNT.GT.1E5) THEN
+         WRITE(1,*) 'WARNING IN SSDINT: SET SSDINT TO ZERO'
+         WRITE(6,*) 'WARNING IN SSDINT: SET SSDINT TO ZERO'
+         SSDINT=0.
+         RETURN
+        ENDIF
+   30  VAL=VAL+W(I)*(F(BB+AA*R(I))+F(BB-AA*R(I)))
+       VAL=VAL*AA
+       TOL=MAX(TOLABS,TOLREL*ABS(VAL))
+       IF(ABS(TVAL-VAL).LT.TOL) THEN
+        SSDINT=SSDINT+VAL
+        NLIMS=NLIMS-2
+        IF (NLIMS.NE.0) GO TO 10
+        RETURN
+       ENDIF
+   40 TVAL=VAL
+      IF(NMAX.EQ.2) THEN
+       SSDINT=VAL
+       RETURN
+      END IF
+      IF(NLIMS.GT.(NMAX-2)) THEN
+       WRITE(1,10000) SSDINT,NMAX,BB-AA,BB+AA
+       WRITE(6,10000) SSDINT,NMAX,BB-AA,BB+AA
+       RETURN
+      ENDIF
+      XLIMS(NLIMS+1)=BB
+      XLIMS(NLIMS+2)=BB+AA
+      XLIMS(NLIMS)=BB
+      NLIMS=NLIMS+2
+      GO TO 10
+C
+10000 FORMAT (' SSDINT FAILS, SSDINT,NMAX,XL,XR=',G15.7,I5,2G15.7)
+      END
 
       
