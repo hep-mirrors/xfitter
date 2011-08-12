@@ -239,11 +239,6 @@ C
 
       fail = .false.
 
-      if (pxmax.gt.0.0.and.x.gt.pxmax) fail = .true.
-      if (pxmin.gt.0.0.and.x.lt.pxmin) fail = .true.
-      if ( (pq2min.gt.0.0.and.q2.lt.pq2min).or.
-     &     (pq2max.gt.0.0.and.q2.gt.pq2max) )
-     & fail = .true.
 
 C 24 Aug 2010: Add saturation inspired cut
       if (q2 .lt. asatur * x**lsatur ) then
