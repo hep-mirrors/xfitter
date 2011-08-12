@@ -106,6 +106,7 @@ C Store FCN flag in a common block:
 
       do i=1,ntot
          THEO(i) = 0.d0
+         THEO_MOD(i) = 0.d0
       enddo
 
 
@@ -595,6 +596,7 @@ c                     endif
 
 
             t = t*fac
+            THEO_MOD(ipoint)=t
             chisq = (d-t)**2/error**2
             fchi2_in = fchi2_in + chisq
 
