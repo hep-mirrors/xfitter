@@ -36,14 +36,13 @@
  !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
  !  'CTEQ'        -- CTEQ-like parameterisation
 
-  PDFStyle = '10p HERAPDF'
+  PDFStyle = '13p HERAPDF'
 
  ! -- Choice of the chi2 function
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
  !    'HERAPDF' : Pascaud-like + "mixed error scaling"
  !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
- !    'CTEQ'    : CTEQ-like
 
   CHI2Style = 'HERAPDF'
 
@@ -66,7 +65,7 @@
   OUTNX = 101
 
   ! x-range of output (standard = 1E-4 1.0)
-  OUTXRANGE = 1E-6, 0.9999
+  OUTXRANGE = 1E-4, 0.9999
 &End
 
 
@@ -124,9 +123,6 @@
 &MCErrors
   ! Activate MC method for error estimation if lRand = True
   lRAND   = False
-  
-  ! --- Fit the measured data of the smeared theo, x-sections
-  lTHEO   = False
 
   ! MC method Seed
   ISeedMC = 123456 
