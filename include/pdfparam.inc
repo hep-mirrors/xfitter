@@ -4,24 +4,15 @@
 * added for negative gluon
         double precision
      +  fcharm,fstrange,
-     +  ag,bg,cg,dg,fg, apg,bpg,cpg,
+     +  ag,bg,cg,dg,eg,fg, apg,bpg,cpg,
      +  aU,bU,cU,dU,eU,fU,
-     +  aD,bD,cD,dD,fD,
+     +  aD,bD,cD,dD,eD,fD,
      +  aUbar,bUbar,cUbar,dUbar,
      +  aDbar,bDbar,cDbar,dDbar,
      +  aUv,bUv,cUv,dUv,eUv,fUv,
-     +  aDv,bDv,cDv,dDv,fDv,
+     +  aDv,bDv,cDv,dDv,eDv,fDv,
      +  Asea,Bsea,Csea,Dsea,
-     +  Adel,Bdel,Cdel
-
-C VR:  Add HT + Fudge FL parameters
-        double precision
-     +  f2ht1,f2ht2,afudge,Rfudge
- 	
-C VR:  Add CI (hayk)
-        double precision
-     +  etaull,etadll,etaulr,etadlr,
-     +  etaurr,etadrr,etaurl,etadrl
+     +  Adel,Bdel,Cdel,Ddel
 
     
 C
@@ -37,25 +28,17 @@ C Sea, for ZEUS param. only:
 
        common/pdfparam/
      +  fcharm,fstrange,
-     +  ag,bg,cg,dg,fg,apg,bpg,cpg,
+     +  ag,bg,cg,dg,eg,fg,apg,bpg,cpg,
      +  aU,bU,cU,dU,eU,fU,
-     +  aD,bD,cD,dD,fD,
+     +  aD,bD,cD,dD,eD,fD,
      +  aUbar,bUbar,cUbar,dUbar,
      +  aDbar,bDbar,cDbar,dDbar,
      +  aUv,bUv,cUv,dUv,eUv,fUv,
-     +  aDv,bDv,cDv,dDv,fDv,
+     +  aDv,bDv,cDv,dDv,eDv,fDv,
      +  Asea,Bsea,Csea,Dsea,
-     +  Adel,Bdel,Cdel,
-     +  f2ht1,f2ht2,afudge, Rfudge
+     +  Adel,Bdel,Cdel,Ddel
 
 
-C VR:  Add CI (hayk)
-	
-       common/ciparam/
-     +  etaull,etadll,etaulr,etadlr,
-     +  etaurr,etadrr,etaurl,etadrl
-
-	
 
        common/pdfcheb/chebpars,polypars,chebxminlog,
      $     chebparsSea,polyparsSea
@@ -72,6 +55,13 @@ C SG: internal order of the polynom:
        common/pdfpolyval/PolyUval,PolyDval,NPOLYVALINT
 
 C SG: Add cteq-like parameterisation
-       double precision ctuval(0:5), ctdval(0:5), ctubar(0:5), ctdbar(0:5), 
-     $      ctglue(0:5)
-       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue
+       double precision ctuval(1:6), ctdval(1:6), ctubar(1:6), ctdbar(1:6), 
+     $      ctglue(1:6),ctother(1:6)
+       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother
+
+C VR: Add standard parameterisation
+       double precision paruval(1:10), pardval(1:10), parubar(1:10), pardbar(1:10), 
+     $      parglue(1:10),paru(1:10), pard(1:10),pardel(1:10),parsea(1:10),parother(1:10)
+       common/stpar/paruval,pardval,parubar,pardbar,
+     $      parglue,paru,pard,pardel,parsea,parother
+
