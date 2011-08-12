@@ -235,15 +235,15 @@ C     standard parametrisation
       pard(1)=ad
 
 
-         
+      if (NCHEBGLU.eq.0) then         
 c      if (IDebug.eq.1) then
-      print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
-      print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
-      print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
-      print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
-      print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
+         print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
+         print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
+         print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
+         print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
+         print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
 c      endif
-      
+      endif
       
  999  continue
       return
@@ -581,6 +581,8 @@ C with(CodeGeneration);
 C Fortran(int((1-x)*sum(c[i]*(a*log(x)+1)^(i-1),i=1..30),x=0..1.0),optimize); 
 C
 C--------------------------
+
+     
       t1 = a ** 2
       t2 = t1 ** 2
       t3 = t2 ** 2
