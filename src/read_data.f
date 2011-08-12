@@ -488,7 +488,10 @@ C Stat error:
 
          do i=1,NUncert
             if (SystematicType(i).ne.'uncor' .and. 
-     $           SystematicType(i).ne.'ignore') then
+     $           SystematicType(i).ne.'ignore'.and.
+     $           SystematicType(i).ne.'stat'
+     $           ) then
+               print *,CompressIdx(i),npoints,SystematicType(i)
                BETA(CompressIdx(i),npoints) = syst(i)
             endif
          enddo
