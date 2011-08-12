@@ -225,7 +225,7 @@ C Remove duplicates:
       print *,'Info FROM QCDNUM_INI'
       print '('' Init Q2 grid with number of nodes='',i5)',NQALL      
       print '('' Q2 values at:'',20F14.2)',(Q2grid(i),i=1,NQALL)
-      print '('' Weights are :'',20F14.2)',(Q2grid(i),i=1,NQALL)
+      print '('' Weights are :'',20F14.2)',(WQgrid(i),i=1,NQALL)
       print *,' '
 
 
@@ -680,7 +680,8 @@ C------------------------------------------------------------
       include 'ntot.inc'
 c      include 'steering.inc'
       include 'datasets.inc'
-      call fastnloinit(DATASETLABEL(IDataSet),IDataSet);
+      call fastnloinit(DATASETLABEL(IDataSet),IDataSet
+     $     ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet),' ')-1)//char(0));
       end
 
 
