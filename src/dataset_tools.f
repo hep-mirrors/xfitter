@@ -106,17 +106,15 @@ C Extra DIS selection
 
       
 C Namelist variables:
-      integer NProcMax,NRulesMax
-      parameter (NProcMax  = 20)  ! Cuts for 20 process types at most
-      parameter (NRulesMax = 20)  ! For each process, at most 20 rules
-      integer NProcesses          ! actual number of processes
-      character*80 ProcessName(NProcMax)         ! names of the processes
-      integer NRules(NProcMax)    ! actual number of rules per process
-      character *80 Variable(NRulesMax,NProcMax)  ! names of variables to apply cuts
-      double precision CutValueMin(NRulesMax,NProcMax)  ! Min. value of the cut
-      double precision CutValueMax(NRulesMax,NProcMax)  ! Max. value of the cut
+      integer NRulesMax
+      parameter (NRulesMax = 100)               !> Maximum number of cut-rules
+      integer NRules                            !> actual number of rules per process
+      character*80 ProcessName(NRulesMax)       !> names of the process
+      character *80 Variable(NRulesMax)         !> names of variables to apply cuts
+      double precision CutValueMin(NRulesMax)   !> Min. value of the cut
+      double precision CutValueMax(NRulesMax)   !> Max. value of the cut
 
-      namelist  /Cuts/NProcesses, NRules,Variable,CutValueMin,CutValueMax,ProcessName
+      namelist  /Cuts/Variable,CutValueMin,CutValueMax,ProcessName
 
       integer i,j,k
 C------------------------------------------------
@@ -126,38 +124,48 @@ C------------------------------------------------
       if (LFirst) then
          LFirst = .false.
          print 
-     $ '(''First time in FailSelectionCuts. Read the cut definitions'')'
+     $'('' First time in FailSelectionCuts. Read the cut definitions'')'
+
+         do i=1,NRulesMax
+            ProcessName(i) = ' '
+            Variable(i)    = ' '
+         enddo
 
          open (52,file='steering.txt',status='old')
          read (52,NML=Cuts,END=71,ERR=72)
-         print '(''Read  cut rules for '',i5,'' processes'')',NProcesses
          close (52)
+C Count rules
+         NRules = 0
+         do i=1,NRulesMax
+            if (ProcessName(i).ne.' ') then
+               NRules = NRules + 1
+            endif
+         enddo
 
+         print '('' Read '',i3,'' cut rules'')',NRules
       endif
 
-C-- Check if the reaction is on the process list
-      do i=1,NProcesses
-         if (reaction .eq. processname(i)) then
-C-- Run over all rules, check for appropriate variable
-            do j=1,NRules(i)
-               do k=1,nbin
-                  if (Variable(j,i).eq.BinNames(k)) then
-                     if (
-     $                        bins(k).lt.CutValueMin(j,i)
-     $                    .or.bins(k).ge.CutValueMax(j,i)) then
-                        FailSelectionCuts = .true.  ! Fail Cut
-                        Return
-                     endif
-                     goto 17  ! next rule
+C-- Run over all rules, check for appropriate process/variable
+      do j=1,NRules
+         if (reaction .eq. processname(j)) then
+
+            do k=1,nbin
+               if (Variable(j).eq.BinNames(k)) then
+                  if (
+     $                 bins(k).lt.CutValueMin(j)
+     $                 .or.bins(k).ge.CutValueMax(j)) then
+                     FailSelectionCuts = .true. ! Fail Cut
+                     Return
                   endif
-               enddo
-               print 
-     $ '(''Error in FailSelectionCuts: variable '',A8,'' not found'')'
-     $              ,Variable(j,i)
-               print '(''Check reaction '',a16)', reaction
-               stop
- 17            continue
+                  goto 17       ! next rule
+               endif
             enddo
+            print 
+     $'(''Warrning in FailSelectionCuts: variable '',A8,'' not found'')'
+     $           ,Variable(j)
+            print '(''Check reaction '',a16)', reaction
+c     stop
+ 17            continue
          endif
       enddo
 
