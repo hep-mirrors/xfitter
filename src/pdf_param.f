@@ -116,7 +116,7 @@ C     Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(70+i)
+               ChebPars(i) = p(30+i)
             enddo
             call ChebToPoly
          endif
@@ -134,7 +134,7 @@ C  Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(70+i)
+               ChebPars(i) = p(30+i)
             enddo
             call ChebToPoly
          endif
@@ -159,7 +159,7 @@ C  Chebyshev param. for the gluon:
 C     
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(70+i)
+               ChebPars(i) = p(30+i)
             enddo
             call ChebToPoly
          endif
@@ -172,7 +172,7 @@ C  Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(70+i)
+               ChebPars(i) = p(30+i)
             enddo
             call ChebToPoly
          endif
@@ -186,7 +186,7 @@ C
 
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(70+i)
+               ChebPars(i) = p(30+i)
             enddo
             call ChebToPoly
          endif
@@ -213,7 +213,7 @@ C  Chebyshev param. for the gluon:
 C
          if (NCHEBGLU.gt.0) then
             do i=1,NCHEBGLU
-               ChebPars(i) = p(20+i)
+               ChebPars(i) = p(30+i)
             enddo
             call ChebToPoly
          endif
@@ -223,7 +223,7 @@ C
          if (NCHEBSea.gt.0) then
             do i=1,NCHEBSea
 C  Offset is now steering parameter (default = 70, params start from 41)
-               ChebParsSea(i) = p(70+IOFFSETCHEBSEA+i)
+               ChebParsSea(i) = p(30+IOFFSETCHEBSEA+i)
             enddo
          endif
 
