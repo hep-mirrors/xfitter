@@ -450,37 +450,37 @@ c AS applgrid example
       if (mod(ICHI2, 10).eq.1) then
 
 
-         if (.not.lTHEO) then
+
 *     ---------------------------------------------------------
 *     now calculate the bsys(nsys) and the sysa matrix
 *     ---------------------------------------------------------
 
-            do isys = 1,nsys
-
-               do 200 ipoint=1,n0_in
-
-                  d = DATEN(ipoint)
-                  t = THEO(ipoint)
-                  error = ALPHA(ipoint)
-
+         do isys = 1,nsys
+            
+            do 200 ipoint=1,n0_in
+               
+               d = DATEN(ipoint)
+               t = THEO(ipoint)
+               error = ALPHA(ipoint)
+                  
 
 ***   scale errors for chi2 calculation
 ***   in principle:  unc*(t/d),  sta*dsqrt(t/d)
-                  if (ICHI2.eq.11) then
+               if (ICHI2.eq.11) then
 ***   mixed scaling - decompose - scale - recombine
-                     errorunc = E_UNC(ipoint)*d/100.
-                     if (errorunc.gt.error) then
-                        errorsta = 0.
-                     else
-                        errorsta = dsqrt(error**2-errorunc**2)
-                     endif
-                     if (t.gt.0) then
-                        errorsta = errorsta*dsqrt(abs(t/d))
-                        errorunc = errorunc*(abs(t/d))
-                     endif
-                     error = dsqrt(errorsta**2+errorunc**2)
-
-
+                  errorunc = E_UNC(ipoint)*d/100.
+                  if (errorunc.gt.error) then
+                     errorsta = 0.
+                  else
+                     errorsta = dsqrt(error**2-errorunc**2)
+                  endif
+                  if (t.gt.0) then
+                     errorsta = errorsta*dsqrt(abs(t/d))
+                     errorunc = errorunc*(abs(t/d))
+                  endif
+                  error = dsqrt(errorsta**2+errorunc**2)
+                  
+                  
 c                    if ((h1iset.eq.101).or.(h1iset.eq.102)
 c     $                    .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
 c                        error = alpha(ipoint)
@@ -488,28 +488,28 @@ c                     endif
 
 
 
-                  else if (ICHI2.eq.21) then
+               else if (ICHI2.eq.21) then
 ***   linear scaling
-                     error = error*(abs(t/d))
-                  else if (ICHI2.eq.31) then
+                  error = error*(abs(t/d))
+               else if (ICHI2.eq.31) then
 ***   sqrt scaling
-                     error = error*dsqrt(abs(t/d))
-                  endif
+                  error = error*dsqrt(abs(t/d))
+               endif
                   
-                  bsys_in(isys) = bsys_in(isys) 
-     +                 + t*(d-t)*BETA(isys,ipoint)/error**2 
+               bsys_in(isys) = bsys_in(isys) 
+     +              + t*(d-t)*BETA(isys,ipoint)/error**2 
+               
+               ebsys_in(isys) = ebsys_in(isys)
+     +              + t * BETA(isys,ipoint)/error
+               
+               do 300 jsys=1,nsys
+                  sysa(isys,jsys) = sysa(isys,jsys)
+     +                 + beta(isys,ipoint)*beta(jsys,ipoint)*t**2/error**2
+ 300           continue
+               
+ 200        continue
 
-                  ebsys_in(isys) = ebsys_in(isys)
-     +                 + t * BETA(isys,ipoint)/error
-
-                  do 300 jsys=1,nsys
-                     sysa(isys,jsys) = sysa(isys,jsys)
-     +               + beta(isys,ipoint)*beta(jsys,ipoint)*t**2/error**2
- 300              continue
-
- 200           continue
-
-            enddo
+         enddo
 
 
 
@@ -517,35 +517,31 @@ c                     endif
 *     inverse sysa and find the shifts
 *     ---------------------------------------------------------
 
-
-            if (nsys.gt.0) then
-               CALL DINV (NSys,sysa,NSYSMAX,IR,IFAIL)
-            endif
-
-            do isys=1,nsys
-               do jsys=1,nsys
-                  rsys_in(isys) = rsys_in(isys)-sysa(isys,jsys)*bsys_in(jsys)
-               enddo
-            enddo
-
-            if (DEBUG.and.flag_in.eq.1) then
-               write(78,*)
-               do isys=1,nsys
-                  write(78,*) 'isys rsys ',isys,rsys_in(isys)
-               enddo
-               write(78,*)
-            endif
-
+         
+         if (nsys.gt.0) then
+            CALL DINV (NSys,sysa,NSYSMAX,IR,IFAIL)
          endif
+
+         do isys=1,nsys
+            do jsys=1,nsys
+               rsys_in(isys) = rsys_in(isys)-sysa(isys,jsys)*bsys_in(jsys)
+            enddo
+         enddo
+
+         if (DEBUG.and.flag_in.eq.1) then
+            write(78,*)
+            do isys=1,nsys
+               write(78,*) 'isys rsys ',isys,rsys_in(isys)
+            enddo
+            write(78,*)
+         endif
+
+
 
 
 *     ---------------------------------------------------------
 *     now calculate the chi2
 *     ---------------------------------------------------------
-
-         if (Debug) then
-            write(6,*) 'flag_in ICHI2 lTHEO',flag_in, ICHI2, lTHEO
-         endif
 
          do ipoint=1,n0_in
 
