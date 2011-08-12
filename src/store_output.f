@@ -285,17 +285,17 @@ c         write(90,*) '     q2          x        y    data     +- uncorr.err'//
 c     &        '   +-toterr      theory      pull     dataset'
 
          write (90,17) (DATASETBinNames(j,i),j=1,3),'data    '
-     $        ,' +- uncor  ',' +- tot   ',' theory   ', ' pull   ', 'iset'
- 17      format(1X,8(A11,1X),A4)
+     $        ,' +- uncor  ',' +- tot   ',' th orig   ','th mod', ' pull   ', 'iset'
+ 17      format(1X,9(A11,1X),A4)
 
          do j=1,NDATAPOINTS(i)
             index = DATASETIDX(i,j)
-            write(90,'(1X,8(e11.5,1X),i4)') 
+            write(90,'(1X,9(e11.5,1X),i4)') 
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),AbstractBins(3,index),
      &           DATEN(index),ALPHA(index),
-     &           E_TOT(index)/100.*DATEN(index),THEO(index),
-     &           (DATEN(index)-THEO(index))/ALPHA(index),
+     &           E_TOT(index)/100.*DATEN(index),THEO(index), THEO_MOD(index),
+     &           (DATEN(index)-THEO_MOD(index))/ALPHA(index),
      &           DATASETNUMBER(i)
 cv
 c            write(44,111) VQ2(index),VX(index), f2sh(index),flsh(index),
