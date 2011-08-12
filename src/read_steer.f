@@ -346,6 +346,8 @@ C---------------------------------
          iparam = 229
       elseif (PDFStyle.eq.'CTEQ') then
          iparam = 171717
+      elseif (PDFStyle.eq.'CHEB') then
+         iparam = 4
       else
          print *,'Unsupported PDFStyle =',PDFStyle
          print *,'Check value in steering.txt'
