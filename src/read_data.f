@@ -58,9 +58,7 @@
 *     ------------------------------------------------
 
       NSYS = 0
-      ONLINE = lONLINE
       DEBUG  = lDEBUG
-      FIRST = lFIRST
       GNORM = .true.
 
 
@@ -91,41 +89,11 @@
 C-----------------------------------------
       print*,'number of points', npoints
 
-
-
-C
-C MINUIT PARAMETERS FOR NORMALISATIONS !!!!!!!
-C
-
-
-*     ------------------------------------------------------------------
-*     -- with this the normalisations are minuit parameters instead...
-
-      if (lNORMA) then
-
-         do jsys=1,nsysMax
-            do k=1,npoints
-               if (jsys.eq.1.or.jsys.eq.7.or.jsys.eq.8.or.
-     +              jsys.eq.14.or.jsys.eq.18.or.jsys.eq.19.or.
-     +              jsys.eq.25.or.jsys.eq.26.or.jsys.eq.27) then
-                  beta(jsys,k) = 0.d0
-               endif
-            enddo
-         enddo
-
-      endif
-*     ------------------------------------------------------------------
-
-
-
-
       do i=1,nsysMax
          do k=1,npoints
             beta(i,k) = beta(i,k) / 100.
-            if (.not.lCORR) beta(i,k)=0.d0
          enddo
       enddo
-
 
       do i=1,npoints
          ALPHA(i) = ALPHA(i) / 100.
@@ -148,7 +116,7 @@ C Dump beta,alpha matricies
 C
          open (61,file='beta.dat',status='unknown')
          do k=1,npoints
-            write (61,'(I5,500(F6.2))') (k,Beta(i,k)*100.0,i=1,NSYSMAX)
+            write (61,'(I5,500(F6.2))') k,(Beta(i,k)*100.0,i=1,NSYSMAX)
          enddo
          close(61)
       endif
