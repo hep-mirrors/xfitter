@@ -1,3 +1,2 @@
-CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-      real*4 ALPHAS               !>  ALPHA_S (why real*4 ???)        
+      double precision ALPHAS               !>  ALPHA_S 
       common/C_ALPHAs/ALPHAS
