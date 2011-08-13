@@ -81,7 +81,14 @@ if test -z "$PDFLATEX"; then
   AC_MSG_WARN([Unable to create PDF version of the user manual.])
 fi
 
+# Check for presence of pdfLaTeX
+AC_CHECK_PROG(BIBTEX, bibtex, bibtex)
+if test -z "$BIBTEX"; then
+  AC_MSG_WARN([Unable to create PDF version of the user manual.])
+fi
+
 AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
+AM_CONDITIONAL([HAVE_BIBTEX], test -n "$BIBTEX")
 
 # DOXYGEN SUPPORT
 
