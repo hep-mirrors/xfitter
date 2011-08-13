@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = minuit  DY RT HS tools/H1FitterDrawResults \
-          tools/MakeLHAPDF FastNLO/src src 
+          tools/MakeLHAPDF FastNLO/src src doc/tex
 
 # DOXYGEN SUPPORT
 include $(top_srcdir)/aminclude.am

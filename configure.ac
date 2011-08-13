@@ -17,7 +17,7 @@ AC_F77_WRAPPERS
 #AC_FC_FREEFORM
 
 FCFLAGS="$(FCFLAGS) -ffixed-line-length-132"
-# FFLAGS="$(FFLAGS) -ffixed-line-length-132 -ffpe-trap='invalid,overflow' "
+# FFLAGS="$(FFLAGS) -ffixed-line-length-132 -ffpe-trap='invalid,overflow' -fbounds-check -g"
 FFLAGS="$(FFLAGS) -ffixed-line-length-132"
 
 # Checks for sources.
@@ -75,6 +75,14 @@ fi
 
 #AC_F77_LIBRARY_LDFLAGS
 
+# Check for presence of pdfLaTeX
+AC_CHECK_PROG(PDFLATEX, pdflatex, pdflatex)
+if test -z "$PDFLATEX"; then
+  AC_MSG_WARN([Unable to create PDF version of the user manual.])
+fi
+
+AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
+
 # DOXYGEN SUPPORT
 
 DX_HTML_FEATURE(ON)
@@ -93,6 +101,7 @@ AC_CONFIG_FILES([src/Makefile
                  tools/H1FitterDrawResults/Makefile
                  tools/MakeLHAPDF/Makefile
                  FastNLO/src/Makefile
+                 doc/tex/Makefile
                  Makefile])
 AC_CONFIG_SUBDIRS([minuit DY RT HS])
 AC_OUTPUT
