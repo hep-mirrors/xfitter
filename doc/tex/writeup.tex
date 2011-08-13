@@ -1,4 +1,6 @@
-\documentstyle[11pt]{article}
+\documentclass[11pt,a4paper]{article}
+
+\bibliographystyle{alpha}
 
 \newcommand\fitter{ \mbox{\tt H1 Fitter} }
 \title{\fitter\ - PDF Fitting package}
@@ -9,12 +11,21 @@
 \end{abstract}
 \tableofcontents
 \section{Introduction}
-\section{Installation} 
+This manual provides a short description of the \fitter\ program which can be used to determine unpolarised parton density functions (PDFs) using deep inelastic
+scattering (DIS) data and other processes. The program uses DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs}
+ evolution 
+equations as implemented in the QCDNUM~\cite{qcdnum} program to evolve PDFs
+from the starting scale $Q^2$.  For the DIS processes, the inclusive structure
+functions are calculated using variable flavour number scheme ...
+%\section{Theoretical Input}
+\section{PDF parameterisation}
+\section{$\chi^2$ Definition}
+\section{Program Installation Instructions} 
 \subsection{Pre-requirements}
 
 The following packages are needed in order to build \fitter\ package:
 \begin{itemize}
-\item QCDNUM version at least {\tt qcdnum-17-00/04}, can be found at \\
+\item QCDNUM~\cite{qcdnum} version at least {\tt qcdnum-17-00/04}, can be found at \\
   {\tt http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html}
 \item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use {\tt /afs/} installation from CERN:
   {\tt /afs/cern.ch/sw/lcg/external/cernlib/}
@@ -26,7 +37,8 @@ The \fitter\ program has been tested on various platforms:
 \subsection{Installation without {\tt APPLGRID}}
 \begin{itemize}
 \item
- Specify {\tt CERN\_ROOT} and {QCDNUM\_ROOT} variables such that 
+ Specify {\tt CERN\_ROOT} 
+     and {\tt QCDNUM\_ROOT} variables such that 
      {\tt \$CERN\_ROOT/lib}  and {\tt \$QCDNUM\_ROOT/lib}
  point to the corresponding libraries
 \item Run:
@@ -175,7 +187,7 @@ Details about data file format can be found in section~\ref{sec:dataformat}.
   the {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
   or later.
 
-
+\bibliography{writeup.bib}
 
 \appendix
 \section{Data file format}
