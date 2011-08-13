@@ -7,6 +7,7 @@
 \maketitle
 \begin{abstract}
 \end{abstract}
+\tableofcontents
 \section{Introduction}
 \section{Installation} 
 \subsection{Pre-requirements}
@@ -66,7 +67,7 @@ file should be installed
 \end{verbatim}
 \end{itemize}
 
-\section{Short Writeup}
+\section{Short Program Manual}
 \subsection{Steering files}
     The software behaviour is controlled by two files with steering commands.
     These files have predefined names:
@@ -104,9 +105,9 @@ To include more files:
 \end{itemize}
 Details about data file format can be found in section~\ref{sec:dataformat}.
 
-\section{{\tt Minuit} steering cards}
+\subsection{{\tt Minuit} steering cards}
 
-\section{Selection of the data}
+\subsection{Selection of the data}
   The namelist \&Cuts, located inside the {\tt steering.txt} file can be used to apply
   simple process dependent cuts. The cuts are limitted to bin variables.
   Simple low and high limits are allowed. For example, a cut on $Q^2>3.5$~GeV$^2$ for
@@ -122,7 +123,7 @@ Details about data file format can be found in section~\ref{sec:dataformat}.
 
   Maximum 100 cuts can be used by default.
 
-\section{Understanding the output}
+\subsection{Understanding the output}
   The results of the minimization are printed to the standard output and written
   to the files in the {\tt output/} directory. 
 
@@ -257,7 +258,7 @@ Details about data file format can be found in section~\ref{sec:dataformat}.
                       The numbering of uncertainties starts from the first column
                       with the ColumnType 'Error'. For example, setting 
 \begin{verbatim}
-                           SystScale(1) = 2.  
+                  SystScale(1) = 2.  
 \end{verbatim}
                       in {\tt datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat} would scale stat. 
                       uncertainty by factor of two.                       
@@ -283,5 +284,44 @@ Details about data file format can be found in section~\ref{sec:dataformat}.
       \item {\tt KFactorNames} --- (array of strings) For kfactor files, names of columns in 
                      {\tt TheoryInfoFile}.
 \end{itemize}
+\section{{\tt \&H1Fitter} namelist format}
+
+\begin{itemize}
+  \item {\tt ITheory} --- (integer) Currently only QCDNUM standard evolution
+     is implemented for which {\tt ITheory} is set to 0.
+  \item {\tt IOrder} --- (integer) For {\tt ITheory} =0 (collinear factorisation) : 
+        LO fit (1) or NLO (2) or NNLO (3) 
+  \item {\tt Q02} --- (float) Evolution starting scale.
+  \item {\tt HF\_SCHEME} --- Specify heavy quark flavour treatment for neutral
+ current $ep$ process. The following schemes are implemented: 
+    \begin{itemize}
+      \item {\tt 'ZMVFNS'}: Zero Mass Variable Flavour Number Scheme, as implemented
+ in {\tt QCDNUM}.
+      \item {\tt 'RT'}: Thorne-Roberts VFN scheme for $F_2^{\gamma}$. 
+      \item {\tt 'RT FAST'}: Fast approximate RT VFN scheme using k-factor 
+with respect ot QCDNUM ZMVFNS, calculated at the first iteration.
+    \end{itemize}
+\item {\tt PDFStyle} --- (string) PDF parameterisation style. Possible styles are currently available:
+   \begin{itemize}
+  \item{\tt '10p HERAPDF'} -- HERAPDF-like with an extra assumption 
+                                 $B_{u_v} = B_{d_v}$;
+  \item{\tt '13p HERAPDF'} -- HERAPDF-like with $B_{u_v}$ and $B_{d_v}$ 
+                          floated independently;
+  \item{\tt '10p H12000'}  -- H12000-like with independent PDFs being the
+               $D,U,\bar{D},\bar{U}$ quarks and gluon.
+  \item{\tt 'CTEQ'}        -- CTEQ-like parameterisation.
+  \item{\tt 'CHEB'}        -- CHEBYSHEV parameterisation based on 
+         gluon,sea, $u_{v}$, $d_{v}$ independent pdfs.
+ \end{itemize}
+\item {\tt CHI2Style}  --- (string) choice of the $\chi^2$ function:
+   \begin{itemize}
+   \item {\tt 'H12000'} -- Pascaud-like, systematic shifts to theory, no scaling of statistical, uncorrelated errors.
+   \item {\tt 'HERAPDF'} -- Pascaud-like + "mixed error scaling"
+   \item {\tt 'HERAPDF Sqrt'}   -- Pascaud-like + "sqrt error scaling"
+   \item {\tt 'HERAPDF Linear'} -- Pascaud-like + "linear error scaling"
+ \end{itemize}
+  \item {\tt LDEBUG}  --- (logical) debug flag.
+\end{itemize}
+
 \end{document}
 
