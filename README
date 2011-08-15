@@ -47,11 +47,12 @@
      $CERN_ROOT/lib  and $QCDNUM_ROOT/lib point to the corresponding libraries
 
      Install APPLGRID version 1.1.6 or later. Description can be found at
-     
+         http://projects.hepforge.org/applgrid/
+
   b) Run:
 
     autoreconf --install
-    ./configure
+    ./configure --enable-applgrid
     make 
     make install
 
