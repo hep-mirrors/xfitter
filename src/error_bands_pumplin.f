@@ -18,8 +18,8 @@
       dimension a(MNI)
 
       integer i,j,npar,idx,idx2,kflag
-      character*25 name,name2
-      character*20 base,base2
+      character*48 name,name2
+      character*48 base,base2
       character tag(14)*3
       data (tag(i),i=1,14) /'s01','s02','s03','s04','s05',
      +     's06','s07','s08','s09','s10',
@@ -82,10 +82,10 @@ C
   
          jext = iexint(j)
 
-         base = 'pdfs_q2val_'//tag(j)
+         base = 'output/pdfs_q2val_'//tag(j)
          idx = index(base,' ')-1
          
-         base2 = 'pdfs_'//tag(j)
+         base2 = 'output/pdfs_'//tag(j)
          idx2  = index(base2,' ')-1
 
          do sign=-1,1,2
@@ -261,7 +261,7 @@ C
             call SumRules(kflag)
             call Evolution
 
-            print *,name2
+C            print *,name2
             open (76,file=name2,status='unknown')
             call store_pdfs(name)
             close (76)

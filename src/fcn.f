@@ -350,6 +350,8 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
 
        if (ITheory.ne.2) then
           call Evolution
+C LHAPDF output:
+          open (76,file='output/lhapdf.block.txt',status='unknown')
           call store_pdfs(base_pdfname)
        endif
 

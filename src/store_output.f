@@ -30,9 +30,9 @@
       double precision xnu, xrho, Qsimple      
       double precision F123(3)
 
-      character*25 name
-      character*25 h1name
-      character*25 base
+      character*48 name
+      character*48 h1name
+      character*(*) base
       character*25 fsfc
       character*25 namefsfc
 
@@ -214,7 +214,6 @@ cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot
 
 C Prepare LHAPDF output
 
-      open (76,file='output/lhapdf.block.txt',status='unknown')
 
       do iq2=1,23
          write (76,'(7E12.4)') (q2valpdf((iq2-1)*7+j),j=0,6)
