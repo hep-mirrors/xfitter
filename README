@@ -223,6 +223,100 @@
   d) Minuit cards
 --------------------------
 
+  The minuit card contains the list of parameters used in the fits.
+  The default card (minuit.in.txt) located in the trunk is linked to the 
+  STANDARD PARAMETRISATION form as used for HERAPDF1.0 (10 free parameters).
+  	
+
+  STANDARD PARAMETRISATION has the form: 
+  A * x**B * (1 - x)**C * (1 + D *x + E * x**2 + F * x**3) - Ap * x**Bp * (1 - x)**Cp   
+
+
+  and it parametrises the following PDFs: 
+  uval, dval, Ubar(=ubar+cbar), Dbar(=dbar+sbar), gluon
+ 
+
+ Other options for minuit cards are stored in the input_steering/: 
+	- CTEQ minuit card
+	- CHEBYSHEV minuit card: uval, dval, Sea(=Ubar+Dbar), gluon
+	- H1PDF200 : U,D,Ubar,Dbar
+
+  The following options can be selected from the steering.ttx  with a predefined string:
+	
+  PDFStyle = '10p HERAPDF'
+
+ ! PDF parameterisation style. Possible styles are currently available:
+ !  '10p HERAPDF' -- HERAPDF-like with extra assumption Buv = Bdv
+ !  '13p HERAPDF' -- HERAPDF-like with Buv and Bdv floated independently
+ !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
+ !  'CTEQ'        -- CTEQ-like parameterisation
+ !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
+
+IMPORTANT:
+   Make sure that choosen minuit.in.txt corresponds to your selection in the steering.txt
+
+
+Explanation of the minuit.in.txt format:  
+
+
+set title
+new  13p HERAPDF
+parameters
+   1    'Ag'                       0.0000      0.
+   2    'Bg'                      -0.226958    1.126400e-03
+.....
+
+-  The first 3 lines set title and announces MINUIT the list of parameters	
+-  The index of parameters is the first column and it is hardwired to the source code.
+
+1 -10 gluon parameters     
+11-20 uval  parameters
+21-30 dval  parameters
+31-40 Ubar  parameters
+41-50 Dbar  parameters
+51-60 U     parameters
+61-70 D     parameters
+71-80 Sea   parameters
+81-90 Delta parameters
+91-100 other parameters: alphas (95), fs=Dbar/str (96), fc=Ubar/ch (97)
+
+
+- second column represents just user defined names 
+- third column: input value for the parameter
+- forth column: step size  (usually chosen of the same order as of the error)
+	IMPORTANT:
+	-> if step size value is 0. then this parameter is FIXED
+- fifth colum: lower boundary of the fit parameter
+- sixth column: upper boundary of the fit parameter
+	-> if boundaries are not mentioned then there are no boundaries!
+
+
+Only parameters that have the step size non-zero are let to vary in the fit (free parameters)
+Another way to fix the parameters is simply by typing at the end of the 
+list of parameters (make sure there is one line free between):
+
+FIX 96 --> this one fixes parameter 96
+
+Commands taken by minuit:
+call fcn 3  ->  fit is not performed, only 1 iteration, useful for testing
+		Minuit parameters ARE NOT minimized
+
+migrad 	     -> fit is performed (default number of calls 2000).
+migrad 20000 -> fit is performed up to 20000 calls, then terminates.
+hesse	     -> hessian estimate of the MINUIT parameters (more reliable than MINUIT)
+
+
+
+- The output of the fit is stored in the output/ directory: minuit.out.txt
+
+  Statements to watch in minuit.out.txt:
+  FCN=   588.64     -> this is total chisquare
+  FROM MIGRAD   STATUS=CONVERGED  -> this is desirable for a fit that converged
+  FCN=   588.64     FROM HESSE     STATUS=OK  --> this is desirable for a fit that converged 
+ 						  and errors estimated with HESSE method
+  EDM=  0.12E-04    STRATEGY= 1      ERROR MATRIX ACCURATE 
+
+
 
   e) Applying cuts
 --------------------------
