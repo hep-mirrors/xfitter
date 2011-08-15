@@ -23,9 +23,11 @@ class  H1FitterOutput {
 
  private:    
   TString* fDirectory;
-  static const Int_t fNpdfs=11;
-  static const Int_t fNpoints=100;
+  static const Int_t fNpdfs = 11;      
+  Int_t fNpoints;                    // Number of x-points 
+  Int_t fNQ2Files;                  // Number of Q2 files
   TObjArray* fPdfs[fNpdfs];
+  Double_t   fQ2Value[100];         // up to 100 files
   TH1F*      fPull;
   
   Int_t fNDataSets;
@@ -40,6 +42,12 @@ class  H1FitterOutput {
    Int_t GetNsets();
    DataSet* GetSet(Int_t i) {return fDataSets[i];}
    inline TH1F* GetPull() {return fPull;}
+   
+   // Return number of Q2 files
+   const Int_t GetNQ2Files() { return fNQ2Files;}
+   // Return Q2 value for a given file
+   const Double_t GetQ2Value(Int_t iQ2bin);
+
  private:
    Int_t PrepareDataSets();
    Int_t PreparePdf();

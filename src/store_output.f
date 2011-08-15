@@ -69,93 +69,95 @@ c      open (83,file=namefsfc)
 c      write(83,*) 'iparam,q2,strange,Dbar,fs,charm,Ubar,fc'
       do 999 iq2=1,NBANDS
 cv         print*,'voicaaaaa', iq2, q2val(iq2), nbands
-      q2 = Q2VAL(iq2)
-      if (q2.lt.0) goto 999
-      nf = 5.
-      if (q2.lt.qb) nf=4.
-      if (q2.lt.qc) nf=3.
-      
-      if (idx.gt.0) then
-        name =base(1:idx)//tag(iq2)//'.txt'
-        h1name = base(1:idx)//tag(iq2)//'.txt'
-      else
-        name =base//tag(iq2)//'.txt'
-        h1name = base//tag(iq2)//'.txt'
-      endif
-        open(81,file=name)
-c        open(82,file=h1name)
-
-        totstr=  0.d0
-        totDbar= 0.d0
-        totcha = 0.d0
-        totUbar = 0.d0
-        totusea = 0.d0
-        totdsea = 0.d0
-        afs_ud = 0.d0
-        afs = 0.d0
-        afc = 0.d0
-
-      delx = 0.d0
-      x = 1.d0
-
-      do ix=1,outnx
-         xbelow = x
-         x = log(outxrange(1)) + (log(outxrange(2))-log(outxrange(1)))
-     $        * (ix-1.d0)/(outnx-1.d0)
-         x = dexp(x)
-* for integral calculation
-         if(ix.gt.1) then
-            delx = x - xbelow
-         endif
-         call fpdfxq(1,x,q2,pdf ,0)
-
-
-         gval=pdf(0)
-
-
-         U=pdf(2)+pdf(-4)
-         if (q2.gt.qb) then
-            D=pdf(1)+pdf(-3)+pdf(-5)
-         else
-            D=pdf(1)+pdf(-3)
-         endif
+         q2 = Q2VAL(iq2)
+         if (q2.lt.0) goto 999
+         nf = 5.
+         if (q2.lt.qb) nf=4.
+         if (q2.lt.qc) nf=3.
          
-         umin=pdf(2)-pdf(-2)
-         dmin=pdf(1)-pdf(-1)
-         d_Ubar=pdf(-2)+pdf(-4)
-     
-         if (q2.gt.qb) then
-            d_Dbar=pdf(-1)+pdf(-3)+pdf(-5)
+         if (idx.gt.0) then
+            name =base(1:idx)//tag(iq2)//'.txt'
+            h1name = base(1:idx)//tag(iq2)//'.txt'
          else
-            d_Dbar=pdf(-1)+pdf(-3)
+            name =base//tag(iq2)//'.txt'
+            h1name = base//tag(iq2)//'.txt'
          endif
+         open(81,file=name)
+c        open(82,file=h1name)
+         ! Write basic info on the table:
+         write (81,*) q2val(iq2),outnx, outxrange(1), outxrange(2)
 
-         sea=d_Ubar+d_Dbar
+         totstr=  0.d0
+         totDbar= 0.d0
+         totcha = 0.d0
+         totUbar = 0.d0
+         totusea = 0.d0
+         totdsea = 0.d0
+         afs_ud = 0.d0
+         afs = 0.d0
+         afc = 0.d0
+
+         delx = 0.d0
+         x = 1.d0
+
+         do ix=1,outnx
+            xbelow = x
+            x = log(outxrange(1)) + (log(outxrange(2))-log(outxrange(1)))
+     $           * (ix-1.d0)/(outnx-1.d0)
+            x = dexp(x)
+*     for integral calculation
+            if(ix.gt.1) then
+               delx = x - xbelow
+            endif
+            call fpdfxq(1,x,q2,pdf ,0)
+
+
+            gval=pdf(0)
+
+
+            U=pdf(2)+pdf(-4)
+            if (q2.gt.qb) then
+               D=pdf(1)+pdf(-3)+pdf(-5)
+            else
+               D=pdf(1)+pdf(-3)
+            endif
+         
+            umin=pdf(2)-pdf(-2)
+            dmin=pdf(1)-pdf(-1)
+            d_Ubar=pdf(-2)+pdf(-4)
+     
+            if (q2.gt.qb) then
+               d_Dbar=pdf(-1)+pdf(-3)+pdf(-5)
+            else
+               d_Dbar=pdf(-1)+pdf(-3)
+            endif
+
+            sea=d_Ubar+d_Dbar
 
 *      DbmUb=d_Dbar-d_Ubar
-         u_sea=pdf(-2)
-         d_sea=pdf(-1)
-         str=pdf(-3)
+            u_sea=pdf(-2)
+            d_sea=pdf(-1)
+            str=pdf(-3)
 
-         chm = 0.0d0
-         if (q2.gt.qc) then
-            chm=pdf(-4)
-         endif
+            chm = 0.0d0
+            if (q2.gt.qc) then
+               chm=pdf(-4)
+            endif
       
-         bot = 0.d0
-         if (q2.gt.qb) then
-            bot=pdf(-5)
-         endif
+            bot = 0.d0
+            if (q2.gt.qb) then
+               bot=pdf(-5)
+            endif
 
 
 
 * integral calculation to estimate fs and fc
-      totstr = totstr + str*delx
-      totDbar = totDbar + d_Dbar*delx
-      totcha = totcha + chm*delx
-      totUbar = totUbar +d_Ubar*delx
-      totusea = totusea + u_sea*delx
-      totdsea = totdsea + d_sea*delx
+            totstr = totstr + str*delx
+            totDbar = totDbar + d_Dbar*delx
+            totcha = totcha + chm*delx
+            totUbar = totUbar +d_Ubar*delx
+            totusea = totusea + u_sea*delx
+            totdsea = totdsea + d_sea*delx
 c      if(q2.le.6.) then
 c      if(ix.eq.1) then
 c       write(83,*) 'ix,x,q2,totstr,totDbar,totcha,totUbar,
@@ -165,13 +167,13 @@ c      write(83,*) ix,x,q2,totstr,totDbar,totcha,totUbar
 c     +,totusea,totdsea
 c      endif
 
-      write(81,810)
-     +     x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,chm,bot
- 810     format(14(2x,G12.6))
- 811     format(I3,2x,23(2x,G12.6))
+            write(81,810)
+     +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,chm,bot
+ 810        format(14(2x,G12.6))
+ 811        format(I3,2x,23(2x,G12.6))
 
 
-      enddo
+         enddo
 * special
 c     if(q2.le.6.) then
 c      afs = totstr/totDbar
@@ -182,10 +184,10 @@ c      write(83,*) totusea,totdsea,afs_ud
 c      endif
 * end special
 
-      close(81)
+         close(81)
 c      close(82)
       
-999   continue
+ 999  continue
 
 
 c      close(83)

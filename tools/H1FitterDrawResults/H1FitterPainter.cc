@@ -12,7 +12,6 @@ H1FitterPainter::H1FitterPainter(){
   fPsFileName = new TString("DrawResults.ps");
   gROOT->SetStyle("Plain");
   cout << endl;
-  cout << "TO DO: pdfs_q2val_*.txt should provide the information about Q2"<<endl;
   cout << "TO DO: in fittedresults.txt q2 and x for sets 61-64 are switched"<<endl;
   fColor = kRed;
   fColorRef = kBlue;
@@ -49,8 +48,14 @@ Int_t H1FitterPainter::Prepare() {
 
 Int_t H1FitterPainter::Draw() {
   this->Prepare();
-  for(Int_t i=0; i<5; i++)
+
+  // Get number of Q2 files:
+  Int_t NQ2Files = fH1FitterOutput->GetNQ2Files();
+
+  for(Int_t i=0; i<NQ2Files; i++) {
     this->DrawPDF(i);
+  }
+  
   this->DrawPull();
   
   Int_t NRefDataSets = 0;
@@ -104,12 +109,14 @@ Int_t H1FitterPainter::DrawPDF(Int_t ival) {
   TPaveLabel* Q2Label = new TPaveLabel(0.7, 0.08, 1.0, 0.16, "","NDC"); TrashBin->AddLast(Q2Label);
   Q2Label->SetBorderSize(1); Q2Label->SetFillColor(kWhite); Q2Label->SetBorderSize(0);
 
-  if(ival==0) Q2Label->SetLabel("Q^{2} = 1.9 GeV^{2}");  // THIS SHOULD BE AUTOMATIC!!!
-  if(ival==1) Q2Label->SetLabel("Q^{2} = 4.0 GeV^{2}");
-  if(ival==2) Q2Label->SetLabel("Q^{2} = 10. GeV^{2}");
-  if(ival==3) Q2Label->SetLabel("Q^{2} = 100. GeV^{2}");
-  if(ival==4) Q2Label->SetLabel("Q^{2} = 6464 GeV^{2}");
-  if(ival==5) Q2Label->SetLabel("Q^{2} = 8317 GeV^{2}");
+  // Q2 value of the bin:
+  Double_t fQ2val = fH1FitterOutput->GetQ2Value(ival);
+
+  // Label:
+  char label[32]; 
+  sprintf (label,"Q^2 = %12.2f GeV^2",fQ2val);
+  Q2Label->SetLabel(label);
+
 
   TCanvas* can = new TCanvas("can","can",600, 400);
   can->Divide(3,2);
