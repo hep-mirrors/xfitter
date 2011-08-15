@@ -61,7 +61,6 @@ Int_t H1FitterOutput::PreparePdf() {
     
     fNQ2Files++;
 
-    cout << "nx=" << nx << " q2=" << fQ2Value[iq2]<< endl;
     fNpoints = nx;
 
     for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++)
@@ -92,7 +91,6 @@ TGraph* H1FitterOutput::GetPdf(H1FitterOutput::pdf ipdf, Int_t Q2bin) {
   if(ipdf >= fNpdfs) {cout << "GetPdf, wrong ipdf: "<< ipdf << endl; exit(1);}
   if(Q2bin >= fPdfs[ipdf]->GetEntries()) {cout << "GetPdf, wrong iq2: "<< Q2bin << endl; exit(1);}
 
-  cout << "ha" << ipdf << " " << Q2bin << endl;
   return ((TGraph*)fPdfs[ipdf]->At(Q2bin));
 }
 
