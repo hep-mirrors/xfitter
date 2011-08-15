@@ -38,7 +38,7 @@
 
   c) Run a check
 
-    bin/FitPDF < steering.txt
+    bin/FitPDF 
 
 1B) INSTALLATION (with APPLGRID)
 =================================
