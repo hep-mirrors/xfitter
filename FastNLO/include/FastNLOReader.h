@@ -52,9 +52,9 @@ public:
       kQuadraticMean		= 3,
       kQuadraticSumOver4	= 4,
       kLinearMean		= 5,
-      kLinearSum		= 5,
-      kScaleMax			= 6,
-      kScaleMin			= 7
+      kLinearSum		= 6,
+      kScaleMax			= 7,
+      kScaleMin			= 8
    };
 
    enum EPDFInterface {
