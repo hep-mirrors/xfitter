@@ -10,13 +10,20 @@
 #ifndef FASTNLOREADER
 #define FASTNLOREADER
 
+
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
+//  FastNLOReader                                                       //
 //                                                                      //
 //  FastNLOReader is a standalone code for reading                      //
 //  FastNLO tables of version 2.0 for DIS processes                     //
 //  It is also optimized for an integration into                        //
 //  the H1Fitter project.                                               //
+//                                                                      //
+//  FastNLO is developed by                                             //
+//    D. Britzger, T. Kluge, K. Rabbertz, F. Stober, M. Wobisch         //
+//    (publication in preparation)                                      //
+//    http://projects.hepforge.org/fastnlo                              //
 //                                                                      //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
@@ -140,9 +147,6 @@ protected:
    // v2.0
    vector < double > XSection_LO;
    vector < double > XSection;
-   // v2.0 with two scales
-   vector < double > XSection2Scales_LO;
-   vector < double > XSection2Scales;
    // v2.0+ MuVar
    vector < double > XSectionMuVar_LO;
    vector < double > XSectionMuVar;
@@ -152,8 +156,6 @@ protected:
    // ----  reference tables ---- //
    // v2.0
    vector < double > XSectionRef;
-   // v2.0 with two scales
-   vector < double > XSection2ScalesRef;
    // v2.0+ MuVar
    //vector < double > XSectionMuVarRef;
    vector < double > XSectionRefMixed;
@@ -202,6 +204,7 @@ private:
 public:
    FastNLOReader(void);
    FastNLOReader(string filename);
+   ~FastNLOReader(void);
 
    void SetFilename(string filename) ;
    void InitScalevariation();
