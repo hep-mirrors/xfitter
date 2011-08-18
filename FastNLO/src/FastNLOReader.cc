@@ -15,6 +15,11 @@
 //  It is also optimized for an integration into                        //
 //  the H1Fitter project.                                               //
 //                                                                      //
+//  FastNLO is developed by                                             //
+//    D. Britzger, T. Kluge, K. Rabbertz, F. Stober, M. Wobisch         //
+//    (publication in preparation)                                      //
+//    http://projects.hepforge.org/fastnlo                              //
+//                                                                      //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +35,6 @@
 
 using namespace std;
 
-//ClassImp(FastNLOReader)
 
 //______________________________________________________________________________
 
@@ -47,18 +51,37 @@ extern "C"{
 
 FastNLOReader::FastNLOReader(void)
 {
-  //
-  // do not call the standard constructor
-  // 
-  cout << "FastNLOReader::FastNLOReader. Please set a filename! "<<endl;
+   //
+   // do not call the standard constructor
+   // 
+   BlockB_LO		= NULL;
+   BlockB_NLO		= NULL;
+   BlockB_LO_Ref	= NULL;
+   BlockB_NLO_Ref	= NULL;
+   cout << "FastNLOReader::FastNLOReader. Please set a filename using SetFilename(<name>)! "<<endl;
 }
 
 
 FastNLOReader::FastNLOReader(string filename)
 {
-  
-  SetFilename(filename);
-  //Print();
+   BlockB_LO		= NULL;
+   BlockB_NLO		= NULL;
+   BlockB_LO_Ref	= NULL;
+   BlockB_NLO_Ref	= NULL;
+   
+   SetFilename(filename);
+}
+
+
+//______________________________________________________________________________
+
+
+FastNLOReader::~FastNLOReader(void)
+{
+   if ( BlockB_LO )		delete BlockB_LO;
+   if ( BlockB_NLO )		delete BlockB_NLO;
+   if ( BlockB_LO_Ref )		delete BlockB_LO_Ref;
+   if ( BlockB_NLO_Ref )	delete BlockB_NLO_Ref;
 }
 
 
@@ -67,8 +90,8 @@ FastNLOReader::FastNLOReader(string filename)
 
 
 void FastNLOReader::SetFilename(string filename){
-  ffilename	= filename;
-  Init();
+   ffilename	= filename;
+   Init();
 }
 
 
@@ -122,12 +145,6 @@ void FastNLOReader::InitScalevariation(){
       printf (" *         '%d'    ->    %4.2f .\n", i, BlockB_NLO->ScaleFac[0][i]);
     }
     printf (" *    Setting scale factor to %4.2f and varying mu_f and mu_r simultaneously.\n",BlockB_NLO->ScaleFac[0][0]);
-    fScalevar	= 0;
-  }
-
-  else if ( BlockB_NLO->NScaleDep == 2 ){
-    // this is a 2-scale table.
-    printf("FastNLOReader::InitScalevariation(). Warning. Scalevariations for 2-scale tables might not be fully implemented.\n");
     fScalevar	= 0;
   }
 
@@ -439,30 +456,26 @@ void FastNLOReader::ReadTable(void)
     FastNLOBlockB* blockb	= new FastNLOBlockB( "ReadingBlockB", NObsBin , instream );
     if ( blockb->IContrFlag1==1 && blockb->IContrFlag2==1 && blockb->IRef==0 ){
       if ( blockb->NScaleDep == 0 )   blockb->SetName("BlockB. LO. v2.0.");
-      if ( blockb->NScaleDep == 2 )   blockb->SetName("BlockB. LO. v2.0-TwoScales.");
       if ( blockb->NScaleDep == 3 )   blockb->SetName("BlockB. LO. v2.0 MuVar.");
       BlockB_LO		= blockb;
     }
     else if ( blockb->IContrFlag1==1 && blockb->IContrFlag2==2 && blockb->IRef==0 ){
       if ( blockb->NScaleDep == 0 )   blockb->SetName("BlockB. NLO. v2.0.");
-      if ( blockb->NScaleDep == 2 )   blockb->SetName("BlockB. NLO. v2.0-TwoScales.");
       if ( blockb->NScaleDep == 3 )   blockb->SetName("BlockB. NLO. v2.0 MuVar.");
       BlockB_NLO	= blockb;
     }
     else if ( blockb->IContrFlag1==1 && blockb->IContrFlag2==1 && blockb->IRef==1 ){
       if ( blockb->NScaleDep == 0 )   blockb->SetName("BlockB. LO Reference. v2.0.");
-      if ( blockb->NScaleDep == 2 )   blockb->SetName("BlockB. LO Reference. v2.0-TwoScales.");
       if ( blockb->NScaleDep == 3 )   blockb->SetName("BlockB. LO Reference. v2.0 MuVar.");
       BlockB_LO_Ref		= blockb;
     }
     else if ( blockb->IContrFlag1==1 && blockb->IContrFlag2==2 && blockb->IRef==1 ){
       if ( blockb->NScaleDep == 0 )   blockb->SetName("BlockB. NLO Reference. v2.0.");
-      if ( blockb->NScaleDep == 2 )   blockb->SetName("BlockB. NLO Reference. v2.0-TwoScales.");
       if ( blockb->NScaleDep == 3 )   blockb->SetName("BlockB. NLO Reference. v2.0 MuVar.");
       BlockB_NLO_Ref	= blockb;
     }
     else {
-      printf("FastNLOReader::ReadTable(). Error in initializing the 'B'-Blocks. Exiting.\n");
+      printf("FastNLOReader::ReadTable(). Error in initializing the 'B'-Blocks. Your FastNLO Table file might be incompatible with this reader. Exiting.\n");
       exit(1);      
     }
   }
@@ -829,9 +842,7 @@ void FastNLOReader::CalcReferenceCrossSection( ){
   //
   
   XSectionRef.clear();
-  XSection2ScalesRef.clear();
   XSectionRef.resize(NObsBin);
-  XSection2ScalesRef.resize(NObsBin);
   //XSectionMuVarRef.clear();
   //XSectionMuVarRef.resize(NObsBin);
 
@@ -853,10 +864,6 @@ void FastNLOReader::CalcReferenceCrossSection( ){
       }
     }
     
-  }
-  
-  if ( BlockB_LO->NScaleDep == 2 ){
-    // todo? Should 2-Scale tables be supported at all?
   }
   
   if ( BlockB_LO->NScaleDep == 3 ){
@@ -892,19 +899,13 @@ void FastNLOReader::CalcCrossSection( ){
   
   XSection_LO.clear();
   XSection.clear();
-  XSection2Scales_LO.clear();
-  XSection2Scales.clear();
   XSectionMuVar_LO.clear();
   XSectionMuVar.clear();
   kFactor.clear();
 
   XSection_LO.resize(NObsBin);
   XSection.resize(NObsBin);
-  if ( BlockB_LO->NScaleDep == 2 ){
-    XSection2Scales_LO.resize(NObsBin);
-    XSection2Scales.resize(NObsBin);
-  }
-  else if ( BlockB_LO->NScaleDep == 3 ){
+  if ( BlockB_LO->NScaleDep == 3 ){
     XSectionMuVar_LO.resize(NObsBin);
     XSectionMuVar.resize(NObsBin);
   }
@@ -934,25 +935,6 @@ void FastNLOReader::CalcCrossSection( ){
 	}
       }
     }
-
-
-    if ( BlockB_LO->NScaleDep == 2 ){
-      for(int jNodeR=0;jNodeR<BlockB_LO->NscalenodeScale1;jNodeR++){
-	for(int iNodeF=0;iNodeF<BlockB_LO->NscalenodeScale2;iNodeF++){
-	  for(int x=0;x<nxmax;x++){ 
-	    // LO Block
-	    for(int n=0;n<BlockB_LO->NSubproc;n++){ 
-	      XSection2Scales[i]	+=  BlockB_LO->SigmaTilde2Scales[i][fScalevar][fScalevar][jNodeR][iNodeF][x][n] * BlockB_LO->AlphasTwoPi2Scales[i][jNodeR]   *  BlockB_LO->PdfLc2Scales[i][iNodeF][x][n] * BinSize[i];
-	      XSection2Scales_LO[i]	+=  BlockB_LO->SigmaTilde2Scales[i][fScalevar][fScalevar][jNodeR][iNodeF][x][n] * BlockB_LO->AlphasTwoPi2Scales[i][jNodeR]   *  BlockB_LO->PdfLc2Scales[i][iNodeF][x][n] * BinSize[i];
-	    }
-	    // NLO Block
-	    for(int n=0;n<BlockB_NLO->NSubproc;n++){ 
-	      XSection2Scales[i]	+=  BlockB_NLO->SigmaTilde2Scales[i][fScalevar][fScalevar][jNodeR][iNodeF][x][n] * BlockB_NLO->AlphasTwoPi2Scales[i][jNodeR]   *  BlockB_NLO->PdfLc2Scales[i][iNodeF][x][n] * BinSize[i];
-	    }
-	  }
-	}
-      }
-   }
 
     if ( BlockB_LO->NScaleDep == 3 ){
       
@@ -999,11 +981,10 @@ void FastNLOReader::CalcCrossSection( ){
     }
     
   }
-
+  
   // ---- k-factor calculation ---- //
   for(int i=0;i<NObsBin;i++){
-    if ( BlockB_LO->NScaleDep == 2 )		kFactor[i]	= XSection2Scales[i] / XSection2Scales_LO[i];
-    else if ( BlockB_LO->NScaleDep == 3 )	kFactor[i]	= XSectionMuVar[i] / XSectionMuVar_LO[i];
+    if ( BlockB_LO->NScaleDep == 3 )		kFactor[i]	= XSectionMuVar[i] / XSectionMuVar_LO[i];
     else					kFactor[i]	= XSection[i] / XSection_LO[i];
   }
 
@@ -1093,16 +1074,6 @@ void FastNLOReader::FillAlphasCacheInBlockB( FastNLOBlockB* B ){
       B->AlphasTwoPi_v20[i][j] = alphastwopi;
     }
   
-    if ( B->NScaleDep == 2 ){
-	//printf("fnloBlockB::CalcXsection Xsection2Scales ...");
-	for(int jNodeR=0;jNodeR<B->NscalenodeScale1;jNodeR++){
-	  double mur		= B->Scale1Node[i][fScalevar][jNodeR];
-	  double as		= GetAlphas(mur);
-	  double alphastwopi	= pow( as/TWOPI, B->Npow );
-	  B->AlphasTwoPi2Scales[i][jNodeR]	= alphastwopi;
-	}
-    }
-    
     if ( B->NScaleDep == 3 ){
 	for(int jQ=0;jQ<B->NscalenodeScaleQ;jQ++){
 	  for(int jPt=0;jPt<B->NscalenodeScalePt;jPt++){
@@ -1432,25 +1403,6 @@ void FastNLOReader::FillBlockBPDFLCs( FastNLOBlockB* B ){
        }
      }
 		
-     // ---- we also fill the pdfLc for 2Scale interpolation ---- //
-     if ( B->NScaleDep == 2 ){
-		
-		for(int i=0;i<NObsBin;i++){
-		  int nxmax = B->GetNxmax(i);
-		  for(int j=0;j<B->NscalenodeScale2;j++){
-		    for(int k=0;k<nxmax;k++){ 
-		      double xp		= B->XNode1[i][k];
-		      double muf	= B->Scale2Node[i][fScalevar][j];
-		      xfx = LHAPDF::xfx(xp,muf); // LHAPDF::xfx_p_(x,muf,0,0)
-		      vector < double > buffer  = CalcPDFLinearComb(xfx,xfx,B->IPDFdef1, B->IPDFdef2, B->NSubproc );
-		      for(int l=0;l<B->NSubproc;l++){ 
-			B->PdfLc2Scales[i][j][k][l] = buffer[l];
-		      }
-		    }
-		  }
-		}
-     }
-
      if ( B->NScaleDep == 3 ){
 		xfx.clear();// do i need this?
 		xfx.resize(13);// do i need this?
@@ -1477,7 +1429,7 @@ void FastNLOReader::FillBlockBPDFLCs( FastNLOBlockB* B ){
    }
 
    else {
-     printf("FastNLOReader::FillBlockBPDFLCs. Error. I don't know what to do.\n");
+      printf("FastNLOReader::FillBlockBPDFLCs. Error. I don't know what to do.\n");
    }
    
 
@@ -1491,28 +1443,28 @@ void FastNLOReader::FillBlockBPDFLCs( FastNLOBlockB* B ){
 
 
 vector<double> FastNLOReader::GetXFX(double xp, double muf){
-  //
-  //  Internal method.
-  //  GetXFX is used to get the parton array from the
-  //  pre-defined pdf-interface.
-  // 
+   //
+   //  Internal method.
+   //  GetXFX is used to get the parton array from the
+   //  pre-defined pdf-interface.
+   // 
   
-  if ( fPDFInterface == kLHAPDF ){
-    return LHAPDF::xfx(xp,muf);
-  }
-  else if ( fPDFInterface == kH1FITTER ){
-    int iqnset = 1;
-    int iqnchk = 0;
-    double muf2	= muf*muf;
-    vector < double > a;
-    a.resize(13);
-    fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
-    return a;
-  }
-  else {
-    vector < double > a;
-    return a;
-  }
+   if ( fPDFInterface == kLHAPDF ){
+      return LHAPDF::xfx(xp,muf);
+   }
+   else if ( fPDFInterface == kH1FITTER ){
+      int iqnset = 1;
+      int iqnchk = 0;
+      double muf2	= muf*muf;
+      vector < double > a;
+      a.resize(13);
+      fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
+      return a;
+   }
+   else {
+      vector < double > a;
+      return a;
+   }
 }
 
 
@@ -1521,35 +1473,37 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
 
 
 vector<double> FastNLOReader::CalcPDFLinearComb(vector<double> pdfx1, vector<double> pdfx2, int IPDFdef1, int IPDFdef2, int NSubproc){
-  //
-  //  Internal method.
-  //  CalcPDFLinearComb is used to calculate the 
-  //  linear combinations of different parton flavors
-  //  according to the used subprocesses of your
-  //  calculation/table.
-  //
-  
+   //
+   //  Internal method.
+   //  CalcPDFLinearComb is used to calculate the 
+   //  linear combinations of different parton flavors
+   //  according to the used subprocesses of your
+   //  calculation/table.
+   //
+   
+   vector < double > ret;
+
    switch(IPDFdef1){
    case 2: // ep , DIS and gP
       switch(IPDFdef2){
       case 1: // DIS: determine gluon,sigma,delta,
       case 2: // direct gammaP: gluon,sigma,delta
 
-	return CalcPDFLinearCombDIS( pdfx1 , NSubproc );
+	 return CalcPDFLinearCombDIS( pdfx1 , NSubproc );
 	
-	break;
+	 break;
       default: printf("fnloBlockB::CalcPDFLinearComb : Ipdfdef1=2, Ipdfdef2= %d not supported. Exit.\n",IPDFdef2); exit(1);
       }
       break;
    case 3:
       switch(IPDFdef2){
       case 1: // ppbar: gg   qg   gq   qr   qq   qqb   qrb 
-	printf("FastNLOReader::CalcPDFLinearComb. Error no support for pp and ppbar tables.\n");
-	break;
-	default: printf("fnloBlockB::CalcPDFLinearComb ::Ipdfdef1=4, Ipdfdef2= %d not supported. Exit.\n",IPDFdef2); exit(1);
+	 printf("FastNLOReader::CalcPDFLinearComb. Error no support for pp and ppbar tables.\n");
+	 break;
+      default: printf("fnloBlockB::CalcPDFLinearComb ::Ipdfdef1=4, Ipdfdef2= %d not supported. Exit.\n",IPDFdef2); exit(1); return ret;
       }
       break;
-   default: printf("fnloBlockB::CalcPDFLinearComb :Ipdfdef1= %d not supported. Exit.\n",IPDFdef1); exit(1);
+   default: printf("fnloBlockB::CalcPDFLinearComb :Ipdfdef1= %d not supported. Exit.\n",IPDFdef1); exit(1); return ret;
    }
 
   
@@ -1560,34 +1514,34 @@ vector<double> FastNLOReader::CalcPDFLinearComb(vector<double> pdfx1, vector<dou
 
 
 vector<double> FastNLOReader::CalcPDFLinearCombDIS( vector<double> pdfx1 , int NSubproc){
-  //
-  //  Internal method.
-  //  CalcPDFLinearComb is used to calculate the 
-  //  linear combinations of different parton flavors
-  //  according to the used subprocesses of your
-  //  calculation/table.
-  //
+   //
+   //  Internal method.
+   //  CalcPDFLinearComb is used to calculate the 
+   //  linear combinations of different parton flavors
+   //  according to the used subprocesses of your
+   //  calculation/table.
+   //
   
-  vector < double > pdflc;
-  pdflc.resize(3);
+   vector < double > pdflc;
+   pdflc.resize(3);
 
-  pdflc[1] = pdfx1[6]; //gluon
+   pdflc[1] = pdfx1[6]; //gluon
 
   
-  for(int l=0;l<13;l++){
-    double temp = (l==6 ? 0.0 : pdfx1[l]);
-    if (!(l&1)) temp *= 4.;
-    pdflc[0] += temp; // delta
-  }
-  pdflc[0] /= 9.;
+   for(int l=0;l<13;l++){
+      double temp = (l==6 ? 0.0 : pdfx1[l]);
+      if (!(l&1)) temp *= 4.;
+      pdflc[0] += temp; // delta
+   }
+   pdflc[0] /= 9.;
   
-  if(NSubproc>2){ // only from NLO
-    for(int l=0;l<6;l++){
-      pdflc[2] += pdfx1[5-l] + pdfx1[l+7]; // sigma
-    }
-  }
+   if(NSubproc>2){ // only from NLO
+      for(int l=0;l<6;l++){
+	 pdflc[2] += pdfx1[5-l] + pdfx1[l+7]; // sigma
+      }
+   }
 
-  return pdflc;
+   return pdflc;
     
 }
 
