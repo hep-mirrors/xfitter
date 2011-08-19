@@ -17,13 +17,18 @@
       double precision a
       dimension a(MNI)
 
-      integer i,j,npar,idx,idx2,kflag
+      integer i,j,npar,idx,idx2,kflag,ii
       character*48 name,name2
       character*48 base,base2
-      character tag(14)*3
-      data (tag(i),i=1,14) /'s01','s02','s03','s04','s05',
+      character tag(40)*3
+      data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
      +     's06','s07','s08','s09','s10',
-     +     's11','s12','s13','s14'/
+     +     's11','s12','s13','s14','s15',
+     +     's16','s17','s18','s19','s20',
+     +     's21','s22','s23','s24','s25',
+     +     's26','s27','s28','s29','s30',
+     +     's31','s32','s33','s34','s35',
+     +     's36','s37','s38','s39','s40'/
 
 
       include 'couplings.inc'
@@ -49,6 +54,7 @@ C---------------------------------------------------------------
 C
 C  Fix relation between internal and external params.
 C
+
       do ind=1,mpar0
          call mnpout(ind,parname,parval,parerr,parlolim,
      $        parhilim,iunint(ind))
@@ -64,7 +70,7 @@ C
             endif
          enddo
       enddo
-      print *,'Relation internal->extrnal index:'
+      print *,'Relation internal->external index:'
       do ind=1,mpar
          write (6,*) 'internal=',ind,' external=',iexint(ind)
       enddo
@@ -112,7 +118,6 @@ C
             do i=1,npar
 
                a(i) = pkeep(i) 
-
                iint = iunint(i)
                if (iint.gt.0) then
                   a(i) = a(i) + sign * umat(iint,j)
@@ -122,82 +127,98 @@ C
             enddo
 
 C
-C Initialise the parameters
+C Initialise parameters for standard Parametrisation
 C
-            Ag=a(1)
-            Bg=a(2)
-            Cg=a(3)
-            Dg=a(4)
-            Eg=a(5)
-            Fg=a(6)
-            Apg=a(7)
-            Bpg=a(8)
-            Cpg=a(9)
+            if (iparam.ne.171717) then
+               Ag=a(1)
+               Bg=a(2)
+               Cg=a(3)
+               Dg=a(4)
+               Eg=a(5)
+               Fg=a(6)
+               Apg=a(7)
+               Bpg=a(8)
+               Cpg=a(9)
 
-            Auv=a(11)
-            Buv=a(12)
-            Cuv=a(13)
-            Duv=a(14)
-            Euv=a(15)
-            Fuv=a(16)
+               Auv=a(11)
+               Buv=a(12)
+               Cuv=a(13)
+               Duv=a(14)
+               Euv=a(15)
+               Fuv=a(16)
             
-            Adv=a(21)
-            Bdv=a(22)
-            Cdv=a(23)
-            Ddv=a(24)
-            Edv=a(25)
-            Fdv=a(26)
-
-            Aubar=a(31)
-            Bubar=a(32)
-            Cubar=a(33)
-            Dubar=a(34)
+               Adv=a(21)
+               Bdv=a(22)
+               Cdv=a(23)
+               Ddv=a(24)
+               Edv=a(25)
+               Fdv=a(26)
+               
+               Aubar=a(31)
+               Bubar=a(32)
+               Cubar=a(33)
+               Dubar=a(34)
+               
+               AU=a(51)
+               BU=a(52)
+               CU=a(53)
+               DU=a(54)
+               
+               Adbar=a(41)
+               Bdbar=a(42)
+               Cdbar=a(43)
+               Ddbar=a(44)
+               
+               AD=a(61)
+               BD=a(62)
+               CD=a(63)
+               DD=a(64)
             
-            AU=a(51)
-            BU=a(52)
-            CU=a(53)
-            DU=a(54)
-            
-            Adbar=a(41)
-            Bdbar=a(42)
-            Cdbar=a(43)
-            Ddbar=a(44)
-            
-            AD=a(61)
-            BD=a(62)
-            CD=a(63)
-            DD=a(64)
-            
-
-            Asea=a(71)
-            Bsea=a(72)
-            Csea=a(73)
-            Dsea=a(74)
-            
-            Adel=a(81)
-            Bdel=a(82)
-            Cdel=a(83)
-            Ddel=a(84)
+               
+               Asea=a(71)
+               Bsea=a(72)
+               Csea=a(73)
+               Dsea=a(74)
+               
+               Adel=a(81)
+               Bdel=a(82)
+               Cdel=a(83)
+               Ddel=a(84)
       
 
 
-            alphas=a(95)
-            fstrange=a(96)
+               alphas=a(95)
+               fstrange=a(96)
 
-            if (q0.ge.qc) then
-               fcharm=a(97)
-            else
-               fcharm=0.
-            endif
+               if (q0.ge.qc) then
+                  fcharm=a(97)
+               else
+                  fcharm=0.
+               endif
+              
+               
 C
 C  add x-dependent strange 
-C
-            if (ifsttype.eq.0) then
-               fs0 = fstrange
+C     
+               if (ifsttype.eq.0) then
+                  fs0 = fstrange
+               else
+                  fs0 = fshermes(0.D0)
+               endif
+            
             else
-               fs0 = fshermes(0.D0)
-            endif
+! get the ctpara            
 
+               do ii=1,6
+                  ctglue(ii) = a(ii)
+                  ctuval(ii) = a(10+ii)
+                  ctdval(ii) = a(20+ii)
+                  ctubar(ii) = a(30+ii)
+                  ctdbar(ii) = a(40+ii)
+                  ctother(ii)= a(94+ii)
+
+               enddo
+            endif
 
             if ((iparam.eq.1).or.(iparam.eq.11)) then
                Bd = Bu
