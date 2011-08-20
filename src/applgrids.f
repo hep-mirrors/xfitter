@@ -30,23 +30,18 @@ c     get alpha_s interpolation
       end
 
       subroutine appl_fnpdf(x, Q, xf)
+C
+C> @brief Interface to QCDNUM PDF call. 
+C
       implicit none
 C------------------------------------
-      include 'applgrid_fastpdf.inc'
       include 'fcn.inc'
       include 'steering.inc'
       double precision x, Q, Q2
       double precision xf(-6:6)
       integer iqnset, iqnchk,ifl
-      logical LFirstTime
-      data LFirstTime/.true./
       
 C---------------------------------------
-      if (lFirstTime) then
-C Reset NAPPLPDF
-         LFirstTime = .false.
-         NAPPLPDF = 0
-      endif
 
       iqnset = 1
       iqnchk = 0
@@ -58,13 +53,9 @@ C Reset NAPPLPDF
       Q2 = Q*Q
 
       if (IFlagFCN.eq.1 .and. LFastAPPLGRID) then
-         NAPPLPDF = NAPPLPDF + 1
-         if (NAPPLPDF.gt.NAPPLPDFMAX) then
-            print *,'Increase NAPPLPDFMAX in applgrid_fastpdf'
-            stop
-         endif
-         XAPPLPDF(NAPPLPDF) = x
-         QAPPLPDF(NAPPLPDF) = q2
+
+         Call Register_pdf_applgrid(x,q2)
+
       endif
 
 
@@ -81,6 +72,54 @@ C Reset NAPPLPDF
 
       return
       end
+
+C> @brief Register x,Q2 point on a grid
+      Subroutine register_pdf_applgrid(x,Q2)
+C----------------------------------------------
+      implicit none
+      double precision x,Q2
+      include 'applgrid_fastpdf.inc'
+      logical LFirstTime
+      data LFirstTime/.true./
+      integer ILoc
+C      
+      if (lFirstTime) then
+C Reset NAPPLPDF
+         LFirstTime = .false.
+         NAPPLPDF = 0
+         NAPPLPDFINT = 0
+         print *,'Cashing PDF calls for APPLGRID, this may take a while'
+      endif
+C
+
+C try to locate X,Q2 point
+      Call locateXQ2(XAPPLPDF,QAPPLPDF,NAPPLPDF,X,Q2,ILoc)
+
+C increase ref.
+      NAPPLPDF = NAPPLPDF + 1
+
+      if (mod(NAPPLPDF,10000).eq.0) then
+         print '(''... cashing '',I7,'' calls to '',I7,'' calls'')',
+     $        NAPPLPDF,NAPPLPDFINT
+      endif
+
+      if (ILoc.gt.0) then
+         IRefApp(NAPPLPDF) = ILoc
+      else
+
+         NAPPLPDFINT = NAPPLPDFINT + 1
+         IRefApp(NAPPLPDF) = NAPPLPDFINT
+         if (NAPPLPDFINT.gt.NAPPLPDFMAX) then
+            print *,'Increase NAPPLPDFMAX in applgrid_fastpdf'
+            stop
+         endif
+
+      
+         XAPPLPDF(NAPPLPDFINT) = x
+         QAPPLPDF(NAPPLPDFINT) = q2
+      endif
+      end
+
 
 C Fast code to cacl. PDFs for applgrid
       Subroutine Calc_pdf_applgrid_fast
@@ -108,25 +147,23 @@ C----------------------------------------
       if (NAPPLPDF.eq.0) Return
  
       ICheck = 1 ! force QCDNUM checks
-      call fastini(XAPPLPDF,QAPPLPDF,NAPPLPDF,ICHECK)
+
+      call fastini(XAPPLPDF,QAPPLPDF,NAPPLPDFINT,ICHECK)
       
       iset = 1
       isel = 7
       ibuf = -1
       inbuf = -ibuf
-      do i=2,12
+      do i=1,13
          if (i.eq.7) then
 C            call fastsns(iset,fdef(1,i),0,inbuf)
             call fastepm(iset,0,ibuf)
          else
             call fastsns(iset,fdef(1,i),isel,ibuf)
          endif
-c         print *,'ho',ibuf,inbuf
          call fastfxq(inbuf,APPLPDF(1,i-7),NAPPLPDF)
       enddo
 
-c      print *,'xxx',xapplpdf(1),qapplpdf(1)
-c      print '(''hahaha''13F10.2)',(applpdf(1,i),i=-6,6)
       end
 
       subroutine Retrive_pdf_applgrid_fast(PDFs)
@@ -145,7 +182,7 @@ C Reached the last, start over
       endif
       IRound = IRound + 1
       do i=-6,6
-         PDFs(i) = APPLPDF(IRound,i)
+         PDFs(i) = APPLPDF(IRefApp(IRound),i)
       enddo
       end
 
@@ -191,4 +228,33 @@ C---------
       implicit none
       call appl_releasegrids
       return 
+      end
+
+
+
+      Subroutine  locateXQ2(XArr,QArr,NAPPLPDF,X,Q,ILoc)
+C-------------------------------------------------------------
+C
+C  Locate X,Q point in  XArr,QArr array
+C
+C-------------------------------------------------------------
+      implicit none
+      integer  ILoc,NAPPLPDF
+      double precision QArr(NAPPLPDF), XArr(NAPPLPDF),X,Q
+      integer I
+      double precision epsilonX
+      double precision epsilonQ
+      parameter (epsilonX = 1.0D-8)
+      parameter (epsilonQ = 1.0D-8)
+C---------------------------------------------------------
+      do I=1,NAPPLPDF
+         if ( ( abs(QArr(I)-Q)/Q.lt.epsilonQ) 
+     $        .and. (abs (XArr(I)-X)/X.lt. epsilonX)) then
+            ILoc = I
+            Return
+         endif
+      enddo
+      
+      ILoc = -1
+
       end

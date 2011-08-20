@@ -4,11 +4,15 @@ C
       integer NAPPLPDFMAX  !> max. number of entries
       parameter (NAPPLPDFMAX=500000) 
       integer NAPPLPDF     !> actual number of entries
+      integer NAPPLPDFINT  !> number of entries in internal storage
 
+!> @brief  reference for applgrid buffer:
+      integer iRefApp(2*NAPPLPDFMAX)
 
-C x,Q2 values:
+!> @brief x,Q2 values for applgrid buffer:
       double precision XAPPLPDF(NAPPLPDFMAX), QAPPLPDF(NAPPLPDFMAX)      
 
 C PDF store:
       double precision APPLPDF(NAPPLPDFMAX,-6:6)
-      common/cAPPLPDF/APPLPDF,XAPPLPDF,QAPPLPDF,NAPPLPDF
+      common/cAPPLPDF/APPLPDF,XAPPLPDF,QAPPLPDF,NAPPLPDF,IRefApp
+     $     ,NAPPLPDFINT

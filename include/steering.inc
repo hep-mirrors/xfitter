@@ -60,6 +60,12 @@ C Applgrid flags
       logical useapplg
       integer napplgrids
 
+C
+C Fast/slow mode for APPLGRID PDF convolution. 
+C
+      logical LFastAPPLGRID
+
+
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac,
      $     HF_MASS,charm_frac,
@@ -73,10 +79,5 @@ C Applgrid flags
      $     ,IOFFSETCHEBSEA
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
+     $     ,LFastAPPLGRID
 
-C
-C Fast/slow mode for APPLGRID PDF convolution. Since the gain in speed is 
-C small, set false by default
-C
-      logical LFastAPPLGRID
-      data LFastAPPLGRID/.false./

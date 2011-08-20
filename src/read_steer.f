@@ -26,7 +26,7 @@ C Define namelists:
       integer IOrder   ! Evolution order
 C Main steering parameters namelist
       namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
-     $     Chi2Style, LDebug, ifsttype, ASatur, LSatur
+     $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID
 
 
 C Output style namelist
@@ -115,9 +115,11 @@ C  Key for W range
 
       chebxmin = 1.E-5
 
-C  Hermes-like strange:
+C  Hermes-like strange (off by default):
       ifsttype = 0
 
+C  Fast applgrid:     
+      LFastAPPLGRID = .false.
 * 
       PDFStyle  = '13p HERAPDF'
       Chi2Style = 'HERAPDF'
