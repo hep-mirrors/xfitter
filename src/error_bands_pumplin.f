@@ -9,13 +9,9 @@
       include 'alphas.inc'
       include 'thresholds.inc'
       
-      double precision hquad, umat, vmat,
-     &     tvec, errmat
-      common /umatco/ hquad(MNI,MNI), umat(MNI,MNI), vmat(MNI,MNI),
-     &     tvec(MNI), errmat(MNI,MNI)
       integer sign
       double precision a
-      dimension a(MNI)
+      dimension a(MNE)
 
       integer i,j,npar,idx,idx2,kflag,ii
       character*48 name,name2
@@ -49,39 +45,50 @@ C SG: x-dependent fs:
       double precision 
      $     parval, parerr,parlolim,parhilim
 
+      integer mpar
+
+      double precision shift
+C Function
+      double precision GetUmat
+
 C---------------------------------------------------------------
       
 C
 C  Fix relation between internal and external params.
 C
+      mpar = 0
 
-      do ind=1,mpar0
+
+
+      do ind=1,MNE
          call mnpout(ind,parname,parval,parerr,parlolim,
      $        parhilim,iunint(ind))
-         write (6,*) 'Parameter',ind,' name=',parname
-         write (6,*) 'Internal index=',iunint(ind)
-         write (6,*) ' '
+         if (iunint(ind).gt.0) then
+            write (6,*) 'Parameter',ind,' name=',parname
+            write (6,*) 'Internal index=',iunint(ind)
+            write (6,*) ' '
+            mpar = mpar + 1
+         endif
       enddo
 
+
+
       do ind=1,mpar
-         do ind2=1,mpar0
+         do ind2=1,MNE
             if (iunint(ind2).eq.ind) then
                iexint(ind) = ind2
             endif
          enddo
       enddo
+
       print *,'Relation internal->external index:'
+
       do ind=1,mpar
          write (6,*) 'internal=',ind,' external=',iexint(ind)
       enddo
 
-      write(6,*) 'mpar = ',mpar,mpar0
 
-      npar = mpar0
-
-      do i=1,npar
-         write(6,*) 'pkeep(i) = ',pkeep(i)
-      enddo
+      npar = MNE !> npar runs over external parameters.
 
 
       do j=1,mpar
@@ -112,177 +119,37 @@ C
                   name2 = base2//'m.lhgrid'
                endif
             endif
-            write(6,*) 'name = ',name
 
 
             do i=1,npar
-
                a(i) = pkeep(i) 
                iint = iunint(i)
-               if (iint.gt.0) then
-                  a(i) = a(i) + sign * umat(iint,j)
-               endif
-               write(6,*) 'i a(i) = ',i,a(i)
 
+C
+C Apply shifts to the paramters:
+C
+               if (iint.gt.0) then
+                  shift = sign * GetUmat(iint,j)
+                  a(i) = a(i) + shift
+               endif
             enddo
 
+
 C
-C Initialise parameters for standard Parametrisation
+C Decode "a". 2 stands for IFLag = 2, which is a normal iteration.
 C
-            if (iparam.ne.171717) then
-               Ag=a(1)
-               Bg=a(2)
-               Cg=a(3)
-               Dg=a(4)
-               Eg=a(5)
-               Fg=a(6)
-               Apg=a(7)
-               Bpg=a(8)
-               Cpg=a(9)
-
-               Auv=a(11)
-               Buv=a(12)
-               Cuv=a(13)
-               Duv=a(14)
-               Euv=a(15)
-               Fuv=a(16)
+            call PDF_param_iteration(a,2)
             
-               Adv=a(21)
-               Bdv=a(22)
-               Cdv=a(23)
-               Ddv=a(24)
-               Edv=a(25)
-               Fdv=a(26)
-               
-               Aubar=a(31)
-               Bubar=a(32)
-               Cubar=a(33)
-               Dubar=a(34)
-               
-               AU=a(51)
-               BU=a(52)
-               CU=a(53)
-               DU=a(54)
-               
-               Adbar=a(41)
-               Bdbar=a(42)
-               Cdbar=a(43)
-               Ddbar=a(44)
-               
-               AD=a(61)
-               BD=a(62)
-               CD=a(63)
-               DD=a(64)
-            
-               
-               Asea=a(71)
-               Bsea=a(72)
-               Csea=a(73)
-               Dsea=a(74)
-               
-               Adel=a(81)
-               Bdel=a(82)
-               Cdel=a(83)
-               Ddel=a(84)
-      
-
-
-               alphas=a(95)
-               fstrange=a(96)
-
-               if (q0.ge.qc) then
-                  fcharm=a(97)
-               else
-                  fcharm=0.
-               endif
-              
-               
 C
-C  add x-dependent strange 
-C     
-               if (ifsttype.eq.0) then
-                  fs0 = fstrange
-               else
-                  fs0 = fshermes(0.D0)
-               endif
-            
-            else
-! get the ctpara            
-
-               do ii=1,6
-                  ctglue(ii) = a(ii)
-                  ctuval(ii) = a(10+ii)
-                  ctdval(ii) = a(20+ii)
-                  ctubar(ii) = a(30+ii)
-                  ctdbar(ii) = a(40+ii)
-                  ctother(ii)= a(94+ii)
-
-               enddo
-            endif
-
-            if ((iparam.eq.1).or.(iparam.eq.11)) then
-               Bd = Bu
-               Bubar = Bu
-               Bdbar = Bu
-               Adbar = Ad
-               aU = aD * (1.-fs0)/(1.-fcharm)
-               aUbar = aU
-
-* fixed for H1param
-            elseif (iparam.eq.11) then
-
-               Bd = Bu
-               Bubar = Bu
-               Bdbar = Bu
-               Adbar = Ad
-               aU = aD * (1.-fs0)/(1.-fcharm)
-               aUbar = aU
-
-* fixed for optimized H1param
-
-            elseif (iparam.eq.2) then
-               Aubar = Adbar * (1.-fs0)/(1.-fcharm)
-               Bubar = Bdbar
-            elseif (iparam.eq.22.or.iparam.eq.222.or.iparam.eq.221) then
-
-
-               if (iparam.ne.221) then
-                  Bdv = Buv
-               endif
-
-               Aubar = Adbar * (1.-fs0)/(1.-fcharm)
-               Bubar = Bdbar
-
-            elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
-               
-
-               Buv = 0.5
-               Bdv = 0.5
-               Bdel = 0.5
-               Cdel = Csea +2.
-
-            elseif (iparam.eq.229) then
-         
-
-               Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
-               Bubar = Bdbar
-
-            elseif ((iparam.eq.4).or.(iparam.eq.24)) then ! g,uval,dval,sea as in ZEUS-JET fit
-               
-               Bdv = Buv
-*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
- 
-               Adel = 0.27          
-               Bdel = 0.5
-               Cdel = Csea +2.
-
-            endif 
-
+C Fix some pars by sum-rules:
+C
             kflag = 0
             call SumRules(kflag)
             call Evolution
 
-C            print *,name2
+C
+C Write results out:
+C
             open (76,file=name2,status='unknown')
             call store_pdfs(name)
             close (76)

@@ -280,8 +280,10 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
 
 
       if (iflag.eq.3) then
-         mpar = npar
-         do i=1,mpar0
+         if (dobands) then
+            print *,'SAVE PDF values'
+         endif
+         do i=1,MNE
             pkeep(i) = p(i)
          enddo
 

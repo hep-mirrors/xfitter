@@ -158,7 +158,7 @@ c keep track of best minimum found during each iteration...
 	if(ldebug) then
 	   write(isyswr,30)
 30	   format(1x,'Initial parameter values in ITERATE:',
-     &	         /3x,'Par',2x,'TruePar',7x,'x')
+     &         /3x,'Par',2x,'TruePar',7x,'x')
 	   do i = 1, npar
 	      write(isyswr,40) i, nexofi(i), x(i)
 40	      format(3x,i2,5x,i2,3x,e15.7)
@@ -227,6 +227,7 @@ c can be changed -- no linear combinations are taken.
 
 c write umat as an orthogonal matrix times a diagonal matrix...
 	call getvt
+
 
 c on first pass, only reset step sizes...
 	if(iter .eq. 0) goto 12345
@@ -1188,3 +1189,23 @@ c check that vmat is orthogonal...
 
 	return
 	end
+
+
+      double precision function GetUmat(i,j)
+C
+C  Wraper around Umat common.
+C  Return values from UMAT matrix
+C
+
+#include "./d506cm.inc"
+      integer i,j
+      double precision hquad,umat,vmat,tvec,errmat
+C--------------------------------------------------------------------
+      common /umatco/ hquad(MNI,MNI), umat(MNI,MNI), vmat(MNI,MNI), 
+     &	                tvec(MNI), errmat(MNI,MNI)
+C--------------------------------------------------------------------
+
+      GetUmat = umat(i,j)
+
+      end
+
