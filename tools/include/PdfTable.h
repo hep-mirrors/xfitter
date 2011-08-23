@@ -78,7 +78,7 @@ class PdfErrorTables : public PdfTable{
  PdfErrorTables():PdfTable(),fErrorTables(NULL)
     {}
   // @brief Constructor to read the files from directory base for given Q2 set
-  PdfErrorTables(string base, int iQ2=0, int nPDF=0);
+  PdfErrorTables(string base, int iQ2=0, int nPDF=0, Bool_t SymErrors = kFALSE);
 
   // @brief Return TGraph 
   virtual TGraphAsymmErrors* GetPDFGraph(string name);
@@ -86,7 +86,7 @@ class PdfErrorTables : public PdfTable{
  private:
   // @brief List of PDF tables to store error sets
   vector<PdfTable*> fErrorTables;
-
+  Bool_t fSymmetric;
   void GetPDFError(int ix, int iPDF, double* eminus, double* eplus);
 };
 

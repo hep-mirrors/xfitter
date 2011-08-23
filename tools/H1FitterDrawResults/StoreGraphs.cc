@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     TString filename("");
     filename.Form("%s/pdfs_q2val_%02d.txt",OutputPath.Data(), iq2+1);
 
-    PdfTable* table = (nBands == 0 )? new PdfTable(filename.Data()) : new PdfErrorTables(OutputPath.Data(),iq2+1,nBands);
+    PdfTable* table = (nBands == 0 )? new PdfTable(filename.Data()) : new PdfErrorTables(OutputPath.Data(),iq2+1,nBands,kTRUE);
 
     if (table->GetNx() == 0) {
       break;

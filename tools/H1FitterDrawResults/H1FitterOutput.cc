@@ -59,7 +59,7 @@ Int_t H1FitterOutput::PreparePdf(Int_t nBand) {
     TString filename("");
     filename.Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
 
-    PdfTable* table = (nBand == 0 )? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,nBand);
+    PdfTable* table = (nBand == 0 )? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,nBand,kTRUE);
 
     Int_t    nx = table->GetNx();
     if (nx > 0 ) {    

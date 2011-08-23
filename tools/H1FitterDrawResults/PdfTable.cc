@@ -117,7 +117,7 @@ const int PdfTable::GetIndex(string name){
 
 //-----------------------------------------------------
 
-PdfErrorTables::PdfErrorTables(string base, int iQ2, int nPDF) {
+PdfErrorTables::PdfErrorTables(string base, int iQ2, int nPDF, Bool_t SymErrors) {
   
   // Read the central table:
   TString filename("");
@@ -126,7 +126,7 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, int nPDF) {
 
   PdfTable *t = new PdfTable(filename.Data()); 
   
-  
+  fSymmetric = SymErrors;
   
   fQ2value  = t->GetQ2();
   fXmin     = t->GetXmin();
@@ -227,23 +227,29 @@ void PdfErrorTables::GetPDFError(int ix, int iPDF, double* eminus, double* eplus
     double vm = fErrorTables[i]->GetPDF(ix,iPDF);
     double vp = fErrorTables[i+1]->GetPDF(ix,iPDF);
 
-
+    if (fSymmetric) {
+      double err = 0.5*(vp-vm);
+      (*eminus) += err*err;
+      (*eplus)  += err*err;
+    }
+    else {
     // down variation:
-    double d1 = cent - vm;
-    double d2 = cent - vp;    
-    double ed = ( d2<d1) ? d2 : d1;
+      double d1 = cent - vm;
+      double d2 = cent - vp;    
+      double ed = ( d2<d1) ? d2 : d1;
+      
+      if (ed<0) { ed = 0;}
 
-    if (ed<0) { ed = 0;}
-
-    // up variation
-    d1 = -d1;
-    d2 = -d2;
-    double ep = (d2>d1) ? d2 : d1;    
-    if (ep<0) {ep = 0;}
+      // up variation
+      d1 = -d1;
+      d2 = -d2;
+      double ep = (d2>d1) ? d2 : d1;    
+      if (ep<0) {ep = 0;}
    
     
-    (*eminus) += ed*ed;
-    (*eplus)  += ep*ep;
+      (*eminus) += ed*ed;
+      (*eplus)  += ep*ep;
+    }
   }
   (*eminus) = sqrt(*eminus);
   (*eplus) = sqrt(*eplus);
