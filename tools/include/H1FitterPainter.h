@@ -34,7 +34,7 @@ class H1FitterPainter  {
 
   void ScaleGraph2ToGraph1(TGraph* graph1, TGraph* graph2, TLine*& line, TGaxis*& axis, Double_t MeanRatio);
  public:
-  H1FitterPainter();
+  H1FitterPainter(Int_t  Bands = 0);
   virtual ~H1FitterPainter();
   Int_t Draw();
 
@@ -51,6 +51,8 @@ class H1FitterPainter  {
   EColor fColor;
   EColor fColorRef;
 
+  // Number of PDF eighenvectors for PDF bands.
+  Int_t nBands;
 };
 
 #endif

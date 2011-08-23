@@ -3,6 +3,9 @@
 #include <dirent.h>
 #include <TObjString.h>
 #include <stdlib.h>
+#include <math.h>
+#include "TGraphAsymmErrors.h"
+#include "PdfTable.h"
 
 H1FitterOutput::H1FitterOutput(const Char_t* directory) {
   fDirectory    = new TString(directory);
@@ -21,16 +24,17 @@ H1FitterOutput::~H1FitterOutput(){
   for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++) {
     delete fPdfs[ipdf];
   }
+
   for (std::vector<DataSet*>::iterator i = fDataSets.begin(); i != fDataSets.end(); ++i)  delete *i;
   delete fPull;
 }
 
-Int_t H1FitterOutput::Prepare() {
+Int_t H1FitterOutput::Prepare(Int_t nBand) {
   if(! this->CheckDirectory() ) {
     cerr << "Can not open directory " << fDirectory->Data() << endl; 
     exit(1);
   }
-  this->PreparePdf();
+  this->PreparePdf(nBand);
   this->PrepareDataSets();
 }
 
@@ -45,10 +49,54 @@ Bool_t H1FitterOutput::CheckDirectory() {
   return bExists;
 }
 
-Int_t H1FitterOutput::PreparePdf() {
+Int_t H1FitterOutput::PreparePdf(Int_t nBand) {
+
+  // Loop over Q2 values, read PDF tables
+  for (Int_t iq2=0; iq2<20; iq2++) {
+
+    
+    //    if (nBand == 0) {
+    TString filename("");
+    filename.Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
+
+    PdfTable* table = (nBand == 0 )? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,nBand);
+
+    Int_t    nx = table->GetNx();
+    if (nx > 0 ) {    
+      Double_t q2 = table->GetQ2();
+      fNQ2Files++;                   // Total number of Q2 
+      fQ2Value[iq2] = q2;
+      //  Prepare graphs:
+
+      fPdfs [(Int_t)kGluon]->AddLast(table->GetPDFGraph("g"));
+      fPdfs [(Int_t)kU]    ->AddLast(table->GetPDFGraph("U"));
+      fPdfs [(Int_t)kD]    ->AddLast(table->GetPDFGraph("D"));
+      fPdfs [(Int_t)kUv]   ->AddLast(table->GetPDFGraph("u_val"));
+      fPdfs [(Int_t)kDv]   ->AddLast(table->GetPDFGraph("d_val"));
+      fPdfs [(Int_t)kUb]   ->AddLast(table->GetPDFGraph("Ubar"));
+      fPdfs [(Int_t)kDb]   ->AddLast(table->GetPDFGraph("Dbar"));
+      fPdfs [(Int_t)kSea]  ->AddLast(table->GetPDFGraph("sea"));
+      fPdfs [(Int_t)kS]    ->AddLast(table->GetPDFGraph("str"));
+      fPdfs [(Int_t)kC]    ->AddLast(table->GetPDFGraph("chm"));
+      fPdfs [(Int_t)kB]    ->AddLast(table->GetPDFGraph("bot"));
+      
+      delete table;
+
+    }
+
+
+    else {
+      // No more Q2 file to read
+      break;
+    }
+
+  }
+  
+  
+  /*
   Double_t x, gluon, U, D, d_Ubar, d_Dbar, umin, dmin, sea, u_sea, d_sea, str, chm, bot;
   TString* filename = new TString;
-  for(Int_t iq2=0; iq2<100; iq2++) {
+  for(Int_t iq2=0; iq2<1; iq2++) {
     filename->Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
     ifstream infile(filename->Data());
     if(!infile.is_open()) break;
@@ -63,9 +111,125 @@ Int_t H1FitterOutput::PreparePdf() {
 
     fNpoints = nx;
 
-    for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++)
-      ((TObjArray*) fPdfs[ipdf])->AddLast(new TGraph(fNpoints));
-    
+    Double_t * eUp = NULL;
+    Double_t * eDn = NULL;
+    Double_t * Cent = NULL;
+    Double_t * erUp = NULL;
+    Double_t * erDn = NULL;
+
+    if (nBand == 0) {
+      for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++)
+	((TObjArray*) fPdfs[ipdf])->AddLast(new TGraph(fNpoints));
+    }
+    else {
+      eUp  = new Double_t [ nx*NColumn*nBand];
+      eDn  = new Double_t [ nx*NColumn*nBand];
+
+      Cent = new Double_t [ nx*NColumn];
+      erUp = new Double_t [ nx*NColumn];
+      erDn = new Double_t [ nx*NColumn];
+      
+      Double_t tmp;
+      Int_t itmp;
+
+      // Read the central
+      filename->Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
+      ifstream infile_c(filename->Data());
+      infile_c >> tmp >> itmp >> tmp >> tmp;
+      
+      for ( Int_t ix=0; ix<nx; ix++) {
+	for ( Int_t ipdf=0; ipdf < NColumn; ipdf++ ) {
+	  Int_t iref = ipdf+ix*NColumn;
+	  infile_c >> Cent[iref];
+	}
+	// Prepare Uv and Dv
+	Int_t irefUv = 6 + ix*NColumn;
+	Int_t irefDv = 7 + ix*NColumn;
+	
+	Int_t irefusea = 9 + ix*NColumn;
+	Int_t irefdsea = 10 + ix*NColumn;
+	
+	Int_t irefchr  = 12 + ix*NColumn;
+	Int_t irefbot  = 13 + ix*NColumn;
+	Cent[irefUv] = Cent[irefUv] - Cent[irefusea] - Cent[irefchr];
+	Cent[irefDv] = Cent[irefDv] - Cent[irefdsea] - Cent[irefbot];
+      }
+      
+      for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++) {
+	((TObjArray*) fPdfs[ipdf])->AddLast(new TGraphAsymmErrors(fNpoints));
+	// Read the bands
+
+	
+
+	for (Int_t iband=0; iband<nBand; iband++) {
+	    filename->Form("%s/pdfs_q2val_s%02dm_%02d.txt",fDirectory->Data(), iband+1, iq2+1);
+	    ifstream infile_m(filename->Data());
+	    infile_m >> tmp >> itmp >> tmp >> tmp;
+
+	    filename->Form("%s/pdfs_q2val_s%02dp_%02d.txt",fDirectory->Data(), iband+1, iq2+1);
+	    ifstream infile_p(filename->Data());
+	    infile_p >> tmp >> itmp >> tmp >> tmp;
+
+	    for ( Int_t ix=0; ix<nx; ix++) {
+	      for ( Int_t ipdf=0; ipdf < NColumn; ipdf++ ) {
+		Int_t iref = ipdf+ix*NColumn+(NColumn*nx)*iband;
+		infile_m >> eDn[iref];
+		infile_p >> eUp[iref];
+	      }
+	    }
+
+
+	    for ( Int_t ix=0; ix<nx; ix++) {
+	      Int_t irefUv = 6 + ix*NColumn +(NColumn*nx)*iband;
+	      Int_t irefDv = 7 + ix*NColumn +(NColumn*nx)*iband;
+
+	      Int_t irefusea = 9 + ix*NColumn +(NColumn*nx)*iband;
+	      Int_t irefdsea = 10 + ix*NColumn +(NColumn*nx)*iband;
+
+	      Int_t irefchr  = 12 + ix*NColumn +(NColumn*nx)*iband;
+	      Int_t irefbot  = 13 + ix*NColumn +(NColumn*nx)*iband;
+
+	      eDn[irefUv] = eDn[irefUv] - eDn[irefusea] - eDn[irefchr];
+	      eDn[irefDv] = eDn[irefDv] - eDn[irefdsea] - eDn[irefbot];
+
+	      eUp[irefUv] = eUp[irefUv] - eUp[irefusea] - eUp[irefchr];
+	      eUp[irefDv] = eUp[irefDv] - eUp[irefdsea] - eUp[irefbot];
+
+	    }
+
+	  }       
+      }
+      // Calculate the errors:
+      for (Int_t ipdf=0; ipdf<NColumn; ipdf++) {
+	for (Int_t ix=0; ix<nx; ix++) {
+	  Double_t Dn = 0.;
+	  Double_t Up = 0.;
+	  Double_t cv = Cent[ipdf+ix*NColumn];
+
+	  for (Int_t iband=0; iband<nBand; iband++) {
+	    Int_t iref = ipdf+ix*NColumn+(NColumn*nx)*iband;
+
+	    Double_t d1 = eDn[iref] - cv;
+	    Double_t d2 = eUp[iref] - cv;
+	    Double_t d = d1>d2 ?  d1 : d2;
+	    if (d>0) {
+	      Up += d*d;
+	    }
+
+	    d1 = cv - eDn[iref];
+	    d2 = cv - eUp[iref];
+	    d = d1>d2 ?  d1 : d2;
+	    if (d>0) {
+	      Dn += d*d;
+	    }
+	  }
+	  erUp[ipdf+ix*NColumn] = sqrt(Up);
+	  erDn[ipdf+ix*NColumn] = sqrt(Dn);
+	}
+      }
+    }
+
+
     for (Int_t i = 0; i < fNpoints; i++){
       infile >> x >> gluon >> U >> D >> d_Ubar >> d_Dbar >> umin >> dmin >> sea >> u_sea >> d_sea >> str >> chm >> bot;
       SetPdfPoint((Int_t)kGluon, iq2, i, x, gluon);
@@ -79,17 +243,35 @@ Int_t H1FitterOutput::PreparePdf() {
       SetPdfPoint((Int_t)kS    , iq2, i, x, str);
       SetPdfPoint((Int_t)kC    , iq2, i, x, chm);
       SetPdfPoint((Int_t)kB    , iq2, i, x, bot);
+
+      if (nBand>0) {
+	Int_t iref = i*NColumn;
+	SetPdfError((Int_t)kGluon, iq2, i, x, erUp[iref+1],erDn[iref+1]);
+	SetPdfError((Int_t)kU    , iq2, i, x, erUp[iref+2],erDn[iref+2]);
+	SetPdfError((Int_t)kD    , iq2, i, x, erUp[iref+3],erDn[iref+3]);
+	SetPdfError((Int_t)kUv   , iq2, i, x, erUp[iref+6],erDn[iref+6]);
+	SetPdfError((Int_t)kDv   , iq2, i, x, erUp[iref+7],erDn[iref+7]);
+	SetPdfError((Int_t)kUb   , iq2, i, x, erUp[iref+4],erDn[iref+4]);
+	SetPdfError((Int_t)kDb   , iq2, i, x, erUp[iref+5],erDn[iref+5]);
+	SetPdfError((Int_t)kSea  , iq2, i, x, erUp[iref+8],erDn[iref+1]);
+	SetPdfError((Int_t)kS    , iq2, i, x, erUp[iref+11],erDn[iref+11]);
+	SetPdfError((Int_t)kC    , iq2, i, x, erUp[iref+12],erDn[iref+12]);
+	SetPdfError((Int_t)kB    , iq2, i, x, erUp[iref+13],erDn[iref+13]);
+      }
     }
   }  delete filename;
+  */
 }
+
+
 
 Int_t H1FitterOutput::GetNsets() {
   return fDataSets.size();
 }
 
 TGraph* H1FitterOutput::GetPdf(H1FitterOutput::pdf ipdf, Int_t Q2bin) {
-  if(ipdf >= fNpdfs) {cout << "GetPdf, wrong ipdf: "<< ipdf << endl; exit(1);}
-  if(Q2bin >= fPdfs[ipdf]->GetEntries()) {cout << "GetPdf, wrong iq2: "<< Q2bin << endl; exit(1);}
+  if(ipdf >= fNpdfs) {cout << "GetPdf, wrong ipdf: "<< ipdf << " "<<fNpdfs << endl; exit(1);}
+  if(Q2bin >= fPdfs[ipdf]->GetEntries()) {cout << "GetPdf, wrong iq2: "<< Q2bin << " "<< ipdf<< endl; exit(1);}
 
   return ((TGraph*)fPdfs[ipdf]->At(Q2bin));
 }
@@ -99,6 +281,13 @@ void H1FitterOutput::SetPdfPoint(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x
   if(ipdf >= fNpdfs) {cout << "SetPdfPoint, wrong ipdf: "<< ipdf << endl; return;}
   if(iq2 >= fPdfs[ipdf]->GetEntries()) {cout << "SetPdfPoint, wrong iq2: "<< iq2 << endl; return;}
   ((TGraph*)fPdfs[ipdf]->At(iq2))->SetPoint(ipoint, x, y);
+}
+
+void H1FitterOutput::SetPdfError(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t Up, Double_t Dn) {
+  if(ipdf >= fNpdfs) {cout << "SetPdfPoint, wrong ipdf: "<< ipdf << endl; return;}
+  if(iq2 >= fPdfs[ipdf]->GetEntries()) {cout << "SetPdfPoint, wrong iq2: "<< iq2 << endl; return;}
+  ((TGraphAsymmErrors*)fPdfs[ipdf]->At(iq2))->SetPointEYlow(ipoint,  Dn);
+  ((TGraphAsymmErrors*)fPdfs[ipdf]->At(iq2))->SetPointEYhigh(ipoint,  Up);
 }
 
 

@@ -4,7 +4,7 @@
 #include <TROOT.h>
 #include <TH1F.h>
 
-H1FitterPainter::H1FitterPainter(){
+H1FitterPainter::H1FitterPainter(Int_t Bands){
   fPath = new TString("../../output/");
   fPathRef = new TString("../../output/");
   fH1FitterOutput = NULL;
@@ -15,6 +15,7 @@ H1FitterPainter::H1FitterPainter(){
   cout << "TO DO: in fittedresults.txt q2 and x for sets 61-64 are switched"<<endl;
   fColor = kRed;
   fColorRef = kBlue;
+  nBands = Bands;
 }
 
 H1FitterPainter::~H1FitterPainter(){ 
@@ -42,8 +43,8 @@ Int_t H1FitterPainter::Prepare() {
   if(fH1FitterOutputRef == NULL) fPsFileName->Form("%s/DrawResults.ps", fPathRef->Data());
   fPsFileName->Append("(");
 
-  fH1FitterOutput->Prepare();
-  if(fH1FitterOutputRef) fH1FitterOutputRef->Prepare(); 
+  fH1FitterOutput->Prepare(nBands);
+  if(fH1FitterOutputRef) fH1FitterOutputRef->Prepare(nBands); 
 }
 
 Int_t H1FitterPainter::Draw() {
@@ -158,6 +159,8 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
     if(FitterRef) graphR2 =  FitterRef->GetPdf(pdf2, Q2Bin);
   }
 
+  graph->SetFillColor(fColor);
+
   if(graph2) {
     graph2->SetLineColor(fColor);
   }
@@ -189,7 +192,7 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
   graph->GetXaxis()->SetLabelOffset(0.015);
 
 
-  graph->Draw("ALX");
+  graph->Draw("ACE3");
   if(graphR) graphR->Draw("L3X same");
   if(graph2)  graph2->Draw("L3X same");
   if(graphR2) graphR2->Draw("L3X same");
@@ -504,7 +507,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       delete temp;
       labelchi2ref->SetFillColor(kWhite);
       labelchi2ref->SetBorderSize(0);
-      labelchi2ref->SetTextSize(1.5);
+      labelchi2ref->SetTextSize(0.5);
       labelchi2ref->SetTextColor(fColorRef);
     }
 

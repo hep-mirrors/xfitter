@@ -5,7 +5,7 @@ bin_PROGRAMS = DrawResults
 
 # all source files which go into the main target
 DrawResults_SOURCES = H1FitterDrawResults.cc H1FitterPainter.cc \
-  H1FitterOutput.cc DataSet.cc
+  H1FitterOutput.cc DataSet.cc PdfTable.cc
 
 DrawResults_CPPFLAGS = -I$(srcdir)/../include $(ROOT_CFLAGS)
 

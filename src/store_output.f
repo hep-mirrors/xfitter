@@ -60,15 +60,16 @@
       dimension pdfl(-6:6)
       integer iq,jx,j,ierr,nfv
 
+  ! Store how many PDFs are written out:
+      integer NPdfs 
+      parameter (NPdfs = 13)
+
+C---------------------------------------------------------------
+
       write(6,*) '--------- in store-pdfs -------'
 
       idx = index(base,' ')-1
-c      namefsfc = 'output/fsfc'//'.txt'
-c      print *,namefsfc
-c      open (83,file=namefsfc)
-c      write(83,*) 'iparam,q2,strange,Dbar,fs,charm,Ubar,fc'
       do 999 iq2=1,NBANDS
-cv         print*,'voicaaaaa', iq2, q2val(iq2), nbands
          q2 = Q2VAL(iq2)
          if (q2.lt.0) goto 999
          nf = 5.
@@ -85,7 +86,13 @@ cv         print*,'voicaaaaa', iq2, q2val(iq2), nbands
          open(81,file=name)
 c        open(82,file=h1name)
          ! Write basic info on the table:
-         write (81,*) q2val(iq2),outnx, outxrange(1), outxrange(2)
+         write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2)
+
+         ! Write the names of PDFs
+         write (81,'(14(2x,A12))')
+     $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
+     $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
+     $        ' d_sea    ', ' str    ',' chm    ',' bot    '
 
          totstr=  0.d0
          totDbar= 0.d0
@@ -158,14 +165,6 @@ c        open(82,file=h1name)
             totUbar = totUbar +d_Ubar*delx
             totusea = totusea + u_sea*delx
             totdsea = totdsea + d_sea*delx
-c      if(q2.le.6.) then
-c      if(ix.eq.1) then
-c       write(83,*) 'ix,x,q2,totstr,totDbar,totcha,totUbar,
-c     +totusea,totdsea'
-c      endif
-c      write(83,*) ix,x,q2,totstr,totDbar,totcha,totUbar
-c     +,totusea,totdsea
-c      endif
 
             write(81,810)
      +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,chm,bot
@@ -174,23 +173,12 @@ c      endif
 
 
          enddo
-* special
-c     if(q2.le.6.) then
-c      afs = totstr/totDbar
-c      afc = totcha/totUbar
-c      afs_ud = totstr/(totusea+totdsea)
-c      write(83,*) iparam,q2,totstr,totDbar,afs,totcha,totUbar,afc
-c      write(83,*) totusea,totdsea,afs_ud
-c      endif
-* end special
 
          close(81)
-c      close(82)
       
  999  continue
 
 
-c      close(83)
 
 
 cv store for LHAPDF
