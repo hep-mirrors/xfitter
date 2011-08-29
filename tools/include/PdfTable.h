@@ -35,9 +35,9 @@ class PdfTable  {
   virtual const double GetQ2(){return fQ2value;}
 
   // @brief Get Xmin value
-  const int GetXmin(){return fXmin;}
+  const double GetXmin(){return fXmin;}
   // @brief Get Xmax value
-  const int GetXmax(){return fXmax;}
+  const double GetXmax(){return fXmax;}
   
   // @brief Get PDF iPdf  at a given ix grid point 
   const double GetPDF(int iX, int iPdf);
