@@ -308,27 +308,98 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
   if(dataset->GetNGraphs()==0) return 1;
 
   Int_t SetId = dataset->GetSetId();
-  if(SetId==61 || SetId==62 || SetId==63 || SetId==64) {
-
+  if(SetId==61 || SetId==62 || SetId==63 || SetId==64 || SetId==35) {
+    
     TObjArray* TrashBin = new TObjArray; TrashBin->SetOwner();
-    Double_t Maximum = 0.; Double_t Minimum = 0.;
+
+    Double_t YMaximum = 0.; // axis borders
+    Double_t YMinimum = 0.;
     Double_t XMinimum = 0.;
-    Double_t MarkerSize = 0.005;
-    Double_t LabelSize = 0.06;
+    Double_t XMaximum = 1.;
+
+    Double_t MarkerSize = 0.005; // size of the data point marker
+    Double_t ALabelSize = 0.06;  // size of the axis' label
+    Bool_t Logx = kFALSE;
+    Bool_t Logy = kFALSE;
+
+    Double_t LabelSize = 1.;  // size of the graph label text
+    Double_t Chi2Size = 1.;   // size of the chi2 text
+
     TCanvas* can = new TCanvas;
     can->SetTopMargin(0.3);
     switch(SetId) {
-    case 61: can->Divide(4,5,0.); XMinimum = 0.001;   Maximum = 1.99; Minimum = 0.0001; MarkerSize = 0.005; LabelSize = 0.06; break;
-    case 62: can->Divide(6,6,0.); XMinimum = 0.00003; Maximum = 1.59; Minimum = 0.0001; MarkerSize = 0.005; LabelSize = 0.06; break;
-    case 63: can->Divide(3,4,0.); XMinimum = 0.002;   Maximum = 0.99; Minimum = 0.0001; MarkerSize = 0.5;   LabelSize = 0.08; break;
-    case 64: can->Divide(3,3,0.); XMinimum = 0.002;   Maximum = 1.99; Minimum = 0.0001; MarkerSize = 0.5;   LabelSize = 0.08; break;
+    case 61: 
+      can->Divide(4,5,0.); 
+      XMinimum = 0.001;   
+      XMaximum = 1.; 
+      YMaximum = 1.99; 
+      YMinimum = 0.0001; 
+      MarkerSize = 0.005; 
+      ALabelSize = 0.06; 
+      Chi2Size = 1.; 
+      LabelSize = .6; 
+      Logx = kTRUE;
+      Logy = kFALSE;
+      break;
+    case 62: 
+      can->Divide(6,6,0.); 
+      XMinimum = 0.00003; 
+      XMaximum = 1.; 
+      YMaximum = 1.59; 
+      YMinimum = 0.0001; 
+      MarkerSize = 0.005; 
+      ALabelSize = 0.06; 
+      Chi2Size = 1.; 
+      LabelSize = .6; 
+      Logx = kTRUE;
+      Logy = kFALSE;
+      break;
+    case 63: 
+      can->Divide(3,4,0.); 
+      XMinimum = 0.002;   
+      XMaximum = 1.; 
+      YMaximum = 0.99; 
+      YMinimum = 0.0001; 
+      MarkerSize = 0.5;   
+      ALabelSize = 0.08; 
+      Chi2Size = 1.; 
+      LabelSize = .6; 
+      Logx = kTRUE;
+      Logy = kFALSE;
+      break;
+    case 64: 
+      can->Divide(3,3,0.); 
+      XMinimum = 0.002;   
+      XMaximum = 1.; 
+      YMaximum = 1.99; 
+      YMinimum = 0.0001; 
+      MarkerSize = 0.5;   
+      ALabelSize = 0.08; 
+      Chi2Size = 1.; 
+      LabelSize = .6; 
+      Logx = kTRUE;
+      Logy = kFALSE;
+      break;
+    case 35: 
+      can->Divide(3,2,0.); 
+      XMinimum = 5.;      
+      XMaximum = 50.;
+      YMaximum = 990.;  
+      YMinimum = 0.15;     
+      MarkerSize = 0.5;   
+      ALabelSize = 0.05; 
+      Chi2Size = .6; 
+      LabelSize = 0.4; 
+      Logx = kTRUE;
+      Logy = kTRUE;
+      break;
     }
-
+    
     TGraphErrors* gDUnc;
     TGraphErrors* gDTot;
     TGraphErrors* gTheo;
     TGraphErrors* gTheoRef;
-
+    
     for(Int_t i=0; i<dataset->GetNGraphs(); i++) {
       gDUnc = dataset->GetDataUncr(i);
       gDTot = dataset->GetDataTotal(i);
@@ -336,11 +407,9 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       gTheoRef = NULL;
       if(datasetref) gTheoRef= datasetref->GetTheory(i);
 
-      //if(SetId==63 && i>8) {Maximum = 0.000499; Minimum = 0.000001;}
-
       Double_t chi2offx = 0.;
       Double_t chi2offy = 0.;
-
+      
       if(SetId==61 && i%4==0) chi2offx = 0.1;
       if(SetId==61 && i>15)   chi2offy = 0.08;
 
@@ -362,20 +431,25 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       if(SetId==64 && i>5)   {chi2offy += 0.05; chi2offx += 0.05;}
 
 
-      if(SetId==63 && i>2) Maximum = 0.299;
-      if(SetId==63 && i>5) {Maximum = 0.0399;; Minimum = 0.000001;}
-      if(SetId==63 && i>8) {Maximum = 0.000499; Minimum = 0.000001;}
+      if(SetId==63 && i>2) YMaximum = 0.299;
+      if(SetId==63 && i>5) {YMaximum = 0.0399;; YMinimum = 0.000001;}
+      if(SetId==63 && i>8) {YMaximum = 0.000499; YMinimum = 0.000001;}
 
-      if(SetId==64 && i>2) Maximum = 0.1199;
-      if(SetId==64 && i>5) Maximum = 0.01599;
+      if(SetId==64 && i>2) YMaximum = 0.1199;
+      if(SetId==64 && i>5) YMaximum = 0.01599;
 
 
-      TH1F* h = new TH1F("","",1, XMinimum, 1.); TrashBin->SetOwner(h);
-      h->SetMinimum(Minimum);
-      h->SetMaximum(Maximum);
+      if(SetId==35 && i>2)    LabelSize = 0.35;
+      if(SetId==35 && i%3==0) chi2offx += 0.08;
+       
+
+
+      TH1F* h = new TH1F("","",1, XMinimum, XMaximum); TrashBin->SetOwner(h);
+      h->SetMinimum(YMinimum);
+      h->SetMaximum(YMaximum);
       h->SetStats(kFALSE);
-      h->GetYaxis()->SetLabelSize(LabelSize);
-      h->GetXaxis()->SetLabelSize(LabelSize);
+      h->GetYaxis()->SetLabelSize(ALabelSize);
+      h->GetXaxis()->SetLabelSize(ALabelSize);
 
 
       TObjString* lstring = dataset->GetLabel(i);
@@ -383,7 +457,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       if(lstring)	label->SetLabel(lstring->GetString().Data());
       label->SetFillColor(kWhite);
       label->SetBorderSize(0);
-      label->SetTextSize(0.6);
+      label->SetTextSize(LabelSize);
 
       Double_t Chi2 = dataset->GetChi2(i);
       Int_t Npoints = dataset->GetNpts(i);
@@ -395,7 +469,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       delete temp;
       labelchi2->SetFillColor(kWhite);
       labelchi2->SetBorderSize(0);
-      labelchi2->SetTextSize(1.0);
+      labelchi2->SetTextSize(Chi2Size);
       labelchi2->SetTextColor(fColor);
 
       TPaveLabel* labelchi2ref = NULL;
@@ -410,7 +484,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
 	delete temp;
 	labelchi2ref->SetFillColor(kWhite);
 	labelchi2ref->SetBorderSize(0);
-	labelchi2ref->SetTextSize(1.0);
+	labelchi2ref->SetTextSize(Chi2Size);
 	labelchi2ref->SetTextColor(fColorRef);
       }
 
@@ -423,10 +497,9 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       if(gTheoRef) gTheoRef->SetLineColor(fColorRef);
 
       can->cd(i+1);
-      gPad->SetLogx();
+      if (Logx) gPad->SetLogx();
+      if (Logy) gPad->SetLogy();
 
-      //gDUnc->GetHistogram()->GetXaxis()->SetRangeUser(0.0001, 1.);
-      
       h->Draw();
       gDUnc->Draw("same P");
       gDTot->Draw("same P");
@@ -442,7 +515,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
     Title->Draw();
 
     TLegend* leg = new TLegend(0.6, 0.97, 0.9, 1.0, "","NDC");
-    leg->SetNColumns(2); leg->SetBorderSize(0);
+    leg->SetNColumns(2); leg->SetBorderSize(0); leg->SetFillColor(kWhite);
     leg->AddEntry(gTheo, fH1FitterOutput->GetDirectory()->Data(),"L");
     if(fH1FitterOutputRef) leg->AddEntry(gTheoRef, fH1FitterOutputRef->GetDirectory()->Data(),"L");
     leg->Draw();
@@ -517,8 +590,8 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
     Title->Draw();
     
     TLegend* leg = new TLegend(0.6, 0.97, 0.9, 1.0, "","NDC");
-    leg->SetNColumns(2); leg->SetBorderSize(0);
-    leg->AddEntry(gTheo, fH1FitterOutput->GetDirectory()->Data(),"L");
+    leg->SetNColumns(2); leg->SetBorderSize(0); leg->SetFillColor(kWhite);
+    leg->AddEntry(gTheo, fH1FitterOutput->GetDirectory()->Data(),"L"); 
     if(gTheoRef) leg->AddEntry(gTheoRef, fH1FitterOutputRef->GetDirectory()->Data(),"L");
     leg->Draw();
     labelchi2->Draw();

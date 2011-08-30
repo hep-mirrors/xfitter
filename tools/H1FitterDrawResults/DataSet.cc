@@ -75,81 +75,88 @@ Double_t DataSet::GetChi2(Int_t i) {
   return Chi2;
 }
 
+Int_t DataSet::FindGraphIndex(Double_t value, const Char_t* label) {
+
+  for(Int_t i=0; i<fDLabels.size(); i++) {
+    if(fDLabels[i] < value) continue;
+    if(fDLabels[i] > value) {
+      fDLabels.insert(fDLabels.begin()+i,value);
+      fDUnc->AddBefore(fDUnc->At(i),new TGraphErrors(0));
+      fDTot->AddBefore(fDTot->At(i),new TGraphErrors(0));
+      fTheo->AddBefore(fTheo->At(i),new TGraphErrors(0));
+      
+      fLabels->AddBefore(fLabels->At(i),new TObjString(label));
+      return i;
+    }
+    else if(fDLabels[i] == value) {
+      return i;
+    }
+  }
+    
+  fDLabels.push_back(value);
+  fDUnc->AddLast(new TGraphErrors(0));
+  fDTot->AddLast(new TGraphErrors(0));
+  fTheo->AddLast(new TGraphErrors(0));
+    
+  fLabels->AddLast(new TObjString(label));
+  return fDLabels.size() - 1;
+}
+
+void DataSet::AddPoint(Int_t GraphIdx, Double_t x, Double_t data, Double_t uncorrerr, Double_t toterr, Double_t theory) {
+  TGraphErrors* gDUnc = (TGraphErrors*) fDUnc->At(GraphIdx);
+  TGraphErrors* gDTot = (TGraphErrors*) fDTot->At(GraphIdx);
+  TGraphErrors* gTheo = (TGraphErrors*) fTheo->At(GraphIdx);
+
+  Int_t N = gDUnc->GetN();
+  gDUnc->Set(N+1);
+  gDTot->Set(N+1);
+  gTheo->Set(N+1);
+  
+  gDUnc->SetPoint(N, x, data);
+  gDUnc->SetPointError(N, 0., uncorrerr);
+    
+  gDTot->SetPoint(N, x, data);
+  gDTot->SetPointError(N, 0., toterr);
+    
+  gTheo->SetPoint(N, x, theory);
+  gTheo->SetPointError(N, 0., 0.);
+  
+  gDUnc->Sort();
+  gDTot->Sort();
+  gTheo->Sort();
+}
+
 void DataSet::AddPoint(Double_t v1, Double_t v2, Double_t v3, Double_t data, Double_t uncorrerr, Double_t toterr, Double_t theory, Double_t pull) {
 
   if(fSetId==61 || fSetId==62 || fSetId==63 || fSetId==64) {
-    TGraphErrors* gDUnc = NULL;
-    TGraphErrors* gDTot = NULL;
-    TGraphErrors* gTheo = NULL;
-    
-    Int_t GraphIdx = -1;
-    // Find the proper Graph number
-    static Int_t idx = 0;    
+    // different graph for each Q2 bin (column #2, v2)
+    // graphs as a function of x (column #1, v1)
+    // one needs to create the proper label too
 
-    for(Int_t i=0; i<fDLabels.size(); i++) {
-      if(fDLabels[i] < v2) continue;
-      if(fDLabels[i] > v2) {
-	fDLabels.insert(fDLabels.begin()+i,v2);
-	fDUnc->AddBefore(fDUnc->At(i),new TGraphErrors(0));
-	fDTot->AddBefore(fDTot->At(i),new TGraphErrors(0));
-	fTheo->AddBefore(fTheo->At(i),new TGraphErrors(0));
-	
-	TString* temp = new TString;
-	if(v2 > 10.) temp->Form("Q^{2} = %.f GeV^{2}", v2);
-	else         temp->Form("Q^{2} = %.2f GeV^{2}", v2);
-	fLabels->AddBefore(fLabels->At(i),new TObjString(temp->Data()));
-	delete temp;
-	GraphIdx = i;
-	break;
-      }
-      else if(fDLabels[i] == v2) {
-	GraphIdx = i;
-	break;
-      }
-    }
-    for(Int_t i=0; i<fDLabels.size(); i++) {
-    }
+    TString* temp = new TString;
+    if(v2>10.) temp->Form("Q^{2} = %.0f GeV^{2}", v2);
+    else       temp->Form("Q^{2} = %.1f GeV^{2}", v2);
+    Int_t GraphIdx = FindGraphIndex(v2, temp->Data()); // find proper graph depending on the v2 value (or create if necessery)
+    delete temp;
     
-    if(GraphIdx < 0) {
-      fDLabels.push_back(v2);
-      gDUnc = new TGraphErrors(0);
-      gDTot = new TGraphErrors(0);
-      gTheo = new TGraphErrors(0);
-      fDUnc->AddLast(gDUnc);
-      fDTot->AddLast(gDTot);
-      fTheo->AddLast(gTheo);
+    AddPoint(GraphIdx, v1, data, uncorrerr, toterr, theory); // fill the graph as a function of v1 value
 
-      TString* temp = new TString;
-      if(v2>10.) temp->Form("Q^{2} = %.0f GeV^{2}", v2);
-      else      temp->Form("Q^{2} = %.1f GeV^{2}", v2);
-      fLabels->AddLast(new TObjString(temp->Data()));
-      delete temp;
-
-    } else {
-      gDUnc = (TGraphErrors*) fDUnc->At(GraphIdx);
-      gDTot = (TGraphErrors*) fDTot->At(GraphIdx);
-      gTheo = (TGraphErrors*) fTheo->At(GraphIdx);
-    }
-
-    Int_t N = gDUnc->GetN();
-    gDUnc->Set(N+1);
-    gDTot->Set(N+1);
-    gTheo->Set(N+1);
-    
-    gDUnc->SetPoint(N, v1, data);
-    gDUnc->SetPointError(N, 0., uncorrerr);
-    
-    gDTot->SetPoint(N, v1, data);
-    gDTot->SetPointError(N, 0., toterr);
-    
-    gTheo->SetPoint(N, v1, theory);
-    gTheo->SetPointError(N, 0., 0.);
-
-    gDUnc->Sort();
-    gDTot->Sort();
-    gTheo->Sort();
   }
-  else {                                // GENERAL:    
+  else if(fSetId==35) {
+    // different graph for each Q2 bin (column #1 (v1) and column #2 (v2))
+    // graphs as a function of x (column #3, v3)
+    // one needs to create the proper label too
+    
+    TString* temp = new TString;
+    temp->Form("%.0f < Q^{2} < %.0f GeV^{2}", v1, v2);
+    Int_t GraphIdx = FindGraphIndex(v1, temp->Data()); // find proper graph depending on the v1 value (or create if necessery)
+    delete temp;
+    
+    AddPoint(GraphIdx, v3, data, uncorrerr, toterr, theory); // fill the graph as a function of v1 value
+
+  }
+  else {                                // GENERAL:  
+
     TGraphErrors* gDUnc = NULL;
     TGraphErrors* gDTot = NULL;
     TGraphErrors* gTheo = NULL;

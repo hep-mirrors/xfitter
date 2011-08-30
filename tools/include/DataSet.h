@@ -46,6 +46,8 @@ class  DataSet {
   inline Int_t GetNGraphs() {return fDUnc->GetEntries();}
    
  private:
+  Int_t FindGraphIndex(Double_t value, const Char_t* label);
+  void AddPoint(Int_t GraphIdx, Double_t x, Double_t data, Double_t uncorrerr, Double_t toterr, Double_t theory);
 
       };
 #endif
