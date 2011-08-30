@@ -1,3 +1,14 @@
+!
+! Created based on the data from H1 collaboration arXiv:0707.4057 [hep-ex]
+!
+! The hadronization correction (NPCorr) has been adopted 
+! from the publication and represent the inverse
+! of the published value (as needed by the program)
+!
+! The Z0 corrections values in the high Q2 region used in the
+! mentioned publication but not explicitly listed were obtained
+! directly from the editors.
+! 
 &Data
    Name = 'H1 inclusive jet 99-00 data'
    Reaction  = 'FastNLO ep jets'
