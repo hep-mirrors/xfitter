@@ -201,7 +201,7 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
       if ((iflag.eq.3).or.(iflag.eq.4)) then
          open(88,file='output/pulls.last.txt')
          do i=1,nset
-            npts(h1iset) = 0
+            npts(i) = 0
          enddo
       endif
 
