@@ -2,14 +2,11 @@
 *                                                                     *
 *    Program for generating Electromagnetic Structure Functions using *
 *    consistent treatment of charm and bottom structure functions     *
-*    Not included are the effects due to NLO corrections to photon-   *
-*    gluon fusion.   Charm mass = 1.4 GeV   Bottom mass = 4.75 GeV    *
+*    at NLO                                                           *
 *                                                                     *
-*    The program should be run only with iord set to 2                *
+*    The program should be run with iord set to 1                     *
 *    The calculation of F_L includes the full order(alpha_s^2)        *
 *    contribution                                                     *
-*    The program is self contained, only requiring the subroutine     *
-*    mrst2002.f and the grid file mrst2002nlo.dat.dat to be accessible*
 *                                                                     *
 ***********************************************************************
 
@@ -166,7 +163,7 @@ c    &        chm,cbar,bot,bbar,glu,phot)
       ffn=ffn+.5*(1.-X)*WI(I)*AL*(C22*fnxy+C23*(fnxy-fn))
 
 
-      fflp=fflp+.5*(1.-x)*wi(i)*(al*f1lq-2*0.0*y**2/q2)*fpxy
+      fflp=fflp+.5*(1.-x)*wi(i)*(al*f1lq)*fpxy
       ffln=ffln+.5*(1.-x)*wi(i)*al*f1lq*fnxy
 
 cv      IF(IFL-1) 23,23,24
@@ -817,7 +814,7 @@ c      if(ffb.lt.0.) ffb=0.
       chmlq=fflc-chmlg
       botq=ffb-botg
 
-      flp=fflp+fflc+fflb+0.0/q2*f2p
+      flp=fflp+fflc+fflb
       fln=ffln+fflc+fflb
       flc=fflc
       flb=fflb
