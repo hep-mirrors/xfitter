@@ -406,7 +406,7 @@ c AS applgrid example
 
       integer ir(nsysmax),n0_in 
       integer isys,ipoint,jpoint,ifail,flag_in
-      double precision chisq,fchi2_in
+      double precision chisq,fchi2_in,chi2error,fchi2_error
       double precision d,t,error,errorunc
       double precision errorsta, fac, fcorchi2_in
       double precision d_i, t_i, error_i, d_j, error_j, t_j         
@@ -421,6 +421,9 @@ c AS applgrid example
 *     Initialise
 *     ----------------------------------------------------------
       chisq=0.d0
+
+      fchi2_error = 0.d0
+
       fchi2_in = 0.d0
 
       sub = 0.d0
@@ -470,9 +473,11 @@ c AS applgrid example
 
 ***   scale errors for chi2 calculation
 ***   in principle:  unc*(t/d),  sta*dsqrt(t/d)
-               if (ICHI2.eq.11) then
+               if (ICHI2.eq.11 .or. ICHI2.eq.41) then
 ***   mixed scaling - decompose - scale - recombine
                   errorunc = E_UNC(ipoint)*d/100.
+
+
                   if (errorunc.gt.error) then
                      errorsta = 0.
                   else
@@ -483,13 +488,17 @@ c AS applgrid example
                      errorunc = errorunc*(abs(t/d))
                   endif
                   error = dsqrt(errorsta**2+errorunc**2)
-                  
+
                   
 c                    if ((h1iset.eq.101).or.(h1iset.eq.102)
 c     $                    .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
 c                        error = alpha(ipoint)
 c                     endif
 
+                  if (errorSta/d.gt.Chi2MaxError) then
+C     Turn off the point for the syst. errors shift estimation:
+                     error = 1.D010
+                  endif
 
 
                else if (ICHI2.eq.21) then
@@ -556,7 +565,7 @@ c                     endif
             error = alpha(ipoint)
 
 ***   scale errors for chi2 calculation - as above!
-            if (ICHI2.eq.11) then
+            if (ICHI2.eq.11 .or. ICHI2.eq.41) then
 ***   mixed scaling - decompose - scale - recombine
                errorunc = E_UNC(ipoint)*d/100.
                if (errorunc.gt.error) then
@@ -569,12 +578,13 @@ c                     endif
                   errorunc = errorunc*(abs(t/d))
                endif
                error = dsqrt(errorsta**2+errorunc**2)
+               !> Extra contribution due to 2xlog sigma term:
+               chi2error =  2.*log( error/alpha(ipoint)) !> subtract un-modified error such that delta chi2=0 if errors are not modified.
 
                if ((h1iset.eq.101).or.(h1iset.eq.102)
      $              .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
                   error = alpha(ipoint)
                endif
-
 
 
             else if (ICHI2.eq.21) then
@@ -600,6 +610,11 @@ c                     endif
             ALPHA_MOD(ipoint)=error
             chisq = (d-t)**2/error**2
             fchi2_in = fchi2_in + chisq
+
+            if ( ICHI2.eq.41) then
+               fchi2_error = fchi2_error + chi2error
+               fchi2_in = fchi2_in + chi2error
+            endif
 
             if (flag_in.eq.3) then
                pchi2_in(h1iset) = pchi2_in(h1iset)+chisq
@@ -700,6 +715,10 @@ c....print out the correlated chi2
          endif
 c...........................
 
+      endif
+
+      if (ichi2.eq.41) then
+         print '(''Chi2 due to 2xlog sigma term'',F6.1)', fchi2_error
       endif
 
       return

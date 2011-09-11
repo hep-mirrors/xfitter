@@ -8,6 +8,8 @@
      $     ,ICHI2              !>  Internal flag for chi2-type
       integer HFSCHEME         !>  Heavy flavour scheme (0 -- zero mass, 2 -- RT)
 
+      double precision Chi2MaxError !> Switch to Poisson stat. for larger errros
+      
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
       logical DOBANDS            !> Produce PDF error bands 
@@ -67,7 +69,7 @@ C
 
 
       common/STEERING/
-     &     Q2VAL,starting_scale,strange_frac,
+     &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
      &     lDEBUG,DOBANDS,
      &     Itheory,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,

@@ -26,7 +26,8 @@ C Define namelists:
       integer IOrder   ! Evolution order
 C Main steering parameters namelist
       namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
-     $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID
+     $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID,
+     $     Chi2MaxError
 
 
 C Output style namelist
@@ -96,6 +97,7 @@ C Type of Chebyshev parameterization:
       ichebtypeGlu = 0
       ichebtypeSea = 0
 
+      Chi2MaxError = 1.E10  ! turn off.
 
 C 25 Jan 2011
 C     Pure polinomial param for the valence quarks:
@@ -415,6 +417,8 @@ C---------------------------------
          ICHI2 = 2
       elseif (Chi2Style.eq.'H12000') then
          ICHI2 = 1        
+      elseif (Chi2Style.eq.'H12011') then
+         ICHI2 = 41        
       else
          print *,'Unsupported Chi2Style =',Chi2Style
          print *,'Check value in steering.txt'
