@@ -416,6 +416,7 @@ c AS applgrid example
       double precision BSYS_in(NSYSMax),RSYS_in(NSYSMax)
       double precision sub
 
+      double precision dNEvt, tNEvt
 
 *     ----------------------------------------------------------
 *     Initialise
@@ -462,21 +463,23 @@ c AS applgrid example
 *     now calculate the bsys(nsys) and the sysa matrix
 *     ---------------------------------------------------------
 
-         do isys = 1,nsys
             
-            do 200 ipoint=1,n0_in
+         do ipoint=1,n0_in
                
-               d = DATEN(ipoint)
-               t = THEO(ipoint)
-               error = ALPHA(ipoint)
+            d = DATEN(ipoint)
+            t = THEO(ipoint)
+            error = ALPHA(ipoint)
                   
 
 ***   scale errors for chi2 calculation
 ***   in principle:  unc*(t/d),  sta*dsqrt(t/d)
-               if (ICHI2.eq.11 .or. ICHI2.eq.41) then
+            if (ICHI2.eq.11 .or. ICHI2.eq.41) then
+               if (alpha(ipoint)/d.gt.Chi2MaxError) then
+C     Turn off the point for the syst. errors shift estimation:
+                  error = 1.D010
+               else
 ***   mixed scaling - decompose - scale - recombine
                   errorunc = E_UNC(ipoint)*d/100.
-
 
                   if (errorunc.gt.error) then
                      errorsta = 0.
@@ -490,37 +493,35 @@ c AS applgrid example
                   error = dsqrt(errorsta**2+errorunc**2)
 
                   
-c                    if ((h1iset.eq.101).or.(h1iset.eq.102)
+c     if ((h1iset.eq.101).or.(h1iset.eq.102)
 c     $                    .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
-c                        error = alpha(ipoint)
-c                     endif
+c     error = alpha(ipoint)
+c     endif
 
-                  if (errorSta/d.gt.Chi2MaxError) then
-C     Turn off the point for the syst. errors shift estimation:
-                     error = 1.D010
-                  endif
-
-
-               else if (ICHI2.eq.21) then
-***   linear scaling
-                  error = error*(abs(t/d))
-               else if (ICHI2.eq.31) then
-***   sqrt scaling
-                  error = error*dsqrt(abs(t/d))
                endif
-                  
+
+
+            else if (ICHI2.eq.21) then
+***   linear scaling
+               error = error*(abs(t/d))
+            else if (ICHI2.eq.31) then
+***   sqrt scaling
+               error = error*dsqrt(abs(t/d))
+            endif
+
+            do isys = 1,nsys                  
                bsys_in(isys) = bsys_in(isys) 
      +              + t*(d-t)*BETA(isys,ipoint)/error**2 
                
                ebsys_in(isys) = ebsys_in(isys)
      +              + t * BETA(isys,ipoint)/error
                
-               do 300 jsys=1,nsys
+               do  jsys=1,nsys
                   sysa(isys,jsys) = sysa(isys,jsys)
      +                 + beta(isys,ipoint)*beta(jsys,ipoint)*t**2/error**2
- 300           continue
+               enddo
                
- 200        continue
+            enddo
 
          enddo
 
@@ -599,7 +600,7 @@ C     Turn off the point for the syst. errors shift estimation:
             do isys=1,nsys
                fac = fac - rsys_in(isys)*beta(isys,ipoint)                
             enddo 
-
+                                  
             if (DEBUG.and.flag_in.eq.1) then
                write(78,*) 'ipoint fac ',ipoint,fac
             endif
@@ -608,7 +609,22 @@ C     Turn off the point for the syst. errors shift estimation:
             t = t*fac
             THEO_MOD(ipoint)=t
             ALPHA_MOD(ipoint)=error
-            chisq = (d-t)**2/error**2
+
+C
+C Add Poisson log likelihood
+C
+            if (alpha(ipoint)/d.gt.Chi2MaxError) then
+C use Poisson formula:
+               dNEvt = (d*d)/(alpha(ipoint)*alpha(ipoint))
+               tNEvt = (t*d)/(alpha(ipoint)*alpha(ipoint))
+               chisq = 2* ( tNEvt - dNEvt - dNEvt*log(tNevt/dNEvt))
+               
+C               print *,dnevt,tnevt,chisq
+               chi2error = 0.
+               
+            else
+               chisq = (d-t)**2/error**2
+            endif
             fchi2_in = fchi2_in + chisq
 
             if ( ICHI2.eq.41) then
