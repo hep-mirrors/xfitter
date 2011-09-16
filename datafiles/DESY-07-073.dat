@@ -1,5 +1,11 @@
-!
-! Created based on the data from H1 collaboration arXiv:0707.4057 [hep-ex]
+*
+* The data are taken from:
+*
+*"Measurement of inclusive jet production in deep-inelastic scattering at high Q^2 and determination of the strong coupling"
+* By H1 Collaboration (A. Aktas et al.). DESY-07-073, May 2007. 22pp. 
+* Published in Phys.Lett.B653:134-144,2007. 
+* e-Print: arXiv:0706.3722 [hep-ex]
+*
 !
 ! The hadronization correction (NPCorr) has been adopted 
 ! from the publication and represent the inverse

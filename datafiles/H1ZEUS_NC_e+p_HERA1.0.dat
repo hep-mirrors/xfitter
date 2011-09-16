@@ -1,3 +1,11 @@
+*
+* The data are taken from:
+*
+* "Combined Measurement and QCD Analysis of the Inclusive e+- p Scattering Cross Sections at HERA."
+* By H1 and ZEUS Collaboration (F.D. Aaron et al.). DESY-09-158, Oct 2009. 61pp. Published in JHEP 1001:109,2010. 
+* e-Print: arXiv:0911.0884 [hep-ex]
+*
+*
 &Data 
    Name  = 'NC cross section HERA-I H1-ZEUS combined e+p.'    
 

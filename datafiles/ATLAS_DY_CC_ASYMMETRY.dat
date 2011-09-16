@@ -1,3 +1,12 @@
+*
+* The data are taken from:
+*
+* "Measurement of the Muon Charge Asymmetry from W Bosons Produced in pp Collisions at $\sqrt{s} = 7$ TeV with the ATLAS detector"
+*  By ATLAS Collaboration (Georges Aad et al.). Mar 2011. 8pp. 
+*  Published in Phys.Lett.B701:31-49,2011. 
+*  e-Print: arXiv:1103.2929 [hep-ex]
+*
+*
 &Data
    Name = 'ATLAS W asymmetry'
    Reaction  = 'CC pp'
