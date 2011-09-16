@@ -1,0 +1,123 @@
+
+If you use the HERAFITTER package in a scientific publication, please consider adding the
+following references. The main citations list contains the papers which should be cited 
+for any use of the HERAFITTER program. In addition, some citations are required depending
+on the modules, data and theory tables used in the program.
+
+==================
+  Main citations
+==================
+
+H1Fitter   
+---------
+1) "Combined Measurement and QCD Analysis of the Inclusive e+- p Scattering Cross Sections at HERA."
+By H1 and ZEUS Collaboration (F.D. Aaron et al.). DESY-09-158, Oct 2009. 61pp. 
+Published in JHEP 1001:109,2010. 
+e-Print: arXiv:0911.0884 [hep-ex]
+
+2) "A Precision Measurement of the Inclusive ep Scattering Cross Section at HERA."
+By H1 Collaboration (F.D. Aaron et al.). DESY-09-005, 2009. 35pp. 
+Published in Eur.Phys.J.C64:561-587,2009. 
+e-Print: arXiv:0904.3513 [hep-ex] 
+
+QCDNUM  ( evolution code )
+-------
+"Fast QCD Evolution and Convolution", M. Botje,
+NIKHEF-10-002, May 2010. 74pp. 
+Published in Comput.Phys.Commun.182:490-532,2011. 
+e-Print: arXiv:1005.1481 [hep-ph]
+
+==================================
+ Citations depending on the usage
+==================================
+
+1) RT- variable flavour number scheme (for HF_SCHEME =  'RT' or 'RT FAST')
+---------------------------------------------------------------------------
+"An Ordered analysis of heavy flavor production in deep inelastic scattering"
+R.S. Thorne, R.G. Roberts. RAL-TR-97-049, Sep 1997. 48pp. 
+Published in Phys.Rev.D57:6871-6898,1998. 
+e-Print: hep-ph/9709442
+
+"A Variable-flavor number scheme for NNLO"
+R.S. Thorne. CAVENDISH-HEP-2006-01, Jan 2006. 17pp. 
+Published in Phys.Rev.D73:054019,2006. 
+e-Print: hep-ph/0601245
+
+2) Chi2 definition ( CHI2Style = 'XXXX')
+-----------------------------------------
+'H12000':
+"Measurement and QCD analysis of neutral and charged current cross-sections at HERA"
+By H1 Collaboration (C. Adloff et al.). DESY-03-038, Apr 2003. 54pp. 
+Published in Eur.Phys.J.C30:1-32,2003. 
+e-Print: hep-ex/0304003
+
+"A ZEUS next-to-leading-order QCD analysis of data on deep inelastic scattering"
+By ZEUS Collaboration (S. Chekanov et al.). DESY-02-105, Aug 2002. 50pp. 
+Published in Phys.Rev.D67:012007,2003. 
+e-Print: hep-ex/0208023
+
+'HERAPDF': 
+Add two references above (for 'H12000'), in addition: 
+
+"Measurement of the Inclusive ep Scattering Cross Section at Low Q^2 and x at HERA"
+F.D. Aaron et al. DESY-08-171, 2009. 90pp. 
+Published in Eur.Phys.J.C63:625-678,2009. 
+e-Print: arXiv:0904.0929 [hep-ex]
+
+3) PDFStyle  (PDFStyle = 'XXXX')
+----------------------------------
+'CHEB':
+"Parton Distribution Uncertainties using Smoothness Prior"
+Alexander Glazov, Sven Moch, Voica Radescu. DESY-10-164, Sep 2010. 8pp. 
+Published in Phys.Lett.B695:238-241,2011. 
+e-Print: arXiv:1009.6170 [hep-ph]
+
+'10p H12000':
+"Measurement and QCD analysis of neutral and charged current cross-sections at HERA"
+By H1 Collaboration (C. Adloff et al.). DESY-03-038, Apr 2003. 54pp. 
+Published in Eur.Phys.J.C30:1-32,2003. 
+e-Print: hep-ex/0304003
+
+'10p HERAPDF', '13p HERAPDF':
+In addition to the main references, add:
+
+"An NLO QCD analysis of inclusive cross-section and jet-production data from the zeus experiment"
+By ZEUS Collaboration (S. Chekanov et al.). DESY-05-050, Mar 2005. 37pp. 
+Published in Eur.Phys.J.C42:1-16,2005. 
+e-Print: hep-ph/0503274
+
+4) PDF Uncertainties ( Bands = True )
+-------------------------------------------------------------
+"Multivariate fitting and the error matrix in global analysis of data"
+J. Pumplin, D.R. Stump, W.K. Tung. MSU-HEP-07100, CERN-TH-2000-249, Aug 2000. 14pp. 
+Published in Phys.Rev.D65:014011,2001. 
+e-Print: hep-ph/0008191
+
+"New generation of parton distributions with uncertainties from global QCD analysis"
+J. Pumplin, D.R. Stump, J. Huston, H.L. Lai, Pavel M. Nadolsky, W.K. Tung, MSU-HEP-011101, 
+Jan 2002. 44pp. 
+Published in JHEP 0207:012,2002. 
+e-Print: hep-ph/0201195
+
+5) APPLGRID (if APPLGRID tables or reading interface are used)
+--------------------------------------------------------------
+"A posteriori inclusion of parton density functions in NLO QCD final-state calculations at hadron colliders: The APPLGRID Project"
+Tancredi Carli, Dan Clements, Amanda Cooper-Sarkar, Claire Gwenlan, Gavin P. Salam, 
+Frank Siegert, Pavel Starovoitov,  Mark Sutton. 2010. 33pp. 
+Published in Eur.Phys.J.C66:503-524,2010. 
+e-Print: arXiv:0911.2985 [hep-ph]
+
+6) FastNLO (if FastNLO tables or reader are used)
+---------------------------------------------
+"FastNLO: Fast pQCD calculations for PDF fits"
+T. Kluge, K. Rabbertz, M. Wobisch. DESY-06-186, FERMILAB-CONF-06-352-E, Sep 2006. 8pp. 
+Presented at 14th International Workshop on Deep Inelastic Scattering (DIS 2006), Tsukuba, Japan, 20-24 Apr 2006. 
+Published in *Tsukuba 2006, Deep inelastic scattering* 483-486 
+e-Print: hep-ph/0609285
+
+=============================
+ Citations for data tables 
+=============================
+
+Please use the citations as given in headers of the files which are used in the fit.
+
