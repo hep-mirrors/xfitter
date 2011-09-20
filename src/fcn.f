@@ -418,9 +418,14 @@ c AS applgrid example
 
       double precision dNEvt, tNEvt
 
+      integer npoisson, ngauss
+
 *     ----------------------------------------------------------
 *     Initialise
 *     ----------------------------------------------------------
+      npoisson = 0
+      ngauss   = 0
+
       chisq=0.d0
 
       fchi2_error = 0.d0
@@ -621,9 +626,10 @@ C use Poisson formula:
                
 C               print *,dnevt,tnevt,chisq
                chi2error = 0.
-               
+               npoisson = npoisson+1
             else
                chisq = (d-t)**2/error**2
+               ngauss = ngauss+1
             endif
             fchi2_in = fchi2_in + chisq
 
@@ -735,6 +741,11 @@ c...........................
 
       if (ichi2.eq.41) then
          print '(''Chi2 due to 2xlog sigma term'',F6.1)', fchi2_error
+      endif
+
+      if (npoisson.gt.0) then
+         print '(''Use Poisson stats for '',I6,'', use Gauss stats for''
+     $        ,I6,'' events'')',npoisson,ngauss
       endif
 
       return
