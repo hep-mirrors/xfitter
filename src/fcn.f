@@ -498,11 +498,6 @@ C     Turn off the point for the syst. errors shift estimation:
                   error = dsqrt(errorsta**2+errorunc**2)
 
                   
-c     if ((h1iset.eq.101).or.(h1iset.eq.102)
-c     $                    .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
-c     error = alpha(ipoint)
-c     endif
-
                endif
 
 
@@ -586,11 +581,6 @@ c     endif
                error = dsqrt(errorsta**2+errorunc**2)
                !> Extra contribution due to 2xlog sigma term:
                chi2error =  2.*log( error/alpha(ipoint)) !> subtract un-modified error such that delta chi2=0 if errors are not modified.
-
-               if ((h1iset.eq.101).or.(h1iset.eq.102)
-     $              .or.(h1iset.eq.103).or.(h1iset.eq.104)) then
-                  error = alpha(ipoint)
-               endif
 
 
             else if (ICHI2.eq.21) then
