@@ -16,7 +16,11 @@ C--------------------------------------------------------
       include 'steering.inc'
       include 'alphas.inc'
       include 'thresholds.inc'
-	integer i
+      integer i
+
+      double precision fs
+      double precision fshermes
+
 C-------------------------------------------------------
 
       Ag=p(1)
@@ -81,6 +85,14 @@ C-------------------------------------------------------
       alphas=p(95)
       fstrange=p(96)
 
+C Hermes strange prepare:
+      if (ifsttype.eq.0) then
+         fs = fstrange
+      else
+         fs = fshermes(0.)
+      endif
+     
+
       if (q0.ge.qc) then
          fcharm=p(97)
       else
@@ -109,7 +121,7 @@ C different cases of parametrisation type
          Bubar = Bu
          Bdbar = Bu
          Adbar = Ad
-         aU = aD * (1.-fstrange)/(1.-fcharm)
+         aU = aD * (1.-fs)/(1.-fcharm)
          aUbar = aU
 
 C     Chebyshev param. for the gluon:
@@ -125,7 +137,7 @@ C
 
 
          Bdv = Buv
-         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
+         Aubar = Adbar * (1.-fs)/(1.-fcharm)
          Bubar = Bdbar
          
 
@@ -147,7 +159,7 @@ C
             Bdv = Buv
          endif
                
-         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)         
+         Aubar = Adbar * (1.-fs)/(1.-fcharm)         
          Bubar = Bdbar
          if (iparam.eq.222) then
             Cpg=25.
@@ -181,7 +193,7 @@ C
 
       elseif (iparam.eq.229) then
          Cpg=25.
-         Aubar = Adbar * (1.-fstrange)/(1.-fcharm)
+         Aubar = Adbar * (1.-fs)/(1.-fcharm)
          Bubar = Bdbar
 
          if (NCHEBGLU.gt.0) then
@@ -273,11 +285,21 @@ C------------------------------------------------------
       logical lfirstt
       data lfirstt /.true./
 
+      double precision fs
+      double precision fshermes
 C---------------------------------------------------------
       if (lfirstt) then
          lfirstt = .false.
          print *,'DecodePara INFO: First time call'        
       endif
+
+C Hermes strange prepare:
+      if (ifsttype.eq.0) then
+         fs = fstrange
+      else
+         fs = fshermes(0.)
+      endif
+
 C     simple copy first:
       do i=1,10
          parglue(i) = pars(i)
@@ -299,14 +321,14 @@ C     simple copy first:
          parubar(2)=paru(2)
          pardbar(2)=paru(2)
          pardbar(1)=pard(1)
-         parU(1)=pard(1)*(1.-parother(6))/(1.-parother(7))
+         parU(1)=pard(1)*(1.D0-fs)/(1.D0-fcharm)
          parUbar(1)=parU(1)
          
       elseif (iparam.eq.2) then
 
          pardval(2)=paruval(2)
          parubar(2)=pardbar(2)
-         parUbar(1)=pardbar(1)*(1.-parother(6))/(1.-parother(7))
+         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
       elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.222)) then
          
@@ -314,7 +336,7 @@ C     simple copy first:
             pardval(2)=paruval(2)
          endif
          parubar(2)=pardbar(2)
-         parUbar(1)=pardbar(1)*(1.-parother(6))/(1.-parother(7))
+         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
 cv         if (iparam.eq.222) then
 cv            parglue(9)=25.
@@ -323,7 +345,7 @@ cv         endif
       elseif (iparam.eq.229) then
 cv         parglue(9)=25.
          parUbar(2)=parDbar(2)
-         parUbar(1)=parDbar(1)*(1.-parother(6))/(1.-parother(7))
+         parUbar(1)=parDbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
       elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
          
@@ -401,11 +423,21 @@ C------------------------------------------------------
       logical lfirstt
       data lfirstt /.true./
 
+      double precision fs
+      double precision fshermes
 C---------------------------------------------------------
       if (lfirstt) then
          lfirstt = .false.
          print *,'DecodeCtPara INFO: First time call'        
       endif
+
+C Hermes strange prepare:
+      if (ifsttype.eq.0) then
+         fs = fstrange
+      else
+         fs = fshermes(0.)
+      endif
+
 C simple copy first:
       do i=1,6
          ctglue(i) = pars(i)
@@ -416,9 +448,10 @@ C simple copy first:
          ctother(i)= pars(94+i)
       enddo
 
+
 C Extra constrains:
       if (pars(31).eq.0) then
-         ctubar(1) = ctdbar(1) * (1.-ctother(2)) ! normalization ubar = dbar 
+         ctubar(1) = ctdbar(1) * (1.D0-fs)/(1.D0-fcharm) ! normalization ubar = dbar 
          ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
       endif
 
@@ -1181,7 +1214,8 @@ C---------------------------------------------------
       endif
 
       if (x.lt.1.0D-8) then
-         fshermes = fstrange
+         fshermes = fstrange*( 
+     $        0.5D0*(1.D0+tanh(-(1.0D-8-hermes_xcent)*hermes_xrise)))
       else
          fshermes = fstrange*( 
      $        0.5D0*(1.D0+tanh(-(x-hermes_xcent)*hermes_xrise)))
