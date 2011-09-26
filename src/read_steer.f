@@ -234,6 +234,10 @@ C
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
 
+C
+C Also read extra minuit parameters:
+C      
+      call readextraparam
 
       if (lDebug) then
 C Print the namelists:
@@ -426,4 +430,67 @@ C---------------------------------
          stop
       endif
       
+      end
+
+
+      Subroutine ReadExtraParam
+      implicit none
+      include 'extrapars.inc'
+
+      integer maxExtra
+      parameter (maxExtra=50)
+      character*32 name(maxExtra)
+      double precision Value(maxExtra),Step(maxExtra)
+     $     ,Min(maxExtra),Max(maxExtra)
+
+      namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
+      integer i
+
+C----------------------------------------
+      
+      nExtraParam = 0
+
+      open (51,file='steering.txt',status='old')
+
+C
+C Read as many instances of the namelist as exists:
+C
+      do while (.true.)
+C
+C Reset names
+C
+         do i=1,maxExtra
+            name(i) = ' '
+         enddo
+         read (51,NML=ExtraMinimisationParameters,END=71,ERR=72)
+         
+         do i=1,maxExtra
+            if (name(i).ne.' ') then
+C Add extra param
+               nExtraParam = nExtraParam + 1
+               if (nExtraParam.gt. nExtraParamMax) then
+                  print *,'Number of extra parameters exceeds the limit'
+                  print *,'nExtraParam=',nExtraParam
+                  print *,'Check your steering, stopping'
+                  stop
+               endif
+               ExtraParamNames(nExtraParam) = name(i)
+               ExtraParamValue(nExtraParam) = value(i)
+               ExtraParamStep (nExtraParam) = step(i)
+               ExtraParamMin  (nExtraParam) = min(i)
+               ExtraParamMax  (nExtraParam) = max(i)
+            endif
+         enddo
+      enddo
+ 71   continue
+      print '(''Got '',i5,'' extra minuit parameters'')',nExtraParam
+      close (51)
+      return
+ 72   continue
+      print *,'Problem reading namelist ExtraMinimisationParameters'
+      print *,'Stop'
+      stop
+
+
+C----------------------------------------
       end

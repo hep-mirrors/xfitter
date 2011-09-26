@@ -56,6 +56,27 @@ C----------------------------------------------------------------
 
       end
 
+      integer Function GetParameterIndex(CName)
+!>
+!> Created 24 Sept 2011
+!>
+!>
+      implicit none
+      include 'extrapars.inc'
+      character*(*) CName
+      integer i
+C--------------------------------------------------
+      do i=1,nExtraParam
+         if (ExtraParamNames(i).eq.cName) then
+            GetParameterIndex = i
+            Return
+         endif
+      enddo
+
+C Not found
+      GetParameterIndex = 0
+C--------------------------------------------------
+      end
 
       integer Function GetKFactIndex(IDataSet,CName)
 C-----------------------------------------------------------------
