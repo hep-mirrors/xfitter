@@ -17,9 +17,11 @@ C-------------------------------------------------------------------
          Call GetReducedNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          Call GetCCXsection(IDataSet)
-      elseif (DATASETREACTION(IDataSet).eq.'CC pp') then
+      elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
+     $        DATASETREACTION(IDataSet).eq.'CC ppbar' ) then
          Call GetDYCCXsection(IDataSet)
-      elseif (DATASETREACTION(IDataSet).eq.'NC pp') then
+      elseif (DATASETREACTION(IDataSet).eq.'NC pp' .or.
+     $        DATASETREACTION(IDataSet).eq.'NC ppbar' ) then
          Call GetDYNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
          Call GetJetsPPApplGrid(IDataSet)
