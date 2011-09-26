@@ -318,9 +318,11 @@ C
             Call InitReducedNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
             Call InitCCXsectionDataset(IDataSet)
-         elseif (DATASETREACTION(IDataSet).eq.'CC pp') then
+         elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
+     $	         DATASETREACTION(IDataSet).eq.'CC ppbar' ) then
             Call InitDYCCXsectionDataset(IDataSet)
-         elseif (DATASETREACTION(IDataSet).eq.'NC pp') then
+         elseif (DATASETREACTION(IDataSet).eq.'NC pp' .or.
+     $           DATASETREACTION(IDataSet).eq.'NC ppbar' ) then
             Call InitDYNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
             Call InitJetsPPApplGridDataSet(IDataSet)
@@ -425,13 +427,18 @@ C------------------------------------------------------------
       integer IDataSet
 
       integer GetBinIndex                                                                                                                                    
+      integer GetInfoIndex
       double precision ranges(7)
 
       integer NPmax
       parameter(NPmax=100)
+      double precision sqrtS
       double precision yb(Npmax+1)
+      double precision y1, y2
+      integer bchpr
 
-      integer idx, idxY1, idxY2,i 
+      integer idx, idxY1, idxY2, idxSqrtS, idxBchpr, i 
+      integer idxPte, idxMinv1, idxMinv2
 
 C----------------------------------------------------------
 
@@ -444,17 +451,41 @@ C----------------------------------------------------------
 
 C Set global parameter:
       LFitDY = .true.
+      
+      ! beam 
+      idxSqrtS = GetInfoIndex(IDataSet, 'sqrt(S)')
+      sqrtS = 7000d0 ! defaults to LHC
+      if ( idxSqrtS .ne. 0 ) sqrtS = DATASETInfo(idxSqrtS, IDataSet)
+      ! beam charge product
+      bchpr = 1 ! defaults to LHC
+      if ( DATASETREACTION(IDataSet) .eq. 'NC ppbar' ) 
+     $ bchpr = -1
 
       ! pt
-      ranges(7)=20.d0
+      idxPte = GetInfoIndex(IDataSet,'pte cut')
+      ranges(7) = 0.d0
+      if ( idxPte .ne. 0 ) 
+     $   ranges(7) = DATASETInfo(idxPte, IDataSet)
+
       ! mass
-      ranges(1) = 66.d0
-      ranges(2) = 116.d0
+      idxMinv1 = GetInfoIndex(IDataSet, 'Minv min')
+      idxMinv2 = GetInfoIndex(IDataSet, 'Minv max')
+      ranges(1) = 1.d0
+      ranges(2) = sqrtS ! default to full range
+      if ( idxMinv1 .ne. 0 ) 
+     $   ranges(1) = DATASETInfo(idxMinv1, IDataSet)
+      if ( idxMinv2 .ne. 0 )
+     $   ranges(2) = DATASETInfo(idxMinv2, IDataSet)
       
       ! rap
+      ! hardcoded so far
       ranges(3) = -10.d0
       ranges(4) =  10.d0
+
       ! eta
+      ! hardcoded so far ( will not work with narrow eta)
+      !idxEta1 = GetInfoIndex(IDataSet, 'Eta_el min')
+      !idxEta2 = GetInfoIndex(IDataSet, 'Eta_el max')
       ranges(5) = -10.d0
       ranges(6) =  10.d0
 
@@ -476,8 +507,9 @@ C Define bins:
          yb(i+1) =  AbstractBins(idxY2,idx)
       enddo
 
+      !print *, bchpr, sqrts, ranges
       print *,'Initialise DY calculations for dataset', IDataSet
-      call dy_create_calc(IDataSet, 1, 7000d0, 'Z'//char(0), ranges, 
+      call dy_create_calc(IDataSet, bchpr, sqrtS, 'Z'//char(0), ranges, 
      $   'y'//char(0), NDATAPOINTS(IDataSet), yb)
       
       end
@@ -518,13 +550,18 @@ C------------------------------------------------------------
       integer IDataSet
 
       integer GetBinIndex                                                                                                                                    
+      integer GetInfoIndex                                                                                                                                    
       double precision ranges(7)
 
       integer NPmax
       parameter(NPmax=100)
+      double precision sqrtS, pte, ptnu
       double precision eb(Npmax+1)
+      integer bchpr
 
       integer idx, idxEta1, idxEta2,i 
+      integer idxSqrtS, idxBchpr
+      integer idxPte, idxPtnu, idxMinv1, idxMinv2
 
 C----------------------------------------------------------
 
@@ -538,16 +575,44 @@ C----------------------------------------------------------
 C Set global parameter:
       LFitDY = .true.
 
+      ! beam 
+      idxSqrtS = GetInfoIndex(IDataSet, 'sqrt(S)')
+      sqrtS = 7000d0 ! defaults to LHC
+      if ( idxSqrtS .ne. 0 ) sqrtS = DATASETInfo(idxSqrtS, IDataSet)
+      ! beam charge product
+      bchpr = 1 ! defaults to LHC
+      if ( DATASETREACTION(IDataSet) .eq. 'CC ppbar' ) 
+     $ bchpr = -1
+
       ! pt
-      ranges(7)=25.d0
+      idxPte = GetInfoIndex(IDataSet,'pte cut')
+      idxPtnu = GetInfoIndex(IDataSet, 'ptnu cut')
+      pte = 0.d0
+      ptnu = 0.d0
+      if ( idxPte .ne. 0 ) 
+     $   pte = DATASETInfo(idxPte, IDataSet)
+      if ( idxPtnu .ne. 0 )  
+     $   ptnu = DATASETInfo(idxPtnu, IDataSet)
+      if ( ptnu .le. pte ) then 
+         ranges(7) = pte
+      else  
+         ranges(7) = ptnu
+      endif
+
       ! mass
+      idxMinv1 = GetInfoIndex(IDataSet, 'Minv min')
+      idxMinv2 = GetInfoIndex(IDataSet, 'Minv max')
       ranges(1) = 1.d0
-      ranges(2) = 7000.d0
+      ranges(2) = sqrtS ! default to full range
+      if ( idxMinv1 .ne. 0 )
+     $   ranges(1) = DATASETInfo(idxMinv1, IDataSet)
+      if ( idxMinv2 .ne. 0 )
+     $   ranges(2) = DATASETInfo(idxMinv2, IDataSet)
       
-      ! rap
+      ! rap, hardcoded
       ranges(3) = -10.d0
       ranges(4) =  10.d0
-      ! eta
+      ! eta, hardcoded
       ranges(5) = -10.d0
       ranges(6) =  10.d0
 
@@ -569,8 +634,9 @@ C Define bins:
          eb(i+1) =  AbstractBins(idxEta2,idx)
       enddo
 
+      !print *, bchpr, sqrts, ranges
       print *,'Initialise DY calculations for dataset', IDataSet
-      call dy_create_calc(IDataSet, 1, 7000d0, 'W'//char(0), ranges, 
+      call dy_create_calc(IDataSet, bchpr, sqrtS, 'W'//char(0), ranges, 
      $   'eta'//char(0), NDATAPOINTS(IDataSet), eb)
       
       end
