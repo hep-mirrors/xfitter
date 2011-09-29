@@ -347,7 +347,7 @@ C Theory file if present:
 C Check if we need to read kfactor file:
       if (TheoryInfoFile.ne.' ') then
          if (TheoryType.eq.'kfactor') then
-            open (52,file=TheoryInfoFile,status='old',err=100)
+            open (53,file=TheoryInfoFile,status='old',err=100)
             lreadkfactor = .true.
          endif
       endif
@@ -409,7 +409,7 @@ C Scale the syst. erros:
          enddo
 
          if (lreadkfactor) then
-            read (52,*) (akfact(i),i=1,NKFactor)
+            read (53,*) (akfact(i),i=1,NKFactor)
          endif
 
 C Apply cuts:
@@ -510,7 +510,7 @@ C Store k-factors:
 
       close (51)
       if (lreadkfactor) then
-         close (52)
+         close (53)
       endif
 
       print '(''Read'',i8,'' data points for '',A80)',NData,Name
