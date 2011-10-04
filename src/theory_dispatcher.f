@@ -15,6 +15,8 @@ C-------------------------------------------------------------------
          Call GetIntegratedNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
          Call GetReducedNCXsection(IDataSet)
+      elseif (DATASETREACTION(IDataSet).eq.'F2p') then
+         Call GetF2p(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          Call GetCCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
