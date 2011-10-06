@@ -8,6 +8,7 @@
       double precision ExtraParamStep (nExtraParamMax) !> Initial step size
       double precision ExtraParamMin  (nExtraParamMax) !> Min value 
       double precision ExtraParamMax  (nExtraParamMax) !> Max value
+      integer iExtraParamMinuit       (nExtraParamMax) !> Minuit param. index
 
       common/ExtraPars/ExtraParamNames,ExtraParamValue,ExtraParamStep,
-     $     ExtraParamMin,ExtraParamMax
+     $     ExtraParamMin,ExtraParamMax,iExtraParamMinuit,nExtraParam

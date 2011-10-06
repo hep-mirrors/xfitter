@@ -53,6 +53,16 @@
 
 
 *
+* Add extra to minuit parameters. These MUST include alpha_S and fs
+*
+&ExtraMinimisationParameters
+   name  = 'alphas',   'fs',   'fcharm'
+   value =  0.1176 ,   0.31,      0.
+   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
+&End
+
+
+*
 * Output steering cards
 *
 &Output 

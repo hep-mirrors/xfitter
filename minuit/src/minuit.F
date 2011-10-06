@@ -64,6 +64,7 @@ C
       DATA CWHYXT/'FOR UNKNOWN REASONS                     '/
       DATA JSYSRD,JSYSWR,JSYSSA/5,6,7/
 C                                 . . . . . . . . . . initialize minuit
+
       WRITE (JSYSWR,'(1X,75(1H*))')
       CALL MNINIT (JSYSRD,JSYSWR,JSYSSA)
 C                                      . . . . initialize new data block
@@ -83,9 +84,13 @@ C                                        . . . . . . . . read parameters
       IF (IFLGUT .EQ. 2)  GO TO 500
       IF (IFLGUT .EQ. 3)  GO TO 600
       IF (IFLGUT .EQ. 4)  GO TO 700
+ !> Extra parameters for H1Fitter 
+      call ExtraParam
 C                              . . . . . . verify FCN not time-dependent
       WRITE (ISYSWR,'(/A,A)') ' MINUIT: FIRST CALL TO USER FUNCTION,',
      +    ' WITH IFLAG=1'
+
+
       NPARX = NPAR
       CALL MNINEX(X)
       FZERO = UNDEFI

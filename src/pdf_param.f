@@ -16,12 +16,45 @@ C--------------------------------------------------------
       include 'steering.inc'
       include 'alphas.inc'
       include 'thresholds.inc'
+      include 'extrapars.inc'
       integer i
 
       double precision fs
       double precision fshermes
 
+      logical LFirstTime
+      data LFirstTime /.true./
+      integer idxAlphaS, idxFs,   !> indices for alphas and fs
+     $     idxFCharm
+      integer GetParameterIndex  !> function to read parameter index
 C-------------------------------------------------------
+      if (LFirstTime) then
+         LFirstTime = .false.
+         idxAlphaS = GetParameterIndex('alphas')
+         if (idxAlphaS.eq.0) then
+            print *,'Did not find alpha_S parameter'
+            print *,'Add to ExtraParamters with the name alphas'
+            print *,'Stop'
+            stop
+         else
+            idxAlphaS = iExtraParamMinuit(idxAlphaS)
+         endif
+         idxFS = GetParameterIndex('fs')
+         if (idxFS.eq.0) then
+            print *,'Did not find fs parameter'
+            print *,'Add to ExtraParamters with the name fs'
+            print *,'Stop'
+            stop
+         else
+            idxFS = iExtraParamMinuit(idxFS)
+         endif
+         
+         idxFCharm = GetParameterIndex('fcharm')
+         if (idxFCharm.gt.0) then
+            idxFCharm = iExtraParamMinuit(idxFCharm)
+         endif
+
+      endif
 
       Ag=p(1)
       Bg=p(2)
@@ -82,8 +115,10 @@ C-------------------------------------------------------
 
 
 
-      alphas=p(95)
-      fstrange=p(96)
+C Get from extra pars:
+      alphas=p(idxAlphaS)
+      
+      fstrange=p(idxFS)
 
 C Hermes strange prepare:
       if (ifsttype.eq.0) then
@@ -93,8 +128,8 @@ C Hermes strange prepare:
       endif
      
 
-      if (q0.ge.qc) then
-         fcharm=p(97)
+      if (q0.ge.qc .and. idxfcharm.gt.0) then
+         fcharm=p(idxFCharm)
       else
          fcharm=0.
       endif
@@ -413,7 +448,6 @@ C   pars(11-16)  - Uv
 C   pars(21-26)  - Dv
 C   pars(31-36)  - Ubar
 C   pars(41-46)  - Dbar
-C   pars(95-100)  - alphas, fstrange, fcharm
 C------------------------------------------------------
       implicit none 
       include 'pdfparam.inc'
@@ -469,7 +503,7 @@ C---------------------------------------------------------
 C----------------------------------------------------
 C
 C cteq-like parameterisation: 
-C  UF = a0*E**(a3*x)*(1 - x)**a2*x**(a1 + n)*(1 + E**a4*x + E**a5*x**2)
+C  UF = a1*E**(a4*x)*(1 - x)**a3*x**(a2)*(1 + E**a5*x + E**a6*x**2)
 C
 C-----------------------------------------------------
       implicit none
@@ -631,6 +665,9 @@ C
       include 'pdfparam.inc'
       double precision x,x23
       double precision PolyVal,ctpara,para
+
+      double precision uvalvalue
+      double precision uval
 C--------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
@@ -648,6 +685,7 @@ C 25 Jan 2011: add polynomial param
 C
          if (NPOLYVAL.eq.0) then
             Dval=para(x,pardval)
+
 
 cv            Dval = aDv * x**bDv * (1.-x)**cDv
 cv     +           * (1. + dDv*x + fDv * x**3)
@@ -887,6 +925,9 @@ cv         Dbar = adbar * x**bdbar * (1.-x)**cdbar * (1. + ddbar *x)
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
          Dbar = sea(x) * 0.5d0 - Ubar(x)
       endif
+
+      
+
 
       return
       end
