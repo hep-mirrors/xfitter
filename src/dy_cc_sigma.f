@@ -61,6 +61,10 @@ C---------------------------------------------------
       double precision TheoryUnit  ! scale factor for theory to bring to data units.
 
       integer GetInfoIndex         ! function thet returns index of an information string.
+
+      integer nkfact, idxKFact
+
+      integer GetKFactIndex
 C----------------------------------------------------      
       call ag_convolute( DATASETTheoryIndex(IDataSet),XSec)
 
@@ -72,10 +76,17 @@ C check if we have to divide APPLGRID prediction to convert units to data units:
          Theoryunit = 1.
       endif
 
+      !> perhaps we need to multiply prediction by EW or NNLO or both k-factors
+      nkfact = DATASETNKfactors(IDataSet)
+      
       do i=1, NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
          THEO(idx) = XSec(i) / TheoryUnit
-
+         
+         !> Check if k-factor is required, multiply prediction by all of them.
+         do idxkfact=1,nkfact
+            Theo(idx) = Theo(idx)*kfactors(idxkfact,idx)
+         enddo
 c         print *,'hady', idx, THEO(idx), DATEN(idx),TheoryUnit
       enddo
       end

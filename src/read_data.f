@@ -187,7 +187,7 @@ C Reference table
       integer IndexDataset
       double precision SystScales(nsystMax)
 C Extra info about k-factors, applegrid file(s):
-      character*80 TheoryInfoFile,TheoryType
+      character*80 TheoryInfoFile(2),TheoryType(2)
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
 C Namelist definition:
@@ -234,6 +234,11 @@ C Reset to default:
       NKFactor = 0
       TheoryInfoFile = ' '
       LReadKFactor = .false.
+
+      do i=1,2
+         TheoryInfoFile(i) = ' '
+         TheoryType(i) = ' ' 
+      enddo
 
 C Reset scales to 1.0
       do i=1,nsysmax
@@ -341,16 +346,25 @@ C--- Add new source
       enddo
 
 C Theory file if present:
-      DATASETTheoryFile(NDATASETS) = TheoryInfoFile
-      DATASETTheoryType(NDATASETS) = TheoryType
-
-C Check if we need to read kfactor file:
-      if (TheoryInfoFile.ne.' ') then
-         if (TheoryType.eq.'kfactor') then
-            open (53,file=TheoryInfoFile,status='old',err=100)
-            lreadkfactor = .true.
+      DATASETTheoryType(NDATASETS) = ' '
+      do i=1,2
+         if (TheoryType(i).ne.' ' .and. TheoryInfoFile(i).ne.' ') then
+            if (TheoryType(i).ne.'kfactor') then
+  ! not k-factor, overwrite
+               DATASETTheoryFile(NDATASETS) = TheoryInfoFile(i)
+               DATASETTheoryType(NDATASETS) = TheoryType(i)
+            else
+  ! k-factor, depends if nothing else is present
+               if (DATASETTheoryType(NDATASETS).eq.' ') then
+                  DATASETTheoryFile(NDATASETS) = TheoryInfoFile(i)
+                  DATASETTheoryType(NDATASETS) = TheoryType(i)
+               endif
+               open (53,file=TheoryInfoFile(i),status='old',err=100)
+               lreadkfactor = .true.
+            endif
          endif
-      endif
+      enddo
+
       DATASETNKfactors(NDATASETS) = NKFactor
       do i=1,NKFactor
          DATASETKFactorNames(i,NDATASETS) = KFactorNames(i)
