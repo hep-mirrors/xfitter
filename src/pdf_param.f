@@ -116,7 +116,15 @@ C-------------------------------------------------------
 
       Astr=p(81)
       Bstr=p(82)
-      Cstr=p(83)
+
+      if (Bstr.eq.0) then
+         Bstr = Bdbar
+      endif
+
+      Cstr=p(83)      
+      if (Cstr.eq.0) then
+         Cstr = Cdbar
+      endif
 
 
 C Get from extra pars:
@@ -211,8 +219,13 @@ C
       elseif (iparam.eq.2011) then
 
          Aubar=Adbar
-         Bubar=Bdbar         
-!         Bstr=Bdbar
+         Bubar=Bdbar        
+C
+C Fix strange to dbar if zero:
+C
+         if (Bstr.eq.0) then
+            Bstr=Bdbar
+         endif
          Astr=fs/(1-fs)*Adbar
          cpg=25.
 
@@ -405,8 +418,18 @@ C     simple copy first:
       elseif (iparam.eq.2011) then
          parubar(2)=pardbar(2)
          parubar(1)=pardbar(1)
-!         pardel(2)=pardbar(2)
-         pardel(1)=fs/(1.-fs)*pardbar(1)
+
+         if (pardel(2).eq.0) then
+            pardel(2)=pardbar(2)
+         endif
+
+         if (pardel(3).eq.0) then
+            pardel(3)=pardbar(3)
+         endif
+
+         if (fs.ne.-10000) then
+            pardel(1)=fs/(1.-fs)*pardbar(1)
+         endif
 
       elseif (iparam.eq.229) then
 cv         parglue(9)=25.
