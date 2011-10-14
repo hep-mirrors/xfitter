@@ -12,7 +12,7 @@
      +  aUv,bUv,cUv,dUv,eUv,fUv,
      +  aDv,bDv,cDv,dDv,eDv,fDv,
      +  Asea,Bsea,Csea,Dsea,
-     +  Adel,Bdel,Cdel,Ddel
+     +  Adel,Bdel,Cdel,Ddel, Astr, Bstr,Cstr
 
     
 C
@@ -36,7 +36,7 @@ C Sea, for ZEUS param. only:
      +  aUv,bUv,cUv,dUv,eUv,fUv,
      +  aDv,bDv,cDv,dDv,eDv,fDv,
      +  Asea,Bsea,Csea,Dsea,
-     +  Adel,Bdel,Cdel,Ddel
+     +  Adel,Bdel,Cdel,Ddel,Astr,Bstr,Cstr
 
 
 

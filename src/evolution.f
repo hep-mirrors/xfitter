@@ -21,10 +21,12 @@ c      common/thresholds/q0,qc,qb
       external func22           !input parton dists: iparam=22
       
       double precision def1, def24, def22,pdfv,glu,glu1,x
+
       dimension pdfv(-6:6)
       dimension def22(-6:6,12)    !flavor composition
       dimension def1(-6:6,12)    !flavor composition
       dimension def24(-6:6,12)    !flavor composition
+
       integer iq0, iqfrmq
       double precision eps
 cv======
@@ -41,6 +43,7 @@ C--     -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6
      +     0., 0., 0., -1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s-sbar
      +     0., 0., 0., 1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s+sbar
      +     78*0.    /
+
 
       data def24  /
 cccvC--   tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
@@ -80,6 +83,11 @@ cv ===
       if (iparam.eq.1)  call evolfg(1,func1,def1,iq0,eps) !evolve all pdf's: H1
       if (iparam.eq.4)  call evolfg(1,func24,def24,iq0,eps) !evolve all pdf's: ZEUS
 cv ===
+
+      if (iparam.eq.2011) call evolfg(1,func22,def22,iq0,eps)
+
+      if (iparam.eq.222222) call evolfg(1,func22,def22,iq0,eps)
+      if (iparam.eq.222223) call evolfg(1,func22,def22,iq0,eps)
       if (iparam.eq.22)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
       if (iparam.eq.171717)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
       if (iparam.eq.225)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
@@ -124,9 +132,11 @@ cv      call allpdf(0.000103523178d0,1.95d0,pdfv,0)
       if (id.eq.0) func22=gluon(x)
       if (id.eq.1) func22=dval(x)
       if (id.eq.2) func22=uval(x)
+      
       if (id.eq.3) func22=2*qstrange(x)
-      if (id.eq.4) func22=Ubar(x)
-      if (id.eq.5) func22=Dbar(x)
+      
+      if (id.eq.4) func22=ubar(x)
+      if (id.eq.5) func22=dbar(x)
       if (id.eq.6) func22=0.d0
 
       return

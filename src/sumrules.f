@@ -12,6 +12,7 @@
       double precision t1,t2,t3,t4,term
       double precision t1mt3,t1mt4
       double precision tu,tg,td,tubar,tdbar
+      double precision tsbar, tcbar,tsmalldb, tsmallub
       double precision CalcIntegral,CalcIntegralCheb
 
       double precision SSDINT
@@ -27,6 +28,10 @@
       double precision para,x
       double precision ubar,dbar,uval,dval,gluon
       integer i
+
+      double precision fs
+      double precision fshermes
+      double precision tstr
 C-----------------------------------------
       kflag=0
       zero = 1d-10
@@ -108,10 +113,11 @@ C
          ag = ag / tg
 
 * new jf 
-      elseif (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4
+      elseif (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4.
+     $        .or.iparam.eq.2011
      $        .or.iparam.eq.222.or.iparam.eq.229.or.iparam.eq.221
-     $        .or.iparam.eq.22.or.iparam.eq.225
-     $        .or.iparam.eq.24) then
+     $        .or.iparam.eq.22.or.iparam.eq.225.or.iparam.eq.222222
+     $        .or.iparam.eq.24.or.iparam.eq.222223) then
 
 cv         print*,'voica in sumrule:bdv,cdv,buv,cuv,euv'
 cv         print*, bdv,cdv,buv,cuv,euv
@@ -174,11 +180,31 @@ C
             tUv = PolyValInt0(NPOLYVALINT,PolyUval)
             tDv = PolyValInt0(NPOLYVALINT,PolyDval)
          endif
+
+cccccccccccccccccc
          tUb = CalcIntegral(bUbar, cUbar)
      $        + dUbar * CalcIntegral(bUbar+1., cUbar)
 
          tDb = CalcIntegral(bDbar, cDbar)
      $        + dDbar * CalcIntegral(bDbar+1., cDbar)
+         
+
+
+         
+         if (iparam.eq.222222.or.iparam.eq.222223) then
+C Hermes strange prepare:
+            if (ifsttype.eq.0) then
+               fs = fstrange
+            else
+               fs = fshermes(0.)
+            endif
+                        
+
+c            tsbar=tDb*fs/(1-fs)
+c            tcbar=tUb*fcharm/(1-fcharm)
+            
+         endif
+         
 
 
          if (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
@@ -187,6 +213,17 @@ C
             ag = 1.d0 - ( Auv * tUv + Adv * tDv
      +           + 2*(Aubar * tUb + Adbar * tDb))
 
+         elseif (iparam.eq.222222.or.iparam.eq.222223) then
+            ag = 1.d0 - ( Auv * tUv + Adv * tDv
+     +           + 2*(Aubar*tUb/(1-fcharm) + Adbar*tDb/(1-fs)))
+c            ag = 1.d0 - ( Auv * tUv + Adv * tDv
+c     +           + 2*(Aubar * (tcbar+tsmallub) + Adbar * (tsbar+tsmalldb)))
+
+         elseif (iparam.eq.2011) then
+            tstr= CalcIntegral(bstr, cstr)
+            ag = 1.d0 - ( Auv * tUv + Adv * tDv
+     +           + 2*(Aubar*tUb/(1-fcharm) + Adbar*tDb
+     $           +Astr*tstr))
 
          endif
          
@@ -214,7 +251,8 @@ C
          endif
          
          
-         if (iparam.eq.222.or.iparam.eq.229) then
+         if (iparam.eq.222.or.iparam.eq.229.or.iparam.eq.2011) then
+            
             ag=(ag+Apg*tgMRST)/tg
          else
             ag = ag / tg
@@ -242,6 +280,7 @@ c      if (IDebug.eq.1) then
          print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
+         print '(''ST:'',11F10.4)',(pardel(i),i=1,10)
 c      endif
       endif
       

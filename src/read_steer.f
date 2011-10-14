@@ -358,6 +358,12 @@ C---------------------------------
          iparam = 22
       elseif (PDFStyle.eq.'13p HERAPDF') then
          iparam = 229
+      elseif (PDFStyle.eq.'buvbdv') then
+         iparam = 221
+      elseif (PDFStyle.eq.'negglu') then
+         iparam = 222
+      elseif (PDFStyle.eq.'strange') then
+         iparam = 2011
       elseif (PDFStyle.eq.'CTEQ') then
          iparam = 171717
       elseif (PDFStyle.eq.'CHEB') then

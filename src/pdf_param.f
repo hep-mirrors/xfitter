@@ -22,6 +22,7 @@ C--------------------------------------------------------
       double precision fs
       double precision fshermes
 
+C-------------------------------------------------------
       logical LFirstTime
       data LFirstTime /.true./
       integer idxAlphaS, idxFs,   !> indices for alphas and fs
@@ -113,12 +114,17 @@ C-------------------------------------------------------
       Cdel=p(83)
       Ddel=p(84)
 
+      Astr=p(81)
+      Bstr=p(82)
+      Cstr=p(83)
 
 
 C Get from extra pars:
       alphas=p(idxAlphaS)
       
       fstrange=p(idxFS)
+
+
 
 C Hermes strange prepare:
       if (ifsttype.eq.0) then
@@ -128,7 +134,7 @@ C Hermes strange prepare:
       endif
      
 
-      if (q0.ge.qc .and. idxfcharm.gt.0) then
+      if (q0.ge.qc.and.idxfcharm.gt.0) then
          fcharm=p(idxFCharm)
       else
          fcharm=0.
@@ -186,17 +192,41 @@ C
             call ChebToPoly
          endif
 
+      elseif (iparam.eq.222222) then
+ 
+         Aubar=Adbar
 
-
-      elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.222)) then
+         Bubar=Bdbar
          
-         if (iparam.ne.221) then               
+         Bdv=Buv
+
+
+      elseif (iparam.eq.222223) then
+
+ 
+         Aubar=Adbar
+         Bubar=Bdbar         
+         cpg=25.      
+
+      elseif (iparam.eq.2011) then
+
+         Aubar=Adbar
+         Bubar=Bdbar         
+!         Bstr=Bdbar
+         Astr=fs/(1-fs)*Adbar
+         cpg=25.
+
+      elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.229)
+     $        .or.(iparam.eq.222)) then
+
+
+         if (iparam.ne.221.and.iparam.ne.229) then               
             Bdv = Buv
          endif
                
          Aubar = Adbar * (1.-fs)/(1.-fcharm)         
          Bubar = Bdbar
-         if (iparam.eq.222) then
+         if (iparam.eq.222.or.iparam.eq.229) then
             Cpg=25.
          endif
 
@@ -225,18 +255,6 @@ C
          endif
 
 
-
-      elseif (iparam.eq.229) then
-         Cpg=25.
-         Aubar = Adbar * (1.-fs)/(1.-fcharm)
-         Bubar = Bdbar
-
-         if (NCHEBGLU.gt.0) then
-            do i=1,NCHEBGLU
-               ChebPars(i) = p(30+i)
-            enddo
-            call ChebToPoly
-         endif
 
       elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
          
@@ -365,7 +383,8 @@ C     simple copy first:
          parubar(2)=pardbar(2)
          parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
-      elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.222)) then
+      elseif ((iparam.eq.22).or.(iparam.eq.221).or.
+     $        (iparam.eq.222)) then
          
          if (iparam.ne.221) then               
             pardval(2)=paruval(2)
@@ -373,9 +392,21 @@ C     simple copy first:
          parubar(2)=pardbar(2)
          parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
-cv         if (iparam.eq.222) then
-cv            parglue(9)=25.
-cv         endif
+      elseif (iparam.eq.222222) then
+         pardval(2)=paruval(2)
+         parubar(2)=pardbar(2)
+         parubar(1)=pardbar(1)
+
+      elseif (iparam.eq.222223) then
+         parubar(2)=pardbar(2)
+         parubar(1)=pardbar(1)
+
+
+      elseif (iparam.eq.2011) then
+         parubar(2)=pardbar(2)
+         parubar(1)=pardbar(1)
+!         pardel(2)=pardbar(2)
+         pardel(1)=fs/(1.-fs)*pardbar(1)
 
       elseif (iparam.eq.229) then
 cv         parglue(9)=25.
@@ -412,6 +443,7 @@ cv         parglue(9)=25.
          print '(''1Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''1Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''1GL:'',11F10.4)',(parglue(i),i=1,10)
+         print '(''1ST:'',11F10.4)',(pardel(i),i=1,10)
       endif
 
 C---------------------------------------------------------
@@ -431,9 +463,9 @@ C-----------------------------------------------------
       double precision x,a(1:10)
       double precision AF
       
-         AF = a(1)*x**a(2)*(1 - x)**a(3)*(1 + a(4)*x
-     $        + a(5)*x**2+a(6)*x**3+a(10)*x**0.5)-a(7)*x**a(8)*(1-x)**a(9)
-
+      AF = a(1)*x**a(2)*(1 - x)**a(3)*(1 + a(4)*x
+     $     + a(5)*x**2+a(6)*x**3+a(10)*x**0.5)-a(7)*x**a(8)*(1-x)**a(9)
+      
       para = AF
 
       end
@@ -448,6 +480,7 @@ C   pars(11-16)  - Uv
 C   pars(21-26)  - Dv
 C   pars(31-36)  - Ubar
 C   pars(41-46)  - Dbar
+C   pars(95-100)  - alphas, fstrange, fcharm
 C------------------------------------------------------
       implicit none 
       include 'pdfparam.inc'
@@ -503,7 +536,7 @@ C---------------------------------------------------------
 C----------------------------------------------------
 C
 C cteq-like parameterisation: 
-C  UF = a1*E**(a4*x)*(1 - x)**a3*x**(a2)*(1 + E**a5*x + E**a6*x**2)
+C  UF = a0*E**(a3*x)*(1 - x)**a2*x**(a1 + n)*(1 + E**a4*x + E**a5*x**2)
 C
 C-----------------------------------------------------
       implicit none
@@ -632,8 +665,9 @@ C    22 Apr 11, SG, Add CTEQ-like
          return
       endif
 
-      if (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4
-     $     .or.iparam.eq.22.or.iparam.eq.24.or.iparam.eq.225
+      if (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4.or.iparam.eq.222222
+     $     .or.iparam.eq.22.or.iparam.eq.24.or.iparam.eq.225.
+     $     .or.iparam.eq.222223.or.iparam.eq.2011
      $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
 
 C
@@ -665,9 +699,6 @@ C
       include 'pdfparam.inc'
       double precision x,x23
       double precision PolyVal,ctpara,para
-
-      double precision uvalvalue
-      double precision uval
 C--------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
@@ -679,13 +710,13 @@ C    22 Apr 11, SG, Add CTEQ-like
 
       if (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4
      $     .or.iparam.eq.22.or.iparam.eq.24.or.iparam.eq.225
+     $     .or.iparam.eq.222222.or.iparam.eq.222223.or.iparam.eq.2011
      $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
 C
 C 25 Jan 2011: add polynomial param 
 C
          if (NPOLYVAL.eq.0) then
             Dval=para(x,pardval)
-
 
 cv            Dval = aDv * x**bDv * (1.-x)**cDv
 cv     +           * (1. + dDv*x + fDv * x**3)
@@ -821,6 +852,17 @@ C----------------------------------------------------
      $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
 
          qstrange = fs * Dbar(x)
+
+      elseif (iparam.eq.222222
+     $     .or.iparam.eq.222223) then
+
+         qstrange = fs * Dbar(x)/(1-fs)
+
+      elseif (iparam.eq.2011) then
+         qstrange = Astr*x**Bstr*(1-x)**Cstr
+cv         print*,'voica is here', Astr, bstr, cstr
+
+
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
          qstrange = 0.5 * fs * sea(x)
       endif
@@ -878,6 +920,11 @@ C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.171717) then
          Ubar = ctpara(x,ctubar)
          return
+
+      elseif (iparam.eq.222222.or.iparam.eq.222223
+     $        .or.iparam.eq.2011) then
+! Ubar=ubar/(1-fc) --> ubar=Ubar*(1-fc)         
+         Ubar=para(x,parubar)/(1-fcharm)
       endif
 
 
@@ -905,12 +952,28 @@ cv         Ubar = aubar * x**bubar * (1.-x)**cubar * (1. + dubar *x)
       include 'pdfparam.inc'
       double precision x,sea,Ubar
       double precision ctpara,para
+C SG: x-dependent fs:
+      double precision fs
+      double precision fshermes
+C----------------------------------------------------
+      if (ifsttype.eq.0) then
+         fs = fstrange
+      else
+         fs = fshermes(x)
+      endif
 C------------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.171717) then
          Dbar = ctpara(x,ctdbar)
          return
+      elseif(iparam.eq.222222.or.iparam.eq.222223) then
+
+         
+         Dbar=para(x,pardbar)/(1-fstrange)
+      elseif (iparam.eq.2011) then
+         Dbar=para(x,pardbar)+para(x,pardel)
+
       endif
 
 
@@ -925,9 +988,6 @@ cv         Dbar = adbar * x**bdbar * (1.-x)**cdbar * (1. + ddbar *x)
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
          Dbar = sea(x) * 0.5d0 - Ubar(x)
       endif
-
-      
-
 
       return
       end
