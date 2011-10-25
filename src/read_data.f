@@ -299,6 +299,10 @@ C Parse ColumnType, count systematics, etc
 
 C Binning info:
       DATASETBinningDimension(NDATASETS) = NBinDimension
+C Filling with 'dummy' first three names for proper formation of fittedresults.txt
+      do i=1,3
+         DATASETBinNames(i,NDATASETS) = 'dummy'
+      enddo
       do i=1,NBinDimension
          DATASETBinNames(i,NDATASETS) = BinName(i)
       enddo
