@@ -90,13 +90,13 @@ const vector<double> PdfTable::GetPDF(string name){
   return res;
 }
 
-TGraph* PdfTable::GetPDFGraph(string name){
+TGraphAsymmErrors* PdfTable::GetPDFGraph(string name){
   int iPdf = GetIndex(name);
   if (iPdf == -1 ){
     cout << "Could not find column name="<<name<<endl;
     return NULL;
   }
-  TGraph* res = new TGraph( GetNx() );
+  TGraphAsymmErrors* res = new TGraphAsymmErrors( GetNx() );
   for ( int i = 0; i<GetNx(); i++ ) {
     int id = i * (fNPdfs+1) + iPdf;
     int ix = i * (fNPdfs+1);

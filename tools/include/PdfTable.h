@@ -4,7 +4,6 @@
 #include <TString.h>
 #include <vector>
 #include <string>
-#include <TGraph.h>
 #include <TGraphAsymmErrors.h>
 
 using std::vector;
@@ -49,7 +48,7 @@ class PdfTable  {
   const vector<double> GetPDF(string name);
 
   // @brief Get TGraph pdf for PDF with the name vs x
-  virtual TGraph* GetPDFGraph(string name);
+  virtual TGraphAsymmErrors* GetPDFGraph(string name);
 
   // @brief get index of the array
   const int GetIndex(string name);

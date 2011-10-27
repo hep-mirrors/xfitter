@@ -2,6 +2,7 @@
 #include <TPaveLabel.h>
 #include <TAxis.h>
 #include <TROOT.h>
+#include <TGraphAsymmErrors.h>
 #include <TH1F.h>
 
 H1FitterPainter::H1FitterPainter(Int_t Bands){
@@ -115,7 +116,7 @@ Int_t H1FitterPainter::DrawPDF(Int_t ival) {
 
   // Label:
   char label[32]; 
-  sprintf (label,"Q^2 = %12.2f GeV^2",fQ2val);
+  sprintf (label,"Q^2 = %12.2f GeV^{2}",fQ2val);
   Q2Label->SetLabel(label);
 
 
@@ -163,12 +164,17 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
 
   if(graph2) {
     graph2->SetLineColor(fColor);
+    graph2->SetFillColor(fColor);
   }
   if(graphR) {
     graphR->SetLineColor(fColorRef);
+    graphR->SetFillColor(fColorRef);
+    graphR->SetFillStyle(3010);
   }
   if(graphR2) {
     graphR2->SetLineColor(fColorRef);
+    graphR2->SetFillColor(fColorRef);
+    graphR2->SetFillStyle(3010);
   }
 
 
@@ -192,10 +198,23 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
   graph->GetXaxis()->SetLabelOffset(0.015);
 
 
-  graph->Draw("ACE3");
-  if(graphR) graphR->Draw("L3X same");
-  if(graph2)  graph2->Draw("L3X same");
-  if(graphR2) graphR2->Draw("L3X same");
+  TGraphAsymmErrors* graphRL = NULL;
+  TGraphAsymmErrors* graphR2L = NULL;
+
+  graph->Draw("AC3");
+  if(graphR) {
+    graphRL = (TGraphAsymmErrors*) graphR->Clone(); TrashBin->AddLast(graphRL);
+    graphRL->SetFillStyle(0);
+    graphR->Draw("L3 same");
+    graphRL->Draw("L3 same");
+  }
+  if(graph2)  graph2->Draw("L3 same");
+  if(graphR2) {
+    graphR2L = (TGraphAsymmErrors*) graphR2->Clone(); TrashBin->AddLast(graphR2L);
+    graphR2L->SetFillStyle(0);
+    graphR2->Draw("L3 same");
+    graphR2L->Draw("L3 same");
+  }
 
   TPaveLabel* box = new TPaveLabel(0.0, 0.75, 0.09, 0.91, "xP(x)", "NDC"); TrashBin->AddLast(box);
   box->SetFillColor(kWhite); box->SetBorderSize(0); box->SetTextAngle(90.); box->SetTextSize(0.35);
@@ -213,8 +232,18 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
     graph->GetYaxis()->SetLabelOffset(0.02);
  
     TGraph* ref_ratio = (TGraph*) (graph->Clone()); TrashBin->AddLast(ref_ratio);
+    TGraphAsymmErrors* graph_ratio = (TGraphAsymmErrors*) (graph->Clone()); TrashBin->AddLast(graph_ratio);
+    TGraphAsymmErrors* graphR_ratio = (TGraphAsymmErrors*) (graphR->Clone()); TrashBin->AddLast(graphR_ratio);
     for(Int_t i=0; i<graph->GetN(); i++) {
       ref_ratio->SetPoint(i, graph->GetX()[i], graph->GetY()[i] / graphR->GetY()[i]);
+
+      graph_ratio->SetPoint(i, graph->GetX()[i], 1.);
+      if(graph->GetY()[i] > 0.) 
+        graph_ratio->SetPointError(i, 0., 0., graph->GetEYlow()[i] / graph->GetY()[i], graph->GetEYhigh()[i] / graph->GetY()[i]);
+
+      graphR_ratio->SetPoint(i, graphR->GetX()[i], 1.);
+      if(graphR->GetY()[i] > 0.)
+        graphR_ratio->SetPointError(i, 0., 0., graphR->GetEYlow()[i] / graphR->GetY()[i], graphR->GetEYhigh()[i] / graphR->GetY()[i]);
     }
 
     pad->cd();
@@ -245,6 +274,15 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
     ref_ratio->SetMaximum(1.19);
     ref_ratio->SetMinimum(0.81);
     ref_ratio->Draw("ALX");
+
+    TGraphAsymmErrors* graphRL_ratio = (TGraphAsymmErrors*) graphR_ratio->Clone(); TrashBin->AddLast(graphRL_ratio);
+    graphRL_ratio->SetFillStyle(0);
+
+    graph_ratio->Draw("L3");
+    graphR_ratio->Draw("L3");
+    graphRL_ratio->Draw("L3");
+
+    ref_ratio->Draw("LX");
   }
 
   TPaveLabel* label = new TPaveLabel(0.49, 0.85, 0.51, 0.87, Title,"NDC"); TrashBin->AddLast(label);
