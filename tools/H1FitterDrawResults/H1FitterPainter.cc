@@ -346,7 +346,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
   if(dataset->GetNGraphs()==0) return 1;
 
   Int_t SetId = dataset->GetSetId();
-  if(SetId==61 || SetId==62 || SetId==63 || SetId==64 || SetId==35) {
+  if(SetId==61 || SetId==62 || SetId==63 || SetId==64 || SetId==35) { // Painting for all the supported SetIds
     
     TObjArray* TrashBin = new TObjArray; TrashBin->SetOwner();
 
@@ -365,7 +365,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
 
     TCanvas* can = new TCanvas;
     can->SetTopMargin(0.3);
-    switch(SetId) {
+    switch(SetId) { // Canvas definition for supported SetIds
     case 61: 
       can->Divide(4,5,0.); 
       XMinimum = 0.001;   
@@ -448,6 +448,8 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       Double_t chi2offx = 0.;
       Double_t chi2offy = 0.;
       
+      // Additional plotting changes for supported SetIds
+
       if(SetId==61 && i%4==0) chi2offx = 0.1;
       if(SetId==61 && i>15)   chi2offy = 0.08;
 
