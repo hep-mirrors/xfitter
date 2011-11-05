@@ -7,6 +7,7 @@
 #include "PdfTable.h"
 #include <getopt.h>
 #include "TAxis.h"
+#include "TH1D.h"
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -86,6 +87,18 @@ int main(int argc, char **argv) {
       graph->GetYaxis()->SetTitle(name.c_str());
 
       graph->Write();
+      // also store histogram, corresponding to the graph
+      TString HistName;
+      HistName.Form("%s_vs_x_for_Q2_%g",name.c_str(),Q2);
+      TH1D *h = new TH1D();
+      h->SetName(HistName);
+      h->SetTitle(GraphTitle);
+
+      h->SetBins(graph->GetN()-1,graph->GetX());
+      h->SetContent(graph->GetY());      
+      
+      h->Write();
+      
     }
 
   }
