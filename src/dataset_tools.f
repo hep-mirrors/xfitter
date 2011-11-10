@@ -169,18 +169,26 @@ C Count rules
 C-- Run over all rules, check for appropriate process/variable
       do j=1,NRules
          if (reaction .eq. processname(j)) then
-
-            do k=1,nbin
-               if (Variable(j).eq.BinNames(k)) then
-                  if (
-     $                 bins(k).lt.CutValueMin(j)
-     $                 .or.bins(k).ge.CutValueMax(j)) then
-                     FailSelectionCuts = .true. ! Fail Cut
-                     Return
-                  endif
-                  goto 17       ! next rule
+            if (Variable(j).eq.'Whad2') then
+               FailSelectionCuts = FailDISSelection(nbin,bins,
+     $              BinNames,CutValueMin(j))
+               if (FailSelectionCuts.EQV..true.) then
+                  Return
                endif
-            enddo
+               goto 17          ! next rule               
+            else
+               do k=1,nbin
+                  if (Variable(j).eq.BinNames(k)) then
+                     if (
+     $                    bins(k).lt.CutValueMin(j)
+     $                    .or.bins(k).ge.CutValueMax(j)) then
+                        FailSelectionCuts = .true. ! Fail Cut
+                        Return
+                     endif
+                     goto 17    ! next rule
+                  endif
+               enddo
+            endif
             print 
      $'(''Warrning in FailSelectionCuts: variable '',A8,'' not found'')'
      $           ,Variable(j)
@@ -189,12 +197,6 @@ c     stop
  17            continue
          endif
       enddo
-
-C Extra DIS cuts 
-      if (Reaction .eq. 'NC e+-p') then
-         FailSelectionCuts = FailDISSelection(nbin,bins,BinNames)
-      else 
-      endif
       
       Return
  71   continue
@@ -208,7 +210,7 @@ C Extra DIS cuts
 
       end
 
-      logical Function FailDISSelection(NBin,Bins,BinNames)
+      logical Function FailDISSelection(NBin,Bins,BinNames,CutMin)
 C---------------------------------------------------------------
 C
 C Created 26/05/11, Apply DIS selection
@@ -217,18 +219,20 @@ C--------------------------------------------------------------
       implicit none
       integer NBin
       Double Precision Bins(NBin)
+      double precision CutMin
       character *(*) BinNames(NBin)
       include 'ntot.inc'
       include 'steering.inc'
 
       integer idxQ2,idxX,idxY,i
-      real*4 q2,x,y
+      real*4 q2,x,y, cut
 
       logical FailCuts
 C---------------------------------------------------------------
       idxQ2 = 0
       idxX  = 0
       idxY  = 0
+
       do i=1,NBin
          if (BinNames(i).eq.'Q2') then
             idxQ2 = i
@@ -249,21 +253,20 @@ C---------------------------------------------------------------
       q2 = bins(idxQ2)
       X  = bins(idxX)
       Y  = bins(idxY)
+      cut = Real (CutMin)
 
-
-      FailDISSelection = FailCuts(0,q2,x,y)
+      FailDISSelection = FailCuts(q2,x,y,cut)
 
 C--------------------------------------------------------------
       end
 
 
-
-      logical function FailCuts(iset,q2,x,y)
+      logical function FailCuts(q2,x,y,cut)
 C
 C 26/07/2010: added pq2max cut
 C
       include 'steering.inc'
-      real*4 q2,x,y, whad2
+      real*4 q2,x,y, whad2, cut
       logical fail
 
       fail = .false.
@@ -277,7 +280,7 @@ C 24 Aug 2010: Add saturation inspired cut
 
 C 28 Oct 2010: fixed target data get out of higher twist...etc
       whad2=q2/x-q2+0.938
-      if (whad2<15) then
+      if (whad2<cut) then
          fail=.true.
          print *, 'Failed Whad2 cut', x, q2, whad2
       endif
