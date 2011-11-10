@@ -17,6 +17,7 @@ C--------------------------------------------------------
       include 'alphas.inc'
       include 'thresholds.inc'
       include 'extrapars.inc'
+      include 'polarity.inc'
       integer i
 
       double precision fs
@@ -28,6 +29,13 @@ C-------------------------------------------------------
       integer idxAlphaS, idxFs,   !> indices for alphas and fs
      $     idxFCharm
       integer GetParameterIndex  !> function to read parameter index
+C-------------------------------------------------------
+      integer idxShiftPolLHp   !> indices shiftpol
+      integer idxShiftPolRHp   !> indices shiftpol
+      integer idxShiftPolLHm   !> indices shiftpol
+      integer idxShiftPolRHm   !> indices shiftpol
+C-------------------------------------------------------
+
 C-------------------------------------------------------
       if (LFirstTime) then
          LFirstTime = .false.
@@ -54,6 +62,41 @@ C-------------------------------------------------------
          if (idxFCharm.gt.0) then
             idxFCharm = iExtraParamMinuit(idxFCharm)
          endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+         idxShiftPolLHp = GetParameterIndex('shiftpolLHp')
+         idxShiftPolRHp = GetParameterIndex('shiftpolRHp')
+         idxShiftPolLHm = GetParameterIndex('shiftpolLHm')
+         idxShiftPolRHm = GetParameterIndex('shiftpolRHm')
+ 
+        if (idxShiftPoLRHm.eq.0) then
+            print *,'Did not find ShiftPolRHm parameter'
+            print *,'Add to ExtraParamters with that name'
+         else
+            idxShiftPolRHm = iExtraParamMinuit(idxShiftPolRHm)
+         endif
+
+        if (idxShiftPolLHm.eq.0) then
+            print *,'Did not find ShiftPolLHm parameter'
+            print *,'Add to ExtraParamters with that name'
+         else
+            idxShiftPolLHm = iExtraParamMinuit(idxShiftPolLHm)
+         endif
+
+        if (idxShiftPolRHp.eq.0) then
+            print *,'Did not find ShiftPolRHp parameter'
+            print *,'Add to ExtraParamters with that name'
+         else
+            idxShiftPolRHp = iExtraParamMinuit(idxShiftPolRHp)
+         endif
+        if (idxShiftPolLHp.eq.0) then
+            print *,'Did not find ShiftPolLHp parameter'
+            print *,'Add to ExtraParamters with that name'
+         else
+            idxShiftPolLHp = iExtraParamMinuit(idxShiftPolLHp)
+         endif
+
+
 
       endif
 
@@ -128,8 +171,7 @@ C-------------------------------------------------------
 
 
 C Get from extra pars:
-      alphas=p(idxAlphaS)
-      
+      alphas=p(idxAlphaS)      
       fstrange=p(idxFS)
 
 
@@ -147,6 +189,18 @@ C Hermes strange prepare:
       else
          fcharm=0.
       endif
+!!!!!!!!!!!!!!!!!!!!!!
+
+
+      shift_polRHp=p(idxShiftPolRHp)
+      shift_polLHp=p(idxShiftPolLHp)
+      shift_polLHm=p(idxShiftPolLHm)
+      shift_polRHm=p(idxShiftPolRHm)
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!
 
 C 10 Aug 2011: Standard parametrisation:
       Call DecodePara(p)

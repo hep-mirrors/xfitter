@@ -6,7 +6,7 @@ C
       parameter(NTOT = 1500)
 
       integer nset            !> Total number of datasets   
-      parameter (NSET = 120)
+      parameter (NSET = 150)
 
       integer NKFactMax          !> Max. number of k-factors
       parameter (NKFactMax = 10)

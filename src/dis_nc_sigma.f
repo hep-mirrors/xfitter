@@ -225,6 +225,7 @@ C---------------------------------------------------------------
       include 'couplings.inc'
       include 'qcdnumhelper.inc'
       include 'fcn.inc'
+      include 'polarity.inc'
 
       integer IDataSet
 
@@ -245,7 +246,7 @@ C---------------------------------------------------------------
 
       double precision Xv,Yv,Q2v
 
-      double precision Charge, S, polarity
+      double precision Charge, S, polarity, err_pol, shift_pol
 
 
       double precision FLGamma, F2Gamma
@@ -331,11 +332,36 @@ C
 C Initialise polarisation, in case info is not provided.
 C
       polarity=0.d0
-
+      err_pol=0.d0
       polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'),
      $     IDataSet)
+      if (polarity.ne.0) then
+         err_pol = DATASETInfo( GetInfoIndex(IDataSet,'e polar err'), IDataSet)
+      endif
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
+
+
+
+      if (charge.lt.0.) then
+         if (polarity.gt.0) then
+            shift_pol=shift_polRHm
+         else
+            shift_pol=-shift_polRHm
+         endif
+      else
+         if (polarity.gt.0) then
+            shift_pol=shift_polRHp
+         else
+            shift_pol=-shift_polRHp
+         endif
+      endif
+      polarity=polarity+err_pol*shift_pol
+      if(polarity.ne.0.d0) then
+         print '( ''charge:  '', F8.4, 
+     $        '' pol: '', F16.4, 
+     $        ''shift pol: '', F10.4 )', charge, polarity,shift_pol
+      endif
 
 C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 

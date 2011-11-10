@@ -7,7 +7,7 @@
    NData =  130                        ! Number of data points
    NColumn =  24                       ! Number of all columns
    ColumnType = 3*'Bin','Sigma',20*'Error'
-   ColumnName = 'x','Q2','y','reduced x-section','stat','uncor',2*'ignore','h1_nc_high_beta_9','h1_nc_high_beta_10','h1_nc_high_beta_11','h1_nc_high_beta_5','h1_nc_high_beta_12',9*'ignore','xlum_3','corlum'
+   ColumnName = 'x','Q2','y','reduced x-section','stat','uncor',2*'ignore','h1_nc_high_beta_9','h1_nc_high_beta_10','h1_nc_high_beta_11','h1_nc_high_beta_5','B2',9*'ignore','xlum_3','corlum'
 
    NInfo    = 3
    DataInfo =  301.,        +1.		0.

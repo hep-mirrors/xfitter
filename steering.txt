@@ -3,13 +3,36 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 4
- 
+    NInputFiles = 18
   ! Input files:
-    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
-    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
-    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
+
+    InputFileNames(1) = 'datafiles/zhiqing/nc.em.lh.zz.dat'
+    InputFileNames(2) = 'datafiles/zhiqing/nc.em.rh.zz.dat'
+    InputFileNames(3) = 'datafiles/zhiqing/nc.ep.lh.zz.dat'
+    InputFileNames(4) = 'datafiles/zhiqing/nc.ep.rh.zz.dat'
+    InputFileNames(5) = 'datafiles/zhiqing/cc.em.lh.dat'
+    InputFileNames(6) = 'datafiles/zhiqing/cc.em.rh.dat'
+    InputFileNames(7) = 'datafiles/zhiqing/cc.ep.lh.dat'
+    InputFileNames(8) = 'datafiles/zhiqing/cc.ep.rh.dat'
+    InputFileNames(9) = 'datafiles/zhiqing/yplus.p0.zz.dat'
+    InputFileNames(10) = 'datafiles/zhiqing/yminus.p0.zz.dat'
+    InputFileNames(11) = 'datafiles/oldfiles/H1_NC_ComboQ2_unpolarized.dat'
+    InputFileNames(12) = 'datafiles/oldfiles/data3.dat'
+    InputFileNames(13) = 'datafiles/oldfiles/data4.dat'
+    InputFileNames(14) = 'datafiles/oldfiles/data5.dat'
+    InputFileNames(15) = 'datafiles/oldfiles/data6.dat'
+    InputFileNames(16) = 'datafiles/oldfiles/data7.zz.dat'
+    InputFileNames(17) = 'datafiles/oldfiles/data8.dat'
+    InputFileNames(18) = 'datafiles/oldfiles/data9.zz.txt'
+
+
+
+
+
+!    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
+!    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
+!    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
+!    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
 &End
 
 *
@@ -27,7 +50,7 @@
  ! ---  HF_SCHEME = 'RT' :  Thorne-Roberts VFNS (massive)
  ! ---  HF_SCHEME = 'RT FAST' : Fast approximate TR VFNS scheme, usign k-factor
 
-  HF_SCHEME = 'RT'
+  HF_SCHEME = 'RT FAST'
 
 
  ! PDF parameterisation style. Possible styles are currently available:
@@ -37,7 +60,7 @@
  !  'CTEQ'        -- CTEQ-like parameterisation
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
 
-  PDFStyle = '10p HERAPDF'
+  PDFStyle = '13p HERAPDF'
 
  ! -- Choice of the chi2 function
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
@@ -56,9 +79,10 @@
 * Add extra to minuit parameters. These MUST include alpha_S and fs
 *
 &ExtraMinimisationParameters
-   name  = 'alphas',   'fs',   'fcharm'
-   value =  0.1176 ,   0.31,      0.
-   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
+   name  = 'alphas',   'fs',   'fcharm', 'shiftpolRHp', 'shiftpolRHm'
+   value =  0.1176 ,   0.31,      0.,	 0.,		0.,
+   step  =  0.0    ,   0.0 ,      0.,     0.05		0.05 
+! set to 0 to avoid minimisation 
 &End
 
 

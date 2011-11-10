@@ -18,7 +18,7 @@ c----------------------------------------------------------------------
       INCLUDE 'indata.inc'
       INCLUDE 'thresholds.inc'
       include 'fcn.inc'
-
+      include 'polarity.inc'
 
 *     ---------------------------------------------------------
 *     declaration related to minuit
@@ -304,6 +304,11 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
       endif
 
       f = fchi2 + DeltaLength
+      
+
+      f=fchi2+
+     $     shift_polRHp**2+shift_polRHm**2+
+     $     shift_polLHp**2+shift_polLHm**2
 
       icount = icount + 1
 
