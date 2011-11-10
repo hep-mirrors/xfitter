@@ -69,30 +69,14 @@ C-------------------------------------------------------
          idxShiftPolLHm = GetParameterIndex('shiftpolLHm')
          idxShiftPolRHm = GetParameterIndex('shiftpolRHm')
  
-        if (idxShiftPoLRHm.eq.0) then
-            print *,'Did not find ShiftPolRHm parameter'
-            print *,'Add to ExtraParamters with that name'
+        if (idxShiftPoLRHm.eq.0.or.
+     $        idxShiftPolRHm.eq.0.or.
+     $        idxShiftPolLHm.eq.0.or.
+     $        idxShiftPolLHp.eq.0) then
          else
             idxShiftPolRHm = iExtraParamMinuit(idxShiftPolRHm)
-         endif
-
-        if (idxShiftPolLHm.eq.0) then
-            print *,'Did not find ShiftPolLHm parameter'
-            print *,'Add to ExtraParamters with that name'
-         else
             idxShiftPolLHm = iExtraParamMinuit(idxShiftPolLHm)
-         endif
-
-        if (idxShiftPolRHp.eq.0) then
-            print *,'Did not find ShiftPolRHp parameter'
-            print *,'Add to ExtraParamters with that name'
-         else
             idxShiftPolRHp = iExtraParamMinuit(idxShiftPolRHp)
-         endif
-        if (idxShiftPolLHp.eq.0) then
-            print *,'Did not find ShiftPolLHp parameter'
-            print *,'Add to ExtraParamters with that name'
-         else
             idxShiftPolLHp = iExtraParamMinuit(idxShiftPolLHp)
          endif
 
