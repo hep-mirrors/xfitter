@@ -185,6 +185,7 @@ C-----------------------------------------------------------
 C
 C Created by SG, 26/05/2011
 C C&P from CC by AS 06/07/2011
+C The normalization of the predictions is added 15/11/2011
 C
 C------------------------------------------------------------
       implicit none
@@ -206,6 +207,12 @@ C-------------------------------------------
       integer idxKfactZ
       logical LAsymmetry,LZ
       integer idxBinY1,idxBinY2
+
+C>15/11/2011----------------------
+      integer idxNorm
+      double precision CSpred_tot, aScaleNorm
+C<15/11/2011----------------------
+
 C Functions:
       integer GetInfoIndex
       integer GetKFactIndex
@@ -218,6 +225,13 @@ C------------------------------------------------------------
          stop
       endif
 
+C>15/11/2011----------------------
+C Check if normalisation is needed
+      idxNorm = GetInfoIndex(IDataSet,'Normalised')
+      if (idxNorm.gt.0) then
+         aScaleNorm = DATASETInfo(idxNorm,IDataSet)
+      endif
+C<15/11/2011----------------------
 
 c      if (IFlagFCN.eq.1) then
 c         call initDYtmp(IDataSet)
@@ -242,6 +256,21 @@ C Apply k-factors:
 C Need also bin sizes:
       idxBinY1 = GetBinIndex(IDataSet,'y1')
       idxBinY2 = GetBinIndex(IDataSet,'y2')
+
+C>15/11/2011----------------------
+C Normalize if the field 'Normalised' takes place in the dataset
+      if (idxNorm.gt.0) then
+         CSpred_tot = 0
+C Calculate sum:
+         do i=1,NDATAPOINTS(IDataSet)
+            CSpred_tot = CSpred_tot + z_bsigs(i)
+         enddo
+C Normalise:
+         do i=1,NDATAPOINTS(IDataSet)
+            z_bsigs(i) = z_bsigs(i)/CSpred_tot/aScaleNorm
+         enddo
+      endif
+C<15/11/2011----------------------
 
 
       do i=1,NDATAPOINTS(IDataSet)
