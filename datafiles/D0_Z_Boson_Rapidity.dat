@@ -1,0 +1,62 @@
+!
+! The data are taken from:
+!
+! "Measurement of the shape of the boson rapidity distribution for
+!  $p\bar{p}->Z/\gamma^{*}->e^{+}e^{-}+X$ events produced at $\sqrt{s}$ of 1.96TeV"
+!  By D0 Collaboration (V.M. Abazov et al.). February 14 2007.
+!
+! Errors are symmetrizated as errsym = sign("1")*max(|"1"|,|"2"|)
+!
+&Data
+   Name = 'Boson rapidity'
+   Reaction  = 'NC ppbar'
+
+ ! Description of the data table
+   NDATA = 28
+   NColumn = 7 
+   ColumnType = 2*'Bin','Sigma',4*'Error',
+   ColumnName = 'y1','y2','section','stat','sys','ignore','ignore'
+
+
+   NInfo   = 6
+   DataInfo = 1960., 0., 0.,71.,111.,2.
+   CInfo    = 'sqrt(S)', 'pte cut','ptnu cut','Minv min','Minv max','Normalised'
+   
+   IndexDataset = 31
+
+   TheoryInfoFile = 'theoryfiles/D0_20070214_KFACTORSv1.dat'
+   TheoryType     = 'kfactor'
+   NKFactor       = 1
+   KFactorNames = 'Z0'
+
+   Percent   = False, False    ! For asymmetry: absolute errors
+!y1	y2	CS_norm	stat	syst	e*A	e*Atot
+&End
+0.0     0.1     0.271   0.009   0.006	0.176	0.006
+0.1     0.2     0.276   0.009   0.007	0.172	0.006
+0.2     0.3     0.274   0.009   0.005	0.166	0.004
+0.3     0.4     0.266   0.010   0.006	0.161	0.005
+0.4     0.5     0.278   0.010   0.007	0.158	0.004
+0.5     0.6     0.269   0.010   0.007	0.155	0.005
+0.6     0.7     0.260   0.010   0.006	0.159	0.004
+0.7     0.8     0.276   0.010   0.007	0.164	0.005
+0.8     0.9     0.235   0.009   0.007	0.175	0.005
+0.9     1.0     0.244   0.009   0.006	0.190	0.005
+1.0     1.1     0.251   0.008   0.006	0.207	0.006
+1.1     1.2     0.235   0.008   0.007	0.218	0.007
+1.2     1.3     0.230   0.008   0.006	0.216	0.006
+1.3     1.4     0.223   0.008   0.006	0.199	0.006
+1.4     1.5     0.211   0.008   0.005	0.177	0.006
+1.5     1.6     0.191   0.008   0.006	0.167	0.005
+1.6     1.7     0.170   0.008   0.005	0.171	0.006
+1.7     1.8     0.168   0.008   0.006	0.185	0.006
+1.8     1.9     0.142   0.007   0.005	0.200	0.007
+1.9     2.0     0.119   0.006   0.004	0.216	0.006
+2.0     2.1     0.117   0.006   0.005	0.223	0.009
+2.1     2.2     0.091   0.005   0.004	0.235	0.010
+2.2     2.3     0.069   0.004   0.004	0.236	0.011
+2.3     2.4     0.049   0.004   0.002	0.224	0.012
+2.4     2.5     0.039   0.003   0.002	0.199	0.012
+2.5     2.6     0.018   0.003   0.001	0.162	0.011
+2.6     2.7     0.014   0.003   0.001	0.123	0.012
+2.7     2.8     0.005   0.002   0.0004	0.085	0.009
