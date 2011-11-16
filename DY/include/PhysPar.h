@@ -6,7 +6,7 @@
   @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
   @date Sun May 17 2009
  
-  Namespace for physical parameters.  
+  Namespace for useful physical parameters.  
  */
 
 namespace PhysPar {
