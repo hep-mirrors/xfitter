@@ -14,17 +14,19 @@ c double precision (a-h,o-z)
       include 'thresholds.inc'
 c      common/thresholds/q0,qc,qb
 
-      double precision func1,func24,func22
+      double precision func0,func1,func24,func22
 
+      external func0            !input parton dists: iparam=0
       external func1            !input parton dists: iparam=1
       external func24           !input parton dists: iparam=24
       external func22           !input parton dists: iparam=22
       
-      double precision def1, def24, def22,pdfv,glu,glu1,x
+      double precision def0, def1, def24, def22,pdfv,glu,glu1,x
 
       dimension pdfv(-6:6)
       dimension def22(-6:6,12)    !flavor composition
       dimension def1(-6:6,12)    !flavor composition
+      dimension def0(-6:6,12)    !flavor composition
       dimension def24(-6:6,12)    !flavor composition
 
       integer iq0, iqfrmq
@@ -33,6 +35,21 @@ cv======
 cv Remark:
 cv need to make it working for h12k parametrisation 
 cv ----
+
+      data def0  /                                             ! just a copy of def22
+C--       tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
+C--       -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6  
+     +     0., 0., 0., 0., 0.,-1., 0., 1., 0., 0., 0., 0., 0., !dval
+     +     0., 0., 0., 0.,-1., 0., 0., 0., 1., 0., 0., 0., 0., !uval
+     +     0., 0., 0., 1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s+sbar
+     +     0., 0., 1., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., !Ubar
+     +     0., 0., 0., 1., 0., 1., 0., 0., 0., 0., 0., 0., 0., ! Dbar
+     +     0., 0., 0., -1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s-sbar
+     +     78*0.    /
+
+
+
+
       data def1  /
 C--     tb  bb  cb  sb  ub  db g   d   u   s   c   b   t
 C--     -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6  
@@ -57,8 +74,8 @@ cvC--     -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6
      +     78*0.    /
 
       data def22  /
-C--   tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
-C--     -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6  
+C--       tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
+C--       -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6  
      +     0., 0., 0., 0., 0.,-1., 0., 1., 0., 0., 0., 0., 0., !dval
      +     0., 0., 0., 0.,-1., 0., 0., 0., 1., 0., 0., 0., 0., !uval
      +     0., 0., 0., 1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s+sbar
@@ -80,6 +97,7 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
       iq0  = iqfrmq(q0)         !starting scale
 
 cv ===
+      if (iparam.eq.0)  call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
       if (iparam.eq.1)  call evolfg(1,func1,def1,iq0,eps) !evolve all pdf's: H1
       if (iparam.eq.4)  call evolfg(1,func24,def24,iq0,eps) !evolve all pdf's: ZEUS
 cv ===
@@ -101,6 +119,31 @@ cv      call allpdf(0.000103523178d0,1.95d0,pdfv,0)
 
       return
       end
+
+*     ----------------------------------------------------
+      double precision function func0(id,x)
+*     ----------------------------------------------------
+      implicit double precision (a-h,o-z)
+      include 'steering.inc'
+
+      double precision pdfval, q0
+      dimension pdfval(-6:6)
+
+      q0=sqrt(starting_scale)
+      
+      call evolvePDF(x, q0, pdfval)
+
+      if (id.eq.0) func0=pdfval(0)
+      if (id.eq.1) func0=pdfval(1)-pdfval(-1)
+      if (id.eq.2) func0=pdfval(2)-pdfval(-2)
+      if (id.eq.3) func0=pdfval(3)+pdfval(-3)
+      if (id.eq.4) func0=pdfval(-2)+pdfval(-4)
+      if (id.eq.5) func0=pdfval(-3)+pdfval(-1)
+      if (id.eq.6) func0=pdfval(3)-pdfval(-3)
+
+      return
+      end
+      
 
 *     ----------------------------------------------------
       double precision function func1(id,x)

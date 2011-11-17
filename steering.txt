@@ -36,6 +36,7 @@
  !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
  !  'CTEQ'        -- CTEQ-like parameterisation
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
+ !  'LHAPDF'      -- use lhapdf library to define pdfs
 
   PDFStyle = '10p HERAPDF'
 
@@ -182,3 +183,10 @@
   IPOLYSQR = 0  ! ( ensure positivity of PDFs by squaring them )
 &End
 
+*
+* (Optional) LHAPDF sttering card
+*
+&lhapdf
+  LHAPDFSET  = 'cteq66.LHgrid' ! LHAPDF grid file 
+  ILHAPDFSET = 0               ! Set number withing PdfSet
+&End

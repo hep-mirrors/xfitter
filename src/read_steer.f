@@ -43,6 +43,13 @@ C (Optional) Chebyshev namelist
 
 C (Optional) Polynomial parameterisation for valence
       namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
+   
+      character*128  LHAPDFSET
+      integer ILHAPDFSET
+      logical lhapdffile_exists
+
+C (Optional) LHAPDF steering card
+      namelist/lhapdf/LHAPDFSET,ILHAPDFSET
 
       integer i, ilastq2
       integer StdCin,StdCout
@@ -98,6 +105,10 @@ C Type of Chebyshev parameterization:
       ichebtypeSea = 0
 
       Chi2MaxError = 1.E10  ! turn off.
+
+C     Initialise LHAPDF parameters
+      LHAPDFSET = 'cteq65.LHgrid'
+      ILHAPDFSET = 0
 
 C 25 Jan 2011
 C     Pure polinomial param for the valence quarks:
@@ -182,6 +193,15 @@ C
       close (51)
 
 C
+C  Read the lhapdf namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=lhapdf,ERR=67,end=68)
+ 68   continue
+      close (51)
+
+
+C
 C Decode HFSCHEME:
 C      
       call SetHFSCHEME(HF_SCHEME)
@@ -191,6 +211,15 @@ C
 C Decode PDF style:
 C      
       call SetPDFStyle(PDFStyle)
+      if (PDFStyle.eq.'LHAPDF') then
+         INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
+         if(lhapdffile_exists) then
+            call InitPDFset(LHAPDFSET)
+         else
+            call InitPDFsetByName(LHAPDFSET)
+         endif
+         call InitPDF(ILHAPDFSET)
+      endif
 
 C
 C Decode Chi2 style:
@@ -291,6 +320,9 @@ C
  66   continue
       print '(''Error reading namelist &Poly, STOP'')'
       stop
+ 67   continue
+      print '(''Error reading namelist &lhapdf, STOP'')'
+      stop
  71   continue
       print '(''Namelist &InFiles NOT found'')'
       goto 73
@@ -351,6 +383,8 @@ C
 C---------------------------------------
       implicit none
       character*(*) PDFStyle
+      character*32  LHAPDFSET
+      integer ILHAPDFSET 
       include 'steering.inc'
 C---------------------------------
       
@@ -368,6 +402,8 @@ C---------------------------------
          iparam = 171717
       elseif (PDFStyle.eq.'CHEB') then
          iparam = 4
+      elseif (PDFStyle.eq.'LHAPDF') then
+         iparam = 0
       else
          print *,'Unsupported PDFStyle =',PDFStyle
          print *,'Check value in steering.txt'

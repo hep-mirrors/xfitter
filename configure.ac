@@ -41,6 +41,24 @@ else
   AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
 fi
 
+# check for lhapdf installation
+  AC_ARG_ENABLE([lhapdf],
+    [AC_HELP_STRING(--enable-lhapdf, [use lhapdf (default=no)])])
+  if test x$enable_lhapdf == xyes; then
+    AC_MSG_CHECKING([for lhapdf installation])
+    lhapdf_config=`which lhapdf-config`
+    if test x$lhapdf_config == x; then
+       AC_MSG_ERROR([Unable to find lhapdf-config.])
+    else 
+       AC_MSG_RESULT([Using $lhapdf_config])
+       LHAPDF_CPPFLAGS=`lhapdf-config --cppflags`
+       LHAPDF_LDFLAGS=`lhapdf-config --ldflags`
+       AC_SUBST(LHAPDF_CPPFLAGS)
+       AC_SUBST(LHAPDF_LDFLAGS)
+    fi
+  fi
+AM_CONDITIONAL(ENABLE_LHAPDF, [test x$enable_lhapdf == xyes])
+
 # check for applgrid installation
 AC_ARG_ENABLE([applgrid],
   [AC_HELP_STRING(--enable-applgrid, [use applgrid for fast pdf convolutions (default=no)])])

@@ -14,6 +14,11 @@ else
   FitPDF_SOURCES+= applgrids_dum.f 
 endif
 
+if ENABLE_LHAPDF 
+else
+  FitPDF_SOURCES+= lhapdf_dum.f
+endif
+
 # FORTRAN compiler flags to be used for the main target
 AM_FFLAGS = -I$(srcdir)/../include -fno-automatic
 
@@ -21,6 +26,11 @@ AM_FFLAGS = -I$(srcdir)/../include -fno-automatic
 AM_CPPFLAGS = -I$(srcdir)/../include 
 if ENABLE_APPLGRID 
   AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
+endif
+
+if ENABLE_LHAPDF 
+  AM_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
+  AM_FFLAGS+=$(LHAPDF_CPPFLAGS)
 endif
 
 # libraries to be linked to the main target
@@ -37,6 +47,9 @@ GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
 
 #if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
+#endif
+#if ENABLE_LHAPDF 
+  LDADD+=$(LHAPDF_LDFLAGS)
 #endif
 
 
