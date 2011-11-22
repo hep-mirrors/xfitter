@@ -31,7 +31,10 @@ C----------------------------------------------------------------
 
       double precision Xv,Yv,Q2v
 
-      double precision Charge, S, FactorCC, polarity, err_pol, shift_pol
+      double precision Charge, S, FactorCC, polarity 
+      double precision err_pol_unc, shift_pol
+      double precision err_pol_corL
+      double precision err_pol_corT
 
       logical IsReduced
 
@@ -44,7 +47,9 @@ C Functions:
 C-------------------------------------------------------------
 
       polarity=0.d0
-      err_pol=0.d0
+      err_pol_unc=0.d0
+      err_pol_corL=0.d0
+      err_pol_corT=0.d0
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN GetReducedNCXsection'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
@@ -71,32 +76,48 @@ C prepare bins:
 C QCDNUM, caclulate FL, F2 and xF3 for all bins:
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
       polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'), IDataSet)
-       if (polarity.ne.0) then
-          err_pol = DATASETInfo( GetInfoIndex(IDataSet,'e polar err'), IDataSet)
-       endif
+
+      if (polarity.ne.0) then
+         err_pol_unc = 
+     $        DATASETInfo( GetInfoIndex(IDataSet,'pol err unc'), IDataSet)
+         err_pol_corL = 
+     $        DATASETInfo( GetInfoIndex(IDataSet,'pol err corLpol'), IDataSet)
+         err_pol_corT = 
+     $        DATASETInfo( GetInfoIndex(IDataSet,'pol err corTpol'), IDataSet)
+      endif
       
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
       IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
 
 C----------------------------------------------------------
+
       if (charge.lt.0.) then
          if (polarity.gt.0) then
             shift_pol=shift_polRHm
          else
-            shift_pol=-shift_polRHm
+            shift_pol=shift_polLHm
          endif
       else
          if (polarity.gt.0) then
             shift_pol=shift_polRHp
          else
-            shift_pol=-shift_polRHp
+            shift_pol=shift_polLHp
          endif
       endif
-      polarity=polarity+err_pol*shift_pol
+      
+      polarity=polarity*(1+err_pol_unc/100*shift_pol+
+     $     err_pol_corL/100*shift_polL+
+     $     err_pol_corT/100*shift_polT)
+      
+      
+      
       if(polarity.ne.0.d0) then
          print '( ''charge:  '', F8.4, 
      $        '' pol: '', F16.4, 
-     $        ''shift pol: '', F10.4 )', charge, polarity,shift_pol
+     $        ''shift pol: '', F16.4 , 
+     $        ''shift Lpol: '', F16.4 , 
+     $        ''shift Tpol: '', F16.4 )', 
+     $        charge, polarity,shift_pol,shift_polL,shift_polT
       endif
       
 

@@ -34,6 +34,8 @@ C-------------------------------------------------------
       integer idxShiftPolRHp   !> indices shiftpol
       integer idxShiftPolLHm   !> indices shiftpol
       integer idxShiftPolRHm   !> indices shiftpol
+      integer idxShiftPolT   !> indices shiftpol
+      integer idxShiftPolL   !> indices shiftpol
 C-------------------------------------------------------
 
 C-------------------------------------------------------
@@ -68,16 +70,22 @@ C-------------------------------------------------------
          idxShiftPolRHp = GetParameterIndex('shiftpolRHp')
          idxShiftPolLHm = GetParameterIndex('shiftpolLHm')
          idxShiftPolRHm = GetParameterIndex('shiftpolRHm')
+         idxShiftPolL = GetParameterIndex('shiftpolL')
+         idxShiftPolT = GetParameterIndex('shiftpolT')
  
         if (idxShiftPoLRHm.eq.0.or.
      $        idxShiftPolRHm.eq.0.or.
      $        idxShiftPolLHm.eq.0.or.
+     $        idxShiftPolL.eq.0.or.
+     $        idxShiftPolT.eq.0.or.
      $        idxShiftPolLHp.eq.0) then
          else
             idxShiftPolRHm = iExtraParamMinuit(idxShiftPolRHm)
             idxShiftPolLHm = iExtraParamMinuit(idxShiftPolLHm)
             idxShiftPolRHp = iExtraParamMinuit(idxShiftPolRHp)
             idxShiftPolLHp = iExtraParamMinuit(idxShiftPolLHp)
+            idxShiftPolT = iExtraParamMinuit(idxShiftPolT)
+            idxShiftPolL = iExtraParamMinuit(idxShiftPolL)
          endif
 
 
@@ -180,6 +188,8 @@ C Hermes strange prepare:
       shift_polLHp=p(idxShiftPolLHp)
       shift_polLHm=p(idxShiftPolLHm)
       shift_polRHm=p(idxShiftPolRHm)
+      shift_polL=p(idxShiftPolL)
+      shift_polT=p(idxShiftPolT)
 
 
 

@@ -316,7 +316,8 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
 
       f=fchi2+
      $     shift_polRHp**2+shift_polRHm**2+
-     $     shift_polLHp**2+shift_polLHm**2
+     $     shift_polLHp**2+shift_polLHm**2+
+     $     shift_polL**2+shift_polT**2
 
       icount = icount + 1
 
