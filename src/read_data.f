@@ -124,8 +124,8 @@ C
 C
 C MC method: fluctuate data according to their uncertainteis.
 C
-      if (lrand) then
-         call MC_method
+      if (lrand .and. lranddata) then
+         call MC_method()
       endif
 
       return

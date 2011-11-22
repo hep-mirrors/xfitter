@@ -34,7 +34,7 @@ C Output style namelist
       namelist/Output/DoBands, Q2VAL, OutNX, OutXRange
 
 C (Optional) MC method namelist
-      namelist/MCErrors/LRand, ISeeDMC, StaType, SysType
+      namelist/MCErrors/LRand, ISeeDMC, StaType, SysType, LRandData
  
 C (Optional) Chebyshev namelist
       namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
@@ -140,6 +140,7 @@ C  Fast applgrid:
 
 C MC Errors defaults:
       lRAND = .false.
+      lRandData = .true.
       iSEEDmc = 0
       STATYPE = 1
       SYSTYPE = 1

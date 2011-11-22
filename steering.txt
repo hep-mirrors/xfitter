@@ -135,6 +135,9 @@
 &MCErrors
   ! Activate MC method for error estimation if lRand = True
   lRAND   = False
+  
+  ! Use data (true, default) or theory (false) for the central values of the MC replica
+  lRANDDATA = True
 
   ! MC method Seed
   ISeedMC = 123456 
@@ -143,7 +146,8 @@
   ! STATYPE (SYS_TYPE)  =   1  gauss
   ! STATYPE (SYS_TYPE)  =   2  uniform
   ! STATYPE (SYS_TYPE)  =   3  lognormal
-  STATYPE = 1
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  STATYPE =  1
   SYSTYPE =  1
 &End
 

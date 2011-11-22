@@ -14,7 +14,8 @@
       logical lDEBUG           !> Debug flag
       logical DOBANDS            !> Produce PDF error bands 
       logical lRAND            !> MC method activation flag 
-
+      logical lrandData        !>  MC method using data (true) or prediction (false)
+	
       real asatur,             !> Saturation inspired cut for DIS data
      $     lsatur              !> Saturation inspired cut for DIS data
 
@@ -81,5 +82,5 @@ C
      $     ,IOFFSETCHEBSEA
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID
+     $     ,LFastAPPLGRID,Lranddata
 

@@ -1,5 +1,5 @@
 
-      Subroutine MC_method
+      Subroutine MC_method()
 C------------------------------------------------------------
 C
 C MC method for propagating of the data uncertainties. Creat a replica
@@ -13,6 +13,9 @@ C------------------------------------------------------------
       include 'systematics.inc'
       include 'indata.inc'
       include 'for_debug.inc'
+      include 'theo.inc'
+
+      integer istage,systypeMod
 
 C To be used as a seed:
       integer icount
@@ -22,7 +25,7 @@ C Common from CERNLIB datime:
       common/SLATE/ IS(40)
 
       integer n0
-      double precision s,voica,dummy_st
+      double precision s,voica,dummy_st,sorig
 
 C Single precision here:
       real rndsh,ranflat
@@ -31,6 +34,9 @@ C
       double precision r_sh_fl(NSYS)
       double precision f_un
       parameter (f_un = 2.0)   ! translate 0.:-1 to -1.:1. 
+      
+      real amu
+      integer npoi, ierr
 C For log normal random shifts:
       real lsig, lmu,lrunif
 C functions:
@@ -83,14 +89,19 @@ C
          call rnorml(rndsh,1)   
          call ranlux(ranflat,1)
 
-         s = DATEN(n0)
+         if (lrandData) then
+            s = DATEN(n0)
+         else
+            s = THEO(n0)
+         endif
+         sorig = s
 
          do isys=1,nsys
 
 cv  test different distributions
 cv  first for systematic uncert, then for stat.                    
 
-            if (systype.eq.1) then ! gauss
+            if (systype.eq.1) then ! gauss syst
                s = s*(1.+ beta(isys,n0) * rand_shift(isys))
                
             elseif (systype.eq.2) then ! uniform
@@ -111,7 +122,7 @@ cv  first for systematic uncert, then for stat.
                
          voica=s                ! save cross section before the stat shift
 
-CV now choose sta (advised gauss)  
+CV now choose sta (advised gauss OR poisson)  
               
          if (statype.eq.1) then ! gauss
             s = s + rndsh * alpha(n0)
@@ -120,12 +131,26 @@ CV now choose sta (advised gauss)
             s= s*alnorm(1.,dummy_st)
          elseif (statype.eq.2) then ! uniform
             s = s + alpha(n0)*f_un*(ranflat-0.5)
+         elseif (statype.eq.4) then ! poisson
+C Poisson require theory:
+            if (lranddata) then
+               print *,'Poisson errors require theory predictions!'
+               stop
+            endif
+            amu = daten(n0)*theo(n0)/alpha(n0)**2
+            call RNPSSN(amu, Npoi, Ierr)
+
+            s = (s-THEO(n0)) + Npoi*alpha(n0)**2/daten(n0)
+            
+            if (s.le.0) then
+               s = 1.0D-4
+            endif
          endif
          
  
          print 
      $ '(''Original, systematics and stat. shifted data:'',i4,3E12.4)'
-     $        , n0,DATEN(n0), voica,s
+     $        , n0,sorig, voica,s
          DATEN(n0) = s
       enddo   
 

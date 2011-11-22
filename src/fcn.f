@@ -269,6 +269,14 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
       endif
 
 
+* -----------------------------------------------------------
+*     Toy MC samples based on predictions:
+* -----------------------------------------------------------
+
+      if (IFlag.eq.1 .and. lrand .and. .not. LRandData) then
+         call MC_Method()
+      endif 
+
 *     ---------------------------------------------------------
 *     calculate chisquare
 *     ---------------------------------------------------------
