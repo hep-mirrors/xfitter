@@ -126,6 +126,13 @@
    Variable(6)        = 'pt1'
    CutValueMin(6)     = 20.
    CutValueMax(6)     = 1000000.
+
+  !--------------------- Fixed target --------------------------
+
+  ! Rule #7: Whad2 cut
+   ProcessName(7)     = 'muon p'
+   Variable(7)        = 'Whad2'
+   CutValueMin(7)     = 15.   
    
 &End
 
