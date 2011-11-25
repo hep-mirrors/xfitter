@@ -6,6 +6,7 @@
      $     ,I_FIT_ORDER        !>  Fit order (LO=0, NLO=1, NNLO=2)
      $     ,IPARAM             !>  Internal flag for parameterisation type
      $     ,ICHI2              !>  Internal flag for chi2-type
+     $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
       integer HFSCHEME         !>  Heavy flavour scheme (0 -- zero mass, 2 -- RT)
 
       double precision Chi2MaxError !> Switch to Poisson stat. for larger errros
@@ -79,7 +80,7 @@ C
      $     nchebSEA,wmnlen,wmxlen
      $     ,ichebtypeGlu, ichebtypeSea
      $     ,ifsttype,iSeeDmc
-     $     ,IOFFSETCHEBSEA
+     $     ,IOFFSETCHEBSEA,EWFIT
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata

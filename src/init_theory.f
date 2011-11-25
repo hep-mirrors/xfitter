@@ -21,6 +21,7 @@
 
       if(itheory.eq.0) then
          call qcdnum_ini
+         if (ewfit.gt.0) call eprc_init(.true.)
       elseif(itheory.eq.1) then       
 c          here goes a call to non-DGLAP 
       endif

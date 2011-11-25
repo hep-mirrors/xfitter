@@ -37,6 +37,7 @@ C-------------------------------------------------------
       integer idxShiftPolT   !> indices shiftpol
       integer idxShiftPolL   !> indices shiftpol
 C-------------------------------------------------------
+      integer idxAuEW, idxAdEW, idxVuEW, idxVdEW !> indices for EW param
 
 C-------------------------------------------------------
       if (LFirstTime) then
@@ -64,6 +65,22 @@ C-------------------------------------------------------
          if (idxFCharm.gt.0) then
             idxFCharm = iExtraParamMinuit(idxFCharm)
          endif
+
+         idxAuEW = GetParameterIndex('auEW')
+         idxAdEW = GetParameterIndex('adEW')
+         idxVuEW = GetParameterIndex('vuEW')
+         idxVdEW = GetParameterIndex('vdEW')
+
+         if (idxAuEW.eq.0.or.idxAdEW.eq.0.or.
+     $        idxVuEW.eq.0.or.idxVdEW.eq.0) then
+         else
+            idxAuEW = iExtraParamMinuit(idxAuEW)
+            idxAdEW = iExtraParamMinuit(idxAdEW)
+            idxVuEW = iExtraParamMinuit(idxVuEW)
+            idxVdEW = iExtraParamMinuit(idxVdEW)
+         endif
+
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
          idxShiftPolLHp = GetParameterIndex('shiftpolLHp')
@@ -91,6 +108,28 @@ C-------------------------------------------------------
 
 
       endif
+
+C Polarisation shifts extra param
+
+
+      shift_polRHp=p(idxShiftPolRHp)
+      shift_polLHp=p(idxShiftPolLHp)
+      shift_polLHm=p(idxShiftPolLHm)
+      shift_polRHm=p(idxShiftPolRHm)
+      shift_polL=p(idxShiftPolL)
+      shift_polT=p(idxShiftPolT)
+
+
+
+
+C EW extra param
+      cau_ew=p(idxAuEW)
+      cad_ew=p(idxAdEW)
+      cvu_ew=p(idxVuEW)
+      cvd_ew=p(idxVdEW)
+
+
+C PDF param    
 
       Ag=p(1)
       Bg=p(2)
@@ -181,17 +220,6 @@ C Hermes strange prepare:
       else
          fcharm=0.
       endif
-!!!!!!!!!!!!!!!!!!!!!!
-
-
-      shift_polRHp=p(idxShiftPolRHp)
-      shift_polLHp=p(idxShiftPolLHp)
-      shift_polLHm=p(idxShiftPolLHm)
-      shift_polRHm=p(idxShiftPolRHm)
-      shift_polL=p(idxShiftPolL)
-      shift_polT=p(idxShiftPolT)
-
-
 
 
 !!!!!!!!!!!!!!!!!!!!!!!

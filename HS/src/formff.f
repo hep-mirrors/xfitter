@@ -31,6 +31,7 @@ C
       COMMON /PARLIS/ LPAR(20),LPARIN(12),IPART
       COMMON /FORMFF/ ALPFFQ,AKAPPA,GMUFFQ,SWEFF2
 C
+
       COMPLEX*16 SIGMRG,SIGMRM,CG,CM
       DIMENSION MTDAT(4),MHDAT(4)
       DATA MTDAT,MHDAT/100D0,150D0,200D0,250D0,25D0,5D1,76D0,8D2/
@@ -66,8 +67,8 @@ C...IN SELF ENERGIES AND VERTEX CORRECTIONS:
       LPAR(15)=1
 C...CALCULATE WEAK PARAMETERS, COUPLING CONSTANTS, MASSES
 C...AND PRINT ACTUAL SETTING
-      MH=120D0
-      MT=180D0
+      MH=114D0
+      MT=171.3D0
       CALL SETPAR(1,doprint)
 CCC
 C
@@ -81,7 +82,7 @@ C...DELTAR FOR VARIOUS MT AND MH
 C      MZ=91.174D0
 C      MZ=91.170D0
 C      MZ=91.1884D0
-      MZ=91.1865D0
+      MZ=91.1876D0
       MZ2=MZ*MZ
       MT2=MT*MT
       MH2=MH*MH
@@ -112,8 +113,9 @@ C      MZ=91.1884D0
       DIMENSION MTDAT(4),MHDAT(4)
       DATA MTDAT,MHDAT/100D0,150D0,200D0,250D0,25D0,5D1,76D0,8D2/
 
+cv
+      COMMON /PARAM/  POLARI,LLEPT,LQUA
       common/eprc_manu/sm
-
 C...EFFECTIVE WEAK MIXING ANGLE
       LPAR(15)=1
 
@@ -162,7 +164,11 @@ C
       common/couplings/epsin2thw,epMz,
      +       cau,cvu,cad,cvd
 
-      include 'steering.inc'
+
+
+cv      include 'steering.inc'
+
+
 
 C---DEFINE CONSTANTS
       PI=4D0*DATAN(1D0)
@@ -187,7 +193,7 @@ C     DNSMR=-1D-2
 C---DEFINE PARAMETERS OF THE ELECTROWEAK STANDARD MODEL
       ME=.51099906D-3
       MMY=.105658387D0
-      MTAU=1.7841D0
+      MTAU=1.77682D0
       MU=.067D0
       MD=.089D0
       MS=.231D0
@@ -195,9 +201,10 @@ C---DEFINE PARAMETERS OF THE ELECTROWEAK STANDARD MODEL
       MB=4.5D0
 cv link the values to the h1fitter
 cv overwrite them..
-      MC=HF_MASS(1)
-      MB=HF_MASS(2)
-
+c      MC=HF_MASS(1)
+c      MB=HF_MASS(2)
+      mc=1.4d0
+      mb=4.75d0
 
 C     MT=180.0D0
 C     MH=100D0
@@ -214,7 +221,7 @@ C     MH=100D0
 C
       MZ=91.1884D0
 Cv the value set in the read_steer.f:
-       MZ=91.187D0
+       MZ=91.1876D0
 
       MZ2=MZ*MZ
 
@@ -229,7 +236,7 @@ C
         MW=80.000D0
       ENDIF
 C value from the read_steer.f
-      Mw = 80.41d0
+      Mw = 80.3980d0
 
       MW2=MW*MW
       CW=MW/MZ

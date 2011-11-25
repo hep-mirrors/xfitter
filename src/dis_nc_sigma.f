@@ -262,6 +262,13 @@ C Functions:
       integer GetBinIndex
       integer GetInfoIndex
 
+c EW param
+
+      double precision sin2th_eff, xkappa, epsilon
+      double precision deltar,sweff, sin2thw2
+      double precision cau, cad, cvu, cvd
+
+
 C---------------------------------------------------------
 
       if (IFlagFCN.eq.1) then
@@ -275,21 +282,6 @@ C
          endif
       endif
 
-C
-C EW couplings of the electron
-C
-      ve = -0.5d0 + 2.*sin2thw
-      ae = -0.5d0         
-
-C
-C and quarks
-C         
-      au = 0.5d0
-      ad = -0.5d0
-                  
-      vu = au - (4.d0/3.d0)*sin2thw
-      vd = ad + (2.d0/3.d0)*sin2thw
- 
 C
 C Protect against overflow of internal arrays:
 C
@@ -381,6 +373,50 @@ C
      $        charge, polarity,shift_pol,shift_polL,shift_polT
       endif
 
+
+
+      if(EWFIT.eq.0) then
+C
+C EW couplings of the electron
+C
+         ve = -0.5d0 + 2.*sin2thw
+         ae = -0.5d0         
+
+C
+C and quarks
+C         
+         
+         au = 0.5d0
+         ad = -0.5d0
+                  
+         vu = au - (4.d0/3.d0)*sin2thw
+         vd = ad + (2.d0/3.d0)*sin2thw
+      else
+
+         call wrap_ew(q2,sweff,deltar,cau,cad,cvu,cvd,polarity,charge)
+
+
+         if (idataset.eq.2) then
+            print '(''cau: cvu: cad: cvd'',5F16.6)',cau,cvu,cad,cvd,deltar
+         endif
+
+
+         sin2thw2 = 1.d0 - MW**2/MZ**2
+         sin2th_eff = 0.23134d0
+         xkappa = sin2th_eff/sin2thw
+         epsilon = xkappa -1.0
+c         print*, sin2thw, sweff, xkappa, epsilon
+         ve = -0.5d0 + 2.*sin2th_eff
+         ae = -0.5d0
+
+         vu = cvu - (4.d0/3.d0)*epsilon*sin2thw2
+         vd = cvd + (2.d0/3.d0)*epsilon*sin2thw2
+         au = cau
+         ad = cad
+
+      endif
+
+
 C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 
 C u-type ( u+c ) contributions 
@@ -403,6 +439,10 @@ C Get the index of the point in the global data table:
 
 C Propagator factor PZ
          PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
+
+C modify propagator for EW corrections -- only for EW fit
+         if (EWfit.ne.0) PZ = PZ * (1.d0 - Deltar)
+
          PZ = 1./Pz
 C EW couplings of u-type and d-type quarks at the scale Q2
 

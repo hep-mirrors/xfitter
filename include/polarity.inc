@@ -8,3 +8,8 @@ C add the polarisation
      +  shift_polLHp, shift_polLHm, shift_polL, shift_polT 
 
 
+C add the EWparam
+
+
+      double precision cau_ew, cad_ew, cvu_ew, cvd_ew
+      common/EWminuit/cau_ew, cad_ew,cvu_ew,cvd_ew
