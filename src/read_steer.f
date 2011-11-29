@@ -20,7 +20,7 @@ C=================================================
 
 C Define namelists:
 
-      character*32 PDFStyle, Chi2Style, HF_SCHEME
+      character*32 PDFStyle, Chi2Style, HF_SCHEME, MassHQ
 
       real*8 Q02       ! Starting scale
       integer IOrder   ! Evolution order
@@ -53,6 +53,9 @@ C (Optional) LHAPDF steering card
 
       integer i, ilastq2
       integer StdCin,StdCout
+
+C (Optional) set HQ scale
+      namelist/HQScale/aq2,bq2,MassHQ
 
 
 C Namelist for datafiles to read
@@ -127,6 +130,11 @@ C  Key for W range
 
 
       chebxmin = 1.E-5
+
+C scale for HQ
+      aq2 = 1
+      bq2 = 0
+      MassHQ = 'mc'
 
 C  Hermes-like strange (off by default):
       ifsttype = 0
@@ -207,7 +215,6 @@ C Decode HFSCHEME:
 C      
       call SetHFSCHEME(HF_SCHEME)
 
-
 C
 C Decode PDF style:
 C      
@@ -255,6 +262,13 @@ C
  65   continue
       close (51)
 
+C
+C  Read the HQScale namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=HQScale,ERR=70,end=69)
+ 69   continue
+      close (51)
 
 C
 C  Read the data namelist:
@@ -263,6 +277,11 @@ C
       read (51,NML=InFiles,END=71,ERR=72)
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+
+C
+C asign mc or mb to hq scale
+C      
+      call SetMHSCALE(MassHQ)
 
 C
 C Also read extra minuit parameters:
@@ -277,6 +296,7 @@ C Print the namelists:
          print MCErrors
          print InFiles
          print EWpars
+         print HQScale
       endif
 
 
@@ -323,6 +343,9 @@ C
       stop
  67   continue
       print '(''Error reading namelist &lhapdf, STOP'')'
+      stop
+ 70   continue
+      print '(''Error reading namelist &HQScale, STOP'')'
       stop
  71   continue
       print '(''Namelist &InFiles NOT found'')'
@@ -433,8 +456,36 @@ C---------------------------------
           HFSCHEME = 2
       elseif (HF_SCHEME.eq.'RT FAST') then
           HFSCHEME = 22 
+      elseif (HF_SCHEME.eq.'FF') then
+          HFSCHEME = 3 
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
+         print *,'Check value in steering.txt'
+         print *,'STOP'
+         stop
+      endif
+
+      end
+
+
+
+      Subroutine SetMHSCALE(MassHQ)
+C---------------------------------------
+C
+C>  Set HQ scale mh parameter
+C
+C---------------------------------------
+      implicit none
+      character*(*) MassHQ
+      include 'steering.inc'
+C---------------------------------
+
+      if (MassHQ.eq.'mc') then
+          MASSH = 1 
+      elseif (MassHQ.eq.'mb') then
+          MASSH = 2
+      else
+         print *,'Unsupported MassHQ =',MassHQ
          print *,'Check value in steering.txt'
          print *,'STOP'
          stop
