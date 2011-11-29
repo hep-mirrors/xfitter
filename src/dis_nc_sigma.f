@@ -257,6 +257,10 @@ C RT:
      $     f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT, F2rt, FLrt
       logical UseKFactors
 
+C HF:
+      double precision NC2FHF(-6:6)
+      double precision FLc, F2c, FLb, F2b
+      dimension FLc(NPmax),F2c(NPmax),FLb(NPmax),F2b(NPmax)
 
 C Functions:
       integer GetBinIndex
@@ -429,6 +433,20 @@ C d-type (d + s + b) contributions
       CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,NDATAPOINTS(IDataSet),0)
       CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,NDATAPOINTS(IDataSet),0) 
 
+C heavy quark contribution (c and b)      
+      if (mod(HFSCHEME,10).eq.3) then 
+
+         NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
+c        write(6,*) 'NC2FHF:', NC2FHF
+
+         CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,NDATAPOINTS(IDataSet),0)
+         CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,NDATAPOINTS(IDataSet),0)
+         CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,NDATAPOINTS(IDataSet),0)
+         CALL HQSTFUN(1,-2,NC2FHF,X,Q2,FLb,NDATAPOINTS(IDataSet),0)
+c         write(6,*) 'HQSTFUN: X,Q2,F2c,FLc', X(1),Q2(1),F2c(1),FLc(1)
+c         write(6,*) 'HQSTFUN: X,Q2,F2b,FLb', X(1),Q2(1),F2b(1),FLb(1)
+
+      endif
 C
 C Prepare theory prediction for chi2 calculation:
 C
@@ -539,6 +557,16 @@ C Keep xF3 from QCDNUM
            FL = FLrt
         endif
 
+
+C FFNS, heavy quark contribution (c and b) to F2 and FL   
+        if (mod(HFSCHEME,10).eq.3) then 
+
+c           write(6,*) 'FFNS before sum: F2', i,F2
+           F2 = F2 + F2c(i) + F2b(i) 
+           FL = FL + FLc(i) + FLb(i)
+c           write(6,*) 'FFNS: F2,F2c,F2b', i,F2,F2c(i),F2b(i)
+
+        endif
          
 
 C polarisation already taken into account in the couplings (A_q,B_q)
