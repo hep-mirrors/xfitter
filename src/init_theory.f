@@ -145,12 +145,16 @@ c--   linear x grid
       integer I,ndum,ierr,j
 
       double precision a,b
-      double precision aq2,bq2,qs0,qt
+      double precision qs0,qt
 
       integer id1,id2,iq0,iqb,iqc,iqt
 
       integer nflav
       integer nw,nwords,nx
+
+      double precision hqmass
+      dimension hqmass(3)
+
 
 C Functions:
       integer iqfrmq
@@ -246,7 +250,13 @@ C Remove duplicates:
       iqt =iqfrmq(qt)
 
 
-      call setcbt(0,iqc,iqb,iqt) !thesholds in the ffns
+      if ((mod(HFSCHEME,10).eq.3)) then
+         call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
+         print *,'Fixed Flavour Number Scheme set with nf=3'
+      else
+        call setcbt(0,iqc,iqb,iqt) !thesholds in the ffns
+      endif
+
 
       call readwt(22,'unpolarised.wgt',id1,id2,nw,ierr)
       if(ierr.ne.0) then
@@ -285,6 +295,37 @@ C-
          call RT_Set_Input(
      $        alphaS0in,alambdain,flavorin,qsctin,qsdtin,iordin,inullin)
          call WATE96
+
+
+c Fixed Flavour Number Scheme (FFNS)
+      elseif ((mod(HFSCHEME,10).eq.3)) then
+        if(I_FIT_ORDER.gt.2) then
+          print *,'FFN scheme can be used only with NLO, stop'
+          stop
+        endif
+
+         hqmass(1) = HF_MASS(1)
+         hqmass(2) = HF_MASS(2)
+         hqmass(3) = HF_MASS(3)
+
+C--- aq=1.0 and bq=0 sets the heavy quarks factorisation scale
+C--- Q^2 = aq2*mu_f + bq2  
+
+         if(massh.eq.1) then
+             bq2  = bq2 * qc
+         elseif(massh.eq.2) then
+             bq2  = bq2 * qb
+         endif
+c         print*,'1 HQ scale (Q^2=a*mu_F^2 + b) a,b,mh', aq2,bq2,massh 
+
+         call hqreadw(22,'hqstf.wgt',nwords,ierr)
+         if(ierr.ne.0) then
+            call hqfillw(3,hqmass,aq2,bq2,nwords)
+cv            call hqdumpw(22,'hqstf.wgt')
+         else 
+            print*,'ERRRROR in hqreadw!', ierr
+         endif      
+         write(6,'(/'' HQSTF: words used ='',I10)') nwords      
 
       endif
       
