@@ -7,7 +7,7 @@
      $     ,IPARAM             !>  Internal flag for parameterisation type
      $     ,ICHI2              !>  Internal flag for chi2-type
      $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
-      integer HFSCHEME         !>  Heavy flavour scheme (0 -- zero mass, 2 -- RT)
+      integer HFSCHEME         !>  Heavy flavour scheme (0 - zero mass, 2 - RT, 3 - FFNS)
 
       double precision Chi2MaxError !> Switch to Poisson stat. for larger errros
       
@@ -59,6 +59,9 @@ C Polynomial param for valence quarks
 C Use forced positive parameterisation for IPOLYSQR=1
       integer IPOLYSQR
 
+C parameters to set HQ scale      
+      double precision aq2,bq2
+      integer MASSH
 
 C Applgrid flags
       logical useapplg
@@ -84,4 +87,5 @@ C
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata
+     $     ,aq2,bq2,MASSH
 
