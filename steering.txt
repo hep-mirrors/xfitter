@@ -26,6 +26,7 @@
  ! ---  HF_SCHEME = 'ZMVFNS' : ZM-VFNS (massless),
  ! ---  HF_SCHEME = 'RT' :  Thorne-Roberts VFNS (massive)
  ! ---  HF_SCHEME = 'RT FAST' : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'FF' : Fixed Flavour Number Scheme from qcdnum
 
   HF_SCHEME = 'RT'
 
@@ -194,6 +195,18 @@
   IPOLYSQR = 0  ! ( ensure positivity of PDFs by squaring them )
 &End
 
+*
+* (Optional) choose the factorisation scale for HQs
+* tuned via parameters:    Q^2 = aq2*mu_f + bq2(*mh)
+* in FFNS usually set to:  mu_f = Q^2 + 4*mc^2
+*
+&HQScale
+   aq2    =  1. 
+   bq2    = -4.  
+   MassHQ = 'mc' ! (available: mc, mb)
+&End
+
+=======
 *
 * (Optional) LHAPDF sttering card
 *
