@@ -39,9 +39,12 @@ C
       integer npoi, ierr
 C For log normal random shifts:
       real lsig, lmu,lrunif
+      
+      double precision epsilon, e_cor2
+
 C functions:
       real logshift
-      double precision alnorm
+      double precision alnorm     
 C------------------------------------------------------------
 
       if (iseedmc.ne.0) then
@@ -137,14 +140,30 @@ C Poisson require theory:
                print *,'Poisson errors require theory predictions!'
                stop
             endif
-            amu = daten(n0)*theo(n0)/alpha(n0)**2
+
+C Get acceptance/lumi correction, called "epsilon"
+
+            epsilon = daten(n0)/alpha(n0)**2
+            
+C Expected number of events:
+            amu = epsilon*theo(n0)
             call RNPSSN(amu, Npoi, Ierr)
 
             s = (s-THEO(n0)) + Npoi*alpha(n0)**2/daten(n0)
-            
+         
+C  Also redefine alpha:
+
+            e_cor2    = e_tot(n0)**2 - (alpha(n0)/daten(n0)*100)**2
+            alpha(n0) = sqrt(Dble(Npoi))/epsilon
+
+            e_unc(n0) = 0.
+
             if (s.le.0) then
                s = 1.0D-4
+C Set large uncertainty
+               e_unc(n0) = 10.
             endif
+            e_tot(n0) = sqrt(e_cor2 + (alpha(n0)/s*100)**2)
          endif
          
  
@@ -153,6 +172,8 @@ C Poisson require theory:
      $        , n0,sorig, voica,s
          DATEN(n0) = s
       enddo   
+
+C            stop
 
 C------------------------------------------------------------
       end
