@@ -87,5 +87,8 @@ C
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata
-     $     ,aq2,bq2,MASSH
+
+     
+      common/heavyflav/
+     $     aq2,bq2,MASSH
 
