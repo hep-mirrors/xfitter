@@ -158,18 +158,19 @@ C  Also redefine alpha:
 
             e_unc(n0) = 0.
 
-            if (s.le.0) then
+            if (Npoi.le.0) then
+C Set small value
                s = 1.0D-4
 C Set large uncertainty
-               e_unc(n0) = 10.
+               alpha(n0) = 10.0
             endif
             e_tot(n0) = sqrt(e_cor2 + (alpha(n0)/s*100)**2)
          endif
          
  
          print 
-     $ '(''Original, systematics and stat. shifted data:'',i4,3E12.4)'
-     $        , n0,sorig, voica,s
+     $ '(''Original, systematics and stat. shifted data:'',i4,4E12.4)'
+     $        , n0,sorig, voica,s,alpha(n0)
          DATEN(n0) = s
       enddo   
 
