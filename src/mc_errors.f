@@ -149,7 +149,7 @@ C Expected number of events:
             amu = epsilon*theo(n0)
             call RNPSSN(amu, Npoi, Ierr)
 
-            s = (s-THEO(n0)) + Npoi*alpha(n0)**2/daten(n0)
+            s = s/THEO(n0) * Npoi/epsilon
          
 C  Also redefine alpha:
 
