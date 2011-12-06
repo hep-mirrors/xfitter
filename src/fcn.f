@@ -87,6 +87,28 @@ C Store FCN flag in a common block:
       write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
 
 
+*     ---------------------------------------------------------
+*     initilise variables 
+*     ---------------------------------------------------------
+      f = 0.d0
+      fchi2 = 0.d0
+      ndf = -npar
+      n0 = 0
+
+
+      do jsys=1,nsys
+         bsys(jsys) = 0.d0
+         rsys(jsys) = 0.d0
+         ebsys(jsys) = 0.d0
+         ersys(jsys) = 0.d0
+      enddo
+
+
+      do i=1,ntot
+         THEO(i) = 0.d0
+         THEO_MOD(i) = 0.d0
+      enddo
+
 
 
       if (Itheory.eq.3) then
@@ -207,36 +229,6 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
       if (Debug) then
          print*,'after evolution'
       endif
-
-
-
-      do nnpdf=0,0 ! 1, 501
-
-*     ---------------------------------------------------------
-*     initilise variables 
-*     ---------------------------------------------------------
-      f = 0.d0
-      fchi2 = 0.d0
-      ndf = -npar
-      n0 = 0
-
-
-      do jsys=1,nsys
-         bsys(jsys) = 0.d0
-         rsys(jsys) = 0.d0
-         ebsys(jsys) = 0.d0
-         ersys(jsys) = 0.d0
-      enddo
-
-
-      do i=1,ntot
-         THEO(i) = 0.d0
-         THEO_MOD(i) = 0.d0
-      enddo
-
-
-
-
 *     ---------------------------------------------------------  	 
 *     Initialise theory calculation per iteration
 *     ---------------------------------------------------------  	 
@@ -290,10 +282,7 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
 *     ---------------------------------------------------------
       call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
 
-C      print *,nnpdf,fchi2, fchi2**(29./2)*exp(-0.5*fchi2)
 
-      enddo
-C      stop
 
       if (iflag.eq.1) close(87)
 
