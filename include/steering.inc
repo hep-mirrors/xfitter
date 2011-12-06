@@ -7,6 +7,8 @@
      $     ,IPARAM             !>  Internal flag for parameterisation type
      $     ,ICHI2              !>  Internal flag for chi2-type
      $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
+     $     ,iDH_MOD            !>  Correction factor to the chi2, scaling
+                               !>  of statistical errors
       integer HFSCHEME         !>  Heavy flavour scheme (0 - zero mass, 2 - RT, 3 - FFNS)
 
       double precision Chi2MaxError !> Switch to Poisson stat. for larger errros
@@ -86,7 +88,7 @@ C
      $     ,IOFFSETCHEBSEA,EWFIT
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID,Lranddata
+     $     ,LFastAPPLGRID,Lranddata,iDH_MOD
 
      
       common/heavyflav/

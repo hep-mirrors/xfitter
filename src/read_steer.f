@@ -27,7 +27,7 @@ C Define namelists:
 C Main steering parameters namelist
       namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
      $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID,
-     $     Chi2MaxError, EWFIT
+     $     Chi2MaxError, EWFIT, iDH_MOD
 
 
 C Output style namelist
@@ -83,6 +83,7 @@ C---------
       Itheory = 0
       EWFIT=0
 
+      iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
 
 C=================================================
 

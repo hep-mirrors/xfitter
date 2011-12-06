@@ -87,28 +87,6 @@ C Store FCN flag in a common block:
       write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
 
 
-*     ---------------------------------------------------------
-*     initilise variables 
-*     ---------------------------------------------------------
-      f = 0.d0
-      fchi2 = 0.d0
-      ndf = -npar
-      n0 = 0
-
-
-      do jsys=1,nsys
-         bsys(jsys) = 0.d0
-         rsys(jsys) = 0.d0
-         ebsys(jsys) = 0.d0
-         ersys(jsys) = 0.d0
-      enddo
-
-
-      do i=1,ntot
-         THEO(i) = 0.d0
-         THEO_MOD(i) = 0.d0
-      enddo
-
 
 
       if (Itheory.eq.3) then
@@ -229,6 +207,36 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
       if (Debug) then
          print*,'after evolution'
       endif
+
+
+
+      do nnpdf=0,0 ! 1, 501
+
+*     ---------------------------------------------------------
+*     initilise variables 
+*     ---------------------------------------------------------
+      f = 0.d0
+      fchi2 = 0.d0
+      ndf = -npar
+      n0 = 0
+
+
+      do jsys=1,nsys
+         bsys(jsys) = 0.d0
+         rsys(jsys) = 0.d0
+         ebsys(jsys) = 0.d0
+         ersys(jsys) = 0.d0
+      enddo
+
+
+      do i=1,ntot
+         THEO(i) = 0.d0
+         THEO_MOD(i) = 0.d0
+      enddo
+
+
+
+
 *     ---------------------------------------------------------  	 
 *     Initialise theory calculation per iteration
 *     ---------------------------------------------------------  	 
@@ -282,7 +290,10 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
 *     ---------------------------------------------------------
       call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
 
+C      print *,nnpdf,fchi2, fchi2**(29./2)*exp(-0.5*fchi2)
 
+      enddo
+C      stop
 
       if (iflag.eq.1) close(87)
 
@@ -510,10 +521,7 @@ C     Turn off the point for the syst. errors shift estimation:
                      errorunc = errorunc*(abs(t/d))
                   endif
                   error = dsqrt(errorsta**2+errorunc**2)
-
-                  
                endif
-
 
             else if (ICHI2.eq.21) then
 ***   linear scaling
@@ -547,13 +555,15 @@ C     Turn off the point for the syst. errors shift estimation:
 
          
          if (nsys.gt.0) then
-            CALL DINV (NSys,sysa,NSYSMAX,IR,IFAIL)
+            if (flag_in.eq.3) then
+               Call DEQINV(NSys,sysa,NSYSMAX,IR,IFAIL,1,bsys_in)
+            else
+               Call DEQN(NSys,sysa,NSYSMAX,IR,IFAIL,1,bsys_in)
+            endif
          endif
 
          do isys=1,nsys
-            do jsys=1,nsys
-               rsys_in(isys) = rsys_in(isys)-sysa(isys,jsys)*bsys_in(jsys)
-            enddo
+            rsys_in(isys) = -bsys_in(isys)
          enddo
 
          if (DEBUG.and.flag_in.eq.1) then
@@ -577,6 +587,13 @@ C     Turn off the point for the syst. errors shift estimation:
             d = daten(ipoint)
             t = theo(ipoint)
 
+*** Factor to scale theory:
+            fac = 1.d0
+            do isys=1,nsys
+               fac = fac - rsys_in(isys)*beta(isys,ipoint)                
+            enddo 
+
+
             error = alpha(ipoint)
 
 ***   scale errors for chi2 calculation - as above!
@@ -589,7 +606,11 @@ C     Turn off the point for the syst. errors shift estimation:
                   errorsta = dsqrt(error**2-errorunc**2)
                endif
                if (t.gt.0) then
-                  errorsta = errorsta*dsqrt(abs(t/d))
+                  if (iDH_MOD.ne.0) then
+                     errorsta = errorsta*dsqrt(abs(t*fac/d))
+                  else
+                     errorsta = errorsta*dsqrt(abs(t/d))
+                  endif
                   errorunc = errorunc*(abs(t/d))
                endif
                error = dsqrt(errorsta**2+errorunc**2)
@@ -605,10 +626,6 @@ C     Turn off the point for the syst. errors shift estimation:
                error = error*dsqrt(abs(t/d))
             endif
 
-            fac = 1.d0
-            do isys=1,nsys
-               fac = fac - rsys_in(isys)*beta(isys,ipoint)                
-            enddo 
                                   
             if (DEBUG.and.flag_in.eq.1) then
                write(78,*) 'ipoint fac ',ipoint,fac
@@ -661,9 +678,12 @@ C               print *,dnevt,tnevt,chisq
             endif
 
 *     -- errors on the shifts 
-            do isys=1,nsys
-               ersys_in(isys) = sqrt(sysa(isys,isys))
-            enddo
+
+            if (flag_in.eq.3) then
+               do isys=1,nsys
+                  ersys_in(isys) = sqrt(sysa(isys,isys))
+               enddo
+            endif
 
          enddo
 
