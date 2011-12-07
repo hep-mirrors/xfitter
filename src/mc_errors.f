@@ -40,7 +40,10 @@ C
 C For log normal random shifts:
       real lsig, lmu,lrunif
       
-      double precision epsilon, e_cor2
+      double precision epsilon    !> estimated acceptance/lumi correction
+      double precision data_in
+      double precision estat_in, ecor_in, euncor_in, etot_in !> Input uncertainites
+      double precision estat_out,euncor_out  !> recalculated stat. error
 
 C functions:
       real logshift
@@ -116,9 +119,9 @@ cv  first for systematic uncert, then for stat.
                   lmu=1.
                   lrunif=r_sh_fl(isys)
                   s=s*logshift(lmu,lsig,lrunif)
-                  print*,'log...', n0,isys,
-     $                 lrunif, beta(isys,n0), 
-     $                 s,logshift(lmu,lsig,lrunif)
+c                  print*,'log...', n0,isys,
+c     $                 lrunif, beta(isys,n0), 
+c     $                 s,logshift(lmu,lsig,lrunif)
                endif
             endif               ! endif (sys for systematic shifts)
          enddo                  ! end loop over the systematic shifts
@@ -130,47 +133,86 @@ CV now choose sta (advised gauss OR poisson)
          if (statype.eq.1) then ! gauss
             s = s + rndsh * alpha(n0)
          elseif (statype.eq.3.) then ! lognormal
-            dummy_st=alpha(n0)
-            s= s*alnorm(1.,dummy_st)
+            lsig = alpha(n0)
+            lmu=1.
+            call ranlux(lrunif,1)
+            s=s*logshift(lmu,lsig,lrunif)
          elseif (statype.eq.2) then ! uniform
             s = s + alpha(n0)*f_un*(ranflat-0.5)
-         elseif (statype.eq.4) then ! poisson
+         elseif (statype.eq.4 .or. statype.eq.14
+     $           .or. statype.eq.34) then         ! poisson & mixed
 C Poisson require theory:
             if (lranddata) then
                print *,'Poisson errors require theory predictions!'
                stop
             endif
 
-C Get acceptance/lumi correction, called "epsilon"
+            data_in    = daten(n0)
+            estat_in   = alpha(n0)
+            euncor_in  = e_unc(n0)/100.D0*data_in
+            etot_in    = e_tot(n0)/100.D0*data_in
+            ecor_in    = sqrt(etot_in**2-estat_in**2)
 
-            epsilon = daten(n0)/alpha(n0)**2
+            if (statype.eq.14 .or. statype.eq.34) then
+C Calculate stat:
+               if (estat_in.gt.euncor_in) then
+                  estat_in = sqrt(estat_in**2-euncor_in**2)
+               else
+                  print *,'Warrning: uncor. error larger than stat'
+                  estat_in = 0.
+               endif
+            else
+C Reset uncor:
+               euncor_in = 0.
+            endif
+
+C Get acceptance/lumi correction, called "epsilon"
+            epsilon = data_in/estat_in**2
             
 C Expected number of events:
             amu = epsilon*theo(n0)
             call RNPSSN(amu, Npoi, Ierr)
 
-            s = s/THEO(n0) * Npoi/epsilon
-         
-C  Also redefine alpha:
+            s = (s/THEO(n0)) * Npoi/epsilon
 
-            e_cor2    = e_tot(n0)**2 - (alpha(n0)/daten(n0)*100)**2
-            alpha(n0) = sqrt(Dble(Npoi))/epsilon
+C Also apply fluctuations due to uncorrelated systematics:
+            
+C New absolute uncor:
+            euncor_out = euncor_in / data_in * s !> rescale to new value 
 
-            e_unc(n0) = 0.
+            if (statype.eq.14) then
+               s = s + rndsh*euncor_in
+            else if (statype.eq.34) then
+               lsig = euncor_in
+               lmu=1.
+               call ranlux(lrunif,1)
+               s=s*logshift(lmu,lsig,lrunif)
+            endif
+
+C  Redefine stat errors:
 
             if (Npoi.le.0) then
-C Set small value
+C Set small value and large uncertainty, effectively excluding the measurement:
                s = 1.0D-4
-C Set large uncertainty
-               alpha(n0) = 10.0
+               estat_out = 10.0D0
+            else
+               estat_out   = sqrt(Dble(Npoi))/epsilon
             endif
-            e_tot(n0) = sqrt(e_cor2 + (alpha(n0)/s*100)**2)
+
+
+C Store uncor in %:
+            e_unc(n0) = euncor_out/s*100.0
+
+
+            alpha(n0) = sqrt(euncor_out**2+estat_out**2)
+            e_tot(n0) = sqrt(euncor_out**2+estat_out**2+ecor_in**2)
+     $           /s*100.0
          endif
          
  
          print 
-     $ '(''Original, systematics and stat. shifted data:'',i4,4E12.4)'
-     $        , n0,sorig, voica,s,alpha(n0)
+     $ '(''Original, systematics and stat. shifted data:'',i4,5E12.4)'
+     $        , n0,sorig, voica,s,alpha(n0),e_unc(n0)/100.*s
          DATEN(n0) = s
       enddo   
 
