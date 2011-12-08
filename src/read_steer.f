@@ -304,7 +304,9 @@ C Print the namelists:
       I_FIT_ORDER = IOrder
       starting_scale = Q02
 
-
+C 07/12/2011 Dipole ===>
+      call SetDipoleType
+C <==
 
 C
 C Names of syst. error sources:
