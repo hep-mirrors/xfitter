@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = minuit  DY RT HS tools/H1FitterDrawResults \
+SUBDIRS = minuit  DY DIPOLE RT HS tools/H1FitterDrawResults \
           tools/MakeLHAPDF FastNLO/src src doc/tex
 
 # DOXYGEN SUPPORT
