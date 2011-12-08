@@ -213,6 +213,15 @@ c               write(6,*) 'couplings ',cvu,cau,cvd,cad
       refresh_DIS = .true.
 
 
+C
+C     Call a subrotine which vanishes nonvalence DGLAP contribution
+C      for dipole model fits.
+
+      if (DipoleModel.gt.2) then
+         call LeaveOnlyValenceQuarks
+      endif
+
+
 *     ---------------------------------------------------------  	 
 *     Call evolution
 *     ---------------------------------------------------------  	 
