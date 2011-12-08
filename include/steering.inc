@@ -94,3 +94,10 @@ C
       common/heavyflav/
      $     aq2,bq2,MASSH
 
+
+C
+C     Value for selection of a dipole model fit
+C
+      integer DipoleModel
+
+      common/DipoleModelType/DipoleModel
