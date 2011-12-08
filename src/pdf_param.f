@@ -387,6 +387,11 @@ C  Offset is now steering parameter (default = 70, params start from 41)
 
       endif         
 
+C  22 Nov 2011: dipole model parameters
+      if (DipoleModel.gt.0) then
+         call DecodeDipolePar(p)
+      endif
+
       end
 
 
