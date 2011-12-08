@@ -128,5 +128,5 @@ AC_CONFIG_FILES([src/Makefile
                  FastNLO/src/Makefile
                  doc/tex/Makefile
                  Makefile])
-AC_CONFIG_SUBDIRS([minuit DY RT HS])
+AC_CONFIG_SUBDIRS([minuit DY DIPOLE RT HS])
 AC_OUTPUT
