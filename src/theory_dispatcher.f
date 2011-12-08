@@ -14,7 +14,14 @@ C-------------------------------------------------------------------
       if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then
          Call GetIntegratedNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
-         Call GetReducedNCXsection(IDataSet)
+         if (DipoleModel.gt.0.and.DipoleModel.le.2) then
+            call DipolePrediction(IDataSet)
+         elseif (DipoleModel.gt.2) then
+            Call GetReducedNCXsection(IDataSet)
+            call DipolePrediction(IDataSet)
+         else
+            Call GetReducedNCXsection(IDataSet)
+         endif
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
          Call GetReducedNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
