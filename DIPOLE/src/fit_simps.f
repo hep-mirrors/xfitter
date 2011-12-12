@@ -31,7 +31,13 @@ C
       P(4)=4.D0
       P(3)=2.D0
       P(5)=1.D0
-      IF(B-A) 1,2,1
+      IF ((B-A).LT.0) THEN
+         GOTO 1
+      ELSEIF ((B-A).EQ.0) THEN
+         GOTO 2
+      ELSEIF ((B-A).GT.0) THEN
+         GOTO 1
+      ENDIF
     1 REPS=DABS(REPS1)
       AEPS=DABS(AEPS1)
       DO 3 K=1,7
@@ -40,9 +46,21 @@ C
       C=0.D0
       F(1)=FUNCT(X)/3.D0
     4 X0=X
-      IF((X0+4.D0*H-B)*S) 5,5,6
+      IF (((X0+4.D0*H-B)*S).LT.0) THEN
+         GOTO 5
+      ELSEIF (((X0+4.D0*H-B)*S).EQ.0) THEN
+         GOTO 5
+      ELSEIF (((X0+4.D0*H-B)*S).GT.0) THEN
+         GOTO 6
+      ENDIF
     6 H=(B-X0)/4.D0
-      IF(H) 7,2,7
+      IF (H.LT.0) THEN
+         GOTO 7
+      ELSEIF (H.EQ.0) THEN
+         GOTO 2
+      ELSEIF (H.GT.0) THEN
+         GOTO 7
+      ENDIF
     7 DO 8 K=2,7
   8   F(K)=10.D16
       C=1.D0
@@ -50,23 +68,68 @@ C
       DI3=DABS(F(1))
       DO 9 K=2,5
       X=X+H
-      IF((X-B)*S) 23,24,24
+      IF (((X-B)*S).LT.0) THEN
+         GOTO 23
+      ELSEIF (((X-B)*S).EQ.0) THEN
+         GOTO 24
+      ELSEIF (((X-B)*S).GT.0) THEN
+         GOTO 24
+      ENDIF
    24 X=B
-   23 IF(F(K)-10.D16) 10,11,10
+   23 CONTINUE
+      IF ((F(K)-10.D16).LT.0) THEN
+         GOTO 10
+      ELSEIF ((F(K)-10.D16).EQ.0) THEN
+         GOTO 11
+      ELSEIF ((F(K)-10.D16).GT.0) THEN
+         GOTO 10
+      ENDIF
    11 F(K)=FUNCT(X)/3.D0
    10 DI2=DI2+P(K)*F(K)
     9 DI3=DI3+P(K)*DABS(F(K))
       DI1=(F(1)+4.D0*F(3)+F(5))*2.D0*H
       DI2=DI2*H
       DI3=DI3*H
-      IF(REPS) 12,13,12
-   13 IF(AEPS) 12,14,12
+      IF (REPS.LT.0) THEN
+         GOTO 12
+      ELSEIF (REPS.EQ.0) THEN
+         GOTO 13
+      ELSEIF (REPS.GT.0) THEN
+         GOTO 12
+      ENDIF
+   13 CONTINUE
+      IF (AEPS.LT.0) THEN
+         GOTO 12
+      ELSEIF (AEPS.EQ.0) THEN
+         GOTO 14
+      ELSEIF (AEPS.GT.0) THEN
+         GOTO 12
+      ENDIF
    12 EPS=DABS((AIABS+DI3)*REPS)
-      IF(EPS-AEPS) 15,16,16
+      IF ((EPS-AEPS).LT.0) THEN
+         GOTO 15
+      ELSEIF ((EPS-AEPS).EQ.0) THEN
+         GOTO 16
+      ELSEIF ((EPS-AEPS).GT.0) THEN
+         GOTO 16
+      ENDIF
    15 EPS=AEPS
    16 DELTA=DABS(DI2-DI1)
-      IF(DELTA-EPS) 20,21,21
-   20 IF(DELTA-EPS/8.D0) 17,14,14
+      IF ((DELTA-EPS).LT.0) THEN
+         GOTO 20
+      ELSEIF ((DELTA-EPS).EQ.0) THEN
+         GOTO 21
+      ELSEIF ((DELTA-EPS).GT.0) THEN
+         GOTO 21
+      ENDIF
+   20 CONTINUE
+      IF ((DELTA-EPS/8.D0).LT.0) THEN
+         GOTO 17
+      ELSEIF ((DELTA-EPS/8.D0).EQ.0) THEN
+         GOTO 14
+      ELSEIF ((DELTA-EPS/8.D0).GT.0) THEN
+         GOTO 14
+      ENDIF
    17 H=2.D0*H
       F(1)=F(5)
       F(2)=F(6)
@@ -96,7 +159,14 @@ C
       X=X0
       C=0.D0
       GO TO 5
-   22 IF(C) 2,4,2
+   22 CONTINUE
+      IF (C.LT.0) THEN
+         GOTO 2
+      ELSEIF (C.EQ.0) THEN
+         GOTO 4
+      ELSEIF (C.GT.0) THEN
+         GOTO 2
+      ENDIF
     2 RETURN
          END
 
