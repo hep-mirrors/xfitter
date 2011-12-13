@@ -37,7 +37,8 @@
  !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
  !  'CTEQ'        -- CTEQ-like parameterisation
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
- !  'LHAPDF'      -- use lhapdf library to define pdfs
+ !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
+ !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
 
   PDFStyle = '10p HERAPDF'
 

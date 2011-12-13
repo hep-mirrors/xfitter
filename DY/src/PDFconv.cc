@@ -16,6 +16,7 @@ void fastini_(const double *xint, const double *q2int, int *n, int *ichk);
 void fastsns_(const int *iset, const double *pdfin, const int *isel,
               const int *ibuf);
 void fastfxq_(const int *ibuf, const double *xq, const int *nint);
+void getqcdnumpdfset_(int *iqnset);
 }
 
 const int PDFconv::_nfl = 13;
@@ -167,6 +168,7 @@ int PDFconv::interpPDF(){
   fastini_(_XINT, _Q2INT, &_NINT, &ichk);
   
   int iset(1), isel(7), ibuf(-1), inbuf(-ibuf);
+  getqcdnumpdfset_(&iset);
 
   for (int ifl=0; ifl<_nfl; ifl++){
    // if ( 6 == ifl ) continue;

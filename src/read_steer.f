@@ -113,6 +113,7 @@ C Type of Chebyshev parameterization:
 C     Initialise LHAPDF parameters
       LHAPDFSET = 'cteq65.LHgrid'
       ILHAPDFSET = 0
+      IPDFSET = 1
 
 C 25 Jan 2011
 C     Pure polinomial param for the valence quarks:
@@ -220,7 +221,7 @@ C
 C Decode PDF style:
 C      
       call SetPDFStyle(PDFStyle)
-      if (PDFStyle.eq.'LHAPDF') then
+      if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
          INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
          if(lhapdffile_exists) then
             call InitPDFset(LHAPDFSET)
@@ -228,6 +229,9 @@ C
             call InitPDFsetByName(LHAPDFSET)
          endif
          call InitPDF(ILHAPDFSET)
+         if(PDFStyle.eq.'LHAPDF') then
+            IPDFSET = 5
+         endif
       endif
 
 C
@@ -429,6 +433,8 @@ C---------------------------------
          iparam = 171717
       elseif (PDFStyle.eq.'CHEB') then
          iparam = 4
+      elseif (PDFStyle.eq.'LHAPDFQ0') then
+         iparam = 0
       elseif (PDFStyle.eq.'LHAPDF') then
          iparam = 0
       else

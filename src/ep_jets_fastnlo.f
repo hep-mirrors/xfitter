@@ -51,3 +51,16 @@ c         print *,DATEN(idx),THEO(idx), XNP, XZ0
 C      stop
 
       end
+
+
+      Subroutine GetQcdnumPdfset(pdfset)
+C---------------------------------------------------------------------------
+C
+C  Created 05/12/2011.  Get pdfset to be used by qcdnum
+C
+C---------------------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      integer pdfset
+      pdfset = IPDFSET
+      end

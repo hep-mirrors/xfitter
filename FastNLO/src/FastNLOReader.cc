@@ -42,6 +42,7 @@ using namespace std;
 extern "C"{
   void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs,int *ichk);
   void evolution_();
+  void getqcdnumpdfset_(int *iqnset);
   //int getalf_( double* alfs, double* r2 );
 }
 
@@ -1454,6 +1455,7 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
    }
    else if ( fPDFInterface == kH1FITTER ){
       int iqnset = 1;
+      getqcdnumpdfset_(&iqnset);
       int iqnchk = 0;
       double muf2	= muf*muf;
       vector < double > a;

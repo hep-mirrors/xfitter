@@ -74,6 +74,7 @@ C Fast/slow mode for APPLGRID PDF convolution.
 C
       logical LFastAPPLGRID
 
+      integer IPDFSET
 
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
@@ -88,7 +89,7 @@ C
      $     ,IOFFSETCHEBSEA,EWFIT
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID,Lranddata,iDH_MOD
+     $     ,LFastAPPLGRID,Lranddata,iDH_MOD, IPDFSET
 
      
       common/heavyflav/

@@ -990,7 +990,7 @@ cv         print*,'voica is here', Astr, bstr, cstr
 
       if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
          if (x.eq.1) goto 999
-         call fpdfxq(1,x,q2,pdf,0)
+         call fpdfxq(IPDFSET,x,q2,pdf,0)
 * charm a la ZEUS 
          if (q0.lt.qc) then
             cbar = 0.

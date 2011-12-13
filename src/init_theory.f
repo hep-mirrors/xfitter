@@ -275,6 +275,8 @@ cv         call zmdumpw(22,'zmstf.wgt')
          print*,' ERRRROR in read zmstf weight', ierr
       endif      
       write(6,'(/'' ZMSTF: words used ='',I10)') nwords      
+      call zswitch(IPDFSET)
+
 
 ! setting of the evolution parameters
 
@@ -326,6 +328,7 @@ cv            call hqdumpw(22,'hqstf.wgt')
             print*,'ERRRROR in hqreadw!', ierr
          endif      
          write(6,'(/'' HQSTF: words used ='',I10)') nwords      
+         call hswitch(IPDFSET)
 
       endif
       
@@ -855,3 +858,16 @@ C      call EPRC_INIT(.true.)
 
 C-----------------------------------------------------
       end
+      Subroutine LHAPDFsubr(x, qmu2, xf)
+C-------------------------------------------------------
+C
+C External PDF reading for QCDNUM
+C
+C--------------------------------------------------------
+      implicit double precision (a-h,o-z)
+
+      double precision x,qmu2
+      dimension xf(-6:6)
+      call evolvePDF(x, sqrt(qmu2), xf)
+      end
+

@@ -48,7 +48,7 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile  ) {
    
    fnloreader->SetPDFInterface(FastNLOReader::kH1FITTER);
    //fnloreader->SetAlphasEvolution(FastNLOReader::kQCDNUMInternal); // fully consistend alpha_s evolution has to be implemented.
-   fnloreader->SetScaleVariation(0);
+   //fnloreader->SetScaleVariation(0);
 
    gFastNLO_array.insert(pair<int, FastNLOReader*>(*idataset, fnloreader) );
    return 0;

@@ -68,15 +68,16 @@ c----------------------------------------------------------------------
       character*25 base_pdfname
       integer npts(nset)
       double precision f2SM,f1SM,flSM
-      integer i,j,kflag,jsys,ndf,n0,h1iset,jflag,k,pr
+      integer i,j,kflag,jsys,ndf,n0,h1iset,jflag,k,pr,nwds
       integer ipoints_jet(NSET)
       logical refresh, refresh_DIS
       integer isys,ipoint,jpoint
       integer nflav , ierr
       integer idataset
 C  x-dependent fs:
-      double precision fs0
+      double precision fs0,epsi
       double precision fshermes
+      external LHAPDFsubr
 C-----------------------------------------------------------------
       
 C Store FCN flag in a common block:
@@ -141,6 +142,9 @@ C Store FCN flag in a common block:
          call setalf(dble(alphas),Mz*Mz)
          alphaSzero=asfunc(1.0D0,nflav,ierr)
          call RT_SetAlphaS(alphaSzero)
+         if(IPDFSET.eq.5) then
+            call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
+         endif
       endif 
 
       

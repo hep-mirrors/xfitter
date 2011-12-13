@@ -43,7 +43,7 @@ C------------------------------------
       
 C---------------------------------------
 
-      iqnset = 1
+      iqnset = IPDFSET
       iqnchk = 0
       do ifl=-6,6
         xf(ifl)=0.d0
@@ -125,6 +125,7 @@ C Fast code to cacl. PDFs for applgrid
       Subroutine Calc_pdf_applgrid_fast
       implicit none
       include 'applgrid_fastpdf.inc'
+      include 'steering.inc'
       integer ICheck,i,ibuf,inbuf,iset,isel
 
       double precision fdef(13,13)
@@ -150,7 +151,7 @@ C----------------------------------------
 
       call fastini(XAPPLPDF,QAPPLPDF,NAPPLPDFINT,ICHECK)
       
-      iset = 1
+      iset = IPDFSET
       isel = 7
       ibuf = -1
       inbuf = -ibuf
