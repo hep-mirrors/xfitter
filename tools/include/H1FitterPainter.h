@@ -50,6 +50,9 @@ class H1FitterPainter  {
   TString* fPsFileName;
   EColor fColor;
   EColor fColorRef;
+  Int_t  fFillStyle;
+  Int_t  fFillStyleRef;
+  
 
   // Number of PDF eighenvectors for PDF bands.
   Int_t nBands;

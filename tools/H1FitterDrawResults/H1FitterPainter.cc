@@ -16,6 +16,8 @@ H1FitterPainter::H1FitterPainter(Int_t Bands){
   cout << "TO DO: in fittedresults.txt q2 and x for sets 61-64 are switched"<<endl;
   fColor = kRed;
   fColorRef = kBlue;
+  fFillStyle = 1001;
+  fFillStyleRef = 0; //3010
   nBands = Bands;
 }
 
@@ -116,7 +118,7 @@ Int_t H1FitterPainter::DrawPDF(Int_t ival) {
 
   // Label:
   char label[32]; 
-  sprintf (label,"Q^2 = %12.2f GeV^{2}",fQ2val);
+  sprintf (label,"Q^{2} = %12.2f GeV^{2}",fQ2val);
   Q2Label->SetLabel(label);
 
 
@@ -160,23 +162,25 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
     if(FitterRef) graphR2 =  FitterRef->GetPdf(pdf2, Q2Bin);
   }
 
+  graph->SetLineColor(fColor);
   graph->SetFillColor(fColor);
+  graph->SetFillStyle(fFillStyle);
 
   if(graph2) {
     graph2->SetLineColor(fColor);
     graph2->SetFillColor(fColor);
+    graph2->SetFillStyle(fFillStyle);
   }
   if(graphR) {
     graphR->SetLineColor(fColorRef);
     graphR->SetFillColor(fColorRef);
-    graphR->SetFillStyle(3010);
+    graphR->SetFillStyle(fFillStyleRef);
   }
   if(graphR2) {
     graphR2->SetLineColor(fColorRef);
     graphR2->SetFillColor(fColorRef);
-    graphR2->SetFillStyle(3010);
+    graphR2->SetFillStyle(fFillStyleRef);
   }
-
 
   pad->cd();
   TPad* pad1 = new TPad("pad1","pad1", 0., RatioSize, 1., 1.);   TrashBin->AddLast(pad1);
@@ -203,17 +207,11 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
 
   graph->Draw("AC3");
   if(graphR) {
-    graphRL = (TGraphAsymmErrors*) graphR->Clone(); TrashBin->AddLast(graphRL);
-    graphRL->SetFillStyle(0);
-    graphR->Draw("L3 same");
-    graphRL->Draw("L3 same");
-  }
+    graphR->DrawClone("3 same");
+    } 
   if(graph2)  graph2->Draw("L3 same");
   if(graphR2) {
-    graphR2L = (TGraphAsymmErrors*) graphR2->Clone(); TrashBin->AddLast(graphR2L);
-    graphR2L->SetFillStyle(0);
-    graphR2->Draw("L3 same");
-    graphR2L->Draw("L3 same");
+    graphR2->Draw("3 same");
   }
 
   TPaveLabel* box = new TPaveLabel(0.0, 0.75, 0.09, 0.91, "xP(x)", "NDC"); TrashBin->AddLast(box);
@@ -278,9 +276,9 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
     TGraphAsymmErrors* graphRL_ratio = (TGraphAsymmErrors*) graphR_ratio->Clone(); TrashBin->AddLast(graphRL_ratio);
     graphRL_ratio->SetFillStyle(0);
 
-    graph_ratio->Draw("L3");
-    graphR_ratio->Draw("L3");
-    graphRL_ratio->Draw("L3");
+    graph_ratio->Draw("3");
+    graphR_ratio->Draw("3");
+    graphRL_ratio->Draw("3");
 
     ref_ratio->Draw("LX");
   }
@@ -290,7 +288,6 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
   pad->cd();
   label->Draw();
 
- 
   if(legend) {
     legend->cd();
     TPaveLabel* lab1 = new TPaveLabel(0., 0.4, 1.0, 0.5, FitterOut->GetDirectory()->Data(), "NDC");
@@ -302,7 +299,6 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
       lab2->Draw();
     }
   }
-
 }
 
 void H1FitterPainter::ScaleGraph2ToGraph1(TGraph* graph1, TGraph* graph2, TLine*& line, TGaxis*& axis, Double_t MeanRatio) {
