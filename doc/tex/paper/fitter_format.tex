@@ -1,0 +1,205 @@
+\usepackage{graphicx,epsfig}
+\usepackage{hhline}
+
+\usepackage{amsmath,amssymb}
+\usepackage{times}
+\usepackage[varg]{txfonts}
+\DeclareMathAlphabet{\mathbold}{OML}{txr}{b}{it}
+
+\usepackage{array,multirow,dcolumn}
+\usepackage[mathlines,displaymath]{lineno}
+\usepackage{rotating}
+
+ 
+% we use natbib instead of cite to work with hyperref
+%\usepackage{cite}
+\usepackage[numbers,square,comma,sort&compress]{natbib}
+\usepackage{hypernat}
+\usepackage{textcomp}
+%\bibliographystyle{unsrt}
+%\bibliographystyle{unsrtnat}
+%\bibliographystyle{apsrev}
+ \bibliographystyle{lowe}
+%\bibliographystyle{JHEP-2}
+
+
+
+%\usepackage{caption2}
+%\renewcommand{\captionfont}{\normalfont\slshape\normalsize}
+%\renewcommand{\captionlabelfont}{\normalfont\bfseries\normalsize}
+\newcommand{\tablecaption}{%
+%\setlength{\abovecaptionskip}{0pt}
+%\setlength{\belowcaptionskip}{10pt}
+\caption}
+
+\newcommand{\D}{\displaystyle}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{-}{D{-}{-}{-1}}
+
+\usepackage[dvipsnames]{color}
+\definecolor{rltred}{rgb}{0.75,0,0}
+\definecolor{rltgreen}{rgb}{0,0.5,0}
+\definecolor{rltblue}{rgb}{0,0,0.5}
+
+\newcounter{pdfadd}    % need for correct PDF hyperlinks and bookmarks :-(
+\usepackage[hyperindex,bookmarks,bookmarksnumbered,breaklinks,a4paper,unicode]{hyperref}
+\hypersetup{%
+  pdftitle        = {Measurement of the inclusive ep Scattering Cross Section
+ at low Q2 and x at HERA},
+  urlcolor        = rltblue,       % \href{...}{...} external (URL)
+  urlbordercolor  = 0 0 0.5,
+  filecolor       = rltblue,       % \href{...} local file
+  filebordercolor = 0 0 0.5,
+  linkcolor       = rltred,        % \ref{...}
+  linkbordercolor = 0.75 0 0,
+  citecolor       = rltgreen,      % \cite{...}
+  citebordercolor = 0 0.5 0,
+  pagecolor       = rltgreen,      % \pageref{...}
+  pagebordercolor = 0 0.5 0,
+  menucolor       = rltgreen,      % Acrobat menu items
+  menubordercolor = 0 0.5 0,
+  colorlinks    = true,
+  pdfauthor     = {H1 Collaboration},
+  pdfsubject    = { },
+  pdfkeywords   = {High-Energy Physics, Particle Physics, Proton Structure, DIS}
+}
+
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{1.0}
+\renewcommand{\textfraction}{0.0}
+\newlength{\dinwidth}
+\newlength{\dinmargin}
+\setlength{\dinwidth}{21.0cm}
+\textheight24cm \textwidth16.0cm
+\setlength{\dinmargin}{\dinwidth}
+\setlength{\unitlength}{1mm}
+\addtolength{\dinmargin}{-\textwidth}
+\setlength{\dinmargin}{0.5\dinmargin}
+\oddsidemargin -1.0in
+\addtolength{\oddsidemargin}{\dinmargin}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\marginparwidth}{0.9\dinmargin}
+\marginparsep 8pt \marginparpush 5pt
+\topmargin -42pt
+\headheight 12pt
+\headsep 30pt \footskip 32pt
+\parskip 3mm plus 2mm minus 2mm
+
+%
+% Definitions for F2 low Q2 paper
+%
+\newcommand{\empz}{\mbox{$E$$-$$P_z$}}
+\newcommand{\qqe}{\mbox{$Q^2_e$}}
+\newcommand{\qqs}{\mbox{$Q^2_\Sigma$}}
+\newcommand{\ys}{\mbox{$y_\Sigma$}}
+\newcommand{\xs}{\mbox{$x_\Sigma$}}
+\newcommand{\ee}{\mbox{$E_e^{\prime}$}}
+\newcommand{\thetae}{\mbox{$\theta_e$}}
+\newcommand{\thetah}{\mbox{$\theta_h$}}
+\newcommand{\gp}{\mbox{$\gamma p$}}
+\newcommand{\pt}{\mbox{$P_\perp$}}
+\newcommand{\piz}{\mbox{$\pi^0$}}
+\newcommand{\Pth}{\mbox{$P_{\perp}^h$}}
+
+\newcommand{\electron}{\mbox{positron}}
+
+\newcommand{\Fig}{\mbox{figure}}
+\newcommand{\Tab}{\mbox{table}}
+\newcommand{\Eq}{\mbox{equation}}
+\newcommand{\Sec}{\mbox{section}}
+
+\newcommand{\FFig}{\mbox{Figure}}
+\newcommand{\TTab}{\mbox{Table}}
+\newcommand{\EEq}{\mbox{Equation}}
+\newcommand{\SSec}{\mbox{Section}}
+
+\def\ytrans{0.56}
+
+\newcommand{\Figs}{\mbox{figures}}
+\newcommand{\Tabs}{\mbox{tables}}
+\newcommand{\Eqs}{\mbox{equations}}
+\newcommand{\Secs}{\mbox{sections}}
+
+\newcommand{\FFigs}{\mbox{Figures}}
+\newcommand{\TTabs}{\mbox{Tables}}
+\newcommand{\EEqs}{\mbox{Equations}}
+\newcommand{\SSecs}{\mbox{Sections}}
+
+
+\renewcommand{\perp}{{\rm T}}
+
+\newcommand{\MB}{\mbox{NVX}}
+\newcommand{\SVX}{\mbox{SVX}}
+
+\newcommand{\thetamaxsvx}{178^{\circ}}
+\newcommand{\thetamaxmb}{176.5^{\circ}}
+
+\newcommand{\permil}{\textperthousand}
+
+\def\cov{\mathop{\rm cov}\nolimits}
+\def\dof{\mathop{n_{\rm dof}}\nolimits}
+
+\def\DeltaM{\mathop{ w_{i,e}}\nolimits}
+\def\DeltaMK{\mathop{ w_{k,e}}\nolimits}
+
+\newcommand\T{\rule{0pt}{2.3ex}}
+\newcommand\B{\rule[-1.ex]{0pt}{0pt}}
+
+\newcommand\hqcjc{\mbox{medium $Q^2$ CJC}}
+\newcommand\lqbst{\mbox{low $Q^2$ BST}}
+\newcommand\ler{\mbox{reduced $E_p=460$~GeV}}
+\newcommand\mer{\mbox{reduced $E_p=575$~GeV}}
+\newcommand\lermer{reduced $E_p=460$~GeV and $E_p=575$~GeV}
+\newcommand\ner{nominal $E_p=920$~GeV}
+
+\newcommand\Hqcjc{\mbox{Medium $Q^2$ CJC}}
+\newcommand\Lqbst{\mbox{Low $Q^2$ BST}}
+\newcommand\Ler{\mbox{Reduced $E_p=460$~GeV}}
+\newcommand\Mer{\mbox{Reduced $E_p=575$~GeV}}
+\newcommand\Lermer{Reduced $E_p=460$~GeV and $E_p=575$~GeV}
+
+
+\newcommand\lumicjcplus{\mbox{$53.2$}}
+\newcommand\lumicjcminus{\mbox{$44.4$}}
+\newcommand\lumibstplus{\mbox{$3.4$}}
+\newcommand\lumibstminus{\mbox{$2.5$}}
+
+\newcommand\lunit{\mbox{pb$^{-1}$}}
+\newcommand\lumiler{\mbox{$12.2$}}
+\newcommand\lumimer{\mbox{$5.9$}}
+\newcommand\lumicjc{\mbox{$97.6$}}
+\newcommand\lumibst{\mbox{$5.9$}}
+\newcommand\gbw{GBW}
+\newcommand\gbwdglap{GBW+DGLAP$_{\rm valence}$}
+\newcommand\iim{IIM}
+\newcommand\iimdglap{IIM+DGLAP$_{\rm valence}$}
+\newcommand\bsat{B-SAT}
+\newcommand\bsatdglap{B-SAT+DGLAP$_{\rm valence}$}
+
+% acot/rt etc
+
+\newcommand\ndfdefone{782}
+\newcommand\chacotone{722.7}
+\newcommand\chrtone{773.2}
+\newcommand\ndfdef{781}
+\newcommand\chacot{715.2}
+\newcommand\chrt{764.5}
+
+\newcommand\chrtqcut{288.8}
+\newcommand\chacotqcut{248.3}
+\newcommand\ndfdglapqcut{249}
+
+% comes automatically ...
+%\newcommand\iimchsq{$397.6/352$}
+%\newcommand\gbwchsq{$718.8/352$}
+%\newcommand\bsatchsq{$424.9/352$}
+
+%\newcommand\iimqchsq{$259.4/252$}
+%\newcommand\gbwqchsq{$559.7/252$}
+%\newcommand\bsatqchsq{$xxx/252$}
+
+%\newcommand\iimqdvchsq{$287.6/252$}
+%\newcommand\gbwqdvchsq{$739.4/252$}
+%\newcommand\bsatqdvchsq{$xxx/252$}
+
+%\input{tables/chi2.tex}

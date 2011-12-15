@@ -1,0 +1,54 @@
+
+\label{sec:pdf}
+The parton density functions are parametrised at the starting scale by two formulae.
+The first one is the standart HERA parametrization
+\begin{equation}
+xf(x)=A x^{B} (1-x)^{C} (1+Dx+Ex^{2}+Fx^{3}) - A_{\mathbf{p}} x^{B_{\mathbf{p}}} (1-x)^{C_{\mathbf{p}}}
+\label{pdf:herapara}
+\end{equation}
+and the second one is the parametrization used by CTEQ collaboration
+\begin{equation}
+xf(x)=A x^{B} (1-x)^{C} e^{Dx} (1+e^{E}x+e^{F}x^{2}).
+\label{pdf:ctpara}
+\end{equation}
+These formulas are used for parametrization of the gluon distribution $xg$,
+the valence quark distributions $xu_{v}$,$xd_{v}$,
+and the $u$-type and $d$-type anti-quark distributions $x\bar{U}$, $x\bar{D}$.
+Here $x\bar{U}=x\bar{u}$, $x\bar{D}=x\bar{d}+x\bar{s}$ at the starting scale.
+
+By default, HERA parametrization fits include 10 or 13 free parameters.
+The resulting parametrization with 10 parameters is presented by the formulae
+\begin{eqnarray}
+\begin{array}{c}
+xg(x)=A_{g} x^{B_{g}} (1-x)^{C_{g}}, \\
+xu_{v}(x)=A_{u_{v}} x^{B_{u_{v}}} (1-x)^{C_{u_{v}}} (1+E_{u_{v}}x), \\
+xd_{v}(x)=A_{d_{v}} x^{B_{d_{v}}} (1-x)^{C_{d_{v}}}, \\
+x\bar{U}(x)=A_{\bar{U}} x^{B_{\bar{U}}} (1-x)^{C_{\bar{U}}}, \\
+x\bar{D}(x)=A_{\bar{D}} x^{B_{\bar{D}}} (1-x)^{C_{\bar{D}}}.
+\end{array}
+\end{eqnarray}
+Here the parameters
+\begin{eqnarray}
+\begin{array}{c}
+B_{u_{v}}=B_{d_{v}}, \\
+B_{\bar{U}}=B_{\bar{D}},\\
+A_{\bar{U}}=A_{\bar{D}}\frac{1-f_{s}}{1-f_{charm}},
+\end{array}
+\end{eqnarray}
+and coefficients $A$ are defined by the quark number and momentum sum-rules
+\begin{eqnarray}
+\begin{array}{c}
+\int\limits_{0}^{1} u_{v}(x) dx =2, \\
+\int\limits_{0}^{1} d_{v}(x) dx =1, \\
+\int\limits_{0}^{1} x \left( g(x)+u(x)+\bar{u}(x)+d(x)+\bar{d}(x) \right) dx =1. \\
+\end{array}
+\end{eqnarray}
+The strange quark distribution is fixed by $x$-independent fraction, $f_{s}$,
+of the d-type sea, $x\bar{s}=f_{s}x\bar{D}$ at $Q_{0}^{2}$.
+
+In case of 13 free parameters, the gluon formula is changed to
+\begin{equation}
+xg(x)=A_{g} x^{B_{g}} (1-x)^{C_{g}} - A_{\mathbf{p}g} x^{B_{\mathbf{p}g}} (1-x)^{C_{\mathbf{p}g}},
+\label{pdf:herag13par}
+\end{equation}
+and parameters $A_{\mathbf{p}g}$, $B_{\mathbf{p}g}$, and $B_{d_{v}}$ are freed.
