@@ -36,6 +36,8 @@ C-------------------------------------------------------------------
          Call GetJetsPPApplGrid(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
          Call GetJetsFastNLOXsection(IDataSet)
+      elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
+         Call GetHathorXsection(IDataSet)
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
       endif

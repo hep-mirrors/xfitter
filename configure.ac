@@ -77,6 +77,19 @@ if test x$enable_applgrid == xyes; then
 fi
 AM_CONDITIONAL(ENABLE_APPLGRID, [test x$enable_applgrid == xyes])
 
+# check for hathor installation
+AC_ARG_ENABLE([hathor],
+  [AC_HELP_STRING(--enable-hathor, [use hathor for ttbar cross section predictions (default=no)])])
+if test x$enable_hathor == xyes; then
+  AC_MSG_CHECKING([for hathor installation])
+  if test "x$HATHOR_ROOT" = "x"; then
+    AC_MSG_ERROR([HATHOR_ROOT environment variable is not set!.])
+  else 
+    AC_MSG_RESULT([Using $HATHOR_ROOT])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_HATHOR, [test x$enable_hathor == xyes])
+
 AC_MSG_CHECKING([for root installation])
 root_config=`which root-config`
 if test x$root_config == x; then
@@ -126,6 +139,7 @@ AC_CONFIG_FILES([src/Makefile
                  tools/H1FitterDrawResults/Makefile
                  tools/MakeLHAPDF/Makefile
                  FastNLO/src/Makefile
+                 Hathor/src/Makefile
                  doc/tex/Makefile
                  Makefile])
 AC_CONFIG_SUBDIRS([minuit DY DIPOLE RT HS])

@@ -373,6 +373,8 @@ C
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
             Call InitJetsFastNLODataSet(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
+            Call InitHathorDataSet(IDataSet)
          else
 C     C         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
          endif
@@ -387,6 +389,7 @@ C
       Call InitDYNCXsection
       Call InitJetsPPApplGrid
       Call InitJetsFastNLO
+      Call InitHathor
 C---------------------------------------------------------
       end
 
@@ -608,6 +611,7 @@ C------------------------------------------------------------
       integer idxSqrtS, idxBchpr
       integer idxPte, idxPtnu, idxMinv1, idxMinv2
 
+
 C----------------------------------------------------------
 
 
@@ -795,6 +799,36 @@ c      include 'steering.inc'
      $     ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet),' ')-1)//char(0));
       end
 
+      subroutine InitHathorDataSet(IDataSet)
+C------------------------------------------------------------
+C
+C Initialize Hathor reader
+C
+C------------------------------------------------------------
+      implicit none
+      integer IDataSet
+      include 'ntot.inc'
+      include 'datasets.inc'
+      integer GetInfoIndex
+      integer idxSqrtS, idxReaction
+      double precision sqrtS
+      double precision reaction
+      logical ppbar
+
+      idxSqrtS = GetInfoIndex(IDataSet, 'sqrt(S)')
+      sqrtS = 7000d0 ! defaults to LHC
+      if ( idxSqrtS .ne. 0 ) sqrtS = DATASETInfo(idxSqrtS, IDataSet)
+
+      idxReaction = GetInfoIndex(IDataSet, 'ppbar')
+      ppbar = .FALSE. ! defaults to LHC
+      if ( idxReaction .ne. 0 ) then
+         reaction = DATASETInfo(idxReaction, IDataSet)
+         if ( reaction .eq. 1 ) ppbar = .TRUE.
+      endif
+
+      call hathorinit(sqrtS, ppbar)
+      end
+
 
       subroutine InitIntegratedNCXsection
       end
@@ -825,6 +859,8 @@ c      stop
       subroutine InitJetsFastNLO
       end
 
+      subroutine InitHathor
+      end
 
       Subroutine Init_EW_parameters
 C-----------------------------------------------------

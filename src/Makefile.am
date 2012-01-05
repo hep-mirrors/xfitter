@@ -19,6 +19,12 @@ else
   FitPDF_SOURCES+= lhapdf_dum.f
 endif
 
+if ENABLE_HATHOR
+  FitPDF_SOURCES+= ttbar_hathor.f
+else
+  FitPDF_SOURCES+= ttbar_hathor_dum.f	
+endif
+
 # FORTRAN compiler flags to be used for the main target
 AM_FFLAGS = -I$(srcdir)/../include -fno-automatic
 
@@ -42,6 +48,11 @@ LDADD = $(QCDNUMLIBS) \
  ../DIPOLE/src/libmydipole.a \
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
 -lgsl -lgslcblas -lstdc++
+
+if ENABLE_HATHOR
+  LDADD+= ../Hathor/src/libHathor.a \
+  $(HATHOR_ROOT)/libHathor.a
+endif
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
