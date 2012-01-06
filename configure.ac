@@ -142,5 +142,5 @@ AC_CONFIG_FILES([src/Makefile
                  Hathor/src/Makefile
                  doc/tex/Makefile
                  Makefile])
-AC_CONFIG_SUBDIRS([minuit DY DIPOLE RT HS])
+AC_CONFIG_SUBDIRS([minuit DY DIPOLE RT ACOT HS])
 AC_OUTPUT

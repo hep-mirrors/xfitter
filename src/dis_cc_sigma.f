@@ -11,6 +11,7 @@ C----------------------------------------------------------------
       include 'datasets.inc'
       include 'indata.inc'
       include 'theo.inc'
+      include 'fcn.inc'
       include 'couplings.inc'
       include 'qcdnumhelper.inc'
       include 'polarity.inc'
@@ -43,8 +44,24 @@ C Functions:
       integer GetBinIndex
       integer GetInfoIndex
 
+c ACOT 
+      double precision f123l(4),f123lc(4),f123lb(4)
+      double precision xx, qq2
+      integer icharge
+      logical UseKFactors
 
 C-------------------------------------------------------------
+
+      if (IFlagFCN.eq.1) then
+C     
+C Execute for the first iteration only.
+C     
+         if (HFSCHEME.eq.11.or.HFSCHEME.eq.1) then
+            UseKFactors = .true.
+         else
+            UseKFactors = .false.
+         endif
+      endif
 
       polarity=0.d0
       err_pol_unc=0.d0
@@ -71,6 +88,9 @@ C prepare bins:
          X(i)   = AbstractBins(idxX,idx)
          Y(i)   = AbstractBins(idxY,idx)
          Q2(i)  = AbstractBins(idxQ2,idx)
+
+         xx=dble(x(i))
+         qq2=dble(q2(i))
       enddo
      
 C QCDNUM, caclulate FL, F2 and xF3 for all bins:
@@ -132,6 +152,28 @@ C----------------------------------------------------------
          CALL ZMSTFUN(2,CCEM2F,X,Q2,F2,NDATAPOINTS(IDataSet),0)      
          CALL ZMSTFUN(3,CCEM3F,X,Q2,XF3,NDATAPOINTS(IDataSet),0) 
       endif
+
+
+c
+C ACOT scheme 
+C                    
+
+      if (mod(HFSCHEME,10).eq.1) then
+
+         icharge=int(charge)
+         call sf_acot_wrap(xx,qq2,
+     $        f123l,f123lc,f123lb,
+     $        hfscheme, icharge, 
+     $        iFlagFCN, idx,
+     $        UseKFactors)
+         
+         FL(i)  = F123L(4)
+         F2(i)  = F123L(2)
+         XF3(i) = xx*F123L(3)
+         
+
+      endif
+
 
       do i=1,NDATAPOINTS(IDataSet)
          yplus  = 1+(1-y(i))**2

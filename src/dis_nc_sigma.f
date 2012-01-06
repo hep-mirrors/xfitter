@@ -273,13 +273,17 @@ c EW param
       double precision cau, cad, cvu, cvd
 
 
+c ACOT 
+      double precision f123l(4),f123lc(4),f123lb(4),f2nc
+      integer icharge,ij
+      
 C---------------------------------------------------------
 
       if (IFlagFCN.eq.1) then
 C
 C Execute for the first iteration only.
 C
-         if (HFSCHEME.eq.22) then
+         if (HFSCHEME.eq.22.or.HFSCHEME.eq.11.or.HFSCHEME.eq.1) then
             UseKFactors = .true.
          else
             UseKFactors = .false.
@@ -516,10 +520,31 @@ C-----------------------------------------------------------------------
 C  Extra heavy flavour schemes
 C
 
+
 c
+C ACOT scheme 
+C                     
+         if (mod(HFSCHEME,10).eq.1) then
+            call sf_acot_wrap(x(i),q2(i),
+     $           f123l,f123lc,f123lb,
+     $           hfscheme, 4, 
+     $           iFlagFCN, idx,
+     $           UseKFactors)
+            
+            FL  = F123L(4)
+            F2  = F123L(2)
+            
+            if (charge.gt.0) then
+               XF3 = - x(i)*F123L(3)
+            else
+               XF3 = x(i)*F123L(3)
+            endif
+            
+
 C RT scheme 
-C
-        if (mod(HFSCHEME,10).eq.2) then 
+C            
+         elseif (mod(HFSCHEME,10).eq.2) then 
+
 
 C RT does not provide terms beyond gamma exchange. Since they occur at high Q2,
 C use QCDNUM to take them into account as a "k"-factor 

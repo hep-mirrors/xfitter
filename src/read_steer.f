@@ -460,7 +460,11 @@ C---------------------------------------
 C---------------------------------
       
       if (HF_SCHEME.eq.'ZMVFNS') then
-          HFSCHEME = 0 
+          HFSCHEME = 0
+      elseif (HF_SCHEME.eq.'ACOT ZM') then
+          HFSCHEME = 1 
+      elseif (HF_SCHEME.eq.'ACOT Full') then
+          HFSCHEME = 11 
       elseif (HF_SCHEME.eq.'RT') then
           HFSCHEME = 2
       elseif (HF_SCHEME.eq.'RT FAST') then

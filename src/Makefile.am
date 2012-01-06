@@ -43,6 +43,7 @@ endif
 LDADD = $(QCDNUMLIBS) \
  ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
+ ../ACOT/src/libmyacot.a \
 ../HS/src/libmyhs.a \
  ../FastNLO/src/libFastNLO.a \
  ../DIPOLE/src/libmydipole.a \
