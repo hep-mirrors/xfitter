@@ -70,6 +70,9 @@ C
       integer NKfactMax,i
       parameter (NKfactMax=10000)
       double precision akfact(4,NKFACTMAX)
+      double precision akfactc(4,NKFACTMAX)
+      double precision akfactb(4,NKFACTMAX)
+
 
 
 C----------------------------------------------------------------------
@@ -145,6 +148,8 @@ C get the NLO SFs
             
             do i=1,4 
                akfact(i,index) = F123L_NLO(i)/F123L_LO(i)
+               akfactc(i,index) = F123Lc_NLO(i)/F123Lc_LO(i)
+               akfactb(i,index) = F123Lb_NLO(i)/F123Lb_LO(i)
             enddo
             print*,'building kfactors for each data point:', index, 
      $           (akfact(i,index),i=1,4)
@@ -164,6 +169,8 @@ c     Use k-factor:
          Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO) !*** F-bottom
          do i=1,4
             F123L_out(i)=F123L_LO(i)*akfact(i,index)
+            F123Lc_out(i)=F123Lc_LO(i)*akfactc(i,index)
+            F123Lb_out(i)=F123Lb_LO(i)*akfactb(i,index)
          enddo
          
       endif
