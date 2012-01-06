@@ -4,15 +4,17 @@
 #include "../interface/H1FitterPdf.h"
 
 extern "C" {
-  int hathorinit_(const double& sqrtS, const bool& ppbar);
+  int hathorinit_(const double& sqrtS, const bool& ppbar, const double& mt,
+		  const unsigned int& pertubOrder, const unsigned int& precisionLevel);
   int hathorcalc_(const int *idataset, double *xsec);
 }
 
-Hathor* hathor;
-H1FitterPdf* pdf;
-// FIXME: delete pointers at the end! (in some hathordestroy_ or so)
+Hathor* hathor;   // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
+H1FitterPdf* pdf; // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
+double mtop;
 
-int hathorinit_(const double& sqrtS, const bool& ppbar) {
+int hathorinit_(const double& sqrtS, const bool& ppbar, const double& mt,
+		const unsigned int& pertubOrder, const unsigned int& precisionLevel) {
   pdf = new H1FitterPdf();
   hathor = new Hathor(*pdf);
 
@@ -23,16 +25,25 @@ int hathorinit_(const double& sqrtS, const bool& ppbar) {
 
   hathor->setSqrtShad(sqrtS);
 
-  hathor->setScheme(Hathor::LO | Hathor::NLO | Hathor::NNLO // make me configurable from steering file!
-		    | Hathor::POLE_MASS);                   // make me configurable from steering file!
-  hathor->setPrecision(Hathor::MEDIUM);                     // make me configurable from steering file!
+  unsigned int scheme = Hathor::LO;
+  if(pertubOrder>1)
+    scheme = scheme | Hathor::NLO;
+  if(pertubOrder>2)
+    scheme = scheme | Hathor::NNLO;
+  hathor->setScheme(scheme);
+
+  hathor->PrintOptions();
+
+  hathor->setPrecision(pow(10,2+precisionLevel));
+
+  mtop = mt;
+  std::cout << " Top mass and renorm./fact. scale used for Hathor [GeV]: " << mtop << std::endl;
 
   return 0;
 }
 
 int hathorcalc_(const int *idataset, double *xsec) {
-  const double mt = 173.;  // make me configurable!
-  hathor->getXsection(mt,mt,mt);
+  hathor->getXsection(mtop, mtop, mtop);
 
   double val,err;
   hathor->getResult(0,val,err);
