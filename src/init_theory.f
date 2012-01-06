@@ -809,10 +809,13 @@ C------------------------------------------------------------
       integer IDataSet
       include 'ntot.inc'
       include 'datasets.inc'
+      include 'steering.inc'
       integer GetInfoIndex
-      integer idxSqrtS, idxReaction
+      integer idxSqrtS, idxReaction, idxPrecisionLevel
       double precision sqrtS
       double precision reaction
+      double precision mtop
+      integer precisionLevel
       logical ppbar
 
       idxSqrtS = GetInfoIndex(IDataSet, 'sqrt(S)')
@@ -826,7 +829,13 @@ C------------------------------------------------------------
          if ( reaction .eq. 1 ) ppbar = .TRUE.
       endif
 
-      call hathorinit(sqrtS, ppbar)
+      idxPrecisionLevel = GetInfoIndex(IDataSet, 'precisionLevel')
+      precisionLevel = 2 ! defaults to Hathor::MEDIUM
+      if ( idxPrecisionLevel .ne. 0 ) precisionLevel = DATASETInfo(idxPrecisionLevel, IDataSet)
+
+      mtop = HF_MASS(3)
+
+      call hathorinit(sqrtS, ppbar, mtop, I_FIT_ORDER, precisionLevel)
       end
 
 
