@@ -7,15 +7,32 @@ cccccccccccccccccccccccccccccccccccccccccccc
      $     hfscheme_in,
      $     icharge_in,
      $     iflag, index, UseKFactors)
-
-
+cccccccccccccccccccccccccccccccccccccccccccc
+c     F1, F2, F3, FL are out via f123l_out 
+c     f123l_out(1)=F1
+c     f123l_out(2)=F2
+c     f123l_out(3)=F3
+c     f123l_out(4)=FL
+c     same for charm only cotribution: f123lc
+c     same for charm only cotribution: f123lb
+c     
+c     hfscheme_in: for now only NLO massless and massive are possible
+c     icharge_in: 0 NC: photon exchange only
+c     icharge_in: 4 NC: gamma+gammaZ+Z 
+c     icharge_in:-1 CC e-
+c     icharge_in:+1 CC e+
+c     iflag: flag from FCN (main minimisation routine)
+c     index: data index - integer
+c     UseKFactors: use of kfactors (NLO/LO) - Logical 
+c     (since ACOT takes long time, this is for now set always to TRUE)
 cccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 !--------      
       include 'steering.inc'
       include 'couplings.inc'
-!
+!--------
+
       double precision f123l_out(4)
       double precision f123lc_out(4)
       double precision f123lb_out(4)
@@ -35,11 +52,13 @@ cccccccccccccccccccccccccccccccccccccccccccc
       integer icharge_in, mode_in, hfscheme_in
       
       integer icharge
+
+c communication with Fred's code
       integer isch, iset, iflg, ihad
       double precision hmass, xmc,xmb
       double precision sinw2, xmw, xmz
-      COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
 
+      COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
       common /fred/ xmc,xmb,HMASS
       common/fredew/ sinw2, xmw, xmz
 
@@ -55,15 +74,14 @@ C
 
 C----------------------------------------------------------------------
 C     set "Isch, Iset, Iflg, Ihad" in common block first
-      iset =1
-      iflg =0
-      ihad =1
+      iset =1                   ! dummy
+      iflg =0                   ! dummy
+      ihad =1                   ! proton
 
-c      icharge_in=0  !*** photon
-c      icharge_in=4  !*** photon + Z boson
 
-      xmc=mch
-      xmb=mbt
+!     taken from couplings.inc
+      xmc=mch                   
+      xmb=mbt                   
       sinw2=sin2thw
       xmw=mw
       xmz=mz
@@ -73,7 +91,7 @@ c      icharge_in=4  !*** photon + Z boson
       q=dsqrt(q2_in)
       icharge=icharge_in
 
-
+! Target mass correction!
       hmass=0.d0
 !      hmass=0.938d0             !*** Hadron Mass for target mass corrections
 
@@ -98,10 +116,11 @@ C----------------------------------------------------------------------
 
       if (iflag.eq.1.or..not.UseKFactors) then
 
-! assumes user choice NLO massless or massive
+C get the LO SFs
          Call Fgen123L(icharge,   1, X, Q,xmu,F123L_LO) !*** total F
          Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_LO) !*** F-charm
          Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO) !*** F-bottom
+
 C Store k-factors:
          if (UseKFactors) then
 
@@ -112,13 +131,14 @@ C Store k-factors:
                stop
             endif
 
-! make sure the kfactors correspond for massless or massive choice
+C make sure the kfactors correspond for massless or massive choice
             if (HFSCHEME.eq.1) then
                isch=0           ! massless NLO
             elseif (HFSCHEME.eq.11) then
                isch=1           ! massive NLO
             endif
 
+C get the NLO SFs
             Call Fgen123L(icharge,   1, X, Q,xmu,F123L_NLO) !*** total F
             Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_NLO) !*** F-charm
             Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_NLO) !*** F-bottom
