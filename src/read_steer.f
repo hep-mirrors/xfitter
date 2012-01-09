@@ -465,6 +465,8 @@ C---------------------------------
           HFSCHEME = 1 
       elseif (HF_SCHEME.eq.'ACOT Full') then
           HFSCHEME = 11 
+      elseif (HF_SCHEME.eq.'ACOT Chi') then
+          HFSCHEME = 111 
       elseif (HF_SCHEME.eq.'RT') then
           HFSCHEME = 2
       elseif (HF_SCHEME.eq.'RT FAST') then

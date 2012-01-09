@@ -113,7 +113,8 @@ C----------------------------------------------------------------------
 
 
       if (HFSCHEME_IN.eq.1)   ISCH=6
-      if (HFSCHEME_IN.eq.11)  ISCH=5
+      if (HFSCHEME_IN.eq.11.or.HFSCHEME.eq.111)  ISCH=5
+
 
 
 
@@ -139,6 +140,8 @@ C make sure the kfactors correspond for massless or massive choice
                isch=0           ! massless NLO
             elseif (HFSCHEME.eq.11) then
                isch=1           ! massive NLO
+            elseif (HFSCHEME.eq.111) then
+               isch=9           ! massive NLO
             endif
 
 C get the NLO SFs
@@ -160,7 +163,7 @@ c     Use k-factor:
 
          if (HFSCHEME.eq.1) then
             isch=6              ! massless 
-         elseif (HFSCHEME.eq.11) then
+         elseif (HFSCHEME.eq.11.or.HFSCHEME.eq.111) then
             isch=5              ! massive 
          endif
          
