@@ -150,9 +150,26 @@ C get the NLO SFs
             Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_NLO) !*** F-bottom
             
             do i=1,4 
-               akfact(i,index) = F123L_NLO(i)/F123L_LO(i)
-               akfactc(i,index) = F123Lc_NLO(i)/F123Lc_LO(i)
-               akfactb(i,index) = F123Lb_NLO(i)/F123Lb_LO(i)
+
+! protect for the kfactors that return infinity 
+               if (F123L_LO(i).eq.0.d0) then
+                  akfact(i,index) = 1.d0
+               else
+                  akfact(i,index) = F123L_NLO(i)/F123L_LO(i)
+               endif
+
+               if (F123Lc_LO(i).eq.0.d0) then
+                  akfactc(i,index) = 1.d0
+               else
+                  akfactc(i,index) = F123Lc_NLO(i)/F123Lc_LO(i)
+               endif
+
+               if (F123Lb_LO(i).eq.0.d0) then
+                  akfactb(i,index) = 1.d0
+               else
+                  akfactb(i,index) = F123Lb_NLO(i)/F123Lb_LO(i)
+               endif
+
             enddo
             print*,'building kfactors for each data point:', index, 
      $           (akfact(i,index),i=1,4)
