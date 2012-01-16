@@ -18,7 +18,7 @@
       logical DOBANDS            !> Produce PDF error bands 
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
-	
+      logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
       real asatur,             !> Saturation inspired cut for DIS data
      $     lsatur              !> Saturation inspired cut for DIS data
 
@@ -79,7 +79,7 @@ C
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
-     &     lDEBUG,DOBANDS,
+     &     lDEBUG,DOBANDS,h1qcdfunc,
      &     Itheory,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,

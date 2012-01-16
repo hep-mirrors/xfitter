@@ -276,7 +276,10 @@ c EW param
 c ACOT 
       double precision f123l(4),f123lc(4),f123lb(4),f2nc
       integer icharge,ij
-      
+
+c H1qcdfunc
+      integer ifirst
+      data ifirst /1/
 C---------------------------------------------------------
 
       if (IFlagFCN.eq.1) then
@@ -615,4 +618,13 @@ C
         THEO(idx) =  XSec
       enddo
 
+      if ((iflagFCN.eq.3).and.(h1QCDFUNC)) then
+         if (ifirst.eq.1) then
+            print*,'getting output for the H1QCDFUNC'
+        
+            call GetH1qcdfuncOutput(charge, polarity)
+            ifirst=0
+            
+         endif
+      endif
       end
