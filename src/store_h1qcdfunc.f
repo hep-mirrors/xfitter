@@ -130,13 +130,13 @@ cv NC
 cv CC
 
 c      if (charge_in.gt.0) then
-         CALL ZMSTFUN(1,CCEP2F,DXoo,DQ2oo,FLCCepSH,nshiraz,0)
-         CALL ZMSTFUN(2,CCEP2F,DXoo,DQ2oo,F2CCepSH,nshiraz,0)
-         CALL ZMSTFUN(3,CCEP3F,DXoo,DQ2oo,XF3CCepSH,nshiraz,0)    
+      CALL ZMSTFUN(1,CCEP2F,DXoo,DQ2oo,FLCCepSH,nshiraz,0)
+      CALL ZMSTFUN(2,CCEP2F,DXoo,DQ2oo,F2CCepSH,nshiraz,0)
+      CALL ZMSTFUN(3,CCEP3F,DXoo,DQ2oo,XF3CCepSH,nshiraz,0)    
 c      else
-         CALL ZMSTFUN(1,CCEM2F,DXoo,DQ2oo,FLCCemSH,nshiraz,0)
-         CALL ZMSTFUN(2,CCEM2F,DXoo,DQ2oo,F2CCemSH,nshiraz,0)      
-         CALL ZMSTFUN(3,CCEM3F,DXoo,DQ2oo,XF3CCemSH,nshiraz,0) 
+      CALL ZMSTFUN(1,CCEM2F,DXoo,DQ2oo,FLCCemSH,nshiraz,0)
+      CALL ZMSTFUN(2,CCEM2F,DXoo,DQ2oo,F2CCemSH,nshiraz,0)      
+      CALL ZMSTFUN(3,CCEM3F,DXoo,DQ2oo,XF3CCemSH,nshiraz,0) 
 c      endif
 
             
@@ -159,42 +159,9 @@ C
       vu = au - (4.d0/3.d0)*sin2thw
       vd = ad + (2.d0/3.d0)*sin2thw
       
+      print*,'polarity', polarity_in
 
 
-      if (charge_in.gt.0) then
-         A_u = e2u              ! gamma
-     $        + (-ve-polarity_in*ae)*PZ*2.*euq*vu !gamma-Z
-     $        + (ve**2 + ae**2+2*polarity_in*ve*ae)*PZ**2*(vu**2+au**2) !Z
-         
-         A_d = e2d 
-     $        + (-ve-polarity_in*ae)*PZ*2.*edq*vd 
-     $        + (ve**2 + ae**2+2*polarity_in*ve*ae)*PZ**2*(vd**2+ad**2)
-         
-         B_u = (ae+polarity_in*ve)*PZ*2.*euq*au !gamma-Z
-     $        + (-2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-         B_d = (ae+polarity_in*ve)*PZ*2.*edq*ad 
-     $        + (-2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-      else
-         A_u = e2u              ! gamma
-     $        + (-ve+polarity_in*ae)*PZ*2.*euq*vu !gamma-Z
-     $        + (ve**2 + ae**2-2*polarity_in*ve*ae)*PZ**2*(vu**2+au**2) !Z
-         
-         A_d = e2d 
-     $        + (-ve+polarity_in*ae)*PZ*2.*edq*vd 
-     $        + (ve**2 + ae**2-2*polarity_in*ve*ae)*PZ**2*(vd**2+ad**2)
-         
-         B_u = (-ae+polarity_in*ve)*PZ*2.*euq*au !gamma-Z
-     $        + (2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-         B_d = (-ae+polarity_in*ve)*PZ*2.*edq*ad 
-     $        + (2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-            
-      endif
-
-cv for polarised case should reduce to:
-cv         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-cv         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-cv         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
 C
 C xF3, F2, FL from QCDNUM:
@@ -207,6 +174,46 @@ C
          do ishx=1, 66
             x_in=xboo(ishx)
             nsh2=nsh2+1
+
+            PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2_in)
+            PZ = 1./Pz
+            if (charge_in.gt.0) then
+               A_u = e2u        ! gamma
+     $              + (-ve-polarity_in*ae)*PZ*2.*euq*vu !gamma-Z
+     $              + (ve**2 + ae**2+2*polarity_in*ve*ae)*PZ**2*(vu**2+au**2) !Z
+               
+               A_d = e2d 
+     $              + (-ve-polarity_in*ae)*PZ*2.*edq*vd 
+     $              + (ve**2 + ae**2+2*polarity_in*ve*ae)*PZ**2*(vd**2+ad**2)
+               
+               B_u = (ae+polarity_in*ve)*PZ*2.*euq*au !gamma-Z
+     $              + (-2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+               B_d = (ae+polarity_in*ve)*PZ*2.*edq*ad 
+     $              + (-2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+            else
+               A_u = e2u        ! gamma
+     $              + (-ve+polarity_in*ae)*PZ*2.*euq*vu !gamma-Z
+     $              + (ve**2 + ae**2-2*polarity_in*ve*ae)*PZ**2*(vu**2+au**2) !Z
+               
+               A_d = e2d 
+     $        + (-ve+polarity_in*ae)*PZ*2.*edq*vd 
+     $              + (ve**2 + ae**2-2*polarity_in*ve*ae)*PZ**2*(vd**2+ad**2)
+               
+               B_u = (-ae+polarity_in*ve)*PZ*2.*euq*au !gamma-Z
+     $              + (2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+               B_d = (-ae+polarity_in*ve)*PZ*2.*edq*ad 
+     $              + (2.*ve*ae-polarity_in*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+               
+            endif
+
+cv for un polarised case should reduce to:
+cv         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+cv         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+cv         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+
+
+
 cv            mode=1
             XF3qcd = B_U*XF3NCEPSH(nsh2) + B_D*XF3NCEMSH(nsh2)
             F2qcd   = A_U*F2NCEPSH(nsh2)   + A_D*F2NCEMSH(nsh2)
@@ -253,9 +260,9 @@ c            xf3qcd = xf3
      +          flcRT_ou,f1cRT_ou,f2bRT_ou,
      +          flbRT_ou,f1bRT_ou
            ! Input:
-     $          ,3,nsh2    ! fcn flag, data point index
+     $          ,1,nsh2    ! fcn flag, data point index
      $          ,F2Gam,FLGam
-     $          ,.true.
+     $          ,.false.
      $          )
            
 
