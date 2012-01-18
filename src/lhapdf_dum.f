@@ -34,3 +34,8 @@ c----------------------------------------------------------
       end
 
 
+      double precision function alphasPDF(a)
+      call print_lhapdf_messg
+      stop
+      return 
+      end

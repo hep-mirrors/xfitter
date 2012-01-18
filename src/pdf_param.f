@@ -18,10 +18,12 @@ C--------------------------------------------------------
       include 'thresholds.inc'
       include 'extrapars.inc'
       include 'polarity.inc'
+      include 'couplings.inc'
       integer i
 
       double precision fs
       double precision fshermes
+      double precision alphasPDF
 
 C-------------------------------------------------------
       logical LFirstTime
@@ -205,7 +207,11 @@ C Get from extra pars:
       alphas=p(idxAlphaS)      
       fstrange=p(idxFS)
 
-
+C In case PDF and alphas needs to be read from LHAPDF (iparam=0, ipdfset=5)
+C maybe instead warning message should be issued
+      if((iparam.eq.0).and.(ipdfset.eq.5)) then
+         alphas=alphasPDF(Mz)
+      endif
 
 C Hermes strange prepare:
       if (ifsttype.eq.0) then
