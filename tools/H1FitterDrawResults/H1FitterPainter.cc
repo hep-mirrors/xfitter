@@ -76,8 +76,9 @@ Int_t H1FitterPainter::Draw() {
 	RefSetsDrawn[iref] = kTRUE;
 	break;
       }
-    }
+    } 
     DrawDataSet(dataset, datasetref);
+    //DrawDataSetRatio(dataset, datasetref);
   }
   for (Int_t iref=0; iref<NRefDataSets; iref++) {
     if(!RefSetsDrawn[iref])
@@ -336,6 +337,49 @@ void H1FitterPainter::ScaleGraph2ToGraph1(TGraph* graph1, TGraph* graph2, TLine*
   axis->SetTextAngle(180.); 
 }
 
+
+Int_t H1FitterPainter::DrawDataSetRatio(DataSet* dataset, DataSet* datasetref) {
+
+  if(datasetref==NULL) return 1;
+
+  TGraphErrors* gTheo;
+  TGraphErrors* gTheoRef;
+  TObjArray* TrashBin = new TObjArray; TrashBin->SetOwner();
+    
+  TCanvas* can = new TCanvas;
+  if     (dataset->GetNGraphs()<=1)  can->Divide(1,1);
+  else if(dataset->GetNGraphs()<=2)  can->Divide(1,2);
+  else if(dataset->GetNGraphs()<=4)  can->Divide(2,2);
+  else if(dataset->GetNGraphs()<=9)  can->Divide(3,3);
+  else if(dataset->GetNGraphs()<=16) can->Divide(4,4);
+  else if(dataset->GetNGraphs()<=25) can->Divide(5,5);
+  else if(dataset->GetNGraphs()<=36) can->Divide(6,6);
+  else {cout << "can not DrawDataSetRatio, too many graphs " <<dataset->GetNGraphs() <<endl; return 1;}
+
+  for(Int_t i=0; i<dataset->GetNGraphs(); i++) {
+    gTheo = (TGraphErrors*) dataset->GetTheory(i)->Clone();
+    TrashBin->AddLast(gTheo);
+    gTheoRef= datasetref->GetTheory(i);
+
+    for(Int_t k=0; k<gTheo->GetN(); k++) {
+      gTheo->GetY()[k] = gTheo->GetY()[k] / gTheoRef->GetY()[k];
+    }
+    gTheo->SetTitle(dataset->GetLabel(i)->GetString().Data());
+    gTheo->SetMaximum(1.1);
+    gTheo->SetMinimum(0.9);
+    gTheo->SetMarkerStyle(20);
+    gTheo->SetMarkerSize(0.5);
+    can->cd(i+1);
+    gTheo->Draw("ALP");
+  }
+  TPaveLabel* Title = new TPaveLabel(0.0, 0.97, 0.6, 1.0, dataset->GetName(), "NDC");
+  Title->SetFillColor(kWhite); Title->SetBorderSize(0);
+  can->cd(0);Title->Draw();
+
+  PrintCanvas(can);
+  delete can; delete TrashBin; delete Title;
+  return 0;
+}
 
 Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor color) {
 

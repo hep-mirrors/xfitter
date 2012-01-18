@@ -26,6 +26,7 @@ class H1FitterPainter  {
   Int_t DrawPDF(Int_t ival);
   Int_t DrawPull();
   Int_t DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor=kRed);
+  Int_t DrawDataSetRatio(DataSet* dataset, DataSet* datasetref);
   Int_t Prepare();
   void PrintCanvas(TCanvas* can);
   Int_t PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut,H1FitterOutput* FitterRef,
