@@ -226,7 +226,6 @@ C---------------------------------------------------------------
       include 'indata.inc'
       include 'theo.inc'
       include 'fcn.inc'
-      include 'polarity.inc'
 
       integer IDataSet
       integer idxQ2, idxX, idxY, i,  idx
@@ -236,13 +235,9 @@ C---------------------------------------------------------------
 
       double precision X(NPmax),Y(NPmax),Q2(NPmax),XSec(NPmax)
       double precision Charge, polarity
-      double precision err_pol_unc, shift_pol
-      double precision err_pol_corL
-      double precision err_pol_corT
 
 C Functions:
       integer GetBinIndex
-      integer GetInfoIndex
 
 c H1qcdfunc
       integer ifirst
@@ -255,8 +250,6 @@ C---------------------------------------------------------
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
          stop
       endif
-
-
 
 C
 C Get indexes for Q2, x and y bins:
@@ -283,13 +276,53 @@ C
          Q2(i)  = AbstractBins(idxQ2,idx)
       enddo
 
-C
-C Get polarity, charge and CME information:
-C     
+      call ReadPolarityAndCharge(idataset,charge,polarity)
 
-C 
-C Initialise polarisation, in case info is not provided.
+      call CalcReducedXsectionForXYQ2(X,Y,Q2,NDATAPOINTS(IDataSet),charge,polarity,IDataSet,XSec)
+
+      do i=1,NDATAPOINTS(IDataSet)
+         idx =  DATASETIDX(IDataSet,i)
+         THEO(idx) =  XSec(i)
+      enddo
+
+      if ((iflagFCN.eq.3).and.(h1QCDFUNC)) then
+         if (ifirst.eq.1) then
+            print*,'getting output for the H1QCDFUNC'
+        
+            call GetH1qcdfuncOutput(charge, polarity)
+            ifirst=0
+            
+         endif
+      endif
+      end
+
+
+      Subroutine ReadPolarityAndCharge(idataset,charge,polarity)
+C----------------------------------------------------------------
 C
+C  Get polarity and charge from the data file
+C
+C  Created by Krzysztof Nowak, 18/01/2012
+C---------------------------------------------------------------
+
+      implicit none
+      include 'ntot.inc'
+      include 'datasets.inc'
+      include 'polarity.inc'
+
+C Input:
+      integer IDataSet
+
+C Output:
+      double precision charge, polarity
+
+      double precision err_pol_unc, shift_pol
+      double precision err_pol_corL
+      double precision err_pol_corT
+
+C Functions:
+      integer GetInfoIndex
+
       polarity=0.d0
       err_pol_unc=0.d0
       err_pol_corL=0.d0
@@ -305,7 +338,6 @@ C
      $        DATASETInfo( GetInfoIndex(IDataSet,'pol err corTpol'), IDataSet)
       endif
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
-
 
       if (charge.lt.0.) then
          if (polarity.gt.0) then
@@ -335,23 +367,6 @@ c     $        ''shift Tpol: '', F16.4 )',
 c     $        charge, polarity,shift_pol,shift_polL,shift_polT
 c      endif
 c
-
-      call CalcReducedXsectionForXYQ2(X,Y,Q2,NDATAPOINTS(IDataSet),charge,polarity,IDataSet,XSec)
-
-      do i=1,NDATAPOINTS(IDataSet)
-         idx =  DATASETIDX(IDataSet,i)
-         THEO(idx) =  XSec(i)
-      enddo
-
-      if ((iflagFCN.eq.3).and.(h1QCDFUNC)) then
-         if (ifirst.eq.1) then
-            print*,'getting output for the H1QCDFUNC'
-        
-            call GetH1qcdfuncOutput(charge, polarity)
-            ifirst=0
-            
-         endif
-      endif
       end
 
 
