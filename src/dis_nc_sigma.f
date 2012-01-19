@@ -205,6 +205,10 @@ C-----------------------------------------------------------------
       end
 
 
+
+
+
+
       Subroutine GetReducedNCXsection(IDataSet)
 C----------------------------------------------------------------
 C
@@ -218,90 +222,40 @@ C---------------------------------------------------------------
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
-      include 'for_debug.inc'
       include 'datasets.inc'
       include 'indata.inc'
       include 'theo.inc'
-      include 'couplings.inc'
-      include 'qcdnumhelper.inc'
       include 'fcn.inc'
       include 'polarity.inc'
 
       integer IDataSet
-
-      double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d,pz
-
       integer idxQ2, idxX, idxY, i,  idx
       
       integer NPmax
       parameter(NPmax=1000)
 
-      double precision X(NPmax),Y(NPmax),Q2(NPmax)
-      double precision yplus, yminus
-
-      double precision F2p(NPmax),xF3p(NPmax),FLp(NPmax)
-      double precision F2m(NPmax),xF3m(NPmax),FLm(NPmax)
-      
-      double precision F2,xF3,FL,XSec
-
-      double precision Xv,Yv,Q2v
-
-      double precision Charge, S, polarity
+      double precision X(NPmax),Y(NPmax),Q2(NPmax),XSec(NPmax)
+      double precision Charge, polarity
       double precision err_pol_unc, shift_pol
       double precision err_pol_corL
       double precision err_pol_corT
 
-      double precision FLGamma, F2Gamma
-C RT:
-      Double precision f2pRT,flpRT,f1pRT,rpRT,f2nRT,flnRT,f1nRT,rnRT,
-     $     f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT, F2rt, FLrt
-      logical UseKFactors
-
-C HF:
-      double precision NC2FHF(-6:6)
-      double precision FLc, F2c, FLb, F2b
-      dimension FLc(NPmax),F2c(NPmax),FLb(NPmax),F2b(NPmax)
-
 C Functions:
       integer GetBinIndex
       integer GetInfoIndex
-
-c EW param
-
-      double precision sin2th_eff, xkappa, epsilon
-      double precision deltar,sweff, sin2thw2
-      double precision cau, cad, cvu, cvd
-
-
-c ACOT 
-      double precision f123l(4),f123lc(4),f123lb(4),f2nc
-      integer icharge,ij
 
 c H1qcdfunc
       integer ifirst
       data ifirst /1/
 C---------------------------------------------------------
 
-      if (IFlagFCN.eq.1) then
-C
-C Execute for the first iteration only.
-C
-         if (HFSCHEME.eq.22.or.HFSCHEME.eq.11.or.HFSCHEME.eq.1) then
-            UseKFactors = .true.
-         else
-            UseKFactors = .false.
-         endif
-      endif
-
-C
-C Protect against overflow of internal arrays:
-C
 
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN GetReducedNCXsection'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
          stop
       endif
+
 
 
 C
@@ -351,8 +305,6 @@ C
      $        DATASETInfo( GetInfoIndex(IDataSet,'pol err corTpol'), IDataSet)
       endif
       charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
-      S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
-
 
 
       if (charge.lt.0.) then
@@ -373,17 +325,118 @@ C
      $     err_pol_corL/100*shift_polL+
      $     err_pol_corT/100*shift_polT)
 
+c
+c      if(polarity.ne.0.d0) then
+c         print '( ''charge:  '', F8.4, 
+c     $        '' pol: '', F16.4, 
+c     $        ''shift pol: '', F16.4 , 
+c     $        ''shift Lpol: '', F16.4 , 
+c     $        ''shift Tpol: '', F16.4 )', 
+c     $        charge, polarity,shift_pol,shift_polL,shift_polT
+c      endif
+c
+
+      call CalcReducedXsectionForXYQ2(X,Y,Q2,NDATAPOINTS(IDataSet),charge,polarity,IDataSet,XSec)
+
+      do i=1,NDATAPOINTS(IDataSet)
+         idx =  DATASETIDX(IDataSet,i)
+         THEO(idx) =  XSec(i)
+      enddo
+
+      if ((iflagFCN.eq.3).and.(h1QCDFUNC)) then
+         if (ifirst.eq.1) then
+            print*,'getting output for the H1QCDFUNC'
+        
+            call GetH1qcdfuncOutput(charge, polarity)
+            ifirst=0
+            
+         endif
+      endif
+      end
 
 
-      if(polarity.ne.0.d0) then
-         print '( ''charge:  '', F8.4, 
-     $        '' pol: '', F16.4, 
-     $        ''shift pol: '', F16.4 , 
-     $        ''shift Lpol: '', F16.4 , 
-     $        ''shift Tpol: '', F16.4 )', 
-     $        charge, polarity,shift_pol,shift_polL,shift_polT
+      Subroutine CalcReducedXsectionForXYQ2(X,Y,Q2,npts,charge,polarity,idataset,XSec)
+C----------------------------------------------------------------
+C
+C  NC Double differential reduced cross section calculation for a table given by X, Y, Q2
+C  Fills array XSec as well as reads charge and polarity
+C
+C  Created by Krzysztof Nowak, 18/01/2012
+C---------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'datasets.inc'
+      include 'couplings.inc'
+      include 'qcdnumhelper.inc'
+      include 'fcn.inc'
+
+      double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d,pz
+
+      integer i, idx
+      
+
+      integer NPmax
+      parameter(NPmax=1000)
+
+C Input:
+      integer npts,IDataSet
+      double precision X(NPmax),Y(NPmax),Q2(NPmax)
+      double precision Charge, polarity
+C Output: 
+      double precision XSec(NPmax)
+      double precision yplus, yminus
+c
+      double precision F2p(NPmax),xF3p(NPmax),FLp(NPmax)
+      double precision F2m(NPmax),xF3m(NPmax),FLm(NPmax)
+      
+      double precision F2,xF3,FL
+
+      double precision FLGamma, F2Gamma
+      logical UseKFactors
+
+C RT:
+      Double precision f2pRT,flpRT,f1pRT,rpRT,f2nRT,flnRT,f1nRT,rnRT,
+     $     f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT, F2rt, FLrt
+
+C HF:
+      double precision NC2FHF(-6:6)
+      double precision FLc, F2c, FLb, F2b
+      dimension FLc(NPmax),F2c(NPmax),FLb(NPmax),F2b(NPmax)
+
+c EW param
+
+      double precision sin2th_eff, xkappa, epsilon
+      double precision deltar,sweff, sin2thw2
+      double precision cau, cad, cvu, cvd
+
+
+c ACOT 
+      double precision f123l(4),f123lc(4),f123lb(4),f2nc
+
+C---------------------------------------------------------
+
+
+
+      if (IFlagFCN.eq.1) then
+C
+C Execute for the first iteration only.
+C
+         if (HFSCHEME.eq.22.or.HFSCHEME.eq.11.or.HFSCHEME.eq.1) then
+            UseKFactors = .true.
+         else
+            UseKFactors = .false.
+         endif
       endif
 
+
+C Protect against overflow of internal arrays:
+C
+      if (npts.gt.NPmax) then
+         print *,'ERROR IN CalculateReducedXsection'
+         print *,'INCREASE NPMax to ',npts
+         stop
+      endif
 
 
       if(EWFIT.eq.0) then
@@ -406,17 +459,10 @@ C
 
          call wrap_ew(q2,sweff,deltar,cau,cad,cvu,cvd,polarity,charge)
 
-
-         if (idataset.eq.2) then
-            print '(''cau: cvu: cad: cvd'',5F16.6)',cau,cvu,cad,cvd,deltar
-         endif
-
-
          sin2thw2 = 1.d0 - MW**2/MZ**2
          sin2th_eff = 0.23134d0
          xkappa = sin2th_eff/sin2thw
          epsilon = xkappa -1.0
-c         print*, sin2thw, sweff, xkappa, epsilon
          ve = -0.5d0 + 2.*sin2th_eff
          ae = -0.5d0
 
@@ -428,17 +474,18 @@ c         print*, sin2thw, sweff, xkappa, epsilon
       endif
 
 
+
 C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 
 C u-type ( u+c ) contributions 
-      CALL ZMSTFUN(1,CNEP2F,X,Q2,FLp,NDATAPOINTS(IDataSet),0)
-      CALL ZMSTFUN(2,CNEP2F,X,Q2,F2p,NDATAPOINTS(IDataSet),0)
-      CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3p,NDATAPOINTS(IDataSet),0)    
+      CALL ZMSTFUN(1,CNEP2F,X,Q2,FLp,npts,0)
+      CALL ZMSTFUN(2,CNEP2F,X,Q2,F2p,npts,0)
+      CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3p,npts,0)    
 
 C d-type (d + s + b) contributions
-      CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,NDATAPOINTS(IDataSet),0)
-      CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,NDATAPOINTS(IDataSet),0)
-      CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,NDATAPOINTS(IDataSet),0) 
+      CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,npts,0)
+      CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,npts,0)
+      CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,npts,0) 
 
 C heavy quark contribution (c and b)      
       if (mod(HFSCHEME,10).eq.3) then 
@@ -446,18 +493,16 @@ C heavy quark contribution (c and b)
          NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
 c        write(6,*) 'NC2FHF:', NC2FHF
 
-         CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,NDATAPOINTS(IDataSet),0)
-         CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,NDATAPOINTS(IDataSet),0)
-         CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,NDATAPOINTS(IDataSet),0)
-         CALL HQSTFUN(1,-2,NC2FHF,X,Q2,FLb,NDATAPOINTS(IDataSet),0)
+         CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,npts,0)
+         CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,npts,0)
+         CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,npts,0)
+         CALL HQSTFUN(1,-2,NC2FHF,X,Q2,FLb,npts,0)
 c         write(6,*) 'HQSTFUN: X,Q2,F2c,FLc', X(1),Q2(1),F2c(1),FLc(1)
 c         write(6,*) 'HQSTFUN: X,Q2,F2b,FLb', X(1),Q2(1),F2b(1),FLb(1)
 
       endif
-C
-C Prepare theory prediction for chi2 calculation:
-C
-      do i=1,NDATAPOINTS(IDataSet)
+
+      do i=1,npts
 
 C Get the index of the point in the global data table:
          idx =  DATASETIDX(IDataSet,i)
@@ -502,6 +547,8 @@ C EW couplings of u-type and d-type quarks at the scale Q2
 
          endif
 
+
+
 cv for polarised case should reduce to:
 cv         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
 cv         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
@@ -518,6 +565,7 @@ C
          XF3  = B_U*XF3p(i)  + B_D*XF3m(i)
          F2   = A_U*F2p(i)   + A_D*F2m(i)
          FL   = A_U*FLp(i)   + A_D*FLm(i)
+
 
 C-----------------------------------------------------------------------
 C  Extra heavy flavour schemes
@@ -542,7 +590,6 @@ C
             else
                XF3 = x(i)*F123L(3)
             endif
-            
 
 C RT scheme 
 C            
@@ -572,8 +619,6 @@ C
      $          )
            
 
-
-
            F2rt = F2pRT * (F2/F2Gamma)
            FLrt = FLpRT * (FL/FLGamma)
 
@@ -584,7 +629,7 @@ C Keep xF3 from QCDNUM
            F2 = F2rt
            FL = FLrt
         endif
-
+            
 
 C FFNS, heavy quark contribution (c and b) to F2 and FL   
         if (mod(HFSCHEME,10).eq.3) then 
@@ -599,7 +644,7 @@ c           write(6,*) 'FFNS: F2,F2c,F2b', i,F2,F2c(i),F2b(i)
 
 C polarisation already taken into account in the couplings (A_q,B_q)
 
-        XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
+        XSec(i) = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
 
 cv to get back to the old unpolarised case then one has to uncomment this:
 cv        if (charge.gt.0) then
@@ -610,21 +655,9 @@ cv       else
 cv           XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
 cv        endif
 
-
-
-C
-C Store cross-section prediction in the global cross-sections table:
-C
-        THEO(idx) =  XSec
       enddo
-
-      if ((iflagFCN.eq.3).and.(h1QCDFUNC)) then
-         if (ifirst.eq.1) then
-            print*,'getting output for the H1QCDFUNC'
-        
-            call GetH1qcdfuncOutput(charge, polarity)
-            ifirst=0
-            
-         endif
-      endif
       end
+
+
+
+
