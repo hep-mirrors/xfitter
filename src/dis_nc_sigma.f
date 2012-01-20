@@ -1,211 +1,159 @@
       Subroutine  GetIntegratedNCXsection(IDataSet)
-C-----------------------------------------------------------------
+C----------------------------------------------------------------
 C
-C  Created by SG, 24/05/2011
-C  Calculate x-integrated  cross section.
-C
-C-----------------------------------------------------------------
+C  NC Double differential integrated cross section calculation
+C  Fills global array THEO.
+C  
+C  Created by Krzysztof Nowak, 20/01/2012
+C---------------------------------------------------------------
+
       implicit none
       include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
+      include 'couplings.inc'
       include 'datasets.inc'
       include 'indata.inc'
       include 'theo.inc'
-      include 'couplings.inc'
-      include 'qcdnumhelper.inc'
-      
+
       integer IDataSet
-
-      integer idxQ2, idxX1, idxX2, i, j, idx
-
-      integer NSplit
-      parameter (NSplit=100)
-
-      integer NQ2Max
-      parameter (NQ2Max=60)
-
-      integer Npt
-
-      double precision charge,S,y,yplus,yminus,polarity
-      double precision xmin,xmax,q2v,x(0:NSplit,NQ2Max)
-     $     ,q2(0:NSplit,NQ2Max)
-      double precision F2p(0:NSplit,NQ2Max),xF3p(0:NSplit,NQ2Max)
-     $     ,FLp(0:NSplit,NQ2Max)
-      double precision F2m(0:NSplit,NQ2Max),xF3m(0:NSplit,NQ2Max)
-     $     ,FLm(0:NSplit,NQ2Max)
-      double precision F2,xF3,FL
-      double precision XSec(0:NSplit),Xsint
+      integer idxQ2min, idxQ2max, idxYmin, idxYmax, idxXmin, idxXmax
+      integer i,  idx, iq2, ix, j, kkk
       
+      integer NPmax
+      parameter(NPmax=1000)
 
-      double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d,pz
-      double precision alpha_run
+      integer nq2split
+      parameter(nq2split=25)
+      integer nxsplit
+      parameter(nxsplit=25)
 
+      double precision X(NPmax),Y(NPmax),Q2(NPmax),XSecP(NPmax),XSecN(NPmax), S
+      double precision q2_1, q2_2, alphaem_run, factorNC, XSec, YPlus
+      double precision dq2(NPmax), dx(NPmax)
+      double precision Charge, polarity, alpha_mz
+      double precision q2min,q2max,xmin,xmax
+      double precision EmToEtotRatio
+      logical LoopOverYBins
+      integer NSubBins
 
 C Functions:
       integer GetBinIndex
       integer GetInfoIndex
-      double precision DSIMPS
-      double precision AEMRUN
-C-----------------------------------------------------------------
 
-C
-C Electron couplings 
-C
-      ve = -0.5d0 + 2.*sin2thw
-      ae = -0.5d0                  
+C---------------------------------------------------------
 
-C
-C u-type and d-type couplings:
-C
-      au = 0.5d0
-      ad = -0.5d0
-      vu = au - (4.d0/3.d0)*sin2thw
-      vd = ad + (2.d0/3.d0)*sin2thw
-
-      if (NDATAPOINTS(IDataSet).gt.NQ2Max) then
+      if ((nq2split+1)*(nxsplit+1).gt.NPmax) then
          print *,'ERROR IN GetIntegratedNCXsection'
-         print *,'INCREASE NQ2Max to ',NDATAPOINTS(IDataSet)
+         print *,'INCREASE NPMax to ',(nq2split+1)*(nxsplit+1)
          stop
       endif
 
-C Get indexes for Q2, x1 and x2:
-      idxQ2 = GetBinIndex(IDataSet,'Q2')
-      idxX1 = GetBinIndex(IDataSet,'xmin')
-      idxX2 = GetBinIndex(IDataSet,'xmax')
+C
+C Get indexes for Q2, x and y bins:
+C
+      idxQ2min = GetBinIndex(IDataSet,'q2min')
+      idxXmin  = GetBinIndex(IDataSet,'xmin')
+      idxYmin = GetBinIndex(IDataSet,'ymin')
+      idxQ2max = GetBinIndex(IDataSet,'q2max')
+      idxXmax  = GetBinIndex(IDataSet,'xmax')
+      idxYmax = GetBinIndex(IDataSet,'ymax')
+      LoopOverYBins = .false.
+      S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
+      EmToEtotRatio=(DATASETInfo(GetInfoIndex(IDataSet,'lumi(e-)/lumi(tot)'),IDataSet))
+      alpha_mz = 1.d0 / 128.9d0
 
-      if (idxX1.eq.0 .or. idxX2.eq.0 .or. idxQ2.eq.0) then
+      if (idxQ2min.eq.0 .or. idxQ2max.eq.0) then
+         print *, 'Q2 bins not well defined in a data file'
          Return
       endif
+      if (idxXmin.eq.0 .or. idxXmax.eq.0) then
+         if (idxYmin.eq.0 .or. idxYmax.eq.0) then
+            print *, 'X or Y bins need to be defined in a data file            '
+            Return
+         endif
+         LoopOverYBins = .true.
+      endif
 
-
-C prepare bins:
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
 
-         xmin = AbstractBins(idxX1,idx)
-         xmax = AbstractBins(idxX2,idx)
-         q2v  = AbstractBins(idxQ2,idx)
-
-         do j=0,NSplit
-            q2(j,i) = q2v
-            x(j,i)  = (xmax-xmin)/NSplit * j + xmin
-         enddo
-
-      enddo
-
-      Npt = (NSplit+1)*NDATAPOINTS(IDataSet)
-
-
-C QCDNUM, caclulate FL, F2 and xF3 for all bins:
-C 
-C Initialise polarisation, in case info is not provided.
-C
-      polarity=0.d0
-
-      polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'), IDataSet)
-      charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
-      S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
-
-
-      CALL ZMSTFUN(1,CNEP2F,X,Q2,FLp,Npt,0)
-      CALL ZMSTFUN(2,CNEP2F,X,Q2,F2p,Npt,0)
-      CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3p,Npt,0)    
-      CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,Npt,0)
-      CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,Npt,0)
-      CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,Npt,0) 
-
-
-      do i=1,NDATAPOINTS(IDataSet)
-         
-         PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(0,i))
-         PZ = 1./Pz
-
-
-         if (charge.gt.0) then
-            A_u = e2u           ! gamma
-     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-           
-            A_d = e2d 
-     $           + (-ve-polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-
-
-         else
-            A_u = e2u           ! gamma
-     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-           
-            A_d = e2d 
-     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-            
+         if(idx.gt.1) then      ! maybe I can just copy previous entry
+            if((AbstractBins(idxQ2min,idx).eq.AbstractBins(idxQ2min,idx-1)).and.
+     +       (AbstractBins(idxQ2max,idx).eq.AbstractBins(idxQ2max,idx-1)).and.
+     +       (AbstractBins(idxXmin,idx).eq.AbstractBins(idxXmin,idx-1)).and.
+     +       (AbstractBins(idxXmax,idx).eq.AbstractBins(idxXmax,idx-1)).and.
+     +       (AbstractBins(idxYmin,idx).eq.AbstractBins(idxYmin,idx-1)).and.
+     +       (AbstractBins(idxYmax,idx).eq.AbstractBins(idxYmax,idx-1))) then
+               THEO(idx) = THEO(idx-1)
+               cycle
+            endif
          endif
 
+         q2min = AbstractBins(idxQ2min,idx)
+         q2max = AbstractBins(idxQ2max,idx)
 
-cv in case polarity=0 it reduces to: (eminus case)
-cv         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-cv         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-cv         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+         j=0
+         do iq2=0,nq2split
+            q2_1 = q2_2
+            q2_2 = exp( log(q2min) + (log(q2max) - log(q2min)) / nq2split*dble(iq2))            
+            if(iq2.gt.0) then
+               do ix=0, nxsplit-1
+                  j=j+1
+                  dq2(j) = q2_2 - q2_1
+                  q2(j) = exp( log(q2_1) + 0.5*(log(q2_2) - log(q2_1)) ) 
 
+                  
+                  if(LoopOverYBins) then
+                     xmax = q2(j) / (S * AbstractBins(idxYmin,idx))
+                     xmin = q2(j) / (S * AbstractBins(idxYmax,idx))
+                  else
+                     xmax = AbstractBins(idxXmax,idx)
+                     xmin = AbstractBins(idxXmin,idx)
+                  endif
+                  
+c                  S = 4.*27.5*920.
+cc now I do transformation dx <-> dy to compare with the old code            
+c                  xmin = AbstractBins(idxYmin,idx)
+c                  xmax = AbstractBins(idxYmax,idx)
+c                  y(j) = xmin + (xmax-xmin)/dble(nxsplit)*(dble(ix)+0.5)
+c                  dx(j) = (xmax-xmin) / dble(nxsplit)
+c                  x(j) = q2(j) / (S * y(j))
+                  x(j) = xmin + (xmax-xmin)/dble(nxsplit)*(dble(ix)+0.5)
+                  dx(j) = (xmax-xmin) / dble(nxsplit)
+                  y(j) = q2(j) / (S * x(j))
+               enddo
+            endif
+         enddo                  ! loop over q2 subgrid
+         NSubBins = j
 
-         alpha_run = AEMRUN(q2(0,i))
+         polarity = 0.D0
+         call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins, 1.D0,polarity,IDataSet,XSecP)
+         call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins,-1.D0,polarity,IDataSet,XSecN)
 
-C Get x-sections:
-         do j=0,NSplit
-            y = q2(j,i)/(S*X(j,i))
-            yplus  = 1+(1-y)**2
-            yminus = 1-(1-y)**2
+         XSec = 0.D0
+         do j=1, NSubBins
+            XSecP(j) = EmToEtotRatio*XSecN(j) + (1.D0-EmToEtotRatio)*XSecP(j)
 
+            Yplus  = 1. + (1.-y(j))**2
+            XSecP(j) = XSecP(j) * YPlus
 
-            XF3  = B_U*XF3p(j,i)  + B_D*XF3m(j,i)
-            F2   = A_U*F2p(j,i)   + A_D*F2m(j,i)
-            FL   = A_U*FLp(j,i)   + A_D*FLm(j,i)
+            alphaem_run = alpha_mz/(1. - alpha_mz * 2/(3.*pi)*log(q2(j)/mz**2))
+            factorNC=2*pi*alphaem_run**2/(x(j)*q2(j)**2)*convfac
 
+            XSecP(j) = XSecP(j) * factorNC
+            XSecP(j) = XSecP(j) * dq2(j)
+            XSecP(j) = XSecP(j) * dx(j)
 
-C polarisation already taken into account in the coupling
-            XSec(j) = yplus*F2 + yminus*xF3 - y*y*FL
-
-cv to get back to the old unpolarised case then one has to uncomment this:
-cv         if (charge.gt.0) then            
-cv            XSec(j) = yplus*F2 - yminus*xF3 - y*y*FL
-cv         else
-cv            XSec(j) = yplus*F2 + yminus*xF3 - y*y*FL
-cv         endif
-
-            XSec(j) = XSec(j) * (2*pi*alpha_run**2)/ 
-     $           (q2(j,i)**2*x(j,i))*convfac
-
+            XSec = XSec+XSecP(j)
          enddo
+         
+         THEO(idx) =  XSec
+c temporary divide over dq2
+c         THEO(idx) =  XSec / (q2max - q2min)
+c         print *, idx, ':', THEO(idx)
+c         stop
+      enddo   ! loop over data points
 
-
-C Integrate:
-         xsint = DSIMPS(XSec(0),x(0,i),x(NSplit,i),NSplit)
-
-
-         idx =  DATASETIDX(IDataSet,i)
-         THEO(idx) =  xsint
-
-      enddo
-
-
-C-----------------------------------------------------------------
       end
-
-
-
 
 
 
@@ -374,7 +322,7 @@ c
 C----------------------------------------------------------------
 C
 C  NC Double differential reduced cross section calculation for a table given by X, Y, Q2
-C  Fills array XSec as well as reads charge and polarity
+C  Fills array XSec
 C
 C  Created by Krzysztof Nowak, 18/01/2012
 C---------------------------------------------------------------
