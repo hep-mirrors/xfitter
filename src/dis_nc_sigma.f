@@ -29,7 +29,7 @@ C---------------------------------------------------------------
       double precision X(NPmax),Y(NPmax),Q2(NPmax),XSecP(NPmax),XSecN(NPmax), S
       double precision q2_1, q2_2, alphaem_run, factorNC, XSec, YPlus
       double precision dq2(NPmax), dx(NPmax)
-      double precision Charge, polarity, alpha_mz
+      double precision Charge, polarity
       double precision q2min,q2max,xmin,xmax
       double precision EmToEtotRatio
       logical LoopOverYBins
@@ -38,6 +38,7 @@ C---------------------------------------------------------------
 C Functions:
       integer GetBinIndex
       integer GetInfoIndex
+      double precision AEMRUN
 
 C---------------------------------------------------------
 
@@ -59,7 +60,6 @@ C
       LoopOverYBins = .false.
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
       EmToEtotRatio=(DATASETInfo(GetInfoIndex(IDataSet,'lumi(e-)/lumi(tot)'),IDataSet))
-      alpha_mz = 1.d0 / 128.9d0
 
       if (idxQ2min.eq.0 .or. idxQ2max.eq.0) then
          print *, 'Q2 bins not well defined in a data file'
@@ -136,7 +136,7 @@ c                  x(j) = q2(j) / (S * y(j))
             Yplus  = 1. + (1.-y(j))**2
             XSecP(j) = XSecP(j) * YPlus
 
-            alphaem_run = alpha_mz/(1. - alpha_mz * 2/(3.*pi)*log(q2(j)/mz**2))
+            alphaem_run = aemrun(q2(j))
             factorNC=2*pi*alphaem_run**2/(x(j)*q2(j)**2)*convfac
 
             XSecP(j) = XSecP(j) * factorNC

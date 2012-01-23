@@ -394,6 +394,7 @@ C---------------------------------------------------------
       end
 
       subroutine InitIntegratedNCXsectionDataset(IDataSet)
+      call eprc_init(.true.)    ! needed for running of alphaem
       end
 
       subroutine InitReducedNCXsectionDataset(IDataSet)
