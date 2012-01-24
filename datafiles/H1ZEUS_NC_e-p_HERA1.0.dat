@@ -26,9 +26,9 @@
 
 
  ! Extra information for the x-section calculation:
-   NInfo    = 3
-   DataInfo =  318.,        -1., 	0.
-   CInfo    = 'sqrt(S)','e charge','e polarity'                       
+   NInfo    = 4
+   DataInfo =  318.,        -1.,  1., 	0.
+   CInfo    = 'sqrt(S)','e charge','reduced','e polarity'                       
 
    IndexDataset = 61
 

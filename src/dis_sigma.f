@@ -1,8 +1,30 @@
-      Subroutine  GetIntegratedNCXsection(IDataSet)
+      Subroutine GetNCXsection(IDataSet)
+      call GetDisXsection(IDataSet, .false.)
+      end
+      
+      Subroutine GetCCXsection(IDataSet)
+      call GetDisXsection(IDataSet, .true.)
+      end
+
+
+      Subroutine GetIntegratedNCXsection(IDataSet)
+      call GetIntegratedDisXsection(IDataSet, .false.)
+      end
+      
+      Subroutine GetIntegratedCCXsection(IDataSet)
+C This is not fully tested
+      call GetIntegratedDisXsection(IDataSet, .true.)
+      end
+
+
+      Subroutine  GetIntegratedDisXsection(IDataSet, IsCC)
 C----------------------------------------------------------------
 C
-C  NC Double differential integrated cross section calculation
+C  Double differential integrated DIS cross section calculation
 C  Fills global array THEO.
+C  Searches for xmin, xmax, ymin, ymax, q2min, q2max column names 
+C  in a data file as well as 'sqrt(S)' and 'lumi(e-)/lumi(tot)' in
+C  additional information
 C  
 C  Created by Krzysztof Nowak, 20/01/2012
 C---------------------------------------------------------------
@@ -17,6 +39,7 @@ C---------------------------------------------------------------
       integer IDataSet
       integer idxQ2min, idxQ2max, idxYmin, idxYmax, idxXmin, idxXmax
       integer i,  idx, iq2, ix, j, kkk
+      logical IsCC
       
       integer NPmax
       parameter(NPmax=1000)
@@ -27,11 +50,11 @@ C---------------------------------------------------------------
       parameter(nxsplit=25)
 
       double precision X(NPmax),Y(NPmax),Q2(NPmax),XSecP(NPmax),XSecN(NPmax), S
-      double precision q2_1, q2_2, alphaem_run, factorNC, XSec, YPlus
+      double precision q2_1, q2_2, alphaem_run, factor, XSec, YPlus
       double precision dq2(NPmax), dx(NPmax)
       double precision Charge, polarity
       double precision q2min,q2max,xmin,xmax
-      double precision EmToEtotRatio
+      double precision EmToEtotRatio, alm_mz
       logical LoopOverYBins
       integer NSubBins
 
@@ -110,13 +133,6 @@ C
                      xmin = AbstractBins(idxXmin,idx)
                   endif
                   
-c                  S = 4.*27.5*920.
-cc now I do transformation dx <-> dy to compare with the old code            
-c                  xmin = AbstractBins(idxYmin,idx)
-c                  xmax = AbstractBins(idxYmax,idx)
-c                  y(j) = xmin + (xmax-xmin)/dble(nxsplit)*(dble(ix)+0.5)
-c                  dx(j) = (xmax-xmin) / dble(nxsplit)
-c                  x(j) = q2(j) / (S * y(j))
                   x(j) = xmin + (xmax-xmin)/dble(nxsplit)*(dble(ix)+0.5)
                   dx(j) = (xmax-xmin) / dble(nxsplit)
                   y(j) = q2(j) / (S * x(j))
@@ -126,8 +142,8 @@ c                  x(j) = q2(j) / (S * y(j))
          NSubBins = j
 
          polarity = 0.D0
-         call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins, 1.D0,polarity,IDataSet,XSecP)
-         call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins,-1.D0,polarity,IDataSet,XSecN)
+         call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins, 1.D0,polarity,IDataSet,IsCC, XSecP)
+         call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins,-1.D0,polarity,IDataSet,IsCC, XSecN)
 
          XSec = 0.D0
          do j=1, NSubBins
@@ -136,10 +152,18 @@ c                  x(j) = q2(j) / (S * y(j))
             Yplus  = 1. + (1.-y(j))**2
             XSecP(j) = XSecP(j) * YPlus
 
-            alphaem_run = aemrun(q2(j))
-            factorNC=2*pi*alphaem_run**2/(x(j)*q2(j)**2)*convfac
 
-            XSecP(j) = XSecP(j) * factorNC
+            factor=1.D0
+            if (IsCC) then
+               factor=(Mw**4/(Mw**2+q2(j))**2)*Gf**2/(2*pi*x(j))*convfac
+            else
+c               alm_mz = 1.d0 / 128.9d0
+c               alphaem_run = alm_mz/(1. - alm_mz * 2/(3.*pi)*log(q2(j)/mz**2))
+               alphaem_run = aemrun(q2(j))
+               factor=2*pi*alphaem_run**2/(x(j)*q2(j)**2)*convfac
+            endif
+
+            XSecP(j) = XSecP(j) * factor
             XSecP(j) = XSecP(j) * dq2(j)
             XSecP(j) = XSecP(j) * dx(j)
 
@@ -157,11 +181,13 @@ c         stop
 
 
 
-      Subroutine GetReducedNCXsection(IDataSet)
+      Subroutine GetDisXsection(IDataSet, IsCC)
 C----------------------------------------------------------------
 C
-C  NC Double differential reduced cross section calculation for dataset IDataSet
-C  Fills global array THEO.
+C  NC and CC double differential reduced cross section calculation 
+C  for dataset IDataSet. Fills global array THEO.
+C  Needs 'Q2', 'x', 'y' columns in a data file and following CInfo fields:
+C                'sqrt(S)','e charge', 'reduced', 'e polarity' 
 C
 C  Created by SG, 25/05/2011
 C  Start with zero mass implementation
@@ -174,18 +200,23 @@ C---------------------------------------------------------------
       include 'indata.inc'
       include 'theo.inc'
       include 'fcn.inc'
+      include 'couplings.inc'
 
       integer IDataSet
+      logical IsCC
       integer idxQ2, idxX, idxY, i,  idx
       
       integer NPmax
       parameter(NPmax=1000)
 
       double precision X(NPmax),Y(NPmax),Q2(NPmax),XSec(NPmax)
-      double precision Charge, polarity
+      double precision Charge, polarity, alphaem_run, factor
+      logical IsReduced
 
 C Functions:
       integer GetBinIndex
+      integer GetInfoIndex
+      double precision AEMRUN
 
 c H1qcdfunc
       integer ifirst
@@ -194,7 +225,7 @@ C---------------------------------------------------------
 
 
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
-         print *,'ERROR IN GetReducedNCXsection'
+         print *,'ERROR IN GetDisXsection'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
          stop
       endif
@@ -205,6 +236,7 @@ C
       idxQ2 = GetBinIndex(IDataSet,'Q2')
       idxX  = GetBinIndex(IDataSet,'x')
       idxY = GetBinIndex(IDataSet,'y')
+      IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
 
       if (idxQ2.eq.0 .or. idxX.eq.0 .or. idxY.eq.0) then
          Return
@@ -226,14 +258,27 @@ C
 
       call ReadPolarityAndCharge(idataset,charge,polarity)
 
-      call CalcReducedXsectionForXYQ2(X,Y,Q2,NDATAPOINTS(IDataSet),charge,polarity,IDataSet,XSec)
+      call CalcReducedXsectionForXYQ2(X,Y,Q2,NDATAPOINTS(IDataSet),charge,polarity,IDataSet,IsCC,XSec)
+
 
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
-         THEO(idx) =  XSec(i)
+
+         factor=1.D0
+         if(.not. IsReduced) then
+            if (IsCC) then
+               factor=(Mw**4/(Mw**2+q2(i))**2)*Gf**2/(2*pi*x(i))*convfac
+            else
+               alphaem_run = aemrun(q2(i))
+               factor=2*pi*alphaem_run**2/(x(i)*q2(i)**2)*convfac
+            endif
+         endif
+
+         THEO(idx) =  XSec(i)*factor
+
       enddo
 
-      if ((iflagFCN.eq.3).and.(h1QCDFUNC)) then
+      if ((iflagFCN.eq.3).and.(h1QCDFUNC).and.(.not. IsCC)) then
          if (ifirst.eq.1) then
             print*,'getting output for the H1QCDFUNC'
         
@@ -243,6 +288,7 @@ C
          endif
       endif
       end
+
 
 
       Subroutine ReadPolarityAndCharge(idataset,charge,polarity)
@@ -318,11 +364,11 @@ c
       end
 
 
-      Subroutine CalcReducedXsectionForXYQ2(X,Y,Q2,npts,charge,polarity,idataset,XSec)
+      Subroutine CalcReducedXsectionForXYQ2(X,Y,Q2,npts,charge,polarity,idataset,IsCc,XSec)
 C----------------------------------------------------------------
 C
-C  NC Double differential reduced cross section calculation for a table given by X, Y, Q2
-C  Fills array XSec
+C  Double differential reduced cross section calculation 
+C   for a table given by X, Y, Q2. Fills array XSec
 C
 C  Created by Krzysztof Nowak, 18/01/2012
 C---------------------------------------------------------------
@@ -344,23 +390,19 @@ C---------------------------------------------------------------
 
 C Input:
       integer npts,IDataSet
+      logical IsCC
       double precision X(NPmax),Y(NPmax),Q2(NPmax)
       double precision Charge, polarity
 C Output: 
       double precision XSec(NPmax)
       double precision yplus, yminus
-c
+
       double precision F2p(NPmax),xF3p(NPmax),FLp(NPmax)
       double precision F2m(NPmax),xF3m(NPmax),FLm(NPmax)
       
       double precision F2,xF3,FL
-
-      double precision FLGamma, F2Gamma
       logical UseKFactors
 
-C RT:
-      Double precision f2pRT,flpRT,f1pRT,rpRT,f2nRT,flnRT,f1nRT,rnRT,
-     $     f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT, F2rt, FLrt
 
 C HF:
       double precision NC2FHF(-6:6)
@@ -374,23 +416,8 @@ c EW param
       double precision cau, cad, cvu, cvd
 
 
-c ACOT 
-      double precision f123l(4),f123lc(4),f123lb(4),f2nc
 
 C---------------------------------------------------------
-
-
-
-      if (IFlagFCN.eq.1) then
-C
-C Execute for the first iteration only.
-C
-         if (HFSCHEME.eq.22.or.HFSCHEME.eq.11.or.HFSCHEME.eq.1) then
-            UseKFactors = .true.
-         else
-            UseKFactors = .false.
-         endif
-      endif
 
 
 C Protect against overflow of internal arrays:
@@ -440,75 +467,83 @@ C
 
 C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 
-C u-type ( u+c ) contributions 
-      CALL ZMSTFUN(1,CNEP2F,X,Q2,FLp,npts,0)
-      CALL ZMSTFUN(2,CNEP2F,X,Q2,F2p,npts,0)
-      CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3p,npts,0)    
-
-C d-type (d + s + b) contributions
-      CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,npts,0)
-      CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,npts,0)
-      CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,npts,0) 
-
-C heavy quark contribution (c and b)      
-      if (mod(HFSCHEME,10).eq.3) then 
-
-         NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
-c        write(6,*) 'NC2FHF:', NC2FHF
-
-         CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,npts,0)
-         CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,npts,0)
-         CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,npts,0)
-         CALL HQSTFUN(1,-2,NC2FHF,X,Q2,FLb,npts,0)
-c         write(6,*) 'HQSTFUN: X,Q2,F2c,FLc', X(1),Q2(1),F2c(1),FLc(1)
-c         write(6,*) 'HQSTFUN: X,Q2,F2b,FLb', X(1),Q2(1),F2b(1),FLb(1)
-
+      if(IsCC) then
+         if (charge.gt.0) then
+            CALL ZMSTFUN(1,CCEP2F,X,Q2,FLp,NDATAPOINTS(IDataSet),0)
+            CALL ZMSTFUN(2,CCEP2F,X,Q2,F2p,NDATAPOINTS(IDataSet),0)
+            CALL ZMSTFUN(3,CCEP3F,X,Q2,XF3p,NDATAPOINTS(IDataSet),0)    
+         else
+            CALL ZMSTFUN(1,CCEM2F,X,Q2,FLp,NDATAPOINTS(IDataSet),0)
+            CALL ZMSTFUN(2,CCEM2F,X,Q2,F2p,NDATAPOINTS(IDataSet),0)      
+            CALL ZMSTFUN(3,CCEM3F,X,Q2,XF3p,NDATAPOINTS(IDataSet),0) 
+         endif
+      else
+C     u-type ( u+c ) contributions 
+         CALL ZMSTFUN(1,CNEP2F,X,Q2,FLp,npts,0)
+         CALL ZMSTFUN(2,CNEP2F,X,Q2,F2p,npts,0)
+         CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3p,npts,0)    
+         
+C     d-type (d + s + b) contributions
+         CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,npts,0)
+         CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,npts,0)
+         CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,npts,0) 
       endif
 
-      do i=1,npts
-
-C Get the index of the point in the global data table:
-         idx =  DATASETIDX(IDataSet,i)
-
-C Propagator factor PZ
-         PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
-
-C modify propagator for EW corrections -- only for EW fit
-         if (EWfit.ne.0) PZ = PZ * (1.d0 - Deltar)
-
-         PZ = 1./Pz
-C EW couplings of u-type and d-type quarks at the scale Q2
-
-         if (charge.gt.0) then
-            A_u = e2u           ! gamma
-     $           + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-            
-            A_d = e2d 
-     $           + (-ve-polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-         else
-            A_u = e2u           ! gamma
-     $           + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-            
-            A_d = e2d 
-     $           + (-ve+polarity*ae)*PZ*2.*edq*vd 
-     $           + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-            
-            B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-            B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
-     $           + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-
-
-
+C     heavy quark contribution (c and b) , used only for NC and FFNS
+         if ((mod(HFSCHEME,10).eq.3).and.(.not. IsCC)) then 
+            NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
+            CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,npts,0)
+            CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,npts,0)
+            CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,npts,0)
+            CALL HQSTFUN(1,-2,NC2FHF,X,Q2,FLb,npts,0)
          endif
+         
+         do i=1,npts
+            
+C     Get the index of the point in the global data table:
+            idx =  DATASETIDX(IDataSet,i)
+            
+            if(.not. IsCC) then
+               
+C     Propagator factor PZ
+               PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
+               
+C     modify propagator for EW corrections -- only for EW fit
+               if (EWfit.ne.0) PZ = PZ * (1.d0 - Deltar)
+               
+               PZ = 1./Pz
+C     EW couplings of u-type and d-type quarks at the scale Q2
+               
+               if (charge.gt.0) then
+                  A_u = e2u     ! gamma
+     $                 + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
+     $                 + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+                  
+                  A_d = e2d 
+     $                 + (-ve-polarity*ae)*PZ*2.*edq*vd 
+     $                 + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+                  
+                  B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+     $                 + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+                  B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
+     $                 + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+               else
+                  A_u = e2u     ! gamma
+     $                 + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
+     $                 + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
+                  
+                  A_d = e2d 
+     $                 + (-ve+polarity*ae)*PZ*2.*edq*vd 
+     $                 + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
+                  
+                  B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
+     $                 + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
+                  B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
+     $                 + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
+                  
+                  
+                  
+               endif
 
 
 
@@ -518,16 +553,22 @@ cv         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
 cv         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
 cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
-C Get x-sections:
-         yplus  = 1+(1-y(i))**2
-         yminus = 1-(1-y(i))**2
-
-C
+               
+C     
 C xF3, F2, FL from QCDNUM:
-C
-         XF3  = B_U*XF3p(i)  + B_D*XF3m(i)
-         F2   = A_U*F2p(i)   + A_D*F2m(i)
-         FL   = A_U*FLp(i)   + A_D*FLm(i)
+C     
+               XF3  = B_U*XF3p(i)  + B_D*XF3m(i)
+               F2   = A_U*F2p(i)   + A_D*F2m(i)
+               FL   = A_U*FLp(i)   + A_D*FLm(i)
+            else
+               xf3 = xf3p(i)
+               f2 = f2p(i)
+               fl = flp(i)
+            endif
+
+
+            yplus  = 1+(1-y(i))**2
+            yminus = 1-(1-y(i))**2
 
 
 C-----------------------------------------------------------------------
@@ -539,24 +580,121 @@ c
 C ACOT scheme 
 C                     
          if (mod(HFSCHEME,10).eq.1) then
-            call sf_acot_wrap(x(i),q2(i),
-     $           f123l,f123lc,f123lb,
-     $           hfscheme, 4, 
-     $           iFlagFCN, idx,
-     $           UseKFactors)
-            
-            FL  = F123L(4)
-            F2  = F123L(2)
-            
-            if (charge.gt.0) then
-               XF3 = - x(i)*F123L(3)
-            else
-               XF3 = x(i)*F123L(3)
+            if (.not. IsCC) then
+               call ModifyACOT(F2, FL, XF3, x(i), q2(i), charge, idx, IsCC)
             endif
-
 C RT scheme 
 C            
-         elseif (mod(HFSCHEME,10).eq.2) then 
+         elseif (mod(HFSCHEME,10).eq.2) then
+            if (.not. IsCC) then
+               call ModifyRT(F2, FL, XF3, F2p(i), F2m(i), FLp(i), FLm(i), x(i), q2(i), idx)
+            endif
+
+C FFNS scheme 
+C            
+         elseif (mod(HFSCHEME,10).eq.3) then
+            if (.not. IsCC) then
+               call ModifyFFNS(F2, FL, XF3, F2c(i), F2b(i), FLc(i), FLb(i))
+            endif
+        endif
+            
+
+
+        if(IsCC) then
+           if (charge.gt.0) then
+              XSec(i) = 0.5*(yplus*F2 - yminus*xF3 - y(i)*y(i)*FL)
+              Xsec(i) = Xsec(i)*(1+polarity)
+           else
+              XSec(i) = 0.5*(yplus*F2 + yminus*xF3 - y(i)*y(i)*FL)
+              Xsec(i) = Xsec(i)*(1-polarity)
+           endif
+        else
+C              polarisation already taken into account in the couplings (A_q,B_q)
+           XSec(i) = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
+        endif
+        
+       enddo
+      end
+
+
+      subroutine ModifyACOT(F2, FL, XF3, x, q2, charge, idx, IsCC)
+C----------------------------------------------------------------
+C
+C  Modifies F2, FL and xF3 according to the ACOT scheme
+C
+C  Created by Krzysztof Nowak, 23/01/2012
+C---------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'fcn.inc'
+
+      double precision F2, FL, XF3, x, q2, charge
+      integer idx, icharge
+      logical UseKFactors, IsCC
+      
+      double precision f123l(4),f123lc(4),f123lb(4)
+      
+      if (HFSCHEME.eq.11.or.HFSCHEME.eq.1) then
+         UseKFactors = .true.   !ACOT ZM , ACOT Full
+      else
+         UseKFactors = .false.  !ACOT Chi
+      endif
+
+c     icharge_in: 0 NC: photon exchange only
+c     icharge_in: 4 NC: gamma+gammaZ+Z 
+c     icharge_in:-1 CC e-
+c     icharge_in:+1 CC e+
+      if(IsCC) then
+         icharge = int(charge)
+      else
+         icharge = 4
+      endif
+
+      call sf_acot_wrap(x,q2,
+     $     f123l,f123lc,f123lb,
+     $     hfscheme, icharge, 
+     $     iFlagFCN, idx,
+     $     UseKFactors)
+      
+
+      FL  = F123L(4)
+      F2  = F123L(2)
+
+      XF3 = x*F123L(3)
+           
+      if ((charge.gt.0).and.(.not. IsCC)) then
+         XF3 = - XF3
+      endif
+
+      end
+
+
+
+      subroutine ModifyRT(F2, FL, XF3, F2p, F2m, FLp, FLm, x, q2, idx)
+C----------------------------------------------------------------
+C
+C  Modifies F2, FL and xF3 according to the RT scheme
+C
+C  Created by Krzysztof Nowak, 23/01/2012
+C---------------------------------------------------------------
+      implicit none
+      include 'fcn.inc'
+      include 'steering.inc'
+
+      double precision F2, FL, XF3, x, q2
+      double precision F2p, F2m, FLp, FLm, F2Gamma, FLGamma
+      integer idx
+      logical UseKFactors
+      
+      Double precision f2pRT,flpRT,f1pRT,rpRT,f2nRT,flnRT,f1nRT,rnRT,
+     $     f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT, F2rt, FLrt
+
+
+      if (HFSCHEME.eq.22) then 
+         UseKFactors = .true.    ! RT Fast
+      else
+         UseKFactors = .false.   ! RT
+      endif
 
 
 C RT does not provide terms beyond gamma exchange. Since they occur at high Q2,
@@ -564,63 +702,44 @@ C use QCDNUM to take them into account as a "k"-factor
 C
 C  F2_total^{RT} =  F2_{\gamma}^{RT}  *  (  F2_{total}^{QCDNUM}/F2_{\gamma}^{QCDNUM}   
 C
-
-           F2Gamma = 4.D0/9.D0 * F2p(i)  + 1.D0/9.D0 * F2m(i)
-           FLGamma = 4.D0/9.D0 * FLp(i)  + 1.D0/9.D0 * FLm(i)
-
-
-           call sfun_wrap(x(i),q2(i)
-     $          ,f2pRT,flpRT,f1pRT,
-     +          rpRT,f2nRT,flnRT,
-     +          f1nRT,rnRT,f2cRT,
-     +          flcRT,f1cRT,f2bRT,
-     +          flbRT,f1bRT
-           ! Input:
-     $          ,iFlagFCN,idx    ! fcn flag, data point index
-     $          ,F2Gamma,FLGamma
-     $          ,UseKFactors
-     $          )
-           
-
-           F2rt = F2pRT * (F2/F2Gamma)
-           FLrt = FLpRT * (FL/FLGamma)
-
-
-C Replace F2,FL from QCDNUM by RT values
-C Keep xF3 from QCDNUM
-
-           F2 = F2rt
-           FL = FLrt
-        endif
-            
-
-C FFNS, heavy quark contribution (c and b) to F2 and FL   
-        if (mod(HFSCHEME,10).eq.3) then 
-
-c           write(6,*) 'FFNS before sum: F2', i,F2
-           F2 = F2 + F2c(i) + F2b(i) 
-           FL = FL + FLc(i) + FLb(i)
-c           write(6,*) 'FFNS: F2,F2c,F2b', i,F2,F2c(i),F2b(i)
-
-        endif
-         
-
-C polarisation already taken into account in the couplings (A_q,B_q)
-
-        XSec(i) = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
-
-cv to get back to the old unpolarised case then one has to uncomment this:
-cv        if (charge.gt.0) then
-cv
-cv           XSec = F2 - yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
-cv
-cv       else
-cv           XSec = F2 + yminus/yplus*xF3 - y(i)*y(i)/yplus*FL
-cv        endif
-
-      enddo
+      
+      F2Gamma = 4.D0/9.D0 * F2p  + 1.D0/9.D0 * F2m
+      FLGamma = 4.D0/9.D0 * FLp  + 1.D0/9.D0 * FLm
+      
+      
+      call sfun_wrap(x,q2
+     $     ,f2pRT,flpRT,f1pRT,
+     +     rpRT,f2nRT,flnRT,
+     +     f1nRT,rnRT,f2cRT,
+     +     flcRT,f1cRT,f2bRT,
+     +     flbRT,f1bRT
+! Input:
+     $     ,iFlagFCN,idx        ! fcn flag, data point index
+     $     ,F2Gamma,FLGamma
+     $     ,UseKFactors
+     $     )
+      
+      
+C     Replace F2,FL from QCDNUM by RT values
+C     Keep xF3 from QCDNUM
+      F2 = F2pRT * (F2/F2Gamma)
+      FL = FLpRT * (FL/FLGamma)
+      
       end
 
 
+      subroutine ModifyFFNS(F2, FL, XF3, F2c, F2b, FLc, FLb)
+C----------------------------------------------------------------
+C
+C  Modifies F2, FL and xF3 according to the FFNS scheme
+C  FFNS, heavy quark contribution (c and b) to F2 and FL   
+C
+C  Created by Krzysztof Nowak, 23/01/2012
+C---------------------------------------------------------------
+      implicit none
 
-
+      double precision F2, FL, XF3, F2c, F2b, FLc, FLb
+      F2 = F2 + F2c + F2b 
+      FL = FL + FLc + FLb
+      
+      end

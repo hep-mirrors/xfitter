@@ -1,4 +1,4 @@
-      Subroutine GetJetsFastNLOXsection(IDataSet)
+      Subroutine GetJetsFastNLOXsection(IDataSet, UseNormalisation)
 C---------------------------------------------------------------------------
 C
 C  Created 01/08/2011.  Calculate ep jets cross sections
@@ -13,6 +13,7 @@ C---------------------------------------------------------------------------
       include 'theo.inc'
 
       integer IDataSet
+      logical UseNormalisation
       integer NFmax
       parameter(NFmax=100)
       integer i, idx, idxNPCorr, idxZ0Corr
@@ -43,12 +44,13 @@ C  Get cross sections
             XZ0 = 1.0
          endif
 
-         THEO(idx) =  XSec(i) * XNP * XZ0
-
+         if(UseNormalisation) then
+            THEO(idx) =  XSec(i) * XNP * XZ0 / THEO(idx)
+         else
+            THEO(idx) =  XSec(i) * XNP * XZ0
+         endif
 c         print *,DATEN(idx),THEO(idx), XNP, XZ0
       enddo
-
-C      stop
 
       end
 

@@ -373,6 +373,9 @@ C
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
             Call InitJetsFastNLODataSet(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised') then
+            Call InitIntegratedNCXsectionDataset(IDataSet)
+            Call InitJetsFastNLODataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
             Call InitHathorDataSet(IDataSet)
          else

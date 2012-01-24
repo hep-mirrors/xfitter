@@ -17,13 +17,13 @@ C-------------------------------------------------------------------
          if (DipoleModel.gt.0.and.DipoleModel.le.2) then
             call DipolePrediction(IDataSet)
          elseif (DipoleModel.gt.2) then
-            Call GetReducedNCXsection(IDataSet)
+            Call GetNCXsection(IDataSet)
             call DipolePrediction(IDataSet)
          else
-            Call GetReducedNCXsection(IDataSet)
+            Call GetNCXsection(IDataSet)
          endif
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
-         Call GetReducedNCXsection(IDataSet)
+         Call GetNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          Call GetCCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
@@ -35,8 +35,11 @@ C-------------------------------------------------------------------
       elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
          Call GetJetsPPApplGrid(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
-         Call GetJetsFastNLOXsection(IDataSet)
-      elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
+         Call GetJetsFastNLOXsection(IDataSet, .false.)
+      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised') then
+         Call GetIntegratedNCXsection(IDataSet)
+         Call GetJetsFastNLOXsection(IDataSet, .true.)
+       elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
          Call GetHathorXsection(IDataSet)
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
