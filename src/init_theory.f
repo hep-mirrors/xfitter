@@ -371,7 +371,7 @@ C
             Call InitDYNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
             Call InitJetsPPApplGridDataSet(IDataSet)
-         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
+         elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets') then
             Call InitJetsFastNLODataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised') then
             Call InitIntegratedNCXsectionDataset(IDataSet)
