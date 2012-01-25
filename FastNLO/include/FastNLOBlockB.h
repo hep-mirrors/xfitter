@@ -1,7 +1,7 @@
 // Author: Daniel Britzger
 // DESY, 23/07/2011
 
-//  Version 0.2, 
+//  Version 0.3, 
 //
 //  History:
 //    Version 0, initial version
@@ -41,6 +41,24 @@ private:
    void ResizeTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int dim5, int dim6 );
    void ResizeTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int* dim5GetNxmaxFromDimI , int dim6 );
 
+   int ReadFlexibleVector( vector<double >* v, istream *table , bool nProcLast = false );
+   int ReadFlexibleVector( vector<vector<double > >* v, istream *table , bool nProcLast = false );
+   int ReadFlexibleVector( vector<vector<vector<double > > >* v, istream *table , bool nProcLast = false );
+   int ReadFlexibleVector( vector<vector<vector<vector<double > > > >* v, istream *table , bool nProcLast = false );
+   int ReadFlexibleVector( vector<vector<vector<vector<vector<double > > > > >* v, istream *table , bool nProcLast = false );
+   int ReadFlexibleVector( vector<vector<vector<vector<vector<vector<double > > > > > >* v, istream *table , bool nProcLast = false );
+   int ReadFlexibleVector( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, istream *table , bool nProcLast = false );
+
+
+   void ResizeFlexibleVector(vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, vector<vector<vector<vector<vector<vector<vector<double > > > > > > >*nom );
+   void ResizeFlexibleVector(vector<vector<vector<vector<vector<vector<double > > > > > >* v, vector<vector<vector<vector<vector<vector<double > > > > > >*nom );
+   void ResizeFlexibleVector(vector<vector<vector<vector<vector<double > > > > >* v, vector<vector<vector<vector<vector<double > > > > >*nom );
+   void ResizeFlexibleVector(vector<vector<vector<vector<double > > > >* v, vector<vector<vector<vector<double > > > >*nom );
+   void ResizeFlexibleVector(vector<vector<vector<double > > >* v, vector<vector<vector<double > > >*nom );
+   void ResizeFlexibleVector(vector<vector<double > >* v, vector<vector<double > >*nom );
+   void ResizeFlexibleVector(vector<double >* v, vector<double >*nom );
+
+
    int ReadTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, istream *table );
    int ReadTable( vector<vector<vector<vector<vector<vector<double > > > > > >* v, istream *table );
    int ReadTable( vector<vector<vector<vector<vector<double > > > > >* v, istream *table );
@@ -49,11 +67,12 @@ private:
    int ReadTable( vector<vector<double > >* v, istream *table );
    int ReadTable( vector<double >* v, istream *table );
 
-  
+ 
 public:
    int GetNxmax(int i);
    int GetTotalScalevars();
    int GetTotalScalenodes();
+   void StripWhitespace(string* s);
   
 public:
 
@@ -71,9 +90,7 @@ public:
    int IContrFlag3;
    int NScaleDep;  
 
-   int NContrDescr;
    vector < string > CtrbDescript;
-   int NCodeDescr;
    vector < string > CodeDescript;
 
    // ---- IDataFlag==1 and IAddMultFlag==1 ---- //
@@ -119,12 +136,9 @@ public:
    int NScales;
    int NScaleDim;
    vector < int > Iscale;
-   vector < int > NscaleDescript;
    vector < vector < string > > ScaleDescript;
    vector < int > Nscalevar;
    vector < int > Nscalenode;
-   int NscalenodeScale1;
-   int NscalenodeScale2;
    vector < vector < double > > ScaleFac;
    vector < double > ScaleFactorsScale1;
    vector < double > ScaleFactorsScale2;
@@ -137,29 +151,22 @@ public:
    vector < vector < vector < vector < vector < double > > > > > SigmaTildeMuFDep;
    vector < vector < vector < vector < vector < double > > > > > SigmaTildeMuRDep;
    vector < vector < double > > SigmaRefMixed;
-   vector < vector < double > > SigmaRefMufQ2MuRMixed;
-   vector < vector < double > > SigmaRefQ2;
+   vector < vector < double > > SigmaRef_s2;
+   vector < vector < double > > SigmaRef_s1;
 
-   int NscalenodeScaleQ;
-   int NscalenodeScalePt;
-   vector < vector < double > > ScaleNodeQ;
-   vector < vector < double > > ScaleNodePt;
+   vector < vector < double > > ScaleNodeScale1;
+   vector < vector < double > > ScaleNodeScale2;
 
    // ---- stuff for reading the table ---- //
-   vector < double > XsectionRefQ2;
+   vector < double > XsectionRef_s1;
    vector < double > XsectionRefMixed;
-   vector < double > XsectionRefMufQ2MuRMixed;
+   vector < double > XsectionRef_s2;
    vector < vector < vector < vector < vector <double > > > > > PdfLcMuVar;
-   vector < vector < vector <double > > > AlphasTwoPi;
+   vector < vector < vector < double > > > AlphasTwoPi;
    vector < vector < vector < vector < vector < double > > > > > SigmaTilde;
    vector < vector < vector < vector < double > > > > PdfLc;
    vector < vector < double > > AlphasTwoPi_v20;
 
-   static const double TWOPI = 6.28318530717958647692528;
-   static const double TWOPISQR = 39.47841760435743447533796;
-   static const int NF = 5;
-   static const double MZ = 91.1882;
- 
 
 protected:
 
@@ -169,7 +176,7 @@ protected:
 public:
 
    void ReadBlockB(istream *table);
-   void Print();
+   void Print(const int ic = 0, const int iprint = 0);
    void SetName(const char* name) { fname = (char*) name;};
    void FillPDFCache();
   
