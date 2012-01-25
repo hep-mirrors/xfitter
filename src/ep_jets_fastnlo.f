@@ -15,7 +15,7 @@ C---------------------------------------------------------------------------
       integer IDataSet
       logical UseNormalisation
       integer NFmax
-      parameter(NFmax=100)
+      parameter(NFmax=8000)
       integer i, idx, idxNPCorr, idxZ0Corr
       double precision XSec(NFmax), XNP, XZ0
 
