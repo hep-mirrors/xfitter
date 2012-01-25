@@ -307,6 +307,10 @@ public:
    static const string fCorrName[11];
    static const string fNPName[10];
    static const string fNSDep[4];
+
+private:
+   static int WelcomeOnce;
+
 };
 
 #endif
