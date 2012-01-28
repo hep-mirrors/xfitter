@@ -176,12 +176,19 @@ C                          U      D      S      C      B      T
        DATA XMARRAY  /    0.1,   0.1,   0.2,   1.6,   5.0, 175.0/
        DATA CHARGE   /   +2.0,  -1.0,  -1.0,  +2.0,  -1.0,  +2.0/
 
+       common /fred/ xmc,xmb!,Hmass !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
+C----------------------------------------------------------------------
+C PULL MC AND MB FROM QCDNUM USING 
+C      common /fred/ xmc,xmb
+C----------------------------------------------------------------------
+       XMARRAY(4)=XMC           !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
+       XMARRAY(5)=XMB           !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
 C----------------------------------------------------------------------
 C INITIALIZATION
 C----------------------------------------------------------------------
-          DO I=1,3,1
-             F123( I)  = 0.0d0
-          ENDDO
+       DO I=1,3,1
+          F123( I)  = 0.0d0
+       ENDDO
 C----------------------------------------------------------------------
 C CHOOSE W+ or W- SCATTERING
 C----------------------------------------------------------------------
@@ -243,7 +250,8 @@ C----------------------------------------------------
 C   ***  ADD PARTON CONTRIBUTION TO TOTAL STRUCTURE FUNCTIONS
 C----------------------------------------------------
            DO I=1,3,1
-             F123( I)  = F123( I)  + COUPLING * Xout123( I) 
+cv             F123( I)  = F123( I)  + COUPLING * Xout123( I) 
+             F123( I)  = F123( I)  + COUPLING/2.d0 * Xout123( I) 
            ENDDO
 
 C----------------------------------------------------
