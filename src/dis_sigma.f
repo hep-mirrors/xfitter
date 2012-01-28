@@ -415,7 +415,8 @@ c EW param
       double precision deltar,sweff, sin2thw2
       double precision cau, cad, cvu, cvd
 
-
+C     
+      double precision f2qcdnum, xf3qcdnum, flqcdnum
 
 C---------------------------------------------------------
 
@@ -566,7 +567,9 @@ C
                fl = flp(i)
             endif
 
-
+	    f2qcdnum=f2
+	    flqcdnum=fl
+	    xf3qcdnum=xf3
             yplus  = 1+(1-y(i))**2
             yminus = 1-(1-y(i))**2
 
@@ -575,19 +578,28 @@ C-----------------------------------------------------------------------
 C  Extra heavy flavour schemes
 C
 
-
 c
 C ACOT scheme 
 C                     
          if (mod(HFSCHEME,10).eq.1) then
-            if (.not. IsCC) then
-               call ModifyACOT(F2, FL, XF3, x(i), q2(i), charge, idx, IsCC)
-            endif
+c            if (.not. IsCC) then
+               call ModifyACOT(F2, FL, XF3, x(i), q2(i), 
+     $           charge, idx, IsCC)
+c               print*,'ACOT out each data point:', idx, 
+c     $        F2, f2qcdnum, xF3, xf3qcdnum, FL, flqcdnum
+                 print*,'QCDNUM each data point:', idx, 
+     $        0, F2/f2qcdnum, xF3/xf3qcdnum, FL/flqcdnum
+
+c            endif
+
+
+
 C RT scheme 
 C            
          elseif (mod(HFSCHEME,10).eq.2) then
             if (.not. IsCC) then
-               call ModifyRT(F2, FL, XF3, F2p(i), F2m(i), FLp(i), FLm(i), x(i), q2(i), idx)
+               call ModifyRT(F2, FL, XF3, F2p(i), F2m(i), FLp(i),
+     $              FLm(i), x(i), q2(i), idx)
             endif
 
 C FFNS scheme 
@@ -634,10 +646,10 @@ C---------------------------------------------------------------
       
       double precision f123l(4),f123lc(4),f123lb(4)
       
-      if (HFSCHEME.eq.11.or.HFSCHEME.eq.1) then
-         UseKFactors = .true.   !ACOT ZM , ACOT Full
+      if (HFSCHEME.eq.11.or.HFSCHEME.eq.111) then
+         UseKFactors = .true.   !ACOT Full , ACOT Chi
       else
-         UseKFactors = .false.  !ACOT Chi
+         UseKFactors = .false.  !ACOT ZM
       endif
 
 c     icharge_in: 0 NC: photon exchange only
@@ -665,6 +677,7 @@ c     icharge_in:+1 CC e+
       if ((charge.gt.0).and.(.not. IsCC)) then
          XF3 = - XF3
       endif
+
 
       end
 
