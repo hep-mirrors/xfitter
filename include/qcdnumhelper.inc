@@ -1,5 +1,5 @@
 C
-C Store useful arrays for QCDNUM calculations
+C Store useful arrays for QCDNUM calculations and maximum number of points in a grid
 C
 
 C QCDNUM:
@@ -21,3 +21,5 @@ C QCDNUM:
       DATA CCEP3F/ 0.,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.,0./
       DATA CCEM3F/0.,0. ,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0./
 
+      integer NPmaxDIS
+      parameter (NPmaxDIS =  1000)
