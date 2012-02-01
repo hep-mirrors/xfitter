@@ -172,9 +172,9 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
   //  dir \ flav  |   d |   u
   //  1           |   0 |   1
   //  -1          |   2 |   3
-  (_pc->*(_pc->getPDFconv))(imp, 0, 1., xfxc[0], xfxc[1]);
-  (_pc->*(_pc->getPDFconv))(imp, 0, -1., xfxc[2], xfxc[3]);
   for (int ib=0;ib<_nbins;ib++){
+    (_pc->*(_pc->getPDFconv))(imp, ib*2*_nsib, 1., xfxc[0], xfxc[1]);
+    (_pc->*(_pc->getPDFconv))(imp, ib*2*_nsib, -1., xfxc[2], xfxc[3]);
     for (int icdf = 0; icdf<12; icdf ++){
       qca[ib] += xfxc[icdf%4]*_bm->BM[imp][ib*2*_nsib][0][icdf];
     }
