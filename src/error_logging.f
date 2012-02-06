@@ -52,7 +52,7 @@
 *        I: - informational message,
 *        W: - warning       (continue execution by default)
 *        S: - serious error (terminate program by default)
-*        F: - fatal error   (terminate program alawys)
+*        F: - fatal error   (terminate program always)
 *
 *                    PROPOSAL FOR ERROR NUMBERING                          
 *                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~                          
@@ -84,7 +84,7 @@
       CHARACTER*(MAXTXT) ERRTXT
       CHARACTER*8  MOD_NAME(NMODS)
       CHARACTER*80 ERRLIN
-      CHARACTER*2  TSEV(4), TYPE
+      CHARACTER*2  TSEV(4), ERM_TYPE
       CHARACTER*23 FULLTX(4)
       INTEGER      NLOST,ITOP,ISEVER,MAX_ERR_ALLOWED,IMESS,I,J
       INTEGER      ID,NEN,IND,LTEXT,NCHAR,ITOTAL, LL,LUN, I_MOD_NAM
@@ -115,7 +115,8 @@
       IF(FIRST)THEN
         FIRST=.FALSE.
         CALL DTLU(MAXERR,0,TAB,AUX)
-        MAX_ERR_ALLOWED = 3
+*       default max severity level for which continuation is still allowed
+        MAX_ERR_ALLOWED = 2
       ENDIF
 
       LTEXT = MAX(MIN(1,LEN(TEXT)), LENB(TEXT))
@@ -160,10 +161,10 @@
 
         I=INDEX(TEXT(1:MIN(5,LTEXT)),':')
         IF(I.GT.0) THEN
-          TYPE=TEXT(I-1:I)
+          ERM_TYPE=TEXT(I-1:I)
           DO J=1,4
-            IF(TYPE.EQ.TSEV(J)) THEN
-              IF(J.GE.MAX_ERR_ALLOWED) THEN
+            IF(ERM_TYPE.EQ.TSEV(J)) THEN
+              IF(J.GT.MAX_ERR_ALLOWED) THEN
                 WRITE(6,*)' ==> HF_ERRLOG - terminate due to error =',ID
      +,                  ':  ',TEXT(:LTEXT)
                 CALL HF_STOP
@@ -262,14 +263,14 @@
 
 999   RETURN
 
-900   FORMAT(///,12X,33('*')/12X,5('*'),5X,'Error Summary',5X,5('*')/
+900   FORMAT(// 12X,33('*')/12X,3('*'),7X,'Error Summary',7X,3('*')/
      +       12X,33('*')/' '
      +       /' Total number of logged errors:      ',I8,
      +       /' Total number of errors not recorded:',I8)
 901   FORMAT(//,' List of errors sorted by severity level:'//
      + ' *',78('-')/
-     + ' *',' Module |    Error|    Error|'/
-     + ' *','   Name |    Type |    Count|   Error Description'/
+     + ' *',' Module |   Error |   Error |'/
+     + ' *','   Name |    Type |   Count |   Error Description'/
      + ' *',78('-'))
 902   FORMAT(2X,A8,2I10,1X,A)
 903   FORMAT(31X,A)

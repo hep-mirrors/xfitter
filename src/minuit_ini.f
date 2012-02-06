@@ -10,7 +10,7 @@ C-------------------------------------
       minfile='minuit.in.txt' 
       write(6,*) ' read minuit input params from file ',minfile
       call HF_errlog(12020504,
-     +     'I: read minuit input params from file'//minfile) 
+     +     'I: read minuit input params from file '//minfile) 
       open ( 24, file=minfile )
       open (  7, file='minuit.save.txt' )
 
