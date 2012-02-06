@@ -71,7 +71,7 @@ cv initialise the random seed gener
 
       call rmarin(icount,0,0)
       call rluxgo(3,icount,0,0)
-      print*,'initialize smeering with a seed isdrn = ',icount
+      print*,'initialize smearing with a seed isdrn = ',icount
 
 C
 C Loop over systematic sources:
@@ -144,7 +144,7 @@ CV now choose sta (advised gauss OR poisson)
 C Poisson require theory:
             if (lranddata) then
                print *,'Poisson errors require theory predictions!'
-               stop
+               call HF_stop
             endif
 
             data_in    = daten(n0)
@@ -158,7 +158,8 @@ C Calculate stat:
                if (estat_in.gt.euncor_in) then
                   estat_in = sqrt(estat_in**2-euncor_in**2)
                else
-                  print *,'Warrning: uncor. error larger than stat'
+                  call HF_errlog(12020520,
+     +            'W: mc_errors: uncor. error larger than stat')
                   estat_in = 0.
                endif
             else
@@ -216,7 +217,7 @@ C Store uncor in %:
          DATEN(n0) = s
       enddo   
 
-C            stop
+C          call HF_stop
 
 C------------------------------------------------------------
       end

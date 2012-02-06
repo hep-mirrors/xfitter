@@ -15,6 +15,7 @@ C---------------------------------------------------
       include 'pdfparam.inc'
       include 'datasets.inc'
       include 'systematics.inc'
+      include 'for_debug.inc'
 C=================================================
 
 
@@ -76,7 +77,6 @@ C---------
 *     ------------------------------------------------
 *     Initialise basic parameters
 *     ------------------------------------------------
-
 
 
 
@@ -180,6 +180,7 @@ C==== 24/08/2010: Add Saturation inspired cut ====
       ASatur = 0.0
       LSatur = 0.0
 
+      Debug = .false.
 
 C=================================================
 
@@ -192,6 +193,8 @@ C
       read (51,NML=H1Fitter,END=41,ERR=42)
       close (51)
 
+C     set debug flag used elsewhere according to steering
+      Debug = lDebug
 
       open (51,file='ewparam.txt',status='old')
       read (51,NML=EWpars,END=43,ERR=44)
@@ -327,40 +330,40 @@ C
       goto 73
  42   continue
       print '(''Error reading namelist &H1Fitter, STOP'')'
-      stop
+      call HF_stop
  43   continue
       print '(''Namelist @EWPars NOT found, STOP'')'
-      stop
+      call HF_stop
  44   continue
       print '(''Error reading namelist @EWPars, STOP'')'
-      stop
+      call HF_stop
  51   continue
       print '(''Namelist &Output NOT found'')'
       goto 73
  52   continue
       print '(''Error reading namelist &Output, STOP'')'
-      stop
+      call HF_stop
  62   continue
       print '(''Error reading namelist &MCErrors, STOP'')'
-      stop
+      call HF_stop
  64   continue
       print '(''Error reading namelist &Cheb, STOP'')'
-      stop
+      call HF_stop
  66   continue
       print '(''Error reading namelist &Poly, STOP'')'
-      stop
+      call HF_stop
  67   continue
       print '(''Error reading namelist &lhapdf, STOP'')'
-      stop
+      call HF_stop
  70   continue
       print '(''Error reading namelist &HQScale, STOP'')'
-      stop
+      call HF_stop
  71   continue
       print '(''Namelist &InFiles NOT found'')'
       goto 73
  72   continue
       print '(''Error reading namelist &InFiles, STOP'')'
-      stop
+      call HF_stop
 
 
  73   continue
@@ -383,14 +386,14 @@ c      print *,'q2val ', (q2val(i),i=1,NBANDS)
        write(6,*)
        write(6,*) 'Bottom thres. has to be larger than starting scale'
        write(6,*)
-       stop
+       call HF_stop
       endif
 
       if (HFSCHEME.eq.1.and.HF_MASS(2).lt.HF_MASS(1)) then
        write(6,*)
        write(6,*) 'Bottom thres. has to be larger than charm thres.'
        write(6,*)
-       stop
+       call HF_stop
       endif
 
 
@@ -441,8 +444,7 @@ C---------------------------------
       else
          print *,'Unsupported PDFStyle =',PDFStyle
          print *,'Check value in steering.txt'
-         print *,'STOP'
-         stop
+         call HF_stop
       endif
 
       end
@@ -477,8 +479,7 @@ C---------------------------------
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'
-         print *,'STOP'
-         stop
+         call HF_stop
       endif
 
       end
@@ -503,8 +504,7 @@ C---------------------------------
       else
          print *,'Unsupported MassHQ =',MassHQ
          print *,'Check value in steering.txt'
-         print *,'STOP'
-         stop
+         call HF_stop
       endif
 
       end
@@ -536,8 +536,7 @@ C---------------------------------
       else
          print *,'Unsupported Chi2Style =',Chi2Style
          print *,'Check value in steering.txt'
-         print *,'STOP'
-         stop
+         call HF_stop
       endif
       
       end
@@ -582,7 +581,7 @@ C Add extra param
                   print *,'Number of extra parameters exceeds the limit'
                   print *,'nExtraParam=',nExtraParam
                   print *,'Check your steering, stopping'
-                  stop
+                  call HF_stop
                endif
                ExtraParamNames(nExtraParam) = name(i)
                ExtraParamValue(nExtraParam) = value(i)
@@ -598,8 +597,7 @@ C Add extra param
       return
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'
-      print *,'Stop'
-      stop
+      call HF_stop
 
 
 C----------------------------------------

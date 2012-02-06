@@ -66,22 +66,22 @@ c----------------------------------------------------------
 
       subroutine appl_readgrid
       print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
-      stop
+      call HF_stop
       end
 
       subroutine appl_getbinnumber
       print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
-      stop
+      call HF_stop
       end
 
       subroutine appl_getbinlowedge
       print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
-      stop
+      call HF_stop
       end
 
       subroutine appl_getbinwidth
       print *,'CALL APPLGRID with DUMMY APPLGRID interface!!'
-      stop
+      call HF_stop
       end
 
       subroutine appl_ngrids(n)
@@ -91,6 +91,7 @@ C
       print *,'NO APPLGRIDs INITIALIZED'
       print *,'NO APPLGRID interface comiled'
       print *,'DUMMY version applgrids_dum has been called!'
+      call HF_errlog(12020601,'W: DUMMY version applgrids_dum called!')
 C
       end
 

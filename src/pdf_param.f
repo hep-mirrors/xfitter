@@ -48,8 +48,7 @@ C-------------------------------------------------------
          if (idxAlphaS.eq.0) then
             print *,'Did not find alpha_S parameter'
             print *,'Add to ExtraParamters with the name alphas'
-            print *,'Stop'
-            stop
+            call HF_stop
          else
             idxAlphaS = iExtraParamMinuit(idxAlphaS)
          endif
@@ -57,8 +56,7 @@ C-------------------------------------------------------
          if (idxFS.eq.0) then
             print *,'Did not find fs parameter'
             print *,'Add to ExtraParamters with the name fs'
-            print *,'Stop'
-            stop
+            call HF_stop
          else
             idxFS = iExtraParamMinuit(idxFS)
          endif
@@ -1460,7 +1458,7 @@ C-----------------------------------
          else
             print *,'Invalid IPOLYSQR=',IPOLYSQR
             print *,'Can be 1 or 0, stop'
-            stop
+            call HF_stop
          endif
          
       endif
@@ -1477,7 +1475,7 @@ C-----------------------------------
       else
          print *,'Invalid IPOLYSQR=',IPOLYSQR
          print *,'Can be 1 or 0, stop'
-         stop
+         call HF_stop
       endif
 
       end      

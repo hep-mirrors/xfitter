@@ -411,7 +411,7 @@ C------------------------------------------------
          sum = sum + Poly(i)/i
       enddo
 
-C Jackbian gives factor 3./2. :
+C Jackobian gives factor 3./2. :
 
       PolyValInt = 3.D0/2.D0 * sum
 
@@ -435,7 +435,7 @@ C------------------------------------------------
          sum = sum + Poly(i)/(i+1+0.5)
       enddo
 
-C Jackbian gives factor 3./2. :
+C Jackobian gives factor 3./2. :
 
       PolyValInt0 = 3.D0/2.D0 * sum
 
@@ -994,7 +994,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       double precision DGammF
 
       if (b.lt.0) then
-         print *,'HYPG1F1R Warning, function not defined for b negative'
+         call HF_errlog(12020510,
+     +        'W: HYPG1F1R - function not defined for b negative')
          HYPG1F1R=0.0
          return
       endif
@@ -1045,6 +1046,7 @@ c precision reached
 c      print *,'HYPG1F1: n=',n,' hpyg1f1=',hypg1f1,abnzfact,z
       if (n.lt.1000) goto 10
       print *,'HYPG1F1: no convergence for ',a,b,z
+      call HF_errlog(12020511,'W: HYPG1F1: no convergence')
 
  99   continue
       hypg1f1=hypg1f1*factor
@@ -1151,7 +1153,7 @@ C
         ICOUNT=ICOUNT+1
         IF(ICOUNT.GT.1E5) THEN
          WRITE(1,*) 'WARNING IN SSDINT: SET SSDINT TO ZERO'
-         WRITE(6,*) 'WARNING IN SSDINT: SET SSDINT TO ZERO'
+         CALL HF_ERRLOG(12020512,'W: SSDINT: set SSDINT to 0.')
          SSDINT=0.
          RETURN
         ENDIF
@@ -1172,6 +1174,7 @@ C
       IF(NLIMS.GT.(NMAX-2)) THEN
        WRITE(1,10000) SSDINT,NMAX,BB-AA,BB+AA
        WRITE(6,10000) SSDINT,NMAX,BB-AA,BB+AA
+       CALL HF_ERRLOG(12020513,'W: SSDINT fails')
        RETURN
       ENDIF
       XLIMS(NLIMS+1)=BB
@@ -1183,4 +1186,3 @@ C
 10000 FORMAT (' SSDINT FAILS, SSDINT,NMAX,XL,XR=',G15.7,I5,2G15.7)
       END
 
-      

@@ -11,31 +11,31 @@ c----------------------------------------------------------
       
       subroutine initpdfsetbyname(a)
       call print_lhapdf_messg
-      stop
+      call HF_stop
       return 
       end
 
       subroutine initpdf(a)
       call print_lhapdf_messg
-      stop
+      call HF_stop
       return 
       end
 
       subroutine initpdfset(a)
       call print_lhapdf_messg
-      stop
+      call HF_stop
       return 
       end
 
       subroutine evolvepdf(a)
       call print_lhapdf_messg
-      stop
+      call HF_stop
       return 
       end
 
 
       double precision function alphasPDF(a)
       call print_lhapdf_messg
-      stop
+      call HF_stop
       return 
       end

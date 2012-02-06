@@ -66,7 +66,7 @@ C---------------------------------------------------------
       if ((nq2split+1)*(nxsplit+1).gt.NPMaxDIS) then
          print *,'ERROR IN GetIntegratedNCXsection'
          print *,'INCREASE NPMax to ',(nq2split+1)*(nxsplit+1)
-         stop
+         call HF_stop
       endif
 
 C
@@ -178,7 +178,7 @@ c               alphaem_run = alm_mz/(1. - alm_mz * 2/(3.*pi)*log(q2(j)/mz**2))
 c temporary divide over dq2
 c         THEO(idx) =  XSec / (q2max - q2min)
 c         print *, idx, ':', THEO(idx)
-c         stop
+c         call HF_stop
       enddo   ! loop over data points
 
       end
@@ -229,7 +229,7 @@ C---------------------------------------------------------
       if (NDATAPOINTS(IDataSet).gt.NPMaxDIS) then
          print *,'ERROR IN GetDisXsection'
          print *,'INCREASE NPMaxDIS to ',NDATAPOINTS(IDataSet)
-         stop
+         call HF_stop
       endif
 
 C
@@ -407,7 +407,7 @@ C
       if (npts.gt.NPMaxDIS) then
          print *,'ERROR IN CalculateReducedXsection'
          print *,'INCREASE NPMaxDIS (qcdnumhelper.inc) to ',npts
-         stop
+         call HF_stop
       endif
 
 

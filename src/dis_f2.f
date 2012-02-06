@@ -83,7 +83,7 @@ C
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN GetF2p'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
-         stop
+         call HF_stop
       endif
 
 

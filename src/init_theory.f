@@ -169,12 +169,12 @@ C-------------------------------------------------------------------------------
 C Check that scales are in proper order:
       if (q0.gt.qc) then
          print *,'Starting scale must be below charm threshold, stop'
-         stop
+         call HF_stop
       endif
       
       if (qc.gt.qb) then
          print *,'Charm mass must be below bottom mass, stop'
-         stop
+         call HF_stop
       endif
       
       if (qb.gt.qt) then
@@ -303,7 +303,7 @@ c Fixed Flavour Number Scheme (FFNS)
       elseif ((mod(HFSCHEME,10).eq.3)) then
         if(I_FIT_ORDER.gt.2) then
           print *,'FFN scheme can be used only with NLO, stop'
-          stop
+          call HF_stop
         endif
 
          hqmass(1) = HF_MASS(1)
@@ -429,8 +429,7 @@ C---------------------------------------------------------
       else
          print *,'InitDYCCXsectionDataset: unknown theory type'
      $        ,DATASETTheoryType(IDataSet), ' for set ', IDataSet
-         print *,'stop'
-         stop
+         call HF_stop
       endif
 
       end
@@ -458,8 +457,7 @@ C---------------------------------------------------------
       else
          print *,'InitDYNCXsectionDataset: unknown theory type'
      $        ,DATASETTheoryType(IDataSet), ' for set ', IDataSet
-         print *,'stop'
-         stop
+         call HF_stop
       endif
 
       end
@@ -498,7 +496,7 @@ C----------------------------------------------------------
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN InitDYNCXsectionDataset'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)                                                                                                  
-         stop
+         call HF_stop
       endif
 
 C Set global parameter:
@@ -549,7 +547,7 @@ C Get indicies:
          print 
      $'(''ERROR in GetDYNCXsection, can not find bin index for y1, y2'',2i6)'
      $        ,idxY1,idxY2
-         stop
+         call HF_stop
       endif
 
 C Define bins:
@@ -622,7 +620,7 @@ C----------------------------------------------------------
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN InitDYCCXsectionDataset'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)                                                                                                  
-         stop
+         call HF_stop
       endif
 
 C Set global parameter:
@@ -677,7 +675,7 @@ C Get indicies:
          print 
      $        '(''ERROR in GetDYCCXsection, can not find bin index for Eta1, Eta2'',2i6)'
      $        ,idxEta1,idxEta2
-         stop
+         call HF_stop
       endif
 
 C Define bins:
@@ -740,7 +738,7 @@ C------------------------------------------------------------
          if (n2-n+1.gt. Nfnlogrids) then
             print *,'ERROR in InitJetsPPApplGridDataSet'
             print *,'INCREASE Nfnlogrids to',n2-n+1
-            stop
+            call HF_stop
          endif
 
          print *,'ho',n,n2
@@ -866,7 +864,7 @@ C-------------------------------------
       call appl_ngrids(n)
       print *, n, ' applgrid grids have been read'
 C-------------------------------------
-c      stop
+c      call HF_stop
       end
 
       subroutine InitJetsFastNLO

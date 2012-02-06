@@ -259,7 +259,7 @@ C
       if (NColumn.gt. Ncolumnmax) then
          print '(''Error in ReadDataFile for File='',A80)',cfile
          print '(''NColumn = '',i6,'' exeeds NColumnMax='',i6)',ncolumn,ncolumnmax
-         stop
+         call HF_stop
       endif
 C
 C Store 
@@ -293,7 +293,7 @@ C Parse ColumnType, count systematics, etc
             print '(''Unknown Column type for dataset'',A80)',CFile
             print '(''Column='',i5,'' type='',A32)',i,ColumnType(i)
             print '(''STOP in ReadDataFile'')'
-            stop
+            call HF_stop
          endif
       enddo
 
@@ -340,7 +340,7 @@ C--- Add new source
      $              '(''ReadDataFile Error: exeeding NSysMax'')'
                print '(''Current NSysMax='',i6)',NSysMax
                print '(''Increase NSysMax in systematics.inc'')'
-               stop
+               call HF_stop
             endif
 
             System(NSYS) = SystematicType(i)
@@ -388,15 +388,13 @@ C Check coherence of the table info
          if (idxSigma.eq.0) then
             print *,
      $'No column contains Sigma keyword for the x-section info!!!'
-            print *,'STOP'
-            stop
+            call HF_stop
          endif
          do i=1,NColumn
             if (ColumnName(i) .eq. ' ') then
                print *,'Undefined ColumnName !!!'
                print *,'Check name for column number = ',i
-               print *,'STOP'
-               stop
+               call HF_stop
             endif
          enddo
 
@@ -441,7 +439,7 @@ C Add a point:
          if (npoints.ge.NTOT) then
             print 
      $ '('' ReadDataFile Error, increase NTOT value inside ntot.inc'')'
-            stop
+            call HF_stop
          endif
 
          NDATAPOINTS(NDATASETS) = NDATAPOINTS(NDATASETS) + 1
@@ -544,26 +542,26 @@ C Store k-factors:
  98   continue
       print '(''Error reading namelist Data'')'
       print *,CFile
-      stop
+      call HF_stop
 
  99   continue
       print '(''Can not open file '')'
       print *,CFile
-      stop
+      call HF_stop
 100   continue
       print '(''Can not open file '')'
       print *,TheoryInfoFile
-      stop
+      call HF_stop
 
  1017 continue
       print '(''Error reading file'')'
-      stop
+      call HF_stop
  1018 continue
       print '(''End of file while reading file'')'
-      stop
+      call HF_stop
  1019 continue
       print '(''Problem interpreting data line='',i6)',j
-      stop
+      call HF_stop
 
       end
 

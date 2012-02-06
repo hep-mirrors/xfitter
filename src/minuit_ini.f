@@ -9,11 +9,12 @@ C-------------------------------------
       open ( 25, file='output/minuit.out.txt' )
       minfile='minuit.in.txt' 
       write(6,*) ' read minuit input params from file ',minfile
+      call HF_errlog(12020504,
+     +     'I: read minuit input params from file'//minfile) 
       open ( 24, file=minfile )
       open (  7, file='minuit.save.txt' )
 
       call mintio(24,25,7)
-
 
       return
       end
@@ -46,8 +47,7 @@ C Add extra parameter:
      $        ,ExtraParamMin(i)
      $        ,ExtraParamMax(i)
             print *,'Error code=',ierrf
-            print *,'Stop'
-            stop
+            call HF_errlog(12020505,'F: Error in ExtraParam')
          else
             iExtraParamMinuit(i) = 100+i
          endif

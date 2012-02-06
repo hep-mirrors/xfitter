@@ -22,18 +22,24 @@ C-----------------------------------------------------
 
 *     ------------------------------------------------
 *     Read the steering file steering.txt
-*     ------------------------------------------------
+*     ------------------------------------------------ 
       call read_steer
+      call hf_errlog(12020501,
+     +     'I: steering.txt has been read successfully') 
 
 *     ------------------------------------------------
 *     Read the measured data points
 *     ------------------------------------------------
       call read_data
+      call hf_errlog(12020502,
+     +     'I: data tables have been read successfully') 
 
 *     ------------------------------------------------
 *     Initialise theory modules
 *     ------------------------------------------------
       call init_theory_modules
+      call hf_errlog(12020503,
+     +     'I: theory modules initialised successfully') 
 
 *     ------------------------------------------------
 *     Do the fit
@@ -46,6 +52,8 @@ C-----------------------------------------------------
       if (DOBANDS) then
          write(6,*) ' --- Calculate error bands ...'
          lprint = .false.    
+         call hf_errlog(12020506,
+     +     'I: Calculation of error bands required') 
          call MNCOMD(fcn,'ITERATE 10',icond,0)
          call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
          call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
@@ -53,6 +61,11 @@ C-----------------------------------------------------
       endif
       close (24)
       close (25)
+
+*     ------------------------------------------------
+*     Print error log summary
+*     ------------------------------------------------
+      call HF_errsum(6)
 
 *     ------------------------------------------------
 *     Done
@@ -82,7 +95,4 @@ C-----------------------------------------------------
       print *,'----------------------------------------------------------------------'
       print *,' '
       print *,' '
-c      stop
       end
-
-*     ------------------------------------------------

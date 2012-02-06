@@ -190,10 +190,10 @@ C-- Run over all rules, check for appropriate process/variable
                enddo
             endif
             print 
-     $'(''Warrning in FailSelectionCuts: variable '',A8,'' not found'')'
+     $'(''Warning in FailSelectionCuts: variable '',A8,'' not found'')'
      $           ,Variable(j)
             print '(''Check reaction '',a16)', reaction
-c     stop
+c     call HF_stop
  17            continue
          endif
       enddo
@@ -202,11 +202,11 @@ c     stop
  71   continue
       print 
      $  '(''Error in FailSelectionCuts: EOD reading namelist Cuts'')'
-      stop
+      call HF_stop
  72   continue
       print 
      $  '(''Error in FailSelectionCuts: Error reading namelist Cuts'')'
-      stop
+      call HF_stop
 
       end
 
@@ -248,7 +248,7 @@ C---------------------------------------------------------------
          print 
      $    '(''ERROR in FAIL DIS SELECTION: missing, q2, x or Y'',3I4)'    
      $        ,idxQ2,idxX,idxY
-         stop
+         call HF_stop
       endif
       q2 = bins(idxQ2)
       X  = bins(idxX)

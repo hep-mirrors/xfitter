@@ -128,7 +128,7 @@ C------------------------------------------------------------
       if (NDATAPOINTS(IDataSet)*2.gt.NPmax) then
          print *,'ERROR IN GetDYCCXsection'
          print *,'INCREASE NPmax to ',NDATAPOINTS(IDataSet)*2
-         stop
+         call HF_stop
       endif
 
 
@@ -222,7 +222,7 @@ C------------------------------------------------------------
       if (NDATAPOINTS(IDataSet)*2.gt.NPmax) then
          print *,'ERROR IN GetDYNCXsection'
          print *,'INCREASE NPmax to ',NDATAPOINTS(IDataSet)*2
-         stop
+         call HF_stop
       endif
 
 C>15/11/2011----------------------

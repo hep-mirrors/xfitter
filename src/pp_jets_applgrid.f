@@ -34,7 +34,7 @@ C-------------------------------------------------------------
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN GetJetsPPApplGrid'
          print *,'INCREASE NPMax to ',NDATAPOINTS(IDataSet)
-         stop
+         call HF_stop
       endif
 
       idxEta = GetBinIndex(IDataSet,'EtaBinNumber')
@@ -59,7 +59,7 @@ C
       if (iEtaMax.gt.NEtaMax) then
          print *,'Error in GetJetsPPApplGrid'
          print *,'INCREASE NEtaMax'
-         stop
+         call HF_stop
       endif
 
 
@@ -107,6 +107,6 @@ c         print *,'check',i,IndexTheoryBin(idx),idxNPCorr,XS,XNP,BS
 c         print *,DATEN(idx),THEO(idx)
       enddo
 
-C      stop
+C      call HF_stop
 
       end

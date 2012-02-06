@@ -87,6 +87,7 @@ C Store FCN flag in a common block:
       IfcnCount=IfcnCount+1
       write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
 
+      call HF_errlog(12020515,'I: FCN is called')
 
 *     ---------------------------------------------------------
 *     initilise variables 
@@ -131,7 +132,8 @@ C Store FCN flag in a common block:
       if (Itheory.eq.0)  call SumRules(kflag)
       if (kflag.eq.1) then
          write(6,*) ' --- problem in SumRules, kflag = 1'
-         stop
+         call HF_errlog(12020516,
+     +        'F: FCN - problem in SumRules, kflag = 1')
       endif
 
 *     -----------------------------------------------------
