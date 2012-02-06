@@ -111,98 +111,93 @@ C      isch= 8  !*** S-ACOT(Chi) [not preferred]'
 C      isch= 9  !*** S-ACOT(Chi) [preferred] '           
 C----------------------------------------------------------------------
 
+C     get the LO SFs
+      ISCH=5    
+      
+      Call Fgen123L(icharge,   1, X, Q,xmu,F123L_LO) !*** total F
+      Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_LO) !*** F-charm
+      Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO) !*** F-bottom
 
-      if (HFSCHEME_IN.eq.1) then 
-         ISCH=0
+C         
+
+      if (iflag.eq.1.or..not.UseKFactors) then
+         
+         if (HFSCHEME_IN.eq.1) then 
+            ISCH=0
+         elseif (HFSCHEME_IN.eq.11) then 
+            ISCH=1
+         elseif (HFSCHEME_IN.eq.111) then 
+            ISCH=9
+         endif
+         
          Call Fgen123L(icharge,   1, X, Q,xmu,F123L_NLO) !*** total F
+         Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_NLO) !*** total Fc
+         Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_NLO) !*** total Fb
          do i=1,4
             F123L_out(i)=F123L_NLO(i)
+            F123Lc_out(i)=F123Lc_NLO(i)
+            F123Lb_out(i)=F123Lb_NLO(i)
          enddo
-c         print*,'each data point:', index, 
-c     $        (F123L_out(i),i=1,4)         
-      else
-
-
-         
-         ISCH=5    
-
-         if (iflag.eq.1.or..not.UseKFactors) then
-         
-C     get the LO SFs
-            Call Fgen123L(icharge,   1, X, Q,xmu,F123L_LO) !*** total F
-            Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_LO) !*** F-charm
-            Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO) !*** F-bottom
-            
 C     Store k-factors:
-            if (UseKFactors) then
+         if (UseKFactors) then
             
-               if (index.gt.NKfactMax) then
-                  print *,'Error in sf_acot_wrap'
-                  print *,'Increase NKfactMax from '
-     $                 ,NKfactMax,' to at least ',Index
-                  call HF_errlog(104,'F: Error in sf_acot_wrap')
-C                 stop
-               endif
+            if (index.gt.NKfactMax) then
+               print *,'Error in sf_acot_wrap'
+               print *,'Increase NKfactMax from '
+     $              ,NKfactMax,' to at least ',Index
+               call HF_errlog(104,'F: Error in sf_acot_wrap')
+C     stop
+            endif
             
-C     make sure the kfactors correspond for massless or massive choice
-               if (HFSCHEME_in.eq.11) then
-                  isch=1        ! massive NLO
-               elseif (HFSCHEME_in.eq.111) then
-                  isch=9        ! massive NLO
-c            elseif (HFSCHEME_in.eq.1) then
-c               isch=0           ! massless NLO
-               endif
-C get the NLO SFs
-               Call Fgen123L(icharge,   1, X, Q,xmu,F123L_NLO) !*** total F
-               Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_NLO) !*** F-charm
-               Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_NLO) !*** F-bottom
+            
+            do i=1,4 
                
-               do i=1,4 
-                  
 !     protect for the kfactors that return infinity 
-                  if (F123L_LO(i).eq.0.d0) then
-                     akfact(i,index) = 1.d0
-                  else
-                     akfact(i,index) = F123L_NLO(i)/F123L_LO(i)
-                  endif
+               if (F123L_LO(i).eq.0.d0) then
+                  akfact(i,index) = 1.d0
+               else
+                  akfact(i,index) = F123L_NLO(i)/F123L_LO(i)
+               endif
                
-                  if (F123Lc_LO(i).eq.0.d0) then
-                     akfactc(i,index) = 1.d0
-                  else
-                     akfactc(i,index) = F123Lc_NLO(i)/F123Lc_LO(i)
-                  endif
+               if (F123Lc_LO(i).eq.0.d0) then
+                  akfactc(i,index) = 1.d0
+               else
+                  akfactc(i,index) = F123Lc_NLO(i)/F123Lc_LO(i)
+               endif
                
-                  if (F123Lb_LO(i).eq.0.d0) then
-                     akfactb(i,index) = 1.d0
-                  else
-                     akfactb(i,index) = F123Lb_NLO(i)/F123Lb_LO(i)
-                  endif
-                  
-               enddo
-               print*,'building kfactors for each data point:', index, 
-     $              (akfact(i,index),i=1,4)
-            endif               ! Usekfactors
-            
-         else                   ! if iflag.ne.1 and usefactor.eq.false
-c     Use k-factor:
-
-            
-            isch=5
-         
-            Call Fgen123L(icharge,   1, X, Q,xmu,F123L_LO) !*** total F
-            Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_LO) !*** F-charm
-            Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO) !*** F-bottom
-            do i=1,4
-
-               F123L_out(i)=F123L_LO(i)*akfact(i,index)
-               F123Lc_out(i)=F123Lc_LO(i)*akfactc(i,index)
-               F123Lb_out(i)=F123Lb_LO(i)*akfactb(i,index)
+               if (F123Lb_LO(i).eq.0.d0) then
+                  akfactb(i,index) = 1.d0
+               else
+                  akfactb(i,index) = F123Lb_NLO(i)/F123Lb_LO(i)
+               endif
                
-
             enddo
-         endif
-      endif
+            if (index.eq.1) then
+               print*,'building kfactors: F1,F2,F3 FL,F2b,F2c,Flb,Flc'
+            endif
+            print*,
+     $           index, 
+     $           (akfact(i,index),i=1,4),
+     $           akfactb(2,index), akfactc(2,index),
+     $           akfactb(4,index), akfactc(4,index)
+               
+         endif                  ! Usekfactors
          
+      else                      ! if iflag.ne.1 and usefactor.eq.false
+c     Use k-factor:
+         
+         
+         do i=1,4
+            
+            F123L_out(i)=F123L_LO(i)*akfact(i,index)
+            F123Lc_out(i)=F123Lc_LO(i)*akfactc(i,index)
+            F123Lb_out(i)=F123Lb_LO(i)*akfactb(i,index)
+            
+            
+         enddo
+      endif
+      
+      
       
       RETURN
       END
