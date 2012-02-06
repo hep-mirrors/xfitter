@@ -37,6 +37,10 @@ C             Either print warning or put in buffer
         IF (LWARN) THEN
           WRITE (ISYSWR,'(A,A/A,A)') ' MINUIT WARNING IN ',CORG,
      +              ' ============== ',CMES
+C
+C>SL      store it in hf_error_logger
+          CALL HF_ERRLOG(1,'W: MINUIT warnings')
+
           RETURN
         ENDIF
       ELSE
@@ -44,6 +48,10 @@ C             Either print warning or put in buffer
         IF (LREPOR) THEN
           WRITE (ISYSWR,'(A,A/A,A)') ' MINUIT DEBUG FOR  ',CORG,
      +              ' ============== ',CMES
+C
+C>SL      store it in hf_error_logger
+          CALL HF_ERRLOG(2,'I: MINUIT debug messages')
+
           RETURN
         ENDIF
       ENDIF
