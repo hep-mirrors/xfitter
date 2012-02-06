@@ -34,7 +34,7 @@ C-------------------------------------------------------------------
          Call GetDYNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
          Call GetJetsPPApplGrid(IDataSet)
-      elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets') then
+      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
          Call GetJetsFastNLOXsection(IDataSet, .false.)
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised') then
          Call GetIntegratedNCXsection(IDataSet)
