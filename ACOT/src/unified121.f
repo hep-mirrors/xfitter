@@ -668,6 +668,7 @@ C --- SUM TERMS:   (Standard F2 is defined with an overall XBJ factor)
              FTEMP=  FTEMP3 * ( GLQ1*GLQ2 - GRQ1*GRQ2 )
            ELSE 
              WRITE(6,*) ' BAD INDEX ',INDEX
+             CALL HF_ERRLOG(107,'F: XINTNLOG123z - Bad index')
              STOP
         ENDIF
 
@@ -1078,6 +1079,7 @@ C --- SUM TERMS:   (F2 is defined with an overall XBJ factor)
           FTEMP=  FTEMP3 * ( GLQ1*GLQ2 - GRQ1*GRQ2 )
         ELSE 
           WRITE(6,*) ' BAD INDEX ',INDEX
+          CALL HF_ERRLOG(108,'F: XINTNLOQ123 - Bad index')
           STOP
         ENDIF
 
@@ -1251,6 +1253,7 @@ C --- SUM TERMS:   (Standard F2 is defined with an overall XBJ factor)
           FTEMP=  FTEMP3 * ( GLQ1*GLQ2 - GRQ1*GRQ2 )
         ELSE 
           WRITE(6,*) ' BAD INDEX ',INDEX
+          CALL HF_ERRLOG(109,'F: XINTNLOQ1230 - Bad index')
           STOP
         ENDIF
 
@@ -1702,10 +1705,11 @@ C **** NEED PROTECT THE UPPER ENDPOINT: iActU= 1 OR 2, NOT 0
 C      nloq = dinteg(qintegrand,chi,1.d0,1.d-4)
        nloq= 0.0d0
        if(chi.le.1.d0) then 
-        nloq = AdzInt(qintegrand,chi,1.d0,
+         nloq = AdzInt(qintegrand,chi,1.d0,
      >              AERR, RERR, ErrEst, iErr, iActL, iActU)
-          else
-          Write(6,*) " error: integration limits >1 in HADNLOQ123K"
+       else
+         Write(6,*) " error: integration limits >1 in HADNLOQ123K"
+         call HF_errlog(105,'W: HADNLOQ123K - integration limits > 1')
        endif
 
 * ... sum of quark/gluon convolutions and soft/virtual terms

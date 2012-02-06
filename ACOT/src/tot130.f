@@ -273,7 +273,8 @@ C============================================================
          XbjChi=Xbj  !*** default
       if(Ischeme.eq.8) then 
          WRITE(6,*)  ' DISABLED: 24 JAN 2011: AVOID POTENTIAL CONFUSION'
-         STOP
+         call HF_errlog(106,'F: TOTF - Ischeme=8 DISABLED: 24 JAN 2011')
+c        STOP
          Discr = 1.0 + (4.0*HMASS**2*XBJ**2)/Q**2
          ETA   = 2.0* XBJ/(1.0 + Sqrt(Discr))
          fix=Eta*(1.0d0+(f1m+f2m)**2/Q**2)/xbj

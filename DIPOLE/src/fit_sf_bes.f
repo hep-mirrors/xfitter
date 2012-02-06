@@ -306,7 +306,7 @@ C         print *,'1',dip_cs,dip_cs2,xx,r,y
       else
          print *,'Unknown dipole x-section=',idipole
          print *,'Abort in  DIP_CS'
-         stop
+         call HF_errlog(301,'F: DIP_CS - Unknown dipole x-section')
       endif
 
       RETURN

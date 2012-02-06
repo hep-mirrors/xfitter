@@ -37,7 +37,8 @@ C   "Triangle Function" of the three sides.
         IRT = 1
       ELSEIF (TMP .LT. 0.) THEN
         PRINT '(A, 4(1PE12.3))', 'X,Y,Z, TMP =', X, Y, Z, TMP
-        STOP 'Negative argument in TRNGLE function; check for errors!'
+        CALL HF_ERRLOG(103,'F: Negative argument in'//
+     +                     'TRNGLE function. Check for errors!')
       ENDIF
 
       TRNGLE = SQRT (TMP)
@@ -232,9 +233,11 @@ C                   Work space:
       DATA SMLL / 1E-20 /
      
       IER = 0
-      IF (AERR.LE.SMLL .AND. RERR.LE.SMLL)
-     1 STOP 'Both Aerr and Rerr are zero in ADZINT!'
-        
+      IF (AERR.LE.SMLL .AND. RERR.LE.SMLL) THEN
+        CALL HF_ERRLOG(110,'F: ADZINT - Both Aerr and Rerr are zero!')
+C       STOP 'Both Aerr and Rerr are zero in ADZINT!'
+      ENDIF
+  
       IF (IACTA.LT.0 .OR. IACTA.GT.2) THEN
         PRINT '(A, I4/ A)', ' Illegal value of IACT in ADZINT call', 
      >  'IACTA =', IACTA, ' IACTA set for regular open-end option.'

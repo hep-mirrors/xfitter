@@ -140,7 +140,8 @@ C     Store k-factors:
                   print *,'Error in sf_acot_wrap'
                   print *,'Increase NKfactMax from '
      $                 ,NKfactMax,' to at least ',Index
-                  stop
+                  call HF_errlog(104,'F: Error in sf_acot_wrap')
+C                 stop
                endif
             
 C     make sure the kfactors correspond for massless or massive choice

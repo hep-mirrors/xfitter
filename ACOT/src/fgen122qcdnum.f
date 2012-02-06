@@ -18,13 +18,18 @@ C-----------------------------------------------------------------------------
       Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
       common /fred/ xmc,xmb,HMASS
 
+      Character*80 Message ! Error message text
+
 C-----------------------------------------------------------------------------
 c    if idata>ndata, increase k-factor table
 C-----------------------------------------------------------------------------
       if(idata.gt.ndata)  then  !**** over-ride and use full calculation:
          write(6,*) ' Error: idata =',idata,' > ',ndata
          write(6,*) ' Increase ndata '
-         stop
+         write(Message,*) 
+     +   'F: Fgen123LK - idata =',idata,' > ',ndata,' Increase ndata!'
+         call HF_errlog(101,Message)
+c        stop
       endif
 
 C-----------------------------------------------------------------------------
@@ -116,6 +121,7 @@ C-----------------------------------------------------------------------------
       Dimension F123(3)
       Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
 
+      Character*80 Message ! Error message text
 
       if(icharge.eq.0) then !*** Neutral Current  (only photon at this point)
           call Fnc123(icharge,Mode,xbj,q,xmu,F123)
@@ -130,8 +136,11 @@ C-----------------------------------------------------------------------------
        Call Fcc123(icharge,Mode, XBJ, Q,XMU, F123)
 
       else
-         write(6,*) ' error: icharge =',icharge,' not implemented'
-         stop
+c        write(6,*) ' error: icharge =',icharge,' not implemented'
+         write(Message,*)
+     +   'F: Fgen123 - icharge =',icharge,' is not implemented'
+         call HF_errlog(102,Message)
+c        stop
       endif
 
 
