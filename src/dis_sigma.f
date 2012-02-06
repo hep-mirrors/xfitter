@@ -656,10 +656,10 @@ C Additional variables:
       logical UseKFactors
       double precision f123l(4),f123lc(4),f123lb(4)
       
-      if (HFSCHEME.eq.11.or.HFSCHEME.eq.111) then
-         UseKFactors = .true.   !ACOT Full , ACOT Chi
-      else
-         UseKFactors = .false.  !ACOT ZM
+      if (mod(HFSCHEME,10).eq.1) then
+         UseKFactors = .true.   !ACOT Full , ACOT Chi, ACOT ZM
+!      else
+!         UseKFactors = .false.  !ACOT ZM
       endif
 
 c     icharge_in: 0 NC: photon exchange only
