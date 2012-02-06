@@ -72,7 +72,7 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile  ) {
    vector<double> scalefactors = fnloreader->GetScaleFactors();
    for (int iscale = 0;iscale < nscale ;iscale++) {
       if ( fabs(scalefactors[iscale] - 1.) < 0.0001 ){
-	 fnloreader->SetScaleVariation(iscale);
+	fnloreader->SetScaleVariation(iscale, false);
       }
    }
 
@@ -84,9 +84,9 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile  ) {
    //fnloreader->SetContributionON(FastNLOReader::kThresholdCorrection,0,false);
 
 
-   fnloreader->FillAlphasCache();
-   fnloreader->FillPDFCache();			// pdf is 'external'! you always have to call FillPDFCache();
-   fnloreader->CalcCrossSection();
+   //fnloreader->FillAlphasCache();
+   //fnloreader->FillPDFCache();			// pdf is 'external'! you always have to call FillPDFCache();
+   //fnloreader->CalcCrossSection();
    //fnloreader->PrintCrossSectionsLikeFreader();
 
 

@@ -2201,6 +2201,7 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
     double muf2	= muf*muf;
     vector < double > a;
     a.resize(13);
+    getqcdnumpdfset_(&iqnset);
     fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
     return a;
   }

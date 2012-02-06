@@ -96,6 +96,8 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
 
       iq0  = iqfrmq(q0)         !starting scale
 
+      if (IPDFSET.eq.5) return  ! for external pdf evolution not needed!
+
 cv ===
       if (iparam.eq.0)  call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
       if (iparam.eq.1)  call evolfg(1,func1,def1,iq0,eps) !evolve all pdf's: H1
