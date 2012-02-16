@@ -204,6 +204,7 @@ C Namelist definition:
       double precision Akfact(NKFactMax)
 
       double precision StatError   ! stat
+      double precision StatErrorConst ! stat. error to be treated as constant
       double precision UncorError  ! uncorrelated systematics
       double precision TotalError  ! total uncertainty
 
@@ -318,6 +319,8 @@ C Prepare systematics:
       do i=1,NUncert
 C--- Statistical: special case
          if (SystematicType(i).eq.'stat') then
+         else if (SystematicType(i).eq.'stat const') then
+            Call HF_ERRLOG(16020001,'I: Stat Const Error type used')
 C--- Uncorrelated: special case
          else if (SystematicType(i).eq.'uncor') then
 C--- Total error: special case
@@ -449,6 +452,7 @@ C Translate errors in %:
          TotalError = 0.
          UncorError = 0.
          StatError = 0.
+         StatErrorConst = 0.
          TotalErrorRead = 0.
 
 
@@ -475,9 +479,15 @@ C Stat error:
                StatError = StatError +  Syst(i)**2
             endif
 
+            if (SystematicType(i).eq.'stat const') then
+C Stat error:
+               StatErrorConst = StatErrorConst +  Syst(i)**2
+            endif
+
          enddo
 
          StatError = sqrt(StatError)
+         StatErrorConst = sqrt(StatErrorConst)
          UncorError = sqrt(UncorError)
          TotalError = sqrt(TotalError)
 
@@ -485,6 +495,8 @@ C Stat error:
          E_UNC(npoints)  = UncorError
          E_TOT(npoints)  = TotalError
          E_STA(npoints)  = StatError
+         E_STA_CONST(npoints) = StatErrorConst
+         
 
          ! > Check total error
          if (TotalErrorRead.ne.0) then
@@ -500,12 +512,14 @@ C Stat error:
             AbstractBins(i,npoints) = allbins(i,j)
          enddo
 
-         ALPHA(npoints) = sqrt(UncorError**2+StatError**2)*DATEN(npoints)
+         ALPHA(npoints) = sqrt(UncorError**2+StatError**2
+     $        +StatErrorConst**2)*DATEN(npoints)
 
          do i=1,NUncert
             if (SystematicType(i).ne.'uncor' .and. 
      $           SystematicType(i).ne.'ignore'.and.
-     $           SystematicType(i).ne.'stat'
+     $           SystematicType(i).ne.'stat'.and.
+     $           SystematicType(i).ne.'stat const'
      $           ) then
                BETA(CompressIdx(i),npoints) = syst(i)
             endif

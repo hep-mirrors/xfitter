@@ -9,6 +9,7 @@ C
      $     ,E_UNC(NTOT)              !> Uncorelated uncertainty 
      $     ,E_TOT(NTOT)              !> Total uncertainty
       double precision E_STA(NTOT)   !> Stat. errors
+      double precision E_STA_CONST(NTOT) !> Stat. errors which are to be kept constant
       integer JSET(NTOT)             !> Reference to dataset index
 
 
@@ -22,7 +23,7 @@ C SG: index of theory bin, if needed
       integer IndexTheoryBin(NTOT)
 
       common/indata2/
-     + DATEN,E_UNC,E_TOT, E_STA,
+     + DATEN,E_UNC,E_TOT, E_STA, E_STA_CONST,
      + JSET,IndexTheoryBin
 
       common/CAbstractBins/AbstractBins,KFactors

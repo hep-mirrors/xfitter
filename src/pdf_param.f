@@ -40,6 +40,8 @@ C-------------------------------------------------------
       integer idxShiftPolL   !> indices shiftpol
 C-------------------------------------------------------
       integer idxAuEW, idxAdEW, idxVuEW, idxVdEW !> indices for EW param
+      logical LPolFits       !> Logical to init polarisation fits
+      data LPolFits/.false./
 
 C-------------------------------------------------------
       if (LFirstTime) then
@@ -103,6 +105,7 @@ C-------------------------------------------------------
             idxShiftPolLHp = iExtraParamMinuit(idxShiftPolLHp)
             idxShiftPolT = iExtraParamMinuit(idxShiftPolT)
             idxShiftPolL = iExtraParamMinuit(idxShiftPolL)
+            LPolFits = .true.
          endif
 
 
@@ -111,22 +114,37 @@ C-------------------------------------------------------
 
 C Polarisation shifts extra param
 
-
-      shift_polRHp=p(idxShiftPolRHp)
-      shift_polLHp=p(idxShiftPolLHp)
-      shift_polLHm=p(idxShiftPolLHm)
-      shift_polRHm=p(idxShiftPolRHm)
-      shift_polL=p(idxShiftPolL)
-      shift_polT=p(idxShiftPolT)
+      if (LPolFits) then
+         shift_polRHp=p(idxShiftPolRHp)
+         shift_polLHp=p(idxShiftPolLHp)
+         shift_polLHm=p(idxShiftPolLHm)
+         shift_polRHm=p(idxShiftPolRHm)
+         shift_polL=p(idxShiftPolL)
+         shift_polT=p(idxShiftPolT)
+      else
+         shift_polRHp=0.0
+         shift_polLHp=0.0
+         shift_polLHm=0.0
+         shift_polRHm=0.0
+         shift_polL  =0.0
+         shift_polT  =0.0
+      endif
 
 
 
 
 C EW extra param
-      cau_ew=p(idxAuEW)
-      cad_ew=p(idxAdEW)
-      cvu_ew=p(idxVuEW)
-      cvd_ew=p(idxVdEW)
+      IF (idxAuEw.gt.0) then
+         cau_ew=p(idxAuEW)
+         cad_ew=p(idxAdEW)
+         cvu_ew=p(idxVuEW)
+         cvd_ew=p(idxVdEW)
+      else
+         cau_ew = 0.
+         cad_ew = 0.
+         cvu_ew = 0.
+         cvd_ew = 0.
+      endif
 
 
 C PDF param    

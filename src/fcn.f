@@ -436,7 +436,7 @@ c AS applgrid example
       integer ir(nsysmax),n0_in 
       integer isys,ipoint,jpoint,ifail,flag_in
       double precision chisq,fchi2_in,chi2error,fchi2_error
-      double precision d,t,error,errorunc
+      double precision d,t,error,errorunc,errorconst
       double precision errorsta, fac, fcorchi2_in
       double precision d_i, t_i, error_i, d_j, error_j, t_j         
       integer i,j,jsys,h1iset
@@ -514,17 +514,23 @@ C     Turn off the point for the syst. errors shift estimation:
                else
 ***   mixed scaling - decompose - scale - recombine
                   errorunc = E_UNC(ipoint)*d/100.
+                  errorconst = E_STA_CONST(ipoint)*d/100.
 
                   if (errorunc.gt.error) then
                      errorsta = 0.
                   else
-                     errorsta = dsqrt(error**2-errorunc**2)
+                     errorsta = error**2-errorunc**2-errorconst**2
+                     if (errorsta.gt.0) then
+                        errorsta = sqrt(errorsta)
+                     else
+                        errorsta = 0.
+                     endif
                   endif
                   if (t.gt.0) then
                      errorsta = errorsta*dsqrt(abs(t/d))
                      errorunc = errorunc*(abs(t/d))
                   endif
-                  error = dsqrt(errorsta**2+errorunc**2)
+                  error = dsqrt(errorsta**2+errorunc**2+errorconst**2)
                endif
 
             else if (ICHI2.eq.21) then
@@ -604,10 +610,16 @@ C     Turn off the point for the syst. errors shift estimation:
             if (ICHI2.eq.11 .or. ICHI2.eq.41) then
 ***   mixed scaling - decompose - scale - recombine
                errorunc = E_UNC(ipoint)*d/100.
+               errorconst = E_STA_CONST(ipoint)*d/100.
                if (errorunc.gt.error) then
                   errorsta = 0.
                else
-                  errorsta = dsqrt(error**2-errorunc**2)
+                  errorsta = error**2-errorunc**2-errorconst**2
+                  if (errorsta.gt.0) then
+                     errorsta = sqrt(errorsta)
+                  else
+                     errorsta = 0.
+                  endif
                endif
                if (t.gt.0) then
                   if (iDH_MOD.ne.0) then
@@ -617,7 +629,7 @@ C     Turn off the point for the syst. errors shift estimation:
                   endif
                   errorunc = errorunc*(abs(t/d))
                endif
-               error = dsqrt(errorsta**2+errorunc**2)
+               error = dsqrt(errorsta**2+errorunc**2+errorconst**2)
                !> Extra contribution due to 2xlog sigma term:
                chi2error =  2.*log( error/alpha(ipoint)) !> subtract un-modified error such that delta chi2=0 if errors are not modified.
 
