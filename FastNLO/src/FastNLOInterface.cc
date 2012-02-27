@@ -25,16 +25,16 @@ using namespace std;
 
 
 extern "C" {
-   int fastnloinit_(const char *s, const int *idataset, const char *thfile );
+   int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits );
    int fastnlocalc_(const int *idataset, double *xsec);
    int getalf_( double* alfs, double* r2 );
 }
 
 map<int, FastNLOReader*> gFastNLO_array;
 
-int fastnloinit_(const char *s, const int *idataset, const char *thfile  ) {
+int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits  ) {
 
-   //cout << "FastNLOINterface::fastnloinit_ idataset = "<<*idataset<<endl;
+  //cout << "FastNLOINterface::fastnloinit_ idataset = "<<*idataset<< ", PublicationUnits "<< *PublicationUnits << endl;
 
    map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    if(FastNLOIterator != gFastNLO_array.end( )) 
@@ -42,26 +42,11 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile  ) {
   
    FastNLOReader* fnloreader = NULL;
    fnloreader = new FastNLOReader( thfile );  
-   //    if(string(s).compare( "H1 inclusive jet 99-00 data"))
-   //       fnloreader = new FastNLOReader( thfile );  
-   //    else {
-   //       cerr << "fastnloinit did not recognize data set <" << s << ">" <<  endl;
-   //       return 1;
-   //    }
    
-   
-   fnloreader->SetUnits(FastNLOReader::kAbsoluteUnits);
-   if ( string(s).find("D0 pp jets") == 0 ){;
-      cout << "D0 -> Setting to publication units."<<endl;
-      fnloreader->SetUnits(FastNLOReader::kPublicationUnits);
-   }
-   else if ( string(s).find("CMS inclusive jets") == 0 ){;
-      cout << "D0 -> Setting to publication units."<<endl;
-      fnloreader->SetUnits(FastNLOReader::kPublicationUnits);
-   }
-   else{
-      cout << "could not recognize D0 jets. Using absolute units."<<endl;
-   }
+   if(*PublicationUnits)
+     fnloreader->SetUnits(FastNLOReader::kPublicationUnits);
+   else 
+     fnloreader->SetUnits(FastNLOReader::kAbsoluteUnits);
 
    fnloreader->SetPDFInterface(FastNLOReader::kH1FITTER);
    fnloreader->SetAlphasMz( 0.1180 ); // just for initalisation

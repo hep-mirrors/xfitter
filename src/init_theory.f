@@ -795,10 +795,26 @@ C------------------------------------------------------------
       implicit none
       integer IDataSet
       include 'ntot.inc'
-c      include 'steering.inc'
       include 'datasets.inc'
+
+      integer GetInfoIndex
+
+      logical PubUnits      
+      double precision RealPubUnits
+      integer IdxPubUnits
+
+
+      IdxPubUnits = GetInfoIndex(IDataSet,'PublicationUnits')
+      RealPubUnits= DATASETInfo(IdxPubUnits, IDataSet)
+      if(RealPubUnits .eq. 1.) then
+         PubUnits = .True.
+      else                  
+         PubUnits = .False. 
+      endif
+
       call fastnloinit(DATASETLABEL(IDataSet),IDataSet
-     $     ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet),' ')-1)//char(0));
+     $     ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet),' ')-1)//char(0)
+     $     ,PubUnits);
       end
 
       subroutine InitHathorDataSet(IDataSet)
