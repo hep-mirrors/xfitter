@@ -101,6 +101,11 @@ c EW param
       double precision cau, cad, cvu, cvd
 
 
+      open (74,file='output/f2nc.qcdfunc',status='unknown')
+      open (84,file='output/flnc.qcdfunc',status='unknown')
+      open (94,file='output/xf3nc.qcdfunc',status='unknown')
+      open (96,file='output/ccem.qcdfunc', status='unknown')
+      open (98,file='output/ccep.qcdfunc',status='unknown')
 
 C prepare bins:
       nshiraz=0
@@ -109,7 +114,6 @@ C prepare bins:
          do ishx=1, 66
             x_in=xboo(ishx)
             nshiraz=nshiraz+1
-            
             dxoo(nshiraz)=x_in
             dq2oo(nshiraz)=q2_in
          enddo
@@ -302,5 +306,14 @@ c           print*,'NC SH F3', x,q2, xf3qcd, xf3gamz,xf3zz
            
            enddo
         enddo
+      close(74)
+      close(84)
+      close(94)
+      close(96)
+      close(98)
+
 
       end
+
+
+
