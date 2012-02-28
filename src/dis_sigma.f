@@ -6,6 +6,9 @@
       call GetDisXsection(IDataSet, 'CCDIS')
       end
       
+      Subroutine GetNCCharmXsection(IDataSet)
+      call GetDisXsection(IDataSet, 'CHARMDIS')
+      end
       
       Subroutine GetIntegratedNCXsection(IDataSet)
       call GetIntegratedDisXsection(IDataSet, 'NCDIS')
@@ -270,7 +273,7 @@ C
          if(.not. IsReduced) then
             if (XSecType.eq.'CCDIS') then
                factor=(Mw**4/(Mw**2+q2(i))**2)*Gf**2/(2*pi*x(i))*convfac
-            else if (XSecType.eq.'NCDIS') then
+            else if (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS') then
                alphaem_run = aemrun(q2(i))
                factor=2*pi*alphaem_run**2/(x(i)*q2(i)**2)*convfac
             else
@@ -445,8 +448,10 @@ C all the transformations below are array operations!
             Xsec = Xsec*(1-polarity)
          endif
       else if(XSecType.eq.'NCDIS') then
-            XSec = F2 + yminus/yplus*xF3 - y*y/yplus*FL
-         else
+         XSec = F2 + yminus/yplus*xF3 - y*y/yplus*FL
+      else if(XSecType.eq.'CHARMDIS') then
+         XSec = F2c - y*y/yplus*FLc
+      else
          print *, 'CalcReducedXsectionForXYQ2, XSecType',
      $        XSecType,'not supported'
          stop
@@ -507,7 +512,7 @@ C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
             CALL ZMSTFUN(2,CCEM2F,X,Q2,F2,npts,0)      
             CALL ZMSTFUN(3,CCEM3F,X,Q2,XF3,npts,0) 
          endif
-      elseif (XSecType.eq.'NCDIS') then
+      elseif (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS') then
 C     u-type ( u+c ) contributions 
          CALL ZMSTFUN(1,CNEP2F,X,Q2,FL,npts,0)
          CALL ZMSTFUN(2,CNEP2F,X,Q2,F2,npts,0)
@@ -525,7 +530,7 @@ C     d-type (d + s + b) contributions
 
 c     for NC needs to combine F2p with F2m etc.        
 
-      if(XSecType.eq.'NCDIS') then
+      if(XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS') then
          if(EWFIT.eq.0) then
 C
 C EW couplings of the electron
@@ -671,6 +676,8 @@ c     icharge_in:+1 CC e+
          if (charge.gt.0) icharge = 4
          if (charge.lt.0) icharge = 5
 
+      else if (XSecType.eq.'CHARMDIS') then
+         icharge = 0
       else
          print *, 'UseAcotScheme, XSecType', XSecType,
      $        'not supported'
@@ -773,10 +780,10 @@ C     Replace F2,FL from QCDNUM by RT values
 C     Keep xF3 from QCDNUM
          F2(i) = F2pRT * (F2(i)/F2Gamma(i))
          FL(i) = FLpRT * (FL(i)/FLGamma(i))
-c         F2c(i) = F2cRT * (F2(i)/F2Gamma(i))
-c         FLc(i) = FLcRT * (FL(i)/FLGamma(i))
-c         F2b(i) = F2bRT * (F2(i)/F2Gamma(i))
-c         FLb(i) = FLbRT * (FL(i)/FLGamma(i))
+         F2c(i) = f2cRT
+         FLc(i) = flcRT
+         F2b(i) = f2bRT
+         FLb(i) = flbRT
          
       enddo
       end
