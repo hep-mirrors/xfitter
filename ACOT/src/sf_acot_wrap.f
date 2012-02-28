@@ -6,7 +6,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
      $     f123lb_out,
      $     hfscheme_in,
      $     icharge_in,
-     $     iflag, index, UseKFactors)
+     $     iflag, index, UseKFactors, polar_in)
 cccccccccccccccccccccccccccccccccccccccccccc
 c     F1, F2, F3, FL are out via f123l_out 
 c     f123l_out(1)=F1
@@ -18,7 +18,8 @@ c     same for charm only cotribution: f123lb
 c     
 c     hfscheme_in: for now only NLO massless and massive are possible
 c     icharge_in: 0 NC: photon exchange only
-c     icharge_in: 4 NC: gamma+gammaZ+Z 
+c     icharge_in: 4 NC e+: gamma+gammaZ+Z
+c     icharge_in: 5 NC e-: gamma+gammaZ+Z 
 c     icharge_in:-1 CC e-
 c     icharge_in:+1 CC e+
 c     iflag: flag from FCN (main minimisation routine)
@@ -50,7 +51,8 @@ cccccccccccccccccccccccccccccccccccccccccccc
 
       double precision x_in,q2_in,xmu,x,q
       integer icharge_in, mode_in, hfscheme_in
-      
+
+      double precision polar_in, polar
       integer icharge
 
 c communication with Fred's code
@@ -94,6 +96,8 @@ C     set "Isch, Iset, Iflg, Ihad" in common block first
       q=dsqrt(q2_in)
       icharge=icharge_in
 
+      polar=polar_in
+
 ! Target mass correction!
       hmass=0.d0
 !      hmass=0.938d0             !*** Hadron Mass for target mass corrections
@@ -114,9 +118,9 @@ C----------------------------------------------------------------------
 C     get the LO SFs
       ISCH=5    
       
-      Call Fgen123L(icharge,   1, X, Q,xmu,F123L_LO) !*** total F
-      Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_LO) !*** F-charm
-      Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO) !*** F-bottom
+      Call Fgen123L(icharge,   1, X, Q,xmu,F123L_LO, polar) !*** total F
+      Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_LO, polar) !*** F-charm
+      Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO, polar) !*** F-bottom
 
 C         
 
@@ -130,9 +134,9 @@ C
             ISCH=9
          endif
          
-         Call Fgen123L(icharge,   1, X, Q,xmu,F123L_NLO) !*** total F
-         Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_NLO) !*** total Fc
-         Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_NLO) !*** total Fb
+         Call Fgen123L(icharge,   1, X, Q,xmu,F123L_NLO, polar) !*** total F
+         Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_NLO, polar) !*** total Fc
+         Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_NLO, polar) !*** total Fb
          do i=1,4
             F123L_out(i)=F123L_NLO(i)
             F123Lc_out(i)=F123Lc_NLO(i)
