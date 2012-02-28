@@ -418,7 +418,7 @@ C
       if     (mod(HFSCHEME,10).eq.1) then
 
          call UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, charge, IDataSet)
+     $        x, q2, npts, polarity, XSecType, charge, IDataSet)
          
       elseif (mod(HFSCHEME,10).eq.2) then
          
@@ -445,8 +445,8 @@ C all the transformations below are array operations!
             Xsec = Xsec*(1-polarity)
          endif
       else if(XSecType.eq.'NCDIS') then
-         XSec = F2 + yminus/yplus*xF3 - y*y/yplus*FL
-      else
+            XSec = F2 + yminus/yplus*xF3 - y*y/yplus*FL
+         else
          print *, 'CalcReducedXsectionForXYQ2, XSecType',
      $        XSecType,'not supported'
          stop
@@ -543,9 +543,7 @@ C
             vu = au - (4.d0/3.d0)*sin2thw
             vd = ad + (2.d0/3.d0)*sin2thw
          else
-            
             call wrap_ew(q2,sweff,deltar,cau,cad,cvu,cvd,polarity,charge)
-            
             sin2thw2 = 1.d0 - MW**2/MZ**2
             sin2th_eff = 0.23134d0
             xkappa = sin2th_eff/sin2thw
@@ -627,7 +625,7 @@ cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
       end
 
       subroutine UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $     x, q2, npts, XSecType, charge, IDataSet)
+     $     x, q2, npts, polarity, XSecType, charge, IDataSet)
 C----------------------------------------------------------------
 C Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
 C according to ACOT scheme
@@ -643,7 +641,7 @@ C---------------------------------------------------------------
 
 C Input:
       double precision x(NPMaxDIS), q2(NPMaxDIS)
-      double precision charge
+      double precision charge, polarity
       integer npts,IDataSet
       character*(*) XSecType
 C Output:
@@ -663,13 +661,16 @@ C Additional variables:
       endif
 
 c     icharge_in: 0 NC: photon exchange only
-c     icharge_in: 4 NC: gamma+gammaZ+Z 
+c     icharge_in: 4 NC: e+ gamma+gammaZ+Z 
+c     icharge_in: 5 NC: e- gamma+gammaZ+Z 
 c     icharge_in:-1 CC e-
 c     icharge_in:+1 CC e+
       if(XSecType.eq.'CCDIS') then
          icharge = int(charge)
       else if (XSecType.eq.'NCDIS') then
-         icharge = 4
+         if (charge.gt.0) icharge = 4
+         if (charge.lt.0) icharge = 5
+
       else
          print *, 'UseAcotScheme, XSecType', XSecType,
      $        'not supported'
@@ -683,14 +684,14 @@ c     icharge_in:+1 CC e+
      $        f123l,f123lc,f123lb,
      $        hfscheme, icharge, 
      $        iFlagFCN, idx,
-     $        UseKFactors)
+     $        UseKFactors, polarity)
       
          FL(i)  = F123L(4)
          F2(i)  = F123L(2)
          XF3(i) = x(i) * F123L(3)
-         if ((charge.gt.0).and.(XSecType.eq.'NCDIS')) then
-            XF3(i) = - XF3(i)
-         endif
+c         if ((charge.gt.0).and.(XSecType.eq.'NCDIS')) then
+c            XF3(i) = - XF3(i)
+c         endif
 
          FLc(i)  = F123Lc(4)
          F2c(i)  = F123Lc(2)
