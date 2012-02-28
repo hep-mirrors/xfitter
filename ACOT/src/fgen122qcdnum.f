@@ -1,7 +1,7 @@
 C =========================================================================
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fgen123LK(idata,icharge,Mode, XBJ, Q, XMU, F123L)
+       SUBROUTINE Fgen123LK(idata,icharge,Mode, XBJ, Q, XMU, F123L, polar)
 C-----------------------------------------------------------------------------
 C      This is a front-end for Fgen123L
 C      On first call of idata point number, it computes and stores the K-factor
@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------------
 c    if idata=0 skip k-factor table and use full calculation
 C-----------------------------------------------------------------------------
       if(idata.eq.0)  then  !**** over-ride and use full calculation:
-         call Fgen123L(icharge,Mode,xbj,q,xmu,F123L)
+         call Fgen123L(icharge,Mode,xbj,q,xmu,F123L, polar)
          return
       endif
 
@@ -44,10 +44,10 @@ C-----------------------------------------------------------------------------
 c     FIRST TIME THROUGH: FILL K-FACTOR      
 C-----------------------------------------------------------------------------
       if(XKFACTOR(idata,1,mode).eq.0.d0)  then  !***  FIRST TIME THROUGH: FILL K-FACTOR  ===
-         call Fgen123L(icharge,Mode,xbj,q,xmu,F123L)
+         call Fgen123L(icharge,Mode,xbj,q,xmu,F123L, polar)
          IschORIG=Isch
          Isch=5  !*** Massive LO Calculation
-         Call Fgen123L(icharge,Mode,XBJ,Q,XMU,F123Llo)
+         Call Fgen123L(icharge,Mode,XBJ,Q,XMU,F123Llo, polar)
          Isch=IschORIG  !*** Reset Ischeme
 C     Generate K-Factor
          do i=1,4
@@ -62,7 +62,7 @@ C-----------------------------------------------------------------------------
          else  !***  NOT FIRST TIME THROUGH: USE K-FACTOR ======================
             IschORIG=Isch
             Isch=5  !*** Massive LO Calculation
-            Call Fgen123L(icharge,Mode, XBJ, Q, XMU, F123Llo)
+            Call Fgen123L(icharge,Mode, XBJ, Q, XMU, F123Llo, polar)
             Isch=IschORIG  !*** Reset Ischeme
 C     Use K-Factor
             do i=1,4
@@ -77,7 +77,7 @@ C-----------------------------------------------------------------------------
 CC =========================================================================
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fgen123L(icharge,Mode, XBJ, Q, XMU, F123L)
+       SUBROUTINE Fgen123L(icharge,Mode, XBJ, Q, XMU, F123L, polar)
 C-----------------------------------------------------------------------------
 C      This is a front-end for Fgen123. "Fgen123L" simply adds on the "L" piece
 C      Program to compute both CC and NC F123
@@ -90,7 +90,7 @@ C-----------------------------------------------------------------------------
       Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
       common /fred/ xmc,xmb,HMASS
 
-      call Fgen123(icharge,Mode,xbj,q,xmu,F123)
+      call Fgen123(icharge,Mode,xbj,q,xmu,F123, polar)
 
 c     copy arrays
       F123L(1)=F123(1)
@@ -109,7 +109,7 @@ C----------------------------------------------------------------------
 C =========================================================================
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fgen123(icharge,Mode, XBJ, Q, XMU, F123)
+       SUBROUTINE Fgen123(icharge,Mode, XBJ, Q, XMU, F123, polar)
 C-----------------------------------------------------------------------------
 C      Program to compute both CC and NC F123
 C      05/07/2007  Include Z-Z, and G-Z terms
@@ -124,11 +124,10 @@ C-----------------------------------------------------------------------------
       Character*80 Message ! Error message text
 
       if(icharge.eq.0) then !*** Neutral Current  (only photon at this point)
-          call Fnc123(icharge,Mode,xbj,q,xmu,F123)
+          call Fnc123(icharge,Mode,xbj,q,xmu,F123, polar)
 
-      elseif(icharge.eq. 4) then !*** Neutral Current BOTH GAMMA & Z
-       Call Fnc123(icharge,Mode, XBJ, Q,XMU, F123)
-
+      elseif(icharge.eq. 4.or.icharge.eq.5) then !*** Neutral Current BOTH GAMMA & Z
+       Call Fnc123(icharge,Mode, XBJ, Q,XMU, F123, polar)
       elseif(icharge.eq.+1) then !*** Charged Current (W+) 
        Call Fcc123(icharge,Mode, XBJ, Q,XMU, F123)
       
@@ -150,7 +149,7 @@ c        stop
 C-----------------------------------------------------------------------------
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fnc123(icharge,Mode, XBJ, Q,XMU, F123)
+       SUBROUTINE Fnc123(icharge,Mode, XBJ, Q,XMU, F123, polar)
 C-----------------------------------------------------------------------------
 C      Program to COMPUTE K FACTORS
 C      
@@ -181,7 +180,6 @@ C     DATA SINW2, XMW, XMZ   / 0.23D0,   80.4D0,  91.2D0 /
 ! pull values from herafitter
 cv      DATA SINW2, XMW, XMZ   / 0.2303D0, 80.0D0,  91.188D0 /   !*** MATCH QCDNUM
       common /fredew/ SINW2, XMW, XMZ
-
       DATA idebugZ,ifirstZ,iLRdebug,xDebugTmp  /1,0,+1, 1.0d0/
 C-----------------------------------------------------------------------------
 C--- FOR CHARGED CURRENT
@@ -205,8 +203,10 @@ C----------------------------------------------------------------------
 C PULL MC AND MB FROM QCDNUM USING 
 C      common /fred/ xmc,xmb
 C----------------------------------------------------------------------
-      XMARRAY(4)=XMC !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
-      XMARRAY(5)=XMB !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
+       polarity = polar
+
+       XMARRAY(4)=XMC           !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
+       XMARRAY(5)=XMB           !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
 C----------------------------------------------------------------------
 C WEINBERG ANGLE:
 C----------------------------------------------------------------------
@@ -246,17 +246,30 @@ C------- Z-ELECTRON COUPLINGS:
 
 C------- Combinations that multiply F123
        facgg(2) = 1.0d0
-       facgz(2) = - eleVec 
-       faczz(2) = + (eleVec**2 + eleAxial**2)
- 
+       if (icharge.eq.4) then
+          facgz(2) = - eleVec-polarity*eleAxial
+          faczz(2) = eleVec**2 + eleAxial**2 +2.0d0 * polarity*eleAxial*eleVec 
+ch          print*,'faczz(2), facgz(2)!',faczz(2), facgz(2)
+       elseif (icharge.eq.5) then
+          facgz(2) = - eleVec+polarity*eleAxial 
+          faczz(2) = eleVec**2 + eleAxial**2-2.0d0 * polarity*eleAxial*eleVec 
+       endif
+
        facgg(1) = facgg(2) 
        facgz(1) = facgz(2) 
        faczz(1) = faczz(2) 
 
        facgg(3) = 0.0d0
-       facgz(3) = -  eleAxial
-       faczz(3) = + 2.0d0 * (eleVec * eleAxial)
-
+       if (icharge.eq.4) then
+          facgz(3) = + eleAxial + polarity*eleVec
+          faczz(3) = - 2.0d0 * (eleVec * eleAxial) -
+     $         polarity*(eleVec**2+eleAxial**2)
+ch          print*,'faczz(3), facgz(3)!',faczz(3), facgz(3)
+       elseif (icharge.eq.5) then
+          facgz(3) = - eleAxial + Polarity*eleVec
+          faczz(3) = + 2.0d0 * (eleVec * eleAxial) -
+     $         polarity*(eleVec**2+eleAxial**2)
+       endif
 
 C----------------------------------------------------------------------
 C INITIALIZATION OF PROPAGATOR FACTORS
@@ -363,7 +376,7 @@ C         read(5,*) idebugZ  !*** PATCH: TURN ON BY DEFAULT FOR NOW
          endif
       endif
       xz=0.0d0  !**** TURN OF ZZ AND GZ FOR ICHARGE.NE.4
-      if(icharge.eq.4) xz=1.0d0 * idebugZ  !*** idebugZ is debug over-ride
+      if(icharge.eq.4.or.icharge.eq.5) xz=1.0d0 * idebugZ  !*** idebugZ is debug over-ride
 
 C----------------------------------------------------
            DO I=1,3,1
