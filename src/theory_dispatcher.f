@@ -24,6 +24,8 @@ C-------------------------------------------------------------------
          endif
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
          Call GetNCXsection(IDataSet)
+      elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
+         Call GetNCCharmXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          Call GetCCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
