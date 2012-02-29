@@ -121,8 +121,12 @@ c        open(82,file=h1name)
 
             gval=pdf(0)
 
+            if (q2.gt.qc) then
+               U=pdf(2)+pdf(-4)
+            else
+               U=pdf(2)
+            endif
 
-            U=pdf(2)+pdf(-4)
             if (q2.gt.qb) then
                D=pdf(1)+pdf(-3)+pdf(-5)
             else
@@ -131,7 +135,12 @@ c        open(82,file=h1name)
          
             umin=pdf(2)-pdf(-2)
             dmin=pdf(1)-pdf(-1)
-            d_Ubar=pdf(-2)+pdf(-4)
+
+            if (q2.gt.qc) then
+               d_Ubar=pdf(-2)+pdf(-4)
+            else
+               d_Ubar=pdf(-2)
+            endif
      
             if (q2.gt.qb) then
                d_Dbar=pdf(-1)+pdf(-3)+pdf(-5)
