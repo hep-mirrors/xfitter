@@ -241,6 +241,12 @@ C      for dipole model fits.
          print*,'ITHEORY ne 0'
       endif
 
+c ABKM part
+      if (mod(HFSCHEME,10).eq.4) then 
+             call PDFFILLGRID
+             call fillvfngrid
+      endif
+
       if (Debug) then
          print*,'after evolution'
       endif
