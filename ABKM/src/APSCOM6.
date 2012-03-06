@@ -1,0 +1,23 @@
+      parameter (nxplim=201,nxmlim=201,nsplim=61,nsmlim=121,nflim=13)
+      parameter (nxtot=nxmlim+nxplim+1)
+
+      COMMON /GRID/ XGRID(-nxmlim:nxplim),SGRID(-nsmlim:nsplim)
+     ,,Y(-5:2,0:nflim,-nxmlim:nxplim,-nsmlim:nsplim)
+     ,,DELX1,DELX2,delxp,DELS1,DELS2,xlog1,xlog2,x1
+     ,,q2ini,q2min,q2max,xbmin,xbmax
+     ,,yhalf(0:1,nflim,-nxmlim:nxplim) 
+     ,,pgrid(0:1,0:2,3:6,nflim,nflim,-nxmlim:nxplim)
+     ,,xpgrid(-nxmlim:nxplim)
+     ,,nxmgrid,nxpgrid,nspgrid,nsmgrid,khalf
+
+      COMMON /forcgrid/ xc1,xclog1,xclog2,delcp,delcm,xbcmax
+     ,,cgrid(0:1,1:3,1:3,1:3,3:6,-nxmlim:nxplim)
+     ,,xcgrid(-nxmlim:nxplim)
+
+      common /forgridspline/ 
+     ,bcoeff(-5:2,0:nflim,-nxmlim:nxplim,-nsmlim:nsplim)
+     ,,ccoeff(-5:2,0:nflim,-nxmlim:nxplim,-nsmlim:nsplim)
+     ,,dcoeff(-5:2,0:nflim,-nxmlim:nxplim,-nsmlim:nsplim)
+     ,,bcoeffh(nflim,-nxmlim:nxplim)
+     ,,ccoeffh(nflim,-nxmlim:nxplim)
+     ,,dcoeffh(nflim,-nxmlim:nxplim)

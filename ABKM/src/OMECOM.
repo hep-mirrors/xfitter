@@ -1,0 +1,5 @@
+      parameter (nxplim=101,nxmlim=101)
+
+      COMMON /foromegrid/ xo1,xolog1,xolog2,delop,delom,xbomax
+     ,,omegrid(2,2,-nxmlim:nxplim)
+     ,,xogrid(-nxmlim:nxplim)

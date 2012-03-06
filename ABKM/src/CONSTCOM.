@@ -1,0 +1,13 @@
+      COMMON /QCDPAR/ cf,cg,tr,qsum(6),qsum0(6),nc,nf,nfe,nfc
+      common /FORQCDHOCORR/ zeta2,zeta3,zeta4
+
+      COMMON /CONSTANTS_ABKM/ pi,alpha_abkm,alphady,rmpr,gfer2,sintc,sintw2
+     ,,rmw,rmz,rgz,ckm(3,3),ckm2(3,3)
+
+      COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)
+
+      common /FORALPSRENORM/ q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+     , ,alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1,hqscale2
+     , ,nfeff,kordalps,kfeff
+     , ,kordhq,kordf2,kordfl,kordf3
+
