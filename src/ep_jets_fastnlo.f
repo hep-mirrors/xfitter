@@ -1,3 +1,32 @@
+      Subroutine GetJetsFastNLOXsectionNormalised(IDataSet)
+C---------------------------------------------------------------------------
+C
+C  Created 06/03/2012.  Calculate ep jets cross sections normalised to dis cross sections
+C
+C---------------------------------------------------------------------------
+
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'datasets.inc'
+
+      integer IDataSet
+      integer GetInfoIndex
+      double precision UseZMVFNS
+      integer local_hfscheme
+      
+      UseZMVFNS=(DATASETInfo(GetInfoIndex(IDataSet,
+     $     'UseZMVFNS'),IDataSet))
+      if(UseZMVFNS.eq.0.) then
+         local_hfscheme = HFSCHEME
+      else
+         local_hfscheme = 0
+      endif
+      
+      Call GetIntegratedNCXsection(IDataSet, local_hfscheme)
+      Call GetJetsFastNLOXsection(IDataSet, .true.)
+      
+      end
+
       Subroutine GetJetsFastNLOXsection(IDataSet, UseNormalisation)
 C---------------------------------------------------------------------------
 C

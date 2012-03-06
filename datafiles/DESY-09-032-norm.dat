@@ -14,9 +14,9 @@
    ColumnName = 'q2min','q2max','ptmin','ptmax','ymin','ymax','NPCorr','Sigma', 'stat', 'uncor', 
               'elecE_DESY-09-032', 'elecTheta_DESY-09-032', 'hfs_DESY-09-032'
 
-   NInfo   = 3
-   DataInfo = 318.11947,       0.387,           0.
-   CInfo    = 'sqrt(S)', 'lumi(e-)/lumi(tot)', 'PublicationUnits'
+   NInfo   = 4
+   DataInfo = 318.11947,       0.387,           0.,                 0.
+   CInfo    = 'sqrt(S)', 'lumi(e-)/lumi(tot)', 'PublicationUnits', 'UseZMVFNS'
    
    IndexDataset = 36
 

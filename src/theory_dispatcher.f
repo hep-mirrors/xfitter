@@ -12,22 +12,22 @@ C---------------------------------------------------------------
       integer IDataSet
 C-------------------------------------------------------------------
       if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then
-         Call GetIntegratedNCXsection(IDataSet)
+         Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
          if (DipoleModel.gt.0.and.DipoleModel.le.2) then
             call DipolePrediction(IDataSet)
          elseif (DipoleModel.gt.2) then
-            Call GetNCXsection(IDataSet)
+            Call GetNCXsection(IDataSet, HFSCHEME)
             call DipolePrediction(IDataSet)
          else
-            Call GetNCXsection(IDataSet)
+            Call GetNCXsection(IDataSet, HFSCHEME)
          endif
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
-         Call GetNCXsection(IDataSet)
+         Call GetNCXsection(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
-         Call GetNCCharmXsection(IDataSet)
+         Call GetNCCharmXsection(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
-         Call GetCCXsection(IDataSet)
+         Call GetCCXsection(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
      $        DATASETREACTION(IDataSet).eq.'CC ppbar' ) then
          Call GetDYCCXsection(IDataSet)
@@ -39,8 +39,7 @@ C-------------------------------------------------------------------
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
          Call GetJetsFastNLOXsection(IDataSet, .false.)
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised') then
-         Call GetIntegratedNCXsection(IDataSet)
-         Call GetJetsFastNLOXsection(IDataSet, .true.)
+         Call GetJetsFastNLOXsectionNormalised(IDataSet)
        elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
          Call GetHathorXsection(IDataSet)
       else

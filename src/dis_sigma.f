@@ -1,26 +1,26 @@
-      Subroutine GetNCXsection(IDataSet)
-      call GetDisXsection(IDataSet, 'NCDIS')
+      Subroutine GetNCXsection(IDataSet, local_hfscheme)
+      call GetDisXsection(IDataSet, 'NCDIS', local_hfscheme)
       end
       
-      Subroutine GetCCXsection(IDataSet)
-      call GetDisXsection(IDataSet, 'CCDIS')
+      Subroutine GetCCXsection(IDataSet, local_hfscheme)
+      call GetDisXsection(IDataSet, 'CCDIS', local_hfscheme)
       end
       
-      Subroutine GetNCCharmXsection(IDataSet)
-      call GetDisXsection(IDataSet, 'CHARMDIS')
+      Subroutine GetNCCharmXsection(IDataSet, local_hfscheme)
+      call GetDisXsection(IDataSet, 'CHARMDIS', local_hfscheme)
       end
       
-      Subroutine GetIntegratedNCXsection(IDataSet)
-      call GetIntegratedDisXsection(IDataSet, 'NCDIS')
+      Subroutine GetIntegratedNCXsection(IDataSet, local_hfscheme)
+      call GetIntegratedDisXsection(IDataSet, 'NCDIS', local_hfscheme)
       end
       
-      Subroutine GetIntegratedCCXsection(IDataSet)
+      Subroutine GetIntegratedCCXsection(IDataSet, local_hfscheme)
 C This is not fully tested
-      call GetIntegratedDisXsection(IDataSet, 'CCDIS')
+      call GetIntegratedDisXsection(IDataSet, 'CCDIS', local_hfscheme)
       end
 
 
-      Subroutine  GetIntegratedDisXsection(IDataSet, XSecType)
+      Subroutine  GetIntegratedDisXsection(IDataSet, XSecType, local_hfscheme)
 C----------------------------------------------------------------
 C
 C  Double differential integrated DIS cross section calculation
@@ -45,6 +45,7 @@ C---------------------------------------------------------------
       integer idxQ2min, idxQ2max, idxYmin, idxYmax, idxXmin, idxXmax
       integer i,  idx, iq2, ix, j, kkk
       
+      integer local_hfscheme
       integer nq2split
       parameter(nq2split=25)
       integer nxsplit
@@ -145,9 +146,9 @@ C
 
          polarity = 0.D0
          call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins, 1.D0,
-     $        polarity,IDataSet,XSecType, XSecP)
+     $        polarity,IDataSet,XSecType, local_hfscheme, XSecP)
          call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins,-1.D0,
-     $        polarity,IDataSet,XSecType, XSecN)
+     $        polarity,IDataSet,XSecType, local_hfscheme, XSecN)
 
          XSec = 0.D0
          do j=1, NSubBins
@@ -188,7 +189,7 @@ c         call HF_stop
 
 
 
-      Subroutine GetDisXsection(IDataSet, XSecType)
+      Subroutine GetDisXsection(IDataSet, XSecType, local_hfscheme)
 C----------------------------------------------------------------
 C
 C  NC and CC double differential reduced cross section calculation 
@@ -211,7 +212,7 @@ C---------------------------------------------------------------
       include 'qcdnumhelper.inc'
 
       character*(*) XSecType
-      integer IDataSet
+      integer IDataSet, local_hfscheme
       integer idxQ2, idxX, idxY, i,  idx
       
       double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS),XSec(NPMaxDIS)
@@ -263,7 +264,7 @@ C
 
       call ReadPolarityAndCharge(idataset,charge,polarity)
       call CalcReducedXsectionForXYQ2(X,Y,Q2,NDATAPOINTS(IDataSet),
-     $     charge,polarity,IDataSet,XSecType,XSec)
+     $     charge,polarity,IDataSet,XSecType, local_hfscheme,XSec)
 
 
       do i=1,NDATAPOINTS(IDataSet)
@@ -374,7 +375,7 @@ c
 
 
       Subroutine CalcReducedXsectionForXYQ2(X,Y,Q2,npts,charge,polarity,
-     $     idataset,XSecType,XSec)
+     $     idataset,XSecType,local_hfscheme,XSec)
 C----------------------------------------------------------------
 C   Double differential reduced cross section calculation 
 C   for a table given by X, Y, Q2. Fills array XSec
@@ -388,13 +389,12 @@ C---------------------------------------------------------------
       include 'qcdnumhelper.inc'
 
 C Input:
-      integer npts, IDataSet
+      integer npts, IDataSet, local_hfscheme
       character*(*) XSecType
       double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS)
       double precision Charge, polarity
 C Output: 
       double precision XSec(NPMaxDIS)
-
 
       integer i, idx
       double precision yplus(NPMaxDIS), yminus(NPMaxDIS)
@@ -413,27 +413,26 @@ C
          call HF_stop
       endif
 
-
       call UseZmvnsScheme(F2, FL, xF3, F2gamma, FLgamma,
      $     q2, x, npts, polarity, charge, XSecType)
 
 
-      if     (mod(HFSCHEME,10).eq.1) then
+      if     (mod(local_hfscheme,10).eq.1) then
 
          call UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, polarity, XSecType, charge, IDataSet)
+     $        x, q2, npts, polarity, XSecType, charge, local_hfscheme, IDataSet)
          
-      elseif (mod(HFSCHEME,10).eq.2) then
+      elseif (mod(local_hfscheme,10).eq.2) then
          
          call UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, F2gamma, FLgamma, IDataSet)
+     $        x, q2, npts, XSecType, F2gamma, FLgamma, local_hfscheme, IDataSet)
          
-      elseif (mod(HFSCHEME,10).eq.3) then 
+      elseif (mod(local_hfscheme,10).eq.3) then 
 
          call UseHqstfScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
      $        x, q2, npts, XSecType)
 
-      elseif (mod(HFSCHEME,10).eq.4) then 
+      elseif (mod(local_hfscheme,10).eq.4) then 
 
          call UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
      $        x, q2, npts, XSecType, F2gamma, FLgamma, IDataSet)
@@ -634,7 +633,7 @@ cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
       end
 
       subroutine UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $     x, q2, npts, polarity, XSecType, charge, IDataSet)
+     $     x, q2, npts, polarity, XSecType, charge, local_hfscheme, IDataSet)
 C----------------------------------------------------------------
 C Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
 C according to ACOT scheme
@@ -659,11 +658,11 @@ C Output:
       double precision F2b(NPMaxDIS),FLb(NPMaxDIS)
 
 C Additional variables:
-      integer icharge, i, idx
+      integer icharge, i, idx, local_hfscheme
       logical UseKFactors
       double precision f123l(4),f123lc(4),f123lb(4)
       
-      if (mod(HFSCHEME,10).eq.1) then
+      if (mod(local_hfscheme,10).eq.1) then
          UseKFactors = .true.   !ACOT Full , ACOT Chi, ACOT ZM
 !      else
 !         UseKFactors = .false.  !ACOT ZM
@@ -693,7 +692,7 @@ c     icharge_in:+1 CC e+
          
          call sf_acot_wrap(x(i),q2(i),
      $        f123l,f123lc,f123lb,
-     $        hfscheme, icharge, 
+     $        local_hfscheme, icharge, 
      $        iFlagFCN, idx,
      $        UseKFactors, polarity)
       
@@ -717,7 +716,7 @@ c         endif
 
 
       subroutine UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, F2gamma, FLgamma, IDataSet)
+     $        x, q2, npts, XSecType, F2gamma, FLgamma, local_hfscheme, IDataSet)
 C----------------------------------------------------------------
 C Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
 C according to Robert Thorne scheme
@@ -734,7 +733,7 @@ C---------------------------------------------------------------
 C Input:
       double precision x(NPMaxDIS), q2(NPMaxDIS)
       double precision F2gamma(NPMaxDIS), FLgamma(NPMaxDIS)
-      integer npts,IDataSet
+      integer npts,IDataSet, local_hfscheme
       character*(*) XSecType
 
 C Output:
@@ -752,7 +751,7 @@ C RT code good only for NC case
       if (XSecType.eq.'CCDIS') return
       
       
-      if (HFSCHEME.eq.22) then 
+      if (local_hfscheme.eq.22) then 
          UseKFactors = .true.    ! RT Fast
       else
          UseKFactors = .false.   ! RT
