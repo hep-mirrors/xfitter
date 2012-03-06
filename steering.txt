@@ -29,6 +29,7 @@
  ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
  ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
  ! ---  HF_SCHEME = 'FF' : Fixed Flavour Number Scheme from qcdnum
+ ! ---  HF_SCHEME = 'ABKM FFNS' : ABKM Fixed Flavour Number Scheme
 
   HF_SCHEME = 'RT'
 
