@@ -433,6 +433,10 @@ C
          call UseHqstfScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
      $        x, q2, npts, XSecType)
 
+      elseif (mod(HFSCHEME,10).eq.4) then 
+
+         call UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $        x, q2, npts, XSecType, F2gamma, FLgamma, IDataSet)
       endif
 
 C all the transformations below are array operations!
@@ -828,4 +832,65 @@ C     HQSTF code good only for NC case
          FL(i) = FL(i) + FLc(i) + FLb(i)
       enddo
 
+      end
+
+
+
+
+      subroutine UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $     x, q2, npts, XSecType, F2gamma, FLgamma, IDataSet)
+C----------------------------------------------------------------
+C     Calculates F2, FL, XF3, F2c, FLc, F2b and FLb using ABKM FF scheme
+C---------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'datasets.inc'
+      include 'steering.inc'
+      include 'fcn.inc'
+      include 'qcdnumhelper.inc'
+      
+C Input:
+      double precision X(NPMaxDIS),Q2(NPMaxDIS)
+      double precision F2gamma(NPMaxDIS), FLgamma(NPMaxDIS)
+      integer npts,IDataSet
+      character*(*) XSecType
+      
+C Output: 
+      double precision F2(NPMaxDIS), FL(NPMaxDIS), xF3(NPMaxDIS)
+      double precision F2c(NPMaxDIS),FLc(NPMaxDIS),F2b(NPMaxDIS),FLb(NPMaxDIS)
+
+C ABKM 
+      Double precision f2abkm,flabkm,f3abkm
+      Double precision f2cabkm,flcabkm,f3cabkm
+      Double precision f2babkm,flbabkm,f3babkm
+
+C Additional Variables:
+      double precision NC2FHF(-6:6)
+      integer i, idx
+  
+C     HQSTF code good only for NC case      
+      if (XSecType.eq.'CCDIS') return
+
+      NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
+      CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,npts,0)
+      CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,npts,0)
+      CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,npts,0)
+      CALL HQSTFUN(1,-2,NC2FHF,X,Q2,FLb,npts,0)
+      
+
+      do i=1,npts
+         idx =  DATASETIDX(IDataSet,i)
+         
+         call sf_abkm_wrap(x(i),q2(i)
+     $        ,f2abkm,flabkm,f3abkm,f2cabkm,flcabkm,f3cabkm
+     $        ,f2babkm,flbabkm,f3babkm,3,1,22)
+
+c correct for Z contribution (as in RT case)           
+           F2(i) = f2abkm * (F2(i)/F2Gamma(i))  + f2cabkm + f2babkm
+           FL(i) = flabkm * (FL(i)/FLGamma(i)) + flcabkm + flbabkm
+C     Keep xF3 from QCDNUM FF (wraper will return zero)
+
+c           write(6,*) 'ABKM: F2sum,F2tot,F2g,F2c,F2b', i,F2,F2ab,f2abkm,
+c     $ f2cabkm,f2babkm
+      enddo
       end
