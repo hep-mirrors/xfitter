@@ -45,6 +45,7 @@ LDADD = $(QCDNUMLIBS) \
  ../RT/src/libmyrt.a \
  ../ACOT/src/libmyacot.a \
 ../HS/src/libmyhs.a \
+ ../ABKM/src/libmyabkm.a \
  ../FastNLO/src/libFastNLO.a \
  ../DIPOLE/src/libmydipole.a \
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
