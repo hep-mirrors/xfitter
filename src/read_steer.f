@@ -476,6 +476,10 @@ C---------------------------------
           HFSCHEME = 22 
       elseif (HF_SCHEME.eq.'FF') then
           HFSCHEME = 3 
+      elseif (HF_SCHEME.eq.'ABKM FFNS') then
+          HFSCHEME = 4 
+      elseif (HF_SCHEME.eq.'ABKM BMSN') then
+          HFSCHEME = 44 
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'
