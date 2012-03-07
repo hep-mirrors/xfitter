@@ -138,6 +138,14 @@
    ProcessName(7)     = 'muon p'
    Variable(7)        = 'Whad2'
    CutValueMin(7)     = 15.   
+
+  !--------------------- Fastnlo jets ----------------------
+
+   ProcessName(8)     = 'FastNLO ep jets'
+   Variable(8)        = 'kfac'
+   CutValueMin(8)     = 0.0
+   CutValueMax(8)     = 2.5
+
    
 &End
 
