@@ -22,15 +22,19 @@
 #include <cmath>
 
 using namespace std;
+typedef vector<bool> BoolArray; 
 
 
 extern "C" {
-   int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits );
-   int fastnlocalc_(const int *idataset, double *xsec);
-   int getalf_( double* alfs, double* r2 );
+  int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits );
+  int fastnlocalc_(const int *idataset, double *xsec);
+  int getalf_( double* alfs, double* r2 );
+  int fastnlopointskip_(const int *idataset, int *point, int *npoints);
 }
 
 map<int, FastNLOReader*> gFastNLO_array;
+map<int, BoolArray*>     gUsedPoints_array;
+int CreateUsedPointsArray(int idataset, int npoints);
 
 int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits  ) {
 
@@ -74,8 +78,6 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    //fnloreader->CalcCrossSection();
    //fnloreader->PrintCrossSectionsLikeFreader();
 
-
-
    gFastNLO_array.insert(pair<int, FastNLOReader*>(*idataset, fnloreader) );
    return 0;
 }
@@ -83,15 +85,26 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
 
 int fastnlocalc_(const int *idataset, double *xsec) {
 
-   cout << "FastNLOINterface::fastnlocalc_ idataset = " <<*idataset<<endl;
+  //cout << "FastNLOINterface::fastnlocalc_ idataset = " <<*idataset<<endl;
 
    // call QCDNUM::_evaluate here!
    
    map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
+   map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
    if(FastNLOIterator == gFastNLO_array.end( )) 
-      return 1;
-
+     return 1;
    FastNLOReader* fnloreader = FastNLOIterator->second;
+   
+   if(UsedPointsIterator == gUsedPoints_array.end( )) 
+     CreateUsedPointsArray(*idataset, fnloreader->GetNObsBins());
+   UsedPointsIterator = gUsedPoints_array.find(*idataset);
+   
+   if(UsedPointsIterator == gUsedPoints_array.end( )) {
+     cout << "can not find UsedPointsIterator for "<< *idataset <<endl;
+     exit(1);
+   }
+
+   BoolArray*     usedpoints = UsedPointsIterator->second;
 
    double alfsMz= 0;
    double Mz2= 0.;
@@ -105,9 +118,37 @@ int fastnlocalc_(const int *idataset, double *xsec) {
 
    vector < double > xs = fnloreader->GetCrossSection();
  
+   int outputidx = 0;
    for ( unsigned i=0;i<xs.size();i++){
-      xsec[i] = xs[i];
+     if(usedpoints->at(i)) {
+       xsec[outputidx] = xs[i];
+       outputidx++;
+     }
    }
-  
+ 
    return 0;
+}
+
+
+int fastnlopointskip_(const int *idataset, int *point, int *npoints) {
+  map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
+  if(UsedPointsIterator == gUsedPoints_array.end( )) 
+    CreateUsedPointsArray(*idataset, *npoints);
+
+  UsedPointsIterator = gUsedPoints_array.find(*idataset);
+  if(UsedPointsIterator == gUsedPoints_array.end( )) {
+    cout << "fastnlopointskip_ something wrong!"<<endl;
+    exit(1);
+  }
+  
+  BoolArray*     usedpoints = UsedPointsIterator->second;
+  usedpoints->at(*point-1) = false;
+}
+
+int CreateUsedPointsArray(int idataset, int npoints) {
+  cout << "creating new table..."<<endl;
+  BoolArray* usedpoints = new BoolArray;
+  for (int i=0; i<npoints; i++)
+    usedpoints->push_back(true);
+  gUsedPoints_array.insert(pair<int, BoolArray*>(idataset, usedpoints) );
 }

@@ -433,6 +433,9 @@ C Scale the syst. erros:
 
 C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName)) then
+            if(Reaction.eq.'FastNLO ep jets') then
+               call fastnlopointskip(NDataSets, j, NData);
+            endif
             goto 1717
          endif
 
