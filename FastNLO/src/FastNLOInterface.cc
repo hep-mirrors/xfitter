@@ -26,7 +26,7 @@ typedef vector<bool> BoolArray;
 
 
 extern "C" {
-  int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits );
+  int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double *mufdef);
   int fastnlocalc_(const int *idataset, double *xsec);
   int getalf_( double* alfs, double* r2 );
   int fastnlopointskip_(const int *idataset, int *point, int *npoints);
@@ -36,7 +36,7 @@ map<int, FastNLOReader*> gFastNLO_array;
 map<int, BoolArray*>     gUsedPoints_array;
 int CreateUsedPointsArray(int idataset, int npoints);
 
-int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits  ) {
+int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double *mufdef ) {
 
   //cout << "FastNLOINterface::fastnloinit_ idataset = "<<*idataset<< ", PublicationUnits "<< *PublicationUnits << endl;
 
@@ -51,6 +51,11 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
      fnloreader->SetUnits(FastNLOReader::kPublicationUnits);
    else 
      fnloreader->SetUnits(FastNLOReader::kAbsoluteUnits);
+
+   if(*murdef>=0.)
+     fnloreader->SetMuRFunctionalForm((FastNLOReader::EScaleFunctionalForm) ((int) (*murdef)) , false);
+   if(*mufdef>=0.)
+     fnloreader->SetMuFFunctionalForm((FastNLOReader::EScaleFunctionalForm) ((int) (*mufdef)) , false);
 
    fnloreader->SetPDFInterface(FastNLOReader::kH1FITTER);
    fnloreader->SetAlphasMz( 0.1180 ); // just for initalisation

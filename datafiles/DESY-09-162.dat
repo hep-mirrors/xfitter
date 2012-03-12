@@ -21,9 +21,9 @@
    ColumnName = 'q2min', 'q2max', 'ptmin', 'ptmax','Sigma','stat', 'uncor',
               'mod_DESY-09-162', 'Ee_DESY-09-162','Eth_DESY-09-162', 'hfs_DESY-09-162', 'lumi_DESY-09-162', 'NPCorr', 'kfac'
 
-   NInfo   = 2
-   DataInfo = 319.,     1., 
-   CInfo    = 'sqrt(S)', 'PublicationUnits'
+   NInfo   = 4
+   DataInfo = 319.,     1.                 ,-1.,       -1. 
+   CInfo    = 'sqrt(S)', 'PublicationUnits','MurDef', 'MufDef' 
    
    IndexDataset = 37
 

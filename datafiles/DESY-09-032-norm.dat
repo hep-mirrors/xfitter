@@ -14,13 +14,13 @@
    ColumnName = 'q2min','q2max','ptmin','ptmax','ymin','ymax','NPCorr','Sigma', 'stat', 'uncor', 
               'elecE_DESY-09-032', 'elecTheta_DESY-09-032', 'hfs_DESY-09-032'
 
-   NInfo   = 4
-   DataInfo = 318.11947,       0.387,           0.,                 1.
-   CInfo    = 'sqrt(S)', 'lumi(e-)/lumi(tot)', 'PublicationUnits', 'UseZMVFNS'
+   NInfo   = 6
+   DataInfo = 318.11947,       0.387,           0.,                 1.        , 3.,    , 3.
+   CInfo    = 'sqrt(S)', 'lumi(e-)/lumi(tot)', 'PublicationUnits', 'UseZMVFNS','MurDef', 'MufDef' 
    
    IndexDataset = 36
 
-   TheoryInfoFile = 'theoryfiles/IJET_HIGHQ2_Q2ET2-20081126-test_new_v2.0.tab'
+   TheoryInfoFile = 'theoryfiles/fnh5401.tab'
    TheoryType     = 'FastNLO'
 
    Percent   = True, True, True, True, True, True

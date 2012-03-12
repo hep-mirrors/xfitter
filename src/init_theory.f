@@ -850,21 +850,25 @@ C------------------------------------------------------------
       integer GetInfoIndex
 
       logical PubUnits      
-      double precision RealPubUnits
-      integer IdxPubUnits
+      double precision RealPubUnits, MurDef, MufDef
 
 
-      IdxPubUnits = GetInfoIndex(IDataSet,'PublicationUnits')
-      RealPubUnits= DATASETInfo(IdxPubUnits, IDataSet)
+      RealPubUnits=(DATASETInfo(GetInfoIndex(IDataSet,
+     $     'PublicationUnits'),IDataSet))
       if(RealPubUnits .eq. 1.) then
          PubUnits = .True.
       else                  
          PubUnits = .False. 
       endif
+      
+      MurDef=(DATASETInfo(GetInfoIndex(IDataSet,
+     $     'MurDef'),IDataSet))
+      MufDef=(DATASETInfo(GetInfoIndex(IDataSet,
+     $     'MufDef'),IDataSet))
 
       call fastnloinit(DATASETLABEL(IDataSet),IDataSet
      $     ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet),' ')-1)//char(0)
-     $     ,PubUnits);
+     $     ,PubUnits, MurDef, MufDef);
       end
 
       subroutine InitHathorDataSet(IDataSet)
