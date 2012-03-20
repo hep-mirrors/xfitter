@@ -1,5 +1,5 @@
 c----------------------------------------------------------------------
-      subroutine  fcn(npar,g,f,p,iflag,futil)
+      subroutine  fcn(npar,g,f,parminuit,iflag,futil)
 *     ---------------------------------------------------------
 *     Main minimization subroutine for MINUIT
 *     ---------------------------------------------------------
@@ -24,7 +24,7 @@ c----------------------------------------------------------------------
 *     declaration related to minuit
 *     ---------------------------------------------------------
       integer npar,iflag
-      double precision g(*),p(*),f,futil
+      double precision g(*),parminuit(*),f,futil
       external futil
 
 *     ---------------------------------------------------------
@@ -121,7 +121,7 @@ C Store FCN flag in a common block:
 *     ---------------------------------------------------------
 *     PDF parameterisation at the starting scale
 *     ---------------------------------------------------------
-      call PDF_Param_Iteration(p,iflag)
+      call PDF_Param_Iteration(parminuit,iflag)
 
 *     ---------------------------------------------------------
 *     Extra constraints on input PDF due to momentum and quark 
@@ -248,15 +248,8 @@ C      for dipole model fits.
       if (Debug) then
          print*,'after evolution'
       endif
-**** jt 
-      if (Debug) then
-         print*,'before FixModelParams'
-      endif
-      call DDIS_FixModelParams(p)
-      if (Debug) then
-         print*,'after FixModelParams'
-      endif
-*** jt 
+
+
 	
 *     ---------------------------------------------------------  	 
 *     Initialise theory calculation per iteration
@@ -324,12 +317,18 @@ C      for dipole model fits.
       if (iflag.eq.1) close(87)
 
 
+C Store params in a common block:
+      do i=1,MNE
+         parminuitsave(i) = parminuit(i)
+      enddo
+
+
       if (iflag.eq.3) then
          if (dobands) then
             print *,'SAVE PDF values'
          endif
          do i=1,MNE
-            pkeep(i) = p(i)
+            pkeep(i) = parminuit (i)
          enddo
 
 *     ---------------------------------------------------------
