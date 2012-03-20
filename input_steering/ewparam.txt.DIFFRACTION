@@ -1,0 +1,64 @@
+*
+*  Electroweak parameters
+*
+
+* Note: DIS uses on-shell electroweak scheme, 
+* DY uses GFermi scheme
+
+&EWPars
+  ! Choice of EW scheme: 0 - alpha(0), 1 - G_mu, 2 - running alpha_EM
+  ! EWSchemeFlag		= 0
+
+  ! 1/137 = 7.29927d-3
+  alphaem		= 7.29927d-3
+  gf			= 1.16637d-5
+  sin2thw		= 0.2315d0
+  ! alphas		= 0.1176d0
+  convfac		= 0.389379323d9
+
+  ! boson masses
+  mw			= 80.41d0
+  mz			= 91.187d0
+  mh			= 120d0
+
+  ! widths
+  wz			= 2.4935d0
+  ww			= 2.1054d0
+  wh			= 1d-3
+  wtp			= 1.551d0
+
+  ! charges
+  ! euq			= 0.6666666666667d0
+  ! edq			= -0.3333333333333d0
+
+  ! CKM ( todo: add Vub & Vcb to DY)
+  Vud			= 0.97419d0
+  Vus			= 0.22570d0
+  Vub			= 0.35900d-2
+  Vcd			= 0.22560d0
+  Vcs			= 0.97334d0
+  Vcb			= 0.41500d-1
+
+  !*** fermion masses
+
+  ! lepton masses
+  men			= 1d-10
+  mel			= 0.51099892d-3
+  mmn			= 1d-10
+  mmo			= 0.105658369d0
+  mtn			= 1d-10
+  mta			= 1.77699d0
+
+ ! Light quark masses:
+  mup			= 0.06983d0
+  mdn			= 0.06983d0
+  mst			= 0.150d0
+
+ ! Heavy quark masses:
+  mch			= 1.35d0    ! Synchronize with QCDNUM,RT
+  mtp			= 174d0    ! Synchronize with QCDNUM
+  mbt			= 4.3d0   ! Synchronize with QCDNUM,RT
+
+&end
+
+
