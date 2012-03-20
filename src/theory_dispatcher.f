@@ -65,6 +65,7 @@ C---------------------------------------------------------------------
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
+      include 'endmini.inc'
 C--------------------------------------------------------------------
 C Drell-Yan:
       if (LFitDY) then
@@ -74,4 +75,9 @@ C Drell-Yan:
       if (LFastAPPLGRID) then
          call Calc_pdf_applgrid_fast
       endif
+
+      if (IPARAM.eq.301) then
+         call DDIS_FixModelParams(parminuitsave)
+      endif
+
       end
