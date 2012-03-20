@@ -3,13 +3,13 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 4
+    NInputFiles = 2
  
   ! Input files:
-    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
-    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
-    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
+  !    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(1) = 'datafileszeus/ZEUS-LRG_2009.dat'
+    InputFileNames(2) = 'datafileszeus/ZEUS-LPS_2009.dat'    
+  
 &End
 
 *
@@ -20,16 +20,15 @@
 
   IOrder  = 2   ! For itheory =0 (collinear factorisation) : LO fit (1) or NLO (2) or NNLO (3) 
 
-  Q02     = 1.9 ! Evolution starting scale
+  Q02     = 1.8 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
  ! ---  HF_SCHEME = 'ZMVFNS'    : ZM-VFNS (massless),
- ! ---  HF_SCHEME = 'RT'        :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT'        : Thorne-Roberts VFNS (massive)
  ! ---  HF_SCHEME = 'RT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
  ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
  ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
  ! ---  HF_SCHEME = 'FF' : Fixed Flavour Number Scheme from qcdnum
- ! ---  HF_SCHEME = 'ABKM FFNS' : ABKM Fixed Flavour Number Scheme
 
   HF_SCHEME = 'RT'
 
@@ -42,8 +41,9 @@
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
+ !  'DDIS'        -- use .... library DIS
 
-  PDFStyle = '10p HERAPDF'
+  PDFStyle = 'DDIS'
 
  ! -- Choice of the chi2 function
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
@@ -51,10 +51,10 @@
  !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
 
-  CHI2Style = 'HERAPDF'
+  CHI2Style = 'Offset'
 
  ! Debug flag
-  LDEBUG     = False
+  LDEBUG     = True
 &End
 
 
@@ -62,9 +62,10 @@
 * Add extra to minuit parameters. These MUST include alpha_S and fs
 *
 &ExtraMinimisationParameters
-   name  = 'alphas',   'fs',   'fcharm'
-   value =  0.1176 ,   0.31,      0.
-   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
+   name  = 'alphas',   'fs',   'fcharm' , 'Pomeron_a0' , 'Reggeon_factor' , 'Reggeon_a0'
+   value =  0.118 ,    0.31,      0.    ,   1.107      ,  3.40962         , 0.66834  
+   step  =  0.0    ,   0.0 ,      0.    ,   0.1        ,  0.1             , 0.1   ! set to 0 to avoid minimisation 
+
 &End
 
 
@@ -139,12 +140,13 @@
    Variable(7)        = 'Whad2'
    CutValueMin(7)     = 15.   
 
-  !--------------------- Fastnlo jets ----------------------
+  !--------------------- DDIS --------------------------
 
-   ProcessName(8)     = 'FastNLO ep jets'
-   Variable(8)        = 'kfac'
-   CutValueMin(8)     = 0.0
-   CutValueMax(8)     = 2.5
+  ! Rule #8:
+   ProcessName(8)     = 'DDIS'
+   Variable(8)        = 'Q2'
+   CutValueMin(8)     =  5. 
+   CutValueMax(8)     =  100000000.
 
    
 &End

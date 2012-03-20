@@ -11,23 +11,25 @@ C---------------------------------------------------------------
       include 'datasets.inc'
       integer IDataSet
 C-------------------------------------------------------------------
+      write (*,*)' GetTheoryForDataset',IDataSet,
+     $     DATASETREACTION(IDataSet)
       if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then
-         Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
+         Call GetIntegratedNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
          if (DipoleModel.gt.0.and.DipoleModel.le.2) then
             call DipolePrediction(IDataSet)
          elseif (DipoleModel.gt.2) then
-            Call GetNCXsection(IDataSet, HFSCHEME)
+            Call GetNCXsection(IDataSet)
             call DipolePrediction(IDataSet)
          else
-            Call GetNCXsection(IDataSet, HFSCHEME)
+            Call GetNCXsection(IDataSet)
          endif
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
-         Call GetNCXsection(IDataSet, HFSCHEME)
+         Call GetNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
-         Call GetNCCharmXsection(IDataSet, HFSCHEME)
+         Call GetNCCharmXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
-         Call GetCCXsection(IDataSet, HFSCHEME)
+         Call GetCCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
      $        DATASETREACTION(IDataSet).eq.'CC ppbar' ) then
          Call GetDYCCXsection(IDataSet)
@@ -39,9 +41,15 @@ C-------------------------------------------------------------------
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
          Call GetJetsFastNLOXsection(IDataSet, .false.)
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised') then
-         Call GetJetsFastNLOXsectionNormalised(IDataSet)
-       elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
+         Call GetIntegratedNCXsection(IDataSet)
+         Call GetJetsFastNLOXsection(IDataSet, .true.)
+      elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
          Call GetHathorXsection(IDataSet)
+      elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
+cws         write (*,*)'IDataSet1  ',IDataSet
+         Call GetDiffDisXsection(IDataSet)
+cws         write (*,*)'IDataSet2  ',IDataSet
+
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
       endif

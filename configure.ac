@@ -139,6 +139,7 @@ AC_CONFIG_FILES([src/Makefile
                  tools/H1FitterDrawResults/Makefile
                  tools/MakeLHAPDF/Makefile
                  FastNLO/src/Makefile
+		 DiffDIS/src/Makefile
                  Hathor/src/Makefile
                  doc/tex/Makefile
                  Makefile])

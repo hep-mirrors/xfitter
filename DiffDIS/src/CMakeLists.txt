@@ -1,0 +1,16 @@
+yep_src(
+  JScif.c
+  TRc.c
+  cheavy.f
+  coeff2.f
+  coeff3.f
+  FASTLI2.f
+  FASTLI3.f
+  FASTS12.f
+  jacksmith.f
+  js_fns.f
+  sfunws.f
+  TR_alpha.f
+  WATE96.f
+  WGPLG.f
+)

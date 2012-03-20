@@ -352,6 +352,8 @@ C--- Add new source
          endif
       enddo
 
+      write(*,*) '# correlated systematic sources = ',nsys	
+
 C Theory file if present:
       DATASETTheoryType(NDATASETS) = ' '
       do i=1,2
@@ -433,15 +435,12 @@ C Scale the syst. erros:
 
 C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName)) then
-            if(Reaction.eq.'FastNLO ep jets') then
-               call fastnlopointskip(NDataSets, j, NData);
-            endif
             goto 1717
          endif
 
+      
 C Add a point:
          npoints = npoints+1
-         
          if (npoints.ge.NTOT) then
             print 
      $ '('' ReadDataFile Error, increase NTOT value inside ntot.inc'')'

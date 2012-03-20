@@ -25,6 +25,7 @@ C--------------------------------------------------------
       double precision fshermes
       double precision alphasPDF
 
+      	
 C-------------------------------------------------------
       logical LFirstTime
       data LFirstTime /.true./
@@ -44,9 +45,10 @@ C-------------------------------------------------------
       data LPolFits/.false./
 
 C-------------------------------------------------------
-      if (LFirstTime) then
+      if (LFirstTime) then    
          LFirstTime = .false.
          idxAlphaS = GetParameterIndex('alphas')
+       
          if (idxAlphaS.eq.0) then
             print *,'Did not find alpha_S parameter'
             print *,'Add to ExtraParamters with the name alphas'
@@ -560,6 +562,8 @@ cv         parglue(9)=25.
          pardel(1)=0.27
          pardel(2)=0.5
          pardel(3)=parsea(3)+2.
+
+
          
       endif         
 
@@ -794,7 +798,8 @@ C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4.or.iparam.eq.222222
      $     .or.iparam.eq.22.or.iparam.eq.24.or.iparam.eq.225.
      $     .or.iparam.eq.222223.or.iparam.eq.2011
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
+     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229
+     $	   .or.iparam.eq.301) then
 
 C
 C 25 Jan 2011: add polynomial param 

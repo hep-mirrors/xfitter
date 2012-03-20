@@ -55,10 +55,10 @@
   mst			= 0.150d0
 
  ! Heavy quark masses:
-  mch			= 1.4d0    ! Synchronize with QCDNUM,RT
+  mch			= 1.35d0    ! Synchronize with QCDNUM,RT
   mtp			= 174d0    ! Synchronize with QCDNUM
-  mbt			= 4.75d0   ! Synchronize with QCDNUM,RT
-   
+  mbt			= 4.3d0   ! Synchronize with QCDNUM,RT
+
 &end
 
 

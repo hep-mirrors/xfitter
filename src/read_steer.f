@@ -247,6 +247,8 @@ C
       HF_MASS(2) = mbt
       HF_MASS(3) = mtp
 
+      write(*,*) 'SetChi2Style',Chi2Style
+
 C
 C  Read the MC method namelist:
 C
@@ -260,16 +262,21 @@ C  Read the Chebyshev namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=Cheb,ERR=64,end=63)
+ 
  63   continue
       close (51)
+
 
 C
 C  Read the Poly namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=Poly,ERR=66,end=65)
+    
  65   continue
       close (51)
+
+  
 
 C
 C  Read the HQScale namelist:
@@ -287,15 +294,21 @@ C
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
 
+     
+
+
 C
 C asign mc or mb to hq scale
 C      
       call SetMHSCALE(MassHQ)
 
+      write (*,*) 'mch1',mch,mbt,mtp
+
 C
 C Also read extra minuit parameters:
 C      
       call readextraparam
+      write (*,*) 'mch1',mch,mbt,mtp
 
       if (lDebug) then
 C Print the namelists:
@@ -319,6 +332,7 @@ C <==
 C
 C Names of syst. error sources:
 C
+      write (*,*)'read_steer.f',nsys
       do i=1,NSYS
          System(i) = ' '
       enddo
@@ -441,6 +455,9 @@ C---------------------------------
          iparam = 0
       elseif (PDFStyle.eq.'LHAPDF') then
          iparam = 0
+      elseif (PDFStyle.eq.'DDIS') then
+         write (*,*) 'READ DDIS'
+         iparam = 301        
       else
          print *,'Unsupported PDFStyle =',PDFStyle
          print *,'Check value in steering.txt'
@@ -476,10 +493,6 @@ C---------------------------------
           HFSCHEME = 22 
       elseif (HF_SCHEME.eq.'FF') then
           HFSCHEME = 3 
-      elseif (HF_SCHEME.eq.'ABKM FFNS') then
-          HFSCHEME = 4 
-      elseif (HF_SCHEME.eq.'ABKM BMSN') then
-          HFSCHEME = 44 
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'
@@ -537,6 +550,8 @@ C---------------------------------
          ICHI2 = 1        
       elseif (Chi2Style.eq.'H12011') then
          ICHI2 = 41        
+      elseif (Chi2Style.eq.'Offset') then
+         ICHI2 = 3
       else
          print *,'Unsupported Chi2Style =',Chi2Style
          print *,'Check value in steering.txt'

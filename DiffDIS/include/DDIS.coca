@@ -1,0 +1,11 @@
+#--> DDIS
+Pomeron_tslope 7
+Pomeron_a1 0
+Reggeon_a1 0.9
+Pion_order 0
+Mass_corr 0
+# values for fitC:
+Pomeron_a0 = 1.107
+Reggeon_a0 = 0.66834
+Reggeon_factor = 3.40962
+#--- end-of-params
