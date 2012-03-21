@@ -55,7 +55,6 @@ C
       idQ2 = GetBinIndex(IDataSet,'Q2')
       idxP  = GetBinIndex(IDataSet,'xpom')
       idMX = GetBinIndex(IDataSet,'MX')
-cws      IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
 
 
       if (idQ2.eq.0 .or. idxP.eq.0 .or. idMX.eq.0) then
@@ -77,11 +76,7 @@ C
          Q2(i)     = AbstractBins(idQ2,idx)
       enddo
 
-cws      call ReadPolarityAndCharge(idataset,charge,polarity)
-cws      call CalcDiffDISReducedXsection(xPom,MX,Q2,NDATAPOINTS(IDataSet),
-cws     $     IDataSet,XSecType,XSec)
 
-      write(*,*) 'GetDiffDisXsection',IDataSet,NDATAPOINTS(IDataSet)
       do i=1,NDATAPOINTS(IDataSet)
         vars(1) = xPom(i)
         vars(2) = Q2(i)
@@ -95,11 +90,4 @@ cws     $     IDataSet,XSecType,XSec)
          THEO(idx) =  XSec(i)
       enddo
 
-cws      if ((iflagFCN.eq.3).and.(h1QCDFUNC).and.(XSecType.eq.'NCDIS')) then
-cws         if (ifirst.eq.1) then
-cws            print*,'getting output for the H1QCDFUNC'
-cws            call GetH1qcdfuncOutput(charge, polarity)
-cws            ifirst=0
-cws         endif
-cws      endif
       end

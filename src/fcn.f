@@ -311,7 +311,6 @@ C      for dipole model fits.
 *     calculate chisquare
 *     ---------------------------------------------------------
       call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
-      write(*,*)'GetChisquare ',fchi2
 
 
       if (iflag.eq.1) close(87)

@@ -247,7 +247,6 @@ C
       HF_MASS(2) = mbt
       HF_MASS(3) = mtp
 
-      write(*,*) 'SetChi2Style',Chi2Style
 
 C
 C  Read the MC method namelist:
@@ -302,13 +301,11 @@ C asign mc or mb to hq scale
 C      
       call SetMHSCALE(MassHQ)
 
-      write (*,*) 'mch1',mch,mbt,mtp
 
 C
 C Also read extra minuit parameters:
 C      
       call readextraparam
-      write (*,*) 'mch1',mch,mbt,mtp
 
       if (lDebug) then
 C Print the namelists:
@@ -332,7 +329,6 @@ C <==
 C
 C Names of syst. error sources:
 C
-      write (*,*)'read_steer.f',nsys
       do i=1,NSYS
          System(i) = ' '
       enddo
@@ -456,7 +452,6 @@ C---------------------------------
       elseif (PDFStyle.eq.'LHAPDF') then
          iparam = 0
       elseif (PDFStyle.eq.'DDIS') then
-         write (*,*) 'READ DDIS'
          iparam = 301        
       else
          print *,'Unsupported PDFStyle =',PDFStyle

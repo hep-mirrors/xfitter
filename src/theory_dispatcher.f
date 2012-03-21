@@ -11,8 +11,6 @@ C---------------------------------------------------------------
       include 'datasets.inc'
       integer IDataSet
 C-------------------------------------------------------------------
-      write (*,*)' GetTheoryForDataset',IDataSet,
-     $     DATASETREACTION(IDataSet)
       if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then
          Call GetIntegratedNCXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
@@ -46,10 +44,7 @@ C-------------------------------------------------------------------
       elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
          Call GetHathorXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
-cws         write (*,*)'IDataSet1  ',IDataSet
          Call GetDiffDisXsection(IDataSet)
-cws         write (*,*)'IDataSet2  ',IDataSet
-
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
       endif
