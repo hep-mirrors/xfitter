@@ -67,6 +67,12 @@ C RT parameters:
       double precision alphaS0in,alambdain,flavorin,qsctin,qsdtin
       integer iordin,inullin
 
+c ABKM parameters:
+      double precision rmass8in,rmass10in
+      integer kschemepdfin,kordpdfin
+      logical msbarmin
+      double precision hqscale1in,hqscale2in
+
 
       double precision xmin(5)
       integer  iwt(5)
@@ -250,7 +256,7 @@ C Remove duplicates:
       iqt =iqfrmq(qt)
 
 
-      if ((mod(HFSCHEME,10).eq.3)) then
+      if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
          print *,'Fixed Flavour Number Scheme set with nf=3'
       else
@@ -300,7 +306,7 @@ C-
 
 
 c Fixed Flavour Number Scheme (FFNS)
-      elseif ((mod(HFSCHEME,10).eq.3)) then
+      elseif ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4) then
         if(I_FIT_ORDER.gt.2) then
           print *,'FFN scheme can be used only with NLO, stop'
           call HF_stop
@@ -329,6 +335,50 @@ cv            call hqdumpw(22,'hqstf.wgt')
          endif      
          write(6,'(/'' HQSTF: words used ='',I10)') nwords      
          call hswitch(IPDFSET)
+
+      endif
+
+cv settings for serghey alechin's code (ABKM)
+      if ((mod(HFSCHEME,10).eq.4)) then
+
+         call initgridconst
+
+!  Take the 3-flavour scheme as a default
+         kschemepdfin=0
+c  c and b - quark masses         
+         rmass8in=HF_MASS(1)
+         rmass10in=HF_MASS(2)
+! the pole mass definition by default =false (for running mass def in msbar: msbarmin=.true.)
+         msbarmin=.false.
+
+c NLO or NNLO: kordpdfin=1 NLO, kordpdfin=2 NNLO
+c this flag will set kordhq,kordalps,kordf2,kordfl,kordfl so same order!         
+         kordpdfin  = I_FIT_ORDER-1
+
+c set scale for FFNS only         
+         if(HFSCHEME.eq.4) then
+!  Set the factorization scale as sqrt(Q2*hqscale1 + 4m^2*hqscale2) for the 
+!  pair heavy-quark DIS production and as sqrt(Q2*hqscale1 + m^2*hqscale2) 
+!  for the single heavy-quark DIS production
+           hqscale1in=1d0
+           hqscale2in=1d0
+! NEEDS TO BE IMPROVED            
+           print*,'Scale set to: mu_f^2=Q^2+4m_h^2, variation is not 
+     &  implemented yet'
+c here VFNS (BMSN)           
+         else    
+           hqscale1in=1d0
+           hqscale2in=0d0
+         endif  
+
+! ren.scale=fac.scale as a default
+cc        rscale=1d0
+
+
+         call ABKM_Set_Input(
+     $        kschemepdfin,kordpdfin,rmass8in,rmass10in,msbarmin,
+     $        hqscale1in,hqscale2in)
+
 
       endif
       
@@ -373,8 +423,8 @@ C
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
             Call InitJetsFastNLODataSet(IDataSet)
-         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets 
-     $           normalised') then
+         elseif (DATASETREACTION(IDataSet)
+     $           .eq.'FastNLO ep jets normalised') then
             Call InitIntegratedNCXsectionDataset(IDataSet)
             Call InitJetsFastNLODataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
@@ -803,24 +853,25 @@ C------------------------------------------------------------
       integer GetInfoIndex
 
       logical PubUnits      
-      double precision RealPubUnits, murdef, mufdef
-      integer IdxPubUnits
+      double precision RealPubUnits, MurDef, MufDef
 
 
-
-      RealPubUnits= DATASETInfo(GetInfoIndex(IDataSet,'PublicationUnits'), IDataSet)
-      murdef = DATASETInfo( GetInfoIndex(IDataSet,'MurDef')  , IDataSet)
-      mufdef = DATASETInfo( GetInfoIndex(IDataSet,'MufDef')  , IDataSet)
-
+      RealPubUnits=(DATASETInfo(GetInfoIndex(IDataSet,
+     $     'PublicationUnits'),IDataSet))
       if(RealPubUnits .eq. 1.) then
          PubUnits = .True.
       else                  
          PubUnits = .False. 
       endif
+      
+      MurDef=(DATASETInfo(GetInfoIndex(IDataSet,
+     $     'MurDef'),IDataSet))
+      MufDef=(DATASETInfo(GetInfoIndex(IDataSet,
+     $     'MufDef'),IDataSet))
 
       call fastnloinit(DATASETLABEL(IDataSet),IDataSet
      $     ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet),' ')-1)//char(0)
-     $     ,PubUnits, murdef, mufdef);
+     $     ,PubUnits, MurDef, MufDef);
       end
 
       subroutine InitHathorDataSet(IDataSet)
@@ -927,7 +978,6 @@ C      call EPRC_INIT(.true.)
 
 C-----------------------------------------------------
       end
-
       Subroutine LHAPDFsubr(x, qmu2, xf)
 C-------------------------------------------------------
 C
@@ -940,6 +990,7 @@ C--------------------------------------------------------
       dimension xf(-6:6)
       call evolvePDF(x, sqrt(qmu2), xf)
       end
+
 
 c ------------------------------------------------------
 c
