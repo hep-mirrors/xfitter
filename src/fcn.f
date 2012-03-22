@@ -1,14 +1,81 @@
 c----------------------------------------------------------------------
-      subroutine  fcn(npar,g,f,parminuit,iflag,futil)
+      subroutine  fcn(npar,g_dummy,chi2out,parminuit,iflag,futil)
 *     ---------------------------------------------------------
 *     Main minimization subroutine for MINUIT
 *     ---------------------------------------------------------
       implicit none
 
+*     ---------------------------------------------------------
+*     declaration related to minuit
+*     ---------------------------------------------------------
+
+      integer npar,iflag
+      double precision g_dummy(*),parminuit(*),chi2out,futil
+      external futil
+
+      include 'fcn.inc'
+      include 'endmini.inc'
+      
+      integer i, IfcnCount
+      data IfcnCount /0/
+
+C function:
+      double precision chi2data_theory
+
+C-----------------------------------------------------------------
+      
+C Store FCN flag in a common block:
+      IFlagFCN = IFlag
+
+      NparFCN  = npar
+
+C Store params in a common block:
+      do i=1,MNE
+         parminuitsave(i) = parminuit(i)
+      enddo
+
+C Store only if IFlag eq 3:
+      if (iflag.eq.3) then
+         do i=1,MNE
+            pkeep(i) = parminuit(i)
+         enddo
+      endif
+
+
+      IfcnCount=IfcnCount+1
+      write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
+
+      call HF_errlog(12020515,'I: FCN is called')
+
+*     ---------------------------------------------------------
+*     PDF parameterisation at the starting scale
+*     ---------------------------------------------------------
+      call PDF_Param_Iteration(parminuit,iflag)
+
+*
+* Evaluate the chi2:
+*     
+      chi2out = chi2data_theory(iflag)
+* 
+      
+      return
+      end
+
+
+      double precision function chi2data_theory(iflag)
+C-------------------------------------------------------------
+C Created 22/03/2012 by SG and VR by splitting original fcn() function
+C
+C Calculate predictions for the data samples and return total chi2.
+C  Input: minuit flag iflag, indicating minimisation stage
+C--------------------------------------------------------------
+      implicit none
+C--------------------------------------------------------------
+      integer iflag
+
       include 'steering.inc'
       include 'pdfparam.inc'
       include 'alphas.inc'
-      include 'endmini.inc'
       include 'for_debug.inc'
       include 'couplings.inc'
       include 'ntot.inc'
@@ -21,13 +88,6 @@ c----------------------------------------------------------------------
       include 'polarity.inc'
 
 *     ---------------------------------------------------------
-*     declaration related to minuit
-*     ---------------------------------------------------------
-      integer npar,iflag
-      double precision g(*),parminuit(*),f,futil
-      external futil
-
-*     ---------------------------------------------------------
 *     declaration related to alphas
 *     for RT code, transfer alpha S
 *     ---------------------------------------------------------
@@ -37,13 +97,12 @@ c----------------------------------------------------------------------
 *     ---------------------------------------------------------
 *     declaration related to chisquare
 *     ---------------------------------------------------------
+      double precision chi2out
       double precision fchi2, fcorchi2
       double precision DeltaLength
       double precision BSYS(NSYSMax), RSYS(NSYSMax)
       double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
       double precision pchi2(nset)
-
-
 
 *     ---------------------------------------------------------
 *     declaration related to code flow/debug
@@ -78,23 +137,14 @@ C  x-dependent fs:
       double precision fs0,epsi
       double precision fshermes
       external LHAPDFsubr
-C-----------------------------------------------------------------
-      
-C Store FCN flag in a common block:
-      IFlagFCN = IFlag
 
-
-      IfcnCount=IfcnCount+1
-      write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
-
-      call HF_errlog(12020515,'I: FCN is called')
-
+C--------------------------------------------------------------
 *     ---------------------------------------------------------
 *     initilise variables 
 *     ---------------------------------------------------------
-      f = 0.d0
+      chi2out = 0.d0
       fchi2 = 0.d0
-      ndf = -npar
+      ndf = -nparFCN
       n0 = 0
 
 
@@ -117,16 +167,11 @@ C Store FCN flag in a common block:
         Itheory = 0
       endif
 
-
-*     ---------------------------------------------------------
-*     PDF parameterisation at the starting scale
-*     ---------------------------------------------------------
-      call PDF_Param_Iteration(parminuit,iflag)
-
 *     ---------------------------------------------------------
 *     Extra constraints on input PDF due to momentum and quark 
 *     counting sum rules:
 *     ---------------------------------------------------------
+
       kflag=0
       if (Itheory.eq.0)  call SumRules(kflag)
       if (kflag.eq.1) then
@@ -149,61 +194,6 @@ C Store FCN flag in a common block:
       endif 
 
       
-*     -----------------------------------------------------
-*      prntouts for debug is set in steering.txt
-*     -----------------------------------------------------      
-      if (debug) then
-         if (Itheory.ne.2) then
-            if (itheory.eq.1) then
-            elseif (iparam.eq.1) then
-c               write(6,*) 'couplings ',cvu,cau,cvd,cad
-               write(6,*) 'ag bg cg dg ',ag,bg,cg,dg
-               write(6,*) 'au ad aubar adbar fu ',
-     +              au,ad,aubar,adbar,fu
-               write(6,*) 'dd du bu cu cd cub cdb ',
-     +              dd,du,bu,cu,cd,Cubar,Cdbar
-               write(6,*) 'alphas_s(M_Z) ',alphas
-               
-            elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
-     $              .or.iparam.eq.221.or.iparam.eq.222
-     $              .or.iparam.eq.229.or.iparam.eq.227) then
-               
-               write(6,*) 'iparam alphas couplings ',iparam,alphas!,cvu,cau,cvd,cad
-               write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
-               write(6,*) 'aUv,bUv,cUv,dUv,eUv,fUv ',
-     +              aUv,bUv,cUv,dUv,eUv,fUv
-               write(6,*) 'aDv,bDv,cDv,dDv,fDv ',
-     +              aDv,bDv,cDv,dDv,fDv
-               write(6,*) 'aUb,bUb,cUb,dUb ',
-     +              aUbar,bUbar,cUbar,dUbar
-               write(6,*) 'aDb,bDb,cDb,dDb ',
-     +              aDbar,bDbar,cDbar,dDbar
-            elseif (iparam.eq.4) then
-               write(6,*) 'iparam alphas couplings ',iparam,alphas!,cvu,cau,cvd,cad
-               write(6,*) 'ag bg cg dg apg bpg cpg ',ag,bg,cg,dg,apg,bpg,cpg
-               write(6,*) 'auv,buv,cuv,duv,euv,fuv ',
-     +              aUv,bUv,cUv,dUv,eUv,fUv
-               write(6,*) 'adv,bdv,cdv,ddv,fdv ',
-     +              aDv,bDv,cDv,dDv,fDv
-               write(6,*) 'asea,bsea,csea',
-     +              asea,bsea,csea
-               
-            elseif (iparam.eq.301) then
-               write(6,*) 'iparam alphas couplings ',iparam,alphas
-               write(6,*) 'ag,bg,cg, aUv,bUv,cUv ',ag,bg,cg,aUv,bUv,cUv
- 
- 
-            endif               ! end itheory =1 
-            
-            
-         endif                  ! Itheory<>2
-         
-
-      endif                     ! (debug)
-
-
-*     --------------------------------------------------
-
       if (iflag.eq.1) then
          open(87,file='output/pulls.first.txt')
       endif
@@ -315,21 +305,10 @@ C      for dipole model fits.
 
       if (iflag.eq.1) close(87)
 
-
-C Store params in a common block:
-      do i=1,MNE
-         parminuitsave(i) = parminuit(i)
-      enddo
-
-
       if (iflag.eq.3) then
          if (dobands) then
             print *,'SAVE PDF values'
          endif
-         do i=1,MNE
-            pkeep(i) = parminuit (i)
-         enddo
-
 *     ---------------------------------------------------------
 *     write out data points with fitted theory
 *     ---------------------------------------------------------
@@ -346,20 +325,24 @@ C Store params in a common block:
          DeltaLength = 0.
       endif
 
-      f = fchi2 + DeltaLength
+      chi2out = fchi2 + DeltaLength
       
 
-      f=fchi2+
+      chi2out = fchi2+
      $     shift_polRHp**2+shift_polRHm**2+
      $     shift_polLHp**2+shift_polLHm**2+
      $     shift_polL**2+shift_polT**2
+
+      
 
       icount = icount + 1
 
       if (lprint) then
          call cpu_time(time3)
          print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
-         write(6,'(A20,i6,F12.2,i4,F12.2)') ' FitPDF f,ndf,f/ndf ',icount, f, ndf, f/ndf
+         write(6,'(A20,i6,F12.2,i4,F12.2)') '
+     $        FitPDF chi2out,ndf,chi2out/ndf ',icount, chi2out, 
+     $        ndf, chi2out/ndf
 
 
 
@@ -367,14 +350,14 @@ C Store params in a common block:
 
 
       if (iflag.eq.1) then
-         write(85,*) 'First iteration ',f,ndf,f/ndf
+         write(85,*) 'First iteration ',chi2out,ndf,chi2out/ndf
       endif
 
       if (iflag.eq.3) then
-         write(85,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
+         write(85,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
          write(85,*)
          write(6,*)
-         write(6,'(''After minimisation '',F10.2,I6,F10.3)'),f,ndf,f/ndf
+         write(6,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
          write(6,*)
       endif
 
@@ -426,6 +409,9 @@ c AS applgrid example
        
       endif
 
- 999  continue
-      return
+      
+C Return the chi2 value:
+      chi2data_theory = chi2out
+
       end
+
