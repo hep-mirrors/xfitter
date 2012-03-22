@@ -189,10 +189,12 @@ C-- Run over all rules, check for appropriate process/variable
                   endif
                enddo
             endif
-            print 
-     $'(''Warning in FailSelectionCuts: variable '',A8,'' not found'')'
-     $           ,Variable(j)
-            print '(''Check reaction '',a16)', reaction
+            call HF_errlog(12032201,
+     $           'I: FailSelectionCuts can not cut on requested variable')
+c            print 
+c     $'(''Warning in FailSelectionCuts: variable '',A8,'' not found'')'
+c     $           ,Variable(j)
+c            print '(''Check reaction '',a16)', reaction
 c     call HF_stop
  17            continue
          endif
