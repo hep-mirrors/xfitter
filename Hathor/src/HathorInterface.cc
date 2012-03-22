@@ -69,17 +69,7 @@ int hathorcalc_(const int *idataset, double *xsec) {
   double val,err;
   hathor->getResult(0,val,err);
 
-  //  std::cout << val << " +/- " << err << std::endl;
-  // rounding precision to be automized!!!
-  //  val *= 10;
-  //  val = floor(val+0.5);
-  //  val /= 10;
-
   xsec[0] = val;
-
-  //  std::cout << val << std::endl;
-
-  //  xsec[0] = floor(val+0.5);
   
   return 0;
 }
