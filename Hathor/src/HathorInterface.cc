@@ -9,9 +9,18 @@ extern "C" {
   int hathorcalc_(const int *idataset, double *xsec);
 }
 
+extern "C" {
+  int rlxd_size(void);
+  void rlxd_get(int state[]);
+  void rlxd_reset(int state[]);
+  void rlxd_init(int level,int seed);
+}
+
 Hathor* hathor;   // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
 H1FitterPdf* pdf; // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
 double mtop;
+
+int *RndStore; // FIXME: delete at the end
 
 int hathorinit_(const double& sqrtS, const bool& ppbar, const double& mt,
 		const unsigned int& pertubOrder, const unsigned int& precisionLevel) {
@@ -39,21 +48,33 @@ int hathorinit_(const double& sqrtS, const bool& ppbar, const double& mt,
   mtop = mt;
   std::cout << " Top mass and renorm./fact. scale used for Hathor [GeV]: " << mtop << std::endl;
 
+  // Random number setup:
+  rlxd_init(1,1);
+  int nRnd = rlxd_size();
+
+  std::cout << " Size of random number array = " << nRnd << "\n";
+  RndStore = new int [nRnd];
+  rlxd_get(RndStore);
+
   return 0;
 }
 
 int hathorcalc_(const int *idataset, double *xsec) {
+
+  // Reset random numbers
+  rlxd_reset(RndStore);
+
   hathor->getXsection(mtop, mtop, mtop);
 
   double val,err;
   hathor->getResult(0,val,err);
 
   //  std::cout << val << " +/- " << err << std::endl;
-
   // rounding precision to be automized!!!
-  val *= 10;
-  val = floor(val+0.5);
-  val /= 10;
+  //  val *= 10;
+  //  val = floor(val+0.5);
+  //  val /= 10;
+
   xsec[0] = val;
 
   //  std::cout << val << std::endl;
