@@ -1,0 +1,74 @@
+               ------------------------------------------------
+          NNPDF subpackage  --- Reweighting program of NNPDF fitting group
+               ------------------------------------------------
+
+Description of NNPDF method to create NNPDF PDF sets:
+arXiv:1002.4407 [hep-ph]
+
+Description of reweighting method:
+arXiv:1012.0836 [hep-ph],
+arXiv:1108.1758 [hep-ph]
+
+For support information, please visit https://znwiki3.ifh.de/H1Fitter
+
+or write a mail to:
+kristin.lohwasser@cern.ch
+Alberto.Guffanti@nbi.dk
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+                 Running NNPDF reweighting
+
+
+0) General NNPDF philosophy
+====================
+
+The NNPDF collaboration releases PDF sets consisting of 100 or 1000 PDF replicas, whose mean prediction for a given observable corresponds to the central NNPDF prediction and the RMS of those replicas for the observable is the NNPDF error.
+
+The NNPDF reweighting calculates the chi2 between a new data set and the old NNPDF replicas in order to determine which replicas are still able to describe the new data (they are kept) and which ones fail (they are thrown out).
+
+The output of the procedure is a new, updated NNPDF set in LHAPDF format with a reduced number of replicas that describe the old and the new data well. 
+Some additional check plots which give clues about the validity of the procedure for the given new data set are also provided.
+
+
+1) RUNNING the NNPDF reweighting
+====================================
+
+The option to run the NNPDF reweighting tool is switched on using a namelist in the general HERAFITTER steering file, steering.txt
+
+The parameters to be set are:
+  FLAGNNPDF    = 0		      ! 0 (default): do NOT run NNPDF reweighting, 1: run reweighting
+  NNPDFSET     = 'NNPDF21_100.LHgrid' ! Which NNPDF set should be used? Give LHAPDF grid file name
+  NNPDFRWDATA  = 'LHCWZdata'          ! arbitrary (directory!) name for new datasample to be put in 
+  NNPDFREWEIGHTMETHOD = 1             ! either 1=chi2 (uses HERA fitter chi2) or 2=data (uses NNPDF chi2)
+  DONNPDFONLY  = True                 ! do do not run usual HERA fit after NNPDF reweighting
+  NNPDFOUTREPLICAS = 10               ! how many output replica of the NNPDF should be kept?
+
+
+Since a 'fake' minuit fit is run in order to retrieve the theory prediction, the it is at the moment mandatory to have associated minuit steering files as well as output files - these can be found in:
+input_steering/minuit.XXX.nnpdf.txt
+
+If NNPDF reweighting is run, it will create an internal steering card to run the actual reweighting routing. This is stored under the following name in:
+input_steering/<name_of_NNPDFSET>_<NNPDFRWDATA>_<chi2_OR_data>.in
+
+Also, the needed files with the chi2 or the data/theory predictions for the new data set, are written out by the NNPDF module. These files can be found in:
+NNPDF/data/<NNPDFRWDATA>
+
+NOTE: if these files already exist for a given data set and reweighting method, the fake minuit fit and the re-writting out of the theory predictions is skipped and the NNPDF reweighting step is directly run.
+
+2) OUTPUTS
+====================================
+
+outputs are stored in:
+
+output/<name_of_the_NNPDFSET>_<NNPDFRWDATA>_<chi2_OR_data>/ (extra subdirectory in output)
+
+There you can find:
+
+<name_of_the_NNPDFSET>_<NNPDFRWDATA>_<chi2_OR_data>_<Number_of_kept_replica>.LHgrid 
+--> new/updated LHgrid file that can be used
+
+whist-rw.eps 
+--> weight distributions (used in the reweighting procedure - replicas with high weights are kept, low weight replicas are thrown out)
+palpha-rw.eps 
+--> distribution of probability, is essentially a measure of the competibility of the new data with the old data (should be around around 1, if it is larger than that, say around 1.7, then then the new data are incompatible with the ones included in the fit - 0.5 for example however suspiciously good.
