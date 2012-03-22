@@ -88,6 +88,19 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
 
     bin/FitPDF 
 
+1C) INSTALLATION (with Hathor)
+=================================
+
+  a) Download Hathor from http://www-zeuthen.desy.de/~moch/hathor/
+     and install it according to the instructions given there
+     (requires LHAPDF library)
+
+  b) Define a variable HATHOR_ROOT such that $HATHOR_ROOT points to the
+     directory of your Hathor installation
+
+  c) Install the H1Fitter as described above but configuring it
+     with the option "--enable-hathor" before building it
+
 
 2) MINI DESCRIPTION
 =====================
