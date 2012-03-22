@@ -27,10 +27,10 @@ AC_CONFIG_SRCDIR([src/main.f])
 AC_MSG_CHECKING([for CERN libraries])
 if test "x$CERN_ROOT" = "x"; then
   AC_MSG_ERROR([CERN_ROOT environment variable is not set!
-  CERN_ROOT/lib must be the path to -lkernlib, -lphtools, -llapack3, -lmathlib, -lpacklib])
+  CERN_ROOT/lib must be the path to -lkernlib,   -lmathlib, -lpacklib])
 else
-  AC_SUBST([CERNLIBS], ["-L$CERN_ROOT/lib -lmathlib -lphtools -llapack3 -lkernlib -lpacklib"])
-  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib -lphtools -llapack3 -lkernlib -lpacklib ])
+  AC_SUBST([CERNLIBS], ["-L$CERN_ROOT/lib -lmathlib  -lkernlib -lpacklib"])
+  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib ])
 fi
 
 AC_MSG_CHECKING([for QCDNUM libraries])
