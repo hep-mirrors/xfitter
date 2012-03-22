@@ -49,8 +49,14 @@ if ENABLE_LHAPDF
 endif
 
 # libraries to be linked to the main target
-LDADD = $(QCDNUMLIBS) \
- ../DY/src/libmydy.a\
+LDADD = $(QCDNUMLIBS)
+
+if ENABLE_HATHOR
+  LDADD+= ../Hathor/src/libHathor.a \
+  $(HATHOR_ROOT)/libHathor.a
+endif
+
+LDADD+= ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
  ../ACOT/src/libmyacot.a \
  ../HS/src/libmyhs.a \
@@ -60,11 +66,6 @@ LDADD = $(QCDNUMLIBS) \
  ../DiffDIS/src/libDiffDIS.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
  -lgsl -lgslcblas -lstdc++ 
-
-if ENABLE_HATHOR
-  LDADD+= ../Hathor/src/libHathor.a \
-  $(HATHOR_ROOT)/libHathor.a
-endif
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
