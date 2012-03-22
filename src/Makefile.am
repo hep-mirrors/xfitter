@@ -8,7 +8,7 @@ FitPDF_SOURCES = main.f init_theory.f fcn.f GetChisquare.f minuit_ini.f read_dat
 sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f dipole.f store_h1qcdfunc.f\
   dis_sigma.f dis_f2.f dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
-  GetDiffDisXsection.f FixModelParams.f
+  GetDiffDisXsection.f FixModelParams.f nnpdfreweighting.f
 
 
 
@@ -43,13 +43,16 @@ if ENABLE_APPLGRID
   AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
 endif
 
+
+# libraries to be linked to the main target
+LDADD = $(QCDNUMLIBS)
+
 if ENABLE_LHAPDF 
   AM_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
   AM_FFLAGS+=$(LHAPDF_CPPFLAGS)
 endif
 
-# libraries to be linked to the main target
-LDADD = $(QCDNUMLIBS)
+LDADD += ../NNPDF/src/libNNPDF.a
 
 if ENABLE_HATHOR
   LDADD+= ../Hathor/src/libHathor.a \

@@ -76,6 +76,10 @@ C
 
       integer IPDFSET
 
+      integer FLAGNNPDF
+      logical DONNPDFONLY
+
+
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
@@ -89,7 +93,7 @@ C
      $     ,IOFFSETCHEBSEA,EWFIT
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID,Lranddata,iDH_MOD, IPDFSET
+     $     ,LFastAPPLGRID,Lranddata,iDH_MOD, IPDFSET, FLAGNNPDF, DONNPDFONLY
 
      
       common/heavyflav/

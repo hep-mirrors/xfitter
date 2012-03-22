@@ -4,6 +4,9 @@ SUBDIRS = minuit  DY DIPOLE RT HS tools/H1FitterDrawResults \
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
+
+SUBDIRS+= NNPDF/src
+
 SUBDIRS+= src doc/tex
 
 # DOXYGEN SUPPORT

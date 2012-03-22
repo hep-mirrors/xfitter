@@ -15,6 +15,9 @@ C---------------------------------------------------
       include 'pdfparam.inc'
       include 'datasets.inc'
       include 'systematics.inc'
+      include 'nnpdf.inc'
+
+
       include 'for_debug.inc'
 C=================================================
 
@@ -51,6 +54,11 @@ C (Optional) Polynomial parameterisation for valence
 
 C (Optional) LHAPDF steering card
       namelist/lhapdf/LHAPDFSET,ILHAPDFSET
+
+C (Optional) NNPDF steering card
+      namelist/nnpdf/FLAGNNPDF,NNPDFSET,NNPDFRWDATA
+     $     ,NNPDFREWEIGHTMETHOD,DONNPDFONLY,NNPDFOUTREPLICAS
+
 
       integer i, ilastq2
       integer StdCin,StdCout
@@ -164,6 +172,16 @@ C PDF output options:
       outxrange(1) = 1e-4
       outxrange(2) = 1.0
 
+
+C NNPDF defaults
+
+      FLAGNNPDF = 0
+      NNPDFREWEIGHTMETHOD = 1
+      DONNPDFONLY = .false.
+      NNPDFSET = ''
+      NNPDFOUTREPLICAS = 0
+
+
 C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       strange_frac = 0.31
       charm_frac = 0.00
@@ -214,6 +232,21 @@ C
       read (51,NML=lhapdf,ERR=67,end=68)
  68   continue
       close (51)
+
+C  Read the nnpdf namelist:
+C 
+      open (51,file='steering.txt',status='old')
+      read (51,NML=nnpdf,END=75,ERR=74)
+ 75   continue
+      close (51)
+
+C check whether NNPDF and LHAPDF set are equal
+
+      if ((FLAGNNPDF.eq.1).and.(NNPDFSET.ne.LHAPDFSET)) then
+         print *,'WARNING: Setting LHAPDF set to ', NNPDFSET
+         LHAPDFSET=NNPDFSET
+      endif
+
 
 
 C
@@ -365,6 +398,11 @@ C
  67   continue
       print '(''Error reading namelist &lhapdf, STOP'')'
       call HF_stop
+
+ 74   continue
+      print '(''Error reading namelist &nnpf, STOP'')'
+      call HF_stop
+
  70   continue
       print '(''Error reading namelist &HQScale, STOP'')'
       call HF_stop

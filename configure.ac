@@ -41,6 +41,8 @@ else
   AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
 fi
 
+NNPDF = ' ' 
+
 # check for lhapdf installation
   AC_ARG_ENABLE([lhapdf],
     [AC_HELP_STRING(--enable-lhapdf, [use lhapdf (default=no)])])
@@ -141,6 +143,7 @@ AC_CONFIG_FILES([src/Makefile
                  FastNLO/src/Makefile
 		 DiffDIS/src/Makefile
                  Hathor/src/Makefile
+                 NNPDF/src/Makefile
                  doc/tex/Makefile
                  Makefile])
 AC_CONFIG_SUBDIRS([minuit DY DIPOLE RT ACOT ABKM HS])
