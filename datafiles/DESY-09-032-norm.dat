@@ -15,7 +15,7 @@
               'elecE_DESY-09-032', 'elecTheta_DESY-09-032', 'hfs_DESY-09-032'
 
    NInfo   = 6
-   DataInfo = 318.11947,       0.387,           0.,                 1.        , 3.,    , 3.
+   DataInfo = 318.11947,       0.387,           1.,                 1.        , 3. ,     3.
    CInfo    = 'sqrt(S)', 'lumi(e-)/lumi(tot)', 'PublicationUnits', 'UseZMVFNS','MurDef', 'MufDef' 
    
    IndexDataset = 36
