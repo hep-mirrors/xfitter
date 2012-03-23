@@ -186,7 +186,6 @@ C--------------------------------------------------------------
 *     -----------------------------------------------------
 
       if(itheory.eq.0) then 
-         alphas = 0.1178
          call setalf(dble(alphas),Mz*Mz)
          alphaSzero=asfunc(1.0D0,nflav,ierr)
          call RT_SetAlphaS(alphaSzero)

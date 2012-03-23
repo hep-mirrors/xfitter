@@ -14,6 +14,7 @@ c----------------------------------------------------------------------
       include 'nnpdf.inc'
       include 'ntot.inc'
       include 'indata.inc'
+      include 'alphas.inc'
 
       character*72 minfile
       integer npdfsets
@@ -30,7 +31,7 @@ c----------------------------------------------------------------------
       
 C Function:
       double precision chi2data_theory
-
+      double precision alphasPDF
 C---------------------------------------------------------------
 c     initialize number of PDF replicas
       call numberPDF(npdfsets)
@@ -150,6 +151,7 @@ c     initialize number of PDF replicas
 
       do iset=1, npdfsets
          call InitPDF(iset)
+         alphas = alphasPDF(Mz)
          chi2tot = chi2data_theory(min(2,iset))        
          print '(''Got MC set='',i5,'' chi2='',F10.1,'' ndf='',i5)',
      $        iset,chi2tot,ndfmini
