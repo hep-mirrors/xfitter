@@ -93,7 +93,9 @@ C
      $     ,IOFFSETCHEBSEA,EWFIT
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID,Lranddata,iDH_MOD, IPDFSET, FLAGNNPDF, DONNPDFONLY
+     $     ,LFastAPPLGRID,Lranddata,iDH_MOD, IPDFSET
+
+     common/STEERING2/FLAGNNPDF, DONNPDFONLY
 
      
       common/heavyflav/
