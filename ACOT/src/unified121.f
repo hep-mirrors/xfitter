@@ -1672,7 +1672,7 @@ C----------------------------------------------------------------------
       a2 = GLQin2 - GRQin2
 C----------------------------------------------------------------------
 
-      call couplings(a1,a2,v1,v2,Sp,Sm,Rqp,Rqm) 
+      call get_couplings(a1,a2,v1,v2,Sp,Sm,Rqp,Rqm) 
 
 * ... LO amplitudes including kinematic mass effects:
       acotlo(1) = ( Sp*(Q2+m1s+m2s) - 2.d0*Sm*m1*m2 ) 
@@ -2140,7 +2140,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       return
       end
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      subroutine couplings(a1,a2,v1,v2,Sp,Sm,Rqp,Rqm)
+      subroutine get_couplings(a1,a2,v1,v2,Sp,Sm,Rqp,Rqm)
       implicit double precision (a-z)
       Sp  =  v1*v2 + a1*a2
       Sm  =  v1*v2 - a1*a2
