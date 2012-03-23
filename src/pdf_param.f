@@ -235,7 +235,7 @@ C Hermes strange prepare:
       if (ifsttype.eq.0) then
          fs = fstrange
       else
-         fs = fshermes(0.)
+         fs = fshermes(0.D0)
       endif
      
 
@@ -468,7 +468,7 @@ C Hermes strange prepare:
       if (ifsttype.eq.0) then
          fs = fstrange
       else
-         fs = fshermes(0.)
+         fs = fshermes(0.D0)
       endif
 
 C     simple copy first:
@@ -632,7 +632,7 @@ C Hermes strange prepare:
       if (ifsttype.eq.0) then
          fs = fstrange
       else
-         fs = fshermes(0.)
+         fs = fshermes(0.D0)
       endif
 
 C simple copy first:
