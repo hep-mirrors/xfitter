@@ -14,8 +14,8 @@ c
      &	                tvec(MNI), errmat(MNI,MNI)
 
 	write(isyswr,100) 
-100	format(1x,'XRANGE: find allowed displacements ',
-     &	          'according to Hessian, for DeltaChisq=1.0')
+100     format(1x,'XRANGE: find allowed displacements ',
+     &         'according to Hessian, for DeltaChisq=1.0')
 
 c save initial x vector, assumed to be the location of the minimum...
 	do j = 1, npar
@@ -39,7 +39,7 @@ C                 make sure starting at the right place
       AMIN = FS0
 
 	write(isyswr,110) FS0, NFCN
-110	format(1x,'XRANGE: Chisq =',g14.6,' NFCN=',i6)
+110     format(1x,'XRANGE: Chisq =',g14.6,' NFCN=',i6)
 
 
 c keep track of any new best minimum found...
@@ -86,26 +86,26 @@ c give UP according to the quadratic approximation...
 	   CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
 
 	   write(isyswr,120) ipar, nexofi(ipar), x0(ipar), abs(xvec(ipar))
-120	   format(/1x,'Par=',i2,' TruePar=',i2,' at',e13.5,' +/-',
-     &	          e13.5,' for DeltaChisq=1.0')
+ 120       format(/1x,'Par=',i2,' TruePar=',i2,' at',e13.5,' +/-',
+     &     e13.5,' for DeltaChisq=1.0')
 
 	   write(isyswr,130) ipar, nexofi(ipar), FS1-amin, FS2-amin, UP
 130	   format(1x,'Steps in +/- directions along',i3,' TruePar',i3,
-     &	' give DeltaChisq =',g12.5,',',g12.5,
-     &	' (expected about',g12.5,')')
+     &  ' give DeltaChisq =',g12.5,',',g12.5,
+     &  ' (expected about',g12.5,')')
 
 	   write(isyswr,140) ipar, nexofi(ipar)
-140	   format(/5x,'Displacements that give max increase in',
-     &	              ' Par=',i2,' (TruePar=',i2,') for DeltaChisq=1.0')
+140      format(/5x,'Displacements that give max increase in',
+     &    ' Par=',i2,' (TruePar=',i2,') for DeltaChisq=1.0')
 
 	   do j = 1, npar
 	      write(isyswr,150) j, nexofi(j), xvec(j)
-150	      format(8x,'x(',i2,' (TruePar=',i2,')) =',g14.6)
+150           format(8x,'x(',i2,' (TruePar=',i2,')) =',g14.6)
 	   enddo
 
 	   write(isyswr,160) ipar, nexofi(ipar)
 160	   format(/5x,'Eigenvector components that give max increase in',
-     &	              ' Par=',i2,' (TruePar=',i2,') for DeltaChisq=1.0')
+     &          ' Par=',i2,' (TruePar=',i2,') for DeltaChisq=1.0')
 
 	   do j = 1, npar
 	      write(isyswr,170) j, yvec(j)

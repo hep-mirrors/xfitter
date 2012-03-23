@@ -175,8 +175,8 @@ c integrations in our FCN.)
       aimsag = abs(UP)
 
       WRITE (ISYSWR,50) amin, nfcn, aimsag
-50	format(1x,'ITERATE STARTING POINT:  FCN=',g16.9,' NFCN=',i6,
-     &	          ' UP=AIMSAG=',g12.6)
+50    format(1x,'ITERATE STARTING POINT:  FCN=',g16.9,' NFCN=',i6,
+     &   ' UP=AIMSAG=',g12.6)
 
 c initialize to x0=current notion of minimum...
 	do i = 1, npar
@@ -184,8 +184,8 @@ c initialize to x0=current notion of minimum...
 	   if(gstep(i) .le. 0.d0) then
 	      write(ISYSWR,60) gstep(I), I, NEXOFI(I)
 60	      format(1x,'ITERATE quits because gstep =',e12.5,
-     &	      ' not positive for par=',i2,' (real par=',i2,
-     &	      ') -- perhaps due to constraint')
+     &  ' not positive for par=',i2,' (real par=',i2,
+     &  ') -- perhaps due to constraint')
 	      goto 1200
 	   endif
 
@@ -218,7 +218,7 @@ c can be changed -- no linear combinations are taken.
 	if(ldebug) then
 	   write(isyswr,70) iter
 70	   format(1x,'parameter values beginning iteration',i3,
-     &	         /3x,'Par',2x,'TruePar',7x,'x')
+     &    /3x,'Par',2x,'TruePar',7x,'x')
 	   do i = 1, npar
 	      write(isyswr,80) i, nexofi(i), x(i)
 80	      format(3x,i2,5x,i2,3x,g15.7)
@@ -233,14 +233,14 @@ c on first pass, only reset step sizes...
 	if(iter .eq. 0) goto 12345
 
 	if(ldebug) write(isyswr,90) iter, amin, nfcn
-90	format(1x,'Begin calculating diagonal elements of Hessian: ',1x,
-     &	'iteration',i3,' FCN=',g16.7,' NFCN=',i6)
+90      format(1x,'Begin calculating diagonal elements of Hessian: ',1x,
+     &  'iteration',i3,' FCN=',g16.7,' NFCN=',i6)
 
 C get diagonal elements of second derivative matrix...
       IF (LDEBUG) WRITE (ISYSWR,100) iter
 100	format(1x,'ITERATE iteration',i2,/1x,
-     &	' Par               STEP     ',
-     &	'   2nd Deriv.      1st Deriv.        SAGITA  ',
+     &  ' Par               STEP     ',
+     &  '   2nd Deriv.      1st Deriv.        SAGITA  ',
      &  '        F(+)            F(-)')
 
 	amin4s = amin4
@@ -281,12 +281,12 @@ c take steps in opposite directions...
 	IF(ldebug .and. (amin4 .lt. amin4s))
      &	   WRITE (ISYSWR,130) amin4,amin4s-amin4
 130	   format(1x,'new minimum found while calculating',
-     &	   ' diagonal elements:',e15.7,
-     &	   ' lower by',e12.5,' (not used now)')
+     &     ' diagonal elements:',e15.7,
+     &     ' lower by',e12.5,' (not used now)')
 
 	if(ldebug) write(isyswr,140) iter, amin, nfcn
 140	format(1x,'diagonal elements done; begin off-diag',1x,
-     &	'iteration',i3,' FCN=',g16.9,' NFCN=',i6)
+     &  'iteration',i3,' FCN=',g16.9,' NFCN=',i6)
 
 c first derivatives and diagonal second derivatives are finished;
 c now compute the off-diagonal second derivatives.
@@ -341,7 +341,7 @@ c by aimsag, just like the diagonal computations.
 	   if(ldebug) write(isyswr,150)
      &	           i,j,fs1-amin,fs2-amin,fs3-amin,fs4-amin,slow
 150	   format(1x,'i,j=',2i3,' corners=',4e12.4,1x,
-     &	          'dF/dY(i)dY(j)=',e13.5)
+     &          'dF/dY(i)dY(j)=',e13.5)
 
 	   cmax = max(fs1-amin,fs2-amin,fs3-amin,fs4-amin)
 	   cmin = min(fs1-amin,fs2-amin,fs3-amin,fs4-amin)
@@ -367,8 +367,8 @@ c by aimsag, just like the diagonal computations.
 	IF(ldebug .and. (amin4 .lt. amin4s))
      &	WRITE (ISYSWR,220) amin4, amin4s-amin4
 220   format(1x,'new minimum found while calculating',
-     &	' off-diagonal elements:',e15.7,
-     &	' lower by',e12.5,' (not used now)')
+     &  ' off-diagonal elements:',e15.7,
+     &  ' lower by',e12.5,' (not used now)')
 
 230	CONTINUE
 
@@ -391,7 +391,7 @@ c See how close qmat(i,j) is to the desired 2*(identity matrix)...
 	enddo
 	write(isyswr,240) diamin, diamax, iter
 240	format(1x,'    diagonal elements of D^2F / Dy_i Dy_j:',
-     &	       e13.5,' to',e13.5,'( iter=',i4,')')
+     &       e13.5,' to',e13.5,'( iter=',i4,')')
 
 	if(npar .gt. 1) then
 	   offmin = qmat(1,2)
@@ -404,7 +404,7 @@ c See how close qmat(i,j) is to the desired 2*(identity matrix)...
 	   enddo
 	   write(isyswr,250) offmin, offmax, iter
 250	   format(1x,'off-diagonal elements of D^2F / Dy_i Dy_j:',
-     &	          e13.5,' to',e13.5,'( iter=',i4,')')
+     &          e13.5,' to',e13.5,'( iter=',i4,')')
 	endif
 
 c get P = the hessian matrix in x's:  P(i,j) = D^2F / Dx_i Dx_j...
@@ -449,7 +449,7 @@ c (MNEIG overwrites P with the eigenvectors:  P(i,j) is now the j'th eigenvector
 
 	write(isyswr,520) pmin, pmax, iter
 520	format(1x,'eigenvalue range:',g14.6,' to',g14.6,
-     &	          ' (iter=',i4,')')
+     &       ' (iter=',i4,')')
 
 	if(ldebug) then
 	   if(min(pmin,pmax) .gt. 0.d0) then
@@ -474,8 +474,8 @@ c *** Might or might not be better to add the constant to only the negative eige
 
 	   WRITE (ISYSWR,540) nneg, tmp, iter
 540	   FORMAT(1x,i2,' negative eigenvalue(s): add',e13.5,
-     &	    ' to all eigenvalues to force hessian to be',
-     &	    ' positive definite -- iter=',i4)
+     &      ' to all eigenvalues to force hessian to be',
+     &      ' positive definite -- iter=',i4)
 	ENDIF
 
 c ------------------------------------------------------------------------------------
@@ -599,7 +599,7 @@ c install the new minimum point if it's an improvement...
 	      else
 	         write(isyswr,620) stbest
 620	         format(1x,'step taken was a fraction',f8.4,
-     &	                   ' of the calculated step')
+     &                ' of the calculated step')
 	      endif
 
 	      write(isyswr,630)
@@ -621,11 +621,11 @@ c install the new minimum point if it's an improvement...
 	   if (fs1 .lt. amin) then
 	      if (ldebug) write(isyswr,650) fs1, amin-fs1
 650	      format(1x,'new minimum installed:',e15.7,
-     &	       ' (',e12.5,' below old)')
+     &             ' (',e12.5,' below old)')
 	   else
 	      write(isyswr,660) fs1, fs1-amin
 660	      format(1x,'new "minimum"',e15.7,' (',e12.5,
-     &	                ' above old: fatal error SHOULD NOT HAPPEN)')
+     &             ' above old: fatal error SHOULD NOT HAPPEN)')
 	      stop
 	   endif
 
@@ -716,8 +716,8 @@ c print the lengths...
 	      write(isyswr,690) i, aimsag, tvec(i),
      &	                        sqrt(aimsag)*tvec(i)
 690	      format(1x,'distances to move along eigenvector direction',i3, 
-     &	                ' to get DeltaChisqr=1,',e12.5,
-     &	           ' are',e12.5,',',e12.5)
+     &             ' to get DeltaChisqr=1,',e12.5,
+     &             ' are',e12.5,',',e12.5)
 	   enddo
 	endif
 
@@ -753,7 +753,7 @@ c *** MORE ACCURATE "ALTERNATIVE" METHOD ***
 	      if(ldebug) write(isyswr,720)
      &	               ipar, aimsag, fs1-amin, fs2-amin, isize, iter
 720	      format(1x,'Direction #',i2,' expected UP=',g14.6,
-     &	        ' got',g14.6,' ,',g14.6,' (isize=',i2,' iter=',i4,')')
+     &        ' got',g14.6,' ,',g14.6,' (isize=',i2,' iter=',i4,')')
 
 	      rat1 = (max(fs1,fs2) - amin)/aimsag
 	      rat2 = (min(fs1,fs2) - amin)/aimsag
@@ -788,7 +788,7 @@ c terminate iterations if last few multipliers were close to 1...
 	            if(ldebug) write(isyswr,730)
      &	              ipar,min(rat1,rat2),max(rat1,rat2),isize,iter
 730	              format(1x,'dir',i2,' rats',2f15.5,' after',
-     &	                         i3,' tries (iter=',i4,')')
+     &                   i3,' tries (iter=',i4,')')
 
 	            goto 900
 
@@ -808,7 +808,7 @@ c store the previous multipliers...
 
 	   if(ldebug) write(isyswr,740) ipar, iter
 740	   format(1x,'warning -- step size didn''t converge along dir=',
-     &	          i2,' (iter=',i4,') --- use alternative procedure')
+     &          i2,' (iter=',i4,') --- use alternative procedure')
 
 c ===========================
 c begin alternative procedure
@@ -848,7 +848,7 @@ c **************************************************************
 c EXTRA PRINTOUT FOR TESTING
 	if (ldebug) write(isyswr,830) tmult, del, ipar, idir, itry
 830	format(1x,'tmult=',e16.8,' del=',e12.5,
-     &	          ' ipar=',i2,' idir=',i2,' itry=',i3)
+     &       ' ipar=',i2,' idir=',i2,' itry=',i3)
 c **************************************************************
 
 c go if convergence good enough...
@@ -887,7 +887,7 @@ c bail out if it isn't.
 	         if(del .le. 0.d0) then
 	            if(ldebug) write(isyswr,840) (-del), ipar, idir, itry
 840	            format(1x,'ITERATE: warning, FS1 below amin by',e12.5,
-     &	                      ' ipar=',i3,' idir=',i2,' itry=',i3)
+     &                   ' ipar=',i3,' idir=',i2,' itry=',i3)
 	            goto 880
 	         endif
 
@@ -938,13 +938,13 @@ c monotonic.  In that case, go back to the best result found...
 
 	      write(isyswr,860) FS1-amin, ipar, idir
 860	      format(1x,'ITERATE: poor convergence warning -- ',
-     &	             'Delta Chisqr=',e12.5,' ipar=',i2,' idir=',i1)
+     &             'Delta Chisqr=',e12.5,' ipar=',i2,' idir=',i1)
 
 	      if(ldebug) write(isyswr,870) 
      &	      tbestl, dbestl, tbesth, dbesth, tmult, fs1-amin
 870	      format(11x,'tmult=',e16.8,' ==> del=',e15.8,
-     &	            /11x,'tmult=',e16.8,' ==> del=',e15.8,
-     &	            /7x,'use tmult=',e16.8,' ==> del=',e15.8)
+     &             /11x,'tmult=',e16.8,' ==> del=',e15.8,
+     &             /7x,'use tmult=',e16.8,' ==> del=',e15.8)
 
 880	      continue
 
@@ -979,7 +979,7 @@ c NOTE, tmvec(2) is negative.
 	      tmult = 0.001d0
 	      if(ldebug) write(isyswr,2260) tmult
 2260	      format(1x,'warning: neither direction converged; take tmult=',
-     &	                f10.5)
+     &             f10.5)
 
 	   endif
 
@@ -1001,7 +1001,7 @@ c ============================
 	      enddo
 	      write(isyswr,920) ipar, sqrt(sum*aimsag), aimsag
 920	      format(1x,'Eigenvector #',i2,1x,'has length=',e12.5,
-     &	             ' to increase fcn by',e12.5)
+     &             ' to increase fcn by',e12.5)
 
 	      do j = 1, npar
 	         JEXT = NEXOFI(j)
@@ -1017,7 +1017,7 @@ c ============================
 	IF(ldebug .and. (amin4 .lt. min(amin,amin4s)))
      &	   WRITE (ISYSWR,950) amin4, amin4s-amin4
 950	   format(1x,'new minimum found while adjusting lengths',
-     &	             e15.7,' lower by',e12.5,' (not used now)')
+     &       e15.7,' lower by',e12.5,' (not used now)')
 
 
 c See how much have the eigenvector directions have changed from the previous iteration...
@@ -1029,7 +1029,7 @@ c See how much have the eigenvector directions have changed from the previous it
 	      enddo
 	      if(ldebug) write(isyswr,960) i, sum, iter
 960	      format(1x,'Dot product between old and new directions',
-     &	           i3,' =',f10.8,' iter=',i4)
+     &             i3,' =',f10.8,' iter=',i4)
 	   enddo
 	endif
 
@@ -1037,7 +1037,7 @@ c replace the location of the minimum by any accidentally discovered improvement
 	if(amin4 .lt. amin) then
 	   if(ldebug) write(isyswr,970) amin, amin4, amin-amin4
 970	   format(1x,'replace FMIN=',e15.8,
-     &	   ' by accidentally discovered',e15.8,' lower by',e12.5)
+     &          ' by accidentally discovered',e15.8,' lower by',e12.5)
 	   amin = amin4
 	   do k = 1, npar
 	      if(ldebug) write(isyswr,980) k, x0(k), x0best(k)
@@ -1184,7 +1184,7 @@ c check that vmat is orthogonal...
 	if(abs(errmax) .gt. 1.e-5) then
 	   write(isyswr,100) errmax
 100	   format(1x,'getvt warning: vmat not orthogonal -- zero=',
-     &	         e12.5)
+     &          e12.5)
 	endif
 
 	return

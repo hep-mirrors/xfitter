@@ -28,8 +28,8 @@ c fluma is the name of the file to be written (other names not used here)
 	read(iumat,*,ERR=400) np
 	if(np .ne. npar) then
 	   write(isyswr,100) np, npar
-100	   format(1x,'reumat:  fatal error --',
-     &	   '  umat.inp has inconsistent npar',i5,1x,i5)
+100      format(1x,'reumat:  fatal error --',
+     &  ' umat.inp has inconsistent npar',i5,1x,i5)
 	   goto 500
 	endif
 
@@ -39,8 +39,8 @@ c fluma is the name of the file to be written (other names not used here)
 	   if(ntmp .ne. nexofi(i)) then
 	      write(isyswr,110) i, ntmp, nexofi(i)
 110	      format(1x,'reumat:  fatal error --',
-     &	      '  umat.inp has inconsistent nexofi(',i3,')',
-     &	             i5,1x,i5)
+     &     '  umat.inp has inconsistent nexofi(',i3,')',
+     &   i5,1x,i5)
 	      goto 500
 	   endif
 	enddo
@@ -62,14 +62,14 @@ c set step sizes to current ERRDEF...
 	enddo
 
 	write(isyswr,130) UP, step
-130	format(1x,'step sizes set to sqrt(UP)= sqrt(',
-     &	    g15.8,') =',g15.8)
+130     format(1x,'step sizes set to sqrt(UP)= sqrt(',
+     &   g15.8,') =',g15.8)
 
 	goto 999 
 
 200	write(isyswr,202)
-202	format(1x,'file umat.inp doesn''t exist:',
-     &	 ' leave umat(i,j) = identity matrix')
+202     format(1x,'file umat.inp doesn''t exist:',
+     &    ' leave umat(i,j) = identity matrix')
 	goto 999
 
 400	write(isyswr,410)
