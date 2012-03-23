@@ -76,7 +76,7 @@ C
 
       integer IPDFSET
 
-      integer FLAGNNPDF
+      logical FLAGNNPDF
       logical DONNPDFONLY
 
 

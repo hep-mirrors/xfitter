@@ -18,11 +18,15 @@ c----------------------------------------------------------------------
       character*72 minfile
       integer npdfsets
       integer in
-      character*163 nnpdfsteerfile
-      character*163 outfilenames
+      character*180 nnpdfsteerfile
+      character*180 outfilenames
+
+      character*180 fileName
+
       character delimiter
       logical ex
       double precision chi2tot
+      integer iset
       
 C Function:
       double precision chi2data_theory
@@ -55,8 +59,9 @@ c     initialize number of PDF replicas
       endif
 
       if ((NNPDFREWEIGHTMETHOD.eq.2)) then 
-         print *,'ERROR: reweighting based on data/theory not yet implemented'
-         goto 37
+         print *,
+     $ 'ERROR: reweighting based on data/theory not yet implemented'
+         call hf_stop
       endif 
 *     ------------------------------------------------
 *     write out NNPDF input steering file
@@ -113,59 +118,42 @@ c     initialize number of PDF replicas
 *     ------------------------------------------------ 
 
       if ((NNPDFREWEIGHTMETHOD.eq.1)) then
-         inquire(file='NNPDF/data/'//
+         fileName = 'NNPDF/data/'//
      $        TRIM(NNPDFRWDATA)//'/'//TRIM(NNPDFSET)//'/chi2/'
-     $        //TRIM(NNPDFRWDATA)//'_'//TRIM(NNPDFSET)//'-chi2.res', 
-     $        exist=ex) 
+     $        //TRIM(NNPDFRWDATA)//'_'//TRIM(NNPDFSET)//'-chi2.res'
+
       else if ((NNPDFREWEIGHTMETHOD.eq.2)) then
-         inquire(file='NNPDF/data/'//
+         fileName = 'NNPDF/data/'//
      $        TRIM(NNPDFRWDATA)//'/'//TRIM(NNPDFSET)//'/obs/'
-     $        //TRIM(NNPDFRWDATA)//'_'//TRIM(NNPDFSET)//'-data.res',
-     $        exist=ex) 
+     $        //TRIM(NNPDFRWDATA)//'_'//TRIM(NNPDFSET)//'-data.res'
       endif
 
-      if (ex) goto 36
+      inquire(file=TRIM(fileName),exist=ex) 
 
-      if ((NNPDFREWEIGHTMETHOD.eq.1)) then
-         open(86,file='NNPDF/data/'//
-     $        TRIM(NNPDFRWDATA)//'/'//TRIM(NNPDFSET)//'/chi2/'
-     $        //TRIM(NNPDFRWDATA)//'_'//TRIM(NNPDFSET)//'-chi2.res')
-      else if ((NNPDFREWEIGHTMETHOD.eq.2)) then
-         open(86,file='NNPDF/data/'//
-     $        TRIM(NNPDFRWDATA)//'/'//TRIM(NNPDFSET)//'/obs/'
-     $        //TRIM(NNPDFRWDATA)//'_'//TRIM(NNPDFSET)//'-data.res')
+      if (ex) then
+         Call HF_errlog(12042301,
+     $        'W:WARNING: File '//TRIM(fileName)//
+     $        ' exists. Proceed to reweighting without overwritting')
+         goto 36
       endif
+
+*
+* Prepare output file:
+*
+      open(86,file=TRIM(fileName))
+
 
       
 *     ------------------------------------------------
 *     loop over all NNPDF sets to write out chi2
 *     ------------------------------------------------ 
 
-      do FLAGNNPDF=1,npdfsets
-
-c         open ( 125, file='input_steering/minuit.out.nnpdf.txt' )
-c         minfile='input_steering/minuit.in.nnpdf.txt' 
-c         write(6,*) ' read minuit input params from file ',minfile
-c         call HF_errlog(12020504,
-c     +     'I: read minuit input params from file '//minfile) 
-c         open ( 124, file=minfile )
-c         open (  17, file='input_steering/minuit.save.nnpdf.txt' )
-
-c         call mintio(124,125,17)
-
-*     ------------------------------------------------
-*     initialize MINUIT
-*     ------------------------------------------------ 
-
-         call InitPDF(FLAGNNPDF)
-C         call minuit(fcn,0)
-
-         chi2tot = chi2data_theory(1)
-         
-c         close( 124) 
-c         close( 125) 
-c         close( 17) 
-
+      do iset=1, npdfsets
+         call InitPDF(iset)
+         chi2tot = chi2data_theory(min(2,iset))        
+         print '(''Got MC set='',i5,'' chi2='',F10.1,'' ndf='',i5)',
+     $        iset,chi2tot,ndfmini
+         write(86,*) iset, ' ', chi2tot/ndfmini
       enddo
 
       close(86)
@@ -174,4 +162,4 @@ c         close( 17)
 
       close(87)
 
- 37   end
+      end

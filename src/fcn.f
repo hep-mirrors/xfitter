@@ -147,6 +147,7 @@ C--------------------------------------------------------------
       ndf = -nparFCN
       n0 = 0
 
+      iflagfcn = iflag
 
       do jsys=1,nsys
          bsys(jsys) = 0.d0
@@ -185,6 +186,7 @@ C--------------------------------------------------------------
 *     -----------------------------------------------------
 
       if(itheory.eq.0) then 
+         alphas = 0.1178
          call setalf(dble(alphas),Mz*Mz)
          alphaSzero=asfunc(1.0D0,nflav,ierr)
          call RT_SetAlphaS(alphaSzero)
@@ -302,6 +304,10 @@ C      for dipole model fits.
 *     ---------------------------------------------------------
       call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
 
+*
+* Save NDF
+*
+      ndfMINI = ndf
 
       if (iflag.eq.1) close(87)
 

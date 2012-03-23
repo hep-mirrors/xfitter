@@ -175,7 +175,7 @@ C PDF output options:
 
 C NNPDF defaults
 
-      FLAGNNPDF = 0
+      FLAGNNPDF = .false.
       NNPDFREWEIGHTMETHOD = 1
       DONNPDFONLY = .false.
       NNPDFSET = ''
@@ -242,11 +242,19 @@ C
 
 C check whether NNPDF and LHAPDF set are equal
 
-      if ((FLAGNNPDF.eq.1).and.(NNPDFSET.ne.LHAPDFSET)) then
-         print *,'WARNING: Setting LHAPDF set to ', NNPDFSET
-         LHAPDFSET=NNPDFSET
+      if (FLAGNNPDF) then
+         if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
+            call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
+     $           //TRIM(NNPDFSET))
+            LHAPDFSET=NNPDFSET
+         endif
+C  check if the PDFstyle is indeed Ok
+         if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
+            call HF_Errlog(12032303,
+     $           'W:WARNING: Setting PDF style to LHAPDFQ0')
+            PDFStyle = 'LHAPDFQ0'
+         endif
       endif
-
 
 
 C

@@ -45,7 +45,7 @@ C-----------------------------------------------------
 *     ------------------------------------------------
 *     Do NNPDF if initialized
 *     ------------------------------------------------
-      if (FLAGNNPDF.gt.0) then 
+      if (FLAGNNPDF) then 
          call nnpdfreweighting
          if (DONNPDFONLY) goto 36
       endif
