@@ -13,5 +13,5 @@ libDiffDIS_a_SOURCES = Coca.cc   GrdHeader.cc  Param.cc    ddis.cc   fileut.cc  
 	FASTLI2.f FASTLI3.f FASTS12.f TR_alpha.f WATE96.f WGPLG.f \
 	grvpiho.f grvpilo.f GetPdf.f 	
 
-AM_CXXFLAGS = -I$(srcdir)/../include -Wall -fPIC -Wno-deprecated $(ROOT_CFLAGS)
+AM_CXXFLAGS = -I$(srcdir)/../include  -fPIC -Wno-deprecated $(ROOT_CFLAGS) -w
 # AM_CPPFLAGS = -I$(srcdir)/../include -Wall -Wno-deprecated -fPIC $(ROOT_CFLAGS)
