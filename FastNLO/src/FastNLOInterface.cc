@@ -16,7 +16,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
+#include <cstring>
 #include <map>
 #include <FastNLOReader.h>
 #include <cmath>
