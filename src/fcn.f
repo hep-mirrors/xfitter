@@ -236,6 +236,13 @@ C      for dipole model fits.
          print*,'ITHEORY ne 0'
       endif
 
+c fill PDFs for ABKM scheme
+      if (mod(HFSCHEME,10).eq.4) then 
+             call PDFFILLGRID
+c this will need to BMSN             
+c             call fillvfngrid
+      endif
+
       if (Debug) then
          print*,'after evolution'
       endif
