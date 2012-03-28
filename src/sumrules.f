@@ -36,161 +36,86 @@ C-----------------------------------------
       kflag=0
       zero = 1d-10
 
+C==========================================================
 C SG, 22 Apr 2011: Add CT-like parameterisation:
       if (iparam.eq.171717) then
          Call SumRulesCTeq
          Return
       endif
 
-      if (iparam.eq.1.or.iparam.eq.21) then 		!  H1PDF2k like
+C==========================================================
+      if (iparam.eq.4         ! CHEB
+     $     .or.iparam.eq.22   ! 10p HERAPDF
+     $     .or.iparam.eq.229  ! 13p HERAPDF
+     $     .or.iparam.eq.221  ! buvbdv
+     $     .or.iparam.eq.222  ! negglu
+     $     .or.iparam.eq.2011 ! strange
+     $     .or.iparam.eq.222222.or.iparam.eq.222223) then
 
-* -- sum rule : D - Dbar = 1   :  gives Dd
+C**********************************************************
+C*     -- sum rule : D - Dbar = 1   :  gives ADval
+C*
 
-         t2 = CalcIntegral(bD, cD)
+         t1 = CalcIntegral(pardval(2)-1.0d0, pardval(3))
+         t2 = CalcIntegral(pardval(2), pardval(3))
+         t3 = CalcIntegral(pardval(2)+1.0d0, pardval(3))
+         t4 = CalcIntegral(pardval(2)+2.0d0, pardval(3))
+	 pardval(1) = 1.0d0 / (t1 + pardval(4) * t2 + pardval(5) * t3 + pardval(6) * t4)
+C	 Adv = 1.0d0 / (t1 + Ddv * t2 + Edv * t3 + Fdv * t4)
 
-         btmp = bD
-         c1 = cD
-         c2 = cDbar
-         t1mt3 = SSDINT(zero,ToInteg,1.d0-zero)
-         
-         term = 1./ad - (t1mt3)
+C**********************************************************
+C*     -- sum rule : U - Ubar = 2   :  gives AUval
+C*
 
-         Dd = term / t2
+         t1 = CalcIntegral(paruval(2)-1.0d0, paruval(3))
+         t2 = CalcIntegral(paruval(2), paruval(3))
+         t3 = CalcIntegral(paruval(2)+1.0d0, paruval(3))
+         t4 = CalcIntegral(paruval(2)+2.0d0, paruval(3))
+	 paruval(1) = 2.0d0 / (t1 + paruval(4) * t2 + paruval(5) * t3 + paruval(6) * t4)
+C	 Auv = 2.0d0 / (t1 + Duv * t2 + Euv * t3 + Fuv * t4)
 
+C**********************************************************
+C*     -- sum rule : x ( gluon + Sigma) = 1  :  gives Ag
+C*
 
-* -- sum rule : U - Ubar = 2   :  gives Du
-* new jf : add Eu term
-         
-         t2 = CalcIntegral(bU, cU)
-         t3 = CalcIntegral(bU+2., cU)
-         t4 = CalcIntegral(bU+1., cU)
-         
-         btmp = bU
-         c1 = cU
-         c2 = cUbar
-         t1mt4 = SSDINT(zero,ToInteg,1.d0-zero)
-         dU = 2.d0 / aU - (t1mt4) - fU *t3 -eU * t4
-         
-         if (t2.eq.0) then
-            kflag=1
-            goto 999
-         endif
-         dU = dU / t2
-
-
-* -- sum rule : x ( gluon + Sigma) = 1  :  gives Ag
-C
-C SG: add Chebyshev param. for gluon
-C
-         if (nchebglu.eq.0) then
-            tg = CalcIntegral(bg,cg) + dg 
-     $           * CalcIntegral(bg+1.,cg)
-     +           + fg * CalcIntegral(bg+3., cg)
-         else
-            tg = CalcIntegralCheb(nchebglu,
-     $           polyPars,chebxminlog,ichebtypeGlu)
-         endif
-* new jf add eU term
-         tU = CalcIntegral(bU, cU)
-     +        + dU * CalcIntegral(bU+1., cU)
-     +        + eU * CalcIntegral(bU+2., cU)
-     +        + fU * CalcIntegral(bU+3., cU)
-         
-         tD = CalcIntegral(bD, cD)
-     +        + dD * CalcIntegral(bD+1., cD)
-         
-         tUbar = CalcIntegral(bUbar,cUbar)
-         
-         tDbar = CalcIntegral(bDbar,cDbar)
-         
-         ag = 1.d0 - (aU*tU + aD*tD + aUbar*tUbar + aDbar*tDbar)
-         if (tg.eq.0) then
-            kflag=1
-            goto 999
-         endif
-         
-         print *,'ag and tg',ag,tg
-         ag = ag / tg
-
-* new jf 
-      elseif (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4.
-     $        .or.iparam.eq.2011
-     $        .or.iparam.eq.222.or.iparam.eq.229.or.iparam.eq.221
-     $        .or.iparam.eq.22.or.iparam.eq.225.or.iparam.eq.222222
-     $        .or.iparam.eq.24.or.iparam.eq.222223) then
-
-cv         print*,'voica in sumrule:bdv,cdv,buv,cuv,euv'
-cv         print*, bdv,cdv,buv,cuv,euv
-         
-*     -- sum rule : D - Dbar = 1   :  gives ADval         
-         if (NPOLYVAL.eq.0) then
-            t1 = CalcIntegral(bDv-1., cDv)
-            t2 = CalcIntegral(bDv, cDv)
-            t3 = CalcIntegral(bDv+2., cDv)
-            Adv = 1.D0 / (t1 + Ddv * t2 + Fdv * t3)         
-         else
-            t1  = PolyValInt(NPOLYVALINT,PolyDval)
-            Adv = 1.D0/t1
-         endif
-
-*     -- sum rule : U - Ubar = 2   :  gives AUval
-*     new jf : add Euv term
-         
-         if (NPOLYVAL.eq.0) then
-            t1 = CalcIntegral(bUv-1., cUv)
-            t2 = CalcIntegral(bUv, cUv)
-            t3 = CalcIntegral(bUv+2., cUv)
-            t4 = CalcIntegral(bUv+1., cUv)
-            Auv = 2. / (t1 + Duv * t2 + Fuv *t3 + Euv * t4)
-         else
-            t1  = PolyValInt(NPOLYVALINT,PolyUval)
-            Auv = 2.D0/t1
-         endif
-
-cv         print*,'voica in sumrule after ferm: adv,auv'
-cv         print*, adv,auv
-*     -- sum rule : x ( gluon + Sigma) = 1  :  gives Ag
-         
 C
 C     SG: add Chebyshev param. for gluon
-C     
+C
+
          if (nchebglu.eq.0) then
-            tg = CalcIntegral(bg,cg) 
-     +           + dg * CalcIntegral(bg+1., cg)
-     +           + fg * CalcIntegral(bg+3., cg)
-            
-            tgMRST=CalcIntegral(bpg,cpg)
+            tg = CalcIntegral(parglue(2),parglue(3)) 
+     &          + parglue(4) * CalcIntegral(parglue(2)+1.0D0, parglue(3))
+     &          + parglue(5) * CalcIntegral(parglue(2)+2.0D0, parglue(3))
+     &          + parglue(6) * CalcIntegral(parglue(2)+3.0D0, parglue(3))
+
+            tgMRST=CalcIntegral(parglue(8),parglue(9))
          else
             tg = CalcIntegralCheb(nchebglu,
      $           polyPars,chebxminlog, ichebtypeGlu)
          endif
 
-         if (Npolyval.eq.0) then
-*     new jf  : add Euv term  
-            tUv = CalcIntegral(bUv, cUv)
-     +           + dUv * CalcIntegral(bUv+1., cUv)
-     +           + eUv * CalcIntegral(bUv+2., cUv)
-     +           + fUv * CalcIntegral(bUv+3., cUv)
-            
-            tDv = CalcIntegral(bDv, cDv)
-     +           + dDv * CalcIntegral(bDv+1., cDv)
-     +           + fDv * CalcIntegral(bDv+3., cDv)
 
-         else
-            tUv = PolyValInt0(NPOLYVALINT,PolyUval)
-            tDv = PolyValInt0(NPOLYVALINT,PolyDval)
-         endif
+         tUv = CalcIntegral(paruval(2), paruval(3))
+     &        + paruval(4) * CalcIntegral(paruval(2)+1.0D0, paruval(3))
+     &        + paruval(5) * CalcIntegral(paruval(2)+2.0D0, paruval(3))
+     &        + paruval(6) * CalcIntegral(paruval(2)+3.0D0, paruval(3))
 
-cccccccccccccccccc
-         tUb = CalcIntegral(bUbar, cUbar)
-     $        + dUbar * CalcIntegral(bUbar+1., cUbar)
+         tDv = CalcIntegral(pardval(2), pardval(3))
+     &        + pardval(4) * CalcIntegral(pardval(2)+1.0D0, pardval(3))
+     &        + pardval(5) * CalcIntegral(pardval(2)+2.0D0, pardval(3))
+     &        + pardval(6) * CalcIntegral(pardval(2)+3.0D0, pardval(3))
 
-         tDb = CalcIntegral(bDbar, cDbar)
-     $        + dDbar * CalcIntegral(bDbar+1., cDbar)
-         
+         tUb = CalcIntegral(parubar(2), parubar(3))
+     $        + parubar(4) * CalcIntegral(parubar(2)+1.0D0, parubar(3))
+     $        + parubar(5) * CalcIntegral(parubar(2)+2.0D0, parubar(3))
+     $        + parubar(6) * CalcIntegral(parubar(2)+3.0D0, parubar(3))
+
+         tDb = CalcIntegral(pardbar(2), pardbar(3))
+     $        + pardbar(4) * CalcIntegral(pardbar(2)+1.0D0, pardbar(3))
+     $        + pardbar(5) * CalcIntegral(pardbar(2)+2.0D0, pardbar(3))
+     $        + pardbar(6) * CalcIntegral(pardbar(2)+3.0D0, pardbar(3))
 
 
-         
          if (iparam.eq.222222.or.iparam.eq.222223) then
 C Hermes strange prepare:
             if (ifsttype.eq.0) then
@@ -198,76 +123,73 @@ C Hermes strange prepare:
             else
                fs = fshermes(0.)
             endif
-                        
-
 c            tsbar=tDb*fs/(1-fs)
 c            tcbar=tUb*fcharm/(1-fcharm)
-            
-         endif
-         
+         endif         
 
-
-         if (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
+         if (iparam.eq.22
      $        .or.iparam.eq.221
-     $        .or.iparam.eq.222.or.iparam.eq.229) then
-            ag = 1.d0 - ( Auv * tUv + Adv * tDv
-     +           + 2*(Aubar * tUb + Adbar * tDb))
+     $        .or.iparam.eq.222
+     $        .or.iparam.eq.229) then
+            parglue(1) = 1.d0 - ( paruval(1) * tUv + pardval(1) * tDv
+     +           + 2.d0*(parubar(1) * tUb + pardbar(1) * tDb) )
 
          elseif (iparam.eq.222222.or.iparam.eq.222223) then
             ag = 1.d0 - ( Auv * tUv + Adv * tDv
-     +           + 2*(Aubar*tUb/(1-fcharm) + Adbar*tDb/(1-fs)))
+     +           + 2.d0*(Aubar*tUb/(1.d0-fcharm) + Adbar*tDb/(1.d0-fs)))
 c            ag = 1.d0 - ( Auv * tUv + Adv * tDv
 c     +           + 2*(Aubar * (tcbar+tsmallub) + Adbar * (tsbar+tsmalldb)))
 
          elseif (iparam.eq.2011) then
             tstr= CalcIntegral(bstr, cstr)
             ag = 1.d0 - ( Auv * tUv + Adv * tDv
-     +           + 2*(Aubar*tUb/(1-fcharm) + Adbar*tDb
+     +           + 2.d0*(Aubar*tUb/(1.d0-fcharm) + Adbar*tDb
      $           +Astr*tstr))
-
          endif
-         
+
+C*******************************************************************
 *     new2,  simplification for the total sea with ipar = 3 or 4, jf
-         
-         if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
-            
-C     
+
+         if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then  
+C
 C     SG: add Chebyshev param. for sea:
-C     
+C
             if (nchebsea.eq.0) then                   
                tsea = CalcIntegral(bsea, csea)
      +              + dsea * CalcIntegral(bsea+1., csea)
             else
                tsea = CalcIntegralCheb(nchebsea,
      $              polyParsSea,chebxminlog,ichebtypeSea )
-               Asea = 1.D0
+               Asea = 1.d0
             endif
             ag = 1.d0 - ( Auv * tUv + Adv * tDv
      +           + Asea * tsea)
          endif
-         
+C*******************************************************************
+
          if (tg.le.0) then
             tg=0.001
          endif
-         
-         
+
          if (iparam.eq.222.or.iparam.eq.229.or.iparam.eq.2011) then
-            
-            ag=(ag+Apg*tgMRST)/tg
+	    parglue(1)=(parglue(1)+parglue(7)*tgMRST)/tg
+c            ag=(ag+Apg*tgMRST)/tg
          else
-            ag = ag / tg
+            parglue(1) = parglue(1) / tg
          endif
-         
+
       endif
 
-C     propagate the normalisations and other parameters to 
+C*******************************************************************
+
+C     propagate the normalizations and other parameters to
 C     standard parametrisation
 
       paru(4)=du
       pard(4)=dd
-      parglue(1)=ag
-      paruval(1)=auv
-      pardval(1)=adv
+C      parglue(1)=ag
+C      paruval(1)=auv
+C      pardval(1)=adv
       paru(1)=au
       parsea(1)=asea
       pard(1)=ad
@@ -411,7 +333,7 @@ C------------------------------------------------
          sum = sum + Poly(i)/i
       enddo
 
-C Jackobian gives factor 3./2. :
+C Jackbian gives factor 3./2. :
 
       PolyValInt = 3.D0/2.D0 * sum
 
@@ -435,7 +357,7 @@ C------------------------------------------------
          sum = sum + Poly(i)/(i+1+0.5)
       enddo
 
-C Jackobian gives factor 3./2. :
+C Jackbian gives factor 3./2. :
 
       PolyValInt0 = 3.D0/2.D0 * sum
 
@@ -994,8 +916,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       double precision DGammF
 
       if (b.lt.0) then
-         call HF_errlog(12020510,
-     +        'W: HYPG1F1R - function not defined for b negative')
+         print *,'HYPG1F1R Warning, function not defined for b negative'
          HYPG1F1R=0.0
          return
       endif
@@ -1046,7 +967,6 @@ c precision reached
 c      print *,'HYPG1F1: n=',n,' hpyg1f1=',hypg1f1,abnzfact,z
       if (n.lt.1000) goto 10
       print *,'HYPG1F1: no convergence for ',a,b,z
-      call HF_errlog(12020511,'W: HYPG1F1: no convergence')
 
  99   continue
       hypg1f1=hypg1f1*factor
@@ -1153,7 +1073,7 @@ C
         ICOUNT=ICOUNT+1
         IF(ICOUNT.GT.1E5) THEN
          WRITE(1,*) 'WARNING IN SSDINT: SET SSDINT TO ZERO'
-         CALL HF_ERRLOG(12020512,'W: SSDINT: set SSDINT to 0.')
+         WRITE(6,*) 'WARNING IN SSDINT: SET SSDINT TO ZERO'
          SSDINT=0.
          RETURN
         ENDIF
@@ -1174,7 +1094,6 @@ C
       IF(NLIMS.GT.(NMAX-2)) THEN
        WRITE(1,10000) SSDINT,NMAX,BB-AA,BB+AA
        WRITE(6,10000) SSDINT,NMAX,BB-AA,BB+AA
-       CALL HF_ERRLOG(12020513,'W: SSDINT fails')
        RETURN
       ENDIF
       XLIMS(NLIMS+1)=BB
@@ -1186,3 +1105,4 @@ C
 10000 FORMAT (' SSDINT FAILS, SSDINT,NMAX,XL,XR=',G15.7,I5,2G15.7)
       END
 
+      
