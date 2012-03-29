@@ -88,10 +88,9 @@ cv shiraz
 
 
 C RT:
-      Double precision f2pRT_ou,flpRT_ou,f1pRT_ou,rpRT_ou,
-     $     f2nRT_ou,flnRT_ou,f1nRT_ou,rnRT_ou,
-     $     f2cRT_ou,flcRT_ou,f1cRT_ou,f2bRT_ou,
-     $     flbRT_ou,f1bRT_ou, F2rt_ou, FLrt_ou
+      Double precision f2RT_ou,flRT_ou,
+     $     f2cRT_ou,flcRT_ou,f2bRT_ou,
+     $     flbRT_ou
       logical UseKFactors
 
 c EW param
@@ -257,34 +256,29 @@ c            xf3qcd = xf3
             if (xF3zz.lt.0.d0)    xF3zz=0.d0
 
 
-           call sfun_wrap(x_in,q2_in
-     $          ,f2pRT_ou,flpRT_ou,f1pRT_ou,
-     +          rpRT_ou,f2nRT_ou,flnRT_ou,
-     +          f1nRT_ou,rnRT_ou,f2cRT_ou,
-     +          flcRT_ou,f1cRT_ou,f2bRT_ou,
-     +          flbRT_ou,f1bRT_ou
+           call  mstwnc_wrap(
+     $        x_in,q2_in,1,f2RT_ou,
+     $        f2cRT_ou,f2bRT_ou,flRT_ou,flcRT_ou,flbRT_ou
            ! Input:
      $          ,1,nsh2    ! fcn flag, data point index
      $          ,F2Gam,FLGam
      $          ,.false.
      $          )
            
-
-           
 c           print*,'NC SH F2', x,q2, f2pRT, f2qcd, f2gam, f2gamz,f2zz
 c           print*,'NC SH FL', x,q2, flpRT, flqcd, flgam, flgamz,flzz
 c           print*,'NC SH F3', x,q2, xf3qcd, xf3gamz,xf3zz
-           if (f2prt_ou.lt.0.d0)  f2pRT_ou=0.d0
-           if (flprt_ou.lt.0.d0)  flpRT_ou=0.d0
+           if (f2rt_ou.lt.0.d0)  f2RT_ou=0.d0
+           if (flrt_ou.lt.0.d0)  flRT_ou=0.d0
            if (f2qcd.lt.0.d0)  f2qcd=0.d0
            if (flqcd.lt.0.d0)  flqcd=0.d0
            if (xf3qcd.lt.0.d0) xf3qcd=0.d0
 
 
            
-           write(74,888) x_in,q2_in, f2pRT_ou, f2qcd,
+           write(74,888) x_in,q2_in, f2RT_ou, f2qcd,
      $          f2gam, f2gam, f2gamz,f2zz
-           write(84,888) x_in,q2_in, flpRT_ou, flqcd, 
+           write(84,888) x_in,q2_in, flRT_ou, flqcd, 
      $          flgam, flgam, flgamz,flzz
            write(94,889) x_in,q2_in, xf3qcd, xf3gamz,xf3zz
 

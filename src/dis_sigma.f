@@ -426,7 +426,7 @@ C
          
          call UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
      $        x, q2, npts, XSecType, F2gamma, FLgamma, local_hfscheme, IDataSet)
-         
+
       elseif (mod(local_hfscheme,10).eq.3) then 
 
          call UseHqstfScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
@@ -744,14 +744,15 @@ C Output:
 C Additional variables:
       integer i, idx
       logical UseKFactors
-      Double precision f2pRT,flpRT,f1pRT,rpRT,f2nRT,flnRT,f1nRT,rnRT
-      Double precision f2cRT,flcRT,f1cRT,f2bRT,flbRT,f1bRT
+      Double precision f2RT,flRT
+      Double precision f2cRT,flcRT,f2bRT,flbRT
+
 
 C RT code good only for NC case      
       if (XSecType.eq.'CCDIS') return
       
       
-      if (local_hfscheme.eq.22) then 
+      if (local_hfscheme.eq.22.or.local_hfscheme.eq.222) then 
          UseKFactors = .true.    ! RT Fast
       else
          UseKFactors = .false.   ! RT
@@ -765,24 +766,22 @@ C  F2_total^{RT} =  F2_{\gamma}^{RT}  *  (  F2_{total}^{QCDNUM}/F2_{\gamma}^{QCD
 C
       do i=1,npts
          idx =  DATASETIDX(IDataSet,i)
-         
-           call sfun_wrap(x(i),q2(i)
-     $          ,f2pRT,flpRT,f1pRT,
-     +          rpRT,f2nRT,flnRT,
-     +          f1nRT,rnRT,f2cRT,
-     +          flcRT,f1cRT,f2bRT,
-     +          flbRT,f1bRT
+
+            call  mstwnc_wrap(
+     $        x(i),q2(i),1,f2RT,
+     $        f2cRT,f2bRT,flRT,flcRT,flbRT
            ! Input:
      $          ,iFlagFCN,idx    ! fcn flag, data point index
      $          ,F2Gamma,FLGamma
      $          ,UseKFactors
      $          )
-           
+
+
       
 C     Replace F2,FL from QCDNUM by RT values
 C     Keep xF3 from QCDNUM
-         F2(i) = F2pRT * (F2(i)/F2Gamma(i))
-         FL(i) = FLpRT * (FL(i)/FLGamma(i))
+         F2(i) = F2RT * (F2(i)/F2Gamma(i))
+         FL(i) = FLRT * (FL(i)/FLGamma(i))
          F2c(i) = f2cRT
          FLc(i) = flcRT
          F2b(i) = f2bRT

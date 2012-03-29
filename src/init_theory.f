@@ -63,9 +63,13 @@ c set-up of the constants
       integer iosp,nqout
  
 
-C RT parameters:
-      double precision alphaS0in,alambdain,flavorin,qsctin,qsdtin
-      integer iordin,inullin
+C RT parameters
+      INTEGER alphaSorderin,alphaSnfmaxin
+      DOUBLE PRECISION distancein,tolerancein,
+     &     mCharmin,mBottomin,alphaSQ0in,alphaSMZin
+
+      INTEGER iordin
+
 
 c ABKM parameters:
       double precision rmass8in,rmass10in
@@ -291,17 +295,28 @@ c      call SETABR(1.D0,0.D0)  ! mur scale variation
 c      call ZMDEFQ2(1.D0,0.D0) ! muf scale variation
 
       if ((mod(HFSCHEME,10).eq.2)) then
-         alambdaIn=0.307
+
          qs0=1.d0
-         alphas0in =asfunc(qs0,nflav,ierr)
-         qsdtIn = 4.d0 * qc
-         qsctIn = 4.d0 * qb
-         flavorIn = 3
-         iordIn = 1
-         inullIn=0
+         alphaSQ0in = asfunc(qs0,nflav,ierr)
+         mCharmin = mch
+         mBottomin  = mbt
+         alphaSMZin = asfunc(mz*mz, nflav, ierr)
+c         print*,'setting RT input', mz,alphasMZin, nflav
+         distancein=0.d0
+         tolerancein=0.d0
+         alphaSorderin =0.d0
+         alphaSnfmaxin =3
+
+
+         if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) iordIn = 1
+         if ((HFSCHEME.eq.202).or.(HFSCHEME.eq.222)) iordIn = 2
+
 C-
          call RT_Set_Input(
-     $        alphaS0in,alambdain,flavorin,qsctin,qsdtin,iordin,inullin)
+     $     distancein,tolerancein,
+     $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
+     $     alphaSorderin,alphaSnfmaxin,iordin)
+
          call WATE96
 
 
