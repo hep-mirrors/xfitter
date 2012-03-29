@@ -752,7 +752,8 @@ C RT code good only for NC case
       if (XSecType.eq.'CCDIS') return
       
       
-      if (local_hfscheme.eq.22.or.local_hfscheme.eq.222) then 
+cv      if (local_hfscheme.eq.22.or.local_hfscheme.eq.222) then 
+      if (local_hfscheme.eq.22) then 
          UseKFactors = .true.    ! RT Fast
       else
          UseKFactors = .false.   ! RT
