@@ -308,8 +308,9 @@ c         print*,'setting RT input', mz,alphasMZin, nflav
          alphaSnfmaxin =3
 
 
-         if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) iordIn = 1
-         if ((HFSCHEME.eq.202).or.(HFSCHEME.eq.222)) iordIn = 2
+         if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) then
+            iordIn = I_FIT_ORDER-1
+         endif
 
 C-
          call RT_Set_Input(
