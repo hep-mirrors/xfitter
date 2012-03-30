@@ -45,6 +45,8 @@ C For log normal random shifts:
       double precision estat_in, ecor_in, euncor_in, etot_in !> Input uncertainites
       double precision estat_out,euncor_out  !> recalculated stat. error
 
+      double precision alpha_rel !> original relative alpha (uncertainty)
+
 C functions:
       real logshift
       double precision alnorm     
@@ -95,6 +97,9 @@ C
          call rnorml(rndsh,1)   
          call ranlux(ranflat,1)
 
+C Store relative alpha:
+         alpha_rel = alpha(n0)/DATEN(n0)
+
          if (lrandData) then
             s = DATEN(n0)
          else
@@ -131,7 +136,10 @@ c     $                 s,logshift(lmu,lsig,lrunif)
 CV now choose sta (advised gauss OR poisson)  
               
          if (statype.eq.1) then ! gauss
+
+            alpha(n0) = sorig * alpha_rel !> adjust alpha0, important for theory-like data. 
             s = s + rndsh * alpha(n0)
+
          elseif (statype.eq.3.) then ! lognormal
             lsig = alpha(n0)
             lmu=1.
@@ -215,6 +223,7 @@ C Store uncor in %:
      $ '(''Original, systematics and stat. shifted data:'',i4,5E12.4)'
      $        , n0,sorig, voica,s,alpha(n0),e_unc(n0)/100.*s
          DATEN(n0) = s
+
       enddo   
 
 C          call HF_stop
