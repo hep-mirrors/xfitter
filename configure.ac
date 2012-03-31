@@ -141,10 +141,17 @@ AC_CONFIG_FILES([src/Makefile
                  tools/H1FitterDrawResults/Makefile
                  tools/MakeLHAPDF/Makefile
                  FastNLO/src/Makefile
+                 minuit/src/Makefile
+                 HS/src/Makefile
+                 RT/src/Makefile
 		 DiffDIS/src/Makefile
+		 DIPOLE/src/Makefile
+                 DY/src/Makefile
                  Hathor/src/Makefile
+                 ACOT/src/Makefile
+                 ABKM/src/Makefile
                  NNPDF/src/Makefile
                  doc/tex/Makefile
                  Makefile])
-AC_CONFIG_SUBDIRS([minuit DY DIPOLE RT ACOT ABKM HS])
+# AC_CONFIG_SUBDIRS([])
 AC_OUTPUT

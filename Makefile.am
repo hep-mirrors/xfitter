@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = minuit  DY DIPOLE RT HS tools/H1FitterDrawResults \
-          tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT ABKM
+SUBDIRS = minuit/src  DY/src DIPOLE/src RT/src HS/src tools/H1FitterDrawResults \
+          tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABKM/src
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
