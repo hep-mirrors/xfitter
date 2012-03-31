@@ -126,13 +126,9 @@ C-------------------------------------------------------
       include 'steering.inc'
       include 'pdfparam.inc'      
 
-      Ag  = 0.0d0
       parglue(1) = 0.0d0
-      Aubar = 0.0d0
       parubar(1) = 0.0d0
-      Adbar = 0.0d0
       pardbar(1) = 0.0d0
-      Asea    = 0.0d0
       parsea(1) = 0.0d0
       
       end
