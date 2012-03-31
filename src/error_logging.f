@@ -256,7 +256,9 @@
       WRITE(LL,905)
 
 *     reset error tables
-      CALL VZERO(ICNT,MAXERR)
+      do i=1,MAXERR
+          ICNT(i) = 0
+      enddo
       CALL DTLU(MAXERR,0,TAB,AUX)
       ITOP=1
       NLOST=0
