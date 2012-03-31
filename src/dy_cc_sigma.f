@@ -54,7 +54,7 @@ C---------------------------------------------------
 
       integer IDataSet      ! data set index
       integer NPMax         ! max. number of DY points
-      parameter (NPMax = 200)
+      parameter (NPMax = 500)
       double precision XSec(NPMax) ! applgrid convolution result
 
       integer i,idx,idxUnit
@@ -66,6 +66,12 @@ C---------------------------------------------------
 
       integer GetKFactIndex
 C----------------------------------------------------      
+      if (NDATAPOINTS(IDataSet).gt.NPmax) then
+         print *,'ERROR IN GetDYXsection_applgrid'
+         print *,'INCREASE NPmax to ',NDATAPOINTS(IDataSet)
+         call HF_stop
+      endif
+
       call ag_convolute( DATASETTheoryIndex(IDataSet),XSec)
 
 C check if we have to divide APPLGRID prediction to convert units to data units:
