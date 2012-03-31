@@ -58,6 +58,21 @@ c          here goes a call to non-DGLAP
       INCLUDE 'couplings.inc'
       INCLUDE 'datasets.inc'
 
+         !> QCDNUM grid definitions
+      integer NXGRID                !> number of X-grid sub-ranges
+      PARAMETER (NXGRID=5)
+
+      double precision xmin_grid(NXGRID) !> X-grid sub ranges
+      integer  iwt_xgrid(NXGRID)         !> X-grid population
+
+      integer NQGRID                     !> Min. number of Q2 sub-ranges
+      PARAMETER (NQGRID=2)
+
+      integer NQGridHF  !> Increase number of Q2 grid points to ensure that HF thresholds and the starting
+                        !> Q2 scale are in.
+      parameter (NQGridHF=NQGrid+4)  
+
+
 c set-up of the constants
       integer iord
       integer iosp,nqout
@@ -78,74 +93,13 @@ c ABKM parameters:
       double precision hqscale1in,hqscale2in
 
 
-      double precision xmin(5)
-      integer  iwt(5)
-      integer NQGRID, NXGRID
-      PARAMETER (NQGRID=2)
-      PARAMETER (NXGRID=5)
-      
-
-      integer NQGridHF  !> Increase number of Q2 grid points to ensure that HF thresholds and the starting
-                        !> Q2 scale are in.
-      parameter (NQGridHF=NQGrid+4)  
 
       integer NQall     !> Actual number of grid points
       double precision Q2Grid(NQGridHF)
       double precision WQGrid(NQGridHF)
 
-      double precision  QARR(NQGRID),WGT(NQGRID)
+      double precision  QARR(NQGRID),WGT_Q2(NQGRID)
       data iosp/2/                   !x grid, lin/qua/spli
-      DATA WGT/1.d0,  2.d0/
-      DATA QARR/1.,   500000000./
-
-
-c      DATA WGT/2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,2.d0, 
-c     $         2.d0, 2.d0,2.d0,2.d0, 2.d0,2.d0,4.d0, 4.d0,4.d0,4.d0, 
-c     $         4.d0, 4.d0,4.d0,4.d0, 4.d0,4.d0,4.d0, 4.d0/
-
-
-c      DATA QARR/ 1.000, 1.020, 1.040, 1.060, 1.080, 1.100, 1.120,
-c     $           1.140, 1.160, 1.180, 1.200, 1.220, 1.240, 1.260,
-c     $           1.280, 1.300, 1.320, 1.340, 1.360, 1.380, 1.400,
-c     $           1.420, 1.440, 1.460, 1.480, 1.500, 1.520, 1.540,
-c     $           1.560, 1.580, 1.600, 1.620, 1.640, 1.660, 1.680,
-c     $           1.700, 1.720, 1.740, 1.760, 1.780, 1.800, 1.8225,
-c     $           1.860, 1.880, 1.900, 1.920, 1.940, 1.960,
-c     $           1.980, 2.000, 2.020, 2.040, 2.060, 2.080, 2.100,
-c     $           2.120, 2.140, 2.160, 2.180, 2.200, 2.220, 
-c     $           2.250, 2.280, 2.300, 2.320, 2.340, 2.360, 2.380,
-c     $           2.400, 2.420, 2.440, 2.460, 2.480, 2.500, 2.520,
-c     $           2.540, 2.560, 2.580, 2.600, 2.620, 2.640, 2.660,
-c     $           2.680, 2.700, 2.7225, 2.760, 2.780, 2.800,
-c     $           2.820, 2.840, 2.860, 2.880, 2.900, 2.920, 2.940,
-c     $           2.960, 2.980, 3.000, 3.020, 3.040, 3.060, 3.080,
-c     $           3.100, 3.120, 3.140, 3.160, 3.180, 3.200, 3.220,
-c     $           3.240, 3.260, 3.280, 3.300, 3.320, 3.340, 3.360,
-c     $           3.380, 3.400, 3.420, 3.440, 3.460, 3.480, 3.500,
-c     $           4.000, 6.5,   12.00,   18.49, 20.25, 25.00, 35.,
-c     $           60., 120., 200., 400., 1000., 30625., 100000./
-
-
-
-c--   linear x grid
-      data xmin/9.9d-7,0.01d0,0.10d0,0.40d0,0.70d0/
-      data iwt/1,2,4,8,16/
-
-
-
-
-
 
       double precision  tmp
 
@@ -165,16 +119,55 @@ c--   linear x grid
       double precision hqmass
       dimension hqmass(3)
 
+      integer NQ2bins, NXbins !> requested number of x,q2 bins
+
+      namelist/qcdnum/xmin_grid, iwt_xgrid, iosp, wgt_q2, QARR,
+     $     NQ2bins, NXbins
 
 C Functions:
       integer iqfrmq
       double precision asfunc
 C---------------------------------------------------------------------------------------
+C-----  DEFAULTS -----------
 
+C More detailed at high x:
+      xmin_grid(1) = 9.9D-7
+      xmin_grid(2) = 0.01D0
+      xmin_grid(3) = 0.10D0
+      xmin_grid(4) = 0.4D0
+      xmin_grid(5) = 0.7D0
+
+C Increasingly more dense grid:
+      iwt_xgrid(1) = 1
+      iwt_xgrid(2) = 2
+      iwt_xgrid(3) = 4
+      iwt_xgrid(4) = 8
+      iwt_xgrid(5) = 16
+C Q2 grid weights 
+      WGT_q2(1) = 1.d0
+      WGT_q2(2) = 1.d0
+C Basic Q2 grid:
+      QARR(1) = 1.
+      QARR(2) = 64000000.  ! enough for 8 TeV LHC.
+
+C Default sizes
+      NQ2bins = 120
+      NXbins  = 200
+
+C---------------------
       q0 = starting_scale
       qc = HF_MASS(1)**2
       qb = HF_MASS(2)**2
       qt = HF_MASS(3)**2
+
+C----- Read grid definitions from the steering.txt
+
+      open (51,file='steering.txt',status='old')
+      read (51,NML=QCDNUM,ERR=7117,END=1771)
+
+ 1771 continue
+
+      close (51)
 
 C Check that scales are in proper order:
       if (q0.gt.qc) then
@@ -193,17 +186,17 @@ C Check that scales are in proper order:
 
       do i=1,NQGrid 
          Q2Grid(i) = QARR(i)
-         WQGrid(i) = WGT(i)
+         WQGrid(i) = WGT_Q2(i)
       enddo
 C Add extra points:
       Q2Grid(NQGrid+1) = q0
       Q2Grid(NQGrid+2) = qc
       Q2Grid(NQGrid+3) = qb
       Q2Grid(NQGrid+4) = qt
-      WQGrid(NQGrid+1) = 1
-      WQGrid(NQGrid+2) = 1
-      WQGrid(NQGrid+3) = 1
-      WQGrid(NQGrid+4) = 1
+      WQGrid(NQGrid+1) = 4.D0
+      WQGrid(NQGrid+2) = 2.D0
+      WQGrid(NQGrid+3) = 1.5D0
+      WQGrid(NQGrid+4) = 1.D0
 
 C Sort the Q2Grid:
       do i=1,NQGridHF
@@ -239,17 +232,28 @@ C Remove duplicates:
       print *,' '
       print *,'Info FROM QCDNUM_INI'
       print '('' Init Q2 grid with number of nodes='',i5)',NQALL      
-      print '('' Q2 values at:'',20F14.2)',(Q2grid(i),i=1,NQALL)
-      print '('' Weights are :'',20F14.2)',(WQgrid(i),i=1,NQALL)
+      print '('' Q2 values at:'',20F11.1)',(Q2grid(i),i=1,NQALL)
+      print '('' Weights are :'',20F11.1)',(WQgrid(i),i=1,NQALL)
       print *,' '
-
+      print '('' Init X  grid with number of nodes='',i5)',NXGRID
+      print '('' X  values at:'',20E11.2)',(xmin_grid(i),i=1,NXGRID),1.0
+      print '('' Weights are :'',20I11)',(iwt_xgrid(i),i=1,NXGRID)
+     $     ,iwt_xgrid(NXGRID)
+      print *,' '
 
       call qcinit(6,' ')        !initialize
       call setord(I_FIT_ORDER)         !LO, NLO, NNLO
 
+      call gxmake(xmin_grid,iwt_xgrid,nxgrid,NXBINS,nx,iosp)    !x-grid
+      call gqmake(Q2Grid,WQGrid,NQAll,NQ2bins,nqout)             !mu2-grid
 
-      call gxmake(xmin,iwt,nxgrid,200,nx,iosp)        !x-grid
-      call gqmake(Q2Grid,WQGrid,NQAll,120,nqout)          !mu2-grid
+      print '(''Requested, actual number of x bins are: '',2i5)', 
+     $     nXbins,nx
+      print '(''Requested, actual number of Q2 bins are: '',2i5)', 
+     $     nQ2bins,nqout
+
+ 
+
       iq0 =iqfrmq(q0)
       iqc =iqfrmq(qc)
       iqb =iqfrmq(qb)
@@ -400,6 +404,9 @@ cc        rscale=1d0
       
       print*,'exit qcdnum_Ini'
       return
+ 7117 continue
+      print '(''Error reading QCDNUM namelist. Stop'')'
+      call hf_stop
       end
 
 
