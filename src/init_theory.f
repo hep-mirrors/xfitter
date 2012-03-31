@@ -5,8 +5,6 @@
       implicit none 
       include 'ntot.inc'
       include 'steering.inc'
-      include 'thresholds.inc'
-      include 'couplings.inc'
 
 
 *     ------------------------------------------------
@@ -20,7 +18,11 @@
 *     ------------------------------------------------
 
       if(itheory.eq.0) then
+C Init evolution code:
          call qcdnum_ini
+
+         call Init_heavy_flavours
+
          if (ewfit.gt.0) call eprc_init(.true.)
       elseif(itheory.eq.1) then       
 c          here goes a call to non-DGLAP 
@@ -31,21 +33,41 @@ c          here goes a call to non-DGLAP
 *     ------------------------------------------------
 
       call Init_theory_datasets
-
-
       return
       end
 
 
-*     ------------------------------------------------
-*     ------------------------------------------------
+
+      Subroutine Init_heavy_flavours()
+*-----------------------------------------------------
+*
+*   Init heavy flavour modules
+*
+*----------------------- ------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+C----------------------------------------
 
 
+c Extra init for QCDNUM schemes:
+      Call ZMVFNS_init()
 
+      if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4) then
+         Call FF_init()
+      endif
+
+C Other schemes:
+      if ( mod(HFSCHEME,10).eq.2) then
+         Call RT_Init()
+      elseif ( mod(HFSCHEME,10).eq.4 ) then
+         Call ABKM_init()
+      endif
+C---------------------------------
+      end
 
 
       subroutine qcdnum_ini
-
 *     ------------------------------------------------
 *     QCDNUM initialisation
 *     ------------------------------------------------
@@ -77,23 +99,6 @@ c set-up of the constants
       integer iord
       integer iosp,nqout
  
-
-C RT parameters
-      INTEGER alphaSorderin,alphaSnfmaxin
-      DOUBLE PRECISION distancein,tolerancein,
-     &     mCharmin,mBottomin,alphaSQ0in,alphaSMZin
-
-      INTEGER iordin
-
-
-c ABKM parameters:
-      double precision rmass8in,rmass10in
-      integer kschemepdfin,kordpdfin
-      logical msbarmin
-      double precision hqscale1in,hqscale2in
-
-
-
       integer NQall     !> Actual number of grid points
       double precision Q2Grid(NQGridHF)
       double precision WQGrid(NQGridHF)
@@ -108,16 +113,12 @@ c ABKM parameters:
       data as0/0.364/, r20/2.D0/!, nfin/0/ !alphas, NNLO, VFNS
       integer I,ndum,ierr,j
 
-      double precision a,b
-      double precision qs0,qt
-
-      integer id1,id2,iq0,iqb,iqc,iqt
-
-      integer nflav
+      double precision a,b,qt
+      
+      integer id1,id2
       integer nw,nwords,nx
+      integer iqb,iqc,iqt
 
-      double precision hqmass
-      dimension hqmass(3)
 
       integer NQ2bins, NXbins !> requested number of x,q2 bins
 
@@ -126,7 +127,7 @@ c ABKM parameters:
 
 C Functions:
       integer iqfrmq
-      double precision asfunc
+
 C---------------------------------------------------------------------------------------
 C-----  DEFAULTS -----------
 
@@ -159,6 +160,7 @@ C---------------------
       qc = HF_MASS(1)**2
       qb = HF_MASS(2)**2
       qt = HF_MASS(3)**2
+
 
 C----- Read grid definitions from the steering.txt
 
@@ -252,18 +254,10 @@ C Remove duplicates:
       print '(''Requested, actual number of Q2 bins are: '',2i5)', 
      $     nQ2bins,nqout
 
- 
 
-      iq0 =iqfrmq(q0)
-      iqc =iqfrmq(qc)
-      iqb =iqfrmq(qb)
-
-
-
- !> Top:
-      iqt =iqfrmq(qt)
-
-
+      iqc =iqfrmq(qc)  !> Charm
+      iqb =iqfrmq(qb)  !> Bottom
+      iqt =iqfrmq(qt)  !> Top
       if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
          print *,'Fixed Flavour Number Scheme set with nf=3'
@@ -281,6 +275,86 @@ cv         call dmpwgt(1,22,'unpolarised.wgt')
       endif
       write(6,'(/'' weight: words used ='',I10)') nw     
 
+
+! setting of the evolution parameters
+
+
+c      call SETABR(1.D0,0.D0)  ! mur scale variation
+c      call ZMDEFQ2(1.D0,0.D0) ! muf scale variation
+
+      print*,'exit qcdnum_Ini'
+      return
+ 7117 continue
+      print '(''Error reading QCDNUM namelist. Stop'')'
+      call hf_stop
+      end
+
+      subroutine RT_init()
+C-------------------------------------------------------------
+C
+C Created 31/12/12. Split RT code initialisation from QCDNUM
+C
+C-------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'couplings.inc'
+
+C RT parameters
+      INTEGER alphaSorderin,alphaSnfmaxin
+      DOUBLE PRECISION distancein,tolerancein,
+     &     mCharmin,mBottomin,alphaSQ0in,alphaSMZin
+
+      integer ierr
+      INTEGER iordin
+      integer nflav        !> number of flavours
+
+
+      double precision qs0
+C Functions:
+      double precision asfunc
+
+C------------------------------------
+      qs0=1.d0
+      alphaSQ0in = asfunc(qs0,nflav,ierr)
+      mCharmin = mch
+      mBottomin  = mbt
+      alphaSMZin = asfunc(mz*mz, nflav, ierr)
+
+c     print*,'setting RT input', mz,alphasMZin, nflav
+      distancein=0.d0
+      tolerancein=0.d0
+      alphaSorderin =0.d0
+      alphaSnfmaxin =3
+
+
+      if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) then
+         iordIn = I_FIT_ORDER-1
+      endif
+
+C-
+         call RT_Set_Input(
+     $     distancein,tolerancein,
+     $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
+     $     alphaSorderin,alphaSnfmaxin,iordin)
+
+         call WATE96
+
+C-----------------------------------------------
+      end
+
+      subroutine ZMVFNS_init()
+C-------------------------------------------------------------
+C
+C Created 31/12/12. Split FF code initialisation from QCDNUM
+C
+C-------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      integer nwords, ierr
+C-------------------------------------------------------------
+
       call zmreadw(22,'zmstf.wgt',nwords,ierr)
       if(ierr.ne.0) then
          call zmfillw(nwords)
@@ -291,124 +365,114 @@ cv         call zmdumpw(22,'zmstf.wgt')
       write(6,'(/'' ZMSTF: words used ='',I10)') nwords      
       call zswitch(IPDFSET)
 
+C-------------------------------------------------------------
+      end
 
-! setting of the evolution parameters
+      subroutine FF_init()
+C-------------------------------------------------------------
+C
+C Created 31/12/12. Split FF code initialisation from QCDNUM
+C
+C-------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'couplings.inc'
 
+      integer nwords,ierr
+      double precision hqmass(3)
 
-c      call SETABR(1.D0,0.D0)  ! mur scale variation
-c      call ZMDEFQ2(1.D0,0.D0) ! muf scale variation
+C-------------------------------------------------------------
 
-      if ((mod(HFSCHEME,10).eq.2)) then
+      if(I_FIT_ORDER.gt.2) then
+         print *,'FFN scheme can be used only with NLO, stop'
+         call HF_stop
+      endif
 
-         qs0=1.d0
-         alphaSQ0in = asfunc(qs0,nflav,ierr)
-         mCharmin = mch
-         mBottomin  = mbt
-         alphaSMZin = asfunc(mz*mz, nflav, ierr)
-c         print*,'setting RT input', mz,alphasMZin, nflav
-         distancein=0.d0
-         tolerancein=0.d0
-         alphaSorderin =0.d0
-         alphaSnfmaxin =3
-
-
-         if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) then
-            iordIn = I_FIT_ORDER-1
-         endif
-
-C-
-         call RT_Set_Input(
-     $     distancein,tolerancein,
-     $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
-     $     alphaSorderin,alphaSnfmaxin,iordin)
-
-         call WATE96
-
-
-c Fixed Flavour Number Scheme (FFNS)
-      elseif ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4) then
-        if(I_FIT_ORDER.gt.2) then
-          print *,'FFN scheme can be used only with NLO, stop'
-          call HF_stop
-        endif
-
-         hqmass(1) = HF_MASS(1)
-         hqmass(2) = HF_MASS(2)
-         hqmass(3) = HF_MASS(3)
+      hqmass(1) = HF_MASS(1)
+      hqmass(2) = HF_MASS(2)
+      hqmass(3) = HF_MASS(3)
 
 C--- aq=1.0 and bq=0 sets the heavy quarks factorisation scale
 C--- Q^2 = aq2*mu_f + bq2  
 
-         if(massh.eq.1) then
-             bq2  = bq2 * qc
-         elseif(massh.eq.2) then
-             bq2  = bq2 * qb
-         endif
+      if(massh.eq.1) then
+         bq2  = bq2 * hqmass(1)**2
+      elseif(massh.eq.2) then
+         bq2  = bq2 * hqmass(2)**2
+      endif
 c         print*,'1 HQ scale (Q^2=a*mu_F^2 + b) a,b,mh', aq2,bq2,massh 
 
-         call hqreadw(22,'hqstf.wgt',nwords,ierr)
-         if(ierr.ne.0) then
-            call hqfillw(3,hqmass,aq2,bq2,nwords)
+      call hqreadw(22,'hqstf.wgt',nwords,ierr)
+      if(ierr.ne.0) then
+         call hqfillw(3,hqmass,aq2,bq2,nwords)
 cv            call hqdumpw(22,'hqstf.wgt')
-         else 
-            print*,'ERRRROR in hqreadw!', ierr
-         endif      
-         write(6,'(/'' HQSTF: words used ='',I10)') nwords      
-         call hswitch(IPDFSET)
+      else 
+         print*,'ERRRROR in hqreadw!', ierr
+      endif      
+      write(6,'(/'' HQSTF: words used ='',I10)') nwords      
+      call hswitch(IPDFSET)
 
-      endif
+C-------------------------------------------------------------
+      end
 
-cv settings for serghey alechin's code (ABKM)
-      if ((mod(HFSCHEME,10).eq.4)) then
 
-         call initgridconst
+      subroutine ABKM_init()
+C-------------------------------------------------------------
+C
+C Created 31/12/12. Split ABKM code initialisation from QCDNUM
+C
+C-------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'couplings.inc'
+
+c ABKM parameters:
+      double precision rmass8in,rmass10in
+      integer kschemepdfin,kordpdfin
+      logical msbarmin
+      double precision hqscale1in,hqscale2in
+
+C-------------------------------------------------------------
+      call initgridconst
 
 !  Take the 3-flavour scheme as a default
-         kschemepdfin=0
+      kschemepdfin=0
 c  c and b - quark masses         
-         rmass8in=HF_MASS(1)
-         rmass10in=HF_MASS(2)
+      rmass8in=HF_MASS(1)
+      rmass10in=HF_MASS(2)
 ! the pole mass definition by default =false (for running mass def in msbar: msbarmin=.true.)
-         msbarmin=.false.
+      msbarmin=.false.
 
 c NLO or NNLO: kordpdfin=1 NLO, kordpdfin=2 NNLO
 c this flag will set kordhq,kordalps,kordf2,kordfl,kordfl so same order!         
-         kordpdfin  = I_FIT_ORDER-1
+      kordpdfin  = I_FIT_ORDER-1
 
 c set scale for FFNS only         
-         if(HFSCHEME.eq.4) then
+      if(HFSCHEME.eq.4) then
 !  Set the factorization scale as sqrt(Q2*hqscale1 + 4m^2*hqscale2) for the 
 !  pair heavy-quark DIS production and as sqrt(Q2*hqscale1 + m^2*hqscale2) 
 !  for the single heavy-quark DIS production
-           hqscale1in=1d0
-           hqscale2in=1d0
+         hqscale1in=1d0
+         hqscale2in=1d0
 ! NEEDS TO BE IMPROVED            
-           print*,'Scale set to: mu_f^2=Q^2+4m_h^2, variation is not 
+         print*,'Scale set to: mu_f^2=Q^2+4m_h^2, variation is not 
      &  implemented yet'
 c here VFNS (BMSN)           
-         else    
-           hqscale1in=1d0
-           hqscale2in=0d0
-         endif  
+      else    
+         hqscale1in=1d0
+         hqscale2in=0d0
+      endif  
 
 ! ren.scale=fac.scale as a default
 cc        rscale=1d0
 
 
-         call ABKM_Set_Input(
-     $        kschemepdfin,kordpdfin,rmass8in,rmass10in,msbarmin,
-     $        hqscale1in,hqscale2in)
-
-
-      endif
-      
-      print*,'exit qcdnum_Ini'
-      return
- 7117 continue
-      print '(''Error reading QCDNUM namelist. Stop'')'
-      call hf_stop
+      call ABKM_Set_Input(
+     $     kschemepdfin,kordpdfin,rmass8in,rmass10in,msbarmin,
+     $     hqscale1in,hqscale2in)
       end
-
 
       Subroutine init_theory_datasets
 C---------------------------------------------------------------
