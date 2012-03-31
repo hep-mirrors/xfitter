@@ -149,78 +149,6 @@ C EW extra param
       endif
 
 
-C PDF param    
-
-      Ag=p(1)
-      Bg=p(2)
-      Cg=p(3)
-      Dg=p(4)
-      Eg=p(5)
-      Fg=p(6)
-  
-      Apg=p(7)
-      Bpg=p(8)
-      Cpg=p(9)
-
-      Auv=p(11)
-      Buv=p(12)
-      Cuv=p(13)
-      Duv=p(14)
-      Euv=p(15)
-      Fuv=p(16)
-
-      Adv=p(21)
-      Bdv=p(22)
-      Cdv=p(23)
-      Ddv=p(24)
-      Edv=p(25)
-      Fdv=p(26)
-
-      Aubar=p(31)
-      Bubar=p(32)
-      Cubar=p(33)
-      Dubar=p(34)
-
-
-      AU=p(51)
-      BU=p(52)
-      CU=p(53)
-      DU=p(54)
-
-      Adbar=p(41)
-      Bdbar=p(42)
-      Cdbar=p(43)
-      Ddbar=p(44)
-
-      AD=p(61)
-      BD=p(62)
-      CD=p(63)
-      DD=p(64)
-
-
-      Asea=p(71)
-      Bsea=p(72)
-      Csea=p(73)
-      Dsea=p(74)
-
-      Adel=p(81)
-      Bdel=p(82)
-      Cdel=p(83)
-      Ddel=p(84)
-
-      Astr=p(81)
-      Bstr=p(82)
-
-      if (Bstr.eq.0) then
-         Bstr = Bdbar
-      endif
-
-      Cstr=p(83)      
-      if (Cstr.eq.0) then
-         Cstr = Cdbar
-      endif
-
-
 C Get from extra pars:
       alphas=p(idxAlphaS)      
       fstrange=p(idxFS)
@@ -262,154 +190,28 @@ C  22 Apr 2011: CT parameterisation:
          Call DecodeCtPara(p)
       endif
 
-
-C different cases of parametrisation type
-      if ((iparam.eq.1).or.(iparam.eq.21)) then     !  H1PDF2k like
-
-         Bd = Bu
-         Bubar = Bu
-         Bdbar = Bu
-         Adbar = Ad
-         aU = aD * (1.-fs)/(1.-fcharm)
-         aUbar = aU
-
-C     Chebyshev param. for the gluon:
 C
-         if (NCHEBGLU.gt.0) then
-            do i=1,NCHEBGLU
-               ChebPars(i) = p(30+i)
-            enddo
-            call ChebToPoly
-         endif
-         
-      elseif (iparam.eq.2) then
-
-
-         Bdv = Buv
-         Aubar = Adbar * (1.-fs)/(1.-fcharm)
-         Bubar = Bdbar
-         
-
+C Chebyshev for the gluon:
 C
-C  Chebyshev param. for the gluon:
-C
-         if (NCHEBGLU.gt.0) then
-            do i=1,NCHEBGLU
-               ChebPars(i) = p(30+i)
-            enddo
-            call ChebToPoly
-         endif
-
-      elseif (iparam.eq.222222) then
- 
-         Aubar=Adbar
-
-         Bubar=Bdbar
-         
-         Bdv=Buv
-
-
-      elseif (iparam.eq.222223) then
-
- 
-         Aubar=Adbar
-         Bubar=Bdbar         
-         cpg=25.      
-
-      elseif (iparam.eq.2011) then
-
-         Aubar=Adbar
-         Bubar=Bdbar        
-C
-C Fix strange to dbar if zero:
-C
-         if (Bstr.eq.0) then
-            Bstr=Bdbar
-         endif
-         Astr=fs/(1-fs)*Adbar
-         cpg=25.
-
-      elseif ((iparam.eq.22).or.(iparam.eq.221).or.(iparam.eq.229)
-     $        .or.(iparam.eq.222)) then
-
-
-         if (iparam.ne.221.and.iparam.ne.229) then               
-            Bdv = Buv
-         endif
-               
-         Aubar = Adbar * (1.-fs)/(1.-fcharm)         
-         Bubar = Bdbar
-         if (iparam.eq.222.or.iparam.eq.229) then
-            Cpg=25.
-         endif
-
-
-C
-C  Chebyshev param. for the gluon:
-C     
-         if (NCHEBGLU.gt.0) then
-            do i=1,NCHEBGLU
-               ChebPars(i) = p(30+i)
-            enddo
-            call ChebToPoly
-         endif
-
-
-      elseif (iparam.eq.225) then
-
-C
-C  Chebyshev param. for the gluon:
-C
-         if (NCHEBGLU.gt.0) then
-            do i=1,NCHEBGLU
-               ChebPars(i) = p(30+i)
-            enddo
-            call ChebToPoly
-         endif
-
-
-
-      elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
-         
-
-         Buv = 0.5
-         Bdv = 0.5
-         Bdel = 0.5
-         Cdel = Csea +2.
-         
-      elseif ((iparam.eq.4).or.(iparam.eq.24)) then ! g,uval,dval,sea as in ZEUS-JET fit
-         
-         Bdv = Buv
-
-*  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
- 
-         Adel = 0.27          
-         Bdel = 0.5
-         Cdel = Csea +2.
-
-C  Chebyshev param. for the gluon:
-C
-         if (NCHEBGLU.gt.0) then
-            do i=1,NCHEBGLU
-               ChebPars(i) = p(30+i)
-            enddo
-            call ChebToPoly
-         endif
+      if (NCHEBGLU.gt.0) then
+         do i=1,NCHEBGLU
+            ChebPars(i) = p(30+i)
+         enddo
+      endif
 C
 C  Chebyshev param. for the sea:
 C
-         if (NCHEBSea.gt.0) then
-            do i=1,NCHEBSea
+      if (NCHEBSea.gt.0) then
+         do i=1,NCHEBSea
 C  Offset is now steering parameter (default = 70, params start from 41)
-               ChebParsSea(i) = p(30+IOFFSETCHEBSEA+i)
-            enddo
-         endif
+            ChebParsSea(i) = p(30+IOFFSETCHEBSEA+i)
+         enddo
+      endif
 
-         if (NChebGlu.gt.0 .or. NChebSea.gt.0) then
-            call ChebToPoly
-         endif
+      if (NChebGlu.gt.0 .or. NChebSea.gt.0) then
+         call ChebToPoly
+      endif
 
-      endif         
 
 C  22 Nov 2011: dipole model parameters
       if (DipoleModel.gt.0) then
@@ -712,7 +514,7 @@ C    22 Apr 11, SG, Add CTEQ-like
 C
 C SG: Use polynomial representation of cheb. 
 C
-         gluon = ag * PolyParam(x,nchebGlu,polyPars,chebxminlog)
+         gluon = parglue(1) * PolyParam(x,nchebGlu,polyPars,chebxminlog)
          if (ichebtypeGlu.eq.0) then
 C Do nothing
          else if (ichebtypeGlu.eq.1) then
@@ -757,7 +559,6 @@ C---------------------------------
 
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
          H1U=para(x,paru)
-cv       H1U = au * x**bu * (1.-x)**cu * (1. + du*x +  eu *x**2+ fu*x**3)
       endif
 
       return
@@ -773,7 +574,6 @@ cv       H1U = au * x**bu * (1.-x)**cu * (1. + du*x +  eu *x**2+ fu*x**3)
 
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
          H1D=para(x,pard)
-cv       H1D = ad * x**bd * (1.-x)**cd * (1. + dd*x)
       endif
 
       return
@@ -806,15 +606,12 @@ C 25 Jan 2011: add polynomial param
 C
          if (NPOLYVAL.eq.0) then
             Uval=para(x,paruval)
-
-cv            Uval = aUv * x**bUv * (1.-x)**cUv
-cv     +           * (1. + dUv*x + eUv *x**2+  fUV *x**3)
          else
 C 
 C PDFs are parameterised as a function of x23 = x^{2/3}
 C
             x23 = x**(2.D0/3.D0)
-            Uval = aUv * PolyVal(x23,NPOLYVALINT,PolyUval)
+            Uval = paruval(1) * PolyVal(x23,NPOLYVALINT,PolyUval)
          endif
       endif
 
@@ -848,15 +645,12 @@ C 25 Jan 2011: add polynomial param
 C
          if (NPOLYVAL.eq.0) then
             Dval=para(x,pardval)
-
-cv            Dval = aDv * x**bDv * (1.-x)**cDv
-cv     +           * (1. + dDv*x + fDv * x**3)
          else
 C
 C PDFs are parameterised as a function of x23 = x^{2/3}
 C
             x23 = x**(2.D0/3.D0)
-            Dval = aDv * PolyVal(x23,NPOLYVALINT,PolyDval)
+            Dval = pardval(1) * PolyVal(x23,NPOLYVALINT,PolyDval)
          endif
       endif
 
@@ -904,9 +698,6 @@ C--------------------------------------------------
 
          if (nchebSea.eq.0) then
             sea=para(x,parsea)
-
-cv            sea = Asea * x**Bsea * (1.-x)**Csea
-cv     +           * (1. + Dsea*x)
          else
 
             sea = PolyParam(x,nchebSea,polyParsSea,chebxminlog)
@@ -953,11 +744,10 @@ C-------------------------------------------------
       
       if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
          dbmub=para(x,pardel)
-cv         dbmub = Adel * x**Bdel * (1.-x)**Cdel
       endif
- 
       return
       end
+
 * -------------------------------------------------------
       double precision function qstrange (x)
 * -------------------------------------------------------
@@ -984,23 +774,18 @@ C----------------------------------------------------
 
          qstrange = fs * Dbar(x)
 
-      elseif (iparam.eq.222222
-     $     .or.iparam.eq.222223) then
-
+      elseif (iparam.eq.222222.or.iparam.eq.222223) then
          qstrange = fs * Dbar(x)/(1-fs)
 
       elseif (iparam.eq.2011) then
-         qstrange = Astr*x**Bstr*(1-x)**Cstr
-cv         print*,'voica is here', Astr, bstr, cstr
-
+         qstrange = pardel(1)*x**pardel(2)*(1-x)**pardel(3)
 
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
          qstrange = 0.5 * fs * sea(x)
-      endif
- 
 
-      return
+      endif
       end
+
 * -------------------------------------------------------
       double precision function cbar(x)
 * -------------------------------------------------------
@@ -1030,6 +815,7 @@ cv         print*,'voica is here', Astr, bstr, cstr
  999  continue
       return
       end
+
 * -------------------------------------------------------
       double precision function Ubar(x)
 * -------------------------------------------------------
@@ -1062,7 +848,7 @@ C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
      $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
      $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-cv         Ubar = aubar * x**bubar * (1.-x)**cubar * (1. + dubar *x)
+
          Ubar=para(x,parubar)
 
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
@@ -1098,10 +884,10 @@ C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.171717) then
          Dbar = ctpara(x,ctdbar)
          return
-      elseif(iparam.eq.222222.or.iparam.eq.222223) then
 
-         
+      elseif(iparam.eq.222222.or.iparam.eq.222223) then
          Dbar=para(x,pardbar)/(1-fstrange)
+
       elseif (iparam.eq.2011) then
          Dbar=para(x,pardbar)+para(x,pardel)
 
@@ -1111,16 +897,13 @@ C    22 Apr 11, SG, Add CTEQ-like
 * SPECIAL TEST with ddbar      
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
      $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-         
-cv         Dbar = adbar * x**bdbar * (1.-x)**cdbar * (1. + ddbar *x)
+     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then         
          Dbar=para(x,pardbar)
 
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
          Dbar = sea(x) * 0.5d0 - Ubar(x)
-      endif
 
-      return
+      endif
       end
 
 * -------------------------------------------------------
@@ -1220,8 +1003,6 @@ CSG     +          - (Dval(x) + (1.-fs)*Dbar(x))
 *  doubious factor two removed  -- revert change
          Deltaud =  Uval(x) + 2.*(Ubar(x)-cbar(x))
      +        - (Dval(x) + 2.*(Dbar(x)-qstrange(x)))
-CSG         Deltaud =  Uval(x) + (Ubar(x)-cbar(x))
-CSG     +          - (Dval(x) + (Dbar(x)-qstrange(x)))
       elseif (iparam.eq.11) then
         Deltaud = H1U(x) + Ubar(x)
      +          - (H1D(x) - fs * Dbar(x))
@@ -1385,8 +1166,6 @@ C----------------------------------------------------
       include 'thresholds.inc'
       double precision x,singlet,flav_number
       integer iflag
-
-
 
       Bplus = - singlet(x)/flav_number(qb)
       return
@@ -1618,7 +1397,7 @@ C
       endif
  
 
-      print *,'Gluon length=',pdflen(1),ag,bg,cg,dg,fg
+      print *,'Gluon length=',pdflen(1)
       print *,'Sea length=',pdflen(2)
 
 
@@ -1711,9 +1490,10 @@ C----------------------------------------------------
 
 
       if (nchebglu.eq.0) then
-         glulen = powerlen(W,ag,bg,cg,dg,fg)
+         glulen = powerlen(W,parglue(1)
+     $        ,parglue(2),parglue(3),parglue(4),parglue(5))
       else
-         glulen = cheblen(W,nchebGlu,polyPars,ag,chebxminlog,
+         glulen = cheblen(W,nchebGlu,polyPars,parglue(1),chebxminlog,
      $        ichebtypeGlu)
       endif
       end
@@ -1730,7 +1510,8 @@ C----------------------------------------------------
 
 
       if (nchebsea.eq.0) then
-         Sealen = powerlen(W,aSea,bSea,cSea,dSea,0.0D0)
+         Sealen = powerlen(W,parsea(1),parsea(2)
+     $        ,parsea(3),parsea(4),parsea(5))
       else
          Sealen = cheblen(W,nchebSea,polyParsSea,1.D0,chebxminlog,
      $        ichebtypeSea)

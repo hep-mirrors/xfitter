@@ -135,16 +135,18 @@ c            tcbar=tUb*fcharm/(1-fcharm)
      +           + 2.d0*(parubar(1) * tUb + pardbar(1) * tDb) )
 
          elseif (iparam.eq.222222.or.iparam.eq.222223) then
-            ag = 1.d0 - ( Auv * tUv + Adv * tDv
-     +           + 2.d0*(Aubar*tUb/(1.d0-fcharm) + Adbar*tDb/(1.d0-fs)))
+            parglue(1) = 1.d0 - ( paruval(1) * tUv + pardval(1) * tDv
+     +           + 2.d0*( parubar(1) * tUb/(1.d0-fcharm)
+     $                    + pardbar(1)*tDb/(1.d0-fs) )   )
 c            ag = 1.d0 - ( Auv * tUv + Adv * tDv
 c     +           + 2*(Aubar * (tcbar+tsmallub) + Adbar * (tsbar+tsmalldb)))
 
-         elseif (iparam.eq.2011) then
-            tstr= CalcIntegral(bstr, cstr)
-            ag = 1.d0 - ( Auv * tUv + Adv * tDv
-     +           + 2.d0*(Aubar*tUb/(1.d0-fcharm) + Adbar*tDb
-     $           +Astr*tstr))
+         elseif (iparam.eq.2011) then   ! strange free
+            tstr= CalcIntegral(pardel(2), pardel(3))
+            parglue(1) = 1.d0 - ( paruval(1) * tUv + pardval(1) * tDv
+     +           + 2.d0*(parubar(1)*tUb/(1.d0-fcharm) 
+     $           +       pardbar(1)*tDb
+     $           +       pardel(1)*tstr))
          endif
 
 C*******************************************************************
@@ -155,15 +157,15 @@ C
 C     SG: add Chebyshev param. for sea:
 C
             if (nchebsea.eq.0) then                   
-               tsea = CalcIntegral(bsea, csea)
-     +              + dsea * CalcIntegral(bsea+1., csea)
+               tsea = CalcIntegral(parsea(2), parsea(3))
+     +              + parsea(4) * CalcIntegral(parsea(2)+1., parsea(3))
             else
                tsea = CalcIntegralCheb(nchebsea,
      $              polyParsSea,chebxminlog,ichebtypeSea )
-               Asea = 1.d0
+               Parsea(1) = 1.d0
             endif
-            ag = 1.d0 - ( Auv * tUv + Adv * tDv
-     +           + Asea * tsea)
+            parglue(1) = 1.d0 - ( Paruval(1) * tUv + Pardval(1) * tDv
+     +           + Parsea(1) * tsea)
          endif
 C*******************************************************************
 
@@ -173,7 +175,6 @@ C*******************************************************************
 
          if (iparam.eq.222.or.iparam.eq.229.or.iparam.eq.2011) then
 	    parglue(1)=(parglue(1)+parglue(7)*tgMRST)/tg
-c            ag=(ag+Apg*tgMRST)/tg
          else
             parglue(1) = parglue(1) / tg
          endif
@@ -184,15 +185,6 @@ C*******************************************************************
 
 C     propagate the normalizations and other parameters to
 C     standard parametrisation
-
-      paru(4)=du
-      pard(4)=dd
-C      parglue(1)=ag
-C      paruval(1)=auv
-C      pardval(1)=adv
-      paru(1)=au
-      parsea(1)=asea
-      pard(1)=ad
 
 
       if (NCHEBGLU.eq.0) then         
