@@ -140,6 +140,10 @@ CV now choose sta (advised gauss OR poisson)
             alpha(n0) = sorig * alpha_rel !> adjust alpha0, important for theory-like data. 
             s = s + rndsh * alpha(n0)
 
+            if (alpha(n0).eq.0) then
+               s = 0.1
+               alpha(n0) = 1.e6
+            endif
          elseif (statype.eq.3.) then ! lognormal
             lsig = alpha(n0)
             lmu=1.
