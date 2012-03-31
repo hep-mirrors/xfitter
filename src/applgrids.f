@@ -95,6 +95,7 @@ C
 C try to locate X,Q2 point
       Call locateXQ2(XAPPLPDF,QAPPLPDF,NAPPLPDF,X,Q2,ILoc)
 
+
 C increase ref.
       NAPPLPDF = NAPPLPDF + 1
 
@@ -148,21 +149,11 @@ C----------------------------------------
       if (NAPPLPDF.eq.0) Return
  
       ICheck = 1 ! force QCDNUM checks
-
-      call fastini(XAPPLPDF,QAPPLPDF,NAPPLPDFINT,ICHECK)
-      
       iset = IPDFSET
-      isel = 7
-      ibuf = -1
-      inbuf = -ibuf
+
       do i=1,13
-         if (i.eq.7) then
-C            call fastsns(iset,fdef(1,i),0,inbuf)
-            call fastepm(iset,0,ibuf)
-         else
-            call fastsns(iset,fdef(1,i),isel,ibuf)
-         endif
-         call fastfxq(inbuf,APPLPDF(1,i-7),NAPPLPDF)
+         call mypdflist(iset,fdef(1,i),XAPPLPDF,QAPPLPDF,
+     $        APPLPDF(1,i-7),NAPPLPDFINT,ICHECK) 
       enddo
 
       end
@@ -247,7 +238,9 @@ C-------------------------------------------------------------
       double precision epsilonQ
       parameter (epsilonX = 1.0D-8)
       parameter (epsilonQ = 1.0D-8)
+
 C---------------------------------------------------------
+
       do I=1,NAPPLPDF
          if ( ( abs(QArr(I)-Q)/Q.lt.epsilonQ) 
      $        .and. (abs (XArr(I)-X)/X.lt. epsilonX)) then
@@ -259,3 +252,92 @@ C---------------------------------------------------------
       ILoc = -1
 
       end
+
+C     ===========================================      
+      subroutine mypdflist(iset,def,x,q,f,n,ichk)
+C     ===========================================
+
+C--   Interpolation of linear combination of pdfs using fast engine.
+C--   The number of interpolations can be larger than mpt0 since
+C--   this routine autmatically buffers in chunks of mpt0 words.
+C--
+C--   iset       (in)   pdf set [1-9]
+C--   def(-6:6)  (in)   coefficients, ..., sb, ub, db, g, d, u, s, ...
+C--                     for gluon  set def(0) = non-zero
+C--                     for quarks set def(0) = 0.D0   
+C--   x          (in)   list of x-points
+C--   q          (in)   list of mu2 points
+C--   f          (out)  list of interpolated pdfs
+C--   n          (in)   number of items in the list
+C--   ichk       (in)   0/1  no/yes check grid boundary  
+      
+      implicit double precision (a-h,o-z)      
+      
+      parameter(nmax = 5000)    !should be set to mpt0, or less
+      
+      dimension xx(nmax),qq(nmax)
+      dimension def(-6:6), coef(0:12,3:6)
+      dimension x(*), q(*), f(*)
+      
+C--   Fatal error that cannot be caught by QCDNUM
+      if(n.le.0) stop 'MYPDFLIST: n.le.0 --> STOP'      
+      
+      call setUmsg('MYPDFLIST') !QCDNUM will catch all further errors
+
+C--   Translate the coefficients def(-6:6) from flavour space to 
+C--   singlet/non-siglet space. These coefs are n_f dependent.
+       
+      if(def(0).eq.0.D0) then                !quarks
+        do nf = 3,6
+          coef(0,nf) = 0.D0                  
+          call efromqq(def, coef(1,nf), nf) 
+        enddo
+      else                                   !gluon
+        do nf = 3,6
+          coef(0,nf) = def(0)
+          do i = 1,12
+            coef(i,nf) = 0.D0 
+          enddo  
+        enddo
+      endif  
+      
+C--   Fill output array f in batches of nmax words
+      ipt = 0
+      jj  = 0      
+
+      qmax =0
+      qmin =10000
+      xmax =0
+      xmin =1
+      do i = 1,n
+        ipt     = ipt+1
+        xx(ipt) = x(i)
+        qq(ipt) = q(i)
+
+        xmin = min(x(i),xmin)
+        xmax = max(x(i),xmax)
+        qmin = min(q(i),qmin)
+        qmax = max(q(i),qmax)
+
+        if(ipt.eq.nmax) then
+c           print *,xmin,xmax,qmin,qmax
+
+          call fastini(xx,qq,nmax,ichk)
+          call fastsum(iset,coef,-1)         !fill sparse buffer 1
+          call fastfxq(1,f(jj*nmax+1),nmax)
+          ipt = 0
+          jj  = jj+1
+        endif
+      enddo
+C--   Flush remaining ipt points
+      if(ipt.ne.0) then
+        call fastini(xx,qq,ipt,ichk)
+        call fastsum(iset,coef,-1)           !fill sparse buffer 1
+        call fastfxq(1,f(jj*nmax+1),ipt)          
+      endif
+        
+      call clrUmsg
+      
+      return
+      end
+      
