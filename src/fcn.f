@@ -92,7 +92,7 @@ C--------------------------------------------------------------
 *     for RT code, transfer alpha S
 *     ---------------------------------------------------------
       double precision alphaszero
-      double precision asfunc
+      double precision hf_get_alphas
 
 *     ---------------------------------------------------------
 *     declaration related to chisquare
@@ -131,7 +131,6 @@ C--------------------------------------------------------------
       integer ipoints_jet(NSET)
       logical refresh, refresh_DIS
       integer isys,ipoint,jpoint
-      integer nflav , ierr
       integer idataset
 C  x-dependent fs:
       double precision fs0,epsi
@@ -187,7 +186,7 @@ C--------------------------------------------------------------
 
       if(itheory.eq.0) then 
          call setalf(dble(alphas),Mz*Mz)
-         alphaSzero=asfunc(1.0D0,nflav,ierr)
+         alphaSzero= hf_get_alphas(1.0D0)
          call RT_SetAlphaS(alphaSzero)
          if(IPDFSET.eq.5) then
             call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)

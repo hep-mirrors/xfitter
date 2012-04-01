@@ -108,7 +108,6 @@ c set-up of the constants
 
       double precision  tmp
 
-
       double precision as0,r20
       data as0/0.364/, r20/2.D0/!, nfin/0/ !alphas, NNLO, VFNS
       integer I,ndum,ierr,j
@@ -305,23 +304,19 @@ C RT parameters
       DOUBLE PRECISION distancein,tolerancein,
      &     mCharmin,mBottomin,alphaSQ0in,alphaSMZin
 
-      integer ierr
       INTEGER iordin
-      integer nflav        !> number of flavours
-
 
       double precision qs0
 C Functions:
-      double precision asfunc
+      double precision hf_get_alphas
 
 C------------------------------------
       qs0=1.d0
-      alphaSQ0in = asfunc(qs0,nflav,ierr)
+      alphaSQ0in = hf_get_alphas(qs0)
       mCharmin = mch
       mBottomin  = mbt
-      alphaSMZin = asfunc(mz*mz, nflav, ierr)
+      alphaSMZin = hf_get_alphas(mz*mz)
 
-c     print*,'setting RT input', mz,alphasMZin, nflav
       distancein=0.d0
       tolerancein=0.d0
       alphaSorderin =0.d0

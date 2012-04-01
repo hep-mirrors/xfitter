@@ -9,7 +9,9 @@ C========================================================================
 C      alQCD = ascteq4(Q,iset)
       r2=q**2  !*** SCALE IS Q^2
 C     call getalf(alfs,r2)  !**** NOT THE RIGHT FUNCTION
-      alfs= ASFUNC(r2,NF,IERR)
+
+      alfs= hf_get_alphas(r2)
+
       alQCD=alfs
 cv      print*,'alphas',alqcd
       RETURN

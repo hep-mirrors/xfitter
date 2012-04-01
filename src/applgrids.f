@@ -9,22 +9,15 @@ C-
       double precision Q, Q2      ! fact scale
       double precision mur2       ! renorm scale
       double precision alphaspdf
-      double precision RFROMF,ASFUNC
+      double precision RFROMF,hf_get_alphas
       integer nfl, ialerr
       Q2 = Q**2
       mur2 = RFROMF(Q2) ! get renorm scale from factscale in QCDNUM
 
 
       ialerr = 0
-c     get alpha_s interpolation
-      appl_fnalphas = ASFUNC(mur2, nfl, ialerr)
-      if ( ialerr .eq. 1) then
-        print *, 'alpha_s convolution error. Renorm scale too low:'
-	print *, 'rens^2 = ',mur2, ' < 0.1GeV^2'
-	print *, 'setting alpha_s at rens^2 = 0.1GeV^2'
-	mur2 = 0.1
-	appl_fnalphas = ASFUNC(mur2, nfl, ialerr)
-      endif
+      
+      appl_fnalphas = HF_Get_alphas(mur2)
 
       return
       end

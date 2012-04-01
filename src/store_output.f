@@ -55,10 +55,10 @@
       dimension pdf(-6:6)
 
 
-      double precision pdfl,asfunc,alphas(0:160),q2valpdf(0:160)
+      double precision pdfl,hf_get_alphas,alphas(0:160),q2valpdf(0:160)
      $     ,xvalpdf(0:160)
       dimension pdfl(-6:6)
-      integer iq,jx,j,ierr,nfv
+      integer iq,jx,j
 
   ! Store how many PDFs are written out:
       integer NPdfs 
@@ -196,7 +196,7 @@ cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot
       DO Iq=0,160
          Q2=10**(8.30103/160D0*Iq )
          q2valpdf(iq) = q2
-         alphas(iq)=ASFUNC(q2,nfv,ierr)
+         alphas(iq)=hf_get_alphas(q2)
       enddo
 
 
