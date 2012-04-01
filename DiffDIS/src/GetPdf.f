@@ -12,16 +12,14 @@
       parameter (iset = 1)      ! custom = 4, external 5-9
      
 
-      integer flag             
-      parameter (flag = 1)      ! if set to zero  fpdfxq will return null when x and q2 are outside the 
-                                ! grid boundaries
+
 
       dimension pdf(-6:6)
 
       integer i
 
 
-      call fpdfxq(iset,x,qq,pdf,flag)
+      call hf_get_pdfs(x,qq,pdf)
       
       do i=1,7         
          f(i) = pdf(i-1)

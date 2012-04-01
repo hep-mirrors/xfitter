@@ -21,7 +21,8 @@ C     NOTE: FOR NOW IGNORE: ISET, IHADRONIN, IRET          fio 18 Jan 2011
                
       if(x.gt.0.99d0) x=0.99d0
       q2=q**2   !*** QCDNUM USES Q^2 **********
-      call fpdfxq(1,x,q2,xpdf,1)                  !interpolate all pdf's
+
+      call hf_get_pdfs(x,q2,xpdf)                  !interpolate all pdf's
 
 cv      print*,'pdfs',x,q2, xpdf(-1), xpdf(-2), xpdf(0), xpdf(1)-xpdf(-1),xpdf(2)-xpdf(-2)
 cv      stop
