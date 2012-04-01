@@ -13,3 +13,21 @@ C----------------------------------------------------------------------
       call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)
 C----------------------------------------------------------------------
       end
+
+
+
+      double precision Function HF_Get_alphas(q2)
+C----------------------------------------------------
+C
+C  Return alpha_S value for a given Q2
+C
+C----------------------------------------------------
+      implicit none 
+      double precision Q2
+      integer nf,ierr
+      double precision ASFUNC
+
+C----------------------------------------------------
+      HF_Get_alphas = ASFUNC(q2,nf,ierr) 
+C----------------------------------------------------
+      end

@@ -1,12 +1,8 @@
 #include "../interface/H1FitterPdf.h"
 
+#include "get_pdfs.h"
 #include <iostream>
 #include <vector>
-
-extern "C" {
-  double asfunc_(const double* r2, int *nf, int *ierr);
-  void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs, int *ichk);
-}
 
 H1FitterPdf::H1FitterPdf(const std::string str) {
   PDFname = str;
@@ -15,8 +11,6 @@ H1FitterPdf::H1FitterPdf(const std::string str) {
 
 void
 H1FitterPdf::GetPdf(double x, double muf, double h[13]){
-  int iqnset = 1;
-  int iqnchk = 0;
 
   const double muf2 = muf*muf;
 
@@ -26,7 +20,9 @@ H1FitterPdf::GetPdf(double x, double muf, double h[13]){
   // 0   1   2   3   4   5    6   7   8   9   10  11  12
   // tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
 
-  fpdfxq_(&iqnset, &x, &muf2, &pdf[0], &iqnchk); 
+  //  fpdfxq_(&iqnset, &x, &muf2, &pdf[0], &iqnchk); 
+
+  HF_GET_PDFS_WRAP(&x, &muf2, &pdf[0]); 
 
   h[Hathor::ABOTTOM]  = pdf[1];
   h[Hathor::ACHARM]   = pdf[2];
@@ -50,8 +46,7 @@ H1FitterPdf::GetPdf(double x, double muf, double h[13]){
 double
 H1FitterPdf::GetAlphas(double mu){
   double mu2 = mu*mu;
-  int nf, ierr;
-  return asfunc_(&mu2,&nf,&ierr);
+  return HF_GET_ALPHAS_WRAP(&mu2); 
 }
 
 void
