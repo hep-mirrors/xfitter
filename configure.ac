@@ -1,11 +1,14 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([herafitter], [0.1.0], [glazov@mail.desy.de])
+
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(${PWD})
+
 
 # Checks for programs.
 AC_PROG_FC([gfortran])
 AC_PROG_F77([gfortran])
+
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_RANLIB
@@ -16,9 +19,29 @@ AC_FC_WRAPPERS
 AC_F77_WRAPPERS
 #AC_FC_FREEFORM
 
-FCFLAGS="$(FCFLAGS) -ffixed-line-length-132"
-# FFLAGS="$(FFLAGS) -ffixed-line-length-132 -ffpe-trap='invalid,overflow' -fbounds-check -g"
-FFLAGS="$(FFLAGS) -ffixed-line-length-132"
+#
+# A lot of code written with 132 char. strings
+#
+FCFLAGS="$FCFLAGS -ffixed-line-length-132"
+FFLAGS="$FFLAGS -ffixed-line-length-132"
+
+# Check for trapFPE flag
+AC_ARG_ENABLE([trapFPE],
+  [AC_HELP_STRING(--enable-trapFPE, [Stop of floating point errors (default=no)])])
+if test x$enable_trapFPE == xyes; then
+  echo "Add floating point trap"
+  FFLAGS="$FFLAGS -ffpe-trap='invalid,overflow' "
+fi
+
+# Check for check bounds flag
+
+AC_ARG_ENABLE([checkBounds],
+  [AC_HELP_STRING(--enable-checkBounds, [add -fbounds-check flag for compilation (default=no)])])
+if test x$enable_checkBounds == xyes; then
+  echo "Add check bounds flag"
+  FFLAGS="$FFLAGS -fbounds-check"
+fi
+
 
 # Checks for sources.
 AC_CONFIG_SRCDIR([src/main.f])
