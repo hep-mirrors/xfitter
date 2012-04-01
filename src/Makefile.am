@@ -73,12 +73,14 @@ LDADD+= ../DY/src/libmydy.a\
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
 
-#if ENABLE_APPLGRID 
+if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
-#endif
-#if ENABLE_LHAPDF 
+endif
+
+if ENABLE_LHAPDF 
   LDADD+=$(LHAPDF_LDFLAGS)
-#endif
+endif
 
-
-LDADD+=$(ROOT_LIBS)
+if ENABLE_NNPDFWEIGHT
+  LDADD+=$(ROOT_LIBS)
+endif

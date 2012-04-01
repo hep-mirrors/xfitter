@@ -1,5 +1,7 @@
 #AUTOMAKE_OPTIONS = foreign
 
+if HAVE_ROOT
+
 # the main target, i.e. the executable to build
 bin_PROGRAMS = DrawResults StoreGraphs StoreGraphsMC
 
@@ -27,3 +29,5 @@ StoreGraphsMC_CPPFLAGS = -I$(srcdir)/../include $(ROOT_CFLAGS) -w
 
 # libraries to be linked to the main target
 StoreGraphsMC_LDADD = $(ROOT_LIBS)
+
+endif

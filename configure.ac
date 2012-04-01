@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([h1fitter], [0.0.1], [glazov@mail.desy.de])
+AC_INIT([herafitter], [0.1.0], [glazov@mail.desy.de])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(${PWD})
 
@@ -41,25 +41,33 @@ else
   AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
 fi
 
-NNPDF = ' ' 
+
+# NNPDF reweighting
+AC_ARG_ENABLE([nnpdfWeight],
+  [AC_HELP_STRING(--enable-nnpdfWeight, [use NNPDF weighting (default=no)])])
+if test x$enable_nnpdfWeight == xyes; then
+  enable_lhapdf=1
+  echo "Force LHAPDF installation"
+fi
+AM_CONDITIONAL(ENABLE_NNPDFWEIGHT, [test x$enable_nnpdfWeight == xyes])
 
 # check for lhapdf installation
-  AC_ARG_ENABLE([lhapdf],
-    [AC_HELP_STRING(--enable-lhapdf, [use lhapdf (default=no)])])
-  if test x$enable_lhapdf == xyes; then
-    AC_MSG_CHECKING([for lhapdf installation])
-    lhapdf_config=`which lhapdf-config`
-    if test x$lhapdf_config == x; then
-       AC_MSG_ERROR([Unable to find lhapdf-config.])
-    else 
-       AC_MSG_RESULT([Using $lhapdf_config])
-       LHAPDF_CPPFLAGS=`lhapdf-config --cppflags`
-       LHAPDF_LDFLAGS=`lhapdf-config --ldflags`
-       AC_SUBST(LHAPDF_CPPFLAGS)
-       AC_SUBST(LHAPDF_LDFLAGS)
-    fi
+AC_ARG_ENABLE([lhapdf],
+  [AC_HELP_STRING(--enable-lhapdf, [use lhapdf (default=no)])])
+if test $enable_lhapdf; then
+  AC_MSG_CHECKING([for lhapdf installation])
+  lhapdf_config=`which lhapdf-config`
+  if test x$lhapdf_config == x; then
+    AC_MSG_ERROR([Unable to find lhapdf-config.])
+  else 
+    AC_MSG_RESULT([Using $lhapdf_config])
+    LHAPDF_CPPFLAGS=`lhapdf-config --cppflags`
+    LHAPDF_LDFLAGS=`lhapdf-config --ldflags`
+    AC_SUBST(LHAPDF_CPPFLAGS)
+    AC_SUBST(LHAPDF_LDFLAGS)
   fi
-AM_CONDITIONAL(ENABLE_LHAPDF, [test x$enable_lhapdf == xyes])
+fi
+AM_CONDITIONAL(ENABLE_LHAPDF, [test $enable_lhapdf])
 
 # check for applgrid installation
 AC_ARG_ENABLE([applgrid],
@@ -95,9 +103,16 @@ AM_CONDITIONAL(ENABLE_HATHOR, [test x$enable_hathor == xyes])
 AC_MSG_CHECKING([for root installation])
 root_config=`which root-config`
 if test x$root_config == x; then
-  AC_MSG_ERROR([Unable to find root-config.])
+  AC_MSG_WARN([Unable to find root-config.])
+  if test x$enable_applgrid == xyes; then
+     AC_MSG_ERROR([Root is required for APPLGRID])
+  fi
+  if test x$enable_nnpdfWeight == xyes; then
+     AC_MSG_ERROR([Root is required for NNPDF])
+  fi
 else 
   AC_MSG_RESULT([Using $root_config])
+  root_ok=1
   ROOT_CFLAGS=`root-config --cflags`
   ROOT_LDFLAGS=`root-config --ldflags`
   ROOT_LIBS=`root-config --libs`
@@ -105,6 +120,8 @@ else
   AC_SUBST(ROOT_LDFLAGS)
   AC_SUBST(ROOT_LIBS)
 fi
+
+AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
 #AC_F77_LIBRARY_LDFLAGS
 
