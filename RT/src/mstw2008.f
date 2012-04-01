@@ -1772,7 +1772,11 @@ C--   G.W. 22/08/2006 Added error message.
       if(i.gt.2) beta2=1.-eps*z/z1
       if(i.gt.6) beta2=1.-4.*eps*z/z1
 c      if(beta2.lt.0.) go to 10
-      beta=sqrt(beta2)
+      if (beta2.lt.0) then
+         beta = 0
+      else
+         beta=sqrt( beta2)
+      endif
       a=z2+z1*z1
       b=4.*z*(1.-3.*z)
       c=-8.*z2
@@ -1915,8 +1919,8 @@ c Subtraction term for NLO clg in VFNS
       function clgvfsub(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
       COMMON/iordCommon/iord
-      beta2=1.-4.*eps*z/(1.-z)
-      beta=sqrt(beta2)
+cSG      beta2=1.-4.*eps*z/(1.-z)
+cSG      beta=sqrt(beta2)
       xi=1./eps
 
       term1 = 2./3.*(32.*z*log(z)+16.+16.*z-32.*z**2)*(log(xi))
