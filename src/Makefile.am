@@ -74,7 +74,7 @@ GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
 
 if ENABLE_APPLGRID 
-  LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
+  LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB) $(ROOT_LIBS)
 endif
 
 if ENABLE_LHAPDF 
