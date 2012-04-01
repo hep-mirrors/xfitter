@@ -116,7 +116,7 @@ c        open(82,file=h1name)
             if(ix.gt.1) then
                delx = x - xbelow
             endif
-            call fpdfxq(IPDFSET,x,q2,pdf ,0)
+            call  hf_get_pdfs(x,q2,pdf)
 
 
             gval=pdf(0)
@@ -236,7 +236,7 @@ cv         grid(162+iq)=q2
                X=10**(2D0/80D0*(Jx-80)-201D-2)
             ENDIF
 cv       grid(1+jx)=x
-            call fpdfxq(IPDFSET,x,q2,pdfl ,0)
+            call  hf_get_pdfs(x,q2,pdfl)
             write(76,666) PDFl(0), PDFl(2)-PDFl(-2), PDFl(1)-PDFl(-1),
      $           PDFl(-2), PDFl(-1),
      $           PDFl(3), PDFl(4), PDFl(5)

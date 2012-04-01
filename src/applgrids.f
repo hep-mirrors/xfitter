@@ -62,12 +62,12 @@ C---------------------------------------
 
       if (LFastAPPLGRID) then
          if (IFlagFCN.eq.1) then
-            call fpdfxq(iqnset, x, Q2, xf, iqnchk)
+            call hf_get_pdfs(x, Q2, xf)
          else
             call Retrive_pdf_applgrid_fast(xf)
          endif
       else
-         call fpdfxq(iqnset, x, Q2, xf, iqnchk)
+         call hf_get_pdfs( x, Q2, xf)
       endif
 
       return
