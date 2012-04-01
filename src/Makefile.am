@@ -59,7 +59,7 @@ if ENABLE_HATHOR
   $(HATHOR_ROOT)/libHathor.a
 endif
 
-LDADD+= ../DY/src/libmydy.a\
+LDADD+=  ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
  ../ACOT/src/libmyacot.a \
  ../HS/src/libmyhs.a \
@@ -67,6 +67,7 @@ LDADD+= ../DY/src/libmydy.a\
  ../FastNLO/src/libFastNLO.a \
  ../DIPOLE/src/libmydipole.a \
  ../DiffDIS/src/libDiffDIS.a\
+ ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
  -lgsl -lgslcblas -lstdc++ 
 

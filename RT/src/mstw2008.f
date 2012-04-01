@@ -1516,12 +1516,10 @@ C--   Proton structure functions.
       COMMON/mstwfiles/iset,prefix,cl
 cccccccccccccccccccccccccccccccccccccccccc
       double precision pdfsf(-6:6)
-      integer iqnset, inull
-      include 'steering.inc'
+c      integer iqnset, inull
+c      include 'steering.inc'
 cccccccccccccccccccccccccccccccccccccccccc 
 
-      iqnset=IPDFSET
-      inull=1
 
       IF (iset.EQ.0) THEN
          prefix1 = prefix
@@ -1536,7 +1534,7 @@ cccccccccccccccccccccccccccccccccccccccccc
 cv      CALL GetAllPDFs(prefix1,iset,x,xmuf,upv,dnv,usea,dsea,str,sbar,
 cv     &     chm,cbar,bot,bbar,glu,phot)
 
-        CALL FPDFXQ(iqnset,x,q2,PDFSF,inull)
+        CALL HF_GET_PDFS(x,q2,PDFSF)
           glu=pdfSF(0)
           upv=pdfSF(2)-pdfSF(-2)
           dnv=pdfSF(1)-pdfSF(-1)
@@ -2658,5 +2656,7 @@ c Simplified version of LO clg convoluted with a2gg
       
       RETURN 
       END
-! =====================================================================
+
+
+
 

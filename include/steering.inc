@@ -74,7 +74,8 @@ C Fast/slow mode for APPLGRID PDF convolution.
 C
       logical LFastAPPLGRID
 
-      integer IPDFSET
+      integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
+      integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
 
       logical FLAGNNPDF
       logical DONNPDFONLY
@@ -93,7 +94,8 @@ C
      $     ,IOFFSETCHEBSEA,EWFIT
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID,Lranddata,iDH_MOD, IPDFSET
+     $     ,LFastAPPLGRID,Lranddata,iDH_MOD
+     $     ,IPDFSET, ICHECK_QCDNUM
 
       common/STEERING2/FLAGNNPDF, DONNPDFONLY
 
