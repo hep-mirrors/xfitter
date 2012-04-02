@@ -21,40 +21,34 @@ int main(int argc, char **argv) {
   
 
   int c; 
-  Int_t nBands = 0;
-
+  bool DrawBands = false;
   while (1)
     {
       static struct option long_options[] =
 	{
-	  {"bands",  required_argument, 0, 'b'},
+	  {"bands", optional_argument, 0, 'b'},
 	};
       /* getopt_long stores the option index here. */
       int option_index = 0;
       
       c = getopt_long (argc, argv, "bands:",
-                            long_options, &option_index);
+		       long_options, &option_index);
       /* Detect the end of the options. */
       if (c == -1)
 	break;
-      switch (c) 
+      switch (c)
 	{
 	case 'b':
-	  nBands = atoi(optarg); 
+	  DrawBands = true;
 	  break;
 	case '?':
-	  printf("program usage: DrawResults --bands=n [dir1] [dir2]\n");
+	  printf("program usage: DrawResults [--bands] [dir1] [dir2]\n");
 	  exit(1);
-	   
 	}
-
-    }
+    } 
   
-  printf ("NBands=%i\n",nBands);
-
   if ( optind < argc) {
 
-    printf ("%i %i %s\n",optind, argc, argv[optind]);
     if(argc-optind == 1 ) {
       OutputPath.Form(argv[optind]);
       OutputPathRef.Form(argv[optind]);
@@ -65,8 +59,7 @@ int main(int argc, char **argv) {
     }
   }
 
-
-  H1FitterPainter* painter = new H1FitterPainter(nBands);
+  H1FitterPainter* painter = new H1FitterPainter(DrawBands);
   painter->SetPath(OutputPath);
   painter->SetPathRef(OutputPathRef);
   painter->Draw();

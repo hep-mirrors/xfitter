@@ -26,6 +26,8 @@ class PdfTable  {
   PdfTable(TString fName);
   virtual ~PdfTable();
 
+  PdfTable* CreatePdfTable(const Char_t* filename);
+
   // @brief Get number of X points
   virtual const int GetNx(){return fNxValues;}
   // @brief Get number of PDfs
@@ -77,7 +79,7 @@ class PdfErrorTables : public PdfTable{
  PdfErrorTables():PdfTable(),fErrorTables(NULL)
     {}
   // @brief Constructor to read the files from directory base for given Q2 set
-  PdfErrorTables(string base, int iQ2=0, int nPDF=0, Bool_t SymErrors = kFALSE);
+  PdfErrorTables(string base, int iQ2=0, Bool_t SymErrors = kFALSE);
 
   // @brief Return TGraph 
   virtual TGraphAsymmErrors* GetPDFGraph(string name);

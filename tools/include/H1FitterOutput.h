@@ -38,7 +38,7 @@ class  H1FitterOutput {
  public:
    H1FitterOutput(const Char_t* directory);
    virtual ~H1FitterOutput();
-   Int_t Prepare(Int_t nBand);
+   Int_t Prepare(bool DrawBand);
    TGraph* GetPdf(H1FitterOutput::pdf ipdf, Int_t Q2bin);
    inline TString* GetDirectory() {return fDirectory;}
    Int_t GetNsets();
@@ -52,7 +52,7 @@ class  H1FitterOutput {
 
  private:
    Int_t PrepareDataSets();
-   Int_t PreparePdf(Int_t nBand);
+   Int_t PreparePdf(bool DrawBand);
    void SetPdfPoint(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t y);
    void SetPdfError(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t Up, Double_t Dn);
    Bool_t CheckDirectory();

@@ -5,7 +5,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TH1F.h>
 
-H1FitterPainter::H1FitterPainter(Int_t Bands){
+H1FitterPainter::H1FitterPainter(bool DrawBands){
   fPath = new TString("../../output/");
   fPathRef = new TString("../../output/");
   fH1FitterOutput = NULL;
@@ -18,7 +18,7 @@ H1FitterPainter::H1FitterPainter(Int_t Bands){
   fColorRef = kBlue;
   fFillStyle = 1001;
   fFillStyleRef = 0; //3010
-  nBands = Bands;
+  fBands = DrawBands;
 }
 
 H1FitterPainter::~H1FitterPainter(){ 
@@ -46,8 +46,8 @@ Int_t H1FitterPainter::Prepare() {
   if(fH1FitterOutputRef == NULL) fPsFileName->Form("%s/DrawResults.ps", fPathRef->Data());
   fPsFileName->Append("(");
 
-  fH1FitterOutput->Prepare(nBands);
-  if(fH1FitterOutputRef) fH1FitterOutputRef->Prepare(nBands); 
+  fH1FitterOutput->Prepare(fBands);
+  if(fH1FitterOutputRef) fH1FitterOutputRef->Prepare(fBands); 
 }
 
 Int_t H1FitterPainter::Draw() {

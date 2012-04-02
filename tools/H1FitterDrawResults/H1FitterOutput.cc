@@ -29,12 +29,12 @@ H1FitterOutput::~H1FitterOutput(){
   delete fPull;
 }
 
-Int_t H1FitterOutput::Prepare(Int_t nBand) {
+Int_t H1FitterOutput::Prepare(bool DrawBand) {
   if(! this->CheckDirectory() ) {
     cerr << "Can not open directory " << fDirectory->Data() << endl; 
     exit(1);
   }
-  this->PreparePdf(nBand);
+  this->PreparePdf(DrawBand);
   this->PrepareDataSets();
 }
 
@@ -49,17 +49,16 @@ Bool_t H1FitterOutput::CheckDirectory() {
   return bExists;
 }
 
-Int_t H1FitterOutput::PreparePdf(Int_t nBand) {
+Int_t H1FitterOutput::PreparePdf(bool DrawBand) {
 
   // Loop over Q2 values, read PDF tables
   for (Int_t iq2=0; iq2<20; iq2++) {
 
     
-    //    if (nBand == 0) {
     TString filename("");
     filename.Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
 
-    PdfTable* table = (nBand == 0 )? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,nBand,kTRUE);
+    PdfTable* table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE);
 
     Int_t    nx = table->GetNx();
     if (nx > 0 ) {    

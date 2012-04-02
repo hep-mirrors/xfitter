@@ -115,9 +115,15 @@ const int PdfTable::GetIndex(string name){
   return -1;
 }
 
+PdfTable* PdfTable::CreatePdfTable(const Char_t* filename) {
+  PdfTable* tab = NULL;
+  ifstream ifile(filename);
+  if(ifile)  tab = new PdfTable(filename);
+  return tab;
+}
 //-----------------------------------------------------
 
-PdfErrorTables::PdfErrorTables(string base, int iQ2, int nPDF, Bool_t SymErrors) {
+PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors) {
   
   // Read the central table:
   TString filename("");
@@ -158,11 +164,11 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, int nPDF, Bool_t SymErrors)
 
 
   // Read the error sets:
-  int NRead = ( nPDF == 0 ) ? 1000 : nPDF;
-  for ( int iband = 1; iband<=NRead; iband++) {
+  for ( int iband = 1; iband<=1000; iband++) {
     filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt",base.c_str(), iband, iQ2);
 
-    PdfTable *eSet = new PdfTable(filename.Data());
+    PdfTable *eSet = CreatePdfTable(filename.Data());
+    if (!eSet) break;
 
     if (eSet->GetNx()>0) {
       fErrorTables.push_back(eSet);

@@ -17,13 +17,13 @@ int main(int argc, char **argv) {
   TString OutputPath("output/");
 
   int c; 
-  Int_t nBands = 0;
+  bool DrawBands = false;
 
   while (1)
     {
       static struct option long_options[] =
 	{
-	  {"bands",  required_argument, 0, 'b'},
+	  {"bands",  optional_argument, 0, 'b'},
 	};
       /* getopt_long stores the option index here. */
       int option_index = 0;
@@ -36,18 +36,16 @@ int main(int argc, char **argv) {
       switch (c) 
 	{
 	case 'b':
-	  nBands = atoi(optarg); 
+	  DrawBands = true;
 	  break;
 	case '?':
-	  printf("program usage: StoreGraphs --bands=n [dir] \n");
+	  printf("program usage: StoreGraphs [--bands] [dir] \n");
 	  exit(1);
 	  
 	}
 
     }
   
-  printf ("NBands=%i\n",nBands);
- 
   if ( optind < argc) {
 
     printf ("%i %i %s\n",optind, argc, argv[optind]);
@@ -62,7 +60,7 @@ int main(int argc, char **argv) {
     TString filename("");
     filename.Form("%s/pdfs_q2val_%02d.txt",OutputPath.Data(), iq2+1);
 
-    PdfTable* table = (nBands == 0 )? new PdfTable(filename.Data()) : new PdfErrorTables(OutputPath.Data(),iq2+1,nBands,kTRUE);
+    PdfTable* table = (!DrawBands)? new PdfTable(filename.Data()) : new PdfErrorTables(OutputPath.Data(),iq2+1,kTRUE);
 
     if (table->GetNx() == 0) {
       break;
