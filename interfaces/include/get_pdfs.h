@@ -22,4 +22,16 @@ extern "C"  /* prevent C++ name mangling */
 #endif
 double HF_GET_ALPHAS_WRAP(const double *q2);
 
+
+//
+//--------------- Internal -------------------------
+//
+
+#define HF_GET_PDFS_UNCACHED_WRAP F77_FUNC_ (hf_get_pdfs_uncached, HF_GET_PDFS_UNCACHED)
+#ifdef __cplusplus
+extern "C"  /* prevent C++ name mangling */
+#endif
+void HF_GET_PDFS_UNCACHED_WRAP(const double *x, const double *q2, double *pdfs);
+
+
 #endif

@@ -31,7 +31,7 @@ C Define namelists:
 C Main steering parameters namelist
       namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
      $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc
+     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs
 
 
 C Output style namelist
@@ -149,6 +149,9 @@ C scale for HQ
 
 C  Hermes-like strange (off by default):
       ifsttype = 0
+
+C  Cache PDF calls
+      CachePDFs     = .false.
 
 C  Fast applgrid:     
       LFastAPPLGRID = .false.

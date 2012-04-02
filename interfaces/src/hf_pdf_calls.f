@@ -8,9 +8,17 @@ C----------------------------------------------------------------------
       implicit none
 C----------------------------------------------------------------------
       include 'steering.inc'
+      include 'fcn.inc'
       double precision x,q2,pdfsf(-6:6)
 C----------------------------------------------------------------------
-      call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)
+      if ( CachePDFs ) then
+C Cache PDF calls:
+         call GetCachedPDFs(ifcncount,x,q2,PDFSF)
+      else
+C Get PDFs directly:
+         Call HF_Get_PDFs_UnCached(x,q2,PDFSF)
+      endif
+
 C----------------------------------------------------------------------
       end
 
@@ -30,4 +38,31 @@ C----------------------------------------------------
 C----------------------------------------------------
       HF_Get_alphas = ASFUNC(q2,nf,ierr) 
 C----------------------------------------------------
+      end
+
+
+Cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+C----------------------------------------------------------------------
+C-------------  Internal ----------------------------------------------
+C----------------------------------------------------------------------
+
+
+Cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+      subroutine HF_Get_PDFs_UnCached(x,q2,PDFSF)
+C----------------------------------------------------------------------
+C Interface to PDF 
+C
+C  Input:  x, Q2 values
+C  Output: 13 PDF values
+C----------------------------------------------------------------------
+      implicit none
+C----------------------------------------------------------------------
+      include 'steering.inc'
+      double precision x,q2,pdfsf(-6:6)
+C----------------------------------------------------------------------
+      call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)
+C----------------------------------------------------------------------
       end

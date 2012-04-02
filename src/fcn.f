@@ -16,8 +16,7 @@ c----------------------------------------------------------------------
       include 'fcn.inc'
       include 'endmini.inc'
       
-      integer i, IfcnCount
-      data IfcnCount /0/
+      integer i
 
 C function:
       double precision chi2data_theory
@@ -110,13 +109,6 @@ C--------------------------------------------------------------
 
       double precision time1,time2,time3
 
-      Integer Icount
-      data icount/0/
-
-!*** count FCN calls,  Iprint=0 suppress printing
-      integer IfcnCount, Iprint  
-      data IfcnCount,Iprint  /0,0/ 
-      save IfcnCount,iPrint
 
 *     ---------------------------------------------------------
 *     declaration related to others
@@ -346,13 +338,12 @@ c             call fillvfngrid
 
       
 
-      icount = icount + 1
 
       if (lprint) then
          call cpu_time(time3)
          print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
          write(6,'(A20,i6,F12.2,i4,F12.2)') '
-     $        FitPDF chi2out,ndf,chi2out/ndf ',icount, chi2out, 
+     $        FitPDF chi2out,ndf,chi2out/ndf ',ifcncount, chi2out, 
      $        ndf, chi2out/ndf
 
 

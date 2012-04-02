@@ -77,6 +77,7 @@ C
       integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
 
+      logical CachePDFs        !> Cache PDF calls to speedup
       logical FLAGNNPDF
       logical DONNPDFONLY
 
@@ -95,9 +96,9 @@ C
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, ICHECK_QCDNUM
+     $     ,IPDFSET, ICHECK_QCDNUM 
 
-      common/STEERING2/FLAGNNPDF, DONNPDFONLY
+      common/STEERING2/FLAGNNPDF, DONNPDFONLY, CachePDFs
 
      
       common/heavyflav/
