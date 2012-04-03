@@ -1,9 +1,9 @@
-#ifndef Hathor_H1FitterPdf_
-#define Hathor_H1FitterPdf_
+#ifndef Hathor_HERAFitterPdf_
+#define Hathor_HERAFitterPdf_
 
 #include "HathorPdf.h"
 
-class H1FitterPdf : public Pdf {
+class HERAFitterPdf : public Pdf {
 
 protected:
 
@@ -12,7 +12,7 @@ protected:
 
 public:
 
-  H1FitterPdf(const std::string str="H1FitterPdf");
+  HERAFitterPdf(const std::string str="HERAFitterPdf");
   void GetPdf(double x, double muf, double h[13]);
   double GetAlphas(double mu);
   void InitMember(int i);

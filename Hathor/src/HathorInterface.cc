@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Hathor.h"
-#include "../interface/H1FitterPdf.h"
+#include "../interface/HERAFitterPdf.h"
 
 extern "C" {
   int hathorinit_(const double& sqrtS, const bool& ppbar, const double& mt,
@@ -17,14 +17,14 @@ extern "C" {
 }
 
 Hathor* hathor;   // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
-H1FitterPdf* pdf; // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
+HERAFitterPdf* pdf; // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
 double mtop;
 
 int *RndStore; // FIXME: delete at the end
 
 int hathorinit_(const double& sqrtS, const bool& ppbar, const double& mt,
 		const unsigned int& pertubOrder, const unsigned int& precisionLevel) {
-  pdf = new H1FitterPdf();
+  pdf = new HERAFitterPdf();
   hathor = new Hathor(*pdf);
 
   if(ppbar)

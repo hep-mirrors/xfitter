@@ -1,16 +1,16 @@
-#include "../interface/H1FitterPdf.h"
+#include "../interface/HERAFitterPdf.h"
 
 #include "get_pdfs.h"
 #include <iostream>
 #include <vector>
 
-H1FitterPdf::H1FitterPdf(const std::string str) {
+HERAFitterPdf::HERAFitterPdf(const std::string str) {
   PDFname = str;
   imember = 0;
 }
 
 void
-H1FitterPdf::GetPdf(double x, double muf, double h[13]){
+HERAFitterPdf::GetPdf(double x, double muf, double h[13]){
 
   const double muf2 = muf*muf;
 
@@ -44,15 +44,15 @@ H1FitterPdf::GetPdf(double x, double muf, double h[13]){
 }
 
 double
-H1FitterPdf::GetAlphas(double mu){
+HERAFitterPdf::GetAlphas(double mu){
   double mu2 = mu*mu;
   return HF_GET_ALPHAS_WRAP(&mu2); 
 }
 
 void
-H1FitterPdf::InitMember(int i){imember=i;}
+HERAFitterPdf::InitMember(int i){imember=i;}
 
 int
-H1FitterPdf::NumberPdf(void){return 1;}
+HERAFitterPdf::NumberPdf(void){return 1;}
 
-std::string H1FitterPdf::GetName(void){return(PDFname);}
+std::string HERAFitterPdf::GetName(void){return(PDFname);}
