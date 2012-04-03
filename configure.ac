@@ -24,7 +24,6 @@ AC_F77_WRAPPERS
 #
 FCFLAGS="$FCFLAGS -ffixed-line-length-132"
 FFLAGS="$FFLAGS -ffixed-line-length-132"
-CXXFLAGS = "$CXXFLAGS -Iinterfaces/include/"
 
 # Check for trapFPE flag
 AC_ARG_ENABLE([trapFPE],

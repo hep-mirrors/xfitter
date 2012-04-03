@@ -28,18 +28,9 @@
 #include <fstream>
 #include "Alphas.h"
 
+#include "get_pdfs.h"
+
 using namespace std;
-
-
-//______________________________________________________________________________
-
-
-extern "C"{
-   void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs,int *ichk);
-   void evolution_();
-   double asfunc_( double* r2, int* nf  , int* ierr);
-   void getqcdnumpdfset_(int *iqnset);
-}
 
 
 //______________________________________________________________________________
@@ -1722,13 +1713,16 @@ double FastNLOReader::GetAlphasQCDNUM(double Q){
   // alpha_s evolution as used in QCDNUM
    
   double mu2 = Q*Q;
-  int ierr = 9876;
-  int nf = 9;
-  double as = asfunc_( &mu2, &nf  , &ierr);
 
-  if ( ierr > 0 ){
-     printf("FastNLOReader::GetAlphasQCDNUM. Error. alphas evolution failed. ierr = %d, Q = %7.4f\n",ierr,Q);
-  }
+  // int ierr = 9876;
+  // int nf = 9;
+  // double as = asfunc_( &mu2, &nf  , &ierr);
+
+  double as = HF_GET_ALPHAS_WRAP( &mu2 );
+
+  //  if ( ierr > 0 ){
+  //   printf("FastNLOReader::GetAlphasQCDNUM. Error. alphas evolution failed. ierr = %d, Q = %7.4f\n",ierr,Q);
+  // }
 
   return as;
 }
@@ -1847,7 +1841,7 @@ void FastNLOReader::FillPDFCache( bool ReCalcCrossSection ){
       InitLHAPDF();
    }
    else if ( fPDFInterface == kH1FITTER ){
-      evolution_();
+     // evolution_();  SG
    }
    
    for ( unsigned int j = 0 ; j<BBlocksSMCalc.size() ; j++ ){
@@ -2196,13 +2190,16 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
      return vector<double>();//LHAPDF::xfx(xp,muf);
   }
   else if ( fPDFInterface == kH1FITTER ){
-    int iqnset = 1;
-    int iqnchk = 0;
+    //    int iqnset = 1;
+    //    int iqnchk = 0;
     double muf2	= muf*muf;
     vector < double > a;
     a.resize(13);
-    getqcdnumpdfset_(&iqnset);
-    fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
+
+    //  getqcdnumpdfset_(&iqnset);
+    //  fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
+
+    HF_GET_PDFS_WRAP(&xp, &muf2, &a[0]);
     return a;
   }
   else {

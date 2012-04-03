@@ -10,8 +10,8 @@
 using namespace std;
 
 extern "C"{
-void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs, 
-            int *ichk);
+  //void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs, 
+  //          int *ichk);
 void fastini_(const double *xint, const double *q2int, int *n, int *ichk);
 void fastsns_(const int *iset, const double *pdfin, const int *isel,
               const int *ibuf);
