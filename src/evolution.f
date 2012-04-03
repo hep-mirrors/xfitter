@@ -123,30 +123,26 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
       if (IPDFSET.eq.5) return  ! for external pdf evolution not needed!
 
 cv ===
-      if (iparam.eq.0)  call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
-      if (iparam.eq.1)  call evolfg(1,func1,def1,iq0,eps) !evolve all pdf's: H1
-      if (iparam.eq.4)  call evolfg(1,func24,def24,iq0,eps) !evolve all pdf's: ZEUS
-cv ===
+      if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
+         call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
 
-      if (iparam.eq.2011) call evolfg(1,func22,def22,iq0,eps)
+      elseif (Index(PDF_DECOMPOSITION,'D_U_Dbar_Ubar').gt.0) then   ! D,U,Dbar,Ubar 
+         call evolfg(1,func1,def1,iq0,eps) !evolve all pdf's: H1
 
-      if (iparam.eq.222222) call evolfg(1,func22,def22,iq0,eps)
-      if (iparam.eq.222223) call evolfg(1,func22,def22,iq0,eps)
-      if (iparam.eq.22)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
-      if (iparam.eq.171717)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
-      if (iparam.eq.225)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
-      if (iparam.eq.222)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
-      if (iparam.eq.229)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
-      if (iparam.eq.221)  call evolfg(1,func22,def22,iq0,eps) !evolve all pdf's: H1ZEUS
+      elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then
+         call evolfg(1,func24,def24,iq0,eps) !evolve all pdf's: ZEUS
 
-cjt ===
-      if (iparam.eq.301) call evolfg(1,func30,def30,iq0,eps) !evolve all pdf's: ZEUS diffractive (hard Pomeron)
-      
-      
+      elseif (PDF_DECOMPOSITION.eq.'Diffractive') then
+         call evolfg(1,func30,def30,iq0,eps) !evolve all pdf's: ZEUS diffractive (hard Pomeron)
 
-c      glu1=pdfval(0,0.000103523178d0,1.95,0)
-cv      call allpdf(0.000103523178d0,1.95d0,pdfv,0)
+      elseif (Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0) then
+         call evolfg(1,func22,def22,iq0,eps)  ! uv, dv, Ubar, Dbar (and also strange)
 
+      else
+         print *,'Unknown PDF Decomposition: '//PDF_DECOMPOSITION
+         print *,'Stop in evolution'
+         call HF_Stop
+      endif
 
       return
       end

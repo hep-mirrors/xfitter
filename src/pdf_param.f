@@ -155,7 +155,7 @@ C Get from extra pars:
 
 C In case PDF and alphas needs to be read from LHAPDF (iparam=0, ipdfset=5)
 C maybe instead warning message should be issued
-      if((iparam.eq.0).and.(ipdfset.eq.5)) then
+      if( PDF_DECOMPOSITION.eq.'LHAPDF' ) then
          alphas=alphasPDF(Mz)
       endif
 
@@ -288,14 +288,14 @@ C     simple copy first:
       enddo
 
 
-      if ((iparam.eq.1).or.(iparam.eq.21)) then     !  H1PDF2k like
+      if (PDF_DECOMPOSITION.eq.'D_U_Dbar_Ubar') then     !  H1PDF2k like
 
-         pard(2)=paru(2)
-         parubar(2)=paru(2)
-         pardbar(2)=paru(2)
-         pardbar(1)=pard(1)
-         parU(1)=pard(1)*(1.D0-fs)/(1.D0-fcharm)
-         parUbar(1)=parU(1)
+         if (pard(2).eq.0)    pard(2)=paru(2)
+         if (parubar(2).eq.0) parubar(2)=paru(2)
+         if (pardbar(2).eq.0) pardbar(2)=paru(2)
+         if (pardbar(1).eq.0) pardbar(1)=pard(1)
+         if (paru(1).eq.0)    parU(1)=pard(1)*(1.D0-fs)/(1.D0-fcharm)
+         if (parUbar(1).eq.0) parUbar(1)=parU(1)
          
       elseif (iparam.eq.2) then
 
@@ -303,45 +303,31 @@ C     simple copy first:
          parubar(2)=pardbar(2)
          parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
-      elseif ((iparam.eq.22).or.(iparam.eq.221).or.
-     $        (iparam.eq.222)) then
+      elseif (index(PDF_DECOMPOSITION,'Dv_Uv_Dbar_Ubar').ne.0) then
+
+         if (pardval(2).eq.0)   pardval(2)=paruval(2)  !  Bud    = Buv 
+         if (parubar(2).eq.0)   parubar(2)=pardbar(2)  !  Bubar  = Bdbar
          
-         if (iparam.ne.221) then               
-            pardval(2)=paruval(2)
+         if (index(PDF_DECOMPOSITION,'Str').ne.0) then         ! Strange
+
+            if (pardel(2).eq.0) then
+               pardel(2)=pardbar(2)
+            endif
+
+            if (pardel(3).eq.0) then
+               pardel(3)=pardbar(3)
+            endif
+
+            if (fs.ne.-10000) then
+               pardel(1)=fs/(1.-fs)*pardbar(1)
+            endif
+
+            if (parubar(1).eq.0) parubar(1) = pardbar(1)
+
+         else                             ! Fixed strange
+            if (parubar(1).eq.0)   parubar(1)=pardbar(1)*(1.D0-fs)
+     $           /(1.D0-fcharm)
          endif
-         parubar(2)=pardbar(2)
-         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
-
-      elseif (iparam.eq.222222) then
-         pardval(2)=paruval(2)
-         parubar(2)=pardbar(2)
-         parubar(1)=pardbar(1)
-
-      elseif (iparam.eq.222223) then
-         parubar(2)=pardbar(2)
-         parubar(1)=pardbar(1)
-
-
-      elseif (iparam.eq.2011) then
-         parubar(2)=pardbar(2)
-         parubar(1)=pardbar(1)
-
-         if (pardel(2).eq.0) then
-            pardel(2)=pardbar(2)
-         endif
-
-         if (pardel(3).eq.0) then
-            pardel(3)=pardbar(3)
-         endif
-
-         if (fs.ne.-10000) then
-            pardel(1)=fs/(1.-fs)*pardbar(1)
-         endif
-
-      elseif (iparam.eq.229) then
-cv         parglue(9)=25.
-         parUbar(2)=parDbar(2)
-         parUbar(1)=parDbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
       elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
          
@@ -364,9 +350,6 @@ cv         parglue(9)=25.
          pardel(1)=0.27
          pardel(2)=0.5
          pardel(3)=parsea(3)+2.
-
-
-         
       endif         
 
       if (debug) then
@@ -595,24 +578,17 @@ C    22 Apr 11, SG, Add CTEQ-like
          return
       endif
 
-      if (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4.or.iparam.eq.222222
-     $     .or.iparam.eq.22.or.iparam.eq.24.or.iparam.eq.225.
-     $     .or.iparam.eq.222223.or.iparam.eq.2011
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229
-     $	   .or.iparam.eq.301) then
-
 C
 C 25 Jan 2011: add polynomial param 
 C
-         if (NPOLYVAL.eq.0) then
-            Uval=para(x,paruval)
-         else
+      if (NPOLYVAL.eq.0) then
+         Uval=para(x,paruval)
+      else
 C 
 C PDFs are parameterised as a function of x23 = x^{2/3}
 C
-            x23 = x**(2.D0/3.D0)
-            Uval = paruval(1) * PolyVal(x23,NPOLYVALINT,PolyUval)
-         endif
+         x23 = x**(2.D0/3.D0)
+         Uval = paruval(1) * PolyVal(x23,NPOLYVALINT,PolyUval)
       endif
 
       return
@@ -635,23 +611,17 @@ C    22 Apr 11, SG, Add CTEQ-like
          return
       endif
 
-
-      if (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4
-     $     .or.iparam.eq.22.or.iparam.eq.24.or.iparam.eq.225
-     $     .or.iparam.eq.222222.or.iparam.eq.222223.or.iparam.eq.2011
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
 C
 C 25 Jan 2011: add polynomial param 
 C
-         if (NPOLYVAL.eq.0) then
-            Dval=para(x,pardval)
-         else
+      if (NPOLYVAL.eq.0) then
+         Dval=para(x,pardval)
+      else
 C
 C PDFs are parameterised as a function of x23 = x^{2/3}
 C
-            x23 = x**(2.D0/3.D0)
-            Dval = pardval(1) * PolyVal(x23,NPOLYVALINT,PolyDval)
-         endif
+         x23 = x**(2.D0/3.D0)
+         Dval = pardval(1) * PolyVal(x23,NPOLYVALINT,PolyDval)
       endif
 
       return
@@ -689,17 +659,14 @@ C External function:
       double precision PolyParam,para
 C--------------------------------------------------
 
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
-     $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
+      if (Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0) then
          sea = Ubar(x) + Dbar(x)
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
+      elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then 
 * warning for iparam = 3 or 4, the sea is 2 * sum (ubar +dbar + sbar + cbar)
 
          if (nchebSea.eq.0) then
             sea=para(x,parsea)
          else
-
             sea = PolyParam(x,nchebSea,polyParsSea,chebxminlog)
             if (ichebtypeSea.eq.0) then
 C Do nothing

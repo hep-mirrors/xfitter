@@ -481,27 +481,43 @@ C---------------------------------------
       integer ILHAPDFSET 
       include 'steering.inc'
 C---------------------------------
+
+      FlexibleGluon = .false.
       
       if (PDFStyle.eq.'10p HERAPDF') then
          iparam = 22
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
+
       elseif (PDFStyle.eq.'13p HERAPDF') then
          iparam = 229
-      elseif (PDFStyle.eq.'buvbdv') then
-         iparam = 221
-      elseif (PDFStyle.eq.'negglu') then
-         iparam = 222
+         FlexibleGluon = .true.
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
+
       elseif (PDFStyle.eq.'strange') then
          iparam = 2011
+         FlexibleGluon = .true.
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
+
       elseif (PDFStyle.eq.'CTEQ') then
          iparam = 171717
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
+
       elseif (PDFStyle.eq.'CHEB') then
          iparam = 4
+         PDF_DECOMPOSITION = 'Dv_Uv_Sea_Delta'
+
       elseif (PDFStyle.eq.'LHAPDFQ0') then
          iparam = 0
+         PDF_DECOMPOSITION = 'LHAPDF'
+
       elseif (PDFStyle.eq.'LHAPDF') then
          iparam = 0
+         PDF_DECOMPOSITION = 'LHAPDF'
+
       elseif (PDFStyle.eq.'DDIS') then
          iparam = 301        
+         PDF_DECOMPOSITION = 'Difractive'
+
       else
          print *,'Unsupported PDFStyle =',PDFStyle
          print *,'Check value in steering.txt'

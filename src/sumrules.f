@@ -15,6 +15,8 @@
       double precision tsbar, tcbar,tsmalldb, tsmallub
       double precision CalcIntegral,CalcIntegralCheb
 
+      double precision CalcIntXpdf,CalcIntXpdfFixN,CalcIntPdf
+
       double precision SSDINT
       double precision ToInteg
       external ToInteg
@@ -31,155 +33,125 @@
 
       double precision fs
       double precision fshermes
-      double precision tstr
+      double precision tstr,tNoGlue
 C-----------------------------------------
       kflag=0
       zero = 1d-10
 
+C=========================================================
+C Nothing to do for LHAPDF or Diffractive:
+C
+      if (PDF_DECOMPOSITION.eq.'LHAPDF' 
+     $     .or. PDF_DECOMPOSITION.eq.'Difractive') then
+         Return
+      endif
+
 C==========================================================
-C SG, 22 Apr 2011: Add CT-like parameterisation:
+C CTEQ-like parameterisation:
+C
       if (iparam.eq.171717) then
          Call SumRulesCTeq
          Return
       endif
 
 C==========================================================
-      if (iparam.eq.4         ! CHEB
-     $     .or.iparam.eq.22   ! 10p HERAPDF
-     $     .or.iparam.eq.229  ! 13p HERAPDF
-     $     .or.iparam.eq.221  ! buvbdv
-     $     .or.iparam.eq.222  ! negglu
-     $     .or.iparam.eq.2011 ! strange
-     $     .or.iparam.eq.222222.or.iparam.eq.222223) then
+C Standard parameterisation. 
+C
+
+C--------------
+C Valence:
+      if (Index(PDF_DECOMPOSITION,'Dv_Uv').gt.0) then
 
 C**********************************************************
 C*     -- sum rule : D - Dbar = 1   :  gives ADval
 C*
-
-         t1 = CalcIntegral(pardval(2)-1.0d0, pardval(3))
-         t2 = CalcIntegral(pardval(2), pardval(3))
-         t3 = CalcIntegral(pardval(2)+1.0d0, pardval(3))
-         t4 = CalcIntegral(pardval(2)+2.0d0, pardval(3))
-	 pardval(1) = 1.0d0 / (t1 + pardval(4) * t2 + pardval(5) * t3 + pardval(6) * t4)
-C	 Adv = 1.0d0 / (t1 + Ddv * t2 + Edv * t3 + Fdv * t4)
+         pardval(1) = 1.0d0/CalcIntPdf(pardval)
+         
 
 C**********************************************************
 C*     -- sum rule : U - Ubar = 2   :  gives AUval
 C*
+         paruval(1) = 2.0D0/CalcIntPdf(paruval)
 
-         t1 = CalcIntegral(paruval(2)-1.0d0, paruval(3))
-         t2 = CalcIntegral(paruval(2), paruval(3))
-         t3 = CalcIntegral(paruval(2)+1.0d0, paruval(3))
-         t4 = CalcIntegral(paruval(2)+2.0d0, paruval(3))
-	 paruval(1) = 2.0d0 / (t1 + paruval(4) * t2 + paruval(5) * t3 + paruval(6) * t4)
-C	 Auv = 2.0d0 / (t1 + Duv * t2 + Euv * t3 + Fuv * t4)
+
+C Also integrate momenta, for momentum sum rule:
+         tUv = paruval(1)*CalcIntXpdf(paruval)
+         tDv = pardval(1)*CalcIntXpdf(pardval) 
+
+      else
+         print *,'Un-implemented valence decomposition '//PDF_DECOMPOSITION
+         print *,'Stop in sumrules'
+         call HF_STOP
+      endif
+
 
 C**********************************************************
 C*     -- sum rule : x ( gluon + Sigma) = 1  :  gives Ag
 C*
 
-C
-C     SG: add Chebyshev param. for gluon
-C
+C----------------
+C Gluon:
 
-         if (nchebglu.eq.0) then
-            tg = CalcIntegral(parglue(2),parglue(3)) 
-     &          + parglue(4) * CalcIntegral(parglue(2)+1.0D0, parglue(3))
-     &          + parglue(5) * CalcIntegral(parglue(2)+2.0D0, parglue(3))
-     &          + parglue(6) * CalcIntegral(parglue(2)+3.0D0, parglue(3))
-
+C Check chebyshev and flexible gluon:
+      if (nchebglu.eq.0) then
+         if (FlexibleGluon) then
+            tg = CalcIntXpdfFixN(parglue,7)             
             tgMRST=CalcIntegral(parglue(8),parglue(9))
          else
-            tg = CalcIntegralCheb(nchebglu,
-     $           polyPars,chebxminlog, ichebtypeGlu)
+            tg = CalcIntXpdf(parglue)
+            tgMRST=0.0 
          endif
-
-
-         tUv = CalcIntegral(paruval(2), paruval(3))
-     &        + paruval(4) * CalcIntegral(paruval(2)+1.0D0, paruval(3))
-     &        + paruval(5) * CalcIntegral(paruval(2)+2.0D0, paruval(3))
-     &        + paruval(6) * CalcIntegral(paruval(2)+3.0D0, paruval(3))
-
-         tDv = CalcIntegral(pardval(2), pardval(3))
-     &        + pardval(4) * CalcIntegral(pardval(2)+1.0D0, pardval(3))
-     &        + pardval(5) * CalcIntegral(pardval(2)+2.0D0, pardval(3))
-     &        + pardval(6) * CalcIntegral(pardval(2)+3.0D0, pardval(3))
-
-         tUb = CalcIntegral(parubar(2), parubar(3))
-     $        + parubar(4) * CalcIntegral(parubar(2)+1.0D0, parubar(3))
-     $        + parubar(5) * CalcIntegral(parubar(2)+2.0D0, parubar(3))
-     $        + parubar(6) * CalcIntegral(parubar(2)+3.0D0, parubar(3))
-
-         tDb = CalcIntegral(pardbar(2), pardbar(3))
-     $        + pardbar(4) * CalcIntegral(pardbar(2)+1.0D0, pardbar(3))
-     $        + pardbar(5) * CalcIntegral(pardbar(2)+2.0D0, pardbar(3))
-     $        + pardbar(6) * CalcIntegral(pardbar(2)+3.0D0, pardbar(3))
-
-
-         if (iparam.eq.222222.or.iparam.eq.222223) then
-C Hermes strange prepare:
-            if (ifsttype.eq.0) then
-               fs = fstrange
-            else
-               fs = fshermes(0.)
-            endif
-c            tsbar=tDb*fs/(1-fs)
-c            tcbar=tUb*fcharm/(1-fcharm)
-         endif         
-
-         if (iparam.eq.22
-     $        .or.iparam.eq.221
-     $        .or.iparam.eq.222
-     $        .or.iparam.eq.229) then
-            parglue(1) = 1.d0 - ( paruval(1) * tUv + pardval(1) * tDv
-     +           + 2.d0*(parubar(1) * tUb + pardbar(1) * tDb) )
-
-         elseif (iparam.eq.222222.or.iparam.eq.222223) then
-            parglue(1) = 1.d0 - ( paruval(1) * tUv + pardval(1) * tDv
-     +           + 2.d0*( parubar(1) * tUb/(1.d0-fcharm)
-     $                    + pardbar(1)*tDb/(1.d0-fs) )   )
-c            ag = 1.d0 - ( Auv * tUv + Adv * tDv
-c     +           + 2*(Aubar * (tcbar+tsmallub) + Adbar * (tsbar+tsmalldb)))
-
-         elseif (iparam.eq.2011) then   ! strange free
-            tstr= CalcIntegral(pardel(2), pardel(3))
-            parglue(1) = 1.d0 - ( paruval(1) * tUv + pardval(1) * tDv
-     +           + 2.d0*(parubar(1)*tUb/(1.d0-fcharm) 
-     $           +       pardbar(1)*tDb
-     $           +       pardel(1)*tstr))
-         endif
-
-C*******************************************************************
-*     new2,  simplification for the total sea with ipar = 3 or 4, jf
-
-         if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then  
-C
-C     SG: add Chebyshev param. for sea:
-C
-            if (nchebsea.eq.0) then                   
-               tsea = CalcIntegral(parsea(2), parsea(3))
-     +              + parsea(4) * CalcIntegral(parsea(2)+1., parsea(3))
-            else
-               tsea = CalcIntegralCheb(nchebsea,
-     $              polyParsSea,chebxminlog,ichebtypeSea )
-               Parsea(1) = 1.d0
-            endif
-            parglue(1) = 1.d0 - ( Paruval(1) * tUv + Pardval(1) * tDv
-     +           + Parsea(1) * tsea)
-         endif
-C*******************************************************************
-
-         if (tg.le.0) then
-            tg=0.001
-         endif
-
-         if (iparam.eq.222.or.iparam.eq.229.or.iparam.eq.2011) then
-	    parglue(1)=(parglue(1)+parglue(7)*tgMRST)/tg
-         else
-            parglue(1) = parglue(1) / tg
-         endif
-
+      else
+         tg = CalcIntegralCheb(nchebglu,
+     $        polyPars,chebxminlog, ichebtypeGlu)
       endif
+
+C----------------
+C Sea:
+      if (Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0) then
+
+         tUb = parubar(1)*CalcIntXpdf(parubar)
+         tDb = pardbar(1)*CalcIntXpdf(pardbar)
+
+         if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
+            tStr = pardel(1) * CalcIntegral(pardel(2), pardel(3))
+         else
+            tStr = 0   ! Strange already included in Dbar
+         endif
+
+C Total sea integral:
+         tsea = 2.0d0 * (tUb + tDb + tStr)
+
+      elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then
+
+         if (nchebsea.eq.0) then                   
+            tsea = CalcIntXpdf(parsea)
+         else
+            tsea = CalcIntegralCheb(nchebsea,
+     $           polyParsSea,chebxminlog,ichebtypeSea )
+            Parsea(1) = 1.d0
+         endif
+
+      else
+         print *,'Un-implemented sea decomposition '//PDF_DECOMPOSITION
+         print *,'Stop in sumrules'
+         call HF_STOP
+      endif
+
+C
+C 1 - (valence + sea momentum):
+C      
+      tNoGlue = 1.D0 - ( tUv + tDv + tSea )
+
+C*******************************************************************
+
+      if (tg.le.0) then
+         tg=0.001
+      endif
+
+C Calculate gluon normalisation, taking into account flexible piece:
+      parglue(1)=(tNoGlue+parglue(7)*tgMRST)/tg
+      
 
 C*******************************************************************
 
@@ -222,6 +194,92 @@ c      endif
       end
 
 
+* --------------------------------------------------------------
+      double precision function CalcIntXpdf(pdfpars)
+C---------------------------------------------------------------
+C Calculated  \int xpdf(x) dx using the standard PDF
+C parameterisation
+C---------------------------------------------------------------
+      implicit none
+      double precision pdfpars(10)
+      integer i
+      double precision sum
+      
+      double precision CalcIntegral
+C---------------------------------------------------------------
+      sum =  CalcIntegral(pdfpars(2),pdfpars(3)) 
+      do i=1,7
+         if ( pdfpars(3+i).ne.0 ) then
+            sum = sum + pdfpars(3+i) 
+     $           * CalcIntegral(pdfpars(2)+i,pdfpars(3))
+         endif 
+      enddo
+
+C Also espsilon times sqrt x:
+      if ( pdfpars(10).ne.0) then
+         sum = sum + pdfpars(10)*CalcIntegral(pdfpars(2)+0.5,pdfpars(3)) 
+      endif
+
+      CalcIntXpdf = sum
+C---------------------------------------------------------------
+      end
+
+
+* --------------------------------------------------------------
+      double precision function CalcIntPdf(pdfpars)
+C---------------------------------------------------------------
+C Calculated  \int pdf(x) dx using the standard PDF
+C parameterisation
+C---------------------------------------------------------------
+      implicit none
+      double precision pdfpars(10)
+      integer i
+      double precision sum
+      
+      double precision CalcIntegral
+C---------------------------------------------------------------
+      sum =  CalcIntegral(pdfpars(2)-1,pdfpars(3)) 
+      do i=1,7
+         if ( pdfpars(3+i).ne.0 ) then
+            sum = sum + pdfpars(3+i) 
+     $           * CalcIntegral(pdfpars(2)+i-1,pdfpars(3))
+         endif 
+      enddo
+
+C Also espsilon times sqrt x:
+      if ( pdfpars(10).ne.0) then
+         sum = sum + pdfpars(10)*CalcIntegral(pdfpars(2)-0.5,pdfpars(3)) 
+      endif
+
+      CalcIntPdf = sum
+C---------------------------------------------------------------
+      end
+
+* --------------------------------------------------------------
+      double precision function CalcIntXpdfFixN(pdfpars,n)
+C---------------------------------------------------------------
+C Calculated  \int xpdf(x) dx using the standard PDF
+C parameterisation. Sum up to N-th term (max N=10)
+C---------------------------------------------------------------
+      implicit none
+      double precision pdfpars(10)
+      integer N
+C---
+      integer i
+      double precision sum
+      
+      double precision CalcIntegral
+C---------------------------------------------------------------
+      sum =  CalcIntegral(pdfpars(2),pdfpars(3)) 
+      do i=1,N-3
+         if ( pdfpars(3+i).ne.0 ) then
+            sum = sum + pdfpars(3+i) 
+     $           * CalcIntegral(pdfpars(2)+i,pdfpars(3))
+         endif 
+      enddo
+      CalcIntXpdfFixN = sum
+C---------------------------------------------------------------
+      end
 
 * --------------------------------------------------------------
       double precision function CalcIntegral(alpha,beta)

@@ -80,7 +80,7 @@ C
       logical CachePDFs        !> Cache PDF calls to speedup
       logical FLAGNNPDF
       logical DONNPDFONLY
-
+      logical FlexibleGluon    !> Flexible gluon parameterisation
 
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
@@ -98,9 +98,11 @@ C
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
      $     ,IPDFSET, ICHECK_QCDNUM 
 
-      common/STEERING2/FLAGNNPDF, DONNPDFONLY, CachePDFs
+      common/STEERING2/FLAGNNPDF, DONNPDFONLY, CachePDFs, FlexibleGluon
 
-     
+      character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
+      common/STEERING3/PDF_DECOMPOSITION     
+
       common/heavyflav/
      $     aq2,bq2,MASSH
 
