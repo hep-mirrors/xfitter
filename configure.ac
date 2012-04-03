@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([herafitter], [0.1.0], [glazov@mail.desy.de])
+AC_INIT([herafitter], [0.2.0], [herafitter-help@desy.de])
 
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(${PWD})
@@ -24,6 +24,7 @@ AC_F77_WRAPPERS
 #
 FCFLAGS="$FCFLAGS -ffixed-line-length-132"
 FFLAGS="$FFLAGS -ffixed-line-length-132"
+CXXFLAGS = "$CXXFLAGS -Iinterfaces/include/"
 
 # Check for trapFPE flag
 AC_ARG_ENABLE([trapFPE],
