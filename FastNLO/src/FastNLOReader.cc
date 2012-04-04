@@ -2477,7 +2477,7 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
     double muf2	= muf*muf;
     vector < double > a(13);
     HF_GET_PDFS_WRAP(&xp, &muf2, &a[0]);
-    a.resize(13);
+    return a;
   }
   else if ( fPDFInterface == kDiffPDF ){
      vector < double > a(13);
