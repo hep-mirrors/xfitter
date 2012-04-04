@@ -1925,16 +1925,16 @@ double FastNLOReader::CalcAlphasQCDNUM(double Q){
   //
   // alpha_s evolution as used in QCDNUM
    
-  double mu2 = Q*Q;
-  int ierr = 9876;
-  int nf = 9;
-  double as = 0;//asfunc_( &mu2, &nf  , &ierr);
+//   double mu2 = Q*Q;
+//   int ierr = 9876;
+//   int nf = 9;
+//   double as = asfunc_( &mu2, &nf  , &ierr);
 
-  if ( ierr > 0 ){
-    printf("FastNLOReader::CalcAlphasQCDNUM. Error. alphas evolution failed. ierr = %d, Q = %7.4f\n",ierr,Q);
-  }
+//   if ( ierr > 0 ){
+//     printf("FastNLOReader::CalcAlphasQCDNUM. Error. alphas evolution failed. ierr = %d, Q = %7.4f\n",ierr,Q);
+//   }
 
-  return as;
+   return 0; //as;
 }
 
 
@@ -2465,11 +2465,11 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
      return vector<double>(13);//LHAPDF::xfx(xp,muf);
   }
   else if ( fPDFInterface == kQCDNUM ){
-    int iqnset = 1;
-    int iqnchk = 0;
-    double muf2	= muf*muf;
-    vector < double > a(13);
-    //fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
+     //     int iqnset = 1;
+     //     int iqnchk = 0;
+     //     double muf2	= muf*muf;
+     vector < double > a(13);
+     //     fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
     return a;
   }
   else if ( fPDFInterface == kH1Fitter ){
