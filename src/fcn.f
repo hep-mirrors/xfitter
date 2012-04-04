@@ -120,8 +120,7 @@ C--------------------------------------------------------------
       integer npts(nset)
       double precision f2SM,f1SM,flSM
       integer i,j,kflag,jsys,ndf,n0,h1iset,jflag,k,pr,nwds
-      integer ipoints_jet(NSET)
-      logical refresh, refresh_DIS
+      logical refresh
       integer isys,ipoint,jpoint
       integer idataset
 C  x-dependent fs:
@@ -196,13 +195,6 @@ C--------------------------------------------------------------
             npts(i) = 0
          enddo
       endif
-
-
-
-      do i=31,42
-         ipoints_jet(i) = 0
-      enddo
-      refresh_DIS = .true.
 
 
 C
