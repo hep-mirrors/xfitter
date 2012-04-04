@@ -35,12 +35,12 @@ using namespace std;
 //______________________________________________________________________________
 
 
-extern "C"{
-  void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs,int *ichk);
-  void evolution_();
-  double asfunc_( double* r2, int* nf  , int* ierr);
-  void diffpdf_(double* xpom, double*  zpom, double*  Q2, double *pdfs);
-}
+// extern "C"{
+//   void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs,int *ichk);
+//   void evolution_();
+//   double asfunc_( double* r2, int* nf  , int* ierr);
+//   void diffpdf_(double* xpom, double*  zpom, double*  Q2, double *pdfs);
+// }
 
 
 //______________________________________________________________________________
@@ -1928,7 +1928,7 @@ double FastNLOReader::CalcAlphasQCDNUM(double Q){
   double mu2 = Q*Q;
   int ierr = 9876;
   int nf = 9;
-  double as = asfunc_( &mu2, &nf  , &ierr);
+  double as = 0;//asfunc_( &mu2, &nf  , &ierr);
 
   if ( ierr > 0 ){
     printf("FastNLOReader::CalcAlphasQCDNUM. Error. alphas evolution failed. ierr = %d, Q = %7.4f\n",ierr,Q);
@@ -2068,7 +2068,7 @@ void FastNLOReader::FillPDFCache( bool ReCalcCrossSection ){
     InitLHAPDF();
   }
   else if ( fPDFInterface == kQCDNUM ){
-    evolution_();
+     //evolution_();
   }
   else if ( fPDFInterface == kH1Fitter ){
      // nothing todo
@@ -2469,7 +2469,7 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
     int iqnchk = 0;
     double muf2	= muf*muf;
     vector < double > a(13);
-    fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
+    //fpdfxq_(&iqnset, &xp, &muf2, &a[0], &iqnchk); 
     return a;
   }
   else if ( fPDFInterface == kH1Fitter ){
@@ -2484,7 +2484,7 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
      a.resize(13);
      double zpom = xp/fxpom;
      if ( zpom > fzmin && zpom < fzmax ) {
-	diffpdf_(&fxpom,&zpom,&muf,&a[0]);
+	//diffpdf_(&fxpom,&zpom,&muf,&a[0]);
 	//for ( int k = 0 ; k<a.size() ; k++ ){cout << "k = " << k << "\tpdf = " << a[k] << endl;}
      }
      return a;
