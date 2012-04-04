@@ -536,7 +536,7 @@ C---------------------------------
 
       elseif (PDFStyle.eq.'DDIS') then
          iparam = 301        
-         PDF_DECOMPOSITION = 'Difractive'
+         PDF_DECOMPOSITION = 'Diffractive'
 
       else
          print *,'Unsupported PDFStyle =',PDFStyle
