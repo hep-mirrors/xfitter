@@ -1,0 +1,24 @@
+*
+* Data taken from:
+*
+* "Combination of CDF top quark pair production cross section measurements with up to 4.6 fb-1",
+* released as preliminary result in CDF Conference Note 9913
+* by the CDF Collaboration in October 2009.
+*
+&Data
+   Name = 'CDF inclusive ttbar cross section'
+   Reaction = 'ttbar'
+
+   NDATA = 1
+   NColumn = 7
+   ColumnType = 3*'Bin','Sigma',3*'Error'   ! three dummy bins, one cross section, three uncertainties
+   ColumnName = 'a','b','c','sigma','stat','uncor','uncor'
+   Percent = False, False, False
+
+   NInfo = 3
+   CInfo = 'sqrt(S)','ppbar','precisionLevel'
+   DataInfo = 1960,1,2
+
+   IndexDataset = 81
+&End
+0. 0. 0. 7.50 0.31 0.34 0.15

@@ -1,0 +1,24 @@
+*
+* Data taken from:
+*
+* "Combination of top quark pair production cross section measurements",
+* released as preliminary result in the CMS Physics Analysis Summary TOP-11-024
+* by the CMS Collaboration in November 2011 (on the CERN Document Server).
+*
+&Data
+   Name = 'CMS inclusive ttbar cross section'
+   Reaction = 'ttbar'
+
+   NDATA = 1
+   NColumn = 7
+   ColumnType = 3*'Bin','Sigma',3*'Error'   ! three dummy bins, one cross section, three uncertainties
+   ColumnName = 'a','b','c','sigma','stat','uncor','uncor'
+   Percent = False, False, False
+
+   NInfo = 3
+   CInfo = 'sqrt(S)','ppbar','precisionLevel'
+   DataInfo = 7000,0,2
+
+   IndexDataset = 80
+&End
+0. 0. 0. 165.8 2.2 10.6 7.8
