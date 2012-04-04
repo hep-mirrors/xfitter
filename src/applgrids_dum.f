@@ -42,10 +42,10 @@ c----------------------------------------------------------
       return 
       end
 
-      subroutine ag_convolute(igrid, xsec)
+      subroutine ag_convolute(igrid, iorder, muR, muF, xsec)
 
-      double precision xsec
-      integer igrid
+      double precision muR,muF,xsec
+      integer igrid,iorder
 
       call print_ag_messg
       return 

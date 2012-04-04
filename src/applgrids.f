@@ -198,14 +198,15 @@ C--
       return 
       end
 
-      subroutine ag_convolute(igrid, xsec)
+      subroutine ag_convolute(igrid, iorder, muR, muF, xsec)
 C-----------------
       implicit none
 C---------
       double precision xsec(100)
-      integer igrid
+      integer igrid, iorder
+      double precision muR, muF
 
-      call appl_convolute(igrid,xsec)
+      call appl_convoluteorder(igrid,iorder-1,muR,muF,xsec)
       return 
       end
 

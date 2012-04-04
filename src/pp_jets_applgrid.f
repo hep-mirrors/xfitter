@@ -11,6 +11,7 @@ C---------------------------------------------------------------------------
       include 'datasets.inc'
       include 'indata.inc'
       include 'theo.inc'
+      include 'scales.inc'
 
       integer IDataSet
       integer NPMax,NEtaMax
@@ -65,7 +66,11 @@ C
 
       do iEta=iEtaMin,iEtaMax
 C Convolution:
-         call ag_convolute( DATASETTheoryIndex(IDataSet)+iEta-1,XSec(1,iEta))
+         call ag_convolute( DATASETTheoryIndex(IDataSet)+iEta-1,
+     $        DataSetIOrder(IDataSet),
+     $        DataSetMuR(IDataSet),
+     $        DataSetMuF(IDataSet),
+     $        XSec(1,iEta))
       enddo
 
 C Check NP correction:

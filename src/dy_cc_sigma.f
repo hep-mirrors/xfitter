@@ -51,6 +51,7 @@ C---------------------------------------------------
       include 'datasets.inc'
       include 'indata.inc'
       include 'theo.inc'
+      include 'scales.inc'
 
       integer IDataSet      ! data set index
       integer NPMax         ! max. number of DY points
@@ -72,7 +73,11 @@ C----------------------------------------------------
          call HF_stop
       endif
 
-      call ag_convolute( DATASETTheoryIndex(IDataSet),XSec)
+      call ag_convolute( DATASETTheoryIndex(IDataSet),
+     $     DataSetIOrder(IDataSet),
+     $     DataSetMuR(IDataSet),
+     $     DataSetMuF(IDataSet),
+     $     XSec)
 
 C check if we have to divide APPLGRID prediction to convert units to data units:
       idxUnit = GetInfoIndex(IDataSet,'theoryunit')

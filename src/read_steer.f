@@ -16,8 +16,7 @@ C---------------------------------------------------
       include 'datasets.inc'
       include 'systematics.inc'
       include 'nnpdf.inc'
-
-
+      include 'scales.inc'
       include 'for_debug.inc'
 C=================================================
 
@@ -48,6 +47,9 @@ C (Optional) Chebyshev namelist
 C (Optional) Polynomial parameterisation for valence
       namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
    
+C (Optional) Data-set dependent scales
+      namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder
+
       character*128  LHAPDFSET
       integer ILHAPDFSET
       logical lhapdffile_exists
@@ -69,6 +71,7 @@ C (Optional) set HQ scale
 
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
+
 
 
 C Namelist for EW parameters:
@@ -337,7 +340,22 @@ C
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
 
-     
+C
+C  Data-set dependent scales. First set defaults
+C
+      do i=1,NInputFiles
+         DataSetMuR(i)    = 1.0D0
+         DataSetMuF(i)    = 1.0D0
+         DataSetIOrder(i) = IOrder
+      enddo
+C
+C  Read the scales namelist:
+C
+
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Scales,END=123,ERR=124)
+ 123  Continue
+      close (51)
 
 
 C
@@ -423,6 +441,8 @@ C
  72   continue
       print '(''Error reading namelist &InFiles, STOP'')'
       call HF_stop
+ 124  print '(''Error reading namelist &scales, STOP'')'
+      Call HF_stop
 
 
  73   continue

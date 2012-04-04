@@ -70,8 +70,8 @@ extern "C" double appl_getbinlowedge_(int& id, int& bin);
 extern "C" double appl_getbinwidth_(int& id, int& bin);
 
 /// do the convolution!! hooray!!
-extern "C" void appl_convolute_(int& id, double* data);
-extern "C" void appl_convoluteorder_(int& id, int& nloops, double* data);
+extern "C" void appl_convoluteOld_(int& id, double* data);
+extern "C" void appl_convoluteorder_(int& id, int& nloops, double& muR, double& muF, double* data);
 
 extern "C" void appl_convolutewrap_(int& id, double* data, 
 			       void (*pdf)(const double& , const double&, double* ),
@@ -228,16 +228,16 @@ double appl_getbinwidth_(int& id, int& bin) {
 }
 
 
-void appl_convolute_(int& id, double* data) { 
+void appl_convoluteOld_(int& id, double* data) { 
   appl_convolutewrap_(id, data, appl_fnpdf_, appl_fnalphas_); 
 }
 
 
-void appl_convoluteorder_(int& id, int& nloops, double* data) { 
+void appl_convoluteorder_(int& id, int& nloops, double& muR, double& muF, double* data) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) { 
     appl::grid*    g = gitr->second;
-    vector<double> v = g->vconvolute(appl_fnpdf_, appl_fnalphas_, nloops);
+    vector<double> v = g->vconvolute(appl_fnpdf_, appl_fnalphas_, nloops, muR, muF);
     for ( unsigned i=0 ; i<v.size() ; i++ ) data[i] = v[i];      
   }
   else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
