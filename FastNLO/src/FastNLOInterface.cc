@@ -65,9 +65,9 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    if(*mufdef>=0.)
      fnloreader->SetMuFFunctionalForm((FastNLOReader::EScaleFunctionalForm) ((int) (*mufdef)) , false);
 
-   fnloreader->SetPDFInterface(FastNLOReader::kH1FITTER);
+   fnloreader->SetPDFInterface(FastNLOReader::kH1Fitter);
    fnloreader->SetAlphasMz( 0.1180 ); // just for initalisation
-   fnloreader->SetAlphasEvolution(FastNLOReader::kQCDNUMInternal); // fully consistend alpha_s evolution has to be implemented.
+   fnloreader->SetAlphasEvolution(FastNLOReader::kH1FitterAs); // fully consistend alpha_s evolution has to be implemented.
 
    // looking for scale factor = 1!
    int nscale = fnloreader->GetNScaleVariations();

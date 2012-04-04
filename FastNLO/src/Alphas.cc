@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Alphas.h"
 #include <math.h>
 #include <cstdio>
@@ -25,8 +26,8 @@ using namespace std;
 
 double Alphas::fMz		= 91.1876;		// mass of Z0. PDG value 2011
 double Alphas::fAlphasMz	= 0.1185;		// alpha_s at starting scale of Mz. (Bethke 2011)
-int Alphas::fNf			= 6;			// MAXIMUM number of active flavours. e.g. at low scales mu, number of flavors is calculated with respecting flavor thresholds if FlavorMatching is ON.
-int Alphas::fnLoop		= 4;			// n-loop solution of the RGE
+int Alphas::fNf			= 5;			// MAXIMUM number of active flavours. e.g. at low scales mu, number of flavors is calculated with respecting flavor thresholds if FlavorMatching is ON.
+int Alphas::fnLoop		= 2;			// n-loop solution of the RGE
 bool Alphas::bFlavorMatching	= true;			// switch flaovr matching on or off
 double Alphas::fTh[6]		= {0.0024 , 0.0049, 0.100, 1.29, 4.19, 172.9};	// PDG 2011
 
@@ -75,10 +76,10 @@ int Alphas::CalcNf(double mu){
 }
 
 
-//static double GetAlphasMuFixedNf(double mu, int nf);
+//static double CalcAlphasMuFixedNf(double mu, int nf);
 // calculate alpha_s as scale mu for fixed number of flavors nf. Ignore flavor matching thresholds.
 
-double Alphas::GetAlphasMu(double mu, double alphasMz, int nLoop, int nFlavors){
+double Alphas::CalcAlphasMu(double mu, double alphasMz, int nLoop, int nFlavors){
    
    nLoop	= nLoop == 0 ? fnLoop : nLoop;
    double asmz	= alphasMz==0 ? fAlphasMz : alphasMz;
@@ -86,21 +87,15 @@ double Alphas::GetAlphasMu(double mu, double alphasMz, int nLoop, int nFlavors){
    double Q2	= pow(mu,2);
 
    // - initialize pi and do some initial print out 
+   const string csep41("#########################################");
+   const string cseps = csep41 + csep41;
    static bool first = true;
    static const double twopi = 2. * 4. * atan(1.);
    if ( first ) {
      first = false;
-     // - Print info
-     printf("\n");
-     printf("*********************************\n");
-     printf("* alphas-grv: First call:\n");
-     printf("*********************************\n");
-     printf("ALPHAS-GRV: PI = %-#24.15g\n",twopi/2.); 
-     printf("ALPHAS-GRV: M_Z/GeV = %-#10.6g\n",fMz); 
-     printf("ALPHAS-GRV: a_s(M_Z) = %-#10.6g\n",alphasMz); 
-     printf("APLHAS-GRV: a_s loop = %1i\n",nLoop);
-     printf("APLHAS-GRV: scale = %-#10.6g\n",mu);
-     printf("*********************************\n");
+     cout << endl << " " << cseps << endl;
+     printf(" # alphas-grv: First call:\n");
+     PrintInfo();
    }
    
    // - initialize beta functions
@@ -109,23 +104,6 @@ double Alphas::GetAlphasMu(double mu, double alphasMz, int nLoop, int nFlavors){
    const double beta1	= 102. - 38./3. * nf;
    const double beta10	= beta1 / beta0 / beta0;
    const double MZ2 = pow(fMz,2);
-   
-   // do we want to use a cache?
-   //    double ASMZCACHE = 0;
-   //    double MUCACHE = 0;
-   //    double NLOOPCACHE = 0;
-   //    double asca
-   //    If (MU.eq.MUCACHE .and. ALPSMZ.eq.ASMZCACHE 
-   //        +     .and. NLOOP.eq.NLOOPCACHE) Then
-   //       ALPS_IT = ASCACHE
-   //       Return
-   //       Endif
-   
-   //    // plain alphas code that is used in nlojet++
-   //    double L = log(mu/fMz);
-   //    L = (beta0/twopi + alphasMz*beta1/twopi/twopi/2.)*L;
-   //    return alphasMz/(1. + alphasMz*L);
-   
 
    // - exact formula -> extract Lambda from alpha_s(Mz)
    double LAM2 = MZ2 / exp( FBeta(asmz,nLoop,nf));
@@ -145,16 +123,24 @@ double Alphas::GetAlphasMu(double mu, double alphasMz, int nLoop, int nFlavors){
       //printf(" i = %d , alphas = %8.6f , mu = %7.4f\n",i,as,mu);
    }
    
-   //- that's it - modify cache - set function - return
-   //    MUCACHE = MU
-   //       ASMZCACHE = asmz
-   //       ASCACHE = as
-   //       ALPS_IT = as
-
    return as;
-   //kr Fix alphas for debugging
-   //return asmz;
+}
 
+
+void Alphas::PrintInfo(){
+    // - Print info
+   const string csep41("#########################################");
+   const string cseps = csep41 + csep41;
+   static bool first = true;
+   static const double twopi = 2. * 4. * atan(1.);
+   cout << " " << cseps << endl;
+   printf(" # ALPHAS-GRV: PI              = %#18.15f\n",twopi/2.); 
+   printf(" # ALPHAS-GRV: M_Z/GeV         = %#9.6f\n",fMz); 
+   printf(" # ALPHAS-GRV: a_s(M_Z)        = %#9.6f\n",fAlphasMz); 
+   printf(" # APLHAS-GRV: a_s loop        = %2i\n",fnLoop);
+   printf(" # APLHAS-GRV: flavor-matching = %s\n",(bFlavorMatching?"true":"false"));
+   printf(" # APLHAS-GRV: nf (M_Z)        = %2d\n",CalcNf(fMz));
+   cout << " " << cseps << endl;
 }
 
 
@@ -172,7 +158,6 @@ double Alphas::FBeta(double alphasMz, int nLoop, int nf){
    const double beta103	= pow(beta10,3);
    const double beta20	= beta2 / beta0;
    const double C10	= beta10 / beta0 *log(beta0);
-   const double ZMass2	= pow(fMz,2);
 
    double aspi = alphasMz/Pi;
    double aspi2 = pow(aspi,2);
