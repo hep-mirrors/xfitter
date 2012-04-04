@@ -42,7 +42,7 @@ C=========================================================
 C Nothing to do for LHAPDF or Diffractive:
 C
       if (PDF_DECOMPOSITION.eq.'LHAPDF' 
-     $     .or. PDF_DECOMPOSITION.eq.'Difractive') then
+     $     .or. PDF_DECOMPOSITION.eq.'Diffractive') then
          Return
       endif
 
