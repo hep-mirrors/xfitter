@@ -2462,7 +2462,7 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
   // 
   
   if ( fPDFInterface == kLHAPDF ){
-     return vector<double>();//LHAPDF::xfx(xp,muf);
+     return vector<double>(13);//LHAPDF::xfx(xp,muf);
   }
   else if ( fPDFInterface == kQCDNUM ){
     int iqnset = 1;
@@ -2489,10 +2489,8 @@ vector<double> FastNLOReader::GetXFX(double xp, double muf){
      }
      return a;
   }
-  else {
-    vector < double > a(13);
-    return a;
-  }
+  
+  return vector <double>(13);
 }
 
 
