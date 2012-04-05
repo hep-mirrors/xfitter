@@ -229,7 +229,7 @@ c$$$      xcmax=1./(1.+ 4.)
       DO 325 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
       XY=X/Y
-      CALL FETCH(XY,Schm,IPN,FTEMP)
+      CALL FETCH(XY,Schm-1.D-06,IPN,FTEMP)
       gluxy=ftemp(2)
       IF (IORD.EQ.0) THEN
       cg21c=2.*facc*cheavy(1,y,eps)
@@ -409,7 +409,7 @@ c$$$      xbmax=1./(1.+ 4.)
       DO 425 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
       XY=X/Y
-      CALL FETCH(XY,Sbot,IPN,FTEMP)
+      CALL FETCH(XY,Sbot-1.d-06,IPN,FTEMP)
       gluxy=ftemp(2)
       IF (IORD.EQ.0) THEN
       cg21b=2.*facb*cheavy(1,y,eps)
@@ -992,7 +992,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 327 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
       XY=X/Y
-      CALL FETCH(XY,Schm,IPN,FTEMP)
+      CALL FETCH(XY,Schm-1.D-06,IPN,FTEMP)
       gluxy=ftemp(2)
       singxy=ftemp(5)
       cgff23=facc*c2gffns3(y,eps)
@@ -1145,7 +1145,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 527 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
       XY=X/Y
-      CALL FETCH(XY,Schm,IPN,FTEMP)
+      CALL FETCH(XY,Schm-1.d-06,IPN,FTEMP)
       gluxy=ftemp(2)
       singxy=ftemp(5)
       cgffl3=facc*clgffns3(y,eps)
@@ -1282,7 +1282,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 427 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
       XY=X/Y
-      CALL FETCH(XY,Sbot,IPN,FTEMP)
+      CALL FETCH(XY,Sbot-1.d-06,IPN,FTEMP)
       gluxy=ftemp(2)
 c$$$      singxy=ftemp(5)+9./8.*ftemp(3) ! Why 9/8 and not 9/4?
       singxy=ftemp(5)           ! G.W. 27/07/2007
@@ -1434,7 +1434,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 627 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
       XY=X/Y
-      CALL FETCH(XY,Sbot,IPN,FTEMP)
+      CALL FETCH(XY,Sbot-1.d-06,IPN,FTEMP)
       gluxy=ftemp(2)
       singxy=ftemp(5)
       cgffl3=facb*clgffns3(y,eps)
@@ -1547,7 +1547,7 @@ cv     &     chm,cbar,bot,bbar,glu,phot)
           bot=pdfSF(5)
           bbar=pdfSF(-5)
         
-
+cv          print*,'voica is here'
 
       IF (IPN.EQ.2) THEN        ! neutron
 C--   Swap upv and dnv.
