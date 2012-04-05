@@ -96,7 +96,6 @@ C---------------------------------
 
 
 c set-up of the constants
-      integer iord
       integer iosp,nqout
  
       integer NQall     !> Actual number of grid points
@@ -128,6 +127,9 @@ C Functions:
       integer iqfrmq
 
 C---------------------------------------------------------------------------------------
+
+
+
 C-----  DEFAULTS -----------
 
 C More detailed at high x:
@@ -310,6 +312,8 @@ C RT parameters
 C Functions:
       double precision hf_get_alphas
 
+      
+
 C------------------------------------
       qs0=1.d0
       alphaSQ0in = hf_get_alphas(qs0)
@@ -322,9 +326,22 @@ C------------------------------------
       alphaSorderin =0.d0
       alphaSnfmaxin =3
 
-
+            print*,' ---------------------------------------------------'
+            print*,' Info from RT initialize'
       if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) then
+
          iordIn = I_FIT_ORDER-1
+ 
+         if (I_FIT_order.eq.1) then
+            print*,'BE AWARE YOU SELECTED LO in the steering (Iorder)'
+         elseif (I_FIT_order.eq.2) then
+            print*,'BE AWARE YOU SELECTED NLO in the steering (Iroder)'
+         elseif (I_FIT_order.eq.3) then
+            print*,'BE AWARE YOU SELECTED NNLO in the steering (Iorder)'
+         endif
+            print*,' ---------------------------------------------------'
+
+
       endif
 
 C-
