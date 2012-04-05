@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
-
+#include <stdio.h>
+#include <cstring>
 #include "Hathor.h"
 #include "../interface/HERAFitterPdf.h"
 
