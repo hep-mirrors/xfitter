@@ -7,7 +7,7 @@
 *
 *
 &Data 
-   Name  = 'CC cross section'    
+   Name  = 'CC cross section HERA-I H1-ZEUS combined e-p.'    
  ! 
    NData =  34
    NColumn =  120   ! 3 bins, sigma and 116 errors   

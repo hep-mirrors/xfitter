@@ -7,7 +7,7 @@
 *
 *
 &Data 
-   Name  = 'NC cross section'    
+   Name  = 'NC cross section HERA-I H1-ZEUS combined e-p.'    
 
  ! Data table definitions:
    NData   =  145   ! 145 rows, corresponding to 145 data points
