@@ -4,7 +4,7 @@
 * Data from  arXiv:1109.5141, theory from arXiv:1203.4051
 *
 &DATA
- Name = 'ATLAS W lepton pseudorapidity, 2010 data'
+ Name = 'ATLAS W- lepton pseudorapidity, 2010 data'
  Ndata  = 11
  NColumn   = 36
  ColumnType = 2*'Bin','Sigma',33*'Error'
