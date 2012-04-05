@@ -24,6 +24,26 @@ double HF_GET_ALPHAS_WRAP(const double *q2);
 
 
 //
+// Function to get muR scale
+// 
+#define HF_GET_MUR_WRAP F77_FUNC_ (hf_get_mur, HF_GET_MUR)
+#ifdef __cplusplus
+extern "C"  /* prevent C++ name mangling */
+#endif
+double HF_GET_MUR_WRAP(const int *idataset);
+
+
+//
+// Function to get muF scale
+// 
+#define HF_GET_MUF_WRAP F77_FUNC_ (hf_get_muf, HF_GET_MUF)
+#ifdef __cplusplus
+extern "C"  /* prevent C++ name mangling */
+#endif
+double HF_GET_MUF_WRAP(const int *idataset);
+
+
+//
 //--------------- Internal -------------------------
 //
 

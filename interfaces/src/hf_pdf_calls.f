@@ -41,6 +41,39 @@ C----------------------------------------------------
       end
 
 
+      double precision function hf_get_mur(iDataSet)
+C------------------------------------------------------
+C
+C Get data-set depdendent renormalisation scale
+C
+C------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'scales.inc'
+      integer iDataSet
+C------------------------------------------------------
+
+      hf_get_mur = DataSetMur(iDataSet)
+
+      end
+
+
+      double precision function hf_get_muf(iDataSet)
+C------------------------------------------------------
+C
+C Get data-set depdendent renormalisation scale
+C
+C------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'scales.inc'
+      integer iDataSet
+C------------------------------------------------------
+
+      hf_get_muf = DataSetMuf(iDataSet)
+
+      end
+
 Cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 C----------------------------------------------------------------------
