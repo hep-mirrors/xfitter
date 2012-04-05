@@ -9,9 +9,9 @@
    ColumnType = 3*'Bin','Sigma',12*'Error'
    ColumnName = 'x','Q2','y','reduced x-section','stat', 'uncor', 'ignore','h1_low_ep_sp_1','h1_low_ep_sp_2','h1_low_ep_sp_3','h1_low_ep_sp_4','h1_low_ep_sp_5','h1_low_ep_sp_6','h1_low_ep_sp_7','h1_low_ep_sp_8','corlum'
 
-   NInfo    = 3
-   DataInfo =  252.,        +1.		0.
-   CInfo    = 'sqrt(S)','e charge','e polarity'
+   NInfo    = 4
+   DataInfo =  252.,	+1.,	1.,	0.
+   CInfo    = 'sqrt(S)','e charge','reduced','e polarity'
 
    IndexDataset = 24
 
