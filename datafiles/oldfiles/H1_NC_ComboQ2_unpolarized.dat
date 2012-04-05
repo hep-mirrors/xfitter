@@ -9,9 +9,9 @@
    ColumnType = 3*'Bin','Sigma',50*'Error'
    ColumnName = 'x','Q2','y','reduced x-section','stat','uncor','ignore','h1_nc_combo_sp_1','h1_nc_combo_sp_2','h1_nc_combo_sp_3','h1_nc_combo_sp_4','h1_nc_combo_sp_5','h1_nc_combo_sp_6','h1_nc_combo_sp_7','h1_nc_combo_sp_8','h1_nc_combo_sp_9','h1_nc_combo_sp_10','h1_nc_combo_sp_11','h1_nc_combo_sp_12','h1_nc_combo_sp_13','h1_nc_combo_sp_14','h1_nc_combo_sp_15','h1_nc_combo_sp_16','h1_nc_combo_sp_17','h1_nc_combo_sp_18','h1_nc_combo_sp_19','h1_nc_combo_sp_20','h1_nc_combo_sp_21','h1_nc_combo_sp_22','h1_nc_combo_sp_23','h1_nc_combo_sp_24','h1_nc_combo_sp_25','h1_nc_combo_sp_26','h1_nc_combo_sp_27','h1_nc_combo_sp_28','h1_nc_combo_sp_29','h1_nc_combo_sp_30','h1_nc_combo_sp_31','h1_nc_combo_sp_32','h1_nc_combo_sp_33','h1_nc_combo_sp_34','h1_nc_combo_sp_35','h1_nc_combo_sp_36','h1_nc_combo_sp_37','h1_nc_combo_sp_38','h1_nc_combo_sp_39','h1_nc_combo_sp_40','h1_nc_combo_sp_41','h1_nc_combo_sp_42','h1_nc_combo_sp_43','h1_nc_combo_sp_44','h1_nc_combo_sp_45','h1_nc_combo_sp_46', 'corlum'
 
-   NInfo    = 3 
-   DataInfo =  318.,        +1.		0.
-   CInfo    = 'sqrt(S)','e charge','e polarity'
+   NInfo    = 4
+   DataInfo =  318.,	+1.,	1.,	0.
+   CInfo    = 'sqrt(S)','e charge','reduced','e polarity'
 
    IndexDataset = 12
 
