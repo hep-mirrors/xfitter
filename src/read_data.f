@@ -529,7 +529,7 @@ C Stat error:
          enddo
 
 
-         JSET(npoints) = IndexDataset  
+         JSET(npoints) = NDATASETS ! IndexDataset  
 
 C Store k-factors:
          if (lreadkfactor) then

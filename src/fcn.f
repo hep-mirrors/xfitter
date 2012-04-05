@@ -363,10 +363,12 @@ c             call fillvfngrid
          write(85,*) ' Partial chi2s '
          do h1iset=1,nset
             if (npts(h1iset).gt.0) then
-               write(6,'(''Dataset '',i4,F10.2,i6)')
+               write(6,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
      $              ,h1iset,pchi2(h1iset),npts(h1iset)
-               write(85,'(''Dataset '',i4,F10.2,i6)')
+     $              ,datasetlabel(h1iset)
+               write(85,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
      $              ,h1iset,pchi2(h1iset),npts(h1iset)
+     $              ,datasetlabel(h1iset)
             endif
          enddo
          write(85,*)
