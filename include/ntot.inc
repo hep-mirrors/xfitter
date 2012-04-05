@@ -3,7 +3,7 @@ C Basic definitions for
 C
 
       integer NTOT            !> Total number of data points
-      parameter(NTOT = 1500)
+      parameter(NTOT = 2000)
 
       integer nset            !> Total number of datasets   
       parameter (NSET = 150)
