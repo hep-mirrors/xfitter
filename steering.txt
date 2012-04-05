@@ -11,6 +11,17 @@
     InputFileNames(3) = 'datafiles/hera/H1ZEUS_CC_e-p_HERA1.0.dat'
     InputFileNames(4) = 'datafiles/hera/H1ZEUS_CC_e+p_HERA1.0.dat'
 &End
+
+*
+* (Optional) Modify renormalisation/factorisation scales, dataset
+* dependently. The numbering follows sequential numbering of input files
+*
+&Scales 
+    DataSetMuR  = 4*1.0     ! Set muR scale to 1 for all 4 datasets
+    DataSetMuF  = 4*1.0     ! Set muF scale to 1 for all 4 datasets
+&End
+
+
 *
 * Main steering cards
 *
