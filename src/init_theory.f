@@ -992,7 +992,7 @@ C------------------------------------------------------------
 
       mtop = HF_MASS(3)
 
-      call hathorinit(sqrtS, ppbar, mtop, I_FIT_ORDER, precisionLevel)
+      call hathorinit(IDataSet, sqrtS, ppbar, mtop, I_FIT_ORDER, precisionLevel)
       end
 
 
