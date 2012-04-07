@@ -573,9 +573,9 @@ C---------------------------------
           HFSCHEME = 22 
       elseif (HF_SCHEME.eq.'FF') then
           HFSCHEME = 3 
-      elseif (HF_SCHEME.eq.'ABKM FFNS') then		
+      elseif (HF_SCHEME.eq.'FF ABM') then		
          HFSCHEME = 4 		
-      elseif (HF_SCHEME.eq.'ABKM BMSN') then		
+      elseif (HF_SCHEME.eq.'BMSN ABM') then		
          HFSCHEME = 44 
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
