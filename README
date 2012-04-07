@@ -373,7 +373,34 @@ hesse	     -> hessian estimate of the MINUIT parameters (more reliable than MINU
 
   Maximum 100 cuts can be used by default.
 
-  f) Understanding the output
+
+  f) Choosing the heavy flavour scheme
+--------------------------
+  Several schemes are available for heavy quarks:
+
+  -VFNS (Variable Flavour Number Schemes):
+     RT-VFS                                 [from Robert Thorne]
+     ZMVFNS                                 [qcdnum]   
+     ACOT (ACOT-Full, ACOT-ZM, S-ACOT-Chi)  [from Fred Olness]
+
+  -FFNS (Fixed Flavour Number Scheme)       [qcdnum]
+   also available in ABM (openqcdrad-1.5)   [from Sergey Alekhin]
+      
+  IMPORTANT if running with FFNS (nf=3): 
+  - only neutral current DIS data should be used in FFNS due to missing NLO 
+    coefficient functions in charged current (W+c) process, valence quarks 
+    in this case should to be fixed in minuit.in.txt file
+    (charged current coefficients are available in ABM but not yet implemented here). 
+  - alpha_s(Q2) in FFNS is 3-flavour and recommended to be set to value of 0.105 
+    such that is not too high at low energies
+  - the scale in FFNS is defined as mu^2 = Q^2 + 4m_h^2 by default, can be 
+    changed in HQScale in steering.txt (scale variation in ABM not yet implemented)
+  - the pole mass definition for heavy quarks is set in ABM by default, 
+    the running mass definition (arXiv:1011.5790v1) can be switched in 
+    src/init_theory.f setting msbarmin=.true.
+
+
+  g) Understanding the output
 ------------------------------
   The results of the minimization are printed to the standard output and written
   to the files in the output/ directory. 
