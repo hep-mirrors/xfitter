@@ -38,8 +38,8 @@
  ! ---  HF_SCHEME = 'RT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
  ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
  ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
- ! ---  HF_SCHEME = 'FF' : Fixed Flavour Number Scheme from qcdnum
- ! ---  HF_SCHEME = 'ABKM FFNS' : ABKM Fixed Flavour Number Scheme
+ ! ---  HF_SCHEME = 'FF'        : Fixed Flavour Number Scheme (qcdnum)
+ ! ---  HF_SCHEME = 'FF ABM'    : Fixed Flavour Number Scheme (ABM)
 
   HF_SCHEME = 'RT'
 
@@ -220,8 +220,8 @@
 
 *
 * (Optional) choose the factorisation scale for HQs
-* tuned via parameters:    Q^2 = aq2*mu_f + bq2(*mh)
-* in FFNS usually set to:  mu_f = Q^2 + 4*mc^2
+* tuned via parameters:    Q^2 = aq2*mu_f^2 + bq2(*m_h)
+* in FFNS usually set to:  mu_f^2 = Q^2 + 4*m_h^2
 *
 &HQScale
    aq2    =  1. 
