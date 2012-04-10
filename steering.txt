@@ -54,7 +54,7 @@
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
  !  'DDIS'        -- use Diffractive DIS 
 
-  PDFStyle = 'LHAPDF'
+  PDFStyle = '10p HERAPDF'
 
  ! -- Choice of the chi2 function
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
