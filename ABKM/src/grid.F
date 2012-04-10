@@ -57,16 +57,15 @@ c      xgrid(nxpgrid)=1.
           xb=xgrid(ix)
 
 
-c RP          
-         CALL FPDFXQ(1,xb,q2,PDFSFF,0)
-c RP getting alphas from PDFs
+c         CALL FPDFXQ(1,xb,q2,PDFSFF,0)
+         CALL HF_Get_PDFs(xb,q2,PDFSFF)
+c getting alphas from PDFs
 
          an = HF_Get_alphas(q2)
 
 c         an = alphasPDF(sqrt(q2))
 c          call = HERAGRIDalfa(an,sqrt(q2))
 
-c RP 
 c      write(6,*)'RP get Y: alpha_s,q2,xb,ix,is,nfv', an,q2,xb,ix,is,nfv
 
 c  \alpha_s  
