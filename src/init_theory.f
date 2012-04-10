@@ -952,7 +952,8 @@ C------------------------------------------------------------
       integer GetInfoIndex
 
       logical PubUnits      
-      double precision RealPubUnits, MurDef, MufDef
+      double precision RealPubUnits, MurDef, MufDef, MurScale, MufScale
+      double precision hf_get_mur, hf_get_muf
 
 
       RealPubUnits=(DATASETInfo(GetInfoIndex(IDataSet,
@@ -967,10 +968,12 @@ C------------------------------------------------------------
      $     'MurDef'),IDataSet))
       MufDef=(DATASETInfo(GetInfoIndex(IDataSet,
      $     'MufDef'),IDataSet))
+      MurScale=hf_get_mur(IDataSet)
+      MufScale=hf_get_muf(IDataSet)
 
       call fastnloinit(DATASETLABEL(IDataSet),IDataSet
      $     ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet),' ')-1)//char(0)
-     $     ,PubUnits, MurDef, MufDef);
+     $     ,PubUnits, MurDef, MurScale, MufDef, MufScale);
       end
 
       subroutine InitHathorDataSet(IDataSet)
