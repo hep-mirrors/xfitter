@@ -81,7 +81,7 @@ C
       logical FLAGNNPDF
       logical DONNPDFONLY
       logical FlexibleGluon    !> Flexible gluon parameterisation
-
+      logical Read_QCDNUM_Tables
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
@@ -98,7 +98,8 @@ C
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
      $     ,IPDFSET, ICHECK_QCDNUM 
 
-      common/STEERING2/FLAGNNPDF, DONNPDFONLY, CachePDFs, FlexibleGluon
+      common/STEERING2/FLAGNNPDF, DONNPDFONLY, CachePDFs, FlexibleGluon,
+     $     read_qcdnum_tables
 
       character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
       common/STEERING3/PDF_DECOMPOSITION     

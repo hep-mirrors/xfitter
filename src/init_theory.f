@@ -121,7 +121,7 @@ c set-up of the constants
       integer NQ2bins, NXbins !> requested number of x,q2 bins
 
       namelist/qcdnum/xmin_grid, iwt_xgrid, iosp, wgt_q2, QARR,
-     $     NQ2bins, NXbins
+     $     NQ2bins, NXbins, Read_QCDNUM_Tables
 
 C Functions:
       integer iqfrmq
@@ -164,6 +164,7 @@ C---------------------
 
 
 C----- Read grid definitions from the steering.txt
+      Read_QCDNUM_Tables = .false.
 
       open (51,file='steering.txt',status='old')
       read (51,NML=QCDNUM,ERR=7117,END=1771)
@@ -266,13 +267,15 @@ C Remove duplicates:
         call setcbt(0,iqc,iqb,iqt) !thesholds in the ffns
       endif
 
-
-      call readwt(22,'unpolarised.wgt',id1,id2,nw,ierr)
+      ierr = 1
+      if (Read_QCDNUM_Tables) then
+         call readwt(22,'unpolarised.wgt',id1,id2,nw,ierr)
+      endif
       if(ierr.ne.0) then
          call fillwt(0,id1,id2,nw) !calculate weights
-cv         call dmpwgt(1,22,'unpolarised.wgt')
+         call dmpwgt(1,22,'unpolarised.wgt')
       else 
-         print*,' ERRRROR in read unpolarised weight', ierr
+         print*,' Read unpolarised weight file'
       endif
       write(6,'(/'' weight: words used ='',I10)') nw     
 
@@ -366,13 +369,15 @@ C-------------------------------------------------------------
       include 'steering.inc'
       integer nwords, ierr
 C-------------------------------------------------------------
-
-      call zmreadw(22,'zmstf.wgt',nwords,ierr)
+      ierr = 1
+      if (Read_QCDNUM_Tables) then
+         call zmreadw(22,'zmstf.wgt',nwords,ierr)
+      endif
       if(ierr.ne.0) then
          call zmfillw(nwords)
-cv         call zmdumpw(22,'zmstf.wgt')
+         call zmdumpw(22,'zmstf.wgt')
       else 
-         print*,' ERRRROR in read zmstf weight', ierr
+         print*,'Read zmstf weight file'
       endif      
       write(6,'(/'' ZMSTF: words used ='',I10)') nwords      
       call zswitch(IPDFSET)
@@ -415,12 +420,15 @@ C--- Q^2 = aq2*mu_f + bq2
       endif
 c         print*,'1 HQ scale (Q^2=a*mu_F^2 + b) a,b,mh', aq2,bq2,massh 
 
-      call hqreadw(22,'hqstf.wgt',nwords,ierr)
+      ierr = 1
+      if (Read_QCDNUM_Tables) then
+         call hqreadw(22,'hqstf.wgt',nwords,ierr)
+      endif
       if(ierr.ne.0) then
          call hqfillw(3,hqmass,aq2,bq2,nwords)
-cv            call hqdumpw(22,'hqstf.wgt')
+         call hqdumpw(22,'hqstf.wgt')
       else 
-         print*,'ERRRROR in hqreadw!', ierr
+         print*,'Read hqstf.wgt file'
       endif      
       write(6,'(/'' HQSTF: words used ='',I10)') nwords      
       call hswitch(IPDFSET)
