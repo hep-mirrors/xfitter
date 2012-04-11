@@ -33,7 +33,11 @@
 
       double precision dNEvt, tNEvt
 
+      double precision factor2
+
       integer npoisson, ngauss
+
+C      integer getcachesize
 
 *     ----------------------------------------------------------
 *     Initialise
@@ -48,6 +52,7 @@
       fchi2_in = 0.d0
 
       sub = 0.d0
+
 
       do jsys=1,nsys
          ir(nsys)=0.d0
@@ -127,33 +132,48 @@ C     Turn off the point for the syst. errors shift estimation:
                error = error*dsqrt(abs(t/d))
             endif
 
+            factor2 = t**2/error**2
+
             do isys = 1,nsys                  
-               bsys_in(isys) = bsys_in(isys) 
-     +              + t*(d-t)*BETA(isys,ipoint)/error**2 
+               if (beta(isys,ipoint).ne.0) then
+
+                  bsys_in(isys) = bsys_in(isys) 
+     +                 + t*(d-t)*BETA(isys,ipoint)/error**2 
                
-               ebsys_in(isys) = ebsys_in(isys)
-     +              + t * BETA(isys,ipoint)/error
+                  ebsys_in(isys) = ebsys_in(isys)
+     +                 + t * BETA(isys,ipoint)/error
                
-               do  jsys=1,nsys
-                  sysa(isys,jsys) = sysa(isys,jsys)
-     +                 + beta(isys,ipoint)*beta(jsys,ipoint)*t**2/error**2
-               enddo
-               
+                  do  jsys=isys,nsys
+                     if (beta(jsys,ipoint).ne.0) then
+                        sysa(isys,jsys) = sysa(isys,jsys)
+     +                       + beta(isys,ipoint)*beta(jsys,ipoint)
+     $                       *factor2
+                     endif
+                  enddo
+               endif
             enddo
 
          enddo
 
 
-
+         do isys=1,nsys
+C            print '(5F10.2)',(sysa(isys,jsys),jsys=1,5)
+            do jsys=isys+1,nsys
+               sysa(jsys,isys) = sysa(isys,jsys)
+            enddo
+         enddo
 *     ---------------------------------------------------------
 *     inverse sysa and find the shifts
 *     ---------------------------------------------------------
+
 
          
          if (nsys.gt.0) then
             if (flag_in.eq.3) then
                Call DEQINV(NSys,sysa,NSYSMAX,IR,IFAIL,1,bsys_in)
             else
+c               CALL DPOSV('Upper',Nsys,1,sysa,NSYSMax,Bsys_in,NSYSmax
+c     $              ,Ifail)
                Call DEQN(NSys,sysa,NSYSMAX,IR,IFAIL,1,bsys_in)
             endif
          endif
