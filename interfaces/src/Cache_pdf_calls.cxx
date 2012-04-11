@@ -8,7 +8,8 @@
 
 // Fortran interface
 extern "C" {
-void getcachedpdfs_(int *iteration, double *x, double *Q2, double *Pdfs);
+  void getcachedpdfs_(int *iteration, double *x, double *Q2, double *Pdfs);
+  int  getcachesize_();
 }
 
 //
@@ -38,10 +39,12 @@ struct compare_xQ2 {
   }
 };
 
+
+static std::map<xQ2grid,PDFsContainer,compare_xQ2> pdf_cache;
+
 // Cache PDF calls using associative map
 void getcachedpdfs_(int *iteration, double *x, double *Q2, double *Pdfs) {
   //
-  static std::map<xQ2grid,PDFsContainer,compare_xQ2> pdf_cache;
 
   xQ2grid xQ2point;
   xQ2point.x  = *x;
@@ -87,4 +90,9 @@ void getcachedpdfs_(int *iteration, double *x, double *Q2, double *Pdfs) {
     }
   }
 };
+
+int getcachesize_(){
+  return pdf_cache.size();
+};
+
 
