@@ -28,7 +28,6 @@ typedef vector<bool> BoolArray;
 extern "C" {
   int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale);
   int fastnlocalc_(const int *idataset, double *xsec);
-  int getalf_( double* alfs, double* r2 );
   int fastnlopointskip_(const int *idataset, int *point, int *npoints);
   int hf_errlog_(const int* ID, const char* TEXT, long length);
   int hf_stop_();
@@ -41,8 +40,6 @@ int CreateUsedPointsArray(int idataset, int npoints);
 int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale) {
 
   
-  //cout << "FastNLOINterface::fastnloinit_ idataset = "<<*idataset<< ", PublicationUnits "<< *PublicationUnits << endl;
-
    map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    if(FastNLOIterator != gFastNLO_array.end( )) {
      int id = 12032301;
@@ -90,9 +87,9 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
 
 
    //fnloreader->FillAlphasCache();
-   //fnloreader->FillPDFCache();			// pdf is 'external'! you always have to call FillPDFCache();
+   //fnloreader->FillPDFCache(); pdf is 'external'! you always have to call FillPDFCache();
    //fnloreader->CalcCrossSection();
-   //fnloreader->PrintCrossSectionsLikeFreader();
+   //fnloreader->PrintCrossSections();
 
    gFastNLO_array.insert(pair<int, FastNLOReader*>(*idataset, fnloreader) );
    return 0;
@@ -100,8 +97,6 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
 
 
 int fastnlocalc_(const int *idataset, double *xsec) {
-
-  //cout << "FastNLOINterface::fastnlocalc_ idataset = " <<*idataset<<endl;
 
    map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
@@ -127,15 +122,11 @@ int fastnlocalc_(const int *idataset, double *xsec) {
 
    BoolArray*     usedpoints = UsedPointsIterator->second;
 
-   double alfsMz= 0;
-   double Mz2= 0.;
-   getalf_(&alfsMz,&Mz2);
-   fnloreader->SetAlphasMz( alfsMz );
    fnloreader->FillAlphasCache();
    fnloreader->FillPDFCache();			// pdf is 'external'! you always have to call FillPDFCache();
-
    fnloreader->CalcCrossSection();
-   //fnloreader->PrintCrossSectionsLikeFreader();
+   cout << "FastnloInterface: alphas = "<<fnloreader->GetAlphasMz()<<endl;
+   //fnloreader->PrintCrossSections();
 
    vector < double > xs = fnloreader->GetCrossSection();
  
