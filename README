@@ -8,7 +8,7 @@ is a common initiative by the H1 and ZEUS collaborations to provide
 precision QCD analyses of the combined HERA data sets.
 
 The current package includes code to fit DIS inclusive cross section 
-data, Drell-Yan and inclusive jet processes (using APPLGRID and FastNLO
+data, Drell-Yan and jet processes (using APPLGRID and FastNLO
 interfaces). The program is distributed under the GPL v3 license, see
 LICENCE file for more details. The program was developed by the H1
 collaboration. It uses the QCD evolution package QCDNUM developed by
@@ -174,7 +174,12 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
                                       (LO+kfactors and APPLGRID interface)
 
                         'pp jets APPLGRID' -- pp->inclusive jet production, using
-                                     APPLGRID
+                                     APPLGRID 
+
+                        'FastNLO ep jets' -- ep jets calculated with the help of
+                                     fastnlo v.2.0 table
+                        'FastNLO ep jets normalised' -- fastnlo ep jets normalised
+                                     to inclusive DIS cross section
 
                         
 
@@ -252,13 +257,88 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
                      information for cross-section calculation. This could be k-factors,
                      APPLGRID file or FastNLO table.
   
-      TheoryType --- (string) Theory file type ('kfactor', 'applgrid' or 'fastnlo')
+      TheoryType --- (string) Theory file type ('kfactor', 'applgrid' or 'FastNLO')
       
       NKFactor   --- (integer) For kfactor files, number of columns in
                      TheoryInfoFile
 
       KFactorNames - (array of strings) For kfactor files, names of columns in 
                      TheoryInfoFile
+
+
+
+  c.a) FastNLO specific data format
+-----------------------------------
+
+  In this subsection we describe data format specific for FastNLO implementation.
+  The program included FastNLOReader for the new format tables (v. 2.0+). The old
+  FastNLO table format can be still accessed with the help of APPLGRID (this is not
+  tested in the H1Fitter enviroment though). The reader supports both flexible
+  and non-flexible scales tables. For flexible tables, scales can be defined
+  through the CInfo mechanism in the data file. Below more details on different
+  data file variables are given.
+
+      Reaction - for the fastnlo jet cross sections this should be 'FastNLO ep jets'
+  or 'FastNLO ep jets normalised'. The latter refers to jet cross sections normalised
+  to inclusive DIS cross sections (definition of the normalisation phase space needs
+  to be done for each data point, see the 'ColumnName' field).
+
+      ColumnName - There are some specific names that are recognised internally by
+  the code:
+         'Z0Corr': Allows to inform the program of the size of the Z0 exchange correction.
+                 If it is given, each point calculated by the FastNLO code will be
+                 multiplied by the Z0Corr value.
+         'NPCorr': Allows to inform the program of the size of the non-perturbative correction.
+                 If it is given, each point calculated by the FastNLO code will be
+                 multiplied by the NPCorr value. Z0Corr and NPCorr can be added 
+                 simultaneously, and in this case the calculated cross sections
+                 will be multiplied by the product of (Z0Corr*NPCorr).
+         'q2min', 'q2max', 'ymin', 'ymax', 'xmin', 'xmax': These can be used to define 
+                 DIS phase space for the normalisation used in the 'FastNLO ep jets normalised'
+                 case. Out of these three (q2, y, x) exactly two sets should be defined
+                 to inambiguisly define the DIS phase space.
+         
+      CInfo, DataInfo - Following info fields are required to calculated desired cross sections
+                 (some can be ommited for 'FastNLO ep jets normalised' case):
+
+         'PublicationUnits': Output of the FastNLO code can be given in units used in 
+                 the relevant publication table or in a standarized units. To use 
+                 publication units one needs to set PublicationUnits to 1. In order
+                 to use absolute units, it needs to be set to 0.
+
+         'MurDef', 'MufDef': Here user can define the scale definition used by
+                 the FastNLO code for variable scale tables. The renormalisation
+                 scale (MurDef) and factorisation scale (MufDef) definitions
+                 can be set independently. The required value follows 
+                 the FastNLO standard and should be equal to :
+                    0 :   mu^2 = Q^2 
+                    1 :   mu^2 = pt^2 
+                    2 :   mu^2 = ( Q^2 + pt^2 )
+                    3 :   mu^2 = ( Q^2 + pt^2 ) / 2 
+                    4 :   mu^2 = ( Q^2 + pt^2 ) / 4 
+                    5 :   mu^2 = (( Q + pt ) / 2 )^2
+                    6 :   mu^2 = (( Q + pt ))^2
+                    7 :   mu^2 = max( Q^2, pt^2)
+                    8 :   mu^2 = min( Q^2, pt^2) 
+                    9 :   mu^2 = (scale1 * exp(0.3 * scale2)) ^2
+
+         'lumi(e-)/lumi(tot)': This needs to be defined for 'FastNLO ep jets normalised'
+                 option. The normalisation depends on the ratio of the e+ and e- data 
+                 used to calculate the cross sections. This ratio should rather be
+                 given in a format (lumi{e-} / (lumi{e-} + lumi{e+}) and assume
+                 values between [0. 1.].
+
+         'UseZMVFNS': Should be defined for 'FastNLO ep jets normalised'. The calculation
+                 of the integrated inclusive DIS cross sections could be time consuming.
+                 This option provides an opportunity to use a "Zero Mass Variable Flavour
+                 Number Scheme" approximation which is very fast and possibly provides
+                 enough precision for the normalisation purposes. ZMVNS is used if 'UseZMVFNS'=1. 
+                 If 'UseZMVFNS'=0., the same scheme as defined in a global steering.txt file
+                 in the variable 'HF_SCHEME'
+
+      TheoryInfoFile - Should be a path to a FastNLO table in a version 2.0+
+      TheoryType -  Should be set to 'FastNLO'
+
 
   d) Minuit cards
 --------------------------
