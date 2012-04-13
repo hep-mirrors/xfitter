@@ -43,9 +43,7 @@ int main(int argc, char **argv) {
             filename.Form("%s/pdfs_q2val_%02d.txt",argv[ifile], iq2+1);
             PdfTable* table =  new PdfTable(filename.Data());
 
-            if (table->GetNx() == 0) {
-                goto out;
-            }
+            if (table->GetNx() == 0)  break;
 
             nx = table->GetNx();
             
@@ -143,7 +141,7 @@ int main(int argc, char **argv) {
         }
         
     }
-out:
+
     output.Write();
     output.Close();
 

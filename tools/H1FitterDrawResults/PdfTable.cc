@@ -165,31 +165,25 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors) {
 
   // Read the error sets:
   for ( int iband = 1; iband<=1000; iband++) {
-    filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt",base.c_str(), iband, iQ2);
 
+    filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt",base.c_str(), iband, iQ2);
     PdfTable *eSet = CreatePdfTable(filename.Data());
     if (!eSet) break;
 
     if (eSet->GetNx()>0) {
       fErrorTables.push_back(eSet);
     }
-    else {
-      // no more reading ...
-      goto out;
-    }
+    else {delete eSet; continue;}
+    
     filename.Form("%s/pdfs_q2val_s%02dp_%02d.txt",base.c_str(), iband, iQ2);
-
-
     eSet = new PdfTable(filename.Data());
+    if (!eSet) break;
+
     if (eSet->GetNx()>0) {
       fErrorTables.push_back(eSet);
     }
-    else {
-      // no more reading ...
-      break;
-    }
+    else {delete eSet; continue;}
   }
- out:
   cout << " Read " << fErrorTables.size() << " error sets"<<endl;
 }
 
