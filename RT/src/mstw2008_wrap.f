@@ -66,6 +66,7 @@ C Common variables:
       DOUBLE PRECISION distance,tolerance,
      &     mCharm,mBottom,alphaSQ0,alphaSMZ
 
+
       COMMON/mstwCommon/distance,tolerance,
      &     mCharm,mBottom,alphaSQ0,alphaSMZ,alphaSorder,alphaSnfmax
 
@@ -81,8 +82,8 @@ C-----------------------------------------
 
 c===================
 
-      Subroutine RT_Set_Input(
-     $     distancein,tolerancein,
+      Subroutine RT_Set_Input(varin,
+!     $     distancein,tolerancein,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
      $     alphaSorderin,alphaSnfmaxin,iordin)
 C---------------------------------------------------------------------------
@@ -92,8 +93,22 @@ C---------------------------------------------------------------------------
 C Input variables:
  
       INTEGER alphaSorderin,alphaSnfmaxin
-      DOUBLE PRECISION distancein,tolerancein,
-     &     mCharmin,mBottomin,alphaSQ0in,alphaSMZin
+      DOUBLE PRECISION mCharmin,mBottomin,alphaSQ0in,alphaSMZin
+      DOUBLE PRECISION var1, var2, var3, var4
+      DOUBLE PRECISION varin(4)
+
+
+C--   G.W. 12/04/2012 Set these variables via COMMON/TRprimeCommon/.
+C      var1=0d0; var2=0d0; var3=0d0; var4=0d0; ! standard TR' scheme
+C      var1=0d0; var2=1d0; var3=-2d0/3d0; var4=1d0; ! optimal TR' scheme
+C--   Other parameter values can be used to investigate uncertainties
+C--   due to the choice of TR' GM-VFNS (see Table 1 of arXiv:1201.6180).
+C      var1=0d0; var2=1d0; var3=-1d0; var4=0d0; ! GM-VFNS1
+C      var1=0d0; var2=0.5d0; var3=-1d0; var4=0d0; ! GM-VFNS2
+C      var1=0d0; var2=0d0; var3=0d0; var4=1d0; ! GM-VFNS3
+C      var1=0d0; var2=1d0; var3=0.3d0; var4=0d0; ! GM-VFNS4
+C      var1=0.1d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS5
+C      var1=-0.2d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS6
 
       INTEGER iordin
       
@@ -104,6 +119,8 @@ C Common variables:
 
       COMMON/mstwCommon/distance,tolerance,
      &     mCharm,mBottom,alphaSQ0,alphaSMZ,alphaSorder,alphaSnfmax
+
+      COMMON/TRprimeCommon/var1,var2,var3,var4 ! G.W. 11/04/2012
 
       INTEGER iord
       COMMON/iordCommon/iord
@@ -118,8 +135,12 @@ C-------------------------------
       mCharm       = mCharmin
       mBottom      = mBottomin
       iord         = iordin
-      tolerance    = tolerancein
-      distance     = distancein
+      tolerance    = 0d0 ! dummy
+      distance     = 0d0 ! dummy
+      var1         = varin(1)
+      var2         = varin(2)
+      var3         = varin(3)
+      var4         = varin(4)
 
 C--------------------------------------------------------------------------
       end

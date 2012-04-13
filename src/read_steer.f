@@ -571,6 +571,10 @@ C---------------------------------
           HFSCHEME = 2
       elseif (HF_SCHEME.eq.'RT FAST') then
           HFSCHEME = 22 
+      elseif (HF_SCHEME.eq.'RT OPT') then
+          HFSCHEME = 202
+      elseif (HF_SCHEME.eq.'RT OPT FAST') then
+          HFSCHEME = 222 
       elseif (HF_SCHEME.eq.'FF') then
           HFSCHEME = 3 
       elseif (HF_SCHEME.eq.'FF ABM') then		

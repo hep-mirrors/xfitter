@@ -306,10 +306,10 @@ C-------------------------------------------------------------
 
 C RT parameters
       INTEGER alphaSorderin,alphaSnfmaxin
-      DOUBLE PRECISION distancein,tolerancein,
-     &     mCharmin,mBottomin,alphaSQ0in,alphaSMZin
-
-      INTEGER iordin
+      DOUBLE PRECISION mCharmin,mBottomin,alphaSQ0in,alphaSMZin
+      DOUBLE PRECISION varin(4)
+      INTEGER iordin, i
+!distancein,tolerancein
 
       double precision qs0
 C Functions:
@@ -324,34 +324,54 @@ C------------------------------------
       mBottomin  = mbt
       alphaSMZin = hf_get_alphas(mz*mz)
 
-      distancein=0.d0
-      tolerancein=0.d0
+!      distancein=0.d0
+!      tolerancein=0.d0
       alphaSorderin =0.d0
       alphaSnfmaxin =3
 
-            print*,' ---------------------------------------------------'
-            print*,' Info from RT initialize'
-      if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) then
+      iordIn = I_FIT_ORDER-1
+            print*,' ---------------------------------------------'
+            print*,' Info from RT initialize:'
 
-         iordIn = I_FIT_ORDER-1
- 
+
+      if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) then
+         do i=1,4
+            varin(i)=0d0
+         enddo
+
          if (I_FIT_order.eq.1) then
-            print*,'BE AWARE YOU SELECTED LO in the steering (Iorder)'
+            print*,'YOU SELECTED RT_STD LO in the steering'
          elseif (I_FIT_order.eq.2) then
-            print*,'BE AWARE YOU SELECTED NLO in the steering (Iroder)'
+            print*,'YOU SELECTED RT_STD NLO in the steering'
          elseif (I_FIT_order.eq.3) then
-            print*,'BE AWARE YOU SELECTED NNLO in the steering (Iorder)'
+            print*,'YOU SELECTED RT_STD NNLO in the steering'
          endif
-            print*,' ---------------------------------------------------'
+
+      elseif ((HFSCHEME.eq.202).or.(HFSCHEME.eq.222)) then
+         
+         varin(1)=0d0
+         varin(2)=1d0
+         varin(3)=-2d0/3d0
+         varin(4)=4d0
+
+         if (I_FIT_order.eq.1) then
+            print*,'YOU SELECTED RT_OPT LO in the steering'
+         elseif (I_FIT_order.eq.2) then
+            print*,'YOU SELECTED RT_OPT NLO in the steering'
+         elseif (I_FIT_order.eq.3) then
+            print*,'YOU SELECTED RT_OPT NNLO in the steering'
+         endif
 
 
       endif
 
+      print*,' ---------------------------------------------'
 C-
-         call RT_Set_Input(
-     $     distancein,tolerancein,
+         call RT_Set_Input(varin,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
      $     alphaSorderin,alphaSnfmaxin,iordin)
+
+cv!     $     distancein,tolerancein,
 
          call WATE96
 
