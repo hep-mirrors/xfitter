@@ -1,14 +1,26 @@
+C--   G.W. 12/04/2012 Improved version for implementation in HERAFitter.
+C--   - Include corrections to FL at order alpha_S^2 [RST 26-02-2009].
+C--   - No longer set F2c or F2b to zero if negative.
+C--   - Fix typo xcmax->xbmax when calculating cgvfl for FLb.
+C--   - Subtract 10^{-10} from Schm and Sbot to avoid rounding errors.
+C--   - Combine FETCH and GINTRP to speed up by using less PDF calls.
+C--   - Modify for TR' variations [arXiv:1201.6180] including optimal.
+C--     Pass parameters via COMMON/TRprimeCommon/var1,var2,var3,var4.
+C--     In notation of paper {var1,var2,var3,var4} = {d,c,b,a}.
+C--     Standard TR' scheme: var1=0d0; var2=0d0; var3=0d0; var4=0d0;
+C--     Optimal TR' scheme: var1=0d0; var2=1d0; var3=-2d0/3d0; var4=1d0;
+
 C--   G.W. 02/12/2008 Standalone code for structure functions used in
 C--   MSTW 2008 fits.  Code copied directly from fitting program.
 C--   Only neutral-current structure functions in this version,
-C--   not charged-current structure function (to be done).
+C--   not charged-current structure functions (to be done).
 C--   Comments to Graeme Watt <watt(at)hep.ucl.ac.uk>
 C--   or Robert Thorne <thorne(at)hep.ucl.ac.uk>.
 
 C--   Input variables for MSTWNC:
 C--     x = Bjorken-x value.
 C--     q = sqrt(Q^2) in GeV.
-C--     IPN = 1, 2 for p or n.
+C--     IPN = 1, 2 for proton or neutron.
 C--     IORD = 0, 1, 2 for LO, NLO, NNLO (pass in COMMON block).
 C--   Output variables: f2,f2c,f2b,fl,flc,flb.
       SUBROUTINE MSTWNC(x,q,ipn,f2,f2c,f2b,fl,flc,flb)
@@ -19,13 +31,25 @@ C--   Output variables: f2,f2c,f2b,fl,flc,flb.
      &     mCharm,mBottom,alphaSQ0,alphaSMZ
       COMMON/mstwCommon/distance,tolerance,
      &     mCharm,mBottom,alphaSQ0,alphaSMZ,alphaSorder,alphaSnfmax
+      COMMON/TRprimeCommon/var1,var2,var3,var4 ! G.W. 11/04/2012
       COMMON/GRPTHY/FLAVOR
       COMMON/DYLAMB/xlam,S0
       COMMON/iordCommon/iord
       COMMON/GAUS96/XI(96),WI(96),XX(97),NTERMS ! G.W. 15/02/2007
       DATA PI,PI2/3.14159,9.8696/
 
-
+C--   G.W. 12/04/2012 Set these variables via COMMON/TRprimeCommon/.
+C      var1=0d0; var2=0d0; var3=0d0; var4=0d0; ! standard TR' scheme
+C      var1=0d0; var2=1d0; var3=-2d0/3d0; var4=1d0; ! optimal TR' scheme
+C--   Other parameter values can be used to investigate uncertainties
+C--   due to the choice of TR' GM-VFNS (see Table 1 of arXiv:1201.6180).
+C      var1=0d0; var2=1d0; var3=-1d0; var4=0d0; ! GM-VFNS1
+C      var1=0d0; var2=0.5d0; var3=-1d0; var4=0d0; ! GM-VFNS2
+C      var1=0d0; var2=0d0; var3=0d0; var4=1d0; ! GM-VFNS3
+C      var1=0d0; var2=1d0; var3=0.3d0; var4=0d0; ! GM-VFNS4
+C      var1=0.1d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS5
+C      var1=-0.2d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS6
+      
       IF (IORD.EQ.2) THEN
          CALL MSTWNCnnlo(x,q,ipn,f2,f2c,f2b,fl,flc,flb)
          RETURN
@@ -37,12 +61,13 @@ C--   Output variables: f2,f2c,f2b,fl,flc,flb.
       Q2=q**2                   ! photon virtuality
       WW2=(1.-X)*Q2/X+0.88      ! 0.88 is square of proton mass
 
+cv      xlam = 0.3D0
       xlam = 0.307D0
       Q02 = 1.D0
       S0=LOG(Q02/xlam**2)
       S=LOG(LOG(Q2/xlam**2)/S0)
-      qsdt = 4.D0*mCharm**2
-      qsct = 4.D0*mBottom**2
+      qsdt = 4.D0*mCharm**2     ! set mCharm via COMMON/mstwCommon/
+      qsct = 4.D0*mBottom**2    ! set mBottom via COMMON/mstwCommon/
       epsc4=qsdt/q2
       fpsc4=qsdt/ww2
       epsc=epsc4/4.D0
@@ -55,12 +80,12 @@ C--   Output variables: f2,f2c,f2b,fl,flc,flb.
       enf=flavor
       AL1=LOG(1.-X)
       T=S0*EXP(S)
-
-
       AL=ALPHA(T)/(4.D0*PI)
-
-      Schm=LOG(LOG(0.25*Qsdt/xlam**2)/S0)
-      Sbot=LOG(LOG(0.25*Qsct/xlam**2)/S0)
+c$$$      Schm=LOG(LOG(0.25*Qsdt/xlam**2)/S0)
+c$$$      Sbot=LOG(LOG(0.25*Qsct/xlam**2)/S0)
+C--   G.W. 11/04/2012 Avoid rounding errors by subtracting 10^{-10}.
+      Schm=LOG(LOG(0.25*Qsdt/xlam**2)/S0)-1.D-10
+      Sbot=LOG(LOG(0.25*Qsct/xlam**2)/S0)-1.D-10
       tchm=s0*exp(schm)
       tbot=s0*exp(sbot)
       alchm=alpha(tchm)/(4.D0*PI)
@@ -69,14 +94,12 @@ C--   Output variables: f2,f2c,f2b,fl,flc,flb.
       al39=al
 
       CALL FETCH(X,S,IPN,FTEMP)
-
       theory=ftemp(1)
       fx=ftemp(1)
       fg=ftemp(2)
       fc=ftemp(3)
       fb=ftemp(4)
       fsing=ftemp(5)
-
       sfac=2./9.
       ffx=0.
       ffc=0.
@@ -98,9 +121,7 @@ C--   Output variables: f2,f2c,f2b,fl,flc,flb.
       ELSE
       ffx=FX+FX*AL39*CF*(-9.-2.*PI2/3.+AL1*(-3.+2.*AL1))
 c$$$      fflx=fflx+fx*al**2*(-0.012)
-      fflx=fflx+fx*al**2*CLNN2CRT(x) ! G.W. 02/11/2007
-
- 
+      fflx=fflx+fx*al**2*CLNN2C(x) ! G.W. 02/11/2007
       END IF
 
       DO 23 I=1,NTERMS
@@ -138,7 +159,7 @@ c$$$      FNS2LQ=128./9.d0*y*DLM1**2-46.50*y*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*y
 c$$$     X+33.82*y**2+y*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*flavor*(6.*y*DLM1-12*y*DL-25.*y+6.)
-      FNS2LQ = CLNN2ART(Y,INT(flavor)) ! G.W. 02/11/2007
+      FNS2LQ = CLNN2A(Y,INT(flavor)) ! G.W. 02/11/2007
       FS2LQ=fac*((15.94-5.212*y)*Y1*Y1*DLM1+(0.421+1.520*y)*DL*DL
      X+28.09*Y1*DL-(2.370/Y-19.27)*Y1**3)
       F2LG=fac*((94.74-49.20*y)*y1*DLM2+864.8*Y1*DLM1
@@ -149,19 +170,97 @@ c$$$     X+16./27.d0*flavor*(6.*y*DLM1-12*y*DL-25.*y+6.)
       END IF
 
    23 CONTINUE
+
+
+c     $$$$$ Start: internal heavy flavour contribution RST 26-02-2009 $$$$$
+
+      if(epsc.gt.1.) go to 81 
+      if(epsc.lt.1.) go to 82
+
+  81  xcmax=1./(1.+epsc4)
+      eps=epsc
+      if(xcmax.le.x) go to 821
+      DO 84 I=1,NTERMS
+      Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2l=cllffnsl(y,eps)
+      fflp=fflp+0.5*(xcmax-x)*wi(i)*al**2.*(cllff2l*ftemp(1))
+   84 CONTINUE
+      go to 821
+      
+  82  xcmax=(1./(1.+epsc4)) 
+      eps=epsc
+      if(xcmax.le.x) go to 821
+      DO 85 I=1,NTERMS
+      Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2h=cllffnsh(y,eps)
+      fflp=fflp+0.5*(xcmax-x)*wi(i)*al**2.*(cllff2h*ftemp(1))
+  85  CONTINUE
+      go to 821 
+
+  821 CONTINUE
+
+      if(epsb.gt.1.) go to 91 
+      if(epsb.lt.1.) go to 92
+
+  91  xbmax=1./(1.+epsb4)
+      eps=epsb
+      if(xbmax.le.x) go to 921
+      DO 94 I=1,NTERMS
+      Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2l=cllffnsl(y,eps)
+      fflp=fflp+0.5*(xbmax-x)*wi(i)*al**2.*(cllff2l*ftemp(1))
+   94 CONTINUE
+      go to 921
+      
+  92  xbmax=(1./(1.+epsb4)) 
+      eps=epsb
+      if(xbmax.le.x) go to 921
+      DO 95 I=1,NTERMS
+      Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2h=cllffnsh(y,eps)
+      fflp=fflp+0.5*(xbmax-x)*wi(i)*al**2.*(cllff2h*ftemp(1))
+  95  CONTINUE
+      go to 921 
+
+  921 CONTINUE
+
+c     $$$$$ End: internal heavy flavour contribution RST 26-02-2009 $$$$$
+
+
    21 CONTINUE
 
       xcmax=1./(1.+epsc4)
+      xcvar=1./(1.+(x*(1+epsc4))**var1*epsc4) ! G.W. 11/04/2012
       if(xcmax.le.x) go to 321
-      xcmup=x/xcmax
+c$$$      xcmup=x/xcmax
+      xcmup=x/xcvar ! G.W. 11/04/2012
       CALL FETCH(Xcmup,S,IPN,FTEMP)
       if(epsc.gt.1.) ftemp(3)=0.
       fc=ftemp(3)
       IF (IORD.EQ.0) THEN
-      ffc=fc
+c$$$      ffc=fc
+         ffc=(1.+var3*epsc**var2)*fc ! G.W. 11/04/2012   
       ELSE
       AL1c=LOG(1.-xcmup)
-      ffc=Fc+Fc*AL*CF*(-9.-2.*PI2/3.+AL1c*(-3.+2.*AL1c))
+c$$$      ffc=Fc+Fc*AL*CF*(-9.-2.*PI2/3.+AL1c*(-3.+2.*AL1c))
+      ffc=(1.+var3*epsc**var2)*(Fc+Fc*AL*CF*(-9.-2.*PI2/3.
+     .+AL1c*(-3.+2.*AL1c))) ! G.W. 11/04/2012
       END IF
 
       DO 323 I=1,NTERMS
@@ -172,7 +271,7 @@ c$$$     X+16./27.d0*flavor*(6.*y*DLM1-12*y*DL-25.*y+6.)
       gluxy=ftemp(2)
       fcxy=ftemp(3)
       ycmup=y/xcmax
-c      if(ycmup.gt.0.9999) ycmup=0.9999
+      if(ycmup.gt.0.9999) ycmup=0.9999
       IF (IORD.NE.0) THEN
       c0c=1.
       p0qg=ycmup**2+(1.-ycmup)**2
@@ -187,13 +286,44 @@ c      if(ycmup.gt.0.9999) ycmup=0.9999
       clg2c=2.*facc*cheavy(7,y,epsc)
       f1lq=cheavy(8,ycmup,epsc)
       IF (IORD.NE.0) THEN
-      ffc=ffc+0.5/xcmax*(xcmax-X)*WI(I)*AL*(C22c*fcxy+C23c*(fcxy-fc))      
-      ffc=ffc+0.5*(xcmax-x)*wi(i)*al*(cg21c-cg22c/xcmax)*gluxy
+c$$$      ffc=ffc+0.5/xcmax*(xcmax-X)*WI(I)*AL*(C22c*fcxy+C23c*(fcxy-fc))      
+c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*al*(cg21c-cg22c/xcmax)*gluxy
+      ffc=ffc+0.5/xcmax*(0.+0.0*epsc)*(xcmax-X)*WI(I)*AL*
+     .(C22c*fcxy+C23c*(fcxy-fc)) ! G.W. 11/04/2012
+      ffc=ffc+0.5*(xcmax-x)*wi(i)*al*(cg21c
+     .-(0.+0.0*epsc)*cg22c/xcmax)*gluxy ! G.W. 11/04/2012
       END IF
       fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al*f1lq*fcxy
       fflc=fflc+0.5*(xcmax-x)*wi(i)*al*clg2c*gluxy
 
   323 CONTINUE
+
+C--   G.W. 11/04/2012 Start of insertion.
+      DO 3231 I=1,NTERMS
+      Y=0.5*(xcvar-X)*XI(I)+0.5*(xcvar+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      gluxy=ftemp(2)
+      fcxy=ftemp(3)
+      ycmup=y/xcvar
+c      if(ycmup.gt.0.9999) ycmup=0.9999
+      IF (IORD.NE.0) THEN
+      c0c=1.
+      p0qg=ycmup**2+(1.-ycmup)**2
+      C22c=CF*(6.+4.*Ycmup-2.*(1.+Ycmup*Ycmup)/(1.-Ycmup)*
+     .LOG(Ycmup)-2.*(1.+Ycmup)*log(1.-ycmup)
+     2-IF3*2.*(1.+Ycmup))
+      C23c=CF*(-3.+4.*log(1.-ycmup))/(1.-Ycmup)
+      if(epsc.gt.1.d0) c0c=0.d0
+      cg22c=2.*facc*c0c*p0qg*log(1./epsc)
+      ffc=ffc+0.5/xcvar*(1.+var3*epsc**var2)*(xcvar-X)*WI(I)*AL*
+     .(C22c*fcxy+C23c*(fcxy-fc))
+      ffc=ffc-0.5*(xcvar-x)*wi(i)*al*(
+     .(1.+var3*epsc**var2)*cg22c/xcvar)*gluxy ! G.W. 12/04/2012
+      END IF
+ 3231 CONTINUE
+C--   G.W. 11/04/2012 End of insertion.
 
       if(epsc.gt.1.) then 
       xcmax=1./(1.+epsc4)
@@ -229,21 +359,28 @@ c$$$      xcmax=1./(1.+ 4.)
       DO 325 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
       XY=X/Y
-      CALL FETCH(XY,Schm-1.D-06,IPN,FTEMP)
+      CALL FETCH(XY,Schm,IPN,FTEMP)
       gluxy=ftemp(2)
       IF (IORD.EQ.0) THEN
       cg21c=2.*facc*cheavy(1,y,eps)
-      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm*(cg21c)*gluxy
+c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm*(cg21c)*gluxy
+      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm*epsc**var4*(cg21c)*gluxy ! G.W. 11/04/2012
       ELSE
       singxy=ftemp(5)
-      cgff2=facc*(c2gffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
-     .c2gffnsh(y,eps)*0.5*exp(1-eps**2))
-      cqff2=facc*(c2qffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
-     .c2qffnsh(y,eps)*0.5*exp(1-eps**2))
+c$$$      cgff2=facc*(c2gffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
+c$$$     .c2gffnsh(y,eps)*0.5*exp(1-eps**2))
+c$$$      cqff2=facc*(c2qffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
+c$$$     .c2qffnsh(y,eps)*0.5*exp(1-eps**2))
+      cgff2=facc*(c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2)) ! G.W. 11/04/2012
+      cqff2=facc*(c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2)) ! G.W. 11/04/2012
 c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**2.*(cgff2*gluxy+cqff2*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
-      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**2.*(cgff2*gluxy+cqff2*
-     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**2.*(cgff2*gluxy+cqff2*
+c$$$     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**2.*epsc**var4*(cgff2*gluxy
+     &  +cqff2*( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) )) ! G.W. 11/04/2012
       END IF
 
   325 CONTINUE
@@ -258,7 +395,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       if(epsc.gt.1.) ftemp(3)=0. ! G.W. 05/11/2007
 c$$$      fflc=fflc+ftemp(3)*(AL**2*(-0.0012))
 c$$$     .*1.25*(1/(1+4.*epsc)-0.2)
-      fflc=fflc+ftemp(3)*(AL**2*CLNN2CRT(xcmup))
+      fflc=fflc+ftemp(3)*(AL**2*CLNN2C(xcmup))
      &     *1.25*(1/(1+4.*epsc)-0.2) ! G.W. 05/11/2007
 
  529  continue      
@@ -306,15 +443,18 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2ART(YMUL,INT(enf))   ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A(YMUL,INT(enf))   ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
       cgvfl=facc*((clgffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
      .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xcmax)
       cqvfl=facc*((clqffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
      .clqffnsl(y,eps)*0.5*exp(1-1/eps**2)))
-      fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al**2.*(fcxy*FNS2LQmul+
-     xfcxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c      fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al**2.*(fcxy*FNS2LQmul+
+c     xfcxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c     $$$$$$$$ avoid double counting RST 26-02-2009 $$$$$$$ 
+      fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al**2.*(fcxy*FNS2LQmul)
+     x*1.25*(1/(1+4.*eps)-0.2)
 c$$$      fflc=fflc+0.5*(xcmax-x)*wi(i)*al**2.*(cgvfl*gluxy+cqvfl*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       fflc=fflc+0.5*(xcmax-x)*wi(i)*al**2.*(cgvfl*gluxy+cqvfl*
@@ -327,21 +467,26 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
 
   321 CONTINUE
 
-      IF (IORD.NE.0) THEN
-      if(ffc.lt.0.) ffc=0.
-      END IF
+c$$$      IF (IORD.NE.0) THEN
+c$$$      if(ffc.lt.0.) ffc=0. ! G.W. 11/04/2012 Allow negative F2c.
+c$$$      END IF
 
       xbmax=1./(1.+epsb4)
+      xbvar=1/(1+(x*(1+epsb))**var1*epsb4) ! G.W. 11/04/2012
       if(xbmax.le.x+0.00001) go to 421
-      xbmup=x/xbmax
+c$$$      xbmup=x/xbmax
+      xbmup=x/xbvar ! G.W. 11/04/2012
       CALL FETCH(Xbmup,S,IPN,FTEMP)
       if(epsb.gt.1.) ftemp(4)=0.
       fb=ftemp(4)
       IF (IORD.EQ.0) THEN       ! G.W. 05/11/2008
-      ffb=fb                    ! G.W. 05/11/2008
+c$$$      ffb=fb                    ! G.W. 05/11/2008
+         ffb=(1.+var3*epsb**var2)*fb ! G.W. 11/04/2012
       ELSE                      ! G.W. 05/11/2008
       AL1b=LOG(1.-xbmup)
-      ffb=Fb+Fb*AL*CF*(-9.-2.*PI2/3.+AL1b*(-3.+2.*AL1b))
+c$$$      ffb=Fb+Fb*AL*CF*(-9.-2.*PI2/3.+AL1b*(-3.+2.*AL1b))
+      ffb=(1.+var3*epsb**var2)*(Fb+Fb*AL*CF*(-9.-2.*PI2/3.
+     .+AL1b*(-3.+2.*AL1b))) ! G.W. 11/04/2012
       END IF
 
       DO 423 I=1,NTERMS
@@ -363,8 +508,12 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       if(epsb.gt.1.d0) c0b=0.d0
       cg21b=2.*facb*cheavy(1,y,epsb)
       cg22b=2.*facb*c0b*p0qg*log(1./epsb)
-      ffb=ffb+0.5/xbmax*(xbmax-X)*WI(I)*AL*(C22b*fbxy+C23b*(fbxy-fb))      
-      ffb=ffb+0.5*(xbmax-x)*wi(i)*al*(cg21b-cg22b/xbmax)*gluxy
+c$$$      ffb=ffb+0.5/xbmax*(xbmax-X)*WI(I)*AL*(C22b*fbxy+C23b*(fbxy-fb))      
+c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*al*(cg21b-cg22b/xbmax)*gluxy
+      ffb=ffb+0.5/xbmax*(xbmax-X)*WI(I)*AL*(0.+0.0*epsb)
+     .*(C22b*fbxy+C23b*(fbxy-fb)) ! G.W. 11/04/2012
+      ffb=ffb+0.5*(xbmax-x)*wi(i)*al*(cg21b
+     .-(0.+0.0*epsb)*cg22b/xbmax)*gluxy ! G.W. 11/04/2012
       END IF
       clg2b=2.*facb*cheavy(7,y,epsb)
       f1lq=cheavy(8,ybmup,epsb)
@@ -373,6 +522,33 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
 
 
   423 CONTINUE
+
+C--   G.W. 11/04/2012 Start of insertion.
+      DO 4231 I=1,NTERMS
+      Y=0.5*(xbvar-X)*XI(I)+0.5*(xbvar+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsb.gt.1.) ftemp(4)=0.
+      gluxy=ftemp(2)
+      fbxy=ftemp(4)
+      ybmup=y/xbvar
+      if(ybmup.gt.0.99999d0) ybmup=0.99999d0
+      IF (iord.NE.0) THEN
+      c0b=1.
+      p0qg=ybmup**2+(1.-ybmup)**2
+      C22b=CF*(6.+4.*Ybmup-2.*(1.+Ybmup*Ybmup)/(1.-Ybmup)*
+     .LOG(Ybmup)-2.*(1.+Ybmup)*log(1.-ybmup)
+     2-IF3*2.*(1.+Ybmup))
+      C23b=CF*(-3.+4.*log(1.-ybmup))/(1.-Ybmup)
+      if(epsb.gt.1.d0) c0b=0.d0
+      cg22b=2.*facb*c0b*p0qg*log(1./epsb)
+      ffb=ffb+0.5/xbvar*(xbvar-X)*WI(I)*AL*(1.+var3*epsb**var2)
+     .*(C22b*fbxy+C23b*(fbxy-fb))      
+      ffb=ffb-0.5*(xbvar-x)*wi(i)*al*(
+     .(1.+var3*epsb**var2)*cg22b/xbvar)*gluxy
+      END IF
+ 4231 CONTINUE
+C--   G.W. 11/04/2012 End of insertion.
 
       if(epsb.gt.1.) then 
       xbmax=1./(1.+epsb4)
@@ -409,22 +585,29 @@ c$$$      xbmax=1./(1.+ 4.)
       DO 425 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
       XY=X/Y
-      CALL FETCH(XY,Sbot-1.d-06,IPN,FTEMP)
+      CALL FETCH(XY,Sbot,IPN,FTEMP)
       gluxy=ftemp(2)
       IF (IORD.EQ.0) THEN
       cg21b=2.*facb*cheavy(1,y,eps)
-      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot*(cg21b)*gluxy
+c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot*(cg21b)*gluxy
+      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot*epsb**var4*(cg21b)*gluxy ! G.W. 11/04/2012
       ELSE
 c$$$      singxy=ftemp(5)+9./8.*ftemp(3) ! Why 9/8 and not 9/4?
       singxy=ftemp(5)           ! G.W. 27/07/2007
-      cgff2=facb*(c2gffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
-     .c2gffnsh(y,eps)*0.5*exp(1-eps**2))
-      cqff2=facb*(c2qffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
-     .c2qffnsh(y,eps)*0.5*exp(1-eps**2))
+c$$$      cgff2=facb*(c2gffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
+c$$$     .c2gffnsh(y,eps)*0.5*exp(1-eps**2))
+c$$$      cqff2=facb*(c2qffnsl(y,eps)*(1-0.5*exp(1-eps**2))+
+c$$$     .c2qffnsh(y,eps)*0.5*exp(1-eps**2))
+      cgff2=facb*(c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2)) ! G.W. 11/04/2012
+      cqff2=facb*(c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2)) ! G.W. 11/04/2012
 c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot**2.*(cgff2*gluxy+cqff2*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
-      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot**2.*(cgff2*gluxy+cqff2*
-     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot**2.*(cgff2*gluxy+cqff2*
+c$$$     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot**2.*epsb**var4* ! G.W. 11/04/2012
+     &     (cgff2*gluxy+cqff2*( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
       END IF
 
   425 CONTINUE
@@ -438,7 +621,7 @@ C--   G.W. 05/11/2007 This contribution was missing for b, but included for c.
       xbmup=x/xbmax
       CALL FETCH(XBMUP,S,IPN,FTEMP)
       if(epsb.gt.1.) ftemp(4)=0. ! G.W. 05/11/2007
-      fflb=fflb+ftemp(4)*(AL**2*CLNN2CRT(xbmup))
+      fflb=fflb+ftemp(4)*(AL**2*CLNN2C(xbmup))
      &     *1.25*(1/(1+4.*epsb)-0.2) ! G.W. 05/11/2007
 
  629  continue
@@ -486,15 +669,21 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2ART(YMUL,INT(ENF)) ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A(YMUL,INT(ENF)) ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
+c$$$      cgvfl=facb*((clgffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+c$$$     .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xcmax)
+C--   G.W. 11/04/2012 Fix typo xcmax->xbmax!
       cgvfl=facb*((clgffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
-     .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xcmax)
+     .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xbmax)
       cqvfl=facb*((clqffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
      .clqffnsl(y,eps)*0.5*exp(1-1/eps**2)))
-      fflb=fflb+0.5/xbmax*(xbmax-x)*wi(i)*al**2.*(fbxy*FNS2LQmul+
-     xfbxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c      fflb=fflb+0.5/xbmax*(xbmax-x)*wi(i)*al**2.*(fbxy*FNS2LQmul+
+c     xfbxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c     $$$$$$$$ avoid double counting RST 26-02-2009 $$$$$$$
+      fflb=fflb+0.5/xbmax*(xbmax-x)*wi(i)*al**2.*(fbxy*FNS2LQmul)
+     x*1.25*(1/(1+4.*eps)-0.2)
 c$$$      fflb=fflb+0.5*(xbmax-x)*wi(i)*al**2.*(cgvfl*gluxy+cqvfl*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       fflb=fflb+0.5*(xbmax-x)*wi(i)*al**2.*(cgvfl*gluxy+cqvfl*
@@ -506,7 +695,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
 
   421 CONTINUE
 
-      if(ffb.lt.0.) ffb=0.
+c$$$      if(ffb.lt.0.) ffb=0. ! G.W. 11/04/2012 Allow negative F2b.
 
       F2 = ffx+ffc+ffb
       F2C = ffc
@@ -529,6 +718,7 @@ C--   End of MSTWNC subroutine.
      &     mCharm,mBottom,alphaSQ0,alphaSMZ
       COMMON/mstwCommon/distance,tolerance,
      &     mCharm,mBottom,alphaSQ0,alphaSMZ,alphaSorder,alphaSnfmax
+      COMMON/TRprimeCommon/var1,var2,var3,var4 ! G.W. 11/04/2012
       COMMON/GRPTHY/FLAVOR
       COMMON/DYLAMB/xlam,S0
       COMMON/iordCommon/iord
@@ -543,12 +733,13 @@ C--   End of MSTWNC subroutine.
       Q2=q**2                   ! photon virtuality
       WW2=(1.-X)*Q2/X+0.88      ! 0.88 is square of proton mass
 
+cv      xlam = 0.3D0
       xlam = 0.307D0
       Q02 = 1.D0
       S0=LOG(Q02/xlam**2)
       S=LOG(LOG(Q2/xlam**2)/S0)
-      qsdt = 4.D0*mCharm**2
-      qsct = 4.D0*mBottom**2
+      qsdt = 4.D0*mCharm**2     ! set mCharm via COMMON/mstwCommon/
+      qsct = 4.D0*mBottom**2    ! set mBottom via COMMON/mstwCommon/
       epsc4=qsdt/q2
       fpsc4=qsdt/ww2
       epsc=epsc4/4.D0
@@ -562,8 +753,11 @@ C--   End of MSTWNC subroutine.
       AL1=LOG(1.D0-X)
       T=S0*EXP(S)
       AL=ALPHA(T)/(4.D0*PI)
-      Schm=LOG(LOG(0.25*Qsdt/xlam**2)/S0)
-      Sbot=LOG(LOG(0.25*Qsct/xlam**2)/S0)
+c$$$      Schm=LOG(LOG(0.25*Qsdt/xlam**2)/S0)
+c$$$      Sbot=LOG(LOG(0.25*Qsct/xlam**2)/S0)
+C--   G.W. 11/04/2012 Avoid rounding errors by subtracting 10^{-10}.
+      Schm=LOG(LOG(0.25*Qsdt/xlam**2)/S0)-1.D-10
+      Sbot=LOG(LOG(0.25*Qsct/xlam**2)/S0)-1.D-10
       tchm=s0*exp(schm)
       tbot=s0*exp(sbot)
       alchm=alpha(tchm)/(4.D0*PI)
@@ -598,16 +792,15 @@ C--   End of MSTWNC subroutine.
 
       ffx=FX+FX*AL39*CF*(-9.-2.*PI2/3.+AL1*(-3.+2.*AL1))
 c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
-      fflx=fflx+fx*al**2*CLNN2CRT(x)+fx*al**3*(0.113+enf*0.006) ! G.W. 02/11/2007
+      fflx=fflx+fx*al**2*CLNN2C(x)+fx*al**3*(0.113+enf*0.006) ! G.W. 02/11/2007
       if(iord.gt.1) then
-      ffx=ffx+fx*al39*al39*c2nn2cRT(x,3)
-      ffx=ffx+fg*al39*al39*sfac*c2g2cRT(x,3)
+      ffx=ffx+fx*al39*al39*c2nn2c(x,3)
+      ffx=ffx+fg*al39*al39*sfac*c2g2c(x,3)
       endif
 
       if(epsc.gt.1.) go to 281
       if(epsc.lt.1.) go to 282
  
-
  281  ffx=ffx+fx*2./3.*al*al*1./epsc*(352./225.+16./45.*log(epsc))
       go to 207
 
@@ -654,8 +847,7 @@ c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
      .(ftemp(1)*c2nn2ah(z) + (ftemp(1)-fx)*c2ns2bh(z))
  202  continue
       go to 207
-       
-  
+
  207  continue
 
       if(epsc.gt.1.) go to 291 
@@ -689,13 +881,11 @@ c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
   293 ffx=ffx+0.
       go to 221
       
-
   221 continue
 
       if(epsb.gt.1.) go to 2811
       if(epsb.lt.1.) go to 2821
  
-
  2811 ffx=ffx+fx*2./3.*al*al*1./epsb*(352./225.+16./45.*log(epsb))
       go to 2071
 
@@ -744,7 +934,6 @@ c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
      .(fpxz*c2nn2ah(z) + (fpxz-fx)*c2ns2bh(z))
  2021 continue
       go to 2071
-
   
  2071 continue
 
@@ -780,11 +969,8 @@ c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
 
  2931 ffx=ffx+0.
       go to 2211
-      
 
  2211 continue
-
-
 
       DO 23 I=1,NTERMS
       Y=0.5*(1.-X)*XI(I)+0.5*(1.+X)
@@ -805,14 +991,14 @@ c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
       fflx=fflx+.5*(1.-x)*wi(i)*al*f1lq*ftemp(1)
       fflx=fflx+.5*(1.-x)*wi(i)*al*f1lg*ftemp(2)
       if(iord.gt.1) then
-c$$$      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(5)*c2s2aRT(y,3)
+c$$$      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(5)*c2s2a(y,3)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
-      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*c2s2aRT(y,3)*
+      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*c2s2a(y,3)*
      &     ( ftemp(5) + 9./4.*ftemp(3) + 9.*ftemp(4) )
       termm=+0.5*(1.-x)*wi(i)*al39*al39*
-     .(ftemp(1)*c2nn2aRT(y,3) + (ftemp(1)-fx)*c2ns2bRT(y,3))
+     .(ftemp(1)*c2nn2a(y,3) + (ftemp(1)-fx)*c2ns2b(y,3))
       ffx=ffx+termm
-      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(2)*c2g2aRT(y,3)
+      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(2)*c2g2a(y,3)
       endif
 
       Y1=1.-Y
@@ -826,7 +1012,7 @@ c$$$      FNS2LQ=128./9.d0*y*DLM1**2-46.50*y*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*y
 c$$$     X+33.82*y**2+y*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*flavor*(6.*y*DLM1-12*y*DL-25.*y+6.)
-      FNS2LQ = CLNN2ART(Y,INT(flavor)) ! G.W. 02/11/2007
+      FNS2LQ = CLNN2A(Y,INT(flavor)) ! G.W. 02/11/2007
       FS2LQ=fac*((15.94-5.212*y)*Y1*Y1*DLM1+(0.421+1.520*y)*DL*DL
      X+28.09*Y1*DL-(2.370/Y-19.27)*Y1**3)
       F2LG=fac*((94.74-49.20*y)*y1*DLM2+864.8*Y1*DLM1
@@ -874,20 +1060,96 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
      &     fac*c3lqps*(ftemp(5)+9./4.*ftemp(3)+9.*ftemp(4))+
      &     c3lg*fac*ftemp(2))
 
-
    23 CONTINUE
+
+
+c     $$$$$ Start: internal heavy flavour contribution RST 26-02-2009 $$$$$
+
+      if(epsc.gt.1.) go to 81 
+      if(epsc.lt.1.) go to 82
+
+  81  xcmax=1./(1.+epsc4)
+      eps=epsc
+      if(xcmax.le.x) go to 821
+      DO 84 I=1,NTERMS
+      Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2l=cllffnsl(y,eps)
+      fflp=fflp+0.5*(xcmax-x)*wi(i)*al**2.*(cllff2l*ftemp(1))
+   84 CONTINUE
+      go to 821
+      
+  82  xcmax=(1./(1.+epsc4)) 
+      eps=epsc
+      if(xcmax.le.x) go to 821
+      DO 85 I=1,NTERMS
+      Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2h=cllffnsh(y,eps)
+      fflp=fflp+0.5*(xcmax-x)*wi(i)*al**2.*(cllff2h*ftemp(1))
+  85  CONTINUE
+      go to 821 
+
+  821 CONTINUE
+
+      if(epsb.gt.1.) go to 91 
+      if(epsb.lt.1.) go to 92
+
+  91  xbmax=1./(1.+epsb4)
+      eps=epsb
+      if(xbmax.le.x) go to 921
+      DO 94 I=1,NTERMS
+      Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2l=cllffnsl(y,eps)
+      fflp=fflp+0.5*(xbmax-x)*wi(i)*al**2.*(cllff2l*ftemp(1))
+   94 CONTINUE
+      go to 921
+      
+  92  xbmax=(1./(1.+epsb4)) 
+      eps=epsb
+      if(xbmax.le.x) go to 921
+      DO 95 I=1,NTERMS
+      Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      if(epsb.gt.1.) ftemp(4)=0.
+      cllff2h=cllffnsh(y,eps)
+      fflp=fflp+0.5*(xbmax-x)*wi(i)*al**2.*(cllff2h*ftemp(1))
+  95  CONTINUE
+      go to 921 
+
+  921 CONTINUE
+
+c     $$$$$ End: internal heavy flavour contribution RST 26-02-2009 $$$$$
+
+
    21 CONTINUE
 
-
       xcmax=1./(1.+epsc4)
+      xcvar=1./(1.+(x*(1+epsc4))**var1*epsc4) ! G.W. 12/04/2012
       if(xcmax.le.x) go to 321
-      xcmup=x/xcmax
+c$$$      xcmup=x/xcmax
+      xcmup=x/xcvar ! G.W. 12/04/2012
       CALL FETCH(Xcmup,S,IPN,FTEMP)
       if(epsc.gt.1.) ftemp(3)=0.
       fc=ftemp(3)
       AL1c=log(1.-xcmup)
-      ffc=Fc+Fc*AL*CF*(-9.-2.*PI2/3.+AL1c*(-3.+2.*AL1c))
-      ffc=ffc+fc*al*al*c2nn2cRT(xcmup,3)
+c$$$      ffc=Fc+Fc*AL*CF*(-9.-2.*PI2/3.+AL1c*(-3.+2.*AL1c))
+c$$$      ffc=ffc+fc*al*al*c2nn2c(xcmup,3)
+      ffc=(1.+var3*epsc**var2)*(Fc+Fc*AL*CF*(-9.-2.*PI2/3.
+     .+AL1c*(-3.+2.*AL1c))) ! G.W. 12/04/2012
+      ffc=ffc+fc*al*al*(1.+var3*epsc**var2)*c2nn2c(xcmup,3) ! G.W. 12/04/2012
 
       DO 323 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
@@ -909,12 +1171,39 @@ c      if(ycmup.gt.0.9999d0) ycmup=0.9999d0
       cg22c=2.*facc*c0c*p0qg*log(1./epsc)
       clg2c=2.*facc*cheavy(7,y,epsc)
       f1lq=cheavy(8,ycmup,epsc)
-      ffc=ffc+0.5/xcmax*(xcmax-X)*WI(I)*AL*(C22c*fcxy+C23c*(fcxy-fc))      
-      ffc=ffc+0.5*(xcmax-x)*wi(i)*al*(cg21c-cg22c/xcmax)*gluxy
+c$$$      ffc=ffc+0.5/xcmax*(xcmax-X)*WI(I)*AL*(C22c*fcxy+C23c*(fcxy-fc))      
+c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*al*(cg21c-cg22c/xcmax)*gluxy
+      ffc=ffc+0.5*(xcmax-x)*wi(i)*al*(cg21c
+     .-(0.+0.0*epsc)*cg22c/xcmax)*gluxy ! G.W. 12/04/2012
       fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al*f1lq*fcxy
       fflc=fflc+0.5*(xcmax-x)*wi(i)*al*clg2c*gluxy
 
   323 CONTINUE
+
+C--   G.W. 12/04/2012 Start of insertion.
+      DO 3231 I=1,NTERMS
+      Y=0.5*(xcvar-X)*XI(I)+0.5*(xcvar+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      gluxy=ftemp(2)
+      fcxy=ftemp(3)
+      ycmup=y/xcvar
+c      if(ycmup.gt.0.9999) ycmup=0.9999
+      c0c=1.
+      p0qg=ycmup**2+(1.-ycmup)**2
+      C22c=CF*(6.+4.*Ycmup-2.*(1.+Ycmup*Ycmup)/(1.-Ycmup)*
+     .LOG(Ycmup)-2.*(1.+Ycmup)*log(1.-ycmup)
+     2-IF3*2.*(1.+Ycmup))
+      C23c=CF*(-3.+4.*log(1.-ycmup))/(1.-Ycmup)
+      if(epsc.gt.1.d0) c0c=0.d0
+      cg22c=2.*facc*c0c*p0qg*log(1./epsc)
+      ffc=ffc+0.5/xcvar*(1.+var3*epsc**var2)*(xcvar-X)*WI(I)*AL*
+     .(C22c*fcxy+C23c*(fcxy-fc))      
+      ffc=ffc-0.5*(xcvar-x)*wi(i)*al*(
+     .(1.+var3*epsc**var2)*cg22c/xcvar)*gluxy
+ 3231 CONTINUE
+C--   G.W. 12/04/2012 End of insertion.
 
       if(epsc.gt.1.) then 
       xcmax=1./(1.+epsc4)
@@ -951,19 +1240,53 @@ c      eps=1.
       gluxy=ftemp(2)
       fcxy=ftemp(3)
       singxy=ftemp(5)
-      ymul=y*(1+epsc4)
+c$$$      ymul=y*(1+epsc4)
+c$$$      cgvf2=facc*((c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+c$$$     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2gvfsub(ymul,eps)/xcmax)
+c$$$      cqvf2=facc*((c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+c$$$     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2qvfsub(ymul,eps)/xcmax)
+c$$$      ffc=ffc+0.5/xcmax*(xcmax-x)*wi(i)*al*al*
+c$$$     .(fcxy*c2nn2a(ymul,3) + (fcxy-fc)*c2ns2b(ymul,3))
+      ymul=y/xcmax ! G.W. 12/04/2012
       cgvf2=facc*((c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
-     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2gvfsub(ymul,eps)/xcmax)
+     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))
+     .-(0.+0.0*epsc)*c2gvfsub(ymul,eps)/xcmax) ! G.W. 12/04/2012
       cqvf2=facc*((c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
-     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2qvfsub(ymul,eps)/xcmax)
-      ffc=ffc+0.5/xcmax*(xcmax-x)*wi(i)*al*al*
-     .(fcxy*c2nn2aRT(ymul,3) + (fcxy-fc)*c2ns2bRT(ymul,3))
+     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))
+     .-(0.+0.0*epsc)*c2qvfsub(ymul,eps)/xcmax) ! G.W. 12/04/2012
 c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       ffc=ffc+0.5*(xcmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*
      &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
 
   325 CONTINUE
+
+C--   G.W. 12/04/2012 Start of insertion.
+c      xcmax=1./(1.+ 4.)
+      xcmax=(1./(1.+epsc4)) 
+c      eps=1.
+      eps=epsc
+      if(xcmax.le.x) go to 321
+      DO 3251 I=1,NTERMS
+      Y=0.5*(xcvar-X)*XI(I)+0.5*(xcvar+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsc.gt.1.) ftemp(3)=0.
+      gluxy=ftemp(2)
+      fcxy=ftemp(3)
+      singxy=ftemp(5)
+      ymul=y/xcvar
+      cgvf2v=-facc*((1.+var3*epsc**var2)*c2gvfsub(ymul,eps)/xcvar)
+      cqvf2v=-facc*((1.+var3*epsc**var2)*c2qvfsub(ymul,eps)/xcvar)
+      ffc=ffc+0.5/xcvar*(1.+var3*epsc**var2)*(xcvar-x)*wi(i)*al*al*
+     .(fcxy*c2nn2a(ymul,3) + (fcxy-fc)*c2ns2b(ymul,3))
+c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*singxy)
+C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
+      ffc=ffc+0.5*(xcvar-x)*wi(i)*al**2.*(cgvf2v*gluxy+cqvf2v*
+     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+ 3251 CONTINUE
+C--   G.W. 12/04/2012 End of insertion.
+
       endif
 
       if(epsc.gt.1.) then 
@@ -992,15 +1315,17 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 327 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
       XY=X/Y
-      CALL FETCH(XY,Schm-1.D-06,IPN,FTEMP)
+      CALL FETCH(XY,Schm,IPN,FTEMP)
       gluxy=ftemp(2)
       singxy=ftemp(5)
       cgff23=facc*c2gffns3(y,eps)
       cqff23=facc*c2qffns3(y,eps)
 c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**3*(cgff23*gluxy+cqff23*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
-      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**3*(cgff23*gluxy+cqff23*
-     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**3*(cgff23*gluxy+cqff23*
+c$$$     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+      ffc=ffc+0.5*(xcmax-x)*wi(i)*alchm**3*epsc**var4*(cgff23*gluxy
+     &     +cqff23*( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) )) ! G.W. 12/04/2012
 
   327 CONTINUE
       endif
@@ -1013,7 +1338,7 @@ C--   G.W. 02/11/2007 Only add these terms if above threshold.
       if(epsc.gt.1.) ftemp(3)=0. ! G.W. 05/11/2007
 c$$$      fflc=fflc+ftemp(3)*(AL**2*(-0.0012)+al**3*(0.113+enf*0.006))
 c$$$     .*1.25*(1/(1+4.*epsc)-0.2) ! N.B. -0.0012 not 0.012?
-      fflc=fflc+ftemp(3)*(AL**2*CLNN2CRT(xcmup)+al**3*(0.113+enf*0.006))
+      fflc=fflc+ftemp(3)*(AL**2*CLNN2C(xcmup)+al**3*(0.113+enf*0.006))
      &     *1.25*(1/(1+4.*epsc)-0.2) ! G.W. 02/11/2007
 
  529  continue      
@@ -1061,7 +1386,7 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2ART(YMUL,INT(ENF)) ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A(YMUL,INT(ENF)) ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
       c3lg1mul=((144.*DLM4-47024./27.*DLM3+6319.*DLM2
@@ -1101,8 +1426,11 @@ c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
      .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xcmax)
       cqvfl=facc*((clqffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
      .clqffnsl(y,eps)*0.5*exp(1-1/eps**2)))
-      fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al**2.*(fcxy*FNS2LQmul+
-     xfcxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c      fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al**2.*(fcxy*FNS2LQmul+
+c     xfcxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c     $$$$$$ avoid double counting RST 26-02-2009 $$$$$$$$$$$$$$
+      fflc=fflc+0.5/xcmax*(xcmax-x)*wi(i)*al**2.*(fcxy*FNS2LQmul)
+     x*1.25*(1/(1+4.*eps)-0.2)
 c$$$      fflc=fflc+0.5*(xcmax-x)*wi(i)*al**2.*(cgvfl*gluxy+cqvfl*singxy)
 c$$$      fflc=fflc+0.5*(xcmax-x)*wi(i)*al*al*al*facc*
 c$$$     .(c3lqnsmul*fcxy+c3lqpsmul*singxy
@@ -1145,7 +1473,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 527 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
       XY=X/Y
-      CALL FETCH(XY,Schm-1.d-06,IPN,FTEMP)
+      CALL FETCH(XY,Schm,IPN,FTEMP)
       gluxy=ftemp(2)
       singxy=ftemp(5)
       cgffl3=facc*clgffns3(y,eps)
@@ -1154,26 +1482,35 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
 c$$$      fflc=fflc+0.5*(xcmax-x)*wi(i)*alchm**3*((-clgcvagg+cgffl3)*gluxy
 c$$$     .+cqffl3*singxy)*1.25*(1-1./(1.+4.*epsc))
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
+c$$$      fflc=fflc+0.5*(xcmax-x)*wi(i)*alchm**3*((-clgcvagg+cgffl3)*gluxy
+c$$$     &     +cqffl3*(singxy+9./4.*ftemp(3)+9.*ftemp(4)))*
+c$$$     &     1.25*(1-1./(1.+4.*epsc))
       fflc=fflc+0.5*(xcmax-x)*wi(i)*alchm**3*((-clgcvagg+cgffl3)*gluxy
      &     +cqffl3*(singxy+9./4.*ftemp(3)+9.*ftemp(4)))*
-     &     1.25*(1-1./(1.+4.*epsc))
+     &     1.25*(1-1./(1.+4.*epsc))*epsc**var4 ! G.W. 12/04/2012
 
   527 CONTINUE
       endif
 
   321 CONTINUE
 
-      if(ffc.lt.0.) ffc=0.
+c$$$      if(ffc.lt.0.) ffc=0. ! G.W. 11/04/2012 Allow negative F2c.
 
       xbmax=1./(1.+epsb4)
+      xbvar=1/(1+(x*(1+epsb4))**var1*epsb4) ! G.W. 12/04/2012
+      xbvar=xbmax ! Temporary
       if(xbmax.le.x+0.00001) go to 421
-      xbmup=x/xbmax
+c$$$      xbmup=x/xbmax
+      xbmup=x/xbvar ! G.W. 12/04/2012
       CALL FETCH(Xbmup,S,IPN,FTEMP)
       if(epsb.gt.1.) ftemp(4)=0.
       fb=ftemp(4)
       AL1b=log(1.-xbmup)
-      ffb=Fb+Fb*AL*CF*(-9.-2.*PI2/3.+AL1b*(-3.+2.*AL1b))
-      ffb=ffb+fb*al*al*c2nn2cRT(xbmup,3)
+c$$$      ffb=Fb+Fb*AL*CF*(-9.-2.*PI2/3.+AL1b*(-3.+2.*AL1b))
+c$$$      ffb=ffb+fb*al*al*c2nn2c(xbmup,3)
+      ffb=(1.+var3*epsb**var2)*(Fb+Fb*AL*CF*(-9.-2.*PI2/3.
+     .+AL1b*(-3.+2.*AL1b))) ! G.W. 12/04/2012
+      ffb=ffb+fb*al*al*(1.+var3*epsb**var2)*c2nn2c(xbmup,3) ! G.W. 12/04/2012
 
       DO 423 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
@@ -1183,7 +1520,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       gluxy=ftemp(2)
       fbxy=ftemp(4)
       ybmup=y/xbmax
-      if(ybmup.gt.0.99999d0) ybmup=0.99999d0
+c      if(ybmup.gt.0.99999d0) ybmup=0.99999d0
       c0b=1.
       p0qg=ybmup**2+(1.-ybmup)**2
       C22b=CF*(6.+4.*Ybmup-2.*(1.+Ybmup*Ybmup)/(1.-Ybmup)*
@@ -1193,8 +1530,10 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       if(epsb.gt.1.d0) c0b=0.d0
       cg21b=2.*facb*cheavy(1,y,epsb)
       cg22b=2.*facb*c0b*p0qg*log(1./epsb)
-      ffb=ffb+0.5/xbmax*(xbmax-X)*WI(I)*AL*(C22b*fbxy+C23b*(fbxy-fb))      
-      ffb=ffb+0.5*(xbmax-x)*wi(i)*al*(cg21b-cg22b/xbmax)*gluxy
+c$$$      ffb=ffb+0.5/xbmax*(xbmax-X)*WI(I)*AL*(C22b*fbxy+C23b*(fbxy-fb))      
+c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*al*(cg21b-cg22b/xbmax)*gluxy
+      ffb=ffb+0.5*(xbmax-x)*wi(i)*al*(cg21b
+     2-(0.+0.0*epsb)*cg22b/xbmax)*gluxy ! G.W. 12/04/2012
       clg2b=2.*facb*cheavy(7,y,epsb)
       f1lq=cheavy(8,ybmup,epsb)
       fflb=fflb+0.5/xbmax*(xbmax-x)*wi(i)*al*f1lq*fbxy
@@ -1202,6 +1541,31 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
 
 
   423 CONTINUE
+
+C--   G.W. 12/04/2012 Start of insertion.
+      DO 4231 I=1,NTERMS
+      Y=0.5*(xbvar-X)*XI(I)+0.5*(xbvar+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsb.gt.1.) ftemp(4)=0.
+      gluxy=ftemp(2)
+      fbxy=ftemp(4)
+      ybmup=y/xbvar
+      if(ybmup.gt.0.99999d0) ybmup=0.99999d0
+      c0b=1.
+      p0qg=ybmup**2+(1.-ybmup)**2
+      C22b=CF*(6.+4.*Ybmup-2.*(1.+Ybmup*Ybmup)/(1.-Ybmup)*
+     .LOG(Ybmup)-2.*(1.+Ybmup)*log(1.-ybmup)
+     2-IF3*2.*(1.+Ybmup))
+      C23b=CF*(-3.+4.*log(1.-ybmup))/(1.-Ybmup)
+      if(epsb.gt.1.d0) c0b=0.d0
+      cg22b=2.*facb*c0b*p0qg*log(1./epsb)
+      ffb=ffb+0.5/xbvar*(xbvar-X)*WI(I)*AL*(1.+var3*epsb**var2)
+     .*(C22b*fbxy+C23b*(fbxy-fb))      
+      ffb=ffb-0.5*(xbvar-x)*wi(i)*al*(
+     .(1.+var3*epsb**var2)*cg22b/xbvar)*gluxy
+ 4231 CONTINUE
+C--   G.W. 12/04/2012 End of insertion.
 
       if(epsb.gt.1.) then 
       xbmax=1./(1.+epsb4)
@@ -1241,18 +1605,48 @@ c      eps=1.
 c$$$      singxy=ftemp(5)+9./8.*ftemp(3) ! Why 9/8 and not 9/4?
       singxy=ftemp(5)           ! G.W. 27/07/2007
       ymul=y*(1+epsb4)
+c$$$      cgvf2=facb*((c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+c$$$     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2gvfsub(ymul,eps)/xbmax)
+c$$$      cqvf2=facb*((c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+c$$$     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2qvfsub(ymul,eps)/xbmax)
+c$$$      ffb=ffb+0.5/xbmax*(xbmax-x)*wi(i)*al*al*
+c$$$     .(fbxy*c2nn2a(ymul,3) + (fbxy-fb)*c2ns2b(ymul,3))
       cgvf2=facb*((c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
-     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2gvfsub(ymul,eps)/xbmax)
+     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))
+     .-(0.+0.0*epsb)*c2gvfsub(ymul,eps)/xbmax) ! G.W. 12/04/2012
       cqvf2=facb*((c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
-     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2qvfsub(ymul,eps)/xbmax)
-      ffb=ffb+0.5/xbmax*(xbmax-x)*wi(i)*al*al*
-     .(fbxy*c2nn2aRT(ymul,3) + (fbxy-fb)*c2ns2bRT(ymul,3))
+     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))
+     .-(0.+0.0*epsb)*c2qvfsub(ymul,eps)/xbmax) ! G.W. 12/04/2012
 c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       ffb=ffb+0.5*(xbmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*
      &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
 
   425 CONTINUE
+
+C--   G.W. 12/04/2012 Start of insertion.
+      if(xbmax.le.x) go to 421
+      DO 4251 I=1,NTERMS
+      Y=0.5*(xbvar-X)*XI(I)+0.5*(xbvar+X)
+      XY=X/Y
+      CALL FETCH(XY,S,IPN,FTEMP)
+      if(epsb.gt.1.)  ftemp(4)=0.
+      gluxy=ftemp(2)
+      fbxy=ftemp(4)
+c$$$      singxy=ftemp(5)+9./8.*ftemp(3) ! Why 9/8 and not 9/4?
+      singxy=ftemp(5)           ! G.W. 27/07/2007
+      ymul=y/xbvar
+      cgvf2v=-facb*((1.+var3*epsb**var2)*c2gvfsub(ymul,eps)/xbvar)
+      cqvf2v=-facb*((1.+var3*epsb**var2)*c2qvfsub(ymul,eps)/xbvar)
+      ffb=ffb+0.5/xbvar*(1.+var3*epsb**var2)*(xbvar-x)*wi(i)*
+     .al*al*(fbxy*c2nn2a(ymul,3) + (fbxy-fb)*c2ns2b(ymul,3))
+c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*singxy)
+C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
+      ffb=ffb+0.5*(xbvar-x)*wi(i)*al**2.*(cgvf2v*gluxy+cqvf2v*
+     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+ 4251 CONTINUE
+C--   G.W. 12/04/2012 End of insertion.
+
       endif
 
       if(epsb.gt.1.) then 
@@ -1282,7 +1676,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 427 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
       XY=X/Y
-      CALL FETCH(XY,Sbot-1.d-06,IPN,FTEMP)
+      CALL FETCH(XY,Sbot,IPN,FTEMP)
       gluxy=ftemp(2)
 c$$$      singxy=ftemp(5)+9./8.*ftemp(3) ! Why 9/8 and not 9/4?
       singxy=ftemp(5)           ! G.W. 27/07/2007
@@ -1290,8 +1684,10 @@ c$$$      singxy=ftemp(5)+9./8.*ftemp(3) ! Why 9/8 and not 9/4?
       cqff23=facb*c2qffns3(y,eps)
 c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot**3*(cgff23*gluxy+cqff23*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
+c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*albot**3*(cgff23*gluxy+cqff23*
+c$$$     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
       ffb=ffb+0.5*(xbmax-x)*wi(i)*albot**3*(cgff23*gluxy+cqff23*
-     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
+     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))*epsb**var4 ! G.W. 12/04/2012
 
   427 CONTINUE
       endif
@@ -1302,7 +1698,7 @@ C--   G.W. 02/11/2007 This contribution was missing for b, but included for c.
       xbmup=x/xbmax
       CALL FETCH(XBMUP,S,IPN,FTEMP)
       if(epsb.gt.1.) ftemp(4)=0. ! G.W. 05/11/2007
-      fflb=fflb+ftemp(4)*(AL**2*CLNN2CRT(xbmup)+al**3*(0.113+enf*0.006))
+      fflb=fflb+ftemp(4)*(AL**2*CLNN2C(xbmup)+al**3*(0.113+enf*0.006))
      &     *1.25*(1/(1+4.*epsb)-0.2) ! G.W. 02/11/2007
 
  629  continue
@@ -1350,7 +1746,7 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2ART(YMUL,INT(ENF)) ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A(YMUL,INT(ENF)) ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
       c3lg1mul=((144.*DLM4-47024./27.*DLM3+6319.*DLM2
@@ -1386,12 +1782,18 @@ c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
       c3lgmul=c3lg1mul+c3lg2mul
       c3lqnsmul=c3lq1mul+c3lq2mul+c3lq3mul
       c3lqpsmul=c3lq4mul+c3lq5mul
+c$$$      cgvfl=facb*((clgffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
+c$$$     .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xcmax)
+C--   G.W. 11/04/2012 Fix typo xcmax->xbmax!
       cgvfl=facb*((clgffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
-     .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xcmax)
+     .clgffnsl(y,eps)*0.5*exp(1-1/eps**2))-clgvfsub(ymul,eps)/xbmax)
       cqvfl=facb*((clqffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
      .clqffnsl(y,eps)*0.5*exp(1-1/eps**2)))
-      fflb=fflb+0.5/xbmax*(xbmax-x)*wi(i)*al**2.*(fbxy*FNS2LQmul+
-     xfbxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c      fflb=fflb+0.5/xbmax*(xbmax-x)*wi(i)*al**2.*(fbxy*FNS2LQmul+
+c     xfbxy*FS2LQmul)*1.25*(1/(1+4.*eps)-0.2)
+c     $$$$$$$$$$ avoid double counting RST 26-02-2009 $$$$$$$$$ 
+      fflb=fflb+0.5/xbmax*(xbmax-x)*wi(i)*al**2.*(fbxy*FNS2LQmul)
+     x*1.25*(1/(1+4.*eps)-0.2)
 c$$$      fflb=fflb+0.5*(xbmax-x)*wi(i)*al**2.*(cgvfl*gluxy+cqvfl*singxy)
 c$$$      fflb=fflb+0.5*(xbmax-x)*wi(i)*al*al*al*facb*
 c$$$     .(c3lqnsmul*fbxy+c3lqpsmul*singxy
@@ -1434,7 +1836,7 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       DO 627 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
       XY=X/Y
-      CALL FETCH(XY,Sbot-1.d-06,IPN,FTEMP)
+      CALL FETCH(XY,Sbot,IPN,FTEMP)
       gluxy=ftemp(2)
       singxy=ftemp(5)
       cgffl3=facb*clgffns3(y,eps)
@@ -1443,16 +1845,19 @@ C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
 c$$$      fflb=fflb+0.5*(xbmax-x)*wi(i)*albot**3*((-clgcvagg+cgffl3)*gluxy
 c$$$     .+cqffl3*singxy)*1.25*(1-1./(1.+4.*epsb))
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
+c$$$      fflb=fflb+0.5*(xbmax-x)*wi(i)*albot**3*((-clgcvagg+cgffl3)*gluxy
+c$$$     &     +cqffl3*(singxy+9./4.*ftemp(3)+9.*ftemp(4)))*
+c$$$     &     1.25*(1-1./(1.+4.*epsb))
       fflb=fflb+0.5*(xbmax-x)*wi(i)*albot**3*((-clgcvagg+cgffl3)*gluxy
      &     +cqffl3*(singxy+9./4.*ftemp(3)+9.*ftemp(4)))*
-     &     1.25*(1-1./(1.+4.*epsb))
+     &     1.25*(1-1./(1.+4.*epsb))*epsb**var4 ! G.W. 12/04/2012
 
   627 CONTINUE
       endif
 
   421 CONTINUE
 
-      if(ffb.lt.0.) ffb=0.
+c$$$      if(ffb.lt.0.) ffb=0. ! G.W. 11/04/2012 Allow negative F2b.
 
       F2 = ffx+ffc+ffb
       F2C = ffc
@@ -1479,62 +1884,127 @@ C--   Output variables: f2,f2c,fl,flc,xf3,xf3c.
 C      SUBROUTINE MSTWCC(x,q,ipn,f2,f2c,fl,flc,xf3,xf3c)
 
 
-C--   Rewrite FETCH to return PDFs from grids.
+c$$$C--   Rewrite FETCH to return PDFs from grids.
+c$$$      SUBROUTINE FETCH(X,S,IPN,FTEMP)
+c$$$      IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
+c$$$      DIMENSION FTEMP(5)
+c$$$      COMMON/GRPTHY/FLAVOR
+c$$$      COMMON/DYLAMB/xlam,S0 ! G.W. 17/07/2007
+c$$$
+c$$$C--   Structure functions.
+c$$$      CALL GINTRP(7,X,S,IPN,SING)
+c$$$      CALL GINTRP(3,X,S,IPN,CPLUS)
+c$$$      CALL GINTRP(6,X,S,IPN,BPLUS)
+c$$$      ftemp(5)=sing
+c$$$   20 CONTINUE
+c$$$      CALL GINTRP(8,X,S,IPN,FTEMP(2))
+c$$$      CALL GINTRP(4,X,S,IPN,SPLUS)
+c$$$      CALL GINTRP(5,X,S,IPN,UPLUS)
+c$$$      SPLUS=-SPLUS+SING/FLAVOR
+c$$$      UPLUS=UPLUS+SING/FLAVOR
+c$$$      DPLUS=SING-UPLUS-SPLUS
+c$$$C--   Proton structure functions.
+c$$$      FTEMP(1)=(4.*(UPLUS)+DPLUS+SPLUS)/9.
+c$$$      ftemp(3)=4.*cplus/9.
+c$$$      ftemp(4)=bplus/9.
+c$$$
+c$$$      RETURN
+c$$$      END
+c$$$
+c$$$
+c$$$      SUBROUTINE GINTRP(I,X,S,IPN,ANS)
+c$$$      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+c$$$      COMMON/DYLAMB/XLAM,S0
+c$$$      COMMON/GRPTHY/FLAVOR
+c$$$      CHARACTER prefix*50,prefix1*50,cl*4
+c$$$      INTEGER ISET
+c$$$      COMMON/mstwfiles/iset,prefix,cl
+c$$$
+c$$$      IF (iset.EQ.0) THEN
+c$$$         prefix1 = prefix
+c$$$      ELSE
+c$$$         prefix1 = prefix(1:len_trim(prefix))//'.'//cl
+c$$$      END IF
+c$$$
+c$$$      XMUF = sqrt(XLAM**2*exp(S0*exp(S)))
+c$$$      CALL GetAllPDFs(prefix1,iset,x,xmuf,upv,dnv,usea,dsea,str,sbar,
+c$$$     &     chm,cbar,bot,bbar,glu,phot)
+c$$$
+c$$$      IF (IPN.EQ.2) THEN        ! neutron
+c$$$C--   Swap upv and dnv.
+c$$$         upvOrig = upv
+c$$$         upv = dnv
+c$$$         dnv = upvOrig
+c$$$C--   Swap usea and dsea.
+c$$$         useaOrig = usea
+c$$$         usea = dsea
+c$$$         dsea = useaOrig
+c$$$      ELSE IF (IPN.NE.1) THEN
+c$$$         WRITE(6,*) "Error in GINTRP, IPN = ",IPN
+c$$$         STOP
+c$$$      END IF
+c$$$
+c$$$      sing = upv + 2.D0*usea + dnv + 2.D0*dsea + str + sbar
+c$$$      IF (I.EQ.1) THEN
+c$$$         ANS = upv+dnv
+c$$$      ELSE IF (I.EQ.2) THEN
+c$$$         ANS = dnv - (upv+dnv)/2.D0
+c$$$      ELSE IF (I.EQ.3) THEN
+c$$$         ANS = chm+cbar
+c$$$      ELSE IF (I.EQ.4) THEN
+c$$$         ANS = -(str+sbar) + sing/flavor
+c$$$      ELSE IF (I.EQ.5) THEN
+c$$$         ANS = upv + 2.D0*usea - sing/flavor
+c$$$      ELSE IF (I.EQ.6) THEN
+c$$$         ANS = bot + bbar
+c$$$      ELSE IF (I.EQ.7) THEN
+c$$$         ANS = sing
+c$$$      ELSE IF (I.EQ.8) THEN
+c$$$         ANS = glu
+c$$$      ELSE IF (I.EQ.9) THEN
+c$$$         ANS = str-sbar - (upv+dnv)/2.D0
+c$$$      ELSE IF (I.EQ.10) THEN
+c$$$         ANS = chm-cbar - (upv+dnv)/2.D0
+c$$$      ELSE IF (I.EQ.11) THEN
+c$$$         ANS = bot-bbar - (upv+dnv)/2.D0
+c$$$      ELSE
+c$$$         WRITE(6,*) "Error in GINTRP: I = ",I
+c$$$         STOP
+c$$$      END IF
+c$$$         
+c$$$      RETURN
+c$$$      END
+
+C--   G.W. 11/04/2012 Combine FETCH and GINTRP to use less PDF calls.
       SUBROUTINE FETCH(X,S,IPN,FTEMP)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
       DIMENSION FTEMP(5)
       COMMON/GRPTHY/FLAVOR
       COMMON/DYLAMB/xlam,S0 ! G.W. 17/07/2007
-
-C--   Structure functions.
-      CALL GINTRP(7,X,S,IPN,SING)
-      CALL GINTRP(3,X,S,IPN,CPLUS)
-      CALL GINTRP(6,X,S,IPN,BPLUS)
-      ftemp(5)=sing
-   20 CONTINUE
-      CALL GINTRP(8,X,S,IPN,FTEMP(2))
-      CALL GINTRP(4,X,S,IPN,SPLUS)
-      CALL GINTRP(5,X,S,IPN,UPLUS)
-      SPLUS=-SPLUS+SING/FLAVOR
-      UPLUS=UPLUS+SING/FLAVOR
-      DPLUS=SING-UPLUS-SPLUS
-C--   Proton structure functions.
-      FTEMP(1)=(4.*(UPLUS)+DPLUS+SPLUS)/9.
-      ftemp(3)=4.*cplus/9.
-      ftemp(4)=bplus/9.
-
-      RETURN
-      END
-
-
-      SUBROUTINE GINTRP(I,X,S,IPN,ANS)
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-      COMMON/DYLAMB/XLAM,S0
-      COMMON/GRPTHY/FLAVOR
       CHARACTER prefix*50,prefix1*50,cl*4
       INTEGER ISET
       COMMON/mstwfiles/iset,prefix,cl
-cccccccccccccccccccccccccccccccccccccccccc
+c---------------------------------
+cv  connect to QCDNUM PDFS
       double precision pdfsf(-6:6)
-c      integer iqnset, inull
-c      include 'steering.inc'
-cccccccccccccccccccccccccccccccccccccccccc 
-
-
+      double precision xmuf2
+cv      integer inull
+cv      include 'steering.inc'
+c---------------------------------
       IF (iset.EQ.0) THEN
          prefix1 = prefix
       ELSE
          prefix1 = prefix(1:len_trim(prefix))//'.'//cl
       END IF
 
-      q2 = xlam**2*(exp(S0*exp(S)))
       XMUF = sqrt(XLAM**2*exp(S0*exp(S)))
 
-
+      xmuf2=xmuf*xmuf
 cv      CALL GetAllPDFs(prefix1,iset,x,xmuf,upv,dnv,usea,dsea,str,sbar,
 cv     &     chm,cbar,bot,bbar,glu,phot)
-
-        CALL HF_GET_PDFS(x,q2,PDFSF)
+cv
+        CALL HF_GET_PDFS(x,xmuf2,PDFSF)
+cv          call FPDFXQ(iPDFSET,x,q2, PDFSF, inull) 
           glu=pdfSF(0)
           upv=pdfSF(2)-pdfSF(-2)
           dnv=pdfSF(1)-pdfSF(-1)
@@ -1546,9 +2016,10 @@ cv     &     chm,cbar,bot,bbar,glu,phot)
           cbar=pdfSF(-4)
           bot=pdfSF(5)
           bbar=pdfSF(-5)
-        
-cv          print*,'voica is here'
 
+
+cv          print*,'chek pdfs:', ipdfset, x,xmuf, glu, upv, dnv, usea, str, sbar 
+cv          stop
       IF (IPN.EQ.2) THEN        ! neutron
 C--   Swap upv and dnv.
          upvOrig = upv
@@ -1559,49 +2030,39 @@ C--   Swap usea and dsea.
          usea = dsea
          dsea = useaOrig
       ELSE IF (IPN.NE.1) THEN
-         WRITE(6,*) "Error in GINTRP, IPN = ",IPN
+         WRITE(6,*) "Error in FETCH, IPN = ",IPN
          STOP
       END IF
 
       sing = upv + 2.D0*usea + dnv + 2.D0*dsea + str + sbar
-cv      sing = upv + 2.D0*usea + dnv + 2.D0*dsea + 2.d0*str
+      cplus = chm + cbar
+      bplus = bot + bbar
+      splus = str + sbar
+      uplus = upv + 2.D0*usea
+      dplus = dnv + 2.D0*dsea
+      
+      ftemp(1) = (4.D0*uplus+dplus+splus)/9.D0
+      ftemp(2) = glu
+      ftemp(3) = 4.D0*cplus/9.D0
+      ftemp(4) = bplus/9.D0
+      ftemp(5) = sing
 
-      IF (I.EQ.1) THEN
-         ANS = upv+dnv
-      ELSE IF (I.EQ.2) THEN
-         ANS = dnv - (upv+dnv)/2.D0
-      ELSE IF (I.EQ.3) THEN
-         ANS = chm+cbar
-cv         ANS = 2.d0*chm
-      ELSE IF (I.EQ.4) THEN
-         ANS = -(str+sbar) + sing/flavor
-cv         ANS = -2.d0*str + sing/flavor
-      ELSE IF (I.EQ.5) THEN
-         ANS = upv + 2.D0*usea - sing/flavor
-      ELSE IF (I.EQ.6) THEN
-         ANS = bot + bbar
-cv         ANS = 2.d0*bot
-      ELSE IF (I.EQ.7) THEN
-         ANS = sing
-      ELSE IF (I.EQ.8) THEN
-         ANS = glu
-      ELSE IF (I.EQ.9) THEN
-         ANS = str-sbar - (upv+dnv)/2.D0
-cv         ANS =  - (upv+dnv)/2.D0
-      ELSE IF (I.EQ.10) THEN
-         ANS = chm-cbar - (upv+dnv)/2.D0
-cv         ANS =  - (upv+dnv)/2.D0
-      ELSE IF (I.EQ.11) THEN
-         ANS = bot-bbar - (upv+dnv)/2.D0
-cv         ANS =  - (upv+dnv)/2.D0
-      ELSE
-         WRITE(6,*) "Error in GINTRP: I = ",I
-         STOP
-      END IF
-         
       RETURN
       END
 
+
+      FUNCTION ALPHA(T)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+      COMMON/DYLAMB/XLAM,S0
+C--   G.W. 15/06/2007 Use new routine from PEGASUS.
+      QS = XLAM**2*EXP(T)
+cv      ALPHA = ALPHAS(sqrt(QS))
+c---------------------------------
+cv  connect to QCDNUM alphas
+      alpha = hf_get_alphas(qs) 
+
+      RETURN
+      END
 
 
       SUBROUTINE WATE96
@@ -1770,11 +2231,7 @@ C--   G.W. 22/08/2006 Added error message.
       if(i.gt.2) beta2=1.-eps*z/z1
       if(i.gt.6) beta2=1.-4.*eps*z/z1
 c      if(beta2.lt.0.) go to 10
-      if (beta2.lt.0) then
-         beta = 0
-      else
-         beta=sqrt( beta2)
-      endif
+      beta=sqrt(beta2)
       a=z2+z1*z1
       b=4.*z*(1.-3.*z)
       c=-8.*z2
@@ -1917,8 +2374,8 @@ c Subtraction term for NLO clg in VFNS
       function clgvfsub(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
       COMMON/iordCommon/iord
-cSG      beta2=1.-4.*eps*z/(1.-z)
-cSG      beta=sqrt(beta2)
+      beta2=1.-4.*eps*z/(1.-z)
+      beta=sqrt(beta2)
       xi=1./eps
 
       term1 = 2./3.*(32.*z*log(z)+16.+16.*z-32.*z**2)*(log(xi))
@@ -2149,175 +2606,235 @@ c Simplified version of NLO c2q in FFNS Q^2>M^2
 
       return
       end
-*
-*
-* ..This is the regular non-singlet piece for the electromagnetic F2, 
-*    corresponding to CLNSP+C2NSM in W. van Neerven's program. The 
-*    8 numerical coefficients are fitted to his results, using x values 
-*    between 10^-6 and 1-10^-6. 
-*
-       FUNCTION CLNN2ART (Y, NF)
-       IMPLICIT REAL*8 (A-Z)
-       INTEGER NF
-*
-       DL  = LOG (Y)
-       DL1 = LOG (1.-Y)
-*
-       CLNN2ART = 
-     1          - 40.41 + 97.48 * Y
-     2          + (26.56 * Y - 0.031) * DL**2 - 14.85 * DL 
-     3          + 13.62 * DL1**2 - 55.79 * DL1 - 150.5 * DL * DL1 
-     4        + NF * 16./27.D0 * ( 6.* Y*DL1 - 12.* Y*DL - 25.* Y + 6.)
-*
-       RETURN
-       END
 
-* ---------------------------------------------------------------------
-*
-*
-* ..This is the 'local' NS piece for the e.m. FL, with no counterpart 
-*    in WvN's program, as it does not exist in the exact expressions.
-*    The value is fixed from the lowest integer moments.
-*
-       FUNCTION CLNN2CRT (Y)
-       IMPLICIT REAL*8 (A-Z)
-*
-       CLNN2CRT = -0.164
-*
-       RETURN
-       END
-*
-* ---------------------------------------------------------------------
-*
-*
-* ..This is the regular non-singlet piece for the electromagnetic F2, 
-*    corresponding to C2NSP+C2NSN in W. van Neerven's program. The 
-*    (10+8) numerical coefficients are fitted to his results, using x 
-*    values between 10^-6 and 1-10^-6. 
-*
-      FUNCTION C2NN2ART (Y, NF)
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 
-       DL  = LOG (Y)
-       DL1 = LOG (1.-Y)
-*
-       C2NN2ART = 
-     1          - 69.59 - 1008.* Y
-     2          - 2.835 * DL**3 - 17.08 * DL**2 + 5.986 * DL 
-     3          - 17.19 * DL1**3 + 71.08 * DL1**2 - 660.7 * DL1
-     4          - 174.8 * DL * DL1**2 + 95.09 * DL**2 * DL1
-     5        + NF * ( - 5.691 - 37.91 * Y 
-     6          + 2.244 * DL**2 + 5.770 * DL 
-     7          - 1.707 * DL1**2  + 22.95 * DL1
-     8          + 3.036 * DL**2 * DL1 + 17.97 * DL * DL1 )     
-*
-       RETURN
-       END
-*
-* ---------------------------------------------------------------------
-*
-*
-* ..This is the singular NS piece, denoted by SOFT2 in WvN's program. 
-*    It is the same for all F2 and F3 cases. The numerical coefficients 
-*    are exact, but truncated.
-*
-       FUNCTION C2NS2BRT (Y, NF)
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+c $$$$$ Start: Added functions for nonsinglet F_L RST 26-02-2009 $$$$$
 
-*
-       DL1 = LOG (1.-Y)
-       DM  = 1./(1.-Y)
-*
-       C2NS2BRT = 
-     1          + 14.2222 * DL1**3 - 61.3333 * DL1**2 - 31.105 * DL1 
-     2          + 188.64 
-     3        + NF * ( 1.77778 * DL1**2 - 8.5926 * DL1 + 6.3489 ) 
-       C2NS2BRT = DM * C2NS2BRT
-*
-       RETURN
-       END
-*
-* ---------------------------------------------------------------------
-*
-*
-* ..This is the 'local' NS piece for the e.m. F2, denoted by COR2 in 
-*    WvN's program. The numerical coefficients of the logs are exact,
-*    but truncated, the constant one (from the delta-function) is 
-*    slightly adjusted (+ 0.485 - 0.0035 NF) using the lowest moments.
-*
-       FUNCTION C2NN2CRT (Y, NF)
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+c Simplified version of NLO llq in FFNS Q^2<M^2
+      function cllffnsl(z,eps)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
 
-       DL1 = LOG (1.-Y)
-*
-       C2NN2CRT = 
-     1          + 3.55555 * DL1**4 - 20.4444 * DL1**3 - 15.5525 * DL1**2
-     2          + 188.64 * DL1 - 338.531 + 0.485 
-     3        + NF * (0.592593 * DL1**3 - 4.2963 * DL1**2 
-     4          + 6.3489 * DL1 + 46.844 - 0.0035)
-*
-       RETURN
-       END
-*
-* ---------------------------------------------------------------------
-*
-*
-* ..This is the pure singlet piece, denoted by C2S in WvN's program. 
-*    Seven numerical coefficients (all but the one of 1/y, which is 
-*    exact up to truncation) are fitted to his results, using x values
-*    between 10^-6 and 1-10^-6.
-*
-      FUNCTION C2S2ART (Y, NF)
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+      xi=1./eps
+      beta2=1.-4.*eps*z/(1.-z)
+      beta=dsqrt(beta2)
 
-       DL  = LOG (Y)
-       DL1 = LOG (1.-Y)
-*
-       C2S2ART =   NF * ( 5.290 * (1./Y-1.) + 4.310 * DL**3   
-     1         - 2.086 * DL**2 + 39.78 * DL - 0.101 * (1.-Y) * DL1**3 
-     2         - (24.75 - 13.80 * Y) * DL**2 * DL1 + 30.23 * DL * DL1 )
-*
-       RETURN
-       END
-*
-* ---------------------------------------------------------------------
-*
-*
-* ..This is the regular gluon piece, denoted by C2G2 in WvN's program. 
-*    Nine numerical coefficients are fitted as above, the ones of 1/y, 
-*    ln^3(1-y), and ln^2(1-y) are exact up to truncation.
-*
-      FUNCTION C2G2ART (Y, NF)
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+      term1=beta**5*xi*(3.237*z**2*(1-
+     .3.253*dlog(xi)-1.929*(dlog(xi))**2+4.693*(dlog(xi))**3)
+     .-0.234*(z*dlog(z))
+     .*(1-1.237*dlog(xi)+3.638*(dlog(xi))**2)
+     .-150.2*(z**3)
+     .*(1-2.321*dlog(xi)+0.138*(dlog(xi))**2)
+     .+1.723*(z)
+     .*(1-0.786*dlog(xi)-0.1119*(dlog(xi))**2) 
+     .+1.473*z*(1-0.09154*dlog(1./z))*(1-
+     .0.8051*dlog(xi)-1.567*(dlog(xi))**2-0.7084*(dlog(xi))**3))/z
+ 
+      cllffnsl=term1 
+  
+      return
+      end
 
-       DL  = LOG (Y)
-       DL1 = LOG (1.-Y)
-*
-       C2G2ART =   NF * ( 1./Y * (11.90 + 1494.* DL1) + 5.319 * DL**3  
-     1         - 59.48 * DL**2 - 284.8 * DL + 392.4 - 1483.* DL1
-     2         + (6.445 + 209.4 * (1.-Y)) * DL1**3 - 24.00 * DL1**2
-     3         - 724.1 * DL**2 * DL1 - 871.8 * DL * DL1**2 )
-*
-       RETURN
-       END
-* 
-* ---------------------------------------------------------------------
-*
-*
-* ..This is the 'local' gluon piece, which has no counterpart in WvN's
-*    program, as it does not exist in the exact expressions. Here it 
-*    is, however, relevant for achieving a high accuracy of the convo-
-*    lution, as are the adjustments of the constant in the non-singlet
-*    quark coefficient functions. The value is fixed from the lowest 
-*    even-integer moments. 
-*
-      FUNCTION C2G2CRT (Y, NF)
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+c Simplified version of NLO llq in FFNS Q^2>M^2
+      function cllffnsh(z,eps)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
 
-       C2G2CRT = - NF * 0.28  
-*
-       RETURN
-       END
+      xi=1./eps
+      beta2=1.-4.*eps*z/(1.-z)
+      beta=dsqrt(beta2)
+
+      term1=2.d0/3.d0*(16./3.*z*(dlog(1.-z)-2*dlog(z))
+     .+16./3.-400./18.*z)
+ 
+      term2=1/xi*(2.473*((dlog(1-z))**4)*(1-
+     .2.98*dlog(xi)+0.694*(dlog(xi))**2-0.047*(dlog(xi))**3)
+     .+6.924*(z**2*(dlog(z)))
+     .*(1+0.628*dlog(xi)+0.496*(dlog(xi))**2)
+     .+10.24*(z*(dlog(1-z))**2)
+     .*(1+2.51*dlog(xi)-0.658*(dlog(xi))**2)
+     .-6.869*(z*(dlog(1-z))**3)
+     .*(1+0.413*dlog(xi)+0.166*(dlog(xi))**2) 
+     .-2.46*(1-0.932*dlog(1./z))*beta**(-0.671)*z**2*(1+
+     .0.779*dlog(xi)+1.966*(dlog(xi))**2-0.439*(dlog(xi))**3)
+     .-26.84*z**2*(xi)**0.14*beta)/z     
+ 
+      cllffnsh=term1+term2 
+  
+      return
+      end
+
+c $$$$$ End: Added functions for nonsinglet F_L RST 26-02-2009 $$$$$
+
+
+cv*
+cv*
+cv* ..This is the regular non-singlet piece for the electromagnetic F2, 
+cv*    corresponding to CLNSP+C2NSM in W. van Neerven's program. The 
+cv*    8 numerical coefficients are fitted to his results, using x values 
+cv*    between 10^-6 and 1-10^-6. 
+cv*
+cv       FUNCTION CLNN2A (Y, NF)
+cv       IMPLICIT REAL*8 (A-Z)
+cv       INTEGER NF
+cv*
+cv       DL  = LOG (Y)
+cv       DL1 = LOG (1.-Y)
+cv*
+cv       CLNN2A = 
+cv     1          - 40.41 + 97.48 * Y
+cv     2          + (26.56 * Y - 0.031) * DL**2 - 14.85 * DL 
+cv     3          + 13.62 * DL1**2 - 55.79 * DL1 - 150.5 * DL * DL1 
+cv     4        + NF * 16./27.D0 * ( 6.* Y*DL1 - 12.* Y*DL - 25.* Y + 6.)
+cv*
+cv       RETURN
+cv       END
+cv
+cv* ---------------------------------------------------------------------
+cv*
+cv*
+cv* ..This is the 'local' NS piece for the e.m. FL, with no counterpart 
+cv*    in WvN's program, as it does not exist in the exact expressions.
+cv*    The value is fixed from the lowest integer moments.
+cv*
+cv       FUNCTION CLNN2C (Y)
+cv       IMPLICIT REAL*8 (A-Z)
+cv*
+cv       CLNN2C = -0.164
+cv*
+cv       RETURN
+cv       END
+cv*
+cv* ---------------------------------------------------------------------
+cv*
+cv*
+cv* ..This is the regular non-singlet piece for the electromagnetic F2, 
+cv*    corresponding to C2NSP+C2NSN in W. van Neerven's program. The 
+cv*    (10+8) numerical coefficients are fitted to his results, using x 
+cv*    values between 10^-6 and 1-10^-6. 
+cv*
+cv      FUNCTION C2NN2A (Y, NF)
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv
+cv       DL  = LOG (Y)
+cv       DL1 = LOG (1.-Y)
+cv*
+cv       C2NN2A = 
+cv     1          - 69.59 - 1008.* Y
+cv     2          - 2.835 * DL**3 - 17.08 * DL**2 + 5.986 * DL 
+cv     3          - 17.19 * DL1**3 + 71.08 * DL1**2 - 660.7 * DL1
+cv     4          - 174.8 * DL * DL1**2 + 95.09 * DL**2 * DL1
+cv     5        + NF * ( - 5.691 - 37.91 * Y 
+cv     6          + 2.244 * DL**2 + 5.770 * DL 
+cv     7          - 1.707 * DL1**2  + 22.95 * DL1
+cv     8          + 3.036 * DL**2 * DL1 + 17.97 * DL * DL1 )     
+cv*
+cv       RETURN
+cv       END
+cv*
+cv* ---------------------------------------------------------------------
+cv*
+cv*
+cv* ..This is the singular NS piece, denoted by SOFT2 in WvN's program. 
+cv*    It is the same for all F2 and F3 cases. The numerical coefficients 
+cv*    are exact, but truncated.
+cv*
+cv       FUNCTION C2NS2B (Y, NF)
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv
+cv*
+cv       DL1 = LOG (1.-Y)
+cv       DM  = 1./(1.-Y)
+cv*
+cv       C2NS2B = 
+cv     1          + 14.2222 * DL1**3 - 61.3333 * DL1**2 - 31.105 * DL1 
+cv     2          + 188.64 
+cv     3        + NF * ( 1.77778 * DL1**2 - 8.5926 * DL1 + 6.3489 ) 
+cv       C2NS2B = DM * C2NS2B
+cv*
+cv       RETURN
+cv       END
+cv*
+cv* ---------------------------------------------------------------------
+cv*
+cv*
+cv* ..This is the 'local' NS piece for the e.m. F2, denoted by COR2 in 
+cv*    WvN's program. The numerical coefficients of the logs are exact,
+cv*    but truncated, the constant one (from the delta-function) is 
+cv*    slightly adjusted (+ 0.485 - 0.0035 NF) using the lowest moments.
+cv*
+cv       FUNCTION C2NN2C (Y, NF)
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv
+cv       DL1 = LOG (1.-Y)
+cv*
+cv       C2NN2C = 
+cv     1          + 3.55555 * DL1**4 - 20.4444 * DL1**3 - 15.5525 * DL1**2
+cv     2          + 188.64 * DL1 - 338.531 + 0.485 
+cv     3        + NF * (0.592593 * DL1**3 - 4.2963 * DL1**2 
+cv     4          + 6.3489 * DL1 + 46.844 - 0.0035)
+cv*
+cv       RETURN
+cv       END
+cv*
+cv* ---------------------------------------------------------------------
+cv*
+cv*
+cv* ..This is the pure singlet piece, denoted by C2S in WvN's program. 
+cv*    Seven numerical coefficients (all but the one of 1/y, which is 
+cv*    exact up to truncation) are fitted to his results, using x values
+cv*    between 10^-6 and 1-10^-6.
+cv*
+cv      FUNCTION C2S2A (Y, NF)
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv
+cv       DL  = LOG (Y)
+cv       DL1 = LOG (1.-Y)
+cv*
+cv       C2S2A =   NF * ( 5.290 * (1./Y-1.) + 4.310 * DL**3   
+cv     1         - 2.086 * DL**2 + 39.78 * DL - 0.101 * (1.-Y) * DL1**3 
+cv     2         - (24.75 - 13.80 * Y) * DL**2 * DL1 + 30.23 * DL * DL1 )
+cv*
+cv       RETURN
+cv       END
+cv*
+cv* ---------------------------------------------------------------------
+cv*
+cv*
+cv* ..This is the regular gluon piece, denoted by C2G2 in WvN's program. 
+cv*    Nine numerical coefficients are fitted as above, the ones of 1/y, 
+cv*    ln^3(1-y), and ln^2(1-y) are exact up to truncation.
+cv*
+cv      FUNCTION C2G2A (Y, NF)
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv
+cv       DL  = LOG (Y)
+cv       DL1 = LOG (1.-Y)
+cv*
+cv       C2G2A =   NF * ( 1./Y * (11.90 + 1494.* DL1) + 5.319 * DL**3  
+cv     1         - 59.48 * DL**2 - 284.8 * DL + 392.4 - 1483.* DL1
+cv     2         + (6.445 + 209.4 * (1.-Y)) * DL1**3 - 24.00 * DL1**2
+cv     3         - 724.1 * DL**2 * DL1 - 871.8 * DL * DL1**2 )
+cv*
+cv       RETURN
+cv       END
+cv* 
+cv* ---------------------------------------------------------------------
+cv*
+cv*
+cv* ..This is the 'local' gluon piece, which has no counterpart in WvN's
+cv*    program, as it does not exist in the exact expressions. Here it 
+cv*    is, however, relevant for achieving a high accuracy of the convo-
+cv*    lution, as are the adjustments of the constant in the non-singlet
+cv*    quark coefficient functions. The value is fixed from the lowest 
+cv*    even-integer moments. 
+cv*
+cv      FUNCTION C2G2C (Y, NF)
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv
+cv       C2G2C = - NF * 0.28  
+cv*
+cv       RETURN
+cv       END
+cv
 
 c Approx version of NNLO c2g in FFNS Q^2<M^2
       function c2gffns3(z,eps)
@@ -2331,7 +2848,8 @@ c Approx version of NNLO c2g in FFNS Q^2<M^2
       pi=3.14159265359d0
 
       term1 = 96*beta*(13.073*xi-23.827*xi**2+24.107*xi**3
-     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
+c$$$     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
+     .-9.173*xi**4)/z*(log(xmax/z)-4.*xi**0.1)*(1.-z/xmax)**20 ! G.W. 11/04/2012
 
       term2=256./z*pi**3*xi*(1./(1.+xi/4))*2.1/(1.+eta)*
      .((0.0144-0.0273*log(eta)+0.00235*(log(eta))**2
@@ -2342,6 +2860,33 @@ c Approx version of NNLO c2g in FFNS Q^2<M^2
      .+0.000178*(log(eta))**2+0.0000206*(log(eta))**3))
 
       c2gffns3=(term1+term2)
+
+      return
+      end
+
+c Approx version of NNLO c2g in FFNS Q^2>M^2
+      function c2gffns3h(z,eps) ! G.W. 11/04/2012
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+
+      beta2=1.-4.*eps*z/(1.-z)
+      beta=sqrt(beta2)
+      xi=1./eps
+      eta=xi*(1.-z)/(4.*z)-1
+      xmax=(1./(1.+eps*4))
+      pi=3.14159265359d0
+
+      term1 = 96*beta*4.18*(1+0.36*log(xi))/z*(log(xmax/z)-4.)
+     .*(1.-z/xmax)**20
+
+      term2=256./z*pi**3*(1+0.5*log(xi))*(1./(1.+xi/4))*2.1/(1.+eta)*
+     .((0.0144-0.0273*log(eta)+0.00235*(log(eta))**2
+     .-0.0001033*(log(eta))**3-0.0000478*(log(eta))**4)
+     .+log(xi)*(0.0205-0.00373*log(eta)+0.00339*(log(eta))**2
+     .+0.000128*(log(eta))**3-0.000044*(log(eta))**4)  
+     .+(log(xi))**2*(-0.00065-0.0003*log(eta)
+     .+0.000178*(log(eta))**2+0.0000206*(log(eta))**3))
+
+      c2gffns3h=(term1+term2)
 
       return
       end
@@ -2357,9 +2902,28 @@ c Approx version of NNLO c2q in FFNS Q^2<M^2
       pi=3.14159265359d0
 
       term1 = 4./9.*96*beta*(13.073*xi-23.827*xi**2+24.107*xi**3
-     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
+c$$$     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
+     .-9.173*xi**4)/z*(log(xmax/z)-4.*xi**0.1)*(1.-z/xmax)**20 ! G.W. 11/04/2012
 
       c2qffns3=term1
+
+      return
+      end
+
+c Approx version of NNLO c2q in FFNS Q^2>M^2
+      function c2qffns3h(z,eps) ! G.W. 11/04/2012
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+      beta2=1.-4.*eps*z/(1.-z)
+      beta=sqrt(beta2)
+      xi=1./eps
+      eta=1.-beta2
+      xmax=(1./(1.+eps*4.))
+      pi=3.14159265359d0
+
+      term1 = 4./9.*96*beta*4.18*(1+0.36*log(xi))/z*(log(xmax/z)-4.)
+     .*(1.-z/xmax)**20
+
+      c2qffns3h=term1
 
       return
       end
@@ -2549,7 +3113,7 @@ c$$$      term3 = (-224./9./z -10./9.*(log(1.-z))**3-316.15*z
 c$$$     x+200.0*z**2-27.24*log(1.-z)-14.52*log(z)
 c$$$     x-2.28*(log(1.-z))**2+13.21*(log(z))**2+96.77*z**3
 c$$$     x+217.06*log(z)*log(1.-z))
-      term3 = A2HGART(Z) ! G.W. 12/06/2008 Use A.Vogt's parameterisation.
+      term3 = A2HGA(Z) ! G.W. 12/06/2008 Use A.Vogt's parameterisation.
 
       c2gvfsub=(term1+term2+term3)
 
@@ -2628,35 +3192,32 @@ c Simplified version of LO clg convoluted with a2gg
 ! =====================================================================
 !
 !
-! ..This is the regular piece.
-!
-      FUNCTION A2HGART (Y)
-      IMPLICIT REAL*8 (A-Z)
-
-      DL  = LOG (Y) 
-      DL1 = LOG (1.-Y)
-      
-      A2HGART = - 24.89d0 / Y - 187.8d0 + 249.6d0 * Y
-     &     - 146.8d0 * DL**2 * DL1
-     &     - 1.556d0 * DL**3  - 3.292d0 * DL**2  - 93.68d0 * DL
-     &     - 1.111d0 * DL1**3 - 0.400d0 * DL1**2 - 2.770d0 * DL1
-
-      RETURN 
-      END                                           
-!
-! ---------------------------------------------------------------------
-!
-! ..This is the 'local' piece, which has no counterpart in W. van
-!    Neerven's program, as it does not exist in the exact expressions.
-      
-      FUNCTION A2HGCRT (Y) 
-      IMPLICIT REAL*8 (A-Z) 
-      
-      A2HGCRT = - 0.006d0 
-      
-      RETURN 
-      END
-
-
-
-
+cv! ..This is the regular piece.
+cv!
+cv      FUNCTION A2HGA (Y)
+cv      IMPLICIT REAL*8 (A-Z)
+cv
+cv      DL  = LOG (Y) 
+cv      DL1 = LOG (1.-Y)
+cv      
+cv      A2HGA = - 24.89d0 / Y - 187.8d0 + 249.6d0 * Y
+cv     &     - 146.8d0 * DL**2 * DL1
+cv     &     - 1.556d0 * DL**3  - 3.292d0 * DL**2  - 93.68d0 * DL
+cv     &     - 1.111d0 * DL1**3 - 0.400d0 * DL1**2 - 2.770d0 * DL1
+cv
+cv      RETURN 
+cv      END                                           
+cv!
+cv! ---------------------------------------------------------------------
+cv!
+cv! ..This is the 'local' piece, which has no counterpart in W. van
+cv!    Neerven's program, as it does not exist in the exact expressions.
+cv      
+cv      FUNCTION A2HGC (Y) 
+cv      IMPLICIT REAL*8 (A-Z) 
+cv      
+cv      A2HGC = - 0.006d0 
+cv      
+cv      RETURN 
+cv      END
+cv! =====================================================================
