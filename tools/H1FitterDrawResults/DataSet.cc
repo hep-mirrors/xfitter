@@ -4,7 +4,6 @@
 #include <TMath.h>
 
 DataSet::DataSet(Int_t SetId, const Char_t* name, const Char_t* v1, const Char_t* v2, const Char_t* v3) {
-  cout << SetId << " " << name<<endl;
   fName = new TString(name);
   fV1 = new TString(v1);
   fV2 = new TString(v2);

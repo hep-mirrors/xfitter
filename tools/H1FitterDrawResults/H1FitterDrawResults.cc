@@ -3,7 +3,7 @@
 #include <TSystem.h>
 #include <TString.h>
 #include <getopt.h>
-
+#include <TError.h>
 
 using std::cout;
 using std::cerr;
@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
   TString OutputPath("output/");
   TString OutputPathRef("output/");
   
+  gErrorIgnoreLevel=1001;
 
   int c; 
   bool DrawBands = false;

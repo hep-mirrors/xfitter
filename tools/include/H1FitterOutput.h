@@ -23,6 +23,7 @@ class  H1FitterOutput {
   enum pdf{kNULL=-1, kGluon=0, kU=1, kD=2, kUv=3, kDv=4, kUb=5, kDb=6, kSea=7, kS=8, kC=9, kB=10};
 
  private:    
+  TString* fName;
   TString* fDirectory;
   static const Int_t fNpdfs = 11;   
   static const Int_t fNBands = 20;   
@@ -41,6 +42,7 @@ class  H1FitterOutput {
    Int_t Prepare(bool DrawBand);
    TGraph* GetPdf(H1FitterOutput::pdf ipdf, Int_t Q2bin);
    inline TString* GetDirectory() {return fDirectory;}
+   inline TString* GetName() {return fName;}
    Int_t GetNsets();
    DataSet* GetSet(Int_t i) {return fDataSets[i];}
    inline TH1F* GetPull() {return fPull;}
@@ -52,6 +54,7 @@ class  H1FitterOutput {
 
  private:
    Int_t PrepareDataSets();
+   void PrepareName();
    Int_t PreparePdf(bool DrawBand);
    void SetPdfPoint(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t y);
    void SetPdfError(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t Up, Double_t Dn);

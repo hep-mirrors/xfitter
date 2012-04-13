@@ -17,7 +17,7 @@ PdfTable::PdfTable(TString fName){
   // Read the file fName
   ifstream infile(fName.Data());
   if (!infile.is_open()) {
-    std::cout << "Can not open file "<<fName.Data()<<std::endl;
+    //std::cout << "Can not open file "<<fName.Data()<<std::endl;
     return;
   }
 
@@ -184,7 +184,7 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors) {
     }
     else {delete eSet; continue;}
   }
-  cout << " Read " << fErrorTables.size() << " error sets"<<endl;
+  //cout << " Read " << fErrorTables.size() << " error sets"<<endl;
 }
 
 TGraphAsymmErrors* PdfErrorTables::GetPDFGraph(string name) {

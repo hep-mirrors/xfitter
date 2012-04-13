@@ -9,6 +9,7 @@
 
 H1FitterOutput::H1FitterOutput(const Char_t* directory) {
   fDirectory    = new TString(directory);
+  fName = new TString(directory);
   for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++) {
     fPdfs[ipdf] = new TObjArray;
     fPdfs[ipdf]->SetOwner();
@@ -20,6 +21,7 @@ H1FitterOutput::H1FitterOutput(const Char_t* directory) {
 }
 
 H1FitterOutput::~H1FitterOutput(){
+  delete fName;
   delete fDirectory;
   for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++) {
     delete fPdfs[ipdf];
@@ -34,6 +36,7 @@ Int_t H1FitterOutput::Prepare(bool DrawBand) {
     cerr << "Can not open directory " << fDirectory->Data() << endl; 
     exit(1);
   }
+  this->PrepareName();
   this->PreparePdf(DrawBand);
   this->PrepareDataSets();
 }
@@ -49,12 +52,32 @@ Bool_t H1FitterOutput::CheckDirectory() {
   return bExists;
 }
 
+void H1FitterOutput::PrepareName() {
+  TString filename("");
+  char buffer[256];
+  filename.Form("%s/fit.name",fDirectory->Data());
+  
+  ifstream infile(filename.Data());
+  if (!infile.is_open()) {
+    fName->Form(fDirectory->Data());
+  }
+  else {
+    infile.getline(buffer, 256);
+    fName->Form(buffer);
+  }
+  if(!fName->CompareTo(fDirectory->Data())
+     || !fName->CompareTo("dummy")) {
+    cout << "You can add custom legend label for your plots by editing "
+	 << filename.Data() << " file"<<endl; 
+    fName->Form(fDirectory->Data());
+  }
+}
+
 Int_t H1FitterOutput::PreparePdf(bool DrawBand) {
 
   // Loop over Q2 values, read PDF tables
-  for (Int_t iq2=0; iq2<20; iq2++) {
+  for (Int_t iq2=0; iq2<200; iq2++) {
 
-    
     TString filename("");
     filename.Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
 

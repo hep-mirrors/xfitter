@@ -13,7 +13,7 @@ H1FitterPainter::H1FitterPainter(bool DrawBands){
   fPsFileName = new TString("DrawResults.ps");
   gROOT->SetStyle("Plain");
   cout << endl;
-  cout << "TO DO: in fittedresults.txt q2 and x for sets 61-64 are switched"<<endl;
+  //cout << "TO DO: in fittedresults.txt q2 and x for sets 61-64 are switched"<<endl;
   fColor = kRed;
   fColorRef = kBlue;
   fFillStyle = 1001;
@@ -291,11 +291,11 @@ Int_t H1FitterPainter::PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut, H
 
   if(legend) {
     legend->cd();
-    TPaveLabel* lab1 = new TPaveLabel(0., 0.4, 1.0, 0.5, FitterOut->GetDirectory()->Data(), "NDC");
+    TPaveLabel* lab1 = new TPaveLabel(0., 0.4, 1.0, 0.5, FitterOut->GetName()->Data(), "NDC");
     TrashBin->AddLast(lab1); lab1->SetFillColor(kWhite); lab1->SetBorderSize(0); lab1->SetTextColor(fColor);
     lab1->Draw();
     if(FitterRef) {
-      TPaveLabel* lab2 = new TPaveLabel(0., 0.6, 1.0, 0.7, FitterRef->GetDirectory()->Data(), "NDC");
+      TPaveLabel* lab2 = new TPaveLabel(0., 0.6, 1.0, 0.7, FitterRef->GetName()->Data(), "NDC");
       TrashBin->AddLast(lab2); lab2->SetFillColor(kWhite); lab2->SetBorderSize(0); lab2->SetTextColor(fColorRef);
       lab2->Draw();
     }
@@ -596,8 +596,8 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
 
     TLegend* leg = new TLegend(0.6, 0.97, 0.9, 1.0, "","NDC");
     leg->SetNColumns(2); leg->SetBorderSize(0); leg->SetFillColor(kWhite);
-    leg->AddEntry(gTheo, fH1FitterOutput->GetDirectory()->Data(),"L");
-    if(fH1FitterOutputRef) leg->AddEntry(gTheoRef, fH1FitterOutputRef->GetDirectory()->Data(),"L");
+    leg->AddEntry(gTheo, fH1FitterOutput->GetName()->Data(),"L");
+    if(fH1FitterOutputRef) leg->AddEntry(gTheoRef, fH1FitterOutputRef->GetName()->Data(),"L");
     leg->Draw();
 
     PrintCanvas(can);    
@@ -671,8 +671,8 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
     
     TLegend* leg = new TLegend(0.6, 0.97, 0.9, 1.0, "","NDC");
     leg->SetNColumns(2); leg->SetBorderSize(0); leg->SetFillColor(kWhite);
-    leg->AddEntry(gTheo, fH1FitterOutput->GetDirectory()->Data(),"L"); 
-    if(gTheoRef) leg->AddEntry(gTheoRef, fH1FitterOutputRef->GetDirectory()->Data(),"L");
+    leg->AddEntry(gTheo, fH1FitterOutput->GetName()->Data(),"L"); 
+    if(gTheoRef) leg->AddEntry(gTheoRef, fH1FitterOutputRef->GetName()->Data(),"L");
     leg->Draw();
     labelchi2->Draw();
     if(labelchi2ref) labelchi2ref->Draw();
