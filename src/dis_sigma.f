@@ -163,7 +163,8 @@ C
             else if (XSecType.eq.'NCDIS') then
 c               alm_mz = 1.d0 / 128.9d0
 c               alphaem_run = alm_mz/(1. - alm_mz * 2/(3.*pi)*log(q2(j)/mz**2))
-               alphaem_run = aemrun(q2(j))
+!               alphaem_run = aemrun(q2(j))
+               alphaem_run=alphaem ! not a running alpha_em!
                factor=2*pi*alphaem_run**2/(x(j)*q2(j)**2)*convfac
             else
                print *, 'GetIntegratedDisXsection, XSecType',XSecType,
@@ -275,7 +276,8 @@ C
             if (XSecType.eq.'CCDIS') then
                factor=(Mw**4/(Mw**2+q2(i))**2)*Gf**2/(2*pi*x(i))*convfac
             else if (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS') then
-               alphaem_run = aemrun(q2(i))
+!               alphaem_run = aemrun(q2(i))
+               alphaem_run = alphaem
                factor=2*pi*alphaem_run**2/(x(i)*q2(i)**2)*convfac
             else
                print *, 'GetDisXsection, XSecType',XSecType,
@@ -821,6 +823,8 @@ C     HQSTF code good only for NC case
       if (XSecType.eq.'CCDIS') return
 
       NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
+
+      print*, 'voica is here', CNEP2F, NC2FHF
       CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,npts,0)
       CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,npts,0)
       CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,npts,0)
