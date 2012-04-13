@@ -324,14 +324,13 @@ C------------------------------------
       mBottomin  = mbt
       alphaSMZin = hf_get_alphas(mz*mz)
 
-!      distancein=0.d0
-!      tolerancein=0.d0
+
       alphaSorderin =0.d0
       alphaSnfmaxin =3
 
       iordIn = I_FIT_ORDER-1
             print*,' ---------------------------------------------'
-            print*,' Info from RT initialize:'
+            print*,'Info from RT_init:'
 
 
       if ((HFSCHEME.eq.2).or.(HFSCHEME.eq.22)) then
