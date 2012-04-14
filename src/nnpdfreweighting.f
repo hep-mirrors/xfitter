@@ -51,6 +51,8 @@ c     initialize number of PDF replicas
      $     //'_'//TRIM(NNPDFRWDATA)//'_data.in'
       endif
 
+
+
       if ((NNPDFREWEIGHTMETHOD.eq.1)) then
          outfilenames=''//TRIM(NNPDFSET)//'_'//TRIM(NNPDFRWDATA)
      $        //'_'//'chi2'
@@ -68,7 +70,7 @@ c     initialize number of PDF replicas
 *     write out NNPDF input steering file
 *     ------------------------------------------------ 
 
-      open(87,file=nnpdfsteerfile)
+      open(87,file=nnpdfsteerfile,status='unknown')
 
       write(87,'(A)') '% Prior & Data Settings'
       write(87,'(A,A)') 'NNPDFPATH: NNPDF'
@@ -96,6 +98,7 @@ c     initialize number of PDF replicas
       write(87,'(A,I2)') 'LHGRIDNREP: ',NNPDFOUTREPLICAS 
       write(87,'(A)') 'DESCRIPTION: ' 
       write(87,'(A)') 'ENDDESC' 
+      close(87)
 
 *     ------------------------------------------------
 *     open output chi or data File - first create target directory             
@@ -160,8 +163,11 @@ c     initialize number of PDF replicas
 
       close(86)
 
-36    call nnnpdf_reweight(npdfsets,nnpdfsteerfile)
 
-      close(87)
+
+ 36   continue
+
+      call nnnpdf_reweight(npdfsets,TRIM(nnpdfsteerfile)//CHAR(0))
+
 
       end
