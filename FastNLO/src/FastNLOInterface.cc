@@ -125,7 +125,7 @@ int fastnlocalc_(const int *idataset, double *xsec) {
    fnloreader->FillAlphasCache();
    fnloreader->FillPDFCache();			// pdf is 'external'! you always have to call FillPDFCache();
    fnloreader->CalcCrossSection();
-   cout << "FastnloInterface: alphas = "<<fnloreader->GetAlphasMz()<<endl;
+   //  cout << "FastnloInterface: alphas = "<<fnloreader->GetAlphasMz()<<endl;
    //fnloreader->PrintCrossSections();
 
    vector < double > xs = fnloreader->GetCrossSection();
