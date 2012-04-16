@@ -824,7 +824,7 @@ C     HQSTF code good only for NC case
 
       NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
 
-      print*, 'voica is here', CNEP2F, NC2FHF
+c      print*, 'voica is here', CNEP2F, NC2FHF
       CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,npts,0)
       CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,npts,0)
       CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,npts,0)
