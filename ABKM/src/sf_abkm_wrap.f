@@ -93,7 +93,7 @@ c set same order for pdf, light, heavy quarks
       kordpdf   = kordpdfin
       kordhq    = kordpdfin
       kordf2    = kordpdfin
-      kordfl    = kordpdfin
+      kordfl    = kordpdfin+1
       kordf3    = kordpdfin
       kordalps  = kordpdfin
 c run in running m scheme
