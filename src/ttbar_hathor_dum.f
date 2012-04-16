@@ -19,6 +19,9 @@ c----------------------------------------------------------
       print *, '--------------------------------------------------'
       print *, 'You have chosen to use Hathor but h1fitter is not'
       print *, 'compiled with --enable-hathor option.'
+      
+      call hf_stop ! Fatal error
+      
       return
 
       end
@@ -28,5 +31,8 @@ c----------------------------------------------------------
       print *, '--------------------------------------------------'
       print *, 'You have chosen to use Hathor but h1fitter is not'
       print *, 'compiled with --enable-hathor option.'
+
+      call hf_stop ! Fatal error
+
       return
       end
