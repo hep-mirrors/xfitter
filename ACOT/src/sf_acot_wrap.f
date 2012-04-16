@@ -14,7 +14,7 @@ c     f123l_out(2)=F2
 c     f123l_out(3)=F3
 c     f123l_out(4)=FL
 c     same for charm only cotribution: f123lc
-c     same for beauty only cotribution: f123lb
+c     same for charm only cotribution: f123lb
 c     
 c     hfscheme_in: for now only NLO massless and massive are possible
 c     icharge_in: 0 NC: photon exchange only
@@ -188,7 +188,8 @@ C----------------------------------------------------------------------
       double precision x, q, xmu, polar
       integer index, icharge
       double precision maxFactor,small
-      data maxFactor,small /10.0d2, 1.e-12/
+c     data maxFactor,small /1.0d1, 1.e-12/
+      data maxFactor,small /1.0d3, 1.e-12/
       
       COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
       common /fred/ xmc,xmb,HMASS
@@ -235,8 +236,12 @@ c               write(6,*) ' Warning: K-Fac is large: '
             endif
          enddo
          enddo
+
 C-----------------------------------------------------------------------------
 C-----------------------------------------------------------------------------
+C     
+C-----------------------------------------------------------------------------
+         if(ihead) open(62,file='output/KfactorsACOT.txt')
          if(ihead) write(6,*)   ' K-factors '
          if(ihead) write(6,*) 
      >   ' indx  x    Q   ichg pol    ',
