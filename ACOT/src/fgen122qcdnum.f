@@ -1,7 +1,7 @@
 C =========================================================================
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fgen123LK(idata,icharge,Mode, XBJ, Q, XMU, F123L, polar)
+       SUBROUTINE Fgen123LK_OLD(idata,icharge,Mode, XBJ, Q, XMU, F123L, polar)
 C-----------------------------------------------------------------------------
 C      This is a front-end for Fgen123L
 C      On first call of idata point number, it computes and stores the K-factor
@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------------
 c    if idata=0 skip k-factor table and use full calculation
 C-----------------------------------------------------------------------------
       if(idata.eq.0)  then  !**** over-ride and use full calculation:
-         call Fgen123L(icharge,Mode,xbj,q,xmu,F123L, polar)
+         call Fgen123L_OLD(icharge,Mode,xbj,q,xmu,F123L, polar)
          return
       endif
 
@@ -44,10 +44,10 @@ C-----------------------------------------------------------------------------
 c     FIRST TIME THROUGH: FILL K-FACTOR      
 C-----------------------------------------------------------------------------
       if(XKFACTOR(idata,1,mode).eq.0.d0)  then  !***  FIRST TIME THROUGH: FILL K-FACTOR  ===
-         call Fgen123L(icharge,Mode,xbj,q,xmu,F123L, polar)
+         call Fgen123L_OLD(icharge,Mode,xbj,q,xmu,F123L, polar)
          IschORIG=Isch
          Isch=5  !*** Massive LO Calculation
-         Call Fgen123L(icharge,Mode,XBJ,Q,XMU,F123Llo, polar)
+         Call Fgen123L_OLD(icharge,Mode,XBJ,Q,XMU,F123Llo, polar)
          Isch=IschORIG  !*** Reset Ischeme
 C     Generate K-Factor
          do i=1,4
@@ -62,7 +62,7 @@ C-----------------------------------------------------------------------------
          else  !***  NOT FIRST TIME THROUGH: USE K-FACTOR ======================
             IschORIG=Isch
             Isch=5  !*** Massive LO Calculation
-            Call Fgen123L(icharge,Mode, XBJ, Q, XMU, F123Llo, polar)
+            Call Fgen123L_OLD(icharge,Mode, XBJ, Q, XMU, F123Llo, polar)
             Isch=IschORIG  !*** Reset Ischeme
 C     Use K-Factor
             do i=1,4
@@ -77,7 +77,9 @@ C-----------------------------------------------------------------------------
 CC =========================================================================
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fgen123L(icharge,Mode, XBJ, Q, XMU, F123L, polar)
+       SUBROUTINE Fgen123L_OLD(icharge,Mode, XBJ, Q, XMU, F123L, polar)
+c ************************** not used any more
+c ************************** not used any more
 C-----------------------------------------------------------------------------
 C      This is a front-end for Fgen123. "Fgen123L" simply adds on the "L" piece
 C      Program to compute both CC and NC F123
@@ -90,7 +92,10 @@ C-----------------------------------------------------------------------------
       Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
       common /fred/ xmc,xmb,HMASS
 
-      call Fgen123(icharge,Mode,xbj,q,xmu,F123, polar)
+c ************************** not used any more
+      stop !**** not used any more
+      call Fgen123_OLD(icharge,Mode,xbj,q,xmu,F123, polar)
+      stop !**** not used any more
 
 c     copy arrays
       F123L(1)=F123(1)
@@ -105,11 +110,20 @@ C----------------------------------------------------------------------
 
       return
       end
+CC =========================================================================
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+C =========================================================================
+       SUBROUTINE Fgen123_OLD(icharge,Mode, XBJ, Q, XMU, F123L, polar)
+
+
+       stop
+       return
+       end
 
 C =========================================================================
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fgen123(icharge,Mode, XBJ, Q, XMU, F123, polar)
+       SUBROUTINE Fgen123Lxcb(icharge, XBJ, Q, XMU, F123Lxcb, polar)
 C-----------------------------------------------------------------------------
 C      Program to compute both CC and NC F123
 C      05/07/2007  Include Z-Z, and G-Z terms
@@ -118,22 +132,31 @@ C
 C      
 C-----------------------------------------------------------------------------
       Implicit Double Precision (A-H, O-Z)
-      Dimension F123(3)
+      Dimension F123Lxcb(3,4), F123L(4),F123Lc(4),F123Lb(4)
       Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
 
       Character*80 Message ! Error message text
 
-      if(icharge.eq.0) then !*** Neutral Current  (only photon at this point)
-          call Fnc123(icharge,Mode,xbj,q,xmu,F123, polar)
+C-----------------------------------------------------------------------------
+      if(icharge.eq.0) then !*** Neutral Current  (only photon for icharge=0)
+          call Fnc123Lxcb(icharge,xbj,q,xmu,F123Lxcb, polar)
 
+C-----------------------------------------------------------------------------
       elseif(icharge.eq. 4.or.icharge.eq.5) then !*** Neutral Current BOTH GAMMA & Z
-       Call Fnc123(icharge,Mode, XBJ, Q,XMU, F123, polar)
-      elseif(icharge.eq.+1) then !*** Charged Current (W+) 
-       Call Fcc123(icharge,Mode, XBJ, Q,XMU, F123)
-      
-      elseif(icharge.eq.-1) then !*** Charged Current (W-)
-       Call Fcc123(icharge,Mode, XBJ, Q,XMU, F123)
-
+       Call Fnc123Lxcb(icharge, XBJ, Q,XMU, F123Lxcb, polar)
+ 
+C-----------------------------------------------------------------------------
+      elseif((icharge.eq.+1).or.(icharge.eq.-1)) then !*** Charged Current (W+ or W-) 
+       Call Fcc123L(icharge,1, XBJ, Q,XMU, F123L)
+c      Call Fcc123L(icharge,2, XBJ, Q,XMU, F123Lc)  !*** not yet implemented
+c      Call Fcc123L(icharge,3, XBJ, Q,XMU, F123Lb)  !*** not yet implemented
+     
+      Do j=1,4,1  !*** 3='xcb', 4='123L'
+         F123Lxcb(1,j)=F123L( j)    
+         F123Lxcb(2,j)=0.0d0    !*** not yet implemented
+         F123Lxcb(3,j)=0.0d0    !*** not yet implemented
+      enddo
+C-----------------------------------------------------------------------------
       else
 c        write(6,*) ' error: icharge =',icharge,' not implemented'
          write(Message,*)
@@ -149,7 +172,7 @@ c        stop
 C-----------------------------------------------------------------------------
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
-       SUBROUTINE Fnc123(icharge,Mode, XBJ, Q,XMU, F123, polar)
+       SUBROUTINE Fnc123Lxcb(icharge, XBJ, Q,XMU, F123Lxcb, polar)
 C-----------------------------------------------------------------------------
 C      Program to COMPUTE K FACTORS
 C      
@@ -157,13 +180,14 @@ C
 C      
 C      06/25/99 FIO. 
 C      02/01/08 FIO Update couplings; fac of 2 in gz+zg 
+c      04/13/12 FIO: Compute Tot,c,b, in single pass
 C-----------------------------------------------------------------------------
       Implicit Double Precision (A-H, O-Z)
       Dimension 
      >    XTOT123(3),XCHARM(3),XBOTTOM(3)
      >   ,XXTOT123(3),XXCHARM(3),XXBOTTOM(3)
      >   ,xmarray(6), charge(6), charge3(6)
-     >   ,F123(3)
+     >   ,F123(3),  F123Lxcb(3,4)
       Dimension  
      >   T3F(6),
      >   qVECTORg(6), qAXIALg(6), qRightg(6), qLeftg(6),
@@ -189,8 +213,8 @@ C       DATA   XLEPOL /1.0/
 C       DATA IPARTIN, IPARTOUT,SCALE  /  3, 4,  -1  /
 C-----------------------------------------------------------------------------
 C--- FOR NEUTRAL CURRENT  !*** This is for photon only. Modify for Z
-       DATA GLQ,GRQ,GLLEP,GRLEP,HMASS 
-     >   /  0.5,0.5,0.5,0.5,0.938/
+       DATA GLQ,GRQ,GLLEP,GRLEP   !**** ,HMASS 
+     >   /  0.5,0.5,0.5,0.5/   !*** get HMASS from common block         FIO  13 April 2012
 C-----------------------------------------------------------------------------
       common /fred/ xmc,xmb,Hmass  !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
 C                          U      D      S      C      B      T
@@ -421,16 +445,20 @@ C   ***  SET RETURN VALUES:
 C   ***  NOTE: BY RESTRICTING LOOP=[1,5] ON QUARKS, 
 C   ***     WE TAKE CARE OF FACTOR OF 2 NORM IN PREVIOUS VERSION 
 C----------------------------------------------------
-      Do i=1,3,1
-      If     (Mode.eq.1) Then
-         F123(i)= XXTOT123(i)    !*** Match standard normalization
-      Elseif (Mode.eq.2) Then
-         F123(i)= XXCHARM(i)     !*** Match standard normalization
-      Elseif (Mode.eq.3) Then
-         F123(i)= XXBOTTOM(i)    !*** Match standard normalization
-      Endif
-
+      Do j=1,3,1  !*** 3='xcb', 4='123L'
+         F123Lxcb(1,j)= XXTOT123(j)    
+         F123Lxcb(2,j)= XXCHARM( j)    
+         F123Lxcb(3,j)= XXBOTTOM(j)    
       enddo
+
+C----------------------------------------------------------------------
+C COMPUTE  FL 
+C----------------------------------------------------------------------
+      rho=Sqrt(1.0d0+(2.0d0*hmass*xbj/Q)**2)  !*** Get Hmass from /fred/ common block 
+      Do i=1,3,1  !*** 3='xcb', 4='123L'
+         F123Lxcb(i,4)=rho**2*F123Lxcb(i,2)- 2.0d0*xbj*F123Lxcb(i,1)
+      enddo
+
 
       RETURN
       END 

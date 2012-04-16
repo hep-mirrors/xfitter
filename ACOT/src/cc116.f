@@ -27,7 +27,7 @@ C----------------------------------------------------
 C-----------------------------------------------------------------------------
        Implicit Double Precision (A-H, O-Z)
        CHARACTER HEADER*78
-       Dimension F123(3)
+       Dimension F123L(3)
        PARAMETER (PI=3.14159265359)
        Common /Ischeme/ IschIN, IsetIN, IflgIN, IhadIN
        Common  / ActInt /  AERR, RERR, iActL, iActU
@@ -93,7 +93,7 @@ C----------------------------------------------------------------------
        IsetIN=Iset
        IflgIN=Iflg          !**** NOT YET USED
        IhadIN=Ihad
-       Call Fcc123(icharge,Mode, XBJ, Q,XMU, F123)
+       Call Fcc123L(icharge,Mode, XBJ, Q,XMU, F123L)
 
 C----------------------------------------------------
 C   ***  PRINT OUT
@@ -101,7 +101,7 @@ C----------------------------------------------------
 
        WRITE(6 ,103) E,XBJ,Y,HMASS,ISET
      >             ,SCALE,Q,W,XMU
-     >             ,( F123(N123),N123=1,3,1)
+     >             ,( F123L(N123),N123=1,3,1)
 
 C----------------------------------------------------
 103    FORMAT(/,
@@ -123,7 +123,7 @@ C----------------------------------------------------
 C----------------------------------------------------------------------
 C2345678901234567890123456789012345678901234567890123456789012345678901234567890
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       SUBROUTINE Fcc123(icharge,Mode, XBJ, Q,XMU, F123)
+       SUBROUTINE Fcc123L(icharge,Mode, XBJ, Q,XMU, F123L)
 C      Mode not used yet
 C-----------------------------------------------------------------------------
 C      Program to COMPUTE K FACTORS
@@ -149,8 +149,8 @@ C----------------------------------------------------
 C-----------------------------------------------------------------------------
        Implicit Double Precision (A-H, O-Z)
        CHARACTER HEADER*78
-       Dimension xout123(3), XXSC(3), XMARRAY(6), CHARGE(6)
-       Dimension F123(3)
+       Dimension xout123(3), XXSCL(4), XMARRAY(6), CHARGE(6)
+       Dimension F123L(4)
        PARAMETER (PI=3.14159265359)
        Common /Ischeme/ Isch, Iset, Iflg, Ihad
        Common  / ActInt /  AERR, RERR, iActL, iActU
@@ -167,8 +167,7 @@ C-----------------------------------------------------------------------------
 
 C-----------------------------------------------------------------------------
 C--- FOR CHARGED CURRENT
-       DATA GLQ,GRQ,HMASS 
-     >   /  1.0,0.0,0.938/
+       DATA GLQ,GRQ   /  1.0,0.0/
        DATA IPRINT /0/  !*** NO debugging
 C       DATA IPRINT /1/ !*** for debugging
 C-----------------------------------------------------------------------------
@@ -176,7 +175,8 @@ C                          U      D      S      C      B      T
        DATA XMARRAY  /    0.1,   0.1,   0.2,   1.6,   5.0, 175.0/
        DATA CHARGE   /   +2.0,  -1.0,  -1.0,  +2.0,  -1.0,  +2.0/
 
-       common /fred/ xmc,xmb!,Hmass !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
+C      common /fred/ xmc,xmb,Hmass !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
+       common /fred/ xmc,xmb,Hmass !*** PULL FROM HERAFITTER
 C----------------------------------------------------------------------
 C PULL MC AND MB FROM QCDNUM USING 
 C      common /fred/ xmc,xmb
@@ -184,10 +184,19 @@ C----------------------------------------------------------------------
        XMARRAY(4)=XMC           !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
        XMARRAY(5)=XMB           !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
 C----------------------------------------------------------------------
+C ONLY IMODE=1 TOTAL is implemented at present. NOT c and  b yet.
+C----------------------------------------------------------------------
+       if(mode.ne.1) then
+          write(6,*) 
+     >   ' error: for CC only imode=1 F123L-tot is implemented '
+          stop
+       endif
+
+C----------------------------------------------------------------------
 C INITIALIZATION
 C----------------------------------------------------------------------
        DO I=1,3,1
-          F123( I)  = 0.0d0
+          F123L( I)  = 0.0d0
        ENDDO
 C----------------------------------------------------------------------
 C CHOOSE W+ or W- SCATTERING
@@ -250,8 +259,8 @@ C----------------------------------------------------
 C   ***  ADD PARTON CONTRIBUTION TO TOTAL STRUCTURE FUNCTIONS
 C----------------------------------------------------
            DO I=1,3,1
-cv             F123( I)  = F123( I)  + COUPLING * Xout123( I) 
-             F123( I)  = F123( I)  + COUPLING/2.d0 * Xout123( I) 
+cv             F123L( I)  = F123L( I)  + COUPLING * Xout123( I) 
+             F123L( I)  = F123L( I)  + COUPLING/2.d0 * Xout123( I) 
            ENDDO
 
 C----------------------------------------------------
@@ -259,7 +268,7 @@ C   ***  PICK OUT STRANGE->CHARM AND SAVE THIS
 C----------------------------------------------------
        IF((ABS(IPARTIN).EQ.3).AND.(ABS(IPARTOUT).EQ.4)) THEN    
            DO I=1,3,1
-             XXSC(I)  = XXSC(I) + COUPLING * Xout123(I)    
+             XXSCL(I)  = XXSCL(I) + COUPLING * Xout123(I)    
 C                  *** CAREFUL TO PICK UP ONLY STRANGE->CHARM
            ENDDO
         ENDIF
@@ -271,6 +280,14 @@ C----------------------------------------------------
 C   ***  END LOOP OVER PARTON FLAVORS: 
 C----------------------------------------------------
 
+C----------------------------------------------------------------------
+C COMPUTE  FL 
+C----------------------------------------------------------------------
+      rho=Sqrt(1.0d0+(2.0d0*hmass*xbj/Q)**2)  !*** Get Hmass from /fred/ common block 
+         F123L(4)=rho**2*F123L(2)- 2.0d0*xbj*F123L(1)
+         XXSCL(4)=rho**2*XXSCL(2)- 2.0d0*xbj*XXSCL(1)
+
+C----------------------------------------------------------------------
 
       Return
       END

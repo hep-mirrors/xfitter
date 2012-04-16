@@ -14,7 +14,7 @@ c     f123l_out(2)=F2
 c     f123l_out(3)=F3
 c     f123l_out(4)=FL
 c     same for charm only cotribution: f123lc
-c     same for charm only cotribution: f123lb
+c     same for beauty only cotribution: f123lb
 c     
 c     hfscheme_in: for now only NLO massless and massive are possible
 c     icharge_in: 0 NC: photon exchange only
@@ -34,20 +34,14 @@ cccccccccccccccccccccccccccccccccccccccccccc
       include 'couplings.inc'
 !--------
 
+      double precision F123Lxcb(3,4) !*** 3='xcb', 4='123L'
+
       double precision f123l_out(4)
       double precision f123lc_out(4)
       double precision f123lb_out(4)
 
-      double precision f123l_NLO(4)
-      double precision f123lc_NLO(4)
-      double precision f123lb_NLO(4)
-
-      double precision f123l_LO(4)
-      double precision f123lc_LO(4)
-      double precision f123lb_LO(4)
-
       logical UseKFactors
-      integer iflag, index
+      integer iflag, index,i
 
       double precision x_in,q2_in,xmu,x,q
       integer icharge_in, mode_in, hfscheme_in
@@ -63,18 +57,6 @@ c communication with Fred's code
       COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
       common /fred/ xmc,xmb,HMASS
       common/fredew/ sinw2, xmw, xmz
-
-
-
-C
-C Local table of k-factors
-C
-      integer NKfactMax,i
-      parameter (NKfactMax=10000)
-      double precision akfact(4,NKFACTMAX)
-      double precision akfactc(4,NKFACTMAX)
-      double precision akfactb(4,NKFACTMAX)
-
 
 
 C----------------------------------------------------------------------
@@ -115,99 +97,183 @@ C      isch= 8  !*** S-ACOT(Chi) [not preferred]'
 C      isch= 9  !*** S-ACOT(Chi) [preferred] '           
 C----------------------------------------------------------------------
 
-C     get the LO SFs
-      ISCH=5    
-      
-      Call Fgen123L(icharge,   1, X, Q,xmu,F123L_LO, polar) !*** total F
-      Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_LO, polar) !*** F-charm
-      Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_LO, polar) !*** F-bottom
-
-C         
-
-      if (iflag.eq.1.or..not.UseKFactors) then
-         
          if (HFSCHEME_IN.eq.1) then 
-            ISCH=0
+            ISCH=0                  !*** NLO Massless MS-Bar
          elseif (HFSCHEME_IN.eq.11) then 
-            ISCH=1
+            ISCH=1                  !*** Full ACOT Scheme
          elseif (HFSCHEME_IN.eq.111) then 
-            ISCH=9
+            ISCH=9                  !*** S-ACOT(Chi) [preferred]
          endif
-         
-         Call Fgen123L(icharge,   1, X, Q,xmu,F123L_NLO, polar) !*** total F
-         Call Fgen123L(icharge,   2, X, Q,xmu,F123Lc_NLO, polar) !*** total Fc
-         Call Fgen123L(icharge,   3, X, Q,xmu,F123Lb_NLO, polar) !*** total Fb
-         do i=1,4
-            F123L_out(i)=F123L_NLO(i)
-            F123Lc_out(i)=F123Lc_NLO(i)
-            F123Lb_out(i)=F123Lb_NLO(i)
-         enddo
-C     Store k-factors:
-         if (UseKFactors) then
-            
-            if (index.gt.NKfactMax) then
-               print *,'Error in sf_acot_wrap'
-               print *,'Increase NKfactMax from '
-     $              ,NKfactMax,' to at least ',Index
-               call HF_errlog(104,'F: Error in sf_acot_wrap')
-C     stop
-            endif
-            
-            
-            do i=1,4 
-               
-!     protect for the kfactors that return infinity 
-               if (F123L_LO(i).eq.0.d0) then
-                  akfact(i,index) = 1.d0
-               else
-                  akfact(i,index) = F123L_NLO(i)/F123L_LO(i)
-               endif
-               
-               if (F123Lc_LO(i).eq.0.d0) then
-                  akfactc(i,index) = 1.d0
-               else
-                  akfactc(i,index) = F123Lc_NLO(i)/F123Lc_LO(i)
-               endif
-               
-               if (F123Lb_LO(i).eq.0.d0) then
-                  akfactb(i,index) = 1.d0
-               else
-                  akfactb(i,index) = F123Lb_NLO(i)/F123Lb_LO(i)
-               endif
-               
-            enddo
-            if (index.eq.1) then
-               print*,'building kfactors: F1,F2,F3 FL,F2b,F2c,Flb,Flc'
-            endif
-            print*,
-     $           index, 
-     $           (akfact(i,index),i=1,4),
-     $           akfactb(2,index), akfactc(2,index),
-     $           akfactb(4,index), akfactc(4,index)
-               
-         endif                  ! Usekfactors
-         
-      else                      ! if iflag.ne.1 and usefactor.eq.false
-c     Use k-factor:
-         
-         
-         do i=1,4
-            
-            F123L_out(i)=F123L_LO(i)*akfact(i,index)
-            F123Lc_out(i)=F123Lc_LO(i)*akfactc(i,index)
-            F123Lb_out(i)=F123Lb_LO(i)*akfactb(i,index)
-            
-            
-         enddo
+
+
+C----------------------------------------------------------------------
+C----------------------------------------------------------------------
+c     REWRITE: ENCAPSULATE THE K-FACTORS:  FIO 13 April 2012
+C----------------------------------------------------------------------
+
+c     This function returns F-123L, for total-c,b 'xcb', using 'K' factors
+c     eventually this will be written in a single pass to speed up calculations 
+c     K-factors are stored using data 'index' 
+c     BUT no error checking is done on {x,Q}, user must ensure index matches {x,Q}
+c     Note: scheme is set inside; this should not change from point to point
+c     If index is too big (.gt.NKfactMax) or 0, use full calculation
+
+
+      if ((.not.UseKFactors).or.(index.eq.0))
+     >    then
+         write(6,*) ' NOT using K-Factors  (may be slow)'
+         Call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb, polar) !*** total F no-K-factors, 
+
+      else
+         Call Fgen123LxcbK(index,icharge, X, Q,xmu,F123Lxcb, polar) !*** total F
       endif
-      
-      
+
+C----------------------------------------------------------------------
+c     UNPACK F123Lxcb ARRAY: 
+C         ... IN THE FUTURE WE CAN EDIT THE "subroutine UseAcotScheme" to skip this step
+C----------------------------------------------------------------------
+
+      DO I=1,4         
+         f123L_out( i)=F123Lxcb(1,i)
+         f123Lc_out(i)=F123Lxcb(2,i)
+         f123Lb_out(i)=F123Lxcb(3,i)
+      enddo
       
       RETURN
       END
 
+C----------------------------------------------------------------------
+C----------------------------------------------------------------------
+C----------------------------------------------------------------------
+C----------------------------------------------------------------------
+c     This function returns F-123L, for total-c,b 'xcb', NOT using 'K' factors
+C----------------------------------------------------------------------
+C     This function is temporary until i combine 'xcb' in a single pass
+C----------------------------------------------------------------------
+      subroutine Fgen123Lxcb_OLD(icharge, X, Q,xmu,F123Lxcb, polar)
+
+      double precision F123Lxcb(3,4)  !*** 3='xcb', 4='123L'
+
+      double precision f123L(4)   !***  4='123L'
+      double precision f123Lc(4)  !***  4='123L'
+      double precision f123Lb(4)  !***  4='123L'
+
+      double precision x,Q,xmu,polar
+      integer icharge,i
+
+      Call Fgen123L_OLD(icharge,   1, X, Q,xmu,F123L , polar) !*** total F
+      Call Fgen123L_OLD(icharge,   2, X, Q,xmu,F123Lc, polar) !*** F-charm
+      Call Fgen123L_OLD(icharge,   3, X, Q,xmu,F123Lb, polar) !*** F-bottom
+
+C----------------------------------------------------------------------
+c     re-PACK F123Lxcb ARRAY: 
+
+      DO I=1,4         
+         F123Lxcb(1,i)=f123L( i)
+         F123Lxcb(2,i)=f123Lc(i)
+         F123Lxcb(3,i)=f123Lb(i)
+      enddo
+     
+C----------------------------------------------------------------------
+      return
+      end
+
+C----------------------------------------------------------------------
+C----------------------------------------------------------------------
+c     This function returns F-123L, for total-c,b 'xcb', using 'K' factors
+C----------------------------------------------------------------------
+      subroutine Fgen123LxcbK(index,icharge, X, Q,xmu,F123Lxcb, polar)
+
+      double precision F123Lxcb(3,4),F123Lxcb_LO(3,4) !*** 3='xcb', 4='123L'
+      double precision x, q, xmu, polar
+      integer index, icharge
+      double precision maxFactor,small
+      data maxFactor,small /10.0d2, 1.e-12/
+      
+      COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
+      common /fred/ xmc,xmb,HMASS
+      common/fredew/ sinw2, xmw, xmz
+
+C Local table of k-factors
+      integer NKfactMax,nTotal,i,j
+      parameter (NKfactMax=10000,nTotal=3*4*NKfactMax)
+      double precision akFACTxcb(3,4,NKFACTMAX) !*** 3='xcb', 4='123L'
+      data  akFACTxcb/nTotal*0.d0/  !*** Zero K-Factor table
+
+c     Create a vector to keep track of which index has k-factors already computed
+      logical ifirst(NKfactMax),ihead
+      data ifirst, ihead /NKfactMax*.TRUE.,.TRUE./
+
+c     ------Check index is within bounds
+      if(index.gt.NKfactMax) then
+         write(6,*) ' Error: index > NKfactMax = ',index,NKfactMax
+         stop
+      endif
+
+C-----------------------------------------------------------------------------
+c     FIRST TIME THROUGH: FILL K-FACTOR      
+C-----------------------------------------------------------------------------
+      if(ifirst(index))  then  !***  FIRST TIME THROUGH: FILL K-FACTOR  ===
+         ifirst(index)=.FALSE.
+         call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb, polar)
+         IschORIG=Isch
+         Isch=5  !*** Massive LO Calculation
+         call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
+         Isch=IschORIG  !*** Reset Ischeme
+C     Generate K-Factor
+         do i=1,3
+         do j=1,4
+            if(abs(F123Lxcb_LO(i,j)).lt.small) then
+               akFACTxcb(i,j,Index)=1.0d0 !**** Default if denom is zero or small
+            else
+               akFACTxcb(i,j,Index)=F123Lxcb(i,j)/F123Lxcb_LO(i,j)
+c
+               if(Abs(akFACTxcb(i,j,Index)).gt.maxFactor) then  !*** Sanity Check:
+c               write(6,*) ' Warning: K-Fac is large: '
+               akFACTxcb(i,j,Index)=sign(maxFactor,akFACTxcb(i,j,Index))
+               endif
+            endif
+         enddo
+         enddo
+C-----------------------------------------------------------------------------
+C-----------------------------------------------------------------------------
+         if(ihead) write(6,*)   ' K-factors '
+         if(ihead) write(6,*) 
+     >   ' indx  x    Q   ichg pol    ',
+     >   'F1    F2    F3    FL    ',
+     <   'F1c   F2c   F3c   FLc   ',
+     >   'F1b   F2b   F3b   FLb   '
+         ihead=.FALSE.
+c     only dump the k-factor info the first time through the loop
+            write(62,*)  !**** DUMP COMPLETE INFO 
+     $           index,x,q,icharge,polar,
+     >        ((F123Lxcb(   i,j),j=1,4),i=1,3),
+     >        ((F123Lxcb_LO(i,j),j=1,4),i=1,3),
+     >        ((akFACTxcb(i,j,Index),j=1,4),i=1,3)
+
+           write(6,101)   !**** FORMAT FOR SCREEN
+     $           index,x,q,icharge,polar,
+     >        ((akFACTxcb(i,j,Index),j=1,4),i=1,3)
+101        Format(i4,1x,f0.5,1x,f5.1,1x,i3,1x,f5.3,1x,12(f7.2,1x))
+c
+C-----------------------------------------------------------------------------
+         else  !***  NOT FIRST TIME THROUGH: USE K-FACTOR ======================
+            IschORIG=Isch
+            Isch=5  !*** Massive LO Calculation
+            call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
+            Isch=IschORIG  !*** Reset Ischeme
+C     Use K-Factor
+            do i=1,3
+            do j=1,4
+               F123Lxcb(i,j)=F123Lxcb_LO(i,j)* akFACTxcb(i,j,Index)
+            enddo
+            enddo
+         endif
 
 
+C-----------------------------------------------------------------------------
+C-----------------------------------------------------------------------------
+      return
+      end
 
-
-
+C
