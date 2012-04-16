@@ -920,7 +920,7 @@ C------------------------------------------------------------
             call HF_stop
          endif
 
-         print *,'ho',n,n2
+C         print *,'ho',n,n2
 C Store first index:
          DATASETTheoryIndex(IDataSet) = IGridIDfnlo(1)
          IGridID = IGridIDfnlo(1)
