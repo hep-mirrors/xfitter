@@ -351,7 +351,7 @@ C------------------------------------
          varin(1)=0d0
          varin(2)=1d0
          varin(3)=-2d0/3d0
-         varin(4)=4d0
+         varin(4)=1d0
 
          if (I_FIT_order.eq.1) then
             print*,'YOU SELECTED RT_OPT LO in the steering'
