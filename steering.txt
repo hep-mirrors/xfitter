@@ -39,6 +39,7 @@
  ! ---  HF_SCHEME = 'RT OPT'        :  Thorne-Roberts VFNS (massive)
  ! ---  HF_SCHEME = 'RT OPT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
  ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi' : ACOT - F.Olness Version (massive), using k-factors  
  ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
  ! ---  HF_SCHEME = 'FF'        : Fixed Flavour Number Scheme (qcdnum)
  ! ---  HF_SCHEME = 'FF ABM'    : Fixed Flavour Number Scheme (ABM)
