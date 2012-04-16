@@ -2848,8 +2848,8 @@ c Approx version of NNLO c2g in FFNS Q^2<M^2
       pi=3.14159265359d0
 
       term1 = 96*beta*(13.073*xi-23.827*xi**2+24.107*xi**3
-c$$$     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
-     .-9.173*xi**4)/z*(log(xmax/z)-4.*xi**0.1)*(1.-z/xmax)**20 ! G.W. 11/04/2012
+     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
+cv     .-9.173*xi**4)/z*(log(xmax/z)-4.*xi**0.1)*(1.-z/xmax)**20 ! G.W. 11/04/2012
 
       term2=256./z*pi**3*xi*(1./(1.+xi/4))*2.1/(1.+eta)*
      .((0.0144-0.0273*log(eta)+0.00235*(log(eta))**2
@@ -2864,32 +2864,33 @@ c$$$     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
       return
       end
 
-c Approx version of NNLO c2g in FFNS Q^2>M^2
-      function c2gffns3h(z,eps) ! G.W. 11/04/2012
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-
-      beta2=1.-4.*eps*z/(1.-z)
-      beta=sqrt(beta2)
-      xi=1./eps
-      eta=xi*(1.-z)/(4.*z)-1
-      xmax=(1./(1.+eps*4))
-      pi=3.14159265359d0
-
-      term1 = 96*beta*4.18*(1+0.36*log(xi))/z*(log(xmax/z)-4.)
-     .*(1.-z/xmax)**20
-
-      term2=256./z*pi**3*(1+0.5*log(xi))*(1./(1.+xi/4))*2.1/(1.+eta)*
-     .((0.0144-0.0273*log(eta)+0.00235*(log(eta))**2
-     .-0.0001033*(log(eta))**3-0.0000478*(log(eta))**4)
-     .+log(xi)*(0.0205-0.00373*log(eta)+0.00339*(log(eta))**2
-     .+0.000128*(log(eta))**3-0.000044*(log(eta))**4)  
-     .+(log(xi))**2*(-0.00065-0.0003*log(eta)
-     .+0.000178*(log(eta))**2+0.0000206*(log(eta))**3))
-
-      c2gffns3h=(term1+term2)
-
-      return
-      end
+cv! commenting out lines that are bot used (under GW guidance)
+cvc Approx version of NNLO c2g in FFNS Q^2>M^2
+cv      function c2gffns3h(z,eps) ! G.W. 11/04/2012
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv
+cv      beta2=1.-4.*eps*z/(1.-z)
+cv      beta=sqrt(beta2)
+cv      xi=1./eps
+cv      eta=xi*(1.-z)/(4.*z)-1
+cv      xmax=(1./(1.+eps*4))
+cv      pi=3.14159265359d0
+cv
+cv      term1 = 96*beta*4.18*(1+0.36*log(xi))/z*(log(xmax/z)-4.)
+cv     .*(1.-z/xmax)**20
+cv
+cv      term2=256./z*pi**3*(1+0.5*log(xi))*(1./(1.+xi/4))*2.1/(1.+eta)*
+cv     .((0.0144-0.0273*log(eta)+0.00235*(log(eta))**2
+cv     .-0.0001033*(log(eta))**3-0.0000478*(log(eta))**4)
+cv     .+log(xi)*(0.0205-0.00373*log(eta)+0.00339*(log(eta))**2
+cv     .+0.000128*(log(eta))**3-0.000044*(log(eta))**4)  
+cv     .+(log(xi))**2*(-0.00065-0.0003*log(eta)
+cv     .+0.000178*(log(eta))**2+0.0000206*(log(eta))**3))
+cv
+cv      c2gffns3h=(term1+term2)
+cv
+cv      return
+cv      end
 
 c Approx version of NNLO c2q in FFNS Q^2<M^2
       function c2qffns3(z,eps)
@@ -2902,31 +2903,32 @@ c Approx version of NNLO c2q in FFNS Q^2<M^2
       pi=3.14159265359d0
 
       term1 = 4./9.*96*beta*(13.073*xi-23.827*xi**2+24.107*xi**3
-c$$$     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
-     .-9.173*xi**4)/z*(log(xmax/z)-4.*xi**0.1)*(1.-z/xmax)**20 ! G.W. 11/04/2012
+     .-9.173*xi**4)/z*(log(xmax/z)-4.)*(1.-z/xmax)**20
+cv     .-9.173*xi**4)/z*(log(xmax/z)-4.*xi**0.1)*(1.-z/xmax)**20 ! G.W. 11/04/2012
 
       c2qffns3=term1
 
       return
       end
 
-c Approx version of NNLO c2q in FFNS Q^2>M^2
-      function c2qffns3h(z,eps) ! G.W. 11/04/2012
-      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-      beta2=1.-4.*eps*z/(1.-z)
-      beta=sqrt(beta2)
-      xi=1./eps
-      eta=1.-beta2
-      xmax=(1./(1.+eps*4.))
-      pi=3.14159265359d0
-
-      term1 = 4./9.*96*beta*4.18*(1+0.36*log(xi))/z*(log(xmax/z)-4.)
-     .*(1.-z/xmax)**20
-
-      c2qffns3h=term1
-
-      return
-      end
+cv! commenting out lines that are bot used (under GW guidance)
+cvc Approx version of NNLO c2q in FFNS Q^2>M^2
+cv      function c2qffns3h(z,eps) ! G.W. 11/04/2012
+cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+cv      beta2=1.-4.*eps*z/(1.-z)
+cv      beta=sqrt(beta2)
+cv      xi=1./eps
+cv      eta=1.-beta2
+cv      xmax=(1./(1.+eps*4.))
+cv      pi=3.14159265359d0
+cv
+cv      term1 = 4./9.*96*beta*4.18*(1+0.36*log(xi))/z*(log(xmax/z)-4.)
+cv     .*(1.-z/xmax)**20
+cv
+cv      c2qffns3h=term1
+cv
+cv      return
+cv      end
 
 c Approx version of NNLO clg in FFNS Q^2<M^2
       function clgffns3(z,eps)
