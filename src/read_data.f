@@ -187,7 +187,8 @@ C Reference table
       integer IndexDataset
       double precision SystScales(nsystMax)
 C Extra info about k-factors, applegrid file(s):
-      character*80 TheoryInfoFile(2),TheoryType(2)
+      character*1000 TheoryInfoFile(2)
+      character*80  TheoryType(2)
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
 C Namelist definition:
@@ -355,6 +356,14 @@ C--- Add new source
 C Theory file if present:
       DATASETTheoryType(NDATASETS) = ' '
       do i=1,2
+         if (Index(TheoryInfoFile(i),' ').gt.nchar_theory-1) then
+            print *,
+     $        'File name too long (>199). ',trim(TheoryInfoFile(i))
+            print *,'Increase DATASETTheoryFile'//
+     $        ' string length in dataset.inc'
+            print *,'or reduce the name (e.g. make symbolic link)'
+           call hf_stop
+         endif
          if (TheoryType(i).ne.' ' .and. TheoryInfoFile(i).ne.' ') then
             if (TheoryType(i).ne.'kfactor') then
   ! not k-factor, overwrite

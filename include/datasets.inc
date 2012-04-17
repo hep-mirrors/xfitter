@@ -17,7 +17,10 @@ C General dataset info
 C SG: reaction type:
       character*80 DATASETReaction(NSET)    !> Dataset reaction type
 C SG: extra theory file:
-      character*80 DATASETTheoryFile(NSet)  !> File containing extra info for theory predictions
+      integer nchar_theory
+      parameter (nchar_theory=200)
+
+      character*(nchar_theory) DATASETTheoryFile(NSet)  !> File containing extra info for theory predictions
       character*80 DATASETTheoryType(NSET)  !> Theory type. Currently: kfactor, applgrid, fastnlo    
       integer      DATASETTheoryIndex(NSET) !> Theory index: utility for FastNLO/applgrid interface
 
