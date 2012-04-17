@@ -68,7 +68,7 @@ LDADD+=  ../DY/src/libmydy.a\
  ../DiffDIS/src/libDiffDIS.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
- -lgsl -lgslcblas -lstdc++ 
+  -lstdc++ 
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
