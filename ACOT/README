@@ -1,0 +1,57 @@
+               ------------------------------------------------
+                                ACOT subpackage 
+               ------------------------------------------------
+
+REFERENCE: 
+
+Leptoproduction of Heavy Quarks II -- A Unified QCD Formulation of 
+Charged and Neutral Current Processes from Fixed-target to Collider Energies
+M.A.G. Aivazis, John C. Collins, Fredrick I. Olness, Wu-Ki Tung
+Journal reference: 	Phys.Rev.D50:3102-3118,1994
+DOI: 	10.1103/PhysRevD.50.3102
+Cite as: 	arXiv:hep-ph/9312319v2
+
+
+For support information, please contact: 
+Fred Olness 
+olness@smu.edu
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+                 Running ACOT in HERA-Fitter
+
+
+0) General ACOT philosophy
+====================
+
+... under construction
+
+1) RUNNING ACOT Schemes
+====================
+
+ ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi' : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
+
+The default is with k-factors to speed up the run time. This can be disabled so that
+the full calculation can be used by setting UseKFactors=.FALSE. or setting index.eq.0.
+
+
+Computes both Neutral Current and Charged Current. 
+
+For Neutral Current, you can choose either photon exchange only, 
+or photon + Z. Initial beam polarization is controled by 'polar'
+
+
+2) OUTPUTS
+====================================
+
+For diagnostics, the k-factors are output to ./output/KfactorsACOT.txt
+This writes on unit 62. 
+
+
+3) DISCLAIMERS
+====================================
+
+This is a beta version that has been "hacked" to adapt to the
+HERA-Fitter framework, and is for testing purposes only.
