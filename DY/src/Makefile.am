@@ -9,4 +9,4 @@ libmydy_a_SOURCES = PhysPar.cc \
                     BinMatrix.cc IntSteps.cc PDFconv.cc DYcalc.cc
 AM_FFLAGS = -I$(srcdir)/../include -fno-automatic -finit-local-zero -ffixed-line-length-132
 
-AM_CXXFLAGS = -I$(srcdir)/../include -O  -fPIC -Wno-deprecated -w
+AM_CXXFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../interfaces/include  -O  -fPIC -Wno-deprecated -w

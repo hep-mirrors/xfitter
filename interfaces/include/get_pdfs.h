@@ -44,6 +44,19 @@ double HF_GET_MUF_WRAP(const int *idataset);
 
 
 //
+// Function to get PDFs fast 
+//
+#define HF_PDFFAST_WRAP F77_FUNC_ (hf_pdffast, HF_PDFFAST)
+#ifdef __cplusplus
+extern "C"  /* prevent C++ name mangling */
+#endif
+void HF_PDFFAST_WRAP(const double *pdffdef, 
+		     const double *x, 
+		     const double *q2,
+		     double *PDFout,
+		     const int   *Npoints);
+
+//
 //--------------- Internal -------------------------
 //
 

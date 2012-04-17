@@ -7,17 +7,10 @@
 #include "PhysPar.h"
 #include "PDFconv.h"
 
+#include "get_pdfs.h"  // wraper functions
+
 using namespace std;
 
-extern "C"{
-  //void fpdfxq_(int *iset, const double *x, const double *q2, double *pdfs, 
-  //          int *ichk);
-void fastini_(const double *xint, const double *q2int, int *n, int *ichk);
-void fastsns_(const int *iset, const double *pdfin, const int *isel,
-              const int *ibuf);
-void fastfxq_(const int *ibuf, const double *xq, const int *nint);
-void getqcdnumpdfset_(int *iqnset);
-}
 
 const int PDFconv::_nfl = 13;
 
@@ -163,17 +156,10 @@ void PDFconv::init(){
 
 // Interpolate PDFs at current iteration
 int PDFconv::interpPDF(){
-  // initialize QCDNUM with our grid
-  int ichk(1);
-  fastini_(_XINT, _Q2INT, &_NINT, &ichk);
-  
-  int iset(1), isel(7), ibuf(-1), inbuf(-ibuf);
-  getqcdnumpdfset_(&iset);
 
   for (int ifl=0; ifl<_nfl; ifl++){
-   // if ( 6 == ifl ) continue;
-    fastsns_(&iset,&_fdef[ifl*_nfl],&isel,&ibuf);
-    fastfxq_(&inbuf,_XFINT[ifl],&_NINT);
+  // New call:
+    HF_PDFFAST_WRAP(&_fdef[ifl*_nfl],_XINT,_Q2INT,_XFINT[ifl],&_NINT);
   }
 
   return 1;
