@@ -121,7 +121,7 @@ c set-up of the constants
       integer NQ2bins, NXbins !> requested number of x,q2 bins
 
       namelist/qcdnum/xmin_grid, iwt_xgrid, iosp, wgt_q2, QARR,
-     $     NQ2bins, NXbins, Read_QCDNUM_Tables
+     $     NQ2bins, NXbins, Read_QCDNUM_Tables, ICheck_QCDNUM
 
 C Functions:
       integer iqfrmq
@@ -150,11 +150,15 @@ C Q2 grid weights
       WGT_q2(2) = 1.d0
 C Basic Q2 grid:
       QARR(1) = 1.
-      QARR(2) = 64000000.  ! enough for 8 TeV LHC.
+      QARR(2) = 2.05D8 ! needed for lhapdf grid  
+c      QARR(2) =  64000000.      ! enough for 8 TeV LHC.
 
 C Default sizes
       NQ2bins = 120
       NXbins  = 200
+
+C Default QCDNUM check
+      ICheck_QCDNUM = 0
 
 C---------------------
       q0 = starting_scale
