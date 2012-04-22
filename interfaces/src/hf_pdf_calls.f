@@ -10,7 +10,19 @@ C----------------------------------------------------------------------
       include 'steering.inc'
       include 'fcn.inc'
       double precision x,q2,pdfsf(-6:6)
+      integer i
 C----------------------------------------------------------------------
+      if (x.ge.1.D0) then
+         do i=-6,6
+            PDFSF(i) = 0
+         enddo
+
+         if (ICheck_QCDNUM.gt.0) then
+            Call HF_errlog(12042201,'W:HF_GET_PDFS X value >= 1.0') 
+         endif
+         Return
+      endif
+
       if ( CachePDFs ) then
 C Cache PDF calls:
          call GetCachedPDFs(ifcncount,x,q2,PDFSF)
