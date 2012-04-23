@@ -8,7 +8,7 @@ on the modules, data and theory tables used in the program.
   Main citations
 ==================
 
-H1Fitter   
+HERAFitter   
 ---------
 1) "Combined Measurement and QCD Analysis of the Inclusive e+- p Scattering Cross Sections at HERA."
 By H1 and ZEUS Collaboration (F.D. Aaron et al.). DESY-09-158, Oct 2009. 61pp. 
@@ -32,7 +32,7 @@ e-Print: arXiv:1005.1481 [hep-ph]
 ==================================
 
 1) RT- variable flavour number scheme (for HF_SCHEME =  'RT' or 'RT FAST')
----------------------------------------------------------------------------
+---------------------------------------------------------------------------------
 "An Ordered analysis of heavy flavor production in deep inelastic scattering"
 R.S. Thorne, R.G. Roberts. RAL-TR-97-049, Sep 1997. 48pp. 
 Published in Phys.Rev.D57:6871-6898,1998. 
@@ -42,6 +42,32 @@ e-Print: hep-ph/9709442
 R.S. Thorne. CAVENDISH-HEP-2006-01, Jan 2006. 17pp. 
 Published in Phys.Rev.D73:054019,2006. 
 e-Print: hep-ph/0601245
+
+ RT- variable flavour number scheme (for HF_SCHEME =  'RT OPT' or 'RT OPT FAST')
+----------------------------------------------------------------------------------
+
+"The Effect of Changes of Variable Flavour Number Scheme on PDFs and Predicted Cross Sections"
+R.S. Thorne.  Jan 2012.  14pp.
+Submitted to Phys.Rev.D.
+e-Print: arXiv:1201.6180 [hep-ph]
+
+11) ACOT-variable flavour number scheme ( for HF_SCHEME = 'ACOT Full' or 'ACOT Chi')  
+------------------------------------------------------------------------------------
+
+"Leptoproduction of Heavy Quarks II -- A Unified QCD Formulation of 
+Charged and Neutral Current Processes from Fixed-target to Collider Energies"
+M.A.G. Aivazis, John C. Collins, Fredrick I. Olness, Wu-Ki Tung
+Journal reference:      Phys.Rev.D50:3102-3118,1994
+DOI:    10.1103/PhysRevD.50.3102
+Cite as:        arXiv:hep-ph/9312319v2
+
+
+111) ABM-fixed flavour number scheme ( for HF_SCHEME = 'ABM') from 
+---------------------------------------------------------------------------
+	
+     http://www-zeuthen.desy.de/~alekhin/OPENQCDRAD/ 
+
+
 
 2) Chi2 definition ( CHI2Style = 'XXXX')
 -----------------------------------------
@@ -118,6 +144,19 @@ e-Print: hep-ph/0609285
 "Theory-Data Comparisons for Jet Measurements in Hadron-Induced Processes"
 M. Wobisch, D. Britzger, T. Kluge, K. Rabbertz, F. Stober.
 DESY 11-150, FERMILAB-PUB-11-418-PPD, Sep 2011. arXiv:1109.1310v1 [hep-ph]
+
+7) HATHOR (if used)
+---------------------------------------------
+from http://www-zeuthen.desy.de/~moch/hathor/
+
+8) NNPDFreweighting (if used) 
+---------------------------------------------
+Description of NNPDF method to create NNPDF PDF sets:
+arXiv:1002.4407 [hep-ph]
+
+Description of reweighting method:
+arXiv:1012.0836 [hep-ph],
+arXiv:1108.1758 [hep-ph]
 
 =============================
  Citations for data tables 
