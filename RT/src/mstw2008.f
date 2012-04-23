@@ -2231,6 +2231,11 @@ C--   G.W. 22/08/2006 Added error message.
       if(i.gt.2) beta2=1.-eps*z/z1
       if(i.gt.6) beta2=1.-4.*eps*z/z1
 c      if(beta2.lt.0.) go to 10
+
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       a=z2+z1*z1
       b=4.*z*(1.-3.*z)
@@ -2327,6 +2332,10 @@ c Simplified version of NLO clg in FFNS Q^2<M^2
       function clgffnsl(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
       pi = 3.14159265359d0
@@ -2351,6 +2360,10 @@ c Simplified version of NLO clq in FFNS Q^2<M^2
       function clqffnsl(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
 
@@ -2375,6 +2388,10 @@ c Subtraction term for NLO clg in VFNS
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
       COMMON/iordCommon/iord
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
 
@@ -2393,6 +2410,10 @@ c Simplified version of NLO clg in FFNS Q^2>M^2
       function clgffnsh(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
 
@@ -2426,6 +2447,10 @@ c Simplified version of NLO clq in FFNS Q^2>M^2
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
 
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1/eps
 
@@ -2459,6 +2484,10 @@ c Simplified version of NLO c2g in FFNS Q^2<M^2
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
 
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
       pi = 3.14159265359d0
@@ -2492,6 +2521,10 @@ c Simplified version of NLO c2q in FFNS Q^2<M^2
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
 
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
 
@@ -2517,6 +2550,10 @@ c Simplified version of NLO c2g in FFNS Q^2>M^2
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
 
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
 
@@ -2567,6 +2604,10 @@ c Simplified version of NLO c2q in FFNS Q^2>M^2
       IMPLICIT DOUBLE PRECISION (A-H, O-Z) ! G.W. 15/02/2007
 
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1/eps
 
@@ -2616,6 +2657,10 @@ c Simplified version of NLO llq in FFNS Q^2<M^2
 
       xi=1./eps
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=dsqrt(beta2)
 
       term1=beta**5*xi*(3.237*z**2*(1-
@@ -2640,6 +2685,10 @@ c Simplified version of NLO llq in FFNS Q^2>M^2
 
       xi=1./eps
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=dsqrt(beta2)
 
       term1=2.d0/3.d0*(16./3.*z*(dlog(1.-z)-2*dlog(z))
@@ -2841,6 +2890,10 @@ c Approx version of NNLO c2g in FFNS Q^2<M^2
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
       eta=xi*(1.-z)/(4.*z)-1
@@ -2896,6 +2949,10 @@ c Approx version of NNLO c2q in FFNS Q^2<M^2
       function c2qffns3(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
       eta=1.-beta2
@@ -2934,6 +2991,10 @@ c Approx version of NNLO clg in FFNS Q^2<M^2
       function clgffns3(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
       eta=xi*(1.-z)/(4.*z)-1
@@ -2952,6 +3013,10 @@ c Approx version of NNLO clq in FFNS Q^2<M^2
       function clqffns3(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
       eta=1.-beta2
@@ -3039,6 +3104,10 @@ c Simplified version of NNLO l2q in FFNS Q^2<M^2
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       xi=1./eps
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
 
       term1=beta**2*xi*(-78.24*z**2*(1+
@@ -3096,6 +3165,12 @@ c Subtraction term for NNLO c2g in VFNS
       function c2gvfsub(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       beta2=1.-4.*eps*z/(1.-z)
+      
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
+
       beta=sqrt(beta2)
       xi=1./eps
 
@@ -3126,6 +3201,10 @@ c Subtraction term for NNLO c2q in VFNS
       function c2qvfsub(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1/eps
 
@@ -3152,6 +3231,10 @@ c Simplified version of LO clg convoluted with a2gg
       function clgconagg(z,eps)
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       beta2=1.-4.*eps*z/(1.-z)
+cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
+      if (beta2.lt.0) then
+         beta2=0.
+      endif
       beta=sqrt(beta2)
       xi=1./eps
 
