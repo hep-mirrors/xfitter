@@ -27,7 +27,7 @@ C----------------------------------------------------
 C-----------------------------------------------------------------------------
        Implicit Double Precision (A-H, O-Z)
        CHARACTER HEADER*78
-       Dimension F123L(3)
+       Dimension F123L(4)
        PARAMETER (PI=3.14159265359)
        Common /Ischeme/ IschIN, IsetIN, IflgIN, IhadIN
        Common  / ActInt /  AERR, RERR, iActL, iActU
