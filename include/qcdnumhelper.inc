@@ -22,4 +22,4 @@ C QCDNUM:
       DATA CCEM3F/0.,0. ,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0./
 
       integer NPmaxDIS
-      parameter (NPmaxDIS =  1000)
+      parameter (NPmaxDIS =  2000)

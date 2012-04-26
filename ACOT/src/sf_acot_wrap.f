@@ -32,7 +32,9 @@ cccccccccccccccccccccccccccccccccccccccccccc
 !--------      
       include 'steering.inc'
       include 'couplings.inc'
+
 !--------
+      
 
       double precision F123Lxcb(3,4) !*** 3='xcb', 4='123L'
 
@@ -184,6 +186,11 @@ c     This function returns F-123L, for total-c,b 'xcb', using 'K' factors
 C----------------------------------------------------------------------
       subroutine Fgen123LxcbK(index,icharge, X, Q,xmu,F123Lxcb, polar)
 
+cv      include 'ntot.inc'
+
+      include 'qcdnumhelper.inc'
+
+
       double precision F123Lxcb(3,4),F123Lxcb_LO(3,4) !*** 3='xcb', 4='123L'
       double precision x, q, xmu, polar
       integer index, icharge
@@ -197,7 +204,7 @@ c     data maxFactor,small /1.0d1, 1.e-12/
 
 C Local table of k-factors
       integer NKfactMax,nTotal,i,j
-      parameter (NKfactMax=10000,nTotal=3*4*NKfactMax)
+      parameter (NKfactMax=NPmaxDIS,nTotal=3*4*NKfactMax)
       double precision akFACTxcb(3,4,NKFACTMAX) !*** 3='xcb', 4='123L'
       data  akFACTxcb/nTotal*0.d0/  !*** Zero K-Factor table
 

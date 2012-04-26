@@ -1,5 +1,5 @@
 C============================================================================= 
-      FUNCTION PDF(iSet, IHADRONin, IPARTONin, x, q, iRet)
+      FUNCTION PDF(iSet, IHADRONin, IPARTONin, xIN, q, iRet)
 C============================================================================= 
 C      Front end program for  cteq4 pdf's: Fred Olness  6/20/96
 C
@@ -19,6 +19,7 @@ C     2/3/2005  Fixed IHad; no longer need to override
 C============================================================================= 
 C     NOTE: FOR NOW IGNORE: ISET, IHADRONIN, IRET          fio 18 Jan 2011
                
+      x=xIN
       if(x.gt.0.99d0) x=0.99d0
       q2=q**2   !*** QCDNUM USES Q^2 **********
 
@@ -33,6 +34,7 @@ cv      stop
       if(IPARTONin.eq.-2) tmp = xpdf(-1)
 !
       pdf=tmp/x
+      if(pdf.le.0.0d0) pdf=0.0d0   !*** Protect negative PDFs: (true only to NLO order)
 
       RETURN
       END
