@@ -20,10 +20,9 @@ HERAFitterPdf::GetPdf(double x, double muf, double h[13]){
   // 0   1   2   3   4   5    6   7   8   9   10  11  12
   // tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
 
-  //  fpdfxq_(&iqnset, &x, &muf2, &pdf[0], &iqnchk); 
-
   HF_GET_PDFS_WRAP(&x, &muf2, &pdf[0]); 
 
+  h[Hathor::ATOP]     = pdf[0];
   h[Hathor::ABOTTOM]  = pdf[1];
   h[Hathor::ACHARM]   = pdf[2];
   h[Hathor::ASTRANGE] = pdf[3];
@@ -37,6 +36,7 @@ HERAFitterPdf::GetPdf(double x, double muf, double h[13]){
   h[Hathor::STRANGE]  = pdf[9];
   h[Hathor::CHARM]    = pdf[10];
   h[Hathor::BOTTOM]   = pdf[11];
+  h[Hathor::TOP ]     = pdf[12];
 
   for (int i=0; i<13; i++){
     h[i] /= x;
