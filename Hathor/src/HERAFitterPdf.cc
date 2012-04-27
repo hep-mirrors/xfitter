@@ -20,7 +20,7 @@ HERAFitterPdf::GetPdf(double x, double muf, double h[13]){
   // 0   1   2   3   4   5    6   7   8   9   10  11  12
   // tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
 
-  HF_GET_PDFS_WRAP(&x, &muf2, &pdf[0]); 
+  HF_GET_PDFS_UNCACHED_WRAP(&x, &muf2, &pdf[0]); 
 
   h[Hathor::ATOP]     = pdf[0];
   h[Hathor::ABOTTOM]  = pdf[1];
