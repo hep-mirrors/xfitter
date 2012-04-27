@@ -57,7 +57,7 @@ C---------------------------------------------------------------
       double precision Charge, polarity, S
       double precision q2min,q2max,xmin,xmax
       double precision EmToEtotRatio, alm_mz
-      logical LoopOverYBins
+      logical LoopOverYBins, CopyValue
       integer NSubBins
 
 C Functions:
@@ -102,13 +102,28 @@ C
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
 
+         CopyValue = .true.
          if(idx.gt.1) then      ! maybe I can just copy previous entry
-            if((AbstractBins(idxQ2min,idx).eq.AbstractBins(idxQ2min,idx-1)).and.
-     +       (AbstractBins(idxQ2max,idx).eq.AbstractBins(idxQ2max,idx-1)).and.
-     +       (AbstractBins(idxXmin,idx).eq.AbstractBins(idxXmin,idx-1)).and.
-     +       (AbstractBins(idxXmax,idx).eq.AbstractBins(idxXmax,idx-1)).and.
-     +       (AbstractBins(idxYmin,idx).eq.AbstractBins(idxYmin,idx-1)).and.
-     +       (AbstractBins(idxYmax,idx).eq.AbstractBins(idxYmax,idx-1))) then
+            if((idxQ2min.gt.0).and.(idxQ2max.gt.0)) then
+               if((AbstractBins(idxQ2min,idx).ne.AbstractBins(idxQ2min,idx-1)).or.
+     +              (AbstractBins(idxQ2max,idx).ne.AbstractBins(idxQ2max,idx-1))) then
+                  CopyValue = .false.
+               endif
+            endif
+            if((idxXmin.gt.0).and.(idxXmax.gt.0)) then
+               if((AbstractBins(idxXmin,idx).ne.AbstractBins(idxXmin,idx-1)).or.
+     +              (AbstractBins(idxXmax,idx).ne.AbstractBins(idxXmax,idx-1))) then
+                  CopyValue = .false.
+               endif
+            endif
+            if((idxYmin.gt.0).and.(idxYmax.gt.0)) then
+               if((AbstractBins(idxYmin,idx).ne.AbstractBins(idxYmin,idx-1)).or.
+     +              (AbstractBins(idxYmax,idx).ne.AbstractBins(idxYmax,idx-1))) then
+                  CopyValue = .false.
+               endif
+            endif
+            
+            if(CopyValue) then
                THEO(idx) = THEO(idx-1)
                cycle
             endif
