@@ -173,10 +173,10 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
   //  1           |   0 |   1
   //  -1          |   2 |   3
   for (int ib=0;ib<_nbins;ib++){
-    (_pc->*(_pc->getPDFconv))(imp, ib*2*_nsib, 1., xfxc[0], xfxc[1]);
-    (_pc->*(_pc->getPDFconv))(imp, ib*2*_nsib, -1., xfxc[2], xfxc[3]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*_ssb[ib], 1., xfxc[0], xfxc[1]);
+    (_pc->*(_pc->getPDFconv))(imp, 2*_ssb[ib], -1., xfxc[2], xfxc[3]);
     for (int icdf = 0; icdf<12; icdf ++){
-      qca[ib] += xfxc[icdf%4]*_bm->BM[imp][ib*2*_nsib][0][icdf];
+      qca[ib] += xfxc[icdf%4]*_bm->BM[imp][2*_ssb[ib]][0][icdf];
     }
     qy[ib] = 0.;
   }
@@ -189,7 +189,9 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
     (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1., pcb[2], pcb[3]);
     (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1., pcm[0], pcm[1]);
     (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1., pcm[2], pcm[3]);
-    int ib = iys/_nsib;
+    int ib(0);
+    while(iys >= _ssb[ib] ) ib++;
+    ib--;
     qcb[ib] = 0.; qcm[ib] = 0.;
     for (int icdf = 0; icdf<12; icdf ++){
       qcb[ib] += pcb[icdf%4]*_bm->BM[imp][2*(iys+1)][0][icdf];

@@ -119,6 +119,8 @@ void PDFconv::init(){
         vintx.push_back(x2);
         _IDX[imp][nyp+iyp] = vintx.size()-1;
       }
+	//cout << vintx.at(vintx.size()-1)  << "\t" 
+	 //<< iyp << " " << y << "\t" << imp << " " << m << endl;
     }
   }
 
@@ -137,7 +139,8 @@ void PDFconv::init(){
     exit(1);
   }
 
-  // assing values to it
+  // assign values to it
+  sort(vintx.begin(), vintx.end());
   vector<double>::iterator it = vintx.begin();
   for(;it!=vintx.end();it++){
     _XINT[ix] = *it;

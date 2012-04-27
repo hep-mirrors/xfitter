@@ -8,8 +8,6 @@
 
 using namespace std;
 
-const int IntSteps::_nsib = 10;
-
 IntSteps::~IntSteps()
 {
   delete[] _mr;
@@ -33,6 +31,10 @@ IntSteps::IntSteps(const IntSteps& ist)
   _bins = new double[_nbins+1];
   for (int ib=0;ib<_nbins+1;ib++){
     _bins[ib] = ist._bins[ib];
+  }
+  _ssb = new int[_nbins];
+  for (int ib=0;ib<_nbins;ib++){
+    _ssb[ib] = ist._ssb[ib];
   }
 
   _nms = ist._nms;
@@ -61,6 +63,7 @@ IntSteps::IntSteps(const std::string boz, const double *ranges,
   _var_name = var_name;
   _nbins = n_bins;
   _bins = new double[n_bins+1];
+  _ssb = new int[_nbins];
 
   if ( string("eta") == var_name ) {
     for (int ib=0;ib<n_bins+1;ib++){
@@ -190,12 +193,17 @@ void IntSteps::_makeYsteps()
 
 void IntSteps::_makeYstepsBinned()
 {
+  const double d0(0.04);
   double d(0.);
+  int ns(0), nsib(0); // number of all steps, number of stebs in a bin
   double a(_bins[0]);
   vector<double> va;
   for ( int ib=0; ib<_nbins; ib++){
-    d = (_bins[ib+1]-_bins[ib])/_nsib;
-    for ( int isib = 0; isib<_nsib; isib++){
+    _ssb[ib] = ns+=nsib;
+//    cout << ns << " " << _ssb[ib] << endl;
+    nsib = ceil((_bins[ib+1]-_bins[ib])/d0);
+    d = (_bins[ib+1]-_bins[ib])/nsib;
+    for ( int isib = 0; isib<nsib; isib++){
       va.push_back(a);
       a+=d;
     }  

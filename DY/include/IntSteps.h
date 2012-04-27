@@ -38,8 +38,8 @@ class IntSteps
   int _nbins;
   //! Array of bins
   double *_bins;
-  //! Number of rapidity integration steps in bin
-  static const int _nsib; 
+  //! Array of bin starting steps
+  int *_ssb; 
 
   //! 2-element Arrays of ranges for mass, rapidity and eta
   double *_mr;
