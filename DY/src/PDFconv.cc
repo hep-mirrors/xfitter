@@ -140,7 +140,6 @@ void PDFconv::init(){
   }
 
   // assign values to it
-  sort(vintx.begin(), vintx.end());
   vector<double>::iterator it = vintx.begin();
   for(;it!=vintx.end();it++){
     _XINT[ix] = *it;
