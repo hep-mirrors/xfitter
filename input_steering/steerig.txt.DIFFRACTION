@@ -7,8 +7,8 @@
  
   ! Input files:
 
-    InputFileNames(1) = 'datafiles/ZEUS-LRG_2009.dat'
-    InputFileNames(2) = 'datafiles/ZEUS-LPS_2009.dat'    
+    InputFileNames(1) = 'datafiles/hera/ZEUS_LRG_98-00.dat'
+    InputFileNames(2) = 'datafiles/hera/ZEUS_LPS_98-00.dat'    
   
 &End
 
@@ -54,7 +54,7 @@
   CHI2Style = 'Offset'
 
  ! Debug flag
-  LDEBUG     = True
+  LDEBUG     = False
 &End
 
 
