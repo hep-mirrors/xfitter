@@ -54,6 +54,13 @@ C
          Return
       endif
 
+C    22 Sep 11, VR, Add AS parametrisation
+      if (iparam.eq.1977) then
+         Call SumRulesAS
+         return
+      endif
+
+
 C==========================================================
 C Standard parameterisation. 
 C
@@ -862,6 +869,222 @@ C--------------------------
       chebint2big = t991
       end
 
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC      
+
+
+      Subroutine SumRulesAS
+C---------------------------------------------------------------
+C 
+C  Created 20 Jul 2011 by VR. Add sum-rules for A.Schoening parameterisation 
+C
+C---------------------------------------------------------------
+      implicit none
+      include 'pdfparam.inc'
+
+      double precision sumUv, sumDv
+      double precision sumMom, sumGlue,x
+      integer i
+      double precision SumRuleASpar,splogn
+      double precision ubar,dbar,uval,dval,gluon
+      integer IDebug
+      data IDebug/1/
+
+C---------------------------------------------------------------
+
+C Counting sum-rule for uv:
+      sumUv = SumRuleASpar(-1,asuval)
+      asuval(1) = 2.0D0 / sumUv
+
+C Counting sum-rule for dv:
+      sumDv = SumRuleASpar(-1,asdval)
+      asdval(1) = 1.0D0 / sumDv
+
+C Momentum sum rule:
+      sumMom = 2.D0*asubar(1)*SumRuleASpar(0,asubar) +
+     $         2.D0*asdbar(1)*SumRuleASpar(0,asdbar) +
+     $         asuval(1)*SumRuleASpar(0,asuval) +
+     $         asdval(1)*SumRuleASpar(0,asdval) 
+      sumGlue = SumRuleASpar(0,asglue)
+      asglue(1) = (1.0 - SumMom)/sumGlue
+
+      if (IDebug.eq.1) then
+         print '(''uv:'',5F10.4)',(asuval(i),i=1,5)
+         print '(''dv:'',5F10.4)',(asdval(i),i=1,5)
+         print '(''Ub:'',5F10.4)',(asubar(i),i=1,5)
+         print '(''Db:'',5F10.4)',(asdbar(i),i=1,5)
+         print '(''GL:'',5F10.4)',(asglue(i),i=1,5)
+      endif
+
+
+      if (IDebug.eq.10) then
+         do i=1,8
+            x = 10**(-i/2.)
+            print '(6F12.5)',x,splogn(x,asuval),splogn(x,asdval),
+     $           splogn(x,asubar),splogn(x,asdbar),splogn(x,asglue)
+            print '(6F12.5)',x,uval(x),dval(x),ubar(x),dbar(x),gluon(x)
+         enddo
+      endif
+
+      return
+      end
+
+      double precision function SumRuleASpar(n,aas)
+C---------------------------------------------------------------
+C A wrapper for A. Schoening sum-rule integral.
+C 
+C parameterisation where n = 0 (momentum sum-rule) or -1 ( counting sum rule)
+C---------------------------------------------------------------
+      implicit none 
+      integer n
+      integer i
+      double precision aas(1:5), aass(1:5)
+      double precision splognni
+
+      do i=1,5
+         aass(i)=aas(i)
+      enddo
+      aass(1)=1.d0
+      aass(2)=aass(2)+n
+
+      SumRuleASpar=splognni(aass)
+
+      if (SumRuleASpar.eq.0) then
+         print*, 'sum rule is ZERO---- ERROR'
+         STOP
+      endif
+      return
+      end
+      double precision function splognni(as)
+C---------------------------------------------------------------
+*     Numerical Integration of the 
+*     Special lognormal function 
+*     using the Simpson method
+*
+*
+*     A.Schoening, University Heidelberg, Physikalisches Institut
+*     Creation: 12.6.2011
+*  
+*  ASPDF = A1*x**(A2-A3*log(x))*(1-x)**(A4-A5*log(1-x))
+C---------------------------------------------------------------
+      implicit none
+ 
+      integer np,i
+      data np /100/
+      
+      double precision as(1:5)
+      double precision xas,xnas
+      double precision splogn
+
+      double precision peak,h,sum,xlmin
+      data xlmin /-10.0/
+      
+      logical logflag
+      data logflag /.true./
+
+      logical falling
+      data falling /.false./
+c      data falling /.true./
+      double precision eps
+      data eps /0.001d0/
+      double precision f1,f2,f3
+
+
+C-----------------------------------------------------
+
+      f1=splogn(eps,as)
+      f2=splogn(0.5d0,as)
+      f3=splogn((1.d0-eps),as)
+
+      if (f1.gt.f2+f3) then
+         logflag=.true.
+         falling=.true.
+      elseif (f3.gt.f2+f1) then
+         logflag=.true.
+         falling=.false.
+      else
+         logflag=.false.
+      endif
+c      print *,logflag,falling
+
+c linear integration
+      if (.not.logflag) then
+         h=1.d0/float(np)
+         sum=0.d0
+c weight 4
+         do i=1,np-1,2
+            xas=i*h
+            sum=sum+splogn(xas,as)
+         enddo
+         sum=2.d0*sum
+c weight 2
+         do i=2,np-2,2
+            xas=i*h
+            sum=sum+splogn(xas,as)
+         enddo
+         sum=2.d0*sum
+         sum=sum+splogn(0.d0,as)+splogn(1.d0,as)
+         splognni=h/3.d0*sum
+      else
+c steeply falling distribution
+
+         if (falling) then
+
+            h=-xlmin/float(np)
+            sum=0.d0
+c weight 4
+            do i=1,np-1,2
+               xas=10.d0**(xlmin+i*h)
+               sum=sum+xas*splogn(xas,as)
+            enddo
+            sum=2.d0*sum
+c weight 2
+            do i=0,np-2,2
+               xas=10.d0**(xlmin+i*h)
+               sum=sum+xas*splogn(xas,as)
+            enddo
+            sum=2.d0*sum
+            xas=1.d0
+            sum=sum+splogn(xas,as)
+            splognni=h/3.d0*sum*log(10.d0)
+
+
+         else
+c steeply rising distribution
+            h=-xlmin/float(np)
+            sum=0.d0
+c     weight 4
+            do i=1,np-1,2
+               xas=10.d0**(xlmin+i*h)
+               xnas=1.d0-xas
+               sum=sum+xas*splogn(xnas,as)
+*     print *,x,x
+            enddo
+            sum=2.d0*sum
+c weight 2
+            do i=0,np-2,2
+               xas=10.d0**(xlmin+i*h)
+               xnas=1.d0-xas
+               sum=sum+xas*splogn(xnas,as)
+            enddo
+            sum=2.d0*sum
+            xas=0.d0
+            sum=sum+splogn(xas,as)
+            splognni=h/3.d0*sum*log(10.d0)
+            
+         endif
+
+      endif
+      if (splognni.eq.0) then
+         print*, 'sum rule is ZERO---- ERROR'
+         STOP
+      endif
+      return
+      end
+
+
+
+
+ccccccccccccccccccccccccccccccccccccccccc
 
       Subroutine SumRulesCTeq
 C---------------------------------------------------------------

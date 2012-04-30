@@ -45,3 +45,8 @@ C !> CTEQ-like parameterisation
      $      ctglue(1:6),ctother(1:6)
        common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother
 
+C !> Add AS parameterisation
+       double precision asuval(1:5), asdval(1:5), asubar(1:5), asdbar(1:5),
+     $      asglue(1:5),asother(1:5)
+       common/aspar/asuval,asdval,asubar,asdbar,
+     $      asglue,asother

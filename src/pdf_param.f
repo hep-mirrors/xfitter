@@ -190,6 +190,11 @@ C  22 Apr 2011: CT parameterisation:
          Call DecodeCtPara(p)
       endif
 
+C  22 Sep 2011: AS parameterisation:
+      if (IPARAM.eq.1977) then
+         Call DecodeASPara(p)
+      endif
+
 C
 C Chebyshev for the gluon:
 C
@@ -464,6 +469,104 @@ C-----------------------------------------------------
 
       end
 
+      subroutine DecodeASPara(pars)
+C-------------------------------------------------------
+C Created 20 Jul 11 by VR. Decode minuit input for AS param.
+C   pars(21-25)  - Uv
+C   pars(32-35)  - Dv
+C   pars(43-45)  - Ubar
+C   pars(51-55)  - Dbar
+C   pars(1-5)  - gluon
+C------------------------------------------------------
+      implicit none 
+      include 'pdfparam.inc'
+      include 'steering.inc'
+      double precision pars(*)
+      integer i
+      logical lfirstt
+      data lfirstt /.true./
+      double precision fs
+      double precision fshermes
+C---------------------------------------------------------
+      if (lfirstt) then
+         lfirstt = .false.
+         print *,'DecodeASPara INFO: First time call'        
+      endif
+
+
+C Hermes strange prepare:
+      if (ifsttype.eq.0) then
+         fs = fstrange
+      else
+         fs = fshermes(0.)
+      endif
+
+C simple copy first:
+      do i=1,5
+         asglue(i) = pars(i)
+         asuval(i) = pars(10+i)
+         asdval(i) = pars(20+i)
+         asubar(i) = pars(30+i)
+         asdbar(i) = pars(40+i)
+         asother(i) = pars(94+i)
+      enddo
+
+C Extra constrains:
+      if (pars(31).eq.0) then
+         asubar(1) = asdbar(1) * (1.D0-fs)/(1.D0-fcharm) !
+         asubar(2) = asdbar(2)  ! Bubar = Bdbar
+      endif
+
+C Impose Buv = Bdv if parameter for Buv = 0.
+c      if (pars(12).eq.0) then
+c         asuval(2) = asdval(2)  ! Buv = Bdv
+c      endif
+
+c      print '(''2uv:'',5F10.4)',(asuval(i),i=1,5)
+c      print '(''2dv:'',5F10.4)',(asdval(i),i=1,5)
+c      print '(''2Ub:'',5F10.4)',(asubar(i),i=1,5)
+c      print '(''2Db:'',5F10.4)',(asdbar(i),i=1,5)
+c      print '(''2GL:'',5F10.4)',(asglue(i),i=1,5)
+
+
+
+C---------------------------------------------------------
+      end
+
+
+      double precision function splogn(x,a)
+C----------------------------------------------------
+c     Special lognormal function 
+c
+c
+c     A.Schoening, University Heidelberg, Physikalisches Institut
+c     Creation: 12.6.2011
+c   A1*x**(A2-A3*log(x))*(1-x)**(A4-A5*log(1-x))
+C-----------------------------------------------------
+      implicit none
+      double precision x,a(1:5)
+      double precision  splogn1
+      
+      splogn1=0.0d0
+      if (x.gt.0.d0.and.x.lt.1.d0) then
+         splogn1=A(1)*x**(A(2)-A(3)*log(x))*
+     $        (1.d0-x)**(A(4)-A(5)*log(1.d0-x))
+      endif
+
+
+cv      if (abs(splogn1).lt.1d30) then
+c value in allowed range
+cv      else
+cv         splogn1=0.0d0
+cv      endif
+      splogn=splogn1
+cv      print*,'end my function is again',x,splogn
+
+      return
+      end
+
+      
+
 
 
 
@@ -478,7 +581,7 @@ C-----------------------------------------------------
       double precision x
       integer i
 C External function:
-      double precision PolyParam,ctpara,para
+      double precision PolyParam,ctpara,para,splogn
 C-------------------------------------------------
 
 
@@ -488,7 +591,11 @@ C    22 Apr 11, SG, Add CTEQ-like
          return
       endif
 
-
+C    22 Sept 11, VR, Add AS
+      if (iparam.eq.1977) then
+         gluon = splogn(x,asglue)
+         return
+      endif
       if (nchebglu.eq.0) then
 
          gluon=para(x,parglue)
@@ -569,12 +676,18 @@ C---------------------------------
       include 'steering.inc'
       include 'pdfparam.inc'
       double precision x,x23
-      double precision PolyVal,ctpara,para
+      double precision PolyVal,ctpara,para,splogn
 C---------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.171717) then
          UVal = ctpara(x,ctuval)
+         return
+      endif
+
+C    22 Sep 11, VR, Add AS
+      if (iparam.eq.1977) then
+         UVal = splogn(x,asuval)
          return
       endif
 
@@ -602,7 +715,7 @@ C
       include 'steering.inc'
       include 'pdfparam.inc'
       double precision x,x23
-      double precision PolyVal,ctpara,para
+      double precision PolyVal,ctpara,para,splogn
 C--------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
@@ -610,6 +723,12 @@ C    22 Apr 11, SG, Add CTEQ-like
          DVal = ctpara(x,ctdval)
          return
       endif
+C    22 Sep 11, VR, Add AS
+      if (iparam.eq.1977) then
+         DVal = splogn(x,asdval)
+         return
+      endif
+
 
 C
 C 25 Jan 2011: add polynomial param 
@@ -736,7 +855,7 @@ C----------------------------------------------------
       
       if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
      $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
-     $     .or.iparam.eq.171717
+     $     .or.iparam.eq.171717.or.iparam.eq.1977
      $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
 
          qstrange = fs * Dbar(x)
@@ -795,9 +914,15 @@ C----------------------------------------------------
       double precision x,sea,dbmub,qstrange,cbar
       double precision sing,flav_number,QPDFXQ
       integer iflag,iq0,iqb,iqc,iqfromq,jtest
-      double precision ctpara,para
+      double precision ctpara,para, splogn
 C----------------------------------------------
 * new2 jf SPECIAL TEST with dubar
+
+C    22 Sep 11, VR, Add AS
+      if (iparam.eq.1977) then
+         Ubar = splogn(x,asubar)
+         return
+      endif
 
 
 C    22 Apr 11, SG, Add CTEQ-like
@@ -835,7 +960,7 @@ C    22 Apr 11, SG, Add CTEQ-like
       include 'steering.inc'
       include 'pdfparam.inc'
       double precision x,sea,Ubar
-      double precision ctpara,para
+      double precision ctpara,para,splogn
 C SG: x-dependent fs:
       double precision fs
       double precision fshermes
@@ -846,6 +971,12 @@ C----------------------------------------------------
          fs = fshermes(x)
       endif
 C------------------------------------------------------------
+
+C    22 Sep 11, VR, Add AS
+      if (iparam.eq.1977) then
+         Dbar = splogn(x,asdbar)
+         return
+      endif
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (iparam.eq.171717) then

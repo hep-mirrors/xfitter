@@ -522,6 +522,10 @@ C---------------------------------
          iparam = 171717
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
 
+      elseif (PDFStyle.eq.'AS') then
+         iparam = 1977
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
+
       elseif (PDFStyle.eq.'CHEB') then
          iparam = 4
          PDF_DECOMPOSITION = 'Dv_Uv_Sea_Delta'
