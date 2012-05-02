@@ -72,7 +72,8 @@ C (Optional) set HQ scale
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
 
-
+C Namelist for statistical correlations to read
+      namelist/InCorr/NCorrFiles,CorrFileNames
 
 C Namelist for EW parameters:
       namelist/EWpars/alphaem, gf, sin2thw, convfac,
@@ -339,6 +340,14 @@ C
       read (51,NML=InFiles,END=71,ERR=72)
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+C     
+C  Read statistical correlations namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=InCorr,END=76,ERR=77)
+      print '(''Read '',I4,'' correlation files'')',NCorrFiles
+ 136  continue
+      close (51)
 
 C
 C  Data-set dependent scales. First set defaults
@@ -440,6 +449,11 @@ C
       goto 73
  72   continue
       print '(''Error reading namelist &InFiles, STOP'')'
+      call HF_stop
+ 76   print '(''Namelist &InCorr NOT found'')'
+      goto 136
+ 77   continue
+      print '(''Error reading namelist &InCorr, STOP'')'
       call HF_stop
  124  print '(''Error reading namelist &scales, STOP'')'
       Call HF_stop
@@ -644,6 +658,8 @@ C---------------------------------
          ICHI2 = 41        
       elseif (Chi2Style.eq.'Offset') then
          ICHI2 = 3
+      elseif (Chi2Style.eq.'Covariance Matrix') then
+         ICHI2 = 100
       else
          print *,'Unsupported Chi2Style =',Chi2Style
          print *,'Check value in steering.txt'

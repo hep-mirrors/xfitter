@@ -12,6 +12,14 @@
     InputFileNames(4) = 'datafiles/hera/H1ZEUS_CC_e+p_HERA1.0.dat'
 &End
 
+&InCorr
+  ! Number of statistical correlation files
+    NCorrFiles = 0
+ 
+  ! Statistical correlation files:
+  !  CorrFileNames(1) = 'datafiles/DESY-09-032-norm_DESY-09-032-norm.dat'
+&End
+
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
 * dependently. The numbering follows sequential numbering of input files
@@ -64,6 +72,7 @@
  !    'HERAPDF' : Pascaud-like + "mixed error scaling"
  !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
+ !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
 
   CHI2Style = 'HERAPDF'
 

@@ -110,6 +110,11 @@ C-----------------------------------------
          call Systematics
       endif
 
+      if (ICHI2.eq.100) then
+         call prep_corr
+      endif
+
+
       if (LDebug) then
 C
 C Dump beta,alpha matricies

@@ -6,6 +6,10 @@ C Namelist for data set declarations
       integer NInputFiles                !> Number of input files
       character*80 InputFileNames(NSET)  !> Names of input files
 
+C Namelist for statistical correlation declarations
+      integer NCorrFiles                    !> Number of correlation files
+      character*80 CorrFileNames(NSET**2)   !> Names of correlation files
+
 C General dataset info
       integer 
      $      NDATASETS                 !> Number of datasets 
@@ -63,4 +67,6 @@ C
      $     ,InputFileNames
      $     ,DATASETNKfactors
      $     ,DATASETTheoryIndex
+     $     ,NCorrFiles
+     $     ,CorrFileNames
 

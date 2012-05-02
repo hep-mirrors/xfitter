@@ -291,8 +291,12 @@ c             call fillvfngrid
 *     ---------------------------------------------------------
 *     calculate chisquare
 *     ---------------------------------------------------------
-      call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
-
+      if(ICHI2.eq.100) then
+         call GetCovChisquare(iflag,n0,fchi2,pchi2)
+      else
+         call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+      endif
+      
 *
 * Save NDF
 *
