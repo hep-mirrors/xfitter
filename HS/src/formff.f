@@ -35,6 +35,12 @@ C
       COMPLEX*16 SIGMRG,SIGMRM,CG,CM
       DIMENSION MTDAT(4),MHDAT(4)
       DATA MTDAT,MHDAT/100D0,150D0,200D0,250D0,25D0,5D1,76D0,8D2/
+cv
+      double precision pi_hf, alphaem_hf, gf_hf, convfac_hf
+      double precision mw_hf, mz_hf, mh_hf, mel_hf, mup_hf
+      double precision mdn_hf, mst_hf, mch_hf, mbt_hf
+      double precision mtp_hf, mta_hf, mmo_hf
+
       DO 1 I=1,20
     1 LPAR(I)=0
       DO 2 I=1,12
@@ -67,9 +73,20 @@ C...IN SELF ENERGIES AND VERTEX CORRECTIONS:
       LPAR(15)=1
 C...CALCULATE WEAK PARAMETERS, COUPLING CONSTANTS, MASSES
 C...AND PRINT ACTUAL SETTING
-      MH=114D0
-      MT=171.3D0
+
+
+      call wrap_constants(pi_hf, alphaem_hf, gf_hf, convfac_hf,
+     $     mw_hf, mz_hf, mh_hf, mel_hf, mup_hf,
+     $     mdn_hf, mst_hf, mch_hf, mbt_hf, mtp_hf, mta_hf, mmo_hf)
+
+
+      MH=mh_hf
+      MT=mtp_hf
+cv      MH=114D0
+cv      MT=171.3D0
+
       CALL SETPAR(1,doprint)
+
 CCC
 C
 C...DELTAR FOR VARIOUS MT AND MH
@@ -82,11 +99,13 @@ C...DELTAR FOR VARIOUS MT AND MH
 C      MZ=91.174D0
 C      MZ=91.170D0
 C      MZ=91.1884D0
-      MZ=91.1876D0
+cv      MZ=91.1876D0
+      MZ=mz_hf
       MZ2=MZ*MZ
       MT2=MT*MT
       MH2=MH*MH
       MW = PARGFX()
+
       CALL SETPAR(0,doprint)
 
       if (doprint) write(6,*) 'end of EPRC_INIT dr = ',deltar
@@ -164,23 +183,37 @@ C
       common/couplings/epsin2thw,epMz,
      +       cau,cvu,cad,cvd
 
+cv
+      double precision pi_hf1, alphaem_hf1, gf_hf1, convfac_hf1
+      double precision mw_hf1, mz_hf1, mh_hf1, mel_hf1, mup_hf1
+      double precision mdn_hf1, mst_hf1, mch_hf1, mbt_hf1
+      double precision mtp_hf1, mta_hf1, mmo_hf1
 
 
-cv      include 'steering.inc'
+      call wrap_constants(pi_hf1, alphaem_hf1, gf_hf1, convfac_hf1, 
+     $     mw_hf1, mz_hf1, mh_hf1, mel_hf1, mup_hf1,
+     $     mdn_hf1, mst_hf1, mch_hf1, mbt_hf1, mtp_hf1, mta_hf1, mmo_hf1)
 
 
 
-C---DEFINE CONSTANTS
-      PI=4D0*DATAN(1D0)
-      ALPHA=1D0/137.0359895D0
+
+      PI=pi_hf1
+      ALPHA=alphaem_hf1
+
+
       ALP1PI=ALPHA/PI
       ALP2PI=ALPHA/2D0/PI
       ALP4PI=ALPHA/4D0/PI
       E=DSQRT(4D0*PI*ALPHA)
-      GF=1.166389D-5
+cv      GF=1.166389D-5
+      GF=gf_hf1
+
       AGF0=PI*ALPHA/GF/DSQRT(2D0)
-      SXNORM=PI*ALPHA*ALPHA/2D0*3.8938D5
-      SX1NRM=ALPHA*ALPHA*ALPHA/16D0/PI*3.8938D5
+cv      SXNORM=PI*ALPHA*ALPHA/2D0*3.8938D5
+cv      SX1NRM=ALPHA*ALPHA*ALPHA/16D0/PI*3.8938D5
+      SXNORM=PI*ALPHA*ALPHA/2D0*convfac_hf1*1.D3
+      SX1NRM=ALPHA*ALPHA*ALPHA/16D0/PI*convfac_hf1*1.D3
+
 
 C---NON-STANDARD PHYSICS
       DNSM1=0D0
@@ -191,20 +224,34 @@ C     DNSM2=-1D-2
 C     DNSMR=-1D-2
 
 C---DEFINE PARAMETERS OF THE ELECTROWEAK STANDARD MODEL
-      ME=.51099906D-3
-      MMY=.105658387D0
-      MTAU=1.77682D0
-      MU=.067D0
-      MD=.089D0
-      MS=.231D0
-      MC=1.299D0
-      MB=4.5D0
+cv      ME=.51099906D-3
+cv      MMY=.105658387D0
+cv      MTAU=1.77682D0
+cv      MU=.067D0
+cv      MD=.089D0
+cv      MS=.231D0
+cv      MC=1.299D0
+cv      MB=4.5D0
 cv link the values to the h1fitter
 cv overwrite them..
 c      MC=HF_MASS(1)
 c      MB=HF_MASS(2)
-      mc=1.4d0
-      mb=4.75d0
+cv      mc=1.4d0
+cv      mb=4.75d0
+
+      MW=mw_hf1
+      MZ=mz_hf1
+      MH=mh_hf1
+      Me=mel_hf1
+      MU=mup_hf1
+      MD=mdn_hf1
+      MS=mst_hf1
+      MC=mch_hf1
+      MB=mbt_hf1
+      MT=mtp_hf1
+      MTAU=mta_hf1
+      MMY=mmo_hf1
+
 
 C     MT=180.0D0
 C     MH=100D0
@@ -219,9 +266,9 @@ C     MH=100D0
       MB2=MB*MB
       MT2=MT*MT
 C
-      MZ=91.1884D0
+cv      MZ=91.1884D0
 Cv the value set in the read_steer.f:
-       MZ=91.1876D0
+cv       MZ=91.1876D0
 
       MZ2=MZ*MZ
 
@@ -236,7 +283,10 @@ C
         MW=80.000D0
       ENDIF
 C value from the read_steer.f
-      Mw = 80.3980d0
+
+cv      Mw = 80.3980d0
+      Mw=mw_hf1
+
 
       MW2=MW*MW
       CW=MW/MZ

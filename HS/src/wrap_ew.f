@@ -3,9 +3,10 @@
      $     cau_out,cad_out,cvu_out, cvd_out,
      $     polarity_in, charge_in)
 
+      implicit none
 
       include 'polarity.inc'
-
+cv      include 'couplings.inc'
 
       double precision q2_in, sweff_out, deltar_out
 
@@ -16,10 +17,10 @@
 
       COMMON /HDELTR/ DELTAR,AGF0,DRHOT,DALPMZ,XGMT,ALPQCD,BTOP4,DRPIW2
       COMMON /FORMFF/ ALPFFQ,AKAPPA,GMUFFQ,SWEFF2
-      COMMON /KONST/  PI,ALPHA,ALP1PI,ALP2PI,ALP4PI,E,GF,SXNORM,SX1NRM
-c      COMMON /GSW/    SW,CW,SW2,CW2
-c     *              ,MW,MZ,MH,ME,MMY,MTAU,MU,MD,MS,MC,MB,MT
-c     *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
+cv      COMMON /KONST/  PI,ALPHA,ALP1PI,ALP2PI,ALP4PI,E,GF,SXNORM,SX1NRM
+cv      COMMON /GSW/SW,CW,SW2,CW2
+cv     *              ,MW,MZ,MH,ME,MMY,MTAU,MU,MD,MS,MC,MB,MT
+cv     *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
       common/eprc_manu/sm
       common/couplings/epsin2thw,epMz,
      $     cau,cvu,cad,cvd
@@ -29,7 +30,7 @@ c     *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
       COMMON /PARAM/  POLARI,LLEPT,LQUA      
 
 
-
+ 
       polari = polarity_in
 
       if (charge_in.gt.0.) then
@@ -37,8 +38,6 @@ c     *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
       else
          LLEPT=-1.
       endif     
-
-
 
 
       cau=cau_ew
@@ -57,7 +56,44 @@ c     *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
       cvd_out=cvd
       cvu_out=cvu
       
-cv      print*, 'am here', cau,p(95),p(91)
+
 
       RETURN
+      END
+
+
+c=============================
+      subroutine wrap_constants(pi_in, alphaem_in, gf_in, convfac_in, 
+     $     mw_in, mz_in, mh_in, mel_in, mup_in,
+     $     mdn_in, mst_in, mch_in, mbt_in, mtp_in, mta_in, mmo_in)
+
+      implicit none
+
+
+      include 'couplings.inc' 
+
+      double precision pi_in, alphaem_in, gf_in, convfac_in
+      double precision mw_in, mz_in, mh_in, mel_in, mup_in
+      double precision mdn_in, mst_in, mch_in, mbt_in
+      double precision mtp_in, mta_in, mmo_in
+
+      
+
+      pi_in=pi
+      alphaem_in=alphaem
+      gf_in=gf
+      convfac_in=convfac
+      mw_in=mw
+      mz_in=mz
+      mh_in=mh
+      mel_in=mel
+      mup_in=mup
+      mdn_in=mdn
+      mst_in=mst
+      mch_in=mch
+      mbt_in=mbt
+      mtp_in=mtp
+      mta_in=mta
+      mmo_in=mmo
+
       END
