@@ -38,7 +38,9 @@ C-------------------------------------------------------------------
          Call GetJetsPPApplGrid(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
          Call GetJetsFastNLOXsection(IDataSet, .false.)
-      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised') then
+      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised')then
+cv
+         call eprc_init(.true.)
          Call GetJetsFastNLOXsectionNormalised(IDataSet)
        elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
          Call GetHathorXsection(IDataSet)
