@@ -283,7 +283,8 @@ c         write(90,*) '     q2          x        y    data     +- uncorr.err'//
 c     &        '   +-toterr      theory      pull     dataset'
 
          write (90,17) (DATASETBinNames(j,i),j=1,3),'data    '
-     $        ,' +- uncor  ',' +- tot   ',' th orig   ','th mod', ' pull   ', 'iset'
+     $        ,' +- uncor  ',' +- tot   ',' th orig   ','th mod'
+     $        , ' pull   ', 'iset'
  17      format(1X,9(A11,1X),A4)
 
          do j=1,NDATAPOINTS(i)
@@ -307,3 +308,77 @@ cv         write(34,*), index,i,DATASETNUMBER(i)
       
       RETURN
       END
+
+      subroutine get_lhapdferrors
+C---------------------------------
+      implicit none
+C
+      include 'couplings.inc'
+      include 'steering.inc'
+      include 'alphas.inc'
+      include 'fcn.inc'
+
+      integer iset
+      integer nsets
+      double precision chi2tot
+C Function:
+      double precision chi2data_theory
+      double precision alphasPDF 
+      character*4 c
+
+C Some hack to store PDFs
+      character*48 name
+      character*48 base
+      integer i,idx
+      character tag(40)*3
+      data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
+     +     's06','s07','s08','s09','s10',
+     +     's11','s12','s13','s14','s15',
+     +     's16','s17','s18','s19','s20',
+     +     's21','s22','s23','s24','s25',
+     +     's26','s27','s28','s29','s30',
+     +     's31','s32','s33','s34','s35',
+     +     's36','s37','s38','s39','s40'/
+
+C-----------------------------------------------------------
+      nsets = nLHAPDF_Sets
+
+      print *,'Nsets=',nsets
+      
+      do iset=0, nsets-1
+         call InitPDF(iset)
+         alphas = alphasPDF(Mz)
+         chi2tot = chi2data_theory(min(2,iset))        
+         print '(''Got PDF set='',i5,'' chi2='',F10.1,'' ndf='',i5)',
+     $        iset,chi2tot,ndfmini
+         write(86,*) iset, ' ', chi2tot/ndfmini
+         
+         if (iset.lt.10) then
+            write (c,'(''000'',I1)') iset
+         else
+            write (c,'(''00'',I2)') iset
+         endif
+
+         print *,c
+
+         call WRITEFITTEDPOINTS
+         call system
+     $ ('mv output/fittedresults.txt output/fittedresults.txt_set'//c)
+
+         if (iset.eq.0) then
+            name = 'output/pdfs_q2val_'
+         else
+            i = (iset-1) / 2 + 1
+            base = 'output/pdfs_q2val_'//tag(i)
+            idx = index(base,' ')-1
+            if ( mod(iset,2).eq.1) then
+               name = base(1:idx)//'m_'
+            else
+               name = base(1:idx)//'p_'
+            endif
+         endif
+         call store_pdfs(name)
+
+      enddo
+
+      end

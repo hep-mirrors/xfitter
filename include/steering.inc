@@ -82,6 +82,9 @@ C
       logical DONNPDFONLY
       logical FlexibleGluon    !> Flexible gluon parameterisation
       logical Read_QCDNUM_Tables
+      logical LHAPDFErrors     
+      integer nLHAPDF_Sets 
+
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
@@ -96,7 +99,7 @@ C
      $     ,asatur,lsatur,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, ICHECK_QCDNUM 
+     $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
 
       common/STEERING2/FLAGNNPDF, DONNPDFONLY, CachePDFs, FlexibleGluon,
      $     read_qcdnum_tables

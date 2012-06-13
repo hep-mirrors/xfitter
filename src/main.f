@@ -50,6 +50,10 @@ C-----------------------------------------------------
          if (DONNPDFONLY) goto 36
       endif
 
+      if (LHAPDFErrors) then  ! PDF errors
+         call get_lhapdferrors
+         goto 36
+      endif
 
 *     ------------------------------------------------
 *     Do the fit

@@ -55,7 +55,7 @@ C (Optional) Data-set dependent scales
       logical lhapdffile_exists
 
 C (Optional) LHAPDF steering card
-      namelist/lhapdf/LHAPDFSET,ILHAPDFSET
+      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFErrors
 
 C (Optional) NNPDF steering card
       namelist/nnpdf/FLAGNNPDF,NNPDFSET,NNPDFRWDATA
@@ -188,6 +188,8 @@ C NNPDF defaults
       NNPDFSET = ''
       NNPDFOUTREPLICAS = 0
 
+C
+      LHAPDFErrors = .false.
 
 C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       strange_frac = 0.31
@@ -280,7 +282,15 @@ C
          else
             call InitPDFsetByName(LHAPDFSET)
          endif
+
+      !> Get number of sets:
+         call numberPDF(i)      
+         
+         nLHAPDF_Sets = i
+         
          call InitPDF(ILHAPDFSET)
+
+
          if(PDFStyle.eq.'LHAPDF') then
             IPDFSET = 5
          endif
