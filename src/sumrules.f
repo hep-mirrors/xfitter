@@ -72,14 +72,20 @@ C Valence:
 C**********************************************************
 C*     -- sum rule : D - Dbar = 1   :  gives ADval
 C*
-         pardval(1) = 1.0d0/CalcIntPdf(pardval)
-         
+         if (pardval(1).eq.0) then
+            pardval(1) = 1.0d0/CalcIntPdf(pardval)
+         else
+            dv_sum = pardval(1)*CalcIntPdf(pardval)
+         endif
 
 C**********************************************************
 C*     -- sum rule : U - Ubar = 2   :  gives AUval
 C*
-         paruval(1) = 2.0D0/CalcIntPdf(paruval)
-
+         if (paruval(1).eq.0) then
+            paruval(1) = 2.0D0/CalcIntPdf(paruval)
+         else
+            uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
+         endif
 
 C Also integrate momenta, for momentum sum rule:
          tUv = paruval(1)*CalcIntXpdf(paruval)
@@ -157,8 +163,11 @@ C*******************************************************************
       endif
 
 C Calculate gluon normalisation, taking into account flexible piece:
-      parglue(1)=(tNoGlue+parglue(7)*tgMRST)/tg
-      
+      if (parglue(1).eq.0) then  !> Impose sum rule
+         parglue(1)=(tNoGlue+parglue(7)*tgMRST)/tg
+      else
+         p_sum = parglue(1)*tg + tNoGlue + parglue(7)*tgMRST
+      endif
 
 C*******************************************************************
 
@@ -174,7 +183,11 @@ c      if (IDebug.eq.1) then
          print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
          print '(''ST:'',11F10.4)',(pardel(i),i=1,10)
-c      endif
+         if (uv_sum.ne.0 .or. dv_sum.ne.0 .or. p_sum.ne.0) then
+            print '(''Sum rules, uv, dv, p:'',3F10.4)'
+     $           ,uv_sum, dv_sum, p_sum
+         endif
+c     endif
       endif
       
  999  continue

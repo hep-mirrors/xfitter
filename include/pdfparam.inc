@@ -50,3 +50,7 @@ C !> Add AS parameterisation
      $      asglue(1:5),asother(1:5)
        common/aspar/asuval,asdval,asubar,asdbar,
      $      asglue,asother
+
+C !> Results of sum-rule integrals
+       double precision uv_sum, dv_sum, p_sum
+       common/csumrules/uv_sum, dv_sum, p_sum
