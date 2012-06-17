@@ -313,9 +313,9 @@ C
          if (ifirst.eq.1) then
             print*,'getting output for the H1QCDFUNC'
         
-            call GetH1qcdfuncOutput(charge, polarity)
+            call GetH1qcdfuncOutput(charge, 0.36D0 ) ! polarity)
             ifirst=0
-            
+          
          endif
       endif
       end
@@ -795,7 +795,7 @@ C
      $        f2cRT,f2bRT,flRT,flcRT,flbRT
            ! Input:
      $          ,iFlagFCN,idx    ! fcn flag, data point index
-     $          ,F2Gamma,FLGamma
+     $          ,F2Gamma(i),FLGamma(i)
      $          ,UseKFactors
      $          )
 
