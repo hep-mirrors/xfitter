@@ -166,7 +166,7 @@ C Calculate gluon normalisation, taking into account flexible piece:
       if (parglue(1).eq.0) then  !> Impose sum rule
          parglue(1)=(tNoGlue+parglue(7)*tgMRST)/tg
       else
-         p_sum = parglue(1)*tg + tNoGlue + parglue(7)*tgMRST
+         p_sum = parglue(1)*tg + tUv + tDv + tSea - parglue(7)*tgMRST
       endif
 
 C*******************************************************************
