@@ -20,6 +20,7 @@ H1FitterPainter::H1FitterPainter(bool DrawBands){
   fFillStyle = 1001;
   fFillStyleRef = 0; //3010
   fBands = DrawBands;
+  fHighlight = kRed;
 }
 
 H1FitterPainter::~H1FitterPainter(){ 
@@ -88,18 +89,22 @@ Int_t H1FitterPainter::Draw() {
 
   this->DrawFitResults();
 
+  this->DrawCorrelations(fH1FitterOutput);
+  if(fH1FitterOutputRef) 
+    this->DrawCorrelations(fH1FitterOutputRef);
+
   this->DrawMessages(fH1FitterOutput);
   if(fH1FitterOutputRef) 
     this->DrawMessages(fH1FitterOutputRef);
 }
 
-void H1FitterPainter::AddLineToPave(TObjArray* paves, float& yposition, const char* text, const char* option) {
+TText* H1FitterPainter::AddLineToPave(TObjArray* paves, float& yposition, const char* text, const char* option) {
   static int NLines = 30;
   //  static float yposition = 1.;
 
   TString Option(option);
   TPaveText* pave = (TPaveText*) paves->At(paves->GetEntries()-1);
-  if(!pave) return;
+  if(!pave) return NULL;
 
   if(pave->GetListOfLines()->GetEntries() >= NLines-1) {
     TPaveText* pavenew = new TPaveText(pave->GetX1(), pave->GetY1(), pave->GetX2(), pave->GetY2());
@@ -118,6 +123,7 @@ void H1FitterPainter::AddLineToPave(TObjArray* paves, float& yposition, const ch
   else if (Option.Contains("R"))   T->SetTextColor(fColorRef);
 
   T->SetTextSize(0.025);
+  return T;
 }
 
 void H1FitterPainter::FillPavesWithFitResults(TObjArray* paves, H1FitterOutput* output) {
@@ -159,7 +165,11 @@ void H1FitterPainter::FillPavesWithFitResults(TObjArray* paves, H1FitterOutput* 
   for(int i=0; i<namesNuisance->GetEntries(); i++) {
     str->Form("%4d:\t%17s = %5.2f  #pm%5.2f", i+1, ((TObjString*)namesNuisance->At(i))->GetString().Data(), 
 	      output->GetNuisancePar(i, false), output->GetNuisancePar(i, true));
-    AddLineToPave(paves, ypos, str->Data(),""); 
+    TText* T = AddLineToPave(paves, ypos, str->Data(),""); 
+    if(output->GetNuisancePar(i, false) > 2.5 || output->GetNuisancePar(i, false) < -2.5 ) {
+      T->SetTextColor(fHighlight);
+      T->SetTextFont(102);
+    }
   }
   delete str;
 }
@@ -189,6 +199,72 @@ Int_t H1FitterPainter::DrawFitResults() {
   delete pavesL; 
   delete pavesR; 
   delete can;
+}
+
+void H1FitterPainter::DrawCorrelations(H1FitterOutput* output) {
+
+  TCanvas* can = new TCanvas;
+  TPaveText* pave = new TPaveText(0.05, 0.05, 0.95, 0.95);
+  TString* str = new TString;
+    
+  TObjArray* names = output->GetFittedParametersNames();
+  float xpos = 0.05;
+  float ypos = 0.95;
+  float ystep = 0.9 / (names->GetEntries()+4);
+  float xstep = 0.8 / (names->GetEntries()+3);
+  TText* T;
+
+  T = pave->AddText(xpos, ypos, "Estimated correlation factors for"); ypos -= ystep;
+  T->SetTextFont(102); 
+  
+  T = pave->AddText(xpos, ypos, output->GetName()->Data()); T->SetTextFont(102); 
+  if(output==fH1FitterOutput) T->SetTextColor(fColor);
+  else                        T->SetTextColor(fColorRef);
+  ypos -= ystep;
+
+  str->Form("(most reliable available method: %s, giving confidence in correlation estimates: %s)", 
+	    output->GetCorrelationCalculationMethod()->Data(),output->GetErrorTrustLevel()->Data());
+  T = pave->AddText(xpos, ypos, str->Data());
+  
+  ypos -= ystep;
+  ypos -= ystep;
+  
+  for(int i=0; i<names->GetEntries(); i++) {
+    str->Form("%d. %s", i+1, ((TObjString*) names->At(i))->GetString().Data());
+    pave->AddText(xpos, ypos, str->Data());
+    for(int j=0; j<=i; j++) {
+      xpos = 0.2+j*xstep;
+      
+      if(i==names->GetEntries()-1) {
+	str->Form("   %d.", j+1);
+	T = pave->AddText(xpos, ypos-ystep, str->Data());
+      }
+      
+      Double_t cor = output->GetCorPar(i, j);
+      str->Form("%6.2f", cor);
+      T = pave->AddText(xpos, ypos, str->Data());
+      if(i!=j && (cor>0.9 || cor<-0.9)) {
+	T->SetTextColor(fHighlight);
+	T->SetTextFont(102);
+      }
+    }
+    xpos = 0.05;
+    ypos -= ystep;
+  }
+  
+  for(int i=0; i<pave->GetListOfLines()->GetEntries(); i++) {
+    T = (TText*) pave->GetListOfLines()->At(i);
+    T->SetTextAlign(11);  
+    T->SetTextSize(0.02);
+    if(T->GetTextFont()==102)     T->SetTextFont(102); 
+    else                          T->SetTextFont(82); 
+  }
+
+  pave->Draw();
+  PrintCanvas(can);
+  delete can;
+  delete pave;
+  delete str;
 }
 
 void H1FitterPainter::DrawMessages(H1FitterOutput* output) {

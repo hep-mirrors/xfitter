@@ -71,6 +71,7 @@ class  H1FitterOutput {
    Double_t GetFittedParameter(Int_t idx, Bool_t error=kFALSE);
    inline TObjArray* GetNuisanceParNames() {return fNuisanceParNames;}
    Double_t GetNuisancePar(Int_t idx, Bool_t error=kFALSE);
+   inline Double_t GetCorPar(int i, int j) { return fCorrPar[i][j];}
 
  private:
    Int_t PrepareDataSets();
