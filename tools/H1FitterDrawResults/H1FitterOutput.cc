@@ -18,6 +18,22 @@ H1FitterOutput::H1FitterOutput(const Char_t* directory) {
   fNpoints = 0;
   fNQ2Files = 0;
   fPull = new TH1F("","",20, -3., 3.);
+  
+  fMessages = new TObjArray; fMessages->SetOwner();
+  fFittedParametersNames = new TObjArray; fFittedParametersNames->SetOwner();
+  fNuisanceParNames = new TObjArray;      fNuisanceParNames->SetOwner();
+  for(Int_t i=0; i<fMaxParameters; i++) {
+    fFittedParameters[i][0] = -99.;
+    fFittedParameters[i][1] = -99.;
+    fNuisancePar[i][0];
+    fNuisancePar[i][1];
+    for(Int_t j=0; j<fMaxParameters; j++) {
+      fCorrPar[i][j] = -99.;
+    }
+  }
+  fErrorCalculationMethod = new TString("none");
+  fCorrelationCalculationMethod = new TString("none");
+  fErrorTrustLevel = new TString("none");
 }
 
 H1FitterOutput::~H1FitterOutput(){
@@ -26,9 +42,15 @@ H1FitterOutput::~H1FitterOutput(){
   for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++) {
     delete fPdfs[ipdf];
   }
+  delete fErrorCalculationMethod;
+  delete fCorrelationCalculationMethod;
+  delete fErrorTrustLevel;
 
   for (std::vector<DataSet*>::iterator i = fDataSets.begin(); i != fDataSets.end(); ++i)  delete *i;
   delete fPull;
+  delete fMessages;
+  delete fFittedParametersNames;
+  delete fNuisanceParNames;
 }
 
 Int_t H1FitterOutput::Prepare(bool DrawBand) {
@@ -39,6 +61,7 @@ Int_t H1FitterOutput::Prepare(bool DrawBand) {
   this->PrepareName();
   this->PreparePdf(DrawBand);
   this->PrepareDataSets();
+  this->PrepareParameters();
 }
 
 Bool_t H1FitterOutput::CheckDirectory() {
@@ -50,6 +73,181 @@ Bool_t H1FitterOutput::CheckDirectory() {
     (void) closedir (pDir);
   }
   return bExists;
+}
+
+void H1FitterOutput::PrepareParameters() {
+  //cout << "PREPARE PARAMETERS"<<endl;
+
+  int LEVEL = 0;
+  // 0 unknown
+  // 1 after migrad
+  // 2 after hesse
+
+  bool ErrorEncountered = kFALSE;
+
+  TString* filename = new TString;
+  TString str;
+  char buffer[256];
+  filename->Form("%s/minuit.out.txt",fDirectory->Data());
+
+  ifstream infile(filename->Data());
+
+  if(!infile.is_open()) { cout << "H1FitterOutput::PrepareDataSets: can not open file %s" << filename->Data()<<endl; return;}
+
+  while(!infile.eof()) {
+    infile.getline(buffer, 256);
+    for(int i=0; i<256; i++) if(buffer[i]=='%') buffer[i]='#';
+    str.Form(buffer);
+
+
+    if(str.Contains("FROM MIGRAD")) {
+      fMessages->AddLast(new TObjString(str.Data()));
+      fMessages->AddLast(new TObjString(""));
+      if(!str.Contains("STATUS=INITIATE"))
+	LEVEL = 1;
+    }
+    if(str.Contains("FROM HESSE")) {
+      LEVEL = 2;
+      fMessages->AddLast(new TObjString(str.Data()));
+      fMessages->AddLast(new TObjString(""));
+    }
+    if(str.Contains("MIGRAD MINIMIZATION HAS CONVERGED"))     fMessages->AddLast(new TObjString(str.Data()));
+    if(str.Contains("START MIGRAD MINIMIZATION"))             fMessages->AddLast(new TObjString(str.Data()));
+    if(str.Contains("CALL LIMIT EXCEEDED IN MIGRAD"))         fMessages->AddLast(new TObjString(str.Data()));
+    if(str.Contains("MIGRAD TERMINATED WITHOUT CONVERGENCE")) {
+      fMessages->AddLast(new TObjString(str.Data()));
+      ErrorEncountered = kTRUE;
+    }
+
+    if(str.Contains("MATRIX FORCED POS-DEF")) {
+      fMessages->AddLast(new TObjString(str.Data()));
+      ErrorEncountered = kTRUE;
+    }
+
+    if(str.Contains("EXT PARAMETER") && LEVEL > 0)  {
+      if(!fErrorCalculationMethod->CompareTo("none") || !ErrorEncountered) {
+	if(LEVEL==1) {fErrorCalculationMethod->Form("MIGRAD");}
+	if(LEVEL==2) fErrorCalculationMethod->Form("HESSE");
+	
+	if(str.Contains("GUESS"))       fErrorTrustLevel->Form("GUESS");
+	if(str.Contains("APPROXIMATE")) fErrorTrustLevel->Form("APPROXIMATE");
+	else                            fErrorTrustLevel->Form("RELIABLE");
+	if(ErrorEncountered)            fErrorTrustLevel->Form("NOT RELIABLE");
+
+	delete fFittedParametersNames; 
+	fFittedParametersNames = new TObjArray; fFittedParametersNames->SetOwner();
+	int idx = 0;
+	
+	infile.getline(buffer, 256); // skip one line
+	infile.getline(buffer, 256);
+	str.Form(buffer); 
+	TObjArray* array = str.Tokenize(" ");
+	int NColumns = array->GetEntries();
+	while((NColumns == 4) || (NColumns == 6)) {
+	  //cout << idx << str.Data() << endl;
+	  if(idx>=fMaxParameters-2) {cout << "H1FitterOutput: fMaxParameters too low"<< endl; exit(1);}
+	  
+	  if(!((TObjString*) array->At(0))->GetString().IsDigit()) {cout << "not a digit!" <<endl; break; }
+	  
+	  if(((TObjString*) array->At(3))->GetString().IsFloat()) { // this is minimased parameter - SAVE
+	    fFittedParametersNames->AddLast(new TObjString(((TObjString*) array->At(1))->GetString().Data()));
+	    fFittedParameters[idx][0] = ((TObjString*) array->At(2))->GetString().Atof();
+	    fFittedParameters[idx][1] = ((TObjString*) array->At(3))->GetString().Atof();
+	    idx++;  
+	  }
+	  delete array;
+	  infile.getline(buffer, 256);
+	  str.Form(buffer); 	
+	  array = str.Tokenize(" ");
+	  NColumns = array->GetEntries();
+	}
+	delete array;
+      }
+    }
+
+    if(str.Contains("PARAMETER  CORRELATION COEFFICIENTS")) {
+      if(!fCorrelationCalculationMethod->CompareTo("none") || !ErrorEncountered) {
+	if(LEVEL==1) fCorrelationCalculationMethod->Form("MIGRAD");
+	if(LEVEL==2) fCorrelationCalculationMethod->Form("HESSE");
+	infile.getline(buffer, 256); // skip one line
+	infile.getline(buffer, 256);
+	str.Form(buffer); 
+	str.ReplaceAll("-", " -");
+	TObjArray* array = str.Tokenize(" ");
+	int NColumnsExpected = array->GetEntries();
+	int NColumns = NColumnsExpected;
+	int idx = 0;
+	
+	while(NColumns == NColumnsExpected) {
+	  if(idx>=fMaxParameters-2 || NColumns>=fMaxParameters-2) {cout << "H1FitterOutput: fMaxParameters too low"<< endl; exit(1);}
+	  if(!((TObjString*) array->At(0))->GetString().IsDigit()) {cout << "not a digit!" <<endl; break; }
+	  
+	  for(int j=0; j<array->GetEntries()-2; j++) {
+	    fCorrPar[idx][j] = ((TObjString*) array->At(j+2))->GetString().Atof();
+	  }
+	  idx++;  
+	  
+	  delete array;
+	  infile.getline(buffer, 256);
+	  str.Form(buffer);
+	  str.ReplaceAll("-", " -");
+	  array = str.Tokenize(" ");
+	  NColumns = array->GetEntries();
+	}
+	delete array;
+      }
+    }
+  }
+
+  filename->Form("%s/Results.txt",fDirectory->Data());
+  ifstream infile2(filename->Data());
+  if(!infile2.is_open()) { cout << "H1FitterOutput::PrepareDataSets: can not open file %s" << filename->Data()<<endl; return;}
+  while(!infile2.eof()) {
+    infile2.getline(buffer, 256);
+    for(int i=0; i<256; i++) if(buffer[i]=='%') buffer[i]='#';
+    str.Form(buffer); 
+    if(str.Contains("Systematic shifts"))  {
+      //cout << "Systematic shifts"<<endl;
+
+      int idx = 0;
+      
+      infile2.getline(buffer, 256);
+      str.Form(buffer); 
+      TObjArray* array = str.Tokenize(" ");
+      int NColumns = array->GetEntries();
+      while(NColumns == 5) {
+	if(!((TObjString*) array->At(0))->GetString().IsDigit()) {cout << "not a digit!" <<endl; break; }
+	fNuisanceParNames->AddLast(new TObjString( ((TObjString*) array->At(1))->GetString().Data() ) );
+	fNuisancePar[idx][0] = ((TObjString*) array->At(2))->GetString().Atof();
+	fNuisancePar[idx][1] = ((TObjString*) array->At(4))->GetString().Atof();
+
+	infile2.getline(buffer, 256);
+	str.Form(buffer); 	
+	array = str.Tokenize(" ");
+	NColumns = array->GetEntries();
+	idx++;
+      }
+      delete array;
+    }
+  }
+
+  delete filename;
+
+
+//  for(int i=0; i<fFittedParametersNames->GetEntries(); i++) {
+//    cout << ((TObjString*)fFittedParametersNames->At(i))->GetString().Data() << " " << fFittedParameters[i][0] << " " << fFittedParameters[i][1] << endl;
+//  }
+}
+
+Double_t H1FitterOutput::GetFittedParameter(Int_t idx, Bool_t error) {
+  if(idx >= fMaxParameters) return -99.;
+  if(error) return fFittedParameters[idx][1];
+  return fFittedParameters[idx][0];
+}
+Double_t H1FitterOutput::GetNuisancePar(Int_t idx, Bool_t error) {
+  if(idx >= fMaxParameters) return -99.;
+  if(error) return fNuisancePar[idx][1];
+  return fNuisancePar[idx][0];
 }
 
 void H1FitterOutput::PrepareName() {

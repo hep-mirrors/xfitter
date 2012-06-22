@@ -12,6 +12,8 @@
 #include <TGaxis.h>
 #include <DataSet.h>
 #include <Rtypes.h>
+#include <TObjArray.h>
+#include <TPaveText.h>
 
 using std::cout;
 using std::cerr;
@@ -27,6 +29,8 @@ class H1FitterPainter  {
   Int_t DrawPull();
   Int_t DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor=kRed);
   Int_t DrawDataSetRatio(DataSet* dataset, DataSet* datasetref);
+  Int_t DrawFitResults();
+  void DrawMessages(H1FitterOutput* output);
   Int_t Prepare();
   void PrintCanvas(TCanvas* can);
   Int_t PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut,H1FitterOutput* FitterRef,
@@ -34,6 +38,8 @@ class H1FitterPainter  {
 		   TVirtualPad* legend, TObjArray* TrashBin);
 
   void ScaleGraph2ToGraph1(TGraph* graph1, TGraph* graph2, TLine*& line, TGaxis*& axis, Double_t MeanRatio);
+  void AddLineToPave(TObjArray* paves, float& yposition, const char* text, const char* option);
+  void FillPavesWithFitResults(TObjArray* paves, H1FitterOutput* output);
  public:
   H1FitterPainter(bool  Bands = false);
   virtual ~H1FitterPainter();

@@ -4,6 +4,7 @@
 #include <TROOT.h>
 #include <TGraphAsymmErrors.h>
 #include <TH1F.h>
+#include <TPaveText.h>
 
 H1FitterPainter::H1FitterPainter(bool DrawBands){
   fPath = new TString("../../output/");
@@ -84,7 +85,145 @@ Int_t H1FitterPainter::Draw() {
     if(!RefSetsDrawn[iref])
       DrawDataSet(fH1FitterOutputRef->GetSet(iref), NULL, fColorRef);
   }
+
+  this->DrawFitResults();
+
+  this->DrawMessages(fH1FitterOutput);
+  if(fH1FitterOutputRef) 
+    this->DrawMessages(fH1FitterOutputRef);
 }
+
+void H1FitterPainter::AddLineToPave(TObjArray* paves, float& yposition, const char* text, const char* option) {
+  static int NLines = 30;
+  //  static float yposition = 1.;
+
+  TString Option(option);
+  TPaveText* pave = (TPaveText*) paves->At(paves->GetEntries()-1);
+  if(!pave) return;
+
+  if(pave->GetListOfLines()->GetEntries() >= NLines-1) {
+    TPaveText* pavenew = new TPaveText(pave->GetX1(), pave->GetY1(), pave->GetX2(), pave->GetY2());
+    paves->AddLast(pavenew);
+    pave = pavenew;
+    yposition = 1.;
+  }
+
+  yposition -= 1./(float)NLines;
+  TText* T = pave->AddText(0.1, yposition, text);
+  T->SetTextAlign(12);
+  
+  if (Option.Contains("B"))   T->SetTextFont(102);
+  else                        T->SetTextFont(82);
+  if      (Option.Contains("M"))   T->SetTextColor(fColor);
+  else if (Option.Contains("R"))   T->SetTextColor(fColorRef);
+
+  T->SetTextSize(0.025);
+}
+
+void H1FitterPainter::FillPavesWithFitResults(TObjArray* paves, H1FitterOutput* output) {
+
+  TObjArray* names = output->GetFittedParametersNames();
+  TObjArray* namesNuisance= output->GetNuisanceParNames();
+  TString* str = new TString;
+
+  float ypos = 1.;
+  int NChar = 40;
+
+  AddLineToPave(paves, ypos, "Results for:","B");
+
+  for(int i=0; i<=output->GetName()->Length()/NChar; i++) {
+    if(output==fH1FitterOutput)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BM");
+    else
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BR");
+  }
+
+  AddLineToPave(paves, ypos, "","");
+
+  str->Form("Fitted %d parameters:", names->GetEntries()); 
+  AddLineToPave(paves, ypos, str->Data(),"");
+  str->Form("(most reliable available method: %s" , output->GetErrorCalculationMethod()->Data()); 
+  AddLineToPave(paves, ypos, str->Data(),"");
+  str->Form("giving confidence in errors: %s)", output->GetErrorTrustLevel()->Data()); 
+  AddLineToPave(paves, ypos, str->Data(),"");
+
+
+  for(int i=0; i<names->GetEntries(); i++) {
+    str->Form("%4d:\t%6s = %6.3f  #pm%6.3f", i+1, ((TObjString*)names->At(i))->GetString().Data(), 
+	      output->GetFittedParameter(i, false), output->GetFittedParameter(i, true));
+    AddLineToPave(paves, ypos, str->Data(),"");
+  }
+  
+  AddLineToPave(paves, ypos, "","");
+  AddLineToPave(paves, ypos, "Nuisance Parameters:","");
+  for(int i=0; i<namesNuisance->GetEntries(); i++) {
+    str->Form("%4d:\t%17s = %5.2f  #pm%5.2f", i+1, ((TObjString*)namesNuisance->At(i))->GetString().Data(), 
+	      output->GetNuisancePar(i, false), output->GetNuisancePar(i, true));
+    AddLineToPave(paves, ypos, str->Data(),""); 
+  }
+  delete str;
+}
+
+Int_t H1FitterPainter::DrawFitResults() {
+
+  TCanvas* can = new TCanvas;
+  TObjArray* pavesL = new TObjArray; pavesL->SetOwner();
+  TObjArray* pavesR = new TObjArray; pavesR->SetOwner();
+
+  pavesL->AddLast(new TPaveText(0.05, 0.05, 0.5, 0.95, "br"));
+  FillPavesWithFitResults(pavesL, fH1FitterOutput);
+  if(fH1FitterOutputRef) {
+    pavesR->AddLast(new TPaveText(0.5, 0.05, 0.95, 0.95, "br"));
+    FillPavesWithFitResults(pavesR, fH1FitterOutputRef);
+  }
+
+  for(int j=0; j<TMath::Max(pavesL->GetEntries(), pavesR->GetEntries()); j++) {
+    TPaveText* paveL = (TPaveText*) pavesL->At(j);
+    TPaveText* paveR = (TPaveText*) pavesR->At(j);
+    TCanvas* can = new TCanvas;
+    if(paveL) paveL->Draw();
+    if(paveR) paveR->Draw();
+    PrintCanvas(can);
+    delete can;
+  }
+  delete pavesL; 
+  delete pavesR; 
+  delete can;
+}
+
+void H1FitterPainter::DrawMessages(H1FitterOutput* output) {
+
+  TObjArray* paves = new TObjArray; paves->SetOwner();
+  paves->AddLast(new TPaveText(0.05, 0.05, 0.95, 0.95, "br"));
+  float ypos = 1.;
+  int NChar = 80;
+  
+  AddLineToPave(paves, ypos, "Fit messages for:","B");
+  for(int i=0; i<=output->GetName()->Length()/NChar; i++) {
+    if(output==fH1FitterOutput)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BM");
+    else
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BR");
+  }
+
+  AddLineToPave(paves, ypos, "","");
+
+
+  TObjArray* messages = output->GetMessages();
+  for(int i=0; i<messages->GetEntries(); i++) {
+    AddLineToPave(paves, ypos, ((TObjString*)messages->At(i))->GetString().Data(),"");
+  }
+  
+  for(int j=0; j<paves->GetEntries(); j++) {
+    TPaveText* pave = (TPaveText*) paves->At(j);
+    TCanvas* can = new TCanvas;
+    pave->Draw();
+    PrintCanvas(can);
+    delete can;
+  }
+  delete paves;
+}
+
 
 Int_t H1FitterPainter::DrawPull() {
 //  TCanvas* can = new TCanvas;
