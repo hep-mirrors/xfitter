@@ -1,6 +1,3 @@
-!
-! Statistical correlations
-!
 &StatCorr
    Name1 = 'H1 normalised inclusive jet 99-07 data'
    Name2 = 'H1 normalised inclusive jet 99-07 data'
@@ -12,6 +9,14 @@
    IdColumns2 = 'q2min','ptmin'
 
    NCorr = 18
+
+  ! Matrix Type: 
+  !     'Statistical correlations': Given are correlation factors that need to be applied to statistical errors
+  !                                 needs 'stat' column in data files
+  !     'Covariance Matrix'       : Given is a covariance matrix, will be added to statistical and systematic
+  !                                 errors from data files
+
+   MatrixType = 'Statistical correlations'
 &End
 * something
  150.0 7.0    150.0 11.0    0.16

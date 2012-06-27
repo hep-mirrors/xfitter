@@ -55,6 +55,7 @@ c      enddo
       subroutine prep_corr_stat
 *     ------------------------------------------------
 *     Prepare statistical correlation matrix corr_stat
+*     and given covariance matrix cov
 *     ------------------------------------------------
       implicit none
       include 'ntot.inc'
@@ -69,6 +70,7 @@ c      enddo
       parameter (NIdMax = 3)
       character *80 Name1
       character *80 Name2
+      character *80 MatrixType
       character *80 IdColumns1(NIdMax)
       character *80 IdColumns2(NIdMax)
 
@@ -79,7 +81,7 @@ C     Temporary buffer to read the data (allows for comments starting with *)
       integer IdIdx1(NIdMax)
       integer IdIdx2(NIdMax)
 
-      namelist/StatCorr/Name1,Name2,NIdColumns1,NIdColumns2,IdColumns1,IdColumns2,NCorr
+      namelist/StatCorr/Name1,Name2,NIdColumns1,NIdColumns2,IdColumns1,IdColumns2,NCorr,MatrixType
 
       integer idataset1, idataset2, FindDataSetByName, idx1, idx2
       double precision Values1(NIdMax), Values2(NIdMax)
@@ -91,6 +93,7 @@ C     reset statistical correlation matrix
       do i=1, npoints
          do j=1, npoints
             corr_stat(i,j) = 0.d0
+            cov(i,j) = 0.d0
          enddo
          corr_stat(i,i) = 1.d0
       enddo
@@ -98,10 +101,17 @@ C     reset statistical correlation matrix
 
       do k=1,NCorrFiles
          print*, 'parsing correlation file ', CorrFileNames(k)
-         
+
          open(51,file=CorrFileNames(k),status='old',err=11)
          read(51,NML=StatCorr,END=12,ERR=13)
          
+         print*, 'matrix type: ', MatrixType
+
+c         if (MatrixType.eq.'Statistical correlations') then
+c            CovMatrixStyle = 'S'
+c         elseif (MatrixType.eq.'Systematic covariance') then
+c            
+c         endif
 
          if((NIdColumns1>NIdMax).or.(NIdColumns2>NIdMax)) then
             Call HF_ERRLOG(10040001,
@@ -168,9 +178,17 @@ c            print *, j, 'Idx1 =', Idx1, 'Idx2 =', Idx2
                goto 1111
             endif
             
-            corr_stat(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
-            corr_stat(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
-            
+            if (MatrixType.eq.'Statistical correlations') then
+               corr_stat(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+               corr_stat(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
+            elseif (MatrixType.eq.'Covariance Matrix') then
+               cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+               cov(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
+            else
+               Call HF_ERRLOG(26060000,
+     $              'W: Matrix type not recognised! ignore!')
+            endif
+
          enddo
          close (51)
 
