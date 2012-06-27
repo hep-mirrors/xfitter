@@ -22,7 +22,7 @@
       double precision stat2, unc2, const2
 
       integer i,j,IFAIL, h1iset
-      double precision cov(n0_in, n0_in), tmp(n0_in),d,t
+      double precision cov_total(n0_in, n0_in), tmp(n0_in),d,t
 
 *     ----------------------------------------------------------
 *     Initialise
@@ -37,10 +37,9 @@
 
       do i=1, n0_in
          do j=1, n0_in
-            cov(i, j) = 0.d0
+            cov_total(i, j) = 0.d0
          enddo
       enddo
-
 
       fac = 1.d0
       do i=1,n0_in
@@ -49,21 +48,29 @@
             call GetPointScaledErrors(j,fac,stat2,unc2,const2)
             
 C     fill with statistical part            
-            cov(i,j) = corr_stat(i,j) * stat1 * stat2
+            cov_total(i,j) = corr_stat(i,j) * stat1 * stat2
             
-C     add correlated systematic part
-            cov(i,j) = cov(i,j) + (corr_syst(i,j) * THEO(i) * THEO(j))
+C     add correlated systematic part from fully correlated part
+            cov_total(i,j) = cov_total(i,j) + (corr_syst(i,j) * THEO(i) * THEO(j))
+
+C     add correlated systematic part from given covariance matrix
+            cov_total(i,j) = cov_total(i,j) + cov(i,j)
 
 C     add uncorrelated systematic part
             if(i.eq.j) then
-c               cov(i,j) = cov(i,j) + (unc1 * unc2 * THEO(i) * THEO(j) / (DATEN(i) * DATEN(j)))
-               cov(i,j) = cov(i,j) + (unc1 * unc2)
+               cov_total(i,j) = cov_total(i,j) + (unc1 * unc2)
             endif
+
+c            print *, i, j, corr_stat(i,j) * stat1 * stat2,
+c     $           (corr_syst(i,j) * THEO(i) * THEO(j)),
+c     $           cov(i,j),
+c     $           (unc1 * unc2),
+c     $           cov_total(i,j)
 
          enddo
       enddo
 
-      CALL DINV  (n0_in,cov,n0_in,tmp,IFAIL)
+      CALL DINV  (n0_in,cov_total,n0_in,tmp,IFAIL)
 
       if(ifail.eq.-1) then
          Call HF_ERRLOG(11040001,'S: Matrix inversion failed !')
@@ -73,7 +80,7 @@ c               cov(i,j) = cov(i,j) + (unc1 * unc2 * THEO(i) * THEO(j) / (DATEN(
          do j=1,n0_in
             
             chisq = (DATEN(i)-THEO(i)) *
-     $           cov(i,j) * 
+     $           cov_total(i,j) * 
      $           (DATEN(j)-THEO(j))
             
             fchi2_in = fchi2_in + chisq
