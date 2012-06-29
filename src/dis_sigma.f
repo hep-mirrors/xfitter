@@ -913,6 +913,10 @@ c correct for Z contribution (as in RT case)
            F2(i) = f2abkm * (F2(i)/F2Gamma(i))  + f2cabkm + f2babkm
            FL(i) = flabkm * (FL(i)/FLGamma(i)) + flcabkm + flbabkm
 C     Keep xF3 from QCDNUM FF (wraper will return zero)
+            F2c(i) = f2cabkm
+            FLc(i) = flcabkm
+            F2b(i) = f2babkm
+            FLb(i) = flbabkm
 
 c           write(6,*) 'ABKM: F2sum,F2tot,F2g,F2c,F2b', i,F2,F2ab,f2abkm,
 c     $ f2cabkm,f2babkm
