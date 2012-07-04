@@ -547,8 +547,13 @@ Int_t H1FitterOutput::PrepareDataSets() {
     V3.Form(((TObjString*)array->At(2))->GetString().Data());
     delete array;
 
-    DataSet* NewDataSet = new DataSet(dataset, Name.Data(), V1.Data(), V2.Data(), V3.Data());
-    fDataSets.push_back(NewDataSet);
+    DataSet* NewDataSet = NULL;
+
+    if(!NewDataSet) {
+      NewDataSet = new DataSet(dataset, Name.Data(), V1.Data(), V2.Data(), V3.Data());
+      fDataSets.push_back(NewDataSet);
+    }
+
     while(1) {
       infile.getline(buffer, 120);
       str.Form(buffer);
