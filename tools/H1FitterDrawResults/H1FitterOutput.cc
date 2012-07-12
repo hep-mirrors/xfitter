@@ -34,6 +34,10 @@ H1FitterOutput::H1FitterOutput(const Char_t* directory) {
   fErrorCalculationMethod = new TString("none");
   fCorrelationCalculationMethod = new TString("none");
   fErrorTrustLevel = new TString("none");
+  fConverged = kFALSE;
+  fFinished = kFALSE;
+  fChi2UncTotal = -1;
+  fChi2CorTotal = -1;
 }
 
 H1FitterOutput::~H1FitterOutput(){
@@ -100,6 +104,11 @@ void H1FitterOutput::PrepareParameters() {
     str.Form(buffer);
 
 
+    if(str.Contains("MINUIT TERMINATED AND RETURNS TO USER PROGRAM")) {
+      fMessages->AddLast(new TObjString(str.Data()));
+      fFinished = kTRUE;
+    }
+
     if(str.Contains("FROM MIGRAD")) {
       fMessages->AddLast(new TObjString(str.Data()));
       fMessages->AddLast(new TObjString(""));
@@ -111,7 +120,10 @@ void H1FitterOutput::PrepareParameters() {
       fMessages->AddLast(new TObjString(str.Data()));
       fMessages->AddLast(new TObjString(""));
     }
-    if(str.Contains("MIGRAD MINIMIZATION HAS CONVERGED"))     fMessages->AddLast(new TObjString(str.Data()));
+    if(str.Contains("MIGRAD MINIMIZATION HAS CONVERGED"))     {
+      fMessages->AddLast(new TObjString(str.Data()));
+      fConverged = kTRUE;
+    }
     if(str.Contains("START MIGRAD MINIMIZATION"))             fMessages->AddLast(new TObjString(str.Data()));
     if(str.Contains("CALL LIMIT EXCEEDED IN MIGRAD"))         fMessages->AddLast(new TObjString(str.Data()));
     if(str.Contains("MIGRAD TERMINATED WITHOUT CONVERGENCE")) {
@@ -206,8 +218,19 @@ void H1FitterOutput::PrepareParameters() {
     infile2.getline(buffer, 256);
     for(int i=0; i<256; i++) if(buffer[i]=='%') buffer[i]='#';
     str.Form(buffer); 
-    if(str.Contains("Systematic shifts"))  {
-      //cout << "Systematic shifts"<<endl;
+    if(str.Contains("After minimisation"))  {
+      TObjArray* array = str.Tokenize(" ");
+      if( ((TObjString*) array->At(2))->GetString().IsFloat()) 
+        fChi2UncTotal = ((TObjString*) array->At(2))->GetString().Atof();
+      delete array;
+    }
+    else if(str.Contains("Correlated Chi2"))  {
+      TObjArray* array = str.Tokenize(" ");
+      if( ((TObjString*) array->At(2))->GetString().IsFloat()) 
+        fChi2CorTotal = ((TObjString*) array->At(2))->GetString().Atof();
+      delete array;
+    }
+    else if(str.Contains("Systematic shifts"))  {
 
       int idx = 0;
       

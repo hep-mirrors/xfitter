@@ -22,7 +22,7 @@ using std::flush;
 
 class H1FitterPainter  {
 
- private:
+ protected:
   H1FitterPainter(H1FitterPainter &foo);
   H1FitterPainter& operator=(H1FitterPainter &foo);
   Int_t DrawPDF(Int_t ival);
@@ -50,7 +50,7 @@ class H1FitterPainter  {
   inline void SetPath(const Char_t* path) {fPath->Form(path);}
   inline void SetPathRef(const Char_t* path) {fPathRef->Form(path);}
 
- private: 
+ protected: 
   TString* fPath;
   TString* fPathRef;
   H1FitterOutput* fH1FitterOutput;
