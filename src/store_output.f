@@ -342,7 +342,7 @@ C Some hack to store PDFs
 
 C-----------------------------------------------------------
       nsets = nLHAPDF_Sets
-
+C      nsets = 45
       print *,'Nsets=',nsets
       
       do iset=0, nsets-1
@@ -381,4 +381,46 @@ C-----------------------------------------------------------
 
       enddo
 
+      end
+
+C--------------------------------------------------------------
+      subroutine write_pars(nfcn3)
+C-------------------------------------------------------------
+C Extra output of PDF parameters
+C-------------------------------------------------------------
+      implicit none
+      include 'fcn.inc'
+      include 'endmini.inc'
+      integer nfcn3
+      integer i
+      double precision val,err,xlo,xhi
+      integer ipar
+      character*32 parname
+      character*32 fname
+C-------------------------------------------------------------
+      if (nfcn3.lt.10) then
+         write (fname,'(''output/parsout_'',i1)') nfcn3
+      elseif (nfcn3.lt.100) then
+         write (fname,'(''output/parsout_'',i2)') nfcn3
+      elseif (nfcn3.lt.1000) then
+         write (fname,'(''output/parsout_'',i3)') nfcn3
+      elseif (nfcn3.lt.10000) then
+         write (fname,'(''output/parsout_'',i4)') nfcn3
+      endif
+
+      open (71,file=fname,status='unknown')
+      do i=1,mne
+         call mnpout(i,parname,val,err,xlo,xhi,ipar)
+         if (Trim(parname).ne.'undefined') then
+            if (xlo.eq.0.and.xhi.eq.0) then
+               write (71,72) i, Trim(parname), val,err
+            else
+               write (71,72) i, Trim(parname), val,err,xlo,xhi
+            endif
+         endif
+      enddo
+ 72   format (I5,'   ','''',A,'''',4F12.6)
+      close(71)
+
+C-------------------------------------------------------------
       end

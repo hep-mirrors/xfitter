@@ -63,6 +63,11 @@ C-----------------------------------------------------
       lprint = .true.
       call minuit(fcn,0)
       close(85)
+*
+* Write out central parameters
+*
+      call write_pars(0)
+
       if (DOBANDS) then
          write(6,*) ' --- Calculate error bands ...'
          lprint = .false.    

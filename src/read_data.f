@@ -132,6 +132,12 @@ C
       if (lrand .and. lranddata) then
          call MC_method()
       endif
+!>
+!>  Split control/fit sample:
+!>
+      if (ControlFitSplit) then
+         call prepare_control_fit()
+      endif
 
       return
       end
@@ -596,3 +602,39 @@ C Store k-factors:
 
       end
 
+
+      subroutine prepare_control_fit()
+C---------------------------------------------------------------------------
+!>
+!>  Created 16/07/2012. Split data into "fit" and "control" samples.
+!>  Fit sample is used in chi2 minimization, control sample is used to make
+!>  sure that there is no overfitting. 
+!>
+C----------------------------------------------------------------------------
+      implicit none
+      include "ntot.inc"
+      include "indata.inc"
+      integer i
+      real ranflat
+C----------------------------------------------------------------------------
+
+      NControlPoints = 0
+      NFitPoints     = 0
+      if (ControlFitSplit) then
+         do i=1,Npoints
+            call ranlux(ranflat,1)
+            FitSample(i) = (ranflat.ge.0.5)
+            if (FitSample(i)) then
+               NFitPoints = NFitPoints + 1
+            else
+               NControlPoints = NControlPoints + 1
+            endif
+         enddo
+      else
+         do i=1,Npoints
+            FitSample(i) = .true.
+         enddo
+      endif
+
+
+      end

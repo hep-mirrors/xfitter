@@ -51,6 +51,11 @@ C      integer getcachesize
 
       fchi2_in = 0.d0
 
+ !> Also zero fit/control sample chi2s
+      chi2_fit = 0.
+      chi2_cont = 0.
+
+
       sub = 0.d0
 
 
@@ -99,7 +104,9 @@ C      integer getcachesize
 ***   scale errors for chi2 calculation
 ***   in principle:  unc*(t/d),  sta*dsqrt(t/d)
             if (ICHI2.eq.11 .or. ICHI2.eq.41) then
-               if (alpha(ipoint)/d.gt.Chi2MaxError) then
+               if ( (alpha(ipoint)/d.gt.Chi2MaxError)
+     $              .or. (ControlFitSplit.and. .not. FitSample(ipoint))
+     $              ) then
 C     Turn off the point for the syst. errors shift estimation:
                   error = 1.D010
                else
@@ -274,7 +281,18 @@ C               print *,dnevt,tnevt,chisq
                chisq = (d-t)**2/error**2
                ngauss = ngauss+1
             endif
-            fchi2_in = fchi2_in + chisq
+
+            if (ControlFitSplit) then
+               if (FitSample(ipoint)) then
+                  chi2_fit  = chi2_fit + chisq
+                  fchi2_in  = fchi2_in + chisq
+               else
+                  chi2_cont = chi2_cont + chisq
+               endif
+      
+            else               
+               fchi2_in = fchi2_in + chisq
+            endif
 
             if ( ICHI2.eq.41) then
                fchi2_error = fchi2_error + chi2error

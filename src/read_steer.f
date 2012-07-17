@@ -17,6 +17,7 @@ C---------------------------------------------------
       include 'systematics.inc'
       include 'nnpdf.inc'
       include 'scales.inc'
+      include 'indata.inc'
       include 'for_debug.inc'
 C=================================================
 
@@ -30,7 +31,8 @@ C Define namelists:
 C Main steering parameters namelist
       namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
      $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs
+     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
+     $     ControlFitSplit
 
 
 C Output style namelist
@@ -157,6 +159,9 @@ C  Hermes-like strange (off by default):
 C  Cache PDF calls
       CachePDFs     = .false.
 
+!> Do not split the data into fit and control sub-samples:
+      ControlFitSplit = .false.
+
 C  Fast applgrid:     
       LFastAPPLGRID = .false.
 * 
@@ -219,6 +224,7 @@ C
       open (51,file='steering.txt',status='old')
       read (51,NML=H1Fitter,END=41,ERR=42)
       close (51)
+
 
 C     set debug flag used elsewhere according to steering
       Debug = lDebug
@@ -284,8 +290,11 @@ C
          endif
 
       !> Get number of sets:
+         call getdesc()
          call numberPDF(i)      
          
+         print *,i
+c         stop
          nLHAPDF_Sets = i
          
          call InitPDF(ILHAPDFSET)

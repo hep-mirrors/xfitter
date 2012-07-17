@@ -29,3 +29,11 @@ C SG: index of theory bin, if needed
       common/CAbstractBins/AbstractBins,KFactors
 
 
+C !> Add overfitting test by "control" and "fit" sets.
+      logical ControlFitSplit          !> Divide data into "control" and "fit"
+      logical FitSample(NTOT)          !> true if belongs to fit sample
+      integer NFitPoints, NControlPoints !> counts of points
+      double precision chi2_fit, chi2_cont
+      common/COverFit/NFitPoints,NControlPoints,FitSample
+     $     ,ControlFitSplit
+      common/COverFit2/ chi2_fit, chi2_cont

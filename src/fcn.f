@@ -123,10 +123,17 @@ C--------------------------------------------------------------
       logical refresh
       integer isys,ipoint,jpoint
       integer idataset
+      double precision TempChi2
+      double precision GetTempChi2   !> Temperature penalty for D, E... params.
+      
+      integer nfcn3  !> Counter for fcn=3 calls
+      data nfcn3/0/ 
+
 C  x-dependent fs:
       double precision fs0,epsi
       double precision fshermes
       external LHAPDFsubr
+      
 
 C--------------------------------------------------------------
 *     ---------------------------------------------------------
@@ -138,6 +145,10 @@ C--------------------------------------------------------------
       n0 = 0
 
       iflagfcn = iflag
+      if (iflag.eq.3) then
+         nfcn3 = nfcn3 + 1
+      endif
+
 
       do jsys=1,nsys
          bsys(jsys) = 0.d0
@@ -297,6 +308,13 @@ c             call fillvfngrid
          call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
       endif
       
+      if (ControlFitSplit) then
+         print '(''Fit     chi2/Npoint = '',F10.4,I4,F10.4)',chi2_fit
+     $        , NFitPoints,chi2_fit/NFitPoints
+         print '(''Control chi2/Npoint = '',F10.4,I4,F10.4)',chi2_cont
+     $        , NControlPoints,chi2_cont/NControlPoints
+      endif
+
 *
 * Save NDF
 *
@@ -324,7 +342,14 @@ c             call fillvfngrid
          DeltaLength = 0.
       endif
 
-      chi2out = fchi2 + DeltaLength
+      fchi2 = fchi2 + DeltaLength
+      
+!> Temperature regularisation:
+      if (Temperature.ne.0) then
+         TempChi2 = GetTempChi2()
+         print *,'Temperature chi2=',TempChi2
+         fchi2 = fchi2 + TempChi2
+      endif
       
 
       chi2out = fchi2+
@@ -357,6 +382,25 @@ c             call fillvfngrid
          write(6,*)
          write(6,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
          write(6,*)
+
+         !> Store minuit parameters
+         call write_pars(nfcn3)
+
+         if (ControlFitSplit) then
+            print 
+     $     '(''Fit     chi2/Npoint, after fit = '',F10.4,I4,F10.4)'
+     $           ,chi2_fit
+     $           , NFitPoints,chi2_fit/NFitPoints
+            print 
+     $     '(''Control chi2/Npoint, after fit = '',F10.4,I4,F10.4)'
+     $           ,chi2_cont
+     $           , NControlPoints,chi2_cont/NControlPoints            
+
+            write (71,'(4F10.4)') 
+     $           paruval(4),paruval(5),chi2_fit/NFitPoints
+     $           ,chi2_cont/NControlPoints
+         endif
+
       endif
 
 
@@ -415,3 +459,34 @@ C Return the chi2 value:
 
       end
 
+
+C---------------------------------------------------------------------
+      double precision function GetTempChi2()
+!>
+!> Calculate penalty term for higher oder parameters using "temperature" 
+!> Currently works only for standard param-types (10p-13p-like)
+!>
+      implicit none
+      include 'pdfparam.inc'
+      integer i
+      double precision chi2
+      double precision xscale(3)
+      data xscale/0.01,0.01,0.01/
+C---------------------------------------------------------------------
+      chi2 = 0.
+
+C Over d,e and F
+      do i=1,3
+         chi2 = chi2 + (paruval(i+3)*xscale(i))**2 
+         chi2 = chi2 + (pardval(i+3)*xscale(i))**2 
+         chi2 = chi2 + (parubar(i+3)*xscale(i))**2 
+         chi2 = chi2 + (pardbar(i+3)*xscale(i))**2 
+         if (i.le.2) then
+            chi2 = chi2 + (parglue(i+3)*xscale(i))**2 
+         endif
+      enddo
+
+
+      GetTempChi2 = chi2*Temperature
+C---------------------------------------------------------------------
+      end

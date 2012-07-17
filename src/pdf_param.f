@@ -36,9 +36,15 @@ C-------------------------------------------------------
       integer idxShiftPolLHp   !> indices shiftpol
       integer idxShiftPolRHp   !> indices shiftpol
       integer idxShiftPolLHm   !> indices shiftpol
-      integer idxShiftPolRHm   !> indices shiftpol
+      integer idxShiftPolRHm    !> indices shiftpol
       integer idxShiftPolT   !> indices shiftpol
       integer idxShiftPolL   !> indices shiftpol
+
+C-------------------------------------------------------
+      !> Additional scaling parameter "temperature"
+      integer idxTemperature
+      data idxTemperature/0/
+
 C-------------------------------------------------------
       integer idxAuEW, idxAdEW, idxVuEW, idxVdEW !> indices for EW param
       logical LPolFits       !> Logical to init polarisation fits
@@ -68,6 +74,11 @@ C-------------------------------------------------------
          idxFCharm = GetParameterIndex('fcharm')
          if (idxFCharm.gt.0) then
             idxFCharm = iExtraParamMinuit(idxFCharm)
+         endif
+
+         idxTemperature = GetParameterIndex('Temperature')
+         if (idxTemperature.gt.0) then
+            idxTemperature = iExtraParamMinuit(idxTemperature)
          endif
 
          idxAuEW = GetParameterIndex('auEW')
@@ -146,6 +157,13 @@ C EW extra param
          cad_ew = 0.
          cvu_ew = 0.
          cvd_ew = 0.
+      endif
+
+
+C "Temperature"
+      if (idxTemperature.gt.0) then
+         Temperature = p(idxTemperature)
+         print *,'Temperature=',Temperature
       endif
 
 
@@ -498,7 +516,7 @@ C Hermes strange prepare:
       if (ifsttype.eq.0) then
          fs = fstrange
       else
-         fs = fshermes(0.)
+         fs = fshermes(0.D0)
       endif
 
 C simple copy first:

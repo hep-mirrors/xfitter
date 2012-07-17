@@ -54,3 +54,7 @@ C !> Add AS parameterisation
 C !> Results of sum-rule integrals
        double precision uv_sum, dv_sum, p_sum
        common/csumrules/uv_sum, dv_sum, p_sum
+
+C !> Temperature paramter
+       double precision Temperature
+       Common/CTemperature/Temperature
