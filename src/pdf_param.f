@@ -859,7 +859,7 @@ C-------------------------------------------------
       implicit none
       include 'steering.inc'
       include 'pdfparam.inc'
-      double precision x,sea,Dbar
+      double precision x,sea,Dbar, para
 
 C SG: x-dependent fs:
       double precision fs
@@ -882,7 +882,9 @@ C----------------------------------------------------
          qstrange = fs * Dbar(x)/(1-fs)
 
       elseif (iparam.eq.2011) then
-         qstrange = pardel(1)*x**pardel(2)*(1-x)**pardel(3)
+!         qstrange = pardel(1)*x**pardel(2)*(1-x)**pardel(3)
+         qstrange = para(x, pardel)
+
 
       elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
          qstrange = 0.5 * fs * sea(x)
