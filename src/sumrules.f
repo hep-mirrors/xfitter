@@ -127,7 +127,7 @@ C Sea:
          tDb = pardbar(1)*CalcIntXpdf(pardbar)
 
          if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
-            tStr = pardel(1) * CalcIntegral(pardel(2), pardel(3))
+            tStr = pardel(1)*CalcIntXpdf(pardel)
          else
             tStr = 0   ! Strange already included in Dbar
          endif
