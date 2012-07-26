@@ -18,11 +18,7 @@ C------------------------------------------------------------
       integer istage,systypeMod
 
 C To be used as a seed:
-      integer icount
-      integer isys,ntime,ndate
-C Common from CERNLIB datime:
-      integer IS
-      common/SLATE/ IS(40)
+      integer isys
 
       integer n0
       double precision s,voica,dummy_st,sorig
@@ -52,15 +48,6 @@ C functions:
       double precision alnorm     
 C------------------------------------------------------------
 
-      if (iseedmc.ne.0) then
-C Seed from the steering:
-         icount = iseedmc         
-      else
-C Seed from current time
-         call datime(ndate,ntime)
-         ntime = ntime*1000000+is(6)
-         icount=ntime
-      endif
       
 
 cv initialise the random shifts
@@ -69,11 +56,6 @@ cv initialise the random shifts
          r_sh_fl(isys)=0.
       enddo
 
-cv initialise the random seed gener
-
-      call rmarin(icount,0,0)
-      call rluxgo(3,icount,0,0)
-      print*,'initialize smearing with a seed isdrn = ',icount
 
 C
 C Loop over systematic sources:
@@ -378,5 +360,39 @@ C-----------------------------------------------------------------------
 *     -------------------------------------------
 
 
+      subroutine init_rnd_seeds()
+C------------------------------------------------------------------------
+C
+C  Separate random number seed initialisation.
+C
+C------------------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      integer icount,ntime,ndate
+C Common from CERNLIB datime:
+      integer IS
+      common/SLATE/ IS(40)
 
+C-------------------------------------------
+      if (iseedmc.ne.0) then
+C Seed from the steering:
+         icount = iseedmc         
+      else
+C Seed from current time
+         call datime(ndate,ntime)
+         ntime = ntime*1000000+is(6)
+         icount=ntime
+      endif
+
+cv initialise the random seed gener
+
+      call rmarin(icount,0,0)
+      call rluxgo(3,icount,0,0)
+      print*,'initialize smearing with a seed isdrn = ',icount
+
+
+C--------------------------------------------------------------
+
+
+      end
 
