@@ -33,10 +33,24 @@ C Store params in a common block:
          parminuitsave(i) = parminuit(i)
       enddo
 
+C Count number of FCN calls:
+      if (iflag.eq.3) then
+         nfcn3 = nfcn3 + 1
+         if (nfcn3.gt.MaxFCN3) then
+            print *,'Fatal error: too many FCN 3 call'
+            print *,'Increase number of MaxFCN3 calls in endmini.inc'
+            print *,'Or reduce number of FNC 3 calls'
+            print *,'Stop'
+            call hf_stop
+         endif
+      endif
+
 C Store only if IFlag eq 3:
       if (iflag.eq.3) then
          do i=1,MNE
-            pkeep(i) = parminuit(i)
+            pkeep(i) = parminuit(i)            
+C !> Also store for each fcn=3 call:
+            pkeep3(i,nfcn3) = parminuit(i)
          enddo
       endif
 
@@ -85,6 +99,7 @@ C--------------------------------------------------------------
       INCLUDE 'thresholds.inc'
       include 'fcn.inc'
       include 'polarity.inc'
+      include 'endmini.inc'
 
 *     ---------------------------------------------------------
 *     declaration related to alphas
@@ -126,8 +141,6 @@ C--------------------------------------------------------------
       double precision TempChi2
       double precision GetTempChi2   !> Temperature penalty for D, E... params.
       
-      integer nfcn3  !> Counter for fcn=3 calls
-      data nfcn3/0/ 
 
 C  x-dependent fs:
       double precision fs0,epsi
@@ -145,9 +158,6 @@ C--------------------------------------------------------------
       n0 = 0
 
       iflagfcn = iflag
-      if (iflag.eq.3) then
-         nfcn3 = nfcn3 + 1
-      endif
 
 
       do jsys=1,nsys
@@ -396,9 +406,13 @@ c             call fillvfngrid
      $           ,chi2_cont
      $           , NControlPoints,chi2_cont/NControlPoints            
 
-            write (71,'(4F10.4)') 
-     $           paruval(4),paruval(5),chi2_fit/NFitPoints
-     $           ,chi2_cont/NControlPoints
+c            write (71,'(4F10.4)') 
+c     $           paruval(4),paruval(5),chi2_fit/NFitPoints
+c     $           ,chi2_cont/NControlPoints
+
+            !> Store chi2 per fcn3 call values:
+            chi2cont3(nfcn3) = chi2_cont
+            chi2fit3(nfcn3)  = chi2_fit
          endif
 
       endif

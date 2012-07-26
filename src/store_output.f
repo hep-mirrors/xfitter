@@ -384,28 +384,30 @@ C      nsets = 45
       end
 
 C--------------------------------------------------------------
-      subroutine write_pars(nfcn3)
+      subroutine write_pars(ifcn3)
 C-------------------------------------------------------------
 C Extra output of PDF parameters
 C-------------------------------------------------------------
       implicit none
       include 'fcn.inc'
       include 'endmini.inc'
-      integer nfcn3
+      integer ifcn3
+
       integer i
       double precision val,err,xlo,xhi
       integer ipar
       character*32 parname
       character*32 fname
+
 C-------------------------------------------------------------
-      if (nfcn3.lt.10) then
-         write (fname,'(''output/parsout_'',i1)') nfcn3
-      elseif (nfcn3.lt.100) then
-         write (fname,'(''output/parsout_'',i2)') nfcn3
-      elseif (nfcn3.lt.1000) then
-         write (fname,'(''output/parsout_'',i3)') nfcn3
-      elseif (nfcn3.lt.10000) then
-         write (fname,'(''output/parsout_'',i4)') nfcn3
+      if (ifcn3.lt.10) then
+         write (fname,'(''output/parsout_'',i1)') ifcn3
+      elseif (ifcn3.lt.100) then
+         write (fname,'(''output/parsout_'',i2)') ifcn3
+      elseif (ifcn3.lt.1000) then
+         write (fname,'(''output/parsout_'',i3)') ifcn3
+      elseif (ifcn3.lt.10000) then
+         write (fname,'(''output/parsout_'',i4)') ifcn3
       endif
 
       open (71,file=fname,status='unknown')
@@ -423,4 +425,52 @@ C-------------------------------------------------------------
       close(71)
 
 C-------------------------------------------------------------
+      end
+
+      Subroutine FindBestFCN3
+C-------------------------------------------------------------------
+C
+C Find minuit train which has the best chi2 for the control sample.
+C
+C--------------------------------------------------------------------
+      implicit none
+      include 'endmini.inc'
+      integer i,iminCont, kflag
+      double precision aminCont
+C-------------------------------------------------------------------
+      aminCont = 1.D30
+      do i=1,nfcn3
+         if ( chi2cont3(i).lt. aminCont) then
+            aminCont = chi2cont3(i)
+            iminCont = i
+         endif
+      enddo
+C-------------------------------------------------------------------
+      print *,' '
+      print *,' '
+      print *,' '
+      print *,'======================================================'
+      print '(''  Use NNPDF overfitting method. 
+     $   Prepare output PDF files '')'
+      print '(''  Best FCN3 call='',i4,'' out of '',i4,'' calls'')',
+     $     iminCont,nfcn3
+      print '(''  Chi2 control best='',F10.4)',aminCont
+      print *,'======================================================'
+      print *,' '
+      print *,' '
+      print *,' '
+
+      !> Dump PDFs for this:
+      call PDF_param_iteration(pkeep3(1,iminCont),2) !> Decode params.
+C
+C Fix some pars by sum-rules:
+C
+      kflag = 0
+      call SumRules(kflag)
+      call Evolution
+
+C !> Ready to store:
+      open (76,file='output/lhapdf.block.txt',status='unknown')
+      call store_pdfs('output/pdfs_q2val_')
+
       end

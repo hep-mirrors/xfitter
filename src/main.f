@@ -1,7 +1,7 @@
-      program H1Fitter 
+      program HERAFitter 
 C--------------------------------------------------------
 C
-C> H1 PDF Fit Program
+C> HERA PDF Fit Program
 C
 C-------------------------------------------------------
 
@@ -12,6 +12,8 @@ C-------------------------------------------------------
       include 'thresholds.inc'
       include 'couplings.inc'
       include 'for_debug.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
 
       integer icond
 C-----------------------------------------------------
@@ -67,10 +69,15 @@ C-----------------------------------------------------
       lprint = .true.
       call minuit(fcn,0)
       close(85)
+
+      if (ControlFitSplit) then
+         Call FindBestFCN3  !> Overfitting protection.
+      else
 *
 * Write out central parameters
 *
-      call write_pars(0)
+         call write_pars(0)
+      endif
 
       if (DOBANDS) then
          write(6,*) ' --- Calculate error bands ...'
