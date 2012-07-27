@@ -27,14 +27,14 @@ class H1FitterPainter  {
   H1FitterPainter& operator=(H1FitterPainter &foo);
   Int_t DrawPDF(Int_t ival);
   Int_t DrawPull();
-  Int_t DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor=kRed);
+  Int_t DrawDataSet(DataSet* dataset, DataSet* datasetref, Bool_t RatioToData, EColor=kRed);
   Int_t DrawDataSetRatio(DataSet* dataset, DataSet* datasetref);
   Int_t DrawFitResults();
   void DrawMessages(H1FitterOutput* output);
   void DrawCorrelations(H1FitterOutput* output);
   Int_t Prepare();
   void PrintCanvas(TCanvas* can);
-  TCanvas* PrepareDataSetCanvas(DataSet* dataset, DataSet* datasetref, TObjArray* TrashBin, Double_t& MarkerSize);
+  TCanvas* PrepareDataSetCanvas(DataSet* dataset, DataSet* datasetref, TObjArray* TrashBin, Double_t& MarkerSize, Bool_t Ratio);
   Int_t PlotPdfSub(TVirtualPad* pad, H1FitterOutput* FitterOut,H1FitterOutput* FitterRef,
 		   Int_t Q2Bin, const Char_t* Title, H1FitterOutput::pdf pdf1, H1FitterOutput::pdf pdf2,
 		   TVirtualPad* legend, TObjArray* TrashBin);
