@@ -13,6 +13,7 @@ DataSet::DataSet(Int_t SetId, const Char_t* name, const Char_t* v1, const Char_t
   fDUnc = new TOrdCollection; fDUnc->SetOwner();
   fDTot = new TOrdCollection; fDTot->SetOwner();
   fTheo = new TOrdCollection; fTheo->SetOwner();
+  fTheo_Mod = new TOrdCollection; fTheo_Mod->SetOwner();
   fLabels = new TOrdCollection; fLabels->SetOwner();
   fDLabels.clear();
 }
@@ -24,6 +25,7 @@ DataSet::DataSet() {
   fDUnc = new TOrdCollection; fDUnc->SetOwner();
   fDTot = new TOrdCollection; fDTot->SetOwner();
   fTheo = new TOrdCollection; fTheo->SetOwner();
+  fTheo_Mod = new TOrdCollection; fTheo_Mod->SetOwner();
   fLabels = new TOrdCollection; fLabels->SetOwner();
   fDLabels.clear();
 }
@@ -34,6 +36,7 @@ DataSet::~DataSet(){
   delete fDUnc;
   delete fDTot;
   delete fTheo;
+  delete fTheo_Mod;
   delete fLabels;
 }
 
@@ -49,6 +52,10 @@ TGraphErrors* DataSet::GetTheory(Int_t i) {
   if(i<0 || i>=fTheo->GetEntries()) return NULL;
   return (TGraphErrors*) fTheo->At(i);
 }
+TGraphErrors* DataSet::GetTheory_Mod(Int_t i) {
+  if(i<0 || i>=fTheo_Mod->GetEntries()) return NULL;
+  return (TGraphErrors*) fTheo_Mod->At(i);
+}
 TObjString* DataSet::GetLabel(Int_t i) {
   if(i<0 || i>=fLabels->GetEntries()) return NULL;
   return (TObjString*) fLabels->At(i);
@@ -61,7 +68,7 @@ Int_t DataSet::GetNpts(Int_t i) {
 Double_t DataSet::GetChi2(Int_t i) {
   if(i<0 || i>=fTheo->GetEntries()) return 0.;
   TGraphErrors* gDTot = (TGraphErrors*) fDUnc->At(i);
-  TGraphErrors* gTheo = (TGraphErrors*) fTheo->At(i);
+  TGraphErrors* gTheo = (TGraphErrors*) fTheo_Mod->At(i);
  
   Double_t* Data = gDTot->GetY();
   Double_t* Error = gDTot->GetEY();
@@ -83,6 +90,7 @@ Int_t DataSet::FindGraphIndex(Double_t value, const Char_t* label) {
       fDUnc->AddBefore(fDUnc->At(i),new TGraphErrors(0));
       fDTot->AddBefore(fDTot->At(i),new TGraphErrors(0));
       fTheo->AddBefore(fTheo->At(i),new TGraphErrors(0));
+      fTheo_Mod->AddBefore(fTheo_Mod->At(i),new TGraphErrors(0));
       
       fLabels->AddBefore(fLabels->At(i),new TObjString(label));
       return i;
@@ -96,20 +104,23 @@ Int_t DataSet::FindGraphIndex(Double_t value, const Char_t* label) {
   fDUnc->AddLast(new TGraphErrors(0));
   fDTot->AddLast(new TGraphErrors(0));
   fTheo->AddLast(new TGraphErrors(0));
+  fTheo_Mod->AddLast(new TGraphErrors(0));
     
   fLabels->AddLast(new TObjString(label));
   return fDLabels.size() - 1;
 }
 
-void DataSet::AddPoint(Int_t GraphIdx, Double_t x, Double_t data, Double_t uncorrerr, Double_t toterr, Double_t theory) {
+void DataSet::AddPoint(Int_t GraphIdx, Double_t x, Double_t data, Double_t uncorrerr, Double_t toterr, Double_t theory, Double_t theory_mod) {
   TGraphErrors* gDUnc = (TGraphErrors*) fDUnc->At(GraphIdx);
   TGraphErrors* gDTot = (TGraphErrors*) fDTot->At(GraphIdx);
   TGraphErrors* gTheo = (TGraphErrors*) fTheo->At(GraphIdx);
+  TGraphErrors* gTheo_Mod = (TGraphErrors*) fTheo_Mod->At(GraphIdx);
 
   Int_t N = gDUnc->GetN();
   gDUnc->Set(N+1);
   gDTot->Set(N+1);
   gTheo->Set(N+1);
+  gTheo_Mod->Set(N+1);
   
   gDUnc->SetPoint(N, x, data);
   gDUnc->SetPointError(N, 0., uncorrerr);
@@ -120,12 +131,16 @@ void DataSet::AddPoint(Int_t GraphIdx, Double_t x, Double_t data, Double_t uncor
   gTheo->SetPoint(N, x, theory);
   gTheo->SetPointError(N, 0., 0.);
   
+  gTheo_Mod->SetPoint(N, x, theory_mod);
+  gTheo_Mod->SetPointError(N, 0., 0.);
+  
   gDUnc->Sort();
   gDTot->Sort();
   gTheo->Sort();
+  gTheo_Mod->Sort();
 }
 
-void DataSet::AddPoint(Double_t v1, Double_t v2, Double_t v3, Double_t data, Double_t uncorrerr, Double_t toterr, Double_t theory, Double_t pull) {
+void DataSet::AddPoint(Double_t v1, Double_t v2, Double_t v3, Double_t data, Double_t uncorrerr, Double_t toterr, Double_t theory, Double_t theory_mod, Double_t pull) {
 
   if(fSetId==61 || fSetId==62 || fSetId==63 || fSetId==64) {
     // different graph for each Q2 bin (column #2, v2)
@@ -138,7 +153,7 @@ void DataSet::AddPoint(Double_t v1, Double_t v2, Double_t v3, Double_t data, Dou
     Int_t GraphIdx = FindGraphIndex(v2, temp->Data()); // find proper graph depending on the v2 value (or create if necessery)
     delete temp;
     
-    AddPoint(GraphIdx, v1, data, uncorrerr, toterr, theory); // fill the graph as a function of v1 value
+    AddPoint(GraphIdx, v1, data, uncorrerr, toterr, theory, theory_mod); // fill the graph as a function of v1 value
 
   }
   else if(fSetId==35) {
@@ -151,7 +166,7 @@ void DataSet::AddPoint(Double_t v1, Double_t v2, Double_t v3, Double_t data, Dou
     Int_t GraphIdx = FindGraphIndex(v1, temp->Data()); // find proper graph depending on the v1 value (or create if necessery)
     delete temp;
     
-    AddPoint(GraphIdx, v3, data, uncorrerr, toterr, theory); // fill the graph as a function of v1 value
+    AddPoint(GraphIdx, v3, data, uncorrerr, toterr, theory, theory_mod); // fill the graph as a function of v1 value
 
   }
   else {                                // GENERAL:  
@@ -159,25 +174,30 @@ void DataSet::AddPoint(Double_t v1, Double_t v2, Double_t v3, Double_t data, Dou
     TGraphErrors* gDUnc = NULL;
     TGraphErrors* gDTot = NULL;
     TGraphErrors* gTheo = NULL;
+    TGraphErrors* gTheo_Mod = NULL;
 
     if(fDUnc->GetEntries()==0) {
       gDUnc = new TGraphErrors(0);
       gDTot = new TGraphErrors(0);
       gTheo = new TGraphErrors(0);
+      gTheo_Mod = new TGraphErrors(0);
       fDUnc->AddLast(gDUnc);
       fDTot->AddLast(gDTot);
       fTheo->AddLast(gTheo);
+      fTheo_Mod->AddLast(gTheo_Mod);
     }
     else {
       gDUnc = (TGraphErrors*) fDUnc->At(0);
       gDTot = (TGraphErrors*) fDTot->At(0);
       gTheo = (TGraphErrors*) fTheo->At(0);
+      gTheo_Mod = (TGraphErrors*) fTheo_Mod->At(0);
     }
     
     Int_t N = gDUnc->GetN();
     gDUnc->Set(N+1);
     gDTot->Set(N+1);
     gTheo->Set(N+1);
+    gTheo_Mod->Set(N+1);
     
     gDUnc->SetPoint(N, (Double_t)N, data);
     gDUnc->SetPointError(N, 0., uncorrerr);
@@ -187,6 +207,9 @@ void DataSet::AddPoint(Double_t v1, Double_t v2, Double_t v3, Double_t data, Dou
     
     gTheo->SetPoint(N, (Double_t)N, theory);
     gTheo->SetPointError(N, 0., 0.);
+    
+    gTheo_Mod->SetPoint(N, (Double_t)N, theory_mod);
+    gTheo_Mod->SetPointError(N, 0., 0.);
     
     TString* temp = new TString;
     temp->Form("%s:%.2f_%s:%.2f_%s:%.2f",fV1->Data(), v1, fV2->Data(), v2, fV3->Data(), v3);

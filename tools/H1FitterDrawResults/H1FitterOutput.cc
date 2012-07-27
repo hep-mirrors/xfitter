@@ -599,7 +599,7 @@ Int_t H1FitterOutput::PrepareDataSets() {
 
       // cout << "haha" << dataset << " "<< data << endl;
 
-      NewDataSet->AddPoint(v1, v2, v3, data, uncorrerr, toterr, theory_mod, pull);
+      NewDataSet->AddPoint(v1, v2, v3, data, uncorrerr, toterr, theory, theory_mod, pull);
 
       fPull->Fill(pull);
     }

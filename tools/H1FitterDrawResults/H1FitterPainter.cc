@@ -62,7 +62,7 @@ Int_t H1FitterPainter::Draw() {
     this->DrawPDF(i);
   }
   
-  this->DrawPull();
+//  this->DrawPull();
   
   Int_t NRefDataSets = 0;
   if(fH1FitterOutputRef) NRefDataSets = fH1FitterOutputRef->GetNsets();
@@ -80,7 +80,6 @@ Int_t H1FitterPainter::Draw() {
       }
     } 
     DrawDataSet(dataset, datasetref);
-    //DrawDataSetRatio(dataset, datasetref);
   }
   for (Int_t iref=0; iref<NRefDataSets; iref++) {
     if(!RefSetsDrawn[iref])
@@ -553,64 +552,20 @@ void H1FitterPainter::ScaleGraph2ToGraph1(TGraph* graph1, TGraph* graph2, TLine*
 }
 
 
-Int_t H1FitterPainter::DrawDataSetRatio(DataSet* dataset, DataSet* datasetref) {
+TCanvas* H1FitterPainter::PrepareDataSetCanvas(DataSet* dataset, DataSet* datasetref, TObjArray* TrashBin, Double_t& MarkerSize) {
 
-  if(datasetref==NULL) return 1;
+  if(dataset->GetNGraphs()==0) return NULL;
 
-  TGraphErrors* gTheo;
-  TGraphErrors* gTheoRef;
-  TObjArray* TrashBin = new TObjArray; TrashBin->SetOwner();
-    
   TCanvas* can = new TCanvas;
-  if     (dataset->GetNGraphs()<=1)  can->Divide(1,1);
-  else if(dataset->GetNGraphs()<=2)  can->Divide(1,2);
-  else if(dataset->GetNGraphs()<=4)  can->Divide(2,2);
-  else if(dataset->GetNGraphs()<=9)  can->Divide(3,3);
-  else if(dataset->GetNGraphs()<=16) can->Divide(4,4);
-  else if(dataset->GetNGraphs()<=25) can->Divide(5,5);
-  else if(dataset->GetNGraphs()<=36) can->Divide(6,6);
-  else {cout << "can not DrawDataSetRatio, too many graphs " <<dataset->GetNGraphs() <<endl; return 1;}
-
-  for(Int_t i=0; i<dataset->GetNGraphs(); i++) {
-    gTheo = (TGraphErrors*) dataset->GetTheory(i)->Clone();
-    TrashBin->AddLast(gTheo);
-    gTheoRef= datasetref->GetTheory(i);
-
-    for(Int_t k=0; k<gTheo->GetN(); k++) {
-      gTheo->GetY()[k] = gTheo->GetY()[k] / gTheoRef->GetY()[k];
-    }
-    gTheo->SetTitle(dataset->GetLabel(i)->GetString().Data());
-    gTheo->SetMaximum(1.1);
-    gTheo->SetMinimum(0.9);
-    gTheo->SetMarkerStyle(20);
-    gTheo->SetMarkerSize(0.5);
-    can->cd(i+1);
-    gTheo->Draw("ALP");
-  }
-  TPaveLabel* Title = new TPaveLabel(0.0, 0.97, 0.6, 1.0, dataset->GetName(), "NDC");
-  Title->SetFillColor(kWhite); Title->SetBorderSize(0);
-  can->cd(0);Title->Draw();
-
-  PrintCanvas(can);
-  delete can; delete TrashBin; delete Title;
-  return 0;
-}
-
-Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor color) {
-
-  if(dataset->GetNGraphs()==0) return 1;
 
   Int_t SetId = dataset->GetSetId();
   if(SetId==61 || SetId==62 || SetId==63 || SetId==64 || SetId==35) { // Painting for all the supported SetIds
     
-    TObjArray* TrashBin = new TObjArray; TrashBin->SetOwner();
-
     Double_t YMaximum = 0.; // axis borders
     Double_t YMinimum = 0.;
     Double_t XMinimum = 0.;
     Double_t XMaximum = 1.;
 
-    Double_t MarkerSize = 0.005; // size of the data point marker
     Double_t ALabelSize = 0.06;  // size of the axis' label
     Bool_t Logx = kFALSE;
     Bool_t Logy = kFALSE;
@@ -618,7 +573,6 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
     Double_t LabelSize = 1.;  // size of the graph label text
     Double_t Chi2Size = 1.;   // size of the chi2 text
 
-    TCanvas* can = new TCanvas;
     can->SetTopMargin(0.3);
     switch(SetId) { // Canvas definition for supported SetIds
     case 61: 
@@ -688,17 +642,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       break;
     }
     
-    TGraphErrors* gDUnc;
-    TGraphErrors* gDTot;
-    TGraphErrors* gTheo;
-    TGraphErrors* gTheoRef;
-    
     for(Int_t i=0; i<dataset->GetNGraphs(); i++) {
-      gDUnc = dataset->GetDataUncr(i);
-      gDTot = dataset->GetDataTotal(i);
-      gTheo = dataset->GetTheory(i);
-      gTheoRef = NULL;
-      if(datasetref) gTheoRef= datasetref->GetTheory(i);
 
       Double_t chi2offx = 0.;
       Double_t chi2offy = 0.;
@@ -739,7 +683,7 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
        
 
 
-      TH1F* h = new TH1F("","",1, XMinimum, XMaximum); TrashBin->SetOwner(h);
+      TH1F* h = new TH1F("","",1, XMinimum, XMaximum); TrashBin->AddLast(h);
       h->SetMinimum(YMinimum);
       h->SetMaximum(YMaximum);
       h->SetStats(kFALSE);
@@ -757,8 +701,8 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
       Double_t Chi2 = dataset->GetChi2(i);
       Int_t Npoints = dataset->GetNpts(i);
 
-
-      TPaveLabel* labelchi2 = new TPaveLabel(0.25+chi2offx, 0.1+chi2offy, 0.3+chi2offx, 0.2+chi2offy,"","NDC"); TrashBin->AddLast(labelchi2);
+      TPaveLabel* labelchi2 = new TPaveLabel(0.25+chi2offx, 0.1+chi2offy, 0.3+chi2offx, 0.2+chi2offy,"","NDC"); 
+      TrashBin->AddLast(labelchi2);
       TString* temp = new TString; temp->Form("#chi^{2} / npts = %.1f / %d", Chi2, Npoints);
       labelchi2->SetLabel(temp->Data());
       delete temp;
@@ -783,42 +727,121 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
 	labelchi2ref->SetTextColor(fColorRef);
       }
 
-
-      gDUnc->SetTitle("");
-      gDUnc->SetMarkerStyle(20);
-      gDUnc->SetMarkerSize(MarkerSize);
-      
-      gTheo->SetLineColor(color);
-      if(gTheoRef) gTheoRef->SetLineColor(fColorRef);
-
       can->cd(i+1);
       if (Logx) gPad->SetLogx();
       if (Logy) gPad->SetLogy();
 
       h->Draw();
-      gDUnc->Draw("same P");
-      gDTot->Draw("same P");
-      gTheo->Draw("same L");
-      if(gTheoRef)     gTheoRef->Draw("same L");
       label->Draw();
       labelchi2->Draw();
       if(labelchi2ref) labelchi2ref->Draw();
     }
-    can->cd(0);
-    TPaveLabel* Title = new TPaveLabel(0.0, 0.97, 0.6, 1.0, dataset->GetName(), "NDC");
-    Title->SetFillColor(kWhite); Title->SetBorderSize(0);
-    Title->Draw();
+  }
+  else { // GENERAL
+    TH1F* h = new TH1F("","", dataset->GetNpts(0), -0.5, dataset->GetNpts(0)-0.5);
+    TrashBin->AddLast(h); 
+    TGraphErrors* gDUnc = dataset->GetDataUncr(0);
+    h->SetMaximum(gDUnc->GetHistogram()->GetMaximum()*1.1);
+    h->SetMinimum(dataset->GetMinimum(0));
+    h->SetStats(kFALSE);
+    h->GetXaxis()->SetLabelSize(0.03);
+    dataset->FillLabels(h);
+    
+    can->SetLogy();
+    h->Draw();
+    
+    Double_t Chi2 = dataset->GetChi2(0);
+    Int_t Npoints = dataset->GetNpts(0);
+    
+    TPaveLabel* labelchi2 = new TPaveLabel(0.25, 0.15, 0.3, 0.2,"","NDC"); 
+    TrashBin->AddLast(labelchi2);
+    TString* temp = new TString; temp->Form("#chi^{2} / npts = %.1f / %d", Chi2, Npoints);
+    labelchi2->SetLabel(temp->Data());
+    delete temp;
+    labelchi2->SetFillColor(kWhite);
+    labelchi2->SetBorderSize(0);
+    labelchi2->SetTextSize(1.0);
+    //labelchi2->SetTextColor(color);
+    
+    TPaveLabel* labelchi2ref = NULL;
+    if(datasetref) {
+      Chi2 = datasetref->GetChi2(0);
+      Npoints = Npoints = datasetref->GetNpts(0);
+      labelchi2ref = new TPaveLabel(0.25, 0.3, 0.3, 0.4,"","NDC"); 
+      TrashBin->AddLast(labelchi2ref);
+      TString* temp = new TString; temp->Form("#chi^{2} / npts = %.1f / %d", Chi2, Npoints);
+      labelchi2ref->SetLabel(temp->Data());
+      delete temp;
+      labelchi2ref->SetFillColor(kWhite);
+      labelchi2ref->SetBorderSize(0);
+      labelchi2ref->SetTextSize(0.5);
+      labelchi2ref->SetTextColor(fColorRef);
+    }
 
-    TLegend* leg = new TLegend(0.6, 0.97, 0.9, 1.0, "","NDC");
-    leg->SetNColumns(2); leg->SetBorderSize(0); leg->SetFillColor(kWhite);
-    leg->AddEntry(gTheo, fH1FitterOutput->GetName()->Data(),"L");
-    if(fH1FitterOutputRef) leg->AddEntry(gTheoRef, fH1FitterOutputRef->GetName()->Data(),"L");
-    leg->Draw();
+    labelchi2->Draw();
+    if(labelchi2ref) labelchi2ref->Draw();
+  }
 
-    PrintCanvas(can);    
-    delete can;
-    delete TrashBin;
-    delete Title; delete leg;
+  can->cd(0);
+  TPaveLabel* Title = new TPaveLabel(0.0, 0.97, 0.6, 1.0, dataset->GetName(), "NDC");
+  TrashBin->AddLast(Title);
+  Title->SetFillColor(kWhite); Title->SetBorderSize(0);
+  Title->Draw();
+  
+  TLegend* leg = new TLegend(0.6, 0.97, 0.9, 1.0, "","NDC");
+  TrashBin->AddLast(leg);
+  leg->SetNColumns(2); leg->SetBorderSize(0); leg->SetFillColor(kWhite);
+  leg->AddEntry(dataset->GetTheory(0), fH1FitterOutput->GetName()->Data(),"L");
+  if(datasetref) leg->AddEntry(datasetref->GetTheory(0), fH1FitterOutputRef->GetName()->Data(),"L");
+  leg->Draw();
+
+  return can;
+}
+
+
+
+Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor color) {
+
+  if(dataset->GetNGraphs()==0) return 1;
+  
+  TObjArray* TrashBin = new TObjArray; TrashBin->SetOwner();
+  Double_t MarkerSize = 0.005; // size of the data point marker
+  TCanvas* can = PrepareDataSetCanvas(dataset, datasetref, TrashBin, MarkerSize);
+  
+  TGraphErrors* gDUnc;
+  TGraphErrors* gDTot;
+  TGraphErrors* gTheo;
+  TGraphErrors* gTheoRef;
+  
+  for(Int_t i=0; i<dataset->GetNGraphs(); i++) {
+    gDUnc = dataset->GetDataUncr(i);
+    gDTot = dataset->GetDataTotal(i);
+    gTheo = dataset->GetTheory(i);
+    gTheoRef = NULL;
+    if(datasetref) gTheoRef= datasetref->GetTheory(i);
+
+    gDUnc->SetTitle("");
+    gDUnc->SetMarkerStyle(20);
+    gDUnc->SetMarkerSize(MarkerSize);
+    
+    gTheo->SetLineColor(color);
+    if(gTheoRef) gTheoRef->SetLineColor(fColorRef);
+    
+    can->cd(i+1);
+    gDUnc->Draw("same P");
+    gDTot->Draw("same P");
+    gTheo->Draw("same L");
+    if(gTheoRef)     gTheoRef->Draw("same L");
+    //label->Draw();
+    //labelchi2->Draw();
+    //if(labelchi2ref) labelchi2ref->Draw();
+  }
+  
+  PrintCanvas(can);    
+  delete can;
+  delete TrashBin;
+}
+    /*
   }
   else { // GENERAL
     TGraphErrors* gDUnc = dataset->GetDataUncr(0);
@@ -899,6 +922,9 @@ Int_t H1FitterPainter::DrawDataSet(DataSet* dataset, DataSet* datasetref, EColor
     if(labelchi2ref) delete labelchi2ref;
   }
 }
+  */
+
+
 
 
 void H1FitterPainter::PrintCanvas(TCanvas* can) {
