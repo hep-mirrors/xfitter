@@ -437,6 +437,12 @@ C--------------------------------------------------------------------
       include 'endmini.inc'
       integer i,iminCont, kflag
       double precision aminCont
+
+
+      double precision val,err,xlo,xhi
+      integer ipar
+      character*32 parname
+
 C-------------------------------------------------------------------
       aminCont = 1.D30
       do i=1,nfcn3
@@ -469,8 +475,28 @@ C
       call SumRules(kflag)
       call Evolution
 
-C !> Ready to store:
-      open (76,file='output/lhapdf.block.txt',status='unknown')
-      call store_pdfs('output/pdfs_q2val_')
+C !> Ready to store: 
+cv      open (76,file='output/lhapdf.block.txt',status='unknown')
+cv      call store_pdfs('output/pdfs_q2val_')
+C store the optimal values 
+
+      open (76,file='output/opt_lhapdf.block.txt',status='unknown')
+      call store_pdfs('output/opt_pdfs_q2val_')
+
+
+      open (71,file='output/parseout_opt',status='unknown')
+      do i=1,mne
+         call mnpout(i,parname,val,err,xlo,xhi,ipar)
+         if (Trim(parname).ne.'undefined') then
+            if (xlo.eq.0.and.xhi.eq.0) then
+               write (71,72) i, Trim(parname), pkeep3(i,iminCont),err
+            else
+               write (71,72) i, Trim(parname), pkeep3(i,iminCont),err,xlo,xhi
+            endif
+         endif
+      enddo
+ 72   format (I5,'   ','''',A,'''',4F12.6)
+      close(71)
+
 
       end
