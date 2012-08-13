@@ -39,8 +39,8 @@ C Functions:
       integer GetBinIndex
       integer GetInfoIndex
 
-      write(*,*) 'Dipole prediction:: sig0, xlam, x0, xm'
-      write(*,*)  sig0, xlam, x0, xm
+      write(*,*) 'Dipole prediction:: sig0, xlam, x0, xm, cBGK, eBGK'
+      write(*,*)  sig0, xlam, x0, xm, cBGK, eBGK
       write(*,*) ' dipolemodel = ', dipolemodel
 
 C
@@ -95,8 +95,8 @@ C Get F2 and FL (we assume that R=0)
 	 FL = (fl_l + fl_c) ! extra factor is absent
 
 CC----------- output of the interim results -------
-C      print *,'> x,Q2,F2,FL,Xsec: ',X(i),Q2(i),F2,FL,
-C     $            F2 - Y(i)**2/(1.0d0+(1.0d0-Y(i))**2) * FL
+c      print *,'> x,Q2,F2,FL,Xsec: ',X(i),Q2(i),F2,FL,
+c     $            F2 - Y(i)**2/(1.0d0+(1.0d0-Y(i))**2) * FL
 CC-------------------------------------------------
 
 C Get the double differential cross section
@@ -108,6 +108,11 @@ C
 C        THEO(idx) =  XSec
 C
         THEO(idx) = THEO(idx) + XSec
+
+
+        ! COMMENT OUT
+c        print *,'ss2',i,x(i),Q2(i),f2,fl
+
 
       enddo
 
@@ -132,6 +137,27 @@ C-------------------------------------------------------
       parsea(1) = 0.0d0
       
       end
+
+
+      subroutine RemoveOnlySeaQuarks
+C-------------------------------------------------------
+C Remove only sea quarks 09/05/2012
+C 
+C This subroutine ius called by subroutine fcn
+C-------------------------------------------------------
+      implicit none
+
+      include 'steering.inc'
+      include 'pdfparam.inc'      
+
+C      parglue(1) = 0.0d0
+C      parubar(1) = 0.0d0
+C      pardbar(1) = 0.0d0
+      write(*,*) 'Remove sea quarks'
+      parsea(1) = 0.0d0
+      
+      end
+
 
 
       subroutine DecodeDipolePar(pars)
@@ -168,6 +194,15 @@ C-------------------------------------------------------
       idx = iExtraParamMinuit(idx)
       xm   = pars(idx)
 
+      idx = GetParameterIndex('cBGK')
+      idx = iExtraParamMinuit(idx)
+      cBGK   = pars(idx)
+
+      idx = GetParameterIndex('eBGK')
+      idx = iExtraParamMinuit(idx)
+      eBGK   = pars(idx)
+
+
       write(*,*) ' <<<the parameters have been read'
 
       end
@@ -198,6 +233,8 @@ C---------------------------------
          DipoleModel = 3
       elseif (TypeOfDipoleFit.eq.'DGLAP+IIM') then
          DipoleModel = 4
+      elseif (TypeOfDipoleFit.eq.'BGK') then
+         DipoleModel = 5
       else
          goto 173
       endif
@@ -209,4 +246,47 @@ C---------------------------------
 
  173   continue
 
+      end
+
+
+      subroutine dipoleBGK(IDataSet)
+C---------------------------------------------------
+C
+C Dipole model which uses gluon from QCDNUM
+C and valence quarks from DGLAP
+C
+C---------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'pdfparam.inc'
+      integer IDataSet
+      integer kflag
+C----------------------------
+
+C Addition of valence quars:
+      call SaveRestorePdfs(0)   ! save all info
+
+            
+      call SaveRestorePdfs(1)   ! reset sea, gluon
+      kflag = 0
+C      call SumRules(kflag)
+      call Evolution            ! evolve PDFs without sea, gluon.
+C     Do dis:
+      
+      print *,'gluon',parglue(1),parglue(2),parglue(3)
+
+      print *,'Start DGLAP'
+      Call GetNCXsection(IDataSet, HFSCHEME)
+
+      call SaveRestorePdfs(2)   ! store them back
+      call Evolution            ! evolve PDFs with gluon
+
+c            print *,'Start dipole model:'
+
+      call DipolePrediction(IDataSet)
+*     write(*,*) 'tu jestem'
+*     stop
+
+                                ! Restore all PDFs
+      call SaveRestorePdfs(3)
       end

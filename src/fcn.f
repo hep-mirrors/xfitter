@@ -185,7 +185,9 @@ C--------------------------------------------------------------
 *     ---------------------------------------------------------
 
       kflag=0
-      if (Itheory.eq.0)  call SumRules(kflag)
+      if (Itheory.eq.0)  then 
+         call SumRules(kflag)
+      endif
       if (kflag.eq.1) then
          write(6,*) ' --- problem in SumRules, kflag = 1'
          call HF_errlog(12020516,
@@ -222,7 +224,7 @@ C
 C     Call a subrotine which vanishes nonvalence DGLAP contribution
 C      for dipole model fits.
 
-      if (DipoleModel.gt.2) then
+      if (DipoleModel.eq.3.or.DipoleModel.eq.4) then
          call LeaveOnlyValenceQuarks
       endif
 

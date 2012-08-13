@@ -1636,3 +1636,70 @@ C----------------------------------------------------
 
       endif
       end
+
+      subroutine SaveRestorePdfs(imode)
+C-------------------------------------------------------
+C Leave only the contribution of the valence quarks
+C for DGLAP+Dipole model fits.
+C This subroutine ius called by subroutine fcn
+C-------------------------------------------------------
+      implicit none
+
+      include 'steering.inc'
+      include 'pdfparam.inc'      
+      integer imode
+
+      double precision savglue(10)
+      double precision savsea(10)
+      double precision savdv(10)
+      double precision savuv(10)
+      integer i
+C------------------------------
+
+      if (imode.eq.0) then
+C save all
+         do i=1,10
+            savglue(i) = parglue(i)
+            savsea(i)  = parsea(i)
+            savdv(i)   = pardval(i)
+            savuv(i)   = paruval(i)
+         enddo
+      elseif (imode.eq.1) then
+         do i=1,10
+C Restore all:
+            parglue(i) = savglue(i) 
+            parsea(i)  = savsea(i)  
+            pardval(i) = savdv(i) 
+            paruval(i) = savuv(i)  
+
+C For dglap fit, reset gluon and sea, keep valence:
+            parglue(i) = 0.
+            parsea(i)  = 0.
+         enddo
+      elseif (imode.eq.2) then
+         do i=1,10
+C restore
+            parglue(i) = savglue(i) 
+            parsea(i)  = savsea(i)  
+            pardval(i) = savdv(i) 
+            paruval(i) = savuv(i)  
+
+C For dipole, reset valence:
+            pardval(i)  = 0.0
+            paruval(i)  = 0.0
+         enddo         
+
+      elseif (imode.eq.3) then
+         do i=1,10
+C restore
+            parglue(i) = savglue(i) 
+            parsea(i)  = savsea(i)  
+            pardval(i) = savdv(i) 
+            paruval(i) = savuv(i)  
+
+         enddo         
+      endif
+
+      print *,'in save restore',imode,parglue(1),parglue(2),parglue(3)
+
+      end

@@ -3,9 +3,9 @@ C === THE FILE CONTAINS PARAMETERS FOR THE DIPOLE MODEL ===
 C === THE FILE IS CALLED BY DIPOLE MODEL SUBROUTINES    ===
 C =========================================================
       
-      double precision sig0,xlam,x0,xm
+      double precision sig0,xlam,x0,xm,cBGK,eBGK
       
-      common/pass1/ sig0,xlam,x0,xm
+      common/pass1/ sig0,xlam,x0,xm,cBGK,eBGK
       
       
       double precision cm

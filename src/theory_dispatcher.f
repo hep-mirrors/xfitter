@@ -9,19 +9,24 @@ C---------------------------------------------------------------
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
-      integer IDataSet
+      integer IDataSet,kflag
 C-------------------------------------------------------------------
       if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then
          Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
-         if (DipoleModel.gt.0.and.DipoleModel.le.2) then
+
+        if (DipoleModel.gt.0.and.DipoleModel.lt.2) then
             call DipolePrediction(IDataSet)
-         elseif (DipoleModel.gt.2) then
+         elseif (DipoleModel.eq.2.or.DipoleModel.eq.4) then
             Call GetNCXsection(IDataSet, HFSCHEME)
             call DipolePrediction(IDataSet)
+         elseif (DipoleModel.eq.5) then
+            Call DipoleBGK(IDataSet)
          else
+C Standard DGLAP:
             Call GetNCXsection(IDataSet, HFSCHEME)
          endif
+
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
          Call GetNCXsection(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then

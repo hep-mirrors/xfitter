@@ -24,6 +24,8 @@ C==== 26/07/2010 ADDED OUTPUT =====================
            WRITE(*,*) 'xlam   = ', xlam
            WRITE(*,*) 'x0     = ', x0
            WRITE(*,*) 'xm     = ', xm
+           WRITE(*,*) 'cBGK      = ', cBGK
+           WRITE(*,*) 'eBGK      = ', eBGK
         endif
 C==================================================
 
@@ -290,19 +292,27 @@ c      common/pass1/ sig0,xlam,x0,xm
 c...saturation model with evolution
 
 c...GBW saturation scale
-         r02 = R_02_sat(r,xx)
-         DIP_CS = SIGMA0 * (1.0D0 - dexp(-r02))
-      elseif (DipoleModel.eq.2.or.DipoleModel.eq.4) then
-         Y = log(1/xx)
-         DIP_CS = sigma_iim(r,y,
+c         r02 = R_02_sat(r,xx)
+c         DIP_CS = SIGMA0 * (1.0D0 - dexp(-r02))
+c      elseif (DipoleModel.eq.2.or.DipoleModel.eq.4) then
+c         Y = log(1/xx)
+c         DIP_CS = sigma_iim(r,y,
 C Fit parameters:
-     $     xlam, x0, sig0  )                 ! [GeV^-2]
+c     $     xlam, x0, sig0  )                 ! [GeV^-2]
 C         r02 = R_02_sat(r,xx)
 C         DIP_CS2 = SIGMA0 * (1.0D0 - dexp(-r02))
 C         print *,'1',dip_cs,dip_cs2,xx,r,y
       elseif (DipoleModel.eq.5) then 
-         Y = log(1/x)
-         DIP_CS = sigma_proton(r,y) * SIGMA0
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+c      print *,' aaaaaaaa ',cBGK,eBGK
+      r02 = R_02_evol(r,xx)
+      DIP_CS = sig0 * (1.0D0 - dexp(-r02))
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+c      write(*,*) ' BGK MODEL is working'
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CC         Y = log(1/x)
+CC         DIP_CS = sigma_proton(r,y) * SIGMA0
       else
          print *,'Unknown dipole x-section=',idipole
          print *,'Abort in  DIP_CS'
@@ -330,11 +340,6 @@ C-------------------------------------------------------------
       endif
 
       end
-
-C--------------------------------------------------------------
-
-
-
 c---------------------------------------------------------------
       FUNCTION R_02_sat(r,xx)
 c
@@ -348,4 +353,54 @@ c
 
       RETURN
       END
+C-----------------------------------------------------------
+      double precision FUNCTION R_02_evol(r,xx)
+c
+c...saturation model BGK with DGLAP evolution
+c
 
+      implicit none
+
+      double precision r,xx
+      integer nn
+      double precision pi
+      double precision r2,q22,glu,alfas
+
+      parameter(nn=100,pi=3.14159d0)
+c      common/pass1/ sig0,xlam,x0,xm,cBGK,eBGK
+      include 'dipole.inc'
+
+      double precision pdfs(-6:6)
+      double precision hf_get_alphas
+C---------------------------------------------
+
+c       cBGK = 4.0D0
+c       eBGK = 1.0D0
+c      scale =c/e !e=mu_0^2
+c    BGK prescription:    q22 =c/r2 + e
+
+      r2 = r*r
+
+      q22 = cBGK/r2 + eBGK
+      if(q22.le.2d0) q22=2.d0
+
+c      r2 = r*r
+      
+!      alfas = 1.0d0
+!      GLU   = 1.0d0
+c
+c      q22 = 4.D0
+
+      alfas = hf_get_alphas(q22)
+      call hf_get_pdfs(xx,q22,pdfs)
+	
+
+      GLU = pdfs(0)
+
+c      print *,cBGK,eBGK,r2,glu,alfas
+c      print *,'ho',q22,glu,alfas
+
+      R_02_evol = pi*pi/(3.d0*sig0) * r2 * alfas * GLU
+c      print *,cBGK,eBGK,r2,glu,alfas,R_02_evol
+c      RETURN
+      END
