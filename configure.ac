@@ -146,6 +146,25 @@ fi
 
 AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
+
+AC_MSG_CHECKING([for CASCADE libraries])
+if test "x$CASCADE_ROOT" = "x"; then
+   AC_MSG_ERROR([CASCADE enviroment not set ! CASCADE_ROOT/lib must point to libbases.als out	])
+else
+  AC_SUBST([CASCADE_SOURCE], ["$CASCADE_ROOT"])
+  AC_SUBST([CASCADELIBS], ["-L$CASCADE_ROOT/lib -lbases"])
+  AC_MSG_RESULT([Using -L$CASCADE_ROOT/lib  -lbases])
+fi
+
+AC_MSG_CHECKING([for PYTHIA libraries])
+if test "x$PYTHIA_ROOT" = "x"; then
+   AC_MSG_ERROR([PYTHIA enviroment not set ! PYTHIA_ROOT/lib must point to ....])
+else
+  AC_SUBST([PYTHIA_SOURCE], ["$PYTHIA_ROOT"])
+  AC_SUBST([PYTHIALIBS], ["-L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o "])
+  AC_MSG_RESULT([Using -L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o ])
+fi
+
 #AC_F77_LIBRARY_LDFLAGS
 
 # Check for presence of pdfLaTeX
@@ -185,8 +204,8 @@ AC_CONFIG_FILES([src/Makefile
                  minuit/src/Makefile
                  HS/src/Makefile
                  RT/src/Makefile
-		 DiffDIS/src/Makefile
-		 DIPOLE/src/Makefile
+                 DiffDIS/src/Makefile
+                 DIPOLE/src/Makefile
                  DY/src/Makefile
                  Hathor/src/Makefile
                  ACOT/src/Makefile
