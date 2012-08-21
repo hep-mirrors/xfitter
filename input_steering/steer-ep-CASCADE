@@ -1,0 +1,195 @@
+* STEERING FILE FOR CASCADE 1.00/01
+*
+* number of events to be generated
+*
+*NEVENT 500000
+NEVENT 100000
+*
+*-----------------------------------------------------------------------
+*-------------------- HBOOK specific data cards ------------------------
+*-----------------------------------------------------------------------
+*---PAW (HBOOK output) log.unit  file_name
+*HBKOUT        8   '/dev/null'
+HBKOUT        8  'fit-cascade-v01.hbook'
+*---print HBOOK histo: first-id  last-id
+* HBKPRI               1         999999
+*-----------------------------------------------------------------------
+* GCAS 0 / ! CASCADE   PARAMETERS
+*-----------------------------------------------------------------------
+*
+*   VAR-NAM  1.INDX  2.INDX NEW-VALUE ! COMMENT IF NEEDED
+*   -------  ------  ------  --------  ---------------------------------
+*
+* +++++++++++++++++ Kinematic parameters +++++++++++++++
+*
+*
+     'PBE1'     1       0     -26.7    ! Beam energy                                      !
+*     'PBE1'     1       0     -200.    ! Beam energy                                      !
+*     'KBE1'     1       0        -11    ! -11: positron, 22: photon KF code
+*     'KBE1'     1       0        22    ! -11: positron, 22: photon KF code
+     'IRE1'     1       0        0     ! 0: direct photon
+*     				       ! 1: photon has structure  
+*
+*     'PBE2'     1       0        90    ! Beam energy  
+     'PBE2'     1       0      920.    ! Beam energy  
+*     'PBE2'     1       0      2000.    ! Beam energy  
+*     'KBE2'     1       0        11    ! 11: electron, 22: photon KF code
+     'KBE2'     1       0       2212   ! (D=2212) LUND p KF code
+     'IRE2'     1       0        1     ! 0: direct photon
+*                                      ! 1: photon/proton has structure
+*
+*
+     'QMIN'     1       0        1.   ! (D=5.0) minimum Q2 to be generated
+*     'QMAX'     1       0       100.   ! (D=10.D8) maximum Q2 to be generated
+*     
+     'YMIN'     1       0       0.005   ! (D=0.) YMIN of photon
+     'YMAX'     1       0       0.95    ! (D=1.) YMAX of photon
+*
+*    'THEI'     1       0        0.    ! (D=0.) minimum scattering angle for e
+*    'THEM'     1       0        180   ! (D=180.) maximum scattering angle for e
+*
+     'NFLA'     1       0        5     ! (D=5) nr of flavours used in str.fct
+*
+* +++++++++++++++ Hard subprocess selection ++++++++++++++++++
+*
+     'IPRO'     1       0        10    ! (D=1) 
+*                                      ! 10: Light quarks
+*                                      ! 11: Heavy quarks
+*                                      ! 30: GBW calc
+*                                      ! 31: Hautmann calc
+*                                      ! 32: full CCH ME, but fast integration
+*
+     'IHFL'     1       0         4    ! (D=4) produced flavour for IPRO=11
+*                                      ! 4: charm
+*                                      ! 5: bottom
+*				        
+*     'PTCU'     1       0        0    ! (D=0) p_t **2 cut for process
+*
+*     QCD processes for ep
+     'IRPA'     1       0        1    !  gg --> qq_bar
+*     'IRPB'     1       0        1    !  g + g --> g + g
+*     'IRPC'     1       0        1    !  g + q --> g + q
+* ++++++++++++ Parton shower and fragmentation ++++++++++++
+*
+     'NFRA'     1       0        1     ! (D=1) Fragmentation on=1 off=0
+*
+     'IFPS'     1       0        3     ! (D=3) Parton shower
+*                                      ! 0: off
+*				               ! 1: initial state PS
+*                                      ! 2: final state PS
+*                                      ! 3: initial and final state PS
+*
+     'IPST'     1       0        0     ! (D=0/1) keep virtual parton of cascade
+*                                      ! 
+     'ITIM'     1       0        0     ! 0: timlike partons may not shower
+*     				         ! 1: timlike partons may shower
+*
+     'ICCF'     1       0        1     ! (D=1) Evolution equation 
+*                                      ! 1: CCFM
+*                                      ! 0: DGLAP
+*
+* +++++++++++++ Structure functions and scales +++++++++++++
+*
+     'IRAM'     1       0        0     ! (D=0) Running of alpha_em(Q2)
+*				               ! 0: fixed
+*				               ! 1: running
+*
+     'IRAS'     1       0        1     ! (D=1) Running of alpha_s(MU2)
+*				               ! 0: fixed alpha_s=0.3 
+*				               ! 1: running
+*
+     'IQ2S'     1       0        7     ! (D=1) Scale MU2 of alpha_s
+*                                      !  1: MU2= 4*m**2 (only for heavy quarks)
+*                                      !  2: MU2 = shat(only for heavy quarks)
+*                                      !  3: MU2= 4*m**2 + pt**2
+*                                      !  4: MU2 = Q2
+*                                      !  5: MU2 = Q2 + pt**2
+*                                      !  6: MU2 = k_t**2
+     'SCAL'     1       0        1.0   !  scale factor for alphas scale
+*
+*     'IGLU'     1       0        5     ! (D=1)Unintegrated gluon density 
+     'IGLU'     1       0        1111     ! (D=1)Unintegrated gluon density 
+*     'IGLU'     1       0        1010     ! (D=1)Unintegrated gluon density 
+*                                      !  1: CCFM old set JS2001
+*                                      !  1001: CCFM J2003 set 1 
+*                                      !  1002: CCFM J2003 set 2 
+*                                      !  1003: CCFM J2003 set 3 
+*                                      !  1010: CCFM set A0
+*                                      !  1011: CCFM set A0+
+*                                      !  1012: CCFM set A0-
+*                                      !  1013: CCFM set A1
+*                                      !  1020: CCFM set B0
+*                                      !  1021: CCFM set B0+
+*                                      !  1022: CCFM set B0-
+*                                      !  1023: CCFM set B1
+*                                      !  2: derivative of collinear gluon (GRV)
+*       		                     !  3: Bluemlein
+*				               !  4: KMS
+*				               !  5: GBW (saturation model)
+*				               !  6: KMR
+*				               !  7: Ryskin,Shabelski
+*
+*     'ICGL'     1       0     3005003  !  collinear gluon density of photon in pdflib 
+*     'ICGL'     1       0     3005001  !  collinear gluon density of photon in pdflib 
+     'ICGL'     1       0     1005013  !  GRV nlm98 in pdflib 
+*				       !  3005003: GRV-G LO
+* ++++++++++++ BASES/SPRING Integration procedure ++++++++++++
+*
+     'NCAL'     1       0      100000   ! (D=20000) Nr of calls per iteration for bases
+*
+     'ACC1'     1       0       1.0    ! (D=1) relative prec.(%) for grid optimisation
+*
+     'ACC2'     1       0       0.5    ! (0.5) relative prec.(%) for integration
+*
+*     'IINT'     1       0         1   ! Integration by Bases (0) or random (1)
+* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*     'INTE'     1       0        0    ! Interaction type (D=0)
+*                                      ! = 0 electromagnetic interaction
+*     'XKT1 '     1       0      0.0   ! (D=0.0) intrinsic kt for beam 1
+*
+*     'XKT2 '     1       0      0.0   ! (D=0.0) intrinsic kt for beam 2
+*
+*     'KTRE'     1       0      0.35   ! (D=0.35) primordial kt when non-trivial
+*                                      ! target remnant is split into two particles
+      'IREM'     1       0      4      ! (D=4) energy sharing in remnant
+*                                      ! 1: (1-z)	
+*                                      ! 2: (a+1)(1-z)**a	
+*                                      ! 3: N/(z(1-1/z-c/(1-z))**2) Petersen	
+*                                      ! 4: fragmentation function from PYTHIA
+*
+*-----------------------------------------------------------------------
+GJET 0 / ! PYTHIA 6 PARAMETERS
+*-----------------------------------------------------------------------
+*
+*
+*   VAR-NAM  1.INDX  2.INDX NEW-VALUE ! COMMENT IF NEEDED 
+*   -------  ------  ------  --------  ---------------------------------
+*
+*     'PMAS'     4       1        1.4    ! charm mass
+*     'PMAS'     5       1        4.75    ! bottom mass
+     'PMAS'     4       1        1.5    ! charm mass
+     'PMAS'     5       1        4.8    ! bottom mass
+*
+*     'PARU'   112      0        0.34   ! lambda QCD
+     'PARU'   112      0        0.17   ! lambda QCD
+*
+* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*
+* alphas parameters
+     'MSTU'   111      0         2    ! = 0 : alpha_s is fixed
+*                                     !     at the value PARU(111)
+*                                     ! =1 ;first-order running alpha_s is
+*                                     !     used.
+*                                     ! =2 ;second-order running alpha_s is
+*                                     !     used.
+*
+     'MSTU'   112      0         4    ! nr of flavours wrt lambda_QCD
+     'MSTU'   113      0         3    ! min nr of flavours for alphas
+     'MSTU'   114      0         5    ! max nr of flavours for alphas
+*
+*
+*
+*
+*-----------------------------------------------------------------------
+************************************************************************
+END$
