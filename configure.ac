@@ -192,6 +192,7 @@ AC_CONFIG_FILES([src/Makefile
                  ACOT/src/Makefile
                  ABKM/src/Makefile
                  NNPDF/src/Makefile
+                 Cascade/src/Makefile
                  doc/tex/Makefile
                  Makefile])
 # AC_CONFIG_SUBDIRS([])
