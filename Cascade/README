@@ -5,6 +5,13 @@
                  *         hanes.jung@desy.de                    *
                  *************************************************
                  
+                 
+0.  set environment variables (with SYSNAME=i586_rhel50 or similar)
+    export CERN_ROOT=/cern/pro 
+    export QCDNUM_ROOT=/h1wgs/h1desy11/x04/usr/glazov/openfitter/qcdnum-17-00-03
+    export CASCADE_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/$SYSNAME
+    export PYTHIA_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/$SYSNAME
+
 
 1. use steering and minuit input files from "input_steering":
 
