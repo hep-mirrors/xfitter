@@ -1,0 +1,31 @@
+                 *************************************************
+                 *   fitting uPDF (TMD) gluon to HERA data       *
+                 *   using the CASCADE framework                 *
+                 *         H. Jung (DESY)                        *
+                 *         hanes.jung@desy.de                    *
+                 *************************************************
+                 
+
+1. use steering and minuit input files from "input_steering":
+
+   cp input-steering/steering.txt.kt-factorisation steering.txt
+   cp input-steering/minuit.in.txt.kt-factorisation minuit.in.txt
+   cp input-steering/steer-ep-CASCADE steer-ep
+   
+2. edit steering.txt:
+   &CCFMFiles: give name for output grid file for uPDF.&H1Fitter 
+   &H1Fitter 
+   !  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file
+   !  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation
+    ITheory = 103   ! =103 fit using precalculated grid of sigma_hat
+    
+   all other parameters are standard
+
+3. run the program:
+   bin/FitPDF 
+   
+4. plotting F2 fit results:
+   DrawResults ! will draw F2 results
+   
+   to plot uPDF one can use the "updfplotter" web interface 
+   -> copy updf grid (with name from "CCFMFiles" under 2 to somewhere .... this description needs improvements
