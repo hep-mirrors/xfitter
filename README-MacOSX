@@ -1,0 +1,13 @@
+*Installation of herafitter is easy if "fink" is installed:
+
+export CERN_ROOT=/sw/
+* the following are neede for running with kt-factorision option:
+export QCDNUM_ROOT=/Users/jung/jung/cvs/qcdnum/qcdnum-17-00-04
+export CASCADE_ROOT=/Users/jung/jung/cvs/cascade2
+export PYTHIA_ROOT=/Volumes/genser-light/MCGenerators/pythia6/425
+
+./configure
+
+
+* to compile qcdnum, add the follwoing in all makelibs, include: 
+ar -s ../lib/.....
