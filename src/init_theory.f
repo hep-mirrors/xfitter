@@ -24,15 +24,20 @@ C Init evolution code:
          call Init_heavy_flavours
 
          if (ewfit.gt.0) call eprc_init(.true.)
-      elseif(itheory.eq.1) then       
+      elseif(itheory.ge.100) then       
 c          here goes a call to non-DGLAP 
+cc           write(6,*) ' in ini_theory for itheory =',itheory
       endif
 
 *     ------------------------------------------------
 *     Initialise calculations for each dataset:
 *     ------------------------------------------------
-
+      if(Itheory.ge.100) then
+ccc        write(6,*) ' ini_theory: no data sets initialised for theory ',itheory
+      else
       call Init_theory_datasets
+      endif
+
       return
       end
 

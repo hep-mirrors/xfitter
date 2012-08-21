@@ -1,5 +1,12 @@
       Subroutine GetNCXsection(IDataSet, local_hfscheme)
-      call GetDisXsection(IDataSet, 'NCDIS', local_hfscheme)
+      include 'steering.inc'
+
+      if(itheory.ge.100) then
+         call GetNCxskt(IDataSet, 'NCDIS')
+      else
+         call GetDisXsection(IDataSet, 'NCDIS', local_hfscheme)
+      endif
+
       end
       
       Subroutine GetCCXsection(IDataSet, local_hfscheme)
