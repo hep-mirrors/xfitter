@@ -17,6 +17,7 @@ C---------------------------------------------------
       include 'systematics.inc'
       include 'nnpdf.inc'
       include 'scales.inc'
+      include 'indata.inc'
       include 'for_debug.inc'
 C=================================================
 
@@ -30,7 +31,8 @@ C Define namelists:
 C Main steering parameters namelist
       namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
      $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs
+     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
+     $     ControlFitSplit
 
 
 C Output style namelist
@@ -55,7 +57,7 @@ C (Optional) Data-set dependent scales
       logical lhapdffile_exists
 
 C (Optional) LHAPDF steering card
-      namelist/lhapdf/LHAPDFSET,ILHAPDFSET
+      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFErrors
 
 C (Optional) NNPDF steering card
       namelist/nnpdf/FLAGNNPDF,NNPDFSET,NNPDFRWDATA
@@ -72,7 +74,8 @@ C (Optional) set HQ scale
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
 
-
+C Namelist for statistical correlations to read
+      namelist/InCorr/NCorrFiles,CorrFileNames
 
 C Namelist for EW parameters:
       namelist/EWpars/alphaem, gf, sin2thw, convfac,
@@ -80,6 +83,7 @@ C Namelist for EW parameters:
      $ Vud, Vus, Vub, Vcd, Vcs, Vcb,
      $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
      $ mch, mst, mtp, mbt
+C-----------------------------------------------------
 
 C Cascade stuff
 C Namelist for datafiles 
@@ -88,9 +92,6 @@ C Namelist for datafiles
       character CCFMfile*132
       Common/CCFMout/CCFMfile
       Integer idx
-
-C-----------------------------------------------------
-
 
 C---------
 
@@ -165,6 +166,9 @@ C  Hermes-like strange (off by default):
 C  Cache PDF calls
       CachePDFs     = .false.
 
+!> Do not split the data into fit and control sub-samples:
+      ControlFitSplit = .false.
+
 C  Fast applgrid:     
       LFastAPPLGRID = .false.
 * 
@@ -196,6 +200,8 @@ C NNPDF defaults
       NNPDFSET = ''
       NNPDFOUTREPLICAS = 0
 
+C
+      LHAPDFErrors = .false.
 
 C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       strange_frac = 0.31
@@ -214,9 +220,10 @@ C==== 24/08/2010: Add Saturation inspired cut ====
       LSatur = 0.0
 
       Debug = .false.
-      Debug=.true.
 
 C=================================================
+
+
 
 C
 C  Read the main H1Fitter namelist:
@@ -224,6 +231,7 @@ C
       open (51,file='steering.txt',status='old')
       read (51,NML=H1Fitter,END=41,ERR=42)
       close (51)
+
 
 C     set debug flag used elsewhere according to steering
       Debug = lDebug
@@ -239,99 +247,71 @@ C
       read (51,NML=Output,END=51,ERR=52)
       close (51)
 
-      if(Itheory.lt.100) then
 C
 C  Read the lhapdf namelist:
 C
-         open (51,file='steering.txt',status='old')
-         read (51,NML=lhapdf,ERR=67,end=68)
- 68      continue
-         close (51)
+      open (51,file='steering.txt',status='old')
+      read (51,NML=lhapdf,ERR=67,end=68)
+ 68   continue
+      close (51)
 
 C  Read the nnpdf namelist:
 C 
-         open (51,file='steering.txt',status='old')
-         read (51,NML=nnpdf,END=75,ERR=74)
- 75      continue
-         close (51)
+      open (51,file='steering.txt',status='old')
+      read (51,NML=nnpdf,END=75,ERR=74)
+ 75   continue
+      close (51)
+
 C check whether NNPDF and LHAPDF set are equal
 
-         if (FLAGNNPDF) then
-            if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
-               call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
+      if (FLAGNNPDF) then
+         if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
+            call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
      $           //TRIM(NNPDFSET))
-               LHAPDFSET=NNPDFSET
-            endif
-C  check if the PDFstyle is indeed Ok
-            if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
-               call HF_Errlog(12032303,
-     $           'W:WARNING: Setting PDF style to LHAPDFQ0')
-                PDFStyle = 'LHAPDFQ0'
-            endif
+            LHAPDFSET=NNPDFSET
          endif
+C  check if the PDFstyle is indeed Ok
+         if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
+            call HF_Errlog(12032303,
+     $           'W:WARNING: Setting PDF style to LHAPDFQ0')
+            PDFStyle = 'LHAPDFQ0'
+         endif
+      endif
+
 
 C
 C Decode HFSCHEME:
 C      
-         call SetHFSCHEME(HF_SCHEME)
+      call SetHFSCHEME(HF_SCHEME)
 
 C
 C Decode PDF style:
 C      
-         call SetPDFStyle(PDFStyle)
-         if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
-            INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
-            if(lhapdffile_exists) then
-               call InitPDFset(LHAPDFSET)
-            else
-               call InitPDFsetByName(LHAPDFSET)
-            endif
-            call InitPDF(ILHAPDFSET)
-            if(PDFStyle.eq.'LHAPDF') then
-               IPDFSET = 5
-            endif
+      call SetPDFStyle(PDFStyle)
+      if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
+         INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
+         if(lhapdffile_exists) then
+            call InitPDFset(LHAPDFSET)
+         else
+            call InitPDFsetByName(LHAPDFSET)
          endif
-C
-C  Read the HQScale namelist:
-C
-         open (51,file='steering.txt',status='old')
-         read (51,NML=HQScale,ERR=70,end=69)
- 69      continue
-         close (51)
-C
-C  Read the data namelist:
-C
-         open (51,file='steering.txt',status='old')
-         read (51,NML=InFiles,END=71,ERR=72)
-         print '(''Read '',I4,'' data files'')',NInputFiles
-         close (51)
 
-C
-C  Data-set dependent scales. First set defaults
-C
-         do i=1,NInputFiles
-            DataSetMuR(i)    = 1.0D0
-            DataSetMuF(i)    = 1.0D0
-            DataSetIOrder(i) = IOrder
-         enddo
-C
-C  Read the scales namelist:
-C
-
-         open (51,file='steering.txt',status='old')
-         read (51,NML=Scales,END=123,ERR=124)
- 123     Continue
-         close (51)
+      !> Get number of sets:
+C         call getdesc()
+         call numberPDF(i)      
+         
+         print *,i
+c         stop
+         nLHAPDF_Sets = i
+         
+         call InitPDF(ILHAPDFSET)
 
 
-C
-C asign mc or mb to hq scale
-C      
-         call SetMHSCALE(MassHQ)
+         if(PDFStyle.eq.'LHAPDF') then
+            IPDFSET = 5
+         endif
+      endif
 
-
-
-      endif   ! Itheory < 100
 C
 C Decode Chi2 style:
 C
@@ -369,36 +349,69 @@ C
  65   continue
       close (51)
 
-  
-      if(Itheory.ge.100) then
-C
-C  Read the data namelist:
-C
-         open (51,file='steering.txt',status='old')
-         read (51,NML=InFiles,END=71,ERR=72)
-         print '(''Read '',I4,'' data files'')',NInputFiles
-         close (51)
+
+      if (itheory.ge.100) then
 C Read the CCFM data file name
          open (51,file='steering.txt',status='old')
          read (51,NML=CCFMFiles,END=71,ERR=72)
          close (51)
          idx=index(CCFMFilename,' ')-5
          CCFMfile = CCFMFilename(1:idx)
+
+      endif
+
+C
+C  Read the HQScale namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=HQScale,ERR=70,end=69)
+ 69   continue
+      close (51)
+
+C
+C  Read the data namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=InFiles,END=71,ERR=72)
+      print '(''Read '',I4,'' data files'')',NInputFiles
+      close (51)
+C     
+C  Read statistical correlations namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=InCorr,END=76,ERR=77)
+      print '(''Read '',I4,'' correlation files'')',NCorrFiles
+ 136  continue
+      close (51)
+
 C
 C  Data-set dependent scales. First set defaults
 C
-         do i=1,NInputFiles
-            DataSetMuR(i)    = 1.0D0
-            DataSetMuF(i)    = 1.0D0
-            DataSetIOrder(i) = IOrder
-         enddo
-      Endif
+      do i=1,NInputFiles
+         DataSetMuR(i)    = 1.0D0
+         DataSetMuF(i)    = 1.0D0
+         DataSetIOrder(i) = IOrder
+      enddo
+C
+C  Read the scales namelist:
+C
+
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Scales,END=123,ERR=124)
+ 123  Continue
+      close (51)
+
+
+C
+C asign mc or mb to hq scale
+C      
+      call SetMHSCALE(MassHQ)
+
+
 C
 C Also read extra minuit parameters:
 C      
-      if(Itheory.lt.100) then
-         call readextraparam
-      Endif
+      call readextraparam
 
       if (lDebug) then
 C Print the namelists:
@@ -409,7 +422,6 @@ C Print the namelists:
          print InFiles
          print EWpars
          print HQScale
-         
       endif
 
 
@@ -472,6 +484,11 @@ C
       goto 73
  72   continue
       print '(''Error reading namelist &InFiles, STOP'')'
+      call HF_stop
+ 76   print '(''Namelist &InCorr NOT found'')'
+      goto 136
+ 77   continue
+      print '(''Error reading namelist &InCorr, STOP'')'
       call HF_stop
  124  print '(''Error reading namelist &scales, STOP'')'
       Call HF_stop
@@ -552,6 +569,10 @@ C---------------------------------
 
       elseif (PDFStyle.eq.'CTEQ') then
          iparam = 171717
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
+
+      elseif (PDFStyle.eq.'AS') then
+         iparam = 1977
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
 
       elseif (PDFStyle.eq.'CHEB') then
@@ -672,6 +693,8 @@ C---------------------------------
          ICHI2 = 41        
       elseif (Chi2Style.eq.'Offset') then
          ICHI2 = 3
+      elseif (Chi2Style.eq.'Covariance Matrix') then
+         ICHI2 = 100
       else
          print *,'Unsupported Chi2Style =',Chi2Style
          print *,'Check value in steering.txt'

@@ -33,10 +33,24 @@ C Store params in a common block:
          parminuitsave(i) = parminuit(i)
       enddo
 
+C Count number of FCN calls:
+      if (iflag.eq.3) then
+         nfcn3 = nfcn3 + 1
+         if (nfcn3.gt.MaxFCN3) then
+            print *,'Fatal error: too many FCN 3 call'
+            print *,'Increase number of MaxFCN3 calls in endmini.inc'
+            print *,'Or reduce number of FNC 3 calls'
+            print *,'Stop'
+            call hf_stop
+         endif
+      endif
+
 C Store only if IFlag eq 3:
       if (iflag.eq.3) then
          do i=1,MNE
-            pkeep(i) = parminuit(i)
+            pkeep(i) = parminuit(i)            
+C !> Also store for each fcn=3 call:
+            pkeep3(i,nfcn3) = parminuit(i)
          enddo
       endif
 
@@ -124,14 +138,17 @@ C--------------------------------------------------------------
       logical refresh
       integer isys,ipoint,jpoint
       integer idataset
+      double precision TempChi2
+      double precision GetTempChi2   !> Temperature penalty for D, E... params.
+      
+
 C  x-dependent fs:
       double precision fs0,epsi
       double precision fshermes
       external LHAPDFsubr
-
 c cascade stuff
       logical firsth
-	double precision auh 
+        double precision auh 
       common/f2fit/auh(50),firsth
 	Logical Firstd,Fccfm1,Fccfm2
 	Common/ myfirst/Firstd,Fccfm1,Fccfm2
@@ -143,8 +160,7 @@ c cascade stuff
       Common/CCFMout/CCFMfile
       Integer idx
 
-
-C-----------------------------------------------------------------
+      
 
 C--------------------------------------------------------------
 *     ---------------------------------------------------------
@@ -156,6 +172,7 @@ C--------------------------------------------------------------
       n0 = 0
 
       iflagfcn = iflag
+
 
       do jsys=1,nsys
          bsys(jsys) = 0.d0
@@ -190,12 +207,16 @@ c        write(6,*) ' fcn npoint ',npoints
          Iglu = 1111
         
       endif
+
+*     ---------------------------------------------------------
 *     Extra constraints on input PDF due to momentum and quark 
 *     counting sum rules:
 *     ---------------------------------------------------------
 
       kflag=0
-      if (Itheory.eq.0)  call SumRules(kflag)
+      if (Itheory.eq.0)  then 
+         call SumRules(kflag)
+      endif
       if (kflag.eq.1) then
          write(6,*) ' --- problem in SumRules, kflag = 1'
          call HF_errlog(12020516,
@@ -215,8 +236,7 @@ c        write(6,*) ' fcn npoint ',npoints
          endif
       endif 
 
-*     --------------------------------------------------
-
+      
       if (iflag.eq.1) then
          open(87,file='output/pulls.first.txt')
       endif
@@ -233,7 +253,7 @@ C
 C     Call a subrotine which vanishes nonvalence DGLAP contribution
 C      for dipole model fits.
 
-      if (DipoleModel.gt.2) then
+      if (DipoleModel.eq.3.or.DipoleModel.eq.4) then
          call LeaveOnlyValenceQuarks
       endif
 
@@ -272,6 +292,8 @@ c             call fillvfngrid
          print*,'after evolution'
       endif
 
+
+	
 *     ---------------------------------------------------------  	 
 *     Initialise theory calculation per iteration
 *     ---------------------------------------------------------  	 
@@ -287,14 +309,13 @@ c             call fillvfngrid
 *     Calculate theory for datasets:
 *     ---------------------------------------------------------  	 
       do idataset=1,NDATASETS
-         
-c         write(6,*) ' fcn : GetTheory ',idataset
          call GetTheoryForDataset(idataset)
       enddo
 
       if (Debug) then
          print*,'after GetTheoryfordataset'
       endif
+
 
       call cpu_time(time1)
 
@@ -333,7 +354,18 @@ c         write(6,*) ' fcn : GetTheory ',idataset
 *     ---------------------------------------------------------
 *     calculate chisquare
 *     ---------------------------------------------------------
-      call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+      if(ICHI2.eq.100) then
+         call GetCovChisquare(iflag,n0,fchi2,pchi2)
+      else
+         call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+      endif
+      
+      if (ControlFitSplit) then
+         print '(''Fit     chi2/Npoint = '',F10.4,I4,F10.4)',chi2_fit
+     $        , NFitPoints,chi2_fit/NFitPoints
+         print '(''Control chi2/Npoint = '',F10.4,I4,F10.4)',chi2_cont
+     $        , NControlPoints,chi2_cont/NControlPoints
+      endif
 
 *
 * Save NDF
@@ -362,7 +394,14 @@ c         write(6,*) ' fcn : GetTheory ',idataset
          DeltaLength = 0.
       endif
 
-      chi2out = fchi2 + DeltaLength
+      fchi2 = fchi2 + DeltaLength
+      
+!> Temperature regularisation:
+      if (Temperature.ne.0) then
+         TempChi2 = GetTempChi2()
+         print *,'Temperature chi2=',TempChi2
+         fchi2 = fchi2 + TempChi2
+      endif
       
 
       chi2out = fchi2+
@@ -395,6 +434,29 @@ c         write(6,*) ' fcn : GetTheory ',idataset
          write(6,*)
          write(6,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
          write(6,*)
+
+         !> Store minuit parameters
+         call write_pars(nfcn3)
+
+         if (ControlFitSplit) then
+            print 
+     $     '(''Fit     chi2/Npoint, after fit = '',F10.4,I4,F10.4)'
+     $           ,chi2_fit
+     $           , NFitPoints,chi2_fit/NFitPoints
+            print 
+     $     '(''Control chi2/Npoint, after fit = '',F10.4,I4,F10.4)'
+     $           ,chi2_cont
+     $           , NControlPoints,chi2_cont/NControlPoints            
+
+c            write (71,'(4F10.4)') 
+c     $           paruval(4),paruval(5),chi2_fit/NFitPoints
+c     $           ,chi2_cont/NControlPoints
+
+            !> Store chi2 per fcn3 call values:
+            chi2cont3(nfcn3) = chi2_cont
+            chi2fit3(nfcn3)  = chi2_fit
+         endif
+
       endif
 
 
@@ -438,10 +500,10 @@ c         write(6,*) ' fcn : GetTheory ',idataset
               write(91,*) auh(1),auh(2),auh(3),auh(4)
 
           else
-              call Evolution
+             call Evolution
 C LHAPDF output:
-              open (76,file='output/lhapdf.block.txt',status='unknown')
-              call store_pdfs(base_pdfname)
+             open (76,file='output/lhapdf.block.txt',status='unknown')
+             call store_pdfs(base_pdfname)
           endif
        endif
 
@@ -471,3 +533,34 @@ C Return the chi2 value:
 
       end
 
+
+C---------------------------------------------------------------------
+      double precision function GetTempChi2()
+!>
+!> Calculate penalty term for higher oder parameters using "temperature" 
+!> Currently works only for standard param-types (10p-13p-like)
+!>
+      implicit none
+      include 'pdfparam.inc'
+      integer i
+      double precision chi2
+      double precision xscale(3)
+      data xscale/0.01,0.01,0.01/
+C---------------------------------------------------------------------
+      chi2 = 0.
+
+C Over d,e and F
+      do i=1,3
+         chi2 = chi2 + (paruval(i+3)*xscale(i))**2 
+         chi2 = chi2 + (pardval(i+3)*xscale(i))**2 
+         chi2 = chi2 + (parubar(i+3)*xscale(i))**2 
+         chi2 = chi2 + (pardbar(i+3)*xscale(i))**2 
+         if (i.le.2) then
+            chi2 = chi2 + (parglue(i+3)*xscale(i))**2 
+         endif
+      enddo
+
+
+      GetTempChi2 = chi2*Temperature
+C---------------------------------------------------------------------
+      end
