@@ -147,13 +147,17 @@ fi
 AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
 
+# UPDFs
+AC_ARG_ENABLE([uPDF],
+  [AC_HELP_STRING(--enable-updf, [use uPDF evolution (default=no)])])
+
 AM_CONDITIONAL(ENABLE_UPDF, [test x$enable_updf == xyes])
 
 if test x$enable_updf == xyes; then
 
    AC_MSG_CHECKING([for CASCADE libraries])
    if test "x$CASCADE_ROOT" = "x"; then
-      AC_MSG_ERROR([CASCADE enviroment not set ! CASCADE_ROOT/lib must point to libbases.als out	])
+      AC_MSG_ERROR([CASCADE enviroment not set ! CASCADE_ROOT/lib must point to libbases.als.  Check Cascade/README for more details.])
    else
       AC_SUBST([CASCADE_SOURCE], ["$CASCADE_ROOT"])
       AC_SUBST([CASCADELIBS], ["-L$CASCADE_ROOT/lib -lbases"])
