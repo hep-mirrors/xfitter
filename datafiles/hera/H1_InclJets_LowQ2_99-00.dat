@@ -22,12 +22,12 @@
               'mod_DESY-09-162', 'Ee_DESY-09-162','Eth_DESY-09-162', 'hfs_DESY-09-162', 'lumi_DESY-09-162', 'NPCorr', 'kfac'
 
    NInfo   = 4
-   DataInfo = 319.,     1.                 ,-1.,       -1. 
+   DataInfo = 319.,     1.                 ,3.,       3. 
    CInfo    = 'sqrt(S)', 'PublicationUnits','MurDef', 'MufDef' 
    
    IndexDataset = 37
 
-   TheoryInfoFile = 'theoryfiles/IJET_LOWQ2_Q2ET2_over2-20090227_FIXEDMUF_v2.0.tab'
+   TheoryInfoFile = 'theoryfiles/fnh5201.tab'
    TheoryType     = 'FastNLO'
 
    Percent   = True, True, True, True, True, True, True
