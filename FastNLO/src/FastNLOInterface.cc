@@ -1,7 +1,6 @@
 // Author: Krzysztof Nowak
 // DESY, 01/08/2011
 
-//  Version 0.1, 
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -18,7 +17,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <map>
-#include <FastNLOReader.h>
+#include <FastNLOHeraFitter.h>
 #include <cmath>
 
 using namespace std;
@@ -33,14 +32,14 @@ extern "C" {
   int hf_stop_();
 }
 
-map<int, FastNLOReader*> gFastNLO_array;
+map<int, FastNLOHeraFitter*> gFastNLO_array;
 map<int, BoolArray*>     gUsedPoints_array;
 int CreateUsedPointsArray(int idataset, int npoints);
 
 int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale) {
 
   
-   map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
+   map<int, FastNLOHeraFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    if(FastNLOIterator != gFastNLO_array.end( )) {
      int id = 12032301;
      char* text = "I: Double initialization of the same fastnlo data set!";
@@ -49,34 +48,30 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
      return 1;
    }
   
-   FastNLOReader* fnloreader = NULL;
-   fnloreader = new FastNLOReader( thfile );  
+   FastNLOHeraFitter* fnloreader = NULL;
+   fnloreader = new FastNLOHeraFitter( thfile );  
    
    if(*PublicationUnits)
-     fnloreader->SetUnits(FastNLOReader::kPublicationUnits);
+     fnloreader->SetUnits(fastNLO::kPublicationUnits);
    else 
-     fnloreader->SetUnits(FastNLOReader::kAbsoluteUnits);
+     fnloreader->SetUnits(fastNLO::kAbsoluteUnits);
 
    if(*murdef>=0.)
-     fnloreader->SetMuRFunctionalForm((FastNLOReader::EScaleFunctionalForm) ((int) (*murdef)) , false);
+     fnloreader->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (*murdef)));
    if(*mufdef>=0.)
-     fnloreader->SetMuFFunctionalForm((FastNLOReader::EScaleFunctionalForm) ((int) (*mufdef)) , false);
+     fnloreader->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (*mufdef)), false);
 
-   fnloreader->SetScaleFactorMuR( *murscale, false);	// Set scale factor for MuR
-   fnloreader->SetScaleFactorMuF( *mufscale, false);	// Set scale factor for MuF
+   fnloreader->SetScaleFactorsMuRMuF(  *murscale, *mufscale, false);
 
-   fnloreader->SetPDFInterface(FastNLOReader::kH1Fitter);
-   fnloreader->SetAlphasMz( 0.1180 ); // just for initalisation
-   fnloreader->SetAlphasEvolution(FastNLOReader::kH1FitterAs); // fully consistend alpha_s evolution has to be implemented.
-
+   fnloreader->SetVerbosity(say::WARNING);
    // looking for scale factor = 1!
-   int nscale = fnloreader->GetNScaleVariations();
-   vector<double> scalefactors = fnloreader->GetScaleFactors();
-   for (int iscale = 0;iscale < nscale ;iscale++) {
-      if ( fabs(scalefactors[iscale] - 1.) < 0.0001 ){
-	fnloreader->SetScaleVariation(iscale, false);
-      }
-   }
+//   int nscale = fnloreader->GetNScaleVariations();
+//   vector<double> scalefactors = fnloreader->GetScaleFactors();
+//   for (int iscale = 0;iscale < nscale ;iscale++) {
+//      if ( fabs(scalefactors[iscale] - 1.) < 0.0001 ){
+//	fnloreader->SetScaleVariation(iscale, false);
+//      }
+//   }
 
    // switching non-pert corr off - Done by default now
    //fnloreader->SetContributionON(FastNLOReader::kNonPerturbativeCorrection,0,false);
@@ -91,14 +86,14 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    //fnloreader->CalcCrossSection();
    //fnloreader->PrintCrossSections();
 
-   gFastNLO_array.insert(pair<int, FastNLOReader*>(*idataset, fnloreader) );
+   gFastNLO_array.insert(pair<int, FastNLOHeraFitter*>(*idataset, fnloreader) );
    return 0;
 }
 
 
 int fastnlocalc_(const int *idataset, double *xsec) {
 
-   map<int, FastNLOReader*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
+   map<int, FastNLOHeraFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
    if(FastNLOIterator == gFastNLO_array.end( )) {
      int id = 12032302;
@@ -107,7 +102,7 @@ int fastnlocalc_(const int *idataset, double *xsec) {
      hf_errlog_(&id, text, (long)strlen(text)); // this terminates the program by default
    }
    
-   FastNLOReader* fnloreader = FastNLOIterator->second;
+   FastNLOHeraFitter* fnloreader = FastNLOIterator->second;
    
    if(UsedPointsIterator == gUsedPoints_array.end( )) 
      CreateUsedPointsArray(*idataset, fnloreader->GetNObsBins());
@@ -125,7 +120,6 @@ int fastnlocalc_(const int *idataset, double *xsec) {
    fnloreader->FillAlphasCache();
    fnloreader->FillPDFCache();			// pdf is 'external'! you always have to call FillPDFCache();
    fnloreader->CalcCrossSection();
-   //  cout << "FastnloInterface: alphas = "<<fnloreader->GetAlphasMz()<<endl;
    //fnloreader->PrintCrossSections();
 
    vector < double > xs = fnloreader->GetCrossSection();

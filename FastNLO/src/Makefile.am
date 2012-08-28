@@ -4,6 +4,7 @@ AUTOMAKE_OPTIONS = foreign
 noinst_LIBRARIES = libFastNLO.a
 
 # Next files will be processed by g77 (and automatically gcc for *.c) compiler
-libFastNLO_a_SOURCES = FastNLOBlockB.cc FastNLOReader.cc FastNLOInterface.cc LHAPDF.cc Alphas.cc
+libFastNLO_a_SOURCES = FastNLOBlockB.cc FastNLOReader.cc FastNLOInterface.cc FastNLOHeraFitter.cc speaker.cc
+#LHAPDF.cc Alphas.cc
 
 AM_CXXFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../interfaces/include -Wall -fPIC -Wno-deprecated $(ROOT_CFLAGS)
