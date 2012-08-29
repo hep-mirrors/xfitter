@@ -146,9 +146,9 @@ C  x-dependent fs:
       double precision fs0,epsi
       double precision fshermes
       external LHAPDFsubr
-c cascade stuff
+c updf stuff
       logical firsth
-        double precision auh 
+      double precision auh 
       common/f2fit/auh(50),firsth
 	Logical Firstd,Fccfm1,Fccfm2
 	Common/ myfirst/Firstd,Fccfm1,Fccfm2

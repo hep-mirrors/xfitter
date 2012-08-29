@@ -6,12 +6,26 @@
     NInputFiles = 2
  
   ! Input files:
-!    InputFileNames(1) = 'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.dat'
-!    InputFileNames(2) = 'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.dat'
-    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(1) = 'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.dat'
 &End
 
+&InCorr
+  ! Number of statistical correlation files
+    NCorrFiles = 0
+ 
+  ! Statistical correlation files:
+  !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+&End
+
+*
+* (Optional) Modify renormalisation/factorisation scales, dataset
+* dependently. The numbering follows sequential numbering of input files
+*
+&Scales 
+    DataSetMuR  = 4*1.0     ! Set muR scale to 1 for all 4 datasets
+    DataSetMuF  = 4*1.0     ! Set muF scale to 1 for all 4 datasets
+&End
 
 *&CCFMFiles
 !    CCFMfilename = 'output/ccfm-alphas2nd-ipgg1-ns1-qs=qg=1.8-ikincut=2-QCDlam=0.17-set2.dat'

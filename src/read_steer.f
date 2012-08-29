@@ -85,7 +85,7 @@ C Namelist for EW parameters:
      $ mch, mst, mtp, mbt
 C-----------------------------------------------------
 
-C Cascade stuff
+C updf stuff
 C Namelist for datafiles 
       character*132 CCFMfilename  !> Names of input files
       namelist/CCFMFiles/CCFMfilename
@@ -247,70 +247,74 @@ C
       read (51,NML=Output,END=51,ERR=52)
       close (51)
 
+      if(Itheory.lt.100) then
 C
 C  Read the lhapdf namelist:
 C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=lhapdf,ERR=67,end=68)
- 68   continue
-      close (51)
+         open (51,file='steering.txt',status='old')
+         read (51,NML=lhapdf,ERR=67,end=68)
+ 68      continue
+         close (51)
 
 C  Read the nnpdf namelist:
 C 
-      open (51,file='steering.txt',status='old')
-      read (51,NML=nnpdf,END=75,ERR=74)
- 75   continue
-      close (51)
+         open (51,file='steering.txt',status='old')
+         read (51,NML=nnpdf,END=75,ERR=74)
+ 75      continue
+         close (51)
 
 C check whether NNPDF and LHAPDF set are equal
 
-      if (FLAGNNPDF) then
-         if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
-            call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
+         if (FLAGNNPDF) then
+            if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
+               call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
      $           //TRIM(NNPDFSET))
-            LHAPDFSET=NNPDFSET
-         endif
+               LHAPDFSET=NNPDFSET
+            endif
 C  check if the PDFstyle is indeed Ok
-         if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
-            call HF_Errlog(12032303,
+            if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
+               call HF_Errlog(12032303,
      $           'W:WARNING: Setting PDF style to LHAPDFQ0')
-            PDFStyle = 'LHAPDFQ0'
+               PDFStyle = 'LHAPDFQ0'
+            endif
          endif
-      endif
 
 
 C
 C Decode HFSCHEME:
 C      
-      call SetHFSCHEME(HF_SCHEME)
+         call SetHFSCHEME(HF_SCHEME)
 
 C
 C Decode PDF style:
 C      
-      call SetPDFStyle(PDFStyle)
-      if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
-         INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
-         if(lhapdffile_exists) then
-            call InitPDFset(LHAPDFSET)
-         else
-            call InitPDFsetByName(LHAPDFSET)
-         endif
+         call SetPDFStyle(PDFStyle)
+         if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
+            INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
+            if(lhapdffile_exists) then
+               call InitPDFset(LHAPDFSET)
+            else
+               call InitPDFsetByName(LHAPDFSET)
+            endif
 
       !> Get number of sets:
 C         call getdesc()
-         call numberPDF(i)      
+            call numberPDF(i)      
          
-         print *,i
+            print *,i
 c         stop
-         nLHAPDF_Sets = i
+            nLHAPDF_Sets = i
          
-         call InitPDF(ILHAPDFSET)
+            call InitPDF(ILHAPDFSET)
 
 
-         if(PDFStyle.eq.'LHAPDF') then
-            IPDFSET = 5
+            if(PDFStyle.eq.'LHAPDF') then
+               IPDFSET = 5
+            endif
          endif
-      endif
+
+      endif   ! Itheory < 100
+
 
 C
 C Decode Chi2 style:
@@ -349,17 +353,6 @@ C
  65   continue
       close (51)
 
-
-      if (itheory.ge.100) then
-C Read the CCFM data file name
-         open (51,file='steering.txt',status='old')
-         read (51,NML=CCFMFiles,END=71,ERR=72)
-         close (51)
-         idx=index(CCFMFilename,' ')-5
-         CCFMfile = CCFMFilename(1:idx)
-
-      endif
-
 C
 C  Read the HQScale namelist:
 C
@@ -375,6 +368,15 @@ C
       read (51,NML=InFiles,END=71,ERR=72)
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+      if (itheory.ge.100) then
+C Read the CCFM data file name
+         open (51,file='steering.txt',status='old')
+         read (51,NML=CCFMFiles,END=71,ERR=72)
+         close (51)
+         idx=index(CCFMFilename,' ')-5
+         CCFMfile = CCFMFilename(1:idx)
+
+      endif
 C     
 C  Read statistical correlations namelist:
 C
@@ -392,26 +394,30 @@ C
          DataSetMuF(i)    = 1.0D0
          DataSetIOrder(i) = IOrder
       enddo
+
+
+      if(Itheory.lt.100) then
 C
 C  Read the scales namelist:
 C
 
-      open (51,file='steering.txt',status='old')
-      read (51,NML=Scales,END=123,ERR=124)
- 123  Continue
-      close (51)
+         open (51,file='steering.txt',status='old')
+         read (51,NML=Scales,END=123,ERR=124)
+ 123     Continue
+         close (51)
 
 
 C
 C asign mc or mb to hq scale
 C      
-      call SetMHSCALE(MassHQ)
+         call SetMHSCALE(MassHQ)
 
 
 C
 C Also read extra minuit parameters:
 C      
-      call readextraparam
+         call readextraparam
+      endif ! Itheory > 100
 
       if (lDebug) then
 C Print the namelists:

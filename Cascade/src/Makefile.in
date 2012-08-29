@@ -47,8 +47,11 @@ AR = ar
 ARFLAGS = cru
 libcasutil_a_AR = $(AR) $(ARFLAGS)
 libcasutil_a_LIBADD =
-am_libcasutil_a_OBJECTS = cascade-util.$(OBJEXT) \
-	cascade-misc.$(OBJEXT)
+am__libcasutil_a_SOURCES_DIST = cascade-dummy.F cascade-util.F \
+	cascade-misc.F
+@ENABLE_UPDF_FALSE@am_libcasutil_a_OBJECTS = cascade-dummy.$(OBJEXT)
+@ENABLE_UPDF_TRUE@am_libcasutil_a_OBJECTS = cascade-util.$(OBJEXT) \
+@ENABLE_UPDF_TRUE@	cascade-misc.$(OBJEXT)
 libcasutil_a_OBJECTS = $(am_libcasutil_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 PPF77COMPILE = $(F77) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -57,7 +60,7 @@ F77LD = $(F77)
 F77LINK = $(F77LD) $(AM_FFLAGS) $(FFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o \
 	$@
 SOURCES = $(libcasutil_a_SOURCES)
-DIST_SOURCES = $(libcasutil_a_SOURCES)
+DIST_SOURCES = $(am__libcasutil_a_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -70,6 +73,8 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BIBTEX = @BIBTEX@
+CASCADELIBS = @CASCADELIBS@
+CASCADE_SOURCE = @CASCADE_SOURCE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CERNLIBS = @CERNLIBS@
@@ -140,6 +145,8 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PDFLATEX = @PDFLATEX@
+PYTHIALIBS = @PYTHIALIBS@
+PYTHIA_SOURCE = @PYTHIA_SOURCE@
 QCDNUMLIBS = @QCDNUMLIBS@
 RANLIB = @RANLIB@
 ROOT_CFLAGS = @ROOT_CFLAGS@
@@ -196,7 +203,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 noinst_LIBRARIES = libcasutil.a
-libcasutil_a_SOURCES = cascade-util.F cascade-misc.F
+@ENABLE_UPDF_FALSE@libcasutil_a_SOURCES = cascade-dummy.F
+@ENABLE_UPDF_TRUE@libcasutil_a_SOURCES = cascade-util.F cascade-misc.F
 AM_FFLAGS = -I$(srcdir)/../../include -I$(CASCADE_ROOT)/include/cascade  -fno-automatic -ffixed-line-length-132
 all: all-am
 

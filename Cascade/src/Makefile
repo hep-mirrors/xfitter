@@ -47,6 +47,9 @@ AR = ar
 ARFLAGS = cru
 libcasutil_a_AR = $(AR) $(ARFLAGS)
 libcasutil_a_LIBADD =
+am__libcasutil_a_SOURCES_DIST = cascade-dummy.F cascade-util.F \
+	cascade-misc.F
+#am_libcasutil_a_OBJECTS = cascade-dummy.$(OBJEXT)
 am_libcasutil_a_OBJECTS = cascade-util.$(OBJEXT) \
 	cascade-misc.$(OBJEXT)
 libcasutil_a_OBJECTS = $(am_libcasutil_a_OBJECTS)
@@ -57,7 +60,7 @@ F77LD = $(F77)
 F77LINK = $(F77LD) $(AM_FFLAGS) $(FFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o \
 	$@
 SOURCES = $(libcasutil_a_SOURCES)
-DIST_SOURCES = $(libcasutil_a_SOURCES)
+DIST_SOURCES = $(am__libcasutil_a_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -70,6 +73,8 @@ AUTOHEADER = ${SHELL} /Users/jung/jung/cvs/h1fitter/h1fitter-new/h1fitter/missin
 AUTOMAKE = ${SHELL} /Users/jung/jung/cvs/h1fitter/h1fitter-new/h1fitter/missing --run automake-1.11
 AWK = gawk
 BIBTEX = bibtex
+CASCADELIBS = -L/Users/jung/jung/cvs/cascade2/lib -lbases
+CASCADE_SOURCE = /Users/jung/jung/cvs/cascade2
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CERNLIBS = -L/sw//lib -lmathlib  -lkernlib -lpacklib
@@ -115,7 +120,7 @@ F77 = gfortran
 FC = gfortran
 FCFLAGS = -g -O2 -ffixed-line-length-132
 FCLIBS =  -L/Volumes/finknew/fink/fink64/lib/gcc4.6/bin/../lib/gcc/x86_64-apple-darwin11.3.0/4.6.3 -L/Volumes/finknew/fink/fink64/lib/gcc4.6/bin/../lib/gcc -L/Volumes/finknew/fink/fink64/lib/gcc4.6/bin/../lib/gcc/x86_64-apple-darwin11.3.0/4.6.3/../../.. -lgfortran -lquadmath -lm
-FFLAGS = -g -O2 -ffixed-line-length-132
+FFLAGS = -g -O2 -ffixed-line-length-132 -fbounds-check
 FLIBS =  -L/Volumes/finknew/fink/fink64/lib/gcc4.6/bin/../lib/gcc/x86_64-apple-darwin11.3.0/4.6.3 -L/Volumes/finknew/fink/fink64/lib/gcc4.6/bin/../lib/gcc -L/Volumes/finknew/fink/fink64/lib/gcc4.6/bin/../lib/gcc/x86_64-apple-darwin11.3.0/4.6.3/../../.. -lgfortran -lquadmath -lm
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
@@ -140,6 +145,8 @@ PACKAGE_URL =
 PACKAGE_VERSION = 0.2.0
 PATH_SEPARATOR = :
 PDFLATEX = pdflatex
+PYTHIALIBS = -L/Volumes/genser-light/MCGenerators/pythia6/425/lib -lpythia6 -lpythia6_dummy /Volumes/genser-light/MCGenerators/pythia6/425/lib/pydata.o 
+PYTHIA_SOURCE = /Volumes/genser-light/MCGenerators/pythia6/425
 QCDNUMLIBS = -L/Users/jung/jung/cvs/qcdnum/qcdnum-17-00-04/lib -lhqstf -lzmstf -lqcdnum -lmbutil
 RANLIB = ranlib
 ROOT_CFLAGS = -pthread -m64 -I/sw/include/root
@@ -196,6 +203,7 @@ top_builddir = ../..
 top_srcdir = ../..
 AUTOMAKE_OPTIONS = foreign
 noinst_LIBRARIES = libcasutil.a
+#libcasutil_a_SOURCES = cascade-dummy.F
 libcasutil_a_SOURCES = cascade-util.F cascade-misc.F
 AM_FFLAGS = -I$(srcdir)/../../include -I$(CASCADE_ROOT)/include/cascade  -fno-automatic -ffixed-line-length-132
 all: all-am

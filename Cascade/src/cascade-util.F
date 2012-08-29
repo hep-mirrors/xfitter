@@ -3140,7 +3140,7 @@ c      weig = 0
 	External XA_INT
       CHARACTER   filename1*132, filname*132
 	character adum
-      data filename1/'ccfm-test.dat'/
+      data filename1/'theoryfiles/updf/ccfm-test.dat'/
 
       character filename2*132
       Common/updfout/filename2
@@ -3193,8 +3193,8 @@ c Evolution or only starting distribution
          Write(6,*) '+++++++++++++++++++++++++++++++++++++++++++++++'
          Write(6,*) '++++  calculate gluon density    ++++++++++++++'
          Write(6,*) '+++++++++++++++++++++++++++++++++++++++++++++++'
-         write(6,*) 'reading ccfm-grid.dat '
-         open(30,FILE='ccfm-grid.dat', FORM='formatted',
+         write(6,*) 'theoryfiles/updf/reading ccfm-grid.dat '
+         open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
      +   STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
 200      Read(30,101) TXT
   101    Format(A72)
@@ -3523,12 +3523,12 @@ c	    write(6,*) noevol,z,wt,a1,a2,a3
 	   ELSE
          ISET = IGLU
 	   ENDIF
-         write(6,*) ' start reading ccfm-grid.dat '
+         write(6,*) ' start reading theoryfiles/updf/ccfm-grid.dat '
          if(iset.eq.1) then
-               open(30,FILE='ccfm-grid.dat', FORM='formatted',
+               open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
      +         STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
 c               write(6,*) ' read unintegrated gluon from file: '
-c     +         //'ccfm-grid.dat'
+c     +         //'theoryfiles/updf/ccfm-grid.dat'
          else
             write(6,*) ' No valid IGLU selected for readgrid: IGLU = ',
      +      Iset
@@ -3614,7 +3614,7 @@ c         write(6,*) ' scal factor = ',Qscal,' fact. scale = ',Iqqbar
                enddo
             enddo
          enddo
-         write(6,*) ' after reading ccfm-grid.dat ',j,i,k
+         write(6,*) ' after reading theoryfiles/updf/ccfm-grid.dat ',j,i,k
 c we have only gluons
          DO 10 J=1,N2
             DO 10 I=1,N1
@@ -3861,8 +3861,8 @@ c           write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,glu
 	   ns_sel = -1
 c         write(6,*) ' ccfmtfq pdfpath:',pdfpath
 c         PDFPATHLEN=INDEX(PDFPATH,' ')-1
-         write(6,*) ' read grid files from ccfm-quark.dat'
-         open(30,FILE="ccfm-quark.dat", 
+         write(6,*) ' read grid files from theoryfiles/updf/ccfm-quark.dat'
+         open(30,FILE="theoryfiles/updf/ccfm-quark.dat", 
      +   FORM='formatted',STATUS= 'OLD',
      +   IOSTAT=IRR,ERR=80 )
 c         read(30,10000) Qg0,ikincut
@@ -4193,33 +4193,33 @@ cc     +         'OLD', IOSTAT=IRR,ERR=80 )
 cc               write(6,*) ' read unintegrated gluon from file: '
 cc     +         //'dglap.dat'
 		   if(iglu.lt.1000) then
-                    write(6,*) ' reading: dglap.dat'
-                    open(30,FILE='dglap.dat', FORM='formatted',STATUS=
+                    write(6,*) ' reading: theoryfiles/updf/dglap.dat'
+                    open(30,FILE='theoryfiles/updf/dglap.dat', FORM='formatted',STATUS=
      +               'OLD', IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: dglap.dat'
                else
 	           Iccfmset =  MOD(IGLU,1000)
 	           write(6,*) 'Iccfmset',Iccfmset
 	            if(iccfmset.eq.111) then
-                    write(6,*) ' reading: ccfm-test.dat'
-                    open(30,FILE='ccfm-test.dat', 
+                    write(6,*) ' reading: theoryfiles/updf/ccfm-test.dat'
+                    open(30,FILE='theoryfiles/updf/ccfm-test.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
-                    write(6,*) ' read: ccfm-test.dat'
+                    write(6,*) ' read: theoryfiles/updf/ccfm-test.dat'
 	            elseif(iccfmset.eq.113) then
                     write(6,*) ' reading: ICCFM=0 for itheory=103 ccfm-grid.dat'
-                    open(30,FILE='ccfm-grid.dat', FORM='formatted',
+                    open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
      +              STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
                     write(6,*) ' read: for itheory=103 ccfm-grid.dat'
                   else
-                    write(6,*) ' reading: dglap.dat'
-                    open(30,FILE='dglap.dat', FORM='formatted',STATUS=
+                    write(6,*) ' reading: theoryfiles/updf/dglap.dat'
+                    open(30,FILE='theoryfiles/updf/dglap.dat', FORM='formatted',STATUS=
      +               'OLD', IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: dglap.dat'
                   endif
                endif
             ELSEIF(ICCFM.EQ.1) THEN
 		   if(iglu.lt.1000) then
-               open(30,FILE='ccfm.dat', FORM='formatted',STATUS= 'OLD',
+               open(30,FILE='theoryfiles/updf/ccfm.dat', FORM='formatted',STATUS= 'OLD',
      +         IOSTAT=IRR,ERR=80 )
                write(6,*) ' read unintegrated gluon from file: '
      +         //'ccfm.dat'
@@ -4227,23 +4227,23 @@ cc     +         //'dglap.dat'
 	         Iccfmset =  MOD(IGLU,1000)
 	         write(6,*) 'Iccfmset',Iccfmset
 	            if(iccfmset.eq.1) then
-                    open(30,FILE='ccfm-ipgg0ns-1-0-all-lhc.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-ipgg0ns-1-0-all-lhc.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-ipgg0ns-1-0-all-lhc.dat'
 	            elseif(iccfmset.eq.2) then
-                    open(30,FILE='ccfm-ipgg1ns1-0-all-lhc.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-ipgg1ns1-0-all-lhc.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-ipgg1ns1-0-all-lhc.dat'
 	            elseif(iccfmset.eq.3) then
-                    open(30,FILE='ccfm-ipgg2ns2-0-all-lhc.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-ipgg2ns2-0-all-lhc.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-ipgg2ns2-0-all-lhc.dat'
 		      elseif(iccfmset.eq.10) then
-                    open(30,FILE='ccfm-final-setA0.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-final-setA0.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-final-setA0.dat'
 	            elseif(iccfmset.eq.11) then
-                    open(30,FILE='ccfm-final-setA0+.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-final-setA0+.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-final-setA0+.dat'
 	            elseif(iccfmset.eq.12) then
@@ -4251,11 +4251,11 @@ cc     +         //'dglap.dat'
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-final-setA0-.dat'
 	            elseif(iccfmset.eq.13) then
-                    open(30,FILE='ccfm-final-setA1.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-final-setA1.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-final-setA1.dat'
 		      elseif(iccfmset.eq.20) then
-                    open(30,FILE='ccfm-final-setB0.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-final-setB0.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-final-setB0.dat'
 	            elseif(iccfmset.eq.21) then
@@ -4267,7 +4267,7 @@ cc     +         //'dglap.dat'
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-final-setB0-.dat'
 	            elseif(iccfmset.eq.23) then
-                    open(30,FILE='ccfm-final-setA1.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-final-setA1.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-final-setB1.dat'
 	            elseif(iccfmset.eq.101) then
@@ -4275,11 +4275,11 @@ cc     +         //'dglap.dat'
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-setC.dat'
 	            elseif(iccfmset.eq.111) then
-                    open(30,FILE='ccfm-test.dat', 
+                    open(30,FILE='theoryfiles/updf/ccfm-test.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-test.dat'
 	            elseif(iccfmset.eq.113) then
-                    open(30,FILE='ccfm-grid.dat', FORM='formatted',
+                    open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
      +              STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
                     write(6,*) ' read: for itheory=103 ccfm-grid.dat'
                    
@@ -4287,7 +4287,7 @@ cc     +         //'dglap.dat'
                endif		   
             ENDIF
          elseif(iset.eq.6) then
-            open(30,FILE='kmr.dat', FORM='formatted',STATUS= 'OLD',
+            open(30,FILE='theoryfiles/updf/kmr.dat', FORM='formatted',STATUS= 'OLD',
      +      IOSTAT=IRR,ERR=80 )
             write(6,*) ' read unintegrated gluon from file: '
      +      //'kmr.dat'
@@ -8824,15 +8824,15 @@ C     All done
       q2 = q2n
 c      write(6,*) ' siggrid ',firstgrid,x,q2,nbx,nq2point
       If(Firstgrid) then
-         inquire(FILE='f2tilde-grid.dat',EXIST=ex)
+         inquire(FILE='theoryfiles/updf/f2tilde-grid.dat',EXIST=ex)
 c create grid
          if(ex) then
-            open(3,FILE='f2tilde-grid.dat', FORM='formatted',
+            open(3,FILE='theoryfiles/updf/f2tilde-grid.dat', FORM='formatted',
      +      STATUS='OLD',IOSTAT=IRR,ERR=220)
-            write(6,*) ' f2tilde-grid.dat existing '
+            write(6,*) ' theoryfiles/updf/f2tilde-grid.dat existing '
          else 
             write(6,*) '  creating f2tilde-grid.dat ' 
-            open(3,FILE='f2tilde-grid.dat', FORM='formatted',STATUS='NEW',
+            open(3,FILE='theoryfiles/updf/f2tilde-grid.dat', FORM='formatted',STATUS='NEW',
      +      IOSTAT=IRR,ERR=220)
          Endif
          NA(1)=Nbx+1

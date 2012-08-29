@@ -51,6 +51,7 @@ C-------------------------------------------------------
       data LPolFits/.false./
 
 C-------------------------------------------------------
+      if(ITheory.ge.100) return 
       if (LFirstTime) then    
          LFirstTime = .false.
          idxAlphaS = GetParameterIndex('alphas')
