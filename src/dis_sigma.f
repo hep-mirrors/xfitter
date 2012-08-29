@@ -464,7 +464,7 @@ C
       elseif (mod(local_hfscheme,10).eq.4) then 
 
          call UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, F2gamma, FLgamma, IDataSet)
+     $        x, q2, npts, XSecType, charge, polarity, F2gamma, FLgamma, IDataSet)
       endif
 
 C all the transformations below are array operations!
@@ -869,13 +869,15 @@ c      print*, 'voica is here', CNEP2F, NC2FHF
 
 
       subroutine UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $     x, q2, npts, XSecType, F2gamma, FLgamma, IDataSet)
+     $     x, q2, npts, XSecType, charge, polarity,  
+     $     F2gamma, FLgamma, IDataSet)
 C----------------------------------------------------------------
 C     Calculates F2, FL, XF3, F2c, FLc, F2b and FLb using ABKM FF scheme
 C---------------------------------------------------------------
       implicit none
       include 'ntot.inc'
       include 'datasets.inc'
+      include 'couplings.inc'
       include 'steering.inc'
       include 'fcn.inc'
       include 'qcdnumhelper.inc'
@@ -883,6 +885,7 @@ C---------------------------------------------------------------
 C Input:
       double precision X(NPMaxDIS),Q2(NPMaxDIS)
       double precision F2gamma(NPMaxDIS), FLgamma(NPMaxDIS)
+      double precision charge, polarity
       integer npts,IDataSet
       character*(*) XSecType
       
@@ -894,38 +897,40 @@ C ABKM
       Double precision f2abkm,flabkm,f3abkm
       Double precision f2cabkm,flcabkm,f3cabkm
       Double precision f2babkm,flbabkm,f3babkm
+      integer ncflag
 
 C Additional Variables:
       double precision NC2FHF(-6:6)
       integer i, idx
   
-C     HQSTF code good only for NC case      
-      if (XSecType.eq.'CCDIS') return
 
-      NC2FHF = 4.D0/9.D0 * CNEP2F  + 1.D0/9.D0 * CNEM2F
-      CALL HQSTFUN(2,1,NC2FHF,X,Q2,F2c,npts,0)
-      CALL HQSTFUN(1,1,NC2FHF,X,Q2,FLc,npts,0)
-      CALL HQSTFUN(2,-2,NC2FHF,X,Q2,F2b,npts,0)
-      CALL HQSTFUN(1,-2,NC2FHF,X,Q2,FLb,npts,0)
-      
+      if (XSecType.eq.'CCDIS') then
+        ncflag = 0 
+      else
+        ncflag = 1
+      endif  
 
       do i=1,npts
-         idx =  DATASETIDX(IDataSet,i)
-         
-         call sf_abkm_wrap(x(i),q2(i)
-     $        ,f2abkm,flabkm,f3abkm,f2cabkm,flcabkm,f3cabkm
-     $        ,f2babkm,flbabkm,f3babkm,3,1,22)
+        idx =  DATASETIDX(IDataSet,i)
 
-c correct for Z contribution (as in RT case)           
-           F2(i) = f2abkm * (F2(i)/F2Gamma(i))  + f2cabkm + f2babkm
-           FL(i) = flabkm * (FL(i)/FLGamma(i)) + flcabkm + flbabkm
-C     Keep xF3 from QCDNUM FF (wraper will return zero)
-            F2c(i) = f2cabkm
-            FLc(i) = flcabkm
-            F2b(i) = f2babkm
-            FLb(i) = flbabkm
+        call sf_abkm_wrap(x(i),q2(i)
+     $      ,f2abkm,flabkm,f3abkm,f2cabkm,flcabkm,f3cabkm
+     $      ,f2babkm,flbabkm,f3babkm,ncflag,charge
+     $      ,polarity,sin2thw,cos2thw,Mz)
 
-c           write(6,*) 'ABKM: F2sum,F2tot,F2g,F2c,F2b', i,F2,F2ab,f2abkm,
-c     $ f2cabkm,f2babkm
+        F2(i) = f2abkm + f2cabkm + f2babkm
+        FL(i) = flabkm + flcabkm + flbabkm
+        XF3(i) = x(i)*(f3abkm+f3cabkm)
+
+        F2c(i) = f2cabkm
+        FLc(i) = flcabkm
+        F2b(i) = f2babkm
+        FLb(i) = flbabkm
+
+c         write(6,*) 'ABKM:x,q2,F2,FL,xF3,f2c,flc,xf3c', 
+c     &   i,x(i),q2(i),f2abkm,flabkm,x(i)*f3abkm,f2cabkm,flcabkm,
+c     &   x(i)*f3cabkm    
+
+
       enddo
       end

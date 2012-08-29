@@ -636,10 +636,12 @@ C---------------------------------
           HFSCHEME = 222 
       elseif (HF_SCHEME.eq.'FF') then
           HFSCHEME = 3 
-      elseif (HF_SCHEME.eq.'FF ABM') then		
-         HFSCHEME = 4 		
-      elseif (HF_SCHEME.eq.'BMSN ABM') then		
+      elseif (HF_SCHEME.eq.'FF ABM') then
+         HFSCHEME = 4 
+      elseif (HF_SCHEME.eq.'BMSN ABM') then
          HFSCHEME = 44 
+      elseif (HF_SCHEME.eq.'FF ABM RUNM') then
+         HFSCHEME = 444
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'

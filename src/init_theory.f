@@ -58,7 +58,7 @@ C----------------------------------------
 c Extra init for QCDNUM schemes:
       Call ZMVFNS_init()
 
-      if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4) then
+      if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
          Call FF_init()
       endif
 
@@ -269,7 +269,7 @@ C Remove duplicates:
       iqc =iqfrmq(qc)  !> Charm
       iqb =iqfrmq(qb)  !> Bottom
       iqt =iqfrmq(qt)  !> Top
-      if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4) then
+      if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
          print *,'Fixed Flavour Number Scheme set with nf=3'
       else
@@ -490,23 +490,32 @@ C-------------------------------------------------------------
 c  c and b - quark masses         
       rmass8in=HF_MASS(1)
       rmass10in=HF_MASS(2)
+
 ! the pole mass definition by default =false (for running mass def in msbar: msbarmin=.true.)
-      msbarmin=.false.
+      if(HFSCHEME.eq.444) then
+        msbarmin=.true.
+      else
+        msbarmin=.false.
+      endif
+      print*,'---------------------------------------------'
+      print*,'INFO from ABKM_init:'
+      print*,'FF ABM running mass def? T(rue), (F)alse:', msbarmin
+      print*,'---------------------------------------------'
+
 
 c NLO or NNLO: kordpdfin=1 NLO, kordpdfin=2 NNLO
 c this flag will set kordhq,kordalps,kordf2,kordfl,kordfl so same order!         
       kordpdfin  = I_FIT_ORDER-1
 
 c set scale for FFNS only         
-      if(HFSCHEME.eq.4) then
+      if(HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
 !  Set the factorization scale as sqrt(Q2*hqscale1 + 4m^2*hqscale2) for the 
 !  pair heavy-quark DIS production and as sqrt(Q2*hqscale1 + m^2*hqscale2) 
 !  for the single heavy-quark DIS production
          hqscale1in=1d0
          hqscale2in=1d0
 ! NEEDS TO BE IMPROVED            
-         print*,'Scale set to: mu_f^2=Q^2+4m_h^2, variation is not 
-     &  implemented yet'
+        print*,'Scale: mu_f^2=Q^2+4m_h^2, variation not implemented yet'
 c here VFNS (BMSN)           
       else    
          hqscale1in=1d0
