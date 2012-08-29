@@ -24,12 +24,12 @@ c RP
       xlog0=log(xbmin)
       delx2=-(xlog0-xlog1)/nxmgrid
 
-      xmax=0.99d0
-      delx3=(log(1-xmax)-log(1-x1))/(nxpgrid-1)
+crp      xmax=0.99d0
+      delx3=(log(1-xbmax)-log(1-x1))/(nxpgrid-1)
 
 ! Mapping with log(1-x) at large x
       do i=0,nxpgrid-1
-        xgrid(i)=1-exp(log(1-xmax)+delx3*(i-nxpgrid+1))
+        xgrid(i)=1-exp(log(1-xbmax)+delx3*(i-nxpgrid+1))
       end do
 c RP  evolution doesn't want x=1
 c      xgrid(nxpgrid)=1.
@@ -141,7 +141,7 @@ C------------------
       save xbsave,ix,aa
 
       if (xb.ne.xbsave) then 
-        do ix=-nxmgrid,nxpgrid
+        do ix=-nxmgrid,nxpgrid-1
           if (xb.lt.xgrid(ix+1)) goto 300
         end do
  300    xbsav=xb
@@ -164,7 +164,7 @@ C------------------
       data xbsav/-1./
       save xbsav,q2sav,is,q,ix,p
 
-      xb=min(xx,xbmax)
+      xb=xx               
 
       if(q2.gt.q2max.or.q2.lt.q2min)
      -            print*,'q2 out of range in xqg:',q2,q2min,q2max
@@ -179,10 +179,10 @@ C------------------
       q=(s-sgrid(is))/(sgrid(is+1)-sgrid(is))
 
       if(xb.ne.xbsav) then 
-        if (xb.gt.1..or.xb.lt.xbmin)
+        if (xb.gt.1d0+1d-8.or.xb.lt.xbmin)
      -              print *,'xb out of range in xqg:',xb
 
-        do ix=-nxmgrid,nxpgrid
+        do ix=-nxmgrid,nxpgrid-1
           if (xb.lt.xgrid(ix+1)) goto 300
         end do
  300  xbsav=xb

@@ -10,7 +10,6 @@ C------------------
 
       common /forconvol/ xb0,q2ss,an,nb0,nt0,ni0
 
-c      print*,'inside f3qcd,nb,nt,ni,xb,q2',nb,nt,ni,xb,q2
 !  Set the number of fermions in the final state, nfc, and the 
 !  number of fermions in the loops, nfe
       nfc=max(kschemepdf+3,3)
@@ -42,7 +41,7 @@ c      print*,'inside f3qcd,nb,nt,ni,xb,q2',nb,nt,ni,xb,q2
 
       if (kordf3.ge.2) then 
         f3qcd=f3qcd+an**2*f30
-     *   *(c3nsm_2_0_nf1_local(xb) + nfc*c3nsm_2_0_nf1_local(xb))
+     *   *(c3nsm_2_0_nf0_local(xb) + nfc*c3nsm_2_0_nf1_local(xb))
 
       end if
 
@@ -71,19 +70,21 @@ C------------------
 
       if (kordf3.ge.2) then 
         f3ns0=f3ns0+(c3nsm_2_0_nf0_singular(y)
-     +          + nf*c3nsm_2_0_nf1_singular(y))*an**2
+     +          + nfc*c3nsm_2_0_nf1_singular(y))*an**2
 
-        f3ns=f3ns+(c3nsm_2_0_nf0(y) + nf*c3nsm_2_0_nf1(y))
+        f3ns=f3ns+(c3nsm_2_0_nf0(y) + nfc*c3nsm_2_0_nf1(y))
      *  *an**2*f3qpm(nb0,nt0,ni0,z,q2ss)/y
 
-        cdel= c3nspm_2_0(y)/2.
-        if (nb0.eq.6) then                                !neutrino beam 
-          f3ns=f3ns+an**2*cdel*(f3qpm(6,nt0,ni0,z,q2ss)
-     -                         -f3qpm(7,nt0,ni0,z,q2ss))/y
-        end if
-        if (nb0.eq.7) then                                !antineutrino beam
-          f3ns=f3ns+an**2*cdel*(f3qpm(7,nt0,ni0,z,q2ss)
+        if (ni0.eq.24) then                                 !CC 
+          cdel= c3nspm_2_0(y)/2.
+          if (nb0.eq.6) then                                !neutrino beam 
+            f3ns=f3ns+an**2*cdel*(f3qpm(6,nt0,ni0,z,q2ss)
+     -                           -f3qpm(7,nt0,ni0,z,q2ss))/y
+          end if
+          if (nb0.eq.7) then                                !antineutrino beam
+            f3ns=f3ns+an**2*cdel*(f3qpm(7,nt0,ni0,z,q2ss)
      -                         -f3qpm(6,nt0,ni0,z,q2ss))/y
+          end if
         end if
       end if
 
@@ -165,7 +166,7 @@ C------------------
         flg=flg+an**2*clg_2_0(y)
         flps=an**2*clps_2_0(y)
 !  C-odd term for the neutrino-induced case
-        if (ni0.eq.24) then 
+        if (ni0.eq.24) then                          ! CC
           if (nb0.eq.6) then                         !neutrino beam 
             flns=flns+clnspm_2_0(y)/2.
      *    *(f2qpm(7,nt0,ni0,z,q2ss)-f2qpm(6,nt0,ni0,z,q2ss))*an**2
@@ -196,6 +197,16 @@ C------------------
       if (ni0.eq.22) then
         flg=qsum(nfc)*flg   
         flps=qsum(nfc)*flps*xpsqpm(z,q2ss,kschemepdf) 
+      end if
+
+      if (ni0.eq.23) then
+        flg=vaq2sum(nfc)*flg   
+        flps=vaq2sum(nfc)*flps*xpsqpm(z,q2ss,kschemepdf) 
+      end if
+
+      if (ni0.eq.25) then
+        flg=vaqsum(nfc)*flg   
+        flps=vaqsum(nfc)*flps*xpsqpm(z,q2ss,kschemepdf) 
       end if
 
       if (ni0.eq.24) then
@@ -236,6 +247,7 @@ C------------------
       nt0=nt
       ni0=ni
       rfac=1.
+
       if (kordf2.ge.2) then
         alr=-log(rscale)
         bet0=11-2./3.*nfe
@@ -261,6 +273,14 @@ C------------------
         if (ni.eq.22) then 
           f2qcd=f2qcd+an**2*c2g_2_0_local(xb)
      *                *xqg(1,xb,q2,kschemepdf)*qsum(nfc)  
+        end if
+        if (ni.eq.23) then 
+          f2qcd=f2qcd+an**2*c2g_2_0_local(xb)
+     *                *xqg(1,xb,q2,kschemepdf)*vaq2sum(nfc)  
+        end if
+        if (ni.eq.25) then 
+          f2qcd=f2qcd+an**2*c2g_2_0_local(xb)
+     *                *xqg(1,xb,q2,kschemepdf)*vaqsum(nfc)  
         end if
       end if
 
@@ -296,13 +316,17 @@ C------------------
      *     *f2qpm(nb0,nt0,ni0,z,q2ss)*an**2
         f2g=f2g+c2g_2_0(y)*an**2
         f2ps=c2ps_2_0(y)*an**2
+!  Axial term term for Z-exchange neutral current
+        if (ni0.eq.23) then                          
+          f2ps=f2ps + c2ps_2_axial_0(y)*an**2
+        end if
 !  C-odd term for the neutrino-induced case
-        if (ni0.eq.24) then 
-          if (nb0.eq.6) then                         !neutrino beam 
+        if (ni0.eq.24) then                          ! CC
+          if (nb0.eq.6) then                         ! neutrino beam 
             f2ns=f2ns+c2nspm_2_0(y)/2.
      *    *(f2qpm(7,nt0,ni0,z,q2ss)-f2qpm(6,nt0,ni0,z,q2ss))*an**2
           end if
-          if (nb0.eq.7) then                         !antineutrino beam
+          if (nb0.eq.7) then                         ! antineutrino beam
             f2ns=f2ns+c2nspm_2_0(y)/2.
      *    *(f2qpm(6,nt0,ni0,z,q2ss)-f2qpm(6,nt0,ni0,z,q2ss))*an**2
           end if
@@ -316,6 +340,14 @@ C------------------
       if (ni0.eq.22) then
         f2g=qsum(nfc)*f2g  
         f2ps=qsum(nfc)*f2ps*xpsqpm(z,q2ss,kschemepdf)
+      end if
+      if (ni0.eq.23) then
+        f2g=vaq2sum(nfc)*f2g  
+        f2ps=vaq2sum(nfc)*f2ps*xpsqpm(z,q2ss,kschemepdf)
+      end if
+      if (ni0.eq.25) then
+        f2g=vaqsum(nfc)*f2g  
+        f2ps=vaqsum(nfc)*f2ps*xpsqpm(z,q2ss,kschemepdf)
       end if
       if (ni0.eq.24) then
         f2ps=f2ps*xpsqpm2(z,q2ss,kschemepdf)

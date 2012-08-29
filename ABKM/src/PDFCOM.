@@ -1,6 +1,6 @@
       common /forpdfset/ npdftot,kordpdf,kschemepdf,kpdfset
 
-      common /forschemedef/ msbarm,hqnons
+      common /forschemedef/ ddnnlohq,msbarm,hqnons
 
       logical msbarm,hqnons
 

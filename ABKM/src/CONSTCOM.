@@ -1,4 +1,7 @@
-      COMMON /QCDPAR/ cf,cg,tr,qsum(6),qsum0(6),nc,nf,nfe,nfc
+      COMMON /QCDPAR/ cf,cg,tr,qsum(6),qsum0(6)
+     , ,vqu,aqu,vqd,aqd,vaq2u,vaq2d,vaq2sum(6),vaqsum(6)
+     , ,vlu,alu,vld,ald,val2u,val2d
+     , ,nc,nf,nfe,nfc
       common /FORQCDHOCORR/ zeta2,zeta3,zeta4
 
       COMMON /CONSTANTS_ABKM/ pi,alpha_abkm,alphady,rmpr,gfer2,sintc,sintw2

@@ -115,11 +115,12 @@
           call clhqg21m(eta,xi,cc21m)
           call clhqg20p(eta,xi,cc20p)
           call clhqg21p(eta,xi,cc21p)
-          ypl=y*(1+delder)
-          ymn=y*(1-delder)
+          ypl=min(y*(1+delder),1d0)
+          delder0=ypl/y-1.
+          ymn=y*(1-delder0)
           glup=xqg(1,ypl,rmu2,kschemepdf)
           glum=xqg(1,ymn,rmu2,kschemepdf)
-          glud=(glup-glum)/(2.*delder)
+          glud=(glup-glum)/(2.*delder0)
 
           flcharmnnloi=flcharmnnloi + qqs**2
      *   * (glu0*(cc20m + cc21m*log(rmu2/rm2)
@@ -158,11 +159,6 @@ C------------------
       qq=rcharge(nq)
 !  The factorization scale
       rmu2=q2*hqscale1+4*rm2*hqscale2
-
-c      print*,'in f2charm_ffn, hqscale1,hqscale2,rmass(nq),rmu2',
-c     $     hqscale1,hqscale2,rmass(nq),rmu2
-
-
 
 !  Take strong coupling constant
       an=xqg(0,0.1d0,rmu2,kschemepdf)
@@ -242,11 +238,12 @@ C------------------
           call c2hqg21m(eta,xi,cc21m)
           call c2hqg20p(eta,xi,cc20p)
           call c2hqg21p(eta,xi,cc21p)
-          ypl=y*(1+delder)
-          ymn=y*(1-delder)
+          ypl=min(y*(1+delder),1d0)
+          delder0=ypl/y-1.
+          ymn=y*(1-delder0)
           glup=xqg(1,ypl,rmu2,kschemepdf)
           glum=xqg(1,ymn,rmu2,kschemepdf)
-          glud=(glup-glum)/(2.*delder)
+          glud=(glup-glum)/(2.*delder0)
 
           f2charmnnloi=f2charmnnloi + qqs**2
      *   * (glu0*(cc20m + cc21m*log(rmu2/rm2)
@@ -325,11 +322,12 @@ C------------------
 !  MS-bar definition of the heavy-quark mass 
 
         if(msbarm) then
-          xip=xi*(1+delder)
-          xim=xi*(1-delder)
+          xip=min(xi*(1+delder),1d0)
+          delder0=xip/xi-1.
+          xim=xi*(1-delder0)
           ftxp=f2cqqpm(nb0,nt0,ni0,xip,rmu2)/xip
           ftxm=f2cqqpm(nb0,nt0,ni0,xim,rmu2)/xim
-          dftx=(ftxp-ftxm)/2./delder/xi
+          dftx=(ftxp-ftxm)/2./delder0/xi
           ftnucharm=ftnucharm + 4*d1dec*dftx*(xi-xb)*fac
         end if 
       end if
@@ -445,11 +443,12 @@ C------------------
 !  MS-bar definition of the heavy-quark mass 
 
         if(msbarm) then
-          xip=xi*(1+delder)
-          xim=xi*(1-delder)
+          xip=min(xi*(1+delder),1d0)
+          delder0=xip/xi-1.
+          xim=xi*(1-delder0)
           f3xp=f3cqqpm(nb0,nt0,ni0,xip,rmu2)/xip
           f3xm=f3cqqpm(nb0,nt0,ni0,xim,rmu2)/xim
-          df3x=(f3xp-f3xm)/2./delder/xi
+          df3x=(f3xp-f3xm)/2./delder0/xi
           f3nucharm=f3nucharm + 4*d1dec*df3x*(xi-xb)*fac
         end if
       end if
@@ -565,12 +564,13 @@ c  The decoupling constant for nf=3
 !  MS-bar definition of the heavy-quark mass 
 
         if(msbarm) then
-          xip=xi*(1+delder)
-          xim=xi*(1-delder)
+          xip=min(xi*(1+delder),1d0)
+          delder0=xip/xi-1.
+          xim=xi*(1-delder0)
           f2x=f2cqqpm(nb0,nt0,ni0,xi,rmu2)/xi
           f2xp=f2cqqpm(nb0,nt0,ni0,xip,rmu2)/xip
           f2xm=f2cqqpm(nb0,nt0,ni0,xim,rmu2)/xim
-          df2x=(f2xp-f2xm)/2./delder/xi
+          df2x=(f2xp-f2xm)/2./delder0/xi
           f2nucharm=f2nucharm + 4*d1dec*(f2x+xi*df2x)*(1-xb/xi)*fac
         end if 
       end if

@@ -193,6 +193,28 @@ c The O(\ALPHA_S^2) pure-singlet constant term of [Nucl. Phys. B588, 345 (2000)]
       return 
       end
 C------------------
+      real*8 function c2ps_2_axial_0(z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+
+c The O(\ALPHA_S^2) pure-singlet constant axial term of Zijlstra's thesis
+
+      include 'CONSTCOM.'
+
+      dl0=log(z)
+      dl1=log(1-z)
+
+      c2ps_2_axial_0=cf*(32*(3*z**3 - 3*z**2 + z)*ddilog(1.-z) 
+     -  -32*(3./5.*z**3+1./3.*z - 1./15./z**2)
+     *  *(ddilog(-z)+dl0*log(1+z))
+     +  +16*(18./5.*z**3 - 3*z**2 + 4./3.*z)*dl0**2
+     +  +32*(12./5.*z**3 - 3*z**2 + 2./3.*z)*zeta2
+     +  +16*(1./15. - 24./5.*z**2 + 12./5.*z - 2./15./z
+     +  +1./(1-z) - 1./(1+z))*dl0
+     -  -8./5.*(1./3. + 48*z**2 - 42*z - 4./3./z)) 
+
+      return 
+      end
+C------------------
       real*8 function c2g_2_0(z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 

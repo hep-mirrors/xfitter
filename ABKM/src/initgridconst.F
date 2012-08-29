@@ -30,6 +30,33 @@
       data qsum0 /-0.3333d0, 0.3333d0, 0d0 
      ,,            0.6666d0, 0.3333d0, 0.3333d0/
 
+! Weak-mixing angle sine squared (PDG 2010)
+      data sintw2 /0.23116d0/
+! Z-boson mass (PDG 2010)
+      rmassp(41)=91.1876
+! W-boson mass (PDG 2010)
+      rmassp(42)=80.358
+! Vector and axial quark couplings
+      vqu=0.5-4./3.*sintw2
+      aqu=0.5
+      vqd=-0.5+2./3.*sintw2
+      aqd=-0.5
+      vaq2u=vqu**2+aqu**2
+      vaq2d=vqd**2+aqd**2
+      vaq2sum(3)=vaq2u+2*vaq2d
+      vaq2sum(4)=vaq2sum(3)+vaq2u
+      vaq2sum(5)=vaq2sum(4)+vaq2d
+      vaqsum(3)=4./3.*vqu-4./3.*vqd
+      vaqsum(4)=vaqsum(3)+4./3.*vqu
+      vaqsum(5)=vaqsum(4)-2./3.*vqd
+! Vector and axial lepton couplings
+      vlu=0.5
+      alu=0.5
+      vld=-0.5+2*sintw2
+      ald=-0.5
+      val2u=vlu**2+alu**2
+      val2d=vld**2+ald**2
+
 ! A step for calculation of the PDF derivatives
       data delder /0.01/
 ! A tolerance factor for the numerical solution of the 
@@ -73,10 +100,7 @@ c      xbmin=1d-5
       npdftot=25
 #endif
 #ifdef ABM11
-      npdftot=27
-#endif
-#ifdef ABKM09M
-      npdftot=27
+      npdftot=28
 #endif
 #ifdef MSTW08
       npdftot=40
@@ -134,6 +158,9 @@ c      xbmin=1d-5
 ! The non-singlet contribution is included to the heavy-quark 
 ! electroproduction by default
       hqnons=.true.
+! Variant A of the NNLO term in the heavy-quark electroproduction Wilson
+! coefficient of Ref. [1205.5727] is used as a default 
+      ddnnlohq=0.
 
 !  Set the factorization scale as sqrt(Q2*hqscale1 + 4m^2*hqscale2) for the 
 !  pair heavy-quark DIS production and as sqrt(Q2*hqscale1 + m^2*hqscale2) 
