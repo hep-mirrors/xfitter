@@ -39,3 +39,9 @@ c----------------------------------------------------------
       call HF_stop
       return 
       end
+
+      Subroutine numberpdf()
+      call print_lhapdf_messg
+      call HF_stop
+      return 
+      end
