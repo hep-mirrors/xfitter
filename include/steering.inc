@@ -19,9 +19,6 @@
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
       logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
-      real asatur,             !> Saturation inspired cut for DIS data
-     $     lsatur              !> Saturation inspired cut for DIS data
-
       real*4 
      $     starting_scale,     !> Evolution starting scale
      $     strange_frac, 
@@ -96,7 +93,7 @@ C
      $     ,ichebtypeGlu, ichebtypeSea
      $     ,ifsttype,iSeeDmc
      $     ,IOFFSETCHEBSEA,EWFIT
-     $     ,asatur,lsatur,npolyval
+     $    ,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
      $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
@@ -117,3 +114,10 @@ C
       integer DipoleModel
 
       common/DipoleModelType/DipoleModel
+
+      character*32 PDFStyle           !> PDF style definition
+      common/CPdfStyle/PDFStyle
+
+      character*128  LHAPDFSET        !> LHAPDF set name
+      integer ILHAPDFSET              !> LHAPDF set number
+      common/CLHAPDF/LHAPDFSET,ILHAPDFSET

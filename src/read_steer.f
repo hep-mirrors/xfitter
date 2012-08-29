@@ -7,7 +7,56 @@ C
 C---------------------------------------------------
       implicit none
 
+      include 'steering.inc'
+C=================================================
 
+      call Set_Defaults  !> global defaults
+
+C Read various namelists:
+
+      call read_hfitternml  !> main steering
+      call read_ewparsnml   !> electroweak parameters
+      call read_outputnml   !> output options
+
+      if(Itheory.lt.100) then
+         call read_lhapdfnml    !> read lhapdf 
+C
+C Decode PDF style:
+C      
+         call SetPDFStyle
+      endif   ! Itheory < 100
+
+      call read_mcerrorsnml  !> MC uncertainties
+      call read_chebnml      !> chebyshev parameterisation extra pars
+      call read_polynml
+      call read_hqscalesnml  !> read HQ scales
+      call read_infilesnml   !> Read data file names
+
+      if (itheory.ge.100) then
+         call read_ccfmfilesnml
+      endif
+      
+      call Read_InCorrNml   ! Covariance matrix
+      call read_scalesnml   ! Read scales namelist
+
+      if(Itheory.lt.100) then
+C
+C Also read extra minuit parameters:
+C      
+         call readextraparam
+      endif ! Itheory > 100
+
+C 07/12/2011 Dipole ===>
+      call SetDipoleType
+
+      end
+
+
+      subroutine Set_Defaults
+C
+C Set defaul values for stearable variables.
+C
+      implicit none
       include 'ntot.inc'
       include 'steering.inc'
       include 'couplings.inc'
@@ -19,82 +68,9 @@ C---------------------------------------------------
       include 'scales.inc'
       include 'indata.inc'
       include 'for_debug.inc'
-C=================================================
 
-
-C Define namelists:
-
-      character*32 PDFStyle, Chi2Style, HF_SCHEME, MassHQ
-
-      real*8 Q02       ! Starting scale
-      integer IOrder   ! Evolution order
-C Main steering parameters namelist
-      namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
-     $     Chi2Style, LDebug, ifsttype, ASatur, LSatur, LFastAPPLGRID,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
-     $     ControlFitSplit
-
-
-C Output style namelist
-      namelist/Output/DoBands, Q2VAL, OutNX, OutXRange
-
-C (Optional) MC method namelist
-      namelist/MCErrors/LRand, ISeeDMC, StaType, SysType, LRandData
- 
-C (Optional) Chebyshev namelist
-      namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
-     $     ,IOFFSETCHEBSEA,ichebtypeGlu,ichebtypeSea
-     $     ,WMNlen,WMXlen, ChebXMin
-
-C (Optional) Polynomial parameterisation for valence
-      namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
-   
-C (Optional) Data-set dependent scales
-      namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder
-
-      character*128  LHAPDFSET
-      integer ILHAPDFSET
-      logical lhapdffile_exists
-
-C (Optional) LHAPDF steering card
-      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFErrors
-
-C (Optional) NNPDF steering card
-      namelist/nnpdf/FLAGNNPDF,NNPDFSET,NNPDFRWDATA
-     $     ,NNPDFREWEIGHTMETHOD,DONNPDFONLY,NNPDFOUTREPLICAS
-
-
-      integer i, ilastq2
-      integer StdCin,StdCout
-
-C (Optional) set HQ scale
-      namelist/HQScale/aq2,bq2,MassHQ
-
-
-C Namelist for datafiles to read
-      namelist/InFiles/NInputFiles,InputFileNames
-
-C Namelist for statistical correlations to read
-      namelist/InCorr/NCorrFiles,CorrFileNames
-
-C Namelist for EW parameters:
-      namelist/EWpars/alphaem, gf, sin2thw, convfac,
-     $ Mz, Mw, Mh, wz, ww, wh, wtp,
-     $ Vud, Vus, Vub, Vcd, Vcs, Vcb,
-     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
-     $ mch, mst, mtp, mbt
-C-----------------------------------------------------
-
-C updf stuff
-C Namelist for datafiles 
-      character*132 CCFMfilename  !> Names of input files
-      namelist/CCFMFiles/CCFMfilename
-      character CCFMfile*132
-      Common/CCFMout/CCFMfile
-      Integer idx
-
-C---------
-
+      integer i
+C------------------------------------------------------
 *     ------------------------------------------------
 *     Initialise basic parameters
 *     ------------------------------------------------
@@ -105,6 +81,8 @@ C---------
       EWFIT=0
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
+
+      PDFStyle  = '13p HERAPDF'
 
       H1QCDFUNC= .False.
 C=================================================
@@ -147,18 +125,11 @@ C Add option to change Z of valence PDFs at x=1 from  (1-x) to (1-x)^2
 
 C Square polynom before calculating dv,uv. This forces positivity
       IPOLYSQR = 0
-
 C  Key for W range 
       WMNlen =  20.
       WMXlen = 320.
 
-
       chebxmin = 1.E-5
-
-C scale for HQ
-      aq2 = 1
-      bq2 = 0
-      MassHQ = 'mc'
 
 C  Hermes-like strange (off by default):
       ifsttype = 0
@@ -172,10 +143,6 @@ C  Cache PDF calls
 C  Fast applgrid:     
       LFastAPPLGRID = .false.
 * 
-      PDFStyle  = '13p HERAPDF'
-      Chi2Style = 'HERAPDF'
-
-
 C MC Errors defaults:
       lRAND = .false.
       lRandData = .true.
@@ -191,22 +158,8 @@ C PDF output options:
       outxrange(1) = 1e-4
       outxrange(2) = 1.0
 
-
-C NNPDF defaults
-
-      FLAGNNPDF = .false.
-      NNPDFREWEIGHTMETHOD = 1
-      DONNPDFONLY = .false.
-      NNPDFSET = ''
-      NNPDFOUTREPLICAS = 0
-
-C
-      LHAPDFErrors = .false.
-
-C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       strange_frac = 0.31
       charm_frac = 0.00
-
 
       mch        = 1.4D0
       mbt        = 4.75D0
@@ -214,17 +167,44 @@ C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
       HFSCHEME = 0
 
-
-C==== 24/08/2010: Add Saturation inspired cut ====
-      ASatur = 0.0
-      LSatur = 0.0
-
       Debug = .false.
 
-C=================================================
+C
+C Names of syst. error sources:
+C
+      do i=1,NSYS
+         System(i) = ' '
+      enddo
+      end
 
 
+      subroutine Read_HFitternml  
+C
+C Read the main steering namelisit 
+C----------------------------------------------
+      implicit none
+      
+      include 'ntot.inc'
+      include 'datasets.inc'
+      include 'steering.inc'
+      include 'scales.inc'
+      include 'indata.inc'
+      include 'for_debug.inc'
+C-----------------------------------------------
+      character*32  Chi2Style, HF_SCHEME
 
+      real*8 Q02       ! Starting scale
+      integer IOrder   ! Evolution order
+      integer i
+C Main steering parameters namelist
+      namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
+     $     Chi2Style, LDebug, ifsttype,  LFastAPPLGRID,
+     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
+     $     ControlFitSplit
+C--------------------------------------------------------------
+
+C Some defaults
+      Chi2Style = 'HERAPDF'
 C
 C  Read the main H1Fitter namelist:
 C
@@ -232,160 +212,16 @@ C
       read (51,NML=H1Fitter,END=41,ERR=42)
       close (51)
 
-
 C     set debug flag used elsewhere according to steering
       Debug = lDebug
-
-      open (51,file='ewparam.txt',status='old')
-      read (51,NML=EWpars,END=43,ERR=44)
-      close (51)
-
-C
-C  Read the output namelist:
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=Output,END=51,ERR=52)
-      close (51)
-
-      if(Itheory.lt.100) then
-C
-C  Read the lhapdf namelist:
-C
-         open (51,file='steering.txt',status='old')
-         read (51,NML=lhapdf,ERR=67,end=68)
- 68      continue
-         close (51)
-
-C  Read the nnpdf namelist:
-C 
-         open (51,file='steering.txt',status='old')
-         read (51,NML=nnpdf,END=75,ERR=74)
- 75      continue
-         close (51)
-
-C check whether NNPDF and LHAPDF set are equal
-
-         if (FLAGNNPDF) then
-            if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
-               call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
-     $           //TRIM(NNPDFSET))
-               LHAPDFSET=NNPDFSET
-            endif
-C  check if the PDFstyle is indeed Ok
-            if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
-               call HF_Errlog(12032303,
-     $           'W:WARNING: Setting PDF style to LHAPDFQ0')
-               PDFStyle = 'LHAPDFQ0'
-            endif
-         endif
-
-
-C
-C Decode HFSCHEME:
-C      
-         call SetHFSCHEME(HF_SCHEME)
-
-C
-C Decode PDF style:
-C      
-         call SetPDFStyle(PDFStyle)
-         if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
-            INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
-            if(lhapdffile_exists) then
-               call InitPDFset(LHAPDFSET)
-            else
-               call InitPDFsetByName(LHAPDFSET)
-            endif
-
-      !> Get number of sets:
-C         call getdesc()
-            call numberPDF(i)      
-         
-            print *,i
-c         stop
-            nLHAPDF_Sets = i
-         
-            call InitPDF(ILHAPDFSET)
-
-
-            if(PDFStyle.eq.'LHAPDF') then
-               IPDFSET = 5
-            endif
-         endif
-
-      endif   ! Itheory < 100
-
-
 C
 C Decode Chi2 style:
 C
       call SetChi2Style(Chi2Style)
-
-      HF_MASS(1) = mch
-      HF_MASS(2) = mbt
-      HF_MASS(3) = mtp
-
-
 C
-C  Read the MC method namelist:
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=MCErrors,ERR=62,end=61)
- 61   continue
-      close (51)
-
-C
-C  Read the Chebyshev namelist:
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=Cheb,ERR=64,end=63)
- 
- 63   continue
-      close (51)
-
-
-C
-C  Read the Poly namelist:
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=Poly,ERR=66,end=65)
-    
- 65   continue
-      close (51)
-
-C
-C  Read the HQScale namelist:
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=HQScale,ERR=70,end=69)
- 69   continue
-      close (51)
-
-C
-C  Read the data namelist:
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=InFiles,END=71,ERR=72)
-      print '(''Read '',I4,'' data files'')',NInputFiles
-      close (51)
-      if (itheory.ge.100) then
-C Read the CCFM data file name
-         open (51,file='steering.txt',status='old')
-         read (51,NML=CCFMFiles,END=71,ERR=72)
-         close (51)
-         idx=index(CCFMFilename,' ')-5
-         CCFMfile = CCFMFilename(1:idx)
-
-      endif
-C     
-C  Read statistical correlations namelist:
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=InCorr,END=76,ERR=77)
-      print '(''Read '',I4,'' correlation files'')',NCorrFiles
- 136  continue
-      close (51)
-
+C Decode HFSCHEME:
+C      
+      call SetHFSCHEME(HF_SCHEME)
 C
 C  Data-set dependent scales. First set defaults
 C
@@ -395,124 +231,47 @@ C
          DataSetIOrder(i) = IOrder
       enddo
 
-
-      if(Itheory.lt.100) then
-C
-C  Read the scales namelist:
-C
-
-         open (51,file='steering.txt',status='old')
-         read (51,NML=Scales,END=123,ERR=124)
- 123     Continue
-         close (51)
-
-
-C
-C asign mc or mb to hq scale
-C      
-         call SetMHSCALE(MassHQ)
-
-
-C
-C Also read extra minuit parameters:
-C      
-         call readextraparam
-      endif ! Itheory > 100
-
-      if (lDebug) then
-C Print the namelists:
-         print *,'Input Namelists:'
-         print H1Fitter
-         print Output
-         print MCErrors
-         print InFiles
-         print EWpars
-         print HQScale
-      endif
-
-
       I_FIT_ORDER = IOrder
       starting_scale = Q02
 
-C 07/12/2011 Dipole ===>
-      call SetDipoleType
-C <==
+      if (LDebug) then
+C Print the namelist:
+         print H1Fitter
+      endif
 
-C
-C Names of syst. error sources:
-C
-      do i=1,NSYS
-         System(i) = ' '
-      enddo
+      return
 
-      goto 73
-C 
  41   continue
       print '(''Namelist &H1Fitter NOT found'')'
-      goto 73
+      call HF_stop
  42   continue
       print '(''Error reading namelist &H1Fitter, STOP'')'
       call HF_stop
- 43   continue
-      print '(''Namelist @EWPars NOT found, STOP'')'
-      call HF_stop
- 44   continue
-      print '(''Error reading namelist @EWPars, STOP'')'
-      call HF_stop
- 51   continue
-      print '(''Namelist &Output NOT found'')'
-      goto 73
- 52   continue
-      print '(''Error reading namelist &Output, STOP'')'
-      call HF_stop
- 62   continue
-      print '(''Error reading namelist &MCErrors, STOP'')'
-      call HF_stop
- 64   continue
-      print '(''Error reading namelist &Cheb, STOP'')'
-      call HF_stop
- 66   continue
-      print '(''Error reading namelist &Poly, STOP'')'
-      call HF_stop
- 67   continue
-      print '(''Error reading namelist &lhapdf, STOP'')'
-      call HF_stop
-
- 74   continue
-      print '(''Error reading namelist &nnpf, STOP'')'
-      call HF_stop
-
- 70   continue
-      print '(''Error reading namelist &HQScale, STOP'')'
-      call HF_stop
- 71   continue
-      print '(''Namelist &InFiles NOT found'')'
-      goto 73
- 72   continue
-      print '(''Error reading namelist &InFiles, STOP'')'
-      call HF_stop
- 76   print '(''Namelist &InCorr NOT found'')'
-      goto 136
- 77   continue
-      print '(''Error reading namelist &InCorr, STOP'')'
-      call HF_stop
- 124  print '(''Error reading namelist &scales, STOP'')'
-      Call HF_stop
+      end
 
 
- 73   continue
+      subroutine read_ewparsnml
+C 
+C Read electroweak parameters
+C-----------------------------------------
+      implicit none
+C Namelist for EW parameters:
+      include 'couplings.inc'
+      include 'steering.inc'
 
-      chebxminlog = log(chebxmin)
+      namelist/EWpars/alphaem, gf, sin2thw, convfac,
+     $ Mz, Mw, Mh, wz, ww, wh, wtp,
+     $ Vud, Vus, Vub, Vcd, Vcs, Vcb,
+     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
+     $ mch, mst, mtp, mbt
+C--------------------------------------------------
+      open (51,file='ewparam.txt',status='old')
+      read (51,NML=EWpars,END=43,ERR=44)
+      close (51)
 
-
-      ilastq2 = NBANDS/2
-      do i=NBANDS/2,1,-1
-         if (q2val(i).lt.0) ilastq2 = i-1
-      enddo
-      do i=1,NBANDS/2
-       Q2VAL(i+ilastq2) = Q2VAL(i+NBANDS/2)
-      enddo
-c      print *,'q2val ', (q2val(i),i=1,NBANDS)
+      HF_MASS(1) = mch
+      HF_MASS(2) = mbt
+      HF_MASS(3) = mtp
 
 * --- Check the consistency of the steering file
 
@@ -530,7 +289,224 @@ c      print *,'q2val ', (q2val(i),i=1,NBANDS)
        call HF_stop
       endif
 
+      if (LDebug) then
+C Print the namelist:
+         print EWpars
+      endif
 
+      return
+
+ 43   continue
+      print '(''Namelist @EWPars NOT found, STOP'')'
+      call HF_stop
+
+ 44   continue
+      print '(''Error reading namelist @EWPars, STOP'')'
+      call HF_stop
+      end
+
+      subroutine Read_InCorrNml
+C
+C Read InCorr namelist
+C----------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'datasets.inc'
+      include 'steering.inc'
+C Namelist for statistical correlations to read
+      namelist/InCorr/NCorrFiles,CorrFileNames
+C----------------------------------------------------------
+C     
+C  Read statistical correlations namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=InCorr,END=76,ERR=77)
+      print '(''Read '',I4,'' correlation files'')',NCorrFiles
+ 136  continue
+      close (51)
+      
+      if (LDebug) then
+C Print the namelist:
+         print InCorr
+      endif
+
+      return
+
+ 76   print '(''Namelist &InCorr NOT found'')'
+      Return
+ 77   continue
+      print '(''Error reading namelist &InCorr, STOP'')'
+      call HF_stop
+
+      end
+
+
+      subroutine read_hqscalesnml
+C
+C Read HQ scales
+C-------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      character*32 MassHQ
+C-------------------------------------------------------
+C (Optional) set HQ scale
+      namelist/HQScale/aq2,bq2,MassHQ
+C-------------------------------------------------------
+
+C scale for HQ
+      aq2 = 1
+      bq2 = 0
+      MassHQ = 'mc'
+C
+C  Read the HQScale namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=HQScale,ERR=70,end=69)
+ 69   continue
+      close (51)
+C
+C asign mc or mb to hq scale
+C      
+      call SetMHSCALE(MassHQ)
+
+      if (LDebug) then
+C Print the namelist:
+         print HQScale
+      endif
+         
+      return
+
+ 70   continue
+      print '(''Error reading namelist &HQScale, STOP'')'
+      call HF_stop
+      end
+
+
+      subroutine read_lhapdfnml
+C
+C Read lhapdf and nnpdf namelists
+C----------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'nnpdf.inc'
+C------------------------------------
+C (Optional) LHAPDF steering card
+      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFErrors
+
+C (Optional) NNPDF steering card
+      namelist/nnpdf/FLAGNNPDF,NNPDFSET,NNPDFRWDATA
+     $     ,NNPDFREWEIGHTMETHOD,DONNPDFONLY,NNPDFOUTREPLICAS
+
+C------------------------------------------------------------
+C NNPDF defaults
+      FLAGNNPDF = .false.
+      NNPDFREWEIGHTMETHOD = 1
+      DONNPDFONLY = .false.
+      NNPDFSET = ''
+      NNPDFOUTREPLICAS = 0
+C
+      LHAPDFErrors = .false.
+C
+C  Read the lhapdf namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=lhapdf,ERR=67,end=68)
+ 68   continue
+      close (51)
+C
+C  Read the nnpdf namelist:
+C 
+      open (51,file='steering.txt',status='old')
+      read (51,NML=nnpdf,END=75,ERR=74)
+ 75   continue
+      close (51)
+C
+C check whether NNPDF and LHAPDF set are equal
+C
+      if (FLAGNNPDF) then
+         if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
+            call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
+     $           //TRIM(NNPDFSET))
+            LHAPDFSET=NNPDFSET
+         endif
+C  check if the PDFstyle is indeed Ok
+         if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
+            call HF_Errlog(12032303,
+     $           'W:WARNING: Setting PDF style to LHAPDFQ0')
+            PDFStyle = 'LHAPDFQ0'
+         endif
+      endif
+
+      if (LDebug) then
+C Print the namelist:
+         print lhapdf
+         print nnpdf
+      endif
+
+      return
+C---
+ 67   continue
+      print '(''Error reading namelist &lhapdf, STOP'')'
+      call HF_stop
+
+ 74   continue
+      print '(''Error reading namelist &nnpf, STOP'')'
+      call HF_stop
+      end
+
+      subroutine read_mcerrorsnml
+C
+C Read MC errors namelist
+C-------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+C (Optional) MC method namelist
+      namelist/MCErrors/LRand, ISeeDMC, StaType, SysType, LRandData 
+C------------------------------------------------------
+C
+C  Read the MC method namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=MCErrors,ERR=62,end=61)
+ 61   continue
+      close (51)
+
+      if (LDebug) then
+         print MCErrors
+      endif
+
+      return
+C-----------------------------------------------
+ 62   continue
+      print '(''Error reading namelist &MCErrors, STOP'')'
+      call HF_stop
+      end
+
+
+      subroutine read_chebnml
+C
+C Read optional chebyshev namelist
+C--------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      include 'pdflength.inc'
+      include 'pdfparam.inc'
+C---------------------------------------------
+C (Optional) Chebyshev namelist
+      namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
+     $     ,IOFFSETCHEBSEA,ichebtypeGlu,ichebtypeSea
+     $     ,WMNlen,WMXlen, ChebXMin
+C-------------------------------------------------      
+C
+C  Read the Chebyshev namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Cheb,ERR=64,end=63)
+ 
+ 63   continue
+      close (51)
+
+      chebxminlog = log(chebxmin)
       if (NCHEBGLU.ne.0) then
          print *,'Use Chebyshev polynoms for gluon with N=',NCHEBGLU
       endif
@@ -540,20 +516,195 @@ c      print *,'q2val ', (q2val(i),i=1,NBANDS)
          print *,'Offset for minuit parameters is',IOFFSETCHEBSEA
       endif
 
+      if (LDebug) then
+         print Cheb
+      endif
+
       return
+C-----------------
+ 64   continue
+      print '(''Error reading namelist &Cheb, STOP'')'
+      call HF_stop
+      end
+
+      
+      subroutine read_polynml
+C
+C Optional poly. param. for valence quarks
+C-------------------------------------------------------------
+      implicit none
+      include 'steering.inc'
+C (Optional) Polynomial parameterisation for valence
+      namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
+C-------------------------------------------
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Poly,ERR=66,end=65)    
+ 65   continue
+      close (51)
+
+      if (LDebug) then
+         print Poly
+      endif
+
+      return
+C--------------------------------------------------------
+ 66   continue
+      print '(''Error reading namelist &Poly, STOP'')'
+      call HF_stop
+
+      end
+
+      subroutine read_infilesnml
+C
+C Read InFiles namelist
+C-------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'datasets.inc'
+      include 'steering.inc'
+C Namelist for datafiles to read
+      namelist/InFiles/NInputFiles,InputFileNames
+C
+C  Read the data namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=InFiles,END=71,ERR=72)
+      print '(''Read '',I4,'' data files'')',NInputFiles
+      close (51)
+C---------------------
+      if (LDebug) then
+         print InFiles
+      endif
+
+      return
+
+ 71   continue
+      print '(''Namelist &InFiles NOT found'')'
+      call HF_stop
+ 72   continue
+      print '(''Error reading namelist &InFiles, STOP'')'
+      call HF_stop
+
       end
 
 
-      Subroutine SetPDFStyle(PDFStyle)
+      subroutine read_ccfmfilesnml
+C
+C read ccfm namelist
+C------------------------------------------------------
+      implicit none
+C updf stuff
+C Namelist for datafiles 
+      include 'steering.inc'
+
+      character*132 CCFMfilename  !> Names of input files
+      namelist/CCFMFiles/CCFMfilename
+      character CCFMfile*132
+      Common/CCFMout/CCFMfile
+      Integer idx
+C-------------------------------------------------
+C Read the CCFM data file name
+      open (51,file='steering.txt',status='old')
+      read (51,NML=CCFMFiles,END=71,ERR=72)
+      close (51)
+      idx=index(CCFMFilename,' ')-5
+      CCFMfile = CCFMFilename(1:idx)
+
+      if (LDebug) then
+         print CCFMFilename
+      endif
+
+      return
+      
+ 71   continue
+      print '(''Namelist &CCFMFiles NOT found'')'
+      call HF_stop
+ 72   continue
+      print '(''Error reading namelist &CCFMFiles, STOP'')'
+      call HF_stop
+
+      end
+
+
+      subroutine read_scalesnml
+C--------------------------------------------------------
+C  Read the scales namelist:
+C---------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'scales.inc'
+      include 'steering.inc'
+C (Optional) Data-set dependent scales
+      namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder
+C---------------------------------------------
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Scales,END=123,ERR=124)
+ 123  Continue
+      close (51)
+
+      if (LDebug) then
+         print Scales
+      endif
+
+      return
+
+ 124  print '(''Error reading namelist &scales, STOP'')'
+      Call HF_stop
+
+      end
+
+
+      subroutine read_outputnml
+C
+C read output namelist
+C------------------------------------------------
+C Output style namelist
+      implicit none
+      include 'steering.inc'
+      integer i, ilastq2
+      namelist/Output/DoBands, Q2VAL, OutNX, OutXRange
+C--------------------------------------------------------
+C  Read the output namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Output,END=51,ERR=52)
+      close (51)
+
+      ilastq2 = NBANDS/2
+      do i=NBANDS/2,1,-1
+         if (q2val(i).lt.0) ilastq2 = i-1
+      enddo
+      do i=1,NBANDS/2
+       Q2VAL(i+ilastq2) = Q2VAL(i+NBANDS/2)
+      enddo
+c      print *,'q2val ', (q2val(i),i=1,NBANDS)
+
+      if (LDebug) then
+         print Output
+      endif
+
+      return
+ 51   continue
+      print '(''Namelist &Output NOT found'')'
+      return
+ 52   continue
+      print '(''Error reading namelist &Output, STOP'')'
+      call HF_stop
+
+      end
+
+
+
+      Subroutine SetPDFStyle()
 C---------------------------------------
 C
 C>  Set PDF parameterisation type
 C
 C---------------------------------------
       implicit none
-      character*(*) PDFStyle
-      character*32  LHAPDFSET
-      integer ILHAPDFSET 
+
+      logical lhapdffile_exists
       include 'steering.inc'
 C---------------------------------
 
@@ -596,11 +747,29 @@ C---------------------------------
       elseif (PDFStyle.eq.'DDIS') then
          iparam = 301        
          PDF_DECOMPOSITION = 'Diffractive'
-
       else
          print *,'Unsupported PDFStyle =',PDFStyle
          print *,'Check value in steering.txt'
          call HF_stop
+      endif
+
+      if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
+         INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
+         if(lhapdffile_exists) then
+            call InitPDFset(LHAPDFSET)
+         else
+            call InitPDFsetByName(LHAPDFSET)
+         endif
+
+      !> Get number of sets:
+         call numberPDF(nLHAPDF_Sets)  
+         
+         
+         call InitPDF(ILHAPDFSET)
+
+         if(PDFStyle.eq.'LHAPDF') then
+            IPDFSET = 5
+         endif
       endif
 
       end
@@ -647,7 +816,6 @@ C---------------------------------
          print *,'Check value in steering.txt'
          call HF_stop
       endif
-
       end
 
 
@@ -708,7 +876,6 @@ C---------------------------------
          print *,'Check value in steering.txt'
          call HF_stop
       endif
-      
       end
 
 
@@ -724,13 +891,10 @@ C---------------------------------
 
       namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
       integer i
-
 C----------------------------------------
       
       nExtraParam = 0
-
       open (51,file='steering.txt',status='old')
-
 C
 C Read as many instances of the namelist as exists:
 C
@@ -768,7 +932,6 @@ C Add extra param
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'
       call HF_stop
-
 
 C----------------------------------------
       end
