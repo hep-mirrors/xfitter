@@ -66,7 +66,7 @@ c add the negative sign in front of Y_xF3 for neg charge
        if(charge.gt.0) then
            f3abkm = -1*f3abkm
        endif
-c      print*,'TEST ABM f2abkm,gg,gz,zz ',f2abkm,f2qcd(3,1,22,x,q2),
+c      print*,'ABM f2abkm,gg,gz,zz ',f2abkm,f2qcd(3,1,22,x,q2),
 c     $ f2qcd(3,1,23,x,q2),f2qcd(3,1,25,x,q2)
 
 c c quark
