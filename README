@@ -464,20 +464,21 @@ hesse	     -> hessian estimate of the MINUIT parameters (more reliable than MINU
      ACOT (ACOT-Full, ACOT-ZM, S-ACOT-Chi)  [from Fred Olness]
 
   -FFNS (Fixed Flavour Number Scheme)       [qcdnum]
-   also available in ABM (openqcdrad-1.5)   [from Sergey Alekhin]
+   also available in ABM (openqcdrad-1.6)   [from Sergey Alekhin]
       
   IMPORTANT if running with FFNS (nf=3): 
-  - only neutral current DIS data should be used in FFNS due to missing NLO 
+  - only neutral current DIS data should be used in FF scheme due to missing NLO 
     coefficient functions in charged current (W+c) process, valence quarks 
     in this case should to be fixed in minuit.in.txt file
-    (charged current coefficients are available in ABM but not yet implemented here). 
+    In FF ABM implementation the charged current coefficients are available
+    therefore valence parameters do not need to be fixed
   - alpha_s(Q2) in FFNS is 3-flavour and recommended to be set to value of 0.105 
     such that is not too high at low energies
   - the scale in FFNS is defined as mu^2 = Q^2 + 4m_h^2 by default, can be 
     changed in HQScale in steering.txt (scale variation in ABM not yet implemented)
   - the pole mass definition for heavy quarks is set in ABM by default, 
     the running mass definition (arXiv:1011.5790v1) can be switched in 
-    src/init_theory.f setting msbarmin=.true.
+    by setting HF_SCHEME = 'FF ABM RUNM' in steering.txt 
 
 
   g) Understanding the output
