@@ -14,6 +14,7 @@ C=================================================
 
 C Read various namelists:
 
+      call read_infilesnml   !> Read data file names FIRST
       call read_hfitternml  !> main steering
       call read_ewparsnml   !> electroweak parameters
       call read_outputnml   !> output options
@@ -30,7 +31,6 @@ C
       call read_chebnml      !> chebyshev parameterisation extra pars
       call read_polynml
       call read_hqscalesnml  !> read HQ scales
-      call read_infilesnml   !> Read data file names
 
       if (itheory.ge.100) then
          call read_ccfmfilesnml
@@ -218,10 +218,13 @@ C
 C Decode Chi2 style:
 C
       call SetChi2Style(Chi2Style)
+      if (itheory.lt.100) then
 C
 C Decode HFSCHEME:
 C      
-      call SetHFSCHEME(HF_SCHEME)
+         call SetHFSCHEME(HF_SCHEME)
+      endif
+
 C
 C  Data-set dependent scales. First set defaults
 C
