@@ -58,6 +58,7 @@
 *                                      !  4: MU2 = Q2
 *                                      !  5: MU2 = Q2 + pt**2
 *                                      !  6: MU2 = k_t**2
+*                                      !  7: MU2 = max(ksi_1,ksi_2)
      'SCAL'     1       0        1.0   !  scale factor for alphas scale
 *
 *     'IGLU'     1       0       1010  ! (D=1010)Unintegrated gluon density 

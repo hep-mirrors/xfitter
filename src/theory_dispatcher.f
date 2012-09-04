@@ -11,8 +11,13 @@ C---------------------------------------------------------------
       include 'datasets.inc'
       integer IDataSet,kflag
 C-------------------------------------------------------------------
-      if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then
-         Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
+      if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
+         if(Itheory.lt.100) then
+            Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
 
         if (DipoleModel.gt.0.and.DipoleModel.lt.2) then
@@ -28,29 +33,79 @@ C Standard DGLAP:
          endif
 
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
-         Call GetNCXsection(IDataSet, HFSCHEME)
+         if(Itheory.lt.100) then
+            Call GetNCXsection(IDataSet, HFSCHEME)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
-         Call GetNCCharmXsection(IDataSet, HFSCHEME)
+         if(Itheory.lt.100) then
+            Call GetNCCharmXsection(IDataSet, HFSCHEME)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
-         Call GetCCXsection(IDataSet, HFSCHEME)
+         if(Itheory.lt.100) then
+            Call GetCCXsection(IDataSet, HFSCHEME)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
      $        DATASETREACTION(IDataSet).eq.'CC ppbar' ) then
-         Call GetDYCCXsection(IDataSet)
+         if(Itheory.lt.100) then
+            Call GetDYCCXsection(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC pp' .or.
      $        DATASETREACTION(IDataSet).eq.'NC ppbar' ) then
-         Call GetDYNCXsection(IDataSet)
+         if(Itheory.lt.100) then
+            Call GetDYNCXsection(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
-         Call GetJetsPPApplGrid(IDataSet)
+         if(Itheory.lt.100) then
+            Call GetJetsPPApplGrid(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
-         Call GetJetsFastNLOXsection(IDataSet, .false.)
+         if(Itheory.lt.100) then
+            Call GetJetsFastNLOXsection(IDataSet, .false.)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised')then
 cv
-         call eprc_init(.true.)
-         Call GetJetsFastNLOXsectionNormalised(IDataSet)
+         if(Itheory.lt.100) then
+            call eprc_init(.true.)
+            Call GetJetsFastNLOXsectionNormalised(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
        elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
-         Call GetHathorXsection(IDataSet)
+         if(Itheory.lt.100) then
+            Call GetHathorXsection(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
-         Call GetDiffDisXsection(IDataSet)
+         if(Itheory.lt.100) then
+            Call GetDiffDisXsection(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       else
 CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
       endif
