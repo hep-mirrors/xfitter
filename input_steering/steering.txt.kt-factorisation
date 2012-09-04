@@ -42,7 +42,7 @@
 *
 &H1Fitter 
 !  ITheory = 0   ! =0 use collinear factorisation with QCDNUM
- ! ITheory = 101   ! =101: fit with kernel ccfm-grid.dat file
+!  ITheory = 101   ! =101: fit with kernel ccfm-grid.dat file
 !  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation
  ITheory = 103   ! =103 fit using precalcualed grid of sigma_hat
 

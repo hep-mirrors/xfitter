@@ -3140,7 +3140,7 @@ c      weig = 0
 	External XA_INT
       CHARACTER   filename1*132, filname*132
 	character adum
-      data filename1/'theoryfiles/updf/ccfm-test.dat'/
+      data filename1/'ccfm-test.dat'/
 
       character filename2*132
       Common/updfout/filename2
@@ -4201,10 +4201,10 @@ cc     +         //'dglap.dat'
 	           Iccfmset =  MOD(IGLU,1000)
 	           write(6,*) 'Iccfmset',Iccfmset
 	            if(iccfmset.eq.111) then
-                    write(6,*) ' reading: theoryfiles/updf/ccfm-test.dat'
-                    open(30,FILE='theoryfiles/updf/ccfm-test.dat', 
+                    write(6,*) ' reading: ccfm-test.dat'
+                    open(30,FILE='ccfm-test.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
-                    write(6,*) ' read: theoryfiles/updf/ccfm-test.dat'
+                    write(6,*) ' read: ccfm-test.dat'
 	            elseif(iccfmset.eq.113) then
                     write(6,*) ' reading: ICCFM=0 for itheory=103 ccfm-grid.dat'
                     open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
@@ -4275,7 +4275,7 @@ cc     +         //'dglap.dat'
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-setC.dat'
 	            elseif(iccfmset.eq.111) then
-                    open(30,FILE='theoryfiles/updf/ccfm-test.dat', 
+                    open(30,FILE='ccfm-test.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-test.dat'
 	            elseif(iccfmset.eq.113) then
