@@ -130,10 +130,12 @@ void H1FitterPainter::FillPavesWithFitResults(TObjArray* paves, H1FitterOutput* 
 
   TObjArray* names = output->GetFittedParametersNames();
   TObjArray* namesNuisance= output->GetNuisanceParNames();
-  TString* str = new TString;
+  TString str;
 
   float ypos = 1.;
   int NChar = 40;
+
+  if(!output->GetParametersCheck()) return;
 
   AddLineToPave(paves, ypos, "Results for:","B");
 
@@ -146,32 +148,33 @@ void H1FitterPainter::FillPavesWithFitResults(TObjArray* paves, H1FitterOutput* 
 
   AddLineToPave(paves, ypos, "","");
 
-  str->Form("Fitted %d parameters:", names->GetEntries()); 
-  AddLineToPave(paves, ypos, str->Data(),"");
-  str->Form("(most reliable available method: %s" , output->GetErrorCalculationMethod()->Data()); 
-  AddLineToPave(paves, ypos, str->Data(),"");
-  str->Form("giving confidence in errors: %s)", output->GetErrorTrustLevel()->Data()); 
-  AddLineToPave(paves, ypos, str->Data(),"");
+  str.Form("Fitted %d parameters:", names->GetEntries()); 
+  AddLineToPave(paves, ypos, str.Data(),"");
+  str.Form("(most reliable available method: %s" , output->GetErrorCalculationMethod()->Data()); 
+  AddLineToPave(paves, ypos, str.Data(),"");
+  str.Form("giving confidence in errors: %s)", output->GetErrorTrustLevel()->Data()); 
+  AddLineToPave(paves, ypos, str.Data(),"");
 
 
   for(int i=0; i<names->GetEntries(); i++) {
-    str->Form("%4d:\t%6s = %6.3f  #pm%6.3f", i+1, ((TObjString*)names->At(i))->GetString().Data(), 
+    str.Form("%4d:\t%6s = %6.3f  #pm%6.3f", i+1, ((TObjString*)names->At(i))->GetString().Data(), 
 	      output->GetFittedParameter(i, false), output->GetFittedParameter(i, true));
-    AddLineToPave(paves, ypos, str->Data(),"");
+    AddLineToPave(paves, ypos, str.Data(),"");
   }
   
+  if(!output->GetNuisanceCheck()) return;
+
   AddLineToPave(paves, ypos, "","");
   AddLineToPave(paves, ypos, "Nuisance Parameters:","");
   for(int i=0; i<namesNuisance->GetEntries(); i++) {
-    str->Form("%4d:\t%17s = %5.2f  #pm%5.2f", i+1, ((TObjString*)namesNuisance->At(i))->GetString().Data(), 
+    str.Form("%4d:\t%17s = %5.2f  #pm%5.2f", i+1, ((TObjString*)namesNuisance->At(i))->GetString().Data(), 
 	      output->GetNuisancePar(i, false), output->GetNuisancePar(i, true));
-    TText* T = AddLineToPave(paves, ypos, str->Data(),""); 
+    TText* T = AddLineToPave(paves, ypos, str.Data(),""); 
     if(output->GetNuisancePar(i, false) > 2.5 || output->GetNuisancePar(i, false) < -2.5 ) {
       T->SetTextColor(fHighlight);
       T->SetTextFont(102);
     }
   }
-  delete str;
 }
 
 Int_t H1FitterPainter::DrawFitResults() {
@@ -203,6 +206,7 @@ Int_t H1FitterPainter::DrawFitResults() {
 
 void H1FitterPainter::DrawCorrelations(H1FitterOutput* output) {
 
+  if(!output->GetCovarianceCheck()) return;
   TCanvas* can = new TCanvas;
   TPaveText* pave = new TPaveText(0.05, 0.05, 0.95, 0.95);
   TString* str = new TString;
@@ -268,7 +272,7 @@ void H1FitterPainter::DrawCorrelations(H1FitterOutput* output) {
 }
 
 void H1FitterPainter::DrawMessages(H1FitterOutput* output) {
-
+  if(!output->GetMessagesCheck()) return;
   TObjArray* paves = new TObjArray; paves->SetOwner();
   paves->AddLast(new TPaveText(0.05, 0.05, 0.95, 0.95, "br"));
   float ypos = 1.;

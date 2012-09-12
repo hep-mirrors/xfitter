@@ -52,6 +52,11 @@ class  H1FitterOutput {
   Double_t   fChi2UncTotal;
   Double_t   fChi2CorTotal;
 
+  Bool_t fParametersCheck;
+  Bool_t fNuisanceCheck;
+  Bool_t fCovarianceCheck;
+  Bool_t fMessagesCheck;
+
  public:
    H1FitterOutput(const Char_t* directory);
    virtual ~H1FitterOutput();
@@ -62,6 +67,10 @@ class  H1FitterOutput {
    Int_t GetNsets();
    DataSet* GetSet(Int_t i) {return fDataSets[i];}
    inline TH1F* GetPull() {return fPull;}
+   inline Bool_t GetParametersCheck() {return fParametersCheck;}
+   inline Bool_t GetNuisanceCheck() {return fNuisanceCheck;}
+   inline Bool_t GetCovarianceCheck() {return fCovarianceCheck;}
+   inline Bool_t GetMessagesCheck() {return fMessagesCheck;}
    inline TString* GetErrorTrustLevel() {return fErrorTrustLevel;}
    inline TString* GetErrorCalculationMethod() {return fErrorCalculationMethod;}
    inline TString* GetCorrelationCalculationMethod() {return fCorrelationCalculationMethod;}
