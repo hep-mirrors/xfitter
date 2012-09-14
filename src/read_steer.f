@@ -995,7 +995,7 @@ C
                if ( ListOfSources(i)(ii+1:) .eq.'A' ) then
                   SysAdditive(nsys) = .true.
                   Call HF_errlog(12090001,
-     $   'I:Some systematic sources are additive')
+     $   'I: Some systematic sources are additive')
                elseif ( ListOfSources(i)(ii+1:) .eq.'M' ) then
                   SysAdditive(nsys) = .false.
                else

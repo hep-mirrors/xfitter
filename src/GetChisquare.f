@@ -23,7 +23,7 @@
       integer isys,ipoint,jpoint,ifail,flag_in
       double precision chisq,fchi2_in,chi2error,fchi2_error
       double precision d,t,error,errorunc,errorconst
-      double precision errorsta, fac, fcorchi2_in
+      double precision errorsta, fac, facd, fcorchi2_in
       double precision d_i, t_i, error_i, d_j, error_j, t_j         
       integer i,j,jsys,h1iset
       double precision pchi2_in(nset)
@@ -33,7 +33,7 @@
 
       double precision dNEvt, tNEvt
 
-      double precision factor2
+      double precision factor2, factor_1, factor_2
 
       integer npoisson, ngauss
 
@@ -139,22 +139,37 @@ C     Turn off the point for the syst. errors shift estimation:
                error = error*dsqrt(abs(t/d))
             endif
 
-            factor2 = t**2/error**2
+            
 
-            do isys = 1,nsys                  
+            factor2 = 1.D0/error**2
+
+            do isys = 1,nsys                                 
+
                if (beta(isys,ipoint).ne.0) then
+                  if (SysAdditive(isys)) then
+                     factor_1 = -d
+                  else
+                     factor_1 = t
+                  endif
 
                   bsys_in(isys) = bsys_in(isys) 
-     +                 + t*(d-t)*BETA(isys,ipoint)/error**2 
+     +                 + factor_1*(d-t)*BETA(isys,ipoint)*factor2
                
-                  ebsys_in(isys) = ebsys_in(isys)
-     +                 + t * BETA(isys,ipoint)/error
+c                  ebsys_in(isys) = ebsys_in(isys)     !> ????
+c     +                 + t * BETA(isys,ipoint)/error
                
                   do  jsys=isys,nsys
                      if (beta(jsys,ipoint).ne.0) then
+                        if (SysAdditive(jsys)) then
+                           factor_2 = -d
+                        else
+                           factor_2 = t
+                        endif
+
                         sysa(isys,jsys) = sysa(isys,jsys)
      +                       + beta(isys,ipoint)*beta(jsys,ipoint)
-     $                       *factor2
+     $                       *factor_1*factor_2*factor2
+
                      endif
                   enddo
                endif
@@ -210,10 +225,15 @@ c     $              ,Ifail)
             d = daten(ipoint)
             t = theo(ipoint)
 
-*** Factor to scale theory:
-            fac = 1.d0
+*** Factor to scale theory/data:
+            fac  = 1.d0
+            facd = 1.d0
             do isys=1,nsys
-               fac = fac - rsys_in(isys)*beta(isys,ipoint)                
+               if (.not. SysAdditive(isys) ) then
+                  fac  = fac  - rsys_in(isys)*beta(isys,ipoint)                
+               else
+                  facd = facd + rsys_in(isys)*beta(isys,ipoint)                
+               endif
             enddo 
 
 
@@ -262,6 +282,8 @@ c     $              ,Ifail)
 
 
             t = t*fac
+            d = d*facd
+
             THEO_MOD(ipoint)=t
             ALPHA_MOD(ipoint)=error
 
