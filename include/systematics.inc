@@ -13,4 +13,6 @@
       double precision sysa(nsysMAX,nsysMAX) !> Correlation matrix of systematics
       common/systema/ALPHA,ALPHA_MOD,BETA,sysa,SYSTEM,NSys
 
-      
+      double precision SysScaleFactor(nsysmax)  !> Input scale factors
+      logical SysAdditive(nsysmax)              !> Additive error
+      common/systscal/SysScaleFactor,SysAdditive

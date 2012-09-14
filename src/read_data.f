@@ -57,7 +57,7 @@
 *     initilialising
 *     ------------------------------------------------
 
-      NSYS = 0
+C      NSYS = 0
       DEBUG  = lDEBUG
       GNORM = .true.
 
@@ -545,6 +545,7 @@ C Stat error:
      $           SystematicType(i).ne.'stat const'
      $           ) then
                BETA(CompressIdx(i),npoints) = syst(i)
+     $              *SysScaleFactor(CompressIdx(i))
             endif
          enddo
 

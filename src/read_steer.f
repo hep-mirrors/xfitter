@@ -13,8 +13,8 @@ C=================================================
       call Set_Defaults  !> global defaults
 
 C Read various namelists:
-
-      call read_infilesnml   !> Read data file names FIRST
+      call read_systematicsnml !> Read (optional) systematics namelist FIRST
+      call read_infilesnml   !> Read data file names SECOND
       call read_hfitternml  !> main steering
       call read_ewparsnml   !> electroweak parameters
       call read_outputnml   !> output options
@@ -935,6 +935,96 @@ C Add extra param
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'
       call HF_stop
+
+C----------------------------------------
+      end
+
+
+      Subroutine read_systematicsnml
+C-----------------------------------------
+C
+C Read optional systematics namelist
+C
+C-----------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'steering.inc'
+      character*32 ListOfSources(nsysmax),ScaleByNameName(nsysmax)
+      double precision ScaleByNameFactor(nsysmax)
+      
+      namelist/ Systematics/ListOfSources,ScaleByNameName
+     $     ,ScaleByNameFactor
+      integer i,ii
+C----------------------------------------
+
+C Initialisation:
+      nsys = 0
+      do i=1,nsysmax
+         SysScaleFactor(i) = 1.0D0
+         ListOfSources(i) = ' '
+         ScaleByNameName(i) = ' '
+         SysAdditive(i)  = .false.
+      enddo
+      
+      open (51,file='steering.txt',status='old')
+      read (51,NML=Systematics,END=123,ERR=124)
+      close (51)
+
+      if (LDebug) then
+         print Systematics
+      endif
+C----
+C Decode:
+C
+      do i=1,nsysmax
+         if (ListOfSources(i).ne.' ') then
+            nsys = nsys + 1
+            if (NSYS.gt.NSysMax) then
+               print 
+     $              '(''ReadDataFile Error: exeeding NSysMax'')'
+               print '(''Current NSysMax='',i6)',NSysMax
+               print '(''Increase NSysMax in systematics.inc'')'
+               call HF_stop
+            endif
+            ii = index(ListOfSources(i),':')
+            if (ii.eq.0) then
+               System(nsys) = ListOfSources(i)
+            else
+               System(nsys) = ListOfSources(i)(1:ii-1)
+               if ( ListOfSources(i)(ii+1:) .eq.'A' ) then
+                  SysAdditive(nsys) = .true.
+                  Call HF_errlog(12090001,
+     $   'I:Some systematic sources are additive')
+               elseif ( ListOfSources(i)(ii+1:) .eq.'M' ) then
+                  SysAdditive(nsys) = .false.
+               else
+                  Call HF_errlog(12090002,
+     $   'W:WARNING: wrong bias correction for a systematic source')
+               endif
+           endif
+         else
+            goto 77
+         endif
+      enddo
+ 77   continue
+
+      do i=1,nsysmax
+         if (ScaleByNameName(i).ne.' ') then
+            do ii=1,nsys
+               if (ScaleByNameName(i) .eq. System(ii)) then
+                  SysScaleFactor(ii) = ScaleByNameFactor(i)
+               endif
+            enddo
+         endif
+      enddo
+ 90   continue
+
+ 123  Continue
+      return
+
+ 124  print '(''Error reading namelist &systematics, STOP'')'
+      Call HF_stop
 
 C----------------------------------------
       end
