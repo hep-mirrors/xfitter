@@ -39,10 +39,12 @@ class  H1FitterOutput {
 
   TObjArray* fMessages;
   Double_t   fFittedParameters[fMaxParameters][2];
-  TObjArray* fFittedParametersNames;
+  TString*   fFittedParametersNames[fMaxParameters];
+  Int_t      fNFittedParameters;
+  Int_t      fNNuisanceParameters;
   Double_t   fCorrPar[fMaxParameters][fMaxParameters];
 
-  TObjArray* fNuisanceParNames;
+  TString*   fNuisanceParNames[fMaxParameters];
   Double_t   fNuisancePar[fMaxParameters][2];
   TString*   fErrorCalculationMethod;
   TString*   fCorrelationCalculationMethod;
@@ -82,9 +84,11 @@ class  H1FitterOutput {
    const Int_t GetNQ2Files() { return fNQ2Files;}
    // Return Q2 value for a given file
    const Double_t GetQ2Value(Int_t iQ2bin);
-   inline TObjArray* GetFittedParametersNames() {return fFittedParametersNames;}
+   inline TString* GetFittedParametersName(Int_t idx) {return fFittedParametersNames[idx];}
    Double_t GetFittedParameter(Int_t idx, Bool_t error=kFALSE);
-   inline TObjArray* GetNuisanceParNames() {return fNuisanceParNames;}
+   inline TString* GetNuisanceParNames(Int_t idx) {return fNuisanceParNames[idx];}
+   inline Int_t GetNFittedParameters() {return fNFittedParameters;}
+   inline Int_t GetNNuisanceParameters() {return fNNuisanceParameters;}
    Double_t GetNuisancePar(Int_t idx, Bool_t error=kFALSE);
    inline Double_t GetCorPar(int i, int j) { return fCorrPar[i][j];}
    Int_t PreparePdf(bool DrawBand);
@@ -98,5 +102,7 @@ class  H1FitterOutput {
    void SetPdfPoint(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t y);
    void SetPdfError(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t Up, Double_t Dn);
    Bool_t CheckDirectory();
+   Bool_t CheckFile();
+   void PrepareMandyParameters();
 };
 #endif

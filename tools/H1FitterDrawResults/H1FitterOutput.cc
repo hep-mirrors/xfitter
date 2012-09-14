@@ -25,9 +25,11 @@ H1FitterOutput::H1FitterOutput(const Char_t* directory) {
   fMessagesCheck = false;
 
   fMessages = new TObjArray; fMessages->SetOwner();
-  fFittedParametersNames = new TObjArray; fFittedParametersNames->SetOwner();
-  fNuisanceParNames = new TObjArray;      fNuisanceParNames->SetOwner();
+  fNFittedParameters = 0;
+  fNNuisanceParameters = 0;
   for(Int_t i=0; i<fMaxParameters; i++) {
+    fFittedParametersNames[i] = NULL;
+    fNuisanceParNames[i] = NULL;
     fFittedParameters[i][0] = -99.;
     fFittedParameters[i][1] = -99.;
     fNuisancePar[i][0];
@@ -55,23 +57,149 @@ H1FitterOutput::~H1FitterOutput(){
   delete fCorrelationCalculationMethod;
   delete fErrorTrustLevel;
 
+  for(int i=0; i<fMaxParameters; i++) if(fFittedParametersNames[i]) delete fFittedParametersNames[i];
+  for(int i=0; i<fMaxParameters; i++) if(fNuisanceParNames[i]) delete fNuisanceParNames[i];
   for (std::vector<DataSet*>::iterator i = fDataSets.begin(); i != fDataSets.end(); ++i)  delete *i;
   delete fPull;
   delete fMessages;
-  delete fFittedParametersNames;
-  delete fNuisanceParNames;
 }
 
 Int_t H1FitterOutput::Prepare(bool DrawBand) {
-  if(! this->CheckDirectory() ) {
+  if( this->CheckDirectory() ) {
+    this->PrepareName();
+    this->PreparePdf(DrawBand);
+    this->PrepareDataSets();
+    this->PrepareParameters();
+  }
+  else if( this->CheckFile() ) {
+    this->PrepareMandyParameters();
+  }
+  else {
     cerr << "Can not open directory " << fDirectory->Data() << endl; 
     exit(1);
   }
-  this->PrepareName();
-  this->PreparePdf(DrawBand);
-  this->PrepareDataSets();
-  this->PrepareParameters();
 }
+
+void H1FitterOutput::PrepareMandyParameters() {
+  ifstream input(fDirectory->Data());
+  if(!input.is_open()) return;
+
+  Char_t buffer[256];
+  while(!input.eof()) {
+    input.getline(buffer, 256);
+    
+    TString line(buffer);
+    if(line.BeginsWith("NAME:")) {
+      fName->Form(line.Data());
+      fName->ReplaceAll("NAME:","");
+    }
+
+    TString temp;
+    Int_t idx;
+
+    TObjArray* array = line.Tokenize(' ');
+
+    if(line.BeginsWith(" PARAM, VAL, ERR")) { // migrad errrors
+      if(array->GetEntries() < 7) continue;
+      switch(((TObjString*)array->At(4))->GetString().Atoi()) 
+	{
+	case 1:	 temp.Form("Buv");	idx = 4;    break;
+	case 2:	 temp.Form("Cuv");	idx = 5;    break;
+	case 3:	 temp.Form("Euv");	idx = 6;    break;
+	case 5:	 temp.Form("Bdv");	idx = 7;    break;
+	case 6:	 temp.Form("Cdv");	idx = 8;    break;
+	case 7:	 temp.Form("Bprig");	idx = 3;    break;
+	case 8:	 temp.Form("Aprig");	idx = 2;    break;
+	case 9:	 temp.Form("Asea");	idx = 10;   break;
+	case 10: temp.Form("Bdbar");	idx = 11;   break;
+	case 11: temp.Form("Cubar");	idx = 9;    break;
+	case 12: temp.Form("Cdbar");	idx = 12;   break;
+	case 13: temp.Form("Bg");	idx = 0;    break;
+	case 14: temp.Form("Cg");	idx = 1;    break;
+	case 17: temp.Form("alphas");	idx = 13;   break;
+	default: continue;
+	}
+      fFittedParametersNames[idx] = new TString(temp.Data());
+      fFittedParameters[idx][0] = ((TObjString*)array->At(5))->GetString().Atof();
+      fFittedParameters[idx][1] = ((TObjString*)array->At(6))->GetString().Atof();
+    }
+
+   if(line.BeginsWith(" PARAM, HESSE ERR=")) { // hesse errrors
+      if(array->GetEntries() < 6) continue;
+      switch(((TObjString*)array->At(3))->GetString().Atoi()) 
+	{
+	case 1:	 temp.Form("Buv");	idx = 4;    break;
+	case 2:	 temp.Form("Cuv");	idx = 5;    break;
+	case 3:	 temp.Form("Euv");	idx = 6;    break;
+	case 5:	 temp.Form("Bdv");	idx = 7;    break;
+	case 6:	 temp.Form("Cdv");	idx = 8;    break;
+	case 7:	 temp.Form("Bprig");	idx = 3;    break;
+	case 8:	 temp.Form("Aprig");	idx = 2;    break;
+	case 9:	 temp.Form("Asea");	idx = 10;   break;
+	case 10: temp.Form("Bdbar");	idx = 11;   break;
+	case 11: temp.Form("Cubar");	idx = 9;    break;
+	case 12: temp.Form("Cdbar");	idx = 12;   break;
+	case 13: temp.Form("Bg");	idx = 0;    break;
+	case 14: temp.Form("Cg");	idx = 1;    break;
+	case 17: temp.Form("alphas");	idx = 13;   break;
+	default: continue;
+	}
+      fFittedParametersNames[idx] = new TString(temp.Data());
+      fFittedParameters[idx][0] = ((TObjString*)array->At(4))->GetString().Atof();
+      fFittedParameters[idx][1] = ((TObjString*)array->At(5))->GetString().Atof();
+      fNFittedParameters++;
+   }
+   
+   if(array->GetEntries() >= 2 ) {
+     if(((TObjString*)array->At(0))->GetString().IsDigit() &&
+	((TObjString*)array->At(1))->GetString().IsFloat()) {
+       
+       switch(((TObjString*)array->At(0))->GetString().Atoi()) 
+	 {
+	 case 132: temp.Form("hera_proc_1"); idx = 0; break;
+	 case 133: temp.Form("hera_proc_2"); idx = 1; break;
+	 case 134: temp.Form("hera_proc_3"); idx = 2; break;
+	 case 208: temp.Form("zeus96/97 JES");    idx = 11; break;
+	 case 209: temp.Form("zeus96/97 norm");   idx = 12; break;
+	 case 210: temp.Form("zeus98/00 JES");    idx = 13; break;
+	 case 211: temp.Form("zeus98/00 norm");   idx = 14; break;
+	 case 212: temp.Form("H1 hiq2jets Ee");   idx = 3; break;
+	 case 213: temp.Form("H1 hiq2jets Et");   idx = 4; break;
+	 case 214: temp.Form("H1 hiq2jets HFS");  idx = 5; break;
+	 case 215: temp.Form("H1 loq2jets Ee");   idx = 7; break;
+	 case 216: temp.Form("H1 loq2jets Et");   idx = 8; break;
+	 case 217: temp.Form("H1 loq2jets HFS");  idx = 9; break;
+	 case 218: temp.Form("H1 loq2jets mod");  idx = 6; break;
+	 case 219: temp.Form("H1 loq2jets norm"); idx = 10; break;
+	   //case 220: temp.Form("?"); idx = 2; break;
+	   //case 221: temp.Form("?"); idx = 2; break;
+	   //case 224: temp.Form("BH norm"); idx = 2; break;
+	   
+	 default: continue;
+	 }
+       fNuisanceParNames[idx] = new TString(temp.Data());
+       fNuisancePar[idx][0] = ((TObjString*) array->At(1))->GetString().Atof();
+       fNuisancePar[idx][1] = 0.;
+       fNNuisanceParameters = fMaxParameters;
+     }
+   }
+   
+   delete array;
+   
+  }
+  fParametersCheck = true;
+  fNuisanceCheck = true;
+  
+  input.close();
+}
+
+Bool_t H1FitterOutput::CheckFile() {
+  ifstream input(fDirectory->Data());
+  if(!input.is_open()) return false;
+  input.close();
+  return true;
+}
+
 
 Bool_t H1FitterOutput::CheckDirectory() {
   DIR *pDir;
@@ -111,10 +239,11 @@ void H1FitterOutput::PrepareParameters() {
       if(!((TObjString*) array->At(2))->GetString().IsFloat()) continue;
       if(!((TObjString*) array->At(3))->GetString().IsFloat()) continue;
       if(((TObjString*) array->At(3))->GetString().Atof() > 0.0000001) { // this is minimised parameter
-	fFittedParametersNames->AddLast(new TObjString(((TObjString*) array->At(1))->GetString().Data()));
+	fFittedParametersNames[idx] = new TString(((TObjString*) array->At(1))->GetString().Data());
 	fFittedParameters[idx][0] = ((TObjString*) array->At(2))->GetString().Atof();
 	fFittedParameters[idx][1] = ((TObjString*) array->At(3))->GetString().Atof();
 	idx++;  
+	fNFittedParameters++;
       }
     }
     delete array;
@@ -150,7 +279,7 @@ void H1FitterOutput::PrepareParameters() {
       int NColumns = array->GetEntries();
       while(NColumns == 5) {
 	if(!((TObjString*) array->At(0))->GetString().IsDigit()) {cout << "not a digit!" <<endl; break; }
-	fNuisanceParNames->AddLast(new TObjString( ((TObjString*) array->At(1))->GetString().Data() ) );
+	fNuisanceParNames[idx] = new TString( ((TObjString*) array->At(1))->GetString().Data() );
 	fNuisancePar[idx][0] = ((TObjString*) array->At(2))->GetString().Atof();
 	fNuisancePar[idx][1] = ((TObjString*) array->At(4))->GetString().Atof();
 
@@ -159,6 +288,7 @@ void H1FitterOutput::PrepareParameters() {
 	array = str.Tokenize(" ");
 	NColumns = array->GetEntries();
 	idx++;
+	fNNuisanceParameters++;
       }
       delete array;
     }
