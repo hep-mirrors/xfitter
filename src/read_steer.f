@@ -969,7 +969,7 @@ C Initialisation:
       
       open (51,file='steering.txt',status='old')
       read (51,NML=Systematics,END=123,ERR=124)
-      close (51)
+c      close (51)
 
       if (LDebug) then
          print Systematics
@@ -1021,6 +1021,7 @@ C
  90   continue
 
  123  Continue
+      close(51)
       return
 
  124  print '(''Error reading namelist &systematics, STOP'')'
