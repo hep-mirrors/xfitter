@@ -64,7 +64,6 @@ parameters
 
 FIX  1 2 3 71 72 73 
 
-set eps 1.0e-11
 
 *set print 3  
 call fcn 3
