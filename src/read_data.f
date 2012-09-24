@@ -349,16 +349,8 @@ C--- Check if the source already exists:
                endif
             enddo
 C--- Add new source
-            NSYS = NSYS + 1
-            if (NSYS.gt.NSysMax) then
-               print 
-     $              '(''ReadDataFile Error: exeeding NSysMax'')'
-               print '(''Current NSysMax='',i6)',NSysMax
-               print '(''Increase NSysMax in systematics.inc'')'
-               call HF_stop
-            endif
+            Call AddSystematics(SystematicType(i))
 
-            System(NSYS) = SystematicType(i)
             CompressIdx(i) = NSYS
  80         continue
          endif

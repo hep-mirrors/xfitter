@@ -195,15 +195,21 @@ C-----------------------------------------------
 
       real*8 Q02       ! Starting scale
       integer IOrder   ! Evolution order
+      character*8 Order  ! 
+      character*16 TheoryType
       integer i
 C Main steering parameters namelist
-      namelist/H1Fitter/ITheory, IOrder, Q02, HF_SCHEME, PDFStyle, 
+      namelist/H1Fitter/
+     $     ITheory, IOrder          ! keep for backward compatibility
+     $     , Q02, HF_SCHEME, PDFStyle, 
      $     Chi2Style, LDebug, ifsttype,  LFastAPPLGRID,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
-     $     ControlFitSplit
+     $     ControlFitSplit,Order,TheoryType
 C--------------------------------------------------------------
 
 C Some defaults
+      Order     = ' '
+      TheoryType = ' '
       Chi2Style = 'HERAPDF'
 C
 C  Read the main H1Fitter namelist:
@@ -211,6 +217,18 @@ C
       open (51,file='steering.txt',status='old')
       read (51,NML=H1Fitter,END=41,ERR=42)
       close (51)
+
+C Decode computation order:
+      if (Order.ne.' ') then
+         Call DecodeOrder(Order)
+      else
+         I_FIT_ORDER = IOrder
+      endif
+
+C Decode theory type:
+      if (TheoryType.ne.' ') then
+         Call DecodeTheoryType(TheoryType)
+      endif 
 
 C     set debug flag used elsewhere according to steering
       Debug = lDebug
@@ -231,10 +249,9 @@ C
       do i=1,NInputFiles
          DataSetMuR(i)    = 1.0D0
          DataSetMuF(i)    = 1.0D0
-         DataSetIOrder(i) = IOrder
+         DataSetIOrder(i) = I_Fit_Order
       enddo
 
-      I_FIT_ORDER = IOrder
       starting_scale = Q02
 
       if (LDebug) then
@@ -969,7 +986,6 @@ C Initialisation:
       
       open (51,file='steering.txt',status='old')
       read (51,NML=Systematics,END=123,ERR=124)
-c      close (51)
 
       if (LDebug) then
          print Systematics
@@ -979,30 +995,7 @@ C Decode:
 C
       do i=1,nsysmax
          if (ListOfSources(i).ne.' ') then
-            nsys = nsys + 1
-            if (NSYS.gt.NSysMax) then
-               print 
-     $              '(''ReadDataFile Error: exeeding NSysMax'')'
-               print '(''Current NSysMax='',i6)',NSysMax
-               print '(''Increase NSysMax in systematics.inc'')'
-               call HF_stop
-            endif
-            ii = index(ListOfSources(i),':')
-            if (ii.eq.0) then
-               System(nsys) = ListOfSources(i)
-            else
-               System(nsys) = ListOfSources(i)(1:ii-1)
-               if ( ListOfSources(i)(ii+1:) .eq.'A' ) then
-                  SysAdditive(nsys) = .true.
-                  Call HF_errlog(12090001,
-     $   'I: Some systematic sources are additive')
-               elseif ( ListOfSources(i)(ii+1:) .eq.'M' ) then
-                  SysAdditive(nsys) = .false.
-               else
-                  Call HF_errlog(12090002,
-     $   'W:WARNING: wrong bias correction for a systematic source')
-               endif
-           endif
+            Call AddSystematics(ListOfSources(i))
          else
             goto 77
          endif
@@ -1021,11 +1014,90 @@ C
  90   continue
 
  123  Continue
-      close(51)
+      close (51)
       return
 
  124  print '(''Error reading namelist &systematics, STOP'')'
       Call HF_stop
 
 C----------------------------------------
+      end
+
+
+      subroutine DecodeOrder(Order)
+C
+C Decode computation order
+C
+      implicit none
+      character*(*) Order
+      include 'steering.inc'
+C--------------------------------------------------
+      if (Order.eq.'LO') then
+         I_Fit_Order = 1
+      else if (Order.eq.'NLO') then
+         I_Fit_Order = 2
+      else if (Order.eq.'NNLO') then
+         I_Fit_Order = 3
+      else
+         print *,'Unknown computation order = ',order
+         print *,'Check your steering.txt file'
+         call hf_stop
+      endif
+C--------------------------------------------------
+      end
+
+      subroutine DecodeTheoryType(TheoryType)
+      character*(*) TheoryType
+      include 'steering.inc'
+C------------------------------------------------
+      if (TheoryType.eq.'DGLAP') then
+         iTheory =  0
+      else if ( TheoryType.eq.'DIPOLE') then
+      else if ( TheoryType.eq.'uPDF') then
+         iTheory = 101
+      else
+         print *,'Unknown TheoryType = TheoryType'
+         print *,'Check your steering.txt file'
+         call hf_stop
+      endif
+      
+      end
+
+
+
+      Subroutine AddSystematics(SourceName)
+C
+C Add systematic source SourceName. Decode :A or :M specifiers
+C
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      character*(*) SourceName
+      integer ii
+C-----------------------------------------
+      
+      nsys = nsys + 1
+      if (NSYS.gt.NSysMax) then
+         print 
+     $        '(''ReadDataFile Error: exeeding NSysMax'')'
+         print '(''Current NSysMax='',i6)',NSysMax
+         print '(''Increase NSysMax in systematics.inc'')'
+         call HF_stop
+      endif
+      ii = index(SourceName,':')
+      if (ii.eq.0) then
+         System(nsys) = SourceName
+      else
+         System(nsys) = SourceName(1:ii-1)
+         if ( SourceName(ii+1:) .eq.'A' ) then
+            SysAdditive(nsys) = .true.
+            Call HF_errlog(12090001,
+     $           'I: Some systematic sources are additive')
+         elseif ( SourceName(ii+1:) .eq.'M' ) then
+            SysAdditive(nsys) = .false.
+         else
+            Call HF_errlog(12090002,
+     $      'W:WARNING: wrong bias correction for a systematic source')
+         endif
+      endif
       end
