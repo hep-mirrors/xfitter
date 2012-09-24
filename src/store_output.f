@@ -345,7 +345,7 @@ C-----------------------------------------------------------
 C      nsets = 45
       print *,'Nsets=',nsets
       
-      do iset=0, nsets-1
+      do iset=0, nsets
          call InitPDF(iset)
          alphas = alphasPDF(Mz)
          chi2tot = chi2data_theory(min(2,iset))        
