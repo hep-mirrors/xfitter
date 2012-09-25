@@ -34,9 +34,11 @@
 * Main steering cards
 *
 &H1Fitter 
-  ITheory = 0   ! =0 use collinear factorisation with QCDNUM
+  TheoryType = 'DGLAP' ! 'DGLAP'  -- colinear evolution
+                       ! 'DIPOLE' -- dipole model 
+                       ! 'uPDF'   -- un-integrated PDFs
 
-  IOrder  = 2   ! For itheory =0 (collinear factorisation) : LO fit (1) or NLO (2) or NNLO (3) 
+  Order  = 'NLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
 
   Q02     = 1.9 ! Evolution starting scale
 
