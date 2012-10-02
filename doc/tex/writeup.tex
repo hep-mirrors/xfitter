@@ -43,35 +43,38 @@
 \parskip 3mm plus 2mm minus 2mm
 
 
-\newcommand\fitter{ \mbox{\tt H1 Fitter} }
+\newcommand\fitter{ \mbox{\tt HERAFitter} }
 \title{\fitter\ - PDF Fitting package}
-\author{H1 Collaboration}
+%\author{H1 Collaboration}
 \begin{document}
 \maketitle
 \begin{abstract}
 \end{abstract}
 \tableofcontents
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 This manual provides a short description of the \fitter\ program 
 which can be used to determine unpolarised parton density functions 
-(PDFs) using deep inelastic scattering (DIS) data and other processes. 
+(PDFs) using deep inelastic scattering (DIS) data and other processes such as 
+Drell-Yan, jet or ttbar processes.
 The parton density functions are needed to calculate cross sections
 for the $ep$ and $pp$ colliders and thus required for interpetation
-of the data collected at the LHC. The \fitter\ program were used to
-determine the HERA1.0 PDF set~\cite{h1zeus:2009wt}.
+of the data collected at the LHC.
+% The \fitter\ program were used to determine the HERA1.0 PDF set~\cite{h1zeus:2009wt}.
 
-The manulal begins with a brief discussion of the theoretical calculation
+The manual begins with a brief discussion of the theoretical calculation
 used in the program (section~\ref{sec:theory}) followed by description of the
-PDF parameterisation (section~\ref{sec:pdf}) and the $\chi^2$ function used in the
+PDF parameterisation (section~\ref{sec:pdf}) and various $\chi^2$ functions used in the
 minimisation (section~\ref{sec:chi2}). The installation instructions are given in
-section~\ref{sec:install}. A description of the program steering cards and
+section~\ref{sec:install}, depending on various configuration options chose. A description of the program steering cards and
 the output options is given in section~\ref{sec:man}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Theoretical Input}
 \label{sec:theory}
-The \fitter\ program uses DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs}
- evolution 
-equations as implemented in the QCDNUM~\cite{qcdnum} program. The fit 
+The \fitter\ program uses currently as standard the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs}
+ evolution equations as implemented in the QCDNUM~\cite{qcdnum} program. The fit 
 procedure begins with parameterising the input PDFs at the starting 
 scale $Q^2_0$ which should be chosen to be below the charm mass threshold
 $m_C^2$.
@@ -80,22 +83,113 @@ at NLO~\cite{Curci:1980uw,Furmanski:1980cm} in the $\overline{MS}$ scheme.
 The renormalisation and factorisation scales are set to $Q^2$. The \fitter\ program
 also allows for LO and NNLO evolution. 
 
-The cross-section predictions are obtain by convoluting the PDFS with the 
-coefficient functions. For the DIS processes, those are calculated 
+The cross-section predictions are obtain by convoluting the PDFs with the 
+hard scattering coefficient functions. For the DIS processes, those are calculated 
 using the general mass variable-flavour scheme. 
 The program implements the  zero mass scheme from QCDNUM as well as
-the RT scheme~\cite{Thorne:1997ga,Thorne:2006qt}. The jet cross sections
+various treatments for the heavy quark thresholds as provided by the MSTW group
+- the RT scheme with its variants at NLO and NNLO ~\cite{Thorne:1997ga,Thorne:2006qt}, as provided by the CTEQ group - the ACOT scheme with its variants at LO and NLO, as provided by the ABM group - the BMSN scheme at NLO and NNLO.
+Each of these schemes is briefly discussed in further details.
+
+The jet cross sections
 are calculated using APPLGRID and FastNLO. The program has two implementations
 for $pp$  DY processes. The first implementation uses
 calculations at LO which can be extended to NLO using k-factors,
-the second uses the APPLGRID interface. 
-%For the DIS processes, the inclusive structure
-%functions are calculated using variable flavour number scheme ...
-%\section{Theoretical Input}
+the second uses the APPLGRID interface.
+For thorough details of the theoretical modules we direct the user to read the provided  references of these packages.
+
+
+%%%%%%%%%%%
+\subsection{Flavour Schemes}
+%%%%
+\subsubsection{ZMVFNS}
+%%%%
+\subsubsection{RT}
+... 
+%%%%
+\subsubsection{ACOT}
+...
+%%%%
+\subsubsection{ABM}
+...
+%%%%%%%%%%%
+\subsection{$ep$ Electroweak corrections via HS}
+%%%%%%%%%%%
+\subsection{DY process}
+%%%%
+\subsubsection{Leading Order}
+%%%%
+\subsubsection{Next Leading Order}
+%%%%%%%%%%%
+\subsection{$t\bar{t}$ Cross Sections via Hathor}
+%%%%%%%%%%%
+\subsection{Jets}
+%%%%
+\subsubsection{FastNLO}
+%%%%
+\subsubsection{APPLGRID}
+%%%%%%%%%%%
+\subsection{DIPOLE models}
+%%%%
+\subsubsection{GBW model}
+%%%%
+\subsubsection{IIM model}
+%%%%
+\subsubsection{BGK model}
+%%%%
+\subsubsection{Mixed with DGLAP model}
+%%%%%%%%%%%
+\subsection{Unintegrated PDFs using CASCADE}
+%%%%%%%%%%%
+\subsection{Diffractive DIS PDFs}
+Diffractive DIS data are fitted within the 'proton vertex factorisation' approach where 
+the diffractive DIS is mediated by the exchange of hard Pomeron and a secondary Reggeon.
+The model supplied by the DiffDIS package provides values of the 'reduced cross section',
+$\sigma_r = F_2 - y^2/(1+(1-y)^2) F_L$
+which is expected to be the experimentally meausured quantity.
+The model supplied by the DiffDIS package provides values of the 'reduced cross section',
+$\sigma_r = F_2 - y^2/(1+(1-y)^2) F_L$
+which is expected to be the experimentally meausured quantity.
+
+%%%%%%%%%%%
+\subsection{Reweighting Techniques}
+%%%%
+\subsubsection{Using Monte Carlo method as in NNPDF}
+This module should be renamed as it is a bit misleading.
+This modules refers to the reweighting technique developed
+by the NNPDF collaboration in the context of the PDF determinations.
+The NNPDF reweighting calculates the $\chi^2$ between a new data set and the old NNPDF replicas in order to determine which replicas are still able to describe the new data (they are kept) and which ones fail (they are thrown out).
+
+The output of the procedure is a new, updated NNPDF set in LHAPDF format with a reduced number of replicas that describe the old and the new data well. 
+Some additional check plots which give clues about the validity of the procedure for the given new data set are also provided.
+%%%%
+\subsubsection{using Eigenvector reweighting as in MSTW}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{PDF Parameterisation}
-\label{sec:pdf}
-\section{$\chi^2$ Definition}
+\label{sec:pdfparam}
+%%%%%%%%%%%
+\subsection{Standard Functional form}
+%%%%
+\subsubsection{CTEQ style}
+%%%%
+\subsubsection{HERAPDF style}
+%%%%
+\subsubsection{Flexible style}
+%%%%%%%%%%%
+\subsection{Chebyshev Polynomial}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{$\chi^2$ Definitions}
 \label{sec:chi2}
+%%%%%%%%%%%
+\subsection{Using Nuisance Parameters}
+%%%%
+\subsubsection{Simple Form}
+
+%%%%
+\subsubsection{Scaled Form}
+
 For a single data set, 
  the $\chi^2$ function can be defined as~\cite{H1:2009bp}
 %
@@ -128,9 +222,28 @@ systematic uncertainties are proportional to the central values
 (multiplicative errors), whereas the statistical errors scale 
 with the square roots of the expected number of events. 
 Other scaling properties for the statistical and uncorrelated
-systematic uncertainties are available as described in appendix~\ref{sec:h1fitter}.
+systematic uncertainties are available as described in appendix~\ref{sec:herafitter}.
+%%%%
+\subsubsection{Generalised Scaled Form}
+
+%%%%%%%%%%%
+\subsection{Using Covariance Matrix}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experimental Uncertainties}
+%%%%%%%%%%%
+\subsection{Hessian Method}
+
+%%%%%%%%%%%
+\subsection{Monte Carlo Method}
+%%%%%%%%%%%
+\subsection{Regularisation methods}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Program Installation Instructions} 
 \label{sec:install}
+%%%%%%%%%%%
+
+The Installation Instructions are dependent on which modules are activated via the configuration option. 
 \subsection{Pre-requirements}
 
 The following packages are needed in order to build \fitter\ package:
@@ -139,12 +252,13 @@ The following packages are needed in order to build \fitter\ package:
   {\tt http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html}
 \item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use {\tt /afs/} installation from CERN:
   {\tt /afs/cern.ch/sw/lcg/external/cernlib/}
-\item Link to recent Root libraries (e.g. version 5.26)
-\item Optional: {\tt APPLGRID}
+%\item Link to recent Root libraries (e.g. version 5.26)
+%\item Optional: {\tt APPLGRID}
 \end{itemize}
 The \fitter\ program has been tested on various platforms: 
    SL4, SL5 (32 and 64 bit),  Ubuntu 10.10.
-\subsection{Installation without {\tt APPLGRID}}
+%%%%%%%%%%%
+\subsection{Default Installation}
 \begin{itemize}
 \item
  Specify {\tt CERN\_ROOT} 
@@ -153,7 +267,7 @@ The \fitter\ program has been tested on various platforms:
  point to the corresponding libraries
 \item Run:
 \begin{verbatim}
-    autoreconf --install
+%    autoreconf --install
     ./configure
     make 
     make install
@@ -165,7 +279,7 @@ file should be installed
     bin/FitPDF 
 \end{verbatim}
 \end{itemize}
-
+%%%%%%%%%%%
 \subsection{Installation with {\tt APPLGRID}}
 \begin{itemize}
 \item
@@ -188,9 +302,19 @@ file should be installed
     bin/FitPDF 
 \end{verbatim}
 \end{itemize}
+%%%%%%%%%%%
+\subsection{Installation with {\tt LHAPDF}}
+%%%%%%%%%%%
+\subsection{Installation with {\tt NNPDF reweight}}
+%%%%%%%%%%%
+\subsection{Installation with {\tt HATHOR}}
+%%%%%%%%%%%
+\subsection{Installation with {\tt CASCADE}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Short Program Manual}
 \label{sec:man}
+%%%%%%%%%%%
 \subsection{Steering files}
     The software behaviour is controlled by two files with steering commands.
     These files have predefined names:
@@ -206,6 +330,7 @@ file should be installed
       \item {\tt ewparam.txt}    --  controls electroweak parameters such
          as W and Z boson masses and CKM matrix parameters.
     \end{itemize}
+%%%%%%%%%%%
 \subsection{Inclusion data in the fit}
 Inclusion of the data files is controlled by {\tt \&InFiles} namelist in the 
 {\tt steering.txt} file. For example, by default the following four HERA-I
@@ -227,81 +352,8 @@ To include more files:
   {\tt InputFileNames()} variable.
 \end{itemize}
 Details about data file format can be found in section~\ref{sec:dataformat}.
-
-\subsection{{\tt Minuit} steering cards}
-
-\subsection{Selection of the data}
-  The namelist \&Cuts, located inside the {\tt steering.txt} file can be used to apply
-  simple process dependent cuts. The cuts are limitted to bin variables.
-  Simple low and high limits are allowed. For example, a cut on $Q^2>3.5$~GeV$^2$ for
-  NC ep scattering is specified as
-
-\begin{verbatim}
-  ! Rule #1: Q2 cuts
-   ProcessName(1)     = 'NC e+-p'
-   Variable(1)        = 'Q2'
-   CutValueMin(1)     = 3.5 
-   CutValueMax(1)     = 1000000.0
-\end{verbatim}
-
-  Maximum 100 cuts can be used by default.
-
-\subsection{Understanding the output}
-  The results of the minimization are printed to the standard output and written
-  to the files in the {\tt output/} directory. 
-
-  The quality of the fit can be judged based on total $chi^2$ per degrees of freedom.
-  It is printed for each iteration as 
-\begin{verbatim}
-                      Iteration   Chi2   NDF       Chi2/NDF
-   FitPDF f,ndf,f/ndf      3      588.64 579        1.02
-\end{verbatim}
-  The resulting $chi^2$ is reported at the end of minimisation for each data set and for correlated 
-  systematic uncertainties separately. This information is printed and written
-  to the {\tt output/Results.txt} file. The {\tt Results.txt} file contains additional 
-  information about shifts of the correlated systematic uncertainties.
-
-  The minimization information from the {\tt minuit} program is stored using the standard {\tt minuit} in the {\tt output/minuit.out.txt}
-  file. The level of verbosity for this information can be changed by {\tt minuit} commands
-  in the {\tt minuit.in.txt} file. Make sure that {\tt minuit} does not report any errors
-  or warnings at the end of minimisation.
-  
-  Point by point comparison of the data and predictions after the minimization 
-  is provided in {\tt output/fittedresults.txt} file. The file reports three columns
-  corresponding to the three first bins of the input tables, data value, sum in 
-  quadrature of statistical and uncorrelated systematic uncertainty, total
-  uncertainty, the predicted value, before and after applying correlated systematic shifts,
-  pull betweenthe  data and theory and 
-  data set index. The pull $p$ is calculated as 
-  \begin{equation}
-      p = \frac{ \mu - m} {\sigma_{\rm uncor}}
-  \end{equation}
-  where $\mu$ is the data value, $m$ is the prediction and $\sigma_{\rm uncor}$ is the total
-  uncorrelated uncertainty.
-  Similar information is stored in the {\tt pulls.first.txt} and {\tt pulls.last.txt} files
-  ( dataset index, first bin, second bin, third bin, theory, data, pull).
-  Theory is  adjusted for systematic error shifts in this case.
-
-  The output PDFs are stored in  {\tt output/pdfs\_q2val\_XX.txt} files.
-  Each of the files reports values of gluon, and quark PDFs as a function of $x$
-  for fixed $Q^2$ points. The $Q^2$ values and $x$ grid are specified by 
-  {\tt \&Output} namelist in the {\tt steering.txt} file.
-  
-  The PDF information and data to theory comparisons can be plotted using 
-  the {\tt bin/DrawResults} program.  Calling it without arguments plots results from
-  {\tt output/} directory. Given the program one argument specifies sub-directory 
-  where the information is read. Calling the {\tt bin/DrawResults} program with two
-  arguments provides comparison of the PDFs obtained in the two fits.
-  
-  Finally, the \fitter\ package provides PDFs in the {\tt LHAPDF} format. To obtain the
-  {\tt LHAPDF} grid file, run the {\tt tools/tolhapdf.cmd} script. The script produces 
-  the {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
-  or later.
-
-\bibliography{writeup.bib}
-
-\appendix
-\section{Data file format}
+%%%%%%%%%%%
+\subsection{Data file format}
 \label{sec:dataformat}
    Experimental data are provided by the standard {\tt ASCII} text files. The files
    contain a "header" which describes the data format and the "data" in terms
@@ -321,7 +373,7 @@ Details about data file format can be found in section~\ref{sec:dataformat}.
      \item{\tt Name}        --- (string) provides a name of the data set
     \item{\tt  Reaction}    --- (string) reaction type of the data set. Reaction type is used 
                       to trigger corresponding theory calculation. The following 
-                      reaction types  are currently supported by the H1Fitter:
+                      reaction types  are currently supported by the HERAFitter:
                       \begin{itemize}
                         \item {\tt 'NC e+-p'}  -- double differential NC ep scattering
                                       (ZMVFS and RT-VFS schemes) 
@@ -407,8 +459,95 @@ Details about data file format can be found in section~\ref{sec:dataformat}.
       \item {\tt KFactorNames} --- (array of strings) For kfactor files, names of columns in 
                      {\tt TheoryInfoFile}.
 \end{itemize}
-\section{{\tt \&H1Fitter} namelist format}
-\label{sec:h1fitter}
+
+%%%%%%%%%%%
+\subsection{Selection of the data}
+  The namelist \&Cuts, located inside the {\tt steering.txt} file can be used to apply
+  simple process dependent cuts. The cuts are limitted to bin variables.
+  Simple low and high limits are allowed. For example, a cut on $Q^2>3.5$~GeV$^2$ for
+  NC ep scattering is specified as
+
+\begin{verbatim}
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 3.5 
+   CutValueMax(1)     = 1000000.0
+\end{verbatim}
+
+  Maximum 100 cuts can be used by default.
+%%%%%%%%%%%
+\subsection{Understanding the output}
+  The results of the minimization are printed to the standard output and written
+  to the files in the {\tt output/} directory. 
+
+  The quality of the fit can be judged based on total $chi^2$ per degrees of freedom.
+  It is printed for each iteration as 
+\begin{verbatim}
+                      Iteration   Chi2   NDF       Chi2/NDF
+   FitPDF f,ndf,f/ndf      3      588.64 579        1.02
+\end{verbatim}
+  The resulting $chi^2$ is reported at the end of minimisation for each data set and for correlated 
+  systematic uncertainties separately. This information is printed and written
+  to the {\tt output/Results.txt} file. The {\tt Results.txt} file contains additional 
+  information about shifts of the correlated systematic uncertainties.
+
+  The minimization information from the {\tt minuit} program is stored using the standard {\tt minuit} in the {\tt output/minuit.out.txt}
+  file. The level of verbosity for this information can be changed by {\tt minuit} commands
+  in the {\tt minuit.in.txt} file. Make sure that {\tt minuit} does not report any errors
+  or warnings at the end of minimisation.
+  
+  Point by point comparison of the data and predictions after the minimization 
+  is provided in {\tt output/fittedresults.txt} file. The file reports three columns
+  corresponding to the three first bins of the input tables, data value, sum in 
+  quadrature of statistical and uncorrelated systematic uncertainty, total
+  uncertainty, the predicted value, before and after applying correlated systematic shifts,
+  pull betweenthe  data and theory and 
+  data set index. The pull $p$ is calculated as 
+  \begin{equation}
+      p = \frac{ \mu - m} {\sigma_{\rm uncor}}
+  \end{equation}
+  where $\mu$ is the data value, $m$ is the prediction and $\sigma_{\rm uncor}$ is the total
+  uncorrelated uncertainty.
+  Similar information is stored in the {\tt pulls.first.txt} and {\tt pulls.last.txt} files
+  ( dataset index, first bin, second bin, third bin, theory, data, pull).
+  Theory is  adjusted for systematic error shifts in this case.
+
+  The output PDFs are stored in  {\tt output/pdfs\_q2val\_XX.txt} files.
+  Each of the files reports values of gluon, and quark PDFs as a function of $x$
+  for fixed $Q^2$ points. The $Q^2$ values and $x$ grid are specified by 
+  {\tt \&Output} namelist in the {\tt steering.txt} file.
+  
+  The PDF information and data to theory comparisons can be plotted using 
+  the {\tt bin/DrawResults} program.  Calling it without arguments plots results from
+  {\tt output/} directory. Given the program one argument specifies sub-directory 
+  where the information is read. Calling the {\tt bin/DrawResults} program with two
+  arguments provides comparison of the PDFs obtained in the two fits.
+  
+  Finally, the \fitter\ package provides PDFs in the {\tt LHAPDF} format. To obtain the
+  {\tt LHAPDF} grid file, run the {\tt tools/tolhapdf.cmd} script. The script produces 
+  the {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
+  or later.
+%%%%%%%%%%%
+\subsection{{\tt Minuit} steering cards}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{User Examples}
+%%%%
+\subsection{DIS inclusive only}
+
+%%%%
+\subsection{All processes}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{writeup.bib}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{{\tt \&HERAFitter} namelist format}
+\label{sec:herafitter}
 \begin{itemize}
   \item {\tt ITheory} --- (integer) Currently only QCDNUM standard evolution
      is implemented for which {\tt ITheory} is set to 0.
