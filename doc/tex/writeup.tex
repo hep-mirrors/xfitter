@@ -69,175 +69,6 @@ PDF parameterisation (section~\ref{sec:pdf}) and various $\chi^2$ functions used
 minimisation (section~\ref{sec:chi2}). The installation instructions are given in
 section~\ref{sec:install}, depending on various configuration options chose. A description of the program steering cards and
 the output options is given in section~\ref{sec:man}.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Theoretical Input}
-\label{sec:theory}
-The \fitter\ program uses currently as standard the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs}
- evolution equations as implemented in the QCDNUM~\cite{qcdnum} program. The fit 
-procedure begins with parameterising the input PDFs at the starting 
-scale $Q^2_0$ which should be chosen to be below the charm mass threshold
-$m_C^2$.
-The PDFs are then evolved using the DGLAP evolution equations  
-at NLO~\cite{Curci:1980uw,Furmanski:1980cm} in the $\overline{MS}$ scheme.
-The renormalisation and factorisation scales are set to $Q^2$. The \fitter\ program
-also allows for LO and NNLO evolution. 
-
-The cross-section predictions are obtain by convoluting the PDFs with the 
-hard scattering coefficient functions. For the DIS processes, those are calculated 
-using the general mass variable-flavour scheme. 
-The program implements the  zero mass scheme from QCDNUM as well as
-various treatments for the heavy quark thresholds as provided by the MSTW group
-- the RT scheme with its variants at NLO and NNLO ~\cite{Thorne:1997ga,Thorne:2006qt}, as provided by the CTEQ group - the ACOT scheme with its variants at LO and NLO, as provided by the ABM group - the BMSN scheme at NLO and NNLO.
-Each of these schemes is briefly discussed in further details.
-
-The jet cross sections
-are calculated using APPLGRID and FastNLO. The program has two implementations
-for $pp$  DY processes. The first implementation uses
-calculations at LO which can be extended to NLO using k-factors,
-the second uses the APPLGRID interface.
-For thorough details of the theoretical modules we direct the user to read the provided  references of these packages.
-
-
-%%%%%%%%%%%
-\subsection{Flavour Schemes}
-%%%%
-\subsubsection{ZMVFNS}
-%%%%
-\subsubsection{RT}
-... 
-%%%%
-\subsubsection{ACOT}
-...
-%%%%
-\subsubsection{ABM}
-...
-%%%%%%%%%%%
-\subsection{$ep$ Electroweak corrections via HS}
-%%%%%%%%%%%
-\subsection{DY process}
-%%%%
-\subsubsection{Leading Order}
-%%%%
-\subsubsection{Next Leading Order}
-%%%%%%%%%%%
-\subsection{$t\bar{t}$ Cross Sections via Hathor}
-%%%%%%%%%%%
-\subsection{Jets}
-%%%%
-\subsubsection{FastNLO}
-%%%%
-\subsubsection{APPLGRID}
-%%%%%%%%%%%
-\subsection{DIPOLE models}
-%%%%
-\subsubsection{GBW model}
-%%%%
-\subsubsection{IIM model}
-%%%%
-\subsubsection{BGK model}
-%%%%
-\subsubsection{Mixed with DGLAP model}
-%%%%%%%%%%%
-\subsection{Unintegrated PDFs using CASCADE}
-%%%%%%%%%%%
-\subsection{Diffractive DIS PDFs}
-Diffractive DIS data are fitted within the 'proton vertex factorisation' approach where 
-the diffractive DIS is mediated by the exchange of hard Pomeron and a secondary Reggeon.
-The model supplied by the DiffDIS package provides values of the 'reduced cross section',
-$\sigma_r = F_2 - y^2/(1+(1-y)^2) F_L$
-which is expected to be the experimentally meausured quantity.
-The model supplied by the DiffDIS package provides values of the 'reduced cross section',
-$\sigma_r = F_2 - y^2/(1+(1-y)^2) F_L$
-which is expected to be the experimentally meausured quantity.
-
-%%%%%%%%%%%
-\subsection{Reweighting Techniques}
-%%%%
-\subsubsection{Using Monte Carlo method as in NNPDF}
-This module should be renamed as it is a bit misleading.
-This modules refers to the reweighting technique developed
-by the NNPDF collaboration in the context of the PDF determinations.
-The NNPDF reweighting calculates the $\chi^2$ between a new data set and the old NNPDF replicas in order to determine which replicas are still able to describe the new data (they are kept) and which ones fail (they are thrown out).
-
-The output of the procedure is a new, updated NNPDF set in LHAPDF format with a reduced number of replicas that describe the old and the new data well. 
-Some additional check plots which give clues about the validity of the procedure for the given new data set are also provided.
-%%%%
-\subsubsection{using Eigenvector reweighting as in MSTW}
- 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{PDF Parameterisation}
-\label{sec:pdfparam}
-%%%%%%%%%%%
-\subsection{Standard Functional form}
-%%%%
-\subsubsection{CTEQ style}
-%%%%
-\subsubsection{HERAPDF style}
-%%%%
-\subsubsection{Flexible style}
-%%%%%%%%%%%
-\subsection{Chebyshev Polynomial}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{$\chi^2$ Definitions}
-\label{sec:chi2}
-%%%%%%%%%%%
-\subsection{Using Nuisance Parameters}
-%%%%
-\subsubsection{Simple Form}
-
-%%%%
-\subsubsection{Scaled Form}
-
-For a single data set, 
- the $\chi^2$ function can be defined as~\cite{H1:2009bp}
-%
-\begin{equation}
- \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) = %\\
-%~~~=
- \sum_i
- \frac{\left[m^i
-- \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
-{ \textstyle \delta^2_{i,{\rm stat}}\left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
-\left(\delta_{i,{\rm uncor}}\,  m^i\right)^2}
- + \sum_j b^2_j.
-\label{eq:ave}\end{equation}
-%
-Here ${\mu^i}$ is the  measured central value  at a point $i$ 
-with  relative statistical $\delta_{i,stat}$ 
-and relative uncorrelated systematic uncertainty $\delta_{i,unc}$.
-Further, $\beta_j$ denotes a nuisance parameter for
- a correlated systematic error  source of type $j$ with an uncertainty
- while
-$\gamma^i_j$ 
-quantifies the sensitivity of the
-measurement ${\mu^i}$ at the point $i$ to the systematic source $j$. 
-The function $\chi^2_{\rm exp}$ depends on the set of
-underlying physical quantities $m^i$ 
-(denoted as the vector $\boldsymbol{m}$) and 
- the set of systematic uncertainties $b_j$ ($\boldsymbol{b}$).
-This definition of the $\chi^2$ function takes into account that
-systematic uncertainties are proportional to the central values 
-(multiplicative errors), whereas the statistical errors scale 
-with the square roots of the expected number of events. 
-Other scaling properties for the statistical and uncorrelated
-systematic uncertainties are available as described in appendix~\ref{sec:herafitter}.
-%%%%
-\subsubsection{Generalised Scaled Form}
-
-%%%%%%%%%%%
-\subsection{Using Covariance Matrix}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Experimental Uncertainties}
-%%%%%%%%%%%
-\subsection{Hessian Method}
-
-%%%%%%%%%%%
-\subsection{Monte Carlo Method}
-%%%%%%%%%%%
-\subsection{Regularisation methods}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Program Installation Instructions} 
 \label{sec:install}
@@ -312,7 +143,176 @@ file should be installed
 \subsection{Installation with {\tt CASCADE}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Short Program Manual}
+\section{Theoretical Input}
+\label{sec:theory}
+The \fitter\ program uses currently as standard the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs}
+ evolution equations as implemented in the QCDNUM~\cite{qcdnum} program. The fit 
+procedure begins with parameterising the input PDFs at the starting 
+scale $Q^2_0$ which should be chosen to be below the charm mass threshold
+$m_C^2$.
+The PDFs are then evolved using the DGLAP evolution equations  
+at NLO~\cite{Curci:1980uw,Furmanski:1980cm} in the $\overline{MS}$ scheme.
+The renormalisation and factorisation scales are set to $Q^2$. The \fitter\ program
+also allows for LO and NNLO evolution. 
+
+The cross-section predictions are obtain by convoluting the PDFs with the 
+hard scattering coefficient functions. For the DIS processes, those are calculated 
+using the general mass variable-flavour scheme. 
+The program implements the  zero mass scheme from QCDNUM as well as
+various treatments for the heavy quark thresholds as provided by the MSTW group
+- the RT scheme with its variants at NLO and NNLO ~\cite{Thorne:1997ga,Thorne:2006qt}, as provided by the CTEQ group - the ACOT scheme with its variants at LO and NLO, as provided by the ABM group - the BMSN scheme at NLO and NNLO.
+Each of these schemes is briefly discussed in further details.
+
+The jet cross sections
+are calculated using APPLGRID and FastNLO. The program has two implementations
+for $pp$  DY processes. The first implementation uses
+calculations at LO which can be extended to NLO using k-factors,
+the second uses the APPLGRID interface.
+For thorough details of the theoretical modules we direct the user to read the provided  references of these packages.
+
+
+%%%%%%%%%%%
+\subsection{DIS and Schemes}
+%%%%
+\subsubsection{ZMVFNS}
+%%%%
+\subsubsection{RT}
+... 
+%%%%
+\subsubsection{ACOT}
+...
+%%%%
+\subsubsection{ABM}
+...
+%%%%%%%%%%%
+\subsubsection{$ep$ Electroweak corrections via HS}
+%%%%%%%%%%%
+\subsection{DY process}
+%%%%
+\subsubsection{Leading Order}
+%%%%
+\subsubsection{Next Leading Order}
+%%%%%%%%%%%
+\subsection{$t\bar{t}$ Cross Sections via Hathor}
+%%%%%%%%%%%
+\subsection{Jets}
+%%%%
+\subsubsection{FastNLO}
+%%%%
+\subsubsection{APPLGRID}
+%%%%%%%%%%%
+\subsection{DIPOLE models}
+%%%%
+\subsubsection{GBW model}
+%%%%
+\subsubsection{IIM model}
+%%%%
+\subsubsection{BGK model}
+%%%%
+\subsubsection{Mixed with DGLAP model}
+%%%%%%%%%%%
+\subsection{Unintegrated PDFs using CASCADE}
+%%%%%%%%%%%
+\subsection{Diffractive DIS PDFs}
+Diffractive DIS data are fitted within the 'proton vertex factorisation' approach where 
+the diffractive DIS is mediated by the exchange of hard Pomeron and a secondary Reggeon.
+The model supplied by the DiffDIS package provides values of the 'reduced cross section',
+$\sigma_r = F_2 - y^2/(1+(1-y)^2) F_L$
+which is expected to be the experimentally meausured quantity.
+The model supplied by the DiffDIS package provides values of the 'reduced cross section',
+$\sigma_r = F_2 - y^2/(1+(1-y)^2) F_L$
+which is expected to be the experimentally meausured quantity.
+
+%%%%%%%%%%%
+\section{Reweighting Techniques}
+%%%%
+\subsubsection{Using Monte Carlo method as in NNPDF}
+This module should be renamed as it is a bit misleading.
+This modules refers to the reweighting technique developed
+by the NNPDF collaboration in the context of the PDF determinations.
+The NNPDF reweighting calculates the $\chi^2$ between a new data set and the old NNPDF replicas in order to determine which replicas are still able to describe the new data (they are kept) and which ones fail (they are thrown out).
+
+The output of the procedure is a new, updated NNPDF set in LHAPDF format with a reduced number of replicas that describe the old and the new data well. 
+Some additional check plots which give clues about the validity of the procedure for the given new data set are also provided.
+%%%%
+\subsubsection{Using Eigenvector reweighting as in MSTW}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{PDF Parameterisation}
+\label{sec:pdfparam}
+%%%%%%%%%%%
+\subsection{Standard Functional form}
+%%%%
+\subsubsection{CTEQ style}
+%%%%
+\subsubsection{HERAPDF style}
+%%%%
+\subsubsection{Flexible style}
+%%%%%%%%%%%
+\subsection{Chebyshev Polynomial}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{$\chi^2$ Definitions}
+\label{sec:chi2}
+%%%%%%%%%%%
+\subsection{Using Nuisance Parameters}
+%%%%
+\subsubsection{Simple Form}
+
+%%%%
+\subsubsection{Scaled Form}
+
+For a single data set, 
+ the $\chi^2$ function can be defined as~\cite{H1:2009bp}
+%
+\begin{equation}
+ \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) = %\\
+%~~~=
+ \sum_i
+ \frac{\left[m^i
+- \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
+{ \textstyle \delta^2_{i,{\rm stat}}\left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
+\left(\delta_{i,{\rm uncor}}\,  m^i\right)^2}
+ + \sum_j b^2_j.
+\label{eq:ave}\end{equation}
+%
+Here ${\mu^i}$ is the  measured central value  at a point $i$ 
+with  relative statistical $\delta_{i,stat}$ 
+and relative uncorrelated systematic uncertainty $\delta_{i,unc}$.
+Further, $\beta_j$ denotes a nuisance parameter for
+ a correlated systematic error  source of type $j$ with an uncertainty
+ while
+$\gamma^i_j$ 
+quantifies the sensitivity of the
+measurement ${\mu^i}$ at the point $i$ to the systematic source $j$. 
+The function $\chi^2_{\rm exp}$ depends on the set of
+underlying physical quantities $m^i$ 
+(denoted as the vector $\boldsymbol{m}$) and 
+ the set of systematic uncertainties $b_j$ ($\boldsymbol{b}$).
+This definition of the $\chi^2$ function takes into account that
+systematic uncertainties are proportional to the central values 
+(multiplicative errors), whereas the statistical errors scale 
+with the square roots of the expected number of events. 
+Other scaling properties for the statistical and uncorrelated
+systematic uncertainties are available as described in appendix~\ref{sec:herafitter}.
+%%%%
+\subsubsection{Generalised Scaled Form}
+
+%%%%%%%%%%%
+\subsection{Using Covariance Matrix}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Treatment of the Experimental Uncertainties}
+%%%%%%%%%%%
+\subsection{Hessian Method}
+
+%%%%%%%%%%%
+\subsection{Monte Carlo Method}
+%%%%%%%%%%%
+\subsection{Regularisation methods}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Program Manual}
 \label{sec:man}
 %%%%%%%%%%%
 \subsection{Steering files}
@@ -331,27 +331,13 @@ file should be installed
          as W and Z boson masses and CKM matrix parameters.
     \end{itemize}
 %%%%%%%%%%%
-\subsection{Inclusion data in the fit}
-Inclusion of the data files is controlled by {\tt \&InFiles} namelist in the 
-{\tt steering.txt} file. For example, by default the following four HERA-I
-    files are included:
-\begin{verbatim}
-&InFiles
-    NInputFiles = 4
-    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
-    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
-    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
-&End
-\end{verbatim}
-
-To include more files:
-\begin{itemize}
- \item  Increase the {\tt NInputFiles} variable.
- \item  Specify the additional file by providing corresponding
-  {\tt InputFileNames()} variable.
-\end{itemize}
-Details about data file format can be found in section~\ref{sec:dataformat}.
+\subsubsection{Options for DIS fits}
+%%%%
+\subsubsection{Options for Jets}
+%%%%
+\subsubsection{Options for Diffractive fits}
+%%%%
+\subsubsection{Options for DY fits}
 %%%%%%%%%%%
 \subsection{Data file format}
 \label{sec:dataformat}
@@ -584,6 +570,35 @@ with respect ot QCDNUM ZMVFNS, calculated at the first iteration.
  \end{itemize}
   \item {\tt LDEBUG}  --- (logical) debug flag.
 \end{itemize}
+%%%%%%%%%%%%%%%%%%%%
+\section{How do add new module}
+\subsection{Structure of the module}
+\subsection{Theory Interface Example}
+\subsection{Steerings and Configurations}
+%%%%%%%%%%%%%%%%%%%%%
+\section{How to add new data}
+Inclusion of the data files is controlled by {\tt \&InFiles} namelist in the 
+{\tt steering.txt} file. For example, by default the following four HERA-I
+    files are included:
+\begin{verbatim}
+&InFiles
+    NInputFiles = 4
+    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
+    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
+&End
+\end{verbatim}
+
+To include more files:
+\begin{itemize}
+ \item  Increase the {\tt NInputFiles} variable.
+ \item  Specify the additional file by providing corresponding
+  {\tt InputFileNames()} variable.
+\end{itemize}
+Details about data file format can be found in section~\ref{sec:dataformat}.
+
+
 
 \end{document}
 
