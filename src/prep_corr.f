@@ -124,7 +124,7 @@ c         endif
          if((idataset1.lt.1) .or. (idataset2.lt.1)) then
             Call HF_ERRLOG(10040003,
      $           'W: Correlation for data set requested 
-     $           but not taken into account (dataset not identified)!')
+     $ but not taken into account (dataset not identified)!')
             goto 1111
          endif
          
@@ -134,7 +134,7 @@ c         endif
             if(IdIdx1(i).le.0) then
                Call HF_ERRLOG(10040004,
      $              'W: Correlation for data set requested 
-     $              but not taken into account (bin not identified)!')
+     $ but not taken into account (bin not identified)!')
                goto 1111
             endif
          enddo
@@ -143,7 +143,7 @@ c         endif
             if(IdIdx1(i).le.0) then
                Call HF_ERRLOG(10040004,
      $              'W: Correlation for data set requested 
-     $              but not taken into account (bin not identified)!')
+     $ but not taken into account (bin not identified)!')
                goto 1111
             endif
          enddo
@@ -175,7 +175,7 @@ c            print *, j, 'Idx1 =', Idx1, 'Idx2 =', Idx2
             if((Idx1.le.0).or.(Idx2.le.0)) then
                Call HF_ERRLOG(10040005,
      $              'W: Unable to find a proper correlation point')
-               goto 1111
+               goto 1112
             endif
             
             if (MatrixType.eq.'Statistical correlations') then
@@ -189,7 +189,7 @@ c            print *, j, 'Idx1 =', Idx1, 'Idx2 =', Idx2
      $              'W: Matrix type not recognised! ignore!')
             endif
 
-         enddo
+ 1112    enddo
          close (51)
 
  1111 enddo                     ! loop over correlation files
