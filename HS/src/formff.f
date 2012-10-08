@@ -13,10 +13,14 @@ C       Date: 13.October 1998
 C       Mods: Added Complex*16 SIGFMS in PIMQQ, renamed variables 
 C             containing "$" -> "_" 
 C---->  
+*
+*       Date: 27.May 2012
+*       Modified for HeraFitter by HS
+*
+C---->  
 C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCC 22. 9. 86   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC H. SPIESBERGER CCC
-C
 C
 
       subroutine EPRC_INIT(doprint)
@@ -27,14 +31,7 @@ C
       COMMON /GSW/    SW,CW,SW2,CW2
      *              ,MW,MZ,MH,ME,MMY,MTAU,MU,MD,MS,MC,MB,MT
      *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
-      COMMON /HDELTR/ DELTAR,AGF0,DRHOT,DALPMZ,XGMT,ALPQCD,BTOP4,DRPIW2
       COMMON /PARLIS/ LPAR(20),LPARIN(12),IPART
-      COMMON /FORMFF/ ALPFFQ,AKAPPA,GMUFFQ,SWEFF2
-C
-
-      COMPLEX*16 SIGMRG,SIGMRM,CG,CM
-      DIMENSION MTDAT(4),MHDAT(4)
-      DATA MTDAT,MHDAT/100D0,150D0,200D0,250D0,25D0,5D1,76D0,8D2/
 cv
       double precision pi_hf, alphaem_hf, gf_hf, convfac_hf
       double precision mw_hf, mz_hf, mh_hf, mel_hf, mup_hf
@@ -59,20 +56,30 @@ C...PRINT TITLE
      F        ,' ******************************************************'
      F        ,/)
       endif
-C...READ OPTION FOR DETERMINATION OF MW
-C     READ(5,*) LPAR(4)
-cep      LPAR(4)=2
-      lpar(4) = 0
+      
+C...OPTION FOR THE DETERMINATION OF MW
+C   LPAR(4)=1 -> W-mass is input, Gmu is calculated 
+C                - use this option for Wmass-fit
+C   LPAR(4)=2,3 -> fixed Gmu, W-mass is calculated 
+C                - use this option for PDF fits
+      LPAR(4)=1
 
 C...QCD CORRECTIONS IN DELTA-R
       LPAR(5)=2
-C...BURKHARD'S PARAMETRIZATION FOR VACUUM POLARIZATION
-      LPAR(7)=2
+C...Jegerlehner's PARAMETRIZATION FOR VACUUM POLARIZATION: hadr5n12.f
+      LPAR(7)=3
+cv      LPAR(7)=0
+C...SELF ENERGY CORRECTIONS
+      LPAR(8)=1
+      LPAR(9)=1
+      LPAR(10)=1
+C...NO QED, BUT WEAK CONTRIBUTIONS IN THE ELECTRON AND QUARK VERTEX
+      LPAR(11)=0
+      LPAR(12)=1
+      LPAR(13)=1
+      LPAR(14)=0
 C...PURELY WEAK CONTRIBUTIONS
-C...IN SELF ENERGIES AND VERTEX CORRECTIONS:
       LPAR(15)=1
-C...CALCULATE WEAK PARAMETERS, COUPLING CONSTANTS, MASSES
-C...AND PRINT ACTUAL SETTING
 
 
       call wrap_constants(pi_hf, alphaem_hf, gf_hf, convfac_hf,
@@ -80,33 +87,7 @@ C...AND PRINT ACTUAL SETTING
      $     mdn_hf, mst_hf, mch_hf, mbt_hf, mtp_hf, mta_hf, mmo_hf)
 
 
-      MH=mh_hf
-      MT=mtp_hf
-cv      MH=114D0
-cv      MT=171.3D0
-
-      CALL SETPAR(1,doprint)
-
-CCC
-C
-C...DELTAR FOR VARIOUS MT AND MH
-      if (doprint) then
-      WRITE(6,2007)
- 2007 FORMAT(/,' PARGFX: ITERATIVE SOLUTION OF G-MU(EXP) = G-MU(THEO)',/
-     F      ,/,5X,'MZ',8X,'MT',8X,'MH',8X,'DELTA-R',6X,'MW',8X,'SW2',/)
-       endif
-
-C      MZ=91.174D0
-C      MZ=91.170D0
-C      MZ=91.1884D0
-cv      MZ=91.1876D0
-      MZ=mz_hf
-      MZ2=MZ*MZ
-      MT2=MT*MT
-      MH2=MH*MH
-      MW = PARGFX()
-
-      CALL SETPAR(0,doprint)
+      CALL SETPAR(doprint)
 
       if (doprint) write(6,*) 'end of EPRC_INIT dr = ',deltar
 
@@ -129,8 +110,6 @@ cv      MZ=91.1876D0
       COMMON /FORMFF/ ALPFFQ,AKAPPA,GMUFFQ,SWEFF2
 
       COMPLEX*16 SIGMRG,SIGMRM,CG,CM
-      DIMENSION MTDAT(4),MHDAT(4)
-      DATA MTDAT,MHDAT/100D0,150D0,200D0,250D0,25D0,5D1,76D0,8D2/
 
 cv
       COMMON /PARAM/  POLARI,LLEPT,LQUA
@@ -155,15 +134,12 @@ C...EFFECTIVE WEAK MIXING ANGLE
 
 ************************************************************************
 
-      SUBROUTINE SETPAR(LMOD,doprint)
+      SUBROUTINE SETPAR(doprint)
 C---SETTING OF ELECTROWEAK PARAMETERS
       IMPLICIT DOUBLE PRECISION (A-H,M,O-Z)
       logical doprint
       COMPLEX*16 SIGMQW,SIGMQZ
       COMPLEX*16 CMW2,CMZ2
-      COMMON /EELAB/  SP,EELE,PELE,EPRO,PPRO
-      COMMON /CUTS/   XMIN,XMAX,Q2MIN,Q2MAX,YMIN,YMAX,WMIN,GMIN
-      COMMON /PTCUT/  PTMIN,Q2M1,Q2M2,Q2M0,XM0,XSEP,IPTFL
       COMMON /PARLIS/ LPAR(20),LPARIN(12),IPART
       COMMON /PARAM/  POLARI,LLEPT,LQUA
       COMMON /GSW/    SW,CW,SW2,CW2
@@ -175,7 +151,6 @@ C---SETTING OF ELECTROWEAK PARAMETERS
       COMMON /SMCON/  VAFI(2,3,2),AFIJ(3,2,2),BFIJ(3,2,2),FLIND(2,3,2,2)
       COMMON /KONST/  PI,ALPHA,ALP1PI,ALP2PI,ALP4PI,E,GF,SXNORM,SX1NRM
       COMMON /KNSTCC/ SXNRCC,SX1NCC
-      COMMON /IRCUT/  DELEPS,DELTA,EGMIN,IOPEGM
       COMMON /RSCALE/ MSC2
       COMMON /DNONSM/ DNSM1,DNSM2,DNSMR
 C
@@ -192,14 +167,12 @@ cv
 
       call wrap_constants(pi_hf1, alphaem_hf1, gf_hf1, convfac_hf1, 
      $     mw_hf1, mz_hf1, mh_hf1, mel_hf1, mup_hf1,
-     $     mdn_hf1, mst_hf1, mch_hf1, mbt_hf1, mtp_hf1, mta_hf1, mmo_hf1)
-
-
+     $     mdn_hf1, mst_hf1, mch_hf1, mbt_hf1, mtp_hf1, mta_hf1, 
+     $     mmo_hf1)
 
 
       PI=pi_hf1
       ALPHA=alphaem_hf1
-
 
       ALP1PI=ALPHA/PI
       ALP2PI=ALPHA/2D0/PI
@@ -232,10 +205,6 @@ cv      MD=.089D0
 cv      MS=.231D0
 cv      MC=1.299D0
 cv      MB=4.5D0
-cv link the values to the h1fitter
-cv overwrite them..
-c      MC=HF_MASS(1)
-c      MB=HF_MASS(2)
 cv      mc=1.4d0
 cv      mb=4.75d0
 
@@ -253,8 +222,8 @@ cv      mb=4.75d0
       MMY=mmo_hf1
 
 
-C     MT=180.0D0
-C     MH=100D0
+      MW2=MW*MW
+      MZ2=MZ*MZ
       MH2=MH*MH
       ME2=ME*ME
       MMY2=MMY*MMY
@@ -265,28 +234,20 @@ C     MH=100D0
       MC2=MC*MC
       MB2=MB*MB
       MT2=MT*MT
-C
-cv      MZ=91.1884D0
-Cv the value set in the read_steer.f:
-cv       MZ=91.1876D0
-
-      MZ2=MZ*MZ
 
 C...RENORMALIZATION SCALE
       MSC2=MZ2
 C
       IF (LPAR(4).GT.1) THEN
+C...Calculate MW from alpha_em, G_mu and MZ
         MW=PARGFX()
       ELSE
-        MW=80.000D0
+        Mw=mw_hf1
+C...Call this to get Delta-r, but keep MW from input
         MW=PARGFX()
-        MW=80.000D0
+        Mw=mw_hf1
       ENDIF
-C value from the read_steer.f
-
 cv      Mw = 80.3980d0
-      Mw=mw_hf1
-
 
       MW2=MW*MW
       CW=MW/MZ
@@ -365,21 +326,6 @@ C     MQF = MU
       MQF2 = MQF*MQF
       MEI2 = MEI*MEI
       MQI2 = MQI*MQI
-C---BEAM PROPERTIES
-      EELE=27.5D0
-      EPRO=92D1
-      PELE=DSQRT((EELE-ME)*(EELE+ME))
-      PPRO=DSQRT((EPRO-MPRO)*(EPRO+MPRO))
-      SP=2D0*(EELE*EPRO + PELE*PPRO) + MPRO2 + MEI2
-C---CUTS
-      XMIN=1D-5
-      XMAX=1D0
-      YMIN=1D-5
-      YMAX=1D0
-      Q2MIN=1D-5
-      Q2MAX=SP
-      WMIN=0D0
-      PTMIN=0D0
 C---COUPLING CONSTANTS
       IGAMMA = 1
       IZ = 2
@@ -435,7 +381,6 @@ C
     3 CONTINUE
 C
       LUNOUT=6
-      IF (LMOD.EQ.0) RETURN
 C
 C---PRINT TITLE
       if (doprint) then
@@ -455,34 +400,7 @@ C---PRINT TITLE
      * '#                                                            #',
      * '##############################################################'
 C
-C---PRINT KINEMATICS / BEAM PROPERTIES
-C---ELECTRON BEAM
-      WRITE(LUNOUT,'(///A/)')
-     *    ' *****  PROPERTIES OF THE ELECTRON BEAM  *****'
-      WRITE(LUNOUT,'(10X,A,F8.1,A)')
-     *      ' ENERGY OF INCIDENT ELECTRON =',EELE,' GEV'
-      WRITE(LUNOUT,'(10X,A,F8.1,A)')
-     *      ' MOMENTUM OF INCIDENT ELECTRON =',PELE,' GEV/C'
-      WRITE(LUNOUT,'(10X,A,F11.8,A)')
-     *      ' ELECTRON MASS =',ME,' GEV/C**2'
-      WRITE(LUNOUT,'(10X,A,I3)')
-     *                  ' CHARGE OF INCIDENT ELECTRON =',LLEPT
-      WRITE(LUNOUT,'(10X,A,F8.4)')
-     *      ' DEGREE OF BEAM POLARIZATION =', POLARI
-C
-C---PROTON BEAM
-      WRITE(LUNOUT,'(///A/)')
-     *    ' *****  PROPERTIES OF THE PROTON BEAM  *****'
-      WRITE(LUNOUT,'(10X,A,F8.1,A)')
-     *      ' ENERGY OF INCIDENT PROTON =',EPRO,' GEV'
-      WRITE(LUNOUT,'(10X,A,F8.1,A)')
-     *      ' MOMENTUM OF INCIDENT PROTON =',PPRO,' GEV/C'
-      WRITE(LUNOUT,'(10X,A,F7.4,A)')
-     *      ' PROTON MASS =',MPRO,' GEV/C**2'
-      WRITE(LUNOUT,'(//10X,A,1PE12.5,A)')
-     *      ' CMS ENERGY SQUARED  S =',SP,' GEV**2'
-C
-C---PARAMETERS FOR GSW THEORY
+C---Print theory parameters
       WRITE(LUNOUT,'(///A/)')
      *    ' *****  PARAMETERS FOR EL-WEAK THEORY  *****'
       WRITE(LUNOUT,'(10X,A,I2,10X,A/29X,A/29X,A/30X,A/)')
@@ -511,19 +429,6 @@ C---PARAMETERS FOR GSW THEORY
      F /,10X,'               MTAU = ',F17.12,' GEV')
 215   FORMAT(10X,' HIGGS MASS:     MH = ',F10.4,' GEV')
 2016  FORMAT(10X,' DELTA-R            = ',F10.6)
-C
-C---PARAMETERS FOR REAL BREMSSTRAHLUNG
-      if (doprint) then
-      WRITE(LUNOUT,'(///A/)')
-     *    ' *****  QUARK MASSES IN REAL RADIATON  *****'
-      WRITE(LUNOUT,2017) MQI,MQF
-      endif
-
-2017  FORMAT(10X,
-     F       ' QUARK MASSES:  MQI = ',F10.4,' GEV, MQF = ',F10.4,' GEV')
-C
-C---OPTIONS FOR PARTON DISTRIBUTION FUNCTIONS
-C      CALL HSWPDF
 C
 C---OPTIONS FOR VIRTUAL&SOFT CONTRIBUTION
         if (doprint) then
@@ -721,7 +626,7 @@ C       DELTAR=DALPMZ-CW2/SW2*DRHOTT
      *                  -3D0/SW2*ALP4PI/4D0*MT2/MW2)
      *            *DSQRT(2D0)*GF*MW2*(1D0-DALPMZ)/PI/ALPHA*SW2
      *        +ALP4PI/SW2*(6D0+(3.5D0/SW2-2D0)*DLOG(CW2))
-        IF (LPAR(7).EQ.2) DELTAR=DELTAR-DSGMRG(MZ2)
+        IF (LPAR(7).GE.2) DELTAR=DELTAR-DSGMRG(MZ2)
         ELSE
         DELTAR=-dREAL(PIW0)+ALP4PI/SW2*(6D0+(3.5D0/SW2-2D0)*DLOG(CW2))
       ENDIF
@@ -897,7 +802,7 @@ C---DELTAR MEANS THE QUANTITY 'DELTA R' IN MU LIFETIME FORMULA
      *                  -3D0/SW2*ALP4PI/4D0*MT2/MW2)
      *            *DSQRT(2D0)*GF*MW2*(1D0-DALPMZ)/PI/ALPHA*SW2
      *        +ALP4PI/SW2*(6D0+(3.5D0/SW2-2D0)*DLOG(CW2))
-        IF (LPAR(7).EQ.2) DELTAR=DELTAR-DSGMRG(MZ2)
+        IF (LPAR(7).GE.2) DELTAR=DELTAR-DSGMRG(MZ2)
         ELSE
         DELTAR=-dREAL(PIW0)+ALP4PI/SW2*(6D0+(3.5D0/SW2-2D0)*DLOG(CW2))
       ENDIF
@@ -1214,8 +1119,8 @@ C...HADRONIC CONTRIBUTION FROM EFFECTIVE QUARK LOOPS
      1   +(+(Q2+2D0*MD2  )*F(Q2,MD  ,MD  )
      1     +(Q2+2D0*MS2  )*F(Q2,MS  ,MS  )
      1     +(Q2+2D0*MB2  )*F(Q2,MB  ,MB  ) - Q2)/9D0        )
-      ELSEIF(LPAR(7).EQ.2) THEN
-C...HADRONIC CONTRIBUTION FROM BURKHARDT'S PARAMETRIZATION
+      ELSEIF(LPAR(7).GE.2) THEN
+C...HADRONIC CONTRIBUTION FROM PARAMETRIZATION
         SIGFGS=SIGFGS+ALP1PI*(
      G   -DFLOAT(LPAR(15))*((3D0*Q2+4D0*MW2)*F(Q2,MW,MW)           )/4D0
      L   +(+(Q2+2D0*ME2  )*F(Q2,ME  ,ME  )
@@ -1341,14 +1246,14 @@ C
      *       -SMM1*SMM1/(S1+SIGMQG(S1))
      *       +SMM2*SMM2/(S2+SIGMQG(S2)))/(S1-S2)-FSGS(0D0)
      *     +(CW2/SW2-1D0)*(RDMZ2-RDMW2-2D0*SW/CW*SIGFMS(0D0)/MZ2)
-      IF (LPAR(7).EQ.2) THEN
+      IF (LPAR(7).GE.2) THEN
         DDALPP=DSGMRG(MZ2)
         PIZMZ=PIZMZ+DCMPLX(DDALPP,0D0)
       ENDIF
 
       PIW0=SIGFWS(MW2)/MW2-RDMW2+CW2/SW2*(RDMZ2-RDMW2)
      *    -2D0*CW/SW*SIGFMS(0D0)/MZ2-FSGS(0D0)
-      IF (LPAR(7).EQ.2) THEN
+      IF (LPAR(7).GE.2) THEN
         DDALPP=DSGMRG(MZ2)
         PIW0=PIW0+DCMPLX(DDALPP,0D0)
       ENDIF
@@ -1407,7 +1312,7 @@ C
       SIGMQZ=SIGFZS(Q2)-RDMZ2*MZ2
      *      +(Q2-MZ2)*(-FSGS(0D0)-2D0*(CW2-SW2)/SW/CW*SIGFMS(0D0)/MZ2
      *                 +(CW2-SW2)/SW2*(RDMZ2-RDMW2))
-      IF (LPAR(7).EQ.2) THEN
+      IF (LPAR(7).GE.2) THEN
         DDALPP=DSGMRG(MZ2)
         SIGMQZ=SIGMQZ+DCMPLX(DDALPP,0D0)*(Q2-MZ2)
       ENDIF
@@ -1433,7 +1338,7 @@ C
       SIGMQW=SIGFWS(Q2)-RDMW2*MW2
      *      +(Q2-MW2)*(-FSGS(0D0)-2D0*CW/SW*SIGFMS(0D0)/MZ2
      *                 +CW2/SW2*(RDMZ2-RDMW2))
-      IF (LPAR(7).EQ.2) THEN
+      IF (LPAR(7).GE.2) THEN
         DDALPP=DSGMRG(MZ2)
         SIGMQW=SIGMQW+DCMPLX(DDALPP,0D0)*(Q2-MW2)
       ENDIF
@@ -1523,7 +1428,7 @@ C
      *   -2D0*(CW2-SW2)/CW/SW*SIGFMS(0D0)/MZ2
      *   +(CW2-SW2)/SW2*(dREAL(SIGFZS(MZ2))/MZ2-dREAL(SIGFWS(MW2))/MW2)
      *   +DALPMZ-(CW2-SW2)/SW2*DRHOT
-      IF (LPAR(7).EQ.2) THEN
+      IF (LPAR(7).GE.2) THEN
         DDALPP=DSGMRG(MZ2)
         PIZQQR=PIZQQR+DCMPLX(DDALPP,0D0)
       ENDIF
@@ -1565,7 +1470,7 @@ C
      *      -FSGS(0D0)-2D0*CW/SW*SIGFMS(0D0)/MZ2
      *      +CW2/SW2*(dREAL(SIGFZS(MZ2))/MZ2-dREAL(SIGFWS(MW2))/MW2)
      *      +DALPMZ-CW2/SW2*DRHOT+DRPIW2
-      IF (LPAR(7).EQ.2) THEN
+      IF (LPAR(7).GE.2) THEN
         DDALPP=DSGMRG(MZ2)
         PIWQQR=PIWQQR+DCMPLX(DDALPP,0D0)
       ENDIF
@@ -1781,30 +1686,47 @@ C     H.BURKHARDT
 C
       IMPLICIT REAL*8(A-H,O-Z)
 C
+      COMMON /GSW/    SW,CW,SW2,CW2
+     *              ,MW,MZ,MH,ME,MMY,MTAU,MU,MD,MS,MC,MB,MT
+     *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
+      COMMON /PARLIS/ LPAR(20),LPARIN(12),IPART
+      real q,st2,der,errder,deg,errdeg
+C
       DATA A1,B1,C1/   0.0   ,  0.00835,  1.0  /
       DATA A2,B2,C2/   0.0   ,  0.00238,  3.927 /
       DATA A3,B3,C3/ 0.00165 ,  0.00300,  1.0  /
       DATA A4,B4,C4/ 0.00221 ,  0.00293,  1.0  /
-C
       DATA PI/3.141592653589793D0/,ALFAIN/137.0359895D0/,INIT/0/
 C
-      IF(INIT.EQ.0) THEN
-        INIT=1
-        ALFA=1./ALFAIN
-        ALFAPI=1./PI/ALFAIN
-      ENDIF
-      T=ABS(S)
-      IF(T.LT.0.3**2) THEN
-        REPIAA=A1+B1*LOG(1.+C1*T)
-      ELSEIF(T.LT.3.**2) THEN
-        REPIAA=A2+B2*LOG(1.+C2*T)
-      ELSEIF(T.LT.100.**2) THEN
-        REPIAA=A3+B3*LOG(1.+C3*T)
-      ELSE
-        REPIAA=A4+B4*LOG(1.+C4*T)
-      ENDIF
+      hadrqq=0d0
+      IF (LPAR(7).EQ.2) THEN
+        IF(INIT.EQ.0) THEN
+          INIT=1
+          ALFA=1./ALFAIN
+          ALFAPI=1./PI/ALFAIN
+        ENDIF
+        T=ABS(S)
+        IF(T.LT.0.3**2) THEN
+          REPIAA=A1+B1*LOG(1.+C1*T)
+        ELSEIF(T.LT.3.**2) THEN
+          REPIAA=A2+B2*LOG(1.+C2*T)
+        ELSEIF(T.LT.100.**2) THEN
+          REPIAA=A3+B3*LOG(1.+C3*T)
+        ELSE
+          REPIAA=A4+B4*LOG(1.+C4*T)
+        ENDIF
 C     as imaginary part take -i alfa/3 Rexp
-      HADRQQ=REPIAA
+        HADRQQ=REPIAA
+
+C...HADRONIC CONTRIBUTION FROM JEGERLEHNER'S hadr5n12 (2012)
+      ELSEIF(LPAR(7).EQ.3) THEN
+        st2=sw2
+c...Q2 is space-like for DIS
+        q=-sqrt(abs(s))
+        call hadr5n12(q,st2,der,errder,deg,errdeg)
+        hadrqq=der
+      ENDIF
+
       END
 
       FUNCTION DSGMRG(Q2)
@@ -2543,8 +2465,8 @@ C...HADRONIC CONTRIBUTION FROM EFFECTIVE QUARK LOOPS
      1   +(+(Q2+2D0*MD2  )*F(Q2,MD  ,MD  )
      1     +(Q2+2D0*MS2  )*F(Q2,MS  ,MS  )
      1     +(Q2+2D0*MB2  )*F(Q2,MB  ,MB  ) - Q2)/9D0        )
-      ELSEIF(LPAR(7).EQ.2) THEN
-C...HADRONIC CONTRIBUTION FROM BURKHARDT'S PARAMETRIZATION
+      ELSEIF(LPAR(7).GE.2) THEN
+C...HADRONIC CONTRIBUTION FROM PARAMETRIZATION
         SIGMRG=+ALP1PI*(
      G   -DFLOAT(LPAR(15))*((3D0*Q2+4D0*MW2)*F(Q2,MW,MW) - Q2/1.5D0)/4D0
      L   +(+(Q2+2D0*ME2  )*F(Q2,ME  ,ME  )
@@ -2616,7 +2538,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         CJFINZ=DCMPLX(RDMZ2,0D0)
         SIGMRZ=
      *    (SIGFZ(Q2)-CJFINZ+(Q2-MZ2)*MRENK0)
-        IF (LPAR(7).EQ.2) THEN
+        IF (LPAR(7).GE.2) THEN
           DDALPP=DSGMRG(MZ2)*(Q2-MZ2)
           SIGMRZ=SIGMRZ+DCMPLX(DDALPP,0D0)
         ENDIF
@@ -2652,7 +2574,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         CJFINW=DCMPLX(RDMW2,0D0)
         SIGMRW=
      *    (SIGFW(Q2)-CJFINW+(Q2-MW2)*MRENKW)
-        IF (LPAR(7).EQ.2) THEN
+        IF (LPAR(7).GE.2) THEN
           DDALPP=DSGMRG(MZ2)*(Q2-MW2)
           SIGMRW=SIGMRW+DCMPLX(DDALPP,0D0)
         ENDIF

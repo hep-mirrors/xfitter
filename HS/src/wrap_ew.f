@@ -6,6 +6,8 @@
       implicit none
 
       include 'polarity.inc'
+      include 'steering.inc'
+      
 cv      include 'couplings.inc'
 
       double precision q2_in, sweff_out, deltar_out
@@ -45,6 +47,10 @@ cv     *              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
       cvu=cvu_ew
       cvd=cvd_ew
 
+      
+      if (EWFIT.eq.2) then 
+         call setpar(.false.)
+      endif
 
       call eprc_effective(q2_in)
 
