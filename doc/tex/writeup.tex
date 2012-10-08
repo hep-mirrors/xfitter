@@ -263,9 +263,63 @@ NLO or NNLO K-factors provided for corresponding data distributions.
 \subsection{$t\bar{t}$ Cross Sections via Hathor}
 %%%%%%%%%%%
 \subsection{Jets}
-%%%%
+The calculation of higher order jet cross sections is very demanding
+in means of computing power. The reasons are the large number of contributing
+Feynman diagrams and also the large number of infrared divergencies.
+For an accurate cancellation of these singularities, typically, the 
+dipole subtraction method is applied in such calculations.
+During the necessary Monte Carlo integration a very fine phase
+space sampling has to be performed in order to account for the
+accurate cancellation of the counter terms.
+
+In order to enable the inclusion of jet-cross section 
+measurements in PDF and $\alpha_s$ fits, these perturbative
+coefficients have to be pre-computed in a PDF and $\alpha_s$ 
+independent way. For this purpose, two quite similar tools are
+interfaced to the HERAFitter.
+
 \subsubsection{FastNLO}
-%%%%
+The fastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
+enables the inclusion of jet data in PDF and $\alpha_s$ fits.
+This tool uses multi-dimensional interpolation
+techniques to convert the convolutions of perturbative 
+coeffcients with parton distribution functions and 
+the strong coupling into simple products.
+Although the concept is process independent, the perturbative 
+coefficients are usually calculated by the \texttt{NLOJET++}
+program~\cite{Nagy:1998bb} where calculations for jet-production
+in DIS~\cite{Nagy:2001xb}  as well as in hadron-hadron 
+collisions~\cite{Nagy:2003tz,Nagy:2001fj} are available.
+Also threshold-corrections of $\mathcal{O}$(NNLO) for 
+inclusive jet cross sections in hadron-hadron collisions are
+available~\cite{Kidonakis:2000gi}.
+
+The fastNLO libraries are standardized included in the HERAFitter
+package and no further requirements or compilation options
+are needed. In order to include a new measurement into the PDF-fit,
+the fastNLO table have to be specified. These tables include all
+necessary informations of the perturbative coefficients and the
+calculated process for all bins of a certain dataset. 
+Tables for almost all published jet measurements
+are available through the project website {\tt http://fastnlo.hepforge.org},
+or have otherwise to be calculated by using the full fastNLO package.
+
+Features of the fastNLO concept are the very quick convolution of the
+perturbative coefficients with the PDFs of
+$\mathcal{O}(100 ms)$ and the very high accuracy
+of the interpolation procedure. 
+The fastNLO tables are conventionally calculated
+for multiple factors of the factorization scale, 
+and the renormalization scale factor can be choosen freely.
+Some of the fastNLO tables already involve a scale-independent
+concept~\cite{Britzger:2012bs}, which allows for 
+the free choice of the renormalization and the factorization
+scale as a function of two pre-defined observables.
+The evaluation of the strong coupling constant, which enters
+the cross section calculation, is taken consistently from the 
+QCDNUM evolution code.
+
+
 \subsubsection{APPLGRID}
 The APPLGRID~\cite{Carli:2010rw} package allows to compute a fast estimate
 of NLO cross section for particular processes for arbitrary set of 
