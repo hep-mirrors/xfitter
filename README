@@ -16,7 +16,8 @@ M. Botje. Parts of the code were contributed by non H1 members:
 -- VFNS from R. Thorne,
 -- DY LO+k-factor calculation from A. Sapronov
 -- PDF error estimation from J. Pumplin
--- DIS electroweak corrections from H. Spiesberger
+-- DIS electroweak corrections from H. Spiesberger with Jegerlehner's 
+   hadronic parametric contribution (based on e+,e- data)
 
 If the results obtained with the program are to be included in a scientific 
 publication, please use the citations as suggested by the REFERENCES file. 
