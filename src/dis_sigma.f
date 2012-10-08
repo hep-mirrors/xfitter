@@ -95,13 +95,13 @@ C
      $     'lumi(e-)/lumi(tot)'),IDataSet))
 
       if (idxQ2min.eq.0 .or. idxQ2max.eq.0) then
-         print *, 'Q2 bins not well defined in a data file'
-         Return
+         call HF_errlog(12100800,
+     + 'F: Q2 bins not well defined in a data file that expecting to calculate DIS cross sections')
       endif
       if (idxXmin.eq.0 .or. idxXmax.eq.0) then
          if (idxYmin.eq.0 .or. idxYmax.eq.0) then
-            print *, 'X or Y bins need to be defined in a data file'
-            Return
+         call HF_errlog(12100801,
+     + 'F: x or y bins need to be defined in a data file to calculate DIS cross sections')
          endif
          LoopOverYBins = .true.
       endif
