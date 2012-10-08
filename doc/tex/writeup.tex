@@ -260,8 +260,19 @@ NLO or NNLO K-factors provided for corresponding data distributions.
 %%%%
 \subsubsection{Next Leading Order}
 %%%%%%%%%%%
-\subsection{$t\bar{t}$ Cross Sections via Hathor}
-%%%%%%%%%%%
+\subsection{$t\bar{t}$ Cross Sections via {\tt HATHOR}}
+Top-quark pairs ($t\bar{t}$) are mainly produced via $gg$ fusion and
+$q \bar q$ annihilation. Furthermore, there are the $q q'$ and
+$q g$ production modes.
+The program HATHOR~\cite{Aliev:2010zk} allows calculating
+the expected total $t \bar t$ cross section at hadron colliders
+($p \bar p$ and $p p$) up to approximate NNLO accuracy.
+Version 1.3 of HATHOR includes the exact NNLO for $q \bar q \to t \bar t$ \cite{Baernreuther:2012ws}
+as well as a new high-energy constraint on the approximate NNLO obtained from
+soft-gluon resummation \cite{Moch:2012mk}.
+The default choice for renormalization and factorization scale in $t \bar t$ production is the top-quark mass, $m_t$.
+The pole mass scheme is typically employed for $m_t$ but HATHOR also supports calculations in
+the $\overline{\text{MS}}$ scheme.
 \subsection{Jets}
 The calculation of higher order jet cross sections is very demanding
 in means of computing power. The reasons are the large number of contributing
