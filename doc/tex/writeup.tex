@@ -183,7 +183,28 @@ For thorough details of the theoretical modules we direct the user to read the p
 ...
 %%%%
 \subsubsection{ABM}
-...
+An interface to open-source code OPENQCDRAD~\cite{openqcdrad_page} in HERAFitter framework 
+provides an access to 
+fixed flavour number scheme (FFNS)~\cite{ffns:pub}~\footnote{Besides the variable flavour number 
+scheme, QCDNUM also supports the fixed flavour number scheme which can be used for variouse 
+cross checks with OPENQCDRAD.}. In FFNS the number of light quark 
+flavours $n_{f}$ (here $n_{f}=3$) are considered in the PDF evolution and heavy (massive) 
+quarks appear only in the final state. 
+The QCD corrections to the massive Wilson coefficients which are known up to the NNLO
+for the neutral-current (NC) heavy-quark production~\cite{} are implemented in OPENQCDRAD.
+In the case of charged-current (CC), the massive NLO QCD corrections~\cite{} are available.
+In addition, the treatment of the heavy-quark contributions in DIS are provided 
+in both, the pole-mass and the running-mass definition in $\overline{\text{MS}}$ 
+scheme~\cite{run_mass:pub}. \\
+In case the FFN scheme is chosen as the fitting option (see corresponding instructions in the section 1),
+the heavy quark contributions to DIS structure functions $F_2$ and $F_L$ (and $F_3$ in the charged 
+current case) are calculated in the FFNS and together with the light-flavor contributions are 
+provided for the theory prediction calculation (theory$\_$dispatcher.f).
+The interpolation to PDFs and $\alpha_s$ evolution from QCDNUM are set up in the interface to OPENQCDRAD. \\
+The variation of the renormalisation and factorisation scales for heavy quarks is 
+possible (see available options in steering.txt file).
+%
+%       
 %%%%%%%%%%%
 \subsubsection{$ep$ Electroweak corrections via HS}
 %%%%%%%%%%%
