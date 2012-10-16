@@ -289,6 +289,10 @@ void H1FitterOutput::PrepareParameters() {
 	NColumns = array->GetEntries();
 	idx++;
 	fNNuisanceParameters++;
+	if(idx >= fMaxParameters) {
+	  cerr << "ERROR in DrawResults"<<endl<<"Please increase fMaxParameters parameter in the h1fitter/tools/include/H1FitterOutput.h file" << endl;
+	  exit(1);
+	}
       }
       delete array;
     }
