@@ -410,7 +410,7 @@ void PDF::Reweight(rwparam& par)
     
   default:
     {
-      cerr << "ERROR: Invalid RW Mode - Options are RWMODE: WGT/CHI2/DATA" <<endl;
+      cerr << "ERROR: Invalid RW Mode - Options are RWMODE: WGT/CHI2/DATA " <<(par.mode)<<endl;
       exit(0);
       
       break;
@@ -501,6 +501,7 @@ void PDF::Export(rwparam& rpar) const
   lhaout<< " \'list', "<<nrep<<" , "<<" 1"<<endl;
   for (size_t i=0; i<(nrep+1); i++)
     lhaout << " "<<LHAPDF::alphasPDF(mz)<<endl;
+    cout << " "<<LHAPDF::alphasPDF(mz)<<endl;
   
   // Order of evolution
   lhaout << " \'Evolution:\'"<<endl;

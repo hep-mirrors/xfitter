@@ -9,7 +9,7 @@ sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
 getncxskt.f Getgridkt.f \
-GetDiffDisXsection.f FixModelParams.f nnpdfreweighting.f GetPointScaledErrors.f GetCovChisquare.f prep_corr.f
+GetDiffDisXsection.f FixModelParams.f reweighting.f GetPointScaledErrors.f GetCovChisquare.f prep_corr.f
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include
 

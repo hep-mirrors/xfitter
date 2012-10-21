@@ -150,7 +150,8 @@ TMatrixDSym ReadSymMatrix(const char* filename, size_t n)
     size_t row=0;
     while (getline(file,line))
     {
-		
+      cout << row << "  " << n << endl;
+
         if (row==n)
         {
             cout << "ERR: Data in CovMat file exceeds length of data vector"<<endl;

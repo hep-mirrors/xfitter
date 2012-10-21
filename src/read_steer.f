@@ -64,7 +64,7 @@ C
       include 'pdfparam.inc'
       include 'datasets.inc'
       include 'systematics.inc'
-      include 'nnpdf.inc'
+      include 'reweighting.inc'
       include 'scales.inc'
       include 'indata.inc'
       include 'for_debug.inc'
@@ -404,26 +404,29 @@ C Print the namelist:
 
       subroutine read_lhapdfnml
 C
-C Read lhapdf and nnpdf namelists
+C Read lhapdf and reweighting namelists
 C----------------------------------------
       implicit none
       include 'steering.inc'
-      include 'nnpdf.inc'
+      include 'reweighting.inc'
 C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFErrors
 
-C (Optional) NNPDF steering card
-      namelist/nnpdf/FLAGNNPDF,NNPDFSET,NNPDFRWDATA
-     $     ,NNPDFREWEIGHTMETHOD,DONNPDFONLY,NNPDFOUTREPLICAS
+C (Optional) reweighting steering card
+      namelist/reweighting/FLAGRW,RWPDFSET,RWDATA
+     $     ,RWMETHOD,DORWONLY,RWREPLICAS,RWOUTREPLICAS
 
 C------------------------------------------------------------
-C NNPDF defaults
-      FLAGNNPDF = .false.
-      NNPDFREWEIGHTMETHOD = 1
-      DONNPDFONLY = .false.
-      NNPDFSET = ''
-      NNPDFOUTREPLICAS = 0
+C Reweighting defaults
+
+      FLAGRW = .false.
+      RWMETHOD = 1
+      DORWONLY = .false.
+      RWPDFSET = ''
+      RWREPLICAS = 0
+      RWOUTREPLICAS = 0
+
 C
       LHAPDFErrors = .false.
 C
@@ -434,20 +437,20 @@ C
  68   continue
       close (51)
 C
-C  Read the nnpdf namelist:
+C  Read the reweighting namelist:
 C 
       open (51,file='steering.txt',status='old')
-      read (51,NML=nnpdf,END=75,ERR=74)
+      read (51,NML=reweighting,END=75,ERR=74)
  75   continue
       close (51)
 C
-C check whether NNPDF and LHAPDF set are equal
+C check whether RWPDFSET and LHAPDF set are equal
 C
-      if (FLAGNNPDF) then
-         if (TRIM(NNPDFSET) .ne. TRIM(LHAPDFSET)) then
+      if (FLAGRW) then
+         if (TRIM(RWPDFSET) .ne. TRIM(LHAPDFSET)) then
             call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
-     $           //TRIM(NNPDFSET))
-            LHAPDFSET=NNPDFSET
+     $           //TRIM(RWPDFSET))
+            LHAPDFSET=RWPDFSET
          endif
 C  check if the PDFstyle is indeed Ok
          if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
@@ -460,7 +463,7 @@ C  check if the PDFstyle is indeed Ok
       if (LDebug) then
 C Print the namelist:
          print lhapdf
-         print nnpdf
+         print reweighting
       endif
 
       return
@@ -470,7 +473,7 @@ C---
       call HF_stop
 
  74   continue
-      print '(''Error reading namelist &nnpf, STOP'')'
+      print '(''Error reading namelist &reweighting, STOP'')'
       call HF_stop
       end
 

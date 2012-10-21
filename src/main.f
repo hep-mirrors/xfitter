@@ -51,9 +51,9 @@ C-----------------------------------------------------
 *     ------------------------------------------------
 *     Do NNPDF if initialized
 *     ------------------------------------------------
-      if (FLAGNNPDF) then 
-         call nnpdfreweighting
-         if (DONNPDFONLY) goto 36
+      if (FLAGRW) then 
+         call pdfreweighting
+         if (DORWONLY) goto 36
       endif
 
       if (LHAPDFErrors) then  ! PDF errors

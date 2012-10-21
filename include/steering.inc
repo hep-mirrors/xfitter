@@ -75,8 +75,8 @@ C
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
 
       logical CachePDFs        !> Cache PDF calls to speedup
-      logical FLAGNNPDF
-      logical DONNPDFONLY
+      logical FLAGRW
+      logical DORWONLY
       logical FlexibleGluon    !> Flexible gluon parameterisation
       logical Read_QCDNUM_Tables
       logical LHAPDFErrors     
@@ -98,7 +98,7 @@ C
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
      $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
 
-      common/STEERING2/FLAGNNPDF, DONNPDFONLY, CachePDFs, FlexibleGluon,
+      common/STEERING2/FLAGRW, DORWONLY, CachePDFs, FlexibleGluon,
      $     read_qcdnum_tables
 
       character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
