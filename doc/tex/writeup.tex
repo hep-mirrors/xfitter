@@ -136,7 +136,29 @@ file should be installed
 %%%%%%%%%%%
 \subsection{Installation with {\tt LHAPDF}}\label{sec:install_lhapdf}
 %%%%%%%%%%%
-\subsection{Installation with {\tt NNPDF reweight}}\label{sec:install_nnpdfrweight}
+\subsection{Installation with {\tt PDF reweighting}}\label{sec:install_nnpdfrweight}
+
+Note: For installation allowing for PDF reweighting, the latest version of {\tt LHAPDF}, lhapdf-5.8.7b2, should be installed.
+
+\begin{itemize}
+\item Make sure that {\tt \$LD\_LIBRARY\_PATH} includes the LHAPDF libraries.
+\item Run:
+\begin{verbatim}
+    autoreconf --install
+    ./configure --enable-lhapdf  --enable-nnpdfWeight
+    make 
+    make install
+\end{verbatim}
+After these commands are finished, the executable {\tt bin/FitPDF} 
+file should be installed
+\item Set {\tt FLAGRW = True} in the steering file and change also the other parameters of the {\tt \&reweighting} namelist if needed.
+\item  Run a check:
+\begin{verbatim}
+    bin/FitPDF 
+\end{verbatim}
+\end{itemize}
+
+
 %%%%%%%%%%%
 \subsection{Installation with {\tt HATHOR}}
 %%%%%%%%%%%

@@ -1,5 +1,12 @@
-
-      Subroutine nnnpdf_reweight()
-      Subroutine create_randompdfreplicas()
-      end
       
+      subroutine nnnpdf_reweight()
+      return
+      end
+
+      subroutine create_randompdfreplicas()
+      return
+      end
+
+      subroutine GetPDFUncType()
+      return
+      end
