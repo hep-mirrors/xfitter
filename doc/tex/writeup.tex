@@ -197,6 +197,17 @@ For thorough details of the theoretical modules we direct the user to read the p
 \subsection{DIS and Schemes}
 %%%%
 \subsubsection{ZMVFNS}
+The evolution program QCDNUM~\cite{qcdnum} used in \fitter\ provides 
+the calculation of the deep inelastic structure functions in the zero-mass, 
+generalised mass and the fixed flavour number schemes. 
+In the zero-mass variable flavour number scheme (ZM-VFNS) heavy quark densities are
+included into proton above quark masses but they are treated as massless in both,
+the initial and final states.
+This scheme is accurate in the region where $Q^2$ is so much greater than $m_h^2$
+but becomes unreliable for $Q^2 \sim m_h^2$. \\
+The un-polarised DIS structure functions in ZM-VFN scheme are computed as a 
+convolution of the parton densities with zero-mass coefficient functions and 
+in \fitter\ are activated via namelist {\tt HF$\_$SCHEME} in the {\tt steering.txt}.
 %%%%
 \subsubsection{RT}
 ... 
@@ -474,6 +485,8 @@ which is expected to be the experimentally meausured quantity.
 The model supplied by the DiffDIS package provides values of the 'reduced cross section',
 $\sigma_r = F_2 - y^2/(1+(1-y)^2) F_L$
 which is expected to be the experimentally meausured quantity.
+\\
+\input{./dpdfs.tex}        
 
 %%%%%%%%%%%
 \section{Bayesian Reweighting Technique for the Determination of updated PDF sets}
