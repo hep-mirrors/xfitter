@@ -135,6 +135,10 @@ file should be installed
 \end{itemize}
 %%%%%%%%%%%
 \subsection{Installation with {\tt LHAPDF}}\label{sec:install_lhapdf}
+
+
+
+
 %%%%%%%%%%%
 \subsection{Installation with {\tt PDF reweighting}}\label{sec:install_nnpdfrweight}
 
@@ -161,8 +165,60 @@ file should be installed
 
 %%%%%%%%%%%
 \subsection{Installation with {\tt HATHOR}}
+
+ \begin{itemize}
+  \item Download Hathor from 
+\begin{verbatim}
+http://www-zeuthen.desy.de/~moch/hathor/
+\end{verbatim}
+     and install it according to the instructions given there
+     (requires \begin{verbatim}LHAPDF \end{verbatim}\ library)
+
+  \item Define a variable HATHOR\_ROOT  such that HATHOR\_ROOT  points to the
+     directory of your Hathor installation
+
+  \item Install the H1Fitter as described above but configuring it
+     with the option "--enable-hathor" before building it
+ \end{itemize}
+
+
 %%%%%%%%%%%
 \subsection{Installation with {\tt CASCADE}}
+
+\begin{itemize}
+
+\item  set environment variables (with {SYSNAME=i586\_rhel50} or similar)
+    
+\begin{verbatim}
+    export CERN\_ROOT=/cern/pro  
+    export QCDNUM\_ROOT=/h1wgs/h1desy11/x04/usr/glazov/openfitter/qcdnum-17-00-03
+    export CASCADE\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/\$SYSNAME 
+    export PYTHIA\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/\$SYSNAME}
+    \end{verbatim}	
+
+\item use steering and minuit input files from "input\_steering": 
+
+   \begin{verbatim} 
+   cp input-steering/steering.txt.kt-factorisation steering.txt 
+   cp input-steering/minuit.in.txt.kt-factorisation minuit.in.txt 
+   cp input-steering/steer-ep-CASCADE steer-ep 
+   \end{verbatim}
+
+\item  edit steering.txt: 
+ \begin{verbatim}
+   \&CCFMFiles: give name for output grid file for uPDF.\&H1Fitter 
+   \&H1Fitter \\ 
+   \!  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file 
+   \!  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation 
+    ITheory = 103   ! =103 fit using precalculated grid of $sigma\_hat$
+       all other parameters are standard
+  \end{verbatim}
+
+\item run the program: bin/FitPDF 
+   
+\item plotting F2 fit results:
+   DrawResults \! will draw F2 results to plot uPDF one can use the "updfplotter" web interface $\to$ copy updf grid (with name from "CCFMFiles" under 2 to somewhere .... this description needs improvements
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Theoretical Input}
@@ -195,6 +251,7 @@ For thorough details of the theoretical modules we direct the user to read the p
 
 %%%%%%%%%%%
 \subsection{DIS and Schemes}
+There are different approaches to the treatment of the heavy quark production. These include the Fixed Flavour Number (FFN) and Variable Flavour Number (VFN) schemes.
 %%%%
 \subsubsection{ZMVFNS}
 The evolution program QCDNUM~\cite{qcdnum} used in \fitter\ provides 
@@ -213,7 +270,11 @@ in \fitter\ are activated via namelist {\tt HF$\_$SCHEME} in the {\tt steering.t
 ... 
 %%%%
 \subsubsection{ACOT}
-...
+
+The Aivazis-Collins-Olness-Tung scheme  belongs to the group of VFN factorization schemes that uses the renormalization method of Collins-Wilczek-Zee (CWZ).This scheme involves a mixture of the $\bar{MS}$ scheme for light partons (and for heavy partons if the factorisation scale is larger than the heavy mass)and the zero-momentum subtraction renormalization scheme for graphs with heavy quark lines (if factorisation scale is smaller than the mass of the heavy quark threshold).
+
+There are different variants of this scheme which are all incorporated in the HERAFitter framework.
+
 %%%%
 \subsubsection{ABM}
 An interface to open-source code OPENQCDRAD~\cite{openqcdrad:page} in HERAFitter framework 
@@ -696,7 +757,7 @@ systematic uncertainties are available as described in appendix~\ref{sec:herafit
    current scattering cross section is given in the file
 
 \begin{verbatim}
-       datafiles/H1ZEUS_NC_e-p_HERA1.0.dat
+       datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat
 \end{verbatim}
 
    The format of the file follows standard "namelist" conventions. Comments 
