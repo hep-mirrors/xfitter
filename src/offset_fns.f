@@ -47,22 +47,25 @@ c ===============================================
 
 
 c ===============================================
-      Subroutine Offset_Finalize
+      Subroutine Offset_Finalize(iErr)
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
       include 'systematics.inc'
-      integer icond
+      integer iErr
       integer OffsetCollect
       
         ! Collect results from all Offset fits
         ! ------------------------------------
         ! --- nSys is fixed by read_data
         ! --- and stored in common/systema/ (systematics.inc)
-        icond = OffsetCollect(nSys, 'output'//CHAR(0))
-        if(icond.gt.0) then
-          print *,'ERROR ',icond,' collecting offset results.'
-          call HF_stop
+        iErr = OffsetCollect(nSys, 'output'//CHAR(0))
+        if(iErr.gt.0) then
+          print *,'WARNING, RC=',iErr,' collecting offset results.'
+          call hf_errlog(12102903,
+     +     'W: problems collecting offset results')
+          ! call HF_stop
+          return
         endif
         call hf_errlog(12102801,
      +     'I: full Offset method results saved to offset.save.txt')

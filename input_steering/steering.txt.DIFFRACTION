@@ -6,29 +6,52 @@
     NInputFiles = 2
  
   ! Input files:
-
     InputFileNames(1) = 'datafiles/hera/ZEUS_LRG_98-00.dat'
     InputFileNames(2) = 'datafiles/hera/ZEUS_LPS_98-00.dat'    
-  
 &End
+
+&InCorr
+  ! Number of statistical correlation files
+    NCorrFiles = 0
+ 
+  ! Statistical correlation files:
+  !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+&End
+
+*
+* (Optional) Modify renormalisation/factorisation scales, dataset
+* dependently. The numbering follows sequential numbering of input files
+*
+! &Scales 
+    ! DataSetMuR  = 4*1.0     ! Set muR scale to 1 for all 4 datasets
+    ! DataSetMuF  = 4*1.0     ! Set muF scale to 1 for all 4 datasets
+! &End
+
 
 *
 * Main steering cards
 *
 &H1Fitter 
-  ITheory = 0   ! =0 use collinear factorisation with QCDNUM
+  TheoryType = 'DGLAP' ! 'DGLAP'  -- collinear evolution
+                       ! 'DIPOLE' -- dipole model 
+                       ! 'uPDF'   -- un-integrated PDFs
 
-  IOrder  = 2   ! For itheory =0 (collinear factorisation) : LO fit (1) or NLO (2) or NNLO (3) 
+  Order  = 'NLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
 
   Q02     = 1.8 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
- ! ---  HF_SCHEME = 'ZMVFNS'    : ZM-VFNS (massless),
- ! ---  HF_SCHEME = 'RT'        : Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
- ! ---  HF_SCHEME = 'FF' : Fixed Flavour Number Scheme from qcdnum
+ ! ---  HF_SCHEME = 'ZMVFNS'       : ZM-VFNS (massless),
+ ! ---  HF_SCHEME = 'RT'           :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT FAST'      : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'RT OPT'       :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT OPT FAST'  : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'ACOT Full'    : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi'     : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM'      : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'FF'           : Fixed Flavour Number Scheme (qcdnum)
+ ! ---  HF_SCHEME = 'FF ABM'       : Fixed Flavour Number Scheme (ABM)
+ ! ---  HF_SCHEME = 'FF ABM RUNM'  : Fixed Flavour Number Scheme (ABM) using run mass def
 
   HF_SCHEME = 'RT'
 
@@ -41,7 +64,7 @@
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
- !  'DDIS'        -- use .... library DIS
+ !  'DDIS'        -- HERA-like, two-component (P+R) DPDFs parametrisation
 
   PDFStyle = 'DDIS'
 
@@ -50,6 +73,8 @@
  !    'HERAPDF' : Pascaud-like + "mixed error scaling"
  !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
+ !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
+ !    'Offset' : chi2 calculated using statistical errors only
 
   CHI2Style = 'Offset'
 
@@ -62,10 +87,16 @@
 * Add extra to minuit parameters. These MUST include alpha_S and fs
 *
 &ExtraMinimisationParameters
-   name  = 'alphas',   'fs',   'fcharm' , 'Pomeron_a0' , 'Reggeon_factor' , 'Reggeon_a0'
-   value =  0.118 ,    0.31,      0.    ,   1.107      ,  3.40962         , 0.66834  
-   step  =  0.0    ,   0.0 ,      0.    ,   0.1        ,  0.1             , 0.1   ! set to 0 to avoid minimisation 
+   name  = 'alphas',   'fs',   'fcharm'
+   value =  0.1176 ,   0.31,      0.
+   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
+&End
 
+&ExtraMinimisationParameters
+   ! Diffractive fit parameters
+   name  = 'Pomeron_a0' , 'Reggeon_factor' , 'Reggeon_a0'
+   value =  1.1072      ,  3.3813         , 0.66969  
+   step  =   0.003      ,  0.72            , 0.04
 &End
 
 
@@ -77,7 +108,7 @@
   DoBands = False     
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
+  Q2VAL = 1.8, 6., 20., 60., 200.
 
   ! How many x points to write (standard = 101)
   OUTNX = 101
@@ -86,6 +117,18 @@
   OUTXRANGE = 1E-4, 0.9999
 &End
 
+*
+* (Optional) Offset method parameters 
+*
+&CSOffset
+  ! CorSysIndex  =  0
+  
+  ! -- Use previous fit results if exist in output dir
+  !    0 - never use (default) 
+  !    1 - use as input to the current fit (not implemented)
+  !    2 - do not run fit again
+  UsePrevFit = 2
+&End
 
 
 *
@@ -140,15 +183,21 @@
    Variable(7)        = 'Whad2'
    CutValueMin(7)     = 15.   
 
+  !--------------------- Fastnlo jets ----------------------
+
+   ProcessName(8)     = 'FastNLO ep jets'
+   Variable(8)        = 'kfac'
+   CutValueMin(8)     = 0.0
+   CutValueMax(8)     = 2.5
+
   !--------------------- DDIS --------------------------
 
-  ! Rule #8:
-   ProcessName(8)     = 'DDIS'
-   Variable(8)        = 'Q2'
-   CutValueMin(8)     =  5. 
-   CutValueMax(8)     =  100000000.
+  ! For ZEUS DPDF fit 2009
+   ProcessName(9)     = 'DDIS'
+   Variable(9)        = 'Q2'
+   CutValueMin(9)     =  5. 
+   CutValueMax(9)     =  1.E9
 
-   
 &End
 
 *
@@ -211,8 +260,8 @@
 
 *
 * (Optional) choose the factorisation scale for HQs
-* tuned via parameters:    Q^2 = aq2*mu_f + bq2(*mh)
-* in FFNS usually set to:  mu_f = Q^2 + 4*mc^2
+* tuned via parameters:    Q^2 = aq2*mu_f^2 + bq2(*m_h)
+* in FFNS usually set to:  mu_f^2 = Q^2 + 4*m_h^2
 *
 &HQScale
    aq2    =  1. 
@@ -220,11 +269,22 @@
    MassHQ = 'mc' ! (available: mc, mb)
 &End
 
-=======
 *
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
   LHAPDFSET  = 'cteq66.LHgrid' ! LHAPDF grid file 
   ILHAPDFSET = 0               ! Set number withing PdfSet
+&End
+
+*
+* (Optional) NNPDF steering cards
+* 
+&nnpdf
+  FLAGNNPDF    = False                 ! Should reweighting be done?
+  NNPDFSET     = 'NNPDF21_100.LHgrid' ! LHAPDF grid file 
+  NNPDFRWDATA  = 'test'               ! arbitrary name for new datasample to be put in 
+  NNPDFREWEIGHTMETHOD = 1             ! either 1=chi2 or 2=data
+  DONNPDFONLY  = True                 ! do / do not run usual HERA fit
+  NNPDFOUTREPLICAS = 10               ! how many output replica of the NNPDF should be kept?
 &End

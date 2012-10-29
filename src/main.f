@@ -82,7 +82,7 @@ c ..........................................................
       
       
       if (CorrSystByOffset) then
-        call Offset_Finalize
+        call Offset_Finalize(icond)
         goto 36
         ! --- no Bands in the current version
       else
