@@ -38,6 +38,9 @@ C
       
       call Read_InCorrNml   ! Covariance matrix
       call read_scalesnml   ! Read scales namelist
+      if(CorrSystByOffset) then
+        call Read_CSOffsetNML   ! Offset method parameters
+      endif
 
       if(Itheory.lt.100) then
 C
@@ -878,6 +881,8 @@ C---------------------------------------
       include 'steering.inc'
 C---------------------------------
 
+      CorrSystByOffset = Chi2Style.eq.'Offset'
+
       if (Chi2Style.eq.'HERAPDF') then
          ICHI2 = 11
       elseif (Chi2Style.eq.'HERAPDF Sqrt') then
@@ -890,7 +895,7 @@ C---------------------------------
          ICHI2 = 1        
       elseif (Chi2Style.eq.'H12011') then
          ICHI2 = 41        
-      elseif (Chi2Style.eq.'Offset') then
+      elseif (CorrSystByOffset) then
          ICHI2 = 3
       elseif (Chi2Style.eq.'Covariance Matrix') then
          ICHI2 = 100
@@ -903,6 +908,7 @@ C---------------------------------
 
 
       Subroutine ReadExtraParam
+C =====================================
       implicit none
       include 'extrapars.inc'
 
@@ -1021,6 +1027,40 @@ C
       return
 
  124  print '(''Error reading namelist &systematics, STOP'')'
+      Call HF_stop
+
+C----------------------------------------
+      end
+
+      Subroutine Read_CSOffsetNML
+C=========================================
+C
+C Read optional CSOffset namelist
+C
+C-----------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'steering.inc'
+      namelist/CSOffset/ CorSysIndex, UsePrevFit
+C----------------------------------------
+
+C Initialisation:
+      UsePrevFit = 0   ! Do not use previous fit results
+      CorSysIndex = NSYSMAX+1  ! trick to calculate all offsets in one job
+      
+      open (51,file='steering.txt',status='old')
+      read (51,NML=CSOffset,END=123,ERR=124)
+
+      if (LDebug) then
+         print CSOffset
+      endif
+
+ 123  Continue
+      close (51)
+      return
+
+ 124  print '(''Error reading namelist &CSOffset, STOP'')'
       Call HF_stop
 
 C----------------------------------------

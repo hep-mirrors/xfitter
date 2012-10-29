@@ -14,6 +14,7 @@ C-------------------------------------------------------
       include 'for_debug.inc'
       include 'ntot.inc'
       include 'indata.inc'
+      include 'systematics.inc'	
 
       integer icond
 C-----------------------------------------------------
@@ -64,21 +65,38 @@ C-----------------------------------------------------
 *     ------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------
-      open(85,file='output/Results.txt')
-      call minuit_ini
-      lprint = .true.
-      call minuit(fcn,0)
-      close(85)
+      
+c WS: 2012-10-28 subroutine Do_Fit defined in 'minuit_ini.f'
+c ..........................................................
 
-      if (ControlFitSplit) then
-         Call FindBestFCN3  !> Overfitting protection.
+      if (CorrSystByOffset .and. CorSysIndex .gt. NSYSMAX) then
+        do CorSysIndex = 0,nSys
+          call Do_Fit
+        enddo
+        do CorSysIndex = -nSys,-1
+          call Do_Fit
+        enddo
       else
+        call Do_Fit
+      endif
+      
+      
+      if (CorrSystByOffset) then
+        call Offset_Finalize
+        goto 36
+        ! --- no Bands in the current version
+      else
+        if (ControlFitSplit) then
+           Call FindBestFCN3  !> Overfitting protection.
+        else
 *
 * Write out central parameters
 *
-         call write_pars(0)
+           call write_pars(0)
+        endif
       endif
 
+      
       if (DOBANDS) then
          write(6,*) ' --- Calculate error bands ...'
          lprint = .false.    
@@ -88,6 +106,9 @@ C-----------------------------------------------------
          call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
          call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
          call Error_Bands_Pumplin
+         ! Error_Bands_Pumplin calls GetUmat(i,j),
+         ! which needs only umat from common /umatco/
+         ! See minuit/src/iterate.F
       endif
       close (24)
       close (25)

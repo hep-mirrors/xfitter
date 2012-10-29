@@ -31,6 +31,12 @@
 
       logical LFitDY           !> k-factor fit to DY data
 
+c WS: optionally use previous fit results present in the output dir.
+       !    0 - never use (default) 
+       !    1 - use *.save*.txt as input to the current fit
+       !    2 - do not run the fit again 
+      integer UsePrevFit       !> optionally use previous fit results
+
 C-------------------------------------------------
 
 C Flag for PDF length, chebyshev param. for gluon      
@@ -61,6 +67,10 @@ C Use forced positive parameterisation for IPOLYSQR=1
 C parameters to set HQ scale      
       double precision aq2,bq2
       integer MASSH
+
+C  Offset method parameters
+      logical CorrSystByOffset
+      integer CorSysIndex ! 1-based index of corr. syst. error
 
 C Applgrid flags
       logical useapplg
@@ -97,6 +107,8 @@ C
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
      $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
+     $     ,UsePrevFit
+     $     ,CorrSystByOffset,CorSysIndex
 
       common/STEERING2/FLAGRW, DORWONLY, CachePDFs, FlexibleGluon,
      $     read_qcdnum_tables

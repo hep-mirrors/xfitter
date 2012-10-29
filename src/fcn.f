@@ -56,7 +56,7 @@ C !> Also store for each fcn=3 call:
 
 
       IfcnCount=IfcnCount+1
-      write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
+cWS      write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
 
       call HF_errlog(12020515,'I: FCN is called')
 
@@ -502,8 +502,11 @@ c     $           ,chi2_cont/NControlPoints
           else
              call Evolution
 C LHAPDF output:
-             open (76,file='output/lhapdf.block.txt',status='unknown')
-             call store_pdfs(base_pdfname)
+c WS: for the Offset method save central fit only
+            if (.not.CorrSystByOffset .or. CorSysIndex.eq.0) then
+              open (76,file='output/lhapdf.block.txt',status='unknown')
+              call store_pdfs(base_pdfname)
+            endif
           endif
        endif
 
