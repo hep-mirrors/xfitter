@@ -86,7 +86,7 @@ C Standard DGLAP:
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised')then
 cv
          if(Itheory.lt.100) then
-            call eprc_init(.true.)
+            call eprc_init(.false.)
             Call GetJetsFastNLOXsectionNormalised(IDataSet)
          else
             write(6,*) ' invalid dataset for ithory > 100 '
