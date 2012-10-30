@@ -56,7 +56,7 @@ C !> Also store for each fcn=3 call:
 
 
       IfcnCount=IfcnCount+1
-cWS      write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
+      write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
 
       call HF_errlog(12020515,'I: FCN is called')
 

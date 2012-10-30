@@ -166,8 +166,7 @@ c ===============================================
        OPEN(85,file=ResultsFile,form='formatted',status='replace')
        write(*,*) 'ResultsFile: ',ResultsFile
        call minuit_ini  ! opens Minuit i/o files
-cws       lprint = .true.
-       lprint = .false.
+       lprint = .true.
        call minuit(fcn,0)       
        close(85)
 *     ------------------------------------------------
