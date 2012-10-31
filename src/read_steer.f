@@ -881,12 +881,15 @@ C---------------------------------------
       include 'steering.inc'
 C---------------------------------
 
-      CorrSystByOffset = Chi2Style.eq.'Offset'
 
+      CorrSystByOffset=.false.
       if (Chi2Style.eq.'HERAPDF') then
          ICHI2 = 11
       elseif (Chi2Style.eq.'HERAPDF Sqrt') then
          ICHI2 = 31
+      elseif (Chi2Style.eq.'Offset') then
+         ICHI2 = 3
+         CorrSystByOffset = .true.
       elseif (Chi2Style.eq.'HERAPDF Linear') then
          ICHI2 = 21
       elseif (Chi2Style.eq.'CTEQ') then
@@ -895,8 +898,6 @@ C---------------------------------
          ICHI2 = 1        
       elseif (Chi2Style.eq.'H12011') then
          ICHI2 = 41        
-      elseif (CorrSystByOffset) then
-         ICHI2 = 3
       elseif (Chi2Style.eq.'Covariance Matrix') then
          ICHI2 = 100
       else
