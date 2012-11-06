@@ -253,9 +253,9 @@
 &End
 
 *
-* (Optional) NNPDF steering cards
+* (Optional) reweighting steering cards
 * 
-&nnpdf
+&reweighting
   FLAGRW	  = False                 ! Should reweighting be done?
   RWPDFSET     	  = 'NNPDF21_100.LHgrid' ! LHAPDF grid file 
   RWDATA  	  = 'test'               ! arbitrary name for new datasample to be put in 
