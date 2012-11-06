@@ -266,8 +266,16 @@ The un-polarised DIS structure functions in ZM-VFN scheme are computed as a
 convolution of the parton densities with zero-mass coefficient functions and 
 in \fitter\ are activated via namelist {\tt HF$\_$SCHEME} in the {\tt steering.txt}.
 %%%%
-\subsubsection{RT}
-... 
+\subsubsection{TR}
+
+The Thorne-Roberts (TR) scheme is a general-mass variable flavour number scheme (GM-VFNS) used as default for the MTSW PDF sets. GM-VFNS smoothly connect the two reagions: scale below the heavy quark threshold and the scale above the heavy quark threshold. However, the definition is not unique.
+A GM-VFNS can be defined by demanding equivalence of the nf = n (FFNS) and nf = n+1 flavour (ZM-VFNS) descriptions above the transition point for the new parton distributions
+(they are by definition identical below this point), at all orders. However, the equivalency of swapping te O(mH2/Q2) terms without violating the definition of a GM-VFNS is what mainly distinguish the ACOT from TR schemes. 
+One major issue in a complete GM-VFNS, is that of the ordering of the
+perturbative expansion. This ambiguity comes about because the ordering in alphas is different for the number of active flavours.
+
+
+ 
 %%%%
 \subsubsection{ACOT}
 
@@ -658,6 +666,23 @@ In the output directory, a subdirectory is created for the output of the reweigh
 %%%%%%%%%%%
 \subsection{Chebyshev Polynomial}
 
+A flexible Chebyshev polynomials based parameterisation is used for the gluon and sea densities. The polynomials
+use $\log x$ as an argument to emphasise the low $x$ behaviour. 
+The parameterisation is valid for $x>x_{min} = 1.7\times 10^{-5}$. The PDFs are multiplied
+by $1-x$ to ensure that they vanish as $x\to 1$. The resulting parameterisation form is 
+\begin{eqnarray}
+x g(x) &=& A_g \left(1-x\right) \sum_{i=0}^{N_g-1} A_{g_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,, \label{eq:glu} \\
+x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,. \label{eq:sea} 
+\end{eqnarray}
+Here the sum over $i$ runs up to $N_{g,S}=15$ order Chebyshev polynomials of the first type $T_i$ for
+the gluon, $g$, and sea-quark, $S$, density, respectively. 
+The normalisation $A_g$ is given by the momentum sum rule.
+The advantages of the parameterisation given by equations~\ref{eq:glu},\ref{eq:sea} is that momentum
+sum rule can be evaluated analytically and  already for $N \ge 5$ the fit quality
+is similar to a standard Regge-inspired parameterisation with a similar number of parameters.
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{$\chi^2$ Definitions}
 \label{sec:chi2}
@@ -714,6 +739,17 @@ systematic uncertainties are available as described in appendix~\ref{sec:herafit
 
 %%%%%%%%%%%
 \subsection{Monte Carlo Method}
+
+
+The PDF uncertainties can be estimated using a Monte Carlo technique \cite{mcmethod}.
+The method consists in preparing replicas of data sets by allowing the central values of the cross sections to 
+fluctuate within their systematic and statistical uncertainties taking into account all point-to-point correlations.
+The preparation of the data is repeated for a large $N$ ($>100$ times) and for each of these replicas a NLO QCD fit is performed to 
+extract the PDF set. The PDF central values and uncertainties are estimated using the means values and RMS 
+over the replicas. 
+
+
+
 %%%%%%%%%%%
 \subsection{Regularisation methods}
 
