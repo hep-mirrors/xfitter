@@ -9,7 +9,7 @@
       include 'alphas.inc'
       include 'thresholds.inc'
       
-      integer sign
+      integer shift_dir
       double precision a
       dimension a(MNE)
 
@@ -50,6 +50,7 @@ C SG: x-dependent fs:
       double precision shift
 C Function
       double precision GetUmat
+      double precision DecorVarShift
 
 C---------------------------------------------------------------
       
@@ -71,6 +72,7 @@ C
          endif
       enddo
 
+      print *,mpar,' variable parameters'
 
 
       do ind=1,mpar
@@ -91,6 +93,9 @@ C
       npar = MNE !> npar runs over external parameters.
 
 
+C
+C Loop over de-correlated (diagonalised) errors:
+C
       do j=1,mpar
   
          jext = iexint(j)
@@ -101,8 +106,8 @@ C
          base2 = 'output/pdfs_'//tag(j)
          idx2  = index(base2,' ')-1
 
-         do sign=-1,1,2
-            if (sign.eq.-1) then
+         do shift_dir=-1,1,2
+            if (shift_dir.eq.-1) then
                if (idx.gt.0) then
                   name  = base(1:idx)//'m_'
                   name2 = base2(1:idx2)//'m.lhgrid'
@@ -121,18 +126,21 @@ C
             endif
 
 
+C
+C Shift variable paramters by the j-th de-correlated error:
+C
             do i=1,npar
                a(i) = pkeep(i) 
                iint = iunint(i)
-
-C
-C Apply shifts to the paramters:
-C
                if (iint.gt.0) then
-                  shift = sign * GetUmat(iint,j)
+                  if(CorrSystByOffset) then
+                    shift = shift_dir * DecorVarShift(iint, j)
+                  else
+                    shift = shift_dir * GetUmat(iint,j)
+                  endif
                   a(i) = a(i) + shift
                endif
-            enddo
+            enddo  ! i
 
 
 C
@@ -154,9 +162,9 @@ C
             call store_pdfs(name)
             close (76)
 
-         enddo
+         enddo  ! shift_dir
 
-      enddo
+      enddo  ! j
 
       return
       end

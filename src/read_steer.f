@@ -56,9 +56,11 @@ C 07/12/2011 Dipole ===>
 
 
       subroutine Set_Defaults
+C ===========================================
 C
-C Set defaul values for stearable variables.
+C Set default values for stearable variables.
 C
+C -------------------------------------------
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
@@ -154,6 +156,9 @@ C MC Errors defaults:
       SYSTYPE = 1
 
 C PDF output options:
+
+c 2012-11-08 WS: set default for DoBands
+      DoBands = .false.
       outnx = 101
       do i=1,NBANDS
        Q2VAL(i) = -1.
@@ -182,6 +187,7 @@ C
 
 
       subroutine Read_HFitternml  
+C =============================================
 C
 C Read the main steering namelisit 
 C----------------------------------------------

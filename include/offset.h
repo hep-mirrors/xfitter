@@ -23,7 +23,15 @@ public:
   int nCosy;
   int nVarPar;
   SqMatrix_t Cov, CosyCov, StatCov;
+  // SqMatrix_t EigVecs; // = matrix diagonalizing Cov;
+  // Vector EigVals;
   
+  // //=====================================================
+  // void DiagCov() {
+    // EigVecs = Cov;
+    // EigVecs.Diagonalize(EigVals);
+  // }
+
   // ============================================================
   OffsetCalc_t(int n_Cosy, int n_VarPar) : nCosy(n_Cosy), nVarPar(n_VarPar) {
     // --- create matrix for shifted parameters

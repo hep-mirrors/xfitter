@@ -276,15 +276,3 @@
   LHAPDFSET  = 'cteq66.LHgrid' ! LHAPDF grid file 
   ILHAPDFSET = 0               ! Set number withing PdfSet
 &End
-
-*
-* (Optional) NNPDF steering cards
-* 
-&nnpdf
-  FLAGNNPDF    = False                 ! Should reweighting be done?
-  NNPDFSET     = 'NNPDF21_100.LHgrid' ! LHAPDF grid file 
-  NNPDFRWDATA  = 'test'               ! arbitrary name for new datasample to be put in 
-  NNPDFREWEIGHTMETHOD = 1             ! either 1=chi2 or 2=data
-  DONNPDFONLY  = True                 ! do / do not run usual HERA fit
-  NNPDFOUTREPLICAS = 10               ! how many output replica of the NNPDF should be kept?
-&End

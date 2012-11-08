@@ -31,6 +31,11 @@ void SqMatrix_t::GetCol(int k, Vector& c) {
 }
 
 //==================================
+void SqMatrix_t::SetCol(int k, Vector& c) {
+  for(int row=first; row <= last; row++) mp[row][k] = c.vp[row];
+}
+
+//==================================
 Vector& SqMatrix_t::GetCol(int k) {
   Vector* c = new Vector(first, len);
   for(int row=first; row <= last; row++) c->vp[row] = mp[row][k];

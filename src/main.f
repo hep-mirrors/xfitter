@@ -66,6 +66,7 @@ C-----------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------
       
+c Modifications for the Offset method by Wojtek Slominski & Justyna Tomaszewska
 c WS: 2012-10-28 subroutine Do_Fit defined in 'minuit_ini.f'
 c ..........................................................
 
@@ -83,8 +84,18 @@ c ..........................................................
       
       if (CorrSystByOffset) then
         call Offset_Finalize(icond)
-        goto 36
-        ! --- no Bands in the current version
+        if(icond .ne. 0) goto 36
+        Call RecovCentrPars
+        if (DOBANDS) then
+           write(6,*) ' --- Calculating error bands from Offset errors...'
+           ! --- set the scale by defining delta chi2 value
+           ! --- for MNCOMD(fcn,'ITERATE 10',...) it is set by SET ERRDEF dchi2
+           ! --- with default value of 5
+           Call DecorDiag(5.d0)
+           call Error_Bands_Pumplin
+           ! Error_Bands_Pumplin calls GetUmat(i,j) which needs only umat from common /umatco/
+           ! See minuit/src/iterate.F
+        endif
       else
         if (ControlFitSplit) then
            Call FindBestFCN3  !> Overfitting protection.
@@ -94,24 +105,20 @@ c ..........................................................
 *
            call write_pars(0)
         endif
-      endif
 
+        if (DOBANDS) then
+          write(6,*) ' --- Calculate error bands ...'
+          lprint = .false.    
+          call hf_errlog(12020506, 'I: Calculation of error bands required')
+          call MNCOMD(fcn,'ITERATE 10',icond,0)
+          call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
+          call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
+          call Error_Bands_Pumplin
+        endif
       
-      if (DOBANDS) then
-         write(6,*) ' --- Calculate error bands ...'
-         lprint = .false.    
-         call hf_errlog(12020506,
-     +     'I: Calculation of error bands required') 
-         call MNCOMD(fcn,'ITERATE 10',icond,0)
-         call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
-         call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
-         call Error_Bands_Pumplin
-         ! Error_Bands_Pumplin calls GetUmat(i,j),
-         ! which needs only umat from common /umatco/
-         ! See minuit/src/iterate.F
+        close (24)
+        close (25)
       endif
-      close (24)
-      close (25)
 
  36   continue
 

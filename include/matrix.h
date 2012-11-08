@@ -148,12 +148,13 @@ public:
   int Diagonalize(Vector& eigenvals);
   SqMatrix_t& Rmul(const SqMatrix_t& B);
   void GetCol(int k, Vector& c);
+  void SetCol(int k, Vector& c);
   Vector& GetCol(int k);
   double MxElem(Vector& v);
 
   //===========================
   double* operator[](int r) {return mp[r];}
-  double* operator[] (int r) const {return mp[r];}
+  double* operator[](int r) const {return mp[r];}
 
   //====================================
   void Write(ostream &ostr=cout) const {
@@ -169,6 +170,7 @@ public:
       for(int k = k0; k <= k1; k++)
         // ostr << " "<< setw(13) << mp[j][k];
         ostr << scientific << setw(prec+9) << right << mp[j][k];
+        // ostr << fixed << setw(prec+9) << right << mp[j][k];
       ostr << endl;
     }
     ostr.flags(ff);
@@ -253,6 +255,7 @@ public:
 
   //========================
   double& operator[](int index) {return vp[index];}
+  double operator[](int index) const {return vp[index];}
 
   /*
   //========================

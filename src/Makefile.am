@@ -9,8 +9,10 @@ sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
 getncxskt.f Getgridkt.f \
-GetDiffDisXsection.f FixModelParams.f reweighting.f GetPointScaledErrors.f GetCovChisquare.f prep_corr.f \
-offset_fns.f g_offset.cc matrix.cc
+GetDiffDisXsection.f FixModelParams.f reweighting.f GetPointScaledErrors.f GetCovChisquare.f prep_corr.f
+
+# WS 2012-10-29  files for the Offset method (and not only)
+FitPDF_SOURCES += offset_fns.f g_offset.cc matrix.cc FitPars_base.cc FTNFitPars.cc Xstring.cc decor.cc
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include
 
