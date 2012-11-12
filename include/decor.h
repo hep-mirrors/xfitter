@@ -38,10 +38,11 @@ public:
   void Diag() {
     DBG_SHOW(Cov)
     EigVecs = Cov;
-    EigVals = Vector(0, N);
+    Vector v(0, N);
+    EigVals = v;
     EigVecs.Diagonalize(EigVals);
     // cout << EigVals << endl;
-    EigShifts = Vector(0, N);
+    EigShifts = v;
     for(int j=0; j < N; j++) EigShifts[j] = sqrt(DeltaChiSqr*EigVals[j]);
     // SetDeltaChiSq(DeltaChiSqr);
   }
