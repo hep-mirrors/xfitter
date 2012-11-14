@@ -146,10 +146,14 @@ C----------------------------------------------------------------------
 c      lprint = .false.
       ! Call ShowXPval(2)
       call minuit(fcn,0)
-      ! Force HESSE to have accurate cov. matrix
-      if(.not.CorrSystByOffset .or. CorSysIndex .eq. 0) call MNCOMD(fcn,'hesse',IERFLG,0)
-      call MNCOMD(fcn,'set print 3',IERFLG,0)
-      Call MNSAVE
+      if(CorrSystByOffset) then
+        ! --- Force HESSE to have accurate cov. matrix
+        ! --- for central Offset fit only
+        if(CorSysIndex .eq. 0) call MNCOMD(fcn,'hesse',IERFLG,0)
+        ! --- do not call SAVE from your minuit input for the Offset mode
+        call MNCOMD(fcn,'set print 3',IERFLG,0)
+        Call MNSAVE
+      endif
       close(85)
 *     ------------------------------------------------
        
