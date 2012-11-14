@@ -20,9 +20,9 @@ C-------------------------------------------------------------------
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
 
-        if (DipoleModel.gt.0.and.DipoleModel.lt.2) then
+        if (DipoleModel.eq.1.or.DipoleModel.eq.2) then
             call DipolePrediction(IDataSet)
-         elseif (DipoleModel.eq.2.or.DipoleModel.eq.4) then
+         elseif (DipoleModel.eq.3.or.DipoleModel.eq.4) then
             Call GetNCXsection(IDataSet, HFSCHEME)
             call DipolePrediction(IDataSet)
          elseif (DipoleModel.eq.5) then
