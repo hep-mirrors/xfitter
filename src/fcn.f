@@ -354,8 +354,9 @@ c             call fillvfngrid
 *     ---------------------------------------------------------
 *     calculate chisquare
 *     ---------------------------------------------------------
-      if(ICHI2.eq.100) then
-         call GetCovChisquare(iflag,n0,fchi2,pchi2)
+      if ((Chi2UncorErr.eq.'Matrix').or.(Chi2CorErr.eq.'Matrix')) then
+         call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+c     call GetCovChisquare(iflag,n0,fchi2,pchi2)
       else
          call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
       endif

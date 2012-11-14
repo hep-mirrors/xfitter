@@ -5,9 +5,94 @@
 *      - calculate chisquare
 *     ---------------------------------------------------------
 
+      subroutine GetNewChisquare(flag_in,n0_in,fchi2_in,rsys_in,ersys_in,pchi2_in,fcorchi2_in)
+      implicit none
+
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'systematics.inc'
+      
+      integer n0_in, flag_in
+      double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
+      double precision pchi2_in(nset), fcorchi2_in
+
+      double precision chi2tmp
+      integer i,jsys
+
+c initialisation 
+      do jsys=1,nsys
+         rsys_in(jsys) = 0.d0
+         ersys_in(jsys) = 0.d0
+      enddo
+
+      do i=1,nset
+         pchi2_in(i)=0.d0
+      enddo
+      
+      fchi2_in = 0.d0
+
+      if(Chi2CorErr.eq.'Nuisance') then
+         call calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
+c         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
+      endif 
+      
+      if (Chi2UncorErr.eq.'Simple') then
+         call calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
+         fchi2_in = chi2tmp + fchi2_in
+      endif
+      
+      if((Chi2CorErr.eq.'Matrix').or.(Chi2UncorErr.eq.'Matrix')) then
+         call GetCovChisquare(flag_in,n0_in, chi2tmp, pchi2_in)
+         fchi2_in = chi2tmp + fchi2_in
+      endif
+            
+      if(ICHI2.eq.41) then   ! Poissonian tail chi2 contribution
+         call calc_poisson(rsys_in, chi2tmp)
+         fchi2_in = chi2tmp + fchi2_in
+      endif
+
+      return 
+      end
+
+      subroutine calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'systematics.inc'
+      
+      double precision ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
+      double precision fcorchi2_in
+
+      print *, 'not yet implemented'
+      return 
+      end
+      
+      subroutine calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'systematics.inc'
+      
+      double precision RSYS_in(NSYSMax)
+      double precision chi2tmp, pchi2_in(nset)
+
+      print *, 'not yet implemented'
+      return 
+      end
+
+      subroutine calc_poisson(rsys_in, chi2tmp)
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'systematics.inc'
+      
+      double precision RSYS_in(NSYSMax)
+      double precision chi2tmp
+
+      print *, 'not yet implemented'
+      return 
+      end
+
+
 
       subroutine GetChisquare(flag_in,n0_in,fchi2_in,rsys_in,ersys_in,pchi2_in,fcorchi2_in)
-
       implicit none
 
       include 'ntot.inc'

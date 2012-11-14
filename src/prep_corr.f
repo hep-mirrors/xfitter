@@ -1,17 +1,3 @@
-      subroutine prep_corr
-*     ------------------------------------------------
-*     Prepare correlation matrices
-*     ------------------------------------------------
-      implicit none
-      
-      call prep_corr_stat
-      call prep_corr_syst
-      
-c      call PrintCorrMatrix
-
-      end
-
-
 
       subroutine prep_corr_syst
 *     ------------------------------------------------

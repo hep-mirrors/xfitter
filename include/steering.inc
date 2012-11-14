@@ -92,6 +92,8 @@ C
       logical LHAPDFErrors     
       integer nLHAPDF_Sets 
 
+      character*32 Chi2UncorErr, Chi2CorErr
+
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
@@ -109,6 +111,7 @@ C
      $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
+     $     ,Chi2UncorErr, Chi2CorErr
 
       common/STEERING2/FLAGRW, DORWONLY, CachePDFs, FlexibleGluon,
      $     read_qcdnum_tables
