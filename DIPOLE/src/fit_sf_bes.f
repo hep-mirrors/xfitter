@@ -289,30 +289,24 @@ c      common/pass1/ sig0,xlam,x0,xm
       SIGMA0 = sig0 * 13.15d0   ![GeV^-2]
 
       if (DipoleModel.eq.1.or.DipoleModel.eq.3) then
-c...saturation model with evolution
-
-c...GBW saturation scale
-c         r02 = R_02_sat(r,xx)
-c         DIP_CS = SIGMA0 * (1.0D0 - dexp(-r02))
-c      elseif (DipoleModel.eq.2.or.DipoleModel.eq.4) then
-c         Y = log(1/xx)
-c         DIP_CS = sigma_iim(r,y,
-C Fit parameters:
-c     $     xlam, x0, sig0  )                 ! [GeV^-2]
-C         r02 = R_02_sat(r,xx)
-C         DIP_CS2 = SIGMA0 * (1.0D0 - dexp(-r02))
-C         print *,'1',dip_cs,dip_cs2,xx,r,y
+C=== GBW model:
+         r02 = R_02_sat(r,xx)
+         DIP_CS = SIGMA0 * (1.0D0 - dexp(-r02))
+      elseif (DipoleModel.eq.2.or.DipoleModel.eq.4) then
+C=== IIM dipole model:
+         Y = log(1/xx)
+         DIP_CS = sigma_iim(r,y,   xlam, x0, sig0 )
+C=         r02 = R_02_sat(r,xx)
+C=         DIP_CS2 = SIGMA0 * (1.0D0 - dexp(-r02))
+C=         print *,'1',dip_cs,dip_cs2,xx,r,y
       elseif (DipoleModel.eq.5) then 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c      print *,' aaaaaaaa ',cBGK,eBGK
+C=== BGK dipole model:
+c      print *,'BGK parameters ',cBGK,eBGK
       r02 = R_02_evol(r,xx)
       DIP_CS = sig0 * (1.0D0 - dexp(-r02))
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c      write(*,*) ' BGK MODEL is working'
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CC         Y = log(1/x)
-CC         DIP_CS = sigma_proton(r,y) * SIGMA0
+c=         write(*,*) ' BGK MODEL is working'
+C=         Y = log(1/x)
+C=         DIP_CS = sigma_proton(r,y) * SIGMA0
       else
          print *,'Unknown dipole x-section=',idipole
          print *,'Abort in  DIP_CS'
