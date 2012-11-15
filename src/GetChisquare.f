@@ -47,7 +47,7 @@ c         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
       endif
             
       if(ICHI2.eq.41) then   ! Poissonian tail chi2 contribution
-         call calc_poisson(rsys_in, chi2tmp)
+         call calc_poisson(n0_in, chi2tmp)
          fchi2_in = chi2tmp + fchi2_in
       endif
 
@@ -55,6 +55,7 @@ c         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
       end
 
       subroutine calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
+      implicit none
       include 'ntot.inc'
       include 'steering.inc'
       include 'systematics.inc'
@@ -67,6 +68,7 @@ c         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
       end
       
       subroutine calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
+      implicit none
       include 'ntot.inc'
       include 'steering.inc'
       include 'systematics.inc'
@@ -78,15 +80,22 @@ c         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
       return 
       end
 
-      subroutine calc_poisson(rsys_in, chi2tmp)
+      subroutine calc_poisson(n0_in, chi2)
+      implicit none
       include 'ntot.inc'
-      include 'steering.inc'
       include 'systematics.inc'
-      
-      double precision RSYS_in(NSYSMax)
-      double precision chi2tmp
+     
+      double precision chi2
+      integer n0_in, ipoint
+      double precision stat, unc, const, fac, error
 
-      print *, 'not yet implemented'
+      chi2=0.d0
+      do ipoint=1,n0_in
+         call GetPointScaledErrors(ipoint,fac,stat,unc,const)
+         error = dsqrt(stat**2+unc**2+const**2)
+         chi2 = chi2 + 2.*log( error/alpha(ipoint)) 
+      enddo
+
       return 
       end
 
