@@ -201,6 +201,7 @@ C----------------------------------------------
       include 'for_debug.inc'
 C-----------------------------------------------
       character*32  Chi2Style, HF_SCHEME
+      character*32 Chi2Base
 
       real*8 Q02       ! Starting scale
       integer IOrder   ! Evolution order
@@ -209,17 +210,22 @@ C-----------------------------------------------
       integer i
 C Main steering parameters namelist
       namelist/H1Fitter/
-     $     ITheory, IOrder          ! keep for backward compatibility
+     $     ITheory, IOrder, Chi2Style          ! keep for backward compatibility
      $     , Q02, HF_SCHEME, PDFStyle, 
-     $     Chi2Style, LDebug, ifsttype,  LFastAPPLGRID,
+     $     LDebug, ifsttype,  LFastAPPLGRID,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
-     $     ControlFitSplit,Order,TheoryType
+     $     ControlFitSplit,Order,TheoryType,
+     $     Chi2Base, Chi2UncorErr, Chi2CorErr
 C--------------------------------------------------------------
 
 C Some defaults
       Order     = ' '
       TheoryType = ' '
       Chi2Style = 'HERAPDF'
+      Chi2Base = 'undefined'
+      Chi2UncorErr = 'Simple' 
+      Chi2CorErr = 'Nuisance'
+
 C
 C  Read the main H1Fitter namelist:
 C
@@ -233,7 +239,7 @@ C Decode computation order:
       else
          I_FIT_ORDER = IOrder
       endif
-
+      
 C Decode theory type:
       if (TheoryType.ne.' ') then
          Call DecodeTheoryType(TheoryType)
@@ -244,7 +250,7 @@ C     set debug flag used elsewhere according to steering
 C
 C Decode Chi2 style:
 C
-      call SetChi2Style(Chi2Style)
+      call SetChi2Style(Chi2Style, Chi2Base)
       if (itheory.lt.100) then
 C
 C Decode HFSCHEME:
@@ -876,7 +882,7 @@ C---------------------------------
       end
 
 
-      Subroutine SetChi2Style(Chi2Style)
+      Subroutine SetChi2Style(Chi2Style, Chi2Base)
 C---------------------------------------
 C
 C>  Set Chi2 style
@@ -884,36 +890,61 @@ C
 C---------------------------------------
       implicit none
       character*(*) Chi2Style
+      character*(*) Chi2Base
       include 'steering.inc'
 C---------------------------------
 
-
-      CorrSystByOffset=.false.
-      if (Chi2Style.eq.'HERAPDF') then
-         ICHI2 = 11
-      elseif (Chi2Style.eq.'HERAPDF Sqrt') then
-         ICHI2 = 31
-      elseif (Chi2Style.eq.'Offset') then
-         ICHI2 = 3
-         CorrSystByOffset = .true.
-      elseif (Chi2Style.eq.'HERAPDF Linear') then
-         ICHI2 = 21
-      elseif (Chi2Style.eq.'CTEQ') then
-         ICHI2 = 2
-      elseif (Chi2Style.eq.'H12000') then
-         ICHI2 = 1        
-      elseif (Chi2Style.eq.'H12011') then
-         ICHI2 = 41        
-      elseif (Chi2Style.eq.'Covariance Matrix') then
-         ICHI2 = 100
+      if (Chi2Base.eq.'undefined') then
+         CorrSystByOffset=.false.
+         if (Chi2Style.eq.'HERAPDF') then
+            ICHI2 = 11
+         elseif (Chi2Style.eq.'HERAPDF Sqrt') then
+            ICHI2 = 31
+         elseif (Chi2Style.eq.'Offset') then
+            ICHI2 = 3
+            CorrSystByOffset = .true.
+         elseif (Chi2Style.eq.'HERAPDF Linear') then
+            ICHI2 = 21
+         elseif (Chi2Style.eq.'CTEQ') then
+            ICHI2 = 2
+         elseif (Chi2Style.eq.'H12000') then
+            ICHI2 = 1        
+         elseif (Chi2Style.eq.'H12011') then
+            ICHI2 = 41        
+         elseif (Chi2Style.eq.'Covariance Matrix') then
+            ICHI2 = 11  ! default covariance matrix implementation: HERAPDF style
+            Chi2UncorErr = 'Matrix'
+            Chi2CorErr = 'Matrix'
+         else
+            print *,'Unsupported Chi2Style =',Chi2Style
+            print *,'Check value in steering.txt'
+            call HF_stop
+         endif
       else
-         print *,'Unsupported Chi2Style =',Chi2Style
-         print *,'Check value in steering.txt'
-         call HF_stop
+         CorrSystByOffset=.false.
+         if (Chi2Base.eq.'HERAPDF') then
+            ICHI2 = 11
+         elseif (Chi2Base.eq.'HERAPDF Sqrt') then
+            ICHI2 = 31
+         elseif (Chi2Base.eq.'Offset') then
+            ICHI2 = 3
+            CorrSystByOffset = .true.
+         elseif (Chi2Base.eq.'HERAPDF Linear') then
+            ICHI2 = 21
+         elseif (Chi2Base.eq.'CTEQ') then
+            ICHI2 = 2
+         elseif (Chi2Base.eq.'H12000') then
+            ICHI2 = 1        
+         elseif (Chi2Base.eq.'H12011') then
+            ICHI2 = 41        
+         else
+            print *,'Unsupported Chi2Base =',Chi2Style
+            print *,'Check value in steering.txt'
+            call HF_stop
+         endif
       endif
       end
-
-
+      
       Subroutine ReadExtraParam
 C =====================================
       implicit none
