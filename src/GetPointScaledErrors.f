@@ -7,7 +7,7 @@
 *     output: errorsta,errorunc,errorconst
 *     ----------------------------------------------------
 
-      subroutine GetPointScaledErrors(ipoint,fac,errorsta,errorunc,errorconst)
+      subroutine GetPointScaledErrors(ipoint,errorsta,errorunc,errorconst)
 
       implicit none
 
@@ -17,7 +17,7 @@
       include 'systematics.inc'
       INCLUDE 'theo.inc'
 
-      double precision d, t, fac
+      double precision d, t
       double precision error, errorunc, errorconst, errorsta
       integer ipoint
 
@@ -42,11 +42,7 @@
       if (ICHI2.eq.11 .or. ICHI2.eq.41) then
 ***   mixed scaling - decompose - scale - recombine
          if (t.gt.0) then
-            if (iDH_MOD.ne.0) then
-               errorsta = errorsta*dsqrt(abs(t*fac/d))
-            else
-               errorsta = errorsta*dsqrt(abs(t/d))
-            endif
+            errorsta = errorsta*dsqrt(abs(t/d))
             errorunc = errorunc*(abs(t/d))
          endif
          

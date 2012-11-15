@@ -17,7 +17,7 @@
 
       integer n0_in, flag_in
       double precision pchi2_in(nset)
-      double precision fchi2_in, chisq, fac
+      double precision fchi2_in, chisq
       double precision stat1, unc1, const1
       double precision stat2, unc2, const2
 
@@ -41,11 +41,10 @@
          enddo
       enddo
 
-      fac = 1.d0
       do i=1,n0_in
-         call GetPointScaledErrors(i,fac,stat1,unc1,const1)
+         call GetPointScaledErrors(i,stat1,unc1,const1)
          do j=1,n0_in
-            call GetPointScaledErrors(j,fac,stat2,unc2,const2)
+            call GetPointScaledErrors(j,stat2,unc2,const2)
             
 C     fill with statistical part            
             cov_total(i,j) = corr_stat(i,j) * stat1 * stat2
@@ -60,12 +59,6 @@ C     add uncorrelated systematic part
             if(i.eq.j) then
                cov_total(i,j) = cov_total(i,j) + (unc1 * unc2)
             endif
-
-c            print *, i, j, corr_stat(i,j) * stat1 * stat2,
-c     $           (corr_syst(i,j) * THEO(i) * THEO(j)),
-c     $           cov(i,j),
-c     $           (unc1 * unc2),
-c     $           cov_total(i,j)
 
          enddo
       enddo

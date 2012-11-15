@@ -87,11 +87,11 @@ c         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
      
       double precision chi2
       integer n0_in, ipoint
-      double precision stat, unc, const, fac, error
+      double precision stat, unc, const, error
 
       chi2=0.d0
       do ipoint=1,n0_in
-         call GetPointScaledErrors(ipoint,fac,stat,unc,const)
+         call GetPointScaledErrors(ipoint,stat,unc,const)
          error = dsqrt(stat**2+unc**2+const**2)
          chi2 = chi2 + 2.*log( error/alpha(ipoint)) 
       enddo
