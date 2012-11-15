@@ -39,7 +39,7 @@
       
       
 *     RESCALE ERROR
-      if (ICHI2.eq.11 .or. ICHI2.eq.41 .or. ICHI2.eq.100) then
+      if (ICHI2.eq.11 .or. ICHI2.eq.41) then
 ***   mixed scaling - decompose - scale - recombine
          if (t.gt.0) then
             if (iDH_MOD.ne.0) then
