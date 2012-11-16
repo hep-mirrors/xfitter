@@ -938,7 +938,7 @@ C---------------------------------
          elseif (Chi2Base.eq.'H12011') then
             ICHI2 = 41        
          else
-            print *,'Unsupported Chi2Base =',Chi2Style
+            print *,'Unsupported Chi2Base = ',Chi2Base
             print *,'Check value in steering.txt'
             call HF_stop
          endif
