@@ -95,7 +95,16 @@ cv  test different distributions
 cv  first for systematic uncert, then for stat.                    
 
             if (systype.eq.1) then ! gauss syst
-               s = s*(1.+ beta(isys,n0) * rand_shift(isys))
+C !> Introduce asymmetric errors, for Gaussian case only:
+               if ( .not. LAsymSyst(isys) ) then
+                  s = s*(1.+ beta(isys,n0) * rand_shift(isys))
+               else
+                  if ( rand_shift(isys).gt. 0) then
+                     s = s*(1.+ BetaAsym(isys,1,n0) * rand_shift(isys))
+                  else
+                     s = s*(1.+ BetaAsym(isys,2,n0) * rand_shift(isys))
+                  endif
+               endif
                
             elseif (systype.eq.2) then ! uniform
                s = s*(1. + beta(isys,n0) * r_sh_fl(isys))

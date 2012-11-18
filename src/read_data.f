@@ -92,6 +92,8 @@ C-----------------------------------------
       do i=1,nsysMax
          do k=1,npoints
             beta(i,k) = beta(i,k) / 100.
+            betaasym(i,1,k) = betaasym(i,1,k) / 100.
+            betaasym(i,2,k) = betaasym(i,2,k) / 100.
          enddo
       enddo
 
@@ -610,6 +612,7 @@ C !> Symmetrise:
      $                 0.5*( BetaAsym(CompressIdx(i),1,npoints)-
      $                        BetaAsym(CompressIdx(i),2,npoints))
 
+                  LAsymSyst(CompressIdx(i)) = .true.
                endif
 
             endif

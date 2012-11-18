@@ -19,5 +19,6 @@
 
 C !> Add also original systematic errors for asymmetric uncertainties
       double precision BetaAsym(NSYSMAX,2,NTOT)
-      Common/SystAsym/BetaAsym
+      logical LAsymSyst(NSYSMAX) !> asymmetric uncertainty
+      Common/SystAsym/BetaAsym,LAsymSyst
 
