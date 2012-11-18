@@ -16,3 +16,8 @@
       double precision SysScaleFactor(nsysmax)  !> Input scale factors
       logical SysAdditive(nsysmax)              !> Additive error
       common/systscal/SysScaleFactor,SysAdditive
+
+C !> Add also original systematic errors for asymmetric uncertainties
+      double precision BetaAsym(NSYSMAX,2,NTOT)
+      Common/SystAsym/BetaAsym
+

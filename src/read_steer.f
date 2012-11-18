@@ -1144,7 +1144,46 @@ C------------------------------------------------
       
       end
 
+      integer Function SystematicsExist(SourceName, iAsym) 
+C
+C Check if the systematic source is already on the list. 
+C Takes care of asymmetric errors and : modifier.
+C     
+      implicit none
+      character*(*) SourceName
+      include 'ntot.inc'
+      include 'systematics.inc'
+      integer j,i,iasym
+      character*32 Name
+C----------------------------------------------------------------
+      SystematicsExist = 0
 
+C Check for +- signs:      
+      i = index(SourceName,'+')
+      if (i.eq.0) then
+         i = index(SourceName,'-')
+      endif
+
+      if (i.ne.0) then
+         Name = SourceName(1:i-1)
+      else
+         Name = SourceName
+      endif
+
+C Check for :
+      i = index(Name,':')
+      if (i.ne.0) then
+         Name = Name(1:i-1)
+      endif
+
+      do j=1,NSYS            
+         if ( system(j) .eq. Name ) then
+            SystematicsExist = j
+            Return
+         endif
+      enddo    
+C----------------------------------------------------------------
+      end
 
       Subroutine AddSystematics(SourceName)
 C
@@ -1154,7 +1193,7 @@ C
       include 'ntot.inc'
       include 'systematics.inc'
       character*(*) SourceName
-      integer ii
+      integer ii,iasym
 C-----------------------------------------
       
       nsys = nsys + 1
@@ -1165,11 +1204,27 @@ C-----------------------------------------
          print '(''Increase NSysMax in systematics.inc'')'
          call HF_stop
       endif
+C
+C Detect "+" and "-" signs
+C
+      iasym = index(SourceName,'+')
+      if (iasym.eq.0) then
+         iasym = index(SourceName,'-')
+      endif
+
       ii = index(SourceName,':')
       if (ii.eq.0) then
-         System(nsys) = SourceName
+         if (iasym.gt.0) then
+            System(nsys) = SourceName(1:iasym-1)
+         else
+            System(nsys) = SourceName
+         endif
       else
-         System(nsys) = SourceName(1:ii-1)
+         if (iasym.gt.0) then
+            System(nsys) = SourceName(1:iasym-1)
+         else
+            System(nsys) = SourceName(1:ii-1)
+         endif
          if ( SourceName(ii+1:) .eq.'A' ) then
             SysAdditive(nsys) = .true.
             Call HF_errlog(12090001,

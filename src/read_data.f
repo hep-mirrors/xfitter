@@ -234,6 +234,10 @@ C Namelist definition:
 C Temporary buffer to read the data (allows for comments starting with *)
       character *4096 CTmp
 
+      integer SystematicsExist
+      integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)
+      integer isPlus, isMinus
+
 C Function to check cuts
       logical FailSelectionCuts
       
@@ -262,6 +266,8 @@ C Reset scales to 1.0
          SystScales(i) = 1.0
          ColumnType(i) = ' '
          ColumnName(i) = ' '
+         NAsymPlus(i)     =  0
+         NAsymMinus(i)     =  0
       enddo
 
       open(51,file=CFile,status='old',err=99)
@@ -346,17 +352,15 @@ C--- Ignore: special case
 
          else
 C--- Check if the source already exists:         
-            do j=1,NSYS            
-               if ( system(j).eq.SystematicType(i) ) then
-                  CompressIdx(i) = j
-                  goto 80
-               endif
-            enddo
+            j = SystematicsExist(SystematicType(i))
+C Not found:
+            if (j.eq.0)  then
 C--- Add new source
-            Call AddSystematics(SystematicType(i))
-
-            CompressIdx(i) = NSYS
- 80         continue
+               Call AddSystematics(SystematicType(i))
+               CompressIdx(i) = NSYS
+            else
+               CompressIdx(i) = j
+            endif
          endif
       enddo
 
@@ -542,6 +546,67 @@ C Stat error:
      $           ) then
                BETA(CompressIdx(i),npoints) = syst(i)
      $              *SysScaleFactor(CompressIdx(i))
+               
+C     Store also asymmetric errors:
+               isPlus = index(SystematicType(i),'+')
+               isMinus =  index(SystematicType(i),'-')
+
+               if (isPlus.gt.0) then
+                  NAsymPlus(CompressIdx(i)) = NAsymPlus(CompressIdx(i)) 
+     $                 + 1
+
+C !> Too many pluses and minuses !
+                  if (NAsymPlus(CompressIdx(i)).gt.1) then
+                     print *,' '
+                     print *,'===== ERROR ERROR ERROR ===='
+                     print *,' ' 
+                     print *,'Problem with systematic source ',
+     $                    SystematicType(i)
+                     print *,
+     $ 'Positive variations defined more than once'
+                     print *,'Check the data file, stopping'
+                     call hf_errlog(17112012,
+     $                    'F: Problem with asymmetric errors')
+                     call hf_stop
+                  endif
+C Store:
+                  BetaAsym(CompressIdx(i),1,npoints) = syst(i)
+     $                 *SysScaleFactor(CompressIdx(i))                
+               endif
+
+               if (isMinus.gt.0) then
+                  NAsymMinus(CompressIdx(i)) = NAsymMinus(CompressIdx(i)) 
+     $                 + 1
+
+C !> Too many pluses and minuses !
+                  if (NAsymMinus(CompressIdx(i)).gt.1) then
+                     print *,' '
+                     print *,'===== ERROR ERROR ERROR ===='
+                     print *,' ' 
+                     print *,'Problem with systematic source ',
+     $                    SystematicType(i)
+                     print *,
+     $ 'Negative variations defined more than once'
+                     print *,'Check the data file, stopping'
+                     call hf_errlog(17112012,
+     $                    'F: Problem with asymmetric errors')
+                     call hf_stop
+                  endif
+C !> Store:
+                  BetaAsym(CompressIdx(i),2,npoints) = syst(i)
+     $                 *SysScaleFactor(CompressIdx(i))                
+               endif
+
+C !> Symmetrise:
+               if (NAsymPlus(CompressIdx(i)).eq.1
+     $              .and. NAsymPlus(CompressIdx(i)).eq.1 ) then
+                  
+                  BETA(CompressIdx(i),npoints) = 
+     $                 0.5*( BetaAsym(CompressIdx(i),1,npoints)-
+     $                        BetaAsym(CompressIdx(i),2,npoints))
+
+               endif
+
             endif
          enddo
 
@@ -562,6 +627,7 @@ C Store k-factors:
       if (lreadkfactor) then
          close (53)
       endif
+
 
       print '(''Read'',i8,'' data points for '',A80)',NData,Name
       print '(''Printing first'',i5,'' data points'')',min(Ndata,5)
