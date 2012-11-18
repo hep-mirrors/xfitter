@@ -266,8 +266,6 @@ C Reset scales to 1.0
          SystScales(i) = 1.0
          ColumnType(i) = ' '
          ColumnName(i) = ' '
-         NAsymPlus(i)     =  0
-         NAsymMinus(i)     =  0
       enddo
 
       open(51,file=CFile,status='old',err=99)
@@ -537,6 +535,13 @@ C Stat error:
 
          ALPHA(npoints) = sqrt(UncorError**2+StatError**2
      $        +StatErrorConst**2)*DATEN(npoints)
+
+
+C Reset:
+         do i=1,NUncert
+            NAsymPlus(i)     =  0
+            NAsymMinus(i)     =  0
+         enddo
 
          do i=1,NUncert
             if (SystematicType(i).ne.'uncor' .and. 
