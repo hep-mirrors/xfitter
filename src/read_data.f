@@ -236,9 +236,9 @@ C Namelist definition:
 C Temporary buffer to read the data (allows for comments starting with *)
       character *4096 CTmp
 
-      integer SystematicsExist
+      integer SystematicsExist,iLen
       integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)
-      integer isPlus, isMinus
+      logical isPlus, isMinus
 
 C Function to check cuts
       logical FailSelectionCuts
@@ -555,10 +555,11 @@ C Reset:
      $              *SysScaleFactor(CompressIdx(i))
                
 C     Store also asymmetric errors:
-               isPlus = index(SystematicType(i),'+')
-               isMinus =  index(SystematicType(i),'-')
+               iLen   = Len_trim( SystematicType(i))
+               isPlus  = SystematicType(i)(iLen:iLen).eq.'+'
+               isMinus = SystematicType(i)(iLen:iLen).eq.'-'
 
-               if (isPlus.gt.0) then
+               if (isPlus) then
                   NAsymPlus(CompressIdx(i)) = NAsymPlus(CompressIdx(i)) 
      $                 + 1
 
@@ -581,7 +582,7 @@ C Store:
      $                 *SysScaleFactor(CompressIdx(i))                
                endif
 
-               if (isMinus.gt.0) then
+               if (isMinus) then
                   NAsymMinus(CompressIdx(i)) = NAsymMinus(CompressIdx(i)) 
      $                 + 1
 

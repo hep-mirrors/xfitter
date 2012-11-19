@@ -1159,13 +1159,12 @@ C----------------------------------------------------------------
       SystematicsExist = 0
 
 C Check for +- signs:      
-      i = index(SourceName,'+')
-      if (i.eq.0) then
-         i = index(SourceName,'-')
-      endif
-
-      if (i.ne.0) then
-         Name = SourceName(1:i-1)
+      if ( SourceName( len_trim(Sourcename):len_trim(Sourcename))
+     $     .eq.'+' .or.
+     $     SourceName( len_trim(Sourcename):len_trim(Sourcename))
+     $     .eq.'-')
+     $           then
+         Name = SourceName(1:len_trim(Sourcename)-1)
       else
          Name = SourceName
       endif
@@ -1207,9 +1206,15 @@ C-----------------------------------------
 C
 C Detect "+" and "-" signs
 C
-      iasym = index(SourceName,'+')
-      if (iasym.eq.0) then
-         iasym = index(SourceName,'-')
+
+
+
+      if ( SourceName(len_trim(SourceName):len_trim(SourceName)).eq.'+') then
+         iasym = len_trim(SourceName)
+      endif
+
+      if ( SourceName(len_trim(SourceName):len_trim(SourceName)).eq.'-') then
+         iasym = len_trim(SourceName)
       endif
 
       ii = index(SourceName,':')
