@@ -500,3 +500,62 @@ C store the optimal values
 
 
       end
+
+
+      subroutine WriteCSforAverager
+C----------------------------------------------------
+C The subroutine writes the theoretical values of
+C the cross sections according fo the input bins.
+C The subroutine is used for integration with HERAverager
+C----------------------------------------------------
+C The functionality is constrained to H1 ZEUS data
+C----------------------------------------------------
+C P.Belov 19/11/2012
+C----------------------------------------------------
+      implicit none
+
+      include 'steering.inc'
+      include 'ntot.inc'
+      include 'datasets.inc'
+      INCLUDE 'indata.inc'
+      include 'systematics.inc'
+      INCLUDE 'theo.inc'
+
+      integer i,j,index
+
+      open(90,file='./output/heraverager.dat')
+C      write(90,*)ndatasets
+
+
+      do i=1,ndatasets
+
+        write(90,*) '!* '
+        write(90,*) '!* Swimming set from HERAFITTER for the HERAverager'
+        write(90,*) '&Data'
+        write(90,*) '  Name = ''Swimming'' '
+        write(90,*) '  NData = ',NDATAPOINTS(i)
+        write(90,*) '  NColumn = 4'
+        write(90,*) '  ColumnType = 3*''Bin'',''Sigma'' '
+        write(90,*) '  ColumnName = ''x'', ''Q2'', ''y '',' //
+     & ' ''reduced x-section '' '
+        write(90,*) '                                                    '
+        write(90,*) '  IndexDataset = 666'
+        write(90,*) '  Reaction = ''NC e+-p'' '
+        write(90,*) '                                                    '
+        write(90,*) '&END'
+
+          do j=1,NDATAPOINTS(i)
+             index = DATASETIDX(i,j)
+             write(90,'(1X,9(e11.5,1X),i4)') 
+     $              AbstractBins(1,index),
+     $              AbstractBins(2,index),
+     $              AbstractBins(3,index),
+     $              THEO(index)
+          enddo
+
+      enddo
+  111  format(1X, F10.3, 2X, F12.6, 2X, 3(F12.6,2X))
+      close(90)
+
+C      RETURN
+      end subroutine
