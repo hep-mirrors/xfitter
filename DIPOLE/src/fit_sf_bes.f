@@ -275,7 +275,6 @@ c
 c...dimension in GeV^-2 : multiply by 0.389379 to get it in mbarns
 c
       IMPLICIT REAL*8(A-H,O-Z)
-c      common/pass1/ sig0,xlam,x0,xm
       logical lfirst
       data lfirst/.true./
       include 'dipole.inc'
