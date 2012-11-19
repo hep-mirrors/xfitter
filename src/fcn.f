@@ -383,6 +383,14 @@ c     call GetCovChisquare(iflag,n0,fchi2,pchi2)
 *     write out data points with fitted theory
 *     ---------------------------------------------------------
          call writefittedpoints
+
+*        --------------------------------
+*        Temporary output for HERAverager
+*        --------------------------------
+         if (Debug) then
+           call WriteCSforAverager
+         endif
+
       endif
 
 *     ---------------------------------------------------------
