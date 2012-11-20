@@ -136,6 +136,27 @@ file should be installed
 %%%%%%%%%%%
 \subsection{Installation with {\tt LHAPDF}}\label{sec:install_lhapdf}
 
+Installation with LHAPDF requires the {\tt LHAPDF} package, available online at:\\
+{\tt http://lhapdf.hepforge.org/install}.
+Then
+\begin{verbatim}
+tar -xvzf lhapdf-v.r.p.tar.gz
+cd lhapdf-v.r.p
+./configure --prefix=/path/to/directory (and/or --enable-low-memory)
+make
+make install
+cd /path/to/directory/share/lhapdf
+mkdir PDFsets
+\end{verbatim}
+
+Once installed, then create the path that will be linked to the {\tt HERAFitter} package.
+ Specify {\tt LD\_LIBRARY\_PATH} 
+     and {\tt LHAPATH} variables such that they
+ point to the corresponding libraries, and PDF sets location (where lhapdf tables are stored)
+\begin{verbatim}
+export LD_LIBRARY_PATH=/path/to/directory/lhapdf-v.r.p/lib:\$LD_LIBRARY_PATH
+export LHAPATH=/path/to/directory/share/lhapdf/PDFsets
+\end{verbatim}
 
 
 
