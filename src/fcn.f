@@ -354,13 +354,16 @@ c             call fillvfngrid
 *     ---------------------------------------------------------
 *     calculate chisquare
 *     ---------------------------------------------------------
-      if ((Chi2UncorErr.eq.'Matrix').or.(Chi2CorErr.eq.'Matrix')) then
+      if (ICHI2.eq.-1) then
          call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
-c     call GetCovChisquare(iflag,n0,fchi2,pchi2)
       else
-         call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+         if (ICHI2.eq.100) then
+            call GetCovChisquare(iflag,n0,fchi2,pchi2)
+         else
+            call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+         endif
       endif
-      
+
       if (ControlFitSplit) then
          print '(''Fit     chi2/Npoint = '',F10.4,I4,F10.4)',chi2_fit
      $        , NFitPoints,chi2_fit/NFitPoints

@@ -31,73 +31,74 @@ c initialisation
       
       fchi2_in = 0.d0
 
-      if(Chi2CorErr.eq.'Nuisance') then
-         call calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
-c         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
-      endif 
-      
-      if (Chi2UncorErr.eq.'Simple') then
-         call calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
-         fchi2_in = chi2tmp + fchi2_in
-      endif
-      
-      if((Chi2CorErr.eq.'Matrix').or.(Chi2UncorErr.eq.'Matrix')) then
-         call GetCovChisquare(flag_in,n0_in, chi2tmp, pchi2_in)
-         fchi2_in = chi2tmp + fchi2_in
-      endif
-            
-      if(ICHI2.eq.41) then   ! Poissonian tail chi2 contribution
-         call calc_poisson(n0_in, chi2tmp)
-         fchi2_in = chi2tmp + fchi2_in
-      endif
+      print *, 'New Chi2 not implemented yet!'
+c      if(Chi2CorErr.eq.'Nuisance') then
+c         call calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
+cc         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
+c      endif 
+c      
+c      if (Chi2UncorErr.eq.'Simple') then
+c         call calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
+c         fchi2_in = chi2tmp + fchi2_in
+c      endif
+c      
+c      if((Chi2CorErr.eq.'Matrix').or.(Chi2UncorErr.eq.'Matrix')) then
+c         call GetCovChisquare(flag_in,n0_in, chi2tmp, pchi2_in)
+c         fchi2_in = chi2tmp + fchi2_in
+c      endif
+c            
+c      if(ICHI2.eq.41) then   ! Poissonian tail chi2 contribution
+c         call calc_poisson(n0_in, chi2tmp)
+c         fchi2_in = chi2tmp + fchi2_in
+c      endif
 
       return 
       end
 
-      subroutine calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
-      implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'systematics.inc'
-      
-      double precision ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
-      double precision fcorchi2_in
-
-      print *, 'not yet implemented'
-      return 
-      end
-      
-      subroutine calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
-      implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'systematics.inc'
-      
-      double precision RSYS_in(NSYSMax)
-      double precision chi2tmp, pchi2_in(nset)
-
-      print *, 'not yet implemented'
-      return 
-      end
-
-      subroutine calc_poisson(n0_in, chi2)
-      implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-     
-      double precision chi2
-      integer n0_in, ipoint
-      double precision stat, unc, const, error
-
-      chi2=0.d0
-      do ipoint=1,n0_in
-         call GetPointScaledErrors(ipoint,stat,unc,const)
-         error = dsqrt(stat**2+unc**2+const**2)
-         chi2 = chi2 + 2.*log( error/alpha(ipoint)) 
-      enddo
-
-      return 
-      end
+c      subroutine calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
+c      implicit none
+c      include 'ntot.inc'
+c      include 'steering.inc'
+c      include 'systematics.inc'
+c      
+c      double precision ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
+c      double precision fcorchi2_in
+c
+c      print *, 'not yet implemented'
+c      return 
+c      end
+c      
+c      subroutine calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
+c      implicit none
+c      include 'ntot.inc'
+c      include 'steering.inc'
+c      include 'systematics.inc'
+c      
+c      double precision RSYS_in(NSYSMax)
+c      double precision chi2tmp, pchi2_in(nset)
+c
+c      print *, 'not yet implemented'
+c      return 
+c      end
+c
+c      subroutine calc_poisson(n0_in, chi2)
+c      implicit none
+c      include 'ntot.inc'
+c      include 'systematics.inc'
+c     
+c      double precision chi2
+c      integer n0_in, ipoint
+c      double precision stat, unc, const, error
+c
+c      chi2=0.d0
+c      do ipoint=1,n0_in
+c         call GetPointScaledErrors(ipoint,stat,unc,const)
+c         error = dsqrt(stat**2+unc**2+const**2)
+c         chi2 = chi2 + 2.*log( error/alpha(ipoint)) 
+c      enddo
+c
+c      return 
+c      end
 
 
 

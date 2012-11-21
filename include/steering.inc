@@ -92,7 +92,8 @@ C
       logical LHAPDFErrors     
       integer nLHAPDF_Sets 
 
-      character*32 Chi2UncorErr, Chi2CorErr
+      character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
+      logical Chi2PoissonCorr, Chi2FirstIterationRescale
 
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
@@ -105,13 +106,13 @@ C
      $     ,ichebtypeGlu, ichebtypeSea
      $     ,ifsttype,iSeeDmc
      $     ,IOFFSETCHEBSEA,EWFIT
-     $    ,npolyval
+     $     ,npolyval
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
      $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
-     $     ,Chi2UncorErr, Chi2CorErr
+     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
 
       common/STEERING2/FLAGRW, DORWONLY, CachePDFs, FlexibleGluon,
      $     read_qcdnum_tables

@@ -112,11 +112,8 @@ C-----------------------------------------
          call Systematics
       endif
 
-      if (Chi2UncorErr.eq.'Matrix') then
+      if (ICHI2.eq.100) then
          call prep_corr_stat
-      endif
-
-      if(Chi2CorErr.eq.'Matrix') then
          call prep_corr_syst
       endif
 
