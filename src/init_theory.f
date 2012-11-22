@@ -774,10 +774,30 @@ C------------------------------------------------------------
       include 'datasets.inc'
       include 'indata.inc'
       integer IDataSet, IGridID
+      integer i
+
 C---------------------------------------------------------------
-      call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
+C      call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
 C Store index:
-      DATASETTheoryIndex(IDataSet) = IGridID
+C      DATASETTheoryIndex(IDataSet) = IGridID
+
+
+      if (DATASETNapplgrid(IDataSet).gt.1) then
+         do i=1,DATASETNapplgrid(IDataSet)
+            call appl_readgrid(IGridID,DATASETapplgridNames(i,IDataSet))
+            DATASETTheoryIndex(IDataSet) = IGridID
+            DATASETApplgridTheoryIndex(i,IDataSet) = IGridID
+            print*,'display the Index of Applgrid: ', i, '----',
+     $           DATASETApplgridTheoryIndex(i,IDataSet)
+         enddo
+      endif
+      
+      if (DATASETNapplgrid(IDataSet).eq.1) then
+         call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
+C     Store index:
+         DATASETTheoryIndex(IDataSet) = IGridID
+      endif
+
 
 
       end
