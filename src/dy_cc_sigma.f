@@ -57,6 +57,8 @@ C---------------------------------------------------
       integer NPMax         ! max. number of DY points
       parameter (NPMax = 500)
       double precision XSec(NPMax) ! applgrid convolution result
+      double precision XSecPlus(NPMax) ! applgrid convolution result                                              
+      double precision XSecMinus(NPMax) ! applgrid convolution result                                             
 
       integer i,idx,idxUnit
       double precision TheoryUnit  ! scale factor for theory to bring to data units.
@@ -66,6 +68,14 @@ C---------------------------------------------------
       integer nkfact, idxKFact
 
       integer GetKFactIndex
+
+      double precision evalTotXS
+      integer idxBinEta1,idxBinEta2
+      double precision BinSize
+      logical LAsymmetry
+      integer GetBinIndex
+      
+
 C----------------------------------------------------      
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
          print *,'ERROR IN GetDYXsection_applgrid'
@@ -73,33 +83,78 @@ C----------------------------------------------------
          call HF_stop
       endif
 
-      call ag_convolute( DATASETTheoryIndex(IDataSet),
-     $     DataSetIOrder(IDataSet),
-     $     DataSetMuR(IDataSet),
-     $     DataSetMuF(IDataSet),
-     $     XSec)
+C     Check type of the data                                                                                      
+      LAsymmetry =
+     $     DATASETInfo(GetInfoIndex(IDataSet,'asymmetry'),IDataSet).gt.0                                          
 
-C check if we have to divide APPLGRID prediction to convert units to data units:
-      idxUnit = GetInfoIndex(IDataSet,'theoryunit')
-      if (idxUnit.gt.0) then
-         Theoryunit = DATASETInfo(idxUnit,IDataSet)
-      else
-         Theoryunit = 1.
-      endif
-
-      !> perhaps we need to multiply prediction by EW or NNLO or both k-factors
-      nkfact = DATASETNKfactors(IDataSet)
-      
-      do i=1, NDATAPOINTS(IDataSet)
-         idx =  DATASETIDX(IDataSet,i)
-         THEO(idx) = XSec(i) / TheoryUnit
+      if (LAsymmetry) then
+C     Asymmetry case                                                                                              
+         call ag_convolute( DATASETApplgridTheoryIndex(1,IDataSet),
+     $        DataSetIOrder(IDataSet),
+     $        DataSetMuR(IDataSet),
+     $        DataSetMuF(IDataSet),
+     $        XSecPlus)
          
-         !> Check if k-factor is required, multiply prediction by all of them.
-         do idxkfact=1,nkfact
+         call ag_convolute( DATASETApplgridTheoryIndex(2,IDataSet),
+     $        DataSetIOrder(IDataSet),
+     $        DataSetMuR(IDataSet),
+     $        DataSetMuF(IDataSet),
+     $        XSecMinus)
+         
+C     check if we have to divide APPLGRID prediction to convert units to data units:                              
+         idxUnit = GetInfoIndex(IDataSet,'theoryunit')
+         if (idxUnit.gt.0) then
+            Theoryunit = DATASETInfo(idxUnit,IDataSet)
+         else
+            Theoryunit = 1.
+         endif
+      else
+
+         call ag_convolute( DATASETTheoryIndex(IDataSet),
+     $        DataSetIOrder(IDataSet),
+     $        DataSetMuR(IDataSet),
+     $        DataSetMuF(IDataSet),
+     $        XSec)
+
+C     check if we have to divide APPLGRID prediction to convert units to data units:
+         idxUnit = GetInfoIndex(IDataSet,'theoryunit')
+         if (idxUnit.gt.0) then
+            Theoryunit = DATASETInfo(idxUnit,IDataSet)
+         else
+            Theoryunit = 1.
+         endif
+      endif
+                                
+C     perhaps we need to multiply prediction by EW or NNLO or both k-factors
+
+      nkfact = DATASETNKfactors(IDataSet)
+
+      idxBinEta1 = GetBinIndex(IDataSet,'y1')
+      idxBinEta2 = GetBinIndex(IDataSet,'y2')
+
+      do i=1, NDATAPOINTS(IDataSet)
+C     Bin Size                                                                                                    
+         idx =  DATASETIDX(IDataSet,i)
+         BinSize = AbstractBins(idxBinEta2,idx)-AbstractBins(idxBinEta1,idx)
+         THEO(idx) = XSec(i) / TheoryUnit                                                                         
+
+cc         print*, 'i: ',i,' xsec: ',Xsec(i), 'theo: ', THEO(idx),' idx: ', idx, ' Bin: ', BinSize                
+
+         if (LAsymmetry) then
+           THEO(idx) =
+     $           (XSecPlus(i)-XSecMinus(i))/(XSecPlus(i)+XSecMinus(i))
+C          print*,'prediction for theory: ', THEO(idx),'--- index: ',i                                            
+         endif
+
+         !> Check if k-factor is required, multiply prediction by all of them.                                    
+          do idxkfact=1,nkfact
             Theo(idx) = Theo(idx)*kfactors(idxkfact,idx)
          enddo
-c         print *,'hady', idx, THEO(idx), DATEN(idx),TheoryUnit
+cc         print *,'hady', idx, THEO(idx), DATEN(idx),TheoryUnit                                                  
       enddo
+
+
+
       end
 
       Subroutine GetDYCCXsection_kfactor(IDataSet)
