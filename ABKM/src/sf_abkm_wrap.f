@@ -96,9 +96,6 @@ c divide all SFs by 2 to get e+/-
        flabkm = flqcd(nb,nt,ni,x,q2)/2
        f3abkm = f3qcd(nb,nt,ni,x,q2)/2
  
-       f2abkm = f2qcd(nb,nt,ni,x,q2)/2
-       flabkm = flqcd(nb,nt,ni,x,q2)/2
-       f3abkm = f3qcd(nb,nt,ni,x,q2)/2
 c c quark
        f2cabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
        flcabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
