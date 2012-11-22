@@ -205,12 +205,16 @@ C Extra info about k-factors, applegrid file(s):
       character*80  TheoryType(2)
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
+C Infomation for open more than 1 applgrid
+C     character*80 applgridNames(NapplgridMax)
+      integer      NTheoryFiles
 C Namelist definition:
       namelist/Data/Name,NData
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
      $     ,SystScales, IndexDataset
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
      $     ,ColumnName, ColumnType, NColumn
+     $     ,NTheoryFiles 
 
       double precision XSections(ndataMax)
       double precision AllBins(10,ndataMax)
@@ -254,6 +258,8 @@ C Reset to default:
       NKFactor = 0
       TheoryInfoFile = ' '
       LReadKFactor = .false.
+C     Added                                                                                             
+C     NTheoryFiles = 0
 
       do i=1,2
          TheoryInfoFile(i) = ' '
@@ -394,6 +400,16 @@ C Theory file if present:
          DATASETKFactorNames(i,NDATASETS) = KFactorNames(i)
       enddo
 
+C     For more than 1 applgrid                                                                          
+      DATASETNapplgrid(NDATASETS) = NTheoryFiles
+      
+      print *,'----Napplgrid [Theory Files]: ',NTheoryFiles, '----',
+     $     DATASETNapplgrid(NDATASETS)
+      do i=1,NTheoryFiles
+         print*,'Theory files: ', TheoryInfoFile(i)
+C     ---> copy the names in a new variable 
+         DATASETapplgridNames(i,NDATASETS) = TheoryInfoFile(i)
+      enddo
 
 C Read data info:
       do j=1,NData
