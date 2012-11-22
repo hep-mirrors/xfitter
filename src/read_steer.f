@@ -201,7 +201,9 @@ C----------------------------------------------
       include 'for_debug.inc'
 C-----------------------------------------------
       character*32  Chi2Style, HF_SCHEME
-      character*32 Chi2Base
+      character*32 Chi2SettingsName(5)
+      character*32 Chi2Settings(5)
+      character*32 Chi2ExtraParam(8)
 
       real*8 Q02       ! Starting scale
       integer IOrder   ! Evolution order
@@ -215,16 +217,17 @@ C Main steering parameters namelist
      $     LDebug, ifsttype,  LFastAPPLGRID,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
-     $     Chi2Base, Chi2UncorErr, Chi2CorErr
+     $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam
 C--------------------------------------------------------------
 
 C Some defaults
       Order     = ' '
       TheoryType = ' '
       Chi2Style = 'HERAPDF'
-      Chi2Base = 'undefined'
-      Chi2UncorErr = 'Simple' 
-      Chi2CorErr = 'Nuisance'
+      Chi2SettingsName(1) = 'undefined' ! triggering the old style chi2 settings
+      do i=1, 8
+         Chi2ExtraParam(i) = 'undefined'
+      enddo
 
 C
 C  Read the main H1Fitter namelist:
@@ -250,7 +253,9 @@ C     set debug flag used elsewhere according to steering
 C
 C Decode Chi2 style:
 C
-      call SetChi2Style(Chi2Style, Chi2Base)
+
+      call SetChi2Style(Chi2Style, Chi2SettingsName, Chi2Settings, 
+     $     Chi2ExtraParam)
       if (itheory.lt.100) then
 C
 C Decode HFSCHEME:
@@ -882,7 +887,8 @@ C---------------------------------
       end
 
 
-      Subroutine SetChi2Style(Chi2Style, Chi2Base)
+      Subroutine SetChi2Style(Chi2Style, Chi2SettingsName, Chi2Settings, 
+     $     Chi2ExtraParam)
 C---------------------------------------
 C
 C>  Set Chi2 style
@@ -890,11 +896,14 @@ C
 C---------------------------------------
       implicit none
       character*(*) Chi2Style
-      character*(*) Chi2Base
+      character*32 Chi2SettingsName(5)
+      character*32 Chi2Settings(5)
+      character*32 Chi2ExtraParam(8)
+      integer i
       include 'steering.inc'
 C---------------------------------
 
-      if (Chi2Base.eq.'undefined') then
+      if (Chi2SettingsName(1).eq.'undefined') then
          CorrSystByOffset=.false.
          if (Chi2Style.eq.'HERAPDF') then
             ICHI2 = 11
@@ -912,9 +921,7 @@ C---------------------------------
          elseif (Chi2Style.eq.'H12011') then
             ICHI2 = 41        
          elseif (Chi2Style.eq.'Covariance Matrix') then
-            ICHI2 = 11  ! default covariance matrix implementation: HERAPDF style
-            Chi2UncorErr = 'Matrix'
-            Chi2CorErr = 'Matrix'
+            ICHI2 = 100
          else
             print *,'Unsupported Chi2Style =',Chi2Style
             print *,'Check value in steering.txt'
@@ -922,26 +929,38 @@ C---------------------------------
          endif
       else
          CorrSystByOffset=.false.
-         if (Chi2Base.eq.'HERAPDF') then
-            ICHI2 = 11
-         elseif (Chi2Base.eq.'HERAPDF Sqrt') then
-            ICHI2 = 31
-         elseif (Chi2Base.eq.'Offset') then
-            ICHI2 = 3
-            CorrSystByOffset = .true.
-         elseif (Chi2Base.eq.'HERAPDF Linear') then
-            ICHI2 = 21
-         elseif (Chi2Base.eq.'CTEQ') then
-            ICHI2 = 2
-         elseif (Chi2Base.eq.'H12000') then
-            ICHI2 = 1        
-         elseif (Chi2Base.eq.'H12011') then
-            ICHI2 = 41        
-         else
-            print *,'Unsupported Chi2Base = ',Chi2Base
-            print *,'Check value in steering.txt'
-            call HF_stop
-         endif
+c     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
+         ICHI2 = -1
+         do i=1, 5
+            if(Chi2SettingsName(i).eq.'StatScale') then
+               StatScale = Chi2Settings(i)
+            elseif(Chi2SettingsName(i).eq.'UncorSysScale') then
+               UncorSysScale = Chi2Settings(i)
+            elseif(Chi2SettingsName(i).eq.'CorSysScale') then
+               CorSysScale = Chi2Settings(i)
+            elseif(Chi2SettingsName(i).eq.'UncorChi2Type') then
+               UncorChi2Type = Chi2Settings(i)
+            elseif(Chi2SettingsName(i).eq.'CorChi2Type') then
+               CorChi2Type = Chi2Settings(i)
+            else
+               print *,'Unsupported Chi2SettingsName =',Chi2SettingsName(i)
+               call HF_stop
+            endif
+         enddo
+
+C some defaults
+         Chi2PoissonCorr = .false.
+         Chi2FirstIterationRescale = .false.
+         do i=1, 8
+            if(Chi2ExtraParam(i).eq.'PoissonCorr') then
+               Chi2PoissonCorr = .true.
+            elseif(Chi2ExtraParam(i).eq.'FirstIterationRescale') then
+               Chi2FirstIterationRescale = .true.
+            elseif(Chi2ExtraParam(i).ne.'undefined') then
+               print *,'Unsupported Chi2ExtraParam = ',Chi2ExtraParam(i)
+               call HF_stop
+            endif
+         enddo
       endif
       end
       
