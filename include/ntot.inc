@@ -10,6 +10,9 @@ C
 
       integer NKFactMax          !> Max. number of k-factors
       parameter (NKFactMax = 10)
+
+      integer NapplgridMax          !> Max. number of applgrids
+      parameter (NapplgridMax = 10)  
       
       integer NBinDimensionMax   !> MAx. number of abstract bins
       parameter (NBinDimensionMax=10)      
