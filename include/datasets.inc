@@ -32,6 +32,10 @@ C Dimension of k-factors
       integer DATASETNKfactors(NSET)                      !> Number of k-factors
       character*80 DATASETKFactorNames(NKFactMax,NSET)    !> Names of k-factors
 
+C  Try to read two or more applgrid
+      integer DATASETNapplgrid(NSET)                      !> Number of applgrids
+      character*80 DATASETapplgridNames(NapplgridMax,NSET)    !> Names of applgrids
+      integer DATASETApplgridTheoryIndex(NapplgridMax,NSET)
 
 C SG: relation to bins:
       integer DATASETBinningDimension(NSET)                        !> Number of abstract bins
@@ -69,4 +73,6 @@ C
      $     ,DATASETTheoryIndex
      $     ,NCorrFiles
      $     ,CorrFileNames
-
+     $     ,DATASETNapplgrid
+     $     ,DATASETapplgridNames
+     $     ,DATASETApplgridTheoryIndex
