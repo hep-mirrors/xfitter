@@ -147,41 +147,6 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 C----------------------------------------------------------------------
-C----------------------------------------------------------------------
-c     This function returns F-123L, for total-c,b 'xcb', NOT using 'K' factors
-C----------------------------------------------------------------------
-C     This function is temporary until i combine 'xcb' in a single pass
-C----------------------------------------------------------------------
-      subroutine Fgen123Lxcb_OLD(icharge, X, Q,xmu,F123Lxcb, polar)
-
-      double precision F123Lxcb(3,4)  !*** 3='xcb', 4='123L'
-
-      double precision f123L(4)   !***  4='123L'
-      double precision f123Lc(4)  !***  4='123L'
-      double precision f123Lb(4)  !***  4='123L'
-
-      double precision x,Q,xmu,polar
-      integer icharge,i
-
-      Call Fgen123L_OLD(icharge,   1, X, Q,xmu,F123L , polar) !*** total F
-      Call Fgen123L_OLD(icharge,   2, X, Q,xmu,F123Lc, polar) !*** F-charm
-      Call Fgen123L_OLD(icharge,   3, X, Q,xmu,F123Lb, polar) !*** F-bottom
-
-C----------------------------------------------------------------------
-c     re-PACK F123Lxcb ARRAY: 
-
-      DO I=1,4         
-         F123Lxcb(1,i)=f123L( i)
-         F123Lxcb(2,i)=f123Lc(i)
-         F123Lxcb(3,i)=f123Lb(i)
-      enddo
-     
-C----------------------------------------------------------------------
-      return
-      end
-
-C----------------------------------------------------------------------
-C----------------------------------------------------------------------
 c     This function returns F-123L, for total-c,b 'xcb', using 'K' factors
 C----------------------------------------------------------------------
       subroutine Fgen123LxcbK(index,icharge, X, Q,xmu,F123Lxcb, polar)
@@ -191,12 +156,12 @@ cv      include 'ntot.inc'
       include 'qcdnumhelper.inc'
 
 
-      double precision F123Lxcb(3,4),F123Lxcb_LO(3,4) !*** 3='xcb', 4='123L'
+      double precision F123Lxcb(3,4),F123Lxcb_LO(3,4),F123Lxcb_QCDNUM(3,4) !*** 3='xcb', 4='123L'
       double precision x, q, xmu, polar
       integer index, icharge
       double precision maxFactor,small
 c     data maxFactor,small /1.0d1, 1.e-12/
-      data maxFactor,small /1.0d3, 1.e-12/
+      data maxFactor,small /999d0, 1.e-12/
       
       COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
       common /fred/ xmc,xmb,HMASS
@@ -209,8 +174,8 @@ C Local table of k-factors
       data  akFACTxcb/nTotal*0.d0/  !*** Zero K-Factor table
 
 c     Create a vector to keep track of which index has k-factors already computed
-      logical ifirst(NKfactMax),ihead
-      data ifirst, ihead /NKfactMax*.TRUE.,.TRUE./
+      logical ifirst(NKfactMax),ihead,isave
+      data ifirst, ihead, isave /NKfactMax*.TRUE.,.TRUE.,.TRUE./
 
 c     ------Check index is within bounds
       if(index.gt.NKfactMax) then
@@ -227,6 +192,25 @@ C-----------------------------------------------------------------------------
          IschORIG=Isch
          Isch=5  !*** Massive LO Calculation
          call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
+C---------------------------------!*** OPTION TO USE QCDNUM FOR K-FACTORS
+         if(isave) then
+            isave=.false.
+            iqcdnum=1
+            iqcdnum=0
+            write(6,*) ' enter 1 for QCDNUM K-facs; 0 for LO-Massive ACOT ',iqcdnum
+c            read (5,*) iqcdnum
+            write(6,*) ' set: 1 for QCDNUM K-facs; 0 for LO-Massive ACOT  = ',iqcdnum
+         endif
+
+         if(iqcdnum.eq.1) then
+         if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN !*** NEUTRAL CURRENT ONLY FOR NOW
+         call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
+c     !*** 3='xcb', 4='123L'
+         F123Lxcb_LO(1,2)=F123Lxcb_QCDNUM(1,2)  !*** Use QCDNUM F2
+         F123Lxcb_LO(1,4)=F123Lxcb_QCDNUM(1,4)  !*** Use QCDNUM FL
+         ENDIF
+         endif
+C---------------------------------
          Isch=IschORIG  !*** Reset Ischeme
 C     Generate K-Factor
          do i=1,3
@@ -251,10 +235,10 @@ C-----------------------------------------------------------------------------
          if(ihead) open(62,file='output/KfactorsACOT.txt')
          if(ihead) write(6,*)   ' K-factors '
          if(ihead) write(6,*) 
-     >   ' indx  x    Q   ichg pol    ',
-     >   'F1    F2    F3    FL    ',
-     <   'F1c   F2c   F3c   FLc   ',
-     >   'F1b   F2b   F3b   FLb   '
+     >   ' indx  x    Q    ichg pol   ',
+     >   '  F1      F2      F3      FL    ',
+     <   '  F1c     F2c     F3c     FLc   ',
+     >   '  F1b     F2b     F3b     FLb   '
          ihead=.FALSE.
 c     only dump the k-factor info the first time through the loop
             write(62,*)  !**** DUMP COMPLETE INFO 
@@ -273,6 +257,7 @@ C-----------------------------------------------------------------------------
             IschORIG=Isch
             Isch=5  !*** Massive LO Calculation
             call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
+
             Isch=IschORIG  !*** Reset Ischeme
 C     Use K-Factor
             do i=1,3
@@ -282,6 +267,16 @@ C     Use K-Factor
             enddo
          endif
 
+
+c     Adjust F2 and FL if we use QCDNUM K-facs
+         if(iqcdnum.eq.1) then
+           if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN !*** NEUTRAL CURRENT ONLY FOR NOW
+               call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
+               F123Lxcb(1,2)=F123Lxcb_QCDNUM(1,2)* akFACTxcb(1,2,Index)
+               F123Lxcb(1,4)=F123Lxcb_QCDNUM(1,4)* akFACTxcb(1,4,Index)
+           endif
+         ENDIF
+  
 
 C-----------------------------------------------------------------------------
 C-----------------------------------------------------------------------------

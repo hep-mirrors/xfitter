@@ -388,8 +388,10 @@ C----------------------------------------------------
 C23456789012345678901234567890123456789012345678901234567890123456789012
        if(((f1m/q).le.1.e-4).or.((f2m/q).le.1.e-4)) then
          DO I=1,3,1
-           if(IsNaN(XHq123a(i))) XHq123a(i)=XNLO123Qza(i)+XHqSUBQ123a(i)
-           if(IsNaN(XHq123b(i))) XHq123b(i)=XNLO123Qzb(i)+XHqSUBQ123b(i)
+!            if(IsNaN(XHq123a(i))) XHq123a(i)=XNLO123Qza(i)+XHqSUBQ123a(i)
+!            if(IsNaN(XHq123b(i))) XHq123b(i)=XNLO123Qzb(i)+XHqSUBQ123b(i)
+           XHq123a(i)=XNLO123Qza(i)+XHqSUBQ123a(i)
+           XHq123b(i)=XNLO123Qzb(i)+XHqSUBQ123b(i)
          ENDDO
         endif
 C----------------------------------------------------

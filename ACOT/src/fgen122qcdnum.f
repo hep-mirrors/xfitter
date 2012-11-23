@@ -1,125 +1,3 @@
-C =========================================================================
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-C =========================================================================
-       SUBROUTINE Fgen123LK_OLD(idata,icharge,Mode, XBJ, Q, XMU, F123L, polar)
-C-----------------------------------------------------------------------------
-C      This is a front-end for Fgen123L
-C      On first call of idata point number, it computes and stores the K-factor
-C      25 April 2011: 
-C      
-C-----------------------------------------------------------------------------
-      Implicit Double Precision (A-H, O-Z)
-      PARAMETER (ndata = 1000,n123L=4,nMode=3,nTotal=ndata*n123L*nMode)  !*** Number of data points for K-factor array
-      Dimension XKFACTOR(ndata,n123L,nMode)  !*** ndata points,  (F123L)=(1,2,3,4), Mode= (F,Fc,Fb)=(1,2,3)
-      data XKFACTOR /nTotal*0.d0/  
-      save XKFACTOR
-
-      Dimension F123L(4),F123LLO(4)
-      Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
-      common /fred/ xmc,xmb,HMASS
-
-      Character*80 Message ! Error message text
-
-C-----------------------------------------------------------------------------
-c    if idata>ndata, increase k-factor table
-C-----------------------------------------------------------------------------
-      if(idata.gt.ndata)  then  !**** over-ride and use full calculation:
-         write(6,*) ' Error: idata =',idata,' > ',ndata
-         write(6,*) ' Increase ndata '
-         write(Message,*) 
-     +   'F: Fgen123LK - idata =',idata,' > ',ndata,' Increase ndata!'
-         call HF_errlog(101,Message)
-c        stop
-      endif
-
-C-----------------------------------------------------------------------------
-c    if idata=0 skip k-factor table and use full calculation
-C-----------------------------------------------------------------------------
-      if(idata.eq.0)  then  !**** over-ride and use full calculation:
-         call Fgen123L_OLD(icharge,Mode,xbj,q,xmu,F123L, polar)
-         return
-      endif
-
-C-----------------------------------------------------------------------------
-c     FIRST TIME THROUGH: FILL K-FACTOR      
-C-----------------------------------------------------------------------------
-      if(XKFACTOR(idata,1,mode).eq.0.d0)  then  !***  FIRST TIME THROUGH: FILL K-FACTOR  ===
-         call Fgen123L_OLD(icharge,Mode,xbj,q,xmu,F123L, polar)
-         IschORIG=Isch
-         Isch=5  !*** Massive LO Calculation
-         Call Fgen123L_OLD(icharge,Mode,XBJ,Q,XMU,F123Llo, polar)
-         Isch=IschORIG  !*** Reset Ischeme
-C     Generate K-Factor
-         do i=1,4
-            if(F123Llo(i).eq.0.0d0) then
-            XKFACTOR(Idata,i,MODE)=1.0d0  !**** Default if denom is zero
-            else
-            XKFACTOR(Idata,i,MODE)=F123l(i)/F123llo(i)
-            endif
-         enddo
-c
-C-----------------------------------------------------------------------------
-         else  !***  NOT FIRST TIME THROUGH: USE K-FACTOR ======================
-            IschORIG=Isch
-            Isch=5  !*** Massive LO Calculation
-            Call Fgen123L_OLD(icharge,Mode, XBJ, Q, XMU, F123Llo, polar)
-            Isch=IschORIG  !*** Reset Ischeme
-C     Use K-Factor
-            do i=1,4
-               F123L(i)=F123Llo(i) * XKFACTOR(Idata,i,mode)
-            enddo
-         endif
-C-----------------------------------------------------------------------------
-C-----------------------------------------------------------------------------
-      return
-      end
-
-CC =========================================================================
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-C =========================================================================
-       SUBROUTINE Fgen123L_OLD(icharge,Mode, XBJ, Q, XMU, F123L, polar)
-c ************************** not used any more
-c ************************** not used any more
-C-----------------------------------------------------------------------------
-C      This is a front-end for Fgen123. "Fgen123L" simply adds on the "L" piece
-C      Program to compute both CC and NC F123
-C      25 April 2011: Call Fgen123L and compute "L" term
-C      
-C-----------------------------------------------------------------------------
-      Implicit Double Precision (A-H, O-Z)
-      Dimension F123L(4)
-      Dimension F123( 3)
-      Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
-      common /fred/ xmc,xmb,HMASS
-
-c ************************** not used any more
-      stop !**** not used any more
-      call Fgen123_OLD(icharge,Mode,xbj,q,xmu,F123, polar)
-      stop !**** not used any more
-
-c     copy arrays
-      F123L(1)=F123(1)
-      F123L(2)=F123(2)
-      F123L(3)=F123(3)
-C----------------------------------------------------------------------
-C COMPUTE  FL 
-C----------------------------------------------------------------------
-      rho=Sqrt(1.0d0+(2.0d0*hmass*xbj/Q)**2)  !*** Get Hmass from /fred/ common block 
-      FL=rho**2*F123(2)- 2.0d0*xbj*F123(1)
-      F123L(4)=FL
-
-      return
-      end
-CC =========================================================================
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-C =========================================================================
-       SUBROUTINE Fgen123_OLD(icharge,Mode, XBJ, Q, XMU, F123L, polar)
-       Implicit Double Precision (A-H, O-Z)
-       Dimension F123L(*)      
-
-       stop
-       return
-       end
 
 C =========================================================================
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,11 +18,13 @@ C-----------------------------------------------------------------------------
 
 C-----------------------------------------------------------------------------
       if(icharge.eq.0) then !*** Neutral Current  (only photon for icharge=0)
-          call Fnc123Lxcb(icharge,xbj,q,xmu,F123Lxcb, polar)
+c         call Fnc123Lxcb( icharge,xbj,q,xmu,F123Lxcb, polar)
+          call Fnc123Lxcb2(icharge,xbj,q,xmu,F123Lxcb, polar) !*** 
 
 C-----------------------------------------------------------------------------
       elseif(icharge.eq. 4.or.icharge.eq.5) then !*** Neutral Current BOTH GAMMA & Z
-       Call Fnc123Lxcb(icharge, XBJ, Q,XMU, F123Lxcb, polar)
+c       Call Fnc123Lxcb( icharge, XBJ, Q,XMU, F123Lxcb, polar)
+        Call Fnc123Lxcb2(icharge, XBJ, Q,XMU, F123Lxcb, polar)
  
 C-----------------------------------------------------------------------------
       elseif((icharge.eq.+1).or.(icharge.eq.-1)) then !*** Charged Current (W+ or W-) 
@@ -170,7 +50,260 @@ c        stop
       return
       end
 
+C =========================================================================
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+C =========================================================================
+       SUBROUTINE Fgen123LxcbQCDNUM(index,icharge, XBJ,Q,XMU, F123Lxcb, polarity)
 C-----------------------------------------------------------------------------
+C      07 Nov. 2012: Use QCDNUM to compute the denominator
+C      
+C      
+C-----------------------------------------------------------------------------
+      Implicit Double Precision (A-H, O-Z)
+      Dimension F123Lxcb(3,4), F123L(4),F123Lc(4),F123Lb(4)
+      Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
+
+      Character*80 Message ! Error message text
+      character*(5) XSecType
+
+C-----------------------------------------------------------------------------
+c    ZERO ARRAY
+
+      do i=1,3
+         do j=1,4
+            F123Lxcb(i,j)=0.0d0 
+         enddo
+      enddo
+
+C-----------------------------------------------------------------------------
+c     CALL QCDNUM ROUTINE:
+c    
+c     icharge_in: 0 NC: photon exchange only
+c     icharge_in: 4 NC: e+ gamma+gammaZ+Z 
+c     icharge_in: 5 NC: e- gamma+gammaZ+Z 
+c     icharge_in:-1 CC e-
+c     icharge_in:+1 CC e+
+
+C     THIS IS NC-DIS
+      if(icharge.eq.4) then
+         charge=+1
+      elseif(icharge.eq.5) then
+         charge=-1
+      else     
+         write(6,*) ' ERROR: ACOT ICHARGE = ',ICHARGE
+         charge=0
+         write(6,*) ' SET CHARGE = O',CHARGE
+c         stop
+      endif
+
+      q2=q*q
+      npts=1
+      XSecType='NCDIS'
+      
+      call UseZmvnsScheme(F2, FL, xF3, F2gamma, FLgamma,
+     $     q2, xbj, npts, polarity, charge, XSecType)
+    
+C-----------------------------------------------------------------------------
+c     COPY QCDNUM RESULTS TO ARRAY
+c     !*** 3='xcb', 4='123L'
+
+      F123Lxcb(1,1)=(F2-FL)/(2.0D0*XBJ)  !*** Patch for F1
+      F123Lxcb(1,2)=F2
+      F123Lxcb(1,3)=xF3/xbj  !*** Convention for xF3
+      F123Lxcb(1,4)=FL
+
+c      write(6,*) F2, FL, xF3, F2gamma, FLgamma
+c      write(6,*) (F123Lxcb(1,j),j=1,4)
+C-----------------------------------------------------------------------------
+
+      return
+      end
+C-----------------------------------------------------------------------------
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+C =========================================================================
+       SUBROUTINE Fnc123Lxcb2(icharge, XBJ, Q,XMU, F123Lxcb, polar)
+C-----------------------------------------------------------------------------
+C      Program to COMPUTE K FACTORS
+C      
+C      this adds N2LO and N3LO to Fnc123Lxcb
+C      
+C      27 OCT 2012: FIO
+C-----------------------------------------------------------------------------
+      Implicit Double Precision (A-H, O-Z)
+      Dimension 
+     >    XTOT123(3),XCHARM(3),XBOTTOM(3)
+     >   ,XXTOT123(3),XXCHARM(3),XXBOTTOM(3)
+     >   ,xmarray(6), charge(6), charge3(6)
+     >   ,F123(3),  F123Lxcb(3,4), F123Lxcb2(3,4), ratio(3,4)
+      double precision fij(0:6,1:6)  !*** this is a dummy; we don't use detailed info
+
+      Dimension  
+     >   T3F(6),
+     >   qVECTORg(6), qAXIALg(6), qRightg(6), qLeftg(6),
+     >   qVECTORz(6), qAXIALz(6), qRightz(6), qLeftz(6),
+     >   XTOT123gz(3), XTOT123zz(3),XXTOT123gz(3), XXTOT123zz(3),
+     >   term(3), facgg(3),facgz(3),faczz(3)
+      Parameter(Iset4F4=14)
+      PARAMETER (PI=3.14159265359)
+      Common /Ischeme/ Isch, Iset, Iflg, Ihad
+      Common  / ActInt /  AERR, RERR, iActL, iActU
+      logical ifirst
+      data ifirst /.true./
+      save ifirst
+
+C-----------------------------------------------------------------------------
+C     DATA SINW2, XMW, XMZ   / 0.23D0,   80.4D0,  91.2D0 /
+!C-----------------------------------------------------------------------------
+
+C-----------------------------------------------------------------------------
+      if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) then !*** Neutral Current  (only photon for icharge=0)
+          call Fnc123Lxcb(icharge,xbj,q,xmu,F123Lxcb2, polar) !*** 
+      endif
+
+
+      do i=1,3
+         do j=1,4
+            F123Lxcb(i,j)=F123Lxcb2(i,j)
+         enddo
+      enddo
+
+c     ==============================================================
+C     NEED BETTER LOGIC HERE TO SKIP FOR LOW ORDER CALC
+c     if(kord.le.1) return 
+      if(isch.eq.5)         return !*** If doing massive LO, return without N3LO
+
+
+      if(ifirst) then 
+         nord=1
+         write(6,*) ' First time in ACOT module ' 
+         write(6,*) ' set NORD =2,3 FOR N2LO OR N3LO  ' 
+         write(6,*) ' set NORD to any other value to skip  N2LO OR N3LO' 
+         nord=3
+         nord=1
+         write(6,*) ' NORD =',nord
+c         read( 5,*)  nord
+         if((nord.ne.2).and.(nord.ne.3)) nord=1
+         if(nord.ne.1) then 
+            open(63,file='output/KfactorsACOT3.txt')
+            write(63,*) ' OUTPUT NLO AND N3LO K-FACTORS: NORD = ',nord
+            write(63,*) 
+     >   '  icharge, XBJ, Q,XMU, polar, ',
+     >   '  ratios-F123L NxLO/NLO, NLO F123L, NxLO F123L '
+          endif
+         ifirst=.false.
+      endif
+
+c     SKIP IF NOT N2LO OR N3LO
+      if((nord.ne.2).and.(nord.ne.3)) return
+         
+
+
+c     icharge_in: 0 NC: photon exchange only
+c     icharge_in: 4 NC: e+ gamma+gammaZ+Z 
+c     icharge_in: 5 NC: e- gamma+gammaZ+Z 
+c 
+c     integer iord ! perturbative order: including terms up to O(alpha_s^iord)
+c     integer iboson ! chose exchange boson: 0: full NC ew, 1:gamma gamma
+c     integer isf ! choose structure function: 0: FL; 1,2,3: F_1,2,3
+c
+      if(icharge.eq.0) then 
+         iboson=1
+      elseif(icharge.eq.4) then 
+         iboson=0 
+      elseif(icharge.eq.5) then 
+         iboson=0
+      else
+         write(6,*) ' error: icharge = ',icharge
+         stop
+      endif
+
+          xmuf2=xmu**2
+          xmur2=xmu**2
+          xnCHI=2 !*** Use ACOT-Chi type scaling
+          q2=q**2
+          x=xbj
+
+          hmass=0.938d0      !*** Get Hmass from /fred/ common block 
+          rho=Sqrt(1.0d0+(2.0d0*hmass*x/q)**2)  !*** used for F1<=>F2,FL conversion
+
+        mord = 1 ! O(alpha_s) !-----------------------------------------------
+        call  zmCHI(xnCHI,x,Q2,xmuf2,xmur2,mord,iboson,0,
+     >   fLres1,fLc1,fLb1,fLt1,fij)
+        call  zmCHI(xnCHI,x,Q2,xmuf2,xmur2,mord,iboson,2,
+     >   f2res1,f2c1,f2b1,f2t1,fij)
+
+         f1res1=(rho**2*f2res1-fLres1)/(2.0d0*x)
+         f1c1  =(rho**2*f2c1  -fLc1  )/(2.0d0*x)
+         f1b1  =(rho**2*f2b1  -fLb1  )/(2.0d0*x)
+
+C       nord = 3 ! O(alpha_s^3) !-----------------------------------------------
+c       nord is set above:
+        call  zmCHI(xnCHI,x,Q2,xmuf2,xmur2,nord,iboson,0,
+     >   fLres3,fLc3,fLb3,fLt3,fij)
+        call  zmCHI(xnCHI,x,Q2,xmuf2,xmur2,nord,iboson,2,
+     >   f2res3,f2c3,f2b3,f2t3,fij)
+
+         f1res3=(rho**2*f2res3-fLres3)/(2.0d0*x)
+         f1c3  =(rho**2*f2c3  -fLc3  )/(2.0d0*x)
+         f1b3  =(rho**2*f2b3  -fLb3  )/(2.0d0*x)
+
+
+C     Get extra contribution for N3LO
+        dfLres31=fLres3-fLres1
+        dfLc31=fLc3-fLc1
+        dfLb31=fLb3-fLb1
+
+        df1res31=f1res3-f1res1
+        df1c31=f1c3-f1c1
+        df1b31=f1b3-f1b1
+
+        df2res31=f2res3-f2res1
+        df2c31=f2c3-f2c1
+        df2b31=f2b3-f2b1
+
+
+C      F123Lxcb(i,j): i=Tot,C,B,  j=1,2,3,L
+
+        F123Lxcb(1,1)= F123Lxcb2(1,1) + df1res31
+        F123Lxcb(1,2)= F123Lxcb2(1,2) + df2res31
+        F123Lxcb(1,3)= F123Lxcb2(1,3) + 0.0d0   !*** not implemented
+        F123Lxcb(1,4)= F123Lxcb2(1,4) + dfLres31
+
+        F123Lxcb(2,1)= F123Lxcb2(2,1) + df1c31
+        F123Lxcb(2,2)= F123Lxcb2(2,2) + df2c31
+        F123Lxcb(2,3)= F123Lxcb2(2,3) + 0.0d0  !*** not implemented
+        F123Lxcb(2,4)= F123Lxcb2(2,4) + dfLc31
+
+        F123Lxcb(3,1)= F123Lxcb2(3,1) + df1b31
+        F123Lxcb(3,2)= F123Lxcb2(3,2) + df2b31
+        F123Lxcb(3,3)= F123Lxcb2(3,3) + 0.0d0  !*** not implemented
+        F123Lxcb(3,4)= F123Lxcb2(3,4) + dfLb31
+
+
+        do i=1,3
+           do j=1,4
+              if(F123Lxcb2(i,j).ne.0.0d0) then
+                 ratio(i,j)= F123Lxcb(i,j)/ F123Lxcb2(i,j)
+              else
+                 ratio(i,j)=0.0d0
+              endif
+           enddo
+        enddo
+
+        
+        write(6,181) (( ratio(i,j),j=1,4),i=1,3)
+ 181    format('  N3LO/NLO =  '14x,12(f7.2,1x))  !*** need 28x for alignment
+
+         write(63,*) icharge, XBJ, Q,XMU, polar,
+     >   (( ratio(i,j),j=1,4),i=1,3), 
+     >   (( F123Lxcb2(i,j),j=1,4),i=1,3),
+     >   (( F123Lxcb( i,j),j=1,4),i=1,3)
+
+
+      RETURN
+      END 
+
+C----------------------------------------------------------------------
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C =========================================================================
        SUBROUTINE Fnc123Lxcb(icharge, XBJ, Q,XMU, F123Lxcb, polar)
@@ -199,6 +332,7 @@ C-----------------------------------------------------------------------------
       PARAMETER (PI=3.14159265359)
       Common /Ischeme/ Isch, Iset, Iflg, Ihad
       Common  / ActInt /  AERR, RERR, iActL, iActU
+      Data small / 1.0d-16 /
 
 C-----------------------------------------------------------------------------
 C     DATA SINW2, XMW, XMZ   / 0.23D0,   80.4D0,  91.2D0 /
@@ -461,7 +595,16 @@ C----------------------------------------------------------------------
          F123Lxcb(i,4)=rho**2*F123Lxcb(i,2)- 2.0d0*xbj*F123Lxcb(i,1)
       enddo
 
+C----------------------------------------------------
+C   ***  Protect small values:
+C----------------------------------------------------
+      Do i=1,4,1  !*** 3='xcb', 4='123L'
+         Do j=1,3,1             !*** 3='xcb', 4='123L'
+            if(Abs(F123Lxcb(i,j)).lt.small) F123Lxcb(i,j)=0.0d0
+         enddo
+      enddo
 
+C
       RETURN
       END 
 
