@@ -703,57 +703,8 @@ sum rule can be evaluated analytically and  already for $N \ge 5$ the fit qualit
 is similar to a standard Regge-inspired parameterisation with a similar number of parameters.
 
 
+\input{chi2}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{$\chi^2$ Definitions}
-\label{sec:chi2}
-%%%%%%%%%%%
-\subsection{Using Nuisance Parameters}
-%%%%
-\subsubsection{Simple Form}
-
-%%%%
-\subsubsection{Scaled Form}
-
-For a single data set, 
- the $\chi^2$ function can be defined as~\cite{H1:2009bp}
-%
-\begin{equation}
- \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) = %\\
-%~~~=
- \sum_i
- \frac{\left[m^i
-- \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
-{ \textstyle \delta^2_{i,{\rm stat}}\left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
-\left(\delta_{i,{\rm uncor}}\,  m^i\right)^2}
- + \sum_j b^2_j.
-\label{eq:ave}\end{equation}
-%
-Here ${\mu^i}$ is the  measured central value  at a point $i$ 
-with  relative statistical $\delta_{i,stat}$ 
-and relative uncorrelated systematic uncertainty $\delta_{i,unc}$.
-Further, $\beta_j$ denotes a nuisance parameter for
- a correlated systematic error  source of type $j$ with an uncertainty
- while
-$\gamma^i_j$ 
-quantifies the sensitivity of the
-measurement ${\mu^i}$ at the point $i$ to the systematic source $j$. 
-The function $\chi^2_{\rm exp}$ depends on the set of
-underlying physical quantities $m^i$ 
-(denoted as the vector $\boldsymbol{m}$) and 
- the set of systematic uncertainties $b_j$ ($\boldsymbol{b}$).
-This definition of the $\chi^2$ function takes into account that
-systematic uncertainties are proportional to the central values 
-(multiplicative errors), whereas the statistical errors scale 
-with the square roots of the expected number of events. 
-Other scaling properties for the statistical and uncorrelated
-systematic uncertainties are available as described in appendix~\ref{sec:herafitter}.
-%%%%
-\subsubsection{Generalised Scaled Form}
-
-%%%%%%%%%%%
-\subsection{Using Covariance Matrix}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Treatment of the Experimental Uncertainties}
 %%%%%%%%%%%
 \subsection{Hessian Method}
