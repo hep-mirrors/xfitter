@@ -13,9 +13,9 @@ C=================================================
       call Set_Defaults  !> global defaults
 
 C Read various namelists:
-      call read_systematicsnml !> Read (optional) systematics namelist FIRST
-      call read_infilesnml   !> Read data file names SECOND
-      call read_hfitternml  !> main steering
+      call read_hfitternml  !> main steering FIRST
+      call read_systematicsnml !> Read (optional) systematics namelist SECOND
+      call read_infilesnml   !> Read data file names THIRD
       call read_ewparsnml   !> electroweak parameters
       call read_outputnml   !> output options
 
@@ -262,15 +262,6 @@ C Decode HFSCHEME:
 C      
          call SetHFSCHEME(HF_SCHEME)
       endif
-
-C
-C  Data-set dependent scales. First set defaults
-C
-      do i=1,NInputFiles
-         DataSetMuR(i)    = 1.0D0
-         DataSetMuF(i)    = 1.0D0
-         DataSetIOrder(i) = I_Fit_Order
-      enddo
 
       starting_scale = Q02
 
@@ -606,15 +597,27 @@ C-------------------------------------------------------
       include 'ntot.inc'
       include 'datasets.inc'
       include 'steering.inc'
+      include 'scales.inc'
+C---
+      integer i
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
-C
+C-------------------------------------------------
 C  Read the data namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=InFiles,END=71,ERR=72)
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+C---------------------
+C
+C  Data-set dependent scales. First set defaults
+C
+      do i=1,NInputFiles
+         DataSetMuR(i)    = 1.0D0
+         DataSetMuF(i)    = 1.0D0
+         DataSetIOrder(i) = I_Fit_Order
+      enddo
 C---------------------
       if (LDebug) then
          print InFiles
@@ -905,6 +908,8 @@ C---------------------------------
 
       if (Chi2SettingsName(1).eq.'undefined') then
          CorrSystByOffset=.false.
+         CorSysScale = 'Linear'
+         CorChi2Type = 'Hessian'
          if (Chi2Style.eq.'HERAPDF') then
             ICHI2 = 11
          elseif (Chi2Style.eq.'HERAPDF Sqrt') then
@@ -951,11 +956,14 @@ c     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
 C some defaults
          Chi2PoissonCorr = .false.
          Chi2FirstIterationRescale = .false.
+         Chi2ExtraSystRescale = .false.
          do i=1, 8
             if(Chi2ExtraParam(i).eq.'PoissonCorr') then
                Chi2PoissonCorr = .true.
             elseif(Chi2ExtraParam(i).eq.'FirstIterationRescale') then
                Chi2FirstIterationRescale = .true.
+            elseif(Chi2ExtraParam(i).eq.'ExtraSystRescale') then
+               Chi2ExtraSystRescale = .true.
             elseif(Chi2ExtraParam(i).ne.'undefined') then
                print *,'Unsupported Chi2ExtraParam = ',Chi2ExtraParam(i)
                call HF_stop
@@ -1047,7 +1055,41 @@ C Initialisation:
          SysScaleFactor(i) = 1.0D0
          ListOfSources(i) = ' '
          ScaleByNameName(i) = ' '
-         SysAdditive(i)  = .false.
+
+ !> Set default scaling behaviour:
+         if (CorSysScale .eq. 'Linear' ) then
+            SysScalingType(i)  =  isLinear
+         else if (CorSysScale .eq. 'NoRescale') then
+            SysScalingType(i)  =  isNoRescale
+         else if (CorSysScale .eq. 'LogNorm') then
+            SysScalingType(i)  =  isLogNorm
+            call hf_errlog(251120122,
+     $           'F:LogNormal rescaling not included yet')
+         else
+            print *,'Unknown correlated systatics scaling behaviour'
+            print *,'CorSysScale=',CorSysScale
+            print *,'Check your steering'
+            call hf_errlog(25112012,
+     $           'F:Wrong CorSysScale value from the steering')
+            call hf_stop
+         endif
+
+   !>  Set nuisance parameter behaviour:
+         if (CorChi2Type .eq. 'Hessian') then
+            SysForm(i)         =  isNuisance
+         elseif (CorChi2Type .eq. 'Offset') then
+            SysForm(i)         =  isOffset
+         elseif (CorChi2Type .eq. 'Matrix') then
+            SysForm(i)         =  isMatrix
+         else
+            print *,'Unknown correlated systatics treatment'
+            print *,'CorChi2Type=',CorChi2Type
+            print *,'Check your steering'
+            call hf_errlog(251120123,
+     $           'F:Wrong CorChi2Type value from the steering')
+            call hf_stop
+         endif
+
       enddo
       
       open (51,file='steering.txt',status='old')
@@ -1250,11 +1292,11 @@ C
             System(nsys) = SourceName(1:ii-1)
          endif
          if ( SourceName(ii+1:) .eq.'A' ) then
-            SysAdditive(nsys) = .true.
+            SysScalingType(nsys) = isNoRescale
             Call HF_errlog(12090001,
      $           'I: Some systematic sources are additive')
          elseif ( SourceName(ii+1:) .eq.'M' ) then
-            SysAdditive(nsys) = .false.
+            SysScalingType(nsys) = isLinear
          else
             Call HF_errlog(12090002,
      $      'W:WARNING: wrong bias correction for a systematic source')

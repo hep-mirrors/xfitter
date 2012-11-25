@@ -14,8 +14,25 @@
       common/systema/ALPHA,ALPHA_MOD,BETA,sysa,SYSTEM,NSys
 
       double precision SysScaleFactor(nsysmax)  !> Input scale factors
-      logical SysAdditive(nsysmax)              !> Additive error
-      common/systscal/SysScaleFactor,SysAdditive
+      !> Scaling behaviour:
+      integer isNoRescale, isLinear, isPoisson, isSqrt, isLogNorm
+      parameter (isNoRescale = 0)
+      parameter (isLinear  = 1)
+      parameter (isPoisson = 2)
+      parameter (isSqrt = isPoisson)  ! Same  
+      parameter (isLogNorm = 3)
+
+      integer SysScalingType(nsysmax)      !> Store scaling behaviour              
+      
+      !> Type, form: 
+      integer isNuisance, isMatrix, isOffset   !> Store type
+      parameter (isNuisance = 1)
+      parameter (isMatrix   = 2)
+      parameter (isOffset   = 3)
+
+      integer SysForm(nsysmax)
+
+      common/systscal/SysScaleFactor,SysScalingType,SysForm
 
 C !> Add also original systematic errors for asymmetric uncertainties
       double precision BetaAsym(NSYSMAX,2,NTOT)

@@ -5,7 +5,8 @@
 *      - calculate chisquare
 *     ---------------------------------------------------------
 
-      subroutine GetNewChisquare(flag_in,n0_in,fchi2_in,rsys_in,ersys_in,pchi2_in,fcorchi2_in)
+      subroutine GetNewChisquare(flag_in,n0_in,fchi2_in,rsys_in,ersys_in,pchi2_in,
+     $     fcorchi2_in)
       implicit none
 
       include 'ntot.inc'
@@ -16,8 +17,16 @@
       double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
       double precision pchi2_in(nset), fcorchi2_in
 
-      double precision chi2tmp
+      double precision chi2_log
       integer i,jsys
+
+      double precision ScaledErrors(Ntot)  !> uncorrelated uncertainties, diagonal
+      double precision ScaledErrorMatrix(Ntot,Ntot) !> stat+uncor error matrix
+      double precision ScaledSystMatrix(Ntot,Ntot)  !> syst. covar matrix
+
+      integer Iterate
+
+C----------------------------------------------------------------------------
 
 c initialisation 
       do jsys=1,nsys
@@ -31,28 +40,74 @@ c initialisation
       
       fchi2_in = 0.d0
 
-      print *, 'New Chi2 not implemented yet!'
-c      if(Chi2CorErr.eq.'Nuisance') then
-c         call calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
-cc         fchi2_in = fcorchi2_in ! this is missing in the original code? why?
-c      endif 
-c      
-c      if (Chi2UncorErr.eq.'Simple') then
-c         call calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
-c         fchi2_in = chi2tmp + fchi2_in
-c      endif
-c      
-c      if((Chi2CorErr.eq.'Matrix').or.(Chi2UncorErr.eq.'Matrix')) then
-c         call GetCovChisquare(flag_in,n0_in, chi2tmp, pchi2_in)
-c         fchi2_in = chi2tmp + fchi2_in
-c      endif
-c            
-c      if(ICHI2.eq.41) then   ! Poissonian tail chi2 contribution
-c         call calc_poisson(n0_in, chi2tmp)
-c         fchi2_in = chi2tmp + fchi2_in
-c      endif
+  !> Determine if we need to iterate for stat. errors:
+      if (Chi2ExtraSystRescale) then
+         Iterate = 1
+      else
+         Iterate = 0
+      endif
+
+      if ( Chi2FirstIterationRescale .and. flag_in.gt.1 ) then
+  !> Reset iterations:
+         Iterate = 0
+      endif
+
+
+C !> Rebuild syst. covariance matrix 
+      if ( .not. Chi2FirstIterationRescale .or. flag_in.eq.1 ) then
+         Call Chi2_calc_covar(ScaledSystMatrix)
+      endif
+
+C !> Get uncor errors/nuisance parameters.
+      do while ( Iterate.ge.0 )
+c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
+         if ( .not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
+            Call Chi2_calc_stat_uncor(ScaledErrors
+     $           ,ScaledErrorMatrix
+     $           ,rsys_in)
+         endif
+
+C !> Next determine nuisance parameter shifts
+         Call Chi2_calc_syst_shifts(ScaledErrors
+     $        ,ScaledErrorMatrix
+     $        ,rsys_in,ersys_in)
+
+         Iterate = Iterate - 1
+      enddo
+
+C !> Calculate chi2
+      call chi2_Calc_chi2(ScaledErrors,
+     $     ScaledErrorMatrix,
+     $     ScaledSystMatrix,
+     $     rsys_in,fchi2_in)
+
+
+C !> Add log term
+      call chi2_calc_logcorr(ScaledErrors,
+     $     ScaledErrorMatrix, chi2_log)
 
       return 
+      end
+
+      subroutine chi2_calc_stat_uncor()
+      implicit none
+      end
+
+      subroutine chi2_calc_syst_shifts()
+      implicit none
+      end
+
+      subroutine chi2_calc_covar()
+      implicit none
+      end
+
+
+      subroutine chi2_calc_chi2()
+      implicit none
+      end
+
+      subroutine chi2_calc_logcorr()
+      implicit none
       end
 
 c      subroutine calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
@@ -241,7 +296,7 @@ C     Turn off the point for the syst. errors shift estimation:
             do isys = 1,nsys                                 
 
                if (beta(isys,ipoint).ne.0) then
-                  if (SysAdditive(isys)) then
+                  if (SysScalingType(isys) .eq. isNoRescale) then
                      factor_1 = -d
                   else
                      factor_1 = t
@@ -255,7 +310,7 @@ c     +                 + t * BETA(isys,ipoint)/error
                
                   do  jsys=isys,nsys
                      if (beta(jsys,ipoint).ne.0) then
-                        if (SysAdditive(jsys)) then
+                        if (SysScalingType(jsys) .eq. isNoRescale ) then
                            factor_2 = -d
                         else
                            factor_2 = t
@@ -324,7 +379,7 @@ c     $              ,Ifail)
             fac  = 1.d0
             facd = 1.d0
             do isys=1,nsys
-               if (.not. SysAdditive(isys) ) then
+               if ( SysScalingType(isys).eq. isLinear ) then
                   fac  = fac  - rsys_in(isys)*beta(isys,ipoint)                
                else
                   facd = facd + rsys_in(isys)*beta(isys,ipoint)                
