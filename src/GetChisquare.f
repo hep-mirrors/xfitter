@@ -18,17 +18,33 @@
       double precision pchi2_in(nset), fcorchi2_in
 
       double precision chi2_log
-      integer i,jsys
+      integer i,j,jsys
 
       double precision ScaledErrors(Ntot)  !> uncorrelated uncertainties, diagonal
       double precision ScaledErrorMatrix(Ntot,Ntot) !> stat+uncor error matrix
       double precision ScaledSystMatrix(Ntot,Ntot)  !> syst. covar matrix
 
       integer Iterate
+      logical LFirst
+      data LFirst /.true./
+
+      Logical doMatrix, doNuisance
 
 C----------------------------------------------------------------------------
 
-c initialisation 
+c Global initialisation 
+      if (LFirst) then
+         LFirst = .false.
+C    !> Determine which mechanisms for syst. errors should be used:
+         Call Init_Chi2_calc(doMatrix, doNuisance) 
+         do i=1,n0_in
+            do j=1,n0_in
+               ScaledSystMatrix(i,j) = 0.
+            enddo
+         enddo
+      endif
+      
+C 
       do jsys=1,nsys
          rsys_in(jsys) = 0.d0
          ersys_in(jsys) = 0.d0
@@ -54,9 +70,11 @@ c initialisation
 
 
 C !> Rebuild syst. covariance matrix 
-      if ( .not. Chi2FirstIterationRescale .or. flag_in.eq.1 ) then
-         Call Chi2_calc_covar(ScaledSystMatrix)
+      if ( (.not. Chi2FirstIterationRescale .or. flag_in.eq.1)
+     $     .and. doMatrix ) then
+         Call Chi2_calc_covar(ScaledSystMatrix, n0_in)
       endif
+
 
 C !> Get uncor errors/nuisance parameters.
       do while ( Iterate.ge.0 )
@@ -64,13 +82,13 @@ c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
          if ( .not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
             Call Chi2_calc_stat_uncor(ScaledErrors
      $           ,ScaledErrorMatrix
-     $           ,rsys_in)
+     $           ,rsys_in,n0_in)
          endif
 
 C !> Next determine nuisance parameter shifts
          Call Chi2_calc_syst_shifts(ScaledErrors
      $        ,ScaledErrorMatrix
-     $        ,rsys_in,ersys_in)
+     $        ,rsys_in,ersys_in,n0_in)
 
          Iterate = Iterate - 1
       enddo
@@ -79,14 +97,130 @@ C !> Calculate chi2
       call chi2_Calc_chi2(ScaledErrors,
      $     ScaledErrorMatrix,
      $     ScaledSystMatrix,
-     $     rsys_in,fchi2_in)
+     $     rsys_in,fchi2_in,n0_in)
 
 
 C !> Add log term
       call chi2_calc_logcorr(ScaledErrors,
-     $     ScaledErrorMatrix, chi2_log)
+     $     ScaledErrorMatrix, chi2_log,n0_in)
 
       return 
+      end
+
+
+      subroutine Init_Chi2_calc(doMatrix, doNuisance) 
+C------------------------------------------------------------------
+C
+C !> Check for of systematic uncertainties, which methods should be used
+C
+C------------------------------------------------------------------
+      implicit none
+      logical doMatrix, doNuisance
+      include 'ntot.inc'
+      include 'systematics.inc'
+      integer k, n_m, n_n
+      character Msg(40)
+C----------------------
+      doMatrix   = .false.
+      doNuisance = .false.
+      n_m = 0
+      n_n = 0
+      do k=1,nsys
+         if ( SysForm(k) .eq. isMatrix) then
+            doMatrix = .true.
+            n_m = n_m + 1
+         endif
+         if ( SysForm(k) .eq. isNuisance) then
+            doNuisance = .true.
+            n_n = n_n + 1
+         endif
+      enddo
+C
+C Add some info messages:
+C
+      if (doMatrix) then
+         write (Msg,'(''I:Use matrix method for '',i4,'' sources'')')
+     $        n_m
+         call hf_errlog(271120122,Msg)
+      endif
+      if (doNuisance ) then
+         write (Msg,'(''I:Use hessinan method for '',i4,'' sources'')')
+     $        n_n
+         call hf_errlog(271120123,Msg)
+      endif
+
+      end
+
+
+      subroutine chi2_calc_covar(ScaledSystMatrix,n0_in)
+C--------------------------------------------------------------------------------------------
+C Calculate covariance matrix for systematic error sources which are treated using covariance
+C matrix approach
+C---------------------------------------------------------------------------------------------
+      implicit none
+C
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'indata.inc'
+      include 'theo.inc'
+      double precision ScaledSystMatrix(Ntot,Ntot)  !> syst. covar matrix
+      integer n0_in
+      integer i,j,k
+      double precision scales(Ntot,n_sys_scaling_max) !> Pre-calculate scale factors (speedup)
+      double precision errs(Ntot)
+      logical factors_calculated(n_sys_scaling_max)
+      integer scaling_type
+C----------------------------------------------------------------------
+      do i=1,n0_in
+         do j=i,n0_in
+            ScaledSystMatrix(i,j) = 0
+         enddo
+      enddo
+
+      do k=1,n_sys_scaling_max
+         factors_calculated(k) = .false.
+      enddo
+
+      do k=1,nsys
+         if (SysForm(k).eq.isMatrix) then            
+            scaling_type = SysScalingType(k) 
+
+            if (.not. factors_calculated(scaling_type)) then
+  !> Need to pre-compute scaling factors:
+               do i=1,n0_in
+                  if (scaling_type.eq. isNoRescale) then
+                     scales(i,scaling_type) = daten(i)
+                  elseif (scaling_type.eq. isLinear) then
+                     scales(i,scaling_type) = theo(i)
+                  elseif (scaling_type.eq. isPoisson) then
+                     scales(i,scaling_type) = sqrt(theo(i)*daten(i))
+                  elseif (scaling_type.eq. isLogNorm) then
+                     scales(i,scaling_type) = theo(i)
+                     call hf_errlog(271120121,
+     $ 'S:Not implemented LogNormal scaling requested.'//
+     $                    ' Using linear instead')
+                  endif
+               enddo
+               factors_calculated(scaling_type) = .true.
+            endif
+
+            !> The scaled errors:
+            do i=1,n0_in
+               errs(i) = beta(k,i)*scales(i,scaling_type)
+            enddo
+            
+            !> The covariance matrix:
+            do i=1,n0_in               
+               do j=i,n0_in
+                  ScaledSystMatrix(i,j) =  
+     $                 ScaledSystMatrix(i,j) + 
+     $                 scales(i,scaling_type)*scales(j,scaling_type)*
+     $                 errs(i)*errs(j)
+               enddo
+            enddo
+         endif
+      enddo
+C----------------------------------------------------------------------
       end
 
       subroutine chi2_calc_stat_uncor()
@@ -94,10 +228,6 @@ C !> Add log term
       end
 
       subroutine chi2_calc_syst_shifts()
-      implicit none
-      end
-
-      subroutine chi2_calc_covar()
       implicit none
       end
 

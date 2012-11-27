@@ -21,6 +21,8 @@
       parameter (isPoisson = 2)
       parameter (isSqrt = isPoisson)  ! Same  
       parameter (isLogNorm = 3)
+      integer n_sys_scaling_max       !> Keep track of different scaling methods
+      parameter (n_sys_scaling_max = 3)
 
       integer SysScalingType(nsysmax)      !> Store scaling behaviour              
       
