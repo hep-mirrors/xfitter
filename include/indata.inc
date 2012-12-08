@@ -7,11 +7,22 @@ C
 
       double precision DATEN(NTOT)   !> Data values
      $     ,E_UNC(NTOT)              !> Uncorelated uncertainty 
+     $     ,E_UNC_Const(NTOT)        !> Uncorelated, unscaled error
      $     ,E_TOT(NTOT)              !> Total uncertainty
       double precision E_STA(NTOT)   !> Stat. errors
       double precision E_STA_CONST(NTOT) !> Stat. errors which are to be kept constant
       integer JSET(NTOT)             !> Reference to dataset index
 
+
+C !> New definition of stat. and uncor uncertainties:
+      double precision e_stat_poisson(NTOT)  
+      double precision e_stat_const(NTOT)  
+      double precision e_uncor_poisson(NTOT)  
+      double precision e_uncor_const(NTOT)  
+      double precision e_uncor_mult(NTOT)  
+      double precision e_uncor_logNorm(NTOT)  
+      common/CUncErrors/e_stat_poisson,e_stat_const,
+     $     e_uncor_poisson, e_uncor_const, e_uncor_mult, e_uncor_logNorm
 
 C SG: Abstract binning:
       double precision  AbstractBins(NBinDimensionMax,NTOT)
@@ -23,10 +34,13 @@ C SG: index of theory bin, if needed
       integer IndexTheoryBin(NTOT)
 
       common/indata2/
-     + DATEN,E_UNC,E_TOT, E_STA, E_STA_CONST,
+     + DATEN,E_UNC,E_TOT, E_STA, E_STA_CONST, E_UNC_Const,
      + JSET,IndexTheoryBin
 
       common/CAbstractBins/AbstractBins,KFactors
+
+      logical is_stat_covariance(NTOT)  !> Use covaraince matrix if true
+      common/CStatCovar/is_stat_covariance
 
 
 C !> Add overfitting test by "control" and "fit" sets.

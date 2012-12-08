@@ -1245,17 +1245,34 @@ C Check for :
 C----------------------------------------------------------------
       end
 
-      Subroutine AddSystematics(SourceName)
+      Subroutine AddSystematics(SName)
 C
-C Add systematic source SourceName. Decode :A or :M specifiers
+C Add systematic source SourceName. 
+C
+C Detect "+" and "-" signs, at the end of source name, for asymmetric errors
+C
+C Detect ":" modifiers
+C
+C  :M  - "multiplicative"
+C  :A  - "additive"
+C  :P  - "poisson"
+C  :N  - "nuisance"   -- use nuisance parameters
+C  :C  - "covariance" -- use covariance matrix
+C  :O  - "offset"     -- use offset method for error propagation.
+C
 C
       implicit none
       include 'ntot.inc'
       include 'systematics.inc'
-      character*(*) SourceName
+      character*(*) SName
+
+      character*64 SourceName
+      
       integer ii,iasym
 C-----------------------------------------
       
+      SourceName = SName
+
       nsys = nsys + 1
       if (NSYS.gt.NSysMax) then
          print 
@@ -1267,9 +1284,6 @@ C-----------------------------------------
 C
 C Detect "+" and "-" signs
 C
-
-
-
       if ( SourceName(len_trim(SourceName):len_trim(SourceName)).eq.'+') then
          iasym = len_trim(SourceName)
       endif
@@ -1291,15 +1305,32 @@ C
          else
             System(nsys) = SourceName(1:ii-1)
          endif
-         if ( SourceName(ii+1:) .eq.'A' ) then
+      endif
+
+      do while (ii.gt.0) 
+         if ( SourceName(ii+1:ii+1) .eq.'A' ) then
             SysScalingType(nsys) = isNoRescale
             Call HF_errlog(12090001,
      $           'I: Some systematic sources are additive')
-         elseif ( SourceName(ii+1:) .eq.'M' ) then
+         elseif ( SourceName(ii+1:ii+1) .eq.'M' ) then
             SysScalingType(nsys) = isLinear
+         elseif ( SourceName(ii+1:ii+1) .eq.'P' ) then
+            SysScalingType(nsys) = isPoisson
+         elseif ( SourceName(ii+1:ii+1) .eq.'N' ) then
+            SysForm(nsys) = isNuisance
+         elseif ( SourceName(ii+1:ii+1) .eq.'C' ) then
+            SysForm(nsys) = isMatrix
+         elseif ( SourceName(ii+1:ii+1) .eq.'O' ) then
+            SysForm(nsys) = isOffset
          else
+            print *,'WARRNING: Unknown systematics modifier ',
+     $            SourceName(ii+1:)
             Call HF_errlog(12090002,
-     $      'W:WARNING: wrong bias correction for a systematic source')
+     $'W:WARNING: wrong form or bias correction for a systematic source')
          endif
-      endif
+         
+         SourceName = SourceName(ii+2:)
+         ii = index(SourceName,':')
+      enddo
+
       end

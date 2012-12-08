@@ -67,6 +67,7 @@ C      NSYS = 0
          do j=1,ntot
             BETA(i,j) = 0.d0
          enddo
+         n_syst_meas(i) = 0  !> Also zero reference table
       enddo
 
 
@@ -225,6 +226,7 @@ C Namelist definition:
       double precision StatError   ! stat
       double precision StatErrorConst ! stat. error to be treated as constant
       double precision UncorError  ! uncorrelated systematics
+      double precision UncorConstError  ! uncorrelated systematics
       double precision TotalError  ! total uncertainty
 
       double precision TotalErrorRead ! total error, provided by the data file
@@ -284,7 +286,8 @@ C Check dimensions
 C
       if (NColumn.gt. Ncolumnmax) then
          print '(''Error in ReadDataFile for File='',A80)',cfile
-         print '(''NColumn = '',i6,'' exeeds NColumnMax='',i6)',ncolumn,ncolumnmax
+         print '(''NColumn = '',i6,'' exeeds NColumnMax='',i6)',ncolumn
+     $        ,ncolumnmax
          call HF_stop
       endif
 C
@@ -307,8 +310,10 @@ C Parse ColumnType, count systematics, etc
             idxSigma = i
          elseif (ColumnType(i).eq.'Error') then
             NUncert = NUncert + 1
-            ! Special case: uncorrelated errors
-            if (index(ColumnName(i),'uncor').gt.0) then
+            ! Special case: uncorrelated errors (constant or mult)
+            if (index(ColumnName(i),'uncor const').gt.0) then
+               SystematicType(NUncert) = 'uncor const'
+            elseif (index(ColumnName(i),'uncor').gt.0) then
                SystematicType(NUncert) = 'uncor'
             else
                SystematicType(NUncert) = ColumnName(i)
@@ -346,6 +351,8 @@ C--- Statistical: special case
          if (SystematicType(i).eq.'stat') then
          else if (SystematicType(i).eq.'stat const') then
             Call HF_ERRLOG(16020001,'I: Stat Const Error type used')
+C--- Uncorrelated: special case
+         else if (SystematicType(i).eq.'uncor const') then
 C--- Uncorrelated: special case
          else if (SystematicType(i).eq.'uncor') then
 C--- Total error: special case
@@ -487,6 +494,7 @@ C Add a point:
 C Translate errors in %:
          TotalError = 0.
          UncorError = 0.
+         UncorConstError = 0.
          StatError = 0.
          StatErrorConst = 0.
          TotalErrorRead = 0.
@@ -506,6 +514,12 @@ C Ignore error source called 'ignore'
             else
                TotalError = TotalError + Syst(i)**2
             endif
+
+C Uncor const:            
+            if (SystematicType(i).eq.'uncor const') then
+               UncorConstError = UncorConstError + Syst(i)**2
+            endif
+
             if (SystematicType(i).eq.'uncor') then
 C Uncorrelated error:
                UncorError = UncorError +  Syst(i)**2
@@ -524,15 +538,26 @@ C Stat error:
 
          StatError = sqrt(StatError)
          StatErrorConst = sqrt(StatErrorConst)
+         UncorConstError = sqrt(UncorConstError)
          UncorError = sqrt(UncorError)
          TotalError = sqrt(TotalError)
 
          DATEN(npoints) = XSections(j)
+
+C !> XXXXXXXXXXXXXXXXXXXXXXXXX START to become obsolete !!!
          E_UNC(npoints)  = UncorError
+         E_UNC_Const(npoints) = UncorConstError
          E_TOT(npoints)  = TotalError
          E_STA(npoints)  = StatError
          E_STA_CONST(npoints) = StatErrorConst
          
+C !> XXXXXXXXXXXXXXXXXXXXXXXXX END to become obsolete !!!
+
+
+C XXXXXXXXXXXXXXXXXXXXXXXXX
+cc         Call SetUncorErrors(npoints, StatError,
+cc     $        StatErrorConst,UncorError,UncorConstError)
+
 
          ! > Check total error
          if (TotalErrorRead.ne.0) then
@@ -564,8 +589,17 @@ C Reset:
      $           SystematicType(i).ne.'stat'.and.
      $           SystematicType(i).ne.'stat const'
      $           ) then
+
+
                BETA(CompressIdx(i),npoints) = syst(i)
      $              *SysScaleFactor(CompressIdx(i))
+
+C--- Add data point to the syst. list (this will help to speedup loops):
+               n_syst_meas(CompressIdx(i)) = n_syst_meas(CompressIdx(i))
+     $              + 1
+               syst_meas_idx(n_syst_meas(CompressIdx(i)),CompressIdx(i)) 
+     $              = npoints
+
                
 C     Store also asymmetric errors:
                iLen   = Len_trim( SystematicType(i))
@@ -722,4 +756,68 @@ C----------------------------------------------------------------------------
       endif
 
 
+      end
+
+      Subroutine SetUncorErrors(Idx,StatError,
+     $     StatErrorConst,UncorError,UncorConstError)
+C------------------------------------------------------------
+C 
+C StatError and UncorError -- are generic errors which move around
+C
+C
+C-------------------------------------------------------------
+      implicit none
+      integer Idx
+      double precision StatError, StatErrorConst,UncorError,UncorConstError
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'indata.inc'
+C---------------------------------------------------------
+
+C 
+      if (StatScale.eq.'NoRescale') then
+         e_stat_poisson(idx)  = 0.
+         e_stat_const(idx)    = sqrt(
+     $        StatErrorConst**2+StatError**2)  / 100.        
+      elseif (StatScale.eq.'Poisson') then
+         e_stat_poisson(idx)  = StatError       / 100.
+         e_stat_const(idx)    = StatErrorConst  / 100.
+      else
+         print *,'ERROR !!!'
+         print *,'Unknown StatScale = ',StatScale
+         print *,'STOP'
+         call hf_stop
+      endif
+
+      if (UncorSysScale.eq.'NoRescale') then
+         e_uncor_mult(idx)    = 0.
+         e_uncor_const(idx)   = sqrt(
+     $        UncorError**2+UncorConstError**2) / 100.
+         e_uncor_poisson(idx) = 0.
+         e_uncor_logNorm(idx) = 0.
+      elseif (UncorSysScale.eq.'Poisson') then
+         e_uncor_mult(idx)    = 0.
+         e_uncor_const(idx)   = UncorConstError / 100.
+         e_uncor_poisson(idx) = UncorError / 100.
+         e_uncor_logNorm(idx) = 0.      
+      elseif (UncorSysScale.eq.'Linear') then
+         e_uncor_mult(idx)    = UncorError / 100.
+         e_uncor_const(idx)   = UncorConstError / 100.
+         e_uncor_poisson(idx) = 0.
+         e_uncor_logNorm(idx) = 0.      
+      elseif (UncorSysScale.eq.'LogNormal') then
+         e_uncor_mult(idx)    = UncorError / 100.
+         e_uncor_const(idx)   = UncorConstError / 100.
+         e_uncor_poisson(idx) = 0.
+         e_uncor_logNorm(idx) = 0.      
+         Call Hf_Errlog(1208201201,
+     $   'E: Lognormal errors unsuported, use Linear scaling')
+      else
+         print *,'ERROR !!!'
+         print *,'Unknown UncorSysScale = ',UncorSysScale
+         print *,'STOP'
+         call hf_stop
+      endif
+
+C---------------------------------------------------------
       end

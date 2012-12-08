@@ -21,8 +21,11 @@
       integer i,j,jsys
 
       double precision ScaledErrors(Ntot)  !> uncorrelated uncertainties, diagonal
-      double precision ScaledErrorMatrix(Ntot,Ntot) !> stat+uncor error matrix
-      double precision ScaledSystMatrix(Ntot,Ntot)  !> syst. covar matrix
+      double precision ScaledErrorMatrix(NCovarMax,NCovarMax) !> stat+uncor error matrix
+      double precision ScaledSystMatrix(NTot,NTot)  !> syst. covar matrix
+
+      integer NDiag, NCovar   !> Number of diagonal and full covariance input data points
+      integer List_Diag(Ntot), List_Covar(Ntot)
 
       integer Iterate
       logical LFirst
@@ -35,8 +38,13 @@ C----------------------------------------------------------------------------
 c Global initialisation 
       if (LFirst) then
          LFirst = .false.
+
 C    !> Determine which mechanisms for syst. errors should be used:
          Call Init_Chi2_calc(doMatrix, doNuisance) 
+
+C    !> Determine which errors are diagonal and which are using covariance matrix
+         Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,n0_in)
+
          do i=1,n0_in
             do j=1,n0_in
                ScaledSystMatrix(i,j) = 0.
@@ -82,7 +90,7 @@ c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
          if ( .not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
             Call Chi2_calc_stat_uncor(ScaledErrors
      $           ,ScaledErrorMatrix
-     $           ,rsys_in,n0_in)
+     $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
          endif
 
 C !> Next determine nuisance parameter shifts
@@ -152,6 +160,59 @@ C
       end
 
 
+      subroutine Init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar, 
+     $     n0_in)
+C
+C Calculate number of diagonal and covariance input data and create corresponding lists
+C
+      implicit none
+      include 'ntot.inc'
+      include 'indata.inc'
+      include 'systematics.inc'
+      include 'steering.inc'
+      integer NDiag, NCovar, List_Diag(NTOT), List_Covar(NTOT), n0_in
+      integer i,k,l
+      logical isCov
+C-----------------------------------------------------------------------
+
+      NDiag  = 0
+      NCovar = 0
+      do i=1,n0_in
+         isCov = .false.
+C Check if already requested to be 
+         if ( is_stat_covariance(i) ) then
+            isCov = .true.
+         else
+C Check systematic sources, if a matrix source point to point i
+             do k=1,nsys
+                if (SysForm(k) .eq. isMatrix) then
+                   do l=1,n_syst_meas(k)
+                      if (syst_meas_idx(l,k).eq.i) then
+                         isCov = .true.
+                      endif
+                   enddo
+                endif 
+             enddo
+         endif
+
+         if (isCov) then
+            NCovar = NCovar + 1
+            List_Covar(NCovar) = i
+         else
+            NDiag = NDiag + 1
+            List_Diag(NDiag) = i
+         endif
+         
+      enddo
+
+      if (lDebug) then
+         print *,'DEBUG from Init_chi2_stat'
+         print *,'Ncovar = ',Ncovar,' NDiag=',NDiag
+      endif
+
+      end
+
+
       subroutine chi2_calc_covar(ScaledSystMatrix,n0_in)
 C--------------------------------------------------------------------------------------------
 C Calculate covariance matrix for systematic error sources which are treated using covariance
@@ -165,7 +226,7 @@ C
       include 'theo.inc'
       double precision ScaledSystMatrix(Ntot,Ntot)  !> syst. covar matrix
       integer n0_in
-      integer i,j,k
+      integer i,j,k, i1, j1
       double precision scales(Ntot,n_sys_scaling_max) !> Pre-calculate scale factors (speedup)
       double precision errs(Ntot)
       logical factors_calculated(n_sys_scaling_max)
@@ -187,7 +248,8 @@ C----------------------------------------------------------------------
 
             if (.not. factors_calculated(scaling_type)) then
   !> Need to pre-compute scaling factors:
-               do i=1,n0_in
+               do i1=1,n_syst_meas(k)
+                  i = syst_meas_idx(i1,k)
                   if (scaling_type.eq. isNoRescale) then
                      scales(i,scaling_type) = daten(i)
                   elseif (scaling_type.eq. isLinear) then
@@ -205,26 +267,106 @@ C----------------------------------------------------------------------
             endif
 
             !> The scaled errors:
-            do i=1,n0_in
+            do i1=1,n_syst_meas(k)
+               i = syst_meas_idx(i1,k)
                errs(i) = beta(k,i)*scales(i,scaling_type)
             enddo
             
             !> The covariance matrix:
-            do i=1,n0_in               
-               do j=i,n0_in
+            do i1=1,n_syst_meas(k)
+               i = syst_meas_idx(i1,k)
+
+               do j1=1,n_syst_meas(k)
+                  j = syst_meas_idx(j1,k)
+
                   ScaledSystMatrix(i,j) =  
      $                 ScaledSystMatrix(i,j) + 
      $                 scales(i,scaling_type)*scales(j,scaling_type)*
      $                 errs(i)*errs(j)
+
                enddo
             enddo
          endif
       enddo
+
+      do i=1,n0_in
+         do j=i+1,n0_in
+            ScaledSystMatrix(j,i) = ScaledSystMatrix(i,j) 
+         enddo
+      enddo
+
 C----------------------------------------------------------------------
       end
 
-      subroutine chi2_calc_stat_uncor()
+      
+      Subroutine GetPointErrors(Idx, Stat, StatConst, Uncor)
+
       implicit none
+      integer Idx
+      double precision Stat, StatConst, Uncor
+      include 'ntot.inc'
+      include 'indata.inc'
+      include 'theo.inc'
+      include 'steering.inc'
+      double precision d,t,mix
+C-------------------------------------------------------------
+      d = daten(idx)
+      t = theo(idx)
+      mix = sqrt(d*t)
+
+
+      stat       = e_stat_poisson(idx)*mix
+      statconst  = e_stat_const(idx)*d
+
+      Uncor      = (e_uncor_mult(idx)*t)**2+
+     $     (e_uncor_const(idx)*d)**2+(e_uncor_poisson(idx)*mix)**2
+
+C-------------------------------------------------------------
+      end
+
+      subroutine chi2_calc_stat_uncor(ScaledErrors, ScaledErrorMatrix, 
+     $     rsys_in,n0_in, NCovar, List_Covar, Iterate)
+C
+C !> Scale covariance matrix and/or diagonal uncertainties
+C
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'steering.inc'
+      include 'theo.inc'
+
+      double precision ScaledErrors(NTot), ScaledErrorMatrix(NCovarMax
+     $     ,NCovarMax)
+      double precision rsys_in(NSYS)
+      integer n0_in, NCovar, List_Covar(NTot), iterate
+
+      integer i,j
+      double precision Stat, StatConst, Unc, Sum
+C-------------------------------------------------------
+
+C
+C Start with diagonal part
+C
+      do i=1,n0_in
+         Call GetPointErrors(i, Stat, StatConst, Unc)
+         sum = 1.
+         if (Chi2ExtraSystRescale .and. Iterate.eq.0) then
+C Re-scale for systematic shifts:            
+            do j=1,NSYS
+               if ( (SysForm(j) .eq. isNuisance)
+     $              .and. (SysScalingType(j) .eq. isLinear ) ) then
+                  Sum = Sum - beta(j,i)*rsys_in(j)
+               endif
+            enddo
+         endif
+         ScaledErrors(i) = (Stat*Sum)**2+StatConst**2+Unc**2
+      enddo
+
+C
+C Do also covariance part:
+C
+
+C--------------------------------------------------------
       end
 
       subroutine chi2_calc_syst_shifts()

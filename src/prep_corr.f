@@ -82,6 +82,7 @@ C     reset statistical correlation matrix
             cov(i,j) = 0.d0
          enddo
          corr_stat(i,i) = 1.d0
+         is_stat_covariance(i) = .false.
       enddo
 
 
@@ -158,6 +159,11 @@ C Read the colums
             Idx2 = FindIdxForCorrelation(idataset2, NIdColumns2, IdIdx2, NIdMax, Values2)
 c            print *, j, 'Idx1 =', Idx1, 'Idx2 =', Idx2
             
+C SG: Mark the points for covariance matrix method:
+            is_stat_covariance(Idx1) = .true.
+            is_stat_covariance(Idx2) = .true.
+            
+
             if((Idx1.le.0).or.(Idx2.le.0)) then
                Call HF_ERRLOG(10040005,
      $              'W: Unable to find a proper correlation point')

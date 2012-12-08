@@ -13,6 +13,10 @@
       double precision sysa(nsysMAX,nsysMAX) !> Correlation matrix of systematics
       common/systema/ALPHA,ALPHA_MOD,BETA,sysa,SYSTEM,NSys
 
+      integer n_syst_meas(NSYSMAX)         ! !> Number of measurements syst. source affects
+      integer syst_meas_idx(NTOT,NSYSMAX)  ! !> data points syst. source affects
+      Common/Sysmeas/n_syst_meas,syst_meas_idx
+
       double precision SysScaleFactor(nsysmax)  !> Input scale factors
       !> Scaling behaviour:
       integer isNoRescale, isLinear, isPoisson, isSqrt, isLogNorm

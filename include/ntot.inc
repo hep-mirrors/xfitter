@@ -2,8 +2,12 @@ C
 C Basic definitions for 
 C
 
-      integer NTOT            !> Total number of data points
+      integer NTOT        !> Total number of data points
       parameter(NTOT = 2000)
+
+
+      integer NCovarMax   !> Total number of data points, treated by covariance matrix
+      parameter (NCovarMax = 500)
 
       integer nset            !> Total number of datasets   
       parameter (NSET = 150)
