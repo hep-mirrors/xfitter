@@ -481,6 +481,9 @@ C Apply cuts:
 
 C Add a point:
          npoints = npoints+1
+
+C By default it is fitted:
+         FitSample(Npoints) = .true.
          
          if (npoints.ge.NTOT) then
             print 
@@ -555,8 +558,8 @@ C !> XXXXXXXXXXXXXXXXXXXXXXXXX END to become obsolete !!!
 
 
 C XXXXXXXXXXXXXXXXXXXXXXXXX
-cc         Call SetUncorErrors(npoints, StatError,
-cc     $        StatErrorConst,UncorError,UncorConstError)
+         Call SetUncorErrors(npoints, StatError,
+     $        StatErrorConst,UncorError,UncorConstError)
 
 
          ! > Check total error
@@ -773,7 +776,6 @@ C-------------------------------------------------------------
       include 'steering.inc'
       include 'indata.inc'
 C---------------------------------------------------------
-
 C 
       if (StatScale.eq.'NoRescale') then
          e_stat_poisson(idx)  = 0.
@@ -818,6 +820,8 @@ C
          print *,'STOP'
          call hf_stop
       endif
+
+c      print *,idx,e_stat_poisson(idx),e_uncor_mult(idx)
 
 C---------------------------------------------------------
       end

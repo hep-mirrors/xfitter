@@ -907,8 +907,13 @@ C---------------------------------------
 C---------------------------------
 
       if (Chi2SettingsName(1).eq.'undefined') then
+C
+C !> Reset defaults if Chi2SettingsName parameter is not set.
+C 
          CorrSystByOffset=.false.
          CorSysScale = 'Linear'
+         StatScale   = 'Poisson'
+         UncorSysScale = 'Linear'
          CorChi2Type = 'Hessian'
          if (Chi2Style.eq.'HERAPDF') then
             ICHI2 = 11

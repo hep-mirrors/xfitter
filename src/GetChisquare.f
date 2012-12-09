@@ -20,12 +20,16 @@
       double precision chi2_log
       integer i,j,jsys
 
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+
       double precision ScaledErrors(Ntot)  !> uncorrelated uncertainties, diagonal
+
       double precision ScaledErrorMatrix(NCovarMax,NCovarMax) !> stat+uncor error matrix
-      double precision ScaledSystMatrix(NTot,NTot)  !> syst. covar matrix
+      double precision ScaledSystMatrix(NCovarMax,NCovarMax)  !> syst. covar matrix
+      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
 
       integer NDiag, NCovar   !> Number of diagonal and full covariance input data points
-      integer List_Diag(Ntot), List_Covar(Ntot)
+      integer List_Diag(Ntot), List_Covar(Ntot), List_Covar_inv(Ntot)
 
       integer Iterate
       logical LFirst
@@ -43,7 +47,8 @@ C    !> Determine which mechanisms for syst. errors should be used:
          Call Init_Chi2_calc(doMatrix, doNuisance) 
 
 C    !> Determine which errors are diagonal and which are using covariance matrix
-         Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,n0_in)
+         Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
+     $        List_Covar_inv,n0_in)
 
          do i=1,n0_in
             do j=1,n0_in
@@ -63,6 +68,7 @@ C
       enddo
       
       fchi2_in = 0.d0
+      fcorchi2_in = 0.d0
 
   !> Determine if we need to iterate for stat. errors:
       if (Chi2ExtraSystRescale) then
@@ -76,41 +82,70 @@ C
          Iterate = 0
       endif
 
-
+      if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
+C !> Calculated scaled syst. uncertainties:
+         call Chi2_calc_GetGamma(ScaledGamma)
+         
 C !> Rebuild syst. covariance matrix 
-      if ( (.not. Chi2FirstIterationRescale .or. flag_in.eq.1)
-     $     .and. doMatrix ) then
-         Call Chi2_calc_covar(ScaledSystMatrix, n0_in)
+
+         if ( doMatrix ) then
+            Call Chi2_calc_covar(ScaledGamma
+     $           ,ScaledSystMatrix
+     $           ,List_Covar_Inv,n0_in)
+         endif
       endif
 
 
 C !> Get uncor errors/nuisance parameters.
       do while ( Iterate.ge.0 )
+
 c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
-         if ( .not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
+         if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
             Call Chi2_calc_stat_uncor(ScaledErrors
      $           ,ScaledErrorMatrix
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
+
+C  !> Sum covariance matricies and invert the total:
+            if ( doMatrix ) then
+               Call Chi2_calc_SumCovar(ScaledErrorMatrix, 
+     $              ScaledSystMatrix, 
+     $              ScaledTotMatrix, NCovar)
+            endif
+
+C !> same for diagonal part:
+            do i=1,n0_in
+               ScaledErrors(i) = 1.D0 
+     $              / (ScaledErrors(i)*ScaledErrors(i))
+            enddo
+
          endif
 
+
 C !> Next determine nuisance parameter shifts
-         Call Chi2_calc_syst_shifts(ScaledErrors
-     $        ,ScaledErrorMatrix
-     $        ,rsys_in,ersys_in,n0_in)
+         Call Chi2_calc_syst_shifts(
+     $        ScaledErrors
+     $        ,ScaledTotMatrix
+     $        ,ScaledGamma
+     $        ,rsys_in,ersys_in,list_covar_inv, flag_in)
 
          Iterate = Iterate - 1
       enddo
 
 C !> Calculate chi2
-      call chi2_Calc_chi2(ScaledErrors,
-     $     ScaledErrorMatrix,
-     $     ScaledSystMatrix,
-     $     rsys_in,fchi2_in,n0_in)
+      call chi2_Calc_chi2(
+     $     ScaledErrors,
+     $     ScaledGamma,
+     $     ScaledTotMatrix,
+     $     rsys_in,
+     $     ndiag, list_diag, ncovar, list_covar,
+     $     fchi2_in, pchi2_in, fcorchi2_in)
 
 
 C !> Add log term
-      call chi2_calc_logcorr(ScaledErrors,
-     $     ScaledErrorMatrix, chi2_log,n0_in)
+      if ( Chi2PoissonCorr ) then
+         call chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
+         fchi2_in = fchi2_in + chi2_log
+      endif
 
       return 
       end
@@ -127,7 +162,7 @@ C------------------------------------------------------------------
       include 'ntot.inc'
       include 'systematics.inc'
       integer k, n_m, n_n
-      character Msg(40)
+      character*64 Msg
 C----------------------
       doMatrix   = .false.
       doNuisance = .false.
@@ -147,21 +182,21 @@ C
 C Add some info messages:
 C
       if (doMatrix) then
-         write (Msg,'(''I:Use matrix method for '',i4,'' sources'')')
+         write (Msg,'(''I: Use matrix method for '',i4,'' sources'')')
      $        n_m
          call hf_errlog(271120122,Msg)
       endif
       if (doNuisance ) then
-         write (Msg,'(''I:Use hessinan method for '',i4,'' sources'')')
-     $        n_n
-         call hf_errlog(271120123,Msg)
+         write (Msg,
+     $  '(''I: Use hessinan method for'',i4,'' sources'')') n_n
+        call hf_errlog(271120123,Msg)
       endif
 
       end
 
 
       subroutine Init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar, 
-     $     n0_in)
+     $     List_Covar_inv, n0_in)
 C
 C Calculate number of diagonal and covariance input data and create corresponding lists
 C
@@ -170,18 +205,22 @@ C
       include 'indata.inc'
       include 'systematics.inc'
       include 'steering.inc'
-      integer NDiag, NCovar, List_Diag(NTOT), List_Covar(NTOT), n0_in
+      integer NDiag, NCovar, List_Diag(NTOT), List_Covar(NTOT), 
+     $     List_Covar_inv(NTOT), n0_in
       integer i,k,l
-      logical isCov
+      logical isCov, isCovStat
 C-----------------------------------------------------------------------
 
       NDiag  = 0
       NCovar = 0
       do i=1,n0_in
+         List_Covar_Inv(i) = 0   !> Reset inverted list
          isCov = .false.
+         isCovStat = .false.
 C Check if already requested to be 
          if ( is_stat_covariance(i) ) then
             isCov = .true.
+            isCovStat = .true.
          else
 C Check systematic sources, if a matrix source point to point i
              do k=1,nsys
@@ -197,7 +236,10 @@ C Check systematic sources, if a matrix source point to point i
 
          if (isCov) then
             NCovar = NCovar + 1
+
             List_Covar(NCovar) = i
+            List_Covar_inv(i) = NCovar
+
          else
             NDiag = NDiag + 1
             List_Diag(NDiag) = i
@@ -212,8 +254,52 @@ C Check systematic sources, if a matrix source point to point i
 
       end
 
+      subroutine chi2_calc_GetGamma(ScaledGamma)
+C
+C Calculate re-scaled effect of systematic error sources
+C
+      implicit none
 
-      subroutine chi2_calc_covar(ScaledSystMatrix,n0_in)
+      include 'ntot.inc'
+      include 'systematics.inc'
+
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+
+      include 'indata.inc'
+      include 'theo.inc'
+c      include 'steering.inc'
+
+      integer i1,j1,i,j,k
+      integer scaling_type
+      double precision scale
+C-----------------------------------------------------
+      do k=1,NSYS
+         scaling_type = SysScalingType(k) 
+
+         do i1=1,n_syst_meas(k)
+            i = syst_meas_idx(i1,k)
+
+            if (scaling_type.eq. isNoRescale) then
+               scale = daten(i)
+            elseif (scaling_type.eq. isLinear) then
+               scale = theo(i)
+            elseif (scaling_type.eq. isPoisson) then
+               scale = sqrt(theo(i)*daten(i))
+            elseif (scaling_type.eq. isLogNorm) then
+               scale = theo(i)
+               call hf_errlog(271120121,
+     $              'S: Not implemented LogNormal scaling requested.'//
+     $              ' Using linear instead')
+            endif
+
+            !> The scaled syst. errors:
+            ScaledGamma(k,i) = beta(k,i)*scale
+         enddo
+      enddo
+C-----------------------------------------------------
+      end
+
+      subroutine chi2_calc_covar(ScaledGamma,ScaledSystMatrix, List_Covar_Inv, n0_in)
 C--------------------------------------------------------------------------------------------
 C Calculate covariance matrix for systematic error sources which are treated using covariance
 C matrix approach
@@ -224,13 +310,12 @@ C
       include 'systematics.inc'
       include 'indata.inc'
       include 'theo.inc'
-      double precision ScaledSystMatrix(Ntot,Ntot)  !> syst. covar matrix
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision ScaledSystMatrix(NCovarMax,NCovarMax)  !> syst. covar matrix
+      integer List_Covar_Inv(NTOT)
+C--
       integer n0_in
-      integer i,j,k, i1, j1
-      double precision scales(Ntot,n_sys_scaling_max) !> Pre-calculate scale factors (speedup)
-      double precision errs(Ntot)
-      logical factors_calculated(n_sys_scaling_max)
-      integer scaling_type
+      integer i,j,k, i1, j1, i2, j2
 C----------------------------------------------------------------------
       do i=1,n0_in
          do j=i,n0_in
@@ -238,62 +323,38 @@ C----------------------------------------------------------------------
          enddo
       enddo
 
-      do k=1,n_sys_scaling_max
-         factors_calculated(k) = .false.
-      enddo
-
       do k=1,nsys
          if (SysForm(k).eq.isMatrix) then            
-            scaling_type = SysScalingType(k) 
 
-            if (.not. factors_calculated(scaling_type)) then
-  !> Need to pre-compute scaling factors:
-               do i1=1,n_syst_meas(k)
-                  i = syst_meas_idx(i1,k)
-                  if (scaling_type.eq. isNoRescale) then
-                     scales(i,scaling_type) = daten(i)
-                  elseif (scaling_type.eq. isLinear) then
-                     scales(i,scaling_type) = theo(i)
-                  elseif (scaling_type.eq. isPoisson) then
-                     scales(i,scaling_type) = sqrt(theo(i)*daten(i))
-                  elseif (scaling_type.eq. isLogNorm) then
-                     scales(i,scaling_type) = theo(i)
-                     call hf_errlog(271120121,
-     $ 'S:Not implemented LogNormal scaling requested.'//
-     $                    ' Using linear instead')
-                  endif
-               enddo
-               factors_calculated(scaling_type) = .true.
-            endif
+!> The covariance matrix:
+            do i2=1,n_syst_meas(k)
+               i1 = syst_meas_idx(i2,k)  ! data point index
+               i = list_covar_inv(i1)    ! cov. matrix index 
 
-            !> The scaled errors:
-            do i1=1,n_syst_meas(k)
-               i = syst_meas_idx(i1,k)
-               errs(i) = beta(k,i)*scales(i,scaling_type)
-            enddo
-            
-            !> The covariance matrix:
-            do i1=1,n_syst_meas(k)
-               i = syst_meas_idx(i1,k)
-
-               do j1=1,n_syst_meas(k)
-                  j = syst_meas_idx(j1,k)
+C XXXXXXXXXXXXXXXXXXXXXXXXXXXXX               
+               if (i.eq.0) then
+                  print *,'ERROR',i2,i1,n_syst_meas(k)
+                  stop
+               endif
+               
+               do j2=i2,n_syst_meas(k)
+                  j1 = syst_meas_idx(j2,k)  ! data point idx
+                  j = list_covar_inv(j1)    ! cov. matrix idx
 
                   ScaledSystMatrix(i,j) =  
-     $                 ScaledSystMatrix(i,j) + 
-     $                 scales(i,scaling_type)*scales(j,scaling_type)*
-     $                 errs(i)*errs(j)
+     $                 ScaledSystMatrix(i,j) 
+     $                 + ScaledGamma(k,i1)*ScaledGamma(k,j1)
 
                enddo
             enddo
          endif
       enddo
 
-      do i=1,n0_in
-         do j=i+1,n0_in
-            ScaledSystMatrix(j,i) = ScaledSystMatrix(i,j) 
-         enddo
-      enddo
+c      do i=1,n0_in
+c         do j=i+1,n0_in
+c            ScaledSystMatrix(j,i) = ScaledSystMatrix(i,j) 
+c         enddo
+c      enddo
 
 C----------------------------------------------------------------------
       end
@@ -318,29 +379,65 @@ C-------------------------------------------------------------
       stat       = e_stat_poisson(idx)*mix
       statconst  = e_stat_const(idx)*d
 
-      Uncor      = (e_uncor_mult(idx)*t)**2+
-     $     (e_uncor_const(idx)*d)**2+(e_uncor_poisson(idx)*mix)**2
+      Uncor      = sqrt((e_uncor_mult(idx)*t)**2+
+     $     (e_uncor_const(idx)*d)**2+(e_uncor_poisson(idx)*mix)**2)
 
 C-------------------------------------------------------------
       end
 
+      Subroutine Chi2_calc_SumCovar(ScaledErrorMatrix, ScaledSystMatrix, 
+     $              ScaledTotMatrix, NCovar)
+C----------------------------------------------------------------------------
+C
+C Sum covariance matrices and invert the result
+C
+C----------------------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+
+      double precision ScaledErrorMatrix(NCovarMax,NCovarMax) !> stat+uncor error matrix
+      double precision ScaledSystMatrix(NCovarMax,NCovarMax)  !> syst. covar matrix
+      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
+      integer NCovar
+      double precision Array(NCovarMax*2)
+      integer IFail
+
+      integer i,j
+C-----------------------------
+      do i=1,NCovar
+         do j=i,NCovar
+            ScaledTotMatrix(i,j) = ScaledErrorMatrix(i,j) 
+     $           + ScaledSystMatrix(i,j)
+            ScaledTotMatrix(j,i) = ScaledTotMatrix(i,j)
+         enddo
+      enddo
+C-----------------------------   
+      Call DInv(NCovar,ScaledTotMatrix,NCovarMax,Array,IFail)
+      print *,IFail,NCovar
+C      stop
+   
+      end
+
       subroutine chi2_calc_stat_uncor(ScaledErrors, ScaledErrorMatrix, 
      $     rsys_in,n0_in, NCovar, List_Covar, Iterate)
+C-----------------------------------------------------------------------
 C
 C !> Scale covariance matrix and/or diagonal uncertainties
 C
+C-----------------------------------------------------------------------
       implicit none
       include 'ntot.inc'
       include 'systematics.inc'
       include 'steering.inc'
       include 'theo.inc'
+      include 'covar.inc'
 
       double precision ScaledErrors(NTot), ScaledErrorMatrix(NCovarMax
      $     ,NCovarMax)
       double precision rsys_in(NSYS)
       integer n0_in, NCovar, List_Covar(NTot), iterate
 
-      integer i,j
+      integer i,j,i1,j1
       double precision Stat, StatConst, Unc, Sum
 C-------------------------------------------------------
 
@@ -359,75 +456,282 @@ C Re-scale for systematic shifts:
                endif
             enddo
          endif
-         ScaledErrors(i) = (Stat*Sum)**2+StatConst**2+Unc**2
+         ScaledErrors(i) = sqrt((Stat*Sum)**2+StatConst**2+Unc**2)
       enddo
 
 C
 C Do also covariance part:
 C
-
+      do i1=1,NCovar
+         i = List_Covar(i1)
+         do j1=i1,NCovar
+            j = List_Covar(j1) 
+            ScaledErrorMatrix(i1,j1) = 
+     $           ScaledErrors(i)
+     $           *ScaledErrors(j)*corr_stat(i,j)
+         enddo
+      enddo
 C--------------------------------------------------------
       end
 
-      subroutine chi2_calc_syst_shifts()
+      subroutine chi2_calc_syst_shifts(
+     $     ScaledErrors
+     $     ,ScaledTotMatrix
+     $     ,ScaledGamma
+     $     ,rsys_in,ersys_in,list_covar_inv,  iflag)
+C----------------------------------------------------------------------------------
+C
+C Determine shifts of nuisance parameters
+C
+C----------------------------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'theo.inc'
+      include 'indata.inc'
+C
+      double precision ScaledErrors(NTOT)
+      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+
+      double precision rsys_in(NSYSMax), ERSYS_in(NSYSMax)
+      integer list_covar_inv(NTOT),  iflag
+
+      integer k,l, i1,j1,i,j, j2, i2
+      double precision A(NSYSMax,NSYSMax), C(NSysMax)
+
+      integer com_list(NTot),n_com_list  !> List of affected data, common for two sources.
+      integer IR(2*NSysMax), Ifail
+C--------------------------------------------------------
+  !> A system of  "number  of isNuisance systematics" equations, indexed using "l":
+  !>
+  !>    A * Shift = C
+  !>
+      do l=1,nsys
+         C(l) = 0.
+         if ( SysForm(l) .eq. isNuisance ) then
+C Start with "C"
+            do i1=1,n_syst_meas(l)
+               i = syst_meas_idx(i1,l)
+               if (FitSample(i) ) then
+
+                  if ( list_covar_inv(i) .eq. 0) then
+C Diagonal error:
+                     C(l) = C(l) + ScaledErrors(i)
+     $                    *ScaledGamma(l,i)*( - theo(i) + daten(i) )
+                  else
+C Covariance matrix, need more complex sum:
+                     i2 = list_covar_inv(i)
+                     do j1=1,n_syst_meas(l)
+                        j = syst_meas_idx(j1,l)
+                        if (FitSample(j)) then
+                           j2 = list_covar_inv(j) 
+                           if (j2 .gt. 0) then
+                              C(l) = C(l) + ScaledTotMatrix(i2,j2)
+     $                             *ScaledGamma(l,i)*(-theo(i)+daten(i))
+                           endif
+                        endif
+                     enddo
+                  endif
+               endif
+            enddo
+
+C Now A:
+
+            do k=1,NSys
+               if (k.eq.l) then
+                  A(k,l) = 1.0D0
+               else
+                  A(k,l) = 0.
+               endif
+C
+               if ( sysform(k) .eq. isNuisance ) then
+
+C !> Determine data affected by both sources l and k:
+                  Call Sys_Data_List12(l,k,n_com_list,com_list)
+
+                  do i1 = 1,n_com_list
+                     i = com_list(i1)
+                     if ( FitSample(i) ) then
+                        if ( list_covar_inv(i) .eq. 0) then
+C Diagonal error:
+                           A(k,l) = A(k,l) +
+     $                          ScaledErrors(i)
+     $                          *ScaledGamma(l,i)
+     $                          *ScaledGamma(k,i)
+                        else
+C Covariance matrix:
+                           i2 = list_covar_inv(i)
+                           do j1=1,n_com_list
+                              j = com_list(j1)
+                              if ( FitSample(j) ) then
+                                 j2 = list_covar_inv(j)
+                                 if (j2 .gt. 0) then
+                                    A(k,l) = A(k,l) +
+     $                                   ScaledTotMatrix(i2,j2)
+     $                                   *ScaledGamma(l,i)
+     $                                   *ScaledGamma(k,j)
+                                 endif
+                              endif
+                           enddo
+
+                        endif
+                     endif
+                  enddo
+
+               endif               
+            enddo
+         endif
+      enddo
+C Ready to invert
+      if (nsys.gt.0) then
+
+c         do l=1,nsys
+c            print *,'l=',l,C(l)
+c            do k=1,nsys
+c               print *,l,k,A(l,k)
+c            enddo
+c         enddo
+
+         
+         if (iflag.eq.3) then
+            Call DEQInv(Nsys,A,NsysMax,IR, IFail, 1, C)
+         else
+            Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
+         endif
+
+         do l=1,nsys
+            rsys_in(l) = - C(l)
+            if (iflag.eq.3) then
+               ersys_in(l) = sqrt(A(l,l))
+            endif
+         enddo
+      endif
+C--------------------------------------------------------
       end
 
 
-      subroutine chi2_calc_chi2()
+      subroutine Sys_Data_list12(isys1,isys2,n_list,i_list)
+C
+C For input sources isys1 and isys2 build a compressed list of affected data points.
+C
       implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      integer isys1, isys2, i_list(NTot), n_list
+      integer i1,j1, i,j
+C---------------------------------------------------------------
+      n_list = 0
+      do i1=1,n_syst_meas(isys1)
+         i = syst_meas_idx(i1,isys1)
+         do j1=1,n_syst_meas(isys2) 
+            j = syst_meas_idx(j1,isys2)
+            if ( i.eq.j ) then
+               n_list = n_list + 1 
+               i_list(n_list) = i
+               goto 17
+            endif
+         enddo
+ 17      continue
+      enddo
+C---------------------------------------------------------------
+
+      end
+      
+
+      subroutine chi2_calc_chi2(ScaledErrors,ScaledGamma,
+     $     ScaledTotMatrix,rsys_in
+     $     ,NDiag, List_Diag, NCovar, List_Covar
+     $     ,fchi2_in, pchi2_in, fcorchi2_in)
+C----------------------------------------------------------------------
+C
+C Calculate chi2.
+C
+C----------------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'theo.inc'
+      include 'indata.inc'
+
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision ScaledErrors(Ntot)  !> uncorrelated uncertainties, diagonal
+      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
+      double precision rsys_in(NSysMax)
+      integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
+      double precision fchi2_in, pchi2_in(nset), fcorchi2_in
+
+      integer i,j, i1, k
+      double precision d,t, chi2, sum
+
+C---------------------------------------------------------------------------
+      fchi2_in = 0.0D0
+ !> Also zero fit/control sample chi2s
+      chi2_fit = 0.
+      chi2_cont = 0.
+
+C Diagonal part:
+      do i1=1,NDiag
+         i = list_diag(i1)
+         d = DATEN(i)
+         t = THEO (i)
+         sum = 0.0D0
+         do k = 1,NSys
+            Sum = Sum + ScaledGamma(k,i1)*rsys_in(k)
+         enddo
+C Chi2 per point:
+         chi2 = (d - t + Sum)**2 * ScaledErrors(i)
+
+C Sums:
+         if ( FitSample(i) ) then
+            chi2_fit  = chi2_fit  + chi2
+            fchi2_in  = fchi2_in  + chi2
+            pchi2_in(JSET(i)) = pchi2_in(JSET(i)) + chi2
+         else
+            chi2_cont = chi2_cont + chi2
+         endif
+      enddo
+
+C Covariance matrix part
+      do i1=1,NCovar
+      enddo
+
+C Correlated chi2 part:
+      fcorchi2_in = 0.d0
+      do k=1,NSys
+         fcorchi2_in = fcorchi2_in + rsys_in(k)**2
+      enddo
+      fchi2_in = fchi2_in + fcorchi2_in
+
+C---------------------------------------------------------------------------
       end
 
-      subroutine chi2_calc_logcorr()
+      subroutine chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
+C--------------------------------------------------------------------------
+C
+C
+C--------------------------------------------------------------------------
       implicit none
+      include 'ntot.inc'
+      double precision ScaledErrors(Ntot)
+      double precision chi2_log
+      integer n0_in
+
+      include 'indata.inc'
+      include 'systematics.inc'
+      integer i
+C-------------------------------------------------------------------------
+      chi2_log = 0.D0
+      do i=1,n0_in
+         if (FitSample(i)) then
+            chi2_log = chi2_log - log( alpha(i)*alpha(i) 
+     $           * ScaledErrors(i))
+         endif
+      enddo
+
       end
 
-c      subroutine calc_nuisance(rsys_in, ersys_in, fcorchi2_in)
-c      implicit none
-c      include 'ntot.inc'
-c      include 'steering.inc'
-c      include 'systematics.inc'
-c      
-c      double precision ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
-c      double precision fcorchi2_in
-c
-c      print *, 'not yet implemented'
-c      return 
-c      end
-c      
-c      subroutine calc_simple_chi2(rsys_in, chi2tmp, pchi2_in)
-c      implicit none
-c      include 'ntot.inc'
-c      include 'steering.inc'
-c      include 'systematics.inc'
-c      
-c      double precision RSYS_in(NSYSMax)
-c      double precision chi2tmp, pchi2_in(nset)
-c
-c      print *, 'not yet implemented'
-c      return 
-c      end
-c
-c      subroutine calc_poisson(n0_in, chi2)
-c      implicit none
-c      include 'ntot.inc'
-c      include 'systematics.inc'
-c     
-c      double precision chi2
-c      integer n0_in, ipoint
-c      double precision stat, unc, const, error
-c
-c      chi2=0.d0
-c      do ipoint=1,n0_in
-c         call GetPointScaledErrors(ipoint,stat,unc,const)
-c         error = dsqrt(stat**2+unc**2+const**2)
-c         chi2 = chi2 + 2.*log( error/alpha(ipoint)) 
-c      enddo
-c
-c      return 
-c      end
-
-
+CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
       subroutine GetChisquare(flag_in,n0_in,fchi2_in,rsys_in,ersys_in,pchi2_in,fcorchi2_in)
       implicit none
@@ -459,6 +763,7 @@ c      end
 
       integer npoisson, ngauss
 
+      integer k,l
 C      integer getcachesize
 
 *     ----------------------------------------------------------
@@ -577,6 +882,7 @@ C     Turn off the point for the syst. errors shift estimation:
                   bsys_in(isys) = bsys_in(isys) 
      +                 + factor_1*(d-t)*BETA(isys,ipoint)*factor2
                
+
 c                  ebsys_in(isys) = ebsys_in(isys)     !> ????
 c     +                 + t * BETA(isys,ipoint)/error
                
@@ -613,6 +919,7 @@ C            print '(5F10.2)',(sysa(isys,jsys),jsys=1,5)
 
          
          if (nsys.gt.0) then
+
             if (flag_in.eq.3) then
                Call DEQINV(NSys,sysa,NSYSMAX,IR,IFAIL,1,bsys_in)
             else
