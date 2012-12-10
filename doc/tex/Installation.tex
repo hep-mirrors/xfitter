@@ -1,0 +1,171 @@
+
+\label{sec:install}
+%%%%%%%%%%%
+
+The Installation Instructions are dependent on which modules are activated via the configuration option. 
+\subsection{Pre-requirements}
+
+The following packages are needed in order to build \fitter\ package:
+\begin{itemize}
+\item QCDNUM~\cite{qcdnum} version at least {\tt qcdnum-17-00/04}, can be found at \\
+  {\tt http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html}
+\item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use {\tt /afs/} installation from CERN:
+  {\tt /afs/cern.ch/sw/lcg/external/cernlib/}
+%\item Link to recent Root libraries (e.g. version 5.26)
+%\item Optional: {\tt APPLGRID}
+\end{itemize}
+The \fitter\ program has been tested on various platforms: 
+   SL4, SL5 (32 and 64 bit),  Ubuntu 10.10.
+%%%%%%%%%%%
+\subsection{Default Installation}
+\begin{itemize}
+\item
+ Specify {\tt CERN\_ROOT} 
+     and {\tt QCDNUM\_ROOT} variables such that 
+     {\tt \$CERN\_ROOT/lib}  and {\tt \$QCDNUM\_ROOT/lib}
+ point to the corresponding libraries
+\item Run:
+\begin{verbatim}
+%    autoreconf --install
+    ./configure
+    make 
+    make install
+\end{verbatim}
+After these commands are finished, the executable {\tt bin/FitPDF} 
+file should be installed
+\item  Run a check:
+\begin{verbatim}
+    bin/FitPDF 
+\end{verbatim}
+\end{itemize}
+%%%%%%%%%%%
+\subsection{Installation with {\tt APPLGRID}}
+\begin{itemize}
+\item
+ Specify {\tt CERN\_ROOT} and {QCDNUM\_ROOT} variables such that 
+     {\tt \$CERN\_ROOT/lib}  and {\tt \$QCDNUM\_ROOT/lib}
+ point to the corresponding libraries
+\item Make sure that {\tt \$PATH} and {\tt \$LD\_LIBRARY\_PATH} 
+variables point to the {\tt APPLGRID} environment.
+\item Run:
+\begin{verbatim}
+    autoreconf --install
+    ./configure --enable-applgrid
+    make 
+    make install
+\end{verbatim}
+After these commands are finished, the executable {\tt bin/FitPDF} 
+file should be installed
+\item  Run a check:
+\begin{verbatim}
+    bin/FitPDF 
+\end{verbatim}
+\end{itemize}
+%%%%%%%%%%%
+\subsection{Installation with {\tt LHAPDF}}\label{sec:install_lhapdf}
+
+Installation with LHAPDF requires the {\tt LHAPDF} package, available online at:\\
+{\tt http://lhapdf.hepforge.org/install}.
+Then
+\begin{verbatim}
+tar -xvzf lhapdf-v.r.p.tar.gz
+cd lhapdf-v.r.p
+./configure --prefix=/path/to/directory (and/or --enable-low-memory)
+make
+make install
+cd /path/to/directory/share/lhapdf
+mkdir PDFsets
+\end{verbatim}
+
+Once installed, then create the path that will be linked to the {\tt HERAFitter} package.
+ Specify {\tt LD\_LIBRARY\_PATH} 
+     and {\tt LHAPATH} variables such that they
+ point to the corresponding libraries, and PDF sets location (where lhapdf tables are stored)
+\begin{verbatim}
+export LD_LIBRARY_PATH=/path/to/directory/lhapdf-v.r.p/lib:\$LD_LIBRARY_PATH
+export LHAPATH=/path/to/directory/share/lhapdf/PDFsets
+\end{verbatim}
+
+
+
+%%%%%%%%%%%
+\subsection{Installation with {\tt PDF reweighting}}\label{sec:install_nnpdfrweight}
+
+Note: For installation allowing for PDF reweighting, the latest version of {\tt LHAPDF}, lhapdf-5.8.7b2, should be installed.
+
+\begin{itemize}
+\item Make sure that {\tt \$LD\_LIBRARY\_PATH} includes the LHAPDF libraries.
+\item Run:
+\begin{verbatim}
+    autoreconf --install
+    ./configure --enable-lhapdf  --enable-nnpdfWeight
+    make 
+    make install
+\end{verbatim}
+After these commands are finished, the executable {\tt bin/FitPDF} 
+file should be installed
+\item Set {\tt FLAGRW = True} in the steering file and change also the other parameters of the {\tt \&reweighting} namelist if needed.
+\item  Run a check:
+\begin{verbatim}
+    bin/FitPDF 
+\end{verbatim}
+\end{itemize}
+
+
+%%%%%%%%%%%
+\subsection{Installation with {\tt HATHOR}}
+
+ \begin{itemize}
+  \item Download Hathor from 
+\begin{verbatim}
+http://www-zeuthen.desy.de/~moch/hathor/
+\end{verbatim}
+     and install it according to the instructions given there
+     (requires \begin{verbatim}LHAPDF \end{verbatim}\ library)
+
+  \item Define a variable HATHOR\_ROOT  such that HATHOR\_ROOT  points to the
+     directory of your Hathor installation
+
+  \item Install the H1Fitter as described above but configuring it
+     with the option "--enable-hathor" before building it
+ \end{itemize}
+
+
+%%%%%%%%%%%
+\subsection{Installation with {\tt CASCADE}}
+
+\begin{itemize}
+
+\item  set environment variables (with {SYSNAME=i586\_rhel50} or similar)
+    
+\begin{verbatim}
+    export CERN\_ROOT=/cern/pro  
+    export QCDNUM\_ROOT=/h1wgs/h1desy11/x04/usr/glazov/openfitter/qcdnum-17-00-03
+    export CASCADE\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/\$SYSNAME 
+    export PYTHIA\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/\$SYSNAME}
+    \end{verbatim}	
+
+\item use steering and minuit input files from "input\_steering": 
+
+   \begin{verbatim} 
+   cp input-steering/steering.txt.kt-factorisation steering.txt 
+   cp input-steering/minuit.in.txt.kt-factorisation minuit.in.txt 
+   cp input-steering/steer-ep-CASCADE steer-ep 
+   \end{verbatim}
+
+\item  edit steering.txt: 
+ \begin{verbatim}
+   \&CCFMFiles: give name for output grid file for uPDF.\&H1Fitter 
+   \&H1Fitter \\ 
+   \!  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file 
+   \!  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation 
+    ITheory = 103   ! =103 fit using precalculated grid of $sigma\_hat$
+       all other parameters are standard
+  \end{verbatim}
+
+\item run the program: bin/FitPDF 
+   
+\item plotting F2 fit results:
+   DrawResults \! will draw F2 results to plot uPDF one can use the "updfplotter" web interface $\to$ copy updf grid (with name from "CCFMFiles" under 2 to somewhere .... this description needs improvements
+\end{itemize}
+

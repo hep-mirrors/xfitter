@@ -1,0 +1,212 @@
+\label{sec:man}
+%%%%%%%%%%%
+\subsection{Steering files}
+    The software behaviour is controlled by two files with steering commands.
+    These files have predefined names:
+    \begin{itemize}
+      \item {\tt steering.txt}  --   controls main "stable" (un-modified during 
+                         minimisation) parameters. The file also contains
+                         names of data files to be fitted to, definition 
+                         of kinematic cuts                              
+      \item {\tt minuit.in.txt}
+                   --  controls minimisation parameters and minimisation 
+                         strategy. Standard Minuit commands can be provided
+                         in this file
+      \item {\tt ewparam.txt}    --  controls electroweak parameters such
+         as W and Z boson masses and CKM matrix parameters.
+    \end{itemize}
+%%%%%%%%%%%
+\subsubsection{Options for DIS fits}
+%%%%
+\subsubsection{Options for Jets}
+%%%%
+\subsubsection{Options for Diffractive fits}
+%%%%
+\subsubsection{Options for DY fits}
+%%%%%%%%%%%
+\subsection{Data file format}
+\label{sec:dataformat}
+   Experimental data are provided by the standard {\tt ASCII} text files. The files
+   contain a "header" which describes the data format and the "data" in terms
+   of a 2-dimensional table. Each line of the data table corresponds to a
+   data point, the meaning of the columns is specified in the file header.
+
+   For example, a header for HERA-I combined H1-ZEUS data for e+p neutral 
+   current scattering cross section is given in the file
+
+\begin{verbatim}
+       datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat
+\end{verbatim}
+
+   The format of the file follows standard "namelist" conventions. Comments 
+   start with exclamation mark.  Pre-defined variables are:
+\begin{itemize}
+     \item{\tt Name}        --- (string) provides a name of the data set
+    \item{\tt  Reaction}    --- (string) reaction type of the data set. Reaction type is used 
+                      to trigger corresponding theory calculation. The following 
+                      reaction types  are currently supported by the HERAFitter:
+                      \begin{itemize}
+                        \item {\tt 'NC e+-p'}  -- double differential NC ep scattering
+                                      (ZMVFS and RT-VFS schemes) 
+                        \item {\tt 'CC e+-p'}  -- double differential CC ep scattering
+                                      (ZMVFS scheme)
+                        \item {\tt 'CC pp'}    -- single differential $d \sigma_{W^{\pm}}/d eta_{\ell^{\pm}}$
+                                      production and W asymmetry at $pp$ and $p\bar{p}$ 
+                                      colliders (LO+kfactors and APPLGRID interface)
+                        \item {\tt 'NC pp'}    -- single differential $d \sigma_Z / d y_Z$ at $pp$ and
+                                      $p\bar{p}$ colliders
+                                      ({\tt LO} with k-factors and {\tt APPLGRID} interface)
+
+                        \item 'pp jets APPLGRID' -- $pp\to$ inclusive jet production, using
+                                     {\tt APPLGRID}
+                      \end{itemize}                       
+      \item {\tt NData}       --- (integer) specifies number of data points in the file. 
+                     This corresponds to the number of table rows which 
+                     follow after the header.
+      \item {\tt NColumn}     --- (integer) number of columns in the data table.
+      \item {\tt ColumnType}  --- (array of strings)
+                      Defines layout of the data table. The following column types
+                      are pre-defined: 'Bin', 'Sigma', 'Error' and 'Dummy'
+                      The keywords are case sensitive. 'Bin' correspond to an
+                      abstract bin definition, 'Sigma' corresponds to the data
+                      measurement, 'Error' - to various type of uncertainties and
+                      'Dummy' indicates that the column should be ignored.
+      \item {\tt ColumnName}  --- (array of strings)
+                      Defines names of the columns. The meaning of the name depends
+                      on the ColumnType. For ColumnType 'Bin', ColumnName gives a
+                      name of the abstract bin. The abstract bins can contain
+                      any variable names, but some of them must be present for 
+                      correct cross section calculation. For example, 'x', 'Q2' and
+                      'y' are required for DIS NC cross-section calculation.
+ 
+                      For ColumnType 'Sigma', ColumnName provides a label for 
+                      the observable, which can be any string.
+ 
+                      For ColumnType 'Error', the following names have special meaning:
+                      \begin{itemize}
+                       \item 'stat'  -- specifies column with statistical uncertainties;
+                       \item 'uncor' -- specifies column with uncorrelated uncertainties;  
+                       \item 'total' -- specifies column with total uncertainties. 
+                                  Total uncertainties are not used in the fit,
+                                  however there is an additional check is performed
+                                  if 'total' column is specified: sum in quadrature
+                                  of statistical, uncorrelated and correlated 
+                                  systematic uncertainties is compared to the total
+                                  and a warning is issued if they differ significantly.
+                       \item'ignore' - specifies column to be ignored (for special studies).
+                       \item Other names specifies columns of correlated systematic 
+                      uncertainty. For a given data file, each column of the correlated
+                      uncertainty must have unique name. To specify correlation across
+                      data files, same name must be used for different files.  
+                      \end{itemize}
+      \item {\tt SystScales}  --- (array of float)
+                      For special studies, systematic uncertainties can be scaled
+                      The numbering of uncertainties starts from the first column
+                      with the ColumnType 'Error'. For example, setting 
+\begin{verbatim}
+                  SystScale(1) = 2.  
+\end{verbatim}
+                      in {\tt datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat} would scale stat. 
+                      uncertainty by factor of two.                       
+      \item {\tt Percent}     --- (array of bool) For each uncertainty specify if it is given in 
+                      absolute ("false") or in percent ("true").  The numbering of 
+                      uncertainties starts from the first column with the 
+                      {\tt ColumnType} 'Error' (see example above).
+      \item {\tt NInfo}       --- (integer) Calculation of the cross-section predictions may 
+                      require  additional information about the data set. The number of 
+                      information strings is given by NInfo
+      \item {\tt CInfo}       --- (array of strings) Names of the information strings. 
+                      Several of them are predefined for different cross-section 
+                      calculations.
+      \item {\tt DataInfo}    --- (array of float) Values, corresponding to {\tt CInfo} names.
+      \item {\tt IndexDataset} -- (integer) Internal H1 Fitter index of the data set. Provide unique
+                      numbers to get extra info for $\chi^2/dof$ for each data set.      
+      \item {\tt TheoryInfoFile} --- (string) Optional additional theory file with extra 
+                     information for cross-section calculation. This could be k-factors,
+                     {\tt APPLGRID} file or {\tt FastNLO} table.  
+      \item {\tt TheoryType} --- (string) Theory file type ('kfactor', 'applgrid' or 'fastnlo').      
+      \item {\tt NKFactor}   --- (integer) For kfactor files, number of columns in
+                     {\tt TheoryInfoFile}.
+      \item {\tt KFactorNames} --- (array of strings) For kfactor files, names of columns in 
+                     {\tt TheoryInfoFile}.
+\end{itemize}
+
+%%%%%%%%%%%
+\subsection{Selection of the data}
+  The namelist \&Cuts, located inside the {\tt steering.txt} file can be used to apply
+  simple process dependent cuts. The cuts are limitted to bin variables.
+  Simple low and high limits are allowed. For example, a cut on $Q^2>3.5$~GeV$^2$ for
+  NC ep scattering is specified as
+
+\begin{verbatim}
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 3.5 
+   CutValueMax(1)     = 1000000.0
+\end{verbatim}
+
+  Maximum 100 cuts can be used by default.
+%%%%%%%%%%%
+\subsection{Understanding the output}
+  The results of the minimization are printed to the standard output and written
+  to the files in the {\tt output/} directory. 
+
+  The quality of the fit can be judged based on total $chi^2$ per degrees of freedom.
+  It is printed for each iteration as 
+\begin{verbatim}
+                      Iteration   Chi2   NDF       Chi2/NDF
+   FitPDF f,ndf,f/ndf      3      588.64 579        1.02
+\end{verbatim}
+  The resulting $chi^2$ is reported at the end of minimisation for each data set and for correlated 
+  systematic uncertainties separately. This information is printed and written
+  to the {\tt output/Results.txt} file. The {\tt Results.txt} file contains additional 
+  information about shifts of the correlated systematic uncertainties.
+
+  The minimization information from the {\tt minuit} program is stored using the standard {\tt minuit} in the {\tt output/minuit.out.txt}
+  file. The level of verbosity for this information can be changed by {\tt minuit} commands
+  in the {\tt minuit.in.txt} file. Make sure that {\tt minuit} does not report any errors
+  or warnings at the end of minimisation.
+  
+  Point by point comparison of the data and predictions after the minimization 
+  is provided in {\tt output/fittedresults.txt} file. The file reports three columns
+  corresponding to the three first bins of the input tables, data value, sum in 
+  quadrature of statistical and uncorrelated systematic uncertainty, total
+  uncertainty, the predicted value, before and after applying correlated systematic shifts,
+  pull betweenthe  data and theory and 
+  data set index. The pull $p$ is calculated as 
+  \begin{equation}
+      p = \frac{ \mu - m} {\sigma_{\rm uncor}}
+  \end{equation}
+  where $\mu$ is the data value, $m$ is the prediction and $\sigma_{\rm uncor}$ is the total
+  uncorrelated uncertainty.
+  Similar information is stored in the {\tt pulls.first.txt} and {\tt pulls.last.txt} files
+  ( dataset index, first bin, second bin, third bin, theory, data, pull).
+  Theory is  adjusted for systematic error shifts in this case.
+
+  The output PDFs are stored in  {\tt output/pdfs\_q2val\_XX.txt} files.
+  Each of the files reports values of gluon, and quark PDFs as a function of $x$
+  for fixed $Q^2$ points. The $Q^2$ values and $x$ grid are specified by 
+  {\tt \&Output} namelist in the {\tt steering.txt} file.
+  
+  The PDF information and data to theory comparisons can be plotted using 
+  the {\tt bin/DrawResults} program.  Calling it without arguments plots results from
+  {\tt output/} directory. Given the program one argument specifies sub-directory 
+  where the information is read. Calling the {\tt bin/DrawResults} program with two
+  arguments provides comparison of the PDFs obtained in the two fits.
+  
+  Finally, the \fitter\ package provides PDFs in the {\tt LHAPDF} format. To obtain the
+  {\tt LHAPDF} grid file, run the {\tt tools/tolhapdf.cmd} script. The script produces 
+  the {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
+  or later.
+%%%%%%%%%%%
+\subsection{{\tt Minuit} steering cards}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{User Examples}
+%%%%
+\subsection{DIS inclusive only}
+
+%%%%
+\subsection{All processes}
+
