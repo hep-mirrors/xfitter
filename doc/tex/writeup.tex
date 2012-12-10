@@ -70,23 +70,8 @@
 \section{PDF Parameterisation}
 \input{PDFparametrisation}
 
-A flexible Chebyshev polynomials based parameterisation is used for the gluon and sea densities. The polynomials
-use $\log x$ as an argument to emphasise the low $x$ behaviour. 
-The parameterisation is valid for $x>x_{min} = 1.7\times 10^{-5}$. The PDFs are multiplied
-by $1-x$ to ensure that they vanish as $x\to 1$. The resulting parameterisation form is 
-\begin{eqnarray}
-x g(x) &=& A_g \left(1-x\right) \sum_{i=0}^{N_g-1} A_{g_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,, \label{eq:glu} \\
-x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,. \label{eq:sea} 
-\end{eqnarray}
-Here the sum over $i$ runs up to $N_{g,S}=15$ order Chebyshev polynomials of the first type $T_i$ for
-the gluon, $g$, and sea-quark, $S$, density, respectively. 
-The normalisation $A_g$ is given by the momentum sum rule.
-The advantages of the parameterisation given by equations~\ref{eq:glu},\ref{eq:sea} is that momentum
-sum rule can be evaluated analytically and  already for $N \ge 5$ the fit quality
-is similar to a standard Regge-inspired parameterisation with a similar number of parameters.
-
-
-\input{chi2}
+\section{$\Chi^2$  Definition}
+\input{Chisquare}
 
 \section{Treatment of the Experimental Uncertainties}
 \input{ErrorTreatment}
