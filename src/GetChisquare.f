@@ -411,10 +411,10 @@ C-----------------------------
             ScaledTotMatrix(j,i) = ScaledTotMatrix(i,j)
          enddo
       enddo
+
 C-----------------------------   
       Call DInv(NCovar,ScaledTotMatrix,NCovarMax,Array,IFail)
       print *,IFail,NCovar
-C      stop
    
       end
 
@@ -661,8 +661,10 @@ C----------------------------------------------------------------------
       integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
       double precision fchi2_in, pchi2_in(nset), fcorchi2_in
 
-      integer i,j, i1, k
+      integer i,j, i1, j1, k
       double precision d,t, chi2, sum
+      
+      double precision SumCov(NCovarMax)
 
 C---------------------------------------------------------------------------
       fchi2_in = 0.0D0
@@ -677,7 +679,7 @@ C Diagonal part:
          t = THEO (i)
          sum = 0.0D0
          do k = 1,NSys
-            Sum = Sum + ScaledGamma(k,i1)*rsys_in(k)
+            Sum = Sum + ScaledGamma(k,i)*rsys_in(k)
          enddo
 C Chi2 per point:
          chi2 = (d - t + Sum)**2 * ScaledErrors(i)
@@ -693,7 +695,35 @@ C Sums:
       enddo
 
 C Covariance matrix part
+
+C 1) Pre-compute syms of systematic shifts:
       do i1=1,NCovar
+         i = list_covar(i1) 
+         sumcov(i1) = Daten(i) - Theo(i)
+         do k = 1,NSys
+            SumCov(i1) = SumCov(i1) + ScaledGamma(k,i)*rsys_in(k)
+         enddo        
+      enddo
+
+
+C 2) Actual chi2 calculation:
+      do i1=1,NCovar
+         i = list_covar(i1)
+         Chi2 = 0
+
+         do j1 = 1, NCovar
+            j = list_covar(j1)
+            Chi2 = Chi2 + SumCov(i1)*SumCov(j1)*ScaledTotMatrix(i1,j1)
+         enddo
+C Sums:
+         if ( FitSample(i) ) then
+            chi2_fit  = chi2_fit  + chi2
+            fchi2_in  = fchi2_in  + chi2
+            pchi2_in(JSET(i)) = pchi2_in(JSET(i)) + chi2
+         else
+            chi2_cont = chi2_cont + chi2
+         endif         
+
       enddo
 
 C Correlated chi2 part:

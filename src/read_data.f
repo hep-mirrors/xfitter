@@ -113,8 +113,8 @@ C-----------------------------------------
          call Systematics
       endif
 
+      call prep_corr_stat
       if (ICHI2.eq.100) then
-         call prep_corr_stat
          call prep_corr_syst
       endif
 
