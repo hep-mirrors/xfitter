@@ -46,14 +46,14 @@ C Functions:
 C
 C define the type of the dipole model
 C
-      if (DipoleModel.eq.1.or.DipoleModel.eq.3) then
+      if (DipoleModel.eq.1.or.DipoleModel.eq.3.or.DipoleModel.eq.5) then
 	 icharm = 1
       elseif (DipoleModel.eq.2.or.DipoleModel.eq.4) then
 	 icharm = 0
       endif
 
-C define SFUNCT_B inner parameter
-      cm = 1.30d0
+C define SFUNCT_B inner parameter: charm mass
+      cm = 1.30d0  ! please change if needed
 
 C
 C Get indexes for Q2, x and y bins:
