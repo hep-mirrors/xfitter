@@ -260,8 +260,7 @@ C Reset to default:
       NKFactor = 0
       TheoryInfoFile = ' '
       LReadKFactor = .false.
-C     Added                                                                                             
-C     NTheoryFiles = 0
+      NTheoryFiles = 0
 
       do i=1,2
          TheoryInfoFile(i) = ' '
@@ -407,16 +406,22 @@ C Theory file if present:
          DATASETKFactorNames(i,NDATASETS) = KFactorNames(i)
       enddo
 
-C     For more than 1 applgrid                                                                          
+
+C     Count applgrids
+      do i=1,2
+        if(TheoryType(i).EQ.'applgrid') then 
+           NTheoryFiles = NTheoryFiles+1   
+        endif
+      enddo
+c      print*,'NTheoryFiles with allpgrids ',NTheoryFiles
+
       DATASETNapplgrid(NDATASETS) = NTheoryFiles
-      
-      print *,'----Napplgrid [Theory Files]: ',NTheoryFiles, '----',
-     $     DATASETNapplgrid(NDATASETS)
       do i=1,NTheoryFiles
          print*,'Theory files: ', TheoryInfoFile(i)
 C     ---> copy the names in a new variable 
          DATASETapplgridNames(i,NDATASETS) = TheoryInfoFile(i)
       enddo
+
 
 C Read data info:
       do j=1,NData
