@@ -489,6 +489,7 @@ C-------------------------------------------------------------------------------
       include 'systematics.inc'
       include 'theo.inc'
       include 'indata.inc'
+      include 'steering.inc'
 C
       double precision ScaledErrors(NTOT)
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
@@ -507,8 +508,18 @@ C--------------------------------------------------------
   !>
   !>    A * Shift = C
   !>
+
+
+C Reset the matricies:
+      do i=1,nsys
+         C(i) = 0.0D0
+         do j=1, nsys
+            A(i,j) = 0.0D0
+         enddo
+         A(i,i)  = 1.D0
+      enddo
+
       do l=1,nsys
-         C(l) = 0.
          if ( SysForm(l) .eq. isNuisance ) then
 C Start with "C"
             do i1=1,n_syst_meas(l)
@@ -528,7 +539,7 @@ C Covariance matrix, need more complex sum:
                            j2 = list_covar_inv(j) 
                            if (j2 .gt. 0) then
                               C(l) = C(l) + ScaledTotMatrix(i2,j2)
-     $                             *ScaledGamma(l,i)*(-theo(i)+daten(i))
+     $                             *ScaledGamma(l,i)*(-theo(j)+daten(j))
                            endif
                         endif
                      enddo
@@ -539,11 +550,6 @@ C Covariance matrix, need more complex sum:
 C Now A:
 
             do k=1,NSys
-               if (k.eq.l) then
-                  A(k,l) = 1.0D0
-               else
-                  A(k,l) = 0.
-               endif
 C
                if ( sysform(k) .eq. isNuisance ) then
 
@@ -586,12 +592,15 @@ C Covariance matrix:
 C Ready to invert
       if (nsys.gt.0) then
 
-c         do l=1,nsys
-c            print *,'l=',l,C(l)
-c            do k=1,nsys
-c               print *,l,k,A(l,k)
-c            enddo
-c         enddo
+         if (LDebug) then
+            print *,'DUMP of Syst. shifts matrix'
+            do l=1,nsys
+               print *,'l=',l,C(l)
+               do k=1,nsys
+                  print *,l,k,A(l,k)
+               enddo
+            enddo
+         endif
 
          
          if (iflag.eq.3) then
