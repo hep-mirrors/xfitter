@@ -1046,7 +1046,7 @@ C-----------------------------------------
       include 'ntot.inc'
       include 'systematics.inc'
       include 'steering.inc'
-      character*32 ListOfSources(nsysmax),ScaleByNameName(nsysmax)
+      character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax)
       double precision ScaleByNameFactor(nsysmax)
       
       namelist/ Systematics/ListOfSources,ScaleByNameName
@@ -1210,7 +1210,7 @@ C------------------------------------------------
       
       end
 
-      integer Function SystematicsExist(SourceName, iAsym) 
+      integer Function SystematicsExist(SourceName) 
 C
 C Check if the systematic source is already on the list. 
 C Takes care of asymmetric errors and : modifier.
@@ -1220,7 +1220,7 @@ C
       include 'ntot.inc'
       include 'systematics.inc'
       integer j,i,iasym
-      character*32 Name
+      character*64 Name
 C----------------------------------------------------------------
       SystematicsExist = 0
 
