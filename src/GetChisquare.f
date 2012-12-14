@@ -172,6 +172,14 @@ C----------------------
          if ( SysForm(k) .eq. isMatrix) then
             doMatrix = .true.
             n_m = n_m + 1
+            if (n_m .gt. NCovarMax ) then
+               print *,'ERROR ERROR ERROR'
+               print *,'Number of points used for covariance matrix'//
+     $              ' exceeds NCovarMax = ', NCovarMax
+               print *,'Increase NCovarMax in ntot.inc and recompile'
+               print *,'STOP'
+               call hf_stop
+            endif
          endif
          if ( SysForm(k) .eq. isNuisance) then
             doNuisance = .true.
