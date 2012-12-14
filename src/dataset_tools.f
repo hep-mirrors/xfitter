@@ -52,7 +52,7 @@ C----------------------------------------------------------------
       enddo
       
       GetInfoIndex = 0
-      print *,'ERROR: Could not find index for information ',cname
+C      print *,'ERROR: Could not find index for information ',cname
 
       end
 
