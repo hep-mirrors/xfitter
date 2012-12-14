@@ -16,7 +16,7 @@ For a single data set,
  \sum_i
  \frac{\left[m^i
 - \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
-{ \textstyle \delta^2_{i,{\rm stat}}\left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
+{ \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
 \left(\delta_{i,{\rm uncor}}\,  m^i\right)^2}
  + \sum_j b^2_j.
 \label{eq:ave}\end{equation}
@@ -77,9 +77,9 @@ and the $\chi^2$ function takes a form
 
 The second methods is used to determine optimal shifts of the nuisance
 parameters at each iteration. The shifts are given by minimising 
-Eq.~\ref{eq:chi2gen} vs. $b_j$ which leads to a system of  linear equations 
+Eq.~\ref{eq:chi2gen} vs. $b_l$ which leads to a system of  linear equations 
 \begin{equation}
- \sum_k \sum_{ij} C^{-1}_{{\rm stat}~ij} \Gamma^i_l \Gamma^j_k \cdot b_k = \sum_{ij} C^{-1}_{{\rm stat}~ij} \Gamma^i_l (m_i - \mu_i)\,,
+ \sum_k \sum_{ij} C^{-1}_{{\rm stat}~ij} \Gamma^i_l \Gamma^j_k \cdot b_k = \sum_{ij} C^{-1}_{{\rm stat}~ij} \Gamma^i_l (m^j - \mu^j)\,,
 \end{equation}
 where $1\le l \le N_{\rm syst}$, the total number of correlated systematic uncertainties.
 
