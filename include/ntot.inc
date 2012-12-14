@@ -7,7 +7,7 @@ C
 
 
       integer NCovarMax   !> Total number of data points, treated by covariance matrix
-      parameter (NCovarMax = 500)
+      parameter (NCovarMax = 1000)
 
       integer nset            !> Total number of datasets   
       parameter (NSET = 150)
