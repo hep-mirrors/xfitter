@@ -84,8 +84,14 @@ C----------------------------------------------------
       endif
 
 C     Check type of the data                                                                                      
-      LAsymmetry =
-     $     DATASETInfo(GetInfoIndex(IDataSet,'asymmetry'),IDataSet).gt.0                                          
+
+      idx = GetInfoIndex(IDataSet,'asymmetry')
+      if (idx.gt.0) then
+         LAsymmetry = 
+     $     DATASETInfo(idx,IDataSet).gt.0
+      else
+         LAsymmetry = .false.
+      endif
 
       if (LAsymmetry) then
 C     Asymmetry case                                                                                              
@@ -109,7 +115,6 @@ C     check if we have to divide APPLGRID prediction to convert units to data un
             Theoryunit = 1.
          endif
       else
-
          call ag_convolute( DATASETTheoryIndex(IDataSet),
      $        DataSetIOrder(IDataSet),
      $        DataSetMuR(IDataSet),
@@ -135,7 +140,8 @@ C     perhaps we need to multiply prediction by EW or NNLO or both k-factors
       do i=1, NDATAPOINTS(IDataSet)
 C     Bin Size                                                                                                    
          idx =  DATASETIDX(IDataSet,i)
-         BinSize = AbstractBins(idxBinEta2,idx)-AbstractBins(idxBinEta1,idx)
+
+C         BinSize = AbstractBins(idxBinEta2,idx)-AbstractBins(idxBinEta1,idx)
          THEO(idx) = XSec(i) / TheoryUnit                                                                         
 
 cc         print*, 'i: ',i,' xsec: ',Xsec(i), 'theo: ', THEO(idx),' idx: ', idx, ' Bin: ', BinSize                
