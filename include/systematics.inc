@@ -31,10 +31,11 @@
       integer SysScalingType(nsysmax)      !> Store scaling behaviour              
       
       !> Type, form: 
-      integer isNuisance, isMatrix, isOffset   !> Store type
+      integer isNuisance, isMatrix, isOffset, isExternal   !> Store type
       parameter (isNuisance = 1)
       parameter (isMatrix   = 2)
       parameter (isOffset   = 3)
+      parameter (isExternal = 4)        !> Use minuit to propagate
 
       integer SysForm(nsysmax)
 

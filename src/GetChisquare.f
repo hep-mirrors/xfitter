@@ -35,7 +35,7 @@
       logical LFirst
       data LFirst /.true./
 
-      Logical doMatrix, doNuisance
+      Logical doMatrix, doNuisance, doExternal
 
 C----------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ c Global initialisation
          LFirst = .false.
 
 C    !> Determine which mechanisms for syst. errors should be used:
-         Call Init_Chi2_calc(doMatrix, doNuisance) 
+         Call Init_Chi2_calc(doMatrix, doNuisance, doExternal) 
 
 C    !> Determine which errors are diagonal and which are using covariance matrix
          Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
@@ -80,6 +80,12 @@ C
       if ( Chi2FirstIterationRescale .and. flag_in.gt.1 ) then
   !> Reset iterations:
          Iterate = 0
+      endif
+
+
+C !> Read extenral (minuit) systematic sources if present:
+      if (doExternal) then
+         call Chi2_calc_readExternal( rsys_in )
       endif
 
       if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
@@ -126,7 +132,7 @@ C !> Next determine nuisance parameter shifts
      $        ScaledErrors
      $        ,ScaledTotMatrix
      $        ,ScaledGamma
-     $        ,rsys_in,ersys_in,list_covar_inv, flag_in)
+     $        ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in)
 
          Iterate = Iterate - 1
       enddo
@@ -151,23 +157,25 @@ C !> Add log term
       end
 
 
-      subroutine Init_Chi2_calc(doMatrix, doNuisance) 
+      subroutine Init_Chi2_calc(doMatrix, doNuisance, doExternal) 
 C------------------------------------------------------------------
 C
 C !> Check for of systematic uncertainties, which methods should be used
 C
 C------------------------------------------------------------------
       implicit none
-      logical doMatrix, doNuisance
+      logical doMatrix, doNuisance, doExternal
       include 'ntot.inc'
       include 'systematics.inc'
-      integer k, n_m, n_n
+      integer k, n_m, n_n, n_e
       character*64 Msg
 C----------------------
       doMatrix   = .false.
       doNuisance = .false.
+      doExternal = .false.
       n_m = 0
       n_n = 0
+      n_e = 0
       do k=1,nsys
          if ( SysForm(k) .eq. isMatrix) then
             doMatrix = .true.
@@ -185,6 +193,11 @@ C----------------------
             doNuisance = .true.
             n_n = n_n + 1
          endif
+         if ( SysForm(k) .eq. isExternal) then
+            doExternal = .true.
+            n_e = n_e + 1
+         endif
+
       enddo
 C
 C Add some info messages:
@@ -198,6 +211,12 @@ C
          write (Msg,
      $  '(''I: Use hessinan method for'',i4,'' sources'')') n_n
         call hf_errlog(271120123,Msg)
+      endif
+
+      if (doExternal) then
+         write (Msg,
+     $  '(''I: Use exteranl (minuit) method for'',i4,'' sources'')') n_e
+        call hf_errlog(271120124,Msg)
       endif
 
       end
@@ -259,6 +278,37 @@ C Check systematic sources, if a matrix source point to point i
          print *,'DEBUG from Init_chi2_stat'
          print *,'Ncovar = ',Ncovar,' NDiag=',NDiag
       endif
+
+      end
+
+      subroutine Chi2_calc_readExternal( rsys_in )
+C
+C Get external (minuit) parameters 
+C
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'endmini.inc'
+      include 'extrapars.inc'
+      double precision rsys_in(nsysmax)
+      integer i,idx
+      integer GetParameterIndex
+C-------------------------------------------------
+      do i=1,NSys
+         if (SysForm(i) .eq. isExternal ) then
+            idx = GetParameterIndex(system(i))
+            if (idx.eq.0) then
+               print *,'ERROR ERROR ERROR'
+               print *,'External systematics ',system(i),' not found'
+               print *,'on the list of external parameters'
+               print *,'Contact herafiter-help@desy.de with ! Stop.'
+               print *,' ' 
+               call hf_stop
+            endif
+            rsys_in(i) = parminuitsave( iExtraParamMinuit(idx) )
+
+         endif
+      enddo
 
       end
 
@@ -486,7 +536,7 @@ C--------------------------------------------------------
      $     ScaledErrors
      $     ,ScaledTotMatrix
      $     ,ScaledGamma
-     $     ,rsys_in,ersys_in,list_covar_inv,  iflag)
+     $     ,rsys_in,ersys_in,list_covar_inv,  iflag, n0_in)
 C----------------------------------------------------------------------------------
 C
 C Determine shifts of nuisance parameters
@@ -504,11 +554,14 @@ C
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
 
       double precision rsys_in(NSYSMax), ERSYS_in(NSYSMax)
-      integer list_covar_inv(NTOT),  iflag
+      integer list_covar_inv(NTOT),  iflag, n0_in
+      logical doExternal
 
       integer k,l, i1,j1,i,j, j2, i2
       double precision A(NSYSMax,NSYSMax), C(NSysMax)
-
+      double precision d_minus_t
+      double precision ShiftExternal(NTOT)
+      
       integer com_list(NTot),n_com_list  !> List of affected data, common for two sources.
       integer IR(2*NSysMax), Ifail
 C--------------------------------------------------------
@@ -517,6 +570,20 @@ C--------------------------------------------------------
   !>    A * Shift = C
   !>
 
+C Get extra piece, from external systematics:
+      do i=1,n0_in
+         ShiftExternal(i) = 0.0D0
+      enddo
+
+      do l=1,nsys
+         if (SysForm(l) .eq. isExternal ) then
+            do i1 = 1, n_syst_meas(l)
+               i  = syst_meas_idx(i1,l)
+               ShiftExternal(i) = ShiftExternal(i) 
+     $              + ScaledGamma(l,i)*rsys_in(l)
+            enddo
+         endif
+      enddo
 
 C Reset the matricies:
       do i=1,nsys
@@ -536,18 +603,22 @@ C Start with "C"
 
                   if ( list_covar_inv(i) .eq. 0) then
 C Diagonal error:
+                     d_minus_t = daten(i) - theo(i) + ShiftExternal(i)
                      C(l) = C(l) + ScaledErrors(i)
-     $                    *ScaledGamma(l,i)*( - theo(i) + daten(i) )
+     $                    *ScaledGamma(l,i)*( d_minus_t )
                   else
 C Covariance matrix, need more complex sum:
                      i2 = list_covar_inv(i)
                      do j1=1,n_syst_meas(l)
                         j = syst_meas_idx(j1,l)
+
                         if (FitSample(j)) then
+                           d_minus_t = daten(j) - theo(j) 
+     $                          + ShiftExternal(i)
                            j2 = list_covar_inv(j) 
                            if (j2 .gt. 0) then
                               C(l) = C(l) + ScaledTotMatrix(i2,j2)
-     $                             *ScaledGamma(l,i)*(-theo(j)+daten(j))
+     $                             *ScaledGamma(l,i)*( d_minus_t )
                            endif
                         endif
                      enddo
@@ -618,9 +689,11 @@ C Ready to invert
          endif
 
          do l=1,nsys
-            rsys_in(l) = - C(l)
-            if (iflag.eq.3) then
-               ersys_in(l) = sqrt(A(l,l))
+            if ( Sysform(l) .eq. isNuisance) then
+               rsys_in(l) = - C(l)
+               if (iflag.eq.3) then
+                  ersys_in(l) = sqrt(A(l,l))
+               endif
             endif
          enddo
       endif

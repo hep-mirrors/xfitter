@@ -73,6 +73,7 @@ C -------------------------------------------
       include 'scales.inc'
       include 'indata.inc'
       include 'for_debug.inc'
+      include 'extrapars.inc'
 
       integer i
 C------------------------------------------------------
@@ -81,6 +82,7 @@ C------------------------------------------------------
 *     ------------------------------------------------
 
 
+      nExtraParam = 0
 
       Itheory = 0
       EWFIT=0
@@ -981,7 +983,6 @@ C some defaults
 C =====================================
       implicit none
       include 'extrapars.inc'
-
       integer maxExtra
       parameter (maxExtra=50)
       character*32 name(maxExtra)
@@ -992,7 +993,6 @@ C =====================================
       integer i
 C----------------------------------------
       
-      nExtraParam = 0
       open (51,file='steering.txt',status='old')
 C
 C Read as many instances of the namelist as exists:
@@ -1008,19 +1008,7 @@ C
          
          do i=1,maxExtra
             if (name(i).ne.' ') then
-C Add extra param
-               nExtraParam = nExtraParam + 1
-               if (nExtraParam.gt. nExtraParamMax) then
-                  print *,'Number of extra parameters exceeds the limit'
-                  print *,'nExtraParam=',nExtraParam
-                  print *,'Check your steering, stopping'
-                  call HF_stop
-               endif
-               ExtraParamNames(nExtraParam) = name(i)
-               ExtraParamValue(nExtraParam) = value(i)
-               ExtraParamStep (nExtraParam) = step(i)
-               ExtraParamMin  (nExtraParam) = min(i)
-               ExtraParamMax  (nExtraParam) = max(i)
+               call AddExternalParam(name(i),value(i), step(i), min(i), max(i))
             endif
          enddo
       enddo
@@ -1033,6 +1021,28 @@ C Add extra param
       call HF_stop
 
 C----------------------------------------
+      end
+
+      Subroutine AddExternalParam(name, value, step, min, max)
+      implicit none
+      include 'extrapars.inc'
+      character*(*) name
+      double precision value, step, min, max
+C---------------------------------------------
+C Add extra param
+C
+      nExtraParam = nExtraParam + 1
+      if (nExtraParam.gt. nExtraParamMax) then
+         print *,'Number of extra parameters exceeds the limit'
+         print *,'nExtraParam=',nExtraParam
+         print *,'Check your steering, stopping'
+         call HF_stop
+      endif
+      ExtraParamNames(nExtraParam) = name
+      ExtraParamValue(nExtraParam) = value
+      ExtraParamStep (nExtraParam) = step
+      ExtraParamMin  (nExtraParam) = min
+      ExtraParamMax  (nExtraParam) = max
       end
 
 
@@ -1264,7 +1274,7 @@ C  :P  - "poisson"
 C  :N  - "nuisance"   -- use nuisance parameters
 C  :C  - "covariance" -- use covariance matrix
 C  :O  - "offset"     -- use offset method for error propagation.
-C
+C  :E  - "external"   -- use minuit to minimise.
 C
       implicit none
       include 'ntot.inc'
@@ -1327,6 +1337,8 @@ C
             SysForm(nsys) = isMatrix
          elseif ( SourceName(ii+1:ii+1) .eq.'O' ) then
             SysForm(nsys) = isOffset
+         elseif ( SourceName(ii+1:ii+1) .eq.'E' ) then
+            SysForm(nsys) = isExternal
          else
             print *,'WARRNING: Unknown systematics modifier ',
      $            SourceName(ii+1:)
@@ -1337,5 +1349,10 @@ C
          SourceName = SourceName(ii+2:)
          ii = index(SourceName,':')
       enddo
+
+C Register external systematics:
+      if ( SysForm(nsys) .eq. isExternal) then
+         call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0)
+      endif
 
       end
