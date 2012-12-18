@@ -277,15 +277,27 @@ if stated.
 %%%%%%%%%%%
 \subsection{DIPOLE models}
 
-At low $x$ and low $Q^{2}$, virtual photon-proton scattering is described using the colour
-dipole model formalism~\cite{NNZ:91}. Within this formalism, the scattering process is calculated as a fluctuation of the
-photon into a quark-antiquark pair (dipole), with a lifetime $\propto\enskip 1/x$, which interacts with the proton.
+%At low $x$ and low $Q^{2}$, virtual photon-proton scattering is described using the colour
+%dipole model formalism~\cite{NNZ:91}. Within this formalism, the scattering process is calculated as a fluctuation of the
+%photon into a quark-antiquark pair (dipole), with a lifetime $\propto\enskip 1/x$, which interacts with the proton.
+%
+%Several approaches have been developed to phenomenologically describe the dipole-proton interaction
+%cross section, three of which are implemented in the HERAFitter. These are
+%the original model version (GBW)~\cite{Golec-Biernat:1998js}, a model based on the colour glass condensate approach
+%to the high parton density regime (IIM)~\cite{Iancu:2003ge}, and a modified GBW model by adding effects of the 
+Dipole picture provides an attractive approach to the virtual photon-proton scattering in the low $x$ region because it allows to describe inclusive and diffractive processes together. In this approach the virtual photon fluctuates into a $q\bar q$ (or $q\bar q g$ ....)  dipole which interacts with the proton~\cite{NNZ:91}.  The dipoles can be viewed as quasi-stable quantum mechanical states, which have very long life time $\propto 1/m_p x\;$ and a size which is not changed by scattering. 
 
-Several approaches have been developed to phenomenologically describe the dipole-proton interaction
-cross section, three of which are implemented in the HERAFitter. These are
-the original model version (GBW)~\cite{Golec-Biernat:1998js}, a model based on the colour glass condensate approach
-to the high parton density regime (IIM)~\cite{Iancu:2003ge}, and a modified GBW model by adding effects of the 
+Several dipole models have been developed to describe various DIS reactions. They vary due to different assumption made about the behavior of the dipole cross sections.   In the HERAFitter  three representative models  are implemented.
+\begin{itemize}
+\item
+the original (GBW)~\cite{Golec-Biernat:1998js} dipole saturation model,
+\item
+  the colour glass condensate approach
+to the high parton density regime (IIM)~\cite{Iancu:2003ge},
+\item
+  a modified GBW model which takes into account the effects of  
 DGLAP evolution (BGK)~\cite{Bartels:2002cj}.
+\end{itemize}
 %%%%
 \subsubsection{GBW model}
 In the GBW model the dipole-proton cross section $\sigma_{\text{dip}}$ is given by
@@ -294,7 +306,8 @@ In the GBW model the dipole-proton cross section $\sigma_{\text{dip}}$ is given 
    \sigma_{\text{dip}}(x,r^{2}) = \sigma_{0} \left(1 - \exp \left[-\frac{r^{2}}{4R_{0}^{2}(x)} \right]\right),
 \end{equation}
 where $r$ corresponds to the transverse separation between the quark and the antiquark, and $R_{0}^{2}$ is 
-an $x$ dependent scale parameter, having the form $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$.
+%an $x$ dependent scale parameter, having the form $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$.
+an $x$ dependent scale parameter which has a meaning of saturation radius,  $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$.
 The free fitted parameters are the cross-section normalisation $\sigma_{0}$ as well as $x_{0}$ and $\lambda$.
 %%%%
 \subsubsection{IIM model}
@@ -303,21 +316,60 @@ Balitsky-Kovchegov equation~\cite{Balitsky:1995ub}. The explicit formula for $\s
 can be find in~\cite{Iancu:2003ge}. The free fitted parameters are the alternative scale parameter $\tilde{R}$, $x_{0}$ and $\lambda$.
 %%%%
 \subsubsection{BGK model}
-The BGK model modifies the equation (\ref{eGBW}) by incorporating the LO and NLO DGLAP evolution
-of the gluon distribution. This leads to the expression for the dipole cross section
+%The BGK model modifies the equation (\ref{eGBW}) by incorporating the LO and NLO DGLAP evolution
+%of the gluon distribution. This leads to the expression for the dipole cross section
+The BGK model modifies the GBW model by taking into account the  DGLAP evolution
+of the gluon density. The dipole cross section is given by
 \begin{equation*}
 \label{eBGK}
    \sigma_{\text{dip}}(x,r^{2}) = \sigma_{0} \left(1 - \exp \left[-\frac{\pi^{2} r^{2} \alpha_{s}(\mu^{2}) xg(x,\mu^{2})}{3 \sigma_{0}} \right]\right).
 \end{equation*}
 The factorization scale $\mu^{2}$ has the form $\mu^{2} = C_{bgk}/r^{2}+\mu^{2}_{0}$.
-This model uses the following gluon density at the starting scale $Q_{0}^{2}=1\mbox{ GeV}^{2}$
+%This model uses the following gluon density at the starting scale $Q_{0}^{2}=1\mbox{ GeV}^{2}$
+In this model the gluon density, which  is parametrized  at some starting scale $Q_{0}^{2}$ by
 \begin{equation*}
 \label{eqTH730}
    xg(x,Q^{2}_{0}) = A_{g} x^{-\lambda_{g}}(1-x)^{C_{g}}.
 \end{equation*}
+is evolved to larger $Q^2$'s using LO and NLO DGLAP evolution.
 The free fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and 3 parameters for gluon $A_{g}$, $\lambda_{g}$, $C_{g}$. The parameter $C_{bgk}$ is kept fixed: $C_{bgk} = 4.0$. 
 %%%%
-\subsubsection{Mixed with DGLAP model}
+%\newpage
+%\subsubsection{Mixed with DGLAP model}
+\subsubsection{BGK model with valence quarks}
+The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small, of the order of 5\%. The new HERA $F_2$ data have a precision which better than 2 \%. Therefore in the HERAfitter the contribution of the valence quarks is taken from the pdf fits and added to the original 
+ BGK model. The quality of the fits of the BGK dipole model with valence quarks and without valence quarks are the same.
+The default  initial parameters for the fit without valence quark are : 
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|c||c||c||c|c||c|c|c||c|c|} 
+\hline 
+$\sigma_0$ & $A_g$ & $\lambda_g$ & $C_g$ & $cBGK$& $eBGK$\\
+\hline
+37.490 & 3.3446 & 0.0298 & 2.6302 & 4.0 & 15.362 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+\\
+For the BGK dipole model fits with valence quarks the initial parameters and the obtained $\chi^2$ are:
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{|c||c||c||c|c||c|c|c||c|c|c||c|} 
+\hline 
+No& 
+$Q^2$&&
+$\sigma_0$ & $A_g$ & $\lambda_g$ & $C_g$ & $cBGK$& $eBGK$& $Np$& $\chi^2$& $\chi^2/Np$\\
+\hline
+1 &
+$Q^2 \ge 3.5$ & NLO & 35.980 & 1.964 &-0.147& 3.068& 4.0 & 15.171 & 196& 245.74& 1.254 \\
+\hline
+2 &
+$Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92&  0.821 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
 %%%%%%%%%%%
 %\subsection{Unintegrated PDFs using CASCADE}
 \subsection{TMD (unintegrated PDF) with CCFM}
