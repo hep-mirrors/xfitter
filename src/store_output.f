@@ -341,14 +341,18 @@ C Some hack to store PDFs
      +     's36','s37','s38','s39','s40'/
 
 C-----------------------------------------------------------
-      nsets = nLHAPDF_Sets
+      nsets = nLHAPDF_Sets+1
 C      nsets = 45
       print *,'Nsets=',nsets
       
-      do iset=0, nsets
+      do iset=0, nsets-1
          call InitPDF(iset)
          alphas = alphasPDF(Mz)
-         chi2tot = chi2data_theory(min(2,iset))        
+         if (iset.eq.0) then
+            chi2tot = chi2data_theory(1)        
+         else
+            chi2tot = chi2data_theory(min(2,iset))
+         endif
          print '(''Got PDF set='',i5,'' chi2='',F10.1,'' ndf='',i5)',
      $        iset,chi2tot,ndfmini
          write(86,*) iset, ' ', chi2tot/ndfmini
