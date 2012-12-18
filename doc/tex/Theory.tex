@@ -319,7 +319,52 @@ The free fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and 3 
 %%%%
 \subsubsection{Mixed with DGLAP model}
 %%%%%%%%%%%
-\subsection{Unintegrated PDFs using CASCADE}
+%\subsection{Unintegrated PDFs using CASCADE}
+\subsection{TMD (unintegrated PDF) with CCFM}
+\def\kt{\ensuremath{k_t}}
+\newcommand{\Pmax}{p}
+\newcommand{\CCFM}{CCFMa,CCFMb,Catani:1989sg,CCFMd}
+
+In high energy factorization \cite{Catani:1990eg} the cross section is written as a convolution of the partonic cross section $\hat{\sigma}(É \kt)$ which depends on the transverse momentum $\kt$ of the incoming parton with the $\kt$-dependent parton density function ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ (transverse momentum dependent (TMD) or unintegrated uPDF):
+\begin{equation}
+ \sigma  = \int 
+\frac{dz}{z} d^2k_t \hat{\sigma}(\frac{x}{z},k_t)  {\cal \tilde A}\left(x,\kt,\Pmax\right)\label{kt-factorisation}
+\end{equation}
+The evolution of ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ 
+can proceed via the BFKL, DGLAP or via the CCFM evolution equations. Here, an extension of the CCFM \cite{\CCFM} evolution is applied. Since the evolution cannot be easily obtianed in  a closed form, 
+ first a kernel $ {\cal \tilde A}\left(x'',\kt,\Pmax\right) $ is determined from the MC solution of the CCFM evolution equation, and then is folded with the non-perturbative starting distribution ${\cal A}_0 (x)$ \cite{Jung:2012hy}:
+\begin{eqnarray}
+x {\cal A}(x,\kt,\Pmax) &= &x\int dx' \int dx'' {\cal A}_0 (x) {\cal \tilde A}\left(x'',\kt,\Pmax\right)  \delta(x' \cdot x'' - x) \\
+&= &\int dx' \int dx'' {\cal A}_0 (x) {\cal \tilde A}\left(x'',\kt,\Pmax\right) \frac{x}{x'} \delta(x'' - \frac{x}{x'}) \\
+& = & \int dx' {{\cal A}_0 (x') }  
+\cdot \frac{x}{x'}{ {\cal \tilde A}\left(\frac{x}{x'},\kt,\Pmax\right) } 
+\end{eqnarray}
+%An intrinsic $\kt$ dependence is included in the kernel ${\cal \tilde A}$
+%\begin{eqnarray}
+%{\cal \tilde A} & = & {\cal \tilde A'} \cdot f(k_{t\;0}) = {\cal \tilde A'} \cdot  \exp\left[ 
+%-\frac{(\mu-k_{t\;0})^2}{\sigma^2}\right]
+%\end{eqnarray}
+The kernel  ${\cal \tilde A}$ includes all the dynamics of the evolution, Sudakov form factors and splitting functions and is determined in a grid of $50\otimes50\otimes50$ bins in $x,\kt,\Pmax$.  
+
+The calculation of the cross section according to eq.(\ref{kt-factorisation}) involves a multidimensional Monte Carlo integration which is time consuming and suffers from numerical fluctuations, and cannot be used directly in a fit procedure involving the calculation of numerical derivates in the search for the minimum. Instead the following procedure is applied:
+\begin{eqnarray}
+\sigma_r(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2) \\
+  & = & \int_x^1 dx' {\cal A}_0 (x') \cdot \tilde{ \sigma}(x/x',Q^2) \label{final-convolution}
+ \end{eqnarray}
+
+The kernel ${\cal \tilde A}$ has to be provided separately and is not calculable within this program. The starting distribution  ${\cal A}_0$  at the starting scale $Q_0$ of the following form is used:
+\begin{eqnarray}
+x{\cal A}_0(x,\kt) &=& N x^{-B_g} \cdot (1 -x)^{C_g}\left( 1 -D_g x\right) 
+\label{a0}
+\end{eqnarray}
+with free parameters $N,\, B_g,\, C_g,\, D_g$. 
+
+In the present version, only the transverse momentum dependent gluon distribution can be obtained from the fit. 
+
+The calculation of the $ep$ cross section follows eq.(\ref{kt-factorisation}), with the off-shell matrix element including quarks masses taken from \cite{Catani:1990eg} in its implementation in {\tt CASCADE} \cite{Jung:2010si} .In addition to the boson gluon fusion process, also valence quark initiated $\gamma q\to q$ processes are included, with the valence quarks taken from~\cite{Deak:2010gk}.
+
+Please note that in the present version only DIS $ep$ processes can be used to determine the transverse momentum dependent (uPDF) gluon density distribution.
+
 %%%%%%%%%%%
 \subsection{Diffractive DIS PDFs}
 Diffractive DIS data are fitted within the 'proton vertex factorisation' approach where 
