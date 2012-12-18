@@ -70,6 +70,15 @@
 
   PDFStyle = '10p HERAPDF'
 
+ ! New "chi2" style, uncomment if you want to use it: 
+
+ !  CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+ !  Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+
+ !  Chi2ExtraParam = 'PoissonCorr'
+
+
+
  ! -- Choice of the chi2 function
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
  !    'HERAPDF' : Pascaud-like + "mixed error scaling"
