@@ -153,6 +153,16 @@ C !> Add log term
          fchi2_in = fchi2_in + chi2_log
       endif
 
+
+C
+C !> Store extra output for FCN = 3:
+C
+      if (Flag_In.eq.3) then
+         Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
+      endif
+
+
+
       return 
       end
 
@@ -389,12 +399,6 @@ C----------------------------------------------------------------------
                i1 = syst_meas_idx(i2,k)  ! data point index
                i = list_covar_inv(i1)    ! cov. matrix index 
 
-C XXXXXXXXXXXXXXXXXXXXXXXXXXXXX               
-               if (i.eq.0) then
-                  print *,'ERROR',i2,i1,n_syst_meas(k)
-                  stop
-               endif
-               
                do j2=i2,n_syst_meas(k)
                   j1 = syst_meas_idx(j2,k)  ! data point idx
                   j = list_covar_inv(j1)    ! cov. matrix idx
@@ -407,12 +411,6 @@ C XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
             enddo
          endif
       enddo
-
-c      do i=1,n0_in
-c         do j=i+1,n0_in
-c            ScaledSystMatrix(j,i) = ScaledSystMatrix(i,j) 
-c         enddo
-c      enddo
 
 C----------------------------------------------------------------------
       end
@@ -786,7 +784,7 @@ C Sums:
 
 C Covariance matrix part
 
-C 1) Pre-compute syms of systematic shifts:
+C 1) Pre-compute sums of systematic shifts:
       do i1=1,NCovar
          i = list_covar(i1) 
          sumcov(i1) = Daten(i) - Theo(i)
@@ -849,6 +847,32 @@ C-------------------------------------------------------------------------
          endif
       enddo
 
+      end
+
+
+      Subroutine Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in, n0_in)
+C
+C !> Extra output for iteration #3
+C
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'theo.inc'
+      double precision ScaledErrors(Ntot)  !> uncorrelated uncertainties, diagonal
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision rsys_in(NSysMax)
+      integer n0_in
+
+      integer i,k
+C------------------------------------------------------------------
+      do i=1,n0_in
+         ALPHA_MOD(i) =  1.D0/sqrt(ScaledErrors(i))
+         THEO_MOD(i)  = THEO(i)
+         do k=1,NSYS
+            THEO_MOD(i) = THEO_MOD(i) - ScaledGamma(k,i)*RSys_in(k)
+         enddo
+      enddo
+C------------------------------------------------------------------
       end
 
 CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
