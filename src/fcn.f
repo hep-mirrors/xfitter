@@ -522,7 +522,8 @@ c WS: for the Offset method save central fit only
           endif
        endif
 
-       write(85,*) 'Systematic shifts '
+c WS: print NSYS --- needed for batch Offset runs
+       write(85,*) 'Systematic shifts ',NSYS
 c       open(unit=77,file='output/systematics_polar.txt')
        do jsys=1,nsys
 c          write(77,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
