@@ -428,6 +428,10 @@ C Output:
       double precision yplus(NPMaxDIS), yminus(NPMaxDIS)
       double precision F2(NPMaxDIS),xF3(NPMaxDIS),FL(NPMaxDIS)
       double precision F2gamma(NPMaxDIS),FLgamma(NPMaxDIS)
+
+      double precision F2in(NPMaxDIS),xF3in(NPMaxDIS),FLin(NPMaxDIS)
+      double precision F2gammain(NPMaxDIS),FLgammain(NPMaxDIS)
+
       double precision F2c(NPMaxDIS),FLc(NPMaxDIS),F2b(NPMaxDIS),FLb(NPMaxDIS)
 
 
@@ -445,16 +449,23 @@ C
       call UseZmvnsScheme(F2, FL, xF3, F2gamma, FLgamma,
      $     q2, x, npts, polarity, charge, XSecType)
 
+      F2in=F2
+      FLin=FL
+      xF3in=xF3
+      F2gammain=F2gamma
+      FLgammain=FLgamma
 
       if     (mod(local_hfscheme,10).eq.1) then
 
          call UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, polarity, XSecType, charge, local_hfscheme, IDataSet)
+     $        x, q2, npts, polarity, XSecType, F2in, FLin, XF3in, 
+     $        charge, local_hfscheme, IDataSet)
          
       elseif (mod(local_hfscheme,10).eq.2) then
          
          call UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, F2gamma, FLgamma, local_hfscheme, IDataSet)
+     $        x, q2, npts, XSecType, F2gammain, FLgammain,
+     $        local_hfscheme, IDataSet)
 
       elseif (mod(local_hfscheme,10).eq.3) then 
 
@@ -662,7 +673,8 @@ cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
       end
 
       subroutine UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $     x, q2, npts, polarity, XSecType, charge, local_hfscheme, IDataSet)
+     $     x, q2, npts, polarity, XSecType,  F2in, FLin, XF3in, 
+     $     charge, local_hfscheme, IDataSet)
 C----------------------------------------------------------------
 C Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
 C according to ACOT scheme
@@ -681,6 +693,7 @@ C Input:
       double precision charge, polarity
       integer npts,IDataSet
       character*(*) XSecType
+      double precision F2in(NPMaxDIS), FLin(NPMaxDIS), xF3in(NPMaxDIS)
 C Output:
       double precision F2(NPMaxDIS), FL(NPMaxDIS), xF3(NPMaxDIS)
       double precision F2c(NPMaxDIS),FLc(NPMaxDIS)
@@ -718,6 +731,16 @@ c     icharge_in:+1 CC e+
 
       do i=1,npts
          idx =  DATASETIDX(IDataSet,i)
+
+C ---------------------------------------
+C     F2, FL, XF3 are already computed by QCDNUM:  (FIO 15 Dec 2012)
+c     Pass inside sf_acot_wrap for K-Factor method:
+C     Important: This relies on the call to UseZmvnsScheme
+         f123l(2)= f2in(i)
+         f123l(3)=xf3in(i)
+         f123l(4)= fLin(i)
+         f123l(1)= (f2in(i)-fLin(i))/(2.0d0*x(i))
+C ---------------------------------------
          
          call sf_acot_wrap(x(i),q2(i),
      $        f123l,f123lc,f123lb,
@@ -798,8 +821,9 @@ C
          idx =  DATASETIDX(IDataSet,i)
 
             call  mstwnc_wrap(
-     $        x(i),q2(i),1,f2RT,
-     $        f2cRT,f2bRT,flRT,flcRT,flbRT
+     $        x(i),q2(i),1,
+           ! Output:
+     $        f2RT,f2cRT,f2bRT,flRT,flcRT,flbRT
            ! Input:
      $          ,iFlagFCN,idx    ! fcn flag, data point index
      $          ,F2Gamma(i),FLGamma(i)

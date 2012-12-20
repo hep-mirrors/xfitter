@@ -108,6 +108,18 @@ C----------------------------------------------------------------------
          endif
 
 
+
+C ---------------------------------------
+C     F2, FL, XF3 are already computed by QCDNUM:  (FIO 15 Dec 2012)
+c     Pass inside sf_acot_wrap for K-Factor method:
+C     Important: This relies on the call to UseZmvnsScheme
+         F123Lxcb(1,1)=f123l_out(1)
+         F123Lxcb(1,2)=f123l_out(2)
+         F123Lxcb(1,3)=f123l_out(3)
+         F123Lxcb(1,4)=f123l_out(4)
+C ---------------------------------------
+         
+
 C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 c     REWRITE: ENCAPSULATE THE K-FACTORS:  FIO 13 April 2012
@@ -156,7 +168,7 @@ cv      include 'ntot.inc'
       include 'qcdnumhelper.inc'
 
 
-      double precision F123Lxcb(3,4),F123Lxcb_LO(3,4),F123Lxcb_QCDNUM(3,4) !*** 3='xcb', 4='123L'
+      double precision F123Lxcb(3,4),F123Lxcb_LO(3,4),F123Lxcb_QCDNUM(3,4), Fsave(4) !*** 3='xcb', 4='123L'
       double precision x, q, xmu, polar
       integer index, icharge
       double precision maxFactor,small
@@ -183,6 +195,16 @@ c     ------Check index is within bounds
          stop
       endif
 
+
+C ---------------------------------------
+C     F2, FL, XF3 are already computed by QCDNUM:  (FIO 15 Dec 2012)
+c     Save results for K-Factor method:
+C     Important: This relies on the call to UseZmvnsScheme
+         Fsave(1)=F123Lxcb(1,1)
+         Fsave(2)=F123Lxcb(1,2)
+         Fsave(3)=F123Lxcb(1,3)
+         Fsave(4)=F123Lxcb(1,4)
+
 C-----------------------------------------------------------------------------
 c     FIRST TIME THROUGH: FILL K-FACTOR      
 C-----------------------------------------------------------------------------
@@ -195,19 +217,21 @@ C-----------------------------------------------------------------------------
 C---------------------------------!*** OPTION TO USE QCDNUM FOR K-FACTORS
          if(isave) then
             isave=.false.
-            iqcdnum=1
             iqcdnum=0
-            write(6,*) ' enter 1 for QCDNUM K-facs; 0 for LO-Massive ACOT ',iqcdnum
-c            read (5,*) iqcdnum
+            iqcdnum=1
+cv            write(6,*) ' enter 1 for QCDNUM K-facs; 0 for LO-Massive ACOT ',iqcdnum
+cv            read (5,*) iqcdnum
             write(6,*) ' set: 1 for QCDNUM K-facs; 0 for LO-Massive ACOT  = ',iqcdnum
          endif
 
          if(iqcdnum.eq.1) then
          if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN !*** NEUTRAL CURRENT ONLY FOR NOW
-         call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
+c         call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
 c     !*** 3='xcb', 4='123L'
-         F123Lxcb_LO(1,2)=F123Lxcb_QCDNUM(1,2)  !*** Use QCDNUM F2
-         F123Lxcb_LO(1,4)=F123Lxcb_QCDNUM(1,4)  !*** Use QCDNUM FL
+c         F123Lxcb_LO(1,2)=F123Lxcb_QCDNUM(1,2)  !*** Use QCDNUM F2
+c         F123Lxcb_LO(1,4)=F123Lxcb_QCDNUM(1,4)  !*** Use QCDNUM FL
+         F123Lxcb_LO(1,2)=Fsave(2)  !*** Use QCDNUM F2
+         F123Lxcb_LO(1,4)=Fsave(4)  !*** Use QCDNUM FL
          ENDIF
          endif
 C---------------------------------
@@ -269,11 +293,18 @@ C     Use K-Factor
 
 
 c     Adjust F2 and FL if we use QCDNUM K-facs
+c     Note: this code is call both first time to re-set F123Lxcb, and 
+c     during later calls to overwrite with QCDNUM + K-factor result
          if(iqcdnum.eq.1) then
            if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN !*** NEUTRAL CURRENT ONLY FOR NOW
-               call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
-               F123Lxcb(1,2)=F123Lxcb_QCDNUM(1,2)* akFACTxcb(1,2,Index)
-               F123Lxcb(1,4)=F123Lxcb_QCDNUM(1,4)* akFACTxcb(1,4,Index)
+c               call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
+c               F123Lxcb(1,2)=F123Lxcb_QCDNUM(1,2)* akFACTxcb(1,2,Index)
+c               F123Lxcb(1,4)=F123Lxcb_QCDNUM(1,4)* akFACTxcb(1,4,Index)
+
+               F123Lxcb(1,2)=Fsave(2)* akFACTxcb(1,2,Index) !*** Use Stored QCDNUM F2
+               F123Lxcb(1,4)=Fsave(4)* akFACTxcb(1,4,Index) !*** Use Stored QCDNUM FL
+
+
            endif
          ENDIF
   
