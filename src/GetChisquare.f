@@ -50,8 +50,8 @@ C    !> Determine which errors are diagonal and which are using covariance matri
          Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
      $        List_Covar_inv,n0_in)
 
-         do i=1,n0_in
-            do j=1,n0_in
+         do i=1,NCovarMax
+            do j=1,NCovarMax
                ScaledSystMatrix(i,j) = 0.
             enddo
          enddo
@@ -276,7 +276,15 @@ C Check systematic sources, if a matrix source point to point i
 
             List_Covar(NCovar) = i
             List_Covar_inv(i) = NCovar
-
+            !> Add a check:
+            if (NCovar .gt. NCovarMax) then
+               print *,'ERROR ERROR ERROR'
+               print *,'Number of points used for covariance matrix'//
+     $              ' exceeds NCovarMax = ', NCovarMax
+               print *,'Increase NCovarMax in ntot.inc and recompile'
+               print *,'STOP'
+               call hf_stop
+            endif
          else
             NDiag = NDiag + 1
             List_Diag(NDiag) = i
@@ -470,7 +478,7 @@ C-----------------------------
 
 C-----------------------------   
       Call DInv(NCovar,ScaledTotMatrix,NCovarMax,Array,IFail)
-      print *,IFail,NCovar
+C      print *,IFail,NCovar
    
       end
 
@@ -562,11 +570,28 @@ C
       
       integer com_list(NTot),n_com_list  !> List of affected data, common for two sources.
       integer IR(2*NSysMax), Ifail
+
+      logical lfirst
+      data lfirst /.true./
+      save lfirst
+C-
+      logical HaveCommonData(NsysMax, NsysMax)
 C--------------------------------------------------------
-  !> A system of  "number  of isNuisance systematics" equations, indexed using "l":
-  !>
-  !>    A * Shift = C
-  !>
+
+C Determine pairs of syst. uncertainties which share  data
+      if (LFirst) then
+         LFirst = .false.
+         do l=1,nsys
+            do k=l,nsys
+               Call Sys_Data_List12(l,k,n_com_list,com_list)
+               if (n_com_list.gt.0) then
+                  HaveCommonData(k,l) = .true.
+               else
+                  HaveCommonData(k,l) = .false.
+               endif
+            enddo
+         enddo
+      endif
 
 C Get extra piece, from external systematics:
       do i=1,n0_in
@@ -582,6 +607,12 @@ C Get extra piece, from external systematics:
             enddo
          endif
       enddo
+
+  !> A system of  "number  of isNuisance systematics" equations, indexed using "l":
+  !>
+  !>    A * Shift = C
+  !>
+
 
 C Reset the matricies:
       do i=1,nsys
@@ -626,17 +657,15 @@ C Covariance matrix, need more complex sum:
 
 C Now A:
 
-            do k=1,NSys
+            do k=l,NSys
 C
-               if ( sysform(k) .eq. isNuisance ) then
+               if ( (sysform(k) .eq. isNuisance )  .and. 
+     $              HaveCommonData(k,l) ) then
 
-C !> Determine data affected by both sources l and k:
-                  Call Sys_Data_List12(l,k,n_com_list,com_list)
-
-                  do i1 = 1,n_com_list
-                     i = com_list(i1)
+                  do i1 = 1,n_syst_meas(k)
+                     i = syst_meas_idx(i1,k)
                      if ( FitSample(i) ) then
-                        if ( list_covar_inv(i) .eq. 0) then
+                        if (  list_covar_inv(i) .eq. 0) then
 C Diagonal error:
                            A(k,l) = A(k,l) +
      $                          ScaledErrors(i)
@@ -645,8 +674,9 @@ C Diagonal error:
                         else
 C Covariance matrix:
                            i2 = list_covar_inv(i)
-                           do j1=1,n_com_list
-                              j = com_list(j1)
+                           do j1=1,n_syst_meas(l)
+                              j = syst_meas_idx(j1,l)
+C                           do j=1,n0_in
                               if ( FitSample(j) ) then
                                  j2 = list_covar_inv(j)
                                  if (j2 .gt. 0) then
@@ -666,6 +696,16 @@ C Covariance matrix:
             enddo
          endif
       enddo
+
+C
+C Under diagonal:
+C
+      do l=1,nsys
+         do k=1,l-1
+            A(k,l) = A(l,k)
+         enddo
+      enddo
+
 C Ready to invert
       if (nsys.gt.0) then
 
