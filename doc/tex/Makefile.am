@@ -5,7 +5,7 @@ if HAVE_BIBTEX
 infiles = $(docfiles)
 docfiles += writeup.pdf
 MANNAME = writeup
-MANTEXSRC = $(MANNAME).tex
+MANTEXSRC = $(MANNAME).tex Theory.tex Reweighing.tex ProgramManual.tex PDFparametrisation.tex Introduction.tex Installation.tex ErrorTreatment.tex Chisquare.tex dpdfs.tex
 MANAUX = $(MANNAME).aux
 MANPDF = $(MANNAME).pdf
 
