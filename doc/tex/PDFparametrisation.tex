@@ -3,12 +3,62 @@
 %%%%%%%%%%%
 \subsection{Standard Functional form}
 %%%%
+Through standard functional form it is undertstood a simple polynomial 
+that interpolates between the low and high $x$ regions:
+\begin{equation}
+ xf(x) = A x^{B} (1-x)^{C} P_i(x),
+\label{eqn:pdf_std}
+\end{equation}
+We identify few standard forms commonly used by PDF groups.
+
+%%%%
 \subsubsection{CTEQ style}
+%%%%
+The notation used throughout this text reflects the 
+notation used in the code.
+
+\begin{equation}
+ xf(x) = a_0 x^{(a_1+n)} (1-x)^{a_2} e^{a_3x} (1 + e^{a_4 x} + e^{a_5 x^2}),
+\label{eqn:pdf_cteq}
+\end{equation}
+%
 %%%%
 \subsubsection{HERAPDF style}
 %%%%
+ The parametrised PDFs at HERA are the valence distributions
+ $xu_v$ and  $xd_v$,  the gluon distribution $xg$, and the $u$-type and $d$-type 
+$x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
+$x\bar{D} = x\bar{d} +x\bar{s}$. 
+The following standard functional form is used to parametrise them
+\begin{equation}
+ xf(x) = A x^{B} (1-x)^{C} (1 + D x + E x^2),
+\label{eqn:pdf}
+\end{equation}
+%
+where the normalisation parameters, $A_{uv}, A_{dv}, A_g$,  are constrained by  
+the QCD sum-rules, such that the counting  and  momentum conservation are preserved.
+The $B$ parameters  $B_{\bar{U}}$ and $B_{\bar{D}}$ are set equal,
+ $B_{\bar{U}}=B_{\bar{D}}$, such that 
+there is a single $B$ parameter for the sea distributions. 
+%
+The strange quark distribution 
+is already present at the starting scale and 
+%
+it is  assumed here that 
+$x\bar{s}= f_s  x\bar{D}$ at $Q^2_0$. 
+The  strange fraction is chosen to be $f_s=0.31$ which is
+consistent with determinations 
+of this fraction using neutrino induced di-muon production. 
+%
+In addition, to ensure that $x\bar{u} \to x\bar{d}$ 
+as $x \to 0$,  
+$A_{\bar{U}}=A_{\bar{D}} (1-f_s)$.
+%
+The $D$ and $E$ are introduced one by one until no further improvement in $\chi^2$ is found.
+For the case when adding more precision data in the fit, as when adding HERA II data, this allows then for use of a more flexible parametrisation for the gluon and valence especially.
+The best fit  results in a total of 10 free parameters when performing fits to solely HERA I data (fits are refered then ro as HERAPDF1.0), and of 13 free parameters when adding preliminary HERA II data on top (fits are refered then to as HERAPDF1.5).
 \subsubsection{Flexible style}
-%%%%%%%%%%%
+%%%%
 \subsection{Chebyshev Polynomial}
 
 A flexible Chebyshev polynomials based parameterisation is used for the gluon and sea densities. The polynomials
