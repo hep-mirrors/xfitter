@@ -59,6 +59,13 @@
 
                         \item 'pp jets APPLGRID' -- $pp\to$ inclusive jet production, using
                                      {\tt APPLGRID}
+
+                        \item 'FastNLO jets' -- jet cross sections using {\tt FastNLO} interface.
+                                     All $ep$, $pp$ and $p\bar{p}$ colliders are supported.
+
+                        \item 'FastNLO ep jets normalised' -- jet cross sections in the $ep$ collisions 
+                                     using {\tt FastNLO} interface and normalised to the inclusive DIS cross sections.
+
                       \end{itemize}                       
       \item {\tt NData}       --- (integer) specifies number of data points in the file. 
                      This corresponds to the number of table rows which 
@@ -130,6 +137,154 @@
       \item {\tt KFactorNames} --- (array of strings) For kfactor files, names of columns in 
                      {\tt TheoryInfoFile}.
 \end{itemize}
+
+Depending on the chosen process specific requirements for the header might be present. 
+Dataset-wise options are provided by a {\tt CInfo} / {\tt DataInfo} variable set. In case the information
+varies between data points (e.g. bin borders, hadronisation corrections etc.) it is
+provided within data table and recognised by the program using reserved column names.
+In the following all these requirements are listed and shortly explained.
+
+\subsubsection{Data format requirements for DIS}
+
+In this subsection we describe specific requirements for files using 'NC e+-p' and 'CC e+-p'
+reaction types. Examples of such input files are:
+
+{\tt datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat}
+
+{\tt datafiles/H1ZEUS\_CC\_e-p\_HERA1.0.dat}.
+
+The properly formatted DIS input files will have the following fields available
+in the {\tt CInfo} variable list: 
+
+\begin{itemize} 
+    \item  {\tt 'sqrt(S)'} --- the ep collision centre-of-mass energy in GeV. In particular, for 
+    HERA based results the the corresponding {\tt DataInfo} value should be $300.$ for measurements
+    based on data collected prior to $1997$ (inclusive) and $318.$ afterwards.
+    
+    \item {\tt 'reduced'} --- a field indicating whether calculated cross section should be reduced (1.) or not (0.)
+    (reference to proper equation somewhere in this manual).
+    
+    \item {\tt 'e charge'} --- electric charge of the collided lepton beam. Supported {\tt DataInfo} values
+    are '1.' for electron and '-1.' for positron.
+
+    \item {\tt 'e polarity'} --- polarity of the lepton beam. The corresponding {\tt DataInfo} value 
+    should be between $-1.0$ and $1.0$ (is this true?) with abs($1.0$) indicating fully polarised
+    beam and $0.0$ fully unpolarised one. 
+
+    In case of non-vanishing polarity following additional fields are required:
+
+    \item {\tt 'pol err unc'} --- explain
+
+    \item {\tt 'pol err corLpol'} --- explain
+ 
+    \item {\tt 'pol err corTpol'} --- explain
+
+\end{itemize}
+
+The inclusive DIS cross sections are calculated on the x-Q2-y grid. Correspondingly,
+the following columns need to present in the correctly formatted input file: 
+{\tt 'x'}, {\tt 'Q2'} and {\tt 'y'}.
+
+
+\subsubsection{Data format requirements for FastNLO}
+
+In this subsection we describe data format specific for the FastNLO implementation
+accessed by choosing 'FastNLO jets' and 'FastNLO ep jets normalised' reaction types.
+Examples of properly formatted files are:
+
+   {\tt datafiles/HERA/ZEUS\_InclJets\_HighQ2\_98-00.dat}
+
+   {\tt datafiles/HERA/H1\_NormInclJets\_HighQ2\_99-07.dat}.
+
+{\tt TheoryType = 'FastNLO'} indicates usage of the FastNLO. The variable {\tt ThoryInfoFile} 
+should contain the proper path to the FastNLO table in version 2.0 and higher.
+HERAFITTER supports both flexible and inflexible scales.
+Older FastNLO tables can be still accessed through the APPLGRID interface.
+
+The following fields are required to be present in the {\tt CInfo} list:
+
+\begin{itemize}
+
+    \item {\tt 'PublicationUnits'} --- The desired units in which the cross sections 
+    are calculated by the FastNLO code. If the corresponding {\tt DataInfo} field is 
+    set to '1.' the cross sections will be given in the same units as used in the
+    relevant publication. In the case it is set to '0.', absolute cross section
+    units will be used. 
+
+    \item {\tt 'MurDef', 'MufDef'} --- The renormalisation and factorisation scale definitions
+    used with variable scale FastNLO tables. If the chosen FastNLO table does not support 
+    variable scales, these fields will be ignored and the scale embedded within the table will 
+    be used instead. The values of the corresponding {\tt DataInfo} fields set 
+    the renormalisation scale $\mu_r$ and factorisation scale $\mu_f$ following the FastNLO standard:
+    \begin{align*} 
+       \text{value} :&\quad \text{definition} \\
+       0 :&\quad   \mu_{r/f}^2 = \mu_1^2 \\
+       1 :&\quad   \mu_{r/f}^2 = \mu_2^2 \\
+       2 :&\quad   \mu_{r/f}^2 = ( \mu_1^2 + \mu_2^2 )\\
+       3 :&\quad   \mu_{r/f}^2 = ( \mu_1^2 + \mu_2^2 ) / 2 \\
+       4 :&\quad   \mu_{r/f}^2 = ( \mu_1^2 + \mu_2^2 ) / 4 \\
+       5 :&\quad   \mu_{r/f}^2 = (( \mu_1 + \mu_2 ) / 2 )^2\\
+       6 :&\quad   \mu_{r/f}^2 = (( \mu_1 + \mu_2 ))^2\\
+       7 :&\quad   \mu_{r/f}^2 = \text{max}( \mu_1^2, \mu_2^2)\\
+       8 :&\quad   \mu_{r/f}^2 = \text{min}( \mu_1^2, \mu_2^2) \\
+       9 :&\quad   \mu_{r/f}^2 = (\mu_1 * exp(0.3 * \mu_2)) ^2
+   \end{align*}
+
+   where $\mu_1$ and $\mu_2$ are specific scales chosen during production of the table. In particular
+   for jet production at HERA traditionally 
+   \begin{equation*}
+          \mu_1^2 = Q^2 \quad \quad \quad \mu_2^2 = p_T^2
+    \end{equation*}  
+
+   \item {\tt sqrt(S)} --- Should be defined only for 'FastNLO ep jets normalised' reaction type. 
+         The ep collision centre-of-mass energy in GeV. In particular, for 
+         HERA based results the the corresponding {\tt DataInfo} value should be $300.$ for measurements
+         based on data collected prior to $1997$ (inclusive) and $318.$ afterwards.
+
+   \item {\tt 'lumi(e-)/lumi(tot)'} --- Should be defined only for 'FastNLO ep jets normalised'
+         reaction type. The normalisation depends on the ratio of the positron and electron data 
+         used for the cross section measurement. This ratio should  be
+         given in a format (lumi($e^-$) / (lumi($e^-$) + lumi($e^+$)) and assume values between [0., 1.].
+
+   \item {\tt 'UseZMVFNS'} --- Should be defined for 'FastNLO ep jets normalised' reaction type. The calculation
+         of the integrated inclusive DIS cross sections could be time consuming.
+         This option provides an opportunity to use a "Zero Mass Variable Flavour
+         Number Scheme" approximation which is very fast and possibly provides
+         enough precision for the normalisation purposes. ZMVNS is used if 
+         the corresponding {\tt DataInfo} field is set to 1. Otherwise, the same scheme
+         is used as defined globally with the variable 'HF\_SCHEME' defined in steering.txt file.
+\end{itemize}
+
+
+In addition there are some specific values within the {\tt ColumnName} field which allow
+passing the information specific to each data point. They are listed below:
+
+\begin{itemize}
+     \item{\tt 'Z0Corr'} --- (optional) The correction due to the $Z_0$ boson exchange.
+                 If it is given, each point calculated by the FastNLO code will be
+                 multiplied by the {\tt Z0Corr} value.
+
+     \item{\tt 'NPCorr'} --- (optional) The non-perturbative correction.
+                 If it is given, each point calculated by the FastNLO code will be
+                 multiplied by the {\tt NPCorr} value. {\tt Z0Corr} and {\tt NPCorr} can be added 
+                 simultaneously, and in this case the calculated cross sections
+                 will be multiplied by the product {\tt Z0Corr} * {\tt NPCorr}.
+
+    \item{\tt 'q2min', 'q2max', 'ymin', 'ymax', 'xmin', 'xmax'} --- Should be defined for 
+         'FastNLO ep jets normalised' reaction type and are used to define 
+         DIS phase space for the normalisation. Since these three ({\tt q2, y, x}) are 
+         connected by the relation
+         \begin{equation}
+              Q^2 = x \cdot y \cdot s
+         \end{equation}
+         only two are required to be present to unambiguously define the DIS phase space for each data point.
+        
+\end{itemize}
+
+
+%%%%%%%%%%%
+
+
 
 %%%%%%%%%%%
 \subsection{Selection of the data}
