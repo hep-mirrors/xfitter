@@ -35,7 +35,7 @@
    current scattering cross section is given in the file
 
 \begin{verbatim}
-       datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat
+       datafiles/H1ZEUS_NC_e-p_HERA1.0.dat
 \end{verbatim}
 
    The format of the file follows standard "namelist" conventions. Comments 
@@ -91,8 +91,11 @@
  
                       For ColumnType 'Error', the following names have special meaning:
                       \begin{itemize}
-                       \item 'stat'  -- specifies column with statistical uncertainties;
-                       \item 'uncor' -- specifies column with uncorrelated uncertainties;  
+                       \item 'stat'  -- specifies column with statistical uncertainties, request Poisson re-scaling;
+                       \item 'stat const'  -- specifies column with statistical uncertainties, request no re-scaling of the errors;
+                       \item 'uncor' -- specifies column with uncorrelated uncertainties. Any name containing keyword ``uncor'' is treated as an uncorrelated
+  error souce, e.g. ``h1 uncor'';  
+                       \item 'uncor const' -- specifies column with uncorrelated uncertainties, request no re-scaling of the errors;  
                        \item 'total' -- specifies column with total uncertainties. 
                                   Total uncertainties are not used in the fit,
                                   however there is an additional check is performed
@@ -307,13 +310,13 @@ passing the information specific to each data point. They are listed below:
   The results of the minimization are printed to the standard output and written
   to the files in the {\tt output/} directory. 
 
-  The quality of the fit can be judged based on total $chi^2$ per degrees of freedom.
+  The quality of the fit can be judged based on total $\chi^2$ per degrees of freedom.
   It is printed for each iteration as 
 \begin{verbatim}
                       Iteration   Chi2   NDF       Chi2/NDF
    FitPDF f,ndf,f/ndf      3      588.64 579        1.02
 \end{verbatim}
-  The resulting $chi^2$ is reported at the end of minimisation for each data set and for correlated 
+  The resulting $\chi^2$ is reported at the end of minimisation for each data set and for correlated 
   systematic uncertainties separately. This information is printed and written
   to the {\tt output/Results.txt} file. The {\tt Results.txt} file contains additional 
   information about shifts of the correlated systematic uncertainties.
