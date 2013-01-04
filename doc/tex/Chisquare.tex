@@ -136,7 +136,90 @@ corresponding to non-constant value of the covariance matrix:
 \end{equation}  
 
 \subsection{HERAFitter implementation}
+The form of the $\chi^2$ function and the scaling properties of the 
+uncertainties are controlled globally by the {\sc CHI2SettingsName} and
+{\sc  Chi2Settings} variables and individually using {\sc ``:''} modifiers.
+The global scaling properties of the uncertainties are described in 
+Table~\ref{tab:ErrScale}. The global form of the $\chi^2$ function
+is defined by the {\sc CorChi2Type} parameter, see   
+Table~\ref{tab:Chi2Type}.
+
+The default behaviour can be changed for each correlated systematic source by ``:'' modifiers.
+They are described in Table~\ref{tab:SystModifier}. The modifiers should appear at the end 
+of the systematic source name, e.g. {\sc 'H3:M'}. Several modifiers can be used, e.g. {\sc 'H3:M:C'}.
+
+The names of systematic error sources are read first from the {\sc ListOfSources} variable of the 
+{\sc \&Systematics} namelist, located in the {\sc steering.txt} file. Next the names are read from the
+data files following the sequence given by the {\sc InputFileNames} list. The properties of each systematic
+error source are defined by its first occurence. That means that if, for example, {\sc 'H3:M:C'} is defined
+in the {\sc ListOfSources} variable, the source {\sc 'H3'} is treated as multiplicative and using covariance
+matrix approach regarless definitions in the data files. If, however, {\sc ListOfSources} defines a souce
+without any modifiers, e.g. {\sc 'H3'}, the default treatment, following the {\sc Chi2Settings} variable is
+enforced for this source.
+Thus the {\sc ListOfSources } variable is a convinient way to modify behaviour of the correlated systemat
+sources.
+
+The shifts of the systematic sources are reported in the {\sc Results.txt} file. The uncertainty on the shift
+is however estimated only approximately, neglecting the correlation with the theory parameters. An accurate determination
+of the uncertainty can be achived by using the toy MC method (see Section~\ref{sec:ToyMC}) or by using {\sc ':E'} 
+modifier. In the later case the systematic source is treated using the {\tt Minuit} minimisation. Note, however,
+that this approach can slow the minimisation convergence considerably.
+\begin{table}
+\begin{center}
+\begin{tabular}{ccccc} 
+\hline
+ Option  & {\sc StatScale} & {\sc UncorSysScale} & {\sc CorSysScale} & Scaling rule \\
+\hline
+  {\sc Poisson}   &  $+$  &  $+$  &  $-$  & $\sqrt{ m^i \mu^i}$ \\
+  {\sc Linear}    & $-$   &  $+$  &  $+$  & $m^i$               \\
+  {\sc NoRescale} & $+$   &  $+$  &  $+$  & $\mu^i$   \\
+  {\sc LogNorm}   &  \multicolumn{4}{c}{Reserved, not implemented} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{tab:ErrScale}Global scaling rules for statistical, 
+uncorrelated and correlated systematic uncertainties. The scaling
+rule is given with respect to corresponding relative uncertainty.
+E.g. for the {\sc Poisson} statistical uncertainty the absolute statistical
+uncertainty is $\Delta_i = \delta_{i, {\rm stat}}\sqrt{m^i\mu^i}$   }
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{cl}
+\hline
+    {\sc CorChi2Type} value &  Description \\
+\hline
+  {\sc Hessian}             & Use nuisance parameters.\\
+  {\sc Matrix }             & Use covariance matrix. \\
+  {\sc Offset }             & Use offset method\\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{tab:Chi2Type}Possible values of the {\sc CorChi2Type} parameter which defines treatment of the correlated systematic uncertainties.}
+\end{table}
  
+\begin{table}
+\begin{center}
+\begin{tabular}{cl}
+\hline
+  Modifier &  Description \\
+\hline
+   \multicolumn{2}{c}{Scaling properties}\\
+  {\sc :M}  &  Multiplicative scaling, $ m^i$ \\
+  {\sc :A}  &  Additive scaling, $ \mu^i$ \\
+  {\sc :P}  &  Poisson scaling, $ \sqrt{m^i\mu^i}$ \\
+   \multicolumn{2}{c}{$\chi^2$ treatment}\\
+  {\sc :N}  &  Nuisance parameter treatment \\
+  {\sc :C}  &  Covariance matrix treatment \\
+  {\sc :O}  &  Offset method treatment \\
+  {\sc :E}  &  Nuisance parameter, included in {\sc Minuit} (``External'')\\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{tab:SystModifier}Modifiers for correlated systematic
+uncertainty sources.}
+\end{table}
 % available as described in appendix~\ref{sec:herafitter}.
 %%%%
 %\subsubsection{Generalised Scaled Form}
