@@ -85,7 +85,7 @@ C
 
 C !> Read extenral (minuit) systematic sources if present:
       if (doExternal) then
-         call Chi2_calc_readExternal( rsys_in )
+         call Chi2_calc_readExternal( rsys_in, ersys_in, flag_in )
       endif
 
       if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
@@ -299,7 +299,7 @@ C Check systematic sources, if a matrix source point to point i
 
       end
 
-      subroutine Chi2_calc_readExternal( rsys_in )
+      subroutine Chi2_calc_readExternal( rsys_in, ersys_in, IFlag )
 C
 C Get external (minuit) parameters 
 C
@@ -308,9 +308,12 @@ C
       include 'systematics.inc'
       include 'endmini.inc'
       include 'extrapars.inc'
-      double precision rsys_in(nsysmax)
-      integer i,idx
+      double precision rsys_in(nsysmax), ersys_in(nsysmax)
+      integer i,idx, iflag
       integer GetParameterIndex
+      character*80 parname
+      double precision val, err, xlo, xhi
+      integer ipar
 C-------------------------------------------------
       do i=1,NSys
          if (SysForm(i) .eq. isExternal ) then
@@ -324,7 +327,11 @@ C-------------------------------------------------
                call hf_stop
             endif
             rsys_in(i) = parminuitsave( iExtraParamMinuit(idx) )
-
+            if (IFlag.eq.3) then
+               call mnpout(iExtraParamMinuit(idx)
+     $              ,parname,val,err,xlo,xhi,ipar)
+               ersys_in(i) = err
+            endif
          endif
       enddo
 
