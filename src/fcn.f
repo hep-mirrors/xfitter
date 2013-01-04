@@ -160,6 +160,7 @@ c updf stuff
       Common/CCFMout/CCFMfile
       Integer idx
 
+      character*2 TypeC, FormC
       
 
 C--------------------------------------------------------------
@@ -524,13 +525,32 @@ c WS: for the Offset method save central fit only
 
 c WS: print NSYS --- needed for batch Offset runs
        write(85,*) 'Systematic shifts ',NSYS
-c       open(unit=77,file='output/systematics_polar.txt')
+       write(85,*) ' '
+       write(85,'(A5,'' '',A20,'' '',A9,''   +/-'',A9,A10,A4)')
+     $         ' ', 'Name     ', 'Shift','Error',' ','Type'
        do jsys=1,nsys
-c          write(77,*)jsys,' ', SYSTEM(jsys),rsys(jsys),' +/- ',ersys(jsys)
-          write(85,'(I5,'' '',A20,'' '',F9.4,''   +/-'',F9.4)')
-     $         jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys)
+C !> Store also type of systematic source info
+          if ( SysForm(jsys) .eq. isNuisance ) then
+             FormC = ':N'
+          elseif ( SysForm(jsys) .eq. isMatrix ) then
+             FormC = ':C'
+          elseif ( SysForm(jsys) .eq. isOffset ) then
+             FormC = ':O'
+          elseif ( SysForm(jsys) .eq. isExternal ) then
+             FormC = ':E'
+          endif
+
+          if ( SysScalingType(jsys) .eq. isPoisson ) then
+             TypeC = ':P'
+          elseif ( SysScalingType(jsys) .eq. isNoRescale ) then
+             TypeC = ':A'
+          elseif ( SysScalingType(jsys) .eq. isLinear ) then
+             TypeC = ':M'
+          endif
+
+          write(85,'(I5,'' '',A20,'' '',F9.4,''   +/-'',F9.4,A10,2A2)')
+     $         jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, TypeC
        enddo
-c       close(77)
 
 c AS release applgrids
 c AS applgrid example
