@@ -52,6 +52,9 @@ C
 C 07/12/2011 Dipole ===>
       call SetDipoleType
 
+C 09/01/2013 Check consistency of the input
+      call CheckInputs
+
       end
 
 
@@ -202,7 +205,7 @@ C----------------------------------------------
       include 'indata.inc'
       include 'for_debug.inc'
 C-----------------------------------------------
-      character*32  Chi2Style, HF_SCHEME
+      character*32  Chi2Style
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8)
@@ -262,7 +265,7 @@ C
 C
 C Decode HFSCHEME:
 C      
-         call SetHFSCHEME(HF_SCHEME)
+         call SetHFSCHEME
       endif
 
       starting_scale = Q02
@@ -824,14 +827,13 @@ C---------------------------------
 
 
 
-      Subroutine SetHFSCHEME(HF_SCHEME)
+      Subroutine SetHFSCHEME
 C---------------------------------------
 C
 C>  Set PDF parameterisation type
 C
 C---------------------------------------
       implicit none
-      character*(*) HF_SCHEME
       include 'steering.inc'
 C---------------------------------
       
@@ -1355,4 +1357,25 @@ C Register external systematics:
          call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0)
       endif
 
+      end
+
+      Subroutine CheckInputs
+ !>
+ !>  Check consistency of the data input, abort for unsupported combinations
+ !>
+      implicit none
+      include 'steering.inc'
+      character*48 CMess 
+C----------------------------------------------------------
+      if ( I_Fit_order .eq. 1 ) then
+         if ( index(HF_SCHEME,'RT').gt.0 ) then
+            CMess = 'RT scheme does not support LO evolution'
+            goto 998
+         endif
+      endif
+
+      return
+ 998  continue
+      call HF_ERRLOG(13010901,'F: Inconsistent steering: '//CMess)
+      call hf_stop
       end
