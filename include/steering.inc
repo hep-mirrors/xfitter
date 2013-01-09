@@ -9,7 +9,8 @@
      $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
      $     ,iDH_MOD            !>  Correction factor to the chi2, scaling
                                !>  of statistical errors
-      integer HFSCHEME         !>  Heavy flavour scheme (0 - zero mass, 2 - RT, 3 - FFNS)
+      character*32 HF_SCHEME      
+      integer HFSCHEME          !>  Heavy flavour scheme (0 - zero mass, 2 - RT, 3 - FFNS)
 
       double precision Chi2MaxError !> Switch to Poisson stat. for larger errros
       
@@ -113,7 +114,7 @@ C
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
-     $     CorChi2Type
+     $     CorChi2Type, hf_scheme
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
