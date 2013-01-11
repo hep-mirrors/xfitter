@@ -30,7 +30,7 @@ public:
 protected:
    // inherited functions
    double EvolveAlphas(double Q ) const ;
-   void InitPDF();
+   bool InitPDF();
    vector<double> GetXFX(double xp, double muf) const ;
 };
 #endif

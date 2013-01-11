@@ -59,9 +59,9 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    if(*murdef>=0.)
      fnloreader->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (*murdef)));
    if(*mufdef>=0.)
-     fnloreader->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (*mufdef)), false);
+     fnloreader->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (*mufdef)));
 
-   fnloreader->SetScaleFactorsMuRMuF(  *murscale, *mufscale, false);
+   fnloreader->SetScaleFactorsMuRMuF(  *murscale, *mufscale);
 
    fnloreader->SetVerbosity(say::WARNING);
    // looking for scale factor = 1!

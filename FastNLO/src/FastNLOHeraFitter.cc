@@ -38,7 +38,7 @@ double FastNLOHeraFitter::EvolveAlphas(double Q) const {
 //______________________________________________________________________________
 
 
-void FastNLOHeraFitter::InitPDF(){
+bool FastNLOHeraFitter::InitPDF(){
    // --- fastNLO user: 
    //  Initalize PDF parameters if necessary
    //
