@@ -565,7 +565,8 @@ C
             Call InitDYNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
             Call InitJetsPPApplGridDataSet(IDataSet)
-         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
+         elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.
+     $           DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then  ! for backward compatibility
             Call InitJetsFastNLODataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet)
      $           .eq.'FastNLO ep jets normalised') then
@@ -576,7 +577,8 @@ C
          elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
             Call InitDDisDataSet(IDataSet)            
          else
-C     C         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
+            Call hf_errlog(01110113,'F: Init_theory: unknown reaction "'
+     $                //TRIM(DATASETREACTION(IDataSet)) //'"')
          endif
       enddo
 C

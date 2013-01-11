@@ -76,7 +76,8 @@ C Standard DGLAP:
             write(6,*) ' invalid dataset for ithory > 100 '
             call hf_stop
          Endif
-      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
+      elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.
+     $        DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then  ! for backward compatibility
          if(Itheory.lt.100) then
             Call GetJetsFastNLOXsection(IDataSet, .false.)
          else
@@ -107,7 +108,8 @@ cv
             call hf_stop
          Endif
       else
-CC         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
+            Call hf_errlog(01110113,'F: theory_disp: unknown reaction "'
+     $                //TRIM(DATASETREACTION(IDataSet)) //'"')
       endif
 
       end

@@ -12,7 +12,7 @@
 ! 
 &Data
    Name = 'ZEUS inclusive dijet 98-00/04-07 data' 
-   Reaction  = 'FastNLO ep jets'
+   Reaction  = 'FastNLO jets'
 
    NDATA = 22
    NColumn = 12

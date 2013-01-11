@@ -17,7 +17,7 @@
 ! 
 &Data
    Name = 'H1 inclusive jet 99-00 data'
-   Reaction  = 'FastNLO ep jets'
+   Reaction  = 'FastNLO jets'
 
    NDATA = 24
    NColumn = 14
