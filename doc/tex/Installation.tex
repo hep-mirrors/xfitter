@@ -9,24 +9,24 @@ The following packages are needed in order to build \fitter\ package:
 \begin{itemize}
 \item QCDNUM~\cite{qcdnum} version at least {\tt qcdnum-17-00/04}, can be found at \\
   {\tt http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html}
-\item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use {\tt /afs/} installation from CERN:
+\item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use {\tt /afs/} installation from CERN:\\
   {\tt /afs/cern.ch/sw/lcg/external/cernlib/}
 %\item Link to recent Root libraries (e.g. version 5.26)
 %\item Optional: {\tt APPLGRID}
 \end{itemize}
-The \fitter\ program has been tested on various platforms: 
-   SL4, SL5 (32 and 64 bit),  Ubuntu 10.10.
+The \fitter\ program has been tested on various platforms:\\
+   SL4, SL5 (32 and 64 bit), SL6 (64 bit),  Ubuntu 10.10.
 %%%%%%%%%%%
 \subsection{Default Installation}
 \begin{itemize}
 \item
  Specify {\tt CERN\_ROOT} 
-     and {\tt QCDNUM\_ROOT} variables such that 
-     {\tt \$CERN\_ROOT/lib}  and {\tt \$QCDNUM\_ROOT/lib}
+     and {\tt QCDNUM\_ROOT} variables such that\\
+     \verb'$CERN_ROOT/lib'  and \verb'$QCDNUM_ROOT/lib'
  point to the corresponding libraries
 \item Run:
 \begin{verbatim}
-%    autoreconf --install
+    autoreconf --install
     ./configure
     make 
     make install
@@ -42,8 +42,8 @@ file should be installed
 \subsection{Installation with {\tt APPLGRID}}
 \begin{itemize}
 \item
- Specify {\tt CERN\_ROOT} and {QCDNUM\_ROOT} variables such that 
-     {\tt \$CERN\_ROOT/lib}  and {\tt \$QCDNUM\_ROOT/lib}
+ Specify {\tt CERN\_ROOT} and {QCDNUM\_ROOT} variables such that\\
+     \verb'$CERN_ROOT/lib' and \verb'$QCDNUM_ROOT/lib'
  point to the corresponding libraries
 \item Make sure that {\tt \$PATH} and {\tt \$LD\_LIBRARY\_PATH} 
 variables point to the {\tt APPLGRID} environment.
@@ -77,12 +77,12 @@ cd /path/to/directory/share/lhapdf
 mkdir PDFsets
 \end{verbatim}
 
-Once installed, then create the path that will be linked to the {\tt HERAFitter} package.
- Specify {\tt LD\_LIBRARY\_PATH} 
+Once installed, create the path that will be linked to the {\tt HERAFitter} package.\\
+ Specify \verb'LD_LIBRARY_PATH'
      and {\tt LHAPATH} variables such that they
  point to the corresponding libraries, and PDF sets location (where lhapdf tables are stored)
 \begin{verbatim}
-export LD_LIBRARY_PATH=/path/to/directory/lhapdf-v.r.p/lib:\$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/path/to/directory/lhapdf-v.r.p/lib:$LD_LIBRARY_PATH
 export LHAPATH=/path/to/directory/share/lhapdf/PDFsets
 \end{verbatim}
 
@@ -121,7 +121,7 @@ file should be installed
 http://www-zeuthen.desy.de/~moch/hathor/
 \end{verbatim}
      and install it according to the instructions given there
-     (requires \begin{verbatim}LHAPDF \end{verbatim}\ library)
+     (requires \verb'LHAPDF' library)
 
   \item Define a variable HATHOR\_ROOT  such that HATHOR\_ROOT  points to the
      directory of your Hathor installation
@@ -167,6 +167,6 @@ http://www-zeuthen.desy.de/~moch/hathor/
 \item run the program: bin/FitPDF 
    
 \item plotting F2 fit results:
-   DrawResults \! will draw F2 results to plot uPDF one can use the "updfplotter" web interface $\to$ copy updf grid (with name from "CCFMFiles" under 2 to somewhere .... this description needs improvements
+   DrawResults  will draw F2 results to plot uPDF one can use the "updfplotter" web interface $\to$ copy updf grid (with name from "CCFMFiles" under 2 to somewhere .... this description needs improvements
 \end{itemize}
 

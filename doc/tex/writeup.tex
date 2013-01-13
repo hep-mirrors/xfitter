@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,twoside,a4paper]{article}
 \usepackage{graphicx,epsfig}
 \usepackage{hhline}
 
@@ -11,7 +11,19 @@
 %\usepackage[mathlines,displaymath]{lineno}
 \usepackage{rotating}
 
- 
+\usepackage[hypertexnames,setpagesize,%
+    pdftex,%
+    colorlinks,%
+    citecolor=blue,%
+    hyperindex,%
+    plainpages=false,%
+    bookmarksopen,%
+    bookmarksnumbered%
+  ]{hyperref}
+
+% --- DO NOT remove this line:
+\providecommand\texorpdfstring[2]{#1}
+
 % we use natbib instead of cite to work with hyperref
 %\usepackage{cite}
 %\usepackage[numbers,square,comma,sort&compress]{natbib}
@@ -116,6 +128,8 @@ with respect ot QCDNUM ZMVFNS, calculated at the first iteration.
   \item{\tt 'CTEQ'}        -- CTEQ-like parameterisation.
   \item{\tt 'CHEB'}        -- CHEBYSHEV parameterisation based on 
          gluon,sea, $u_{v}$, $d_{v}$ independent pdfs.
+  \item{\tt 'DDIS'}        -- HERA-like, two-component (Pomeron + Reggeon)\\
+			Diffractive PDFs parameterisation
  \end{itemize}
 \item {\tt CHI2Style}  --- (string) choice of the $\chi^2$ function:
    \begin{itemize}
@@ -123,6 +137,7 @@ with respect ot QCDNUM ZMVFNS, calculated at the first iteration.
    \item {\tt 'HERAPDF'} -- Pascaud-like + "mixed error scaling"
    \item {\tt 'HERAPDF Sqrt'}   -- Pascaud-like + "sqrt error scaling"
    \item {\tt 'HERAPDF Linear'} -- Pascaud-like + "linear error scaling"
+   \item {\tt 'Offset'} -- offset method activated
  \end{itemize}
   \item {\tt LDEBUG}  --- (logical) debug flag.
 \end{itemize}
