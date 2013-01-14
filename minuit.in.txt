@@ -53,14 +53,12 @@ parameters
    85   'Edel'                     0.0000      0.
 
 
-set eps 1.0e-11
 
 *set print 3  
 call fcn 3
 *migrad 200000
 *hesse
 set print 3
-
 
 return
 
