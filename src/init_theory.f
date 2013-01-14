@@ -577,8 +577,9 @@ C
          elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
             Call InitDDisDataSet(IDataSet)            
          else
-            Call hf_errlog(01110113,'F: Init_theory: unknown reaction "'
-     $                //TRIM(DATASETREACTION(IDataSet)) //'"')
+C allow other reactions to pass (e.g. 'muon p' for fix target data)             
+C            Call hf_errlog(01110113,'F: Init_theory: unknown reaction "'
+C     $                //TRIM(DATASETREACTION(IDataSet)) //'"')
          endif
       enddo
 C
