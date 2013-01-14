@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 26
+    NInputFiles = 33 
 
    InputFileNames =
  !
@@ -17,10 +17,21 @@
  ! H1 jets:
  !
           'datafiles/hera/H1_NormInclJets_HighQ2_99-07.dat',
+          'datafiles/hera/H1_InclJets_HighQ2_99-00.dat',
+          'datafiles/hera/H1_InclJets_LowQ2_99-00.dat',
+ ! ZEUS jets:
+          'datafiles/hera/ZEUS_InclJets_HighQ2_96-97.dat',
+          'datafiles/hera/ZEUS_InclJets_HighQ2_98-00.dat',
+          'datafiles/hera/ZEUS_dijet_98-07.dat',
+ !
  !
  ! H1 low Ep inclusive:
  !
           'datafiles/hera/H1_LowEp_460_575.dat',
+ !
+ ! HERA combined charm data:
+ !
+          'datafiles/hera/H1ZEUS_Charm_combined.dat', 
  !
  ! BCDMS:
  !
@@ -40,6 +51,7 @@
  !
           'datafiles/lhc/cms/CMS-TOP-11-024_prelim.dat',
           'datafiles/lhc/cms/CMS_Z_boson_Rapidity.dat',
+          'datafiles/lhc/cms/CMS_eAsymmetry_SPM_12_001.dat',
  !
  ! For atals jets, use R06 or R04 data, but never both at the same time !
  !
@@ -64,8 +76,8 @@
 * dependently. The numbering follows sequential numbering of input files
 *
 &Scales 
-    DataSetMuR  = 26*1.0     ! Set muR scale to 1 for all datasets
-    DataSetMuF  = 26*1.0     ! Set muF scale to 1 for all datasets
+    DataSetMuR  = 33*1.0     ! Set muR scale to 1 for all datasets
+    DataSetMuF  = 33*1.0     ! Set muF scale to 1 for all datasets
 &End
 
 
@@ -94,7 +106,7 @@
  ! ---  HF_SCHEME = 'FF ABM'    : Fixed Flavour Number Scheme (ABM)
  ! ---  HF_SCHEME = 'FF ABM RUNM' : Fixed Flavour Number Scheme (ABM) using run mass def
 
-  HF_SCHEME = 'RT FAST'
+  HF_SCHEME = 'RT'
 
 
  ! PDF parameterisation style. Possible styles are currently available:
