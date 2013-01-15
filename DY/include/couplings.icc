@@ -6,7 +6,7 @@
  @date Wed Aug 3 2011
  @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
 
- File contains c++ links to H1FITTER electroweak parameters 
+ File contains c++ links to HERAFITTER electroweak parameters 
  common blocks.
 
  */
