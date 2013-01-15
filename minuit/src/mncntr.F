@@ -6,7 +6,7 @@
 * Initial import of the source tree
 *
 * Revision 1.1.1.1  2007/01/02 14:35:42  kluget
-* A test for h1fitter
+* A test for herafitter
 *
 * Revision 1.1.1.1  1996/03/07 14:31:28  mclareni
 * Minuit

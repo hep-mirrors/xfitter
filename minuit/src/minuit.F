@@ -6,7 +6,7 @@
 * Initial import of the source tree
 *
 * Revision 1.1.1.1  2007/01/02 14:35:42  kluget
-* A test for h1fitter
+* A test for herafitter
 *
 * Revision 1.1.1.1  1996/03/07 14:31:28  mclareni
 * Minuit
@@ -84,7 +84,7 @@ C                                        . . . . . . . . read parameters
       IF (IFLGUT .EQ. 2)  GO TO 500
       IF (IFLGUT .EQ. 3)  GO TO 600
       IF (IFLGUT .EQ. 4)  GO TO 700
- !> Extra parameters for H1Fitter 
+ !> Extra parameters for HeraFitter 
       call ExtraParam
 C                              . . . . . . verify FCN not time-dependent
       WRITE (ISYSWR,'(/A,A)') ' MINUIT: FIRST CALL TO USER FUNCTION,',

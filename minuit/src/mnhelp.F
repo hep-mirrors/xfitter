@@ -6,7 +6,7 @@
 * Initial import of the source tree
 *
 * Revision 1.1.1.1  2007/01/02 14:35:42  kluget
-* A test for h1fitter
+* A test for herafitter
 *
 * Revision 1.2  1999/09/03 09:17:47  couet
 * - \Cind{} removed in the help of minuit. This was a Tex directive which very
