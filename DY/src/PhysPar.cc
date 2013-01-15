@@ -3,7 +3,7 @@
   @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
   @date Sun May 17 2009
  
-  Function to set DY electroweak parameters from h1fitter EW common blocks
+  Function to set DY electroweak parameters from herafitter EW common blocks
  
  */
 
@@ -71,7 +71,7 @@ namespace PhysPar {
   // current run parameters
   int idlept		= 11;
 
-  // Function to set parameters according to H1FITTER electroweak
+  // Function to set parameters according to HERAFITTER electroweak
   // common block
   void setPhysPar();
 };
