@@ -1,11 +1,11 @@
 c----------------------------------------------------------
 c     this file contains dummy lhapdf interface routines
-c     which are called in case h1fitter was not compiled
+c     which are called in case HERAfitter was not compiled
 c     with --enable-lhapdf option
 c----------------------------------------------------------
 
       subroutine print_lhapdf_messg
-      print *,'calling lhapdf function but h1fitter compiled without --enable-lhapdf switch'
+      print *,'calling lhapdf function but HERAfitter compiled without --enable-lhapdf switch'
       return
       end
       
