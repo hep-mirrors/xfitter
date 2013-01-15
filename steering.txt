@@ -1,3 +1,6 @@
+&CSOffset
+  UsePrevFit = 0
+&End
 *
 *  Namelist to control input data
 *
@@ -33,7 +36,7 @@
 *
 * Main steering cards
 *
-&H1Fitter 
+&HeraFitter 
   TheoryType = 'DGLAP' ! 'DGLAP'  -- colinear evolution
                        ! 'DIPOLE' -- dipole model 
                        ! 'uPDF'   -- un-integrated PDFs
@@ -86,11 +89,12 @@
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
  !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
 
-  CHI2Style = 'HERAPDF'
+  CHI2Style = 'Offset'
 
  ! Debug flag
   LDEBUG     = False
 &End
+
 
 
 *
