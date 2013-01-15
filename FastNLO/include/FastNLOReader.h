@@ -12,7 +12,7 @@
 //  FastNLOReader is a standalone code for reading                      //
 //  FastNLO tables of version 2.0 for DIS processes                     //
 //  It is also optimized for an integration into                        //
-//  the H1Fitter project.                                               //
+//  the HeraFitter project.                                               //
 //                                                                      //
 //  FastNLO is developed by                                             //
 //    D. Britzger, T. Kluge, K. Rabbertz, F. Stober, M. Wobisch         //

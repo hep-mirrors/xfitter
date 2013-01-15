@@ -6,7 +6,7 @@
 //
 //   FastNLOInterface
 //                                                                      //
-//  The interface through which fortran based h1fitter interacts with   //
+//  The interface through which fortran based herafitter interacts with   //
 //  c++ version of FastNLOReader.                                       // 
 //                                                                      //
 //                                                                      //
