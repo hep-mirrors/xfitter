@@ -8,7 +8,7 @@
 //
 //   $Id: fappl.cxx, v1.0   Wed May 21 14:31:36 CEST 2008 sutt
 //   
-//   08/04/2011 AS: changed names to include in h1fitter
+//   08/04/2011 AS: changed names to include in HERAfitter
 
 #include <map>
 #include <iostream>
