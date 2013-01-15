@@ -1,8 +1,8 @@
 %%%%%%%%%%%
-\subsection{Hessian Method}
+%\subsection{Hessian Method}
 
 %%%%%%%%%%%
-\subsection{Offset Method}
+%\subsection{Offset Method}
 
 \newcommand{\rs}{s}
 \newcommand{\ce}{b}
@@ -11,7 +11,7 @@
 \DeclareRobustCommand\mb[1]{\ensuremath{\mbox{\mathversion{bold}{$#1$}}}\ssp}
 \DeclareRobustCommand\mbs[1]{\ensuremath{\mbox{\mathversion{bold}{\scriptsize $#1$}}}\ssp}
 
-\subsubsection {Correlated errors and \texorpdfstring{$\chi^2$}{chi2}}
+\subsection {Correlated errors and \texorpdfstring{$\chi^2$}{chi2}}
 \label{sec:cor-chi2}
 
 % \cite{Chekanov:2002pv,Pascaud:1995qs}
@@ -118,7 +118,7 @@ It is worth noting that the solution \Eq{eq:chi_int} for $\chi^2$
 can be obtained by minimizing $\chi_{\mathrm c}^2(\mb\rs)$ of \Eq{eq:chi_c} wrt. $\mb\rs$.
 
 % -----------------------------------
-\subsubsection{The Offset method}
+\subsection{The Offset method}
 
 In the Offset method presented here we assume that $\mb\rs$ is fixed, 
 and we find the best theoretical model by minimizing
@@ -450,4 +450,30 @@ over the replicas.
 %%%%%%%%%%%
 \subsection{Regularisation methods}
 
+Regularisation methods are aiming to study the parametrisation assumptions on PDFs. When more flexible parametrisation styles is used the shape of the PDFs must be constrained and various methods could be used.
+HERAFitter framework provides the means to study and compare various methods.
 
+%The methods described in this section work for large data sets. 
+\subsubsection{Data Driven Regularisation}
+This method was first applied by NNPDF group which uses redundant parametrisation and introduces a stopping criteria based on data.
+The data driven regularisation method splits data randomly into ``fit'' and ``control''  samples. The ``fit'' sample is used to determine PDF parameters. The $\chi^2$ of this sample is observed to semi-monotonically decrease. The ``control'' sample is used to protect againts over-fitting and for this sample the $\chi^2$ will first decrease and then will start to increase due to fluctuation of the sample.
+
+
+\subsubsection{External Regularisation based on penalty term in $\chi^2$}
+
+Another method to constrain the PDF shape is to simply apply a penalty term
+to the $\chi^2$ function. 
+One method is so called ``length penalty'' which selects PDF solutions with smoother shape in $W\approx Q\sqrt{\frac{1-x}{x}}$:
+\begin{equation}
+L=\int_{W_{min}^{W_{max}}}\sqrt{1+\left(\frac{dxf(W)}{dW}}\right)^2
+\end{equation}
+This method can be applied when using Chebyshev polynomials to parametrise PDFs.
+
+For the case when using flexible parametrisation style, 
+a $\chi^2$ penalty term is applied to account for a deviation 
+from a simple PDF parametrisation form such as:
+\begin{equation}
+\chi^2_{reg}= T\sum_f\left(\lepft(\frac{D_f}{\Delta_D}\right)^2+ (\lepft(\frac{E_f}{\Delta_E}\right)^2\right),
+\end{equation}
+
+with $\Delta D=\Delta E = 100$, such that for large $D$ and $E$ the ratio will approach $1$. The $T$ is the regularisation parameters, such that for $T=0$ there is no penalty term and for large $T$ there is strong penalty.
