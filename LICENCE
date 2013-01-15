@@ -1,9 +1,9 @@
 
  --------------------------------------------------------------------------- 
 
-    H1FITTER: Fast QCD fit package
+    HERAFittter: Fast QCD fit package
 
-    Copyright (C) 2011  H1 Collaboration http://h1.desy.de
+    Copyright (C) 2012  HERAFitter Developers http://herafitter.hepforge.org/
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
