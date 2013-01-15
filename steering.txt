@@ -1,7 +1,3 @@
-&CSOffset
-  UsePrevFit = 0
-&End
-*
 *  Namelist to control input data
 *
 &InFiles
@@ -89,7 +85,7 @@
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
  !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
 
-  CHI2Style = 'Offset'
+  CHI2Style = 'HERAPDF'
 
  ! Debug flag
   LDEBUG     = False
