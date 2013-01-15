@@ -1,11 +1,12 @@
                ------------------------------------------------
-                  H1FITTER   --- PDF fit program from HERA.
+                  HERAFITTER   --- PDF fit program from HERA.
                ------------------------------------------------
 
-H1FITTER has been used as one of the main software packages for the
+HERAFITTER has been used as one of the main software packages for the
 determination of the HERAPDF1.0 set proton parton densities. HERAPDF
-is a common initiative by the H1 and ZEUS collaborations to provide
-precision QCD analyses of the combined HERA data sets.
+is a common initiative by the H1 and ZEUS collaborations and extended
+now to the LHC collaborations to provide
+precision QCD analyses.
 
 The current package includes code to fit DIS inclusive cross section 
 data, Drell-Yan and jet processes (using APPLGRID and FastNLO
@@ -13,16 +14,20 @@ interfaces). The program is distributed under the GPL v3 license, see
 LICENCE file for more details. The program was developed by the H1
 collaboration. It uses the QCD evolution package QCDNUM developed by
 M. Botje. Parts of the code were contributed by non H1 members:
--- VFNS from R. Thorne,
+-- VFNS from R. Thorne, G. Watt (MSTW)
+-- VFNS from F. Olness (ACOT)
+-- FFNS from S. Alekhin (ABM)
 -- DY LO+k-factor calculation from A. Sapronov
 -- PDF error estimation from J. Pumplin
 -- DIS electroweak corrections from H. Spiesberger with Jegerlehner's 
    hadronic parametric contribution (based on e+,e- data)
+-- NNPDF reweighting tool from A. Guffanti (NNPDF)
+-- DIPOLE models (GBW, IIM, BGS)
 
 If the results obtained with the program are to be included in a scientific 
 publication, please use the citations as suggested by the REFERENCES file. 
 
-For support information, please visit https://znwiki3.ifh.de/H1Fitter
+For support information, please visit https://herafitter.org/HERAFitter
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -44,8 +49,8 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
 
 -- Optional: APPLGRID
 
--- h1fitter has been tested on various platforms: 
-   SL4, SL5 (32 and 64 bit),  Ubuntu 10.10.
+-- HERAfitter has been tested on various platforms: 
+   SL4, SL5 (32 and 64 bit),  Ubuntu 10.10, MacOXS
 
 1) INSTALLATION (without APPLGRID)
 ====================================
@@ -66,6 +71,15 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
   c) Run a check
 
     bin/FitPDF 
+
+  d) Storing of the outputs: output/
+	- minuit.out.txt  			(minuit output)
+	- Results.txt 				(chiquare and the systematic shifts)
+	- lhapdf.block.txt			(ready to use LHAPDF style grids, run tools/tolhapdf.cmd)
+	- fittedresults.txt			(theory predictions for each fitted data point)
+	- pulls.first/last.txt			(pulls at the start and end of the fit)
+	- pdfs_q2val_0i.txt, i=1, user defined  (PDF sets atpredefined Q2 values, as set in the steering.txt)	
+
 
 1B) INSTALLATION (with APPLGRID)
 =================================
@@ -89,6 +103,7 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
 
     bin/FitPDF 
 
+
 1C) INSTALLATION (with Hathor)
 =================================
 
@@ -99,8 +114,37 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
   b) Define a variable HATHOR_ROOT such that $HATHOR_ROOT points to the
      directory of your Hathor installation
 
-  c) Install the H1Fitter as described above but configuring it
+  c) Install the HERAFitter as described above but configuring it
      with the option "--enable-hathor" before building it
+
+1D) INSTALLATION with LHAPDF 
+============================================
+  a) include lhapdf-config in your PATH variable
+	(e.g. export PATH=/your/path/to/lhapdf/bin)
+  b) include libLHAPDF.so library in your LD_LIBRARY_PATH variable
+	(e.g. export LD_LIBRARY_PATH=/your/path/to/lhapdf/lib)
+  c) enable the lhapdf in the configure: ./configure --enable-lhapdf
+
+The lhapdf will be used if you change  PDFStyle = 'LHAPDF' in the steering card.
+
+
+1E) INSTALLATION with NNPDF reweighting tool
+============================================
+	- needs linking to LHAPDF 
+	README located in ./NNPDF directory
+
+
+
+1F) Modules such as 
+ - DIPOLE
+ - DiffDIS (Diffractive DIS)  
+ - DY (LO)
+ - heavy flavour schemes RT, ACOT, ABM 
+
+can be ran with simple INSTALLATION procedure as described above.
+Their activation is possible through the input steerings in the 
+steering.txt (use appropriate cards for that!)
+
 
 
 2) MINI DESCRIPTION
@@ -162,7 +206,7 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
 
       Reaction    --- (string) reaction type of the data set. Reaction type is used 
                       to trigger corresponding theory calculation. The following 
-                      reaction types  are currently supported by the H1Fitter:
+                      reaction types  are currently supported by the HERAFitter:
                         'NC e+-p'  -- double differential NC ep scattering
                                       (ZMVFS and RT-VFS) 
                         'CC e+-p'  -- double differential CC ep scattering
@@ -274,7 +318,7 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
   In this subsection we describe data format specific for FastNLO implementation.
   The program included FastNLOReader for the new format tables (v. 2.0+). The old
   FastNLO table format can be still accessed with the help of APPLGRID (this is not
-  tested in the H1Fitter enviroment though). The reader supports both flexible
+  tested in the HERAFitter enviroment though). The reader supports both flexible
   and non-flexible scales tables. For flexible tables, scales can be defined
   through the CInfo mechanism in the data file. Below more details on different
   data file variables are given.
@@ -372,6 +416,10 @@ For support information, please visit https://znwiki3.ifh.de/H1Fitter
  !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
  !  'CTEQ'        -- CTEQ-like parameterisation
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
+ !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
+ !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
+ !  'DDIS'        -- use Diffractive DIS 
+
 
 IMPORTANT:
    Make sure that choosen minuit.in.txt corresponds to your selection in the steering.txt
@@ -431,9 +479,9 @@ hesse	     -> hessian estimate of the MINUIT parameters (more reliable than MINU
 - The output of the fit is stored in the output/ directory: minuit.out.txt
 
   Statements to watch in minuit.out.txt:
-  FCN=   588.64     -> this is total chisquare
+  FCN=   575.16     -> this is total chisquare
   FROM MIGRAD   STATUS=CONVERGED  -> this is desirable for a fit that converged
-  FCN=   588.64     FROM HESSE     STATUS=OK  --> this is desirable for a fit that converged 
+  FCN=   575.16     FROM HESSE     STATUS=OK  --> this is desirable for a fit that converged 
  						  and errors estimated with HESSE method
   EDM=  0.12E-04    STRATEGY= 1      ERROR MATRIX ACCURATE 
 
@@ -491,7 +539,14 @@ hesse	     -> hessian estimate of the MINUIT parameters (more reliable than MINU
   It is printed for each iteration as 
                       Iteration   Chi2   NDF       Chi2/NDF
    FitPDF f,ndf,f/ndf      3      588.64 579        1.02
-  
+together with PDFs:
+uv:    3.7171    0.6656    4.6522    0.0000    9.6938    0.0000    0.0000    0.0000    0.0000    0.0000
+dv:    2.1893    0.6656    4.2914    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+Ub:    0.1122   -0.1651    2.5820    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+Db:    0.1626   -0.1651    2.4048    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+GL:    6.7729    0.2138    9.0138    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+
   The resulting chi2 is reported for each data set and for correlated 
   systematic uncertainties separately. This information is printed and written
   to the output/Results.txt file. The Results.txt file contains additional 
@@ -523,7 +578,7 @@ hesse	     -> hessian estimate of the MINUIT parameters (more reliable than MINU
   where the information is read. Calling the bin/DrawResults program with two
   arguments provides comparison of the PDFs obtained in the two fits.
   
-  Finally, the H1Fitter package provides PDFs in LHAPDF format. To obtain the
+  Finally, the HERAFitter package provides PDFs in LHAPDF format. To obtain the
   LHAPDF grid file, run tools/tolhapdf.cmd script. The script produces 
   PDFs.LHgrid file which can be read by lhapdf version  lhapdf-5.8.6.tar.gz
   or later
