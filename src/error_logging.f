@@ -98,7 +98,7 @@
      +   'Fatal messages:'/
 
       DATA MOD_NAME /'H1Fitter',  ! ID = YYMMDDnn
-     +               'HERAFitter',! ID = YYMMDDnn
+!     +               'HFitter',   ! ID = YYMMDDnn
      +               'Minuit',    ! ID =   1- 99
      +               'Acot',      ! ID = 100-199
      +               'Dipole',    ! ID = 200-299
