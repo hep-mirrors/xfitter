@@ -68,6 +68,7 @@
           'datafiles/lhc/atlas/WZ2010/WP_applgrid_nnlo.dat'
           'datafiles/lhc/atlas/WZ2010/WM_applgrid_nnlo.dat'
           'datafiles/lhc/atlas/WZ2010/Z0_applgrid_nnlo.dat'
+&End
 
 &InCorr
   ! Number of statistical correlation files
