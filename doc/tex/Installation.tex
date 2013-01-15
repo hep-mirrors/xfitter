@@ -7,7 +7,7 @@ The Installation Instructions are dependent on which modules are activated via t
 
 The following packages are needed in order to build \fitter\ package:
 \begin{itemize}
-\item QCDNUM~\cite{qcdnum} version at least {\tt qcdnum-17-00/04}, can be found at \\
+\item QCDNUM~\cite{qcdnum} version at least {\tt qcdnum-17-00-04}, can be found at \\
   {\tt http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html}
 \item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use {\tt /afs/} installation from CERN:\\
   {\tt /afs/cern.ch/sw/lcg/external/cernlib/}
@@ -126,7 +126,7 @@ http://www-zeuthen.desy.de/~moch/hathor/
   \item Define a variable HATHOR\_ROOT  such that HATHOR\_ROOT  points to the
      directory of your Hathor installation
 
-  \item Install the H1Fitter as described above but configuring it
+  \item Install the HERAFitter as described above but configuring it
      with the option "--enable-hathor" before building it
  \end{itemize}
 
@@ -155,7 +155,17 @@ http://www-zeuthen.desy.de/~moch/hathor/
    \end{verbatim}
 
 \item  edit steering.txt: 
- \begin{verbatim}
+   \begin{verbatim}
+   \&CCFMFiles: give name for output grid file for uPDF.\&HERAFitter 
+   \&HERAFitter \\ 
+   \!  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file 
+   \!  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation 
+    ITheory = 103   ! =103 fit using precalculated grid of $sigma\_hat$
+       all other parameters are standard
+  \end{verbatim}
+
+
+  \begin{verbatim}
    \&CCFMFiles: give name for output grid file for uPDF.\&H1Fitter 
    \&H1Fitter \\ 
    \!  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file 
