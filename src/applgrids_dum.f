@@ -1,6 +1,6 @@
 c----------------------------------------------------------
 c     this file contains dummy applgrid interface routines
-c     which are called in case h1fitter was not compiled
+c     which are called in case HERAfitter was not compiled
 c     with --enable-applgrid option
 c----------------------------------------------------------
       subroutine getAPPLgrids(ng)
@@ -58,7 +58,7 @@ c----------------------------------------------------------
 
       subroutine print_ag_messg
       print *, '--------------------------------------------------'
-      print *, 'APPLGRID: You have chosen to use applgrid but h1fitter is not'
+      print *, 'APPLGRID: You have chosen to use applgrid but HERAfitter is not'
       print *, 'compiled with --enable-applgrid option.'
       return 
       end
