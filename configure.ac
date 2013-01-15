@@ -207,7 +207,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 # Output
 AC_CONFIG_FILES([src/Makefile
                  interfaces/src/Makefile
-                 tools/H1FitterDrawResults/Makefile
+                 tools/DrawResultsPackage/Makefile
                  tools/MakeLHAPDF/Makefile
                  FastNLO/src/Makefile
                  minuit/src/Makefile
