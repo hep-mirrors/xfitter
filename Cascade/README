@@ -20,17 +20,12 @@
    cp input-steering/steer-ep-CASCADE steer-ep
    
 2. edit steering.txt:
-   &CCFMFiles: give name for output grid file for uPDF.&H1Fitter 
-   &H1Fitter 
-   !  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file
-   !  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation
-    ITheory = 103   ! =103 fit using precalculated grid of sigma_hat
+   &CCFMFiles: give name for output grid file for uPDF.&HeraFitter 
+   &HeraFitter 
+   !  TheoryType = 'uPDF1'   !  fit with kernel ccfm-grid.dat file
+   !  TheoryType = 'uPDF2'   !  fit evolved uPDF, fit just normalisation
+    TheoryType = 'uPDF3'   !  fit using precalculated grid of sigma_hat
 
-   &HERAFitter 
-   !  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file
-   !  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation
-    ITheory = 103   ! =103 fit using precalculated grid of sigma_hat
-    
    all other parameters are standard
 
 3. run the program:
