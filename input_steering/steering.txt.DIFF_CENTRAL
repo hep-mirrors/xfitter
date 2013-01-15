@@ -31,7 +31,7 @@
 *
 * Main steering cards
 *
-&H1Fitter 
+&HeraFitter 
   TheoryType = 'DGLAP' ! 'DGLAP'  -- collinear evolution
                        ! 'DIPOLE' -- dipole model 
                        ! 'uPDF'   -- un-integrated PDFs
