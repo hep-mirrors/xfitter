@@ -1236,7 +1236,7 @@ C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
          iTheory =  0
       else if ( TheoryType.eq.'DIPOLE') then
-      else if ( TheoryType.eq.'uPDF1') then
+      else if ( TheoryType.eq.'uPDF1'.or.'uPDF') then
          iTheory = 101
       else if ( TheoryType.eq.'uPDF2') then
          iTheory = 102
