@@ -69,6 +69,12 @@
           'datafiles/lhc/atlas/WZ2010/WM_applgrid_nnlo.dat'
           'datafiles/lhc/atlas/WZ2010/Z0_applgrid_nnlo.dat'
 
+&InCorr
+  ! Number of statistical correlation files
+    NCorrFiles = 0
+ 
+  ! Statistical correlation files:
+  !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 
 *
