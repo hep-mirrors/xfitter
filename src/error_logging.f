@@ -56,7 +56,7 @@
 *
 *                    PROPOSAL FOR ERROR NUMBERING                          
 *                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~                          
-*  For H1Fitter code:
+*  For HERAFitter code:
 *  ------------------
 *  To add a new error number so that it would not clash with already 
 *  existing ones it is proposed to put the date of coding into it:        
@@ -98,6 +98,7 @@
      +   'Fatal messages:'/
 
       DATA MOD_NAME /'H1Fitter',  ! ID = YYMMDDnn
+     +               'HERAFitter',! ID = YYMMDDnn
      +               'Minuit',    ! ID =   1- 99
      +               'Acot',      ! ID = 100-199
      +               'Dipole',    ! ID = 200-299
