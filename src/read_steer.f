@@ -1236,8 +1236,12 @@ C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
          iTheory =  0
       else if ( TheoryType.eq.'DIPOLE') then
-      else if ( TheoryType.eq.'uPDF') then
+      else if ( TheoryType.eq.'uPDF1') then
          iTheory = 101
+      else if ( TheoryType.eq.'uPDF2') then
+         iTheory = 102
+      else if ( TheoryType.eq.'uPDF3') then
+         iTheory = 103
       else
          print *,'Unknown TheoryType = TheoryType'
          print *,'Check your steering.txt file'
