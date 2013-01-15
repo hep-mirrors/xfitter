@@ -290,7 +290,7 @@ void Output::PrepareParameters() {
 	idx++;
 	fNNuisanceParameters++;
 	if(idx >= fMaxParameters) {
-	  cerr << "ERROR in DrawResults"<<endl<<"Please increase fMaxParameters parameter in the h1fitter/tools/include/Output.h file" << endl;
+	  cerr << "ERROR in DrawResults"<<endl<<"Please increase fMaxParameters parameter in the tools/DrawResultsPackage/include/Output.h file" << endl;
 	  exit(1);
 	}
       }
