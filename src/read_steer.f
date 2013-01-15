@@ -215,8 +215,18 @@ C-----------------------------------------------
       character*8 Order  ! 
       character*16 TheoryType
       integer i
-C Main steering parameters namelist
+
+C For backward compatibility, keep both H1Fitter and HERAFittter namelists. Will go away with next release !
       namelist/H1Fitter/
+     $     ITheory, IOrder, Chi2Style          ! keep for backward compatibility
+     $     , Q02, HF_SCHEME, PDFStyle, 
+     $     LDebug, ifsttype,  LFastAPPLGRID,
+     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
+     $     ControlFitSplit,Order,TheoryType,
+     $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam
+
+C Main steering parameters namelist
+      namelist/HERAFitter/
      $     ITheory, IOrder, Chi2Style          ! keep for backward compatibility
      $     , Q02, HF_SCHEME, PDFStyle, 
      $     LDebug, ifsttype,  LFastAPPLGRID,
@@ -235,11 +245,25 @@ C Some defaults
       enddo
 
 C
-C  Read the main H1Fitter namelist:
+C  Read the main HERAFitter namelist:
 C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=HERAFitter,END=141,ERR=42)
+      close (51)
+
+C Backward compatibility for b0.3 release !!!!
+      goto 142
+ 141  continue
+      close (51)
+      call HF_ErrLog(13011501,
+     $ 'W:WARNING: Using obsolete h1fitter namelist.'//
+     $     ' Will be deprecated with v1.0!')
       open (51,file='steering.txt',status='old')
       read (51,NML=H1Fitter,END=41,ERR=42)
       close (51)
+ 142  continue
+C  End of backward compatibility !!!
+
 
 C Decode computation order:
       if (Order.ne.' ') then
