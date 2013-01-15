@@ -465,7 +465,7 @@ Another method to constrain the PDF shape is to simply apply a penalty term
 to the $\chi^2$ function. 
 One method is so called ``length penalty'' which selects PDF solutions with smoother shape in $W\approx Q\sqrt{\frac{1-x}{x}}$:
 \begin{equation}
-L=\int_{W_{min}^{W_{max}}}\sqrt{1+\left(\frac{dxf(W)}{dW}}\right)^2
+L=\int_{W_{min}^{W_{max}}} \sqrt{1+\left(\frac{dxf(W)}{dW}\right)^2}
 \end{equation}
 This method can be applied when using Chebyshev polynomials to parametrise PDFs.
 
@@ -473,7 +473,7 @@ For the case when using flexible parametrisation style,
 a $\chi^2$ penalty term is applied to account for a deviation 
 from a simple PDF parametrisation form such as:
 \begin{equation}
-\chi^2_{reg}= T\sum_f\left(\lepft(\frac{D_f}{\Delta_D}\right)^2+ (\lepft(\frac{E_f}{\Delta_E}\right)^2\right),
+\chi^2_{reg}= T\sum_f\left(\left(\frac{D_f}{\Delta_D}\right)^2+ (\left(\frac{E_f}{\Delta_E}\right)^2\right),
 \end{equation}
 
 with $\Delta D=\Delta E = 100$, such that for large $D$ and $E$ the ratio will approach $1$. The $T$ is the regularisation parameters, such that for $T=0$ there is no penalty term and for large $T$ there is strong penalty.
