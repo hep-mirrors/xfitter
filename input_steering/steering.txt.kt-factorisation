@@ -41,17 +41,26 @@
 * Main steering cards
 *
 &HeraFitter 
-!  ITheory = 0   ! =0 use collinear factorisation with QCDNUM
-!  ITheory = 101   ! =101: fit with kernel ccfm-grid.dat file
-!  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation
- ITheory = 103   ! =103 fit using precalcualed grid of sigma_hat
-
+  TheoryType = 'uPDF3' ! 'DGLAP'  -- colinear evolution
+                       ! 'DIPOLE' -- dipole model 
+                       ! 'uPDF'   -- un-integrated PDFs:
+                                !uPDF1 fit with kernel ccfm-grid.dat file
+                                !uPDF2 fit evolved uPDF, fit just normalisation
+                                !uPDF3 fit using precalculated grid of sigma_hat
 
  ! -- Choice of the chi2 function
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
  !    'HERAPDF' : Pascaud-like + "mixed error scaling"
  !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
+
+ ! New "chi2" style, uncomment if you want to use it: 
+
+ !  CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+ !  Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+
+ !  Chi2ExtraParam = 'PoissonCorr'
+
 
   CHI2Style = 'HERAPDF'
 
