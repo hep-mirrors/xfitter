@@ -363,23 +363,29 @@ passing the information specific to each data point. They are listed below:
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{User Examples}
 %%%%
-The description of two examples fitting different data is provided in this section:
-In first example the fit is performed with HERA DIS inclusive data alone and in second 
-all available data in \fitter\ is fitted simultaniously. 
+Two examples are available in \fitter\ for benchmarking purposes.
+First example describes the default fit with HERA DIS inclusive data,
+second is a fit where all available data in \fitter\ are fitted simultaniously.
 
 \subsection{DIS inclusive only}
-The default {\tt steering.txt} file contains HERA inclusive DIS data.
-The result of fitting with default parameters in {\tt steering.txt} and 
-{\tt minuit.in.txt} steering files, the fit result which user obtains
-can be compared to saved output in "output\_examples".
+By default in \fitter\ steering files ({\tt steering.txt} and {\tt minuit.in.txt})
+are set to fit the DIS inclusive cross section data. For this fit no any additional
+configuration options are required.
+The result of this example fit obtained by user (total and partial $\chi2$, systematic shifts, 
+data to theory comparison and histograms, see section 8.4 "Understanding the output" for more details) 
+can be compared to result provided for benchmarking in "examples".
 
 %%%%
 \subsection{All processes}
-In order to fit all available data sets in \fitter\ user first has to copy 
-corresonding {\tt steering.txt} from "input\_steering": 
+In order to run the second example with all data, the corresponding
+{\tt steering.txt} from "input\_steering" has to be copied to the main directory:
+
 \goodbreak                 
 cp input-steering/steering.txt.ALLdata steering.txt
 \\ \\
+User must make sure that all data sets given in {\tt steering.txt.ALLdata} 
+have been downloaded from the svn (\textcolor{red}{ ???}) before running this example. 
+\\
 Since the included sets contain various $ep$, $pp$, $p \overline p$ and fix target
 data, it is neccesary to have \fitter\ configured with applgrid, hathor and 
 lhapdf options (corresponding library linking as explained in section 2 is
@@ -387,9 +393,8 @@ required before configuration):
 \goodbreak
 ./configure --enable-applgrid --enable-lhapdf --enable-hathor
 \\ \\
-
-
-
+It is recomended to do "make clean" before each configuration. \\        
+As in previous case, the fit result can be compared to the one provided in "examples".
 
 
 
