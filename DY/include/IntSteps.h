@@ -34,7 +34,7 @@ class IntSteps
   std::string _boz;
   //! Binning variable name, "y" or "eta"
   std::string _var_name;
-  //! Numebr of bins
+  //! Number of bins
   int _nbins;
   //! Array of bins
   double *_bins;

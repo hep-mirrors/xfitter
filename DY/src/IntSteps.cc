@@ -195,7 +195,7 @@ void IntSteps::_makeYstepsBinned()
 {
   const double d0(0.04);
   double d(0.);
-  int ns(0), nsib(0); // number of all steps, number of stebs in a bin
+  int ns(0), nsib(0); // number of all steps, number of steps in a bin
   double a(_bins[0]);
   vector<double> va;
   for ( int ib=0; ib<_nbins; ib++){

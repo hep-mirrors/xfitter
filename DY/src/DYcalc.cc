@@ -182,6 +182,10 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
   }
 
   for (int iys=0;iys<_nys;iys++){
+    int ib;
+    for (ib = _nbins-1; ib>=0; ib--){
+      if ( iys >= _ssb[ib]) break;
+    }
     double ya = _ysteps[iys];
     double yb = _ysteps[iys+1];
     double pcb[4]={0.}, pcm[4]={0.};
@@ -189,9 +193,6 @@ int DYcalc::intYbins_Z(const int imp, double *qy){
     (_pc->*(_pc->getPDFconv))(imp, 2*(iys+1)  , -1., pcb[2], pcb[3]);
     (_pc->*(_pc->getPDFconv))(imp, 2*iys+1,  1., pcm[0], pcm[1]);
     (_pc->*(_pc->getPDFconv))(imp, 2*iys+1, -1., pcm[2], pcm[3]);
-    int ib(0);
-    while(iys >= _ssb[ib] ) ib++;
-    ib--;
     qcb[ib] = 0.; qcm[ib] = 0.;
     for (int icdf = 0; icdf<12; icdf ++){
       qcb[ib] += pcb[icdf%4]*_bm->BM[imp][2*(iys+1)][0][icdf];
