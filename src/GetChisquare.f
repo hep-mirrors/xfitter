@@ -444,6 +444,14 @@ C----------------------------------------------------------------------
 C-------------------------------------------------------------
       d = daten(idx)
       t = theo(idx)
+
+      if ( t.le.0 ) then
+         t = d
+         call hf_errlog(13011601,
+     $ 'W: Negative or zero prediction.'//
+     $ ' Reset to data for error scaling.')
+      endif
+
       mix = sqrt(d*t)
 
 
