@@ -189,7 +189,7 @@ C
 C Name and type of columns:
 C      
       integer   NColumn 
-      character *32 ColumnName(ncolumnMax)
+      character *64 ColumnName(ncolumnMax)
       character *32 ColumnType(ncolumnMax)
 
 C Systematics:

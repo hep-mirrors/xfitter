@@ -5,7 +5,7 @@
 
       integer nSys                     !> Actual number of correlated systematic sources
 
-      character*40 SYSTEM              !> Names of correlated systematic errors
+      character*64 SYSTEM              !> Names of correlated systematic errors
       dimension SYSTEM(NSYSMAX) 
       double precision BETA(NSYSMAX,NTOT)  !> Influence of systematic errors on measurements
       double precision ALPHA(NTOT)         !> Total uncorrelated errors
