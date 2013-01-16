@@ -18,7 +18,8 @@
    NColumn = 12
 
    ColumnType = 6*'Bin','Sigma',4*'Error','Bin'
-   ColumnName = 'q2min', 'q2max', 'etmin', 'etmax','NPCorr','Z0Corr','Sigma', 'stat', 'uncor','ES_DESY-10-170','LUMI_DESY-10-170','kfac'
+   ColumnName = 'q2min', 'q2max', 'etmin', 'etmax','NPCorr','Z0Corr','Sigma', 'stat', 'uncor',
+                 'ZEUS_dijet_DESY-10-170_ES','ZEUS_dijet_DESY-10-170_lumi','kfac'
 
    NInfo   = 4
    DataInfo = 319.,       1.,               2.,     0.    ! to be updated

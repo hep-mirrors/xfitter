@@ -11,8 +11,13 @@
    NColumn = 13
 
    ColumnType = 7*'Bin','Sigma',5*'Error'
+
+
    ColumnName = 'q2min','q2max','ptmin','ptmax','ymin','ymax','NPCorr','Sigma', 'stat', 'uncor', 
-              'elecE_DESY-09-032', 'elecTheta_DESY-09-032', 'hfs_DESY-09-032'
+              'H1_NormInclJets_DESY-09-032_elE', 'H1_NormInclJets_DESY-09-032_elTh', 'H1_NormInclJets_DESY-09-032_hfs'
+
+!   ColumnName = 'q2min','q2max','ptmin','ptmax','ymin','ymax','NPCorr','Sigma', 'stat', 'uncor', 
+!              'elecE_DESY-09-032', 'elecTheta_DESY-09-032', 'hfs_DESY-09-032'
 
    NInfo   = 6
    DataInfo = 318.11947,       0.387,           1.,                 1.        , 3. ,     3.

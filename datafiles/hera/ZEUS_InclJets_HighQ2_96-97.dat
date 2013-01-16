@@ -19,7 +19,10 @@
 
    ColumnType = 4*'Bin','Sigma',4*'Error',3*'Bin'
    ColumnName = 'q2min', 'q2max', 'etmin', 'etmax','Sigma','stat', 'uncor',
-              'hfs_DESY-02-112', 'lumi_DESY-02-112', 'Z0Corr','NPCorr','kfac'
+              'ZEUS_InclJets_DESY-02-112_hfs', 'ZEUS_InclJets_DESY-02-112_lumi',
+	      'Z0Corr','NPCorr','kfac'
+
+!              'hfs_DESY-02-112', 'lumi_DESY-02-112', 'Z0Corr','NPCorr','kfac'
 
    NInfo   = 4
    DataInfo = 319. ,      1. ,              1.,       1., 

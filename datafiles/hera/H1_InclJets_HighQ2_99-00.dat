@@ -24,7 +24,10 @@
 
    ColumnType = 6*'Bin','Sigma',7*'Error'
    ColumnName = 'q2min', 'q2max', 'ptmin', 'ptmax','NPCorr','Z0Corr','Sigma', 'stat', 'uncor', 
-              'model_DESY-07-073', 'elecE_DESY-07-073', 'elecTheta_DESY-07-073', 'hfs_DESY-07-073', 'lumi_DESY-07-073'
+              'H1_InclJets_DESY-07-073_model', 'H1_InclJets_DESY-07-073_elE', 'H1_InclJets_DESY-07-073_elTh',
+              'H1_InclJets_DESY-07-073_hfs', 'H1_InclJets_DESY-07-073_lumi'
+
+!old names:              'model_DESY-07-073', 'elecE_DESY-07-073', 'elecTheta_DESY-07-073', 'hfs_DESY-07-073', 'lumi_DESY-07-073'
 
    NInfo   = 4
    DataInfo = 319.,       0.,               3.,     3. 
