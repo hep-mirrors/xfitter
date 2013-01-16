@@ -164,14 +164,14 @@ c     =======================================================================
 
             a2j =0d0
             do k = 1,j
-               call couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2j = a2j + aplus/j ! average sum of couplings^2 
             enddo
 
             a2jm1 = 0d0
             do k = 1,j-1
-               call couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2jm1 = a2jm1 + aplus/(j-1) ! average sum of couplings^2 
             enddo
@@ -182,7 +182,7 @@ c     =======================================================================
 c     =======================================================================
       else  ! quark initiated  
 
-            call couplings(Q2,i,iboson,aplus,aminus,abarplus,
+            call get_couplings(Q2,i,iboson,aplus,aminus,abarplus,
      >                        abarminus)         
          if (i .eq. j) then
             calFij = aplus * calFns(chi,Q2,i,0,iord,isf)
@@ -193,14 +193,14 @@ c     =======================================================================
 
             a2j =0d0
             do k = 1,j
-               call couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2j = a2j + aplus/j ! average sum of couplings^2 
             enddo
 
             a2jm1 = 0d0
             do k = 1,j-1
-               call couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2jm1 = a2jm1 + aplus/(j-1) ! average sum of couplings^2 
             enddo
