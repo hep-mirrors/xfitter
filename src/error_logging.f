@@ -82,7 +82,7 @@
       LOGICAL FIRST,FIRMES
       CHARACTER*(*) TEXT
       CHARACTER*(MAXTXT) ERRTXT
-      CHARACTER*8  MOD_NAME(NMODS)
+      CHARACTER*12  MOD_NAME(NMODS)
       CHARACTER*80 ERRLIN
       CHARACTER*2  TSEV(4), ERM_TYPE
       CHARACTER*23 FULLTX(4)
@@ -97,7 +97,7 @@
      +   'Serious messages:',
      +   'Fatal messages:'/
 
-      DATA MOD_NAME /'H1Fitter',  ! ID = YYMMDDnn
+      DATA MOD_NAME /'HERAFitter',  ! ID = YYMMDDnn
 !     +               'HFitter',   ! ID = YYMMDDnn
      +               'Minuit',    ! ID =   1- 99
      +               'Acot',      ! ID = 100-199
@@ -268,14 +268,14 @@
 
 900   FORMAT(// 12X,33('*')/12X,3('*'),7X,'Error Summary',7X,3('*')/
      +       12X,33('*')/' '
-     +       /' Total number of logged errors:      ',I8,
+     +       /' Total number of logged errors:      ',I6,
      +       /' Total number of errors not recorded:',I8)
 901   FORMAT(//,' List of errors sorted by severity level:'//
      + ' *',78('-')/
-     + ' *',' Module |   Error |   Error |'/
-     + ' *','   Name |    Type |   Count |   Error Description'/
+     + ' *','   Module   |   Error | Error |'/
+     + ' *','     Name   |    Type | Count |   Error Description'/
      + ' *',78('-'))
-902   FORMAT(2X,A8,2I10,1X,A)
+902   FORMAT(2X,A12,I10,I8,1X,A)
 903   FORMAT(31X,A)
 904   FORMAT(/2X,A/1X,'*',23('-'))
 905   FORMAT(/' *',78('-')//'  End of Error Summary'/)
