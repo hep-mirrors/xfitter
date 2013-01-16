@@ -29,7 +29,7 @@
   ColumnType = 3*'Bin','Sigma',7*'Error'	
   ! ColumnName = 'MX', 'Q2', 'xpom', 'F2D3', 'stat', 'uncor', 'Escale', 'p_diss', 'MC_xpom', 'MC_t', 'systot'
   ! ColumnName = 'MX', 'Q2', 'xpom', 'F2D3', 'stat', 'uncor', 5*'ignore'
-   ColumnName = 'MX', 'Q2', 'xpom', 'F2D3', 'stat', 'uncor', 'Escale', 'p_diss', 'MC_xpom', 'MC_t', 'ignore'
+   ColumnName = 'MX', 'Q2', 'xpom', 'F2D3', 'stat', 'uncor', 'ZEUS_LPS_2009_Escale', 'ZEUS_LPS_2009_p_diss', 'ZEUS_LPS_2009_MC_xpom', 'ZEUS_LPS_2009_MC_t', 'ignore'
 
    NInfo   = 1
    DataInfo = 318.1195  
