@@ -243,7 +243,7 @@ C---------------------------------------------------------------
       integer idxQ2, idxX, idxY, i,  idx
       
       double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS),XSec(NPMaxDIS)
-      double precision Charge, polarity, alphaem_run, factor
+      double precision Charge, polarity, alphaem_run, factor, S
       logical IsReduced
 
 C Functions:
@@ -270,8 +270,9 @@ C
       idxX  = GetBinIndex(IDataSet,'x')
       idxY = GetBinIndex(IDataSet,'y')
       IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
+      S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
 
-      if (idxQ2.eq.0 .or. idxX.eq.0 .or. idxY.eq.0) then
+      if (idxQ2.eq.0 .or. idxX.eq.0) then
          Return
       endif
 
@@ -285,8 +286,13 @@ C
 C Local X,Y,Q2 arrays, used for QCDNUM SF caclulations:
 C
          X(i)   = AbstractBins(idxX,idx)
-         Y(i)   = AbstractBins(idxY,idx)
          Q2(i)  = AbstractBins(idxQ2,idx)
+         if (idxY.eq.0) then
+            Y(i)   = Q2(i) / ( X(i) * S )
+         else
+            Y(i)   = AbstractBins(idxY,idx)
+         endif
+
       enddo
 
       call ReadPolarityAndCharge(idataset,charge,polarity)
