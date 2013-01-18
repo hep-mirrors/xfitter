@@ -146,6 +146,14 @@ http://www-zeuthen.desy.de/~moch/hathor/
     export PYTHIA\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/\$SYSNAME}
     \end{verbatim}	
 
+\begin{verbatim}
+    autoreconf --install
+    ./configure --enable-uPDF
+    make 
+    make install
+\end{verbatim}
+
+
 \item use steering and minuit input files from "input\_steering": 
 
    \begin{verbatim} 
@@ -156,27 +164,20 @@ http://www-zeuthen.desy.de/~moch/hathor/
 
 \item  edit steering.txt: 
    \begin{verbatim}
-   \&CCFMFiles: give name for output grid file for uPDF.\&HERAFitter 
-   \&HERAFitter \\ 
-   \!  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file 
-   \!  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation 
-    ITheory = 103   ! =103 fit using precalculated grid of $sigma\_hat$
-       all other parameters are standard
-  \end{verbatim}
-
-
-  \begin{verbatim}
-   \&CCFMFiles: give name for output grid file for uPDF.\&H1Fitter 
-   \&H1Fitter \\ 
-   \!  ITheory = 101   ! =101 fit with kernel ccfm-grid.dat file 
-   \!  ITheory = 102   ! =102 fit evolved uPDF, fit just normalisation 
-    ITheory = 103   ! =103 fit using precalculated grid of $sigma\_hat$
-       all other parameters are standard
+   \&CCFMFiles: give name for output grid file for uPDF   
+   \&HERAFitter 
+   TheoryType = 'uPDF3' ! 'DGLAP'  -- colinear evolution
+                             ! 'DIPOLE' -- dipole model 
+                             ! 'uPDF'   -- un-integrated PDFs:
+                             !uPDF1 fit with kernel ccfm-grid.dat file
+                             !uPDF2 fit evolved uPDF, fit just normalisation
+                             !uPDF3 fit using precalculated grid of sigma_hat
   \end{verbatim}
 
 \item run the program: bin/FitPDF 
    
-\item plotting F2 fit results:
-   DrawResults  will draw F2 results to plot uPDF one can use the "updfplotter" web interface $\to$ copy updf grid (with name from "CCFMFiles" under 2 to somewhere .... this description needs improvements
+\item plotting $F_2$ fit results: \\
+DrawResults  will draw $F_2$ results. \\
+The uPDFs need to be plotted with an external packeage.
 \end{itemize}
 

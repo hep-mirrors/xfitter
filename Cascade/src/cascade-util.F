@@ -3394,7 +3394,7 @@ c         write(6,*) ' last loop i =',i,j,k
       CHARACTER*20 PARM(20)
       LOGICAL PDFFIRST	
 	Real xmin,xmax,xt,wt
-	Real A1,A2,A3,A4
+	Real A1,A2,A3,A4,A5,A6
       logical first
 	double precision au 
       common/f2fit/au(50),first
@@ -3437,6 +3437,8 @@ c           write(6,*) 'kfl,z,t,xpqs',kfl,z,scale,xpqs(0)
 c	A3 = 4.94
       A3 = au(3)
 	A4 = au(4)
+      A5 = au(10)
+      A6 = au(11)
 c        A4 = 0.
 c       xsat = 10**au(5)
 c       write(6,*) a1,a2,a3,a4
@@ -3449,7 +3451,8 @@ c	  xpqs(0)=z/(1.-z)/3.12/3.12
 	   test = 0.
 	   else
 c         if(x0.le.xsat) then
-         test =A1*5.*(1./x0**A2)*(1-x0)**A3*(1.-A4*x0)*xpqs(0)/x0
+c         test =A1*5.*(1./x0**A2)*(1-x0)**A3*(1.-A4*x0)*xpqs(0)/x0
+         test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0+A5*sqrt(x0)+A6*x0**2)*xpqs(0)/x0
 c         write(6,*) test,x 
 c         else   
 c         write(6,*) '  here... ',x0,xsat,au(5)      
@@ -8935,7 +8938,7 @@ c	stop
       Double Precision DHFINT
       Double Precision DHPOLINT
 
-	Real A1,A2,A3,A4
+	Real A1,A2,A3,A4,A5,A6
       logical first
 	double precision au 
       common/f2fit/au(50),first
@@ -8979,6 +8982,8 @@ c      write(6,*) '  after dhpolint ',f2tilde
 c	A3 = 4.94
       A3 = au(3)
 	A4 = au(4)
+      A5 = au(10)
+      A6 = au(11)
 c        A4 = 0.
 c       xsat = 10**au(5)
 c       write(6,*) a1,a2,a3,a4
@@ -8986,7 +8991,8 @@ c       write(6,*) a1,a2,a3,a4
        if(x0.lt.0.) then
 	   test = 0.
 	   else
-         test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0)/x0
+c         test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0)/x0
+         test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0+A5*sqrt(x0)+A6*x0**2)/x0
          if(test.le.0) test=0
          test=test*f2tilde
          test = max(0.,test)	   

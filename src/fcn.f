@@ -199,9 +199,11 @@ C--------------------------------------------------------------
         auh(2) = parminuitsave(2)
         auh(3) = parminuitsave(3)
         auh(4) = parminuitsave(4)
-        auh(7) = parminuitsave(5)
-        auh(8) = parminuitsave(6)
-        auh(9) = parminuitsave(7)
+        auh(7) = parminuitsave(7)
+        auh(8) = parminuitsave(8)
+        auh(9) = parminuitsave(9)
+        auh(10) = parminuitsave(5)
+        auh(11) = parminuitsave(6)
 c        write(6,*) ' fcn npoint ',npoints
          firsth=.true.
          Fccfm1=.true.
