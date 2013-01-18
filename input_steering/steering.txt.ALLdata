@@ -131,23 +131,40 @@
 
   PDFStyle = '10p HERAPDF'
 
- ! New "chi2" style, uncomment if you want to use it: 
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
 
- !  CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
- !  Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
-
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
  !  Chi2ExtraParam = 'PoissonCorr'
 
-
-
- ! -- Choice of the chi2 function
+ ! -- Old style chi2-function definition. Will be removed in future version ! 
+ !    Currently to be used for the OFFSET method. Comment  CHI2SettingsName and  Chi2Settings to activate !
+ !
  !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
  !    'HERAPDF' : Pascaud-like + "mixed error scaling"
+ !    'Offset'  : to access Offset method  
  !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
  !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
  !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
 
-  CHI2Style = 'HERAPDF'
+ ! CHI2Style = 'Offset'
 
  ! Debug flag
   LDEBUG     = False
