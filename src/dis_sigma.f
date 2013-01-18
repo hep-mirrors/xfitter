@@ -240,7 +240,7 @@ C---------------------------------------------------------------
 
       character*(*) XSecType
       integer IDataSet, local_hfscheme
-      integer idxQ2, idxX, idxY, i,  idx
+      integer idxQ2, idxX, idxY, i,  idx, idxS
       
       double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS),XSec(NPMaxDIS)
       double precision Charge, polarity, alphaem_run, factor, S
@@ -270,7 +270,21 @@ C
       idxX  = GetBinIndex(IDataSet,'x')
       idxY = GetBinIndex(IDataSet,'y')
       IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
-      S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
+
+
+
+      if (idxY.eq.0) then
+         idxS =  GetInfoIndex(IDataSet,'sqrt(S)')
+         if (idxS .gt. 0) then
+            S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)')
+     $           , IDataSet))**2
+         else
+            print *,
+     $ 'ERROR: DIS sample, neigher S nor y are defined !'
+            print *,' !!! STOP STOP STOP STOP !!!'
+            call hf_stop
+         endif
+      endif
 
       if (idxQ2.eq.0 .or. idxX.eq.0) then
          Return
