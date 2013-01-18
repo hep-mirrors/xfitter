@@ -75,6 +75,9 @@ C---------------------------------------------------
       logical LAsymmetry
       integer GetBinIndex
       
+C>18/01/2013----------------------
+      integer idxNorm
+      double precision CSpred_tot
 
 C----------------------------------------------------      
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
@@ -82,6 +85,9 @@ C----------------------------------------------------
          print *,'INCREASE NPmax to ',NDATAPOINTS(IDataSet)
          call HF_stop
       endif
+
+C Check if normalisation is needed
+      idxNorm = GetInfoIndex(IDataSet,'Normalised')
 
 C     Check type of the data                                                                                      
 
@@ -129,31 +135,38 @@ C     check if we have to divide APPLGRID prediction to convert units to data un
             Theoryunit = 1.
          endif
       endif
+      
+
+C Normalize if the field 'Normalised' takes place in the dataset
+      if (idxNorm.gt.0) then
+            CSpred_tot = 0
+C Calculate sum:
+         do i=1,NDATAPOINTS(IDataSet)
+            CSpred_tot = CSpred_tot + XSec(i) / TheoryUnit
+         enddo
+       endif
+
                                 
 C     perhaps we need to multiply prediction by EW or NNLO or both k-factors
 
       nkfact = DATASETNKfactors(IDataSet)
 
-      idxBinEta1 = GetBinIndex(IDataSet,'y1')
-      idxBinEta2 = GetBinIndex(IDataSet,'y2')
-
       do i=1, NDATAPOINTS(IDataSet)
 C     Bin Size                                                                                                    
          idx =  DATASETIDX(IDataSet,i)
-
-C         BinSize = AbstractBins(idxBinEta2,idx)-AbstractBins(idxBinEta1,idx)
-         THEO(idx) = XSec(i) / TheoryUnit                                                                         
-
-cc         print*, 'i: ',i,' xsec: ',Xsec(i), 'theo: ', THEO(idx),' idx: ', idx, ' Bin: ', BinSize                
 
          if (LAsymmetry) then
            THEO(idx) =
      $           (XSecPlus(i)-XSecMinus(i))/(XSecPlus(i)+XSecMinus(i))
 C          print*,'prediction for theory: ', THEO(idx),'--- index: ',i                                            
+         else if(idxNorm.gt.0) then
+           THEO(idx) = XSec(i) / TheoryUnit /CSpred_tot
+         else
+           THEO(idx) = XSec(i) / TheoryUnit     
          endif
 
          !> Check if k-factor is required, multiply prediction by all of them.                                    
-          do idxkfact=1,nkfact
+         do idxkfact=1,nkfact
             Theo(idx) = Theo(idx)*kfactors(idxkfact,idx)
          enddo
 cc         print *,'hady', idx, THEO(idx), DATEN(idx),TheoryUnit                                                  
