@@ -26,7 +26,6 @@ The \fitter\ program has been tested on various platforms:\\
  point to the corresponding libraries
 \item Run:
 \begin{verbatim}
-    autoreconf --install
     ./configure
     make 
     make install
@@ -49,7 +48,6 @@ file should be installed
 variables point to the {\tt APPLGRID} environment.
 \item Run:
 \begin{verbatim}
-    autoreconf --install
     ./configure --enable-applgrid
     make 
     make install
@@ -97,7 +95,6 @@ Note: For installation allowing for PDF reweighting, the latest version of {\tt 
 \item Make sure that {\tt \$LD\_LIBRARY\_PATH} includes the LHAPDF libraries.
 \item Run:
 \begin{verbatim}
-    autoreconf --install
     ./configure --enable-lhapdf  --enable-nnpdfWeight
     make 
     make install
@@ -137,17 +134,24 @@ http://www-zeuthen.desy.de/~moch/hathor/
 
 \begin{itemize}
 
-\item  set environment variables (with {SYSNAME=i586\_rhel50} or similar)
-    
-\begin{verbatim}
-    export CERN\_ROOT=/cern/pro  
-    export QCDNUM\_ROOT=/h1wgs/h1desy11/x04/usr/glazov/openfitter/qcdnum-17-00-03
-    export CASCADE\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/\$SYSNAME 
-    export PYTHIA\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/\$SYSNAME}
-    \end{verbatim}	
+\item Installation with TMD requires Cascade and Pythia generators, 
+they can be downloaded from\\
+{\tt http://cascade.hepforge.org/ } and 
+{\tt https://pythia6.hepforge.org/ } respectively. \\
+        \\
+After installation of generator packages, the {\tt CASCADE\_ROOT}  and {\tt PYTHIA\_ROOT} 
+environment variables have be specified and point to the corresponding libraries. 
+In DESY afs enviroment the pre-installed versions of Cascade and Pythia can be used:  
+%
+{\footnotesize\begin{verbatim}
+export CASCADE\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/\$SYSNAME 
+export PYTHIA\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/\$SYSNAME}
+\end{verbatim} }
+\normalsize
+where {\tt SYSNAME } = i586\_rhel50 or similar.
 
+\item Run:
 \begin{verbatim}
-    autoreconf --install
     ./configure --enable-uPDF
     make 
     make install
@@ -178,6 +182,6 @@ http://www-zeuthen.desy.de/~moch/hathor/
    
 \item plotting $F_2$ fit results: \\
 DrawResults  will draw $F_2$ results. \\
-The uPDFs need to be plotted with an external packeage.
+The uPDFs need to be plotted with an external package (currently not available).
 \end{itemize}
 

@@ -5,29 +5,39 @@ procedure begins with parameterising the input PDFs at the starting
 scale $Q^2_0$ which should be chosen to be below the charm mass threshold
 $m_C^2$.
 The PDFs are then evolved using the DGLAP evolution equations  
-at NLO~\cite{Curci:1980uw,Furmanski:1980cm} in the $\overline{MS}$ scheme.
-The renormalisation and factorisation scales are set to $Q^2$. The \fitter\ program
-also allows for LO and NNLO evolution. 
+at NLO~\cite{Curci:1980uw,Furmanski:1980cm} in the $\overline{\text{MS}}$ scheme.
+%The renormalisation and factorisation scales are set to $Q^2$. 
+The LO and NNLO evolutions are also provided by the QCDNUM and can be 
+selecteed via the steering parameters in \fitter\ . 
 
 The cross-section predictions are obtain by convoluting the PDFs with the 
 hard scattering coefficient functions. For the DIS processes, those are calculated 
-using the general mass variable-flavour scheme. 
-The program implements the  zero mass scheme from QCDNUM as well as
-various treatments for the heavy quark thresholds as provided by the MSTW group
-- the RT scheme with its variants at NLO and NNLO ~\cite{Thorne:1997ga,Thorne:2006qt}, as provided by the CTEQ group - the ACOT scheme with its variants at LO and NLO, as provided by the ABM group - the BMSN scheme at NLO and NNLO.
+using the Fixed-Flavour number (FFN)~\cite{Laenen:1992,Laenen:1993,Riem:1995} or 
+the general mass Variable-Flavour number (VFN) schemes. 
+The program implements the zero mass variable flavour number (ZMVFN) scheme from QCDNUM.
+
+%The various treatments for the heavy quark thresholds are implemented as provided by the MSTW group
+The VFN schemes with various treatments for the heavy quark thresholds are implemented in \fitter\ 
+as provided by the MSTW group
+- the RT scheme with its variants at NLO and NNLO ~\cite{Thorne:1997ga,Thorne:2006qt}, 
+as provided by the CTEQ group - the ACOT scheme with its variants at LO and NLO, 
+as provided by the ABM group - the BMSN scheme at NLO and NNLO~\footnote{The BMSN scheme as provided by ABM group 
+currently is not yet fully implemented in \fitter\ .}. The fixed-flavour number scheme
+is available via the QCDNUM implementation and via the {\tt OPENQCDRAD~\cite{openqcdrad:page} } interface.
 Each of these schemes is briefly discussed in further details.
 
 The jet cross sections
-are calculated using APPLGRID and FastNLO. The program has two implementations
-for $pp$  DY processes. The first implementation uses
+are calculated using APPLGRID or FastNLO. The program has two implementations
+for $pp$  DY processes: The first implementation uses
 calculations at LO which can be extended to NLO using k-factors,
 the second uses the APPLGRID interface.
-For thorough details of the theoretical modules we direct the user to read the provided  references of these packages.
+For thorough details of the theoretical modules we direct the user to read the provided references of these packages.
 
 
 %%%%%%%%%%%
 \subsection{DIS and Schemes}
-There are different approaches to the treatment of the heavy quark production. These include the Fixed Flavour Number (FFN) and Variable Flavour Number (VFN) schemes.
+%There are different approaches to the treatment of the heavy quark production. 
+%These include the fixed-flavour (FFN) and variable flavour number (VFN) schemes.
 %%%%
 \subsubsection{ZMVFNS}
 The evolution program QCDNUM~\cite{qcdnum} used in \fitter\ provides 
@@ -44,9 +54,10 @@ in \fitter\ are activated via namelist {\tt HF$\_$SCHEME} in the {\tt steering.t
 %%%%
 \subsubsection{TR}
 
-The Thorne-Roberts (TR) scheme is a general-mass variable flavour number scheme (GM-VFNS) used as default for the MTSW PDF sets. GM-VFNS smoothly connect the two reagions: scale below the heavy quark threshold and the scale above the heavy quark threshold. However, the definition is not unique.
+The Thorne-Roberts (TR) scheme is a general-mass variable flavour number scheme (GM-VFNS) used as default for the MTSW PDF sets. GM-VFNS smoothly connect the two regions: scale below the heavy quark threshold and the scale above the heavy quark threshold. However, the definition is not unique.
 A GM-VFNS can be defined by demanding equivalence of the nf = n (FFNS) and nf = n+1 flavour (ZM-VFNS) descriptions above the transition point for the new parton distributions
-(they are by definition identical below this point), at all orders. However, the equivalency of swapping te O(mH2/Q2) terms without violating the definition of a GM-VFNS is what mainly distinguish the ACOT from TR schemes. 
+(they are by definition identical below this point), at all orders. However, the equivalency of swapping the $O(m_{H}^2/Q^2)$ 
+terms without violating the definition of a GM-VFNS is what mainly distinguish the ACOT from TR schemes. 
 One major issue in a complete GM-VFNS, is that of the ordering of the
 perturbative expansion. This ambiguity comes about because the ordering in alphas is different for the number of active flavours.
 
@@ -55,33 +66,53 @@ perturbative expansion. This ambiguity comes about because the ordering in alpha
 %%%%
 \subsubsection{ACOT}
 
-The Aivazis-Collins-Olness-Tung scheme  belongs to the group of VFN factorization schemes that uses the renormalization method of Collins-Wilczek-Zee (CWZ).This scheme involves a mixture of the $\bar{MS}$ scheme for light partons (and for heavy partons if the factorisation scale is larger than the heavy mass)and the zero-momentum subtraction renormalization scheme for graphs with heavy quark lines (if factorisation scale is smaller than the mass of the heavy quark threshold).
+The Aivazis-Collins-Olness-Tung scheme  belongs to the group of VFN factorization schemes that uses the renormalization method of Collins-Wilczek-Zee (CWZ).This scheme involves a mixture of the $\overline{\text{MS}}$ scheme for light partons (and for heavy partons if the factorisation scale is larger than the heavy mass)and the zero-momentum subtraction renormalization scheme for graphs with heavy quark lines (if factorisation scale is smaller than the mass of the heavy quark threshold).
 
-There are different variants of this scheme which are all incorporated in the HERAFitter framework.
+There are different variants of this scheme which are all incorporated in the \fitter\  framework and can be selected 
+via namelist {\tt HF$\_$SCHEME} in the {\tt steering.txt} .
 
 %%%%
-\subsubsection{ABM}
-An interface to open-source code OPENQCDRAD~\cite{openqcdrad:page} in HERAFitter framework 
-provides an access to 
-fixed flavour number scheme (FFNS)~\cite{Laenen:1992,Laenen:1993,Riem:1995}~\footnote{Besides 
-the variable flavour number 
-scheme, QCDNUM also supports the fixed flavour number scheme which can be used for variouse 
-cross checks with OPENQCDRAD.}. In FFNS the number of light quark 
-flavours $n_{f}$ (here $n_{f}=3$) are considered in the PDF evolution and heavy (massive) 
-quarks appear only in the final state. 
-The QCD corrections to the massive Wilson coefficients which are known up to the NNLO
-for the neutral-current (NC) heavy-quark production~\cite{} are implemented in OPENQCDRAD.
-In the case of charged-current (CC), the massive NLO QCD corrections~\cite{} are available.
-In addition, the treatment of the heavy-quark contributions in DIS are provided 
-in both, the pole-mass and the running-mass definition in $\overline{\text{MS}}$ 
-scheme~\cite{Alekhin:runm}. \\
-In case the FFN scheme is chosen as the fitting option (see corresponding instructions in the section 1),
-the heavy quark contributions to DIS structure functions $F_2$ and $F_L$ (and $F_3$ in the charged 
-current case) are calculated in the FFNS and together with the light-flavor contributions are 
-provided for the theory prediction calculation (theory$\_$dispatcher.f).
-The interpolation to PDFs and $\alpha_s$ evolution from QCDNUM are set up in the interface to OPENQCDRAD. \\
-The variation of the renormalisation and factorisation scales for heavy quarks is 
-possible (see available options in steering.txt file).
+\subsubsection{FFNS}
+
+The fixed-flavour number scheme for DIS structure functions in \fitter\ can be selected via {\tt HF$\_$SCHEME}
+using QCDNUM or ABM~\cite{openqcdrad:page} implementation.
+In the FFN scheme only gluon and the light quarks are considered
+as partons within the proton, massive quarks are produced perturbatively in the final state.
+\\
+In addition, the recent variant of the fixed-flavour number scheme in which the running mass definition 
+is used in the $\overline{\text{MS}}$ scheme~\cite{Alekhin:runm} can be selected
+in \fitter\ . This variant is realised via the interface to the open-source code 
+OPENQCDRAD~\cite{openqcdrad:page}.
+This scheme has the advantage of reducing the sensitivity of the DIS cross sections to
+higher order corrections, and improving the theoretical precision of the mass definition. 
+\\           
+In the QCDNUM, the calculation of the heavy quark contributions to DIS structure functions
+are avalable at NLO and only electromagnetic exchange contributions are taken into account.
+In the ABM implementation, the QCD corrections to the massive Wilson coefficients 
+up to the NNLO for the neutral-current (NC) heavy-quark production~\cite{} and up to NLO
+for the charged-current (CC) case are available.
+%
+%The fixed-flavour number scheme for  in \fitter\ can be also accessed via interface to
+%the open-source code OPENQCDRAD~\cite{openqcdrad:page} in \fitter\ framework 
+%provides an access to 
+%fixed flavour number scheme (FFNS)~\cite{Laenen:1992,Laenen:1993,Riem:1995}
+%
+%By default, in FFNS the number of light quark 
+%flavours $n_{f}$ (here $n_{f}=3$) are considered in the PDF evolution and heavy (massive) 
+%quarks appear only in the final state. 
+%The QCD corrections to the massive Wilson coefficients which are known up to the NNLO
+%for the neutral-current (NC) heavy-quark production~\cite{} are implemented in OPENQCDRAD.
+%In the case of charged-current (CC), the massive NLO QCD corrections~\cite{} are available.
+%In addition, the treatment of the heavy-quark contributions in DIS are provided 
+%in both, the pole-mass and the running-mass definition in $\overline{\text{MS}}$ 
+%scheme~\cite{Alekhin:runm}. \\
+%In case the FFN scheme is chosen as the fitting option (see corresponding instructions in the section 1),
+%the heavy quark contributions to DIS structure functions $F_2$ and $F_L$ (and $F_3$ in the charged 
+%current case) are calculated in the FFNS and together with the light-flavor contributions are 
+%provided for the theory prediction calculation (theory$\_$dispatcher.f).
+%The interpolation to PDFs and $\alpha_s$ evolution from QCDNUM are set up in the interface to OPENQCDRAD. \\
+%The variation of the renormalisation and factorisation scales for heavy quarks is 
+%possible (see available options in steering.txt file).
 %
 %       
 %%%%%%%%%%%
