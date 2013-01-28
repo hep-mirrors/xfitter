@@ -149,124 +149,124 @@ $F^\Reg_k(\beta,Q^2)$ are taken as those of the pion.
 
 
 %==========================================
-\subsubsection {Pomeron parametrization}
+%\subsubsection {Pomeron parametrization}
 
-The Pomeron is parametrized at the initial
-$Q_0^2$ in terms of two singlet distributions,
-$f_{g}$ and $f_{+}$.
-\begin{subequations}
-\label{singlet}
-\begin{eqnarray}
-\frac{d}{dt}f_{+} &=&
-\asotp\left[
-\AP_{\rm FF} f_{+} +\AP_{\rm FG}f_g
-\right]
-\\
-\frac{d}{dt}f_{g} &=&
-\asotp\left[
-\AP_{\rm GF} f_{+} +\AP_{\rm GG}f_g
-\right]
-\end{eqnarray}
-\end{subequations}
+%The Pomeron is parametrized at the initial
+%$Q_0^2$ in terms of two singlet distributions,
+%$f_{g}$ and $f_{+}$.
+%\begin{subequations}
+%\label{singlet}
+%\begin{eqnarray}
+%\frac{d}{dt}f_{+} &=&
+%\asotp\left[
+%\AP_{\rm FF} f_{+} +\AP_{\rm FG}f_g
+%\right]
+%\\
+%\frac{d}{dt}f_{g} &=&
+%\asotp\left[
+%\AP_{\rm GF} f_{+} +\AP_{\rm GG}f_g
+%\right]
+%\end{eqnarray}
+%\end{subequations}
 
-As $\Pom$ is neutral, $f_{q} = f_{\bar q}$ for each flavour $q$.
-Assuming that all light quark PDFs are equal
-\begin{equation}
-f_d = f_u = f_s
-\,,
-\end{equation}
-we have
-\begin{subequations}
-\label{eq:pm}
-\begin{eqnarray}
-f_{q-} &\equiv& 0
-\\
-f_{q+} &\equiv& 2 f_q
-\end{eqnarray}
-\end{subequations}
-
-At \NF = 3
-\begin{equation}
-\label{eq:fq3}
-f_{q+} = f_{+}/3,\; q = d,u,s
-\,.
-\end{equation}
-% \ifFullVer
-\ie
-% \begin{equation}
-% \Sgl q = 0,\; q = d,u,s
-% \,,
-% \end{equation}
-% where
-\begin{equation}
-\Sgl q \equiv f_{q+} - \frac{1}{\NF}f_{+}
- = 0,\;\mbox{for}\; q = d,u,s
-\,.
-\end{equation}
+%As $\Pom$ is neutral, $f_{q} = f_{\bar q}$ for each flavour $q$.
+%Assuming that all light quark PDFs are equal
+%\begin{equation}
+%f_d = f_u = f_s
+%\,,
+%\end{equation}
+%we have
+%\begin{subequations}
+%\label{eq:pm}
+%\begin{eqnarray}
+%f_{q-} &\equiv& 0
+%\\
+%f_{q+} &\equiv& 2 f_q
+%\end{eqnarray}
+%\end{subequations}
+%
+%At \NF = 3
+%\begin{equation}
+%\label{eq:fq3}
+%f_{q+} = f_{+}/3,\; q = d,u,s
+%\,.
+%\end{equation}
+%% \ifFullVer
+%\ie
+%% \begin{equation}
+%% \Sgl q = 0,\; q = d,u,s
+%% \,,
+%% \end{equation}
+%% where
+%\begin{equation}
+%\Sgl q \equiv f_{q+} - \frac{1}{\NF}f_{+}
+% = 0,\;\mbox{for}\; q = d,u,s
+%\,.
+%\end{equation}
 % \fi
-
-This gives all PDFs for the FFNS, while for VFNS 
-$f_{h+}$ for $h=c,b,t$ are generated dynamically above the respective
-transition scales $Q_h^2$.
-Hence at $\NF > 3$ the singlet has contributions from the heavy quarks
-and we get non-trivial nonsinglet distributions $\Sgl{h}$ satisfying
-\begin{equation}
-\label{eq:nsevol}
-\frac{d}{dt}\Sgl h = \asotp\, \AP_{(+)} \Sgl h
-\end{equation}
-
-%\subsection {Parametrization at \texorpdfstring{$Q_0^2$}{Q0}}
-%\subsubsection {Parametrization at {$Q_0^2$}}
-{\bf Parametrization at {$Q_0^2$}} \\
-%-----------------------------------------------------------
-\label{sec:Par}
-
-Full PDFs are given in analogy to \Eq{eq:FD3}
-\begin{equation}
-f_k^{D(3)}(\beta,Q^2,\xP) =
-\hat\Phi_\Pom(\xP)\, f^\Pom_k(\beta,Q^2)
-+
-\Phi_\Reg(\xP)\, f^\Reg_k(\beta,Q^2)
-\end{equation}
-where $\hat\Phi_\Pom \equiv \Phi_\Pom/A_\Pom$,
-with the fluxes given by \Eq{eq:intFlux} and \Eq{eq:flux}.
-
-The Pomeron PDFs are parametrized as
-\def\Cini#1#2{A^{(#1)}_#2}
-\begin{equation}
-\label{eq:fP0}
-f^\Pom_N = \Cini N1  x^{\Cini N2} (1-x)^{\Cini N3}
-%   \left(1 + \Cini N4 x \right)
-  \; \exp\left(-\frac{d}{1.00001-x}\right)
-\,,
-\end{equation}
-where the `dumping factor' $d$ is taken as 0.01 or 0.001.
-$N = \mathrm G$ for gluon and $N = \mathrm S$ for `singlet': $f_{\rm S} \equiv f_+(\NF=3)$,
-\cf \Eq{eq:fq3}.
+%
+%This gives all PDFs for the FFNS, while for VFNS 
+%$f_{h+}$ for $h=c,b,t$ are generated dynamically above the respective
+%transition scales $Q_h^2$.
+%Hence at $\NF > 3$ the singlet has contributions from the heavy quarks
+%and we get non-trivial nonsinglet distributions $\Sgl{h}$ satisfying
+%\begin{equation}
+%\label{eq:nsevol}
+%\frac{d}{dt}\Sgl h = \asotp\, \AP_{(+)} \Sgl h
+%\end{equation}
+%
+%%\subsection {Parametrization at \texorpdfstring{$Q_0^2$}{Q0}}
+%%\subsubsection {Parametrization at {$Q_0^2$}}
+%{\bf Parametrization at {$Q_0^2$}} \\
+%%-----------------------------------------------------------
+%\label{sec:Par}
+%
+%Full PDFs are given in analogy to \Eq{eq:FD3}
+%\begin{equation}
+%f_k^{D(3)}(\beta,Q^2,\xP) =
+%\hat\Phi_\Pom(\xP)\, f^\Pom_k(\beta,Q^2)
+%+
+%\Phi_\Reg(\xP)\, f^\Reg_k(\beta,Q^2)
+%\end{equation}
+%where $\hat\Phi_\Pom \equiv \Phi_\Pom/A_\Pom$,
+%with the fluxes given by \Eq{eq:intFlux} and \Eq{eq:flux}.
+%
+%The Pomeron PDFs are parametrized as
+%\def\Cini#1#2{A^{(#1)}_#2}
+%\begin{equation}
+%\label{eq:fP0}
+%f^\Pom_N = \Cini N1  x^{\Cini N2} (1-x)^{\Cini N3}
+%%   \left(1 + \Cini N4 x \right)
+%  \; \exp\left(-\frac{d}{1.00001-x}\right)
+%\,,
+%\end{equation}
+%where the `dumping factor' $d$ is taken as 0.01 or 0.001.
+%$N = \mathrm G$ for gluon and $N = \mathrm S$ for `singlet': $f_{\rm S} \equiv f_+(\NF=3)$,
+%\cf \Eq{eq:fq3}.
 
 % The Reggeon PDFs $f^\Reg_k$ are taken from pion.
 
-%\subsubsection {HERAFitter parameters}
-{\bf HERAFitter parameters} \\
-%-----------------------------------------------------------
-\label{sec:HFitterPar}
-
-% minuit.in.txt
-% ExtraMinimisationParameters
-
-\begin{tabular}{l|l|l}
-Parameter & HERAFitter name & input file\\
-% \hline
-$\Cini {\mathrm G}1$ & Ag & minuit.in.txt \\
-$\Cini {\mathrm G}2$ & Bg & minuit.in.txt \\
-$\Cini {\mathrm G}3$ & Cg & minuit.in.txt \\
-$\Cini {\mathrm S}1$ & Auv & minuit.in.txt \\
-$\Cini {\mathrm S}2$ & Buv & minuit.in.txt \\
-$\Cini {\mathrm S}3$ & Cuv & minuit.in.txt \\
-$\alpha_\Pom(0)$ & Pomeron\_a0 & steering.txt \\
-$A_\Reg$ & Reggeon\_factor & steering.txt \\
-$\alpha_\Reg(0)$ & Reggeon\_a0 & steering.txt \\
-\end{tabular}
+%%\subsubsection {HERAFitter parameters}
+%{\bf HERAFitter parameters} \\
+%%-----------------------------------------------------------
+%\label{sec:HFitterPar}
+%
+%% minuit.in.txt
+%% ExtraMinimisationParameters
+%
+%\begin{tabular}{l|l|l}
+%Parameter & HERAFitter name & input file\\
+%% \hline
+%$\Cini {\mathrm G}1$ & Ag & minuit.in.txt \\
+%$\Cini {\mathrm G}2$ & Bg & minuit.in.txt \\
+%$\Cini {\mathrm G}3$ & Cg & minuit.in.txt \\
+%$\Cini {\mathrm S}1$ & Auv & minuit.in.txt \\
+%$\Cini {\mathrm S}2$ & Buv & minuit.in.txt \\
+%$\Cini {\mathrm S}3$ & Cuv & minuit.in.txt \\
+%$\alpha_\Pom(0)$ & Pomeron\_a0 & steering.txt \\
+%$A_\Reg$ & Reggeon\_factor & steering.txt \\
+%$\alpha_\Reg(0)$ & Reggeon\_a0 & steering.txt \\
+%\end{tabular}
 
 \endinput
 
