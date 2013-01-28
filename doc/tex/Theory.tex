@@ -59,17 +59,37 @@ A GM-VFNS can be defined by demanding equivalence of the nf = n (FFNS) and nf = 
 (they are by definition identical below this point), at all orders. However, the equivalency of swapping the $O(m_{H}^2/Q^2)$ 
 terms without violating the definition of a GM-VFNS is what mainly distinguish the ACOT from TR schemes. 
 One major issue in a complete GM-VFNS, is that of the ordering of the
-perturbative expansion. This ambiguity comes about because the ordering in alphas is different for the number of active flavours.
+perturbative expansion.
+The differences between TR scheme types and ACOT scheme types are nicely summarised in the figure \ref{fig:schemes}.
+\begin{figure}
+\begin{center}
+\caption{Schematic Summary of ACOT  and TR  Schemes}
+\includegraphics[width=0.5\linewidth]{figures/schemes.pdf}
+\end{center}
+\label{fig:schemes}
+\end{figure}
 
+The TR scheme comes in different variants depending on the treatment across the threshold of heavy quarks: TR standard (as used in MSTW PDF sets) and TR optimal, with a smoother transition across the heavy quark region. Both of these variants are accessible within the HERAFitter package.
+The calculations are available to NLO, NNLO order. However, a fast version of the scheme is available (i.e. RT FAST) by using the $k-factor$ technique. The $k-factors$ are applied at the first iteration of the minimisation process enabling the code to run fast, as the $k-factors$ are defined as ratio between massless and massive scheme, while massless scheme accessed via QCDNUM is very fast.
 
  
 %%%%
 \subsubsection{ACOT}
 
-The Aivazis-Collins-Olness-Tung scheme  belongs to the group of VFN factorization schemes that uses the renormalization method of Collins-Wilczek-Zee (CWZ).This scheme involves a mixture of the $\overline{\text{MS}}$ scheme for light partons (and for heavy partons if the factorisation scale is larger than the heavy mass)and the zero-momentum subtraction renormalization scheme for graphs with heavy quark lines (if factorisation scale is smaller than the mass of the heavy quark threshold).
+The Aivazis-Collins-Olness-Tung scheme  belongs to the group of VFN factorization schemes that uses the renormalization method of Collins-Wilczek-Zee (CWZ).This scheme involves a mixture of the $\overline{\text{MS}}$ scheme for light partons (and for heavy partons if the factorisation scale is larger than the heavy mass)and the zero-momentum subtraction renormalization scheme for graphs with heavy quark lines (if factorisation scale is smaller than the mass of the heavy quark threshold).The DGLAP kernels and PDF evolution are pure MS-Bar. Definition of Subtractions is analogous to MS-Bar. Therefore, the ACOT scheme is considered to be a minimal extension of MS-Bar scheme.
 
 There are different variants of this scheme which are all incorporated in the \fitter\  framework and can be selected 
-via namelist {\tt HF$\_$SCHEME} in the {\tt steering.txt} .
+via namelist {\tt HF$\_$SCHEME} in the {\tt steering.txt}.
+
+
+Within ACOT package, different variants of the ACOT scheme are available:ACOT Full, ACOT-S, ACOT
+Chi,  $\overline{\text{MS}}$  at LO and NLO. For the longitudinal structure function higher order calculationas are also available. Each of these schemes have advantages and disadvantages, for example the ACOT Full though it fully takes intp account the quark masses and it reduces
+to  $\overline{\text{MS}}$  in the limit of masses going to zero, it has the disadvantage of being quite slow.
+Therefore the $k-factor$ technique has been addopted within the HERAfitter machinery to be able to perform QCD fits. The $k-factor$ where can be defined in two different ways. On one hand the ratio between same order calculations but massless vs massive (i.e. NLO (ZMVFNS)/NLO (ACOT). On the other hand one could speed up the calculations by defining the $k-factors$ as the ratio between LO (massless)/NLO (massive).
+
+Both options are available in the \fitter\ package and give similar results. For convergens of the $k-factors$ usually 2-3 iterations of complete fits are needed.
+
+
 
 %%%%
 \subsubsection{FFNS}
@@ -120,7 +140,7 @@ for the charged-current (CC) case are available.
 %%%%%%%%%%%
  
 To properly compare the experimental data with theoretical predictions, 
-QED corrections are necessary. In the HERAFitter, the electroweak corrections 
+QED corrections are necessary. In the \fitter\, the electroweak corrections 
 for the DIS process are based on the EPRC package provided by Hubert Spiesberger \cite{HS}.
 The measured cross sections as presented by HERA are not corrected for the weak corrections
 in order to retain sensitivity to higher order EW effects.
@@ -204,7 +224,7 @@ expression allows to significantly boost calculations when
 performing parameter fits over lepton rapidity data. In this case
 the factorized part of expression independent on PDFs can be
 calculated only once for all minimization iterations.
-The leading order code in HERAFitter package implements this 
+The leading order code in \fitter\ package implements this 
 optimization and uses fast convolution routines provided by
 QCDNUM. Currently the full width LO calculations are optimized 
 for lepton pseudorapidity and boson rapidity distributions with
@@ -246,7 +266,7 @@ In order to enable the inclusion of jet-cross section
 measurements in PDF and $\alpha_s$ fits, these perturbative
 coefficients have to be pre-computed in a PDF and $\alpha_s$ 
 independent way. For this purpose, two quite similar tools are
-interfaced to the HERAFitter.
+interfaced to the \fitter .
 
 \subsubsection{FastNLO}
 The fastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
@@ -264,7 +284,7 @@ Also threshold-corrections of $\mathcal{O}$(NNLO) for
 inclusive jet cross sections in hadron-hadron collisions are
 available~\cite{Kidonakis:2000gi}.
 
-The fastNLO libraries are standardized included in the HERAFitter
+The fastNLO libraries are standardized included in the \fitter\
 package and no further requirements or compilation options
 are needed. In order to include a new measurement into the PDF-fit,
 the fastNLO table have to be specified. These tables include all
@@ -341,12 +361,12 @@ if stated.
 %photon into a quark-antiquark pair (dipole), with a lifetime $\propto\enskip 1/x$, which interacts with the proton.
 %
 %Several approaches have been developed to phenomenologically describe the dipole-proton interaction
-%cross section, three of which are implemented in the HERAFitter. These are
+%cross section, three of which are implemented in the fitter\. These are
 %the original model version (GBW)~\cite{Golec-Biernat:1998js}, a model based on the colour glass condensate approach
 %to the high parton density regime (IIM)~\cite{Iancu:2003ge}, and a modified GBW model by adding effects of the 
 Dipole picture provides an attractive approach to the virtual photon-proton scattering in the low $x$ region because it allows to describe inclusive and diffractive processes together. In this approach the virtual photon fluctuates into a $q\bar q$ (or $q\bar q g$ ....)  dipole which interacts with the proton~\cite{NNZ:91}.  The dipoles can be viewed as quasi-stable quantum mechanical states, which have very long life time $\propto 1/m_p x\;$ and a size which is not changed by scattering. 
 
-Several dipole models have been developed to describe various DIS reactions. They vary due to different assumption made about the behavior of the dipole cross sections.   In the HERAFitter  three representative models  are implemented.
+Several dipole models have been developed to describe various DIS reactions. They vary due to different assumption made about the behavior of the dipole cross sections.   In the \fitter\  three representative models  are implemented.
 \begin{itemize}
 \item
 the original (GBW)~\cite{Golec-Biernat:1998js} dipole saturation model,
@@ -396,7 +416,7 @@ The free fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and 3 
 %\newpage
 %\subsubsection{Mixed with DGLAP model}
 \subsubsection{BGK model with valence quarks}
-The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small, of the order of 5\%. The new HERA $F_2$ data have a precision which better than 2 \%. Therefore in the HERAfitter the contribution of the valence quarks is taken from the pdf fits and added to the original 
+The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small, of the order of 5\%. The new HERA $F_2$ data have a precision which better than 2 \%. Therefore in the \fitter\ the contribution of the valence quarks is taken from the pdf fits and added to the original 
  BGK model. The quality of the fits of the BGK dipole model with valence quarks and without valence quarks are the same.
 The default  initial parameters for the fit without valence quark are : 
 \begin{table}[h]
