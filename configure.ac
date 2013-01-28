@@ -13,6 +13,18 @@ AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_RANLIB
 
+AC_ARG_ENABLE(openmp,
+                  [AS_HELP_STRING([--enable-openmp], [use OpenMP if available
+                   [default=no]])],
+                       [enable_openmp=$enableval]
+                         )
+: ${enable_openmp=no} 
+AC_LANG_PUSH([Fortran])
+AC_OPENMP
+AC_LANG_POP
+AC_OPENMP
+AM_CONDITIONAL(ENABLE_OPENMP, [test $OPENMP_CFLAGS])
+
 # Fortran configures
 AC_FC_LIBRARY_LDFLAGS
 AC_FC_WRAPPERS

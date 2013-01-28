@@ -31,11 +31,14 @@ C--   Output variables: f2,f2c,f2b,fl,flc,flb.
      &     mCharm,mBottom,alphaSQ0,alphaSMZ
       COMMON/mstwCommon/distance,tolerance,
      &     mCharm,mBottom,alphaSQ0,alphaSMZ,alphaSorder,alphaSnfmax
+
       COMMON/TRprimeCommon/var1,var2,var3,var4 ! G.W. 11/04/2012
       COMMON/GRPTHY/FLAVOR
       COMMON/DYLAMB/xlam,S0
       COMMON/iordCommon/iord
       COMMON/GAUS96/XI(96),WI(96),XX(97),NTERMS ! G.W. 15/02/2007
+!$OMP THREADPRIVATE(/mstwCommon/,/TRprimeCommon/,/GRPTHY/)
+!$OMP THREADPRIVATE(/DYLAMB/,/iordCommon/)
       DATA PI,PI2/3.14159,9.8696/
 
 C--   G.W. 12/04/2012 Set these variables via COMMON/TRprimeCommon/.
@@ -2059,7 +2062,9 @@ C--   G.W. 15/06/2007 Use new routine from PEGASUS.
 cv      ALPHA = ALPHAS(sqrt(QS))
 c---------------------------------
 cv  connect to QCDNUM alphas
+!$OMP CRITICAL
       alpha = hf_get_alphas(qs) 
+!$OMP END CRITICAL
 
       RETURN
       END

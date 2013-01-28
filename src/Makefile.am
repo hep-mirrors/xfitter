@@ -45,7 +45,11 @@ endif
 
 
 # libraries to be linked to the main target
-LDADD = $(QCDNUMLIBS)
+LDADD = $(QCDNUMLIBS) 
+if ENABLE_OPENMP
+LDADD+= -lgomp
+AM_FFLAGS+= -fopenmp
+endif
 
 if ENABLE_LHAPDF 
   AM_CPPFLAGS+=$(LHAPDF_CPPFLAGS)

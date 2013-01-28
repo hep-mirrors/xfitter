@@ -69,6 +69,7 @@ C Common variables:
 
       COMMON/mstwCommon/distance,tolerance,
      &     mCharm,mBottom,alphaSQ0,alphaSMZ,alphaSorder,alphaSnfmax
+!$OMP THREADPRIVATE(/mstwCommon/)
 
 C-----------------------------------------
       alphaSQ0 = alphaSZero
@@ -124,6 +125,7 @@ C Common variables:
 
       INTEGER iord
       COMMON/iordCommon/iord
+!$OMP THREADPRIVATE(/mstwCommon/,/TRprimeCommon/,/iordCommon/)
 
 
 C-------------------------------      
