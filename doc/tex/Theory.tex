@@ -28,7 +28,7 @@ Each of these schemes is briefly discussed in further details.
 
 The jet cross sections
 are calculated using APPLGRID or FastNLO. The program has two implementations
-for $pp$  DY processes: The first implementation uses
+for $pp$  Drell Yan processes: The first implementation uses
 calculations at LO which can be extended to NLO using k-factors,
 the second uses the APPLGRID interface.
 For thorough details of the theoretical modules we direct the user to read the provided references of these packages.
@@ -116,11 +116,35 @@ for the charged-current (CC) case are available.
 %
 %       
 %%%%%%%%%%%
-\subsubsection{\texorpdfstring{$ep$}{ep} Electroweak corrections via HS}
+\subsubsection{\texorpdfstring{$ep$}{ep} Electroweak corrections}
 %%%%%%%%%%%
-\subsection{DY process}
+ 
+To properly compare the experimental data with theoretical predictions, 
+QED corrections are necessary. In the HERAFitter, the electroweak corrections 
+for the DIS process are based on the EPRC package provided by Hubert Spiesberger \cite{HS}.
+The measured cross sections as presented by HERA are not corrected for the weak corrections
+in order to retain sensitivity to higher order EW effects.
+
+The calculations of higher-order electroweak corrections to DIS scattering at HERA are performed
+in the on-shell scheme where the gauge bosons masses $M_W$ abd $M_Z$ are treated symmetrically
+as basic parameters together with the top and Higgs masses, besides the fine structure constant $\alpha$ and other fermion masses.
+
+The code provides the running of $\alpha$ using the most recent parametrisation
+of the hadronic contribution to $\Delta_\alpha$ \cite{Jegerlehner}, as well as an older 
+one from Burkhard.
+
+For the Drell Yan process there are independent treatments (such as SANC, FEWZ).
+
+ 
+
+
+\subsection{Drell Yan process}
 %%%%
-\subsubsection{Leading Order}
+
+The calculatiosn of the Drell Yan processes are known for many observables up to  the NNLO order. For example, there are packages such as FEWZ, DYNNLO for NNLO, or MCFM for NLO calculations. However, due to the complicated nature of these calculation involving an increased number of diagrams with additional higher order, these calculations are too slow to be used iteratively in a fit.
+There are various methods to overcome this shortage: using the "k-factors" approximation from lower to higher order,  or using the grid technique when available.
+  
+
 The leading order Drell-Yan~\cite{Drell:1970wh,Yamada:1981mw} cross section 
 for the neutral current, triple differential in
 invariant mass \(M\), boson rapidity \(y\) and CMS
@@ -189,7 +213,11 @@ possibility to apply lepton \(p_{\perp}\) cuts.
 The calculated leading order cross sections are multiplied by
 NLO or NNLO K-factors provided for corresponding data distributions.
 %%%%
-\subsubsection{Next Leading Order}
+
+
+On the other hand, one can obtain directly the NLO predictions by using APPLGRID or FASTNLO techniques, which rely on factorisation theorem by decoupling the hard scattering coefficients from PDFs. Therefore, the calculated hard scattering coefficients can be stored into a grid for a given kinematic bin, speeding up the convolution process with the PDFs allowing to be used for QCD fits. 
+These method are described in more details in sections \ref{sec:theory:jets}
+
 %%%%%%%%%%%
 \subsection{\texorpdfstring{$t\bar{t}$}{t-tbar} Cross Sections via {\tt HATHOR}}
 Top-quark pairs ($t\bar{t}$) are mainly produced via $gg$ fusion and
@@ -204,7 +232,7 @@ soft-gluon resummation \cite{Moch:2012mk}.
 The default choice for renormalization and factorization scale in $t \bar t$ production is the top-quark mass, $m_t$.
 The pole mass scheme is typically employed for $m_t$ but HATHOR also supports calculations in
 the $\overline{\text{MS}}$ scheme.
-\subsection{Jets}
+\subsection{Jets}\label{sec:theory:jets}
 The calculation of higher order jet cross sections is very demanding
 in means of computing power. The reasons are the large number of contributing
 Feynman diagrams and also the large number of infrared divergencies.
