@@ -52,29 +52,18 @@ The un-polarised DIS structure functions in ZM-VFN scheme are computed as a
 convolution of the parton densities with zero-mass coefficient functions and 
 in \fitter\ are activated via namelist {\tt HF$\_$SCHEME} in the {\tt steering.txt}.
 %%%%
-\subsubsection{TR}
+\subsubsection{Thorne-Roberts scheme}
 
 The Thorne-Roberts (TR) scheme is a general-mass variable flavour number scheme (GM-VFNS) used as default for the MTSW PDF sets. GM-VFNS smoothly connect the two regions: scale below the heavy quark threshold and the scale above the heavy quark threshold. However, the definition is not unique.
 A GM-VFNS can be defined by demanding equivalence of the nf = n (FFNS) and nf = n+1 flavour (ZM-VFNS) descriptions above the transition point for the new parton distributions
-(they are by definition identical below this point), at all orders. However, the equivalency of swapping the $O(m_{H}^2/Q^2)$ 
-terms without violating the definition of a GM-VFNS is what mainly distinguish the ACOT from TR schemes. 
-One major issue in a complete GM-VFNS, is that of the ordering of the
-perturbative expansion.
-The differences between TR scheme types and ACOT scheme types are nicely summarised in the figure \ref{fig:schemes}.
-\begin{figure}
-\begin{center}
-\caption{Schematic Summary of ACOT  and TR  Schemes}
-\includegraphics[width=0.5\linewidth]{figures/schemes.pdf}
-\end{center}
-\label{fig:schemes}
-\end{figure}
+(they are by definition identical below this point), at all orders.
 
 The TR scheme comes in different variants depending on the treatment across the threshold of heavy quarks: TR standard (as used in MSTW PDF sets) and TR optimal, with a smoother transition across the heavy quark region. Both of these variants are accessible within the HERAFitter package.
 The calculations are available to NLO, NNLO order. However, a fast version of the scheme is available (i.e. RT FAST) by using the $k-factor$ technique. The $k-factors$ are applied at the first iteration of the minimisation process enabling the code to run fast, as the $k-factors$ are defined as ratio between massless and massive scheme, while massless scheme accessed via QCDNUM is very fast.
 
  
 %%%%
-\subsubsection{ACOT}
+\subsubsection{ACOT scheme}
 
 The Aivazis-Collins-Olness-Tung scheme  belongs to the group of VFN factorization schemes that uses the renormalization method of Collins-Wilczek-Zee (CWZ).This scheme involves a mixture of the $\overline{\text{MS}}$ scheme for light partons (and for heavy partons if the factorisation scale is larger than the heavy mass)and the zero-momentum subtraction renormalization scheme for graphs with heavy quark lines (if factorisation scale is smaller than the mass of the heavy quark threshold).The DGLAP kernels and PDF evolution are pure MS-Bar. Definition of Subtractions is analogous to MS-Bar. Therefore, the ACOT scheme is considered to be a minimal extension of MS-Bar scheme.
 
@@ -86,9 +75,21 @@ Within ACOT package, different variants of the ACOT scheme are available:ACOT Fu
 Chi,  $\overline{\text{MS}}$  at LO and NLO. For the longitudinal structure function higher order calculationas are also available. Each of these schemes have advantages and disadvantages, for example the ACOT Full though it fully takes intp account the quark masses and it reduces
 to  $\overline{\text{MS}}$  in the limit of masses going to zero, it has the disadvantage of being quite slow.
 Therefore the $k-factor$ technique has been addopted within the HERAfitter machinery to be able to perform QCD fits. The $k-factor$ where can be defined in two different ways. On one hand the ratio between same order calculations but massless vs massive (i.e. NLO (ZMVFNS)/NLO (ACOT). On the other hand one could speed up the calculations by defining the $k-factors$ as the ratio between LO (massless)/NLO (massive).
-
 Both options are available in the \fitter\ package and give similar results. For convergens of the $k-factors$ usually 2-3 iterations of complete fits are needed.
 
+
+The differences between TR scheme types and ACOT scheme types are nicely summarised in the figure \ref{fig:schemes}.
+ The equivalency of swapping the $O(m_{H}^2/Q^2)$ 
+terms without violating the definition of a GM-VFNS is what mainly distinguish the ACOT from TR schemes. 
+One major issue in a complete GM-VFNS, is that of the ordering of the
+perturbative expansion.
+\begin{figure}
+\begin{center}
+\caption{Schematic Summary of ACOT  and TR  Schemes}
+\includegraphics[width=0.5\linewidth]{figures/schemes.pdf}
+\end{center}
+\label{fig:schemes}
+\end{figure}
 
 
 %%%%
@@ -162,7 +163,7 @@ For the Drell Yan process there are independent treatments (such as SANC, FEWZ).
 %%%%
 
 The calculatiosn of the Drell Yan processes are known for many observables up to  the NNLO order. For example, there are packages such as FEWZ, DYNNLO for NNLO, or MCFM for NLO calculations. However, due to the complicated nature of these calculation involving an increased number of diagrams with additional higher order, these calculations are too slow to be used iteratively in a fit.
-There are various methods to overcome this shortage: using the "k-factors" approximation from lower to higher order,  or using the grid technique when available.
+There are various methods to overcome this shortage: using the $k-factors$ approximation from lower to higher order,  or using the grid technique when available.
   
 
 The leading order Drell-Yan~\cite{Drell:1970wh,Yamada:1981mw} cross section 
@@ -231,7 +232,7 @@ for lepton pseudorapidity and boson rapidity distributions with
 possibility to apply lepton \(p_{\perp}\) cuts.
 
 The calculated leading order cross sections are multiplied by
-NLO or NNLO K-factors provided for corresponding data distributions.
+NLO or NNLO $k-factors$ provided for corresponding data distributions.
 %%%%
 
 
@@ -350,7 +351,7 @@ requested observables.
 
 Afterwards the NLO cross sections are restored from the grids
 with providing PDFs, \(\alpha_S\), factorization and 
-renormalization scales and with QCD NNLO k-factors applied
+renormalization scales and with QCD NNLO $k-factors$ applied
 if stated.
 
 %%%%%%%%%%%
