@@ -1,3 +1,4 @@
+\RequirePackage{lineno} 
 \documentclass[11pt,twoside,a4paper]{article}
 \usepackage{graphicx,epsfig}
 \usepackage{hhline}
@@ -63,6 +64,7 @@
 \begin{abstract}
 \end{abstract}
 \tableofcontents
+\linenumbers
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
@@ -91,6 +93,9 @@
 
 \section{Program Manual}
 \input{ProgramManual}
+
+\section{User Example}
+\input{UsersExample}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliography{writeup.bib}

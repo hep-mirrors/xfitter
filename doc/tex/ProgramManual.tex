@@ -1,7 +1,7 @@
 \label{sec:man}
 %%%%%%%%%%%
 \subsection{Steering files}
-    The software behaviour is controlled by two files with steering commands.
+    The software behaviour is controlled by three files with steering commands.
     These files have predefined names:
     \begin{itemize}
       \item {\tt steering.txt}  --   controls main "stable" (un-modified during 
@@ -16,13 +16,51 @@
          as W and Z boson masses and CKM matrix parameters.
     \end{itemize}
 %%%%%%%%%%%
-\subsubsection{Options for DIS fits}
+
+Different options are activated via steering flags in the main steering file.
+%and the default steering file is displayed in figure  \ref{fig:steering}.
+
+
+ 
+   The format of the steering file follows standard "namelist" conventions.
+ Comments start with exclamation mark (similarly used for data file format).
+The following namelist blocks are encountered:
+\begin{itemize}
+\item  {\tt InFiles}: Namelist to control input data
+\item  {\tt InCorr}: Namelist to control statistical correlation files
+\item  {\tt Scales} (Optional): Namelist to modify renormalisation/factorisation scale
+\item  {\tt HeraFitter}: Main steering cards. Further details can be found in the appendix \ref{sec:herafitter}. 
+\item  {\tt ExtraMinimisationParameters}:  Namelist to add extra to minuit parameters.
+\item  {\tt Output}: Namelist that outputs steering cards 
+\item  {\tt Cuts}: Namelist for process dependent cuts
+\item  {\tt MCErrors} (Optional):Namelist for MC errors steering cards
+\item  {\tt Cheb} (Optional): Chebyshev study namelist
+\item  {\tt Poly} (Optional): pure polynomial parameterisation for valence quarks
+\item  {\tt HQScale} (Optional): choose the factorisation scale for HQs
+\item  {\tt lhapdf} (Optional):LHAPDF sttering card
+\item  {\tt reweighting} (Optional): reweighting steering cards
+\end{itemize}
+
+These namelist blocks are described in greater details in the User's example \ref{section:example}. 
+
+The specific input files are stored in the {\tt $input\_steerings$} directory and 
+it contains the following ready to use inputs (with corresponding minuit files):
+
+\begin{itemize}
+\item  {\tt steering.txt.ALLdata}: all data files 
+\item  {\tt steering.txt.DIFFRACTION}: diffraction specific settings 
+\item  {\tt steering.txt.kt-factorisation}: kt factorisation specific settings
+\item  {\tt steering.txt.dipole}: dipole model specific settings  
+\end{itemize}
+
+
+%\subsubsection{Options for DIS fits}
 %%%%
-\subsubsection{Options for Jets}
+%\subsubsection{Options for Jets}
 %%%%
-\subsubsection{Options for Diffractive fits}
+%\subsubsection{Options for Diffractive fits}
 %%%%
-\subsubsection{Options for DY fits}
+%\subsubsection{Options for DY fits}
 %%%%%%%%%%%
 \subsection{Data file format}
 \label{sec:dataformat}
@@ -618,42 +656,4 @@ collect results and calculate final results\\
   or later.
 %%%%%%%%%%%
 \subsection{{\tt Minuit} steering cards}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{User Examples}
-%%%%
-Two examples are available in \fitter\ for benchmarking purposes.
-First example describes the default fit with HERA DIS inclusive data,
-second is a fit where all available data in \fitter\ are fitted simultaniously.
-
-\subsection{DIS inclusive only}
-By default in \fitter\ steering files ({\tt steering.txt} and {\tt minuit.in.txt})
-are set to fit the DIS inclusive cross section data. For this fit no any additional
-configuration options are required.
-The result of this example fit obtained by user (total and partial $\chi2$, systematic shifts, 
-data to theory comparison and histograms, see section 8.4 "Understanding the output" for more details) 
-can be compared to result provided for benchmarking in "examples".
-
-%%%%
-\subsection{All processes}
-In order to run the second example with all data, the corresponding
-{\tt steering.txt} from "input\_steering" has to be copied to the main directory:
-
-\goodbreak                 
-cp input-steering/steering.txt.ALLdata steering.txt
-\\ \\
-User must make sure that all data sets given in {\tt steering.txt.ALLdata} 
-have been downloaded from the svn (\textcolor{red}{ ???}) before running this example. 
-\\
-Since the included sets contain various $ep$, $pp$, $p \overline p$ and fix target
-data, it is neccesary to have \fitter\ configured with applgrid, hathor and 
-lhapdf options (corresponding library linking as explained in section 2 is
-required before configuration): 
-\goodbreak
-./configure --enable-applgrid --enable-lhapdf --enable-hathor
-\\ \\
-It is recomended to do "make clean" before each configuration. \\        
-As in previous case, the fit result can be compared to the one provided in "examples".
-
-
 
