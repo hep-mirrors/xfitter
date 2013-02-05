@@ -13,17 +13,24 @@ AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_RANLIB
 
-AC_ARG_ENABLE(openmp,
-                  [AS_HELP_STRING([--enable-openmp], [use OpenMP if available
-                   [default=no]])],
-                       [enable_openmp=$enableval]
-                         )
+# openmp suport
+m4_include([m4/ax_openmp.m4])
+
+AC_ARG_ENABLE([openmp],
+                 [AS_HELP_STRING([--enable-openmp],[enable 
+                  openmp support])])
 : ${enable_openmp=no} 
-AC_LANG_PUSH([Fortran])
-AC_OPENMP
-AC_LANG_POP
-AC_OPENMP
-AM_CONDITIONAL(ENABLE_OPENMP, [test $OPENMP_CFLAGS])
+
+AS_IF([test "$enable_openmp" = "yes"], [
+    AX_OPENMP([AM_CONDITIONAL(ENABLE_OPENMP,true)],
+    [AM_CONDITIONAL(ENABLE_OPENMP,false)])
+],[
+AM_CONDITIONAL(ENABLE_OPENMP, test true = false)
+])
+AC_SUBST(OPENMP_CFLAGS)
+dnl OpenMP checker only defines for C when compiling both C and C++
+OPENMP_CXXFLAGS=$OPENMP_CFLAGS
+AC_SUBST(OPENMP_CXXFLAGS)
 
 # Fortran configures
 AC_FC_LIBRARY_LDFLAGS
