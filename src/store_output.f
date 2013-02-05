@@ -531,13 +531,13 @@ C----------------------------------------------------
 C      write(90,*)ndatasets
 
 
-      do i=1,ndatasets
+
 
         write(90,*) '!* '
         write(90,*) '!* Swimming set from HERAFITTER for the HERAverager'
         write(90,*) '&Data'
         write(90,*) '  Name = ''Swimming'' '
-        write(90,*) '  NData = ',NDATAPOINTS(i)
+        write(90,*) '  NData = ',NPOINTS
         write(90,*) '  NColumn = 4'
         write(90,*) '  ColumnType = 3*''Bin'',''Sigma'' '
         write(90,*) '  ColumnName = ''x'', ''Q2'', ''y '',' //
@@ -547,6 +547,8 @@ C      write(90,*)ndatasets
         write(90,*) '  Reaction = ''NC e+-p'' '
         write(90,*) '                                                    '
         write(90,*) '&END'
+
+      do i=1,ndatasets
 
           do j=1,NDATAPOINTS(i)
              index = DATASETIDX(i,j)
