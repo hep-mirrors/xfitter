@@ -140,13 +140,18 @@ C     check if we have to divide APPLGRID prediction to convert units to data un
 C Normalize if the field 'Normalised' takes place in the dataset
       if (idxNorm.gt.0) then
             CSpred_tot = 0
-C Calculate sum:
+C     Calculate the bin size:
+         idxBinEta1 = GetBinIndex(IDataSet,'y1')
+         idxBinEta2 = GetBinIndex(IDataSet,'y2')
+C     Calculate the total Xsec:
          do i=1,NDATAPOINTS(IDataSet)
-            CSpred_tot = CSpred_tot + XSec(i) / TheoryUnit
+            idx =  DATASETIDX(IDataSet,i)
+            BinSize = AbstractBins(idxBinEta2,idx)-AbstractBins(idxBinEta1,idx)
+            CSpred_tot = CSpred_tot + (XSec(i)*BinSize / TheoryUnit)
          enddo
        endif
 
-                                
+
 C     perhaps we need to multiply prediction by EW or NNLO or both k-factors
 
       nkfact = DATASETNKfactors(IDataSet)
@@ -160,7 +165,7 @@ C     Bin Size
      $           (XSecPlus(i)-XSecMinus(i))/(XSecPlus(i)+XSecMinus(i))
 C          print*,'prediction for theory: ', THEO(idx),'--- index: ',i                                            
          else if(idxNorm.gt.0) then
-           THEO(idx) = XSec(i) / TheoryUnit /CSpred_tot
+           THEO(idx) = XSec(i) / (TheoryUnit *CSpred_tot)
          else
            THEO(idx) = XSec(i) / TheoryUnit     
          endif
