@@ -79,8 +79,8 @@ Int_t Painter::Draw() {
 	break;
       }
     } 
-    DrawDataSet(dataset, datasetref, kFALSE);
-    DrawDataSet(dataset, datasetref, kTRUE);
+    DrawDataSet(dataset, datasetref, kFALSE, fColor);
+    DrawDataSet(dataset, datasetref, kTRUE, fColor);
   }
   for (Int_t iref=0; iref<NRefDataSets; iref++) {
     if(!RefSetsDrawn[iref])
@@ -559,295 +559,49 @@ void Painter::ScaleGraph2ToGraph1(TGraph* graph1, TGraph* graph2, TLine*& line, 
   axis->SetTextAngle(180.); 
 }
 
-
-TCanvas* Painter::PrepareDataSetCanvas(DataSet* dataset, DataSet* datasetref, TObjArray* TrashBin, Double_t& MarkerSize, Bool_t Ratio) {
-
-  if(dataset->GetNGraphs()==0) return NULL;
-
-  TCanvas* can = new TCanvas;
-
-  Int_t SetId = dataset->GetSetId();
-  if(SetId==61 || SetId==62 || SetId==63 || SetId==64 || SetId==35) { // Painting for all the supported SetIds
-
-
-    
-    Double_t YMaximum = 0.; // axis borders
-    Double_t YMinimum = 0.;
-    Double_t XMinimum = 0.;
-    Double_t XMaximum = 1.;
-
-    Double_t ALabelSize = 0.06;  // size of the axis' label
-    Bool_t Logx = kFALSE;
-    Bool_t Logy = kFALSE;
-
-    Double_t LabelSize = 1.;  // size of the graph label text
-    Double_t Chi2Size = 1.;   // size of the chi2 text
-
-    can->SetTopMargin(0.3);
-    switch(SetId) { // Canvas definition for supported SetIds
-
-    case 61: 
-      can->Divide(4,5,0.); 
-      XMinimum = 0.001;   
-      XMaximum = 1.; 
-      YMaximum = 1.99; 
-      YMinimum = 0.0001; 
-      MarkerSize = 0.005; 
-      ALabelSize = 0.06; 
-      Chi2Size = 1.; 
-      LabelSize = .6; 
-      Logx = kTRUE;
-      Logy = kFALSE;
-      break;
-    case 62: 
-      can->Divide(6,6,0.); 
-      XMinimum = 0.00003; 
-      XMaximum = 1.; 
-      YMaximum = 1.59; 
-      YMinimum = 0.0001; 
-      MarkerSize = 0.005; 
-      ALabelSize = 0.06; 
-      Chi2Size = 1.; 
-      LabelSize = .6; 
-      Logx = kTRUE;
-      Logy = kFALSE;
-      break;
-    case 63: 
-      can->Divide(3,4,0.); 
-      XMinimum = 0.002;   
-      XMaximum = 1.; 
-      YMaximum = 0.99; 
-      YMinimum = 0.0001; 
-      MarkerSize = 0.5;   
-      ALabelSize = 0.08; 
-      Chi2Size = 1.; 
-      LabelSize = .6; 
-      Logx = kTRUE;
-      Logy = kFALSE;
-      break;
-    case 64: 
-      can->Divide(3,3,0.); 
-      XMinimum = 0.002;   
-      XMaximum = 1.; 
-      YMaximum = 1.99; 
-      YMinimum = 0.0001; 
-      MarkerSize = 0.5;   
-      ALabelSize = 0.08; 
-      Chi2Size = 1.; 
-      LabelSize = .6; 
-      Logx = kTRUE;
-      Logy = kFALSE;
-      break;
-    case 35: 
-      can->Divide(3,2,0.); 
-      XMinimum = 5.;      
-      XMaximum = 50.;
-      YMaximum = 990.;  
-      YMinimum = 0.15;     
-      MarkerSize = 0.5;   
-      ALabelSize = 0.05; 
-      Chi2Size = .6; 
-      LabelSize = 0.4; 
-      Logx = kTRUE;
-      Logy = kTRUE;
-      break;
-    }
-    
-    for(Int_t i=0; i<dataset->GetNGraphs(); i++) {
-
-      Double_t chi2offx = 0.;
-      Double_t chi2offy = 0.;
-      
-      // Additional plotting changes for supported SetIds
-
-      if(SetId==61 && i%4==0) chi2offx = 0.1;
-      if(SetId==61 && i>15)   chi2offy = 0.08;
-
-
-      if(SetId==62) chi2offx = 0.1;
-      if(SetId==62 && i%6==0) chi2offx += 0.1;
-      if(SetId==62 && i>29)   chi2offy = 0.08;
-
-      if(SetId==63) {chi2offy = -0.05; chi2offx = -0.05;}
-      if(SetId==63 && i<3) {chi2offy += 0.4; chi2offx += 0.5;}
-      if(SetId==63 && i==0) {chi2offy += 0.0; chi2offx += -0.1;}
-      if(SetId==63 && i%3==0) chi2offx += 0.1;
-      if(SetId==63 && i>8)   chi2offy += 0.08;
-
-      if(SetId==64) {chi2offy = -0.00; chi2offx = 0.02;}
-      if(SetId==64 && i==0) {chi2offy = 0.0; chi2offx = -0.08;}
-      if(SetId==64 && i<3) {chi2offy += 0.4; chi2offx += 0.4;}
-      if(SetId==64 && i%3==0) chi2offx += 0.08;
-      if(SetId==64 && i>5)   {chi2offy += 0.05; chi2offx += 0.05;}
-
-
-      if(SetId==63 && i>2) YMaximum = 0.299;
-      if(SetId==63 && i>5) {YMaximum = 0.0399;; YMinimum = 0.000001;}
-      if(SetId==63 && i>8) {YMaximum = 0.000499; YMinimum = 0.000001;}
-
-      if(SetId==64 && i>2) YMaximum = 0.1199;
-      if(SetId==64 && i>5) YMaximum = 0.01599;
-
-
-      if(SetId==35 && i>2)    LabelSize = 0.35;
-      if(SetId==35 && i%3==0) chi2offx += 0.08;
-       
-
-      if(Ratio) {YMinimum = -1.; YMaximum = 1.; Logy = kFALSE;}
-      
-      TH1F* h = new TH1F("","",1, XMinimum, XMaximum); TrashBin->AddLast(h);
-      h->SetMinimum(YMinimum);
-      h->SetMaximum(YMaximum);
-      h->SetStats(kFALSE);
-      h->GetYaxis()->SetLabelSize(ALabelSize);
-      h->GetXaxis()->SetLabelSize(ALabelSize);
-
-
-      TObjString* lstring = dataset->GetLabel(i);
-      TPaveLabel* label = new TPaveLabel(0.4, 0.7, 0.9, 0.9,"null","NDC"); TrashBin->AddLast(label);
-      if(lstring)	label->SetLabel(lstring->GetString().Data());
-      label->SetFillColor(kWhite);
-      label->SetBorderSize(0);
-      label->SetTextSize(LabelSize);
-
-      Double_t Chi2 = dataset->GetChi2(i);
-      Int_t Npoints = dataset->GetNpts(i);
-
-      TPaveLabel* labelchi2 = new TPaveLabel(0.25+chi2offx, 0.1+chi2offy, 0.3+chi2offx, 0.2+chi2offy,"","NDC"); 
-      TrashBin->AddLast(labelchi2);
-      TString* temp = new TString; temp->Form("#chi^{2} / npts = %.1f / %d", Chi2, Npoints);
-      labelchi2->SetLabel(temp->Data());
-      delete temp;
-      labelchi2->SetFillColor(kWhite);
-      labelchi2->SetBorderSize(0);
-      labelchi2->SetTextSize(Chi2Size);
-      labelchi2->SetTextColor(fColor);
-
-      TPaveLabel* labelchi2ref = NULL;
-      if(datasetref) {
-	if(SetId==63 && i < 3) chi2offy += 0.03;
-	Chi2 = datasetref->GetChi2(i);
-	Npoints = datasetref->GetNpts(i);
-	labelchi2ref = new TPaveLabel(0.25+chi2offx, 0.2+chi2offy, 0.3+chi2offx, 0.3+chi2offy,"","NDC"); 
-	TrashBin->AddLast(labelchi2ref);
-	TString* temp = new TString; temp->Form("#chi^{2} / npts = %.1f / %d", Chi2, Npoints);
-	labelchi2ref->SetLabel(temp->Data());
-	delete temp;
-	labelchi2ref->SetFillColor(kWhite);
-	labelchi2ref->SetBorderSize(0);
-	labelchi2ref->SetTextSize(Chi2Size);
-	labelchi2ref->SetTextColor(fColorRef);
-      }
-
-      can->cd(i+1);
-      if (Logx) gPad->SetLogx();
-      if (Logy) gPad->SetLogy();
-
-      h->Draw();
-      label->Draw();
-      labelchi2->Draw();
-      if(labelchi2ref) labelchi2ref->Draw();
-    }
-  }
-  else { // GENERAL
-    TH1F* h = new TH1F("","", dataset->GetNpts(0), -0.5, dataset->GetNpts(0)-0.5);
-    TrashBin->AddLast(h); 
-    TGraphErrors* gDUnc = dataset->GetDataUncr(0);
-    h->SetMaximum(gDUnc->GetHistogram()->GetMaximum()*1.1);
-    h->SetMinimum(dataset->GetMinimum(0));
-    if(Ratio) {h->SetMinimum(-1.); h->SetMaximum(1.);}
-    h->SetStats(kFALSE);
-    h->GetXaxis()->SetLabelSize(0.03);
-    dataset->FillLabels(h);
-    
-    if(!Ratio) can->SetLogy();
-    h->Draw();
-    
-    Double_t Chi2 = dataset->GetChi2(0);
-    Int_t Npoints = dataset->GetNpts(0);
-    
-    TPaveLabel* labelchi2 = new TPaveLabel(0.25, 0.15, 0.3, 0.2,"","NDC"); 
-    TrashBin->AddLast(labelchi2);
-    TString* temp = new TString; temp->Form("#chi^{2} / npts = %.1f / %d", Chi2, Npoints);
-    labelchi2->SetLabel(temp->Data());
-    delete temp;
-    labelchi2->SetFillColor(kWhite);
-    labelchi2->SetBorderSize(0);
-    labelchi2->SetTextSize(1.0);
-    //labelchi2->SetTextColor(color);
-    
-    TPaveLabel* labelchi2ref = NULL;
-    if(datasetref) {
-      Chi2 = datasetref->GetChi2(0);
-      Npoints = Npoints = datasetref->GetNpts(0);
-      labelchi2ref = new TPaveLabel(0.25, 0.3, 0.3, 0.4,"","NDC"); 
-      TrashBin->AddLast(labelchi2ref);
-      TString* temp = new TString; temp->Form("#chi^{2} / npts = %.1f / %d", Chi2, Npoints);
-      labelchi2ref->SetLabel(temp->Data());
-      delete temp;
-      labelchi2ref->SetFillColor(kWhite);
-      labelchi2ref->SetBorderSize(0);
-      labelchi2ref->SetTextSize(0.5);
-      labelchi2ref->SetTextColor(fColorRef);
-    }
-
-    labelchi2->Draw();
-    if(labelchi2ref) labelchi2ref->Draw();
-  }
-
-  can->cd(0);
-  TPaveLabel* Title = new TPaveLabel(0.0, 0.97, 0.6, 1.0, dataset->GetName(), "NDC");
-  TrashBin->AddLast(Title);
-  Title->SetFillColor(kWhite); Title->SetBorderSize(0);
-  Title->Draw();
-  
-  TLegend* leg = new TLegend(0.6, 0.95, 0.9, 1.0, "","NDC");
-  TString* temp = new TString;
-  TrashBin->AddLast(leg);
-  leg->SetBorderSize(0); leg->SetFillColor(kWhite);
-
-  if(datasetref) leg->SetNColumns(2); 
-
-  leg->AddEntry(dataset->GetTheory(0), fOutput->GetName()->Data(),"L");
-  if(datasetref) leg->AddEntry(datasetref->GetTheory(0), fOutputRef->GetName()->Data(),"L");
-
-  temp->Form("%s (mod.)", fOutput->GetName()->Data());
-  leg->AddEntry(dataset->GetTheory_Mod(0), temp->Data(),"L");
-  if(datasetref) {
-    temp->Form("%s (mod.)", fOutputRef->GetName()->Data());
-    leg->AddEntry(datasetref->GetTheory_Mod(0), temp->Data(),"L");
-  }
-  leg->Draw();
-
-  delete temp;
-  return can;
-}
-
-
 Int_t Painter::DrawDataSet(DataSet* dataset, DataSet* datasetref, Bool_t RatioToData, EColor color) {
 
-  if(dataset->GetNGraphs()==0) return 1;
+  int N = dataset->GetNSubPlots();
+
+  TCanvas* can = new TCanvas;
+  double MarkerSize;
   
-  TObjArray* TrashBin = new TObjArray; TrashBin->SetOwner();
-  Double_t MarkerSize = 0.005; // size of the data point marker
-  TCanvas* can = PrepareDataSetCanvas(dataset, datasetref, TrashBin, MarkerSize, RatioToData);
-  
-  TGraphErrors* gDUnc;
-  TGraphErrors* gDTot;
-  TGraphErrors* gTheo;
-  TGraphErrors* gTheoRef = NULL;
-  TGraphErrors* gTheo_Mod;
-  TGraphErrors* gTheoRef_Mod = NULL;
-  
-  for(Int_t i=0; i<dataset->GetNGraphs(); i++) {
-    gDUnc = dataset->GetDataUncr(i);
-    gDTot = dataset->GetDataTotal(i);
-    gTheo = dataset->GetTheory(i);
-    gTheo_Mod = dataset->GetTheory_Mod(i);
+  if(N<=0) return 1;
+  else if (N==1) {                  MarkerSize = 0.3; }
+  else if(N==2)  {can->Divide(1,2); MarkerSize = 0.3; }
+  else if(N<=4)  {can->Divide(2,2); MarkerSize = 0.3; }
+  else if(N<=6)  {can->Divide(2,3); MarkerSize = 0.3; }
+  else if(N<=9)  {can->Divide(3,3); MarkerSize = 0.3; }
+  else if(N<=12) {can->Divide(3,4); MarkerSize = 0.3; }
+  else if(N<=16) {can->Divide(4,4); MarkerSize = 0.3; }
+  else if(N<=20) {can->Divide(4,5); MarkerSize = 0.3; }
+  else if(N<=25) {can->Divide(5,5); MarkerSize = 0.3; }
+  else {
+    cout << "DrawDataSet does not support drawing more than 25 plots per dataset" <<endl; 
+    delete can;
+    return 1;
+  }
+
+  for(int i=0; i<N; i++) {
+    can->cd(i+1);
+    TH1F* h = dataset->GetHistogram(i,RatioToData);
+    h->Draw();
+    TGraphErrors* gDUnc = dataset->GetDataUnc(i);
+    TGraphErrors* gDTot = dataset->GetDataTot(i);
+    TGraphErrors* gTheo = dataset->GetTheo(i);
+    TGraphErrors* gTMod = dataset->GetTMod(i);
+
+    TGraphErrors* gDUncR = NULL;
+    TGraphErrors* gDTotR = NULL;
+    TGraphErrors* gTheoR = NULL;
+    TGraphErrors* gTModR = NULL;
+    
     if(datasetref) {
-      gTheoRef= datasetref->GetTheory(i);
-      gTheoRef_Mod= datasetref->GetTheory_Mod(i);
-    }
+      gDUncR = datasetref->GetDataUnc(i);
+      gDTotR = datasetref->GetDataTot(i);
+      gTheoR = datasetref->GetTheo(i);
+      gTModR = datasetref->GetTMod(i);
+    }    
 
     if(RatioToData) {
       for(int j=0; j<gDUnc->GetN(); j++) {
@@ -855,52 +609,81 @@ Int_t Painter::DrawDataSet(DataSet* dataset, DataSet* datasetref, Bool_t RatioTo
 	gDTot->GetY()[j] /=  div;
 	gDTot->GetEY()[j] /=  div;
 	gTheo->GetY()[j] /=  div;
-	gTheo_Mod->GetY()[j] /=  div;
+	gTMod->GetY()[j] /=  div;
 	gDUnc->GetEY()[j] /= div;
 	gDUnc->GetY()[j] /=  div;
 	gDTot->GetY()[j] -= 1.;
 	gTheo->GetY()[j] -= 1.;
-	gTheo_Mod->GetY()[j] -= 1.;
+	gTMod->GetY()[j] -= 1.;
 	gDUnc->GetY()[j] -= 1.;
-	if (gTheoRef) {
-	  gTheoRef->GetY()[j] /=  div;
-	  gTheoRef_Mod->GetY()[j] /=  div;
-	  gTheoRef->GetY()[j] -=  1.;
-	  gTheoRef_Mod->GetY()[j] -=  1.;
-        }
+
+	if(datasetref) {
+	  div = gDUncR->GetY()[j];
+	  gDTotR->GetY()[j] /=  div;
+	  gDTotR->GetEY()[j] /=  div;
+	  gTheoR->GetY()[j] /=  div;
+	  gTModR->GetY()[j] /=  div;
+	  gDUncR->GetEY()[j] /= div;
+	  gDUncR->GetY()[j] /=  div;
+	  gDTotR->GetY()[j] -= 1.;
+	  gTheoR->GetY()[j] -= 1.;
+	  gTModR->GetY()[j] -= 1.;
+	  gDUncR->GetY()[j] -= 1.;
+	}
       }
     }
-      
-    gDUnc->SetTitle("");
+
+    if(dataset->GetXlog(i)) gPad->SetLogx();
+    if(dataset->GetYlog(i)) gPad->SetLogy();
+
     gDUnc->SetMarkerStyle(20);
     gDUnc->SetMarkerSize(MarkerSize);
-    
     gTheo->SetLineColor(color);
-    gTheo_Mod->SetLineColor(color);
-    gTheo_Mod->SetLineStyle(3);
-    if(gTheoRef) {
-      gTheoRef->SetLineColor(fColorRef);
-      gTheoRef_Mod->SetLineColor(fColorRef);
-      gTheoRef_Mod->SetLineStyle(3);
-    }
-    
-    can->cd(i+1);
+    gTMod->SetLineColor(color);
+    gTMod->SetLineStyle(3);
+
     gDUnc->Draw("same P");
     gDTot->Draw("same P");
     gTheo->Draw("same L");
-    gTheo_Mod->Draw("same L");
-    if(gTheoRef)     {
-      gTheoRef->Draw("same L");
-      gTheoRef_Mod->Draw("same L");
+    gTMod->Draw("same L");
+
+    if(datasetref) {
+      gTheoR->SetLineColor(fColorRef);
+      gTModR->SetLineColor(fColorRef);
+      gTModR->SetLineStyle(3);
+      gTheoR->Draw("same L");
+      gTModR->Draw("same L");
     }
-    //label->Draw();
-    //labelchi2->Draw();
-    //if(labelchi2ref) labelchi2ref->Draw();
   }
+
+  TPaveLabel label(0.0, 0.985, 0.5, 1.0, dataset->GetName(),"NDC");
+  //cout << dataset->GetName() << endl;
+  label.SetFillColor(kWhite);
+  label.SetBorderSize(0);
+  can->cd(0);
+  label.Draw();
+
+  TLegend leg(0.5, 0.95, 1.0, 1.0, "","NDC");
+  TString* temp = new TString;
+  leg.SetBorderSize(0); 
+  leg.SetFillColor(kWhite);
+  if(datasetref) leg.SetNColumns(2); 
+
+  leg.AddEntry(dataset->GetTheo(0), fOutput->GetName()->Data(),"L");
+  if(datasetref) 
+    leg.AddEntry(datasetref->GetTheo(0), fOutputRef->GetName()->Data(),"L");
+
+  temp->Form("%s (modified)", fOutput->GetName()->Data());
+  leg.AddEntry(dataset->GetTMod(0), temp->Data(),"L");
+  if(datasetref) {
+    temp->Form("%s (modfied)", fOutputRef->GetName()->Data());
+    leg.AddEntry(datasetref->GetTMod(0), temp->Data(),"L");
+  }
+  leg.Draw();
+
   
-  PrintCanvas(can);    
-  delete can;
-  delete TrashBin;
+  PrintCanvas(can);
+  delete can; delete temp;
 }
 
 

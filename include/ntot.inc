@@ -21,5 +21,5 @@ C
       integer NBinDimensionMax   !> MAx. number of abstract bins
       parameter (NBinDimensionMax=10)      
 
-
-      
+      integer NPlotMax   !> Max. number of plots to be prepared
+      parameter (NPlotMax = 500)

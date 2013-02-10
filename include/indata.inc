@@ -13,6 +13,8 @@ C
       double precision E_STA_CONST(NTOT) !> Stat. errors which are to be kept constant
       integer JSET(NTOT)             !> Reference to dataset index
 
+C !> New global definitions to transfer plot information to output
+      integer JPLOT(NTOT)            !> Reference to plot number
 
 C !> New definition of stat. and uncor uncertainties:
       double precision e_stat_poisson(NTOT)  
@@ -35,7 +37,7 @@ C SG: index of theory bin, if needed
 
       common/indata2/
      + DATEN,E_UNC,E_TOT, E_STA, E_STA_CONST, E_UNC_Const,
-     + JSET,IndexTheoryBin
+     + JSET,IndexTheoryBin,JPLOT
 
       common/CAbstractBins/AbstractBins,KFactors
 

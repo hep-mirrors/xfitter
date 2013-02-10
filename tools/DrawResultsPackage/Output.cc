@@ -376,175 +376,6 @@ Int_t Output::PreparePdf(bool DrawBand) {
 
   }
   
-  
-  /*
-  Double_t x, gluon, U, D, d_Ubar, d_Dbar, umin, dmin, sea, u_sea, d_sea, str, chm, bot;
-  TString* filename = new TString;
-  for(Int_t iq2=0; iq2<1; iq2++) {
-    filename->Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
-    ifstream infile(filename->Data());
-    if(!infile.is_open()) break;
-
-    
-    // Read Q2 value
-    Int_t nx;
-    Double_t xmin,xmax;
-    infile >> fQ2Value[iq2] >> nx >> xmin >> xmax;
-    
-    fNQ2Files++;
-
-    fNpoints = nx;
-
-    Double_t * eUp = NULL;
-    Double_t * eDn = NULL;
-    Double_t * Cent = NULL;
-    Double_t * erUp = NULL;
-    Double_t * erDn = NULL;
-
-    if (nBand == 0) {
-      for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++)
-	((TObjArray*) fPdfs[ipdf])->AddLast(new TGraph(fNpoints));
-    }
-    else {
-      eUp  = new Double_t [ nx*NColumn*nBand];
-      eDn  = new Double_t [ nx*NColumn*nBand];
-
-      Cent = new Double_t [ nx*NColumn];
-      erUp = new Double_t [ nx*NColumn];
-      erDn = new Double_t [ nx*NColumn];
-      
-      Double_t tmp;
-      Int_t itmp;
-
-      // Read the central
-      filename->Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
-      ifstream infile_c(filename->Data());
-      infile_c >> tmp >> itmp >> tmp >> tmp;
-      
-      for ( Int_t ix=0; ix<nx; ix++) {
-	for ( Int_t ipdf=0; ipdf < NColumn; ipdf++ ) {
-	  Int_t iref = ipdf+ix*NColumn;
-	  infile_c >> Cent[iref];
-	}
-	// Prepare Uv and Dv
-	Int_t irefUv = 6 + ix*NColumn;
-	Int_t irefDv = 7 + ix*NColumn;
-	
-	Int_t irefusea = 9 + ix*NColumn;
-	Int_t irefdsea = 10 + ix*NColumn;
-	
-	Int_t irefchr  = 12 + ix*NColumn;
-	Int_t irefbot  = 13 + ix*NColumn;
-	Cent[irefUv] = Cent[irefUv] - Cent[irefusea] - Cent[irefchr];
-	Cent[irefDv] = Cent[irefDv] - Cent[irefdsea] - Cent[irefbot];
-      }
-      
-      for(Int_t ipdf = 0; ipdf < fNpdfs; ipdf++) {
-	((TObjArray*) fPdfs[ipdf])->AddLast(new TGraphAsymmErrors(fNpoints));
-	// Read the bands
-
-	
-
-	for (Int_t iband=0; iband<nBand; iband++) {
-	    filename->Form("%s/pdfs_q2val_s%02dm_%02d.txt",fDirectory->Data(), iband+1, iq2+1);
-	    ifstream infile_m(filename->Data());
-	    infile_m >> tmp >> itmp >> tmp >> tmp;
-
-	    filename->Form("%s/pdfs_q2val_s%02dp_%02d.txt",fDirectory->Data(), iband+1, iq2+1);
-	    ifstream infile_p(filename->Data());
-	    infile_p >> tmp >> itmp >> tmp >> tmp;
-
-	    for ( Int_t ix=0; ix<nx; ix++) {
-	      for ( Int_t ipdf=0; ipdf < NColumn; ipdf++ ) {
-		Int_t iref = ipdf+ix*NColumn+(NColumn*nx)*iband;
-		infile_m >> eDn[iref];
-		infile_p >> eUp[iref];
-	      }
-	    }
-
-
-	    for ( Int_t ix=0; ix<nx; ix++) {
-	      Int_t irefUv = 6 + ix*NColumn +(NColumn*nx)*iband;
-	      Int_t irefDv = 7 + ix*NColumn +(NColumn*nx)*iband;
-
-	      Int_t irefusea = 9 + ix*NColumn +(NColumn*nx)*iband;
-	      Int_t irefdsea = 10 + ix*NColumn +(NColumn*nx)*iband;
-
-	      Int_t irefchr  = 12 + ix*NColumn +(NColumn*nx)*iband;
-	      Int_t irefbot  = 13 + ix*NColumn +(NColumn*nx)*iband;
-
-	      eDn[irefUv] = eDn[irefUv] - eDn[irefusea] - eDn[irefchr];
-	      eDn[irefDv] = eDn[irefDv] - eDn[irefdsea] - eDn[irefbot];
-
-	      eUp[irefUv] = eUp[irefUv] - eUp[irefusea] - eUp[irefchr];
-	      eUp[irefDv] = eUp[irefDv] - eUp[irefdsea] - eUp[irefbot];
-
-	    }
-
-	  }       
-      }
-      // Calculate the errors:
-      for (Int_t ipdf=0; ipdf<NColumn; ipdf++) {
-	for (Int_t ix=0; ix<nx; ix++) {
-	  Double_t Dn = 0.;
-	  Double_t Up = 0.;
-	  Double_t cv = Cent[ipdf+ix*NColumn];
-
-	  for (Int_t iband=0; iband<nBand; iband++) {
-	    Int_t iref = ipdf+ix*NColumn+(NColumn*nx)*iband;
-
-	    Double_t d1 = eDn[iref] - cv;
-	    Double_t d2 = eUp[iref] - cv;
-	    Double_t d = d1>d2 ?  d1 : d2;
-	    if (d>0) {
-	      Up += d*d;
-	    }
-
-	    d1 = cv - eDn[iref];
-	    d2 = cv - eUp[iref];
-	    d = d1>d2 ?  d1 : d2;
-	    if (d>0) {
-	      Dn += d*d;
-	    }
-	  }
-	  erUp[ipdf+ix*NColumn] = sqrt(Up);
-	  erDn[ipdf+ix*NColumn] = sqrt(Dn);
-	}
-      }
-    }
-
-
-    for (Int_t i = 0; i < fNpoints; i++){
-      infile >> x >> gluon >> U >> D >> d_Ubar >> d_Dbar >> umin >> dmin >> sea >> u_sea >> d_sea >> str >> chm >> bot;
-      SetPdfPoint((Int_t)kGluon, iq2, i, x, gluon);
-      SetPdfPoint((Int_t)kU    , iq2, i, x, U);
-      SetPdfPoint((Int_t)kD    , iq2, i, x, D);
-      SetPdfPoint((Int_t)kUv   , iq2, i, x, U - u_sea - chm);
-      SetPdfPoint((Int_t)kDv   , iq2, i, x, D - d_sea - str - bot);
-      SetPdfPoint((Int_t)kUb   , iq2, i, x, d_Ubar);
-      SetPdfPoint((Int_t)kDb   , iq2, i, x, d_Dbar);
-      SetPdfPoint((Int_t)kSea  , iq2, i, x, sea);
-      SetPdfPoint((Int_t)kS    , iq2, i, x, str);
-      SetPdfPoint((Int_t)kC    , iq2, i, x, chm);
-      SetPdfPoint((Int_t)kB    , iq2, i, x, bot);
-
-      if (nBand>0) {
-	Int_t iref = i*NColumn;
-	SetPdfError((Int_t)kGluon, iq2, i, x, erUp[iref+1],erDn[iref+1]);
-	SetPdfError((Int_t)kU    , iq2, i, x, erUp[iref+2],erDn[iref+2]);
-	SetPdfError((Int_t)kD    , iq2, i, x, erUp[iref+3],erDn[iref+3]);
-	SetPdfError((Int_t)kUv   , iq2, i, x, erUp[iref+6],erDn[iref+6]);
-	SetPdfError((Int_t)kDv   , iq2, i, x, erUp[iref+7],erDn[iref+7]);
-	SetPdfError((Int_t)kUb   , iq2, i, x, erUp[iref+4],erDn[iref+4]);
-	SetPdfError((Int_t)kDb   , iq2, i, x, erUp[iref+5],erDn[iref+5]);
-	SetPdfError((Int_t)kSea  , iq2, i, x, erUp[iref+8],erDn[iref+1]);
-	SetPdfError((Int_t)kS    , iq2, i, x, erUp[iref+11],erDn[iref+11]);
-	SetPdfError((Int_t)kC    , iq2, i, x, erUp[iref+12],erDn[iref+12]);
-	SetPdfError((Int_t)kB    , iq2, i, x, erUp[iref+13],erDn[iref+13]);
-      }
-    }
-  }  delete filename;
-  */
 }
 
 
@@ -575,76 +406,82 @@ void Output::SetPdfError(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double
 
 
 Int_t Output::PrepareDataSets() {
+  const int BUFFERSIZE = 512;
 
   TString* filename = new TString;
   filename->Form("%s/fittedresults.txt",fDirectory->Data());
 
-  Double_t v1, v2, v3, data, uncorrerr, toterr, theory, theory_mod,pull;
+  //Double_t v1, v2, v3, data, uncorrerr, toterr, theory, theory_mod,pull;
   Int_t dataset;
-  Char_t buffer[120];
-  TString V1, V2, V3, str, Name;
+  Char_t buffer[BUFFERSIZE];
+  TString str, Name;
+  double data, uncorrerr, toterr, theory, theory_mod;
+
 
   ifstream infile(filename->Data());
   if(!infile.is_open()) { cout << "Output::PrepareDataSets: can not open file %s" << filename->Data()<<endl; return 1;}
-  infile.getline(buffer, 120);  // number of data sets
+  infile.getline(buffer, BUFFERSIZE);  // number of data sets
   str.Form(buffer); 
   fNDataSets = str.Atoi();
-  //fDataSets
-  //  fDataSets = new DataSet[fNDataSets];
 
-  infile.getline(buffer, 120);
+  infile.getline(buffer, BUFFERSIZE); // data set number
   str.Form(buffer); 
   dataset = str.Atoi();
   // v1     v2    v3    data     +- uncorr.err   +-toterr      theory  theory_mod     pull     dataset
   while(!infile.eof()) {
-    infile.getline(buffer, 120);
+    infile.getline(buffer, BUFFERSIZE);  // name of the data set
     Name.Form(buffer);
-    infile.getline(buffer, 120);
-    //    infile.getline(buffer, 120); 
-    str.Form(buffer);
-    TObjArray* array = str.Tokenize(" ");
-    if(array->GetEntries() < 3) {cout << "something is wrong in fittedresults.txt" << endl; delete array; continue;}
+
+    DataSet* NewDataSet = new DataSet(dataset, Name.Data());
+    fDataSets.push_back(NewDataSet);
+    int NUndefinedPoints = 0;
     
-    V1.Form(((TObjString*)array->At(0))->GetString().Data());
-    V2.Form(((TObjString*)array->At(1))->GetString().Data());
-    V3.Form(((TObjString*)array->At(2))->GetString().Data());
-    delete array;
 
-    DataSet* NewDataSet = NULL;
-
-    if(!NewDataSet) {
-      NewDataSet = new DataSet(dataset, Name.Data(), V1.Data(), V2.Data(), V3.Data());
-      fDataSets.push_back(NewDataSet);
+    while(!infile.eof()) {   // Plot descriptors
+      infile.getline(buffer, BUFFERSIZE);  // expecting Plot Description
+      str.Form(buffer);
+      if(!str.BeginsWith("Plot")) break;
+      NewDataSet->AddNewPlot(str.Data());
     }
 
-    while(1) {
-      infile.getline(buffer, 120);
+    while(!infile.eof()) {   // Read points
+      infile.getline(buffer, BUFFERSIZE);
       str.Form(buffer);
       TObjArray* array = str.Tokenize(" ");
-      if(array->GetEntries() == 1) {dataset = ((TObjString*)array->At(0))->GetString().Atoi(); delete array; break;}
-      if(array->GetEntries() != 10) {delete array; break;}
+      if(array->GetEntries() == 1) {  // new data set coming
+	dataset = ((TObjString*)array->At(0))->GetString().Atoi(); 
+	delete array; 
+	break;
+      }
 
-      
-      v1        = ((TObjString*)array->At(0))->GetString().Atof();
-      v2        = ((TObjString*)array->At(1))->GetString().Atof();
-      v3        = ((TObjString*)array->At(2))->GetString().Atof();
-      data      = ((TObjString*)array->At(3))->GetString().Atof();
-      uncorrerr = ((TObjString*)array->At(4))->GetString().Atof();
-      toterr    = ((TObjString*)array->At(5))->GetString().Atof();
-      theory    = ((TObjString*)array->At(6))->GetString().Atof();
-      theory_mod  = ((TObjString*)array->At(7))->GetString().Atof();
-      pull      = ((TObjString*)array->At(8))->GetString().Atof();
-      dataset   = ((TObjString*)array->At(9))->GetString().Atoi();	
+      if((array->GetEntries() == 10) ||   // old format, need to have general plotting	
+	 (array->GetEntries() == 11)) {   // new format with a plotting variable
+	
+	data      = ((TObjString*)array->At(3))->GetString().Atof();
+	uncorrerr = ((TObjString*)array->At(4))->GetString().Atof();
+	toterr    = ((TObjString*)array->At(5))->GetString().Atof();
+	theory    = ((TObjString*)array->At(6))->GetString().Atof();
+	theory_mod  = ((TObjString*)array->At(7))->GetString().Atof();
+	
+	str = "";
+	if(array->GetEntries() == 11) 
+	  if(!((TObjString*) array->At(10) )->GetString().BeginsWith("0/"))	  
+	    str = ((TObjString*) array->At(10) )->GetString();
+
+	if(str=="") {
+	  NUndefinedPoints++;
+	  str.Form("0/%d", NUndefinedPoints);   // plot number 0 means there was no new style plotting 
+	}
+	
+	NewDataSet->AddPoint( str.Data(),
+			      data, uncorrerr, toterr, theory, theory_mod);
+      }
       delete array;
-
-      // cout << "haha" << dataset << " "<< data << endl;
-
-      NewDataSet->AddPoint(v1, v2, v3, data, uncorrerr, toterr, theory, theory_mod, pull);
-
-      fPull->Fill(pull);
     }
+    
   }    
-  
+
+
   delete filename;
   return 0;
 }

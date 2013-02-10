@@ -270,32 +270,60 @@ cv       grid(1+jx)=x
       include 'systematics.inc'
       INCLUDE 'theo.inc'
       
-      integer i,j,index
+      integer i,j,index,PlotVarColIdx,PreviousPlots
+      double precision PlotVar
+
+      integer GetBinIndex
 
       open(90,file='output/fittedresults.txt')
       write(90,*)ndatasets
 
+      PreviousPlots = 0
 
       do i=1,ndatasets
          write(90,*)DATASETNUMBER(i)
-         write(90,*)DATASETLABEL(i)
+         write(90,*) DATASETLABEL(i)
+         
+         do j=1,GNPlots(i)
+            PreviousPlots = PreviousPlots + 1
+            write(90,16) 'Plot',j,'@',TRIM(GPlotOptions(PreviousPlots))
+         enddo
+ 16      format(A4,i1,A1,A)
+
 c         write(90,*) '     q2          x        y    data     +- uncorr.err'//
-c     &        '   +-toterr      theory      pull     dataset'
+c     &        '   +-toterr      theory      pull     dataset  '
 
          write (90,17) (DATASETBinNames(j,i),j=1,3),'data    '
      $        ,' +- uncor  ',' +- tot   ',' th orig   ','th mod'
-     $        , ' pull   ', 'iset'
- 17      format(1X,9(A11,1X),A4)
+     $        , ' pull   ', 'iset', 'iplot'
+ 17      format(1X,9(A11,1X),A4,A12)
 
          do j=1,NDATAPOINTS(i)
             index = DATASETIDX(i,j)
-            write(90,'(1X,9(e11.5,1X),i4)') 
+
+            PlotVarColIdx = GetBinIndex(i,TRIM(Gplotvarcol(i)))
+
+            if(PlotVarColIdx.eq.0) then
+               if(Gplotvarcol(i).eq.'undefined') then
+                  call HF_Errlog(13021000,
+     $                 'W:Plotting options not set for data set')
+               else
+                  call HF_Errlog(13012901,
+     $                 'W:Plotting: Can not find one of the columns')
+               endif
+               PlotVar = 0.
+            else 
+               PlotVar = AbstractBins(PlotVarColIdx,j)
+            endif
+
+            write(90,'(1X,9(e11.5,1X),i4,i4,A1,E11.5)') 
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),AbstractBins(3,index),
      &           DATEN(index),ALPHA_MOD(index),
      &           E_TOT(index)/100.*DATEN(index),THEO(index), THEO_MOD(index),
      &           (DATEN(index)-THEO_MOD(index))/ALPHA_MOD(index),
-     &           DATASETNUMBER(i)
+     &           DATASETNUMBER(i), JPLOT(index), '/',PlotVar
+
 cv
 c            write(44,111) VQ2(index),VX(index), f2sh(index),flsh(index),
 c     &           xf3sh(index)

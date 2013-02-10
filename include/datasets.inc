@@ -41,7 +41,10 @@ C SG: relation to bins:
       integer DATASETBinningDimension(NSET)                        !> Number of abstract bins
       character*80 DATASETBinNames(NBinDimensionMax,NSET)          !> Names of abstract bins
 
-
+C KN: For plotting
+      character*64 GPlotVarCol(NSET)
+      character*256 GPlotOptions(NPlotMax)
+      integer GNPlots(NSET)
 
 C SG: Extra info:
 C
@@ -76,3 +79,6 @@ C
      $     ,DATASETNapplgrid
      $     ,DATASETapplgridNames
      $     ,DATASETApplgridTheoryIndex
+     $     ,GPlotVarCol
+     $     ,GNPlots
+     $     ,GPlotOptions

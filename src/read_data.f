@@ -217,6 +217,10 @@ C Namelist definition:
      $     ,ColumnName, ColumnType, NColumn
      $     ,NTheoryFiles 
 
+      namelist/PlotDesc/PlotN, PlotDefColumn, PlotDefValue, 
+     $     PlotVarColumn, PlotOptions
+C--------------------------------------------------------------
+
       double precision XSections(ndataMax)
       double precision AllBins(10,ndataMax)
       double precision Syst(nsystmax)
@@ -243,8 +247,20 @@ C Temporary buffer to read the data (allows for comments starting with *)
       integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)
       logical isPlus, isMinus
 
-C Function to check cuts
+C Variables for plotting
+      integer PlotN
+      character *64 PlotDefColumn
+      double precision PlotDefValue(ncolumnMax)
+      character *64 PlotDefTitle(ncolumnMax)
+      character *64 PlotVarColumn
+
+      character *256 PlotOptions(ncolumnMax)
+      integer PlotDefColIdx, PreviousPlots
+      double precision tempD
+
+C Functions
       logical FailSelectionCuts
+      integer GetBinIndex
       
 C-------------------------------------------------------      
 
@@ -267,6 +283,15 @@ C Reset to default:
          TheoryType(i) = ' ' 
       enddo
 
+C Reset plotting variables
+      PlotN=0
+      PlotDefColumn='undefined'
+c      double precision PlotDefValue(ncolumnMax)
+      PlotDefTitle(1)='undefined'
+      PlotVarColumn='undefined'
+
+
+
 C Reset scales to 1.0
       do i=1,nsysmax
          SystScales(i) = 1.0
@@ -279,6 +304,16 @@ C Reset scales to 1.0
       print *,'Reading data file ...'
       print *,CFile
       read(51,NML=Data,err=98)
+
+      PlotN = 0
+      read(51,NML=PlotDesc,end=96,err=97)
+ 96   continue
+
+      if(PlotN.eq.0) then  ! SUPPORT OLD FORMAT WITHOUT PLOTDESC NAMELIST, GET TO END OF DATA NAMELIST
+         close(51)
+         open(51,file=CFile,status='old',err=99)
+         read(51,NML=Data,err=98)
+      endif   
 
 C
 C Check dimensions
@@ -478,11 +513,15 @@ C Scale the syst. erros:
 
 C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName)) then
-            if(Reaction.eq.'FastNLO ep jets') then
+            if((Reaction.eq.'FastNLO jets').or.
+     $        (Reaction.eq.'FastNLO ep jets').or.
+     $        (Reaction.eq.'FastNLO ep jets normalised')) then
                call fastnlopointskip(NDataSets, j, NData);
             endif
             goto 1717
          endif
+
+
 
 C Add a point:
          npoints = npoints+1
@@ -676,6 +715,39 @@ C !> Symmetrise:
 
 
          JSET(npoints) = NDATASETS ! IndexDataset  
+         GPlotVarCol(NDATASETS) = PlotVarColumn
+         GNPlots(NDATASETS) = PlotN
+         PreviousPlots = 0
+
+         do i=1,NDATASETS-1
+            PreviousPlots = PreviousPlots + GNPlots(i)
+         enddo
+         
+         do i=1,PlotN
+            GPlotOptions(PreviousPlots + i) = PlotOptions(i)
+         enddo
+
+c Find plot numbers         
+         i=0
+         if(PlotN.gt.0) then
+            PlotDefColIdx = GetBinIndex(NDataSets,TRIM(plotdefcolumn))
+            if(PlotDefColIdx.eq.0) then
+               call HF_Errlog(13012801,
+     $              'W:Plotting: Can not find one of the columns')
+            endif
+            
+            if(PlotDefColIdx.ne.0) then
+               tempD = AbstractBins(PlotDefColIdx,npoints)
+               do while ((PlotDefValue(i+1).lt.tempD).AND.(i.lt.PlotN))
+                  i = i+1
+               enddo
+               if(PlotDefValue(i+1).lt.tempD) then
+                  i=0
+               endif
+            endif
+         endif
+         JPLOT(npoints) = i
+            
 
 C Store k-factors:
          if (lreadkfactor) then
@@ -702,6 +774,11 @@ C Store k-factors:
     
       enddo
       return
+
+ 97   continue
+      print '(''Error reading namelist PlotDesc'')'
+      print *,CFile
+      call HF_stop
 
  98   continue
       print '(''Error reading namelist Data'')'

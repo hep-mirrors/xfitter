@@ -34,7 +34,7 @@ class Painter  {
   void DrawCorrelations(Output* output);
   Int_t Prepare();
   void PrintCanvas(TCanvas* can);
-  TCanvas* PrepareDataSetCanvas(DataSet* dataset, DataSet* datasetref, TObjArray* TrashBin, Double_t& MarkerSize, Bool_t Ratio);
+  //TCanvas* PrepareDataSetCanvas(DataSet* dataset, DataSet* datasetref, TObjArray* TrashBin, Double_t& MarkerSize, Bool_t Ratio);
   Int_t PlotPdfSub(TVirtualPad* pad, Output* FitterOut,Output* FitterRef,
 		   Int_t Q2Bin, const Char_t* Title, Output::pdf pdf1, Output::pdf pdf2,
 		   TVirtualPad* legend, TObjArray* TrashBin);
