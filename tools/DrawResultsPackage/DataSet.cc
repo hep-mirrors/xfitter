@@ -140,9 +140,7 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
       }
     }
     else if(str.BeginsWith("Xlog")) {
-      if(!RatioToData) {
-	fXlog = kTRUE;
-      }
+      fXlog = kTRUE;
     }
     else if(str.BeginsWith("Ylog")) {
       if(!RatioToData) {
