@@ -8,7 +8,7 @@
    Reaction  = 'FastNLO ep jets normalised'
 
    NDATA = 24
-   NColumn = 13
+   NColumn = 14
 
    ColumnType = 8*'Bin','Sigma',5*'Error'
 
