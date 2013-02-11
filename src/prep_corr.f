@@ -83,6 +83,7 @@ C     reset statistical correlation matrix
          enddo
          corr_stat(i,i) = 1.d0
          is_stat_covariance(i) = .false.
+         lcorr_stat(i) = .false.
       enddo
 
 
@@ -173,6 +174,9 @@ C SG: Mark the points for covariance matrix method:
             if (MatrixType.eq.'Statistical correlations') then
                corr_stat(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
                corr_stat(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
+               lcorr_stat(Idx1) = .true.
+               lcorr_stat(Idx2) = .true.
+
             elseif (MatrixType.eq.'Covariance Matrix') then
                cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
                cov(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)

@@ -50,6 +50,7 @@ C    !> Determine which errors are diagonal and which are using covariance matri
          Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
      $        List_Covar_inv,n0_in)
 
+
          do i=1,NCovarMax
             do j=1,NCovarMax
                ScaledSystMatrix(i,j) = 0.
@@ -112,7 +113,8 @@ c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
 
 C  !> Sum covariance matricies and invert the total:
-            if ( doMatrix ) then
+
+            if ( doMatrix .or. NCovar .gt. 0 ) then
                Call Chi2_calc_SumCovar(ScaledErrorMatrix, 
      $              ScaledSystMatrix, 
      $              ScaledTotMatrix, NCovar)
@@ -545,9 +547,15 @@ C
          i = List_Covar(i1)
          do j1=i1,NCovar
             j = List_Covar(j1) 
-            ScaledErrorMatrix(i1,j1) = 
+            if ( .not. lcorr_stat(i) ) then
+C Try to use covariance matrix:
+               ScaledErrorMatrix(i1,j1) = cov(i,j)
+            else
+C We have stat. correlation, use it:
+               ScaledErrorMatrix(i1,j1) =
      $           ScaledErrors(i)
      $           *ScaledErrors(j)*corr_stat(i,j)
+            endif
          enddo
       enddo
 C--------------------------------------------------------
@@ -1329,7 +1337,7 @@ c...........................
          enddo
 
 
-         print *,'haha',fchi2_in,sub
+c        print *,'haha',fchi2_in,sub
          fchi2_In = fchi2_in - sub
 
 
