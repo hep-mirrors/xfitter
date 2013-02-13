@@ -3,8 +3,8 @@
 !>
 
 C Namelist for data set declarations
-      integer NInputFiles                !> Number of input files
-      character*80 InputFileNames(NSET)  !> Names of input files
+      integer NInputFiles                 !> Number of input files
+      character*256 InputFileNames(NSET)  !> Names of input files
 
 C Namelist for statistical correlation declarations
       integer NCorrFiles                    !> Number of correlation files
