@@ -373,7 +373,7 @@ C-----------------------------------------------------------
 C      nsets = 45
       print *,'Nsets=',nsets
       
-      do iset=0, nsets-1
+      do iset=0,nLHAPDF_Sets 
          call InitPDF(iset)
          alphas = alphasPDF(Mz)
          if (iset.eq.0) then
