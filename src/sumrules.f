@@ -982,7 +982,7 @@ C---------------------------------------------------------------
       implicit none
  
       integer np,i
-      data np /100/
+      data np /1000/
       
       double precision as(1:5)
       double precision xas,xnas
@@ -1088,8 +1088,8 @@ c weight 2
 
       endif
       if (splognni.eq.0) then
-         print*, 'sum rule is ZERO---- ERROR'
-         STOP
+         print*, 'sum rule is ZERO---- Warning', sum, logflag, falling
+         splognni=1d-10
       endif
       return
       end

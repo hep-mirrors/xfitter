@@ -534,6 +534,7 @@ C Extra constrains:
       if (pars(31).eq.0) then
          asubar(1) = asdbar(1) * (1.D0-fs)/(1.D0-fcharm) !
          asubar(2) = asdbar(2)  ! Bubar = Bdbar
+         asubar(3) = asdbar(3)  ! Bubar = Bdbar
       endif
 
 C Impose Buv = Bdv if parameter for Buv = 0.
@@ -573,13 +574,12 @@ C-----------------------------------------------------
       endif
 
 
-cv      if (abs(splogn1).lt.1d30) then
+      if (abs(splogn1).lt.1d30 .and. abs(splogn1).gt.1d-30) then
 c value in allowed range
-cv      else
-cv         splogn1=0.0d0
-cv      endif
-      splogn=splogn1
-cv      print*,'end my function is again',x,splogn
+         splogn=splogn1
+      else
+         splogn=0.0d0
+      endif
 
       return
       end

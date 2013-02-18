@@ -803,7 +803,7 @@ C---------------------------------
          iparam = 171717
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
 
-      elseif (PDFStyle.eq.'AS') then
+      elseif ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          iparam = 1977
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
 
