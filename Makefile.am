@@ -15,5 +15,8 @@ include $(top_srcdir)/aminclude.am
 # ensure the distribution of the doxygen configuration file
 EXTRA_DIST = doxygen.cfg
 
+# Tell which program should run the .sh scripts.
+#SH_LOG_COMPILER = $(SHELL) -ex
+TESTS_ENVIRONMENT = $(SHELL) 
 TESTS= ./tools/check.sh
 
