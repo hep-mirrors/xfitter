@@ -1,0 +1,13 @@
+ First iteration    575.161456403708              582  0.988249925092281     
+After minimisation     575.08   582     0.988
+
+  Partial chi2s 
+Dataset    1    106.70   145  NC cross section HERA-I H1-ZEUS combined e-p.   
+Dataset    2    419.12   379  NC cross section HERA-I H1-ZEUS combined e+p.   
+Dataset    3     19.84    34  CC cross section HERA-I H1-ZEUS combined e-p.   
+Dataset    4     29.42    34  CC cross section HERA-I H1-ZEUS combined e+p.   
+
+ Correlated Chi2    0.00000000000000     
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

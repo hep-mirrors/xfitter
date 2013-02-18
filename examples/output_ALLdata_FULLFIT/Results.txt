@@ -1,0 +1,285 @@
+ First iteration    2386.38054562189             1617   1.47580738752127     
+After minimisation    2152.79  1617     1.331
+
+  Partial chi2s 
+Dataset    1    119.52   145  NC cross section HERA-I H1-ZEUS combined e-p.   
+Dataset    2    475.55   379  NC cross section HERA-I H1-ZEUS combined e+p.   
+Dataset    3     22.47    34  CC cross section HERA-I H1-ZEUS combined e-p.   
+Dataset    4     39.11    34  CC cross section HERA-I H1-ZEUS combined e+p.   
+Dataset    5     12.88    24  H1 normalised inclusive jet 99-07 data          
+Dataset    6     12.09    24  H1 inclusive jet 99-00 data                     
+Dataset    7     20.05    28  H1 low Q2 inclusive jet 99-00 data              
+Dataset    8     27.40    30  ZEUS inclusive jet 96-97 data                   
+Dataset    9     25.64    30  ZEUS inclusive jet 98-00 data                   
+Dataset   10     17.16    22  ZEUS inclusive dijet 98-00/04-07 data           
+Dataset   11    169.93   124  H1 Low Ep : 460, 575 GeV                        
+Dataset   12     43.13    47  Charm cross section H1-ZEUS combined            
+Dataset   13    136.39    83  BCDMS F2p 100GeV                                
+Dataset   14     82.86    91  BCDMS F2p 120GeV                                
+Dataset   15    115.02    79  BCDMS F2p 200GeV                                
+Dataset   16     78.93    75  BCDMS F2p 280GeV                                
+Dataset   17     23.91    28  D0 Z Boson rapidity 2007                        
+Dataset   18    185.36    72  CDF inclusive jets                              
+Dataset   19     16.38     1  CDF inclusive ttbar cross section               
+Dataset   20     96.85   110  D0 pp jets                                      
+Dataset   21      4.64     1  CMS inclusive ttbar cross section               
+Dataset   22     75.65    35  CMS Boson rapidity                              
+Dataset   23     39.09    11  CMS electon Asymmetry rapidity                  
+Dataset   24     15.67    16  ATLAS Jet data 0 <= |y| < 0.3                   
+Dataset   25      7.35    16  ATLAS Jet data 0.3 <= |y| < 0.8                 
+Dataset   26      6.95    16  ATLAS Jet data 0.8 <= |y| < 1.2                 
+Dataset   27      6.39    15  ATLAS Jet data 1.2 <= |y| < 2.1                 
+Dataset   28      2.96    12  ATLAS Jet data 2.1 <= |y| < 2.8                 
+Dataset   29      2.96     9  ATLAS Jet data 2.8 <= |y| < 3.6                 
+Dataset   30      0.60     6  ATLAS Jet data 3.6 <= |y| < 4.4                 
+Dataset   31     30.31    11  ATLAS W+ lepton pseudorapidity, 2010 data       
+Dataset   32     27.74    11  ATLAS W- lepton pseudorapidity, 2010 data       
+Dataset   33     10.72     8  ATLAS Z rapidity, 2010 data                     
+
+ Correlated Chi2    201.123262179771     
+ Systematic shifts          243
+  
+                                Name          Shift   +/-    Error          Type
+    1  H1_NormInclJets_DESY-09-032_elE       -0.5700   +/-   0.8128          :N:M
+    2  H1_NormInclJets_DESY-09-032_elTh      -0.7405   +/-   0.9291          :N:M
+    3  H1_NormInclJets_DESY-09-032_hfs       -1.2883   +/-   0.4761          :N:M
+    4  H1_InclJets_DESY-07-073_model         -0.3975   +/-   0.6504          :N:M
+    5  H1_InclJets_DESY-07-073_elE            0.4030   +/-   0.8998          :N:M
+    6  H1_InclJets_DESY-07-073_elTh           0.0567   +/-   0.9786          :N:M
+    7  H1_InclJets_DESY-07-073_hfs            0.1396   +/-   0.6522          :N:M
+    8  H1_InclJets_DESY-07-073_lumi          -0.0878   +/-   0.9255          :N:M
+    9  H1_InclJets_DESY-09-162_model         -1.2214   +/-   0.6184          :N:M
+   10  H1_InclJets_DESY-09-162_elE           -0.1440   +/-   0.9954          :N:M
+   11  H1_InclJets_DESY-09-162_elTh           0.1352   +/-   0.9864          :N:M
+   12  H1_InclJets_DESY-09-162_hfs           -0.5319   +/-   0.5674          :N:M
+   13  H1_InclJets_DESY-09-162_lumi           0.0077   +/-   0.9324          :N:M
+   14  ZEUS_InclJets_DESY-02-112_hfs         -1.1811   +/-   0.4106          :N:M
+   15  ZEUS_InclJets_DESY-02-112_lumi        -0.4593   +/-   0.9089          :N:M
+   16  ZEUS_InclJets_DESY-06-128_hfs         -0.4588   +/-   0.3914          :N:M
+   17  ZEUS_InclJets_DESY-06-128_lumi        -0.4609   +/-   0.7832          :N:M
+   18  ZEUS_dijet_DESY-10-170_ES              0.1421   +/-   0.2684          :N:M
+   19  ZEUS_dijet_DESY-10-170_lumi           -0.9614   +/-   0.5289          :N:M
+   20  H1_low_ep_sp_Source_1                  2.0278   +/-   0.6587          :N:M
+   21  H1_low_ep_sp_Source_2                  2.0821   +/-   0.5829          :N:M
+   22  H1_low_ep_sp_Source_3                  1.1093   +/-   0.9222          :N:M
+   23  H1_low_ep_sp_Source_4                 -2.9699   +/-   0.8006          :N:M
+   24  H1_low_ep_sp_Source_5                 -2.4917   +/-   0.5535          :N:M
+   25  H1_low_ep_sp_Source_6                  0.1841   +/-   0.5904          :N:M
+   26  H1_low_ep_sp_Source_7                  1.4208   +/-   0.5244          :N:M
+   27  H1_low_ep_sp_Source_8                  1.0898   +/-   0.7030          :N:M
+   28  HERA_BH_corlum                        -0.0754   +/-   0.9852          :N:M
+   29  HERA_Charm_Source_01                   0.0195   +/-   0.9996          :N:M
+   30  HERA_Charm_Source_02                  -0.0363   +/-   0.9997          :N:M
+   31  HERA_Charm_Source_03                  -0.1105   +/-   0.9560          :N:M
+   32  HERA_Charm_Source_04                   0.1752   +/-   0.9901          :N:M
+   33  HERA_Charm_Source_05                   0.2358   +/-   0.9853          :N:M
+   34  HERA_Charm_Source_06                  -0.1350   +/-   0.9905          :N:M
+   35  HERA_Charm_Source_07                  -0.1602   +/-   0.9851          :N:M
+   36  HERA_Charm_Source_08                   0.1954   +/-   0.9648          :N:M
+   37  HERA_Charm_Source_09                  -0.1727   +/-   0.9817          :N:M
+   38  HERA_Charm_Source_10                   0.1383   +/-   0.9850          :N:M
+   39  HERA_Charm_Source_11                   0.2932   +/-   0.9745          :N:M
+   40  HERA_Charm_Source_12                  -0.3453   +/-   0.9643          :N:M
+   41  HERA_Charm_Source_13                   0.2847   +/-   0.9667          :N:M
+   42  HERA_Charm_Source_14                  -0.5014   +/-   0.9255          :N:M
+   43  HERA_Charm_Source_15                  -0.6508   +/-   0.9390          :N:M
+   44  HERA_Charm_Source_16                   0.1360   +/-   0.9284          :N:M
+   45  HERA_Charm_Source_17                  -0.4811   +/-   0.9219          :N:M
+   46  HERA_Charm_Source_18                  -0.4331   +/-   0.9378          :N:M
+   47  HERA_Charm_Source_19                  -0.3022   +/-   0.8757          :N:M
+   48  HERA_Charm_Source_20                   0.5541   +/-   0.9256          :N:M
+   49  HERA_Charm_Source_21                  -0.1993   +/-   0.9518          :N:M
+   50  HERA_Charm_Source_22                   1.1677   +/-   0.8539          :N:M
+   51  HERA_Charm_Source_23                  -0.8242   +/-   0.8763          :N:M
+   52  HERA_Charm_Source_24                  -0.6004   +/-   0.9236          :N:M
+   53  HERA_Charm_Source_25                  -0.5043   +/-   0.8282          :N:M
+   54  HERA_Charm_Source_26                  -0.1869   +/-   0.9076          :N:M
+   55  HERA_Charm_Source_27                   0.0175   +/-   0.9530          :N:M
+   56  HERA_Charm_Source_28                   0.0693   +/-   0.9105          :N:M
+   57  HERA_Charm_Source_29                  -0.6938   +/-   0.9139          :N:M
+   58  HERA_Charm_Source_30                   0.0999   +/-   0.9010          :N:M
+   59  HERA_Charm_Source_31                   0.9649   +/-   0.8588          :N:M
+   60  HERA_Charm_Source_32                  -0.0637   +/-   0.7805          :N:M
+   61  HERA_Charm_Source_33                  -1.3288   +/-   0.8437          :N:M
+   62  HERA_Charm_Source_34                  -0.9413   +/-   0.8190          :N:M
+   63  HERA_Charm_Source_35                   1.1579   +/-   0.8425          :N:M
+   64  HERA_Charm_Source_36                   0.1727   +/-   0.9496          :N:M
+   65  HERA_Charm_Source_37                  -0.5969   +/-   0.9430          :N:M
+   66  HERA_Charm_Source_38                   0.5618   +/-   0.8757          :N:M
+   67  HERA_Charm_Source_39                   0.0672   +/-   0.7495          :N:M
+   68  HERA_Charm_Source_40                  -0.4567   +/-   0.8874          :N:M
+   69  HERA_Charm_Source_41                   0.2736   +/-   0.9148          :N:M
+   70  HERA_Charm_Source_42                   0.8737   +/-   0.8441          :N:M
+   71  HERA_Charm_Proced_01                   0.2064   +/-   0.8964          :N:M
+   72  HERA_Charm_Proced_02                  -0.0769   +/-   0.8468          :N:M
+   73  bcdms_b                                1.4600   +/-   0.8145          :N:M
+   74  bcdms_s                                1.0018   +/-   0.4341          :N:M
+   75  bcdms_r                               -1.0925   +/-   0.2583          :N:M
+   76  bcdms_d                                3.2381   +/-   0.3436          :N:M
+   77  bcdms_nt                               0.7239   +/-   0.3603          :N:M
+   78  bcdms_na                               1.2119   +/-   0.3663          :N:M
+   79  bcdms_nr1                              0.5872   +/-   0.2971          :N:M
+   80  bcdms_nr2                              0.6999   +/-   0.2973          :N:M
+   81  bcdms_nr3                             -0.1149   +/-   0.3184          :N:M
+   82  bcdms_sh                              -0.9099   +/-   0.2791          :N:M
+   83  D0_yZ_2007_SystCorr                    0.1183   +/-   0.2644          :N:M
+   84  CDF_Jets2008_sys1                      2.7510   +/-   0.5024          :N:M
+   85  CDF_Jets2008_sys2                      3.0758   +/-   0.8516          :N:M
+   86  CDF_Jets2008_sys3                      1.5796   +/-   0.8287          :N:M
+   87  CDF_Jets2008_sys4                     -3.4149   +/-   0.3816          :N:M
+   88  CDF_Jets2008_sys5                      0.5427   +/-   0.4802          :N:M
+   89  CDF_Jets2008_sys6                      0.0416   +/-   0.3434          :N:M
+   90  CDF_Jets2008_sys7                      0.5291   +/-   0.3411          :N:M
+   91  CDF_Jets2008_sys8                      1.3260   +/-   0.8282          :N:M
+   92  CDF_Jets2008_sys9                     -1.0100   +/-   0.6069          :N:M
+   93  CDF_Jets2008_sys10                    -1.7599   +/-   0.7254          :N:M
+   94  CDF_Jets2008_sys11                    -0.2989   +/-   0.8294          :N:M
+   95  CDF_Jets2008_sys12                     1.2325   +/-   0.9121          :N:M
+   96  CDF_Jets2008_sys13                    -0.3971   +/-   0.7643          :N:M
+   97  CDF_Jets2008_sys14                     0.0781   +/-   0.9508          :N:M
+   98  CDF_Jets2008_sys15                     0.7595   +/-   0.3331          :N:M
+   99  CDF_Jets2008_sys16                     1.6720   +/-   0.3574          :N:M
+  100  CDF_Jets2008_sys17                     2.1093   +/-   0.3262          :N:M
+  101  CDF_Jets2008_sys18                     0.8849   +/-   0.5317          :N:M
+  102  CDF_Jets2008_sys19                     0.6491   +/-   0.6766          :N:M
+  103  CDF_Jets2008_sys20                    -4.9354   +/-   0.4684          :N:M
+  104  D0_Jets_sys1                           0.1466   +/-   0.8990          :N:M
+  105  D0_Jets_sys2                           0.4923   +/-   0.7491          :N:M
+  106  D0_Jets_sys3                           0.3673   +/-   0.6358          :N:M
+  107  D0_Jets_sys4                           0.0684   +/-   0.6305          :N:M
+  108  D0_Jets_sys5                          -0.2126   +/-   0.8659          :N:M
+  109  D0_Jets_sys6                          -3.4944   +/-   0.4924          :N:M
+  110  D0_Jets_sys7                           0.8996   +/-   0.2068          :N:M
+  111  D0_Jets_sys8                           2.2353   +/-   0.5808          :N:M
+  112  D0_Jets_sys9                          -0.4822   +/-   0.5114          :N:M
+  113  D0_Jets_sys10                          0.1698   +/-   0.6418          :N:M
+  114  D0_Jets_sys11                          1.5668   +/-   0.3508          :N:M
+  115  D0_Jets_sys12                          1.0387   +/-   0.4799          :N:M
+  116  D0_Jets_sys13                          0.9929   +/-   0.6924          :N:M
+  117  D0_Jets_sys14                          1.1428   +/-   0.8770          :N:M
+  118  D0_Jets_sys15                          1.8727   +/-   0.7748          :N:M
+  119  D0_Jets_sys16                          1.4404   +/-   0.7384          :N:M
+  120  D0_Jets_sys17                          0.7599   +/-   0.6271          :N:M
+  121  D0_Jets_sys18                          0.0767   +/-   0.8943          :N:M
+  122  D0_Jets_sys19                         -0.7418   +/-   0.4379          :N:M
+  123  D0_Jets_sys20                         -1.6551   +/-   0.3513          :N:M
+  124  D0_Jets_sys21                          0.4119   +/-   0.4326          :N:M
+  125  D0_Jets_sys22                          1.2582   +/-   0.3122          :N:M
+  126  D0_Jets_sys23                          1.5257   +/-   0.9214          :N:M
+  127  ATL_Jet2010_JES1_1                    -0.1914   +/-   0.5000          :N:M
+  128  ATL_Jet2010_JES2_7                     0.4244   +/-   0.3573          :N:M
+  129  ATL_Jet2010_JES3_13                    0.1609   +/-   0.3746          :N:M
+  130  ATL_Jet2010_JES4_19                    0.7655   +/-   0.5921          :N:M
+  131  ATL_Jet2010_JES5_25                   -0.7493   +/-   0.4186          :N:M
+  132  ATL_Jet2010_JES6_31                    0.2640   +/-   0.2169          :N:M
+  133  ATL_Jet2010_JES7_32                    0.2650   +/-   0.7639          :N:M
+  134  ATL_Jet2010_JES8_38                    0.4849   +/-   0.8343          :N:M
+  135  ATL_Jet2010_JES9_44                    0.1260   +/-   0.6272          :N:M
+  136  ATL_Jet2010_JES10_50                   0.3425   +/-   0.5240          :N:M
+  137  ATL_Jet2010_JES11_56                   0.4129   +/-   0.8761          :N:M
+  138  ATL_Jet2010_JES12_62                   0.2073   +/-   0.4204          :N:M
+  139  ATL_Jet2010_JES13_68                  -0.1907   +/-   0.2933          :N:M
+  140  ATL_Jet2010_UnfClo_74                  0.1047   +/-   0.9657          :N:M
+  141  ATL_Jet2010_Match_75                  -0.0073   +/-   0.8960          :N:M
+  142  ATL_Jet2010_JER_76                    -0.0800   +/-   0.7499          :N:M
+  143  ATL_Jet2010_YReso_82                  -0.0504   +/-   0.9365          :N:M
+  144  ATL_Jet2010_RecoEff_83                -1.1409   +/-   0.8511          :N:M
+  145  ATLAS_lumi2010                        -0.3713   +/-   0.2732          :N:M
+  146  ATL_Jet2010_JES1_2                     0.3241   +/-   0.6516          :N:M
+  147  ATL_Jet2010_JES2_8                    -0.0068   +/-   0.5299          :N:M
+  148  ATL_Jet2010_JES3_14                    0.3199   +/-   0.6883          :N:M
+  149  ATL_Jet2010_JES4_20                    0.4500   +/-   0.6815          :N:M
+  150  ATL_Jet2010_JES5_26                   -0.0183   +/-   0.5245          :N:M
+  151  ATL_Jet2010_JES7_33                    0.2705   +/-   0.7783          :N:M
+  152  ATL_Jet2010_JES8_39                    0.3220   +/-   0.9337          :N:M
+  153  ATL_Jet2010_JES9_45                    0.2481   +/-   0.7876          :N:M
+  154  ATL_Jet2010_JES10_51                   0.1330   +/-   0.8591          :N:M
+  155  ATL_Jet2010_JES11_57                   0.6179   +/-   0.9358          :N:M
+  156  ATL_Jet2010_JES12_63                   0.3430   +/-   0.8632          :N:M
+  157  ATL_Jet2010_JES13_69                   0.0929   +/-   0.5447          :N:M
+  158  ATL_Jet2010_JER_77                     0.1388   +/-   0.7107          :N:M
+  159  ATL_Jet2010_JES1_3                     0.3543   +/-   0.6745          :N:M
+  160  ATL_Jet2010_JES2_9                     1.0521   +/-   0.5275          :N:M
+  161  ATL_Jet2010_JES3_15                   -0.0036   +/-   0.6662          :N:M
+  162  ATL_Jet2010_JES4_21                    0.0248   +/-   0.6112          :N:M
+  163  ATL_Jet2010_JES5_27                    0.6807   +/-   0.4702          :N:M
+  164  ATL_Jet2010_JES7_34                   -0.5327   +/-   0.7888          :N:M
+  165  ATL_Jet2010_JES8_40                    0.1392   +/-   0.9048          :N:M
+  166  ATL_Jet2010_JES9_46                   -0.2705   +/-   0.7975          :N:M
+  167  ATL_Jet2010_JES10_52                   0.4698   +/-   0.8378          :N:M
+  168  ATL_Jet2010_JES11_58                  -0.1330   +/-   0.9476          :N:M
+  169  ATL_Jet2010_JES12_64                   0.5243   +/-   0.8427          :N:M
+  170  ATL_Jet2010_JES13_70                  -0.0409   +/-   0.5454          :N:M
+  171  ATL_Jet2010_JER_78                    -0.6677   +/-   0.7808          :N:M
+  172  ATL_Jet2010_JES1_4                     0.3370   +/-   0.7100          :N:M
+  173  ATL_Jet2010_JES2_10                   -0.1247   +/-   0.5660          :N:M
+  174  ATL_Jet2010_JES3_16                   -0.5074   +/-   0.7569          :N:M
+  175  ATL_Jet2010_JES4_22                    0.2938   +/-   0.8369          :N:M
+  176  ATL_Jet2010_JES5_28                    0.7939   +/-   0.4912          :N:M
+  177  ATL_Jet2010_JES7_35                    0.1647   +/-   0.8585          :N:M
+  178  ATL_Jet2010_JES8_41                    0.3631   +/-   0.9520          :N:M
+  179  ATL_Jet2010_JES9_47                    0.1296   +/-   0.7934          :N:M
+  180  ATL_Jet2010_JES10_53                  -0.1482   +/-   0.8715          :N:M
+  181  ATL_Jet2010_JES11_59                  -0.2239   +/-   0.9695          :N:M
+  182  ATL_Jet2010_JES12_65                  -0.1863   +/-   0.9185          :N:M
+  183  ATL_Jet2010_JES13_71                   0.1089   +/-   0.5568          :N:M
+  184  ATL_Jet2010_JER_79                    -0.0043   +/-   0.4850          :N:M
+  185  ATL_Jet2010_RecoEff_84                -0.0363   +/-   0.9764          :N:M
+  186  ATL_Jet2010_JES1_5                     0.0672   +/-   0.8252          :N:M
+  187  ATL_Jet2010_JES2_11                   -0.3824   +/-   0.7994          :N:M
+  188  ATL_Jet2010_JES3_17                    0.0332   +/-   0.8069          :N:M
+  189  ATL_Jet2010_JES4_23                   -0.4190   +/-   0.7414          :N:M
+  190  ATL_Jet2010_JES5_29                   -0.4394   +/-   0.8363          :N:M
+  191  ATL_Jet2010_JES7_36                   -0.5468   +/-   0.9188          :N:M
+  192  ATL_Jet2010_JES8_42                   -0.2334   +/-   0.9781          :N:M
+  193  ATL_Jet2010_JES9_48                    0.0819   +/-   0.8513          :N:M
+  194  ATL_Jet2010_JES10_54                   0.3273   +/-   0.9432          :N:M
+  195  ATL_Jet2010_JES11_60                   0.1013   +/-   0.9927          :N:M
+  196  ATL_Jet2010_JES12_66                   0.2014   +/-   0.9422          :N:M
+  197  ATL_Jet2010_JES13_72                   0.6600   +/-   0.6055          :N:M
+  198  ATL_Jet2010_JER_80                     0.2720   +/-   0.6716          :N:M
+  199  ATL_Jet2010_RecoEff_85                -0.1924   +/-   0.9903          :N:M
+  200  ATL_Jet2010_JES1_6                    -0.5552   +/-   0.8181          :N:M
+  201  ATL_Jet2010_JES2_12                    0.3157   +/-   0.7989          :N:M
+  202  ATL_Jet2010_JES3_18                   -0.1735   +/-   0.8558          :N:M
+  203  ATL_Jet2010_JES4_24                    0.3357   +/-   0.9244          :N:M
+  204  ATL_Jet2010_JES5_30                    0.3559   +/-   0.8703          :N:M
+  205  ATL_Jet2010_JES7_37                    0.4628   +/-   0.9310          :N:M
+  206  ATL_Jet2010_JES8_43                    0.1181   +/-   0.9680          :N:M
+  207  ATL_Jet2010_JES9_49                    0.6241   +/-   0.8762          :N:M
+  208  ATL_Jet2010_JES10_55                   0.3179   +/-   0.9711          :N:M
+  209  ATL_Jet2010_JES11_61                  -0.0148   +/-   0.9965          :N:M
+  210  ATL_Jet2010_JES12_67                  -0.1582   +/-   0.9716          :N:M
+  211  ATL_Jet2010_JES13_73                   0.8412   +/-   0.8358          :N:M
+  212  ATL_Jet2010_JER_81                     0.2223   +/-   0.7829          :N:M
+  213  ATL_Jet2010_RecoEff_86                 0.0146   +/-   0.9971          :N:M
+  214  ATL_WZ2010_Source_1                   -0.4805   +/-   0.9810          :N:M
+  215  ATL_WZ2010_Source_2                    0.8744   +/-   0.9018          :N:M
+  216  ATL_WZ2010_Source_3                    0.4722   +/-   0.9848          :N:M
+  217  ATL_WZ2010_Source_4                   -0.0330   +/-   0.9967          :N:M
+  218  ATL_WZ2010_Source_5                   -0.0493   +/-   0.9989          :N:M
+  219  ATL_WZ2010_Source_6                    0.1998   +/-   0.9969          :N:M
+  220  ATL_WZ2010_Source_7                    0.2921   +/-   0.9817          :N:M
+  221  ATL_WZ2010_Source_8                    0.1428   +/-   0.9871          :N:M
+  222  ATL_WZ2010_Source_9                    0.2839   +/-   0.9822          :N:M
+  223  ATL_WZ2010_Source_10                  -0.1319   +/-   0.9892          :N:M
+  224  ATL_WZ2010_Source_11                   0.9021   +/-   0.9544          :N:M
+  225  ATL_WZ2010_Source_12                   1.0112   +/-   0.8366          :N:M
+  226  ATL_WZ2010_Source_13                   0.0561   +/-   0.9344          :N:M
+  227  ATL_WZ2010_Source_14                   0.6045   +/-   0.9380          :N:M
+  228  ATL_WZ2010_Source_15                  -0.2683   +/-   0.9076          :N:M
+  229  ATL_WZ2010_Source_16                  -0.3245   +/-   0.9609          :N:M
+  230  ATL_WZ2010_Source_17                  -0.7807   +/-   0.9070          :N:M
+  231  ATL_WZ2010_Source_18                  -0.0161   +/-   0.9205          :N:M
+  232  ATL_WZ2010_Source_19                   0.0542   +/-   0.9131          :N:M
+  233  ATL_WZ2010_Source_20                   0.8263   +/-   0.9340          :N:M
+  234  ATL_WZ2010_Source_21                  -0.9698   +/-   0.9240          :N:M
+  235  ATL_WZ2010_Source_22                  -0.8229   +/-   0.9048          :N:M
+  236  ATL_WZ2010_Source_23                  -0.0013   +/-   0.9056          :N:M
+  237  ATL_WZ2010_Source_24                  -1.6817   +/-   0.8980          :N:M
+  238  ATL_WZ2010_Source_25                  -0.6543   +/-   0.9605          :N:M
+  239  ATL_WZ2010_Source_26                   0.1747   +/-   0.8701          :N:M
+  240  ATL_WZ2010_Source_27                  -0.6504   +/-   0.9234          :N:M
+  241  ATL_WZ2010_Source_28                   0.1551   +/-   0.9377          :N:M
+  242  ATL_WZ2010_Source_29                  -0.3612   +/-   0.9471          :N:M
+  243  ATL_WZ2010_Source_30                   0.7163   +/-   0.9528          :N:M
