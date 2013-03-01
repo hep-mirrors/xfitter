@@ -818,8 +818,6 @@ C Additional variables:
       logical UseKFactors
       Double precision f2RT,flRT
       Double precision f2cRT,flcRT,f2bRT,flbRT
-      INTEGER OMP_GET_THREAD_NUM
-
 
 C RT code good only for NC case      
       if (XSecType.eq.'CCDIS') return
@@ -838,8 +836,8 @@ C use QCDNUM to take them into account as a "k"-factor
 C
 C  F2_total^{RT} =  F2_{\gamma}^{RT}  *  (  F2_{total}^{QCDNUM}/F2_{\gamma}^{QCDNUM}   
 C
-!$OMP PARALLEL DO SCHEDULE(STATIC)
-!$OMP& SHARED(DATASETIDX,IDataSet,x,q2,iFlagFCN,F2Gamma,FLGamma,UseKFactors,F2,FL,F2c,FLc,F2b,FLb,npts) 
+!$OMP PARALLEL DO SCHEDULE(GUIDED)
+!$OMP& SHARED(DATASETIDX,IDataSet,x,q2,F2Gamma,FLGamma,UseKFactors,F2,FL,F2c,FLc,F2b,FLb,npts) 
 !$OMP& DEFAULT(PRIVATE) 
       do i=1,npts
          idx =  DATASETIDX(IDataSet,i)

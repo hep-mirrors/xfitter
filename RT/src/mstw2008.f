@@ -37,8 +37,6 @@ C--   Output variables: f2,f2c,f2b,fl,flc,flb.
       COMMON/DYLAMB/xlam,S0
       COMMON/iordCommon/iord
       COMMON/GAUS96/XI(96),WI(96),XX(97),NTERMS ! G.W. 15/02/2007
-!$OMP THREADPRIVATE(/mstwCommon/,/TRprimeCommon/,/GRPTHY/)
-!$OMP THREADPRIVATE(/DYLAMB/,/iordCommon/)
       DATA PI,PI2/3.14159,9.8696/
 
 C--   G.W. 12/04/2012 Set these variables via COMMON/TRprimeCommon/.
@@ -52,6 +50,7 @@ C      var1=0d0; var2=0d0; var3=0d0; var4=1d0; ! GM-VFNS3
 C      var1=0d0; var2=1d0; var3=0.3d0; var4=0d0; ! GM-VFNS4
 C      var1=0.1d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS5
 C      var1=-0.2d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS6
+!$OMP THREADPRIVATE(/TRprimeCommon/,/GRPTHY/)
       
       IF (IORD.EQ.2) THEN
          CALL MSTWNCnnlo(x,q,ipn,f2,f2c,f2b,fl,flc,flb)
@@ -1987,6 +1986,8 @@ C--   G.W. 11/04/2012 Combine FETCH and GINTRP to use less PDF calls.
       CHARACTER prefix*50,prefix1*50,cl*4
       INTEGER ISET
       COMMON/mstwfiles/iset,prefix,cl
+!$OMP THREADPRIVATE(/GRPTHY/,/mstwfiles/)
+      
 c---------------------------------
 cv  connect to QCDNUM PDFS
       double precision pdfsf(-6:6)
@@ -2062,9 +2063,7 @@ C--   G.W. 15/06/2007 Use new routine from PEGASUS.
 cv      ALPHA = ALPHAS(sqrt(QS))
 c---------------------------------
 cv  connect to QCDNUM alphas
-!$OMP CRITICAL
       alpha = hf_get_alphas(qs) 
-!$OMP END CRITICAL
 
       RETURN
       END
