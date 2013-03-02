@@ -288,7 +288,7 @@ cv       grid(1+jx)=x
             PreviousPlots = PreviousPlots + 1
             write(90,16) 'Plot',j,'@',TRIM(GPlotOptions(PreviousPlots))
          enddo
- 16      format(A4,i1,A1,A)
+ 16      format(A4,i0,A1,A)
 
 c         write(90,*) '     q2          x        y    data     +- uncorr.err'//
 c     &        '   +-toterr      theory      pull     dataset  '
@@ -313,7 +313,7 @@ c     &        '   +-toterr      theory      pull     dataset  '
                endif
                PlotVar = 0.
             else 
-               PlotVar = AbstractBins(PlotVarColIdx,j)
+               PlotVar = AbstractBins(PlotVarColIdx,index)
             endif
 
             write(90,'(1X,9(e11.5,1X),i4,i4,A1,E11.5)') 

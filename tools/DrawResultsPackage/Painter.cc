@@ -5,6 +5,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TH1F.h>
 #include <TPaveText.h>
+#include <TStyle.h>
 
 Painter::Painter(bool DrawBands){
   fPath = new TString("../../output/");
@@ -564,26 +565,33 @@ Int_t Painter::DrawDataSet(DataSet* dataset, DataSet* datasetref, Bool_t RatioTo
   int N = dataset->GetNSubPlots();
 
   TCanvas* can = new TCanvas;
-  double MarkerSize;
+  double MarkerSize, HistTitleY, HistTitleX;
   
   if(N<=0) return 1;
-  else if (N==1) {                  MarkerSize = 0.3; }
-  else if(N==2)  {can->Divide(1,2); MarkerSize = 0.3; }
-  else if(N<=4)  {can->Divide(2,2); MarkerSize = 0.3; }
-  else if(N<=6)  {can->Divide(2,3); MarkerSize = 0.3; }
-  else if(N<=9)  {can->Divide(3,3); MarkerSize = 0.3; }
-  else if(N<=12) {can->Divide(3,4); MarkerSize = 0.3; }
-  else if(N<=16) {can->Divide(4,4); MarkerSize = 0.3; }
-  else if(N<=20) {can->Divide(4,5); MarkerSize = 0.3; }
-  else if(N<=25) {can->Divide(5,5); MarkerSize = 0.3; }
+  else if (N==1) {                  MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N==2)  {can->Divide(1,2); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=4)  {can->Divide(2,2); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=6)  {can->Divide(2,3); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=9)  {can->Divide(3,3); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=12) {can->Divide(3,4); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=16) {can->Divide(4,4); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=20) {can->Divide(4,5); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=25) {can->Divide(5,5); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=30) {can->Divide(5,6); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=36) {can->Divide(6,6); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
   else {
-    cout << "DrawDataSet does not support drawing more than 25 plots per dataset" <<endl; 
+    cout << "DrawDataSet does not support drawing more than 36 plots per dataset" <<endl; 
     delete can;
     return 1;
   }
 
   for(int i=0; i<N; i++) {
     can->cd(i+1);
+
+    gStyle->SetTitleX(HistTitleX); //title X location
+    gStyle->SetTitleY(HistTitleY); //title Y location
+    //gStyle->SetTitleW(0.5); //title width
+    //gStyle->SetTitleH(0.1); //title height 
     TH1F* h = dataset->GetHistogram(i,RatioToData);
     h->Draw();
     TGraphErrors* gDUnc = dataset->GetDataUnc(i);
@@ -679,7 +687,7 @@ Int_t Painter::DrawDataSet(DataSet* dataset, DataSet* datasetref, Bool_t RatioTo
     temp->Form("%s (modfied)", fOutputRef->GetName()->Data());
     leg.AddEntry(datasetref->GetTMod(0), temp->Data(),"L");
   }
-  leg.Draw();
+  //leg.Draw();
 
   
   PrintCanvas(can);

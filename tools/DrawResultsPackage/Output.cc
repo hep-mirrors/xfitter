@@ -465,12 +465,12 @@ Int_t Output::PrepareDataSets() {
 	
 	str = "";
 	if(array->GetEntries() == 11) 
-	  if(!((TObjString*) array->At(10) )->GetString().BeginsWith("0/"))	  
+	  if(!((TObjString*) array->At(10) )->GetString().BeginsWith("999/"))	  
 	    str = ((TObjString*) array->At(10) )->GetString();
 
 	if(str=="") {
 	  NUndefinedPoints++;
-	  str.Form("0/%d", NUndefinedPoints);   // plot number 0 means there was no new style plotting 
+	  str.Form("999/%d", NUndefinedPoints);   // plot number 999 means there was no new style plotting 
 	}
 	
 	NewDataSet->AddPoint( str.Data(),

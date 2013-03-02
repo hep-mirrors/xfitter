@@ -746,6 +746,9 @@ c Find plot numbers
                endif
             endif
          endif
+         if (i.eq.0) then
+            i=999
+         endif
          JPLOT(npoints) = i
             
 

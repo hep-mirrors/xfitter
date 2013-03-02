@@ -51,11 +51,9 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
   double Xmax = 9999.;
   fXlog = kFALSE;
   fYlog = kFALSE;
-  //cout <<fPlotOption->Data()<<endl;
   
   TObjArray* array = fPlotOption->Tokenize("@");
   
-  //cout << array->GetEntries() <<endl;
   for(int i=0; i<array->GetEntries(); i++) { // first loop to detect x axis
     TString str( ((TObjString*)array->At(i))->GetString().Data());
     if(str.BeginsWith("Xmin:")) {
@@ -76,6 +74,7 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
     }
     Xmin = min - (max-min)*0.1;
   }
+
   if(Xmax == 9999.) {
     double min = 99999.;
     double max = -99999.;
@@ -85,10 +84,16 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
     }
     Xmax = max + (max-min)*0.1;
   }
+  if(Xmin == Xmax) {  // if there is only one point on the x axis
+    Xmin *= 0.9;
+    Xmax *= 1.1;
+  }
+
 
   if(fHistogram) delete fHistogram;
   fHistogram = new TH1F("","",2, Xmin, Xmax);
   fHistogram->SetStats(kFALSE);
+  fHistogram->SetTitle("unknown");
 
 
   // set default 
@@ -114,6 +119,10 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
     if(str.BeginsWith("Title:")) {
       str.ReplaceAll("Title:","");
       fHistogram->SetTitle(str.Data());
+    }
+    else if(str.BeginsWith("XTitle:")) {
+      str.ReplaceAll("XTitle:","");
+      fHistogram->GetXaxis()->SetTitle(str.Data());
     }
     else if(str.BeginsWith("Ymin:")) {
       if(!RatioToData) {
@@ -151,16 +160,6 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
   }
   delete array;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
