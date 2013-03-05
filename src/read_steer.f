@@ -145,7 +145,7 @@ C  Hermes-like strange (off by default):
       ifsttype = 0
 
 C  Cache PDF calls
-      CachePDFs     = .true.
+      CachePDFs     = .false.
 
 !> Do not split the data into fit and control sub-samples:
       ControlFitSplit = .false.
