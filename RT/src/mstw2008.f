@@ -726,6 +726,7 @@ C--   End of MSTWNC subroutine.
       COMMON/iordCommon/iord
       COMMON/GAUS96/XI(96),WI(96),XX(97),NTERMS ! G.W. 15/02/2007
       DATA PI,PI2/3.14159,9.8696/
+!$OMP THREADPRIVATE(/TRprimeCommon/,/GRPTHY/)
 
       IF (IORD.NE.2) THEN
          WRITE(6,*) "Error in MSTWNCnnlo, IORD = ",IORD
