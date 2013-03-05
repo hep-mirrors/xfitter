@@ -54,12 +54,14 @@ parameters
 
 ***** for GBW and IIM dipole models *****
 * fix all PDF parameters and leave dipole parameters free in steering
-
 fix 2 3 12 13 15 23 33 41 42 43
 
 ***** for BGK dipole model *****
 * fix non gluon PDF parameters,
-* make Ag=3.5 and make it free
+* make Ag=3.1885 and make it free
+* make Bg=-0.0237
+* make Cg=13.8
+* make ADbar=0.0
 * make dipole parameters free in steering
 *fix 12 13 15 23 33 41 42 43
 
