@@ -11,10 +11,11 @@ dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.
 getncxskt.f Getgridkt.f \
 GetDiffDisXsection.f FixModelParams.f reweighting.f GetPointScaledErrors.f GetCovChisquare.f prep_corr.f
 
-# WS 2012-10-29  files for the Offset method (and not only)
-FitPDF_SOURCES += offset_fns.f g_offset.cc matrix.cc FitPars_base.cc FTNFitPars.cc Xstring.cc decor.cc
+# WS 2013-01-19 for the Offset method
+FitPDF_SOURCES += offset_fns.f g_offset.cc
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include
+AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 
 if ENABLE_APPLGRID 
   FitPDF_SOURCES+= fappl_grid.cxx applgrids.f
@@ -45,10 +46,10 @@ endif
 
 
 # libraries to be linked to the main target
-LDADD = $(QCDNUMLIBS) 
+LDADD = $(QCDNUMLIBS)
 if ENABLE_OPENMP
-LDADD+= -lgomp
-AM_FFLAGS+= -fopenmp
+  LDADD+= -lgomp
+  AM_FFLAGS+= -fopenmp
 endif
 
 if ENABLE_LHAPDF 
@@ -58,6 +59,7 @@ endif
 
 LDADD += ../Cascade/src/libcasutil.a
 LDADD += ../NNPDF/src/libNNPDF.a
+LDADD += ../common/libHFcommon.a
 
 if ENABLE_UPDF
    LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 

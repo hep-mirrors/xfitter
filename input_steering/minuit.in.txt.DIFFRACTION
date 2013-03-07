@@ -1,5 +1,5 @@
 set title
-new 10p HERAPDF 
+dpdf fit C
 parameters
    1    'Ag'                       0.434       0.074
    2    'Bg'  			   0.0         0.0
@@ -55,11 +55,10 @@ parameters
    85   'Edel'                     0.0000      0.
 
 set eps 1.0e-11
-*set print 3  
 call fcn 3
 migrad 200000
 *hesse
-set print 3
-save
+*set print 3
+*save
 return
 

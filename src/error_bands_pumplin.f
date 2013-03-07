@@ -8,7 +8,10 @@
       include 'endmini.inc'
       include 'alphas.inc'
       include 'thresholds.inc'
-      
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'g_offset.inc'	
+
       integer shift_dir
       double precision a
       dimension a(MNE)
@@ -50,7 +53,7 @@ C SG: x-dependent fs:
       double precision shift
 C Function
       double precision GetUmat
-      double precision DecorVarShift
+      ! double precision DecorVarShift
 
 C---------------------------------------------------------------
       
@@ -133,7 +136,7 @@ C
                a(i) = pkeep(i) 
                iint = iunint(i)
                if (iint.gt.0) then
-                  if(CorrSystByOffset) then
+                  if(doOffset) then
                     shift = shift_dir * DecorVarShift(iint, j)
                   else
                     shift = shift_dir * GetUmat(iint,j)

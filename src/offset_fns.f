@@ -16,6 +16,9 @@ c      integer nparFCN ! number of fit parameters
       ! write(*,*) '------- Stat. covariance matrix -------'
       ! write(*,*) Cov
       OutFile = 'output/statcov_0.txt'
+      print *,' '
+      print *,'==> Saving covariance matrix to ',Trim(OutFile)
+      call flush(6)
       OPEN(86,file=OutFile,form='formatted',status='replace')
       write(86,*) nparFCN
       write(86,*) Cov
@@ -59,12 +62,12 @@ c ===============================================
       include 'systematics.inc'
       integer iErr
       integer OffsetCollect
+      integer nOffset
       
        ! Collect results from all Offset fits
        ! ------------------------------------
-       ! --- nSys is fixed by read_data
-       ! --- and stored in common/systema/ (systematics.inc)
-       iErr = OffsetCollect(nSys, 'output'//CHAR(0))
+c       CALL GetNOffset(nOffset)
+       iErr = OffsetCollect('output'//CHAR(0))
        if(iErr.eq.1) then
          ! print *,'WARNING, RC=',iErr,' collecting offset results.'
          print *,'WARNING, still not all Offset method results available.'
@@ -102,6 +105,7 @@ c ===============================================
         ! ------------------------------------
         CorSysIndex = 0
         MinuitIn='minuit.temp.in.txt'
+        ! --- prepare minuit input for the final run
         Call RecoverParams('output', MinuitIn)
         ResultsFile = 'output/Results'//Suffix
         MinuitOut = 'output/minuit.out'//Suffix

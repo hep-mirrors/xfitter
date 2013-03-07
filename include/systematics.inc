@@ -39,7 +39,10 @@
 
       integer SysForm(nsysmax)
 
+      logical doOffset
+      Logical Chi2OffsFinal, Chi2OffsRecalc
       common/systscal/SysScaleFactor,SysScalingType,SysForm
+     & ,doOffset, Chi2OffsFinal, Chi2OffsRecalc
 
 C !> Add also original systematic errors for asymmetric uncertainties
       double precision BetaAsym(NSYSMAX,2,NTOT)

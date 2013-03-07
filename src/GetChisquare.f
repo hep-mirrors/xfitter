@@ -36,10 +36,14 @@
       data LFirst /.true./
 
       Logical doMatrix, doNuisance, doExternal
-
+      
 C----------------------------------------------------------------------------
 
+         ! --> WS debug
+         if(LDEBUG) print*,'GetNewChisquare flag_in=',flag_in
+         
 c Global initialisation 
+
       if (LFirst) then
          LFirst = .false.
 
@@ -50,13 +54,14 @@ C    !> Determine which errors are diagonal and which are using covariance matri
          Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
      $        List_Covar_inv,n0_in)
 
+         ! print*,'NDiag=',NDiag,'NCovar=',NCovar
 
          do i=1,NCovarMax
             do j=1,NCovarMax
                ScaledSystMatrix(i,j) = 0.
             enddo
          enddo
-      endif
+      endif  ! LFirst
       
 C 
       do jsys=1,nsys
@@ -84,15 +89,21 @@ C
       endif
 
 
-C !> Read extenral (minuit) systematic sources if present:
+C !> Read external (minuit) systematic sources if present:
       if (doExternal) then
          call Chi2_calc_readExternal( rsys_in, ersys_in, flag_in )
       endif
 
-      if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
+      if (.not. Chi2FirstIterationRescale) then
 C !> Calculated scaled syst. uncertainties:
          call Chi2_calc_GetGamma(ScaledGamma)
          
+        ! print *,' --- ScaledGamma'
+        ! do i=1,n0_in
+          ! print *,(ScaledGamma(j,i),j=1,nsys)
+        ! enddo
+
+
 C !> Rebuild syst. covariance matrix 
 
          if ( doMatrix ) then
@@ -100,6 +111,10 @@ C !> Rebuild syst. covariance matrix
      $           ,ScaledSystMatrix
      $           ,List_Covar_Inv,n0_in)
          endif
+          ! print *,' --- ScaledSystMatrix'
+          ! do i=1,6
+            ! print *,(ScaledSystMatrix(j,i),j=1,6)
+          ! enddo
       endif
 
 
@@ -107,10 +122,17 @@ C !> Get uncor errors/nuisance parameters.
       do while ( Iterate.ge.0 )
 
 c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
-         if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1) then
+         if (.not. Chi2FirstIterationRescale .or. Chi2OffsRecalc) then
             Call Chi2_calc_stat_uncor(ScaledErrors
      $           ,ScaledErrorMatrix
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
+     
+          ! print *,' --- ScaledErrors'
+            ! print *,(ScaledErrors(j),j=1,6)
+          ! print *,' --- ScaledErrorMatrix'
+          ! do i=1,6
+            ! print *,(ScaledErrorMatrix(j,i),j=1,6)
+          ! enddo
 
 C  !> Sum covariance matricies and invert the total:
 
@@ -118,6 +140,11 @@ C  !> Sum covariance matricies and invert the total:
                Call Chi2_calc_SumCovar(ScaledErrorMatrix, 
      $              ScaledSystMatrix, 
      $              ScaledTotMatrix, NCovar)
+     
+              ! print *,' --- ScaledTotMatrix Inv.'
+              ! do i=1,6
+                ! print *,(ScaledTotMatrix(j,i),j=1,6)
+              ! enddo
             endif
 
 C !> same for diagonal part:
@@ -137,7 +164,7 @@ C !> Next determine nuisance parameter shifts
      $        ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in)
 
          Iterate = Iterate - 1
-      enddo
+      enddo   ! while ( Iterate.ge.0 )
 
 C !> Calculate chi2
       call chi2_Calc_chi2(
@@ -155,14 +182,15 @@ C !> Add log term
          fchi2_in = fchi2_in + chi2_log
       endif
 
+       ! print*,'fchi2_in=',fchi2_in
+
 
 C
 C !> Store extra output for FCN = 3:
 C
-      if (Flag_In.eq.3) then
-         Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
-      endif
-
+      ! if (Flag_In.eq.3) then
+         ! Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
+      ! endif
 
 
       return 
@@ -177,17 +205,20 @@ C
 C------------------------------------------------------------------
       implicit none
       logical doMatrix, doNuisance, doExternal
+      ! logical doOffset
       include 'ntot.inc'
       include 'systematics.inc'
-      integer k, n_m, n_n, n_e
+      integer k, n_m, n_n, n_e, n_o
       character*64 Msg
 C----------------------
       doMatrix   = .false.
       doNuisance = .false.
       doExternal = .false.
+      doOffset = .false.
       n_m = 0
       n_n = 0
       n_e = 0
+      n_o = 0
       do k=1,nsys
          if ( SysForm(k) .eq. isMatrix) then
             doMatrix = .true.
@@ -209,6 +240,10 @@ C----------------------
             doExternal = .true.
             n_e = n_e + 1
          endif
+         if ( SysForm(k) .eq. isOffset) then
+            doOffset = .true.
+            n_o = n_o + 1
+         endif
 
       enddo
 C
@@ -221,13 +256,18 @@ C
       endif
       if (doNuisance ) then
          write (Msg,
-     $  '(''I: Use hessinan method for'',i4,'' sources'')') n_n
+     $  '(''I: Use hessian method for'',i4,'' sources'')') n_n
         call hf_errlog(271120123,Msg)
+      endif
+      if (doOffset) then
+         write (Msg,
+     $  '(''I: Use offset method for'',i4,'' sources'')') n_o
+        call hf_errlog(70120131,Msg)
       endif
 
       if (doExternal) then
          write (Msg,
-     $  '(''I: Use exteranl (minuit) method for'',i4,'' sources'')') n_e
+     $  '(''I: Use external (minuit) method for'',i4,'' sources'')') n_e
         call hf_errlog(271120124,Msg)
       endif
 
@@ -296,7 +336,7 @@ C Check systematic sources, if a matrix source point to point i
 
       if (lDebug) then
          print *,'DEBUG from Init_chi2_stat'
-         print *,'Ncovar = ',Ncovar,' NDiag=',NDiag
+         print *,'Ncovar= ',Ncovar,' NDiag=',NDiag
       endif
 
       end
@@ -434,7 +474,9 @@ C----------------------------------------------------------------------
 
       
       Subroutine GetPointErrors(Idx, Stat, StatConst, Uncor)
-
+      ! ======================================================
+      ! --- input:  Idx = data point index
+      ! --- output: Stat, StatConst, Uncor -- absolute errors
       implicit none
       integer Idx
       double precision Stat, StatConst, Uncor
@@ -492,6 +534,11 @@ C-----------------------------
             ScaledTotMatrix(j,i) = ScaledTotMatrix(i,j)
          enddo
       enddo
+      
+        ! print *,' --- ScaledTotMatrix'
+        ! do i=1,6
+          ! print *,(ScaledTotMatrix(j,i),j=1,6)
+        ! enddo
 
 C-----------------------------   
       Call DInv(NCovar,ScaledTotMatrix,NCovarMax,Array,IFail)
@@ -520,6 +567,9 @@ C-----------------------------------------------------------------------
 
       integer i,j,i1,j1
       double precision Stat, StatConst, Unc, Sum
+      
+      include 'indata.inc'
+      double precision Offs
 C-------------------------------------------------------
 
 C
@@ -537,7 +587,15 @@ C Re-scale for systematic shifts:
                endif
             enddo
          endif
-         ScaledErrors(i) = sqrt((Stat*Sum)**2+StatConst**2+Unc**2)
+         Offs = 0.
+         if (Chi2OffsFinal) then
+            do j=1,NSYS
+               if (SysForm(j) .eq. isOffset) then
+                  Offs = Offs + beta(j,i)**2
+               endif
+            enddo
+         endif
+         ScaledErrors(i) = sqrt((Stat*Sum)**2+StatConst**2+Unc**2+Offs*daten(i)**2)
       enddo
 
 C
@@ -547,14 +605,14 @@ C
          i = List_Covar(i1)
          do j1=i1,NCovar
             j = List_Covar(j1) 
-            if ( .not. lcorr_stat(i) ) then
-C Try to use covariance matrix:
-               ScaledErrorMatrix(i1,j1) = cov(i,j)
-            else
+            if ( lcorr_stat(i) ) then
 C We have stat. correlation, use it:
                ScaledErrorMatrix(i1,j1) =
      $           ScaledErrors(i)
      $           *ScaledErrors(j)*corr_stat(i,j)
+            else
+C Try to use covariance matrix:
+               ScaledErrorMatrix(i1,j1) = cov(i,j)
             endif
          enddo
       enddo
@@ -845,6 +903,8 @@ C Sums:
          endif
       enddo
 
+       ! print*,'chi2_calc1: ',fchi2_in
+      
 C Covariance matrix part
 
 C 1) Pre-compute sums of systematic shifts:
@@ -877,12 +937,16 @@ C Sums:
 
       enddo
 
+       ! print*,'chi2_calc2: ',fchi2_in
+
 C Correlated chi2 part:
       fcorchi2_in = 0.d0
       do k=1,NSys
          fcorchi2_in = fcorchi2_in + rsys_in(k)**2
       enddo
       fchi2_in = fchi2_in + fcorchi2_in
+
+       ! print*,'chi2_calc3: ',fchi2_in
 
 C---------------------------------------------------------------------------
       end
@@ -935,6 +999,10 @@ C------------------------------------------------------------------
             THEO_MOD(i) = THEO_MOD(i) - ScaledGamma(k,i)*RSys_in(k)
          enddo
       enddo
+      
+      CALL cvfillgamma(nsys,n0_in,ScaledGamma,NSYSMAX)
+      ! CALL cvfillgamma(ScaledGamma,nsys,n0_in,NTOT)
+
 C------------------------------------------------------------------
       end
 

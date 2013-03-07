@@ -565,8 +565,7 @@ C
             Call InitDYNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
             Call InitJetsPPApplGridDataSet(IDataSet)
-         elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.
-     $           DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then  ! for backward compatibility
+         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then
             Call InitJetsFastNLODataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet)
      $           .eq.'FastNLO ep jets normalised') then
@@ -577,9 +576,7 @@ C
          elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
             Call InitDDisDataSet(IDataSet)            
          else
-C allow other reactions to pass (e.g. 'muon p' for fix target data)             
-C            Call hf_errlog(01110113,'F: Init_theory: unknown reaction "'
-C     $                //TRIM(DATASETREACTION(IDataSet)) //'"')
+C     C         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
          endif
       enddo
 C
@@ -1178,11 +1175,12 @@ c      include 'steering.inc'
       integer idxSqrtS
       integer GetInfoIndex
       
-
-      call ddisinit
+      print *,'Initialising DDIS for dataset', IDataSet
+      call flush(6)
+      call ddisinit(IDataSet)
       idxSqrtS = GetInfoIndex(IDataSet, 'sqrt(S)')
       sqrtS = 318d0 ! defaults to HERA2
       if ( idxSqrtS .ne. 0 ) sqrtS = DATASETInfo(idxSqrtS, IDataSet)
-      call SetECMsq(sqrtS**2)
+      call SetECMsq(IDataSet, sqrtS**2)
       
       end

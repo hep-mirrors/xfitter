@@ -7,6 +7,8 @@ C
 C----------------------------------------------------------------------
       implicit none
       include 'steering.inc'
+      include 'ntot.inc'
+      include 'systematics.inc'
       include 'iofnames.inc'
 
       ! character*72 ResultsFile
@@ -19,8 +21,10 @@ C----------------------------------------------------------------------
       character*72 AltInp
       character*32 OffsLabel
       logical file_exists
-      
-      if(CorrSystByOffset) then
+      ! .............................
+
+      call flush(6)
+      if(doOffset) then
         Suffix='_'//OffsLabel(CorSysIndex,'.txt')
       else
         Suffix = '.txt'
@@ -34,14 +38,17 @@ C----------------------------------------------------------------------
       if(UsePrevFit .ge. 1) then
         AltInp = 'output/minuit.save'//Suffix
         INQUIRE(FILE=AltInp, EXIST = file_exists)
-        if(.not.file_exists .and. CorrSystByOffset) then
+        if(.not.file_exists .and. doOffset) then
+          ! --- try to use the central fit results
           AltInp = 'output/minuit.save'//'_'//OffsLabel(0,'.txt')
           INQUIRE(FILE=AltInp, EXIST = file_exists)
         endif
         if(file_exists) then
           ! --- Change parameters acc. to the found minuit-saved file
-          Call MntInpRead(Trim(MinuitIn)//CHAR(0))
-          Call MntInpReadPar(Trim(AltInp)//CHAR(0))
+          ! Call MntInpRead(Trim(MinuitIn)//CHAR(0))
+          ! Call MntInpReadPar(Trim(AltInp)//CHAR(0))
+          Call MntInpRead(MinuitIn,"tpc",1)
+          Call MntInpRead(AltInp,"p",1)
           MinuitIn='minuit.temp.in.txt' 
           ! Call MntInpWrite(Trim(MinuitIn)//CHAR(0))
           Call MntInpWrite(MinuitIn)
@@ -103,6 +110,7 @@ C----------------------------------------------------------------------
       external fcn
 
       integer amu
+      integer OffsetIndex
       double precision daten_notshifted(NTOT)
       double precision musign
       character*32 OffsLabel
@@ -113,9 +121,18 @@ C----------------------------------------------------------------------
 
       Call Generate_IO_FileNames
       
-      if(UsePrevFit.eq.2 .and. FileExists(ResultsFile)) return
+      if(UsePrevFit.eq.2 .and. FileExists(ResultsFile)) then
+        print *,'==>  Using previous fit results.'
+        return
+      endif
       
-      if(CorrSystByOffset .and. CorSysIndex .ne. 0) then
+      print *,'==>  Starting the fit...'
+      print *,'ResultsFile = ',ResultsFile
+      print *,'MinuitIn = ',MinuitIn
+      print *,'MinuitOut = ',MinuitOut
+      print *,'MinuitSave = ',MinuitSave
+      
+      if(doOffset .and. CorSysIndex .ne. 0) then
         if(IABS(CorSysIndex) .gt. nSys) then
           print *,' CorSysIndex out of range'
           call HF_errlog(12110601, 'F: CorSysIndex out of range') 
@@ -125,13 +142,11 @@ C----------------------------------------------------------------------
           daten_notshifted(j) = daten(j)
         enddo
         ! --- shift by CorSysIndex
-        amu = IABS(CorSysIndex)
-        ! write(*,*)'--> OFFSET CorrSrc = ',CorSysIndex
+        amu = OffsetIndex(IABS(CorSysIndex))
+        ! write(*,*)'--> OFFSET CorrSrc = ',amu
         musign = ISIGN(1,CorSysIndex)
         do j=1,npoints
-          ! write(*,*)'npoints ',j,DATEN (j), beta(CorSysIndex,j)
-          daten (j) = 
-     &    daten_notshifted(j)*(1 + musign*beta(amu,j))
+          daten (j) = daten_notshifted(j)*(1 + musign*beta(amu,j))
         enddo
       endif
 
@@ -140,24 +155,39 @@ C----------------------------------------------------------------------
 *     ------------------------------------------------
 
       OPEN(85,file=ResultsFile,form='formatted',status='replace')
-      write(*,*) 'ResultsFile: ',ResultsFile
+      ! write(*,*) 'ResultsFile: ',ResultsFile
       call minuit_ini  ! opens Minuit i/o files
       lprint = .true.
 c      lprint = .false.
       ! Call ShowXPval(2)
       call minuit(fcn,0)
-      if(CorrSystByOffset) then
+      call flush(6)
+      if(doOffset) then
+        Call MntInpRead(MinuitIn,"c",0)
         ! --- Force HESSE to have accurate cov. matrix
-        ! --- for central Offset fit only
-        if(CorSysIndex .eq. 0) call MNCOMD(fcn,'hesse',IERFLG,0)
-        ! --- do not call SAVE from your minuit input for the Offset mode
-        call MNCOMD(fcn,'set print 3',IERFLG,0)
-        Call MNSAVE
+        ! --- not necessary for non-central Offset fits, so do not put it in your minuit input
+        if(CorSysIndex .eq. 0) then
+          Call MntInpHasCmd("hesse",IERFLG)
+          if(IERFLG.eq.0) then
+            print *,' '
+            print *,'==> Forcing HESSE for CorSysIndex 0'
+          endif
+          call MNCOMD(fcn,'hesse',IERFLG,0)
+        endif
+        ! --- force level 3 SAVE
+        Call MntInpHasCmd("save",IERFLG)
+        if(IERFLG.ne.0) Call MntInpHasCmd("set print 3",IERFLG)
+        if(IERFLG.eq.0) then
+          ! print *,'Minuit SAVE'
+          call MNCOMD(fcn,'set print 3',IERFLG,0)
+          Call MNSAVE
+        endif
       endif
       close(85)
 *     ------------------------------------------------
        
-      if(CorrSystByOffset) then
+      call flush(6)
+      if(doOffset) then
         ! --- In the non-Offset mode these io units are used in main.f for DOBANDS 
         ! --- via MNCOMD to ITERATE and MYSTUFF 
         close(24)
@@ -228,6 +258,7 @@ C----------------------------------------------------
       character*(*) FileName
       logical file_exists
       INQUIRE(FILE=FileName, EXIST = file_exists)
+      ! print *,' --- FileExists: ',FileName,file_exists
       FileExists = file_exists
       return
       end

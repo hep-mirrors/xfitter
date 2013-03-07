@@ -41,17 +41,17 @@
   Q02     = 1.8 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
- ! ---  HF_SCHEME = 'ZMVFNS'       : ZM-VFNS (massless),
- ! ---  HF_SCHEME = 'RT'           :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT FAST'      : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'RT OPT'       :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT OPT FAST'  : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'ACOT Full'    : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT Chi'     : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT ZM'      : ACOT - F.Olness Version (massless), using k-factors  
- ! ---  HF_SCHEME = 'FF'           : Fixed Flavour Number Scheme (qcdnum)
- ! ---  HF_SCHEME = 'FF ABM'       : Fixed Flavour Number Scheme (ABM)
- ! ---  HF_SCHEME = 'FF ABM RUNM'  : Fixed Flavour Number Scheme (ABM) using run mass def
+ ! ---  HF_SCHEME = 'ZMVFNS'    : ZM-VFNS (massless),
+ ! ---  HF_SCHEME = 'RT'        :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'RT OPT'        :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT OPT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi' : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'FF'        : Fixed Flavour Number Scheme (qcdnum)
+ ! ---  HF_SCHEME = 'FF ABM'    : Fixed Flavour Number Scheme (ABM)
+ ! ---  HF_SCHEME = 'FF ABM RUNM' : Fixed Flavour Number Scheme (ABM) using run mass def
 
   HF_SCHEME = 'RT'
 
@@ -76,10 +76,20 @@
  !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
  !    'Offset' : chi2 calculated using statistical errors only
 
-  CHI2Style = 'Offset'
+ 
+  ! CHI2Style = 'Offset'
+  
+ ! New "chi2" style, uncomment if you want to use it: 
+
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'NoRescale',        'NoRescale'     , 'Diagonal'     , 'Offset'
+  ! Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Offset'
+
+ !  Chi2ExtraParam = 'PoissonCorr'
 
  ! Debug flag
   LDEBUG     = False
+ ! LDEBUG     = True
 &End
 
 
@@ -88,7 +98,7 @@
 *
 &ExtraMinimisationParameters
    name  = 'alphas',   'fs',   'fcharm'
-   value =  0.1176 ,   0.31,      0.
+   value =  0.1176 ,   1.0,      0.
    step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
 &End
 
@@ -106,6 +116,7 @@
 &Output 
   ! -- Error bands on parton distributions
   DoBands = False     
+  ! DoBands = True     
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
   Q2VAL = 1.8, 6., 20., 60., 200.
@@ -121,13 +132,13 @@
 * (Optional) Offset method parameters 
 *
 &CSOffset
-  ! CorSysIndex  =  0
+  CorSysIndex  =  0
   
   ! -- Use previous fit results if exist in output dir
   !    0 - never use (default) 
-  !    1 - use as input to the current fit (not implemented)
+  !    1 - use as input to the current fit
   !    2 - do not run fit again
-  UsePrevFit = 2
+  UsePrevFit = 1
 &End
 
 

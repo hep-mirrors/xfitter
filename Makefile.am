@@ -7,6 +7,7 @@ endif
 
 SUBDIRS+= NNPDF/src
 
+SUBDIRS+= common
 SUBDIRS+= src doc/tex
 
 # DOXYGEN SUPPORT

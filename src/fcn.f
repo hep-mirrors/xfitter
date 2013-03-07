@@ -140,6 +140,7 @@ C--------------------------------------------------------------
       integer idataset
       double precision TempChi2
       double precision GetTempChi2   !> Temperature penalty for D, E... params.
+      double precision OffsDchi2   !> correction for final Offset calculation
       
 
 C  x-dependent fs:
@@ -165,7 +166,7 @@ c updf stuff
 
 C--------------------------------------------------------------
 *     ---------------------------------------------------------
-*     initilise variables 
+*     initialise variables 
 *     ---------------------------------------------------------
       chi2out = 0.d0
       fchi2 = 0.d0
@@ -357,8 +358,21 @@ c             call fillvfngrid
 *     ---------------------------------------------------------
 *     calculate chisquare
 *     ---------------------------------------------------------
+      OffsDchi2 = 0.d0
       if (ICHI2.eq.-1) then
-         call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+        if (doOffset .and. iflag.eq.3) then
+          Chi2OffsRecalc = .true.
+          Chi2OffsFinal = .true.
+          call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,pchi2,fcorchi2)
+        else
+          Chi2OffsRecalc = .false.
+        endif
+        Chi2OffsFinal = .false.
+        call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+        if (doOffset .and. iflag.eq.3) then
+          Chi2OffsRecalc = .false.
+          OffsDchi2 = OffsDchi2 - fchi2
+        endif
       else
          if (ICHI2.eq.100) then
             call GetCovChisquare(iflag,n0,fchi2,pchi2)
@@ -445,9 +459,13 @@ c             call fillvfngrid
 
       if (iflag.eq.3) then
          write(85,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
+         if (doOffset .and. iflag.eq.3)
+     $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(85,*)
          write(6,*)
          write(6,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
+         if (doOffset .and. iflag.eq.3)
+     $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(6,*)
 
          !> Store minuit parameters
@@ -518,7 +536,7 @@ c     $           ,chi2_cont/NControlPoints
              call Evolution
 C LHAPDF output:
 c WS: for the Offset method save central fit only
-            if (.not.CorrSystByOffset .or. CorSysIndex.eq.0) then
+            if (CorSysIndex.eq.0) then
               open (76,file='output/lhapdf.block.txt',status='unknown')
               call store_pdfs(base_pdfname)
             endif

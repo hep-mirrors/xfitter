@@ -59,6 +59,7 @@ public:
     \c Pdf and \c Phys must be set 
   */
   virtual void Initialize() {
+    // cout << "==> TheModel_base_t::Initialize" << endl;
     isInitialized = true;
     Configure();
   }

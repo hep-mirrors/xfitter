@@ -38,9 +38,10 @@ C
       
       call Read_InCorrNml   ! Covariance matrix
       call read_scalesnml   ! Read scales namelist
-      if(CorrSystByOffset) then
+c WS 2013-01-07 always read CSOffsetNML
+      ! if(CorrSystByOffset) then
         call Read_CSOffsetNML   ! Offset method parameters
-      endif
+      ! endif
 
       if(Itheory.lt.100) then
 C
@@ -966,7 +967,7 @@ C
             call HF_stop
          endif
       else
-         CorrSystByOffset=.false.
+         ! CorrSystByOffset=.false.
 c     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
          ICHI2 = -1
          do i=1, 5
@@ -1183,9 +1184,9 @@ C-----------------------------------------
       include 'systematics.inc'
       include 'steering.inc'
       namelist/CSOffset/ CorSysIndex, UsePrevFit
-C----------------------------------------
+      ! .................................
 
-C Initialisation:
+      ! --- Initialisation:
       UsePrevFit = 0   ! Do not use previous fit results
       CorSysIndex = NSYSMAX+1  ! trick to calculate all offsets in one job
       

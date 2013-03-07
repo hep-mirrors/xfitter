@@ -60,15 +60,12 @@ public:
   
   // ====================================================
   void Initialize() {
+    // cout << "==> plug_DDIS_t::Initialize" << endl;
     if(Params.GetString("PDFgrid").empty()) {
       // --- prepare for fitting new PDFs
       if(!Phys) throw Fiasco("plug_DDIS_t::Configure ERROR: Phys not set.");
       if(!Pdf) throw Fiasco("plug_DDIS_t::Configure ERROR: Pdf not set.");
       M_theory.Phys = *Phys;
-      // M_theory.Configure(*Pdf, Params.GetInt("Pion_order"), Params.GetInt("Mass_corr"));
-      // M_theory.Pflux.SetParams(Params.GetReal("Pomeron_a0"), Params.GetReal("Pomeron_a1"), Params.GetReal("Pomeron_tslope")); 
-      // M_theory.Rflux.SetParams(Params.GetReal("Reggeon_a0"), Params.GetReal("Reggeon_a1"), Params.GetReal("Reggeon_tslope")); 
-      // M_theory.Reggeon_factor = Params.GetReal("Reggeon_factor");
     }
     else {
       // --- use PDFs grids
@@ -84,19 +81,19 @@ public:
   void Configure() {
     if(!isInitialized) Initialize();
     else {
-    if(Params.GetString("PDFgrid").empty()) {
-      M_theory.Configure(*Pdf, Params.GetInt("Pion_order"), Params.GetInt("Mass_corr"));
-      M_theory.Pflux.SetParams(Params.GetReal("Pomeron_a0"), Params.GetReal("Pomeron_a1"), Params.GetReal("Pomeron_tslope")); 
-      M_theory.Rflux.SetParams(Params.GetReal("Reggeon_a0"), Params.GetReal("Reggeon_a1"), Params.GetReal("Reggeon_tslope")); 
-      M_theory.Reggeon_factor = Params.GetReal("Reggeon_factor");
+      if(Params.GetString("PDFgrid").empty()) {
+        M_theory.Configure(*Pdf, Params.GetInt("Pion_order"), Params.GetInt("Mass_corr"));
+        M_theory.Pflux.SetParams(Params.GetReal("Pomeron_a0"), Params.GetReal("Pomeron_a1"), Params.GetReal("Pomeron_tslope")); 
+        M_theory.Rflux.SetParams(Params.GetReal("Reggeon_a0"), Params.GetReal("Reggeon_a1"), Params.GetReal("Reggeon_tslope")); 
+        M_theory.Reggeon_factor = Params.GetReal("Reggeon_factor");
+      }
+      hiTwist = Params.GetInt("HigherTwists");
+      #ifndef HI_TWISTS
+        if(hiTwist) throw "Higher twists constributions not available";
+      #endif
+      cout << "Pomeron flux: " << M_theory.Pflux;
+      cout << "Reggeon flux: " << M_theory.Rflux;
     }
-    hiTwist = Params.GetInt("HigherTwists");
-    #ifndef HI_TWISTS
-      if(hiTwist) throw "Higher twists construbutions not available";
-    #endif
-    }
-    cout << "Pomeron flux: " << M_theory.Pflux;
-    cout << "Reggeon flux: " << M_theory.Rflux;
   }
   
   // // ====================================================

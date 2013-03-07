@@ -14,9 +14,13 @@ C-------------------------------------------------------
       include 'for_debug.inc'
       include 'ntot.inc'
       include 'indata.inc'
-      include 'systematics.inc'	
+      include 'systematics.inc'
+      include 'g_offset.inc'	
 
-      integer icond
+      integer icond,k
+      integer nOffset
+      ! logical doOffset  ! defined in 'systematics.inc'
+      
 C-----------------------------------------------------
 *     ------------------------------------------------
 *     Print info message
@@ -66,15 +70,27 @@ C-----------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------
       
-c Modifications for the Offset method by Wojtek Slominski & Justyna Tomaszewska
+c Modifications for the Offset method by WS & JT
 c WS: 2012-10-28 subroutine Do_Fit defined in 'minuit_ini.f'
 c ..........................................................
 
-      if (CorrSystByOffset .and. CorSysIndex .gt. NSYSMAX) then
-        do CorSysIndex = 0,nSys
+      call flush(6)
+      nOffset = ProbeOffset(SysForm, nSys)
+      if (LDebug) then
+        print *,'iOffset  iSys'
+        do k=1,nOffset
+          print *,k,OffsetIndex(k)
+        enddo
+      endif
+      doOffset = nOffset.gt.0
+      ! print *,' --- Offset: ',nOffset,doOffset
+      ! --- ignore CorSysIndex if no Offset type errors
+      if (.not.doOffset) CorSysIndex = 0
+      if (doOffset .and. CorSysIndex .gt. NSYSMAX) then
+        do CorSysIndex = 0,nOffset
           call Do_Fit
         enddo
-        do CorSysIndex = -nSys,-1
+        do CorSysIndex = -nOffset,-1
           call Do_Fit
         enddo
       else
@@ -82,8 +98,9 @@ c ..........................................................
       endif
       
       
-      if (CorrSystByOffset) then
+      if (doOffset) then
         call Offset_Finalize(icond)
+        call flush(6)
         if(icond .ne. 0) goto 36
         Call RecovCentrPars
         if (DOBANDS) then

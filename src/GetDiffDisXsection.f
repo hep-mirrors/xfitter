@@ -81,7 +81,7 @@ C
         vars(1) = xPom(i)
         vars(2) = Q2(i)
         vars(3) = MX(i)
-        XSec(i) = DDISvalue(vars)
+        XSec(i) = DDISvalue(IDataSet,vars)
       enddo
 
 

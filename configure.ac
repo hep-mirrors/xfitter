@@ -225,6 +225,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 
 # Output
 AC_CONFIG_FILES([src/Makefile
+                 common/Makefile
                  interfaces/src/Makefile
                  tools/DrawResultsPackage/Makefile
                  tools/MakeLHAPDF/Makefile
