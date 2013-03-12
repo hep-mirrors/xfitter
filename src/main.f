@@ -17,7 +17,7 @@ C-------------------------------------------------------
       include 'systematics.inc'
       include 'g_offset.inc'	
 
-      integer icond,k
+      integer icond
       integer nOffset
       ! logical doOffset  ! defined in 'systematics.inc'
       
@@ -76,16 +76,23 @@ c ..........................................................
 
       call flush(6)
       nOffset = ProbeOffset(SysForm, nSys)
-      if (LDebug) then
-        print *,'iOffset  iSys'
-        do k=1,nOffset
-          print *,k,OffsetIndex(k)
-        enddo
-      endif
       doOffset = nOffset.gt.0
       ! print *,' --- Offset: ',nOffset,doOffset
       ! --- ignore CorSysIndex if no Offset type errors
-      if (.not.doOffset) CorSysIndex = 0
+      if (doOffset) then
+        print *,' '
+        print *,' --- Offset mode: '
+        print *,'  ',nOffset,' offset type errors'
+        if (CorSysIndex .gt. NSYSMAX) then
+          print *,'  ALL offset fits selected.'
+        else
+          print *,'  SINGLE offset fit selected:  CorSysIndex = ',CorSysIndex
+        endif
+        print *,'  UsePrevFit = ',UsePrevFit
+      else
+        CorSysIndex = 0
+      endif
+      
       if (doOffset .and. CorSysIndex .gt. NSYSMAX) then
         do CorSysIndex = 0,nOffset
           call Do_Fit
