@@ -4,6 +4,9 @@
 # zarah-jobget
 # ---------------------------------------------------------------
 
+# if {$Farm(User) == ""} {set Farm(User) $tcl_platform(user)}
+if {$Farm(Driver) == ""} {set Farm(Driver) "jnqs.sh"}
+
 # ===================================
 proc farm_submit {driver args} {
   if {[catch {eval exec zarah-jobsub -q M -s \$driver $args 2>@1} ans ]} {
@@ -44,10 +47,12 @@ proc farm_query_all {} {return [farm_query a]}
 proc farm_query_running {} {return [farm_query r]}
 
 # ===================================
-proc farm_getresults {jobid args} {
+proc farm_getresults {jrec args} {
   # --- get std. output and files specified in args
+  # --- jrec = job record = list: nCS iCS jid tmpdir ...
   # --- if args is empty then get all files
-  set cmd "exec zarah-jobget --yes -n -j \$jobid"
+  set jid [lindex $jrec 2]
+  set cmd "exec zarah-jobget --yes -n -j \$jid"
   if {$args != ""} {append cmd " stdout $args"} {append cmd " -a"}
   if {[catch {eval $cmd 2>@1} ans ]} {
     return -code error $ans

@@ -1,0 +1,35 @@
+ First iteration    1120.6729367004839              258   4.3436935531026508     
+After minimisation    1120.67   258     4.344
+  Offset corrected     482.83   258     1.871
+
+  Partial chi2s 
+Dataset    1   1083.57   229  ZEUS-LRG 2009                                   
+Dataset    2     37.11    36  ZEUS-LPS 2009                                   
+
+ Correlated Chi2    0.0000000000000000     
+ Systematic shifts            6
+  
+                                Name          Shift   +/-    Error          Type
+    1  ZEUS-DIFF_2009_Escale                  0.0000   +/-   0.0000          :O:A
+    2  ZEUS-LRG_2009_MCrwgt                   0.0000   +/-   0.0000          :O:A
+    3  ZEUS-LRG_2009_Ezufo                    0.0000   +/-   0.0000          :O:A
+    4  ZEUS-LPS_2009_p_diss                   0.0000   +/-   0.0000          :O:A
+    5  ZEUS-LPS_2009_MC_xpom                  0.0000   +/-   0.0000          :O:A
+    6  ZEUS-LPS_2009_MC_t                     0.0000   +/-   0.0000          :O:A
+After minimisation     805.91   258     3.124
+  Offset corrected     333.19   258     1.291
+
+  Partial chi2s 
+Dataset    1    764.26   229  ZEUS-LRG 2009                                   
+Dataset    2     41.65    36  ZEUS-LPS 2009                                   
+
+ Correlated Chi2    0.0000000000000000     
+ Systematic shifts            6
+  
+                                Name          Shift   +/-    Error          Type
+    1  ZEUS-DIFF_2009_Escale                  0.0000   +/-   0.0000          :O:A
+    2  ZEUS-LRG_2009_MCrwgt                   0.0000   +/-   0.0000          :O:A
+    3  ZEUS-LRG_2009_Ezufo                    0.0000   +/-   0.0000          :O:A
+    4  ZEUS-LPS_2009_p_diss                   0.0000   +/-   0.0000          :O:A
+    5  ZEUS-LPS_2009_MC_xpom                  0.0000   +/-   0.0000          :O:A
+    6  ZEUS-LPS_2009_MC_t                     0.0000   +/-   0.0000          :O:A

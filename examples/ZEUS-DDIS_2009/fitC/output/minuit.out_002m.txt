@@ -1,0 +1,329 @@
+ ***************************************************************************
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+ ***************************************************************************
+                          MINUIT DATA BLOCK NO.   1
+ ***************************************************************************
+ dpdf fit C                                        
+ ******************************************************************************
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'Ag        '   0.43400      0.74000E-01     no limits
+     2 'Bg        '    0.0000      constant
+     3 'Cg        '    0.0000      constant
+     4 'Dg        '    0.0000      constant
+     5 'Eg        '    0.0000      constant
+     6 'Fg        '    0.0000      constant
+     7 'Aprig     '    0.0000      constant
+     8 'Bprig     '    0.0000      constant
+     9 'Cprig     '    0.0000      constant
+    10 'Dprig     '    0.0000      constant
+    11 'Auv       '   0.16100      0.30000E-01     no limits
+    12 'Buv       '    1.2500      0.30000E-01     no limits
+    13 'Cuv       '   0.35800      0.43000E-01     no limits
+    14 'Duv       '    0.0000      constant
+    15 'Euv       '    0.0000      constant
+    16 'Fuv       '    0.0000      constant
+    21 'Adv       '    0.0000      constant
+    22 'Bdv       '    0.0000      constant
+    23 'Cdv       '    0.0000      constant
+    24 'Ddv       '    0.0000      constant
+    25 'Edv       '    0.0000      constant
+    26 'Fdv       '    0.0000      constant
+    31 'AUbar     '    0.0000      constant
+    32 'BUbar     '    0.0000      constant
+    33 'CUbar     '    0.0000      constant
+    34 'DUbar     '    0.0000      constant
+    35 'EUbar     '    0.0000      constant
+    41 'ADbar     '    0.0000      constant
+    42 'BDbar     '    0.0000      constant
+    43 'CDbar     '    0.0000      constant
+    44 'DDbar     '    0.0000      constant
+    45 'EDbar     '    0.0000      constant
+    51 'AU        '    0.0000      constant
+    52 'BU        '    0.0000      constant
+    53 'CU        '    0.0000      constant
+    54 'DU        '    0.0000      constant
+    55 'EU        '    0.0000      constant
+    61 'AD        '    0.0000      constant
+    62 'BD        '    0.0000      constant
+    63 'CD        '    0.0000      constant
+    64 'DD        '    0.0000      constant
+    65 'ED        '    0.0000      constant
+    71 'Asea      '    0.0000      constant
+    72 'Bsea      '    0.0000      constant
+    73 'Csea      '    0.0000      constant
+    74 'Dsea      '    0.0000      constant
+    75 'Esea      '    0.0000      constant
+    81 'Adel      '    0.0000      constant
+    82 'Bdel      '    0.0000      constant
+    83 'Cdel      '    0.0000      constant
+    84 'Ddel      '    0.0000      constant
+    85 'Edel      '    0.0000      constant
+    ***************************************************************************
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+   101 'alphas    '   0.11760      constant
+   102 'fs        '    1.0000      constant
+   103 'fcharm    '    0.0000      constant
+   104 'Pomeron_a0'    1.1072      0.30000E-02     no limits
+   105 'Reggeon_fa'    3.3813      0.72000         no limits
+   106 'Reggeon_a0'   0.66969      0.40000E-01     no limits
+
+ MINUIT: FIRST CALL TO USER FUNCTION, WITH IFLAG=1
+
+ FCN=   1126.977     FROM PARAMETR  STATUS=RESET          2 CALLS        2 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1  Ag           0.43400       0.74000E-01
+   2  Bg            0.0000       constant   
+   3  Cg            0.0000       constant   
+   4  Dg            0.0000       constant   
+   5  Eg            0.0000       constant   
+   6  Fg            0.0000       constant   
+   7  Aprig         0.0000       constant   
+   8  Bprig         0.0000       constant   
+   9  Cprig         0.0000       constant   
+  10  Dprig         0.0000       constant   
+  11  Auv          0.16100       0.30000E-01
+  12  Buv           1.2500       0.30000E-01
+  13  Cuv          0.35800       0.43000E-01
+  14  Duv           0.0000       constant   
+  15  Euv           0.0000       constant   
+  16  Fuv           0.0000       constant   
+  21  Adv           0.0000       constant   
+  22  Bdv           0.0000       constant   
+  23  Cdv           0.0000       constant   
+  24  Ddv           0.0000       constant   
+  25  Edv           0.0000       constant   
+  26  Fdv           0.0000       constant   
+  31  AUbar         0.0000       constant   
+  32  BUbar         0.0000       constant   
+  33  CUbar         0.0000       constant   
+  34  DUbar         0.0000       constant   
+  35  EUbar         0.0000       constant   
+  41  ADbar         0.0000       constant   
+  42  BDbar         0.0000       constant   
+  43  CDbar         0.0000       constant   
+  44  DDbar         0.0000       constant   
+  45  EDbar         0.0000       constant   
+  51  AU            0.0000       constant   
+  52  BU            0.0000       constant   
+  53  CU            0.0000       constant   
+  54  DU            0.0000       constant   
+  55  EU            0.0000       constant   
+  61  AD            0.0000       constant   
+  62  BD            0.0000       constant   
+  63  CD            0.0000       constant   
+  64  DD            0.0000       constant   
+  65  ED            0.0000       constant   
+  71  Asea          0.0000       constant   
+  72  Bsea          0.0000       constant   
+  73  Csea          0.0000       constant   
+  74  Dsea          0.0000       constant   
+  75  Esea          0.0000       constant   
+  81  Adel          0.0000       constant   
+  82  Bdel          0.0000       constant   
+  83  Cdel          0.0000       constant   
+  84  Ddel          0.0000       constant   
+  85  Edel          0.0000       constant   
+ 101  alphas       0.11760       constant   
+ 102  fs            1.0000       constant   
+ 103  fcharm        0.0000       constant   
+ 104  Pomeron_a0    1.1072       0.30000E-02
+ 105  Reggeon_fa    3.3813       0.72000    
+ 106  Reggeon_a0   0.66969       0.40000E-01
+ **********
+ **    1 **SET EPS   0.1000E-10
+ **********
+ FLOATING-POINT NUMBERS ASSUMED ACCURATE TO   0.100E-10
+ **********
+ **    2 ***SET STRA    2.000    
+ **********
+           UNKNOWN COMMAND IGNORED:*SET STRA 
+ **********
+ **    3 **CALL FCN    3.000    
+ **********
+ **********
+ **    4 **MIGRAD   0.2000E+06
+ **********
+ START MIGRAD MINIMIZATION.  STRATEGY 1.  CONVERGENCE WHEN EDM .LT. 0.10E-03
+
+ FCN=   1126.977     FROM MIGRAD    STATUS=INITIATE      30 CALLS       33 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME        VALUE          ERROR          SIZE      DERIVATIVE 
+   1  Ag           0.43400       0.74000E-01   0.74000E-01   -96.464    
+   2  Bg            0.0000       constant   
+   3  Cg            0.0000       constant   
+   4  Dg            0.0000       constant   
+   5  Eg            0.0000       constant   
+   6  Fg            0.0000       constant   
+   7  Aprig         0.0000       constant   
+   8  Bprig         0.0000       constant   
+   9  Cprig         0.0000       constant   
+  10  Dprig         0.0000       constant   
+  11  Auv          0.16100       0.30000E-01   0.30000E-01    56584.    
+  12  Buv           1.2500       0.30000E-01   0.30000E-01   -6592.5    
+  13  Cuv          0.35800       0.43000E-01   0.43000E-01   -7047.3    
+  14  Duv           0.0000       constant   
+  15  Euv           0.0000       constant   
+  16  Fuv           0.0000       constant   
+  21  Adv           0.0000       constant   
+  22  Bdv           0.0000       constant   
+  23  Cdv           0.0000       constant   
+  24  Ddv           0.0000       constant   
+  25  Edv           0.0000       constant   
+  26  Fdv           0.0000       constant   
+  31  AUbar         0.0000       constant   
+  32  BUbar         0.0000       constant   
+  33  CUbar         0.0000       constant   
+  34  DUbar         0.0000       constant   
+  35  EUbar         0.0000       constant   
+  41  ADbar         0.0000       constant   
+  42  BDbar         0.0000       constant   
+  43  CDbar         0.0000       constant   
+  44  DDbar         0.0000       constant   
+  45  EDbar         0.0000       constant   
+  51  AU            0.0000       constant   
+  52  BU            0.0000       constant   
+  53  CU            0.0000       constant   
+  54  DU            0.0000       constant   
+  55  EU            0.0000       constant   
+  61  AD            0.0000       constant   
+  62  BD            0.0000       constant   
+  63  CD            0.0000       constant   
+  64  DD            0.0000       constant   
+  65  ED            0.0000       constant   
+  71  Asea          0.0000       constant   
+  72  Bsea          0.0000       constant   
+  73  Csea          0.0000       constant   
+  74  Dsea          0.0000       constant   
+  75  Esea          0.0000       constant   
+  81  Adel          0.0000       constant   
+  82  Bdel          0.0000       constant   
+  83  Cdel          0.0000       constant   
+  84  Ddel          0.0000       constant   
+  85  Edel          0.0000       constant   
+ 101  alphas       0.11760       constant   
+ 102  fs            1.0000       constant   
+ 103  fcharm        0.0000       constant   
+ 104  Pomeron_a0    1.1072       0.30000E-02   0.30000E-02   0.13092E+06
+ 105  Reggeon_fa    3.3813       0.72000       0.72000       -45.614    
+ 106  Reggeon_a0   0.66969       0.40000E-01   0.40000E-01   -533.37    
+
+ MIGRAD MINIMIZATION HAS CONVERGED.
+
+ FCN=   791.0160     FROM MIGRAD    STATUS=CONVERGED    409 CALLS      412 TOTAL
+                     EDM=  0.24E-05  STRATEGY=1  ERROR MATRIX UNCERTAINTY=  5.7%
+
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME        VALUE          ERROR          SIZE      DERIVATIVE 
+   1  Ag           0.52707       0.18776E-01   0.51709E-04  -0.71993    
+   2  Bg            0.0000       constant   
+   3  Cg            0.0000       constant   
+   4  Dg            0.0000       constant   
+   5  Eg            0.0000       constant   
+   6  Fg            0.0000       constant   
+   7  Aprig         0.0000       constant   
+   8  Bprig         0.0000       constant   
+   9  Cprig         0.0000       constant   
+  10  Dprig         0.0000       constant   
+  11  Auv          0.18179       0.81790E-02   0.72757E-05   -1.8624    
+  12  Buv           1.2264       0.22874E-01  -0.12552E-04   0.51723    
+  13  Cuv          0.34275       0.18553E-01   0.51872E-05   0.15530    
+  14  Duv           0.0000       constant   
+  15  Euv           0.0000       constant   
+  16  Fuv           0.0000       constant   
+  21  Adv           0.0000       constant   
+  22  Bdv           0.0000       constant   
+  23  Cdv           0.0000       constant   
+  24  Ddv           0.0000       constant   
+  25  Edv           0.0000       constant   
+  26  Fdv           0.0000       constant   
+  31  AUbar         0.0000       constant   
+  32  BUbar         0.0000       constant   
+  33  CUbar         0.0000       constant   
+  34  DUbar         0.0000       constant   
+  35  EUbar         0.0000       constant   
+  41  ADbar         0.0000       constant   
+  42  BDbar         0.0000       constant   
+  43  CDbar         0.0000       constant   
+  44  DDbar         0.0000       constant   
+  45  EDbar         0.0000       constant   
+  51  AU            0.0000       constant   
+  52  BU            0.0000       constant   
+  53  CU            0.0000       constant   
+  54  DU            0.0000       constant   
+  55  EU            0.0000       constant   
+  61  AD            0.0000       constant   
+  62  BD            0.0000       constant   
+  63  CD            0.0000       constant   
+  64  DD            0.0000       constant   
+  65  ED            0.0000       constant   
+  71  Asea          0.0000       constant   
+  72  Bsea          0.0000       constant   
+  73  Csea          0.0000       constant   
+  74  Dsea          0.0000       constant   
+  75  Esea          0.0000       constant   
+  81  Adel          0.0000       constant   
+  82  Bdel          0.0000       constant   
+  83  Cdel          0.0000       constant   
+  84  Ddel          0.0000       constant   
+  85  Edel          0.0000       constant   
+ 101  alphas       0.11760       constant   
+ 102  fs            1.0000       constant   
+ 103  fcharm        0.0000       constant   
+ 104  Pomeron_a0    1.0917       0.22877E-02  -0.36084E-05   -7.4657    
+ 105  Reggeon_fa    3.5231       0.46429       0.19698E-02  -0.19277E-01
+ 106  Reggeon_a0   0.65962       0.23748E-01  -0.86254E-04  -0.63039    
+
+ EXTERNAL ERROR MATRIX.    NDIM=  50    NPAR=  7    ERR DEF=  1.00    
+  0.353E-03 0.125E-03 0.808E-04 0.131E-03-0.379E-04 0.461E-02-0.331E-03
+  0.125E-03 0.669E-04 0.109E-03 0.119E-03-0.140E-04 0.109E-02-0.888E-04
+  0.808E-04 0.109E-03 0.523E-03 0.351E-03 0.357E-05-0.155E-02 0.661E-04
+  0.131E-03 0.119E-03 0.351E-03 0.344E-03-0.920E-05 0.315E-03-0.467E-04
+ -0.379E-04-0.140E-04 0.357E-05-0.920E-05 0.523E-05-0.452E-03 0.338E-04
+  0.461E-02 0.109E-02-0.155E-02 0.315E-03-0.452E-03 0.216E+00-0.103E-01
+ -0.331E-03-0.888E-04 0.661E-04-0.467E-04 0.338E-04-0.103E-01 0.564E-03
+
+ PARAMETER  CORRELATION COEFFICIENTS
+       NO.  GLOBAL     1    11    12    13   104   105   106
+        1  0.98088  1.000 0.814 0.188 0.377-0.882 0.528-0.743
+       11  0.99772  0.814 1.000 0.583 0.785-0.747 0.288-0.457
+       12  0.98819  0.188 0.583 1.000 0.827 0.068-0.146 0.122
+       13  0.98222  0.377 0.785 0.827 1.000-0.217 0.037-0.106
+      104  0.99612 -0.882-0.747 0.068-0.217 1.000-0.426 0.622
+      105  0.97864  0.528 0.288-0.146 0.037-0.426 1.000-0.935
+      106  0.99033 -0.743-0.457 0.122-0.106 0.622-0.935 1.000
+ **********
+ **    5 ***HESSE 
+ **********
+           UNKNOWN COMMAND IGNORED:*HESSE 
+ **********
+ **    6 ***SET PRINT    3.000    
+ **********
+           UNKNOWN COMMAND IGNORED:*SET PRINT 
+ **********
+ **    7 ***SAVE 
+ **********
+           UNKNOWN COMMAND IGNORED:*SAVE 
+ **********
+ **    8 **RETURN 
+ **********
+
+ CALL TO USER FUNCTION WITH IFLAG = 3
+
+ ..........MINUIT TERMINATED AND RETURNS TO USER PROGRAM.            
+ **********
+ **    9 **SET PRINT    3.000    
+ **********
+ CURRENT VALUES WILL BE SAVED ON UNIT  7: output/minuit.save_002m.txt                                     
+
+    67 RECORDS WRITTEN TO UNIT   7:output/minuit.save_002m.txt                  
+ INCLUDING    5 RECORDS FOR THE COVARIANCE MATRIX.
+

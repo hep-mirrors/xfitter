@@ -1,0 +1,5 @@
+#!/bin/sh
+if [ -z $WINDOWID ]
+then exec tclsh "$0.tcl" "$@"
+else exec wish "$0.tcl" -- "$@"
+fi

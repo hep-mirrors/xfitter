@@ -9,9 +9,9 @@ LOGFILE=${PROGRAM}.log
 ERRFILE=${PROGRAM}.err
 PROGRAM_EXE=${PROGRAM}
 
-# mkdir output
 unzip input.zip
 rm input.zip
+mkdir -p output
 #
 echo  "Running program $PROGRAM ........................."
 #
