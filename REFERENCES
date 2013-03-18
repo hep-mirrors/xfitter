@@ -27,6 +27,13 @@ NIKHEF-10-002, May 2010. 74pp.
 Published in Comput.Phys.Commun.182:490-532,2011. 
 e-Print: arXiv:1005.1481 [hep-ph]
 
+MINUIT  ( minimisation code )
+-------
+F. James, M. Roos (CERN). Jul 1975. 38 pp. 
+Published in Comput.Phys.Commun. 10 (1975) 343-367 
+CERN-DD-75-20 
+DOI: 10.1016/0010-4655(75)90039-9
+
 ==================================
  Citations depending on the usage
 ==================================
@@ -112,6 +119,12 @@ By ZEUS Collaboration (S. Chekanov et al.). DESY-05-050, Mar 2005. 37pp.
 Published in Eur.Phys.J.C42:1-16,2005. 
 e-Print: hep-ph/0503274
 
+'BiLog':
+In addition to the main references, add:
+"A Bi-Log-Normal PDF Parameterisation"
+A. Schoening, Internal Note
+
+
 4) PDF Uncertainties ( Bands = True )
 -------------------------------------------------------------
 "Multivariate fitting and the error matrix in global analysis of data"
@@ -151,12 +164,31 @@ from http://www-zeuthen.desy.de/~moch/hathor/
 
 8) NNPDFreweighting (if used) 
 ---------------------------------------------
-Description of NNPDF method to create NNPDF PDF sets:
-arXiv:1002.4407 [hep-ph]
+Description of NNPDF method to create NNPDF PDF sets:	
+
+- "A first unbiased global NLO determination of parton distributions and their uncertainties"
+Richard D. Ball, Luigi Del Debbio, Stefano Forte, Alberto Guffanti, Jose I. Latorre, Juan Rojo, Maria Ubiali
+Published in Nucl.Phys. B838 (2010) 136-206
+e-Print: arXiv:1002.4407 [hep-ph] 
 
 Description of reweighting method:
-arXiv:1012.0836 [hep-ph],
-arXiv:1108.1758 [hep-ph]
+ 	
+- "Reweighting NNPDFs: the W lepton asymmetry"
+NNPDF Collaboration
+Published in Nucl.Phys. B849 (2011) 112-143, Erratum-ibid. B854 (2012) 926-927, Erratum-ibid. B855 (2012) 927-928
+e-Print: arXiv:1012.0836 [hep-ph]
+ 	
+- "Reweighting and Unweighting of Parton Distributions and the LHC W lepton asymmetry data"
+Richard D. Ball, Valerio Bertone, Francesco Cerutti, Luigi Del Debbio, Stefano Forte, Alberto Guffanti, Nathan P. Hartland, Jose I. Latorre, Juan Rojo, Maria Ubiali
+Published in Nucl.Phys. B855 (2012) 608-638
+e-Print: arXiv:1108.1758 [hep-ph]
+
+Description of reweighting approach for Hessian PDF error sets:
+"Study of Monte Carlo approach to experimental uncertainty propagation with MSTW 2008 PDFs"
+G. Watt, R.S. Thorne
+Published in JHEP 1208 (2012) 052
+e-Print: arXiv:1205.4024 [hep-ph]
+
 
 9) kt-factorisation
 ---------------------------------------------
