@@ -1,8 +1,32 @@
 \label{sec:chi2}
 %%%%%%%%%%%
-\subsection{Using Nuisance Parameters}
+In this section various forms of $\chi^2$ are described, based on nuisance parameters or
+covariance matrix.
+A skematic picture of $\chi^2$ definitions is displayed in Fig. \ref{fig:chi2}
+\begin{figure}
+\begin{center}
+\caption{Various $\chi^2$ representations in \fitter\ .}
+\includegraphics[width=0.75\linewidth]{figures/chi2.pdf}
+\end{center}
+\label{fig:org}
+\end{figure}
+ The description starts with most simple cases and it extends to 
+ more evolved form that takes into account the
+ possible biases arising from low statistics data. 
+
+
+
+\subsubsection{Using Nuisance Parameters}
 %%%%
-\subsubsection{Simple Form}
+
+In this subsection the focus is on the $\chi^2$ using nuisance parameters. Different variants are discussed.
+
+
+\begin{description}
+%%%%
+\item \bf{Simple and Scaled Form} \rm
+
+For a single data set, the $\chi^2$ function can be defined in a simple form 
 \begin{equation}
  \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) = %\\
 %~~~=
@@ -14,12 +38,8 @@
  + \sum_j b^2_j.
 \label{eq:ave}\end{equation}
 %
+or more evolved as~\cite{H1:2009bp},
 
-%%%%
-\subsubsection{Scaled Form}
-
-For a single data set, 
- the $\chi^2$ function can be defined as~\cite{H1:2009bp}
 %
 \begin{equation}
  \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) = %\\
@@ -111,7 +131,7 @@ is replaced by $C_{\rm stat}+C_{\rm syst}$ in Eq.~\ref{eq:chi2gen}. Similarly, s
 can be treated using offset method and then $C^{\rm total}_{ {\rm par}} = C^{\rm hessian}_{\rm par} + C^{\rm offset}_{\rm par}$
 where offset and hessian covariance matrices are calculated using corresponding systematic error sources.
 
-\subsection{Bias corrections}
+\item \bf{Bias corrections}\rm
 
 The correlated and uncorrelated systematic uncertainties can be treated as additive,  $\Gamma^i_l(m^i) = \gamma^i_l \mu^i$
 or multiplicative, $\Gamma^i_l(m^i) = \gamma^i_l m^i$. The LogNormal treatment in which 
@@ -134,8 +154,10 @@ corresponding to non-constant value of the covariance matrix:
 \begin{equation}
  \chi^2_{\rm log} = 2 \log \frac{\Delta^i(m^i)}{\Delta^i(\mu^i)} 
 \end{equation}  
+\end{description}
 
-\subsection{HERAFitter implementation}
+
+\subsubsection{HERAFitter implementation}
 The form of the $\chi^2$ function and the scaling properties of the 
 uncertainties are controlled globally by the {\sc CHI2SettingsName} and
 {\sc  Chi2Settings} variables and individually using {\sc ``:''} modifiers.

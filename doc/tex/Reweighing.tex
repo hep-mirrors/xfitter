@@ -4,7 +4,7 @@ The \fitter package allows to update any PDF that is either available as probabi
 
 The Bayesian Reweighting technique essentially uses PDF probability distributions as input, applies weights to these distributions based on how well the new data is described and outputs an updated PDF probability distribution. In the following paragraphs, firstly the construction of these PDF probability distributions is described, then the calculation of the weights to update the PDF probability distribution is introduced and lastly, the configuration of the module within the \fitter framework is explained.
 
-\subsubsection{PDF probability distributions}
+\subsection{PDF probability distributions}
 
 PDF probability distributions are constructed as finite ensembles of $N_{\mathrm{rep}}$ parton distribution functions $\mathrm{PDF}_k$, $\mathcal{E} = \{PDF_k, k = 1, . . . ,N_{\mathrm{rep}}\}$. Observables $\mathcal{O}(\mathrm{PDF})$ are conventionally calculated from the average of the predictions obtained from the ensemble:
 
@@ -39,7 +39,7 @@ In case, the Hessian eigenvectors are symmetrised and only one error set is give
  \mathrm{PDF}_k = \mathrm{PDF}_0  + \sum_{j=0}^{n} \left[ \mathrm{PDF}_j - \mathrm{PDF}_0 \right] R_{jk}
 \end{equation}
 
-\subsubsection{Bayesian Reweighting of PDF sets}
+\subsection{Bayesian Reweighting of PDF sets}
 
 Once PDF probability distributions are available as inputs, they can be updated to incorporate the new data. This is achieved by applying weights to the PDF probability distributions such that the prediction for observable $\langle\mathcal{O}(\mathrm{PDF})\rangle$ from equation \ref{eq:meanReplicas} changes to:
 
@@ -62,7 +62,7 @@ where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the spec
 The weighted PDF probability distribution can be turned into a new ensemble of PDF replicas, based on which predictions for any observable can be calculated. This new, reweighted PDF probability distribution commonly is chosen to be based upon a smaller number of PDF sets compared to the input PDF probability distribution, in order throw away those replicas that are incompetible with the data and to create a more light-weight PDF set. 
 
 
-\subsubsection{Usage of the PDF reweighting in the \fitter framework}
+\subsection{Usage of the PDF reweighting in the \fitter framework}
  
 The \fitter allows to perform PDF reweighting for NNPDF-style PDF probability distributions as well as for PDF sets with Hessian PDF error Eigenvector sets. 
 

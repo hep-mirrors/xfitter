@@ -6,19 +6,18 @@
 
 \newcommand{\rs}{s}
 \newcommand{\ce}{b}
-\DeclareRobustCommand\Vstat{\ensuremath{V^{\mathrm{(unc)}}}\ssp}
-\DeclareRobustCommand\Vsys{\ensuremath{V^{\mathrm{(cor)}}}\ssp}
-\DeclareRobustCommand\mb[1]{\ensuremath{\mbox{\mathversion{bold}{$#1$}}}\ssp}
-\DeclareRobustCommand\mbs[1]{\ensuremath{\mbox{\mathversion{bold}{\scriptsize $#1$}}}\ssp}
+\DeclareRobustCommand\Vstat{\ensuremath{V^{\mathrm{(unc)}}}}
+\DeclareRobustCommand\Vsys{\ensuremath{V^{\mathrm{(cor)}}}}
+\DeclareRobustCommand\mb[1]{\ensuremath{\mbox{\mathversion{bold}{$#1$}}}}
+\DeclareRobustCommand\mbs[1]{\ensuremath{\mbox{\mathversion{bold}{\scriptsize $#1$}}}}
 
-\subsection {Correlated errors and \texorpdfstring{$\chi^2$}{chi2}}
+\subsubsection {Correlated errors and \texorpdfstring{$\chi^2$}{chi2}}
 \label{sec:cor-chi2}
 
 % \cite{Chekanov:2002pv,Pascaud:1995qs}
 % A typical formula for $\chi^2$ depending on the correlated systematic errors' fluctuations reads
 Results of a measurement can be modelled as
-% (see \eg \cite{Stump:2001gu,Pascaud:1995qs})
-(see \eg \cite{Stump:2001gu,Botje:2001fx})
+(see eg.~\cite{Stump:2001gu,Botje:2001fx})
 \begin{equation}
 m_n = t_n(a) + r_n \sigma_n + \sum_{\mu=1}^K \rs_\mu \ce_{n\mu}
 \;,\quad n=1,\dots,N
@@ -92,7 +91,7 @@ with
 \,.
 \end{equation}
 
-This quadratic form in $\mb s$ allows for analytical integration of \Eq{eq:p_ms}
+This quadratic form in $\mb s$ allows for analytical integration of Eq~\ref{eq:p_ms}
 resulting in
 
 \begin{equation}
@@ -106,19 +105,19 @@ where
 \end{equation}
 % with constant $\mb A$ determined by $\mb\beta$ and $\mb\sigma$
 with $\mb A$ depending on $\mb\beta$ only
-(see \eg \cite{Stump:2001gu} Appendix B).
+(see eg. \cite{Stump:2001gu} Appendix B).
 
 % If we assume that $\rs_\mu$ are random variables with normal distribution, we have
 % \begin{equation}
 % \tilde\chi^2(\rs) = \sum_{\mu=1}^K \rs_\mu^2
 % \end{equation}
 % and we can integrate them out analytically.
-This is \eg the CTEQ approach described in \cite{Stump:2001gu}.
-It is worth noting that the solution \Eq{eq:chi_int} for $\chi^2$
-can be obtained by minimizing $\chi_{\mathrm c}^2(\mb\rs)$ of \Eq{eq:chi_c} wrt. $\mb\rs$.
+This is e.g. the CTEQ approach described in \cite{Stump:2001gu}.
+It is worth noting that the solution Eq.~\ref{eq:chi_int} for $\chi^2$
+can be obtained by minimizing $\chi_{\mathrm c}^2(\mb\rs)$ of Eq.~\ref{eq:chi_c} wrt. $\mb\rs$.
 
 % -----------------------------------
-\subsection{The Offset method}
+\subsubsection{The Offset method}
 
 In the Offset method presented here we assume that $\mb\rs$ is fixed, 
 and we find the best theoretical model by minimizing
@@ -128,7 +127,7 @@ of $\mb\rs$. %, $\mb a = \mb a(\mb\rs)$.
 We do not impose any particular statistical properties on $\mb\rs$ 
 and we take $\mb a(\mb\rs=0)$ as the ultimate fit result for the theory parameters. 
 The dependence on $\mb\rs$ is, however, used to determine
-the full error matrix of $\mb a$ (\cf \cite{Pascaud:1995qs}).
+the full error matrix of $\mb a$ (cf. \cite{Pascaud:1995qs}).
 
 The full covariance matrix $V$ reads
 \begin{equation}
@@ -164,19 +163,62 @@ and we calculate the derivatives as
 with $\mb a(\rs_\mu=\epsilon)$ resulting from
 fits to the data shifted by $\epsilon\ce_{n\mu}$.
 
-In the code we use $\epsilon=1$, \ie one standard deviation of
+In the code we use $\epsilon=1$, i.e. one standard deviation of
 the correlated error source which, in the ideal statistical limit, corresponds to 
 $\Delta\chi_1^2 = 1$.
 On the other hand, within the leading approximation, the value of $\epsilon$ is irrelevant.
 % in accordance to the standard Minuit normalization of $\Vstat$.
 
 If another error definition, $\Delta\chi_1^2 = \lambda$, 
-is adopted\footnote{E.g. Jon Pumplin uses $\lambda=5$, \cf \texttt{minuit/iterate.F}} then
+is adopted\footnote{E.g. Jon Pumplin uses $\lambda=5$, cf. \texttt{minuit/iterate.F}} then
 the full covariance matrix, $V$, must be scaled by $\lambda$. 
 
+\begin{description}
+\item \bf{Implementation via \fitter\ } \rm
+
+The Offset method is turned on by setting \verb:CHI2Style = 'Offset':
+By default all fits are run in a single job, each fit driven by initial parameters and Minuit commands read from \verb'minuit.in.txt'.
+Two optional parameters can be set in the \verb'CSOffset' NAMELIST, e.g.
+\vspace*{-2.5ex}
+\begin{verbatim}
+&CSOffset
+ CorSysIndex  =  0
+ UsePrevFit = 1
+&End
+\end{verbatim}
+\vspace*{-1ex}
+Defaults are set in \verb'read_steer.f'
+and the \verb'CSOffset NAMELIST' is read only when the Offset method is active.
+Setting \verb'CorSysIndex' to any value $\in [-K, K]$ 
+restricts the job to a single fit to data shifted (down or up) by a corresponding correlated error source.
+\verb'CorSysIndex' = 0 corresponds to the central fit.
+If \verb'CorSysIndex > NSYSMAX' then all the fits are performed.
+The best way to perform all fits in a single run is 
+to not specify \verb'CorSysIndex' at all 
+(Default: \verb'CorSysIndex = NSYSMAX+1' )
+\vspace{0.4cm}
+
+The parameter {\tt UsePrevFit} determines how to use results of previous fits,
+if such results are present in the \verb'output' folder.
+\begin{enumerate}
+\item [0 ---]
+Do not use any previous fit results (Default)
+\item [1 ---]
+Use previously obtained parameters as starting values for the current fit.
+% For a non-offset fit read initial parameters from \verb'minuit.save.txt';
+% for an offset fit 
+Read initial parameters from \verb'minuit.save_<CSI>.txt'
+ --- e.g.  \verb'minuit.save_001m.txt' for \verb'CorSysIndex' $= -1$.
+If the file does not exist and \verb'CorSysIndex' $\neq 0$ try to read
+\verb'minuit.save_0.txt'.
+\item [2 ---]
+Do not perform the fit if a corresponding \verb'Results_<CSI>.txt' file exists,
+otherwise switch to mode 1.
+\end{enumerate}
+\end{description}
 
 %%%%%%%%%%%
-\subsection{Monte Carlo Method}
+\subsubsection{Monte Carlo Method}
 \label{sec:ToyMC}
 
 The PDF uncertainties can be estimated using a Monte Carlo technique \cite{mcmethod}.
@@ -185,22 +227,50 @@ fluctuate within their systematic and statistical uncertainties taking into acco
 The preparation of the data is repeated for a large $N$ ($>100$ times) and for each of these replicas a NLO QCD fit is performed to 
 extract the PDF set. The PDF central values and uncertainties are estimated using the means values and RMS 
 over the replicas. 
+\subsubsection{Implementation in \fitter\ }
+The steering flags to activate the MC method are located in the \tt steering.txt \rm via:
+
+\begin{verbatim}
+&MCErrors
+
+  lRAND   = False  
+  lRANDDATA = True
+  ISeedMC = 123456 
+  ! --- Choose what distribution for the random number generator 
+  ! STATYPE (SYS_TYPE)  =   1  gauss
+  ! STATYPE (SYS_TYPE)  =   2  uniform
+  ! STATYPE (SYS_TYPE)  =   3  lognormal
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  STATYPE =  1
+  SYSTYPE =  1
+&End
+\end{verbatim}
+To activate MC method for error estimation this is done by setting \tt lRand = True \rm.
+To use data (true, default) or theory (false) for the central values of the MC replica
+the the flag \tt lRANDDATA \rm is used. The seed for random number generator is selected 
+via \tt ISeedMC \rm . The smearing of the uncertainties is treated differently for correlated 
+or uncorrelated source and three distributions are supported for random number generators: Gauss, uniform, lognormal, and Poisson. If the flags are set to $0$ then no smearing is produced.
+
 
 
 
 %%%%%%%%%%%
-\subsection{Regularisation methods}
+\subsubsection{Regularisation methods}
 
 Regularisation methods are aiming to study the parametrisation assumptions on PDFs. When more flexible parametrisation styles is used the shape of the PDFs must be constrained and various methods could be used.
 HERAFitter framework provides the means to study and compare various methods.
 
 %The methods described in this section work for large data sets. 
-\subsubsection{Data Driven Regularisation}
+
+\begin{description}
+
+\item \bf{Data Driven Regularisation}\rm
+
 This method was first applied by NNPDF group which uses redundant parametrisation and introduces a stopping criteria based on data.
 The data driven regularisation method splits data randomly into ``fit'' and ``control''  samples. The ``fit'' sample is used to determine PDF parameters. The $\chi^2$ of this sample is observed to semi-monotonically decrease. The ``control'' sample is used to protect againts over-fitting and for this sample the $\chi^2$ will first decrease and then will start to increase due to fluctuation of the sample.
 
 
-\subsubsection{External Regularisation based on penalty term in $\chi^2$}
+\item \bf{External Regularisation based on penalty term in $\chi^2$} \rm
 
 Another method to constrain the PDF shape is to simply apply a penalty term
 to the $\chi^2$ function. 
@@ -210,6 +280,30 @@ L=\int_{W_{min}}^{W_{max}} \sqrt{1+\left(\frac{dxf(W)}{dW}\right)^2}dW
 \end{equation}
 This method can be applied when using Chebyshev polynomials to parametrise PDFs.
 For more details, the reader is invited to look up the \cite{Chebyshev} reference.
+This is implemented in \fitter\ via steering flags under Namelist \tt \&Cheb \rm.
+\begin{verbatim}
+&Cheb
+  ! Set following > 0 to turn on:
+   NCHEBGLU = 0   ! number of parameters for the gluon (max 15)
+   NCHEBSEA = 0   ! number of parameters for the sea   (max 15)
+
+  ! Cheb. polynomial type: multiply by (1-x) (1) or not (0)  
+   ichebtypeGlu = 1 
+   ichebtypeSea = 1 
+
+  ! Starting point in x:
+   chebxmin = 1.E-5
+
+   ILENPDF  = 0   ! use pdf length constraint
+
+  ! PDF length constraint strength for different PDFs:
+   PDFLenWeight = 1., 1., 1., 1., 1.     
+
+  ! Range in W where length constraint is applied:
+   WMNLen =  20.
+   WMXLen = 320.
+&end
+\end{verbatim}
 
 For the case when using flexible parametrisation style, 
 a $\chi^2$ penalty term is applied to account for a deviation 
@@ -219,3 +313,7 @@ from a simple PDF parametrisation form such as:
 \end{equation}
 
 with $\Delta D=\Delta E = 100$, such that for large $D$ and $E$ the ratio will approach $1$. The $T$ is the regularisation parameters, such that for $T=0$ there is no penalty term and for large $T$ there is strong penalty.
+It is easily access via Namelist: \tt \&ExtraMinimisationParameters \rm
+with the name for the name \tt 'Temperature' \rm, which is the $T$ from above description.
+
+\end{description}

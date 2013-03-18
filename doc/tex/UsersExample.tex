@@ -6,7 +6,7 @@ Two examples are available in \fitter\ for benchmarking purposes.
 First example describes the default fit with HERA DIS inclusive data,
 second is a fit where all available data in \fitter\ are fitted simultaniously.
 
-\subsection{DIS inclusive only}
+\subsubsection{DIS inclusive only}
 By default in \fitter\ steering files ({\tt steering.txt} and {\tt minuit.in.txt})
 are set to fit the DIS inclusive cross section data. For this fit no any additional
 configuration options are required.
@@ -15,15 +15,16 @@ data to theory comparison and histograms, see section 8.4 "Understanding the out
 can be compared to result provided for benchmarking in "examples".
 
 %%%%
-\subsection{All processes}
+\subsubsection{All processes}
 In order to run the second example with all data, the corresponding
 {\tt steering.txt} from "input\_steering" has to be copied to the main directory:
 
 \goodbreak                 
 cp input-steering/steering.txt.ALLdata steering.txt
 \\ \\
-User must make sure that all data sets given in {\tt steering.txt.ALLdata} 
-have been downloaded from the svn (\textcolor{red}{ ???}) before running this example. 
+User must make sure that all data sets as given in {\tt steering.txt.ALLdata} together with corresponding theory file have been downloaded  
+%(\textcolor{red}{ ???}) 
+before running this example. 
 \\
 Since the included sets contain various $ep$, $pp$, $p \overline p$ and fix target
 data, it is neccesary to have \fitter\ configured with applgrid, hathor and 

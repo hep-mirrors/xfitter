@@ -1,9 +1,92 @@
 \label{sec:man}
 %%%%%%%%%%%
-\subsection{Steering files}
-    The software behaviour is controlled by three files with steering commands.
-    These files have predefined names:
-    \begin{itemize}
+In this section a user manual is presented. The section starts with a general overview of the code
+organisation and it follows by a more detailed explanation of most used functions.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Code Organisation}
+A general diagram of  available modules is illustrated in Figure~\ref{fig:org}.
+The flow is depicted such that it follows the structure of the \fitter\ .
+\begin{figure}
+\begin{center}
+\caption{Schematic Structure of the \fitter\ program organisation in different modules.}
+\includegraphics[width=0.75\linewidth]{figures/organisation.pdf}
+\end{center}
+\label{fig:org}
+\end{figure}
+
+In addition, an inventory list with short description of existing subroutines is  
+presented in Table~\ref{tab:list}. 
+Here we choose to enlist only the routines from the common target module to gudie 
+the user of available functionalities.
+
+\begin{center}
+\begin{table}
+\begin{tabular}{lp{4cm}p{10cm}}
+\hline
+\hline
+\small\bf{steerings} & $\bullet$ steering.txt:& free PDF parameters to be varied by MINUIT \\
+ & $\bullet$ minui.in.txt:& main steering card \\
+ & $\bullet$ ewparam.txt:& setting ElectroWeak parameters, as well as masses \\
+\toprule
+\bf{src} & $\bullet$ main.f:& main program \\
+& $\bullet$ read\_steer.f: &access steer parameters from steering card \\
+& $\bullet$ read\_data.f: & reading the datatables and storing data information \\
+& $\bullet$ init\_theory.f: & initialising theory modules \\
+& $\bullet$ dataset\_tools.f:&  allocating bin indecies \\
+& $\bullet$ error\_logging.f: &  error logging information\\
+& $\bullet$ minuit\_ini.f: & initialise minuit module \\
+& $\bullet$ fcn.f: & passes to minuit the $\chi^2$ to be minimize \\
+& $\bullet$ pdf\_param.f:  &  parametrisation of the PDFs at starting scale\\
+& $\bullet$ sumrules.f: & PDF constraints at starting scale, such as QCD sum rules. \\
+& $\bullet$ evolution.f: & evolution of PDFs \\
+& $\bullet$ theory\_dispatcher.f: & distribute calculation of theory prediction for a dataset  \\
+& $\bullet$ dis\_sigma.f & calculate the DIS cross sections \\
+& $\bullet$ GetChisquare.f & calculates the $\chi^2$  \\
+& $\bullet$ GetCovChisquare.f & calculates the $\chi^2$ using covariance matrix \\
+& $\bullet$ GetPointScaledErrors.f & calculates the rescaled statistical, uncorrelated and constant errors \\
+& $\bullet$ prep\_corr.f & prepare systematic correlation matrix \\
+& $\bullet$ systematics.f & build the matrix for systematic uncertainties and invert it \\
+& $\bullet$ error\_bands\_pumplin.f  & Hessian error calculations  \\
+& $\bullet$ mc\_errors.f & MC method for creating replicas of data through smearing. \\\cmidrule{2-3}
+& $\bullet$ GetDiffDisXsection.f  & calculate the diffractive DIS cross sections \\
+& $\bullet$ FixModelParams.f  & used for diffractive DIS cross sections \\\cmidrule{2-3}
+& $\bullet$ lhapdf\_dum.f   & \tiny (used only with ENABLE\_LHPDF)\\
+& $\bullet$ reweighting.f & main subroutine for PDF rewighting \tiny (used only with ENABLE\_NNPDF) \\
+& $\bullet$ nnpdfreweighting.f & main subroutine for NNPDF rewighting \tiny (used only with ENABLE\_NNPDF) \\\cmidrule{2-3}
+& $\bullet$ dy\_cc\_sigma.f  & calculate the DY cross sections (LO) \\
+& $\bullet$ applgrids\_dum.f    & protective file against miss use of flags in steering\\
+& $\bullet$ fappl\_grid.cxx  &  \tiny (used only with ENABLE\_APPLGRID) \\
+& $\bullet$ applgrids.f    &  passing PDFs to APPLGRID \tiny (used only with ENABLE\_APPLGRID) \\
+& $\bullet$ pp\_jets\_applgrid.f   & For DY process convolution for APPLGRID  \\
+& $\bullet$ ep\_jets\_fastnlo.f  &  Calculate $ep$ jets cross sections \\\cmidrule{2-3} 
+& $\bullet$ getncxskt.f  & Access the NC cross sections grids for uPDFs\\
+& $\bullet$ Getgridkt.f & Acess the grids for uPDFs \\\cmidrule{2-3}
+& $\bullet$  ttbar\_hathor\_dum.f  & protective file against miss use of flags in steering\\
+& $\bullet$  ttbar\_hathor.f  & \tiny ( used only with ENABLE\_HATHOR) \\\cmidrule{2-3}
+& $\bullet$ offset\_fns.f & collects results from Offset method and stores them\\
+& $\bullet$  g\_offset.cc  & file used for Offest method\\
+& $\bullet$  matrix.cc  & inversion of matrix as used for Offset method \\
+& $\bullet$  FitPars\_base.cc  & file used for Offest method\\
+& $\bullet$  FTNFitPars.cc   & file used for Offest method\\
+& $\bullet$  Xstring.cc   & file used for Offest method\\
+& $\bullet$  decor.cc   & file used for Offest method\\\cmidrule{2-3}
+& $\bullet$ store\_output.f & write the output  \\
+& $\bullet$ store\_h1qcdfunc.f & store structure functions   \\
+\bottomrule
+\end{tabular}
+\caption{A list of main subroutines are listed with a short description of their function.}
+\label{tab:list}
+\end{table}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Steering files}
+ The software behaviour is controlled by three files with steering commands.
+ These files have predefined names:
+    
+\begin{itemize}
       \item {\tt steering.txt}  --   controls main "stable" (un-modified during 
                          minimisation) parameters. The file also contains
                          names of data files to be fitted to, definition 
@@ -13,23 +96,27 @@
                          strategy. Standard Minuit commands can be provided
                          in this file
       \item {\tt ewparam.txt}    --  controls electroweak parameters such
-         as W and Z boson masses and CKM matrix parameters.
-    \end{itemize}
-%%%%%%%%%%%
+        as W and Z boson masses and CKM matrix parameters.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{description}
+\item \bf{Steering.txt}\rm 
 
 Different options are activated via steering flags in the main steering file.
 %and the default steering file is displayed in figure  \ref{fig:steering}.
-
-
  
-   The format of the steering file follows standard "namelist" conventions.
- Comments start with exclamation mark (similarly used for data file format).
+The format of the steering file follows standard "namelist" conventions.
+Comments start with exclamation mark (similarly used for data file format).
 The following namelist blocks are encountered:
 \begin{itemize}
 \item  {\tt InFiles}: Namelist to control input data
 \item  {\tt InCorr}: Namelist to control statistical correlation files
 \item  {\tt Scales} (Optional): Namelist to modify renormalisation/factorisation scale
-\item  {\tt HeraFitter}: Main steering cards. Further details can be found in the appendix \ref{sec:herafitter}. 
+\item  {\tt HeraFitter}: Main steering cards. Further details can be found in the appendix 
+\ref{sec:herafitter}. 
 \item  {\tt ExtraMinimisationParameters}:  Namelist to add extra to minuit parameters.
 \item  {\tt Output}: Namelist that outputs steering cards 
 \item  {\tt Cuts}: Namelist for process dependent cuts
@@ -43,6 +130,114 @@ The following namelist blocks are encountered:
 
 These namelist blocks are described in greater details in the User's example \ref{section:example}. 
 
+
+\begin{description}
+\item \it\bf Theory type: \rm\\
+ 
+here is a steering flag which defines the theory type via the chosen evolution.
+The following types are suppprted:
+\begin{itemize}
+\item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories. For this type,
+ it follows with aother flag which sets the order of perturbative series in $\alpha_S$:
+\tt{Order}\rm which can be leading order (LO), next-to-leading order (NLO) and when available NNLO.
+\item \tt{TheoryType = 'DIPOLE' }\rm as used for the dipole models;
+\item \tt{TheoryType = 'uPDF' }\rm as used for the un-integrated PDFs (with 3 variants)
+\end{itemize}
+
+\item \it\bf Starting scale: \rm\\
+The evolution starting scale is set via flag  \tt{Q02}\rm, commonly used below charm mass threshold, as imposed by QCDNUM.
+
+\item \it\bf Scheme type: \rm\\
+For the DIS process, Several schemes are available for heavy quark treatments via  \tt{HF\_SCHEME}\rm flag.
+\begin{itemize}
+  \item VFNS (Variable Flavour Number Schemes):
+    \begin{itemize}
+     \item RT-VFS  schemes                               [from Robert Thorne], \tt{HF\_SCHEME = RT, RT OPT}\rm, as well as the fast variants based on k-factors \tt{RT FAST, RT OPT FAST}
+     \item Zero Mass VFNS                                 [qcdnum], \tt{ZMVFNS}\rm   
+     \item  ACOT (ACOT-Full, ACOT-ZM, S-ACOT-Chi) schemes  [from Fred Olness], \tt{HF\_SCHEME = ACOT Full, ACOT Chi, ACOT ZM}\rm, they are all based on k-factors. 
+    \end{itemize}
+  \item FFNS (Fixed Flavour Number Scheme)
+    \begin{itemize}
+    \item via QCDNUM, \tt{HF\_SCHEME = FF}\rm 
+    \item via ABM (openqcdrad-1.6)   [from Sergey Alekhin], \tt{HF\_SCHEME = FF ABM}\rm
+    \end{itemize}
+\end{itemize}
+IMPORTANT to note if running with FFNS (nf=3): 
+\begin{itemize}
+  \item only neutral current DIS data should be used in FF scheme due to missing NLO 
+    coefficient functions in charged current (W+c) process, valence quarks 
+    in this case should to be fixed in minuit.in.txt file.
+  \item In FF ABM implementation the charged current coefficients are available
+    therefore valence parameters do not need to be fixed.
+  \item $\alpha_s(Q^2)$ in FFNS is 3-flavour and recommended to be set to value of 0.105 
+    such that is not too high at low energies
+  \item the scale in FFNS is defined as $\mu^2 = Q^2 + 4m_h^2$ by default, can be 
+    changed in HQScale in \tt{steering.txt}\rm (scale variation in ABM not yet implemented)
+  \item  the pole mass definition for heavy quarks is set in ABM by default, 
+    the running mass definition \cite{arXiv:1011.5790v1} can be switched in 
+    by setting \tt{HF\_SCHEME = FF ABM RUNM} \rm in \tt{steering.txt} \rm. 
+\end{itemize}
+
+\item \it\bf PDF parameterisation style: \rm\\
+There are various types of parametric functional form supported by \fitter\.
+They are accessed via the steering flag called \tt{PDFStyle}\rm. Available styles
+are summarised as following:
+
+\begin{tabular}{ll}
+ \tt  '10p HERAPDF'   & -- HERAPDF-like with extra assumption Buv = Bdv \\
+ \tt   '13p HERAPDF' & -- HERAPDF-like with Buv and Bdv floated independently \\
+ \tt   '10p H12000'  & -- H12000-like (D,U,Dbar,Ubar+g) \\
+ \tt   'CTEQ'        & -- CTEQ-like parameterisation \\
+ \tt   'CHEB'        & -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs \\
+ \tt  'LHAPDFQ0'    & -- use lhapdf library to define pdfs at starting scale and evolve with \\
+local qcdnum parameters \\
+ \tt  'LHAPDF'      & -- use lhapdf library to define pdfs at all scales\\
+ \tt   ' DDIS'        & -- use Diffractive DIS \\
+ \tt  'BiLog'       & -- bi-lognormal parametrisation \\
+\end{tabular}
+
+
+These styles were described in details in Section~\ref{sec:pdfparam}.
+The LHAPDF style can be used only with proper configuration settings,
+ as explained in the Section~\ref{sec:install}.
+\item \it\bf  Definition of Chisquares:\rm\\
+This section is explained in the Section \ref{sec:chi2}.
+Currently two different styles are supported for a smoother 
+transition to the new style which is more flexible.
+The old format corresponds to {\tt CHI2Style}  --- (string) choice of the $\chi^2$ function:\\
+\begin{tabular}{ll}
+    {\tt 'H12000'}& -- Pascaud-like, systematic shifts to theory, no scaling of statistical, uncorrelated errors.\\
+    {\tt 'HERAPDF'}& -- Pascaud-like + "mixed error scaling"\\
+    {\tt 'HERAPDF Sqrt'}&   -- Pascaud-like + "sqrt error scaling"\\
+    {\tt 'HERAPDF Linear'}& -- Pascaud-like + "linear error scaling"\\
+    {\tt 'Offset'}& -- offset method activated\\
+ \end{tabular}
+
+\item \it\bf (logical) debug flag:\rm
+ The debug flag will be turned on for more print outs via \tt LDEBUG. \rm
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{Selection of the data}
+\item \it\bf Selection of the data:\rm \\
+  The namelist \&Cuts, located inside the {\tt steering.txt} file can be used to apply
+  simple process dependent cuts. The cuts are limitted to bin variables.
+  Simple low and high limits are allowed. For example, a cut on $Q^2>3.5$~GeV$^2$ for
+  NC ep scattering is specified as
+
+\begin{verbatim}
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 3.5 
+   CutValueMax(1)     = 1000000.0
+\end{verbatim}
+
+Maximum 100 cuts can be used by default.
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 The specific input files are stored in the {\tt $input\_steerings$} directory and 
 it contains the following ready to use inputs (with corresponding minuit files):
 
@@ -54,7 +249,6 @@ it contains the following ready to use inputs (with corresponding minuit files):
 \end{itemize}
 
 
-%\subsubsection{Options for DIS fits}
 %%%%
 %\subsubsection{Options for Jets}
 %%%%
@@ -62,7 +256,129 @@ it contains the following ready to use inputs (with corresponding minuit files):
 %%%%
 %\subsubsection{Options for DY fits}
 %%%%%%%%%%%
-\subsection{Data file format}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \bf {{\tt Minuit} steering cards}\rm
+
+
+The minuit steering card is described as it follows, a sample file is presented 
+in Fig.~\ref{fig:minuit}
+\begin{figure}
+\begin{center}
+\caption{An example of a minuit steering card.}
+\includegraphics[width=0.45\linewidth]{figures/minuit.pdf}
+\end{center}
+\label{fig:minuit}
+\end{figure}
+
+The first 3 lines set title and announces MINUIT the list of parameters.      
+The index of parameters is the first column and it is hardwired to the source code:\\
+
+\begin{tabular}{ll}
+1 -10 & gluon parameters \\    
+11-20 & uval  parameters \\
+21-30 & dval  parameters \\
+31-40 & Ubar  parameters \\
+41-50 & Dbar  parameters \\
+51-60 & U     parameters \\
+61-70 & D     parameters \\
+71-80 & Sea   parameters \\
+81-90 &Delta parameters \\
+91-100 & other parameters: alphas (95), fs=Dbar/str (96), fc=Ubar/ch (97)\\
+\end{tabular}
+
+The second column represents just user defined names,
+the third column is  input value for the parameter.
+The forth column sets the step size (usually chosen of the same order as of the error).
+To note that if step size value is 0. then this parameter is FIXED.
+The fifth colum sets the lower boundary of the fit parameter, 
+The sixth column set the upper boundary of the fit parameter
+if boundaries are not mentioned then there are no boundaries.
+
+Only parameters that have the step size non-zero are let to vary 
+in the fit (free parameters). Another way to fix the parameters is
+simply by typing at the end of the list of parameters ``FIX parameter number''.  
+(make sure there is one line free before the minuit list).
+Examples of commands taken by minuit:\\
+
+\begin{tabular}{ll}
+call fcn 3  &   fit is not performed, only 1 iteration, useful for testing\\
+            &    Minuit parameters ARE NOT minimized. \\
+migrad       & fit is performed (default number of calls 2000).\\
+migrad 20000 & fit is performed up to 20000 calls, then terminates.\\
+hesse        & hessian estimate of the \tt{MINUIT}\rm parameters \\
+& (more reliable than \tt{MINUIT}\rm)\\
+\end{tabular}
+
+
+The output of the fit is stored in the output/ directory as \tt{minuit.out.txt}\rm
+Statements to watch in minuit.out.txt:
+\begin{itemize}
+\item \tt{FCN=575.16}\rm  this is total chisquare
+\item \tt{FROM MIGRAD   STATUS=CONVERGED}\rm this is desirable for a fit that converged
+\item \tt{FROM HESSE     STATUS=OK}\rm       this is desirable for a fit that converged 
+\item \tt{ERROR MATRIX ACCURATE}   \rm       errors estimated with HESSE method
+\end{itemize}
+
+{\bf HERAFitter parameters for diffractive fits} \\
+%%-----------------------------------------------------------
+\label{sec:HFitterPar}
+
+% minuit.in.txt
+% ExtraMinimisationParameters
+
+\begin{tabular}{l|l|l}
+Parameter & HERAFitter name & input file\\
+% \hline
+$\Cini {\mathrm G}1$ & Ag & minuit.in.txt \\
+$\Cini {\mathrm G}2$ & Bg & minuit.in.txt \\
+$\Cini {\mathrm G}3$ & Cg & minuit.in.txt \\
+$\Cini {\mathrm S}1$ & Auv & minuit.in.txt \\
+$\Cini {\mathrm S}2$ & Buv & minuit.in.txt \\
+$\Cini {\mathrm S}3$ & Cuv & minuit.in.txt \\
+$\alpha_\Pom(0)$ & Pomeron\_a0 & steering.txt \\
+$A_\Reg$ & Reggeon\_factor & steering.txt \\
+$\alpha_\Reg(0)$ & Reggeon\_a0 & steering.txt \\
+\end{tabular}
+
+{\bf HERAFitter parameters for dipole fits} \\
+The default  initial parameters for the fit without valence quarks are : 
+\begin{table}[h]
+\tiny
+\begin{center}
+\begin{tabular}{|c||c||c||c|c||c|c|c||c|c|} 
+\hline 
+$\sigma_0$ & $A_g$ & $\lambda_g$ & $C_g$ & $cBGK$& $eBGK$\\
+\hline
+37.490 & 3.3446 & 0.0298 & 2.6302 & 4.0 & 15.362 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+\\
+For the BGK dipole model fits with valence quarks the initial parameters and the obtained $\chi^2$ are:
+\begin{table}[ht]
+\begin{center}
+\tiny
+\begin{tabular}{|c||c||c||c|c||c|c|c||c|c|c||c|} 
+\hline 
+No& 
+$Q^2$&&
+$\sigma_0$ & $A_g$ & $\lambda_g$ & $C_g$ & $cBGK$& $eBGK$& $Np$& $\chi^2$& $\chi^2/Np$\\
+\hline
+1 &
+$Q^2 \ge 3.5$ & NLO & 35.980 & 1.964 &-0.147& 3.068& 4.0 & 15.171 & 196& 245.74& 1.254 \\
+\hline
+2 &
+$Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92&  0.821 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Data file format}
 \label{sec:dataformat}
    Experimental data are provided by the standard {\tt ASCII} text files. The files
    contain a "header" which describes the data format and the "data" in terms
@@ -185,7 +501,9 @@ varies between data points (e.g. bin borders, hadronisation corrections etc.) it
 provided within data table and recognised by the program using reserved column names.
 In the following all these requirements are listed and shortly explained.
 
-\subsubsection{Data format requirements for DIS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{description}
+\item \bf{Data format requirements for DIS}\rm
 
 In this subsection we describe specific requirements for files using 'NC e+-p' and 'CC e+-p'
 reaction types. Examples of such input files are:
@@ -227,7 +545,9 @@ the following columns need to present in the correctly formatted input file:
 {\tt 'x'}, {\tt 'Q2'} and {\tt 'y'}.
 
 
-\subsubsection{Data format requirements for FastNLO}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item \bf{Data format requirements for FastNLO} \rm
 
 In this subsection we describe data format specific for the FastNLO implementation
 accessed by choosing 'FastNLO jets' and 'FastNLO ep jets normalised' reaction types.
@@ -321,289 +641,11 @@ passing the information specific to each data point. They are listed below:
          only two are required to be present to unambiguously define the DIS phase space for each data point.
         
 \end{itemize}
+\end{description}
 
 
-%%%%%%%%%%%
-\subsection{Selection of Error treatment}
-
-%==========================================
-\subsubsection {Offset method}
-
-
-% -----------------------------------------
-{\bf {Correlated error sources}}
-
-The correlated systematic error sources (CSS) are identified by \fitter\ upon reading data files.
-Internally, the actual number of CSS 
-is stored in the variable \verb'NSYS'
-and the maximum allowed number of CSS = \verb'NSYSMAX' (currently 300).
-\vspace{0.4cm}
-
-% -----------------------------------------
-{\bf {PDFs errors bands}}
-
-The errors bands for the fitted PDFs are calculated 
-basing on the full covariance matrix $V = \Vstat + \Vsys$,
-and are saved to the 'standard' output files
-\verb'pdfs_q2val_*.txt' and \verb'pdfs_*.lhgrid'.
-\vspace{0.4cm}
-
-% -----------------------------------------
-{\bf {Input parameters}}
-
-File: \verb'steering.txt'
-
-The Offset method is turned on by setting\\
-\verb:CHI2Style = 'Offset':
-
-By default all fits are run in a single job, each fit driven by initial parameters and Minuit commands
-read from \verb'minuit.in.txt'.
-
-Two optional parameters can be set in the \verb'CSOffset' NAMELIST, \eg
-\vspace*{-2.5ex}
-\begin{verbatim}
-&CSOffset
-  CorSysIndex  =  0
-  UsePrevFit = 1
-&End
-\end{verbatim}
-\vspace*{-1ex}
-Defaults are set in \verb'read_steer.f'
-and the \verb'CSOffset NAMELIST' is read only when the Offset method is active.
-\vspace{0.4cm}
-
-% ................................
-{\tt CorSysIndex}
-
-Default: \verb'CorSysIndex = NSYSMAX+1'
-
-Setting \verb'CorSysIndex' to any value $\in [-K, K]$ 
-restricts the job to a single fit to data shifted (down or up) by a corresponding
-correlated error source.
-\verb'CorSysIndex' = 0 corresponds to the central fit.
-
-If \verb'CorSysIndex > NSYSMAX' then all the fits are performed.
-The best way to perform all fits in a single run is 
-to not specify \verb'CorSysIndex' at all.
-\vspace{0.4cm}
-
-% ...............................
-{\tt UsePrevFit}
-
-This parameter determines how to use results of previous fits,
-if such results are present in the \verb'output' folder.
-
-Default: \verb'UsePrevFit' = 0
-
-\begin{enumerate}
-\item [0 ---]
-Do not use any previous fit results
-\item [1 ---]
-Use previously obtained parameters as starting values for the current fit.
-% For a non-offset fit read initial parameters from \verb'minuit.save.txt';
-% for an offset fit 
-Read initial parameters from \verb'minuit.save_<CSI>.txt'
- --- \eg  \verb'minuit.save_001m.txt' for \verb'CorSysIndex' $= -1$.
-If the file does not exist and \verb'CorSysIndex' $\neq 0$ try to read
-\verb'minuit.save_0.txt'.
-\item [2 ---]
-Do not perform the fit if a corresponding \verb'Results_<CSI>.txt' file exists,
-otherwise switch to mode 1.
-\end{enumerate}
-\vspace{0.4cm}
-
-% -----------------------------------------
-{\bf {Running the fits}}
-
-First, the central fit (\verb'CorSysIndex' = 0) should be thoroughly performed,
-resulting in the \verb'minuit.save_0.txt' file with final parameter values.
-Next the fits for \verb'CorSysIndex' $\neq 0$
-can be run. Setting \verb'UsePrevFit' > 0 will set the initial parameters' values to the `central' ones,
-which will speed up the minimisations for non-central fits
-and will help to avoid landing in a false minimum.
-Eg. setting \verb'UsePrevFit' = 2 and not specifying \verb'CorSysIndex' 
-will run all missing fits in one job;
-you could run \verb'JayRun.tcl -use 2' (see below).
-
-% Nb. for a job performing all the fits in a single run (\verb'CorSysIndex' unspecified),
-% the central fit is done first.
-
-For many CSS one should consider running jobs on some batch system (a `farm').
-To this end the code is organised in such a way that in the Offset mode the results of each fit are saved to files
-(in the \verb'output' folder). For the central fit the parameters are saved to
-\verb'params_0.txt'
-and the covariance matrix, $\Vstat$, to \verb'statcov_0.txt';
-for other fits, the parameters are saved to
-\verb'params_'$j$\verb'{m|p}.txt', for $j = 1,\dots,K$.
-Once all results are known the full covariance matrix 
-% (Eq. \Eq{eq:Cv-full}) 
-is calculated and saved to \verb'offset.save.txt'.
-Error bands are calculated if requested in the steering cards.
-
-Actually, each run of the \fitter\ ends with an attempt to perform this final calculation.
-If any of the required files is missing the covariance matrix is not calculated
-and a warning message is printed.
-This behaviour allows for an easy and flexible arrangement of a script-driven parallel computation.
-% Running a fit for any {\tt CorSysIndex} always ends with an attempt to collect the final results --- 
-% and it succeeds once all results are known.
-
-% We recommend the following sequence:
-A typical scenario is:
-\begin{enumerate}
-\item
-run the central fit (\verb'CorSysIndex' = 0),
-% --- this makes \verb'minuit.save_0.txt' file with final parameter values,
-\item
-run fits for \verb'CorSysIndex' $\neq 0$;\\
-set \verb'UsePrevFit' = 1
-and place \verb'minuit.save_0.txt' in the \verb'output' folder before running the fit,
-% --- this will set the initial parameters' values to the `central' ones,
-\item
-collect all the results in the \verb'output' folder and run the final job with
-\verb'UsePrevFit' = 2.
-\end{enumerate}
-
-\goodbreak
-% ...............................
-{\bf {Scripts for batch running}}
-
-A set of example scripts
-which facilitate running jobs on a farm is supplied in the \verb'tools/RunJobs' folder.
-Configurations for the NQS and ZEUS ZARAH farms are provided.
-At the end of this section we give hints on how to customize the scripts for another environment.
-
-\newcommand\HF{\textit{HF}}
-In the following
-`\HF' denotes your \fitter\ installation folder
-and the paths below are relative to this folder.
-
-The scripts must be run from the folder where you run \texttt{FitPDF} locally. 
-In other words, the folder must contain input files:\\
-\texttt{ewparam.txt},
-\texttt{minuit.in.txt},
-\texttt{steering.txt},\\
-and moreover 
-\texttt{datafiles} must be seen as a subfolder. 
-Thus \HF\ can be your `run' folder, although I recommend creating a separate folder 
-outside the \fitter\ structure, and making there the link\\
-\texttt{ln -s \HF/datafiles datafiles}
-% \texttt{ln -s \HF/bin bin}
-
-There are three production scripts:
-\begin{itemize}
-\item \texttt{JayRun.tcl}\\
-Runs fit locally for default values of the Offset parameters
-(no specific \verb'CorSysIndex' and \verb'UsePrev=0');\\
-\verb'JayRun.tcl [-ind <CorSysIndex>] [-use <UsePrev>]'\\
-runs according to parameters given.
-
-\item \texttt{JaySub.tcl}\\
-Submit all non-central jobs.
-The submission will fail if the \verb'output' folder
-does not contain results from the central fit.
-Identifiers of submitted jobs are written to `JobLog' (\verb'job_work/Last.jobs' file).
-
-\item \texttt{JayGet.tcl}\\
-Retrieve jobs. Only jobs from JobLog are looked for.
-The number of still running jobs is displayed. 
-Each retrieved job is removed from JobLog.
-%  job_work/Last.jobs is deleted once there no more running jobs.
-There are two useful options, \texttt{peek} and \texttt{run}, \eg\\
-\verb'JayGet.tcl -peek 100 &'\\
-runs until all jobs are completed, peeking every 100 seconds and retrieving completed jobs.
-It asks for starting the final run once all jobs are done.
-If you answer `no', you can later run \verb'JayRun.tcl -ind 0 -use 2'.
-This final run can be automated using option \texttt{run}, \eg\\
-\verb'JayGet.tcl -p 300 -run &'\\
-which peeks every 300 seconds and performs the final run once all jobs are retrieved.
-\end{itemize}
-
-\goodbreak
-The configuration options are given in \verb'jay.cfg.tcl'.
-This file is read from the folder where the currently called script resides
-(\verb'tools/RunJobs' by default).
-If a file named \verb'jay.cfg.tcl' exists in the current folder it is read next
---- this provides a method to modify settings locally.
-
-The most important parameters in \verb'jay.cfg.tcl':
-\begin{itemize}
-\item
-\verb'FarmName' --- default = \verb'NQS'\\
-The farm specific commands are read from the \texttt{\textit{FarmName}.tcl} file.\\
-We supply \verb'NQS.tcl' and \verb'zarah.tcl' containing
-routines specific to the corresponding farms.
-Note that the ZARAH farm requires a one-time authentication via \verb'zarah-auth',
-before starting any activity.
-
-\item
-\verb'FarmHost' --- default = "" (empty)\\
-The NQS farm host name.
-
-\item
-\verb'FarmUser' --- default = "" (empty)\\
-The NQS farm user name.
-
-\item
-\verb'Driver' --- default = \verb'jay.sh'\\
-This `driving script' is sent to the farm as the primary code to execute.
-\verb'Driver' is first searched for in the current folder
-and next in the folder of the currently called script.
-Hence, even without changing this parameter, you can have your own version of the 
-driving script (\verb'jay.sh') saved in your current `run' folder.
-
-\item
-\verb'MainExe' --- default = \verb'bin/FitPDF'\\
-The path to the \fitter\ executable.
-
-\end{itemize}
-
-The two remaining files, \verb'utils.tcl' and \verb'job_farm_fns.tcl', define various utility routines.
-They contain no `user serviceable' parts and are independent of a particular farm operation.
-
-In order to add new functionality for some \verb'NewFarm' it should be sufficient to
-create a \verb'NewFarm.tcl' file analogous to the supplied
-\verb'NQS.tcl' or \verb'zarah.tcl' files, and set proper values of
-\verb'FarmName' etc. in your \verb'jay.cfg.tcl' file.
-
-\goodbreak
-% ...............................
-{\bf {Examples}}
-
-Typically you would proceed as follows:
-\begin{enumerate}
-\item
-run the central fit\\
-\HF\verb'/tools/RunJobs/JayRun.tcl -ind 0'\\
-or\\
-\HF\verb'/tools/RunJobs/JayRun.tcl -ind 0 -use 1'
-\item
-submit offset fits to the farm\\
-\HF\verb'/tools/RunJobs/JaySub.tcl'
-\item
-collect results and calculate final results\\
-\HF\verb'/tools/RunJobs/JayGet.tcl -peek 300 -run'
-\end{enumerate}
-
-
-
-%%%%%%%%%%%
-\subsection{Selection of the data}
-  The namelist \&Cuts, located inside the {\tt steering.txt} file can be used to apply
-  simple process dependent cuts. The cuts are limitted to bin variables.
-  Simple low and high limits are allowed. For example, a cut on $Q^2>3.5$~GeV$^2$ for
-  NC ep scattering is specified as
-
-\begin{verbatim}
-  ! Rule #1: Q2 cuts
-   ProcessName(1)     = 'NC e+-p'
-   Variable(1)        = 'Q2'
-   CutValueMin(1)     = 3.5 
-   CutValueMax(1)     = 1000000.0
-\end{verbatim}
-
-  Maximum 100 cuts can be used by default.
-%%%%%%%%%%%
-\subsection{Understanding the output}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Understanding the output}
   The results of the minimization are printed to the standard output and written
   to the files in the {\tt output/} directory. 
 
@@ -624,7 +666,7 @@ collect results and calculate final results\\
   or warnings at the end of minimisation.
   
   Point by point comparison of the data and predictions after the minimization 
-  is provided in {\tt output/fittedresults.txt} file. The file reports three columns
+  is provided in the file stored in {\tt output/fittedresults.txt}. The file reports three columns
   corresponding to the three first bins of the input tables, data value, sum in 
   quadrature of statistical and uncorrelated systematic uncertainty, total
   uncertainty, the predicted value, before and after applying correlated systematic shifts,
@@ -655,5 +697,5 @@ collect results and calculate final results\\
   the {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
   or later.
 %%%%%%%%%%%
-\subsection{{\tt Minuit} steering cards}
+
 
