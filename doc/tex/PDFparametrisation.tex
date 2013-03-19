@@ -64,16 +64,39 @@ $A_{\bar{U}}=A_{\bar{D}} (1-f_s)$.
 %
 The $D$ and $E$ are introduced one by one until no further improvement in $\chi^2$ is found.
 For the case when adding more precision data in the fit, as when adding HERA II data, this allows then for use of a more flexible parametrisation for the gluon and valence especially.
-The best fit  results in a total of 10 free parameters when performing fits to solely HERA I data (fits are refered then ro as HERAPDF1.0), and of 13 free parameters when adding preliminary HERA II data on top (fits are refered then to as HERAPDF1.5).
+The best fit  results in a total of $10$ free parameters when performing fits to solely HERA I data (fits are refered then ro as HERAPDF1.0), and of 13 free parameters when adding preliminary HERA II data on top (fits are refered then to as HERAPDF1.5).
+
+
+An assumption that the strange sea quark density follows the same shape as the down quark density is used in HERAPDF fits. 
+ However, inspired by the HERMES analysis \cite{hermes} which measure semi-inclusive production of the strange mesons, the followin functional form is provided in the \fitter\ to parametise the strange density  at the starting scale:
+\begin{equation}
+xs(x)=f_s\frac{1}{1+\tanh(-(x-x_{hs}h_{hr}))},
+\end{equation}
+
+with $x_{hs} = 0.07$ and $h_{hr} = 20$, corresponding to a sharp turn on of the strange density at $x\sim 0.07$.
+
+\item \bf{Strange style}\rm
+
+
+For the studies of the strange quark sea density, the parametrisation of $x\bar{D}$ is replaced by a sum of $x\bar{d}(x)+x\bar{s}(x)$ parametrised densities:
+\begin{equation}
+xs(x)=\frac{fs}{1-fs} A_{\bar{d}}x^B_s(1-x)^C_s .
+\end{equation}
+
 \item \bf{Flexible style}\rm
 %%%%
 
 Flexible style is the extension of the ``HERAPDF style'' by allowing  extra $2$ free parameters for every PDF distribution, namely the $D$ and $E$ parameters for the medium $x$ region. It can be used to study the data sensitivity to PDFs. The total number of free parameters is therefore $22$.
+
+
+
+
+Strange quark PDF is the least determined PDF from the l
 \end{description}
 
 \subsubsection{Bi-Log-Normal Functional Form}
 \label{sec:log}
-A bi-log-normal distribution is proposed by \cite{AndreSchoenig} to parameterise the x-dependence of the parton density function of the proton.
+A bi-log-normal distribution is proposed by \cite{AndreSchoening} to parameterise the x-dependence of the parton density function of the proton.
 This new parameterisation
 is motivated by arguments of multi-particle statistics. 
 This function can be regarded as a generalisation of parameterisation commonly used by global fit groups.
