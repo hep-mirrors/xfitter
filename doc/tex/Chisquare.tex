@@ -2,13 +2,13 @@
 %%%%%%%%%%%
 In this section various forms of $\chi^2$ are described, based on nuisance parameters or
 covariance matrix.
-A skematic picture of $\chi^2$ definitions is displayed in Fig. \ref{fig:chi2}
+A schematic picture of $\chi^2$ definitions is displayed in Fig. \ref{fig:chi2}
 \begin{figure}
 \begin{center}
-\caption{Various $\chi^2$ representations in \fitter\ .}
 \includegraphics[width=0.75\linewidth]{figures/chi2.pdf}
 \end{center}
-\label{fig:org}
+\caption{Various $\chi^2$ representations in \fitter\ .}
+\label{fig:chi2}
 \end{figure}
  The description starts with most simple cases and it extends to 
  more evolved form that takes into account the
@@ -50,7 +50,7 @@ or more evolved as~\cite{H1:2009bp},
 { \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
 \left(\delta_{i,{\rm uncor}}\,  m^i\right)^2}
  + \sum_j b^2_j.
-\label{eq:ave}\end{equation}
+\label{eq:aven}\end{equation}
 %
 Here ${\mu^i}$ is the  measured central value  at a point $i$ 
 with  relative statistical $\delta_{i,stat}$ 
@@ -96,7 +96,7 @@ matrix for the systematic uncertainties which is determined as
  C_{{\rm syst}~ij}= \sum_l \Gamma^i_l \Gamma^j_l \,.
 \end{equation}
 The total covariance matrix is given by the sum of the statistical and
-systamtic covariance matrices
+systematic covariance matrices
 \begin{equation} 
 C_{{\rm tot}~ij} = C_{{\rm stat}~ij} + C_{{\rm syst}~ij}\,,
 \end{equation}
@@ -135,15 +135,15 @@ where offset and hessian covariance matrices are calculated using corresponding 
 
 The correlated and uncorrelated systematic uncertainties can be treated as additive,  $\Gamma^i_l(m^i) = \gamma^i_l \mu^i$
 or multiplicative, $\Gamma^i_l(m^i) = \gamma^i_l m^i$. The LogNormal treatment in which 
-$ \mu^i + \sum_l \Gamma^i_j b_l$ is replaced by $ \mu^i \prod_l \exp( \gamma^i_j b_l) $ is forseen for the
+$ \mu^i + \sum_l \Gamma^i_j b_l$ is replaced by $ \mu^i \prod_l \exp( \gamma^i_j b_l) $ is foreseen for the
 next release of the {\tt HERAFitter}. 
 
 The statistical uncertainties can be treated as additive, $\Delta^i(m^i) = \delta^i \mu^i$  and as Poisson,
-$\Delta^i(m^i) = \delta^i \sqrt{\mu^i m^i}$. More complex scaling from Eq.~\ref{eq:ave}, 
+$\Delta^i(m^i) = \delta^i \sqrt{\mu^i m^i}$. More complex scaling from Eq.~\ref{eq:aven}, 
 which depends on shifts of $b_j$, is implemented using an iterative approach: for the first iteration $b_l =0$ 
  is used to determine values of $b_l$ which are then applied in the second iteration. Statistical covariance
 matrix is scaled in a similar manner. In this case the correlation matrix is assumed to be fixed, the diagonal
-ellements are updated using the prescription describe above and the covariance matrix is rescaled accordingly.
+elements are updated using the prescription describe above and the covariance matrix is rescaled accordingly.
 
 The modifications of the covariance matrix at each iteration of the minuit minimisation may lead to systematic
 biases. There are two approaches to avoid these biases. In the first approach the covariance matrix is calculated
@@ -166,24 +166,24 @@ Table~\ref{tab:ErrScale}. The global form of the $\chi^2$ function
 is defined by the {\sc CorChi2Type} parameter, see   
 Table~\ref{tab:Chi2Type}.
 
-The default behaviour can be changed for each correlated systematic source by ``:'' modifiers.
+The default behavior can be changed for each correlated systematic source by ``:'' modifiers.
 They are described in Table~\ref{tab:SystModifier}. The modifiers should appear at the end 
 of the systematic source name, e.g. {\sc 'H3:M'}. Several modifiers can be used, e.g. {\sc 'H3:M:C'}.
 
 The names of systematic error sources are read first from the {\sc ListOfSources} variable of the 
 {\sc \&Systematics} namelist, located in the {\sc steering.txt} file. Next the names are read from the
 data files following the sequence given by the {\sc InputFileNames} list. The properties of each systematic
-error source are defined by its first occurence. That means that if, for example, {\sc 'H3:M:C'} is defined
+error source are defined by its first occurrence. That means that if, for example, {\sc 'H3:M:C'} is defined
 in the {\sc ListOfSources} variable, the source {\sc 'H3'} is treated as multiplicative and using covariance
-matrix approach regarless definitions in the data files. If, however, {\sc ListOfSources} defines a souce
+matrix approach regardless definitions in the data files. If, however, {\sc ListOfSources} defines a source
 without any modifiers, e.g. {\sc 'H3'}, the default treatment, following the {\sc Chi2Settings} variable is
 enforced for this source.
-Thus the {\sc ListOfSources } variable is a convinient way to modify behaviour of the correlated systemat
+Thus the {\sc ListOfSources } variable is a convenient way to modify behavior of the correlated systematic
 sources.
 
 The shifts of the systematic sources are reported in the {\sc Results.txt} file. The uncertainty on the shift
 is however estimated only approximately, neglecting the correlation with the theory parameters. An accurate determination
-of the uncertainty can be achived by using the toy MC method (see Section~\ref{sec:ToyMC}) or by using {\sc ':E'} 
+of the uncertainty can be achieved by using the toy MC method (see section~\ref{sec:ToyMC}) or by using {\sc ':E'} 
 modifier. In the later case the systematic source is treated using the {\tt Minuit} minimisation. Note, however,
 that this approach can slow the minimisation convergence considerably.
 \begin{table}

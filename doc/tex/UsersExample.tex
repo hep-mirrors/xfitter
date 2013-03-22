@@ -4,7 +4,7 @@
 %%%%
 Two examples are available in \fitter\ for benchmarking purposes.
 First example describes the default fit with HERA DIS inclusive data,
-second is a fit where all available data in \fitter\ are fitted simultaniously.
+second is a fit where all available data in \fitter\ are fitted simultaneously.
 
 \subsubsection{DIS inclusive only}
 By default in \fitter\ steering files ({\tt steering.txt} and {\tt minuit.in.txt})
@@ -27,13 +27,13 @@ User must make sure that all data sets as given in {\tt steering.txt.ALLdata} to
 before running this example. 
 \\
 Since the included sets contain various $ep$, $pp$, $p \overline p$ and fix target
-data, it is neccesary to have \fitter\ configured with applgrid, hathor and 
-lhapdf options (corresponding library linking as explained in section 2 is
+data, it is necessary to have \fitter\ configured with applgrid, hathor and 
+lhapdf options (corresponding shared library linking as explained in section~\ref{sec:install} is
 required before configuration): 
 \goodbreak
 ./configure --enable-applgrid --enable-lhapdf --enable-hathor
 \\ \\
-It is recomended to do "make clean" before each configuration. \\        
+It is recommended to do "make clean" before each configuration. \\        
 As in previous case, the fit result can be compared to the one provided in "examples".
 
 

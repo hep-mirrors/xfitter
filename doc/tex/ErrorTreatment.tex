@@ -221,7 +221,7 @@ otherwise switch to mode 1.
 \subsubsection{Monte Carlo Method}
 \label{sec:ToyMC}
 
-The PDF uncertainties can be estimated using a Monte Carlo technique \cite{mcmethod}.
+The PDF uncertainties can be estimated using a Monte Carlo technique \cite{Giele:1998gw, mcmethod2}.
 The method consists in preparing replicas of data sets by allowing the central values of the cross sections to 
 fluctuate within their systematic and statistical uncertainties taking into account all point-to-point correlations.
 The preparation of the data is repeated for a large $N$ ($>100$ times) and for each of these replicas a NLO QCD fit is performed to 
@@ -267,7 +267,7 @@ HERAFitter framework provides the means to study and compare various methods.
 \item \bf{Data Driven Regularisation}\rm
 
 This method was first applied by NNPDF group which uses redundant parametrisation and introduces a stopping criteria based on data.
-The data driven regularisation method splits data randomly into ``fit'' and ``control''  samples. The ``fit'' sample is used to determine PDF parameters. The $\chi^2$ of this sample is observed to semi-monotonically decrease. The ``control'' sample is used to protect againts over-fitting and for this sample the $\chi^2$ will first decrease and then will start to increase due to fluctuation of the sample.
+The data driven regularisation method splits data randomly into ``fit'' and ``control''  samples. The ``fit'' sample is used to determine PDF parameters. The $\chi^2$ of this sample is observed to semi-monotonically decrease. The ``control'' sample is used to protect against over-fitting and for this sample the $\chi^2$ will first decrease and then will start to increase due to fluctuation of the sample.
 
 
 \item \bf{External Regularisation based on penalty term in $\chi^2$} \rm

@@ -59,7 +59,7 @@ where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the spec
  \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=0}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))  
 \end{equation}
 
-The weighted PDF probability distribution can be turned into a new ensemble of PDF replicas, based on which predictions for any observable can be calculated. This new, reweighted PDF probability distribution commonly is chosen to be based upon a smaller number of PDF sets compared to the input PDF probability distribution, in order throw away those replicas that are incompetible with the data and to create a more light-weight PDF set. 
+The weighted PDF probability distribution can be turned into a new ensemble of PDF replicas, based on which predictions for any observable can be calculated. This new, reweighted PDF probability distribution commonly is chosen to be based upon a smaller number of PDF sets compared to the input PDF probability distribution, in order throw away those replicas that are incompatible with the data and to create a more light-weight PDF set. 
 
 
 \subsection{Usage of the PDF reweighting in the \fitter framework}
@@ -80,7 +80,7 @@ This requires the {\tt NNPDF reweight} and the {\tt LHAPDF} modules to be instal
 
 The setup of the module is such, that it is parsing the \fitter steering file and from the specified settings creates a special reweighting steering file in the directory {\tt input\_steering} with the pattern {\tt <RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>.in}. 
 
-In the output directory, a subdirectory is created for the output of the reweighting procedure. Its name pattern is: {\tt output/<RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>/} and it will contain the following files:
+In the output directory, a sub-directory is created for the output of the reweighting procedure. Its name pattern is: {\tt output/<RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>/} and it will contain the following files:
 
 \begin{itemize}
  \item {\tt <RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>\_nRep<RWOUTREPLICAS>.LHgrid}: The output PDF probability distribution in form of an .LHgrid file, which allows easy usage.

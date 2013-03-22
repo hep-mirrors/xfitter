@@ -6,19 +6,19 @@ organisation and it follows by a more detailed explanation of most used function
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Code Organisation}
-A general diagram of  available modules is illustrated in Figure~\ref{fig:org}.
+A general diagram of  available modules is illustrated in figure~\ref{fig:org}.
 The flow is depicted such that it follows the structure of the \fitter\ .
 \begin{figure}
 \begin{center}
-\caption{Schematic Structure of the \fitter\ program organisation in different modules.}
 \includegraphics[width=0.75\linewidth]{figures/organisation.pdf}
 \end{center}
+\caption{Schematic structure of the \fitter\ program organisation in different modules.}
 \label{fig:org}
 \end{figure}
 
 In addition, an inventory list with short description of existing subroutines is  
 presented in Table~\ref{tab:list}. 
-Here we choose to enlist only the routines from the common target module to gudie 
+Here we choose to enlist only the routines from the common target module to guide 
 the user of available functionalities.
 
 \begin{center}
@@ -34,7 +34,7 @@ the user of available functionalities.
 & $\bullet$ read\_steer.f: &access steer parameters from steering card \\
 & $\bullet$ read\_data.f: & reading the datatables and storing data information \\
 & $\bullet$ init\_theory.f: & initialising theory modules \\
-& $\bullet$ dataset\_tools.f:&  allocating bin indecies \\
+& $\bullet$ dataset\_tools.f:&  allocating bin indices \\
 & $\bullet$ error\_logging.f: &  error logging information\\
 & $\bullet$ minuit\_ini.f: & initialise minuit module \\
 & $\bullet$ fcn.f: & passes to minuit the $\chi^2$ to be minimize \\
@@ -83,7 +83,7 @@ the user of available functionalities.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Steering files}
- The software behaviour is controlled by three files with steering commands.
+ The software behavior is controlled by three files with steering commands.
  These files have predefined names:
     
 \begin{itemize}
@@ -115,8 +115,8 @@ The following namelist blocks are encountered:
 \item  {\tt InFiles}: Namelist to control input data
 \item  {\tt InCorr}: Namelist to control statistical correlation files
 \item  {\tt Scales} (Optional): Namelist to modify renormalisation/factorisation scale
-\item  {\tt HeraFitter}: Main steering cards. Further details can be found in the appendix 
-\ref{sec:herafitter}. 
+\item  {\tt HeraFitter}: Main steering cards. 
+%Further details can be found in the appendix \ref{sec:herafitter}. 
 \item  {\tt ExtraMinimisationParameters}:  Namelist to add extra to minuit parameters.
 \item  {\tt Output}: Namelist that outputs steering cards 
 \item  {\tt Cuts}: Namelist for process dependent cuts
@@ -124,7 +124,7 @@ The following namelist blocks are encountered:
 \item  {\tt Cheb} (Optional): Chebyshev study namelist
 \item  {\tt Poly} (Optional): pure polynomial parameterisation for valence quarks
 \item  {\tt HQScale} (Optional): choose the factorisation scale for HQs
-\item  {\tt lhapdf} (Optional):LHAPDF sttering card
+\item  {\tt lhapdf} (Optional):LHAPDF steering card
 \item  {\tt reweighting} (Optional): reweighting steering cards
 \end{itemize}
 
@@ -135,10 +135,10 @@ These namelist blocks are described in greater details in the User's example \re
 \item \it\bf Theory type: \rm\\
  
 here is a steering flag which defines the theory type via the chosen evolution.
-The following types are suppprted:
+The following types are supported:
 \begin{itemize}
 \item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories. For this type,
- it follows with aother flag which sets the order of perturbative series in $\alpha_S$:
+ it follows with another flag which sets the order of perturbative series in $\alpha_S$:
 \tt{Order}\rm which can be leading order (LO), next-to-leading order (NLO) and when available NNLO.
 \item \tt{TheoryType = 'DIPOLE' }\rm as used for the dipole models;
 \item \tt{TheoryType = 'uPDF' }\rm as used for the un-integrated PDFs (with 3 variants)
@@ -153,7 +153,7 @@ For the DIS process, Several schemes are available for heavy quark treatments vi
   \item VFNS (Variable Flavour Number Schemes):
     \begin{itemize}
      \item RT-VFS  schemes                               [from Robert Thorne], \tt{HF\_SCHEME = RT, RT OPT}\rm, as well as the fast variants based on k-factors \tt{RT FAST, RT OPT FAST}
-     \item Zero Mass VFNS                                 [qcdnum], \tt{ZMVFNS}\rm   
+     \item Zero Mass VFNS                                 [qcdnum], \tt{ZM-VFNS}\rm   
      \item  ACOT (ACOT-Full, ACOT-ZM, S-ACOT-Chi) schemes  [from Fred Olness], \tt{HF\_SCHEME = ACOT Full, ACOT Chi, ACOT ZM}\rm, they are all based on k-factors. 
     \end{itemize}
   \item FFNS (Fixed Flavour Number Scheme)
@@ -174,7 +174,7 @@ IMPORTANT to note if running with FFNS (nf=3):
   \item the scale in FFNS is defined as $\mu^2 = Q^2 + 4m_h^2$ by default, can be 
     changed in HQScale in \tt{steering.txt}\rm (scale variation in ABM not yet implemented)
   \item  the pole mass definition for heavy quarks is set in ABM by default, 
-    the running mass definition \cite{arXiv:1011.5790v1} can be switched in 
+    the running mass definition \cite{Alekhin:runm} can be switched in 
     by setting \tt{HF\_SCHEME = FF ABM RUNM} \rm in \tt{steering.txt} \rm. 
 \end{itemize}
 
@@ -197,11 +197,11 @@ local qcdnum parameters \\
 \end{tabular}
 
 
-These styles were described in details in Section~\ref{sec:pdfparam}.
+These styles were described in details in section~\ref{sec:pdfparam}.
 The LHAPDF style can be used only with proper configuration settings,
- as explained in the Section~\ref{sec:install}.
+ as explained in the section~\ref{sec:install}.
 \item \it\bf  Definition of Chisquares:\rm\\
-This section is explained in the Section \ref{sec:chi2}.
+This section is explained in the section \ref{sec:chi2}.
 Currently two different styles are supported for a smoother 
 transition to the new style which is more flexible.
 The old format corresponds to {\tt CHI2Style}  --- (string) choice of the $\chi^2$ function:\\
@@ -220,7 +220,7 @@ The old format corresponds to {\tt CHI2Style}  --- (string) choice of the $\chi^
 %\subsubsection{Selection of the data}
 \item \it\bf Selection of the data:\rm \\
   The namelist \&Cuts, located inside the {\tt steering.txt} file can be used to apply
-  simple process dependent cuts. The cuts are limitted to bin variables.
+  simple process dependent cuts. The cuts are limited to bin variables.
   Simple low and high limits are allowed. For example, a cut on $Q^2>3.5$~GeV$^2$ for
   NC ep scattering is specified as
 
@@ -265,9 +265,9 @@ The minuit steering card is described as it follows, a sample file is presented
 in Fig.~\ref{fig:minuit}
 \begin{figure}
 \begin{center}
-\caption{An example of a minuit steering card.}
 \includegraphics[width=0.45\linewidth]{figures/minuit.pdf}
 \end{center}
+\caption{An example of a minuit steering card.}
 \label{fig:minuit}
 \end{figure}
 
@@ -291,7 +291,7 @@ The second column represents just user defined names,
 the third column is  input value for the parameter.
 The forth column sets the step size (usually chosen of the same order as of the error).
 To note that if step size value is 0. then this parameter is FIXED.
-The fifth colum sets the lower boundary of the fit parameter, 
+The fifth column sets the lower boundary of the fit parameter, 
 The sixth column set the upper boundary of the fit parameter
 if boundaries are not mentioned then there are no boundaries.
 
@@ -311,7 +311,7 @@ hesse        & hessian estimate of the \tt{MINUIT}\rm parameters \\
 \end{tabular}
 
 
-The output of the fit is stored in the output/ directory as \tt{minuit.out.txt}\rm
+The output of the fit is stored in the output/ directory as \tt{minuit.out.txt}\rm.
 Statements to watch in minuit.out.txt:
 \begin{itemize}
 \item \tt{FCN=575.16}\rm  this is total chisquare
@@ -340,6 +340,7 @@ $\alpha_\Pom(0)$ & Pomeron\_a0 & steering.txt \\
 $A_\Reg$ & Reggeon\_factor & steering.txt \\
 $\alpha_\Reg(0)$ & Reggeon\_a0 & steering.txt \\
 \end{tabular}
+\vspace{0.7cm}
 
 {\bf HERAFitter parameters for dipole fits} \\
 The default  initial parameters for the fit without valence quarks are : 
@@ -448,7 +449,7 @@ $Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92& 
                        \item 'stat'  -- specifies column with statistical uncertainties, request Poisson re-scaling;
                        \item 'stat const'  -- specifies column with statistical uncertainties, request no re-scaling of the errors;
                        \item 'uncor' -- specifies column with uncorrelated uncertainties. Any name containing keyword ``uncor'' is treated as an uncorrelated
-  error souce, e.g. ``h1 uncor'';  
+  error source, e.g. ``h1 uncor'';  
                        \item 'uncor const' -- specifies column with uncorrelated uncertainties, request no re-scaling of the errors;  
                        \item 'total' -- specifies column with total uncertainties. 
                                   Total uncertainties are not used in the fit,
@@ -670,7 +671,7 @@ passing the information specific to each data point. They are listed below:
   corresponding to the three first bins of the input tables, data value, sum in 
   quadrature of statistical and uncorrelated systematic uncertainty, total
   uncertainty, the predicted value, before and after applying correlated systematic shifts,
-  pull betweenthe  data and theory and 
+  pull between the  data and theory and 
   data set index. The pull $p$ is calculated as 
   \begin{equation}
       p = \frac{ \mu - m} {\sigma_{\rm uncor}}
