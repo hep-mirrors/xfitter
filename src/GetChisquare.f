@@ -188,9 +188,9 @@ C !> Add log term
 C
 C !> Store extra output for FCN = 3:
 C
-      ! if (Flag_In.eq.3) then
-         ! Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
-      ! endif
+      if (Flag_In.eq.3) then
+         Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
+      endif
 
 
       return 
@@ -1000,7 +1000,7 @@ C------------------------------------------------------------------
          enddo
       enddo
       
-      CALL cvfillgamma(nsys,n0_in,ScaledGamma,NSYSMAX)
+      ! CALL cvfillgamma(nsys,n0_in,ScaledGamma,NSYSMAX)
       ! CALL cvfillgamma(ScaledGamma,nsys,n0_in,NTOT)
 
 C------------------------------------------------------------------
