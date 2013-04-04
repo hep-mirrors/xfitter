@@ -75,11 +75,14 @@ C     set "Isch, Iset, Iflg, Ihad" in common block first
       xmw=mw
       xmz=mz
 
-      xmu=dsqrt(Q2_in)      !*** mu=Q
-      x=x_in
+        if(MASSH.eq.1) then
+       xmu=sqrt(hqscale1in*Q2_in+hqscale2in*4*mch*mch)      !*** mu=Q
+       elseif (MASSH.eq.2) then
+       xmu=dsqrt(hqscale1in*Q2_in+hqscale2in*4*mbt*mbt) 
+       endif         
       q=dsqrt(q2_in)
       icharge=icharge_in
-
+      x=x_in
       polar=polar_in
 
 ! Target mass correction!

@@ -411,12 +411,12 @@ C-------------------------------------------------------
       character*32 MassHQ
 C-------------------------------------------------------
 C (Optional) set HQ scale
-      namelist/HQScale/aq2,bq2,MassHQ
+        namelist/HQScale/MassHQ,scalea1,scaleb1
 C-------------------------------------------------------
 
 C scale for HQ
-      aq2 = 1
-      bq2 = 0
+       scalea1 = 1
+       scaleb1 = 0
       MassHQ = 'mc'
 C
 C  Read the HQScale namelist:
@@ -429,7 +429,17 @@ C
 C asign mc or mb to hq scale
 C      
       call SetMHSCALE(MassHQ)
-
+       aq2 = 1/scalea1
+       bq2 = -4*scaleb1/scalea1
+       hqscale1in = scalea1  
+       hqscale2in = scaleb1 
+       if(mod(HFSCHEME,10).eq.1) then
+       if(massh.eq.1) then
+       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'   
+       elseif(massh.eq.2) then
+       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'   
+        endif   
+        endif
       if (LDebug) then
 C Print the namelist:
          print HQScale

@@ -395,14 +395,27 @@ C-------------------------------------------------------------
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
+      include 'couplings.inc'
       integer nwords, ierr
 C-------------------------------------------------------------
       ierr = 1
       if (Read_QCDNUM_Tables) then
          call zmreadw(22,'zmstf.wgt',nwords,ierr)
       endif
+      if(MASSH.eq.1) then
+      hqscale2inmass=-4*scaleb1/scalea1*mch*mch
+      elseif(MASSH.eq.2) then
+      hqscale2inmass=-4*scaleb1/scalea1*mbt*mbt
+      endif
+      if(MASSH.eq.1) then
+      print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'   
+      elseif(MASSH.eq.2) then
+      print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'   
+      endif
+c    
       if(ierr.ne.0) then
          call zmfillw(nwords)
+         call ZMDEFQ2(aq2,hqscale2inmass) ! muf scale variation     
          call zmdumpw(22,'zmstf.wgt')
       else 
          print*,'Read zmstf weight file'
@@ -438,13 +451,15 @@ C-------------------------------------------------------------
       hqmass(2) = HF_MASS(2)
       hqmass(3) = HF_MASS(3)
 
-C--- aq=1.0 and bq=0 sets the heavy quarks factorisation scale
-C--- Q^2 = aq2*mu_f + bq2  
+C--- scalea1=1.0 and scaleb1=0 sets the heavy quarks factorisation scale
+C--- Q^2 = scalea1*mu_f + scaleb1  
 
-      if(massh.eq.1) then
-         bq2  = bq2 * hqmass(1)**2
-      elseif(massh.eq.2) then
-         bq2  = bq2 * hqmass(2)**2
+      if(MASSH.eq.1) then
+         scaleb1  = scaleb1 * hqmass(1)**2
+      print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'   
+      elseif(MASSH.eq.2) then
+         scaleb1  = scaleb1 * hqmass(2)**2
+      print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'   
       endif
 c         print*,'1 HQ scale (Q^2=a*mu_F^2 + b) a,b,mh', aq2,bq2,massh 
 
@@ -480,7 +495,6 @@ c ABKM parameters:
       double precision rmass8in,rmass10in
       integer kschemepdfin,kordpdfin
       logical msbarmin
-      double precision hqscale1in,hqscale2in
 
 C-------------------------------------------------------------
       call initgridconst
@@ -501,7 +515,7 @@ c  c and b - quark masses
       print*,'INFO from ABKM_init:'
       print*,'FF ABM running mass def? T(rue), (F)alse:', msbarmin
       print*,'---------------------------------------------'
-
+      print*,'factorisation scale for heavy quarks  is set to sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_q^2 )'   
 
 c NLO or NNLO: kordpdfin=1 NLO, kordpdfin=2 NNLO
 c this flag will set kordhq,kordalps,kordf2,kordfl,kordfl so same order!         
