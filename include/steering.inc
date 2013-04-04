@@ -66,7 +66,7 @@ C Use forced positive parameterisation for IPOLYSQR=1
       integer IPOLYSQR
 
 C parameters to set HQ scale      
-      double precision aq2,bq2
+      double precision hqscale2in,hqscale2inmass, hqscale1in, scalea1, scaleb1, scalec1, aq2, bq2
       integer MASSH
 
 C  Offset method parameters
@@ -126,7 +126,7 @@ C
       common/STEERING3/PDF_DECOMPOSITION     
 
       common/heavyflav/
-     $     aq2,bq2,MASSH
+     $     aq2,bq2,scalea1,scaleb1,scalec1,hqscale1in,hqscale2in,hqscale2inmass,MASSH
 
 
 C
