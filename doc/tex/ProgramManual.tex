@@ -1,8 +1,7 @@
 \label{sec:man}
 %%%%%%%%%%%
 In this section a user manual is presented. The section starts with a general overview of the code
-organisation and it follows by a more detailed explanation of most used functions.
-
+organisation and it follows with a more detailed explanation for the most frequently used functions.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Code Organisation}
@@ -28,7 +27,7 @@ the user of available functionalities.
 \hline
 \small\bf{steerings} & $\bullet$ steering.txt:& free PDF parameters to be varied by MINUIT \\
  & $\bullet$ minui.in.txt:& main steering card \\
- & $\bullet$ ewparam.txt:& setting ElectroWeak parameters, as well as masses \\
+ & $\bullet$ ewparam.txt:& settings of electroweak parameters, as well as masses \\
 \toprule
 \bf{src} & $\bullet$ main.f:& main program \\
 & $\bullet$ read\_steer.f: &access steer parameters from steering card \\
@@ -37,12 +36,12 @@ the user of available functionalities.
 & $\bullet$ dataset\_tools.f:&  allocating bin indices \\
 & $\bullet$ error\_logging.f: &  error logging information\\
 & $\bullet$ minuit\_ini.f: & initialise minuit module \\
-& $\bullet$ fcn.f: & passes to minuit the $\chi^2$ to be minimize \\
+& $\bullet$ fcn.f: & passes to minuit the $\chi^2$ to be minimised \\
 & $\bullet$ pdf\_param.f:  &  parametrisation of the PDFs at starting scale\\
 & $\bullet$ sumrules.f: & PDF constraints at starting scale, such as QCD sum rules. \\
 & $\bullet$ evolution.f: & evolution of PDFs \\
-& $\bullet$ theory\_dispatcher.f: & distribute calculation of theory prediction for a dataset  \\
-& $\bullet$ dis\_sigma.f & calculate the DIS cross sections \\
+& $\bullet$ theory\_dispatcher.f: & distribution of theory prediction calculations for a given dataset  \\
+& $\bullet$ dis\_sigma.f & calulates the DIS cross sections \\
 & $\bullet$ GetChisquare.f & calculates the $\chi^2$  \\
 & $\bullet$ GetCovChisquare.f & calculates the $\chi^2$ using covariance matrix \\
 & $\bullet$ GetPointScaledErrors.f & calculates the rescaled statistical, uncorrelated and constant errors \\
@@ -50,20 +49,20 @@ the user of available functionalities.
 & $\bullet$ systematics.f & build the matrix for systematic uncertainties and invert it \\
 & $\bullet$ error\_bands\_pumplin.f  & Hessian error calculations  \\
 & $\bullet$ mc\_errors.f & MC method for creating replicas of data through smearing. \\\cmidrule{2-3}
-& $\bullet$ GetDiffDisXsection.f  & calculate the diffractive DIS cross sections \\
+& $\bullet$ GetDiffDisXsection.f  & calulates the diffractive DIS cross sections \\
 & $\bullet$ FixModelParams.f  & used for diffractive DIS cross sections \\\cmidrule{2-3}
 & $\bullet$ lhapdf\_dum.f   & \tiny (used only with ENABLE\_LHPDF)\\
 & $\bullet$ reweighting.f & main subroutine for PDF rewighting \tiny (used only with ENABLE\_NNPDF) \\
 & $\bullet$ nnpdfreweighting.f & main subroutine for NNPDF rewighting \tiny (used only with ENABLE\_NNPDF) \\\cmidrule{2-3}
-& $\bullet$ dy\_cc\_sigma.f  & calculate the DY cross sections (LO) \\
-& $\bullet$ applgrids\_dum.f    & protective file against miss use of flags in steering\\
+& $\bullet$ dy\_cc\_sigma.f  & calulates the DY cross sections \\
+& $\bullet$ applgrids\_dum.f    & protective file against miss-use of flags in steering\\
 & $\bullet$ fappl\_grid.cxx  &  \tiny (used only with ENABLE\_APPLGRID) \\
 & $\bullet$ applgrids.f    &  passing PDFs to APPLGRID \tiny (used only with ENABLE\_APPLGRID) \\
-& $\bullet$ pp\_jets\_applgrid.f   & For DY process convolution for APPLGRID  \\
-& $\bullet$ ep\_jets\_fastnlo.f  &  Calculate $ep$ jets cross sections \\\cmidrule{2-3} 
-& $\bullet$ getncxskt.f  & Access the NC cross sections grids for uPDFs\\
-& $\bullet$ Getgridkt.f & Acess the grids for uPDFs \\\cmidrule{2-3}
-& $\bullet$  ttbar\_hathor\_dum.f  & protective file against miss use of flags in steering\\
+& $\bullet$ pp\_jets\_applgrid.f   & calulates $pp$ jets cross sections  \\
+& $\bullet$ ep\_jets\_fastnlo.f  &  calulates $ep$ jets cross sections \\\cmidrule{2-3} 
+& $\bullet$ getncxskt.f  & access the NC cross sections grids for uPDFs\\
+& $\bullet$ Getgridkt.f & acess the grids for uPDFs \\\cmidrule{2-3}
+& $\bullet$  ttbar\_hathor\_dum.f  & protective file against miss-use of flags in steering\\
 & $\bullet$  ttbar\_hathor.f  & \tiny ( used only with ENABLE\_HATHOR) \\\cmidrule{2-3}
 & $\bullet$ offset\_fns.f & collects results from Offset method and stores them\\
 & $\bullet$  g\_offset.cc  & file used for Offest method\\
@@ -89,7 +88,7 @@ the user of available functionalities.
 \begin{itemize}
       \item {\tt steering.txt}  --   controls main "stable" (un-modified during 
                          minimisation) parameters. The file also contains
-                         names of data files to be fitted to, definition 
+                         names of data files to be fitted and definitions 
                          of kinematic cuts                              
       \item {\tt minuit.in.txt}
                    --  controls minimisation parameters and minimisation 
@@ -137,22 +136,22 @@ These namelist blocks are described in greater details in the User's example \re
 here is a steering flag which defines the theory type via the chosen evolution.
 The following types are supported:
 \begin{itemize}
-\item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories. For this type,
- it follows with another flag which sets the order of perturbative series in $\alpha_S$:
+\item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories. For this type another 
+ flag is needed to specify the order of the perturbative series in $\alpha_S$:
 \tt{Order}\rm which can be leading order (LO), next-to-leading order (NLO) and when available NNLO.
 \item \tt{TheoryType = 'DIPOLE' }\rm as used for the dipole models;
 \item \tt{TheoryType = 'uPDF' }\rm as used for the un-integrated PDFs (with 3 variants)
 \end{itemize}
 
 \item \it\bf Starting scale: \rm\\
-The evolution starting scale is set via flag  \tt{Q02}\rm, commonly used below charm mass threshold, as imposed by QCDNUM.
+The evolution starting scale is set via flag  \tt{Q02}\rm, commonly set below charm threshold, as imposed by QCDNUM.
 
 \item \it\bf Scheme type: \rm\\
-For the DIS process, Several schemes are available for heavy quark treatments via  \tt{HF\_SCHEME}\rm flag.
+For the DIS process, several schemes are available for heavy quark treatments via  \tt{HF\_SCHEME}\rm flag.
 \begin{itemize}
   \item VFNS (Variable Flavour Number Schemes):
     \begin{itemize}
-     \item RT-VFS  schemes                               [from Robert Thorne], \tt{HF\_SCHEME = RT, RT OPT}\rm, as well as the fast variants based on k-factors \tt{RT FAST, RT OPT FAST}
+     \item RT-VFNS  schemes                               [from Robert Thorne], \tt{HF\_SCHEME = RT, RT OPT}\rm, as well as the fast variants based on k-factors \tt{RT FAST, RT OPT FAST}
      \item Zero Mass VFNS                                 [qcdnum], \tt{ZM-VFNS}\rm   
      \item  ACOT (ACOT-Full, ACOT-ZM, S-ACOT-Chi) schemes  [from Fred Olness], \tt{HF\_SCHEME = ACOT Full, ACOT Chi, ACOT ZM}\rm, they are all based on k-factors. 
     \end{itemize}
@@ -165,11 +164,11 @@ For the DIS process, Several schemes are available for heavy quark treatments vi
 IMPORTANT to note if running with FFNS (nf=3): 
 \begin{itemize}
   \item only neutral current DIS data should be used in FF scheme due to missing NLO 
-    coefficient functions in charged current (W+c) process, valence quarks 
-    in this case should to be fixed in minuit.in.txt file.
+    coefficient functions in charged current process, in this cases valence quark parameters  
+    need to be fixed in minuit.in.txt file.
   \item In FF ABM implementation the charged current coefficients are available
     therefore valence parameters do not need to be fixed.
-  \item $\alpha_s(Q^2)$ in FFNS is 3-flavour and recommended to be set to value of 0.105 
+  \item $\alpha_s(Q^2)$ in FFNS is 3-flavour and recommended to be set to the value of 0.105 
     such that is not too high at low energies
   \item the scale in FFNS is defined as $\mu^2 = Q^2 + 4m_h^2$ by default, can be 
     changed in HQScale in \tt{steering.txt}\rm (scale variation in ABM not yet implemented)
@@ -178,19 +177,22 @@ IMPORTANT to note if running with FFNS (nf=3):
     by setting \tt{HF\_SCHEME = FF ABM RUNM} \rm in \tt{steering.txt} \rm. 
 \end{itemize}
 
-\item \it\bf PDF parameterisation style: \rm\\
-There are various types of parametric functional form supported by \fitter\.
+\item \it\bf PDF parametrisation style: \rm\\
+There are various types of parametric functional form supported by \fitter\ .
 They are accessed via the steering flag called \tt{PDFStyle}\rm. Available styles
-are summarised as following:
+are summarised as follows:
 
 \begin{tabular}{ll}
  \tt  '10p HERAPDF'   & -- HERAPDF-like with extra assumption Buv = Bdv \\
- \tt   '13p HERAPDF' & -- HERAPDF-like with Buv and Bdv floated independently \\
+ \tt   '13p HERAPDF' & -- HERAPDF-like with Buv and Bdv floated independently and two fur-\\
+                     &  ther free parameters for the gluon PDF which allow it to be negative at \\
+                     &  low scale\\
  \tt   '10p H12000'  & -- H12000-like (D,U,Dbar,Ubar+g) \\
  \tt   'CTEQ'        & -- CTEQ-like parameterisation \\
- \tt   'CHEB'        & -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs \\
- \tt  'LHAPDFQ0'    & -- use lhapdf library to define pdfs at starting scale and evolve with \\
-local qcdnum parameters \\
+ \tt   'CHEB'        & -- CHEBYSHEV parameterisation based on glu, sea, uval, dval evolved\\
+                     &  pdfs \\
+ \tt  'LHAPDFQ0'    & -- use lhapdf library to define pdfs at starting scale and evolve with local \\
+                    &  qcdnum parameters \\
  \tt  'LHAPDF'      & -- use lhapdf library to define pdfs at all scales\\
  \tt   ' DDIS'        & -- use Diffractive DIS \\
  \tt  'BiLog'       & -- bi-lognormal parametrisation \\
@@ -201,16 +203,17 @@ These styles were described in details in section~\ref{sec:pdfparam}.
 The LHAPDF style can be used only with proper configuration settings,
  as explained in the section~\ref{sec:install}.
 \item \it\bf  Definition of Chisquares:\rm\\
-This section is explained in the section \ref{sec:chi2}.
-Currently two different styles are supported for a smoother 
-transition to the new style which is more flexible.
+Currently two different formats of defining $\chi^2$ are supported.
+The new format is explained in the section \ref{sec:chi2}.
+%Currently two different styles are supported for a smoother 
+%transition to the new style which is more flexible.
 The old format corresponds to {\tt CHI2Style}  --- (string) choice of the $\chi^2$ function:\\
 \begin{tabular}{ll}
     {\tt 'H12000'}& -- Pascaud-like, systematic shifts to theory, no scaling of statistical, uncorrelated errors.\\
     {\tt 'HERAPDF'}& -- Pascaud-like + "mixed error scaling"\\
     {\tt 'HERAPDF Sqrt'}&   -- Pascaud-like + "sqrt error scaling"\\
     {\tt 'HERAPDF Linear'}& -- Pascaud-like + "linear error scaling"\\
-    {\tt 'Offset'}& -- offset method activated\\
+    {\tt 'Offset'}& -- Offset method activated\\
  \end{tabular}
 
 \item \it\bf (logical) debug flag:\rm
@@ -261,7 +264,7 @@ it contains the following ready to use inputs (with corresponding minuit files):
 \item \bf {{\tt Minuit} steering cards}\rm
 
 
-The minuit steering card is described as it follows, a sample file is presented 
+The minuit steering card is described below, a sample file is presented 
 in Fig.~\ref{fig:minuit}
 \begin{figure}
 \begin{center}
@@ -271,7 +274,7 @@ in Fig.~\ref{fig:minuit}
 \label{fig:minuit}
 \end{figure}
 
-The first 3 lines set title and announces MINUIT the list of parameters.      
+The first three lines set the title and specify the list of MINUIT parameters which are to follow.      
 The index of parameters is the first column and it is hardwired to the source code:\\
 
 \begin{tabular}{ll}
@@ -288,36 +291,36 @@ The index of parameters is the first column and it is hardwired to the source co
 \end{tabular}
 
 The second column represents just user defined names,
-the third column is  input value for the parameter.
-The forth column sets the step size (usually chosen of the same order as of the error).
-To note that if step size value is 0. then this parameter is FIXED.
-The fifth column sets the lower boundary of the fit parameter, 
-The sixth column set the upper boundary of the fit parameter
-if boundaries are not mentioned then there are no boundaries.
+the third column is  the input starting value for the parameter.
+The forth column sets the step size (usually chosen the same order as the error).
+If the step size is zero this parameter is FIXED.
+The fifth column sets the lower bound of the fit parameter, 
+The sixth column sets the upper bound of the fit parameter
+if these columns are not filled then there are no bounds.
 
-Only parameters that have the step size non-zero are let to vary 
+Only parameters that have non-zero stepsize are varied 
 in the fit (free parameters). Another way to fix the parameters is
 simply by typing at the end of the list of parameters ``FIX parameter number''.  
 (make sure there is one line free before the minuit list).
-Examples of commands taken by minuit:\\
+Examples of commands taken by minuit are:\\
 
 \begin{tabular}{ll}
 call fcn 3  &   fit is not performed, only 1 iteration, useful for testing\\
             &    Minuit parameters ARE NOT minimized. \\
 migrad       & fit is performed (default number of calls 2000).\\
 migrad 20000 & fit is performed up to 20000 calls, then terminates.\\
-hesse        & hessian estimate of the \tt{MINUIT}\rm parameters \\
+hesse        & Hessian estimate of the \tt{MINUIT}\rm parameters \\
 & (more reliable than \tt{MINUIT}\rm)\\
 \end{tabular}
 
 
 The output of the fit is stored in the output/ directory as \tt{minuit.out.txt}\rm.
-Statements to watch in minuit.out.txt:
+Statements in minuit.out.txt which are useful for interpreting the results of the fit:
 \begin{itemize}
-\item \tt{FCN=575.16}\rm  this is total chisquare
-\item \tt{FROM MIGRAD   STATUS=CONVERGED}\rm this is desirable for a fit that converged
-\item \tt{FROM HESSE     STATUS=OK}\rm       this is desirable for a fit that converged 
-\item \tt{ERROR MATRIX ACCURATE}   \rm       errors estimated with HESSE method
+\item \tt{FCN=575.16}\rm  \; this is total chisquare
+\item \tt{FROM MIGRAD   STATUS=CONVERGED}\rm \; this is desirable for a fit that converged
+\item \tt{FROM HESSE     STATUS=OK}\rm       \; this is desirable for a fit that converged 
+\item \tt{ERROR MATRIX ACCURATE}   \rm       \; errors estimated with HESSE method
 \end{itemize}
 
 {\bf HERAFitter parameters for diffractive fits} \\
@@ -358,32 +361,34 @@ $\sigma_0$ & $A_g$ & $\lambda_g$ & $C_g$ & $cBGK$& $eBGK$\\
 \end{table}
 \\
 For the BGK dipole model fits with valence quarks the initial parameters and the obtained $\chi^2$ are:
+
 \begin{table}[ht]
 \begin{center}
-\tiny
-\begin{tabular}{|c||c||c||c|c||c|c|c||c|c|c||c|} 
-\hline 
-No& 
+\begin{tabular}{|c||c||c||c|c||c|c|c||c|c|c||c|}
+\hline
+No&
 $Q^2$&&
-$\sigma_0$ & $A_g$ & $\lambda_g$ & $C_g$ & $cBGK$& $eBGK$& $Np$& $\chi^2$& $\chi^2/Np$\\
+$\sigma_0$ & $A_g$ & $\lambda_g$ & $C_g$ & $C_{BGK}$& $\mu_{0}^2$& $Np$&
+$\chi^2/Np$\\
 \hline
 1 &
-$Q^2 \ge 3.5$ & NLO & 35.980 & 1.964 &-0.147& 3.068& 4.0 & 15.171 & 196& 245.74& 1.254 \\
+$Q^2 \ge 3.5$ &  LO & 66.6 & 4.0 & -0.039 & 18.6& 4.0 & 5.3  & 196 &  0.930 \\
 \hline
 2 &
-$Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92&  0.821 \\
+$Q^2 \ge 3.5$ & NLO & 79.4 & 3.2 &-0.021 & 13.7 & 4.0 & 6.7 & 196 & 0.927 \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 \end{description}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Data file format}
 \label{sec:dataformat}
    Experimental data are provided by the standard {\tt ASCII} text files. The files
    contain a "header" which describes the data format and the "data" in terms
-   of a 2-dimensional table. Each line of the data table corresponds to a
+   of a  table. Each line of the data table corresponds to a
    data point, the meaning of the columns is specified in the file header.
 
    For example, a header for HERA-I combined H1-ZEUS data for e+p neutral 
@@ -394,17 +399,17 @@ $Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92& 
 \end{verbatim}
 
    The format of the file follows standard "namelist" conventions. Comments 
-   start with exclamation mark.  Pre-defined variables are:
+   start with an exclamation mark.  Pre-defined variables are:
 \begin{itemize}
-     \item{\tt Name}        --- (string) provides a name of the data set
+     \item{\tt Name}        --- (string) provides the name of the data set
     \item{\tt  Reaction}    --- (string) reaction type of the data set. Reaction type is used 
-                      to trigger corresponding theory calculation. The following 
+                      to trigger the corresponding theory calculation. The following 
                       reaction types  are currently supported by the HERAFitter:
                       \begin{itemize}
                         \item {\tt 'NC e+-p'}  -- double differential NC ep scattering
-                                      (ZMVFS and RT-VFS schemes) 
+                                      (ZM-VFNS and RT-VFNS schemes) 
                         \item {\tt 'CC e+-p'}  -- double differential CC ep scattering
-                                      (ZMVFS scheme)
+                                      (ZM-VFNS scheme)
                         \item {\tt 'CC pp'}    -- single differential $d \sigma_{W^{\pm}}/d eta_{\ell^{\pm}}$
                                       production and W asymmetry at $pp$ and $p\bar{p}$ 
                                       colliders (LO+kfactors and APPLGRID interface)
@@ -471,7 +476,7 @@ $Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92& 
 \begin{verbatim}
                   SystScale(1) = 2.  
 \end{verbatim}
-                      in {\tt datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat} would scale stat. 
+                      in {\tt datafiles/H1ZEUS\_NC\_e-p\_HERA1.0.dat} would scale systematic 
                       uncertainty by factor of two.                       
       \item {\tt Percent}     --- (array of bool) For each uncertainty specify if it is given in 
                       absolute ("false") or in percent ("true").  The numbering of 
@@ -484,7 +489,7 @@ $Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92& 
                       Several of them are predefined for different cross-section 
                       calculations.
       \item {\tt DataInfo}    --- (array of float) Values, corresponding to {\tt CInfo} names.
-      \item {\tt IndexDataset} -- (integer) Internal H1 Fitter index of the data set. Provide unique
+      \item {\tt IndexDataset} -- (integer) Internal \fitter\ index of the data set. Provide unique
                       numbers to get extra info for $\chi^2/dof$ for each data set.      
       \item {\tt TheoryInfoFile} --- (string) Optional additional theory file with extra 
                      information for cross-section calculation. This could be k-factors,
@@ -499,8 +504,8 @@ $Q^2 \ge 8.5$ & NLO & 27.820& 3.660 &-0.076& 8.405& 4.0 & 18.188 & 157& 128.92& 
 Depending on the chosen process specific requirements for the header might be present. 
 Dataset-wise options are provided by a {\tt CInfo} / {\tt DataInfo} variable set. In case the information
 varies between data points (e.g. bin borders, hadronisation corrections etc.) it is
-provided within data table and recognised by the program using reserved column names.
-In the following all these requirements are listed and shortly explained.
+provided in the data file and recognised by the program using reserved column names.
+In the following all these requirements are listed and briefly explained.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{description}
@@ -519,19 +524,19 @@ in the {\tt CInfo} variable list:
 \begin{itemize} 
     \item  {\tt 'sqrt(S)'} --- the ep collision centre-of-mass energy in GeV. In particular, for 
     HERA based results the the corresponding {\tt DataInfo} value should be $300.$ for measurements
-    based on data collected prior to $1997$ (inclusive) and $318.$ afterwards.
+    based on data collected prior to $1997$ (inclusive) and $318.$ for data collected after 1997.
     
     \item {\tt 'reduced'} --- a field indicating whether calculated cross section should be reduced (1.) or not (0.)
     (reference to proper equation somewhere in this manual).
     
-    \item {\tt 'e charge'} --- electric charge of the collided lepton beam. Supported {\tt DataInfo} values
+    \item {\tt 'e charge'} --- electric charge of the colliding lepton beam. Supported {\tt DataInfo} values
     are '1.' for electron and '-1.' for positron.
 
     \item {\tt 'e polarity'} --- polarity of the lepton beam. The corresponding {\tt DataInfo} value 
     should be between $-1.0$ and $1.0$ (is this true?) with abs($1.0$) indicating fully polarised
     beam and $0.0$ fully unpolarised one. 
 
-    In case of non-vanishing polarity following additional fields are required:
+    In case of non-vanishing polarity the following additional fields are required:
 
     \item {\tt 'pol err unc'} --- explain
 
@@ -541,7 +546,7 @@ in the {\tt CInfo} variable list:
 
 \end{itemize}
 
-The inclusive DIS cross sections are calculated on the x-Q2-y grid. Correspondingly,
+The inclusive DIS cross sections are calculated on an x-Q$^2$-y grid. Correspondingly,
 the following columns need to present in the correctly formatted input file: 
 {\tt 'x'}, {\tt 'Q2'} and {\tt 'y'}.
 
@@ -559,8 +564,8 @@ Examples of properly formatted files are:
    {\tt datafiles/HERA/H1\_NormInclJets\_HighQ2\_99-07.dat}.
 
 {\tt TheoryType = 'FastNLO'} indicates usage of the FastNLO. The variable {\tt ThoryInfoFile} 
-should contain the proper path to the FastNLO table in version 2.0 and higher.
-HERAFITTER supports both flexible and inflexible scales.
+should contain the proper path to the FastNLO table in version 2.0 or higher.
+\fitter\ supports both flexible and inflexible scales.
 Older FastNLO tables can be still accessed through the APPLGRID interface.
 
 The following fields are required to be present in the {\tt CInfo} list:
@@ -601,25 +606,25 @@ The following fields are required to be present in the {\tt CInfo} list:
    \item {\tt sqrt(S)} --- Should be defined only for 'FastNLO ep jets normalised' reaction type. 
          The ep collision centre-of-mass energy in GeV. In particular, for 
          HERA based results the the corresponding {\tt DataInfo} value should be $300.$ for measurements
-         based on data collected prior to $1997$ (inclusive) and $318.$ afterwards.
+         based on data collected prior to $1997$ (inclusive) and $318.$ for data collected after 1997.
 
    \item {\tt 'lumi(e-)/lumi(tot)'} --- Should be defined only for 'FastNLO ep jets normalised'
-         reaction type. The normalisation depends on the ratio of the positron and electron data 
+         reaction type. The normalisation depends on the ratio of the luminosities of the positron and electron data 
          used for the cross section measurement. This ratio should  be
-         given in a format (lumi($e^-$) / (lumi($e^-$) + lumi($e^+$)) and assume values between [0., 1.].
+         given in a format (lumi($e^-$) / (lumi($e^-$) + lumi($e^+$)) and ashould take values between [0., 1.].
 
    \item {\tt 'UseZMVFNS'} --- Should be defined for 'FastNLO ep jets normalised' reaction type. The calculation
          of the integrated inclusive DIS cross sections could be time consuming.
          This option provides an opportunity to use a "Zero Mass Variable Flavour
-         Number Scheme" approximation which is very fast and possibly provides
-         enough precision for the normalisation purposes. ZMVNS is used if 
+         Number Scheme" approximation which is very fast and provides
+         enough precision for normalisation purposes. ZMVNS is used if 
          the corresponding {\tt DataInfo} field is set to 1. Otherwise, the same scheme
          is used as defined globally with the variable 'HF\_SCHEME' defined in steering.txt file.
 \end{itemize}
 
 
 In addition there are some specific values within the {\tt ColumnName} field which allow
-passing the information specific to each data point. They are listed below:
+information specific to each data point to be passed. They are listed below:
 
 \begin{itemize}
      \item{\tt 'Z0Corr'} --- (optional) The correction due to the $Z_0$ boson exchange.
@@ -648,31 +653,32 @@ passing the information specific to each data point. They are listed below:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Understanding the output}
   The results of the minimization are printed to the standard output and written
-  to the files in the {\tt output/} directory. 
+  to files in the {\tt output/} directory. 
 
-  The quality of the fit can be judged based on total $\chi^2$ per degrees of freedom.
+  The quality of the fit can be judged based on the total $\chi^2$ per degrees of freedom.
   It is printed for each iteration as 
 \begin{verbatim}
                       Iteration   Chi2   NDF       Chi2/NDF
    FitPDF f,ndf,f/ndf      3      588.64 579        1.02
 \end{verbatim}
-  The resulting $\chi^2$ is reported at the end of minimisation for each data set and for correlated 
+  The resulting $\chi^2$ is reported at the end of minimisation for each data set and for the correlated 
   systematic uncertainties separately. This information is printed and written
   to the {\tt output/Results.txt} file. The {\tt Results.txt} file contains additional 
   information about shifts of the correlated systematic uncertainties.
 
-  The minimization information from the {\tt minuit} program is stored using the standard {\tt minuit} in the {\tt output/minuit.out.txt}
+  The minimization information from the {\tt minuit} program is stored using the standard {\tt minuit} output format in the {\tt output/minuit.out.txt}
   file. The level of verbosity for this information can be changed by {\tt minuit} commands
-  in the {\tt minuit.in.txt} file. Make sure that {\tt minuit} does not report any errors
+  in the {\tt minuit.in.txt} file. 
+  It is a good idea to check that minuit does not report any errors
   or warnings at the end of minimisation.
   
   Point by point comparison of the data and predictions after the minimization 
   is provided in the file stored in {\tt output/fittedresults.txt}. The file reports three columns
   corresponding to the three first bins of the input tables, data value, sum in 
   quadrature of statistical and uncorrelated systematic uncertainty, total
-  uncertainty, the predicted value, before and after applying correlated systematic shifts,
-  pull between the  data and theory and 
-  data set index. The pull $p$ is calculated as 
+  uncertainty and then the predicted value, before and after applying correlated systematic shifts,
+  the pull between the  data and theory and 
+  the data set index. The pull $p$ is calculated as 
   \begin{equation}
       p = \frac{ \mu - m} {\sigma_{\rm uncor}}
   \end{equation}
@@ -688,14 +694,15 @@ passing the information specific to each data point. They are listed below:
   {\tt \&Output} namelist in the {\tt steering.txt} file.
   
   The PDF information and data to theory comparisons can be plotted using 
-  the {\tt bin/DrawResults} program.  Calling it without arguments plots results from
-  {\tt output/} directory. Given the program one argument specifies sub-directory 
+  the {\tt bin/DrawResults} program.  Calling it without arguments plots results from the
+  {\tt output/} directory. Giving the programme one argument specifies the sub-directory 
   where the information is read. Calling the {\tt bin/DrawResults} program with two
-  arguments provides comparison of the PDFs obtained in the two fits.
+  arguments provides a comparison of the PDFs obtained in the two fits.
   
-  Finally, the \fitter\ package provides PDFs in the {\tt LHAPDF} format. To obtain the
-  {\tt LHAPDF} grid file, run the {\tt tools/tolhapdf.cmd} script. The script produces 
-  the {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
+  In addition the \fitter\ package provides PDFs in the {\tt LHAPDF} format as {\tt output/lhapdf.block.txt} file. 
+  To obtain the
+  {\tt LHAPDF} grid file, run the {\tt tools/tolhapdf.cmd} script. The script provides a
+  {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
   or later.
 %%%%%%%%%%%
 

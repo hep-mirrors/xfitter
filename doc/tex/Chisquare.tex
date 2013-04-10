@@ -1,8 +1,8 @@
 \label{sec:chi2}
 %%%%%%%%%%%
-In this section various forms of $\chi^2$ are described, based on nuisance parameters or
-covariance matrix.
-A schematic picture of $\chi^2$ definitions is displayed in Fig. \ref{fig:chi2}
+In this section various forms of $\chi^2$ are described, 
+based on the use of nuisance parameters or on th full covariance matrix.
+A schematic picture of $\chi^2$ definitions is displayed in Fig. \ref{fig:chi2}.
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.75\linewidth]{figures/chi2.pdf}
@@ -10,21 +10,18 @@ A schematic picture of $\chi^2$ definitions is displayed in Fig. \ref{fig:chi2}
 \caption{Various $\chi^2$ representations in \fitter\ .}
 \label{fig:chi2}
 \end{figure}
- The description starts with most simple cases and it extends to 
- more evolved form that takes into account the
- possible biases arising from low statistics data. 
-
-
+The description starts with the most simple cases and extends to more evolved forms, which take into account possible biases 
+arising from low statistics data. 
 
 \subsubsection{Using Nuisance Parameters}
 %%%%
 
-In this subsection the focus is on the $\chi^2$ using nuisance parameters. Different variants are discussed.
+In this subsection the focus is on the form of the $\chi^2$ using nuisance parameters. Different variants are discussed.
 
 
 \begin{description}
 %%%%
-\item \bf{Simple and Scaled Form} \rm
+\item \bf{Simple Form} \rm
 
 For a single data set, the $\chi^2$ function can be defined in a simple form 
 \begin{equation}
@@ -38,7 +35,10 @@ For a single data set, the $\chi^2$ function can be defined in a simple form
  + \sum_j b^2_j.
 \label{eq:ave}\end{equation}
 %
-or more evolved as~\cite{H1:2009bp},
+
+\item \bf{Scaled Form} \rm
+
+Equation~\ref{eq:ave} can be evolved as in~\cite{H1:2009bp}:
 
 %
 \begin{equation}
@@ -55,9 +55,9 @@ or more evolved as~\cite{H1:2009bp},
 Here ${\mu^i}$ is the  measured central value  at a point $i$ 
 with  relative statistical $\delta_{i,stat}$ 
 and relative uncorrelated systematic uncertainty $\delta_{i,unc}$.
-Further, $\beta_j$ denotes a nuisance parameter for
- a correlated systematic error  source of type $j$ with an uncertainty
- while
+Further, 
+%$\beta_j$ denotes a nuisance parameter for
+% a correlated systematic error  source of type $j$ with an uncertainty while
 $\gamma^i_j$ 
 quantifies the sensitivity of the
 measurement ${\mu^i}$ at the point $i$ to the systematic source $j$. 
@@ -73,7 +73,7 @@ Other scaling properties for the statistical and uncorrelated
 systematic uncertainties 
 are discussed later.
 
-
+\item \bf{Covariance Matrix} \rm
 
 In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
 is
@@ -84,13 +84,13 @@ is
 \end{equation}
 Here the scaling properties of the correlated systematic uncertainties 
 $\Gamma^i_j$ and
-of the covariance matrix $C_{{\rm stat.}~ij}$ are expresses as a dependence
-on $m_i$ and the dependence of $\Delta_{\rm stat}$ on $b_j$ is ignored.
+of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
+on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
 
 Eq.~\ref{eq:chi2gen} allows for two methods for fast determination
 of the minimum, without need to include the formal nuisance parameters
 corresponding to the systematic error sources into the minuit minimisation.
-In the first method, the minimisation vs. $b_j$ is used to define covariance
+In the first method a minimisation vs. $b_j$ is used to define the covariance
 matrix for the systematic uncertainties which is determined as
 \begin{equation}
  C_{{\rm syst}~ij}= \sum_l \Gamma^i_l \Gamma^j_l \,.
@@ -100,64 +100,64 @@ systematic covariance matrices
 \begin{equation} 
 C_{{\rm tot}~ij} = C_{{\rm stat}~ij} + C_{{\rm syst}~ij}\,,
 \end{equation}
-and the $\chi^2$ function takes a form
+and the $\chi^2$ function takes the form
 \begin{equation}
   \chi^2( \boldsymbol{m}) = \sum_{ij} ( m^i - \mu^i) C^{-1}_{{\rm tot}~ij} 
 ( m^j - \mu^j)\,.
 \end{equation}
 
-The second methods is used to determine optimal shifts of the nuisance
+The second method is used to determine optimal shifts of the nuisance
 parameters at each iteration. The shifts are given by minimising 
-Eq.~\ref{eq:chi2gen} vs. $b_l$ which leads to a system of  linear equations 
+Eq.~\ref{eq:chi2gen} vs. $b_l$, which leads to a system of  linear equations 
 \begin{equation}
  \sum_k \sum_{ij} C^{-1}_{{\rm stat}~ij} \Gamma^i_l \Gamma^j_k \cdot b_k = \sum_{ij} C^{-1}_{{\rm stat}~ij} \Gamma^i_l (m^j - \mu^j)\,,
 \end{equation}
-where $1\le l \le N_{\rm syst}$, the total number of correlated systematic uncertainties.
+where, $1\le l \le N_{\rm syst}$, the total number of correlated systematic uncertainties.
 
 Finally the nuisance parameters $\boldsymbol{b}$ can be excluded from the $\chi^2$ minimisation.  
-In this case, which is referred to as an Offset method, the minimum is determined for their values set to zero
+In this case, which is referred to as the Offset method, the minimum is determined for the values of $b$ set to zero
 while uncertainties on the parameters $\boldsymbol{p}$ are determined by shifting each nuisance parameter $b_l$
 by $\pm 1$. The total covariance matrix for parameters $p^i$ is determined as 
 \begin{equation}
-  C^{\rm offset}_{ {\rm par}~ ij} = \sum_{l=1}^{N_{syst}} \Delta p^i_l \Delta p^j_l \,,
+  C^{\rm Offset}_{ {\rm par}~ ij} = \sum_{l=1}^{N_{syst}} \Delta p^i_l \Delta p^j_l \,,
 \end{equation}
 where $ \Delta p^i_l = 0.5 ( p^i( b_l = +1 ) - p^i(b_l = -1))$ and the quality of the fit is estimated by 
-fixing $\boldsymbol{p}$ to the value at the minimum and minimising with respect to $\boldsymbol{b}$
+fixing $\boldsymbol{p}$ to the values determined at the minimum and minimising with respect to $\boldsymbol{b}$
 
-Finally, all three approaches can be combined together. For example, only some of the systematic uncertainties
-can be treated using the matrix method while others can be treated using the hessian method. In this case, the
+Finally, all three approaches can be combined together. For example, some of the systematic uncertainties
+can be treated using the matrix method while others can be treated using the Hessian method. In this case, the
 covariance matrix  $C_{\rm syst}$ is build using the corresponding sub-set of systematic sources and $C_{\rm stat}$ 
 is replaced by $C_{\rm stat}+C_{\rm syst}$ in Eq.~\ref{eq:chi2gen}. Similarly, some of the systematic uncertainties
-can be treated using offset method and then $C^{\rm total}_{ {\rm par}} = C^{\rm hessian}_{\rm par} + C^{\rm offset}_{\rm par}$
-where offset and hessian covariance matrices are calculated using corresponding systematic error sources.
+can be treated using Offset method and then $C^{\rm total}_{ {\rm par}} = C^{\rm Hessian}_{\rm par} + C^{\rm Offset}_{\rm par}$
+where Offset and Hessian covariance matrices are calculated using corresponding systematic error sources.
 
 \item \bf{Bias corrections}\rm
 
 The correlated and uncorrelated systematic uncertainties can be treated as additive,  $\Gamma^i_l(m^i) = \gamma^i_l \mu^i$
-or multiplicative, $\Gamma^i_l(m^i) = \gamma^i_l m^i$. The LogNormal treatment in which 
+or multiplicative, $\Gamma^i_l(m^i) = \gamma^i_l m^i$. A LogNormal treatment in which 
 $ \mu^i + \sum_l \Gamma^i_j b_l$ is replaced by $ \mu^i \prod_l \exp( \gamma^i_j b_l) $ is foreseen for the
 next release of the {\tt HERAFitter}. 
 
-The statistical uncertainties can be treated as additive, $\Delta^i(m^i) = \delta^i \mu^i$  and as Poisson,
+The statistical uncertainties can be treated as additive, $\Delta^i(m^i) = \delta^i \mu^i$  or as Poisson,
 $\Delta^i(m^i) = \delta^i \sqrt{\mu^i m^i}$. More complex scaling from Eq.~\ref{eq:aven}, 
 which depends on shifts of $b_j$, is implemented using an iterative approach: for the first iteration $b_l =0$ 
- is used to determine values of $b_l$ which are then applied in the second iteration. Statistical covariance
+ is used to determine values of $b_l$ which are then applied in the second iteration. The statistical covariance
 matrix is scaled in a similar manner. In this case the correlation matrix is assumed to be fixed, the diagonal
 elements are updated using the prescription describe above and the covariance matrix is rescaled accordingly.
 
 The modifications of the covariance matrix at each iteration of the minuit minimisation may lead to systematic
-biases. There are two approaches to avoid these biases. In the first approach the covariance matrix is calculated
+biases. There are two approaches that can be used to avoid these biases. In the first approach the covariance matrix is calculated
 using the expected values at the first iteration of the minimisation and kept fixed to these values for further
 iterations. This method requires several repetitions of the minimisation, to ensure that values close to optimal
-are obtained already at the first iteration. The second method modifies the $\chi^2$ function by adding a term
-corresponding to non-constant value of the covariance matrix:
+are obtained already at the first iteration. The second method~\cite{h1:2012kk} modifies the $\chi^2$ function by adding a term
+corresponding to a non constant value of the covariance matrix:
 \begin{equation}
  \chi^2_{\rm log} = 2 \log \frac{\Delta^i(m^i)}{\Delta^i(\mu^i)} 
 \end{equation}  
 \end{description}
 
 
-\subsubsection{HERAFitter implementation}
+\subsubsection{\fitter\ implementation}
 The form of the $\chi^2$ function and the scaling properties of the 
 uncertainties are controlled globally by the {\sc CHI2SettingsName} and
 {\sc  Chi2Settings} variables and individually using {\sc ``:''} modifiers.
@@ -184,13 +184,15 @@ sources.
 The shifts of the systematic sources are reported in the {\sc Results.txt} file. The uncertainty on the shift
 is however estimated only approximately, neglecting the correlation with the theory parameters. An accurate determination
 of the uncertainty can be achieved by using the toy MC method (see section~\ref{sec:ToyMC}) or by using {\sc ':E'} 
-modifier. In the later case the systematic source is treated using the {\tt Minuit} minimisation. Note, however,
+modifier. In the latter case the systematic source is treated using the {\tt Minuit} minimisation. Note, however,
 that this approach can slow the minimisation convergence considerably.
 \begin{table}
 \begin{center}
 \begin{tabular}{ccccc} 
 \hline
- Option  & {\sc StatScale} & {\sc UncorSysScale} & {\sc CorSysScale} & Scaling rule \\
+{\sc CHI2SettingsName:}   & {\sc StatScale} & {\sc UncorSysScale} & {\sc CorSysScale} & Scaling rule \\
+\hline
+{\sc CHI2Settings}       &                 &                     &                   &              \\
 \hline
   {\sc Poisson}   &  $+$  &  $+$  &  $-$  & $\sqrt{ m^i \mu^i}$ \\
   {\sc Linear}    & $-$   &  $+$  &  $+$  & $m^i$               \\
@@ -214,7 +216,7 @@ uncertainty is $\Delta_i = \delta_{i, {\rm stat}}\sqrt{m^i\mu^i}$   }
 \hline
   {\sc Hessian}             & Use nuisance parameters.\\
   {\sc Matrix }             & Use covariance matrix. \\
-  {\sc Offset }             & Use offset method\\
+  {\sc Offset }             & Use Offset method\\
 \hline
 \end{tabular}
 \end{center}

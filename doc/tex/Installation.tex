@@ -5,11 +5,11 @@
 The Installation Instructions are dependent on which modules are activated via the configuration option. 
 \subsubsection{Pre-requirements}
 
-The following packages are needed in order to build \fitter\ package:
+The following packages are needed in order to build the \fitter\ package:
 \begin{itemize}
-\item QCDNUM~\cite{qcdnum} version at least {\tt qcdnum-17-00-04}, can be found at \\
+\item QCDNUM~\cite{qcdnum} versions more recent than {\tt qcdnum-17-00-03} should be used. These can be found at \\
   {\tt http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html}
-\item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use {\tt /afs/} installation from CERN:\\
+\item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use the {\tt /afs/} installation from CERN:\\
   {\tt /afs/cern.ch/sw/lcg/external/cernlib/}
 %\item Link to recent Root libraries (e.g. version 5.26)
 %\item Optional: {\tt APPLGRID}
@@ -79,7 +79,7 @@ mkdir PDFsets
 Once installed, create the path that will be linked to the {\tt HERAFitter} package.\\
  Specify \verb'LD_LIBRARY_PATH'
      and {\tt LHAPATH} variables such that they
- point to the corresponding libraries, and PDF sets location (where lhapdf tables are stored)
+ point to the corresponding libraries, and location of PDF sets (where lhapdf tables are stored)
 \begin{verbatim}
 export LD_LIBRARY_PATH=/path/to/directory/lhapdf-v.r.p/lib:$LD_LIBRARY_PATH
 export LHAPATH=/path/to/directory/share/lhapdf/PDFsets
@@ -124,7 +124,7 @@ http://www-zeuthen.desy.de/~moch/hathor/
   \item Define a variable HATHOR\_ROOT  such that HATHOR\_ROOT  points to the
      directory of your Hathor installation
 
-  \item Install the HERAFitter as described above but configuring it
+  \item Install the \fitter\ as described above but configuring it
      with the option "--enable-hathor" before building it
  \end{itemize}
 
@@ -140,9 +140,9 @@ they can be downloaded from\\
 {\tt http://cascade.hepforge.org/ } and 
 {\tt https://pythia6.hepforge.org/ } respectively. \\
         \\
-After installation of generator packages, the {\tt CASCADE\_ROOT}  and {\tt PYTHIA\_ROOT} 
+After installation of the generator packages, the {\tt CASCADE\_ROOT}  and {\tt PYTHIA\_ROOT} 
 environment variables have be specified and point to the corresponding libraries. 
-In DESY afs environment the Pr-installed versions of Cascade and Pythia can be used:  
+In the DESY afs environment the Pr-installed versions of Cascade and Pythia can be used:  
 %
 {\footnotesize\begin{verbatim}
 export CASCADE\_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/\$SYSNAME 
@@ -170,7 +170,7 @@ where {\tt SYSNAME } = i586\_rhel50 or similar.
 \item  edit steering.txt: 
    \begin{verbatim}
    \&CCFMFiles: give name for output grid file for uPDF   
-   \&HERAFitter 
+   \&\fitter\ 
    TheoryType = 'uPDF3' ! 'DGLAP'  -- collinear evolution
                              ! 'DIPOLE' -- dipole model 
                              ! 'uPDF'   -- un-integrated PDFs:

@@ -1,40 +1,37 @@
 
 \label{sec:pdfparam}
 %%%%%%%%%%%
-Different parametrisation for PDFs at the starting scale present in \fitter\ are described in this section.
-It starts from various standard functional forms (\ref{sec:stdform}), it follows with the bi-log-normal functional form (\ref{sec:log}), and it extends to more exotic forms based on generalised polynomial such as Chebyshev (\ref{sec:cheb}).
+%Different parametrisation for PDFs at the starting scale present in \fitter\ are described in this section.
+%It starts from various standard functional forms (\ref{sec:stdform}), it follows with the bi-log-normal functional form (\ref{sec:log}), and it extends to more exotic forms based on generalised polynomial such as Chebyshev (\ref{sec:cheb}).
+
+In this Section the different possible parametrisations for the PDFS at the staring scale which are implemented in the \fitter\
+are described. Sec.~\ref{sec:stdform} covers standard functional forms, Sec.~\ref{sec:log}  covers the bi-log normal functional 
+for and Sec.~\ref{sec:cheb} covers more exotic forms based on generalised polynomials such as the Chebyshev polynomials.
 
 \subsubsection{Standard Functional form}
 \label{sec:stdform}
 %%%%
-Through standard functional form it is understood a simple polynomial 
+The term standard functional form is understood to refer to a simple polynomial 
 that interpolates between the low and high $x$ regions:
 \begin{equation}
  xf(x) = A x^{B} (1-x)^{C} P_i(x),
 \label{eqn:pdf_std}
 \end{equation}
-We identify few standard forms commonly used by PDF groups.
+Standard forms are commonly used by PDF groups.
 
-%%%%
-\begin{description}
-\item \bf{CTEQ style}\rm
-
-%%%%
 The notation used throughout this text reflects the 
 notation used in the code.
 
-\begin{equation}
- xf(x) = a_0 x^{(a_1+n)} (1-x)^{a_2} e^{a_3x} (1 + e^{a_4 x} + e^{a_5 x^2}),
-\label{eqn:pdf_cteq}
-\end{equation}
-%
+%%%%
+\begin{description}
+
 %%%%
 \item \bf{HERAPDF style}\rm
 
 %\subsubsection
 %%%%
  The parametrised PDFs at HERA are the valence distributions
- $xu_v$ and  $xd_v$,  the gluon distribution $xg$, and the $u$-type and $d$-type 
+ $xu_v$ and  $xd_v$,  the gluon distribution $xg$, and the $u$-type and $d$-type sea 
 $x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
 $x\bar{D} = x\bar{d} +x\bar{s}$. 
 The following standard functional form is used to parametrise them
@@ -43,8 +40,8 @@ The following standard functional form is used to parametrise them
 \label{eqn:pdf}
 \end{equation}
 %
-where the normalisation parameters, $A_{uv}, A_{dv}, A_g$,  are constrained by  
-the QCD sum-rules, such that the counting  and  momentum conservation are preserved.
+where the normalisation parameters, $A_{uv}, A_{dv}, A_g$,  
+are constrained by the number sum-rules and the momentum sum-rule.
 The $B$ parameters  $B_{\bar{U}}$ and $B_{\bar{D}}$ are set equal,
  $B_{\bar{U}}=B_{\bar{D}}$, such that 
 there is a single $B$ parameter for the sea distributions. 
@@ -52,9 +49,9 @@ there is a single $B$ parameter for the sea distributions.
 The strange quark distribution 
 is already present at the starting scale and 
 %
-it is  assumed here that 
+it is assumed that
 $x\bar{s}= f_s  x\bar{D}$ at $Q^2_0$. 
-The  strange fraction is chosen to be $f_s=0.31$ which is
+The  strange fraction is chosen to be $f_s=0.31,$ which is
 consistent with determinations 
 of this fraction using neutrino induced di-muon production. 
 %
@@ -62,57 +59,67 @@ In addition, to ensure that $x\bar{u} \to x\bar{d}$
 as $x \to 0$,  
 $A_{\bar{U}}=A_{\bar{D}} (1-f_s)$.
 %
-The $D$ and $E$ are introduced one by one until no further improvement in $\chi^2$ is found.
-For the case when adding more precision data in the fit, as when adding HERA II data, this allows then for use of a more flexible parametrisation for the gluon and valence especially.
-The best fit  results in a total of $10$ free parameters when performing fits to solely HERA I data (fits are referred then ro as HERAPDF1.0), and of 13 free parameters when adding preliminary HERA II data on top (fits are referred then to as HERAPDF1.5).
+The $D$ and $E$ parameters are introduced one by one until no further improvement in $\chi^2$ is found.
+This procedure allows for more flexibility when adding more precision data into the fit, for example when adding HERA-II data. 
+The best fit  results in a total of $10$ free parameters when performing fits to solely HERA I data 
+(fits are then referred to as HERAPDF1.0), and of 13 free parameters when adding preliminary HERA II data on top 
+(fits are then referred to as HERAPDF1.5).
 
-
-An assumption that the strange sea quark density follows the same shape as the down quark density is used in HERAPDF fits. 
- However, inspired by the HERMES analysis \cite{hermes} which measure semi-inclusive production of the strange mesons, the following functional form is provided in the \fitter\ to parametrise the strange density  at the starting scale:
+In HERAPDF fits the assumption is made that the strange sea quark density follows the same shape as the down quark density. 
+However, and alternative functional form is provided to parametrise the strange density  at the starting scale:
 \begin{equation}
 xs(x)=f_s\frac{1}{1+\tanh(-(x-x_{hs}h_{hr}))},
 \end{equation}
 
 with $x_{hs} = 0.07$ and $h_{hr} = 20$, corresponding to a sharp turn on of the strange density at $x\sim 0.07$.
+This form is inspired by the HERMES analysis \cite{hermes} which measure semi-inclusive production of the strange mesons.
 
 \item \bf{Strange style}\rm
 
 
-For the studies of the strange quark sea density, the parametrisation of $x\bar{D}$ is replaced by a sum of $x\bar{d}(x)+x\bar{s}(x)$ parametrised densities:
+For studies of the strange quark sea density, the parametrisation of $x\bar{D}$ is replaced by a sum of $x\bar{d}(x)+x\bar{s}(x)$ parametrised densities:
 \begin{equation}
-xs(x)=\frac{fs}{1-fs} A_{\bar{d}}x^B_s(1-x)^C_s .
+x\bar{s}(x)=\frac{fs}{1-fs} A_{\bar{d}}x^{B_{\bar{s}}}(1-x)^{C_{\bar{s}}} .
 \end{equation}
 
 \item \bf{Flexible style}\rm
 %%%%
 
-Flexible style is the extension of the ``HERAPDF style'' by allowing  extra $2$ free parameters for every PDF distribution, namely the $D$ and $E$ parameters for the medium $x$ region. It can be used to study the data sensitivity to PDFs. The total number of free parameters is therefore $22$.
+Flexible style is the extension of the ``HERAPDF style'' by allowing $2$ extra free parameters for every PDF distribution, 
+namely the $D$ and $E$ parameters which give flexibility in the medium $x$ range. 
+This can be used to study the sensitivity of the data to the PDF description. In this case the total number of free parameters is $22$.
 
+%Strange quark PDF is the least determined PDF from the l
 
+\item \bf{CTEQ style}\rm
 
+%%%%
 
-Strange quark PDF is the least determined PDF from the l
+\begin{equation}
+ xf(x) = a_0 x^{(a_1+n)} (1-x)^{a_2} e^{a_3x} (1 + e^{a_4 x} + e^{a_5 x^2}),
+\label{eqn:pdf_cteq}
+\end{equation}
+%
 \end{description}
 
 \subsubsection{Bi-Log-Normal Functional Form}
 \label{sec:log}
-A bi-log-normal distribution is proposed by \cite{AndreSchoening} to parametrise the x-dependence of the parton density function of the proton.
-This new parametrisation
-is motivated by arguments of multi-particle statistics. 
-This function can be regarded as a generalisation of parametrisation commonly used by global fit groups.
-The following parametrisation as general ansatz is proposed:
+A bi-log-normal distribution is proposed by \cite{AndreSchoening} to parametrise the $x$ dependence of the PDFs.
+%parton distribution function of the proton.
+This parametrisation is motivated from multi-particle statistics. The follwing parametrisation is proposed as a general ansatz.
 \begin{equation}
 xf(x)=x^{p-b\log(x)}(1-x)^{q-\log(1-x)}.
 \label{eq:AS}
 \end{equation}
+This function can be regarded as a generalisation of parametrisations commonly used by global fit groups.
 In order to satisfy the QCD sum rules this parametric form requires numerical integration.
 
 \subsubsection{Chebyshev Polynomial Functional Form}
 \label{sec:cheb}
-A flexible Chebyshev polynomials based parametrisation is used for the gluon and sea densities. The polynomials
+A flexible Chebyshev polynomial based parametrisation can be used for the gluon and sea densities. The polynomials
 use $\log x$ as an argument to emphasize the low $x$ behavior. 
 The parametrisation is valid for $x>x_{min} = 1.7\times 10^{-5}$. The PDFs are multiplied
-by $1-x$ to ensure that they vanish as $x\to 1$. The resulting parametrisation form is 
+by $1-x$ to ensure that they vanish as $x\to 1$. The resulting parametric form is 
 \begin{eqnarray}
 x g(x) &=& A_g \left(1-x\right) \sum_{i=0}^{N_g-1} A_{g_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,, \label{eq:glu} \\
 x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,. \label{eq:sea} 
@@ -120,9 +127,10 @@ x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textsty
 Here the sum over $i$ runs up to $N_{g,S}=15$ order Chebyshev polynomials of the first type $T_i$ for
 the gluon, $g$, and sea-quark, $S$, density, respectively. 
 The normalisation $A_g$ is given by the momentum sum rule.
-The advantages of the parametrisation given by equations~\ref{eq:glu},\ref{eq:sea} is that momentum
-sum rule can be evaluated analytically and  already for $N \ge 5$ the fit quality
-is similar to a standard Regge-inspired parametrisation with a similar number of parameters.
+
+The advantages of this parametrisation are that the momentum sum rule can be evaluated analytically 
+and that for $N \ge 5$ the fit qulaity is already similar
+to a standard Regge-inspired parametrisation with a similar number of parameters.
 
 %==========================================
 \subsubsection {Diffractive parametrisation Functional Form}
@@ -134,7 +142,7 @@ is similar to a standard Regge-inspired parametrisation with a similar number of
 
 The Pomeron is parametrised at the initial
 $Q_0^2$ in terms of two singlet distributions,
-$f_{g}$ and $f_{+}$.
+$f_{g}$ and $f_{+}$, which evolve as follows:
 \begin{subequations}
 
 \label{singlet}

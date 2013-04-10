@@ -225,7 +225,7 @@ The PDF uncertainties can be estimated using a Monte Carlo technique \cite{Giele
 The method consists in preparing replicas of data sets by allowing the central values of the cross sections to 
 fluctuate within their systematic and statistical uncertainties taking into account all point-to-point correlations.
 The preparation of the data is repeated for a large $N$ ($>100$ times) and for each of these replicas a NLO QCD fit is performed to 
-extract the PDF set. The PDF central values and uncertainties are estimated using the means values and RMS 
+extract the PDF set. The PDF central values and uncertainties are estimated using the mean values and RMS 
 over the replicas. 
 \subsubsection{Implementation in \fitter\ }
 The steering flags to activate the MC method are located in the \tt steering.txt \rm via:
@@ -245,11 +245,11 @@ The steering flags to activate the MC method are located in the \tt steering.txt
   SYSTYPE =  1
 &End
 \end{verbatim}
-To activate MC method for error estimation this is done by setting \tt lRand = True \rm.
+To activate the MC method for error estimation set \tt lRand = True \rm.
 To use data (true, default) or theory (false) for the central values of the MC replica
-the the flag \tt lRANDDATA \rm is used. The seed for random number generator is selected 
-via \tt ISeedMC \rm . The smearing of the uncertainties is treated differently for correlated 
-or uncorrelated source and three distributions are supported for random number generators: Gauss, uniform, lognormal, and Poisson. If the flags are set to $0$ then no smearing is produced.
+the the flag \tt lRANDDATA \rm is used. The seed for random number generation is selected 
+via \tt ISeedMC \rm . The smearing of the uncertainties can be treated differently for correlated 
+or uncorrelated source and four distributions are supported for random number generators: Gauss, uniform, lognormal, and Poisson. If the flags are set to $0$ then no smearing is produced.
 
 
 
@@ -257,8 +257,9 @@ or uncorrelated source and three distributions are supported for random number g
 %%%%%%%%%%%
 \subsubsection{Regularisation methods}
 
-Regularisation methods are aiming to study the parametrisation assumptions on PDFs. When more flexible parametrisation styles is used the shape of the PDFs must be constrained and various methods could be used.
-HERAFitter framework provides the means to study and compare various methods.
+Regularisation methods are aiming to study the parametrisation assumptions of PDFs. 
+When more flexible parametrisation styles is used the shape of the PDFs must be constrained and various methods are used.
+The \fitter\ framework provides the means to study and compare various methods.
 
 %The methods described in this section work for large data sets. 
 
@@ -266,21 +267,25 @@ HERAFitter framework provides the means to study and compare various methods.
 
 \item \bf{Data Driven Regularisation}\rm
 
-This method was first applied by NNPDF group which uses redundant parametrisation and introduces a stopping criteria based on data.
-The data driven regularisation method splits data randomly into ``fit'' and ``control''  samples. The ``fit'' sample is used to determine PDF parameters. The $\chi^2$ of this sample is observed to semi-monotonically decrease. The ``control'' sample is used to protect against over-fitting and for this sample the $\chi^2$ will first decrease and then will start to increase due to fluctuation of the sample.
+This method was first applied by the NNPDF group.
+It uses a redundant paremeters and introduces a stopping criterion based on data. This method splits data randomly
+into ``fit'' and ``control''  samples. The ``fit'' sample is used to determine the PDF parameters. 
+The $\chi^2$ of this sample is observed to decrease semi-monotonically. 
+The ``control'' sample is used to protect against over-fitting and for this sample the $\chi^2$ will first decrease 
+and then will start to increase due to fluctuation of the data.
 
 
-\item \bf{External Regularisation based on penalty term in $\chi^2$} \rm
+\item \bf{External Regularisation based on a penalty term in $\chi^2$} \rm
 
 Another method to constrain the PDF shape is to simply apply a penalty term
 to the $\chi^2$ function. 
-One method is so called ``length penalty'' which selects PDF solutions with smoother shape in $W\approx Q\sqrt{\frac{1-x}{x}}$:
+One method is the so called ``length penalty'' which selects PDF solutions with a smoother shape in $W\approx Q\sqrt{\frac{1-x}{x}}$:
 \begin{equation}
 L=\int_{W_{min}}^{W_{max}} \sqrt{1+\left(\frac{dxf(W)}{dW}\right)^2}dW
 \end{equation}
 This method can be applied when using Chebyshev polynomials to parametrise PDFs.
-For more details, the reader is invited to look up the \cite{Chebyshev} reference.
-This is implemented in \fitter\ via steering flags under Namelist \tt \&Cheb \rm.
+For more details, the reader is invited to consult  reference \cite{Chebyshev}.
+This method is implemented in \fitter\ via steering flags under Namelist \tt \&Cheb \rm as follows:
 \begin{verbatim}
 &Cheb
   ! Set following > 0 to turn on:
@@ -305,15 +310,16 @@ This is implemented in \fitter\ via steering flags under Namelist \tt \&Cheb \rm
 &end
 \end{verbatim}
 
-For the case when using flexible parametrisation style, 
-a $\chi^2$ penalty term is applied to account for a deviation 
-from a simple PDF parametrisation form such as:
+Alternatively, when using the flexible parametrisation style a $\chi^2$
+penalty term can be applied to account for th deviation from a simpler parametric form, for example
 \begin{equation}
 \chi^2_{reg}= T\sum_f\left(\left(\frac{D_f}{\Delta_D}\right)^2+ \left(\frac{E_f}{\Delta_E}\right)^2\right),
 \end{equation}
 
-with $\Delta D=\Delta E = 100$, such that for large $D$ and $E$ the ratio will approach $1$. The $T$ is the regularisation parameters, such that for $T=0$ there is no penalty term and for large $T$ there is strong penalty.
-It is easily access via Namelist: \tt \&ExtraMinimisationParameters \rm
-with the name for the name \tt 'Temperature' \rm, which is the $T$ from above description.
+with $\Delta D=\Delta E = 100$, such that for large $D$ and $E$ the ratio will approach $1$. 
+$T$ is the regularisation parameters, such that for $T=0$ there is no penalty term. 
+For large $T$ there is strong penalty.
+This method of regularisation is accessed via Namelist: \tt \&ExtraMinimisationParameters \rm
+with the name \tt 'Temperature' \rm which is $T$ in the above description.
 
 \end{description}

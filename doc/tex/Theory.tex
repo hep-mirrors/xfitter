@@ -17,13 +17,13 @@ which are therefore parametrised and determined from data.
 
 Factorisation is most rigorously established for deep inelastic 
 lepton-hadron scattering. For hadronic processes 
-in which a colourless electroweak final state is produced (i.e. Higgs,
+in which a colorless electroweak final state is produced (i.e. Higgs,
  a real or virtual $W$, $Z$ or~$\gamma$) factorisation is also well established
 and differential cross section calculations are currently available up to 
 next-to-next-to leading order (NNLO) in perturbation theory.
 
 Factorisation is also proved to work for
-sufficiently inclusive coloured final
+sufficiently inclusive colored final
 states, such as the one-jet and dijet cross section.
 In this case no fully rigorous all-order demonstration is 
 available, but no counter-example to factorisation has been found so far.
@@ -45,7 +45,7 @@ as implemented in the QCDNUM~\cite{qcdnum} program in the $\overline{\text{MS}}$
 The PDFs calculated at a scale corresponding to a measured cross section are convoluted with the partonic 
 cross sections to calculate the predicted cross section. For all measurement points, the predicted 
 and measured cross sections together with their corresponding errors are used to build a global $\chi^2$, 
-minimised to determine the initial PDF parameters. This generic procedure includes a number of 
+minimized to determine the initial PDF parameters. This generic procedure includes a number of 
 subtleties and assumptions, depending on the measurements, scale and available calculations.
 
 In the following sections, the theoretical input for various processes is described,
@@ -146,7 +146,7 @@ in terms of structure functions:
  \end{equation}
 \end{center}
 Here, $G_F$ is the Fermi constant which is related to the weak coupling $g$ and
-electromagnetic coupling $e$, i.e. $G_F = \frac{g^2}{4 \sqrt{2} M_W^2}$.
+electromagnetic coupling $e$, i.e. $G_F = \frac{g^2}{4 \sqrt{2} M_W^2} = \frac{e^2}{4 \sqrt{2} \sin^2 \theta_W M_W^2}$.
 %
 In LO the $e^+p$ and $e^-p$ cross sections are sensitive to different quark flavours:
 \begin{eqnarray}
@@ -171,7 +171,7 @@ Variable-Flavour number (GM-VFN)~\cite{VFN} schemes.
 % from QCDNUM and are discussed in the following subsections.
 In the FFN scheme, heavy quark contributions are explicitly included in the hard cross sections. 
 In the VFN scheme, PDFs corresponding to heavy quarks are introduced and the number of active 
-flavors changes by one unit when the scale crosses the threshold for heavy quark distribution ($Q^2 \ge m_{Q}^2$).
+flavors changes by one unit when the scale crosses the threshold for heavy quark distribution ($Q^2 > m_{Q}^2$).
 
 
 %The various treatments for the heavy quark thresholds are implemented as provided by the MSTW group
@@ -239,7 +239,7 @@ and iterating this procedure until the input and output PDFs are not significant
 \subsubsection{General Mass Variable Flavour Scheme: ACOT scheme}
 
 The Aivazis-Collins-Olness-Tung scheme belongs to the group of VFN 
-factorisation schemes that use the renormalisation method of 
+factorisation schemes that use the renormalization method of 
 Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
 This scheme involves a mixture of the $\overline{\text{MS}}$ scheme 
 for light partons (and for heavy partons when the factorisation scale 
@@ -256,7 +256,7 @@ ACOT Full, S-ACOT Chi, ACOT ZM,  $\overline{\text{MS}}$  at LO and NLO.
 For the longitudinal structure function higher order
  calculations are also available. 
 The ACOT Full implementation fully takes into account the quark masses and it reduces
-to  $\overline{\text{MS}}$ scheme in the limit of masses going to zero, but it has the disadvantage 
+to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, but it has the disadvantage 
 of being quite slow.
 Therefore the k-factor technique has been adopted within the \fitter\  
 machinery in order to perform QCD fits. The k-factor can be defined in two different ways:
@@ -339,15 +339,15 @@ for the DIS process are based on the EPRC package~\cite{SpiesbergerPrivComm}.
 %in order to retain sensitivity to higher order EW effects.
 
 The calculations of higher-order electroweak corrections to DIS scattering at HERA are performed
-in the on-shell scheme where the gauge bosons masses $M_W$ and $M_Z$ are treated symmetrically
+in the on-shell scheme where the gauge bosons masses $M_W$ abd $M_Z$ are treated symmetrically
 as basic parameters together with the top and Higgs masses, besides the fine structure constant 
 $\alpha$ and other fermion masses.
 
 The code provides the running of $\alpha$ using the most recent parametrisation
 of the hadronic contribution to $\Delta_\alpha$ \cite{Jegerlehner}, as well as an older 
 one from Burkhard \cite{Burkhard}.
-For the Drell Yan processes there are independent treatments applied as k-factors (such as 
-from the SANC and FEWZ packages).
+%For the Drell Yan processes there are independent treatments applied as k-factors (such as 
+%from the SANC and FEWZ packages).
 
  
 
@@ -358,7 +358,7 @@ from the SANC and FEWZ packages).
 
 This section presents calculations of Drell Yan processes that can be used to 
 predict lepton pair production at the LHC or Tevatron.
-The Drell-Yan process is shown in figure~\ref{fig:dy}. 
+The Drell-Yan process is shown in Fig.~\ref{fig:dy}. 
 The calculations of the Drell Yan processes are known for many observables up to NNLO order.
 For example, there are packages such as FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NNLO
 or MCFM~\cite{MCFM} for NLO calculations. However, due to the complicated nature of these
@@ -379,7 +379,7 @@ convoluting these grids with the input PDFs) when available.
 \fitter\ provides two implementations for $pp$  Drell Yan processes.
 The first implementation uses calculations at LO which can be extended to NLO using k-factors,
 the second uses the APPLGRID interface. A short description of both implementations is 
-given below while for details of the theoretical modules we direct the user the 
+given below while for details of the theoretical modules we direct the user to the 
 references for these packages provided in the description.
 %
 %For details of the theoretical modules we direct the user to read the provided references of these packages.
@@ -398,7 +398,8 @@ can be written as
   \frac{\pi\alpha^2}{3MS}\sum_{q}P_q
   \left[F_q(x_1,Q^2)F_{\bar{q}}(x_2,Q^2) + (q\leftrightarrow\bar{q})\right],
 \end{align}
-where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $F_q(x_1,Q^2)$ parton distribution functions, and 
+where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $F_q(x_1,Q^2)$ 
+is the parton number density, and 
 \begin{align}
   P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
       &+  e_le_q\frac{2M^2(M^2-M_Z^2)}{\sin^2\theta_W\cos^2\theta_W
@@ -431,10 +432,10 @@ where \(V_{q_1q_2}\) is the CKM quark mixing matrix and \(M_W\) and \(\Gamma_W\)
 are \(W\) boson mass and decay width.
 
 The simple form of these expressions allows the calculation of integrated
-cross sections without utilisation of Monte-Carlo techniques.
+cross sections without utilization of Monte-Carlo techniques.
 This is particularly useful for PDF fitting purposes because
 statistical fluctuations are avoided in this case. In both 
-neutral and charged current expressions the parton density functions
+neutral and charged current expressions the parton distribution functions
 factorise as functions dependent only on boson rapidity \(y\) and
 invariant mass \(M\).
 %leaving \(\cos\theta\) dependence aside.
@@ -470,7 +471,9 @@ decoupling the hard scattering coefficients from PDFs.
 The hard scattering coefficients are calculated once and stored into a grid 
 for a given kinematic bin, speeding up the convolution process with the PDFs 
 and thus allowing to for fast QCD fits. 
-These methods are described in more detail in section \ref{sec:theory:jets}
+These methods are described in more detail in section \ref{sec:theory:jets}.
+An independent treatment for the electro-weak corrections is applied as the 
+independent k-factors, using packages such as SANC and FEWZ.
 
 %%%%%%%%%%%
 \subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}
@@ -487,7 +490,7 @@ $p \bar p$ and $p p$ colliders up to approximate NNLO accuracy.
 Version 1.3 of HATHOR includes the exact NNLO for $q \bar q \to t \bar t$ \cite{Baernreuther:2012ws}
 as well as a new high-energy constraint on the approximate NNLO calculation obtained from
 soft-gluon resummation \cite{Moch:2012mk}.
-The default choice for renormalisation and factorisation scale in $t \bar t$ production is the top-quark mass, $m_t$.
+The default choice for renormalization and factorization scale in $t \bar t$ production is the top-quark mass, $m_t$.
 The pole mass scheme is typically employed for $m_t$ but HATHOR also supports calculations in
 the $\overline{\text{MS}}$ scheme.
 
@@ -496,7 +499,7 @@ the $\overline{\text{MS}}$ scheme.
 %In this subsection, the use of the factorisation formalism is fully exploited for the 
 %calculations of the inclusive jets and dijet cross sections.
 This sections presents various fast calculational techniques for jet production based on
-the factorisation formalism.
+the factorization formalism.
 
 The calculation of higher order jet cross sections is very demanding
 in terms of computing power. The reasons are the large number of contributing
@@ -544,12 +547,12 @@ perturbative coefficients with the PDFs, of
 $\mathcal{O}(100 ms)$, and the very high accuracy
 of the interpolation procedure. 
 The fastNLO tables are conventionally calculated
-for multiple factors of the factorisation scale, 
-and the renormalisation scale factor can be chosen freely.
+for multiple factors of the factorization scale, 
+and the renormalization scale factor can be chosen freely.
 Some of the fastNLO tables already allow for 
 %already involve a scale-independent
 %concept~\cite{Britzger:2012bs}, which allows for 
-the free choice~\cite{Britzger:2012bs} of the renormalisation and the factorisation
+the free choice~\cite{Britzger:2012bs} of the renormalization and the factorization
 scale as a function of two pre-defined observables.
 The evaluation of the strong coupling constant, which enters
 the cross section calculation, is taken consistently from the 
@@ -559,7 +562,7 @@ QCDNUM evolution code.
 \subsubsection{APPLGRID}
 The APPLGRID~\cite{Carli:2010rw} package allows the fast computation 
 of NLO cross sections for particular processes for arbitrary sets of 
-proton parton density functions. The package implements
+proton parton distribution functions. The package implements
 calculations of Drell Yan cross sections of electroweak boson (\(Z,W\))
 production as well as jet production in proton-(anti)proton
 collisions and DIS processes. 
@@ -569,7 +572,7 @@ of NLO QCD calculations of final-state observables measured
 in hadron colliders in look-up tables. The PDFs and the 
 strong couplings are included during the final calculations,
 e.g. during PDF fitting. The method allows 
-variation of factorisation and renormalisation scales in
+variation of factorization and renormalization scales in
 calculations.
 
 The look-up tables (grids) can be generated with modified versions
@@ -704,10 +707,10 @@ valence quarks are the same. The sample input steering and output fits are discu
 %\subsection{Unintegrated PDFs using CASCADE}
 \subsection{Transverse Momentum Dependent (unintegrated PDF) with CCFM}
 \label{TMD}
-In this subsection another alternative approach to the collinear DGLAP evolution is presented.
+In this subsection another alternative approach to collinear DGLAP evolution is presented.
 In high energy factorization \cite{Catani:1990eg} generally the measured cross section is written
- as a convolution of the partonic cross section $\hat{\sigma}(É \kt)$ which depends on the transverse 
-momentum $\kt$ of the incoming parton with the $\kt$-dependent parton density function 
+ as a convolution of the partonic cross section $\hat{\sigma}(É \kt),$ which depends on the transverse 
+momentum $\kt$ of the incoming parton, with the $\kt$-dependent parton distribution function 
 ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ (transverse momentum dependent (TMD) or unintegrated uPDF):
 \begin{equation}
  \sigma  = \int 
@@ -716,11 +719,11 @@ ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ (transverse momentum dependent (TMD) o
 \end{equation}
 The evolution of ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ 
 can proceed via the BFKL, DGLAP or via the CCFM evolution equations.
- Here, an extension of the CCFM \cite{\CCFM} evolution is applied. 
+In \fitter\, an extension of the CCFM~\cite{\CCFM} evolution has been implemented.
 Since the evolution cannot be easily obtained in  a closed form, 
  first a kernel $ {\cal \tilde A}\left(x'',\kt,\Pmax\right) $ 
 is determined from the MC solution of the CCFM evolution equation, 
-and then is then folded with the non-perturbative starting distribution 
+and is then folded with the non-perturbative starting distribution 
 ${\cal A}_0 (x)$~\cite{Jung:2012hy}:
 \begin{eqnarray}
 x {\cal A}(x,\kt,\Pmax) &= &x\int dx' \int dx'' {\cal A}_0 (x) {\cal \tilde A}\left(x'',\kt,\Pmax\right)  \delta(x' \cdot x'' - x) \\
@@ -740,7 +743,7 @@ a grid of $50\otimes50\otimes50$ bins in $x,\kt,\Pmax$.
 The calculation of the cross section according to Eq.(\ref{kt-factorisation})
  involves a multidimensional Monte Carlo integration which is time consuming
  and suffers from numerical fluctuations, and therefore cannot be used directly in a fit
- procedure involving the calculation of numerical derivatives in the search for the minimum. 
+ procedure involving the calculation of numerical derivatives in the search for a minimum. 
 Instead the following procedure is applied:
 \begin{eqnarray}
 \sigma_r(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2) \\
@@ -748,8 +751,8 @@ Instead the following procedure is applied:
  \end{eqnarray}
 
 The kernel ${\cal \tilde A}$ has to be provided separately and is not
- calculable within this program. The starting distribution  ${\cal A}_0$ 
- at the starting scale $Q_0$ of the following form is used:
+ calculable within the program. A starting distribution  ${\cal A}_0$, 
+ at the starting scale $Q_0$, of the following form is used:
 \begin{eqnarray}
 x{\cal A}_0(x,\kt) &=& N x^{-B_g} \cdot (1 -x)^{C_g}\left( 1 -D_g x\right) 
 \label{a0}
@@ -761,8 +764,8 @@ with free parameters $N,\, B_g,\, C_g,\, D_g$.
 The calculation of the $ep$ cross section follows eq.(\ref{kt-factorisation}), 
 with the off-shell matrix element including quarks masses taken from \cite{Catani:1990eg} 
 in its implementation in {\tt CASCADE} \cite{Jung:2010si}.
-In addition to the boson gluon fusion process, also valence quark initiated 
-$\gamma q\to q$ processes are included, with the valence quarks taken from~\cite{Deak:2010gk}.
+In addition to the boson gluon fusion process, valence quark initiated 
+$\gamma q\to q$ processes are also included, with the valence quarks taken from~\cite{Deak:2010gk}.
 %Please note that in the present version only DIS $ep$ processes can be used
 % to determine the transverse momentum dependent (uPDF) gluon density distribution.
 
@@ -773,16 +776,17 @@ $\gamma q\to q$ processes are included, with the valence quarks taken from~\cite
 \newcommand{\Sgl}[1]{\ensuremath{\tilde f_{#1+}}}
 \newcommand{\Pom}{{I\!P}}
 \newcommand{\Reg}{{I\!R}}
+\newcommand{\xpom}{$x_{I\!P}$}
 
 In this section the diffractive process is briefly described.
 It was observed at HERA that about 10\%
 of deep inelastic interactions are diffractive leading to
 events in which the interacting proton stays intact ($ep\to eXp$). 
 In the diffractive process the proton appears well separated from the 
-rest of the hadronic final state by a large rapidity gap, otherwise
-the events look similar to normal deep inelastic events.
+rest of the hadronic final state by a large rapidity gap, 
+in all other respects the events look similar to normal deep inelastic events.
 This process is usually  interpreted as the diffractive dissociation 
-of the exchanged virtual photon to produce any hadronic final state
+of the exchanged virtual photon to produce a hadronic 
 system $X$ with mass much smaller than $W$ and the same net quantum numbers as the exchanged photon.
 Figure~\ref{fig:diff} illustrates the kinematic variables used to describe
  the inclusive diffractive DIS process.  For this, the 
@@ -809,7 +813,7 @@ the mass $M_X$ of the diffractively produced final state provides
 \end{equation}
 
 In models based on a factorisable pomeron, $\beta$ may be viewed as the fraction of the
-pomeron longitudinal momentum which is carried by the struck parton, $x=\beta\Pom$.
+pomeron longitudinal momentum which is carried by the struck parton, $x=\beta x_{\Pom}$.
 %The diffractive parton distribution functions (DPDFs) are interpreted as probabilities for 
 %finding a parton with a small fraction of the proton momentum $x=\beta\Pom$
 
@@ -817,10 +821,10 @@ pomeron longitudinal momentum which is carried by the struck parton, $x=\beta\Po
 
 As for the inclusive case, the diffractive cross-section can be expressed as:
 \begin{equation}
-  \frac{d\sigma}{d\beta\,dQ^2d\xi\,dt}
+  \frac{d\sigma}{d\beta\,dQ^2dx_{\Pom}\,dt}
 =
   \frac{2\pi\alpha^2}{\beta Q^4}\,
-    \left( 1 +  (1-y)^2 \right) \ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,\xi,t)
+    \left( 1 +  (1-y)^2 \right) \ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,x_{\Pom},t)
 \label{Dxs}
 \end{equation}
 where the ``reduced cross-section'' , $\overline\sigma$, is defined as
@@ -830,71 +834,71 @@ where the ``reduced cross-section'' , $\overline\sigma$, is defined as
  = F_T^{D(4)} + \frac{2(1-y)}{1 +  (1-y)^2}\, F_L^{D(4)}
 \label{eq:sigred}
 \end{equation}
-The dimension of $F_k^{D(4)}(\beta,Q^2,\xi,t)$
-is $GeV^{-2}$ and thus the quantities integrated over $t$.
+The dimension of $F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)$
+is $GeV^{-2}$ and thus quantities integrated over $t$.
 \begin{equation}
-F_k^{D(3)}(\beta,Q^2,\xi)
+F_k^{D(3)}(\beta,Q^2,x_{\Pom})
 \equiv
 \int_{t_{\rm min}}^{t_{\rm max}} dt
-F_k^{D(4)}(\beta,Q^2,\xi,t)
+F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)
 \end{equation}
-are dimensionless. Maximum kinematically allowed value of $t$ reads as
+are dimensionless. The maximum kinematically allowed value of $t$ is given by
 \begin{equation}
 t_{\rm MAX} 
 =
--\frac{\xi^2 m_p^2 + p_\perp^2}{1-\xi}
+-\frac{x_{\Pom}^2 m_p^2 + p_\perp^2}{1-x_{\Pom}}
 \approx 
--\frac{\xi^2}{1-\xi} m_p^2
+-\frac{x_{\Pom}^2}{1-x_{\Pom}} m_p^2
 \end{equation}
 where $m_p$ is the proton mass.
-As $x = \xi\beta$ we can normalize to the standard DIS formula
+As $x = x_{\Pom}\beta$ we can normalize to the standard DIS formula
 \begin{equation}
-\frac{d\sigma}{d\beta\,dQ^2\,d\xi\,dt} =
+\frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}\,dt} =
   \frac{2\pi\alpha^2}{x\, Q^4}\,
-    \left( 1 +  (1-y)^2 \right) \xi\ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,\xi,t)
+    \left( 1 +  (1-y)^2 \right) x_{\Pom}\ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,x_{\Pom},t)
 \end{equation}
 which upon integration over $t$ reads
 \begin{equation}
 \label{Dxs3}
-  \frac{d\sigma}{d\beta\,dQ^2\,d\xi}
+  \frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}}
 =  
   \frac{2\pi\alpha^2}{x Q^4}\,
-    \left( 1 +  (1-y)^2 \right) \,\xi\ensuremath{\overline\sigma}^{D(3)}(\beta,Q^2,\xi).
+    \left( 1 +  (1-y)^2 \right) \,x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}(\beta,Q^2,x_{\Pom}).
 \end{equation}
-%The H1 and ZEUS data files typically contain $\xi\ensuremath{\overline\sigma}^{D(3)}$.
+%The H1 and ZEUS data files typically contain $x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}$.
 The diffractive structure functions can be expressed as convolutions of the
 calculable coefficient functions with diffractive quark and gluon distribution functions,
- which in general depend on all of $x$, $Q^2$, $\beta$, $t$.
+ which in general depend on all of \xpom, $Q^2$, $\beta$, $t$.
 
 
 %==========================================
 \subsubsection {Regge factorization}
 For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
 \begin{equation}
-F_k^{D(4)}(\beta,Q^2,\xi,t) = 
+F_k^{D(4)}(\beta,Q^2,x_{\Pom},t) = 
 \sum_{\mathcal{X} =\Pom,\Reg}
-\phi_\mathcal{X}(\xi,t)\, F^\mathcal{X}_k(\beta,Q^2)
+\phi_\mathcal{X}(x_{\Pom},t)\, F^\mathcal{X}_k(\beta,Q^2)
 \end{equation}
 or
 \begin{equation}
 \label{eq:FD3}
-F_k^{D(3)}(\beta,Q^2,\xi) = 
+F_k^{D(3)}(\beta,Q^2,x_{\Pom}) = 
 \sum_{\mathcal{X} =\Pom,\Reg}
-\Phi_\mathcal{X}(\xi)\, F^\mathcal{X}_k(\beta,Q^2)
+\Phi_\mathcal{X}(x_{\Pom})\, F^\mathcal{X}_k(\beta,Q^2)
 \end{equation}
 where
 \begin{equation}
 \label{eq:intFlux}
-\Phi_{\mathcal{X}}(\xi) =
-\int\limits_{t_{\rm min}}^{t_{\rm max}} dt\, \phi_\mathcal{X}(\xi,t)
+\Phi_{\mathcal{X}}(x_{\Pom}) =
+\int\limits_{t_{\rm min}}^{t_{\rm max}} dt\, \phi_\mathcal{X}(x_{\Pom},t)
 \,.
 \end{equation}
-Parametrization of the fluxes follows
+The fluxes are parametrized as
 \begin{subequations}
 \label{eq:flux}
 \begin{equation}
-\phi_\mathcal{X}(\xi,t) = 
-\frac {A_\mathcal{X}\, e^{b_\mathcal{X} t}} {\xi^{2\alpha_\mathcal{X}(t) -1}}
+\phi_\mathcal{X}(x_{\Pom},t) = 
+\frac {A_\mathcal{X}\, e^{b_\mathcal{X} t}} {x_{\Pom}^{2\alpha_\mathcal{X}(t) -1}}
 \end{equation}
 where
 \begin{equation}
@@ -902,8 +906,8 @@ where
 \,.
 \end{equation}
 \end{subequations}
-$F^\Reg_k(\beta,Q^2)$ are taken as those of the pion.
-%  with the normalization factor being absorbed in $\phi_\Reg(\xi,t)$.
+The function $F^\Reg_k(\beta,Q^2)$  is taken to be that of the pion.
+%  with the normalization factor being absorbed in $\phi_\Reg(x_{\Pom},t)$.
 
 %\input{./dpdfs.tex}        
 
