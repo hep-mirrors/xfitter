@@ -275,7 +275,7 @@ cv       grid(1+jx)=x
 
       integer GetBinIndex
 
-      open(90,file='output/fittedresults.txt')
+      open(90,file=TRIM(OutDirName)//'/fittedresults.txt')
       write(90,*)ndatasets
 
       PreviousPlots = 0
@@ -395,13 +395,14 @@ C      nsets = 45
 
          call WRITEFITTEDPOINTS
          call system
-     $ ('mv output/fittedresults.txt output/fittedresults.txt_set'//c)
+     $ ('mv '//TRIM(OutDirName)//'/fittedresults.txt '
+     & //TRIM(OutDirName)//'/fittedresults.txt_set'//c)
 
          if (iset.eq.0) then
-            name = 'output/pdfs_q2val_'
+            name = TRIM(OutDirName)//'/pdfs_q2val_'
          else
             i = (iset-1) / 2 + 1
-            base = 'output/pdfs_q2val_'//tag(i)
+            base = TRIM(OutDirName)//'/pdfs_q2val_'//tag(i)
             idx = index(base,' ')-1
             if ( mod(iset,2).eq.1) then
                name = base(1:idx)//'m_'
@@ -423,6 +424,7 @@ C-------------------------------------------------------------
       implicit none
       include 'fcn.inc'
       include 'endmini.inc'
+      include 'steering.inc'
       integer ifcn3
 
       integer i
@@ -433,13 +435,14 @@ C-------------------------------------------------------------
 
 C-------------------------------------------------------------
       if (ifcn3.lt.10) then
-         write (fname,'(''output/parsout_'',i1)') ifcn3
+c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
+         write (fname,'( a,''/parsout_'',i1)') TRIM(OutDirName),ifcn3
       elseif (ifcn3.lt.100) then
-         write (fname,'(''output/parsout_'',i2)') ifcn3
+         write (fname,'( a,''/parsout_'',i2)') TRIM(OutDirName),ifcn3
       elseif (ifcn3.lt.1000) then
-         write (fname,'(''output/parsout_'',i3)') ifcn3
+         write (fname,'( a,''/parsout_'',i3)') TRIM(OutDirName),ifcn3
       elseif (ifcn3.lt.10000) then
-         write (fname,'(''output/parsout_'',i4)') ifcn3
+         write (fname,'( a,''/parsout_'',i4)') TRIM(OutDirName),ifcn3
       endif
 
       open (71,file=fname,status='unknown')
@@ -467,6 +470,7 @@ C
 C--------------------------------------------------------------------
       implicit none
       include 'endmini.inc'
+      include 'steering.inc'
       integer i,iminCont, kflag
       double precision aminCont
 
@@ -512,11 +516,12 @@ cv      open (76,file='output/lhapdf.block.txt',status='unknown')
 cv      call store_pdfs('output/pdfs_q2val_')
 C store the optimal values 
 
-      open (76,file='output/opt_lhapdf.block.txt',status='unknown')
-      call store_pdfs('output/opt_pdfs_q2val_')
+      open (76,file=TRIM(OutDirName)//'/opt_lhapdf.block.txt',
+     &   status='unknown')
+      call store_pdfs(TRIM(OutDirName)//'/opt_pdfs_q2val_')
 
 
-      open (71,file='output/parseout_opt',status='unknown')
+      open (71,file=TRIM(OutDirName)//'/parseout_opt',status='unknown')
       do i=1,mne
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
          if (Trim(parname).ne.'undefined') then
@@ -555,7 +560,7 @@ C----------------------------------------------------
 
       integer i,j,index
 
-      open(90,file='./output/heraverager.dat')
+      open(90,file='./'//TRIM(OutDirName)//'/heraverager.dat')
 C      write(90,*)ndatasets
 
 

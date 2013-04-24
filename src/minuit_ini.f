@@ -30,17 +30,18 @@ C----------------------------------------------------------------------
         Suffix = '.txt'
       endif
       
-      ResultsFile = 'output/Results'//Suffix
-      MinuitOut = 'output/minuit.out'//Suffix
-      MinuitSave = 'output/minuit.save'//Suffix
+      ResultsFile = TRIM(OutDirName)//'/Results'//Suffix
+      MinuitOut = TRIM(OutDirName)//'/minuit.out'//Suffix
+      MinuitSave = TRIM(OutDirName)//'/minuit.save'//Suffix
 
       MinuitIn='minuit.in.txt' 
       if(UsePrevFit .ge. 1) then
-        AltInp = 'output/minuit.save'//Suffix
+        AltInp = TRIM(OutDirName)//'/minuit.save'//Suffix
         INQUIRE(FILE=AltInp, EXIST = file_exists)
         if(.not.file_exists .and. doOffset) then
           ! --- try to use the central fit results
-          AltInp = 'output/minuit.save'//'_'//OffsLabel(0,'.txt')
+          AltInp = TRIM(OutDirName)//'/minuit.save'
+     $ //'_'//OffsLabel(0,'.txt')
           INQUIRE(FILE=AltInp, EXIST = file_exists)
         endif
         if(file_exists) then
@@ -195,7 +196,8 @@ c      lprint = .false.
         close(7)
         call Offset_SaveParams(CorSysIndex)
         Call MntInpGetParams
-        Call MntInpWritePar('output/MI_saved'//'_'//OffsLabel(CorSysIndex,'.txt'))
+        Call MntInpWritePar(TRIM(OutDirName)//'/MI_saved'//'_'
+     $ //OffsLabel(CorSysIndex,'.txt'))
         if(CorSysIndex .eq. 0) then
           call Offset_SaveStatCov
         else

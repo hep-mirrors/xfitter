@@ -142,3 +142,6 @@ C
       character*128  LHAPDFSET        !> LHAPDF set name
       integer ILHAPDFSET              !> LHAPDF set number
       common/CLHAPDF/LHAPDFSET,ILHAPDFSET
+
+      character*64 OutDirName         !> outout dir name
+      common/COutDirName/OutDirName

@@ -242,11 +242,11 @@ c        write(6,*) ' fcn npoint ',npoints
 
       
       if (iflag.eq.1) then
-         open(87,file='output/pulls.first.txt')
+         open(87,file=TRIM(OutDirName)//'/pulls.first.txt')
       endif
 
       if ((iflag.eq.3).or.(iflag.eq.4)) then
-         open(88,file='output/pulls.last.txt')
+         open(88,file=TRIM(OutDirName)//'/pulls.last.txt')
          do i=1,nset
             npts(i) = 0
          enddo
@@ -513,7 +513,7 @@ c     $           ,chi2_cont/NControlPoints
          write(6,*) 'Correlated Chi2 ', fcorchi2
          write(85,*) 'Correlated Chi2 ', fcorchi2
 
-       base_pdfname = 'output/pdfs_q2val_'
+       base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
 
        if (ITheory.ne.2) then
           IF(Itheory.ge.100) then
@@ -529,7 +529,7 @@ c     $           ,chi2_cont/NControlPoints
                    call calcglu
                  endif
               endif         
-              open(91,file='output/params.txt')
+              open(91,file=TRIM(OutDirName)//'/params.txt')
               write(91,*) auh(1),auh(2),auh(3),auh(4)
 
           else
@@ -537,7 +537,7 @@ c     $           ,chi2_cont/NControlPoints
 C LHAPDF output:
 c WS: for the Offset method save central fit only
             if (CorSysIndex.eq.0) then
-              open (76,file='output/lhapdf.block.txt',status='unknown')
+              open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
               call store_pdfs(base_pdfname)
             endif
           endif

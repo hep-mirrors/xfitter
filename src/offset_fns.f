@@ -2,6 +2,7 @@ c ===============================================
       Subroutine Offset_SaveStatCov
       implicit none
       include 'fcn.inc'
+      include 'steering.inc'
       integer j,k
 c      integer nparFCN ! number of fit parameters
       ! character*16 OffsLabel
@@ -15,7 +16,7 @@ c      integer nparFCN ! number of fit parameters
       call MNEMAT(Cov,nparFCN)
       ! write(*,*) '------- Stat. covariance matrix -------'
       ! write(*,*) Cov
-      OutFile = 'output/statcov_0.txt'
+      OutFile = TRIM(OutDirName)//'/statcov_0.txt'
       print *,' '
       print *,'==> Saving covariance matrix to ',Trim(OutFile)
       call flush(6)
@@ -31,6 +32,7 @@ c ===============================================
       Subroutine Offset_SaveParams(mu)
       implicit none
       include 'fcn.inc'
+      include 'steering.inc'
       integer mu
       double precision VAL,ERR,XLOLIM,XUPLIM
       integer IU,IUINT
@@ -44,7 +46,7 @@ c ===============================================
       enddo
       ! write(*,*) '------- Fitted parameters ',mu, ' -------'
       ! write(*,*) vp
-      OutFile = 'output/params_' // OffsLabel(mu,'.txt')
+      OutFile = TRIM(OutDirName)//'/params_' // OffsLabel(mu,'.txt')
       OPEN(86,file=OutFile,form='formatted',status='replace')
       write(86,*) nparFCN
       write(86,*) vp
@@ -67,7 +69,7 @@ c ===============================================
        ! Collect results from all Offset fits
        ! ------------------------------------
 c       CALL GetNOffset(nOffset)
-       iErr = OffsetCollect('output'//CHAR(0))
+       iErr = OffsetCollect(TRIM(OutDirName)//CHAR(0))
        if(iErr.eq.1) then
          ! print *,'WARNING, RC=',iErr,' collecting offset results.'
          print *,'WARNING, still not all Offset method results available.'
@@ -106,10 +108,10 @@ c ===============================================
         CorSysIndex = 0
         MinuitIn='minuit.temp.in.txt'
         ! --- prepare minuit input for the final run
-        Call RecoverParams('output', MinuitIn)
-        ResultsFile = 'output/Results'//Suffix
-        MinuitOut = 'output/minuit.out'//Suffix
-        MinuitSave = 'output/minuit.save'//Suffix
+        Call RecoverParams(TRIM(OutDirName), MinuitIn)
+        ResultsFile = TRIM(OutDirName)//'/Results'//Suffix
+        MinuitOut = TRIM(OutDirName)//'/minuit.out'//Suffix
+        MinuitSave = TRIM(OutDirName)//'/minuit.save'//Suffix
         call minuit_ini  ! opens Minuit i/o files
         lprint = .true.
         ! lprint = .false.

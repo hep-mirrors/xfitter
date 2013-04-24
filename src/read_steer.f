@@ -18,6 +18,7 @@ C Read various namelists:
       call read_infilesnml   !> Read data file names THIRD
       call read_ewparsnml   !> electroweak parameters
       call read_outputnml   !> output options
+      call read_outdirnml   !> output dir 
 
       if(Itheory.lt.100) then
          call read_lhapdfnml    !> read lhapdf 
@@ -180,6 +181,8 @@ c 2012-11-08 WS: set default for DoBands
       mtp        = 174.D0
 
       HFSCHEME = 0
+
+      OutDirName  = 'output'
 
       Debug = .false.
 
@@ -780,6 +783,44 @@ c      print *,'q2val ', (q2val(i),i=1,NBANDS)
 
       end
 
+
+      subroutine read_outdirnml
+C
+C read output dir name
+C------------------------------------------------
+      implicit none
+      include 'steering.inc'
+      namelist/OutDir/OutDirName
+      LOGICAL ex
+C--------------------------------------------------------
+C  Read the OutDir namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=OutDir,END=152,ERR=56)
+ 152  continue
+      close (51)
+
+      inquire(FILE=TRIM(OutDirName),EXIST=ex)
+      if(ex) then
+          call hf_errlog(250420131,
+     $   'I: Results written to existing directory: '//TRIM(OutDirName))
+      else 
+          call hf_errlog(250420132,
+     $     'I: Creating directory to store results: '//TRIM(OutDirName))
+          CALL system('mkdir -p '//TRIM(OutDirName))
+      endif
+
+
+      if (LDebug) then
+         print OutDir
+      endif
+
+      return
+ 56   continue
+      print '(''Error reading namelist &OutDir, STOP'')'
+      call HF_stop
+
+      end
 
 
       Subroutine SetPDFStyle()

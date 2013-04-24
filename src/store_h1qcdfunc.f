@@ -100,11 +100,11 @@ c EW param
       double precision cau, cad, cvu, cvd
 
 
-      open (74,file='output/f2nc.qcdfunc',status='unknown')
-      open (84,file='output/flnc.qcdfunc',status='unknown')
-      open (94,file='output/xf3nc.qcdfunc',status='unknown')
-      open (96,file='output/ccem.qcdfunc', status='unknown')
-      open (98,file='output/ccep.qcdfunc',status='unknown')
+      open (74,file=TRIM(OutDirName)//'/f2nc.qcdfunc',status='unknown')
+      open (84,file=TRIM(OutDirName)//'/flnc.qcdfunc',status='unknown')
+      open (94,file=TRIM(OutDirName)//'/xf3nc.qcdfunc',status='unknown')
+      open (96,file=TRIM(OutDirName)//'/ccem.qcdfunc', status='unknown')
+      open (98,file=TRIM(OutDirName)//'/ccep.qcdfunc',status='unknown')
 
 C prepare bins:
       nshiraz=0

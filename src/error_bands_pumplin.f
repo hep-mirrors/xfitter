@@ -103,10 +103,10 @@ C
   
          jext = iexint(j)
 
-         base = 'output/pdfs_q2val_'//tag(j)
+         base = TRIM(OutDirName)//'/pdfs_q2val_'//tag(j)
          idx = index(base,' ')-1
          
-         base2 = 'output/pdfs_'//tag(j)
+         base2 = TRIM(OutDirName)//'/pdfs_'//tag(j)
          idx2  = index(base2,' ')-1
 
          do shift_dir=-1,1,2
