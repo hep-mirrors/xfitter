@@ -107,10 +107,21 @@ cv
             write(6,*) ' invalid dataset for ithory > 100 '
             call hf_stop
          Endif
+
+      elseif (DATASETREACTION(IDataSet).eq.'Dummy') then
+         if(Itheory.lt.100) then
+            Call GetDummyXsection(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
+
+
       else
             Call hf_errlog(01110113,'F: theory_disp: unknown reaction "'
      $                //TRIM(DATASETREACTION(IDataSet)) //'"')
       endif
+
 
       end
 

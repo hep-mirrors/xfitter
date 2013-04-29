@@ -589,6 +589,8 @@ C
             Call InitHathorDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
             Call InitDDisDataSet(IDataSet)            
+         elseif (DATASETREACTION(IDataSet).eq.'Dummy') then
+            Call InitDummy(IDataSet)            
          else
 C     C         print *,'Unknown x-section type',DATASETREACTION(IDataSet)
          endif
@@ -605,6 +607,36 @@ C
       Call InitJetsFastNLO
       Call InitHathor
 C---------------------------------------------------------
+      end
+
+      subroutine InitDummy(IDataSet)
+C------------------------------------------------------------
+C
+C Initialise tables for DY process for calculations
+C
+C------------------------------------------------------------
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'for_debug.inc'
+      include 'datasets.inc'
+      integer IDataSet
+C---------------------------------------------------------
+
+!      if (DATASETTheoryType(IDataSet).eq.'kfactor') then
+!cv         call InitDummy_kfactor(IDataSet)
+!      elseif (DATASETTheoryType(IDataSet).eq.'applgrid') then
+!         call InitDummy_applgrid(IDataSet)         
+!      else
+!         print *,'InitDummy: unknown theory type'
+!     $        ,DATASETTheoryType(IDataSet), ' for set ', IDataSet
+!         call HF_stop
+!      endif
+!
+!      end
+
+C-------------------------------------------------------------
+
       end
 
       subroutine InitIntegratedNCXsectionDataset(IDataSet)
@@ -904,7 +936,8 @@ C Get indicies:
 
       if (idxEta1.eq.0 .or. idxEta2.eq.0) then
          print 
-     $        '(''ERROR in GetDYCCXsection, can not find bin index for Eta1, Eta2'',2i6)'
+     $        '(''ERROR in GetDYCCXsection, can not find bin
+     $        index for Eta1, Eta2'',2i6)'
      $        ,idxEta1,idxEta2
          call HF_stop
       endif
