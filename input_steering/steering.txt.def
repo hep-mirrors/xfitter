@@ -19,6 +19,10 @@
   !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 
+&OutDir
+  ! Name of the directory where output will be stored (max 22 characters)
+    OutDirName = 'output'
+&End
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
 * dependently. The numbering follows sequential numbering of input files

@@ -19,6 +19,11 @@
 *&CCFMFiles
 !    CCFMfilename = 'output/ccfm-testing.dat'
 &End
+
+&OutDir
+  ! Name of the directory where output will be stored (max 22 characters)
+    OutDirName = 'output'
+&End
 *
 * Main steering cards
 *
