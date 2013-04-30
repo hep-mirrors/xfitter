@@ -8,7 +8,7 @@ FitPDF_SOURCES = main.f init_theory.f fcn.f GetChisquare.f minuit_ini.f read_dat
 sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
-getncxskt.f Getgridkt.f \
+getncxskt.f Getgridkt.f GetDummyXsection.f \
 GetDiffDisXsection.f FixModelParams.f reweighting.f GetPointScaledErrors.f GetCovChisquare.f prep_corr.f
 
 # WS 2013-01-19 for the Offset method
