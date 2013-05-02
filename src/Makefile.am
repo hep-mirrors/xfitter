@@ -1,5 +1,8 @@
 AUTOMAKE_OPTIONS = foreign
 
+# Explicit depence for all files:
+*.o: ../include/*.inc 
+
 # the main target, i.e. the executable to build
 bin_PROGRAMS = FitPDF
 

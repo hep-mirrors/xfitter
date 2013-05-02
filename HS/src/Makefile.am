@@ -2,6 +2,9 @@ AUTOMAKE_OPTIONS = foreign
 
 noinst_LIBRARIES = libmyhs.a
 
+#
+wrap_ew.o: ../../include/couplings.inc ../../include/polarity.inc ../../include/steering.inc
+
 libmyhs_a_SOURCES = formff.f wrap_ew.f hadr5n12.f
 AM_FFLAGS = -I$(srcdir)/../../include -fno-automatic
 #AM_FFLAGS = -I$(srcdir)/../../include -fno-automatic -finit-local-zero -ffixed-line-length-132
