@@ -7,7 +7,7 @@
 #include <TPaveText.h>
 #include <TStyle.h>
 
-Painter::Painter(bool DrawBands){
+Painter::Painter(bool DrawBands, bool DrawBase, bool DrawExp, bool DrawModel, bool DrawParam){
   fPath = new TString("../../output/");
   fPathRef = new TString("../../output/");
   fOutput = NULL;
@@ -22,6 +22,27 @@ Painter::Painter(bool DrawBands){
   fFillStyleRef = 0; //3010
   fBands = DrawBands;
   fHighlight = kRed;
+  
+  fDrawBase = DrawBase;
+  fDrawExp = DrawExp;
+  fDrawModel = DrawModel;
+  fDrawParam = DrawParam;
+  fPathBase = new TString("../../output/");
+  fPathExp = new TString("../../output/");
+  fPathModel = new TString("../../output/");
+  fPathParam = new TString("../../output/");
+  fOutputBase = NULL;
+  fOutputExp = NULL;
+  fOutputModel = NULL;
+  fOutputParam = NULL;
+  fColorBase = kBlue;
+  fColorExp = kRed;
+  fColorModel = kYellow;
+  fColorParam = kGreen;
+  fFillStyleBase = 0;
+  fFillStyleExp = 1001;
+  fFillStyleModel = 1001;
+  fFillStyleParam = 1001;
 }
 
 Painter::~Painter(){ 
@@ -37,11 +58,23 @@ Painter::~Painter(){
   delete can;
 
   delete fPsFileName;
+  
+  delete fPathBase;
+  delete fPathExp;
+  delete fPathModel;
+  delete fPathParam;
+  if(fOutputBase) delete fOutputBase;
+  if(fOutputExp) delete fOutputExp;
+  if(fOutputModel) delete fOutputModel;
+  if(fOutputParam) delete fOutputParam;
 }
 
 Int_t Painter::Prepare() {
+  
+ if ( ! (fDrawExp||fDrawModel||fDrawParam) ) {
+   
   fOutput = new Output(fPath->Data());
-  if(fPath->CompareTo(fPathRef->Data())) 
+  if(fPath->CompareTo(fPathRef->Data()))   //if fPath and fPathRef are different
     fOutputRef = new Output(fPathRef->Data());
   else 
     fOutputRef = NULL;
@@ -50,11 +83,38 @@ Int_t Painter::Prepare() {
   fPsFileName->Append("(");
 
   fOutput->Prepare(fBands);
-  if(fOutputRef) fOutputRef->Prepare(fBands); 
+  if(fOutputRef) fOutputRef->Prepare(fBands);
+  
+ } else {
+   
+  fPsFileName->Append("(");
+   
+  if(fDrawBase) { 
+    fOutputBase = new Output(fPathBase->Data());
+    fOutputBase->Prepare(false);
+  }
+  if(fDrawExp) {
+    fOutputExp = new Output(fPathExp->Data());
+    fOutputExp->Prepare(true, TString("e"));
+  }
+  if(fDrawModel) {
+    fOutputModel = new Output(fPathModel->Data());
+    fOutputModel->Prepare(true, TString("m"));
+  }
+  if(fDrawParam) {
+    fOutputParam = new Output(fPathParam->Data());
+    fOutputParam->Prepare(true, TString("p"));
+  }
+   
+ } 
+ return 0;
 }
 
 Int_t Painter::Draw() {
+  
   this->Prepare();
+  
+ if ( ! (fDrawExp||fDrawModel||fDrawParam) ) {
 
   // Get number of Q2 files:
   Int_t NQ2Files = fOutput->GetNQ2Files();
@@ -97,6 +157,131 @@ Int_t Painter::Draw() {
   this->DrawMessages(fOutput);
   if(fOutputRef) 
     this->DrawMessages(fOutputRef);
+
+ } else {
+   
+   Int_t NQ2Files = 0;
+   
+   if (fDrawBase) {
+     NQ2Files = fOutputBase->GetNQ2Files();
+   } else if (fDrawExp) {
+     NQ2Files = fOutputExp->GetNQ2Files();
+   } else if (fDrawModel) {
+     NQ2Files = fOutputModel->GetNQ2Files();
+   } else if (fDrawParam) {
+     NQ2Files = fOutputParam->GetNQ2Files();
+   }
+   
+   for(Int_t i=0; i<NQ2Files; i++) {
+    this->DrawPDF(i);
+   }
+   
+   
+   Int_t NMainDataSets = 0;
+   
+   if (fDrawBase) NMainDataSets = fOutputBase->GetNsets();
+    else if (fDrawExp) NMainDataSets = fOutputExp->GetNsets();
+     else if (fDrawModel) NMainDataSets = fOutputModel->GetNsets();
+      else if (fDrawParam) NMainDataSets = fOutputParam->GetNsets();
+   
+   Int_t MainDataSetsIds[NMainDataSets];
+   
+   if (fDrawBase) for (int i=0; i<NMainDataSets; i++) MainDataSetsIds[i] = fOutputBase->GetSet(i)->GetSetId();
+    else if (fDrawExp) for (int i=0; i<NMainDataSets; i++) MainDataSetsIds[i] = fOutputExp->GetSet(i)->GetSetId();
+     else if (fDrawModel) for (int i=0; i<NMainDataSets; i++) MainDataSetsIds[i] = fOutputModel->GetSet(i)->GetSetId();
+      else if (fDrawParam) for (int i=0; i<NMainDataSets; i++) MainDataSetsIds[i] = fOutputParam->GetSet(i)->GetSetId();
+   
+   Int_t NDataSetsBase = 0;
+   if (fDrawBase) NDataSetsBase = fOutputBase->GetNsets();
+   Bool_t SetsDrawnBase[NDataSetsBase];
+   for(Int_t i=0; i<NDataSetsBase; i++) SetsDrawnBase[i] = kFALSE;
+   
+   Int_t NDataSetsExp = 0;
+   if (fDrawExp) NDataSetsExp = fOutputExp->GetNsets();
+   Bool_t SetsDrawnExp[NDataSetsExp];
+   for(Int_t i=0; i<NDataSetsExp; i++) SetsDrawnExp[i] = kFALSE;
+   
+   Int_t NDataSetsModel = 0;
+   if (fDrawModel) NDataSetsModel = fOutputModel->GetNsets();
+   Bool_t SetsDrawnModel[NDataSetsModel];
+   for(Int_t i=0; i<NDataSetsModel; i++) SetsDrawnModel[i] = kFALSE;
+   
+   Int_t NDataSetsParam = 0;
+   if (fDrawParam) NDataSetsParam = fOutputParam->GetNsets();
+   Bool_t SetsDrawnParam[NDataSetsParam];
+   for(Int_t i=0; i<NDataSetsParam; i++) SetsDrawnParam[i] = kFALSE;
+   
+   DataSet* datasetBase = NULL;
+   DataSet* datasetExp = NULL;
+   DataSet* datasetModel = NULL;
+   DataSet* datasetParam = NULL;
+   
+   for (Int_t i=0; i<NMainDataSets; i++) {
+    for (Int_t iref=0; iref<NDataSetsBase; iref++) {
+      if(fOutputBase->GetSet(iref)->GetSetId() == MainDataSetsIds[i]) {
+	datasetBase = fOutputBase->GetSet(iref);
+	SetsDrawnBase[iref] = kTRUE;
+	break;
+      }
+    }
+    for (Int_t iref=0; iref<NDataSetsExp; iref++) {
+      if(fOutputExp->GetSet(iref)->GetSetId() == MainDataSetsIds[i]) {
+	datasetExp = fOutputExp->GetSet(iref);
+	SetsDrawnExp[iref] = kTRUE;
+	break;
+      }
+    }
+    for (Int_t iref=0; iref<NDataSetsModel; iref++) {
+      if(fOutputModel->GetSet(iref)->GetSetId() == MainDataSetsIds[i]) {
+	datasetModel = fOutputModel->GetSet(iref);
+	SetsDrawnModel[iref] = kTRUE;
+	break;
+      }
+    }
+    for (Int_t iref=0; iref<NDataSetsParam; iref++) {
+      if(fOutputParam->GetSet(iref)->GetSetId() == MainDataSetsIds[i]) {
+	datasetParam = fOutputParam->GetSet(iref);
+	SetsDrawnParam[iref] = kTRUE;
+	break;
+      }
+    }
+    DrawDataSetEMP(datasetBase, datasetExp, datasetModel, datasetParam, kFALSE);
+    DrawDataSetEMP(datasetBase, datasetExp, datasetModel, datasetParam, kTRUE);
+  }
+  for (Int_t iref=0; iref<NDataSetsBase; iref++) {
+    if(!SetsDrawnBase[iref])
+      DrawDataSetEMP(datasetBase, NULL, NULL, NULL, kFALSE);
+  }
+  for (Int_t iref=0; iref<NDataSetsExp; iref++) {
+    if(!SetsDrawnExp[iref])
+      DrawDataSetEMP(NULL, datasetExp, NULL, NULL, kFALSE);
+  }
+  for (Int_t iref=0; iref<NDataSetsModel; iref++) {
+    if(!SetsDrawnModel[iref])
+      DrawDataSetEMP(NULL, NULL, datasetModel, NULL, kFALSE);
+  }
+  for (Int_t iref=0; iref<NDataSetsParam; iref++) {
+    if(!SetsDrawnParam[iref])
+      DrawDataSetEMP(NULL, NULL, NULL, datasetParam, kFALSE);
+  }
+  
+  this->DrawFitResultsEMP();
+
+  //   cout << "I should be able to draw more fancy plots soon." << endl;
+  
+  if (fDrawBase) this->DrawCorrelations(fOutputBase);
+  if (fDrawExp) this->DrawCorrelations(fOutputExp);
+  if (fDrawModel) this->DrawCorrelations(fOutputModel);
+  if (fDrawParam) this->DrawCorrelations(fOutputParam);
+
+  if (fDrawBase) this->DrawMessages(fOutputBase);
+  if (fDrawExp) this->DrawMessages(fOutputExp);
+  if (fDrawModel) this->DrawMessages(fOutputModel);
+  if (fDrawParam) this->DrawMessages(fOutputParam);
+   
+ }
+ 
+ return 0;
 }
 
 TText* Painter::AddLineToPave(TObjArray* paves, float& yposition, const char* text, const char* option) {
@@ -120,8 +305,12 @@ TText* Painter::AddLineToPave(TObjArray* paves, float& yposition, const char* te
   
   if (Option.Contains("B"))   T->SetTextFont(102);
   else                        T->SetTextFont(82);
-  if      (Option.Contains("M"))   T->SetTextColor(fColor);
+  if      (Option.Contains("N"))   T->SetTextColor(fColor);
   else if (Option.Contains("R"))   T->SetTextColor(fColorRef);
+  else if (Option.Contains("A"))   T->SetTextColor(fColorBase);
+  else if (Option.Contains("E"))   T->SetTextColor(fColorExp);
+  else if (Option.Contains("M"))   T->SetTextColor(fColorModel);
+  else if (Option.Contains("P"))   T->SetTextColor(fColorParam);
 
   T->SetTextSize(0.025);
   return T;
@@ -144,7 +333,15 @@ void Painter::FillPavesWithFitResults(TObjArray* paves, Output* output) {
   
   for(int i=0; i<=output->GetName()->Length()/NChar; i++) {
     if(output==fOutput)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BN");
+    else if(output==fOutputBase)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BA");
+    else if(output==fOutputExp)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BE");
+    else if(output==fOutputModel)
       AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BM");
+    else if(output==fOutputParam)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BP");
     else
       AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BR");
   }
@@ -205,6 +402,93 @@ Int_t Painter::DrawFitResults() {
   delete pavesL; 
   delete pavesR; 
   delete can;
+}
+
+Int_t Painter::DrawFitResultsEMP() {
+
+  bool isSamplDrawn[4]; //0 - base, 1 - exp, 2 - model, 3 - param.
+  bool isPavesInUse[2]; //0 - pavesL, 1 - pavesR.
+  
+  for (int i=0; i<4; i++) isSamplDrawn[i] = false;
+  
+      TCanvas* can = new TCanvas;
+    TObjArray* pavesL = new TObjArray; pavesL->SetOwner();
+    TObjArray* pavesR = new TObjArray; pavesR->SetOwner();
+  
+  for (int jc=0; jc<2; jc++) {
+    
+    for (int i=0; i<2; i++) isPavesInUse[i] = false;
+    
+    if (fDrawBase && !isSamplDrawn[0]) {
+      if (!isPavesInUse[0]) {
+	pavesL->AddLast(new TPaveText(0.05, 0.05, 0.5, 0.95, "br"));
+	FillPavesWithFitResults(pavesL, fOutputBase);
+	isSamplDrawn[0] = true;
+	isPavesInUse[0] = true;
+      } else if (!isPavesInUse[1]) {
+	pavesR->AddLast(new TPaveText(0.5, 0.05, 0.95, 0.95, "br"));
+	FillPavesWithFitResults(pavesR, fOutputBase);
+	isSamplDrawn[0] = true;
+	isPavesInUse[1] = true;
+      }
+    }
+    if (fDrawExp && !isSamplDrawn[1]) {
+      if (!isPavesInUse[0]) {
+	pavesL->AddLast(new TPaveText(0.05, 0.05, 0.5, 0.95, "br"));
+	FillPavesWithFitResults(pavesL, fOutputExp);
+	isSamplDrawn[1] = true;
+	isPavesInUse[0] = true;
+      } else if (!isPavesInUse[1]) {
+	pavesR->AddLast(new TPaveText(0.5, 0.05, 0.95, 0.95, "br"));
+	FillPavesWithFitResults(pavesR, fOutputExp);
+	isSamplDrawn[1] = true;
+	isPavesInUse[1] = true;
+      }
+    }
+    if (fDrawModel && !isSamplDrawn[2]) {
+      if (!isPavesInUse[0]) {
+	pavesL->AddLast(new TPaveText(0.05, 0.05, 0.5, 0.95, "br"));
+	FillPavesWithFitResults(pavesL, fOutputModel);
+	isSamplDrawn[2] = true;
+	isPavesInUse[0] = true;
+      } else if (!isPavesInUse[1]) {
+	pavesR->AddLast(new TPaveText(0.5, 0.05, 0.95, 0.95, "br"));
+	FillPavesWithFitResults(pavesR, fOutputModel);
+	isSamplDrawn[2] = true;
+	isPavesInUse[1] = true;
+      }
+    }
+    
+    if (fDrawParam && !isSamplDrawn[3]) {
+      if (!isPavesInUse[0]) {
+	pavesL->AddLast(new TPaveText(0.05, 0.05, 0.5, 0.95, "br"));
+	FillPavesWithFitResults(pavesL, fOutputParam);
+	isSamplDrawn[3] = true;
+	isPavesInUse[0] = true;
+      } else if (!isPavesInUse[1]) {
+	pavesR->AddLast(new TPaveText(0.5, 0.05, 0.95, 0.95, "br"));
+	FillPavesWithFitResults(pavesR, fOutputParam);
+	isSamplDrawn[3] = true;
+	isPavesInUse[1] = true;
+      }
+    }
+  }
+  
+    for(int j=0; j<TMath::Max(pavesL->GetEntries(), pavesR->GetEntries()); j++) {
+      TPaveText* paveL = (TPaveText*) pavesL->At(j);
+      TPaveText* paveR = (TPaveText*) pavesR->At(j);
+      TCanvas* can2 = new TCanvas;
+      if(paveL) paveL->Draw();
+      if(paveR) paveR->Draw();
+      PrintCanvas(can2);
+      delete can2;
+    }
+    delete pavesL; 
+    delete pavesR; 
+    delete can;
+
+
+  return 0;
 }
 
 void Painter::DrawCorrelations(Output* output) {
@@ -285,7 +569,15 @@ void Painter::DrawMessages(Output* output) {
   AddLineToPave(paves, ypos, "Fit messages for:","B");
   for(int i=0; i<=output->GetName()->Length()/NChar; i++) {
     if(output==fOutput)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BN");
+    else if(output==fOutputBase)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BA");
+    else if(output==fOutputExp)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BE");
+    else if(output==fOutputModel)
       AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BM");
+    else if(output==fOutputParam)
+      AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BP");
     else
       AddLineToPave(paves, ypos, TString((*(output->GetName()))(i*NChar, NChar)).Data() ,"BR");
   }
@@ -337,44 +629,71 @@ Int_t Painter::DrawPDF(Int_t ival) {
   TPaveLabel* Q2Label = new TPaveLabel(0.7, 0.08, 1.0, 0.16, "","NDC"); TrashBin->AddLast(Q2Label);
   Q2Label->SetBorderSize(1); Q2Label->SetFillColor(kWhite); Q2Label->SetBorderSize(0);
 
+  
   // Q2 value of the bin:
-  Double_t fQ2val = fOutput->GetQ2Value(ival);
-
+  Double_t fQ2val;
+  
+  if ( ! (fDrawExp||fDrawModel||fDrawParam) ) {
+    fQ2val = fOutput->GetQ2Value(ival);
+  } else {  
+    if (fDrawBase) {
+     fQ2val = fOutputBase->GetQ2Value(ival);
+   } else if (fDrawExp) {
+     fQ2val = fOutputExp->GetQ2Value(ival);
+   } else if (fDrawModel) {
+     fQ2val = fOutputModel->GetQ2Value(ival);
+   } else if (fDrawParam) {
+     fQ2val = fOutputParam->GetQ2Value(ival);
+   }  
+  }
+  
   // Label:
   char label[32]; 
   sprintf (label,"Q^{2} = %12.2f GeV^{2}",fQ2val);
   Q2Label->SetLabel(label);
-
-
+  
   TCanvas* can = new TCanvas("can","can",600, 400);
   can->Divide(3,2);
-
-  PlotPdfSub(can->cd(1), fOutput, fOutputRef, ival, "xU, xu_{V}",
+  
+  if ( ! (fDrawExp||fDrawModel||fDrawParam) ) {
+    
+    PlotPdfSub(can->cd(1), fOutput, fOutputRef, ival, "xU, xu_{V}",
 	     Output::kU,     Output::kUv, can->cd(6), TrashBin);
-  PlotPdfSub(can->cd(2), fOutput, fOutputRef, ival, "xD, xd_{V}",
+    PlotPdfSub(can->cd(2), fOutput, fOutputRef, ival, "xD, xd_{V}",
 	     Output::kD,     Output::kDv, NULL,  TrashBin);
-  PlotPdfSub(can->cd(3), fOutput, fOutputRef, ival, "xg",
+    PlotPdfSub(can->cd(3), fOutput, fOutputRef, ival, "xg",
 	     Output::kGluon, Output::kNULL,NULL,  TrashBin);
-  PlotPdfSub(can->cd(4), fOutput, fOutputRef, ival, "x#bar{U}",
+    PlotPdfSub(can->cd(4), fOutput, fOutputRef, ival, "x#bar{U}",
 	     Output::kUb,   Output::kNULL, NULL, TrashBin);
-  PlotPdfSub(can->cd(5), fOutput, fOutputRef, ival, "x#bar{D}",
+    PlotPdfSub(can->cd(5), fOutput, fOutputRef, ival, "x#bar{D}",
 	     Output::kDb,    Output::kNULL, NULL, TrashBin);
-
+	     
+  } else {
+    
+    PlotPdfSubEMP(can->cd(1), ival, "xU, xu_{V}", Output::kU, Output::kUv, can->cd(6), TrashBin);
+    PlotPdfSubEMP(can->cd(2), ival, "xD, xd_{V}", Output::kD, Output::kDv, NULL, TrashBin);
+    PlotPdfSubEMP(can->cd(3), ival, "xg", Output::kGluon, Output::kNULL, NULL, TrashBin);
+    PlotPdfSubEMP(can->cd(4), ival, "x#bar{U}", Output::kUb, Output::kNULL, NULL, TrashBin);
+    PlotPdfSubEMP(can->cd(5), ival, "x#bar{D}", Output::kDb, Output::kNULL, NULL, TrashBin);
+    
+  }
+	     
   can->cd();
   Q2Label->Draw();
   PrintCanvas(can);
-  delete TrashBin;
   delete can;
+//  delete TrashBin;           // I am sorry, but this delete makes "invalid pointer: 0x089a8850" error for DrawResults --bands <1 option>
+  return 0;
 }
 
 
 Int_t Painter::PlotPdfSub(TVirtualPad* pad, Output* FitterOut, Output* FitterRef, 
 				  Int_t Q2Bin, const Char_t* Title, Output::pdf pdf1, Output::pdf pdf2,
 				  TVirtualPad* legend, TObjArray* TrashBin) {
-  TGraph* graph =   FitterOut->GetPdf(pdf1, Q2Bin);
-  TGraph* graphR = NULL; 
-  TGraph* graph2 = NULL;
-  TGraph* graphR2 = NULL;
+  TGraphAsymmErrors* graph =   FitterOut->GetPdf(pdf1, Q2Bin);
+  TGraphAsymmErrors* graphR = NULL; 
+  TGraphAsymmErrors* graph2 = NULL;
+  TGraphAsymmErrors* graphR2 = NULL;
   Double_t RatioSize = 0.;
 
   if(FitterRef) {
@@ -507,6 +826,7 @@ Int_t Painter::PlotPdfSub(TVirtualPad* pad, Output* FitterOut, Output* FitterRef
     ref_ratio->Draw("LX");
   }
 
+
   TPaveLabel* label = new TPaveLabel(0.49, 0.85, 0.51, 0.87, Title,"NDC"); TrashBin->AddLast(label);
   label->SetBorderSize(0); label->SetFillColor(kWhite); label->SetTextSize(3.0);
   pad->cd();
@@ -523,7 +843,447 @@ Int_t Painter::PlotPdfSub(TVirtualPad* pad, Output* FitterOut, Output* FitterRef
       lab2->Draw();
     }
   }
+  return 0;
 }
+
+Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title, Output::pdf pdf1, Output::pdf pdf2,
+				  TVirtualPad* legend, TObjArray* TrashBin) {
+  
+  TGraphAsymmErrors* graphBase = NULL;
+  TGraphAsymmErrors* graphExp = NULL;
+  TGraphAsymmErrors* graphModel = NULL;
+  TGraphAsymmErrors* graphParam = NULL;
+  TGraphAsymmErrors* graphBase2 = NULL;
+  TGraphAsymmErrors* graphExp2 = NULL;
+  TGraphAsymmErrors* graphModel2 = NULL;
+  TGraphAsymmErrors* graphParam2 = NULL;
+  
+  Double_t RatioSize = 0.;
+
+  bool isSmthDrawn = false;
+  
+  if (fDrawBase) {
+    graphBase = fOutputBase->GetPdf(pdf1, Q2Bin);
+    graphBase->SetLineColor(fColorBase);
+    graphBase->SetFillColor(fColorBase);
+    graphBase->SetFillStyle(fFillStyleBase);
+  }
+  if (fDrawExp) {
+    graphExp   = fOutputExp->GetPdf(pdf1, Q2Bin);
+    RatioSize = 0.3;
+    graphExp->SetLineColor(fColorExp);
+    graphExp->SetFillColor(fColorExp);
+    graphExp->SetFillStyle(fFillStyleExp);
+  }
+  if (fDrawModel) {
+    graphModel = fOutputModel->GetPdf(pdf1, Q2Bin);
+    RatioSize = 0.3;
+    graphModel->SetLineColor(fColorModel);
+    graphModel->SetFillColor(fColorModel);
+    graphModel->SetFillStyle(fFillStyleModel);
+  }
+  if (fDrawParam) {
+    graphParam = fOutputParam->GetPdf(pdf1, Q2Bin);
+    RatioSize = 0.3;
+    graphParam->SetLineColor(fColorParam);
+    graphParam->SetFillColor(fColorParam);
+    graphParam->SetFillStyle(fFillStyleParam);
+  }
+  
+  if(pdf2 != Output::kNULL) {
+    if (fDrawBase) {
+      graphBase2 = fOutputBase->GetPdf(pdf2, Q2Bin);
+      graphBase2->SetLineColor(fColorBase);
+      graphBase2->SetFillColor(fColorBase);
+      graphBase2->SetFillStyle(fFillStyleBase);
+    }
+    if (fDrawExp) {
+      graphExp2 = fOutputExp->GetPdf(pdf2, Q2Bin);
+      graphExp2->SetLineColor(fColorExp);
+      graphExp2->SetFillColor(fColorExp);
+      graphExp2->SetFillStyle(fFillStyleExp);
+    }
+    if (fDrawModel) {
+      graphModel2 = fOutputModel->GetPdf(pdf2, Q2Bin);
+      graphModel2->SetLineColor(fColorModel);
+      graphModel2->SetFillColor(fColorModel);
+      graphModel2->SetFillStyle(fFillStyleModel);
+    }
+    if (fDrawParam) {
+      graphParam2 = fOutputParam->GetPdf(pdf2, Q2Bin);
+      graphParam2->SetLineColor(fColorParam);
+      graphParam2->SetFillColor(fColorParam);
+      graphParam2->SetFillStyle(fFillStyleParam);
+    }
+  }
+
+  pad->cd();
+  TPad* pad1 = new TPad("pad1","pad1", 0., RatioSize, 1., 1.);   TrashBin->AddLast(pad1);
+  pad1->Draw();
+  pad1->cd();
+  pad1->SetLogx();
+  
+  
+  if (fDrawBase) {
+    graphBase->SetTitle("");
+    graphBase->GetYaxis()->SetTitle("xP(x)");
+    graphBase->GetYaxis()->SetTitleOffset(1.5);  
+    graphBase->GetYaxis()->SetLabelSize(0.05); 
+    graphBase->GetYaxis()->SetNdivisions(506); 
+    graphBase->GetYaxis()->SetLabelOffset(0.02);
+    graphBase->GetXaxis()->SetTitle("x");
+    graphBase->GetXaxis()->SetTitleOffset(0.5);  
+    graphBase->GetXaxis()->SetTitleSize(.06);  
+    graphBase->GetXaxis()->SetLabelSize(0.04); 
+    graphBase->GetXaxis()->SetLabelOffset(0.015);
+  }
+  if (fDrawExp) {
+    graphExp->SetTitle("");
+    graphExp->GetYaxis()->SetTitle("xP(x)");
+    graphExp->GetYaxis()->SetTitleOffset(1.5);  
+    graphExp->GetYaxis()->SetLabelSize(0.05); 
+    graphExp->GetYaxis()->SetNdivisions(506); 
+    graphExp->GetYaxis()->SetLabelOffset(0.02);
+    graphExp->GetXaxis()->SetTitle("x");
+    graphExp->GetXaxis()->SetTitleOffset(0.5);  
+    graphExp->GetXaxis()->SetTitleSize(.06);  
+    graphExp->GetXaxis()->SetLabelSize(0.04); 
+    graphExp->GetXaxis()->SetLabelOffset(0.015);
+  }
+  if (fDrawModel) {
+    graphModel->SetTitle("");
+    graphModel->GetYaxis()->SetTitle("xP(x)");
+    graphModel->GetYaxis()->SetTitleOffset(1.5);  
+    graphModel->GetYaxis()->SetLabelSize(0.05); 
+    graphModel->GetYaxis()->SetNdivisions(506); 
+    graphModel->GetYaxis()->SetLabelOffset(0.02);
+    graphModel->GetXaxis()->SetTitle("x");
+    graphModel->GetXaxis()->SetTitleOffset(0.5);  
+    graphModel->GetXaxis()->SetTitleSize(.06);  
+    graphModel->GetXaxis()->SetLabelSize(0.04); 
+    graphModel->GetXaxis()->SetLabelOffset(0.015);
+  }
+  if (fDrawParam) {
+    graphParam->SetTitle("");
+    graphParam->GetYaxis()->SetTitle("xP(x)");
+    graphParam->GetYaxis()->SetTitleOffset(1.5);  
+    graphParam->GetYaxis()->SetLabelSize(0.05); 
+    graphParam->GetYaxis()->SetNdivisions(506); 
+    graphParam->GetYaxis()->SetLabelOffset(0.02);
+    graphParam->GetXaxis()->SetTitle("x");
+    graphParam->GetXaxis()->SetTitleOffset(0.5);  
+    graphParam->GetXaxis()->SetTitleSize(.06);  
+    graphParam->GetXaxis()->SetLabelSize(0.04); 
+    graphParam->GetXaxis()->SetLabelOffset(0.015);
+  }
+  
+
+  isSmthDrawn = false;
+  if (fDrawParam) {
+    if (isSmthDrawn) {
+      graphParam->Draw("3 same");
+    } else {
+      graphParam->Draw("AC3");
+      isSmthDrawn = true;
+    }
+  }
+  if (fDrawModel) {
+    if (isSmthDrawn) {
+      graphModel->Draw("3 same");
+    } else {
+      graphModel->Draw("AC3");
+      isSmthDrawn = true;
+    }
+  }
+  if (fDrawExp) {
+    if (isSmthDrawn) {
+      graphExp->Draw("3 same");
+    } else {
+      graphExp->Draw("AC3");
+      isSmthDrawn = true;
+    }
+  }
+  if (fDrawBase) {
+    if (isSmthDrawn) {
+      graphBase->Draw("3 same");
+    } else {
+      graphBase->Draw("3");
+      isSmthDrawn = true;
+    }
+  }
+  if(pdf2 != Output::kNULL) {
+    if (isSmthDrawn) {
+      if (fDrawParam) graphParam2->Draw("L3 same");
+      if (fDrawModel) graphModel2->Draw("L3 same");
+      if (fDrawExp)   graphExp2->Draw("L3 same");
+      if (fDrawBase)  graphBase2->Draw("3 same");
+    }
+  }
+
+  TPaveLabel* box = new TPaveLabel(0.0, 0.75, 0.09, 0.91, "xP(x)", "NDC"); TrashBin->AddLast(box);
+  box->SetFillColor(kWhite); box->SetBorderSize(0); box->SetTextAngle(90.); box->SetTextSize(0.35);
+  box->Draw();
+
+  
+  // Plotting the ratio pad if needed
+  
+  bool doDrawRatio = false;
+  int nGraphs = 0;
+  if (fDrawBase)  nGraphs++;
+  if (fDrawExp)   nGraphs++;
+  if (fDrawModel) nGraphs++;
+  if (fDrawParam) nGraphs++;
+  
+  if (nGraphs > 1) doDrawRatio = true;
+  
+  TGraphAsymmErrors* graphMainRatio = NULL;
+  
+  if (doDrawRatio) {
+    if (fDrawBase) {
+      graphMainRatio = (TGraphAsymmErrors*) (graphBase->Clone());
+    } else if (fDrawExp) {
+      graphMainRatio = (TGraphAsymmErrors*) (graphExp->Clone());
+    } else if (fDrawModel) {
+      graphMainRatio = (TGraphAsymmErrors*) (graphModel->Clone());
+    } else {
+     cout << "Cannot draw grahs ratio correctly - no main graph." << endl;
+     doDrawRatio = false;
+    }
+  }
+  
+  if (doDrawRatio) {
+    
+    TGraph* Base_ratio;
+    TGraph* Exp_ratio;
+    TGraph* Model_ratio;
+    TGraph* Param_ratio;
+    TGraphAsymmErrors* graphExp_ratio;
+    TGraphAsymmErrors* graphModel_ratio;
+    TGraphAsymmErrors* graphParam_ratio;
+    
+    Int_t Style_Ratio = 2;
+    
+    if (fDrawBase) {
+      graphBase->GetYaxis()->SetTitle("xP(x)");
+      graphBase->GetYaxis()->SetTitleOffset(1.);  
+      graphBase->GetYaxis()->SetLabelSize(0.04); 
+      graphBase->GetYaxis()->SetNdivisions(506); 
+      graphBase->GetYaxis()->SetLabelOffset(0.02);
+      
+      Base_ratio = (TGraph*) (graphBase->Clone());
+      
+      for(Int_t i=0; i<graphBase->GetN(); i++) {
+      Base_ratio->SetPoint(i, graphBase->GetX()[i], graphBase->GetY()[i] / graphMainRatio->GetY()[i]);
+      }
+    }
+    if (fDrawExp) {
+      graphExp->GetYaxis()->SetTitle("xP(x)");
+      graphExp->GetYaxis()->SetTitleOffset(1.);  
+      graphExp->GetYaxis()->SetLabelSize(0.04); 
+      graphExp->GetYaxis()->SetNdivisions(506); 
+      graphExp->GetYaxis()->SetLabelOffset(0.02);
+      
+      Exp_ratio = (TGraph*) (graphExp->Clone());
+      graphExp_ratio = (TGraphAsymmErrors*) (graphExp->Clone());
+      
+      for(Int_t i=0; i<graphExp->GetN(); i++) {
+      Exp_ratio->SetPoint(i, graphExp->GetX()[i], graphExp->GetY()[i] / graphMainRatio->GetY()[i]);
+      
+      graphExp_ratio->SetPoint(i, graphExp->GetX()[i], graphExp->GetY()[i] / graphMainRatio->GetY()[i]);
+      if(graphExp->GetY()[i] > 0.) 
+        graphExp_ratio->SetPointError(i, 0., 0., graphExp->GetEYlow()[i] / graphMainRatio->GetY()[i], graphExp->GetEYhigh()[i] / graphMainRatio->GetY()[i]);
+      }
+    }
+    if (fDrawModel) {
+      graphModel->GetYaxis()->SetTitle("xP(x)");
+      graphModel->GetYaxis()->SetTitleOffset(1.);  
+      graphModel->GetYaxis()->SetLabelSize(0.04); 
+      graphModel->GetYaxis()->SetNdivisions(506); 
+      graphModel->GetYaxis()->SetLabelOffset(0.02);
+      
+      Model_ratio = (TGraph*) (graphModel->Clone());
+      graphModel_ratio = (TGraphAsymmErrors*) (graphModel->Clone());
+      
+      for(Int_t i=0; i<graphModel->GetN(); i++) {
+      Model_ratio->SetPoint(i, graphModel->GetX()[i], graphModel->GetY()[i] / graphMainRatio->GetY()[i]);
+      
+      graphModel_ratio->SetPoint(i, graphModel->GetX()[i], graphModel->GetY()[i] / graphMainRatio->GetY()[i]);
+      if(graphModel->GetY()[i] > 0.) 
+        graphModel_ratio->SetPointError(i, 0., 0., graphModel->GetEYlow()[i] / graphMainRatio->GetY()[i], graphModel->GetEYhigh()[i] / graphMainRatio->GetY()[i]);
+      }
+    }
+    if (fDrawParam) {
+      graphParam->GetYaxis()->SetTitle("xP(x)");
+      graphParam->GetYaxis()->SetTitleOffset(1.);  
+      graphParam->GetYaxis()->SetLabelSize(0.04); 
+      graphParam->GetYaxis()->SetNdivisions(506); 
+      graphParam->GetYaxis()->SetLabelOffset(0.02);
+      
+      Param_ratio = (TGraph*) (graphParam->Clone());
+      graphParam_ratio = (TGraphAsymmErrors*) (graphParam->Clone());
+      
+      for(Int_t i=0; i<graphParam->GetN(); i++) {
+      Param_ratio->SetPoint(i, graphParam->GetX()[i], graphParam->GetY()[i] / graphMainRatio->GetY()[i]);
+      
+      graphParam_ratio->SetPoint(i, graphParam->GetX()[i], graphParam->GetY()[i] / graphMainRatio->GetY()[i]);
+      if(graphParam->GetY()[i] > 0.) 
+        graphParam_ratio->SetPointError(i, 0., 0., graphParam->GetEYlow()[i] / graphMainRatio->GetY()[i], graphParam->GetEYhigh()[i] / graphMainRatio->GetY()[i]);
+      }
+    }
+    
+    pad->cd();
+    TPad* pad2 = new TPad("pad2","pad2", 0., 0., 1., RatioSize);   TrashBin->AddLast(pad2);
+    pad2->Draw();
+
+    pad1->SetBottomMargin(0.);
+    pad2->SetTopMargin(0.);
+    pad2->SetBottomMargin(0.2);
+
+    pad2->cd();
+    pad2->SetLogx();
+    
+    if (fDrawBase) {
+     Base_ratio->SetLineColor(fColorBase);  
+//     Base_ratio->SetLineStyle(Style_Ratio);  
+     Base_ratio->SetFillColor(fColorBase);
+     Base_ratio->GetYaxis()->SetTitle("ratio");
+     Base_ratio->GetYaxis()->SetTitleSize(0.13);
+     Base_ratio->GetYaxis()->SetTitleOffset(0.35);
+     Base_ratio->GetYaxis()->SetNdivisions(505);
+     Base_ratio->GetYaxis()->SetLabelSize(0.11);
+     Base_ratio->GetXaxis()->SetLabelSize(0.11);
+     Base_ratio->GetXaxis()->SetLabelOffset(0.03);
+     Base_ratio->GetXaxis()->SetTitle("x  ");
+     Base_ratio->GetXaxis()->SetTitleOffset(0.5);  
+     Base_ratio->GetXaxis()->SetTitleSize(.15);
+     Base_ratio->SetMaximum(1.19);
+     Base_ratio->SetMinimum(0.81);
+     Base_ratio->Draw("ALX");
+    }
+    if (fDrawExp) {
+     Exp_ratio->SetLineColor(fColorExp + 2);  
+     Exp_ratio->SetLineStyle(Style_Ratio);  
+     Exp_ratio->SetFillColor(fColorExp);
+     Exp_ratio->GetYaxis()->SetTitle("ratio");
+     Exp_ratio->GetYaxis()->SetTitleSize(0.13);
+     Exp_ratio->GetYaxis()->SetTitleOffset(0.35);
+     Exp_ratio->GetYaxis()->SetNdivisions(505);
+     Exp_ratio->GetYaxis()->SetLabelSize(0.11);
+     Exp_ratio->GetXaxis()->SetLabelSize(0.11);
+     Exp_ratio->GetXaxis()->SetLabelOffset(0.03);
+     Exp_ratio->GetXaxis()->SetTitle("x  ");
+     Exp_ratio->GetXaxis()->SetTitleOffset(0.5);  
+     Exp_ratio->GetXaxis()->SetTitleSize(.15);
+     Exp_ratio->SetMaximum(1.19);
+     Exp_ratio->SetMinimum(0.81);
+     Exp_ratio->Draw("ALX");
+    }
+    if (fDrawModel) {
+     Model_ratio->SetLineColor(fColorModel + 2);  
+     Model_ratio->SetLineStyle(Style_Ratio);  
+     Model_ratio->SetFillColor(fColorModel);
+     Model_ratio->GetYaxis()->SetTitle("ratio");
+     Model_ratio->GetYaxis()->SetTitleSize(0.13);
+     Model_ratio->GetYaxis()->SetTitleOffset(0.35);
+     Model_ratio->GetYaxis()->SetNdivisions(505);
+     Model_ratio->GetYaxis()->SetLabelSize(0.11);
+     Model_ratio->GetXaxis()->SetLabelSize(0.11);
+     Model_ratio->GetXaxis()->SetLabelOffset(0.03);
+     Model_ratio->GetXaxis()->SetTitle("x  ");
+     Model_ratio->GetXaxis()->SetTitleOffset(0.5);  
+     Model_ratio->GetXaxis()->SetTitleSize(.15);
+     Model_ratio->SetMaximum(1.19);
+     Model_ratio->SetMinimum(0.81);
+     Model_ratio->Draw("ALX");
+    }
+    if (fDrawParam) {
+     Param_ratio->SetLineColor(fColorParam + 2);  
+     Param_ratio->SetLineStyle(Style_Ratio);  
+     Param_ratio->SetFillColor(fColorParam);
+     Param_ratio->GetYaxis()->SetTitle("ratio");
+     Param_ratio->GetYaxis()->SetTitleSize(0.13);
+     Param_ratio->GetYaxis()->SetTitleOffset(0.35);
+     Param_ratio->GetYaxis()->SetNdivisions(505);
+     Param_ratio->GetYaxis()->SetLabelSize(0.11);
+     Param_ratio->GetXaxis()->SetLabelSize(0.11);
+     Param_ratio->GetXaxis()->SetLabelOffset(0.03);
+     Param_ratio->GetXaxis()->SetTitle("x  ");
+     Param_ratio->GetXaxis()->SetTitleOffset(0.5);  
+     Param_ratio->GetXaxis()->SetTitleSize(.15);
+     Param_ratio->SetMaximum(1.19);
+     Param_ratio->SetMinimum(0.81);
+     Param_ratio->Draw("ALX");
+    }
+    
+    if (fDrawParam) {
+      graphParam_ratio->Draw("3");
+      Param_ratio->Draw("LX");
+    }
+    if (fDrawModel) {
+      graphModel_ratio->Draw("3");
+      Model_ratio->Draw("LX");
+    }
+    if (fDrawExp) {
+      graphExp_ratio->Draw("3");
+      Exp_ratio->Draw("LX");
+    }
+    if (fDrawBase) {
+      Base_ratio->Draw("LX");
+    }    
+  }
+
+  TPaveLabel* label = new TPaveLabel(0.49, 0.85, 0.51, 0.87, Title,"NDC"); TrashBin->AddLast(label);
+  label->SetBorderSize(0); label->SetFillColor(kWhite); label->SetTextSize(3.0);
+  pad->cd();
+  label->Draw();
+
+  
+  if(legend) {
+    double irisey1 = 0.4;
+    double irisey2 = 0.5;
+    
+    legend->cd();
+    if (fDrawParam) {
+      TPaveLabel* labparam = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputParam->GetName()->Data(), "NDC");
+      TrashBin->AddLast(labparam);
+      labparam->SetFillColor(kWhite);
+      labparam->SetBorderSize(0);
+      labparam->SetTextColor(fColorParam);
+      labparam->Draw();
+      irisey1+=0.12; irisey2+=0.12;
+    }
+    if (fDrawModel) {
+      TPaveLabel* labmodel = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputModel->GetName()->Data(), "NDC");
+      TrashBin->AddLast(labmodel);
+      labmodel->SetFillColor(kWhite);
+      labmodel->SetBorderSize(0);
+      labmodel->SetTextColor(fColorModel);
+      labmodel->Draw();
+      irisey1+=0.12; irisey2+=0.12;
+    }
+    if (fDrawExp) {
+      TPaveLabel* labexp = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputExp->GetName()->Data(), "NDC");
+      TrashBin->AddLast(labexp);
+      labexp->SetFillColor(kWhite);
+      labexp->SetBorderSize(0);
+      labexp->SetTextColor(fColorExp);
+      labexp->Draw();
+      irisey1+=0.12; irisey2+=0.12;
+    }
+    if (fDrawBase) {
+      TPaveLabel* labbase = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputBase->GetName()->Data(), "NDC");
+      TrashBin->AddLast(labbase);
+      labbase->SetFillColor(kWhite);
+      labbase->SetBorderSize(0);
+      labbase->SetTextColor(fColorBase);
+      labbase->Draw();
+      irisey1+=0.12; irisey2+=0.12;
+    }
+  }
+  
+  return 0;
+}
+
 
 void Painter::ScaleGraph2ToGraph1(TGraph* graph1, TGraph* graph2, TLine*& line, TGaxis*& axis, Double_t MeanRatio) {
   Double_t Max1 = -99999.; Double_t Min1 = 99999.;
@@ -663,7 +1423,7 @@ Int_t Painter::DrawDataSet(DataSet* dataset, DataSet* datasetref, Bool_t RatioTo
       gTModR->Draw("same L");
     }
   }
-
+  
   TPaveLabel label(0.0, 0.985, 0.5, 1.0, dataset->GetName(),"NDC");
   //cout << dataset->GetName() << endl;
   label.SetFillColor(kWhite);
@@ -694,7 +1454,285 @@ Int_t Painter::DrawDataSet(DataSet* dataset, DataSet* datasetref, Bool_t RatioTo
   delete can; delete temp;
 }
 
+Int_t Painter::DrawDataSetEMP(DataSet* datasetB, DataSet* datasetE, DataSet* datasetM, DataSet* datasetP, Bool_t RatioToData) {
 
+  int N;
+  
+  if (datasetP) N = datasetP->GetNSubPlots();
+    else if (datasetM) N = datasetM->GetNSubPlots();
+     else if (datasetE) N = datasetE->GetNSubPlots();
+      else if (datasetB) N = datasetB->GetNSubPlots();
+  
+  TCanvas* can = new TCanvas;
+  double MarkerSize, HistTitleY, HistTitleX;
+  
+  if(N<=0) return 1;
+  else if (N==1) {                  MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N==2)  {can->Divide(1,2); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=4)  {can->Divide(2,2); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=6)  {can->Divide(2,3); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=9)  {can->Divide(3,3); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=12) {can->Divide(3,4); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=16) {can->Divide(4,4); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=20) {can->Divide(4,5); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=25) {can->Divide(5,5); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=30) {can->Divide(5,6); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else if(N<=36) {can->Divide(6,6); MarkerSize = 0.3; HistTitleY = 0.97; HistTitleX = 0.1;}
+  else {
+    cout << "DrawDataSetEMP does not support drawing more than 36 plots per dataset" <<endl; 
+    delete can;
+    return 1;
+  }
+  
+  for(int i=0; i<N; i++) {
+    can->cd(i+1);
+
+    gStyle->SetTitleX(HistTitleX); //title X location
+    gStyle->SetTitleY(HistTitleY); //title Y location
+    
+    TH1F* h;
+    if (datasetP) h = datasetP->GetHistogram(i,RatioToData);
+     else if (datasetM) h = datasetM->GetHistogram(i,RatioToData);
+      else if (datasetE) h = datasetE->GetHistogram(i,RatioToData);
+       else if (datasetB) h = datasetB->GetHistogram(i,RatioToData);
+    h->Draw();
+    
+    TGraphErrors* gDUncBase = NULL;
+    TGraphErrors* gDTotBase = NULL;
+    TGraphErrors* gTheoBase = NULL;
+    TGraphErrors* gTModBase = NULL;
+    
+    TGraphErrors* gDUncExp = NULL;
+    TGraphErrors* gDTotExp = NULL;
+    TGraphErrors* gTheoExp = NULL;
+    TGraphErrors* gTModExp = NULL;
+    
+    TGraphErrors* gDUncModel = NULL;
+    TGraphErrors* gDTotModel = NULL;
+    TGraphErrors* gTheoModel = NULL;
+    TGraphErrors* gTModModel = NULL;
+    
+    TGraphErrors* gDUncParam = NULL;
+    TGraphErrors* gDTotParam = NULL;
+    TGraphErrors* gTheoParam = NULL;
+    TGraphErrors* gTModParam = NULL;
+    
+    if(datasetB) {
+      gDUncBase = datasetB->GetDataUnc(i);
+      gDTotBase = datasetB->GetDataTot(i);
+      gTheoBase = datasetB->GetTheo(i);
+      gTModBase = datasetB->GetTMod(i);
+    }
+    if(datasetE) {
+      gDUncExp = datasetE->GetDataUnc(i);
+      gDTotExp = datasetE->GetDataTot(i);
+      gTheoExp = datasetE->GetTheo(i);
+      gTModExp = datasetE->GetTMod(i);
+    }
+    if(datasetM) {
+      gDUncModel = datasetM->GetDataUnc(i);
+      gDTotModel = datasetM->GetDataTot(i);
+      gTheoModel = datasetM->GetTheo(i);
+      gTModModel = datasetM->GetTMod(i);
+    }
+    if(datasetP) {
+      gDUncParam = datasetP->GetDataUnc(i);
+      gDTotParam = datasetP->GetDataTot(i);
+      gTheoParam = datasetP->GetTheo(i);
+      gTModParam = datasetP->GetTMod(i);
+    }
+    
+    if(RatioToData) {
+    
+      int NgDU = 0;
+      double div = 0.;
+      
+      if (datasetP) NgDU = gDUncParam->GetN();
+       else if (datasetM) NgDU = gDUncModel->GetN();
+        else if (datasetE) NgDU = gDUncExp->GetN();
+         else if (datasetB) NgDU = gDUncBase->GetN();
+	 
+      for(int j=0; j<NgDU; j++) {
+	if(datasetB) {
+	  div = gDUncBase->GetY()[j];
+	  gDTotBase->GetY()[j] /=  div;
+	  gDTotBase->GetEY()[j] /=  div;
+	  gTheoBase->GetY()[j] /=  div;
+	  gTModBase->GetY()[j] /=  div;
+	  gDUncBase->GetY()[j] /=  div;
+	  gDUncBase->GetEY()[j] /= div;
+	  gDTotBase->GetY()[j] -= 1.;
+	  gTheoBase->GetY()[j] -= 1.;
+	  gTModBase->GetY()[j] -= 1.;
+	  gDUncBase->GetY()[j] -= 1.;
+	}
+	if(datasetE) {
+	  div = gDUncExp->GetY()[j];
+	  gDTotExp->GetY()[j] /=  div;
+	  gDTotExp->GetEY()[j] /=  div;
+	  gTheoExp->GetY()[j] /=  div;
+	  gTModExp->GetY()[j] /=  div;
+	  gDUncExp->GetY()[j] /=  div;
+	  gDUncExp->GetEY()[j] /= div;
+	  gDTotExp->GetY()[j] -= 1.;
+	  gTheoExp->GetY()[j] -= 1.;
+	  gTModExp->GetY()[j] -= 1.;
+	  gDUncExp->GetY()[j] -= 1.;
+	}
+	if(datasetM) {
+	  div = gDUncModel->GetY()[j];
+	  gDTotModel->GetY()[j] /=  div;
+	  gDTotModel->GetEY()[j] /=  div;
+	  gTheoModel->GetY()[j] /=  div;
+	  gTModModel->GetY()[j] /=  div;
+	  gDUncModel->GetY()[j] /=  div;
+	  gDUncModel->GetEY()[j] /= div;
+	  gDTotModel->GetY()[j] -= 1.;
+	  gTheoModel->GetY()[j] -= 1.;
+	  gTModModel->GetY()[j] -= 1.;
+	  gDUncModel->GetY()[j] -= 1.;
+	}
+	if(datasetP) {
+	  div = gDUncParam->GetY()[j];
+	  gDTotParam->GetY()[j] /=  div;
+	  gDTotParam->GetEY()[j] /=  div;
+	  gTheoParam->GetY()[j] /=  div;
+	  gTModParam->GetY()[j] /=  div;
+	  gDUncParam->GetY()[j] /=  div;
+	  gDUncParam->GetEY()[j] /= div;
+	  gDTotParam->GetY()[j] -= 1.;
+	  gTheoParam->GetY()[j] -= 1.;
+	  gTModParam->GetY()[j] -= 1.;
+	  gDUncParam->GetY()[j] -= 1.;
+	}
+      }
+    }
+    
+    if(datasetB) {
+      gTheoBase->SetLineColor(fColorBase);
+      gTModBase->SetLineColor(fColorBase);
+      gTModBase->SetLineStyle(3);
+    }
+    if(datasetE) {
+      gTheoExp->SetLineColor(fColorExp);
+      gTModExp->SetLineColor(fColorExp);
+      gTModExp->SetLineStyle(3);
+    }
+    if(datasetM) {
+      gTheoModel->SetLineColor(fColorModel);
+      gTModModel->SetLineColor(fColorModel);
+      gTModModel->SetLineStyle(3);
+    }
+    if(datasetP) {
+      gTheoParam->SetLineColor(fColorParam);
+      gTModParam->SetLineColor(fColorParam);
+      gTModParam->SetLineStyle(3);
+    }
+    
+    if (datasetP) {
+      if(datasetP->GetXlog(i)) gPad->SetLogx();
+      if(datasetP->GetYlog(i)) gPad->SetLogy();
+      gDUncParam->SetMarkerStyle(20);
+      gDUncParam->SetMarkerSize(MarkerSize);
+      gDUncParam->Draw("same P");
+      gDTotParam->Draw("same P");
+    } else if (datasetM) {
+      if(datasetM->GetXlog(i)) gPad->SetLogx();
+      if(datasetM->GetYlog(i)) gPad->SetLogy();
+      gDUncModel->SetMarkerStyle(20);
+      gDUncModel->SetMarkerSize(MarkerSize);
+      gDUncModel->Draw("same P");
+      gDTotModel->Draw("same P");
+    } else if (datasetE) {
+      if(datasetE->GetXlog(i)) gPad->SetLogx();
+      if(datasetE->GetYlog(i)) gPad->SetLogy();
+      gDUncExp->SetMarkerStyle(20);
+      gDUncExp->SetMarkerSize(MarkerSize);
+      gDUncExp->Draw("same P");
+      gDTotExp->Draw("same P");
+    } else if (datasetB) {
+      if(datasetB->GetXlog(i)) gPad->SetLogx();
+      if(datasetB->GetYlog(i)) gPad->SetLogy();
+      gDUncBase->SetMarkerStyle(20);
+      gDUncBase->SetMarkerSize(MarkerSize);
+      gDUncBase->Draw("same P");
+      gDTotBase->Draw("same P");
+    }
+
+    if (datasetP) {
+      gTheoParam->Draw("same L");
+      gTModParam->Draw("same L");
+    }
+    if (datasetM) {
+      gTheoModel->Draw("same L");
+      gTModModel->Draw("same L");
+    }
+    if (datasetE) {
+      gTheoExp->Draw("same L");
+      gTModExp->Draw("same L");
+    }
+    if (datasetB) {
+      gTheoBase->Draw("same L");
+      gTModBase->Draw("same L");
+    }
+    
+  }
+    
+  TString labelName;
+  
+  if (datasetP) labelName = TString(datasetP->GetName());
+   else if (datasetM) labelName = TString(datasetM->GetName());
+    else if (datasetE) labelName = TString(datasetE->GetName());
+     else if (datasetB) labelName = TString(datasetB->GetName());
+  
+  TPaveLabel label(0.0, 0.985, 0.5, 1.0, labelName,"NDC");
+  //cout << labelName << endl;
+  label.SetFillColor(kWhite);
+  label.SetBorderSize(0);
+  can->cd(0);
+  label.Draw();
+
+  TLegend leg(0.5, 0.95, 1.0, 1.0, "","NDC");
+  TString* temp = new TString;
+  leg.SetBorderSize(0); 
+  leg.SetFillColor(kWhite);
+  
+  int legNcol = 0;
+  if (datasetP) legNcol++;
+  if (datasetM) legNcol++;
+  if (datasetE) legNcol++;
+  if (datasetB) legNcol++;
+  if (legNcol > 1) leg.SetNColumns(legNcol);
+
+  if (datasetP) leg.AddEntry(datasetP->GetTheo(0), fOutputParam->GetName()->Data(),"L");
+  if (datasetM) leg.AddEntry(datasetM->GetTheo(0), fOutputModel->GetName()->Data(),"L");
+  if (datasetE) leg.AddEntry(datasetE->GetTheo(0), fOutputExp->GetName()->Data(),"L");
+  if (datasetB) leg.AddEntry(datasetB->GetTheo(0), fOutputBase->GetName()->Data(),"L");
+
+  if(datasetP) {
+    temp->Form("%s (modfied)", fOutputParam->GetName()->Data());
+    leg.AddEntry(datasetP->GetTMod(0), temp->Data(),"L");
+  }
+  if(datasetM) {
+    temp->Form("%s (modfied)", fOutputModel->GetName()->Data());
+    leg.AddEntry(datasetM->GetTMod(0), temp->Data(),"L");
+  }
+  if(datasetE) {
+    temp->Form("%s (modfied)", fOutputExp->GetName()->Data());
+    leg.AddEntry(datasetE->GetTMod(0), temp->Data(),"L");
+  }
+  if(datasetB) {
+    temp->Form("%s (modfied)", fOutputBase->GetName()->Data());
+    leg.AddEntry(datasetB->GetTMod(0), temp->Data(),"L");
+  }
+  //leg.Draw();
+
+  
+  PrintCanvas(can);
+  delete can; delete temp;
+  
+  return 0;
+}
 
 void Painter::PrintCanvas(TCanvas* can) {
   if(fPsFileName->Contains(".txt"))

@@ -11,6 +11,7 @@
 #include <TArrayI.h>
 #include <vector>
 #include <TH1F.h>
+#include <TGraphAsymmErrors.h>
 
 using std::cout;
 using std::cerr;
@@ -62,8 +63,8 @@ class  Output {
  public:
    Output(const Char_t* directory);
    virtual ~Output();
-   virtual Int_t Prepare(bool DrawBand);
-   TGraph* GetPdf(Output::pdf ipdf, Int_t Q2bin);
+   virtual Int_t Prepare(bool DrawBand, TString option = TString("b"));
+   TGraphAsymmErrors* GetPdf(Output::pdf ipdf, Int_t Q2bin);
    inline TString* GetDirectory() {return fDirectory;}
    inline TString* GetName() {return fName;}
    Int_t GetNsets();
@@ -91,7 +92,7 @@ class  Output {
    inline Int_t GetNNuisanceParameters() {return fNNuisanceParameters;}
    Double_t GetNuisancePar(Int_t idx, Bool_t error=kFALSE);
    inline Double_t GetCorPar(int i, int j) { return fCorrPar[i][j];}
-   Int_t PreparePdf(bool DrawBand);
+   Int_t PreparePdf(bool DrawBand, TString option = TString("b"));
    void PrepareParameters();
    inline Bool_t GetConverged() {return fConverged;}
    inline Bool_t GetFinished() {return fFinished;}

@@ -123,7 +123,7 @@ PdfTable* PdfTable::CreatePdfTable(const Char_t* filename) {
 }
 //-----------------------------------------------------
 
-PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors) {
+PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors, TString option) {
   
   // Read the central table:
   TString filename("");
@@ -161,28 +161,67 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors) {
     return;
   }
 
-
+  sErrOpt = option;
 
   // Read the error sets:
-  for ( int iband = 1; iband<=1000; iband++) {
+  
+  if ( sErrOpt.CompareTo("m") && sErrOpt.CompareTo("p") ) {
+    for ( int iband = 1; iband<=1000; iband++) {
 
-    filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt",base.c_str(), iband, iQ2);
-    PdfTable *eSet = CreatePdfTable(filename.Data());
-    if (!eSet) break;
+      filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt",base.c_str(), iband, iQ2);
+      PdfTable *eSet = CreatePdfTable(filename.Data());
+      if (!eSet) break;
 
-    if (eSet->GetNx()>0) {
-      fErrorTables.push_back(eSet);
-    }
-    else {delete eSet; continue;}
+      if (eSet->GetNx()>0) {
+        fErrorTables.push_back(eSet);
+      }
+      else {delete eSet; continue;}
     
-    filename.Form("%s/pdfs_q2val_s%02dp_%02d.txt",base.c_str(), iband, iQ2);
-    eSet = new PdfTable(filename.Data());
-    if (!eSet) break;
+      filename.Form("%s/pdfs_q2val_s%02dp_%02d.txt",base.c_str(), iband, iQ2);
+      eSet = new PdfTable(filename.Data());
+      if (!eSet) break;
 
-    if (eSet->GetNx()>0) {
-      fErrorTables.push_back(eSet);
+      if (eSet->GetNx()>0) {
+        fErrorTables.push_back(eSet);
+      }
+      else {delete eSet; continue;}
     }
-    else {delete eSet; continue;}
+  } else if ( !sErrOpt.CompareTo("m") ) {
+    for ( int iband = 1; iband<=1000; iband++) {
+
+      filename.Form("%s/pdfs_q2val_m%02dm_%02d.txt",base.c_str(), iband, iQ2);
+      PdfTable *eSet = CreatePdfTable(filename.Data());
+      if (!eSet) break;
+
+      if (eSet->GetNx()>0) {
+        fErrorTables.push_back(eSet);
+      }
+      else {delete eSet; continue;}
+    
+      filename.Form("%s/pdfs_q2val_m%02dp_%02d.txt",base.c_str(), iband, iQ2);
+      eSet = new PdfTable(filename.Data());
+      if (!eSet) break;
+
+      if (eSet->GetNx()>0) {
+        fErrorTables.push_back(eSet);
+      }
+      else {delete eSet; continue;}
+    }
+  } else if ( !sErrOpt.CompareTo("p") ) {
+    for ( int iband = 1; iband<=1000; iband++) {
+
+      filename.Form("%s/pdfs_q2val_p%02d_%02d.txt",base.c_str(), iband, iQ2);
+      PdfTable *eSet = CreatePdfTable(filename.Data());
+      if (!eSet) break;
+
+      if (eSet->GetNx()>0) {
+        fErrorTables.push_back(eSet);
+      }
+      else {delete eSet; continue;}
+    }
+  } else {
+    cout << "Unknown PdfErrorTables error option = " << sErrOpt <<endl;
+    return;
   }
   //cout << " Read " << fErrorTables.size() << " error sets"<<endl;
 }
@@ -223,36 +262,62 @@ void PdfErrorTables::GetPDFError(int ix, int iPDF, double* eminus, double* eplus
   *eminus = 0;
   *eplus  = 0;
   
-  for (int i=0; i<fErrorTables.size(); i+=2) {
-    double vm = fErrorTables[i]->GetPDF(ix,iPDF);
-    double vp = fErrorTables[i+1]->GetPDF(ix,iPDF);
+  if ( sErrOpt.CompareTo("p") ) {
+  
+    for (int i=0; i<fErrorTables.size(); i+=2) {
+      double vm = fErrorTables[i]->GetPDF(ix,iPDF);
+      double vp = fErrorTables[i+1]->GetPDF(ix,iPDF);
 
-    if (fSymmetric) {
-      double err = 0.5*(vp-vm);
-      (*eminus) += err*err;
-      (*eplus)  += err*err;
-    }
-    else {
-    // down variation:
-      double d1 = cent - vm;
-      double d2 = cent - vp;    
-      double ed = ( d2<d1) ? d2 : d1;
+      if (fSymmetric) {
+        double err = 0.5*(vp-vm);
+        (*eminus) += err*err;
+        (*eplus)  += err*err;
+      }
+      else {
+      // down variation:
+        double d1 = cent - vm;
+        double d2 = cent - vp;    
+        double ed = ( d2>d1) ? d2 : d1;
       
-      if (ed<0) { ed = 0;}
+        if (ed<0) { ed = 0;}
 
-      // up variation
-      d1 = -d1;
-      d2 = -d2;
-      double ep = (d2>d1) ? d2 : d1;    
-      if (ep<0) {ep = 0;}
+        // up variation
+        d1 = -d1;
+        d2 = -d2;
+        double ep = (d2>d1) ? d2 : d1;    
+        if (ep<0) {ep = 0;}
    
     
-      (*eminus) += ed*ed;
-      (*eplus)  += ep*ep;
+        (*eminus) += ed*ed;
+        (*eplus)  += ep*ep;
+      }
     }
+    (*eminus) = sqrt(*eminus);
+    (*eplus) = sqrt(*eplus);
+  
+  } else {
+    
+    double maxp = 0;
+    double maxm = 0;
+    
+    for (int i=0; i<fErrorTables.size(); i++) {
+      double v = fErrorTables[i]->GetPDF(ix,iPDF);
+      double d = v - cent;
+      if (fSymmetric) {
+	if (d<0) d = -d;
+	if (d>maxp) { maxp = d; maxm = maxp; }
+      } else {
+	if (d>0) {
+	  if (d>maxp) maxp = d;
+	} else {
+	  if ((-d)>maxm) maxm = -d;
+	}
+      }
+    }
+    (*eminus) = maxm;
+    (*eplus) = maxp;
+    
   }
-  (*eminus) = sqrt(*eminus);
-  (*eplus) = sqrt(*eplus);
 
   //  cout << "error: " << ix << " "<< *eminus << " "<<*eplus <<endl;
 }

@@ -64,10 +64,10 @@ Output::~Output(){
   delete fMessages;
 }
 
-Int_t Output::Prepare(bool DrawBand) {
+Int_t Output::Prepare(bool DrawBand, TString option) {
   if( this->CheckDirectory() ) {
     this->PrepareName();
-    this->PreparePdf(DrawBand);
+    this->PreparePdf(DrawBand, option);
     this->PrepareDataSets();
     this->PrepareParameters();
   }
@@ -335,7 +335,7 @@ void Output::PrepareName() {
   }
 }
 
-Int_t Output::PreparePdf(bool DrawBand) {
+Int_t Output::PreparePdf(bool DrawBand, TString option) {
 
   // Loop over Q2 values, read PDF tables
   for (Int_t iq2=0; iq2<200; iq2++) {
@@ -343,7 +343,17 @@ Int_t Output::PreparePdf(bool DrawBand) {
     TString filename("");
     filename.Form("%s/pdfs_q2val_%02d.txt",fDirectory->Data(), iq2+1);
 
-    PdfTable* table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE);
+    PdfTable* table;
+    
+    if (option == TString("b")) {
+      table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE);
+    } else {
+      if (option == TString("e")) {
+	table = new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
+      } else {
+	table = new PdfErrorTables(fDirectory->Data(),iq2+1,kFALSE, option);
+      }
+    }
 
     Int_t    nx = table->GetNx();
     if (nx > 0 ) {    
@@ -375,7 +385,7 @@ Int_t Output::PreparePdf(bool DrawBand) {
     }
 
   }
-  
+  return 0;
 }
 
 
@@ -384,11 +394,11 @@ Int_t Output::GetNsets() {
   return fDataSets.size();
 }
 
-TGraph* Output::GetPdf(Output::pdf ipdf, Int_t Q2bin) {
+TGraphAsymmErrors* Output::GetPdf(Output::pdf ipdf, Int_t Q2bin) {
   if(ipdf >= fNpdfs) {cout << "GetPdf, wrong ipdf: "<< ipdf << " "<<fNpdfs << endl; exit(1);}
   if(Q2bin >= fPdfs[ipdf]->GetEntries()) {cout << "GetPdf, wrong iq2: "<< Q2bin << " "<< ipdf<< endl; exit(1);}
 
-  return ((TGraph*)fPdfs[ipdf]->At(Q2bin));
+  return ((TGraphAsymmErrors*)fPdfs[ipdf]->At(Q2bin));
 }
 
 void Output::SetPdfPoint(Int_t ipdf, Int_t iq2, Int_t ipoint, Double_t x, Double_t y) {

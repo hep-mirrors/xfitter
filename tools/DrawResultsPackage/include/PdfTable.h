@@ -79,7 +79,7 @@ class PdfErrorTables : public PdfTable{
  PdfErrorTables():PdfTable(),fErrorTables(NULL)
     {}
   // @brief Constructor to read the files from directory base for given Q2 set
-  PdfErrorTables(string base, int iQ2=0, Bool_t SymErrors = kFALSE);
+  PdfErrorTables(string base, int iQ2=0, Bool_t SymErrors = kFALSE, TString option = TString("b"));
 
   // @brief Return TGraph 
   virtual TGraphAsymmErrors* GetPDFGraph(string name);
@@ -89,6 +89,8 @@ class PdfErrorTables : public PdfTable{
   vector<PdfTable*> fErrorTables;
   Bool_t fSymmetric;
   void GetPDFError(int ix, int iPDF, double* eminus, double* eplus);
+  
+  TString sErrOpt;
 };
 
 

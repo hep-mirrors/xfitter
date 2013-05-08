@@ -21,50 +21,123 @@ int main(int argc, char **argv) {
   
   gErrorIgnoreLevel=1001;
 
-  int c; 
+//  int c; 
   bool DrawBands = false;
-  while (1)
-    {
-      static struct option long_options[] =
-	{
-	  {"bands", optional_argument, 0, 'b'},
-	};
-      /* getopt_long stores the option index here. */
-      int option_index = 0;
-      
-      c = getopt_long (argc, argv, "bands:",
-		       long_options, &option_index);
-      /* Detect the end of the options. */
-      if (c == -1)
-	break;
-      switch (c)
-	{
-	case 'b':
-	  DrawBands = true;
-	  break;
-	case '?':
-	  printf("program usage: DrawResults [--bands] [dir1] [dir2]\n");
-	  exit(1);
-	}
-    } 
-  
-  if ( optind < argc) {
+  bool DrawExp = false;
+  bool DrawModel = false;
+  bool DrawParam = false;
+  bool DrawBase = false;
 
-    if(argc-optind == 1 ) {
-      OutputPath.Form(argv[optind]);
-      OutputPathRef.Form(argv[optind]);
-    }
-    if(argc-optind == 2) {
-      OutputPath.Form(argv[optind]);
-      OutputPathRef.Form(argv[optind+1]);
+  int ioptband = -1;
+  int ioptexp = -1;
+  int ioptmodel = -1;
+  int ioptparam = -1;
+
+  int ibase = 0;
+  int ibase2 = 0;
+
+  if ( argc == 1 ) {
+    printf("program usage:\n DrawResults [--bands] [dir1] [dir2]\n      OR \n DrawResults [--exp] [exp_dir] [--model] [model_dir] [--param] [param_dir] [basedir]\n");
+    return -1;
+  }
+
+  if ( argc > 2 ) {
+    for (int iar=1; iar<argc; iar++) {      
+      if ( ! TString(argv[iar]).CompareTo("--bands") ) {
+	if (DrawBands) {
+	  printf("Do not use --bands option more then once.\n");
+	  return -1;
+	}
+	DrawBands = true;
+	ioptband = iar;
+      }
+      if ( ! TString(argv[iar]).CompareTo("--exp") ) {
+	if (DrawExp) {
+	  printf("Do not use --exp option more then once.\n");
+	  return -1;
+	}
+	DrawExp = true;
+	ioptexp = iar;
+      }
+      if ( ! TString(argv[iar]).CompareTo("--model") ) {
+	if (DrawModel) {
+	  printf("Do not use --model option more then once.\n");
+	  return -1;
+	}
+	DrawModel = true;
+	ioptmodel = iar;
+      }
+      if ( ! TString(argv[iar]).CompareTo("--param") ) {
+	if (DrawParam) {
+	  printf("Do not use --param option more then once.\n");
+	  return -1;
+	}
+	DrawParam = true;
+	ioptparam = iar;
+      }
     }
   }
 
-  Painter* painter = new Painter(DrawBands);
-  painter->SetPath(OutputPath);
-  painter->SetPathRef(OutputPathRef);
-  painter->Draw();
-  delete painter;
+  if (DrawBands && (DrawExp||DrawModel||DrawParam)) {
+    printf("Do not use --bands option together with --exp, --model or --param option.\n");
+    return -1;
+  }
+
+  if ( argc > 1 ) {
+    for (int iar=1; iar<argc; iar++) {
+      if (iar!=ioptband && iar!=ioptband+1 && iar!=ioptexp && iar!=ioptexp+1 && iar!=ioptmodel && iar!=ioptmodel+1 && iar!=ioptparam && iar!=ioptparam+1 ) {
+	if (!DrawBase) {
+	  ibase = iar;
+	  DrawBase = true;
+	} else {
+	  if ( ibase2==0 && !(DrawBands||DrawExp||DrawModel||DrawParam) ) {
+	    ibase2 = iar;
+	  } else {
+	    printf("program usage:\n DrawResults [--bands] [dir1] [dir2]\n      OR \n DrawResults [--exp] [exp_dir] [--model] [model_dir] [--param] [param_dir] [basedir]\n");
+	    return -1;
+	  }
+	}
+      }
+    }
+  }
+
+  if ( !(DrawExp||DrawModel||DrawParam) ) {
+    
+    if (DrawBase) {
+      OutputPathRef.Form(argv[ibase]);
+    } else if (ioptband > 0) {
+      OutputPathRef.Form(argv[ioptband+1]);
+    } else {
+      printf("Error: no base or bands directory.\n");
+      return -1;
+    }
+    
+    if (ibase2!=0) {
+      OutputPath.Form(argv[ibase2]);
+    } else if (ioptband > 0) {
+      OutputPath.Form(argv[ioptband+1]);
+    } else if (DrawBase) {
+      OutputPath.Form(argv[ibase]);
+    }
+    
+    Painter* painter = new Painter(DrawBands);
+    painter->SetPath(OutputPath);
+    painter->SetPathRef(OutputPathRef);
+    painter->Draw();
+    delete painter;
+    
+  } else {
+    
+    Painter* painter = new Painter(false, DrawBase, DrawExp, DrawModel, DrawParam);
+    if (DrawBase) painter->SetPathBase(argv[ibase]);
+    if (DrawExp) painter->SetPathExp(argv[ioptexp+1]);
+    if (DrawModel) painter->SetPathModel(argv[ioptmodel+1]);
+    if (DrawParam) painter->SetPathParam(argv[ioptparam+1]);
+    painter->Draw();
+    delete painter;
+    
+  }
+
   return 0;
 
 }
