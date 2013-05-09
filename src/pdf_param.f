@@ -21,7 +21,7 @@ C--------------------------------------------------------
       include 'couplings.inc'
       integer i
 
-      double precision fs
+      double precision fs,rs
       double precision fshermes
       double precision alphasPDF
 
@@ -29,8 +29,8 @@ C--------------------------------------------------------
 C-------------------------------------------------------
       logical LFirstTime
       data LFirstTime /.true./
-      integer idxAlphaS, idxFs,   !> indices for alphas and fs
-     $     idxFCharm
+      integer idxAlphaS, idxRS,   !> indices for alphas and fs
+     $     idxFCharm, idxFS
       integer GetParameterIndex  !> function to read parameter index
 C-------------------------------------------------------
       integer idxShiftPolLHp   !> indices shiftpol
@@ -63,13 +63,22 @@ C-------------------------------------------------------
          else
             idxAlphaS = iExtraParamMinuit(idxAlphaS)
          endif
+
          idxFS = GetParameterIndex('fs')
-         if (idxFS.eq.0) then
-            print *,'Did not find fs parameter'
-            print *,'Add to ExtraParamters with the name fs'
-            call HF_stop
+         idxRS = GetParameterIndex('rs')
+
+         if ((idxRS.eq.0).and.(idxFS.eq.0)) then
+            print *,'Did not find fs nor rs parameter'
+            print *,'Add to ExtraParamters with the name rs or fs'
+            Call HF_errlog(13050800,
+     $           'S: Add to ExtraParamters with the name rs or fs')
+         elseif ((idxRS.ne.0).and.(idxFS.ne.0)) then
+            print *,'Both rs and fs are defined, can cause mess' 
+            Call HF_errlog(13050801,
+     $           'S: Use either rs or fs, NOT both')
          else
             idxFS = iExtraParamMinuit(idxFS)
+            idxRS = iExtraParamMinuit(idxRS)
          endif
          
          idxFCharm = GetParameterIndex('fcharm')
@@ -170,8 +179,12 @@ C "Temperature"
 
 C Get from extra pars:
       alphas=p(idxAlphaS)      
-      fstrange=p(idxFS)
 
+      if (idxFS.ne.0) then
+         fstrange=p(idxFS)
+      elseif (idxRS.ne.0) then
+         fstrange=p(idxRS)/(p(idxRS)+1)
+      endif
 C In case PDF and alphas needs to be read from LHAPDF (iparam=0, ipdfset=5)
 C maybe instead warning message should be issued
       if( PDF_DECOMPOSITION.eq.'LHAPDF' ) then
