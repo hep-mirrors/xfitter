@@ -61,7 +61,7 @@ C-------------------------------------------------------
             print *,'Add to ExtraParamters with the name alphas'
             call HF_stop
          else
-            StepAlphaS=ExtraParamValue(idxAlphaS)
+            StepAlphaS=ExtraParamStep(idxAlphaS)
             idxAlphaS = iExtraParamMinuit(idxAlphaS)
          endif
 
@@ -189,7 +189,7 @@ C Get from extra pars:
 C In case PDF and alphas needs to be read from LHAPDF (iparam=0, ipdfset=5)
 C maybe instead warning message should be issued
       
-      if( PDF_DECOMPOSITION.eq.'LHAPDF' ) then
+      if( PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFQ0') then
          if (StepAlphaS.eq.0.) then
             alphas=alphasPDF(Mz)
             Call HF_errlog(13051401,
