@@ -496,7 +496,7 @@ C-------------------------------------------------------------
      $ ' Reset to data for error scaling.')
       endif
 
-      mix = sqrt(d*t)
+      mix = sqrt(abs(d*t))
 
 
       stat       = e_stat_poisson(idx)*mix
