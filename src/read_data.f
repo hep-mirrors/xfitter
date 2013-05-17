@@ -100,7 +100,8 @@ C-----------------------------------------
 
       do i=1,npoints
          ALPHA(i) = ALPHA(i) / 100.
-         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
+C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+C         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
       enddo
 
 
@@ -735,7 +736,7 @@ c Find plot numbers
                call HF_Errlog(13012801,
      $              'W:Plotting: Can not find one of the columns')
             endif
-            
+
             if(PlotDefColIdx.ne.0) then
                tempD = AbstractBins(PlotDefColIdx,npoints)
                do while ((PlotDefValue(i+1).lt.tempD).AND.(i.lt.PlotN))
