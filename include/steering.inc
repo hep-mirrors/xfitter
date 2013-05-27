@@ -90,7 +90,7 @@ C
       logical DORWONLY
       logical FlexibleGluon    !> Flexible gluon parameterisation
       logical Read_QCDNUM_Tables
-      logical LHAPDFErrors     
+      logical LHAPDFErrors, Scale68     !> For LHAPDF PDFtype, loop over eighensets
       integer nLHAPDF_Sets 
 
       character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
@@ -114,7 +114,7 @@ C
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
-     $     CorChi2Type, hf_scheme
+     $     CorChi2Type, hf_scheme,  scale68
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale

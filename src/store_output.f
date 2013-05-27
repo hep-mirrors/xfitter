@@ -337,14 +337,26 @@ cv         write(34,*), index,i,DATASETNUMBER(i)
       RETURN
       END
 
+      subroutine my_system(Command)
+C
+C Hack to resolve "system" name conflict
+C
+      character *(*) command
+      call system(Command)
+      end
+
       subroutine get_lhapdferrors
 C---------------------------------
       implicit none
 C
+      include 'ntot.inc'
       include 'couplings.inc'
       include 'steering.inc'
       include 'alphas.inc'
       include 'fcn.inc'
+      include 'theo.inc'
+      include 'indata.inc'
+      include 'systematics.inc'
 
       integer iset
       integer nsets
@@ -354,32 +366,61 @@ C Function:
       double precision alphasPDF 
       character*4 c
 
+C Store central, plus/minus theory predictions:
+      double precision theo_cent(NTOT), 
+     $     theo_minus(NTOT), theo_plus(NTOT)
+      integer nsysLoc
+
 C Some hack to store PDFs
       character*48 name
       character*48 base
-      integer i,idx
-      character tag(40)*3
-      data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
-     +     's06','s07','s08','s09','s10',
-     +     's11','s12','s13','s14','s15',
-     +     's16','s17','s18','s19','s20',
-     +     's21','s22','s23','s24','s25',
-     +     's26','s27','s28','s29','s30',
-     +     's31','s32','s33','s34','s35',
-     +     's36','s37','s38','s39','s40'/
+      integer i,idx,j
+      character*3 tag
+
 
 C-----------------------------------------------------------
       nsets = nLHAPDF_Sets+1
 C      nsets = 45
+      nsysLoc = nsys
       print *,'Nsets=',nsets
       
       do iset=0,nLHAPDF_Sets 
          call InitPDF(iset)
          alphas = alphasPDF(Mz)
          if (iset.eq.0) then
-            chi2tot = chi2data_theory(1)        
+            ! Initialise:
+            chi2tot = chi2data_theory(1)      
+C Store theory prediction:
+            do i=1,Npoints
+               THEO_CENT(i) = THEO(i)
+            enddo
          else
             chi2tot = chi2data_theory(min(2,iset))
+C Store theory predictions for  up/down variations:
+            if ( mod(iset,2).eq.0) then
+               do i=1,Npoints
+                  THEO_PLUS(i) = THEO(i)
+               enddo
+            else
+               do i=1,Npoints
+                  THEO_MINUS(i) = THEO(i)
+               enddo
+            endif
+
+C Also add "systematics" for these sources:
+            if ( mod(iset,2).eq.0) then
+               nsysLoc = nsysLoc + 1
+               do i=1,Npoints
+                  Beta(nsysLoc,i) = 
+     $                 (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
+     $                 / THEO_CENT(i)
+
+                  if (Scale68) then
+                     Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
+                  endif
+               enddo
+            endif
+
          endif
          print '(''Got PDF set='',i5,'' chi2='',F10.1,'' ndf='',i5)',
      $        iset,chi2tot,ndfmini
@@ -391,10 +432,9 @@ C      nsets = 45
             write (c,'(''00'',I2)') iset
          endif
 
-         print *,c
 
-         call WRITEFITTEDPOINTS
-         call system
+         call WriteFittedPoints
+         call my_system
      $ ('mv '//TRIM(OutDirName)//'/fittedresults.txt '
      & //TRIM(OutDirName)//'/fittedresults.txt_set'//c)
 
@@ -402,7 +442,14 @@ C      nsets = 45
             name = TRIM(OutDirName)//'/pdfs_q2val_'
          else
             i = (iset-1) / 2 + 1
-            base = TRIM(OutDirName)//'/pdfs_q2val_'//tag(i)
+
+            if (i.lt.10) then
+               write (tag,'(''s0'',i1)') i
+            elseif (i.lt.100) then
+               write (tag,'(''s'',i2)') i
+            endif
+
+            base = TRIM(OutDirName)//'/pdfs_q2val_'//tag
             idx = index(base,' ')-1
             if ( mod(iset,2).eq.1) then
                name = base(1:idx)//'m_'
@@ -413,6 +460,32 @@ C      nsets = 45
          call store_pdfs(name)
 
       enddo
+
+C Write some chi2 tests, vs central prediction or floating eighenvectors:
+      Call initpdf(0)
+
+      open (85,file=TRIM(OutDirName)//'/Results_00.txt'
+     $     ,status='unknown')
+      chi2tot = chi2data_theory(3)        
+      close (85)
+
+      do i=Nsys+1,NSysLoc
+         n_syst_meas(i) = Npoints
+         do j=1,Npoints
+            syst_meas_idx(j,i) = j
+         enddo
+         SysScalingType(i) = isLinear ! scale theory
+      enddo
+      NSys = Nsysloc
+      ResetCommonSyst = .true.
+      
+      print *,nsys
+      open (85,file=TRIM(OutDirName)//'/Results_fitPDF.txt'
+     $     ,status='unknown')
+      chi2tot = chi2data_theory(3)        
+      close (85)
+
+
 
       end
 

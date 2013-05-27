@@ -465,7 +465,7 @@ C----------------------------------------
       include 'reweighting.inc'
 C------------------------------------
 C (Optional) LHAPDF steering card
-      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFErrors
+      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFErrors,Scale68
 
 C (Optional) reweighting steering card
       namelist/reweighting/FLAGRW,RWPDFSET,RWDATA
@@ -483,6 +483,7 @@ C Reweighting defaults
 
 C
       LHAPDFErrors = .false.
+      Scale68 = .false.
 C
 C  Read the lhapdf namelist:
 C

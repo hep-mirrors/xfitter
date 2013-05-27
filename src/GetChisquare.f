@@ -660,8 +660,9 @@ C-
 C--------------------------------------------------------
 
 C Determine pairs of syst. uncertainties which share  data
-      if (LFirst) then
+      if (LFirst .or. ResetCommonSyst) then
          LFirst = .false.
+         ResetCommonSyst = .false. 
          do l=1,nsys
             do k=l,nsys
                Call Sys_Data_List12(l,k,n_com_list,com_list)
@@ -740,7 +741,7 @@ C Now A:
 
             do k=l,NSys
 C
-               if ( (sysform(k) .eq. isNuisance )  .and. 
+               if ( (sysform(k) .eq. isNuisance ) .and.
      $              HaveCommonData(k,l) ) then
 
                   do i1 = 1,n_syst_meas(k)

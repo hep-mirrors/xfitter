@@ -49,3 +49,6 @@ C !> Add also original systematic errors for asymmetric uncertainties
       logical LAsymSyst(NSYSMAX) !> asymmetric uncertainty
       Common/SystAsym/BetaAsym,LAsymSyst
 
+C !> Special flag to force recalculations
+      logical ResetCommonSyst
+      common/SystematicsFlags/ ResetCommonSyst
