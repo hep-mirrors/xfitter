@@ -422,8 +422,15 @@ C Also add "systematics" for these sources:
      $                 (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
      $                 / THEO_CENT(i)
 
+                  BetaAsym(nsysLoc,1,i) =  (THEO_MINUS(i)-THEO_CENT(i))
+     $                 /THEO_CENT(i)
+                  BetaAsym(nsysLoc,2,i) =  (THEO_PLUS (i)-THEO_CENT(i))
+     $                 /THEO_CENT(i)
+
                   if (Scale68) then
                      Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
+                     BetaAsym(nsysLoc,1,i) = BetaAsym(nsysLoc,1,i)/1.64
+                     BetaAsym(nsysLoc,2,i) = BetaAsym(nsysLoc,2,i)/1.64
                   endif
                enddo
             endif
@@ -467,6 +474,9 @@ C Also add "systematics" for these sources:
          call store_pdfs(name)
 
       enddo
+
+C Write out "theory files" with uncertainties  
+      Call WriteTheoryFiles(NSysLoc-NSys, THEO_CENT)
 
 C Write some chi2 tests, vs central prediction or floating eighenvectors:
       Call initpdf(0)
@@ -647,7 +657,8 @@ C      write(90,*)ndatasets
 
 
         write(90,*) '!* '
-        write(90,*) '!* Swimming set from HERAFITTER for the HERAverager'
+        write(90,*) 
+     $  '!* Swimming set from HERAFITTER for the HERAverager'
         write(90,*) '&Data'
         write(90,*) '  Name = ''Swimming'' '
         write(90,*) '  NData = ',NPOINTS
@@ -678,3 +689,69 @@ C      write(90,*)ndatasets
 
 C      RETURN
       end subroutine
+
+
+      Subroutine WriteTheoryFiles(NNuisance,Theo_cent)
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'systematics.inc'
+      include 'datasets.inc'
+      include 'indata.inc'
+
+      integer NNuisance
+      double precision Theo_cent(Ntot)
+      integer iset, ipoint, j, i
+      
+      character*2 c
+
+C---------------------------------------------------------
+
+      !> Loop over data sets
+
+      do iset=1, NDataSets
+         if (iset.lt.10) then
+            write (c,'(''0'',I1)') iset
+         else
+            write (c,'(I2)') iset
+         endif
+         open (51
+     $        ,file=Trim(OutDirName)//'/theo_'//c//'.dat'
+     $        ,status='unknown')
+
+         !> Write  a header 
+         write (51,'(''* Theory file for '',A)') 
+     $        Trim(DATASETLABEL(iset))
+
+         write (51,'(''&Data '')')
+         write (51,'(''   Name = "Theory for '',A,''"'')')
+     $        Trim(DATASETLABEL(iset))
+         write (51,'(''   NData = '',I5)') NDATAPOINTS(iset)
+         write (51,'(''   NColumn = '',I5)') NNuisance*2+1 
+     $        + DATASETBinningDimension(iset)
+         write (51,
+     $'(''   ColumnType = '',I1,''*"Bin","Theory",'',i3,''*"Error"'')')
+     $       DATASETBinningDimension(iset), NNuisance*2
+         write (51,'(''   ColumnName = '',200(''"'',A,''",''))' )
+     $        ( trim(DATASETBinNames(i,iset)),
+     $        i=1,DATASETBinningDimension(iset) ), 'theory',
+     $        ( trim(System(nsys+i))//'-', 
+     $        trim(System(nsys+i))//'+',i=1,NNuisance)
+         write (51,'(''   Percent = '',I3,''*True'')') NNuisance*2 
+         write (51,'(''&End '')')
+
+         do i = 1, NDATAPOINTS(iset)
+            ipoint = Datasetidx(iset,i)
+            write (51,'(200E12.4)') 
+     $  ( AbstractBins(j,ipoint),j=1,DATASETBinningDimension(iset)),
+     $           theo_cent(ipoint),
+     $  ( BetaAsym(j,1,ipoint)*100.0, BetaAsym(j,2,ipoint)*100., 
+     $           j=NSys+1
+     $           ,NSys+NNuisance) 
+         enddo
+         close (51)
+      enddo
+
+C---------------------------------------------------------
+
+      end
