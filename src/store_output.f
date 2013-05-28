@@ -410,6 +410,13 @@ C Store theory predictions for  up/down variations:
 C Also add "systematics" for these sources:
             if ( mod(iset,2).eq.0) then
                nsysLoc = nsysLoc + 1
+               if ( nsysLoc - nsys .ge. 10 ) then
+                  write (tag,'(''_'',i2)')  nsysLoc - nsys
+               else
+                  write (tag,'(''_0'',i1)')  nsysLoc - nsys
+               endif
+
+               SYSTEM(nsysLoc) = 'PDF_nuisance_param'//tag
                do i=1,Npoints
                   Beta(nsysLoc,i) = 
      $                 (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
