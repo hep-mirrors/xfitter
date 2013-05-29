@@ -162,6 +162,7 @@ c updf stuff
       Integer idx
 
       character*2 TypeC, FormC
+      character*64 Msg
       
 
 C--------------------------------------------------------------
@@ -313,7 +314,13 @@ c             call fillvfngrid
 *     Calculate theory for datasets:
 *     ---------------------------------------------------------  	 
       do idataset=1,NDATASETS
-         call GetTheoryForDataset(idataset)
+         if(NDATAPOINTS(idataset).gt.0) then
+            call GetTheoryForDataset(idataset)
+         else 
+             write (Msg,
+     $  '(''W: Data set '',i2,'' contains no data points, will be ignored'')') idataset
+           call hf_errlog(29052013,Msg)
+         endif
       enddo
 
       if (Debug) then
