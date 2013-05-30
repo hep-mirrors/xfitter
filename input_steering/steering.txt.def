@@ -282,13 +282,13 @@
 
 *
 * (Optional) choose the factorisation scale for HQs
-* tuned via parameters:    Q^2 = aq2*mu_f^2 + bq2(*m_h)
-* in FFNS usually set to:  mu_f^2 = Q^2 + 4*m_h^2
+* tuned via parameters:    mu_f^2 = scalea1 * ( Q^2 + scaleb1 * 4*m_h^2)
+* Available for 'FF', 'FF ABM', 'ACOT Full', 'ZMVFNS' and 'ACOT Chi' options
 *
 &HQScale
-   aq2    =  1. 
-   bq2    = -4.  
-   MassHQ = 'mc' ! (available: mc, mb)
+   scalea1    =  1. 
+   scaleb1    =  0.  
+   MassHQ = 'mc' ! (available: mc, mb), relevant for 'FF', 'ZMVFNS', 'ACOT Full' and  'ACOT chi'
 &End
 
 *

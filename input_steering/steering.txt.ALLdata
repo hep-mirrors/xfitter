@@ -278,6 +278,7 @@
    
 &End
 
+
 *
 * (Optional) MC errors steering cards
 *
@@ -334,6 +335,17 @@
   NPolyVal = 0 
   IZPOPOLY = 1  ! ( times (1-x) for 0 and (1-x)^2 for 1) 
   IPOLYSQR = 0  ! ( ensure positivity of PDFs by squaring them )
+&End
+
+*
+* (Optional) choose the factorisation scale for HQs
+* tuned via parameters:    mu_f^2 = scalea1 * ( Q^2 + scaleb1 * 4*m_h^2)
+* Available for 'FF', 'FF ABM', 'ACOT Full', 'ZMVFNS' and 'ACOT Chi' options
+*
+&HQScale
+   scalea1    =  1. 
+   scaleb1    =  0.  
+   MassHQ = 'mc' ! (available: mc, mb), relevant for 'FF', 'ZMVFNS', 'ACOT Full' and  'ACOT chi'
 &End
 
 *

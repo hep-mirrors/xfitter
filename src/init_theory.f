@@ -403,9 +403,9 @@ C-------------------------------------------------------------
          call zmreadw(22,'zmstf.wgt',nwords,ierr)
       endif
       if(MASSH.eq.1) then
-      hqscale2inmass=-4*scaleb1/scalea1*mch*mch
+      hqscale2inmass=bq2*mch*mch
       elseif(MASSH.eq.2) then
-      hqscale2inmass=-4*scaleb1/scalea1*mbt*mbt
+      hqscale2inmass=bq2*mbt*mbt
       endif
       if(MASSH.eq.1) then
       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'   
@@ -415,8 +415,10 @@ C-------------------------------------------------------------
 c    
       if(ierr.ne.0) then
          call zmfillw(nwords)
+      if ( mod(HFSCHEME,10).eq.0) then
          call ZMDEFQ2(aq2,hqscale2inmass) ! muf scale variation     
-         call zmdumpw(22,'zmstf.wgt')
+      endif 
+        call zmdumpw(22,'zmstf.wgt')
       else 
          print*,'Read zmstf weight file'
       endif      
@@ -451,14 +453,13 @@ C-------------------------------------------------------------
       hqmass(2) = HF_MASS(2)
       hqmass(3) = HF_MASS(3)
 
-C--- scalea1=1.0 and scaleb1=0 sets the heavy quarks factorisation scale
-C--- Q^2 = scalea1*mu_f + scaleb1  
+C--- scalea1 and scaleb1 sets the heavy quarks factorisation scale
 
       if(MASSH.eq.1) then
-         scaleb1  = scaleb1 * hqmass(1)**2
+         bq2  = bq2 * hqmass(1)**2
       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'   
       elseif(MASSH.eq.2) then
-         scaleb1  = scaleb1 * hqmass(2)**2
+         bq2  = bq2 * hqmass(2)**2
       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'   
       endif
 c         print*,'1 HQ scale (Q^2=a*mu_F^2 + b) a,b,mh', aq2,bq2,massh 
