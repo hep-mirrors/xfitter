@@ -10,6 +10,8 @@ C Namelist for statistical correlation declarations
       integer NCorrFiles                    !> Number of correlation files
       character*80 CorrFileNames(NSET**2)   !> Names of correlation files
 
+      logical UseFixedTheory(NSET)          !> Used fixed theory predictions
+
 C General dataset info
       integer 
      $      NDATASETS                 !> Number of datasets 
@@ -82,3 +84,4 @@ C
      $     ,GPlotVarCol
      $     ,GNPlots
      $     ,GPlotOptions
+     $     ,UseFixedTheory

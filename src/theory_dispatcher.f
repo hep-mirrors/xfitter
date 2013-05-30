@@ -11,7 +11,10 @@ C---------------------------------------------------------------
       include 'datasets.inc'
       integer IDataSet,kflag
 C-------------------------------------------------------------------
-      if (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
+
+      if ( UseFixedTheory(IDataSet)) then
+         Call UseFixedTheoryXsection(IDataSet) 
+      elseif (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
          if(Itheory.lt.100) then
             Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
          else
@@ -150,4 +153,19 @@ C Drell-Yan:
       endif
 
 
+      end
+
+      !> Copy theo_fix to theory for a dataset
+      Subroutine UseFixedTheoryXsection(ISet)
+      implicit none
+      include 'ntot.inc'
+      include 'datasets.inc'
+      include 'theo.inc'
+      integer i,idx,ISet
+C-------------------------------------------------------
+      do i=1,NDATAPOINTS(Iset)
+         idx = DatasetIdx(Iset,i)
+         theo(idx) = theo_fix(idx)
+      enddo
+C-------------------------------------------------------
       end

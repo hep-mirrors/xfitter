@@ -71,6 +71,10 @@ C      NSYS = 0
       enddo
 
 
+      do j=1,nset
+         UseFixedTheory(j) = .false.
+      enddo
+
       do i=1,nset
          NDATAPOINTS(i) = 0
       enddo
@@ -86,6 +90,9 @@ C      NSYS = 0
       do i=1,NInputFiles
          call ReadDataFile(InputFileNames(i))
       enddo
+
+      !> Check and read fixed theory predictions (if present)
+      call read_theoryfilesNML 
 
 C-----------------------------------------
       print*,'number of points', npoints
@@ -627,8 +634,10 @@ C XXXXXXXXXXXXXXXXXXXXXXXXX
 
 C Reset:
          do i=1,NUncert
-            NAsymPlus(i)     =  0
-            NAsymMinus(i)     =  0
+            if ( CompressIdx(i).gt.0 ) then
+               NAsymPlus(CompressIdx(i))     =  0
+               NAsymMinus(CompressIdx(i))    =  0
+            endif
          enddo
 
          do i=1,NUncert
@@ -641,12 +650,6 @@ C Reset:
 
                BETA(CompressIdx(i),npoints) = syst(i)
      $              *SysScaleFactor(CompressIdx(i))
-
-C--- Add data point to the syst. list (this will help to speedup loops):
-               n_syst_meas(CompressIdx(i)) = n_syst_meas(CompressIdx(i))
-     $              + 1
-               syst_meas_idx(n_syst_meas(CompressIdx(i)),CompressIdx(i)) 
-     $              = npoints
 
                
 C     Store also asymmetric errors:
@@ -702,13 +705,28 @@ C !> Store:
 
 C !> Symmetrise:
                if (NAsymPlus(CompressIdx(i)).eq.1
-     $              .and. NAsymPlus(CompressIdx(i)).eq.1 ) then
+     $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
                   
                   BETA(CompressIdx(i),npoints) = 
      $                 0.5*( BetaAsym(CompressIdx(i),1,npoints)-
      $                        BetaAsym(CompressIdx(i),2,npoints))
 
                   LAsymSyst(CompressIdx(i)) = .true.
+               endif
+
+               if ( (NAsymPlus(CompressIdx(i)).eq.1
+     $              .and. NAsymMinus(CompressIdx(i)).eq.1)
+     $              .or. 
+     $              ( NAsymPlus(CompressIdx(i)).eq.0
+     $              .and.  NAsymMinus(CompressIdx(i)).eq.0)
+     $              ) then
+                
+C--- Add data point to the syst. list (this will help to speedup loops):
+                  n_syst_meas(CompressIdx(i)) = n_syst_meas(CompressIdx(i))
+     $                 + 1
+                  syst_meas_idx(n_syst_meas(CompressIdx(i)),CompressIdx(i)) 
+     $                 = npoints
+
                endif
 
             endif
@@ -911,3 +929,294 @@ c      print *,idx,e_stat_poisson(idx),e_uncor_mult(idx)
 
 C---------------------------------------------------------
       end
+
+
+!> Created 29/05/13. Check if fixed theory predictions are requested for datasets
+      subroutine read_theoryfilesNML
+C
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'datasets.inc'
+      character*256 InputTheoNames(NSET)
+      Namelist/InTheory/InputTheoNames
+      integer i
+C-----------------------------------------------------------------
+      do i=1,NInputFiles
+         InputTheoNames(i) = ''
+      enddo      
+
+      open (51,file='steering.txt',status='old')
+      read (51,NML=InTheory,END=141,ERR=42)
+      
+      do i=1,NInputFiles
+         if ( InputTheoNames(i) .ne. '') then
+            call hf_errlog(13052901,'I:Use fixed theory predictions') 
+            Call read_theory_file(InputTheoNames(i),i)
+         endif
+      enddo
+
+      close (51)
+ 141  continue
+      return
+ 42   call hf_errlog(1,'F:Error reading InTheory namelist')
+C-----------------------------------------------------------------
+      end
+
+      !> Read fixed theory file, associate with dataset idxDataSet
+      Subroutine read_theory_file(FileName,IdxDataSet)
+      implicit none
+      character *(*) FileName
+      integer IdxDataSet
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'datasets.inc'
+      include 'indata.inc'
+      include 'systematics.inc'
+      include 'theo.inc'
+C
+      integer nsystMax,ncolumnMax
+      parameter (nsystMax=500)
+      parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
+      
+      character*80 Name
+      integer NData,NColumn
+      character *64 ColumnName(ncolumnMax)
+      character *32 ColumnType(ncolumnMax)
+      character *32 SystematicType(nsystMax)
+      logical Percent(1:nsystMax)
+
+      integer i,j,idx
+      integer ilen
+      integer ipoint
+      logical isPlus, isMinus
+      integer NBinDimension, idxSigma, NUncert
+      character*4096 CTmp
+      double precision buffer(ncolumnMax)
+      double precision syst(nsystmax)
+
+      integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)
+      integer iError
+
+C Reference table
+      integer CompressIdx(nsystMax)
+
+      namelist/Data/Name, NData, NColumn, ColumnType, ColumnName, Percent
+C Function:
+      integer SystematicsExist
+C---------------------------------------------------------------------
+      NBinDimension = 0
+      idxSigma = 0 
+      NUncert = 0
+      NData = 0
+
+      UseFixedTheory(idxdataset) = .True.
+
+      open (52,file=FileName,err=101)
+      read (52,nml=Data,err=102,end=103)
+C Basic consistency check:
+      if (NData.ne.NDATAPOINTS(IdxDataSet)) then
+         print *,ndata,NDATAPOINTS(IdxDataSet),IdxDataSet
+         call hf_errlog(4,
+     $        'F:Mismatch for number of points in theory file '
+     $        //trim(FileName))
+      endif
+
+       do i=1,NColumn
+         if (ColumnType(i).eq.'Bin') then
+            NBinDimension = NBinDimension + 1
+         elseif (ColumnType(i).eq.'Theory') then
+            idxSigma = i
+         elseif (ColumnType(i).eq.'Error') then
+            NUncert = NUncert + 1
+            SystematicType(NUncert) = ColumnName(i)
+         else
+            call hf_errlog(5,'F:Unknown column type in file '
+     $           //trim(FileName))
+         endif   
+      enddo  
+
+C Some more basic checks:
+      if (DATASETBinningDimension(IdxDataSet).ne. NBinDimension) then
+         call hf_errlog(6,'F:Binning dimension does not match in file '
+     $        //trim(filename))
+      endif
+      
+      if (idxSigma.eq.0) then
+         call hf_errlog(7,'F:Did not find theory column in file '
+     $        //trim(filename))  
+      endif
+
+
+C Prepare theory systematics:
+      do i=1,NUncert
+         if (SystematicType(i).eq.'stat') then
+            call hf_errlog(13052902,
+     $  'I:Theory prediction includes stat. uncertainty')
+         else
+C--- Check if the source already exists:         
+            j = SystematicsExist(SystematicType(i))
+C Not found:
+            if (j.eq.0)  then
+C--- Add new source
+               Call AddSystematics(SystematicType(i))
+               CompressIdx(i) = NSYS
+            else
+               CompressIdx(i) = j
+            endif
+         endif
+      enddo
+
+C Read the predictions:
+      ipoint = 0
+      do j=1,NDATA
+ 89      read (52,'(A)',err=1017,end=1018) ctmp
+         if (ctmp(1:1).eq.'*') then
+C     Comment line, read another one
+            goto 89
+         endif
+
+C Read the colums
+         ipoint = ipoint + 1
+
+         read (ctmp,*,err=1019)(buffer(i),i=1,NColumn)
+
+         iError = 0
+         do i=1,NColumn
+            if (ColumnType(i).eq.'Error') then
+               iError = iError + 1
+               syst(iError) = buffer(i)    
+               if (.not. Percent(iError)) then
+                  syst(iError) = syst(iError)/buffer(idxSigma)*100.
+               endif
+            endif
+         enddo
+
+
+C Reset:
+         do i=1,NUncert
+            if ( CompressIdx(i).gt.0 ) then
+               NAsymPlus(CompressIdx(i))     =  0
+               NAsymMinus(CompressIdx(i))     =  0
+            endif
+         enddo
+
+C Store:
+         idx = DATASETIDX(idxdataset,ipoint)
+
+         theo_fix(idx)  = buffer(idxSigma)
+
+         do i=1,NUncert
+            if (SystematicType(i).ne.'uncor' .and. 
+     $           SystematicType(i).ne.'ignore'.and.
+     $           SystematicType(i).ne.'stat'.and.
+     $           SystematicType(i).ne.'stat const'
+     $           ) then
+
+
+
+               BETA(CompressIdx(i),idx) = syst(i)
+               
+C     Store also asymmetric errors:
+               iLen   = Len_trim( SystematicType(i))
+               isPlus  = SystematicType(i)(iLen:iLen).eq.'+'
+               isMinus = SystematicType(i)(iLen:iLen).eq.'-'
+
+               if (isPlus) then
+                  NAsymPlus(CompressIdx(i)) = NAsymPlus(CompressIdx(i)) 
+     $                 + 1
+
+C !> Too many pluses and minuses !
+                  if (NAsymPlus(CompressIdx(i)).gt.1) then
+                     print *,' '
+                     print *,'===== ERROR ERROR ERROR ===='
+                     print *,' ' 
+                     print *,'Problem with systematic source ',
+     $                    SystematicType(i)
+                     print *,
+     $ 'Positive variations defined more than once'
+                     print *,'Check the data file, stopping'
+                     call hf_errlog(17112012,
+     $                    'F: Problem with asymmetric errors')
+                     call hf_stop
+                  endif
+C Store:
+                  BetaAsym(CompressIdx(i),1,idx) = syst(i)
+     $                 *SysScaleFactor(CompressIdx(i))                
+               endif
+
+               if (isMinus) then
+                  NAsymMinus(CompressIdx(i)) = NAsymMinus(CompressIdx(i)) 
+     $                 + 1
+
+C !> Too many pluses and minuses !
+                  if (NAsymMinus(CompressIdx(i)).gt.1) then
+                     print *,' '
+                     print *,'===== ERROR ERROR ERROR ===='
+                     print *,' ' 
+                     print *,'Problem with systematic source ',
+     $                    SystematicType(i)
+                     print *,
+     $ 'Negative variations defined more than once'
+                     print *,'Check the data file, stopping'
+                     call hf_errlog(17112012,
+     $                    'F: Problem with asymmetric errors')
+                     call hf_stop
+                  endif
+C !> Store:
+                  BetaAsym(CompressIdx(i),2,idx) = syst(i)
+     $                 *SysScaleFactor(CompressIdx(i))                
+               endif
+
+C !> Symmetrise:
+               if (NAsymPlus(CompressIdx(i)).eq.1
+     $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
+                  
+                  BETA(CompressIdx(i),idx) = 
+     $                 0.5*( BetaAsym(CompressIdx(i),1,idx)-
+     $                        BetaAsym(CompressIdx(i),2,idx))
+
+                  LAsymSyst(CompressIdx(i)) = .true.
+               endif
+
+
+               if ( (NAsymPlus(CompressIdx(i)).eq.1
+     $              .and. NAsymMinus(CompressIdx(i)).eq.1)
+     $              .or. 
+     $              ( NAsymPlus(CompressIdx(i)).eq.0
+     $              .and.  NAsymMinus(CompressIdx(i)).eq.0)
+     $              ) then
+                
+C--- Add data point to the syst. list (this will help to speedup loops):
+                  n_syst_meas(CompressIdx(i)) = n_syst_meas(CompressIdx(i))
+     $                 + 1
+                  syst_meas_idx(n_syst_meas(CompressIdx(i)),CompressIdx(i)) 
+     $                 = idx
+
+               endif
+            endif
+         enddo
+
+
+      enddo
+
+
+      close (52)
+
+      return
+ 101  Call HF_ErrLog(1,'F:Can not open file '//Trim(FileName))
+ 102  Call HF_ErrLog(2,'F:Error reading data namelist from the file '
+     $     //Trim(FileName))
+ 103  Call HF_ErrLog(3,'F:Namelist data not fond in the file '
+     $     //Trim(FileName))
+ 1017 Call HF_ErrLog(8,'F:Can not read theory file content '
+     $     //trim(FileName))
+ 1018 Call HF_ErrLog(9,
+     $     'F:End of theory file while expecting more lines '
+     $     //trim(FileName))
+ 1019 Call HF_ErrLog(10,'F:Problems interpreting content of file '
+     $     //trim(FileName))
+C---------------------------------------------------------------------
+      end
+
+

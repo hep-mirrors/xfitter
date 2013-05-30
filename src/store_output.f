@@ -422,9 +422,9 @@ C Also add "systematics" for these sources:
      $                 (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
      $                 / THEO_CENT(i)
 
-                  BetaAsym(nsysLoc,1,i) =  (THEO_MINUS(i)-THEO_CENT(i))
+                  BetaAsym(nsysLoc,2,i) =  (THEO_MINUS(i)-THEO_CENT(i))
      $                 /THEO_CENT(i)
-                  BetaAsym(nsysLoc,2,i) =  (THEO_PLUS (i)-THEO_CENT(i))
+                  BetaAsym(nsysLoc,1,i) =  (THEO_PLUS (i)-THEO_CENT(i))
      $                 /THEO_CENT(i)
 
                   if (Scale68) then
@@ -732,11 +732,16 @@ C---------------------------------------------------------
          write (51,
      $'(''   ColumnType = '',I1,''*"Bin","Theory",'',i3,''*"Error"'')')
      $       DATASETBinningDimension(iset), NNuisance*2
-         write (51,'(''   ColumnName = '',200(''"'',A,''",''))' )
+         write (51,'(''   ColumnName = '',200(''"'',A,''",''))'
+     $        ,advance='no' )
      $        ( trim(DATASETBinNames(i,iset)),
      $        i=1,DATASETBinningDimension(iset) ), 'theory',
      $        ( trim(System(nsys+i))//'-', 
-     $        trim(System(nsys+i))//'+',i=1,NNuisance)
+     $        trim(System(nsys+i))//'+',i=1,NNuisance-1)
+         write (51,'(A,''",'',''"'',A,''"'')')       
+     $        ( trim(System(nsys+i))//'-', 
+     $        trim(System(nsys+i))//'+',i=NNuisance,NNuisance)
+
          write (51,'(''   Percent = '',I3,''*True'')') NNuisance*2 
          write (51,'(''&End '')')
 
