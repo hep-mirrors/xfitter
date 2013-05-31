@@ -236,7 +236,9 @@ C Main steering parameters namelist
      $     LDebug, ifsttype,  LFastAPPLGRID,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
-     $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam
+     $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
+     $     AsymErrorsIterations
+
 C--------------------------------------------------------------
 
 C Some defaults
@@ -247,7 +249,7 @@ C Some defaults
       do i=1, 8
          Chi2ExtraParam(i) = 'undefined'
       enddo
-
+      AsymErrorsIterations = 0
 C
 C  Read the main HERAFitter namelist:
 C

@@ -96,6 +96,7 @@ C
       character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
       logical Chi2PoissonCorr, Chi2FirstIterationRescale, Chi2ExtraSystRescale
 
+      integer AsymErrorsIterations !> Number of iterations for asymmetric errors. 0 -- off 
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
@@ -114,7 +115,7 @@ C
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
-     $     CorChi2Type, hf_scheme,  scale68
+     $     CorChi2Type, hf_scheme,  scale68, AsymErrorsIterations
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale

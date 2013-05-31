@@ -97,11 +97,18 @@ C      NSYS = 0
 C-----------------------------------------
       print*,'number of points', npoints
 
-      do i=1,nsysMax
+      do i=1,nsys
          do k=1,npoints
             beta(i,k) = beta(i,k) / 100.
             betaasym(i,1,k) = betaasym(i,1,k) / 100.
             betaasym(i,2,k) = betaasym(i,2,k) / 100.
+C Get omega (quadratic term coefficient):
+            omega(i,k) = (betaasym(i,1,k) + betaasym(i,2,k))/2.0
+            if (beta(i,k).ne.0 .and. debug) then
+               print '(3E14.4,'' omega, gamma:'')'
+     $              ,omega(i,k)*100,beta(i,k)*100, 
+     $              omega(i,k)/beta(i,k)
+            endif
          enddo
       enddo
 

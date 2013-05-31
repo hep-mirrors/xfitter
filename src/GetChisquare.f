@@ -18,10 +18,13 @@
       double precision pchi2_in(nset), fcorchi2_in
 
       double precision chi2_log
-      integer i,j,jsys
+      integer i,j,jsys,k
 
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision ScaledGammaSav(NSysMax,Ntot) !> Scaled Gamma matrix, saved
 
+      double precision ScaledOmega(NSysMax,Ntot) !> Scaled Omega matrix
+      
       double precision ScaledErrors(Ntot)  !> uncorrelated uncertainties, diagonal
 
       double precision ScaledErrorMatrix(NCovarMax,NCovarMax) !> stat+uncor error matrix
@@ -35,7 +38,8 @@
       logical LFirst
       data LFirst /.true./
 
-      Logical doMatrix, doNuisance, doExternal
+      integer omegaIteration 
+      Logical doMatrix, doNuisance, doExternal, LStop
       
 C----------------------------------------------------------------------------
 
@@ -94,10 +98,19 @@ C !> Read external (minuit) systematic sources if present:
          call Chi2_calc_readExternal( rsys_in, ersys_in, flag_in )
       endif
 
-      if (.not. Chi2FirstIterationRescale) then
+      if (.not. Chi2FirstIterationRescale  .or. flag_in.eq.1) then
 C !> Calculated scaled syst. uncertainties:
-         call Chi2_calc_GetGamma(ScaledGamma)
+         call Chi2_calc_GetGamma(ScaledGamma, ScaledOmega)
          
+C !> Store rescaled gamma (important for asymmetric errors ):
+         do k=1,nsys
+            do i=1,n_syst_meas(k)
+               j =  syst_meas_idx(i,k)
+               ScaledGammaSav(k,j) = ScaledGamma(k,j)
+            enddo
+         enddo            
+
+
         ! print *,' --- ScaledGamma'
         ! do i=1,n0_in
           ! print *,(ScaledGamma(j,i),j=1,nsys)
@@ -115,6 +128,14 @@ C !> Rebuild syst. covariance matrix
           ! do i=1,6
             ! print *,(ScaledSystMatrix(j,i),j=1,6)
           ! enddo
+      else 
+C !> Restore saved gamma:
+         do k=1,nsys
+            do i=1,n_syst_meas(k)
+               j =  syst_meas_idx(i,k)
+               ScaledGamma(k,j) = ScaledGammaSav(k,j)
+            enddo
+         enddo
       endif
 
 
@@ -157,11 +178,27 @@ C !> same for diagonal part:
 
 
 C !> Next determine nuisance parameter shifts
-         Call Chi2_calc_syst_shifts(
-     $        ScaledErrors
-     $        ,ScaledTotMatrix
-     $        ,ScaledGamma
-     $        ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in)
+         omegaIteration = 1
+         do 
+            Call Chi2_calc_syst_shifts(
+     $           ScaledErrors
+     $           ,ScaledTotMatrix
+     $           ,ScaledGamma
+     $           ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in)
+
+C !> Asymmetric errors loop:
+            Call UseOmegaScale(ScaledGamma
+     $           ,ScaledGammaSav
+     $           ,ScaledOmega
+     $           ,rsys_in
+     $           ,omegaIteration,
+     $           LStop)         
+            if (LStop) Exit 
+            omegaIteration = omegaIteration + 1
+         enddo 
+
+
+C !> See if we want to use asymmetric errors
 
          Iterate = Iterate - 1
       enddo   ! while ( Iterate.ge.0 )
@@ -379,7 +416,7 @@ C-------------------------------------------------
 
       end
 
-      subroutine chi2_calc_GetGamma(ScaledGamma)
+      subroutine chi2_calc_GetGamma(ScaledGamma, ScaledOmega)
 C
 C Calculate re-scaled effect of systematic error sources
 C
@@ -389,6 +426,7 @@ C
       include 'systematics.inc'
 
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision ScaledOmega(NSysMax,Ntot) !> Scaled Omega matrix
 
       include 'indata.inc'
       include 'theo.inc'
@@ -419,6 +457,7 @@ C-----------------------------------------------------
 
             !> The scaled syst. errors:
             ScaledGamma(k,i) = beta(k,i)*scale
+            ScaledOmega(k,i) = omega(k,i)*scale
          enddo
       enddo
 C-----------------------------------------------------
@@ -1503,4 +1542,76 @@ cws     880           format(1x, i2, 2x, G12.6, 2x, G12.4, 2x, G12.6, 3(2x, G12.
       endif
 
       return
+      end
+
+      subroutine UseOmegaScale(ScaledGamma,ScaledGammaSav,ScaledOmega,
+     $     rsys_in,Iteration,LStop) 
+      implicit none
+      include 'ntot.inc'
+      include 'steering.inc'
+      include 'systematics.inc'
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision ScaledGammaSav(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision ScaledOmega(NSysMax,Ntot) !> Scaled Omega matrix
+      double precision  RSYS_in(NSYSMax)
+      double precision rsys_save(NSYSMax)
+      integer Iteration
+      logical LStop
+      integer i,j,k, iter 
+      double precision shift
+
+      integer iterMax
+      parameter (iterMax = 10)
+
+C----------------------------------------------------------
+      if ( AsymErrorsIterations.eq.0) then
+         LStop = .true.
+         Return
+      endif
+
+      if (Iteration.eq.1) then
+         do i=1,nsys
+            rsys_save(i) = 0.
+         enddo
+      endif
+
+C calculate shift in rsys:
+      shift = 0.
+      do i=1,nsys
+         shift = max(shift, abs(rsys_in(i)-rsys_save(i)))
+      enddo
+
+      do i=1,nsys
+         rsys_save(i) = rsys_in(i)
+      enddo
+
+C recalulate
+      do k=1,nsys
+         do i=1,n_syst_meas(k)
+            j =  syst_meas_idx(i,k)
+            ScaledGamma(k,j) = ScaledGammaSav(k,j) 
+     $           + ScaledOmega(k,j)*rsys_in(k)
+         enddo
+      enddo            
+      
+      if (LDebug) then
+         print *,'shift',iteration, shift,nsys
+      endif
+
+      LStop = .false.
+      if (iteration.ge. AsymErrorsIterations ) then
+
+C !> Check if max. shift is small:
+         if ( shift.gt. 0.05) then
+            print *,'ERROR: Large nuisance parameter shift =',shift
+            print *,'CONSIDER INCREASING AsymErrorsIterations to'
+     $           ,AsymErrorsIterations+5
+            call hf_errlog(13053001,
+     $ 'W:UseOmegaScale: Max shift exeeds 5%. Consider increasing'
+     $           //' AsymErrorsIterations')
+         endif
+
+         LStop = .true.
+      endif
+
       end

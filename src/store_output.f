@@ -419,13 +419,18 @@ C Also add "systematics" for these sources:
                SYSTEM(nsysLoc) = 'PDF_nuisance_param'//tag
                do i=1,Npoints
                   Beta(nsysLoc,i) = 
-     $                 (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
+     $                 -(THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
      $                 / THEO_CENT(i)
 
                   BetaAsym(nsysLoc,2,i) =  (THEO_MINUS(i)-THEO_CENT(i))
      $                 /THEO_CENT(i)
                   BetaAsym(nsysLoc,1,i) =  (THEO_PLUS (i)-THEO_CENT(i))
      $                 /THEO_CENT(i)
+
+                  omega(nsysLoc,i) = 
+     $                 (THEO_PLUS(i)+THEO_MINUS(i)-2*THEO_CENT(i))/2.0D0
+     $                 / THEO_CENT(i)
+                  
 
                   if (Scale68) then
                      Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64

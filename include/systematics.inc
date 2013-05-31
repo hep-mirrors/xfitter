@@ -11,6 +11,9 @@
       double precision ALPHA(NTOT)         !> Total uncorrelated errors
       double precision ALPHA_MOD(NTOT)         !> Total uncorrelated errors modified
       double precision sysa(nsysMAX,nsysMAX) !> Correlation matrix of systematics
+
+      double precision omega(NSYSMAX,NTOT)  !> Quadratic term for influence of syst. errors on measurements.
+
       common/systema/ALPHA,ALPHA_MOD,BETA,sysa,SYSTEM,NSys
 
       integer n_syst_meas(NSYSMAX)         ! !> Number of measurements syst. source affects
@@ -47,7 +50,7 @@
 C !> Add also original systematic errors for asymmetric uncertainties
       double precision BetaAsym(NSYSMAX,2,NTOT)
       logical LAsymSyst(NSYSMAX) !> asymmetric uncertainty
-      Common/SystAsym/BetaAsym,LAsymSyst
+      Common/SystAsym/BetaAsym,omega,LAsymSyst
 
 C !> Special flag to force recalculations
       logical ResetCommonSyst
