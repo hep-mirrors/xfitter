@@ -963,8 +963,8 @@ C-----------------------------------------------------------------
          endif
       enddo
 
-      close (51)
  141  continue
+      close (51)
       return
  42   call hf_errlog(1,'F:Error reading InTheory namelist')
 C-----------------------------------------------------------------
