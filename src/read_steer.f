@@ -493,6 +493,14 @@ C
       read (51,NML=lhapdf,ERR=67,end=68)
  68   continue
       close (51)
+
+      if (LHAPDFErrors) then
+         if(PDFStyle.ne.'LHAPDF'.or.PDFStyle.ne.'LHAPDFQ0') then
+            call HF_Errlog(03062013,
+     $ 'W: PDFstyle is not LHAPDF, setting PDFErrors to False')
+             LHAPDFErrors = .false.
+         endif
+      endif
 C
 C  Read the reweighting namelist:
 C 
