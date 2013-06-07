@@ -324,7 +324,7 @@ C
       integer NDiag, NCovar, List_Diag(NTOT), List_Covar(NTOT), 
      $     List_Covar_inv(NTOT), n0_in
       integer i,k,l
-      logical isCov, isCovStat
+      logical isCov
 C-----------------------------------------------------------------------
 
       NDiag  = 0
@@ -332,11 +332,10 @@ C-----------------------------------------------------------------------
       do i=1,n0_in
          List_Covar_Inv(i) = 0   !> Reset inverted list
          isCov = .false.
-         isCovStat = .false.
+
 C Check if already requested to be 
-         if ( is_stat_covariance(i) ) then
+         if ( is_covariance(i) ) then
             isCov = .true.
-            isCovStat = .true.
          else
 C Check systematic sources, if a matrix source point to point i
              do k=1,nsys
@@ -349,6 +348,7 @@ C Check systematic sources, if a matrix source point to point i
                 endif 
              enddo
          endif
+
 
          if (isCov) then
             NCovar = NCovar + 1
@@ -601,11 +601,13 @@ C-----------------------------------------------------------------------
 
       double precision ScaledErrors(NTot), ScaledErrorMatrix(NCovarMax
      $     ,NCovarMax)
+      double precision ScaledErrorsStat(NTot), ScaledErrorsSyst(NTot)
       double precision rsys_in(NSYS)
       integer n0_in, NCovar, List_Covar(NTot), iterate
 
       integer i,j,i1,j1
       double precision Stat, StatConst, Unc, Sum
+c       
       
       include 'indata.inc'
       double precision Offs
@@ -635,6 +637,8 @@ C Re-scale for systematic shifts:
             enddo
          endif
          ScaledErrors(i) = sqrt((Stat*Sum)**2+StatConst**2+Unc**2+Offs*daten(i)**2)
+         ScaledErrorsStat(i) = sqrt((Stat*Sum)**2+StatConst**2)
+         ScaledErrorsSyst(i) = sqrt(Unc**2+Offs*daten(i)**2)
       enddo
 
 C
@@ -644,15 +648,12 @@ C
          i = List_Covar(i1)
          do j1=i1,NCovar
             j = List_Covar(j1) 
-            if ( lcorr_stat(i) ) then
-C We have stat. correlation, use it:
-               ScaledErrorMatrix(i1,j1) =
-     $           ScaledErrors(i)
-     $           *ScaledErrors(j)*corr_stat(i,j)
-            else
-C Try to use covariance matrix:
-               ScaledErrorMatrix(i1,j1) = cov(i,j)
-            endif
+
+            ScaledErrorMatrix(i1,j1) = 
+     $          ScaledErrorsStat(i)*ScaledErrorsStat(j)*corr_stat(i,j) +
+     $          ScaledErrorsSyst(i)*ScaledErrorsSyst(j)*corr_syst(i,j) +
+     $          cov(i,j)
+
          enddo
       enddo
 C--------------------------------------------------------

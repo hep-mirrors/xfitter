@@ -41,8 +41,8 @@ C SG: index of theory bin, if needed
 
       common/CAbstractBins/AbstractBins,KFactors
 
-      logical is_stat_covariance(NTOT)  !> Use covaraince matrix if true
-      common/CStatCovar/is_stat_covariance
+      logical is_covariance(NTOT)  !> Use covaraince matrix if true
+      common/CStatCovar/is_covariance
 
 
 C !> Add overfitting test by "control" and "fit" sets.

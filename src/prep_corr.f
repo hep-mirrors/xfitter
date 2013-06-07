@@ -38,7 +38,7 @@ c      enddo
 
 
 
-      subroutine prep_corr_stat
+      subroutine prep_corr
 *     ------------------------------------------------
 *     Prepare statistical correlation matrix corr_stat
 *     and given covariance matrix cov
@@ -71,21 +71,27 @@ C     Temporary buffer to read the data (allows for comments starting with *)
 
       integer idataset1, idataset2, FindDataSetByName, idx1, idx2
       double precision Values1(NIdMax), Values2(NIdMax)
+      logical is_cov_m, is_stat_m, is_syst_m, is_syst_cm
+      integer tdataset1, tdataset2 
+      data is_cov_m /.false./
+      data is_stat_m /.false./
+      data is_syst_m /.false./
+      data is_syst_cm /.false./
 
 C Functions:
       integer GetBinIndex, FindIdxForCorrelation
       
-C     reset statistical correlation matrix
+C     reset statistical and systematic correlation matrices
       do i=1, npoints
          do j=1, npoints
             corr_stat(i,j) = 0.d0
+            corr_syst(i,j) = 0.d0
             cov(i,j) = 0.d0
          enddo
          corr_stat(i,i) = 1.d0
-         is_stat_covariance(i) = .false.
-         lcorr_stat(i) = .false.
+         corr_syst(i,i) = 1.d0
+         is_covariance(i) = .false.
       enddo
-
 
       do k=1,NCorrFiles
          print*, 'parsing correlation file ', CorrFileNames(k)
@@ -109,13 +115,29 @@ c         endif
          idataset1 = FindDataSetByName(Name1)
          idataset2 = FindDataSetByName(Name2)
 
+
          if((idataset1.lt.1) .or. (idataset2.lt.1)) then
             Call HF_ERRLOG(10040003,
      $           'W: Correlation for data set requested 
      $ but not taken into account (dataset not identified)!')
             goto 1111
          endif
-         
+
+c RP check if new data set and if yet then and reset matrices flags         
+         if(k.eq.1) then
+           tdataset1 = idataset1
+           tdataset2 = idataset2
+         endif
+
+         if(tdataset1.ne.idataset1 .or. tdataset2.ne.idataset2) then
+            is_cov_m   = .false.
+            is_stat_m  = .false.
+            is_syst_m  = .false.
+            is_syst_cm = .false.
+            tdataset1 = idataset1
+            tdataset2 = idataset2
+         endif
+
 
          do i=1,NIdColumns1
             IdIdx1(i) = GetBinIndex(idataset1,IdColumns1(i))
@@ -161,8 +183,8 @@ C Read the colums
 c            print *, j, 'Idx1 =', Idx1, 'Idx2 =', Idx2
             
 C SG: Mark the points for covariance matrix method:
-            is_stat_covariance(Idx1) = .true.
-            is_stat_covariance(Idx2) = .true.
+            is_covariance(Idx1) = .true.
+            is_covariance(Idx2) = .true.
             
 
             if((Idx1.le.0).or.(Idx2.le.0)) then
@@ -170,20 +192,49 @@ C SG: Mark the points for covariance matrix method:
      $              'W: Unable to find a proper correlation point')
                goto 1112
             endif
-            
+
             if (MatrixType.eq.'Statistical correlations') then
                corr_stat(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
                corr_stat(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
-               lcorr_stat(Idx1) = .true.
-               lcorr_stat(Idx2) = .true.
+               is_stat_m = .true.
 
-            elseif (MatrixType.eq.'Covariance Matrix') then
+            elseif (MatrixType.eq.'Systematic correlations') then
+               corr_syst(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+               corr_syst(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
+               is_syst_m = .true.
+
+            elseif (MatrixType.eq.'Systematic covariance matrix') then
                cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
                cov(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
+               is_syst_cm = .true.
+
+            elseif (MatrixType.eq.'Full covariance matrix') then
+               cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+               cov(Idx2, Idx1) = buffer(NIdColumns1+NIdColumns2+1)
+               is_cov_m = .true.
+
+               if(idataset1.ne.idataset2) then
+                  Call HF_ERRLOG(07061113,
+     $  'S: Error, cannot use Full Cov Matrix for different datasets')
+               endif
+
             else
                Call HF_ERRLOG(26060000,
      $              'W: Matrix type not recognised! ignore!')
             endif
+
+C RP check that there are no stat or syst corr together with full cov:            
+            if(is_stat_m.and.is_cov_m .or. is_syst_m.and.is_cov_m .or.
+     $         is_syst_cm.and.is_cov_m) then
+               Call HF_ERRLOG(07062013,
+     $ 'S: Error, cannot set Stat or Syst matrix with Full Cov Matrix')
+            endif
+C RP check that there are no syst corr together with syst cov:            
+            if(is_syst_m.and.is_syst_cm) then
+               Call HF_ERRLOG(07061013,
+     $ 'S: Error, cannot set Syst corr and cov matrix for same dataset')
+            endif
+
 
  1112    enddo
          close (51)

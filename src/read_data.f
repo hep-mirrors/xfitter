@@ -128,7 +128,7 @@ C         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
          call Systematics
       endif
 
-      call prep_corr_stat
+      call prep_corr
       if (ICHI2.eq.100) then
          call prep_corr_syst
       endif
@@ -575,6 +575,12 @@ C Translate errors in %:
 C Ignore error source called 'ignore'
             else
                TotalError = TotalError + Syst(i)**2
+            endif
+
+c RP handle case when only tot error given (and e.g. full covariance matrix)
+c this affects only plots            
+            if(TotalError.eq.0.and.TotalErrorRead.ne.0) then
+               TotalError = TotalErrorRead**2 
             endif
 
 C Uncor const:            
