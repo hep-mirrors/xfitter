@@ -1,37 +1,37 @@
-
-      subroutine read_steer
 C---------------------------------------------------
 C 
-C> Read steering file steer.txt
+!> Read steering file steer.txt
 C
 C---------------------------------------------------
+      subroutine read_steer
+
       implicit none
 
       include 'steering.inc'
 C=================================================
 
-      call Set_Defaults  !> global defaults
+      call Set_Defaults  ! global defaults
 
 C Read various namelists:
-      call read_hfitternml  !> main steering FIRST
-      call read_systematicsnml !> Read (optional) systematics namelist SECOND
-      call read_infilesnml   !> Read data file names THIRD
-      call read_ewparsnml   !> electroweak parameters
-      call read_outputnml   !> output options
-      call read_outdirnml   !> output dir 
+      call read_hfitternml  ! main steering FIRST
+      call read_systematicsnml ! Read (optional) systematics namelist SECOND
+      call read_infilesnml   ! Read data file names THIRD
+      call read_ewparsnml   ! electroweak parameters
+      call read_outputnml   ! output options
+      call read_outdirnml   ! output dir 
 
       if(Itheory.lt.100) then
-         call read_lhapdfnml    !> read lhapdf 
+         call read_lhapdfnml    ! read lhapdf 
 C
 C Decode PDF style:
 C      
          call SetPDFStyle
       endif   ! Itheory < 100
 
-      call read_mcerrorsnml  !> MC uncertainties
-      call read_chebnml      !> chebyshev parameterisation extra pars
+      call read_mcerrorsnml  ! MC uncertainties
+      call read_chebnml      ! chebyshev parameterisation extra pars
       call read_polynml
-      call read_hqscalesnml  !> read HQ scales
+      call read_hqscalesnml  ! read HQ scales
 
       if (itheory.ge.100) then
          call read_ccfmfilesnml
@@ -59,7 +59,7 @@ C 09/01/2013 Check consistency of the input
 
       end
 
-
+!> Set default values for stearable variables.
       subroutine Set_Defaults
 C ===========================================
 C
@@ -149,7 +149,7 @@ C  Hermes-like strange (off by default):
 C  Cache PDF calls
       CachePDFs     = .false.
 
-!> Do not split the data into fit and control sub-samples:
+! Do not split the data into fit and control sub-samples:
       ControlFitSplit = .false.
 
 C  Fast applgrid:     
@@ -195,11 +195,12 @@ C
       end
 
 
-      subroutine Read_HFitternml  
 C =============================================
 C
-C Read the main steering namelisit 
+!> Read the main steering namelisit 
 C----------------------------------------------
+      subroutine Read_HFitternml  
+
       implicit none
       
       include 'ntot.inc'
@@ -315,11 +316,11 @@ C Print the namelist:
       call HF_stop
       end
 
-
-      subroutine read_ewparsnml
-C 
-C Read electroweak parameters
+C---------------------------------------- 
+!> Read electroweak parameters
 C-----------------------------------------
+      subroutine read_ewparsnml
+
       implicit none
 C Namelist for EW parameters:
       include 'couplings.inc'
@@ -371,10 +372,11 @@ C Print the namelist:
       call HF_stop
       end
 
+C-------------------------------------------------------
+!> Read InCorr namelist
+C-------------------------------------------------------
       subroutine Read_InCorrNml
-C
-C Read InCorr namelist
-C----------------------------------------------------------
+
       implicit none
       include 'ntot.inc'
       include 'datasets.inc'
@@ -406,11 +408,11 @@ C Print the namelist:
 
       end
 
-
-      subroutine read_hqscalesnml
 C
-C Read HQ scales
+!> Read Heavy Quark (HQ) scales
 C-------------------------------------------------------
+      subroutine read_hqscalesnml
+
       implicit none
       include 'steering.inc'
       character*32 MassHQ
@@ -426,8 +428,8 @@ C scale for HQ
 C
 C  Read the HQScale namelist:
 C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=HQScale,ERR=70,end=69)
+      open (51,file='steering.txt',status='old') 
+      read (51,NML=HQScale,ERR=70,end=69) 
  69   continue
       close (51)
 C
@@ -457,11 +459,11 @@ C Print the namelist:
       call HF_stop
       end
 
-
-      subroutine read_lhapdfnml
 C
-C Read lhapdf and reweighting namelists
+!> Read lhapdf and reweighting namelists
 C----------------------------------------
+      subroutine read_lhapdfnml
+
       implicit none
       include 'steering.inc'
       include 'reweighting.inc'
@@ -542,10 +544,11 @@ C---
       call HF_stop
       end
 
-      subroutine read_mcerrorsnml
 C
-C Read MC errors namelist
+!> Read MC errors namelist
 C-------------------------------------------------------
+      subroutine read_mcerrorsnml
+
       implicit none
       include 'steering.inc'
 C (Optional) MC method namelist
@@ -571,10 +574,11 @@ C-----------------------------------------------
       end
 
 
-      subroutine read_chebnml
 C
-C Read optional chebyshev namelist
+!> Read optional chebyshev namelist
 C--------------------------------------------------------
+      subroutine read_chebnml
+
       implicit none
       include 'steering.inc'
       include 'pdflength.inc'
@@ -616,10 +620,11 @@ C-----------------
       end
 
       
-      subroutine read_polynml
 C
-C Optional poly. param. for valence quarks
+!> Optional polynomial parametrisation for valence quarks
 C-------------------------------------------------------------
+      subroutine read_polynml
+
       implicit none
       include 'steering.inc'
 C (Optional) Polynomial parameterisation for valence
@@ -643,10 +648,11 @@ C--------------------------------------------------------
 
       end
 
-      subroutine read_infilesnml
 C
-C Read InFiles namelist
+!> Read InFiles namelist
 C-------------------------------------------------------
+      subroutine read_infilesnml
+
       implicit none
       include 'ntot.inc'
       include 'datasets.inc'
@@ -689,10 +695,11 @@ C---------------------
       end
 
 
-      subroutine read_ccfmfilesnml
 C
-C read ccfm namelist
+!> Read ccfm namelist
 C------------------------------------------------------
+      subroutine read_ccfmfilesnml
+
       implicit none
 C updf stuff
 C Namelist for datafiles 
@@ -727,10 +734,11 @@ C Read the CCFM data file name
       end
 
 
-      subroutine read_scalesnml
 C--------------------------------------------------------
-C  Read the scales namelist:
+!>  Read the scales namelist:
 C---------------------------------------------------------
+      subroutine read_scalesnml
+
       implicit none
       include 'ntot.inc'
       include 'scales.inc'
@@ -755,15 +763,18 @@ C---------------------------------------------
       end
 
 
-      subroutine read_outputnml
 C
-C read output namelist
+!> Read output namelist
 C------------------------------------------------
-C Output style namelist
+      subroutine read_outputnml
+
       implicit none
       include 'steering.inc'
       integer i, ilastq2
+
+C Output style namelist
       namelist/Output/DoBands, Q2VAL, OutNX, OutXRange
+
 C--------------------------------------------------------
 C  Read the output namelist:
 C
@@ -795,10 +806,11 @@ c      print *,'q2val ', (q2val(i),i=1,NBANDS)
       end
 
 
-      subroutine read_outdirnml
 C
-C read output dir name
+!> Read output dir name
 C------------------------------------------------
+      subroutine read_outdirnml
+
       implicit none
       include 'steering.inc'
       namelist/OutDir/OutDirName
@@ -834,12 +846,13 @@ C
       end
 
 
+C---------------------------------------
+C
+!>  Set PDF parameterisation type
+C
+C---------------------------------------
       Subroutine SetPDFStyle()
-C---------------------------------------
-C
-C>  Set PDF parameterisation type
-C
-C---------------------------------------
+
       implicit none
 
       logical lhapdffile_exists
@@ -899,7 +912,7 @@ C---------------------------------
             call InitPDFsetByName(LHAPDFSET)
          endif
 
-      !> Get number of sets:
+      ! Get number of sets:
          call numberPDF(nLHAPDF_Sets)  
          
          
@@ -914,12 +927,13 @@ C---------------------------------
 
 
 
+C---------------------------------------
+C
+!>  Set Heavy Flavour Scheme
+C
+C---------------------------------------
       Subroutine SetHFSCHEME
-C---------------------------------------
-C
-C>  Set PDF parameterisation type
-C
-C---------------------------------------
+
       implicit none
       include 'steering.inc'
 C---------------------------------
@@ -957,12 +971,13 @@ C---------------------------------
 
 
 
+C---------------------------------------
+C
+!>  Set HQ scale parameter
+!>  @param MassHQ heavy quark mass
+C---------------------------------------
       Subroutine SetMHSCALE(MassHQ)
-C---------------------------------------
-C
-C>  Set HQ scale mh parameter
-C
-C---------------------------------------
+
       implicit none
       character*(*) MassHQ
       include 'steering.inc'
@@ -981,25 +996,30 @@ C---------------------------------
       end
 
 
+
+C---------------------------------------
+C
+!>  Set Chi2 style
+!>  @param Chi2Style chi2-function deffinition
+!>  @param Chi2SettingsName bias corrections for uncertainties and treatment of systematics in chi2 
+!>  @param Chi2Settings values corresponding to each of Chi2SettingsName parameters
+!>  @param Chi2ExtraParam extra corrections in chi2
+C---------------------------------------
       Subroutine SetChi2Style(Chi2Style, Chi2SettingsName, Chi2Settings, 
      $     Chi2ExtraParam)
-C---------------------------------------
-C
-C>  Set Chi2 style
-C
-C---------------------------------------
+
       implicit none
-      character*(*) Chi2Style
+      character*(*) Chi2Style 
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
-      character*32 Chi2ExtraParam(8)
+      character*32 Chi2ExtraParam(8) 
       integer i
       include 'steering.inc'
 C---------------------------------
 
       if (Chi2SettingsName(1).eq.'undefined') then
 C
-C !> Reset defaults if Chi2SettingsName parameter is not set.
+C  Reset defaults if Chi2SettingsName parameter is not set.
 C 
          CorrSystByOffset=.false.
          CorSysScale = 'Linear'
@@ -1068,8 +1088,12 @@ C some defaults
       endif
       end
       
+
+C
+!> Read ExtraMinimisationParameters namelists
+C-------------------------------------
       Subroutine ReadExtraParam
-C =====================================
+
       implicit none
       include 'extrapars.inc'
       integer maxExtra
@@ -1112,7 +1136,15 @@ C
 C----------------------------------------
       end
 
+C
+!> Add extra fitting parameters
+!> @param name of extra paramet
+!> @param value of extra parameter
+!> @param step gradient of parameter in case of fitting
+!> @param min, max range of allowed values in case of fitting
+C-----------------------------------------------
       Subroutine AddExternalParam(name, value, step, min, max)
+
       implicit none
       include 'extrapars.inc'
       character*(*) name
@@ -1135,12 +1167,13 @@ C
       end
 
 
+C-----------------------------------------
+C
+!> Read optional systematics namelist
+C
+C-----------------------------------------
       Subroutine read_systematicsnml
-C-----------------------------------------
-C
-C Read optional systematics namelist
-C
-C-----------------------------------------
+
       implicit none
       include 'ntot.inc'
       include 'systematics.inc'
@@ -1160,7 +1193,7 @@ C Initialisation:
          ListOfSources(i) = ' '
          ScaleByNameName(i) = ' '
 
- !> Set default scaling behaviour:
+ ! Set default scaling behaviour:
          if (CorSysScale .eq. 'Linear' ) then
             SysScalingType(i)  =  isLinear
          else if (CorSysScale .eq. 'NoRescale') then
@@ -1178,7 +1211,7 @@ C Initialisation:
             call hf_stop
          endif
 
-   !>  Set nuisance parameter behaviour:
+   !  Set nuisance parameter behaviour:
          if (CorChi2Type .eq. 'Hessian') then
             SysForm(i)         =  isNuisance
          elseif (CorChi2Type .eq. 'Offset') then
@@ -1235,12 +1268,13 @@ C
 C----------------------------------------
       end
 
-      Subroutine Read_CSOffsetNML
 C=========================================
 C
-C Read optional CSOffset namelist
+!> Read optional CSOffset namelist
 C
 C-----------------------------------------
+      Subroutine Read_CSOffsetNML
+
       implicit none
       include 'ntot.inc'
       include 'systematics.inc'
@@ -1270,10 +1304,12 @@ C----------------------------------------
       end
 
 
+C
+!> Decode computation order
+!> @param Order of theoretical calculation
+C
       subroutine DecodeOrder(Order)
-C
-C Decode computation order
-C
+
       implicit none
       character*(*) Order
       include 'steering.inc'
@@ -1292,7 +1328,12 @@ C--------------------------------------------------
 C--------------------------------------------------
       end
 
+C--------------------------------------------------
+!> Decode type of theory to be used
+!> @param TheoryType name of theory
+C--------------------------------------------------
       subroutine DecodeTheoryType(TheoryType)
+
       character*(*) TheoryType
       include 'steering.inc'
 C------------------------------------------------
@@ -1315,11 +1356,12 @@ C------------------------------------------------
       
       end
 
-      integer Function SystematicsExist(SourceName) 
 C
-C Check if the systematic source is already on the list. 
-C Takes care of asymmetric errors and : modifier.
+!> Check if the systematic source is already on the list. 
+!> Takes care of asymmetric errors and : modifier.
 C     
+      integer Function SystematicsExist(SourceName) 
+
       implicit none
       character*(*) SourceName
       include 'ntot.inc'
@@ -1355,22 +1397,31 @@ C Check for :
 C----------------------------------------------------------------
       end
 
+C-----------------------------------------------------------------------------
+!> Add systematic source
+C
+!>  Detect "+" and "-" signs, at the end of source name, for asymmetric errors
+!>
+!>  Detect ":" modifiers
+!>
+!>   :M  - "multiplicative"
+!>
+!>   :A  - "additive"
+!>
+!>   :P  - "poisson"
+!>
+!>   :N  - "nuisance"   -- use nuisance parameters
+!>
+!>   :C  - "covariance" -- use covariance matrix
+!>
+!>   :O  - "offset"     -- use offset method for error propagation.
+!>
+!>   :E  - "external"   -- use minuit to minimise.
+C
+!> @param SName name of added systematic source. 
+C-----------------------------------------------------------------------------
       Subroutine AddSystematics(SName)
-C
-C Add systematic source SourceName. 
-C
-C Detect "+" and "-" signs, at the end of source name, for asymmetric errors
-C
-C Detect ":" modifiers
-C
-C  :M  - "multiplicative"
-C  :A  - "additive"
-C  :P  - "poisson"
-C  :N  - "nuisance"   -- use nuisance parameters
-C  :C  - "covariance" -- use covariance matrix
-C  :O  - "offset"     -- use offset method for error propagation.
-C  :E  - "external"   -- use minuit to minimise.
-C
+
       implicit none
       include 'ntot.inc'
       include 'systematics.inc'
@@ -1452,10 +1503,11 @@ C Register external systematics:
 
       end
 
-      Subroutine CheckInputs
  !>
  !>  Check consistency of the data input, abort for unsupported combinations
  !>
+      Subroutine CheckInputs
+
       implicit none
       include 'steering.inc'
       character*48 CMess 
