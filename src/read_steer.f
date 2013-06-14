@@ -496,13 +496,6 @@ C
  68   continue
       close (51)
 
-      if (LHAPDFErrors) then
-         if(PDFStyle.ne.'LHAPDF'.or.PDFStyle.ne.'LHAPDFQ0') then
-            call HF_Errlog(03062013,
-     $ 'W: PDFstyle is not LHAPDF, setting PDFErrors to False')
-             LHAPDFErrors = .false.
-         endif
-      endif
 C
 C  Read the reweighting namelist:
 C 
@@ -1516,6 +1509,15 @@ C----------------------------------------------------------
          if ( index(HF_SCHEME,'RT').gt.0 ) then
             CMess = 'RT scheme does not support LO evolution'
             goto 998
+         endif
+      endif
+
+
+      if (LHAPDFErrors) then
+         if(PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0') then
+            call HF_Errlog(03062013,
+     $ 'W:WARRNING PDFstyle is not LHAPDF, setting PDFErrors to False')
+             LHAPDFErrors = .false.
          endif
       endif
 
