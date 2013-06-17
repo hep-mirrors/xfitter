@@ -1,11 +1,12 @@
-      subroutine HF_stop
 *---------------------------------------
-*     controlled program termination:
-*        -- print job summary
-*        -- print full error summary
-*        -- close files
+!>     Controlled program termination.
+!>        - print job summary
+!>        - print full error summary
+!>        - close files
 *           ...
 *---------------------------------------
+      subroutine HF_stop
+
       implicit none
       integer   nunits
       parameter (nunits=13)
@@ -27,33 +28,10 @@
       end
 
 
-      subroutine HF_errlog(ID,TEXT)
-*-----------------------------------------------------------------------
-*                                                                      
-* Purpose: Error logging facility                                      
-*                                                                      
-* Input:  ID:    error identifier (integer)                                      
-*         TEXT:  text string connected to ID                            
-*                (ignored after first appearence of error ID)          
-* Output:                                                              
-*         The following arrays are filled for each error message:      
-*         IDERR:     error identifier                                  
-*         IPSTRT:    pointer to first character of message in ERRTXT   
-*         IPEND:     pointer to last character                         
-*         ICNT:      error count                                       
-*         ERRTXT:    store of error messages (one big string)          
 *                                                                      
 *  S.Levonian  5.02.2012 (adopted from H1util code of S. Egli)         
 *                                                                      
 *-----------------------------------------------------------------------
-*
-* Four levels of severity are supported. The level is coded in the
-* first two characters of the TEXT message:
-*        I: - informational message,
-*        W: - warning       (continue execution by default)
-*        S: - serious error (terminate program by default)
-*        F: - fatal error   (terminate program always)
-*
 *                    PROPOSAL FOR ERROR NUMBERING                          
 *                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~                          
 *  For HERAFitter code:
@@ -69,6 +47,28 @@
 *  Reserve 100 IDs for every imported module 
 * 
 *-----------------------------------------------------------------------
+!> Error logging facility                                      
+!> @param[in] ID error identifier (integer)
+!> @param[in] TEXT text string connected to ID                            
+!>                (ignored after first appearence of error ID)
+!>          
+!> Output:                         
+!>
+!> The following arrays are filled for each error message:      
+!>       - ERRTXT:    store of error messages (one big string)
+!>       - IDERR:     error identifier                                  
+!>       - IPSTRT:    pointer to first character of message in ERRTXT   
+!>       - IPEND:     pointer to last character                         
+!>       - ICNT:      error count                                       
+!>
+!> Four levels of severity are supported.
+!> The level is coded in the first two characters of the TEXT message:
+!>       - I: - informational message,
+!>       - W: - warning       (continue execution by default)
+!>       - S: - serious error (terminate program by default)
+!>       - F: - fatal error   (terminate program always)
+C-----------------------------------------------------------------------    
+      subroutine HF_errlog(ID,TEXT)
 
       implicit none
 
@@ -281,11 +281,12 @@
 905   FORMAT(/' *',78('-')//'  End of Error Summary'/)
       END
 
-
+*--------------------------------------------
+!> Lenght of non-blank text
+!> @param TEXT
+*---------------------------------------------
       INTEGER FUNCTION LENB(TEXT)
-*----------------------------------------------
-*     LENB(TEXT) = length of non-blank text
-*----------------------------------------------
+
       implicit none
       CHARACTER*(*) TEXT
       INTEGER I,LE

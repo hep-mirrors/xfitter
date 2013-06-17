@@ -1,10 +1,8 @@
+C----------------------------------------------------
+!> Read data from data table
+C----------------------------------------------------
+
       subroutine read_data
-
-*     ------------------------------------------------
-*     Read data     
-*     ------------------------------------------------
-
-
 
       implicit none
 *     ------------------------------------------------
@@ -67,7 +65,7 @@ C      NSYS = 0
          do j=1,ntot
             BETA(i,j) = 0.d0
          enddo
-         n_syst_meas(i) = 0  !> Also zero reference table
+         n_syst_meas(i) = 0  ! Also zero reference table
       enddo
 
 
@@ -91,7 +89,7 @@ C      NSYS = 0
          call ReadDataFile(InputFileNames(i))
       enddo
 
-      !> Check and read fixed theory predictions (if present)
+      ! Check and read fixed theory predictions (if present)
       call read_theoryfilesNML 
 
 C-----------------------------------------
@@ -151,9 +149,9 @@ C
       if (lrand .and. lranddata) then
          call MC_method()
       endif
-!>
-!>  Split control/fit sample:
-!>
+!
+!  Split control/fit sample:
+!
       if (ControlFitSplit) then
          call prepare_control_fit()
       endif
@@ -162,14 +160,14 @@ C
       end
 
 
-
-      subroutine ReadDataFile(CFile)
 C------------------------------------------------------------------------
 C
 C  Created 20 May 2011 by SG.
-C   Read data set using namelist format
-C
+!>  Read data set using namelist format
+!> @param CFile input data file 
 C------------------------------------------------------------------------
+      subroutine ReadDataFile(CFile)
+
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
@@ -612,14 +610,14 @@ C Stat error:
 
          DATEN(npoints) = XSections(j)
 
-C !> XXXXXXXXXXXXXXXXXXXXXXXXX START to become obsolete !!!
+C  XXXXXXXXXXXXXXXXXXXXXXXXX START to become obsolete !!!
          E_UNC(npoints)  = UncorError
          E_UNC_Const(npoints) = UncorConstError
          E_TOT(npoints)  = TotalError
          E_STA(npoints)  = StatError
          E_STA_CONST(npoints) = StatErrorConst
          
-C !> XXXXXXXXXXXXXXXXXXXXXXXXX END to become obsolete !!!
+C  XXXXXXXXXXXXXXXXXXXXXXXXX END to become obsolete !!!
 
 
 C XXXXXXXXXXXXXXXXXXXXXXXXX
@@ -627,7 +625,7 @@ C XXXXXXXXXXXXXXXXXXXXXXXXX
      $        StatErrorConst,UncorError,UncorConstError)
 
 
-         ! > Check total error
+         !  Check total error
          if (TotalErrorRead.ne.0) then
             if ( abs(TotalError -TotalErrorRead)/TotalErrorRead.gt.0.01) then
                print 
@@ -674,7 +672,7 @@ C     Store also asymmetric errors:
                   NAsymPlus(CompressIdx(i)) = NAsymPlus(CompressIdx(i)) 
      $                 + 1
 
-C !> Too many pluses and minuses !
+C Too many pluses and minuses !
                   if (NAsymPlus(CompressIdx(i)).gt.1) then
                      print *,' '
                      print *,'===== ERROR ERROR ERROR ===='
@@ -697,7 +695,7 @@ C Store:
                   NAsymMinus(CompressIdx(i)) = NAsymMinus(CompressIdx(i)) 
      $                 + 1
 
-C !> Too many pluses and minuses !
+C  Too many pluses and minuses !
                   if (NAsymMinus(CompressIdx(i)).gt.1) then
                      print *,' '
                      print *,'===== ERROR ERROR ERROR ===='
@@ -711,12 +709,12 @@ C !> Too many pluses and minuses !
      $                    'F: Problem with asymmetric errors')
                      call hf_stop
                   endif
-C !> Store:
+C  Store:
                   BetaAsym(CompressIdx(i),2,npoints) = syst(i)
      $                 *SysScaleFactor(CompressIdx(i))                
                endif
 
-C !> Symmetrise:
+C  Symmetrise:
                if (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
                   
@@ -842,14 +840,16 @@ C Store k-factors:
       end
 
 
-      subroutine prepare_control_fit()
 C---------------------------------------------------------------------------
-!>
-!>  Created 16/07/2012. Split data into "fit" and "control" samples.
+C
+C  Created 16/07/2012. 
+!>  Split data into "fit" and "control" samples.
 !>  Fit sample is used in chi2 minimization, control sample is used to make
 !>  sure that there is no overfitting. 
 !>
 C----------------------------------------------------------------------------
+      subroutine prepare_control_fit()
+
       implicit none
       include "ntot.inc"
       include "indata.inc"
@@ -878,14 +878,16 @@ C----------------------------------------------------------------------------
 
       end
 
+C------------------------------------------------------------
+!> Scale data uncertainties if requiered
+!> @param Idx data point index
+!> @param StatError, UncorError generic errors which move around
+!> @param StatErrorConst 
+!> @param UncorConstError
+C-------------------------------------------------------------
       Subroutine SetUncorErrors(Idx,StatError,
      $     StatErrorConst,UncorError,UncorConstError)
-C------------------------------------------------------------
-C 
-C StatError and UncorError -- are generic errors which move around
-C
-C
-C-------------------------------------------------------------
+
       implicit none
       integer Idx
       double precision StatError, StatErrorConst,UncorError,UncorConstError
@@ -944,7 +946,8 @@ C---------------------------------------------------------
       end
 
 
-!> Created 29/05/13. Check if fixed theory predictions are requested for datasets
+! Created 29/05/13. 
+!> Check if fixed theory predictions are requested for datasets
       subroutine read_theoryfilesNML
 C
       implicit none
@@ -977,7 +980,10 @@ C-----------------------------------------------------------------
       end
 
       !> Read fixed theory file, associate with dataset idxDataSet
+      !> @param FileName input theory file
+      !> @param IdxDataSet data set theory is associated with
       Subroutine read_theory_file(FileName,IdxDataSet)
+      
       implicit none
       character *(*) FileName
       integer IdxDataSet
@@ -1139,7 +1145,7 @@ C     Store also asymmetric errors:
                   NAsymPlus(CompressIdx(i)) = NAsymPlus(CompressIdx(i)) 
      $                 + 1
 
-C !> Too many pluses and minuses !
+C ! Too many pluses and minuses !
                   if (NAsymPlus(CompressIdx(i)).gt.1) then
                      print *,' '
                      print *,'===== ERROR ERROR ERROR ===='
@@ -1162,7 +1168,7 @@ C Store:
                   NAsymMinus(CompressIdx(i)) = NAsymMinus(CompressIdx(i)) 
      $                 + 1
 
-C !> Too many pluses and minuses !
+C ! Too many pluses and minuses !
                   if (NAsymMinus(CompressIdx(i)).gt.1) then
                      print *,' '
                      print *,'===== ERROR ERROR ERROR ===='
@@ -1176,12 +1182,12 @@ C !> Too many pluses and minuses !
      $                    'F: Problem with asymmetric errors')
                      call hf_stop
                   endif
-C !> Store:
+C ! Store:
                   BetaAsym(CompressIdx(i),2,idx) = syst(i)
      $                 *SysScaleFactor(CompressIdx(i))                
                endif
 
-C !> Symmetrise:
+C ! Symmetrise:
                if (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
                   

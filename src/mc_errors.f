@@ -1,11 +1,11 @@
-
+C------------------------------------------------------------
+C
+!> MC method for propagating of the data uncertainties. 
+!> Creat a replica of the data, which fluctuates accoding to their uncertainteis.
+C
+C------------------------------------------------------------
       Subroutine MC_method()
-C------------------------------------------------------------
-C
-C MC method for propagating of the data uncertainties. Creat a replica
-C of the data, which fluctuates accoding to their uncertainteis.
-C
-C------------------------------------------------------------
+
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
@@ -36,12 +36,12 @@ C
 C For log normal random shifts:
       real lsig, lmu,lrunif
       
-      double precision epsilon    !> estimated acceptance/lumi correction
+      double precision epsilon    ! estimated acceptance/lumi correction
       double precision data_in
       double precision estat_in, ecor_in, euncor_in, etot_in !> Input uncertainites
-      double precision estat_out,euncor_out  !> recalculated stat. error
+      double precision estat_out,euncor_out  ! recalculated stat. error
 
-      double precision alpha_rel !> original relative alpha (uncertainty)
+      double precision alpha_rel ! original relative alpha (uncertainty)
 
 C functions:
       real logshift
@@ -95,7 +95,7 @@ cv  test different distributions
 cv  first for systematic uncert, then for stat.                    
 
             if (systype.eq.1) then ! gauss syst
-C !> Introduce asymmetric errors, for Gaussian case only:
+C ! Introduce asymmetric errors, for Gaussian case only:
                if ( .not. LAsymSyst(isys) ) then
                   s = s*(1.+ beta(isys,n0) * rand_shift(isys))
                else
@@ -128,7 +128,7 @@ CV now choose sta (advised gauss OR poisson)
               
          if (statype.eq.1) then ! gauss
 
-            alpha(n0) = sorig * alpha_rel !> adjust alpha0, important for theory-like data. 
+            alpha(n0) = sorig * alpha_rel ! adjust alpha0, important for theory-like data. 
             s = s + rndsh * alpha(n0)
 
             if (alpha(n0).eq.0) then
@@ -182,7 +182,7 @@ C Expected number of events:
 C Also apply fluctuations due to uncorrelated systematics:
             
 C New absolute uncor:
-            euncor_out = euncor_in / data_in * s !> rescale to new value 
+            euncor_out = euncor_in / data_in * s ! rescale to new value 
 
             if (statype.eq.14) then
                s = s + rndsh*euncor_in
@@ -229,20 +229,23 @@ C------------------------------------------------------------
 
 
 *     ---------------------------------------------
-      function alnorm(am,as)
-*     ---------------------------------------------
-      implicit none
+
 cv      Program voica
 C---------------------------------------------------
 C Created by SG, 23 Apr 2008 following
 C
 C http://www.brighton-webs.co.uk/distributions/lognormal.asp
 C
-C Log-normal random number generator
+!> Log-normal random number generator
+!> @param[in] am mean value
+!> @param[in] as RMS
 C
 C Input:  am -- mean value 
 C         as -- RMS
 C----------------------------------------------------
+      function alnorm(am,as)
+*     ---------------------------------------------
+      implicit none
       real pi
       parameter (pi=3.141592)
 
@@ -289,9 +292,6 @@ cv      print*,'voica gets the lognorml distribution....',alnorm
 
 
 
-*     -------------------------------------------
-        real function logshift(mmu,ssig,rrunif) 
-*     -------------------------------------------
 c        real function logshift(mu,sig,runif) 
 C-----------------------------------------------------------------------
 C-
@@ -304,6 +304,10 @@ C-
 C-   Created  12-JUN-2008   Voica Radescu
 C-
 C-----------------------------------------------------------------------
+*     -------------------------------------------
+        real function logshift(mmu,ssig,rrunif) 
+*     -------------------------------------------
+
       IMPLICIT NONE
 
       
@@ -328,8 +332,6 @@ C-----------------------------------------------------------------------
       END
 
 
-*     -------------------------------------------
-      REAL FUNCTION ZEROTH(XX,i)
 C-----------------------------------------------------------------------
 C-
 C-   Purpose and Methods: 
@@ -341,6 +343,12 @@ C-
 C-   Created  12-JUN-2008   Voica Radescu
 C-
 C-----------------------------------------------------------------------
+!>
+!> @param XX
+!> @param i
+C----------------------------------------------------------------------
+      REAL FUNCTION ZEROTH(XX,i)
+
       IMPLICIT NONE
 
       real runif,erf
@@ -366,15 +374,13 @@ C-----------------------------------------------------------------------
       END
 
 
-*     -------------------------------------------
-
-
+C------------------------------------------------------------------------
+C
+!>  Separate random number seed initialisation.
+C
+C------------------------------------------------------------------------
       subroutine init_rnd_seeds()
-C------------------------------------------------------------------------
-C
-C  Separate random number seed initialisation.
-C
-C------------------------------------------------------------------------
+
       implicit none
       include 'steering.inc'
       integer icount,ntime,ndate
