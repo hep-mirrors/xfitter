@@ -1,0 +1,247 @@
+
+\label{sec:pdfparam}
+%%%%%%%%%%%
+%Different parametrisation for PDFs at the starting scale present in \fitter\ are described in this section.
+%It starts from various standard functional forms (\ref{sec:stdform}), it follows with the bi-log-normal functional form (\ref{sec:log}), and it extends to more exotic forms based on generalised polynomial such as Chebyshev (\ref{sec:cheb}).
+
+In this Section the different possible parametrisations for the PDFS at the staring scale which are implemented in the \fitter\
+are described. Sec.~\ref{sec:stdform} covers standard functional forms, Sec.~\ref{sec:log}  covers the bi-log normal functional 
+for and Sec.~\ref{sec:cheb} covers more exotic forms based on generalised polynomials such as the Chebyshev polynomials.
+
+\subsubsection{Standard Functional form}
+\label{sec:stdform}
+%%%%
+The term standard functional form is understood to refer to a simple polynomial 
+that interpolates between the low and high $x$ regions:
+\begin{equation}
+ xf(x) = A x^{B} (1-x)^{C} P_i(x),
+\label{eqn:pdf_std}
+\end{equation}
+Standard forms are commonly used by PDF groups.
+
+The notation used throughout this text reflects the 
+notation used in the code.
+
+%%%%
+\begin{description}
+
+%%%%
+\item \bf{HERAPDF style}\rm
+
+%\subsubsection
+%%%%
+ The parametrised PDFs at HERA are the valence distributions
+ $xu_v$ and  $xd_v$,  the gluon distribution $xg$, and the $u$-type and $d$-type sea 
+$x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
+$x\bar{D} = x\bar{d} +x\bar{s}$. 
+The following standard functional form is used to parametrise them
+\begin{equation}
+ xf(x) = A x^{B} (1-x)^{C} (1 + D x + E x^2),
+\label{eqn:pdf}
+\end{equation}
+%
+where the normalisation parameters, $A_{uv}, A_{dv}, A_g$,  
+are constrained by the number sum-rules and the momentum sum-rule.
+The $B$ parameters  $B_{\bar{U}}$ and $B_{\bar{D}}$ are set equal,
+ $B_{\bar{U}}=B_{\bar{D}}$, such that 
+there is a single $B$ parameter for the sea distributions. 
+%
+The strange quark distribution 
+is already present at the starting scale and 
+%
+it is assumed that
+$x\bar{s}= f_s  x\bar{D}$ at $Q^2_0$. 
+The  strange fraction is chosen to be $f_s=0.31,$ which is
+consistent with determinations 
+of this fraction using neutrino induced di-muon production. 
+%
+In addition, to ensure that $x\bar{u} \to x\bar{d}$ 
+as $x \to 0$,  
+$A_{\bar{U}}=A_{\bar{D}} (1-f_s)$.
+%
+The $D$ and $E$ parameters are introduced one by one until no further improvement in $\chi^2$ is found.
+This procedure allows for more flexibility when adding more precision data into the fit, for example when adding HERA-II data. 
+The best fit  results in a total of $10$ free parameters when performing fits to solely HERA I data 
+(fits are then referred to as HERAPDF1.0), and of 13 free parameters when adding preliminary HERA II data on top 
+(fits are then referred to as HERAPDF1.5).
+
+In HERAPDF fits the assumption is made that the strange sea quark density follows the same shape as the down quark density. 
+However, and alternative functional form is provided to parametrise the strange density  at the starting scale:
+\begin{equation}
+xs(x)=f_s\frac{1}{1+\tanh(-(x-x_{hs}h_{hr}))},
+\end{equation}
+
+with $x_{hs} = 0.07$ and $h_{hr} = 20$, corresponding to a sharp turn on of the strange density at $x\sim 0.07$.
+This form is inspired by the HERMES analysis \cite{hermes} which measure semi-inclusive production of the strange mesons.
+
+\item \bf{Strange style}\rm
+
+
+For studies of the strange quark sea density, the parametrisation of $x\bar{D}$ is replaced by a sum of $x\bar{d}(x)+x\bar{s}(x)$ parametrised densities:
+\begin{equation}
+x\bar{s}(x)=\frac{fs}{1-fs} A_{\bar{d}}x^{B_{\bar{s}}}(1-x)^{C_{\bar{s}}} .
+\end{equation}
+
+\item \bf{Flexible style}\rm
+%%%%
+
+Flexible style is the extension of the ``HERAPDF style'' by allowing $2$ extra free parameters for every PDF distribution, 
+namely the $D$ and $E$ parameters which give flexibility in the medium $x$ range. 
+This can be used to study the sensitivity of the data to the PDF description. In this case the total number of free parameters is $22$.
+
+%Strange quark PDF is the least determined PDF from the l
+
+\item \bf{CTEQ style}\rm
+
+%%%%
+
+\begin{equation}
+ xf(x) = a_0 x^{(a_1+n)} (1-x)^{a_2} e^{a_3x} (1 + e^{a_4 x} + e^{a_5 x^2}),
+\label{eqn:pdf_cteq}
+\end{equation}
+%
+\end{description}
+
+\subsubsection{Bi-Log-Normal Functional Form}
+\label{sec:log}
+A bi-log-normal distribution is proposed by \cite{AndreSchoening} to parametrise the $x$ dependence of the PDFs.
+%parton distribution function of the proton.
+This parametrisation is motivated from multi-particle statistics. The follwing parametrisation is proposed as a general ansatz.
+\begin{equation}
+xf(x)=x^{p-b\log(x)}(1-x)^{q-\log(1-x)}.
+\label{eq:AS}
+\end{equation}
+This function can be regarded as a generalisation of parametrisations commonly used by global fit groups.
+In order to satisfy the QCD sum rules this parametric form requires numerical integration.
+
+\subsubsection{Chebyshev Polynomial Functional Form}
+\label{sec:cheb}
+A flexible Chebyshev polynomial based parametrisation can be used for the gluon and sea densities. The polynomials
+use $\log x$ as an argument to emphasize the low $x$ behavior. 
+The parametrisation is valid for $x>x_{min} = 1.7\times 10^{-5}$. The PDFs are multiplied
+by $1-x$ to ensure that they vanish as $x\to 1$. The resulting parametric form is 
+\begin{eqnarray}
+x g(x) &=& A_g \left(1-x\right) \sum_{i=0}^{N_g-1} A_{g_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,, \label{eq:glu} \\
+x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,. \label{eq:sea} 
+\end{eqnarray}
+Here the sum over $i$ runs up to $N_{g,S}=15$ order Chebyshev polynomials of the first type $T_i$ for
+the gluon, $g$, and sea-quark, $S$, density, respectively. 
+The normalisation $A_g$ is given by the momentum sum rule.
+
+The advantages of this parametrisation are that the momentum sum rule can be evaluated analytically 
+and that for $N \ge 5$ the fit qulaity is already similar
+to a standard Regge-inspired parametrisation with a similar number of parameters.
+
+%==========================================
+\subsubsection {Diffractive parametrisation Functional Form}
+
+\begin{description}
+\item \bf{Pomeron parametrisation}\rm
+
+\newcommand\AP {{\cal P}}
+
+The Pomeron is parametrised at the initial
+$Q_0^2$ in terms of two singlet distributions,
+$f_{g}$ and $f_{+}$, which evolve as follows:
+\begin{subequations}
+
+\label{singlet}
+\begin{eqnarray}
+\frac{d}{dt}f_{+} &=&
+\asotp\left[\AP_{\rm FF} f_{+} +\AP_{\rm FG}f_g
+\right]
+\\
+\frac{d}{dt}f_{g} &=&
+\asotp\left[
+\AP_{\rm GF} f_{+} +\AP_{\rm GG}f_g
+\right]
+\end{eqnarray}
+\end{subequations}
+
+As $\Pom$ is neutral, $f_{q} = f_{\bar q}$ for each flavour $q$.
+Assuming that all light quark PDFs are equal
+\begin{equation}
+f_d = f_u = f_s
+\,,
+\end{equation}
+we have
+\begin{subequations}
+\label{eq:pm}
+\begin{eqnarray}
+f_{q-} &\equiv& 0
+\\
+f_{q+} &\equiv& 2 f_q
+\end{eqnarray}
+\end{subequations}
+
+At $n_f = 3$
+\begin{equation}
+\label{eq:fq3}
+f_{q+} = f_{+}/3,\; q = d,u,s
+\,.
+\end{equation}
+% \ifFullVer
+i.e.
+% \begin{equation}
+% \Sgl q = 0,\; q = d,u,s
+% \,,
+% \end{equation}
+% where
+\begin{equation}
+\Sgl q \equiv f_{q+} - \frac{1}{n_f}f_{+}
+ = 0,\;\mbox{for}\; q = d,u,s
+\,.
+\end{equation}
+% \fi
+
+This gives all PDFs for the FFNS, while for VFNS 
+$f_{h+}$ for $h=c,b,t$ are generated dynamically above the respective
+transition scales $Q_h^2$.
+Hence at $n_f > 3$ the singlet has contributions from the heavy quarks
+and we get non-trivial nonsinglet distributions $\Sgl{h}$ satisfying
+\begin{equation}
+\label{eq:nsevol}
+\frac{d}{dt}\Sgl h = \asotp\, \AP_{(+)} \Sgl h
+\end{equation}
+
+\end{description}
+%\subsection {Parametrization at \texorpdfstring{$Q_0^2$}{Q0}}
+%\subsubsection {Parametrization at {$Q_0^2$}}
+{\bf Parametrisation at {$Q_0^2$}} \\
+%-----------------------------------------------------------
+\label{sec:Par}
+
+Full PDFs are given in analogy to Eq.~\ref{eq:FD3}
+\begin{equation}
+f_k^{D(3)}(\beta,Q^2,\xi) =
+\hat\Phi_\Pom(\xi)\, f^\Pom_k(\beta,Q^2)
++
+\Phi_\Reg(\xi)\, f^\Reg_k(\beta,Q^2)
+\end{equation}
+where $\hat\Phi_\Pom \equiv \Phi_\Pom/A_\Pom$,
+with the fluxes given by Eq.~\ref{eq:intFlux} and Eq.~\ref{eq:flux}.
+
+The Pomeron PDFs are parametrised as
+\def\Cini#1#2{A^{(#1)}_#2}
+\begin{equation}
+\label{eq:fP0}
+f^\Pom_N = \Cini N1  x^{\Cini N2} (1-x)^{\Cini N3}
+%   \left(1 + \Cini N4 x \right)
+  \; \exp\left(-\frac{d}{1.00001-x}\right)
+\,,
+\end{equation}
+where the `dumping factor' $d$ is taken as 0.01 or 0.001.
+$N = \mathrm G$ for gluon and $N = \mathrm S$ for `singlet': $f_{\rm S} \equiv f_+(n_f=3)$,
+cf. Eq.~\ref{eq:fq3}.
+
+
+
+% The Reggeon PDFs $f^\Reg_k$ are taken from pion.
+
+%\subsubsection {HERAFitter parameters}
+
+
+
+
+
+

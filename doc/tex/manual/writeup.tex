@@ -1,0 +1,174 @@
+\RequirePackage{lineno} 
+\documentclass[11pt,twoside,a4paper]{article}
+\usepackage{graphicx,epsfig}
+\usepackage{hhline}
+\usepackage{booktabs}
+
+\usepackage{amsmath,amssymb}
+\usepackage{times}
+\usepackage[varg]{txfonts}
+\DeclareMathAlphabet{\mathbold}{OML}{txr}{b}{it}
+
+\usepackage{array,multirow,dcolumn}
+%\usepackage[mathlines,displaymath]{lineno}
+\usepackage{rotating}
+
+\usepackage[hypertexnames,setpagesize,%
+    pdftex,%
+    colorlinks,%
+    citecolor=blue,%
+    hyperindex,%
+    plainpages=false,%
+    bookmarksopen,%
+    bookmarksnumbered%
+  ]{hyperref}
+
+% --- DO NOT remove this line:
+\providecommand\texorpdfstring[2]{#1}
+
+% we use natbib instead of cite to work with hyperref
+%\usepackage{cite}
+\usepackage[numbers,square,comma,sort&compress]{natbib}
+%\usepackage{hypernat}
+\usepackage{textcomp}
+
+%\bibliographystyle{unsrt}
+\bibliographystyle{writeup}
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{1.0}
+\renewcommand{\textfraction}{0.0}
+
+% \renewcommand{\arraystretch}{1.2}
+\newlength{\dinwidth}
+\newlength{\dinmargin}
+\setlength{\dinwidth}{21.0cm}
+\textheight24cm \textwidth16.0cm
+\setlength{\dinmargin}{\dinwidth}
+\setlength{\unitlength}{1mm}
+\addtolength{\dinmargin}{-\textwidth}
+\setlength{\dinmargin}{0.5\dinmargin}
+\oddsidemargin -1.0in
+\addtolength{\oddsidemargin}{\dinmargin}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\marginparwidth}{0.9\dinmargin}
+\marginparsep 8pt \marginparpush 5pt
+\topmargin -42pt
+\headheight 12pt
+\headsep 30pt \footskip 32pt
+\parskip 3mm plus 2mm minus 2mm
+
+
+\newcommand\fitter{ \mbox{\tt HERAFitter} }
+\title{ \vspace{1cm} {\Huge \fitter\ } \\
+              PDF Fitting package  \\ 
+              \vspace{0.5cm}
+\includegraphics[width=0.25\linewidth]{figures/logo.pdf}}
+\author{HERAFitter developers}
+\begin{document}
+\maketitle
+\vspace{4cm}
+\begin{abstract}
+\vspace{0.5cm}
+The determination of the  proton patron distribution functions is a complex endeavor involving several physics process. The main process is deep-inelastic scattering and the central  data set covering most of the proton structure phase space is provided at the HERA ep collider. Further processes (fixed target DIS, ppbar collisions etc.) provide further constraints for particular aspects: flavor separation, very high Bjorken-x etc. In particular, the precise measurements obtained or to come from LHC will continue to improve the knowledge of the PDF. The HERAFitter project aim at providing a framework for QCD analyses related to proton structure in the context of multi-processes and multi-experiments. The framework includes modules or interfaces enabling a large number of theoretical and methodological options, as well as a large number of relevant data sets from HERA, Tevatron and LHC. This manual explains the theoretical input used in the QCD analysis, the fit  methodology and the  the installation procedure of the program. More information and the package downloads can be found on the web site {\tt http://herafitter.org}.
+\end{abstract}
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+%\linenumbers
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\input{Introduction}  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Theoretical Input}
+\input{Theory}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methodology for PDF fits}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In this section the main fit formalism is presented and 
+detail and various options implemented in HERAfitter are described. 
+Such options come in three broad classes: different functional forms
+used to 
+parametrise the PDFs at the starting scale (section \ref{sec:pdfparam});
+different defintions of the $\chi^2$ (section \ref{sec:chi2}); 
+and different treatement of experimental uncertainties (section \ref{sec:error}).
+%In addition a different approach 
+%to PDF studies based on the reweighing techniques is described in section \ref{sec:reweighting}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{PDF Parameterisation}
+\input{PDFparametrisation}
+
+\subsection{Chisquare  Definition}
+\input{Chisquare}
+
+\subsection{Treatment of the Experimental Uncertainties}
+\label{sec:error}
+\input{ErrorTreatment}
+
+\section{Bayesian Reweighting Technique}
+\label{sec:reweighting}
+\input{Reweighing} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section{Program Manual}
+\label{sec:progman}
+This section begins with a presentation of the installation instructions for various scenarios supported by the \fitter\ platform.
+There then follows a basic user manual which is intended to guide the user in his/her analysis.
+
+\subsection{Program Installation Instructions} 
+\input{Installation}
+\subsection{User Manual}
+\input{ProgramManual}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{User Example}
+\input{UsersExample}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{\fitter\ Namelist}
+%\input{Namelist}
+
+\section{How to add new data}
+Inclusion of the data files is controlled by {\tt \&InFiles} namelist in the 
+{\tt steering.txt} file. For example, by default the following four HERA-I
+    files are included:
+\begin{verbatim}
+&InFiles
+    NInputFiles = 4
+    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
+    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
+&End
+\end{verbatim}
+
+To include more files:
+\begin{itemize}
+ \item  Increase the {\tt NInputFiles} variable.
+ \item  Specify the additional file by providing corresponding
+  {\tt InputFileNames()} variable.
+\end{itemize}
+Details about data file format can be found in section~\ref{sec:dataformat}.
+%%%%%%%%%%%%%%%%%%%%
+%\section{How do add new module}
+%\subsection{Structure of the module}
+%\subsection{Theory Interface Example}
+%\subsection{Steerings and Configurations}
+%%%%%%%%%%%%%%%%%%%%%
+
+\bibliography{writeup.bib}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\end{document}
+

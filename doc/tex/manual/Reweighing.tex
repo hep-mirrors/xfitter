@@ -1,0 +1,107 @@
+In this section a different approach to PDF studies based on the reweighing techniques is described. 
+Bayesian reweighting of PDF sets is a way to include new data into an existing PDF set without actually carrying out a full-blown fitting procedure. 
+It was first suggested by Giele and Keller~\cite{Giele:1998gw} and first pursued in practice by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
+Watt and Thorne~\cite{Watt:2012tq} have also proposed a scheme for how to implement the Bayesian reweighting technique for PDF predictions based on central values with errors determined using the Hessian Eigenvector Method. 
+
+allows these methods to be used to update any PDF that is available either as a probability distribution... or as a PDf eigenvector set
+
+The \fitter package allows these methods to be used to update any PDF that is available either as a probability distribution
+(i.e. a lhapdf .LHgrid file in NNPDF format) or as a PDf eigenvector set 
+(i.e. any PDF set in lhapdf .LHgrid file format with errors determined using the Hessian Eigenvector Method).
+This enables the user to assess the impact of new data not only on the {\tt HERAPDF} using the full-blown fit procedure 
+but also on other standard PDF sets. This one can investigate how the data impact different PDF sets.
+
+The Bayesian Reweighting technique essentially uses PDF probability distributions as input, applies weights to these distributions based on how well the new data is described and outputs an updated PDF probability distribution. In the following paragraphs, firstly the construction of these PDF probability distributions is described, then the calculation of the weights to update the PDF probability distribution is introduced and lastly, the configuration of the module within the \fitter framework is explained.
+
+\subsection{PDF probability distributions}
+
+PDF probability distributions are constructed as finite ensembles of $N_{\mathrm{rep}}$ parton distribution functions $\mathrm{PDF}_k$, $\mathcal{E} = \{PDF_k, k = 1, . . . ,N_{\mathrm{rep}}\}$. Observables $\mathcal{O}(\mathrm{PDF})$ are conventionally calculated from the average of the predictions obtained from the ensemble:
+
+\begin{equation}
+ \langle\mathcal{O}(\mathrm{PDF})\rangle = \frac{1}{N_{\mathrm{rep}}} \sum_{k=1}^{N_{\mathrm{rep}}} \mathcal{O}(\mathrm{PDF}_k)
+\label{eq:meanReplicas}
+\end{equation}
+ 
+Their uncertainties are calculated as the standard deviation, defined as:
+
+\begin{equation}
+\sigma_{\mathcal{O}(\mathrm{PDF})} = \sqrt{  \frac{1}{N_{\mathrm{rep}} - 1 }  \sum_{k=1}^{N_{\mathrm{rep}}} 
+( \mathcal{O}(\mathrm{PDF}_k) - \langle \mathcal{O}(\mathrm{PDF})  \rangle   )^2     
+     }
+\end{equation}
+
+While the standard PDF sets from the NNPDF collaboration are already available as ensembles of parton distribution functions, the PDF predictions of other PDF fitting groups need to be converted to PDF probability distributions. This is possible provided that the PDF sets have associated uncertainties that can be used to create replicas of the central PDF set with random variations that lie within the uncertainties. 
+
+In the case of uncertainties provided by standard Hessian eigenvector error sets, this can be easily achieved 
+by creating the $k$-th random replica by introducing introducing random fluctuations around the central PDf set, $\mathrm{PDF}_0$.
+
+If the PDF eigenvectors are asymmetric, that is they come in pairs of negative and positive PDF error sets, 
+corresponding to negative and positive deviations from the central value, these random fluctuations can be created by 
+drawing a random number $R_{jk}$ and adding, depending on the sign of the random number, 
+the difference of the positive or respectively negative PDF of the $j$-th PDF eigenvector pair from the central value, 
+scaled by the absolute value of the random number:
+
+\begin{equation}
+ \mathrm{PDF}_k = \mathrm{PDF}_0  + \sum_{j=0}^{n} \left[ \mathrm{PDF}^{\pm}_j - \mathrm{PDF}_0 \right] |R_{jk}|
+\end{equation}
+ 
+Here, $k$ denotes the number of the random replica and runs from $k=1, ... , N_\mathrm{rep}$; $j$ denotes the eigenvector pair and runs from $j=1, ..., n$, where $n$ is the number of eigenvectors, e.g. $n=20$ for MSTW08. 
+
+In case that the Hessian eigenvectors have been symmetrised and only one error set is given per eigenvector, 
+the above prescription simplifies to:
+
+\begin{equation}
+ \mathrm{PDF}_k = \mathrm{PDF}_0  + \sum_{j=0}^{n} \left[ \mathrm{PDF}_j - \mathrm{PDF}_0 \right] R_{jk}
+\end{equation}
+
+\subsection{Bayesian Reweighting of PDF sets}
+
+Once PDF probability distributions are available as inputs, they can be updated to incorporate the new data. This is achieved by applying weights to the PDF probability distributions such that the prediction for observable $\langle\mathcal{O}(\mathrm{PDF})\rangle$ from equation \ref{eq:meanReplicas} changes to:
+
+\begin{equation}
+ \langle\mathcal{O}^{\mathrm{new}}(\mathrm{PDF})\rangle = \frac{1}{N_{\mathrm{rep}}} \sum_{k=1}^{N_{\mathrm{rep}}} w_k \mathcal{O}(\mathrm{PDF}_k)
+\end{equation}
+
+The weights $w_k$ calculated are here according to:
+
+\begin{equation}
+ w_k = \frac{(\chi^2_k)^{\frac{1}{2} (N_{\mathrm{data}}-1) } \exp^{-\frac{1}{2}\chi^2_k}}{ \frac{1}{N_{\mathrm{rep}}} \sum^{N_{\mathrm{rep}}}_{k=1}(\chi^2_k)^{\frac{1}{2}(N_{\mathrm{data}}-1)} \exp^{-\frac{1}{2}\chi^2_k}  },
+\end{equation}
+
+where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the specific replica for which the weight is calculated and $\chi^2_k$ is between a given data point $y_i$ and its theoretical prediction obtained with the $k$-th PDF replica:
+
+\begin{equation}
+ \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=0}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))  
+\end{equation}
+
+The weighted PDF probability distribution can be turned into a new ensemble of PDF replicas, based on which predictions for any observable can be calculated. This new, reweighted PDF probability distribution commonly is chosen to be based upon a smaller number of PDF sets compared to the input PDF probability distribution, because replicas that are incompatible with the data are discarded 
+in order to create a more stream-lined PDF set.
+
+\subsection{Usage of the PDF reweighting in the \fitter framework}
+ 
+The \fitter ramework can be used to apply PDF reweighting for
+NNPDF-style PDF probability distributions as well as for PDF sets with Hessian PDF eigenvector error sets. 
+
+This requires that the {\tt NNPDF reweight} and the {\tt LHAPDF} modules are installed, see sections \ref{sec:install_nnpdfrweight} and \ref{sec:install_lhapdf}. In the \fitter steering files, the PDF reweighting needs to be switched on and the relevant parameters have to be set: 
+
+\begin{itemize}
+ \item \textbf{FLAGRW}: (En/dis) able reweighting
+ \item \textbf{RWPDFSET}: Name of the PDF set to be reweighted
+ \item \textbf{RWDATA}: Arbitrary name for the data to be updated, used to create the names of the output PDF set and the directory
+ \item \textbf{RWMETHOD}: Do the reweighting based on chi2 (method 1, where you read in \fitter data files and theory predictions and calculate the chi2 based on them) or on data (method 2, where you have to provide an input text file with theoretical predictions {--} the input format of this input file will be explained below)
+ \item \textbf{DORWONLY}: Disable the usual PDF fit, such that only the reweighting is done 
+ \item \textbf{RWREPLICAS}: Number of input replicas used for the PDF probability distributions (not applicable for NNPDF sets, since they come with a fixed number of replicas)
+ \item \textbf{RWOUTREPLICAS}: Number of replicas in the output PDF set.
+\end{itemize}
+
+The setup of the module is such that it is parsing the \fitter steering file and from the specified settings it creates a special reweighting steering file in the directory {\tt input\_steering} with the pattern {\tt <RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>.in}. 
+
+In the output directory, a sub-directory is created for the output of the reweighting procedure. Its name pattern is: {\tt output/<RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>/} and it will contain the following files:
+
+\begin{itemize}
+ \item {\tt <RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>\_nRep<RWOUTREPLICAS>.LHgrid}: The output PDF probability distribution in form of an .LHgrid file, which allows easy usage.
+ \item {\tt whist-rw.eps}: Plot with the distributions of weights calculated for each replica. The meaning of this plot is further described in~\cite{Ball:2011gg,Ball:2010gb}.
+ \item {\tt palpha-rw.eps}: Plot with the probability for each replica to describe the data. The meaning of this plot is further described in~\cite{Ball:2011gg,Ball:2010gb}.
+ \item {\tt <RWPDFSET>\_<RWREPLICAS>InputReplicas.LHgrid}: This is the PDF probability function that has been produced from the eigenvector PDF sets produced by the Hessian method (not applicable for NNPDF sets).
+\end{itemize}
+

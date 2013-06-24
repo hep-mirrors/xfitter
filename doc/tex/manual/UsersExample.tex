@@ -1,0 +1,40 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\label{section:example}
+%%%%
+Two examples are available in \fitter\ for benchmarking purposes.
+The first example describes the default fit with HERA DIS inclusive data,
+the second is a fit where all the available data in \fitter\ are fitted simultaneously.
+
+\subsubsection{DIS inclusive only}
+By default the \fitter\ steering files ({\tt steering.txt} and {\tt minuit.in.txt})
+are set to fit the DIS inclusive cross section data. For this fit no any additional
+configuration options are required.
+The results of this example fit (total and partial $\chi2$, systematic shifts, 
+data to theory comparison and histograms, see section 8.4 "Understanding the output" for more details) 
+can be compared to the result provided for benchmarking in "examples".
+
+%%%%
+\subsubsection{All processes}
+In order to run the second example with all data, the corresponding
+{\tt steering.txt} from "input\_steering" has to be copied to the main directory:
+
+\goodbreak                 
+cp input-steering/steering.txt.ALLdata steering.txt
+\\ \\
+The user must make sure that all data sets as given in {\tt steering.txt.ALLdata} together with corresponding theory files have been downloaded  
+%(\textcolor{red}{ ???}) 
+before running this example. 
+\\
+Since the included sets contain various $ep$, $pp$, $p \overline p$ and fix target
+data, it is necessary to have \fitter\ configured with applgrid, hathor and 
+lhapdf options (corresponding shared library linking as explained in section~\ref{sec:install} is
+required before configuration): 
+\goodbreak
+./configure --enable-applgrid --enable-lhapdf --enable-hathor
+\\ \\
+It is recommended to do "make clean" before each configuration. \\        
+As in the previous case, the fit result can be compared to the one provided in "examples".
+
+
+
