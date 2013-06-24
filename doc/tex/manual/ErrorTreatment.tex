@@ -1,0 +1,325 @@
+%%%%%%%%%%%
+%\subsection{Hessian Method}
+
+%%%%%%%%%%%
+%\subsection{Offset Method}
+
+\newcommand{\rs}{s}
+\newcommand{\ce}{b}
+\DeclareRobustCommand\Vstat{\ensuremath{V^{\mathrm{(unc)}}}}
+\DeclareRobustCommand\Vsys{\ensuremath{V^{\mathrm{(cor)}}}}
+\DeclareRobustCommand\mb[1]{\ensuremath{\mbox{\mathversion{bold}{$#1$}}}}
+\DeclareRobustCommand\mbs[1]{\ensuremath{\mbox{\mathversion{bold}{\scriptsize $#1$}}}}
+
+\subsubsection {Correlated errors and \texorpdfstring{$\chi^2$}{chi2}}
+\label{sec:cor-chi2}
+
+% \cite{Chekanov:2002pv,Pascaud:1995qs}
+% A typical formula for $\chi^2$ depending on the correlated systematic errors' fluctuations reads
+Results of a measurement can be modelled as
+(see eg.~\cite{Stump:2001gu,Botje:2001fx})
+\begin{equation}
+m_n = t_n(a) + r_n \sigma_n + \sum_{\mu=1}^K \rs_\mu \ce_{n\mu}
+\;,\quad n=1,\dots,N
+\end{equation}
+where\\
+$m_n$ is the value measured for the $n$-th data point,\\
+$t_n(\mb a)$ is true (theoretical) value depending on parameters $\mb a = (a_1,\dots, a_M)$,\\
+$\sigma_n$ is the uncorrelated error,\\
+$\ce_{n\mu}$ are the errors from the $\mu$-th correlated error source,\\
+$r_n$ and $\rs_\mu$ are random variables fluctuating around 0 with unit dispersion.
+
+First, we assume that all $r_n$ are uncorrelated with $\rs_\mu$,
+mutually independent and normally distributed,
+%  with the statistical errors.
+\begin{equation}
+\rho(r) = \frac{e^{-r^2/2}}{\sqrt{2\pi}}
+\,.
+\end{equation}
+
+In the following we will use scaled variables
+\begin{subequations}
+\begin{eqnarray}
+x_i &\equiv& \frac{m_i-t_i}{\sigma_i}
+\,,
+\\
+\beta_{i\mu} &\equiv& \frac{\ce_{i\mu}}{\sigma_i}
+\,.
+\end{eqnarray}
+\end{subequations}
+
+Keeping $\mb \rs$ fixed we get the probability density of measurements,
+\begin{equation}
+dp(\mb{m}| \mb s) =
+ (2\pi)^{-N/2}\, e^{-\chi_1^2(\mbs\rs)/2}\, d^Nx
+\,,
+\end{equation}
+where
+\begin{equation}
+\label{eq:chi1}
+\chi_1^2(\mb\rs) = \sum_{n=1}^N
+\left( x_n - \sum_\mu \beta_{n\mu} \rs_\mu \right)^2
+\equiv (\mb{x - \beta s})^2
+\,,
+\end{equation}
+
+Further, taking into account the probability distribution of the correlated error sources,
+$p(\mb s)\, d^Ks$, we have
+\begin{equation}
+p(\mb{m},\mb s) = p(\mb s)\, p(\mb{m} | \mb s)
+\,.
+\end{equation}
+Assuming again the uncorrelated normal distribution,
+\begin{equation}
+p(\mb s) = \prod_{\mu=1}^K \frac{e^{-s_\mu^2/2}}{\sqrt{2\pi}}
+\,,
+\end{equation}
+we get
+\begin{equation}
+\label{eq:p_ms}
+dp(\mb{m},\mb s) =
+  (2\pi)^{-(N+K)/2}\, e^{-\chi_{\mathrm c}^2(\mbs\rs)/2}
+  \,d^Nx\, d^Ks
+\,,
+\end{equation}
+with
+\begin{equation}
+\label{eq:chi_c}
+\chi_{\mathrm c}^2(\mb\rs) = 
+% (\mb{x - \beta s})^{\mathrm{T}} (\mb{x - \beta s}) + \mb s^{\mathrm{T}} \mb s
+(\mb{x - \beta s})^2 + \mb s^2
+\,.
+\end{equation}
+
+This quadratic form in $\mb s$ allows for analytical integration of Eq~\ref{eq:p_ms}
+resulting in
+
+\begin{equation}
+p(\mb{m}) \propto e^{-\chi^2/2}
+\,,
+\end{equation}
+where
+\begin{equation}
+\label{eq:chi_int}
+\chi^2 = \mb x^{\mathrm{T}} \mb{A\,x}
+\end{equation}
+% with constant $\mb A$ determined by $\mb\beta$ and $\mb\sigma$
+with $\mb A$ depending on $\mb\beta$ only
+(see eg. \cite{Stump:2001gu} Appendix B).
+
+% If we assume that $\rs_\mu$ are random variables with normal distribution, we have
+% \begin{equation}
+% \tilde\chi^2(\rs) = \sum_{\mu=1}^K \rs_\mu^2
+% \end{equation}
+% and we can integrate them out analytically.
+This is e.g. the CTEQ approach described in \cite{Stump:2001gu}.
+It is worth noting that the solution Eq.~\ref{eq:chi_int} for $\chi^2$
+can be obtained by minimizing $\chi_{\mathrm c}^2(\mb\rs)$ of Eq.~\ref{eq:chi_c} wrt. $\mb\rs$.
+
+% -----------------------------------
+\subsubsection{The Offset method}
+
+In the Offset method presented here we assume that $\mb\rs$ is fixed, 
+and we find the best theoretical model by minimizing
+$\chi_1^2$ wrt. to $\mb a$. 
+Hence the fitted parameters become functions
+of $\mb\rs$. %, $\mb a = \mb a(\mb\rs)$. 
+We do not impose any particular statistical properties on $\mb\rs$ 
+and we take $\mb a(\mb\rs=0)$ as the ultimate fit result for the theory parameters. 
+The dependence on $\mb\rs$ is, however, used to determine
+the full error matrix of $\mb a$ (cf. \cite{Pascaud:1995qs}).
+
+The full covariance matrix $V$ reads
+\begin{equation}
+\label{eq:Cv-full}
+V = \Vstat + \Vsys
+\end{equation}
+% with $\Vsys$ coming from the $\rs$ fluctuations.
+For each $\mb\rs$ we find the parameters $\mb a(\mb \rs)$ by minimising $\chi_1^2(\mb \rs)$, which results in
+% $a = a(\rs)$ and 
+$\Vstat(\mb \rs) = M^{-1}(\mb \rs)$ where
+\begin{equation}
+M_{jk}(\mb \rs)
+= \left.
+{\frac12} \frac{\partial^2\chi_1(\mb \rs)^2}{\partial a_j \partial a_k}\right\vert_{\mb a = \mb a(\mb \rs)}
+\,.
+\end{equation}
+The dependence of $M$ on $\mb \rs$ is considered to be a higher order correction
+and we take $\Vstat = M^{-1}(0)$.
+% Nb. $\Vstat$ is the covariance matrix returned by Minuit for the fit with $\mb \rs =0$.
+
+Within linear approximation to the error propagation
+\begin{equation}
+\label{eq:Vsysp}
+\Vsys_{jk} = \sum_\mu \frac{da_j}{d\rs_\mu} \frac{da_k}{d\rs_\mu}
+% \,.
+\end{equation} 
+and we calculate the derivatives as
+\begin{equation}
+\frac{da_j}{d\rs_\mu} \approx
+\frac{a_j(\rs_\mu=\epsilon) - a_j(\rs_\mu=-\epsilon)}{2\epsilon}
+% \,,
+\end{equation}
+with $\mb a(\rs_\mu=\epsilon)$ resulting from
+fits to the data shifted by $\epsilon\ce_{n\mu}$.
+
+In the code we use $\epsilon=1$, i.e. one standard deviation of
+the correlated error source which, in the ideal statistical limit, corresponds to 
+$\Delta\chi_1^2 = 1$.
+On the other hand, within the leading approximation, the value of $\epsilon$ is irrelevant.
+% in accordance to the standard Minuit normalization of $\Vstat$.
+
+If another error definition, $\Delta\chi_1^2 = \lambda$, 
+is adopted\footnote{E.g. Jon Pumplin uses $\lambda=5$, cf. \texttt{minuit/iterate.F}} then
+the full covariance matrix, $V$, must be scaled by $\lambda$. 
+
+\begin{description}
+\item \bf{Implementation via \fitter\ } \rm
+
+The Offset method is turned on by setting \verb:CHI2Style = 'Offset':
+By default all fits are run in a single job, each fit driven by initial parameters and Minuit commands read from \verb'minuit.in.txt'.
+Two optional parameters can be set in the \verb'CSOffset' NAMELIST, e.g.
+\vspace*{-2.5ex}
+\begin{verbatim}
+&CSOffset
+ CorSysIndex  =  0
+ UsePrevFit = 1
+&End
+\end{verbatim}
+\vspace*{-1ex}
+Defaults are set in \verb'read_steer.f'
+and the \verb'CSOffset NAMELIST' is read only when the Offset method is active.
+Setting \verb'CorSysIndex' to any value $\in [-K, K]$ 
+restricts the job to a single fit to data shifted (down or up) by a corresponding correlated error source.
+\verb'CorSysIndex' = 0 corresponds to the central fit.
+If \verb'CorSysIndex > NSYSMAX' then all the fits are performed.
+The best way to perform all fits in a single run is 
+to not specify \verb'CorSysIndex' at all 
+(Default: \verb'CorSysIndex = NSYSMAX+1' )
+\vspace{0.4cm}
+
+The parameter {\tt UsePrevFit} determines how to use results of previous fits,
+if such results are present in the \verb'output' folder.
+\begin{enumerate}
+\item [0 ---]
+Do not use any previous fit results (Default)
+\item [1 ---]
+Use previously obtained parameters as starting values for the current fit.
+% For a non-offset fit read initial parameters from \verb'minuit.save.txt';
+% for an offset fit 
+Read initial parameters from \verb'minuit.save_<CSI>.txt'
+ --- e.g.  \verb'minuit.save_001m.txt' for \verb'CorSysIndex' $= -1$.
+If the file does not exist and \verb'CorSysIndex' $\neq 0$ try to read
+\verb'minuit.save_0.txt'.
+\item [2 ---]
+Do not perform the fit if a corresponding \verb'Results_<CSI>.txt' file exists,
+otherwise switch to mode 1.
+\end{enumerate}
+\end{description}
+
+%%%%%%%%%%%
+\subsubsection{Monte Carlo Method}
+\label{sec:ToyMC}
+
+The PDF uncertainties can be estimated using a Monte Carlo technique \cite{Giele:1998gw, mcmethod2}.
+The method consists in preparing replicas of data sets by allowing the central values of the cross sections to 
+fluctuate within their systematic and statistical uncertainties taking into account all point-to-point correlations.
+The preparation of the data is repeated for a large $N$ ($>100$ times) and for each of these replicas a NLO QCD fit is performed to 
+extract the PDF set. The PDF central values and uncertainties are estimated using the mean values and RMS 
+over the replicas. 
+\subsubsection{Implementation in \fitter\ }
+The steering flags to activate the MC method are located in the \tt steering.txt \rm via:
+
+\begin{verbatim}
+&MCErrors
+
+  lRAND   = False  
+  lRANDDATA = True
+  ISeedMC = 123456 
+  ! --- Choose what distribution for the random number generator 
+  ! STATYPE (SYS_TYPE)  =   1  gauss
+  ! STATYPE (SYS_TYPE)  =   2  uniform
+  ! STATYPE (SYS_TYPE)  =   3  lognormal
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  STATYPE =  1
+  SYSTYPE =  1
+&End
+\end{verbatim}
+To activate the MC method for error estimation set \tt lRand = True \rm.
+To use data (true, default) or theory (false) for the central values of the MC replica
+the the flag \tt lRANDDATA \rm is used. The seed for random number generation is selected 
+via \tt ISeedMC \rm . The smearing of the uncertainties can be treated differently for correlated 
+or uncorrelated source and four distributions are supported for random number generators: Gauss, uniform, lognormal, and Poisson. If the flags are set to $0$ then no smearing is produced.
+
+
+
+
+%%%%%%%%%%%
+\subsubsection{Regularisation methods}
+
+Regularisation methods are aiming to study the parametrisation assumptions of PDFs. 
+When more flexible parametrisation styles is used the shape of the PDFs must be constrained and various methods are used.
+The \fitter\ framework provides the means to study and compare various methods.
+
+%The methods described in this section work for large data sets. 
+
+\begin{description}
+
+\item \bf{Data Driven Regularisation}\rm
+
+This method was first applied by the NNPDF group.
+It uses a redundant paremeters and introduces a stopping criterion based on data. This method splits data randomly
+into ``fit'' and ``control''  samples. The ``fit'' sample is used to determine the PDF parameters. 
+The $\chi^2$ of this sample is observed to decrease semi-monotonically. 
+The ``control'' sample is used to protect against over-fitting and for this sample the $\chi^2$ will first decrease 
+and then will start to increase due to fluctuation of the data.
+
+
+\item \bf{External Regularisation based on a penalty term in $\chi^2$} \rm
+
+Another method to constrain the PDF shape is to simply apply a penalty term
+to the $\chi^2$ function. 
+One method is the so called ``length penalty'' which selects PDF solutions with a smoother shape in $W\approx Q\sqrt{\frac{1-x}{x}}$:
+\begin{equation}
+L=\int_{W_{min}}^{W_{max}} \sqrt{1+\left(\frac{dxf(W)}{dW}\right)^2}dW
+\end{equation}
+This method can be applied when using Chebyshev polynomials to parametrise PDFs.
+For more details, the reader is invited to consult  reference \cite{Chebyshev}.
+This method is implemented in \fitter\ via steering flags under Namelist \tt \&Cheb \rm as follows:
+\begin{verbatim}
+&Cheb
+  ! Set following > 0 to turn on:
+   NCHEBGLU = 0   ! number of parameters for the gluon (max 15)
+   NCHEBSEA = 0   ! number of parameters for the sea   (max 15)
+
+  ! Cheb. polynomial type: multiply by (1-x) (1) or not (0)  
+   ichebtypeGlu = 1 
+   ichebtypeSea = 1 
+
+  ! Starting point in x:
+   chebxmin = 1.E-5
+
+   ILENPDF  = 0   ! use pdf length constraint
+
+  ! PDF length constraint strength for different PDFs:
+   PDFLenWeight = 1., 1., 1., 1., 1.     
+
+  ! Range in W where length constraint is applied:
+   WMNLen =  20.
+   WMXLen = 320.
+&end
+\end{verbatim}
+
+Alternatively, when using the flexible parametrisation style a $\chi^2$
+penalty term can be applied to account for th deviation from a simpler parametric form, for example
+\begin{equation}
+\chi^2_{reg}= T\sum_f\left(\left(\frac{D_f}{\Delta_D}\right)^2+ \left(\frac{E_f}{\Delta_E}\right)^2\right),
+\end{equation}
+
+with $\Delta D=\Delta E = 100$, such that for large $D$ and $E$ the ratio will approach $1$. 
+$T$ is the regularisation parameters, such that for $T=0$ there is no penalty term. 
+For large $T$ there is strong penalty.
+This method of regularisation is accessed via Namelist: \tt \&ExtraMinimisationParameters \rm
+with the name \tt 'Temperature' \rm which is $T$ in the above description.
+
+\end{description}

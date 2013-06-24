@@ -1,0 +1,273 @@
+\makeatletter
+\def\comsp{\@ifnextchar,\relax{\@ifnextchar\ \relax{\@ifnextchar:\relax{\@ifnextchar.\relax\ }}}}
+\makeatother
+\DeclareRobustCommand{\ie}{{\it i.e.}\comsp}
+\DeclareRobustCommand{\eg}{{\it e.g.}\comsp}
+\DeclareRobustCommand{\cf}{{\it cf.}\comsp}
+\DeclareRobustCommand{\etal}{{\it et al.}\comsp}
+\DeclareRobustCommand\bs{\ensuremath{\backslash}}
+\newcommand\ssp{\ifmmode\relax\else\comsp\fi}
+
+%\newcommand\Eq[1]{Eq.~(\ref{#1})}
+\newcommand\Eq[1]{(\ref{#1})}
+\newcommand\Fig[1]{Fig.~\ref{#1}}
+\DeclareRobustCommand\NF{\ensuremath{N_{\rm f}}\ssp}
+% \DeclareRobustCommand\NC{\ensuremath{N_{\rm c}}\ssp}
+\DeclareRobustCommand\GeV{\ensuremath{{\rm GeV}}\ssp}
+% \DeclareRobustCommand\Vstat{\ensuremath{V^{\rm (stat)}}\ssp}
+% \DeclareRobustCommand\Vsys{\ensuremath{V^{\rm (sys)}}\ssp}
+\DeclareRobustCommand\FL{\ensuremath{F_{\mathrm{L}}}\ssp}
+\DeclareRobustCommand\FT{\ensuremath{F_{\mathrm{T}}}\ssp}
+\newcommand\AP {{\cal P}}
+
+\def \beq{\begin{equation}}
+\def \eeq{\end{equation}}
+\def \beqa{\begin{eqnarray}}
+\def \eeqa{\end{eqnarray}}
+\def \beqal{\begin{subequations}\begin{eqnarray}}
+\def \eeqal{\end{eqnarray}\end{subequations}}
+
+\let\optspace=\ssp
+% \newcommand{\xh}{\hat x}
+\DeclareRobustCommand{\as}[1]{\ensuremath{\alpha_{\rm s}(#1^2)}\optspace}
+\newcommand{\asotp}{\ensuremath{\frac{\alpha_{\rm s}}{2\pi}}\optspace}
+\newcommand{\Sgl}[1]{\ensuremath{\tilde f_{#1+}}\optspace}
+\newcommand{\Pom}{{I\!P}}
+\newcommand{\Reg}{{I\!R}}
+% \newcommand{\xP}{x_\Pom}
+\newcommand{\xP}{\xi}
+\newcommand\sigRed{\ensuremath{\overline\sigma}}
+\newcommand\DX{\ensuremath{\mathcal{X}}}
+
+%\parindent=0pt
+%\parskip=4pt
+
+%\graphicspath{{figs/}}
+
+%==========================================
+\subsubsection {Cross-section}
+
+\beq
+  \frac{d\sigma}{d\beta\,dQ^2\,d\xP\,dt}
+=
+  \frac{2\pi\alpha^2}{\beta Q^4}\,
+    \left( 1 +  (1-y)^2 \right) \sigRed^{D(4)}(\beta,Q^2,\xP,t)
+\label{Dxs}
+\eeq
+where the `reduced cross-section', \sigRed, is defined as
+\beq
+\label{eq:sigred}
+\sigRed
+ = F_2 - \frac{y^2}{1 +  (1-y)^2}\, \FL
+ = \FT + \frac{2(1-y)}{1 +  (1-y)^2}\, \FL
+\eeq
+Nb. $\xi$ is denoted by $x_\Pom$ in the H1 and ZEUS papers.
+
+The dimension of 
+\(
+F_k^{D(4)}(\beta,Q^2,\xP,t)\)
+is $\GeV^{-2}$
+and
+thus the quantities integrated over $t$
+\beq
+F_k^{D(3)}(\beta,Q^2,\xP)
+\equiv
+\int_{t_{\rm min}}^{t_{\rm max}} dt
+F_k^{D(4)}(\beta,Q^2,\xP,t)
+\eeq
+are dimensionless.
+
+The maximum kinematically allowed value of $t$ is given by
+\begin{equation}
+t_{\rm MAX} 
+=
+-\frac{\xP^2 m_p^2 + p_\perp^2}{1-\xP}
+\approx 
+-\frac{\xP^2}{1-\xP} m_p^2
+\end{equation}
+where $m_p$ is the proton mass.
+
+As $x = \xP\beta$ we can normalize to the standard DIS formula
+\begin{equation}
+\frac{d\sigma}{d\beta\,dQ^2\,d\xP\,dt} =
+  \frac{2\pi\alpha^2}{x\, Q^4}\,
+    \left( 1 +  (1-y)^2 \right) \xP\sigRed^{D(4)}(\beta,Q^2,\xP,t)
+\end{equation}
+which upon integration over $t$ reads
+\begin{equation}
+\label{Dxs3}
+  \frac{d\sigma}{d\beta\,dQ^2\,d\xP}
+=  
+  \frac{2\pi\alpha^2}{x Q^4}\,
+    \left( 1 +  (1-y)^2 \right) \,\xi\sigRed^{D(3)}(\beta,Q^2,\xP)
+\end{equation}
+
+
+The H1 and ZEUS data files typically contain $\xP\sigRed^{D(3)}$.
+
+%==========================================
+\subsubsection {Regge factorization}
+
+For better data description we include a contribution from a secondary Reggeon, $\Reg$,
+\beq
+F_k^{D(4)}(\beta,Q^2,\xP,t) = 
+\sum_{\mathcal{X} =\Pom,\Reg}
+\phi_\mathcal{X}(\xP,t)\, F^\mathcal{X}_k(\beta,Q^2)
+\eeq
+
+or
+\beq
+\label{eq:FD3}
+F_k^{D(3)}(\beta,Q^2,\xP) = 
+\sum_{\mathcal{X} =\Pom,\Reg}
+\Phi_\mathcal{X}(\xP)\, F^\mathcal{X}_k(\beta,Q^2)
+\eeq
+where
+\begin{equation}
+\label{eq:intFlux}
+\Phi_{\mathcal{X}}(\xP) =
+\int\limits_{t_{\rm min}}^{t_{\rm max}} dt\, \phi_\mathcal{X}(\xP,t)
+\,.
+\end{equation}
+
+Parametrization of the fluxes
+\begin{subequations}
+\label{eq:flux}
+\begin{equation}
+\phi_\mathcal{X}(\xP,t) = 
+\frac {A_\mathcal{X}\, e^{b_\mathcal{X} t}} {\xP^{2\alpha_\mathcal{X}(t) -1}}
+\end{equation}
+where
+\begin{equation}
+\alpha_\mathcal{X}(t) = \alpha_\mathcal{X}(0) + \alpha_\mathcal{X}' t
+\,.
+\end{equation}
+\end{subequations}
+
+$F^\Reg_k(\beta,Q^2)$ are taken as those of the pion.
+%  with the normalization factor being absorbed in $\phi_\Reg(\xP,t)$.
+
+
+%==========================================
+%\subsubsection {Pomeron parametrization}
+
+%The Pomeron is parametrized at the initial
+%$Q_0^2$ in terms of two singlet distributions,
+%$f_{g}$ and $f_{+}$.
+%\begin{subequations}
+%\label{singlet}
+%\begin{eqnarray}
+%\frac{d}{dt}f_{+} &=&
+%\asotp\left[
+%\AP_{\rm FF} f_{+} +\AP_{\rm FG}f_g
+%\right]
+%\\
+%\frac{d}{dt}f_{g} &=&
+%\asotp\left[
+%\AP_{\rm GF} f_{+} +\AP_{\rm GG}f_g
+%\right]
+%\end{eqnarray}
+%\end{subequations}
+
+%As $\Pom$ is neutral, $f_{q} = f_{\bar q}$ for each flavour $q$.
+%Assuming that all light quark PDFs are equal
+%\begin{equation}
+%f_d = f_u = f_s
+%\,,
+%\end{equation}
+%we have
+%\begin{subequations}
+%\label{eq:pm}
+%\begin{eqnarray}
+%f_{q-} &\equiv& 0
+%\\
+%f_{q+} &\equiv& 2 f_q
+%\end{eqnarray}
+%\end{subequations}
+%
+%At \NF = 3
+%\begin{equation}
+%\label{eq:fq3}
+%f_{q+} = f_{+}/3,\; q = d,u,s
+%\,.
+%\end{equation}
+%% \ifFullVer
+%\ie
+%% \begin{equation}
+%% \Sgl q = 0,\; q = d,u,s
+%% \,,
+%% \end{equation}
+%% where
+%\begin{equation}
+%\Sgl q \equiv f_{q+} - \frac{1}{\NF}f_{+}
+% = 0,\;\mbox{for}\; q = d,u,s
+%\,.
+%\end{equation}
+% \fi
+%
+%This gives all PDFs for the FFNS, while for VFNS 
+%$f_{h+}$ for $h=c,b,t$ are generated dynamically above the respective
+%transition scales $Q_h^2$.
+%Hence at $\NF > 3$ the singlet has contributions from the heavy quarks
+%and we get non-trivial nonsinglet distributions $\Sgl{h}$ satisfying
+%\begin{equation}
+%\label{eq:nsevol}
+%\frac{d}{dt}\Sgl h = \asotp\, \AP_{(+)} \Sgl h
+%\end{equation}
+%
+%%\subsection {Parametrization at \texorpdfstring{$Q_0^2$}{Q0}}
+%%\subsubsection {Parametrization at {$Q_0^2$}}
+%{\bf Parametrization at {$Q_0^2$}} \\
+%%-----------------------------------------------------------
+%\label{sec:Par}
+%
+%Full PDFs are given in analogy to \Eq{eq:FD3}
+%\begin{equation}
+%f_k^{D(3)}(\beta,Q^2,\xP) =
+%\hat\Phi_\Pom(\xP)\, f^\Pom_k(\beta,Q^2)
+%+
+%\Phi_\Reg(\xP)\, f^\Reg_k(\beta,Q^2)
+%\end{equation}
+%where $\hat\Phi_\Pom \equiv \Phi_\Pom/A_\Pom$,
+%with the fluxes given by \Eq{eq:intFlux} and \Eq{eq:flux}.
+%
+%The Pomeron PDFs are parametrized as
+%\def\Cini#1#2{A^{(#1)}_#2}
+%\begin{equation}
+%\label{eq:fP0}
+%f^\Pom_N = \Cini N1  x^{\Cini N2} (1-x)^{\Cini N3}
+%%   \left(1 + \Cini N4 x \right)
+%  \; \exp\left(-\frac{d}{1.00001-x}\right)
+%\,,
+%\end{equation}
+%where the `damping factor' $d$ is taken as 0.01 or 0.001.
+%$N = \mathrm G$ for gluon and $N = \mathrm S$ for `singlet': $f_{\rm S} \equiv f_+(\NF=3)$,
+%\cf \Eq{eq:fq3}.
+
+% The Reggeon PDFs $f^\Reg_k$ are taken from pion.
+
+%%\subsubsection {HERAFitter parameters}
+%{\bf HERAFitter parameters} \\
+%%-----------------------------------------------------------
+%\label{sec:HFitterPar}
+%
+%% minuit.in.txt
+%% ExtraMinimisationParameters
+%
+%\begin{tabular}{l|l|l}
+%Parameter & HERAFitter name & input file\\
+%% \hline
+%$\Cini {\mathrm G}1$ & Ag & minuit.in.txt \\
+%$\Cini {\mathrm G}2$ & Bg & minuit.in.txt \\
+%$\Cini {\mathrm G}3$ & Cg & minuit.in.txt \\
+%$\Cini {\mathrm S}1$ & Auv & minuit.in.txt \\
+%$\Cini {\mathrm S}2$ & Buv & minuit.in.txt \\
+%$\Cini {\mathrm S}3$ & Cuv & minuit.in.txt \\
+%$\alpha_\Pom(0)$ & Pomeron\_a0 & steering.txt \\
+%$A_\Reg$ & Reggeon\_factor & steering.txt \\
+%$\alpha_\Reg(0)$ & Reggeon\_a0 & steering.txt \\
+%\end{tabular}
+
+\endinput
+
+
