@@ -8,7 +8,7 @@ endif
 SUBDIRS+= NNPDF/src
 
 SUBDIRS+= common
-SUBDIRS+= src doc/tex
+SUBDIRS+= src doc/tex/manual
 
 # DOXYGEN SUPPORT
 include $(top_srcdir)/aminclude.am

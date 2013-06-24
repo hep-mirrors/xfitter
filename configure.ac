@@ -241,7 +241,7 @@ AC_CONFIG_FILES([src/Makefile
                  ABKM/src/Makefile
                  NNPDF/src/Makefile
                  Cascade/src/Makefile
-                 doc/tex/Makefile
+                 doc/tex/manual/Makefile
                  Makefile])
 # AC_CONFIG_SUBDIRS([])
 AC_OUTPUT
