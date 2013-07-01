@@ -1,4 +1,7 @@
-
+C--------------------------------------------------------------
+C> Function to store outputs
+C> \param base name for an output directory
+C--------------------------------------------------------------
 * --------------------------------------------------------------
       subroutine store_pdfs(base)
 * --------------------------------------------------------------
@@ -255,11 +258,14 @@ cv       grid(1+jx)=x
       return
       end
 
-*   -------------------------------------------------
-*   -------------------------------------------------
+C--------------------------------------------------
+C> \brief Write results of fit
+C> \details Write to a text file binning, 
+C> data points with uncorrelated and total uncertainties,
+C> fitted points and pulls.  
+C--------------------------------------------------
 
-
-      SUBROUTINE WRITEFITTEDPOINTS
+      subroutine WriteFittedPoints
 
       implicit none
       
@@ -345,6 +351,9 @@ C
       call system(Command)
       end
 
+C-------------------------------------------
+C> Import PDF errors from LHAPDF grid files
+C-------------------------------------------
       subroutine get_lhapdferrors
 C---------------------------------
       implicit none
@@ -511,7 +520,9 @@ C Write some chi2 tests, vs central prediction or floating eighenvectors:
 
       end
 
-C--------------------------------------------------------------
+C-------------------------------------------------------------
+C> Write fit results for free parameters
+C-------------------------------------------------------------
       subroutine write_pars(ifcn3)
 C-------------------------------------------------------------
 C Extra output of PDF parameters
@@ -557,12 +568,13 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
 C-------------------------------------------------------------
       end
 
-      Subroutine FindBestFCN3
 C-------------------------------------------------------------------
 C
-C Find minuit train which has the best chi2 for the control sample.
+C> Find minuit train which has the best chi2 for the control sample.
 C
 C--------------------------------------------------------------------
+      Subroutine FindBestFCN3
+
       implicit none
       include 'endmini.inc'
       include 'steering.inc'
@@ -597,8 +609,8 @@ C-------------------------------------------------------------------
       print *,' '
       print *,' '
 
-      !> Dump PDFs for this:
-      call PDF_param_iteration(pkeep3(1,iminCont),2) !> Decode params.
+      ! Dump PDFs for this:
+      call PDF_param_iteration(pkeep3(1,iminCont),2) !Decode params.
 C
 C Fix some pars by sum-rules:
 C
@@ -606,7 +618,7 @@ C
       call SumRules(kflag)
       call Evolution
 
-C !> Ready to store: 
+C ! Ready to store: 
 cv      open (76,file='output/lhapdf.block.txt',status='unknown')
 cv      call store_pdfs('output/pdfs_q2val_')
 C store the optimal values 
@@ -634,16 +646,18 @@ C store the optimal values
       end
 
 
-      subroutine WriteCSforAverager
 C----------------------------------------------------
-C The subroutine writes the theoretical values of
-C the cross sections according fo the input bins.
-C The subroutine is used for integration with HERAverager
+C> The subroutine writes the theoretical values of
+C> the cross sections according fo the input bins.
+C> The subroutine is used for integration with HERAverager
 C----------------------------------------------------
 C The functionality is constrained to H1 ZEUS data
 C----------------------------------------------------
-C P.Belov 19/11/2012
+C> \author P.Belov
+c> \date   19/11/2012
 C----------------------------------------------------
+      subroutine WriteCSforAverager
+
       implicit none
 
       include 'steering.inc'
@@ -696,6 +710,11 @@ C      RETURN
       end subroutine
 
 
+C----------------------------------------------------------------
+C> \brief Write theory prediction in format of input data tables.
+C> \param NNuisance number of error sets
+C> \param Theo_cent central value of theory predction
+C----------------------------------------------------------------
       Subroutine WriteTheoryFiles(NNuisance,Theo_cent)
       implicit none
       include 'ntot.inc'
@@ -712,7 +731,7 @@ C      RETURN
 
 C---------------------------------------------------------
 
-      !> Loop over data sets
+      ! Loop over data sets
 
       do iset=1, NDataSets
          if (iset.lt.10) then
@@ -724,7 +743,7 @@ C---------------------------------------------------------
      $        ,file=Trim(OutDirName)//'/theo_'//c//'.dat'
      $        ,status='unknown')
 
-         !> Write  a header 
+         ! Write  a header 
          write (51,'(''* Theory file for '',A)') 
      $        Trim(DATASETLABEL(iset))
 
