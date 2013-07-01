@@ -1,3 +1,8 @@
+C-----------------------------------------------
+C> \brief Get DIS NC cross section
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C-----------------------------------------------
       Subroutine GetNCXsection(IDataSet, local_hfscheme)
       include 'steering.inc'
 
@@ -9,35 +14,59 @@
 
       end
       
+C-----------------------------------------------
+C> \brief Get DIS CC cross section
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C-----------------------------------------------
       Subroutine GetCCXsection(IDataSet, local_hfscheme)
       call GetDisXsection(IDataSet, 'CCDIS', local_hfscheme)
       end
-      
+
+C----------------------------------------------------
+C> \brief Get DIS NC charm production cross section
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C----------------------------------------------------
       Subroutine GetNCCharmXsection(IDataSet, local_hfscheme)
       call GetDisXsection(IDataSet, 'CHARMDIS', local_hfscheme)
       end
-      
+
+C----------------------------------------------------
+C> \brief Get DIS NC cross section
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C----------------------------------------------------      
       Subroutine GetIntegratedNCXsection(IDataSet, local_hfscheme)
       call GetIntegratedDisXsection(IDataSet, 'NCDIS', local_hfscheme)
       end
-      
+
+C----------------------------------------------------
+C> \brief Get DIS CC cross section
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C----------------------------------------------------       
       Subroutine GetIntegratedCCXsection(IDataSet, local_hfscheme)
 C This is not fully tested
       call GetIntegratedDisXsection(IDataSet, 'CCDIS', local_hfscheme)
       end
 
 
-      Subroutine  GetIntegratedDisXsection(IDataSet, XSecType, local_hfscheme)
 C----------------------------------------------------------------
 C
-C  Double differential integrated DIS cross section calculation
-C  Fills global array THEO.
-C  Searches for xmin, xmax, ymin, ymax, q2min, q2max column names 
-C  in a data file as well as 'sqrt(S)' and 'lumi(e-)/lumi(tot)' in
-C  additional information
-C  
-C  Created by KN, 20/01/2012
+C> \brief Double differential integrated DIS cross section calculation
+C> \details Fills global array THEO.
+C> Searches for xmin, xmax, ymin, ymax, q2min, q2max column names 
+C> in a data file as well as 'sqrt(S)' and 'lumi(e-)/lumi(tot)' in
+C> additional information
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C> \param XSecType type of the DIS process
+C
+C> \autor Krzisztof Nowak
+C> \date 20/01/2012
 C---------------------------------------------------------------
+      Subroutine  GetIntegratedDisXsection(IDataSet, XSecType, local_hfscheme)
 
       implicit none
       include 'ntot.inc'
@@ -216,18 +245,23 @@ c         call HF_stop
 
 
 
-      Subroutine GetDisXsection(IDataSet, XSecType, local_hfscheme)
 C----------------------------------------------------------------
 C
-C  NC and CC double differential reduced cross section calculation 
-C  for dataset IDataSet. Fills global array THEO.
-C  Needs 'Q2', 'x', 'y' columns in a data file and following CInfo fields:
-C                'sqrt(S)','e charge', 'reduced', 'e polarity' 
+C> \brief NC and CC double differential reduced cross section calculation 
+C>  for dataset IDataSet. 
+C> \details Fills global array THEO.
+C>  Needs 'Q2', 'x', 'y' columns in a data file and following CInfo fields:
+C>                'sqrt(S)','e charge', 'reduced', 'e polarity' 
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C> \param XSecType type of the DIS process
 C
 C  Created by SG, 25/05/2011
 C  Start with zero mass implementation
 C                 14/06/2011 : re-introduce RT code
 C---------------------------------------------------------------
+      Subroutine GetDisXsection(IDataSet, XSecType, local_hfscheme)
+
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
@@ -282,7 +316,7 @@ C
             print *,
      $ 'ERROR: DIS sample, neigher S nor y are defined !'
             print *,' !!! STOP STOP STOP STOP !!!'
-            call hf_stop
+            call HF_stop
          endif
       endif
 
@@ -349,13 +383,17 @@ C
 
 
 
-      Subroutine ReadPolarityAndCharge(idataset,charge,polarity)
 C----------------------------------------------------------------
 C
-C  Get polarity and charge from the data file
+C> \brief Get polarity and charge from the data file
+C> \param IDataSet index of data set
+C> \param charge of the lepton beam
+C> \param polarity of the lepton beam
 C
-C  Created by Krzysztof Nowak, 18/01/2012
+C> \author Krzysztof Nowak
+C> \date   18/01/2012
 C---------------------------------------------------------------
+      Subroutine ReadPolarityAndCharge(IDataSet,charge,polarity)
 
       implicit none
       include 'ntot.inc'
@@ -422,14 +460,25 @@ c
       end
 
 
-      Subroutine CalcReducedXsectionForXYQ2(X,Y,Q2,npts,charge,polarity,
-     $     idataset,XSecType,local_hfscheme,XSec)
 C----------------------------------------------------------------
-C   Double differential reduced cross section calculation 
-C   for a table given by X, Y, Q2. Fills array XSec
+C> \brief Double differential reduced cross section calculation 
+C>  for a table given by X, Y, Q2. 
+C> \details Fills array XSec
+C> \param[in] X, Y, Q2 kinematic bins
+C> \param[in] npts number of data points
+C> \param[in] charge of the lepton beam
+C> \param[in] polarity of the lepton beam
+C> \param[in] XSecType DIS process type
+C> \param[in] IDataSet index of data set
+C> \param[in] local_hfscheme heavy flavour scheme
+C> \param[out] XSec calculated theoretical cross section
 C
-C  Created by Krzysztof Nowak, 18/01/2012
+C> \author Krzysztof Nowak
+C> \date 18/01/2012
 C---------------------------------------------------------------
+      Subroutine CalcReducedXsectionForXYQ2(X,Y,Q2,npts,charge,polarity,
+     $     IDataSet,XSecType,local_hfscheme,XSec)
+
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
@@ -512,6 +561,7 @@ C all the transformations below are array operations!
          endif
       else if(XSecType.eq.'NCDIS') then
          XSec = F2 + yminus/yplus*xF3 - y*y/yplus*FL
+c         XSec = FL !hp
       else if(XSecType.eq.'CHARMDIS') then
          XSec = F2c - y*y/yplus*FLc
       else
@@ -523,13 +573,20 @@ C all the transformations below are array operations!
       end
 
 
-      subroutine UseZmvnsScheme(f2, fl, xf3, f2gamma, flgamma,
-     $     q2, x, npts, polarity, charge, XSecType)
 C----------------------------------------------------------------
-C    Calculates F2, FL, xF3, F2gamma and FLgamma using ZMVFNS from QCDNUM
-C  
+C> \brief Calculates F2, FL, xF3, F2gamma and FLgamma using ZMVFNS from QCDNUM
+C> \param[out] f2, fl, xf3, f2gamma, flgamma structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] polarity of the lepton beam
+C> \param[in] charge of the lepton beam
+C> \param[in] XSecType DIS process type
+C
 C  Created by Krzysztof Nowak, 31/01/2012
 C---------------------------------------------------------------
+      subroutine UseZmvnsScheme(f2, fl, xf3, f2gamma, flgamma,
+     $     q2, x, npts, polarity, charge, XSecType)
+
       implicit none
       include 'steering.inc'
       include 'couplings.inc'
@@ -692,15 +749,24 @@ cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
       
       end
 
-      subroutine UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $     x, q2, npts, polarity, XSecType,  F2in, FLin, XF3in, 
-     $     charge, local_hfscheme, IDataSet)
 C----------------------------------------------------------------
-C Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
-C according to ACOT scheme
+C> Calculates F2, FL, XF3, F2c, FLc, F2b, FLb according to ACOT scheme
+C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] polarity of the lepton beam
+C> \param[in] charge of the lepton beam
+C> \param[in] XSecType DIS process type
+C> \param[in] local_hfscheme heavy flavour scheme
+C> \param[in] IDataSet data set index
+C> \param[in] F2in, FLin, XF3in structure functions calculated by QCDNUM
 C
 C  Created by Krzysztof Nowak, 23/01/2012
 C---------------------------------------------------------------
+      subroutine UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $     x, q2, npts, polarity, XSecType,  F2in, FLin, XF3in, 
+     $     charge, local_hfscheme, IDataSet)
+
       implicit none
       include 'ntot.inc'
       include 'datasets.inc'
@@ -787,14 +853,22 @@ c         endif
 
 
 
-      subroutine UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, F2gamma, FLgamma, local_hfscheme, IDataSet)
 C----------------------------------------------------------------
-C Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
-C according to Robert Thorne scheme
-C
+C> \brief Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
+C>  according to Robert Thorne scheme
+C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] XSecType DIS process type
+C> \param[in] local_hfscheme heavy flavour scheme
+C> \param[in] IDataSet data set index
+C> \param[in] F2gamma, FLgamma structure functions calculated by mstwnc_wrap
+C>
 C  Created by Krzysztof Nowak, 23/01/2012
 C---------------------------------------------------------------
+      subroutine UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $        x, q2, npts, XSecType, F2gamma, FLgamma, local_hfscheme, IDataSet)
+
       implicit none
       include 'ntot.inc'
       include 'datasets.inc'
@@ -869,13 +943,18 @@ C     Keep xF3 from QCDNUM
 
 
 
-      subroutine UseHqstfScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $     x, q2, npts, XSecType)
 C----------------------------------------------------------------
-C     Calculates F2, FL, XF3, F2c, FLc, F2b and FLb using HQST scheme
+C> \brief Calculates F2, FL, XF3, F2c, FLc, F2b and FLb using HQST scheme
+C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] XSecType DIS process type
 C
 C     Created by Krzysztof Nowak, 31/01/2012
 C---------------------------------------------------------------
+      subroutine UseHqstfScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $     x, q2, npts, XSecType)
+
       implicit none
       include 'qcdnumhelper.inc'
       
@@ -913,12 +992,22 @@ c      print*, 'voica is here', CNEP2F, NC2FHF
 
 
 
+C----------------------------------------------------------------
+C> \brief  Calculates F2, FL, XF3, F2c, FLc, F2b and FLb using ABKM FF scheme
+C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] XSecType DIS process type
+C> \param[in] charge of the lepton beam
+C> \param[in] polarity of the lepton beam
+C> \param[in] IDataSet data set index
+C> \param[in] F2gamma, FLgamma structure functions calculated by QCDNUM
+C>
+C---------------------------------------------------------------
       subroutine UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
      $     x, q2, npts, XSecType, charge, polarity,  
      $     F2gamma, FLgamma, IDataSet)
-C----------------------------------------------------------------
-C     Calculates F2, FL, XF3, F2c, FLc, F2b and FLb using ABKM FF scheme
-C---------------------------------------------------------------
+
       implicit none
       include 'ntot.inc'
       include 'datasets.inc'
