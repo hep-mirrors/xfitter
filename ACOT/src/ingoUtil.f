@@ -113,7 +113,7 @@ c ... iboson = 0,1: gamma gamma + 2 gamma Z + Z Z, gamma gamma
 c              2,3,4: gamma Z + Z gamma, Z Z, W W
 c ... Output: electroweak couplings squared
 c ... see Eq. (1.45) in [3]
-      subroutine couplings(Q2,i,iboson,aplus,aminus,abarplus,
+      subroutine get_couplingsINGO(Q2,i,iboson,aplus,aminus,abarplus,
      #                     abarminus)
       implicit none
       double precision Q2 ! Input
@@ -130,19 +130,34 @@ c ... see Eq. (1.45) in [3]
 
       double precision GF,MZ,MW,pi,alphaem
       double precision chiz,chiw
+      double precision gf_HF, convfac_HF
+      double precision alphaem_HF,sin2thw_HF,cos2thw_HF
+      double precision Mz_HF, Mw_HF, Mh_HF
+
+
+      common/boson_masses/Mz_HF, Mw_HF, Mh_HF
+      common/constants/ gf_HF, convfac_HF
+      common/ew_couplings/alphaem_HF,sin2thw_HF,cos2thw_HF
+
 
       aplus = 0d0
       aminus = 0d0
 
-      GF = 1.16637d-5 ! Fermi constant
-      MZ = 91.1876d0
-      MW = 80.398d0
-
+!      GF = 1.16637d-5 ! Fermi constant
+!      MZ = 91.1876d0
+!      MW = 80.398d0
+!      alphaem = 1d0/137d0
+!      sw2 = 0.232d0 ! sin^2 theta_w
+      GF = gf_HF ! Fermi constant
+      MZ = mz_HF
+      MW = mw_HF
+      alphaem = alphaem_HF
+      sw2 = sin2thw_HF
       pi = dacos(-1d0)
 c ... later to be Q2 dependent
-      alphaem = 1d0/137d0
 
-      sw2 = 0.232d0 ! sin^2 theta_w
+
+
       vu = 1d0/2d0 - 4d0/3d0 * sw2
       vd = -1d0/2d0 + 2d0/3d0 * sw2
 

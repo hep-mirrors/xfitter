@@ -130,8 +130,8 @@ c ... local part prop. to delta distribution
 c      data massps / 0d0,0d0,0d0,0d0,1.3d0,4.5d0,175.0d0 /
       data massps / 0d0,0d0,0d0,0d0,1.3d0,4.5d0,0.0d0 /
 
-      double precision  xm0,xmc,xmb,HMASS
-      common /fred/ xm0,xmc,xmb,HMASS
+      double precision xmc,xmb,HMASS
+      common /fred/xmc,xmb,HMASS
 c 
 c     =======================================================================
       massps(4)=xmc
@@ -164,14 +164,14 @@ c     =======================================================================
 
             a2j =0d0
             do k = 1,j
-               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplingsINGO(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2j = a2j + aplus/j ! average sum of couplings^2 
             enddo
 
             a2jm1 = 0d0
             do k = 1,j-1
-               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplingsINGO(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2jm1 = a2jm1 + aplus/(j-1) ! average sum of couplings^2 
             enddo
@@ -182,7 +182,7 @@ c     =======================================================================
 c     =======================================================================
       else  ! quark initiated  
 
-            call get_couplings(Q2,i,iboson,aplus,aminus,abarplus,
+            call get_couplingsINGO(Q2,i,iboson,aplus,aminus,abarplus,
      >                        abarminus)         
          if (i .eq. j) then
             calFij = aplus * calFns(chi,Q2,i,0,iord,isf)
@@ -193,14 +193,14 @@ c     =======================================================================
 
             a2j =0d0
             do k = 1,j
-               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplingsINGO(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2j = a2j + aplus/j ! average sum of couplings^2 
             enddo
 
             a2jm1 = 0d0
             do k = 1,j-1
-               call get_couplings(Q2,k,iboson,aplus,aminus,abarplus,
+               call get_couplingsINGO(Q2,k,iboson,aplus,aminus,abarplus,
      >                        abarminus)
                a2jm1 = a2jm1 + aplus/(j-1) ! average sum of couplings^2 
             enddo
