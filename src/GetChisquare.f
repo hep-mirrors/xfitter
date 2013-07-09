@@ -143,7 +143,8 @@ C !> Get uncor errors/nuisance parameters.
       do while ( Iterate.ge.0 )
 
 c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
-         if (.not. Chi2FirstIterationRescale .or. Chi2OffsRecalc) then
+         if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1 .or.
+     $  Chi2OffsRecalc) then
             Call Chi2_calc_stat_uncor(ScaledErrors
      $           ,ScaledErrorMatrix
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
