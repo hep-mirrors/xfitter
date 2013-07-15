@@ -96,6 +96,7 @@ C---------------------------------------------------------------
       logical LoopOverYBins, CopyValue
       integer NSubBins
 
+
 C Functions:
       integer GetBinIndex
       integer GetInfoIndex
@@ -492,7 +493,6 @@ C Input:
       double precision Charge, polarity
 C Output: 
       double precision XSec(NPMaxDIS)
-	
       integer i, idx
       double precision yplus(NPMaxDIS), yminus(NPMaxDIS)
       double precision F2(NPMaxDIS),xF3(NPMaxDIS),FL(NPMaxDIS)
@@ -929,8 +929,14 @@ C
       
 C     Replace F2,FL from QCDNUM by RT values
 C     Keep xF3 from QCDNUM
+
          F2(i) = F2RT * (F2(i)/F2Gamma(i))
-         FL(i) = FLRT * (FL(i)/FLGamma(i))
+         if (I_Fit_Order.NE.1) then
+            FL(i) = FLRT * (FL(i)/FLGamma(i))
+         else
+            FL(i) = FLRT
+         endif
+
          F2c(i) = f2cRT
          FLc(i) = flcRT
          F2b(i) = f2bRT
