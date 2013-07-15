@@ -1505,12 +1505,12 @@ C Register external systematics:
       include 'steering.inc'
       character*48 CMess 
 C----------------------------------------------------------
-      if ( I_Fit_order .eq. 1 ) then
-         if ( index(HF_SCHEME,'RT').gt.0 ) then
-            CMess = 'RT scheme does not support LO evolution'
-            goto 998
-         endif
-      endif
+!      if ( I_Fit_order .eq. 1 ) then
+!         if ( index(HF_SCHEME,'RT').gt.0 ) then
+!            CMess = 'RT scheme does not support LO evolution'
+!            goto 998
+!         endif
+!      endif
 
 
       if (LHAPDFErrors) then
