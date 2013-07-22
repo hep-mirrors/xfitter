@@ -1,7 +1,13 @@
-*     ---------------------------------------------------------  	 
-*     Calculate chisquare with the help of covariance matrix:
-*     ---------------------------------------------------------
-
+C----------------------------------------------------------------  	 
+C
+C> @brief Calculate chisquare with the help of covariance matrix
+C
+C> @param flag_in
+C> @param n0_in
+C> @param fchi2_in
+C> @param pchi2_in
+C
+C----------------------------------------------------------------
       subroutine GetCovChisquare(flag_in,n0_in,fchi2_in,pchi2_in)
 
       implicit none
