@@ -56,6 +56,20 @@
 % please place your own definitions here and don't use \def but
 % \newcommand{}{}
 
+\usepackage[hypertexnames,setpagesize,%
+    pdftex,%
+    colorlinks,%
+    citecolor=blue,%
+    hyperindex,%
+    plainpages=false,%
+    bookmarksopen,%
+    bookmarksnumbered%
+  ]{hyperref}
+
+\usepackage[numbers,square,comma,sort&compress]{natbib}
+\usepackage{textcomp}
+\bibliographystyle{herafitter-epjc}
+
 \newcommand\fitter{ \mbox{\tt HERAFitter} }
 
 
@@ -97,8 +111,25 @@
 \maketitle
 
 \begin{abstract}
-Insert your abstract here. Include keywords, PACS and mathematical
-subject classification numbers as needed.
+%Insert your abstract here. Include keywords, PACS and mathematical
+%subject classification numbers as needed.
+The determination of the  proton patron distribution functions is a complex 
+endeavor involving several physics processes. The main process is deep-inelastic 
+scattering and the central  data set covering most of the proton structure 
+phase space is provided at the HERA ep collider. Further processes 
+(fixed target DIS, ppbar collisions etc.) provide further constraints for 
+particular aspects: flavor separation, very high Bjorken-x etc.
+In particular, the precise measurements obtained or to come from LHC will 
+continue to improve the knowledge of the PDF. 
+The HERAFitter project aim at providing a framework for QCD analyses related 
+to proton structure in the context of multi-processes and multi-experiments. 
+The framework includes modules or interfaces enabling a large number of 
+theoretical and methodological options, as well as a large number of 
+relevant data sets from HERA, Tevatron and LHC. 
+%This manual explains the theoretical input used in the QCD analysis, 
+%the fit  methodology and the  installation procedure of the program. 
+%More information and the package downloads can be found on the web 
+%site {\tt http://herafitter.org}.
 \keywords{First keyword \and Second keyword \and More}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
@@ -108,18 +139,18 @@ subject classification numbers as needed.
 \label{sec:intro}
 \input{intro.tex}
 
-Your text comes here. Separate text sections with
 \section{Theoretical Input}
 \label{sec:theory}
+\input{theory.tex}
 %\input{}
-Text with citations \cite{RefB} and \cite{RefJ}.
+%Text with citations \cite{RefB} and \cite{RefJ}.
 
 
 \section{Methodology}
 \label{sec:method}
 
 \section{User Examples}
-\label{sec:example}
+\label{sec:examples}
 
 
 \section{Summary}
@@ -193,20 +224,21 @@ Text with citations \cite{RefB} and \cite{RefJ}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Non-BibTeX users please use
-\begin{thebibliography}{}
-%
-% and use \bibitem to create references. Consult the Instructions
-% for authors for reference list style.
-%
-\bibitem{RefJ}
-% Format for Journal Reference
-Author, Article title, Journal, Volume, page numbers (year)
-% Format for books
-\bibitem{RefB}
-Author, Book title, page numbers. Publisher, place (year)
-% etc
-\end{thebibliography}
+%% Non-BibTeX users please use
+%\begin{thebibliography}{}
+%%
+%% and use \bibitem to create references. Consult the Instructions
+%% for authors for reference list style.
+%%
+%\bibitem{RefJ}
+%% Format for Journal Reference
+%Author, Article title, Journal, Volume, page numbers (year)
+%% Format for books
+%\bibitem{RefB}
+%Author, Book title, page numbers. Publisher, place (year)
+%\end{thebibliography}
+
+\bibliography{herafitter-epjc.bib}
 
 \end{document}
 % end of file template.tex
