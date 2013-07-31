@@ -5,7 +5,7 @@ if HAVE_BIBTEX
 infiles = $(docfiles)
 docfiles +=  herafitter-epjc.pdf
 MANNAME =  herafitter-epjc
-MANTEXSRC = $(MANNAME).tex intro.tex summary.tex method.tex
+MANTEXSRC = $(MANNAME).tex intro.tex summary.tex method.tex theory.tex
 MANAUX = $(MANNAME).aux
 MANPDF = $(MANNAME).pdf
 
