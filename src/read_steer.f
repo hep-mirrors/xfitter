@@ -271,6 +271,14 @@ C Backward compatibility for b0.3 release !!!!
  142  continue
 C  End of backward compatibility !!!
 
+C 
+      if (AsymErrorsIterations .gt. 0) then
+         call hf_errlog(13080601,'I: Use asymmetric uncertainties')
+      else
+         call hf_errlog(13080601,
+     $        'I: Symmetrise asymmetric uncertainties if present')
+      endif
+
 
 C Decode computation order:
       if (Order.ne.' ') then
