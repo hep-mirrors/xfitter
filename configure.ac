@@ -231,14 +231,14 @@ AC_CONFIG_FILES([src/Makefile
                  tools/MakeLHAPDF/Makefile
                  FastNLO/src/Makefile
                  minuit/src/Makefile
-                 HS/src/Makefile
+                 EW/src/Makefile
                  RT/src/Makefile
                  DiffDIS/src/Makefile
                  DIPOLE/src/Makefile
                  DY/src/Makefile
                  Hathor/src/Makefile
                  ACOT/src/Makefile
-                 ABKM/src/Makefile
+                 ABM/src/Makefile
                  NNPDF/src/Makefile
                  Cascade/src/Makefile
                  doc/tex/manual/Makefile
