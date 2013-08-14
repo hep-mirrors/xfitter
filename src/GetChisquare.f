@@ -1,9 +1,12 @@
-*     ---------------------------------------------------------  	 
-*     Calculate chisquare:
-*      - first get error matrix
-*      - invert error matric to get errors
-*      - calculate chisquare
-*     ---------------------------------------------------------
+C--------------------------------------------------------  	 
+C> @brief Calculate chisquare
+C
+C>      - first get error matrix
+C>      - invert error matric to get errors
+C>      - calculate chisquare
+C
+C
+C---------------------------------------------------------
 
       subroutine GetNewChisquare(flag_in,n0_in,fchi2_in,rsys_in,ersys_in,pchi2_in,
      $     fcorchi2_in)
@@ -552,9 +555,8 @@ C----------------------------------------------------------------------
       
 C===========================================================
 C
-C> @brief Get uncertainties
-C
-C> @param[in] Idx data point index
+C> @brief      Get uncertainties
+C> @param[in]  Idx data point index
 C> @param[out] Stat absolute errors
 C> @param[out] StatConst absolute errors
 C> @param[out] Uncor absolute errors

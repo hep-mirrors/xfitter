@@ -1,8 +1,15 @@
-c----------------------------------------------------------------------
+C---------------------------------------------------------
+C> @brief  Main minimization subroutine for MINUIT
+C
+C> @param  npar      number of currently variable parameters
+C> @param  g_dummy   the (optional) vector of first derivatives
+C> @param  chi2out   the calculated function value
+C> @param  parminuit vector of (constant and variable) parameters from minuit.in.txt
+C> @param  iflag     flag set by minuit (1-init, 2-iteration, 3-finalisation)
+C> @param  futil     name of utilitary routine
+C---------------------------------------------------------
       subroutine  fcn(npar,g_dummy,chi2out,parminuit,iflag,futil)
-*     ---------------------------------------------------------
-*     Main minimization subroutine for MINUIT
-*     ---------------------------------------------------------
+
       implicit none
 
 *     ---------------------------------------------------------
@@ -75,13 +82,15 @@ C !> Also store for each fcn=3 call:
       end
 
 
+C------------------------------------------------------------------------------
+C> @brief     Calculate predictions for the data samples and return total chi2.
+C> @details   Created by splitting original fcn() function
+C> @param[in] iflag minuit flag indicating minimisation stage
+C> @authors   Sasha Glazov, Voica Radescu
+C> @date      22.03.2012
+C------------------------------------------------------------------------------
       double precision function chi2data_theory(iflag)
-C-------------------------------------------------------------
-C Created 22/03/2012 by SG and VR by splitting original fcn() function
-C
-C Calculate predictions for the data samples and return total chi2.
-C  Input: minuit flag iflag, indicating minimisation stage
-C--------------------------------------------------------------
+
       implicit none
 C--------------------------------------------------------------
       integer iflag
@@ -139,8 +148,8 @@ C--------------------------------------------------------------
       integer isys,ipoint,jpoint
       integer idataset
       double precision TempChi2
-      double precision GetTempChi2   !> Temperature penalty for D, E... params.
-      double precision OffsDchi2   !> correction for final Offset calculation
+      double precision GetTempChi2   ! Temperature penalty for D, E... params.
+      double precision OffsDchi2   ! correction for final Offset calculation
       
 
 C  x-dependent fs:
@@ -432,7 +441,7 @@ c             call fillvfngrid
 
       fchi2 = fchi2 + DeltaLength
       
-!> Temperature regularisation:
+! Temperature regularisation:
       if (Temperature.ne.0) then
          TempChi2 = GetTempChi2()
          print *,'Temperature chi2=',TempChi2
@@ -475,7 +484,7 @@ c             call fillvfngrid
      $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(6,*)
 
-         !> Store minuit parameters
+         ! Store minuit parameters
          call write_pars(nfcn3)
 
          if (ControlFitSplit) then
@@ -492,7 +501,7 @@ c            write (71,'(4F10.4)')
 c     $           paruval(4),paruval(5),chi2_fit/NFitPoints
 c     $           ,chi2_cont/NControlPoints
 
-            !> Store chi2 per fcn3 call values:
+            ! Store chi2 per fcn3 call values:
             chi2cont3(nfcn3) = chi2_cont
             chi2fit3(nfcn3)  = chi2_fit
          endif
@@ -598,18 +607,17 @@ C Return the chi2 value:
 
 
 C---------------------------------------------------------------------
+!> @brief   Calculate penalty term for higher oder parameters using "temperature" 
+!> @details Currently works only for standard param-types (10p-13p-like)
+C---------------------------------------------------------------------
       double precision function GetTempChi2()
-!>
-!> Calculate penalty term for higher oder parameters using "temperature" 
-!> Currently works only for standard param-types (10p-13p-like)
-!>
+
       implicit none
       include 'pdfparam.inc'
       integer i
       double precision chi2
       double precision xscale(3)
       data xscale/0.01,0.01,0.01/
-C---------------------------------------------------------------------
       chi2 = 0.
 
 C Over d,e and F
