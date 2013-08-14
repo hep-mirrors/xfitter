@@ -76,8 +76,8 @@ endif
 LDADD+=  ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
  ../ACOT/src/libmyacot.a \
- ../HS/src/libmyhs.a \
- ../ABKM/src/libmyabkm.a \
+ ../EW/src/libmyew.a \
+ ../ABM/src/libmyabm.a \
  ../FastNLO/src/libFastNLO.a \
  ../DIPOLE/src/libmydipole.a \
  ../DiffDIS/src/libDiffDIS.a\
