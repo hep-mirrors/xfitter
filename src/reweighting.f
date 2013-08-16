@@ -36,6 +36,7 @@ c----------------------------------------------------------------------
       logical isMCPDFMethod,isSymmetricErrors
       logical ex
       double precision chi2tot
+      integer isSymmErrors
       integer iset
       integer idatapoint
       integer irow
@@ -52,6 +53,17 @@ c     initialize number of PDF replicas
 C---------------------------------------------------------------
       call GetPDFUncType(isMCPDFMethod,isSymmetricErrors)
       call numberPDF(rwpdfsets)
+      print '(''isSymmetricErrors  '',L1)',
+     $     isSymmetricErrors
+
+      if ((isSymmetricErrors)) then
+         isSymmErrors=1
+      else 
+         isSymmErrors=0
+      endif
+
+      print '(''isSymmetricErrors  '',I1)',
+     $     isSymmErrors
 
 *     ------------------------------------------------
 *     initialize RWPDF steering file 
@@ -84,7 +96,7 @@ C---------------------------------------------------------------
          rwpdfsets=RWREPLICAS
         call create_randompdfreplicas(TRIM(RWPDFSET)//CHAR(0),
      $        TRIM(outfilenames)//CHAR(0),replicas,
-     $        isSymmetricErrors)
+     $        isSymmErrors)
         print *,TRIM(RWPDFSET)
 
         write( stringnreplicas, '(i5)' )  rwpdfsets
