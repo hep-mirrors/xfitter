@@ -174,6 +174,14 @@ C  !> Sum covariance matricies and invert the total:
 
 C !> same for diagonal part:
             do i=1,n0_in
+
+            if(NCovar.eq.0.and.ScaledErrors(i).eq.0.0d0) then
+c no cov matrix and no ScaledErrors errors, break                
+              print*,'GetNewChisquare: no stat and unc errors in data!'
+              print*,'(possibly cov matrix forgot to be included?)'
+              call hf_stop
+            endif
+
                ScaledErrors(i) = 1.D0 
      $              / (ScaledErrors(i)*ScaledErrors(i))
             enddo
