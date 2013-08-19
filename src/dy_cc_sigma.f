@@ -77,7 +77,7 @@ C---------------------------------------------------
       
 C>18/01/2013----------------------
       integer idxNorm
-      double precision CSpred_tot
+      double precision CSpred_tot, aScaleNorm
 
 C----------------------------------------------------      
       if (NDATAPOINTS(IDataSet).gt.NPmax) then
@@ -88,6 +88,9 @@ C----------------------------------------------------
 
 C Check if normalisation is needed
       idxNorm = GetInfoIndex(IDataSet,'Normalised')
+      if (idxNorm.gt.0) then
+         aScaleNorm = DATASETInfo(idxNorm,IDataSet)
+      endif
 
 C     Check type of the data                                                                                      
 
@@ -138,7 +141,7 @@ C     check if we have to divide APPLGRID prediction to convert units to data un
       
 
 C Normalize if the field 'Normalised' takes place in the dataset
-      if (idxNorm.gt.0) then
+      if (idxNorm.gt.0.and.aScaleNorm.gt.0) then
             CSpred_tot = 0
 C     Calculate the bin size:
          idxBinEta1 = GetBinIndex(IDataSet,'y1')
@@ -164,8 +167,8 @@ C     Bin Size
            THEO(idx) =
      $           (XSecPlus(i)-XSecMinus(i))/(XSecPlus(i)+XSecMinus(i))
 C          print*,'prediction for theory: ', THEO(idx),'--- index: ',i                                            
-         else if(idxNorm.gt.0) then
-           THEO(idx) = XSec(i) / (TheoryUnit *CSpred_tot)
+         else if(idxNorm.gt.0.and.aScaleNorm.gt.0) then
+           THEO(idx) = XSec(i) / (TheoryUnit *CSpred_tot) /aScaleNorm
          else
            THEO(idx) = XSec(i) / TheoryUnit     
          endif
@@ -349,7 +352,7 @@ C Need also bin sizes:
 
 C>15/11/2011----------------------
 C Normalize if the field 'Normalised' takes place in the dataset
-      if (idxNorm.gt.0) then
+      if (idxNorm.gt.0.and.aScaleNorm.gt.0) then
          CSpred_tot = 0
 C Calculate sum:
          do i=1,NDATAPOINTS(IDataSet)
