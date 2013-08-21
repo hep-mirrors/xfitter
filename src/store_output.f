@@ -369,6 +369,7 @@ C
 
       integer iset
       integer nsets
+      logical MonteCarloPDFErr, SymmetricPDFErr
       double precision chi2tot
 C Function:
       double precision chi2data_theory
@@ -377,7 +378,8 @@ C Function:
 
 C Store central, plus/minus theory predictions:
       double precision theo_cent(NTOT), 
-     $     theo_minus(NTOT), theo_plus(NTOT)
+     $     theo_minus(NTOT), theo_plus(NTOT),
+     $     theo_var(NTOT)
       integer nsysLoc
 
 C Some hack to store PDFs
@@ -390,6 +392,27 @@ C Some hack to store PDFs
 C-----------------------------------------------------------
       nsets = nLHAPDF_Sets+1
 C      nsets = 45
+
+c     GetPDFUncType is the LHAPDF function to distinguish between 
+c     different errors approach (Monte Carlo, symmetric hessian, asymmetric hessian)
+c     !! But function is obsolete, does not work with newer PDF names !!
+c      call GetPDFUncType(MonteCarloPDFErr, SymmetricPDFErr)
+
+c     HERAFitter rewrote of GetPDFUncType function
+      call GetPDFUncType_HERAF(LHAPDFSET,
+     $     MonteCarloPDFErr, SymmetricPDFErr)
+
+      if (MonteCarloPDFErr) then
+         print *,trim(LHAPDFSET),
+     $        ' has Monte Carlo errors approach'
+      else if (SymmetricPDFErr) then
+         print *,trim(LHAPDFSET),
+     $        ' has symmetric hessian errors approach'
+      else
+         print *,trim(LHAPDFSET),
+     $        ' has asymmetric hessian errors approach'
+      endif
+
       nsysLoc = nsys
       print *,'Nsets=',nsets
       
@@ -406,18 +429,20 @@ C Store theory prediction:
          else
             chi2tot = chi2data_theory(min(2,iset))
 C Store theory predictions for  up/down variations:
-            if ( mod(iset,2).eq.0) then
-               do i=1,Npoints
-                  THEO_PLUS(i) = THEO(i)
-               enddo
-            else
-               do i=1,Npoints
-                  THEO_MINUS(i) = THEO(i)
-               enddo
+            if (SymmetricPDFErr.eqv..false.) then
+               if (mod(iset,2).eq.0) then
+                  do i=1,Npoints
+                     THEO_PLUS(i) = THEO(i)
+                  enddo
+               else
+                  do i=1,Npoints
+                     THEO_MINUS(i) = THEO(i)
+                  enddo
+               endif
             endif
 
 C Also add "systematics" for these sources:
-            if ( mod(iset,2).eq.0) then
+            if (SymmetricPDFErr.or.(mod(iset,2).eq.0)) then
                nsysLoc = nsysLoc + 1
                if ( nsysLoc - nsys .ge. 10 ) then
                   write (tag,'(''_'',i2)')  nsysLoc - nsys
@@ -427,19 +452,24 @@ C Also add "systematics" for these sources:
 
                SYSTEM(nsysLoc) = 'PDF_nuisance_param'//tag
                do i=1,Npoints
-                  Beta(nsysLoc,i) = 
-     $                 -(THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
-     $                 / THEO_CENT(i)
-
-                  BetaAsym(nsysLoc,2,i) =  (THEO_MINUS(i)-THEO_CENT(i))
-     $                 /THEO_CENT(i)
-                  BetaAsym(nsysLoc,1,i) =  (THEO_PLUS (i)-THEO_CENT(i))
-     $                 /THEO_CENT(i)
-
-                  omega(nsysLoc,i) = 
-     $                 (THEO_PLUS(i)+THEO_MINUS(i)-2*THEO_CENT(i))/2.0D0
-     $                 / THEO_CENT(i)
+                  if (SymmetricPDFErr) then
+                     Beta(nsysLoc,i) = (THEO(i)-THEO_CENT(i))
+     $                    / THEO_CENT(i)
+                     omega(nsysLoc,i) = THEO_CENT(i)
+                  else
+                     Beta(nsysLoc,i) = 
+     $                    -(THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
+     $                    / THEO_CENT(i)
                   
+                     BetaAsym(nsysLoc,2,i)=(THEO_MINUS(i)-THEO_CENT(i))
+     $                    /THEO_CENT(i)
+                     BetaAsym(nsysLoc,1,i)=(THEO_PLUS (i)-THEO_CENT(i))
+     $                    /THEO_CENT(i)
+                     
+                     omega(nsysLoc,i) = 
+     $                    (THEO_PLUS(i)+THEO_MINUS(i)-2*THEO_CENT(i))
+     $                    /2.0D0 / THEO_CENT(i)
+                  endif
 
                   if (Scale68) then
                      Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
@@ -447,9 +477,8 @@ C Also add "systematics" for these sources:
                      BetaAsym(nsysLoc,2,i) = BetaAsym(nsysLoc,2,i)/1.64
                   endif
                enddo
-            endif
-
-         endif
+            endif ! end of (SymmetricPDFErr.or.(mod(iset,2).eq.0)
+         endif ! end of (iset.ne.1)
          print '(''Got PDF set='',i5,'' chi2='',F10.1,'' ndf='',i5)',
      $        iset,chi2tot,ndfmini
          write(86,*) iset, ' ', chi2tot/ndfmini
@@ -469,7 +498,11 @@ C Also add "systematics" for these sources:
          if (iset.eq.0) then
             name = TRIM(OutDirName)//'/pdfs_q2val_'
          else
-            i = (iset-1) / 2 + 1
+            if (SymmetricPDFErr) then
+               i = iset
+            else
+               i = (iset-1) / 2 + 1
+            endif
 
             if (i.lt.10) then
                write (tag,'(''s0'',i1)') i
@@ -479,10 +512,14 @@ C Also add "systematics" for these sources:
 
             base = TRIM(OutDirName)//'/pdfs_q2val_'//tag
             idx = index(base,' ')-1
-            if ( mod(iset,2).eq.1) then
-               name = base(1:idx)//'m_'
+            if (SymmetricPDFErr) then
+               name = base(1:idx)//'_'
             else
-               name = base(1:idx)//'p_'
+               if ( mod(iset,2).eq.1) then
+                  name = base(1:idx)//'m_'
+               else
+                  name = base(1:idx)//'p_'
+               endif
             endif
          endif
          call store_pdfs(name)
@@ -490,7 +527,7 @@ C Also add "systematics" for these sources:
       enddo
 
 C Write out "theory files" with uncertainties  
-      Call WriteTheoryFiles(NSysLoc-NSys, THEO_CENT)
+      Call WriteTheoryFiles(NSysLoc-NSys, THEO_CENT, SymmetricPDFErr)
 
 C Write some chi2 tests, vs central prediction or floating eighenvectors:
       Call initpdf(0)
@@ -715,7 +752,7 @@ C> \brief Write theory prediction in format of input data tables.
 C> \param NNuisance number of error sets
 C> \param Theo_cent central value of theory predction
 C----------------------------------------------------------------
-      Subroutine WriteTheoryFiles(NNuisance,Theo_cent)
+      Subroutine WriteTheoryFiles(NNuisance,Theo_cent,SymmetricPDFErr)
       implicit none
       include 'ntot.inc'
       include 'steering.inc'
@@ -725,6 +762,7 @@ C----------------------------------------------------------------
 
       integer NNuisance
       double precision Theo_cent(Ntot)
+      logical SymmetricPDFErr
       integer iset, ipoint, j, i
       
       character*2 c
@@ -751,32 +789,60 @@ C---------------------------------------------------------
          write (51,'(''   Name = "Theory for '',A,''"'')')
      $        Trim(DATASETLABEL(iset))
          write (51,'(''   NData = '',I5)') NDATAPOINTS(iset)
-         write (51,'(''   NColumn = '',I5)') NNuisance*2+1 
+
+         if (SymmetricPDFErr) then
+            write (51,'(''   NColumn = '',I5)') NNuisance+1 
      $        + DATASETBinningDimension(iset)
-         write (51,
+
+            write (51,
+     $'(''   ColumnType = '',I1,''*"Bin","Theory",'',i3,''*"Error"'')')
+     $       DATASETBinningDimension(iset), NNuisance
+
+            write (51,'(''   ColumnName = '',200(''"'',A,''",''))'
+     $           ,advance='no' )
+     $           ( trim(DATASETBinNames(i,iset)),
+     $           i=1,DATASETBinningDimension(iset) ), 'theory',
+     $           ( trim(System(nsys+i)),i=1,NNuisance-1)
+            write (51,'(A,''"'')')       
+     $           ( trim(System(nsys+i)),i=NNuisance,NNuisance)
+            write (51,'(''   Percent = '',I3,''*True'')') NNuisance
+         else
+            write (51,'(''   NColumn = '',I5)') NNuisance*2+1 
+     $        + DATASETBinningDimension(iset)
+            write (51,
      $'(''   ColumnType = '',I1,''*"Bin","Theory",'',i3,''*"Error"'')')
      $       DATASETBinningDimension(iset), NNuisance*2
-         write (51,'(''   ColumnName = '',200(''"'',A,''",''))'
-     $        ,advance='no' )
-     $        ( trim(DATASETBinNames(i,iset)),
-     $        i=1,DATASETBinningDimension(iset) ), 'theory',
-     $        ( trim(System(nsys+i))//'-', 
-     $        trim(System(nsys+i))//'+',i=1,NNuisance-1)
-         write (51,'(A,''",'',''"'',A,''"'')')       
-     $        ( trim(System(nsys+i))//'-', 
-     $        trim(System(nsys+i))//'+',i=NNuisance,NNuisance)
+            write (51,'(''   ColumnName = '',200(''"'',A,''",''))'
+     $           ,advance='no' )
+     $           ( trim(DATASETBinNames(i,iset)),
+     $           i=1,DATASETBinningDimension(iset) ), 'theory',
+     $           ( trim(System(nsys+i))//'-', 
+     $           trim(System(nsys+i))//'+',i=1,NNuisance-1)
+            write (51,'(A,''",'',''"'',A,''"'')')       
+     $           ( trim(System(nsys+i))//'-', 
+     $           trim(System(nsys+i))//'+',i=NNuisance,NNuisance)
+            write (51,'(''   Percent = '',I3,''*True'')') NNuisance*2 
+         endif
 
-         write (51,'(''   Percent = '',I3,''*True'')') NNuisance*2 
          write (51,'(''&End '')')
 
          do i = 1, NDATAPOINTS(iset)
             ipoint = Datasetidx(iset,i)
-            write (51,'(200E12.4)') 
+            if (SymmetricPDFErr) then
+               write (51,'(200E12.4)') 
+     $  ( AbstractBins(j,ipoint),j=1,DATASETBinningDimension(iset)),
+     $           theo_cent(ipoint),
+     $  ( Beta(j,ipoint)*100.0,
+     $           j=NSys+1
+     $           ,NSys+NNuisance) 
+            else
+               write (51,'(200E12.4)') 
      $  ( AbstractBins(j,ipoint),j=1,DATASETBinningDimension(iset)),
      $           theo_cent(ipoint),
      $  ( BetaAsym(j,1,ipoint)*100.0, BetaAsym(j,2,ipoint)*100., 
      $           j=NSys+1
      $           ,NSys+NNuisance) 
+            endif
          enddo
          close (51)
       enddo
