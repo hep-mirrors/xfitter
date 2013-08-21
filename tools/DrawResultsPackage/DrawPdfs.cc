@@ -114,6 +114,8 @@ int main(int argc, char **argv)
 	pdfscanvasratiolist.push_back(PdfsRatioPainter((*qit).first, (*pdfit).first, (*pdfit).second));
       }
 
+  if (OutputPath.rfind("/") != OutputPath.size() - 1)
+    OutputPath.append("/");
   system(((string)"mkdir -p " + OutputPath).c_str());
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
     {
