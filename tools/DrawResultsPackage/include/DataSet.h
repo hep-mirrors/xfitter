@@ -16,6 +16,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::map;
+using std::vector;
 
 struct SubPlot {
   TString* fTitle;
@@ -25,11 +26,12 @@ struct SubPlot {
   TGraphErrors* fTheo;
   TGraphErrors* fTMod;
   TH1F* fHistogram;
+  vector <float> Bins1, Bins2, Data, Uncor, Toterr, Th, Thshift, Pull;
   bool fXlog;
   bool fYlog;
   SubPlot(const char* descriptor);
   virtual ~SubPlot();
-  void AddPoint(double x, double data, double uncorrerr, double toterr, double theory, double theory_mod);
+  void AddPoint(double x, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double pull);
   void PrepareHistogram(bool RatioToData);
 };
 
@@ -48,7 +50,7 @@ class  DataSet {
   inline const Char_t* GetName() {return fName->Data();}
   
   void AddNewPlot(const char* descriptor);
-  void AddPoint(const char* s, double data, double uncorrerr, double toterr, double theory, double theory_mod);
+  void AddPoint(const char* s, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double pull);
   inline int GetNSubPlots() {return fSubPlots.size();}
   
   TH1F* GetHistogram(int i, bool RatioToData);
@@ -58,6 +60,14 @@ class  DataSet {
   TGraphErrors* GetTMod(int i);
   bool          GetXlog(int i);
   bool          GetYlog(int i);
+  vector <float>  getbins1(int idx);
+  vector <float>  getbins2(int idx);
+  vector <float>  getdata(int idx);
+  vector <float>  getuncor(int idx);
+  vector <float>  gettoterr(int idx);
+  vector <float>  gettheory(int idx);
+  vector <float>  gettheoryshifted(int idx);
+  vector <float>  getpulls(int idx);
   
  private:
   SubPlot* GetSubPlot(int idx);
