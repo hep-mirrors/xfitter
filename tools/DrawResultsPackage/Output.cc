@@ -425,7 +425,7 @@ Int_t Output::PrepareDataSets() {
   Int_t dataset;
   Char_t buffer[BUFFERSIZE];
   TString str, Name;
-  double data, uncorrerr, toterr, theory, theory_mod;
+  double bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, pull;
 
 
   ifstream infile(filename->Data());
@@ -467,11 +467,14 @@ Int_t Output::PrepareDataSets() {
       if((array->GetEntries() == 10) ||   // old format, need to have general plotting	
 	 (array->GetEntries() == 11)) {   // new format with a plotting variable
 	
+	bin1      = ((TObjString*)array->At(0))->GetString().Atof();
+	bin2      = ((TObjString*)array->At(1))->GetString().Atof();
 	data      = ((TObjString*)array->At(3))->GetString().Atof();
 	uncorrerr = ((TObjString*)array->At(4))->GetString().Atof();
 	toterr    = ((TObjString*)array->At(5))->GetString().Atof();
 	theory    = ((TObjString*)array->At(6))->GetString().Atof();
 	theory_mod  = ((TObjString*)array->At(7))->GetString().Atof();
+	pull      = ((TObjString*)array->At(8))->GetString().Atof();
 	
 	str = "";
 	if(array->GetEntries() == 11) 
@@ -484,7 +487,7 @@ Int_t Output::PrepareDataSets() {
 	}
 	
 	NewDataSet->AddPoint( str.Data(),
-			      data, uncorrerr, toterr, theory, theory_mod);
+			      bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, pull);
       }
       delete array;
     }

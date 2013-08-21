@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
     delete painter;
     
   }
-
+  //call here new drawing functions, need to change options parsing
   return 0;
 
 }

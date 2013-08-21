@@ -25,8 +25,16 @@ SubPlot::~SubPlot() {
 }
 
 
-void SubPlot::AddPoint(double x, double data, double uncorrerr, double toterr, double theory, double theory_mod) {
+void SubPlot::AddPoint(double x, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double pull) {
   Int_t N = fDUnc->GetN();
+  Bins1.push_back(bin1);
+  Bins2.push_back(bin2);
+  Data.push_back(data);
+  Uncor.push_back(uncorrerr);
+  Toterr.push_back(toterr);
+  Th.push_back(theory);
+  Thshift.push_back(theory_mod);
+  Pull.push_back(pull);
   fDUnc->Set(N+1);
   fDTot->Set(N+1);
   fTheo->Set(N+1);
@@ -220,6 +228,46 @@ bool  DataSet::GetYlog(int idx) {
   if(!s) return kFALSE;
   return s->fYlog;
 }
+vector <float>  DataSet::getbins1(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Bins1;
+}
+vector <float>  DataSet::getbins2(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Bins2;
+}
+vector <float>  DataSet::getdata(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Data;
+}
+vector <float>  DataSet::getuncor(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Uncor;
+}
+vector <float>  DataSet::gettoterr(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Toterr;
+}
+vector <float>  DataSet::gettheory(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Th;
+}
+vector <float>  DataSet::gettheoryshifted(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Thshift;
+}
+vector <float>  DataSet::getpulls(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->Pull;
+}
 
 void DataSet::AddNewPlot(const char* descriptor) {
   TString temp(descriptor);
@@ -232,12 +280,12 @@ void DataSet::AddNewPlot(const char* descriptor) {
   fSubPlots[iplot] = new SubPlot(descriptor);  
 }
 
-void DataSet::AddPoint(const char* s, double data, double uncorrerr, double toterr, double theory, double theory_mod) {
+void DataSet::AddPoint(const char* s, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double pull) {
   TString str(s);
   TObjArray* array = str.Tokenize("/");
   int iplot = ((TObjString*) array->At(0))->GetString().Atoi();
   double x = ((TObjString*) array->At(1))->GetString().Atof();
   map<int,SubPlot*>::iterator it = fSubPlots.find(iplot);
   if(it == fSubPlots.end()) fSubPlots[iplot] = new SubPlot("");
-  fSubPlots[iplot]->AddPoint(x, data, uncorrerr, toterr, theory, theory_mod);
+  fSubPlots[iplot]->AddPoint(x, bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, pull);
 }
