@@ -44,10 +44,14 @@ int main(int argc, char **argv)
 	}
 
   //initialize datasets
-  if (ibase2 ==0)
+  if (ibase2 ==0){
     OutputPath = argv[ibase1];
-  else
+    cout << "plots are stored in: " << (argv[ibase1]) << endl;
+  }
+  else{
     OutputPath = "datapulls/";
+    cout << "plots are stored in: datapulls/" << endl;
+  }
 
   vector <Output*> info_output;
   info_output.push_back(new Output(argv[ibase1]));
@@ -100,7 +104,8 @@ int main(int argc, char **argv)
   for (map <int, vector <dataseth> >::iterator it = datamap.begin(); it != datamap.end(); it++)
     canvaslist.push_back(DataPainter((*it).first, (*it).second));
 
-  
+  if (OutputPath.rfind("/") != OutputPath.size() - 1)
+    OutputPath.append("/");
   system(((string)"mkdir -p " + OutputPath).c_str());
   for (vector <TCanvas*>::iterator it = canvaslist.begin(); it != canvaslist.end(); it++)
     {
