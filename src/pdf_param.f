@@ -23,7 +23,7 @@ C--------------------------------------------------------
 
       double precision fs,rs
       double precision fshermes
-      double precision alphasPDF, StepAlphaS
+      double precision alphasPDF, StepAlphaS, StepFs
 
       	
 C-------------------------------------------------------
@@ -74,14 +74,19 @@ C-------------------------------------------------------
             Call HF_errlog(13050800,
      $           'S: Add to ExtraParamters with the name rs or fs')
          elseif ((idxRS.ne.0).and.(idxFS.ne.0)) then
-            print *,'Both rs and fs are defined, can cause mess' 
+            print *,'Use either rs or fs, NOT both:
+     $           Both rs and fs are defined' 
             Call HF_errlog(13050801,
      $           'S: Use either rs or fs, NOT both')
-         else
+         elseif (idxFS.ne.0) then
             idxFS = iExtraParamMinuit(idxFS)
+            StepFs = ExtraParamStep(idxFS)
+         elseif (idxRS.ne.0) then
             idxRS = iExtraParamMinuit(idxRS)
+            StepFs = ExtraParamStep(idxRS)
          endif
-         
+
+
          idxFCharm = GetParameterIndex('fcharm')
          if (idxFCharm.gt.0) then
             idxFCharm = iExtraParamMinuit(idxFCharm)
@@ -1547,22 +1552,28 @@ C
 C---------------------------------------------------------
       end
 
-      double precision function powerLen(W,a,b,c,d,f)
+      double precision function powerLen(W,a,b,c,d,e,f,ap,bp,cp)
 C
 C Utility to calculate pdf length element in W for power parameterization.
 C
       implicit none
-      double precision W,a,b,c,d,f,q2,x,der,derw,p
+      include 'steering.inc'
+      double precision W,a,b,c,d,e,f,q2,x,der,derw,p,ap,bp,cp
 C----------------------------------------------------
 C Assume Q2=4
-      Q2 = 4.D0
+!      Q2 = 4.D0
+      Q2 = starting_scale
       X = Q2/(Q2 + W*W)
 
-      p   = (1.D0+d*x+f*x*x*x)
+      p   = (1.D0+d*x+e*x*x+f*x*x*x)
       der = a*x**b*(1.D0-x)**c*p*
      $     (b/x 
      $     - c/(1.0D0-x) 
-     $     + (d+3.D0*f*x*x)/p)
+     $     + (d+2.D0*e*x+3.D0*f*x*x)/p)
+     $     -ap*x**bp*(1.D0-x)**cp*
+     $     (bp/x
+     $     -cp/(1.0D0-x))
+
 C W derrivative:
       derw = - der* (2*W*Q2)/((W*W+Q2)*(W*W+Q2))
 
@@ -1576,6 +1587,7 @@ C
 C Utility to calculate pdf length element in W for chebyshev parameterization.
 C
       implicit none
+      include 'steering.inc'
       integer ncheb,iType
       double precision W,poly(ncheb),a,xminlog
       double precision Q2,X,XX,Sum,der,derw,sum2
@@ -1588,7 +1600,7 @@ C------------------------------------------------------
          LFirst = .false.
       endif
 C Assume Q2=4
-      Q2 = 4.D0
+      Q2 = starting_scale
       X = Q2/(Q2 + W*W)
 C
 C get derrivative:
@@ -1634,7 +1646,8 @@ C----------------------------------------------------
 
       if (nchebglu.eq.0) then
          glulen = powerlen(W,parglue(1)
-     $        ,parglue(2),parglue(3),parglue(4),parglue(5))
+     $        ,parglue(2),parglue(3),parglue(4),parglue(5),parglue(6),
+     $        parglue(7),parglue(8),parglue(9))
       else
          glulen = cheblen(W,nchebGlu,polyPars,parglue(1),chebxminlog,
      $        ichebtypeGlu)
@@ -1654,7 +1667,8 @@ C----------------------------------------------------
 
       if (nchebsea.eq.0) then
          Sealen = powerlen(W,parsea(1),parsea(2)
-     $        ,parsea(3),parsea(4),parsea(5))
+     $        ,parsea(3),parsea(4),parsea(5),parsea(6),
+     $        parsea(7),parsea(8),parsea(9))
       else
          Sealen = cheblen(W,nchebSea,polyParsSea,1.D0,chebxminlog,
      $        ichebtypeSea)
