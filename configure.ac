@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([herafitter], [0.2.0], [herafitter-help@desy.de])
+AC_INIT([herafitter], [0.3.1], [herafitter-help@desy.de])
 
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(${PWD})
