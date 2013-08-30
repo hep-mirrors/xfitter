@@ -3,7 +3,7 @@
 if HAVE_ROOT
 
 # the main target, i.e. the executable to build
-bin_PROGRAMS = DrawResults StoreGraphs StoreGraphsMC DrawDataPulls DrawPdfs
+bin_PROGRAMS = DrawResults StoreGraphs StoreGraphsMC DrawPdfs
 
 # all source files which go into the main target
 DrawResults_SOURCES = DrawResults.cc Painter.cc \
@@ -31,17 +31,9 @@ StoreGraphsMC_CPPFLAGS = -I$(srcdir)/include $(ROOT_CFLAGS) -w
 StoreGraphsMC_LDADD = $(ROOT_LIBS)
 
 # all source files
-DrawDataPulls_SOURCES = DrawDataPulls.cc DataPainter.cc Output.cc DataSet.cc PdfTable.cc
+DrawPdfs_SOURCES = DrawPdfs.cc PdfsPainter.cc Output.cc DataSet.cc PdfTable.cc CommandParser.cc DataPainter.cc DrawLogo.cc
 
-DrawDataPulls_CPPFLAGS = -I$(srcdir)/include $(ROOT_CFLAGS) -w
-
-# libraries to be linked to the main target
-DrawDataPulls_LDADD = $(ROOT_LIBS)
-
-# all source files
-DrawPdfs_SOURCES = DrawPdfs.cc PdfsPainter.cc Output.cc DataSet.cc PdfTable.cc
-
-DrawPdfs_CPPFLAGS = -I$(srcdir)/include $(ROOT_CFLAGS) -w
+DrawPdfs_CPPFLAGS = -I$(srcdir)/include $(ROOT_CFLAGS) -w -DLOGO=$(HERAF_LOGO)
 
 # libraries to be linked to the main target
 DrawPdfs_LDADD = $(ROOT_LIBS)

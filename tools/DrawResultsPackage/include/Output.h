@@ -21,12 +21,12 @@ const Int_t NColumn = 14;
 
 class  Output {
  public:
-  enum pdf{kNULL=-1, kGluon=0, kU=1, kD=2, kUv=3, kDv=4, kUb=5, kDb=6, kSea=7, kS=8, kC=9, kB=10};
+  enum pdf{kNULL=-1, kGluon=0, kU=1, kD=2, kUv=3, kDv=4, kUb=5, kDb=6, kSea=7, kUSea=8, kDSea=9, kS=10, kC=11, kB=12};
 
  protected:    
   TString* fName;
   TString* fDirectory;
-  static const Int_t fNpdfs = 11;   
+  static const Int_t fNpdfs = 13;
   static const Int_t fNBands = 20;   
   static const Int_t fMaxParameters = 50;
   Int_t fNpoints;                   // Number of x-points 

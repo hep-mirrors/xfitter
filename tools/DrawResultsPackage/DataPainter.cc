@@ -1,18 +1,22 @@
 #include <DataPainter.h>
+#include <CommandParser.h>
+
+#include <DrawLogo.h>
 
 #include <TH1F.h>
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TLine.h>
+#include <TImage.h>
 
 #include <iostream>
 
-dataseth::dataseth(string dataname, string dir,
+dataseth::dataseth(string dataname, string dir, string lab,
 		   vector <float> bins1, vector <float> bins2, 
 		   vector <float> data, vector <float> uncorerr, vector <float> toterr, 
 		   vector <float> theory, vector <float> theoryshifted, 
 		   vector <float> pulls) 
-  : name(dataname)
+  : name(dataname), label(lab)
 {
   float bin[bins1.size() + 1];
   int i = 0;
@@ -51,8 +55,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   char cnvname[10];
   sprintf(cnvname, "%d_pulls",  dataindex);
 
-  TCanvas * cnv = new TCanvas(cnvname, "", 0, 0, 600, 600);
+  TCanvas * cnv = new TCanvas(cnvname, "", 0, 0, 1200, 1200);
   cnv->cd();
+
   TH1F * data = datahistos[0].getdata();
   TH1F * datatot = datahistos[0].getdatatot();
   TH1F * th = datahistos[0].getth();
@@ -66,6 +71,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   //  cnv->GetPad(1)->SetLogy();
   //  cnv->GetPad(1)->SetLogx();
   cnv->cd(1);
+
   datatot->GetYaxis()->SetLabelFont(62);
   datatot->GetYaxis()->SetLabelSize(0.05);
   datatot->GetYaxis()->SetTitleFont(62);
@@ -79,8 +85,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   mx = max(mx, (float)(th->GetMaximum()));
   float mn = datatot->GetMinimum();
   mn = min(mn, (float)(th->GetMinimum()));
-  mx = mx + (mx - mn) * 0.3;
-  mn = mn - (mx - mn) * 0.7;
+  float delta = (mx - mn);
+  mx = mx + delta * 0.3;
+  mn = mn - delta * 0.6;
   datatot->SetMaximum(mx);
   datatot->SetMinimum(mn);
   datatot->Draw("e3");
@@ -88,11 +95,11 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   data->SetMarkerStyle(8);
   data->SetMarkerSize(0.5);
   data->Draw("e1 same");
-  th->SetLineColor(kRed);
-  th->Draw("l same");
-  thshift->SetLineColor(kRed);
-  thshift->SetLineStyle(2);
-  thshift->Draw("l same");
+  //  th->SetLineColor(kRed);
+  //  th->Draw("l same");
+  //  thshift->SetLineColor(kRed);
+  //  thshift->SetLineStyle(2);
+  //  thshift->Draw("l same");
   TLegend * leg = new TLegend(0.12, 0.03, 0.6, 0.25);
   leg->SetFillColor(0);
   leg->SetBorderSize(0);
@@ -102,26 +109,38 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   leg->AddEntry(data, dataname.c_str(), "pl");
   leg->AddEntry(data, "uncorrelated uncertainty", "pe");
   leg->AddEntry(datatot, "total uncertainty", "f");
-  leg->AddEntry(th, "fit result", "l");
-  leg->AddEntry(thshift, "fit result + shift", "l");
-
+  TLine *cont = new TLine(0, 1, 1, 1);
+  cont->SetLineStyle(1);
+  TLine *dash = new TLine(0, 1, 1, 1);
+  dash->SetLineStyle(2);
+  leg->AddEntry(cont, "fit result", "l");
+  leg->AddEntry(dash, "fit result + shift", "l");
+  TLegend * leg2 = new TLegend(0.6, 0.03, 0.89, 0.03 + datahistos.size() * 0.05);
+  leg2->SetFillColor(0);
+  leg2->SetBorderSize(0);
+  leg2->SetTextAlign(12);
+  leg2->SetTextSize(0.05);
+  leg2->SetTextFont(62);
+  //  leg2->AddEntry(th, (datahistos[0].getlabel() + "fit result").c_str(), "l");
+  //  leg2->AddEntry(thshift, (datahistos[0].getlabel() + "fit result + shift").c_str(), "l");
   int colindx = 0;
-  int colors[] = {kBlue, kGreen+4};
-  for (vector <dataseth>::iterator it = (datahistos.begin() + 1); it != datahistos.end(); it++)
+  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       TH1F * nth = (*it).getth();
       TH1F * nthshift = (*it).getthshift();
-      nth->SetLineColor(colors[colindx]);
+      nth->SetLineColor(opts.colors[colindx]);
       nth->Draw("l same");
-      nthshift->SetLineColor(colors[colindx]);
+      nthshift->SetLineColor(opts.colors[colindx]);
       nthshift->SetLineStyle(2);
       nthshift->Draw("l same");
       colindx++;
-      leg->AddEntry(nth, "fit result", "l");
-      leg->AddEntry(nthshift, "fit result + shift", "l");
+      leg2->AddEntry(nth, ((*it).getlabel()).c_str(), "l");
+      //      leg2->AddEntry(nthshift, ((*it).getlabel() + "fit result + shift").c_str(), "l");
     }
   leg->Draw();
+  leg2->Draw();
 
+  DrawLogo()->Draw();
 
   cnv->GetPad(2)->SetPad(0, 0, 1, 0.33);
   cnv->GetPad(2)->SetTopMargin(0);

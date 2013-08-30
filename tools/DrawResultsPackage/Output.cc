@@ -370,6 +370,8 @@ Int_t Output::PreparePdf(bool DrawBand, TString option) {
       fPdfs [(Int_t)kUb]   ->AddLast(table->GetPDFGraph("Ubar"));
       fPdfs [(Int_t)kDb]   ->AddLast(table->GetPDFGraph("Dbar"));
       fPdfs [(Int_t)kSea]  ->AddLast(table->GetPDFGraph("sea"));
+      fPdfs [(Int_t)kUSea]  ->AddLast(table->GetPDFGraph("u_sea"));
+      fPdfs [(Int_t)kDSea]  ->AddLast(table->GetPDFGraph("d_sea"));
       fPdfs [(Int_t)kS]    ->AddLast(table->GetPDFGraph("str"));
       fPdfs [(Int_t)kC]    ->AddLast(table->GetPDFGraph("chm"));
       fPdfs [(Int_t)kB]    ->AddLast(table->GetPDFGraph("bot"));
