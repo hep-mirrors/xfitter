@@ -1,23 +1,39 @@
+program usage:
 DrawPdfs [options] dir1[:label1] [dir2:[label2]] [...]
 
-First directory is used as reference for PDF ratio plots 
+First directory is used as reference for PDF ratio plots
 and to display data in data pulls plots.
-Labels are used in the legends of the plots, to use spaces and
-special carachters use quotation marks '' (ex. dir:'HERA I').
-To specify greek letters and latex commands in the label use the ROOT notation 
-(#alpha #bar{u}).   
+Directory labels are used in the legends of the plots, to add spaces and
+special characters to the labels use quotation marks '' (ex. dir:'HERA I').
+To specify greek letters and latex commands in the labels use the ROOT notation
+(#alpha #bar{u}).
+It is possible to specify up to 6 directories, you need to specify at least one directory.
 
-
-options:
-	 --bands
-		Draw PDF uncertainty band
-	 --outdir <output directory>
-	 	Specify output directory  
-	 --splitplots
-		Produce also additional eps files for each plot
-	 --filledbands
-		Filled uncertainty bands, usefull for sensitivity studies
-	 --ratiorange <min:max>
-	 	Specify y axis range in PDF ratio plots
+general options:
+	 --help
+	 	 Show this help
+	 --pdf (require ps2pdf)
+	 	 Produce and addition plot file in pdf format
 	 --colorpattern <1-3>
-	 	Change color pattern
+	 	 Select among 3 additional color patterns
+options for pdf plots:
+	 --bands
+	 	 Draw PDF uncertainty band
+	 --outdir <output directory>
+	 	 Specify output directory
+	 --splitplots
+	 	 Produce also additional eps files for each plot
+	 --filledbands
+	 	 Filled uncertainty bands, usefull for sensitivity studies
+	 --ratiorange <min:max>
+	 	 Specify y axis range in PDF ratio plots
+options for data pulls plots:
+	 to set axis titles, axis range and log scales add PlotDesc options in the data file
+	 Example:
+	 &PlotDesc
+	    PlotN = 1
+	    PlotDefColumn = 'y2'
+	    PlotDefValue = 0., 5.
+	    PlotOptions(1)  = 'XTitle: y_{Z} [GeV/c] @YTitle: d#sigma/dy_{Z} [pb]  @Xmin:0.0@Xmax:2.5@Ylog'
+	 &End
+
