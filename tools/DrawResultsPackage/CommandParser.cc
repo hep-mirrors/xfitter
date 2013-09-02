@@ -3,21 +3,26 @@
 #include <iostream>
 #include <TH1F.h>
 
+float txtsize = 0.045;
+float offset = 1.5;
+float lmarg = 0.15;
+//float bmarg = 0.2;
 
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
   splitplots(false),
   filledbands(false),
-  outdir(""),
   rmin(0),
-  rmax(2)
+  rmax(2),
+  pdf(false),
+  outdir("")
 {
 
   //initialise colors and styles
   colors[0] = kRed;
   colors[1] = kBlue;
-  colors[2] = kMagenta;
-  colors[3] = kGreen + 2;
+  colors[2] = kGreen + 3;
+  colors[3] = kMagenta;
   colors[4] = kCyan;
   colors[5] = kYellow;
 
@@ -29,31 +34,20 @@ CommandParser::CommandParser(int argc, char **argv):
   styles[5] = 3020;
 
   //read all command line arguments
-  vector <string> allargs;
-  for (int iar = 1; iar < argc; iar++)
+  for (int iar = 0; iar < argc; iar++)
     allargs.push_back(argv[iar]);
 
   //search for options
-  for (vector<string>::iterator it = allargs.begin(); it != allargs.end(); it++)
+  for (vector<string>::iterator it = allargs.begin() + 1; it != allargs.end(); it++)
     if ((*it).find("--") == 0)
       {
 	if (*it == "--help")
 	  {
-	    cout << endl;
-	    cout << "program usage:" << endl;
-	    cout << argv[0] << " [options] dir1[:label1] [dir2:[label2]] [...]" << endl;
-	    cout << endl;
-	    cout << "options:" << endl;
-	    cout << "\t --bands" << endl;
-	    cout << "\t --outdir <output directory>" << endl;
-	    cout << "\t --splitplots" << endl;
-	    cout << "\t --filledbands" << endl;
-	    cout << "\t --ratiorange <min:max>" << endl;
-	    cout << "\t --colorpattern <1-3>" << endl;
-	    cout << endl;
-	    cout << " dir1 is used as reference for ratio plots" << endl;
+	    help();
 	    exit(0);
 	  }
+	else if (*it == "--pdf")
+	  pdf = true;
 	else if (*it == "--bands")
 	  dobands = true;
 	else if (*it == "--outdir")
@@ -68,9 +62,7 @@ CommandParser::CommandParser(int argc, char **argv):
 	else if (*it == "--ratiorange")
 	  {
 	    rmin = atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str());
-	    cout << (*(it+1)).substr(0, (*(it+1)).find(":")) << endl;
 	    rmax = atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str());
-	    cout << (*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1) << endl;
 	    allargs.erase(it+1);
 	  }
 	else if (*it == "--colorpattern")
@@ -108,39 +100,37 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else
 	  {
+	    cout << endl;
 	    cout << "Invalid option " << *it << endl;
-	    exit(0);
+	    cout << allargs[0] << " --help for help " << endl;
+	    cout << endl;
+	    exit(-1);
 	  }
 	allargs.erase(it);
 	it = allargs.begin();
       }
   
-  for (vector<string>::iterator it = allargs.begin(); it != allargs.end(); it++)
+  for (vector<string>::iterator it = allargs.begin() + 1; it != allargs.end(); it++)
     dirs.push_back(*it);
 
   if (dirs.size() == 0)
     {
-      //------------------------
       cout << endl;
-      cout << "program usage:" << endl;
-      cout << argv[0] << " [options] dir1[:label1] [dir2:[label2]] [...]" << endl;
+      cout << "Please specify at least one directory" << endl;
+      cout << allargs[0] << " --help for help " << endl;
       cout << endl;
-      cout << " Specify at least one directory" << endl;
-      //------------------------
-      exit(0);
+      exit(-1);
     }
 
 
 
   if (dirs.size() > 6)
     {
-      //------------------------
-      cout << "program usage:" << endl;
-      cout << argv[0] << " [options] dir1[:label1] [dir2:[label2]] [...]" << endl;
       cout << endl;
-      cout << " maximum number of directories is 6" << endl;
-      //------------------------
-      exit(0);
+      cout << "Maximum number of directories is 6" << endl;
+      cout << allargs[0] << " --help for help " << endl;
+      cout << endl;
+      exit(-1);
     }
 
   //parse dirs for labels

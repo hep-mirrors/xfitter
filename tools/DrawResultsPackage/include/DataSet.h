@@ -17,6 +17,7 @@ using std::cerr;
 using std::endl;
 using std::map;
 using std::vector;
+using std::string;
 
 struct SubPlot {
   TString* fTitle;
@@ -29,6 +30,10 @@ struct SubPlot {
   vector <float> Bins1, Bins2, Data, Uncor, Toterr, Th, Thshift, Pull;
   bool fXlog;
   bool fYlog;
+  float fXmin;
+  float fXmax;
+  string fXTitle;
+  string fYTitle;
   SubPlot(const char* descriptor);
   virtual ~SubPlot();
   void AddPoint(double x, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double pull);
@@ -60,6 +65,10 @@ class  DataSet {
   TGraphErrors* GetTMod(int i);
   bool          GetXlog(int i);
   bool          GetYlog(int i);
+  float         GetXmin(int i);
+  float         GetXmax(int i);
+  string        GetXTitle(int i);
+  string        GetYTitle(int i);
   vector <float>  getbins1(int idx);
   vector <float>  getbins2(int idx);
   vector <float>  getdata(int idx);

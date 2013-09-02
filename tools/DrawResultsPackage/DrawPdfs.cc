@@ -76,11 +76,11 @@ int main(int argc, char **argv)
   itn = opts.labels.begin(); //vector<string>::iterator 
   for (unsigned int o = 0; o < info_output.size(); o++)
     {
-      //      info_output[o]->Prepare(false);
       for (unsigned int d = 0; d < info_output[o]->GetNsets(); d++)
 	{
 	  if (info_output[o]->GetSet(d)->GetNSubPlots() == 1)
 	    {
+	      info_output[o]->GetSet(d)->GetHistogram(0, false);
 	      int id = info_output[o]->GetSet(d)->GetSetId();
 	      //check bins sanity
 	      vector <float> b1 = info_output[o]->GetSet(d)->getbins1(0);
@@ -108,7 +108,13 @@ int main(int argc, char **argv)
 				     info_output[o]->GetSet(d)->gettoterr(0),
 				     info_output[o]->GetSet(d)->gettheory(0),
 				     info_output[o]->GetSet(d)->gettheoryshifted(0),
-				     info_output[o]->GetSet(d)->getpulls(0));
+				     info_output[o]->GetSet(d)->getpulls(0),
+				     info_output[o]->GetSet(d)->GetXlog(0),
+				     info_output[o]->GetSet(d)->GetYlog(0),
+				     info_output[o]->GetSet(d)->GetXmin(0),
+				     info_output[o]->GetSet(d)->GetXmax(0),
+				     info_output[o]->GetSet(d)->GetXTitle(0),
+				     info_output[o]->GetSet(d)->GetYTitle(0));
 	      datamap[id].push_back(dt);
 	    }
 	}
@@ -146,6 +152,11 @@ int main(int argc, char **argv)
   it = pdfscanvaslist.begin();
   (*it)->Print((opts.outdir + "Plots.eps]").c_str());
 
+  if (opts.pdf)
+    {
+      cout << "Converting to pdf format..." << endl;
+      system(((string)"ps2pdf " + opts.outdir + "Plots.eps " + opts.outdir + "Plots.pdf").c_str());
+    }
 
   //Save all plots in a root file
   TFile * f = new TFile((opts.outdir + "plots.root").c_str(), "recreate");

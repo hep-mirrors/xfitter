@@ -21,11 +21,6 @@ vector <string> pdflabels(pdflab, pdflab + sizeof(pdflab) / sizeof(string));
 vector <string> pdffiles(pdffil, pdffil + sizeof(pdffil) / sizeof(string));
 
 
-float txtsize = 0.045;
-float offset = 1.5;
-float lmarg = 0.15;
-//float bmarg = 0.2;
-
 TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 {
   if (pdfgraphs.size() < 1)
@@ -77,7 +72,7 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
       (*it).graph->SetMinimum(TMath::MinElement((*it).graph->GetN(), (*it).graph->GetY()));
       mn = min(mn, (*it).graph->GetMinimum());
 
-      //prepare borders
+      //Prepare graph line borders
       Double_t val_x[(*it).graph->GetN()], val_high_y[(*it).graph->GetN()], val_low_y[(*it).graph->GetN()]; 
 
       for (int i = 0; i < (*it).graph->GetN(); i++)
@@ -137,13 +132,12 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg->Draw("ALE3");
 
   //create legend
-  TLegend * leg = new TLegend(0.15, 0.7, 0.45, 0.9);
-  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + "  at  " + "Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  TLegend * leg = new TLegend(0.2, 0.84 - pdfgraphs.size()*0.05, 0.65, 0.89);
+  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
   for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
-    {
-      leg->AddEntry((*it).graph, (*it).label.c_str());
-    }
+    leg->AddEntry((*it).graph, (*it).label.c_str());
+
   leg->SetTextSize(txtsize);
   leg->SetTextFont(62);
   leg->SetFillColor(0);
@@ -179,8 +173,8 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   TMultiGraph * mg_ratio = new TMultiGraph(((string)cnvname + "_multigraph_ratio").c_str(), "");
 
   //create legend
-  TLegend * leg = new TLegend(0.15, 0.7, 0.45, 0.9);
-  leg->AddEntry((TObject*)0, (pdflabels[ipdf] + "  at  Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  TLegend * leg = new TLegend(0.35, 0.84 - pdfgraphs.size() * 0.05, 0.65, 0.89);
+  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
   //prepare ratio graph
   vector <gstruct>::iterator fit = pdfgraphs.begin();
@@ -286,8 +280,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
   leg->Draw();
 
-  //  DrawLogo()->SetPad(0.64, 0.75, 0.79, 0.89);
-  DrawLogo()->Draw();
+  DrawLogo("dc")->Draw();
 
   return cnv;
 }

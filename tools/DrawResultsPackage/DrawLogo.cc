@@ -12,16 +12,23 @@
 #include <iostream>
 
 using namespace std;
-TPad * DrawLogo(void)
+TPad * DrawLogo(string pos)
 {
   string ver = VERSION;
 
   TImage *logo = TImage::Create();
   logo->SetImageBuffer(logo_xpm, TImage::kXpm);
 
+  float x, y;
+  x = 0.74;
+  y = 0.75;
+  if (pos == "dc")
+    {
+      x = 0.65;
+      y = 0.12;
+    }
 
-  TPad * logopad = new TPad("logopad", "", 0.74, 0.75, 0.89, 0.89);
-  //TPad * logopad = new TPad("logopad", "", 0.64, 0.75, 0.79, 0.89);
+  TPad * logopad = new TPad("logopad", "", x, y, x + 0.15, y + 0.14);
   if (!logo) 
     cout << "Error, Could not find logo" << endl;
   else

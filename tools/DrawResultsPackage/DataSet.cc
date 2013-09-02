@@ -13,6 +13,10 @@ SubPlot::SubPlot(const char* descriptor) {
   fHistogram = NULL;
   fXlog = kFALSE;
   fYlog = kFALSE;
+  fXTitle = "";
+  fYTitle = "";
+  fXmin = 0;
+  fXmax = 0;
 }
 SubPlot::~SubPlot() {
   delete fTitle;
@@ -67,10 +71,12 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
     if(str.BeginsWith("Xmin:")) {
       str.ReplaceAll("Xmin:","");
       Xmin = str.Atof();
+      fXmin = str.Atof();
     }
     else if(str.BeginsWith("Xmax:")) {
       str.ReplaceAll("Xmax:","");
       Xmax = str.Atof();
+      fXmax = str.Atof();
     }
   }
   if(Xmin == -9999.) {
@@ -131,6 +137,12 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
     else if(str.BeginsWith("XTitle:")) {
       str.ReplaceAll("XTitle:","");
       fHistogram->GetXaxis()->SetTitle(str.Data());
+      fXTitle = str.Data();
+    }
+    else if(str.BeginsWith("YTitle:")) {
+      str.ReplaceAll("YTitle:","");
+      fHistogram->GetYaxis()->SetTitle(str.Data());
+      fYTitle = str.Data();
     }
     else if(str.BeginsWith("Ymin:")) {
       if(!RatioToData) {
@@ -227,6 +239,26 @@ bool  DataSet::GetYlog(int idx) {
   SubPlot* s = GetSubPlot(idx);
   if(!s) return kFALSE;
   return s->fYlog;
+}
+float  DataSet::GetXmin(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return 0;
+  return s->fXmin;
+}
+float  DataSet::GetXmax(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return 0;
+  return s->fXmax;
+}
+string  DataSet::GetXTitle(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return "";
+  return s->fXTitle;
+}
+string  DataSet::GetYTitle(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return "";
+  return s->fYTitle;
 }
 vector <float>  DataSet::getbins1(int idx) {
   SubPlot* s = GetSubPlot(idx);

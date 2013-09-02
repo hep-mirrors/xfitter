@@ -3,6 +3,9 @@
 
 #include <TPad.h>
 
-TPad * DrawLogo(void);
+#include <string>
+using namespace std;
+
+TPad * DrawLogo(string pos = "ul");
 
 #endif
