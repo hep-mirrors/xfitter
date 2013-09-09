@@ -8,7 +8,7 @@ direct comparison.
 The QCD fit formalism within HERAFitter gives access to different functional 
 forms used to parametrise PDFs at the starting scale, different definitions for $\chi^2$ to account for systematic uncertainties in extraction of theory parameters, different treatement of experimental uncertainties, and alternative theoretical models. 
 
-This elaborate project also addresses the performance related issues by optimising the time of calculations using and incorporating innovative techniques such as cache option, fast evolution kernels, grid techniques making the platform a practical engine for iterative usage.
+The speedy performance of such a complex framework is achieved by optimising the time of calculations using and incorporating innovative techniques such as cache option, fast evolution kernels, grid techniques making the platform a practical engine for iterative usage.
 
 As an alternative to a complete QCD fit, reweighing method to estimate impact of new data is provided. This has been already advocated by the NNPDF collaboration \cite{PDFreplicareweighing} and HERAFitter can provide direct access to this method. The method has been extended to work not only on the replica method, but also on the eigenvectors (as introduced by MSTW group \cite{PDFeigreweighing}).
 
@@ -18,11 +18,78 @@ As an alternative to a complete QCD fit, reweighing method to estimate impact of
 
 \subsection{Chisquare representation}
 
+The PDF parameters are extracted through the $\chi^2$ minimization method by 
+employing MINUIT package linked to HERAFitter. There are various forms to represent the $\chi^2$ form, i.e. covariance matrix or decomposed into nuisance parameters. In addition, there are various methods in dealing with the correlated systematic (or statistical) uncertainties.
+HERAFitter is prviding both options.
+
+\subsubsection{Covariance Matrix Representation}
+
+In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
+is
+\begin{equation} \label{eq:chi2gen}
+\chi^2_{\rm exp} (\boldsymbol{m},\boldsymbol{b}) = \\
+\sum_{ij} \left ( m^i - \sum_l \Gamma^i_l(m^i)b_l - \mu^i \right)
+  C^{-1}_{{\rm stat.}~ij}(m^i,m^j) \left(  m^j - \sum_l \Gamma^j_l(m^j)b_l - \mu^j \right)  + \\  
+\sum_l b^2_l \,.
+\end{equation}
+Here the scaling properties of the correlated systematic uncertainties 
+$\Gamma^i_j$ and
+of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
+on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
+
+\subsubsection{Nuisance Parameters Representation}
+
+%
+\begin{equation}
+ \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) = \\
+%~~~=
+ \sum_i
+ \frac{\left[m^i
+- \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
+{ \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
+\left(\delta_{i,{\rm uncor}}\,  m^i\right)^2} 
+ + \\ \sum_j b^2_j.
+\label{eq:aven}\end{equation}
+%
+Here ${\mu^i}$ is the  measured central value  at a point $i$ 
+with  relative statistical $\delta_{i,stat}$ 
+and relative uncorrelated systematic uncertainty $\delta_{i,unc}$.
+Further, 
+%$\beta_j$ denotes a nuisance parameter for
+% a correlated systematic error  source of type $j$ with an uncertainty while
+$\gamma^i_j$ 
+quantifies the sensitivity of the
+measurement ${\mu^i}$ at the point $i$ to the systematic source $j$. 
+The function $\chi^2_{\rm exp}$ depends on the set of
+underlying physical quantities $m^i$ 
+(denoted as the vector $\boldsymbol{m}$) and 
+ the set of systematic uncertainties $b_j$ ($\boldsymbol{b}$).
+This definition of the $\chi^2$ function takes into account that
+systematic uncertainties are proportional to the central values 
+(multiplicative errors), whereas the statistical errors scale 
+with the square roots of the expected number of events. 
+
 
 \subsection{Treatment of Experimental Uncertainties}
 
+HERAFitter provides three methods in assessing the experimental uncertainties on PDFs: Hessian method, Offset Method, Monte Carlo method.
+
+\subsubsection{Hessian method}
+\subsubsection{Offset  method}
+\subsubsection{Monte Carlo method}
+
+
 
 \subsection{Treatment of Theoretical Input Parameters}
+
+The results of a QCD fit depends not only on the input data but also on the 
+input theoretical ansatz, which is also uncertain. Nowadays, the modern PDFs 
+try to address the impact of this ansatz on the resulting PDFs by assessing an 
+uncertainty on the choice of the initial parameter, such as mass of charm $m_c$, mass of the bottom quarks $m_b$. Another important input is the choice of the functional form for the PDFs at the starting scale. 
+For this, HERAFitter provides a series of choices ranging from simple functional forms to more complex forms such as Chebyshev Polynomials with larger flexibility. Larger flexibility usually requires some regularisation methods in order for the results to be physical.
+
+
+
 
 \subsection{Performance Optimisation}
 
