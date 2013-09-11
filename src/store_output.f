@@ -277,7 +277,7 @@ C--------------------------------------------------
       INCLUDE 'theo.inc'
       
       integer i,j,index,PlotVarColIdx,PreviousPlots
-      double precision PlotVar
+      double precision PlotVar,PullVar
 
       integer GetBinIndex
 
@@ -322,13 +322,19 @@ c     &        '   +-toterr      theory      pull     dataset  '
                PlotVar = AbstractBins(PlotVarColIdx,index)
             endif
 
+c set pull to zero if no unc error 
+            if(ALPHA_MOD(index).gt.0d0) then
+               PullVar = (DATEN(index)-THEO_MOD(index))/ALPHA_MOD(index)
+            else 
+               PullVar = 0d0
+            endif
+
             write(90,'(1X,9(e11.5,1X),i4,i4,A1,E11.5)') 
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),AbstractBins(3,index),
      &           DATEN(index),ALPHA_MOD(index),
      &           E_TOT(index)/100.*DATEN(index),THEO(index), THEO_MOD(index),
-     &           (DATEN(index)-THEO_MOD(index))/ALPHA_MOD(index),
-     &           DATASETNUMBER(i), JPLOT(index), '/',PlotVar
+     &           PullVar,DATASETNUMBER(i), JPLOT(index), '/',PlotVar
 
 cv
 c            write(44,111) VQ2(index),VX(index), f2sh(index),flsh(index),
