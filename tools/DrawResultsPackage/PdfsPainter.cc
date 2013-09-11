@@ -83,31 +83,31 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	  val_y[i] = val;
 	}
 
-      TGraph *r_centr = new TGraph((*it).graph->GetN(), val_x, val_y);
-      TGraph *r_high = new TGraph((*it).graph->GetN(), val_x, val_high_y);
-      TGraph *r_low = new TGraph((*it).graph->GetN(), val_x, val_low_y);
+      TGraph *centr = new TGraph((*it).graph->GetN(), val_x, val_y);
+      TGraph *high = new TGraph((*it).graph->GetN(), val_x, val_high_y);
+      TGraph *low = new TGraph((*it).graph->GetN(), val_x, val_low_y);
 
-      (*it).graph->SetMaximum(TMath::MaxElement(r_high->GetN(), r_high->GetY()));
+      (*it).graph->SetMaximum(TMath::MaxElement(high->GetN(), high->GetY()));
       mx = max(mx,(*it).graph->GetMaximum());
-      (*it).graph->SetMinimum(TMath::MinElement(r_low->GetN(), r_low->GetY()));
+      (*it).graph->SetMinimum(TMath::MinElement(low->GetN(), low->GetY()));
       mn = min(mn, (*it).graph->GetMinimum());
 
       //set border features      
-      r_centr->SetLineColor((*it).graph->GetLineColor());
-      r_centr->SetLineStyle(1);
-      r_centr->SetLineWidth(2);
-      r_high->SetLineColor((*it).graph->GetLineColor());
-      r_high->SetLineStyle(1);
-      r_high->SetLineWidth(2);
-      r_low->SetLineColor((*it).graph->GetLineColor());
-      r_low->SetLineStyle(1);
-      r_low->SetLineWidth(2);
+      centr->SetLineColor((*it).graph->GetLineColor());
+      centr->SetLineStyle(1);
+      centr->SetLineWidth(2);
+      high->SetLineColor((*it).graph->GetLineColor());
+      high->SetLineStyle(1);
+      high->SetLineWidth(2);
+      low->SetLineColor((*it).graph->GetLineColor());
+      low->SetLineStyle(1);
+      low->SetLineWidth(2);
 
       //add graphs
       mg->Add((*it).graph);
-      mg_lines->Add(r_centr);
-      mg_lines->Add(r_high);
-      mg_lines->Add(r_low);
+      mg_lines->Add(centr);
+      mg_lines->Add(high);
+      mg_lines->Add(low);
     }
 
   //graphical settings
@@ -180,6 +180,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   //prepare TGraphs
   int colindx = 0;
   TMultiGraph * mg_ratio = new TMultiGraph(((string)cnvname + "_multigraph_ratio").c_str(), "");
+  TMultiGraph * mg_ratio_lines = new TMultiGraph(((string)cnvname + "_multigraph_ratio_lines").c_str(), "");
 
   //create legend
   TLegend * leg = new TLegend(0.35, 0.84 - pdfgraphs.size() * 0.05, 0.65, 0.89);
@@ -193,7 +194,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
       r->SetName(((string)(*it).graph->GetName() + "_ratio").c_str());
 
-      Double_t val_x[(*it).graph->GetN()], val_high_y[(*it).graph->GetN()], val_low_y[(*it).graph->GetN()]; 
+      Double_t val_x[(*it).graph->GetN()], val_y[(*it).graph->GetN()], val_high_y[(*it).graph->GetN()], val_low_y[(*it).graph->GetN()]; 
 
       for (int i = 0; i < (*it).graph->GetN(); i++)
 	{
@@ -221,10 +222,12 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	  Double_t errlow =  r->GetErrorYlow(i);
 
 	  val_x[i] = (*it).graph->GetX()[i];
+	  val_y[i] = val;
 	  val_high_y[i] = val+errhigh;
 	  val_low_y[i] = val-errlow;
 	}
 
+      TGraph *r_centr = new TGraph((*it).graph->GetN(), val_x, val_y);
       TGraph *r_high = new TGraph((*it).graph->GetN(), val_x, val_high_y);
       TGraph *r_low = new TGraph((*it).graph->GetN(), val_x, val_low_y);
 
@@ -239,6 +242,9 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
       r->SetLineWidth(2);
 
       //set border features
+      r_centr->SetLineColor(opts.colors[colindx]);
+      r_centr->SetLineStyle(1);
+      r_centr->SetLineWidth(2);
       r_high->SetLineColor(opts.colors[colindx]);
       r_high->SetLineStyle(1);
       r_high->SetLineWidth(2);
@@ -248,8 +254,9 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
       //add graphs
       mg_ratio->Add(r);
-      mg_ratio->Add(r_high);
-      mg_ratio->Add(r_low);
+      mg_ratio_lines->Add(r_centr);
+      mg_ratio_lines->Add(r_high);
+      mg_ratio_lines->Add(r_low);
 
       //set legend features
       leg->AddEntry((*it).graph, (*it).label.c_str());
@@ -291,6 +298,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg_ratio->GetYaxis()->SetNdivisions(504);
 
   mg_ratio->Draw("ALE3");
+  mg_ratio_lines->Draw("L");
 
   leg->Draw();
 

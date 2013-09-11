@@ -151,7 +151,7 @@ int main(int argc, char **argv)
   //open the file
   vector <TCanvas*>::iterator  it = pdfscanvaslist.begin();
   (*it)->Print((opts.outdir + "Plots.eps[").c_str());
-  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)// it++)
+  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)
     {
       char numb[10];
       sprintf(numb, "%d", it - pdfscanvaslist.begin());
@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 
   if (opts.splitplots)
     {
-      for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)// it++)
+      for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
 	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
       for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
 	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
