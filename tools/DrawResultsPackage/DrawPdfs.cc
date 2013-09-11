@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <stdlib.h>
@@ -10,10 +11,6 @@
 #include <PdfsPainter.h>
 #include <CommandParser.h>
 #include <DataPainter.h>
-
-using std::cout;
-using std::cerr;
-using std::endl;
 
 using namespace std;
 
@@ -37,11 +34,34 @@ int main(int argc, char **argv)
   vector<string>::iterator itn = opts.labels.begin();
   for (unsigned int o = 0; o < info_output.size(); o++)
     {
-      //      info_output[o]->Prepare(true);
-      info_output[o]->Prepare(opts.dobands);
-      info_output[o]->PreparePdf(opts.dobands);
+      //check if errors are symmetric or asymmetric hessian
+      string option = "";
+      TString filename("");
+	
+      //asymmetric hessian
+      filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt", info_output[o]->GetName()->Data(), 1, 1);
+      ifstream asfile(filename.Data());
+      if (asfile.is_open())
+	{
+	  if (opts.asymbands)
+	    option = "a";
+	  else
+	    option = "b";
+	  asfile.close();
+	}
+
+      //symmetric hessian errors
+      filename.Form("%s/pdfs_q2val_p%02d_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
+      ifstream sfile(filename.Data());
+      if (sfile.is_open())
+	{
+	  option = "p";
+	  sfile.close();
+	}
+
+      info_output[o]->Prepare(opts.dobands, option);
       //loop on Q2 bins
-      for (int nq2 = 0; nq2 < (info_output[o]->GetNQ2Files() / 2); nq2++) //why do I get double number of NQ2 files??!!
+      for (int nq2 = 0; nq2 < (info_output[o]->GetNQ2Files()); nq2++)
 	{
 	  pdfmap pmap;
 	  if (q2list.size() > nq2)
@@ -126,29 +146,79 @@ int main(int argc, char **argv)
     datapullscanvaslist.push_back(DataPainter((*it).first, (*it).second));
 
 
-
   //Save plots
   system(((string)"mkdir -p " + opts.outdir).c_str());
+  //open the file
   vector <TCanvas*>::iterator  it = pdfscanvaslist.begin();
   (*it)->Print((opts.outdir + "Plots.eps[").c_str());
-  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
+  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)// it++)
     {
-      (*it)->Print((opts.outdir + "Plots.eps").c_str());
-      if (opts.splitplots)
-	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+      char numb[10];
+      sprintf(numb, "%d", it - pdfscanvaslist.begin());
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      pagecnv->Divide(3, 3);
+      for (int i = 1; i <= 9; i++)
+	{
+	  pagecnv->cd(i);
+	  (*it)->DrawClonePad();
+	  it++;
+	}
+      pagecnv->Print((opts.outdir + "Plots.eps").c_str());
+
+      sprintf(numb, "%d", it - pdfscanvaslist.begin());
+      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      pagecnv2->Divide(3, 3);
+      for (int i = 10; i <= pdflabels.size(); i++)
+	{
+	  pagecnv2->cd(i - 9);
+	  (*it)->DrawClonePad();
+	  it++;
+	}
+      pagecnv2->Print((opts.outdir + "Plots.eps").c_str());
     }
-  for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
+  for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
     {
-      (*it)->Print((opts.outdir + "Plots.eps").c_str());
-      if (opts.splitplots)
-	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+      char numb[10];
+      sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      pagecnv->Divide(3, 3);
+      for (int i = 1; i <= 9; i++)
+	{
+	  pagecnv->cd(i);
+	  (*it)->DrawClonePad();
+	  it++;
+	}
+      pagecnv->Print((opts.outdir + "Plots.eps").c_str());
+
+      sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
+      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      pagecnv2->Divide(3, 3);
+      for (int i = 10; i <= pdflabels.size(); i++)
+	{
+	  pagecnv2->cd(i - 9);
+	  (*it)->DrawClonePad();
+	  it++;
+	}
+      pagecnv2->Print((opts.outdir + "Plots.eps").c_str());
     }
-  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
+  
+  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)
     {
-      (*it)->Print((opts.outdir + "Plots.eps").c_str());
-      if (opts.splitplots)
-	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+      char numb[10];
+      sprintf(numb, "data_%d", it - datapullscanvaslist.begin());
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2400 * 2, 2400 * 2);
+      pagecnv->Divide(1, 2);
+      for (int i = 1; i <= 2; i++)
+	if (it != datapullscanvaslist.end())
+	  {
+	    pagecnv->cd(i);
+	    (*it)->DrawClonePad();
+	    it++;
+	  }
+      pagecnv->Print((opts.outdir + "Plots.eps").c_str());
     }
+  
+  //close the file
   it = pdfscanvaslist.begin();
   (*it)->Print((opts.outdir + "Plots.eps]").c_str());
 
@@ -156,6 +226,16 @@ int main(int argc, char **argv)
     {
       cout << "Converting to pdf format..." << endl;
       system(((string)"ps2pdf " + opts.outdir + "Plots.eps " + opts.outdir + "Plots.pdf").c_str());
+    }
+
+  if (opts.splitplots)
+    {
+      for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)// it++)
+	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+      for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
+	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+      for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
+	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
     }
 
   //Save all plots in a root file

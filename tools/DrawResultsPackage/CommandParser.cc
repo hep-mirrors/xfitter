@@ -10,6 +10,7 @@ float lmarg = 0.15;
 
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
+  asymbands(false),
   splitplots(false),
   filledbands(false),
   rmin(0),
@@ -50,6 +51,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  pdf = true;
 	else if (*it == "--bands")
 	  dobands = true;
+	else if (*it == "--asymbands")
+	  asymbands = true;
 	else if (*it == "--outdir")
 	  {
 	    outdir = *(it+1);

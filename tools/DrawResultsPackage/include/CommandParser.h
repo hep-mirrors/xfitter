@@ -18,7 +18,7 @@ class CommandParser
   CommandParser(int argc, char **argv);
 
   //pdf options
-  bool dobands, splitplots, filledbands;
+  bool dobands, splitplots, filledbands, asymbands;
   float rmin, rmax;
 
   //data pulls options
@@ -58,6 +58,8 @@ class CommandParser
     cout << "options for pdf plots:" << endl;
     cout << "\t --bands" << endl;
     cout << "\t \t Draw PDF uncertainty band" << endl;
+    cout << "\t --asymbands" << endl;
+    cout << "\t \t PDF bands are not symmetrised" << endl;
     cout << "\t --outdir <output directory>" << endl;
     cout << "\t \t Specify output directory" << endl;
     cout << "\t --splitplots" << endl;

@@ -63,17 +63,13 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   cnv->SetLeftMargin(lmarg);
 
   TMultiGraph * mg = new TMultiGraph(((string)cnvname + "_multigraph").c_str(), "");
+  TMultiGraph * mg_lines = new TMultiGraph(((string)cnvname + "_multigraph_lines").c_str(), "");
   double mx = 0;
   double mn = 0;
   for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
-      (*it).graph->SetMaximum(TMath::MaxElement((*it).graph->GetN(), (*it).graph->GetY()));
-      mx = max(mx,(*it).graph->GetMaximum());
-      (*it).graph->SetMinimum(TMath::MinElement((*it).graph->GetN(), (*it).graph->GetY()));
-      mn = min(mn, (*it).graph->GetMinimum());
-
       //Prepare graph line borders
-      Double_t val_x[(*it).graph->GetN()], val_high_y[(*it).graph->GetN()], val_low_y[(*it).graph->GetN()]; 
+      Double_t val_x[(*it).graph->GetN()], val_y[(*it).graph->GetN()], val_high_y[(*it).graph->GetN()], val_low_y[(*it).graph->GetN()]; 
 
       for (int i = 0; i < (*it).graph->GetN(); i++)
 	{
@@ -82,14 +78,24 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	  Double_t errlow =  (*it).graph->GetErrorYlow(i);
 
 	  val_x[i] = (*it).graph->GetX()[i];
-	  val_high_y[i] = val+errhigh;
-	  val_low_y[i] = val-errlow;
+	  val_high_y[i] = val + errhigh;
+	  val_low_y[i] = val - errlow;
+	  val_y[i] = val;
 	}
 
+      TGraph *r_centr = new TGraph((*it).graph->GetN(), val_x, val_y);
       TGraph *r_high = new TGraph((*it).graph->GetN(), val_x, val_high_y);
       TGraph *r_low = new TGraph((*it).graph->GetN(), val_x, val_low_y);
 
+      (*it).graph->SetMaximum(TMath::MaxElement(r_high->GetN(), r_high->GetY()));
+      mx = max(mx,(*it).graph->GetMaximum());
+      (*it).graph->SetMinimum(TMath::MinElement(r_low->GetN(), r_low->GetY()));
+      mn = min(mn, (*it).graph->GetMinimum());
+
       //set border features      
+      r_centr->SetLineColor((*it).graph->GetLineColor());
+      r_centr->SetLineStyle(1);
+      r_centr->SetLineWidth(2);
       r_high->SetLineColor((*it).graph->GetLineColor());
       r_high->SetLineStyle(1);
       r_high->SetLineWidth(2);
@@ -99,8 +105,9 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
       //add graphs
       mg->Add((*it).graph);
-      mg->Add(r_high);
-      mg->Add(r_low);
+      mg_lines->Add(r_centr);
+      mg_lines->Add(r_high);
+      mg_lines->Add(r_low);
     }
 
   //graphical settings
@@ -110,10 +117,11 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
   if (mx != 0 || mn != 0)
     {
-      mx = mx + (mx - mn) * 0.8;
-      //     mn = mn - (mx - mn) * 0.3;       
+      float delta = mx - mn;
+      mx = mx + delta * 0.8;
+      mn = mn - delta * 0.2;       
       mg->SetMaximum(mx);
-      //     mg->SetMinimum(mn);
+      mg->SetMinimum(mn);
     }
 
   mg->GetXaxis()->Set(101,0.0001,1.);    
@@ -130,6 +138,7 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg->GetYaxis()->SetTitleOffset(offset);
 
   mg->Draw("ALE3");
+  mg_lines->Draw("L");
 
   //create legend
   TLegend * leg = new TLegend(0.2, 0.84 - pdfgraphs.size()*0.05, 0.65, 0.89);
@@ -190,12 +199,17 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	{
 	  Double_t val =  (*it).graph->GetY()[i];
 	  Double_t ref =  (*fit).graph->GetY()[i];
-	  r->SetPoint(i, (*it).graph->GetX()[i], val/ref);
+	  if (ref != 0)
+	    r->SetPoint(i, (*it).graph->GetX()[i], val/ref);
+	  else
+	    r->SetPoint(i, (*it).graph->GetX()[i], 1);
 
 	  Double_t errhigh =  (*it).graph->GetErrorYhigh(i);
 	  Double_t errlow =  (*it).graph->GetErrorYlow(i);
-	  Double_t rathigh = ( val != 0 )? ((val+errhigh)/ref-val/ref) : 0;
-	  Double_t ratlow = ( val != 0 )? ((val+errlow)/ref-val/ref) : 0;
+	  //Double_t rathigh = ( ref != 0 )? ((val+errhigh)/ref - val/ref) : 0;
+	  //Double_t ratlow = ( ref != 0 )? ((val+errlow)/ref - val/ref) : 0;
+	  Double_t rathigh = ( ref != 0)? (errhigh/ref) : 0;
+	  Double_t ratlow = ( ref != 0)? (errlow/ref) : 0;
 	  r->SetPointError(i, 0, 0, ratlow, rathigh);
 	}
 

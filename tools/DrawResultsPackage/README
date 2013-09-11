@@ -1,5 +1,6 @@
+
 program usage:
-DrawPdfs [options] dir1[:label1] [dir2:[label2]] [...]
+herafitter/bin/DrawPdfs [options] dir1[:label1] [dir2:[label2]] [...]
 
 First directory is used as reference for PDF ratio plots
 and to display data in data pulls plots.
@@ -19,6 +20,8 @@ general options:
 options for pdf plots:
 	 --bands
 	 	 Draw PDF uncertainty band
+	 --asymbands
+	 	 PDF bands are not symmetrised
 	 --outdir <output directory>
 	 	 Specify output directory
 	 --splitplots
