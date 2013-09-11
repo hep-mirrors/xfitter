@@ -510,10 +510,18 @@ C Also add "systematics" for these sources:
                i = (iset-1) / 2 + 1
             endif
 
-            if (i.lt.10) then
-               write (tag,'(''s0'',i1)') i
-            elseif (i.lt.100) then
-               write (tag,'(''s'',i2)') i
+            if (SymmetricPDFErr) then
+               if (i.lt.10) then
+                  write (tag,'(''p0'',i1)') i
+               elseif (i.lt.100) then
+                  write (tag,'(''p'',i2)') i
+               endif
+            else
+               if (i.lt.10) then
+                  write (tag,'(''s0'',i1)') i
+               elseif (i.lt.100) then
+                  write (tag,'(''s'',i2)') i
+               endif
             endif
 
             base = TRIM(OutDirName)//'/pdfs_q2val_'//tag
