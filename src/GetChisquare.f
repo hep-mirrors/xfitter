@@ -196,7 +196,8 @@ C !> Next determine nuisance parameter shifts
      $           ScaledErrors
      $           ,ScaledTotMatrix
      $           ,ScaledGamma
-     $           ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in)
+     $           ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
+     $           ,scaledOmega)
 
 C !> Asymmetric errors loop:
             Call UseOmegaScale(ScaledGamma
@@ -742,13 +743,14 @@ C> @param ersys_in
 C> @param list_covar_inv
 C> @param iflag
 C> @param n0_in
+C> @param ScaledOmega
 C
 C----------------------------------------------------------------------------------
       subroutine chi2_calc_syst_shifts(
      $     ScaledErrors
      $     ,ScaledTotMatrix
      $     ,ScaledGamma
-     $     ,rsys_in,ersys_in,list_covar_inv,  iflag, n0_in)
+     $     ,rsys_in,ersys_in,list_covar_inv,  iflag, n0_in, ScaledOmega)
 
       implicit none
       include 'ntot.inc'
@@ -760,6 +762,7 @@ C
       double precision ScaledErrors(NTOT)
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision ScaledOmega(NSysMax,Ntot) ! Scaled Omega matrix
 
       double precision rsys_in(NSYSMax), ERSYS_in(NSYSMax)
       integer list_covar_inv(NTOT),  iflag, n0_in
@@ -805,8 +808,16 @@ C Get extra piece, from external systematics:
          if (SysForm(l) .eq. isExternal ) then
             do i1 = 1, n_syst_meas(l)
                i  = syst_meas_idx(i1,l)
-               ShiftExternal(i) = ShiftExternal(i) 
-     $              + ScaledGamma(l,i)*rsys_in(l)
+  ! Consider asymmetric uncertainties:
+               if (AsymErrorsIterations.eq.0) then
+                  ShiftExternal(i) = ShiftExternal(i) 
+     $                 + ScaledGamma(l,i)*rsys_in(l)
+               else
+                  ShiftExternal(i) = ShiftExternal(i) 
+     $                 + ScaledGamma(l,i)*rsys_in(l)
+     $                 + ScaledOmega(l,i)*rsys_in(l)*rsys_in(l)
+
+               endif
             enddo
          endif
       enddo
@@ -1714,11 +1725,13 @@ C calculate shift in rsys:
 
 C recalulate
       do k=1,nsys
-         do i=1,n_syst_meas(k)
-            j =  syst_meas_idx(i,k)
-            ScaledGamma(k,j) = ScaledGammaSav(k,j) 
-     $           + ScaledOmega(k,j)*rsys_in(k)
-         enddo
+         if (SysForm(k) .ne. isExternal) then
+            do i=1,n_syst_meas(k)
+               j =  syst_meas_idx(i,k)
+               ScaledGamma(k,j) = ScaledGammaSav(k,j) 
+     $              + ScaledOmega(k,j)*rsys_in(k)
+            enddo
+         endif
       enddo            
       
       if (LDebug) then
