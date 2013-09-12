@@ -58,14 +58,12 @@ C----------------------------------------
 c Extra init for QCDNUM schemes:
       Call ZMVFNS_init()
 
-      if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
-         Call FF_init()
-      endif
-
 C Other schemes:
-      if ( mod(HFSCHEME,10).eq.2) then
+      if (mod(HFSCHEME,10).eq.3) then
+         Call FF_init()
+      elseif ( mod(HFSCHEME,10).eq.2) then
          Call RT_Init()
-      elseif ( mod(HFSCHEME,10).eq.4 ) then
+      elseif ( mod(HFSCHEME,10).eq.4) then
          Call ABKM_init()
       endif
 C---------------------------------
