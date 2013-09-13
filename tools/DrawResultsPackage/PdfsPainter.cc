@@ -59,7 +59,8 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   //Make the TCanvas
   TCanvas *cnv = new TCanvas(cnvname, "", 2400, 2400);
   cnv->cd();
-  cnv->SetLogx();
+  if (opts.logx)
+    cnv->SetLogx();
   cnv->SetLeftMargin(lmarg);
 
   TMultiGraph * mg = new TMultiGraph(((string)cnvname + "_multigraph").c_str(), "");
@@ -87,10 +88,17 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
       TGraph *high = new TGraph((*it).graph->GetN(), val_x, val_high_y);
       TGraph *low = new TGraph((*it).graph->GetN(), val_x, val_low_y);
 
-      (*it).graph->SetMaximum(TMath::MaxElement(high->GetN(), high->GetY()));
-      mx = max(mx,(*it).graph->GetMaximum());
-      (*it).graph->SetMinimum(TMath::MinElement(low->GetN(), low->GetY()));
-      mn = min(mn, (*it).graph->GetMinimum());
+      for (int i = 0; i < (*it).graph->GetN(); i++)
+	{
+	  double xi = high->GetX()[i];
+	  double yi_h = high->GetY()[i];
+	  double yi_l = low->GetY()[i];
+	  if (xi >= opts.xmin && xi <= opts.xmax)
+	    {
+	      mx = max(mx, yi_h);
+	      mn = min(mn, yi_l);
+	    }
+	}
 
       //set border features      
       centr->SetLineColor((*it).graph->GetLineColor());
@@ -119,12 +127,12 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
     {
       float delta = mx - mn;
       mx = mx + delta * 0.8;
-      mn = mn - delta * 0.2;       
+      mn = mn - delta * 0.1;
       mg->SetMaximum(mx);
       mg->SetMinimum(mn);
     }
 
-  mg->GetXaxis()->Set(101,0.0001,1.);    
+  mg->GetXaxis()->Set(101, opts.xmin, opts.xmax);    
   mg->GetXaxis()->SetTitleFont(62);
   mg->GetXaxis()->SetLabelFont(62);
   mg->GetXaxis()->SetTitleSize(txtsize);
@@ -272,7 +280,8 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   //Make the TCanvas
   TCanvas *cnv = new TCanvas(((string)cnvname + "_ratio").c_str(), "pdf", 2400, 2400);
   cnv->cd();
-  cnv->SetLogx();
+  if (opts.logx)
+    cnv->SetLogx();
   cnv->SetLeftMargin(lmarg);
 
   //graphical settings
@@ -283,7 +292,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg_ratio->SetMaximum(opts.rmax);
   mg_ratio->SetMinimum(opts.rmin);
 
-  mg_ratio->GetXaxis()->Set(101,0.0001,1.);    
+  mg_ratio->GetXaxis()->Set(101, opts.xmin, opts.xmax);    
   mg_ratio->GetXaxis()->SetTitleFont(62);
   mg_ratio->GetXaxis()->SetLabelFont(62);
   mg_ratio->GetXaxis()->SetTitleSize(txtsize);

@@ -59,6 +59,15 @@ int main(int argc, char **argv)
 	  sfile.close();
 	}
 
+      //MC errors
+      filename.Form("%s/pdfs_q2val_mc%03d_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
+      ifstream mcfile(filename.Data());
+      if (mcfile.is_open())
+	{
+	  option = "mc";
+	  mcfile.close();
+	}
+
       info_output[o]->Prepare(opts.dobands, option);
       //loop on Q2 bins
       for (int nq2 = 0; nq2 < (info_output[o]->GetNQ2Files()); nq2++)

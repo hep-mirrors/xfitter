@@ -1,6 +1,6 @@
 
 program usage:
-herafitter/bin/DrawPdfs [options] dir1[:label1] [dir2:[label2]] [...]
+DrawPdfs [options] dir1[:label1] [dir2:[label2]] [...]
 
 First directory is used as reference for PDF ratio plots
 and to display data in data pulls plots.
@@ -28,8 +28,12 @@ options for pdf plots:
 	 	 Produce also additional eps files for each plot
 	 --filledbands
 	 	 Filled uncertainty bands, usefull for sensitivity studies
-	 --ratiorange <min:max>
+	 --ratiorange min:max
 	 	 Specify y axis range in PDF ratio plots
+	 --xrange min:max
+	 	 Specify x axis range in PDF plots: minimum x is 0.0001, maximum x is 1
+	 --no-logx
+	 	 Linear x scale in PDF plots
 options for data pulls plots:
 	 to set axis titles, axis range and log scales add PlotDesc options in the data file
 	 Example:

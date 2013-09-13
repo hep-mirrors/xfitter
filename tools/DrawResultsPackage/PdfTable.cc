@@ -165,7 +165,7 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors, TString o
 
   // Read the error sets:
   
-  if ( sErrOpt.CompareTo("m") && sErrOpt.CompareTo("p") ) {
+  if ( sErrOpt.CompareTo("m") && sErrOpt.CompareTo("p") && sErrOpt.CompareTo("mc")  ) {
     for ( int iband = 1; iband<=1000; iband++) {
 
       filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt",base.c_str(), iband, iQ2);
@@ -219,6 +219,18 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors, TString o
       }
       else {delete eSet; continue;}
     }
+  } else if ( !sErrOpt.CompareTo("mc") ) {
+    for ( int iband = 1; iband<=1000; iband++) {
+
+      filename.Form("%s/pdfs_q2val_mc%03d_%02d.txt",base.c_str(), iband, iQ2);
+      PdfTable *eSet = CreatePdfTable(filename.Data());
+      if (!eSet) break;
+
+      if (eSet->GetNx()>0) {
+        fErrorTables.push_back(eSet);
+      }
+      else {delete eSet; continue;}
+    }
   } else {
     cout << "Unknown PdfErrorTables error option = " << sErrOpt <<endl;
     return;
@@ -261,8 +273,26 @@ void PdfErrorTables::GetPDFError(int ix, int iPDF, double* eminus, double* eplus
 
   *eminus = 0;
   *eplus  = 0;
-  
-  if ( sErrOpt.CompareTo("p") ) {
+
+  //MC replica errors
+  if ( !sErrOpt.CompareTo("mc") ) 
+    {
+      double maxp = 0;
+      double maxm = 0;
+
+      double sum = 0;
+      double sum2 = 0;
+
+      for (int i=0; i<fErrorTables.size(); i++) 
+	{
+	  sum += fErrorTables[i]->GetPDF(ix,iPDF);
+	  sum2 += pow(fErrorTables[i]->GetPDF(ix,iPDF), 2);
+	}
+      maxm = maxp = sqrt(sum2/(double)fErrorTables.size() - pow(sum/(double)fErrorTables.size(), 2));
+      (*eminus) = maxm;
+      (*eplus) = maxp;
+    }
+   else if ( sErrOpt.CompareTo("p") ) {
   
     for (int i=0; i<fErrorTables.size(); i+=2) {
       double vm = fErrorTables[i]->GetPDF(ix,iPDF);

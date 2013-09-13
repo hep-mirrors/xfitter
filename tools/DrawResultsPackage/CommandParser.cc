@@ -11,21 +11,24 @@ float lmarg = 0.15;
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
   asymbands(false),
+  logx(true),
   splitplots(false),
   filledbands(false),
   rmin(0),
   rmax(2),
+  xmin(0.0001),
+  xmax(1),
   pdf(false),
   outdir("")
 {
 
   //initialise colors and styles
   colors[0] = kRed;
-  colors[1] = kBlue;
+  colors[1] = kBlue + 2;
   colors[2] = kGreen + 3;
   colors[3] = kMagenta;
-  colors[4] = kCyan;
-  colors[5] = kYellow;
+  colors[4] = kAzure + 1;
+  colors[5] = kOrange + 7;
 
   styles[0] = 3004;
   styles[1] = 3005;
@@ -53,6 +56,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  dobands = true;
 	else if (*it == "--asymbands")
 	  asymbands = true;
+	else if (*it == "--no-logx")
+	  logx = false;
 	else if (*it == "--outdir")
 	  {
 	    outdir = *(it+1);
@@ -66,6 +71,12 @@ CommandParser::CommandParser(int argc, char **argv):
 	  {
 	    rmin = atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str());
 	    rmax = atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str());
+	    allargs.erase(it+1);
+	  }
+	else if (*it == "--xrange")
+	  {
+	    xmin = max(0.0001, atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str()));
+	    xmax = min(1., atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str()));
 	    allargs.erase(it+1);
 	  }
 	else if (*it == "--colorpattern")

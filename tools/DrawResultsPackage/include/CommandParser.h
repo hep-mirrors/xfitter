@@ -18,8 +18,9 @@ class CommandParser
   CommandParser(int argc, char **argv);
 
   //pdf options
-  bool dobands, splitplots, filledbands, asymbands;
+  bool dobands, splitplots, filledbands, asymbands, logx;
   float rmin, rmax;
+  float xmin, xmax;
 
   //data pulls options
   //  bool logx, logy;
@@ -66,8 +67,12 @@ class CommandParser
     cout << "\t \t Produce also additional eps files for each plot" << endl;
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
-    cout << "\t --ratiorange <min:max>" << endl;
+    cout << "\t --ratiorange min:max" << endl;
     cout << "\t \t Specify y axis range in PDF ratio plots" << endl;
+    cout << "\t --xrange min:max" << endl;
+    cout << "\t \t Specify x axis range in PDF plots: minimum x is 0.0001, maximum x is 1" << endl;
+    cout << "\t --no-logx" << endl;
+    cout << "\t \t Linear x scale in PDF plots" << endl;
     cout << "options for data pulls plots:" << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;
