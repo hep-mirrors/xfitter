@@ -393,6 +393,7 @@ C Some hack to store PDFs
       character*48 base
       integer i,idx,j
       character*3 tag
+      character*5 tag5
 
 
 C-----------------------------------------------------------
@@ -411,7 +412,7 @@ c     HERAFitter rewrote of GetPDFUncType function
       if (MonteCarloPDFErr) then
          print *,trim(LHAPDFSET),
      $        ' has Monte Carlo errors approach'
-      else if (SymmetricPDFErr) then
+      elseif (SymmetricPDFErr) then
          print *,trim(LHAPDFSET),
      $        ' has symmetric hessian errors approach'
       else
@@ -509,8 +510,16 @@ C Also add "systematics" for these sources:
             else
                i = (iset-1) / 2 + 1
             endif
-
-            if (SymmetricPDFErr) then
+            
+            if (MonteCarloPDFErr) then
+               if (i.lt.10) then
+                  write (tag5,'(''mc00'',i1)') i
+               elseif (i.lt.100) then
+                  write (tag5,'(''mc0'',i2)') i
+               elseif (i.lt.1000) then
+                  write (tag5,'(''mc'',i2)') i
+               endif
+            elseif (SymmetricPDFErr) then
                if (i.lt.10) then
                   write (tag,'(''p0'',i1)') i
                elseif (i.lt.100) then
@@ -524,9 +533,14 @@ C Also add "systematics" for these sources:
                endif
             endif
 
-            base = TRIM(OutDirName)//'/pdfs_q2val_'//tag
+            if (MonteCarloPDFErr) then
+               base = TRIM(OutDirName)//'/pdfs_q2val_'//tag5
+            else
+               base = TRIM(OutDirName)//'/pdfs_q2val_'//tag
+            endif
+
             idx = index(base,' ')-1
-            if (SymmetricPDFErr) then
+            if (SymmetricPDFErr.or.MonteCarloPDFErr) then
                name = base(1:idx)//'_'
             else
                if ( mod(iset,2).eq.1) then
