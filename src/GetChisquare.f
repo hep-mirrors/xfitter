@@ -177,9 +177,9 @@ C !> same for diagonal part:
 
             if(NCovar.eq.0.and.ScaledErrors(i).eq.0.0d0) then
 c no cov matrix and no ScaledErrors errors, break                
-              print*,'GetNewChisquare: no stat and unc errors in data!'
-              print*,'(possibly cov matrix forgot to be included?)'
-              call hf_stop
+               print*,'GetNewChisquare: no stat and unc errors in data!'
+               print*,'(possibly cov matrix forgot to be included?)'
+               call hf_stop
             endif
 
                ScaledErrors(i) = 1.D0 
@@ -215,6 +215,11 @@ C !> See if we want to use asymmetric errors
 
          Iterate = Iterate - 1
       enddo   ! while ( Iterate.ge.0 )
+
+C !> For asymmetric erros and exteral systematic sources we need to modify ScaledGamma:
+      if (doExternal.and.AsymErrorsIterations.gt.0) then
+         call chi2_calc_asymError_external(ScaledGamma, ScaledOmega, rsys_in)
+      endif
 
 C !> Calculate chi2
       call chi2_Calc_chi2(
@@ -816,7 +821,6 @@ C Get extra piece, from external systematics:
                   ShiftExternal(i) = ShiftExternal(i) 
      $                 + ScaledGamma(l,i)*rsys_in(l)
      $                 + ScaledOmega(l,i)*rsys_in(l)*rsys_in(l)
-
                endif
             enddo
          endif
@@ -1015,6 +1019,7 @@ C----------------------------------------------------------------------
       include 'systematics.inc'
       include 'theo.inc'
       include 'indata.inc'
+      include 'steering.inc'
 
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledErrors(Ntot)  ! uncorrelated uncertainties, diagonal
@@ -1754,4 +1759,28 @@ C ! Check if max. shift is small:
          LStop = .true.
       endif
 
+      end
+
+      Subroutine chi2_calc_asymerror_external(ScaledGamma, ScaledOmega
+     $     , rsys_in)
+
+      implicit none
+C------------
+      include 'ntot.inc'
+
+      include 'systematics.inc'
+      double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
+      double precision ScaledOmega(NSysMax,Ntot) !
+      double precision rsys_in(NSysMax)
+      integer i, l, j
+C----
+      do l=1,Nsys
+         if ( SysForm(l) .eq. isExternal) then
+            do i=1,n_syst_meas(l)
+               j = syst_meas_idx(i,l)
+               ScaledGamma(l,j) =  ScaledGamma(l,j) 
+     $              +  ScaledOmega(l,j)*rsys_in(l)
+            enddo
+         endif
+      enddo
       end

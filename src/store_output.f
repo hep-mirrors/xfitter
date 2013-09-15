@@ -465,7 +465,7 @@ C Also add "systematics" for these sources:
                      omega(nsysLoc,i) = THEO_CENT(i)
                   else
                      Beta(nsysLoc,i) = 
-     $                    -(THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
+     $                    (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
      $                    / THEO_CENT(i)
                   
                      BetaAsym(nsysLoc,2,i)=(THEO_MINUS(i)-THEO_CENT(i))
@@ -474,12 +474,13 @@ C Also add "systematics" for these sources:
      $                    /THEO_CENT(i)
                      
                      omega(nsysLoc,i) = 
-     $                    (THEO_PLUS(i)+THEO_MINUS(i)-2*THEO_CENT(i))
+     $                    -(THEO_PLUS(i)+THEO_MINUS(i)-2*THEO_CENT(i))
      $                    /2.0D0 / THEO_CENT(i)
                   endif
 
                   if (Scale68) then
                      Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
+                     Omega(nsysLoc,i) = Omega(nsysLoc,i) / 1.64
                      BetaAsym(nsysLoc,1,i) = BetaAsym(nsysLoc,1,i)/1.64
                      BetaAsym(nsysLoc,2,i) = BetaAsym(nsysLoc,2,i)/1.64
                   endif

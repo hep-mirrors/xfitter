@@ -1160,7 +1160,7 @@ C ! Too many pluses and minuses !
                      call hf_stop
                   endif
 C Store:
-                  BetaAsym(CompressIdx(i),1,idx) = syst(i)
+                  BetaAsym(CompressIdx(i),1,idx) = - syst(i)
      $                 *SysScaleFactor(CompressIdx(i))                
                endif
 
@@ -1183,7 +1183,7 @@ C ! Too many pluses and minuses !
                      call hf_stop
                   endif
 C ! Store:
-                  BetaAsym(CompressIdx(i),2,idx) = syst(i)
+                  BetaAsym(CompressIdx(i),2,idx) = - syst(i)
      $                 *SysScaleFactor(CompressIdx(i))                
                endif
 
