@@ -1134,7 +1134,7 @@ C Store:
 
 
 
-               BETA(CompressIdx(i),idx) = syst(i)
+               BETA(CompressIdx(i),idx) = -syst(i)
                
 C     Store also asymmetric errors:
                iLen   = Len_trim( SystematicType(i))
