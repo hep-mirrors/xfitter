@@ -1761,6 +1761,10 @@ C ! Check if max. shift is small:
 
       end
 
+C> @brief For asymmetric external systematic unertainty sources, update ScaledGamma matrix.
+C> @param ScaledGamma scaled Gamma matrix (input-output)
+C> @param ScaledOmega scaled Omega matrix (input)
+C> @param rsys_in     shifts of systematic uncertaintis (input)
       Subroutine chi2_calc_asymerror_external(ScaledGamma, ScaledOmega
      $     , rsys_in)
 
@@ -1784,3 +1788,150 @@ C----
          endif
       enddo
       end
+
+C------------------------------------------------------------------------------
+C
+C> @brief Conversion from covariance matrix to nuisance parameter representation.
+C
+C> @param NDimCovar   -- Dimension of the covariance matrix
+C> @param NDimSyst    -- Dimension of systematics matrix
+C> @param NCovar -- Actual number of elements in the covariance matrix
+C> @param Covar  -- Input covariance matrix. Output: nuisance parameters.
+C> @param ANuisance -- Output nuisance parameter representation
+C> @param Tolerance -- fractional sum of eigenvalues for the sourced treated as uncorrelated uncertainty. 0: NCorrelated = NCovar, 1: NCorrelated = 0.
+C> @param Ncorrelated -- Output number of correlated nuisance parameters
+C> @param Uncor      -- Output uncorrelated uncertainty 
+C
+C--------------------------------------------------------------------------------
+      subroutine GetNuisanceFromCovar( NDimCovar, NDimSyst, NCovar,
+     $     Covar, ANuisance, Tolerance, 
+     $     Ncorrelated, Uncor)
+      implicit none
+C--------------------------------------------------------------------------------
+      integer NDimCovar, NDimSyst, NCovar
+      double precision Covar(NDimCovar, NDimCovar)
+      double precision ANuisance(NDimSyst, NDimCovar)
+      double precision Tolerance
+      integer Ncorrelated
+      double precision Uncor(NDimCovar)
+
+      
+      double precision Eigenvalues(NDimCovar)
+      integer NWork
+      parameter (NWork = 100000)
+      double precision Work(NWork)
+      integer IWork(NWork)
+      integer ifail
+
+      double precision Sum,Run
+      integer i,j,k
+
+C--------------------------------------------------------------------------------
+      
+      Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work, 
+     $     NWork, IWork, NWork, IFail)
+      
+      
+      Sum = 0
+      do i=1,NCovar
+         Sum = Sum + EigenValues(i)
+      enddo
+
+      Ncorrelated = NCovar
+      do i=NCovar,1,-1
+         Run = Run + EigenValues(i)/Sum
+c         print *,i,EigenValues(i)/Sum,Run, 1.D0-Tolerance
+         if (Run  .gt. 1.D0 - Tolerance) then
+            Ncorrelated = NCovar - i + 1
+            goto 17
+         endif
+      enddo
+ 17   continue
+c      print *,NCorrelated
+
+      do i=1,NCovar
+         do j=1,NCovar
+            Covar(j,i) = Covar(j,i)*sqrt(max(0.0D0,EigenValues(i)))
+            ANuisance(i,j) = Covar(j,i)
+C            print *,j,i, ANuisance(i,j),Covar(i,j)
+         enddo
+      enddo
+
+      do j=1, NCovar
+         do i=1,NCorrelated
+            ANuisance(i,j) = Covar(j,NCovar-i+1)
+         enddo
+         do i=NCorrelated+1,NCovar
+            Uncor(j) = Uncor(j) + Covar(j,NCovar-i+1)**2
+         enddo
+         Uncor(j) = sqrt(Uncor(j))
+      enddo
+
+      end
+
+      subroutine CovMatrixConverter(fileName)
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      include 'covar.inc'
+      character*(*) fileName
+      integer ncovar
+      double precision tolerance
+      namelist/Covar/NCovar,Tolerance
+      integer i,j,k, ncorr
+      double precision test,devmax,dev
+C----------------------------------------
+
+C      call hf_errlog(1,'I:Read covariance matrix from file')
+      open (51,file=trim(FileName),status='old',err=91)
+      read (51,nml=Covar,err=92,end=93)
+
+
+      do i=1,NCovar
+         read (51,*,err=99) ( Cov(i,j),j=1,NCovar)
+      enddo
+      do i=1,NCovar
+         do j=1,NCovar
+            corr_syst(i,j) = cov(i,j)
+         enddo
+      enddo
+
+      close(51)
+
+      Call GetNuisanceFromCovar(NTot,NSysMax,NCovar,Cov,Beta,
+     $     Tolerance, NCorr, alpha)
+
+      print *,'Nuisance paramters (point, Uncor, Corr1, ... CorrN):'
+      print *,'NCorr=',NCorr
+      do i=1,NCovar
+         print '(I4,300E12.4)',i,alpha(i),(beta(j,i),j=1,NCorr)
+      enddo
+
+      dev = 0.
+      print *,'  '
+      print *,'Test Covariance matrix:'
+      print '(2A4,3A12)','i','j',' nui ',' orig ','corr.diff%'
+      do i=1,NCovar
+         do j=1,NCovar
+            test = 0.
+            do k=1,NCorr
+               test = test + beta(k,i)*beta(k,j)
+            enddo
+            if (i.eq.j) then
+               test = test + alpha(i)*alpha(i)
+            endif
+            dev = (test-corr_syst(i,j))/sqrt(corr_syst(i,i)*corr_syst(j,j))*100.
+            print '(2i4,3F12.2)',i,j,test,corr_syst(i,j)
+     $           ,dev
+            devmax = max(abs(dev),devmax)
+         enddo
+      enddo
+      print '(''Maximum deviation from the original correlation = '',F10.2,''%'')',devmax
+      
+      return
+ 91   call hf_errlog(1,'F:Can not open covar.in file')      
+ 92   call hf_errlog(2,'F:Can not read Covar namelist')
+ 93   call hf_errlog(3,'F:Can not find Covar namelist')
+ 99   call hf_errlog(3,'F:Error reading cov. matrix')
+      end
+

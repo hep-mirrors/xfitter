@@ -16,16 +16,35 @@ C-------------------------------------------------------
       include 'indata.inc'
       include 'systematics.inc'
       include 'g_offset.inc'	
+      include 'covar.inc'
 
       integer icond
       integer nOffset
       ! logical doOffset  ! defined in 'systematics.inc'
-      
+      double precision www(NTot)
+      double precision test(4,4),anui(4,4),test2(4,4)
+      integer ii,jj,kk,narg
+      integer command_argument_count
+      character*80 command
 C-----------------------------------------------------
 *     ------------------------------------------------
 *     Print info message
 *     ------------------------------------------------
       call herafitterInfo
+
+      narg = command_argument_count()
+      if (narg.gt.0) then
+         call get_command_argument(1,command)
+         if (index(command,'--convert-covar').ne.0) then
+            if (index(command,'=').ne.0) then
+               command = command(index(command,'=')+1:len(command))
+            else
+               command = 'covar.in'
+            endif
+            call CovMatrixConverter(command)
+            goto 36
+         endif
+      endif
 
 *     ------------------------------------------------
 *     Read the steering file steering.txt
