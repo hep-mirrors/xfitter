@@ -9,6 +9,8 @@ C---------------------------------------------------------------
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
+      include 'scales.inc'
+
       integer IDataSet,kflag
 C-------------------------------------------------------------------
 
@@ -59,7 +61,14 @@ C Standard DGLAP:
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
      $        DATASETREACTION(IDataSet).eq.'CC ppbar' ) then
          if(Itheory.lt.100) then
+           if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
+             !call set_theor_CKM(IDataSet,
+             call get_theor_eval(IDataSet, DataSetIOrder(IDataSet)-1,
+     $         DataSetMuR(IDataSet), DataSetMuF(IDataSet), 
+     $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
+           else
             Call GetDYCCXsection(IDataSet)
+           endif
          else
             write(6,*) ' invalid dataset for ithory > 100 '
             call hf_stop
@@ -67,7 +76,14 @@ C Standard DGLAP:
       elseif (DATASETREACTION(IDataSet).eq.'NC pp' .or.
      $        DATASETREACTION(IDataSet).eq.'NC ppbar' ) then
          if(Itheory.lt.100) then
-            Call GetDYNCXsection(IDataSet)
+           if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
+             !call set_theor_CKM(IDataSet,
+             call get_theor_eval(IDataSet, DataSetIOrder(IDataSet)-1,
+     $         DataSetMuR(IDataSet), DataSetMuF(IDataSet), 
+     $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
+           else
+             call GetDYNCXsection(IDataSet)
+           endif
          else
             write(6,*) ' invalid dataset for ithory > 100 '
             call hf_stop

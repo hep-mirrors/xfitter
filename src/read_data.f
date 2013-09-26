@@ -174,6 +174,7 @@ C------------------------------------------------------------------------
       include 'datasets.inc'
       include 'indata.inc'
       include 'systematics.inc'
+      include 'theorexpr.inc'
 
       character *(*) CFile
 C Namelist  variables:    
@@ -227,6 +228,7 @@ C Namelist definition:
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
      $     ,SystScales, IndexDataset
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
+     $     ,TermName,TermType,TermSource,TheorExpr
      $     ,ColumnName, ColumnType, NColumn
      $     ,NTheoryFiles 
 
@@ -235,6 +237,8 @@ C Namelist definition:
 C--------------------------------------------------------------
 
       double precision XSections(ndataMax)
+      integer          binFlags(ndataMax)
+      integer          nDSbins
       double precision AllBins(10,ndataMax)
       double precision Syst(nsystmax)
 
@@ -249,6 +253,10 @@ C--------------------------------------------------------------
       double precision TotalErrorRead ! total error, provided by the data file
 
       integer idxSigma
+
+      integer idxUnit
+      double precision TheoryUnit  ! scale factor for theory to bring to data units.
+      integer GetInfoIndex         ! function thet returns index of an information string.
 
       integer i,j,iBin,iError
       logical LReadKFactor
@@ -291,9 +299,21 @@ C Reset to default:
       LReadKFactor = .false.
       NTheoryFiles = 0
 
-      do i=1,2
-         TheoryInfoFile(i) = ' '
-         TheoryType(i) = ' ' 
+      do i = 1,2
+        TheoryInfoFile(i) = ' '
+        TheoryType(i) = ' '
+      enddo
+      NTerms = 0
+      do i=1,NTermsMax
+        TermName(i) = ' '
+        TermType(i) = ' '
+        TermSource(i) = ' '
+      enddo
+      TheorExpr = ' '
+
+      nDSbins = 0
+      do i = 1, ndataMax
+        binFlags(i) = 1
       enddo
 
 C Reset plotting variables
@@ -350,7 +370,9 @@ C Reaction info:
 
 C Parse ColumnType, count systematics, etc
       do i=1,NColumn
-         if (ColumnType(i).eq.'Bin') then
+         if (ColumnType(i).eq.'Flag') then
+            continue
+         elseif (ColumnType(i).eq.'Bin') then
             NBinDimension = NBinDimension + 1
             BinName(NBinDimension) = ColumnName(i)
          elseif (ColumnType(i).eq.'Sigma') then
@@ -377,8 +399,8 @@ C Parse ColumnType, count systematics, etc
 
 C Binning info:
       DATASETBinningDimension(NDATASETS) = NBinDimension
-C Filling with 'dummy' first three names for proper formation of fittedresults.txt
-      do i=1,3
+C Filling with 'dummy' first four names for proper formation of fittedresults.txt
+      do i=1,4
          DATASETBinNames(i,NDATASETS) = 'dummy'
       enddo
       do i=1,NBinDimension
@@ -421,6 +443,21 @@ C--- Add new source
          endif
       enddo
 
+C Count theory expression terms
+      CTmp = ' '
+      do i = 1,NTermsMax
+        if (TermName(i) .eq. ' ' ) goto 88
+        NTerms = i
+        CTmp = TermName(i)
+        TermName(i) = trim(CTmp)
+        CTmp = TermType(i)
+        TermType(i) = trim(CTmp)
+        CTmp = TermSource(i)
+        TermSource(i) = trim(CTmp)
+      enddo
+
+ 88   continue 
+
 C Theory file if present:
       DATASETTheoryType(NDATASETS) = ' '
       do i=1,2
@@ -434,11 +471,11 @@ C Theory file if present:
          endif
          if (TheoryType(i).ne.' ' .and. TheoryInfoFile(i).ne.' ') then
             if (TheoryType(i).ne.'kfactor') then
-  ! not k-factor, overwrite
+  !   not k-factor, overwrite
                DATASETTheoryFile(NDATASETS) = TheoryInfoFile(i)
                DATASETTheoryType(NDATASETS) = TheoryType(i)
             else
-  ! k-factor, depends if nothing else is present
+  !   k-factor, depends if nothing else is present
                if (DATASETTheoryType(NDATASETS).eq.' ') then
                   DATASETTheoryFile(NDATASETS) = TheoryInfoFile(i)
                   DATASETTheoryType(NDATASETS) = TheoryType(i)
@@ -448,13 +485,13 @@ C Theory file if present:
             endif
          endif
       enddo
-
+     
       DATASETNKfactors(NDATASETS) = NKFactor
       do i=1,NKFactor
          DATASETKFactorNames(i,NDATASETS) = KFactorNames(i)
       enddo
-
-
+     
+     
 C     Count applgrids
       do i=1,2
         if(TheoryType(i).EQ.'applgrid') then 
@@ -462,13 +499,24 @@ C     Count applgrids
         endif
       enddo
 c      print*,'NTheoryFiles with allpgrids ',NTheoryFiles
-
+     
       DATASETNapplgrid(NDATASETS) = NTheoryFiles
       do i=1,NTheoryFiles
          print*,'Theory files: ', TheoryInfoFile(i)
 C     ---> copy the names in a new variable 
          DATASETapplgridNames(i,NDATASETS) = TheoryInfoFile(i)
       enddo
+
+      ! set parameters for general theory interface here instead of
+      ! src/init_theory.f.  A.S.
+      if ( TheoryType(1).eq.'expression' ) then
+        if ( NTerms .eq. 0 ) then
+          print *,'Expression theory type selected, but no terms/expression specified'
+          call hf_stop
+	endif
+        DATASETTheoryType(NDATASETS) = TheoryType(1)
+        call set_theor_eval(NDATASETS)
+      endif
 
 
 C Read data info:
@@ -501,7 +549,9 @@ C Decode the columns
          iBin   = 0
          iError = 0
          do i=1,NColumn
-            if (ColumnType(i).eq.'Bin') then
+            if (ColumnType(i).eq.'Flag') then
+               binFlags(j) = nint(buffer(i))
+            elseif (ColumnType(i).eq.'Bin') then
                iBin = iBin + 1
                allbins(iBin,j) = buffer(i)
             elseif (ColumnType(i).eq.'Sigma') then
@@ -524,17 +574,24 @@ C Scale the syst. erros:
             read (53,*) (akfact(i),i=1,NKFactor)
          endif
 
+         nDSbins = nDSbins +1
+
 C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName)) then
-            if((Reaction.eq.'FastNLO jets').or.
-     $        (Reaction.eq.'FastNLO ep jets').or.
-     $        (Reaction.eq.'FastNLO ep jets normalised')) then
-               call fastnlopointskip(NDataSets, j, NData);
-            endif
-            goto 1717
+	   ! set excluding flag for those bins that were cut
+           binFlags(j) = 0
+           if((Reaction.eq.'FastNLO jets').or.
+     $       (Reaction.eq.'FastNLO ep jets').or.
+     $       (Reaction.eq.'FastNLO ep jets normalised')) then
+              call fastnlopointskip(NDataSets, j, NData);
+           endif
+           goto 1717
          endif
 
-
+C skip those bins that have 0 flag
+         if ( binFlags(j) .eq. 0 ) then
+           goto 1717
+         endif
 
 C Add a point:
          npoints = npoints+1
@@ -791,6 +848,29 @@ C Store k-factors:
          
  1717  continue
       enddo
+
+C Set data binning information in theory evaluations
+c but firest check that there are two columns per each bin dimension
+      if ( DATASETTheoryType(NDATASETS).eq.'expression' ) then
+        if ( mod(NBinDimension,2) .ne. 0 ) then
+          print *, 'Problem reading data from ', CFile
+          print *, 'There must be two bin columns per each bin dimension'
+          print *, 'for applgrid based fits.'
+          call hf_stop
+        endif
+      
+        call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 
+     &    binFlags, allbins )
+
+        idxUnit = GetInfoIndex(NDATASETS,'theoryunit')
+        if (idxUnit.gt.0) then
+          Theoryunit = DATASETInfo(idxUnit,NDATASETS)
+        else
+          Theoryunit = 1.
+        endif
+        call set_theor_units(NDATASETS, Theoryunit);
+        call init_theor_eval(NDATASETS)
+      endif
 
       close (51)
       if (lreadkfactor) then

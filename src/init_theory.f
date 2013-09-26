@@ -555,6 +555,7 @@ C---------------------------------------------------------------
       include 'steering.inc'
       include 'for_debug.inc'
       include 'datasets.inc'
+      include 'theorexpr.inc'
 C-----------------------------------
       integer IDataSet
 C---------------------------------------------------------------
@@ -669,6 +670,8 @@ C---------------------------------------------------------
          call InitDYCCXsectionDataset_kfactor(IDataSet)
       elseif (DATASETTheoryType(IDataSet).eq.'applgrid') then
          call InitDYXsectionDataset_applgrid(IDataSet)         
+      elseif (DATASETTheoryType(IDataSet).eq.'expression') then
+        continue
       else
          print *,'InitDYCCXsectionDataset: unknown theory type'
      $        ,DATASETTheoryType(IDataSet), ' for set ', IDataSet
@@ -693,10 +696,13 @@ C------------------------------------------------------------
 C---------------------------------------------------------
 
 
+      print *, DATASETTheoryType(IDataSet)
       if (DATASETTheoryType(IDataSet).eq.'kfactor') then
          call InitDYNCXsectionDataset_kfactor(IDataSet)
       elseif (DATASETTheoryType(IDataSet).eq.'applgrid') then
          call InitDYXsectionDataset_applgrid(IDataSet)         
+      elseif (DATASETTheoryType(IDataSet).eq.'expression') then
+        continue
       else
          print *,'InitDYNCXsectionDataset: unknown theory type'
      $        ,DATASETTheoryType(IDataSet), ' for set ', IDataSet
