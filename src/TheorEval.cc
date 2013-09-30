@@ -11,12 +11,13 @@
 #include <sstream>
 #include <stack>
 #include <float.h>
+
 #include "TheorEval.h"
 
 #include "appl_grid/appl_grid.h"
 
-
 using namespace std;
+using namespace appl;
 
 // external pdf functions
 extern "C" void appl_fnpdf_(const double& x, const double& Q, double* f);
