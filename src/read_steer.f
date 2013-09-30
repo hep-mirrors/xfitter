@@ -98,7 +98,7 @@ C------------------------------------------------------
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
 
-      PDFStyle  = '13p HERAPDF'
+      PDFStyle  = 'HERAPDF'
       PDFType  = 'proton'
 
       H1QCDFUNC= .False.
@@ -899,20 +899,13 @@ C---------------------------------
 
       FlexibleGluon = .false.
       
-      if (PDFStyle.eq.'10p HERAPDF') then
-         iparam = 22
-         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
-
-      elseif (PDFStyle.eq.'13p HERAPDF') then
-         iparam = 229
-         FlexibleGluon = .true.
-         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
-
-      elseif (PDFStyle.eq.'strange') then
+      if (PDFStyle.eq.'10p HERAPDF'.or.
+     $     PDFStyle.eq.'13p HERAPDF'.or.
+     $     PDFStyle.eq. 'HERAPDF'.or.
+     $     PDFStyle.eq. 'strange') then
          iparam = 2011
          FlexibleGluon = .true.
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
-
 
       elseif (PDFStyle.eq.'CTEQ') then
          iparam = 171717

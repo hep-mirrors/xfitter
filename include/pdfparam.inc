@@ -6,9 +6,9 @@ C !> Standard parameterisation
        double precision paruval(1:10), pardval(1:10)
      $     ,parubar(1:10), pardbar(1:10)
      $     ,parglue(1:10),paru(1:10), pard(1:10)
-     $     ,pardel(1:10),parsea(1:10),parother(1:10)
+     $     ,parstr(1:10),parsea(1:10),parother(1:10)
        common/stpar/paruval,pardval,parubar,pardbar,
-     $      parglue,paru,pard,pardel,parsea,parother
+     $      parglue,paru,pard,parstr,parsea,parother
 
 C---
        double precision fcharm,fstrange !> charm, strange fractions

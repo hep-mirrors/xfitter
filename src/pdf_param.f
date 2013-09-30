@@ -79,11 +79,12 @@ C-------------------------------------------------------
             Call HF_errlog(13050801,
      $           'S: Use either rs or fs, NOT both')
          elseif (idxFS.ne.0) then
+c            print*,'idxFs', idxFs, ExtraParamStep(idxFS),ExtraParamValue(idxFS)
             idxFS = iExtraParamMinuit(idxFS)
-            StepFs = ExtraParamStep(idxFS)
+!            StepFs = ExtraParamStep(idxFS)
          elseif (idxRS.ne.0) then
             idxRS = iExtraParamMinuit(idxRS)
-            StepFs = ExtraParamStep(idxRS)
+!            StepFs = ExtraParamStep(idxRS)
          endif
 
 
@@ -336,7 +337,7 @@ C     simple copy first:
          parsea(i) = pars(70+i)
          paru(i) = pars(50+i)
          pard(i) = pars(60+i)
-         pardel(i) = pars(80+i)
+         parstr(i) = pars(80+i)
          parother(i) = pars(90+i)
       enddo
 
@@ -356,53 +357,58 @@ C     simple copy first:
          parubar(2)=pardbar(2)
          parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
-      elseif (index(PDF_DECOMPOSITION,'Dv_Uv_Dbar_Ubar').ne.0) then
+      elseif (index(PDF_DECOMPOSITION,'Dv_Uv_Dbar_Ubar_Str').ne.0) then
 
          if (pardval(2).eq.0)   pardval(2)=paruval(2)  !  Bud    = Buv 
          if (parubar(2).eq.0)   parubar(2)=pardbar(2)  !  Bubar  = Bdbar
          
-         if (index(PDF_DECOMPOSITION,'Str').ne.0) then         ! Strange
+         if (parstr(1).eq.0.and.
+     $        parstr(2).eq.0.and.
+     $        parstr(3).eq.0) then
+            
+* use coupled strange to Dbar
+            iparam=229  
 
-            if (pardel(2).eq.0) then
-               pardel(2)=pardbar(2)
-            endif
-
-            if (pardel(3).eq.0) then
-               pardel(3)=pardbar(3)
-            endif
-
-            if (fs.ne.-10000) then
-               pardel(1)=fs/(1.-fs)*pardbar(1)
-            endif
-
-            if (parubar(1).eq.0) parubar(1) = pardbar(1)
-
-         else                             ! Fixed strange
-            if (parubar(1).eq.0)   parubar(1)=pardbar(1)*(1.D0-fs)
-     $           /(1.D0-fcharm)
+         elseif (parstr(2).eq.0.and.parstr(3).ne.0) then
+            parstr(2)=pardbar(2)
+         elseif (parstr(3).eq.0.and.parstr(2).ne.0) then
+            parstr(3)=pardbar(3)
+         endif
+         
+         if (fs.ne.-10000.and.iparam.ne.229) then
+            parstr(1)=fs/(1.-fs)*pardbar(1)
+         endif
+         
+         if (iparam.ne.229) then
+            if (parubar(1).eq.0) parubar(1) = pardbar(1)! then use ubar=dbar
+         else
+            if (parubar(1).eq.0)   parubar(1)=pardbar(1)*(1.D0-fs) 
+     $           /(1.D0-fcharm) !then use Ubar=Dbar
          endif
 
-      elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
-         
-         paruval(2)=0.5
-         pardval(2)=0.5
-         pardel(2)=0.5
-         pardel(3)=parsea(3)+2.
+
+
+c      elseif (iparam.eq.3) then ! g,uval,dval,sea as in ZEUS-S 2002 fit
+c         
+c         paruval(2)=0.5
+c         pardval(2)=0.5
+c         parstr(2)=0.5
+c         parstr(3)=parsea(3)+2.
          
       elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
          pardval(2)=paruval(2)
         
 
 *  dbar-ubar (not Ubar - Dbar), Adel fixed to output of ZEUS-S fit   
-         pardel(1)=0.27
-         pardel(2)=0.5
-         pardel(3)=parsea(3)+2.
+         parstr(1)=0.27
+         parstr(2)=0.5
+         parstr(3)=parsea(3)+2.
 
-      elseif (iparam.eq.24) then ! g,uval,dval,sea as in ZEUS-JET fit
-         pardval(2)=paruval(2)
-         pardel(1)=0.27
-         pardel(2)=0.5
-         pardel(3)=parsea(3)+2.
+c      elseif (iparam.eq.24) then ! g,uval,dval,sea as in ZEUS-JET fit
+c         pardval(2)=paruval(2)
+c         parstr(1)=0.27
+c         parstr(2)=0.5
+c         parstr(3)=parsea(3)+2.
       endif         
 
       if (debug) then
@@ -411,7 +417,7 @@ C     simple copy first:
          print '(''1Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''1Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''1GL:'',11F10.4)',(parglue(i),i=1,10)
-         print '(''1ST:'',11F10.4)',(pardel(i),i=1,10)
+         print '(''1ST:'',11F10.4)',(parstr(i),i=1,10)
       endif
 
 C---------------------------------------------------------
@@ -662,7 +668,10 @@ C Do nothing
       endif
       end
 
+
+C-------------------------------------------------
       Subroutine ChebToPoly()
+C-------------------------------------------------
 C
 C Utility to convert chebyshev to standard polynomial expansion.
 C
@@ -695,9 +704,9 @@ C---------------------------------
       double precision x,para
 
 
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-         H1U=para(x,paru)
-      endif
+
+      H1U=para(x,paru)
+
 
       return
       end
@@ -710,9 +719,9 @@ C---------------------------------
       include 'pdfparam.inc'
       double precision x,para
 
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-         H1D=para(x,pard)
-      endif
+
+      H1D=para(x,pard)
+
 
       return
       end
@@ -794,7 +803,7 @@ C
       return
       end
 
-
+* -------------------------------------------------------
       double precision function PolyVal(x,NPOLY,Poly)
 C-----------------------------------------------------
 C 25 Jan 2011
@@ -829,6 +838,7 @@ C--------------------------------------------------
       if (Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0) then
          sea = Ubar(x) + Dbar(x)
       elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then 
+!         print*,'heeeere'
 * warning for iparam = 3 or 4, the sea is 2 * sum (ubar +dbar + sbar + cbar)
 
          if (nchebSea.eq.0) then
@@ -845,8 +855,9 @@ C Do nothing
  
       return
       end
-
+* -------------------------------------------------------
       double precision Function PolyParam(x,ncheb,poly,xminlog)
+* -------------------------------------------------------
 C
 C  SG: Use polynomial representation of cheb. 
 C
@@ -876,8 +887,8 @@ C-------------------------------------------------
       include 'pdfparam.inc'
       double precision x,para
       
-      if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
-         dbmub=para(x,pardel)
+      if (iparam.eq.4) then 
+         dbmub=para(x,parstr)
       endif
       return
       end
@@ -901,22 +912,24 @@ C----------------------------------------------------
          fs = fshermes(x)
       endif
       
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
-     $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
-     $     .or.iparam.eq.171717.or.iparam.eq.1977
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
+
+      
+      if (iparam.eq.171717.or.iparam.eq.1977.or.iparam.eq.229) then
 
          qstrange = fs * Dbar(x)
 
-      elseif (iparam.eq.222222.or.iparam.eq.222223) then
-         qstrange = fs * Dbar(x)/(1-fs)
+
+c      elseif (iparam.eq.222222.or.iparam.eq.222223) then
+c         qstrange = fs * Dbar(x)/(1-fs)
 
       elseif (iparam.eq.2011) then
-!         qstrange = pardel(1)*x**pardel(2)*(1-x)**pardel(3)
-         qstrange = para(x, pardel)
+!         qstrange = parstr(1)*x**parstr(2)*(1-x)**parstr(3)
 
 
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then 
+         qstrange = para(x, parstr)
+
+
+      elseif (iparam.eq.4) then 
          qstrange = 0.5 * fs * sea(x)
 
       endif
@@ -936,7 +949,7 @@ C----------------------------------------------------
       double precision sing,flav_number,QPDFXQ,vcplus,vicplus,cplus
       integer iflag,iq0,iqc,iqfromq
 
-      if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
+      if (iparam.eq.4) then
          if (x.eq.1) goto 999
          call hf_get_pdfs(x,q2,pdf)
 * charm a la ZEUS 
@@ -983,17 +996,18 @@ C    22 Apr 11, SG, Add CTEQ-like
       elseif (iparam.eq.222222.or.iparam.eq.222223
      $        .or.iparam.eq.2011) then
 ! Ubar=ubar/(1-fc) --> ubar=Ubar*(1-fc)         
+
+         
          Ubar=para(x,parubar)/(1-fcharm)
+
       endif
 
 
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
-     $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
+      if (iparam.eq.229) then
 
          Ubar=para(x,parubar)
 
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
+      elseif (iparam.eq.4) then
  
          Ubar = (0.5d0 * sea(x) - dbmub(x) - qstrange (x) + cbar(x))/2.d0
 
@@ -1033,322 +1047,31 @@ C    22 Apr 11, SG, Add CTEQ-like
          Dbar = ctpara(x,ctdbar)
          return
 
-      elseif(iparam.eq.222222.or.iparam.eq.222223) then
-         Dbar=para(x,pardbar)/(1-fstrange)
+!      elseif(iparam.eq.222222.or.iparam.eq.222223) then
+!         Dbar=para(x,pardbar)/(1-fstrange)
 
       elseif (iparam.eq.2011) then
-         Dbar=para(x,pardbar)+para(x,pardel)
 
+         Dbar=para(x,pardbar)+para(x,parstr)
       endif
 
 
 * SPECIAL TEST with ddbar      
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.2
-     $     .or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then         
+      if (iparam.eq.229) then         
+
          Dbar=para(x,pardbar)
 
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
+
+      elseif (iparam.eq.4) then
          Dbar = sea(x) * 0.5d0 - Ubar(x)
 
       endif
       end
 
-* -------------------------------------------------------
-      double precision function singlet(x)
-* -------------------------------------------------------
-      implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      double precision x,H1U,H1D,Ubar,Dbar,sea,Uval,Dval
 
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-         singlet = H1U(x)+H1D(x)+Ubar(x)+Dbar(x)
-
-      elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
-     $        .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-         singlet = 2.d0 * sea(x) + Uval(x) + Dval(x)
-* new jf
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
-         singlet = sea(x) + Uval(x) + Dval(x)
-      endif
-
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Uminus(x)
-* -------------------------------------------------------
-      implicit none
-      include 'pdfparam.inc'
-      include 'steering.inc'
-      double precision x,H1U,Ubar,Uval
-
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-       Uminus = H1U(x) - Ubar(x)
-* new jf
-      elseif (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4
-     $      .or.iparam.eq.22.or.iparam.eq.225.or.iparam.eq.24
-     $      .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-       Uminus = Uval(x)
-      endif
-
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Dminus(x)
-* -------------------------------------------------------
-      implicit none
-      include 'pdfparam.inc'
-      include 'steering.inc'
-      double precision x,H1D,Dbar,Dval
-
-      if (iparam.eq.1.or.iparam.eq.11.or.iparam.eq.21) then
-       Dminus = H1D(x) - Dbar(x)
-* new jf
-      elseif (iparam.eq.2.or.iparam.eq.3.or.iparam.eq.4
-     $      .or.iparam.eq.22.or.iparam.eq.225.or.iparam.eq.24
-     $      .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-       Dminus = Dval(x)
-      endif
-
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Deltaud(x)
-* -------------------------------------------------------
-      implicit none
-      include 'pdfparam.inc'
-      include 'steering.inc'
-      double precision x,H1U,Ubar,H1D,Dbar
-      double precision Uval,Dval,qstrange,cbar
-C SG: x-dependent fs:
-      double precision fs
-      double precision fshermes
-C----------------------------------------------------
-      if (ifsttype.eq.0) then
-         fs = fstrange
-      else
-         fs = fshermes(x)
-      endif
-
-      if (iparam.eq.1.or.iparam.eq.21) then
-        Deltaud = H1U(x) - fcharm * Ubar(x)
-     +          + Ubar(x) * (1. - fcharm)
-     +          - (H1D(x) - fs * Dbar(x))
-     +          - (Dbar(x) * (1. - fs))
-      elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
-     $       .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-* doubious factor two removed -- REVERT CHANGE (Sasha Glazov)
-         Deltaud =  Uval(x) + 2.*(1.-fcharm)*Ubar(x)
-     +        - (Dval(x) + 2.*(1.-fs)*Dbar(x))
-CSG        Deltaud =  Uval(x) + (1.-fcharm)*Ubar(x)
-CSG     +          - (Dval(x) + (1.-fs)*Dbar(x))
-* new jf
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
-*  doubious factor two removed  -- revert change
-         Deltaud =  Uval(x) + 2.*(Ubar(x)-cbar(x))
-     +        - (Dval(x) + 2.*(Dbar(x)-qstrange(x)))
-      elseif (iparam.eq.11) then
-        Deltaud = H1U(x) + Ubar(x)
-     +          - (H1D(x) - fs * Dbar(x))
-     +          - (Dbar(x) * (1. - fs))
-      endif
-
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Splus(x)
-* -------------------------------------------------------
-      implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'thresholds.inc'
-      double precision x,Dbar,singlet,flav_number,qstrange
-C SG: x-dependent fs:
-      double precision fs
-      double precision fshermes
-C----------------------------------------------------
-      if (ifsttype.eq.0) then
-         fs = fstrange
-      else
-         fs = fshermes(x)
-      endif
-
-
-      Splus = 2.d0 * fs * Dbar(x) 
-     +      - singlet(x)/flav_number(q0)
-*new jf
-      If (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
-         Splus = 2.d0 * qstrange(x) 
-     +      - singlet(x)/flav_number(q0)
-      endif
-
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Uplus(x)
-* -------------------------------------------------------
-      implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'thresholds.inc'
-      double precision x,Ubar,H1U,singlet,flav_number
-      double precision Uval,cbar
-
-
-* to be modified for iparam = 2 or 1 when q0.lt.qc
-
-      if (iparam.eq.1.or.iparam.eq.21) then
-        Uplus = Ubar(x)*(1.-fcharm)
-     +          + H1U(x) - fcharm*Ubar(x) 
-     +          - singlet(x)/flav_number(q0)
-
-* new jf
-      elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
-     $       .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-        Uplus = Uval(x) + 2.*(1.-fcharm)*Ubar(x) 
-     +        - singlet(x)/flav_number(q0)
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
-         Uplus = Uval(x) + 2.d0 * (Ubar(x)-cbar(x))
-     +    - singlet(x)/flav_number(q0)
-      elseif (iparam.eq.11) then
-        Uplus = Ubar(x)
-     +          + H1U(x) 
-     +          - singlet(x)/flav_number(q0)
-      endif
-
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Dplus(x)
-* -------------------------------------------------------
-      implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'thresholds.inc'
-      double precision x,Dbar,H1D,singlet,flav_number,Dval,qstrange
-C SG: x-dependent fs:
-      double precision fs
-      double precision fshermes
-C----------------------------------------------------
-      if (ifsttype.eq.0) then
-         fs = fstrange
-      else
-         fs = fshermes(x)
-      endif
-*mis print corrected 30/04/2008 (jf)
-      if (iparam.eq.1.or.iparam.eq.21) then
-        Dplus = Dbar(x)*(1.-fs)
-     +          + H1D(x) - fs*Dbar(x) 
-     +          - singlet(x)/flav_number(q0)
-      elseif (iparam.eq.2.or.iparam.eq.22.or.iparam.eq.225
-     $       .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-        Dplus = Dval(x) + 2.*(1.-fs)*Dbar(x) 
-     +        - singlet(x)/flav_number(q0)
-* new jf
-      elseif (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
-        Dplus = Dval(x) + 2.*(Dbar(x)-qstrange(x)) 
-     +        - singlet(x)/flav_number(q0)
-      endif
-
-      return
-      end
-
-
-* -------------------------------------------------------
-      double precision function Cplus(x)
-* -------------------------------------------------------
-* given at starting scale if q0 > qc (allows to write
-* that c+cbar is a fraction fcharm of Ubar for charm H1 style);
-* else defined at qc (new2)
-
-      implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'thresholds.inc'
-      double precision x,singlet,flav_number,Ubar,factor
-      integer iflag,jtest,iqfrmq,iq0,iqc,iqb
-
-* Charm H1 style 
-
-      if (iparam.eq.1.or.iparam.eq.2.or.iparam.eq.21.or.iparam.eq.22.or.iparam.eq.225
-     $     .or.iparam.eq.221.or.iparam.eq.222.or.iparam.eq.229) then
-         if (q0.ge.qc) then
-            Cplus = 2.d0 * fcharm * Ubar(x) 
-     +       - singlet(x)/flav_number(q0)
-         else
-
-            Cplus = - singlet(x)/flav_number(qc)
-           
-         endif
-      endif
-
-* Charm ZEUS style
-
-      if (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.11.or.iparam.eq.24) then
-
-         Cplus = - singlet(x)/flav_number(qc)
-         if(q0.ge.qc) then
-            IQ0 = iqfrmq(q0)
-            IQC = iqfrmq(qc)
-            IQB = iqfrmq(qb)
-            factor = -1. /flav_number(qc)
-         endif
-      endif
-
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Bplus(x)
-* -------------------------------------------------------
-* given at scale = b threshold
-      implicit none
-
-      include 'thresholds.inc'
-      double precision x,singlet,flav_number
-      integer iflag
-
-      Bplus = - singlet(x)/flav_number(qb)
-      return
-      end
-
-* -------------------------------------------------------
-      double precision function Deltacs(x)
-* -------------------------------------------------------
-      implicit none
-      include 'pdfparam.inc'
-      include 'steering.inc'
-      double precision x,Ubar,Dbar,qstrange,cbar
-C SG: x-dependent fs:
-      double precision fs
-      double precision fshermes
-C----------------------------------------------------
-      if (ifsttype.eq.0) then
-         fs = fstrange
-      else
-         fs = fshermes(x)
-      endif
-
-      Deltacs = 2.*fcharm*Ubar(x) 
-     +        - 2.*fs*Dbar(x)
-*new jf
-      If (iparam.eq.3.or.iparam.eq.4.or.iparam.eq.24) then
-         Deltacs = 2.*cbar(x) 
-     +        - 2.*qstrange(x)
-      endif
-
-      return
-      end
-
-      
+C---------------------------------------------------      
       double precision function fshermes(x)
+C---------------------------------------------------
 C
 C X-dependent strange fraction, inspired by HERMES data
 C Created 31 Oct 2009 by SG.
@@ -1383,7 +1106,12 @@ C      print *,'DEBUG:',x,fshermes,fstrange
 C---------------------------------------------------
       end
 
+
+
+
+C---------------------------------------------------
       subroutine StorePoly(p,iflag)
+C---------------------------------------------------
 C
 C Created 27 Jan 2011 by SG. Transfer parameters from MINUIT array p to
 C internal arrays PolyUval and PolyDval
@@ -1430,8 +1158,9 @@ C-----------------------------------
 
       end      
 
-
+C---------------------------------------------------
       subroutine DecodePoly(pars,poly,np,iz)
+C---------------------------------------------------
 C
 C Created 29 Jan 2011. Decode input minuit parameters to internal PolyVal
 C arrays for different order of (1-x) 
@@ -1460,7 +1189,7 @@ C----------------------------------------------
       endif
       
       end
-
+C---------------------------------------------------
       subroutine squarepoly(Npar,PolyIn,Npar2,PolyOut)
 C-----------------------------------------
 C
@@ -1491,6 +1220,7 @@ C--------------------------------------------------
 
 C-----------------------------------------------------
       Subroutine PDFLength(DeltaChi2)
+C---------------------------------------------------
 C
 C Created 27 June 2009 by SG
 C Add extra constraint for the PDF "length" = int_wmin^wmax \sqrt{1+pdf'(W)**2} dw
@@ -1552,7 +1282,10 @@ C
 C---------------------------------------------------------
       end
 
+
+C---------------------------------------------------
       double precision function powerLen(W,a,b,c,d,e,f,ap,bp,cp)
+C---------------------------------------------------
 C
 C Utility to calculate pdf length element in W for power parameterization.
 C
@@ -1581,8 +1314,9 @@ C W derrivative:
 C----------------------------------------------------
       end
 
-      
+C---------------------------------------------------      
       double precision function ChebLen(W,ncheb,poly,a,xminlog,iType)
+C---------------------------------------------------
 C
 C Utility to calculate pdf length element in W for chebyshev parameterization.
 C
@@ -1633,8 +1367,9 @@ C-------------------------------------------------------
       end
       
 
-
+C---------------------------------------------------
       double precision function glulen(W)
+C---------------------------------------------------
       implicit none
       double precision W
       include 'pdfparam.inc'
@@ -1654,8 +1389,9 @@ C----------------------------------------------------
       endif
       end
 
-
+C---------------------------------------------------
       double precision function Sealen(W)
+C---------------------------------------------------
       implicit none
       double precision W
       include 'pdfparam.inc'
@@ -1675,7 +1411,7 @@ C----------------------------------------------------
 
       endif
       end
-
+C---------------------------------------------------
       subroutine SaveRestorePdfs(imode)
 C-------------------------------------------------------
 C Leave only the contribution of the valence quarks

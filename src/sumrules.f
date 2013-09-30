@@ -127,7 +127,7 @@ C Sea:
          tDb = pardbar(1)*CalcIntXpdf(pardbar)
 
          if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
-            tStr = pardel(1)*CalcIntXpdf(pardel)
+            tStr = parstr(1)*CalcIntXpdf(parstr)
          else
             tStr = 0   ! Strange already included in Dbar
          endif
@@ -182,7 +182,7 @@ c      if (IDebug.eq.1) then
          print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
-         print '(''ST:'',11F10.4)',(pardel(i),i=1,10)
+         print '(''ST:'',11F10.4)',(parstr(i),i=1,10)
          if (uv_sum.ne.0 .or. dv_sum.ne.0 .or. p_sum.ne.0) then
             print '(''Sum rules, uv, dv, p:'',3F10.4)'
      $           ,uv_sum, dv_sum, p_sum
