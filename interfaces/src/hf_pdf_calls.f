@@ -11,6 +11,8 @@ C----------------------------------------------------------------------
       include 'fcn.inc'
       double precision x,q2,pdfsf(-6:6)
       integer i
+      double precision A,Z, tmpU,tmpD,tmpUb,tmpDb
+      data A,Z /207,82/
 C----------------------------------------------------------------------
       if (x.ge.1.D0) then
          do i=-6,6
@@ -30,6 +32,21 @@ C Cache PDF calls:
 C Get PDFs directly:
          Call HF_Get_PDFs_UnCached(x,q2,PDFSF)
       endif
+  
+C---- switch for lead PDF: Combine to form nuclear pdf; scale by A
+C----     For full cross setion on lead, multiply by A
+
+      if(lead) then
+         tmpU  = (Z*PDFSF( 1) + (A-Z)*PDFSF( 2) )/A
+         tmpD  = (Z*PDFSF( 2) + (A-Z)*PDFSF( 1) )/A
+         tmpUb = (Z*PDFSF(-1) + (A-Z)*PDFSF(-2) )/A
+         tmpDb = (Z*PDFSF(-2) + (A-Z)*PDFSF(-1) )/A
+         PDFSF( 1) = tmpU
+         PDFSF( 2) = tmpD
+         PDFSF(-1) = tmpUb
+         PDFSF(-2) = tmpDb
+      endif
+
 
 C----------------------------------------------------------------------
       end

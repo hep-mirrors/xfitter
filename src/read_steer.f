@@ -23,6 +23,10 @@ C Read various namelists:
       if(Itheory.lt.100) then
          call read_lhapdfnml    ! read lhapdf 
 C
+C Decode PDF type:
+C      
+         call SetPDFType
+C
 C Decode PDF style:
 C      
          call SetPDFStyle
@@ -95,6 +99,7 @@ C------------------------------------------------------
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
 
       PDFStyle  = '13p HERAPDF'
+      PDFType  = 'proton'
 
       H1QCDFUNC= .False.
 C=================================================
@@ -224,7 +229,7 @@ C-----------------------------------------------
 C For backward compatibility, keep both H1Fitter and HERAFittter namelists. Will go away with next release !
       namelist/H1Fitter/
      $     ITheory, IOrder, Chi2Style          ! keep for backward compatibility
-     $     , Q02, HF_SCHEME, PDFStyle, 
+     $     , Q02, HF_SCHEME, PDFStyle, PDFType,
      $     LDebug, ifsttype,  LFastAPPLGRID,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
@@ -233,7 +238,7 @@ C For backward compatibility, keep both H1Fitter and HERAFittter namelists. Will
 C Main steering parameters namelist
       namelist/HERAFitter/
      $     ITheory, IOrder, Chi2Style          ! keep for backward compatibility
-     $     , Q02, HF_SCHEME, PDFStyle, 
+     $     , Q02, HF_SCHEME, PDFStyle, PDFType, 
      $     LDebug, ifsttype,  LFastAPPLGRID,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
@@ -520,6 +525,7 @@ C
      $           //TRIM(RWPDFSET))
             LHAPDFSET=RWPDFSET
          endif
+
 C  check if the PDFstyle is indeed Ok
          if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
             call HF_Errlog(12032303,
@@ -853,10 +859,34 @@ C check if limit of 22 char is not exceeded:
 
       end
 
-
 C---------------------------------------
 C
 !>  Set PDF parameterisation type
+C
+C---------------------------------------
+      Subroutine SetPDFType()
+
+      implicit none
+      include 'steering.inc'
+
+
+      if (PDFType.eq.'proton'.or. PDFType.eq.'PROTON') then
+         lead = .false.
+         print *,'Fitting for PROTON PDFs, PDFType=', PDFType
+      elseif (PDFType.eq.'lead'.or. PDFType.eq.'LEAD') then
+         lead = .true. 
+         print *,'Fitting for LEAD PDFs, PDFType=', PDFType
+      else
+         call hf_errlog(300920131,
+     $   'F: Unsupported PDF Type used!')
+      endif
+      end
+C---------------------------------
+
+
+C---------------------------------------
+C
+!>  Set PDF parameterisation style
 C
 C---------------------------------------
       Subroutine SetPDFStyle()
@@ -883,9 +913,11 @@ C---------------------------------
          FlexibleGluon = .true.
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
 
+
       elseif (PDFStyle.eq.'CTEQ') then
          iparam = 171717
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
+
 
       elseif ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          iparam = 1977

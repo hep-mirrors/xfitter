@@ -84,7 +84,7 @@ C
 
       integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
-
+      logical lead             !> Flag to trigger lead PDF	
       logical CachePDFs        !> Cache PDF calls to speedup
       logical FLAGRW
       logical DORWONLY
@@ -108,7 +108,7 @@ C
      $     ,ichebtypeGlu, ichebtypeSea
      $     ,ifsttype,iSeeDmc
      $     ,IOFFSETCHEBSEA,EWFIT
-     $     ,npolyval
+     $     ,npolyval, lead
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
      $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
@@ -140,9 +140,12 @@ C
       character*32 PDFStyle           !> PDF style definition
       common/CPdfStyle/PDFStyle
 
+      character*32 PDFType           !> PDF type definition
+      common/CPdfStyle/PDFType
+
       character*128  LHAPDFSET        !> LHAPDF set name
       integer ILHAPDFSET              !> LHAPDF set number
       common/CLHAPDF/LHAPDFSET,ILHAPDFSET
 
-      character*64 OutDirName         !> outout dir name
+      character*128 OutDirName         !> outout dir name
       common/COutDirName/OutDirName

@@ -64,6 +64,11 @@
 
   HF_SCHEME = 'RT'
 
+ ! PDF type. Possible types are currently available:
+ ! 'proton'  -- default (fitting proton data)
+ ! 'lead'    -- fitting ONLY lead data (can't be used in combination with proton data)
+
+ PDFType = 'proton'
 
  ! PDF parameterisation style. Possible styles are currently available:
  !  '10p HERAPDF' -- HERAPDF-like with extra assumption Buv = Bdv
