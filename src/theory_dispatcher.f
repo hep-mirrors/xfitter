@@ -51,6 +51,13 @@ C Standard DGLAP:
             write(6,*) ' invalid dataset for ithory > 100 '
             call hf_stop
          Endif
+      elseif (DATASETREACTION(IDataSet).eq.'NC e+-p FL') then
+         if(Itheory.lt.100) then
+            Call GetNCFL(IDataSet, HFSCHEME)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          if(Itheory.lt.100) then
             Call GetCCXsection(IDataSet, HFSCHEME)

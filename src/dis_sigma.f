@@ -31,6 +31,15 @@ C----------------------------------------------------
       Subroutine GetNCCharmXsection(IDataSet, local_hfscheme)
       call GetDisXsection(IDataSet, 'CHARMDIS', local_hfscheme)
       end
+C----------------------------------------------------
+C> \brief Get DIS NC FL
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C----------------------------------------------------
+      Subroutine GetNCFL(IDataSet, local_hfscheme)
+      call GetDisXsection(IDataSet, 'FL', local_hfscheme)
+      end
+
 
 C----------------------------------------------------
 C> \brief Get DIS NC cross section
@@ -290,7 +299,7 @@ c H1qcdfunc
       integer ifirst
       data ifirst /1/
 C---------------------------------------------------------
-
+      print*,'XSEC TYPE = ', XSecType
 
       if (NDATAPOINTS(IDataSet).gt.NPMaxDIS) then
          print *,'ERROR IN GetDisXsection'
@@ -360,6 +369,8 @@ C
 !               alphaem_run = aemrun(q2(i))
                alphaem_run = alphaem
                factor=2*pi*alphaem_run**2/(x(i)*q2(i)**2)*convfac
+            else if (XSecType.eq.'FL') then
+               factor=1.D0
             else
                print *, 'GetDisXsection, XSecType',XSecType,
      $              'not supported'
@@ -564,6 +575,8 @@ C all the transformations below are array operations!
 c         XSec = FL !hp
       else if(XSecType.eq.'CHARMDIS') then
          XSec = F2c - y*y/yplus*FLc
+      else if(XSecType.eq.'FL') then
+         XSec = FL
       else
          print *, 'CalcReducedXsectionForXYQ2, XSecType',
      $        XSecType,'not supported'
@@ -632,7 +645,8 @@ C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
             CALL ZMSTFUN(2,CCEM2F,X,Q2,F2,npts,0)      
             CALL ZMSTFUN(3,CCEM3F,X,Q2,XF3,npts,0) 
          endif
-      elseif (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS') then
+      elseif (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS'
+     $        .or.XSecType.eq.'FL') then
 C     u-type ( u+c ) contributions 
          CALL ZMSTFUN(1,CNEP2F,X,Q2,FL,npts,0)
          CALL ZMSTFUN(2,CNEP2F,X,Q2,F2,npts,0)
@@ -650,7 +664,8 @@ C     d-type (d + s + b) contributions
 
 c     for NC needs to combine F2p with F2m etc.        
 
-      if(XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS') then
+      if(XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS'.or.
+     $     XSecType.eq.'FL') then
          if(EWFIT.eq.0) then
 C
 C EW couplings of the electron
