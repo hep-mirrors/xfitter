@@ -405,9 +405,9 @@ C-------------------------------------------------------------
       elseif(MASSH.eq.2) then
       hqscale2inmass=bq2*mbt*mbt
       endif
-      if(MASSH.eq.1) then
+      if(mod(HFSCHEME,10).eq.0.and.MASSH.eq.1) then
       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'   
-      elseif(MASSH.eq.2) then
+      elseif(mod(HFSCHEME,10).eq.0.and.MASSH.eq.2) then
       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'   
       endif
 c    
@@ -521,19 +521,18 @@ c this flag will set kordhq,kordalps,kordf2,kordfl,kordfl so same order!
       kordpdfin  = I_FIT_ORDER-1
 
 c set scale for FFNS only         
-      if(HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
+c      if(HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
 !  Set the factorization scale as sqrt(Q2*hqscale1 + 4m^2*hqscale2) for the 
 !  pair heavy-quark DIS production and as sqrt(Q2*hqscale1 + m^2*hqscale2) 
 !  for the single heavy-quark DIS production
-         hqscale1in=1d0
-         hqscale2in=1d0
+c         hqscale1in=1d0
+c         hqscale2in=1d0
 ! NEEDS TO BE IMPROVED            
-        print*,'Scale: mu_f^2=Q^2+4m_h^2, variation not implemented yet'
 c here VFNS (BMSN)           
-      else    
-         hqscale1in=1d0
-         hqscale2in=0d0
-      endif  
+c      else    
+c         hqscale1in=1d0
+c         hqscale2in=0d0
+c      endif  
 
 ! ren.scale=fac.scale as a default
 cc        rscale=1d0
