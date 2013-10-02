@@ -23,7 +23,7 @@ AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 if ENABLE_APPLGRID 
   FitPDF_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc
 else 
-  FitPDF_SOURCES+= applgrids_dum.f 
+  FitPDF_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
 endif
 
 if ENABLE_LHAPDF 
