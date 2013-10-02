@@ -287,7 +287,7 @@
 * (Optional) choose the factorisation scale for HQs
 * tuned via parameters:    mu_f^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2
 * Available for 'FF', 'FF ABM' options (heavy quarks scale)
-* Also defines scale for 'ZMVFNS'.'ACOT Full' and 'ACOT Chi' options ( for this options scale is being set for heavy quarks and light quarks).  
+* Also defines scale for 'ZMVFNS'.'ACOT Full' and 'ACOT Chi' options ( for these options scale is being set for heavy quarks and light quarks).  
 &HQScale
    scalea1    =  1. 
    scaleb1    =  0.  
