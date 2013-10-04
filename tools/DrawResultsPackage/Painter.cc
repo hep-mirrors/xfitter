@@ -3,9 +3,12 @@
 #include <TAxis.h>
 #include <TROOT.h>
 #include <TGraphAsymmErrors.h>
+#include <TGraph.h>
 #include <TH1F.h>
 #include <TPaveText.h>
 #include <TStyle.h>
+#include <TMath.h>
+
 
 Painter::Painter(bool DrawBands, bool DrawBase, bool DrawExp, bool DrawModel, bool DrawParam){
   fPath = new TString("../../output/");
@@ -858,6 +861,19 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
   TGraphAsymmErrors* graphModel2 = NULL;
   TGraphAsymmErrors* graphParam2 = NULL;
   
+  TGraphAsymmErrors* graphModelsumm = NULL;
+  TGraphAsymmErrors* graphParamsumm = NULL;
+  TGraphAsymmErrors* graphModelsumm2 = NULL;
+  TGraphAsymmErrors* graphParamsumm2 = NULL;
+  
+  TGraph* graph_lineUp = NULL;
+  TGraph* graph_lineDown = NULL;
+  TGraph* graphRatio_lineUp = NULL;
+  TGraph* graphRatio_lineDown = NULL;
+  TGraph* graph2_lineUp = NULL;
+  TGraph* graph2_lineDown = NULL;
+  
+  
   Double_t RatioSize = 0.;
 
   bool isSmthDrawn = false;
@@ -878,16 +894,29 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
   if (fDrawModel) {
     graphModel = fOutputModel->GetPdf(pdf1, Q2Bin);
     RatioSize = 0.3;
-    graphModel->SetLineColor(fColorModel);
-    graphModel->SetFillColor(fColorModel);
-    graphModel->SetFillStyle(fFillStyleModel);
+    graphModelsumm = fOutputModel->GetPdf(pdf1, Q2Bin);
+    graphModelsumm->SetLineColor(fColorModel);
+    graphModelsumm->SetFillColor(fColorModel);
+    graphModelsumm->SetFillStyle(fFillStyleModel);
   }
   if (fDrawParam) {
     graphParam = fOutputParam->GetPdf(pdf1, Q2Bin);
     RatioSize = 0.3;
-    graphParam->SetLineColor(fColorParam);
-    graphParam->SetFillColor(fColorParam);
-    graphParam->SetFillStyle(fFillStyleParam);
+    graphParamsumm = fOutputParam->GetPdf(pdf1, Q2Bin);
+    graphParamsumm->SetLineColor(fColorParam);
+    graphParamsumm->SetFillColor(fColorParam);
+    graphParamsumm->SetFillStyle(fFillStyleParam);
+  }
+  
+  if (fDrawParam) {
+    graph_lineUp = new TGraph(graphParamsumm->GetN());
+    graph_lineDown = new TGraph(graphParamsumm->GetN());
+  } else if (fDrawModel) {
+    graph_lineUp = new TGraph(graphModelsumm->GetN());
+    graph_lineDown = new TGraph(graphModelsumm->GetN());
+  } else if (fDrawExp) {
+    graph_lineUp = new TGraph(graphExp->GetN());
+    graph_lineDown = new TGraph(graphExp->GetN());
   }
   
   if(pdf2 != Output::kNULL) {
@@ -905,16 +934,44 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     }
     if (fDrawModel) {
       graphModel2 = fOutputModel->GetPdf(pdf2, Q2Bin);
-      graphModel2->SetLineColor(fColorModel);
-      graphModel2->SetFillColor(fColorModel);
-      graphModel2->SetFillStyle(fFillStyleModel);
+      graphModelsumm2 = fOutputModel->GetPdf(pdf2, Q2Bin);
+      graphModelsumm2->SetLineColor(fColorModel);
+      graphModelsumm2->SetFillColor(fColorModel);
+      graphModelsumm2->SetFillStyle(fFillStyleModel);
     }
     if (fDrawParam) {
       graphParam2 = fOutputParam->GetPdf(pdf2, Q2Bin);
-      graphParam2->SetLineColor(fColorParam);
-      graphParam2->SetFillColor(fColorParam);
-      graphParam2->SetFillStyle(fFillStyleParam);
+      graphParamsumm2 = fOutputParam->GetPdf(pdf2, Q2Bin);
+      graphParamsumm2->SetLineColor(fColorParam);
+      graphParamsumm2->SetFillColor(fColorParam);
+      graphParamsumm2->SetFillStyle(fFillStyleParam);
     }
+    
+    if (fDrawParam) {
+      graph2_lineUp = new TGraph(graphParamsumm2->GetN());
+      graph2_lineDown = new TGraph(graphParamsumm2->GetN());
+    } else if (fDrawModel) {
+      graph2_lineUp = new TGraph(graphModelsumm2->GetN());
+      graph2_lineDown = new TGraph(graphModelsumm2->GetN());
+    } else if (fDrawExp) {
+      graph2_lineUp = new TGraph(graphExp2->GetN());
+      graph2_lineDown = new TGraph(graphExp2->GetN());
+    }
+  
+  }
+  
+  if (graph_lineUp && graph_lineDown) {
+    graph_lineUp->SetLineColor(kBlack);
+    graph_lineDown->SetLineColor(kBlack);
+    graph_lineUp->SetLineWidth(0.1);
+    graph_lineDown->SetLineWidth(0.1);
+  }
+  
+  if (graph2_lineUp && graph2_lineDown) {
+    graph2_lineUp->SetLineColor(kBlack);
+    graph2_lineDown->SetLineColor(kBlack);
+    graph2_lineUp->SetLineWidth(0.1);
+    graph2_lineDown->SetLineWidth(0.1);
   }
 
   pad->cd();
@@ -951,47 +1008,282 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     graphExp->GetXaxis()->SetLabelOffset(0.015);
   }
   if (fDrawModel) {
-    graphModel->SetTitle("");
-    graphModel->GetYaxis()->SetTitle("xP(x)");
-    graphModel->GetYaxis()->SetTitleOffset(1.5);  
-    graphModel->GetYaxis()->SetLabelSize(0.05); 
-    graphModel->GetYaxis()->SetNdivisions(506); 
-    graphModel->GetYaxis()->SetLabelOffset(0.02);
-    graphModel->GetXaxis()->SetTitle("x");
-    graphModel->GetXaxis()->SetTitleOffset(0.5);  
-    graphModel->GetXaxis()->SetTitleSize(.06);  
-    graphModel->GetXaxis()->SetLabelSize(0.04); 
-    graphModel->GetXaxis()->SetLabelOffset(0.015);
+    graphModelsumm->SetTitle("");
+    graphModelsumm->GetYaxis()->SetTitle("xP(x)");
+    graphModelsumm->GetYaxis()->SetTitleOffset(1.5);  
+    graphModelsumm->GetYaxis()->SetLabelSize(0.05); 
+    graphModelsumm->GetYaxis()->SetNdivisions(506); 
+    graphModelsumm->GetYaxis()->SetLabelOffset(0.02);
+    graphModelsumm->GetXaxis()->SetTitle("x");
+    graphModelsumm->GetXaxis()->SetTitleOffset(0.5);  
+    graphModelsumm->GetXaxis()->SetTitleSize(.06);  
+    graphModelsumm->GetXaxis()->SetLabelSize(0.04); 
+    graphModelsumm->GetXaxis()->SetLabelOffset(0.015);
   }
   if (fDrawParam) {
-    graphParam->SetTitle("");
-    graphParam->GetYaxis()->SetTitle("xP(x)");
-    graphParam->GetYaxis()->SetTitleOffset(1.5);  
-    graphParam->GetYaxis()->SetLabelSize(0.05); 
-    graphParam->GetYaxis()->SetNdivisions(506); 
-    graphParam->GetYaxis()->SetLabelOffset(0.02);
-    graphParam->GetXaxis()->SetTitle("x");
-    graphParam->GetXaxis()->SetTitleOffset(0.5);  
-    graphParam->GetXaxis()->SetTitleSize(.06);  
-    graphParam->GetXaxis()->SetLabelSize(0.04); 
-    graphParam->GetXaxis()->SetLabelOffset(0.015);
+    graphParamsumm->SetTitle("");
+    graphParamsumm->GetYaxis()->SetTitle("xP(x)");
+    graphParamsumm->GetYaxis()->SetTitleOffset(1.5);  
+    graphParamsumm->GetYaxis()->SetLabelSize(0.05); 
+    graphParamsumm->GetYaxis()->SetNdivisions(506); 
+    graphParamsumm->GetYaxis()->SetLabelOffset(0.02);
+    graphParamsumm->GetXaxis()->SetTitle("x");
+    graphParamsumm->GetXaxis()->SetTitleOffset(0.5);  
+    graphParamsumm->GetXaxis()->SetTitleSize(.06);  
+    graphParamsumm->GetXaxis()->SetLabelSize(0.04); 
+    graphParamsumm->GetXaxis()->SetLabelOffset(0.015);
   }
   
+//====================  summ of exp+model, exp+model+param  ====================
+  
+  int Npoints = 0;
+  Double_t xa, xb, xc, ya, yb, yc;
+  Double_t xela, xeha, yela, yeha, xelb, xehb, yelb, yehb, xels, xehs, yels, yehs;
+  if (fDrawModel || fDrawParam) {
+    if (fDrawModel) {
+      Npoints = graphModelsumm->GetN();
+    } else {
+      Npoints = graphParamsumm->GetN();
+    }
+    for (int ibin=0; ibin<Npoints; ibin++) {
+      if (fDrawModel) {
+        if (fDrawExp) {
+	  graphModelsumm->GetPoint(ibin, xa, ya);
+	  graphExp->GetPoint(ibin, xb, yb);
+	  if (xa = xb) {
+	    xela = graphModelsumm->GetErrorXlow(ibin);
+	    xeha = graphModelsumm->GetErrorXhigh(ibin);
+	    yela = graphModelsumm->GetErrorYlow(ibin);
+	    yeha = graphModelsumm->GetErrorYhigh(ibin);
+	    
+	    xelb = graphExp->GetErrorXlow(ibin);
+	    xehb = graphExp->GetErrorXhigh(ibin);
+	    yelb = graphExp->GetErrorYlow(ibin);
+	    yehb = graphExp->GetErrorYhigh(ibin);
+	    
+	    xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	    xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	    yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	    yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	    graphModelsumm->SetPointError(ibin, xels, xehs, yels, yehs);
+	  } else {
+	    cout<<"WARNING: The x values for the Exp and Model points are different !"<<endl;
+	  }
+	}
+      }
+      if (fDrawParam) {
+        if (fDrawExp) {
+	  graphParamsumm->GetPoint(ibin, xa, ya);
+	  graphExp->GetPoint(ibin, xb, yb);
+	  if (xa = xb) {
+	    xela = graphParamsumm->GetErrorXlow(ibin);
+	    xeha = graphParamsumm->GetErrorXhigh(ibin);
+	    yela = graphParamsumm->GetErrorYlow(ibin);
+	    yeha = graphParamsumm->GetErrorYhigh(ibin);
+	    
+	    xelb = graphExp->GetErrorXlow(ibin);
+	    xehb = graphExp->GetErrorXhigh(ibin);
+	    yelb = graphExp->GetErrorYlow(ibin);
+	    yehb = graphExp->GetErrorYhigh(ibin);
+	    
+	    xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	    xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	    yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	    yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	    graphParamsumm->SetPointError(ibin, xels, xehs, yels, yehs);
+	  } else {
+	    cout<<"WARNING: The x values for the Exp and Param points are different !"<<endl;
+	  }
+	}
+	if (fDrawModel) {
+	  graphParamsumm->GetPoint(ibin, xa, ya);
+	  graphModel->GetPoint(ibin, xb, yb);
+	  if (xa = xb) {
+	    xela = graphParamsumm->GetErrorXlow(ibin);
+	    xeha = graphParamsumm->GetErrorXhigh(ibin);
+	    yela = graphParamsumm->GetErrorYlow(ibin);
+	    yeha = graphParamsumm->GetErrorYhigh(ibin);
+	    
+	    xelb = graphModel->GetErrorXlow(ibin);
+	    xehb = graphModel->GetErrorXhigh(ibin);
+	    yelb = graphModel->GetErrorYlow(ibin);
+	    yehb = graphModel->GetErrorYhigh(ibin);
+	    
+	    xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	    xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	    yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	    yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	    graphParamsumm->SetPointError(ibin, xels, xehs, yels, yehs);
+	  } else {
+	    cout<<"WARNING: The x values for the Model and Param points are different !"<<endl;
+	  }
+	}
+      }
+      
+        if(pdf2 != Output::kNULL) {
+          if (fDrawModel) {
+          if (fDrawExp) {
+	    graphModelsumm2->GetPoint(ibin, xa, ya);
+	    graphExp2->GetPoint(ibin, xb, yb);
+	    if (xa = xb) {
+	      xela = graphModelsumm2->GetErrorXlow(ibin);
+	      xeha = graphModelsumm2->GetErrorXhigh(ibin);
+	      yela = graphModelsumm2->GetErrorYlow(ibin);
+	      yeha = graphModelsumm2->GetErrorYhigh(ibin);
+	    
+	      xelb = graphExp2->GetErrorXlow(ibin);
+	      xehb = graphExp2->GetErrorXhigh(ibin);
+	      yelb = graphExp2->GetErrorYlow(ibin);
+	      yehb = graphExp2->GetErrorYhigh(ibin);
+	    
+	      xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	      xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	      yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	      yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	      graphModelsumm2->SetPointError(ibin, xels, xehs, yels, yehs);
+	    } else {
+	      cout<<"WARNING: The x values for the Exp2 and Model2 points are different !"<<endl;
+	    }
+	  }
+        }
+        if (fDrawParam) {
+          if (fDrawExp) {
+	    graphParamsumm2->GetPoint(ibin, xa, ya);
+	    graphExp2->GetPoint(ibin, xb, yb);
+	    if (xa = xb) {
+	      xela = graphParamsumm2->GetErrorXlow(ibin);
+	      xeha = graphParamsumm2->GetErrorXhigh(ibin);
+	      yela = graphParamsumm2->GetErrorYlow(ibin);
+	      yeha = graphParamsumm2->GetErrorYhigh(ibin);
+	    
+	      xelb = graphExp2->GetErrorXlow(ibin);
+	      xehb = graphExp2->GetErrorXhigh(ibin);
+	      yelb = graphExp2->GetErrorYlow(ibin);
+	      yehb = graphExp2->GetErrorYhigh(ibin);
+	    
+	      xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	      xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	      yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	      yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	      graphParamsumm2->SetPointError(ibin, xels, xehs, yels, yehs);
+	    } else {
+	      cout<<"WARNING: The x values for the Exp2 and Param2 points are different !"<<endl;
+	    }
+	  }
+	  if (fDrawModel) {
+	    graphParamsumm2->GetPoint(ibin, xa, ya);
+	    graphModel2->GetPoint(ibin, xb, yb);
+	    if (xa = xb) {
+	      xela = graphParamsumm2->GetErrorXlow(ibin);
+	      xeha = graphParamsumm2->GetErrorXhigh(ibin);
+	      yela = graphParamsumm2->GetErrorYlow(ibin);
+	      yeha = graphParamsumm2->GetErrorYhigh(ibin);
+	    
+	      xelb = graphModel2->GetErrorXlow(ibin);
+	      xehb = graphModel2->GetErrorXhigh(ibin);
+	      yelb = graphModel2->GetErrorYlow(ibin);
+	      yehb = graphModel2->GetErrorYhigh(ibin);
+	    
+	      xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	      xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	      yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	      yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	      graphParamsumm2->SetPointError(ibin, xels, xehs, yels, yehs);
+	    } else {
+	      cout<<"WARNING: The x values for the Model2 and Param2 points are different !"<<endl;
+	    }
+	  }
+        }
+      }
+    }
+  
+  }
+//====================  end of exp+model, exp+model+param  ====================
 
+//====================  black lines for bands  ====================
+
+  if (fDrawParam) {
+    for (int ibin=0; ibin<graphParamsumm->GetN(); ibin++) {
+      graphParamsumm->GetPoint(ibin, xa, ya);
+      yela = graphParamsumm->GetErrorYlow(ibin);
+      yeha = graphParamsumm->GetErrorYhigh(ibin);
+      
+      graph_lineUp->SetPoint(ibin, xa, (ya+yeha));
+      graph_lineDown->SetPoint(ibin, xa, (ya-yela));
+    }
+  } else if (fDrawModel) {
+    for (int ibin=0; ibin<graphModelsumm->GetN(); ibin++) {
+      graphModelsumm->GetPoint(ibin, xa, ya);
+      yela = graphModelsumm->GetErrorYlow(ibin);
+      yeha = graphModelsumm->GetErrorYhigh(ibin);
+      
+      graph_lineUp->SetPoint(ibin, xa, (ya+yeha));
+      graph_lineDown->SetPoint(ibin, xa, (ya-yela));
+    }
+  } else if (fDrawExp) {
+    for (int ibin=0; ibin<graphExp->GetN(); ibin++) {
+      graphExp->GetPoint(ibin, xa, ya);
+      yela = graphExp->GetErrorYlow(ibin);
+      yeha = graphExp->GetErrorYhigh(ibin);
+      
+      graph_lineUp->SetPoint(ibin, xa, (ya+yeha));
+      graph_lineDown->SetPoint(ibin, xa, (ya-yela));
+    }
+  }
+  
+  if(pdf2 != Output::kNULL) {
+    if (fDrawParam) {
+      for (int ibin=0; ibin<graphParamsumm2->GetN(); ibin++) {
+        graphParamsumm2->GetPoint(ibin, xa, ya);
+        yela = graphParamsumm2->GetErrorYlow(ibin);
+        yeha = graphParamsumm2->GetErrorYhigh(ibin);
+      
+        graph2_lineUp->SetPoint(ibin, xa, (ya+yeha));
+        graph2_lineDown->SetPoint(ibin, xa, (ya-yela));
+      }
+    } else if (fDrawModel) {
+      for (int ibin=0; ibin<graphModelsumm2->GetN(); ibin++) {
+        graphModelsumm2->GetPoint(ibin, xa, ya);
+        yela = graphModelsumm2->GetErrorYlow(ibin);
+        yeha = graphModelsumm2->GetErrorYhigh(ibin);
+      
+        graph2_lineUp->SetPoint(ibin, xa, (ya+yeha));
+        graph2_lineDown->SetPoint(ibin, xa, (ya-yela));
+      }
+    } else if (fDrawExp) {
+      for (int ibin=0; ibin<graphExp2->GetN(); ibin++) {
+        graphExp2->GetPoint(ibin, xa, ya);
+        yela = graphExp2->GetErrorYlow(ibin);
+        yeha = graphExp2->GetErrorYhigh(ibin);
+      
+        graph2_lineUp->SetPoint(ibin, xa, (ya+yeha));
+        graph2_lineDown->SetPoint(ibin, xa, (ya-yela));
+      }
+    }
+  }
+
+//=================  end of black lines for bands  =================
+  
   isSmthDrawn = false;
   if (fDrawParam) {
     if (isSmthDrawn) {
-      graphParam->Draw("3 same");
+      graphParamsumm->Draw("3 same");
     } else {
-      graphParam->Draw("AC3");
+      graphParamsumm->Draw("AC3");
       isSmthDrawn = true;
     }
   }
   if (fDrawModel) {
     if (isSmthDrawn) {
-      graphModel->Draw("3 same");
+      graphModelsumm->Draw("3 same");
     } else {
-      graphModel->Draw("AC3");
+      graphModelsumm->Draw("AC3");
       isSmthDrawn = true;
     }
   }
@@ -1011,12 +1303,23 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
       isSmthDrawn = true;
     }
   }
+  
+  if (graph_lineUp && graph_lineDown) {
+    graph_lineUp->Draw("C same");
+    graph_lineDown->Draw("C same");
+  }
+  
   if(pdf2 != Output::kNULL) {
     if (isSmthDrawn) {
-      if (fDrawParam) graphParam2->Draw("L3 same");
-      if (fDrawModel) graphModel2->Draw("L3 same");
+      if (fDrawParam) graphParamsumm2->Draw("L3 same");
+      if (fDrawModel) graphModelsumm2->Draw("L3 same");
       if (fDrawExp)   graphExp2->Draw("L3 same");
       if (fDrawBase)  graphBase2->Draw("3 same");
+      
+      if (graph2_lineUp && graph2_lineDown) {
+        graph2_lineUp->Draw("C same");
+        graph2_lineDown->Draw("C same");
+      }
     }
   }
 
@@ -1044,10 +1347,28 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     } else if (fDrawExp) {
       graphMainRatio = (TGraphAsymmErrors*) (graphExp->Clone());
     } else if (fDrawModel) {
-      graphMainRatio = (TGraphAsymmErrors*) (graphModel->Clone());
+      graphMainRatio = (TGraphAsymmErrors*) (graphModelsumm->Clone());
     } else {
      cout << "Cannot draw grahs ratio correctly - no main graph." << endl;
      doDrawRatio = false;
+    }
+    
+    if (fDrawParam) {
+      graphRatio_lineUp = new TGraph(graphParamsumm->GetN());
+      graphRatio_lineDown = new TGraph(graphParamsumm->GetN());
+    } else if (fDrawModel) {
+      graphRatio_lineUp = new TGraph(graphModelsumm->GetN());
+      graphRatio_lineDown = new TGraph(graphModelsumm->GetN());
+    } else if (fDrawExp) {
+      graphRatio_lineUp = new TGraph(graphExp->GetN());
+      graphRatio_lineDown = new TGraph(graphExp->GetN());
+    }
+    
+    if (fDrawParam) {
+      graphRatio_lineUp->SetLineColor(kBlack);
+      graphRatio_lineDown->SetLineColor(kBlack);
+      graphRatio_lineUp->SetLineWidth(0.1);
+      graphRatio_lineDown->SetLineWidth(0.1);
     }
   }
   
@@ -1095,39 +1416,39 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
       }
     }
     if (fDrawModel) {
-      graphModel->GetYaxis()->SetTitle("xP(x)");
-      graphModel->GetYaxis()->SetTitleOffset(1.);  
-      graphModel->GetYaxis()->SetLabelSize(0.04); 
-      graphModel->GetYaxis()->SetNdivisions(506); 
-      graphModel->GetYaxis()->SetLabelOffset(0.02);
+      graphModelsumm->GetYaxis()->SetTitle("xP(x)");
+      graphModelsumm->GetYaxis()->SetTitleOffset(1.);  
+      graphModelsumm->GetYaxis()->SetLabelSize(0.04); 
+      graphModelsumm->GetYaxis()->SetNdivisions(506); 
+      graphModelsumm->GetYaxis()->SetLabelOffset(0.02);
       
-      Model_ratio = (TGraph*) (graphModel->Clone());
-      graphModel_ratio = (TGraphAsymmErrors*) (graphModel->Clone());
+      Model_ratio = (TGraph*) (graphModelsumm->Clone());
+      graphModel_ratio = (TGraphAsymmErrors*) (graphModelsumm->Clone());
       
-      for(Int_t i=0; i<graphModel->GetN(); i++) {
-      Model_ratio->SetPoint(i, graphModel->GetX()[i], graphModel->GetY()[i] / graphMainRatio->GetY()[i]);
+      for(Int_t i=0; i<graphModelsumm->GetN(); i++) {
+      Model_ratio->SetPoint(i, graphModelsumm->GetX()[i], graphModelsumm->GetY()[i] / graphMainRatio->GetY()[i]);
       
-      graphModel_ratio->SetPoint(i, graphModel->GetX()[i], graphModel->GetY()[i] / graphMainRatio->GetY()[i]);
-      if(graphModel->GetY()[i] > 0.) 
-        graphModel_ratio->SetPointError(i, 0., 0., graphModel->GetEYlow()[i] / graphMainRatio->GetY()[i], graphModel->GetEYhigh()[i] / graphMainRatio->GetY()[i]);
+      graphModel_ratio->SetPoint(i, graphModelsumm->GetX()[i], graphModelsumm->GetY()[i] / graphMainRatio->GetY()[i]);
+      if(graphModelsumm->GetY()[i] > 0.) 
+        graphModel_ratio->SetPointError(i, 0., 0., graphModelsumm->GetEYlow()[i] / graphMainRatio->GetY()[i], graphModelsumm->GetEYhigh()[i] / graphMainRatio->GetY()[i]);
       }
     }
     if (fDrawParam) {
-      graphParam->GetYaxis()->SetTitle("xP(x)");
-      graphParam->GetYaxis()->SetTitleOffset(1.);  
-      graphParam->GetYaxis()->SetLabelSize(0.04); 
-      graphParam->GetYaxis()->SetNdivisions(506); 
-      graphParam->GetYaxis()->SetLabelOffset(0.02);
+      graphParamsumm->GetYaxis()->SetTitle("xP(x)");
+      graphParamsumm->GetYaxis()->SetTitleOffset(1.);  
+      graphParamsumm->GetYaxis()->SetLabelSize(0.04); 
+      graphParamsumm->GetYaxis()->SetNdivisions(506); 
+      graphParamsumm->GetYaxis()->SetLabelOffset(0.02);
       
       Param_ratio = (TGraph*) (graphParam->Clone());
       graphParam_ratio = (TGraphAsymmErrors*) (graphParam->Clone());
       
-      for(Int_t i=0; i<graphParam->GetN(); i++) {
-      Param_ratio->SetPoint(i, graphParam->GetX()[i], graphParam->GetY()[i] / graphMainRatio->GetY()[i]);
+      for(Int_t i=0; i<graphParamsumm->GetN(); i++) {
+      Param_ratio->SetPoint(i, graphParamsumm->GetX()[i], graphParamsumm->GetY()[i] / graphMainRatio->GetY()[i]);
       
-      graphParam_ratio->SetPoint(i, graphParam->GetX()[i], graphParam->GetY()[i] / graphMainRatio->GetY()[i]);
-      if(graphParam->GetY()[i] > 0.) 
-        graphParam_ratio->SetPointError(i, 0., 0., graphParam->GetEYlow()[i] / graphMainRatio->GetY()[i], graphParam->GetEYhigh()[i] / graphMainRatio->GetY()[i]);
+      graphParam_ratio->SetPoint(i, graphParamsumm->GetX()[i], graphParamsumm->GetY()[i] / graphMainRatio->GetY()[i]);
+      if(graphParamsumm->GetY()[i] > 0.) 
+        graphParam_ratio->SetPointError(i, 0., 0., graphParamsumm->GetEYlow()[i] / graphMainRatio->GetY()[i], graphParamsumm->GetEYhigh()[i] / graphMainRatio->GetY()[i]);
       }
     }
     
@@ -1215,6 +1536,35 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
      Param_ratio->Draw("ALX");
     }
     
+  if (fDrawParam) {
+    for (int ibin=0; ibin<graphParamsumm->GetN(); ibin++) {
+      graphParam_ratio->GetPoint(ibin, xa, ya);
+      yela = graphParam_ratio->GetErrorYlow(ibin);
+      yeha = graphParam_ratio->GetErrorYhigh(ibin);
+      
+      graphRatio_lineUp->SetPoint(ibin, xa, (ya+yeha));
+      graphRatio_lineDown->SetPoint(ibin, xa, (ya-yela));
+    }
+  } else if (fDrawModel) {
+    for (int ibin=0; ibin<graphModelsumm->GetN(); ibin++) {
+      graphModel_ratio->GetPoint(ibin, xa, ya);
+      yela = graphModel_ratio->GetErrorYlow(ibin);
+      yeha = graphModel_ratio->GetErrorYhigh(ibin);
+      
+      graphRatio_lineUp->SetPoint(ibin, xa, (ya+yeha));
+      graphRatio_lineDown->SetPoint(ibin, xa, (ya-yela));
+    }
+  } else if (fDrawExp) {
+    for (int ibin=0; ibin<graphExp->GetN(); ibin++) {
+      graphExp_ratio->GetPoint(ibin, xa, ya);
+      yela = graphExp_ratio->GetErrorYlow(ibin);
+      yeha = graphExp_ratio->GetErrorYhigh(ibin);
+      
+      graphRatio_lineUp->SetPoint(ibin, xa, (ya+yeha));
+      graphRatio_lineDown->SetPoint(ibin, xa, (ya-yela));
+    }
+  }
+    
     if (fDrawParam) {
       graphParam_ratio->Draw("3");
       Param_ratio->Draw("LX");
@@ -1229,7 +1579,13 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     }
     if (fDrawBase) {
       Base_ratio->Draw("LX");
-    }    
+    } 
+    
+    if (graphRatio_lineUp && graphRatio_lineDown) {
+      graphRatio_lineUp->Draw("C same");
+      graphRatio_lineDown->Draw("C same");
+    }
+       
   }
 
   TPaveLabel* label = new TPaveLabel(0.49, 0.85, 0.51, 0.87, Title,"NDC"); TrashBin->AddLast(label);
@@ -1245,6 +1601,7 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     legend->cd();
     if (fDrawParam) {
       TPaveLabel* labparam = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputParam->GetName()->Data(), "NDC");
+      labparam->SetTextSize(0.9);
       TrashBin->AddLast(labparam);
       labparam->SetFillColor(kWhite);
       labparam->SetBorderSize(0);
@@ -1254,6 +1611,7 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     }
     if (fDrawModel) {
       TPaveLabel* labmodel = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputModel->GetName()->Data(), "NDC");
+      labmodel->SetTextSize(0.9);
       TrashBin->AddLast(labmodel);
       labmodel->SetFillColor(kWhite);
       labmodel->SetBorderSize(0);
@@ -1263,6 +1621,7 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     }
     if (fDrawExp) {
       TPaveLabel* labexp = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputExp->GetName()->Data(), "NDC");
+      labexp->SetTextSize(0.9);
       TrashBin->AddLast(labexp);
       labexp->SetFillColor(kWhite);
       labexp->SetBorderSize(0);
@@ -1272,6 +1631,7 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
     }
     if (fDrawBase) {
       TPaveLabel* labbase = new TPaveLabel(0., irisey1, 1.0, irisey2, fOutputBase->GetName()->Data(), "NDC");
+      labbase->SetTextSize(0.9);
       TrashBin->AddLast(labbase);
       labbase->SetFillColor(kWhite);
       labbase->SetBorderSize(0);

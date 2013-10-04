@@ -1,4 +1,6 @@
 
+DrawPdfs
+
 program usage:
 DrawPdfs [options] dir1[:label1] [dir2:[label2]] [...]
 
@@ -43,4 +45,59 @@ options for data pulls plots:
 	    PlotDefValue = 0., 5.
 	    PlotOptions(1)  = 'XTitle: y_{Z} [GeV/c] @YTitle: d#sigma/dy_{Z} [pb]  @Xmin:0.0@Xmax:2.5@Ylog'
 	 &End
+
+
+
+DrawResults
+
+program usage:
+DrawResults --exp <exp_dir> --model <model_dir> --param <param_dir> <basedir>
+
+Options can be used in any order. Directory after the option is refered as corresponding directory
+for this option. Directory without the option before it is refered as a base directory.
+Experimental and model uncertainties are calculated as square root of sum of uncertainties from
+corresponding sources in quadrature. In case of parametrization uncertainty for each bin the
+bigest up and down deviations among the sources are taken.
+
+directories:
+	<exp_dir> - path to experimental uncertainty variations.
+	<model_dir> - path to merged model uncertainty variations.
+	<param_dir> - path to merged parametrization uncertainty variations.
+	<basedir> - path to the central fit results.
+
+To prepare merged model (parametrization) uncertainty directory:
+  1. Create a parent directory for model (parametrization) uncertainty variations.
+  2. Create a separate directory for each of your variations. Put "p" and "m" in the end of plus and
+minus variations directories respectively (in case of parametrization this is not needed, use any names).
+Fill the directories with the fit results of your variations.
+  3. Copy script trunk/tools/DrawResultsPackage/mergeModel.sh (trunk/tools/DrawResultsPackage/mergeParam.sh)
+to your model (parametrization) uncertainty parent directory. Next change the script in the following way:
+
+		mergeModel.sh				mergeParam.sh
+
+PARAMNAMES	name of the directories			name of the directories
+		with your model uncertainty		with your parametrization
+		variations without last			uncertainty variations.
+		character.
+
+PARAMVARS	last characters in the			-
+		directories names
+		(by default "m" and "p"),
+		coresponding to plus and
+		minus variations.
+
+Q2NBINS		number of Q^2 bins in your fits		number of Q^2 bins in your fits.
+
+DIRBASE		path to the directory with		path to the directory with
+		central fit results.			central fit results.
+
+  4. Change access permissions for mergeModel.sh (mergeParam.sh) to make it executable and run it. The "summ"
+directory should be created. If the script doesn`t run, try:
+
+	bash mergeModel.sh
+	(bash mergeParam.sh)
+
+  5. Use created "summ" directory as your merged model (parametrization) uncertainty directory.
+
+
 
