@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/DrawResultsPackage \
-          tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src
+          tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src \
+          genetic/mixmax_r004 genetic/src
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif

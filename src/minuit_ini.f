@@ -159,7 +159,6 @@ C----------------------------------------------------------------------
       ! write(*,*) 'ResultsFile: ',ResultsFile
       call minuit_ini  ! opens Minuit i/o files
       lprint = .true.
-c      lprint = .false.
       ! Call ShowXPval(2)
       call minuit(fcn,0)
       call flush(6)

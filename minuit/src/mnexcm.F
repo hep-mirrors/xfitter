@@ -82,7 +82,7 @@ C  recognized MINUIT commands:
       DATA CNAME(29) / '          ' /
       DATA CNAME(30) / 'ITErate   ' /		!new command added by J. Pumplin 8/2000
       DATA CNAME(31) / 'MYStuff   ' /		!new command added by J. Pumplin 8/2000
-      DATA CNAME(32) / '          ' /
+      DATA CNAME(32) / 'GENetic   ' /
       DATA CNAME(33) / '          ' /
 C  obsolete commands:
       DATA CNAME(34) / 'COVARIANCE' /
@@ -170,7 +170,7 @@ C              1    2    3    4    5    6    7    8    9   10
       GO TO ( 400, 200, 300, 400, 500, 700, 700, 800, 900,1000,
      1       1100,1200,1300,1400,1500,1600,1700,1800,1900,1900,
      2       1900,2200,2300,2400,1900,2600,3300,3300,3300,3000,
-     3       3100,3300,3300,3400,3500,3600,3700,3800,3900,4000) , I
+     3       3100,3200,3300,3400,3500,3600,3700,3800,3900,4000) , I
 C                                        . . . . . . . . . . seek
   200 CALL MNSEEK(FCN,FUTIL)
       GO TO 5000
@@ -435,6 +435,9 @@ c new commands added by J. Pumplin 8/2000
  3100 CALL MYSTUFF(FCN,FUTIL)
       GOTO 5000
 c =======================================================================
+C A "genetic search" method for a global minima determination
+ 3200 CALL genetic_search(fcn)
+      GOTO 5000
 C                                      . . . . . . . . . . blank line
  3300 CONTINUE
       WRITE (ISYSWR,'(10X,A)') ' BLANK COMMAND IGNORED.'

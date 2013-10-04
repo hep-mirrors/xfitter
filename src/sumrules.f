@@ -7,6 +7,7 @@
 
       include 'steering.inc'
       include 'pdfparam.inc'
+      include 'for_debug.inc'
 
       integer kflag
       double precision t1,t2,t3,t4,term
@@ -176,7 +177,7 @@ C     standard parametrisation
 
 
       if (NCHEBGLU.eq.0) then         
-c      if (IDebug.eq.1) then
+      if (lprint) then
          print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
          print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
          print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
@@ -187,7 +188,7 @@ c      if (IDebug.eq.1) then
             print '(''Sum rules, uv, dv, p:'',3F10.4)'
      $           ,uv_sum, dv_sum, p_sum
          endif
-c     endif
+      endif
       endif
       
  999  continue

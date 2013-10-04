@@ -83,7 +83,9 @@ LDADD+=  ../DY/src/libmydy.a\
  ../DiffDIS/src/libDiffDIS.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
-  -lstdc++ 
+  -lstdc++ \
+ ../genetic/src/libgenetic.a \
+ ../genetic/mixmax_r004/libmixmax.a
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran

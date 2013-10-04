@@ -241,6 +241,8 @@ AC_CONFIG_FILES([src/Makefile
                  ABM/src/Makefile
                  NNPDF/src/Makefile
                  Cascade/src/Makefile
+                 genetic/mixmax_r004/Makefile
+                 genetic/src/Makefile
                  doc/tex/manual/Makefile
                  doc/tex/paper/Makefile
                  Makefile])
