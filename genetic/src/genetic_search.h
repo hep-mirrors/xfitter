@@ -1,10 +1,8 @@
 #define PARDIM 200	// size of all parameters array (par1 - Ag, ... , par100 - alpha, ...)
 #define NDIM 85		// search parameters for optimization in the first NDIM (Ag, ..., Xx only)
 
-//#define NRANDPHASE 1000	// number of iterations for the random phase
-//#define NMINPHASE 1000	// number of iterations for minimization cooling down
-#define NRANDPHASE 5	// number of iterations for the random phase
-#define NMINPHASE 5	// number of iterations for minimization cooling down
+#define NRANDPHASE 1000	// number of iterations for the random phase
+#define NMINPHASE 1000	// number of iterations for minimization cooling down
 #define POPULATION 80	// size of the population 
 #define NBEST 10	// number of best minima survive after the random phase 
 #define SURVIVE 40	// number of elemenets go to the next round

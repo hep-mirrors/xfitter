@@ -281,6 +281,7 @@ C---------------------------------------------------------------
       include 'fcn.inc'
       include 'couplings.inc'
       include 'qcdnumhelper.inc'
+      include 'for_debug.inc'
 
       character*(*) XSecType
       integer IDataSet, local_hfscheme
@@ -299,7 +300,9 @@ c H1qcdfunc
       integer ifirst
       data ifirst /1/
 C---------------------------------------------------------
-      print*,'XSEC TYPE = ', XSecType
+      if(lprint) then
+        print*,'XSEC TYPE = ', XSecType
+      endif
 
       if (NDATAPOINTS(IDataSet).gt.NPMaxDIS) then
          print *,'ERROR IN GetDisXsection'
