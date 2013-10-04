@@ -146,8 +146,9 @@ void print_candidate_parameters(int ipoint, int icand)
     }
   }
 
-  /*
-  // FIXME: the text files below should be updated before save
+  
+  // call the same fcn() with the special flag to prepare the text files
+  call_fcn(Zoo::creatures[ipoint]->position, 3);
   copy_file("pdfs_q2val_01.txt", dirname);
   copy_file("pdfs_q2val_02.txt", dirname);
   copy_file("pdfs_q2val_03.txt", dirname);
@@ -158,7 +159,7 @@ void print_candidate_parameters(int ipoint, int icand)
   copy_file("fittedresults.txt", dirname);
   copy_file("parsout_0",	 dirname);
   copy_file("Results.txt",	 dirname);
-*/
+
 
   // close file
   fclose(fout);
@@ -318,15 +319,14 @@ Zoo* Zoo::Instance()
 }
 
 //------------------------------------------------------------------------------
-double call_fcn(double* pars)
+double call_fcn(double* pars, int iflag)
 {
   // call fcn function
 
-  static int npar = NDIM;
+  static int     npar    = NDIM;
   static double* g_dummy = (double*)calloc(NDIM, sizeof(double)); // fill array with zeroes with the calloc()
-  static int iflag = 4;
-  static int futil = 0;		// to feed int instead of function pointer is not a good idea indeed
-  static double chi2fcn;
+  static int     futil   = 0;					  // to feed int instead of function pointer is not a good idea indeed
+  static double  chi2fcn;
 
   double chi2 = fcn(&npar, g_dummy, &chi2fcn, pars, &iflag, &futil);
 

@@ -1,0 +1,23 @@
+-------------------------------------------------
+How to start with the GENETIC routine
+-------------------------------------------------
+
+
+In the "minuit.in.txt" steering
+
+1. Add approximate boundaries for the variables under optimization.
+
+2. Activate method "genetic".
+
+3*. You could start from the "minuit.in.txt.EXAMPLE" in the current directory
+
+
+
+In the "steering.txt" steering
+
+4. Change the scheme to somewhat faster than RT, for example RT FAST or ZMVFNS
+
+
+
+5. Start the bin/FitPDF routine normally
+

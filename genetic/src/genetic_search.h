@@ -65,7 +65,7 @@ void   eliminate();
 void   generate_new_creature(int position);
 void   generate_offspring(int parent, int child, int generation);
 void   print_candidate_parameters(int ipoint, int icand);
-double call_fcn(double* pars);
+double call_fcn(double* pars, int iflag = 4);
 void   run_std_fcn();
 void   copy_file(const char* filename, const char* dirname);
 
