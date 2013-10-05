@@ -1,6 +1,12 @@
       Subroutine CascadeDummy
       end
 
+      Subroutine evolve_tmd
+      print *,'Dummy version of evolve_tmd called'
+      print *,'Re-configure with --enable-updf option on'
+      call hf_stop
+      end
+
       Subroutine Calcglu
       print *,'Dummy version of CalcGlu called'
       print *,'Re-configure with --enable-updf option on'

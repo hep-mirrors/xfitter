@@ -1335,14 +1335,14 @@ c              write(6,*) ' here yx,q2',yx,q2
                QG2MAX = SSS*YX - Q2 - (AM(1) + AM(2))**2
 c               write(6,*) ' p_semih 1 Qg2max '
                QG2MIN = 0.0001d0
-               QG2MIN = 0.000001d0
+ccc               QG2MIN = 0.000001d0
                QG2MAX=DMAX1(QG2MIN,QG2MAX)
                NRN = NRN + 1     
                XZOHRN = X(NRN)  
 c 1/qt**2
                QG22 = QG2MIN*((QG2MAX/QG2MIN)**XZOHRN)
                WQG22 = QG22*DLOG(QG2MAX/QG2MIN)
-               
+c               write(6,*) 'p_semih ',WQG22
 c... end semihard 
             ENDIF
 
@@ -1619,6 +1619,10 @@ c here check on virt. gamma
          P(NIA1+1,4) =  xg2_bar*P(1,4) + xg2*P(2,4)
          P(NIA1+1,3) =  xg2_bar*P(1,3) + xg2*P(2,3)
 	   if(ipro.eq.3.or.ipro.eq.4.or.ipro.eq.102.or.ipro.eq.500) then
+            IF(Iabs(KE).eq.11.or.KE.eq.22) THEN
+	       NRN = NRN + 1
+             PHI_K2 = 2*PI*X(NRN)
+	      endif
             else 
             NRN = NRN + 1
             PHI_K2 = 2*PI*X(NRN)
@@ -1863,6 +1867,7 @@ C...  FLUX = FLUX USED FOR X-SECTION CALCULATION
       FLUX=FLUX/(2.D0*xg2*xg1*sss)
       WPART = WMAT *FLUX
 	IF(IPRO.EQ.3.or.ipro.eq.4.or.ipro.eq.102.or.ipro.eq.500) then
+c        write(6,*) 'p_semih WQG22 ',WQG22,Fgam,Fwei,Fwei1
 	  Wpart = WTGLU*FGAM*FWEI * Fwei1
 c        IF(Iabs(KE).eq.11.and.IPRO.eq.4) then
 c	     Wpart = WTGLU*FWEI
@@ -2055,6 +2060,7 @@ C
 c      DATA CUT /1.d-10/
 c      DATA CUT /1.d-3/
       DATA CUT /1.d-6/ ! as smallx
+c      DATA CUT /1.d-8/ ! as smallx
       Double Precision Sfcut
       DATA Sfcut /1.d-3/ 
 c      DATA Sfcut /1.d-9/ 
@@ -2102,6 +2108,9 @@ c      Data IQBAR/2/
       Integer Nacc
       
       Double Precision alphasca
+
+      Integer IFLflag
+      Common/FlagFL/ IFLflag
 
       Data Nc/3.d0/
       Logical ltest
@@ -2380,6 +2389,7 @@ c        write(6,*) ' no mass ',m2
       SumB2nab = 0d0
       SumC2ab = 0d0
       SumC2nab = 0d0
+      epsilon = 0D0
 c      write(6,*) ' K12 ',K12,' K22 ',K22
 c      IF(E2.GT.CUT) write(6,*) ' meoffsh ',E1,E2,CUT,M2
       IF(E1.LT.CUT.AND.E2.LT.CUT) THEN
@@ -2467,7 +2477,7 @@ c factor 2: according to K.Kutak & factor 2 (p1 <-> p2)
          SumC1ab = SumC1ab * 2. *2.
          SumC1nab = SumC1nab * 2. *2.
 c         write(6,*) ' K1 = ', sqrt(-K12),' K2 ',sqrt(-K22)      
-c         write(6,*) ' K12 = ', K12,' K22 ',K22    
+cccc         write(6,*) 'cut = ',cut,'e1,e2 ',e1,e2,sqrt(M2), ' K12 = ', K12,' K22 ',K22    
 
       ELSEIF(E1.GT.CUT.AND.E2.GT.CUT) THEN
 C DIS, gluon off mass
@@ -2486,6 +2496,13 @@ C parton 1 off shell, parton 2 off shell
      +    (1.d0 -1d0/3d0 - 8d0/3d0/SumAab*k2p1**2/p1p2**2*(
      +   (p2p4**2+p2p3**2)/(TH-M2)/(UH-M2) - (2d0*M2 + k12)/k22*
      +   (p2p3/(TH-M2) - p2p4/(UH-M2))**2))
+
+         p3p4 = DOT1(KF1,KF2)
+
+C for DIS gamma*q -qg
+	   SumC2ab=(k1k2/k2p1)**2*(k2p1**2+p1p3**2)/(k2p4*p3p4)
+	   SumC2nab= SumC2ab*((p3p4*k2p1+k2p4*p1p3)/(k2p3*p1p4)-1.)   
+c         write(6,*) ' SumC2ab ',SumC2ab,SumC2nab 
 
       ENDIF
 
@@ -2619,14 +2636,51 @@ C gamma glu -> q qbar
          Cab = 16.D0*PI*PI*ALPHA_S*ALPH_EM*QF2
          CabB = 0D0
          epsilon = yph**2/2d0/(1d0-yph+yph**2/2d0)
+         
+         If(SumAL.lt.0) SumAl = 0  ! hannes hack
+c         SumAl = 0.
+         
          if ((SumAab - epsilon*SumAL).le.0) then
 cc            write(6,*) ' meoffsh: problem with long. photon:', (Aab -
 cc     +      epsilon*AL)/Aab
          endif
-c	   write(6,*) 'here entered ',K(NIA1,2),K(NIA2,2),QF2
-         SumAab = SumAab - epsilon*SumAL  ! hannes hack
+         If(SumAL.gt.0) then
+            if ((SumAab - epsilon*SumAL)/SumAab.gt.10.0.or.
+     +        (SumAab - epsilon*SumAL)/SumAab.lt.0.1) then
+c               write(6,*) ' meoffsh: problem with long. photon:', (SumAab -
+c     +         epsilon*SumAL)/SumAab,SumAab,SumAL,epsilon,yph
+            endif
+c	      write(6,*) 'here entered ',K(NIA1,2),K(NIA2,2),QF2
+            if(epsilon.le.0.or.epsilon.gt.1.) then
+               write(6,*) ' meoffsh: problem with long. photon:', (SumAab -
+     +         epsilon*SumAL)/SumAab,SumAab,SumAL,epsilon,yph
+            endif
+         endif
+c         write(6,*) ' after corr meoffsh ', SumAab,SumAL
+c         SumAab = max(0.,SumAab - epsilon*SumAL)  ! hannes hack
+c         write(6,*) ' meoffsh IFLflag = ',IFLflag
+         If(IFLflag.eq.0) then 
+            SumAab = SumAab - epsilon*SumAL ! hannes hack
+            Elseif(IFLflag.eq.1) then
+            SumAab = SumAab
+            Elseif(IFLFLag.eq.2) then
+            SumAab = SumAl
+            Else
+            write(6,*) ' Flag IFLflag = ',IFLflag,' not found: STOP'
+            Stop
+         Endif
          WTG= dble(XPQ2(0))
+cc         WTG = 1.
          SUMA = (Cab*SumAab + CabB*SumAnab)*WTG
+cc this is for gamma*q -> gq
+	   XPQC2 = dble(XPQ2(3)+xpq2(-3))
+	   Cab = 16.D0*PI*PI*ALPHA_S*ALPH_EM*QF2*8./3.
+	   CabB = 0D0
+         SUMC2 = (Cab*SumC2ab + CabB*SumC2nab)*XPQC2
+	   SUMC2 = 0
+         SUMC =  SUMC2
+c       write(6,*) ' meoffsh checks 4',SumC2ab,SumC,Cab,XPQC2
+   	   Rleg = 0.6
          K(NIA1,2) = 22
          K(NIA2,2) = 21
       ELSEIF(Ires(1).ne.0.and.Ires(2).ne.0) THEN
@@ -2660,9 +2714,15 @@ C glu q -> glu q
            XPQC2=XPQ1(1)+XPQ1(2)+XPQ1(3)+XPQ1(-1)+XPQ1(-2)+XPQ1(-3)
            WTQ2= dble(XPQ2(0)*XPQC2)
            If(Rleg.gt.0.5) then
-   	        SUMC1=(Cab*SumC1ab+CabB*SumC1nab)*WTQ1
+c KIA2 is onshell          
+c factor  2 because of Rleg selection, but both contributions must be added
+   	        SUMC2=(Cab*SumC2ab+CabB*SumC2nab)*WTQ2*2
+c              write(6,*) ' Rleg > 0.5 ',Sumc1,SumC1ab,SumC1nab,XPQ1(0),XPQC1
               else
-   	        SUMC2=(Cab*SumC1ab+CabB*SumC1nab)*WTQ2
+c KIA1 is onshell           
+c factor  2 because of Rleg selection, but both contributions must be added
+   	        SUMC2=(Cab*SumC1ab+CabB*SumC1nab)*WTQ1*2
+c              write(6,*) ' Rleg < 0.5 ',Sumc2,SumC1ab,SumC1nab,XPQ2(0),XPQC2
            endif
            SUMC = SUMC1 + SUMC2
          Endif
@@ -3135,9 +3195,9 @@ c      weig = 0
       double precision au 
       common/f2fit/au(50),first
 	
-	Real A0,B0,EPS,SUM,XA_INT
+	Real A0,B0,EPS,SUM,XA_INT,Sum1,XA_INTq
       Real result,err
-	External XA_INT
+	External XA_INT,XA_INTq
       CHARACTER   filename1*132, filname*132
 	character adum
       data filename1/'ccfm-test.dat'/
@@ -3154,29 +3214,14 @@ c      weig = 0
       Integer i,j,k
       Real X1(0:Nbx+1),X2(0:Nbk+1),X3(0:Nbp+1)
       Real XPQS(-6:6)
-	real ktcut
-      Integer isat
-	real xsat,lamb,r02
-c	data xsat/0.41d0/
-c        data xsat/0.41d-1/
-c        data xsat/0.41d-2/
-c        data xsat/0.41d-3/
-	data xsat/0.41d-4/
-	data lamb/0.277/
+      Integer NbxL,Nbxlin
+      Double Precision x1minlin,x1maxlin
       real sigm,xnorm,xmean,xnor
       
       Real abstol 
       Integer nseg
       Real QCDlam
 
-c     saturation cut
-c      isat = 1      
-      isat = 0      
-c      lamb = au(2)
-c      if((au(5).eq.0.) isat = 0
-c      if(au(5).ne.0.) xsat = 10**au(5)
-      
-      
 c Evolution or only starting distribution
       Noevol = 0
 
@@ -3196,6 +3241,9 @@ c Evolution or only starting distribution
          write(6,*) 'theoryfiles/updf/reading ccfm-grid.dat '
          open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
      +   STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
+c         write(6,*) ' ccfm-kernel.dat '
+c         open(30,FILE='ccfm-kernel.dat', FORM='formatted',
+c     +   STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
 200      Read(30,101) TXT
   101    Format(A72)
 C         WRITE(6,101) '  line ',TXT
@@ -3243,7 +3291,10 @@ c         WRITE(6,101) '2 or 3rd line',TXT
          Endif
          close(30)
       ENDIF
-      QCDlam = PARU(112)
+      If(QCDlam.le.0) then
+         write(6,*) ' No value for QCDlam found on file. Set to ',PARU(112)
+         QCDlam = PARU(112)
+      Endif
       inquire(FILE=filname,EXIST=ex)
       if(ex) then
          open(31,FILE=filname, FORM='formatted',STATUS=
@@ -3264,12 +3315,22 @@ c         WRITE(6,101) '2 or 3rd line',TXT
 10100 format(' ln(xg),  ln(k_t^2), ln(p),  xgx')
 
 	   x1min = 1e-7
-         x1max =.9999999
+c         x1max =.9999999
+         x1max = 0.1d0
          x1minL=log(x1min)
          x1maxL=log(x1max)
-         x1dif=(x1maxL-x1minL)/Real(Nbx)
-         Do I=0,Nbx+1
+         NbxL = Nbx-10
+         x1dif=(x1maxL-x1minL)/Real(NbxL)
+         Do I=0,NbxL+1
             x1(I) = x1minL + x1dif*Real(I)
+         Enddo
+c lin grid in x from 0.1 - 1
+         x1minlin=0.1d0
+         x1maxlin=1.0d0
+         Nbxlin = 10
+         x1dif=(x1maxlin-x1minlin)/Real(Nbxlin)
+         Do I=NbxL,NbxL+Nbxlin+1
+            x1(I) = log(x1minlin + x1dif*Real(I-NbxL))
          Enddo
 
          q2min = 0.001 ! new         
@@ -3305,59 +3366,15 @@ c         WRITE(6,101) '2 or 3rd line',TXT
                x = exp(x1(i))
                t=exp(x3(k))
                scale=exp(x2(j))
-               if(isat.eq.1) then 
-                 ktcut = (x/xsat)**(-lamb)
-c            write(6,*) ' applying saturation cut ',ktcut,x,xsat,lamb
-                 else
-                 ktcut = 0.
-                 endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c                 ktcut = (x/xsat)**(-lamb)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-               ktcut=0
-               if(scale.ge.ktcut) then 
-ccc               if(scale.ge.qg0**2) then 
-c	         call GADAP(A0,B0,xa_int,EPS,SUM)
 c               write(6,*) ' gadap sum: ',sum
                abstol = 0.0  ! abstol = 0, value of abstol will be ignored
                nseg = 1000
                CALL RADAPT(xa_int,A0,B0,NSEG,eps,abstol,SUM,ERR)
+               CALL RADAPT(xa_intq,A0,B0,NSEG,eps,abstol,SUM1,ERR)
 c               write(6,*) ' radapt sum: ',sum
-calcglcc               CALL RAINT(xa_int,EPS,RESULT,ERR)
 cccc               Sum = result
-c               write(6,*) ' int check ',sum,result,err/result
-               else
-                 write(6,*) ' calcglu: here should not enter '
-	           A0 = 0.000000001
-	           B0 = 1.
-	           eps = 0.01 
-                 scale = qg0**2
-c	           call GADAP(A0,B0,xa_int,EPS,SUM)
-
-                   scale=exp(x2(j))
-cccc                 sum = sum*min(1.,scale**2)/qg0**4
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c   keep the follwoing line because of 1/kt*2 in ccfmstfu
-                 sum = sum*min(1.,scale )/qg0**2 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                   sigm = 1.2/sqrt(2.)
-                   sigm = AU(5)/sqrt(2.)
-c                   sigm = AU(5)
-                   xmean = 0.0
-                   xmean = AU(6)
-                   xnorm=exp(-(sqrt(scale)-xmean)**2/2/sigm**2)
-                   xnorm=xnorm/exp(-(qg0-xmean)**2/2/sigm**2)
-c                   xnorm=xnorm/exp(-scale/qg0**2)
-                   sum = sum*xnorm 
-                   xnor = Au(7)
-                   sum = sum * xnor
-c                   write(6,*) sigm
-c                   write(6,*) au(5),au(6),au(7),xnor
-c                   sum =0
-                   if(sum.ne.sum) sum=0
-                   if(sum.ge.1E10) sum=1e10
-               endif
                xpqs(0) = sum
+               xpqs(3) = sum1
 c               write(6,*) sum
                if(xpqs(0).ne.xpqs(0)) then
                  write(6,*) ' error in calcglu ',x,t,scale,xpqs(0)
@@ -3368,13 +3385,15 @@ c                 write(6,*) ' error in calcglu xpqs too large ',
 c     &                 x,t,scale,xpqs(0)
                  xpqs(0) = 1.E10
                endif
-               write(31,*) x1(i),x2(j),x3(k),xpqs(0)
+               write(31,*) x1(i),x2(j),x3(k),xpqs(0),xpqs(3)
 c                  write(6,*) x1(i),x2(j),x3(k),sum,i,j,k
             enddo
          enddo
+c         write(6,*) ' calcglu: loop i =',i,j,k
 c         write(6,*) ' last loop i =',i,j,k
       enddo
       close(31)
+      Write(6,*) ' end of calcglu '
       RETURN
    50 write(6,*) ' calcglu: error opening file'
       Return
@@ -3406,13 +3425,10 @@ c         write(6,*) ' last loop i =',i,j,k
 	
 	xmin=x
 	xmax=1.
-c	xmax=0.1
 	wt = log(xmax/xmin)
 	x0= xmin*(xmax/xmin)**xt
       
 c       write(6,*) ' here in xa_int '
-c	x0 = xt
-c	wt = 1.
 	z = x/x0
 	if(x0.lt.x) then
 	   xa_int = 0
@@ -3434,52 +3450,110 @@ c           write(6,*) 'kfl,z,t,xpqs',kfl,z,scale,xpqs(0)
 
 	A1 = au(1)
 	A2 = au(2)
-c	A3 = 4.94
       A3 = au(3)
 	A4 = au(4)
-      A5 = au(10)
-      A6 = au(11)
-c        A4 = 0.
-c       xsat = 10**au(5)
+      A5 = au(5)
+      A6 = au(6)
 c       write(6,*) a1,a2,a3,a4
        if(z.gt.0.99999) then 
 	  xpqs(0) = 1.
 	  else
-c	  xpqs(0)=z/(1.-z)/3.12/3.12
 	  endif
        if(z.lt.0.) then
 	   test = 0.
 	   else
-c         if(x0.le.xsat) then
-c         test =A1*5.*(1./x0**A2)*(1-x0)**A3*(1.-A4*x0)*xpqs(0)/x0
-         test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0+A5*sqrt(x0)+A6*x0**2)*xpqs(0)/x0
-c         write(6,*) test,x 
-c         else   
-c         write(6,*) '  here... ',x0,xsat,au(5)      
-c         test =0.188*5.*(1./x0**0.286)*(1-x0)**A3*(1.-A4*x0)*xpqs(0)/x0
-c         endif
+        test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0+A5*sqrt(x0)+A6*x0**2)*xpqs(0)/x0
          test = max(0.,test)	   
       endif 
-c	write(6,*) 'xa_int ',xpqs(0),test,x 
 c     f(x)/g(x)*int(g(x)dx) = f(x)*x*wt
 	xa_int = test * wt * x0	
-c	    write(6,*) noevol,z,wt,a1,a2,a3
 	Return 
 	
 	end
       
+      Function xa_intq(xt)
+	Implicit None
+	Real xa_intq,x0,z,test
+      Real XPQS(-6:6)
+
+      Real X,T,scale
+	integer kfl
+	common /gluon_int/kfl,x,scale,t
+      DOUBLE PRECISION XXX,QQ,UPV,DNV,USEA,DSEA,STR,CHM,BOT,TOP,GLU,
+     +VAL(20),PP2,qq2
+      CHARACTER*20 PARM(20)
+      LOGICAL PDFFIRST	
+	Real xmin,xmax,xt,wt
+	Real A1,A2,A3,A4,A5,A6
+      logical first
+	double precision au 
+      common/f2fit/au(50),first
+      real xsat
+	Integer jj
+
+	Integer Noevol
+      Common/Evoltest/Noevol        
+	
+	xmin=x
+	xmax=1.
+	wt = log(xmax/xmin)
+	x0= xmin*(xmax/xmin)**xt
+      
+c       write(6,*) ' here in xa_int '
+	z = x/x0
+	if(x0.lt.x) then
+	   xa_intq = 0
+	   return
+	   endif
+c	write(6,*) ' x,x0,z,sclae,t ',x,x0,z,scale,t
+	
+        If(noevol.eq.0) then
+           call readgrid(kfl,Real(z),scale,t,xpqs)
+c           write(6,*) 'kfl,z,t,xpqs',kfl,z,scale,xpqs(0)
+	   xpqs(3) = xpqs(3)
+        else
+           xpqs(3) = 1.
+           z=0.98
+           x0 = xt
+           wt = 1./scale
+        endif
+
+
+	A1 = au(1)
+	A2 = au(2)
+      A3 = au(3)
+	A4 = au(4)
+      A5 = au(5)
+      A6 = au(6)
+c       write(6,*) a1,a2,a3,a4
+       if(z.gt.0.99999) then 
+	  xpqs(0) = 1.
+	  else
+	  endif
+       if(z.lt.0.) then
+	   test = 0.
+	   else
+        test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0+A5*sqrt(x0)+A6*x0**2)*xpqs(3)/x0
+         test = max(0.,test)	   
+      endif 
+c     f(x)/g(x)*int(g(x)dx) = f(x)*x*wt
+	xa_intq = test * wt * x0	
+	Return 
+	
+	end
       SUBROUTINE readgrid(KF,X,Q2,P,XPQ)
       Implicit None
       Integer n1,n2,n3
       REAL XPQ(-6:6),X,Q2,P
 *! new
       Parameter (n1=51,n2=51,n3=51)
-      Real Q2x,xx,px,xpd
-      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD(0:n2,0:n1,0:n3)
+      Real Q2x,xx,px,xpd,xpdq
+      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD(0:n2,0:n1,0:n3),XPDq(0:n2,0:n1,0:n3)
       Real amax
       Dimension amax(0:n2)
       Real kl,kt,xpqm
       Double Precision XA(3),f_grid(n1,n2,n3),A(N1+N2+N3)
+      Double Precision f_gridq(n1,n2,n3)
       INTEGER NA(3)
       DATA NA/n1,n2,n3/
       Double Precision DHFINT
@@ -3494,12 +3568,13 @@ c	    write(6,*) noevol,z,wt,a1,a2,a3
       Integer i,j,k,in,irr,igrid,ip,n2test
       Integer ipoint,kf,it
 	Integer Iset,Iccfmset
-      Real scal,rx,rq2,rp,rkms,glu,xpqmax,xm
+      Real scal,rx,rq2,rp,rkms,rkms2,glu,quark,xpqmax,xm
       Real xl,pl
 	Integer n1min,n1max,n2min,n2max,n3min,n3max,ncall
 	common/caerrstf/n1min,n1max,n2min,n2max,n3min,n3max,ncall
 	character *72 TXT
 	character adum
+      Real QCDlam
       LOGICAL FIRST,afirst
       DATA FIRST/.TRUE./
       Data Afirst/.TRUE./
@@ -3527,8 +3602,10 @@ c	    write(6,*) noevol,z,wt,a1,a2,a3
          ISET = IGLU
 	   ENDIF
          write(6,*) ' start reading theoryfiles/updf/ccfm-grid.dat '
+c         write(6,*) ' start reading ccfm-kernel.dat '
          if(iset.eq.1) then
                open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
+c               open(30,FILE='ccfm-kernel.dat', FORM='formatted',
      +         STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
 c               write(6,*) ' read unintegrated gluon from file: '
 c     +         //'theoryfiles/updf/ccfm-grid.dat'
@@ -3566,6 +3643,13 @@ cc         WRITE(6,101) '2nd line ',TXT
 	      read(txt,1001) adum,Ipgg,adum,ns_sel
 c1001        format(' Ipgg = ',I4,' ns_sel = ',I4)
 1001        format(A8,I4,A10,I4)
+            goto 200
+         Endif
+         If(TXT(1:7).EQ.' QCDlam') then 
+c         WRITE(6,101) '3rd line ',TXT
+            read(txt,1003) adum,QCDLam
+1003        format(A9,f12.8)
+c            PARU(112)=QCDLam
             goto 200
          Endif
          If(TXT(1:6).EQ.' Qscal') then 
@@ -3609,15 +3693,18 @@ c         write(6,*) ' scal factor = ',Qscal,' fact. scale = ',Iqqbar
          do j=1,n1
             do i=1,n2
                do k=1,n3
-                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS
+c                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS
+                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS,RKMS2
                   xx(i) = rx
                   q2x(j) = rq2
                   px(k) = rp
                   xpd(i,j,k) = max(0.,rkms)*scal
+                  xpdq(i,j,k) = max(0.,rkms2)*scal
                enddo
             enddo
          enddo
          write(6,*) ' after reading theoryfiles/updf/ccfm-grid.dat ',j,i,k
+c         write(6,*) ' after reading ccfm-kernel.dat ',j,i,k
 c we have only gluons
          DO 10 J=1,N2
             DO 10 I=1,N1
@@ -3641,6 +3728,7 @@ c we have only gluons
             DO k=1,N3
                DO J=1,N1
                   f_grid(j,i,k) = xpd(i,j,k)
+                  f_gridq(j,i,k) = xpdq(i,j,k)
 c                  write(6,*)f_grid(j,i,k) 
                ENDDO
             ENDDO
@@ -3769,11 +3857,13 @@ c       write(6,*) ' p  ',xa(3),a(na(1)+na(2)+na(3))
 c do not divide by q2 here, because it is done in ccfmstfu
 c         glu = f_grid(i,j,k)/q2
          glu = f_grid(i,j,k)
+         quark = f_gridq(i,j,k)
          
       else
 c do not divide by q2 here, because it is done in ccfmstfu
 c         glu = DHFINT(3,XA,NA,A,f_grid)/q2
          glu = DHFINT(3,XA,NA,A,f_grid)  
+         quark = DHFINT(3,XA,NA,A,f_gridq)  
       endif
 
 c           write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,glu
@@ -3784,6 +3874,11 @@ c           write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,glu
       if(glu.gt.0.) xpq(0) = glu
       if(glu.gt.1000000) then
          write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,glu
+         write(6,*) ' i,j,k ',i,j,k
+      endif
+      if(quark.gt.0.) xpq(3) = quark
+      if(quark.gt.1000000) then
+         write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,quark
          write(6,*) ' i,j,k ',i,j,k
       endif
       return
@@ -4127,12 +4222,15 @@ c       write(6,*) ' p  ',xa(3),a(na(1)+na(2)+na(3))
       REAL XPQ(-6:6),X,Q2,P
 *! new
       Parameter (n1=51,n2=51,n3=51)
-      Real Q2x,xx,px,xpd
-      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD(0:n2,0:n1,0:n3)
+c      Real Q2x,xx,px,xpd
+c      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD(0:n2,0:n1,0:n3)
+      Real Q2x,xx,px,xpd0,xpd1,xpd2
+      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD0(0:n2,0:n1,0:n3),XPD1(0:n2,0:n1,0:n3),XPD2(0:n2,0:n1,0:n3)
       Real amax
       Dimension amax(0:n2)
       Real kl,kt,xpqm
-      Double Precision XA(3),f_grid(n1,n2,n3),A(N1+N2+N3)
+c      Double Precision XA(3),f_grid(n1,n2,n3),A(N1+N2+N3)
+      Double Precision XA(3),f_grid0(n1,n2,n3),f_grid1(n1,n2,n3),f_grid2(n1,n2,n3),A(N1+N2+N3)
       INTEGER NA(3)
       DATA NA/n1,n2,n3/
       Double Precision DHFINT
@@ -4150,7 +4248,8 @@ c       write(6,*) ' p  ',xa(3),a(na(1)+na(2)+na(3))
       Integer ipoint,kf,it
 	Integer Iset,Iccfmset
 c      Real scal,rx,rq2,rp,rkms,glu,xpqmax,xm
-      Double Precision scal,rx,rq2,rp,rkms,glu,xpqmax,xm
+      Double Precision scal,rx,rq2,rp,glu,uval,dval,xpqmax,xm
+      Double Precision RKMS4B,RKMS3B,RKMS2B,RKMS1B,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4
       Real xl,pl
 	Integer n1min,n1max,n2min,n2max,n3min,n3max,ncall
 	common/caerrstf/n1min,n1max,n2min,n2max,n3min,n3max,ncall
@@ -4162,6 +4261,9 @@ c      Real scal,rx,rq2,rp,rkms,glu,xpqmax,xm
       Data Afirst/.TRUE./
       Logical First_dum,Fccfm1,Fccfm2
       Common/ myfirst/First_dum,Fccfm1,Fccfm2
+
+      Integer Itheory
+      Common/theory/Itheory
       
       First=Fccfm1
       Afirst=Fccfm2
@@ -4281,11 +4383,10 @@ cc     +         //'dglap.dat'
                     open(30,FILE='ccfm-test.dat', 
      +              FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=80 )
                     write(6,*) ' read: ccfm-test.dat'
-	            elseif(iccfmset.eq.113) then
+	            elseif(iccfmset.eq.113) then		     
                     open(30,FILE='theoryfiles/updf/ccfm-grid.dat', FORM='formatted',
      +              STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
-                    write(6,*) ' read: for itheory=103 ccfm-grid.dat'
-                   
+                    write(6,*) ' read: for itheory=103 ccfm-grid.dat'                 
                   endif		   
                endif		   
             ENDIF
@@ -4373,11 +4474,15 @@ c     Ipgg = 3 ! Pgg=(as(q)*B(1-z)/z +as(q)*B*z/(1-z)), as(q) eveywhere + full s
             do i=1,n2
                do k=1,n3
 cc                  write(6,*) j,i,k,RX,RQ2,RP,RKMS
-                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS
+cc                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS
+                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4
                   xx(i) = rx
                   q2x(j) = rq2
                   px(k) = rp
-                  xpd(i,j,k) = max(0.,rkms)*scal
+c                  xpd(i,j,k) = max(0.,rkms)*scal
+                  xpd0(i,j,k) = max(0.,rkms0)*scal
+                  xpd1(i,j,k) = max(0.,rkms1)*scal
+                  xpd2(i,j,k) = max(0.,rkms2)*scal
                enddo
             enddo
          enddo
@@ -4404,7 +4509,10 @@ c we have only gluons
          DO I=1,N2
             DO k=1,N3
                DO J=1,N1
-                  f_grid(j,i,k) = xpd(i,j,k)
+c                  f_grid(j,i,k) = xpd(i,j,k)
+                  f_grid0(j,i,k) = xpd0(i,j,k)
+                  f_grid1(j,i,k) = xpd1(i,j,k)
+                  f_grid2(j,i,k) = xpd2(i,j,k)
                ENDDO
             ENDDO
          ENDDO
@@ -4530,14 +4638,19 @@ c       write(6,*) ' p  ',xa(3),a(na(1)+na(2)+na(3))
                endif
             endif
          endif
-         glu = f_grid(i,j,k)/q2
+         glu = f_grid0(i,j,k)/q2
       else
-         glu = DHFINT(3,XA,NA,A,f_grid)/q2
+c         glu = DHFINT(3,XA,NA,A,f_grid)/q2
+         glu = DHFINT(3,XA,NA,A,f_grid0)/q2
+         uval = DHFINT(3,XA,NA,A,f_grid1)/q2
+         dval = DHFINT(3,XA,NA,A,f_grid2)/q2
       endif
       DO  IP=-6,6
          XPQ(IP)=0.0
       ENDDO
       if(glu.gt.0.) xpq(0) = glu
+      if(uval.gt.0.) xpq(1) = uval
+      if(dval.gt.0.) xpq(2) = dval
       if(glu.gt.5000000) then
          
 ccc         write(6,*) ' new ccfmstfu x,q2,p,xpq',x,q2,p,glu
@@ -4556,7 +4669,7 @@ c first calculate maxima and store it in vector amax
             do it=n2test,n2
                DO k=1,N3
                   DO J=1,N1
-                     xm=f_grid(j,it,k)/exp(q2x(j))
+                     xm=f_grid0(j,it,k)/exp(q2x(j))
 c              write(6,*) f_grid(j,it,k),exp(q2x(j))
                      if(xm.gt.xpqmax) xpqmax=xm
                   Enddo
@@ -4624,7 +4737,7 @@ c       write(6,*) ' q2  ',xa(1),a(na(1))
       endif
       DO K=1,N3
          if(pl.ge.px(k)) then
-            xm=max(f_grid(i,j,k)/kt,0.005)
+            xm=max(f_grid0(i,j,k)/kt,0.005)
             if(xm.lt.xpqm) xpqm=xm
          endif
       Enddo
@@ -4633,7 +4746,7 @@ c        write(6,*) ' ccfm x,p,xpqm ',x,p,xpqm
 
 
    80 write(6,*) ' CCFMSTFU: error in opening file ',iccfmset
-   90 write(6,*) ' end of file at ',i,j,k,RX,RQ2,RP,RKMS
+   90 write(6,*) ' end of file at ',i,j,k,RX,RQ2,RP,RKMS0
       stop
       END
 
@@ -4734,12 +4847,11 @@ C call cascade to calc total xsection
       Double Precision PARU112
       
       PARU112 = PARU(112)
-c      ISEED = 124567
-c      ISEED = Iabs(MINUTS())
+
       LUX = 3
       K1=0
       K2=0
-c      CALL RLUXGO(LUX,ISEED,K1,K2)
+cc      CALL RLUXGO(LUX,ISEED,K1,K2)
 
       haprint = 1
 
@@ -4747,6 +4859,7 @@ c      CALL RLUXGO(LUX,ISEED,K1,K2)
       n2=0
       CALL RM48IN(ISEED,N1,N2)
 c      write(6,*) ' cascade rm48 initialised from ',iseed
+
 
 C initialise PYTHIA 6 parameters
 ccc      CALL GPYINI
@@ -4771,13 +4884,13 @@ ccc	Fccfm1 = .true. Now set FitPDF
 	Fccfm2 = .true.
 	First = .true.
       
-c      if(iglu.eq.1112) then 
-c         call calcglu
-c         Iglu = 1111
-c      Endif
+c iglu is set by steer-ep  for itheory=102
 
-cccccc      Iglu = 1111
-      if(itheory.eq.103) Iglu = 1113
+      if(itheory.eq.103.or.itheory.eq.104) Iglu = 1113
+      if(itheory.eq.101) Iglu = 1111
+      if(itheory.eq.105) Iglu = 1111
+     
+c      write(6,*) ' sigcalc itheory = ',itheory,' iglu = ',iglu
 
 c     here now calcualte y,q2 from x,q2
       P(1,1) = 0.0D0
@@ -4812,7 +4925,7 @@ c      write(6,*) xm_test
       if(ymi.gt.0.99) goto 345
 c      write(6,*) ' using IGLU = ',IGLU,
 c     &  ' for xsection calc in cascade-uitl.F',ymi,yma,qmi,qma
-   
+c      write(6,*) ' sigcalc x,y, q2, sqrts ',xn,yma,q2n,sqrt(sss)
       CALL CASCADE
 c
 c Print out result of integration of x-section
@@ -4848,6 +4961,7 @@ c	stop
 #include "caspart.inc"
 #include "caseffic.inc"
 #include "casparam.inc"
+#include "casludat1.inc"
       Integer Iglu
       Common/CAGLUON/Iglu
 
@@ -4879,8 +4993,10 @@ c	stop
       
 	Integer haprint
 	common/haprint/haprint
-c      ISEED = 124567
-c      ISEED = Iabs(MINUTS())
+      Double Precision PARU112
+      
+      PARU112 = PARU(112)
+
       LUX = 3
       K1=0
       K2=0
@@ -4906,6 +5022,7 @@ C-- change standard parameters of CASCADE
 c
 C-- change standard parameters of JETSET/PYTHIA
       Call pytcha
+      IF(PARU112.ge.0) PARU(112) = PARU112
 c
 c Start integration of x-section
 c
@@ -4914,14 +5031,6 @@ ccc	Fccfm1 = .true. Now set FitPDF
 	Fccfm2 = .true.
 	First = .true.
       
-c      if(iglu.eq.1112) then 
-c         call calcglu
-c         Iglu = 1111
-c      Endif
-
-cccccc      Iglu = 1111
-      if(itheory.eq.103) Iglu = 1113
-
 c     here now calcualte y,q2 from x,q2
       P(1,1) = 0.0D0
       P(1,2) = 0.0D0
@@ -4956,8 +5065,7 @@ c      write(6,*) xm_test
       IPROOLD = IPRO
       IPRO = 4  ! switch for qpm
       
-c      write(6,*) ' using IGLU = ',IGLU,
-c     &  ' for xsection calc in cascade-uitl.F'    
+c      write(6,*) ' sigqpm using IGLU = ',IGLU,ipro
       CALL CASCADE
 c
 c Print out result of integration of x-section
@@ -4980,8 +5088,7 @@ c      write(6,*) ' end of cascade ',f2,f2e,pi,q2n,PYALEM(Q2n)
       return      
 c	stop
       END
-c#include "/Users/jung/jung/cvs/pythia6416/pydata.f"	
-	
+ 	
       Subroutine xsec1(X,XSEC)
       IMPLICIT None
 	Double Precision X(20)
@@ -7967,7 +8074,8 @@ c       write(6,*) ' 1  NDIM = ',NDIM,NRN
       Data PDFFIRST/.TRUE./
       Data FIRST/.TRUE./
       Integer Iquark
-      Data Iquark/0/
+      Data Iquark/-1/
+c      Data Iquark/0/
       Integer ikincut,Ipgg,ns_sel
       Double Precision QG0
       COMMON /GLUDAT/QG0,ikincut,Ipgg,ns_sel
@@ -8066,6 +8174,7 @@ c for new p_max
             call ccfmstfq(kf,Real(x),scale,t,xpqq)
             xpqs(1) = xpqq(1)
             xpqs(2) = xpqq(2)
+            
          else
 c	   XPQS(1) = dnv/q2minpdf
 c	   XPQS(2) = upv/q2minpdf
@@ -8104,6 +8213,8 @@ c         write(6,*) ' cauniglu ',xpqs(0),xpqs(1),xpqs(2)
 	Double Precision Qscal
 	Integer Iqqbar
 	Common/GLUDAT2/Qscal,Iqqbar
+	Logical alpfirst
+	Data alpfirst/.true./
       RQ1 = RQ
       IF(IRUNA.EQ.0) THEN
          ALPHASCA=ALPHS
@@ -8118,6 +8229,12 @@ c          write(6,*) 'lambda ',alam
 c         if(sqrt(scale).lt.1.5)  	
 c     &      write(6,*) 'lambda ',alam,qgcut,sqrt(scale),PYALPS(SCALE)
          ALPHASCA =PYALPS(SCALE)
+	   If(alpfirst) then
+	     write(6,*) ' alpha_s for ME: PARU(112) = ',PARU(112)
+	     write(6,*) ' alpha_s for ME: MSTU(111) = ',MSTU(111)
+	     write(6,*) ' alpha_s for ME: Scalfa = ',Scalfa,' Qscal ',Qscal
+	     alpfirst=.false.
+	   endif
 	
       ENDIF
       RETURN
@@ -8427,11 +8544,12 @@ c     &	   /Log(dmax1(Dscale,QQg**2)/Lambda**2)
 
 c      write(6,*) ' new alphas ',alpha_s
 
-      IF(IRUNAEM.EQ.1) ALPH_EM = PYALEM(Q2)
+c      IF(IRUNAEM.EQ.1) ALPH_EM = PYALEM(Q2)
      
       IF(K(NIA1,2).eq.22.and.K(NIA2,2).NE.21) then
          Q2 = -Dot1(nia1,nia1)
-cc         stmax2 = sqrt(q2)
+         IF(IRUNAEM.EQ.1) ALPH_EM = PYALEM(Q2)
+c         stmax2 = sqrt(q2)
          if(stmax2.ge.sqrt(sss)) then
             XPQ2(0) = 0.d0
          else
@@ -8443,7 +8561,7 @@ c     &	   STMAX,XPQ1(0),XPQ2(0)
          NFL=3
          do i=-NFL,NFL
          XPQC2= xpqc2 + XPQ2(I)*DFLOAT(PYCHGE(I))**2/9.D0
-c         write(6,*) ' xpqc2 ',i,xpq2(i),
+c         write(6,*) 'meqg: xpqc2 ',i,xpq2(i)
          end do
 cccc         xpqc2 = 0.1
 c select the flavour         
@@ -8458,12 +8576,11 @@ c select the flavour
          K(NIA2,2) = KPA
          K(NF1,2) = KPA
          WTG= dble(XPQC2)
-c         Sig = 2.D0 * ALPH_EM*ALPH_EM*PI/YY/Q2**2
-c         Sig = sig*(1.D0+(1.D0-YY)**2)
+c         If(SFSCAL2.gt.STMAX2**2) WTG = 0 
 c use photon flux in p_semih
          Sig = 4D0* ALPH_EM*PI*PI/Q2
-c         write(6,*) ' yy,q2 ',yy,q2
-c         write(6,*) sig,wtg,kpa
+c         write(6,*) ' meqg: yy,q2 ',yy,q2
+c         write(6,*) 'meqg: ',sig,wtg,kpa
       else IF(K(NIA1,2).NE.21.AND.K(NIA2,2).EQ.21) THEN
          if(stmax1.ge.sqrt(sss)) then
             XPQ1(0) = 0.d0
@@ -8507,7 +8624,7 @@ c     write(6,*) ' SUM2 ',SUM2
  
 c      write(6,*) ' SUM2 ',SUM2,wtg
       SUM2 = SUM2*WTG
-c      write(6,*) ' SUM2 ',SUM2,wtg
+c      write(6,*) ' meqg:  SUM2 ',SUM2,wtg
 
       WT1 = SUM2
       if(sum2.ne.sum2) then
@@ -8760,7 +8877,7 @@ C     All done
  
       END
 
-	Subroutine Siggrid(xn,q2n,f2,f2e)
+	Subroutine Siggrid(xn,q2n,f2,fl,f2e)
       Implicit None
 	Integer N1,N2
 	Integer K1,K2,LUX
@@ -8786,10 +8903,12 @@ C     All done
       logical lcalc
 	Common/ myfirst2/lcalc
 	
-      Double Precision q2test,xtest,x1min,x1max,x1minL,x1maxL,x1dif
+      Double Precision q2test,xtest,x1min,x1max,x1minL,x1maxL,x1dif,q2ini
+      Double Precision x1minlin,x1maxlin
+      Integer NbxL,Nbxlin
       Integer j
       
-      Double Precision xn,q2n,f2,f2e
+      Double Precision xn,q2n,f2,fl,f2e
                   
       Logical firstgrid
       data firstgrid/.true./
@@ -8804,24 +8923,39 @@ C     All done
       Double precision x,q2
       Common /myvalues/x,q2
       
-      Double Precision fgridxq2(Nbx+1,200)
+      Double Precision fgridxq2(Nbx+1,200),flgridxq2(Nbx+1,200)
+
+      Integer IFLflag
+      Common/FlagFL/ IFLflag
       
       Double precision small 
       Parameter (small=1.d-3)
       
       Integer Iread
+c      Parameter (Iread=0)
       Parameter (Iread=1)
 
       INTEGER IN
-	Real A0,B0,EPS,SUM
-      Real ERR,ABSTOL
-      Real Tol
+c	Real A0,B0,EPS,SUM
+c      Real ERR,ABSTOL
+c      Real Tol
+c      Real f2_int
+	Double Precision A0,B0,EPS,SUM
+      Double Precision ERR,ABSTOL
+      Double Precision Tol
       Integer Nseg
       
-      Real f2_int
+      Double Precision f2_int
       Logical ex
       Integer Irr       
       External f2_int
+      
+      double precision au 
+      Logical firstt
+      common/f2fit/au(50),firstt
+      
+      Integer nq2test,Nbxtest
+      Real q2grid(400)
 
       x = xn
       q2 = q2n
@@ -8833,55 +8967,121 @@ c create grid
             open(3,FILE='theoryfiles/updf/f2tilde-grid.dat', FORM='formatted',
      +      STATUS='OLD',IOSTAT=IRR,ERR=220)
             write(6,*) ' theoryfiles/updf/f2tilde-grid.dat existing '
+            if(Iread.eq.0) write(6,*) ' overwriting existing file '
          else 
             write(6,*) '  creating f2tilde-grid.dat ' 
             open(3,FILE='theoryfiles/updf/f2tilde-grid.dat', FORM='formatted',STATUS='NEW',
      +      IOSTAT=IRR,ERR=220)
          Endif
          NA(1)=Nbx+1
+
 	   x1min = 1e-5
 	   x1min = xmymin
-cc         x1min = 0.2
-cc 	   x1min = 0.97
-cc         x1max =.9999999
-         x1max =.99
-cccc         x1max =.91
+c         x1max =0.1d0
+         x1max =0.9999d0
          x1minL=log(x1min)
          x1maxL=log(x1max)
-         x1dif=(x1maxL-x1minL)/Real(Nbx)         
+c         NbxL = Nbx-10
+         NbxL = Nbx
+         x1dif=(x1maxL-x1minL)/Real(NbxL)         
          In=0
-         Do I=0,Nbx 
+c         Do I=0,NbxL-1
+         Do I=0,NbxL
            in=in+1
            A(IN)= exp(x1minL + x1dif*Real(I))
          enddo
-         do j = 1, nq2point
+c lin grid in x from 0.1 - 1
+c         x1minlin=0.1d0
+c         x1maxlin=1.0d0
+c         Nbxlin = 10
+c         x1dif=(x1maxlin-x1minlin)/Real(Nbxlin)
+c         Do I=NbxL+1,NbxL+Nbxlin+1
+c           in=in+1
+c           A(in) = x1minlin + x1dif*Real(I-NbxL-1)
+c         Enddo
+
+c lin grid in x from xymin - 1
+c         x1minlin=xmymin
+c         x1maxlin=1.0d0
+c         Nbxlin = Nbx
+c         x1dif=(x1maxlin-x1minlin)/Real(Nbx)
+c         in=0
+c         Do I=0,Nbx
+c           in=in+1
+c           A(in) = x1minlin + x1dif*Real(I)
+c         Enddo
+         Nbxtest = Nbx
+         nq2test = nq2point
+            write(6,*) ' siggrid check',Nbxtest,nq2test
+c         if(Iread.eq.1) then
+c            read(3,*) Nbxtest,nq2test
+c            write(6,*) ' siggrid check',Nbx,Nbxtest,nq2point,nq2test
+c         endif
+         do j = 1, nq2test
             q2test = sq2(j)
-            Do I=0,Nbx 
-               xtest  = exp(x1minL + x1dif*Real(I))
+            q2grid(j) = sq2(j)
+            Do I=0,Nbxtest 
+c               xtest  = exp(x1minL + x1dif*Real(I))
+               xtest  = A(I+1)
                if(iread.eq.0) then
-cc               write(6,*) ' q2test = ',q2test,' x = ',xtest
+c calcualte SumAab
+               IFLflag = 1
+c               write(6,*) ' q2test = ',q2test,' i =',i,' x = ',xtest
                call sigcalc(xtest,q2test,f2,f2e)
                fgridxq2(i+1,j)=f2
-               write(3,*) f2              
-c               write(6,*) ' q2test = ',q2test,' x = ',xtest,
-c     &           ' f2 ',f2,' f2e ',f2e
+c               write(6,*) ' f2 = ',f2
+c calcualte SumAL
+               IFLflag = 2
+               call sigcalc(xtest,q2test,fl,f2e)
+               flgridxq2(i+1,j)=fl
+               write(3,*) xtest,q2test,f2,Fl 
+c               write(6,*) j,I,' q2test = ',q2test,' x = ',xtest,' f2 ',f2,' f2e ',f2e
                else
-               read(3,*) f2
-               fgridxq2(i+1,j)=f2
+cc               read(3,*) xtest,q2test,f2,fl
+cc               fgridxq2(i+1,j)=f2
+cc               flgridxq2(i+1,j)=fl
+c               A(I+1) = xtest    
+c               q2grid(j) = q2test         
 c               write(6,*) f2
                endif
             End do
          end do
+         if(Iread.eq.1) then
+               I=0
+               J=0
+               q2ini = 0.
+330            read(3,*,END=331,ERR=331) xtest,q2test,f2,fl
+               if(q2test.ne.q2ini) then
+                  q2ini=q2test
+                  J = J + 1
+                  I=0
+               endif
+               I=I+1
+               fgridxq2(i,j)=f2
+               flgridxq2(i,j)=fl
+               A(I) = xtest    
+               q2grid(j) = q2test   
+c               write(6,*) ' siggrid ',i,j,xtest,q2test,f2,fl      
+c               write(6,*) f2
+               goto 330
+ 331           continue
+         Nbxtest = I-1
+         nq2test = j
+         NA(1)=Nbx+1
+         write(6,*) ' Nbxtest ',Nbxtest,nq2test,na(1),nbx
+         endif
          close(3)
       endif
       firstgrid = .false.
-        do i=0,Nbx
-          fgrid(i+1) = 0.
-        end do 
-      do j =1,nq2point
       
-      if(q2.ge.sq2(j)-small.and.q2.le.sq2(j)+small) then
-cc      write(6,*) ' q2 found : ',q2,small,j,sq2(j)
+      
+      do i=0,Nbxtest
+         fgrid(i+1) = 0.
+      end do 
+      do j =1,nq2test
+      
+      if(q2.ge.q2grid(j)-small.and.q2.le.q2grid(j)+small) then
+c      write(6,*) ' q2 found : ',q2,small,j,sq2(j)
 cc      q2 point found
         do i=0,Nbx
           fgrid(i+1) = fgridxq2(i+1,j)
@@ -8892,30 +9092,60 @@ c      write(6,*) ' q2 = ',q2,sq2(j),small
       endif
       enddo        
 345   continue
-c      stop
 c      integrate with starting distribution
-c	write(6,*) ' before gadap '
 	A0 = 0.0001
 	A0 = 0.0000001
 	B0 = 1.0
-	eps = 0.01 
+	eps = 0.001 
+      
        
 c	call GADAP(A0,B0,f2_int,EPS,SUM)
-      abstol = 0.0  ! abstol = 0, value of abstol will be ignored
-      nseg = 1000
-      CALL RADAPT(f2_int,A0,B0,NSEG,eps,abstol,SUM,ERR)
-ccc      write(6,*) ' x =',xn,' q2 ',q2n,' f2 = ',sum,eps,err
+      abstol = 0  ! abstol = 0, value of abstol will be ignored
+      nseg = 50
+c      nseg = 1 ! fully automatic, adapt until tolerance attained, 
+      CALL DADAPT(f2_int,A0,B0,NSEG,eps,abstol,SUM,ERR)
+c      write(6,*) ' x =',xn,' q2 ',q2n,' f2 = ',sum,eps,err
 cccccc CALL tADAPT(F,A,B,NSEG,RELTOL,ABSTOL,RES,ERR) 
-      if(err.gt.eps) then    
-      write(6,*) ' FATAL: siggrid err>eps x =',xn,' q2 ',q2n,' f2 = ',sum,eps,err
-c      stop
-      endif
+cc      if(err.gt.eps) then    
+cc        write(6,*) ' FATAL: siggrid err>eps x =',xn,' q2 ',q2n,' F2 = ',sum,eps,err
+cc        write(6,*) ' parameters :', AU(1),AU(2),AU(3),AU(4),Au(5),Au(6),Au(7),AU(8),AU(9)
+cc      endif
+cc      if(SUM.ne.SUM) then
+cc        write(6,*) ' FATAL: siggrid err>eps x =',xn,' q2 ',q2n,' F2 = ',sum,eps,err
+cc        write(6,*) ' parameters :', AU(1),AU(2),AU(3),AU(4),Au(5),Au(6),Au(7),AU(8),AU(9)      
+cc      endif
       f2 = SUM
-      tol = 0.03
+c now calculate Fl
+      do i=0,Nbx
+         fgrid(i+1) = 0.
+      end do 
+      do i=0,Nbx
+          fgrid(i+1) = flgridxq2(i+1,j)
+      end do 
+c	eps = 0.01 
+       
+c	call GADAP(A0,B0,f2_int,EPS,SUM)
+      abstol = 0  ! abstol = 0, value of abstol will be ignored
+      CALL DADAPT(f2_int,A0,B0,NSEG,eps,abstol,SUM,ERR)
+c      write(6,*) ' x =',xn,' q2 ',q2n,' f2 = ',sum,eps,err
+cccccc CALL tADAPT(F,A,B,NSEG,RELTOL,ABSTOL,RES,ERR) 
+cc      if(err.gt.eps) then    
+c        write(6,*) ' FATAL: siggrid err>eps x =',xn,' q2 ',q2n,' FL = ',sum,eps,err
+c        write(6,*) ' parameters :', AU(1),AU(2),AU(3),AU(4),Au(5),Au(6),Au(7),AU(8),AU(9)
+c      endif
+c      if(SUM.ne.SUM) then
+c        write(6,*) ' FATAL: siggrid err>eps x =',xn,' q2 ',q2n,' F2 = ',sum,eps,err
+c        write(6,*) ' parameters :', AU(1),AU(2),AU(3),AU(4),Au(5),Au(6),Au(7),AU(8),AU(9)      
+c      endif
+      fl = SUM
+    
+      
+c      tol = 0.03
 c      tol = 0.20
 c      tol = 0.01
-c      tol = 0.0
+      tol = 0.0
       f2e = sqrt(ERR**2 + (tol*sum)**2) 
+c      write(6,*) ' siggrid: ',xn,q2n,f2,fl
       return  
 220   write(6,*) ' f2tilde_grid.dat  on unit 3 cannot be opened '          
 c	stop
@@ -8923,9 +9153,12 @@ c	stop
       
       Function f2_int(xt)
 	Implicit None
-	Real f2_int,x0,z,test
-	Real xmin,xmax,xt,wt
-      Real f2tilde
+c	Real f2_int,x0,z
+c	Real xmin,xmax,xt,wt
+	Double Precision f2_int,x0,z
+	Double Precision xmin,xmax,xt,wt
+      Double precision test
+      Double Precision f2tilde
       Real sq2,xmymin
       Integer nq2point
       Common /myq2grid/ nq2point,sq2(200),xmymin
@@ -8938,7 +9171,7 @@ c	stop
       Double Precision DHFINT
       Double Precision DHPOLINT
 
-	Real A1,A2,A3,A4,A5,A6
+	Double Precision A1,A2,A3,A4,A5,A6
       logical first
 	double precision au 
       common/f2fit/au(50),first
@@ -8949,58 +9182,49 @@ c	stop
       Common/Evoltest/Noevol        
 	
 	xmin=x
-	xmax=1.
-c	xmax=0.4
-c	xmax=0.1
+	xmax=0.99999
 	wt = log(xmax/xmin)
 	x0= xmin*(xmax/xmin)**xt
       
-c       write(6,*) ' here in xa_int '
-c	x0 = xt
-c	wt = 1.
 	if(x0.lt.x) then
 	   f2_int = 0
 	   return
 	   endif
 	XA(1) = x/x0
-c 	write(6,*) ' x,x0,z',x,x0,xa(1)
       if(xa(1).gt.1. ) then
 	   f2_int = 0
 	   return
 	   endif
         
-c      write(6,*) xa(1),NA(1)
 c      write(6,*) 'f2_int',(AU(jj),jj=1,4)
       f2tilde = DHFINT(1,XA,NA,A,fgrid)    
-c      write(6,*) '  after dhfint ',f2tilde
-c      f2tilde = dhpolint(1,XA,NA,A,fgrid)
-c      write(6,*) '  after dhpolint ',f2tilde
 
 
 	A1 = au(1)
 	A2 = au(2)
-c	A3 = 4.94
       A3 = au(3)
 	A4 = au(4)
-      A5 = au(10)
-      A6 = au(11)
-c        A4 = 0.
-c       xsat = 10**au(5)
+      A5 = au(5)
+      A6 = au(6)
 c       write(6,*) a1,a2,a3,a4
 	 test = 0.
        if(x0.lt.0.) then
 	   test = 0.
 	   else
 c         test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0)/x0
+c updf style
          test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.-A4*x0+A5*sqrt(x0)+A6*x0**2)/x0
-         if(test.le.0) test=0
+c herapdf style 
+c         test =A1*5.*(1./x0**A2)*(1.-x0)**A3*(1.+ A4*x0 + A5*x0**2 + A6*x0**3)/x0
+c cteq style 
+c        test =A1*5.*(1./x0**A2)*(1.-x0)**A3*exp(x0*A4)*(1.+exp(A5*x0) + exp(A6*x0**2))/x0
+        if(test.le.0) test=0
          test=test*f2tilde
          test = max(0.,test)	   
       endif 
 c	write(6,*) 'xa_int ',xpqs(0),test,x 
 c     f(x)/g(x)*int(g(x)dx) = f(x)*x*wt
 	f2_int = test * wt * x0	
-c	    write(6,*) noevol,z,wt,a1,a2,a3
 	Return 
 	
 	end
@@ -9607,4 +9831,153 @@ C-----------------------------------------------------------------
 
 
       RETURN
+      END
+	Subroutine Sigplot(xn,q2n,f2,fl,f2e)
+      Implicit None
+	Integer N1,N2
+	Integer K1,K2,LUX
+#include "caslujets.inc"
+#include "casluco.inc"
+#include "casparas.inc"
+#include "casvalues.inc"
+#include "caspart.inc"
+#include "caseffic.inc"
+#include "casparam.inc"
+      Integer Iglu
+      Common/CAGLUON/Iglu
+
+      Integer I
+      Integer Iseed
+      Common/random/ISEED
+	
+	Integer Nevent
+	Common/steer1/Nevent
+
+	Logical First,Fccfm1,Fccfm2
+	Common/ myfirst/First,Fccfm1,Fccfm2
+      logical lcalc
+	Common/ myfirst2/lcalc
+	
+      Double Precision q2test,xtest,x1min,x1max,x1minL,x1maxL,x1dif
+      Double Precision x1minlin,x1maxlin
+      Integer NbxL,Nbxlin
+      Integer j
+      
+      Double Precision xn,q2n,f2,fl,f2e
+                  
+      Logical firstgrid
+      data firstgrid/.true./
+
+      Real sq2,xmymin
+      Integer nq2point
+      Common /myq2grid/ nq2point,sq2(200),xmymin
+#include "cascade-util_nbx.inc"
+      INTEGER NA(1)
+      double precision fgrid(Nbx+1),xa(1),a(Nbx+1)
+      Common /mykernel/fgrid,xa,a,na
+      Double precision x,q2
+      Common /myvalues/x,q2
+      
+      Double Precision fgridxq2(Nbx+1,200)
+
+      Integer IFLflag
+      Common/FlagFL/ IFLflag
+      
+      Double precision small 
+      Parameter (small=1.d-3)
+      
+      Integer Iread
+      Parameter (Iread=0)
+
+      INTEGER IN
+	Real A0,B0,EPS,SUM
+      Real ERR,ABSTOL
+      Real Tol
+      Integer Nseg
+      
+      Real f2_int
+      Logical ex
+      Integer Irr       
+      External f2_int
+
+      x = xn
+      q2 = q2n
+c      write(6,*) ' siggrid ',firstgrid,x,q2,nbx,nq2point
+      If(Firstgrid) then
+         inquire(FILE='f2tilde-test.dat',EXIST=ex)
+c create grid
+         if(ex) then
+            open(3,FILE='f2tilde-test.dat', FORM='formatted',
+     +      STATUS='OLD',IOSTAT=IRR,ERR=220)
+            write(6,*) ' f2tilde-test.dat existing '
+            if(Iread.eq.0) write(6,*) ' overwriting existing file '
+         else 
+            write(6,*) '  creating f2tilde-test.dat ' 
+            open(3,FILE='f2tilde-test.dat', FORM='formatted',STATUS='NEW',
+     +      IOSTAT=IRR,ERR=220)
+         Endif
+         
+         inquire(FILE='f2tilde-test.out',EXIST=ex)
+c create grid
+         if(ex) then
+            open(2,FILE='f2tilde-test.out', FORM='formatted',
+     +      STATUS='OLD',IOSTAT=IRR,ERR=220)
+            write(6,*) ' f2tilde-test.out existing '
+            if(Iread.eq.0) write(6,*) ' overwriting existing file '
+         else 
+            write(6,*) '  creating f2tilde-test.out ' 
+            open(2,FILE='f2tilde-test.out', FORM='formatted',STATUS='NEW',
+     +      IOSTAT=IRR,ERR=220)
+         Endif
+         
+         NA(1)=Nbx+1
+
+	   x1min = 1e-5
+	   x1min = xmymin
+         write(6,*) ' sigplot ',x1min,xn,q2n
+         x1max =0.9999d0
+         x1minL=log(x1min)
+         x1maxL=log(x1max)
+c         x1minL=x1min
+c         x1maxL=x1max
+c         NbxL = Nbx-10
+         NbxL = Nbx
+         x1dif=(x1maxL-x1minL)/Real(NbxL)         
+         In=0
+c         Do I=0,NbxL-1
+         Do I=0,NbxL
+           in=in+1
+           A(IN)= exp(x1minL + x1dif*Real(I))
+c           A(IN)= x1minL + x1dif*Real(I)
+         enddo
+         
+         do j = 1, nq2point
+            q2test = sq2(j)
+            Do I=0,Nbx 
+c               xtest  = exp(x1minL + x1dif*Real(I))
+               xtest  = A(I+1)
+c               write(6,*) ' q2test = ',q2test,' i =',i,' x = ',xtest
+               if(iread.eq.0) then
+c calcualte SumAab
+               IFLflag = 1
+               call sigcalc(xtest,q2test,f2,f2e)
+c               write(6,*) ' f2 = ',f2 
+c calcualte SumAL
+               IFLflag = 2
+               call sigcalc(xtest,q2test,fl,f2e)
+c               write(6,*) ' fl = ',fl
+               else
+               read(3,*) f2,fl
+c               write(6,*) f2
+               endif
+               write(2,*) xtest,q2test,f2              
+               write(6,*) ' q2test = ',q2test,' x = ',xtest,' f2 ',f2,' fl = ',fl,' f2e ',f2e
+            End do
+         end do
+         close(3)
+      endif
+
+
+220   write(6,*) ' f2tilde_test.dat  on unit 3 cannot be opened '          
+c	stop
       END

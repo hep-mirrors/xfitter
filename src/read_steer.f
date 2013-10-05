@@ -1381,6 +1381,10 @@ C------------------------------------------------
          iTheory = 102
       else if ( TheoryType.eq.'uPDF3') then
          iTheory = 103
+      else if ( TheoryType.eq.'uPDF4') then
+         iTheory = 104
+      else if ( TheoryType.eq.'uPDF5') then
+         iTheory = 105
       else
          print *,'Unknown TheoryType = TheoryType'
          print *,'Check your steering.txt file'

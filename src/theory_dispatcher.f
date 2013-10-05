@@ -20,7 +20,7 @@ C-------------------------------------------------------------------
          if(Itheory.lt.100) then
             Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' NC e+-p integrated: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
@@ -41,28 +41,28 @@ C Standard DGLAP:
          if(Itheory.lt.100) then
             Call GetNCXsection(IDataSet, HFSCHEME)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' muon p: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
          if(Itheory.lt.100) then
             Call GetNCCharmXsection(IDataSet, HFSCHEME)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' NC e+-p charm: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p FL') then
          if(Itheory.lt.100) then
             Call GetNCFL(IDataSet, HFSCHEME)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' NC e+-p FL: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          if(Itheory.lt.100) then
             Call GetCCXsection(IDataSet, HFSCHEME)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' CC e+-p: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
@@ -77,7 +77,7 @@ C Standard DGLAP:
             Call GetDYCCXsection(IDataSet)
            endif
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' CC pp: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC pp' .or.
@@ -92,14 +92,14 @@ C Standard DGLAP:
              call GetDYNCXsection(IDataSet)
            endif
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' NC ppbar: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
          if(Itheory.lt.100) then
             Call GetJetsPPApplGrid(IDataSet)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' pp jets APPLGRID: invalid dataset for ithory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.
@@ -107,7 +107,7 @@ C Standard DGLAP:
          if(Itheory.lt.100) then
             Call GetJetsFastNLOXsection(IDataSet, .false.)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' FastNLO jets: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised')then
@@ -116,21 +116,21 @@ cv
             call eprc_init(.false.)
             Call GetJetsFastNLOXsectionNormalised(IDataSet)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' FastNLO ep jets normalised: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
        elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
          if(Itheory.lt.100) then
             Call GetHathorXsection(IDataSet)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' ttbar: invalid dataset for ithory > 100 '
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
          if(Itheory.lt.100) then
             Call GetDiffDisXsection(IDataSet)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' DDis: invalid dataset for ithory > 100 '
             call hf_stop
          Endif
 
@@ -138,7 +138,7 @@ cv
          if(Itheory.lt.100) then
             Call GetDummyXsection(IDataSet)
          else
-            write(6,*) ' invalid dataset for ithory > 100 '
+            write(6,*) ' Dummy: invalid dataset for itheory > 100 '
             call hf_stop
          Endif
 

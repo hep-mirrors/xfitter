@@ -170,6 +170,10 @@ c updf stuff
       Common/updfout/filename
       character CCFMfile*132
       Common/CCFMout/CCFMfile
+      CHARACTER   evolfNAME*132
+      Common/gludatf/evolfname
+      Integer Itheory_ca
+      Common/theory/Itheory_ca
       Integer idx
 
       character*2 TypeC, FormC
@@ -187,6 +191,7 @@ C--------------------------------------------------------------
 
       iflagfcn = iflag
 
+      itheory_ca = itheory      
 
       do jsys=1,nsys
          bsys(jsys) = 0.d0
@@ -212,15 +217,14 @@ C--------------------------------------------------------------
         auh(2) = parminuitsave(2)
         auh(3) = parminuitsave(3)
         auh(4) = parminuitsave(4)
+        auh(5) = parminuitsave(5)
+        auh(6) = parminuitsave(6)
         auh(7) = parminuitsave(7)
         auh(8) = parminuitsave(8)
         auh(9) = parminuitsave(9)
-        auh(10) = parminuitsave(5)
-        auh(11) = parminuitsave(6)
 c        write(6,*) ' fcn npoint ',npoints
          firsth=.true.
          Fccfm1=.true.
-         Iglu = 1111
         
       endif
 
@@ -280,19 +284,30 @@ C      for dipole model fits.
       if (Debug) then
          print*,'before evolution'
       endif
-
       if (Itheory.eq.0) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 
-             Iglu=1112             
+             Iglu=1112 
              filename='ccfm-test.dat'
              call calcglu
-             Iglu = 1111
+c iglu is set in sigcalc to iglu=1111
           elseif(itheory.eq.102) then 
-             Iglu = 1111
+c iglu in sigcalc is set by steer-ep 
           elseif(itheory.eq.103) then 
-             Iglu = 1113
+c iglu is set in sigcalc to iglu=1113
+          elseif(itheory.eq.104) then 
+             Iglu=1112            
+c call evolution to generate grid file
+             evolfname='theoryfiles/updf/ccfm-grid.dat'
+             if(iflag.eq.1) call evolve_tmd
+c iglu is set in sigcalc to iglu=1111
+          elseif(itheory.eq.105) then 
+c             Iglu=1112            
+c call evolution to generate grid file
+             evolfname='ccfm-test.dat'
+             if(iflag.eq.1) call evolve_tmd
+c iglu is set in sigcalc to iglu=1111
           endif 
           firsth=.false.
       endif
@@ -539,7 +554,12 @@ c     $           ,chi2_cont/NControlPoints
               auh(2) = parminuitsave(2)
               auh(3) = parminuitsave(3)
               auh(4) = parminuitsave(4)
-              if(Itheory.eq.103) then
+              auh(5) = parminuitsave(5)
+              auh(6) = parminuitsave(6)
+              auh(7) = parminuitsave(7)
+              auh(8) = parminuitsave(8)
+              auh(9) = parminuitsave(9)
+              if(Itheory.ge.103) then
               idx = index(ccfmfile,' ')-1
                  if(idx.gt.2) then
                    filename=ccfmfile(1:idx)//'.dat'
