@@ -167,9 +167,9 @@ AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
 
 # UPDFs
-AC_ARG_ENABLE([uPDF],
-  [AC_HELP_STRING(--enable-updf, [use uPDF evolution (default=no)])])
 
+AC_ARG_ENABLE([updf],
+  [AC_HELP_STRING(--enable-updf, [use uPDF evolution (default=no)])])
 AM_CONDITIONAL(ENABLE_UPDF, [test x$enable_updf == xyes])
 
 if test x$enable_updf == xyes; then
@@ -191,6 +191,10 @@ if test x$enable_updf == xyes; then
       AC_SUBST([PYTHIALIBS], ["-L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o "])
       AC_MSG_RESULT([Using -L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o ])
    fi
+      AC_SUBST([CASCADE_SOURCE], ["$CASCADE_ROOT"])
+      AC_SUBST([CASCADELIBS], ["-L$CASCADE_ROOT/lib -lbases"])
+      AC_SUBST([PYTHIA_SOURCE], ["$PYTHIA_ROOT"])
+      AC_SUBST([PYTHIALIBS], ["-L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o "])
 fi
 
 #AC_F77_LIBRARY_LDFLAGS
@@ -224,27 +228,49 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 
 # Output
-AC_CONFIG_FILES([src/Makefile
+AC_CONFIG_FILES([include/Makefile 
+                 src/Makefile
                  common/Makefile
+                 common/linalg/Makefile
                  interfaces/src/Makefile
-                 tools/DrawResultsPackage/Makefile
-                 tools/MakeLHAPDF/Makefile
+                 interfaces/include/Makefile
                  FastNLO/src/Makefile
+                 FastNLO/include/Makefile
                  minuit/src/Makefile
                  EW/src/Makefile
                  RT/src/Makefile
                  DiffDIS/src/Makefile
+                 DiffDIS/include/Makefile
                  DIPOLE/src/Makefile
                  DY/src/Makefile
+                 DY/include/Makefile
                  Hathor/src/Makefile
                  ACOT/src/Makefile
                  ABM/src/Makefile
                  NNPDF/src/Makefile
+                 NNPDF/include/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  doc/tex/manual/Makefile
                  doc/tex/paper/Makefile
+                 tools/DrawResultsPackage/Makefile
+                 tools/DrawResultsPackage/include/Makefile
+                 tools/MakeLHAPDF/Makefile
+                 input_steering/Makefile
+                 datafiles/bcdms/Makefile
+                 datafiles/hera/Makefile
+                 datafiles/lhc/atlas/Jets2010/Makefile
+                 datafiles/lhc/atlas/WZ2010/Makefile
+                 datafiles/lhc/cms/Makefile
+                 datafiles/tevatron/Makefile
+                 theoryfiles/Makefile
+                 theoryfiles/updf/Makefile
+                 theoryfiles/cms/CMS-EWK-10-010/Makefile
+                 theoryfiles/cms/EWK-11-005/Makefile
+                 theoryfiles/cms/SPM_12_001/Makefile
+                 theoryfiles/atlas/Jets2010/R04/Makefile
+                 theoryfiles/atlas/Jets2010/R06/Makefile
+                 theoryfiles/atlas/WZ2010/Makefile
                  Makefile])
-# AC_CONFIG_SUBDIRS([])
 AC_OUTPUT

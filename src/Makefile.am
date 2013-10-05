@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
-
+pkginclude_HEADERS = offset.h
 # Explicit depence for all files:
-*.o: ../include/*.inc 
+#*.o: ../include/*.inc 
 
 # the main target, i.e. the executable to build
 bin_PROGRAMS = FitPDF

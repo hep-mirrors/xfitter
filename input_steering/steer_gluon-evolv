@@ -1,0 +1,12 @@
+ Xnorm = 1.
+ oneLoop = 0
+ saturation = 0
+ Ipdf = 0
+ Itarget = 2212
+ Iglu = 1
+Ipgg = 1
+ns = 1
+ikincut = 0
+Qg = 1.8
+Qs = 1.8
+QCDlam = 0.18

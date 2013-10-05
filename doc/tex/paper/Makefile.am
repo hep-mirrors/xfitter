@@ -8,6 +8,7 @@ MANNAME =  herafitter-epjc
 MANTEXSRC = $(MANNAME).tex intro.tex summary.tex method.tex theory.tex
 MANAUX = $(MANNAME).aux
 MANPDF = $(MANNAME).pdf
+EXTRA_DIST = $(MANTEXSRC)
 
 CLEANFILES = $(MANPDF) $(MANNAME).log $(MANNAME).idx $(MANNAME).out \
  $(MANNAME).toc $(MANAUX)  $(MANNAME).blg  $(MANNAME).bbl

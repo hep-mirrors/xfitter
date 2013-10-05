@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-
+pkginclude_HEADERS = APSCOM6. CONSTCOM. OMECOM. PDFCOM. PRECCOM.
 # Force recompilation if include files are modified:
 *.o: APSCOM6. CONSTCOM. OMECOM. PDFCOM. PRECCOM.
 

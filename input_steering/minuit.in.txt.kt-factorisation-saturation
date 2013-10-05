@@ -1,0 +1,36 @@
+set title
+updf 4p HERAPDF 
+parameters
+   1 'N '          1.0        0.05      
+   2 'Sigm0'       74.78      0.100  
+   3 'LAM'         0.277      0.100    
+   4 'X01'         0.41E-5    0.0100    
+   5 'ALPHAS'      0.2        0.1
+   6 'xxx'         0.0          0.1  
+   7 'nor-QPM '    1.0          0.1      -0.2    5.0
+   8 'm(light) '   0.059         0.01      0.0001 2.  
+   9 'm(charm) '   1.39         0.1       0.0    5. 
+
+
+*set eps 1.0e-11 
+fix 2
+fix 3
+fix 4
+fix 5
+fix 6
+fix 7
+fix 8
+fix 9
+*set print 3  
+*call fcn 3
+****migrad 200000
+*set eps 1.0e-7
+set errordef 1.
+migrad 200000
+***migrad 1000 .1
+*hesse
+set print 3
+
+
+return
+

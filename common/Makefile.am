@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-
+pkginclude_HEADERS = FTNFitPars.h FitPars_base.h TextReader.h Xstring.h dbgtools.h fiasco.h
 # The name of the library
 noinst_LIBRARIES = libHFcommon.a
 
