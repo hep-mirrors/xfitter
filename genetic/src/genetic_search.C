@@ -183,10 +183,12 @@ void copy_file(const char* filename, const char* dirname)
   FILE* infile  = fopen(infilename,  "r");
   FILE* outfile = fopen(outfilename, "w");
 
-  char ch;
-  while( ( ch = fgetc(infile) ) != EOF ) fputc(ch, outfile);
+  if (infile != NULL) {
+    char ch;
+    while( ( ch = fgetc(infile) ) != EOF ) fputc(ch, outfile);
+    fclose(infile);
+  }
 
-  fclose(infile);
   fclose(outfile);
 
 }
