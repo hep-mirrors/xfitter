@@ -112,7 +112,7 @@ TheorEval::assignTokens(list<tToken> &sl)
       if ( term == string("sum") ) { // special case for sum() function
         t.opr = 4;
         t.name = "sum";
-	t.val = new valarray<double>(nb);
+	t.val = new valarray<double>(0., nb);
 	sl.push_back(t);
 	continue;
       }
@@ -120,7 +120,7 @@ TheorEval::assignTokens(list<tToken> &sl)
       if ( term == string("avg") ) { // special case for avg() function
         t.opr = 4;
         t.name = "avg";
-	t.val = new valarray<double>(nb);
+	t.val = new valarray<double>(0., nb);
 	sl.push_back(t);
 	continue;
       }
@@ -135,7 +135,7 @@ TheorEval::assignTokens(list<tToken> &sl)
 	if ( _mapInitdTerms.find(term) != _mapInitdTerms.end()){
 	  t.val = _mapInitdTerms[term];
 	} else {
-	  t.val = new valarray<double>(nb);
+	  t.val = new valarray<double>(0.,nb);
 	  this->initTerm(int(found_term-_termNames.begin()), t.val);
 	  _mapInitdTerms[term] = t.val;
 	}
@@ -154,7 +154,7 @@ TheorEval::assignTokens(list<tToken> &sl)
         default: cout << "Unknown operator "<< c << " in expression " << _expr << endl;
       }
       t.name.assign(1,c);
-      t.val = new valarray<double>(nb);
+      t.val = new valarray<double>(0., nb);
       sl.push_back(t);
     }
   }
@@ -199,10 +199,14 @@ TheorEval::convertToRPN(list<tToken> &sl)
     tknstk.pop();
   }
   
-//  vector<tToken>::iterator it= _exprRPN.begin();
-//  for (;it!=_exprRPN.end(); it++){
-//    cout << it->name << endl;
-//  }
+  /*
+  vector<tToken>::iterator it= _exprRPN.begin();
+  for (;it!=_exprRPN.end(); it++){
+    if (it->opr == 0 ){
+      cout << it->name << "\t" << (*it->val)[0] << endl;
+    }
+  }
+  */
 }
 
 int
@@ -223,21 +227,24 @@ int
 TheorEval::initGridTerm(int iterm, valarray<double> *val)
 {
   string term_source = _termSources.at(iterm);
-  appl::grid *g = new grid(term_source);
+  appl::grid *g = new appl::grid(term_source);
   g->trim();
 
   // read binning information from grid and compare it to that of data
   int n_agbins = g->Nobs();
+  /*
   if (n_agbins != _dsBins.at(0).size() ) {
     cout << "ERROR: number of bins doesn't match for " << term_source << " in dataset " << _dsId << endl;
     return -1;
   }
+  */
   
   // I assume that we have only 1d binning in the dataset.
   // Didn't find a good way to deal with multidimentional binning,
   // since applgrids are always 1d.  -- AS
   for (int igb = 0; igb <n_agbins-1; igb++){
-    if ( _binFlags.at(igb) == 0 ) continue;
+    if ( igb >= _binFlags.size() ) break;
+    if ( _binFlags.at(igb) == 0  ) continue;
     if ( 0 == (_binFlags.at(igb) & 2) ) {
       if (fabs(g->obslow(igb) - _dsBins.at(0).at(igb)) > 100*DBL_MIN ||
           fabs(g->obslow(igb+1) - _dsBins.at(1).at(igb)) > 100*DBL_MIN) { 
@@ -375,6 +382,11 @@ TheorEval::getGridValues(const int iorder, const double mur, const double muf)
     appl::grid* g = itm->first;
     vector<double> xs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
     *(itm->second) = valarray<double>(xs.data(), xs.size());
+    /*
+    for (int i = 0; i<xs.size(); i++){
+      cout << xs[i] << endl;
+    }
+    */
   }
 }
 

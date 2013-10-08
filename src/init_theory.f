@@ -1015,6 +1015,8 @@ C Store first index:
          DATASETTheoryIndex(IDataSet) = IGridIDfnlo(1)
          IGridID = IGridIDfnlo(1)
 
+      elseif (DATASETTheoryType(IDataSet).eq.'expression') then
+        return
       else
          call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
 C Store index:

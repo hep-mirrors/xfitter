@@ -97,7 +97,14 @@ C Standard DGLAP:
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
          if(Itheory.lt.100) then
-            Call GetJetsPPApplGrid(IDataSet)
+           if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
+             !call set_theor_CKM(IDataSet,
+             call get_theor_eval(IDataSet, DataSetIOrder(IDataSet)-1,
+     $         DataSetMuR(IDataSet), DataSetMuF(IDataSet), 
+     $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
+           else
+             Call GetJetsPPApplGrid(IDataSet)
+	   endif
          else
             write(6,*) ' pp jets APPLGRID: invalid dataset for ithory > 100 '
             call hf_stop
