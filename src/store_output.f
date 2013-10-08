@@ -301,8 +301,9 @@ c     &        '   +-toterr      theory      pull     dataset  '
 
          write (90,17) (DATASETBinNames(j,i),j=1,3),'data    '
      $        ,' +- uncor  ',' +- tot   ',' th orig   ','th mod'
+     $        , ' therr+   ', 'therr-'
      $        , ' pull   ', 'iset', 'iplot'
- 17      format(1X,9(A11,1X),A4,A12)
+ 17      format(1X,11(A11,1X),A4,A12)
 
          do j=1,NDATAPOINTS(i)
             index = DATASETIDX(i,j)
@@ -329,11 +330,12 @@ c set pull to zero if no unc error
                PullVar = 0d0
             endif
 
-            write(90,'(1X,9(e11.5,1X),i4,i4,A1,E11.5)') 
+            write(90,'(1X,11(e11.5,1X),i4,i4,A1,E11.5)') 
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),AbstractBins(3,index),
      &           DATEN(index),ALPHA_MOD(index),
      &           E_TOT(index)/100.*DATEN(index),THEO(index), THEO_MOD(index),
+     &           THEO_TOT_UP(index),THEO_TOT_DOWN(index),
      &           PullVar,DATASETNUMBER(i), JPLOT(index), '/',PlotVar
 
 cv
@@ -385,7 +387,9 @@ C Function:
 C Store central, plus/minus theory predictions:
       double precision theo_cent(NTOT), 
      $     theo_minus(NTOT), theo_plus(NTOT),
-     $     theo_var(NTOT)
+     $     theo_var(NTOT),
+     $     theo_err2_up(NTOT),
+     $     theo_err2_down(NTOT)
       integer nsysLoc
 
 C Some hack to store PDFs
@@ -422,7 +426,7 @@ c     HERAFitter rewrote of GetPDFUncType function
 
       nsysLoc = nsys
       print *,'Nsets=',nsets
-      
+
       do iset=0,nLHAPDF_Sets 
          call InitPDF(iset)
          alphas = alphasPDF(Mz)
@@ -497,7 +501,6 @@ C Also add "systematics" for these sources:
             write (c,'(''00'',I2)') iset
          endif
 
-
          call WriteFittedPoints
          call my_system
      $ ('mv '//TRIM(OutDirName)//'/fittedresults.txt '
@@ -522,9 +525,9 @@ C Also add "systematics" for these sources:
                endif
             elseif (SymmetricPDFErr) then
                if (i.lt.10) then
-                  write (tag,'(''p0'',i1)') i
+                  write (tag,'(''s0'',i1)') i
                elseif (i.lt.100) then
-                  write (tag,'(''p'',i2)') i
+                  write (tag,'(''s'',i2)') i
                endif
             else
                if (i.lt.10) then
@@ -542,7 +545,7 @@ C Also add "systematics" for these sources:
 
             idx = index(base,' ')-1
             if (SymmetricPDFErr.or.MonteCarloPDFErr) then
-               name = base(1:idx)//'_'
+               name = base(1:idx)//'s_'
             else
                if ( mod(iset,2).eq.1) then
                   name = base(1:idx)//'m_'
@@ -557,6 +560,37 @@ C Also add "systematics" for these sources:
 
 C Write out "theory files" with uncertainties  
       Call WriteTheoryFiles(NSysLoc-NSys, THEO_CENT, SymmetricPDFErr)
+
+C Compute total error on theory predictions:
+      do i=1,Npoints
+         THEO_ERR2_UP(i) = 0
+         THEO_ERR2_DOWN(i) = 0
+      enddo
+
+      if (SymmetricPDFErr) then !Symmetric hessian
+         do j=nsys,nsys+nsysloc
+            do i=1,Npoints
+               THEO_ERR2_UP(i) = THEO_ERR2_UP(i) + Beta(j, i) ** 2
+               THEO_ERR2_DOWN(i) = THEO_ERR2_DOWN(i) + Beta(j, i) ** 2
+            enddo
+         enddo
+      else                      !Asymmetric hessian
+         do j=nsys,nsys+nsysloc
+            do i=1,Npoints
+               THEO_ERR2_UP(i) = THEO_ERR2_UP(i) +
+     +              MAX(MAX(BetaAsym(j,1,i), BetaAsym(j,2,i)),
+     +              0d0) ** 2
+               THEO_ERR2_DOWN(i) = THEO_ERR2_DOWN(i) +
+     +              MAX(MAX(-BetaAsym(j,1,i), -BetaAsym(j,2,i)),
+     +              0d0) ** 2
+            enddo
+         enddo
+      endif
+
+      do i=1,Npoints
+         THEO_TOT_UP(i) = SQRT(THEO_ERR2_UP(i)) * THEO_CENT(i)
+         THEO_TOT_DOWN(i) = SQRT(THEO_ERR2_DOWN(i)) * THEO_CENT(i)
+      enddo
 
 C Write some chi2 tests, vs central prediction or floating eighenvectors:
       Call initpdf(0)
