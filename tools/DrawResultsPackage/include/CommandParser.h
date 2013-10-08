@@ -25,6 +25,7 @@ class CommandParser
   //data pulls options
   //  bool logx, logy;
   //  float xmin, xmax;
+  bool therr, points;
 
   //general options
   bool pdf;
@@ -74,6 +75,10 @@ class CommandParser
     cout << "\t --no-logx" << endl;
     cout << "\t \t Linear x scale in PDF plots" << endl;
     cout << "options for data pulls plots:" << endl;
+    cout << "\t --therr" << endl;
+    cout << "\t \t Plot theory errors if availables" << endl;
+    cout << "\t --points" << endl;
+    cout << "\t \t Plot theory as tilted marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;
     cout << "\t &PlotDesc" << endl;

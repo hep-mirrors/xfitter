@@ -19,6 +19,8 @@ CommandParser::CommandParser(int argc, char **argv):
   xmin(0.0001),
   xmax(1),
   pdf(false),
+  therr(false),
+  points(false),
   outdir("")
 {
 
@@ -55,7 +57,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	else if (*it == "--bands")
 	  dobands = true;
 	else if (*it == "--asymbands")
-	  asymbands = true;
+	  {
+	    dobands = true;
+	    asymbands = true;
+	  }
 	else if (*it == "--no-logx")
 	  logx = false;
 	else if (*it == "--outdir")
@@ -112,6 +117,10 @@ CommandParser::CommandParser(int argc, char **argv):
 
 	      allargs.erase(it+1);
 	  }
+	else if (*it == "--therr")
+	  therr = true;
+	else if (*it == "--points")
+	  points = true;
 	else
 	  {
 	    cout << endl;
