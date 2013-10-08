@@ -345,15 +345,17 @@ Int_t Output::PreparePdf(bool DrawBand, TString option) {
 
     PdfTable* table;
     
-    if (option == TString("b")) {
+
+    if (option == TString("b"))  //asymmetric hessian, symmetric bands
       table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE);
-    } else {
-      if (option == TString("e")) {
-	table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
-      } else {
-	table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kFALSE, option);
-      }
-    }
+    else if (option == TString("a")) //asymmetric hessian, asymmetric bands
+      table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kFALSE);
+    else if (option == TString("s")) //symmetric hessian
+      table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
+    else if (option == TString("e"))
+      table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
+    else // MC errors
+      table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
 
     Int_t    nx = table->GetNx();
     if (nx > 0 ) {    
@@ -427,7 +429,7 @@ Int_t Output::PrepareDataSets() {
   Int_t dataset;
   Char_t buffer[BUFFERSIZE];
   TString str, Name;
-  double bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, pull;
+  double bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, therr_up, therr_down, pull;
 
 
   ifstream infile(filename->Data());
@@ -466,8 +468,23 @@ Int_t Output::PrepareDataSets() {
 	break;
       }
 
-      if((array->GetEntries() == 10) ||   // old format, need to have general plotting	
+      if((array->GetEntries() == 10) ||   // old format, need to have general plotting 
 	 (array->GetEntries() == 11)) {   // new format with a plotting variable
+        
+        bin1      = ((TObjString*)array->At(0))->GetString().Atof();
+        bin2      = ((TObjString*)array->At(1))->GetString().Atof();
+	data      = ((TObjString*)array->At(3))->GetString().Atof();
+	uncorrerr = ((TObjString*)array->At(4))->GetString().Atof();
+        toterr    = ((TObjString*)array->At(5))->GetString().Atof();
+        theory    = ((TObjString*)array->At(6))->GetString().Atof();
+        theory_mod  = ((TObjString*)array->At(7))->GetString().Atof();
+	pull      = ((TObjString*)array->At(8))->GetString().Atof();
+	therr_up = 0;
+	therr_down = 0;
+      }
+
+      if((array->GetEntries() == 12) ||   // old format, need to have general plotting	
+	 (array->GetEntries() == 13)) {   // new format with a plotting variable
 	
 	bin1      = ((TObjString*)array->At(0))->GetString().Atof();
 	bin2      = ((TObjString*)array->At(1))->GetString().Atof();
@@ -476,21 +493,31 @@ Int_t Output::PrepareDataSets() {
 	toterr    = ((TObjString*)array->At(5))->GetString().Atof();
 	theory    = ((TObjString*)array->At(6))->GetString().Atof();
 	theory_mod  = ((TObjString*)array->At(7))->GetString().Atof();
-	pull      = ((TObjString*)array->At(8))->GetString().Atof();
-	
-	str = "";
-	if(array->GetEntries() == 11) 
-	  if(!((TObjString*) array->At(10) )->GetString().BeginsWith("999/"))	  
-	    str = ((TObjString*) array->At(10) )->GetString();
-
-	if(str=="") {
-	  NUndefinedPoints++;
-	  str.Form("999/%d", NUndefinedPoints);   // plot number 999 means there was no new style plotting 
-	}
-	
-	NewDataSet->AddPoint( str.Data(),
-			      bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, pull);
+	therr_up  = ((TObjString*)array->At(8))->GetString().Atof();
+	therr_down  = ((TObjString*)array->At(9))->GetString().Atof();
+	pull      = ((TObjString*)array->At(10))->GetString().Atof();
       }
+	
+      if ((array->GetEntries() == 10) || (array->GetEntries() == 11)
+	  || (array->GetEntries() == 12) || (array->GetEntries() == 13))
+	{
+	  str = "";
+	  if(array->GetEntries() == 13) 
+	    if(!((TObjString*) array->At(12) )->GetString().BeginsWith("999/"))	  
+	      str = ((TObjString*) array->At(12) )->GetString();
+	  
+	  if(array->GetEntries() == 11) 
+	    if(!((TObjString*) array->At(10) )->GetString().BeginsWith("999/"))	  
+	      str = ((TObjString*) array->At(10) )->GetString();
+	  
+	  if(str=="") {
+	    NUndefinedPoints++;
+	    str.Form("999/%d", NUndefinedPoints);   // plot number 999 means there was no new style plotting 
+	  }
+	
+	  NewDataSet->AddPoint( str.Data(),
+				bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, therr_up, therr_down, pull);
+	}
       delete array;
     }
     

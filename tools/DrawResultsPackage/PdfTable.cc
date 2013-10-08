@@ -164,7 +164,48 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors, TString o
   sErrOpt = option;
 
   // Read the error sets:
-  
+  if (!sErrOpt.CompareTo("mc"))
+    for ( int iband = 1; iband<=1000; iband++) 
+      {
+	filename.Form("%s/pdfs_q2val_mc%03d_%02d.txt",base.c_str(), iband, iQ2);
+	PdfTable *eSet = CreatePdfTable(filename.Data());
+	if (!eSet) break;
+
+	if (eSet->GetNx()>0)
+	  fErrorTables.push_back(eSet);
+	else {delete eSet; continue;}
+      }  
+  else if (!sErrOpt.CompareTo("s")) 
+    for (int iband = 1; iband <= 1000; iband++) 
+      {
+	filename.Form("%s/pdfs_q2val_s%02ds_%02d.txt",base.c_str(), iband, iQ2);
+	PdfTable *eSet = CreatePdfTable(filename.Data());
+	if (!eSet) break;
+	
+	if (eSet->GetNx()>0)
+	  fErrorTables.push_back(eSet);
+	else {delete eSet; continue;}
+      }
+  else if (!sErrOpt.CompareTo("a") || !sErrOpt.CompareTo("b"))
+    for (int iband = 1; iband <= 1000; iband++) 
+      {
+	filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt",base.c_str(), iband, iQ2);
+	PdfTable *eSet = CreatePdfTable(filename.Data());
+	if (!eSet) break;
+
+	if (eSet->GetNx()>0)
+	  fErrorTables.push_back(eSet);
+	else {delete eSet; continue;}
+    
+	filename.Form("%s/pdfs_q2val_s%02dp_%02d.txt",base.c_str(), iband, iQ2);
+	eSet = new PdfTable(filename.Data());
+	if (!eSet) break;
+
+	if (eSet->GetNx()>0)
+	  fErrorTables.push_back(eSet);
+	else {delete eSet; continue;}
+      }
+  else
   if ( sErrOpt.CompareTo("m") && sErrOpt.CompareTo("p") && sErrOpt.CompareTo("mc")  ) {
     for ( int iband = 1; iband<=1000; iband++) {
 
@@ -219,18 +260,6 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors, TString o
       }
       else {delete eSet; continue;}
     }
-  } else if ( !sErrOpt.CompareTo("mc") ) {
-    for ( int iband = 1; iband<=1000; iband++) {
-
-      filename.Form("%s/pdfs_q2val_mc%03d_%02d.txt",base.c_str(), iband, iQ2);
-      PdfTable *eSet = CreatePdfTable(filename.Data());
-      if (!eSet) break;
-
-      if (eSet->GetNx()>0) {
-        fErrorTables.push_back(eSet);
-      }
-      else {delete eSet; continue;}
-    }
   } else {
     cout << "Unknown PdfErrorTables error option = " << sErrOpt <<endl;
     return;
@@ -275,24 +304,70 @@ void PdfErrorTables::GetPDFError(int ix, int iPDF, double* eminus, double* eplus
   *eplus  = 0;
 
   //MC replica errors
-  if ( !sErrOpt.CompareTo("mc") ) 
+  if (!sErrOpt.CompareTo("mc")) 
     {
-      double maxp = 0;
-      double maxm = 0;
-
       double sum = 0;
       double sum2 = 0;
-
       for (int i=0; i<fErrorTables.size(); i++) 
 	{
 	  sum += fErrorTables[i]->GetPDF(ix,iPDF);
 	  sum2 += pow(fErrorTables[i]->GetPDF(ix,iPDF), 2);
 	}
+      double maxp, maxm;
       maxm = maxp = sqrt(sum2/(double)fErrorTables.size() - pow(sum/(double)fErrorTables.size(), 2));
       (*eminus) = maxm;
       (*eplus) = maxp;
     }
-   else if ( sErrOpt.CompareTo("p") ) {
+  else if (!sErrOpt.CompareTo("a") || !sErrOpt.CompareTo("b"))
+    {  
+      for (int i=0; i<fErrorTables.size(); i+=2) 
+	{
+	  double vm = fErrorTables[i]->GetPDF(ix,iPDF);
+	  double vp = fErrorTables[i+1]->GetPDF(ix,iPDF);
+
+	  if (fSymmetric) //option "b", symmetrise errors
+	    {
+	      double err = 0.5*(vp-vm);
+	      (*eminus) += err*err;
+	      (*eplus)  += err*err;
+	    }
+	  else //option "a", asymmetric errors
+	    {
+	      // down variation:
+	      double d1 = cent - vm;
+	      double d2 = cent - vp;
+	      double ed = ( d2>d1) ? d2 : d1;
+      
+	      if (ed<0) { ed = 0;}
+
+	      // up variation
+	      d1 = -d1;
+	      d2 = -d2;
+	      double ep = (d2>d1) ? d2 : d1;    
+	      if (ep<0) {ep = 0;}
+	      (*eminus) += ed*ed;
+	      (*eplus)  += ep*ep;
+	    }
+	}
+      (*eminus) = sqrt(*eminus);
+      (*eplus) = sqrt(*eplus);
+    }
+  else if (!sErrOpt.CompareTo("s"))
+    {
+      double maxp = 0;
+      double maxm = 0;
+    
+      for (int i=0; i<fErrorTables.size(); i++) 
+	{
+	  double v = fErrorTables[i]->GetPDF(ix,iPDF);
+	  double err = v - cent;
+	  (*eminus) += err*err;
+	  (*eplus)  += err*err;
+	}
+      (*eminus) = sqrt(*eminus);
+      (*eplus) = sqrt(*eplus);
+    }
+  else if ( sErrOpt.CompareTo("p") ) {
   
     for (int i=0; i<fErrorTables.size(); i+=2) {
       double vm = fErrorTables[i]->GetPDF(ix,iPDF);
@@ -325,7 +400,7 @@ void PdfErrorTables::GetPDFError(int ix, int iPDF, double* eminus, double* eplus
     (*eminus) = sqrt(*eminus);
     (*eplus) = sqrt(*eplus);
   
-  } else {
+  } else {//option p, envelope of variations
     
     double maxp = 0;
     double maxm = 0;

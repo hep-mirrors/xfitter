@@ -51,11 +51,11 @@ int main(int argc, char **argv)
 	}
 
       //symmetric hessian errors
-      filename.Form("%s/pdfs_q2val_p%02d_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
+      filename.Form("%s/pdfs_q2val_s%02ds_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
       ifstream sfile(filename.Data());
       if (sfile.is_open())
 	{
-	  option = "p";
+	  option = "s";
 	  sfile.close();
 	}
 
@@ -137,6 +137,8 @@ int main(int argc, char **argv)
 				     info_output[o]->GetSet(d)->gettoterr(0),
 				     info_output[o]->GetSet(d)->gettheory(0),
 				     info_output[o]->GetSet(d)->gettheoryshifted(0),
+				     info_output[o]->GetSet(d)->gettherrup(0),
+				     info_output[o]->GetSet(d)->gettherrdown(0),
 				     info_output[o]->GetSet(d)->getpulls(0),
 				     info_output[o]->GetSet(d)->GetXlog(0),
 				     info_output[o]->GetSet(d)->GetYlog(0),
