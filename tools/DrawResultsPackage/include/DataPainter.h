@@ -13,6 +13,9 @@ private:
   TH1F* hdatatot;
   TH1F* hth;
   TH1F* hthshift;
+  TH1F* htherr;
+  TH1F* htherrup;
+  TH1F* htherrdown;
   TH1F* hpull;
   bool logx, logy;
   float xmin, xmax;
@@ -21,6 +24,7 @@ public:
 	   vector <float> bins1, vector <float> bins2, 
 	   vector <float> data, vector <float> uncorerr, vector <float> toterr, 
 	   vector <float> theory, vector <float> theoryshifted, 
+	   vector <float> therrup, vector <float> therrdown, 
 	   vector <float> pulls, bool Logx, bool Logy, float xmin, float xmax,
 	   string xlabel, string ylabel);
 
@@ -30,6 +34,9 @@ public:
   TH1F* getdatatot() {return hdatatot;};
   TH1F* getth() {return hth;};
   TH1F* getthshift() {return hthshift;};
+  TH1F* gettherr() {return htherr;};
+  TH1F* gettherrup() {return htherrup;};
+  TH1F* gettherrdown() {return htherrdown;};
   TH1F* getpull() {return hpull;};
   bool getlogx() {return logx;};
   bool getlogy() {return logy;};

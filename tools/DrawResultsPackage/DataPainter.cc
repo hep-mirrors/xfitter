@@ -4,6 +4,7 @@
 #include <DrawLogo.h>
 
 #include <TH1F.h>
+#include <TGraphAsymmErrors.h>
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TLine.h>
@@ -16,6 +17,7 @@ dataseth::dataseth(string dataname, string dir, string lab,
 		   vector <float> bins1, vector <float> bins2, 
 		   vector <float> data, vector <float> uncorerr, vector <float> toterr, 
 		   vector <float> theory, vector <float> theoryshifted, 
+		   vector <float> therrup, vector <float> therrdown, 
 		   vector <float> pulls, bool Logx, bool Logy, float xmin, float xmax,
 		   string xlabel, string ylabel)
   : name(dataname), label(lab), logx(Logx), logy(Logy)
@@ -32,6 +34,9 @@ dataseth::dataseth(string dataname, string dir, string lab,
   hdatatot = new TH1F((name + dir + "_datatot").c_str(), "", bins1.size(),  bin);
   hth = new TH1F((name + dir + "_th").c_str(), "", bins1.size(),  bin);
   hthshift = new TH1F((name + dir + "_thshift").c_str(), "", bins1.size(),  bin);
+  htherr = new TH1F((name + dir + "_therr").c_str(), "", bins1.size(),  bin);
+  htherrup = new TH1F((name + dir + "_therrup").c_str(), "", bins1.size(),  bin);
+  htherrdown = new TH1F((name + dir + "_therrdown").c_str(), "", bins1.size(),  bin);
   hpull = new TH1F((name + dir + "_pull").c_str(), "", bins1.size(),  bin);
 
   if (xmin != 0 && xmax != 0)
@@ -40,6 +45,9 @@ dataseth::dataseth(string dataname, string dir, string lab,
       hdatatot->SetAxisRange(xmin, xmax);
       hth->SetAxisRange(xmin, xmax);
       hthshift->SetAxisRange(xmin, xmax);
+      htherr->SetAxisRange(xmin, xmax);
+      htherrup->SetAxisRange(xmin, xmax);
+      htherrdown->SetAxisRange(xmin, xmax);
       hpull->SetAxisRange(xmin, xmax);
     }
 
@@ -64,6 +72,10 @@ dataseth::dataseth(string dataname, string dir, string lab,
       hdatatot->SetBinError(b + 1, toterr[b]);
       hth->SetBinContent(b + 1, theory[b]);
       hthshift->SetBinContent(b + 1, theoryshifted[b]);
+      htherr->SetBinContent(b + 1, theory[b] + (therrup[b] - therrdown[b]) / 2);
+      htherr->SetBinError(b + 1, (therrup[b] + therrdown[b]) / 2);
+      htherrup->SetBinContent(b + 1, theory[b] + therrup[b]);
+      htherrdown->SetBinContent(b + 1, theory[b] - therrdown[b]);
       //invert pulls -> (theory - data)
       hpull->SetBinContent(b + 1, -pulls[b]);
     }
@@ -116,7 +128,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   float mx = dataerr->GetMaximum();
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      mx = max(mx, (float)((*it).getth()->GetMaximum()));
+      mx = max(mx, (float)((*it).gettherrup()->GetMaximum()));
       mx = max(mx, (float)((*it).getthshift()->GetMaximum()));
     }
   for (int b = 1; b <= datatot->GetNbinsX(); b++)
@@ -124,7 +136,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   float mn = dataerr->GetMinimum();
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      mn = min(mn, (float)((*it).getth()->GetMinimum()));
+      mn = min(mn, (float)((*it).gettherrdown()->GetMinimum()));
       mn = min(mn, (float)((*it).getthshift()->GetMinimum()));
     }
 
@@ -181,17 +193,91 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   int colindx = 0;
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      TH1F * nth = (*it).getth();
-      TH1F * nthshift = (*it).getthshift();
-      nth->SetLineColor(opts.colors[colindx]);
-      nth->Draw("l same");
-      nthshift->SetLineColor(opts.colors[colindx]);
-      nthshift->SetLineStyle(2);
-      nthshift->Draw("l same");
+      TGraphAsymmErrors * gtherr = new TGraphAsymmErrors((*it).getth());
+      (*it).getthshift()->SetLineColor(opts.colors[colindx]);
+      (*it).getthshift()->SetLineStyle(2);
+      (*it).getthshift()->Draw("l same");
+
+      (*it).getth()->SetLineColor(opts.colors[colindx]);
+      if (!opts.points) //plot as continous line with dashed error bands
+	{
+	  (*it).getth()->Draw("l same");
+	  if (opts.therr)
+	    {    
+	      (*it).gettherr()->SetLineColor(opts.colors[colindx]);
+	      (*it).gettherr()->SetFillColor(opts.colors[colindx]);
+	      (*it).gettherr()->SetFillStyle(opts.styles[colindx]);
+	      float toterr = 0;
+	      for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
+		toterr += (*it).gettherr()->GetBinError(b);
+	      if (toterr > 0)
+		(*it).gettherr()->Draw("e3 l same");
+	    }
+	}
+      else //plot as tilted points with vertical error line
+	{
+	  gtherr->SetMarkerStyle(20);
+	  gtherr->SetLineColor(opts.colors[colindx]);
+	  gtherr->SetMarkerSize(3);
+	  gtherr->SetMarkerColor(opts.colors[colindx]);
+	  for (int b = 0; b < gtherr->GetN(); b++)
+	    {
+	      //Set X error to 0
+	      gtherr->SetPointEXlow(b, 0);
+	      gtherr->SetPointEXhigh(b, 0);
+
+	      //tilt horizontally
+	      double x, y;
+	      gtherr->GetPoint(b, x, y);
+	      float width = (*it).getth()->GetBinWidth(b + 1);
+	      float lowedge = (*it).getth()->GetBinLowEdge(b + 1);
+	      x = lowedge + (it - datahistos.begin() + 1) * width/(datahistos.size() + 1);
+	      gtherr->SetPoint(b, x, y);
+
+	      //Set Y error
+	      float errup, errdown;
+	      if (opts.therr)
+		{    
+		  errup = (*it).gettherrup()->GetBinContent(b + 1) - (*it).getth()->GetBinContent(b + 1);
+		  errdown = (*it).getth()->GetBinContent(b + 1) - (*it).gettherrdown()->GetBinContent(b + 1);
+		}
+	      else
+		{
+		  errup = 0;
+		  errdown = 0;
+		}
+	      gtherr->SetPointEYhigh(b, errup);
+	      gtherr->SetPointEYlow(b, errdown);
+	    }
+	  gtherr->Draw("P same");
+	}
       colindx++;
-      leg2->AddEntry(nth, ((*it).getlabel()).c_str(), "l");
+      if (!opts.points)
+	if (opts.therr)
+	  leg2->AddEntry((*it).gettherr(), ((*it).getlabel()).c_str(), "lf");
+	else
+	  leg2->AddEntry((*it).getth(), ((*it).getlabel()).c_str(), "l");
+      else
+	if (opts.therr)
+	  leg2->AddEntry(gtherr, ((*it).getlabel()).c_str(), "pe");
+	else
+	  leg2->AddEntry(gtherr, ((*it).getlabel()).c_str(), "p");
     }
 
+  //draw theory error borders
+  colindx = 0;
+  if (opts.therr)
+    for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+      {
+	(*it).gettherrup()->SetLineColor(opts.colors[colindx]);
+	(*it).gettherrdown()->SetLineColor(opts.colors[colindx]);
+	if (!opts.points)
+	  {
+	    (*it).gettherrup()->Draw("l same");
+	    (*it).gettherrdown()->Draw("l same");
+	  }
+	colindx++;
+      }
   leg->Draw();
   leg2->Draw();
   DrawLogo()->Draw();
@@ -237,9 +323,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   mx = r_dataerr->GetBinContent(r_dataerr->GetMaximumBin());
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      TH1F * r_th = (TH1F*)(*it).getth()->Clone();
-      r_th->Divide(refdata);
-      mx = max(mx, (float)(r_th->GetMaximum()));
+      TH1F * r_therrup = (TH1F*)(*it).gettherrup()->Clone();
+      r_therrup->Divide(refdata);
+      mx = max(mx, (float)(r_therrup->GetMaximum()));
       TH1F * r_thshift = (TH1F*)(*it).getthshift()->Clone();
       r_thshift->Divide(refdata);
       mx = max(mx, (float)(r_thshift->GetMaximum()));
@@ -249,9 +335,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   mn = r_dataerr->GetBinContent(r_dataerr->GetMinimumBin());
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      TH1F * r_th = (TH1F*)(*it).getth()->Clone();
-      r_th->Divide(refdata);
-      mn = min(mn, (float)(r_th->GetMinimum()));
+      TH1F * r_therrdown = (TH1F*)(*it).gettherrdown()->Clone();
+      r_therrdown->Divide(refdata);
+      mn = min(mn, (float)(r_therrdown->GetMinimum()));
       TH1F * r_thshift = (TH1F*)(*it).getthshift()->Clone();
       r_thshift->Divide(refdata);
       mn = min(mn, (float)(r_thshift->GetMinimum()));
@@ -277,17 +363,98 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   colindx = 0;
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      TH1F * r_th = (TH1F*)(*it).getth()->Clone();
-      r_th->Divide(refdata);
-      for (int b = 1; b <= r_th->GetNbinsX(); b++)
-      	r_th->SetBinError(b, 0);
-      r_th->Draw("l same");
+      //Prepare the ratio histograms
       TH1F * r_thshift = (TH1F*)(*it).getthshift()->Clone();
       for (int b = 1; b <= r_thshift->GetNbinsX(); b++)
       	r_thshift->SetBinError(b, 0);
       r_thshift->Divide(refdata);
+      TH1F * r_th = (TH1F*)(*it).getth()->Clone();
+      r_th->Divide(refdata);
+      for (int b = 1; b <= r_th->GetNbinsX(); b++)
+      	r_th->SetBinError(b, 0);
+      TH1F * r_therr = (TH1F*)(*it).gettherr()->Clone();
+      r_therr->Divide(refdata);
+      TH1F * r_therrup = (TH1F*)(*it).gettherrup()->Clone();
+      r_therrup->Divide(refdata);
+      TH1F * r_therrdown = (TH1F*)(*it).gettherrdown()->Clone();
+      r_therrdown->Divide(refdata);
+      for (int b = 1; b <= r_therr->GetNbinsX(); b++)
+	r_therr->SetBinError(b, (r_therrup->GetBinContent(b) - r_therrdown->GetBinContent(b)) / 2 );
+
+      //Draw
       r_thshift->Draw("l same");
+      if (!opts.points) //plot as continous line with dashed error bands
+	{
+	  r_th->Draw("l same");
+	  if (opts.therr)
+	    {
+	      float toterr = 0;
+	      for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
+		toterr += (*it).gettherr()->GetBinError(b);
+	      if (toterr > 0)
+		r_therr->Draw("e3 l same");
+	    }
+	}
+      else //plot as tilted TGraphs
+	{
+	  TGraphAsymmErrors * r_gtherr = new TGraphAsymmErrors(r_th);
+	  r_gtherr->SetMarkerStyle(20);
+	  r_gtherr->SetLineColor(opts.colors[colindx]);
+	  r_gtherr->SetMarkerSize(3);
+	  r_gtherr->SetMarkerColor(opts.colors[colindx]);
+	  for (int b = 0; b < r_gtherr->GetN(); b++)
+	    {
+	      //Set X error to 0
+	      r_gtherr->SetPointEXlow(b, 0);
+	      r_gtherr->SetPointEXhigh(b, 0);
+
+	      //tilt horizontally
+	      double x, y;
+	      r_gtherr->GetPoint(b, x, y);
+	      float width = r_th->GetBinWidth(b + 1);
+	      float lowedge = r_th->GetBinLowEdge(b + 1);
+	      x = lowedge + (it - datahistos.begin() + 1) * width/(datahistos.size() + 1);
+	      r_gtherr->SetPoint(b, x, y);
+	      //Set Y error
+	      float errup, errdown;
+	      if (opts.therr)
+		{    
+		  errup = r_therrup->GetBinContent(b + 1) - r_th->GetBinContent(b + 1);
+		  errdown = r_th->GetBinContent(b + 1) - r_therrdown->GetBinContent(b + 1);
+		}
+	      else
+		{
+		  errup = 0;
+		  errdown = 0;
+		}
+	      r_gtherr->SetPointEYhigh(b, errup);
+	      r_gtherr->SetPointEYlow(b, errdown);
+	    }
+	  r_gtherr->Draw("P same");
+	}
+      colindx++;
     }	  
+  
+  //draw theory error borders
+  if (opts.therr)
+    for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+      {
+	TH1F * r_therrup = (TH1F*)(*it).gettherrup()->Clone();
+	r_therrup->Divide(refdata);
+	for (int b = 1; b <= r_therrup->GetNbinsX(); b++)
+	  r_therrup->SetBinError(b, 0);
+
+	TH1F * r_therrdown = (TH1F*)(*it).gettherrdown()->Clone();
+	r_therrdown->Divide(refdata);
+	for (int b = 1; b <= r_therrdown->GetNbinsX(); b++)
+	  r_therrdown->SetBinError(b, 0);
+
+	if (!opts.points)
+	  {
+	    r_therrup->Draw("l same");
+	    r_therrdown->Draw("l same");
+	  }
+      }
 
   //Theory-Data pulls pad
   cnv->GetPad(2)->GetPad(2)->SetPad(0, 0, 1, 0.5);
