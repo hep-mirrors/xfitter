@@ -29,7 +29,7 @@ SubPlot::~SubPlot() {
 }
 
 
-void SubPlot::AddPoint(double x, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double pull) {
+void SubPlot::AddPoint(double x, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double therr_up, double therr_down, double pull) {
   Int_t N = fDUnc->GetN();
   Bins1.push_back(bin1);
   Bins2.push_back(bin2);
@@ -38,6 +38,8 @@ void SubPlot::AddPoint(double x, double bin1, double bin2, double data, double u
   Toterr.push_back(toterr);
   Th.push_back(theory);
   Thshift.push_back(theory_mod);
+  ThErrUp.push_back(therr_up);
+  ThErrDown.push_back(therr_down);
   Pull.push_back(pull);
   fDUnc->Set(N+1);
   fDTot->Set(N+1);
@@ -295,6 +297,16 @@ vector <float>  DataSet::gettheoryshifted(int idx) {
   if(!s) {vector<float> v; return v;}
   return s->Thshift;
 }
+vector <float>  DataSet::gettherrup(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->ThErrUp;
+}
+vector <float>  DataSet::gettherrdown(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) {vector<float> v; return v;}
+  return s->ThErrDown;
+}
 vector <float>  DataSet::getpulls(int idx) {
   SubPlot* s = GetSubPlot(idx);
   if(!s) {vector<float> v; return v;}
@@ -312,12 +324,12 @@ void DataSet::AddNewPlot(const char* descriptor) {
   fSubPlots[iplot] = new SubPlot(descriptor);  
 }
 
-void DataSet::AddPoint(const char* s, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double pull) {
+void DataSet::AddPoint(const char* s, double bin1, double bin2, double data, double uncorrerr, double toterr, double theory, double theory_mod, double therr_up, double therr_down, double pull) {
   TString str(s);
   TObjArray* array = str.Tokenize("/");
   int iplot = ((TObjString*) array->At(0))->GetString().Atoi();
   double x = ((TObjString*) array->At(1))->GetString().Atof();
   map<int,SubPlot*>::iterator it = fSubPlots.find(iplot);
   if(it == fSubPlots.end()) fSubPlots[iplot] = new SubPlot("");
-  fSubPlots[iplot]->AddPoint(x, bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, pull);
+  fSubPlots[iplot]->AddPoint(x, bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, therr_up, therr_down, pull);
 }
