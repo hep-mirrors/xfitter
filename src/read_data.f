@@ -712,6 +712,7 @@ C Reset:
             if (SystematicType(i).ne.'uncor' .and. 
      $           SystematicType(i).ne.'ignore'.and.
      $           SystematicType(i).ne.'stat'.and.
+     $           SystematicType(i).ne.'total'.and.
      $           SystematicType(i).ne.'stat const'
      $           ) then
 
