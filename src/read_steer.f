@@ -215,7 +215,7 @@ C----------------------------------------------
       include 'indata.inc'
       include 'for_debug.inc'
 C-----------------------------------------------
-      character*32  Chi2Style
+
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8)
@@ -226,19 +226,10 @@ C-----------------------------------------------
       character*16 TheoryType
       integer i
 
-C For backward compatibility, keep both H1Fitter and HERAFittter namelists. Will go away with next release !
-      namelist/H1Fitter/
-     $     ITheory, IOrder, Chi2Style          ! keep for backward compatibility
-     $     , Q02, HF_SCHEME, PDFStyle, PDFType,
-     $     LDebug, ifsttype,  LFastAPPLGRID,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
-     $     ControlFitSplit,Order,TheoryType,
-     $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam
-
 C Main steering parameters namelist
       namelist/HERAFitter/
-     $     ITheory, IOrder, Chi2Style          ! keep for backward compatibility
-     $     , Q02, HF_SCHEME, PDFStyle, PDFType, 
+     $     ITheory, IOrder,         ! keep for backward compatibility
+     $     Q02, HF_SCHEME, PDFStyle, PDFType, 
      $     LDebug, ifsttype,  LFastAPPLGRID,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
@@ -250,7 +241,6 @@ C--------------------------------------------------------------
 C Some defaults
       Order     = ' '
       TheoryType = ' '
-      Chi2Style = 'HERAPDF'
       Chi2SettingsName(1) = 'undefined' ! triggering the old style chi2 settings
       do i=1, 8
          Chi2ExtraParam(i) = 'undefined'
@@ -267,12 +257,13 @@ C Backward compatibility for b0.3 release !!!!
       goto 142
  141  continue
       close (51)
-      call HF_ErrLog(13011501,
-     $ 'W:WARNING: Using obsolete h1fitter namelist.'//
-     $     ' Will be deprecated with v1.0!')
-      open (51,file='steering.txt',status='old')
-      read (51,NML=H1Fitter,END=41,ERR=42)
-      close (51)
+
+!      call HF_ErrLog(13011501,
+!     $ 'W:WARNING: Using obsolete h1fitter namelist.'//
+!     $     ' Will be deprecated with v1.0!')
+!      open (51,file='steering.txt',status='old')
+!      read (51,NML=H1Fitter,END=41,ERR=42)
+!      close (51)
  142  continue
 C  End of backward compatibility !!!
 
@@ -303,8 +294,9 @@ C
 C Decode Chi2 style:
 C
 
-      call SetChi2Style(Chi2Style, Chi2SettingsName, Chi2Settings, 
+      call SetChi2Style(Chi2SettingsName, Chi2Settings, 
      $     Chi2ExtraParam)
+
       if (itheory.lt.100) then
 C
 C Decode HFSCHEME:
@@ -316,16 +308,16 @@ C
 
       if (LDebug) then
 C Print the namelist:
-         print H1Fitter
+         print HERAFitter
       endif
 
       return
 
  41   continue
-      print '(''Namelist &H1Fitter NOT found'')'
+      print '(''Namelist &HERAFitter NOT found'')'
       call HF_stop
  42   continue
-      print '(''Error reading namelist &H1Fitter, STOP'')'
+      print '(''Error reading namelist &HERAFitter, STOP'')'
       call HF_stop
       end
 
@@ -878,7 +870,7 @@ C---------------------------------------
          print *,'Fitting for LEAD PDFs, PDFType=', PDFType
       else
          call hf_errlog(300920131,
-     $   'F: Unsupported PDF Type used!')
+     $   'F: Unsupported PDFType used!')
       endif
       end
 C---------------------------------
@@ -1033,16 +1025,14 @@ C---------------------------------
 C---------------------------------------
 C
 !>  Set Chi2 style
-!>  @param Chi2Style chi2-function deffinition
 !>  @param Chi2SettingsName bias corrections for uncertainties and treatment of systematics in chi2 
 !>  @param Chi2Settings values corresponding to each of Chi2SettingsName parameters
 !>  @param Chi2ExtraParam extra corrections in chi2
 C---------------------------------------
-      Subroutine SetChi2Style(Chi2Style, Chi2SettingsName, Chi2Settings, 
+      Subroutine SetChi2Style(Chi2SettingsName, Chi2Settings, 
      $     Chi2ExtraParam)
 
       implicit none
-      character*(*) Chi2Style 
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8) 
@@ -1059,28 +1049,7 @@ C
          StatScale   = 'Poisson'
          UncorSysScale = 'Linear'
          CorChi2Type = 'Hessian'
-         if (Chi2Style.eq.'HERAPDF') then
-            ICHI2 = 11
-         elseif (Chi2Style.eq.'HERAPDF Sqrt') then
-            ICHI2 = 31
-         elseif (Chi2Style.eq.'Offset') then
-            ICHI2 = 3
-            CorrSystByOffset = .true.
-         elseif (Chi2Style.eq.'HERAPDF Linear') then
-            ICHI2 = 21
-         elseif (Chi2Style.eq.'CTEQ') then
-            ICHI2 = 2
-         elseif (Chi2Style.eq.'H12000') then
-            ICHI2 = 1        
-         elseif (Chi2Style.eq.'H12011') then
-            ICHI2 = 41        
-         elseif (Chi2Style.eq.'Covariance Matrix') then
-            ICHI2 = 100
-         else
-            print *,'Unsupported Chi2Style =',Chi2Style
-            print *,'Check value in steering.txt'
-            call HF_stop
-         endif
+
       else
          ! CorrSystByOffset=.false.
 c     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
@@ -1236,7 +1205,7 @@ C Initialisation:
             call hf_errlog(251120122,
      $           'F:LogNormal rescaling not included yet')
          else
-            print *,'Unknown correlated systatics scaling behaviour'
+            print *,'Unknown correlated systematics scaling behaviour'
             print *,'CorSysScale=',CorSysScale
             print *,'Check your steering'
             call hf_errlog(25112012,

@@ -122,9 +122,9 @@ C         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
 *     -- compute the matrix (A) as given in Eq. (B.4) of JHEP07 (2002) 012
 *     -- This is the matrix "sysa" in common/systema/
 
-      if (ICHI2.eq.2) then
-         call Systematics
-      endif
+!      if (ICHI2.eq.2) then
+!         call Systematics
+!      endif
 
       call prep_corr
       if (ICHI2.eq.100) then
