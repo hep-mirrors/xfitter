@@ -101,18 +101,6 @@
    Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
  !  Chi2ExtraParam = 'PoissonCorr'
 
- ! -- Old style chi2-function definition. Will be removed in future version ! 
- !    Currently to be used for the OFFSET method. Comment  CHI2SettingsName and  Chi2Settings to activate !
- !
- !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
- !    'HERAPDF' : Pascaud-like + "mixed error scaling"
- !    'Offset'  : to access Offset method  
- !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
- !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
- !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
-
- ! CHI2Style = 'Offset'
-
  ! Debug flag
   LDEBUG     = False
 &End

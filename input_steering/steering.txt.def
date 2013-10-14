@@ -64,11 +64,14 @@
 
   HF_SCHEME = 'RT'
 
+ ! PDF type. Possible types are currently available:
+ ! 'proton'  -- default (fitting proton data)
+ ! 'lead'    -- fitting ONLY lead data (can't be used in combination with proton data)
+
+ PDFType = 'proton'
 
  ! PDF parameterisation style. Possible styles are currently available:
- !  '10p HERAPDF' -- HERAPDF-like with extra assumption Buv = Bdv
- !  '13p HERAPDF' -- HERAPDF-like with Buv and Bdv floated independently
- !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
+ !  'HERAPDF' -- HERAPDF-like with uval, dval, Ubar, Dbar, glu evolved pdfs
  !  'CTEQ'        -- CTEQ-like parameterisation
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
@@ -76,7 +79,7 @@
  !  'DDIS'        -- use Diffractive DIS 
  !  'BiLog'        -- bi-lognormal parametrisation 
 
-  PDFStyle = '10p HERAPDF'
+  PDFStyle = 'HERAPDF'
 
  ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  !
@@ -100,18 +103,6 @@
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
    Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
  !  Chi2ExtraParam = 'PoissonCorr'
-
- ! -- Old style chi2-function definition. Will be removed in future version ! 
- !    Currently to be used for the OFFSET method. Comment  CHI2SettingsName and  Chi2Settings to activate !
- !
- !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
- !    'HERAPDF' : Pascaud-like + "mixed error scaling"
- !    'Offset'  : to access Offset method  
- !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
- !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
- !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
-
- ! CHI2Style = 'Offset'
 
  ! Debug flag
   LDEBUG     = False
@@ -282,9 +273,9 @@
 
 *
 * (Optional) choose the factorisation scale for HQs
-* tuned via parameters:    mu_f^2 = scalea1 * ( Q^2 + scaleb1 * 4*m_h^2)
-* Available for 'FF', 'FF ABM', 'ACOT Full', 'ZMVFNS' and 'ACOT Chi' options
-*
+* tuned via parameters:    mu_f^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2
+* Available for 'FF', 'FF ABM' options (heavy quarks scale)
+* Also defines scale for 'ZMVFNS'.'ACOT Full' and 'ACOT Chi' options ( for these options scale is being set for heavy quarks and light quarks).  
 &HQScale
    scalea1    =  1. 
    scaleb1    =  0.  

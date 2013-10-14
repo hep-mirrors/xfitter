@@ -35,11 +35,6 @@
                                 !uPDF2 fit evolved uPDF, fit just normalisation
                                 !uPDF3 fit using precalculated grid of sigma_hat
 
- ! -- Choice of the chi2 function
- !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
- !    'HERAPDF' : Pascaud-like + "mixed error scaling"
- !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
- !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
 
  ! New "chi2" style, uncomment if you want to use it: 
 

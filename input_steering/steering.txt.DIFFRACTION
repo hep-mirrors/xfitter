@@ -72,17 +72,6 @@
 
   PDFStyle = 'DDIS'
 
- ! -- Choice of the chi2 function
- !    'H12000'  : Pascaud-like, systematic shifts to theory, no scaling of stat, uncor errors.
- !    'HERAPDF' : Pascaud-like + "mixed error scaling"
- !    'HERAPDF Sqrt'   : Pascaud-like + "sqrt error scaling"
- !    'HERAPDF Linear' : Pascaud-like + "linear error scaling"
- !    'Covariance Matrix' : Chi2 calculated based on the covariance matrix inversion
- !    'Offset' : chi2 calculated using statistical errors only
-
- 
-  ! CHI2Style = 'Offset'
-  
  ! New "chi2" style, uncomment if you want to use it: 
 
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
