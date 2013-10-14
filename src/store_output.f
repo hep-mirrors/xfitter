@@ -374,15 +374,25 @@ C
       include 'theo.inc'
       include 'indata.inc'
       include 'systematics.inc'
+      include 'covar.inc'
 
       integer iset
       integer nsets
       logical MonteCarloPDFErr, SymmetricPDFErr
       double precision chi2tot
+
+C Covariance matrix calculation
+      double precision sum(NTOT), sum2(NTOT)
+      double precision covmx(NTOT, NTOT)
+C Covariance matrix to nuisance parameters conversion
+      integer ncorr
+      double precision beta_from_covmx(NSYSMAX,NTOT)
+      double precision alpha_from_covmx(NTOT)
+
 C Function:
       double precision chi2data_theory
       double precision alphasPDF 
-      character*4 c
+      character*5 c
 
 C Store central, plus/minus theory predictions:
       double precision theo_cent(NTOT), 
@@ -401,8 +411,10 @@ C Some hack to store PDFs
 
 
 C-----------------------------------------------------------
+c Number of PDF members
       nsets = nLHAPDF_Sets+1
-C      nsets = 45
+c Initial number of nuisance parameters
+      nsysLoc = nsys
 
 c     GetPDFUncType is the LHAPDF function to distinguish between 
 c     different errors approach (Monte Carlo, symmetric hessian, asymmetric hessian)
@@ -424,104 +436,56 @@ c     HERAFitter rewrote of GetPDFUncType function
      $        ' has asymmetric hessian errors approach'
       endif
 
-      nsysLoc = nsys
-      print *,'Nsets=',nsets
+      print *,'Number of PDF members for this set: ',nsets
 
+
+c Main Loop on PDF members
       do iset=0,nLHAPDF_Sets 
          call InitPDF(iset)
          alphas = alphasPDF(Mz)
+
+c Evaluate chi2 for each PDF member
          if (iset.eq.0) then
             ! Initialise:
             chi2tot = chi2data_theory(1)      
-C Store theory prediction:
-            do i=1,Npoints
-               THEO_CENT(i) = THEO(i)
-            enddo
          else
             chi2tot = chi2data_theory(min(2,iset))
-C Store theory predictions for  up/down variations:
-            if (SymmetricPDFErr.eqv..false.) then
-               if (mod(iset,2).eq.0) then
-                  do i=1,Npoints
-                     THEO_PLUS(i) = THEO(i)
-                  enddo
-               else
-                  do i=1,Npoints
-                     THEO_MINUS(i) = THEO(i)
-                  enddo
-               endif
-            endif
-
-C Also add "systematics" for these sources:
-            if (SymmetricPDFErr.or.(mod(iset,2).eq.0)) then
-               nsysLoc = nsysLoc + 1
-               if ( nsysLoc - nsys .ge. 10 ) then
-                  write (tag,'(''_'',i2)')  nsysLoc - nsys
-               else
-                  write (tag,'(''_0'',i1)')  nsysLoc - nsys
-               endif
-
-               SYSTEM(nsysLoc) = 'PDF_nuisance_param'//tag
-               do i=1,Npoints
-                  if (SymmetricPDFErr) then
-                     Beta(nsysLoc,i) = (THEO(i)-THEO_CENT(i))
-     $                    / THEO_CENT(i)
-                     omega(nsysLoc,i) = THEO_CENT(i)
-                  else
-                     Beta(nsysLoc,i) = 
-     $                    (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
-     $                    / THEO_CENT(i)
-                  
-                     BetaAsym(nsysLoc,2,i)=(THEO_MINUS(i)-THEO_CENT(i))
-     $                    /THEO_CENT(i)
-                     BetaAsym(nsysLoc,1,i)=(THEO_PLUS (i)-THEO_CENT(i))
-     $                    /THEO_CENT(i)
-                     
-                     omega(nsysLoc,i) = 
-     $                    -(THEO_PLUS(i)+THEO_MINUS(i)-2*THEO_CENT(i))
-     $                    /2.0D0 / THEO_CENT(i)
-                  endif
-
-                  if (Scale68) then
-                     Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
-                     Omega(nsysLoc,i) = Omega(nsysLoc,i) / 1.64
-                     BetaAsym(nsysLoc,1,i) = BetaAsym(nsysLoc,1,i)/1.64
-                     BetaAsym(nsysLoc,2,i) = BetaAsym(nsysLoc,2,i)/1.64
-                  endif
-               enddo
-            endif ! end of (SymmetricPDFErr.or.(mod(iset,2).eq.0)
-         endif ! end of (iset.ne.1)
-         print '(''Got PDF set='',i5,'' chi2='',F10.1,'' ndf='',i5)',
+         endif
+         print '(''PDF set number:'',i5,'' chi2='',F10.1,'' ndf='',i5)',
      $        iset,chi2tot,ndfmini
          write(86,*) iset, ' ', chi2tot/ndfmini
          
+c Write results of chi2 calculation
          if (iset.lt.10) then
-            write (c,'(''000'',I1)') iset
+            write (c,'(''_000'',I1)') iset
+         elseif (iset.lt.100) then
+            write (c,'(''_00'',I2)') iset
+         elseif (iset.lt.1000) then
+            write (c,'(''_0'',I3)') iset
          else
-            write (c,'(''00'',I2)') iset
+            write (c,'(''_'',I4)') iset
          endif
-
-         call WriteFittedPoints
+         call WriteFittedPoints !write out fittedresults.txt file
          call my_system
      $ ('mv '//TRIM(OutDirName)//'/fittedresults.txt '
      & //TRIM(OutDirName)//'/fittedresults.txt_set'//c)
 
+c Store PDF members
          if (iset.eq.0) then
             name = TRIM(OutDirName)//'/pdfs_q2val_'
          else
-            if (SymmetricPDFErr) then
+            if (MonteCarloPDFErr.or.SymmetricPDFErr) then
                i = iset
             else
-               i = (iset-1) / 2 + 1
+               i = (iset-1) / 2 + 1 !set the same index for Up and Down variation of asymmetric PDF errors
             endif
-            
             if (MonteCarloPDFErr) then
                if (i.lt.10) then
                   write (tag5,'(''mc00'',i1)') i
                elseif (i.lt.100) then
                   write (tag5,'(''mc0'',i2)') i
                elseif (i.lt.1000) then
-                  write (tag5,'(''mc'',i2)') i
+                  write (tag5,'(''mc'',i3)') i
                endif
             elseif (SymmetricPDFErr) then
                if (i.lt.10) then
@@ -536,15 +500,13 @@ C Also add "systematics" for these sources:
                   write (tag,'(''s'',i2)') i
                endif
             endif
-
             if (MonteCarloPDFErr) then
                base = TRIM(OutDirName)//'/pdfs_q2val_'//tag5
             else
                base = TRIM(OutDirName)//'/pdfs_q2val_'//tag
             endif
-
             idx = index(base,' ')-1
-            if (SymmetricPDFErr.or.MonteCarloPDFErr) then
+            if (MonteCarloPDFErr.or.SymmetricPDFErr) then
                name = base(1:idx)//'s_'
             else
                if ( mod(iset,2).eq.1) then
@@ -555,7 +517,133 @@ C Also add "systematics" for these sources:
             endif
          endif
          call store_pdfs(name)
+      enddo ! End of loop on PDF members
 
+c Evaluate PDF errors      
+      if (MonteCarloPDFErr) then ! PDF errors covariance matrix
+c     Evaluate mean and sigma
+         do iset=0,nLHAPDF_Sets 
+            call InitPDF(iset)
+            alphas = alphasPDF(Mz)
+            chi2tot = chi2data_theory(2)
+            do i=1,Npoints
+               sum(i) = sum(i) + THEO(i)
+               sum2(i) = sum2(i) + THEO(i) * THEO(i)
+            enddo
+         enddo
+         do i=1,Npoints
+            THEO_CENT(i) = sum(i) / nsets
+            THEO_VAR(i) = sqrt(sum2(i)/nsets
+     +           -(sum(i)/nsets)*(sum(i)/nsets))/THEO_CENT(i)
+         enddo
+
+c     Evaluate covariance matrix
+         do iset=0,nLHAPDF_Sets 
+            call InitPDF(iset)
+            alphas = alphasPDF(Mz)
+            chi2tot = chi2data_theory(2)
+            do i=1,Npoints
+               do j=1,Npoints
+                  covmx(i, j) = covmx(i, j) 
+     +                 + (THEO(i)-THEO_CENT(i))*(THEO(j)-THEO_CENT(j))
+               enddo
+            enddo
+         enddo
+         do i=1,Npoints
+            do j=1,Npoints
+               covmx(i, j) = covmx(i, j) / nsets
+            enddo
+         enddo
+
+C Convert covariance matrix to nuisance parameters
+         Call GetNuisanceFromCovar(NTot,NSysMax,Npoints,covmx,
+     $        beta_from_covmx,0, NCorr, alpha_from_covmx)
+         print *, NCorr
+         
+         do j=1,NCorr
+            nsysloc = nsysloc + 1
+            do i=1,Npoints
+               Beta(nsysLoc,i) = beta_from_covmx(j,i)/THEO_CENT(i)
+               omega(nsysLoc,i) = 0
+               if (Scale68) then
+                  Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
+                  Omega(nsysLoc,i) = Omega(nsysLoc,i) / 1.64
+               endif
+            enddo
+         enddo
+
+      else ! PDF errors as nuisance parameters for hessian errors approach
+         do iset=0,nLHAPDF_Sets 
+            call InitPDF(iset)
+            alphas = alphasPDF(Mz)
+            chi2tot = chi2data_theory(2)
+            if (iset.eq.0) then !Central PDF set
+               do i=1,Npoints
+                  THEO_CENT(i) = THEO(i)
+               enddo
+            else                !PDF variations
+C Store theory predictions for up/down variations for Asymmetric PDF errors:
+               if (SymmetricPDFErr.eqv..false.) then
+                  if (mod(iset,2).eq.0) then
+                     do i=1,Npoints
+                        THEO_PLUS(i) = THEO(i)
+                     enddo
+                  else
+                     do i=1,Npoints
+                        THEO_MINUS(i) = THEO(i)
+                     enddo
+                  endif
+               endif
+
+               if (SymmetricPDFErr) then !Symmetric PDF errors
+                  nsysLoc = nsysLoc + 1
+                  do i=1,Npoints
+                     Beta(nsysLoc,i) = (THEO(i)-THEO_CENT(i))
+     $                    / THEO_CENT(i)
+c                     omega(nsysLoc,i) = THEO_CENT(i)
+                     omega(nsysLoc,i) = 0
+                     if (Scale68) then
+                        Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
+                        Omega(nsysLoc,i) = Omega(nsysLoc,i) / 1.64
+                     endif
+                  enddo
+               elseif (mod(iset,2).eq.0) then ! Asymmetric PDF errors
+                  nsysLoc = nsysLoc + 1
+                  do i=1,Npoints
+                     Beta(nsysLoc,i) = 
+     $                    (THEO_PLUS(i)-THEO_MINUS(i))/2.0D0
+     $                    / THEO_CENT(i)
+                  
+                     BetaAsym(nsysLoc,2,i)=(THEO_MINUS(i)-THEO_CENT(i))
+     $                    /THEO_CENT(i)
+                     BetaAsym(nsysLoc,1,i)=(THEO_PLUS (i)-THEO_CENT(i))
+     $                    /THEO_CENT(i)
+                     
+                     omega(nsysLoc,i) = 
+     $                    -(THEO_PLUS(i)+THEO_MINUS(i)-2*THEO_CENT(i))
+     $                    /2.0D0 / THEO_CENT(i)
+                     
+                     if (Scale68) then
+                        Omega(nsysLoc,i) = Omega(nsysLoc,i) / 1.64
+                        Beta(nsysLoc,i) = Beta(nsysLoc,i) / 1.64
+                        BetaAsym(nsysLoc,1,i)=BetaAsym(nsysLoc,1,i)/1.64
+                        BetaAsym(nsysLoc,2,i)=BetaAsym(nsysLoc,2,i)/1.64
+                     endif
+                  enddo
+               endif
+            endif ! end of PDF variations (iset.ne.1) 
+
+         enddo ! End Loop on PDF sets
+      endif ! End covmatrix-nuisance condition
+
+      do j=nsys+1,nsysloc
+c     Set nuisance parameter name
+         if ( j - nsys .ge. 10 ) then
+            write (tag,'(''_'',i2)')  j - nsys
+         else
+            write (tag,'(''_0'',i1)')  j - nsys
+         endif
+         SYSTEM(j) = 'PDF_nuisance_param'//tag
       enddo
 
 C Write out "theory files" with uncertainties  
@@ -567,15 +655,21 @@ C Compute total error on theory predictions:
          THEO_ERR2_DOWN(i) = 0
       enddo
 
-      if (SymmetricPDFErr) then !Symmetric hessian
-         do j=nsys,nsys+nsysloc
+c      if (MonteCarloPDFErr) then !Monte Carlo errors
+c         do i=1,Npoints
+c            THEO_ERR2_UP(i) = THEO_VAR(i) * THEO_VAR(i)
+c            THEO_ERR2_DOWN(i) = THEO_VAR(i) * THEO_VAR(i)
+c         enddo
+c     else
+      if (MonteCarloPDFErr.or.SymmetricPDFErr) then !Monte Carlo or Symmetric hessian
+         do j=nsys+1,nsysloc
             do i=1,Npoints
                THEO_ERR2_UP(i) = THEO_ERR2_UP(i) + Beta(j, i) ** 2
                THEO_ERR2_DOWN(i) = THEO_ERR2_DOWN(i) + Beta(j, i) ** 2
             enddo
          enddo
-      else                      !Asymmetric hessian
-         do j=nsys,nsys+nsysloc
+      else  !Asymmetric hessian
+         do j=nsys+1,nsysloc
             do i=1,Npoints
                THEO_ERR2_UP(i) = THEO_ERR2_UP(i) +
      +              MAX(MAX(BetaAsym(j,1,i), BetaAsym(j,2,i)),
@@ -592,27 +686,43 @@ C Compute total error on theory predictions:
          THEO_TOT_DOWN(i) = SQRT(THEO_ERR2_DOWN(i)) * THEO_CENT(i)
       enddo
 
-C Write some chi2 tests, vs central prediction or floating eighenvectors:
       Call initpdf(0)
 
+C Results of chi2 test on central prediction
+      print *,'-------------------------------------------'
+      print *,'Chi2 test on central prediction:'
       open (85,file=TRIM(OutDirName)//'/Results_00.txt'
      $     ,status='unknown')
       chi2tot = chi2data_theory(3)        
       close (85)
 
-      do i=Nsys+1,NSysLoc
-         n_syst_meas(i) = Npoints
-         do j=1,Npoints
-            syst_meas_idx(j,i) = j
+C Final chi2 test on central prediction including PDF errors
+      print *,'-------------------------------------------'
+      print *,'Chi2 test on central prediction with PDF uncertainties:'
+
+c      if (MonteCarloPDFErr) then
+c         do i=1,Npoints
+c            do j=1,Npoints
+c               cov(i,j) = covmx(i,j)
+c            enddo
+c            is_covariance(i) = .true.
+c         enddo
+c      else
+         do i=Nsys+1,NSysLoc
+            n_syst_meas(i) = Npoints
+            do j=1,Npoints
+               syst_meas_idx(j,i) = j
+            enddo
+            SysScalingType(i) = isLinear ! scale theory
          enddo
-         SysScalingType(i) = isLinear ! scale theory
-      enddo
-      NSys = Nsysloc
+         NSys = Nsysloc
+c      endif
       ResetCommonSyst = .true.
-      
-      print *,nsys
-      open (85,file=TRIM(OutDirName)//'/Results_fitPDF.txt'
+
+      print *,'Number of systematic uncertainties: ', nsys
+      open (85,file=TRIM(OutDirName)//'/Results.txt'
      $     ,status='unknown')
+      chi2tot = chi2data_theory(1)
       chi2tot = chi2data_theory(3)        
       close (85)
 
