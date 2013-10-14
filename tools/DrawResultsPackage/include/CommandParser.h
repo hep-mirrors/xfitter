@@ -26,6 +26,7 @@ class CommandParser
   //  bool logx, logy;
   //  float xmin, xmax;
   bool therr, points;
+  int markers[6];
 
   //general options
   bool pdf;
@@ -33,6 +34,7 @@ class CommandParser
   vector <string> dirs, labels;
   int colors[6];
   int styles[6];
+  int resolution;
 
  private:
   vector <string> allargs;
@@ -53,10 +55,14 @@ class CommandParser
     cout << "general options:" << endl;
     cout << "\t --help" << endl;
     cout << "\t \t Show this help" << endl;
-    cout << "\t --pdf (require ps2pdf)" << endl;
-    cout << "\t \t Produce and addition plot file in pdf format" << endl;
+    cout << "\t --pdf (requires ps2pdf)" << endl;
+    cout << "\t \t Produce and additional plot file in pdf format (Portable Document Format)" << endl;
     cout << "\t --colorpattern <1-3>" << endl;
     cout << "\t \t Select among 3 additional color patterns" << endl;
+    cout << "\t --lowres" << endl;
+    cout << "\t \t Low resolution plots (smaller file)" << endl;
+    cout << "\t --highres" << endl;
+    cout << "\t \t High resolution plots (paper quality)" << endl;
     cout << "options for pdf plots:" << endl;
     cout << "\t --bands" << endl;
     cout << "\t \t Draw PDF uncertainty band" << endl;
@@ -78,7 +84,7 @@ class CommandParser
     cout << "\t --therr" << endl;
     cout << "\t \t Plot theory errors if availables" << endl;
     cout << "\t --points" << endl;
-    cout << "\t \t Plot theory as tilted marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
+    cout << "\t \t Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;
     cout << "\t &PlotDesc" << endl;

@@ -57,7 +57,7 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
     }	  
 
   //Make the TCanvas
-  TCanvas *cnv = new TCanvas(cnvname, "", 2400, 2400);
+  TCanvas *cnv = new TCanvas(cnvname, "", opts.resolution, opts.resolution);
   cnv->cd();
   if (opts.logx)
     cnv->SetLogx();
@@ -278,7 +278,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
     }	  
 
   //Make the TCanvas
-  TCanvas *cnv = new TCanvas(((string)cnvname + "_ratio").c_str(), "pdf", 2400, 2400);
+  TCanvas *cnv = new TCanvas(((string)cnvname + "_ratio").c_str(), "pdf", opts.resolution, opts.resolution);
   cnv->cd();
   if (opts.logx)
     cnv->SetLogx();

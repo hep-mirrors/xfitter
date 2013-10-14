@@ -167,7 +167,7 @@ PdfErrorTables::PdfErrorTables(string base, int iQ2, Bool_t SymErrors, TString o
   if (!sErrOpt.CompareTo("mc"))
     for ( int iband = 1; iband<=1000; iband++) 
       {
-	filename.Form("%s/pdfs_q2val_mc%03d_%02d.txt",base.c_str(), iband, iQ2);
+	filename.Form("%s/pdfs_q2val_mc%03ds_%02d.txt",base.c_str(), iband, iQ2);
 	PdfTable *eSet = CreatePdfTable(filename.Data());
 	if (!eSet) break;
 

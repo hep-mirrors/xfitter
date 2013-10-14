@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 	}
 
       //MC errors
-      filename.Form("%s/pdfs_q2val_mc%03d_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
+      filename.Form("%s/pdfs_q2val_mc%03ds_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
       ifstream mcfile(filename.Data());
       if (mcfile.is_open())
 	{
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
     {
       char numb[10];
       sprintf(numb, "%d", it - pdfscanvaslist.begin());
-      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
       pagecnv->Divide(3, 3);
       for (int i = 1; i <= 9; i++)
 	{
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
       pagecnv->Print((opts.outdir + "Plots.eps").c_str());
 
       sprintf(numb, "%d", it - pdfscanvaslist.begin());
-      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
       pagecnv2->Divide(3, 3);
       for (int i = 10; i <= pdflabels.size(); i++)
 	{
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
     {
       char numb[10];
       sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
-      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
       pagecnv->Divide(3, 3);
       for (int i = 1; i <= 9; i++)
 	{
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
       pagecnv->Print((opts.outdir + "Plots.eps").c_str());
 
       sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
-      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, 2400 * 3, 2400 * 3);
+      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
       pagecnv2->Divide(3, 3);
       for (int i = 10; i <= pdflabels.size(); i++)
 	{
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
     {
       char numb[10];
       sprintf(numb, "data_%d", it - datapullscanvaslist.begin());
-      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2400 * 2, 2400 * 2);
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
       pagecnv->Divide(1, 2);
       for (int i = 1; i <= 2; i++)
 	if (it != datapullscanvaslist.end())

@@ -19,6 +19,7 @@ CommandParser::CommandParser(int argc, char **argv):
   xmin(0.0001),
   xmax(1),
   pdf(false),
+  resolution(1200),
   therr(false),
   points(false),
   outdir("")
@@ -39,6 +40,13 @@ CommandParser::CommandParser(int argc, char **argv):
   styles[4] = 3016;
   styles[5] = 3020;
 
+  markers[0] = 24;
+  markers[1] = 25;
+  markers[2] = 26;
+  markers[3] = 32;
+  markers[4] = 31;
+  markers[5] = 27;
+
   //read all command line arguments
   for (int iar = 0; iar < argc; iar++)
     allargs.push_back(argv[iar]);
@@ -54,6 +62,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--pdf")
 	  pdf = true;
+	else if (*it == "--lowres")
+	  resolution = 600;
+	else if (*it == "--highres")
+	  resolution = 2400;
 	else if (*it == "--bands")
 	  dobands = true;
 	else if (*it == "--asymbands")

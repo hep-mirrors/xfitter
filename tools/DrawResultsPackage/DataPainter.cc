@@ -92,7 +92,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   char cnvname[10];
   sprintf(cnvname, "%d_pulls",  dataindex);
 
-  TCanvas * cnv = new TCanvas(cnvname, "", 0, 0, 4800, 2400);
+  TCanvas * cnv = new TCanvas(cnvname, "", 0, 0, 2 * opts.resolution, opts.resolution);
   cnv->cd();
 
   TH1F * data = datahistos[0].getdata();
@@ -160,8 +160,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
   datatot->Draw("e3");
   data->SetLineColor(1);
-  data->SetMarkerStyle(8);
-  data->SetMarkerSize(3);
+  data->SetMarkerStyle(20);
+  data->SetMarkerSize(2 * opts.resolution / 1200);
   data->Draw("e1 same");
 
   //Main legend
@@ -191,6 +191,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
   //Plot theories
   int colindx = 0;
+  int markindx = 0;
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       TGraphAsymmErrors * gtherr = new TGraphAsymmErrors((*it).getth());
@@ -216,9 +217,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	}
       else //plot as tilted points with vertical error line
 	{
-	  gtherr->SetMarkerStyle(20);
+	  gtherr->SetMarkerStyle(opts.markers[markindx]);
 	  gtherr->SetLineColor(opts.colors[colindx]);
-	  gtherr->SetMarkerSize(3);
+	  gtherr->SetMarkerSize(2 * opts.resolution / 1200);
 	  gtherr->SetMarkerColor(opts.colors[colindx]);
 	  for (int b = 0; b < gtherr->GetN(); b++)
 	    {
@@ -252,6 +253,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  gtherr->Draw("P same");
 	}
       colindx++;
+      markindx++;
       if (!opts.points)
 	if (opts.therr)
 	  leg2->AddEntry((*it).gettherr(), ((*it).getlabel()).c_str(), "lf");
@@ -361,6 +363,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
   //plot Ratios
   colindx = 0;
+  markindx = 0;
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       //Prepare the ratio histograms
@@ -398,9 +401,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       else //plot as tilted TGraphs
 	{
 	  TGraphAsymmErrors * r_gtherr = new TGraphAsymmErrors(r_th);
-	  r_gtherr->SetMarkerStyle(20);
+	  r_gtherr->SetMarkerStyle(opts.markers[markindx]);
 	  r_gtherr->SetLineColor(opts.colors[colindx]);
-	  r_gtherr->SetMarkerSize(3);
+	  r_gtherr->SetMarkerSize(2 * opts.resolution / 1200);
 	  r_gtherr->SetMarkerColor(opts.colors[colindx]);
 	  for (int b = 0; b < r_gtherr->GetN(); b++)
 	    {
@@ -433,6 +436,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  r_gtherr->Draw("P same");
 	}
       colindx++;
+      markindx++;
     }	  
   
   //draw theory error borders
