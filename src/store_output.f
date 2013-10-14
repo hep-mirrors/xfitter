@@ -558,7 +558,6 @@ c     Evaluate covariance matrix
 C Convert covariance matrix to nuisance parameters
          Call GetNuisanceFromCovar(NTot,NSysMax,Npoints,covmx,
      $        beta_from_covmx,0, NCorr, alpha_from_covmx)
-         print *, NCorr
          
          do j=1,NCorr
             nsysloc = nsysloc + 1
@@ -722,7 +721,6 @@ c      endif
       print *,'Number of systematic uncertainties: ', nsys
       open (85,file=TRIM(OutDirName)//'/Results.txt'
      $     ,status='unknown')
-      chi2tot = chi2data_theory(1)
       chi2tot = chi2data_theory(3)        
       close (85)
 
