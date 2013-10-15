@@ -9,6 +9,7 @@ else
 endif
 
 
-AM_FFLAGS = -O0 -I$(srcdir)/../../include -I$(CASCADE_ROOT)/include/cascade -finit-local-zero -fno-automatic -fno-align-commons -ffixed-line-length-132
+AM_FFLAGS = -O0 -I$(srcdir)/../../include -I$(CASCADE_ROOT)/include/cascade -fno-automatic -ffixed-line-length-132
+#AM_FFLAGS = -O0 -I$(srcdir)/../../include -I$(CASCADE_ROOT)/include/cascade -finit-local-zero -fno-automatic -fno-align-commons -ffixed-line-length-132
 #AM_FFLAGS = -O0 -I$(srcdir)/../../include -I$(CASCADE_ROOT)/include/cascade -finit-local-zero -fno-automatic -fno-align-commons 
 #FFLAGS = -O0 -I$(srcdir)/../../include -I$(CASCADE_ROOT)/include/cascade -finit-local-zero -fno-automatic -fno-align-commons -ffixed-line-length-132
