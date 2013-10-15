@@ -3,10 +3,7 @@
 #include "logo.xpm"
 
 #include <TImage.h>
-#include <TASImage.h>
-#include "TEnv.h"
-//#include "TString.h"
-
+#include <TEnv.h>
 
 #include <string>
 #include <iostream>
