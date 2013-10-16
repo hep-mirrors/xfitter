@@ -22,21 +22,21 @@ HERAFitterPdf::GetPdf(double x, double muf, double h[13]){
 
   HF_GET_PDFS_UNCACHED_WRAP(&x, &muf2, &pdf[0]); 
 
-  h[Hathor::ATOP]     = pdf[0];
-  h[Hathor::ABOTTOM]  = pdf[1];
-  h[Hathor::ACHARM]   = pdf[2];
-  h[Hathor::ASTRANGE] = pdf[3];
-  h[Hathor::AUP]      = pdf[4];
-  h[Hathor::ADOWN]    = pdf[5];
+  h[AbstractHathor::ATOP]     = pdf[0];
+  h[AbstractHathor::ABOTTOM]  = pdf[1];
+  h[AbstractHathor::ACHARM]   = pdf[2];
+  h[AbstractHathor::ASTRANGE] = pdf[3];
+  h[AbstractHathor::AUP]      = pdf[4];
+  h[AbstractHathor::ADOWN]    = pdf[5];
 
-  h[Hathor::GLUON]    = pdf[6];
+  h[AbstractHathor::GLUON]    = pdf[6];
 
-  h[Hathor::DOWN]     = pdf[7];
-  h[Hathor::UP]       = pdf[8];
-  h[Hathor::STRANGE]  = pdf[9];
-  h[Hathor::CHARM]    = pdf[10];
-  h[Hathor::BOTTOM]   = pdf[11];
-  h[Hathor::TOP ]     = pdf[12];
+  h[AbstractHathor::DOWN]     = pdf[7];
+  h[AbstractHathor::UP]       = pdf[8];
+  h[AbstractHathor::STRANGE]  = pdf[9];
+  h[AbstractHathor::CHARM]    = pdf[10];
+  h[AbstractHathor::BOTTOM]   = pdf[11];
+  h[AbstractHathor::TOP ]     = pdf[12];
 
   for (int i=0; i<13; i++){
     h[i] /= x;
