@@ -84,14 +84,17 @@ LDADD+=  ../DY/src/libmydy.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
- ../genetic/src/libgenetic.a \
- ../genetic/mixmax_r004/libmixmax.a
+ ../genetic/src/libgenetic.a
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB) $(ROOT_LIBS)
+endif
+
+if ENABLE_GENETIC
+  LDADD+= ../genetic/mixmax_r004/libmixmax.a
 endif
 
 if ENABLE_LHAPDF 

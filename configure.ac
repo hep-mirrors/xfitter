@@ -129,6 +129,15 @@ if test x$enable_applgrid == xyes; then
 fi
 AM_CONDITIONAL(ENABLE_APPLGRID, [test x$enable_applgrid == xyes])
 
+# check for genetic installation
+AC_ARG_ENABLE([genetic],
+    [AC_HELP_STRING(--enable-genetic, [use genetic for general minimia search (defaults=no)])])
+if test x$enable_genetic == xyes; then
+  AC_MSG_CHECKING([for genetic installation])
+# FIXME: add a condition (version(gcc) > xxx) here
+fi
+AM_CONDITIONAL(ENABLE_GENETIC, [test x$enable_genetic == xyes])
+
 # check for hathor installation
 AC_ARG_ENABLE([hathor],
   [AC_HELP_STRING(--enable-hathor, [use hathor for ttbar cross section predictions (default=no)])])

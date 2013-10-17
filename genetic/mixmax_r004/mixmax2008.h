@@ -20,7 +20,8 @@
    */
 #endif
 
-#ifndef __LP64__
+//#ifndef __LP64__
+#ifdef __ILP32__
 typedef uint64_t myuint;
 #else
 typedef unsigned long long int myuint;
