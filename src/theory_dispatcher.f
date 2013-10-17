@@ -33,7 +33,7 @@ C-------------------------------------------------------------------
          elseif (DipoleModel.eq.5) then
             Call DipoleBGK(IDataSet)
          else
-C Standard DGLAP:
+C Standard DGLAP:& TMDs
             Call GetNCXsection(IDataSet, HFSCHEME)
          endif
 
@@ -45,19 +45,9 @@ C Standard DGLAP:
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
-         if(Itheory.lt.100) then
-            Call GetNCCharmXsection(IDataSet, HFSCHEME)
-         else
-            write(6,*) ' NC e+-p charm: invalid dataset for itheory > 100 '
-            call hf_stop
-         Endif
-      elseif (DATASETREACTION(IDataSet).eq.'NC e+-p FL') then
-         if(Itheory.lt.100) then
-            Call GetNCFL(IDataSet, HFSCHEME)
-         else
-            write(6,*) ' NC e+-p FL: invalid dataset for itheory > 100 '
-            call hf_stop
-         Endif
+         Call GetNCCharmXsection(IDataSet, HFSCHEME)
+       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p FL') then
+         Call GetNCFL(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          if(Itheory.lt.100) then
             Call GetCCXsection(IDataSet, HFSCHEME)

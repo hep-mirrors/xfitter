@@ -12,19 +12,19 @@
     export CASCADE_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/$SYSNAME
     export PYTHIA_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/$SYSNAME
 
+   ./configure --enable-updf --enable-lhapdf --enable-checkBounds
 
 1. use steering and minuit input files from "input_steering":
 
    cp input-steering/steering.txt.kt-factorisation steering.txt
    cp input-steering/minuit.in.txt.kt-factorisation minuit.in.txt
    cp input-steering/steer-ep-CASCADE steer-ep
+   cp input-steering/steer_gluon-evolv steer_gluon-evolv
    
 2. edit steering.txt:
    &CCFMFiles: give name for output grid file for uPDF.&HeraFitter 
    &HeraFitter 
-   !  TheoryType = 'uPDF1'   !  fit with kernel ccfm-grid.dat file
-   !  TheoryType = 'uPDF2'   !  fit evolved uPDF, fit just normalisation
-    TheoryType = 'uPDF3'   !  fit using precalculated grid of sigma_hat
+    TheoryType = 'uPDF4'  | fit calculating kernel on fly, grid of sigma_hat
 
    all other parameters are standard
 

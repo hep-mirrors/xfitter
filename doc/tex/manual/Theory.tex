@@ -738,7 +738,8 @@ x {\cal A}(x,\kt,\Pmax) &= &x\int dx' \int dx'' {\cal A}_0 (x) {\cal \tilde A}\l
 %\end{eqnarray}
 The kernel  ${\cal \tilde A}$ includes all the dynamics of the evolution,
  Sudakov form factors and splitting functions and is determined in 
-a grid of $50\otimes50\otimes50$ bins in $x,\kt,\Pmax$.  
+a grid of $50\otimes50\otimes50$ bins in $x,\kt,\Pmax$.  In \fitter\, the evolution of ${\cal A}$ is
+performed using the method implemented in \cite{Marchesini:1990zy,Marchesini:1992jw}.
 
 The calculation of the cross section according to Eq.(\ref{kt-factorisation})
  involves a multidimensional Monte Carlo integration which is time consuming
@@ -754,10 +755,10 @@ The kernel ${\cal \tilde A}$ has to be provided separately and is not
  calculable within the program. A starting distribution  ${\cal A}_0$, 
  at the starting scale $Q_0$, of the following form is used:
 \begin{eqnarray}
-x{\cal A}_0(x,\kt) &=& N x^{-B_g} \cdot (1 -x)^{C_g}\left( 1 -D_g x\right) 
+x{\cal A}_0(x,\kt) &=& N x^{-B_g} \cdot (1 -x)^{C_g}\left( 1 -D_g x + E_g\sqrt{x} + F_g x^2\right) 
 \label{a0}
 \end{eqnarray}
-with free parameters $N,\, B_g,\, C_g,\, D_g$. 
+with free parameters $N,\, B_g,\, C_g,\, D_g,\, E_g,\,F_g$. 
 %In the present version, only the transverse momentum dependent gluon distribution 
 %can be obtained from the fit. 
 

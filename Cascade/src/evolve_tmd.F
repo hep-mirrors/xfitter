@@ -848,9 +848,9 @@ c integrate quarks
                     xnormn = xnormn + real(sum)*deltax
 	            endif
 c	            write(6,*) ' deltax,glu ',deltax,glu,QQ2,PP2
-                    test=sum 
+                    test=sum*1.5
 c                    write(6,*) 'xx, sum ',xx,sum
-                    if(test.gt.xgmax) xgmax = test*1.1
+                    if(test.gt.xgmax) xgmax = test
 	          endif 
               enddo
               write(6,*) '  sminfn Xnorm  new :',xnormn
@@ -860,7 +860,8 @@ c              write(6,*) '  sminfn Xnorm new :',xnormn
 	    endif  
           QQ=Qs
 	    QQ2=QQ*QQ
-	    xx=x0
+	    xx=x0	  
+
           CALL STRUCTM(XX,QQ,UPV,DNV,USEA,DSEA,STR,CHM,BOT,TOP,GLU)
           if(iparton.eq.1) then 
               sum = DNV
@@ -1000,9 +1001,9 @@ c      Parameter (Nbk=42)
 c      Parameter (Nbk=1)
 c      Parameter (Nbp=20)
       Parameter (Nbp=50)
-      Double Precision X1(0:Nbx+1),X2(0:Nbk+1),X3(0:Nbp+1)
-      Double Precision X1M(0:Nbx),X2M(0:Nbk),X3M(0:Nbp)
-      Double Precision x1b(0:Nbx),x2b(0:Nbk),x3b(0:Nbp)
+      Double Precision X1(0:Nbx+2),X2(0:Nbk+2),X3(0:Nbp+2)
+      Double Precision X1M(0:Nbx+1),X2M(0:Nbk+1),X3M(0:Nbp+1)
+      Double Precision x1b(0:Nbx+1),x2b(0:Nbk+1),x3b(0:Nbp+1)
       Double Precision xgx(-4:4,0:Nbx,0:Nbk,0:Nbp)
 	Double Precision xgx_f(-4:4,0:Nbx,0:Nbk,0:Nbp)
       Double Precision xm11(0:Nbx),xm21(0:Nbk),xm31(0:Nbp)

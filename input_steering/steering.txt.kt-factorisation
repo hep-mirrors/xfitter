@@ -4,9 +4,15 @@
 &InFiles
   ! Number of intput files
     NInputFiles = 2
-  ! Input files:
-    InputFileNames(1) = 'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.dat'
+   InputFileNames =
+ !
+ ! H1 and ZEUS combined:
+ ! 
+          'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.dat',
+          'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.dat',
+ ! HERA combined charm data:
+ !
+          'datafiles/hera/H1ZEUS_Charm_combined.dat', 
 &End
 
 &InCorr
@@ -28,12 +34,13 @@
 * Main steering cards
 *
 &HeraFitter 
-  TheoryType = 'uPDF3' ! 'DGLAP'  -- colinear evolution
+  TheoryType = 'uPDF4' ! 'DGLAP'  -- colinear evolution
                        ! 'DIPOLE' -- dipole model 
                        ! 'uPDF'   -- un-integrated PDFs:
-                                !uPDF1 fit with kernel ccfm-grid.dat file
-                                !uPDF2 fit evolved uPDF, fit just normalisation
-                                !uPDF3 fit using precalculated grid of sigma_hat
+                       !    uPDF1 fit with kernel ccfm-grid.dat file
+                       !    uPDF2 fit evolved uPDF, fit just normalisation
+                       !    uPDF3 fit using precalculated grid of sigma_hat
+                       !    uPDF4 fit calculating kernel on fly, grid of sigma_hat
 
 
  ! New "chi2" style, uncomment if you want to use it: 
@@ -81,6 +88,17 @@
    CutValueMin(2)     = 0.000001 
    CutValueMax(2)     = 0.01
 
+  !--------------------- NC ep charm ----------------
+
+   ProcessName(3)     = 'NC e+-p charm'
+   Variable(3)        = 'Q2'
+   CutValueMin(3)     = 3.5 
+   CutValueMax(3)     = 10000.0
+
+   ProcessName(4)     = 'NC e+-p charm'
+   Variable(4)        = 'x'
+   CutValueMin(4)     = 0.000001 
+   CutValueMax(4)     = 1.0
 
    
 &End

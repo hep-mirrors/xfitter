@@ -61,7 +61,7 @@
 *                                      !  7: MU2 = max(ksi_1,ksi_2)
      'SCAL'     1       0        1.0   !  scale factor for alphas scale
 *
-*     'IGLU'     1       0       1010  ! (D=1010)Unintegrated gluon density 
+     'IGLU'     1       0       1111  ! (D=1010)Unintegrated gluon density 
 *                                      !  1: CCFM old set JS2001
 *                                      !  1001: CCFM J2003 set 1 
 *                                      !  1002: CCFM J2003 set 2 

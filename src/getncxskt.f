@@ -26,7 +26,8 @@ C---------------------------------------------------------------
       double precision Charge, polarity, alphaem_run, factor
       logical IsReduced
       
-      double Precision xx,q2x,yx,epsilon,phi,phit,phil,phie,phiqpm,phieqpm
+      double Precision xx,q2x,yx,epsilon,phit,phi,phie,phil,phiqpm,phieqpm
+      double precision phitl,phill,phic,philc,phib,philb
 
 C Functions:
       integer GetBinIndex
@@ -34,11 +35,13 @@ C Functions:
       double precision AEMRUN
       
 c cascade stuff
+      Integer IcasHF
+      Common/CasHF/IcasHF
       Logical Firstgrid
       Data Firstgrid/.true./
       Logical ex
       Integer Iread,Err,Irr
-      Data Iread/1/
+      Data Iread/0/
       logical firsth
 	double precision auh 
       common/f2fit/auh(50),firsth
@@ -59,7 +62,6 @@ c cascade stuff
 cc      ISEED = 1234567
 
 C---------------------------------------------------------
-
       itheory_ca = itheory
       if (NDATAPOINTS(IDataSet).gt.NPMaxDIS) then
          print *,'ERROR IN GetDisXsection'
@@ -93,7 +95,7 @@ c create grid
             q2grid(j) = q2test
             xgrid(j) = xtest
             f2qpmgrid(j)=f2qpm
-c            write(6,*) ' test: ',xgrid(j),q2grid(j),f2qpmgrid(j)
+            write(6,*) ' test: ',xgrid(j),q2grid(j),f2qpmgrid(j)
             goto 330
 331         continue 
             rewind 4
@@ -109,8 +111,7 @@ C
       idxY = GetBinIndex(IDataSet,'y')
       IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
 
-
-      if (idxQ2.eq.0 .or. idxX.eq.0 .or. idxY.eq.0) then
+      if (idxQ2.eq.0 .or. idxX.eq.0 ) then
          Return
       endif
 C prepare bins:
@@ -123,91 +124,117 @@ C
 C Local X,Y,Q2 arrays, used for QCDNUM SF caclulations:
 C
          X(i)   = AbstractBins(idxX,idx)
-         Y(i)   = AbstractBins(idxY,idx)
+         if(idxY.ne.0) Y(i)   = AbstractBins(idxY,idx)
          Q2(i)  = AbstractBins(idxQ2,idx)
          xx = x(i)
          q2x = q2(i)
          yx = y(i)
          epsilon = yx**2/2d0/(1d0-yx+yx**2/2d0)
-c         epsilon =0.
-c         write(6,*) ' getncxskt ',i,Idataset,idx
+         ICasHF = 0
+c something needs to be done for charm
+         if(XSecType.eq.'CHARMDIS') then
+            IcasHF = 4
+         endif
+c         write(6,*) ' getncxskt ',XsecType,i,Idataset,idx
 c call kt facotrisation sigma_red       
-c         write(6,*) ' getnscc ',itheory  
          if(itheory.eq.101) then
+c somthing needs to be done here for FL
             call sigcalc(xx,q2x,phi,phie)
-c	    write(6,*) ' getncxskt ',xx,q2x,phi
             elseif(Itheory.eq.102.or.Itheory.eq.105) then 
             if(Xsecglu(idx).eq.0) then
+c something needs to be done here for FL
               call sigcalc(xx,q2x,phi,phie)
               Xsecglu(idx) = phi
-c              write(6,*) 'getncxskt ',i,Idataset,xx,q2x,y(i), phi,phie
             endif
             
             else
-c call kt factorisation sigma_red         
-            call siggrid(xx,q2x,phit,phil,phie)
+c call kt factorisation sigma_red   
+            phitl =0 
+            phill =0 
+            phic = 0
+            philc = 0
+            phib = 0
+            philb = 0      
+            call siggrid(xx,q2x,phitl,phill,phic,philc,phib,philb)
+            if(XSecType.eq.'CHARMDIS') then
+               phit = phic
+               phil = philc
+               else
+               phit = phitl + phic + phib
+               phil = phill + 0*philc + 0*philb
+            endif
             phi = phit - epsilon*phil
+            if (XSecType.eq.'FL') then
+                phi = phil
+            endif
             if(phi.ne.phi) then
               write(6,*) ' getncxskt: xx,q2x',xx,q2x,phit,phil,epsilon
             endif
-cc            write(6,*) ' getncxkt : phit,epsilon,phil ',phit,epsilon,phil,phi
          Endif
          if(Xsecglu(idx).ne.0) then
            Xsec(i) = Xsecglu(idx)
            else
            Xsec(i) = phi
-c         write(6,*) idx, Xsecqpm(idx)
          Endif
-
          if(Xsecqpm(idx).eq.0) then
-c            If(Itheory.eq.101.or.Itheory.eq.102) then
-            If(Itheory.eq.101) then
-               if(auh(7).gt.0.001) call sigqpm(xx,q2x,phiqpm,phieqpm)
-            else
-               if(iread.eq.0) then
+            if(IcasHF.lt.4.and.XsecType.ne.'FL') then
+               If(Itheory.eq.101) then
+                  phiqpm = 0
                   if(auh(7).gt.0.001) call sigqpm(xx,q2x,phiqpm,phieqpm)
-c                  write(6,*) ' qpm :x,q2,qpm,norm: ',xx,q2x,phi,phiqpm,auh(7)
-                  write(4,*) xx,q2x,phiqpm  
                else
-c                  read(4,*) xx,q2x,phiqpm
-                  ifound = 0
-                  do jj=1,jmax
-                   if(xx.ge.xgrid(jj)-small*xgrid(jj).and.xx.le.xgrid(jj)+small*xgrid(jj)) then 
-                      if(q2x.ge.q2grid(jj)-small.and.q2x.le.q2grid(jj)+small) then
-                         phiqpm=f2qpmgrid(jj)  
-                         ifound = 1 
-                         goto 334
-                      endif                      
-                   endif
-                  enddo
-                  
-  334             if(ifound.eq.1) then
-c                     write(6,*) ' x,q2 point found ',xx,xgrid(jj),jj,q2x,q2grid(jj),jj,f2qpmgrid(jj),phiqpm
+                  if(iread.eq.0) then
+                     phiqpm = 1E-44
+                     if(auh(7).gt.0.001) call sigqpm(xx,q2x,phiqpm,phieqpm)
+c                     write(6,*) ' qpm :x,q2,qpm,norm: ',xx,q2x,phi,phiqpm,auh(7)
+                     write(4,*) xx,q2x,phiqpm  
                   else
-                     write(6,*) 'no x point found ',jj
+                     read(4,*) xx,q2x,phiqpm
+                     ifound = 0
+                     do jj=1,jmax
+                      if(xx.ge.xgrid(jj)-small*xgrid(jj).and.xx.le.xgrid(jj)+small*xgrid(jj)) then 
+                         if(q2x.ge.q2grid(jj)-small.and.q2x.le.q2grid(jj)+small) then
+                            phiqpm=f2qpmgrid(jj)  
+                            ifound = 1 
+                            goto 334
+                         endif                      
+                      endif
+                     enddo
+                  
+  334                if(ifound.eq.1) then
+c                     write(6,*) ' x,q2 point found ',xx,xgrid(jj),jj,q2x,q2grid(jj),jj,f2qpmgrid(jj),phiqpm
+                     else
+                        write(6,*) 'no x point found ',jj
+                     endif
                   endif
                endif
+               if (XSecType.eq.'FL') then
+                   phiqpm = 0
+               endif
+               Xsecqpm(idx) = phiqpm
             endif
-            Xsecqpm(idx) = phiqpm
-c            write(6,*) ' qpm xsection taken from memory '
          endif 
-c         write(6,*) ' getncxskt ',xx,q2x,phi
-c      write(6,*) ' getncxskt ',itheory,iread,phi,phiqpm
       enddo
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
 
          factor=1.D0
+
          If(Itheory.eq.101) then
             THEO(idx) =  factor*(XSec(i) + Xsecqpm(idx)*max(0.,auh(7)))
+	      if(XSecType.eq.'CHARMDIS') then
+	       THEO(idx) =  factor*(XSec(i))
+	      endif
          Elseif(Itheory.eq.102.or.Itheory.eq.105) then
             THEO(idx) =  factor*(XSec(i)*auh(1) + Xsecqpm(idx)*max(0.,auh(7)))
+	      if(XSecType.eq.'CHARMDIS') then
+	        THEO(idx) =  factor*(XSec(i)*auh(1))
+	      endif
          Elseif(Itheory.eq.103.or.Itheory.eq.104) then
             THEO(idx) =  factor*(XSec(i) + Xsecqpm(idx)*max(0.,auh(7)))
+	      if(XSecType.eq.'CHARMDIS') then
+	        THEO(idx) =  factor*(XSec(i))
+	      endif
          Endif
-         if(theo(idx).ne.theo(idx)) then
-            write(6,*) ' getncxkt problem ',(auh(j),j=1,7) 
-         endif 
       enddo
       Return
 220   write(6,*) ' getncxskt: f2qpm_grid.dat  on unit 3 cannot be opened '          

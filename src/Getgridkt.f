@@ -37,14 +37,13 @@ C
       xmymin = 1.
       j=0
       do Idataset = 1,NDATASETS
-      idxQ2 = GetBinIndex(IDataSet,'Q2')
-      idxX  = GetBinIndex(IDataSet,'x')
-      idxY = GetBinIndex(IDataSet,'y')
+         idxQ2 = GetBinIndex(IDataSet,'Q2')
+         idxX  = GetBinIndex(IDataSet,'x')
+         idxY = GetBinIndex(IDataSet,'y')
 c      IsReduced = DATASETInfo( GetInfoIndex(IDataSet,'reduced'), IDataSet).gt.0
-      if (idxQ2.eq.0 .or. idxX.eq.0 .or. idxY.eq.0) then
-         Return
-c         stop
-      endif
+          if (idxQ2.eq.0 .or. idxX.eq.0) then
+            Return
+         endif
          do i=1,NDATAPOINTS(IDataSet)
       
 C
@@ -55,7 +54,7 @@ C
 C Local X,Y,Q2 arrays, used for QCDNUM SF caclulations:
 C
          X(i)   = AbstractBins(idxX,idx)
-         Y(i)   = AbstractBins(idxY,idx)
+         if(idxY.ne.0) Y(i)   = AbstractBins(idxY,idx)
          Q2(i)  = AbstractBins(idxQ2,idx)
          xx = x(i)
          q2x = q2(i)
@@ -70,7 +69,7 @@ c         write(6,*) ' getgridkt x,q2 ',xx,q2x,i,idx
       
       call SORTRX(npoints,RVQ2,Output)
 
-      write(6,*) ' q2 ordered array '
+      write(6,*) ' Getgridkt: q2 ordered array for datasets',NDATASETS
       q2old = 0
       j=0
       do i=1,npoints

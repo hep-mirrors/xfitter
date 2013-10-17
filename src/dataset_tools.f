@@ -160,6 +160,12 @@ C Count rules
          do i=1,NRulesMax
             if (ProcessName(i).ne.' ') then
                NRules = NRules + 1
+               
+               print ' ("ProcessName  ",A80)',ProcessName(i)
+               print ' ("Variable:    ",A80)',Variable(i)
+               print ' ("CutValueMin: ",E15.5)',CutValueMin(i)
+               print ' ("CutValueMax: ",E15.5)',CutValueMax(i)
+               
             endif
          enddo
 

@@ -29,7 +29,12 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C----------------------------------------------------
       Subroutine GetNCCharmXsection(IDataSet, local_hfscheme)
-      call GetDisXsection(IDataSet, 'CHARMDIS', local_hfscheme)
+      include 'steering.inc'
+      if(itheory.ge.100) then
+         call GetNCxskt(IDataSet, 'CHARMDIS')
+      else
+         call GetDisXsection(IDataSet, 'CHARMDIS', local_hfscheme)
+      endif
       end
 C----------------------------------------------------
 C> \brief Get DIS NC FL
@@ -37,7 +42,12 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C----------------------------------------------------
       Subroutine GetNCFL(IDataSet, local_hfscheme)
-      call GetDisXsection(IDataSet, 'FL', local_hfscheme)
+      include 'steering.inc'
+      if(itheory.ge.100) then
+         call GetNCxskt(IDataSet, 'FL')
+      else
+         call GetDisXsection(IDataSet, 'FL', local_hfscheme)
+      endif
       end
 
 
@@ -301,7 +311,7 @@ c H1qcdfunc
       data ifirst /1/
 C---------------------------------------------------------
       if(lprint) then
-        print*,'XSEC TYPE = ', XSecType
+        print*,'GetDisXsection: XSEC TYPE = ', XSecType
       endif
 
       if (NDATAPOINTS(IDataSet).gt.NPMaxDIS) then

@@ -303,7 +303,6 @@ c call evolution to generate grid file
              if(iflag.eq.1) call evolve_tmd
 c iglu is set in sigcalc to iglu=1111
           elseif(itheory.eq.105) then 
-c             Iglu=1112            
 c call evolution to generate grid file
              evolfname='ccfm-test.dat'
              if(iflag.eq.1) call evolve_tmd
@@ -568,7 +567,7 @@ c     $           ,chi2_cont/NControlPoints
                  endif
               endif         
               open(91,file=TRIM(OutDirName)//'/params.txt')
-              write(91,*) auh(1),auh(2),auh(3),auh(4)
+              write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
 
           else
              call Evolution
