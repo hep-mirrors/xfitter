@@ -310,7 +310,7 @@ c H1qcdfunc
       integer ifirst
       data ifirst /1/
 C---------------------------------------------------------
-      if(lprint) then
+      if(debug) then
         print*,'GetDisXsection: XSEC TYPE = ', XSecType
       endif
 
