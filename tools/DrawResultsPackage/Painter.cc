@@ -1050,7 +1050,7 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
         if (fDrawExp) {
 	  graphModelsumm->GetPoint(ibin, xa, ya);
 	  graphExp->GetPoint(ibin, xb, yb);
-	  if (xa = xb) {
+	  if (xa == xb) {
 	    xela = graphModelsumm->GetErrorXlow(ibin);
 	    xeha = graphModelsumm->GetErrorXhigh(ibin);
 	    yela = graphModelsumm->GetErrorYlow(ibin);
@@ -1073,10 +1073,33 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
 	}
       }
       if (fDrawParam) {
-        if (fDrawExp) {
+        if (fDrawModel) {
+	  graphParamsumm->GetPoint(ibin, xa, ya);
+	  graphModelsumm->GetPoint(ibin, xb, yb);
+	  if (xa == xb) {
+	    xela = graphParamsumm->GetErrorXlow(ibin);
+	    xeha = graphParamsumm->GetErrorXhigh(ibin);
+	    yela = graphParamsumm->GetErrorYlow(ibin);
+	    yeha = graphParamsumm->GetErrorYhigh(ibin);
+	    
+	    xelb = graphModelsumm->GetErrorXlow(ibin);
+	    xehb = graphModelsumm->GetErrorXhigh(ibin);
+	    yelb = graphModelsumm->GetErrorYlow(ibin);
+	    yehb = graphModelsumm->GetErrorYhigh(ibin);
+	    
+	    xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	    xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	    yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	    yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	    graphParamsumm->SetPointError(ibin, xels, xehs, yels, yehs);
+	  } else {
+	    cout<<"WARNING: The x values for the Model and Param points are different !"<<endl;
+	  }
+	} else if (fDrawExp) {
 	  graphParamsumm->GetPoint(ibin, xa, ya);
 	  graphExp->GetPoint(ibin, xb, yb);
-	  if (xa = xb) {
+	  if (xa == xb) {
 	    xela = graphParamsumm->GetErrorXlow(ibin);
 	    xeha = graphParamsumm->GetErrorXhigh(ibin);
 	    yela = graphParamsumm->GetErrorYlow(ibin);
@@ -1097,30 +1120,6 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
 	    cout<<"WARNING: The x values for the Exp and Param points are different !"<<endl;
 	  }
 	}
-	if (fDrawModel) {
-	  graphParamsumm->GetPoint(ibin, xa, ya);
-	  graphModel->GetPoint(ibin, xb, yb);
-	  if (xa = xb) {
-	    xela = graphParamsumm->GetErrorXlow(ibin);
-	    xeha = graphParamsumm->GetErrorXhigh(ibin);
-	    yela = graphParamsumm->GetErrorYlow(ibin);
-	    yeha = graphParamsumm->GetErrorYhigh(ibin);
-	    
-	    xelb = graphModel->GetErrorXlow(ibin);
-	    xehb = graphModel->GetErrorXhigh(ibin);
-	    yelb = graphModel->GetErrorYlow(ibin);
-	    yehb = graphModel->GetErrorYhigh(ibin);
-	    
-	    xels = TMath::Sqrt(xela*xela + xelb*xelb);
-	    xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
-	    yels = TMath::Sqrt(yela*yela + yelb*yelb);
-	    yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
-	    
-	    graphParamsumm->SetPointError(ibin, xels, xehs, yels, yehs);
-	  } else {
-	    cout<<"WARNING: The x values for the Model and Param points are different !"<<endl;
-	  }
-	}
       }
       
         if(pdf2 != Output::kNULL) {
@@ -1128,7 +1127,7 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
           if (fDrawExp) {
 	    graphModelsumm2->GetPoint(ibin, xa, ya);
 	    graphExp2->GetPoint(ibin, xb, yb);
-	    if (xa = xb) {
+	    if (xa == xb) {
 	      xela = graphModelsumm2->GetErrorXlow(ibin);
 	      xeha = graphModelsumm2->GetErrorXhigh(ibin);
 	      yela = graphModelsumm2->GetErrorYlow(ibin);
@@ -1151,10 +1150,33 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
 	  }
         }
         if (fDrawParam) {
-          if (fDrawExp) {
+          if (fDrawModel) {
+	    graphParamsumm2->GetPoint(ibin, xa, ya);
+	    graphModelsumm2->GetPoint(ibin, xb, yb);
+	    if (xa == xb) {
+	      xela = graphParamsumm2->GetErrorXlow(ibin);
+	      xeha = graphParamsumm2->GetErrorXhigh(ibin);
+	      yela = graphParamsumm2->GetErrorYlow(ibin);
+	      yeha = graphParamsumm2->GetErrorYhigh(ibin);
+	    
+	      xelb = graphModelsumm2->GetErrorXlow(ibin);
+	      xehb = graphModelsumm2->GetErrorXhigh(ibin);
+	      yelb = graphModelsumm2->GetErrorYlow(ibin);
+	      yehb = graphModelsumm2->GetErrorYhigh(ibin);
+	    
+	      xels = TMath::Sqrt(xela*xela + xelb*xelb);
+	      xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
+	      yels = TMath::Sqrt(yela*yela + yelb*yelb);
+	      yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
+	    
+	      graphParamsumm2->SetPointError(ibin, xels, xehs, yels, yehs);
+	    } else {
+	      cout<<"WARNING: The x values for the Model2 and Param2 points are different !"<<endl;
+	    }
+	  } else if (fDrawExp) {
 	    graphParamsumm2->GetPoint(ibin, xa, ya);
 	    graphExp2->GetPoint(ibin, xb, yb);
-	    if (xa = xb) {
+	    if (xa == xb) {
 	      xela = graphParamsumm2->GetErrorXlow(ibin);
 	      xeha = graphParamsumm2->GetErrorXhigh(ibin);
 	      yela = graphParamsumm2->GetErrorYlow(ibin);
@@ -1173,30 +1195,6 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
 	      graphParamsumm2->SetPointError(ibin, xels, xehs, yels, yehs);
 	    } else {
 	      cout<<"WARNING: The x values for the Exp2 and Param2 points are different !"<<endl;
-	    }
-	  }
-	  if (fDrawModel) {
-	    graphParamsumm2->GetPoint(ibin, xa, ya);
-	    graphModel2->GetPoint(ibin, xb, yb);
-	    if (xa = xb) {
-	      xela = graphParamsumm2->GetErrorXlow(ibin);
-	      xeha = graphParamsumm2->GetErrorXhigh(ibin);
-	      yela = graphParamsumm2->GetErrorYlow(ibin);
-	      yeha = graphParamsumm2->GetErrorYhigh(ibin);
-	    
-	      xelb = graphModel2->GetErrorXlow(ibin);
-	      xehb = graphModel2->GetErrorXhigh(ibin);
-	      yelb = graphModel2->GetErrorYlow(ibin);
-	      yehb = graphModel2->GetErrorYhigh(ibin);
-	    
-	      xels = TMath::Sqrt(xela*xela + xelb*xelb);
-	      xehs = TMath::Sqrt(xeha*xeha + xehb*xehb);
-	      yels = TMath::Sqrt(yela*yela + yelb*yelb);
-	      yehs = TMath::Sqrt(yeha*yeha + yehb*yehb);
-	    
-	      graphParamsumm2->SetPointError(ibin, xels, xehs, yels, yehs);
-	    } else {
-	      cout<<"WARNING: The x values for the Model2 and Param2 points are different !"<<endl;
 	    }
 	  }
         }
@@ -1441,7 +1439,7 @@ Int_t Painter::PlotPdfSubEMP(TVirtualPad* pad, Int_t Q2Bin, const Char_t* Title,
       graphParamsumm->GetYaxis()->SetLabelOffset(0.02);
       
       Param_ratio = (TGraph*) (graphParam->Clone());
-      graphParam_ratio = (TGraphAsymmErrors*) (graphParam->Clone());
+      graphParam_ratio = (TGraphAsymmErrors*) (graphParamsumm->Clone());
       
       for(Int_t i=0; i<graphParamsumm->GetN(); i++) {
       Param_ratio->SetPoint(i, graphParamsumm->GetX()[i], graphParamsumm->GetY()[i] / graphMainRatio->GetY()[i]);

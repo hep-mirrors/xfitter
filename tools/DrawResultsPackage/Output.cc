@@ -354,6 +354,8 @@ Int_t Output::PreparePdf(bool DrawBand, TString option) {
       table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
     else if (option == TString("e"))
       table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
+    else if (option == TString("m") || option == TString("p"))
+      table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kFALSE, option);
     else // MC errors
       table = (!DrawBand)? new PdfTable(filename.Data()) : new PdfErrorTables(fDirectory->Data(),iq2+1,kTRUE, option);
 
