@@ -77,7 +77,9 @@ class CommandParser
     cout << "\t --ratiorange min:max" << endl;
     cout << "\t \t Specify y axis range in PDF ratio plots" << endl;
     cout << "\t --xrange min:max" << endl;
-    cout << "\t \t Specify x axis range in PDF plots: minimum x is 0.0001, maximum x is 1" << endl;
+    cout << "\t \t Specify x axis range in PDF plots," << endl;
+    cout << "\t \t default minimum and maximum x are determined by settings" << endl;
+    cout << "\t \t in the first reference directory" << endl;
     cout << "\t --no-logx" << endl;
     cout << "\t \t Linear x scale in PDF plots" << endl;
     cout << "options for data pulls plots:" << endl;

@@ -42,6 +42,14 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   //prepare TGraphs
   int colindx = 0;
  
+  //set xmin xmax
+  int nx = pdfgraphs.begin()->graph->GetN();
+  if (opts.xmin == -1 && opts.xmax == -1)
+    {
+      opts.xmin = pdfgraphs.begin()->graph->GetX()[0];
+      opts.xmax = pdfgraphs.begin()->graph->GetX()[nx - 1];
+    }
+
   //set graph features
   for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
@@ -131,8 +139,8 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
       mg->SetMaximum(mx);
       mg->SetMinimum(mn);
     }
-
-  mg->GetXaxis()->Set(101, opts.xmin, opts.xmax);    
+  
+  mg->GetXaxis()->Set(nx, opts.xmin, opts.xmax);
   mg->GetXaxis()->SetTitleFont(62);
   mg->GetXaxis()->SetLabelFont(62);
   mg->GetXaxis()->SetTitleSize(txtsize);
@@ -292,7 +300,8 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg_ratio->SetMaximum(opts.rmax);
   mg_ratio->SetMinimum(opts.rmin);
 
-  mg_ratio->GetXaxis()->Set(101, opts.xmin, opts.xmax);    
+  int nx = pdfgraphs.begin()->graph->GetN();
+  mg_ratio->GetXaxis()->Set(nx, opts.xmin, opts.xmax);
   mg_ratio->GetXaxis()->SetTitleFont(62);
   mg_ratio->GetXaxis()->SetLabelFont(62);
   mg_ratio->GetXaxis()->SetTitleSize(txtsize);

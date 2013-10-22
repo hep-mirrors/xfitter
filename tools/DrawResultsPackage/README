@@ -19,6 +19,10 @@ general options:
 	 	 Produce and addition plot file in pdf format
 	 --colorpattern <1-3>
 	 	 Select among 3 additional color patterns
+	 --lowres
+		 Low resolution plots (smaller file)
+	 --highres
+		 High resolution plots (paper quality)
 options for pdf plots:
 	 --bands
 	 	 Draw PDF uncertainty band
@@ -34,9 +38,17 @@ options for pdf plots:
 	 	 Specify y axis range in PDF ratio plots
 	 --xrange min:max
 	 	 Specify x axis range in PDF plots: minimum x is 0.0001, maximum x is 1
+	  --xrange min:max
+   	    	 Specify x axis range in PDF plots,
+		 default minimum and maximum x are determined by settings
+		 in the first reference directory
 	 --no-logx
 	 	 Linear x scale in PDF plots
 options for data pulls plots:
+	 --therr
+		 Plot theory errors if availables
+  	 --points
+		 Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)
 	 to set axis titles, axis range and log scales add PlotDesc options in the data file
 	 Example:
 	 &PlotDesc

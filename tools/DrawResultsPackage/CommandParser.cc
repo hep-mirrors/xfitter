@@ -16,8 +16,8 @@ CommandParser::CommandParser(int argc, char **argv):
   filledbands(false),
   rmin(0),
   rmax(2),
-  xmin(0.0001),
-  xmax(1),
+  xmin(-1),
+  xmax(-1),
   pdf(false),
   resolution(1200),
   therr(false),
@@ -92,7 +92,7 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--xrange")
 	  {
-	    xmin = max(0.0001, atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str()));
+	    xmin = max(0.000000000000001, atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str()));
 	    xmax = min(1., atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str()));
 	    allargs.erase(it+1);
 	  }
