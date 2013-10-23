@@ -47,21 +47,22 @@ int dy_create_calc_(const int *ds_id, const int *chg_prod,
   BinMatrix *bm = NULL;
   // check for existing bin matrices
   DCmap::iterator idc = gCalcs.begin(); 
-  for ( ;idc!=gCalcs.end();idc++ ) {
-    BinMatrix *tbm = idc->second->getBM();
-    if ( (tbm->getBeamEn() == *beam_en )
-      && (string(boz) == tbm->getBozName()) ){
-      bm = tbm;
-      /*
-      if ( string(boz) != bm->getBozName() ) {
-        cout << "Simultaneous calculation of DY charged and neutral \n\
-	         is not supported. Abort. " << endl;
-	exit(1);
-      }
-      */
-      break;
-    }
-  }
+
+//  for ( ;idc!=gCalcs.end();idc++ ) {
+//    BinMatrix *tbm = idc->second->getBM();
+//    if ( (tbm->getBeamEn() == *beam_en )
+//      && (string(boz) == tbm->getBozName()) ){
+//      bm = tbm;
+//      /*
+//      if ( string(boz) != bm->getBozName() ) {
+//        cout << "Simultaneous calculation of DY charged and neutral \n\
+//	         is not supported. Abort. " << endl;
+//	exit(1);
+//      }
+//      */
+//      break;
+//    }
+//  }
 
   // if not found create new
   if ( NULL == bm ) {
@@ -72,21 +73,21 @@ int dy_create_calc_(const int *ds_id, const int *chg_prod,
   PDFconv *pc = NULL;
   // check for existing bin matrices
   idc = gCalcs.begin(); 
-  for ( ;idc!=gCalcs.end();idc++ ) {
-    PDFconv *tpc = idc->second->getPC();
-    if ( tpc->isSameBeam(*chg_prod, beam_en) && 
-         (string(boz) == tpc->getBozName() )){
-      pc = tpc;
-      /*
-      if ( string(boz) != pc->getBozName() ) {
-        cout << "Simultaneous calculation of DY charged and neutral \n\
-	         is not supported. Abort. " << endl;
-	exit(1);
-      }
-      */
-      break;
-    }
-  }
+//  for ( ;idc!=gCalcs.end();idc++ ) {
+//    PDFconv *tpc = idc->second->getPC();
+//    if ( tpc->isSameBeam(*chg_prod, beam_en) && 
+//         (string(boz) == tpc->getBozName() )){
+//      pc = tpc;
+//      /*
+//      if ( string(boz) != pc->getBozName() ) {
+//        cout << "Simultaneous calculation of DY charged and neutral \n\
+//	         is not supported. Abort. " << endl;
+//	exit(1);
+//      }
+//      */
+//      break;
+//    }
+//  }
 
   // if not found create new
   if ( NULL == pc ) {
