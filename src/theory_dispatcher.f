@@ -158,11 +158,14 @@ C---------------------------------------------------------------------
       include 'ntot.inc'
       include 'steering.inc'
       include 'endmini.inc'
+      include 'couplings.inc'
 C--------------------------------------------------------------------
 C Drell-Yan:
       if (LFitDY) then
          call dy_do_calc
       endif
+
+      call update_theor_ckm
 
       if (LFastAPPLGRID) then
          call Calc_pdf_applgrid_fast

@@ -23,6 +23,7 @@ extern "C" {
     double *allBins);
   int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
+  int update_theor_ckm_();
   int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, 
     int* np, int* idx);
   int close_theor_eval_();
@@ -38,6 +39,10 @@ tTEmap gTEmap;
 extern struct theo_cb {
   double theo[2000], theo_mod[2000], theo_fix[2000];
 } c_theo_;
+
+extern struct ckm_matrix_cb {
+  double Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb;
+} ckm_matrix_;
 
 extern struct thexpr_cb {
   int nterms;
@@ -127,6 +132,22 @@ int init_theor_eval_(int *dsId)
 }
 
 /*!
+ Updates the CKM matrix to all the initialized appl grids
+ */
+int update_theor_ckm_()
+{
+  static const double a_ckm[] = { ckm_matrix_.Vud, ckm_matrix_.Vus, ckm_matrix_.Vub,
+                                  ckm_matrix_.Vcd, ckm_matrix_.Vcs, ckm_matrix_.Vcb,
+                                  ckm_matrix_.Vtd, ckm_matrix_.Vts, ckm_matrix_.Vtb};
+  vector<double> v_ckm (a_ckm, a_ckm+sizeof(a_ckm)/sizeof(a_ckm[0]));
+  tTEmap::iterator it = gTEmap.begin();
+  for (; it!= gTEmap.end(); it++){
+    it->second->setCKM(v_ckm);
+  }
+  
+}
+
+/*!
  Evaluates theory for requested dataset and writes it to the global THEO array.
  */
 int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, int*idx)
@@ -150,7 +171,7 @@ int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, i
   for (; ibf!=binflags->end(); ibf++){
     if ( 0 != *ibf ) {
       c_theo_.theo[*idx+ip-1]=vte[int(ibf-binflags->begin())];
-//      cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
+      cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
       ip++;
     }
   }

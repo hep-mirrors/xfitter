@@ -333,7 +333,7 @@ C Namelist for EW parameters:
 
       namelist/EWpars/alphaem, gf, sin2thw, convfac,
      $ Mz, Mw, Mh, wz, ww, wh, wtp,
-     $ Vud, Vus, Vub, Vcd, Vcs, Vcb,
+     $ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb,
      $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
      $ mch, mst, mtp, mbt
 C--------------------------------------------------

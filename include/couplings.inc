@@ -14,7 +14,7 @@ C Electroweak common blocks
       double precision alphaem,sin2thw,cos2thw
       double precision Mz, Mw, Mh
       double precision wz, ww, wh, wtp
-      double precision Vud, Vus, Vub, Vcd, Vcs, Vcb
+      double precision Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb
       double precision men, mel, mmn, mmo, mtn, mta, mup, mdn,
      + mch, mst, mtp, mbt
 
@@ -22,7 +22,7 @@ C Electroweak common blocks
       common/ew_couplings/alphaem,sin2thw,cos2thw
       common/boson_masses/ Mz, Mw, Mh
       common/widths/wz, ww, wh, wtp
-      common/ckm_matrix/ Vud, Vus, Vub, Vcd, Vcs, Vcb
+      common/ckm_matrix/ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb
       common/fermion_masses/men, mel, mmn, mmo, mtn, mta, mup, mdn,
      + mch, mst, mtp, mbt
       

@@ -36,7 +36,7 @@ class TheorEval{
   //! Evaluates array of predictions for requested expression
   int Evaluate(const int iorder, const double mur, const double muf, valarray<double> &vte );
   //! Set custom CKM matrix for APPLgrid
-  void setCKM(vector<double> &);
+  void setCKM(const vector<double> &);
   //! Set dataset bins
   int setBins(int nBinDim, int nPoints, int *binFlags, double *allBins);
   //! Initializes sources for theoretical predictions
