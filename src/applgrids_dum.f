@@ -10,6 +10,11 @@ c----------------------------------------------------------
       return 
       end
 
+      subroutine update_theor_ckm
+c      call print_ag_messg
+      return
+      end
+
 
       subroutine appl_readfastnlogrids
       end
