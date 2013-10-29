@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 33 
+    NInputFiles = 34 
 
    InputFileNames =
  !
@@ -43,6 +43,7 @@
  ! Tevatron:
  !
           'datafiles/tevatron/D0_Z_Boson_Rapidity.dat',
+          'datafiles/tevatron/CDF_Z_Boson_Rapidity.dat',
           'datafiles/tevatron/CDF_JETS2008.dat',
           'datafiles/tevatron/CDF-TOP-CONF-NOTE-9913_prelim.dat',
           'datafiles/tevatron/D0_JETS.dat',
@@ -87,8 +88,8 @@
 * dependently. The numbering follows sequential numbering of input files
 *
 &Scales 
-    DataSetMuR  = 33*1.0     ! Set muR scale to 1 for all datasets
-    DataSetMuF  = 33*1.0     ! Set muF scale to 1 for all datasets
+    DataSetMuR  = 34*1.0     ! Set muR scale to 1 for all datasets
+    DataSetMuF  = 34*1.0     ! Set muF scale to 1 for all datasets
 &End
 
 
