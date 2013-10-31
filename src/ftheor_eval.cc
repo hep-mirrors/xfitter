@@ -171,7 +171,7 @@ int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, i
   for (; ibf!=binflags->end(); ibf++){
     if ( 0 != *ibf ) {
       c_theo_.theo[*idx+ip-1]=vte[int(ibf-binflags->begin())];
-      cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
+      //cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
       ip++;
     }
   }
