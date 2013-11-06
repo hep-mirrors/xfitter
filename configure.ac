@@ -137,6 +137,23 @@ if test x$enable_applgrid == xyes; then
 fi
 AM_CONDITIONAL(ENABLE_APPLGRID, [test x$enable_applgrid == xyes])
 
+# check if applgrid support CKM replacement
+m4_include([m4/ax_compare_version.m4])
+ag_ckm=no
+ag_version=`applgrid-config --version`
+if test x$enable_applgrid == xyes; then
+  AC_MSG_CHECKING([if APPLgrid supports CKM replacement])
+  AX_COMPARE_VERSION([1.4.33],[gt],[$ag_version],[ag_ckm=no],[ag_ckm=yes])
+  if test x$ag_ckm == xyes; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE([APPLGRID_CKM],[1],[Define if APPLGrid supports CKM definition])
+  else
+    AC_MSG_WARN([The APPLgrid version does not allow to set the CKM matrix ( needs v. >= 1.4.33 )])
+  fi
+fi
+AM_CONDITIONAL(APPLGRID_CKM, [test x$ag_ckm == xyes])
+
+
 # check for genetic installation
 AC_ARG_ENABLE([genetic],
     [AC_HELP_STRING(--enable-genetic, [use genetic for general minimia search (defaults=no)])])
