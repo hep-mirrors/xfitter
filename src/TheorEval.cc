@@ -22,6 +22,7 @@ using namespace appl;
 // external pdf functions
 extern "C" void appl_fnpdf_(const double& x, const double& Q, double* f);
 extern "C" double appl_fnalphas_(const double& Q);
+extern "C" void hf_errlog_(const int &id, const char *text, int); 
 
 TheorEval::TheorEval(const int dsId, const int nTerms, const string* stn, const string* stt, 
                      const string* sts, const string& expr)
@@ -331,7 +332,11 @@ TheorEval::setCKM(const vector<double> &v_ckm)
     g->setckm(v_ckm);
   }
 #else
-  cout << "WARNING: trying to set CKM in APPLgrid while not supported by the linked version. Use v1.4.33 or higher." << endl;
+   int id = 611201320;
+   char text[] = "W: Cannot set CKM in Applgrid, use v1.4.33 or higher";
+   int textlen = strlen(text);
+   hf_errlog_(id, text, textlen);
+//  cout << "WARNING: trying to set CKM in APPLgrid while not supported by the linked version. Use v1.4.33 or higher." << endl;
 #endif
 }
 
