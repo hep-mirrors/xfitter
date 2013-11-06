@@ -323,14 +323,18 @@ TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
 int 
 TheorEval::setCKM(const vector<double> &v_ckm)
 {
+#ifdef APPLGRID_CKM
   if (!_CKMflag) return 0;
   map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
   for(; itm != _mapGridToken.end(); itm++){
     appl::grid* g = itm->first;
     g->setckm(v_ckm);
   }
-  
+#else
+  cout << "WARNING: trying to set CKM in APPLgrid while not supported by the linked version. Use v1.4.33 or higher." << endl;
+#endif
 }
+
 int
 TheorEval::Evaluate(const int iorder, const double mur, const double muf, valarray<double> &vte )
 {
