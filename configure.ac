@@ -73,9 +73,12 @@ if test "x$CERN_ROOT" = "x"; then
 else
   AC_LANG(Fortran)
   LDFLAGS+="-L$CERN_ROOT/lib"
-  AC_SEARCH_LIBS([dinv],[kernlib])
-  AC_SEARCH_LIBS([dgammf],[mathlib])
-  AC_SEARCH_LIBS([dsyevd],[lapack])
+  AC_SEARCH_LIBS([dinv],[kernlib],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lkernlib])],
+  [AC_MSG_ERROR([-lkernlib not found in CERN_ROOT])])
+  AC_SEARCH_LIBS([dgammf],[mathlib],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib])],
+  [AC_MSG_ERROR([-lmathlib not found in CERN_ROOT])])
+  AC_SEARCH_LIBS([dsyevd],[lapack],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -llapack])],
+  [AC_MSG_ERROR([-llapack not found in CERN_ROOT])])
 #  AC_SUBST([CERNLIBS], ["-L$CERN_ROOT/lib -lmathlib  -lkernlib -lpacklib  -llapack -lblas"])
 #  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib  -llapack -lblas])
 fi
@@ -220,19 +223,16 @@ if test x$enable_doc = xyes; then
   # Check for presence of pdfLaTeX
   AC_CHECK_PROG(PDFLATEX, pdflatex, pdflatex)
   if test -z "$PDFLATEX"; then
-    AC_MSG_WARN([Unable to create PDF version of the user manual.])
+    AC_MSG_ERROR([Pdflatex is required to create the user manual.])
   fi
   
   # Check for presence of pdfLaTeX
   AC_CHECK_PROG(BIBTEX, bibtex, bibtex)
   if test -z "$BIBTEX"; then
-    AC_MSG_WARN([Unable to create PDF version of the user manual.])
+    AC_MSG_ERROR([Bibtex is required to create the user manual.])
   fi
-  
-  AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
-  AM_CONDITIONAL([HAVE_BIBTEX], test -n "$BIBTEX")
-  AM_CONDITIONAL([BUILD_DOCS], [test x$enable_doc = xyes])
 fi
+AM_CONDITIONAL([BUILD_DOCS], [test x$enable_doc = xyes])
 
 # DOXYGEN SUPPORT
 

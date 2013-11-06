@@ -1,6 +1,5 @@
 docfiles =  herafitter-epjc.tex 
-if HAVE_PDFLATEX
-if HAVE_BIBTEX
+if BUILD_DOCS
 
 infiles = $(docfiles)
 docfiles +=  herafitter-epjc.pdf
@@ -16,7 +15,6 @@ CLEANFILES = $(MANPDF) $(MANNAME).log $(MANNAME).idx $(MANNAME).out \
 $(MANPDF): $(srcdir)/$(MANTEXSRC)
 	$(PDFLATEX) $<
 	$(PDFLATEX) $<
-endif
 endif
 docdir = ${datadir}/doc/${PACKAGE}
 dist_doc_DATA = $(docfiles)

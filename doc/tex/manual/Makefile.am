@@ -1,6 +1,6 @@
 docfiles = writeup.tex
-if HAVE_PDFLATEX
-if HAVE_BIBTEX
+
+if BUILD_DOCS
 
 infiles = $(docfiles)
 docfiles += writeup.pdf
@@ -20,6 +20,6 @@ $(MANPDF): $(srcdir)/$(MANTEXSRC)
 	$(PDFLATEX) $<
 	$(PDFLATEX) $<
 endif
-endif
+
 docdir = ${datadir}/doc/${PACKAGE}
 dist_doc_DATA = $(docfiles)
