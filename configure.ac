@@ -13,6 +13,18 @@ AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_RANLIB
 
+# Fortran configures
+AC_FC_LIBRARY_LDFLAGS
+AC_FC_WRAPPERS
+AC_F77_WRAPPERS
+#AC_FC_FREEFORM
+
+#
+# A lot of code written with 132 char. strings.
+#
+FCFLAGS="$FCFLAGS -ffixed-line-length-132"
+FFLAGS="$FFLAGS -ffixed-line-length-132"
+
 # openmp suport
 m4_include([m4/ax_openmp.m4])
 
@@ -31,18 +43,6 @@ AC_SUBST(OPENMP_CFLAGS)
 dnl OpenMP checker only defines for C when compiling both C and C++
 OPENMP_CXXFLAGS=$OPENMP_CFLAGS
 AC_SUBST(OPENMP_CXXFLAGS)
-
-# Fortran configures
-AC_FC_LIBRARY_LDFLAGS
-AC_FC_WRAPPERS
-AC_F77_WRAPPERS
-#AC_FC_FREEFORM
-
-#
-# A lot of code written with 132 char. strings.
-#
-FCFLAGS="$FCFLAGS -ffixed-line-length-132"
-FFLAGS="$FFLAGS -ffixed-line-length-132"
 
 # Check for trapFPE flag
 AC_ARG_ENABLE([trapFPE],
@@ -71,8 +71,13 @@ if test "x$CERN_ROOT" = "x"; then
   AC_MSG_ERROR([CERN_ROOT environment variable is not set!
   CERN_ROOT/lib must be the path to -lkernlib,   -lmathlib, -lpacklib])
 else
-  AC_SUBST([CERNLIBS], ["-L$CERN_ROOT/lib -lmathlib  -lkernlib -lpacklib  -llapack -lblas"])
-  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib  -llapack -lblas])
+  AC_LANG(Fortran)
+  LDFLAGS+="-L$CERN_ROOT/lib"
+  AC_SEARCH_LIBS([dinv],[kernlib])
+  AC_SEARCH_LIBS([dgammf],[mathlib])
+  AC_SEARCH_LIBS([dsyevd],[lapack])
+#  AC_SUBST([CERNLIBS], ["-L$CERN_ROOT/lib -lmathlib  -lkernlib -lpacklib  -llapack -lblas"])
+#  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib  -llapack -lblas])
 fi
 
 AC_MSG_CHECKING([for QCDNUM libraries])
@@ -208,20 +213,26 @@ fi
 
 #AC_F77_LIBRARY_LDFLAGS
 
-# Check for presence of pdfLaTeX
-AC_CHECK_PROG(PDFLATEX, pdflatex, pdflatex)
-if test -z "$PDFLATEX"; then
-  AC_MSG_WARN([Unable to create PDF version of the user manual.])
+# Check if we need to build documentation
+AC_ARG_ENABLE([doc],
+  [AC_HELP_STRING(--enable-doc, [Build documentation (default=no)])])
+if test x$enable_doc = xyes; then
+  # Check for presence of pdfLaTeX
+  AC_CHECK_PROG(PDFLATEX, pdflatex, pdflatex)
+  if test -z "$PDFLATEX"; then
+    AC_MSG_WARN([Unable to create PDF version of the user manual.])
+  fi
+  
+  # Check for presence of pdfLaTeX
+  AC_CHECK_PROG(BIBTEX, bibtex, bibtex)
+  if test -z "$BIBTEX"; then
+    AC_MSG_WARN([Unable to create PDF version of the user manual.])
+  fi
+  
+  AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
+  AM_CONDITIONAL([HAVE_BIBTEX], test -n "$BIBTEX")
+  AM_CONDITIONAL([BUILD_DOCS], [test x$enable_doc = xyes])
 fi
-
-# Check for presence of pdfLaTeX
-AC_CHECK_PROG(BIBTEX, bibtex, bibtex)
-if test -z "$BIBTEX"; then
-  AC_MSG_WARN([Unable to create PDF version of the user manual.])
-fi
-
-AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
-AM_CONDITIONAL([HAVE_BIBTEX], test -n "$BIBTEX")
 
 # DOXYGEN SUPPORT
 

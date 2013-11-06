@@ -17,7 +17,11 @@ endif
 SUBDIRS+= NNPDF/src
 
 SUBDIRS+= common
-SUBDIRS+= src doc/tex/manual doc/tex/paper
+if BUILD_DOCS
+  DOCS=doc/tex/manual doc/tex/paper
+endif
+#$(info ${DOCS})
+SUBDIRS+= src $(DOCS)
 
 # DOXYGEN SUPPORT
 include $(top_srcdir)/aminclude.am

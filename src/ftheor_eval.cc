@@ -21,7 +21,7 @@ extern "C" {
 //    char **TermSource, char *TermExpr);
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
     double *allBins);
-  int set_theor_units_(int *dsId, double *units);
+  int set_theor_units_(int *dsId, double *units, int* CKMflag);
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
   int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, 
@@ -101,7 +101,7 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
   return 1;
 }
 
-int set_theor_units_(int *dsId, double *units)
+int set_theor_units_(int *dsId, double *units, int* CKMflag)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { 
@@ -111,7 +111,7 @@ int set_theor_units_(int *dsId, double *units)
   }
   
   TheorEval *te = gTEmap.at(*dsId);
-  te->setUnits(*units);
+  te->setUnitsAndCKMflag(*units, *CKMflag);
   return 1;
 }
 

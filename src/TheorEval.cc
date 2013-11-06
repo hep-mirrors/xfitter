@@ -320,9 +320,10 @@ TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
   }
 }
 
-void 
+int 
 TheorEval::setCKM(const vector<double> &v_ckm)
 {
+  if (!_CKMflag) return 0;
   map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
   for(; itm != _mapGridToken.end(); itm++){
     appl::grid* g = itm->first;

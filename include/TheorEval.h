@@ -36,13 +36,13 @@ class TheorEval{
   //! Evaluates array of predictions for requested expression
   int Evaluate(const int iorder, const double mur, const double muf, valarray<double> &vte );
   //! Set custom CKM matrix for APPLgrid
-  void setCKM(const vector<double> &);
+  int setCKM(const vector<double> &);
   //! Set dataset bins
   int setBins(int nBinDim, int nPoints, int *binFlags, double *allBins);
   //! Initializes sources for theoretical predictions
   int initTheory();
   int getNbins();
-  int setUnits(double units){ _units = units;};
+  int setUnitsAndCKMflag(double units, int CKMflag){ _units = units; _CKMflag=CKMflag;};
   const vector<int> *getBinFlags() const { return &_binFlags; }
 
  private:
@@ -62,6 +62,7 @@ class TheorEval{
   int _dsId;
   int _nTerms;
   double _units;
+  int _CKMflag;
   vector<string> _termNames;
   vector<string> _termTypes;
   vector<string> _termSources;

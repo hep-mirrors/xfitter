@@ -254,8 +254,9 @@ C--------------------------------------------------------------
 
       integer idxSigma
 
-      integer idxUnit
+      integer idxUnit, idxCKM
       double precision TheoryUnit  ! scale factor for theory to bring to data units.
+      integer CKMflag              ! dataset flag if the CKM is updated
       integer GetInfoIndex         ! function thet returns index of an information string.
 
       integer i,j,iBin,iError
@@ -298,6 +299,7 @@ C Reset to default:
       TheoryInfoFile = ' '
       LReadKFactor = .false.
       NTheoryFiles = 0
+      CKMflag = 1
 
       do i = 1,2
         TheoryInfoFile(i) = ' '
@@ -869,7 +871,11 @@ c but firest check that there are two columns per each bin dimension
         else
           Theoryunit = 1.
         endif
-        call set_theor_units(NDATASETS, Theoryunit);
+
+        idxCKM = GetInfoIndex(NDATASETS,'applgridCKM')
+	if ( idxCKM .gt. 0 ) CKMflag = DATASETInfo(idxCKM,NDATASETS)
+
+        call set_theor_units(NDATASETS, Theoryunit, CKMflag)
         call init_theor_eval(NDATASETS)
       endif
 
