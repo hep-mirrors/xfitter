@@ -1156,7 +1156,7 @@ C-------------------------------------
       integer n
 C-------------------------------------
       call appl_ngrids(n)
-      print *, n, ' applgrid grids have been read'
+c      print *, n, ' applgrid grids have been read'
 C-------------------------------------
 c      call HF_stop
       end
