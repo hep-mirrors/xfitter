@@ -325,7 +325,7 @@ int
 TheorEval::setCKM(const vector<double> &v_ckm)
 {
 #ifdef APPLGRID_CKM
-  if (!_CKMflag) return 0;
+  if (_CKMflag) return 0;
   map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
   for(; itm != _mapGridToken.end(); itm++){
     appl::grid* g = itm->first;

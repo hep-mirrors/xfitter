@@ -299,7 +299,7 @@ C Reset to default:
       TheoryInfoFile = ' '
       LReadKFactor = .false.
       NTheoryFiles = 0
-      CKMflag = 1
+      CKMflag = 0
 
       do i = 1,2
         TheoryInfoFile(i) = ' '
