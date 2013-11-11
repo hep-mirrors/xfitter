@@ -230,7 +230,7 @@ C Main steering parameters namelist
       namelist/HERAFitter/
      $     ITheory, IOrder,         ! keep for backward compatibility
      $     Q02, HF_SCHEME, PDFStyle, PDFType, 
-     $     LDebug, ifsttype,  LFastAPPLGRID,
+     $     LDebug, ifsttype,  LFastAPPLGRID, LAPPLgridCKM,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,

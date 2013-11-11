@@ -165,7 +165,9 @@ C Drell-Yan:
          call dy_do_calc
       endif
 
-      call update_theor_ckm
+      if (.not.LAPPLgridCKM) then
+        call update_theor_ckm
+      endif
 
       if (LFastAPPLGRID) then
          call Calc_pdf_applgrid_fast

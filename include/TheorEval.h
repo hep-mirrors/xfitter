@@ -42,7 +42,7 @@ class TheorEval{
   //! Initializes sources for theoretical predictions
   int initTheory();
   int getNbins();
-  int setUnitsAndCKMflag(double units, int CKMflag){ _units = units; _CKMflag=CKMflag;};
+  int setUnits(double units){ _units = units;};
   const vector<int> *getBinFlags() const { return &_binFlags; }
 
  private:
@@ -62,7 +62,6 @@ class TheorEval{
   int _dsId;
   int _nTerms;
   double _units;
-  int _CKMflag;
   vector<string> _termNames;
   vector<string> _termTypes;
   vector<string> _termSources;

@@ -325,7 +325,6 @@ int
 TheorEval::setCKM(const vector<double> &v_ckm)
 {
 #ifdef APPLGRID_CKM
-  if (_CKMflag) return 0;
   map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
   for(; itm != _mapGridToken.end(); itm++){
     appl::grid* g = itm->first;
@@ -336,7 +335,6 @@ TheorEval::setCKM(const vector<double> &v_ckm)
    char text[] = "W: Cannot set CKM in Applgrid, use v1.4.33 or higher";
    int textlen = strlen(text);
    hf_errlog_(id, text, textlen);
-//  cout << "WARNING: trying to set CKM in APPLgrid while not supported by the linked version. Use v1.4.33 or higher." << endl;
 #endif
 }
 

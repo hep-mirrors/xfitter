@@ -21,7 +21,7 @@ extern "C" {
 //    char **TermSource, char *TermExpr);
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
     double *allBins);
-  int set_theor_units_(int *dsId, double *units, int* CKMflag);
+  int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
   int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, 
@@ -101,7 +101,7 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
   return 1;
 }
 
-int set_theor_units_(int *dsId, double *units, int* CKMflag)
+int set_theor_units_(int *dsId, double *units)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { 
@@ -111,7 +111,7 @@ int set_theor_units_(int *dsId, double *units, int* CKMflag)
   }
   
   TheorEval *te = gTEmap.at(*dsId);
-  te->setUnitsAndCKMflag(*units, *CKMflag);
+  te->setUnits(*units);
   return 1;
 }
 
@@ -171,10 +171,10 @@ int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, i
   for (; ibf!=binflags->end(); ibf++){
     if ( 0 != *ibf ) {
       c_theo_.theo[*idx+ip-1]=vte[int(ibf-binflags->begin())];
-      //cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
       ip++;
     }
   }
+      //cout << *ibf << "\t" << vte[0] << endl;
 
   // write the predictions to THEO array
   if( ip != *np ){

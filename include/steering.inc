@@ -16,6 +16,7 @@
       
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
+      logical LAPPLgridCKM     !> Debug flag
       logical DOBANDS            !> Produce PDF error bands 
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
@@ -115,7 +116,8 @@ C
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
-     $     CorChi2Type, hf_scheme,  scale68, AsymErrorsIterations
+     $     CorChi2Type, hf_scheme,  scale68, AsymErrorsIterations,
+     $     LAPPLgridCKM
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
