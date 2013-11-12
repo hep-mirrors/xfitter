@@ -159,6 +159,7 @@ C  Cache PDF calls
 
 C  Fast applgrid:     
       LFastAPPLGRID = .false.
+      LUseAPPLgridCKM = .true.
 * 
 C MC Errors defaults:
       lRAND = .false.
@@ -230,7 +231,7 @@ C Main steering parameters namelist
       namelist/HERAFitter/
      $     ITheory, IOrder,         ! keep for backward compatibility
      $     Q02, HF_SCHEME, PDFStyle, PDFType, 
-     $     LDebug, ifsttype,  LFastAPPLGRID, LAPPLgridCKM,
+     $     LDebug, ifsttype,  LFastAPPLGRID, LUseAPPLgridCKM,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,

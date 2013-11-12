@@ -16,7 +16,6 @@
       
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
-      logical LAPPLgridCKM     !> Debug flag
       logical DOBANDS            !> Produce PDF error bands 
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
@@ -77,6 +76,7 @@ C  Offset method parameters
 C Applgrid flags
       logical useapplg
       integer napplgrids
+      logical LUseAPPLgridCKM     !> Flag to define source of CKM vaules
 
 C
 C Fast/slow mode for APPLGRID PDF convolution. 
@@ -117,7 +117,7 @@ C
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
      $     CorChi2Type, hf_scheme,  scale68, AsymErrorsIterations,
-     $     LAPPLgridCKM
+     $     LUseAPPLgridCKM
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale

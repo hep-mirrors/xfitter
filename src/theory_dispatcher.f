@@ -165,7 +165,7 @@ C Drell-Yan:
          call dy_do_calc
       endif
 
-      if (.not.LAPPLgridCKM) then
+      if (.not.LUseAPPLgridCKM) then
         call update_theor_ckm
       endif
 

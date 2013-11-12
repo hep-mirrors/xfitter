@@ -332,7 +332,7 @@ TheorEval::setCKM(const vector<double> &v_ckm)
   }
 #else
    int id = 611201320;
-   char text[] = "W: Cannot set CKM in Applgrid, use v1.4.33 or higher";
+   char text[] = "S: Cannot set CKM in Applgrid, use v1.4.33 or higher";
    int textlen = strlen(text);
    hf_errlog_(id, text, textlen);
 #endif

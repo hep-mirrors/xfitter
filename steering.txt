@@ -105,7 +105,7 @@
  !  Chi2ExtraParam = 'PoissonCorr'
 
  ! Flag to define if native APPLgrid CKM values should be kept.
- LAPPLgridCKM = False
+ LUseAPPLgridCKM = True
 
  ! Debug flag
   LDEBUG     = False
