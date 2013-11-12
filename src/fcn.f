@@ -296,6 +296,7 @@ c iglu is set in sigcalc to iglu=1111
 c iglu in sigcalc is set by steer-ep 
           elseif(itheory.eq.103) then 
 c iglu is set in sigcalc to iglu=1113
+             Iglu = 1113
           elseif(itheory.eq.104) then 
              Iglu=1112            
 c call evolution to generate grid file

@@ -95,7 +95,7 @@ c create grid
             q2grid(j) = q2test
             xgrid(j) = xtest
             f2qpmgrid(j)=f2qpm
-            write(6,*) ' test: ',xgrid(j),q2grid(j),f2qpmgrid(j)
+c            write(6,*) ' test: ',xgrid(j),q2grid(j),f2qpmgrid(j)
             goto 330
 331         continue 
             rewind 4
@@ -130,6 +130,7 @@ C
          q2x = q2(i)
          yx = y(i)
          epsilon = yx**2/2d0/(1d0-yx+yx**2/2d0)
+c         epsilon =0
          ICasHF = 0
 c something needs to be done for charm
          if(XSecType.eq.'CHARMDIS') then
@@ -161,7 +162,7 @@ c call kt factorisation sigma_red
                phil = philc
                else
                phit = phitl + phic + phib
-               phil = phill + 0*philc + 0*philb
+               phil = phill + philc + philb
             endif
             phi = phit - epsilon*phil
             if (XSecType.eq.'FL') then
@@ -188,7 +189,6 @@ c call kt factorisation sigma_red
 c                     write(6,*) ' qpm :x,q2,qpm,norm: ',xx,q2x,phi,phiqpm,auh(7)
                      write(4,*) xx,q2x,phiqpm  
                   else
-                     read(4,*) xx,q2x,phiqpm
                      ifound = 0
                      do jj=1,jmax
                       if(xx.ge.xgrid(jj)-small*xgrid(jj).and.xx.le.xgrid(jj)+small*xgrid(jj)) then 

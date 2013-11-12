@@ -2609,7 +2609,7 @@ c         Scale=2d0*(sL*rt*ru)/((sL*rt*ru)**2+rt**2+ru**2)
 	
 c	write(6,*) ' scales stmax = ',stmax,' sqrt(scale) = ',sqrt(scale)
       Dscale = scale
-      alpha_s = ALPHASCA(sqrt(dscale))
+c      alpha_s = ALPHASCA(sqrt(dscale))
 	QQg = Qg0
 
 c         write(6,*) ' new alphas ',alpha_s
@@ -2633,6 +2633,8 @@ c	alph_em = 1./137.
             call cauniglu(K(2,2),XG2SF,SFSCAL2,STMAX2,XPQ2)
          endif
       endif
+c      write(6,*) ' call alphas '
+      alpha_s = ALPHASCA(sqrt(dscale))
      
       
       IF(Ires(1).eq.0.AND.Ires(2).ne.0) THEN
@@ -3219,8 +3221,6 @@ c      write(6,*)' fxn1 ',weig,ncall
       Integer i,j,k
       Real X1(0:Nbx+1),X2(0:Nbk+1),X3(0:Nbp+1)
       Real XPQS(-6:6)
-      Real  xpqssave(-6:6)    
-      Common/valq/xpqssave
       Integer NbxL,Nbxlin
       Double Precision x1minlin,x1maxlin
       real sigm,xnorm,xmean,xnor
@@ -3376,14 +3376,13 @@ c lin grid in x from 0.1 - 1
 c               write(6,*) ' gadap sum: ',sum
                abstol = 0.0  ! abstol = 0, value of abstol will be ignored
                nseg = 1000
+               call readgrid(kfl,Real(x),scale,t,xpqs)
                CALL RADAPT(xa_int,A0,B0,NSEG,eps,abstol,SUM,ERR)
                CALL RADAPT(xa_intq,A0,B0,NSEG,eps,abstol,SUM1,ERR)
 c               write(6,*) ' radapt sum: ',sum
 cccc               Sum = result
                xpqs(0) = sum
                xpqs(3) = sum1
-               xpqs(1) = xpqssave(1)
-               xpqs(2) = xpqssave(2)
 
 c               write(6,*) sum
                if(xpqs(0).ne.xpqs(0)) then
@@ -3432,8 +3431,6 @@ c         write(6,*) ' last loop i =',i,j,k
 
 	Integer Noevol
       Common/Evoltest/Noevol  
-      Real  xpqssave(-6:6)    
-      Common/valq/xpqssave
 	
 	xmin=x
 	xmax=1.
@@ -3451,9 +3448,6 @@ c	write(6,*) ' x,x0,z,sclae,t ',x,x0,z,scale,t
         If(noevol.eq.0) then
            call readgrid(kfl,Real(z),scale,t,xpqs)
 c           write(6,*) 'kfl,z,t,xpqs',kfl,z,scale,xpqs(0)
-	     xpqs(0) = xpqs(0)
-           xpqssave(1) = xpqs(1)/scale ! divide here by scale since this is not done in readgrid
-           xpqssave(2) = xpqs(2)/scale ! divide here by scale since this is not done in readgrid
         else
            xpqs(0) = 1.
            z=0.98
@@ -3908,12 +3902,12 @@ c           write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,glu
       if(dval.gt.0.) xpq(2) = dval
       if(ssea.gt.0.) xpq(3) = ssea
       if(ssea.gt.0.) xpq(-3) = ssea
-      if(glu.gt.1000000) then
-         write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,glu
-         write(6,*) ' i,j,k ',i,j,k
-      endif
+c      if(glu.gt.1000000) then
+c         write(6,*) ' new readgrid gluon x,q2,p,xpq',x,q2,p,glu
+c         write(6,*) ' i,j,k ',i,j,k
+c      endif
       if(ssea.gt.1000000) then
-         write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,ssea
+         write(6,*) ' new readgrid sea x,q2,p,xpq',x,q2,p,ssea
          write(6,*) ' i,j,k ',i,j,k
       endif
       return
@@ -8240,7 +8234,7 @@ c	   XPQS(1) = dnv/q2minpdf
 c	   XPQS(2) = upv/q2minpdf
 c	   XPQS(1) = dnv/scale 
 c	   XPQS(2) = upv/scale
-         SCALE = MAX(q2minpdf,KT2)
+c         SCALE = MAX(q2minpdf,KT2)
 cccc         call xpdf(dble(x),dble(scale))
 c         call xpdf(dble(x),dble(t**2))
 c  	      XPQS(1) = (dnv)/scale
@@ -8271,6 +8265,7 @@ c         write(6,*) ' cauniglu ',xpqs(0),xpqs(1),xpqs(2)
 
       Double Precision SCALE,Qgcut
 	Double Precision Qscal
+      Double Precision test_scale,test_as
 	Integer Iqqbar
 	Common/GLUDAT2/Qscal,Iqqbar
 	Logical alpfirst
@@ -8293,6 +8288,9 @@ c     &      write(6,*) 'lambda ',alam,qgcut,sqrt(scale),PYALPS(SCALE)
 	     write(6,*) ' alpha_s for ME: PARU(112) = ',PARU(112)
 	     write(6,*) ' alpha_s for ME: MSTU(111) = ',MSTU(111)
 	     write(6,*) ' alpha_s for ME: Scalfa = ',Scalfa,' Qscal ',Qscal
+           test_scale = 91.188d0*91.188d0
+           test_as = PYALPS(test_scale)
+           write(6,*) ' alpha_s at M_z: ',test_as
 	     alpfirst=.false.
 	   endif
 	
@@ -8585,6 +8583,8 @@ c check on scale:
          SCALE = SH_NEW
       ELSEIF(IQ2.EQ.3) THEN
          SCALE = M2 + PT2Q
+      ELSEIF(IQ2.EQ.5) THEN
+         SCALE = Q2 + PT2Q
       ELSEIF(IQ2.EQ.6) THEN
          SCALE = DABS(K12)+DABS(K22)
 c this is for testing
@@ -8596,7 +8596,8 @@ c this is for testing
       ENDIF
 	
       Dscale = scale
-      alpha_s = ALPHASCA(sqrt(dscale))
+c      write(6,*) ' in meqg, before alphas'
+c      alpha_s = ALPHASCA(sqrt(dscale))
 c	QQg = Qg0
 c	Lambda = 0.2	  
 c	alpha_s=12.*3.1415927/(33.-8)
@@ -9934,3 +9935,4 @@ C-----------------------------------------------------------------
 
       RETURN
       END
+ 

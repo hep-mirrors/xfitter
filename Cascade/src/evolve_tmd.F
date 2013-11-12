@@ -50,7 +50,9 @@ c      save /gridtt/
       character *15 char
 	Double Precision BB
 	Common /splitting/ BB
-      
+      Double precision ininorm(-6:6)
+      common/smininorm/ininorm
+     
       Integer IRR
       
       open(50,FILE='steer_gluon-evolv', FORM='formatted',
@@ -261,6 +263,8 @@ C choose BB: 0, 0.5 , 1.
       Common /SMbran2/pdflib,quark,gluon,photon,saturation
 	Double Precision mz
 	Data mz/91.188d0/
+      Double Precision asbmy,test,pi
+      external asbmy
 	Logical First
 	Common /SMstart/ First
       CHARACTER   FILENAME*132
@@ -359,6 +363,7 @@ C - now include also nf=4
       Tg=Log(Qg/QCDLam)
       Tgg=Tg+Log(2.)
       Ts=Log(Qs/QCDLam)
+      pi = 4.*atan(1.)
 
       Print *
       If (onel) then
@@ -368,7 +373,8 @@ C - now include also nf=4
       Endif
       Print *
       Print *,' Qmax,Qg,Qs,QCDLam =',Qmax,Qg,Qs,QCDLam
-	write(6,*) ' alpha_s(m_z) = ',3.1415/3*Capb/Log(mz**2/QCDLam**2)
+      test=asbmy(mz)*pi/Ca
+	write(6,*) ' alpha_s(m_z) = ',test
       Print *
       Print *,' Qmas,xmin =',Qmas,xmin
       Print *
@@ -686,12 +692,15 @@ C--Choose starting conditions for branching
 	Real A1,A2,A3,A4,A5,A6
 	double precision au 
       common/f2fit/au(50),first
+      Double precision ininorm(-6:6)
+      common/smininorm/ininorm
 	
      
       iktscheme =1
 
       Jev=Jev+1
 c      Call SMrget(Js)
+c      Write(6,*) ' sminit ininorm(0) ',ininorm(0),Xnor
       if(nobran.eq.2) then
          qgmin = 0.000001d0
 c         qgmin = 1.
@@ -804,6 +813,7 @@ c	write(6,*) gluon,quark,photon
 
 	  If(iparton.eq.0) then
 	    Kid(0) = 21
+          ininorm(0) = Xnor
 	  else
 	    Kid(0) = iparton
           if(ipartonO.ne.iparton) first1=.true.
@@ -811,9 +821,9 @@ c	write(6,*) gluon,quark,photon
           x0=xmin**SMrgen(3)
 c here do the starting distribution for the valence quarks
           PARM(1) = 'DEFAULT' 
-ccc          VAL(1) = 60701 ! HERAPDF15(NLO)  is not anymor in latest lhapdf
-          VAL(1) = 60500 ! HERAPDF10(NLO) 
-c          VAL(1) = 10551 ! CTEQ66
+ccc          VAL(1) = 60701 ! HERAPDF15(NLO)  is not anymore in latest lhapdf
+c          VAL(1) = 60500 ! HERAPDF10(NLO) 
+          VAL(1) = 10551 ! CTEQ66
 	    If(first1) then
               ipartonO=iparton
               CALL PDFSET(PARM,VAL)
@@ -822,7 +832,7 @@ c calculate the integral over xgx
               QQ=Qs
 	        QQ2=QQ*QQ
 	        xnormn = 0.
-     	        nx=20
+     	        nx=100
 	        xmi=0.0001
 	        xma=0.95
 	        dlxmin=log10(xmi)
@@ -855,6 +865,7 @@ c                    write(6,*) 'xx, sum ',xx,sum
               enddo
               write(6,*) '  sminfn Xnorm  new :',xnormn
 		  Xnor =  xnormn  ! really respect mom-sum rule for valence quarks 
+              ininorm(iparton)=Xnor
 c              write(6,*) '  sminfn Xnorm new :',xnormn
 	        first1 = .false.	 
 	    endif  
@@ -1039,10 +1050,13 @@ c limits
 	data ncall/0/
 	Integer iprint
 	Data iprint/0/
+      Double precision ininorm(-6:6)
+      common/smininorm/ininorm
+      
 c      write(6,*) ' updfgrid ',iflag
 	
       If(iflag.eq.1) Then
-	   do ki=1,2
+	   do ki=-4,4
 	   do k=0,nbp
 	   x3norm(ki,k) = 0.
 	   enddo
@@ -1060,34 +1074,36 @@ c log grid up to 0.1
          x1max = xcheck
          x1minL=log(x1min)
          x1maxL=log(x1max)
-         NbxL = Nbx-10
+         Nbxlin = 10
+         NbxL = Nbx-Nbxlin
          x1dif=(x1maxL-x1minL)/Real(NbxL)
-         Do I=0,NbxL+1
+         Do I=0,NbxL
             x1(I) = x1minL + x1dif*Real(I)
          Enddo
-	   Do I=0,NbxL
-            x1m(I) = (x1(i) + x1(i+1))/2.
-            x1b(i) = x1(i+1) - x1(i)
-c		write(6,*) ' log(x) bins x',i,exp(x1(i)),exp(x1b(i))
-         Enddo
+c	   Do I=0,NbxL
+c            x1m(I) = (x1(i) + x1(i+1))/2.
+c            x1b(i) = x1(i+1) - x1(i)
+cc		write(6,*) ' log(x) bins x',i,exp(x1(i)),exp(x1b(i))
+c         Enddo
 c lin grid in x from 0.1 - 1
          x1minlin=xcheck
          x1maxlin=1.0d0
-         Nbxlin = 10
          x1dif=(x1maxlin-x1minlin)/Real(Nbxlin)
          Do I=NbxL,NbxL+Nbxlin+1
             x1(I) = log(x1minlin + x1dif*Real(I-NbxL))
          Enddo
-	   Do I=NbxL+1,NbxL+Nbxlin+1
+
+
+	   Do I=0,NbxL+Nbxlin+1
             x1m(I) = (x1(i) + x1(i+1))/2.
             x1b(i) = x1(i+1) - x1(i)
 c		write(6,*) ' log(x) bins x',i,exp(x1(i)),exp(x1b(i))
+		write(6,*) '  bins x',i,exp(x1(i)),x1(i),x1b(i)
          Enddo
 
 
 c parameters for updfgrid:
          q2min = 0.001 ! new
-c	   q2max = 300.
          q2max = qmax**2/4.
 c
 	   x2minL=log(q2min)
@@ -1096,20 +1112,15 @@ c
          Do I=0,Nbk+1
             x2(I) = x2minL + x2dif*Real(I)
 	   Enddo
-c         x2(nbk+1) = log(90000.) ! new test
 	   Do I=0,Nbk
             x2m(I) = (x2(i) + x2(i+1))/2.
             x2b(i) = x2(i+1) - x2(i)
 c		write(6,*) ' log(kt2) bins ',i,x2m(i),exp(x2m(i))
          Enddo
 c p_max
-c	   p3min=0.2 ! new
-c         Qgmin = max(Qg-0.5d0,QCDlam)
          Qgmin = max(Qg,QCDlam)
          p3min=Qgmin
-cc         p3min=Qs
 	   p3max=Qmax
-c	   p3max=40. !test
 	   x3lmin=log(p3min)
 	   x3lmax=log(p3max)
 c	   write(6,*) ' p3min,p3max ',p3min,p3max,x3lmin,x3lmax
@@ -1147,12 +1158,8 @@ c zero xg
          Xgn = 0.
       Elseif(iflag.eq.2) Then
 c fill in values
-c	   if(nloop.ne.nold) Then
-c	    nold=nloop
-c	    endif
          xgmy = xg
          wtmy = wt
-c         write(6,*) ' updfgrid ',xg,Wt,Wini,Excode
          Val1 = log(xgmy)
 	
          kt2=P(1,Ifin)**2+P(2,Ifin)**2
@@ -1161,16 +1168,6 @@ c         write(6,*) ' updfgrid ',xg,Wt,Wini,Excode
          wtxg=wtmy*xgmy
 c new test
          xp2 = p_max	
-c	   if(kt2.le.1.and.xp2.gt.500) then 
-c	   if(kt2.le.1.and.Ifin.gt.1) then 
-c	   if(kt2.le.1) then 
-c	   write(6,*) 'updfgrid ',ifin,wtmy,xgmy,sqrt(kt2),p_max,Qtem,Qtem_old
-c	   endif
-	   if(sqrt(kt2).ge.xp2.and.onel) then
-c	     write(6,*) ' updfgrid kt > qmax ',sqrt(kt2),xp2
-	     endif
-c end new	
-c         Val3 = xp2
          Val3 = log(xp2)
          If(Val3.lt.x3(0)) Then
             write(6,*) ' val3 = ',val3,' too low: x3(0) = ',x3(0),p_max
@@ -1186,7 +1183,6 @@ cc            Val3 = x3(Nbp+1)
 	      ki=kid(ifin)
 	   Endif
          
-c         write(6,*) ' updfgrid: ki = ',ki
          ix3=-1
    40    ix3 = ix3 + 1
          if(ix3.gt.Nbp) then
@@ -1198,20 +1194,15 @@ c		write(6,*) ' updfgrid ',ix3,x3(ix3),val3
             endif
          Endif
 
-c norm to initial condition
-       if(wt0.gt.0) then
-          wt0my = wt0
+         if(wt0.gt.0) then
+            wt0my = wt0
           else
-          wt0my=0.
-       endif
-c norm to initial condition
-ccc	 x3norm(ki,ix3) = x3norm(ki,ix3) + x0*wt0my  	 
-c norm to momentum sum rule at each scale
-	 x3norm(ki,ix3) = x3norm(ki,ix3) + xgmy*wtmy  
-
-c         write(6,*) ' updfgrid-test: kid ',kid(ifin),ki
-         
-c         write(6,*) ' x0, wt0my ',x0,wt0my
+            wt0my=1.
+         endif
+c norm to initial condition (old style)
+ccc	 x3norm(ki,ix3) = x3norm(ki,ix3) + x0*wt0my  
+c norm to momentum sum rule at each scale 
+	   x3norm(ki,ix3) = x3norm(ki,ix3) + xgmy*wtmy  
 	   Xin = Xin + x0
 	   if (Excode.ne.0) then
 c            write(6,*) ' updfgrid return: Excode = ',Excode 
@@ -1219,7 +1210,7 @@ c            write(6,*) ' updfgrid return: Excode = ',Excode
          endif
          If (Wini.eq.0.0) then
             write(6,*) ' updfgrid return: Wini = 0 ',Wini
-           return
+            return
          endif
 	   
 	   
@@ -1248,8 +1239,7 @@ c            write(6,*) ' val2 = ',val2,' too low: x2(0) = ',x2(0)
          elseif(val2.gt.x2(Nbk+1)) Then
             nval2 = nval2 + 1
             if(nval2.lt.10) then
-c               write(6,*) ' val2 = ',val2,' too high: x2(Nbk) = ',
-c     +         x2(Nbk+1)
+c               write(6,*) ' val2 = ',val2,' too high: x2(Nbk) = ',x2(Nbk+1)
             endif
             Val2 = x2(Nbk+1)
 		Nrejx2 = Nrejx2 + 1
@@ -1264,15 +1254,8 @@ c     +         x2(Nbk+1)
          Endif
          
 
-	 xgx(ki,ix1,ix2,ix3)= xgx(ki,ix1,ix2,ix3) + wtmy
+	   xgx(ki,ix1,ix2,ix3)= xgx(ki,ix1,ix2,ix3) + wtmy
 
-c         write(6,*) ki,ix1,ix2,ix3,wtmy
-         xm11(ix1)=xm11(ix1)+val1
-         xm21(ix2)=xm21(ix2)+val2
-         xm31(ix3)=xm31(ix3)+val3
-         xm12(ix1)=xm12(ix1)+1
-         xm22(ix2)=xm22(ix2)+1
-         xm32(ix3)=xm32(ix3)+1
          Xgn = Xgn + wtmy*xgmy
 
 	   ncall = ncall + 1
@@ -1280,69 +1263,23 @@ c         write(6,*) ki,ix1,ix2,ix3,wtmy
 c xgx defined here is actually g(x)
 c corresponds: d g(x)/dlnx = x dg(x)/dx
          if(iprint.eq.1) then
-         write(6,*) Xgn,x1dif,Xgnorm,x1maxL,x1minL,Nbx
-         write(6,*) 'ncall=',ncall
-	   write(6,*) ' rej x1 cut ',Nrejx1,' rej x2 cut ',Nrejx2
-	   write(6,*)  ' xgn/ncall =',xgn/real(ncall)
-	   write(6,*) ' updfgrid: X3norm = ',(X3norm(1,i),i=0,Nbp)
+           write(6,*) Xgn,x1dif,Xgnorm,x1maxL,x1minL,Nbx
+           write(6,*) 'ncall=',ncall
+	     write(6,*) ' rej x1 cut ',Nrejx1,' rej x2 cut ',Nrejx2
+	     write(6,*)  ' xgn/ncall =',xgn/real(ncall)
+	     write(6,*) ' updfgrid: X3norm = ',(X3norm(1,i),i=0,Nbp)
 	   endif
-         do i=0,Nbx
-            if(xm12(i).ge.10) then 
-              xm1(i)=xm11(i)/xm12(i)
-            else
-              xm1(i) = x1m(i)
-            endif
-         end do
-         Do j=0,Nbk
-            if(xm22(j).ge.10) then 
-            xm2(j)=xm21(j)/xm22(j)
-            else
-            xm2(j) = x2m(j)
-            endif
-         end do
-         Do k=0,Nbp
-            if(xm32(k).ge.10) then 
-            xm3(k)=xm31(k)/xm32(k)
-            else
-            xm3(k) = x3m(k)
-            endif
-         end do
-c perform the "integration" over p
-         Do ki = 1,2
-            Do K = Nbp-1,0,-1
-c	    write(6,*) ' norm 1st ',x3norm(ki,k),k
-cccc	    x3norm(ki,k) = x3norm(ki,k) + x3norm(ki,k+1)
-c	    write(6,*) ' norm final ',x3norm(ki,k)
-            Enddo
-         Enddo
-         Do ki = 1,2
-            Do I = 0,Nbx
-               Do J = 0,Nbk
-                 Do K = Nbp-1,0,-1
-ccc                 xgx(ki,I,J,K) = xgx(ki,I,J,K)+xgx(ki,I,J,K+1)
-                 Enddo
-               Enddo
-            Enddo
-         Enddo
 c
-         
          Do ki = -4,4
          Xnormtest = 0.
+         write(6,*) ' ininorm :',ininorm(ki),ki
          Do I = 0,Nbx
-c       write(6,*) ' entries I ',i,xgx(i,0,0),' b-width ',log10(x1b(i)),
-c     +    log10(x1m(i))
             Do J = 0,Nbk
                sum = 0
                Do K = 0, Nbp
-c this is the new thing
-c 11.March 2013		 Xgnorm = Xnor/max(x3norm(ki,k),1.) ! for gluon/glubran
-c		     Xgnorm = Xnor/(max(x3norm(1,k),1.)+ max(x3norm(2,k),1.))! for gluon/glubran
                  Xnormtest = max(x3norm(ki,k),1.)
-c                 write(6,*) ' updfgrid: testing norm ki = ',ki,Xnormtest
-                 Xgnorm = Xnor/Xnormtest
+                 Xgnorm = ininorm(ki)/Xnormtest
                  xgx_f(ki,I,J,K) = xgx(ki,I,J,K)/x2b(j)/x1b(i)*Xgnorm
-c                 write(6,*) ' norm  I ',ki,i,j,k,xgx(ki,I,J,K),Xgnorm,Xnor,x3norm(1,k),x3norm(2,k)
-c                 write(6,*) ' norm  I ',x1(i),x2(j),x3(k),xgx_f(1,I,J,K),xgx_f(2,I,J,K)
                Enddo
             Enddo
          Enddo
@@ -1358,11 +1295,9 @@ c         write(30,*) ' ln(xg),  ln(k_t^2), ln(p),  xgx'
          inquire(FILE=filname,EXIST=ex)
          write(6,*) ' updfgrid-test: filename ',filname,ex
          if(ex) then
-c            open(30,FILE='glu.dat', FORM='formatted',STATUS=
             open(30,FILE=filname, FORM='formatted',STATUS=
      +      'old',IOSTAT=IRR,ERR=50 )
             else
-c            open(30,FILE='glu.dat', FORM='formatted',STATUS=
             open(30,FILE=filname, FORM='formatted',STATUS=
      +      'new',IOSTAT=IRR,ERR=50 )
 	   Endif
@@ -1813,8 +1748,6 @@ c new try with min(QQt,Qlam0)
 	Qlam0 = Qg
       TQtp=Log((dmax1(QQt,Qlam0))**2/QCDLam**2)
       asb= Capb/TQtp
-c      write(6,*) ' asb ',Capb,TQtp,QQt,Qlam0,QCDLam
-c      write(6,*) ' asb = ',asb
 
 	If(First) Then
       BBsave = BB
@@ -1851,10 +1784,9 @@ c      write(6,*) ' szvalnew BB = ',BB
 	Wz=-99999.
 	D_ns = 1.
 C First get proper alphas
-c	asbold=asbmy(QQt)
 c asb = 2 Ca alphas/(2pi)
       asbold = asb    ! hannes new
-cccc      asbold1 = 0.5*Capb/Ttem
+      asbold1 = 0.5*Capb/Ttem
       if(Ipgg.ge.2) then
 	  as= asbmy(scal*Qtem)
 	else
@@ -1872,23 +1804,19 @@ cccc      asbold1 = 0.5*Capb/Ttem
 	Qg0 = Qg
       g1 = 0.5*Capb*Log(Ttem/Tg)
       If (onel) then
-c         g0=0.
 	   zmin = xmin/xg
 	   xmin0 = zmin
          If (zmax.gt.zmin) g0=asb*log(zmax/zmin)
-c         g0 = 0
          gtot=g0+g1
          If (SMrgen(1)*gtot.le.g1) then
             znow=1.-exp(Ttem*((Tg/Ttem)**SMrgen(2)-1.))
             z1=1.-znow            
 	      asbold1= asbmy(Qtem*(1.-znow)) ! New 
-c            write(6,*) asbold1,asbmy(Qtem*(1.-znow))
 	      wz = gtot/(asbold1/z1) ! hannes new    
 	      gtotw = asbmy(scal*Qtem*(1.-znow))*Splitt(z1)*wz
          Else
             Nsoft=Nsoft+1
             znow=zmin*(zmax/zmin)**SMrgen(3)
-c		Ismallz = 1
 	      wz = gtot/(asbold/znow)
 	      gtotw = as*Splitt0(znow)*wz 
          Endif
@@ -1912,7 +1840,6 @@ c
          if(g0.ne.g0) then
            write(6,*) 'problem in  smzvalgg', g0
          endif
-         g0 = 0
          gtot=g0+g1
 c do the z weighting	
          BB = BBsave
@@ -1921,13 +1848,10 @@ c do the z weighting
             if(znow.gt.zmax) write(6,*) ' 1. smzvalgg: znow>zmax ',znow,zmax
 		nsidx = 0
             z1=1.-znow            
-	      asbold1= asbmy(Qtem*(1.-znow)) ! New 
-c            write(6,*) 'large z', asbold1,asbmy(Qtem*(1.-znow))
+channes	      asbold1= asbmy(Qtem*(1.-znow)) ! New 
 
 	      wz = gtot/(asbold1/z1) ! hannes new    
 	      gtotw = asbmy(scal*Qtem*(1.-znow))*Splitt(z1)*wz
-c            write(6,*) ' smzval ',wz,gtotw,asbmy(scal*Qtem*(1.-znow))
-c            write(6,*) ' Splitting ',Splitt(z1),z1,1/z1
          Else
             if(QQt.lt.zmax*Qtem) then
                If (SMrgen(4)*g0.gt.Pg1) then
@@ -1940,18 +1864,16 @@ c            write(6,*) ' Splitting ',Splitt(z1),z1,1/z1
                   Ff=SMrgen(3)*DFREQ(zero)
                   If (Ff.lt.Fmin) then
                      znow=xmin*0.5
-           if(znow.gt.zmax) write(6,*) ' 3. smzvalgg: znow>zmax ',znow,zmax
+                     if(znow.gt.zmax) write(6,*) ' 3. smzvalgg: znow>zmax ',znow,zmax
                   Elseif (Ff.gt.Fmax) then
                      znow=zmax*Fmax
-           if(znow.gt.zmax) write(6,*) ' 4. smzvalgg: znow>zmax ',znow,zmax
+                     if(znow.gt.zmax) write(6,*) ' 4. smzvalgg: znow>zmax ',znow,zmax
                   Else
                      znow=QQt/Qtem*exp(DGAUSN(Ff)/S2asb)
-           if(znow.gt.zmax) then
-           write(6,*) ' 5. smzvalgg: znow>zmax ',znow,zmax,qqt,qtem,S2asb,asb
-           write(6,*) ' 5. smzvalgg: g0, g1 ',g0,g1,Ff,DGAUSN(Ff)
-            
-           endif
-c                     write(6,*) '1st smgsin ',smgsin(Ff),DGAUSN(Ff)
+                     if(znow.gt.zmax) then
+                        write(6,*) ' 5. smzvalgg: znow>zmax ',znow,zmax,qqt,qtem,S2asb,asb
+                        write(6,*) ' 5. smzvalgg: g0, g1 ',g0,g1,Ff,DGAUSN(Ff)        
+                     endif
                   Endif
 			nsidx =2
                Endif
@@ -1964,7 +1886,6 @@ c                     write(6,*) '1st smgsin ',smgsin(Ff),DGAUSN(Ff)
                   znow=zmax*Fmax
                Else
                   znow=QQt/Qtem*exp(DGAUSN(Ff)/S2asb)
-
                Endif
 		   nsidx = 1
             Endif
@@ -1980,8 +1901,6 @@ c Here apply the weight for the small z generation
 		  alp_dns = as * D_ns
 	        wz = gtot/(asbold/znow*Nonsud0(zz))
 	        gtotw = as*Splitt0(zz)*D_ns*wz 
-c              write(6,*) ' small z '
-              
             Endif 	
          Endif
       Endif	  
@@ -1999,39 +1918,18 @@ c calculate here g1_sudakov, for proper norm
 	eps=0.0001
 	BB=0.5
 	call gadap(slo,shi,g1p,eps,g1f)
-c	write(6,*) ' g1 = ',g1,' g1_sudakov = ',g1f
 	g1_sudak=g1f
-c      g1_sudak = 1 
 c do the z weighting	
       BB = BBsave
       zz=znow
-c      z1=1.-znow            
-c	D_ns=	Nonsud(zz)
-
-c      asbold1 = 0.5*Capb/Ttem
-      
-c	asbold1= asbmy(Qtem*(1.-znow)) ! New 
-
-c	wz0 = g0/(asbold/znow*Nonsud0(zz))
-c	wz1 = g1/(asbold1/z1) ! hannes new
-      
-c	gtotw = as*Splitt0(zz)*D_ns*wz0 + asbmy(scal*Qtem)*Splitt(z1)*wz1
-cc	gtotw = (as*Splitt0(zz)*D_ns + asbmy(scal*Qtem)*Splitt(z1))*(wz1)
-c	gtotw = (   asbmy(scal*Qtem)*Splitt(z1))*(wz0)
-cc	gtotw = as*Splitt0(zz)*D_ns*wz0 
-      
-c      write(6,*) as*Splitt0(zz)*D_ns*wz0,as*Splitt0(zz)*D_ns*wz1
-c        write(6,*) ' smzvalgg: gtotw  ',gtotw,g0,wz0,g1,wz1
       if(gtotw.le.0) then
         write(6,*) ' smzvalgg: gtotw < 0 ',gtotw,g0,g1,wz
       endif
-c      write(6,*) ' smzvalgg: gtotw, g1_suadak ', gtotw,g1_sudak
       wg = gtotw  /g1_sudak
       if(wg.le.0) then
         write(6,*) ' smzvalgg: wg < 0 ',gtotw,g1_sudak
        endif
 c end new	
-c	 write(6,*) ' wg = ',wg,' wz = ',wz
 	if(wg.ne.wg) then
 	  write(6,*) ' problem in szvalnew wg:',wg,znow
 	  write(6,*) ' problem in szvalnew g0,g1:',g0,g1
@@ -2050,7 +1948,8 @@ c  asmy = 2 Ca alphas/(2pi)
 	Double Precision xtest
 	integer nf 
 	Double Precision mass(6)
-	data mass/0.,0.,0.,1.5,5.0,175./
+c	data mass/0.,0.,0.,1.5,5.0,175./
+	data mass/0.,0.,0.,1.35,4.8,175./
       Integer Ialps
 c      data Ialps/1/
       data Ialps/2/
@@ -2068,15 +1967,12 @@ c      Data Qlam0/0.71/
 c new approach ala shirkov
       xtest=xkt/QCDLam
       if(xtest.lt.0.9999.or.xtest.gt.1.0001) then
-c        TQtp=Log(xkt**2/QCDLam**2) + QCDLam**2/(QCDLam**2-xkt**2)
 	else 
-c	  TQtp = 0.5
 c	  write(6,*) ' asbmy: xtest = ',xtest,xkt,QCDLam
 	Endif
 c old version
 c asb = Ca *alphas/pi
       asbmy = Capb/TQtp
-c      write(6,*) ' old asbmy: = ',Capb/TQtp
 	pi=4.*atan(1.)
       q2eff = xkt**2     
       nfmin = 3
@@ -2102,7 +1998,6 @@ c          write(6,*) nf
         Q2THR=mass(NF+1)**2
         IF(Q2EFF.GT.Q2THR) THEN
           NF=NF+1
-c          ALAM2=ALAM2*(ALAM2/Q2THR)**(2D0/(33D0-2D0*NF))
           if(nf.eq.5) then 
              ALAM2=ALAM2*(ALAM2/Q2THR)**(2./23.)
              if(Ialps.eq.2) ALAM2=ALAM2*(log(Q2THR/ALAM2)**(-2.*963./13225.))
@@ -2111,11 +2006,11 @@ c          ALAM2=ALAM2*(ALAM2/Q2THR)**(2D0/(33D0-2D0*NF))
              ALAM2=ALAM2*(ALAM2/Q2THR)**(2./21.)
              if(Ialps.eq.2) ALAM2=ALAM2*(log(Q2THR/ALAM2)**(-2.*321./3381.)) 
           endif
-          GOTO 110
+         GOTO 110
         ENDIF
       ENDIF
 	if(nf.gt.6.or.nf.le.0) write(6,*) nf,q2
-	
+
       B0=(33D0-2D0*NF)/6D0
       ALGQ=LOG(MAX(1.0001D0,Q2EFF/ALAM2))
       IF(Ialps.EQ.1) THEN
@@ -2183,23 +2078,17 @@ c z1min= = Q0/q, z1max=1
 	Cf = 4d0/3d0
       z1min=xmin
 	
-ccc	z1min=dmax1(0.1,z1min)
-ccc	z1min=dmin1(zmax,z1min)
 	
 	
 	z1max=zmax
 	z1= z1min*(z1max/z1min)**y
-c	write(6,*) ' Splitt0 z1,xmin,asb ',z1,xmin,asb
 	as=asbmy(scal*QQt)
       if(Ipgg.ge.2) then
-c	write(6,*) ' asmy (q) Ipgg: ',Ipgg
 	as= asbmy(scal*Qtem)
 	else
-c	write(6,*) ' asmy (k) Ipgg: ',Ipgg
 	as=asbmy(scal*QQt)
 	endif
       g0t = as *Splitt0(z1)*Nonsud(z1)	
-c	write(6,*) ' splitt0 ',Ipgg,z1,Splitt0(z1),Nonsud(z1) 
 	g0t=g0t*z1*log(z1max/z1min)
 	g0p=g0t
 	
@@ -2214,17 +2103,12 @@ c	write(6,*) ' splitt0 ',Ipgg,z1,Splitt0(z1),Nonsud(z1)
 	Double Precision Splitt,z1
 	Double Precision BB
 	Common /splitting/ BB
-c      write(6,*) ' splitt BB= ',BB,Ipgg
 	If(Ipgg.eq.0.or.Ipgg.eq.2) then
 c first the simple 1/(1-z)=1/z1	 
-c	   write(6,*) ' splitt sing. part Ipgg: ',Ipgg
 	  Splitt=1./z1
 	  else
 c now gavins version
-c 	   write(6,*) ' splitt full  Ipgg: ',Ipgg
        Splitt = ((1.-z1)/z1 +BB*(1.-z1)*z1)
-c	  Splitt=1./z1
-c        write(6,*) ' splitt ',z1,1/z1
 	endif
 	Return
 	End 
@@ -2241,11 +2125,9 @@ c        write(6,*) ' splitt ',z1,1/z1
 	z1 = z
 c first the simple 1/z	 
 	If(Ipgg.eq.0.or.Ipgg.eq.2) then
-c	   write(6,*) ' splitt0 sing. part Ipgg: ',Ipgg
          Splitt0=1./z1
 	   else
 c now gavins version
-c	   write(6,*) ' splitt0 full  Ipgg: ',Ipgg
          Splitt0 = (1.-z1)/z1 + (1.-BB)*z1*(1.-z1)
 	 endif
 	 Return
@@ -2325,9 +2207,7 @@ c	Insq = 1 non-sudakov with alphasq with gavin treatment
 	if(z1.gt.z0) then
 	   write(6,*) ' Nonsud z1,z0',z1,z0,qtem,qqt
 	endif
-c	  if(QQt.lt.Qtem) write(6,*) ' QQt,Qtem ',QQt,Qtem 
       k=QQt
-c      k=max(QQt,Qg)
       q=Qtem
       Q0=Qg  
       Q0=0.2
@@ -2339,15 +2219,10 @@ c      k=max(QQt,Qg)
 	zt = max(z1,zc)
 c now gavins version
 	B=BB
-	if(tk.lt.tc) then 
-c	  write(6,*) ' Nonsud0: tk<tc '
-	endif
 	if(ns_sel.eq.-1) then
          Nonsud1 =  log(z0/z1)*log(k**2/z0/z1/q**2)
          Nonsud1 =  -asbmy(scal*k)*Nonsud1
-c	   write(6,*) ' nonsudakov old : ',ns_sel
 	elseif(ns_sel.eq.0) then
-c	   write(6,*) ' nonsudakov old with cut : ',ns_sel
 c the simple non - sudakov
 	   if(tk.lt.tc) then
 	     Nonsud1 = 0.
@@ -2358,10 +2233,8 @@ c the simple non - sudakov
 	   endif
          Nonsud1 =  -asbmy(scal*k)*Nonsud1
 	   endif  
-c	write(6,*) z0,z1,qqt,qtem,asb
 	
 	elseif(ns_sel.eq.1) then
-c	   write(6,*) ' nonsudakov full splitt with cut : ',ns_sel
 	   if(tk.lt.tc) then
 	     t0 = 0.
 	   else           
@@ -2403,7 +2276,6 @@ c now gavins version ( for full splitting fct )
      #             log(k/q0)*z1**2-2.D0/3.D0*log(k/q0)*B*z1**3+
      #             log(k/q0)*B*z1**2
                    t0 = t0 + t1
-c		     write(6,*) ' reached here ',t0,t1
 	          endif
 	      endif
 	   endif
@@ -2512,7 +2384,6 @@ c here non sudakov with fullspiltting and alphas(q)
            Nonsud1 = -t0 * Capbp 
 	     t0 = 0
            If(Insq.eq.0) then
-c              Nonsud1 =  -t0 * Capbp 
 	        if(zc.gt.z1) then      
    	           z01=zc
 	           ktqt=QQt/Qtem
@@ -2542,7 +2413,6 @@ c              Nonsud1 =  -t0 * Capbp
 	        Nonsud1 = Nonsud1+ t0
               if(Nonsud1.gt.0) write(6,*) 'exp(Nonsud1) > 0 ',Nonsud1
 		  endif
-c		  write(6,*) ' here ',Nonsud1,t0,insq
  	     Elseif(Insq.eq.1) then
 	        if(zc.gt.z1) then      
                  t0 = 2*log(k/q0)*log(zc)-2*log(k/q0)*zc-
@@ -2554,7 +2424,6 @@ c		  write(6,*) ' here ',Nonsud1,t0,insq
      #           log(k/q0)*B*z1**2
                  t0=-asbmy(scal*k)*t0
                  Nonsud1 = Nonsud1 + t0 
-c		  write(6,*) ' here ',Nonsud1,t0,insq
 		     
 	        endif
 	     Endif
@@ -2578,7 +2447,6 @@ c		  write(6,*) ' here ',Nonsud1,t0,insq
 	  ncall=ncall+1
 	  If(ncall.le.1000) then
 	  write(6,*) ' Problem with new Non - Suadkov: ',Nonsud1,ns_sel
-c	  write(6,*) ' QQt,Qtem ',QQt,Qtem
 	  endif 
 	  Nonsud1 = 1.
 	Endif
@@ -2596,7 +2464,6 @@ c	  write(6,*) ' QQt,Qtem ',QQt,Qtem
 	  else
 	  write(6,*) ' Ei: i= ',x1,' not implemented '
 	  Endif
-c	  write(6,*) ' Ei = ',ei
 	Return
 	End 
       Function Nonsud0(z)
@@ -2610,8 +2477,6 @@ c	  write(6,*) ' Ei = ',ei
 	Common /splitting/ BB
 	Double Precision Qtem,QQt,xmin,zmax,Qg
 	Common/g0int/Qtem,QQt,xmin,asbold,zmax,Qg
-c	Double Precision asbmy
-c	External asbmy
 	if(onel) then 
 	 Nonsud0 = 1.
 	 else
@@ -2628,9 +2493,7 @@ c	External asbmy
 	  write(6,*) ' Nonsud : this should never happen '
 	  Endif
 c the simple non - sudakov	 
-cc	Nonsud1 =  -asbmy(QQt)*log(z0/z1)*log(QQt**2/z0/z1/Qtem**2)!hannes old 
 	Nonsud1 =  -asbold*log(z0/z1)*log(QQt**2/z0/z1/Qtem**2) !hannes new 
-c	write(6,*) z0,z1,qqt,qtem,asb
       Nonsud1 = exp(Nonsud1)
 	If(Nonsud1.lt.0.0.or.Nonsud1.gt.1.0) Then
 	write(6,*) ' Problem with old Non - Suadkov: ',Nonsud1
@@ -2674,8 +2537,6 @@ C--Small x branching algorithm
 	Integer maxglu,nglu
 	parameter (maxglu=100)
       Double Precision zp,zm,xkt,xqt,xglu
-c      common/cwnco2/nglu,zp(maxglu),zm(maxglu),xkt(maxglu),xqt(maxglu),
-c     &	xglu(maxglu)
 	Integer II,I1
 	Logical QQtcut
 ccc 	Data QQtcut/.false./
@@ -2707,10 +2568,6 @@ c      Data isat/1/ ! sat. ktcut
 	
       Double Precision zz
 	double Precision xsat,lamb
-ccc	data xsat/0.41d0/
-c        data xsat/0.41d-1/
-cc        data xsat/0.41d-2/
-cc        data xsat/0.41d-3/
 	data xsat/0.41d-4/
 cccc        data xsat/1./
 
@@ -2722,7 +2579,6 @@ cc	Data iqbar/1/
       Logical First
 	Data First/.true./
 	Double Precision scal_qbar
-c	Data scal_qbar/0.3/
 	Data scal_qbar/1./
 	
 	Real Qmax_check,xg1,xg1b,xg2,xg2b
@@ -2795,12 +2651,10 @@ C (NMXSUD= max no of entries in lookup table)
 		
 	
       xsim = 999999.
-c      write(6,*) ' new event: xsimax ',ximax
       QQtx=P(1,0) 
       QQty=P(2,0) 
       ktold = P(1,0)**2 + P(2,0)**2	
 c new acc to cascade
-c	write(6,*) ' old yphbar ',yphbar
       xgbarp =-ktold/(1.d0-xg)/Sbig
 	
       ximax=(xgbarp+yphton)/(xg+yphbar)  
@@ -2810,8 +2664,6 @@ c	write(6,*) ' old yphbar ',yphbar
       tmax = max(1.E-5,ximax)
 		
 	Qtem_old = Qg
-cend
-c	write(6,*) ' SMbran START : Qg,Told ',Qg,Told
 
 c--loop over branches
       ixold = 0
@@ -2820,18 +2672,15 @@ c--loop over branches
 C--Limit on Qtem
       Qbar = Qbarmy
       Qhard=Qbar 
-c	write(6,*) ' smbran: Qhard,kt0 ',Qhard,sqrt(P(1,I)**2 + P(2,I)**2)
       ktold = P(1,I)**2 + P(2,I)**2
       QQt0=Sqrt(QQtx**2+QQty**2)
       QQt0=Sqrt(ktold)
-
       if(nobran.ge.1) then
 c no branching at all:
          Qbar=-1.
          tmax = 1.E12
 c         write(6,*) ' no-branching selected '	  
       endif
-c      write(6,*) ' smbran_new-all: Qbar = ',Qbar,Qbarmy,Qmax,nobran
 	
 C--Find Qtem
       Call SMqtem(.false.)
@@ -2839,11 +2688,8 @@ C--Find Qtem
       If(Kid(Ifin).ne.21) then
 c treat quark splittings
 c only q -> g up to now
-c         Qtem = Qtemqg
-c 	   Ttem = Ttemqg 
-	   Qtem = Qtemgg
-	   Ttem = Ttemgg
-c	   write(6,*)  ' Qtemqg,Qtemgg  ',Ttemqg,Ttemgg,Told
+         Qtem = Qtemqg
+ 	   Ttem = Ttemqg 
       Else If(Kid(Ifin).eq.21) then
 c treat gluon splittings
 c only g -> g g 
@@ -2856,7 +2702,6 @@ c	   write(6,*) ' Qtem = ',Qtem,' > ',Qmax
       endif
       ix3=ixold-1
 345   ix3=ix3+1
-c      write(6,*) ' ix3 ',qtem,ix3,x3m(ix3)
       if(ix3.gt.50) then 
          write(6,*) ' FATAL ix3>50',qtem,ix3,x3m(ix3)
          stop
@@ -2866,51 +2711,36 @@ c      write(6,*) ' ix3 ',qtem,ix3,x3m(ix3)
       else 
         p_max = x3m(ix3) 
         kt2 = P(1,Ifin)**2 + P(2,Ifin)**2
-c        write(6,*) ' smbran ',xg,kt2,x3m(ix3),ix3,ixold,Ifin
         call updfgrid(2)
         goto 345
       endif
 
       If (Qtem.gt.Qbar) go to 600
 	if(Qtem.gt.Qmax) then
-c	   write(6,*) ' Qtem = ',Qtem,' > ',Qmax 
 	   go to 600
 	endif
-c      write(6,*) ' branching ;;;  ', Qtem
-cccc	Qtem_old = Qtem
 c--Compute provisional qt and Qt
       Call SMrazm(Qtem,qtx,qty)
       QQtx=P(1,I)+qtx
       QQty=P(2,I)+qty
       ktold = P(1,I)**2 + P(2,I)**2
       QQt=Sqrt(QQtx**2+QQty**2)
-c      write(6,*) ' Qtem**2 = ',Qtem**2,qtx**2+qty**2,qqt**2
-
-
       if(isat.eq.1) ktcut = max(0.3,Qscut*(xg/xsat)**(-lamb/2))
-c      write(6,*) 'smbran-new: ktcut ',ktcut,xg,xsat,lamb
 
       if(QQtcut) then
          If (QQt.le.QQtc) then
             Told=Ttem
-c            write(6,*) ' before 100 ',QQt,QQtc
             go to 100
          Endif
 	endif
       If (QQt.le.ktcut) then
-c         write(6,*) 'smbran-new: new sat. cut: ktcut,QQt ',ktcut,QQt
-c         write(6,*) 'smbran-new: xg,xsat,lamb ',xg,xsat,lamb  
-	   
-c	   write(6,*) wg,QQt,ktcut,P(6,I)  
          Told=Ttem
-c         write(6,*) ' QQt < ktcut '
          go to 100
          else
       Endif
       TQt=Log(QQt/QCDLam)
 c check on Sudakov factors
       Qtest = Qtem**2
-c      Write(6,*) NQEV,INTER
       Do IS=1,4
 c IS=1 -> gg; =2 -> gq; =3 -> qq; =4 -> qg   
       sudtest = DIVDIF(SUD(1,IS),QEV(1,IS),NQEV,Qtest,INTER)
@@ -2932,18 +2762,14 @@ c      write(6,*) ' smbran suda: ',IS,Qtem,sudtest,sudakov(IS)
       if(Iqg.eq.1) then 
          wxqg = asbmy(scal*qtem*ynow)* Splittqg(znow) *0.5/2./Ca *wz
          wxqg = wxqg * Sudakov(4)/Sudakov(1)
-c         write(6,*) ' qg : ',Sudakov(4)/Sudakov(1),Sudakov(4),Sudakov(1)
       endif
       wxqq = asbmy(scal*qtem*ynow)* Splittqq(znow)*Cf /2./Ca *wz
-      wxqq = wxqq * Sudakov(3)/Sudakov(1)
-c      write(6,*) ' qq : ',Sudakov(3)/Sudakov(1),Sudakov(3),Sudakov(1)
+ccccccccccccccccccccccc      wxqq = wxqq * Sudakov(3)/Sudakov(1)
       if(Igq.eq.1) then 
          wxgq = asbmy(scal*qtem*ynow)* Splittgq(znow)*Cf /2./Ca *wz
          wxgq = wxgq * Sudakov(2)/Sudakov(1)
       Endif 
-c      write(6,*) ' wxgg,wxqg,wxqq,wxgq ',wxgg,wxqg,wxqq,wxgq
 c call my modified smzval
-c      write(6,*) Kid(Ifin) 
       If(Kid(Ifin).ne.21) Then
          if(smrgen(3).le.wxqq/(wxqq+wxgq)) then
 	      Kid(I+1) = Kid(Ifin)
@@ -2952,19 +2778,15 @@ c      write(6,*) Kid(Ifin)
             
 	      Kid(I+1) = 21 
          Endif
-c         write(6,*) ' quarks Wgq, Wqq ',Iqg, wxgq,wxqq,wtot1
 	Elseif(Kid(Ifin).eq.21) Then 
-cc         write(6,*) wxgg,wxqg
          if(smrgen(4).le.wxgg/(wxgg+wxqg)) then
 	      Kid(I+1) = 21
-c            write(6,*) ' select glu - splitting '
             else
             write(6,*) ' SBRAN FATAL: select q - splitting for gluon'
 	      Kid(I+1) = Kid(Ifin)
          Endif
 	Endif
 	wg = wxgg
-c      write(6,*) ' weights:',wxgg,wxqg,wxqq,wxgq,wg
       if(wg.eq.0) then
          write(6,*) 'smbran weight = 0',wg,wxqq, Qtemgg,Qtemqg,Qbar
       endif 
@@ -2975,12 +2797,10 @@ c--Compute true qt and Qt
       ybar=qt**2/(xg*ynow*Sbig)
 
       xsi  = ybar/(xg*ynow)
-c	  write(6,*) ' xsi_new ',xsi ,' xsi_old ',xsiold,i
 	if(xsi.lt.xsiold) then
 	  write(6,*) ' non ordred xsi_new ',xsi ,' xsi_old ',xsiold
 	  endif
 	  xsiold = xsi
-c     write(6,*) ' ybar,tmax ',ybar,tmax
 
       qtx=qtx*ynow
       qty=qty*ynow
@@ -2998,47 +2818,36 @@ c my check
 c LDC/ Catani kin constraint
          if(ktnew.le.znow*qt2_1) then
             Told=Ttem
-c            write(6,*) ' kincut 1 '
             go to 100
          endif
       Elseif(ikincut.eq.2) then
 c martin kwiecinski
          if(ktnew.le.znow*qt2_1/(1-znow)) then
             Told=Ttem
-c            write(6,*) ' kincut 2 '
             go to 100
          endif
       Elseif(ikincut.eq.3) then
 c BFKL kin constraint
          if(ktnew/znow.le.ktold) then
             Told=Ttem
-c            write(6,*) ' kincut 3 '
             go to 100
          endif
       Endif
       If (onel.and.QQt.gt.Qhard) then
-cccccccccccccccccccccccccccccccccccc      If (onel.and.QQt.gt.Qt) then
-c	  write(6,*) ' cut onel: smbran QQt, Qhard ',QQt, Qhard
-c	  write(6,*) ' cut smbran  old QQt ',sqrt(ktold)
-c	  write(6,*) ' cut smbran: final gluon ',(P(I1,Ifin),I1=1,4)
 	  go to 600
 	endif
       if(QQtcut) then
-      If (QQt.le.QQtc) then
-         Told=Ttem
-c            write(6,*) ' QQtcut ',QQt,QQtc,Ifin,Qtem
-         go to 100
-      Endif
+         If (QQt.le.QQtc) then
+            Told=Ttem
+            go to 100
+         Endif
       Endif
       If (QQt.le.ktcut) then
          Told=Ttem
          if(isat.eq.0) then
          	go to 100
          else
-cc            write(6,*) ' ktcut '
          	go to 100
-cc         	Excode = 40.
-cc         	go to 600
 	   endif
       Endif
 c---Exit conditions for outside kinematic limits
@@ -3046,16 +2855,13 @@ c---Exit conditions for outside kinematic limits
          if(my_glu) then
 	      else
             Excode=10.
-cc	      write(6,*) ' smbran Excode = 10: QQt > Qmax',QQt,Qmax
 	      goto 600
-c         Return
 	   endif
       Endif
       xg=znow*xg
 	xgb_old=xgbar
       xgbar=xgbar-ybar
 	z_minus=abs(xgb_old/xgbar)
-c	write(6,*) ' smbran: z+ = ',znow,I
       if(xgbar.gt.0) then
          write(6,*) ' xg = ',xg,' xgbar = ',xgbar
       endif
@@ -3108,7 +2914,6 @@ c--all loops
       Endif
         Inew = 0
       p_max = Qtem_old	
-c        write(6,*) 'smbran ', Told,Ttem,Log(znow),znow
       If (QQt.le.QQtc) then
             write(6,*) ' QQtcut ',QQt,QQtc,Qtem_old
       endif 
@@ -3131,8 +2936,6 @@ cc      xgbarp =-kt2/(1.d0-xg)/Sbig
       P(3,Ifin)=xg*p2(3)+xgbar*p1(3)
       P(4,Ifin)=xg*p2(4)+xgbar*p1(4)
 
-cc      write(6,*) ' end of branching '
-cc      write(6,*) ' P(ifin) = ',P(1,ifin),P(2,ifin),P(3,ifin),P(4,ifin)
 
       Call SMumas(P(1,Ifin))
       
@@ -3179,7 +2982,5 @@ c	      write(6,*) ' asmy (k) Ipgg: ',Ipgg
          D_ns = Nonsud(znow)
 	   wgnew=as*D_ns/alp_dns
 	endif
-c	write(6,*) ' wgnew = ',wgnew,as*D_ns,alp_dns
-c	write(6,*) ' wgnew: QQt,Qtem ',QQt,Qtem
 	Return
 	End
