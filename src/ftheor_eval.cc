@@ -136,7 +136,7 @@ int init_theor_eval_(int *dsId)
  */
 int update_theor_ckm_()
 {
-  static const double a_ckm[] = { ckm_matrix_.Vud, ckm_matrix_.Vus, ckm_matrix_.Vub,
+  double a_ckm[] = { ckm_matrix_.Vud, ckm_matrix_.Vus, ckm_matrix_.Vub,
                                   ckm_matrix_.Vcd, ckm_matrix_.Vcs, ckm_matrix_.Vcb,
                                   ckm_matrix_.Vtd, ckm_matrix_.Vts, ckm_matrix_.Vtb};
   vector<double> v_ckm (a_ckm, a_ckm+sizeof(a_ckm)/sizeof(a_ckm[0]));
