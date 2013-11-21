@@ -47,6 +47,9 @@ C-------------------------------------------------------
 
 C-------------------------------------------------------
       integer idxAuEW, idxAdEW, idxVuEW, idxVdEW !> indices for EW param
+      
+      integer idxVcs
+
       logical LPolFits       !> Logical to init polarisation fits
       data LPolFits/.false./
 
@@ -112,6 +115,11 @@ c            print*,'idxFs', idxFs, ExtraParamStep(idxFS),ExtraParamValue(idxFS)
             idxVdEW = iExtraParamMinuit(idxVdEW)
          endif
 
+         idxVcs = GetParameterIndex('Vcs')
+         if (idxVcs.gt.0) then
+            idxVcs = iExtraParamMinuit(idxVcs)
+            call hf_errlog(20112013,'I:Float Vcs')
+         endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -222,6 +230,10 @@ C Hermes strange prepare:
          fcharm=0.
       endif
 
+
+      if (idxVcs.gt.0) then
+         Vcs = p(idxVcs)
+      endif
 
 !!!!!!!!!!!!!!!!!!!!!!!
 
