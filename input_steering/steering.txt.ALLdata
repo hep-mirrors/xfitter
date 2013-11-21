@@ -45,8 +45,10 @@
           'datafiles/tevatron/D0_Z_Boson_Rapidity.dat',
           'datafiles/tevatron/CDF_Z_Boson_Rapidity.dat',
           'datafiles/tevatron/CDF_JETS2008.dat',
+! need Hathor package
           'datafiles/tevatron/CDF-TOP-CONF-NOTE-9913_prelim.dat',
           'datafiles/tevatron/D0_JETS.dat',
+
  !
  ! LHC
  !
@@ -125,9 +127,7 @@
 
 
  ! PDF parameterisation style. Possible styles are currently available:
- !  '10p HERAPDF' -- HERAPDF-like with extra assumption Buv = Bdv
- !  '13p HERAPDF' -- HERAPDF-like with Buv and Bdv floated independently
- !  '10p H12000'  -- H12000-like (D,U,Dbar,Ubar+g)
+ !  'HERAPDF'     -- HERAPDF-like with uval, dval, Ubar, Dbar, glu evolved pdfs
  !  'CTEQ'        -- CTEQ-like parameterisation
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
