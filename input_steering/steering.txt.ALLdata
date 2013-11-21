@@ -125,6 +125,11 @@
 
   HF_SCHEME = 'RT'
 
+ ! PDF type. Possible types are currently available:
+ ! 'proton'  -- default (fitting proton data)
+ ! 'lead'    -- fitting ONLY lead data (can't be used in combination with proton data)
+
+ PDFType = 'proton'
 
  ! PDF parameterisation style. Possible styles are currently available:
  !  'HERAPDF'     -- HERAPDF-like with uval, dval, Ubar, Dbar, glu evolved pdfs
@@ -134,7 +139,7 @@
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
  !  'DDIS'        -- use Diffractive DIS 
 
-  PDFStyle = '10p HERAPDF'
+  PDFStyle = 'HERAPDF'
 
  ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  !
