@@ -118,7 +118,7 @@ int main(int argc, char **argv)
 	      vector<float>::iterator it2 = b2.begin();
 	      bool skip = false;
 	      for (; (it1+1) != b1.end(); it1++, it2++)
-		if (*(it1+1) != *it2 || *it1 >= *(it1+1))
+		if (*(it1+1) < *it2 || *it1 >= *(it1+1))
 		  skip = true;
 	      if (skip)
 		{
