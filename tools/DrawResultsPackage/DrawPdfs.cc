@@ -122,15 +122,21 @@ int main(int argc, char **argv)
 	      vector <float> b2 = info_output[o]->GetSet(d)->getbins2(p);
 	      vector<float>::iterator it1 = b1.begin();
 	      vector<float>::iterator it2 = b2.begin();
+	      if (b1.size() < 1)
+		{
+		  cout << "zero bins for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p <<  endl;
+		  cout << "Cannot plot data pulls, skipping" << endl;
+		  continue;
+		}
 	      bool skip = false;
 	      for (; (it1+1) != b1.end(); it1++, it2++)
 		if (*(it1+1) < *it2 || *it1 >= *(it1+1))
 		  skip = true;
 	      if (skip)
 		{
-		    cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << endl;
-		    cout << "Cannot plot data pulls, skipping" << endl;
-		    continue;
+		  cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p << endl;
+		  cout << "Cannot plot data pulls, skipping" << endl;
+		  continue;
 		}
 	      string dtname = (string)info_output[o]->GetSet(d)->GetName();
 	      if (p > 0)
@@ -139,7 +145,6 @@ int main(int argc, char **argv)
 		  sprintf(nump, "%d", p);
 		  dtname = dtname + " - Subplot " + nump;
 		}
-	      cout << dtname << endl;
 	      dataseth dt = dataseth(dtname,
 				     //				     info_output[o]->GetSet(d)->GetName(),
 				     info_output[o]->GetName()->Data(),
