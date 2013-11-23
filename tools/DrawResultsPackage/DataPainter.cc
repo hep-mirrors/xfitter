@@ -157,7 +157,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       return 0;
     }
 
-  char cnvname[10];
+  char cnvname[15];
   sprintf(cnvname, "%d_pulls",  dataindex);
 
   TCanvas * cnv = new TCanvas(cnvname, "", 0, 0, 2 * opts.resolution, opts.resolution);
@@ -187,6 +187,11 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   data->GetXaxis()->SetTitleSize(txtsize);
 
   data->GetXaxis()->SetNdivisions(505);
+  if (datahistos[0].getlogx())
+    {
+      data->GetXaxis()->SetMoreLogLabels();
+      data->GetXaxis()->SetNoExponent();
+    }
 
   data->SetStats(0);
   datatot->SetFillColor(kYellow);
@@ -611,6 +616,12 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   pull->GetYaxis()->SetTitleOffset(offset / 2);
   pull->GetYaxis()->SetNdivisions(505);
   pull->GetXaxis()->SetNdivisions(505);
+  if (datahistos[0].getlogx())
+    {
+      pull->GetXaxis()->SetMoreLogLabels();
+      pull->GetXaxis()->SetNoExponent();
+    }
+
   pull->SetYTitle("#frac{Theory+shifts - Data}{#sigma uncor}");
 
   pull->GetXaxis()->SetLabelFont(62);

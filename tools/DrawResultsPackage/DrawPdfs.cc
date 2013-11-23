@@ -24,7 +24,11 @@ int main(int argc, char **argv)
   //read output directory
   vector <Output*> info_output;
   for (vector<string>::iterator it = opts.dirs.begin(); it != opts.dirs.end(); it++)
-    info_output.push_back(new Output((*it).c_str()));
+    {
+      Output* out = new Output((*it).c_str());
+      if (out != 0)
+      	info_output.push_back(out);
+    }
 
   //--------------------------------------------------
   //Pdf plots
@@ -107,13 +111,15 @@ int main(int argc, char **argv)
     {
       for (unsigned int d = 0; d < info_output[o]->GetNsets(); d++)
 	{
-	  if (info_output[o]->GetSet(d)->GetNSubPlots() == 1)
+	  //if (info_output[o]->GetSet(d)->GetNSubPlots() == 1)
+	  for (unsigned int p = 0; p < info_output[o]->GetSet(d)->GetNSubPlots(); p++)
 	    {
-	      info_output[o]->GetSet(d)->GetHistogram(0, false);
-	      int id = info_output[o]->GetSet(d)->GetSetId();
+	      info_output[o]->GetSet(d)->GetHistogram(p, false);
+	      //	      int id = info_output[o]->GetSet(d)->GetSetId();
+	      int id = info_output[o]->GetSet(d)->GetSetId() * 100 + p;
 	      //check bins sanity
-	      vector <float> b1 = info_output[o]->GetSet(d)->getbins1(0);
-	      vector <float> b2 = info_output[o]->GetSet(d)->getbins2(0);
+	      vector <float> b1 = info_output[o]->GetSet(d)->getbins1(p);
+	      vector <float> b2 = info_output[o]->GetSet(d)->getbins2(p);
 	      vector<float>::iterator it1 = b1.begin();
 	      vector<float>::iterator it2 = b2.begin();
 	      bool skip = false;
@@ -126,26 +132,34 @@ int main(int argc, char **argv)
 		    cout << "Cannot plot data pulls, skipping" << endl;
 		    continue;
 		}
-
-	      dataseth dt = dataseth(info_output[o]->GetSet(d)->GetName(),
+	      string dtname = (string)info_output[o]->GetSet(d)->GetName();
+	      if (p > 0)
+		{
+		  char nump[5];
+		  sprintf(nump, "%d", p);
+		  dtname = dtname + " - Subplot " + nump;
+		}
+	      cout << dtname << endl;
+	      dataseth dt = dataseth(dtname,
+				     //				     info_output[o]->GetSet(d)->GetName(),
 				     info_output[o]->GetName()->Data(),
 				     (*itn),
-				     info_output[o]->GetSet(d)->getbins1(0),
-				     info_output[o]->GetSet(d)->getbins2(0),
-				     info_output[o]->GetSet(d)->getdata(0),
-				     info_output[o]->GetSet(d)->getuncor(0),
-				     info_output[o]->GetSet(d)->gettoterr(0),
-				     info_output[o]->GetSet(d)->gettheory(0),
-				     info_output[o]->GetSet(d)->gettheoryshifted(0),
-				     info_output[o]->GetSet(d)->gettherrup(0),
-				     info_output[o]->GetSet(d)->gettherrdown(0),
-				     info_output[o]->GetSet(d)->getpulls(0),
-				     info_output[o]->GetSet(d)->GetXlog(0),
-				     info_output[o]->GetSet(d)->GetYlog(0),
-				     info_output[o]->GetSet(d)->GetXmin(0),
-				     info_output[o]->GetSet(d)->GetXmax(0),
-				     info_output[o]->GetSet(d)->GetXTitle(0),
-				     info_output[o]->GetSet(d)->GetYTitle(0));
+				     info_output[o]->GetSet(d)->getbins1(p),
+				     info_output[o]->GetSet(d)->getbins2(p),
+				     info_output[o]->GetSet(d)->getdata(p),
+				     info_output[o]->GetSet(d)->getuncor(p),
+				     info_output[o]->GetSet(d)->gettoterr(p),
+				     info_output[o]->GetSet(d)->gettheory(p),
+				     info_output[o]->GetSet(d)->gettheoryshifted(p),
+				     info_output[o]->GetSet(d)->gettherrup(p),
+				     info_output[o]->GetSet(d)->gettherrdown(p),
+				     info_output[o]->GetSet(d)->getpulls(p),
+				     info_output[o]->GetSet(d)->GetXlog(p),
+				     info_output[o]->GetSet(d)->GetYlog(p),
+				     info_output[o]->GetSet(d)->GetXmin(p),
+				     info_output[o]->GetSet(d)->GetXmax(p),
+				     info_output[o]->GetSet(d)->GetXTitle(p),
+				     info_output[o]->GetSet(d)->GetYTitle(p));
 	      datamap[id].push_back(dt);
 	    }
 	}
@@ -164,7 +178,7 @@ int main(int argc, char **argv)
   (*it)->Print((opts.outdir + "Plots.eps[").c_str());
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)
     {
-      char numb[10];
+      char numb[15];
       sprintf(numb, "%d", it - pdfscanvaslist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
       pagecnv->Divide(3, 3);
@@ -189,7 +203,7 @@ int main(int argc, char **argv)
     }
   for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
     {
-      char numb[10];
+      char numb[15];
       sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
       pagecnv->Divide(3, 3);
@@ -215,7 +229,7 @@ int main(int argc, char **argv)
   
   for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)
     {
-      char numb[10];
+      char numb[15];
       sprintf(numb, "data_%d", it - datapullscanvaslist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
       pagecnv->Divide(1, 2);
