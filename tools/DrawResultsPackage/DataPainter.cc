@@ -51,36 +51,40 @@ dataseth::dataseth(string dataname, string dir, string lab,
 		   vector <float> data, vector <float> uncorerr, vector <float> toterr, 
 		   vector <float> theory, vector <float> theoryshifted, 
 		   vector <float> therrup, vector <float> therrdown, 
-		   vector <float> pulls, bool Logx, bool Logy, float xmin, float xmax,
+		   vector <float> pulls, bool Logx, bool Logy, float Xmin, float Xmax,
 		   string xlabel, string ylabel)
-  : name(dataname), label(lab), logx(Logx), logy(Logy)
+  : name(dataname), label(lab), logx(Logx), logy(Logy), xmin(Xmin), xmax(Xmax)
 {
   float bin[bins1.size() + 1];
   int i = 0;
   //fill empty gap
-  vector<float>::iterator it1 = bins1.begin();
-  vector<float>::iterator it2 = bins2.begin();
-  int pos = -1;
+  int pos = 0;
   float bmin, bmax;
-  for (; (it1+1) != bins1.end(); it1++, it2++)
-    if (*(it1+1) != *it2 && *it2 < *(it1+1))
-      {
-	pos = (it1 - bins1.begin()) + 1;
-	bmin = *it2;
-	bmax = *(it1+1);
-      }
-  if (pos != -1)
+  while (pos != -1)
     {
-      bins1.insert(bins1.begin()+pos, bmin);
-      bins2.insert(bins2.begin()+pos, bmax);
-      data.insert(data.begin()+pos, 0);
-      uncorerr.insert(uncorerr.begin()+pos, 0); 
-      toterr.insert(toterr.begin()+pos, 0); 
-      theory.insert(theory.begin()+pos, 0); 
-      theoryshifted.insert(theoryshifted.begin() +pos, 0); 
-      therrup.insert(therrup.begin()+pos, 0); 
-      therrdown.insert(therrdown.begin()+pos, 0); 
-      pulls.insert(pulls.begin()+pos, 0);
+      pos = -1;
+      vector<float>::iterator it1 = bins1.begin();
+      vector<float>::iterator it2 = bins2.begin();
+      for (; (it1+1) != bins1.end(); it1++, it2++)
+	if (*(it1+1) != *it2 && *it2 < *(it1+1))
+	  {
+	    pos = (it1 - bins1.begin()) + 1;
+	    bmin = *it2;
+	    bmax = *(it1+1);
+	  }
+      if (pos != -1)
+	{
+	  bins1.insert(bins1.begin()+pos, bmin);
+	  bins2.insert(bins2.begin()+pos, bmax);
+	  data.insert(data.begin()+pos, 0);
+	  uncorerr.insert(uncorerr.begin()+pos, 0); 
+	  toterr.insert(toterr.begin()+pos, 0); 
+	  theory.insert(theory.begin()+pos, 0); 
+	  theoryshifted.insert(theoryshifted.begin() +pos, 0); 
+	  therrup.insert(therrup.begin()+pos, 0); 
+	  therrdown.insert(therrdown.begin()+pos, 0); 
+	  pulls.insert(pulls.begin()+pos, 0);
+	}
     }
 
   for (vector<float>::iterator it = bins1.begin(); it != bins1.end(); it++)
@@ -108,6 +112,11 @@ dataseth::dataseth(string dataname, string dir, string lab,
       htherrup->SetAxisRange(xmin, xmax);
       htherrdown->SetAxisRange(xmin, xmax);
       hpull->SetAxisRange(xmin, xmax);
+    }
+  else
+    {
+      xmin = hdata->GetXaxis()->GetBinLowEdge(hdata->GetXaxis()->GetFirst());
+      xmax = hdata->GetXaxis()->GetBinUpEdge(hdata->GetXaxis()->GetLast() - 1);
     }
       
   //  hdata->SetXTitle(xlabel.c_str());
@@ -236,6 +245,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       datatot->DrawCopy("e3 same");
     }
   data->Draw("e1 same");
+  //reset axis range
+  datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
 
   //Main legend
   TLegend * leg = new TLegend(0.17, 0.13, 0.6, 0.35);
@@ -277,6 +288,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  (*it).getthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
 	  (*it).getthshift()->DrawCopy("l same");
 	}
+      (*it).getthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+
 
       (*it).getth()->SetLineColor(opts.colors[colindx]);
       if (!opts.points) //plot as continous line with dashed error bands
@@ -287,6 +300,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	      (*it).getth()->SetAxisRange((*r).lowedge, (*r).upedge);
 	      (*it).getth()->DrawCopy("l same");
 	    }
+	  (*it).getth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 
 	  if (opts.therr)
 	    {    
@@ -304,6 +318,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 		      (*it).gettherr()->SetAxisRange((*r).lowedge, (*r).upedge);
 		      (*it).gettherr()->DrawCopy("e3 l same");
 		    }
+		  (*it).gettherr()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 		}
 	    }
 	}
@@ -375,7 +390,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 		(*it).gettherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
 		(*it).gettherrdown()->DrawCopy("l same");
 	      }
-
+	    (*it).gettherrup()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	    (*it).gettherrdown()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  }
 	colindx++;
       }
@@ -457,6 +473,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       r_datatot->SetAxisRange((*r).lowedge, (*r).upedge);
       r_datatot->DrawCopy("e3 same");
     }
+  r_datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
+
 
   r_data->Draw("e1 same");
 
@@ -496,6 +514,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  r_thshift->SetAxisRange((*r).lowedge, (*r).upedge);
 	  r_thshift->DrawCopy("l same");
 	}
+      r_thshift->SetAxisRange((*it).getxmin(), (*it).getxmax());
+
 
       if (!opts.points) //plot as continous line with dashed error bands
 	{
@@ -504,6 +524,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	      r_th->SetAxisRange((*r).lowedge, (*r).upedge);
 	      r_th->DrawCopy("l same");
 	    }
+	  r_th->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  if (opts.therr)
 	    {
 	      float toterr = 0;
@@ -517,6 +538,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 		      r_therr->SetAxisRange((*r).lowedge, (*r).upedge);
 		      r_therr->DrawCopy("e3 l same");
 		    }
+		  r_therr->SetAxisRange((*it).getxmin(), (*it).getxmax());
 		}
 	    }
 	}
@@ -585,6 +607,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 		r_therrdown->SetAxisRange((*r).lowedge, (*r).upedge);
 		r_therrdown->DrawCopy("l same");
 	      }
+	    r_therrup->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	    r_therrdown->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  }
       }
 

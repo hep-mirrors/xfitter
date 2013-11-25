@@ -25,7 +25,7 @@ public:
 	   vector <float> data, vector <float> uncorerr, vector <float> toterr, 
 	   vector <float> theory, vector <float> theoryshifted, 
 	   vector <float> therrup, vector <float> therrdown, 
-	   vector <float> pulls, bool Logx, bool Logy, float xmin, float xmax,
+	   vector <float> pulls, bool Logx, bool Logy, float Xmin, float Xmax,
 	   string xlabel, string ylabel);
 
   string getname() {return name;};
@@ -40,6 +40,8 @@ public:
   TH1F* getpull() {return hpull;};
   bool getlogx() {return logx;};
   bool getlogy() {return logy;};
+  float getxmin() {return xmin;};
+  float getxmax() {return xmax;};
 };
 
 
