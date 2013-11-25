@@ -15,20 +15,11 @@
 
 double hmin(TH1F *h)
 {
-  double min0 = h->GetBinContent(1) + 1;
-  for (int b = 1; b <= h->GetNbinsX(); b++)
+  double min0 = h->GetBinContent(h->GetXaxis()->GetFirst()) + 1;
+  for (int b = h->GetXaxis()->GetFirst(); b <= h->GetXaxis()->GetLast(); b++)
     if (h->GetBinContent(b) > 0)
       min0 = min(min0, h->GetBinContent(b));
   return min0;	
-}
-
-bool gap(TH1F *h)
-{
-  bool hasgap = false;
-  for (int b = 1; b <= h->GetNbinsX(); b++)
-    if (h->GetBinContent(b) == 0)
-      hasgap = true;
-  return hasgap;	
 }
 
 struct range
@@ -41,9 +32,9 @@ vector <range> historanges(TH1F *h)
 {
   vector <range> ranges;
   range temp;
-  temp.lowedge = h->GetXaxis()->GetBinLowEdge(1);
-  int b = 1;
-  for (; b <= h->GetNbinsX(); b++)
+  temp.lowedge = h->GetXaxis()->GetBinLowEdge(h->GetXaxis()->GetFirst());
+  int b = h->GetXaxis()->GetFirst();
+  for (; b <= h->GetXaxis()->GetLast(); b++)
     if (h->GetBinContent(b) == 0)
       {
 	temp.upedge = h->GetXaxis()->GetBinLowEdge(b - 1);
@@ -118,7 +109,7 @@ dataseth::dataseth(string dataname, string dir, string lab,
       htherrdown->SetAxisRange(xmin, xmax);
       hpull->SetAxisRange(xmin, xmax);
     }
-
+      
   //  hdata->SetXTitle(xlabel.c_str());
   hdata->SetXTitle(xlabel.c_str());
   hpull->SetXTitle(xlabel.c_str());
