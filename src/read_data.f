@@ -1327,9 +1327,6 @@ c         do j=1,NUncert
      +              -BetaAsym(j,2,idx)),
      +              0d0) ** 2
             else  !Symmetric errors
-               print *,'symmetric',BetaAsym(j,1,idx),
-     +              BetaAsym(j,2,idx),
-     +              Beta(j, idx)
                THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) 
      +              + Beta(j, idx) ** 2
                THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) 
