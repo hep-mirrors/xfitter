@@ -532,7 +532,6 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 		toterr += (*it).gettherr()->GetBinError(b);
 	      if (toterr > 0)
 		{
-		  r_therr->Draw("e3 l same");
 		  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 		    {
 		      r_therr->SetAxisRange((*r).lowedge, (*r).upedge);
