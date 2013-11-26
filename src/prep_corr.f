@@ -31,12 +31,13 @@ C     Temporary buffer to read the data (allows for comments starting with *)
 
       integer idataset1, idataset2, FindDataSetByName, idx1, idx2
       double precision Values1(NIdMax), Values2(NIdMax)
-      logical is_cov_m, is_stat_m, is_syst_m, is_syst_cm
+      logical is_cov_m, is_stat_m, is_syst_m, is_syst_cm, is_cov_resize
       integer tdataset1, tdataset2 
       data is_cov_m /.false./
       data is_stat_m /.false./
       data is_syst_m /.false./
       data is_syst_cm /.false./
+      data is_cov_resize /.false./
 
 C Functions:
       integer GetBinIndex, FindIdxForCorrelation
@@ -96,6 +97,7 @@ c RP check if new data set and if yet then and reset matrices flags
             is_syst_cm = .false.
             tdataset1 = idataset1
             tdataset2 = idataset2
+            is_cov_resize = .false.
          endif
 
 
@@ -118,6 +120,17 @@ c RP check if new data set and if yet then and reset matrices flags
             endif
          enddo
 
+
+c check if cov matrix size correspond to number of data points
+         if(NCorr.lt.npoints**2) then 
+            Call HF_ERRLOG(13112510,
+     $          'S: Cov matrix is too small, please check!')
+         elseif(NCorr.gt.npoints**2) then
+            Call HF_ERRLOG(13112510, 
+     $           'W: Cov matrix too big,'//
+     $ ' will be reconstructed with actual ndata points')
+            is_cov_resize = .true.
+         endif
 
 C Reading correlation values
          do j=1,NCorr
@@ -142,15 +155,20 @@ C Read the colums
             Idx2 = FindIdxForCorrelation(idataset2, NIdColumns2, IdIdx2, NIdMax, Values2)
 c            print *, j, 'Idx1 =', Idx1, 'Idx2 =', Idx2
 
+
 C SG: Mark the points for covariance matrix method:
             is_covariance(Idx1) = .true.
             is_covariance(Idx2) = .true.
             
 
             if((Idx1.le.0).or.(Idx2.le.0)) then
-               Call HF_ERRLOG(10040005,
-     $              'W: Unable to find a proper correlation point')
-               goto 1112
+               if(is_cov_resize) then
+                  cycle
+               else 
+                 Call HF_ERRLOG(10040005,
+     $                'W: Unable to find a proper correlation point')
+                 goto 1112
+               endif
             endif
 
             if (MatrixType.eq.'Statistical correlations') then
