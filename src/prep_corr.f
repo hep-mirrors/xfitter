@@ -30,13 +30,16 @@ C     Temporary buffer to read the data (allows for comments starting with *)
       namelist/StatCorr/Name1,Name2,NIdColumns1,NIdColumns2,IdColumns1,IdColumns2,NCorr,MatrixType
 
       integer idataset1, idataset2, FindDataSetByName, idx1, idx2
+      integer ndataset1, ndataset2, GetNPointsInDataSet
+      character *40 ndataTmp
       double precision Values1(NIdMax), Values2(NIdMax)
-      logical is_cov_m, is_stat_m, is_syst_m, is_syst_cm
+      logical is_cov_m, is_stat_m, is_syst_m, is_syst_cm, is_cov_resize
       integer tdataset1, tdataset2 
       data is_cov_m /.false./
       data is_stat_m /.false./
       data is_syst_m /.false./
       data is_syst_cm /.false./
+      data is_cov_resize /.false./
 
 C Functions:
       integer GetBinIndex, FindIdxForCorrelation
@@ -96,6 +99,7 @@ c RP check if new data set and if yet then and reset matrices flags
             is_syst_cm = .false.
             tdataset1 = idataset1
             tdataset2 = idataset2
+            is_cov_resize = .false.
          endif
 
 
@@ -117,6 +121,28 @@ c RP check if new data set and if yet then and reset matrices flags
                goto 1111
             endif
          enddo
+
+c get number of data points in dataset with cov matrix        
+         ndataset1 = GetNPointsInDataSet(idataset1)
+         ndataset2 = GetNPointsInDataSet(idataset2)
+
+         if(ndataset1.ne.ndataset2) then
+            Call HF_ERRLOG(13112618,
+     $           'W: Correlation files for data sets requested 
+     $ are not the same!')
+            goto 1111
+         endif
+
+c check if cov matrix size correspond to number of data points
+         write(ndataTmp,'(i3)') idataset1
+         if(NCorr.lt.ndataset1**2) then 
+            Call HF_ERRLOG(13112510,
+     $          'W: Cov matrix is too small for data set '//ndataTmp)
+         elseif(NCorr.gt.ndataset1**2) then
+            Call HF_ERRLOG(13112511,
+     $ 'W: Cov mat too big, will be resized to actual #points in set'//ndataTmp)
+            is_cov_resize = .true.
+         endif
 
 
 C Reading correlation values
@@ -149,9 +175,13 @@ C SG: Mark the points for covariance matrix method:
             
 
             if((Idx1.le.0).or.(Idx2.le.0)) then
-               Call HF_ERRLOG(10040005,
-     $              'W: Unable to find a proper correlation point')
-               goto 1112
+               if(is_cov_resize) then
+                  cycle
+               else 
+                 Call HF_ERRLOG(10040005,
+     $                'W: Unable to find a proper correlation point')
+                 goto 1112
+               endif
             endif
 
             if (MatrixType.eq.'Statistical correlations') then
@@ -257,6 +287,26 @@ C----------------------------------------------------
       enddo
       end
 
+      integer Function GetNPointsInDataSet(idataset)
+C----------------------------------------------------
+C     Returns the # of points in a given dataset
+C----------------------------------------------------
+
+      implicit none 
+      include 'ntot.inc'
+      include 'datasets.inc'      
+
+      integer idataset
+
+      GetNPointsInDataSet = -1
+
+      if(NDATAPOINTS(idataset).eq.0) then
+         Call HF_ERRLOG(13112619,
+     $       'W: Given data set has no data')
+      else 
+         GetNPointsInDataSet = NDATAPOINTS(idataset)
+      endif
+      end
 
       integer Function FindIdxForCorrelation(idataset, NValues, IdIdx, IdIdxMax, Values)
 C----------------------------------------------------
