@@ -1,43 +1,3 @@
-
-      subroutine prep_corr_syst
-*     ------------------------------------------------
-*     Prepare systematic correlation matrix corr_syst
-*     ------------------------------------------------
-      implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-c      include 'datasets.inc'
-      include 'indata.inc'
-      include 'covar.inc'
-
-      integer i,j,k
-
-C     reset systematic correlation matrix
-      do i=1, npoints
-         do j=1, npoints
-            corr_syst(i,j) = 0.d0
-         enddo
-      enddo
-      
-C     Fill with correlated part, maybe it could all be in one loop
-      do i=1, npoints
-         do j=1, npoints
-            do k=1,nsys
-               corr_syst(i,j) = corr_syst(i,j) + beta(k,i)*beta(k,j)
-            enddo
-         enddo
-      enddo
-
-C     Fill with uncorrelated part, maybe it could all be in one loop
-c      do i=1, npoints
-c         corr_syst(i,i) = corr_syst(i,i) + (E_UNC(i)*E_UNC(i)/10000.D0) ! for some reason this is stored in percentage         
-c      enddo
-
-      end
-
-
-
-
       subroutine prep_corr
 *     ------------------------------------------------
 *     Prepare statistical correlation matrix corr_stat
@@ -177,11 +137,11 @@ C Read the colums
             do i=1, NIdColumns2
                Values2(i) = buffer(NIdColumns1+i)
             enddo
-            
+
             Idx1 = FindIdxForCorrelation(idataset1, NIdColumns1, IdIdx1, NIdMax, Values1)
             Idx2 = FindIdxForCorrelation(idataset2, NIdColumns2, IdIdx2, NIdMax, Values2)
 c            print *, j, 'Idx1 =', Idx1, 'Idx2 =', Idx2
-            
+
 C SG: Mark the points for covariance matrix method:
             is_covariance(Idx1) = .true.
             is_covariance(Idx2) = .true.
