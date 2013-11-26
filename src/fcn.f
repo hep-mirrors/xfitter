@@ -392,26 +392,18 @@ c             call fillvfngrid
 *     calculate chisquare
 *     ---------------------------------------------------------
       OffsDchi2 = 0.d0
-      if (ICHI2.eq.-1) then
-        if (doOffset .and. iflag.eq.3) then
-          Chi2OffsRecalc = .true.
-          Chi2OffsFinal = .true.
-          call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,pchi2,fcorchi2)
-        else
-          Chi2OffsRecalc = .false.
-        endif
-        Chi2OffsFinal = .false.
-        call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
-        if (doOffset .and. iflag.eq.3) then
-          Chi2OffsRecalc = .false.
-          OffsDchi2 = OffsDchi2 - fchi2
-        endif
+      if (doOffset .and. iflag.eq.3) then
+        Chi2OffsRecalc = .true.
+        Chi2OffsFinal = .true.
+        call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,pchi2,fcorchi2)
       else
-         if (ICHI2.eq.100) then
-            call GetCovChisquare(iflag,n0,fchi2,pchi2)
-!         else
-!            call GetChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
-         endif
+        Chi2OffsRecalc = .false.
+      endif
+      Chi2OffsFinal = .false.
+      call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+      if (doOffset .and. iflag.eq.3) then
+        Chi2OffsRecalc = .false.
+        OffsDchi2 = OffsDchi2 - fchi2
       endif
 
       if (ControlFitSplit) then
