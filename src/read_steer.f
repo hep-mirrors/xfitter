@@ -1054,7 +1054,6 @@ C
       else
          ! CorrSystByOffset=.false.
 c     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
-         ICHI2 = -1
          do i=1, 5
             if(Chi2SettingsName(i).eq.'StatScale') then
                StatScale = Chi2Settings(i)

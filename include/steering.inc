@@ -5,7 +5,6 @@
       integer Itheory          !>  Theory type
      $     ,I_FIT_ORDER        !>  Fit order (LO=0, NLO=1, NNLO=2)
      $     ,IPARAM             !>  Internal flag for parameterisation type
-     $     ,ICHI2              !>  Internal flag for chi2-type
      $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
      $     ,iDH_MOD            !>  Correction factor to the chi2, scaling
                                !>  of statistical errors
@@ -102,7 +101,7 @@ C
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
      &     lDEBUG,DOBANDS,h1qcdfunc,
-     &     Itheory,I_FIT_ORDER,IPARAM,ICHI2,HFSCHEME,
+     &     Itheory,I_FIT_ORDER,IPARAM,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,
      $     nchebSEA,wmnlen,wmxlen
