@@ -28,7 +28,7 @@
    DataInfo = 319. ,      1. ,              1.,       1., 
    CInfo    = 'sqrt(S)', 'PublicationUnits','MurDef', 'MufDef' 
    
-   IndexDataset = 41
+   IndexDataset = 79
 
    TheoryInfoFile = 'theoryfiles/fnh4301.tab'
    TheoryType     = 'FastNLO'

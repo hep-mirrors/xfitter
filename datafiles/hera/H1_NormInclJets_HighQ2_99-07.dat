@@ -20,7 +20,7 @@
    DataInfo = 318.11947,       0.387,           1.,                 1.        , 3. ,     3.
    CInfo    = 'sqrt(S)', 'lumi(e-)/lumi(tot)', 'PublicationUnits', 'UseZMVFNS','MurDef', 'MufDef' 
    
-   IndexDataset = 36
+   IndexDataset = 78
 
    TheoryInfoFile = 'theoryfiles/fnh5401.tab'
    TheoryType     = 'FastNLO'
