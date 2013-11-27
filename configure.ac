@@ -289,8 +289,6 @@ AC_CONFIG_FILES([include/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
-                 doc/tex/manual/Makefile
-                 doc/tex/paper/Makefile
                  tools/DrawResultsPackage/Makefile
                  tools/DrawResultsPackage/include/Makefile
                  tools/MakeLHAPDF/Makefile
@@ -301,13 +299,10 @@ AC_CONFIG_FILES([include/Makefile
                  datafiles/lhc/atlas/WZ2010/Makefile
                  datafiles/lhc/cms/Makefile
                  datafiles/tevatron/Makefile
-                 theoryfiles/Makefile
-                 theoryfiles/updf/Makefile
-                 theoryfiles/cms/CMS-EWK-10-010/Makefile
-                 theoryfiles/cms/EWK-11-005/Makefile
-                 theoryfiles/cms/SPM_12_001/Makefile
-                 theoryfiles/atlas/Jets2010/R04/Makefile
-                 theoryfiles/atlas/Jets2010/R06/Makefile
-                 theoryfiles/atlas/WZ2010/Makefile
                  Makefile])
+
+if test x$enable_doc = xyes; then
+AC_CONFIG_FILES([doc/tex/manual/Makefile
+                 doc/tex/paper/Makefile])
+fi
 AC_OUTPUT

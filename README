@@ -185,7 +185,7 @@ steering.txt (use appropriate cards for that!)
 
 
 
-2) MINI DESCRIPTION
+2) BRIEF DESCRIPTION
 =====================
   a) Steering cards
 --------------------
@@ -284,19 +284,22 @@ another option would be:
 
       ColumnType  --- (array of strings)
                       Defines layout of the data table. The following column types
-                      are pre-defined: 'Bin', 'Sigma', 'Error' and 'Dummy'
-                      The keywords are case sensitive. 'Bin' correspond to an
-                      abstract bin definition, 'Sigma' corresponds to the data
-                      measurement, 'Error' - to various type of uncertainties and
-                      'Dummy' indicates that the column should be ignored.
+		      are pre-defined: 'Flag', 'Bin', 'Sigma', 'Error' and
+		      'Dummy' The keywords are case sensitive. 'Flag' cortrols
+		      the treatment of specific bin (0/1 - exclude/include the
+		      bin in the fit, 1 by default), 'Bin' correspond to an
+		      abstract bin definition, 'Sigma' corresponds to the data
+		      measurement, 'Error' - to various type of uncertainties
+		      and 'Dummy' indicates that the column should be ignored.
 
       ColumnName  --- (array of strings)
                       Defines names of the columns. The meaning of the name depends
-                      on the ColumnType. For ColumnType 'Bin', ColumnName gives a
-                      name of the abstract bin. The abstract bins can contain
-                      any variable names, but some of them must be present for 
-                      correct cross section calculation. For example, 'x', 'Q2' and
-                      'y' are required for DIS NC cross-section calculation.
+		      on the ColumnType. For ColumnType 'Flag' it is 'binFlag',
+		      For ColumnType 'Bin', ColumnName gives a name of the
+		      abstract bin. The abstract bins can contain any variable
+		      names, but some of them must be present for correct cross
+		      section calculation. For example, 'x', 'Q2' and 'y' are
+		      required for DIS NC cross-section calculation.
  
                       For ColumnType 'Sigma', ColumnName provides a label for 
                       the observable, which can be any string.
@@ -350,7 +353,27 @@ another option would be:
                      information for cross-section calculation. This could be k-factors,
                      APPLGRID file or FastNLO table.
   
-      TheoryType --- (string) Theory file type ('kfactor', 'applgrid' or 'FastNLO')
+      TheoryType --- (string) Theory file type: 'kfactor', 'applgrid', 'FastNLO' or 
+		     'expression'. The last one gives more flexibility in
+		     theory definition, allowing to set a simple formula in
+		     'TheorExpr' string variable with preliminary defined
+		     terms in 'TermName', 'TermType' (can be 'kfactor' or
+		     'applgrid') and 'TermSource' (the files where the
+		     predictions are taken from). The expression recognises
+		     simple arithmetic operations (+,-,/,*) and 'sum()' and
+		     'avg()' functions, returning predictions summed and
+		     averaged over bins respectively. Example:
+                     --------------------------
+                      TheoryType     = 'expression'
+                      TermName = 'A1', 'K' 
+                      TermType = 'applgrid','kfactor'
+                      TermSource = 'path/to/grid.root' , 
+                                   'path/to/kfactor.txt'
+                      TheorExpr= 'K*A1/sum(A1)'
+		     --------------------------
+		     The expression also recognises numerical terms, e.g.
+		     'k*A+0.1'. NB: due to technical limitations, no spaces are
+		     allowed in 'TheorExpr' value.
       
       NKFactor   --- (integer) For kfactor files, number of columns in
                      TheoryInfoFile
