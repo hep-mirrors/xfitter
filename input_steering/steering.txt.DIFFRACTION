@@ -89,7 +89,7 @@
 *
 &ExtraMinimisationParameters
    name  = 'alphas',   'fs',   'fcharm'
-   value =  0.1176 ,   1.0,      0.
+   value =  0.1176 ,   0.31,      0.
    step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
 &End
 
@@ -119,18 +119,6 @@
   OUTXRANGE = 1E-4, 0.9999
 &End
 
-*
-* (Optional) Offset method parameters 
-*
-&CSOffset
-  CorSysIndex  =  0
-  
-  ! -- Use previous fit results if exist in output dir
-  !    0 - never use (default) 
-  !    1 - use as input to the current fit
-  !    2 - do not run fit again
-  UsePrevFit = 1
-&End
 
 
 *
