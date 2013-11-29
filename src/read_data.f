@@ -1316,7 +1316,7 @@ c         do j=1,NUncert
      +              MAX(MAX(BetaAsym(j,1,idx), 
      +              BetaAsym(j,2,idx)),
      +              0d0) ** 2
-               THEO_ERR2_UP(i) = THEO_ERR2_UP(i) +
+               THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) +
      +              MAX(MAX(-BetaAsym(j,1,idx), 
      +              -BetaAsym(j,2,idx)),
      +              0d0) ** 2
