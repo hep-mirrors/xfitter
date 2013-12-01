@@ -1448,6 +1448,9 @@ C-----------------------------------------
          print '(''Increase NSysMax in systematics.inc'')'
          call HF_stop
       endif
+
+c     Initialise iasym to 0
+      iasym = 0
 C
 C Detect "+" and "-" signs
 C
