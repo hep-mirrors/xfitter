@@ -686,6 +686,7 @@ c     else
       enddo
 
       Call initpdf(0)
+      alphas = alphasPDF(Mz)
 
 C Results of chi2 test on central prediction
       print *,'-------------------------------------------'
