@@ -1,0 +1,157 @@
+               ------------------------------------------------
+                  HERAFITTER   --- PDF fit program from HERA.
+               ------------------------------------------------
+
+ For the description and usage of the package please refer to the README file.               
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+                 Installation and Usage Instructions
+
+
+0) Pre-requirements.
+====================
+
+-- QCDNUM version at least qcdnum-17-00/04, can be found at 
+  http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html
+
+-- CERNLIB. Note that for CERNLIB one can use /afs/ installation from CERN:
+  /afs/cern.ch/sw/lcg/external/cernlib/
+
+-- Link to recent Root libraries (e.g. version 5.26)
+
+-- Optional: APPLGRID
+
+-- HERAfitter has been tested on various platforms: 
+   SL4, SL5 (32 and 64 bit),  Ubuntu 10.10, MacOXS
+
+1) INSTALLATION (basic installation)
+====================================
+
+  a) Specify CERN_ROOT and QCDNUM_ROOT environment variables such that 
+     $CERN_ROOT/lib  and $QCDNUM_ROOT/lib point to the corresponding libraries
+     ( e.g. export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/x86_64-slc5-gcc43-opt)
+
+  b) Run:
+
+    ./configure
+    make 
+    make install
+
+    --> you should get bin/FitPDF executable file installed
+
+  c) Run a check
+
+    bin/FitPDF 
+
+  d) Storing of the outputs: output/ (default, name can be changed in the steering.txt)
+	- minuit.out.txt  			(minuit output)
+	- Results.txt 				(chiquare and the systematic shifts)
+	- lhapdf.block.txt			(ready to use LHAPDF style grids, run tools/tolhapdf.cmd)
+	- fittedresults.txt			(theory predictions for each fitted data point)
+	- pulls.first/last.txt		(pulls at the start and end of the fit)
+	- pdfs_q2val_0i.txt, i=1, user defined (PDF sets at predefined Q2 values, as set in the steering.txt)	
+
+
+1B) INSTALLATION (with APPLGRID)
+=================================
+
+  a) Specify CERN_ROOT and QCDNUM_ROOT variables such that 
+     $CERN_ROOT/lib  and $QCDNUM_ROOT/lib point to the corresponding libraries
+
+     Install APPLGRID version 1.1.6 or later. Description can be found at
+         http://projects.hepforge.org/applgrid/
+
+  b) Run:
+
+    ./configure --enable-applgrid
+    make 
+    make install
+
+    --> you should get bin/FitPDF executable file installed
+
+  c) Run a check
+
+    bin/FitPDF 
+
+
+1C) INSTALLATION (with Hathor)
+=================================
+
+  a) Download Hathor version 1.5 from http://www.physik.hu-berlin.de/pep/tools/hathor.html
+     and install it according to the instructions given there
+     (requires LHAPDF library)
+
+  b) Define a variable HATHOR_ROOT such that $HATHOR_ROOT points to the
+     directory of your Hathor installation
+
+  c) Install the HERAFitter as described above but configuring it
+     with the option "--enable-hathor" before building it
+
+    ./configure --enable-hathor
+    make 
+    make install
+
+
+1D) INSTALLATION with LHAPDF 
+============================================
+  a) include lhapdf-config in your PATH variable
+	(e.g. export PATH=/your/path/to/lhapdf/bin)
+  b) include libLHAPDF.so library in your LD_LIBRARY_PATH variable
+	(e.g. export LD_LIBRARY_PATH=/your/path/to/lhapdf/lib)
+  c) enable the lhapdf in the configure: ./configure --enable-lhapdf
+
+The lhapdf will be used if you change  PDFStyle = 'LHAPDF' in the steering card.
+
+    ./configure --enable-lhapdf
+    make 
+    make install
+
+
+1E) INSTALLATION with NNPDF reweighting tool
+============================================
+	- needs linking to LHAPDF 
+	README located in ./NNPDF directory
+
+
+    ./configure --enable-lhapdf --enable-nnpdf
+    make 
+    make install
+
+1F) Modules such as 
+ - DIPOLE
+ - DiffDIS (Diffractive DIS)  
+ - DY (LO)
+ - heavy flavour schemes RT, ACOT, ABM 
+
+can be ran with simple INSTALLATION procedure as described above.
+Their activation is possible through the input steerings in the 
+steering.txt (use appropriate cards stored in input_steering/!)
+
+1F) INSTALLATION for TMD(updf)
+============================================
+	- needs linking to CASCADE & PYTHIA 
+	- needs linking to LHAPDF 
+	README located in ./Cascade directory
+      
+  a) set environment variables:
+  
+    export CERN_ROOT=/cern/pro 
+    export QCDNUM_ROOT=/h1wgs/h1desy11/x04/usr/glazov/openfitter/qcdnum-17-00-03
+    export CASCADE_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/$SYSNAME
+    export PYTHIA_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/$SYSNAME
+
+  b) Run:
+
+   ./configure --enable-updf --enable-lhapdf --enable-checkBounds
+    make 
+    make install
+
+    --> you should get bin/FitPDF executable file installed
+
+  c) Run a check
+
+    bin/FitPDF 
+
+============================================
+
