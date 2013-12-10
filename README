@@ -3,9 +3,11 @@
                ------------------------------------------------
 
 HERAFITTER has been used as one of the main software packages for the
-determination of the HERAPDF1.0 set proton parton densities. HERAPDF
+determination of the HERAPDF1.0 set proton parton densities (PDFs). HERAPDF
 is a common initiative by the H1 and ZEUS collaborations and extended
 now to the LHC collaborations to provide precision QCD analyses.
+HERAFitter has been used to produce the ATLAS-epWZ12 (NNLO), 
+LHEC (NLO) PDF sets now available in the LHAPDFv5.9.1.
 
 The current package includes code to fit DIS inclusive cross section 
 data, Drell-Yan and jet processes (using APPLGRID and FastNLO
@@ -22,7 +24,7 @@ package QCDNUM developed by M. Botje and includes other parts of the code:
 -- Bayesian reweighting tool from A. Guffanti (a la NNPDF) and based on
    EIGENVECTORS from G. Watt (a la MSTW).
 -- DIPOLE models (GBW, IIM, BGS)
--- TDM or uPDFs as an alternative to DGLAP formalism (J. Jung)
+-- TDM (uPDFs) as an alternative to DGLAP formalism (J. Jung)
 -- Diffractive PDFs (W. Slominski)
 -- total ttbar production cross sections via HATHOR (S. Moch et al.)
 
@@ -128,7 +130,9 @@ another option would be:
 
                         'muon p'   -- proton structure function in the muon-proton 
                                       DIS scattering 
-
+			'DUMMY'    -- Dummy reaction type to be used for testing the 
+				      data format. In this case the central values of data
+				      are ignored and theory predictions are used, chi2 will be zero.
 
       NData       --- (integer) specifies number of data points in the file. 
                      This corresponds to the number of table rows which 
@@ -202,6 +206,8 @@ another option would be:
 
       IndexDataset -- (integer) Internal H1 Fitter index of the data set. Provide unique
                       numbers to get extra info for chi2/dof for each data set.
+	              To index new data sets please refer to the table available in www.herafitter.org
+	
       
       TheoryInfoFile --- (string) Optional additional theory file with extra 
                      information for cross-section calculation. This could be k-factors,
