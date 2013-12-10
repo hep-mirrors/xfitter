@@ -9,6 +9,7 @@ now to the LHC collaborations to provide precision QCD analyses.
 HERAFitter has been used to produce the ATLAS-epWZ12 (NNLO), 
 LHEC (NLO) PDF sets now available in the LHAPDFv5.9.1.
 
+
 The current package includes code to fit DIS inclusive cross section 
 data, Drell-Yan and jet processes (using APPLGRID and FastNLO
 interfaces). The program is distributed under the GPL v3 license, see
@@ -134,6 +135,7 @@ another option would be:
 				      data format. In this case the central values of data
 				      are ignored and theory predictions are used, chi2 will be zero.
 
+
       NData       --- (integer) specifies number of data points in the file. 
                      This corresponds to the number of table rows which 
                      follow after the header.
@@ -206,9 +208,8 @@ another option would be:
 
       IndexDataset -- (integer) Internal H1 Fitter index of the data set. Provide unique
                       numbers to get extra info for chi2/dof for each data set.
-	              To index new data sets please refer to the table available in www.herafitter.org
+      	              To index new data sets please refer to the table available in www.herafitter.org
 	
-      
       TheoryInfoFile --- (string) Optional additional theory file with extra 
                      information for cross-section calculation. This could be k-factors,
                      APPLGRID file or FastNLO table.
@@ -618,7 +619,7 @@ j) Options for the chi2 choice:
     DrawResults ! will draw F2 results
 
 
-3) USING NNPDF REWEIGHTING PROGRAM
+4) USING NNPDF REWEIGHTING PROGRAM
 =====================
  * *************************************************************** * 
  * NNPDF subpackage - Reweighting program of NNPDF fitting group   *
@@ -707,7 +708,7 @@ j) Options for the chi2 choice:
  fit - 0.5 for example however suspiciously good.
 
 
-4) DESCRIPTION OF DiffDIS PACKAGE
+5) DESCRIPTION OF DiffDIS PACKAGE
    FOR THE DIFFRACTIVE FIT TO DIS
 =====================
 
