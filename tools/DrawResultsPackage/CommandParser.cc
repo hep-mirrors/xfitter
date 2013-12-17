@@ -29,6 +29,8 @@ CommandParser::CommandParser(int argc, char **argv):
   drawlogo(true),
   nodata(false),
   nopdfs(false),
+  cms(false),
+  cmspreliminary(false),
   atlas(false),
   atlaspreliminary(false),
   atlasinternal(false),
@@ -85,6 +87,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	  nodata = true;
 	else if (*it == "--no-pdfs")
 	  nopdfs = true;
+	else if (*it == "--cms")
+	  cms = true;
+	else if (*it == "--cms-preliminary")
+	  cmspreliminary = true;
 	else if (*it == "--atlas")
 	  atlas = true;
 	else if (*it == "--atlas-internal")
@@ -93,6 +99,21 @@ CommandParser::CommandParser(int argc, char **argv):
 	  atlaspreliminary = true;
 	else if (*it == "--cdfii-preliminary")
 	  cdfiipreliminary = true;
+	else if (*it == "--hidden")
+	  {
+	    cout << endl;
+	    cout << "Hidden options" << endl;
+	    cout << "Please use this options only if you are authorised from your collaboration to do so" << endl;
+	    cout <<  "--cms" << endl;
+	    cout <<  "--cms-preliminary" << endl;
+	    cout <<  "--atlas" << endl;
+	    cout <<  "--atlas-internal" << endl;
+	    cout <<  "--atlas-preliminary" << endl;
+	    cout <<  "--cdfii-preliminary" << endl;
+	    cout <<  "--no-logo" << endl;
+	    cout << endl;
+	    exit(-1);
+	  }
 	else if (*it == "--bands")
 	  dobands = true;
 	else if (*it == "--asymbands")

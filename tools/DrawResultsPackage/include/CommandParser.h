@@ -40,6 +40,7 @@ class CommandParser
   bool nodata;
   bool nopdfs;
   bool version, drawlogo;
+  bool cms, cmspreliminary;
   bool atlas, atlaspreliminary, atlasinternal;
   bool cdfiipreliminary;
 

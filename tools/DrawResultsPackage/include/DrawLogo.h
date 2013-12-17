@@ -8,10 +8,6 @@
 using namespace std;
 
 TPad * DrawLogo(string pos = "ul");
-void ATLASpreliminary();
-void ATLAS();
-void ATLASinternal();
-TPaveText *CDFIIpreliminary();
 void DrawLabels();
 
 #endif

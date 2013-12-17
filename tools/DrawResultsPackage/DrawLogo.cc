@@ -52,6 +52,24 @@ TPad * DrawLogo(string pos)
   return logopad;
 }
 
+void CMS()
+{
+  TLatex l; //l.SetTextAlign(12);
+  l.SetNDC();
+  l.SetTextFont(42);
+  l.SetTextSize(0.04);
+  l.DrawLatex(lmarg+0.05, 0.91, "CMS");
+}
+
+void CMSpreliminary()
+{
+  TLatex l; //l.SetTextAlign(12);
+  l.SetNDC();
+  l.SetTextFont(42);
+  l.SetTextSize(0.04);
+  l.DrawLatex(lmarg+0.05, 0.91, "CMS Preliminary");
+}
+
 void ATLASpreliminary()
 {
   TLatex p; 
@@ -63,7 +81,7 @@ void ATLASpreliminary()
 
 void ATLAS()
 {
-  TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
+  TLatex l; //l.SetTextAlign(12);
   l.SetNDC();
   l.SetTextFont(72);
   l.SetTextSize(0.04);
@@ -94,6 +112,10 @@ TPaveText * CDFIIpreliminary()
 
 void DrawLabels()
 {
+  if (opts.cms)
+    CMS();
+  if (opts.cmspreliminary)
+    CMSpreliminary();
   if (opts.atlasinternal)
     {
       ATLAS();
