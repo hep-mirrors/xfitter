@@ -6,6 +6,7 @@
 #include <TError.h>
 #include <TCanvas.h>
 #include <TFile.h>
+#include <TStyle.h>
 
 #include <Output.h>
 #include <PdfsPainter.h>
@@ -30,10 +31,13 @@ int main(int argc, char **argv)
       	info_output.push_back(out);
     }
 
+  //  for (unsigned int o = 0; o < info_output.size(); o++)
+  //    info_output[o]->Prepare(opts.dobands, option);
+
   //--------------------------------------------------
   //Pdf plots
+  vector <TCanvas*> pdfscanvaslist, pdfscanvasratiolist;
   typedef map <int, vector<gstruct> > pdfmap;
-
   map <float, pdfmap> q2list;
   vector<string>::iterator itn = opts.labels.begin();
   for (unsigned int o = 0; o < info_output.size(); o++)
@@ -73,104 +77,96 @@ int main(int argc, char **argv)
 	}
 
       info_output[o]->Prepare(opts.dobands, option);
-      //loop on Q2 bins
-      for (int nq2 = 0; nq2 < (info_output[o]->GetNQ2Files()); nq2++)
-	{
-	  pdfmap pmap;
-	  if (q2list.size() > nq2)
-	    pmap = q2list[info_output[o]->GetQ2Value(nq2)];
-
-	  //loop on pdf types
-	  for (unsigned int ipdf = 0; ipdf < pdflabels.size(); ipdf++)
-	    {
-	      //	      TGraphAsymmErrors* pdf = info_output[o]->GetPdf((Output::pdf)ipdf, nq2);
-	      gstruct gs;
-	      gs.graph = info_output[o]->GetPdf((Output::pdf)ipdf, nq2);
-	      gs.label = (*itn);
-	      pmap[ipdf].push_back(gs);
-	    }
-	  q2list[info_output[o]->GetQ2Value(nq2)] = pmap;
-	}
-      itn++;
     }
 
-  vector <TCanvas*> pdfscanvaslist, pdfscanvasratiolist;
-  for (map <float, pdfmap>::iterator qit = q2list.begin(); qit != q2list.end(); qit++)
-    for (pdfmap::iterator pdfit = (*qit).second.begin(); pdfit != (*qit).second.end(); pdfit++)
-      {
-	pdfscanvaslist.push_back(PdfsPainter((*qit).first, (*pdfit).first, (*pdfit).second));
-	pdfscanvasratiolist.push_back(PdfsRatioPainter((*qit).first, (*pdfit).first, (*pdfit).second));
-      }
+  if (! opts.nopdfs)
+    {
+      vector<string>::iterator itn = opts.labels.begin();
+      for (unsigned int o = 0; o < info_output.size(); o++)
+	{
 
+	  //loop on Q2 bins
+	  for (int nq2 = 0; nq2 < (info_output[o]->GetNQ2Files()); nq2++)
+	    {
+	      pdfmap pmap;
+	      if (q2list.size() > nq2)
+		pmap = q2list[info_output[o]->GetQ2Value(nq2)];
+
+	      //loop on pdf types
+	      for (unsigned int ipdf = 0; ipdf < pdflabels.size(); ipdf++)
+		{
+		  //	      TGraphAsymmErrors* pdf = info_output[o]->GetPdf((Output::pdf)ipdf, nq2);
+		  gstruct gs;
+		  gs.graph = info_output[o]->GetPdf((Output::pdf)ipdf, nq2);
+		  gs.label = (*itn);
+		  pmap[ipdf].push_back(gs);
+		}
+	      q2list[info_output[o]->GetQ2Value(nq2)] = pmap;
+	    }
+	  itn++;
+	}
+      //  vector <TCanvas*> pdfscanvaslist, pdfscanvasratiolist;
+      for (map <float, pdfmap>::iterator qit = q2list.begin(); qit != q2list.end(); qit++)
+	for (pdfmap::iterator pdfit = (*qit).second.begin(); pdfit != (*qit).second.end(); pdfit++)
+	  {
+	    pdfscanvaslist.push_back(PdfsPainter((*qit).first, (*pdfit).first, (*pdfit).second));
+	    if (info_output.size() > 1)
+	      pdfscanvasratiolist.push_back(PdfsRatioPainter((*qit).first, (*pdfit).first, (*pdfit).second));
+	  }
+    }
 
   //--------------------------------------------------
   //Data pulls plots
+  gStyle->SetEndErrorSize(4);
   map <int, vector<dataseth> > datamap;
-  itn = opts.labels.begin(); //vector<string>::iterator 
-  for (unsigned int o = 0; o < info_output.size(); o++)
+  if (! opts.nodata)
     {
-      for (unsigned int d = 0; d < info_output[o]->GetNsets(); d++)
+      itn = opts.labels.begin(); //vector<string>::iterator 
+      for (unsigned int o = 0; o < info_output.size(); o++)
 	{
-	  //if (info_output[o]->GetSet(d)->GetNSubPlots() == 1)
-	  for (unsigned int p = 0; p < info_output[o]->GetSet(d)->GetNSubPlots(); p++)
+	  for (unsigned int d = 0; d < info_output[o]->GetNsets(); d++)
 	    {
-	      info_output[o]->GetSet(d)->GetHistogram(p, false);
-	      //	      int id = info_output[o]->GetSet(d)->GetSetId();
-	      int id = info_output[o]->GetSet(d)->GetSetId() * 100 + p;
-	      //check bins sanity
-	      vector <float> b1 = info_output[o]->GetSet(d)->getbins1(p);
-	      vector <float> b2 = info_output[o]->GetSet(d)->getbins2(p);
-	      vector<float>::iterator it1 = b1.begin();
-	      vector<float>::iterator it2 = b2.begin();
-	      if (b1.size() < 1)
+	      //if (info_output[o]->GetSet(d)->GetNSubPlots() == 1)
+	      for (unsigned int p = 0; p < info_output[o]->GetSet(d)->GetNSubPlots(); p++)
 		{
-		  cout << "zero bins for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p <<  endl;
-		  cout << "Cannot plot data pulls, skipping" << endl;
-		  continue;
+		  info_output[o]->GetSet(d)->GetHistogram(p, false);
+		  //	      int id = info_output[o]->GetSet(d)->GetSetId();
+		  int id = info_output[o]->GetSet(d)->GetSetId() * 100 + p;
+		  //check bins sanity
+		  vector <float> b1 = info_output[o]->GetSet(d)->getbins1(p);
+		  vector <float> b2 = info_output[o]->GetSet(d)->getbins2(p);
+		  vector<float>::iterator it1 = b1.begin();
+		  vector<float>::iterator it2 = b2.begin();
+		  if (b1.size() < 1)
+		    {
+		      cout << "zero bins for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p <<  endl;
+		      cout << "Cannot plot data pulls, skipping" << endl;
+		      continue;
+		    }
+		  bool skip = false;
+		  for (; (it1+1) != b1.end(); it1++, it2++)
+		    if (*(it1+1) < *it2 || *it1 >= *(it1+1))
+		      skip = true;
+		  if (skip)
+		    {
+		      cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p << endl;
+		      cout << "Cannot plot data pulls, skipping" << endl;
+		      continue;
+		    }
+		  string dtname = (string)info_output[o]->GetSet(d)->GetName();
+		  if (p > 0)
+		    {
+		      char nump[5];
+		      sprintf(nump, "%d", p);
+		      dtname = dtname + " - Subplot " + nump;
+		    }
+		  dataseth dt = dataseth(dtname, info_output[o]->GetName()->Data(), (*itn), info_output[o]->GetSet(d), p);
+		  datamap[id].push_back(dt);
 		}
-	      bool skip = false;
-	      for (; (it1+1) != b1.end(); it1++, it2++)
-		if (*(it1+1) < *it2 || *it1 >= *(it1+1))
-		  skip = true;
-	      if (skip)
-		{
-		  cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p << endl;
-		  cout << "Cannot plot data pulls, skipping" << endl;
-		  continue;
-		}
-	      string dtname = (string)info_output[o]->GetSet(d)->GetName();
-	      if (p > 0)
-		{
-		  char nump[5];
-		  sprintf(nump, "%d", p);
-		  dtname = dtname + " - Subplot " + nump;
-		}
-	      dataseth dt = dataseth(dtname,
-				     //				     info_output[o]->GetSet(d)->GetName(),
-				     info_output[o]->GetName()->Data(),
-				     (*itn),
-				     info_output[o]->GetSet(d)->getbins1(p),
-				     info_output[o]->GetSet(d)->getbins2(p),
-				     info_output[o]->GetSet(d)->getdata(p),
-				     info_output[o]->GetSet(d)->getuncor(p),
-				     info_output[o]->GetSet(d)->gettoterr(p),
-				     info_output[o]->GetSet(d)->gettheory(p),
-				     info_output[o]->GetSet(d)->gettheoryshifted(p),
-				     info_output[o]->GetSet(d)->gettherrup(p),
-				     info_output[o]->GetSet(d)->gettherrdown(p),
-				     info_output[o]->GetSet(d)->getpulls(p),
-				     info_output[o]->GetSet(d)->GetXlog(p),
-				     info_output[o]->GetSet(d)->GetYlog(p),
-				     info_output[o]->GetSet(d)->GetXmin(p),
-				     info_output[o]->GetSet(d)->GetXmax(p),
-				     info_output[o]->GetSet(d)->GetXTitle(p),
-				     info_output[o]->GetSet(d)->GetYTitle(p));
-	      datamap[id].push_back(dt);
 	    }
+	  itn++;
 	}
-      itn++;
     }
-
   vector <TCanvas*> datapullscanvaslist;
   for (map <int, vector <dataseth> >::iterator it = datamap.begin(); it != datamap.end(); it++)
     datapullscanvaslist.push_back(DataPainter((*it).first, (*it).second));
@@ -178,9 +174,12 @@ int main(int argc, char **argv)
 
   //Save plots
   system(((string)"mkdir -p " + opts.outdir).c_str());
-  //open the file
+
+  //Open the eps file
+  TCanvas * opencnv = new TCanvas("open", "", 0, 0, opts.resolution * 2, opts.resolution * 2);
+  opencnv->Print((opts.outdir + "plots.eps[").c_str());
+
   vector <TCanvas*>::iterator  it = pdfscanvaslist.begin();
-  (*it)->Print((opts.outdir + "Plots.eps[").c_str());
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)
     {
       char numb[15];
@@ -193,7 +192,7 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv->Print((opts.outdir + "Plots.eps").c_str());
+      pagecnv->Print((opts.outdir + "plots.eps").c_str());
 
       sprintf(numb, "%d", it - pdfscanvaslist.begin());
       TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
@@ -204,7 +203,7 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv2->Print((opts.outdir + "Plots.eps").c_str());
+      pagecnv2->Print((opts.outdir + "plots.eps").c_str());
     }
   for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
     {
@@ -218,7 +217,7 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv->Print((opts.outdir + "Plots.eps").c_str());
+      pagecnv->Print((opts.outdir + "plots.eps").c_str());
 
       sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
       TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
@@ -229,10 +228,11 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv2->Print((opts.outdir + "Plots.eps").c_str());
+      pagecnv2->Print((opts.outdir + "plots.eps").c_str());
     }
   
-  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)
+  it = datapullscanvaslist.begin();
+  for (it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)
     {
       char numb[15];
       sprintf(numb, "data_%d", it - datapullscanvaslist.begin());
@@ -245,30 +245,39 @@ int main(int argc, char **argv)
 	    (*it)->DrawClonePad();
 	    it++;
 	  }
-      pagecnv->Print((opts.outdir + "Plots.eps").c_str());
+      pagecnv->Print((opts.outdir + "plots.eps").c_str());
     }
   
-  //close the file
-  it = pdfscanvaslist.begin();
-  (*it)->Print((opts.outdir + "Plots.eps]").c_str());
+  //Close the eps file
+  opencnv->Print((opts.outdir + "plots.eps]").c_str());
 
   if (opts.pdf)
     {
       cout << "Converting to pdf format..." << endl;
-      system(((string)"ps2pdf " + opts.outdir + "Plots.eps " + opts.outdir + "Plots.pdf").c_str());
+      system(((string)"ps2pdf " + opts.outdir + "plots.eps " + opts.outdir + "plots.pdf").c_str());
     }
 
   if (opts.splitplots)
     {
       for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
-	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
       for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
-	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
       for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
-	(*it)->Print((opts.outdir + (*it)->GetName() + ".eps").c_str());
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
+
+      if (opts.pdf)
+	{
+	  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
+	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	  for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
+	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
+	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	}
     }
 
-  //Save all plots in a root file
+  //Save all canvas in a root file
   TFile * f = new TFile((opts.outdir + "plots.root").c_str(), "recreate");
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
     (*it)->Write();

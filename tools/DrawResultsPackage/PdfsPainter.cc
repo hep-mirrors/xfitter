@@ -127,7 +127,7 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
     }
 
   //graphical settings
-  mg->SetTitle(" ; x  ; xf(x,Q^{2})");
+  mg->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x,Q^{2})").c_str());
 
   mg->Draw("ALE3"); //need to draw with A option to create axis
 
@@ -158,7 +158,8 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
   //create legend
   TLegend * leg = new TLegend(0.2, 0.84 - pdfgraphs.size()*0.05, 0.65, 0.89);
-  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
   for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     leg->AddEntry((*it).graph, (*it).label.c_str());
@@ -200,7 +201,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
   //create legend
   TLegend * leg = new TLegend(0.35, 0.84 - pdfgraphs.size() * 0.05, 0.65, 0.89);
-  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
   //prepare ratio graph
   vector <gstruct>::iterator fit = pdfgraphs.begin();
@@ -293,7 +294,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   cnv->SetLeftMargin(lmarg);
 
   //graphical settings
-  mg_ratio->SetTitle(" ; x  ; xf(x,Q^{2})/xf(x,Q^{2})_{ref}");
+  mg_ratio->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x,Q^{2})/x" + pdflabels[ipdf] + "(x,Q^{2})_{ref}").c_str());
 
   mg_ratio->Draw("ALE3"); //need to draw with A option to create axis
 

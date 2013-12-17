@@ -4,7 +4,6 @@
 #include <TMath.h>
 
 SubPlot::SubPlot(const char* descriptor) {
-  fTitle = new TString;
   fPlotOption = new TString(descriptor);
   fDUnc = new TGraphErrors;
   fDTot = new TGraphErrors;
@@ -15,11 +14,15 @@ SubPlot::SubPlot(const char* descriptor) {
   fYlog = kFALSE;
   fXTitle = "";
   fYTitle = "";
+  fTitle = "";
+  fLabel = "";
+  fExp = "";
   fXmin = 0;
   fXmax = 0;
+  fYminR = 0;
+  fYmaxR = 0;
 }
 SubPlot::~SubPlot() {
-  delete fTitle;
   delete fPlotOption;
   delete fDUnc;
   delete fDTot;
@@ -132,9 +135,20 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
   for(int i=0; i<array->GetEntries(); i++) {
     TString str( ((TObjString*)array->At(i))->GetString().Data());
 
+    if(str.BeginsWith("ExtraLabel:")) {
+      str.ReplaceAll("ExtraLabel:","");
+      fLabel = str.Data();
+    }
+
+    if(str.BeginsWith("Experiment:")) {
+      str.ReplaceAll("Experiment:","");
+      fExp = str.Data();
+    }
+
     if(str.BeginsWith("Title:")) {
       str.ReplaceAll("Title:","");
       fHistogram->SetTitle(str.Data());
+      fTitle = str.Data();
     }
     else if(str.BeginsWith("XTitle:")) {
       str.ReplaceAll("XTitle:","");
@@ -146,6 +160,16 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
       fHistogram->GetYaxis()->SetTitle(str.Data());
       fYTitle = str.Data();
     }
+    else if(str.BeginsWith("YminR:")) {
+      str.ReplaceAll("YminR:","");
+      fHistogram->SetMinimum(str.Atof());
+      fYminR = str.Atof();
+    }
+    else if(str.BeginsWith("YmaxR:")) {
+      str.ReplaceAll("YmaxR:","");
+      fHistogram->SetMaximum(str.Atof());
+      fYmaxR = str.Atof();
+    }
     else if(str.BeginsWith("Ymin:")) {
       if(!RatioToData) {
 	str.ReplaceAll("Ymin:","");
@@ -155,18 +179,6 @@ void SubPlot::PrepareHistogram(bool RatioToData) {
     else if(str.BeginsWith("Ymax:")) {
       if(!RatioToData) {
 	str.ReplaceAll("Ymax:","");
-	fHistogram->SetMaximum(str.Atof());
-      }
-    }
-    else if(str.BeginsWith("YminR:")) {
-      if(RatioToData) {
-	str.ReplaceAll("YminR:","");
-	fHistogram->SetMinimum(str.Atof());
-      }
-    }
-    else if(str.BeginsWith("YmaxR:")) {
-      if(RatioToData) {
-	str.ReplaceAll("YmaxR:","");
 	fHistogram->SetMaximum(str.Atof());
       }
     }
@@ -252,6 +264,16 @@ float  DataSet::GetXmax(int idx) {
   if(!s) return 0;
   return s->fXmax;
 }
+float  DataSet::GetYminR(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return 0;
+  return s->fYminR;
+}
+float  DataSet::GetYmaxR(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return 0;
+  return s->fYmaxR;
+}
 string  DataSet::GetXTitle(int idx) {
   SubPlot* s = GetSubPlot(idx);
   if(!s) return "";
@@ -261,6 +283,21 @@ string  DataSet::GetYTitle(int idx) {
   SubPlot* s = GetSubPlot(idx);
   if(!s) return "";
   return s->fYTitle;
+}
+string  DataSet::GetTitle(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return "";
+  return s->fTitle;
+}
+string  DataSet::GetLabel(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return "";
+  return s->fLabel;
+}
+string  DataSet::GetExperiment(int idx) {
+  SubPlot* s = GetSubPlot(idx);
+  if(!s) return "";
+  return s->fExp;
 }
 vector <float>  DataSet::getbins1(int idx) {
   SubPlot* s = GetSubPlot(idx);

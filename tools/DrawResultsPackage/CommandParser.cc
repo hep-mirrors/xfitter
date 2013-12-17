@@ -3,7 +3,7 @@
 #include <iostream>
 #include <TH1F.h>
 
-float txtsize = 0.045;
+float txtsize = 0.043;
 float offset = 1.5;
 float lmarg = 0.15;
 //float bmarg = 0.2;
@@ -12,16 +12,27 @@ CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
   asymbands(false),
   logx(true),
-  splitplots(false),
   filledbands(false),
   rmin(0),
   rmax(2),
   xmin(-1),
   xmax(-1),
   pdf(false),
+  splitplots(false),
+  ext("eps"),
   resolution(1200),
   therr(false),
   points(false),
+  theorylabel("Theory"),
+  threepanels(false),
+  version(true),
+  drawlogo(true),
+  nodata(false),
+  nopdfs(false),
+  atlas(false),
+  atlaspreliminary(false),
+  atlasinternal(false),
+  cdfiipreliminary(false),
   outdir("")
 {
 
@@ -66,6 +77,22 @@ CommandParser::CommandParser(int argc, char **argv):
 	  resolution = 600;
 	else if (*it == "--highres")
 	  resolution = 2400;
+	else if (*it == "--no-version")
+	  version = false;
+	else if (*it == "--no-logo")
+	  drawlogo = false;
+	else if (*it == "--no-data")
+	  nodata = true;
+	else if (*it == "--no-pdfs")
+	  nopdfs = true;
+	else if (*it == "--atlas")
+	  atlas = true;
+	else if (*it == "--atlas-internal")
+	  atlasinternal = true;
+	else if (*it == "--atlas-preliminary")
+	  atlaspreliminary = true;
+	else if (*it == "--cdfii-preliminary")
+	  cdfiipreliminary = true;
 	else if (*it == "--bands")
 	  dobands = true;
 	else if (*it == "--asymbands")
@@ -82,6 +109,11 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--splitplots")
 	  splitplots = true;
+	else if (*it == "--splitplots-png")
+	  {
+	    splitplots = true;
+	    ext = "png";
+	  }
 	else if (*it == "--filledbands")
 	  filledbands = true;
 	else if (*it == "--ratiorange")
@@ -133,6 +165,13 @@ CommandParser::CommandParser(int argc, char **argv):
 	  therr = true;
 	else if (*it == "--points")
 	  points = true;
+	else if (*it == "--theory")
+	  {
+	    theorylabel = *(it+1);
+	    allargs.erase(it+1);
+	  }
+	else if (*it == "--3panels")
+	  threepanels = true;
 	else
 	  {
 	    cout << endl;

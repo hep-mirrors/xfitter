@@ -18,23 +18,30 @@ class CommandParser
   CommandParser(int argc, char **argv);
 
   //pdf options
-  bool dobands, splitplots, filledbands, asymbands, logx;
+  bool dobands, filledbands, asymbands, logx;
   float rmin, rmax;
   float xmin, xmax;
 
   //data pulls options
-  //  bool logx, logy;
-  //  float xmin, xmax;
   bool therr, points;
   int markers[6];
+  string theorylabel;
+  bool threepanels;
 
   //general options
+  bool splitplots;
+  string ext;
   bool pdf;
   string outdir;
   vector <string> dirs, labels;
   int colors[6];
   int styles[6];
   int resolution;
+  bool nodata;
+  bool nopdfs;
+  bool version, drawlogo;
+  bool atlas, atlaspreliminary, atlasinternal;
+  bool cdfiipreliminary;
 
  private:
   vector <string> allargs;
@@ -45,7 +52,7 @@ class CommandParser
     cout << allargs[0] << " [options] dir1[:label1] [dir2:[label2]] [...]" << endl;
     cout << endl;
     cout << "First directory is used as reference for PDF ratio plots" << endl;
-    cout << "and to display data in data pulls plots." << endl;
+    cout << "and to display data in data plots." << endl;
     cout << "Directory labels are used in the legends of the plots, to add spaces and" << endl;
     cout << "special characters to the labels use quotation marks '' (ex. dir:'HERA I')." << endl;
     cout << "To specify greek letters and latex commands in the labels use the ROOT notation" << endl;
@@ -57,21 +64,29 @@ class CommandParser
     cout << "\t \t Show this help" << endl;
     cout << "\t --pdf (requires ps2pdf)" << endl;
     cout << "\t \t Produce and additional plot file in pdf format (Portable Document Format)" << endl;
+    cout << "\t --outdir <output directory>" << endl;
+    cout << "\t \t Specify output directory" << endl;
+    cout << "\t --splitplots" << endl;
+    cout << "\t \t Produce also additional eps files for each plot" << endl;
+    cout << "\t --splitplots-png" << endl;
+    cout << "\t \t Produce additional png files for each plot" << endl;
     cout << "\t --colorpattern <1-3>" << endl;
     cout << "\t \t Select among 3 additional color patterns" << endl;
     cout << "\t --lowres" << endl;
     cout << "\t \t Low resolution plots (smaller file)" << endl;
     cout << "\t --highres" << endl;
     cout << "\t \t High resolution plots (paper quality)" << endl;
+    cout << "\t --no-version" << endl;
+    cout << "\t \t Do not show version on logo" << endl;
+    cout << "\t --no-data" << endl;
+    cout << "\t \t Data plots are not produced" << endl;
+    cout << "\t --no-pdfs" << endl;
+    cout << "\t \t PDF plots are not produced" << endl;
     cout << "options for pdf plots:" << endl;
     cout << "\t --bands" << endl;
     cout << "\t \t Draw PDF uncertainty band" << endl;
     cout << "\t --asymbands" << endl;
     cout << "\t \t PDF bands are not symmetrised" << endl;
-    cout << "\t --outdir <output directory>" << endl;
-    cout << "\t \t Specify output directory" << endl;
-    cout << "\t --splitplots" << endl;
-    cout << "\t \t Produce also additional eps files for each plot" << endl;
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
     cout << "\t --ratiorange min:max" << endl;
@@ -82,18 +97,23 @@ class CommandParser
     cout << "\t \t in the first reference directory" << endl;
     cout << "\t --no-logx" << endl;
     cout << "\t \t Linear x scale in PDF plots" << endl;
-    cout << "options for data pulls plots:" << endl;
+    cout << "options for data plots:" << endl;
     cout << "\t --therr" << endl;
     cout << "\t \t Plot theory errors if availables" << endl;
     cout << "\t --points" << endl;
     cout << "\t \t Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
+    cout << "\t --theory <label>" << endl;
+    cout << "\t \t Change the \"Theory\" legend to the specified label" << endl;
+    cout << "\t --3panels" << endl;
+    cout << "\t \t Plot additional right mid panels with theory+shifts" << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;
     cout << "\t &PlotDesc" << endl;
-    cout << "\t    PlotN = 1" << endl;
-    cout << "\t    PlotDefColumn = 'y2'" << endl;
-    cout << "\t    PlotDefValue = 0., 5." << endl;
-    cout << "\t    PlotOptions(1)  = 'XTitle: y_{Z} [GeV/c] @YTitle: d#sigma/dy_{Z} [pb]  @Xmin:0.0@Xmax:2.5@Ylog'" << endl;
+    cout << "\t    PlotN = 1 ! SubPlot index" << endl;
+    cout << "\t    PlotDefColumn = 'y2' ! Variable used to divide the data in SubPlots" << endl;
+    cout << "\t    PlotDefValue = 0., 5.! Ranges of PlotDefColumn used to divide the data in SubPlots" << endl;
+    cout << "\t    PlotOptions(1)  = 'Experiment:ATLAS@Title: pp #rightarrow Z@XTitle: y_{Z} @YTitle: d#sigma/dy_{Z} [pb]  @ExtraLabel:#int L = 100 fb^{-1}@Xmin:0.0@Xmax:2.5@Xlog@Ylog@YminR:0.91@YmaxR:1.09'" 
+	 << endl;
     cout << "\t &End" << endl;
     cout << endl;
   };  
