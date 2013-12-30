@@ -1490,3 +1490,103 @@ C restore
       print *,'in save restore',imode,parglue(1),parglue(2),parglue(3)
 
       end
+
+C !> Read PDF from a text file.
+
+      double precision function pdf_from_text(x,id)
+      implicit none
+      include 'steering.inc'
+      include 'pdfparam.inc'
+      double precision x
+      integer id
+      logical lfirst
+      save lfirst
+      data lfirst/.true./
+      
+      integer NXgrid
+      double precision Q20
+      namelist/XGrid/NXgrid, Q20
+
+      integer NXgridMax
+      parameter (NxgridMax=500)
+      
+      double precision xx(NxgridMax)
+      double precision xuv(NxgridMax)
+      double precision xdv(NxgridMax)
+      double precision xUbar(NxgridMax)
+      double precision xDbar(NxgridMax)
+      double precision xg(NxgridMax)
+      save xx, xuv, xdv, xUbar, xDbar, xg
+      integer i,ix
+
+      integer ixfrmx
+      logical XXATIX
+C------------------------------------------------------
+      if (lfirst) then
+         lfirst = .false.
+         open (51,file=LHAPDFSET,status='old',err=91)
+         read (51,nml=XGrid,err=92,end=93) 
+C Read the data
+         read (51,*,err=94,end=95) (xx(i),i=1,NXgrid)  ! x 
+C .... Add check ....
+         do i=1,NXgrid
+            ix = ixfrmx(xx(i))
+            if (.not. xxatix(xx(i),ix)) then
+               call hf_errlog(6,'F:Mis-match of the QCDNUM and text
+     $ file grid in file '//Trim(LHAPDFSET))
+            endif
+         enddo
+C ... read the tables ...
+         read (51,*,err=94,end=95) (xuv(i),i=1,NXgrid)  
+         read (51,*,err=94,end=95) (xdv(i),i=1,NXgrid)  
+         read (51,*,err=94,end=95) (xubar(i),i=1,NXgrid)  
+         read (51,*,err=94,end=95) (xdbar(i),i=1,NXgrid)  
+         read (51,*,err=94,end=95) (xg(i),i=1,NXgrid)  
+         
+c         print '(4F12.6)',(xx(i),xg(i),xdbar(i),xubar(i),i=1,nxgrid)
+c         stop
+
+         call hf_errlog(301213,'I:Read PDF data from '
+     $        //Trim(LHAPDFSET))
+
+         close (51)
+      endif
+C------------------------------------------------------
+      pdf_from_text = 0.0D0
+
+C Get grid point:      
+      ix = ixfrmx(x)
+      if (id.eq.0) then
+         pdf_from_text = xg(ix)
+      elseif (id.eq.1) then
+         pdf_from_text = xdv(ix)
+      elseif (id.eq.2) then
+         pdf_from_text = xuv(ix)
+      elseif (id.eq.3) then
+         pdf_from_text = 2*xdbar(ix) * fstrange ! /(1-fstrange)
+      elseif (id.eq.4) then
+         pdf_from_text = xubar(ix)
+      elseif (id.eq.5) then
+         pdf_from_text = xdbar(ix) ! * 1/(1-fstrange)
+      elseif (id.eq.6) then
+         pdf_from_text = 0.d0
+      endif
+
+C      print *,ix,xx(ix),x,fstrange
+C      stop
+      
+
+      return
+ 91   call hf_errlog(1,'F:pdf_from_text: Can not open file '
+     $     //Trim(LHAPDFSET))
+ 92   call hf_errlog(2,
+     $     'F:pdf_from_text: Error reading namelist XGrid in '
+     $     //Trim(LHAPDFSET))
+ 93   call hf_errlog(3,
+     $     'F:pdf_from_text: Can not find namelist XGrid in '
+     $     //Trim(LHAPDFSET))
+ 94   call hf_errlog(4,'F:pdf_from_text: Error reading PDF data in '
+     $     //Trim(LHAPDFSET))
+ 95   call hf_errlog(5,'F:pdf_from_text: End of file for PDF data in '
+     $     //Trim(LHAPDFSET))
+      end

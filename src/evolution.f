@@ -19,7 +19,7 @@ c      common/thresholds/q0,qc,qb
       external func1            !input parton dists: iparam=1
       external func24           !input parton dists: iparam=24
       external func22           !input parton dists: iparam=22
-      
+      external func22text       ! text input
       external func30
 
       double precision def0, def1, def24, def22,pdfv,glu,glu1,x
@@ -126,6 +126,9 @@ cv ===
       if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
          call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
 
+      elseif (PDF_DECOMPOSITION.eq.'QCDNUM_GRID') then
+         call evolfg(1,func22text,def22,iq0,eps)
+
       elseif (Index(PDF_DECOMPOSITION,'D_U_Dbar_Ubar').gt.0) then   ! D,U,Dbar,Ubar 
          call evolfg(1,func1,def1,iq0,eps) !evolve all pdf's: H1
 
@@ -211,6 +214,21 @@ cv ===
 
       return
       end
+
+
+*     ----------------------------------------------------
+      double precision function func22text(id,x)
+*     ----------------------------------------------------
+      implicit none
+      integer id
+      double precision x
+      double precision pdf_from_text
+C----------------------------
+      func22text = pdf_from_text(x,id)
+
+      return
+      end
+
 
 *     ----------------------------------------------------
       double precision function func24(id,x)

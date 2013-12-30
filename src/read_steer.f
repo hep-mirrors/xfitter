@@ -924,6 +924,8 @@ C---------------------------------
       elseif (PDFStyle.eq.'DDIS') then
          iparam = 301        
          PDF_DECOMPOSITION = 'Diffractive'
+      elseif (PDFStyle.eq.'QCDNUM_GRID') then
+         PDF_DECOMPOSITION = 'QCDNUM_GRID'
       else
          print *,'Unsupported PDFStyle =',PDFStyle
          print *,'Check value in steering.txt'
