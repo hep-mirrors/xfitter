@@ -122,16 +122,21 @@ c set-up of the constants
 
 
       integer NQ2bins, NXbins !> requested number of x,q2 bins
+      logical ReportXGrid
 
       namelist/qcdnum/xmin_grid, iwt_xgrid, iosp, wgt_q2, QARR,
-     $     NQ2bins, NXbins, Read_QCDNUM_Tables, ICheck_QCDNUM
+     $     NQ2bins, NXbins, Read_QCDNUM_Tables, ICheck_QCDNUM,
+     $     ReportXGrid
+
+      integer NXGridMax
+      parameter (NXGridMax = 500)
+      double precision xgrid(NXGridMax)
+      integer NXGridAct
 
 C Functions:
       integer iqfrmq
 
 C---------------------------------------------------------------------------------------
-
-
 
 C-----  DEFAULTS -----------
 
@@ -162,6 +167,9 @@ C Default sizes
 
 C Default QCDNUM check
       ICheck_QCDNUM = 0
+
+C Default extra info:
+      ReportXGrid = .false.
 
 C---------------------
       q0 = starting_scale
@@ -263,6 +271,17 @@ C Remove duplicates:
       print '(''Requested, actual number of Q2 bins are: '',2i5)', 
      $     nQ2bins,nqout
 
+      if (ReportXGrid) then
+         open (51, file='xgrid.nml',status='unknown')
+         call GXCOPY(xgrid, NXGridMax, NXGridAct)
+         write (51,'(''&XGrid'')')
+         write (51,'(''  NXgrid = '',I5)') NXGridAct
+         write (51,'(''  Q20 = '',F10.2)') starting_scale
+         write (51,'(''&End'')')
+         write (51,'(10E26.18)') (xgrid(j),j=1,NXGridAct)
+         close (51)
+C         stop
+      endif
 
       iqc =iqfrmq(qc)  !> Charm
       iqb =iqfrmq(qb)  !> Bottom
