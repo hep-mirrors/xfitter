@@ -26,12 +26,14 @@ HERAFitter is prviding both options.
 
 In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
 is
-\begin{equation} \label{eq:chi2gen}
-\chi^2_{\rm exp} (\boldsymbol{m},\boldsymbol{b}) = \\
-\sum_{ij} \left ( m^i - \sum_l \Gamma^i_l(m^i)b_l - \mu^i \right)
-  C^{-1}_{{\rm stat.}~ij}(m^i,m^j) \left(  m^j - \sum_l \Gamma^j_l(m^j)b_l - \mu^j \right)  + \\  
-\sum_l b^2_l \,.
-\end{equation}
+%\begin{equation} 
+\begin{align} 
+ \label{eq:chi2gen}
+    \chi^2_{\rm exp} (\boldsymbol{m},\boldsymbol{b}) = \sum_{ij} 
+         \left ( m^i - \sum_l \Gamma^i_l(m^i)b_l - \mu^i \right) C^{-1}_{{\rm stat.}~ij}(m^i,m^j) \nonumber \\
+     \left(  m^j - \sum_l \Gamma^j_l(m^j)b_l - \mu^j \right) +  \sum_l b^2_l.
+\end{align}
+%\end{equation}
 Here the scaling properties of the correlated systematic uncertainties 
 $\Gamma^i_j$ and
 of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
@@ -40,16 +42,15 @@ on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
 \subsubsection{Nuisance Parameters Representation}
 
 %
-\begin{equation}
- \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) = \\
+\begin{align} 
+    \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) =  
 %~~~=
- \sum_i
- \frac{\left[m^i
-- \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
-{ \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)+
-\left(\delta_{i,{\rm uncor}}\,  m^i\right)^2} 
- + \\ \sum_j b^2_j.
-\label{eq:aven}\end{equation}
+ \sum_i \frac{\left[m^i - \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
+{ \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)
+  + \left(\delta_{i,{\rm uncor}}\,  m^i\right)^2} \nonumber \\
+  + \sum_j b^2_j.
+\label{eq:aven}
+\end{align}
 %
 Here ${\mu^i}$ is the  measured central value  at a point $i$ 
 with  relative statistical $\delta_{i,stat}$ 

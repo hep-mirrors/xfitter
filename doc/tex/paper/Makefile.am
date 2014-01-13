@@ -4,7 +4,7 @@ if BUILD_DOCS
 infiles = $(docfiles)
 docfiles +=  herafitter-epjc.pdf
 MANNAME =  herafitter-epjc
-MANTEXSRC = $(MANNAME).tex intro.tex summary.tex method.tex theory.tex
+MANTEXSRC = $(MANNAME).tex intro.tex summary.tex method.tex theory.tex examples.tex
 MANAUX = $(MANNAME).aux
 MANPDF = $(MANNAME).pdf
 EXTRA_DIST = $(MANTEXSRC)

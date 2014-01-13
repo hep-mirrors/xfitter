@@ -43,7 +43,8 @@
 %
 \smartqed  % flush right qed marks, e.g. at end of proof
 %
-\RequirePackage{graphicx}
+%\RequirePackage{graphicx}
+\RequirePackage[pdftex]{graphicx}
 %
  \RequirePackage{mathptmx}      % use Times fonts if available on your TeX system
 %
@@ -66,6 +67,9 @@
     bookmarksopen,%
     bookmarksnumbered%
   ]{hyperref}
+
+% --- DO NOT remove this line:
+\providecommand\texorpdfstring[2]{#1}
 
 \usepackage[numbers,square,comma,sort&compress]{natbib}
 \usepackage{textcomp}
@@ -112,21 +116,34 @@
 \maketitle
 
 \begin{abstract}
-%Insert your abstract here. Include keywords, PACS and mathematical
-%subject classification numbers as needed.
-The determination of the  proton patron distribution functions is a complex 
-endeavor involving several physics processes. The main process is deep-inelastic 
-scattering and the central  data set covering most of the proton structure 
-phase space is provided at the HERA ep collider. Further processes 
-(fixed target DIS, ppbar collisions etc.) provide further constraints for 
-particular aspects: flavor separation, very high Bjorken-x etc.
-In particular, the precise measurements obtained or to come from LHC will 
-continue to improve the knowledge of the PDF. 
-The HERAFitter project aim at providing a framework for QCD analyses related 
-to proton structure in the context of multi-processes and multi-experiments. 
-The framework includes modules or interfaces enabling a large number of 
-theoretical and methodological options, as well as a large number of 
-relevant data sets from HERA, Tevatron and LHC. 
+The \fitter project is presented 
+which provides a framework for QCD analyses related 
+to the proton structure in the context of multi-processes and multi-experiments.
+Utilising QCD factorisation, \fitter allows determining 
+the proton parton distribution functions (PDF) from various hard scattering measurements
+or obtaining benchmark 
+%{\bf (olaf is the benchmarking part of HERAFItter or not?
+%If not then take it out here)} 
+predictions for such processes using different
+PDFs. The main processes and data sets that are currently included
+are Deep-Inelastic-Scattering (DIS) 
+in $ep$ collisions at HERA and Drell Yan (DY), jet and top quark production in 
+$pp$ ($p\bar{p}$) collisions at the LHC (Tevatron).
+A large number of theoretical and methodological options is
+available in \fitter via interfaces to different modules.
+%The determination of the  proton patron distribution functions is a complex 
+%endeavor involving several physics processes. The main process is deep-inelastic 
+%scattering and the central  data set covering most of the proton structure 
+%phase space is provided at the HERA ep collider. Further processes 
+%(fixed target DIS, ppbar collisions etc.) provide further constraints for 
+%particular aspects: flavor separation, very high Bjorken-x etc.
+%In particular, the precise measurements obtained or to come from LHC will 
+%continue to improve the knowledge of the PDF. 
+%The HERAFitter project aim at providing a framework for QCD analyses related 
+%to proton structure in the context of multi-processes and multi-experiments. 
+%The framework includes modules or interfaces enabling a large number of 
+%theoretical and methodological options, as well as a large number of 
+%relevant data sets from HERA, Tevatron and LHC. 
 %This manual explains the theoretical input used in the QCD analysis, 
 %the fit  methodology and the  installation procedure of the program. 
 %More information and the package downloads can be found on the web 
@@ -151,8 +168,9 @@ relevant data sets from HERA, Tevatron and LHC.
 \label{sec:method}
 \input{method.tex}
 
-\section{User Examples}
+\section{Application of \fitter}
 \label{sec:examples}
+\input{examples.tex}
 
 
 \section{Summary}

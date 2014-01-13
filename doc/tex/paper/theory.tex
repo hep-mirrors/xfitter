@@ -171,274 +171,6 @@ up to the currently best known approximate NNLO for the neutral-current (NC)
 heavy-quark production~\cite{SMoch:npb864} and up to NLO
 for the charged-current (CC) case are available.
 %
-%       
-%%%%%%%%%%%
-\subsection{Electroweak corrections for \texorpdfstring{$ep$}{ep} scattering} 
-%%%%%%%%%%%
- 
-In order to compare the experimental data with theoretical predictions, 
-QED corrections are necessary. In the \fitter\, the electroweak corrections 
-for the DIS process are based on the EPRC package~\cite{SpiesbergerPrivComm}.
-\\
-The calculations of higher-order electroweak corrections to DIS scattering at HERA are performed
-in the on-shell scheme where the gauge bosons masses $M_W$ abd $M_Z$ are treated symmetrically
-as basic parameters together with the top and Higgs masses, besides the fine structure constant 
-$\alpha$ and other fermion masses.
-\\
-The code provides the running of $\alpha$ using the most recent parametrisation
-of the hadronic contribution to $\Delta_\alpha$ \cite{Jegerlehner}, as well as an older 
-one from Burkhard \cite{Burkhard}.
-
-\subsection{Drell Yan processes}
-
-%This section presents calculations of Drell Yan processes that can be used to 
-%predict lepton pair production at the LHC or Tevatron.
-%
-The calculations of the Drell Yan processes are known for many observables up to NNLO order.
-For example, there are packages such as FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NNLO
-or MCFM~\cite{MCFM} for NLO calculations. However, due to the complicated nature of these
-calculation involving an increased number of diagrams with each additional order, these 
-calculations are too slow to be used iteratively in a fit.
-There are various methods to overcome this shortage: using the $k-factor$ approximation 
-from lower to higher order, or using the so-called grid technique 
-(storing the matrix elements on grids such that the cross sections maybe calculated later by 
-convoluting these grids with the input PDFs) when available.
-%\begin{figure}[!ht]
-%\begin{center}
-%\includegraphics[width=0.5\linewidth]{figures/dy.pdf}
-%\end{center}
-%\caption{Diagram for a generic DY scattering.}
-%\label{fig:dy}
-%\end{figure}
-  
-\fitter\ provides two implementations for $pp$  Drell Yan processes.
-The first implementation uses calculations at LO which can be extended to NLO using k-factors,
-the second uses the APPLGRID interface. 
-%A short description of both implementations is 
-%given below while for details of the theoretical modules we direct the user to the 
-%references for these packages provided in the description.
-%
-%For details of the theoretical modules we direct the user to read the provided references of these packages.
-
-
-The leading order Drell-Yan~\cite{Drell:1970wh,Yamada:1981mw} 
-triple differential cross section in
-invariant mass \(M\), boson rapidity \(y\) and CMS
-lepton scattering angle \(\cos\theta\),
-for the neutral current, 
-%triple differential in invariant mass \(M\), boson rapidity \(y\) and CMS
-%lepton scattering angle \(\cos\theta\), 
-can be written as
-\begin{align}
- \frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &= 
-   \frac{\pi\alpha^2}{3MS}\sum_{q}P_q
-   \left[F_q(x_1,Q^2)F_{\bar{q}}(x_2,Q^2) + (q\leftrightarrow\bar{q})\right],
-\end{align}
-where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $F_q(x_1,Q^2)$ 
-is the parton number density, and 
-\begin{align}
-  P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
-      &+  e_le_q\frac{2M^2(M^2-M_Z^2)}{\sin^2\theta_W\cos^2\theta_W
-          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
-      &    \big[aA_q(1+\cos^2\theta)+2bB_q\cos\theta\big] \nonumber \\
-      &+  \frac{M^4}{\sin^4\theta_W\cos^4\theta_W
-          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
-      &    \big[(a^2+b^2)(A_q^2+B_q^2)(1+\cos^2\theta)+8abA_qB_q\cos\theta\big].
-\end{align}
-Here \(\theta_W\) is the Weinberg angle, \(M_Z\) and \(\Gamma_Z\) are Z boson mass and 
-width, and
-\begin{align}
- a & = -\frac{1}{4} + \sin^2\theta_W,  \nonumber \\
- b & = -\frac{1}{4},  \nonumber \\
- A_q & = \frac{1}{2}I_q^3-e_q\sin^2\theta_W, \nonumber \\
- B_q & = \frac{1}{2}I_q^3,  \nonumber \\
- I_u^3 & = -I_d^3 = \frac{1}{2},  \nonumber \\
- e_l & = -1, e_u = \frac{2}{3}, e_d = -\frac{1}{3}
-\end{align}
-give the electro-weak couplings.
-\\
-The expression for charged current scattering has a simpler form.
-\begin{align}
-\frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &=
- \frac{\pi\alpha^2}{48S\sin^4\theta_W}
- \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
- & \sum_{q_1,q_2}V_{q_1q_2}^2F_{q_1}(x_1,Q^2)F_{q_2}(x_2,Q^2),
-\end{align}
-where \(V_{q_1q_2}\) is the CKM quark mixing matrix and \(M_W\) and \(\Gamma_W\)
-are \(W\) boson mass and decay width.
-
-The simple form of these expressions allows the calculation of integrated
-cross sections without utilization of Monte-Carlo techniques.
-This is particularly useful for PDF fitting purposes because
-statistical fluctuations are avoided in this case. In both 
-neutral and charged current expressions the parton distribution functions
-factorise as functions dependent only on boson rapidity \(y\) and
-invariant mass \(M\).
-%leaving \(\cos\theta\) dependence aside.
-The integral in \(\cos\theta\) can be computed analytically and
-integrations in \(y\) and \(M\) can be performed with the Simpson
-method. The \(\cos\theta\) parts are kept in the equation 
-explicitly because their integration is asymmetric for
-data in lepton \(\eta\) bins and also because of the need to apply 
-lepton \(p_{\perp}\) cuts.
-
-The fact that PDF functions factorise, allows high speed calculations when 
-performing parameter fits over lepton rapidity data. In this case
-the factorised part of the expression which is independent of PDFs can be
-calculated only once for all minimisation iterations.
-The leading order code in \fitter\ package implements this 
-optimisation and uses fast convolution routines provided by
-QCDNUM. Currently the full width LO calculations are optimised 
-for lepton pseudorapidity and boson rapidity distributions with the
-possibility to apply lepton \(p_{\perp}\) cuts.
-%making this procedure flexible to describe data.
-This flexibility allows the calculations to be performed within the phase space
-corresponding to the available measurement.
-
-%The calculated leading order cross sections are multiplied by
-%NLO or NNLO k-factors provided for corresponding data distributions.
-The calculated leading order cross sections are multiplied by
-$k-factors$ to obtain predictions at NLO or NNLO precision.
-%%%%
-
-Alternatively, one can obtain the NLO predictions directly by using 
-APPLGRID or FASTNLO techniques, which rely on the factorisation theorem by 
-decoupling the hard scattering coefficients from PDFs.
-The hard scattering coefficients are calculated once and stored into a grid 
-for a given kinematic bin, speeding up the convolution process with the PDFs 
-and thus allowing to for fast QCD fits. 
-%These methods are described in more detail in section \ref{sec:theory:jets}.
-%An independent treatment for the electro-weak corrections is applied as the 
-%independent k-factors, using packages such as SANC and FEWZ.
-
-\subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}
-%This section presents the calculation tool available 
-%in \fitter\ for top-guark pair prouction in $p \bar{p}$ and $pp$ collisions.
-%
-Top-quark pairs ($t\bar{t}$) are mainly produced at hadron colliders via $gg$ fusion and
-$q \bar q$ annihilation. There are also $q q'$ and
-$q g$ production modes.
-The program HATHOR~\cite{Aliev:2010zk} allows the calculation of 
-the expected total $t \bar t$ cross section at 
-$p \bar p$ and $p p$ colliders up to approximate NNLO accuracy.
-Version 1.3 of HATHOR includes the exact NNLO for $q \bar q \to t \bar t$ \cite{Baernreuther:2012ws}
-as well as a new high-energy constraint on the approximate NNLO calculation obtained from
-soft-gluon resummation \cite{Moch:2012mk}.
-The default choice for renormalization and factorization scale in $t \bar t$ production is the top-quark mass, $m_t$.
-The pole mass scheme is typically employed for $m_t$ but HATHOR also supports calculations in
-the $\overline{\text{MS}}$ scheme.
-
-\subsection{Jet production}
-%In this subsection, the use of the factorisation formalism is fully exploited for the 
-%calculations of the inclusive jets and dijet cross sections.
-This sections presents various fast calculational techniques for jet production based on
-the factorization formalism.
-
-Similarly to DY case, the calculation of higher order jet cross sections 
-is very demanding in terms of computing power. 
-%The reasons are the large number of contributing
-%Feynman diagrams and also the large number of infrared divergences.
-%For an accurate cancellation of these singularities, the 
-%dipole subtraction method is often applied in such calculations.
-%During the necessary Monte Carlo integration a very fine phase
-%space sampling has to be performed in order to account for the
-%accurate cancellation of the counter terms.
-Therefore. in order to enable the inclusion of jet-cross section 
-measurements in PDF and $\alpha_s$ fits, the perturbative
-coefficients have to be pre-computed in a PDF and $\alpha_s$ 
-independent way. For this purpose, two similar tools are
-interfaced to the \fitter .
-
-\subsubsection{FastNLO} 
-
-The fastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
-enables the inclusion of jet data in PDF and $\alpha_s$ fits.
-This tool uses multi-dimensional interpolation
-techniques to convert the convolutions of perturbative 
-coefficients with parton distribution functions and 
-the strong coupling into simple products.
-%Although the concept is process independent, 
-The perturbative 
-coefficients are calculated by the \texttt{NLOJET++}
-program~\cite{Nagy:1998bb} where calculations for jet-production
-in DIS~\cite{Nagy:2001xb}  as well as in hadron-hadron 
-collisions~\cite{Nagy:2003tz,Nagy:2001fj} with threshold-corrections 
-of $\mathcal{O}$(NNLO) for inclusive jet cross 
-sections~\cite{Kidonakis:2000gi} are available.
-
-The fastNLO libraries are included in the \fitter\ package
-%and no further requirements or compilation options
-%are needed.
-and in order to include a new measurement into the PDF fit,
-only the fastNLO tables have to be specified. These tables include all
-necessary information about the perturbative coefficients and the
-calculated process for all bins of a certain dataset. 
-Tables for almost all published jet measurements
-are available through the project website \\ {\tt http://fastnlo.hepforge.org}.
-%or have otherwise to be calculated by using the full fastNLO package.
-%
-%Features of the fastNLO concept are the very quick convolution of the
-%perturbative coefficients with the PDFs, of
-%$\mathcal{O}(100 ms)$, and the very high accuracy
-%of the interpolation procedure. 
-The fastNLO tables are conventionally calculated
-for multiple factors of the factorization scale, 
-and the renormalization scale factor can be chosen freely.
-Some of the fastNLO tables already allow for 
-%already involve a scale-independent
-%concept~\cite{Britzger:2012bs}, which allows for 
-the free choice~\cite{Britzger:2012bs} of the renormalization and the factorization
-scale as a function of two pre-defined observables.
-The evaluation of the strong coupling constant, which enters
-the cross section calculation, is taken consistently from the 
-QCDNUM evolution code.
-
-\subsubsection{APPLGRID}
-
-The APPLGRID~\cite{Carli:2010rw} package allows the fast computation 
-of NLO cross sections for particular processes for arbitrary sets of 
-proton parton distribution functions. The package implements
-calculations of Drell Yan cross sections of electroweak boson (\(Z,W\))
-production as well as jet production in proton-(anti)proton
-collisions and DIS processes. 
-
-The approach is based on storing the perturbative coefficients
-of NLO QCD calculations of final-state observables measured
-in hadron colliders in look-up tables. The PDFs and the 
-strong couplings are included during the final calculations,
-e.g. during PDF fitting. The method allows 
-variation of factorization and renormalization scales in
-calculations.
-
-The look-up tables (grids) can be generated with modified versions
-of MCFM~\cite{Campbell:1999ah,Campbell:2010ff} or 
-NLOjet++~\cite{Nagy:2001fj} software as distributed
-with the full version of APPLGRID package.
-% NLO calculations
-%for the current analysis are performed with the help of APPLGRID
-%generated grids based on MCFM calculations. 
-
-APPLGRID supports an interface to the MCFM parton level generators,
-hence model input parameters such as electroweak parameters
-are in fact pre-set following the MCFM input steering card, while
-binning and definitions of the observables for which the
-differential cross sections are needed are set in the 
-APPLGRID code. 
-%The grid parameters \(x_1, x_2\) and \(Q^2\) binning
-The grid parameters, \(Q^2\) binning
-and interpolation orders are also defined in the code.
-
-APPLGRID constructs the grid tables in two 
-steps: {\it (i)} exploration of the phase space in order
-to optimize the memory storage and {\it (ii)} actual grid
-construction in the phase space corresponding to the 
-requested observables.
-
-Afterwards the NLO cross sections are restored from the grids
-using externally provided PDFs, \(\alpha_S\), factorization and 
-renormalization scales. QCD NNLO k-factors can be applied
-if requested.
-
 \subsection{DIPOLE models}
 
 The dipole picture provides an alternative approach to the virtual photon-proton
@@ -718,6 +450,274 @@ where
 \end{equation}
 \end{subequations}
 The function $F^\Reg_k(\beta,Q^2)$  is taken to be that of the pion.
+
+%       
+%%%%%%%%%%%
+\subsection{Electroweak corrections for \texorpdfstring{$ep$}{ep} scattering} 
+%%%%%%%%%%%
+ 
+In order to compare the experimental data with theoretical predictions, 
+QED corrections are necessary. In the \fitter\, the electroweak corrections 
+for the DIS process are based on the EPRC package~\cite{SpiesbergerPrivComm}.
+\\
+The calculations of higher-order electroweak corrections to DIS scattering at HERA are performed
+in the on-shell scheme where the gauge bosons masses $M_W$ abd $M_Z$ are treated symmetrically
+as basic parameters together with the top and Higgs masses, besides the fine structure constant 
+$\alpha$ and other fermion masses.
+\\
+The code provides the running of $\alpha$ using the most recent parametrisation
+of the hadronic contribution to $\Delta_\alpha$ \cite{Jegerlehner}, as well as an older 
+one from Burkhard \cite{Burkhard}.
+
+\subsection{Drell Yan processes}
+
+%This section presents calculations of Drell Yan processes that can be used to 
+%predict lepton pair production at the LHC or Tevatron.
+%
+The calculations of the Drell Yan processes are known for many observables up to NNLO order.
+For example, there are packages such as FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NNLO
+or MCFM~\cite{MCFM} for NLO calculations. However, due to the complicated nature of these
+calculation involving an increased number of diagrams with each additional order, these 
+calculations are too slow to be used iteratively in a fit.
+There are various methods to overcome this shortage: using the $k-factor$ approximation 
+from lower to higher order, or using the so-called grid technique 
+(storing the matrix elements on grids such that the cross sections maybe calculated later by 
+convoluting these grids with the input PDFs) when available.
+%\begin{figure}[!ht]
+%\begin{center}
+%\includegraphics[width=0.5\linewidth]{figures/dy.pdf}
+%\end{center}
+%\caption{Diagram for a generic DY scattering.}
+%\label{fig:dy}
+%\end{figure}
+  
+\fitter\ provides two implementations for $pp$  Drell Yan processes.
+The first implementation uses calculations at LO which can be extended to NLO using k-factors,
+the second uses the APPLGRID interface. 
+%A short description of both implementations is 
+%given below while for details of the theoretical modules we direct the user to the 
+%references for these packages provided in the description.
+%
+%For details of the theoretical modules we direct the user to read the provided references of these packages.
+
+
+The leading order Drell-Yan~\cite{Drell:1970wh,Yamada:1981mw} 
+triple differential cross section in
+invariant mass \(M\), boson rapidity \(y\) and CMS
+lepton scattering angle \(\cos\theta\),
+for the neutral current, 
+%triple differential in invariant mass \(M\), boson rapidity \(y\) and CMS
+%lepton scattering angle \(\cos\theta\), 
+can be written as
+\begin{align}
+ \frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &= 
+   \frac{\pi\alpha^2}{3MS}\sum_{q}P_q
+   \left[F_q(x_1,Q^2)F_{\bar{q}}(x_2,Q^2) + (q\leftrightarrow\bar{q})\right],
+\end{align}
+where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $F_q(x_1,Q^2)$ 
+is the parton number density, and 
+\begin{align}
+  P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
+      &+  e_le_q\frac{2M^2(M^2-M_Z^2)}{\sin^2\theta_W\cos^2\theta_W
+          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
+      &    \big[aA_q(1+\cos^2\theta)+2bB_q\cos\theta\big] \nonumber \\
+      &+  \frac{M^4}{\sin^4\theta_W\cos^4\theta_W
+          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
+      &    \big[(a^2+b^2)(A_q^2+B_q^2)(1+\cos^2\theta)+8abA_qB_q\cos\theta\big].
+\end{align}
+Here \(\theta_W\) is the Weinberg angle, \(M_Z\) and \(\Gamma_Z\) are Z boson mass and 
+width, and
+\begin{align}
+ a & = -\frac{1}{4} + \sin^2\theta_W,  \nonumber \\
+ b & = -\frac{1}{4},  \nonumber \\
+ A_q & = \frac{1}{2}I_q^3-e_q\sin^2\theta_W, \nonumber \\
+ B_q & = \frac{1}{2}I_q^3,  \nonumber \\
+ I_u^3 & = -I_d^3 = \frac{1}{2},  \nonumber \\
+ e_l & = -1, e_u = \frac{2}{3}, e_d = -\frac{1}{3}
+\end{align}
+give the electro-weak couplings.
+\\
+The expression for charged current scattering has a simpler form.
+\begin{align}
+\frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &=
+ \frac{\pi\alpha^2}{48S\sin^4\theta_W}
+ \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
+ & \sum_{q_1,q_2}V_{q_1q_2}^2F_{q_1}(x_1,Q^2)F_{q_2}(x_2,Q^2),
+\end{align}
+where \(V_{q_1q_2}\) is the CKM quark mixing matrix and \(M_W\) and \(\Gamma_W\)
+are \(W\) boson mass and decay width.
+
+The simple form of these expressions allows the calculation of integrated
+cross sections without utilization of Monte-Carlo techniques.
+This is particularly useful for PDF fitting purposes because
+statistical fluctuations are avoided in this case. In both 
+neutral and charged current expressions the parton distribution functions
+factorise as functions dependent only on boson rapidity \(y\) and
+invariant mass \(M\).
+%leaving \(\cos\theta\) dependence aside.
+The integral in \(\cos\theta\) can be computed analytically and
+integrations in \(y\) and \(M\) can be performed with the Simpson
+method. The \(\cos\theta\) parts are kept in the equation 
+explicitly because their integration is asymmetric for
+data in lepton \(\eta\) bins and also because of the need to apply 
+lepton \(p_{\perp}\) cuts.
+
+The fact that PDF functions factorise, allows high speed calculations when 
+performing parameter fits over lepton rapidity data. In this case
+the factorised part of the expression which is independent of PDFs can be
+calculated only once for all minimisation iterations.
+The leading order code in \fitter\ package implements this 
+optimisation and uses fast convolution routines provided by
+QCDNUM. Currently the full width LO calculations are optimised 
+for lepton pseudorapidity and boson rapidity distributions with the
+possibility to apply lepton \(p_{\perp}\) cuts.
+%making this procedure flexible to describe data.
+This flexibility allows the calculations to be performed within the phase space
+corresponding to the available measurement.
+
+%The calculated leading order cross sections are multiplied by
+%NLO or NNLO k-factors provided for corresponding data distributions.
+The calculated leading order cross sections are multiplied by
+$k-factors$ to obtain predictions at NLO or NNLO precision.
+%%%%
+
+Alternatively, one can obtain the NLO predictions directly by using 
+APPLGRID or FASTNLO techniques, which rely on the factorisation theorem by 
+decoupling the hard scattering coefficients from PDFs.
+The hard scattering coefficients are calculated once and stored into a grid 
+for a given kinematic bin, speeding up the convolution process with the PDFs 
+and thus allowing to for fast QCD fits. 
+%These methods are described in more detail in section \ref{sec:theory:jets}.
+%An independent treatment for the electro-weak corrections is applied as the 
+%independent k-factors, using packages such as SANC and FEWZ.
+
+\subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}
+%This section presents the calculation tool available 
+%in \fitter\ for top-guark pair prouction in $p \bar{p}$ and $pp$ collisions.
+%
+Top-quark pairs ($t\bar{t}$) are mainly produced at hadron colliders via $gg$ fusion and
+$q \bar q$ annihilation. There are also $q q'$ and
+$q g$ production modes.
+The program HATHOR~\cite{Aliev:2010zk} allows the calculation of 
+the expected total $t \bar t$ cross section at 
+$p \bar p$ and $p p$ colliders up to approximate NNLO accuracy.
+Version 1.3 of HATHOR includes the exact NNLO for $q \bar q \to t \bar t$ \cite{Baernreuther:2012ws}
+as well as a new high-energy constraint on the approximate NNLO calculation obtained from
+soft-gluon resummation \cite{Moch:2012mk}.
+The default choice for renormalization and factorization scale in $t \bar t$ production is the top-quark mass, $m_t$.
+The pole mass scheme is typically employed for $m_t$ but HATHOR also supports calculations in
+the $\overline{\text{MS}}$ scheme.
+
+\subsection{Jet production}
+%In this subsection, the use of the factorisation formalism is fully exploited for the 
+%calculations of the inclusive jets and dijet cross sections.
+This sections presents various fast calculational techniques for jet production based on
+the factorization formalism.
+
+Similarly to DY case, the calculation of higher order jet cross sections 
+is very demanding in terms of computing power. 
+%The reasons are the large number of contributing
+%Feynman diagrams and also the large number of infrared divergences.
+%For an accurate cancellation of these singularities, the 
+%dipole subtraction method is often applied in such calculations.
+%During the necessary Monte Carlo integration a very fine phase
+%space sampling has to be performed in order to account for the
+%accurate cancellation of the counter terms.
+Therefore. in order to enable the inclusion of jet-cross section 
+measurements in PDF and $\alpha_s$ fits, the perturbative
+coefficients have to be pre-computed in a PDF and $\alpha_s$ 
+independent way. For this purpose, two similar tools are
+interfaced to the \fitter .
+
+\subsubsection{FastNLO} 
+
+The fastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
+enables the inclusion of jet data in PDF and $\alpha_s$ fits.
+This tool uses multi-dimensional interpolation
+techniques to convert the convolutions of perturbative 
+coefficients with parton distribution functions and 
+the strong coupling into simple products.
+%Although the concept is process independent, 
+The perturbative 
+coefficients are calculated by the \texttt{NLOJET++}
+program~\cite{Nagy:1998bb} where calculations for jet-production
+in DIS~\cite{Nagy:2001xb}  as well as in hadron-hadron 
+collisions~\cite{Nagy:2003tz,Nagy:2001fj} with threshold-corrections 
+of $\mathcal{O}$(NNLO) for inclusive jet cross 
+sections~\cite{Kidonakis:2000gi} are available.
+
+The fastNLO libraries are included in the \fitter\ package
+%and no further requirements or compilation options
+%are needed.
+and in order to include a new measurement into the PDF fit,
+only the fastNLO tables have to be specified. These tables include all
+necessary information about the perturbative coefficients and the
+calculated process for all bins of a certain dataset. 
+Tables for almost all published jet measurements
+are available through the project website \\ {\tt http://fastnlo.hepforge.org}.
+%or have otherwise to be calculated by using the full fastNLO package.
+%
+%Features of the fastNLO concept are the very quick convolution of the
+%perturbative coefficients with the PDFs, of
+%$\mathcal{O}(100 ms)$, and the very high accuracy
+%of the interpolation procedure. 
+The fastNLO tables are conventionally calculated
+for multiple factors of the factorization scale, 
+and the renormalization scale factor can be chosen freely.
+Some of the fastNLO tables already allow for 
+%already involve a scale-independent
+%concept~\cite{Britzger:2012bs}, which allows for 
+the free choice~\cite{Britzger:2012bs} of the renormalization and the factorization
+scale as a function of two pre-defined observables.
+The evaluation of the strong coupling constant, which enters
+the cross section calculation, is taken consistently from the 
+QCDNUM evolution code.
+
+\subsubsection{APPLGRID}
+
+The APPLGRID~\cite{Carli:2010rw} package allows the fast computation 
+of NLO cross sections for particular processes for arbitrary sets of 
+proton parton distribution functions. The package implements
+calculations of Drell Yan cross sections of electroweak boson (\(Z,W\))
+production as well as jet production in proton-(anti)proton
+collisions and DIS processes. 
+
+The approach is based on storing the perturbative coefficients
+of NLO QCD calculations of final-state observables measured
+in hadron colliders in look-up tables. The PDFs and the 
+strong couplings are included during the final calculations,
+e.g. during PDF fitting. The method allows 
+variation of factorization and renormalization scales in
+calculations.
+
+The look-up tables (grids) can be generated with modified versions
+of MCFM~\cite{Campbell:1999ah,Campbell:2010ff} or 
+NLOjet++~\cite{Nagy:2001fj} software as distributed
+with the full version of APPLGRID package.
+% NLO calculations
+%for the current analysis are performed with the help of APPLGRID
+%generated grids based on MCFM calculations. 
+
+APPLGRID supports an interface to the MCFM parton level generators,
+hence model input parameters such as electroweak parameters
+are in fact pre-set following the MCFM input steering card, while
+binning and definitions of the observables for which the
+differential cross sections are needed are set in the 
+APPLGRID code. 
+%The grid parameters \(x_1, x_2\) and \(Q^2\) binning
+The grid parameters, \(Q^2\) binning
+and interpolation orders are also defined in the code.
+
+APPLGRID constructs the grid tables in two 
+steps: {\it (i)} exploration of the phase space in order
+to optimize the memory storage and {\it (ii)} actual grid
+construction in the phase space corresponding to the 
+requested observables.
+
+Afterwards the NLO cross sections are restored from the grids
+using externally provided PDFs, \(\alpha_S\), factorization and 
+renormalization scales. QCD NNLO k-factors can be applied
+if requested.
 
 
 
