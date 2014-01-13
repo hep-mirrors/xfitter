@@ -18,20 +18,20 @@
 
 !   To treat error uncorrelately, then: first  is uncor, then the sys_i(i=1,2) -> 3 sources
              !     Bins       x-sec                           Errors    
-  ColumnName = 'x','Q2','y','reduced x-section','stat const','uncor','total',42*'uncor',2*'ignore'
-!   ColumnName = 'x','Q2','y','reduced x-section','stat const','uncor','total',
-!                    'HERA_Charm_Source_01', 'HERA_Charm_Source_02', 'HERA_Charm_Source_03', 'HERA_Charm_Source_04', 
-!                    'HERA_Charm_Source_05', 'HERA_Charm_Source_06', 'HERA_Charm_Source_07', 'HERA_Charm_Source_08', 
-!                    'HERA_Charm_Source_09', 'HERA_Charm_Source_10', 'HERA_Charm_Source_11', 'HERA_Charm_Source_12', 
-!                    'HERA_Charm_Source_13', 'HERA_Charm_Source_14', 'HERA_Charm_Source_15', 'HERA_Charm_Source_16', 
-!                    'HERA_Charm_Source_17', 'HERA_Charm_Source_18', 'HERA_Charm_Source_19', 'HERA_Charm_Source_20',
-!                   'HERA_Charm_Source_21', 'HERA_Charm_Source_22', 'HERA_Charm_Source_23', 'HERA_Charm_Source_24', 
-!                    'HERA_Charm_Source_25', 'HERA_Charm_Source_26', 'HERA_Charm_Source_27', 'HERA_Charm_Source_28', 
-!                    'HERA_Charm_Source_29', 'HERA_Charm_Source_30', 'HERA_Charm_Source_31', 'HERA_Charm_Source_32', 
-!                    'HERA_Charm_Source_33', 'HERA_Charm_Source_34', 'HERA_Charm_Source_35', 'HERA_Charm_Source_36', 
-!                   'HERA_Charm_Source_37', 'HERA_Charm_Source_38', 'HERA_Charm_Source_39', 'HERA_Charm_Source_40',
-!                    'HERA_Charm_Source_41', 'HERA_Charm_Source_42', 'HERA_Charm_Proced_01', 'HERA_Charm_Proced_02'
-!!                   'HERA_Charm_Source_41', 'HERA_Charm_Source_42', 2*'ignore'
+!  ColumnName = 'x','Q2','y','reduced x-section','stat const','uncor','total',42*'uncor',2*'ignore'
+   ColumnName = 'x','Q2','y','reduced x-section','stat const','uncor','total',
+                    'HERA_Charm_Source_01', 'HERA_Charm_Source_02', 'HERA_Charm_Source_03', 'HERA_Charm_Source_04', 
+                    'HERA_Charm_Source_05', 'HERA_Charm_Source_06', 'HERA_Charm_Source_07', 'HERA_Charm_Source_08', 
+                    'HERA_Charm_Source_09', 'HERA_Charm_Source_10', 'HERA_Charm_Source_11', 'HERA_Charm_Source_12', 
+                    'HERA_Charm_Source_13', 'HERA_Charm_Source_14', 'HERA_Charm_Source_15', 'HERA_Charm_Source_16', 
+                    'HERA_Charm_Source_17', 'HERA_Charm_Source_18', 'HERA_Charm_Source_19', 'HERA_Charm_Source_20',
+                    'HERA_Charm_Source_21', 'HERA_Charm_Source_22', 'HERA_Charm_Source_23', 'HERA_Charm_Source_24', 
+                    'HERA_Charm_Source_25', 'HERA_Charm_Source_26', 'HERA_Charm_Source_27', 'HERA_Charm_Source_28', 
+                    'HERA_Charm_Source_29', 'HERA_Charm_Source_30', 'HERA_Charm_Source_31', 'HERA_Charm_Source_32', 
+                    'HERA_Charm_Source_33', 'HERA_Charm_Source_34', 'HERA_Charm_Source_35', 'HERA_Charm_Source_36', 
+                    'HERA_Charm_Source_37', 'HERA_Charm_Source_38', 'HERA_Charm_Source_39', 'HERA_Charm_Source_40',
+                    'HERA_Charm_Source_41', 'HERA_Charm_Source_42', 'HERA_Charm_Proced_01', 'HERA_Charm_Proced_02'
+!                   'HERA_Charm_Source_41', 'HERA_Charm_Source_42', 2*'ignore'
 
    NInfo    = 4
    DataInfo =  318.,        1.,	 1.,	0.
