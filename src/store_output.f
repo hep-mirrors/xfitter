@@ -194,8 +194,10 @@ c        open(82,file=h1name)
 
 
 cv store for LHAPDF
+cv HERAPDF in LHAPDF6 yaml format
+      call print_lhapdf6()
+cv HERAPDF in LHAPDF5 format
 cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot 
-
       DO Iq=0,160
          Q2=10**(8.30103/160D0*Iq )
          q2valpdf(iq) = q2
