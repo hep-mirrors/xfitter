@@ -38,8 +38,12 @@ extern struct { //{{{
     int asymerrorsiterations;
     int luseapplgridckm;
 } steering_; //}}}
+
 void save_info();
 void save_data();
+char* get_flavor_scheme();
+char* get_error_type();
+
 
 // convert fortran string to C string
 char* sfix(char* fstr,int size) { //{{{
@@ -51,12 +55,14 @@ char* sfix(char* fstr,int size) { //{{{
   return cstr;
 } //}}}
 
+
 // fortran interface to store pdf in LHAPDF6 format
 void print_lhapdf6_(){ //{{{
   mkdir("output/herapdf",0755);
   save_info();
   save_data();
 } //}}}
+
 
 // store pdf data to herapdf_0000.dat yaml file
 void save_data(){ //{{{
@@ -93,17 +99,19 @@ void save_data(){ //{{{
   fclose(fp);
 } //}}}
 
+
 // store pdf information to herapdf.info yaml file
 void save_info() { //{{{
 
   extern double hf_get_alphas_(double *);
   extern double qfrmiq_(int *);
-  int nx,nq,null,iq,as_order;
-  double xmin,xmax,q2min,q2max,q2,alphas;
+  int nx,nq,inull,iq,as_order;
+  double xmin,xmax,q2min,q2max,q2,alphas,dnull;
   double mz2=boson_masses_.mz*boson_masses_.mz;
   FILE* fp;
-
-  grpars_(&nx,&xmin,&xmax,&nq,&q2min,&q2max,&null);
+  
+  grpars_(&nx,&xmin,&xmax,&nq,&q2min,&q2max,&inull);
+  
   getord_(&as_order);
   if((fp=fopen("output/herapdf/herapdf.info","w"))==NULL) puts("Cannot open file.");
     fprintf(fp,"SetDesc: HERAPDF\n");
@@ -113,9 +121,9 @@ void save_info() { //{{{
     fprintf(fp,"DataVersion: 1\n");
     fprintf(fp,"NumMembers: 1\n");
     fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
-    fprintf(fp,"OrderQCD: %i\n", steering_.i_fit_order);
-    fprintf(fp,"FlavorScheme: variable\n");
-    fprintf(fp,"ErrorType:\n");
+    fprintf(fp,"OrderQCD: %i\n", steering_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
+    fprintf(fp,"FlavorScheme: %s\n", get_flavor_scheme());
+    fprintf(fp,"ErrorType: %s\n", get_error_type());
     fprintf(fp,"XMin: %g\n", xmin);
     fprintf(fp,"XMax: %g\n",1.0);
     fprintf(fp,"QMin: %g\n", sqrt(q2min));
@@ -128,7 +136,7 @@ void save_info() { //{{{
     fprintf(fp,"MBottom: %g\n", steering_.hf_mass[1]);
     fprintf(fp,"MTop: %g\n", steering_.hf_mass[2]);
     fprintf(fp,"AlphaS_MZ: %g\n", hf_get_alphas_(&mz2));
-    fprintf(fp,"AlphaS_OrderQCD: %i\n", as_order);
+    fprintf(fp,"AlphaS_OrderQCD: %i\n", as_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
     fprintf(fp,"AlphaS_Type: ipol\n");
 
     fprintf(fp,"AlphaS_Qs: [");
@@ -148,3 +156,26 @@ void save_info() { //{{{
 
     fclose(fp);
 } //}}}
+
+
+char* get_flavor_scheme() { //{{{
+  int fixed_scheme;
+  double dnull;
+  char* fl_scheme;
+
+  getcbt_(&fixed_scheme, &dnull, &dnull, &dnull);
+  if(fixed_scheme) fl_scheme="fixed";
+    else fl_scheme="variable";
+  return fl_scheme;
+}
+//}}}
+
+
+char* get_error_type(){ //{{{
+  char* error_type;
+  if(steering_.dobands) 
+      error_type="replicas";
+    else error_type="hessian";
+  return error_type;
+}
+//}}}
