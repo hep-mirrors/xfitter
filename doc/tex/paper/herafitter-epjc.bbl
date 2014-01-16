@@ -1,4 +1,4 @@
-\begin{thebibliography}{55}
+\begin{thebibliography}{56}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -11,11 +11,6 @@
 \expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
 \providecommand{\bibinfo}[2]{#2}
 \providecommand{\eprint}[1]{\href{http://arxiv.org/abs/#1}{#1}}
-
-\bibitem[{\citenamefont{Botje}(2010)}]{qcdnum}
-\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}} (\bibinfo{year}{2010}),
-  \bibinfo{note}{%QCDNUM version $17\beta$,% \tt
-  http://www.nikef.nl/h24/qcdnum/index.html}, [\eprint{arXiv:1005.1481}].
 
 \bibitem[{\citenamefont{Gribov and
   Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
@@ -47,20 +42,10 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
   \bibinfo{pages}{298} (\bibinfo{year}{1977}).
 
-\bibitem[{\citenamefont{Curci \emph{et~al.}}(1980)\citenamefont{Curci,
-  Furmanski, and Petronzio}}]{Curci:1980uw}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Curci}},
-  \bibinfo{author}{\bibfnamefont{W.}~\bibnamefont{Furmanski}},
-  \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Petronzio}},
-  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B175}},
-  \bibinfo{pages}{27} (\bibinfo{year}{1980}).
-
-\bibitem[{\citenamefont{Furmanski and Petronzio}(1980)}]{Furmanski:1980cm}
-\bibinfo{author}{\bibfnamefont{W.}~\bibnamefont{Furmanski}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Petronzio}},
-  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B97}},
-  \bibinfo{pages}{437} (\bibinfo{year}{1980}).
+\bibitem[{\citenamefont{Botje}(2010)}]{qcdnum}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}} (\bibinfo{year}{2010}),
+  \bibinfo{note}{%QCDNUM version $17\beta$,% \tt
+  http://www.nikef.nl/h24/qcdnum/index.html}, [\eprint{arXiv:1005.1481}].
 
 \bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
   Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
@@ -382,5 +367,28 @@
   \bibinfo{journal}{Nucl. Phys. Proc. Suppl.}
   \textbf{\bibinfo{volume}{205-206}}, \bibinfo{pages}{10}
   (\bibinfo{year}{2010}), [\eprint{arXiv:1007.3492}].
+
+\bibitem[{\citenamefont{Ball \emph{et~al.}}(2012)\citenamefont{Ball, Bertone,
+  Cerutti, Del~Debbio, Forte \emph{et~al.}}}]{Ball:2011gg}
+\bibinfo{author}{\bibfnamefont{R.~D.} \bibnamefont{Ball}},
+  \bibinfo{author}{\bibfnamefont{V.}~\bibnamefont{Bertone}},
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Cerutti}},
+  \bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Del~Debbio}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Forte}},
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Nucl.Phys.}
+  \textbf{\bibinfo{volume}{B855}}, \bibinfo{pages}{608} (\bibinfo{year}{2012}),
+  [\eprint{arXiv:1108.1758}].
+
+\bibitem[{\citenamefont{Ball \emph{et~al.}}(2011)}]{Ball:2010gb}
+\bibinfo{author}{\bibfnamefont{R.~D.} \bibnamefont{Ball}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{NNPDF Collaboration}],
+  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B849}},
+  \bibinfo{pages}{112} (\bibinfo{year}{2011}), [\eprint{arXiv:1012.0836}].
+
+\bibitem[{\citenamefont{Watt and Thorne}(2012)}]{Watt:2012tq}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Watt}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Thorne}},
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1208}}, \bibinfo{pages}{052}
+  (\bibinfo{year}{2012}), [\eprint{arXiv:1205.4024}].
 
 \end{thebibliography}

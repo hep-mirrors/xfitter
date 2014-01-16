@@ -4,27 +4,27 @@
 \newcommand{\CCFM}{CCFMa,CCFMb,Catani:1989sg,CCFMd}
 
 
-The proton PDFs are classically extracted from QCD fits by a measure of 
-the agreement between experimental data and corresponding theory models.
-During the fit procedure in the \fitter\ framework, the PDFs are
-parametrised at a starting scale $Q^2_0$ chosen to be below the charm 
-mass threshold and then evolved using coupled, integro-differential
-Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
-(DGLAP)~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
-Dokshitzer:1977sg,Altarelli:1977zs} evolution equations 
-as implemented in the QCDNUM~\cite{qcdnum} program in the $\overline{\text{MS}}$ scheme. 
-The evolution can be performed in the LO, NLO or NNLO accuracy~\cite{Curci:1980uw,Furmanski:1980cm}.
-%The PDFs calculated at a scale corresponding to a measured cross section are convoluted with the partonic 
-%cross sections to calculate the predicted cross section. For all measurement points, the predicted 
-%and measured cross sections together with their corresponding errors are used to build a global $\chi^2$, 
-%minimized to determine the initial PDF parameters. This generic procedure includes a number of 
-%subtleties and assumptions, depending on the measurements, scale and available calculations.
+%The proton PDFs are classically extracted from QCD fits by a measure of 
+%the agreement between experimental data and corresponding theory models.
+%During the fit procedure in the \fitter\ framework, the PDFs are
+%parametrised at a starting scale $Q^2_0$ chosen to be below the charm 
+%mass threshold and then evolved using coupled, integro-differential
+%Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
+%(DGLAP)~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
+%Dokshitzer:1977sg,Altarelli:1977zs} evolution equations 
+%as implemented in the QCDNUM~\cite{qcdnum} program in the $\overline{\text{MS}}$ scheme. 
+%The evolution can be performed in the LO, NLO or NNLO accuracy~\cite{Curci:1980uw,Furmanski:1980cm}.
+%
+%In following, the theoretical models for various processes available in \fitter\ are described.
+The theoretical calculations, required for the PDF determination extracted by measuring 
+the agreement between experimental data and corresponding theory models, are
+available in \fitter\  for various processes and are described in following text.
 
-In following, the theoretical models for various processes available in \fitter\ are described.
+
 
 \subsection{Deep Inelastic Scattering Formalism and Schemes}
 
-Deep inelastic scattering (DIS) is the lepton scattering on the 
+Deep inelastic scattering is the lepton scattering on the 
 constituents of the proton by a virtual exchange of a neutral (NC) 
 or charged (CC) boson and, as a result, a scattered lepton and a 
 multihadronic final state are produced.
@@ -94,23 +94,21 @@ Each of these schemes is briefly discussed below.
 
 \subsubsection{GM-VFN Thorne-Roberts scheme}
 
-The Thorne-Roberts (TR) scheme (referred as RT scheme in the \fitter\ )
-smoothly connect the two regions: 
+The Thorne-Roberts (TR) scheme smoothly connect the two regions: 
 scales below ($Q^2<m_h^2$) and scales much above the heavy quark scale threshold ($Q^2>>m_h^2$). 
 %However, the connection is not unique.
 %A GM-VFNS can be defined by demanding equivalence of the $n_f = n$ (FFNS) 
 %and $n_f = n+1$ flavour (ZM-VFNS) descriptions above the transition point for the new parton distributions
 %(they are by definition identical below this point), at all orders.
-Therea retwo different variants of the TR schemes: TR standard (as used in MSTW PDF 
+There are two different variants of the TR schemes: TR standard (as used in MSTW PDF 
 sets~\cite{Thorne:2006qt,Martin:epC63}) 
 and TR optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark mass scales 
 and both of them are accessible within the \fitter\ package.
 The calculations are available to NLO and NNLO. In addition, a fast version of the scheme 
 is available (i.e. RT FAST) by using the $k-factor$ technique where $k-factors$ are defined 
 as the ratio between massless (accessed by QCDNUM) and massive scheme. 
-The $k-factors$ are only calculated for the PDF parameters at the first fir iteration
-and are not anymore updated through the minimisation procedure, hence, the recommended 
-is the full TR scheme.
+The $k-factors$ are only calculated for the PDF parameters at the first fit iteration
+hence, the recommended is the full TR scheme.
 %Hence the RT-fast calculation must be repeated by inputting the final PDF parameters 
 %and iterating this procedure until the input and output PDFs are not significantly different
 %%%%
@@ -120,26 +118,26 @@ The Aivazis-Collins-Olness-Tung scheme belongs to the group of VFN
 factorisation schemes that use the renormalization method of 
 Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
 This scheme involves a mixture of the $\overline{\text{MS}}$ scheme 
-for light partons (and for heavy partons when the factorisation scale 
-is larger than the heavy quark mass) and the zero-momentum subtraction 
-renormalisation scheme for graphs with heavy quark lines 
+for light and heavy (when the factorisation scale is larger than the heavy quark mass) partons
+and the zero-momentum subtraction renormalisation scheme for graphs with heavy quark lines 
 (if the factorisation scale is smaller than the mass of the heavy quark threshold). 
-The DGLAP kernels and PDF evolution are pure $\overline{\text{MS}}$, 
-therefore, the ACOT scheme is considered to be a minimal extension of the $\overline{\text{MS}}$ scheme.
+% is this sentence below is important?
+%The DGLAP kernels and PDF evolution are pure $\overline{\text{MS}}$, 
+%therefore, the ACOT scheme is considered to be a minimal extension of the $\overline{\text{MS}}$ scheme.
 
 Within the ACOT package, different variants of the ACOT scheme are available:
 ACOT-Full, S-ACOT-$\chi$, ACOT-ZM, $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
-The ACOT-Full implementation fully takes into account the quark masses 
+The ACOT-Full implementation takes into account the quark masses 
 and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
 but it has the disadvantage of being quite slow.
-Therefore the $k-factor$ technique has been adopted within the \fitter\ framework. 
-The $k-factors$ can be defined in two different ways:
+Therefore the $k-factor$ technique has been adopted within the \fitter\ framework which are  
+defined in two different ways:
 as the ratio between same order calculations but massless vs massive 
-(i.e. NLO (ZM-VFNS)/NLO (ACOT), or as the ratio between LO (massless)/NLO (massive).
-Both options are available in the \fitter\ package and they give similar results. 
-%k-factors depend on PDFs therefore same iterations of the fit are needed.
-For convergence of the k-factors usually $2-3$ repetitions of the fit are needed.
+(i.e. NLO (ZM-VFNS)/NLO (ACOT), or as the ratio between LO (massless)/NLO (massive),
+both giving similar results.
+%%For convergence of the k-factors usually $2-3$ repetitions of the fit are needed.
+%
 %The different variants of this scheme are all integrated in the \fitter\  framework and can be 
 %selected via the namelist {\tt HF$\_$SCHEME} in the {\tt steering.txt} (ACOT ZM, ACOT FULL, S-ACOT Chi).
 %
@@ -159,8 +157,8 @@ In the FFN scheme only the gluon and the light quarks are considered
 as partons within the proton and massive quarks are produced perturbatively in the final state.
 In \fitter\ this scheme can be accessed via the ABM~\cite{openqcdrad:page} or
 QCDNUM implementation.
-The ABM implementation also includes the running mass definition of the heavy quark mass 
-in the FFN scheme~\cite{Alekhin:runm} which is realised via the interface to the 
+The ABM implementation also includes the running mass definition of the heavy quark 
+mass ~\cite{Alekhin:runm} which is realised via the interface to the 
 open-source code OPENQCDRAD~\cite{openqcdrad:page}.
 This scheme has the advantage of reducing the sensitivity of the DIS cross sections to
 higher order corrections, and improving the theoretical precision of the mass definition. 

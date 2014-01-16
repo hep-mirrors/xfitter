@@ -21,7 +21,7 @@ such reactions is to use perturbative QCD collinear factorisation:
 \label{eq:fact}
 \end{equation}
 %}
-Here the desired cross section $\sigma^{pp\rightarrow H + X}$ for inclusive
+Here the cross section $\sigma^{pp\rightarrow H + X}$ for inclusive
 Higgs production is expressed
 as a convolution of Parton Distribution Functions (PDF) $f_a$ and $f_b$
 with the partonic cross section
@@ -71,7 +71,7 @@ and  others.
 determining precise PDFs by integrating/using all the PDF sensitive information
 from HERA, Tevatron and the LHC.
 %
-The processes that are currently included are listed in Tab.~\ref{tab:proc}.
+The processes that are currently included in \fitter framework are listed in Tab.~\ref{tab:proc}.
 %
 \begin{table}
 \begin{tabular}{|l|l|l|l|}
@@ -115,7 +115,10 @@ uncertainties.
     Theory: Predictions are obtained using the factorisation approach (Eq.~\ref{eq:fact}).
 The PDFs are parametrised at a starting scale $Q_0$  by a certain functional form.
 They depend on a set of fit parameters $\vec{p}$. 
-The PDFs are  evolved from $Q_0$ to the factorisation scale $\mu_F$ using DGLAP evolution 
+The PDFs are  evolved from $Q_0$ to the factorisation scale $\mu_F$ using 
+Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
+(DGLAP)~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
+Dokshitzer:1977sg,Altarelli:1977zs} evolution equations 
 as implemented in QCDNUM~\cite{qcdnum} 
 and then multiplied (Eq.~\ref{eq:fact}) with the hard parton cross sections calculated by
 a specific theory program (also listed in Tab.~\ref{tab:proc}).
@@ -131,9 +134,9 @@ with respect to the PDF parameters using the MINUIT program.
 \item
 Output: The fitted parameters $\vec{p}$ and their estimated covariances
 from MINUIT are provided.
-The resulting PDFs can be graphically discplayed 
-at arbitrary scales with their one sigma uncertainties bands.
-%
+The resulting PDFs are provided in a ready to be used LHAPDF library form
+and can be graphically 
+discplayed at arbitrary scales with their one sigma uncertainties bands.
 To demonstrate the fit consistency, plots are provided 
 in which the input data are compared to the fitted theory predictions.
 \end{itemize}
