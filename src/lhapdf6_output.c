@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<malloc.h>
 #include<math.h>
+// fortran common blocks
 extern struct { //{{{
   double mz, mw, mh;
 } boson_masses_;  //}}}
@@ -39,11 +40,31 @@ extern struct { //{{{
     int luseapplgridckm;
 } steering_; //}}}
 
-void save_info();
-void save_data();
+struct GridQX { //{{{
+  int nx,nq2;
+  double xmin, xmax, q2min, q2max;
+  double *q2,*x;
+  enum {QCDNUM_GRID,EXTERNAL_GRID} type;
+  //main interface (should include pdf modifications, like lead)
+  double (*pdf_ij)(struct GridQX grid, int pid, int ix, int iq2); 
+  double (*raw_pdf_ij)(struct GridQX grid, int pid, int ix, int iq2); //pdf from qcdnum grid
+};
+//}}}
+
+// declarations // {{{
+void save_info(); 
+void save_data_lhapdf6_(int *pdf_set);
 char* get_flavor_scheme();
 char* get_error_type();
-
+char* get_pdf_type(int pdf_set);
+double raw_qcdnum_pdf_ij(struct GridQX grid, int pid, int ix, int iq2);
+double raw_external_pdf_ij(struct GridQX grid, int pid, int ix, int iq2);
+double lead_pdf_ij(struct GridQX grid, int pid, int ix, int iq2);
+extern double xfrmix_(int *);
+extern double qfrmiq_(int *);
+extern double fvalij_(int *,int *,int *,int *,int *);
+extern double hf_get_alphas_(double *);
+//}}}
 
 // convert fortran string to C string
 char* sfix(char* fstr,int size) { //{{{
@@ -55,62 +76,109 @@ char* sfix(char* fstr,int size) { //{{{
   return cstr;
 } //}}}
 
+// define grid parameters depending on type
+struct GridQX new_grid() { //{{{
+  int inull,ix,iq2;
+  struct GridQX grid;
+  // qcdnum
+    grid.type=QCDNUM_GRID;
+    grpars_(&grid.nx,&grid.xmin,&grid.xmax,&grid.nq2,&grid.q2min,&grid.q2max,&inull);
+    grid.x=malloc(sizeof(double)*grid.nx);
+    grid.q2=malloc(sizeof(double)*grid.nq2);
+    for(ix=1;ix<=grid.nx;ix++) grid.x[ix-1]=xfrmix_(&ix);
+    for(iq2=1;iq2<=grid.nq2;iq2++) grid.q2[iq2-1]=qfrmiq_(&iq2);
+    grid.raw_pdf_ij=raw_qcdnum_pdf_ij;
+    grid.pdf_ij=raw_qcdnum_pdf_ij;
+  
+    if(steering_.lead) grid.pdf_ij=lead_pdf_ij;
+  return grid;
+}
+//}}}
+
+void delete_grid(struct GridQX grid){ //{{{
+  free(grid.q2);
+  free(grid.x);
+}
+//}}}
+
+// pdf in grid point (qcdnum or external grid) 
+double raw_qcdnum_pdf_ij(struct GridQX grid, int pid, int ix, int iq2) { //{{{
+  int inull;
+  ix+=1;
+  iq2+=1;
+  return fvalij_(&steering_.ipdfset,&pid,&ix,&iq2,&inull);
+}
+
+double raw_external_pdf_ij(struct GridQX grid, int pid, int ix, int iq2) {
+  int inull;
+  double x,q2;
+  x=grid.x[ix];
+  q2=grid.q2[iq2];
+  return fvalxq_(&steering_.ipdfset,&pid,&x,&q2,&inull);
+}
+//}}}
+
+double lead_pdf_ij(struct GridQX grid, int pid, int ix, int iq2) { //{{{
+  const double A=207.0, Z= 82.0;
+  double val1,val2;
+  int pid2;
+  if(abs(pid)!=1 && abs(pid)!=2) return grid.raw_pdf_ij(grid, pid, ix, iq2);
+  pid2= (abs(pid)==1?2:1)*abs(pid)/pid;
+  val1=grid.raw_pdf_ij(grid, pid, ix, iq2);
+  val2=grid.raw_pdf_ij(grid, pid2, ix, iq2);
+  return (Z*val1 + (A-Z)*val2)/A;
+}
+//}}}
 
 // fortran interface to store pdf in LHAPDF6 format
 void print_lhapdf6_(){ //{{{
+  int central_set=0;
   mkdir("output/herapdf",0755);
   save_info();
-  save_data();
+  save_data_lhapdf6_(&central_set);
 } //}}}
 
-
 // store pdf data to herapdf_0000.dat yaml file
-void save_data(){ //{{{
-  extern double xfrmix_(int *);
-  extern double qfrmiq_(int *);
-  extern double fvalij_(int *,int *,int *,int *,int *);
-  int nx,nq,null,iq,ix,i;
-  double xmin,xmax,qmin,qmax,q2;
+void save_data_lhapdf6_(int *pdf_set){ //{{{
+  int iq2,ix,i;
+  struct GridQX grid=new_grid();
   int pdg_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,21};
   int qcdnum_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,0};
-  grpars_(&nx,&xmin,&xmax,&nq,&qmin,&qmax,&null);
   FILE* fp;
-  grpars_(&nx,&xmin,&xmax,&nq,&qmin,&qmax,&null);
-  if((fp=fopen("output/herapdf/herapdf_0000.dat","w"))==NULL) puts("Cannot open file.");
-    fprintf(fp,"PdfType: central\n");
+  char file_name[]="output/herapdf/herapdf_XXXX.dat";
+
+  sprintf(file_name,"output/herapdf/herapdf_%04i.dat",*pdf_set);
+  if((fp=fopen(file_name,"w"))==NULL) puts("Cannot open file.");
+    fprintf(fp,"PdfType: %s\n", get_pdf_type(*pdf_set));
     fprintf(fp,"Format: lhagrid1\n");
     fprintf(fp,"---\n");
-    for(ix=1;ix<=nx;ix++) 
-      fprintf(fp,"%e ",xfrmix_(&ix)); 
+    for(ix=0;ix<grid.nx;ix++) 
+      fprintf(fp,"%e ",grid.x[ix]);
       fprintf(fp,"\n");
-    for(iq=1;iq<=nq;iq++) 
-      fprintf(fp,"%e ",sqrt(qfrmiq_(&iq))); 
+    for(iq2=0;iq2<grid.nq2;iq2++) 
+      fprintf(fp,"%e ",sqrt(grid.q2[iq2]));
       fprintf(fp,"\n");
     for(i=0;i<sizeof(pdg_flavours)/sizeof(int);i++) 
       fprintf(fp,"%i ",pdg_flavours[i]);
       fprintf(fp,"\n");
-    for(ix=1;ix<=nx;ix++)
-      for(iq=1;iq<=nq;iq++){
+    for(ix=0;ix<grid.nx;ix++)
+      for(iq2=0;iq2<grid.nq2;iq2++){
           for(i=0;i<sizeof(qcdnum_flavours)/sizeof(int);i++) 
-            fprintf(fp,"%e ",fvalij_(&steering_.ipdfset,&qcdnum_flavours[i],&ix,&iq,&null));
+            fprintf(fp,"%e ",grid.pdf_ij(grid,qcdnum_flavours[i],ix,iq2));
           fprintf(fp,"\n");
           }
     fprintf(fp,"---\n");
   fclose(fp);
 } //}}}
 
-
 // store pdf information to herapdf.info yaml file
 void save_info() { //{{{
 
-  extern double hf_get_alphas_(double *);
-  extern double qfrmiq_(int *);
-  int nx,nq,inull,iq,as_order;
+  int iq2,as_order;
   double xmin,xmax,q2min,q2max,q2,alphas,dnull;
   double mz2=boson_masses_.mz*boson_masses_.mz;
   FILE* fp;
-  
-  grpars_(&nx,&xmin,&xmax,&nq,&q2min,&q2max,&inull);
+  struct GridQX grid=new_grid();
   
   getord_(&as_order);
   if((fp=fopen("output/herapdf/herapdf.info","w"))==NULL) puts("Cannot open file.");
@@ -124,10 +192,10 @@ void save_info() { //{{{
     fprintf(fp,"OrderQCD: %i\n", steering_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
     fprintf(fp,"FlavorScheme: %s\n", get_flavor_scheme());
     fprintf(fp,"ErrorType: %s\n", get_error_type());
-    fprintf(fp,"XMin: %g\n", xmin);
+    fprintf(fp,"XMin: %g\n", grid.xmin);
     fprintf(fp,"XMax: %g\n",1.0);
-    fprintf(fp,"QMin: %g\n", sqrt(q2min));
-    fprintf(fp,"QMax: %g\n", sqrt(q2max));
+    fprintf(fp,"QMin: %g\n", sqrt(grid.q2min));
+    fprintf(fp,"QMax: %g\n", sqrt(grid.q2max));
     fprintf(fp,"MZ: %g\n", boson_masses_.mz);
     fprintf(fp,"MUp: 0\n");
     fprintf(fp,"MDown: 0\n");
@@ -140,23 +208,22 @@ void save_info() { //{{{
     fprintf(fp,"AlphaS_Type: ipol\n");
 
     fprintf(fp,"AlphaS_Qs: [");
-      for(iq=1;iq<=nq;iq++) {
-        fprintf(fp,"%g",sqrt(qfrmiq_(&iq)));
-        if(iq!=nq) fprintf(fp,", ");
+      for(iq2=0;iq2<grid.nq2;iq2++) {
+        fprintf(fp,"%g",sqrt(grid.q2[iq2]));
+        if(iq2!=grid.nq2-1) fprintf(fp,", ");
       }
       fprintf(fp,"]\n");
 
     fprintf(fp,"AlphaS_Vals: [");
-      for(iq=1;iq<=nq;iq++) {
-        q2=qfrmiq_(&iq);
+      for(iq2=0;iq2<grid.nq2;iq2++) {
+        q2=grid.q2[iq2];
         fprintf(fp,"%g",hf_get_alphas_(&q2));
-        if(iq!=nq) fprintf(fp,", ");
+        if(iq2!=grid.nq2-1) fprintf(fp,", ");
       }
     fprintf(fp,"]");
 
     fclose(fp);
 } //}}}
-
 
 char* get_flavor_scheme() { //{{{
   int fixed_scheme;
@@ -170,12 +237,19 @@ char* get_flavor_scheme() { //{{{
 }
 //}}}
 
-
 char* get_error_type(){ //{{{
   char* error_type;
   if(steering_.dobands) 
       error_type="replicas";
     else error_type="hessian";
   return error_type;
+}
+//}}}
+
+char* get_pdf_type(int pdf_set){ //{{{
+  char* pdf_type;
+  if(!pdf_set) pdf_type="central";
+    else pdf_type="error";
+  return pdf_type;
 }
 //}}}

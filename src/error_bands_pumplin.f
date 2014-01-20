@@ -164,6 +164,12 @@ C
             open (76,file=name2,status='unknown')
             call store_pdfs(name)
             close (76)
+            if(shift_dir.eq.-1) then
+              call save_data_lhapdf6(j*2-1)
+            else
+              call save_data_lhapdf6(j*2)
+            endif
+            
 
          enddo  ! shift_dir
 
