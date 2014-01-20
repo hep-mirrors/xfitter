@@ -39,7 +39,7 @@
 %
 %\RequirePackage{fix-cm}
 %
-\documentclass[twocolumn,epjc3]{svjour3}  
+\documentclass[twocolumn,epjc3,draft]{svjour3}  
 %
 \smartqed  % flush right qed marks, e.g. at end of proof
 %
@@ -47,7 +47,7 @@
 % \RequirePackage{graphicx}
 \RequirePackage[pdftex]{graphicx}
 %
- \RequirePackage{mathptmx}      % use Times fonts if available on your TeX system
+\RequirePackage{mathptmx}      % use Times fonts if available on your TeX system
 %
 
 % insert here the call for the packages your document requires
@@ -76,6 +76,7 @@
 
 \usepackage[numbers,square,comma,sort&compress]{natbib}
 \usepackage{textcomp}
+
 \bibliographystyle{herafitter-epjc}
 
 \newcommand\fitter{ \mbox{\tt HERAFitter} }
@@ -120,20 +121,20 @@
 
 \begin{abstract}
 The \fitter project is presented 
-which provides a framework for QCD analyses related 
+which provides a framework for Quantum Chronodynamics (QCD) analyses related 
 to the proton structure in the context of multi-processes and multi-experiments.
-Utilising QCD factorisation, \fitter allows determining 
-the proton parton distribution functions (PDF) from various hard scattering measurements
-or obtaining benchmark 
+Based on the concept of factorisable nature of the cross sections into universal parton distribution functions (PDFs) and process dependent partonic scattering cross sections, \fitter allows determination of PDFs from the various hard scattering measurements.
+%or obtaining benchmark 
 %{\bf (olaf is the benchmarking part of HERAFItter or not?
 %If not then take it out here)} 
-predictions for such processes using different
-PDFs. The main processes and data sets that are currently included
+%predictions for such processes using different
+%PDFs. 
+The main processes and data sets that are currently included
 are Deep-Inelastic-Scattering (DIS) 
 in $ep$ collisions at HERA and Drell Yan (DY), jet and top quark production in 
 $pp$ ($p\bar{p}$) collisions at the LHC (Tevatron).
 A large number of theoretical and methodological options is
-available in \fitter via interfaces to different modules.
+available within \fitter via interfaces to external software packages.
 %The determination of the  proton patron distribution functions is a complex 
 %endeavor involving several physics processes. The main process is deep-inelastic 
 %scattering and the central  data set covering most of the proton structure 
@@ -151,7 +152,7 @@ available in \fitter via interfaces to different modules.
 %the fit  methodology and the  installation procedure of the program. 
 %More information and the package downloads can be found on the web 
 %site {\tt http://herafitter.org}.
-\keywords{First keyword \and Second keyword \and More}
+\keywords{PDFs \and QCD \and Fit}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
 \end{abstract}
@@ -173,7 +174,7 @@ available in \fitter via interfaces to different modules.
 
 \section{Application of \fitter}
 \label{sec:examples}
-\input{examples.tex}
+%\input{examples.tex}
 
 
 \section{Summary}
@@ -244,7 +245,7 @@ available in \fitter via interfaces to different modules.
 %\bibliography{}   % name your BibTeX data base
 
 
-
+\bibliography{herafitter-epjc.bib}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Non-BibTeX users please use
@@ -259,9 +260,10 @@ available in \fitter via interfaces to different modules.
 %% Format for books
 %\bibitem{RefB}
 %Author, Book title, page numbers. Publisher, place (year)
+
 %\end{thebibliography}
 
-\bibliography{herafitter-epjc.bib}
+
 
 \end{document}
 % end of file template.tex
