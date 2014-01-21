@@ -1,19 +1,27 @@
 
-\fitter\ is a unique QCD fit platform that provides  many options to the user to perform a quantitative assessment of impact of new data or new theoretical prediction. The quest on nailing down the uncertainties on PDFs have lead, on one hand, to highly precise measurements that are in need of careful handling of all provided sources of uncertainties, and on the other hand to numerous software packages that provide higher order calculations in QCD to match the precision of data.
+%\fitter\ is a unique QCD fit platform that provides many options to the user to perform a quantitative assessment of impact level for a new data or new theoretical prediction. The quest on nailing down the uncertainties on PDFs have lead, on one hand, to highly precise measurements that are in need of careful handling of all provided sources of uncertainties, and on the other hand to numerous software packages that provide higher order calculations in QCD to match the precision of data.
 
+
+
+There are considerable number of choices available when performing a QCD fit analysis which require careful investigation (i.e. input parametrisation, choices of threshold values, various theory prescription, method of minimisation, interpretation of uncertaintes).
+%
+ It is desirable to be able to discriminate or quantify the effect of ansatz ideally within the same conditions -
+\fitter\ provides such an environment.
+%
 The methodology employed by \fitter\  relies on a flexible and modular
-framework that allows for independent integration of the state-of-the-art techniques, 
-either related to the inclusion of a new theoretical calculation, or to a new approaches to treat uncertainties.
+framework that allows for independent integration of the state-of-the-art techniques, either related to the inclusion of a new theoretical calculation, or to a new approaches to treat uncertainties. 
+%
 
-In this section we list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter\. 
+In this section we briefly describe the available options in \fitter\ ranging from the functional form used to parametrise PDFs, presenting various representations of $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
+
+%list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter\. 
 In addition, the reweighting method - an alternative approach to a complete QCD fit, available in the \fitter\ is also described in this section. It can provide for an estimate of an impact of new data, as advocated 
 alreay by the NNPDF collaboration \cite{Ball:2011gg,Ball:2010gb}.
 The method has been extended to work not only on the replica method, 
 but also on the eigenvectors (as introduced by MSTW group \cite{Watt:2012tq}).
 
-Due to the iterative procedure in the $\chi^2$ minimisation process, a fast performance in calculating the 
-theoretical prediction for each data point is an important factor for a feasible QCD fit.
-In \fitter\ this is achieved by optimising the time of calculations using and incorporating innovative techniques such as cache option, fast evolution kernels, grid techniques making the platform a practical engine for iterative usage.
+An important factor for a fesible QCD fit which is performed iteratively through the $\chi^2$ minimisation process,  represents the performance in terms of how long a calculation takes for each given data point.
+In \fitter\ this is achieved by optimising the time of calculations relyng on innovative techniques such as cache option, fast evolution kernels, grid techniques making the platform a practical engine for iterative usage.
 
 
 \subsection{Functional Forms for PDF parametrisation}
@@ -65,45 +73,46 @@ The advantages of this parametrisation are that the momentum sum rule can be eva
 and that for $N \ge 5$ the fit qulaity is already similar
 to a standard Regge-inspired parametrisation with a similar number of parameters.
 
-
+\item \bf{External PDFs:} \rm 
+\fitter\ provides also possibility to access the  external PDF sets, which can then be used in constructing the theoretical predictions rather than the ones restricted only to the \fitter\ framework. This is possible via interface to LHAPDF which commonly provides access to the global PDF sets available at LO, NLO or NNLO evolved either locally through the \fitter\ or taken as provided by the LHAPDF grid.
 
 \end{description}
 
+
 \subsection{Chisquare representation}
 
-The PDF parameters are extracted through the $\chi^2$ minimization method by 
-employing MINUIT package linked to HERAFitter. There are various forms to represent the $\chi^2$ form, i.e. covariance matrix or decomposed into nuisance parameters. In addition, there are various methods in dealing with the correlated systematic (or statistical) uncertainties.
-HERAFitter is prviding both options.
 
-\subsubsection{Covariance Matrix Representation}
+The PDF parameters are extracted from the $\chi^2$ minimization process. 
+There are various forms to represent the $\chi^2$ function, i.e. covariance matrix or decomposed into nuisance parameters. In addition, there are various methods in dealing with the correlated systematic (or statistical) uncertainties. Here we summarise the options available in \fitter\ . 
 
-In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
-is
-%\begin{equation} 
-\begin{align} 
- \label{eq:chi2gen}
-    \chi^2_{\rm exp} (\boldsymbol{m},\boldsymbol{b}) = \sum_{ij} 
-         \left ( m^i - \sum_l \Gamma^i_l(m^i)b_l - \mu^i \right) C^{-1}_{{\rm stat.}~ij}(m^i,m^j) \nonumber \\
-     \left(  m^j - \sum_l \Gamma^j_l(m^j)b_l - \mu^j \right) +  \sum_l b^2_l.
-\end{align}
-%\end{equation}
-Here the scaling properties of the correlated systematic uncertainties 
-$\Gamma^i_j$ and
-of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
-on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
+\begin{description}
+\item \bf {Covariance Matrix Representation:} \rm
+For a data point  $\mu_i$ with a corresponding theory prediction $m_i$, the $\chi^2$ function for the case when experimental uncertainties are given in a covariance matrix over data bins $C_{i,j}$ can be expressed in the following form:
 
-\subsubsection{Nuisance Parameters Representation}
+\begin{eqnarray}
+\chi^2 (m)& = & \sum_{i,j}(m_i-\mu_i)C^{-1}_{ij}(m_j-\mu_j).
+\end{eqnarray}
+The $\chi^2$ function depends on the underlying physical quantities $m^i$ 
+(denoted as the vector $\boldsymbol{m}$).
+The covariance matrix can be decomposed in statistical, uncorrelated and correlated systematic contributions: 
+\begin{eqnarray}
+C_{ij}& = & C^{stat}_{ij}+C^{uncor}_{ij}+C^{sys}_{ij}.
+\end{eqnarray}
 
-%
-\begin{align} 
-    \chi^2_{\rm exp}\left(\boldsymbol{m},\boldsymbol{b}\right) =  
-%~~~=
+This representation can not single out the effect of a particular
+source of systematic.
+
+\item \bf{Nuisance Parameters Representation:} \rm
+
+
+\begin{eqnarray} 
+    \chi^2\left(\boldsymbol{m},\boldsymbol{b}\right) &= &  
  \sum_i \frac{\left[m^i - \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
 { \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)
   + \left(\delta_{i,{\rm uncor}}\,  m^i\right)^2} \nonumber \\
-  + \sum_j b^2_j.
+  &+& \sum_j b^2_j.
 \label{eq:aven}
-\end{align}
+\end{eqnarray}
 %
 Here ${\mu^i}$ is the  measured central value  at a point $i$ 
 with  relative statistical $\delta_{i,stat}$ 
@@ -114,23 +123,44 @@ Further,
 $\gamma^i_j$ 
 quantifies the sensitivity of the
 measurement ${\mu^i}$ at the point $i$ to the systematic source $j$. 
-The function $\chi^2_{\rm exp}$ depends on the set of
-underlying physical quantities $m^i$ 
-(denoted as the vector $\boldsymbol{m}$) and 
+The function $\chi^2$ depends in addition on
  the set of systematic uncertainties $b_j$ ($\boldsymbol{b}$).
 This definition of the $\chi^2$ function takes into account that
 systematic uncertainties are proportional to the central values 
 (multiplicative errors), whereas the statistical errors scale 
 with the square roots of the expected number of events. 
+\item  \bf{Mixed Form:}\rm
+
+In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
+is
+%\begin{equation} 
+\begin{eqnarray} 
+ \label{eq:chi2gen}
+    \chi^2(\boldsymbol{m},\boldsymbol{b})& = & \sum_{ij} 
+         \left ( m^i - \sum_l \Gamma^i_l(m^i)b_l - \mu^i \right)  C^{-1}_{{\rm stat.}~ij}(m^i,m^j) \nonumber \\  
+    && \left(  m^j - \sum_l \Gamma^j_l(m^j)b_l - \mu^j \right) +  \sum_l b^2_l.
+\end{eqnarray}
+%\end{equation}
+Here the scaling properties of the correlated systematic uncertainties 
+$\Gamma^i_j$ and
+of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
+on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
+\end{description}
 
 
 \subsection{Treatment of Experimental Uncertainties}
 
 HERAFitter provides three methods in assessing the experimental uncertainties on PDFs: Hessian method, Offset Method, Monte Carlo method.
 \begin{description}
-\item \bf{Hessian method}
-\item \bf{Offset  method}
-\item \bf{Monte Carlo method}
+\item \bf{Hessian method:}\rm
+\item \bf{Offset  method:} \rm
+\item \bf{Monte Carlo method:} \rm
+The PDF uncertainties can be estimated using a Monte Carlo technique \cite{Giele:1998gw, mcmethod2}.
+The method consists in preparing replicas of data sets by allowing the central values of the cross sections to 
+fluctuate within their systematic and statistical uncertainties taking into account all point-to-point correlations.
+The preparation of the data is repeated for a large $N$ ($>100$ times) and for each of these replicas a NLO QCD fit is performed to 
+extract the PDF set. The PDF central values and uncertainties are estimated using the mean values and RMS 
+over the replicas. 
 \end{description}
 
 
