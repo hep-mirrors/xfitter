@@ -1,4 +1,4 @@
-\begin{thebibliography}{56}
+\begin{thebibliography}{62}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -46,6 +46,18 @@
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}} (\bibinfo{year}{2010}),
   \bibinfo{note}{%QCDNUM version $17\beta$,% \tt
   http://www.nikef.nl/h24/qcdnum/index.html}, [\eprint{arXiv:1005.1481}].
+
+\bibitem[{\citenamefont{James and Roos}(1975)}]{minuit}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{James}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Roos}},
+  \bibinfo{journal}{Comput. Phys. Commun.} \textbf{\bibinfo{volume}{10}},
+  \bibinfo{pages}{343} (\bibinfo{year}{1975}).
+
+\bibitem[{\citenamefont{Aad \emph{et~al.}}(2012)}]{atlas:strange}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
+  \bibinfo{journal}{Phys. Rev. Lett.} \textbf{\bibinfo{volume}{109}},
+  \bibinfo{pages}{012001} (\bibinfo{year}{2012}), [\eprint{arXiv:1203.4051}].
 
 \bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
   Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
@@ -390,5 +402,34 @@
   \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Thorne}},
   \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1208}}, \bibinfo{pages}{052}
   (\bibinfo{year}{2012}), [\eprint{arXiv:1205.4024}].
+
+\bibitem[{\citenamefont{Pumplin \emph{et~al.}}(2001)\citenamefont{Pumplin,
+  Stump, Brock, Casey, Huston \emph{et~al.}}}]{Pumplin:2001ct}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Pumplin}},
+  \bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{Stump}},
+  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Brock}},
+  \bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{Casey}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Huston}},
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Phys.Rev.}
+  \textbf{\bibinfo{volume}{D65}}, \bibinfo{pages}{014013}
+  (\bibinfo{year}{2001}), [\eprint{hep-ph/0101032}].
+
+\bibitem[{\citenamefont{Botje}(2002)}]{Botje:2001fx}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}},
+  \bibinfo{journal}{J.Phys.} \textbf{\bibinfo{volume}{G28}},
+  \bibinfo{pages}{779} (\bibinfo{year}{2002}), [\eprint{hep-ph/0110123}].
+
+\bibitem[{\citenamefont{Giele and Keller}(1998)}]{Giele:1998gw}
+\bibinfo{author}{\bibfnamefont{W.~T.} \bibnamefont{Giele}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Keller}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D58}},
+  \bibinfo{pages}{094023} (\bibinfo{year}{1998}), [\eprint{hep-ph/9803393}].
+
+\bibitem[{\citenamefont{Giele \emph{et~al.}}(2001)\citenamefont{Giele, Keller,
+  and Kosower}}]{mcmethod2}
+\bibinfo{author}{\bibfnamefont{W.~T.} \bibnamefont{Giele}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Keller}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{Kosower}}
+  (\bibinfo{year}{2001}), [\eprint{hep-ph/0104052}].
 
 \end{thebibliography}
