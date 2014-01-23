@@ -40,6 +40,13 @@ extern struct { //{{{
     int luseapplgridckm;
 } steering_; //}}}
 
+extern struct { //{{{
+double grid[500];
+int nx;
+int read_xgrid;
+} ext_xgrid_;
+//}}}
+
 struct GridQX { //{{{
   int nx,nq2;
   double xmin, xmax, q2min, q2max;
@@ -52,6 +59,7 @@ struct GridQX { //{{{
 //}}}
 
 // declarations // {{{
+void print_lhapdf6_();
 void save_info(); 
 void save_data_lhapdf6_(int *pdf_set);
 char* get_flavor_scheme();
@@ -63,6 +71,7 @@ double lead_pdf_ij(struct GridQX grid, int pid, int ix, int iq2);
 extern double xfrmix_(int *);
 extern double qfrmiq_(int *);
 extern double fvalij_(int *,int *,int *,int *,int *);
+extern double fvalxq_(int *,int *,double *,double *,int *);
 extern double hf_get_alphas_(double *);
 //}}}
 
@@ -81,6 +90,17 @@ struct GridQX new_grid() { //{{{
   int inull,ix,iq2;
   struct GridQX grid;
   // qcdnum
+  if(ext_xgrid_.read_xgrid) {
+    grid.type=EXTERNAL_GRID;
+    grpars_(&grid.nx,&grid.xmin,&grid.xmax,&grid.nq2,&grid.q2min,&grid.q2max,&inull);
+    grid.nx=ext_xgrid_.nx;
+    grid.x=malloc(sizeof(double)*grid.nx);
+    grid.q2=malloc(sizeof(double)*grid.nq2);
+    for(ix=0;ix<grid.nx;ix++) grid.x[ix]= ext_xgrid_.grid[ix];
+    for(iq2=1;iq2<=grid.nq2;iq2++) grid.q2[iq2-1]=qfrmiq_(&iq2);
+    grid.raw_pdf_ij=raw_external_pdf_ij;
+    grid.pdf_ij=raw_external_pdf_ij;
+  } else {
     grid.type=QCDNUM_GRID;
     grpars_(&grid.nx,&grid.xmin,&grid.xmax,&grid.nq2,&grid.q2min,&grid.q2max,&inull);
     grid.x=malloc(sizeof(double)*grid.nx);
@@ -89,7 +109,7 @@ struct GridQX new_grid() { //{{{
     for(iq2=1;iq2<=grid.nq2;iq2++) grid.q2[iq2-1]=qfrmiq_(&iq2);
     grid.raw_pdf_ij=raw_qcdnum_pdf_ij;
     grid.pdf_ij=raw_qcdnum_pdf_ij;
-  
+  }
     if(steering_.lead) grid.pdf_ij=lead_pdf_ij;
   return grid;
 }

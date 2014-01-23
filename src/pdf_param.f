@@ -1496,6 +1496,7 @@ C !> Read PDF from a text file.
       double precision function pdf_from_text(x,id)
       implicit none
       include 'steering.inc'
+      include 'ntot.inc'
       include 'pdfparam.inc'
       double precision x
       integer id
@@ -1507,9 +1508,6 @@ C !> Read PDF from a text file.
       double precision Q20
       namelist/XGrid/NXgrid, Q20
 
-      integer NXgridMax
-      parameter (NxgridMax=500)
-      
       double precision xx(NxgridMax)
       double precision xuv(NxgridMax)
       double precision xdv(NxgridMax)
