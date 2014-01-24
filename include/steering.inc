@@ -85,6 +85,7 @@ C
       integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
       logical lead             !> Flag to trigger lead PDF	
+      logical deuteron             !> Flag to trigger deuteron PDF	
       logical CachePDFs        !> Cache PDF calls to speedup
       logical FLAGRW
       logical DORWONLY
