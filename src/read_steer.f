@@ -865,10 +865,16 @@ C---------------------------------------
 
       if (PDFType.eq.'proton'.or. PDFType.eq.'PROTON') then
          lead = .false.
+         deuteron = .false.
          print *,'Fitting for PROTON PDFs, PDFType=', PDFType
       elseif (PDFType.eq.'lead'.or. PDFType.eq.'LEAD') then
          lead = .true. 
+         deuteron = .false.
          print *,'Fitting for LEAD PDFs, PDFType=', PDFType
+      elseif (PDFType.eq.'DEUTERON'.or. PDFType.eq.'deuteron') then
+         lead = .true. 
+         deuteron = .true. 
+         print *,'Fitting for DEUTERON PDFs, PDFType=', PDFType
       else
          call hf_errlog(300920131,
      $   'F: Unsupported PDFType used!')
