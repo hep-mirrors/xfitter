@@ -37,6 +37,10 @@ C---- switch for lead PDF: Combine to form nuclear pdf; scale by A
 C----     For full cross setion on lead, multiply by A
 
       if(lead) then
+         if (deuteron) then
+            A=2
+            Z=1
+         endif
          tmpU  = (Z*PDFSF( 1) + (A-Z)*PDFSF( 2) )/A
          tmpD  = (Z*PDFSF( 2) + (A-Z)*PDFSF( 1) )/A
          tmpUb = (Z*PDFSF(-1) + (A-Z)*PDFSF(-2) )/A
@@ -45,6 +49,9 @@ C----     For full cross setion on lead, multiply by A
          PDFSF( 2) = tmpD
          PDFSF(-1) = tmpUb
          PDFSF(-2) = tmpDb
+
+          
+
       endif
 
 
