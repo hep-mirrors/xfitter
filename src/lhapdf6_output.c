@@ -1,6 +1,6 @@
 #include<string.h>
 #include<stdio.h>
-#include<malloc.h>
+#include<stdlib.h>
 #include<math.h>
 // fortran common blocks
 extern struct { //{{{
