@@ -133,6 +133,22 @@
   \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B864}},
   \bibinfo{pages}{399} (\bibinfo{year}{2012}).
 
+\bibitem[{\citenamefont{Spiesberger}()}]{SpiesbergerPrivComm}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Spiesberger}},
+  \bibinfo{note}{{Private communication.}}
+
+\bibitem[{\citenamefont{Jegerlehner}(2011)}]{Jegerlehner}
+\bibinfo{author}{\bibnamefont{Jegerlehner}}, \bibinfo{journal}{Proceedings,
+  LC10 Workshop} \textbf{\bibinfo{volume}{DESY 11-117}} (\bibinfo{year}{2011}).
+
+\bibitem[{\citenamefont{Burkhard \emph{et~al.}}()\citenamefont{Burkhard,
+  Jegerlehner, Penso, and Verzegnassi}}]{Burkhard}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Burkhard}},
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Jegerlehner}},
+  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Penso}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Verzegnassi}},
+  \bibinfo{note}{{in CERN Yellow Report on "Polarization at LEP" 1988.}}
+
 \bibitem[{\citenamefont{Nikolaev and Zakharov}(1991)}]{NNZ:91}
 \bibinfo{author}{\bibfnamefont{N.~N.} \bibnamefont{Nikolaev}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{B.}~\bibnamefont{Zakharov}},
@@ -229,22 +245,6 @@
   \emph{\bibinfo{title}{{Forward-Central Jet Correlations at the Large Hadron
   Collider}}} (\bibinfo{year}{2010}), [\eprint{arXiv:1012.6037}].
 
-\bibitem[{\citenamefont{Spiesberger}()}]{SpiesbergerPrivComm}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Spiesberger}},
-  \bibinfo{note}{{Private communication.}}
-
-\bibitem[{\citenamefont{Jegerlehner}(2011)}]{Jegerlehner}
-\bibinfo{author}{\bibnamefont{Jegerlehner}}, \bibinfo{journal}{Proceedings,
-  LC10 Workshop} \textbf{\bibinfo{volume}{DESY 11-117}} (\bibinfo{year}{2011}).
-
-\bibitem[{\citenamefont{Burkhard \emph{et~al.}}()\citenamefont{Burkhard,
-  Jegerlehner, Penso, and Verzegnassi}}]{Burkhard}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Burkhard}},
-  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Jegerlehner}},
-  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Penso}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Verzegnassi}},
-  \bibinfo{note}{{in CERN Yellow Report on "Polarization at LEP" 1988.}}
-
 \bibitem[{\citenamefont{Li and Petriello}(2012)}]{FEWZ}
 \bibinfo{author}{\bibfnamefont{Y.}~\bibnamefont{Li}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Petriello}},
@@ -279,6 +279,30 @@
   \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Hayashi}},
   \bibinfo{journal}{Nuovo Cim.} \textbf{\bibinfo{volume}{A70}},
   \bibinfo{pages}{273} (\bibinfo{year}{1982}).
+
+\bibitem[{\citenamefont{Carli \emph{et~al.}}(2010)}]{Carli:2010rw}
+\bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Carli}}
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Eur. Phys. J.}
+  \textbf{\bibinfo{volume}{C66}}, \bibinfo{pages}{503} (\bibinfo{year}{2010}),
+  [\eprint{arXiv:0911.2985}].
+
+\bibitem[{\citenamefont{Campbell and Ellis}(1999)}]{Campbell:1999ah}
+\bibinfo{author}{\bibfnamefont{J.~M.} \bibnamefont{Campbell}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{R.~K.} \bibnamefont{Ellis}},
+  \bibinfo{journal}{Phys. Rev.} \textbf{\bibinfo{volume}{D60}},
+  \bibinfo{pages}{113006} (\bibinfo{year}{1999}), [\eprint{arXiv:9905386}].
+
+\bibitem[{\citenamefont{Campbell and Ellis}(2010)}]{Campbell:2010ff}
+\bibinfo{author}{\bibfnamefont{J.~M.} \bibnamefont{Campbell}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{R.~K.} \bibnamefont{Ellis}},
+  \bibinfo{journal}{Nucl. Phys. Proc. Suppl.}
+  \textbf{\bibinfo{volume}{205-206}}, \bibinfo{pages}{10}
+  (\bibinfo{year}{2010}), [\eprint{arXiv:1007.3492}].
+
+\bibitem[{\citenamefont{Nagy}(2002)}]{Nagy:2001fj}
+\bibinfo{author}{\bibfnamefont{Z.}~\bibnamefont{Nagy}},
+  \bibinfo{journal}{Phys.Rev.Lett.} \textbf{\bibinfo{volume}{88}},
+  \bibinfo{pages}{122003} (\bibinfo{year}{2002}), [\eprint{hep-ph/0110315}].
 
 \bibitem[{\citenamefont{Aliev \emph{et~al.}}(2011)\citenamefont{Aliev, Lacker,
   Langenfeld, Moch, Uwer \emph{et~al.}}}]{Aliev:2010zk}
@@ -350,35 +374,11 @@
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D68}},
   \bibinfo{pages}{094002} (\bibinfo{year}{2003}), [\eprint{hep-ph/0307268}].
 
-\bibitem[{\citenamefont{Nagy}(2002)}]{Nagy:2001fj}
-\bibinfo{author}{\bibfnamefont{Z.}~\bibnamefont{Nagy}},
-  \bibinfo{journal}{Phys.Rev.Lett.} \textbf{\bibinfo{volume}{88}},
-  \bibinfo{pages}{122003} (\bibinfo{year}{2002}), [\eprint{hep-ph/0110315}].
-
 \bibitem[{\citenamefont{Kidonakis and Owens}(2001)}]{Kidonakis:2000gi}
 \bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Kidonakis}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Owens}},
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D63}},
   \bibinfo{pages}{054019} (\bibinfo{year}{2001}), [\eprint{hep-ph/0007268}].
-
-\bibitem[{\citenamefont{Carli \emph{et~al.}}(2010)}]{Carli:2010rw}
-\bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Carli}}
-  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Eur. Phys. J.}
-  \textbf{\bibinfo{volume}{C66}}, \bibinfo{pages}{503} (\bibinfo{year}{2010}),
-  [\eprint{arXiv:0911.2985}].
-
-\bibitem[{\citenamefont{Campbell and Ellis}(1999)}]{Campbell:1999ah}
-\bibinfo{author}{\bibfnamefont{J.~M.} \bibnamefont{Campbell}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{R.~K.} \bibnamefont{Ellis}},
-  \bibinfo{journal}{Phys. Rev.} \textbf{\bibinfo{volume}{D60}},
-  \bibinfo{pages}{113006} (\bibinfo{year}{1999}), [\eprint{arXiv:9905386}].
-
-\bibitem[{\citenamefont{Campbell and Ellis}(2010)}]{Campbell:2010ff}
-\bibinfo{author}{\bibfnamefont{J.~M.} \bibnamefont{Campbell}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{R.~K.} \bibnamefont{Ellis}},
-  \bibinfo{journal}{Nucl. Phys. Proc. Suppl.}
-  \textbf{\bibinfo{volume}{205-206}}, \bibinfo{pages}{10}
-  (\bibinfo{year}{2010}), [\eprint{arXiv:1007.3492}].
 
 \bibitem[{\citenamefont{Ball \emph{et~al.}}(2012)\citenamefont{Ball, Bertone,
   Cerutti, Del~Debbio, Forte \emph{et~al.}}}]{Ball:2011gg}
