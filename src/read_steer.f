@@ -1350,6 +1350,8 @@ C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
          iTheory =  0
       else if ( TheoryType.eq.'DIPOLE') then
+      else if ( TheoryType.eq.'FRACTAL') then
+         iTheory = 50
       else if ( TheoryType.eq.'uPDF') then
          iTheory = 101
       else if ( TheoryType.eq.'uPDF1') then

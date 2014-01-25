@@ -55,6 +55,11 @@ C-------------------------------------------------------
 
 C-------------------------------------------------------
       if(ITheory.ge.100) return 
+      if(Itheory.eq.50) then
+         call DecodeFractal(p) 
+         return
+      endif
+
       if (LFirstTime) then    
          LFirstTime = .false.
          idxAlphaS = GetParameterIndex('alphas')
@@ -1588,3 +1593,28 @@ C      stop
  95   call hf_errlog(5,'F:pdf_from_text: End of file for PDF data in '
      $     //Trim(LHAPDFSET))
       end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      Subroutine DecodeFractal(pars)
+
+      include 'fractal.inc'
+      include 'extrapars.inc'
+            
+      
+      integer GetParameterIndex
+      double precision pars(*)
+      integer idpx
+
+      write(*,*) ' read parameters for fractal model >>'
+      
+!      idpx = GetParameterIndex('frac_1')
+!      idpx = iExtraParamMinuit(idpx)
+      f_D0 = pars(1)
+      f_Q02 = pars(2)
+      f_D2 = pars(3)
+      f_D3 = pars(4)
+      f_D1 = pars(5)
+      f_R  = pars(6)
+      end
+      
+      

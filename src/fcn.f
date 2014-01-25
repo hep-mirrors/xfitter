@@ -72,6 +72,7 @@ C !> Also store for each fcn=3 call:
 *     ---------------------------------------------------------
 *     PDF parameterisation at the starting scale
 *     ---------------------------------------------------------
+
       call PDF_Param_Iteration(parminuit,iflag)
 
 *
@@ -111,7 +112,7 @@ C--------------------------------------------------------------
       include 'fcn.inc'
       include 'polarity.inc'
       include 'endmini.inc'
-
+      include 'fractal.inc'
 *     ---------------------------------------------------------
 *     declaration related to alphas
 *     for RT code, transfer alpha S
@@ -541,7 +542,8 @@ c     $           ,chi2_cont/NControlPoints
        base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
 
        if (ITheory.ne.2) then
-          IF(Itheory.ge.100) then
+
+          IF((Itheory.ge.100).or.(Itheory.eq.50)) then
               auh(1) = parminuitsave(1)
               auh(2) = parminuitsave(2)
               auh(3) = parminuitsave(3)
@@ -561,6 +563,8 @@ c     $           ,chi2_cont/NControlPoints
               endif         
               open(91,file=TRIM(OutDirName)//'/params.txt')
               write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
+
+             
 
           else
              call Evolution

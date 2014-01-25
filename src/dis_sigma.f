@@ -216,6 +216,8 @@ C
          NSubBins = j
 
          polarity = 0.D0
+
+
          call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins, 1.D0,
      $        polarity,IDataSet,XSecType, local_hfscheme, XSecP)
          call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins,-1.D0,
@@ -247,6 +249,7 @@ c               alphaem_run = alm_mz/(1. - alm_mz * 2/(3.*pi)*log(q2(j)/mz**2))
                stop
             endif
 
+
             XSecP(j) = XSecP(j) * factor
             XSecP(j) = XSecP(j) * dq2(j)
             XSecP(j) = XSecP(j) * dx(j)
@@ -259,6 +262,8 @@ c temporary divide over dq2
 c         THEO(idx) =  XSec / (q2max - q2min)
 c         print *, idx, ':', THEO(idx)
 c         call HF_stop
+
+
       enddo   ! loop over data points
 
       end
@@ -392,6 +397,7 @@ C
          endif
 
          THEO(idx) =  XSec(i)*factor
+
 
       enddo
 
@@ -539,37 +545,44 @@ C
          call HF_stop
       endif
 
-      call UseZmvnsScheme(F2, FL, xF3, F2gamma, FLgamma,
-     $     q2, x, npts, polarity, charge, XSecType)
+      if (itheory.lt.50) then
+         call UseZmvnsScheme(F2, FL, xF3, F2gamma, FLgamma,
+     $        q2, x, npts, polarity, charge, XSecType)
 
-      F2in=F2
-      FLin=FL
-      xF3in=xF3
-      F2gammain=F2gamma
-      FLgammain=FLgamma
+         F2in=F2
+         FLin=FL
+         xF3in=xF3
+         F2gammain=F2gamma
+         FLgammain=FLgamma
 
-      if     (mod(local_hfscheme,10).eq.1) then
-
-         call UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, polarity, XSecType, F2in, FLin, XF3in, 
-     $        charge, local_hfscheme, IDataSet)
-         
-      elseif (mod(local_hfscheme,10).eq.2) then
-         
-         call UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, F2gammain, FLgammain,
+         if     (mod(local_hfscheme,10).eq.1) then
+            
+            call UseAcotScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $           x, q2, npts, polarity, XSecType, F2in, FLin, XF3in, 
+     $           charge, local_hfscheme, IDataSet)
+            
+         elseif (mod(local_hfscheme,10).eq.2) then
+            
+            call UseRtScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $           x, q2, npts, XSecType, F2gammain, FLgammain,
      $        local_hfscheme, IDataSet)
-
-      elseif (mod(local_hfscheme,10).eq.3) then 
-
-         call UseHqstfScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType)
-
-      elseif (mod(local_hfscheme,10).eq.4) then 
-
-         call UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
-     $        x, q2, npts, XSecType, charge, polarity, F2gamma, FLgamma, IDataSet)
+            
+         elseif (mod(local_hfscheme,10).eq.3) then 
+            
+            call UseHqstfScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $           x, q2, npts, XSecType)
+            
+         elseif (mod(local_hfscheme,10).eq.4) then 
+            
+            call UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
+     $           x, q2, npts, XSecType, charge, polarity, F2gamma,
+     $           FLgamma, IDataSet)
+         endif
+      elseif (itheory.eq.50) then
+         call UseFractalFit(F2, FL, XF3, x,q2,npts,XSecType, IDataSet)
+         
       endif
+      
 
 C all the transformations below are array operations!
       yplus = 1+(1-y)**2
@@ -585,6 +598,8 @@ C all the transformations below are array operations!
          endif
       else if(XSecType.eq.'NCDIS') then
          XSec = F2 + yminus/yplus*xF3 - y*y/yplus*FL
+
+
 c         XSec = FL !hp
       else if(XSecType.eq.'CHARMDIS') then
          XSec = F2c - y*y/yplus*FLc
@@ -1100,4 +1115,64 @@ c     &   x(i)*f3cabkm
 
 
       enddo
+      end
+
+
+C----------------------------------------------------------------
+C> Calculates F2, FL, XF3 in parametric form
+C> \param[out] F2, FL, xF3  structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] IDataSet data set index
+C> \param[in] XSecType DIS process type
+C
+C  Created by Voica Radescu, 24/01/2014
+C---------------------------------------------------------------
+      subroutine UseFractalFit(F2, FL, XF3, 
+     $     x, q2, npts, XSecType, IDataSet)
+      
+
+      implicit none
+      include 'ntot.inc'
+      include 'datasets.inc'
+      include 'steering.inc'
+      include 'fcn.inc'
+      include 'fractal.inc'      
+      include 'qcdnumhelper.inc'
+
+C     Input:
+      double precision x(NPMaxDIS), q2(NPMaxDIS)
+      integer npts,IDataSet
+      character*(*) XSecType
+C     Output:
+      double precision F2(NPMaxDIS), FL(NPMaxDIS), xF3(NPMaxDIS)
+C     Additional variables:
+      integer i, idx
+      
+      if (XSecType.eq.'NCDIS') then
+         do i=1,npts
+            idx =  DATASETIDX(IDataSet,i)
+
+
+!            print*,'frac:', f_D0, f_Q02, f_D3, f_D1, f_D2, f_R
+
+            F2(i)=f_D0*f_Q02*((Q2(i)/(Q2(i)+f_Q02))**(f_D2-1))
+     $           *(x(i)**(-f_D2+1))/(1+f_D3-f_D1*log(x(i)))
+            F2(i)=F2(i)*(x(i)**(-f_D1*log(1+Q2(i)/f_Q02))*
+     $           ((1+Q2(i)/f_Q02)**(f_D3+1))-1)
+
+            FL(i)= F2(i)*f_R/(1+f_R)
+            
+            XF3(i) =0.d0
+         enddo
+         
+      else
+         print *, 'UseFractalFit, XSecType', XSecType,
+     $        'not supported'
+         stop
+      endif
+      
+
+C     ---------------------------------------
+      
       end

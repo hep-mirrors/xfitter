@@ -1,0 +1,21 @@
+set title
+updf 4p HERAPDF 
+parameters
+   1 'D0'          0.75        0.03      
+   2 'Q02'         0.093      0.010 
+   3 'D2'          1.08       0.01
+   4 'D3'          -1.16      0.03    
+   5 'D1'          0.052       0.002
+   6 'R'           0.56       0.1
+
+
+****migrad 200000
+*set errordef 1.
+migrad 200000
+***migrad 1000 .1
+*hesse
+*set print 3
+
+
+return
+
