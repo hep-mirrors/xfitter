@@ -11,7 +11,7 @@
       include 'covar.inc'
 
 
-      integer k,i,j,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax
+      integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax,NCorrMax
 
       parameter (NIdMax = 3)
       character *80 Name1
@@ -26,6 +26,11 @@ C     Temporary buffer to read the data (allows for comments starting with *)
       double precision buffer(2*NIdMax+1)
       integer IdIdx1(NIdMax)
       integer IdIdx2(NIdMax)
+
+c     matrix buffer
+      parameter (NCorrMax = 100)
+      double precision matrixbuffer(NCorrMax,NCorrMax)
+      double precision CovRescale(NCorrMax)
 
       namelist/StatCorr/Name1,Name2,NIdColumns1,NIdColumns2,IdColumns1,IdColumns2,NCorr,MatrixType
 
@@ -142,6 +147,70 @@ c check if cov matrix size correspond to number of data points
             Call HF_ERRLOG(13112511,
      $ 'W: Cov mat too big, will be resized to actual #points in set'//ndataTmp)
             is_cov_resize = .true.
+         endif
+
+c     Matrix format for covariance/correlation files
+         if (MatrixType.eq.'CovMatrix'.or.MatrixType.eq.'CorrMatrix') then
+            if(NCorr.gt.NCorrMax) then
+               Call HF_ERRLOG(13012501,
+     $              'S: NCorrMax parameter in prep_corr.f too small')
+            endif
+
+            if (MatrixType.eq.'CovMatrix'.or.
+     +           MatrixType.eq.'CorrStatMatrix'.or.
+     +           MatrixType.eq.'CorrSystMatrix') then
+               do i=1,NCorr
+                  read (51,*,err=1019) (matrixbuffer(i,j),j=1,NCorr+NIdColumns1)
+               enddo
+            elseif (MatrixType.eq.'CorrMatrix') then ! convert full correlation matrix to full covariance matrix
+               do i=1,NCorr
+                  read (51,*,err=1019) (matrixbuffer(i,j),j=1,NCorr+NIdColumns1+1)
+               enddo
+            endif
+
+c     store delta_i for converion of correlation matrix to covariance matrix
+            if (MatrixType.eq.'CorrMatrix') then
+               do i=1,NCorr
+                  CovRescale(i)=matrixbuffer(i,NIdColumns1+1)
+               enddo
+            endif
+
+
+            do i=1,NCorr
+c     bin_i boundaries
+               do b=1, NIdColumns1
+                  Values1(b) = matrixbuffer(i,b)
+               enddo
+               do j=1,NCorr
+c     bin_j boundaries
+                  do b=1, NIdColumns1
+                     Values2(b) = matrixbuffer(j,b)
+                  enddo
+
+c     get bin_i and bin_j ids                  
+                  Idx1 = FindIdxForCorrelation(idataset1, NIdColumns1, IdIdx1, NIdMax, Values1)
+                  Idx2 = FindIdxForCorrelation(idataset2, NIdColumns2, IdIdx2, NIdMax, Values2)
+                  
+                  if (MatrixType.eq.'CorrStatMatrix') then
+                     corr_stat(idx1,idx2) = matrixbuffer(i,j+NIdColumns1+1)
+                  elseif (MatrixType.eq.'CorrSystMatrix') then
+                     corr_syst(idx1,idx2) = matrixbuffer(i,j+NIdColumns1+1)
+                  elseif (MatrixType.eq.'CovMatrix') then
+                     Cov(idx1,idx2) = matrixbuffer(i,j+NIdColumns1)
+                  elseif (MatrixType.eq.'CorrMatrix') then
+                     Cov(idx1,idx2) = matrixbuffer(i,j+NIdColumns1+1)
+     +                    *CovRescale(i)*CovRescale(j)
+                  endif
+c                  print *,'Idx1 =', Idx1, 'Idx2 =', Idx2, 'Cov(i,j) =', Cov(idx1,idx2)
+
+C     Mark the points for covariance matrix method:
+                  is_covariance(Idx1) = .true.
+                  is_covariance(Idx2) = .true.
+               enddo
+            enddo
+
+            close (51)
+            goto 1111
          endif
 
 
