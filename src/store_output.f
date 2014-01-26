@@ -878,7 +878,9 @@ C----------------------------------------------------
       include 'systematics.inc'
       INCLUDE 'theo.inc'
 
-      integer i,j,index
+      integer i,j,index,k,reacindx
+      
+      double precision currEcharge
 
       open(90,file='./'//TRIM(OutDirName)//'/heraverager.dat')
 C      write(90,*)ndatasets
@@ -892,9 +894,9 @@ C      write(90,*)ndatasets
         write(90,*) '&Data'
         write(90,*) '  Name = ''Swimming'' '
         write(90,*) '  NData = ',NPOINTS
-        write(90,*) '  NColumn = 4'
-        write(90,*) '  ColumnType = 3*''Bin'',''Sigma'' '
-        write(90,*) '  ColumnName = ''x'', ''Q2'', ''y '',' //
+        write(90,*) '  NColumn = 5'
+        write(90,*) '  ColumnType = 4*''Bin'',''Sigma'' '
+        write(90,*) '  ColumnName = ''reaction index'', ''x'', ''Q2'', ''y '',' //
      & ' ''reduced x-section '' '
         write(90,*) '                                                    '
         write(90,*) '  IndexDataset = 666'
@@ -903,10 +905,31 @@ C      write(90,*)ndatasets
         write(90,*) '&END'
 
       do i=1,ndatasets
-
+          reacindx = 0
+          currEcharge = 0
+          do k=1,DATASETInfoDimension(i)
+            if(DATASETInfoNames(k,i).eq.'e charge') then
+              currEcharge = DATASETInfo(k,i)
+            endif
+          enddo
+          if (DATASETREACTION(i).eq.'NC e+-p') then
+            if (currEcharge.gt.0) then
+              reacindx = 615
+            else if (currEcharge.lt.0) then
+              reacindx = 515
+            endif
+          else if (DATASETREACTION(i).eq.'CC e+-p') then
+            if (currEcharge.gt.0) then
+              reacindx = 3615
+            else if (currEcharge.lt.0) then
+              reacindx = 3515
+            endif
+          endif
           do j=1,NDATAPOINTS(i)
              index = DATASETIDX(i,j)
-             write(90,'(1X,9(e11.5,1X),i4)') 
+             
+             write(90,'(1X,i5,1X,4(e11.5,1X),i4)') 
+     $              reacindx,
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),
      $              AbstractBins(3,index),
