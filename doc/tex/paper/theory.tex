@@ -16,10 +16,9 @@
 %The evolution can be performed in the LO, NLO or NNLO accuracy~\cite{Curci:1980uw,Furmanski:1980cm}.
 %
 %In following, the theoretical models for various processes available in \fitter\ are described.
-The theoretical calculations, required for the PDF determination extracted by measuring 
-the agreement between experimental data and corresponding theory models, are
-available in \fitter\  for various processes and are described in the following text.
-
+The PDFs are determined by measuring 
+the agreement between experimental data and corresponding theory models. 
+Models which are available in \fitter\ for various processes are described in the following text.
 
 
 \subsection{Deep Inelastic Scattering Formalism and Schemes}
@@ -160,19 +159,17 @@ both giving similar results.
 
 In the FFN scheme only the gluon and the light quarks are considered
 as partons within the proton and massive quarks are produced perturbatively in the final state.
-In \fitter\ this scheme can be accessed via the ABM~\cite{openqcdrad:page} or
-QCDNUM implementation.
-The ABM implementation also includes the running mass definition of the heavy quark 
-mass ~\cite{Alekhin:runm} which is realised via the interface to the 
-open-source code OPENQCDRAD~\cite{openqcdrad:page}.
+In \fitter\ this scheme can be accessed via the 
+QCDNUM implementation or interface to the open-source code OPENQCDRAD (ABM)~\cite{openqcdrad:page}.
+The later implementation also includes the running mass definition of the heavy quark 
+mass ~\cite{Alekhin:runm}.
 This scheme has the advantage of reducing the sensitivity of the DIS cross sections to
 higher order corrections, and improving the theoretical precision of the mass definition. 
 In QCDNUM, the calculation of the heavy quark contributions to DIS structure functions
 are available at NLO and only electromagnetic exchange contributions are taken into account.
 In the ABM implementation, the QCD corrections to the massive Wilson coefficients 
-up to the currently best known approximate NNLO for the neutral-current (NC) 
-heavy-quark production~\cite{SMoch:npb864} and up to NLO
-for the charged-current (CC) case are available.
+up to the currently best known approximate NNLO for the NC heavy-quark 
+production~\cite{SMoch:npb864} and up to NLO for the CC case are available.
 \end{description}
 
 %%%%%%%%%%%
@@ -205,15 +202,15 @@ At HERA about 10\% of deep inelastic interactions are diffractive leading to
 events in which the interacting proton stays intact ($ep\to eXp$). 
 In the diffractive process the proton appears well separated from the 
 rest of the hadronic final state by a large rapidity gap  
-while in all other respects the events look similar to normal DIS event.
-This process is interpreted as the diffractive dissociation 
+and is interpreted as the diffractive dissociation 
 of the exchanged virtual photon to produce a hadronic system $X$ with mass much 
 smaller than $W$ and the same net quantum numbers as the exchanged photon.
 %Figure~\ref{fig:diff} illustrates the kinematic variables used to describe
 %the inclusive diffractive DIS process. 
-For this, the proton vertex factorisation approach
-is assumed such that  the diffractive DIS is mediated by the exchange of hard Pomeron and a
-secondary Reggeon.  The factorisable pomeron picture has proved remarkably successful for the description of most of these data.
+For such process, the proton vertex factorisation approach
+is assumed where the diffractive DIS is mediated by the exchange of hard Pomeron and a
+secondary Reggeon. 
+The factorisable pomeron picture has proved remarkably successful for the description of most of these data.
 %
 %\begin{figure}[!ht]
 %\begin{center}
@@ -227,11 +224,9 @@ secondary Reggeon.  The factorisable pomeron picture has proved remarkably succe
 In addition to $x$, $Q^2$ and the squared four-momentum transfer $t$
 (the undetected momentum transfer to the proton system),
 the mass $M_X$ of the diffractively produced final state provides
- a further degree of freedom. In practice, the variable $M_X$ is often replaced by $\beta$,
-\begin{equation}
-\beta=\frac{Q^2}{M_X^2+Q^2-t}.
-\end{equation}
-
+ a further degree of freedom. In practice, the variable $M_X$ 
+is often replaced by $\beta=\frac{Q^2}{M_X^2+Q^2-t}$.
+%
 In models based on a factorisable pomeron, $\beta$ may be viewed as the fraction of the
 pomeron longitudinal momentum which is carried by the struck parton, $x=\beta x_{\Pom}$.
 %The diffractive parton distribution functions (DPDFs) are interpreted as probabilities for 
@@ -252,92 +247,95 @@ where the ``reduced cross-section'' , $\overline\sigma$, is defined as
 \begin{array}{lcl}
 \overline\sigma^{D(4)}
  = F_2^{D(4)} - \frac{y^2}{1 +  (1-y)^2}\, F_L^{D(4)}
- = F_T^{D(4)} + \frac{2(1-y)}{1 +  (1-y)^2}\, F_L^{D(4)}
+ = F_T^{D(4)} + \frac{2(1-y)}{1 +  (1-y)^2}\, F_L^{D(4)}.
 \label{eq:sigred}
 \end{array}
 \end{equation}
-The dimension of $F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)$
-is $GeV^{-2}$ and thus quantities integrated over $t$.
-\begin{equation}
-F_k^{D(3)}(\beta,Q^2,x_{\Pom})
-\equiv
-\int_{t_{\rm min}}^{t_{\rm max}} dt
-F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)
-\end{equation}
-are dimensionless. The maximum kinematically allowed value of $t$ is given by
-\begin{equation}
-t_{\rm MAX} 
-=
--\frac{x_{\Pom}^2 m_p^2 + p_\perp^2}{1-x_{\Pom}}
-\approx 
--\frac{x_{\Pom}^2}{1-x_{\Pom}} m_p^2
-\end{equation}
-where $m_p$ is the proton mass.
-As $x = x_{\Pom}\beta$ we can normalize to the standard DIS formula
-\begin{equation}
-\begin{array}{lcl}
-\frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}\,dt} =
-  \frac{2\pi\alpha^2}{x\, Q^4}\,
-    \left( 1 +  (1-y)^2 \right) x_{\Pom}\ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,x_{\Pom},t)
-\end{array}
-\end{equation}
-which upon integration over $t$ reads
-\begin{equation}
-\begin{array}{lcl}
-\label{Dxs3}
-  \frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}}
-=  
-  \frac{2\pi\alpha^2}{x Q^4}\,
-    \left( 1 +  (1-y)^2 \right) \,x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}(\beta,Q^2,x_{\Pom}).
-\end{array}
-\end{equation}
-%The H1 and ZEUS data files typically contain $x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}$.
+%The dimension of $F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)$
+%is $GeV^{-2}$ and thus quantities integrated over $t$.
+%\begin{equation}
+%F_k^{D(3)}(\beta,Q^2,x_{\Pom})
+%\equiv
+%\int_{t_{\rm min}}^{t_{\rm max}} dt
+%F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)
+%\end{equation}
+%are dimensionless. The maximum kinematically allowed value of $t$ is given by
+%\begin{equation}
+%t_{\rm MAX} 
+%=
+%-\frac{x_{\Pom}^2 m_p^2 + p_\perp^2}{1-x_{\Pom}}
+%\approx 
+%-\frac{x_{\Pom}^2}{1-x_{\Pom}} m_p^2
+%\end{equation}
+%where $m_p$ is the proton mass.
+With $x = x_{\Pom}\beta$ we can normalize to the standard DIS formula.
+%\begin{equation}
+%\begin{array}{lcl}
+%\frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}\,dt} =
+%  \frac{2\pi\alpha^2}{x\, Q^4}\,
+%    \left( 1 +  (1-y)^2 \right) x_{\Pom}\ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,x_{\Pom},t)
+%\end{array}
+%\end{equation}
+%which upon integration over $t$ reads
+%\begin{equation}
+%\begin{array}{lcl}
+%\label{Dxs3}
+%  \frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}}
+%=  
+%  \frac{2\pi\alpha^2}{x Q^4}\,
+%    \left( 1 +  (1-y)^2 \right) \,x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}(\beta,Q^2,x_{\Pom}).
+%\end{array}
+%\end{equation}
+%%The H1 and ZEUS data files typically contain $x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}$.
 The diffractive structure functions can be expressed as convolutions of the
 calculable coefficient functions with diffractive quark and gluon distribution functions,
  which in general depend on all of \xpom, $Q^2$, $\beta$, $t$.
 \\
 \\
 %==========================================
-{\bf Regge factorization}
-For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
-\begin{equation}
-F_k^{D(4)}(\beta,Q^2,x_{\Pom},t) = 
-\sum_{\mathcal{X} =\Pom,\Reg}
-\phi_\mathcal{X}(x_{\Pom},t)\, F^\mathcal{X}_k(\beta,Q^2)
-\end{equation}
-or
-\begin{equation}
-\label{eq:FD3}
-F_k^{D(3)}(\beta,Q^2,x_{\Pom}) = 
-\sum_{\mathcal{X} =\Pom,\Reg}
-\Phi_\mathcal{X}(x_{\Pom})\, F^\mathcal{X}_k(\beta,Q^2)
-\end{equation}
-where
-\begin{equation}
-\label{eq:intFlux}
-\Phi_{\mathcal{X}}(x_{\Pom}) =
-\int\limits_{t_{\rm min}}^{t_{\rm max}} dt\, \phi_\mathcal{X}(x_{\Pom},t)
-\,.
-\end{equation}
-The fluxes are parametrized as
-\begin{subequations}
-\label{eq:flux}
-\begin{equation}
-\phi_\mathcal{X}(x_{\Pom},t) = 
-\frac {A_\mathcal{X}\, e^{b_\mathcal{X} t}} {x_{\Pom}^{2\alpha_\mathcal{X}(t) -1}}
-\end{equation}
-where
-\begin{equation}
-\alpha_\mathcal{X}(t) = \alpha_\mathcal{X}(0) + \alpha_\mathcal{X}' t
-\,.
-\end{equation}
-\end{subequations}
-The function $F^\Reg_k(\beta,Q^2)$  is taken to be that of the pion.
+%{\bf Regge factorization} 
+%Needed? \\
+The diffractive PDFs in \fitter are implemented following the prescription of ZEUS
+publication~\cite{???} and can be used to reproduce the main results.
+%For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
+%\begin{equation}
+%F_k^{D(4)}(\beta,Q^2,x_{\Pom},t) = 
+%\sum_{\mathcal{X} =\Pom,\Reg}
+%\phi_\mathcal{X}(x_{\Pom},t)\, F^\mathcal{X}_k(\beta,Q^2)
+%\end{equation}
+%or
+%\begin{equation}
+%\label{eq:FD3}
+%F_k^{D(3)}(\beta,Q^2,x_{\Pom}) = 
+%\sum_{\mathcal{X} =\Pom,\Reg}
+%\Phi_\mathcal{X}(x_{\Pom})\, F^\mathcal{X}_k(\beta,Q^2)
+%\end{equation}
+%where
+%\begin{equation}
+%\label{eq:intFlux}
+%\Phi_{\mathcal{X}}(x_{\Pom}) =
+%\int\limits_{t_{\rm min}}^{t_{\rm max}} dt\, \phi_\mathcal{X}(x_{\Pom},t)
+%\,.
+%\end{equation}
+%The fluxes are parametrized as
+%\begin{subequations}
+%\label{eq:flux}
+%\begin{equation}
+%\phi_\mathcal{X}(x_{\Pom},t) = 
+%\frac {A_\mathcal{X}\, e^{b_\mathcal{X} t}} {x_{\Pom}^{2\alpha_\mathcal{X}(t) -1}}
+%\end{equation}
+%where
+%\begin{equation}
+%\alpha_\mathcal{X}(t) = \alpha_\mathcal{X}(0) + \alpha_\mathcal{X}' t
+%\,.
+%\end{equation}
+%\end{subequations}
+%The function $F^\Reg_k(\beta,Q^2)$  is taken to be that of the pion.
 %
 \subsection{Alternative to DGLAP DIS models}
-Different approaches that are alternative to DGLAP formalism can be used to analyse DIS data.
+Different approaches that are alternative to DGLAP formalism can be used to analyse DIS data in \fitter .
 Those include several dipole models and transverse momentum dependent, or unintegrated PDFs, uPDFs.
-Both approaches can be used in \fitter\ framework and are discussed below.
+Both approaches are discussed below.
 
 \subsubsection{DIPOLE models}
 
@@ -424,7 +422,7 @@ BGK model, this is uniquely possible within the \fitter\ framework.
 
 \subsubsection{Transverse Momentum Dependent (unintegrated PDF) with CCFM}
 
-In this subsection another alternative approach to collinear DGLAP evolution is presented.
+Here another alternative approach to collinear DGLAP evolution is presented.
 In high energy factorization \cite{Catani:1990eg} the measured cross section is written
  as a convolution of the partonic cross section $\hat{\sigma}(É \kt),$ which depends on the transverse 
 momentum $\kt$ of the incoming parton, with the $\kt$-dependent parton distribution function 
@@ -499,13 +497,13 @@ The Drell Yan (DY) process constrain all different quark combinations
 providing valuable information about PDFs.
 %
 Presently, the calculations of the DY processes are known for many observables up to 
-NNLO order, for example, FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} packages are available
-for NNLO, MCFM~\cite{MCFM} for NLO calculations. However, due to the complicated 
+NNLO order, for example, MCFM~\cite{MCFM} package is available for NLO calculations,
+FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NLO and NNLO. Due to the complicated 
 nature of these calculation involving an increased number of diagrams with each 
-additional order, these calculations are too slow to be used iteratively in a fit.
+additional order, they are too slow to be used iteratively in a fit.
 There are several methods available to speed-up such calculations two of which 
 are implemented into \fitter\ : the $k-factor$ approximation from lower (LO) to higher order (NLO) 
-and the so-called grid technique using an interface to the APPLGRID, both shortly
+and the so-called grid technique using an interface to the APPLGRID, both of them shortly
 described below.  
 %(storing the matrix elements on grids such that the cross sections maybe 
 % calculated later by convoluting these grids with the input PDFs) when available.
@@ -528,6 +526,8 @@ invariant mass \(M\), boson rapidity \(y\) and CMS
 lepton scattering angle \(\cos\theta\), for the neutral current, 
 can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{align}
+% \scriptstyle
+ \textstyle
 % \frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &= 
  \frac{d^3\sigma}{dM{d}y d\cos\theta} =  
  \frac{\pi\alpha^2}{3MS}\sum_{q}P_q \left[F_q(x_1,Q^2)F_{\bar{q}}(x_2,Q^2) 
@@ -545,12 +545,13 @@ is the parton number density, and
       &    \big[(a^2+b^2)(A_q^2+B_q^2)(1+\cos^2\theta)+8abA_qB_q\cos\theta\big].
 \end{align}
 Here \(\theta_W\) is the Weinberg angle, \(M_Z\) and \(\Gamma_Z\) are Z boson mass and 
-width, and the electro-weak couplings:
-\begin{align}
- a & = -\frac{1}{4} + \sin^2\theta_W, \  b  = -\frac{1}{4}, \nonumber \\
- A_q & = \frac{1}{2}I_q^3-e_q\sin^2\theta_W, \ B_q  = \frac{1}{2}I_q^3, \ I_u^3  = -I_d^3 = \frac{1}{2},  \nonumber \\
- e_l & = -1, e_u = \frac{2}{3}, e_d = -\frac{1}{3}.
-\end{align}
+width, $a, b, A_q, B_q, e_l, e_q$ are electro-weak couplings.
+%\begin{align}
+% a & = -\frac{1}{4} + \sin^2\theta_W, \  b  = -\frac{1}{4}, \nonumber \\
+% A_q & = \frac{1}{2}I_q^3-e_q\sin^2\theta_W, \ B_q  = \frac{1}{2}I_q^3, \ I_u^3  = -I_d^3 = \frac{1}{2},  \nonumber \\
+% e_l & = -1, e_u = \frac{2}{3}, e_d = -\frac{1}{3}.
+%\end{align}
+\\
 \\
 The expression for charged current scattering has a simpler form.
 \begin{align}
