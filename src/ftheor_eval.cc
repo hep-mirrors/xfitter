@@ -50,6 +50,7 @@ extern struct thexpr_cb {
   char termtype[16][80];
   char termsource[16][1000];
   char theorexpr[1000];
+  int ppbar_collisions;
 } theorexpr_;
 
 /*!
@@ -70,6 +71,8 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   string ste;
   ste.assign(theorexpr_.theorexpr, string(theorexpr_.theorexpr).find(' '));
   TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sts, ste);
+
+  te->SetCollisions(theorexpr_.ppbar_collisions);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }

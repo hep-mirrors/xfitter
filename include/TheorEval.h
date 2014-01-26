@@ -44,6 +44,7 @@ class TheorEval{
   int getNbins();
   int setUnits(double units){ _units = units;};
   const vector<int> *getBinFlags() const { return &_binFlags; }
+  void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
 
  private:
   //! Checks that the bin boundaries are complied with data ones.
@@ -74,6 +75,9 @@ class TheorEval{
   vector<tToken> _exprRPN;
   map<appl::grid*, valarray<double>* > _mapGridToken;
   map<string, valarray<double>* > _mapInitdTerms;
+
+  //ppbar PDF
+  bool _ppbar;
 };
 
 #endif

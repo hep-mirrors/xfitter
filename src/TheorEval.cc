@@ -24,6 +24,18 @@ extern "C" void appl_fnpdf_(const double& x, const double& Q, double* f);
 extern "C" double appl_fnalphas_(const double& Q);
 extern "C" void hf_errlog_(const int &id, const char *text, int); 
 
+void appl_fnpdf_bar(const double& x, const double& Q, double* f)
+{
+  appl_fnpdf_( x, Q, f);    
+  double fbar[13];
+  for (int fi = 0; fi < 13; fi++)
+    fbar[fi] = f[12-fi];
+  for (int fi = 0; fi < 13; fi++)
+    f[fi] = fbar[fi];
+  return; 
+}
+
+
 TheorEval::TheorEval(const int dsId, const int nTerms, const string* stn, const string* stt, 
                      const string* sts, const string& expr)
 {
@@ -398,7 +410,11 @@ TheorEval::getGridValues(const int iorder, const double mur, const double muf)
   map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
   for(; itm != _mapGridToken.end(); itm++){
     appl::grid* g = itm->first;
-    vector<double> xs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
+    vector<double> xs;
+    if (_ppbar)
+      xs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar, appl_fnalphas_, iorder, mur, muf);
+    else
+      xs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
     *(itm->second) = valarray<double>(xs.data(), xs.size());
     /*
     for (int i = 0; i<xs.size(); i++){

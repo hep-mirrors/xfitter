@@ -252,6 +252,11 @@ C--------------------------------------------------------------
       double precision TheoryUnit  ! scale factor for theory to bring to data units.
       integer GetInfoIndex         ! function thet returns index of an information string.
 
+c     select ppbar reaction for applgrid PDF convolution
+      character*80 Msg
+      integer idxReaction
+      double precision ppbar_reaction
+
       integer i,j,iBin,iError
       logical LReadKFactor
 
@@ -505,10 +510,20 @@ C     ---> copy the names in a new variable
       ! src/init_theory.f.  A.S.
       if ( TheoryType(1).eq.'expression' ) then
         if ( NTerms .eq. 0 ) then
-          print *,'Expression theory type selected, but no terms/expression specified'
+          print *,'Expression theory type selected,but no terms/expression specified'
           call hf_stop
 	endif
         DATASETTheoryType(NDATASETS) = TheoryType(1)
+        idxReaction = GetInfoIndex(NDATASETS,'ppbar')
+        ppbar_collisions = 0    ! defaults to LHC
+        if ( idxReaction .ne. 0 ) then
+           ppbar_reaction = DATASETInfo(idxReaction, NDATASETS)
+           if ( ppbar_reaction .eq. 1 ) ppbar_collisions = 1
+
+           write (Msg,'(''I: Use proton anti-proton PDF convolution dataset: '',A20,'' '')')
+     $        Name
+           call HF_errlog(14012301,trim(Msg))
+        endif
         call set_theor_eval(NDATASETS)
       endif
 
