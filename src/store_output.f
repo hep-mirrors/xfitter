@@ -411,6 +411,8 @@ C Some hack to store PDFs
       character*3 tag
       character*5 tag5
 
+C Info message
+      character*80 Msg
 
 C-----------------------------------------------------------
 c Number of PDF members
@@ -428,15 +430,21 @@ c     HERAFitter rewrote of GetPDFUncType function
      $     MonteCarloPDFErr, SymmetricPDFErr)
 
       if (MonteCarloPDFErr) then
-         print *,trim(LHAPDFSET),
-     $        ' has Monte Carlo errors approach'
+         write (Msg,
+     $        '(''I: Use Monte Carlo errors approach for: '',A30,'' '')')
+     $        trim(LHAPDFSET)
       elseif (SymmetricPDFErr) then
-         print *,trim(LHAPDFSET),
-     $        ' has symmetric hessian errors approach'
+         write (Msg,
+     $        '(''I: Use symmetric hessian errors approach for: '',A30,'' '')')
+     $        trim(LHAPDFSET)
       else
-         print *,trim(LHAPDFSET),
-     $        ' has asymmetric hessian errors approach'
+         write (Msg,
+     $       '(''I: Use asymmetric hessian errors approach for: '',A30,'' '')')
+     $        trim(LHAPDFSET)
       endif
+
+      call HF_errlog(14012701,trim(Msg))
+
 
       print *,'Number of PDF members for this set: ',nsets
 
