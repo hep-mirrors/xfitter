@@ -7,6 +7,10 @@
 extern float txtsize;
 extern float offset;
 extern float lmarg;
+extern float rmarg;
+extern float tmarg;
+extern float bmarg;
+extern float marg0;
 
 
 using namespace std;
@@ -21,12 +25,13 @@ class CommandParser
   bool dobands, filledbands, asymbands, logx;
   float rmin, rmax;
   float xmin, xmax;
+  bool abserror, relerror;
 
   //data pulls options
   bool therr, points;
   int markers[6];
   string theorylabel;
-  bool threepanels;
+  bool twopanels,threepanels;
 
   //general options
   bool splitplots;
@@ -98,6 +103,10 @@ class CommandParser
     cout << "\t \t in the first reference directory" << endl;
     cout << "\t --no-logx" << endl;
     cout << "\t \t Linear x scale in PDF plots" << endl;
+    cout << "\t --absolute-errors" << endl;
+    cout << "\t \t Plot absolute pdf uncertainties centered around 0 in PDF ratio plots" << endl;
+    cout << "\t --relative-errors" << endl;
+    cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --therr" << endl;
     cout << "\t \t Plot theory errors if availables" << endl;
@@ -105,6 +114,8 @@ class CommandParser
     cout << "\t \t Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
     cout << "\t --theory <label>" << endl;
     cout << "\t \t Change the \"Theory\" legend to the specified label" << endl;
+    cout << "\t --2panels" << endl;
+    cout << "\t \t Plot additional right bottom panels with pulls" << endl;
     cout << "\t --3panels" << endl;
     cout << "\t \t Plot additional right mid panels with theory+shifts" << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;

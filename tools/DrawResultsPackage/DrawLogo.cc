@@ -23,8 +23,8 @@ TPad * DrawLogo(string pos)
   float dy = 0.0744 * 1.1;
 
   float x, y;
-  x = 0.89;
-  y = 0.89;
+  x = 1-rmarg-0.01;
+  y = 1-tmarg-0.01;
   if (pos == "dc")
     {
       x = 0.79;
@@ -58,7 +58,7 @@ void CMS()
   l.SetNDC();
   l.SetTextFont(42);
   l.SetTextSize(0.04);
-  l.DrawLatex(lmarg+0.05, 0.91, "CMS");
+  l.DrawLatex(lmarg+0.05, 1-tmarg+0.01, "CMS");
 }
 
 void CMSpreliminary()
@@ -67,7 +67,7 @@ void CMSpreliminary()
   l.SetNDC();
   l.SetTextFont(42);
   l.SetTextSize(0.04);
-  l.DrawLatex(lmarg+0.05, 0.91, "CMS Preliminary");
+  l.DrawLatex(lmarg+0.05, 1-tmarg+0.01, "CMS Preliminary");
 }
 
 void ATLASpreliminary()
@@ -76,7 +76,7 @@ void ATLASpreliminary()
   p.SetNDC();
   p.SetTextFont(42);
   p.SetTextSize(0.04);
-  p.DrawLatex(lmarg+0.19, 0.85, "Preliminary");
+  p.DrawLatex(lmarg+0.19, 1-tmarg-0.05, "Preliminary");
 }
 
 void ATLAS()
@@ -85,7 +85,7 @@ void ATLAS()
   l.SetNDC();
   l.SetTextFont(72);
   l.SetTextSize(0.04);
-  l.DrawLatex(lmarg+0.05, 0.85, "ATLAS");
+  l.DrawLatex(lmarg+0.05, 1-tmarg-0.05, "ATLAS");
 }
 
 void ATLASinternal()
@@ -94,13 +94,13 @@ void ATLASinternal()
   p.SetNDC();
   p.SetTextFont(42);
   p.SetTextSize(0.04);
-  p.DrawLatex(lmarg+0.19, 0.85, "Internal");
+  p.DrawLatex(lmarg+0.19, 1-tmarg-0.05, "Internal");
 }
 
 //CDF Run II Preliminary
 TPaveText * CDFIIpreliminary()
 {
-  TPaveText *cdfii = new TPaveText(0.45, 0.91, 0.95, 0.95, "NDC");
+  TPaveText *cdfii = new TPaveText(0.45, 1-tmarg+0.01, 0.95, 0.95, "NDC");
   cdfii->AddText("CDF Run II Preliminary");
   cdfii->SetTextAlign(12);
   cdfii->SetTextFont(62);

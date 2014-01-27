@@ -6,7 +6,10 @@
 float txtsize = 0.043;
 float offset = 1.5;
 float lmarg = 0.15;
-//float bmarg = 0.2;
+float rmarg = 0.02;
+float tmarg = 0.05;
+float bmarg = 0.1;
+float marg0 = 0.003;
 
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
@@ -17,6 +20,8 @@ CommandParser::CommandParser(int argc, char **argv):
   rmax(2),
   xmin(-1),
   xmax(-1),
+  relerror(false),
+  abserror(false),
   pdf(false),
   splitplots(false),
   ext("eps"),
@@ -24,6 +29,7 @@ CommandParser::CommandParser(int argc, char **argv):
   therr(false),
   points(false),
   theorylabel("Theory"),
+  twopanels(false),
   threepanels(false),
   version(true),
   drawlogo(true),
@@ -121,6 +127,18 @@ CommandParser::CommandParser(int argc, char **argv):
 	    dobands = true;
 	    asymbands = true;
 	  }
+	else if (*it == "--absolute-errors")
+	  {
+	    dobands = true;
+	    abserror = true;
+	    rmin = -1.5;
+	    rmax = 1.5;
+	  }
+	else if (*it == "--relative-errors")
+	  {
+	    dobands = true;
+	    relerror = true;
+	  }
 	else if (*it == "--no-logx")
 	  logx = false;
 	else if (*it == "--outdir")
@@ -191,6 +209,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	    theorylabel = *(it+1);
 	    allargs.erase(it+1);
 	  }
+	else if (*it == "--2panels")
+	  twopanels = true;
 	else if (*it == "--3panels")
 	  threepanels = true;
 	else

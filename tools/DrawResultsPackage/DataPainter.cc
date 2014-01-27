@@ -6,6 +6,7 @@
 #include <TH1F.h>
 #include <TGraphAsymmErrors.h>
 #include <TCanvas.h>
+#include <TPad.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TLatex.h>
@@ -203,41 +204,138 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   char cnvname[15];
   sprintf(cnvname, "%d_pulls",  dataindex);
 
-  TCanvas * cnv = new TCanvas(cnvname, "", 0, 0, 2 * opts.resolution, opts.resolution);
+  TCanvas * cnv;
+  if (opts.twopanels || opts.threepanels)
+    cnv = new TCanvas(cnvname, "", 0, 0, 2 * opts.resolution, opts.resolution);
+  else
+    cnv = new TCanvas(cnvname, "", 0, 0, opts.resolution, opts.resolution);
   cnv->cd();
-
-  float y1 = 0.5;
-  float y2 = 0.5;
-  float y3 = 0;
-  if (opts.threepanels)
-    {
-      y2 = 0.633;
-      y1 = 0.367;
-      y3 = 0.267;
-    }
 
   TH1F * data = datahistos[0].getdata();
   TH1F * datatot = datahistos[0].getdatatot();
   string dataname = datahistos[0].getname();
 
-  cnv->Divide(2, 1);
-  cnv->GetPad(1)->SetLeftMargin(lmarg+0.02);
+  //Set the pads geometry
+  //panels height
+  float dy;
+
+  if (opts.twopanels)
+    dy = 0.5 * (1.-bmarg-tmarg);
+  else if (opts.threepanels)
+    dy = (1.-bmarg-tmarg)/3.;
+  else //1 panel
+    dy = (1.-bmarg-tmarg)/4.;
+    
+
+  TPad* Main;
+  TPad* Ratio;
+  TPad* Shifts;
+  TPad* Pulls;
+  float my, ry, sy, py;
+  float mb;
+  if (opts.twopanels || opts.threepanels)
+    cnv->Divide(2, 1);
+  else
+    cnv->Divide(1, 2);
+
+  Main = (TPad*)cnv->GetPad(1);
+
+  if (opts.twopanels)
+    cnv->GetPad(2)->Divide(1, 2);
+  else if (opts.threepanels)
+    cnv->GetPad(2)->Divide(1, 3);
+
+  if (opts.twopanels || opts.threepanels)
+    Ratio = (TPad*)cnv->GetPad(2)->GetPad(1);
+  else
+    Ratio = (TPad*)cnv->GetPad(2);
+
+
+  //Main pad geometry
+  Main->SetLeftMargin(lmarg+0.02);
+  Main->SetRightMargin(rmarg);
+  Main->SetTopMargin(tmarg);
+  if (opts.twopanels || opts.threepanels)
+    {
+      Main->SetBottomMargin(bmarg);
+      my = 1;
+      mb = bmarg;
+    }
+  else
+    {
+      Main->SetPad(0, bmarg+dy, 1, 1);
+      Main->SetTopMargin(tmarg/(1-dy-bmarg));
+      Main->SetBottomMargin(marg0/(1-dy-bmarg));
+      my = 1-dy-bmarg;
+      mb = marg0/my;
+    }
+
+  
+  //Ratio pad geometry
+  if (opts.twopanels || opts.threepanels)
+    {
+      Ratio->SetPad(0, 1-tmarg-dy, 1, 1);
+      Ratio->SetTopMargin(tmarg/(dy+tmarg));
+      Ratio->SetBottomMargin(marg0/(dy+tmarg));
+      ry = dy+tmarg;
+    }
+  else
+    {
+      Ratio->SetPad(0, 0, 1, bmarg+dy);
+      Ratio->SetTopMargin(marg0/(bmarg+dy));
+      Ratio->SetBottomMargin(bmarg/(bmarg+dy));
+      ry = dy+bmarg;
+    }
+  Ratio->SetLeftMargin(lmarg+0.02);
+  Ratio->SetRightMargin(rmarg);
+
+  //Shifts pad geometry
+  if (opts.threepanels)
+    {
+      Shifts = (TPad*)cnv->GetPad(2)->GetPad(2);
+      Shifts->SetPad(0, bmarg+dy, 1, bmarg+dy+dy);
+      Shifts->SetTopMargin(marg0/dy);
+      Shifts->SetLeftMargin(lmarg+0.02);
+      Shifts->SetRightMargin(rmarg);
+      Shifts->SetBottomMargin(marg0/dy);
+      sy = dy;
+    }
+
+  //Pulls pad geometry
+  if (opts.twopanels || opts.threepanels)
+    {
+      int pullpad;
+      if (opts.twopanels)
+	pullpad = 2;
+      if (opts.threepanels)
+	pullpad = 3;
+
+      Pulls = (TPad*)cnv->GetPad(2)->GetPad(pullpad);
+      Pulls->SetPad(0, 0, 1, bmarg+dy);
+      Pulls->SetTopMargin(marg0/(bmarg+dy));
+      Pulls->SetLeftMargin(lmarg+0.02);
+      Pulls->SetRightMargin(rmarg);
+      Pulls->SetBottomMargin(bmarg/(bmarg+dy));
+      py=dy+bmarg;
+    }
+
+  //Draw Main Pad
+  Main->cd();
   if (datahistos[0].getlogy())
-    cnv->GetPad(1)->SetLogy();
+    Main->SetLogy();
   if (datahistos[0].getlogx())
-    cnv->GetPad(1)->SetLogx();
-  cnv->cd(1);
+    Main->SetLogx();
 
   data->GetYaxis()->SetLabelFont(62);
   data->GetYaxis()->SetTitleFont(62);
-  data->GetYaxis()->SetLabelSize(txtsize);
-  data->GetYaxis()->SetTitleSize(txtsize);
-  data->GetYaxis()->SetTitleOffset(offset+0.3);
+  data->GetYaxis()->SetLabelSize(txtsize/my);
+  data->GetYaxis()->SetTitleSize(txtsize/my);
+  data->GetYaxis()->SetTitleOffset((offset+0.3) * my);
 
   data->GetXaxis()->SetLabelFont(62);
   data->GetXaxis()->SetTitleFont(62);
-  data->GetXaxis()->SetLabelSize(txtsize);
-  data->GetXaxis()->SetTitleSize(txtsize);
+  data->GetXaxis()->SetLabelSize(txtsize/my);
+  data->GetXaxis()->SetTitleSize(txtsize/my);
 
   data->GetXaxis()->SetNdivisions(505);
   if (datahistos[0].getlogx())
@@ -280,14 +378,14 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       if (mn < 0)
 	mn = 0.000001;
       float ratio = mx / mn;
-      mx = mx * pow(10, log10(ratio) * 0.45);
-      mn = mn / pow(10, log10(ratio) * 0.7);
+      mx = mx * pow(10, log10(ratio) * 0.45/my);
+      mn = mn / pow(10, log10(ratio) * 0.7/my);
     }
   else
     {
       float delta = mx - mn;
-      mx = mx + delta * 0.45;
-      mn = mn - delta * 0.7;
+      mx = mx + delta * 0.45/my;
+      mn = mn - delta * 0.7/my;
     }
 
   data->SetMaximum(mx);
@@ -314,16 +412,16 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       TLatex l; //l.SetTextAlign(12);
       l.SetNDC();
       l.SetTextFont(42);
-      l.SetTextSize(0.04);
-      l.DrawLatex(lmarg+0.05, 0.76, datahistos[0].getextralabel().c_str());
+      l.SetTextSize(0.04/my);
+      l.DrawLatex(lmarg+0.05, (1-tmarg/my) - 0.13/my, datahistos[0].getextralabel().c_str());
     }
 
   //Main legend
-  TLegend * leg = new TLegend(lmarg+0.02+0.02, 0.13, 0.5, 0.35);
+  TLegend * leg = new TLegend(lmarg+0.02+0.02, mb+0.03, mb+0.4/my, lmarg+0.20);
   leg->SetFillColor(0);
   leg->SetBorderSize(0);
   leg->SetTextAlign(12);
-  leg->SetTextSize(txtsize * 0.8);
+  leg->SetTextSize(txtsize * 0.8/my);
   leg->SetTextFont(62);
   string datalab = (string) "Data " + datahistos[0].gettitle();
   if (datahistos[0].getexperiment() != "")
@@ -346,12 +444,12 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   leg->AddEntry(dash, (opts.theorylabel + " + shifts").c_str(), "l");
 
   //Auxiliary legend
-  TLegend * leg2 = new TLegend(0.55, 0.13, 0.89, 0.13 + datahistos.size() * 0.045);
+  TLegend * leg2 = new TLegend(lmarg+0.4, mb+0.03, 1-rmarg-0.01, mb+0.03 + datahistos.size() * 0.045/my);
   leg2->SetFillColor(0);
   leg2->SetBorderSize(0);
   leg2->SetTextAlign(12);
   leg2->SetTextFont(62);
-  leg2->SetTextSize(txtsize * 0.8);
+  leg2->SetTextSize(txtsize * 0.8/my);
 
   //Plot theories
   int colindx = 0;
@@ -478,22 +576,12 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       }
   leg->Draw();
   leg2->Draw();
-  if (opts.drawlogo)
-    DrawLogo()->Draw();
 
   //Theory/Data ratio Pad
-  if (opts.threepanels)
-    cnv->GetPad(2)->Divide(1, 3);
-  else
-    cnv->GetPad(2)->Divide(1, 2);
-  cnv->GetPad(2)->GetPad(1)->SetPad(0, y2, 1, 1);
-  cnv->GetPad(2)->GetPad(1)->SetTopMargin(0.1/y1);
-  cnv->GetPad(2)->GetPad(1)->SetLeftMargin(lmarg+0.02);
-  cnv->GetPad(2)->GetPad(1)->SetBottomMargin(0.);
+  Ratio->cd();
   if (datahistos[0].getlogx())
-    cnv->GetPad(2)->GetPad(1)->SetLogx();
+    Ratio->SetLogx();
 
-  cnv->GetPad(2)->cd(1);
 
   TH1F * refdata = (TH1F*)datahistos[0].getdata()->Clone();
   for (int b = 1; b <= refdata->GetNbinsX(); b++)
@@ -505,18 +593,22 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
   r_data->GetYaxis()->SetLabelFont(62);
   r_data->GetYaxis()->SetTitleFont(62);
-  r_data->GetYaxis()->SetLabelSize(txtsize * 1/y1);
-  r_data->GetYaxis()->SetTitleSize(txtsize * 1/y1);
-  r_data->GetYaxis()->SetTitleOffset((offset+0.3) * y1);
+  r_data->GetYaxis()->SetLabelSize(txtsize/ry);
+  r_data->GetYaxis()->SetTitleSize(txtsize/ry);
+  r_data->GetYaxis()->SetTitleOffset((offset+0.3) * ry);
   r_data->SetYTitle("Theory/Data");
   r_data->GetYaxis()->SetNdivisions(505);
   r_data->GetXaxis()->SetNdivisions(505);
 
   r_data->GetXaxis()->SetLabelFont(62);
   r_data->GetXaxis()->SetTitleFont(62);
-  r_data->GetXaxis()->SetLabelSize(txtsize * 1/y1);
-  r_data->GetXaxis()->SetTitleSize(txtsize * 1/y1);
-  //  r_data->GetXaxis()->SetTitleOffset(1);
+  r_data->GetXaxis()->SetLabelSize(txtsize/ry);
+  r_data->GetXaxis()->SetTitleSize(txtsize/ry);
+  if (opts.twopanels || opts.threepanels)
+    {
+      r_data->GetXaxis()->SetLabelSize(0);
+      r_data->GetXaxis()->SetTitleSize(0);
+    }
 
   r_data->SetStats(0);
 
@@ -691,18 +783,13 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   //Theory+shifts/Data ratio Pad (optional)
   if (opts.threepanels)
     {
-      cnv->GetPad(2)->GetPad(2)->SetPad(0, y1, 1, y2);
-      cnv->GetPad(2)->GetPad(2)->SetTopMargin(0.);
-      cnv->GetPad(2)->GetPad(2)->SetLeftMargin(lmarg+0.02);
-      cnv->GetPad(2)->GetPad(2)->SetBottomMargin(0.);
+      Shifts->cd();
       if (datahistos[0].getlogx())
-	cnv->GetPad(2)->GetPad(2)->SetLogx();
+	Shifts->SetLogx();
 
-      cnv->GetPad(2)->cd(2);
-
-      r_data->GetYaxis()->SetLabelSize(txtsize * 1/y3);
-      r_data->GetYaxis()->SetTitleSize(txtsize * 1/y3);
-      r_data->GetYaxis()->SetTitleOffset((offset+0.3) * y3);
+      r_data->GetYaxis()->SetLabelSize(txtsize/sy);
+      r_data->GetYaxis()->SetTitleSize(txtsize/sy);
+      r_data->GetYaxis()->SetTitleOffset((offset+0.3) * sy);
       r_data->SetYTitle("#frac{Theory+shifts}{Data}");
 
       //Evaluate maximum and minimum
@@ -768,89 +855,95 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     }
 
   //Theory-Data pulls pad
-  int pad = 2;
-  if (opts.threepanels)
-    pad = 3;
-
-  cnv->GetPad(2)->GetPad(pad)->SetPad(0, 0, 1, y1);
-  cnv->GetPad(2)->GetPad(pad)->SetTopMargin(0.0);
-  cnv->GetPad(2)->GetPad(pad)->SetLeftMargin(lmarg+0.02);
-  cnv->GetPad(2)->GetPad(pad)->SetBottomMargin(0.1/y1);
-  if (datahistos[0].getlogx())
-    cnv->GetPad(2)->GetPad(pad)->SetLogx();
-
-  cnv->GetPad(2)->cd(pad);
-
-  TH1F * pull = datahistos[0].getpull();
-
-  pull->GetYaxis()->SetLabelFont(62);
-  pull->GetYaxis()->SetTitleFont(62);
-  pull->GetYaxis()->SetLabelSize(txtsize * 1/y1);
-  pull->GetYaxis()->SetTitleSize(txtsize * 1/y1);
-  pull->GetYaxis()->SetTitleOffset((offset+0.3) * y1);
-  pull->GetYaxis()->SetNdivisions(505);
-  pull->GetXaxis()->SetNdivisions(505);
-  if (datahistos[0].getlogx())
+  if (opts.twopanels || opts.threepanels)
     {
-      pull->GetXaxis()->SetMoreLogLabels();
-      pull->GetXaxis()->SetNoExponent();
-    }
+      Pulls->cd();
+      if (datahistos[0].getlogx())
+	Pulls->SetLogx();
 
-  //pull->SetYTitle("#frac{Theory+shifts - Data}{#sigma uncor}");
-  pull->SetYTitle("pulls   ");
+      TH1F * pull = datahistos[0].getpull();
 
-  pull->GetXaxis()->SetLabelFont(62);
-  pull->GetXaxis()->SetTitleFont(62);
-  pull->GetXaxis()->SetLabelSize(txtsize * 1/y1);
-  pull->GetXaxis()->SetTitleSize(txtsize * 1/y1);
-  //  pull->GetXaxis()->SetTitleOffset(1);
-
-  pull->SetStats(0);
-  pull->SetMinimum(-3.5);
-  pull->SetMaximum(3.5);
-
-  //plot axis
-  pull->Draw("][");
-
-  //plot lines at 1, -1, 0
-  TLine *one = new TLine(pull->GetBinLowEdge(pull->GetXaxis()->GetFirst()), 1, pull->GetXaxis()->GetBinUpEdge(pull->GetXaxis()->GetLast()), 1);
-  one->SetLineStyle(2);
-  TLine *minusone = new TLine(pull->GetBinLowEdge(pull->GetXaxis()->GetFirst()), -1, pull->GetXaxis()->GetBinUpEdge(pull->GetXaxis()->GetLast()), -1);
-  minusone->SetLineStyle(2);
-  TLine *zero = new TLine(pull->GetBinLowEdge(pull->GetXaxis()->GetFirst()), 0, pull->GetXaxis()->GetBinUpEdge(pull->GetXaxis()->GetLast()), 0);
-  one->Draw();
-  minusone->Draw();
-  zero->Draw();
-
-  //plot pulls
-  colindx = 0;
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
-    {
-      if (datahistos.size() == 1)
+      pull->GetYaxis()->SetLabelFont(62);
+      pull->GetYaxis()->SetTitleFont(62);
+      pull->GetYaxis()->SetLabelSize(txtsize/py);
+      pull->GetYaxis()->SetTitleSize(txtsize/py);
+      pull->GetYaxis()->SetTitleOffset((offset+0.3) * py);
+      pull->GetYaxis()->SetNdivisions(505);
+      pull->GetXaxis()->SetNdivisions(505);
+      if (datahistos[0].getlogx())
 	{
-	  (*it).getpull()->SetFillColor(opts.colors[colindx]);
-	  (*it).getpull()->SetFillStyle(1001);
+	  pull->GetXaxis()->SetMoreLogLabels();
+	  pull->GetXaxis()->SetNoExponent();
 	}
-      (*it).getpull()->SetLineStyle(1);
-      (*it).getpull()->SetLineWidth(2);
-      (*it).getpull()->SetLineColor(opts.colors[colindx]);
-      colindx++;
-      (*it).getpull()->Draw("same ][");
-    }	  
-  //redraw lines over fill area
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
-    {
-      TH1F * redrawpull = (TH1F*)(*it).getpull()->Clone();
-      redrawpull->SetFillStyle(0);
-      redrawpull->Draw("same ][");
+
+      //pull->SetYTitle("#frac{Theory+shifts - Data}{#sigma uncor}");
+      pull->SetYTitle("pulls   ");
+
+      pull->GetXaxis()->SetLabelFont(62);
+      pull->GetXaxis()->SetTitleFont(62);
+      pull->GetXaxis()->SetLabelSize(txtsize/py);
+      pull->GetXaxis()->SetTitleSize(txtsize/py);
+      //  pull->GetXaxis()->SetTitleOffset(1);
+
+      pull->SetStats(0);
+      pull->SetMinimum(-3.5);
+      pull->SetMaximum(3.5);
+
+      //plot axis
+      pull->Draw("][");
+
+      //plot lines at 1, -1, 0
+      TLine *one = new TLine(pull->GetBinLowEdge(pull->GetXaxis()->GetFirst()), 1, pull->GetXaxis()->GetBinUpEdge(pull->GetXaxis()->GetLast()), 1);
+      one->SetLineStyle(2);
+      TLine *minusone = new TLine(pull->GetBinLowEdge(pull->GetXaxis()->GetFirst()), -1, pull->GetXaxis()->GetBinUpEdge(pull->GetXaxis()->GetLast()), -1);
+      minusone->SetLineStyle(2);
+      TLine *zero = new TLine(pull->GetBinLowEdge(pull->GetXaxis()->GetFirst()), 0, pull->GetXaxis()->GetBinUpEdge(pull->GetXaxis()->GetLast()), 0);
+      one->Draw();
+      minusone->Draw();
+      zero->Draw();
+
+      //plot pulls
+      colindx = 0;
+      for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+	{
+	  if (datahistos.size() == 1)
+	    {
+	      (*it).getpull()->SetFillColor(opts.colors[colindx]);
+	      (*it).getpull()->SetFillStyle(1001);
+	    }
+	  (*it).getpull()->SetLineStyle(1);
+	  (*it).getpull()->SetLineWidth(2);
+	  (*it).getpull()->SetLineColor(opts.colors[colindx]);
+	  colindx++;
+	  (*it).getpull()->Draw("same ][");
+	}	  
+      //redraw lines over fill area
+      for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+	{
+	  TH1F * redrawpull = (TH1F*)(*it).getpull()->Clone();
+	  redrawpull->SetFillStyle(0);
+	  redrawpull->Draw("same ][");
+	}
     }
 
   //Labels
-  cnv->cd(1);
-  DrawLabels();
 
-  cnv->cd(2);
-  DrawLabels();
+  if (opts.twopanels || opts.threepanels)
+    {
+      cnv->cd(1);
+      DrawLabels();
+      if (opts.drawlogo)
+	DrawLogo()->Draw();
+      cnv->cd(2);
+      DrawLabels();
+    }
+  else
+    {
+      cnv->cd();
+      DrawLabels();
+      if (opts.drawlogo)
+	DrawLogo()->Draw();
+    }
 
   return cnv;
 }

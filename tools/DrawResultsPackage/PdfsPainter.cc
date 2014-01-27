@@ -70,6 +70,8 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   if (opts.logx)
     cnv->SetLogx();
   cnv->SetLeftMargin(lmarg);
+  cnv->SetRightMargin(rmarg);
+  cnv->SetTopMargin(tmarg);
 
   TMultiGraph * mg = new TMultiGraph(((string)cnvname + "_multigraph").c_str(), "");
   TMultiGraph * mg_lines = new TMultiGraph(((string)cnvname + "_multigraph_lines").c_str(), "");
@@ -157,18 +159,20 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg_lines->Draw("L");
 
   //create legend
-  TLegend * leg = new TLegend(0.2, 0.84 - pdfgraphs.size()*0.05, 0.65, 0.89);
-  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
-  leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
-
-  for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
-    leg->AddEntry((*it).graph, (*it).label.c_str());
-
+  TLegend * leg = new TLegend(lmarg+0.05, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.5, 1-tmarg-0.01);
   leg->SetTextSize(txtsize);
   leg->SetTextFont(62);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
+  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+
+  for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+    if (opts.dobands)
+      leg->AddEntry((*it).graph, (*it).label.c_str(), "lf");
+    else
+      leg->AddEntry((*it).graph, (*it).label.c_str(), "l");
 
   leg->Draw();
 
@@ -200,7 +204,12 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   TMultiGraph * mg_ratio_lines = new TMultiGraph(((string)cnvname + "_multigraph_ratio_lines").c_str(), "");
 
   //create legend
-  TLegend * leg = new TLegend(0.35, 0.84 - pdfgraphs.size() * 0.05, 0.65, 0.89);
+  TLegend * leg = new TLegend(lmarg+0.15, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.5, 1-tmarg-0.01);
+  leg->SetTextFont(62);
+  leg->SetTextSize(txtsize);
+  leg->SetFillColor(0);
+  leg->SetFillStyle(0);
+  leg->SetBorderSize(0);
   leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
   //prepare ratio graph
@@ -215,19 +224,36 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
       for (int i = 0; i < (*it).graph->GetN(); i++)
 	{
-	  Double_t val =  (*it).graph->GetY()[i];
-	  Double_t ref =  (*fit).graph->GetY()[i];
+	  double val =  (*it).graph->GetY()[i];
+	  double ref =  (*fit).graph->GetY()[i];
 	  if (ref != 0)
 	    r->SetPoint(i, (*it).graph->GetX()[i], val/ref);
 	  else
 	    r->SetPoint(i, (*it).graph->GetX()[i], 1);
 
-	  Double_t errhigh =  (*it).graph->GetErrorYhigh(i);
-	  Double_t errlow =  (*it).graph->GetErrorYlow(i);
-	  //Double_t rathigh = ( ref != 0 )? ((val+errhigh)/ref - val/ref) : 0;
-	  //Double_t ratlow = ( ref != 0 )? ((val+errlow)/ref - val/ref) : 0;
-	  Double_t rathigh = ( ref != 0)? (errhigh/ref) : 0;
-	  Double_t ratlow = ( ref != 0)? (errlow/ref) : 0;
+	  if (opts.relerror)
+	    r->SetPoint(i, (*it).graph->GetX()[i], 1);
+
+	  if (opts.abserror)
+	    r->SetPoint(i, (*it).graph->GetX()[i], 0);
+
+	  double errhigh =  (*it).graph->GetErrorYhigh(i);
+	  double errlow =  (*it).graph->GetErrorYlow(i);
+
+	  double rathigh, ratlow;
+	  rathigh = ( ref != 0)? (errhigh/ref) : 0;
+	  ratlow = ( ref != 0)? (errlow/ref) : 0;
+	  if (opts.relerror)
+	    {
+	      rathigh = ( val != 0 )? (errhigh/val) : 0;
+	      ratlow = ( val != 0 )? (errlow/val) : 0;
+	    }
+	  if (opts.abserror)
+	    {
+	      rathigh = errhigh - val;
+	      ratlow = errlow - val;
+	    }
+	  
 	  r->SetPointError(i, 0, 0, ratlow, rathigh);
 	}
 
@@ -275,16 +301,13 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
       mg_ratio_lines->Add(r_high);
       mg_ratio_lines->Add(r_low);
 
-      //set legend features
-      leg->AddEntry((*it).graph, (*it).label.c_str());
-      leg->SetTextFont(62);
-      leg->SetTextSize(txtsize);
-      leg->SetFillColor(0);
-      leg->SetFillStyle(0);
-      leg->SetBorderSize(0);
-
+      //Add legend
+      if (opts.dobands)
+	leg->AddEntry((*it).graph, (*it).label.c_str(), "lf");
+      else
+	leg->AddEntry((*it).graph, (*it).label.c_str(), "l");
       colindx++;
-    }	  
+    }
 
   //Make the TCanvas
   TCanvas *cnv = new TCanvas(((string)cnvname + "_ratio").c_str(), "pdf", opts.resolution, opts.resolution);
@@ -292,11 +315,19 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   if (opts.logx)
     cnv->SetLogx();
   cnv->SetLeftMargin(lmarg);
+  cnv->SetRightMargin(rmarg);
+  cnv->SetTopMargin(tmarg);
 
   //graphical settings
-  mg_ratio->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x,Q^{2})/x" + pdflabels[ipdf] + "(x,Q^{2})_{ref}").c_str());
-
+  //  mg_ratio->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x,Q^{2})/x" + pdflabels[ipdf] + "(x,Q^{2})_{ref}").c_str());
   mg_ratio->Draw("ALE3"); //need to draw with A option to create axis
+
+  mg_ratio->GetXaxis()->SetTitle(" x  ");
+  mg_ratio->GetYaxis()->SetTitle(((string)" x" + pdflabels[ipdf] + "(x,Q^{2})/x" + pdflabels[ipdf] + "(x,Q^{2})_{ref}").c_str());
+  if (opts.relerror)
+    mg_ratio->GetYaxis()->SetTitle(((string)" #deltax" + pdflabels[ipdf] + "/#deltax" + pdflabels[ipdf] + "_{ref}").c_str());
+  if (opts.abserror)
+    mg_ratio->GetYaxis()->SetTitle(((string)" #deltax" + pdflabels[ipdf] + "").c_str());
 
   mg_ratio->SetMaximum(opts.rmax);
   mg_ratio->SetMinimum(opts.rmin);

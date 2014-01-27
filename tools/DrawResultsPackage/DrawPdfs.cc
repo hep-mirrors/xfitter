@@ -236,15 +236,31 @@ int main(int argc, char **argv)
     {
       char numb[15];
       sprintf(numb, "data_%d", it - datapullscanvaslist.begin());
-      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
-      pagecnv->Divide(1, 2);
-      for (int i = 1; i <= 2; i++)
-	if (it != datapullscanvaslist.end())
-	  {
-	    pagecnv->cd(i);
-	    (*it)->DrawClonePad();
-	    it++;
-	  }
+      TCanvas * pagecnv;
+      if (opts.twopanels || opts.threepanels)
+	{
+	  pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
+	  pagecnv->Divide(1, 2);
+	  for (int i = 1; i <= 2; i++)
+	    if (it != datapullscanvaslist.end())
+	      {
+		pagecnv->cd(i);
+		(*it)->DrawClonePad();
+		it++;
+	      }
+	}
+      else
+	{
+	  pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
+	  pagecnv->Divide(2, 2);
+	  for (int i = 1; i <= 4; i++)
+	    if (it != datapullscanvaslist.end())
+	      {
+		pagecnv->cd(i);
+		(*it)->DrawClonePad();
+		it++;
+	      }
+	}
       pagecnv->Print((opts.outdir + "plots.eps").c_str());
     }
   
