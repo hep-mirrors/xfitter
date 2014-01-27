@@ -124,6 +124,7 @@ class CommandParser
     cout << "\t    PlotN = 1 ! SubPlot index" << endl;
     cout << "\t    PlotDefColumn = 'y2' ! Variable used to divide the data in SubPlots" << endl;
     cout << "\t    PlotDefValue = 0., 5.! Ranges of PlotDefColumn used to divide the data in SubPlots" << endl;
+    cout << "\t    PlotVarColumn = 'x'! Variable providing bin center information (use only if bin edges are missing)" << endl;
     cout << "\t    PlotOptions(1)  = 'Experiment:ATLAS@Title: pp #rightarrow Z@XTitle: y_{Z} @YTitle: d#sigma/dy_{Z} [pb]  @ExtraLabel:#int L = 100 fb^{-1}@Xmin:0.0@Xmax:2.5@Xlog@Ylog@YminR:0.91@YmaxR:1.09'" 
 	 << endl;
     cout << "\t &End" << endl;

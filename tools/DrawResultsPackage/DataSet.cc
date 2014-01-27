@@ -56,10 +56,10 @@ void SubPlot::AddPoint(double x, double bin1, double bin2, double data, double u
   fTheo->SetPointError(N, 0., 0.);
   fTMod->SetPoint(N, x, theory_mod);
   fTMod->SetPointError(N, 0., 0.);
-  fDUnc->Sort();
-  fDTot->Sort();
-  fTheo->Sort();
-  fTMod->Sort();
+  //  fDUnc->Sort();
+  //  fDTot->Sort();
+  //  fTheo->Sort();
+  //  fTMod->Sort();
 };
 
 void SubPlot::PrepareHistogram(bool RatioToData) {

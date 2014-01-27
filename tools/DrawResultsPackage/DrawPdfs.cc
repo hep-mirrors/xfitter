@@ -139,8 +139,10 @@ int main(int argc, char **argv)
 		  vector<float>::iterator it2 = b2.begin();
 		  if (b1.size() < 1)
 		    {
-		      cout << "zero bins for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p <<  endl;
-		      cout << "Cannot plot data pulls, skipping" << endl;
+		      stringstream trimmer;
+		      string trimmed = info_output[o]->GetSet(d)->GetName();
+		      trimmed.erase(trimmed.find_last_not_of(" "), string::npos);
+		      cout << "zero bins for dataset: " << trimmed << ", subplot: " << p << ". skipping..." << endl;
 		      continue;
 		    }
 		  bool skip = false;
@@ -149,9 +151,16 @@ int main(int argc, char **argv)
 		      skip = true;
 		  if (skip)
 		    {
-		      cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p << endl;
-		      cout << "Cannot plot data pulls, skipping" << endl;
-		      continue;
+		      bool bincenter = false;
+		      for (int i = 0; i < info_output[o]->GetSet(d)->GetDataTot(p)->GetN(); i++)
+			if (info_output[o]->GetSet(d)->GetDataTot(p)->GetX()[i] != 0)
+			  bincenter = true;
+		      if (!bincenter)
+			{
+			  cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p << endl;
+			  cout << "Cannot plot data pulls, skipping" << endl;
+			  continue;
+			}
 		    }
 		  string dtname = (string)info_output[o]->GetSet(d)->GetName();
 		  if (p > 0)

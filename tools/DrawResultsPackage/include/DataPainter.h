@@ -29,6 +29,8 @@ private:
   bool logx, logy;
   float xmin, xmax;
   float yminr, ymaxr;
+  vector <float> valx;
+  bool maketgraph;
 public:
   dataseth(string dataname, string dir, string lab, DataSet* DT, int subp);
   string getname() {return name;};
@@ -55,6 +57,8 @@ public:
   float getxmax() {return xmax;};
   float getyminr() {return yminr;};
   float getymaxr() {return ymaxr;};
+  void Draw(TH1F* histo, string opt);
+  bool bincenter() {return maketgraph;};
 };
 
 

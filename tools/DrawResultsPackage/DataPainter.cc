@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 
 double hmin(TH1F *h)
 {
@@ -48,6 +49,7 @@ vector <range> historanges(TH1F *h)
 }
 dataseth::dataseth(string dataname, string dir, string lab, DataSet* DT, int subp): name(dataname), label(lab)
 {
+  TGraphErrors * datagraph =          DT->GetDataTot(subp);	       
   vector <float> bins1 =              DT->getbins1(subp);	       
   vector <float> bins2 =	      DT->getbins2(subp);	       
   vector <float> data = 	      DT->getdata(subp);	       
@@ -70,45 +72,80 @@ dataseth::dataseth(string dataname, string dir, string lab, DataSet* DT, int sub
   extralabel =		              DT->GetLabel(subp);
   experiment =		              DT->GetExperiment(subp);
 
-  //fill empty gap
-  int pos = 0;
-  float bmin, bmax;
-  while (pos != -1)
+  //bins array
+  float bin[bins1.size() + 1];
+  vector <double> bins;
+
+  //If no bin edges information is available, need to use TGraph for plotting
+  maketgraph = false;
+  for (int i = 0; i < datagraph->GetN(); i++)
+    if(datagraph->GetX()[i] != 0)
+      maketgraph = true;
+
+  if (maketgraph)
     {
-      pos = -1;
-      vector<float>::iterator it1 = bins1.begin();
-      vector<float>::iterator it2 = bins2.begin();
-      for (; (it1+1) != bins1.end(); it1++, it2++)
-	if (*(it1+1) != *it2 && *it2 < *(it1+1))
-	  {
-	    pos = (it1 - bins1.begin()) + 1;
-	    bmin = *it2;
-	    bmax = *(it1+1);
-	  }
-      if (pos != -1)
+      //save original x values
+      for (int i = 0; i < datagraph->GetN(); i++)
+	valx.push_back(datagraph->GetX()[i]);
+
+      //make arbitrary bin edges
+      vector <double> temp;
+      for (int i = 0; i < datagraph->GetN(); i++)
+	temp.push_back(datagraph->GetX()[i]);
+
+      sort(temp.begin(), temp.end());
+
+      bins.push_back(*(temp.begin()) * 0.9);
+      if (datagraph->GetN() > 1)
+	for (vector<double>::iterator it = temp.begin()+1; it != temp.end(); it++)
+	  bins.push_back((*it + *(it-1))/2);
+      bins.push_back(*(temp.end()-1) * 1.1);
+
+      for (vector<double>::iterator it = bins.begin(); it != bins.end(); it++)
+	bin[it-bins.begin()] = *it;
+    }
+  else
+    {
+      //fill empty gap
+      int pos = 0;
+      float bmin, bmax;
+      while (pos != -1)
 	{
-	  bins1.insert(bins1.begin()+pos, bmin);
-	  bins2.insert(bins2.begin()+pos, bmax);
-	  data.insert(data.begin()+pos, 0);
-	  uncorerr.insert(uncorerr.begin()+pos, 0); 
-	  toterr.insert(toterr.begin()+pos, 0); 
-	  theory.insert(theory.begin()+pos, 0); 
-	  theoryshifted.insert(theoryshifted.begin() +pos, 0); 
-	  therrup.insert(therrup.begin()+pos, 0); 
-	  therrdown.insert(therrdown.begin()+pos, 0); 
-	  pulls.insert(pulls.begin()+pos, 0);
+	  pos = -1;
+	  vector<float>::iterator it1 = bins1.begin();
+	  vector<float>::iterator it2 = bins2.begin();
+	  for (; (it1+1) != bins1.end(); it1++, it2++)
+	    if (*(it1+1) != *it2 && *it2 < *(it1+1))
+	      {
+		pos = (it1 - bins1.begin()) + 1;
+		bmin = *it2;
+		bmax = *(it1+1);
+	      }
+	  if (pos != -1)
+	    {
+	      bins1.insert(bins1.begin()+pos, bmin);
+	      bins2.insert(bins2.begin()+pos, bmax);
+	      data.insert(data.begin()+pos, 0);
+	      uncorerr.insert(uncorerr.begin()+pos, 0); 
+	      toterr.insert(toterr.begin()+pos, 0); 
+	      theory.insert(theory.begin()+pos, 0); 
+	      theoryshifted.insert(theoryshifted.begin() +pos, 0); 
+	      therrup.insert(therrup.begin()+pos, 0); 
+	      therrdown.insert(therrdown.begin()+pos, 0); 
+	      pulls.insert(pulls.begin()+pos, 0);
+	    }
 	}
+
+      //make bins array
+      int i = 0;
+      for (vector<float>::iterator it = bins1.begin(); it != bins1.end(); it++)
+	{
+	  bin[i] = *it;
+	  i++;
+	}
+      bin[i] = *(bins2.end()-1);
     }
 
-  //make bins array
-  float bin[bins1.size() + 1];
-  int i = 0;
-  for (vector<float>::iterator it = bins1.begin(); it != bins1.end(); it++)
-    {
-      bin[i] = *it;
-      i++;
-    }
-  bin[i] = *(bins2.end()-1);
   hdata = new TH1F((name + dir +"_data").c_str(), "", bins1.size(),  bin);
   hdatatot = new TH1F((name + dir + "_datatot").c_str(), "", bins1.size(),  bin);
   hth = new TH1F((name + dir + "_th").c_str(), "", bins1.size(),  bin);
@@ -191,6 +228,34 @@ dataseth::dataseth(string dataname, string dir, string lab, DataSet* DT, int sub
     r_therrup->SetBinError(b, 0);
   for (int b = 1; b <= r_therrdown->GetNbinsX(); b++)
     r_therrdown->SetBinError(b, 0);
+}
+void dataseth::Draw(TH1F* histo, string opt)
+{
+  if (maketgraph)
+    {
+      TGraphAsymmErrors * graph = new TGraphAsymmErrors(histo);
+
+      //Set correct x point
+      vector <double> valy;
+      for (int i = 0; i < graph->GetN(); i++)
+	valy.push_back(graph->GetY()[i]);
+      for (int i = 0; i < graph->GetN(); i++)
+	{
+	  graph->SetPoint(i, valx[i], valy[i]);
+	  graph->SetPointEXhigh(i, 0);
+	  graph->SetPointEXlow(i, 0);
+	}
+      graph->Sort();
+
+      if (opt.find("same") == string::npos)
+	opt.insert(0, "A");
+
+      if (opt.find("E1") != string::npos)
+	opt.erase(opt.find("E1") + 1);
+      
+      graph->Draw(opt.c_str());
+    }
+  else histo->Draw(opt.c_str());
 }
 
 TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
@@ -394,22 +459,22 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   data->SetLineColor(1);
   data->SetMarkerStyle(20);
   data->SetMarkerSize(2 * opts.resolution / 1200);
-  data->Draw("e1");
+  data->Draw("AXIS");
+  datahistos[0].Draw(data, "PE1 same");
 
   vector <range> dtranges = historanges(datatot);
   for (vector<range>::iterator r = dtranges.begin(); r != dtranges.end(); r++)
     {
       datatot->SetAxisRange((*r).lowedge, (*r).upedge);
-      datatot->DrawCopy("e3 same");
+      datahistos[0].Draw((TH1F*)datatot->Clone(), "PE3 same");
     }
-  data->Draw("e1 same");
+  datahistos[0].Draw(data, "PE1 same");
   //reset axis range
   datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
 
-  //  Label1->Draw();
   if (datahistos[0].getextralabel() != "")
     {
-      TLatex l; //l.SetTextAlign(12);
+      TLatex l;
       l.SetNDC();
       l.SetTextFont(42);
       l.SetTextSize(0.04/my);
@@ -437,7 +502,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   cont->SetLineStyle(1);
   TLine *dash = new TLine(0, 1, 1, 1);
   dash->SetLineStyle(2);
-  if (opts.points)
+  if (opts.points && !datahistos[0].bincenter())
     leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
   else
     leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
@@ -464,19 +529,19 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 	{
 	  (*it).getthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
-	  (*it).getthshift()->DrawCopy("l same");
+	  (*it).Draw((TH1F*)(*it).getthshift()->Clone(), "LX same");
 	}
       (*it).getthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 
 
       (*it).getth()->SetLineColor(opts.colors[colindx]);
-      if (!opts.points) //plot as continous line with dashed error bands
+      if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
 	{
 	  vector <range> thranges = historanges((*it).getth());
 	  for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 	    {
 	      (*it).getth()->SetAxisRange((*r).lowedge, (*r).upedge);
-	      (*it).getth()->DrawCopy("l same");
+	      (*it).Draw((TH1F*)(*it).getth(), "LX same");
 	    }
 	  (*it).getth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 
@@ -495,7 +560,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 		  for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 		    {
 		      (*it).gettherr()->SetAxisRange((*r).lowedge, (*r).upedge);
-		      (*it).gettherr()->DrawCopy("e3 l same");
+		      (*it).Draw((TH1F*)(*it).gettherr(), "E3L same");
 		    }
 		  (*it).gettherr()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 		}
@@ -540,7 +605,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	}
       colindx++;
       markindx++;
-      if (!opts.points)
+      if (!opts.points || (*it).bincenter())
 	if (opts.therr)
 	  leg2->AddEntry((*it).gettherr(), ((*it).getlabel()).c_str(), "lf");
 	else
@@ -559,15 +624,15 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       {
 	(*it).gettherrup()->SetLineColor(opts.colors[colindx]);
 	(*it).gettherrdown()->SetLineColor(opts.colors[colindx]);
-	if (!opts.points)
+	if (!opts.points || (*it).bincenter())
 	  {
 	    vector <range> thranges = historanges((*it).getth());
 	    for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 	      {
 		(*it).gettherrup()->SetAxisRange((*r).lowedge, (*r).upedge);
-		(*it).gettherrup()->DrawCopy("l same");
+		(*it).Draw((TH1F*)(*it).gettherrup()->Clone(), "LX same");
 		(*it).gettherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
-		(*it).gettherrdown()->DrawCopy("l same");
+		(*it).Draw((TH1F*)(*it).gettherrdown()->Clone(), "LX same");
 	      }
 	    (*it).gettherrup()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	    (*it).gettherrdown()->SetAxisRange((*it).getxmin(), (*it).getxmax());
@@ -649,17 +714,17 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   r_data->SetMinimum(mn - delta * 0.2);
 
   //plot data
-  r_data->DrawCopy("e1");
+  r_data->DrawCopy("AXIS");
 
   vector <range> rdtranges = historanges(r_datatot);
   for (vector<range>::iterator r = rdtranges.begin(); r != rdtranges.end(); r++)
     {
       r_datatot->SetAxisRange((*r).lowedge, (*r).upedge);
-      r_datatot->DrawCopy("e3 same");
+      datahistos[0].Draw((TH1F*)r_datatot->Clone(), "E3 same");
     }
   r_datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
 
-  r_data->Draw("e1 same");
+  datahistos[0].Draw(r_data, "PE1 same");
 
   //plot lines at 1
   TLine *r_one = new TLine(r_data->GetBinLowEdge(r_data->GetXaxis()->GetFirst()), 1, r_data->GetXaxis()->GetBinUpEdge(r_data->GetXaxis()->GetLast()), 1);
@@ -683,17 +748,17 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	    {
 	      (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
-	      (*it).getrthshift()->DrawCopy("l same");
+	      (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
 	    }
 	  (*it).getrthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	}
       
-      if (!opts.points) //plot as continous line with dashed error bands
+      if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
 	{
 	  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	    {
 	      (*it).getrth()->SetAxisRange((*r).lowedge, (*r).upedge);
-	      (*it).getrth()->DrawCopy("l same");
+	      (*it).Draw((TH1F*)(*it).getrth()->Clone(), "LX same");
 	    }
 	  (*it).getrth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  if (opts.therr)
@@ -710,7 +775,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 		  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 		    {
 		      (*it).getrtherr()->SetAxisRange((*r).lowedge, (*r).upedge);
-		      (*it).getrtherr()->DrawCopy("e3 l same");
+		      (*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
 		    }
 		  (*it).getrtherr()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 		}
@@ -765,15 +830,15 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       {
 	(*it).getrtherrup()->SetLineColor(opts.colors[colindx]);
 	(*it).getrtherrdown()->SetLineColor(opts.colors[colindx]);
-	if (!opts.points)
+	if (!opts.points || (*it).bincenter())
 	  {
 	    vector <range> rthranges = historanges((*it).getth());
 	    for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	      {
 		(*it).getrtherrup()->SetAxisRange((*r).lowedge, (*r).upedge);
-		(*it).getrtherrup()->DrawCopy("l same");
+		(*it).Draw((TH1F*)(*it).getrtherrup()->Clone(), "LX same");
 		(*it).getrtherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
-		(*it).getrtherrdown()->DrawCopy("l same");
+		(*it).Draw((TH1F*)(*it).getrtherrdown()->Clone(), "LX same");
 	      }
 	    (*it).getrtherrup()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	    (*it).getrtherrdown()->SetAxisRange((*it).getxmin(), (*it).getxmax());
@@ -816,19 +881,19 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       r_data->SetMinimum(mn - delta * 0.2);
 
       //plot data
-      r_data->DrawCopy("e1");
+      r_data->DrawCopy("AXIS");
 
       /*
       vector <range> rsdtranges = historanges(r_datatot);
       for (vector<range>::iterator r = rsdtranges.begin(); r != rsdtranges.end(); r++)
 	{
 	  r_datatot->SetAxisRange((*r).lowedge, (*r).upedge);
-	  r_datatot->DrawCopy("e3 same");
+	  datahistos[0].Draw((TH1F*)r_datatot->Clone(), "E3 same");
 	}
       r_datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
       */
 
-      r_data->Draw("e1 same");
+      datahistos[0].Draw(r_data, "PE1 same");
 
       //plot lines at 1
       TLine *rs_one = new TLine(r_data->GetBinLowEdge(r_data->GetXaxis()->GetFirst()), 1, r_data->GetXaxis()->GetBinUpEdge(r_data->GetXaxis()->GetLast()), 1);
@@ -845,7 +910,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	    {
 	      (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
-	      (*it).getrthshift()->DrawCopy("l same");
+	      (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
 	    }
 	  (*it).getrthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 
@@ -890,7 +955,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       pull->SetMaximum(3.5);
 
       //plot axis
-      pull->Draw("][");
+      pull->Draw("AXIS");
+      //      pull->Draw("][");
 
       //plot lines at 1, -1, 0
       TLine *one = new TLine(pull->GetBinLowEdge(pull->GetXaxis()->GetFirst()), 1, pull->GetXaxis()->GetBinUpEdge(pull->GetXaxis()->GetLast()), 1);
