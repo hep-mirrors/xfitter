@@ -150,7 +150,11 @@ c check if cov matrix size correspond to number of data points
          endif
 
 c     Matrix format for covariance/correlation files
-         if (MatrixType.eq.'CovMatrix'.or.MatrixType.eq.'CorrMatrix') then
+         if (MatrixType.eq.'CovMatrix'.or.
+     +        MatrixType.eq.'CorrMatrix'.or.
+     +        MatrixType.eq.'CovMatrix'.or.
+     +        MatrixType.eq.'CorrStatMatrix'.or.
+     +        MatrixType.eq.'CorrSystMatrix') then
             if(NCorr.gt.NCorrMax) then
                Call HF_ERRLOG(13012501,
      $              'S: NCorrMax parameter in prep_corr.f too small')
@@ -168,7 +172,7 @@ c     Matrix format for covariance/correlation files
                enddo
             endif
 
-c     store delta_i for converion of correlation matrix to covariance matrix
+c     store delta_i for conversion of correlation matrix to covariance matrix
             if (MatrixType.eq.'CorrMatrix') then
                do i=1,NCorr
                   CovRescale(i)=matrixbuffer(i,NIdColumns1+1)
