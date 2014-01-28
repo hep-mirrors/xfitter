@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 34 
+    NInputFiles = 37
 
    InputFileNames =
  !
@@ -45,6 +45,9 @@
           'datafiles/tevatron/D0_Z_Boson_Rapidity.dat',
           'datafiles/tevatron/CDF_Z_Boson_Rapidity.dat',
           'datafiles/tevatron/CDF_JETS2008.dat',
+	  'datafiles/tevatron/D0_W_asymmetry.dat'
+	  'datafiles/tevatron/D0_Wmu_pt25_asymmetry.dat'
+	  'datafiles/tevatron/D0_Wmu_pt35_asymmetry.dat'
 ! need Hathor package
           'datafiles/tevatron/CDF-TOP-CONF-NOTE-9913_prelim.dat',
           'datafiles/tevatron/D0_JETS.dat',
