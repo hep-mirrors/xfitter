@@ -10,14 +10,13 @@ C---------------------------------------------------------------
       include 'for_debug.inc'
       include 'datasets.inc'
       include 'scales.inc'
-
-      integer IDataSet,kflag
+      integer IDataSet,kflag!
 C-------------------------------------------------------------------
 
       if ( UseFixedTheory(IDataSet)) then
          Call UseFixedTheoryXsection(IDataSet) 
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
-         if(Itheory.lt.100) then
+         if(Itheory.lt.100.) then
             Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
          else
             write(6,*) ' NC e+-p integrated: invalid dataset for itheory > 100 '
@@ -25,11 +24,11 @@ C-------------------------------------------------------------------
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
 
-        if (DipoleModel.eq.1.or.DipoleModel.eq.2) then
+         if (DipoleModel.eq.1.or.DipoleModel.eq.2) then
             call DipolePrediction(IDataSet)
          elseif (DipoleModel.eq.3.or.DipoleModel.eq.4) then
             Call GetNCXsection(IDataSet, HFSCHEME)
-            call DipolePrediction(IDataSet)
+            Call DipolePrediction(IDataSet)
          elseif (DipoleModel.eq.5) then
             Call DipoleBGK(IDataSet)
          else
@@ -130,8 +129,9 @@ cv
             write(6,*) ' DDis: invalid dataset for ithory > 100 '
             call hf_stop
          Endif
-
-      elseif (DATASETREACTION(IDataSet).eq.'Dummy') then
+         
+      elseif ((index(DATASETREACTION(IdataSet), ' Dummy').gt.0).or.
+     $        (index(DATASETREACTION(IdataSet), 'Dummy').gt.0)) then
          if(Itheory.lt.100) then
             Call GetDummyXsection(IDataSet)
          else
