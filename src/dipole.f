@@ -17,13 +17,13 @@ C-------------------------------------------------------
 C-------------------------------------------------------
       integer IDataSet
 
-      integer idxQ2, idxX, idxY, i,  idx
+      integer idxQ2, idxX, idxY, i,  idx, idxS
 
       integer NPmax
       parameter(NPmax=1000)
 
       double precision X(NPmax),Y(NPmax),Q2(NPmax)
-      double precision yplus, yminus
+      double precision yplus, yminus, S
 
       double precision F2,FL,XSec
 
@@ -61,10 +61,25 @@ C
       idxQ2 = GetBinIndex(IDataSet,'Q2')
       idxX  = GetBinIndex(IDataSet,'x')
       idxY = GetBinIndex(IDataSet,'y')
+      idxS =  GetInfoIndex(IDataSet,'sqrt(S)')
 
-      if (idxQ2.eq.0 .or. idxX.eq.0 .or. idxY.eq.0) then
+      if (idxY.eq.0) then
+         idxS =  GetInfoIndex(IDataSet,'sqrt(S)')
+         if (idxS .gt. 0) then
+            S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)')
+     $           , IDataSet))**2
+         else
+            print *,
+     $ 'ERROR: DIS sample, neigher S nor y are defined !'
+            print *,' !!! STOP STOP STOP STOP !!!'
+            call HF_stop
+         endif
+      endif
+
+      if (idxQ2.eq.0 .or. idxX.eq.0) then
          Return
       endif
+
 
 C calculate predictions for each bin:
       do i=1,NDATAPOINTS(IDataSet)
@@ -76,8 +91,14 @@ C
 C Local X,Y,Q2 arrays, used for caclulations:
 C
          X(i)   = AbstractBins(idxX,idx)
-         Y(i)   = AbstractBins(idxY,idx)
          Q2(i)  = AbstractBins(idxQ2,idx)
+         if (idxY.eq.0) then
+            Y(i)   = Q2(i) / ( X(i) * S )
+         else
+            Y(i)   = AbstractBins(idxY,idx)
+         endif
+
+
 
 C
 C Call the calculating subroutine
