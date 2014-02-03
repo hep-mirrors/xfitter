@@ -187,7 +187,7 @@ C-- Run over all rules, check for appropriate process/variable
                   if (Variable(j).eq.BinNames(k)) then
                      if (
      $                    bins(k).lt.CutValueMin(j)
-     $                    .or.bins(k).ge.CutValueMax(j)) then
+     $                    .or.bins(k).gt.CutValueMax(j)) then
                         FailSelectionCuts = .true. ! Fail Cut
                         Return
                      endif

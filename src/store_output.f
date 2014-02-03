@@ -920,13 +920,15 @@ C      write(90,*)ndatasets
               currEcharge = DATASETInfo(k,i)
             endif
           enddo
-          if (DATASETREACTION(i).eq.'NC e+-p') then
+          if ((DATASETREACTION(i).eq.'NC e+-p').or.
+     $      (DATASETREACTION(i).eq.'NC e+-p Dummy')) then
             if (currEcharge.gt.0) then
               reacindx = 615
             else if (currEcharge.lt.0) then
               reacindx = 515
             endif
-          else if (DATASETREACTION(i).eq.'CC e+-p') then
+          else if ((DATASETREACTION(i).eq.'CC e+-p').or.
+     $      (DATASETREACTION(i).eq.'CC e+-p Dummy')) then
             if (currEcharge.gt.0) then
               reacindx = 3615
             else if (currEcharge.lt.0) then
