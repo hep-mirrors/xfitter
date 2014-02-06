@@ -125,6 +125,13 @@ C
       common/STEERING2/FLAGRW, DORWONLY, CachePDFs, FlexibleGluon,
      $     read_qcdnum_tables
 
+c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
+      integer NMXGRID           !> Total number of X-grid sub-ranges
+      parameter (NMXGRID=5)
+      double precision xmin_grid(NMXGRID) !> X-grid sub ranges
+
+      common/GRIDS/xmin_grid
+
       character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
       common/STEERING3/PDF_DECOMPOSITION     
 

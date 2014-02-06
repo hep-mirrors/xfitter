@@ -84,11 +84,8 @@ C---------------------------------
       INCLUDE 'datasets.inc'
 
          !> QCDNUM grid definitions
-      integer NXGRID                !> number of X-grid sub-ranges
-      PARAMETER (NXGRID=5)
-
-      double precision xmin_grid(NXGRID) !> X-grid sub ranges
-      integer  iwt_xgrid(NXGRID)         !> X-grid population
+c     xmin_grid defined in steering.inc
+      integer  iwt_xgrid(NMXGRID)         !> X-grid population
 
       integer NQGRID                     !> Min. number of Q2 sub-ranges
       PARAMETER (NQGRID=2)
@@ -254,16 +251,16 @@ C Remove duplicates:
       print '('' Q2 values at:'',20F11.1)',(Q2grid(i),i=1,NQALL)
       print '('' Weights are :'',20F11.1)',(WQgrid(i),i=1,NQALL)
       print *,' '
-      print '('' Init X  grid with number of nodes='',i5)',NXGRID
-      print '('' X  values at:'',20E11.2)',(xmin_grid(i),i=1,NXGRID),1.0
-      print '('' Weights are :'',20I11)',(iwt_xgrid(i),i=1,NXGRID)
-     $     ,iwt_xgrid(NXGRID)
+      print '('' Init X  grid with number of nodes='',i5)',NMXGRID
+      print '('' X  values at:'',20E11.2)',(xmin_grid(i),i=1,NMXGRID),1.0
+      print '('' Weights are :'',20I11)',(iwt_xgrid(i),i=1,NMXGRID)
+     $     ,iwt_xgrid(NMXGRID)
       print *,' '
 
       call qcinit(6,' ')        !initialize
       call setord(I_FIT_ORDER)         !LO, NLO, NNLO
 
-      call gxmake(xmin_grid,iwt_xgrid,nxgrid,NXBINS,nx,iosp)    !x-grid
+      call gxmake(xmin_grid,iwt_xgrid,nmxgrid,NXBINS,nx,iosp)    !x-grid
       call gqmake(Q2Grid,WQGrid,NQAll,NQ2bins,nqout)             !mu2-grid
 
       print '(''Requested, actual number of x bins are: '',2i5)', 
