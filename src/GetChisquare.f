@@ -729,8 +729,8 @@ C
             ScaledErrorMatrix(i1,j1) = 
      $          ScaledErrorsStat(i)*ScaledErrorsStat(j)*corr_stat(i,j) +
      $          ScaledErrorsSyst(i)*ScaledErrorsSyst(j)*corr_syst(i,j) +
-     $          cov(i,j)
-
+     $          ScaledErrors(i)*ScaledErrors(j)*corr(i,j) +
+     $          cov(i,j) 
          enddo
       enddo
 C--------------------------------------------------------
