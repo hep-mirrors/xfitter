@@ -189,6 +189,8 @@ c 2012-11-08 WS: set default for DoBands
       HFSCHEME = 0
 
       OutDirName  = 'output'
+      UseGridLHAPDF5=.false.
+      WriteLHAPDF6=.true.
 
       Debug = .false.
 
@@ -773,7 +775,8 @@ C------------------------------------------------
       integer i, ilastq2
 
 C Output style namelist
-      namelist/Output/DoBands, Q2VAL, OutNX, OutXRange
+      namelist/Output/DoBands, Q2VAL, OutNX, OutXRange,
+     $                      UseGridLHAPDF5, WriteLHAPDF6
 
 C--------------------------------------------------------
 C  Read the output namelist:
@@ -813,11 +816,12 @@ C------------------------------------------------
 
       implicit none
       include 'steering.inc'
-      namelist/OutDir/OutDirName
+      namelist/OutDir/OutDirName, LHAPDF6OutDir
       LOGICAL ex
 C--------------------------------------------------------
 C  Read the OutDir namelist:
 C
+      LHAPDF6OutDir='herapdf'
       open (51,file='steering.txt',status='old')
       read (51,NML=OutDir,END=152,ERR=56)
  152  continue

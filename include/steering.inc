@@ -19,6 +19,8 @@
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
       logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
+      logical UseGridLHAPDF5     !> store PDFs in LHAPDF5 format
+      logical WriteLHAPDF6     !> store PDFs in LHAPDF6 format
       real*4 
      $     starting_scale,     !> Evolution starting scale
      $     strange_frac, 
@@ -101,7 +103,7 @@ C
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
-     &     lDEBUG,DOBANDS,h1qcdfunc,
+     &     lDEBUG,DOBANDS,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,
      &     Itheory,I_FIT_ORDER,IPARAM,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,
@@ -156,5 +158,6 @@ C
       integer ILHAPDFSET              !> LHAPDF set number
       common/CLHAPDF/LHAPDFSET,ILHAPDFSET
 
-      character*128 OutDirName         !> outout dir name
-      common/COutDirName/OutDirName
+      character*128 OutDirName   !> outout dir name
+      character*128 LHAPDF6OutDir
+      common/COutDirName/OutDirName, LHAPDF6OutDir

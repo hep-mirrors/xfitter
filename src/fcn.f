@@ -573,6 +573,7 @@ c WS: for the Offset method save central fit only
             if (CorSysIndex.eq.0) then
               open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
               call store_pdfs(base_pdfname)
+              call print_lhapdf6()
             endif
           endif
        endif

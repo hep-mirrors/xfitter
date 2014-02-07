@@ -194,8 +194,6 @@ c        open(82,file=h1name)
 
 
 cv store for LHAPDF
-cv HERAPDF in LHAPDF6 yaml format
-      call print_lhapdf6()
 cv HERAPDF in LHAPDF5 format
 cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot 
       DO Iq=0,160
@@ -845,6 +843,7 @@ C store the optimal values
       open (76,file=TRIM(OutDirName)//'/opt_lhapdf.block.txt',
      &   status='unknown')
       call store_pdfs(TRIM(OutDirName)//'/opt_pdfs_q2val_')
+      call print_lhapdf6_opt()
 
 
       open (71,file=TRIM(OutDirName)//'/parseout_opt',status='unknown')
