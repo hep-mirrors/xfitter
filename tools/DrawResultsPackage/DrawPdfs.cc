@@ -12,6 +12,7 @@
 #include <PdfsPainter.h>
 #include <CommandParser.h>
 #include <DataPainter.h>
+#include <ShiftPainter.h>
 
 using namespace std;
 
@@ -181,6 +182,12 @@ int main(int argc, char **argv)
     datapullscanvaslist.push_back(DataPainter((*it).first, (*it).second));
 
 
+  //--------------------------------------------------
+  //Shift plots
+  vector <TCanvas*> shiftcanvaslist;
+  if (! opts.noshifts)
+    shiftcanvaslist = ShiftPainter(opts.dirs);
+
   //Save plots
   system(((string)"mkdir -p " + opts.outdir).c_str());
 
@@ -188,7 +195,7 @@ int main(int argc, char **argv)
   TCanvas * opencnv = new TCanvas("open", "", 0, 0, opts.resolution * 2, opts.resolution * 2);
   opencnv->Print((opts.outdir + "plots.eps[").c_str());
 
-  vector <TCanvas*>::iterator  it = pdfscanvaslist.begin();
+  vector <TCanvas*>::iterator it = pdfscanvaslist.begin();
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)
     {
       char numb[15];
@@ -272,14 +279,27 @@ int main(int argc, char **argv)
 	}
       pagecnv->Print((opts.outdir + "plots.eps").c_str());
     }
-  
+
+  it = shiftcanvaslist.begin();
+  for (it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
+    {
+      char numb[15];
+      sprintf(numb, "shift_%d", it - shiftcanvaslist.begin());
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution, (*it)->GetWindowHeight());
+      (*it)->DrawClonePad();
+      pagecnv->Print((opts.outdir + "plots.eps").c_str());
+    }
+
   //Close the eps file
   opencnv->Print((opts.outdir + "plots.eps]").c_str());
+  cout << endl;
+  cout << "Plots saved in: " << (opts.outdir + "plots.eps") << endl;
 
   if (opts.pdf)
     {
       cout << "Converting to pdf format..." << endl;
       system(((string)"ps2pdf " + opts.outdir + "plots.eps " + opts.outdir + "plots.pdf").c_str());
+      cout << "Plots saved in: " << (opts.outdir + "plots.pdf") << endl;
     }
 
   if (opts.splitplots)
@@ -290,6 +310,10 @@ int main(int argc, char **argv)
 	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
       for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
 	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
+      for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
+
+      cout << "Multiple " << opts.ext << " plots saved in: " << (opts.outdir + "*." + opts.ext) << endl;
 
       if (opts.pdf)
 	{
@@ -298,6 +322,8 @@ int main(int argc, char **argv)
 	  for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
 	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
+	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	  for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
 	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	}
     }
@@ -310,7 +336,10 @@ int main(int argc, char **argv)
     (*it)->Write();
   for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
     (*it)->Write();
+  for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
+    (*it)->Write();
   f->Close();
+  cout << "TCanvas saved in: " << (opts.outdir + "plots.root") << endl;
 
   return 0;
 }

@@ -31,7 +31,7 @@ StoreGraphsMC_CPPFLAGS = -I$(srcdir)/include $(ROOT_CFLAGS) -w
 StoreGraphsMC_LDADD = $(ROOT_LIBS)
 
 # all source files
-DrawPdfs_SOURCES = DrawPdfs.cc PdfsPainter.cc Output.cc DataSet.cc PdfTable.cc CommandParser.cc DataPainter.cc DrawLogo.cc
+DrawPdfs_SOURCES = DrawPdfs.cc PdfsPainter.cc Output.cc DataSet.cc PdfTable.cc CommandParser.cc DataPainter.cc DrawLogo.cc ShiftPainter.cc
 
 DrawPdfs_CPPFLAGS = -I$(srcdir)/include $(ROOT_CFLAGS) -w -DLOGO=$(HERAF_LOGO)
 

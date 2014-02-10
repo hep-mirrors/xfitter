@@ -6,7 +6,7 @@
 float txtsize = 0.043;
 float offset = 1.5;
 float lmarg = 0.15;
-float rmarg = 0.02;
+float rmarg = 0.05;
 float tmarg = 0.05;
 float bmarg = 0.1;
 float marg0 = 0.003;
@@ -35,6 +35,10 @@ CommandParser::CommandParser(int argc, char **argv):
   drawlogo(true),
   nodata(false),
   nopdfs(false),
+  noshifts(false),
+  spp(30),
+  shgth(40),
+  adjshift(true),
   cms(false),
   cmspreliminary(false),
   atlas(false),
@@ -93,6 +97,24 @@ CommandParser::CommandParser(int argc, char **argv):
 	  nodata = true;
 	else if (*it == "--no-pdfs")
 	  nopdfs = true;
+	else if (*it == "--no-shifts")
+	  noshifts = true;
+	else if (*it == "--shifts-per-page")
+	  {
+	    adjshift = false;
+	    spp = atoi((*(it+1)).c_str());
+	    spp = max(1, spp);
+	    spp = min(40, spp);
+	    allargs.erase(it+1);
+	  }
+	else if (*it == "--shifts-heigth")
+	  {
+	    adjshift = false;
+	    shgth = atoi((*(it+1)).c_str());
+	    shgth = max(20, shgth);
+	    shgth = min(200, shgth);
+	    allargs.erase(it+1);
+	  }
 	else if (*it == "--cms")
 	  cms = true;
 	else if (*it == "--cms-preliminary")
@@ -131,8 +153,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  {
 	    dobands = true;
 	    abserror = true;
-	    rmin = -1.5;
-	    rmax = 1.5;
+	    rmin = -0.09;
+	    rmax = 0.09;
 	  }
 	else if (*it == "--relative-errors")
 	  {
@@ -265,8 +287,6 @@ CommandParser::CommandParser(int argc, char **argv):
   if (outdir.rfind("/") != outdir.size() - 1)
     outdir.append("/");
   
-  cout << endl;
-  cout << "plots are stored in: " << outdir << endl;
 }
 
 CommandParser opts;

@@ -44,6 +44,9 @@ class CommandParser
   int resolution;
   bool nodata;
   bool nopdfs;
+  bool noshifts;
+  int spp, shgth;
+  bool adjshift;
   bool version, drawlogo;
   bool cms, cmspreliminary;
   bool atlas, atlaspreliminary, atlasinternal;
@@ -84,11 +87,9 @@ class CommandParser
     cout << "\t \t High resolution plots (paper quality)" << endl;
     cout << "\t --no-version" << endl;
     cout << "\t \t Do not show version on logo" << endl;
-    cout << "\t --no-data" << endl;
-    cout << "\t \t Data plots are not produced" << endl;
+    cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
     cout << "\t \t PDF plots are not produced" << endl;
-    cout << "options for pdf plots:" << endl;
     cout << "\t --bands" << endl;
     cout << "\t \t Draw PDF uncertainty band" << endl;
     cout << "\t --asymbands" << endl;
@@ -108,6 +109,8 @@ class CommandParser
     cout << "\t --relative-errors" << endl;
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "options for data plots:" << endl;
+    cout << "\t --no-data" << endl;
+    cout << "\t \t Data plots are not produced" << endl;
     cout << "\t --therr" << endl;
     cout << "\t \t Plot theory errors if availables" << endl;
     cout << "\t --points" << endl;
@@ -118,6 +121,14 @@ class CommandParser
     cout << "\t \t Plot additional right bottom panels with pulls" << endl;
     cout << "\t --3panels" << endl;
     cout << "\t \t Plot additional right mid panels with theory+shifts" << endl;
+    cout << "options for shifts plots:" << endl;
+    cout << "\t --no-shifts" << endl;
+    cout << "\t \t Shifts plots are not produced" << endl;
+    cout << "\t --shifts-per-plot <N>" << endl;
+    cout << "\t \t Number of shifts shown in each plot, default is 30, maximum is 40" << endl;
+    cout << "\t --shifts-heigth <N>" << endl;
+    cout << "\t \t Heigth reserved for each shift in points, minimum is 20, maximum is 200" << endl;
+    cout << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;
     cout << "\t &PlotDesc" << endl;
