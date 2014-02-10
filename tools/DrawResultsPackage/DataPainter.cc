@@ -541,7 +541,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 	    {
 	      (*it).getth()->SetAxisRange((*r).lowedge, (*r).upedge);
-	      (*it).Draw((TH1F*)(*it).getth(), "LX same");
+	      (*it).Draw((TH1F*)(*it).getth()->Clone(), "LX same");
 	    }
 	  (*it).getth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 

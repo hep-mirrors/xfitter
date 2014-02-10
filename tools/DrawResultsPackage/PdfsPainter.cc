@@ -250,8 +250,8 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	    }
 	  if (opts.abserror)
 	    {
-	      rathigh = errhigh - val;
-	      ratlow = errlow - val;
+	      rathigh = errhigh;
+	      ratlow = errlow;
 	    }
 	  
 	  r->SetPointError(i, 0, 0, ratlow, rathigh);
