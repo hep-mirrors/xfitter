@@ -233,8 +233,16 @@ another option would be:
                       TheorExpr= 'K*A1/sum(A1)'
 		     --------------------------
 		     The expression also recognises numerical terms, e.g.
-		     'k*A+0.1'. NB: due to technical limitations, no spaces are
-		     allowed in 'TheorExpr' value.
+		     'k*A+0.1'. NB: due to technical limitations, no spaces 
+             are allowed in 'TheorExpr' value.
+             NOTE: when using the 'sum()' operation an extra parameter 
+             should be added in the expression to account for the 
+             difference in the bin width correction for the integrated 
+             vs differential cross sections. For example, if bins are 
+             equidistant the expression for the normalised cross 
+             section should be: "A/sum(A)*BinWidth". This option will
+             be improved in the next release.
+
       
       NKFactor   --- (integer) For kfactor files, number of columns in
                      TheoryInfoFile
