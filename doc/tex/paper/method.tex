@@ -74,10 +74,15 @@ and that for $N \ge 5$ the fit qulaity is already similar
 to a standard Regge-inspired parametrisation with a similar number of parameters.
 
 \item \bf{External PDFs:} \rm 
-\fitter\ provides also possibility to access the  external PDF sets, which can then be used in constructing the theoretical predictions rather than the ones restricted only to the \fitter\ framework. This is possible via interface to LHAPDF which commonly provides access to the global PDF sets available at LO, NLO or NNLO evolved either locally through the \fitter\ or taken as provided by the LHAPDF grid.
-
+\fitter\ provides also possibility to access the  external PDF sets, which can then be used in constructing the theoretical predictions rather than the ones restricted only to the \fitter\ framework. This is possible via interface to LHAPDF which commonly provides access to the global PDF sets available at LO, NLO or NNLO evolved either locally through the \fitter\ or taken as provided by the LHAPDF grid. Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter and illustrates the PDFs accessed from LHAPDF. 
 \end{description}
 
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{pdfs.pdf}
+   \caption{Gluon density as extracted by various PDF groups at the scale of $Q^2=2$ GeV$^2$, plotted using the drawing tools from \fitter.} 
+ \label{fig:pdfs}
+\end{figure}
 
 \subsection{Chisquare representation}
 
@@ -151,6 +156,13 @@ is
 \subsection{Treatment of the Experimental Uncertainties}
 
 \fitter\ provides three methods in assessing the experimental uncertainties on PDFs: Hessian, Offset, and Monte Carlo method, which are described below.
+Figure \ref{fig:error} shows a visual illustration of these various techniques which can be applied and drawn with \fitter.
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{error.pdf}
+   \caption{Differences in the experimental uncertainties on the gluon (left) and d-valence quark (right) densities extracted through various methods in \fitter: Hessian versus Monte Carlo.} 
+ \label{fig:error}
+\end{figure}
 \begin{description}
 \item \bf{Hessian method:} \rm
 The technique developed by \cite{Pumplin:2001ct} presents an estimate of PDF uncertainties reflecting the experimental precision of used data in the QCD fit by examining the behaviour of $\chi^2$ in the neighborhood of the minimum. This is known as Hessian or error matrix method. The Hessian matrix is build by the second derivatives of $\chi^2$ at the minimum. The PDF eigenvectors are obtained through an iterative procedure used to diagonalise the Hessian matrix and rescale the eigenvectors to adapt the step sizes to their natural scale.

@@ -103,7 +103,7 @@ LHC&  DY+heavy quark &$pp(\bar p)$ & APPLGRID (MCFM) \\
 \end{table}
 %
 \normalsize
-The basic functionality of HERAFitter is shown in Fig.~\ref{fig:flow} and consists of four parts: {\bf needs to update figure!}
+The basic functionality of HERAFitter is shown in Fig.~\ref{fig:flow} and consists of four parts: %{\bf needs to update figure!}
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{flow.pdf}
@@ -138,7 +138,14 @@ The resulting PDFs are provided in a ready to be used LHAPDF library format
 and can be graphically 
 displayed at arbitrary scales with their one sigma uncertainties bands.
 To demonstrate the fit consistency, plots are provided 
-in which the input data are compared to the fitted theory predictions.
+in which the input data are compared to the fitted theory predictions. This is also illustrated in the figure ~\ref{fig:data} using for demonstration HERA I data (the default sets in \fitter) compared to predictions based on HERAPDF1.0\cite{h1zeus:2009wt}.  
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{datatheory.pdf}
+   \caption{An illustration of results output using drawing tools from \fitter which compares the measurements (in this case HERA I) to the predictions or fit. In addition, ratio plots are also provided together with the pull distribution (left panel).} 
+ \label{fig:data}
+\end{figure}
+
 \end{description}
 %
 %This paper provides a comprehensive description of  \\
@@ -158,20 +165,22 @@ in which the input data are compared to the fitted theory predictions.
 The \fitter\ program permits determination of the PDFs from the variours measurements of the cross section at $ep$, $p\bar{p}$ or $pp$ colliders.  
  It includes various options for theoretical models and choices to account for the experimental uncertainties. Therefore, this project represents not only an ideal environment for benchmarking studies, but also a unique support for the QCD interpretation of analyses within the LHC experiments,
 as already demonstrated by several publicly available results using the \fitter\ 
-framework~\cite{atlas:strange, atlas:jets, atlas:hm, cms:strange, cms:jets, h1:2012kk, h1zeus:charm}.  
+framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
 
 The outline of this paper is as follows.
 %
 Section~\ref{sec:theory} discusses the various processes 
-and corresponding theoretical calculations 
-that are available in \fitter.
+and corresponding theoretical calculations performed in the Dokshitzer-Gribov-Lipatov-Altarelli-Parisi (DGLAP)~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
+Dokshitzer:1977sg,Altarelli:1977zs} formalism that are available in \fitter.
+The alternative approaches to the DGLAP formalism are presented in section~\ref{sec:alternative}.
 %
+In section~\ref{sec:techniques} various techniques in invoking the theory calculations are described.
 Section~\ref{sec:method} elucidates the 
 methodology of determining PDFs through fits based on various
 % {\bf (what do you mean here
 %by approaches?)} 
  $\chi^2$ definitions used in the
-minimisation procedure.
+minimisation procedure. 
 %
 Specific applications of the package are given in
 section ~\ref{sec:examples}. 
