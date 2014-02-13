@@ -29,6 +29,8 @@ CommandParser::CommandParser(int argc, char **argv):
   therr(false),
   points(false),
   theorylabel("Theory"),
+  onlytheory(false),
+  ratiototheory(false),
   twopanels(false),
   threepanels(false),
   version(true),
@@ -52,9 +54,9 @@ CommandParser::CommandParser(int argc, char **argv):
   colors[0] = kRed;
   colors[1] = kBlue + 2;
   colors[2] = kGreen + 3;
-  colors[3] = kMagenta;
   colors[4] = kAzure + 1;
   colors[5] = kOrange + 7;
+  colors[3] = kMagenta;
 
   styles[0] = 3004;
   styles[1] = 3005;
@@ -198,7 +200,7 @@ CommandParser::CommandParser(int argc, char **argv):
 		colors[1] = kYellow;
 		colors[2] = kGreen;
 		colors[3] = kRed;
-		colors[4] = kMagenta;
+		colors[5] = kOrange + 7;
 		colors[5] = kCyan;
 	      }
 	    else if (pattern == 2)
@@ -231,6 +233,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	    theorylabel = *(it+1);
 	    allargs.erase(it+1);
 	  }
+	else if (*it == "--only-theory")
+	  onlytheory = true;
+	else if (*it == "--ratio-to-theory")
+	  ratiototheory = true;
 	else if (*it == "--2panels")
 	  twopanels = true;
 	else if (*it == "--3panels")

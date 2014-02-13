@@ -13,6 +13,7 @@ private:
   string title; //data label, used for data legend
   string extralabel; //extra label
   string experiment; //experiment or collaboration
+  TH1F* href;
   TH1F* hdata;
   TH1F* hdatatot;
   TH1F* hth;
@@ -38,6 +39,7 @@ public:
   string gettitle() {return title;};
   string getextralabel() {return extralabel;};
   string getexperiment() {return experiment;};
+  TH1F* getref() {return href;};
   TH1F* getdata() {return hdata;};
   TH1F* getdatatot() {return hdatatot;};
   TH1F* getth() {return hth;};

@@ -32,6 +32,8 @@ class CommandParser
   int markers[6];
   string theorylabel;
   bool twopanels,threepanels;
+  bool onlytheory;
+  bool ratiototheory;
 
   //general options
   bool splitplots;
@@ -121,6 +123,10 @@ class CommandParser
     cout << "\t \t Plot additional right bottom panels with pulls" << endl;
     cout << "\t --3panels" << endl;
     cout << "\t \t Plot additional right mid panels with theory+shifts" << endl;
+    cout << "\t --onlytheory" << endl;
+    cout << "\t \t Do not plot data" << endl;
+    cout << "\t --ratio-to-theory" << endl;
+    cout << "\t \t Use theory as reference for ratio plots" << endl;
     cout << "options for shifts plots:" << endl;
     cout << "\t --no-shifts" << endl;
     cout << "\t \t Shifts plots are not produced" << endl;
