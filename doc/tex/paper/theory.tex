@@ -17,7 +17,9 @@
 %
 %In following, the theoretical models for various processes available in \fitter\ are described.
 The PDFs are determined by measuring 
-the agreement between experimental data and corresponding theory models within the DGLAP formalism.
+the agreement between experimental data and corresponding theory models within 
+the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
+Dokshitzer:1977sg,Altarelli:1977zs} formalism.
 Models which are available in \fitter\ for various processes are described in the following text.
 
 
@@ -70,7 +72,7 @@ densities:
 The QCD predictions for the DIS structure functions are obtained by convoluting 
 the PDFs with the coefficient functions calculated using various schemes, i.e.
 the general mass Variable-Flavour number (GM-VFN)~\cite{VFN} schemes or the
-Fixed-Flavour number (FFN)~\cite{Laenen:1992, Laenen:1993, Riem:1995}, 
+Fixed-Flavour number (FFN)~\cite{Laenen:1992, Laenen:1993, Riem:1995}. 
 %\fitter\ implements the zero mass variable flavour number (ZMVFN) scheme
 % from QCDNUM and are discussed in the following subsections.
 %In the FFN scheme, heavy quark contributions are explicitly included in the 
@@ -82,10 +84,12 @@ Fixed-Flavour number (FFN)~\cite{Laenen:1992, Laenen:1993, Riem:1995},
 %The evolution program QCDNUM~\cite{qcdnum} used in \fitter\ provides 
 %the calculations of the deep inelastic structure functions in the zero-mass, 
 %generalised mass and the fixed flavour number schemes. 
+\\
 The following VFN schemes with various treatments for the heavy 
 quark thresholds are considered in \fitter\ :
 The Thorne Roberts (TR) scheme with its variants at NLO and
-NNLO~\cite{Thorne:1997ga,Thorne:2006qt} as provided by the MSTW group,
+NNLO~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63,Thorne:6180} 
+as provided by the MSTW group,
 the ACOT scheme with its variants at LO and NLO as provided by the CTEQ group. 
 In addition, the zero-mass variable flavour number scheme (ZM-VFNS) where 
 heavy quark densities are included in the proton for $Q^2>>m_h^2$ but are treated 
@@ -105,7 +109,7 @@ scales below ($Q^2<m_h^2$) and scales much above the heavy quark scale threshold
 %and $n_f = n+1$ flavour (ZM-VFNS) descriptions above the transition point for the new parton distributions
 %(they are by definition identical below this point), at all orders.
 There are two different variants of the TR schemes: TR standard (as used in MSTW PDF 
-sets~\cite{Thorne:2006qt,Martin:epC63}) 
+sets~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63}) 
 and TR optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark mass scales 
 and both of them are accessible within the \fitter\ package.
 The calculations are available to NLO and NNLO.  
@@ -172,19 +176,26 @@ an older one from Burkhard \cite{Burkhard}.
 %predict lepton pair production at the LHC or Tevatron.
 The Drell Yan (DY) process constrain all different quark combinations
 providing valuable information about PDFs.
-In $pp$ scattering, as measured at the LHC, the $Z/\gamma\*$
-$W$ production probe bi-linear combinations of these.
+In $pp$ and $p\bar p$ scattering, the Z$/\gamma\*$ and W production 
+probe bi-linear combinations of quarks. 
+The complementary information on the different quark densities
+can be obtained from W asymmetry ($d$ and $u$, also their ratio),
+the ratio of the W and Z cross sections (sensitive to the favor 
+composition of the quark sea), associated W and Z production with
+heavy quarks (provides an access to $s$ and $c$ quark densities).
 %
 
-
-
-
-
-Presently, the calculations of the DY processes are known for many observables up to 
+Presently, the calculations of the W and Z processes are known for many observables up to 
 NNLO order, for example, MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff} 
 package is available for NLO calculations,
 FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NLO and NNLO.
-
+There are several possibilities for obtaining the theoretical
+predictions for the DY production in \fitter: the LO triple 
+differential cross sections calculated withing the package or,
+since the DY production theory calculaton is highly demanding
+in terms of the computing power and time, the fast grid techniques 
+can be use as an alternative (see section~\ref{sec:techniques}
+for details).
 
 
 
@@ -214,15 +225,15 @@ FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NLO and NNLO.
 Similarly to DY case, the calculation of higher order jet cross sections 
 is very demanding in terms of computing power. 
 %Although the concept is process independent, 
-The perturbative 
-coefficients are calculated by the \texttt{NLOJET++}, which is 
-
-Therefore, to allow the possibility to include jet-cross section 
+%The perturbative 
+%coefficients are calculated by the \texttt{NLOJET++}, which is 
+Therefore, to allow the possibility to include the $ep$, $pp$ or $p\bar p$ 
+jet cross section 
 measurements in QCD fits to extract PDF and $\alpha_s$ fits, the perturbative
 coefficients have to be pre-computed in a PDF and $\alpha_s$ 
-independent way. For this purpose, two grid tools are
-interfaced to the \fitter , APPLGRID (see~\ref{sec:techniques}) and 
-FastNLO.
+independent way. For this reason, the fast grid tools to the theory calculations
+obtained with MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff} and NLOJET++~\cite{Nagy:1998bb,Nagy:2001fj}, 
+which are interfaced to the \fitter , are also exploited for the jet production (see section~\ref{sec:techniques}). 
 
 
 \subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}

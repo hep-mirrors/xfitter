@@ -4,7 +4,7 @@ for signals of new physics at the LHC it is crucial
 to have accurate Standard Model (SM) predictions for
 many hard scattering processes such as the Higgs production at the LHC.
 A most common approach to calculate the SM cross sections for  
-such reactions is to use perturbative QCD collinear factorisation:
+such reactions is to use perturbative QCD (pQCD) collinear factorisation:
 %is with perturbative QCD using a (collinear) factorisation approach: 
 %{\small
 \begin{equation}
@@ -61,7 +61,8 @@ Specific data from the Tevatron $p\bar{p}$ and the LHC $pp$ collider
 can help to further constrain the PDFs.
 %
 The most sensitive processes at the  $p\bar{p}$ colliders are
-Drell Yan production, W and Z asymmetries, top quark production, and jet production.
+Drell Yan production, W and Z asymmetries, associated production of W or Z boson 
+and heavy quarks, top quark production and jet production.
 %
 
 \fitter represents a QCD analysis framework that aims at 
@@ -98,7 +99,7 @@ Tevatron, LHC &jets &$pp(\bar p)$ & APPLGRID (NLOJet++) \\
 LHC&  DY+heavy quark &$pp(\bar p)$ & APPLGRID (MCFM) \\
 \hline
 \end{tabular}
-\caption{The list of processes available in \fitter.}
+\caption{The list of processes at hadron colliders available in the \fitter package.}
 \label{tab:proc}
 \end{table}
 %
@@ -138,7 +139,10 @@ The resulting PDFs are provided in a ready to be used LHAPDF library format
 and can be graphically 
 displayed at arbitrary scales with their one sigma uncertainties bands.
 To demonstrate the fit consistency, plots are provided 
-in which the input data are compared to the fitted theory predictions. This is also illustrated in the figure ~\ref{fig:data} using for demonstration HERA I data (the default sets in \fitter) compared to predictions based on HERAPDF1.0\cite{h1zeus:2009wt}.  
+in which the input data are compared to the fitted theory predictions. 
+This is also illustrated in the Fig.~\ref{fig:data} using for as an example 
+HERA~I data (the default sets in \fitter) compared to predictions based on 
+HERAPDF1.0\cite{h1zeus:2009wt}.  
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{datatheory.pdf}
@@ -170,7 +174,7 @@ framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk
 The outline of this paper is as follows.
 %
 Section~\ref{sec:theory} discusses the various processes 
-and corresponding theoretical calculations performed in the Dokshitzer-Gribov-Lipatov-Altarelli-Parisi (DGLAP)~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
+and corresponding theoretical calculations performed in the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
 Dokshitzer:1977sg,Altarelli:1977zs} formalism that are available in \fitter.
 The alternative approaches to the DGLAP formalism are presented in section~\ref{sec:alternative}.
 %
