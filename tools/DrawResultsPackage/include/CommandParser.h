@@ -123,7 +123,7 @@ class CommandParser
     cout << "\t \t Plot additional right bottom panels with pulls" << endl;
     cout << "\t --3panels" << endl;
     cout << "\t \t Plot additional right mid panels with theory+shifts" << endl;
-    cout << "\t --onlytheory" << endl;
+    cout << "\t --only-theory" << endl;
     cout << "\t \t Do not plot data" << endl;
     cout << "\t --ratio-to-theory" << endl;
     cout << "\t \t Use theory as reference for ratio plots" << endl;
