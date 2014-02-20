@@ -35,8 +35,8 @@
 !                    'HERA_I_Source_81', 'HERA_I_Source_82', 'HERA_I_Source_83', 'HERA_I_Source_84', 'HERA_I_Source_85', 'HERA_I_Source_86', 'HERA_I_Source_87', 'HERA_I_Source_88', 'HERA_I_Source_89', 'HERA_I_Source_90',
 !                    'HERA_I_Source_91', 'HERA_I_Source_92', 'HERA_I_Source_93', 'HERA_I_Source_94', 'HERA_I_Source_95', 'HERA_I_Source_96', 'HERA_I_Source_97', 'HERA_I_Source_98', 'HERA_I_Source_99', 'HERA_I_Source_100',
 !                    'HERA_I_Source_101', 'HERA_I_Source_102', 'HERA_I_Source_103', 'HERA_I_Source_104', 'HERA_I_Source_105', 'HERA_I_Source_106', 'HERA_I_Source_107', 'HERA_I_Source_108', 'HERA_I_Source_109', 'HERA_I_Source_110',
-!                    'HERA_I_Source_proc1', 'HERA_I_Source_proc2', 'HERA_I_Source_proc3',   ! procedural errors
-!                    'HERA_BH_corlum',                     ! common lumi error
+!                    'HERA_I_Source_proc1', 'HERA_I_Source_proc2', 'HERA_I_Source_proc3',  
+!                    'HERA_BH_corlum',                    
 
    
  ! options for bins: depends on Reaction type, for NC e+-p these are 'x', 'Q2' and 'y'
