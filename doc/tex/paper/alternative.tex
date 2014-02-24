@@ -1,22 +1,22 @@
 
 
 %\subsection{Alternative to DGLAP DIS models}
-Different approaches that are alternative to DGLAP formalism can be used to analyse DIS data in \fitter .
-Those include several dipole models and transverse momentum dependent, or unintegrated PDFs, uPDFs.
-Both approaches are discussed below.
+Different approaches that are alternative to the DGLAP formalism can be used to analyse DIS data in \fitter .
+These include several different dipole models and the use of 
+transverse momentum dependent, or unintegrated PDFs, uPDFs.
+These approaches are discussed below.
 
 \subsection{DIPOLE models}
 
-The dipole picture provides an alternative approach to the virtual photon-proton
- scattering at low $x$  because it allows the description of both inclusive and 
+The dipole picture provides an alternative approach to virtual photon-proton
+ scattering at low $x$ which allows the description of both inclusive and 
 diffractive processes.
  In this approach, the virtual photon fluctuates into a $q\bar q$ (or $q\bar q g$) 
  dipole which interacts with the proton~\cite{NNZ:91}.  
 The dipoles can be viewed as quasi-stable quantum mechanical states, which have very long 
 life time $\propto 1/m_p x\;$ and a size which is not changed by scattering.
 %A schematic view of dipole factorisation at small $x$ in DIS is illustrated in figure~\ref{fig:dipole}.
-The virtual photon fluctuates into a quark-antiquark pair and subsequently interacts with the target, 
-and the dynamics of the interaction are embedded in the dipole scattering amplitude.
+The dynamics of the interaction are embedded in the dipole scattering amplitude.
 
 %\begin{figure}
 %\begin{center}
@@ -33,9 +33,9 @@ cross sections are implemented in \fitter\ :
 the Golec-Biernat-W\"usthoff (GBW)
 dipole saturation model~\cite{Golec-Biernat:1998js},
 the colour glass condensate approach to the high parton density 
-regime Iancu-Itakura-Munier (IIM) model~\cite{Iancu:2003ge} and 
+regime called the Iancu-Itakura-Munier (IIM) dipole model~\cite{Iancu:2003ge} and 
 a modified GBW model which takes into account the effects of  
-DGLAP evolution Bartels-Golec-Kowalski (BGK)~\cite{Bartels:2002cj}.
+DGLAP evolution called the Bartels-Golec-Kowalski (BGK) dipole model~\cite{Bartels:2002cj}.
 %\end{itemize}
 
 \begin{description}
@@ -48,15 +48,15 @@ In the GBW model the dipole-proton cross section $\sigma_{\text{dip}}$ is given 
 here $r$ corresponds to the transverse separation between the quark and the antiquark, and $R_{0}^{2}$
  is 
 %an $x$ dependent scale parameter, having the form $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$.
-an $x$ dependent scale parameter which has corresponds to a saturation radius,  $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$.
-The free fitted parameters are the cross-section normalisation $\sigma_{0}$ as well as $x_{0}$ and $\lambda$.
+an $x$-dependent scale parameter which represents the spacing of the gluons in the proton. $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$ is called the saturation radius.
+The fitted parameters are the cross-section normalisation $\sigma_{0}$ and $x_{0}$ and $\lambda$. This model gives exact Bjorken scaling when the dipole size $r$ is small.
 %%%%
 
 \vspace{0.1cm}
 \item \bf {IIM model:} \rm
 The IIM model assumes an improved expression for the dipole cross section which is based on the 
 Balitsky-Kovchegov equation~\cite{Balitsky:1995ub}. The explicit formula for $\sigma_{\text{dip}}$ 
-can be found in~\cite{Iancu:2003ge}. The free fitted parameters are an alternative scale parameter $\tilde{R}$, $x_{0}$ and $\lambda$.
+can be found in~\cite{Iancu:2003ge}. The fitted parameters are an alternative scale parameter $\tilde{R}$, $x_{0}$ and $\lambda$.
 %%%%
 
 \vspace{0.1cm}
@@ -72,23 +72,24 @@ The dipole cross section is given by
 \label{eBGK}
 \end{equation}
 The factorization scale $\mu^{2}$ has the form $\mu^{2} = C_{bgk}/r^{2}+\mu^{2}_{0}$.
-%This model uses the following gluon density at the starting scale $Q_{0}^{2}=1\mbox{ GeV}^{2}$
-In this model the gluon density parametrized at some starting scale $Q_{0}^{2}$ by
+%This model uses the following gluon density at the starting scale $Q_{0}^{2}=1\mbox{ GeV}^{2}$.
+This model relates to the GBW model using the idea that the spacing $R_0$ is inverse to the gluon density.
+The gluon density parametrized at some starting scale $Q_{0}^{2}$ by
 $ xg(x) = A_{g} x^{-\lambda_{g}}(1-x)^{C_{g}} $
-is evolved to larger scales using LO and NLO DGLAP evolution.
-The free fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and three parameters for the gluon density: $A_{g}$, $\lambda_{g}$, $C_{g}$. The parameter $C_{bgk}$ is kept fixed: $C_{bgk} = 4.0$. 
+is evolved to larger scales using LO or NLO DGLAP evolution.
+The fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and three parameters for the gluon density: $A_{g}$, $\lambda_{g}$, $C_{g}$. The parameter $C_{bgk}$ is kept fixed: $C_{bgk} = 4.0$. 
 %%%%
 
 \vspace{0.1cm}
 \item \bf {BGK model with valence quarks:} \rm
 
-The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small, of the order of 5\%. The new HERA $F_2$ data have a precision which is  better than 2 \%. Therefore, in the \fitter\ the contribution of the valence quarks is taken from the PDF fits and added to the original 
+The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small, of the order of 5\%. The new HERA $F_2$ data have a precision which is  better than 2 \%. Therefore, in \fitter\ the contribution of the valence quarks is taken from the PDF fits and added to the original 
 BGK model, this is uniquely possible within the \fitter\ framework.
 % The quality of the fits of the BGK dipole model with valence quarks and without 
 %valence quarks are the same.
 \end{description}
 
-\subsection{Transverse Momentum Dependent (unintegrated PDF) with CCFM}
+\subsection{Transverse Momentum Dependent (unintegrated) PDFs with CCFM}
 
 Here another alternative approach to collinear DGLAP evolution is presented.
 In high energy factorization \cite{Catani:1990eg} the measured cross section is written
@@ -100,13 +101,14 @@ ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ (transverse momentum dependent (TMD) o
 \frac{dz}{z} d^2k_t \hat{\sigma}(\frac{x}{z},k_t)  {\cal \tilde A}\left(x,\kt,\Pmax\right)
 \label{kt-factorisation}
 \end{equation}
+{\bf would probably be good to explain how the unintegrated relates to the integrated here}
 Generally, the evolution of ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ 
-can proceed via the BFKL, DGLAP or via the CCFM evolution equations.
+can proceed via the BFKL{\bf you need a BFKL reference}, DGLAP or via the CCFM evolution equations.
 In \fitter\, an extension of the CCFM~\cite{\CCFM} evolution has been implemented.
 Since the evolution cannot be easily obtained in  a closed form, 
  first a kernel $ {\cal \tilde A}\left(x'',\kt,\Pmax\right) $ 
 is determined from the MC solution of the CCFM evolution equation, 
-and is then folded with the non-perturbative starting distribution 
+and is then folded with a non-perturbative starting distribution 
 ${\cal A}_0 (x)$~\cite{Jung:2012hy}:
 \begin{eqnarray}
 %\begin{align}
@@ -150,10 +152,10 @@ with free parameters $N,\, B_g,\, C_g,\, D_g$.
 %can be obtained from the fit. 
 
 The calculation of the $ep$ cross section follows eq.(\ref{kt-factorisation}), 
-with the off-shell matrix element including quarks masses taken from \cite{Catani:1990eg} 
+with the off-shell matrix element including quark masses taken from \cite{Catani:1990eg} 
 in its implementation in {\tt CASCADE} \cite{Jung:2010si}.
 In addition to the boson gluon fusion process, valence quark initiated 
-$\gamma q\to q$ processes are also included, with the valence quarks taken from~\cite{Deak:2010gk}.
+$\gamma q\to q$ processes are included, with the valence quarks taken from~\cite{Deak:2010gk}.
 
 
 \subsection{Diffractive PDFs}
@@ -165,22 +167,23 @@ $\gamma q\to q$ processes are also included, with the valence quarks taken from~
 \newcommand{\xpom}{$x_{I\!P}$}
 
 
-Similar to standard DIS, diffractive parton distributions (DPDFs) 
+Similarly to standard DIS, diffractive parton distributions (DPDFs) 
 can be derived from QCD fits to diffractive cross sections.
 %In this section the diffractive process is briefly described.
 At HERA about 10\% of deep inelastic interactions are diffractive leading to
 events in which the interacting proton stays intact ($ep\to eXp$). 
 In the diffractive process the proton appears well separated from the 
 rest of the hadronic final state by a large rapidity gap  
-and is interpreted as the diffractive dissociation 
+and this is interpreted as the diffractive dissociation 
 of the exchanged virtual photon to produce a hadronic system $X$ with mass much 
 smaller than $W$ and the same net quantum numbers as the exchanged photon.
 %Figure~\ref{fig:diff} illustrates the kinematic variables used to describe
 %the inclusive diffractive DIS process. 
-For such process, the proton vertex factorisation approach
-is assumed where the diffractive DIS is mediated by the exchange of hard Pomeron and a
+For such processes, the proton vertex factorisation approach
+is assumed where diffractive DIS is mediated by the exchange of hard Pomeron 
+or a
 secondary Reggeon. 
-The factorisable pomeron picture has proved remarkably successful for the description of most of these data.
+The factorisable pomeron picture has proved remarkably successful in the description of most of these data.
 %
 %\begin{figure}[!ht]
 %\begin{center}
@@ -191,13 +194,13 @@ The factorisable pomeron picture has proved remarkably successful for the descri
 %\label{fig:diff}
 %\end{figure}
 
-In addition to $x$, $Q^2$ and the squared four-momentum transfer $t$
-(the undetected momentum transfer to the proton system),
-the mass $M_X$ of the diffractively produced final state provides
- a further degree of freedom. In practice, the variable $M_X$ 
+In addition to the usual variables $x$, $Q^2$, one must consider the squared four-momentum transfer $t$
+(the undetected momentum transfer to the proton system) and
+the mass $M_X$ of the diffractively produced final state. 
+In practice, the variable $M_X$ 
 is often replaced by $\beta=\frac{Q^2}{M_X^2+Q^2-t}$.
 %
-In models based on a factorisable pomeron, $\beta$ may be viewed as the fraction of the
+In models based on a factorisable Pomeron, $\beta$ may be viewed as the fraction of the
 pomeron longitudinal momentum which is carried by the struck parton, $x=\beta x_{\Pom}$.
 %The diffractive parton distribution functions (DPDFs) are interpreted as probabilities for 
 %finding a parton with a small fraction of the proton momentum $x=\beta\Pom$
@@ -238,7 +241,7 @@ where the ``reduced cross-section'' , $\overline\sigma$, is defined as
 %-\frac{x_{\Pom}^2}{1-x_{\Pom}} m_p^2
 %\end{equation}
 %where $m_p$ is the proton mass.
-With $x = x_{\Pom}\beta$ we can normalize to the standard DIS formula.
+With $x = x_{\Pom}\beta$ we can relate this to the standard DIS formula.
 %\begin{equation}
 %\begin{array}{lcl}
 %\frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}\,dt} =

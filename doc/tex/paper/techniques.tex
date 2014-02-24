@@ -1,95 +1,47 @@
 
-With increased precision of data measurements, the calculations had to progress to higher accuracy as well, which usually translates into compuationally demanding calculations even for the DIS processes. Due to the complicated 
-nature of these calculation involving an increased number of diagrams with each 
-additional order, they are too slow to be used iteratively in a fit.
-There are several methods available to speed-up such calculations to allow for impact studies and practical PDF extractions.  Two of such techniques
-are implemented into \fitter\ : the $k-factor$ approximation from lower (LO) to higher order (NLO) and the so-called fast grid technique using an interface to packages such as FastNLO and APPLGRID, both of them shortly described below.  
+With increased precision of data, the calculations must also progress to higher accuracy, involving an increased number of diagrams with each 
+additional order, and this translates into computationally demanding 
+calculations even for the DIS processes. Such calculations 
+are too slow to be used iteratively in a fit.
+There are several methods available which allow fast PDF extractions.  
+Two such techniques
+are implemented into \fitter\ : the $k-factor$ approximation from lower (LO) to higher order (NLO) and the fast grid techniques using interfaces to the 
+packages FastNLO and APPLGRID. These techniques are briefly described below.  
 
 
 \begin{description}
 \item \bf {$k-factor$ technique:} \rm
 
-The $k-factor$ technique has been adopted within the \fitter\ framework which is  
-defined as a ratio of predictions at the first iteration between a highest order 
-in the perturbative QCD calculation available for a given process to a fast calculation (which usually implies either lower order calculations, or neglicting terms in calculations that are slow). Then the difference is stored into so-called `` k-factors''  tables that are applied on the fly to each subsequent fit iteration which will use a fast prediction calculated for each data point and corrected by this `` k-factor''.
+A $k-factor$ is a ratio of the prediction between a high-order (slow)
+pQCD calculation and the lowest-order (fast) calculation.  These `` k-factors''
+are evaluated as a function of the kinematic variables relevant to
+ the measurement 
+for a fixed PDF (for example the first iteration of the fit) and stored in 
+tables. They cam then be applied applied 'on the fly' to each subsequent fit 
+iteration which will use the fast prediction multiplied by this `` k-factor''.
+Having determined a PDF this way the output PDF fit should then be used to 
+recalculate the k-factors and the fit repeated until input and output 
+k-factors have converged. 
 
 \begin{itemize}
-\item For the DIS process, the heavy flavour schemes provide accurate but computationally slow calculations. In \fitter a so-called `` FAST'' schemes were implemented such athat
+\item For the DIS process, the heavy flavour schemes provide accurate but computationally slow calculations. In \fitter `` FAST'' schemes were implemented 
+such that the k-factor used can be
 the ratio between same order calculations but massless vs massive 
-(i.e. NLO (ZM-VFNS)/NLO (ACOT), or as the ratio between LO (massless)/NLO (massive),
-can be invoked.
-
-
-The $k-factors$ are only calculated for the PDF parameters at the first fit iteration
-hence, the recommended is the full scheme.
+(i.e. NLO (ZM-VFNS)/NLO (ACOT), or 
+the ratio between LO (massless)/NLO (massive).
+The $k-factors$ are only calculated for the PDF parameters at the first 
+fit iteration
+ and hence, the FAST heavy flavour schemes should only be used 
+for quick checks and the full scheme is recommended.
 %Hence the RT-fast calculation must be repeated by inputting the final PDF parameters 
 %and iterating this procedure until the input and output PDFs are not significantly different
 %%%%
 
 
 
-\item In Drell-Yan case, as described in section~\ref{dysection}, a list of theoretical packages are available in providing accurate predictions for the LHC observables.
-
-
-The leading order DY triple differential cross section in
-invariant mass \(M\), boson rapidity \(y\) and CMS
-lepton scattering angle \(\cos\theta\), for the neutral current, 
-can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
-\begin{align}
-% \scriptstyle
- \textstyle
-% \frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &= 
- \frac{d^3\sigma}{dM{d}y d\cos\theta} =  
- \frac{\pi\alpha^2}{3MS}\sum_{q}P_q \left[F_q(x_1,Q^2)F_{\bar{q}}(x_2,Q^2) 
- + (q\leftrightarrow\bar{q})\right],
-\end{align}
-where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $F_q(x_1,Q^2)$ 
-is the parton number density, and 
-\begin{align}
-  P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
-      &+  e_le_q\frac{2M^2(M^2-M_Z^2)}{\sin^2\theta_W\cos^2\theta_W
-          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
-      &    \big[aA_q(1+\cos^2\theta)+2bB_q\cos\theta\big] \nonumber \\
-      &+  \frac{M^4}{\sin^4\theta_W\cos^4\theta_W
-          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
-      &    \big[(a^2+b^2)(A_q^2+B_q^2)(1+\cos^2\theta)+8abA_qB_q\cos\theta\big].
-\end{align}
-Here \(\theta_W\) is the Weinberg angle, \(M_Z\) and \(\Gamma_Z\) are Z boson mass and 
-width, $a, b, A_q, B_q, e_l, e_q$ are electro-weak couplings.
-%\begin{align}
-% a & = -\frac{1}{4} + \sin^2\theta_W, \  b  = -\frac{1}{4}, \nonumber \\
-% A_q & = \frac{1}{2}I_q^3-e_q\sin^2\theta_W, \ B_q  = \frac{1}{2}I_q^3, \ I_u^3  = -I_d^3 = \frac{1}{2},  \nonumber \\
-% e_l & = -1, e_u = \frac{2}{3}, e_d = -\frac{1}{3}.
-%\end{align}
-\\
-\\
-The expression for charged current scattering has a simpler form.
-\begin{align}
-\frac{d^3\sigma}{dMdyd\cos\theta} &=
- \frac{\pi\alpha^2}{48S\sin^4\theta_W}
- \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
- & \sum_{q_1,q_2}V_{q_1q_2}^2F_{q_1}(x_1,Q^2)F_{q_2}(x_2,Q^2),
-\end{align}
-where \(V_{q_1q_2}\) is the CKM quark mixing matrix and \(M_W\) and \(\Gamma_W\)
-are \(W\) boson mass and decay width.
-
-The simple form of these expressions allows the calculation of integrated
-cross sections without utilization of Monte-Carlo techniques which often 
-introduce statistical fluctuations.
-%This is particularly useful for PDF fitting purposes because
-%statistical fluctuations are avoided in this case. 
-In both neutral and charged current expressions the parton distribution functions
-factorise as functions dependent only on boson rapidity \(y\) and
-invariant mass \(M\).
-%leaving \(\cos\theta\) dependence aside.
-The integral in \(\cos\theta\) can be computed analytically and
-integrations in \(y\) and \(M\) can be performed with the Simpson
-method. The \(\cos\theta\) parts are kept in the equation 
-explicitly because their integration is asymmetric for
-data in lepton \(\eta\) bins and also because of the need to apply 
-lepton \(p_{\perp}\) cuts.
-
-The fact that PDF functions factorise, allows high speed calculations when 
+\item 
+In the case of the DY processes the LO calculation described in section~\ref{dysection}
+is such that the PDF functions factorise, allowing high speed calculations when 
 performing parameter fits over lepton rapidity data. In this case
 the factorised part of the expression which is independent of PDFs can be
 calculated only once for all minimisation iterations.
@@ -114,7 +66,7 @@ $k-factors$ to obtain predictions at NLO.
 %\vspace{0.1cm}
 
 
-\item \bf {Fast Grid Technique:} \rm
+\item \bf {Fast Grid Techniques:} \rm
 
 
 \begin{itemize}
@@ -133,10 +85,10 @@ variation of factorization and renormalization scales in
 calculations.
 
 The look-up tables (grids) can be generated with modified versions
-of MCFM parton level generator~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff} 
-or NLOjet++~\cite{Nagy:1998bb,Nagy:2001fj} code for the jet production.
-The model input parameters are in fact pre-set following the 
-MCFM input steering card, while binning and definitions of the
+of the MCFM parton level generator for DY~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff} 
+or NLOjet++~\cite{Nagy:1998bb,Nagy:2001fj} code for NLO jet production.
+The model input parameters are pre-set as usual for MCFM, 
+while binning and definitions of the
 cross section observables are set in the APPLGRID code.
 %as distributed with the full version of APPLGRID package.
 % NLO calculations
@@ -158,10 +110,9 @@ steps: {\it (i)} exploration of the phase space in order
 to optimize the memory storage and {\it (ii)} actual grid
 construction in the phase space corresponding to the 
 requested observables.
-Afterwards the NLO cross sections are restored from the grids
+The NLO cross sections are restored from the grids
 using externally provided PDFs, \(\alpha_S\), factorization and 
-renormalization scales. QCD NNLO $k-factors$ can be applied
-if requested.
+renormalization scales. For NNLO predictions $k-factors$ can be applied.
 
 \item
 The FastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
@@ -173,17 +124,21 @@ the strong coupling into simple products.
 %Although the concept is process independent, 
 The perturbative 
 coefficients are calculated by the \texttt{NLOJET++}
-program~\cite{Nagy:1998bb} where calculations for jet-production
-in DIS~\cite{Nagy:2001xb}  as well as in hadron-hadron 
-collisions~\cite{Nagy:2003tz,Nagy:2001fj} with threshold-corrections 
-of $\mathcal{O}$(NNLO) for inclusive jet cross 
-sections~\cite{Kidonakis:2000gi} are available.
+program~\cite{Nagy:1998bb} where, 
+in addition to the jet production processes available in MCFM,
+calculations for jet-production
+in DIS~\cite{Nagy:2001xb} are available as well as calculations for 
+hadron-hadron 
+collisions~\cite{Nagy:2003tz,Nagy:2001fj} which include
+ threshold-corrections 
+at $\mathcal{O}$(NNLO) for inclusive jet cross 
+sections~\cite{Kidonakis:2000gi}.
 
 The fastNLO libraries are included in the \fitter\ package
 %and no further requirements or compilation options
 %are needed.
-and in order to include a new measurement into the PDF fit,
-only the fastNLO tables have to be specified. These tables include all
+In order to include a new measurement into the PDF fit,
+othe fastNLO tables have to be specified. These tables include all
 necessary information about the perturbative coefficients and the
 calculated process for all bins of a certain dataset. 
 %Tables for almost all published jet measurements
@@ -193,10 +148,10 @@ calculated process for all bins of a certain dataset.
 %perturbative coefficients with the PDFs, of
 %$\mathcal{O}(100 ms)$, and the very high accuracy
 %of the interpolation procedure. 
-The fastNLO tables are conventionally calculated
+The fastNLO tables were originally calculated
 for multiple factors of the factorization scale, 
-and the renormalization scale factor can be chosen freely.
-Some of the fastNLO tables already allow for 
+and a renormalization scale factor could be chosen freely.
+More recently, some of the fastNLO tables allow for 
 %already involve a scale-independent
 %concept~\cite{Britzger:2012bs}, which allows for 
 the free choice~\cite{Britzger:2012bs} of the renormalization and the factorization

@@ -3,29 +3,28 @@
 
 
 
-Nowadays, there are considerable number of choices available when performing a QCD fit analysis which require a careful investigation (i.e. input parametrisation form, threshold values for heavy quarks, various theory prescriptions, method of minimisation, interpretation of uncertaintes and so on).
+There are considerable number of choices available when performing a QCD fit analysis which require careful investigation (i.e. input parametrisation form, threshold values for heavy quarks, alternative theoretical calculations, method of minimisation, interpretation of uncertaintes etc.).
 %
- It is desirable to be able to discriminate or quantify the effect of chosen ansatz,  ideally within a framework that provides such cross checks and 
-\fitter\ is optimaly designed for such tests.
+ It is desirable to be able to discriminate or quantify the effect of the chosen ansatz,  ideally within a common framework and 
+\fitter\ is optimally designed for such tests.
 %
 The methodology employed by \fitter\  relies on a flexible and modular
-framework that allows for independent integration of the state-of-the-art techniques, either related to the inclusion of a new theoretical calculation, or to a new approaches to treat uncertainties. 
+framework that allows for independent integration of the state-of-the-art techniques, either related to the inclusion of a new theoretical calculation, or to new approaches to treat uncertainties. 
 %
 
-In this section we briefly describe the available options in \fitter\ ranging from the functional form used to parametrise PDFs, presenting various representations of $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
+In this section we briefly describe the available options in \fitter\ ranging from the functional form used to parametrise PDFs and the choice of the form of the $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
 
 %list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter\. 
-In addition, the reweighting method - an alternative approach to a complete QCD fit, available in the \fitter\ is also described in this section. It can provide for an estimate of an impact of new data, as advocated 
-alreay by the NNPDF collaboration \cite{Ball:2011gg,Ball:2010gb}.
-The method has been extended to work not only on the replica method, 
-but also on the eigenvectors (as introduced by MSTW group \cite{Watt:2012tq}).
+In addition, as an alternative approach to a complete QCD fit,  the reweighting
+method, which is also available in the \fitter\, is described in this section. This method provides a fast estimate of the impact of new data. 
+It was originally developed by the NNPDF collaboration \cite{Ball:2011gg,Ball:2010gb}, but it has been extended~\cite{Watt:2012tq} to work not only on the 
+NNPDF replicas, 
+but also on the eigenvectors provided by most PDF groups. 
 
-An important factor for a fesible QCD fit which is performed iteratively through the $\chi^2$ minimisation process,  represents the performance in terms of how long a calculation takes for each given data point.
-In \fitter\ this is achieved by optimising the time of calculations relyng on innovative techniques such as cache option, fast evolution kernels, grid techniques making the platform a practical engine for iterative usage.
 
 
 \subsection{Functional Forms for PDF parametrisation}
-The PDFs are parametrised at the starting scale bellow the charm mass threshold, chosen by the user. Various functional forms can be tested using desired number of free parameters to be extracted through the fit:
+The PDFs are parametrised at a starting scale below the charm mass threshold, which is chosen by the user. Various functional forms can be tested using free parameters to be extracted from the fit:
 \begin{description}
 \item \bf {Standard Polynomials:} \rm
 The term standard is understood to refer to a simple polynomial 
@@ -36,24 +35,30 @@ that interpolates between the low and high $x$ regions:
 \end{equation}
 Standard forms are commonly used by PDF groups.
 The parametrised PDFs at HERA are the valence distributions
- $xu_v$ and  $xd_v$,  the gluon distribution $xg$, and the $u$-type and $d$-type sea 
+$xu_v$ and $xd_v$, the gluon distribution $xg$, and the $u$-type and $d$-type sea 
 $x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
 $x\bar{D} = x\bar{d} +x\bar{s}$. 
-The $P_i(x)$ for the HERAPDF style takes the simple form of $(1 + D x + E x^2)$ with additional constraints due to flavour decomposition insensitivity for $q\bar{s}$ fromother light sea quark contributions. 
-For the CTEQ style, $P_i(x)$ takes te form of $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$.
-
+The $P_i(x)$ for the HERAPDF style takes the simple Regge-inpsired form  
+$(1 + \epsilon \sqrt{x} + D x + E x^2)$
+with additional constraints relating to the flavour decomposition of the 
+light sea. {\bf give a reference to the HERAPDF1.0 paper if you don't want to specify} 
+For the CTEQ style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$.
+QCD number and momentum sum-rules are used to determine the normalisations $A$ for the valence and gluon distributions. 
+The sum-rules can be evaluated analytically.
 
 \item \bf {Log-Normal Distributions:} \rm
-A bi-log-normal distribution to parametrise the $x$ dependence of the PDFs is available in \fitter\ .
+A bi-log-normal distribution to parametrise the $x$ dependence of the PDFs is 
+also available in \fitter\ .
 %parton distribution function of the proton.
 This parametrisation is motivated by  multiparticle statistics.
 The following functional form can be used:
 %\begin{center}
 \begin{equation}
-xf(x)=x^{p-b\log(x)}(1-x)^{q-\log(1-x)}.
+ xf(x)=x^{p-b\log(x)}(1-x)^{q-\log(1-x)}.
 \end{equation}
 %\end{center}
-This function can be regarded as a generalisation of standard functional form described above. In order to satisfy the QCD sum rules this parametric form requires numerical integration.
+This function can be regarded as a generalisation of the standard functional form described above. 
+In order to satisfy the QCD sum rules this parametric form requires numerical integration.
 
 \item \bf {Chebyshev Polynomials:} \rm
 
@@ -68,48 +73,45 @@ x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textsty
 Here the sum over $i$ runs up to $N_{g,S}=15$ order Chebyshev polynomials of the first type $T_i$ for
 the gluon, $g$, and sea-quark, $S$, density, respectively. 
 The normalisation $A_g$ is given by the momentum sum rule.
-
+%
 The advantages of this parametrisation are that the momentum sum rule can be evaluated analytically 
-and that for $N \ge 5$ the fit qulaity is already similar
-to a standard Regge-inspired parametrisation with a similar number of parameters.
-
+and that for $N \ge 5$ the fit quality is already similar
+to the standard Regge-inspired parametrisation with a similar number of parameters.
+%
 \item \bf{External PDFs:} \rm 
-\fitter\ provides also possibility to access the  external PDF sets, which can then be used in constructing the theoretical predictions rather than the ones restricted only to the \fitter\ framework. This is possible via interface to LHAPDF which commonly provides access to the global PDF sets available at LO, NLO or NNLO evolved either locally through the \fitter\ or taken as provided by the LHAPDF grid. Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter and illustrates the PDFs accessed from LHAPDF. 
+\fitter\ also provides the possibility to access external PDF sets, which can be used to construct the theoretical predictions rather than the PDFs output from the fit. This is possible via an interface to LHAPDF which provides access to the global PDF sets available at LO, NLO or NNLO evolved either locally through the \fitter\ or taken as provided by the LHAPDF grids. Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter and illustrates the PDFs accessed from LHAPDF. {\bf have you referenced LHAPDF anywhere yet?}
 \end{description}
-
+%
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{pdfs.pdf}
    \caption{Gluon density as extracted by various PDF groups at the scale of $Q^2=2$ GeV$^2$, plotted using the drawing tools from \fitter.} 
  \label{fig:pdfs}
 \end{figure}
-
+%
 \subsection{Chisquare representation}
+\label{sec:chi2representation}
 
-
-The PDF parameters are extracted from the $\chi^2$ minimization process. 
-There are various forms to represent the $\chi^2$ function, i.e. covariance matrix or decomposed into nuisance parameters. In addition, there are various methods in dealing with the correlated systematic (or statistical) uncertainties. Here we summarise the options available in \fitter\ . 
+The PDF parameters are extracted from a $\chi^2$ minimization process. 
+There are various forms to represent the $\chi^2$ function, e.g. using a covariance matrix or decomposed into nuisance parameters. In addition, there are various methods to dealing with the correlated systematic (or statistical) uncertainties. Here we summarise the options available in \fitter\ . 
 
 \begin{description}
 \item \bf {Covariance Matrix Representation:} \rm
-For a data point  $\mu_i$ with a corresponding theory prediction $m_i$, the $\chi^2$ function for the case when experimental uncertainties are given in a covariance matrix over data bins $C_{i,j}$ can be expressed in the following form:
-
+For a data point  $\mu_i$ with a corresponding theory prediction $m_i$, the $\chi^2$ function for the case when experimental uncertainties are given as a covariance matrix over data bins $C_{i,j}$ can be expressed in the following form:
+%
 \begin{eqnarray}
 \chi^2 (m)& = & \sum_{i,j}(m_i-\mu_i)C^{-1}_{ij}(m_j-\mu_j).
 \end{eqnarray}
-The $\chi^2$ function depends on the theory parameters $m^i$ 
-(denoted as the vector $\boldsymbol{m}$).
+%The $\chi^2$ function depends on the theory parameters $m^i$ 
+%(denoted as the vector $\boldsymbol{m}$).
 The covariance matrix can be decomposed in statistical, uncorrelated and correlated systematic contributions: 
 \begin{eqnarray}
 C_{ij}& = & C^{stat}_{ij}+C^{uncor}_{ij}+C^{sys}_{ij}.
 \end{eqnarray}
-
 This representation can not single out the effect of a particular
 source of systematic.
 
 \item \bf{Nuisance Parameters Representation:} \rm
-
-
 \begin{eqnarray} 
     \chi^2\left(\boldsymbol{m},\boldsymbol{b}\right) &= &  
  \sum_i \frac{\left[m^i - \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
@@ -127,17 +129,16 @@ Further,
 % a correlated systematic error  source of type $j$ with an uncertainty while
 $\gamma^i_j$ 
 quantifies the sensitivity of the
-measurement ${\mu^i}$ at the point $i$ to the systematic source $j$. 
-The function $\chi^2$ depends in addition on
- the set of systematic uncertainties $b_j$ ($\boldsymbol{b}$).
-This definition of the $\chi^2$ function takes into account that
-systematic uncertainties are proportional to the central values 
+measurement ${\mu^i}$ at the point $i$ to the correlated systematic 
+source $j$. The function $\chi^2$ depends in addition on
+ the set of systematic nuisance parameters $b_j$.
+This definition of the $\chi^2$ function assumes that
+systematic uncertainties are proportional to the central values{\bf central values of what- data? prediction?}   
 (multiplicative errors), whereas the statistical errors scale 
-with the square roots of the expected number of events. 
+with the square root of the expected number of events. 
 \item  \bf{Mixed Form:} \rm
-It can happen that various parts of the systematic and statistical uncertainties are stored in different forms.  A user case can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlation (non-negligible) given in forms of a covariance matrix. \fitter\ offers the possibility to include such information, when provided, as well as any other mixed form of treating statistical, uncorrelated and correlated systematic uncertainties. 
+It can happen that various parts of the systematic and statistical uncertainties are stored in different forms. A situation can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlations are given in the form of a covariance matrix. \fitter\ offers the possibility to include such information, when provided, as well as any other mixed form of treating statistical, uncorrelated and correlated systematic uncertainties. 
 %In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
-is
 %\begin{equation} 
 %\begin{eqnarray} 
 % \label{eq:chi2gen}
@@ -155,31 +156,34 @@ is
 
 \subsection{Treatment of the Experimental Uncertainties}
 
-\fitter\ provides three methods in assessing the experimental uncertainties on PDFs: Hessian, Offset, and Monte Carlo method, which are described below.
-Figure \ref{fig:error} shows a visual illustration of these various techniques which can be applied and drawn with \fitter.
+\fitter\ provides three methods for assessing the experimental uncertainties on PDFs: the Hessian, Offset, and Monte Carlo methods, which are described below.
+Figure \ref{fig:error} illustrates the difference between the Hessian and Monte-Carlo methods both of which can be applied and plotted with \fitter.
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{error.pdf}
-   \caption{Differences in the experimental uncertainties on the gluon (left) and d-valence quark (right) densities extracted through various methods in \fitter: Hessian versus Monte Carlo.} 
+   \caption{Differences in the experimental uncertainties on the gluon (left) and d-valence quark (right) densities extracted through different methods in \fitter: Hessian versus Monte Carlo.{\bf the figure keys need to tell us which is Hessian and which is Monte-Carlo}} 
  \label{fig:error}
 \end{figure}
 \begin{description}
 \item \bf{Hessian method:} \rm
-The technique developed by \cite{Pumplin:2001ct} presents an estimate of PDF uncertainties reflecting the experimental precision of used data in the QCD fit by examining the behaviour of $\chi^2$ in the neighborhood of the minimum. This is known as Hessian or error matrix method. The Hessian matrix is build by the second derivatives of $\chi^2$ at the minimum. The PDF eigenvectors are obtained through an iterative procedure used to diagonalise the Hessian matrix and rescale the eigenvectors to adapt the step sizes to their natural scale.
+The technique developed by \cite{Pumplin:2001ct} presents an estimate of PDF uncertainties reflecting the experimental precision of data used in the QCD fit by examining the behaviour of $\chi^2$ in the neighborhood of the minimum. The systmatic shift nuisance parameters $b_j$ as well as the PDF parameters are free parameters of the fit. Thus the fit determines the best fit to the data taking into account correlated systematic shifts of the data. This is known as Hessian or error matrix method. The Hessian matrix is build by the second derivatives of $\chi^2$ at the minimum. The PDF eigenvectors are obtained through an iterative procedure used to diagonalise the Hessian matrix and rescale the eigenvectors to adapt the step sizes to their natural scale.
 
 \item \bf{Offset  method:} \rm
 
-There is another method to propagate the systematic experimental uncertainties from the measurements to PDFs \cite{Botje:2001fx}, which has the practical advantage that does not require the inversion of a large measurement covariance matrix.
+There is another method to propagate the correlated systematic experimental uncertainties from the measurements to PDFs \cite{Botje:2001fx}, which has the practical advantage that does not require the inversion of a large measurement covariance matrix.
 %
 It uses also the $\chi^2$ function for the central fit for which only
-uncorrelated uncertainties are taken into account to get the best PDF parameters.
+uncorrelated uncertainties are taken into account to get the best PDF parameters. The goodness of fit can no longer be judged from the $\chi^2$ since correlated uncertainties are ignored. 
 %
-However, the goodness of fit can no longer be judged since correlated uncertainties are ignored. 
-%
-In the offset method, the systematic uncertainties on PDFs are estimated from fits where each systematic source is offset by its given one sigma shift to the central cross section values, after which the 
-resulting deviation from the central PDF parameters are added in quadrature. 
+The correlated systematic uncertainties of the data are then used to estimate 
+the errors on the PDF parameters as follows.
+Taking each systematic source in turn the value of the cross section is offset 
+by its one sigma shift from the central value and the fit is performed again.
+This is done for both psotive and negative one sigma shifts. 
+After this has been done for all sources the 
+resulting deviations of each of these fits from the central PDF parameters are added in quadrature. 
 
-In most cases, the uncertainties estimated through offset method are larger than these from the Hessian method, as offset method is not so efficient.
+In most cases, the uncertainties estimated through offset method are larger than those from the Hessian method, as the offset method does not use the information on correlated systematic uncertainties optimally.
 
 \item \bf{Monte Carlo method:} \rm
 The PDF uncertainties can be estimated using a Monte Carlo technique \cite{Giele:1998gw, mcmethod2}.
@@ -194,24 +198,29 @@ over the replicas.
 \subsection{Treatment of the Theoretical Input Parameters}
 
 The results of a QCD fit depends not only on the input data but also on the 
-input theoretical ansatz, which is also uncertain. Nowadays, the modern PDFs 
-try to address the impact of this ansatz on the resulting PDFs by assessing an 
-uncertainty on the choice of the initial parameter, such as mass of charm $m_c$, mass of the bottom quarks $m_b$. Another important input is the choice of the functional form for the PDFs at the starting scale. 
-For this, HERAFitter provides a series of choices ranging from simple functional forms to more complex forms such as Chebyshev Polynomials with larger flexibility. Larger flexibility usually requires some regularisation methods in order for the results to be physical.
-
-
+input theoretical ansatz, which is also uncertain. Nowadays, modern PDFs 
+try to address the impact of the choices of theoretical parameters by providing
+alternative PDFs with different choices of the mass of charm $m_c$, mass of the bottom quarks $m_b$ and the value of $\alpha_S(M_Z)$, etc. 
+Another important input is the choice of the functional form for the PDFs at the starting scale and indeed the value of the starting scale itself. \fitter\ provides a platform in which such choices can readily be varied within a common framework.
 
 
 \subsection{Performance Optimisation}
 
-The above mentioned features make \fitter a powerful project that encapsulates the state of the art developments from struggles on reaching atmost 
-experimental precision to the most up-to-date theory developments. 
+The above mentioned features make \fitter a powerful project that encapsulates 
+state of the art developments from the most up-to-date theory developments to
+debates on reacing the ultimate experimental precision. 
 
-The performance of the \fitter  code is greatly improved with several special build-in options
-including the $k-factor$ techniques (described in section~\ref{sec:techniques}), the grid techniques for the fast calculational of cross 
-sections of particular processes for arbitrary sets of PDFs (section~\ref{sec:techniques}) 
-and usage of the openMP (Open Multi-Processing) interface which allows
-parallel applications of some of the heavy flavour scheme theory prediction calculations in DIS. 
+An important factor for a feasible QCD fit which is performed by iterative 
+$\chi^2$ minimisation, is performance in terms of how long a calculation takes for each given data point.
+The performance of the \fitter  code is greatly improved with several special built-in options
+including the $k-factor$ techniques (described in section~\ref{sec:techniques}), the grid techniques for the fast calculation of cross 
+sections of particular processes for arbitrary sets of PDFs (section~\ref{sec:techniques}). There are also cache options, fast evolution kernels, and 
+usage of the openMP (Open Multi-Processing) interface which allows
+parallel applications of some of the heavy flavour scheme theory predictions in DIS. {\bf please go over this, I have married two separate paragraphs that were in different places}
+
+{\bf You mentioned reeighting techiniques, but in fact they have NOT been described in this section}
+
+
 
 
 
