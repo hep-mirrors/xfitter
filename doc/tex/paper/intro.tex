@@ -84,24 +84,30 @@ Data &Type &  Reaction & Theory      \\
         &     &     & calculation \\
 \hline
 
-HERA &DIS NC   &$ep\to ep$ & QCDNUM, RT, ACOT \\
-HERA &DIS CC   &$ep\to \nu_e p$ & QCDNUM, RT, ACOT\\
-HERA &DIS jets &$ep\to eX$ & FastNLO (NLOJet++)\\
-HERA &DIS heavy quark & $ep\to ep $& ZM (QCDNUM), RT, ACOT, \\
-     &                     &            & FFNS (ABM,QCDNUM) \\
+HERA &DIS NC   &$ep\to ep$      & QCDNUM~\cite{qcdnum}, RT~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63,Thorne:6180}, \\
+     &         &                & ACOT~\cite{CWZ} \\
+HERA &DIS CC   &$ep\to \nu_e p$ & QCDNUM~\cite{qcdnum}, RT~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63,Thorne:6180}, \\
+     &         &                & ACOT~\cite{CWZ} \\
+HERA &DIS jets &$ep\to eX$      & FastNLO (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj})\\
+HERA &DIS heavy quark           & $ep\to ep $& ZM (QCDNUM~\cite{qcdnum}), RT~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63,Thorne:6180}, \\
+     &         &                & ACOT~\cite{CWZ}, FFNS (ABM~\cite{Alekhin:runm,openqcdrad:page}, \\
+     &         &                & QCDNUM~\cite{qcdnum}) \\
 \hline
-Fixed Target &DIS NC   &$ep\to ep$ & ZM (QCDNUM), RT, ACOT \\
+Fixed Target   &DIS NC          &$ep\to ep$ & ZM (QCDNUM~\cite{qcdnum}), RT~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63,Thorne:6180}, \\
+     &         &                & ACOT~\cite{CWZ} \\
 \hline
-Tevatron, LHC &Drell Yan &$pp(\bar p)$ & APPLGRID (MCFM) \\
-Tevatron, LHC &W charge asym &$pp(\bar p)$ & APPLGRID (MCFM) \\
-Tevatron, LHC &top &$pp(\bar p)$ & APPLGRID (MCFM),  \\
-              &    &             & HATHOR \\
-Tevatron, LHC &jets &$pp(\bar p)$ & APPLGRID (NLOJet++) \\
-                &  & & FastNLO (NLOJet++) \\
-LHC&  DY+heavy quark &$pp(\bar p)$ & APPLGRID (MCFM) \\
+Tevatron, LHC &Drell Yan &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}) \\
+Tevatron, LHC &W charge asym &$pp(\bar p)$ & APPLGRID~\cite{Carli:2010rw} (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}) \\
+Tevatron, LHC &top &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}),  \\
+              &    &             & HATHOR~\cite{Aliev:2010zk} \\
+Tevatron, LHC &jets &$pp(\bar p)$ & APPLGRID (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj}) \\
+                &  & & FastNLO (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj}) \\
+LHC&  DY+heavy quark &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}) \\
 \hline
 \end{tabular}
-\caption{The list of processes available in the \fitter package. {\bf you need references for the theory predictions in this caption}}
+\caption{The list of processes available in the \fitter package. 
+The APLLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
+techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
 \label{tab:proc}
 \end{table}
 %
@@ -138,7 +144,7 @@ with respect to the PDF parameters using the MINUIT\cite{minuit} program.
 \item
 \bf{Results:} \rm  The fitted parameters $\vec{p}$ and their estimated uncertainties are produced.
 The resulting PDFs are provided in a format ready to be used by the LHAPDF 
-library. Tools are supplied which allow the PDFs to be
+library~\cite{lhapdf,lhapdfweb}. Tools are supplied which allow the PDFs to be
 graphically 
 displayed at arbitrary scales with their one sigma uncertainty bands.
 To demonstrate the fit consistency, plots 
@@ -150,7 +156,8 @@ HERAPDF1.0\cite{h1zeus:2009wt}. This figure also illustrates this comparison
 taking into account the systematic uncertainty shift parameters which are 
 applied to the predictions in the nuisance parameter method of accounting for 
 correlated systematic uncertainties (see section~\ref{sec:chi2representation}) and the pulls 
-{\bf you need to define exactly what you mean by a pull here, don't just leave it in the figure caption}.
+as an additional consistency check between data and the theory prediction 
+(defined as the difference between data and prediction divided by the uncorrelated uncertaintly of the data).
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{datatheory.pdf}
