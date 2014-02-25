@@ -73,9 +73,17 @@
 % RP
 % --- DO NOT remove this line:
 \providecommand\texorpdfstring[2]{#1}
-
 \usepackage[numbers,square,comma,sort&compress]{natbib}
+
 \usepackage{textcomp}
+
+% for displaying the line numbers:
+\usepackage{lineno,xcolor}
+\linenumbers
+\setlength\linenumbersep{5pt}
+\renewcommand\linenumberfont{\normalfont\tiny\sffamily\color{gray}}
+
+
 
 \bibliographystyle{herafitter-epjc}
 
@@ -106,7 +114,7 @@
 
 %\authorrunning{Short form of author list} % if too long for running head
 
-\institute{Version 0.2 (svn 1360)
+\institute{Version 0.2 (svn 1365)
 %\institute{Deutsches Elektronen-Synchrotron, DESY,
 %            Notkestr. 85, 22607 Hamburg \label{addr1}
 %           \and
@@ -125,7 +133,9 @@
 We present the \fitter project
 which provides a framework for Quantum Chronodynamics (QCD) analyses related 
 to the proton structure in the context of multi-processes and multi-experiments.
-Based on the concept of factorisable nature of the cross sections into universal parton distribution functions (PDFs) and process dependent partonic scattering cross sections, \fitter allows determination of PDFs from the various hard scattering measurements.
+Based on the concept of factorisable nature of the cross sections into universal 
+parton distribution functions (PDFs) and process dependent partonic scattering 
+cross sections, \fitter allows determination of PDFs from the various hard scattering measurements.
 %or obtaining benchmark 
 %{\bf (olaf is the benchmarking part of HERAFItter or not?
 %If not then take it out here)} 

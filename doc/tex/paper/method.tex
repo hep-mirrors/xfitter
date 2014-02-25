@@ -16,10 +16,7 @@ In this section we briefly describe the available options in \fitter\ ranging fr
 
 %list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter\. 
 In addition, as an alternative approach to a complete QCD fit,  the reweighting
-method, which is also available in the \fitter\, is described in this section. This method provides a fast estimate of the impact of new data. 
-It was originally developed by the NNPDF collaboration \cite{Ball:2011gg,Ball:2010gb}, but it has been extended~\cite{Watt:2012tq} to work not only on the 
-NNPDF replicas, 
-but also on the eigenvectors provided by most PDF groups. 
+method, which is also available in the \fitter\, is described in this section. 
 
 
 
@@ -211,12 +208,47 @@ try to address the impact of the choices of theoretical parameters by providing
 alternative PDFs with different choices of the mass of charm $m_c$, mass of the bottom quarks $m_b$ and the value of $\alpha_S(M_Z)$, etc. 
 Another important input is the choice of the functional form for the PDFs at the starting scale and indeed the value of the starting scale itself. \fitter\ provides a platform in which such choices can readily be varied within a common framework.
 
+\subsection{Reweighting Techniques}
+
+As an alternative to a complete QCD fit, the reweighting method (Bayesian Reweighting) is available in the \fitter\.
+Because no fit is performed, the method provides a fast estimate of the impact of new data. 
+It was originally developed by the NNPDF collaboration \cite{Ball:2011gg,Ball:2010gb} and later extended~\cite{Watt:2012tq} 
+to work not only on the NNPDF replicas, but also on the eigenvectors provided by most PDF groups. 
+
+The Bayesian Reweighting technique uses the PDF probability distributions which are modified with weights 
+to account for the difference between theory prediction and new data.
+In the NNPDF method the PDFs are constructed as ensembles of $N_{rep}$ parton 
+distribution functions and observables $\mathcal{O}(\mathrm{PDF})$ are conventionally calculated from the average
+of the predictions obtained from the ensemble 
+$\langle\mathcal{O}(\mathrm{PDF})\rangle =  \frac{1}{N_{\mathrm{rep}}} \sum_{k=1}^{N_{\mathrm{rep}}} \mathcal{O}(\mathrm{PDF}_k)$.
+In the case of PDF uncertainties provided by standard Hessian eigenvector error sets, this can be achieved 
+by creating the $k$-th random replica by introducing random fluctuations around the central PDF set.
+
+As a next step, the initial PDF probability distributions are updated by applying weights 
+$w_k$, calculated as:
+
+\begin{equation}
+ w_k = \frac{(\chi^2_k)^{\frac{1}{2} (N_{\mathrm{data}}-1) } \exp^{-\frac{1}{2}\chi^2_k}}{ \frac{1}{N_{\mathrm{rep}}} \sum^{N_{\mathrm{rep}}}_{k=1}(\chi^2_k)^{\frac{1}{2}(N_{\mathrm{data}}-1)} \exp^{-\frac{1}{2}\chi^2_k}  },
+\end{equation}
+
+where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the specific replica for which the weight is calculated 
+and $\chi^2_k$ is a difference between a given data point $y_i$ and its theoretical prediction obtained with the $k$-th PDF replica:
+
+\begin{equation}
+ \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=0}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))  
+\end{equation}
+
+The new, reweighted PDFs commonly are chosen to be based upon a smaller number of PDF sets compared to the input because replicas 
+that are incompatible with the data are discarded in order to create a more stream-lined PDF set.
+
+
 
 \subsection{Performance Optimisation}
 
 The above mentioned features make \fitter a powerful project that encapsulates 
-state of the art developments from the most up-to-date theory developments to
-debates on reacing the ultimate experimental precision. 
+state of the art developments 
+%from the most up-to-date theory developments 
+to debates on reacing the ultimate experimental precision. 
 
 An important factor for a feasible QCD fit which is performed by iterative 
 $\chi^2$ minimisation, is performance in terms of how long a calculation takes for each given data point.
@@ -224,9 +256,9 @@ The performance of the \fitter  code is greatly improved with several special bu
 including the $k-factor$ techniques (described in section~\ref{sec:techniques}), the grid techniques for the fast calculation of cross 
 sections of particular processes for arbitrary sets of PDFs (section~\ref{sec:techniques}). There are also cache options, fast evolution kernels, and 
 usage of the openMP (Open Multi-Processing) interface which allows
-parallel applications of some of the heavy flavour scheme theory predictions in DIS. {\bf please go over this, I have married two separate paragraphs that were in different places}
+parallel applications of some of the heavy flavour scheme theory predictions in DIS. 
+%{\bf please go over this, I have married two separate paragraphs that were in different places}
 
-{\bf You mentioned reeighting techiniques, but in fact they have NOT been described in this section}
 
 
 

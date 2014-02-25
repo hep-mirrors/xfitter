@@ -202,8 +202,9 @@ heavy quarks (sensitive to $s$ and $c$ quark densities).
 Presently, the predictions for Drell-Yan and W and Z production are known 
 NNLO and W,Z +heavy flavour are know to NLO. There are several possibilities 
 for obtaining the theoretical
-predictions for DY production in \fitter\: at LO an analytic calculation 
-is available within the package. 
+predictions for DY production in \fitter. 
+At LO an analytic calculation is available within the package and described
+below: 
 
 The leading order DY triple differential cross section in
 invariant mass \(M\), boson rapidity \(y\) and CMS
@@ -219,17 +220,19 @@ can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \end{align}
 where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $F_q(x_1,Q^2)$ 
 is the parton number density, and 
-\begin{align}
-  P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
-      &+  e_le_q\frac{2M^2(M^2-M_Z^2)}{\sin^2\theta_W\cos^2\theta_W
-          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
-      &    \big[aA_q(1+\cos^2\theta)+2bB_q\cos\theta\big] \nonumber \\
-      &+  \frac{M^4}{\sin^4\theta_W\cos^4\theta_W
-          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
-      &    \big[(a^2+b^2)(A_q^2+B_q^2)(1+\cos^2\theta)+8abA_qB_q\cos\theta\big].
-\end{align}
-Here \(\theta_W\) is the Weinberg angle, \(M_Z\) and \(\Gamma_Z\) are Z boson mass and 
-width, $a, b, A_q, B_q, e_l, e_q$ are electro-weak couplings.
+$P_q$ is a partonic cross section. 
+%\begin{align}
+%  P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
+%      &+  e_le_q\frac{2M^2(M^2-M_Z^2)}{\sin^2\theta_W\cos^2\theta_W
+%          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
+%      &    \big[aA_q(1+\cos^2\theta)+2bB_q\cos\theta\big] \nonumber \\
+%      &+  \frac{M^4}{\sin^4\theta_W\cos^4\theta_W
+%          \big[(M^2-M_Z^2)^2+\Gamma_Z^2M_Z^2\big]} \nonumber \\
+%      &    \big[(a^2+b^2)(A_q^2+B_q^2)(1+\cos^2\theta)+8abA_qB_q\cos\theta\big].
+%\end{align}
+%Here \(\theta_W\) is the Weinberg angle, \(M_Z\) and \(\Gamma_Z\) are Z boson mass and 
+%width, $a, b, A_q, B_q, e_l, e_q$ are electro-weak couplings.
+%
 %\begin{align}
 % a & = -\frac{1}{4} + \sin^2\theta_W, \  b  = -\frac{1}{4}, \nonumber \\
 % A_q & = \frac{1}{2}I_q^3-e_q\sin^2\theta_W, \ B_q  = \frac{1}{2}I_q^3, \ I_u^3  = -I_d^3 = \frac{1}{2},  \nonumber \\
@@ -254,15 +257,14 @@ introduce statistical fluctuations.
 %statistical fluctuations are avoided in this case. 
 In both neutral and charged current expressions the parton distribution functions
 factorise as functions dependent only on boson rapidity \(y\) and
-invariant mass \(M\).
-%leaving \(\cos\theta\) dependence aside.
-The integral in \(\cos\theta\) can be computed analytically and
-integrations in \(y\) and \(M\) can be performed with the Simpson
-method. The \(\cos\theta\) parts are kept in the equation 
-explicitly because their integration is asymmetric for
-data in lepton \(\eta\) bins and also because of the need to apply 
-lepton \(p_{\perp}\) cuts.
-{\bf I think that this is an inappropriate level of detail about the LO DY calculation which could largely be replaced by references, however I have kept it for now, having moved it from the k-factor section where it did not belong}
+invariant mass \(M\) and
+the integral in \(\cos\theta\) can be computed analytically.
+%and integrations in \(y\) and \(M\) can be performed with the Simpson
+%method. The \(\cos\theta\) parts are kept in the equation 
+%explicitly because their integration is asymmetric for
+%data in lepton \(\eta\) bins and also because of the need to apply 
+%lepton \(p_{\perp}\) cuts.
+%{\bf I think that this is an inappropriate level of detail about the LO DY calculation which could largely be replaced by references, however I have kept it for now, having moved it from the k-factor section where it did not belong}
 
 The NLO and NNLO calculations are 
 highly demanding
@@ -301,8 +303,8 @@ PDF{\bf find a reference for this} and can thus increase the precision of the
 gluon PDF determination, which is particularly important for Higgs production 
 and searches for new physics.
 Jet production cross sections are only currently known to NLO, although NNLO 
-calculations are now quite advanced {\bf find a reference for this,e.g.Nigel 
-Glover}. Within \fitter\ the programmes MCFM and 
+calculations are now quite advanced~\cite{nigel:2013,nigel:2010}. 
+Within \fitter\ the programmes MCFM and 
 NLOJET++~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
 calculation of jet production.
 Similarly to DY case, the calculation 
