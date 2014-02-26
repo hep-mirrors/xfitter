@@ -196,9 +196,7 @@ dataseth::dataseth(string dataname, string dir, string lab, DataSet* DT, int sub
       xmax = hdata->GetXaxis()->GetBinUpEdge(hdata->GetXaxis()->GetLast() - 1);
     }
       
-  //  hdata->SetXTitle(xlabel.c_str());
   hdata->SetXTitle(xlabel.c_str());
-  hpull->SetXTitle(xlabel.c_str());
   hdata->SetYTitle(ylabel.c_str());
 
   //set rapidity as default label 
@@ -465,11 +463,13 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   up_templ->GetYaxis()->SetLabelSize(txtsize/my);
   up_templ->GetYaxis()->SetTitleSize(txtsize/my);
   up_templ->GetYaxis()->SetTitleOffset((offset+0.3) * my);
+  up_templ->GetYaxis()->SetTitle(data->GetYaxis()->GetTitle());
 
   up_templ->GetXaxis()->SetLabelFont(62);
   up_templ->GetXaxis()->SetTitleFont(62);
   up_templ->GetXaxis()->SetLabelSize(txtsize/my);
   up_templ->GetXaxis()->SetTitleSize(txtsize/my);
+  up_templ->GetXaxis()->SetTitle(data->GetXaxis()->GetTitle());
 
   up_templ->GetXaxis()->SetNdivisions(505);
   if (datahistos[0].getlogx())
@@ -791,6 +791,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       r_templ->GetXaxis()->SetLabelSize(0);
       r_templ->GetXaxis()->SetTitleSize(0);
     }
+  r_templ->GetXaxis()->SetTitle(data->GetXaxis()->GetTitle());
 
   r_templ->SetStats(0);
 

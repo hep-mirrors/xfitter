@@ -146,7 +146,7 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
 	}
 
       //make legend	     
-      TLegend * leg2 = new TLegend(0.6, 1-tmarg-0.085-dirs.size()*0.025, 1-0.02, 1-tmarg-0.085);
+      TLegend * leg2 = new TLegend(0.6, 1-tmarg-0.087-dirs.size()*0.025, 1-0.02, 1-tmarg-0.087);
       leg2->SetFillColor(0);
       leg2->SetBorderSize(0);
       leg2->SetTextAlign(12);
