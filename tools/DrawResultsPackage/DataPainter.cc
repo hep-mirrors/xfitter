@@ -47,7 +47,7 @@ vector <range> historanges(TH1F *h)
   ranges.push_back(temp);
   return ranges;
 }
-dataseth::dataseth(string dataname, string dir, string lab, DataSet* DT, int subp): name(dataname), label(lab)
+dataseth::dataseth(string dataname, string dir, string lab, DataSet* DT, int subp, int colindx): name(dataname), label(lab), coli(colindx)
 {
   TGraphErrors * datagraph =          DT->GetDataTot(subp);	       
   vector <float> bins1 =              DT->getbins1(subp);	       
@@ -600,12 +600,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   leg2->SetTextSize(txtsize * 0.8/my);
 
   //Plot theories
-  int colindx = 0;
-  int markindx = 0;
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       TGraphAsymmErrors * gtherr = new TGraphAsymmErrors((*it).getth());
-      (*it).getthshift()->SetLineColor(opts.colors[colindx]);
+      (*it).getthshift()->SetLineColor(opts.colors[(*it).getcoli()]);
       (*it).getthshift()->SetLineStyle(2);
       (*it).getthshift()->SetLineWidth(2);
 
@@ -619,7 +617,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       (*it).getthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 
 
-      (*it).getth()->SetLineColor(opts.colors[colindx]);
+      (*it).getth()->SetLineColor(opts.colors[(*it).getcoli()]);
       (*it).getth()->SetLineWidth(2);
       if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
 	{
@@ -633,10 +631,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
 	  if (opts.therr)
 	    {    
-	      (*it).gettherr()->SetLineColor(opts.colors[colindx]);
+	      (*it).gettherr()->SetLineColor(opts.colors[(*it).getcoli()]);
 	      (*it).gettherr()->SetMarkerSize(0);
-	      (*it).gettherr()->SetFillColor(opts.colors[colindx]);
-	      (*it).gettherr()->SetFillStyle(opts.styles[colindx]);
+	      (*it).gettherr()->SetFillColor(opts.colors[(*it).getcoli()]);
+	      (*it).gettherr()->SetFillStyle(opts.styles[(*it).getcoli()]);
 	      float toterr = 0;
 	      for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
 		toterr += (*it).gettherr()->GetBinError(b);
@@ -654,10 +652,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	}
       else //plot as displaced points with vertical error line
 	{
-	  gtherr->SetMarkerStyle(opts.markers[markindx]);
-	  gtherr->SetLineColor(opts.colors[colindx]);
+	  gtherr->SetMarkerStyle(opts.markers[(*it).getcoli()]);
+	  gtherr->SetLineColor(opts.colors[(*it).getcoli()]);
 	  gtherr->SetMarkerSize(2 * opts.resolution / 1200);
-	  gtherr->SetMarkerColor(opts.colors[colindx]);
+	  gtherr->SetMarkerColor(opts.colors[(*it).getcoli()]);
 	  for (int b = 0; b < gtherr->GetN(); b++)
 	    {
 	      //Set X error to 0
@@ -689,8 +687,6 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	    }
 	  gtherr->Draw("P same");
 	}
-      colindx++;
-      markindx++;
       if (!opts.points || (*it).bincenter())
 	if (opts.therr)
 	  leg2->AddEntry((*it).gettherr(), ((*it).getlabel()).c_str(), "lf");
@@ -704,12 +700,11 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     }
 
   //draw theory error borders
-  colindx = 0;
   if (opts.therr)
     for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
       {
-	(*it).gettherrup()->SetLineColor(opts.colors[colindx]);
-	(*it).gettherrdown()->SetLineColor(opts.colors[colindx]);
+	(*it).gettherrup()->SetLineColor(opts.colors[(*it).getcoli()]);
+	(*it).gettherrdown()->SetLineColor(opts.colors[(*it).getcoli()]);
 	(*it).gettherrup()->SetLineWidth(2);
 	(*it).gettherrdown()->SetLineWidth(2);
 	if (!opts.points || (*it).bincenter())
@@ -725,7 +720,6 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	    (*it).gettherrup()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	    (*it).gettherrdown()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  }
-	colindx++;
       }
   leg->Draw();
   leg2->Draw();
@@ -861,15 +855,13 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   r_one->Draw();
 
   //Draw ratios
-  colindx = 0;
-  markindx = 0;
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      (*it).getrthshift()->SetLineColor(opts.colors[colindx]);
+      (*it).getrthshift()->SetLineColor(opts.colors[(*it).getcoli()]);
       (*it).getrthshift()->SetLineStyle(2);
       (*it).getrthshift()->SetLineWidth(2);
 
-      (*it).getrth()->SetLineColor(opts.colors[colindx]);
+      (*it).getrth()->SetLineColor(opts.colors[(*it).getcoli()]);
       (*it).getrth()->SetLineWidth(2);
 
       vector <range> rthranges = historanges((*it).getrthshift());
@@ -894,10 +886,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  (*it).getrth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  if (opts.therr)
 	    {
-	      (*it).getrtherr()->SetLineColor(opts.colors[colindx]);
+	      (*it).getrtherr()->SetLineColor(opts.colors[(*it).getcoli()]);
 	      (*it).getrtherr()->SetMarkerSize(0);
-	      (*it).getrtherr()->SetFillColor(opts.colors[colindx]);
-	      (*it).getrtherr()->SetFillStyle(opts.styles[colindx]);
+	      (*it).getrtherr()->SetFillColor(opts.colors[(*it).getcoli()]);
+	      (*it).getrtherr()->SetFillStyle(opts.styles[(*it).getcoli()]);
 	      float toterr = 0;
 	      for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
 		toterr += (*it).gettherr()->GetBinError(b);
@@ -915,10 +907,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       else //plot as displaced TGraphs
 	{
 	  TGraphAsymmErrors * r_gtherr = new TGraphAsymmErrors((*it).getrth());
-	  r_gtherr->SetMarkerStyle(opts.markers[markindx]);
-	  r_gtherr->SetLineColor(opts.colors[colindx]);
+	  r_gtherr->SetMarkerStyle(opts.markers[(*it).getcoli()]);
+	  r_gtherr->SetLineColor(opts.colors[(*it).getcoli()]);
 	  r_gtherr->SetMarkerSize(2 * opts.resolution / 1200);
-	  r_gtherr->SetMarkerColor(opts.colors[colindx]);
+	  r_gtherr->SetMarkerColor(opts.colors[(*it).getcoli()]);
 	  for (int b = 0; b < r_gtherr->GetN(); b++)
 	    {
 	      //Set X error to 0
@@ -949,18 +941,14 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	    }
 	  r_gtherr->Draw("P same");
 	}
-      colindx++;
-      markindx++;
     }	  
   
   //draw theory error borders
-  colindx = 0;
-  markindx = 0;
   if (opts.therr)
-    for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++, colindx++, markindx++)
+    for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
       {
-	(*it).getrtherrup()->SetLineColor(opts.colors[colindx]);
-	(*it).getrtherrdown()->SetLineColor(opts.colors[colindx]);
+	(*it).getrtherrup()->SetLineColor(opts.colors[(*it).getcoli()]);
+	(*it).getrtherrdown()->SetLineColor(opts.colors[(*it).getcoli()]);
 	(*it).getrtherrup()->SetLineWidth(2);
 	(*it).getrtherrdown()->SetLineWidth(2);
 	if (!opts.points || (*it).bincenter())
@@ -1034,8 +1022,6 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       rs_one->Draw();
 
       //Draw ratios
-      colindx = 0;
-      markindx = 0;
       for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
 	{
 	  vector <range> rthranges = historanges((*it).getrthshift());
@@ -1045,9 +1031,6 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	      (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
 	    }
 	  (*it).getrthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
-
-	  colindx++;
-	  markindx++;
 	}	  
     }
 
@@ -1101,18 +1084,16 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       zero->Draw();
 
       //plot pulls
-      colindx = 0;
       for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
 	{
 	  if (datahistos.size() == 1)
 	    {
-	      (*it).getpull()->SetFillColor(opts.colors[colindx]);
+	      (*it).getpull()->SetFillColor(opts.colors[(*it).getcoli()]);
 	      (*it).getpull()->SetFillStyle(1001);
 	    }
 	  (*it).getpull()->SetLineStyle(1);
 	  (*it).getpull()->SetLineWidth(2);
-	  (*it).getpull()->SetLineColor(opts.colors[colindx]);
-	  colindx++;
+	  (*it).getpull()->SetLineColor(opts.colors[(*it).getcoli()]);
 	  datahistos[0].Draw((TH1F*)(*it).getpull()->Clone(), "same ][");
 	}	  
       /*

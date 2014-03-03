@@ -13,6 +13,7 @@ private:
   string title; //data label, used for data legend
   string extralabel; //extra label
   string experiment; //experiment or collaboration
+  int coli; //color index
   TH1F* href;
   TH1F* hdata;
   TH1F* hdatatot;
@@ -33,12 +34,13 @@ private:
   vector <float> valx;
   bool maketgraph;
 public:
-  dataseth(string dataname, string dir, string lab, DataSet* DT, int subp);
+  dataseth(string dataname, string dir, string lab, DataSet* DT, int subp, int colindx);
   string getname() {return name;};
   string getlabel() {return label;};
   string gettitle() {return title;};
   string getextralabel() {return extralabel;};
   string getexperiment() {return experiment;};
+  int getcoli() {return coli;};
   TH1F* getref() {return href;};
   TH1F* getdata() {return hdata;};
   TH1F* getdatatot() {return hdatatot;};

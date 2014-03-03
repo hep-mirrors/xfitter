@@ -28,8 +28,7 @@ int main(int argc, char **argv)
   for (vector<string>::iterator it = opts.dirs.begin(); it != opts.dirs.end(); it++)
     {
       Output* out = new Output((*it).c_str());
-      if (out != 0)
-      	info_output.push_back(out);
+      info_output.push_back(out);
     }
 
   //  for (unsigned int o = 0; o < info_output.size(); o++)
@@ -170,7 +169,7 @@ int main(int argc, char **argv)
 		      sprintf(nump, "%d", p);
 		      dtname = dtname + " - Subplot " + nump;
 		    }
-		  dataseth dt = dataseth(dtname, info_output[o]->GetName()->Data(), (*itn), info_output[o]->GetSet(d), p);
+		  dataseth dt = dataseth(dtname, info_output[o]->GetName()->Data(), (*itn), info_output[o]->GetSet(d), p, o);
 		  datamap[id].push_back(dt);
 		}
 	    }
