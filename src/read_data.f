@@ -418,13 +418,16 @@ C Prepare systematics:
 C--- Statistical: special case
          if (SystematicType(i).eq.'stat') then
          else if (SystematicType(i).eq.'stat const') then
-            Call HF_ERRLOG(16020001,'I: Stat Const Error type used')
+            Call HF_ERRLOG(16020001,'I: Stat Const error used in: '//Name)
 C--- Uncorrelated: special case
          else if (SystematicType(i).eq.'uncor const') then
+           Call HF_ERRLOG(14030505,'I: Uncor Const error used in: '//Name)
 C--- Uncorrelated: special case
          else if (SystematicType(i).eq.'uncor') then
+c            Call HF_ERRLOG(14030506,'I: Uncor Error type used')
 C--- Total error: special case
          else if (SystematicType(i).eq.'total') then
+            Call HF_ERRLOG(14030507,'I: Total error used in: '//Name)
 C--- Ignore: special case
          else if (SystematicType(i).eq.'ignore') then
 
@@ -719,6 +722,7 @@ C Reset:
 
          do i=1,NUncert
             if (SystematicType(i).ne.'uncor' .and. 
+     $           SystematicType(i).ne.'uncor const'.and.
      $           SystematicType(i).ne.'ignore'.and.
      $           SystematicType(i).ne.'stat'.and.
      $           SystematicType(i).ne.'total'.and.
@@ -1167,6 +1171,25 @@ C Prepare theory systematics:
          if (SystematicType(i).eq.'stat') then
             call hf_errlog(13052902,
      $  'I:Theory prediction includes stat. uncertainty')
+         else if (SystematicType(i).eq.'stat const') then
+            call hf_errlog(14030501,
+     $  'I:Theory prediction includes stat const uncertainty')
+C--- Uncorrelated const
+         else if (SystematicType(i).eq.'uncor const') then
+            call hf_errlog(14030502,
+     $  'I:Theory prediction includes uncor const uncertainty')
+C--- Uncorrelated
+         else if (SystematicType(i).eq.'uncor') then
+            call hf_errlog(14030503,
+     $  'I:Theory prediction includes uncor uncertainty')
+C--- Total error: special case
+         else if (SystematicType(i).eq.'total') then
+            call hf_errlog(14030504,
+     $  'I:Theory prediction includes total uncertainty')
+C--- Ignore: special case
+         else if (SystematicType(i).eq.'ignore') then
+
+
          else
 C--- Check if the source already exists:         
             j = SystematicsExist(SystematicType(i))
@@ -1222,11 +1245,12 @@ C Store:
 
          do i=1,NUncert
             if (SystematicType(i).ne.'uncor' .and. 
+     $           SystematicType(i).ne.'uncor const'.and.
      $           SystematicType(i).ne.'ignore'.and.
      $           SystematicType(i).ne.'stat'.and.
+     $           SystematicType(i).ne.'total'.and.
      $           SystematicType(i).ne.'stat const'
      $           ) then
-
 
 
                BETA(CompressIdx(i),idx) = -syst(i)
