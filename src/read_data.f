@@ -198,10 +198,10 @@ C Name and type of columns:
 C      
       integer   NColumn 
       character *64 ColumnName(ncolumnMax)
-      character *32 ColumnType(ncolumnMax)
+      character *64 ColumnType(ncolumnMax)
 
 C Systematics:
-      character *32 SystematicType(nsystMax)
+      character *64 SystematicType(nsystMax)
       logical Percent(1:nsystMax)
 
 C Reference table
@@ -1096,8 +1096,8 @@ C
       character*80 Name
       integer NData,NColumn
       character *64 ColumnName(ncolumnMax)
-      character *32 ColumnType(ncolumnMax)
-      character *32 SystematicType(nsystMax)
+      character *64 ColumnType(ncolumnMax)
+      character *64 SystematicType(nsystMax)
       logical Percent(1:nsystMax)
 
       integer i,j,idx
