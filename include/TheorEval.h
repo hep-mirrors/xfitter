@@ -45,6 +45,7 @@ class TheorEval{
   int setUnits(double units){ _units = units;};
   const vector<int> *getBinFlags() const { return &_binFlags; }
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
+  void SetNormalised(int normalised) {_normalised = (normalised == 1);};
 
  private:
   //! Checks that the bin boundaries are complied with data ones.
@@ -78,6 +79,8 @@ class TheorEval{
 
   //ppbar PDF
   bool _ppbar;
+  //Normalised cross section
+  bool _normalised;
 };
 
 #endif

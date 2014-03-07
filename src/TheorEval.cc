@@ -11,6 +11,7 @@
 #include <sstream>
 #include <stack>
 #include <float.h>
+#include <valarray>
 
 #include "TheorEval.h"
 
@@ -415,6 +416,18 @@ TheorEval::getGridValues(const int iorder, const double mur, const double muf)
       xs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar, appl_fnalphas_, iorder, mur, muf);
     else
       xs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
+
+    //Normalised cross section
+    if (_normalised)
+      {
+	valarray<double> Xs(xs.data(), xs.size());
+	double integral = 0;
+	for (int bin = 0; bin < g->Nobs(); bin++)
+	  integral += (g->obslow(bin + 1) - g->obslow(bin)) * xs[bin];
+	for (int bin = 0; bin < g->Nobs(); bin++)
+	  xs[bin] /= integral;
+      }
+    
     *(itm->second) = valarray<double>(xs.data(), xs.size());
     /*
     for (int i = 0; i<xs.size(); i++){

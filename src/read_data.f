@@ -257,6 +257,9 @@ c     select ppbar reaction for applgrid PDF convolution
       integer idxReaction
       double precision ppbar_reaction
 
+c     Normalise applgrid prediction to 1
+      double precision theory_normalised
+
       integer i,j,iBin,iError
       logical LReadKFactor
 
@@ -527,6 +530,18 @@ C     ---> copy the names in a new variable
      $        Name
            call HF_errlog(14012301,trim(Msg))
         endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'Normalised')
+        normalised = 0    ! defaults to absolute cross section
+        if ( idxReaction .ne. 0 ) then
+           theory_normalised = DATASETInfo(idxReaction, NDATASETS)
+           if ( theory_normalised .eq. 1 ) normalised = 1
+
+       write (Msg,'(''I: Normalise APPLGRID prediction dataset: '',A20,'' '')')
+     $        Name
+           call HF_errlog(14030401,trim(Msg))
+        endif
+
         call set_theor_eval(NDATASETS)
       endif
 
