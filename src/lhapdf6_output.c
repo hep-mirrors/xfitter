@@ -3,56 +3,19 @@
 #include<stdlib.h>
 #include<math.h>
 // fortran common blocks
-extern struct { //{{{
-  double mz, mw, mh;
-} boson_masses_;  //}}}
-
-extern struct { // common from minuit, it contains information about parameters in minuit.in.txt {{{
-  int nvarl[200],niofex[200],nexofi[200];
-} mn7inx_; //}}}
 
 extern struct { //{{{
-    float q2val[40], starting_scale, strange_frac;
-    double chi2maxerror;
-    float hf_mass[3], charm_frac;
-    int ldebug, dobands, useGridLHAPDF5, writeLHAPDF6, h1qcdfunc;
-    int itheory, i_fit_order, iparam, hfscheme;
-    int lrand;
-    int statype, systype;
-    float outxrange[2];
-    int outnx, ilenpdf, nchebglu;
-    float chebxmin;
-    int nchebsea;
-    float wmnlen, wmxlen;
-    int ichebtypeglu, ichebtypesea, ifsttype, iseedmc, ioffsetchebsea, 
-	    ewfit, npolyval;
-    int lead;
-    int izpopoly, ipolysqr;
-    int useapplg;
-    int napplgrids;
-    int lfitdy, lfastapplgrid, lranddata;
-    int idh_mod, ipdfset, icheck_qcdnum;
-    int lhapdferrors;
-    int nlhapdf_sets, useprevfit;
-    int corrsystbyoffset;
-    int corsysindex;
-    char statscale[32], uncorsysscale[32], corsysscale[32], uncorchi2type[32];
-    float corchi2type;
-    char hf_scheme[32];
-    int scale68;
-    int asymerrorsiterations;
-    int luseapplgridckm;
-} steering_; //}}}
-
-extern struct { //{{{
-    char OutDirName[128], LHAPDF6OutDir[128];
-} coutdirname_; //}}}
-
-extern struct { //{{{
-double grid[500];
-int nx;
-int read_xgrid;
-} ext_xgrid_;
+    double mz;
+    char LHAPDF6OutDir[128], OutDirName[128];
+    double grid[500];
+    int nx;
+    int read_xgrid;
+    int nvarl[200];
+    int dobands;
+    float hf_mass[3];
+    int i_fit_order, ipdfset;
+    int lead, useGridLHAPDF5, writeLHAPDF6, WriteAlphaSToMemberPDF;
+} ccommoninterface_;
 //}}}
 
 struct GridQX { //{{{
@@ -80,12 +43,15 @@ char* get_pdf_type(int pdf_set);
 double raw_qcdnum_pdf_ij(struct GridQX grid, int pid, int ix, int iq2);
 double raw_external_pdf_ij(struct GridQX grid, int pid, int ix, int iq2);
 double lead_pdf_ij(struct GridQX grid, int pid, int ix, int iq2);
+int get_NumMembers();
+void save_alphas_info(FILE* fp, struct GridQX grid);
+
 extern double xfrmix_(int *);
 extern double qfrmiq_(int *);
 extern double fvalij_(int *,int *,int *,int *,int *);
 extern double fvalxq_(int *,int *,double *,double *,int *);
 extern double hf_get_alphas_(double *);
-int get_NumMembers();
+extern int getord_(int *);
 //}}}
 
 // convert fortran string to C string
@@ -105,18 +71,18 @@ struct GridQX new_grid() { //{{{
   int inull,ix,iq2;
   struct GridQX grid;
 
-  if(ext_xgrid_.read_xgrid) {
+  if(ccommoninterface_.read_xgrid) {
     grid.type=EXTERNAL_GRID;
     grpars_(&grid.nx,&grid.xmin,&grid.xmax,&grid.nq2,&grid.q2min,&grid.q2max,&inull);
-    grid.nx=ext_xgrid_.nx;
+    grid.nx=ccommoninterface_.nx;
     grid.x=malloc(sizeof(double)*grid.nx);
     grid.q2=malloc(sizeof(double)*grid.nq2);
-    for(ix=0;ix<grid.nx;ix++) grid.x[ix]= ext_xgrid_.grid[ix];
+    for(ix=0;ix<grid.nx;ix++) grid.x[ix]= ccommoninterface_.grid[ix];
     for(iq2=1;iq2<=grid.nq2;iq2++) grid.q2[iq2-1]=qfrmiq_(&iq2);
     grid.raw_pdf_ij=raw_external_pdf_ij;
     grid.pdf_ij=raw_external_pdf_ij;
 
-  } else if(steering_.useGridLHAPDF5) {
+  } else if(ccommoninterface_.useGridLHAPDF5) {
     grid.type=LHA5_GRID;
     grid.nx=161;
     grid.nq2=161;
@@ -137,7 +103,7 @@ struct GridQX new_grid() { //{{{
     grid.raw_pdf_ij=raw_qcdnum_pdf_ij;
     grid.pdf_ij=raw_qcdnum_pdf_ij;
   }
-    if(steering_.lead) grid.pdf_ij=lead_pdf_ij;
+    if(ccommoninterface_.lead) grid.pdf_ij=lead_pdf_ij;
   return grid;
 }
 //}}}
@@ -153,7 +119,7 @@ double raw_qcdnum_pdf_ij(struct GridQX grid, int pid, int ix, int iq2) { //{{{
   int inull;
   ix+=1;
   iq2+=1;
-  return fvalij_(&steering_.ipdfset,&pid,&ix,&iq2,&inull);
+  return fvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
 }
 
 double raw_external_pdf_ij(struct GridQX grid, int pid, int ix, int iq2) {
@@ -161,7 +127,7 @@ double raw_external_pdf_ij(struct GridQX grid, int pid, int ix, int iq2) {
   double x,q2;
   x=grid.x[ix];
   q2=grid.q2[iq2];
-  return fvalxq_(&steering_.ipdfset,&pid,&x,&q2,&inull);
+  return fvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
 }
 //}}}
 
@@ -179,10 +145,10 @@ double lead_pdf_ij(struct GridQX grid, int pid, int ix, int iq2) { //{{{
 
 // write central value and info
 void print_lhapdf6(char *pdf_dir){ //{{{
-                    if(!steering_.writeLHAPDF6) return;
+                    if(!ccommoninterface_.writeLHAPDF6) return;
 
   int central_set=0;
-  char *outdir=sfix(coutdirname_.OutDirName,128);
+  char *outdir=sfix(ccommoninterface_.OutDirName,128);
   char *path=malloc(sizeof(char)*(strlen(outdir)+strlen(pdf_dir)+2));
   sprintf(path,"%s/%s",outdir,pdf_dir);
   mkdir(path,0755);
@@ -193,13 +159,13 @@ void print_lhapdf6(char *pdf_dir){ //{{{
 } 
 // use LHAPDF6OutDir directory, fortran interface
 void print_lhapdf6_(){
-  char *pdf_dir=sfix(coutdirname_.LHAPDF6OutDir,128);
+  char *pdf_dir=sfix(ccommoninterface_.LHAPDF6OutDir,128);
   print_lhapdf6(pdf_dir);
   free(pdf_dir);
 } 
 // use opt_$LHAPDF6OutDir directory, fortran interface
 void print_lhapdf6_opt_(){
-  char *pdf_dir=sfix(coutdirname_.LHAPDF6OutDir,128);
+  char *pdf_dir=sfix(ccommoninterface_.LHAPDF6OutDir,128);
   char *opt_pdf_dir=malloc((strlen(pdf_dir)+strlen("opt_")+1)*sizeof(char));
 
   sprintf(opt_pdf_dir,"opt_%s",pdf_dir);
@@ -210,7 +176,7 @@ void print_lhapdf6_opt_(){
 
 // store pdf data to herapdf_XXXX.dat yaml file
 void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
-                    if(!steering_.writeLHAPDF6) return;
+                    if(!ccommoninterface_.writeLHAPDF6) return;
 
   int iq2,ix,i;
   struct GridQX grid=new_grid();
@@ -219,7 +185,7 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
   FILE* fp;
 //  char file_name[]="output/herapdf/herapdf_XXXX.dat";
   
-  char *outdir=sfix(coutdirname_.OutDirName,128);
+  char *outdir=sfix(ccommoninterface_.OutDirName,128);
   char *path=malloc(sizeof(char)*(strlen(outdir)+2*strlen(pdf_dir)+3+strlen("_XXXX.dat")));
   sprintf(path,"%s/%s/%s_%04i.dat",outdir,pdf_dir,pdf_dir,*pdf_set);
 
@@ -227,6 +193,7 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
   if((fp=fopen(path,"w"))==NULL) puts("Cannot open file.");
     fprintf(fp,"PdfType: %s\n", get_pdf_type(*pdf_set));
     fprintf(fp,"Format: lhagrid1\n");
+    if(ccommoninterface_.WriteAlphaSToMemberPDF) save_alphas_info(fp,grid);
     fprintf(fp,"---\n");
     for(ix=0;ix<grid.nx;ix++) 
       fprintf(fp,"%e ",grid.x[ix]);
@@ -251,13 +218,13 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
 } 
 // save to LHAPDF6OutDir, fortran interface
 void save_data_lhapdf6_(int *pdf_set){ 
-  char *pdf_dir=sfix(coutdirname_.LHAPDF6OutDir,128);
+  char *pdf_dir=sfix(ccommoninterface_.LHAPDF6OutDir,128);
   save_data_lhapdf6(pdf_set, pdf_dir);
   free(pdf_dir);
 }
 // use opt_$LHAPDF6OutDir directory, fortran interface
 void save_data_lhapdf6_opt_(int *pdf_set){ 
-  char *pdf_dir=sfix(coutdirname_.LHAPDF6OutDir,128);
+  char *pdf_dir=sfix(ccommoninterface_.LHAPDF6OutDir,128);
   char *opt_pdf_dir=malloc((strlen(pdf_dir)+strlen("opt_")+1)*sizeof(char));
 
   sprintf(opt_pdf_dir,"opt_%s",pdf_dir);
@@ -266,22 +233,18 @@ void save_data_lhapdf6_opt_(int *pdf_set){
   free(opt_pdf_dir);
 } //}}}
 
-
 // store pdf information to herapdf.info yaml file
 void save_info(char *pdf_dir) { //{{{
-                    if(!steering_.writeLHAPDF6) return;
+                    if(!ccommoninterface_.writeLHAPDF6) return;
 
-  int iq2,as_order;
   double xmin,xmax,q2min,q2max,q2,alphas,dnull;
-  double mz2=boson_masses_.mz*boson_masses_.mz;
   FILE* fp;
   struct GridQX grid=new_grid();
 
-  char *outdir=sfix(coutdirname_.OutDirName,128);
+  char *outdir=sfix(ccommoninterface_.OutDirName,128);
   char *path=malloc(sizeof(char)*(strlen(outdir)+2*strlen(pdf_dir)+3+strlen(".info")));
   sprintf(path,"%s/%s/%s.info",outdir,pdf_dir,pdf_dir);
   
-  getord_(&as_order);
   if((fp=fopen(path,"w"))==NULL) puts("Cannot open file.");
     fprintf(fp,"SetDesc: HERAPDF\n");
     fprintf(fp,"Authors: ...\n");
@@ -290,20 +253,35 @@ void save_info(char *pdf_dir) { //{{{
     fprintf(fp,"DataVersion: 1\n");
     fprintf(fp,"NumMembers: %i\n",get_NumMembers());
     fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
-    fprintf(fp,"OrderQCD: %i\n", steering_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
+    fprintf(fp,"OrderQCD: %i\n", ccommoninterface_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
     fprintf(fp,"FlavorScheme: %s\n", get_flavor_scheme());
     fprintf(fp,"ErrorType: %s\n", get_error_type());
     fprintf(fp,"XMin: %g\n", grid.xmin);
     fprintf(fp,"XMax: %g\n",1.0);
     fprintf(fp,"QMin: %g\n", sqrt(grid.q2min));
     fprintf(fp,"QMax: %g\n", sqrt(grid.q2max));
-    fprintf(fp,"MZ: %g\n", boson_masses_.mz);
+    fprintf(fp,"MZ: %g\n", ccommoninterface_.mz);
     fprintf(fp,"MUp: 0\n");
     fprintf(fp,"MDown: 0\n");
     fprintf(fp,"MStrange: 0\n");
-    fprintf(fp,"MCharm: %g\n", steering_.hf_mass[0]);
-    fprintf(fp,"MBottom: %g\n", steering_.hf_mass[1]);
-    fprintf(fp,"MTop: %g\n", steering_.hf_mass[2]);
+    fprintf(fp,"MCharm: %g\n", ccommoninterface_.hf_mass[0]);
+    fprintf(fp,"MBottom: %g\n", ccommoninterface_.hf_mass[1]);
+    fprintf(fp,"MTop: %g\n", ccommoninterface_.hf_mass[2]);
+    if(!ccommoninterface_.WriteAlphaSToMemberPDF) save_alphas_info(fp,grid);
+
+    fclose(fp);
+  delete_grid(grid);
+  free(outdir);
+  free(path);
+} //}}}
+
+void save_alphas_info(FILE* fp, struct GridQX grid) { //{{{
+    int iq2,as_order;
+    double q2;
+    double mz2=ccommoninterface_.mz*ccommoninterface_.mz;
+
+    getord_(&as_order);
+
     fprintf(fp,"AlphaS_MZ: %g\n", hf_get_alphas_(&mz2));
     fprintf(fp,"AlphaS_OrderQCD: %i\n", as_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
     fprintf(fp,"AlphaS_Type: ipol\n");
@@ -321,13 +299,9 @@ void save_info(char *pdf_dir) { //{{{
         fprintf(fp,"%g",hf_get_alphas_(&q2));
         if(iq2!=grid.nq2-1) fprintf(fp,", ");
       }
-    fprintf(fp,"]");
-
-    fclose(fp);
-  delete_grid(grid);
-  free(outdir);
-  free(path);
-} //}}}
+    fprintf(fp,"]\n");
+}
+//}}}
 
 char* get_flavor_scheme() { //{{{
   int fixed_scheme;
@@ -343,7 +317,7 @@ char* get_flavor_scheme() { //{{{
 
 char* get_error_type(){ //{{{
   char* error_type;
-  if(steering_.dobands) 
+  if(ccommoninterface_.dobands) 
       error_type="replicas";
     else error_type="hessian";
   return error_type;
@@ -358,9 +332,10 @@ char* get_pdf_type(int pdf_set){ //{{{
 }
 //}}}
 
-int get_NumMembers(){
+int get_NumMembers(){ //{{{
   const int MNE=200; // see endmini.inc
   int npar=1, i; // central value
-  for(i=0;i<MNE;i++) if(mn7inx_.nvarl[i]==1) npar+=2;
+  for(i=0;i<MNE;i++) if(ccommoninterface_.nvarl[i]==1) npar+=2;
   return npar;
 }
+//}}}

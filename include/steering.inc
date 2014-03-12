@@ -94,6 +94,7 @@ C
       logical FlexibleGluon    !> Flexible gluon parameterisation
       logical Read_QCDNUM_Tables
       logical LHAPDFErrors, Scale68     !> For LHAPDF PDFtype, loop over eighensets
+      logical WriteAlphaSToMemberPDF    !> write alphas header to LHAPDF6 member files
       integer nLHAPDF_Sets 
 
       character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
@@ -103,7 +104,7 @@ C
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
-     &     lDEBUG,DOBANDS,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,
+     &     lDEBUG,DOBANDS,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,WriteAlphaSToMemberPDF,
      &     Itheory,I_FIT_ORDER,IPARAM,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,

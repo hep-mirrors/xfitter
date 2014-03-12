@@ -17,9 +17,9 @@ GetDiffDisXsection.f FixModelParams.f reweighting.f prep_corr.f GetPDFUncType.f
 # WS 2013-01-19 for the Offset method
 FitPDF_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
-FitPDF_SOURCES += lhapdf6_output.c
+FitPDF_SOURCES += lhapdf6_output.c c_interface.f
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include 
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 
 if ENABLE_APPLGRID 
@@ -40,7 +40,7 @@ else
 endif
 
 # FORTRAN compiler flags to be used for the main target
-AM_FFLAGS = -I$(srcdir)/../include -fno-automatic
+AM_FFLAGS = -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
 
 # 
 AM_CPPFLAGS = -I$(srcdir)/../include 
