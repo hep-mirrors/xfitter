@@ -31,6 +31,7 @@ CommandParser::CommandParser(int argc, char **argv):
   theorylabel("Theory"),
   onlytheory(false),
   ratiototheory(false),
+  diff(false),
   twopanels(false),
   threepanels(false),
   version(true),
@@ -237,6 +238,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  onlytheory = true;
 	else if (*it == "--ratio-to-theory")
 	  ratiototheory = true;
+	else if (*it == "--diff")
+	  diff = true;
 	else if (*it == "--2panels")
 	  twopanels = true;
 	else if (*it == "--3panels")

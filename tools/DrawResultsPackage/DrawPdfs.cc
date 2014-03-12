@@ -297,7 +297,7 @@ int main(int argc, char **argv)
   if (opts.pdf)
     {
       cout << "Converting to pdf format..." << endl;
-      system(((string)"ps2pdf " + opts.outdir + "plots.eps " + opts.outdir + "plots.pdf").c_str());
+      system(((string)"ps2pdf -dEPSCrop " + opts.outdir + "plots.eps " + opts.outdir + "plots.pdf").c_str());
       cout << "Plots saved in: " << (opts.outdir + "plots.pdf") << endl;
     }
 
@@ -317,13 +317,13 @@ int main(int argc, char **argv)
       if (opts.pdf)
 	{
 	  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
-	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	  for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
-	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
-	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	  for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
-	    system(((string)"ps2pdf " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	}
     }
 

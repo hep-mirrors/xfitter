@@ -34,6 +34,7 @@ class CommandParser
   bool twopanels,threepanels;
   bool onlytheory;
   bool ratiototheory;
+  bool diff;
 
   //general options
   bool splitplots;
@@ -127,6 +128,8 @@ class CommandParser
     cout << "\t \t Do not plot data" << endl;
     cout << "\t --ratio-to-theory" << endl;
     cout << "\t \t Use theory as reference for ratio plots" << endl;
+    cout << "\t --diff" << endl;
+    cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
     cout << "options for shifts plots:" << endl;
     cout << "\t --no-shifts" << endl;
     cout << "\t \t Shifts plots are not produced" << endl;

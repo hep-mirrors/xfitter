@@ -19,7 +19,7 @@ double hmin(TH1F *h)
 {
   double min0 = h->GetBinContent(h->GetXaxis()->GetFirst()) + 1;
   for (int b = h->GetXaxis()->GetFirst(); b <= h->GetXaxis()->GetLast(); b++)
-    if (h->GetBinContent(b) > 0)
+    if (h->GetBinContent(b) != 0)
       min0 = min(min0, h->GetBinContent(b));
   return min0;	
 }
@@ -737,17 +737,36 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   TH1F * r_datatot = (TH1F*)datahistos[0].getdatatot()->Clone();
 
   //Double counting of errors avoided using refdata which has 0 errors
-  r_data->Divide(refdata);
-  r_datatot->Divide(refdata);
+  if (opts.diff)
+    {
+      r_data->Add(refdata, -1);
+      r_datatot->Add(refdata, -1);
+    }
+  else
+    {
+      r_data->Divide(refdata);
+      r_datatot->Divide(refdata);
+    }
 
   //Ratio of theory over reference
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      (*it).getrth()->Divide(refdata);
-      (*it).getrthshift()->Divide(refdata);
-      (*it).getrtherr()->Divide(refdata);
-      (*it).getrtherrup()->Divide(refdata);
-      (*it).getrtherrdown()->Divide(refdata);
+      if (opts.diff)
+	{
+	  (*it).getrth()->Add(refdata, -1);
+	  (*it).getrthshift()->Add(refdata, -1);
+	  (*it).getrtherr()->Add(refdata, -1);
+	  (*it).getrtherrup()->Add(refdata, -1);
+	  (*it).getrtherrdown()->Add(refdata, -1);
+	}
+      else
+	{
+	  (*it).getrth()->Divide(refdata);
+	  (*it).getrthshift()->Divide(refdata);
+	  (*it).getrtherr()->Divide(refdata);
+	  (*it).getrtherrup()->Divide(refdata);
+	  (*it).getrtherrdown()->Divide(refdata);
+	}
 
       for (int b = 1; b <= (*it).getrth()->GetNbinsX(); b++)
 	(*it).getrth()->SetBinError(b, 0);
@@ -766,20 +785,40 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
   r_templ->GetYaxis()->SetLabelFont(62);
   r_templ->GetYaxis()->SetTitleFont(62);
+  r_templ->GetXaxis()->SetLabelFont(62);
+  r_templ->GetXaxis()->SetTitleFont(62);
+  r_templ->GetYaxis()->SetNdivisions(505);
+  r_templ->GetXaxis()->SetNdivisions(505);
+  if (datahistos[0].getlogx())
+    {
+      r_templ->GetXaxis()->SetNoExponent();
+      if (axmax/axmin < 90)
+	r_templ->GetXaxis()->SetMoreLogLabels();
+    }
+
   r_templ->GetYaxis()->SetLabelSize(txtsize/ry);
   r_templ->GetYaxis()->SetTitleSize(txtsize/ry);
   r_templ->GetYaxis()->SetTitleOffset((offset+0.3) * ry);
-  if (opts.ratiototheory)
-    r_templ->SetYTitle(((string) "Ratio to " + datahistos[0].getlabel()).c_str() );
+  string ytitle = "";
+  if (opts.diff)
+    {
+      if (opts.ratiototheory)
+	ytitle = (string) "Data-" + opts.theorylabel;
+      else
+	ytitle = "Theory-Data";
+    }
   else
-    r_templ->SetYTitle("Theory/Data");
-  r_templ->GetYaxis()->SetNdivisions(505);
-  r_templ->GetXaxis()->SetNdivisions(505);
+    {
+      if (opts.ratiototheory)
+	ytitle = (string) "Data/" + opts.theorylabel;
+      else
+	ytitle = "Theory/Data";
+    }
+  r_templ->SetYTitle(ytitle.c_str());
 
-  r_templ->GetXaxis()->SetLabelFont(62);
-  r_templ->GetXaxis()->SetTitleFont(62);
   r_templ->GetXaxis()->SetLabelSize(txtsize/ry);
   r_templ->GetXaxis()->SetTitleSize(txtsize/ry);
+  //  r_templ->GetXaxis()->SetTitleOffset((offset+0.3) * ry);
   if (opts.twopanels || opts.threepanels)
     {
       r_templ->GetXaxis()->SetLabelSize(0);
@@ -977,10 +1016,23 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       r_templ->GetYaxis()->SetLabelSize(txtsize/sy);
       r_templ->GetYaxis()->SetTitleSize(txtsize/sy);
       r_templ->GetYaxis()->SetTitleOffset((offset+0.3) * sy);
-      if (opts.ratiototheory)
-	r_templ->SetYTitle(((string) "Ratio to " + datahistos[0].getlabel()).c_str() );
+      string ytitle = "";
+      if (opts.diff)
+	{
+	  if (opts.ratiototheory)
+	    ytitle = (string) "Data-" + opts.theorylabel;
+	  else
+	    ytitle = "Theory-Data";
+	}
       else
-	r_templ->SetYTitle("#frac{Theory+shifts}{Data}");
+	{
+	  if (opts.ratiototheory)
+	    ytitle = (string) "Ratio to " + opts.theorylabel;
+	  else
+	    ytitle = "#frac{Theory+shifts}{Data}";
+	}
+
+      r_templ->SetYTitle(ytitle.c_str());
 
       //Evaluate maximum and minimum
       mx = 0;
@@ -1043,25 +1095,13 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
       TH1F * pull = datahistos[0].getpull();
 
-      r_templ->GetYaxis()->SetLabelFont(62);
-      r_templ->GetYaxis()->SetTitleFont(62);
       r_templ->GetYaxis()->SetLabelSize(txtsize/py);
       r_templ->GetYaxis()->SetTitleSize(txtsize/py);
       r_templ->GetYaxis()->SetTitleOffset((offset+0.3) * py);
-      r_templ->GetYaxis()->SetNdivisions(505);
-      r_templ->GetXaxis()->SetNdivisions(505);
-      if (datahistos[0].getlogx())
-	{
-	  r_templ->GetXaxis()->SetNoExponent();
-	  if (axmax/axmin < 90)
-	    r_templ->GetXaxis()->SetMoreLogLabels();
-	}
 
       //r_templ->SetYTitle("#frac{Theory+shifts - Data}{#sigma uncor}");
       r_templ->SetYTitle("pulls   ");
 
-      r_templ->GetXaxis()->SetLabelFont(62);
-      r_templ->GetXaxis()->SetTitleFont(62);
       r_templ->GetXaxis()->SetLabelSize(txtsize/py);
       r_templ->GetXaxis()->SetTitleSize(txtsize/py);
       //  r_templ->GetXaxis()->SetTitleOffset(1);
