@@ -42,15 +42,19 @@
  !
  ! Tevatron:
  !
-          'datafiles/tevatron/D0_Z_Boson_Rapidity.dat',
-          'datafiles/tevatron/CDF_Z_Boson_Rapidity.dat',
           'datafiles/tevatron/CDF_JETS2008.dat',
-	  'datafiles/tevatron/D0_W_asymmetry.dat'
-	  'datafiles/tevatron/D0_Wmu_pt25_asymmetry.dat'
-	  'datafiles/tevatron/D0_Wmu_pt35_asymmetry.dat'
+          'datafiles/tevatron/D0_JETS.dat',
 ! need Hathor package
           'datafiles/tevatron/CDF-TOP-CONF-NOTE-9913_prelim.dat',
-          'datafiles/tevatron/D0_JETS.dat',
+ !
+ ! Tevatron W, Z inclusive cross sections and asymmetries:
+ !
+          'datafiles/tevatron/wzinclusive/D0_Z_Boson_Rapidity.dat',
+          'datafiles/tevatron/wzinclusive/CDF_Z_Boson_Rapidity.dat',
+	  'datafiles/tevatron/wzinclusive/D0_Wmu_pt25_asymmetry.dat',
+	  'datafiles/tevatron/wzinclusive/D0_Wmu_pt35_asymmetry.dat',
+	  'datafiles/tevatron/wzinclusive/CDF_W_asymmetry.dat',
+	  'datafiles/tevatron/wzinclusive/D0_W_asymmetry.dat',
 
  !
  ! LHC
