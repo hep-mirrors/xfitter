@@ -63,59 +63,88 @@ $F_2 \approx x \sum e^2_q (q+ \overline q)$, and $xF_3$ is related to their diff
 ($\alpha_s g$) appear, in particular $F_L$ is strongly related to the low-$x$ 
 gluon.
 \\
-In analogy to neutral currents, the inclusive CC $ep$ cross section can be expressed 
-in terms of structure functions and in LO the $e^+p$ and $e^-p$ cross sections are sensitive to different quark flavour 
+The inclusive CC $ep$ cross section can be expressed 
+in terms of another set of structure functions and in LO the $e^+p$ and $e^-p$ cross sections are sensitive to different quark flavour 
 densities:
 \begin{eqnarray}
 %  \nonumber
     \begin{array}{rll}
    e^{+}:  & & \tilde \sigma_{CC}^{e^{+} p} = 
-                x[\overline u +\overline c] + (1-y)^2 x[ d+s ]  \\
+                x[\overline u] + (1-y)^2 x[ d]  \\
    e^{-}:  & & \tilde \sigma_{CC}^{e^{-} p} = 
-                x[ u +c] + (1-y)^2 x[\overline d +\overline s ].
+                x[ u] + (1-y)^2 x[\overline d].
     \end{array}
 \end{eqnarray}
+Here $u$ and $d$ denote the sum over up- and down-type quarks;
+the latter include also strange and beauty quarks and 
+the former charm quarks.
 %
-Beyond leading order the QCD predictions for the DIS structure functions are obtained by convoluting 
-the PDFs with the coefficient functions (hard process matrix elements) 
-calculated using various schemes which differ in their treatment of 
-heavy quark production, i.e.
-the general mass Variable-Flavour number (GM-VFN)~\cite{VFN} schemes or the
-Fixed-Flavour number (FFN)~\cite{Laenen:1992, Laenen:1993, Riem:1995}. 
-%\fitter\ implements the zero mass variable flavour number (ZMVFN) scheme
-% from QCDNUM and are discussed in the following subsections.
-%In the FFN scheme, heavy quark contributions are explicitly included in the 
-%hard cross sections, . 
-%In the VFN scheme, PDFs corresponding to heavy quarks are introduced and the number of active 
-%flavors changes by one unit when the scale crosses the threshold for heavy quark distribution ($Q^2 > m_{Q}^2$).
-%The various treatments for the heavy quark thresholds are implemented as provided by the MSTW group
+Beyond LO, 
+%{\bf check this sentence if it makes sense}.
+the QCD predictions for the DIS structure functions are obtained by convoluting 
+the PDFs with the respective coefficient functions (hard process matrix elements).
 %
-%The evolution program QCDNUM~\cite{qcdnum} used in \fitter\ provides 
-%the calculations of the deep inelastic structure functions in the zero-mass, 
-%generalised mass and the fixed flavour number schemes. 
-\\
-The following VFN schemes are considered in \fitter\ :
-The Thorne Roberts (TR) scheme with its variants at NLO and
-NNLO~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63,Thorne:6180} 
-as provided by the MSTW group,
-the ACOT scheme with its variants at LO and NLO as provided by the CTEQ group. 
-In addition, the zero-mass variable flavour number scheme (ZM-VFNS) in which 
-heavy quark densities are included in the proton for $Q^2>>m_h^2$ but are treated 
-as massless in both the initial and final states is also available in \fitter\ .
-The FFN scheme is available via the QCDNUM implementation and via the 
-{\tt OPENQCDRAD}~\cite{openqcdrad:page} interface.
-Each of these schemes is briefly discussed below.
-
+The treatment of 
+heavy charm and beauty quark production is a crucial point in these calculations
+and several schemes exist:
+\begin{itemize}
+\item
+In the Fixed Flavour Number (FFN) 
+scheme~\cite{Laenen:1992, Laenen:1993, Riem:1995}
+ only the gluon and the light quarks are considered
+as partons within the proton and massive 
+quarks are produced perturbatively in the final state.
+The lowest order process is the fusion of a gluon in the proton
+with a boson from the electron to produce a heavy quark and an antiquark.
+\item
+In the Zero-Mass Variable Flavour Number (ZM-VFN) scheme\cite{bla} the
+heavy quark densities are included in the proton for $Q^2$ values above a threshold $\sim m_h^2$
+and
+%for $Q^2>>m_h^2$ but 
+are treated as massless in both the initial 
+and final states. The lowest order process is the scattering
+of a heavy quark in the proton with the electron via (electroweak) boson exchange.
+This scheme is expected to be reliable only in the region $Q^2>>m_h^2$.
+\item
+In the general mass Variable-Flavour number (GM-VFN)
+scheme~\cite{VFN} heavy quark production is treated for
+ $Q^2 \le m_h^2$ in the FFN scheme and  for $Q^2 >> m_h^2$
+in the ZM-VFN scheme with a suitable interpolation in between.
+This scheme is very popular and numerous variants exist.
+\end{itemize}
+All three schemes are available in \fitter\ . In the following
+the implemented variants are briefly discussed.
+% 
 \begin{description}
+\item \bf {FFN schemes:} \rm
+In \fitter\ this scheme can be accessed via the 
+QCDNUM implementation or through the interface to the open-source code OPENQCDRAD (as implemented by the ABM group)~\cite{openqcdrad:page}.
+The latter implementation also includes the running mass definition of the heavy quark 
+mass ~\cite{Alekhin:runm}.
+The running mass scheme has the advantage of reducing the sensitivity of the DIS cross sections to
+higher order corrections, and improving the theoretical precision of the mass definition. 
+In QCDNUM, the calculation of the heavy quark contributions to DIS structure functions
+are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account.
+In the ABM implementation, both CC and NC contributions are available at NLO 
+and the Next-to-Next-to Leading Order (NNLO) QCD corrections to the massive Wilson coefficients, which is currently best known approximation~\cite{SMoch:npb864}.
+\item  
+\bf {ZM-VFN schemes:} \rm 
+In this scheme, the heavy quarks are treated as infinitely massive below scale
+in vicinity of heavy quark mass, and massless above this threshold.
+Thi prescription has been used for many years by global PDF groups, however 
+it is only suited for quantitative analyses for scales $Q^2>>m_h^2$, for which 
+the terms of order $\mathcal{O}(m_h^2/Q^2)$ can be neglected.
 \item \bf {GM-VFN Thorne-Roberts scheme:} \rm
 %\subsubsection{GM-VFN Thorne-Roberts scheme}
 %
-The Thorne-Roberts (TR) scheme smoothly connects low
-scales below ($Q^2<m_h^2$), where a fixed order calculation of heavy quark
- production from boson-gluon fusion is made accounting for the heay quark mass,
- and scales far above the heavy 
-quark threshold ($Q^2>>m_h^2$), where the heavy quark is treated as a 
-massless parton within the proton. 
+The Thorne-Roberts (TR) scheme provides a smooth transition from the massive FFN
+scheme at low scales $Q^2<m_h^2$ to the massless ZM-VFNS scheme at  
+high scales $Q^2>>m_h^2$.
+%
+%, where massive heavy quarks are produced d 
+%and scales far above the heavy 
+%quark threshold ($Q^2>>m_h^2$), where the heavy quark is treated as a 
+%massless parton within the proton. 
 %However, the connection is not unique.
 %A GM-VFNS can be defined by demanding equivalence of the $n_f = n$ (FFNS) 
 %and $n_f = n+1$ flavour (ZM-VFNS) descriptions above the transition point for the new parton distributions
@@ -123,14 +152,14 @@ massless parton within the proton.
 There are two different variants of the TR schemes: TR standard 
 (as used in MSTW PDF 
 sets~\cite{Thorne:1997ga,Thorne:2006qt,Martin:epC63}) 
-and TR optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold 
+and TR optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region.
 Both of these variants are accessible within the \fitter\ package at 
 NLO and NNLO.  
-
 %%%%
 \vspace{0.1cm}
 \item \bf {GM-VFN ACOT scheme:} \rm
-
+{\bf olaf remark: I find the following paragraph information on the CTEQ scheme a bit difficult 
+to digest/appreciate.} 
 The Aivazis-Collins-Olness-Tung scheme belongs to the group of VFN 
 factorisation schemes that use the renormalization method of 
 Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
@@ -150,21 +179,6 @@ and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going 
 but it has the disadvantage of being quite slow.
 
 \vspace{0.1cm}
-\item \bf {FFN schemes:} \rm
-
-In the FFN scheme only the gluon and the light quarks are considered
-as partons within the proton and massive quarks are produced perturbatively in the final state.
-In \fitter\ this scheme can be accessed via the 
-QCDNUM implementation or through the interface to the open-source code OPENQCDRAD (ABM)~\cite{openqcdrad:page}.
-The latter implementation also includes the running mass definition of the heavy quark 
-mass ~\cite{Alekhin:runm}.
-This scheme has the advantage of reducing the sensitivity of the DIS cross sections to
-higher order corrections, and improving the theoretical precision of the mass definition. 
-In QCDNUM, the calculation of the heavy quark contributions to DIS structure functions
-are available at NLO and only electromagnetic exchange contributions are taken into account.
-In the ABM implementation, both CC and NC contributions are available at NLO 
-and the NNLO QCD corrections to the massive Wilson coefficients 
-are available for NC to the currently best known approximation~\cite{SMoch:npb864}.
 \end{description}
 
 %%%%%%%%%%%

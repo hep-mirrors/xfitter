@@ -21,11 +21,11 @@ tables. They cam then be applied applied 'on the fly' to each subsequent fit
 iteration which will use the fast prediction multiplied by this `` k-factor''.
 Having determined a PDF this way the output PDF fit should then be used to 
 recalculate the k-factors and the fit repeated until input and output 
-k-factors have converged. 
+$k-factors$ have converged. 
 
 \begin{itemize}
 \item For the DIS process, the heavy flavour schemes provide accurate but computationally slow calculations. In \fitter `` FAST'' schemes were implemented 
-such that the k-factor used can be
+such that the $k-factor$ used can be
 the ratio between same order calculations but massless vs massive 
 (i.e. NLO (ZM-VFNS)/NLO (ACOT), or 
 the ratio between LO (massless)/NLO (massive).
@@ -36,6 +36,13 @@ for quick checks and the full scheme is recommended.
 %Hence the RT-fast calculation must be repeated by inputting the final PDF parameters 
 %and iterating this procedure until the input and output PDFs are not significantly different
 %%%%
+The method was employed in the QCD fits to the HERA data when ACOT scheme was used as a cross check of the central results \cite{h1zeus:2009}, as shown in Fig.~\ref{fig:acotrt}.
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{heraacot.pdf}
+   \caption{Summary plots of valence, total sea (scaled) and gluon (scaled)densities with their total model uncertainties at the scale of $Q^2=10$ Gev$^2$ obatined using ACOT scheme with $k-factor$ method (red) compared to the HERAPDF1.0 PDF set at NLO using RT scheme.}
+ \label{fig:acotrt}
+\end{figure}
 
 
 
@@ -58,6 +65,16 @@ corresponding to the available measurement.
 %NLO or NNLO k-factors provided for corresponding data distributions.
 The calculated leading order cross sections are multiplied by
 $k-factors$ to obtain predictions at NLO.
+
+This method was used by the ATLAS collaboration in determining the strange quark density of the proton from  $W$ and $Z$ cross sections \cite{atlas:prl109-012001}. An illustration of ATLAS PDF extracted using $k-factor$ method is illustrated in Fig.~\ref{fig:atlas}, shown in comparison with global PDF sets such as CT10\cite{ct10} and NNPDF2.3\cite{cite:nnpdf}.
+
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{atlas.pdf}
+   \caption{The strange anti-quark density versus $x$ for the ATLAS epWZ free sbar NNLO fit (magenta band) compared to predictions from NNPDF2.1 (blue hatched) and CT10 (green hatched) at $Q^2= 1.9$ GeV$^2$.}
+ \label{fig:atlas}
+\end{figure}
+
 \end{itemize}
 
 %or NNLO precision.
@@ -138,7 +155,7 @@ The fastNLO libraries are included in the \fitter\ package
 %and no further requirements or compilation options
 %are needed.
 In order to include a new measurement into the PDF fit,
-othe fastNLO tables have to be specified. These tables include all
+other fastNLO tables have to be specified. These tables include all
 necessary information about the perturbative coefficients and the
 calculated process for all bins of a certain dataset. 
 %Tables for almost all published jet measurements

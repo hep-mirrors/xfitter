@@ -34,7 +34,7 @@ the probability of finding a specific parton $a$ ($b$) in the first (second) pro
 %
 The sum over indices $a$ and $b$ in Eq.~\ref{eq:fact} indicates the various 
 kinds of partons,
-i.e. gluons and quarks and antiquarks of different flavours, 
+i.e. gluons, quarks and antiquarks of different flavours, 
 that are considered
 as the constituents of the proton.
 %
@@ -52,7 +52,7 @@ predicting other processes.
 % via Eq.~\ref{eq:fact}.
 %
 
-The Deep Inelastic Scattering (DIS) data from the $ep$ collider HERA provides crucial information for determining the PDFs.
+The inclusive Neutral Current (NC) and Charged Current (CC) data in Deep-Inelastic-Scattering (DIS) at $ep$ collider HERA provide crucial information for determining the PDFs.
 %
 For instance, the gluon density relevant
 for calculating the dominant gluon-gluon fusion contribution to the Higgs production
@@ -62,14 +62,14 @@ at the LHC can be accurately determined from the HERA data alone.
 Specific data from the Tevatron $p\bar{p}$ and the LHC $pp$ collider
 can help to further constrain the PDFs.
 %
-The most sensitive processes at the  colliders are
-Drell Yan production, W and Z asymmetries, associated production of W or Z boson 
+The most sensitive processes at the  hadron colliders are
+Drell Yan (DY) production, $W$ and $Z$ asymmetries, associated production of $W$ or $Z$ boson 
 and heavy quarks, top quark production and jet production.
 %
 
 \fitter represents a QCD analysis framework that aims at 
 determining precise PDFs by integrating all the PDF sensitive information
-from HERA, the Tevatron and the LHC.
+from HERA, Tevatron and LHC.
 %
 The processes that are currently included in \fitter framework are listed in Tab.~\ref{tab:proc}.
 %
@@ -114,7 +114,7 @@ techniques for the fast interface to theory calculations are described in sectio
 \end{table}
 %
 \normalsize
-The basic functionality of HERAFitter is shown in Fig.~\ref{fig:flow} and consists of four parts: %{\bf needs to update figure!}
+The functionality of \fitter is schematicaly illustrated in Fig.~\ref{fig:flow} and consists of four parts: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
@@ -124,11 +124,11 @@ The basic functionality of HERAFitter is shown in Fig.~\ref{fig:flow} and consis
 %\end{figure}
 \begin{description}
 \item 
-\bf {Input data:} \rm  All relevant cross section data from the various reactions
+\bf {Input data:} \rm  All relevant cross section measurements from the various reactions
 are stored internally in \fitter with the full information on their uncorrelated and correlated
-uncertainties.
+uncertainties. HERA I data sets are the basis of any proton PDF extraction, and they are used by all global PDF groups \cite{MSTW, CT, NNPDF, ABM, JR}. Additional measurements provide constraints to the sea flavour decompositon (such as the new results from the LHC), as well as constraints to PDFs in the corners of the kinematic phase-space not covered precisely by HERA I, such as the high $x$ region for the gluon and valence distributions.
 \item
-\bf{Theory predictions:} \rm Predictions are obtained relying on the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at a starting scale $Q_0$  by a chosen functional form with a set of free parameters $\vec{p}$. They are then evolved from $Q_0$ to the scale of the measurement using the 
+\bf{Theory predictions:} \rm Predictions are obtained relying on the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at a starting scale $Q_0^2$  by a chosen functional form with a set of free parameters $\vec{p}$. They are then evolved from $Q_0^2$ to the scale of the measurement using the 
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
 (DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
@@ -140,27 +140,38 @@ a specific theory program (as listed in Tab.~\ref{tab:proc}).
 $\chi^2$ from the input data and the theory prediction.
 The $\chi^2$ is  minimized iteratively 
 with respect to the PDF parameters using the MINUIT\cite{minuit} program.
+Various choices of accounting for the experimental uncertainties are employed in \fitter, 
+either using nuisance parameter method for accounting of the correlated systematic uncertainties, or covariance matrix method. In addition, \fitter allows analysers to study different statistics assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal) \cite{arxiv.org/pdf/0901.2504.pdf}.
 %
 %Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
 %The fitted parameters $\vec(p)$ and obtained from the uncertainties of the parameters are determined (from chi2+1???)
 %
 \item
-\bf{Results:} \rm  The fitted parameters $\vec{p}$ and their estimated uncertainties are produced.
+\bf{Results:} \rm  The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
 The resulting PDFs are provided in a format ready to be used by the LHAPDF 
-library~\cite{lhapdf,lhapdfweb}. Tools are supplied which allow the PDFs to be
-graphically 
-displayed at arbitrary scales with their one sigma uncertainty bands.
-To demonstrate the fit consistency, plots 
+library~\cite{lhapdf,lhapdfweb}.
+Drawing tools are supplied which allow the PDFs to be
+graphically  displayed at arbitrary scales with their one sigma uncertainty bands. 
+A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009} which is based on HERA~I data, a default data set in \fitter. 
+This is illustrated in the Fig.~\ref{fig:hera1}. 
+Since then, more sets were produced within the HERA and LHC collaborations, respectively.
+In addition to PDF display, to demonstrate the fit consistency, plots 
 which compare the input data to the fitted theory predictions can be made using
-tools supplied with the package. 
-This is illustrated in the Fig.~\ref{fig:data} showing  
-HERA~I data (the default data set in \fitter) compared to predictions based on 
-HERAPDF1.0\cite{h1zeus:2009wt}. This figure also illustrates this comparison 
-taking into account the systematic uncertainty shift parameters which are 
-applied to the predictions in the nuisance parameter method of accounting for 
-correlated systematic uncertainties (see section~\ref{sec:chi2representation}) and the pulls 
-as an additional consistency check between data and the theory prediction 
-(defined as the difference between data and prediction divided by the uncorrelated uncertaintly of the data).
+tools supplied with the package.
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{hera1.pdf}
+   \caption{Summary plots of valence, total sea (scaled) and gluon densities(scaled) with their experimental, model and parametrisation uncertainties at the scale of $Q^2=10$ Gev$^2$ of the HERAPDF1.0 PDF set at NLO.}
+ \label{fig:hera1}
+\end{figure}
+
+
+Fig.~\ref{fig:data} shows a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0. It also illustrates the comparison to the theory predictions which are adjusted by the  
+systematic uncertainty shifts when using nuisance parameter method of accounting for 
+correlated systematic uncertainties (see section~\ref{sec:chi2representation}). 
+As an additional consistency check between data and the theory prediction, the pull information (defined as the difference between data and prediction divided by the uncorrelated uncertaintly of the data) is displayed in units of sigma shifts for each given data bin.
+% related only to the uncorrelated part of the systematic uncertainty. 
+
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{datatheory.pdf}
@@ -184,11 +195,12 @@ as an additional consistency check between data and the theory prediction
 
 %Based on the concept of factorisable nature of the cross sections into universal parton distribution functions (PDFs) and process dependent partonic scattering cross sections, 
 
-The \fitter\ program facilitates the determination of the PDFs from many 
-cross section measurements at $ep$, $p\bar{p}$ or $pp$ colliders.  
- It includes various options for theoretical calculations and various choices 
-of how to 
-account for the experimental uncertainties. Therefore, this project represents 
+%The \fitter\ program facilitates the determination of the PDFs from many 
+%cross section measurements at $ep$, $p\bar{p}$ or $pp$ colliders.  
+% It includes various options for theoretical calculations and various choices 
+%of how to 
+%account for the experimental uncertainties. 
+Therefore, this project represents 
 an ideal environment for benchmarking studies and a unique platform for the QCD interpretation of analyses within the LHC experiments,
 as already demonstrated by several publicly available results using the \fitter\ 
 framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
