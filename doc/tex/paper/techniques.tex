@@ -17,7 +17,7 @@ pQCD calculation and the lowest-order (fast) calculation.  These `` k-factors''
 are evaluated as a function of the kinematic variables relevant to
  the measurement 
 for a fixed PDF (for example the first iteration of the fit) and stored in 
-tables. They cam then be applied applied 'on the fly' to each subsequent fit 
+tables. They can then be applied 'on the fly' to each subsequent fit 
 iteration which will use the fast prediction multiplied by this `` k-factor''.
 Having determined a PDF this way the output PDF fit should then be used to 
 recalculate the k-factors and the fit repeated until input and output 
@@ -151,11 +151,11 @@ collisions~\cite{Nagy:2003tz,Nagy:2001fj} which include
 at $\mathcal{O}$(NNLO) for inclusive jet cross 
 sections~\cite{Kidonakis:2000gi}.
 
-The fastNLO libraries are included in the \fitter\ package
+The fastNLO libraries are included in the \fitter\ package.
 %and no further requirements or compilation options
 %are needed.
 In order to include a new measurement into the PDF fit,
-other fastNLO tables have to be specified. These tables include all
+the fastNLO tables have to be specified. These tables include all
 necessary information about the perturbative coefficients and the
 calculated process for all bins of a certain dataset. 
 %Tables for almost all published jet measurements
