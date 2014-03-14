@@ -74,6 +74,20 @@ The normalisation $A_g$ is given by the momentum sum rule.
 The advantages of this parametrisation are that the momentum sum rule can be evaluated analytically 
 and that for $N \ge 5$ the fit quality is already similar
 to the standard Regge-inspired parametrisation with a similar number of parameters.
+
+Such study of the parameterizasion uncertainty at low Bjorken $x \le 0.1$ for PDFs was presented 
+in~\cite{Chebyshev}. Figure~\ref{fig:cheb} shows that the accuracy of 
+the HERA data allows to determine the gluon density in the kinematic range of $0.0005 \le x \le 0.05$ 
+with a small parameterization uncertainty. An additional regularization prior leads to a 
+significantly reduced uncertainty for $x \le 0.0005$.
+\begin{figure}[!ht]
+ \centering
+  \includegraphics[width=8cm]{cheb.pdf}
+ \caption{Gluon PDF at the scale of $Q^2=1.9$ GeV$^2$ for various values of the length-prior 
+          weight using the Chebyshev parameterization expanded to the 15th order.}
+ \label{fig:cheb}
+\end{figure}
+
 %
 \item \bf{External PDFs:} \rm 
 \fitter\ also provides the possibility to access external PDF sets, which can be used to construct 
@@ -161,7 +175,12 @@ It can happen that various parts of the systematic and statistical uncertainties
 
 \subsection{Treatment of the Experimental Uncertainties}
 
-\fitter\ provides three methods for assessing the experimental uncertainties on PDFs: the Hessian, Offset, and Monte Carlo methods, which are described below.
+
+The usage of the nuisance parameters for the experimental uncertainty treatment in QCD fits are quite 
+common and has an advantage of the flexibile assessment of such uncertainties on PDFs. 
+Three distinct cases are implemented in \fitter and reviewed here:
+%\fitter\ provides three methods for assessing the experimental uncertainties on PDFs: 
+the Hessian, Offset, and Monte Carlo method.
 Figure \ref{fig:error} illustrates the difference between the Hessian and Monte-Carlo methods both of which can be applied and plotted with \fitter.
 \begin{figure}[!ht]
    \centering
@@ -205,6 +224,43 @@ fluctuate within their systematic and statistical uncertainties taking into acco
 The preparation of the data is repeated for a large $N$ ($>100$ times) and for each of these replicas a NLO QCD fit is performed to 
 extract the PDF set. The PDF central values and uncertainties are estimated using the mean values and RMS 
 over the replicas. 
+
+%The MC method represents one of the main concepts of the NNPDF group.
+The MC method was checked against the standard error estimation of the PDF uncertainties as used by the Hessian method. 
+A good agreement was found between the methods when employing for the MC approach the assumption that uncertainties 
+(statistical and systematic) follow Gauss distribution~\cite{hera-lhc:report2009}. 
+This comparison is illustrated in Fig.~\ref{fig:mchessian}.
+\begin{figure}[!ht]
+ \centering
+  \includegraphics[width=7cm,height=7cm]{mchessian.pdf}
+  \caption{Comparison between the standard error calculations as employed by the Hessian approach (black lines) 
+      and the MC approach assuming Gauss distribution for uncertainty distributions, shown here for each replica 
+          (green lines) together with the evaluated the root-mean-square (red lines).}
+  \label{fig:mchessian}        
+\end{figure}
+
+Generally the experimental uncertainties are symmetrised when QCD fits 
+are performed, however many times the provided uncertainties are rather asymmetric.
+\fitter provides possibility to use asymmetric systematic uncertainties.
+The technical implementation relies on assumption that 
+asymmetric uncertainties can be described by a parabolic function, as given below:
+\begin{equation}
+  f_i(b_j)=\omega_{ij}b_j^2 + \gamma_{ij}b_j,
+\end{equation}
+where the coefficients $\omega_{ij}$, $\gamma_{ij}$ are defined as 
+up and down shifts of the cross sections to a nuisance parameter, $S_{ij}^{\pm}$, 
+\begin{equation}
+  \omega_{ij}=\frac{1}{2}\left(S_{ij}^{-}+S_{ij}^{+}\right), \\
+  \gamma_{ij}=\frac{1}{2}\left(S_{ij}^{-}+S_{ij}^{+}\right) 
+\end{equation}
+Then the definition of the $\chi^2$ from Eq.~\ref{eq:aven} is extended with the parabolic approximation 
+for asymmetric uncertainties, such that the expected cross section is adjusted to be
+\begin{equation}
+  m_i(1+\sum_j b_j\gamma_{ij}) \to m_i\left(1+\sum_{j}f_i(b_j)\right) = m_i\left(1+\sum_j(b_j(\omega_{ij}b_j + \gamma_{ij})\right).
+\end{equation}
+The minimisation is performed using ﬁx number of iterations, with typical rapid convergence.
+
+
 \end{description}
 
 

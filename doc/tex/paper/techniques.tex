@@ -66,17 +66,6 @@ corresponding to the available measurement.
 The calculated leading order cross sections are multiplied by
 $k-factors$ to obtain predictions at NLO.
 
-This method was used by the ATLAS collaboration in determining the strange quark density of the proton from  
-$W$ and $Z$ cross sections \cite{atlas:strange}. An illustration of ATLAS PDF extracted using $k-factor$
-method is illustrated in Fig.~\ref{fig:atlas}, shown in comparison with global PDF sets such as CT10\cite{CT10pdf} and NNPDF2.3\cite{NNPDFpdf}.
-
-\begin{figure}[!ht]
-   \centering
-   \includegraphics[width=8cm]{atlas.pdf}
-   \caption{The strange anti-quark density versus $x$ for the ATLAS epWZ free sbar NNLO fit (magenta band) compared to predictions from NNPDF2.1 (blue hatched) and CT10 (green hatched) at $Q^2= 1.9$ GeV$^2$.}
- \label{fig:atlas}
-\end{figure}
-
 \end{itemize}
 
 %or NNLO precision.
@@ -133,6 +122,20 @@ The NLO cross sections are restored from the grids
 using externally provided PDFs, \(\alpha_S\), factorization and 
 renormalization scales. For NNLO predictions $k-factors$ can be applied.
 
+This method was used by the ATLAS collaboration in determining the strange 
+quark density of the proton from $W$ and $Z$ cross sections~\cite{atlas:strange}. 
+An illustration of ATLAS PDFs extracted using $k-factor$ method is shown 
+in Fig.~\ref{fig:atlas} togehter with the comparison to global PDF sets 
+CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf}.
+
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{atlas.pdf}
+   \caption{The strange anti-quark density versus $x$ for the ATLAS epWZ free sbar NNLO fit (magenta band) compared to predictions from NNPDF2.1 (blue hatched) and CT10 (green hatched) at $Q^2= 1.9$ GeV$^2$.}
+ \label{fig:atlas}
+\end{figure}
+
+
 \item
 The FastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
 %enables the inclusion of jet data in PDF and $\alpha_s$ fits.
@@ -178,6 +181,21 @@ scale as a function of two pre-defined observables.
 The evaluation of the strong coupling constant, which enters
 the cross section calculation, is taken consistently from the 
 QCDNUM evolution code.
+
+The fastNLO methodology were used in the recent CMS analysis with \fitter where the impact
+on the extraction of the PDFs from the inclusive jet cross section is investigated~\cite{cms:jets}. 
+The impact of the gluon density of CMS inclusive jet data is illustrated in Fig.~\ref{fig:cmsjet}.
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{CMSjets.pdf}
+   \caption{The gluon density as a function of $x$ as derived from HERA inclusive DIS data 
+            alone (cyan) and in combination with CMS inclusive jet data from 2011 (blue hatched)
+            where bands represent the total uncertainty of the PDFs. 
+            The PDFs are shown at the starting scale $Q^2= 1.9$ GeV$^2$.}
+ \label{fig:cmsjet}
+\end{figure}
+
+
 \end{itemize}
 
 \end{description}
