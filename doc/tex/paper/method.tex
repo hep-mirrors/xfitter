@@ -14,9 +14,9 @@ framework that allows for independent integration of the state-of-the-art techni
 
 In this section we briefly describe the available options in \fitter\ ranging from the functional form used to parametrise PDFs and the choice of the form of the $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
 
-%list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter\. 
+%list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter. 
 In addition, as an alternative approach to a complete QCD fit,  the reweighting
-method, which is also available in the \fitter\, is described in this section. 
+method, which is also available in the \fitter, is described in this section. 
 
 
 
@@ -45,7 +45,7 @@ The sum-rules can be evaluated analytically.
 
 \item \bf {Log-Normal Distributions:} \rm
 A bi-log-normal distribution to parametrise the $x$ dependence of the PDFs is 
-also available in \fitter\ .
+also available in \fitter.
 %parton distribution function of the proton.
 This parametrisation is motivated by  multiparticle statistics~\cite{hera-lhc:report2009}. 
 The following functional form can be used:
@@ -62,7 +62,7 @@ In order to satisfy the QCD sum rules this parametric form requires numerical in
 A flexible Chebyshev polynomial based parametrisation can be used for the gluon and sea densities. The polynomials
 use $\log x$ as an argument to emphasize the low $x$ behavior. 
 The parametrisation is valid for $x>x_{min} = 1.7\times 10^{-5}$. The PDFs are multiplied
-by $1-x$ to ensure that they vanish as $x\to 1$. The resulting parametric form is 
+by $(1-x)$ term to ensure that they vanish as $x\to 1$. The resulting parametric form is 
 \begin{eqnarray}
 x g(x) &=& A_g \left(1-x\right) \sum_{i=0}^{N_g-1} A_{g_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,, \label{eq:glu} \\
 x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{min} } {\textstyle \log x_{min} } \right)\,. \label{eq:sea} 
@@ -75,26 +75,26 @@ The advantages of this parametrisation are that the momentum sum rule can be eva
 and that for $N \ge 5$ the fit quality is already similar
 to the standard Regge-inspired parametrisation with a similar number of parameters.
 
-Such study of the parameterizasion uncertainty at low Bjorken $x \le 0.1$ for PDFs was presented 
+Such study of the parametrisasion uncertainty at low Bjorken $x \le 0.1$ for PDFs was presented 
 in~\cite{Chebyshev}. Figure~\ref{fig:cheb} shows that the accuracy of 
 the HERA data allows to determine the gluon density in the kinematic range of $0.0005 \le x \le 0.05$ 
-with a small parameterization uncertainty. An additional regularization prior leads to a 
+with a reduced parametrisation uncertainty. An additional regularisation prior leads to a 
 significantly reduced uncertainty for $x \le 0.0005$.
 \begin{figure}[!ht]
  \centering
   \includegraphics[width=8cm]{cheb.pdf}
  \caption{Gluon PDF at the scale of $Q^2=1.9$ GeV$^2$ for various values of the length-prior 
-          weight using the Chebyshev parameterization expanded to the 15th order.}
+          weight using the Chebyshev parametrisation expanded to the 15th order.}
  \label{fig:cheb}
 \end{figure}
 
 %
 \item \bf{External PDFs:} \rm 
 \fitter\ also provides the possibility to access external PDF sets, which can be used to construct 
-theoretical predictions for the various processes implemented in \fitter . This is possible via an 
+theoretical predictions for the various processes implemented in \fitter. This is possible via an 
 interface to LHAPDF~\cite{lhapdf,lhapdfweb} which provides access to the global PDF sets available at LO, NLO 
 or NNLO evolved either locally through the \fitter\ or taken as provided by the LHAPDF grids. 
-Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter and illustrates 
+Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter\ and illustrates 
 the PDFs accessed from LHAPDF.
 \end{description}
 %
@@ -110,7 +110,7 @@ the PDFs accessed from LHAPDF.
 
 The PDF parameters are extracted from a $\chi^2$ minimization process. 
 For experimental uncertainties there are various forms to represent the $\chi^2$ function, e.g. using a covariance matrix or representing them by nuisance parameters. 
-In addition, there are various methods to deal with correlated systematic (or statistical) uncertainties (e.g. different scaling options, etc.). Here we summarise the options available in \fitter\ . 
+In addition, there are various methods to deal with correlated systematic (or statistical) uncertainties (e.g. different scaling options, etc.). Here we summarise the options available in \fitter. 
 
 \begin{description}
 \item \bf {Covariance Matrix Representation:} \rm
@@ -131,14 +131,23 @@ source of systematic uncertainty.
 
 \item \bf{Nuisance Parameters Representation:} \rm
 \label{sec:nuisance_representation}
-\begin{eqnarray} 
-    \chi^2\left(\boldsymbol{m},\boldsymbol{b}\right) &= &  
+
+%\begin{eqnarray} 
+%    \chi^2\left(\boldsymbol{m},\boldsymbol{b}\right) &= &  
+% \sum_i \frac{\left[m^i - \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
+%{ \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)
+%  + \left(\delta_{i,{\rm uncor}}\,  m^i\right)^2} \nonumber \\
+%  &+& \sum_j b^2_j.
+%\label{eq:aven}
+%\end{eqnarray}
+{ \small
+\begin{equation} 
+    \chi^2\left(\boldsymbol{m},\boldsymbol{b}\right) =   
  \sum_i \frac{\left[m^i - \sum_j \gamma^i_j m^i b_j  - {\mu^i} \right]^2}
 { \textstyle \delta^2_{i,{\rm stat}}\mu^i \left(m^i -  \sum_j \gamma^i_j m^i b_j\right)
-  + \left(\delta_{i,{\rm uncor}}\,  m^i\right)^2} \nonumber \\
-  &+& \sum_j b^2_j.
+  + \left(\delta_{i,{\rm uncor}}\,  m^i\right)^2}+ \sum_j b^2_j.
 \label{eq:aven}
-\end{eqnarray}
+\end{equation}}
 %
 Here ${\mu^i}$ is the  measured central value  at a point $i$ 
 with  relative statistical $\delta_{i,stat}$ 
@@ -178,7 +187,7 @@ It can happen that various parts of the systematic and statistical uncertainties
 
 The usage of the nuisance parameters for the experimental uncertainty treatment in QCD fits are quite 
 common and has an advantage of the flexibile assessment of such uncertainties on PDFs. 
-Three distinct cases are implemented in \fitter and reviewed here:
+Three distinct cases are implemented in \fitter\ and reviewed here:
 %\fitter\ provides three methods for assessing the experimental uncertainties on PDFs: 
 the Hessian, Offset, and Monte Carlo method.
 Figure \ref{fig:error} illustrates the difference between the Hessian and Monte-Carlo methods both of which can be applied and plotted with \fitter.
@@ -238,10 +247,11 @@ This comparison is illustrated in Fig.~\ref{fig:mchessian}.
           (green lines) together with the evaluated the root-mean-square (red lines).}
   \label{fig:mchessian}        
 \end{figure}
+\end{description}
 
-Generally the experimental uncertainties are symmetrised when QCD fits 
-are performed, however many times the provided uncertainties are rather asymmetric.
-\fitter provides possibility to use asymmetric systematic uncertainties.
+Generally, the experimental uncertainties are symmetrised when QCD fits 
+are performed, however often the provided uncertainties are rather asymmetric.
+\fitter\ provides possibility to use asymmetric systematic uncertainties.
 The technical implementation relies on assumption that 
 asymmetric uncertainties can be described by a parabolic function, as given below:
 \begin{equation}
@@ -255,17 +265,19 @@ up and down shifts of the cross sections to a nuisance parameter, $S_{ij}^{\pm}$
   \gamma_{ij}=\frac{1}{2}\left(S_{ij}^{-}+S_{ij}^{+}\right) 
 \end{equation}
 }
-Then the definition of the $\chi^2$ from Eq.~\ref{eq:aven} is extended with the parabolic approximation 
+For this case the definition of the $\chi^2$ from Eq.~\ref{eq:aven} is extended with the parabolic approximation 
 for asymmetric uncertainties, such that the expected cross section is adjusted to be
-{ \scriptsize
+%m_i\left(1+\sum_{j}f_i(b_j)\right) = 
+%{ \small
 \begin{equation}
-  m_i(1+\sum_j b_j\gamma_{ij}) \to m_i\left(1+\sum_{j}f_i(b_j)\right) = m_i\left(1+\sum_j(b_j(\omega_{ij}b_j + \gamma_{ij})\right).
+  m_i(1+\sum_j b_j\gamma_{ij}) \to 
+m_i\left(1+\sum_j(b_j(\omega_{ij}b_j + \gamma_{ij})\right).
 \end{equation}
-}
+%}
 The minimisation is performed using ﬁx number of iterations, with typical rapid convergence.
 
 
-\end{description}
+
 
 
 \subsection{Treatment of the Theoretical Input Parameters}
@@ -278,7 +290,7 @@ Another important input is the choice of the functional form for the PDFs at the
 
 \subsection{Reweighting Techniques}
 
-As an alternative to a complete QCD fit, the reweighting method (Bayesian Reweighting) is available in the \fitter\.
+As an alternative to a complete QCD fit, the reweighting method (Bayesian Reweighting) is available in \fitter.
 Because no fit is performed, the method provides a fast estimate of the impact of new data. 
 It was originally developed by the NNPDF collaboration \cite{Ball:2011gg,Ball:2010gb} and later extended~\cite{Watt:2012tq} 
 to work not only on the NNPDF replicas, but also on the eigenvectors provided by most PDF groups. 
@@ -313,14 +325,14 @@ that are incompatible with the data are discarded in order to create a more stre
 
 \subsection{Performance Optimisation}
 
-The above mentioned features make \fitter a powerful project that encapsulates 
+The above mentioned features make \fitter\ a powerful project that encapsulates 
 state of the art developments 
 %from the most up-to-date theory developments 
 to debates on reaching the ultimate experimental precision. 
 
 An important factor for a feasible QCD fit which is performed by iterative 
 $\chi^2$ minimisation, is performance in terms of how long a calculation takes for each given data point.
-The performance of the \fitter  code is greatly improved with several special built-in options
+The performance of the \fitter\  code is greatly improved with several special built-in options
 including the $k-factor$ techniques (see section~\ref{sec:techniques}) and the grid techniques for the fast calculation of cross 
 sections of particular processes for arbitrary sets of PDFs. There are also cache options, fast evolution kernels, and 
 usage of the openMP (Open Multi-Processing) interface which allows
