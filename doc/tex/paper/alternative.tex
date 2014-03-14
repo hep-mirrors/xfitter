@@ -1,7 +1,7 @@
 
 
 %\subsection{Alternative to DGLAP DIS models}
-Different approaches that are alternative to the DGLAP formalism can be used to analyse DIS data in \fitter .
+Different approaches that are alternative to the DGLAP formalism can be used to analyse DIS data in \fitter.
 These include several different dipole models and the use of 
 transverse momentum dependent, or unintegrated PDFs, uPDFs.
 These approaches are discussed below.
@@ -27,7 +27,7 @@ The dynamics of the interaction are embedded in the dipole scattering amplitude.
 %\end{figure}
 
 Several dipole models which assume different behavior of the dipole-proton 
-cross sections are implemented in \fitter\ :
+cross sections are implemented in \fitter:
 %\begin{itemize}
 %\item the original Golec-Biernat-W\"usthoff (GBW)~\cite{Golec-Biernat:1998js} 
 the Golec-Biernat-W\"usthoff (GBW)
@@ -89,7 +89,7 @@ BGK model, this is uniquely possible within the \fitter\ framework.
 %valence quarks are the same.
 \end{description}
 
-\subsection{Transverse Momentum Dependent (unintegrated) PDFs with CCFM}
+\subsection{Transverse Momentum Dependent  PDFs with CCFM}
 
 Here another alternative approach to collinear DGLAP evolution is presented.
 In high energy factorization \cite{Catani:1990eg} the measured cross section is written
@@ -101,10 +101,12 @@ ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ (transverse momentum dependent (TMD) o
 \frac{dz}{z} d^2k_t \hat{\sigma}(\frac{x}{z},k_t)  {\cal \tilde A}\left(x,\kt,\Pmax\right)
 \label{kt-factorisation}
 \end{equation}
-{\bf would probably be good to explain how the unintegrated relates to the integrated here}
+%{\bf would probably be good to explain how the unintegrated relates to the integrated here}
 Generally, the evolution of ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ 
-can proceed via the BFKL{\bf you need a BFKL reference}, DGLAP or via the CCFM evolution equations.
-In \fitter\, an extension of the CCFM~\cite{\CCFM} evolution has been implemented.
+can proceed via the BFKL\cite{BFKL}
+%{\bf you need a BFKL reference},
+ DGLAP or via the CCFM evolution equations.
+In \fitter, an extension of the CCFM~\cite{\CCFM} evolution has been implemented.
 Since the evolution cannot be easily obtained in  a closed form, 
  first a kernel $ {\cal \tilde A}\left(x'',\kt,\Pmax\right) $ 
 is determined from the MC solution of the CCFM evolution equation, 
@@ -268,7 +270,7 @@ calculable coefficient functions with diffractive quark and gluon distribution f
 %==========================================
 %{\bf Regge factorization} 
 %Needed? \\
-The diffractive PDFs in \fitter are implemented following the prescription of ZEUS
+The diffractive PDFs in \fitter\ are implemented following the prescription of ZEUS
 publication~\cite{zeus:diff2009} and can be used to reproduce the main results.
 %For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
 %\begin{equation}
