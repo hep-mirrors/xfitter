@@ -30,7 +30,7 @@ In this section the theoretical formalism for various processes available in \fi
 
 Deep Inelastic Scattering (DIS) data provide the backbone of any PDF fit.
 The formalism relating DIS measurements to pQCD and the PDFs has been described
- in detail in many extensive reviews ~\cite{disbook} and will only be briefly recapped here.
+ in detail in many extensive reviews (see e.g.~\cite{disbook}) and will only be briefly recapped here.
 DIS is lepton scattering off the 
 constituents of the proton by a virtual exchange of a neutral (NC) 
 or charged (CC) vector boson and, as a result, a scattered lepton and a 
@@ -97,7 +97,7 @@ quarks are produced perturbatively in the final state.
 The lowest order process is the fusion of a gluon in the proton
 with a boson from the electron to produce a heavy quark and an antiquark.
 \item
-In the Zero-Mass Variable Flavour Number (ZM-VFN) scheme\cite{ZMVFNpub} the
+In the Zero-Mass Variable Flavour Number (ZM-VFN) scheme~\cite{ZMVFNpub} the
 heavy quark densities are included in the proton for $Q^2$ values above a threshold $\sim m_h^2$
 and
 %for $Q^2>>m_h^2$ but 
@@ -125,13 +125,14 @@ The running mass scheme has the advantage of reducing the sensitivity of the DIS
 higher order corrections, and improving the theoretical precision of the mass definition. 
 In QCDNUM, the calculation of the heavy quark contributions to DIS structure functions
 are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account.
-In the ABM implementation, both CC and NC contributions are available at NLO 
-and the Next-to-Next-to Leading Order (NNLO) QCD corrections to the massive Wilson coefficients, which is currently best known approximation~\cite{SMoch:npb864}.
+In the ABM implementation the heavy quark contributions to CC structure functions are available 
+and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
+are provided at the best currently known approximation~\cite{SMoch:npb864}.
 \item  
 \bf {ZM-VFN schemes:} \rm 
 In this scheme, the heavy quarks are treated as infinitely massive below scale
 in vicinity of heavy quark mass, and massless above this threshold.
-Thi prescription has been used for many years by global PDF groups, however 
+The prescription has been used for many years by global PDF groups, however 
 it is only suited for quantitative analyses for scales $Q^2>>m_h^2$, for which 
 the terms of order $\mathcal{O}(m_h^2/Q^2)$ can be neglected.
 \item \bf {GM-VFN Thorne-Roberts scheme:} \rm
