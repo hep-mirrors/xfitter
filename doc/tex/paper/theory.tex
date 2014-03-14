@@ -29,11 +29,11 @@ In this section the theoretical formalism for various processes available in \fi
 
 
 Deep Inelastic Scattering (DIS) data provide the backbone of any PDF fit.
-The formalism relating DIS measurements to pQCD and the PDFs has been described
+The formalism that relates the DIS measurements to pQCD and the PDFs has been described
  in detail in many extensive reviews (see e.g.~\cite{disbook}) and will only be briefly recapped here.
-DIS is lepton scattering off the 
-constituents of the proton by a virtual exchange of a neutral (NC) 
-or charged (CC) vector boson and, as a result, a scattered lepton and a 
+DIS is a lepton scattering off the 
+constituents of the proton by a virtual exchange of a NC 
+or CC vector boson and, as a result, a scattered lepton and a 
 multihadronic final state are produced.
 The DIS kinematic variables are the negative squared four-momentum of 
 the exchange boson, $Q^2$, the Bjorken $x$, 
@@ -55,10 +55,10 @@ The NC cross section can be expressed in terms of structure functions:
 where $Y_{\pm} = 1 \pm (1-y)^2$. The structure function $\tilde F_2$
 is the dominant contribution to the cross section, $x \tilde F_3$ is important at high $Q^2$ and $\tilde F_L$ is sizable 
 only at high $y$. 
-In the framework of perturbative QCD the structure functions are directly related to the 
-parton distribution functions, i.e. in leading order (LO)  $F_2$ is the weighted momentum sum of quark and anti-quark distributions, 
+In the framework of pQCD the structure functions are directly related to the 
+PDFs, i.e. in leading order (LO)  $F_2$ is the weighted momentum sum of quark and anti-quark distributions, 
 $F_2 \approx x \sum e^2_q (q+ \overline q)$, and $xF_3$ is related to their difference, 
-    $xF_3 \approx x \sum 2e_q a_q (q- \overline q)$ (where $a_q$ is the axial-vecor quark coupling). 
+    $xF_3 \approx x \sum 2e_q a_q (q- \overline q)$ (where $a_q$ is the axial-vecor quark coupling and $e_q$ the quark electric charge). 
     At higher orders, terms related to the gluon density distribution
 ($\alpha_s g$) appear, in particular $F_L$ is strongly related to the low-$x$ 
 gluon.
@@ -70,12 +70,12 @@ densities:
 %  \nonumber
     \begin{array}{rll}
    e^{+}:  & & \tilde \sigma_{CC}^{e^{+} p} = 
-                x[\overline u] + (1-y)^2 x[ d]  \\
+                x\overline U + (1-y)^2 xD  \\
    e^{-}:  & & \tilde \sigma_{CC}^{e^{-} p} = 
-                x[ u] + (1-y)^2 x[\overline d].
+                xU + (1-y)^2 x\overline D.
     \end{array}
 \end{eqnarray}
-Here $u$ and $d$ denote the sum over up- and down-type quarks;
+Here $U$ and $D$ denote the sum over up- and down-type quarks;
 the latter include also strange and beauty quarks and 
 the former charm quarks.
 %
@@ -93,9 +93,10 @@ In the Fixed Flavour Number (FFN)
 scheme~\cite{Laenen:1992, Laenen:1993, Riem:1995}
  only the gluon and the light quarks are considered
 as partons within the proton and massive 
-quarks are produced perturbatively in the final state.
+quarks (with mass $m_h$) are produced perturbatively in the final state.
 The lowest order process is the fusion of a gluon in the proton
-with a boson from the electron to produce a heavy quark and an antiquark.
+with a boson from the lepton to produce a heavy quark and an antiquark.
+The modern series of PDFs that use this scheme as default are ABM and JR PDF groups.
 \item
 In the Zero-Mass Variable Flavour Number (ZM-VFN) scheme~\cite{ZMVFNpub} the
 heavy quark densities are included in the proton for $Q^2$ values above a threshold $\sim m_h^2$
@@ -103,16 +104,18 @@ and
 %for $Q^2>>m_h^2$ but 
 are treated as massless in both the initial 
 and final states. The lowest order process is the scattering
-of a heavy quark in the proton with the electron via (electroweak) boson exchange.
+of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
 This scheme is expected to be reliable only in the region $Q^2>>m_h^2$.
+This is the scheme that was used in the past by PDF groups.
 \item
-In the general mass Variable-Flavour number (GM-VFN)
+In the General-Mass Variable-Flavour Number (GM-VFN)
 scheme~\cite{VFN} heavy quark production is treated for
  $Q^2 \le m_h^2$ in the FFN scheme and  for $Q^2 >> m_h^2$
 in the ZM-VFN scheme with a suitable interpolation in between.
-This scheme is very popular and numerous variants exist.
+The modern series of PDF Groups that use this scheme are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
+%This scheme is very popular and numerous variants exist.
 \end{itemize}
-All three schemes are available in \fitter\ . In the following
+All three schemes are available in \fitter\. In the following
 the implemented variants are briefly discussed.
 % 
 \begin{description}
@@ -169,13 +172,11 @@ and it provides a smooth interpolation in the intermediate region.
 %% is this sentence below is important?
 %%The DGLAP kernels and PDF evolution are pure $\overline{\text{MS}}$, 
 %%therefore, the ACOT scheme is considered to be a minimal extension of the $\overline{\text{MS}}$ scheme.
-
 Within the ACOT package, different variants of the ACOT scheme are available:
 ACOT-Full, S-ACOT-$\chi$, ACOT-ZM, $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
 The ACOT-Full implementation takes into account the quark masses 
-and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
-but it has the disadvantage of being quite slow.
+and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, but it has the disadvantage of slow computational performance (addressed in section \ref{sec:techniques}).
 
 \vspace{0.1cm}
 \end{description}
@@ -183,7 +184,7 @@ but it has the disadvantage of being quite slow.
 %%%%%%%%%%%
 %\item \bf {Electroweak corrections for \texorpdfstring{$ep$}{ep} scattering:} \rm
 Calculations of higher-order electroweak corrections to DIS scattering at 
-HERA are available in \fitter\, performed in the on-shell scheme 
+HERA are available in \fitter, performed in the on-shell scheme 
 where the gauge bosons masses $M_W$ and 
 $M_Z$ are treated symmetrically as basic parameters together with the top, 
 Higgs and fermion masses.
@@ -202,36 +203,36 @@ an older version from Burkhard \cite{Burkhard}.
 %predict lepton pair production at the LHC or Tevatron.
 The Drell Yan (DY) process
 provides further valuable information about PDFs.
-In $pp$ and $p\bar p$ scattering, the Z$/\gamma\*$ and W production 
+In $pp$ and $p\bar p$ scattering, the $Z/\gamma\*$ and $W$ production 
 probe bi-linear combinations of quarks. 
 Complementary information on the different quark densities
-can be obtained from W asymmetry ($d$, $u$ and their ratio),
-the ratio of the W and Z cross sections (sensitive to the flavor 
+can be obtained from $W$ asymmetry ($d$, $u$ and their ratio),
+the ratio of the $W$ and $Z$ cross sections (sensitive to the flavor 
 composition of the quark sea, in particular to the $s$ density), 
-associated W and Z production with
+associated $W$ and $Z$ production with
 heavy quarks (sensitive to $s$ and $c$ quark densities).
 %
 
-Presently, the predictions for Drell-Yan and W and Z production are known 
-NNLO and W,Z +heavy flavour are know to NLO. There are several possibilities 
+Presently, the predictions for Drell-Yan and $W$ and $Z$ production are known 
+NNLO and $W$, $Z$ in association with heavy flavour quarks are known to NLO. There are several possibilities 
 for obtaining the theoretical
 predictions for DY production in \fitter. 
 At LO an analytic calculation is available within the package and described
 below: 
 
-The leading order DY triple differential cross section in
-invariant mass \(M\), boson rapidity \(y\) and CMS
-lepton scattering angle \(\cos\theta\), for the neutral current, 
+The LO DY triple differential cross section in
+invariant mass \(M\), boson rapidity \(y\) and Centre of Mass 
+lepton Scattering (CMS) angle \(\cos\theta\), for NC, 
 can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{align}
 % \scriptstyle
  \textstyle
 % \frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &= 
  \frac{d^3\sigma}{dM{d}y d\cos\theta} =  
- \frac{\pi\alpha^2}{3MS}\sum_{q}P_q \left[F_q(x_1,Q^2)F_{\bar{q}}(x_2,Q^2) 
+ \frac{\pi\alpha^2}{3MS}\sum_{q}P_q \left[f_q(x_1,Q^2)f_{\bar{q}}(x_2,Q^2) 
  + (q\leftrightarrow\bar{q})\right],
 \end{align}
-where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $F_q(x_1,Q^2)$ 
+where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,Q^2)$ 
 is the parton number density, and 
 $P_q$ is a partonic cross section. 
 %\begin{align}
@@ -253,24 +254,24 @@ $P_q$ is a partonic cross section.
 %\end{align}
 \\
 \\
-The expression for charged current scattering has a simpler form.
+The expression for CC  scattering has a simpler form:
 \begin{align}
 \frac{d^3\sigma}{dMdyd\cos\theta} &=
  \frac{\pi\alpha^2}{48S\sin^4\theta_W}
  \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
- & \sum_{q_1,q_2}V_{q_1q_2}^2F_{q_1}(x_1,Q^2)F_{q_2}(x_2,Q^2),
+ & \sum_{q_1,q_2}V_{q_1q_2}^2f_{q_1}(x_1,Q^2)f_{q_2}(x_2,Q^2),
 \end{align}
 where \(V_{q_1q_2}\) is the CKM quark mixing matrix and \(M_W\) and \(\Gamma_W\)
 are \(W\) boson mass and decay width.
 
 The simple form of these expressions allows the calculation of integrated
-cross sections without utilization of Monte-Carlo techniques which often 
+cross sections without the use of Monte-Carlo (MC) techniques which often 
 introduce statistical fluctuations.
 %This is particularly useful for PDF fitting purposes because
 %statistical fluctuations are avoided in this case. 
-In both neutral and charged current expressions the parton distribution functions
+In both NC and CC expressions PDFs
 factorise as functions dependent only on boson rapidity \(y\) and
-invariant mass \(M\) and
+invariant mass \(M\), while
 the integral in \(\cos\theta\) can be computed analytically.
 %and integrations in \(y\) and \(M\) can be performed with the Simpson
 %method. The \(\cos\theta\) parts are kept in the equation 
@@ -281,11 +282,10 @@ the integral in \(\cos\theta\) can be computed analytically.
 
 The NLO and NNLO calculations are 
 highly demanding
-in terms of the computing power and time, and k-factor or fast grid techniques 
-need to be used (see section~\ref{sec:techniques}
-for details).
-The programme MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff} 
-is available for NLO calculations and the programmes
+in terms of the computing power and time, and $k-factor$ or fast grid techniques must be employed (see section~\ref{sec:techniques}
+for details), interfaced to programms such as
+MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}, 
+available for NLO calculations, or 
 FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NLO and NNLO.
  
 
@@ -313,11 +313,10 @@ FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NLO and NNLO.
 
 Jet production at high transverse momentum is sensitive to the high-$x$ gluon 
 PDF (see e.g.~\cite{MSTWpdf}) and can thus increase the precision of the 
-gluon PDF determination, which is particularly important for Higgs production 
-and searches for new physics.
+gluon PDF determination, which is particularly important for the Higgs production and searches for new physics.
 Jet production cross sections are only currently known to NLO, although NNLO 
 calculations are now quite advanced~\cite{nigel:2013,nigel:2010}. 
-Within \fitter\ the programmes MCFM and 
+Within \fitter\ the programms such MCFM and 
 NLOJET++~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
 calculation of jet production.
 Similarly to DY case, the calculation 
@@ -325,7 +324,7 @@ is very demanding in terms of computing power.
 %Although the concept is process independent, 
 %The perturbative 
 %coefficients are calculated by the \texttt{NLOJET++}, which is 
-Therefore, to allow the possibility to include the $ep$, $pp$ or $p\bar p$ 
+Therefore, to allow the possibility to include  $ep$, $pp$ or $p\bar p$ 
 jet cross section 
 measurements in QCD fits to extract PDF and $\alpha_s$ fits fast 
 grid techniques are used (see section~\ref{sec:techniques}).
@@ -345,12 +344,12 @@ grid techniques are used (see section~\ref{sec:techniques}).
 Top-quark pairs ($t\bar{t}$) are produced at hadron colliders dominantly 
 via $gg$ fusion and
 $q \bar q$ annihilation. This provides the possibility to use top production to
-constrain the gluon density in the proton. Calculations are available to NLO in MCFM and to approximate NNLO in the program HATHOR~\cite{Aliev:2010zk}. These are both available within \fitter\. 
+constrain the gluon density in the proton. Calculations are available to NLO precision with  MCFM and to approximate NNLO precision with the HATHOR programm~\cite{Aliev:2010zk}. These are both available within \fitter\. 
 Version 1.3 of HATHOR includes the exact NNLO for $q \bar q \to t \bar t$ \cite{Baernreuther:2012ws}
 as well as a new high-energy constraint on the 
 approximate NNLO calculation obtained from
 soft-gluon resummation \cite{Moch:2012mk}.
-The use of these programmes also needs fast grid techniques.
+The use of these programms also requires fast grid techniques.
 
 %The default choice for renormalization and factorization scale in $t \bar t$ production is the top-quark mass, $m_t$.
 %The pole mass scheme is typically employed for $m_t$ but HATHOR also supports calculations in
