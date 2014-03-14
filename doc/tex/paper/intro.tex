@@ -44,7 +44,7 @@ $\mu_F$ and $\mu_R$, respectively.
 %
 The partonic cross sections are calculable in pQCD, but
 the PDFs cannot yet be predicted in QCD, they must rather be 
-determined from measuement. They are assumed 
+determined from measurement. PDFs are assumed 
 to be universal such that different scattering reactions can be used 
 to constrain them; in particular one can use specific reaction data 
 for determining the PDFs and then use these PDFs for
@@ -84,14 +84,13 @@ Data &Type &  Reaction & Theory      \\
         &     &     & calculation \\
 \hline
 
-HERA &DIS NC   &$ep\to ep$      & QCDNUM~\cite{qcdnum}, RT~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, \\
-     &         &                & ACOT~\cite{CWZ} \\
-HERA &DIS CC   &$ep\to \nu_e p$ & QCDNUM~\cite{qcdnum}, RT~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, \\
-     &         &                & ACOT~\cite{CWZ} \\
+HERA &DIS NC   &$ep\to ep$      & RT~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, ACOT~\cite{CWZ} \\
+     &         &                & ZM (QCDNUM~\cite{qcdnum}) \\
+HERA &DIS CC   &$ep\to \nu_e p$ & ACOT~\cite{CWZ}, ZM (QCDNUM~\cite{qcdnum}) \\
 HERA &DIS jets &$ep\to eX$      & FastNLO (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj})\\
 HERA &DIS heavy                 & $ep\to ep $& ZM (QCDNUM~\cite{qcdnum}), \\
      & quarks  &                & RT~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, ACOT~\cite{CWZ}, \\
-     &         &                & FFNS (ABM~\cite{Alekhin:runm,openqcdrad:page}, \\
+     &         &                & FFN (ABM~\cite{Alekhin:runm,openqcdrad:page}, \\
      &         &                & QCDNUM~\cite{qcdnum}) \\
 \hline
 Fixed Target   &DIS NC          &$ep\to ep$ & ZM (QCDNUM~\cite{qcdnum}), \\
@@ -104,7 +103,7 @@ Tevatron, LHC &top &$pp(\bar p)$  & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbel
 Tevatron, LHC &jets &$pp(\bar p)$ & APPLGRID (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj}) \\
                 &  & & FastNLO (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj}) \\
 LHC& DY + heavy &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}) \\
-   & quarks     &                 & RT~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, ACOT~\cite{CWZ}, \\
+   & quarks     &                 & \\
 \hline
 \end{tabular}
 \caption{The list of processes available in the \fitter package. 
@@ -126,7 +125,7 @@ The functionality of \fitter is schematicaly illustrated in Fig.~\ref{fig:flow} 
 \item 
 \bf {Input data:} \rm  All relevant cross section measurements from the various reactions
 are stored internally in \fitter with the full information on their uncorrelated and correlated
-uncertainties. HERA I data sets are the basis of any proton PDF extraction, and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. Additional measurements provide constraints to the sea flavour decompositon (such as the new results from the LHC), as well as constraints to PDFs in the corners of the kinematic phase-space not covered precisely by HERA I, such as the high $x$ region for the gluon and valence distributions.
+uncertainties. HERA I data sets are the basis of any proton PDF extraction, and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. Additional measurements provide constraints to the sea flavour decomposition (such as the new results from the LHC), as well as constraints to PDFs in the kinematic phase-space regions not covered precisely by HERA I data, such as the high $x$ region for the gluon and valence quark distributions.
 \item
 \bf{Theory predictions:} \rm Predictions are obtained relying on the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at a starting scale $Q_0^2$  by a chosen functional form with a set of free parameters $\vec{p}$. They are then evolved from $Q_0^2$ to the scale of the measurement using the 
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
@@ -141,8 +140,8 @@ $\chi^2$ from the input data and the theory prediction.
 The $\chi^2$ is  minimized iteratively 
 with respect to the PDF parameters using the MINUIT\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, 
-either using nuisance parameter method for accounting of the correlated systematic uncertainties, 
-or covariance matrix method. In addition, \fitter allows analysers to study different statistics 
+either using nuisance parameter method for the correlated systematic uncertainties, 
+or covariance matrix method. In addition, \fitter allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
 %
 %Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
@@ -154,16 +153,15 @@ The resulting PDFs are provided in a format ready to be used by the LHAPDF
 library~\cite{lhapdf,lhapdfweb}.
 Drawing tools are supplied which allow the PDFs to be
 graphically  displayed at arbitrary scales with their one sigma uncertainty bands. 
-A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt} which is based on HERA~I data, a default data set in \fitter. 
-This is illustrated in the Fig.~\ref{fig:hera1}. 
-Since then, more sets were produced within the HERA and LHC collaborations, respectively.
-In addition to PDF display, to demonstrate the fit consistency, plots 
-which compare the input data to the fitted theory predictions can be made using
-tools supplied with the package.
+A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt} (Fig~\ref{fig:hera1}) 
+which is based on HERA~I data, a default data set in \fitter. 
+Since then several other PDFs sets were produced within the HERA and LHC collaborations, respectively.
+In addition to PDF display, plots which compare the input data to the fitted theory predictions
+to demonstrate the fit consistency can be produced using tools supplied with the package.
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{hera1.pdf}
-   \caption{Summary plots of valence, total sea (scaled) and gluon densities(scaled) with their experimental, model and parametrisation uncertainties at the scale of $Q^2=10$ Gev$^2$ of the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
+   \caption{Summary plots of valence, total sea (scaled) and gluon densities (scaled) with their experimental, model and parametrisation uncertainties at the scale of $Q^2=10$ GeV$^2$ of the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
  \label{fig:hera1}
 \end{figure}
 
@@ -202,7 +200,7 @@ As an additional consistency check between data and the theory prediction, the p
 % It includes various options for theoretical calculations and various choices 
 %of how to 
 %account for the experimental uncertainties. 
-Therefore, this project represents 
+The \fitter project represents 
 an ideal environment for benchmarking studies and a unique platform for the QCD interpretation of analyses within the LHC experiments,
 as already demonstrated by several publicly available results using the \fitter\ 
 framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
