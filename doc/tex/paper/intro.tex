@@ -67,11 +67,11 @@ Drell Yan (DY) production, $W$ and $Z$ asymmetries, associated production of $W$
 and heavy quarks, top quark production and jet production.
 %
 
-\fitter represents a QCD analysis framework that aims at 
+\fitter~represents a QCD analysis framework that aims at 
 determining precise PDFs by integrating all the PDF sensitive information
 from HERA, Tevatron and LHC.
 %
-The processes that are currently included in \fitter framework are listed in Tab.~\ref{tab:proc}.
+The processes that are currently included in \fitter~framework are listed in Tab.~\ref{tab:proc}.
 %
 \begin{table}
 \small
@@ -106,25 +106,25 @@ LHC& DY + heavy &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:20
    & quarks     &                 & \\
 \hline
 \end{tabular}
-\caption{The list of processes available in the \fitter package. 
+\caption{The list of processes available in the \fitter~package. 
 The APLLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
 techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
 \label{tab:proc}
 \end{table}
 %
 \normalsize
-The functionality of \fitter is schematicaly illustrated in Fig.~\ref{fig:flow} and consists of four parts: %{\bf needs to update figure!}
+The functionality of \fitter~is schematicaly illustrated in Fig.~\ref{fig:flow} and consists of four parts: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
 %   \includegraphics[width=8cm]{flow.pdf}
-%   \caption{Schematic structure of the \fitter program.} 
+%   \caption{Schematic structure of the \fitter~program.} 
 % \label{fig:flow}
 %\end{figure}
 \begin{description}
 \item 
 \bf {Input data:} \rm  All relevant cross section measurements from the various reactions
-are stored internally in \fitter with the full information on their uncorrelated and correlated
+are stored internally in \fitter\ with the full information on their uncorrelated and correlated
 uncertainties. HERA I data sets are the basis of any proton PDF extraction, and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. Additional measurements provide constraints to the sea flavour decomposition (such as the new results from the LHC), as well as constraints to PDFs in the kinematic phase-space regions not covered precisely by HERA I data, such as the high $x$ region for the gluon and valence quark distributions.
 \item
 \bf{Theory predictions:} \rm Predictions are obtained relying on the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at a starting scale $Q_0^2$  by a chosen functional form with a set of free parameters $\vec{p}$. They are then evolved from $Q_0^2$ to the scale of the measurement using the 
@@ -141,7 +141,7 @@ The $\chi^2$ is  minimized iteratively
 with respect to the PDF parameters using the MINUIT\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, 
 either using nuisance parameter method for the correlated systematic uncertainties, 
-or covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
+or covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter~allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
 %
 %Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
@@ -153,7 +153,7 @@ The resulting PDFs are provided in a format ready to be used by the LHAPDF
 library~\cite{lhapdf,lhapdfweb}.
 Drawing tools are supplied which allow the PDFs to be
 graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
-A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt} (Fig~\ref{fig:hera1}) 
+A first set of PDFs extracted by \fitter~is HERAPDF1.0 \cite{h1zeus:2009wt} (Fig~\ref{fig:hera1}) 
 which is based on HERA~I data, a default data set in \fitter. 
 Since then several other PDFs sets were produced within the HERA and LHC collaborations, respectively.
 In addition to PDF display, plots which compare the input data to the fitted theory predictions can be produced 
@@ -173,7 +173,7 @@ As an additional consistency check between data and the theory predictions, pull
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{datatheory.pdf}
-   \caption{An illustration of the \fitter drawing tools comparing the measurements (in this case HERA I) to the predictions of the fit. In addition, ratio plots are also provided together with the pull distribution (right panel).} 
+   \caption{An illustration of the \fitter~drawing tools comparing the measurements (in this case HERA I) to the predictions of the fit. In addition, ratio plots are also provided together with the pull distribution (right panel).} 
  \label{fig:data}
 \end{figure}
 
@@ -198,10 +198,9 @@ As an additional consistency check between data and the theory predictions, pull
 % It includes various options for theoretical calculations and various choices 
 %of how to 
 %account for the experimental uncertainties. 
-The \fitter project represents 
+The \fitter~project represents 
 an ideal environment for benchmarking studies and a unique platform for the QCD interpretation of analyses within the LHC experiments,
-as already demonstrated by several publicly available results using the \fitter\ 
-framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
+as already demonstrated by several publicly available results using the \fitter\ framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
 
 The outline of this paper is as follows.
 %
