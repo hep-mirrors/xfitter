@@ -116,7 +116,7 @@ All three schemes are available in \fitter\ . In the following
 the implemented variants are briefly discussed.
 % 
 \begin{description}
-\item \bf {FFN schemes:} \rm
+\item \bf {FFN scheme:} \rm
 In \fitter\ this scheme can be accessed via the 
 QCDNUM implementation or through the interface to the open-source code OPENQCDRAD (as implemented by the ABM group)~\cite{openqcdrad:page}.
 The latter implementation also includes the running mass definition of the heavy quark 
@@ -129,12 +129,9 @@ In the ABM implementation the heavy quark contributions to CC structure function
 and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 are provided at the best currently known approximation~\cite{SMoch:npb864}.
 \item  
-\bf {ZM-VFN schemes:} \rm 
-In this scheme, the heavy quarks are treated as infinitely massive below scale
-in vicinity of heavy quark mass, and massless above this threshold.
-The prescription has been used for many years by global PDF groups, however 
-it is only suited for quantitative analyses for scales $Q^2>>m_h^2$, for which 
-the terms of order $\mathcal{O}(m_h^2/Q^2)$ can be neglected.
+\bf {ZM-VFN scheme:} \rm 
+The scheme is available for the DIS structure function calculation via interface to the QCDNUM package.
+%
 \item \bf {GM-VFN Thorne-Roberts scheme:} \rm
 %\subsubsection{GM-VFN Thorne-Roberts scheme}
 %
