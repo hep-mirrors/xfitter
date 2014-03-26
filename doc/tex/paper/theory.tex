@@ -15,7 +15,7 @@
 %as implemented in the QCDNUM~\cite{qcdnum} program in the $\overline{\text{MS}}$ scheme. 
 %The evolution can be performed in the LO, NLO or NNLO accuracy~\cite{Curci:1980uw,Furmanski:1980cm}.
 %
-In this section the theoretical formalism for various processes available in \fitter\ are described.
+In this section the theoretical formalism for various processes available in \fitter are described.
 %The PDFs are determined by measuring the agreement 
 %the agreement between experimental data and corresponding theory models within 
 %the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
@@ -105,14 +105,15 @@ and
 are treated as massless in both the initial 
 and final states. The lowest order process is the scattering
 of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
-This scheme is expected to be reliable only in the region $Q^2>>m_h^2$.
+This scheme is expected to be reliable only in the region $Q^2 \gg m_h^2$.
 This is the scheme that was used in the past by PDF groups.
 \item
 In the General-Mass Variable-Flavour Number (GM-VFN)
 scheme~\cite{VFN} heavy quark production is treated for
- $Q^2 \le m_h^2$ in the FFN scheme and  for $Q^2 >> m_h^2$
-in the ZM-VFN scheme with a suitable interpolation in between.
-The modern series of PDF Groups that use this scheme are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
+$Q^2 \le m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
+in a fully massive scheme. 
+%in the ZM-VFN scheme with a suitable interpolation in between.
+The modern series of PDF groups that use this scheme are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
 %This scheme is very popular and numerous variants exist.
 \end{itemize}
 All three schemes are available in \fitter\. In the following
@@ -120,7 +121,7 @@ the implemented variants are briefly discussed.
 % 
 \begin{description}
 \item \bf {FFN scheme:} \rm
-In \fitter\ this scheme can be accessed via the 
+In \fitter this scheme can be accessed via the 
 QCDNUM implementation or through the interface to the open-source code OPENQCDRAD (as implemented by the ABM group)~\cite{openqcdrad:page}.
 The latter implementation also includes the running mass definition of the heavy quark 
 mass ~\cite{Alekhin:runm}.
@@ -138,33 +139,34 @@ The scheme is available for the DIS structure function calculation via interface
 \item \bf {GM-VFN Thorne-Roberts scheme:} \rm
 %\subsubsection{GM-VFN Thorne-Roberts scheme}
 %
-The Thorne-Roberts (TR) scheme provides a smooth transition from the massive FFN
-scheme at low scales $Q^2<m_h^2$ to the massless ZM-VFNS scheme at  
-high scales $Q^2>>m_h^2$.
+%The Thorne-Roberts (TR) scheme provides a smooth transition from the massive FFN
+%scheme at low scales $Q^2<m_h^2$ to the massless ZM-VFNS scheme at  
+%high scales $Q^2>>m_h^2$.
+%There are two different variants of the TR schemes: TR standard 
+%(as used in MSTW PDF 
+%sets~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf}) 
+%and TR optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region.
+%Both of these variants are accessible within the \fitter package at 
+%NLO and NNLO.  
 %
-%, where massive heavy quarks are produced d 
-%and scales far above the heavy 
-%quark threshold ($Q^2>>m_h^2$), where the heavy quark is treated as a 
-%massless parton within the proton. 
-%However, the connection is not unique.
-%A GM-VFNS can be defined by demanding equivalence of the $n_f = n$ (FFNS) 
-%and $n_f = n+1$ flavour (ZM-VFNS) descriptions above the transition point for the new parton distributions
-%(they are by definition identical below this point), at all orders.
-There are two different variants of the TR schemes: TR standard 
-(as used in MSTW PDF 
-sets~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf}) 
-and TR optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region.
-Both of these variants are accessible within the \fitter\ package at 
-NLO and NNLO.  
+The Thorne-Roberts (TR) scheme~\cite{Thorne:1997ga} was designed to provide a smooth transition 
+from the massive FFN scheme at low scales $Q^2 < m_h^2$ to the massless ZM-VFNS scheme at high scales $Q^2 \gg m_h^2$. 
+However, the original version was technically difficult to implement beyond NLO, and was updated 
+to the TR' scheme~\cite{Thorne:2006qt} which is simpler (and closer to the ACOT-scheme, see below).
+There are two different variants of the TR' schemes: TR' standard (as used in MSTW PDF sets~\cite{Thorne:2006qt,MSTWpdf}) 
+and TR' optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region. 
+Both of these variants are accessible within the \fitter  package at NLO and NNLO.
 %%%%
 \vspace{0.1cm}
 \item \bf {GM-VFN ACOT scheme:} \rm
 The Aivazis-Collins-Olness-Tung scheme belongs to the group of VFN factorisation 
 schemes that use the renormalization method of Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
-This scheme is based on the unified approach for two regimes where all quark masses are 
-negligible compared to $Q^2$ or when the heavy quark mass is of the same order of magnitude as $Q^2$, 
-assuming that the factorization theorem holds throughout the energy range of interest
-and it provides a smooth interpolation in the intermediate region.  
+This scheme unifies the low scale $Q^2 < m_h^2$ and high scale $Q^2 > m_h^2$ regions; 
+thus, it provides a smooth interpolation across the full energy regime. 
+It is built upon the massive factorization theorem by Collins~\cite{CWZ} 
+to incorporate the heavy quark masses for $Q^2 > m_h^2$; hence, it can be consistently applied 
+order by order in the perturbation theory.
+%
 %This scheme involves a mixture of the $\overline{\text{MS}}$ scheme 
 %for light and heavy (when the factorisation scale is larger than the heavy quark mass) partons
 %and the zero-momentum subtraction renormalisation scheme for graphs with heavy quark lines 
@@ -176,7 +178,9 @@ Within the ACOT package, different variants of the ACOT scheme are available:
 ACOT-Full, S-ACOT-$\chi$, ACOT-ZM, $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
 The ACOT-Full implementation takes into account the quark masses 
-and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, but it has the disadvantage of slow computational performance (addressed in section \ref{sec:techniques}).
+and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
+but it has the disadvantage that it is computationally intensive (addressed in 
+section~\ref{sec:techniques}).
 
 \vspace{0.1cm}
 \end{description}
