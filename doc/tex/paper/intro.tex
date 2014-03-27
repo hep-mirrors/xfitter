@@ -105,31 +105,32 @@ Data &Type &  Reaction & Theory      \\
         &     &     & calculation \\
 \hline
 
-HERA &DIS NC   &$ep\to ep$      & TR'~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, ACOT~\cite{CWZ} \\
-     &         &                & ZM (QCDNUM~\cite{qcdnum}) \\
-HERA &DIS CC   &$ep\to \nu_e p$ & ACOT~\cite{CWZ}, ZM (QCDNUM~\cite{qcdnum}) \\
-HERA &DIS jets &$ep\to eX$      & FastNLO (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj})\\
-HERA &DIS heavy                 & $ep\to ep $& ZM (QCDNUM~\cite{qcdnum}), \\
-     & quarks  &                & TR'~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, ACOT~\cite{CWZ}, \\
-     &         &                & FFN (ABM~\cite{Alekhin:runm,openqcdrad:page}, \\
-     &         &                & QCDNUM~\cite{qcdnum}) \\
+HERA &DIS NC   &$ep\to ep$      & TR', ACOT \\
+     &         &                & ZM (QCDNUM) \\
+HERA &DIS CC   &$ep\to \nu_e p$ & ACOT, ZM (QCDNUM) \\
+HERA &DIS jets &$ep\to eX$      & (NLOJet++ (FastNLO)\\
+HERA &DIS heavy quarks          & $ep\to ep $& ZM (QCDNUM), \\
+     &         &                & TR', ACOT, \\
+     &         &                & FFN (OPENQCDRAD, \\
+     &         &                & QCDNUM) \\
 \hline
-Fixed Target   &DIS NC          &$ep\to ep$ & ZM (QCDNUM~\cite{qcdnum}), \\
-     &         &                & TR'~\cite{Thorne:1997ga,Thorne:2006qt,MSTWpdf,Thorne:6180}, ACOT~\cite{CWZ} \\
+Fixed Target   &DIS NC          &$ep\to ep$ & ZM (QCDNUM), \\
+     &         &                & TR', ACOT \\
 \hline
-Tevatron, LHC &Drell Yan &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}) \\
-Tevatron, LHC &W charge asym &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}) \\
-Tevatron, LHC &top &$pp(\bar p)$  & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}),  \\
-              &    &              & HATHOR~\cite{Aliev:2010zk} \\
-Tevatron, LHC &jets &$pp(\bar p)$ & APPLGRID (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj}) \\
-                &  & & FastNLO (NLOJet++~\cite{Nagy:1998bb,Nagy:2001fj}) \\
-LHC& DY + heavy &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}) \\
-   & quarks     &                 & \\
+Tevatron, LHC &Drell Yan &$pp(\bar p)$ & MCFM (APPLGRID) \\
+Tevatron, LHC &W charge asym &$pp(\bar p)$ & MCFM (APPLGRID) \\
+Tevatron, LHC &top &$pp(\bar p)$  & MCFM (APPLGRID),  \\
+              &    &              & HATHOR \\
+Tevatron, LHC &jets &$pp(\bar p)$ & NLOJet++ (APPLGRID) \\
+                &  & & NLOJet++ (FastNLO) \\
+LHC& DY+heavy quarks &$pp(\bar p)$ & MCFM (APPLGRID) \\
 \hline
 \end{tabular}
 \caption{The list of processes available in the \fitter\ ~package. 
-The APLLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
-techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
+The refernces for the individual calculations and their implementations are given in the text.
+}
+%The APLLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
+%techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
 \label{tab:proc}
 \end{table}
 %
