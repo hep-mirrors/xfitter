@@ -2,18 +2,20 @@
 In the era of the Higgs discovery and extensive searches
 for signals of new physics at the LHC it is crucial
 to have accurate Standard Model (SM) predictions for
-hard scattering processes at the LHC.
+hard scattering processes in hadron-hadron collisions.
 The most common approach to calculate the SM cross sections for  
-such reactions is to use collinear factorisation in perturbative QCD (pQCD):
+such reactions is to use collinear factorisation in perturbative QCD (pQCD)~\cite{Collins:1989}:
 %is with perturbative QCD using a (collinear) factorisation approach: 
 %{\small
 \begin{equation}
 \small
 \begin{array}{lcl}
-\sigma^{pp\rightarrow H + X}(\alpha_s,\mu_r,\mu_f) & = &
-\sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1 \int\limits_{0}\limits^{1} dx_2\, f_a(x_1,\alpha_s,\mu_F) 
+%\sigma^{pp\rightarrow H + X}(\alpha_s,\mu_r,\mu_f) & = &
+\sigma(\alpha_s,\mu_r,\mu_f) & = &
+\sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2\, f_a(x_1,\alpha_s,\mu_F) 
  f_b(x_2,\alpha_s,\mu_F)\\ 
-& \times & \, \hat{\sigma}^{ab \rightarrow H + X}(x_1,x_2;\alpha_s,\mu_R,\mu_F).
+%& \times & \, \hat{\sigma}^{ab \rightarrow H + X}(x_1,x_2;\alpha_s,\mu_R,\mu_F).
+& \times & \, \hat{\sigma}^{ab}(x_1,x_2;\alpha_s,\mu_R,\mu_F).
 %\sigma^{pp\rightarrow H + X}(\alpha_s,\mu_r,\mu_f) = 
 %\sum_{a,b} \int_{0}^{1} dx_1 \int_{0}^{1} dx_2 f_a(x_1) 
 % f_b(x_1,\alpha_s,\mu_F) \times \hat{\sigma}^{ab \rightarrow H + X}(x_1,x_2;\alpha_s,\mu_R,\mu_F)
@@ -21,13 +23,16 @@ such reactions is to use collinear factorisation in perturbative QCD (pQCD):
 \end{array}
 \end{equation}
 %}
-Here the cross section $\sigma^{pp\rightarrow H + X}$ for inclusive
-Higgs production is expressed
+Here the cross section $\sigma$ for 
+%inclusive Higgs production
+any hard-scattering inclusive process $ab \rightarrow X + all$
+is expressed
 as a convolution of Parton Distribution Functions (PDF) $f_a$ and $f_b$
 with the partonic cross section
 % that describe
 %the 
-$\hat{\sigma}^{ab \rightarrow H + X}$.
+%$\hat{\sigma}^{ab \rightarrow H + X}$.
+$\hat{\sigma}^{ab}$.
 %
 The PDFs describe 
 the probability of finding a specific parton $a$ ($b$) in the first (second) proton carrying a fraction $x_1$ ($x_2$) of its momentum.
@@ -43,33 +48,49 @@ $\alpha_s$, and the factorisation and renormalisation scales,
 $\mu_F$ and $\mu_R$, respectively.
 %
 The partonic cross sections are calculable in pQCD, but
-the PDFs cannot yet be predicted in QCD, they must rather be 
-determined from measurement. PDFs are assumed 
+the PDFs cannot yet be predicted in QCD 
+they must rather be 
+determined from measurement. 
+
+PDFs are assumed 
 to be universal such that different scattering reactions can be used 
-to constrain them; in particular one can use specific reaction data 
-for determining the PDFs and then use these PDFs for
-predicting other processes.
-% via Eq.~\ref{eq:fact}.
+to constrain them.
+% in particular one can use specific reaction data 
+%for determining the PDFs and then use these PDFs for
+%predicting other processes.
 %
 
-The inclusive Neutral Current (NC) and Charged Current (CC) data in Deep-Inelastic-Scattering (DIS) at $ep$ collider HERA provide crucial information for determining the PDFs.
+Measurements of the inclusive Neutral Current (NC) and Charged Current (CC)  
+Deep-Inelastic-Scattering (DIS) at $ep$ collider HERA provide crucial information for determining the PDFs.
 %
 For instance, the gluon density relevant
 for calculating the dominant gluon-gluon fusion contribution to the Higgs production
-at the LHC can be accurately determined from the HERA data alone.
+at the LHC can be accurately determined at low and medium $x$ from the HERA data alone.
+%
+Many processes in $pp$ and $p \bar p$ collisions at LHC and Tevatron, respectively, 
+probe PDFs in the kinematic ranges, inaccessible by DIS measurements. 
+Therefore inclusion of the LHC and Tevatron data in the QCD analysis of the proton structure 
+provide additional constraints on the PDFs, improving either their precision, 
+or providing important information of the correlations of PDF with the fundamental 
+QCD parameters like strong coupling or quark masses. 
 %
 %Despite being often plagued by larger perturbative uncertainties,
-Specific data from the Tevatron $p\bar{p}$ and the LHC $pp$ collider
-can help to further constrain the PDFs.
 %
-The most sensitive processes at the  hadron colliders are
+In this context, the processes of interest at hadron colliders are
 Drell Yan (DY) production, $W$ and $Z$ asymmetries, associated production of $W$ or $Z$ boson 
-and heavy quarks, top quark production and jet production.
+and heavy quarks, top quark, jet and prompt photon production.
 %
 
-\fitter~represents a QCD analysis framework that aims at 
-determining precise PDFs by integrating all the PDF sensitive information
-from HERA, Tevatron and LHC.
+%\fitter~represents a QCD analysis framework that aims at 
+%determining precise PDFs by integrating all the PDF sensitive information
+%from HERA, Tevatron and LHC.
+%
+Open-source QCD platform \fitter\ encloses the set of tools  necessary for a comprehensive global 
+QCD analysis of hadron-induced processes even on the early stage of the experimental measurement. 
+It has been developed for determination of PDFs and extraction of fundamental QCD parameters like heavy
+quark masses or the strong coupling constant. This tool provides also the basis for 
+comparisons of different theoretical approaches and can be used for direct tests of the impact 
+of new experimental data in the QCD analyses.
 %
 The processes that are currently included in \fitter~framework are listed in Tab.~\ref{tab:proc}.
 %
@@ -106,14 +127,14 @@ LHC& DY + heavy &$pp(\bar p)$ & APPLGRID (MCFM~\cite{Campbell:1999ah,Campbell:20
    & quarks     &                 & \\
 \hline
 \end{tabular}
-\caption{The list of processes available in the \fitter~package. 
+\caption{The list of processes available in the \fitter\ ~package. 
 The APLLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
 techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
 \label{tab:proc}
 \end{table}
 %
 \normalsize
-The functionality of \fitter~is schematicaly illustrated in Fig.~\ref{fig:flow} and consists of four parts: %{\bf needs to update figure!}
+The functionality of \fitter~is schematicaly illustrated in Fig.~\ref{fig:flow} and can be represented by the four main blocks: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
@@ -127,15 +148,15 @@ The functionality of \fitter~is schematicaly illustrated in Fig.~\ref{fig:flow} 
 are stored internally in \fitter\ with the full information on their uncorrelated and correlated
 uncertainties. HERA I data sets are the basis of any proton PDF extraction, and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. Additional measurements provide constraints to the sea flavour decomposition (such as the new results from the LHC), as well as constraints to PDFs in the kinematic phase-space regions not covered precisely by HERA I data, such as the high $x$ region for the gluon and valence quark distributions.
 \item
-\bf{Theory predictions:} \rm Predictions are obtained relying on the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at a starting scale $Q_0^2$  by a chosen functional form with a set of free parameters $\vec{p}$. They are then evolved from $Q_0^2$ to the scale of the measurement using the 
+\bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at a starting scale $Q_0^2$  by a chosen functional form with a set of free parameters $\vec{p}$. These PDFs are then evolved from $Q_0^2$ to the scale of the measurement using the 
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
 (DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
 as implemented in QCDNUM~\cite{qcdnum}, 
-and then convoluted (Eq.~\ref{eq:fact}) with the hard parton cross sections calculated by
-a specific theory program (as listed in Tab.~\ref{tab:proc}).
+and then convoluted with the hard parton cross sections calculated
+using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \item
-\bf{Minimization:} \rm  PDFs are extracted from a least square fit by constructing a 
+\bf{PDF fit:} \rm  PDFs are extracted from a least square fit by constructing a 
 $\chi^2$ from the input data and the theory prediction.
 The $\chi^2$ is  minimized iteratively 
 with respect to the PDF parameters using the MINUIT\cite{minuit} program.
@@ -144,27 +165,33 @@ either using nuisance parameter method for the correlated systematic uncertainti
 or covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter~allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
 %
+In the $\chi^2$ minimization,
+the fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
 %Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
 %The fitted parameters $\vec(p)$ and obtained from the uncertainties of the parameters are determined (from chi2+1???)
 %
 \item
-\bf{Results:} \rm  The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
+\bf{Results:} \rm 
+%The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
 The resulting PDFs are provided in a format ready to be used by the LHAPDF 
 library~\cite{lhapdf,lhapdfweb}.
-Drawing tools are supplied which allow the PDFs to be
-graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
-A first set of PDFs extracted by \fitter~is HERAPDF1.0 \cite{h1zeus:2009wt} (Fig~\ref{fig:hera1}) 
-which is based on HERA~I data, a default data set in \fitter. 
-Since then several other PDFs sets were produced within the HERA and LHC collaborations, respectively.
-In addition to PDF display, plots which compare the input data to the fitted theory predictions can be produced 
-to demonstrate the fit consistency. 
+\fitter\ drawing tools can be used to display the PDFs with the uncertainty at a chosen scale.  
+%Drawing tools are supplied which allow the PDFs to be
+%graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
+A first set of PDFs extracted by \fitter~is HERAPDF1.0 \cite{h1zeus:2009wt} (Fig.~\ref{fig:hera1}) 
+which is based on HERA~I data.
+Since then several other PDFs sets were produced within the HERA and LHC collaborations.
+In addition to PDF display, 
+the figures comparing the data used in the fit and the relevant theory predictions are produced. 
+% plots which compare the input data to the fitted theory predictions can be produced 
+%to demonstrate the fit consistency. 
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{hera1.pdf}
    \caption{Summary plots of valence, total sea (scaled) and gluon densities (scaled) with their experimental, model and parametrisation uncertainties at the scale of $Q^2=10$ GeV$^2$ of the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
  \label{fig:hera1}
 \end{figure}
-Fig.~\ref{fig:data} shows a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0. It also illustrates the comparison to the theory predictions which are adjusted by the  
+In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0. It also illustrates the comparison to the theory predictions which are adjusted by the  
 systematic uncertainty shifts when using nuisance parameter method that accounts for 
 correlated systematic uncertainties. 
 As an additional consistency check between data and the theory predictions, pull information, defined as the difference between data and prediction divided by the uncorrelated uncertaintly of the data, is displayed in units of sigma shifts for each given data bin.
