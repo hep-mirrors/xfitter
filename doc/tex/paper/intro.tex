@@ -1,5 +1,5 @@
 %\normalsize
-In the era of the Higgs discovery and extensive searches
+In the era of the Higgs discovery~\cite{Aad:2012tfa,Chatrchyan:2012ufa} and extensive searches
 for signals of new physics at the LHC it is crucial
 to have accurate Standard Model (SM) predictions for
 hard scattering processes in hadron-hadron collisions.
@@ -27,7 +27,7 @@ Here the cross section $\sigma$ for
 %inclusive Higgs production
 any hard-scattering inclusive process $ab \rightarrow X + all$
 is expressed
-as a convolution of Parton Distribution Functions (PDF) $f_a$ and $f_b$
+as a convolution of Parton Distribution Functions (PDFs) $f_a$ and $f_b$
 with the partonic cross section
 % that describe
 %the 
@@ -49,22 +49,20 @@ $\mu_F$ and $\mu_R$, respectively.
 %
 The partonic cross sections are calculable in pQCD, but
 the PDFs cannot yet be predicted in QCD 
-they must rather be 
-determined from measurement. 
-
-PDFs are assumed 
-to be universal such that different scattering reactions can be used 
-to constrain them.
+they must rather be determined from measurement. 
+%
+PDFs are assumed to be universal such that different scattering reactions can be used 
+to constrain them~\cite{Perez:2012um,Forte:2013wc}.
 % in particular one can use specific reaction data 
 %for determining the PDFs and then use these PDFs for
 %predicting other processes.
 %
 
 Measurements of the inclusive Neutral Current (NC) and Charged Current (CC)  
-Deep-Inelastic-Scattering (DIS) at $ep$ collider HERA provide crucial information for determining the PDFs.
+Deep-Inelastic-Scattering (DIS) at the $ep$ collider HERA provide crucial information for determining the PDFs.
 %
 For instance, the gluon density relevant
-for calculating the dominant gluon-gluon fusion contribution to the Higgs production
+for calculating the dominant gluon-gluon fusion contribution to Higgs production
 at the LHC can be accurately determined at low and medium $x$ from the HERA data alone.
 %
 Many processes in $pp$ and $p \bar p$ collisions at LHC and Tevatron, respectively, 
@@ -77,13 +75,13 @@ QCD parameters like strong coupling or quark masses.
 %Despite being often plagued by larger perturbative uncertainties,
 %
 In this context, the processes of interest at hadron colliders are
-Drell Yan (DY) production, $W$ and $Z$ asymmetries, associated production of $W$ or $Z$ boson 
+Drell Yan (DY) production, $W$ and $Z$ asymmetries, associated production of $W$ or $Z$ bosons 
 and heavy quarks, top quark, jet and prompt photon production.
 %
 
 %\fitter~represents a QCD analysis framework that aims at 
 %determining precise PDFs by integrating all the PDF sensitive information
-%from HERA, Tevatron and LHC.
+%from HERA, the Tevatron and the LHC.
 %
 Open-source QCD platform \fitter\ encloses the set of tools  necessary for a comprehensive global 
 QCD analysis of hadron-induced processes even on the early stage of the experimental measurement. 
@@ -101,29 +99,45 @@ The processes that are currently included in \fitter~framework are listed in Tab
 
 \begin{tabular}{|l|l|l|l|}
 \hline
-Data &Type &  Reaction & Theory      \\
-        &     &     & calculation \\
+Data &Process &  Reaction & Theory      \\
+        &     &           & calculations, schemes \\
 \hline
 
-HERA &DIS NC   &$ep\to ep$      & TR', ACOT \\
-     &         &                & ZM (QCDNUM) \\
-HERA &DIS CC   &$ep\to \nu_e p$ & ACOT, ZM (QCDNUM) \\
-HERA &DIS jets &$ep\to eX$      & (NLOJet++ (FastNLO)\\
-HERA &DIS heavy quarks          & $ep\to ep $& ZM (QCDNUM), \\
-     &         &                & TR', ACOT, \\
-     &         &                & FFN (OPENQCDRAD, \\
-     &         &                & QCDNUM) \\
+%\multirow{6}{*}{HERA} &DIS NC   &$ep\to eX$      & TR', ACOT \\
+HERA &DIS NC   &$ep\to eX$      & TR', ACOT \\
+     &         &                & ZM (\texttt{QCDNUM}) \\
+     &         &                & FFN (\texttt{OPENQCDRAD}, \\
+     &         &                & \texttt{QCDNUM}) \\
 \hline
-Fixed Target   &DIS NC          &$ep\to ep$ & ZM (QCDNUM), \\
+     &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\texttt{QCDNUM}) \\
+     &         &                & FFN (\texttt{OPENQCDRAD)} \\
+\hline
+     &DIS jets &$ep\to e\ \mathrm{jets}$      & \texttt{NLOJet++} (\texttt{FastNLO})\\
+\hline
+     &DIS heavy quarks & $ep\to e c \bar{c} X$, & ZM (\texttt{QCDNUM}), \\
+     &         & $ep\to e b \bar{b} X$ & TR', ACOT, \\
+     &         &                & FFN (\texttt{OPENQCDRAD}, \\
+     &         &                & \texttt{QCDNUM}) \\
+\hline
+Fixed Target   &DIS NC          &$ep\to eX$ & ZM (\texttt{QCDNUM}), \\
      &         &                & TR', ACOT \\
 \hline
-Tevatron, LHC &Drell Yan &$pp(\bar p)$ & MCFM (APPLGRID) \\
-Tevatron, LHC &W charge asym &$pp(\bar p)$ & MCFM (APPLGRID) \\
-Tevatron, LHC &top &$pp(\bar p)$  & MCFM (APPLGRID),  \\
-              &    &              & HATHOR \\
-Tevatron, LHC &jets &$pp(\bar p)$ & NLOJet++ (APPLGRID) \\
-                &  & & NLOJet++ (FastNLO) \\
-LHC& DY+heavy quarks &$pp(\bar p)$ & MCFM (APPLGRID) \\
+Tevatron, LHC &Drell Yan &$pp(\bar p)\to l\bar l X$, & MCFM (\texttt{APPLGRID}) \\
+              &          &$pp(\bar p)\to l\nu  X$ &                 \\
+\hline
+%Tevatron, LHC &W charge asym &$pp(\bar p) \to l\nu X$ & MCFM (\texttt{APPLGRID}) \\
+%\hline
+             &top pair   &$pp(\bar p) \to t\bar t X$  & MCFM (\texttt{APPLGRID}),  \\
+              &            &                            & \texttt{HATHOR}            \\
+\hline
+             &single top &$pp(\bar p) \to t l \nu X$,      & MCFM (\texttt{APPLGRID}) \\
+              &           &$pp(\bar p) \to tX$,             &  \\
+              &           &$pp(\bar p) \to tWX$             &  \\
+\hline
+             &jets &$pp(\bar p) \to \mathrm{jets} X$ & \texttt{NLOJet++} (\texttt{APPLGRID}), \\
+                &  & & \texttt{NLOJet++} (\texttt{FastNLO}) \\
+\hline
+LHC& DY+heavy quarks &$pp \to VhX$ & \texttt{MCFM} (\texttt{APPLGRID}) \\
 \hline
 \end{tabular}
 \caption{The list of processes available in the \fitter\ ~package. 
@@ -135,7 +149,7 @@ The refernces for the individual calculations and their implementations are give
 \end{table}
 %
 \normalsize
-The functionality of \fitter~is schematicaly illustrated in Fig.~\ref{fig:flow} and can be represented by the four main blocks: %{\bf needs to update figure!}
+The functionality of \fitter~is schematically illustrated in Fig.~\ref{fig:flow} and can be represented by the four main blocks: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
