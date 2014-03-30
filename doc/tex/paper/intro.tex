@@ -90,7 +90,7 @@ quark masses or the strong coupling constant. This tool provides also the basis 
 comparisons of different theoretical approaches and can be used for direct tests of the impact 
 of new experimental data in the QCD analyses.
 %
-The processes that are currently included in \fitter~framework are listed in Tab.~\ref{tab:proc}.
+The processes that are currently included in \fitter\ framework are listed in Tab.~\ref{tab:proc}.
 %
 \begin{table}
 \small
@@ -122,15 +122,15 @@ HERA &DIS NC   &$ep\to eX$      & TR', ACOT \\
 Fixed Target   &DIS NC          &$ep\to eX$ & ZM (\texttt{QCDNUM}), \\
      &         &                & TR', ACOT \\
 \hline
-Tevatron, LHC &Drell Yan &$pp(\bar p)\to l\bar l X$, & MCFM (\texttt{APPLGRID}) \\
+Tevatron, LHC &Drell Yan &$pp(\bar p)\to l\bar l X$, & \texttt{MCFM} (\texttt{APPLGRID}) \\
               &          &$pp(\bar p)\to l\nu  X$ &                 \\
 \hline
 %Tevatron, LHC &W charge asym &$pp(\bar p) \to l\nu X$ & MCFM (\texttt{APPLGRID}) \\
 %\hline
-             &top pair   &$pp(\bar p) \to t\bar t X$  & MCFM (\texttt{APPLGRID}),  \\
+              &top pair   &$pp(\bar p) \to t\bar t X$  & \texttt{MCFM} (\texttt{APPLGRID}),  \\
               &            &                            & \texttt{HATHOR}            \\
 \hline
-             &single top &$pp(\bar p) \to t l \nu X$,      & MCFM (\texttt{APPLGRID}) \\
+              &single top &$pp(\bar p) \to t l \nu X$,      & \texttt{MCFM} (\texttt{APPLGRID}) \\
               &           &$pp(\bar p) \to tX$,             &  \\
               &           &$pp(\bar p) \to tWX$             &  \\
 \hline
@@ -143,13 +143,13 @@ LHC& DY+heavy quarks &$pp \to VhX$ & \texttt{MCFM} (\texttt{APPLGRID}) \\
 \caption{The list of processes available in the \fitter\ ~package. 
 The refernces for the individual calculations and their implementations are given in the text.
 }
-%The APLLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
+%The APPLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
 %techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
 \label{tab:proc}
 \end{table}
 %
 \normalsize
-The functionality of \fitter~is schematically illustrated in Fig.~\ref{fig:flow} and can be represented by the four main blocks: %{\bf needs to update figure!}
+The functionality of \fitter\ is schematically illustrated in Fig.~\ref{fig:flow} and can be represented by the four main blocks: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
@@ -167,7 +167,7 @@ uncertainties. HERA I data sets are the basis of any proton PDF extraction, and 
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
 (DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
-as implemented in QCDNUM~\cite{qcdnum}, 
+as implemented in \texttt{QCDNUM}~\cite{qcdnum}, 
 and then convoluted with the hard parton cross sections calculated
 using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \item
@@ -175,8 +175,7 @@ using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 $\chi^2$ from the input data and the theory prediction.
 The $\chi^2$ is  minimized iteratively 
 with respect to the PDF parameters using the MINUIT\cite{minuit} program.
-Various choices of accounting for the experimental uncertainties are employed in \fitter, 
-either using nuisance parameter method for the correlated systematic uncertainties, 
+Various choices of accounting for the experimental uncertainties are employed in \fitter,~either using nuisance parameter method for the correlated systematic uncertainties, 
 or covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter~allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
 %

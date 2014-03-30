@@ -15,7 +15,7 @@
 %as implemented in the QCDNUM~\cite{qcdnum} program in the $\overline{\text{MS}}$ scheme. 
 %The evolution can be performed in the LO, NLO or NNLO accuracy~\cite{Curci:1980uw,Furmanski:1980cm}.
 %
-In this section the theoretical formalism for various processes available in \fitter are described.
+In this section the theoretical formalism for various processes available in \fitter\ are described.
 %The PDFs are determined by measuring the agreement 
 %the agreement between experimental data and corresponding theory models within 
 %the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
@@ -120,25 +120,25 @@ in a fully massive scheme.
 The modern series of PDF groups that use this scheme are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
 %This scheme is very popular and numerous variants exist.
 \end{itemize}
-All three schemes are available in \fitter\. In the following
+All three schemes are available in \fitter\ . In the following
 the implemented variants are briefly discussed.
 % 
 \begin{description}
 \item \bf {FFN scheme:} \rm
-In \fitter this scheme can be accessed via the 
-QCDNUM implementation or through the interface to the open-source code OPENQCDRAD (as implemented by the ABM group)~\cite{openqcdrad:page}.
+In \fitter\ this scheme can be accessed via the 
+\texttt{QCDNUM} implementation or through the interface to the open-source code \texttt{OPENQCDRAD} (as implemented by the ABM group)~\cite{openqcdrad:page}.
 The latter implementation also includes the running mass definition of the heavy quark 
 mass ~\cite{Alekhin:runm}.
 The running mass scheme has the advantage of reducing the sensitivity of the DIS cross sections to
 higher order corrections, and improving the theoretical precision of the mass definition. 
-In QCDNUM, the calculation of the heavy quark contributions to DIS structure functions
+In \texttt{QCDNUM}, the calculation of the heavy quark contributions to DIS structure functions
 are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account.
 In the ABM implementation the heavy quark contributions to CC structure functions are available 
 and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 are provided at the best currently known approximation~\cite{SMoch:npb864}.
 \item  
 \bf {ZM-VFN scheme:} \rm 
-The scheme is available for the DIS structure function calculation via interface to the QCDNUM package.
+The scheme is available for the DIS structure function calculation via interface to the \texttt{QCDNUM} package.
 %
 \item \bf {GM-VFN Thorne-Roberts scheme:} \rm
 %\subsubsection{GM-VFN Thorne-Roberts scheme}
@@ -159,7 +159,7 @@ However, the original version was technically difficult to implement beyond NLO,
 to the TR' scheme~\cite{Thorne:2006qt} which is simpler (and closer to the ACOT-scheme, see below).
 There are two different variants of the TR' schemes: TR' standard (as used in MSTW PDF sets~\cite{Thorne:2006qt,MSTWpdf}) 
 and TR' optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region. 
-Both of these variants are accessible within the \fitter  package at NLO and NNLO.
+Both of these variants are accessible within the \fitter\  package at NLO and NNLO.
 %%%%
 \vspace{0.1cm}
 \item \bf {GM-VFN ACOT scheme:} \rm
@@ -292,7 +292,7 @@ The NLO and NNLO calculations are
 highly demanding
 in terms of the computing power and time, and $k-factor$ or fast grid techniques must be employed (see section~\ref{sec:techniques}
 for details), interfaced to programms such as
-MCFM~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}, 
+\texttt{MCFM}~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}, 
 available for NLO calculations, or 
 FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NLO and NNLO.
  
@@ -324,8 +324,8 @@ PDF (see e.g.~\cite{MSTWpdf}) and can thus increase the precision of the
 gluon PDF determination, which is particularly important for the Higgs production and searches for new physics.
 Jet production cross sections are only currently known to NLO, although NNLO 
 calculations are now quite advanced~\cite{nigel:2013,nigel:2010}. 
-Within \fitter\ the programms such MCFM and 
-NLOJET++~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
+Within \fitter\ the programms such \texttt{MCFM} and 
+\texttt{NLOJET++}~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
 calculation of jet production.
 Similarly to DY case, the calculation 
 is very demanding in terms of computing power. 
@@ -357,9 +357,9 @@ can be used, for example, to probe the ratio of the $u$ and $d$ densities in the
 as well as the b-quark PDF.
 Precise predictions for the total $t \bar t$ cross section have become available 
 to full NNLO recently~\cite{Czakon:2013goa}. They can be used within HERAFitter via an interface 
-to the program HATHOR~\cite{Aliev:2010zk}. Differential $t \bar t$ cross sections and predictions 
+to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. Differential $t \bar t$ cross sections and predictions 
 for single-top production can be used with HERAFitter at NLO accuracy from 
-MCFM~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
+\texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
 in combination with fast grid techniques.
 
 %\subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}

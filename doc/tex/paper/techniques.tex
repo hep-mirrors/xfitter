@@ -54,7 +54,7 @@ the factorised part of the expression which is independent of PDFs can be
 calculated only once for all minimisation iterations.
 The leading order code in \fitter~ package implements this 
 optimisation and uses fast convolution routines provided by
-QCDNUM. Currently the full width LO calculations are optimised 
+\texttt{QCDNUM}. Currently the full width LO calculations are optimised 
 for lepton pseudorapidity and boson rapidity distributions with the
 possibility to apply lepton \(p_{\perp}\) cuts.
 %making this procedure flexible to describe data.
@@ -77,7 +77,7 @@ $k-factors$ to obtain predictions at NLO.
 
 
 \begin{itemize}
-\item The APPLGRID~\cite{Carli:2010rw} package allows the fast computation 
+    \item The \texttt{APPLGRID}~\cite{Carli:2010rw} package allows the fast computation 
 of NLO cross sections for particular processes for arbitrary sets of 
 proton parton distribution functions. The package implements
 calculations of DY production as well as jet production in $pp(\bar p)$
@@ -92,11 +92,11 @@ variation of factorisation and renormalisation scales in
 calculations.
 
 The look-up tables (grids) can be generated with modified versions
-of the MCFM parton level generator for DY~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff} 
-or NLOjet++~\cite{Nagy:1998bb,Nagy:2001fj} code for NLO jet production.
-The model input parameters are pre-set as usual for MCFM, 
+of the \texttt{MCFM} parton level generator for DY~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff} 
+or \texttt{NLOjet++}~\cite{Nagy:1998bb,Nagy:2001fj} code for NLO jet production.
+The model input parameters are pre-set as usual for \texttt{MCFM}, 
 while binning and definitions of the
-cross section observables are set in the APPLGRID code.
+cross section observables are set in the \texttt{APPLGRID} code.
 %as distributed with the full version of APPLGRID package.
 % NLO calculations
 %for the current analysis are performed with the help of APPLGRID
@@ -112,7 +112,7 @@ cross section observables are set in the APPLGRID code.
 The grid parameters, \(Q^2\) binning
 and interpolation orders are also defined in the code.
 
-APPLGRID constructs the grid tables in two 
+\texttt{APPLGRID} constructs the grid tables in two 
 steps: {\it (i)} exploration of the phase space in order
 to optimize the memory storage and {\it (ii)} actual grid
 construction in the phase space corresponding to the 
@@ -136,7 +136,7 @@ CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf}.
 
 
 \item
-The \tt fastNLO \rm project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
+    The \texttt{fastNLO} project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
 %enables the inclusion of jet data in PDF and $\alpha_s$ fits.
 uses multi-dimensional interpolation
 techniques to convert the convolutions of perturbative 
@@ -146,7 +146,7 @@ the strong coupling into simple products.
 The perturbative 
 coefficients are calculated by the \texttt{NLOJET++}
 program~\cite{Nagy:1998bb} where, 
-in addition to the jet production processes available in MCFM,
+in addition to the jet production processes available in \texttt{MCFM},
 calculations for jet-production
 in DIS~\cite{Nagy:2001xb} are available as well as calculations for 
 hadron-hadron 
@@ -155,11 +155,11 @@ collisions~\cite{Nagy:2003tz,Nagy:2001fj} which include
 at $\mathcal{O}$(NNLO) for inclusive jet cross 
 sections~\cite{Kidonakis:2000gi}.
 
-The \tt fastNLO \rm  libraries are included in the \fitter\ package.
+The  \texttt{fastNLO}  libraries are included in the \fitter\ package.
 %and no further requirements or compilation options
 %are needed.
 In order to include a new measurement into the PDF fit,
-the \tt fastNLO \rm tables have to be specified. These tables include all
+the \texttt{fastNLO} tables have to be specified. These tables include all
 necessary information about the perturbative coefficients and the
 calculated process for all bins of a certain dataset. 
 %Tables for almost all published jet measurements
@@ -169,19 +169,19 @@ calculated process for all bins of a certain dataset.
 %perturbative coefficients with the PDFs, of
 %$\mathcal{O}(100 ms)$, and the very high accuracy
 %of the interpolation procedure. 
-The \tt fastNLO \rm  tables were originally calculated
+The \texttt{fastNLO} tables were originally calculated
 for multiple factors of the factorization scale, 
 and a renormalization scale factor could be chosen freely.
-More recently, some of the \tt fastNLO \rm  tables allow for 
+More recently, some of the \texttt{fastNLO} tables allow for 
 %already involve a scale-independent
 %concept~\cite{Britzger:2012bs}, which allows for 
 the free choice~\cite{Britzger:2012bs} of the renormalization and the factorization
 scale as a function of two pre-defined observables.
 The evaluation of the strong coupling constant, which enters
 the cross section calculation, is taken consistently from the 
-QCDNUM evolution code.
+\texttt{QCDNUM} evolution code.
 
-The \tt fastNLO \rm methodology were used in the recent CMS analysis with \fitter\ where the impact
+The \texttt{fastNLO} methodology were used in the recent CMS analysis with \fitter\ where the impact
 on the extraction of the PDFs from the inclusive jet cross section is investigated~\cite{cms:jets}. 
 The impact of the gluon density of CMS inclusive jet data is illustrated in Fig.~\ref{fig:cmsjet}.
 \begin{figure}[!ht]
