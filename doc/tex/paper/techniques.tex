@@ -5,31 +5,32 @@ calculations even for the DIS processes. Such calculations
 are too slow to be used iteratively in a fit.
 There are several methods available which allow fast PDF extractions.  
 Two such techniques
-are implemented into \fitter: the $k-factor$ approximation from lower to higher order in theoretical precision and the fast grid techniques using interfaces to the 
+are implemented into \fitter: the $k$-factor approximation from lower to higher order in theoretical precision and the fast grid techniques using interfaces to the 
 packages \texttt{fastNLO} \rm and \texttt{APPLGRID}. These techniques are briefly described below.  
 
 
 \begin{description}
-\item \bf {$k-factor$ technique:}\rm
+\item \bf {$k$-factor technique:}\rm
 
-A $k-factor$ is a ratio of the prediction between a high-order (slow)
-pQCD calculation and the lowest-order (fast) calculation.  These `` k-factors''
+A $k$-factor is a ratio of the prediction between a high-order (slow)
+pQCD calculation and the lowest-order (fast) calculation.  These $k$-factors
 are evaluated as a function of the kinematic variables relevant to
  the measurement 
 for a fixed PDF (for example the first iteration of the fit) and stored in 
-tables. They can then be applied 'on the fly' to each subsequent fit 
-iteration which will use the fast prediction multiplied by this `` k-factor''.
+tables. They can then be applied ``on the fly`` to each subsequent fit 
+iteration which will use the fast prediction multiplied by this $k$-factor.
 Having determined a PDF this way the output PDF fit should then be used to 
-recalculate the k-factors and the fit repeated until input and output 
-$k-factors$ have converged. 
+recalculate the $k$-factors and the fit repeated until input and output 
+$k$-factors have converged. 
 
 \begin{itemize}
-\item For the DIS process, the heavy flavour schemes provide accurate but computationally slow calculations. In \fitter~`` FAST'' schemes were implemented 
-such that the `` k-factors `` used can be
+\item For the DIS process, the heavy flavour schemes provide accurate but computationally slow calculations. 
+In \fitter~``FAST'' schemes were implemented 
+such that the $k$-factors used can be
 the ratio between same order calculations but massless vs massive 
 (i.e. NLO (ZM-VFNS)/NLO (ACOT), or 
 the ratio between LO (massless)/NLO (massive).
-The $k-factors$ are only calculated for the PDF parameters at the first 
+The $k$-factors are only calculated for the PDF parameters at the first 
 fit iteration
  and hence, the FAST heavy flavour schemes should only be used 
 for quick checks and the full scheme is recommended.
@@ -40,7 +41,7 @@ The method was employed in the QCD fits to the HERA data when ACOT scheme was us
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{heraacot.pdf}
-   \caption{Summary plots of valence, total sea (scaled) and gluon (scaled)densities with their total model uncertainties at the scale of $Q^2=10$ Gev$^2$ obatined using ACOT scheme with $k-factor$ method (red) compared to the HERAPDF1.0 PDF set at NLO using RT scheme.}
+   \caption{Summary plots of valence, total sea (scaled) and gluon (scaled)densities with their total model uncertainties at the scale of $Q^2=10$ Gev$^2$ obatined using ACOT scheme with $k$-factor method (red) compared to the HERAPDF1.0 PDF set at NLO using RT scheme.}
  \label{fig:acotrt}
 \end{figure}
 
@@ -63,7 +64,7 @@ corresponding to the available measurement.
 %The calculated leading order cross sections are multiplied by
 %NLO or NNLO k-factors provided for corresponding data distributions.
 The calculated LO cross sections are multiplied by
-$k-factors$ to obtain predictions at NLO.
+$k$-factors to obtain predictions at NLO.
 
 \end{itemize}
 
@@ -119,11 +120,11 @@ construction in the phase space corresponding to the
 requested observables.
 The NLO cross sections are restored from the grids
 using externally provided PDFs, \(\alpha_S\), factorization and 
-renormalization scales. For NNLO predictions $k-factors$ can be applied.
+renormalization scales. For NNLO predictions $k$-factors can be applied.
 
 This method was used by the ATLAS collaboration in determining the strange 
 quark density of the proton from $W$ and $Z$ cross sections~\cite{atlas:strange}. 
-An illustration of ATLAS PDFs extracted using $k-factor$ method is shown 
+An illustration of ATLAS PDFs extracted using $k$-factor method is shown 
 in Fig.~\ref{fig:atlas} togehter with the comparison to global PDF sets 
 CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf}.
 
