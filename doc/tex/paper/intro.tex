@@ -174,9 +174,10 @@ using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \bf{PDF fit:} \rm  PDFs are extracted from a least square fit by constructing a 
 $\chi^2$ from the input data and the theory prediction.
 The $\chi^2$ is  minimized iteratively 
-with respect to the PDF parameters using the MINUIT\cite{minuit} program.
-Various choices of accounting for the experimental uncertainties are employed in \fitter,~either using nuisance parameter method for the correlated systematic uncertainties, 
-or covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter~allows to study different statistics 
+with respect to the PDF parameters using the MINUIT~\cite{minuit} program.
+Various choices of accounting for the experimental uncertainties are employed in \fitter,~either using 
+a nuisance parameter method for the correlated systematic uncertainties, 
+or a covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter~allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
 %
 In the $\chi^2$ minimization,
@@ -194,7 +195,7 @@ library~\cite{lhapdf,lhapdfweb}.
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
 A first set of PDFs extracted by \fitter~is HERAPDF1.0 \cite{h1zeus:2009wt} (Fig.~\ref{fig:hera1}) 
 which is based on HERA~I data.
-Since then several other PDFs sets were produced within the HERA and LHC collaborations.
+Since then several other PDF sets were produced within the HERA and LHC collaborations.
 In addition to PDF display, 
 the figures comparing the data used in the fit and the relevant theory predictions are produced. 
 % plots which compare the input data to the fitted theory predictions can be produced 
@@ -202,7 +203,7 @@ the figures comparing the data used in the fit and the relevant theory predictio
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{hera1.pdf}
-   \caption{Summary plots of valence, total sea (scaled) and gluon densities (scaled) with their experimental, model and parametrisation uncertainties at the scale of $Q^2=10$ GeV$^2$ of the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
+   \caption{Summary plots of valence, total sea (scaled) and gluon densities (scaled) with their experimental, model and parametrisation uncertainties at the scale of $Q^2=10$ GeV$^2$ for the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
  \label{fig:hera1}
 \end{figure}
 In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0. It also illustrates the comparison to the theory predictions which are adjusted by the  
@@ -213,7 +214,7 @@ As an additional consistency check between data and the theory predictions, pull
 
 \begin{figure}[!ht]
    \centering
-   \includegraphics[width=8cm]{datatheory.pdf}
+   \includegraphics[width=8.6cm]{datatheory.pdf}
    \caption{An illustration of the \fitter~drawing tools comparing the measurements (in this case HERA I) to the predictions of the fit. In addition, ratio plots are also provided together with the pull distribution (right panel).} 
  \label{fig:data}
 \end{figure}
@@ -248,17 +249,17 @@ The outline of this paper is as follows.
 Section~\ref{sec:theory} discusses the various processes 
 and corresponding theoretical calculations performed in the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
 Dokshitzer:1977sg,Altarelli:1977zs} formalism that are available in \fitter.
-Alternative approaches to the DGLAP formalism are presented in section~\ref{sec:alternative}.
 %
-Section~\ref{sec:techniques} presents various technique employed by the theory calculations used in \fitter.
+Section~\ref{sec:techniques} presents various techniques employed by the theory calculations used in \fitter.
 Section~\ref{sec:method} elucidates the 
 methodology of determining PDFs through fits based on various
 % {\bf (what do you mean here
 %by approaches?)} 
  $\chi^2$ definitions used in the
 minimisation procedure. 
+Alternative approaches to the DGLAP formalism are presented in section~\ref{sec:alternative}.
 %
 Specific applications of the package are given in
-section ~\ref{sec:examples}. 
+section~\ref{sec:examples}. 
 %
 %{\bf add something more here?.}
