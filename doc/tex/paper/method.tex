@@ -299,22 +299,23 @@ The minimisation is performed using fixed number of iterations (typically ten), 
 
 \subsection{Treatment of the Theoretical Input Parameters}
 
-The results of a QCD fit depends not only on the input data but also on the 
-input theoretical ansatz, which is also uncertain. Nowadays, modern PDFs 
+The results of a QCD fit depend not only on the input data but also on the 
+input theoretical ansatz, which is also uncertain. Nowadays, modern PDF sets 
 try to address the impact of the choices of theoretical parameters by providing
-alternative PDFs with different choices of the mass of charm $m_c$, mass of the bottom quarks $m_b$ and the value of $\alpha_S(M_Z)$, etc. 
+alternative PDFs with different choices of the mass of the charm quarks $m_c$, mass of the bottom quarks $m_b$ and the value of $\alpha_S(M_Z)$, etc. 
 Another important input is the choice of the functional form for the PDFs at the starting scale and indeed the value of the starting scale itself. \fitter\ provides a platform in which such choices can readily be varied within a common framework.
 
-\subsection{Reweighting Techniques}
+\subsection{Bayesian Reweighting Techniques}
 
 As an alternative to a complete QCD fit, the reweighting method (Bayesian Reweighting) is available in \fitter.
 Because no fit is performed, the method provides a fast estimate of the impact of new data. 
-It was originally developed by the NNPDF collaboration \cite{Ball:2011gg,Ball:2010gb} and later extended~\cite{Watt:2012tq} 
+The original suggestion~\cite{Giele:1998gw} was developed by the NNPDF 
+collaboration \cite{Ball:2011gg,Ball:2010gb} and later extended~\cite{Watt:2012tq}
 to work not only on the NNPDF replicas, but also on the eigenvectors provided by most PDF groups. 
 
 The Bayesian Reweighting technique uses the PDF probability distributions which are modified with weights 
-to account for the difference between theory prediction and new data.
-In the NNPDF method the PDFs are constructed as ensembles of $N_{rep}$ parton 
+to account for the difference between theory predictions and new data.
+In the NNPDF method the PDFs are constructed as ensembles of $N_{\rm rep}$ parton 
 distribution functions and observables $\mathcal{O}(\mathrm{PDF})$ are conventionally calculated from the average
 of the predictions obtained from the ensemble 
 $\langle\mathcal{O}(\mathrm{PDF})\rangle =  \frac{1}{N_{\mathrm{rep}}} \sum_{k=1}^{N_{\mathrm{rep}}} \mathcal{O}(\mathrm{PDF}_k)$.
@@ -325,15 +326,17 @@ As a next step, the initial PDF probability distributions are updated by applyin
 $w_k$, calculated as:
 
 \begin{equation}
- w_k = \frac{(\chi^2_k)^{\frac{1}{2} (N_{\mathrm{data}}-1) } \exp^{-\frac{1}{2}\chi^2_k}}{ \frac{1}{N_{\mathrm{rep}}} \sum^{N_{\mathrm{rep}}}_{k=1}(\chi^2_k)^{\frac{1}{2}(N_{\mathrm{data}}-1)} \exp^{-\frac{1}{2}\chi^2_k}  },
+ w_k = \frac{(\chi^2_k)^{\frac{1}{2} (N_{\mathrm{data}}-1) } e^{-\frac{1}{2}\chi^2_k}}{ \frac{1}{N_{\mathrm{rep}}} \sum^{N_{\mathrm{rep}}}_{k=1}(\chi^2_k)^{\frac{1}{2}(N_{\mathrm{data}}-1)} e^{-\frac{1}{2}\chi^2_k}  },
 \end{equation}
 
 where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the specific replica for which the weight is calculated 
 and $\chi^2_k$ is a difference between a given data point $y_i$ and its theoretical prediction obtained with the $k$-th PDF replica:
 
+{\small
 \begin{equation}
- \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=0}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))  
+ \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=1}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))  
 \end{equation}
+}
 
 The new, reweighted PDFs commonly are chosen to be based upon a smaller number of PDF sets compared to the input because replicas 
 that are incompatible with the data are discarded in order to create a more stream-lined PDF set.
@@ -352,7 +355,7 @@ $\chi^2$ minimisation, is performance in terms of how long a calculation takes f
 The performance of the \fitter\  code is greatly improved with several special built-in options
 including the $k-factor$ techniques (see section~\ref{sec:techniques}) and the grid techniques for the fast calculation of cross 
 sections of particular processes for arbitrary sets of PDFs. There are also cache options, fast evolution kernels, and 
-usage of the openMP (Open Multi-Processing) interface which allows
+usage of the OpenMP (Open Multi-Processing) interface which allows
 parallel applications of some of the heavy flavour scheme theory predictions in DIS. 
 %{\bf please go over this, I have married two separate paragraphs that were in different places}
 

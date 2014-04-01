@@ -1,7 +1,7 @@
 
 
 %\subsection{Alternative to DGLAP DIS models}
-Different approaches that are alternative to the DGLAP formalism can be used to analyse DIS data in \fitter.
+Different approaches that are alternatives to the DGLAP formalism can be used to analyse DIS data in \fitter.
 These include several different dipole models and the use of 
 transverse momentum dependent, or unintegrated PDFs, uPDFs.
 These approaches are discussed below.
@@ -45,7 +45,7 @@ In the GBW model the dipole-proton cross section $\sigma_{\text{dip}}$ is given 
 \label{eGBW}
    \sigma_{\text{dip}}(x,r^{2}) = \sigma_{0} \left(1 - \exp \left[-\frac{r^{2}}{4R_{0}^{2}(x)} \right]\right),
 \end{equation}
-here $r$ corresponds to the transverse separation between the quark and the antiquark, and $R_{0}^{2}$
+where $r$ corresponds to the transverse separation between the quark and the antiquark, and $R_{0}^{2}$
  is 
 %an $x$ dependent scale parameter, having the form $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$.
 an $x$-dependent scale parameter which represents the spacing of the gluons in the proton. $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$ is called the saturation radius.
@@ -76,14 +76,16 @@ The factorization scale $\mu^{2}$ has the form $\mu^{2} = C_{bgk}/r^{2}+\mu^{2}_
 This model relates to the GBW model using the idea that the spacing $R_0$ is inverse to the gluon density.
 The gluon density parametrized at some starting scale $Q_{0}^{2}$ by
 $ xg(x) = A_{g} x^{-\lambda_{g}}(1-x)^{C_{g}} $
-is evolved to larger scales using LO or NLO DGLAP evolution.
+is evolved to larger scales using DGLAP evolution.
 The fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and three parameters for the gluon density: $A_{g}$, $\lambda_{g}$, $C_{g}$. The parameter $C_{bgk}$ is kept fixed: $C_{bgk} = 4.0$. 
 %%%%
 
 \vspace{0.1cm}
 \item \bf {BGK model with valence quarks:} \rm
 
-The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small, of the order of 5\%. The new HERA $F_2$ data have a precision which is  better than 2 \%. Therefore, in \fitter\ the contribution of the valence quarks is taken from the PDF fits and added to the original 
+The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small.
+%, of the order of 5\%. 
+The new HERA $F_2$ data have a precision which is  better than 2$\%$. Therefore, in \fitter\ the contribution of the valence quarks is taken from the PDF fits and added to the original 
 BGK model, this is uniquely possible within the \fitter\ framework.
 % The quality of the fits of the BGK dipole model with valence quarks and without 
 %valence quarks are the same.
@@ -101,12 +103,14 @@ ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ (transverse momentum dependent (TMD) o
 \frac{dz}{z} d^2k_t \hat{\sigma}(\frac{x}{z},k_t)  {\cal \tilde A}\left(x,\kt,\Pmax\right)
 \label{kt-factorisation}
 \end{equation}
+where $p$ is the factorization scale.
 %{\bf would probably be good to explain how the unintegrated relates to the integrated here}
 Generally, the evolution of ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ 
 can proceed via the BFKL\cite{BFKL}
 %{\bf you need a BFKL reference},
- DGLAP or via the CCFM evolution equations.
-In \fitter, an extension of the CCFM~\cite{\CCFM} evolution has been implemented.
+DGLAP~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,Dokshitzer:1977sg, Altarelli:1977zs} 
+or via the CCFM~\cite{\CCFM} evolution equations.
+In \fitter, an extension of the CCFM evolution has been implemented.
 Since the evolution cannot be easily obtained in  a closed form, 
  first a kernel $ {\cal \tilde A}\left(x'',\kt,\Pmax\right) $ 
 is determined from the MC solution of the CCFM evolution equation, 
