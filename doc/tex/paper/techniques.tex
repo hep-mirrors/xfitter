@@ -27,9 +27,9 @@ $k$-factors have converged.
 \item For the DIS process, the heavy flavour schemes provide accurate but computationally slow calculations. 
 In \fitter~``FAST'' schemes were implemented 
 such that the $k$-factors used can be
-the ratio between same order calculations but massless vs massive 
-(i.e. NLO (ZM-VFNS)/NLO (ACOT), or 
-the ratio between LO (massless)/NLO (massive).
+the ratio between same order calculations but massive versus massless
+i.e. NLO (ACOT)/NLO (ZM-VFNS), or 
+the ratio between NLO (massive)/LO (massless).
 The $k$-factors are only calculated for the PDF parameters at the first 
 fit iteration
  and hence, the FAST heavy flavour schemes should only be used 
@@ -41,7 +41,7 @@ The method was employed in the QCD fits to the HERA data when ACOT scheme was us
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{heraacot.pdf}
-   \caption{Summary plots of valence, total sea (scaled) and gluon (scaled)densities with their total model uncertainties at the scale of $Q^2=10$ Gev$^2$ obatined using ACOT scheme with $k$-factor method (red) compared to the HERAPDF1.0 PDF set at NLO using RT scheme.}
+   \caption{Summary plots of valence, total sea (scaled) and gluon (scaled) densities with their total model uncertainties at the scale of $Q^2=10$ Gev$^2$ obtained using the ACOT scheme with the $k$-factor method (red) compared to the HERAPDF1.0 PDF set at NLO using the RT scheme.}
  \label{fig:acotrt}
 \end{figure}
 
@@ -86,7 +86,7 @@ collisions and DIS processes.
 
 The approach is based on storing the perturbative coefficients
 of NLO QCD calculations of final-state observables measured
-in hadron colliders in look-up tables. The PDFs and the 
+at hadron colliders in look-up tables. The PDFs and the 
 strong couplings are included during the final calculations,
 e.g. during PDF fitting. The method allows 
 variation of factorisation and renormalisation scales in
@@ -123,9 +123,11 @@ using externally provided PDFs, \(\alpha_S\), factorization and
 renormalization scales. For NNLO predictions $k$-factors can be applied.
 
 This method was used by the ATLAS collaboration in determining the strange 
-quark density of the proton from $W$ and $Z$ cross sections~\cite{atlas:strange}. 
-An illustration of ATLAS PDFs extracted using $k$-factor method is shown 
-in Fig.~\ref{fig:atlas} togehter with the comparison to global PDF sets 
+quark density of the proton from $W$ and $Z$ cross sections 
+together with HERA inclusive DIS data~\cite{atlas:strange}. 
+An illustration of PDFs extracted in~\cite{atlas:strange} using \texttt{APPLGRID} method 
+and $k$-factors to correct from NLO to NNLO is shown 
+in Fig.~\ref{fig:atlas} togehter with the comparison to the global PDF sets 
 CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf}.
 
 \begin{figure}[!ht]
@@ -182,8 +184,8 @@ The evaluation of the strong coupling constant, which enters
 the cross section calculation, is taken consistently from the 
 \texttt{QCDNUM} evolution code.
 
-The \texttt{fastNLO} methodology were used in the recent CMS analysis with \fitter\ where the impact
-on the extraction of the PDFs from the inclusive jet cross section is investigated~\cite{cms:jets}. 
+The \texttt{fastNLO} methodology was used in the recent CMS analysis with \fitter\ where the impact
+on the extraction of the PDFs from the inclusive jet cross section was investigated~\cite{cms:jets}. 
 The impact of the gluon density of CMS inclusive jet data is illustrated in Fig.~\ref{fig:cmsjet}.
 \begin{figure}[!ht]
    \centering
