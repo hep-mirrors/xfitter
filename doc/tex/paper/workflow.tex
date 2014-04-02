@@ -22,7 +22,7 @@
 		     \begin{itemize}
                       \vspace{-0.3cm}
 		      \item PDF Parametrisation
-              \item QCD Evolution (\texttt{QCDNUM})
+              \item QCD Evolution (\qcdnum)
 		      \item Cross Section Calculation
 		     \end{itemize}}
 		     } (init) edge (theory);
@@ -35,7 +35,7 @@
                       \vspace{-0.1cm}
 		     \begin{itemize}
 		      \item PDF Parametrisation
-              \item QCD Evolution (\texttt{QCDNUM})
+              \item QCD Evolution (\qcdnum)
 		      \item Cross Section Calculation
 		     \end{itemize}}
 		     } (data) edge (minuit)
@@ -48,12 +48,12 @@
 		     \begin{itemize}
                       \vspace{-0.3cm}
 		      \item PDF LHgrids
-		      \item alphas, mc, \dots
+		      \item \as, $m_C$, \dots
 		      \item Data vs Predictions
 		      \item \(\chi^2\), pulls, shifts
 		     \end{itemize}}
 		     } (minuit) edge (res);
   \end{tikzpicture}
-  \caption{Schematic structure of the \fitter\ program.} 
+  \caption{Schematic structure of the \fitter program.} 
   \label{fig:flow}
 \end{figure}

@@ -92,10 +92,27 @@
 % for tables
 \usepackage{multirow}
 
-
 \bibliographystyle{herafitter-epjc}
 
-\newcommand\fitter{\mbox{\tt HERAFitter}}
+
+\usepackage{xspace}
+%\newcommand\fitter{\mbox{\tt HERAFitter}}
+\providecommand{\fitter}{{\texttt{HERAFitter}}\xspace}
+\providecommand{\fastnlo}{{\texttt{fastNLO}}\xspace}
+\providecommand{\applgrid}{{\texttt{APPLGRID}}\xspace}
+\providecommand{\qcdnum}{{\texttt{QCDNUM}}\xspace}
+\providecommand{\mcfm}{{\texttt{MCFM}}\xspace}
+\providecommand{\nlojetpp}{{\texttt{NLOJet++}}\xspace}
+\providecommand{\lhapdf}{{\texttt{LHAPDF}}\xspace}
+\providecommand{\crundec}{{\texttt{CRunDec}}\xspace}
+\providecommand{\hoppet}{{\texttt{HOPPET}}\xspace}
+\providecommand{\GeV}{\ensuremath{\,\text{Ge\hspace{-.08em}V}}\xspace}
+\providecommand{\pperp}{\ensuremath{p_{\perp}}\xspace}
+\providecommand{\mur}{\ensuremath{\mu_\mathrm{R}}\xspace}
+\providecommand{\muf}{\ensuremath{\mu_\mathrm{F}}\xspace}
+\providecommand{\as}{\ensuremath{\alpha_\mathrm{s}}\xspace}
+\providecommand{\asmz}{\ensuremath{\alpha_\mathrm{s}(M_Z)}\xspace}
+\providecommand{\asq}{\ensuremath{\alpha_\mathrm{s}(Q)}\xspace}
 
 
 %
@@ -112,7 +129,7 @@
 %\titlerunning{Short form of title}        % if too long for running head
 
 %\author{The \fitter Team\ref{alist}}
-\author{         HERAFitter\ developers team \and \\
+\author{         HERAFitter developers team \and \\
 %
 P.~Belov$^{1,12}$\and
 S.~Camarda$^{1}$\and 
@@ -179,7 +196,7 @@ K.~Wichmann$^{1}$\and
 \maketitle
 
 \begin{abstract}
-The paper presents the \fitter~project
+The paper presents the \fitter project
 which provides a framework for Quantum Chromodynamics (QCD) analyses related 
 to the proton structure.
 %in the context of multi-processes and multi-experiments.
@@ -187,12 +204,12 @@ The main processes sensitive to the Parton Distribution Functions (PDFs)
 of the proton are Deep-Inelastic-Scattering  
 in $ep$ collisions at HERA and Drell Yan, jet and top quark production in 
 $pp$ ($p\bar{p}$) collisions at the LHC (Tevatron).
-Data of such recent measurements are included into \fitter\ and can 
+Data of such recent measurements are included into \fitter and can 
 be used for PDF determination
  based on the concept of the factorisable nature 
 of the cross sections of hard scattering measurements into process dependent 
 partonic scattering and universal PDFs.
-\fitter\ provides a comprehensive choice of options in the treatment of the experimental 
+\fitter provides a comprehensive choice of options in the treatment of the experimental 
 data uncertainties, a large number of theoretical and methodological options 
 via interfaces to external software packages which are described here.
 
@@ -284,9 +301,9 @@ via interfaces to external software packages which are described here.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{acknowledgements}
-\fitter\ developers team acknowledges the kind hospitality of DESY 
+\fitter developers team acknowledges the kind hospitality of DESY 
 and funding by the Helmholtz Alliance "Physics at the Terascale" of the Helmholtz Association.
-We are grateful to the DESY IT department for their support of the \fitter\  developers.
+We are grateful to the DESY IT department for their support of the \fitter  developers.
 Additional support was received from BMBF-JINR cooperation program,
 Heisenberg-Landau program and RFBR grant 12-02-91526-CERN a.
 We aslo acknowledge Nathan Hartland with Luigi Del Debbio for contributing to the 

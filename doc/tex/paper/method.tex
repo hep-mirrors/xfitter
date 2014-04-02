@@ -6,13 +6,13 @@
 There are a considerable number of choices available when performing a QCD fit analysis which require careful investigation (i.e. functional parametrisation form, heavy quark masses, alternative theoretical calculations, method of minimisation, interpretation of uncertainties etc.).
 %
  It is desirable to be able to discriminate or quantify the effect of the chosen ansatz, ideally within a common framework, and 
-\fitter\ is optimally designed for such tests.
+\fitter is optimally designed for such tests.
 %
-The methodology employed by \fitter\  relies on a flexible and modular
+The methodology employed by \fitter  relies on a flexible and modular
 framework that allows for independent integration of the state-of-the-art techniques, either related to the inclusion of a new theoretical calculation, or to new approaches to treat uncertainties. 
 %
 
-In this section we briefly describe the available options in \fitter\ ranging from the functional form used to parametrise PDFs and the choice of the form of the $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
+In this section we briefly describe the available options in \fitter ranging from the functional form used to parametrise PDFs and the choice of the form of the $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
 
 %list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter. 
 In addition, as an alternative approach to a complete QCD fit,  the Bayesian reweighting
@@ -83,25 +83,25 @@ significantly reduced uncertainty for $x \le 0.0005$.
 \begin{figure}[!ht]
  \centering
   \includegraphics[width=8cm]{cheb.pdf}
- \caption{Gluon PDF at the scale of $Q^2=1.9$ GeV$^2$ for various values of the length-prior 
+ \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
           weight using the Chebyshev parametrisation expanded to the 15th order.}
  \label{fig:cheb}
 \end{figure}
 
 %
 \item \bf{External PDFs:} \rm 
-\fitter\ also provides the possibility to access external PDF sets, which can be used to construct 
+\fitter also provides the possibility to access external PDF sets, which can be used to construct 
 theoretical predictions for the various processes implemented in \fitter. This is possible via an 
-interface to LHAPDF~\cite{lhapdf,lhapdfweb} which provides access to the global PDF sets available at LO, NLO 
-or NNLO evolved either locally through the \fitter\ or taken as provided by the LHAPDF grids. 
-Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter\ and illustrates 
-the PDFs accessed from LHAPDF.
+interface to \lhapdf~\cite{lhapdf,lhapdfweb} which provides access to the global PDF sets available at LO, NLO 
+or NNLO evolved either locally through the \fitter or taken as provided by the \lhapdf grids. 
+Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter and illustrates 
+the PDFs accessed from \lhapdf.
 \end{description}
 %
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{pdfs.pdf}
-   \caption{Gluon density as extracted by various PDF groups at the scale of $Q^2=2$ GeV$^2$, plotted using the drawing tools from \fitter.} 
+   \caption{Gluon density as extracted by various PDF groups at the scale of $Q^2=2 \ \GeV^2$, plotted using the drawing tools from \fitter.} 
  \label{fig:pdfs}
 \end{figure}
 %
@@ -197,7 +197,7 @@ It can happen that various parts of the systematic and statistical uncertainties
 
 
 %Three distinct cases are implemented in \fitter\ and reviewed here:
-Three distinct methods for propagating experimental uncertainties to PDFs are implemented in \fitter\ and reviewed here:
+Three distinct methods for propagating experimental uncertainties to PDFs are implemented in \fitter and reviewed here:
 %\fitter\ provides three methods for assessing the experimental uncertainties on PDFs: 
 the Hessian, Offset, and Monte Carlo method.
 %Figure \ref{fig:error} illustrates the difference between the Hessian and Monte-Carlo methods both of which can be applied and plotted with \fitter.
@@ -268,7 +268,7 @@ The usage of the nuisance parameters for the experimental uncertainty treatment 
 common and has an advantage of the flexible assessment of such uncertainties on PDFs. 
 Generally, the experimental uncertainties are symmetrised when QCD fits 
 are performed, however often the provided uncertainties are rather asymmetric.
-\fitter\ provides the possibility to use asymmetric systematic uncertainties.
+\fitter provides the possibility to use asymmetric systematic uncertainties.
 The technical implementation relies on the assumption that 
 asymmetric uncertainties can be described by a parabolic function, as given below:
 \begin{equation}
@@ -302,8 +302,8 @@ The minimisation is performed using fixed number of iterations (typically ten), 
 The results of a QCD fit depend not only on the input data but also on the 
 input theoretical ansatz, which is also uncertain. Nowadays, modern PDF sets 
 try to address the impact of the choices of theoretical parameters by providing
-alternative PDFs with different choices of the mass of the charm quarks $m_c$, mass of the bottom quarks $m_b$ and the value of $\alpha_S(M_Z)$, etc. 
-Another important input is the choice of the functional form for the PDFs at the starting scale and indeed the value of the starting scale itself. \fitter\ provides a platform in which such choices can readily be varied within a common framework.
+alternative PDFs with different choices of the mass of the charm quarks $m_c$, mass of the bottom quarks $m_b$ and the value of $\asmz$, etc. 
+Another important input is the choice of the functional form for the PDFs at the starting scale and indeed the value of the starting scale itself. \fitter provides a platform in which such choices can readily be varied within a common framework.
 
 \subsection{Bayesian Reweighting Techniques}
 
@@ -345,14 +345,14 @@ that are incompatible with the data are discarded in order to create a more stre
 
 \subsection{Performance Optimisation}
 
-The above mentioned features make \fitter\ a powerful project that encapsulates 
+The above mentioned features make \fitter a powerful project that encapsulates 
 state of the art developments 
 %from the most up-to-date theory developments 
 to debates on reaching the ultimate experimental precision. 
 
 An important factor for a feasible QCD fit which is performed by iterative 
 $\chi^2$ minimisation, is performance in terms of how long a calculation takes for each given data point.
-The performance of the \fitter\  code is greatly improved with several special built-in options
+The performance of the \fitter code is greatly improved with several special built-in options
 including the $k-factor$ techniques (see section~\ref{sec:techniques}) and the grid techniques for the fast calculation of cross 
 sections of particular processes for arbitrary sets of PDFs. There are also cache options, fast evolution kernels, and 
 usage of the OpenMP (Open Multi-Processing) interface which allows
