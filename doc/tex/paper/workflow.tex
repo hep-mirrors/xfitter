@@ -9,8 +9,8 @@
 		     {\scriptsize 
 		     \begin{itemize}
                       \vspace{-0.3cm}
-		      \item Collider ep
-		      \item Collider pp
+		      \item Collider $ep$
+		      \item Collider $pp, p\bar p$
 		      \item Fixed target data
 		     \end{itemize}}
 		     } (init) edge (data);
@@ -21,12 +21,10 @@
 		     {\scriptsize 
 		     \begin{itemize}
                       \vspace{-0.3cm}
-		      \item PDF Parametrisation
-              \item QCD Evolution (\qcdnum)
 		      \item Cross Section Calculation
 		     \end{itemize}}
 		     } (init) edge (theory);
-      \path[->] node[draw, below right=0.4cm and -1.4cm of data, text width=3.5cm] (minuit) 
+      \path[->] node[draw, below right=0.4cm and -1.7cm of data, text width=5cm] (minuit) 
                     {\begin{center} \vspace{-0.3cm}{\bf Minimisation (MINUIT)} 
                       \vspace{-0.2cm}
 		     \end{center} 
@@ -35,7 +33,7 @@
                       \vspace{-0.1cm}
 		     \begin{itemize}
 		      \item PDF Parametrisation
-              \item QCD Evolution (\qcdnum)
+              \item QCD Evolution: DGLAP (\qcdnum), CCFM
 		      \item Cross Section Calculation
 		     \end{itemize}}
 		     } (data) edge (minuit)
@@ -47,7 +45,7 @@
 		     {\scriptsize 
 		     \begin{itemize}
                       \vspace{-0.3cm}
-		      \item PDF LHgrids
+		      \item PDFs, \lhapdf grids
 		      \item \as, $m_C$, \dots
 		      \item Data vs Predictions
 		      \item \(\chi^2\), pulls, shifts
