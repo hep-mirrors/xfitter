@@ -2,8 +2,9 @@
 %\fitter\ is a unique QCD fit platform that provides many options to the user to perform a quantitative assessment of impact level for a new data or new theoretical prediction. The quest on nailing down the uncertainties on PDFs have lead, on one hand, to highly precise measurements that are in need of careful handling of all provided sources of uncertainties, and on the other hand to numerous software packages that provide higher order calculations in QCD to match the precision of data.
 
 
-
-There are a considerable number of choices available when performing a QCD fit analysis which require careful investigation (i.e. functional parametrisation form, heavy quark masses, alternative theoretical calculations, method of minimisation, interpretation of uncertainties etc.).
+There is a considerable number of choices available when performing a QCD fit analysis 
+(i.e. functional parametrisation form, heavy quarks masses, alternative theoretical calculations,
+method of minimisation, interpretation of uncertaintes etc.).
 %
  It is desirable to be able to discriminate or quantify the effect of the chosen ansatz, ideally within a common framework, and 
 \fitter is optimally designed for such tests.
@@ -24,13 +25,14 @@ method, which is also available in the \fitter, is described in this section.
 The PDFs are parametrised at a starting scale which is chosen by the user. Various functional forms can be tested using free parameters to be extracted from the fit:
 \begin{description}
 \item \bf {Standard Polynomials:} \rm
-The term standard is understood to refer to a simple polynomial 
-that interpolates between the low and high $x$ regions:
+The term refers to using a simple polynominal to interpolate between the low and high $x$ regions:
+%The term standard is understood to refer to a simple polynomial 
+%that interpolates between the low and high $x$ regions:
 \begin{equation}
  xf(x) = A x^{B} (1-x)^{C} P_i(x),
 \label{eqn:pdf_std}
 \end{equation}
-Standard forms are commonly used by PDF groups.
+The standard polynominal form is most commonly used by PDF groups.
 The parametrised PDFs at HERA are the valence distributions
 $xu_v$ and $xd_v$, the gluon distribution $xg$, and the $u$-type and $d$-type sea 
 $x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
@@ -62,7 +64,7 @@ In order to satisfy the QCD sum rules this parametric form requires numerical in
 A flexible Chebyshev polynomial based parametrisation can be used for the gluon and sea densities. The polynomials
 use $\log x$ as an argument to emphasize the low $x$ behavior. 
 The parametrisation is valid for $x>x_{\rm min} = 1.7\times 10^{-5}$. The PDFs are multiplied
-by $(1-x)$ term to ensure that they vanish as $x\to 1$. The resulting parametric form is 
+by a $(1-x)$ term to ensure that they vanish as $x\to 1$. The resulting parametric form is 
 \begin{eqnarray}
 x g(x) &=& A_g \left(1-x\right) \sum_{i=0}^{N_g-1} A_{g_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{\rm min} } {\textstyle \log x_{\rm min} } \right)\,, \label{eq:glu} \\
 x S(x) &=& \left(1-x\right) \sum_{i=0}^{N_S-1} A_{S_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{\rm min} } {\textstyle \log x_{\rm min} } \right)\,. \label{eq:sea} 
@@ -173,7 +175,8 @@ systematic uncertainties are proportional to the central prediction values
 (multiplicative errors), whereas the statistical errors scale 
 with the square root of the expected number of events. 
 The systematic shift nuisance parameters $b_j$ as well as the PDF 
-parameters are free parameters of the fit. Thus the fit determines the best fit to 
+parameters are free parameters of the fit. 
+The fit determines the best PDF parameters to
 the data taking into account correlated systematic shifts of the data. 
 \item  \bf{Mixed Form:} \rm
 It can happen that various parts of the systematic and statistical uncertainties are stored in different forms. A situation can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlations are given in the form of a covariance matrix. \fitter\ offers the possibility to include such information, when provided, as well as any other mixed form of treating statistical, uncorrelated and correlated systematic uncertainties. 
@@ -217,7 +220,13 @@ reflecting the experimental precision of data used in the QCD fit by examining t
 of $\chi^2$ 
 %with the nuisance parameter representation (see section~\ref{sec:nuisance_representation}) 
 in the neighborhood of the minimum. 
-This is known as the Hessian or error matrix method. The Hessian matrix is built by the second derivatives of $\chi^2$ at the minimum. The PDF eigenvectors are obtained through an iterative procedure used to diagonalise the Hessian matrix and rescale the eigenvectors to adapt the step sizes to their natural scale.
+This is known as the Hessian or error matrix method. 
+The Hessian matrix is built by the second derivatives of $\chi^2$ at the minimum. 
+%
+%The PDF eigenvectors are obtained through an iterative procedure used to diagonalise 
+%the Hessian matrix and rescale the eigenvectors to adapt the step sizes to their natural scale.
+The Hessian matrix is diagonalised through an iterative procedure and its PDF eigenvectors
+are obtained, which correspond to the orthogonal sources of uncertainties on the obtained PDF.
 
 \item \bf{Offset  method:} \rm
 
@@ -264,7 +273,7 @@ Similar findings were observed also in the MSTW global analysis~\cite{Watt:2012t
 \end{figure}
 \end{description}
 
-The usage of the nuisance parameters for the experimental uncertainty treatment in QCD fits is quite 
+Usage of the nuisance parameters for the experimental uncertainty treatment in QCD fits is quite 
 common and has an advantage of the flexible assessment of such uncertainties on PDFs. 
 Generally, the experimental uncertainties are symmetrised when QCD fits 
 are performed, however often the provided uncertainties are rather asymmetric.

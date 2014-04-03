@@ -11,7 +11,7 @@ More precise measurements
 require theoretical predictions with equally improved accuracy in
 order to maximize their impact in PDF fits.  Perturbative
 calculations, however, get more and more involved with increasing
-number of Feynman diagrams at each higher order. 
+number of Feynman diagrams at the each higher order. 
 Nowadays even the most advanced perturbative techniques in
 combination with recent computing hardware do not lead to sufficiently
 small turn-around times. The direct inclusion of computationally
@@ -148,9 +148,9 @@ to resolve this problem: the techniques of $k$-factors and
   number of means, the simplest one being an increase in the number of
   support points. Ensuring an approximation bias that is negligibly
   small for all practical purposes this method can be used to perform
-  only once for the set of interpolating functions the time consuming
-  higher-order calculation involving complicated convolutions, see
-  Eq.~\ref{eq:fact}. The repetition of a cross section evaluation for
+  the time consuming higher-order calculation (see Eq.~\ref{eq:fact})
+  only once for the set of interpolating functions. 
+  The repetition of a cross section evaluation for
   a particular PDF set then is very fast and implies only sums over
   the set of interpolators multiplied by factors depending on the
   respective PDF\@. The described approach applies equally to
@@ -194,23 +194,19 @@ to resolve this problem: the techniques of $k$-factors and
     % dependence must be taken into account in these threshold
     % corrections.
 
-    Since it is completely sufficient in most cases, the original
-    \fastnlo tables of version~1.4 could be evaluated with arbitrary
-    scale factors for the renormalisation scale \mur, but only with a
-    fixed set of predefined scale factors for \muf. The significantly
-    updated version 2 of \fastnlo~\cite{Britzger:2012bs} allows in
-    addition to the less space consuming tables with fixed \muf
-    factors the creation of tables, where \mur and \muf can be chosen
+    The latest version of \fastnlo~\cite{Britzger:2012bs} allows 
+    creation of tables where renormalisation and factorisation scales
+    can be chosen
     freely as a function of two pre-defined observables, e.g.\ jet
-    \pperp and $Q$ for DIS\@.
-
+    transverse momentum \pperp and $Q$ for DIS\@. 
     \fastnlo can be obtained from~\cite{fastNLO:HepForge}, where
     numerous precalculated grid tables for jet cross sections can be
-    downloaded as well.  The latest release is compatible with \lhapdf
-    versions 5 or 6, includes the \as evolution package
-    \crundec~\cite{Schmidt:2012az}, and can also be linked to use the
-    \hoppet or \qcdnum evolution. The C++ library part can be accessed
-    via an optional Python interface.
+    downloaded as well. 
+%    The latest release is compatible with \lhapdf
+%    versions 5 or 6, includes the \as evolution package
+%    \crundec~\cite{Schmidt:2012az}, and can also be linked to use the
+%    \hoppet or \qcdnum evolution. The C++ library part can be accessed
+%    via an optional Python interface.
 
     Dedicated \fastnlo libraries and tables required for comparison to
     particular datasets are included in the \fitter package. In this
@@ -234,18 +230,25 @@ to resolve this problem: the techniques of $k$-factors and
     \end{figure}
 
 \item The \applgrid package~\cite{Carli:2010rw}, which is also
-    available from~\cite{APPLGRID:HepForge}, implements in addition to
-    the jet cross section from \nlojetpp calculations of DY
-    production. The look-up tables (grids) can be generated with
-    modified versions of the MCFM parton level generator for
-    DY~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.  For
-    NNLO predictions $k$-factors can be applied.
+    available from~\cite{APPLGRID:HepForge}, in addition to
+    the jet cross sections from \nlojetpp 
+    in $pp(\bar p)$ and DIS processes, implements the calculations 
+    of DY production. The look-up tables (also called grids) can be generated with
+    modified versions of the \mcfm parton level generator for
+    DY~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.  
+%    The cross section observables and the grid parameters are 
+%    defined in the \applgrid code.
+    Alternative values of the strong coupling constant as well as 
+    a posteriori variation of the renormalisation 
+    and factorisation scales can be freely chosen in the calculation
+    of the theory predictions with the \applgrid tables. 
+    For NNLO predictions in \fitter $k$-factors can be applied.
 
     The \fitter interface to \applgrid was used by the ATLAS
     collaboration to extract the strange quark density of the proton
     from $W$ and $Z$ cross sections~\cite{atlas:strange}. An
-    illustration of ATLAS PDFs extracted using $k$-factors is shown in
-    Fig.~\ref{fig:atlas} togehter with the comparison to global PDF
+    illustration of ATLAS PDFs extracted using the $k$-factors is shown in
+    Fig.~\ref{fig:atlas} together with the comparison to global PDF
     sets CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf}.
 
 \begin{figure}[!ht]
