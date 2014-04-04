@@ -85,6 +85,12 @@
 \setlength\linenumbersep{5pt}
 \renewcommand\linenumberfont{\normalfont\tiny\sffamily\color{gray}}
 
+% for TDM part
+\def\kt{\ensuremath{k_t}}
+\newcommand{\Pmax}{p}
+\newcommand{\CCFM}{CCFMa,CCFMb,Catani:1989sg,CCFMd}
+
+
 % for tikz pictures
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes,positioning}
@@ -113,6 +119,7 @@
 \providecommand{\as}{\ensuremath{\alpha_\mathrm{s}}\xspace}
 \providecommand{\asmz}{\ensuremath{\alpha_\mathrm{s}(M_Z)}\xspace}
 \providecommand{\asq}{\ensuremath{\alpha_\mathrm{s}(Q)}\xspace}
+\providecommand{\tmdlib}{{\texttt{TMDlib}}\xspace}
 
 
 %
@@ -123,7 +130,7 @@
 \title{HERAFitter %\thanksref{t1}
 }
 \subtitle{Open Source QCD Fit Project \\
-    { \small {Version 0.8 (svn 1406)}}
+    { \small {Version 0.8 (svn 1409)}}
 }
 
 %\titlerunning{Short form of title}        % if too long for running head
@@ -137,6 +144,8 @@ A.M.~Cooper-Sarkar$^{2}$\and
 C.~Diaconu$^{3}$\and 
 A.~Gizhko$^{1}$\and
 A.~Glazov$^{1}$\and
+F.~Hautmann$^{13,14,15}$\and
+H.~Jung$^{1}$\and
 V.~Kolesnikov$^{4}$\and    
 A.~Luszczak$^{5}$\and    
 V.~Myronenko$^{1}$\and
@@ -169,9 +178,11 @@ K.~Wichmann$^{1}$\and
  $ ^{10}$ Physikalisches Institut, Universit\"at Heidelberg, Heidelberg, Germany \\
  $ ^{11}$ Universit\"at Z\"urich, Physik-Institut Winterthurerstrasse 190, CH-8057 Z\"urich, Switzerland \\
  $ ^{12}$ Current address: Department of Physics, St. Petersburg State University, Ulyanovskaya 1, 198504 St. Petersburg, Russia\\
+ $ ^{13}$ Dept. of Physics and Astronomy, University of Sussex, Brighton BN1 9QH, United Kingdom \\
+ $ ^{14}$ Rutherford Appleton Laboratory, Chilton OX11 0QX, United Kingdom \\
+ $ ^{15}$ Dept. of Theoretical Physics, University of Oxford, Oxford OX1 3NP, United Kingdom \\
 }
-
-
+%
 %\thankstext{t1}{Grants or other notes
 %about the article that should go on the front page should be
 %placed here. General acknowledgments should be placed at the end of the article.
@@ -204,7 +215,7 @@ The main processes sensitive to the Parton Distribution Functions (PDFs)
 of the proton are Deep-Inelastic-Scattering  
 in $ep$ collisions at HERA and Drell Yan, jet and top quark production in 
 $pp$ ($p\bar{p}$) collisions at the LHC (Tevatron).
-Data of such recent measurements are included into \fitter and can 
+Data of recent measurements are included into \fitter and can 
 be used for PDF determination
  based on the concept of the factorisable nature 
 of the cross sections of hard scattering measurements into process dependent 

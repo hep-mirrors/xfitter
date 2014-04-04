@@ -78,7 +78,7 @@ and heavy quarks, top quark, jet and prompt photon production.
 %determining precise PDFs by integrating all the PDF sensitive information
 %from HERA, the Tevatron and the LHC.
 %
-Open-source QCD platform \fitter encloses the set of tools  necessary for a comprehensive global 
+The open-source QCD platform \fitter encloses the set of tools  necessary for a comprehensive global 
 QCD analysis of hadron-induced processes even on the early stage of the experimental measurement. 
 It has been developed for determination of PDFs and extraction of fundamental QCD parameters like heavy
 quark masses or the strong coupling constant. This tool provides also the basis for 
@@ -101,7 +101,8 @@ The processes that are currently included in \fitter framework are listed in Tab
 HERA &DIS NC   &$ep\to eX$      & TR', ACOT \\
      &         &                & ZM (\qcdnum) \\
      &         &                & FFN (\texttt{OPENQCDRAD}, \\
-     &         &                & \qcdnum) \\ [0.5ex]
+     &         &                & \qcdnum), \\ 
+     &         &                & TMD (uPDFevolv) \\ [0.5ex]
 \cline{2-4}  \\ [-2.0ex]
      &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\qcdnum) \\
      &         &                & FFN (\texttt{OPENQCDRAD)} \\  [0.5ex]
@@ -165,7 +166,8 @@ where HERA data is not measured precisely, such as the high $x$ region for the g
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
 (DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
-as implemented in \qcdnum~\cite{qcdnum}, 
+as implemented in \qcdnum~\cite{qcdnum} 
+or using CCFM~\cite{\CCFM}, 
 and then convoluted with the hard parton cross sections calculated
 using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \item
@@ -187,7 +189,7 @@ The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are ex
 \bf{Results:} \rm 
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
 The resulting PDFs are provided in a format ready to be used by the \lhapdf 
-library~\cite{lhapdf,lhapdfweb}.
+library~\cite{lhapdf,lhapdfweb} or by \tmdlib \cite{tmdlref}.
 \fitter drawing tools can be used to display the PDFs with the uncertainty at a chosen scale.  
 %Drawing tools are supplied which allow the PDFs to be
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
