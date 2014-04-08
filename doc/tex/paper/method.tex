@@ -86,13 +86,13 @@ significantly reduced uncertainty for $x \le 0.0005$.
  \centering
   \includegraphics[width=8cm]{cheb.pdf}
  \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
-          weight using the Chebyshev parametrisation expanded to the 15th order.}
+ weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
  \label{fig:cheb}
 \end{figure}
 
 %
 \item \bf{External PDFs:} \rm 
-\fitter also provides the possibility to access external PDF sets, which can be used to construct 
+ provides the possibility to access external PDF sets, which can be used to construct 
 theoretical predictions for the various processes implemented in \fitter. This is possible via an 
 interface to \lhapdf~\cite{lhapdf,lhapdfweb} which provides access to the global PDF sets available at LO, NLO 
 or NNLO evolved either locally through the \fitter or taken as provided by the \lhapdf grids. 
@@ -357,7 +357,8 @@ that are incompatible with the data are discarded in order to create a more stre
 The above mentioned features make \fitter a powerful project that encapsulates 
 state of the art developments 
 %from the most up-to-date theory developments 
-to debates on reaching the ultimate experimental precision. 
+%to debates on reaching the ultimate experimental precision. 
+on reaching the ultimate experimental precision. 
 
 An important factor for a feasible QCD fit which is performed by iterative 
 $\chi^2$ minimisation, is performance in terms of how long a calculation takes for each given data point.
