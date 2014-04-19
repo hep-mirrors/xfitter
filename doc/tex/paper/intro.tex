@@ -36,7 +36,7 @@ $\hat{\sigma}^{ab}$.
 The PDFs represent 
 the probability of finding a specific parton $a$ ($b$) in the first (second) proton carrying a fraction $x_1$ ($x_2$) of its momentum.
 %
-The sum over indices $a$ and $b$ in Eq.~\ref{eq:fact} indicates the various 
+Indices $a$ and $b$ in the Eq.~\ref{eq:fact} indicates the various 
 kinds of partons,
 i.e. gluons, quarks and antiquarks of different flavours, 
 that are considered
@@ -158,7 +158,7 @@ The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow}
 %\end{figure}
 \begin{description}
 \item 
-\bf {Input data:} \rm  All relevant cross section measurements from the various processes
+\bf {Input data:} \rm The relevant cross section measurements from the various processes
 are stored internally in \fitter with the full information on their uncorrelated and correlated
 uncertainties. HERA I data sets are the basis of any proton PDF extraction, 
 and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
@@ -166,26 +166,29 @@ Additional measurements provide constraints to the sea flavour decomposition (su
 results from the LHC), as well as constraints to PDFs in the kinematic phase-space regions 
 where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence quark distributions.
 \item
-\bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at a starting scale $Q_0^2$  by a chosen functional form with a set of free parameters $\vec{p}$. These PDFs are then evolved from $Q_0^2$ to the scale of the measurement using the 
+\bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using 
+the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at some input scale $Q_0^2$  
+by a chosen functional form with a set of free parameters $\vec{p}$. These PDFs are then evolved 
+from $Q_0^2$ to the scale of the measurement using the 
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
 (DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
 (as implemented in \qcdnum~\cite{qcdnum}), 
-CCFM~\cite{\CCFM} or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} 
+CCFM \cite{\CCFM} or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} 
 and then convoluted with the hard parton cross sections calculated
 using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \item
 \bf{PDF fit:} \rm  PDFs are extracted from a least square fit by constructing a 
 $\chi^2$ from the input data and the theory prediction.
-The $\chi^2$ is  minimized iteratively 
+The $\chi^2$ is  minimised iteratively 
 with respect to the PDF parameters using the MINUIT~\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, either using 
 a nuisance parameter method for the correlated systematic uncertainties, 
 or a covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
 %
-In the $\chi^2$ minimization,
-The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are extracted from the minimization fit.
+In the $\chi^2$ minimisation,
+The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are extracted from the minimisation fit.
 %Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
 %The fitted parameters $\vec(p)$ and obtained from the uncertainties of the parameters are determined (from chi2+1???)
 %
@@ -207,7 +210,9 @@ the figures comparing the data used in the fit and the relevant theory predictio
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{hera1.pdf}
-   \caption{Summary plots of valence, total sea (scaled) and gluon densities (scaled) with their experimental, model and parametrisation uncertainties at the scale of $Q^2=10 \ \GeV^2$ for the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
+   \caption{Summary plots of valence ($xu_v$, $xd_v$), total sea ($xS$, scaled) and gluon ($xg$, scaled) densities
+   with their experimental, model and parametrisation uncertainties shown as colored bands at the scale 
+   of $Q^2=10 \ \GeV^2$ for the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
  \label{fig:hera1}
 \end{figure}
 In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0. It also illustrates the comparison to the theory predictions which are adjusted by the  

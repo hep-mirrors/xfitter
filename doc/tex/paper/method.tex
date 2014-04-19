@@ -22,7 +22,7 @@ method, which is also available in the \fitter, is described in this section.
 
 
 \subsection{Functional Forms for PDF parametrisation}
-The PDFs are parametrised at a starting scale which is chosen by the user. Various functional forms can be tested using free parameters to be extracted from the fit:
+The PDFs are parametrised at a starting scale which is chosen by the user. In \fitter various functional forms can be tested using free parameters to be extracted from the fit:
 \begin{description}
 \item \bf {Standard Polynomials:} \rm
 The term refers to using a simple polynominal to interpolate between the low and high $x$ regions:
@@ -45,12 +45,12 @@ For the CTEQ style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x
 QCD number and momentum sum-rules are used to determine the normalisations $A$ for the valence and gluon distributions. 
 The sum-rules can be evaluated analytically.
 
-\item \bf {Log-Normal Distributions:} \rm
-A bi-log-normal distribution to parametrise the $x$ dependence of the PDFs is 
-also available in \fitter.
+\item \bf {Bi-Log-Normal Distributions:} \rm
+%A bi-log-normal distribution to parametrise the $x$ dependence of the PDFs is 
+%also available in \fitter.
 %parton distribution function of the proton.
-This parametrisation is motivated by  multiparticle statistics~\cite{hera-lhc:report2009}. 
-The following functional form can be used:
+This parametrisation is motivated by  multiparticle statistics~\cite{hera-lhc:report2009}
+and holds the following functional form:
 %\begin{center}
 \begin{equation}
  xf(x)=x^{p-b\log(x)}(1-x)^{q-\log(1-x)}.
@@ -110,7 +110,7 @@ the PDFs accessed from \lhapdf.
 \subsection{$\chi^2$ representation}
 \label{sec:chi2representation}
 
-The PDF parameters are extracted from a $\chi^2$ minimization process. 
+The PDF parameters are extracted from a $\chi^2$ minimisation process. 
 For experimental uncertainties there are various forms to represent the $\chi^2$ function, e.g. using a covariance matrix or representing them by nuisance parameters. 
 In addition, there are various methods to deal with correlated systematic (or statistical) uncertainties (e.g. different scaling options, etc.). Here we summarise the options available in \fitter. 
 
@@ -128,10 +128,11 @@ The covariance matrix can be decomposed into statistical, uncorrelated and corre
 \begin{eqnarray}
 C_{ij}& = & C^{stat}_{ij}+C^{uncor}_{ij}+C^{sys}_{ij}.
 \end{eqnarray}
-This representation can not single out the effect of a particular
-source of systematic uncertainty.
+With this representation the particular effect of the systematic uncertainty 
+can no longer be separated from other uncertainties.
 
 \item \bf{Nuisance Parameters Representation:} \rm
+The $\chi^2$ form is expressed as
 \label{sec:nuisance_representation}
 
 %\begin{eqnarray} 
@@ -155,11 +156,11 @@ source of systematic uncertainty.
     \chi^2\left(\boldsymbol{m},\boldsymbol{b}\right) =   
  \sum_i \frac{\left[ {\mu_i} - m_i \left( 1 - \sum_j \gamma^i_j b_j \right) \right]^2}
 { \textstyle \delta^2_{i,{\rm unc}}m_i^2 + \delta^2_{i,{\rm stat}}\, {\mu_i} m_i \left(1 - \sum_j \gamma^i_j b_j\right) }
-  + \sum_j b^2_j.
+  + \sum_j b^2_j,
 \label{eq:aven}
 \end{equation}}
 %
-Here ${\mu_i}$ is the  measured central value  at a point $i$ 
+were ${\mu_i}$ is the  measured central value  at a point $i$ 
 with  relative statistical $\delta_{i,\rm stat}$ 
 and relative uncorrelated systematic uncertainty $\delta_{i,\rm unc}$.
 Further, 
@@ -317,7 +318,7 @@ Another important input is the choice of the functional form for the PDFs at the
 \subsection{Bayesian Reweighting Techniques}
 
 As an alternative to a complete QCD fit, the reweighting method (Bayesian Reweighting) is available in \fitter.
-Because no fit is performed, the method provides a fast estimate of the impact of new data. 
+Because no fit is performed, the method provides a fast estimate of the impact of new data on PDFs. 
 The original suggestion~\cite{Giele:1998gw} was developed by the NNPDF 
 collaboration \cite{Ball:2011gg,Ball:2010gb} and later extended~\cite{Watt:2012tq}
 to work not only on the NNPDF replicas, but also on the eigenvectors provided by most PDF groups. 
