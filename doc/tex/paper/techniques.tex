@@ -22,9 +22,9 @@ not necessary at each iteration step, two methods have been developed
 to resolve this problem: the techniques of $k$-factors and
 \emph{fast grids}. Both are available in \fitter and described in the following.
 
-\begin{description}
-\item{\bf$k$-factor technique:}
-
+%\begin{description}
+%\item{\bf$k$-factor technique:}
+\subsection{$k$-factor Technique}
   $k$-factors are defined as the ratio of the prediction of a
   higher-order (slow) pQCD calculation to a lower-order (fast)
   calculation. Because the $k$-factors depend on the phase space
@@ -135,8 +135,9 @@ to resolve this problem: the techniques of $k$-factors and
 \end{itemize}
 
 
-\vspace*{0.25cm}
-\item{\bf{}Fast grid technique:}
+%\vspace*{0.25cm}
+%\item{\bf{}Fast grid technique:}
+\subsection{Fast Grid Techniques}
 
   Fast grid techniques exploit the fact that iterative PDF fitting
   procedures do not impose completely arbitrary changes to the types
@@ -323,5 +324,24 @@ to resolve this problem: the techniques of $k$-factors and
 
 \end{itemize}
 
-\end{description}
+%\end{description}
+
+\subsection{Performance Optimisation}
+
+%The above mentioned features make \fitter a powerful project that encapsulates 
+%state of the art developments 
+%from the most up-to-date theory developments 
+%to debates on reaching the ultimate experimental precision. 
+%on reaching the ultimate experimental precision. 
+
+An important factor for a feasible QCD fit which is performed by iterative 
+$\chi^2$ minimisation, is performance in terms of how long a calculation takes for each given data point.
+The performance of the \fitter code is greatly improved with several special built-in options
+including the $k-factor$ techniques (see section~\ref{sec:techniques}) and the grid techniques for the fast calculation of cross 
+sections of particular processes for arbitrary sets of PDFs. There are also cache options, fast evolution kernels, and 
+usage of the OpenMP (Open Multi-Processing) interface which allows
+parallel applications of some of the heavy flavour scheme theory predictions in DIS. 
+%{\bf please go over this, I have married two separate paragraphs that were in different places}
+
+
 

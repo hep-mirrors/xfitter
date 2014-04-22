@@ -65,7 +65,7 @@ for calculating the dominant gluon-gluon fusion contribution to Higgs production
 at the LHC can be accurately determined at low and medium $x$ solely from the HERA data.
 %
 Many processes in $pp$ and $p \bar p$ collisions at LHC and Tevatron, respectively, 
-probe PDFs in the kinematic ranges, inaccessible by DIS measurements. 
+probe PDFs in the kinematic ranges, complementarly to the DIS measurements. 
 Therefore inclusion of the LHC and Tevatron data in the QCD analysis of the proton structure 
 provide additional constraints on the PDFs, improving either their precision, 
 or providing important information of the correlations of PDF with the fundamental 
@@ -83,13 +83,13 @@ and heavy quarks, top quark, jet and prompt photon production.
 %from HERA, the Tevatron and the LHC.
 %
 The open-source QCD platform \fitter encloses the set of tools  necessary for a comprehensive global 
-QCD analysis of hadron-induced processes even on the early stage of the experimental measurement. 
-It has been developed for determination of PDFs and extraction of fundamental QCD parameters like heavy
-quark masses or the strong coupling constant. This tool provides also the basis for 
+QCD analysis of hadron-induced processes even at the early stage of the experimental measurement. 
+It has been developed for determination of PDFs and extraction of fundamental QCD parameters such as the heavy
+quark masses or the strong coupling constant. This platform also provides the basis for 
 comparisons of different theoretical approaches and can be used for direct tests of the impact 
 of new experimental data in the QCD analyses.
 %
-The processes that are currently included in \fitter framework are listed in Tab.~\ref{tab:proc}.
+The processes that are currently available in \fitter framework are listed in Tab.~\ref{tab:proc}.
 %
 \begin{table}
 \small
@@ -148,7 +148,7 @@ The refernces for the individual calculations and their implementations are give
 \end{table}
 %
 \normalsize
-The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and can be represented by the four main blocks: %{\bf needs to update figure!}
+The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
@@ -160,14 +160,14 @@ The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow}
 \item 
 \bf {Input data:} \rm The relevant cross section measurements from the various processes
 are stored internally in \fitter with the full information on their uncorrelated and correlated
-uncertainties. HERA I data sets are the basis of any proton PDF extraction, 
+uncertainties. HERA data sets are the basis of any proton PDF extraction, 
 and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
-Additional measurements provide constraints to the sea flavour decomposition (such as the new 
-results from the LHC), as well as constraints to PDFs in the kinematic phase-space regions 
-where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence quark distributions.
+Additional measurements provide constraints to the sea flavour decomposition, such as the new 
+results from the LHC, as well as constraints to PDFs in the kinematic phase-space regions 
+where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence quark distributions from Tevatron and fixed target experiments..
 \item
 \bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using 
-the factorisation approach (Eq.~\ref{eq:fact}). PDFs are parametrised at some input scale $Q_0^2$  
+the factorisation approach (Eq.~\ref{eq:fact}). The PDFs are parametrised at a starting input scale $Q_0^2$  
 by a chosen functional form with a set of free parameters $\vec{p}$. These PDFs are then evolved 
 from $Q_0^2$ to the scale of the measurement using the 
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
@@ -178,8 +178,7 @@ CCFM \cite{\CCFM} or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Barte
 and then convoluted with the hard parton cross sections calculated
 using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \item
-\bf{PDF fit:} \rm  PDFs are extracted from a least square fit by constructing a 
-$\chi^2$ from the input data and the theory prediction.
+\bf{QCD fit:} \rm  The PDFs are extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. The $\chi^2$ function is formed from the input data and the theory prediction.
 The $\chi^2$ is  minimised iteratively 
 with respect to the PDF parameters using the MINUIT~\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, either using 
@@ -187,8 +186,8 @@ a nuisance parameter method for the correlated systematic uncertainties,
 or a covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
 %
-In the $\chi^2$ minimisation,
-The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are extracted from the minimisation fit.
+%In the $\chi^2$ minimisation,
+%The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are extracted from the minimisation fit.
 %Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
 %The fitted parameters $\vec(p)$ and obtained from the uncertainties of the parameters are determined (from chi2+1???)
 %
@@ -200,11 +199,11 @@ library~\cite{lhapdf,lhapdfweb} or by \tmdlib \cite{tmdlref}.
 \fitter drawing tools can be used to display the PDFs with the uncertainty at a chosen scale.  
 %Drawing tools are supplied which allow the PDFs to be
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
-A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt} (Fig.~\ref{fig:hera1}) 
+A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt}, shown in Fig.~\ref{fig:hera1}, 
 which is based on HERA~I data.
 Since then several other PDF sets were produced within the HERA and LHC collaborations.
-In addition to PDF display, 
-the figures comparing the data used in the fit and the relevant theory predictions are produced. 
+In addition to the PDF display, 
+the visual comparison of data used in the fit to the theory predictions are also produced. 
 % plots which compare the input data to the fitted theory predictions can be produced 
 %to demonstrate the fit consistency. 
 \begin{figure}[!ht]
@@ -269,6 +268,6 @@ minimisation procedure.
 Alternative approaches to the DGLAP formalism are presented in section~\ref{sec:alternative}.
 %
 Specific applications of the package are given in
-section~\ref{sec:examples}. 
+section~\ref{sec:examples} and the summary is presented in section~\ref{sec:summary}.
 %
 %{\bf add something more here?.}

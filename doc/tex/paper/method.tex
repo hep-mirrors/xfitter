@@ -3,7 +3,7 @@
 
 
 There is a considerable number of choices available when performing a QCD fit analysis 
-(i.e. functional parametrisation form, heavy quarks masses, alternative theoretical calculations,
+(i.e. functional parametrisation form, choice for heavy quarks mass values, alternative theoretical calculations,
 method of minimisation, interpretation of uncertaintes etc.).
 %
  It is desirable to be able to discriminate or quantify the effect of the chosen ansatz, ideally within a common framework, and 
@@ -17,12 +17,13 @@ In this section we briefly describe the available options in \fitter ranging fro
 
 %list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter. 
 In addition, as an alternative approach to a complete QCD fit,  the Bayesian reweighting
-method, which is also available in the \fitter, is described in this section. 
+method, which is also available in \fitter, is described in this section. 
 
 
 
 \subsection{Functional Forms for PDF parametrisation}
-The PDFs are parametrised at a starting scale which is chosen by the user. In \fitter various functional forms can be tested using free parameters to be extracted from the fit:
+The PDFs are parametrised at a starting scale chosen by the user. In \fitter various functional forms to parametrise PDFs can be tested:
+%using free parameters to be extracted from the fit:
 \begin{description}
 \item \bf {Standard Polynomials:} \rm
 The term refers to using a simple polynominal to interpolate between the low and high $x$ regions:
@@ -77,11 +78,12 @@ The advantages of this parametrisation are that the momentum sum rule can be eva
 and that for $N \ge 5$ the fit quality is already similar
 to the standard Regge-inspired parametrisation with a similar number of parameters.
 
-Such study of the parametrisation uncertainty at low Bjorken $x \le 0.1$ for PDFs was presented 
+Such a study of the parametrisation uncertainty at low Bjorken $x \le 0.1$ for PDFs was presented 
 in~\cite{Chebyshev}. Figure~\ref{fig:cheb} shows that the accuracy of 
 the HERA data allows the gluon density to be  determined in the kinematic range of $0.0005 \le x \le 0.05$ 
-with a reduced parametrisation uncertainty. An additional regularisation prior leads to a 
-significantly reduced uncertainty for $x \le 0.0005$.
+with a reduced parametrisation uncertainty. 
+%An additional regularisation prior leads to a 
+%significantly reduced uncertainty for $x \le 0.0005$.
 \begin{figure}[!ht]
  \centering
   \includegraphics[width=8cm]{cheb.pdf}
@@ -92,8 +94,8 @@ significantly reduced uncertainty for $x \le 0.0005$.
 
 %
 \item \bf{External PDFs:} \rm 
- provides the possibility to access external PDF sets, which can be used to construct 
-theoretical predictions for the various processes implemented in \fitter. This is possible via an 
+ \fitter provides the possibility to access external PDF sets, which can be used to construct 
+theoretical predictions for the various processes of interest as implemented in \fitter. This is possible via an 
 interface to \lhapdf~\cite{lhapdf,lhapdfweb} which provides access to the global PDF sets available at LO, NLO 
 or NNLO evolved either locally through the \fitter or taken as provided by the \lhapdf grids. 
 Figure \ref{fig:pdfs} is produced with the drawing tools available in \fitter and illustrates 
@@ -110,8 +112,8 @@ the PDFs accessed from \lhapdf.
 \subsection{$\chi^2$ representation}
 \label{sec:chi2representation}
 
-The PDF parameters are extracted from a $\chi^2$ minimisation process. 
-For experimental uncertainties there are various forms to represent the $\chi^2$ function, e.g. using a covariance matrix or representing them by nuisance parameters. 
+The PDF parameters are extracted from a $\chi^2$ minimisation process.
+The construction of the  $\chi^2$  accounts for the experimental uncertainties.There are various forms that can be used to represent the experimental uncertainties, e.g. using covariance matrices or providing nuisance parameters for dependence of each systematic source on the data point. 
 In addition, there are various methods to deal with correlated systematic (or statistical) uncertainties (e.g. different scaling options, etc.). Here we summarise the options available in \fitter. 
 
 \begin{description}
@@ -128,8 +130,8 @@ The covariance matrix can be decomposed into statistical, uncorrelated and corre
 \begin{eqnarray}
 C_{ij}& = & C^{stat}_{ij}+C^{uncor}_{ij}+C^{sys}_{ij}.
 \end{eqnarray}
-With this representation the particular effect of the systematic uncertainty 
-can no longer be separated from other uncertainties.
+With this representation the particular effect of a particular source of the systematic uncertainty 
+can no longer be distinguished from other uncertainties.
 
 \item \bf{Nuisance Parameters Representation:} \rm
 The $\chi^2$ form is expressed as
@@ -179,7 +181,7 @@ The systematic shift nuisance parameters $b_j$ as well as the PDF
 parameters are free parameters of the fit. 
 The fit determines the best PDF parameters to
 the data taking into account correlated systematic shifts of the data. 
-\item  \bf{Mixed Form:} \rm
+\item  \bf{Mixed Form Representation:} \rm
 It can happen that various parts of the systematic and statistical uncertainties are stored in different forms. A situation can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlations are given in the form of a covariance matrix. \fitter\ offers the possibility to include such information, when provided, as well as any other mixed form of treating statistical, uncorrelated and correlated systematic uncertainties. 
 %In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
 %\begin{equation} 
@@ -351,24 +353,6 @@ and $\chi^2_k$ is a difference between a given data point $y_i$ and its theoreti
 The new, reweighted PDFs commonly are chosen to be based upon a smaller number of PDF sets compared to the input because replicas 
 that are incompatible with the data are discarded in order to create a more stream-lined PDF set.
 
-
-
-\subsection{Performance Optimisation}
-
-The above mentioned features make \fitter a powerful project that encapsulates 
-state of the art developments 
-%from the most up-to-date theory developments 
-%to debates on reaching the ultimate experimental precision. 
-on reaching the ultimate experimental precision. 
-
-An important factor for a feasible QCD fit which is performed by iterative 
-$\chi^2$ minimisation, is performance in terms of how long a calculation takes for each given data point.
-The performance of the \fitter code is greatly improved with several special built-in options
-including the $k-factor$ techniques (see section~\ref{sec:techniques}) and the grid techniques for the fast calculation of cross 
-sections of particular processes for arbitrary sets of PDFs. There are also cache options, fast evolution kernels, and 
-usage of the OpenMP (Open Multi-Processing) interface which allows
-parallel applications of some of the heavy flavour scheme theory predictions in DIS. 
-%{\bf please go over this, I have married two separate paragraphs that were in different places}
 
 
 

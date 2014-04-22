@@ -26,16 +26,16 @@ In this section the theoretical formalism for various processes available in \fi
 
 Deep Inelastic Scattering (DIS) data provide the backbone of any PDF fit.
 The formalism that relates the DIS measurements to pQCD and the PDFs has been described
-in detail in many extensive reviews (see e.g.~\cite{disbook}) and will only be briefly summarised here.
+in detail in many extensive reviews (see e.g.~\cite{disbook}) and it will only be briefly summarised here.
 DIS describes the process where a lepton scattering off the constituents of the proton
 by a virtual exchange of a NC 
 or CC vector boson and, as a result, a scattered lepton and a 
 multihadronic final state are produced.
-The DIS kinematic variables are the negative squared four-momentum of 
+The DIS kinematic variables are the absolute squared four-momentum of 
 the exchange boson, $Q^2$, the Bjorken $x$, 
 %which can be related in the parton model to 
 %the fraction of momentum carried by the struck quark, 
-and the inelasticity $y$, where $y=Q^2/sx$ and $s$ is the squared centre-of-mass energy.
+and the inelasticity $y$, related by $y=Q^2/sx$, where $s$ is the squared centre-of-mass energy.
 %$s = 4E_eE_p$ at HERA.
 %which is the fraction of the energy 
 %transferred to the hadronic vertex.
@@ -70,9 +70,9 @@ densities:
 \begin{eqnarray}
 %  \nonumber
     \begin{array}{rll}
-   e^{+}:  & & \sigma_{CC}^{e^{+} p} \approx 
-        x [\overline u + \overline c] + (1-y)^2 x [d+s] \\
-   e^{-}:  & & \sigma_{CC}^{e^{-} p} \approx 
+     & & \sigma_{CC}^{e^{+} p} \approx 
+        x [\overline u + \overline c] + (1-y)^2 x [d+s], \\
+     & & \sigma_{CC}^{e^{-} p} \approx 
         x[u+c] + (1-y)^2 x[\overline d + \overline s].
     \end{array}
 \end{eqnarray}
@@ -83,59 +83,57 @@ densities:
 Beyond LO, 
 %{\bf check this sentence if it makes sense}.
 the QCD predictions for the DIS structure functions are obtained by convoluting 
-the PDFs with the respective coefficient functions (hard process matrix elements).
-%
-The treatment of 
-heavy charm and beauty quark production is a crucial point in these calculations
-and several schemes exist:
-\begin{itemize}
-\item
-In the Fixed Flavour Number (FFN) 
-scheme~\cite{Laenen:1992, Laenen:1993, Riem:1995}
- only the gluon and the light quarks are considered
-as partons within the proton and massive 
-quarks (with mass $m_h$) are produced perturbatively in the final state.
-The lowest order process is the fusion of a gluon in the proton
-with a boson from the lepton to produce a heavy quark and an antiquark.
-The modern series of PDFs that use this scheme as default are ABM and JR PDF groups.
-\item
-In the Zero-Mass Variable Flavour Number (ZM-VFN) scheme~\cite{ZMVFNpub} the
+the PDFs with the respective coefficient functions (hard process matrix elements). The DIS measurements span from low to high $Q^2$, such that  
+the treatment of heavy charm and beauty quark production is an important ingredient in these calculations. Several schemes exist and the implemented variants in \fitter are briefly discussed as follows.
+
+
+\begin{description}
+\item \bf{Zero-Mass Variable Flavour Number (ZM-VFN):}\rm 
+\\
+In this scheme~\cite{ZMVFNpub}, the
 heavy quark densities are included in the proton for $Q^2$ values above a threshold $\sim m_h^2$
-and
+and they 
 %for $Q^2>>m_h^2$ but 
 are treated as massless in both the initial 
 and final states. The lowest order process is the scattering
 of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
 This scheme is expected to be reliable only in the region $Q^2 \gg m_h^2$.
 This is the scheme that had been used in the past by PDF groups.
-\item
-In the General-Mass Variable-Flavour Number (GM-VFN)
-scheme~\cite{VFN} heavy quark production is treated for
-$Q^2 \le m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
-in a fully massive scheme. 
-%in the ZM-VFN scheme with a suitable interpolation in between.
-The modern series of PDF groups that use this scheme are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
-%This scheme is very popular and numerous variants exist.
-\end{itemize}
-All three schemes are available in \fitter . In the following
-the implemented variants are briefly discussed.
-% 
-\begin{description}
-\item \bf {FFN scheme:} \rm
+In \fitter this scheme is available for the DIS structure function calculation via interface to the \qcdnum package.
+
+\item \bf {Fixed Flavour Number (FFN):} \rm 
+\\
+In this scheme~\cite{Laenen:1992, Laenen:1993, Riem:1995}
+ only the gluon and the light quarks are considered
+as partons within the proton and massive 
+quarks (with mass $m_h$) are produced perturbatively in the final state.
+The lowest order process is the fusion of a gluon in the proton
+with a boson from the lepton to produce a heavy quark and an antiquark.
+The recent series of PDFs that use this scheme as default are ABM and JR PDF groups.
 In \fitter this scheme can be accessed via the 
 \qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD} (as implemented by the ABM group)~\cite{openqcdrad:page}.
-The latter implementation also includes the running mass definition of the heavy quark 
+Through \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
+are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account.
+Through the ABM implementation the heavy quark contributions to CC structure functions are available 
+and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
+are provided at the best currently known approximation~\cite{SMoch:npb864}.
+The ABM implementation also includes the running mass definition of the heavy quark 
 mass ~\cite{Alekhin:runm}.
 The running mass scheme has the advantage of reducing the sensitivity of the DIS cross sections to
 higher order corrections, and improving the theoretical precision of the mass definition. 
-In \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
-are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account.
-In the ABM implementation the heavy quark contributions to CC structure functions are available 
-and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
-are provided at the best currently known approximation~\cite{SMoch:npb864}.
-\item  
-\bf {ZM-VFN scheme:} \rm 
-The scheme is available for the DIS structure function calculation via interface to the \qcdnum package.
+
+
+\item \bf{General-Mass Variable-Flavour Number (GM-VFN):}\rm
+\\
+It this scheme~\cite{VFN}, heavy quark production is treated for
+$Q^2 \le m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
+in a fully massive scheme. 
+%in the ZM-VFN scheme with a suitable interpolation in between.
+The recent series of PDF groups that use this scheme are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
+%This scheme is very popular and numerous variants exist.
+\fitter implements different variants of the GM-VNS scheme and they are presented below:
+% 
+\begin{itemize}
 %
 \item \bf {GM-VFN Thorne-Roberts scheme:} \rm
 %\subsubsection{GM-VFN Thorne-Roberts scheme}
@@ -183,7 +181,8 @@ and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going 
 but it has the disadvantage that it is computationally intensive (addressed in 
 section~\ref{sec:techniques}).
 
-\vspace{0.1cm}
+%\vspace{0.1cm}
+\end{itemize}
 \end{description}
 
 %%%%%%%%%%%
