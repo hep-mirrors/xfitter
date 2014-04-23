@@ -1,0 +1,164 @@
+%
+\label{sec:structure}
+The processes that are currently available in \fitter framework are listed in Tab.~\ref{tab:proc}.
+%
+\begin{table}
+\small
+%\tiny
+\scriptsize
+
+\begin{tabular}{|l|l|l|l|}
+\hline 
+\textbf{Data} &\textbf{Process}&\textbf{Reaction}&\textbf{Theory} \\
+        &     &               &\textbf{calculations, schemes}  \\
+\hline \hline \\ [-2.5ex]
+%\multirow{6}{*}{HERA} &DIS NC   &$ep\to eX$      & TR', ACOT \\
+HERA &DIS NC   &$ep\to eX$      & TR', ACOT \\
+     &         &                & ZM (\qcdnum) \\
+     &         &                & FFN (\texttt{OPENQCDRAD}, \\
+     &         &                & \qcdnum), \\ 
+     &         &                & TMD (uPDFevolv) \\ [0.5ex]
+\cline{2-4}  \\ [-2.0ex]
+     &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\qcdnum) \\
+     &         &                & FFN (\texttt{OPENQCDRAD)} \\  [0.5ex]
+\cline{2-4}  \\ [-2.0ex]
+     &DIS jets &$ep\to e\ \mathrm{jets}$      & \nlojetpp (\fastnlo)\\ [0.5ex]
+\cline{2-4} \\ [-2.0ex]
+     &DIS heavy quarks & $ep\to e c \bar{c} X$, & ZM (\qcdnum), \\
+     &         & $ep\to e b \bar{b} X$ & TR', ACOT, \\
+     &         &                & FFN (\texttt{OPENQCDRAD}, \\
+     &         &                & \qcdnum) \\  [0.5ex]
+\hline \\ [-2.5ex]
+Fixed Target   &DIS NC          &$ep\to eX$ & ZM (\qcdnum), \\
+     &         &                & TR', ACOT \\ [0.5ex]
+\hline \\ [-2.5ex]
+Tevatron, LHC &Drell Yan &$pp(\bar p)\to l\bar l X$, & \mcfm (\applgrid) \\
+              &          &$pp(\bar p)\to l\nu  X$ &                 \\ [0.5ex]
+\cline{2-4}  \\ [-2.0ex]
+%Tevatron, LHC &W charge asym &$pp(\bar p) \to l\nu X$ & MCFM (\texttt{APPLGRID}) \\
+%\hline
+              &top pair   &$pp(\bar p) \to t\bar t X$  & \mcfm (\applgrid),  \\
+              &            &                            & \texttt{HATHOR}      \\  [0.5ex] 
+\cline{2-4}  \\ [-2.0ex]
+              &single top &$pp(\bar p) \to t l \nu X$,      & \mcfm (\applgrid) \\
+              &           &$pp(\bar p) \to tX$,             &  \\
+              &           &$pp(\bar p) \to tWX$             &  \\ [0.5ex]
+\cline{2-4}  \\ [-2.0ex]
+             &jets &$pp(\bar p) \to \mathrm{jets} X$ & \nlojetpp (\applgrid), \\
+                &  & & \nlojetpp (\fastnlo) \\ [0.5ex]
+\hline  \\ [-2.5ex] 
+LHC& DY+heavy quarks &$pp \to VhX$ & \mcfm (\applgrid) \\  [0.5ex]
+\hline
+\end{tabular}
+\caption{The list of processes available in the \fitter package. 
+The refernces for the individual calculations and their implementations are given in the text.
+}
+%The APPLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
+%techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
+\label{tab:proc}
+\end{table}
+%
+\normalsize
+The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
+\input{workflow.tex}
+%\begin{figure}[!ht]
+%   \centering
+%   \includegraphics[width=8cm]{flow.pdf}
+%   \caption{Schematic structure of the \fitter~program.} 
+% \label{fig:flow}
+%\end{figure}
+\begin{description}
+\item 
+\bf {Input data:} \rm The relevant cross section measurements from the various processes
+are stored internally in \fitter with the full information on their uncorrelated and correlated
+uncertainties. HERA data sets are the basis of any proton PDF extraction, 
+and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
+Additional measurements provide constraints to the sea flavour decomposition, such as the new 
+results from the LHC, as well as constraints to PDFs in the kinematic phase-space regions 
+where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence quark distributions from Tevatron and fixed target experiments..
+\item
+\bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using 
+the factorisation approach (Eq.~\ref{eq:fact}). The PDFs are parametrised at a starting input scale $Q_0^2$  
+by a chosen functional form with a set of free parameters $\vec{p}$. These PDFs are then evolved 
+from $Q_0^2$ to the scale of the measurement using the 
+Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
+(DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
+Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
+(as implemented in \qcdnum~\cite{qcdnum}), 
+CCFM \cite{\CCFM} or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} 
+and then convoluted with the hard parton cross sections calculated
+using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
+\item
+\bf{QCD fit:} \rm  The PDFs are extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. The $\chi^2$ function is formed from the input data and the theory prediction.
+The $\chi^2$ is  minimised iteratively 
+with respect to the PDF parameters using the MINUIT~\cite{minuit} program.
+Various choices of accounting for the experimental uncertainties are employed in \fitter, either using 
+a nuisance parameter method for the correlated systematic uncertainties, 
+or a covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
+assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
+%
+%In the $\chi^2$ minimisation,
+%The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are extracted from the minimisation fit.
+%Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
+%The fitted parameters $\vec(p)$ and obtained from the uncertainties of the parameters are determined (from chi2+1???)
+%
+\item
+\bf{Results:} \rm 
+%The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
+The resulting PDFs are provided in a format ready to be used by the \lhapdf 
+library~\cite{lhapdf,lhapdfweb} or by \tmdlib \cite{tmdlref}.
+\fitter drawing tools can be used to display the PDFs with the uncertainty at a chosen scale.  
+%Drawing tools are supplied which allow the PDFs to be
+%graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
+A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt}, shown in Fig.~\ref{fig:hera1}, 
+which is based on HERA~I data.
+Since then several other PDF sets were produced within the HERA and LHC collaborations.
+In addition to the PDF display, 
+the visual comparison of data used in the fit to the theory predictions are also produced. 
+% plots which compare the input data to the fitted theory predictions can be produced 
+%to demonstrate the fit consistency. 
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8cm]{hera1.pdf}
+   \caption{Summary plots of valence ($xu_v$, $xd_v$), total sea ($xS$, scaled) and gluon ($xg$, scaled) densities
+   with their experimental, model and parametrisation uncertainties shown as colored bands at the scale 
+   of $Q^2=10 \ \GeV^2$ for the HERAPDF1.0 PDF set at NLO~\cite{h1zeus:2009wt}.}
+ \label{fig:hera1}
+\end{figure}
+In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0. It also illustrates the comparison to the theory predictions which are adjusted by the  
+systematic uncertainty shifts when using the nuisance parameter method that accounts for 
+correlated systematic uncertainties. 
+As an additional consistency check between data and the theory predictions, pull information, defined as the difference between data and prediction divided by the uncorrelated uncertaintly of the data, is displayed in units of sigma shifts for each given data bin.
+% related only to the uncorrelated part of the systematic uncertainty. 
+
+\begin{figure}[!ht]
+   \centering
+   \includegraphics[width=8.6cm]{datatheory.pdf}
+   \caption{An illustration of the \fitter drawing tools comparing the measurements (in the case of HERA I) to the predictions of the fit. In addition, ratio plots are also provided together with the pull distribution (right panel).} 
+ \label{fig:data}
+\end{figure}
+
+\end{description}
+%
+%This paper provides a comprehensive description of  \\
+%the \fitter\ package.
+%which is designed for analysis of the High Energy Physics data.
+%The package has been developed by members of the H1 and ZEUS collaborations
+%with an exclusive support of different theoretical groups.
+%The main purpose of the \fitter\ package is analysis of the 
+%data from the $e^{\pm}p$, $p\bar{p}$, and $pp$ collider experiments
+%information obtained from the deep inelastic scattering experiments
+%and the determination of the parton density functions (PDFs).
+%The broad range of data taken from the $e^{\pm}p$, $p\bar{p}$, and $pp$ collider experiments can be
+%studied by the package. 
+
+%Based on the concept of factorisable nature of the cross sections into universal parton distribution functions (PDFs) and process dependent partonic scattering cross sections, 
+
+%The \fitter\ program facilitates the determination of the PDFs from many 
+%cross section measurements at $ep$, $p\bar{p}$ or $pp$ colliders.  
+% It includes various options for theoretical calculations and various choices 
+%of how to 
+%account for the experimental uncertainties. 
+The \fitter project provides a versatile environment for benchmarking studies 
+and a flexible platform for the QCD interpretation of analyses within the LHC experiments,
+as already demonstrated by several publicly available results using the \fitter framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
