@@ -265,6 +265,12 @@
   (\bibinfo{year}{2011}), \bibinfo{note}{{{\it Deep Inelastic Scattering},
   ISBN: 0199602255,9780199602254}}.
 
+\bibitem[{\citenamefont{Collins and Tung}(1986)}]{ZMVFNpub}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{W.-K.} \bibnamefont{Tung}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{278}},
+  \bibinfo{pages}{934} (\bibinfo{year}{1986}).
+
 \bibitem[{\citenamefont{Laenen \emph{et~al.}}(1992)}]{Laenen:1992}
 \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
   \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Phys. Lett.}
@@ -284,11 +290,26 @@
   Lett.} \textbf{\bibinfo{volume}{B347}}, \bibinfo{pages}{143}
   (\bibinfo{year}{1995}), [\eprint{hep-ph/9411431}].
 
-\bibitem[{\citenamefont{Collins and Tung}(1986)}]{ZMVFNpub}
-\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{W.-K.} \bibnamefont{Tung}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{278}},
-  \bibinfo{pages}{934} (\bibinfo{year}{1986}).
+\bibitem[{\citenamefont{Alekhin}()}]{openqcdrad:page}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}},
+  \emph{\bibinfo{title}{{OPENQCDRAD}}}, \bibinfo{note}{a program description
+  and the code are available via:
+  http://www-zeuthen.desy.de/$\sim$alekhin/OPENQCDRAD}.
+
+\bibitem[{\citenamefont{Kawamura \emph{et~al.}}(2012)\citenamefont{Kawamura,
+  Lo~Presti, Moch, and Vogt}}]{SMoch:npb864}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kawamura}},
+  \bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Lo~Presti}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vogt}},
+  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B864}},
+  \bibinfo{pages}{399} (\bibinfo{year}{2012}).
+
+\bibitem[{\citenamefont{Alekhin and Moch}(2011)}]{Alekhin:runm}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}},
+  \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B699}},
+  \bibinfo{pages}{345} (\bibinfo{year}{2011}), [\eprint{arXiv:1011.5790}].
 
 \bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
   Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
@@ -299,27 +320,6 @@
   \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Martin}},
   \bibnamefont{\emph{et~al.}} (\bibinfo{year}{1999}),
   [\eprint{hep-ph/0005112}].
-
-\bibitem[{\citenamefont{Alekhin}()}]{openqcdrad:page}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}},
-  \emph{\bibinfo{title}{{OPENQCDRAD}}}, \bibinfo{note}{a program description
-  and the code are available via:
-  http://www-zeuthen.desy.de/$\sim$alekhin/OPENQCDRAD}.
-
-\bibitem[{\citenamefont{Alekhin and Moch}(2011)}]{Alekhin:runm}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}},
-  \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B699}},
-  \bibinfo{pages}{345} (\bibinfo{year}{2011}), [\eprint{arXiv:1011.5790}].
-
-\bibitem[{\citenamefont{Kawamura \emph{et~al.}}(2012)\citenamefont{Kawamura,
-  Lo~Presti, Moch, and Vogt}}]{SMoch:npb864}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kawamura}},
-  \bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Lo~Presti}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vogt}},
-  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B864}},
-  \bibinfo{pages}{399} (\bibinfo{year}{2012}).
 
 \bibitem[{\citenamefont{Thorne and Roberts}(1998)}]{Thorne:1997ga}
 \bibinfo{author}{\bibfnamefont{R.~S.} \bibnamefont{Thorne}} \bibnamefont{and}
@@ -814,12 +814,10 @@
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
   (\bibinfo{year}{2013}), [\eprint{1312.7875}].
 
-\bibitem[{\citenamefont{Pirumov \emph{et~al.}}(2014)\citenamefont{Pirumov,
-  Lisovyi, Glazov, and HERAFitter}}]{hfcorrpaper}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Pirumov}},
-  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Lisovyi}},
-  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Glazov}}, \bibnamefont{and}
-  \bibinfo{author}{\bibnamefont{HERAFitter}} (\bibinfo{year}{2014}),
-  [\eprint{arXiv:1404.XXXX}].
+\bibitem[{\citenamefont{{HERAFitter Developers Team} and
+  Lisovyi}(2014)}]{hfcorrpaper}
+\bibinfo{author}{\bibnamefont{{HERAFitter Developers Team}}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Lisovyi}}
+  (\bibinfo{year}{2014}), [\eprint{arXiv:1404.4234}].
 
 \end{thebibliography}
