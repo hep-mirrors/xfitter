@@ -1,4 +1,4 @@
-\begin{thebibliography}{98}
+\begin{thebibliography}{121}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -125,10 +125,10 @@
   \bibinfo{note}{%QCDNUM version $17\beta$,% \tt
   http://www.nikef.nl/h24/qcdnum/index.html}, [\eprint{arXiv:1005.1481}].
 
-\bibitem[{\citenamefont{Ciafaloni}(1988)}]{CCFMa}
+\bibitem[{\citenamefont{Ciafaloni}(1988{\natexlab{a}})}]{CCFMa}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{296}},
-  \bibinfo{pages}{49} (\bibinfo{year}{1988}).
+  \bibinfo{pages}{49} (\bibinfo{year}{1988}{\natexlab{a}}).
 
 \bibitem[{\citenamefont{Catani
   \emph{et~al.}}(1990{\natexlab{a}})\citenamefont{Catani, Fiorani, and
@@ -148,10 +148,34 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{336}},
   \bibinfo{pages}{18} (\bibinfo{year}{1990}{\natexlab{b}}).
 
-\bibitem[{\citenamefont{Marchesini}(1995)}]{CCFMd}
+\bibitem[{\citenamefont{Marchesini}(1995{\natexlab{a}})}]{CCFMd}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Marchesini}},
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{445}},
-  \bibinfo{pages}{49} (\bibinfo{year}{1995}).
+  \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{a}}).
+
+\bibitem[{\citenamefont{Golec-Biernat and
+  W\"usthoff}(1999)}]{Golec-Biernat:1998js}
+\bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Golec-Biernat}}
+  \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{W\"usthoff}},
+  \bibinfo{journal}{Phys.\ Rev.\ D} \textbf{\bibinfo{volume}{59}},
+  \bibinfo{pages}{014017} (\bibinfo{year}{1999}), [\eprint{hep-ph/9807513}].
+
+\bibitem[{\citenamefont{Iancu \emph{et~al.}}(2004)\citenamefont{Iancu, Itakura,
+  and Munier}}]{Iancu:2003ge}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Iancu}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Itakura}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Munier}},
+  \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B590}},
+  \bibinfo{pages}{199} (\bibinfo{year}{2004}), [\eprint{hep-ph/0310338}].
+
+\bibitem[{\citenamefont{Bartels \emph{et~al.}}(2002)\citenamefont{Bartels,
+  Golec-Biernat, and Kowalski}}]{Bartels:2002cj}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Bartels}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Golec-Biernat}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}},
+  \bibinfo{journal}{Phys.\ Rev.\ D} \textbf{\bibinfo{volume}{66}},
+  \bibinfo{pages}{014001} (\bibinfo{year}{2002}), [\eprint{hep-ph/0203258}].
 
 \bibitem[{\citenamefont{James and Roos}(1975)}]{minuit}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{James}} \bibnamefont{and}
@@ -587,34 +611,108 @@
   \bibinfo{journal}{Z.Phys.} \textbf{\bibinfo{volume}{C49}},
   \bibinfo{pages}{607} (\bibinfo{year}{1991}).
 
-\bibitem[{\citenamefont{Golec-Biernat and
-  W\"usthoff}(1999)}]{Golec-Biernat:1998js}
-\bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Golec-Biernat}}
-  \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{W\"usthoff}},
-  \bibinfo{journal}{Phys.\ Rev.\ D} \textbf{\bibinfo{volume}{59}},
-  \bibinfo{pages}{014017} (\bibinfo{year}{1999}), [\eprint{hep-ph/9807513}].
-
-\bibitem[{\citenamefont{Iancu \emph{et~al.}}(2004)\citenamefont{Iancu, Itakura,
-  and Munier}}]{Iancu:2003ge}
-\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Iancu}},
-  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Itakura}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Munier}},
-  \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B590}},
-  \bibinfo{pages}{199} (\bibinfo{year}{2004}), [\eprint{hep-ph/0310338}].
-
-\bibitem[{\citenamefont{Bartels \emph{et~al.}}(2002)\citenamefont{Bartels,
-  Golec-Biernat, and Kowalski}}]{Bartels:2002cj}
-\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Bartels}},
-  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Golec-Biernat}},
-  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}},
-  \bibinfo{journal}{Phys.\ Rev.\ D} \textbf{\bibinfo{volume}{66}},
-  \bibinfo{pages}{014001} (\bibinfo{year}{2002}), [\eprint{hep-ph/0203258}].
-
 \bibitem[{\citenamefont{Balitsky}(1996)}]{Balitsky:1995ub}
 \bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Balitsky}},
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{463}},
   \bibinfo{pages}{99} (\bibinfo{year}{1996}), [\eprint{hep-ph/9509348}].
+
+\bibitem[{\citenamefont{Belov}(2013)}]{Belov}
+\bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Belov}}, Doctoral thesis,
+  \bibinfo{school}{\protect{Universit\"at Hamburg}} (\bibinfo{year}{2013}),
+  [\eprint{DESY-THESIS-2013-017}].
+
+\bibitem[{\citenamefont{Luszczak and Kowalski}(2013)}]{Luszczak:2013rxa}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Luszczak}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}}
+  (\bibinfo{year}{2013}), [\eprint{1312.4060}].
+
+\bibitem[{\citenamefont{Collins}(2011)}]{Collins:2011zzd}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Collins}},
+  \emph{\bibinfo{title}{{Foundations of perturbative QCD}}},
+  vol.~\bibinfo{volume}{32} (\bibinfo{publisher}{Cambridge monographs on
+  particle physics, nuclear physics and cosmology.}, \bibinfo{year}{2011}).
+
+\bibitem[{\citenamefont{Aybat and Rogers}(2011)}]{Aybat:2011zv}
+\bibinfo{author}{\bibfnamefont{S.~M.} \bibnamefont{Aybat}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{T.~C.} \bibnamefont{Rogers}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D83}},
+  \bibinfo{pages}{114042} (\bibinfo{year}{2011}), [\eprint{1101.5057}].
+
+\bibitem[{\citenamefont{Buffing \emph{et~al.}}(2014)\citenamefont{Buffing,
+  Mulders, and Mukherjee}}]{Buffing:2013eka}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Buffing}},
+  \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Mulders}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Mukherjee}},
+  \bibinfo{journal}{Int.J.Mod.Phys.Conf.Ser.} \textbf{\bibinfo{volume}{25}},
+  \bibinfo{pages}{1460003} (\bibinfo{year}{2014}), [\eprint{1309.2472}].
+
+\bibitem[{\citenamefont{Buffing \emph{et~al.}}(2013)\citenamefont{Buffing,
+  Mukherjee, and Mulders}}]{Buffing:2013kca}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Buffing}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Mukherjee}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Mulders}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D88}},
+  \bibinfo{pages}{054027} (\bibinfo{year}{2013}), [\eprint{1306.5897}].
+
+\bibitem[{\citenamefont{Buffing \emph{et~al.}}(2012)\citenamefont{Buffing,
+  Mukherjee, and Mulders}}]{Buffing:2012sz}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Buffing}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Mukherjee}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Mulders}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D86}},
+  \bibinfo{pages}{074030} (\bibinfo{year}{2012}), [\eprint{1207.3221}].
+
+\bibitem[{\citenamefont{Mulders}(2009)}]{Mulders:2008tf}
+\bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Mulders}},
+  \bibinfo{journal}{Pramana} \textbf{\bibinfo{volume}{72}}, \bibinfo{pages}{83}
+  (\bibinfo{year}{2009}), [\eprint{0806.1134}].
+
+\bibitem[{\citenamefont{Jadach and Skrzypek}(2009)}]{Jadach:2009gm}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Jadach}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Skrzypek}},
+  \bibinfo{journal}{Acta Phys.Polon.} \textbf{\bibinfo{volume}{B40}},
+  \bibinfo{pages}{2071} (\bibinfo{year}{2009}), [\eprint{0905.1399}].
+
+\bibitem[{\citenamefont{Hautmann}(2009)}]{Hautmann:2009zzb}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{journal}{Acta Phys.Polon.} \textbf{\bibinfo{volume}{B40}},
+  \bibinfo{pages}{2139} (\bibinfo{year}{2009}).
+
+\bibitem[{\citenamefont{Hautmann \emph{et~al.}}(2012)\citenamefont{Hautmann,
+  Hentschinski, and Jung}}]{Hautmann:2012pf}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Hentschinski}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
+  (\bibinfo{year}{2012}), [\eprint{1205.6358}].
+
+\bibitem[{\citenamefont{Hautmann and Jung}(2008)}]{Hautmann:2007gw}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}},
+  \bibinfo{journal}{Nucl.Phys.Proc.Suppl.} \textbf{\bibinfo{volume}{184}},
+  \bibinfo{pages}{64} (\bibinfo{year}{2008}), [\eprint{0712.0568}].
+
+\bibitem[{\citenamefont{Catani
+  \emph{et~al.}}(1990{\natexlab{c}})\citenamefont{Catani, Ciafaloni, and
+  Hautmann}}]{Catani:1990xk}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{journal}{Phys.\ Lett.\ B} \textbf{\bibinfo{volume}{242}},
+  \bibinfo{pages}{97} (\bibinfo{year}{1990}{\natexlab{c}}).
+
+\bibitem[{\citenamefont{Collins and Ellis}(1991)}]{Collins:1991ty}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{R.~K.} \bibnamefont{Ellis}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{360}},
+  \bibinfo{pages}{3} (\bibinfo{year}{1991}).
+
+\bibitem[{\citenamefont{Hautmann \emph{et~al.}}(2011)\citenamefont{Hautmann,
+  Jung, and Pandis}}]{Hautmann:2010be}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{V.}~\bibnamefont{Pandis}},
+  \bibinfo{journal}{AIP Conf.Proc.} \textbf{\bibinfo{volume}{1350}},
+  \bibinfo{pages}{263} (\bibinfo{year}{2011}), [\eprint{1011.6157}].
 
 \bibitem[{\citenamefont{Catani \emph{et~al.}}(1991)\citenamefont{Catani,
   Ciafaloni, and Hautmann}}]{Catani:1990eg}
@@ -624,21 +722,55 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{366}},
   \bibinfo{pages}{135} (\bibinfo{year}{1991}).
 
-\bibitem[{\citenamefont{Jung and Hautmann}(2012)}]{Jung:2012hy}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}}
-  (\bibinfo{year}{2012}), [\eprint{arXiv:1206.1796}].
+\bibitem[{\citenamefont{Catani \emph{et~al.}}(1993)\citenamefont{Catani,
+  Ciafaloni, and Hautmann}}]{Catani:1993ww}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{journal}{Phys.\ Lett.\ B} \textbf{\bibinfo{volume}{307}},
+  \bibinfo{pages}{147} (\bibinfo{year}{1993}).
 
-\bibitem[{\citenamefont{Jung \emph{et~al.}}(2010)\citenamefont{Jung, Baranov,
-  Deak, Grebenyuk, Hautmann \emph{et~al.}}}]{Jung:2010si}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Baranov}},
-  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Deak}},
-  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Grebenyuk}},
+\bibitem[{\citenamefont{Lipatov}(1997)}]{Lipatov:1996ts}
+\bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Lipatov}},
+  \bibinfo{journal}{Phys.Rept.} \textbf{\bibinfo{volume}{286}},
+  \bibinfo{pages}{131} (\bibinfo{year}{1997}), [\eprint{hep-ph/9610276}].
+
+\bibitem[{\citenamefont{Fadin \emph{et~al.}}(1975)\citenamefont{Fadin, Kuraev,
+  and Lipatov}}]{Fadin:1975cb}
+\bibinfo{author}{\bibfnamefont{V.~S.} \bibnamefont{Fadin}},
+  \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Kuraev}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Lipatov}},
+  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B60}},
+  \bibinfo{pages}{50} (\bibinfo{year}{1975}).
+
+\bibitem[{\citenamefont{Balitsky and Lipatov}(1978)}]{Balitsky:1978ic}
+\bibinfo{author}{\bibfnamefont{I.~I.} \bibnamefont{Balitsky}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{28}},
+  \bibinfo{pages}{822} (\bibinfo{year}{1978}).
+
+\bibitem[{\citenamefont{Ciafaloni}(1988{\natexlab{b}})}]{Ciafaloni:1987ur}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
+  \bibinfo{journal}{Nucl. Phys.} \textbf{\bibinfo{volume}{B296}},
+  \bibinfo{pages}{49} (\bibinfo{year}{1988}{\natexlab{b}}).
+
+\bibitem[{\citenamefont{Marchesini}(1995{\natexlab{b}})}]{Marchesini:1994wr}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Marchesini}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{445}},
+  \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{b}}),
+  [\eprint{hep-ph/9412327}].
+
+\bibitem[{\citenamefont{Catani and Hautmann}(1994)}]{Catani:1994sq}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
-  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Eur.Phys.J.}
-  \textbf{\bibinfo{volume}{C70}}, \bibinfo{pages}{1237} (\bibinfo{year}{2010}),
-  [\eprint{arXiv:1008.0152}].
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{427}},
+  \bibinfo{pages}{475} (\bibinfo{year}{1994}), [\eprint{hep-ph/9405388}].
+
+\bibitem[{\citenamefont{Catani and Hautmann}(1993)}]{Catani:1993rn}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B315}},
+  \bibinfo{pages}{157} (\bibinfo{year}{1993}).
 
 \bibitem[{\citenamefont{Deak \emph{et~al.}}(2010)\citenamefont{Deak, Hautmann,
   Jung, and Kutak}}]{Deak:2010gk}
@@ -648,6 +780,17 @@
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Kutak}},
   \emph{\bibinfo{title}{{Forward-Central Jet Correlations at the Large Hadron
   Collider}}} (\bibinfo{year}{2010}), [\eprint{arXiv:1012.6037}].
+
+\bibitem[{\citenamefont{Hautmann and Jung}(2014)}]{Hautmann:2013tba}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}},
+  \bibinfo{journal}{Nuclear Physics B} \textbf{\bibinfo{volume}{883}},
+  \bibinfo{pages}{1 } (\bibinfo{year}{2014}), [\eprint{1312.7875}].
+
+\bibitem[{\citenamefont{Jung and Hautmann}(2012)}]{Jung:2012hy}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}}
+  (\bibinfo{year}{2012}), [\eprint{arXiv:1206.1796}].
 
 \bibitem[{\citenamefont{Chekanov \emph{et~al.}}(2010)}]{zeus:diff2009}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chekanov}}
