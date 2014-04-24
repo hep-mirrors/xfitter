@@ -235,7 +235,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	    allargs.erase(it+1);
 	  }
 	else if (*it == "--only-theory")
-	  onlytheory = true;
+	  {
+	    onlytheory = true;
+	    ratiototheory = true;
+	  }
 	else if (*it == "--ratio-to-theory")
 	  ratiototheory = true;
 	else if (*it == "--diff")

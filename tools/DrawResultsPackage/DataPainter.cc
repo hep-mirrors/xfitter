@@ -492,7 +492,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	mx = max(mx, (float)((*it).gettherrup()->GetMaximum()));
       else
 	mx = max(mx, (float)((*it).getth()->GetMaximum()));
-      mx = max(mx, (float)((*it).getthshift()->GetMaximum()));
+      if (!opts.onlytheory)
+	mx = max(mx, (float)((*it).getthshift()->GetMaximum()));
     }
 
   float mn = mx;
@@ -802,7 +803,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   string ytitle = "";
   if (opts.diff)
     {
-      if (opts.ratiototheory)
+      if (opts.onlytheory)
+	ytitle = "Difference";
+      else if (opts.ratiototheory)
 	ytitle = (string) "Data-" + opts.theorylabel;
       else
 	ytitle = "Theory-Data";
@@ -838,7 +841,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       if (opts.therr)
-	mx = max(mx, (float)((*it).getrtherrup()->GetMaximum()));
+	{
+	  mx = max(mx, (float)((*it).getrtherrup()->GetMaximum()));
+	  mx = max(mx, (float)((*it).getrtherrdown()->GetMaximum()));
+	}
       else
 	mx = max(mx, (float)((*it).getrth()->GetMaximum()));
       if (!opts.threepanels)
@@ -854,7 +860,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       if (opts.therr)
-	mn = min(mn, (float)(hmin((*it).getrtherrdown())));
+	{
+	  mn = min(mn, (float)(hmin((*it).getrtherrdown())));
+	  mn = min(mn, (float)(hmin((*it).getrtherrup())));
+	}
       else
 	mn = min(mn, (float)(hmin((*it).getrth())));
       if (!opts.threepanels)
@@ -868,6 +877,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       mn = datahistos[0].getyminr();
       delta = 0;
     }
+
   r_templ->SetMaximum(mx + delta * 0.2);
   r_templ->SetMinimum(mn - delta * 0.2);
 
