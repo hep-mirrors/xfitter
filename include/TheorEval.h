@@ -46,6 +46,7 @@ class TheorEval{
   const vector<int> *getBinFlags() const { return &_binFlags; }
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
+  void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
 
  private:
   //! Checks that the bin boundaries are complied with data ones.
@@ -81,6 +82,8 @@ class TheorEval{
   bool _ppbar;
   //Normalised cross section
   bool _normalised;
+  //bin-by-bin dynamic scale
+  float _dynamicscale;
 };
 
 #endif

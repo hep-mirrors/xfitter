@@ -260,6 +260,9 @@ c     select ppbar reaction for applgrid PDF convolution
 c     Normalise applgrid prediction to 1
       double precision theory_normalised
 
+c     bin-by-bin dynamic scale in applgrid prediction
+      double precision theory_dynscale
+
       integer i,j,iBin,iError
       logical LReadKFactor
 
@@ -540,6 +543,16 @@ C     ---> copy the names in a new variable
        write (Msg,'(''I: Normalise APPLGRID prediction dataset: '',A20,'' '')')
      $        Name
            call HF_errlog(14030401,trim(Msg))
+        endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'DynamicScale')
+        dynscale = 0               ! defaults to applgrid scale
+        if ( idxReaction .ne. 0 ) then
+           dynscale = DATASETInfo(idxReaction, NDATASETS)
+
+      write (Msg,'(''I: Emulate dynamic scale dataset: '',A20,'' '')')
+     $        Name
+           call HF_errlog(14042001,trim(Msg))
         endif
 
         call set_theor_eval(NDATASETS)

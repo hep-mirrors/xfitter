@@ -45,6 +45,7 @@ extern struct ckm_matrix_cb {
 } ckm_matrix_;
 
 extern struct thexpr_cb {
+  double dynscale;
   int nterms;
   char termname[16][8];
   char termtype[16][80];
@@ -75,6 +76,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
 
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetNormalised(theorexpr_.normalised);
+  te->SetDynamicScale(theorexpr_.dynscale);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }

@@ -242,6 +242,18 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
 {
   string term_source = _termSources.at(iterm);
   appl::grid *g = new appl::grid(term_source);
+  if (_dynamicscale != 0)
+    {
+#ifdef APPLGRID_DYNSCALE
+      g->setDynamicScale( _dynamicscale );
+#else
+      int id = 2204201401;
+      char text[] = "S: Cannot use dynamic scale emulation in Applgrid, use v1.4.43 or higher";
+      int textlen = strlen(text);
+      hf_errlog_(id, text, textlen);
+#endif
+    }
+
   g->trim();
 
   // read binning information from grid and compare it to that of data

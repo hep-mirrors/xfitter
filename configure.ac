@@ -153,6 +153,21 @@ if test x$enable_applgrid == xyes; then
 fi
 AM_CONDITIONAL(APPLGRID_CKM, [test x$ag_ckm == xyes])
 
+# check if applgrid support dynamic scale emulation
+ag_dynscale=no
+ag_version=`applgrid-config --version`
+if test x$enable_applgrid == xyes; then
+  AC_MSG_CHECKING([if APPLgrid supports dynamic scale emulation])
+  AX_COMPARE_VERSION([1.4.43],[gt],[$ag_version],[ag_dynscale=no],[ag_dynscale=yes])
+  if test x$ag_dynscale == xyes; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE([APPLGRID_DYNSCALE],[1],[Define if APPLGrid supports dynamic scale emulation])
+  else
+    AC_MSG_WARN([The APPLgrid version does not allow dynamic scale emulation ( needs v. >= 1.4.43 )])
+  fi
+fi
+AM_CONDITIONAL(APPLGRID_DYNSCALE, [test x$ag_dynscale == xyes])
+
 
 # check for genetic installation
 AC_ARG_ENABLE([genetic],
