@@ -20,7 +20,7 @@ In this section the theoretical formalism for various processes available in \fi
 
 
 
-\subsection{Deep Inelastic Scattering Formalism and Schemes}
+\subsection{Deep Inelastic Scattering Formalism}
 \label{dissection}
 
 
@@ -83,7 +83,7 @@ densities:
 Beyond LO, 
 %{\bf check this sentence if it makes sense}.
 the QCD predictions for the DIS structure functions are obtained by convoluting 
-the PDFs with the respective coefficient functions (hard process matrix elements). The DIS measurements span from low to high $Q^2$, such that  
+the PDFs with the respective coefficient functions. The DIS measurements span from low to high $Q^2$, such that  
 the treatment of heavy charm and beauty quark production is an important ingredient in these calculations. Several schemes exist and the implemented variants in \fitter are briefly discussed as follows.
 
 
@@ -99,7 +99,9 @@ and final states. The lowest order process is the scattering
 of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
 This scheme is expected to be reliable only in the region $Q^2 \gg m_h^2$.
 This is the scheme that had been used in the past by PDF groups.
-In \fitter this scheme is available for the DIS structure function calculation via interface to the \qcdnum package.
+In \fitter this scheme is available for the DIS structure function calculation 
+via interface to the \qcdnum package and is very fast 
+due to the fast \qcdnum convolution engine.
 
 \item \bf {Fixed Flavour Number (FFN):} \rm 
 \\
@@ -115,7 +117,8 @@ In \fitter this scheme can be accessed via the
 Through \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
 are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account.
 Through the ABM implementation the heavy quark contributions to CC structure functions are available 
-and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
+%and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
+and, for the NC case, the QCD corrections to the coefficient functions at Next-to-Next-to Leading Order (NNLO)
 are provided at the best currently known approximation~\cite{SMoch:npb864}.
 The ABM implementation also includes the running mass definition of the heavy quark 
 mass ~\cite{Alekhin:runm}.
