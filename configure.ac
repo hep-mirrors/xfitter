@@ -305,6 +305,7 @@ AC_CONFIG_FILES([include/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  tools/DrawResultsPackage/Makefile
+                 tools/DrawResultsPackage/src/Makefile
                  tools/DrawResultsPackage/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
