@@ -12,7 +12,6 @@ extern float tmarg;
 extern float bmarg;
 extern float marg0;
 
-
 using namespace std;
 
 class CommandParser
@@ -24,7 +23,7 @@ class CommandParser
   //pdf options
   bool dobands, filledbands, asymbands, logx;
   float rmin, rmax;
-  float xmin, xmax;
+  double xmin, xmax;
   bool abserror, relerror;
 
   //data pulls options
@@ -39,12 +38,14 @@ class CommandParser
   //general options
   bool splitplots;
   string ext;
-  bool pdf;
+  string format;
+  bool root;
   string outdir;
   vector <string> dirs, labels;
   int colors[6];
   int styles[6];
-  int resolution;
+  float lwidth;
+  float resolution, pagewidth;
   bool nodata;
   bool nopdfs;
   bool noshifts;
@@ -74,20 +75,26 @@ class CommandParser
     cout << "general options:" << endl;
     cout << "\t --help" << endl;
     cout << "\t \t Show this help" << endl;
-    cout << "\t --pdf (requires ps2pdf)" << endl;
-    cout << "\t \t Produce and additional plot file in pdf format (Portable Document Format)" << endl;
     cout << "\t --outdir <output directory>" << endl;
     cout << "\t \t Specify output directory" << endl;
-    cout << "\t --splitplots" << endl;
+    cout << "\t --eps" << endl;
+    cout << "\t \t Plots are saved in eps format" << endl;
+    cout << "\t --root" << endl;
+    cout << "\t \t Save all the plots in a root file" << endl;
+    cout << "\t --splitplots-eps" << endl;
     cout << "\t \t Produce also additional eps files for each plot" << endl;
+    cout << "\t --splitplots-pdf" << endl;
+    cout << "\t \t Produce also additional eps and pdf files for each plot" << endl;
     cout << "\t --splitplots-png" << endl;
     cout << "\t \t Produce additional png files for each plot" << endl;
     cout << "\t --colorpattern <1-3>" << endl;
     cout << "\t \t Select among 3 additional color patterns" << endl;
+    cout << "\t --thicklines" << endl;
+    cout << "\t \t Thicker lines in all plots (better for small plots in slides)" << endl;
     cout << "\t --lowres" << endl;
-    cout << "\t \t Low resolution plots (smaller file)" << endl;
+    cout << "\t \t Low resolution logo (smaller file)" << endl;
     cout << "\t --highres" << endl;
-    cout << "\t \t High resolution plots (paper quality)" << endl;
+    cout << "\t \t High resolution logo (paper quality)" << endl;
     cout << "\t --no-version" << endl;
     cout << "\t \t Do not show version on logo" << endl;
     cout << "options for pdf plots:" << endl;
