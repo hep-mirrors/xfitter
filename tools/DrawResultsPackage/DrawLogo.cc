@@ -5,6 +5,7 @@
 #include <TImage.h>
 #include <TLatex.h>
 #include <TEnv.h>
+#include <TCanvas.h>
 
 #include <string>
 #include <iostream>
@@ -18,37 +19,43 @@ TPad * DrawLogo(string pos)
 
   TImage *logo = TImage::Create();
   logo->SetImageBuffer(logo_xpm, TImage::kXpm);
+  if (!logo) 
+    {
+      cout << "Error, Could not find logo" << endl;
+      return 0;
+    }
 
-  float dx = 0.1183 * 1.1;
-  float dy = 0.0744 * 1.1;
+  logo->SetConstRatio(1);
+  logo->SetImageQuality(TAttImage::kImgBest);
+
+  //Draw version on logo
+  if (opts.version)
+    {
+      TString fp = gEnv->GetValue("Root.TTFontPath", "");
+      TString bc = fp + "/BlackChancery.ttf";
+      TString ar = fp + "/arial.ttf";
+      logo->DrawText(500, 600, ver.c_str(), 200, 0, 
+		     bc, TImage::kShadeBelow);
+    }
+
+  float dx = 0.1183 * 1.5;
+  float dy = 0.0744 * 1.5;
 
   float x, y;
   x = 1-rmarg-0.01;
   y = 1-tmarg-0.01;
   if (pos == "dc")
     {
-      x = 0.79;
+      x = 0.74;
       y = 0.12 + dy;
     }
 
   TPad * logopad = new TPad("logopad", "", x-dx, y-dy, x, y);
-  if (!logo) 
-    cout << "Error, Could not find logo" << endl;
-  else
-    {
-      TString fp = gEnv->GetValue("Root.TTFontPath", "");
-      TString bc = fp + "/BlackChancery.ttf";
-      TString ar = fp + "/arial.ttf";
+  logopad->SetBorderSize(0);
+  logopad->Draw();
+  logopad->cd();
+  logo->Draw("");
 
-      logo->SetConstRatio(1);
-      if (opts.version)
-	logo->DrawText(500, 600, ver.c_str(), 200, 0, 
-		       bc, TImage::kShadeBelow);
-      logo->SetImageQuality(TAttImage::kImgBest);
-      logopad->Draw();
-      logopad->cd();
-      logo->Draw("");
-     }
   return logopad;
 }
 

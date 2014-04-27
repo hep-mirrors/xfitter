@@ -190,10 +190,9 @@ int main(int argc, char **argv)
   //Save plots
   system(((string)"mkdir -p " + opts.outdir).c_str());
 
-  //Open the eps file
-  TCanvas * opencnv = new TCanvas("open", "", 0, 0, opts.resolution * 2, opts.resolution * 2);
-  opencnv->Print((opts.outdir + "plots.eps[").c_str());
-
+  int pgn = 0;
+  char pgnum[15];
+  gStyle->SetPaperSize(opts.pagewidth * 1.5, opts.pagewidth * 1.5);
   vector <TCanvas*>::iterator it = pdfscanvaslist.begin();
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)
     {
@@ -207,7 +206,10 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv->Print((opts.outdir + "plots.eps").c_str());
+
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
 
       sprintf(numb, "%d", it - pdfscanvaslist.begin());
       TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
@@ -218,7 +220,10 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv2->Print((opts.outdir + "plots.eps").c_str());
+
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv2->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
   for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
     {
@@ -232,7 +237,9 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv->Print((opts.outdir + "plots.eps").c_str());
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
 
       sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
       TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
@@ -243,9 +250,12 @@ int main(int argc, char **argv)
 	  (*it)->DrawClonePad();
 	  it++;
 	}
-      pagecnv2->Print((opts.outdir + "plots.eps").c_str());
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv2->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
   
+  gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth);
   it = datapullscanvaslist.begin();
   for (it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)
     {
@@ -276,45 +286,44 @@ int main(int argc, char **argv)
 		it++;
 	      }
 	}
-      pagecnv->Print((opts.outdir + "plots.eps").c_str());
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
+  gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth);
   it = shiftcanvaslist.begin();
   for (it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
     {
       char numb[15];
       sprintf(numb, "shift_%d", it - shiftcanvaslist.begin());
-      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution, (*it)->GetWindowHeight());
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2 * opts.resolution, (*it)->GetWindowHeight());
       (*it)->DrawClonePad();
-      pagecnv->Print((opts.outdir + "plots.eps").c_str());
-    }
-
-  //Close the eps file
-  opencnv->Print((opts.outdir + "plots.eps]").c_str());
-  cout << endl;
-  cout << "Plots saved in: " << (opts.outdir + "plots.eps") << endl;
-
-  if (opts.pdf)
-    {
-      cout << "Converting to pdf format..." << endl;
-      system(((string)"ps2pdf -dEPSCrop " + opts.outdir + "plots.eps " + opts.outdir + "plots.pdf").c_str());
-      cout << "Plots saved in: " << (opts.outdir + "plots.pdf") << endl;
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
   if (opts.splitplots)
     {
+      string ext = opts.ext;
+      if (opts.ext == "pdf")
+	ext = "eps";
+
+      gStyle->SetPaperSize(opts.pagewidth / 2., opts.pagewidth / 2.);
       for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
-	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + ext).c_str());
       for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
-	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + ext).c_str());
+      if (opts.twopanels || opts.threepanels)
+	gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth / 2.);
       for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
-	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + ext).c_str());
+      gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth);
       for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
-	(*it)->Print((opts.outdir + (*it)->GetName() + "." + opts.ext).c_str());
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + ext).c_str());
 
-      cout << "Multiple " << opts.ext << " plots saved in: " << (opts.outdir + "*." + opts.ext) << endl;
-
-      if (opts.pdf)
+      if (opts.ext == "pdf")
 	{
 	  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
 	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
@@ -325,20 +334,45 @@ int main(int argc, char **argv)
 	  for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
 	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	}
+      cout << "Multiple " << opts.ext << " plots saved in: " << (opts.outdir + "*." + opts.ext) << endl;
     }
 
-  //Save all canvas in a root file
-  TFile * f = new TFile((opts.outdir + "plots.root").c_str(), "recreate");
-  for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
-    (*it)->Write();
-  for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
-    (*it)->Write();
-  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
-    (*it)->Write();
-  for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
-    (*it)->Write();
-  f->Close();
-  cout << "TCanvas saved in: " << (opts.outdir + "plots.root") << endl;
+  //Save TCanvas
+  if (opts.root)
+    {
+      TFile * f = new TFile((opts.outdir + "plots.root").c_str(), "recreate");
+      for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
+	(*it)->Write();
+      for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
+	(*it)->Write();
+      for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
+	(*it)->Write();
+      for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
+	(*it)->Write();
+      f->Close();
+      cout << "TCanvas saved in: " << (opts.outdir + "plots.root") << endl;
+    }
+
+  //make file
+  string format = opts.format;
+
+  string inputfiles = "";
+  for (int n = 1; n <= pgn; n++)
+    {
+      sprintf(pgnum, "%d", n);
+      inputfiles = inputfiles + " " + opts.outdir + "plots_" + pgnum + ".eps";
+    }
+
+  //A4 is /PageSize [842 595]
+  string gscommand = "gs -dBATCH -q -sDEVICE=" + format + "write -sOutputFile=" + opts.outdir + "plots." + format 
+    + " -dNOPAUSE -dEPSFitPage -c \"<< /PageSize [595 595] >> setpagedevice\"  -f " 
+    + inputfiles;
+
+  system(gscommand.c_str());
+  cout << "Plots saved in: " << (opts.outdir + "plots." + format) << endl;
+
+  //cleanup pages
+  system(("rm " + inputfiles).c_str());
 
   return 0;
 }

@@ -107,7 +107,7 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       float topreduction = (float)abs(min(0, nshifts - minshifts)) * shiftheigth;
       double poffset = offset * (float)graphnshifts / (float)max(minshifts, nshifts);
 
-      TCanvas * cnv = new TCanvas(numb, "", 0, 0, opts.resolution, opts.resolution);
+      TCanvas * cnv = new TCanvas(numb, "", 0, 0, 2 * opts.resolution, 2 * opts.resolution);
       shiftscnv.push_back(cnv);
       cnv->Divide(2, 1);
       TPad * main = (TPad*)cnv->GetPad(1);
@@ -160,12 +160,12 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
 	  TGraphErrors * gshift = new TGraphErrors(nshifts, x[nd], y[nd], xerr[nd]);
 	  if (dirs.size() == 1)
 	    {
-	      gshift->SetMarkerSize(2*opts.resolution/1200);
+	      gshift->SetMarkerSize(4.*opts.resolution/1200.);
 	      gshift->SetMarkerStyle(8);
 	    }
 	  else
 	    {
-	      gshift->SetMarkerSize(1*opts.resolution/1200);
+	      gshift->SetMarkerSize(3.*opts.resolution/1200.);
 	      gshift->SetMarkerStyle(opts.markers[nd]);
 	      gshift->SetLineColor(opts.colors[nd]);
 	      gshift->SetMarkerColor(opts.colors[nd]);
@@ -238,14 +238,14 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
 
       cnv->cd();
       TPad * heraflogo = DrawLogo();
-      float dx = 0.1183 * 1.1;
-      float dy = 0.0744 * 1.1;
+      float dx = 0.1183 * 1.5;
+      float dy = 0.0744 * 1.5;
       float xl, yl;
       xl = 0.5-0.01-0.01;
       yl = 1-tmarg-0.015;
 
-     heraflogo->SetPad( xl-dx, yl-dy, xl, yl);
-     heraflogo->Draw();
+      heraflogo->SetPad(xl-dx/2, yl-dy/2, xl, yl);
+      heraflogo->Draw();
     }
 
   return shiftscnv;

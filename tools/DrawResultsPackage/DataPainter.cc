@@ -606,7 +606,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       TGraphAsymmErrors * gtherr = new TGraphAsymmErrors((*it).getth());
       (*it).getthshift()->SetLineColor(opts.colors[(*it).getcoli()]);
       (*it).getthshift()->SetLineStyle(2);
-      (*it).getthshift()->SetLineWidth(2);
+      (*it).getthshift()->SetLineWidth(opts.lwidth);
 
       vector <range> thranges = historanges((*it).getthshift());
       for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
@@ -619,7 +619,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
 
       (*it).getth()->SetLineColor(opts.colors[(*it).getcoli()]);
-      (*it).getth()->SetLineWidth(2);
+      (*it).getth()->SetLineWidth(opts.lwidth);
       if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
 	{
 	  vector <range> thranges = historanges((*it).getth());
@@ -706,8 +706,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       {
 	(*it).gettherrup()->SetLineColor(opts.colors[(*it).getcoli()]);
 	(*it).gettherrdown()->SetLineColor(opts.colors[(*it).getcoli()]);
-	(*it).gettherrup()->SetLineWidth(2);
-	(*it).gettherrdown()->SetLineWidth(2);
+	(*it).gettherrup()->SetLineWidth(opts.lwidth);
+	(*it).gettherrdown()->SetLineWidth(opts.lwidth);
 	if (!opts.points || (*it).bincenter())
 	  {
 	    vector <range> thranges = historanges((*it).getth());
@@ -908,10 +908,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     {
       (*it).getrthshift()->SetLineColor(opts.colors[(*it).getcoli()]);
       (*it).getrthshift()->SetLineStyle(2);
-      (*it).getrthshift()->SetLineWidth(2);
+      (*it).getrthshift()->SetLineWidth(opts.lwidth);
 
       (*it).getrth()->SetLineColor(opts.colors[(*it).getcoli()]);
-      (*it).getrth()->SetLineWidth(2);
+      (*it).getrth()->SetLineWidth(opts.lwidth);
 
       vector <range> rthranges = historanges((*it).getrthshift());
       if (!opts.threepanels)
@@ -998,8 +998,8 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       {
 	(*it).getrtherrup()->SetLineColor(opts.colors[(*it).getcoli()]);
 	(*it).getrtherrdown()->SetLineColor(opts.colors[(*it).getcoli()]);
-	(*it).getrtherrup()->SetLineWidth(2);
-	(*it).getrtherrdown()->SetLineWidth(2);
+	(*it).getrtherrup()->SetLineWidth(opts.lwidth);
+	(*it).getrtherrdown()->SetLineWidth(opts.lwidth);
 	if (!opts.points || (*it).bincenter())
 	  {
 	    vector <range> rthranges = historanges((*it).getth());
@@ -1142,7 +1142,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	      (*it).getpull()->SetFillStyle(1001);
 	    }
 	  (*it).getpull()->SetLineStyle(1);
-	  (*it).getpull()->SetLineWidth(2);
+	  (*it).getpull()->SetLineWidth(opts.lwidth);
 	  (*it).getpull()->SetLineColor(opts.colors[(*it).getcoli()]);
 	  datahistos[0].Draw((TH1F*)(*it).getpull()->Clone(), "same ][");
 	}	  

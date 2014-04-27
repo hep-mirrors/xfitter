@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <TH1F.h>
+#include <TStyle.h>
 
 float txtsize = 0.043;
 float offset = 1.5;
@@ -17,15 +18,18 @@ CommandParser::CommandParser(int argc, char **argv):
   logx(true),
   filledbands(false),
   rmin(0),
-  rmax(2),
+  rmax(0),
   xmin(-1),
   xmax(-1),
   relerror(false),
   abserror(false),
-  pdf(false),
   splitplots(false),
+  root(false),
+  format("pdf"),
   ext("eps"),
-  resolution(1200),
+  resolution(800),
+  pagewidth(20),
+  lwidth(2),
   therr(false),
   points(false),
   theorylabel("Theory"),
@@ -52,17 +56,17 @@ CommandParser::CommandParser(int argc, char **argv):
 {
 
   //initialise colors and styles
-  colors[0] = kRed;
+  colors[0] = kRed + 2;
   colors[1] = kBlue + 2;
   colors[2] = kGreen + 3;
+  colors[3] = kOrange + 7;
   colors[4] = kAzure + 1;
-  colors[5] = kOrange + 7;
-  colors[3] = kMagenta;
+  colors[5] = kMagenta + 1;
 
-  styles[0] = 3004;
-  styles[1] = 3005;
-  styles[2] = 3006;
-  styles[3] = 3007;
+  styles[0] = 3354;
+  styles[1] = 3345;
+  styles[2] = 3359;
+  styles[3] = 3350;
   styles[4] = 3016;
   styles[5] = 3020;
 
@@ -72,6 +76,10 @@ CommandParser::CommandParser(int argc, char **argv):
   markers[3] = 32;
   markers[4] = 31;
   markers[5] = 27;
+
+  //Hatches style
+  gStyle->SetHatchesSpacing(2);
+  gStyle->SetHatchesLineWidth(lwidth);
 
   //read all command line arguments
   for (int iar = 0; iar < argc; iar++)
@@ -86,12 +94,18 @@ CommandParser::CommandParser(int argc, char **argv):
 	    help();
 	    exit(0);
 	  }
-	else if (*it == "--pdf")
-	  pdf = true;
+	else if (*it == "--thicklines")
+	  lwidth = 3;
 	else if (*it == "--lowres")
-	  resolution = 600;
+	  {
+	    resolution = 400;
+	    //	    pagewidth = 10;
+	  }
 	else if (*it == "--highres")
-	  resolution = 2400;
+	  {
+	    resolution = 2400;
+	    //	    pagewidth = 60;
+	  }
 	else if (*it == "--no-version")
 	  version = false;
 	else if (*it == "--no-logo")
@@ -156,8 +170,6 @@ CommandParser::CommandParser(int argc, char **argv):
 	  {
 	    dobands = true;
 	    abserror = true;
-	    rmin = -0.09;
-	    rmax = 0.09;
 	  }
 	else if (*it == "--relative-errors")
 	  {
@@ -171,8 +183,20 @@ CommandParser::CommandParser(int argc, char **argv):
 	    outdir = *(it+1);
 	    allargs.erase(it+1);
 	  }
-	else if (*it == "--splitplots")
-	  splitplots = true;
+	else if (*it == "--eps")
+	  format = "eps";
+	else if (*it == "--root")
+	  root = true;
+	else if (*it == "--splitplots-eps")
+	  {
+	    splitplots = true;
+	    ext = "eps";
+	  }
+	else if (*it == "--splitplots-pdf")
+	  {
+	    splitplots = true;
+	    ext = "pdf";
+	  }
 	else if (*it == "--splitplots-png")
 	  {
 	    splitplots = true;
@@ -197,30 +221,30 @@ CommandParser::CommandParser(int argc, char **argv):
 	    int pattern = atoi((*(it+1)).c_str());
 	    if (pattern == 1)
 	      {
-		colors[0] = kBlue;
-		colors[1] = kYellow;
-		colors[2] = kGreen;
-		colors[3] = kRed;
+		colors[0] = kBlue + 2;
+		colors[1] = kYellow - 7;
+		colors[2] = kGreen - 3;
+		colors[3] = kRed + 1;
 		colors[5] = kOrange + 7;
-		colors[5] = kCyan;
+		colors[5] = kCyan + 1;
 	      }
 	    else if (pattern == 2)
 	      {
-		colors[0] = kBlue;
-		colors[1] = kRed;
-		colors[2] = kYellow;
-		colors[3] = kOrange;
-		colors[4] = kMagenta;
-		colors[5] = kCyan;
+		colors[0] = kBlue + 2;
+		colors[1] = kRed + 1;
+		colors[2] = kYellow - 7;
+		colors[3] = kOrange + 7;
+		colors[4] = kMagenta + 1;
+		colors[5] = kCyan + 1;
 	      }
 	    else if (pattern == 3)
 	      {
-		colors[0] = kBlue;
-		colors[1] = kMagenta;
-		colors[2] = kCyan;
-		colors[3] = kRed;
+		colors[0] = kBlue + 2;
+		colors[1] = kMagenta + 1;
+		colors[2] = kCyan + 1;
+		colors[3] = kRed + 1;
 		colors[4] = kGreen + 2;
-		colors[5] = kYellow;
+		colors[5] = kYellow + 1;
 	      }
 
 	      allargs.erase(it+1);
