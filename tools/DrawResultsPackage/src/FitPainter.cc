@@ -189,7 +189,7 @@ void FitPainter(vector<string> dirs)
   fprintf(ftab,"  \\\\ \n");
   fprintf(ftab,"      \\midrule\n");
 
-  for (int d = 0; d < ndata - 1; d++)
+  for (int d = 0; d < ndata - 2; d++)
     {
       fprintf(ftab,"  %s ", dataname[d].c_str());
       for (int i = 0; i < dirs.size(); i++)
@@ -200,8 +200,13 @@ void FitPainter(vector<string> dirs)
       fprintf(ftab,"  \\\\ \n");
     }
 
+  fprintf(ftab,"  Correlated $\\chi^2$  ");
+  for (int i = 0; i < dirs.size(); i++)
+    fprintf(ftab,"& %.1f", chi2[i][ndata-2]);
+  fprintf(ftab,"  \\\\ \n");
+
   fprintf(ftab,"      \\midrule\n");
-  fprintf(ftab,"  %s  ", dataname[ndata-1].c_str());
+  fprintf(ftab,"  Total $\\chi^2$ / dof  ");
   for (int i = 0; i < dirs.size(); i++)
     fprintf(ftab,"& %.1f / %d", chi2[i][ndata-1], dof[i][ndata-1]);
   fprintf(ftab,"  \\\\ \n");
