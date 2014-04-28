@@ -13,6 +13,8 @@
 #include <CommandParser.h>
 #include <DataPainter.h>
 #include <ShiftPainter.h>
+#include <FitPainter.h>
+#include <ParPainter.h>
 
 using namespace std;
 
@@ -186,6 +188,14 @@ int main(int argc, char **argv)
   vector <TCanvas*> shiftcanvaslist;
   if (! opts.noshifts)
     shiftcanvaslist = ShiftPainter(opts.dirs);
+
+  //--------------------------------------------------
+  //Fit and parameters results plots
+  if (! opts.notables)
+    {
+      FitPainter(opts.dirs);
+      ParPainter(info_output);
+    }
 
   //Save plots
   system(((string)"mkdir -p " + opts.outdir).c_str());
@@ -363,6 +373,12 @@ int main(int argc, char **argv)
       inputfiles = inputfiles + " " + opts.outdir + "plots_" + pgnum + ".eps";
     }
 
+  if (! opts.notables)
+    {
+      inputfiles = inputfiles + " " + opts.outdir + "chi2.pdf";
+      inputfiles = inputfiles + " " + opts.outdir + "par.pdf";
+    }
+
   //A4 is /PageSize [842 595]
   string gscommand = "gs -dBATCH -q -sDEVICE=" + format + "write -sOutputFile=" + opts.outdir + "plots." + format 
     + " -dNOPAUSE -dEPSFitPage -c \"<< /PageSize [595 595] >> setpagedevice\"  -f " 
@@ -372,7 +388,8 @@ int main(int argc, char **argv)
   cout << "Plots saved in: " << (opts.outdir + "plots." + format) << endl;
 
   //cleanup pages
-  system(("rm " + inputfiles).c_str());
+  if (pgn > 0)
+    system(("rm " + inputfiles).c_str());
 
   return 0;
 }

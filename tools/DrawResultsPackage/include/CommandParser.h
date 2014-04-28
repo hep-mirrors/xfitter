@@ -49,6 +49,7 @@ class CommandParser
   bool nodata;
   bool nopdfs;
   bool noshifts;
+  bool notables;
   int spp, shgth;
   bool adjshift;
   bool version, drawlogo;
@@ -97,6 +98,8 @@ class CommandParser
     cout << "\t \t High resolution logo (paper quality)" << endl;
     cout << "\t --no-version" << endl;
     cout << "\t \t Do not show version on logo" << endl;
+    cout << "\t --tables" << endl;
+    cout << "\t \t Produce additional chi2 and parameters tables" << endl;
     cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
     cout << "\t \t PDF plots are not produced" << endl;

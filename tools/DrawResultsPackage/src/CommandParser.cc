@@ -43,6 +43,7 @@ CommandParser::CommandParser(int argc, char **argv):
   nodata(false),
   nopdfs(false),
   noshifts(false),
+  notables(true),
   spp(30),
   shgth(40),
   adjshift(true),
@@ -116,6 +117,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	  nopdfs = true;
 	else if (*it == "--no-shifts")
 	  noshifts = true;
+	else if (*it == "--no-tables")
+	  notables = true;
+	else if (*it == "--tables")
+	  notables = false;
 	else if (*it == "--shifts-per-page")
 	  {
 	    adjshift = false;
