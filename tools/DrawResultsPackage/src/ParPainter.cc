@@ -157,8 +157,6 @@ void ParPainter(vector<Output*> info_output)
 	  fprintf(ftab,"& - ");
       fprintf(ftab,"  \\\\ \n");
     }
-
-  fprintf(ftab,"  \\\\ \n");
   fprintf(ftab,"      \\bottomrule\n");
   fprintf(ftab,"    \\end{tabular}\n");
   fprintf(ftab,"  \\end{center}\n");
