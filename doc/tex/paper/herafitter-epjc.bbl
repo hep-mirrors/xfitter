@@ -43,6 +43,36 @@
   \bibinfo{journal}{Ann.Rev.Nucl.Part.Sci.} \textbf{\bibinfo{volume}{63}},
   \bibinfo{pages}{291} (\bibinfo{year}{2013}), [\eprint{1301.6754}].
 
+\bibitem[{\citenamefont{Gribov and
+  Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
+\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
+  \bibinfo{pages}{438} (\bibinfo{year}{1972}{\natexlab{a}}).
+
+\bibitem[{\citenamefont{Gribov and
+  Lipatov}(1972{\natexlab{b}})}]{Gribov:1972rt}
+\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
+  \bibinfo{pages}{675} (\bibinfo{year}{1972}{\natexlab{b}}).
+
+\bibitem[{\citenamefont{Lipatov}(1975)}]{Lipatov:1974qm}
+\bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov. J. Nucl. Phys.} \textbf{\bibinfo{volume}{20}},
+  \bibinfo{pages}{94} (\bibinfo{year}{1975}).
+
+\bibitem[{\citenamefont{Dokshitzer}(1977)}]{Dokshitzer:1977sg}
+\bibinfo{author}{\bibfnamefont{Y.~L.} \bibnamefont{Dokshitzer}},
+  \bibinfo{journal}{Sov.\ Phys.\ JETP} \textbf{\bibinfo{volume}{46}},
+  \bibinfo{pages}{641} (\bibinfo{year}{1977}).
+
+\bibitem[{\citenamefont{Altarelli and Parisi}(1977)}]{Altarelli:1977zs}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Altarelli}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Parisi}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
+  \bibinfo{pages}{298} (\bibinfo{year}{1977}).
+
 \bibitem[{\citenamefont{Martin \emph{et~al.}}(2009)\citenamefont{Martin,
   Stirling, Thorne, and Watt}}]{MSTWpdf}
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Martin}},
@@ -89,36 +119,6 @@
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D80}},
   \bibinfo{pages}{114011} (\bibinfo{year}{2009}), [\eprint{0909.1711}],
   \urlprefix\url{http://www.het.physik.tu-dortmund.de/pdfserver/index.html}.
-
-\bibitem[{\citenamefont{Gribov and
-  Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
-\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
-  \bibinfo{pages}{438} (\bibinfo{year}{1972}{\natexlab{a}}).
-
-\bibitem[{\citenamefont{Gribov and
-  Lipatov}(1972{\natexlab{b}})}]{Gribov:1972rt}
-\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
-  \bibinfo{pages}{675} (\bibinfo{year}{1972}{\natexlab{b}}).
-
-\bibitem[{\citenamefont{Lipatov}(1975)}]{Lipatov:1974qm}
-\bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov. J. Nucl. Phys.} \textbf{\bibinfo{volume}{20}},
-  \bibinfo{pages}{94} (\bibinfo{year}{1975}).
-
-\bibitem[{\citenamefont{Dokshitzer}(1977)}]{Dokshitzer:1977sg}
-\bibinfo{author}{\bibfnamefont{Y.~L.} \bibnamefont{Dokshitzer}},
-  \bibinfo{journal}{Sov.\ Phys.\ JETP} \textbf{\bibinfo{volume}{46}},
-  \bibinfo{pages}{641} (\bibinfo{year}{1977}).
-
-\bibitem[{\citenamefont{Altarelli and Parisi}(1977)}]{Altarelli:1977zs}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Altarelli}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Parisi}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
-  \bibinfo{pages}{298} (\bibinfo{year}{1977}).
 
 \bibitem[{\citenamefont{Botje}(2010)}]{qcdnum}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}} (\bibinfo{year}{2010}),
@@ -203,7 +203,7 @@
 \emph{\bibinfo{title}{{LHAPDF}}}, \urlprefix\url{http://lhapdf.hepforge.org}.
 
 \bibitem[{tmd()}]{tmdlref}
-\emph{\bibinfo{title}{{TMD Collaboration}}}, \bibinfo{note}{to be published}.
+\bibinfo{note}{{[TMD Collaboration], to be published}}.
 
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2010)}]{h1zeus:2009wt}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}

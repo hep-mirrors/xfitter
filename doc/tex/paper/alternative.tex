@@ -86,12 +86,13 @@ The fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and three p
 The dipole models are valid in the low-$x$ region only, where the valence quark contribution is small.
 %, of the order of 5\%. 
 The new HERA $F_2$ data have a precision which is  better than 2$\%$. Therefore, in \fitter the contribution of the valence quarks can be taken from the PDF fits and added to the original 
-BGK model \cite{Belov,Luszczak:2013rxa}, this is uniquely possible within the \fitter framework.
+BGK model \cite{Belov,Luszczak:2013rxa}.
+%, this is uniquely possible within the \fitter framework.
 % The quality of the fits of the BGK dipole model with valence quarks and without 
 %valence quarks are the same.
 \end{description}
 
-\subsection{Transverse Momentum Dependent PDFs with CCFM}
+\subsection{Transverse Momentum Dependent (Unintegrated) PDFs with CCFM}
 
 
 \def\kt{\ensuremath{k_t}}
@@ -102,7 +103,7 @@ QCD calculations of multiple-scale processes  and complex final-states
 require in general transverse-momentum dependent (TMD)~\cite{Collins:2011zzd}, or 
 unintegrated, parton  density and parton decay 
 functions~\cite{Aybat:2011zv,Buffing:2013eka,Buffing:2013kca,Buffing:2012sz,Mulders:2008tf,Jadach:2009gm,Hautmann:2009zzb,Hautmann:2012pf,Hautmann:2007gw}.   
-TMD factorisation has been proven recently ~\cite{Collins:2011zzd} for inclusive DIS. For special
+TMD factorisation has been proven recently \cite{Collins:2011zzd} for inclusive DIS. For special
 processes in hadron-hadron scattering, like heavy flavor or vector boson (including Higgs) production, 
 TMD factorisation has also been proven in the high-energy limit (small $x$) \cite{Catani:1990xk,Collins:1991ty,Hautmann:2010be}
   
@@ -177,7 +178,7 @@ spacing below 0.1, and 10 bins in linear spacing above 0.1 are used.
 The calculation of the cross section according to Eq.~(\ref{kt-factorisation}) involves a 
 multidimensional Monte Carlo integration which is time consuming and suffers from numerical fluctuations.  
 This cannot be employed directly in a fit procedure involving the calculation of numerical derivatives 
-in the search for the minimum. Instead the following procedure is applied:
+in the search for the minimum. Instead the following equation is applied:
 \begin{eqnarray}
 \sigma(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2) 
 \nonumber\\
@@ -315,7 +316,7 @@ the mass $M_X$ of the diffractively produced final state.
 In practice, the variable $M_X$ 
 is often replaced by $\beta=\frac{Q^2}{M_X^2+Q^2-t}$.
 %
-In models based on a factorisable Pomeron, $\beta$ may be viewed as the fraction of the
+In models based on a factorisable pomeron, $\beta$ may be viewed as the fraction of the
 pomeron longitudinal momentum which is carried by the struck parton, $x=\beta x_{\Pom}$.
 %The diffractive parton distribution functions (DPDFs) are interpreted as probabilities for 
 %finding a parton with a small fraction of the proton momentum $x=\beta\Pom$
@@ -334,8 +335,8 @@ where the ``reduced cross-section'' , $\overline\sigma$, is defined as
 \begin{equation}
 \begin{array}{lcl}
 \overline\sigma^{D(4)}
- = F_2^{D(4)} - \frac{y^2}{1 +  (1-y)^2}\, F_L^{D(4)}
- = F_T^{D(4)} + \frac{2(1-y)}{1 +  (1-y)^2}\, F_L^{D(4)}.
+ = F_2^{D(4)} - \frac{y^2}{1 +  (1-y)^2}\, F_L^{D(4)}.
+% = F_T^{D(4)} + \frac{2(1-y)}{1 +  (1-y)^2}\, F_L^{D(4)}.
 \label{eq:sigred}
 \end{array}
 \end{equation}
@@ -377,13 +378,13 @@ With $x = x_{\Pom}\beta$ we can relate this to the standard DIS formula.
 %%The H1 and ZEUS data files typically contain $x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}$.
 The diffractive structure functions can be expressed as convolutions of the
 calculable coefficient functions with diffractive quark and gluon distribution functions,
- which in general depend on all of \xpom, $Q^2$, $\beta$, $t$.
+ which in general depend on \xpom, $Q^2$, $\beta$, $t$.
 \\
 %==========================================
 %{\bf Regge factorization} 
 %Needed? \\
 The diffractive PDFs in \fitter\ are implemented following the prescription of ZEUS
-publication~\cite{zeus:diff2009} and can be used to reproduce the main results.
+collaboration \cite{zeus:diff2009} and can be used to reproduce the main results.
 %For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
 %\begin{equation}
 %F_k^{D(4)}(\beta,Q^2,x_{\Pom},t) = 

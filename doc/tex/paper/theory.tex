@@ -100,7 +100,7 @@ of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
 This scheme is expected to be reliable only in the region $Q^2 \gg m_h^2$.
 This is the scheme that had been used in the past by PDF groups.
 In \fitter this scheme is available for the DIS structure function calculation 
-via interface to the \qcdnum package and is very fast 
+via interface to the \qcdnum \cite{qcdnum} package and is very fast 
 due to the fast \qcdnum convolution engine.
 
 \item \bf {Fixed Flavour Number (FFN):} \rm 
@@ -115,7 +115,7 @@ with a boson from the lepton to produce a heavy quark and an antiquark.
 In \fitter this scheme can be accessed via the 
 \qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD} (as implemented by the ABM group)~\cite{openqcdrad:page}.
 Through \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
-are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account.
+are available at Next-to-Leading-Order (NLO), at $O(\as^2)$, and only electromagnetic exchange contributions are taken into account.
 Through the ABM implementation the heavy quark contributions to CC structure functions are available 
 %and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 and, for the NC case, the QCD corrections to the coefficient functions at Next-to-Next-to Leading Order (NNLO)
@@ -191,8 +191,8 @@ section~\ref{sec:techniques}).
 %%%%%%%%%%%
 %\item \bf {Electroweak corrections for \texorpdfstring{$ep$}{ep} scattering:} \rm
 Calculations of higher-order electroweak corrections to DIS scattering at 
-HERA are available in \fitter, performed in the on-shell scheme 
-where the gauge bosons masses $M_W$ and 
+HERA are available in \fitter in the on-shell scheme. In this scheme the
+gauge bosons masses $M_W$ and 
 $M_Z$ are treated symmetrically as basic parameters together with the top, 
 Higgs and fermion masses.
 These electroweak corrections 
@@ -220,8 +220,8 @@ and associated $W$ and $Z$ production with
 heavy quarks (sensitive to $s$ and $c$ quark densities).
 %
 
-Presently, the predictions for Drell-Yan and $W$ and $Z$ production are known 
-to NNLO and $W$, $Z$ in association with heavy flavour quarks are known to NLO. There are several possibilities 
+Presently, the predictions for Drell-Yan and $W$ and $Z$ production are available
+to NNLO and $W$, $Z$ in association with heavy flavour quarks - to NLO. There are several possibilities 
 for obtaining the theoretical
 predictions for DY production in \fitter. 
 At LO an analytic calculation is available within the package and described
@@ -321,20 +321,21 @@ FEWZ~\cite{FEWZ} and DYNNLO \cite{DYNNLO} for NLO and NNLO.
 Jet production at high transverse momentum is sensitive to the high-$x$ gluon 
 PDF (see e.g.~\cite{MSTWpdf}) and can thus increase the precision of the 
 gluon PDF determination, which is particularly important for the Higgs production and searches for new physics.
-Jet production cross sections are only currently known to NLO, although NNLO 
+Jet production cross sections are currently only known to NLO, although NNLO 
 calculations are now quite advanced~\cite{nigel:2013,nigel:2010,Currie:2013dwa}. 
-Within \fitter programs such \texttt{MCFM} and 
+Within \fitter programs \texttt{MCFM} and 
 \nlojetpp~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
 calculation of jet production.
 Similarly to the DY case, the calculation 
 is very demanding in terms of computing power. 
-%Although the concept is process independent, 
-%The perturbative 
-%coefficients are calculated by the \texttt{NLOJET++}, which is 
-Therefore, to allow the possibility to include  $ep$, $pp$ or $p\bar p$ 
-jet cross section 
-measurements in QCD fits in order to extract PDFs and $\as$, the fast 
-grid techniques are used (see section~\ref{sec:techniques}).
+Therefore fast grid techniques are used to efficiently perform PDF and
+$\alpha_S$ fits of jet cross section measurements in $ep$, $pp$ and
+$p\bar{p}$ collisions
+%Therefore, to allow the possibility to include  $ep$, $pp$ or $p\bar p$ 
+%jet cross section 
+%measurements in QCD fits in order to extract PDFs and $\as$, the fast 
+%grid techniques are used 
+(for details see section~\ref{sec:techniques}).
 
 
 %the perturbative
