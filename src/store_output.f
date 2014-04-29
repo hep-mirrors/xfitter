@@ -1,4 +1,5 @@
 C--------------------------------------------------------------
+client.focused "#4c7899" "#285577" "#ffffff" "#2e9ef4"
 C> Function to store outputs
 C> \param base name for an output directory
 C--------------------------------------------------------------
@@ -525,6 +526,12 @@ c Store PDF members
             endif
          endif
          call store_pdfs(name)
+         if (iset.eq.0) then 
+           call fill_c_common()
+           call print_lhapdf6() 
+         else
+           call save_data_lhapdf6(iset)
+         endif
       enddo ! End of loop on PDF members
 
 c Evaluate PDF errors      
