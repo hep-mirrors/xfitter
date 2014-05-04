@@ -409,6 +409,7 @@ C Print the namelist:
       return
 
  76   print '(''Namelist &InCorr NOT found'')'
+      close(51)
       Return
  77   continue
       print '(''Error reading namelist &InCorr, STOP'')'
