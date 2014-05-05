@@ -1,4 +1,4 @@
-\begin{thebibliography}{121}
+\begin{thebibliography}{126}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -11,6 +11,10 @@
 \expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
 \providecommand{\bibinfo}[2]{#2}
 \providecommand{\eprint}[1]{\href{http://arxiv.org/abs/#1}{#1}}
+
+\bibitem[{her()}]{herafitter:page}
+\emph{\bibinfo{title}{{HERAFitter}}},
+  \bibinfo{note}{https://www.herafitter.org}.
 
 \bibitem[{\citenamefont{Aad \emph{et~al.}}(2012{\natexlab{a}})}]{Aad:2012tfa}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
@@ -342,6 +346,32 @@
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D58}},
   \bibinfo{pages}{094002} (\bibinfo{year}{1998}), [\eprint{hep-ph/9806259}].
 
+\bibitem[{\citenamefont{Aivazis \emph{et~al.}}(1994)\citenamefont{Aivazis,
+  Collins, Olness, and Tung}}]{Aivazis:1993pi}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Aivazis}},
+  \bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}},
+  \bibinfo{author}{\bibfnamefont{F.~I.} \bibnamefont{Olness}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{W.-K.} \bibnamefont{Tung}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D50}},
+  \bibinfo{pages}{3102} (\bibinfo{year}{1994}), [\eprint{hep-ph/9312319}].
+
+\bibitem[{\citenamefont{Kramer \emph{et~al.}}(2000)\citenamefont{Kramer,
+  Olness, and Soper}}]{Kramer:2000hn}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Kramer}},
+  \bibinfo{author}{\bibfnamefont{F.~I.} \bibnamefont{Olness}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{D.~E.} \bibnamefont{Soper}},
+  \bibinfo{journal}{Phys. Rev.} \textbf{\bibinfo{volume}{D62}},
+  \bibinfo{pages}{096007} (\bibinfo{year}{2000}), [\eprint{hep-ph/0003035}].
+
+\bibitem[{\citenamefont{Kretzer \emph{et~al.}}(2004)\citenamefont{Kretzer, Lai,
+  Olness, and Tung}}]{Kretzer:2003it}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Kretzer}},
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Lai}},
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Olness}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{W.}~\bibnamefont{Tung}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D69}},
+  \bibinfo{pages}{114005} (\bibinfo{year}{2004}), [\eprint{hep-ph/0307022}].
+
 \bibitem[{\citenamefont{Spiesberger}()}]{SpiesbergerPrivComm}
 \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Spiesberger}},
   \bibinfo{note}{{Private communication.}}
@@ -358,6 +388,12 @@
   \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Penso}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Verzegnassi}},
   \bibinfo{note}{{in CERN Yellow Report on "Polarization at LEP" 1988.}}
+
+\bibitem[{\citenamefont{Chekanov \emph{et~al.}}(2010)}]{zeus:diff2009}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chekanov}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ZEUS Collaboration}],
+  \bibinfo{journal}{Nucl. Phys.} \textbf{\bibinfo{volume}{B831}},
+  \bibinfo{pages}{1} (\bibinfo{year}{2010}), [\eprint{hep-ex/09114119}].
 
 \bibitem[{\citenamefont{Drell and Yan}(1970)}]{Drell:1970wh}
 \bibinfo{author}{\bibfnamefont{S.~D.} \bibnamefont{Drell}} \bibnamefont{and}
@@ -616,6 +652,12 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{463}},
   \bibinfo{pages}{99} (\bibinfo{year}{1996}), [\eprint{hep-ph/9509348}].
 
+\bibitem[{\citenamefont{Aaron \emph{et~al.}}(2011)}]{Collaboration:2010ry}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 Collaboration}],
+  \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{C71}},
+  \bibinfo{pages}{1579} (\bibinfo{year}{2011}), [\eprint{1012.4355}].
+
 \bibitem[{\citenamefont{Belov}(2013)}]{Belov}
 \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Belov}}, Doctoral thesis,
   \bibinfo{school}{\protect{Universit\"at Hamburg}} (\bibinfo{year}{2013}),
@@ -791,12 +833,6 @@
 \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}}
   (\bibinfo{year}{2012}), [\eprint{arXiv:1206.1796}].
-
-\bibitem[{\citenamefont{Chekanov \emph{et~al.}}(2010)}]{zeus:diff2009}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chekanov}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ZEUS Collaboration}],
-  \bibinfo{journal}{Nucl. Phys.} \textbf{\bibinfo{volume}{B831}},
-  \bibinfo{pages}{1} (\bibinfo{year}{2010}), [\eprint{hep-ex/09114119}].
 
 \bibitem[{atl()}]{atlas:grids}
 \emph{\bibinfo{title}{{ATLAS NNLO epWZ12}}}, \bibinfo{note}{available via:

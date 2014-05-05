@@ -115,7 +115,7 @@ with a boson from the lepton to produce a heavy quark and an antiquark.
 In \fitter this scheme can be accessed via the 
 \qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD} (as implemented by the ABM group)~\cite{openqcdrad:page}.
 Through \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
-are available at Next-to-Leading-Order (NLO), at $O(\as^2)$, and only electromagnetic exchange contributions are taken into account.
+are available at Next-to-Leading-Order (NLO), at $O(\as)$, and only electromagnetic exchange contributions are taken into account.
 Through the ABM implementation the heavy quark contributions to CC structure functions are available 
 %and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 and, for the NC case, the QCD corrections to the coefficient functions at Next-to-Next-to Leading Order (NNLO)
@@ -177,7 +177,8 @@ thus, it provides a smooth interpolation across the full energy regime.
 %%The DGLAP kernels and PDF evolution are pure $\overline{\text{MS}}$, 
 %%therefore, the ACOT scheme is considered to be a minimal extension of the $\overline{\text{MS}}$ scheme.
 Within the ACOT package, different variants of the ACOT scheme are available:
-ACOT-Full, S-ACOT-$\chi$, ACOT-ZM, $\overline{\text{MS}}$ at LO and NLO. 
+ACOT-Full \cite{Aivazis:1993pi}, S-ACOT-$\chi$ \cite{Kramer:2000hn,Kretzer:2003it}, ACOT-ZM \cite{Aivazis:1993pi}, 
+$\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
 The ACOT-Full implementation takes into account the quark masses 
 and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
@@ -200,6 +201,156 @@ are based on the EPRC package~\cite{SpiesbergerPrivComm}.
 The code provides the running of $\alpha$ using the most recent parametrisation
 of the hadronic contribution to $\Delta_\alpha$ \cite{Jegerlehner}, as well as 
 an older version from Burkhard \cite{Burkhard}.
+
+
+
+\subsection{Diffractive PDFs}
+
+\newcommand{\asotp}{\ensuremath{\frac{\alpha_{\rm s}}{2\pi}}}
+\newcommand{\Sgl}[1]{\ensuremath{\tilde f_{#1+}}}
+\newcommand{\Pom}{{I\!P}}
+\newcommand{\Reg}{{I\!R}}
+\newcommand{\xpom}{$x_{I\!P}$}
+
+
+Similarly to standard DIS, diffractive parton distributions (DPDFs) 
+can be derived from QCD fits to diffractive cross sections.
+%In this section the diffractive process is briefly described.
+At HERA about 10\% of deep inelastic interactions are diffractive leading to
+events in which the interacting proton stays intact ($ep\to eXp$). 
+In the diffractive process the proton appears well separated from the 
+rest of the hadronic final state by a large rapidity gap  
+and this is interpreted as the diffractive dissociation 
+of the exchanged virtual photon to produce a hadronic system $X$ with mass much 
+smaller than $W$ and the same net quantum numbers as the exchanged photon.
+%Figure~\ref{fig:diff} illustrates the kinematic variables used to describe
+%the inclusive diffractive DIS process. 
+For such processes, the proton vertex factorisation approach
+is assumed where diffractive DIS is mediated by the exchange of a hard Pomeron 
+or a
+secondary Reggeon. 
+The factorisable pomeron picture has proved remarkably successful in the description of most of these data.
+%
+%\begin{figure}[!ht]
+%\begin{center}
+%\includegraphics[width=0.5\linewidth]{figures/diffraction.pdf}
+%\end{center}
+%\caption{Schematic diagram of the kinematic variables used to
+% describe the inclusive diffractive DIS process.}
+%\label{fig:diff}
+%\end{figure}
+
+In addition to the usual variables $x$, $Q^2$, one must consider the squared four-momentum transfer $t$
+(the undetected momentum transfer to the proton system) and
+the mass $M_X$ of the diffractively produced final state. 
+In practice, the variable $M_X$ 
+is often replaced by $\beta=\frac{Q^2}{M_X^2+Q^2-t}$.
+%
+In models based on a factorisable pomeron, $\beta$ may be viewed as the fraction of the
+pomeron longitudinal momentum which is carried by the struck parton, $x=\beta x_{\Pom}$.
+%The diffractive parton distribution functions (DPDFs) are interpreted as probabilities for 
+%finding a parton with a small fraction of the proton momentum $x=\beta\Pom$
+
+For the inclusive case, the diffractive cross-section can be expressed as:
+\begin{equation}
+\begin{array}{lcl}
+  \frac{d\sigma}{d\beta\,dQ^2dx_{\Pom}\,dt}
+=
+  \frac{2\pi\alpha^2}{\beta Q^4}\,
+    \left( 1 +  (1-y)^2 \right) \ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,x_{\Pom},t)
+\label{Dxs}
+\end{array}
+\end{equation}
+where the ``reduced cross-section'' , $\overline\sigma$, is defined as
+\begin{equation}
+\begin{array}{lcl}
+\overline\sigma^{D(4)}
+ = F_2^{D(4)} - \frac{y^2}{1 +  (1-y)^2}\, F_L^{D(4)}.
+% = F_T^{D(4)} + \frac{2(1-y)}{1 +  (1-y)^2}\, F_L^{D(4)}.
+\label{eq:sigred}
+\end{array}
+\end{equation}
+%The dimension of $F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)$
+%is $GeV^{-2}$ and thus quantities integrated over $t$.
+%\begin{equation}
+%F_k^{D(3)}(\beta,Q^2,x_{\Pom})
+%\equiv
+%\int_{t_{\rm min}}^{t_{\rm max}} dt
+%F_k^{D(4)}(\beta,Q^2,x_{\Pom},t)
+%\end{equation}
+%are dimensionless. The maximum kinematically allowed value of $t$ is given by
+%\begin{equation}
+%t_{\rm MAX} 
+%=
+%-\frac{x_{\Pom}^2 m_p^2 + p_\perp^2}{1-x_{\Pom}}
+%\approx 
+%-\frac{x_{\Pom}^2}{1-x_{\Pom}} m_p^2
+%\end{equation}
+%where $m_p$ is the proton mass.
+With $x = x_{\Pom}\beta$ we can relate this to the standard DIS formula.
+%\begin{equation}
+%\begin{array}{lcl}
+%\frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}\,dt} =
+%  \frac{2\pi\alpha^2}{x\, Q^4}\,
+%    \left( 1 +  (1-y)^2 \right) x_{\Pom}\ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,x_{\Pom},t)
+%\end{array}
+%\end{equation}
+%which upon integration over $t$ reads
+%\begin{equation}
+%\begin{array}{lcl}
+%\label{Dxs3}
+%  \frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}}
+%=  
+%  \frac{2\pi\alpha^2}{x Q^4}\,
+%    \left( 1 +  (1-y)^2 \right) \,x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}(\beta,Q^2,x_{\Pom}).
+%\end{array}
+%\end{equation}
+%%The H1 and ZEUS data files typically contain $x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}$.
+The diffractive structure functions can be expressed as convolutions of the
+calculable coefficient functions with diffractive quark and gluon distribution functions,
+ which in general depend on \xpom, $Q^2$, $\beta$, $t$.
+
+%==========================================
+%{\bf Regge factorization} 
+%Needed? \\
+The diffractive PDFs in \fitter\ are implemented following the prescription of ZEUS
+collaboration \cite{zeus:diff2009} and can be used to reproduce the main results.
+%For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
+%\begin{equation}
+%F_k^{D(4)}(\beta,Q^2,x_{\Pom},t) = 
+%\sum_{\mathcal{X} =\Pom,\Reg}
+%\phi_\mathcal{X}(x_{\Pom},t)\, F^\mathcal{X}_k(\beta,Q^2)
+%\end{equation}
+%or
+%\begin{equation}
+%\label{eq:FD3}
+%F_k^{D(3)}(\beta,Q^2,x_{\Pom}) = 
+%\sum_{\mathcal{X} =\Pom,\Reg}
+%\Phi_\mathcal{X}(x_{\Pom})\, F^\mathcal{X}_k(\beta,Q^2)
+%\end{equation}
+%where
+%\begin{equation}
+%\label{eq:intFlux}
+%\Phi_{\mathcal{X}}(x_{\Pom}) =
+%\int\limits_{t_{\rm min}}^{t_{\rm max}} dt\, \phi_\mathcal{X}(x_{\Pom},t)
+%\,.
+%\end{equation}
+%The fluxes are parametrized as
+%\begin{subequations}
+%\label{eq:flux}
+%\begin{equation}
+%\phi_\mathcal{X}(x_{\Pom},t) = 
+%\frac {A_\mathcal{X}\, e^{b_\mathcal{X} t}} {x_{\Pom}^{2\alpha_\mathcal{X}(t) -1}}
+%\end{equation}
+%where
+%\begin{equation}
+%\alpha_\mathcal{X}(t) = \alpha_\mathcal{X}(0) + \alpha_\mathcal{X}' t
+%\,.
+%\end{equation}
+%\end{subequations}
+%The function $F^\Reg_k(\beta,Q^2)$  is taken to be that of the pion.
+%
+
 
 
 
