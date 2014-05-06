@@ -1,3 +1,18 @@
+
+\fitter is an open source code and can be downloaded from \cite{herafitter:page}
+together with the supporting documentation, README and additional fast grid theory files 
+(see section \ref{sec:techniques}). 
+The source code contains all relevant information to perform QCD fits with default 
+HERA DIS data. The performance time depends on the fitting options and varies from 10 minutes 
+(default settings) to several hours.
+\fitter code is a combination of C++ and Fortran libraries with minimal 
+dependencies, i.e. for the default fitting options no external dependences are required 
+except \qcdnum evolution program \cite{qcdnum}. 
+There are also cache options, fast evolution kernels, and usage of the OpenMP (Open Multi-Processing) 
+interface which allows parallel applications of some of the heavy flavour scheme theory predictions in DIS. 
+Information about the references and GNU public licence is provided 
+together with the main source code as well. 
+
 The \fitter project has successfully introduced into a wide variety
 of tools to facilitate investigations of the HEP experimental data
 and theoretical calculations. It provides a versatile interface
@@ -10,13 +25,13 @@ The \fitter platform not only allows the extraction of PDFs but also of theory
 parameters such as the strong coupling and heavy quark masses. The parameters and distributions are output with a
 quantitative assessment of the fit quality with fully detailed information on 
 experimental and theoretical uncertainties.
-The results are also output to PDF \lhapdf grids that can be used to study predictions for SM or beyond SM processes, as well as for the study of the impact of 
+The results are also output to PDF \lhapdf grids that can be used to study predictions for 
+SM or beyond SM processes, as well as for the study of the impact of 
 future collider measurements (using pseudo-data).
-
 
 So far the \fitter platform has been used to produce grids 
 from the QCD analyses performed at 
-HERA (\cite{h1zeus:2009wt}), and and at the LHC, using 
+HERA (\cite{h1zeus:2009wt}), and at the LHC, using 
 measurements from ATLAS~\cite{atlas:strange,atlas:jets} (ATLAS PDF sets~\cite{atlas:grids}).
 % to the QCD studies performed using pseudo-data to study the potential of possible future collider design such as LHeC.
 
