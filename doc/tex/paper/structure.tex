@@ -70,7 +70,7 @@ The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow}
 \begin{description}
 \item 
 \bf {Input data:} \rm The relevant cross section measurements from the various processes
-are provided with the \fitter package with the full information on their uncorrelated and correlated
+are provided with the \fitter package including the full information on their uncorrelated and correlated
 uncertainties. HERA data sets are the basis of any proton PDF extraction, 
 and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
 Additional measurements provide constraints to the sea flavour decomposition, such as the new 
@@ -105,9 +105,9 @@ assumptions for the distributions of the systematic uncertainties (i.e. Gauss or
 \item
 \bf{Results:} \rm 
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
-The resulting PDFs are provided in a format ready to be used by the \lhapdf 
-library~\cite{lhapdf,lhapdfweb} or by \tmdlib \cite{tmdlref}.
-\fitter drawing tools can be used to display the PDFs with the uncertainty at a chosen scale.  
+The resulting PDFs (or unintegrated PDFs) are provided in a format ready to be used by the \lhapdf 
+library~\cite{lhapdf,lhapdfweb} (or by \tmdlib \cite{tmdlref}).
+\fitter drawing tools can be used to display the PDFs with their uncertainty at a chosen scale.  
 %Drawing tools are supplied which allow the PDFs to be
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
 A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt}, shown in Fig.~\ref{fig:hera1}, 

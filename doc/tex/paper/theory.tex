@@ -20,11 +20,11 @@ In this section the theoretical formalism for various processes available in \fi
 
 
 
-\subsection{Deep Inelastic Scattering Formalism}
+\subsection{DIS Formalism}
 \label{dissection}
 
 
-Deep Inelastic Scattering (DIS) data provide the backbone of any PDF fit.
+DIS data provide the backbone of any PDF fit.
 The formalism that relates the DIS measurements to pQCD and the PDFs has been described
 in detail in many extensive reviews (see e.g.~\cite{disbook}) and it will only be briefly summarised here.
 DIS describes the process where a lepton scattering off the constituents of the proton
@@ -35,7 +35,7 @@ The DIS kinematic variables are the absolute squared four-momentum of
 the exchange boson, $Q^2$, the Bjorken $x$, 
 %which can be related in the parton model to 
 %the fraction of momentum carried by the struck quark, 
-and the inelasticity $y$, related by $y=Q^2/sx$, where $s$ is the squared centre-of-mass energy.
+and the inelasticity $y$, related by $y=Q^2/sx$, where $s$ is the squared centre-of-mass (c.o.m) energy.
 %$s = 4E_eE_p$ at HERA.
 %which is the fraction of the energy 
 %transferred to the hadronic vertex.
@@ -97,11 +97,11 @@ and they
 are treated as massless in both the initial 
 and final states. The lowest order process is the scattering
 of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
-This scheme is expected to be reliable only in the region $Q^2 \gg m_h^2$.
+This scheme is expected to be reliable only in the region with $Q^2 \gg m_h^2$.
 This is the scheme that had been used in the past by PDF groups.
 In \fitter this scheme is available for the DIS structure function calculation 
-via interface to the \qcdnum \cite{qcdnum} package and is very fast 
-due to the fast \qcdnum convolution engine.
+via interface to the \qcdnum \cite{qcdnum} package and it benefits 
+from the fast \qcdnum convolution engine.
 
 \item \bf {Fixed Flavour Number (FFN):} \rm 
 \\
@@ -163,8 +163,7 @@ Both of these variants are accessible within the \fitter package at LO, NLO and 
 \item \bf {GM-VFN ACOT scheme:} \rm
 The Aivazis-Collins-Olness-Tung scheme belongs to the group of VFN factorisation 
 schemes that use the renormalization method of Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
-This scheme unifies the low scale $Q^2 < m_h^2$ and high scale $Q^2 > m_h^2$ regions; 
-thus, it provides a smooth interpolation across the full energy regime. 
+This scheme unifies the low scale $Q^2 < m_h^2$ and high scale $Q^2 > m_h^2$ regions with a smooth interpolation across the full energy regime. 
 %It is built upon the massive factorisation theorem by Collins~\cite{CWZ} 
 %to incorporate the heavy quark masses for $Q^2 > m_h^2$; hence, it can be consistently applied 
 %order by order in the perturbation theory.
@@ -314,7 +313,7 @@ calculable coefficient functions with diffractive quark and gluon distribution f
 %{\bf Regge factorization} 
 %Needed? \\
 The diffractive PDFs in \fitter\ are implemented following the prescription of ZEUS
-collaboration \cite{zeus:diff2009} and can be used to reproduce the main results.
+collaboration \cite{zeus:diff2009} and can be used to reproduce their results.
 %For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
 %\begin{equation}
 %F_k^{D(4)}(\beta,Q^2,x_{\Pom},t) = 
@@ -359,7 +358,7 @@ collaboration \cite{zeus:diff2009} and can be used to reproduce the main results
 
 %This section presents calculations of Drell Yan processes that can be used to 
 %predict lepton pair production at the LHC or Tevatron.
-The Drell Yan (DY) process
+The DY process
 provides further valuable information about PDFs.
 In $pp$ and $p\bar p$ scattering, the $Z/\gamma\*$ and $W$ production 
 probe bi-linear combinations of quarks. 
@@ -371,7 +370,7 @@ and associated $W$ and $Z$ production with
 heavy quarks (sensitive to $s$ and $c$ quark densities).
 %
 
-Presently, the predictions for Drell-Yan and $W$ and $Z$ production are available
+Presently, the predictions for DY and $W$ and $Z$ production are available
 to NNLO and $W$, $Z$ in association with heavy flavour quarks - to NLO. There are several possibilities 
 for obtaining the theoretical
 predictions for DY production in \fitter. 
@@ -379,8 +378,8 @@ At LO an analytic calculation is available within the package and described
 below: 
 
 The LO DY triple differential cross section in
-invariant mass \(M\), boson rapidity \(y\) and Centre-of-Mass 
-lepton Scattering (CMS) angle \(\cos\theta\), for NC, 
+invariant mass \(M\), boson rapidity \(y\) and c.o.m 
+lepton scattering  angle \(\cos\theta\), for NC, 
 can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{align}
 % \scriptstyle
@@ -390,7 +389,7 @@ can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
  \frac{\pi\alpha^2}{3MS}\sum_{q}P_q \left[f_q(x_1,Q^2)f_{\bar{q}}(x_2,Q^2) 
  + (q\leftrightarrow\bar{q})\right],
 \end{align}
-where \(S\) is the squared CMS beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,Q^2)$ 
+where \(S\) is the squared c.o.m beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,Q^2)$ 
 is the parton number density, and 
 $P_q$ is a partonic cross section. 
 %\begin{align}
@@ -419,7 +418,7 @@ The expression for CC  scattering has a form:
  \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
  & \sum_{q_1,q_2}V_{q_1q_2}^2f_{q_1}(x_1,Q^2)f_{q_2}(x_2,Q^2),
 \end{align}
-where \(V_{q_1q_2}\) is the CKM quark mixing matrix and \(M_W\) and \(\Gamma_W\)
+where \(V_{q_1q_2}\) is the Cabibbo-Kabayashi-Masakawa (CKM) quark mixing matrix and \(M_W\) and \(\Gamma_W\)
 are the \(W\) boson mass and decay width.
 
 The simple form of these expressions allows the calculation of integrated
@@ -430,7 +429,9 @@ introduce statistical fluctuations.
 In both NC and CC expressions PDFs
 factorise as functions dependent only on boson rapidity \(y\) and
 invariant mass \(M\), while
-the integral in \(\cos\theta\) can be computed analytically.
+the integral in \(\cos\theta\) can be computed analytically. This form 
+provides easy means to apply kinematic cuts to theoy predictions to emulate
+data.
 %and integrations in \(y\) and \(M\) can be performed with the Simpson
 %method. The \(\cos\theta\) parts are kept in the equation 
 %explicitly because their integration is asymmetric for
@@ -474,7 +475,7 @@ PDF (see e.g.~\cite{MSTWpdf}) and can thus increase the precision of the
 gluon PDF determination, which is particularly important for the Higgs production and searches for new physics.
 Jet production cross sections are currently only known to NLO, although NNLO 
 calculations are now quite advanced~\cite{nigel:2013,nigel:2010,Currie:2013dwa}. 
-Within \fitter programs \texttt{MCFM} and 
+Within \fitter, programs as \texttt{MCFM} or
 \nlojetpp~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
 calculation of jet production.
 Similarly to the DY case, the calculation 
@@ -503,15 +504,16 @@ Top-quark pairs ($t \bar t$) are produced at hadron colliders dominantly via $gg
 and $q \bar q$ annihilation. Measured $t \bar t$ cross sections provide additional 
 constraints in particular on the gluon density at medium to high values of $x$, 
 on $\as$ and on the top-quark mass, $m_t$. 
-Single top quarks are produced via electroweak interactions and single-top cross sections 
-can be used, for example, to probe the ratio of the $u$ and $d$ densities in the proton 
-as well as the $b$-quark PDF.
 Precise predictions for the total $t \bar t$ cross section have become available 
 to full NNLO recently~\cite{Czakon:2013goa}. They can be used within \fitter via an interface 
-to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. Differential $t \bar t$ cross sections and predictions 
-for single-top production can be used with \fitter at NLO accuracy from 
-\texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
-in combination with fast grid techniques.
+to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. Differential $t \bar t$ cross section
+predictions can be used with \texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} at NLO accuracy interfaced to \fitter with fast grid techniques.
+
+Single top quarks are produced via electroweak interactions and single-top cross sections 
+can be used, for example, to probe the ratio of the $u$ and $d$ densities in the proton 
+as well as the $b$-quark PDF. Predictions 
+for single-top production are available only at NLO accuracy using MCFM package as above.
+
 
 %\subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}
 %

@@ -25,7 +25,7 @@ to resolve this problem: the techniques of $k$-factors and
 %\begin{description}
 %\item{\bf$k$-factor technique:}
 \subsection{$k$-factor Technique}
-  $k$-factors are defined as the ratio of the prediction of a
+  The $k$-factors are defined as the ratio of the prediction of a
   higher-order (slow) pQCD calculation to a lower-order (fast)
   calculation. Because the $k$-factors depend on the phase space
   probed by the measurement they have to be stored into a table in
@@ -72,15 +72,12 @@ to resolve this problem: the techniques of $k$-factors and
     implementation, these $k$-factors are calculated only for the
     starting PDF and hence, the ``FAST'' heavy flavour schemes should
     only be used for quick checks, i.e. full heavy flavour schemes
-    are recommended
+    are recommended.For ACOT case,
     %and it is recommended to apply the full heavy flavour schemes 
-    (with an exception of ACOT case 
-    where, due to long computation time, the $k$-factors are used in 
-    the default settings).
-
-    This ``FAST'' method was employed in the QCD fits to the HERA data
-    shown in Fig.~\ref{fig:acotrt}. In this case, the ACOT scheme was
-    used as a cross check of the central results~\cite{h1zeus:2009wt}.
+    due to long computation time, the $k$-factors are used in 
+    the default settings in \fitter.  Fig.~\ref{fig:acotrt} illustrates
+    the PDFs extracted from  the QCD fits to the HERA, for which 
+     the ``FAST'' method for ACOT was used as a cross check to the main results ~\cite{h1zeus:2009wt}.
 
 \begin{figure}[!ht]
 \centering
@@ -140,7 +137,8 @@ to resolve this problem: the techniques of $k$-factors and
 %\item{\bf{}Fast grid technique:}
 \subsection{Fast Grid Techniques}
 
-  Fast grid techniques exploit the fact that iterative PDF fitting
+  Fast grid techniques exploit the factorisable nature of the cross sections and 
+  the fact that iterative PDF fitting
   procedures do not impose completely arbitrary changes to the types
   and shapes of the parameterised functions that represent each PDF\@.
   Instead, it can be assumed that a generic PDF can be approximated by
