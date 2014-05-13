@@ -130,7 +130,7 @@
 \title{HERAFitter %\thanksref{t1}
 }
 \subtitle{Open Source QCD Fit Project \\
-    { \small {Version 0.9 (svn 1440)}}
+    { \small {Version 0.91 (svn 1442)}}
 }
 
 %\titlerunning{Short form of title}        % if too long for running head
@@ -163,24 +163,48 @@
 \maketitle
 
 \begin{abstract}
-The paper presents the \fitter package \cite{herafitter:page}
-which provides a framework for Quantum Chromodynamics (QCD) analyses related 
-to the proton structure.
-%in the context of multi-processes and multi-experiments.
-The main processes sensitive to the Parton Distribution Functions (PDFs) 
-of the proton are Deep-Inelastic-Scattering (DIS) 
-in $ep$ collisions at HERA and Drell Yan (DY), jet and top quark production in 
-$pp$ ($p\bar{p}$) collisions at the LHC (Tevatron).
-Data of recent measurements are included into \fitter and can 
-be used for PDF determination
- based on the concept of the factorisable nature 
-of the cross sections of hard scattering measurements into process dependent 
-partonic scattering and universal PDFs.
-\fitter provides a comprehensive choice of options in the treatment of the experimental 
-data uncertainties, a large number of theoretical and methodological options 
-through interfaces to external software packages which are described here.
+\fitter \cite{herafitter:page} is an open-source package
+which provides a framework for the determination of the
+parton distribution functions (PDFs) of the proton and for
+multifold analyses in Quantum Chromodynamics (QCD).
 
-\keywords{PDFs \and QCD \and Fit \and DIS}
+Measurements of lepton-proton deep inelastic scattering (DIS)
+and of proton-proton (proton-antiproton) collisions
+at hadron colliders are included in the \fitter package,
+and are used to probe and constrain
+the partonic content of the proton.
+
+The partonic distributions are determined by using 
+the factorisation properties of the hadronic cross sections 
+in which short-distance perturbatively calculable hard scatterings      
+and long-distance contributions that are the non-perturbative universal PDFs,
+are factorised.
+
+The \fitter platform provides a broad choice of options             
+for the treatment of the experimental uncertainties and a common
+environment where a large number of theoretical calculations and
+methodological options are used to perform detailed QCD analyses.
+The general structure of \fitter together with available methods
+are described in this paper.
+
+%The paper presents the \fitter package \cite{herafitter:page}
+%which provides a framework for Quantum Chromodynamics (QCD) analyses related 
+%to the proton structure.
+%%in the context of multi-processes and multi-experiments.
+%The main processes sensitive to the Parton Distribution Functions (PDFs) 
+%of the proton are Deep-Inelastic-Scattering (DIS) 
+%in $ep$ collisions at HERA and Drell Yan (DY), jet and top quark production in 
+%$pp$ ($p\bar{p}$) collisions at the LHC (Tevatron).
+%Data of recent measurements are included into \fitter and can 
+%be used for PDF determination
+% based on the concept of the factorisable nature 
+%of the cross sections of hard scattering measurements into process dependent 
+%partonic scattering and universal PDFs.
+%\fitter provides a comprehensive choice of options in the treatment of the experimental 
+%data uncertainties, a large number of theoretical and methodological options 
+%through interfaces to external software packages which are described here.
+%
+\keywords{PDFs \and QCD \and Fit \and proton structure}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
 \end{abstract}
