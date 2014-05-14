@@ -1,5 +1,23 @@
 %
 \label{sec:structure}
+The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
+\input{workflow.tex}
+%\begin{figure}[!ht]
+%   \centering
+%   \includegraphics[width=8cm]{flow.pdf}
+%   \caption{Schematic structure of the \fitter~program.} 
+% \label{fig:flow}
+%\end{figure}
+\begin{description}
+\item 
+\bf {Input data:} \rm Different available measurements from the various processes
+are implemented in the \fitter package including the full information on their uncorrelated and correlated
+uncertainties. HERA data sets are the basis of any proton PDF extraction, 
+and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
+Additional measurements provide constraints to the sea flavour decomposition, such as the new 
+results from the LHC, as well as constraints to PDFs in the kinematic phase-space regions 
+where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence 
+quark distributions from Tevatron and fixed target experiments.
 The processes that are currently available in \fitter framework are listed in Tab.~\ref{tab:proc}.
 %
 \begin{table}
@@ -59,23 +77,6 @@ The references for the individual calculations and their implementations are giv
 \end{table}
 %
 \normalsize
-The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
-\input{workflow.tex}
-%\begin{figure}[!ht]
-%   \centering
-%   \includegraphics[width=8cm]{flow.pdf}
-%   \caption{Schematic structure of the \fitter~program.} 
-% \label{fig:flow}
-%\end{figure}
-\begin{description}
-\item 
-\bf {Input data:} \rm The relevant cross section measurements from the various processes
-are provided with the \fitter package including the full information on their uncorrelated and correlated
-uncertainties. HERA data sets are the basis of any proton PDF extraction, 
-and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
-Additional measurements provide constraints to the sea flavour decomposition, such as the new 
-results from the LHC, as well as constraints to PDFs in the kinematic phase-space regions 
-where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence quark distributions from Tevatron and fixed target experiments..
 \item
 \bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using 
 the factorisation approach (Eq.~\ref{eq:fact}). The PDFs are parametrised at a starting input scale $Q_0^2$  
