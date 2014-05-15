@@ -1,5 +1,10 @@
 %
 \label{sec:structure}
+
+\fitter is a flexible open-source platform for the QCD analyses of different experimental measurements, 
+providing a versatile environment for benchmarking studies. It is widely used within 
+LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
+
 The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
@@ -11,14 +16,23 @@ The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow}
 \begin{description}
 \item 
 \bf {Input data:} \rm Different available measurements from the various processes
-are implemented in the \fitter package including the full information on their uncorrelated and correlated
-uncertainties. HERA data sets are the basis of any proton PDF extraction, 
-and they are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
-Additional measurements provide constraints to the sea flavour decomposition, such as the new 
-results from the LHC, as well as constraints to PDFs in the kinematic phase-space regions 
-where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence 
-quark distributions from Tevatron and fixed target experiments.
+are implemented in the \fitter package including the full information on their uncorrelated 
+and correlated uncertainties. HERA data 
+are sensitive to light quark and gluon densities mostly through scaling violations, 
+covering low and medium $x$ ranges. These data are the basis of any proton PDF extraction,
+and are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
+However, improvements in precision of PDFs require additional constraints on the gluon and 
+quark distributions at high $x$, better understanding of heavy quark distributions and 
+decomposition of the light-quark sea.  For these purposes, the measurements of the fixed-target 
+experiments, Tevatron and LHC are of particular importance.
+%
+%Additional measurements provide constraints to the sea flavour decomposition, such as the new 
+%results from the LHC, as well as constraints to PDFs in the kinematic phase-space regions 
+%where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence 
+%quark distributions from Tevatron and fixed target experiments.
+%
 The processes that are currently available in \fitter framework are listed in Tab.~\ref{tab:proc}.
+
 %
 \begin{table}
 \small
@@ -80,23 +94,30 @@ The references for the individual calculations and their implementations are giv
 \item
 \bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using 
 the factorisation approach (Eq.~\ref{eq:fact}). The PDFs are parametrised at a starting input scale $Q_0^2$  
-by a chosen functional form with a set of free parameters $\vec{p}$. These PDFs are then evolved 
-from $Q_0^2$ to the scale of the measurement using the 
-Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
-(DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
-Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
-(as implemented in \qcdnum~\cite{qcdnum}), 
-CCFM \cite{\CCFM} or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} 
-and then convoluted with the hard parton cross sections calculated
-using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
+by a chosen functional form with a set of free parameters $\vec{p}$. 
+These PDFs are evolved to the scale of the measurement $Q^2$, $Q^2>Q_0^2$.
+The evolution follows either DGLAP \cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
+Dokshitzer:1977sg, Altarelli:1977zs} (as implemented in \qcdnum~\cite{qcdnum}), CCFM \cite{\CCFM} 
+or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
+The prediction of a particular process cross section is obtained by a convolution of the evolved 
+PDFs and the partonic cross section, calculated at a certain order in QCD 
+with a relevant theory program (as listed in Tab.~\ref{tab:proc}).
+%from $Q_0^2$ to the scale of the measurement using the 
+%Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
+%(DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
+%Dokshitzer:1977sg, Altarelli:1977zs} evolution equations 
+%(as implemented in \qcdnum~\cite{qcdnum}), 
+%CCFM \cite{\CCFM} or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} 
+%and then convoluted with the hard parton cross sections calculated
+%using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \item
-\bf{QCD fit:} \rm  The PDFs are extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. The $\chi^2$ function is formed from the input data and the theory prediction.
+\bf{QCD analysis:} \rm  The PDFs are extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. The $\chi^2$ function is formed from the input data and the theory prediction.
 The $\chi^2$ is  minimised iteratively 
-with respect to the PDF parameters using the MINUIT~\cite{minuit} program.
+with respect to$\vec{p}$ using the MINUIT~\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, either using 
 a nuisance parameter method for the correlated systematic uncertainties, 
-or a covariance matrix method (see details in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
-assumptions for the distributions of the systematic uncertainties (i.e. Gauss or log-normal)~\cite{hera-lhc:report2009}.
+or a covariance matrix method as described in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
+assumptions for the distributions of the systematic uncertainties i.e. Gauss~\cite{hera-lhc:report2009} (see section~\ref{sec:experimentalerrors}).
 %
 %In the $\chi^2$ minimisation,
 %The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are extracted from the minimisation fit.
@@ -106,36 +127,45 @@ assumptions for the distributions of the systematic uncertainties (i.e. Gauss or
 \item
 \bf{Results:} \rm 
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
-The resulting PDFs (or unintegrated PDFs) are provided in a format ready to be used by the \lhapdf 
+The resulting PDFs are provided in a format ready to be used by the \lhapdf 
 library~\cite{lhapdf,lhapdfweb} (or by \tmdlib \cite{tmdlref}).
 \fitter drawing tools can be used to display the PDFs with their uncertainty at a chosen scale.  
 %Drawing tools are supplied which allow the PDFs to be
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
-A first set of PDFs extracted by \fitter is HERAPDF1.0 \cite{h1zeus:2009wt}, shown in Fig.~\ref{fig:hera1}, 
+A first set of PDFs extracted by using \fitter is HERAPDF1.0 \cite{h1zeus:2009wt}, shown in Fig.~\ref{fig:hera1}, 
 which is based on HERA~I data.
-Since then several other PDF sets were produced within the HERA and LHC collaborations.
-In addition to the PDF display, 
-the visual comparison of data used in the fit to the theory predictions are also produced. 
+Since then several other PDF sets were produced within the HERA \cite{hera:grids} and LHC \cite{atlas:grids} collaborations.
+%In addition to the PDF display, 
+The comparison of data used in the fit to the theory predictions are also produced. 
 % plots which compare the input data to the fitted theory predictions can be produced 
 %to demonstrate the fit consistency. 
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{hera1.pdf}
-   \caption{Summary plots of valence ($xu_v$, $xd_v$), total sea ($xS$, scaled) and gluon ($xg$, scaled) densities
-   with their experimental, model and parametrisation uncertainties shown as colored bands at the scale 
-   of $Q^2=10 \ \GeV^2$ for the HERAPDF1.0 PDF set~\cite{h1zeus:2009wt}.}
+   \caption{Distributions of valence ($xu_v$, $xd_v$), sea ($xS$) and the gluon ($g$) densities in HERAPDF1.0~\cite{h1zeus:2009wt}. 
+       The gluon and the sea distributions are scaled down by a factor of 20.
+       The experimental, model and parametrisation uncertainties are shown as colored bands.}
+       %Summary plots of valence ($xu_v$, $xd_v$), total sea ($xS$, scaled) and gluon ($xg$, scaled) densities
+       %with their experimental, model and parametrisation uncertainties shown as colored bands at the scale 
+       %of $Q^2=10 \ \GeV^2$ for the HERAPDF1.0 PDF set~\cite{h1zeus:2009wt}.}
  \label{fig:hera1}
 \end{figure}
-In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0. It also illustrates the comparison to the theory predictions which are adjusted by the  
-systematic uncertainty shifts when using the nuisance parameter method that accounts for 
-correlated systematic uncertainties. 
-As an additional consistency check between data and the theory predictions, pull information, defined as the difference between data and prediction divided by the uncorrelated uncertainty of the data, is displayed in units of sigma shifts for each given data bin.
-% related only to the uncorrelated part of the systematic uncertainty. 
+In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0 is shown. 
 
+Also shown are theory predictions, obtained using the nuisance parameter method, 
+which accounts for correlated systematic
+shifts when using the nuisance parameter method that accounts for 
+correlated systematic uncertainties. 
+The consistency of the measurements and the theory is expressed by pulls, defined as a difference between data 
+and theory divided by the uncorrelated error of the data. 
+In each kinematic bin of the measurement, pulls are provided in units of sigma.  
+%As an additional consistency check between data and the theory predictions, pull information, defined as the difference between data and prediction divided by the uncorrelated uncertainty of the data, is displayed in units of sigma shifts for each given data bin.
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8.6cm]{datatheory.pdf}
-   \caption{An illustration of the \fitter drawing tools comparing the measurements (in the case of HERA I) to the predictions of the fit. In addition, ratio plots are also provided together with the pull distribution (right panel).} 
+   \caption{An illustration of the consistency of HERA measurements~\cite{h1zeus:2009wt} and the theory predictions, 
+       obtained in \fitter with the default drawing tool.} 
+       %In addition, ratio plots are also provided together with the pull distribution (right panel).}    
  \label{fig:data}
 \end{figure}
 
@@ -160,6 +190,7 @@ As an additional consistency check between data and the theory predictions, pull
 % It includes various options for theoretical calculations and various choices 
 %of how to 
 %account for the experimental uncertainties. 
-The \fitter project provides a versatile environment for benchmarking studies 
-and a flexible platform for the QCD interpretation of analyses within the LHC experiments,
-as already demonstrated by several publicly available results using the \fitter framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
+%The \fitter project provides a versatile environment for benchmarking studies 
+%and a flexible platform for the QCD interpretation of analyses within the LHC experiments,
+%as already demonstrated by several publicly available results using the \fitter 
+%framework~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
