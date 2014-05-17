@@ -109,16 +109,20 @@ int main(int argc, char **argv)
 	}
       //  vector <TCanvas*> pdfscanvaslist, pdfscanvasratiolist;
       for (map <float, pdfmap>::iterator qit = q2list.begin(); qit != q2list.end(); qit++)
-	for (pdfmap::iterator pdfit = (*qit).second.begin(); pdfit != (*qit).second.end(); pdfit++)
-	  {
-	    pdfscanvaslist.push_back(PdfsPainter((*qit).first, (*pdfit).first, (*pdfit).second));
-	    if (info_output.size() > 1)
-	      pdfscanvasratiolist.push_back(PdfsRatioPainter((*qit).first, (*pdfit).first, (*pdfit).second));
-	  }
+	{
+	  for (pdfmap::iterator pdfit = (*qit).second.begin(); pdfit != (*qit).second.end(); pdfit++)
+	    {
+	      pdfscanvaslist.push_back(PdfsPainter((*qit).first, (*pdfit).first, (*pdfit).second));
+	      if (info_output.size() > 1)
+		pdfscanvasratiolist.push_back(PdfsRatioPainter((*qit).first, (*pdfit).first, (*pdfit).second));
+	    }
+	  if (!opts.q2all)
+	    break;
+	}
     }
 
   //--------------------------------------------------
-  //Data pulls plots
+  //Data plots
   gStyle->SetEndErrorSize(4);
   map <int, vector<dataseth> > datamap;
   if (! opts.nodata)
@@ -160,7 +164,7 @@ int main(int argc, char **argv)
 		      if (!bincenter)
 			{
 			  cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p << endl;
-			  cout << "Cannot plot data pulls, skipping" << endl;
+			  cout << "Cannot plot data, skipping" << endl;
 			  continue;
 			}
 		    }
@@ -190,6 +194,10 @@ int main(int argc, char **argv)
     shiftcanvaslist = ShiftPainter(opts.dirs);
 
   //--------------------------------------------------
+  //Create output directory
+  system(((string)"mkdir -p " + opts.outdir).c_str());
+
+  //--------------------------------------------------
   //Fit and parameters results plots
   if (! opts.notables)
     {
@@ -198,7 +206,6 @@ int main(int argc, char **argv)
     }
 
   //Save plots
-  system(((string)"mkdir -p " + opts.outdir).c_str());
 
   int pgn = 0;
   char pgnum[15];
@@ -388,8 +395,9 @@ int main(int argc, char **argv)
   cout << "Plots saved in: " << (opts.outdir + "plots." + format) << endl;
 
   //cleanup pages
-  if (pgn > 0)
-    system(("rm " + inputfiles).c_str());
+  if (!opts.splitplots)
+    if (pgn > 0)
+      system(("rm " + inputfiles).c_str());
 
   return 0;
 }

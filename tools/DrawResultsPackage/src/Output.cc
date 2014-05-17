@@ -537,8 +537,3 @@ Int_t Output::PrepareDataSets() {
   };
   return fQ2Value[iQ2bin];
 }
-
-
-
-
-

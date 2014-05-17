@@ -465,7 +465,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg_ratio->GetYaxis()->SetTitleSize(txtsize);
   mg_ratio->GetYaxis()->SetLabelSize(txtsize);
   mg_ratio->GetYaxis()->SetTitleOffset(offset);
-  mg_ratio->GetYaxis()->SetNdivisions(504);
+  mg_ratio->GetYaxis()->SetNdivisions(506);
 
   //  mg_ratio->Draw("ALE3");
   mg_ratio_shade->Draw("f");

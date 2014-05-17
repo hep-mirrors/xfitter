@@ -3,6 +3,7 @@
 #include <iostream>
 #include <TH1F.h>
 #include <TStyle.h>
+#include <math.h>
 
 float txtsize = 0.043;
 float offset = 1.5;
@@ -23,6 +24,7 @@ CommandParser::CommandParser(int argc, char **argv):
   xmax(-1),
   relerror(false),
   abserror(false),
+  q2all(false),
   splitplots(false),
   root(false),
   format("pdf"),
@@ -43,10 +45,11 @@ CommandParser::CommandParser(int argc, char **argv):
   nodata(false),
   nopdfs(false),
   noshifts(false),
-  notables(true),
+  notables(false),
   spp(30),
   shgth(40),
   adjshift(true),
+  chi2nopdf(false),
   cms(false),
   cmspreliminary(false),
   atlas(false),
@@ -119,8 +122,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  noshifts = true;
 	else if (*it == "--no-tables")
 	  notables = true;
-	else if (*it == "--tables")
-	  notables = false;
+	else if (*it == "--chi2-nopdf-uncertainties")
+	  chi2nopdf = true;
 	else if (*it == "--shifts-per-page")
 	  {
 	    adjshift = false;
@@ -183,6 +186,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--no-logx")
 	  logx = false;
+	else if (*it == "--q2all")
+	  q2all = true;
 	else if (*it == "--outdir")
 	  {
 	    outdir = *(it+1);
@@ -300,8 +305,6 @@ CommandParser::CommandParser(int argc, char **argv):
       exit(-1);
     }
 
-
-
   if (dirs.size() > 6)
     {
       cout << endl;
@@ -321,6 +324,18 @@ CommandParser::CommandParser(int argc, char **argv):
     else
       labels.push_back((*it));
 
+  //check there are no repetion in directories
+  for (vector<string>::iterator it1 = dirs.begin(); it1 != dirs.end(); it1++)
+    for (vector<string>::iterator it2 = it1+1; it2 != dirs.end(); it2++)
+      if (*it1 == *it2)
+	{
+	  cout << endl;
+	  cout << "Error: directory " << *it1 << " can appear only once in directory list" << endl;
+	  cout << endl;
+	  exit(-1);
+	}
+
+
   if (outdir == "")
     if (dirs.size() == 1) {outdir = dirs[0];}
     else {outdir = "plots/";}
@@ -331,3 +346,31 @@ CommandParser::CommandParser(int argc, char **argv):
 }
 
 CommandParser opts;
+
+//Service functions
+vector<string> Round(double value, double error)
+{
+  vector <string> result;
+
+  int decimal = 0;
+
+  //If no error, value is rounded to two significant digits
+  if (error == 0)
+    error = value;
+
+  if (error != 0)
+    decimal = -log10(fabs(error)) + 2;
+  decimal = max(0, decimal);
+
+  char Dec[2];
+  sprintf (Dec, "%d", decimal);
+  string D = Dec;
+
+  char Numb[50];
+  sprintf (Numb, ((string)"%." + D + "f").c_str(), value);
+  result.push_back(Numb);
+  sprintf (Numb, ((string)"%." + D + "f").c_str(), error);
+  result.push_back(Numb);
+  
+  return result;
+}

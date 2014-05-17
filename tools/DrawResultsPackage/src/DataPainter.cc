@@ -312,7 +312,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     }
 
   char cnvname[15];
-  sprintf(cnvname, "%d_pulls",  dataindex);
+  sprintf(cnvname, "data_%d",  dataindex);
 
   TCanvas * cnv;
   if (opts.twopanels || opts.threepanels)
@@ -531,12 +531,14 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   up_templ->SetStats(0);
   up_templ->Draw("AXIS");
 
+  /*
   data->SetStats(0);
   data->SetLineColor(1);
   data->SetMarkerStyle(20);
   data->SetMarkerSize(2 * opts.resolution / 1200);
   if (!opts.onlytheory)
     datahistos[0].Draw(data, "PE1 same");
+  */
 
   datatot->SetFillColor(kYellow);
   datatot->SetLineColor(kYellow);
@@ -722,6 +724,14 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	    (*it).gettherrdown()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  }
       }
+
+  data->SetStats(0);
+  data->SetLineColor(1);
+  data->SetMarkerStyle(20);
+  data->SetMarkerSize(2 * opts.resolution / 1200);
+  if (!opts.onlytheory)
+    datahistos[0].Draw(data, "PE1 same");
+
   leg->Draw();
   leg2->Draw();
 
@@ -812,7 +822,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     }
   else
     {
-      if (opts.ratiototheory)
+      if (opts.onlytheory)
+	ytitle = "Ratio";
+      else if (opts.ratiototheory)
 	ytitle = (string) "Data/" + opts.theorylabel;
       else
 	ytitle = "Theory/Data";
@@ -894,8 +906,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     }
   r_datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
 
+  /*
   if (!opts.onlytheory)
     datahistos[0].Draw(r_data, "PE1 same");
+  */
 
   //plot lines at 1
   TLine *r_one = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
@@ -1015,6 +1029,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  }
       }
 
+  //Draw data points
+  if (!opts.onlytheory)
+    datahistos[0].Draw(r_data, "PE1 same");
+
   //Theory+shifts/Data ratio Pad (optional)
   if (opts.threepanels)
     {
@@ -1071,11 +1089,13 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       r_templ->SetMaximum(mx + delta * 0.2);
       r_templ->SetMinimum(mn - delta * 0.2);
 
-      //plot data
       r_templ->DrawCopy("AXIS");
 
+      /*
+      //plot data
       if (!opts.onlytheory)
 	datahistos[0].Draw(r_data, "PE1 same");
+      */
 
       //plot lines at 1
       TLine *rs_one = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
@@ -1094,6 +1114,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	    }
 	  (*it).getrthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	}	  
+      //plot data
+      if (!opts.onlytheory)
+	datahistos[0].Draw(r_data, "PE1 same");
     }
 
   //Theory-Data pulls pad

@@ -17,14 +17,15 @@
 #include <TFile.h>
 #include <TLine.h>
 #include <math.h>
+#include <TMath.h>
 
 struct chi2type
 {
   double chi2;
+  double chi2_00;
   int dof;
-  int dirid;
 };
-typedef map<string,vector<chi2type> > chi2listtype;
+typedef map<string, map<int, chi2type> > chi2listtype;
 
 void FitPainter(vector<string> dirs)
 {
@@ -60,9 +61,9 @@ void FitPainter(vector<string> dirs)
 	      iss >> dummy  >> chi2value  >> dof;
 	      chi2type ch;
 	      ch.chi2 = chi2value;
+	      ch.chi2_00 = -1;
 	      ch.dof = dof;
-	      ch.dirid = dit - dirs.begin();
-	      chi2list["Total"].push_back(ch);
+	      chi2list["Total"][dit - dirs.begin()] = ch;
 	    }
 
 	  //read Correlated chi2
@@ -71,9 +72,9 @@ void FitPainter(vector<string> dirs)
 	      iss >> dummy  >> chi2value;
 	      chi2type ch;
 	      ch.chi2 = chi2value;
+	      ch.chi2_00 = -1;
 	      ch.dof = 0;
-	      ch.dirid = dit - dirs.begin();
-	      chi2list["Correlated"].push_back(ch);
+	      chi2list["Correlated"][dit - dirs.begin()] = ch;
 	    }
 
 	  if (buffer != "Dataset")
@@ -81,21 +82,75 @@ void FitPainter(vector<string> dirs)
 	  iss >> index  >> chi2value  >> dof;
 
 	  iss >> dummy;
-	  name = dummy;
+	  name = dummy; //dataset name
 	  while (iss >> dummy)
 	    name += " " + dummy;
 	  
 	  chi2type ch;
 	  ch.chi2 = chi2value;
+	  ch.chi2_00 = -1;
 	  ch.dof = dof;
-	  ch.dirid = dit - dirs.begin();
-	  chi2list[name].push_back(ch);
+	  chi2list[name][dit - dirs.begin()] = ch;
 	}
       f.close();
     }
+  //make chi2_00 list
+  chi2listtype chi2list_00;
+
+  //read chi2 without PDF uncertainties
+  if (opts.chi2nopdf)
+    for (vector<string>::iterator dit = dirs.begin(); dit != dirs.end(); dit++)
+      {
+	string fname_00 = *dit + "/Results_00.txt";
+	ifstream f_00(fname_00.c_str());
+	if (!f_00.good())
+	  continue;
+
+	//make chi2_00 list
+	string line;
+	string buffer;
+	string dummy, name;
+	int index, dof;
+	float chi2value;
+	while (getline(f_00, line))
+	  {
+	    buffer = "";
+	    istringstream iss(line);
+	    iss >> buffer; 
+
+	    //read total chi2
+	    if (buffer == "After")
+	      {
+		iss >> dummy  >> chi2value  >> dof;
+		chi2list["Total"][dit - dirs.begin()].chi2_00 = chi2value;
+	      }
+
+	    //read Correlated chi2
+	    if (buffer == "Correlated")
+	      {
+		iss >> dummy  >> chi2value;
+		chi2list["Correlated"][dit - dirs.begin()].chi2_00 = chi2value;
+	      }
+
+	    if (buffer != "Dataset")
+	      continue;
+	    iss >> index  >> chi2value  >> dof;
+
+	    iss >> dummy;
+	    name = dummy;
+	    while (iss >> dummy)
+	      name += " " + dummy;
+	  
+	    chi2list[name][dit - dirs.begin()].chi2_00 = chi2value;
+	  }
+	f_00.close();
+      }
+
+
   int ndata = chi2list.size();
 
   float chi2[dirs.size()][ndata];
+  float chi2_00[dirs.size()][ndata];
   int dof[dirs.size()][ndata];
   string dataname[ndata];
   string dirname[dirs.size()];
@@ -103,6 +158,7 @@ void FitPainter(vector<string> dirs)
     for (int d = 0; d < ndata; d++)
       {
 	chi2[i][d] = 0;
+	chi2_00[i][d] = 0;
 	dof[i][d] = 0;
       }
 
@@ -116,33 +172,44 @@ void FitPainter(vector<string> dirs)
     }
 
   //loop on datasets
-  int d = 0;
+  int dat = 0;
   for (chi2listtype::iterator cit = chi2list.begin(); cit != chi2list.end(); cit++)
     {
       if ((*cit).first == "Correlated" || (*cit).first == "Total")
 	continue;
-      dataname[d] = (*cit).first;
+      dataname[dat] = (*cit).first;
       //loop on directories
-      for (vector<chi2type>::iterator dit = (*cit).second.begin(); dit != (*cit).second.end(); dit++)
+      int dir = 0;
+      for (map<int, chi2type>::iterator dit = (*cit).second.begin(); dit != (*cit).second.end(); dit++)
 	{
-	  chi2[(*dit).dirid][d] = (*dit).chi2;
-	  dof[(*dit).dirid][d] = (*dit).dof;
+	  chi2[dir][dat] = dit->second.chi2;
+	  chi2_00[dir][dat] = dit->second.chi2_00;
+	  dof[dir][dat] = dit->second.dof;
+	  dir++;
 	}
-      d++;
+      dat++;
     }
 
-  dataname[d] = "Correlated";
-  for (vector<chi2type>::iterator dit = chi2list.find("Correlated")->second.begin(); dit != chi2list.find("Correlated")->second.end(); dit++)
+  dataname[dat] = "Correlated";
+  //loop on directories
+  int dir = 0;
+  for (map<int, chi2type>::iterator dit = chi2list.find("Correlated")->second.begin(); dit != chi2list.find("Correlated")->second.end(); dit++)
     {
-      chi2[(*dit).dirid][d] = (*dit).chi2;
-      dof[(*dit).dirid][d] = (*dit).dof;
+      chi2[dir][dat] = dit->second.chi2;
+      chi2_00[dir][dat] = dit->second.chi2_00;
+      dof[dir][dat] = dit->second.dof;
+      dir++;
     }
-  d++;
-  dataname[d] = "Total";
-  for (vector<chi2type>::iterator dit = chi2list.find("Total")->second.begin(); dit != chi2list.find("Total")->second.end(); dit++)
+  dat++;
+  dataname[dat] = "Total";
+  //loop on directories
+  dir = 0;
+  for (map<int, chi2type>::iterator dit = chi2list.find("Total")->second.begin(); dit != chi2list.find("Total")->second.end(); dit++)
     {
-      chi2[(*dit).dirid][d] = (*dit).chi2;
-      dof[(*dit).dirid][d] = (*dit).dof;
+      chi2[dir][dat] = dit->second.chi2;
+      chi2_00[dir][dat] = dit->second.chi2_00;
+      dof[dir][dat] = dit->second.dof;
+      dir++;
     }
 
   //write table
@@ -163,7 +230,7 @@ void FitPainter(vector<string> dirs)
   if (dirs.size() >= 5)
     points = 9;
 
-  float cm = 0.035277778 * points * 5;
+  float cm = 0.035277778 * points * 5.2;
 
   fprintf(ftab,"\\documentclass[%dpt]{report}\n", points);
   fprintf(ftab,"\\usepackage{extsizes}\n");
@@ -194,7 +261,12 @@ void FitPainter(vector<string> dirs)
       fprintf(ftab,"  %s ", dataname[d].c_str());
       for (int i = 0; i < dirs.size(); i++)
 	if (dof[i][d] != 0 || chi2[i][d] != 0 )
-	  fprintf(ftab,"& %.1f / %d", chi2[i][d], dof[i][d]);
+	  {
+	    if (chi2_00[i][d] >= 0)
+	      fprintf(ftab,"& %s (%s) / %d", Round(chi2[i][d])[0].c_str(), Round(chi2_00[i][d])[0].c_str(), dof[i][d]);
+	    else
+	      fprintf(ftab,"& %s / %d", Round(chi2[i][d])[0].c_str(), dof[i][d]);
+	  }
 	else
 	  fprintf(ftab,"& - ");
       fprintf(ftab,"  \\\\ \n");
@@ -202,18 +274,39 @@ void FitPainter(vector<string> dirs)
 
   fprintf(ftab,"  Correlated $\\chi^2$  ");
   for (int i = 0; i < dirs.size(); i++)
-    fprintf(ftab,"& %.1f", chi2[i][ndata-2]);
+    if (chi2_00[i][ndata-2] >= 0)
+      fprintf(ftab,"& %s (%s)", Round(chi2[i][ndata-2])[0].c_str(), Round(chi2_00[i][ndata-2])[0].c_str());
+    else
+      fprintf(ftab,"& %s", Round(chi2[i][ndata-2])[0].c_str());
   fprintf(ftab,"  \\\\ \n");
 
+  bool pdfunc = false;
   fprintf(ftab,"      \\midrule\n");
   fprintf(ftab,"  Total $\\chi^2$ / dof  ");
   for (int i = 0; i < dirs.size(); i++)
-    fprintf(ftab,"& %.1f / %d", chi2[i][ndata-1], dof[i][ndata-1]);
+    if (chi2_00[i][ndata-1] >= 0)
+      {
+	fprintf(ftab,"& %s (%s) / %d", Round(chi2[i][ndata-1])[0].c_str(), Round(chi2_00[i][ndata-1])[0].c_str(), dof[i][ndata-1]);
+	pdfunc = true;
+      }
+    else
+      fprintf(ftab,"& %s / %d", Round(chi2[i][ndata-1])[0].c_str(), dof[i][ndata-1]);
   fprintf(ftab,"  \\\\ \n");
+
+  fprintf(ftab,"      \\midrule\n");
+  fprintf(ftab,"  $\\chi^2$ p-value  ");
+  for (int i = 0; i < dirs.size(); i++)
+    fprintf(ftab,"& %.2f ", TMath::Prob(chi2[i][ndata-1], dof[i][ndata-1]));
+  fprintf(ftab,"  \\\\ \n");
+
+
   fprintf(ftab,"      \\bottomrule\n");
   fprintf(ftab,"    \\end{tabular}\n");
   fprintf(ftab,"  \\end{center}\n");
   fprintf(ftab,"\\end{table}\n");
+  if (pdfunc)
+    fprintf(ftab,"$\\chi^2$ with (w/o) PDF uncertainties  \n");
+
 
   fprintf(ftab,"\n");
   fprintf(ftab,"\\end{document}\n");
@@ -223,6 +316,16 @@ void FitPainter(vector<string> dirs)
   //debug latex
   //string command = "pdflatex  -output-directory=" + opts.outdir + " " + opts.outdir + "chi2.tex";
   system(command.c_str());
+
+  //cleanup
+  string clean = "rm -f " 
+    + opts.outdir + "chi2.aux " 
+    + opts.outdir + "chi2.log " 
+    + opts.outdir + "chi2.nav " 
+    + opts.outdir + "chi2.out " 
+    + opts.outdir + "chi2.snm " 
+    + opts.outdir + "chi2.toc ";
+  system(clean.c_str());
 
   return;
 }

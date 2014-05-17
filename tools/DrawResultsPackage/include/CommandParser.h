@@ -14,6 +14,9 @@ extern float marg0;
 
 using namespace std;
 
+//Service functions
+extern vector<string> Round(double value, double error = 0);
+
 class CommandParser
 {
  public:
@@ -25,6 +28,7 @@ class CommandParser
   float rmin, rmax;
   double xmin, xmax;
   bool abserror, relerror;
+  bool q2all;
 
   //data pulls options
   bool therr, points;
@@ -34,6 +38,13 @@ class CommandParser
   bool onlytheory;
   bool ratiototheory;
   bool diff;
+
+  //shifts options
+  int spp, shgth;
+  bool adjshift;
+
+  //tables options
+  bool chi2nopdf;
 
   //general options
   bool splitplots;
@@ -50,8 +61,6 @@ class CommandParser
   bool nopdfs;
   bool noshifts;
   bool notables;
-  int spp, shgth;
-  bool adjshift;
   bool version, drawlogo;
   bool cms, cmspreliminary;
   bool atlas, atlaspreliminary, atlasinternal;
@@ -98,8 +107,6 @@ class CommandParser
     cout << "\t \t High resolution logo (paper quality)" << endl;
     cout << "\t --no-version" << endl;
     cout << "\t \t Do not show version on logo" << endl;
-    cout << "\t --tables" << endl;
-    cout << "\t \t Produce additional chi2 and parameters tables" << endl;
     cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
     cout << "\t \t PDF plots are not produced" << endl;
@@ -121,6 +128,8 @@ class CommandParser
     cout << "\t \t Plot absolute pdf uncertainties centered around 0 in PDF ratio plots" << endl;
     cout << "\t --relative-errors" << endl;
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
+    cout << "\t --q2all" << endl;
+    cout << "\t \t Plot PDF at all stored values of Q2. By default PDF are plotted only at the starting scale Q0" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --no-data" << endl;
     cout << "\t \t Data plots are not produced" << endl;
@@ -147,6 +156,11 @@ class CommandParser
     cout << "\t \t Number of shifts shown in each plot, default is 30, maximum is 40" << endl;
     cout << "\t --shifts-heigth <N>" << endl;
     cout << "\t \t Heigth reserved for each shift in points, minimum is 20, maximum is 200" << endl;
+    cout << "options for tables:" << endl;
+    cout << "\t --no-tables" << endl;
+    cout << "\t \t Tables are not produced" << endl;
+    cout << "\t --chi2-nopdf-uncertainties" << endl;
+    cout << "\t \t When chi2 is evaluated with the LHAPDFError routine, this option will add to the chi2 table the chi2 evaluated without PDF uncertainties within brackets" << endl;
     cout << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;

@@ -16,7 +16,6 @@
 #include <TLegend.h>
 #include <TFile.h>
 #include <TLine.h>
-#include <math.h>
 
 struct partype
 {
@@ -26,33 +25,29 @@ struct partype
 };
 typedef map<string,vector<partype> > parlisttype;
 
-vector<string> Round(double value, double error)
-{
-  vector <string> result;
-
-  int decimal = 0;
-
-  if (error != 0)
-    decimal = -log10(fabs(error)) + 2;
-  decimal = max(0, decimal);
-
-  char Dec[2];
-  sprintf (Dec, "%d", decimal);
-  string D = Dec;
-
-  char Numb[50];
-  sprintf (Numb, ((string)"%." + D + "f").c_str(), value);
-  result.push_back(Numb);
-  sprintf (Numb, ((string)"%." + D + "f").c_str(), error);
-  result.push_back(Numb);
-  
-  return result;
-}
+map<int, string> fitstatus;
 
 void ParPainter(vector<Output*> info_output)
 {
   //make par list
   parlisttype parlist;
+
+  //read fit status
+  for (vector<string>::iterator dit = opts.dirs.begin(); dit != opts.dirs.end(); dit++)
+    {
+      string fname = *dit + "/minuit.out.txt";
+
+      ifstream f(fname.c_str());
+      if (!f.good())
+	continue;
+
+      fitstatus[dit - opts.dirs.begin()] = "Converged";
+
+      string line;
+      while (getline(f, line))
+	if (line.find("MATRIX FORCED POS-DEF") != string::npos)
+	  fitstatus[dit - opts.dirs.begin()] = "pos-def-forced";
+    }
 
   //read paramaters
   for (vector<Output*>::iterator io = info_output.begin(); io != info_output.end(); io++)
@@ -131,6 +126,7 @@ void ParPainter(vector<Output*> info_output)
   fprintf(ftab,"\\pagestyle{empty}\n");
 
   fprintf(ftab,"\\usepackage{booktabs}\n");
+  fprintf(ftab,"\\usepackage{color}\n");
   fprintf(ftab,"\\begin{document}\n");
 
   fprintf(ftab,"\\begin{table}\n");
@@ -152,11 +148,23 @@ void ParPainter(vector<Output*> info_output)
       fprintf(ftab,"  %s ", parname[d].c_str());
       for (int i = 0; i < info_output.size(); i++)
 	if (unc[i][d] != 0 || par[i][d] != 0 )
-	  fprintf(ftab,"& %s $\\pm$ %s", Round(par[i][d], unc[i][d])[0].c_str(), Round(unc[i][d], unc[i][d])[1].c_str());
+	  {
+	    if (fitstatus[i] != "pos-def-forced")
+	      fprintf(ftab,"& %s $\\pm$ %s", Round(par[i][d], unc[i][d])[0].c_str(), Round(unc[i][d], unc[i][d])[1].c_str());
+	    else
+	      fprintf(ftab,"& %s $\\pm$ {\\color{red}{ %s }}", Round(par[i][d], unc[i][d])[0].c_str(), Round(unc[i][d], unc[i][d])[1].c_str());
+	  }
 	else
 	  fprintf(ftab,"& - ");
       fprintf(ftab,"  \\\\ \n");
     }
+
+  fprintf(ftab,"      \\midrule\n");
+  fprintf(ftab," Fit status  ");
+  for (int i = 0; i < info_output.size(); i++)
+    fprintf(ftab," & %s", fitstatus[i].c_str());
+  fprintf(ftab,"  \\\\ \n");
+
   fprintf(ftab,"      \\bottomrule\n");
   fprintf(ftab,"    \\end{tabular}\n");
   fprintf(ftab,"  \\end{center}\n");
@@ -170,6 +178,16 @@ void ParPainter(vector<Output*> info_output)
   //debug latex
   //string command = "pdflatex  -output-directory=" + opts.outdir + " " + opts.outdir + "par.tex";
   system(command.c_str());
+
+  //cleanup
+  string clean = "rm -f " 
+    + opts.outdir + "par.aux " 
+    + opts.outdir + "par.log " 
+    + opts.outdir + "par.nav " 
+    + opts.outdir + "par.out " 
+    + opts.outdir + "par.snm " 
+    + opts.outdir + "par.toc ";
+  system(clean.c_str());
 
   return;
 }
