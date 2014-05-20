@@ -1,191 +1,81 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream>
 #include <stdlib.h>
 #include <TError.h>
 #include <TCanvas.h>
 #include <TFile.h>
 #include <TStyle.h>
 
-#include <Output.h>
-#include <PdfsPainter.h>
-#include <CommandParser.h>
-#include <DataPainter.h>
-#include <ShiftPainter.h>
-#include <FitPainter.h>
-#include <ParPainter.h>
+#include "Outdir.h"
+#include "CommandParser.h"
+#include "PdfsPainter.h"
+#include "DataPainter.h"
+#include "ShiftPainter.h"
+#include "FitPainter.h"
+#include "ParPainter.h"
+
 
 using namespace std;
 
 int main(int argc, char **argv) 
 {
+  //--------------------------------------------------
   //parse command line arguments
   opts = CommandParser(argc, argv);
 
   gErrorIgnoreLevel=1001;
 
-  //read output directory
-  vector <Output*> info_output;
-  for (vector<string>::iterator it = opts.dirs.begin(); it != opts.dirs.end(); it++)
+  //read output directories
+  vector <Outdir> outdirs;
+  vector<string>::iterator itl = opts.labels.begin();
+  for (vector<string>::iterator itd = opts.dirs.begin(); itd != opts.dirs.end(); itd++, itl++)
     {
-      Output* out = new Output((*it).c_str());
-      info_output.push_back(out);
+      Outdir out((*itd).c_str(), (*itl).c_str());
+      outdirs.push_back(out);
     }
-
-  //  for (unsigned int o = 0; o < info_output.size(); o++)
-  //    info_output[o]->Prepare(opts.dobands, option);
 
   //--------------------------------------------------
   //Pdf plots
   vector <TCanvas*> pdfscanvaslist, pdfscanvasratiolist;
-  typedef map <int, vector<gstruct> > pdfmap;
-  map <float, pdfmap> q2list;
-  vector<string>::iterator itn = opts.labels.begin();
-  for (unsigned int o = 0; o < info_output.size(); o++)
-    {
-      //check if errors are symmetric or asymmetric hessian
-      string option = "";
-      TString filename("");
-	
-      //asymmetric hessian
-      filename.Form("%s/pdfs_q2val_s%02dm_%02d.txt", info_output[o]->GetName()->Data(), 1, 1);
-      ifstream asfile(filename.Data());
-      if (asfile.is_open())
-	{
-	  if (opts.asymbands)
-	    option = "a";
-	  else
-	    option = "b";
-	  asfile.close();
-	}
-
-      //symmetric hessian errors
-      filename.Form("%s/pdfs_q2val_s%02ds_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
-      ifstream sfile(filename.Data());
-      if (sfile.is_open())
-	{
-	  option = "s";
-	  sfile.close();
-	}
-
-      //MC errors
-      filename.Form("%s/pdfs_q2val_mc%03ds_%02d.txt",info_output[o]->GetName()->Data(), 1, 1);
-      ifstream mcfile(filename.Data());
-      if (mcfile.is_open())
-	{
-	  option = "mc";
-	  mcfile.close();
-	}
-
-      info_output[o]->Prepare(opts.dobands, option);
-    }
-
   if (! opts.nopdfs)
     {
-      vector<string>::iterator itn = opts.labels.begin();
-      for (unsigned int o = 0; o < info_output.size(); o++)
+      //loop on Q2 bins
+      vector <float> ql = q2list();
+      for (vector<float>::iterator qit = ql.begin(); qit != ql.end(); qit++)
 	{
-
-	  //loop on Q2 bins
-	  for (int nq2 = 0; nq2 < (info_output[o]->GetNQ2Files()); nq2++)
+	  //loop on pdf types
+	  for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++)
 	    {
-	      pdfmap pmap;
-	      if (q2list.size() > nq2)
-		pmap = q2list[info_output[o]->GetQ2Value(nq2)];
+	      vector <TCanvas*> pdfcnv = PdfsPainter(*qit, *pit);
+	      pdfscanvaslist.push_back(pdfcnv[0]);
+	      if (pdfcnv.size() > 1)
+		pdfscanvasratiolist.push_back(pdfcnv[1]);
+	    }
 
-	      //loop on pdf types
-	      for (unsigned int ipdf = 0; ipdf < pdflabels.size(); ipdf++)
-		{
-		  //	      TGraphAsymmErrors* pdf = info_output[o]->GetPdf((Output::pdf)ipdf, nq2);
-		  gstruct gs;
-		  gs.graph = info_output[o]->GetPdf((Output::pdf)ipdf, nq2);
-		  gs.label = (*itn);
-		  pmap[ipdf].push_back(gs);
-		}
-	      q2list[info_output[o]->GetQ2Value(nq2)] = pmap;
-	    }
-	  itn++;
-	}
-      //  vector <TCanvas*> pdfscanvaslist, pdfscanvasratiolist;
-      for (map <float, pdfmap>::iterator qit = q2list.begin(); qit != q2list.end(); qit++)
-	{
-	  for (pdfmap::iterator pdfit = (*qit).second.begin(); pdfit != (*qit).second.end(); pdfit++)
-	    {
-	      pdfscanvaslist.push_back(PdfsPainter((*qit).first, (*pdfit).first, (*pdfit).second));
-	      if (info_output.size() > 1)
-		pdfscanvasratiolist.push_back(PdfsRatioPainter((*qit).first, (*pdfit).first, (*pdfit).second));
-	    }
 	  if (!opts.q2all)
 	    break;
 	}
     }
-
+  
   //--------------------------------------------------
   //Data plots
   gStyle->SetEndErrorSize(4);
-  map <int, vector<dataseth> > datamap;
+  vector <TCanvas*> datapullscanvaslist;
   if (! opts.nodata)
     {
-      itn = opts.labels.begin(); //vector<string>::iterator 
-      for (unsigned int o = 0; o < info_output.size(); o++)
+      //loop on datasets
+      vector <int> dl = datalist();
+      for (vector<int>::iterator dit = dl.begin(); dit != dl.end(); dit++)
 	{
-	  for (unsigned int d = 0; d < info_output[o]->GetNsets(); d++)
-	    {
-	      //if (info_output[o]->GetSet(d)->GetNSubPlots() == 1)
-	      for (unsigned int p = 0; p < info_output[o]->GetSet(d)->GetNSubPlots(); p++)
-		{
-		  info_output[o]->GetSet(d)->GetHistogram(p, false);
-		  //	      int id = info_output[o]->GetSet(d)->GetSetId();
-		  int id = info_output[o]->GetSet(d)->GetSetId() * 100 + p;
-		  //check bins sanity
-		  vector <float> b1 = info_output[o]->GetSet(d)->getbins1(p);
-		  vector <float> b2 = info_output[o]->GetSet(d)->getbins2(p);
-		  vector<float>::iterator it1 = b1.begin();
-		  vector<float>::iterator it2 = b2.begin();
-		  if (b1.size() < 1)
-		    {
-		      stringstream trimmer;
-		      string trimmed = info_output[o]->GetSet(d)->GetName();
-		      trimmed.erase(trimmed.find_last_not_of(" "), string::npos);
-		      cout << "zero bins for dataset: " << trimmed << ", subplot: " << p << ". skipping..." << endl;
-		      continue;
-		    }
-		  bool skip = false;
-		  for (; (it1+1) != b1.end(); it1++, it2++)
-		    if (*(it1+1) < *it2 || *it1 >= *(it1+1))
-		      skip = true;
-		  if (skip)
-		    {
-		      bool bincenter = false;
-		      for (int i = 0; i < info_output[o]->GetSet(d)->GetDataTot(p)->GetN(); i++)
-			if (info_output[o]->GetSet(d)->GetDataTot(p)->GetX()[i] != 0)
-			  bincenter = true;
-		      if (!bincenter)
-			{
-			  cout << "bin inconsistency for dataset: " << info_output[o]->GetSet(d)->GetName() << " Subplot " << p << endl;
-			  cout << "Cannot plot data, skipping" << endl;
-			  continue;
-			}
-		    }
-		  string dtname = (string)info_output[o]->GetSet(d)->GetName();
-		  if (p > 0)
-		    {
-		      char nump[5];
-		      sprintf(nump, "%d", p);
-		      dtname = dtname + " - Subplot " + nump;
-		    }
-		  dataseth dt = dataseth(dtname, info_output[o]->GetName()->Data(), (*itn), info_output[o]->GetSet(d), p, o);
-		  datamap[id].push_back(dt);
-		}
-	    }
-	  itn++;
+	  //extract dataset index and subplot index
+	  int dataindex = (int)(*dit) / 100;
+	  int subplotindex = *dit - dataindex * 100;
+	  TCanvas *dataplot = DataPainter(dataindex, subplotindex);
+	  if (dataplot != 0)
+	    datapullscanvaslist.push_back(dataplot);
 	}
     }
-  vector <TCanvas*> datapullscanvaslist;
-  for (map <int, vector <dataseth> >::iterator it = datamap.begin(); it != datamap.end(); it++)
-    datapullscanvaslist.push_back(DataPainter((*it).first, (*it).second));
-
 
   //--------------------------------------------------
   //Shift plots
@@ -199,14 +89,16 @@ int main(int argc, char **argv)
 
   //--------------------------------------------------
   //Fit and parameters results plots
-  if (! opts.notables)
+  bool chi2tab = true;
+  bool partab = true;
+  if (!opts.notables)
     {
-      FitPainter(opts.dirs);
-      ParPainter(info_output);
+      chi2tab = FitPainter();
+      partab = ParPainter();
     }
 
+  //--------------------------------------------------
   //Save plots
-
   int pgn = 0;
   char pgnum[15];
   gStyle->SetPaperSize(opts.pagewidth * 1.5, opts.pagewidth * 1.5);
@@ -370,7 +262,7 @@ int main(int argc, char **argv)
       cout << "TCanvas saved in: " << (opts.outdir + "plots.root") << endl;
     }
 
-  //make file
+  //make plots file
   string format = opts.format;
 
   string inputfiles = "";
@@ -380,19 +272,25 @@ int main(int argc, char **argv)
       inputfiles = inputfiles + " " + opts.outdir + "plots_" + pgnum + ".eps";
     }
 
-  if (! opts.notables)
-    {
-      inputfiles = inputfiles + " " + opts.outdir + "chi2.pdf";
-      inputfiles = inputfiles + " " + opts.outdir + "par.pdf";
-    }
+  //  if (!chi2tab) 
+  if (!opts.notables) 
+    inputfiles = inputfiles + " " + opts.outdir + "chi2.pdf";
+  if (!partab)
+    inputfiles = inputfiles + " " + opts.outdir + "par.pdf";
 
   //A4 is /PageSize [842 595]
   string gscommand = "gs -dBATCH -q -sDEVICE=" + format + "write -sOutputFile=" + opts.outdir + "plots." + format 
     + " -dNOPAUSE -dEPSFitPage -c \"<< /PageSize [595 595] >> setpagedevice\"  -f " 
     + inputfiles;
-
-  system(gscommand.c_str());
-  cout << "Plots saved in: " << (opts.outdir + "plots." + format) << endl;
+  
+  bool makeplots = system(gscommand.c_str());
+  if (!makeplots)
+    cout << "Plots saved in: " << (opts.outdir + "plots." + format) << endl;
+  else
+    {
+      cout << "ghostcript error in making: " << (opts.outdir + "plots." + format) << endl;
+      cout << gscommand << endl;
+    }
 
   //cleanup pages
   if (!opts.splitplots)

@@ -1,7 +1,6 @@
 #include "CommandParser.h"
 #include <stdlib.h>
 #include <iostream>
-#include <TH1F.h>
 #include <TStyle.h>
 #include <math.h>
 
@@ -58,30 +57,29 @@ CommandParser::CommandParser(int argc, char **argv):
   cdfiipreliminary(false),
   outdir("")
 {
-
   //initialise colors and styles
-  colors[0] = kRed + 2;
-  colors[1] = kBlue + 2;
-  colors[2] = kGreen + 3;
-  colors[3] = kOrange + 7;
-  colors[4] = kAzure + 1;
-  colors[5] = kMagenta + 1;
+  col[0] = kRed + 2;
+  col[1] = kBlue + 2;
+  col[2] = kGreen + 3;
+  col[3] = kOrange + 7;
+  col[4] = kAzure + 1;
+  col[5] = kMagenta + 1;
 
-  styles[0] = 3354;
-  styles[1] = 3345;
-  styles[2] = 3359;
-  styles[3] = 3350;
-  styles[4] = 3016;
-  styles[5] = 3020;
+  styl[0] = 3354;
+  styl[1] = 3345;
+  styl[2] = 3359;
+  styl[3] = 3350;
+  styl[4] = 3016;
+  styl[5] = 3020;
 
-  markers[0] = 24;
-  markers[1] = 25;
-  markers[2] = 26;
-  markers[3] = 32;
-  markers[4] = 31;
-  markers[5] = 27;
+  mark[0] = 24;
+  mark[1] = 25;
+  mark[2] = 26;
+  mark[3] = 32;
+  mark[4] = 31;
+  mark[5] = 27;
 
-  //Hatches style
+  //Set Hatches style
   gStyle->SetHatchesSpacing(2);
   gStyle->SetHatchesLineWidth(lwidth);
 
@@ -231,30 +229,30 @@ CommandParser::CommandParser(int argc, char **argv):
 	    int pattern = atoi((*(it+1)).c_str());
 	    if (pattern == 1)
 	      {
-		colors[0] = kBlue + 2;
-		colors[1] = kYellow - 7;
-		colors[2] = kGreen - 3;
-		colors[3] = kRed + 1;
-		colors[5] = kOrange + 7;
-		colors[5] = kCyan + 1;
+		col[0] = kBlue + 2;
+		col[1] = kYellow - 7;
+		col[2] = kGreen - 3;
+		col[3] = kRed + 1;
+		col[5] = kOrange + 7;
+		col[5] = kCyan + 1;
 	      }
 	    else if (pattern == 2)
 	      {
-		colors[0] = kBlue + 2;
-		colors[1] = kRed + 1;
-		colors[2] = kYellow - 7;
-		colors[3] = kOrange + 7;
-		colors[4] = kMagenta + 1;
-		colors[5] = kCyan + 1;
+		col[0] = kBlue + 2;
+		col[1] = kRed + 1;
+		col[2] = kYellow - 7;
+		col[3] = kOrange + 7;
+		col[4] = kMagenta + 1;
+		col[5] = kCyan + 1;
 	      }
 	    else if (pattern == 3)
 	      {
-		colors[0] = kBlue + 2;
-		colors[1] = kMagenta + 1;
-		colors[2] = kCyan + 1;
-		colors[3] = kRed + 1;
-		colors[4] = kGreen + 2;
-		colors[5] = kYellow + 1;
+		col[0] = kBlue + 2;
+		col[1] = kMagenta + 1;
+		col[2] = kCyan + 1;
+		col[3] = kRed + 1;
+		col[4] = kGreen + 2;
+		col[5] = kYellow + 1;
 	      }
 
 	      allargs.erase(it+1);
@@ -335,14 +333,20 @@ CommandParser::CommandParser(int argc, char **argv):
 	  exit(-1);
 	}
 
-
   if (outdir == "")
     if (dirs.size() == 1) {outdir = dirs[0];}
     else {outdir = "plots/";}
 
   if (outdir.rfind("/") != outdir.size() - 1)
     outdir.append("/");
-  
+
+  //Associate colors and styles to labels
+  for (vector<string>::iterator itl = labels.begin(); itl != labels.end(); itl++)
+    {
+      colors[*itl] = col[itl-labels.begin()];
+      styles[*itl] = styl[itl-labels.begin()];
+      markers[*itl] = mark[itl-labels.begin()];
+    }
 }
 
 CommandParser opts;

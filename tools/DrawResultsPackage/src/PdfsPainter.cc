@@ -11,22 +11,25 @@
 
 #include <iostream>
 
-//useful trick to declare a vector "statically"
-//be careful! pdf names must be mapped to pdf definition in Output.h
-//  enum pdf{kNULL=-1, kGluon=0, kU=1, kD=2, kUv=3, kDv=4, kUb=5, kDb=6, kSea=7, kUSea=8, kDSea=9, kS=10, kC=11, kB=12};
-string pdflab[] = {"g", "U", "D", "uv", "dv", "#bar{U}", "#bar{D}", "sea", "#bar{u}", "#bar{d}", "s", "c", "b"};
-string pdffil[] = {"g", "U", "D", "uv", "dv", "UBar", "DBar", "sea", "ubar", "dbar", "s", "c", "b"};
+#include "Outdir.h"
 
-vector <string> pdflabels(pdflab, pdflab + sizeof(pdflab) / sizeof(string));
-vector <string> pdffiles(pdffil, pdffil + sizeof(pdffil) / sizeof(string));
-
-
-TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
+vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 {
+  vector <TCanvas*> cnvs;
+
+  vector <TGraphAsymmErrors*> pdfgraphs;
+  vector <string> labels;
+  for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
+    if (pdfmap[*itl].Central.find(q2) !=  pdfmap[*itl].Central.end())
+      {
+	pdfgraphs.push_back(pdfmap[*itl].Central[q2].GetPdf(ipdf));
+	labels.push_back(*itl);
+      }
+
   if (pdfgraphs.size() < 1)
     {
-      cout << "Empty pdf TGraph vector for pdf: " << pdffiles[ipdf] << endl;
-      return 0;
+      cout << "Error: Empty pdf TGraph vector for pdf: " << pdffiles[(int)ipdf] << endl;
+      exit(1);
     }
 
   char q2str[30];				
@@ -39,25 +42,53 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   sprintf(cnvname, "q2_%s_pdf_%s",  q2str, pdffiles[ipdf].c_str());
 
   //Set xmin xmax
-  int nx = pdfgraphs.begin()->graph->GetN();
-  if (opts.xmin == -1 && opts.xmax == -1)
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
-      opts.xmin = pdfgraphs.begin()->graph->GetX()[0];
-      opts.xmax = pdfgraphs.begin()->graph->GetX()[nx - 1];
+      if (*it == 0)
+	continue;
+      if (opts.xmin == -1 && opts.xmax == -1)
+	{
+	  opts.xmin = (*it)->GetX()[0];
+	  opts.xmax = (*it)->GetX()[(*it)->GetN() - 1];
+	}
+    }
+
+  //Remove points out of x range
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+    {
+      if (*it == 0)
+	continue;
+      bool removed = true;
+      while (removed)
+	{
+	  removed = false;
+	  for (int i = 0; i < (*it)->GetN(); i++)
+	    {
+	      double xi = (*it)->GetX()[i];
+	      if (xi <= opts.xmin || xi >= opts.xmax)
+		{
+		  (*it)->RemovePoint(i);
+		  removed = true;
+		  break;
+		}
+	    }
+	}
     }
 
   //Set colors and styles
   int colindx = 0;
-  for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
-      (*it).graph->SetFillColor(opts.colors[colindx]);
+      if (*it == 0)
+	continue;
+      (*it)->SetFillColor(opts.colors[labels[it-pdfgraphs.begin()]]);
       if (opts.filledbands)
-	(*it).graph->SetFillStyle(1001);
+	(*it)->SetFillStyle(1001);
       else
-	(*it).graph->SetFillStyle(opts.styles[colindx]);
-      (*it).graph->SetLineStyle(1);
-      (*it).graph->SetLineWidth(opts.lwidth);
-      (*it).graph->SetLineColor(opts.colors[colindx]);
+	(*it)->SetFillStyle(opts.styles[labels[it-pdfgraphs.begin()]]);
+      (*it)->SetLineStyle(1);
+      (*it)->SetLineWidth(opts.lwidth);
+      (*it)->SetLineColor(opts.colors[labels[it-pdfgraphs.begin()]]);
       colindx++;
     }	  
 
@@ -67,29 +98,31 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   TMultiGraph * mg_shade = new TMultiGraph(((string)cnvname + "_multigraph_shade").c_str(), "");
   double mx = 0;
   double mn = 0;
-  for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
+      if (*it == 0)
+	continue;
       //Prepare graph line borders and graph shade
-      int npoints = (*it).graph->GetN();
+      int npoints = (*it)->GetN();
       double val_x[npoints], val_y[npoints], val_high_y[npoints], val_low_y[npoints]; 
       double xsh[2*npoints], ysh[2*npoints];
 
-      for (int i = 0; i < (*it).graph->GetN(); i++)
+      for (int i = 0; i < (*it)->GetN(); i++)
 	{
-	  double val = (*it).graph->GetY()[i];
-	  double errhigh = (*it).graph->GetErrorYhigh(i);
-	  double errlow = (*it).graph->GetErrorYlow(i);
+	  double val = (*it)->GetY()[i];
+	  double errhigh = (*it)->GetErrorYhigh(i);
+	  double errlow = (*it)->GetErrorYlow(i);
 
-	  val_x[i] = (*it).graph->GetX()[i];
+	  val_x[i] = (*it)->GetX()[i];
 	  val_y[i] = val;
 	  val_high_y[i] = val + errhigh;
 	  val_low_y[i] = val - errlow;
 
 	  //shade TGraph
-	  xsh[i] = (*it).graph->GetX()[i];
-	  ysh[i] = val + errhigh;;
-	  xsh[npoints + i] = (*it).graph->GetX()[npoints-i-1];
-	  ysh[npoints + i] = (*it).graph->GetY()[npoints-i-1] - (*it).graph->GetErrorYlow(npoints-i-1);
+	  xsh[i] = (*it)->GetX()[i];
+	  ysh[i] = val + errhigh;
+	  xsh[npoints + i] = (*it)->GetX()[npoints-i-1];
+	  ysh[npoints + i] = (*it)->GetY()[npoints-i-1] - (*it)->GetErrorYlow(npoints-i-1);
 	}
 
       TGraph *centr = new TGraph(npoints, val_x, val_y);
@@ -98,7 +131,7 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
       TGraph *shade = new TGraph(2*npoints, xsh, ysh);
 
       //Calculate maximum and minimum of y axis
-      for (int i = 0; i < (*it).graph->GetN(); i++)
+      for (int i = 0; i < (*it)->GetN(); i++)
 	{
 	  double xi = high->GetX()[i];
 	  double yi_h = high->GetY()[i];
@@ -111,22 +144,22 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	}
 
       //Set border lines and shade fill
-      centr->SetLineColor((*it).graph->GetLineColor());
+      centr->SetLineColor((*it)->GetLineColor());
       centr->SetLineStyle(1);
       centr->SetLineWidth(opts.lwidth);
-      high->SetLineColor((*it).graph->GetLineColor());
+      high->SetLineColor((*it)->GetLineColor());
       high->SetLineStyle(1);
       high->SetLineWidth(opts.lwidth);
-      low->SetLineColor((*it).graph->GetLineColor());
+      low->SetLineColor((*it)->GetLineColor());
       low->SetLineStyle(1);
       low->SetLineWidth(opts.lwidth);
-      shade->SetLineColor((*it).graph->GetLineColor());
-      shade->SetFillColor((*it).graph->GetLineColor());
-      shade->SetFillStyle((*it).graph->GetFillStyle());
+      shade->SetLineColor((*it)->GetLineColor());
+      shade->SetFillColor((*it)->GetLineColor());
+      shade->SetFillStyle((*it)->GetFillStyle());
       shade->SetLineWidth(0);
 
       //add graphs
-      mg->Add((*it).graph);
+      mg->Add((*it));
       mg_lines->Add(centr);
       mg_lines->Add(high);
       mg_lines->Add(low);
@@ -135,6 +168,7 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 
   //Make the TCanvas
   TCanvas *cnv = new TCanvas(cnvname, "", opts.resolution, opts.resolution);
+  cnvs.push_back(cnv);
   cnv->cd();
   if (opts.logx)
     cnv->SetLogx();
@@ -157,7 +191,8 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
       mg->SetMinimum(mn);
     }
   
-  mg->GetXaxis()->Set(nx, opts.xmin, opts.xmax);
+  mg->GetXaxis()->Set(100, opts.xmin, opts.xmax);
+  mg->GetXaxis()->SetRange(opts.xmin, opts.xmax);
   mg->GetXaxis()->SetTitleFont(62);
   mg->GetXaxis()->SetLabelFont(62);
   mg->GetXaxis()->SetTitleSize(txtsize);
@@ -184,49 +219,46 @@ TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
   leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
-  for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
-    if (opts.dobands)
-      leg->AddEntry((*it).graph, (*it).label.c_str(), "lf");
-    else
-      leg->AddEntry((*it).graph, (*it).label.c_str(), "l");
-
-  leg->Draw();
-
-  DrawLogo()->Draw();
-
-  return cnv;
-}
-
-TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
-{
-    if (pdfgraphs.size() < 1)
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
-      cout << "Empty pdf TGraph vector for pdf: " << pdffiles[ipdf] << endl;
-      return 0;
+      if (*it == 0)
+	continue;
+      if (opts.dobands)
+	leg->AddEntry((*it), labels[it-pdfgraphs.begin()].c_str(), "lf");
+      else
+	leg->AddEntry((*it), labels[it-pdfgraphs.begin()].c_str(), "l");
     }
 
-  char q2str[30];				
-  if (q2 < 10)
-    sprintf(q2str, "%.1f",  q2);
-  else
-    sprintf(q2str, "%.0f",  q2);
-  
-  char cnvname[30];
-  sprintf(cnvname, "q2_%s_pdf_%s",  q2str, pdffiles[ipdf].c_str());
+  leg->Draw();
+  DrawLogo()->Draw();
+
+  //--------------------------------------
+  //Ratio Canvas
+  //--------------------------------------
+  if (opts.dirs.size() == 1)
+    return cnvs;
 
   //Compute ratio graphs
   vector <TGraphAsymmErrors*> rlist;
-  vector <gstruct>::iterator fit = pdfgraphs.begin();
-  for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+  vector <TGraphAsymmErrors*>::iterator fit = pdfgraphs.begin();
+  while (*fit == 0 && fit != pdfgraphs.end())
+    fit++;
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
-      TGraphAsymmErrors *r = (TGraphAsymmErrors*)(*it).graph->Clone();
-      r->SetName(((string)(*it).graph->GetName() + "_ratio").c_str());
-      for (int i = 0; i < (*it).graph->GetN(); i++)
+      if (*it == 0)
+	{
+	  rlist.push_back(0);
+	  continue;
+	}
+
+      TGraphAsymmErrors *r = (TGraphAsymmErrors*)(*it)->Clone();
+      r->SetName(((string)(*it)->GetName() + "_ratio").c_str());
+      for (int i = 0; i < (*it)->GetN(); i++)
 	{
 	  double ratio, rathigh, ratlow;
 
-	  double val =  (*it).graph->GetY()[i];
-	  double ref =  (*fit).graph->GetY()[i];
+	  double val =  (*it)->GetY()[i];
+	  double ref =  (*fit)->GetY()[i];
 	  if (ref != 0)
 	    ratio = val/ref;
 	  else
@@ -238,8 +270,8 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	  if (opts.abserror)
 	    ratio = 0;
 
-	  double errhigh =  (*it).graph->GetErrorYhigh(i);
-	  double errlow =  (*it).graph->GetErrorYlow(i);
+	  double errhigh =  (*it)->GetErrorYhigh(i);
+	  double errlow =  (*it)->GetErrorYlow(i);
 
 	  rathigh = ( ref != 0)? (errhigh/ref) : 0;
 	  ratlow = ( ref != 0)? (errlow/ref) : 0;
@@ -253,14 +285,14 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
 	      rathigh = errhigh;
 	      ratlow = errlow;
 	    }
-	  r->SetPoint(i, (*it).graph->GetX()[i], ratio);
+	  r->SetPoint(i, (*it)->GetX()[i], ratio);
 	  r->SetPointError(i, 0, 0, ratlow, rathigh);
 	}
       rlist.push_back(r);
     }
 
-  double mx = 1;
-  double mn = 1;
+  mx = 1;
+  mn = 1;
   if (opts.abserror)
     {
       mx = 0;
@@ -269,6 +301,9 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   //Calculate maximum and minimum of y axis
   for (vector <TGraphAsymmErrors*>::iterator it = rlist.begin(); it != rlist.end(); it++)
     {
+      if (*it == 0)
+	continue;
+
       TGraphAsymmErrors* r = *it;
       double xmnforbds, xmxforbds;
       if (opts.logx)
@@ -317,6 +352,9 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   double tolerance = 0.01;   //tolerance for graph boundaries
   for (vector <TGraphAsymmErrors*>::iterator it = rlist.begin(); it != rlist.end(); it++)
     {
+      if (*it == 0)
+	continue;
+
       TGraphAsymmErrors* r = *it;
 
       int npoints = r->GetN();
@@ -415,13 +453,14 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
     }
 
   //Make the TCanvas
-  TCanvas *cnv = new TCanvas(((string)cnvname + "_ratio").c_str(), "pdf", opts.resolution, opts.resolution);
-  cnv->cd();
+  TCanvas *cnvr = new TCanvas(((string)cnvname + "_ratio").c_str(), "pdf", opts.resolution, opts.resolution);
+  cnvs.push_back(cnvr);
+  cnvr->cd();
   if (opts.logx)
-    cnv->SetLogx();
-  cnv->SetLeftMargin(lmarg);
-  cnv->SetRightMargin(rmarg);
-  cnv->SetTopMargin(tmarg);
+    cnvr->SetLogx();
+  cnvr->SetLeftMargin(lmarg);
+  cnvr->SetRightMargin(rmarg);
+  cnvr->SetTopMargin(tmarg);
 
   //graphical settings
   mg_ratio->Draw("AXIS"); //Create axis
@@ -452,8 +491,7 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
     mg_ratio->GetYaxis()->SetTitle(((string)" #deltax" + pdflabels[ipdf] + "").c_str());
 
 
-  int nx = pdfgraphs.begin()->graph->GetN();
-  mg_ratio->GetXaxis()->Set(nx, opts.xmin, opts.xmax);
+  mg_ratio->GetXaxis()->Set(100, opts.xmin, opts.xmax);
   mg_ratio->GetXaxis()->SetTitleFont(62);
   mg_ratio->GetXaxis()->SetLabelFont(62);
   mg_ratio->GetXaxis()->SetTitleSize(txtsize);
@@ -472,24 +510,28 @@ TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs)
   mg_ratio_lines->Draw("l");
 
   //Make legend
-  TLegend * leg = new TLegend(lmarg+0.20, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.65, 1-tmarg-0.01);
-  leg->SetTextFont(62);
-  leg->SetTextSize(txtsize);
-  leg->SetFillColor(0);
-  leg->SetFillStyle(0);
-  leg->SetBorderSize(0);
-  leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  TLegend * leg2 = new TLegend(lmarg+0.20, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.65, 1-tmarg-0.01);
+  leg2->SetTextFont(62);
+  leg2->SetTextSize(txtsize);
+  leg2->SetFillColor(0);
+  leg2->SetFillStyle(0);
+  leg2->SetBorderSize(0);
+  leg2->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
-  for (vector <gstruct>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
-    if (opts.dobands)
-      leg->AddEntry((*it).graph, (*it).label.c_str(), "lf");
-    else
-      leg->AddEntry((*it).graph, (*it).label.c_str(), "l");
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+    {
+      if (*it == 0)
+	continue;
+      if (opts.dobands)
+	leg2->AddEntry((*it), labels[it-pdfgraphs.begin()].c_str(), "lf");
+      else
+	leg2->AddEntry((*it), labels[it-pdfgraphs.begin()].c_str(), "l");
+    }
 
-  leg->Draw();
+  leg2->Draw();
 
   DrawLogo("dc")->Draw();
 
-  return cnv;
+  return cnvs;
 }
 

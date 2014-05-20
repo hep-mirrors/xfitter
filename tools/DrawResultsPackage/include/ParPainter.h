@@ -1,5 +1,4 @@
-#include <Output.h>
-#include <vector>
-using namespace std;
-
-void ParPainter(vector<Output*> info_output);
+#ifndef ParPainter_h
+#define ParPainter_h
+extern bool ParPainter();
+#endif

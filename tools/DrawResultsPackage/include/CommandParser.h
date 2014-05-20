@@ -2,6 +2,7 @@
 #define CommandParser_h
 #include <string>
 #include <vector>
+#include <map>
 #include <iostream>
 
 extern float txtsize;
@@ -32,7 +33,6 @@ class CommandParser
 
   //data pulls options
   bool therr, points;
-  int markers[6];
   string theorylabel;
   bool twopanels,threepanels;
   bool onlytheory;
@@ -53,8 +53,12 @@ class CommandParser
   bool root;
   string outdir;
   vector <string> dirs, labels;
-  int colors[6];
-  int styles[6];
+  map <string, int> colors;
+  map <string, int> styles;
+  map <string, int> markers;
+  int col[6];
+  int styl[6];
+  int mark[6];
   float lwidth;
   float resolution, pagewidth;
   bool nodata;

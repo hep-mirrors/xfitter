@@ -166,9 +166,9 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
 	  else
 	    {
 	      gshift->SetMarkerSize(3.*opts.resolution/1200.);
-	      gshift->SetMarkerStyle(opts.markers[nd]);
-	      gshift->SetLineColor(opts.colors[nd]);
-	      gshift->SetMarkerColor(opts.colors[nd]);
+	      gshift->SetMarkerStyle(opts.markers[opts.labels[nd]]);
+	      gshift->SetLineColor(opts.colors[opts.labels[nd]]);
+	      gshift->SetMarkerColor(opts.colors[opts.labels[nd]]);
 	    }
 	  gshift->SetTitle("");
 	  gshift->GetYaxis()->SetNdivisions(max(minshifts,nshifts)+1);

@@ -2,6 +2,7 @@
 #include <CommandParser.h>
 
 #include <DrawLogo.h>
+#include <Outdir.h>
 
 #include <TH1F.h>
 #include <TGraphAsymmErrors.h>
@@ -47,224 +48,8 @@ vector <range> historanges(TH1F *h)
   ranges.push_back(temp);
   return ranges;
 }
-dataseth::dataseth(string dataname, string dir, string lab, DataSet* DT, int subp, int colindx): name(dataname), label(lab), coli(colindx)
-{
-  TGraphErrors * datagraph =          DT->GetDataTot(subp);	       
-  vector <float> bins1 =              DT->getbins1(subp);	       
-  vector <float> bins2 =	      DT->getbins2(subp);	       
-  vector <float> data = 	      DT->getdata(subp);	       
-  vector <float> uncorerr = 	      DT->getuncor(subp);	       
-  vector <float> toterr = 	      DT->gettoterr(subp);	       
-  vector <float> theory = 	      DT->gettheory(subp);	       
-  vector <float> theoryshifted =      DT->gettheoryshifted(subp);   
-  vector <float> therrup = 	      DT->gettherrup(subp);	       
-  vector <float> therrdown = 	      DT->gettherrdown(subp);       
-  vector <float> pulls = 	      DT->getpulls(subp);	       
-  logx = 			      DT->GetXlog(subp);	       
-  logy = 			      DT->GetYlog(subp);	       
-  xmin = 			      DT->GetXmin(subp);	       
-  xmax =			      DT->GetXmax(subp);	       
-  yminr = 			      DT->GetYminR(subp);	       
-  ymaxr =			      DT->GetYmaxR(subp);	       
-  string xlabel = 		      DT->GetXTitle(subp);	       
-  string ylabel =		      DT->GetYTitle(subp);         
-  title =		              DT->GetTitle(subp);
-  extralabel =		              DT->GetLabel(subp);
-  experiment =		              DT->GetExperiment(subp);
 
-  //bins array
-  float bin[bins1.size() + 1];
-  vector <double> bins;
-
-  //If no bin edges information is available, need to use TGraph for plotting
-  maketgraph = false;
-  for (int i = 0; i < datagraph->GetN(); i++)
-    if(datagraph->GetX()[i] != 0)
-      maketgraph = true;
-
-  if (maketgraph)
-    {
-      //save original x values
-      for (int i = 0; i < datagraph->GetN(); i++)
-	valx.push_back(datagraph->GetX()[i]);
-
-      //make arbitrary bin edges
-      vector <double> temp;
-      for (int i = 0; i < datagraph->GetN(); i++)
-	temp.push_back(datagraph->GetX()[i]);
-
-      sort(temp.begin(), temp.end());
-
-      //adjust x axis
-      double xaxmin = *(temp.begin());
-      double xaxmax = *(temp.end()-1);
-      if (datagraph->GetN() > 1 && (*(temp.end()-1) - *(temp.begin()) > 0))
-	{
-	  if (logx)
-	    {
-	      double axislength = *(temp.end()-1) / *(temp.begin());
-	      xaxmin = xaxmin / pow(axislength,1./20);
-	      xaxmax = xaxmax * pow(axislength,1./20);
-	    }
-	  else
-	    {
-	      double axislength = *(temp.end()-1) - *(temp.begin());
-	      xaxmin = xaxmin - axislength/20.;
-	      xaxmax = xaxmax + axislength/20.;
-	    }
-	}
-      else
-	{
-	  xaxmin *= 0.9999;
-	  xaxmax *= 1.0001;
-	}
-      bins.push_back(xaxmin);
-      if (datagraph->GetN() > 1)
-	for (vector<double>::iterator it = temp.begin()+1; it != temp.end(); it++)
-	  bins.push_back((*it + *(it-1))/2);
-      bins.push_back(xaxmax);
-
-
-      for (vector<double>::iterator it = bins.begin(); it != bins.end(); it++)
-	bin[it-bins.begin()] = *it;
-    }
-  else
-    {
-      //fill empty gap
-      int pos = 0;
-      float bmin, bmax;
-      while (pos != -1)
-	{
-	  pos = -1;
-	  vector<float>::iterator it1 = bins1.begin();
-	  vector<float>::iterator it2 = bins2.begin();
-	  for (; (it1+1) != bins1.end(); it1++, it2++)
-	    if (*(it1+1) != *it2 && *it2 < *(it1+1))
-	      {
-		pos = (it1 - bins1.begin()) + 1;
-		bmin = *it2;
-		bmax = *(it1+1);
-	      }
-	  if (pos != -1)
-	    {
-	      bins1.insert(bins1.begin()+pos, bmin);
-	      bins2.insert(bins2.begin()+pos, bmax);
-	      data.insert(data.begin()+pos, 0);
-	      uncorerr.insert(uncorerr.begin()+pos, 0); 
-	      toterr.insert(toterr.begin()+pos, 0); 
-	      theory.insert(theory.begin()+pos, 0); 
-	      theoryshifted.insert(theoryshifted.begin() +pos, 0); 
-	      therrup.insert(therrup.begin()+pos, 0); 
-	      therrdown.insert(therrdown.begin()+pos, 0); 
-	      pulls.insert(pulls.begin()+pos, 0);
-	    }
-	}
-
-      //make bins array
-      int i = 0;
-      for (vector<float>::iterator it = bins1.begin(); it != bins1.end(); it++)
-	{
-	  bin[i] = *it;
-	  i++;
-	}
-      bin[i] = *(bins2.end()-1);
-    }
-
-  hdata = new TH1F((name + dir +"_data").c_str(), "", bins1.size(),  bin);
-  hdatatot = new TH1F((name + dir + "_datatot").c_str(), "", bins1.size(),  bin);
-  hth = new TH1F((name + dir + "_th").c_str(), "", bins1.size(),  bin);
-  hthshift = new TH1F((name + dir + "_thshift").c_str(), "", bins1.size(),  bin);
-  htherr = new TH1F((name + dir + "_therr").c_str(), "", bins1.size(),  bin);
-  htherrup = new TH1F((name + dir + "_therrup").c_str(), "", bins1.size(),  bin);
-  htherrdown = new TH1F((name + dir + "_therrdown").c_str(), "", bins1.size(),  bin);
-  hpull = new TH1F((name + dir + "_pull").c_str(), "", bins1.size(),  bin);
-
-  if (xmin != 0 && xmax != 0)
-    {
-      hdata->SetAxisRange(xmin, xmax);
-      hdatatot->SetAxisRange(xmin, xmax);
-      hth->SetAxisRange(xmin, xmax);
-      hthshift->SetAxisRange(xmin, xmax);
-      htherr->SetAxisRange(xmin, xmax);
-      htherrup->SetAxisRange(xmin, xmax);
-      htherrdown->SetAxisRange(xmin, xmax);
-      hpull->SetAxisRange(xmin, xmax);
-    }
-  else
-    {
-      xmin = hdata->GetXaxis()->GetBinLowEdge(hdata->GetXaxis()->GetFirst());
-      xmax = hdata->GetXaxis()->GetBinUpEdge(hdata->GetXaxis()->GetLast() - 1);
-    }
-      
-  hdata->SetXTitle(xlabel.c_str());
-  hdata->SetYTitle(ylabel.c_str());
-
-  //set rapidity as default label 
-  if (xlabel == "" && ylabel == "")
-    {
-      hdata->SetXTitle("(Set XTitle:<label>)");
-      hpull->SetXTitle("(Set XTitle:<label>)");
-      hdata->SetYTitle("(Set YTitle:<label>)");
-    }
-
-  for (unsigned int b = 0; b < data.size(); b++)
-    {
-      hdata->SetBinContent(b + 1, data[b]);
-      hdata->SetBinError(b + 1, uncorerr[b]);
-      hdatatot->SetBinContent(b + 1, data[b]);
-      hdatatot->SetBinError(b + 1, toterr[b]);
-      hth->SetBinContent(b + 1, theory[b]);
-      hthshift->SetBinContent(b + 1, theoryshifted[b]);
-      htherr->SetBinContent(b + 1, theory[b] + (therrup[b] - therrdown[b]) / 2);
-      htherr->SetBinError(b + 1, (therrup[b] + therrdown[b]) / 2);
-      htherrup->SetBinContent(b + 1, theory[b] + therrup[b]);
-      htherrdown->SetBinContent(b + 1, theory[b] - therrdown[b]);
-      //invert pulls -> (theory - data)
-      if (!opts.ratiototheory)
-	hpull->SetBinContent(b + 1, -pulls[b]);
-      else
-	hpull->SetBinContent(b + 1, pulls[b]);
-      hpull->SetBinError(b + 1, 0);
-    }
-
-  //Prepare ratio histograms
-  r_th = (TH1F*)hth->Clone();
-  r_thshift = (TH1F*)hthshift->Clone();
-  r_therr = (TH1F*)htherr->Clone();
-  r_therrup = (TH1F*)htherrup->Clone();
-  r_therrdown = (TH1F*)htherrdown->Clone();
-
-  //Select reference, data or theory
-  //  TH1F * refdata;
-  if (opts.ratiototheory)
-    href = (TH1F*)hth->Clone();
-  else
-    href = (TH1F*)hdata->Clone();
-
-  //Prevent double counting of errors in ratio
-  for (int b = 1; b <= href->GetNbinsX(); b++)
-    href->SetBinError(b, 0);
-
-  /*
-  r_th->Divide(refdata);
-  r_thshift->Divide(refdata);
-  r_therr->Divide(refdata);
-  r_therrup->Divide(refdata);
-  r_therrdown->Divide(refdata);
-
-  for (int b = 1; b <= r_th->GetNbinsX(); b++)
-    r_th->SetBinError(b, 0);
-  for (int b = 1; b <= r_thshift->GetNbinsX(); b++)
-    r_thshift->SetBinError(b, 0);
-  for (int b = 1; b <= r_therr->GetNbinsX(); b++)
-    r_therr->SetBinError(b, (r_therrup->GetBinContent(b) - r_therrdown->GetBinContent(b)) / 2 );
-  for (int b = 1; b <= r_therrup->GetNbinsX(); b++)
-    r_therrup->SetBinError(b, 0);
-  for (int b = 1; b <= r_therrdown->GetNbinsX(); b++)
-    r_therrdown->SetBinError(b, 0);
-  */
-}
-void dataseth::Draw(TH1F* histo, string opt)
+void Subplot::Draw(TH1F* histo, string opt)
 {
   if (maketgraph)
     {
@@ -303,16 +88,25 @@ void dataseth::Draw(TH1F* histo, string opt)
   else histo->Draw(opt.c_str());
 }
 
-TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
+TCanvas * DataPainter(int dataindex, int subplotindex)
 {
+
+  vector <Subplot> datahistos;
+  vector <string> labels;
+  for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
+    if (datamap[*itl].datamap.find(dataindex) !=  datamap[*itl].datamap.end())
+      if (datamap[*itl].datamap[dataindex].subplots.find(subplotindex) !=  datamap[*itl].datamap[dataindex].subplots.end())
+	if (datamap[*itl].datamap[dataindex].subplots[subplotindex].IsValid())
+	  {
+	    datahistos.push_back(datamap[*itl].datamap[dataindex].subplots[subplotindex]);
+	    labels.push_back(*itl);
+	  }
+
   if (datahistos.size() < 1)
-    {
-      cout << "Empty dataset vector for dataset idx: " << dataindex << endl;
-      return 0;
-    }
+    return 0; //Empty dataset vector
 
   char cnvname[15];
-  sprintf(cnvname, "data_%d",  dataindex);
+  sprintf(cnvname, "data_%d-%d",  dataindex, subplotindex);
 
   TCanvas * cnv;
   if (opts.twopanels || opts.threepanels)
@@ -323,7 +117,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
   TH1F * data = datahistos[0].getdata();
   TH1F * datatot = datahistos[0].getdatatot();
-  string dataname = datahistos[0].getname();
+  char dtname[200];
+  sprintf (dtname, "data_%d-%d", dataindex, subplotindex);
+  string dataname = dtname;
 
   //Set the pads geometry
   //panels height
@@ -486,7 +282,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     dataerr->SetBinContent(b, datatot->GetBinContent(b) + datatot->GetBinError(b));
   if (!opts.onlytheory)
     mx = dataerr->GetMaximum();
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+  for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       if (opts.therr)
 	mx = max(mx, (float)((*it).gettherrup()->GetMaximum()));
@@ -501,7 +297,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     dataerr->SetBinContent(b, datatot->GetBinContent(b) - datatot->GetBinError(b));
   if (!opts.onlytheory)
     mn = hmin(dataerr);
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+  for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       if (opts.therr)
 	mn = min(mn, (float)(hmin((*it).gettherrdown())));
@@ -580,7 +376,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       leg->AddEntry(datatot, "#delta total", "f");
     }
   TH1 *mark = (TH1F*)datahistos[0].getth()->Clone();
-  mark->SetMarkerStyle(opts.markers[0]);
+  mark->SetMarkerStyle(opts.mark[0]);
   mark->SetMarkerSize(2 * opts.resolution / 1200);
   mark->SetMarkerColor(kBlack);
   TLine *cont = new TLine(0, 1, 1, 1);
@@ -603,10 +399,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   leg2->SetTextSize(txtsize * 0.8/my);
 
   //Plot theories
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+  for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       TGraphAsymmErrors * gtherr = new TGraphAsymmErrors((*it).getth());
-      (*it).getthshift()->SetLineColor(opts.colors[(*it).getcoli()]);
+      (*it).getthshift()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
       (*it).getthshift()->SetLineStyle(2);
       (*it).getthshift()->SetLineWidth(opts.lwidth);
 
@@ -620,7 +416,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       (*it).getthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 
 
-      (*it).getth()->SetLineColor(opts.colors[(*it).getcoli()]);
+      (*it).getth()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
       (*it).getth()->SetLineWidth(opts.lwidth);
       if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
 	{
@@ -634,10 +430,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 
 	  if (opts.therr)
 	    {    
-	      (*it).gettherr()->SetLineColor(opts.colors[(*it).getcoli()]);
+	      (*it).gettherr()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	      (*it).gettherr()->SetMarkerSize(0);
-	      (*it).gettherr()->SetFillColor(opts.colors[(*it).getcoli()]);
-	      (*it).gettherr()->SetFillStyle(opts.styles[(*it).getcoli()]);
+	      (*it).gettherr()->SetFillColor(opts.colors[labels[it-datahistos.begin()]]);
+	      (*it).gettherr()->SetFillStyle(opts.styles[labels[it-datahistos.begin()]]);
 	      float toterr = 0;
 	      for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
 		toterr += (*it).gettherr()->GetBinError(b);
@@ -655,10 +451,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	}
       else //plot as displaced points with vertical error line
 	{
-	  gtherr->SetMarkerStyle(opts.markers[(*it).getcoli()]);
-	  gtherr->SetLineColor(opts.colors[(*it).getcoli()]);
+	  gtherr->SetMarkerStyle(opts.markers[labels[it-datahistos.begin()]]);
+	  gtherr->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	  gtherr->SetMarkerSize(2 * opts.resolution / 1200);
-	  gtherr->SetMarkerColor(opts.colors[(*it).getcoli()]);
+	  gtherr->SetMarkerColor(opts.colors[labels[it-datahistos.begin()]]);
 	  for (int b = 0; b < gtherr->GetN(); b++)
 	    {
 	      //Set X error to 0
@@ -692,22 +488,22 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	}
       if (!opts.points || (*it).bincenter())
 	if (opts.therr)
-	  leg2->AddEntry((*it).gettherr(), ((*it).getlabel()).c_str(), "lf");
+	  leg2->AddEntry((*it).gettherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
 	else
-	  leg2->AddEntry((*it).getth(), ((*it).getlabel()).c_str(), "l");
+	  leg2->AddEntry((*it).getth(), (labels[it-datahistos.begin()]).c_str(), "l");
       else
 	if (opts.therr)
-	  leg2->AddEntry(gtherr, ((*it).getlabel()).c_str(), "pe");
+	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "pe");
 	else
-	  leg2->AddEntry(gtherr, ((*it).getlabel()).c_str(), "p");
+	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "p");
     }
 
   //draw theory error borders
   if (opts.therr)
-    for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+    for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
       {
-	(*it).gettherrup()->SetLineColor(opts.colors[(*it).getcoli()]);
-	(*it).gettherrdown()->SetLineColor(opts.colors[(*it).getcoli()]);
+	(*it).gettherrup()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	(*it).gettherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	(*it).gettherrup()->SetLineWidth(opts.lwidth);
 	(*it).gettherrdown()->SetLineWidth(opts.lwidth);
 	if (!opts.points || (*it).bincenter())
@@ -760,7 +556,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     }
 
   //Ratio of theory over reference
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+  for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       if (opts.diff)
 	{
@@ -850,7 +646,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     r_dataerr->SetBinContent(b, r_datatot->GetBinContent(b) + r_datatot->GetBinError(b));
   if (!opts.onlytheory)
     mx = r_dataerr->GetBinContent(r_dataerr->GetMaximumBin());
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+  for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       if (opts.therr)
 	{
@@ -869,7 +665,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     r_dataerr->SetBinContent(b, r_datatot->GetBinContent(b) - r_datatot->GetBinError(b));
   if (!opts.onlytheory)
     mn = hmin(r_dataerr);
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+  for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
       if (opts.therr)
 	{
@@ -902,14 +698,9 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
     {
       r_datatot->SetAxisRange((*r).lowedge, (*r).upedge);
       if (!opts.onlytheory)
-	datahistos[0].Draw((TH1F*)r_datatot->Clone(), "E3 same");
+      	datahistos[0].Draw((TH1F*)r_datatot->Clone(), "E3 same");
     }
   r_datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
-
-  /*
-  if (!opts.onlytheory)
-    datahistos[0].Draw(r_data, "PE1 same");
-  */
 
   //plot lines at 1
   TLine *r_one = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
@@ -918,13 +709,13 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   r_one->Draw();
 
   //Draw ratios
-  for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+  for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      (*it).getrthshift()->SetLineColor(opts.colors[(*it).getcoli()]);
+      (*it).getrthshift()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
       (*it).getrthshift()->SetLineStyle(2);
       (*it).getrthshift()->SetLineWidth(opts.lwidth);
 
-      (*it).getrth()->SetLineColor(opts.colors[(*it).getcoli()]);
+      (*it).getrth()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
       (*it).getrth()->SetLineWidth(opts.lwidth);
 
       vector <range> rthranges = historanges((*it).getrthshift());
@@ -949,10 +740,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	  (*it).getrth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
 	  if (opts.therr)
 	    {
-	      (*it).getrtherr()->SetLineColor(opts.colors[(*it).getcoli()]);
+	      (*it).getrtherr()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	      (*it).getrtherr()->SetMarkerSize(0);
-	      (*it).getrtherr()->SetFillColor(opts.colors[(*it).getcoli()]);
-	      (*it).getrtherr()->SetFillStyle(opts.styles[(*it).getcoli()]);
+	      (*it).getrtherr()->SetFillColor(opts.colors[labels[it-datahistos.begin()]]);
+	      (*it).getrtherr()->SetFillStyle(opts.styles[labels[it-datahistos.begin()]]);
 	      float toterr = 0;
 	      for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
 		toterr += (*it).gettherr()->GetBinError(b);
@@ -970,10 +761,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       else //plot as displaced TGraphs
 	{
 	  TGraphAsymmErrors * r_gtherr = new TGraphAsymmErrors((*it).getrth());
-	  r_gtherr->SetMarkerStyle(opts.markers[(*it).getcoli()]);
-	  r_gtherr->SetLineColor(opts.colors[(*it).getcoli()]);
+	  r_gtherr->SetMarkerStyle(opts.markers[labels[it-datahistos.begin()]]);
+	  r_gtherr->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	  r_gtherr->SetMarkerSize(2 * opts.resolution / 1200);
-	  r_gtherr->SetMarkerColor(opts.colors[(*it).getcoli()]);
+	  r_gtherr->SetMarkerColor(opts.colors[labels[it-datahistos.begin()]]);
 	  for (int b = 0; b < r_gtherr->GetN(); b++)
 	    {
 	      //Set X error to 0
@@ -1008,10 +799,10 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
   
   //draw theory error borders
   if (opts.therr)
-    for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+    for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
       {
-	(*it).getrtherrup()->SetLineColor(opts.colors[(*it).getcoli()]);
-	(*it).getrtherrdown()->SetLineColor(opts.colors[(*it).getcoli()]);
+	(*it).getrtherrup()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	(*it).getrtherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	(*it).getrtherrup()->SetLineWidth(opts.lwidth);
 	(*it).getrtherrdown()->SetLineWidth(opts.lwidth);
 	if (!opts.points || (*it).bincenter())
@@ -1069,7 +860,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	r_dataerr->SetBinContent(b, r_data->GetBinContent(b) + r_data->GetBinError(b));
       if (!opts.onlytheory)
 	mx = r_dataerr->GetBinContent(r_dataerr->GetMaximumBin());
-      for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
 	mx = max(mx, (float)((*it).getrthshift()->GetMaximum()));
 
       mn = mx;
@@ -1077,7 +868,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
 	r_dataerr->SetBinContent(b, r_data->GetBinContent(b) - r_data->GetBinError(b));
       if (!opts.onlytheory)
 	mn = hmin(r_dataerr);
-      for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
 	mn = min(mn, (float)(hmin((*it).getrthshift())));
       float delta = mx - mn;
       if (datahistos[0].getymaxr() != 0)
@@ -1104,7 +895,7 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       rs_one->Draw();
 
       //Draw ratios
-      for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
 	{
 	  vector <range> rthranges = historanges((*it).getrthshift());
 	  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
@@ -1157,21 +948,21 @@ TCanvas * DataPainter(int dataindex, vector <dataseth> datahistos)
       zero->Draw();
 
       //plot pulls
-      for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
 	{
 	  if (datahistos.size() == 1)
 	    {
-	      (*it).getpull()->SetFillColor(opts.colors[(*it).getcoli()]);
+	      (*it).getpull()->SetFillColor(opts.colors[labels[it-datahistos.begin()]]);
 	      (*it).getpull()->SetFillStyle(1001);
 	    }
 	  (*it).getpull()->SetLineStyle(1);
 	  (*it).getpull()->SetLineWidth(opts.lwidth);
-	  (*it).getpull()->SetLineColor(opts.colors[(*it).getcoli()]);
+	  (*it).getpull()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	  datahistos[0].Draw((TH1F*)(*it).getpull()->Clone(), "same ][");
 	}	  
       /*
       //redraw lines over fill area
-      for (vector <dataseth>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
 	{
 	  TH1F * redrawpull = (TH1F*)(*it).getpull()->Clone();
 	  redrawpull->SetFillStyle(0);

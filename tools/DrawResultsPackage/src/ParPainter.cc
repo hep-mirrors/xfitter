@@ -1,4 +1,6 @@
 #include "ParPainter.h"
+
+#include "Outdir.h"
 #include "CommandParser.h"
 #include "DrawLogo.h"
 
@@ -17,65 +19,26 @@
 #include <TFile.h>
 #include <TLine.h>
 
-struct partype
+bool ParPainter()
 {
-  double par;
-  double unc;
-  int dirid;
-};
-typedef map<string,vector<partype> > parlisttype;
+  //List of all parameters
+  vector <int> parindexlist = parlist();
+  if (parindexlist.size() == 0)
+    return true;
 
-map<int, string> fitstatus;
+  int ndata = parindexlist.size();
 
-void ParPainter(vector<Output*> info_output)
-{
-  //make par list
-  parlisttype parlist;
-
-  //read fit status
-  for (vector<string>::iterator dit = opts.dirs.begin(); dit != opts.dirs.end(); dit++)
-    {
-      string fname = *dit + "/minuit.out.txt";
-
-      ifstream f(fname.c_str());
-      if (!f.good())
-	continue;
-
-      fitstatus[dit - opts.dirs.begin()] = "Converged";
-
-      string line;
-      while (getline(f, line))
-	if (line.find("MATRIX FORCED POS-DEF") != string::npos)
-	  fitstatus[dit - opts.dirs.begin()] = "pos-def-forced";
-    }
-
-  //read paramaters
-  for (vector<Output*>::iterator io = info_output.begin(); io != info_output.end(); io++)
-    {
-      int NFittedParameters = (*io)->GetNFittedParameters();
-      for(int i=0; i<NFittedParameters; i++)
-	{
-	  partype pr;
-	  pr.par = (*io)->GetFittedParameter(i, false);
-	  pr.unc = (*io)->GetFittedParameter(i, true);
-	  pr.dirid = io - info_output.begin();
-	  parlist[(*io)->GetFittedParametersName(i)->Data()].push_back(pr);
-	}
-    }
-  int ndata = parlist.size();
-
-  float par[info_output.size()][ndata];
-  float unc[info_output.size()][ndata];
-  string parname[ndata];
-  string dirname[info_output.size()];
-  for (int i = 0; i < info_output.size(); i++)
+  float par[opts.labels.size()][ndata];
+  float unc[opts.labels.size()][ndata];
+  string dirname[opts.labels.size()];
+  for (int i = 0; i < opts.labels.size(); i++)
     for (int d = 0; d < ndata; d++)
       {
 	par[i][d] = 0;
 	unc[i][d] = 0;
       }
 
-  for (int d = 0; d < info_output.size(); d++)
+  for (int d = 0; d < opts.labels.size(); d++)
     {
       dirname[d] = opts.labels[d];
       while (dirname[d].find("/") != string::npos)
@@ -86,14 +49,15 @@ void ParPainter(vector<Output*> info_output)
 
   //loop on parameters
   int p = 0;
-  for (parlisttype::iterator pit = parlist.begin(); pit != parlist.end(); pit++)
+  for (vector<int>::iterator pit = parindexlist.begin(); pit != parindexlist.end(); pit++)
     {
-      parname[p] = (*pit).first;
-      //loop on directories
-      for (vector<partype>::iterator dit = (*pit).second.begin(); dit != (*pit).second.end(); dit++)
+      //loop on labels (directories)
+      int dir = 0;
+      for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
 	{
-	  par[(*dit).dirid][p] = (*dit).par;
-	  unc[(*dit).dirid][p] = (*dit).unc;
+	  par[dir][p] = parmap[*itl].parlist[*pit].value;
+	  unc[dir][p] = parmap[*itl].parlist[*pit].error;
+	  dir++;
 	}
       p++;
     }
@@ -103,17 +67,17 @@ void ParPainter(vector<Output*> info_output)
   if (!ftab)
     {
       cout << "Cannot open par tex file" << endl;
-      return;
+      return true;
     }
 
   int points;
-  if (info_output.size() >= 1)
+  if (opts.labels.size() >= 1)
     points = 14;
-  if (info_output.size() >= 3)
+  if (opts.labels.size() >= 3)
     points = 12;
-  if (info_output.size() >= 4)
+  if (opts.labels.size() >= 4)
     points = 11;
-  if (info_output.size() >= 5)
+  if (opts.labels.size() >= 5)
     points = 9;
 
   float cm = 0.035277778 * points * 9;
@@ -126,43 +90,52 @@ void ParPainter(vector<Output*> info_output)
   fprintf(ftab,"\\pagestyle{empty}\n");
 
   fprintf(ftab,"\\usepackage{booktabs}\n");
+  fprintf(ftab,"\\usepackage[table]{xcolor}\n");
+  fprintf(ftab,"\\definecolor{lightgray}{gray}{0.85}\n");
   fprintf(ftab,"\\usepackage{color}\n");
   fprintf(ftab,"\\begin{document}\n");
 
   fprintf(ftab,"\\begin{table}\n");
   fprintf(ftab,"  \\begin{center}\n");
+  fprintf(ftab,"  \\rowcolors{2}{}{lightgray}\n");
   fprintf(ftab,"    \\begin{tabular}{l");
-  for (int i = 0; i < info_output.size(); i++)
+  for (int i = 0; i < opts.labels.size(); i++)
     fprintf(ftab,"p{%.2fcm}", cm);
   fprintf(ftab,"}\n");
   fprintf(ftab,"      \\toprule\n");
-
   fprintf(ftab," Parameter  ");
-  for (int i = 0; i < info_output.size(); i++)
+  for (int i = 0; i < opts.labels.size(); i++)
     fprintf(ftab," & %s", dirname[i].c_str());
   fprintf(ftab,"  \\\\ \n");
   fprintf(ftab,"      \\midrule\n");
 
-  for (int d = 0; d < ndata; d++)
+  for (vector<int>::iterator pit = parindexlist.begin(); pit != parindexlist.end(); pit++)
     {
-      fprintf(ftab,"  %s ", parname[d].c_str());
-      for (int i = 0; i < info_output.size(); i++)
-	if (unc[i][d] != 0 || par[i][d] != 0 )
-	  {
-	    if (fitstatus[i] != "pos-def-forced")
-	      fprintf(ftab,"& %s $\\pm$ %s", Round(par[i][d], unc[i][d])[0].c_str(), Round(unc[i][d], unc[i][d])[1].c_str());
-	    else
-	      fprintf(ftab,"& %s $\\pm$ {\\color{red}{ %s }}", Round(par[i][d], unc[i][d])[0].c_str(), Round(unc[i][d], unc[i][d])[1].c_str());
-	  }
-	else
-	  fprintf(ftab,"& - ");
+      fprintf(ftab,"  %s ", findparname(*pit).c_str());
+      for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
+	{
+	  int l = itl-opts.labels.begin();
+	  int p = pit-parindexlist.begin();
+	  if (unc[l][p] != 0 && par[l][p] != 0 )
+	    {
+	      if (parmap[*itl].fitstatus != "pos-def-forced")
+		fprintf(ftab,"& %s $\\pm$ %s", Round(par[l][p], unc[l][p])[0].c_str(), Round(unc[l][p], unc[l][p])[1].c_str());
+	      else
+		fprintf(ftab,"& %s $\\pm$ {\\color{red}{ %s }}", Round(par[l][p], unc[l][p])[0].c_str(), Round(unc[l][p], unc[l][p])[1].c_str());
+	    }
+	  else if (par[l][p] != 0)
+	    fprintf(ftab,"& \\textcolor{blue}{ %s }", Round(par[l][p], par[l][p]/100.)[0].c_str());
+	  else
+	    fprintf(ftab,"& - ");
+	}
       fprintf(ftab,"  \\\\ \n");
     }
 
   fprintf(ftab,"      \\midrule\n");
+  fprintf(ftab,"  \\rowcolor{white}\n");
   fprintf(ftab," Fit status  ");
-  for (int i = 0; i < info_output.size(); i++)
-    fprintf(ftab," & %s", fitstatus[i].c_str());
+  for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
+    fprintf(ftab," & %s", parmap[*itl].fitstatus.c_str());
   fprintf(ftab,"  \\\\ \n");
 
   fprintf(ftab,"      \\bottomrule\n");
@@ -177,7 +150,13 @@ void ParPainter(vector<Output*> info_output)
   string command = "pdflatex -interaction=batchmode -output-directory=" + opts.outdir + " " + opts.outdir + "par.tex >/dev/null";
   //debug latex
   //string command = "pdflatex  -output-directory=" + opts.outdir + " " + opts.outdir + "par.tex";
-  system(command.c_str());
+  bool latexcmd = system(command.c_str());
+  if (latexcmd)
+    {
+      cout << "pdflatex error in making: par.pdf" << endl;
+      cout << "check the error with:" << endl;
+      cout << command << endl;
+    }
 
   //cleanup
   string clean = "rm -f " 
@@ -189,5 +168,5 @@ void ParPainter(vector<Output*> info_output)
     + opts.outdir + "par.toc ";
   system(clean.c_str());
 
-  return;
+  return latexcmd;
 }

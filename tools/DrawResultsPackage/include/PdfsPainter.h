@@ -5,17 +5,14 @@
 #include <TGraphAsymmErrors.h>
 #include <TCanvas.h>
 
+#include "PdfData.h"
+
 using namespace std;
 
 extern vector <string> pdflabels;
 extern vector <string> pdffiles;
 
-  struct gstruct{
-    TGraphAsymmErrors* graph;
-    string label;
-  };
-
-TCanvas * PdfsPainter(double q2, int ipdf, vector <gstruct> pdfgraphs);
-TCanvas * PdfsRatioPainter(double q2, int ipdf, vector <gstruct> pdfgraphs);
+vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf);
+//TCanvas * PdfsRatioPainter(double q2, pdftype ipdf);
 
 #endif
