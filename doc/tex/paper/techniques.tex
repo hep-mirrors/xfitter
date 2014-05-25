@@ -36,7 +36,7 @@ to resolve this problem: the techniques of $k$-factors and
   fast lower-order calculation multiplied by the pre-tabulated
   $k$-factors.
 
-  However, this procedure neglects the fact that the $k$-factors are
+  This procedure, however, neglects the fact that the $k$-factors are
   process dependent and, 
 %  and are, for example, different for dijet
 %  production from quark-quark or gluon-gluon initial states. 
@@ -194,7 +194,7 @@ to resolve this problem: the techniques of $k$-factors and
     % dependence must be taken into account in these threshold
     % corrections.
 
-    The latest version of \fastnlo~\cite{Britzger:2012bs} allows 
+    The latest version of \fastnlo~\cite{Britzger:2012bs} allows for a
     creation of tables where renormalisation and factorisation scales
     can be chosen
     freely as a function of two pre-defined observables, e.g.\ jet
@@ -215,26 +215,28 @@ to resolve this problem: the techniques of $k$-factors and
     interface to the \fastnlo tables from within \fitter was used in a
     recent CMS analysis, where the impact on the
     extraction of the PDFs from the inclusive jet cross section is
-    investigated~\cite{cms:jets}. The influence on the gluon density by
-    the CMS inclusive jet data is illustrated in Fig.~\ref{fig:cmsjet}.
+    investigated~\cite{cms:jets}. 
+%
+%cannot have CS preliminary plots in the paper!!!!    
+%    The impact of the CMS inclusive jet measurements on the gluon 
+%    density is illustrated in Fig.~\ref{fig:cmsjet}.
+%
+%\begin{figure}[!ht]
+%  \centering
+%  \includegraphics[width=8cm]{CMSjets}
+%  \caption{The gluon density as a function of $x$ as derived from
+%    HERA inclusive DIS data alone (cyan) and in combination with
+%    CMS inclusive jet data from 2011 (blue hatched) \cite{cms:jets}, 
+%    where bands
+%    represent the total uncertainty of the PDFs. The PDFs are
+%    shown at the starting scale $Q^2 = 1.9\ \GeV^2$.}
+%  \label{fig:cmsjet}
+%    \end{figure}
 
-\begin{figure}[!ht]
-  \centering
-  \includegraphics[width=8cm]{CMSjets}
-  \caption{The gluon density as a function of $x$ as derived from
-    HERA inclusive DIS data alone (cyan) and in combination with
-    CMS inclusive jet data from 2011 (blue hatched) \cite{cms:jets}, 
-    where bands
-    represent the total uncertainty of the PDFs. The PDFs are
-    shown at the starting scale $Q^2 = 1.9\ \GeV^2$.}
-  \label{fig:cmsjet}
-    \end{figure}
-
-\item The \applgrid package~\cite{Carli:2010rw}, which is also
-    available from~\cite{APPLGRID:HepForge}, in addition to
-    the jet cross sections from \nlojetpp 
-    in $pp(\bar p)$ and DIS processes, implements the calculations 
-    of DY production. The look-up tables (also called grids) can be generated with
+\item In the \applgrid package~\cite{Carli:2010rw,APPLGRID:HepForge},
+    in addition to the jet cross sections from \nlojetpp 
+    in $pp(\bar p)$ and DIS processes, the calculations 
+    of DY production are implemented. The look-up tables (grids) can be generated with
     modified versions of the \mcfm parton level generator for
     DY~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.  
 %    The cross section observables and the grid parameters are 
