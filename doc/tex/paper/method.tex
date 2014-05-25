@@ -351,6 +351,14 @@ possibility of different user choices of various input parameters of the theory.
 %a platform in which such choices can readily be varied within a common framework.
 
 \subsection{Bayesian Reweighting Techniques}
+As alternative to performing a full QCD fit, \fitter allows to assess the impact of including new
+data in an existing fit using the Bayesian Reweighting technique. Since no fit is performed, the method
+provides a fast estimate of the impact of new data on PDFs. 
+Bayesian reweighting was first proposed, for the PDF sets delivered in form of Monte Carlo replicas ensembles, in~\cite{Giele:1998gw} and further developed by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
+More recently, a method to preform Bayesian Reweighting studies starting from PDF fits where uncertainties
+are provided in form of parameter eigenvectors has been also developed~\cite{Watt:2012tq}. The latter is 
+based on generating replica set by introducing Gaussian fluctuations on the central PDF set with a variance
+determined by the PDF uncertainty given by the eigenvectors.
 
 As an alternative to a complete QCD fit, the reweighting method (Bayesian Reweighting) is available in \fitter.
 The method provides a fast estimate of the impact of new data on PDFs. 
@@ -369,19 +377,15 @@ of the predictions obtained from the ensemble:
 In the case of PDF uncertainties provided by standard Hessian eigenvector error sets, this can be achieved 
 by creating the $k$-th random replica by introducing random fluctuations around the central PDF set.
 
-As a next step, the initial PDF probability distributions are updated by applying weights 
-$w_k$, calculated as:
-
 \begin{equation}
  w_k = \frac{(\chi^2_k)^{\frac{1}{2} (N_{\mathrm{data}}-1) } e^{-\frac{1}{2}\chi^2_k}}{ \frac{1}{N_{\mathrm{rep}}} \sum^{N_{\mathrm{rep}}}_{k=1}(\chi^2_k)^{\frac{1}{2}(N_{\mathrm{data}}-1)} e^{-\frac{1}{2}\chi^2_k}  },
 \end{equation}
 
-where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the specific replica for which the weight is calculated 
-and $\chi^2_k$ is a difference between a given data point $y_i$ and its theoretical prediction obtained with the $k$-th PDF replica:
+where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the specific replica for which the weight is calculated and $\chi^2_k$ is the chi-square of the new data obtained using the $k$-th PDF replica:
 
 {\small
 \begin{equation}
- \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=1}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))  
+ \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=1}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))\,. 
 \end{equation}
 }
 
@@ -391,6 +395,20 @@ and $\chi^2_k$ is a difference between a given data point $y_i$ and its theoreti
 From all the resulting PDF replicas, those providing predictions incompatible with the measurements are discarded. 
 Therefore, reweighted PDFs encompass less replicas than used in the input.
 
+The number of effective replicas of a reweighted sets, that is the size of an equiprobable replicas set 
+containing the same amount of information as the reweighted set in question, is measured by the Shannon
+Entropy
+
+\begin{equation}
+\label{eq:shannon}
+N_\mathrm{eff}\equiv 
+\exp\left\{\frac{1}{N_\mathrm{rep}}\sum_{k=1}^N\mathrm{rep}w_k\ln(N_\mathrm{rep}/w_k)\right\}\,.
+\end{equation}
+
+On the one hand there is no reason in generating a final unweighted set that has a number of replicas
+(significantly) larger than $N_\mathrm{eff}$ as no extra information is gained. On the other hand it is
+advisable to start from a prior PDF set which has as many replicas as possible in order to have a more
+accurate posterior set at the end of the reweighting procedure.
 
 
 
