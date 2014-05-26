@@ -93,9 +93,7 @@ C
       logical DORWONLY
       logical FlexibleGluon    !> Flexible gluon parameterisation
       logical Read_QCDNUM_Tables
-      logical LHAPDFErrors, Scale68     !> For LHAPDF PDFtype, loop over eighensets
       logical WriteAlphaSToMemberPDF    !> write alphas header to LHAPDF6 member files
-      integer nLHAPDF_Sets 
 
       character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
       logical Chi2PoissonCorr, Chi2FirstIterationRescale, Chi2ExtraSystRescale
@@ -115,11 +113,11 @@ C
      $     ,npolyval, lead
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, ICHECK_QCDNUM ,LHAPDFErrors, nLHAPDF_Sets
+     $     ,IPDFSET, ICHECK_QCDNUM
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
-     $     CorChi2Type, hf_scheme,  scale68, AsymErrorsIterations,
+     $     CorChi2Type, hf_scheme, AsymErrorsIterations,
      $     LUseAPPLgridCKM
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
@@ -156,8 +154,13 @@ C
       common/CPdfStyle/PDFType
 
       character*128  LHAPDFSET        !> LHAPDF set name
+      character*128  LHAPDFVARSET     !> LHAPDF VAR set name
       integer ILHAPDFSET              !> LHAPDF set number
-      common/CLHAPDF/LHAPDFSET,ILHAPDFSET
+      integer nLHAPDF_Sets 	      !> Number of members in LHAPDF set
+      integer NPARVAR                 !> For LHAPDF VAR PDF, number of parameter variations
+      logical LHAPDFErrors	!> For LHAPDF PDFtype, loop over eighensets
+      logical Scale68           !> Scale LHAPDF uncertainties from 90cl to 68cl
+      common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,LHAPDFErrors,Scale68
 
       character*128 OutDirName   !> outout dir name
       character*128 LHAPDF6OutDir

@@ -19,6 +19,9 @@ FitPDF_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
 FitPDF_SOURCES += lhapdf6_output.c c_interface.f
 
+#LHAPDFErrors
+FitPDF_SOURCES += fortran_io.f lhapdferrors.cc
+
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include 
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 
