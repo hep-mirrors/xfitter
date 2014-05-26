@@ -1,8 +1,12 @@
 #include "CommandParser.h"
+
+#include <TStyle.h>
+#include <TMath.h>
+
 #include <stdlib.h>
 #include <iostream>
-#include <TStyle.h>
 #include <math.h>
+#include <algorithm>
 
 float txtsize = 0.043;
 float offset = 1.5;
@@ -14,7 +18,7 @@ float marg0 = 0.003;
 
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
-  asymbands(false),
+  asym(false),
   logx(true),
   filledbands(false),
   rmin(0),
@@ -24,6 +28,9 @@ CommandParser::CommandParser(int argc, char **argv):
   relerror(false),
   abserror(false),
   q2all(false),
+  cl68(false),
+  cl90(false),
+  median(false),
   splitplots(false),
   root(false),
   format("pdf"),
@@ -49,6 +56,7 @@ CommandParser::CommandParser(int argc, char **argv):
   shgth(40),
   adjshift(true),
   chi2nopdf(false),
+  font("palatino"), //font("helvet"), //font("modernbright"),
   cms(false),
   cmspreliminary(false),
   atlas(false),
@@ -122,6 +130,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	  notables = true;
 	else if (*it == "--chi2-nopdf-uncertainties")
 	  chi2nopdf = true;
+	else if (*it == "--helvet-fonts")
+	  font = "helvet";
+	else if (*it == "--cmbright-fonts")
+	  font = "modernbright";
 	else if (*it == "--shifts-per-page")
 	  {
 	    adjshift = false;
@@ -167,10 +179,32 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--bands")
 	  dobands = true;
-	else if (*it == "--asymbands")
+	else if (*it == "--asym")
 	  {
 	    dobands = true;
-	    asymbands = true;
+	    asym = true;
+	  }
+	else if (*it == "--median")
+	  median = true;
+	else if (*it == "--68cl")
+	  {
+	    if (cl90 == true)
+	      {
+		cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
+		exit(1);
+	      }
+	    cl68 = true;
+	    median = true;
+	  }
+	else if (*it == "--90cl")
+	  {
+	    if (cl68 == true)
+	      {
+		cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
+		exit(1);
+	      }
+	    cl90 = true;
+	    median = true;
 	  }
 	else if (*it == "--absolute-errors")
 	  {
@@ -312,41 +346,17 @@ CommandParser::CommandParser(int argc, char **argv):
       exit(-1);
     }
 
-  //parse dirs for labels
-  for (vector<string>::iterator it = dirs.begin(); it != dirs.end(); it++)
-    if ((*it).find(":") != string::npos)
-      {
-	labels.push_back((*it).substr((*it).find(":")+1, (*it).size() - (*it).find(":") - 1));
-	(*it).erase((*it).find(":"), (*it).size());
-      }
-    else
-      labels.push_back((*it));
-
-  //check there are no repetion in directories
-  for (vector<string>::iterator it1 = dirs.begin(); it1 != dirs.end(); it1++)
-    for (vector<string>::iterator it2 = it1+1; it2 != dirs.end(); it2++)
-      if (*it1 == *it2)
-	{
-	  cout << endl;
-	  cout << "Error: directory " << *it1 << " can appear only once in directory list" << endl;
-	  cout << endl;
-	  exit(-1);
-	}
-
   if (outdir == "")
     if (dirs.size() == 1) {outdir = dirs[0];}
     else {outdir = "plots/";}
+  
+  //strip MC:
+  if (outdir.substr(0, outdir.rfind(":")) == "MC")
+    outdir.erase(0, outdir.rfind(":")+1);
 
   if (outdir.rfind("/") != outdir.size() - 1)
     outdir.append("/");
 
-  //Associate colors and styles to labels
-  for (vector<string>::iterator itl = labels.begin(); itl != labels.end(); itl++)
-    {
-      colors[*itl] = col[itl-labels.begin()];
-      styles[*itl] = styl[itl-labels.begin()];
-      markers[*itl] = mark[itl-labels.begin()];
-    }
 }
 
 CommandParser opts;
@@ -377,4 +387,98 @@ vector<string> Round(double value, double error)
   result.push_back(Numb);
   
   return result;
+}
+
+double Median(vector <double> xi)
+{
+  int n = xi.size();
+  double x[n];
+  std::copy (xi.begin(), xi.end()-1, x);
+
+  return TMath::Median(n, x);
+}
+
+double cl(int sigma)
+{
+  switch (sigma)
+    {
+    case 1:
+      return 0.682689492137086;
+      break;
+    case 2:
+      return 0.954499736103642;
+      break;
+    case 3:
+      return 0.997300203936740;
+      break;
+    default:
+      cout << "Confidence Level interval available only for sigma = 1, 2, 3, requested: " << sigma << " sigma" << endl;
+      exit(1);
+    }
+}
+
+double delta(vector <double> xi, double central, double ConfLevel)
+{
+  double delta = 0;
+
+  vector <double> deltaxi;
+  vector<double>::iterator i = xi.begin();
+  while (i != xi.end())
+    {
+      deltaxi.push_back(fabs(*i - central));
+      ++i;
+    }
+
+  sort(deltaxi.begin(), deltaxi.end());
+
+  vector<double>::iterator di = deltaxi.begin();
+  while (di != deltaxi.end())
+    {
+      delta = *di;
+      int index = di - deltaxi.begin() + 1;
+      double prob = (double)index / (double)deltaxi.size();
+      //      cout << index << "  " << *di << "  " << prob << endl;
+      if (prob > ConfLevel)
+	break;
+      ++di;
+    }
+  return delta;
+}
+double deltaasym(vector <double> xi, double central, double& delta_p, double& delta_m, double ConfLevel)
+{
+  delta_m = delta_p = 0;
+
+  vector <double> deltaxi;
+  vector<double>::iterator i = xi.begin();
+  while (i != xi.end())
+    {
+      deltaxi.push_back(*i - central);
+      ++i;
+    }
+
+  sort(deltaxi.begin(), deltaxi.end());
+
+  vector<double>::iterator di = deltaxi.begin();
+  while (di != deltaxi.end())
+    {
+      delta_m = fabs(*di);
+      int index = di - deltaxi.begin() + 1;
+      double prob = (double)index / (double)deltaxi.size();
+      //      cout << index << "  " << *di << "  " << prob << endl;
+      if (prob >= ((1-ConfLevel)/2.))
+	break;
+      ++di;
+    }
+
+  di = deltaxi.end();
+  while (di != deltaxi.begin())
+    {
+      delta_p = *di;
+      int index = di - deltaxi.begin() + 1;
+      double prob = (double)index / (double)deltaxi.size();
+      //      cout << index << "  " << *di << "  " << prob << endl;
+      if (prob <= ((1.+ConfLevel)/2.))
+	break;
+      --di;
+    }
 }

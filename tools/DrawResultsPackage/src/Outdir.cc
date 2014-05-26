@@ -1,8 +1,13 @@
 #include "Outdir.h"
 
+#include "CommandParser.h"
+
 #include <dirent.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <fstream>
+
+map <string, Outdir> outdirs;
 
 map <string, PdfData> pdfmap;
 map <string, Data> datamap;
@@ -10,22 +15,166 @@ map <string, Chi2> chi2map;
 map <string, Par> parmap;
 
 //Constructor, load all the directory data
-Outdir::Outdir(string dir, string lab) : dirname(dir), label(lab)
+Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym)
 {
-  //check directory exists
-  DIR *pDir;
-  pDir = opendir (dirname.c_str());
-  if (pDir != NULL)
-    closedir (pDir);
-  else
+  //parse dirs for flags and labels
+  string pattern = "";
+  string origdirname = dirname;
+  bool doprefix = true;
+  while (dirname.find(":") != string::npos && doprefix)
     {
-      cout << "Error: directory " << dirname << " not found" << endl;
-      exit(1);
+      doprefix = false;
+      string prefix = dirname.substr(0, dirname.find(":"));
+      if (prefix == "MC")
+	{
+	  doprefix = true;
+	  pattern = dirname.substr(dirname.find(":")+1, dirname.size() - dirname.find(":")-1);
+	  MCreplica = true;
+	  dirname.erase(0, dirname.find(":")+1);
+      }
+      if (prefix == "68cl")
+	{
+	  doprefix = true;
+	  if (cl90 == true)
+	    {
+	      cout << "Options 68cl and 90cl are mutually exclusive, cannot use both" << endl;
+	      exit(1);
+	    }
+	  cl68 = true;
+	  median = true;
+	  dirname.erase(0, dirname.find(":")+1);
+      }
+      if (prefix ==  "90cl")
+	{
+	  doprefix = true;
+	  if (cl68 == true)
+	    {
+	      cout << "Options 68cl and 90cl are mutually exclusive, cannot use both" << endl;
+	      exit(1);
+	    }
+	  cl90 = true;
+	  median = true;
+	  dirname.erase(0, dirname.find(":")+1);
+      }
+      if (prefix == "median")
+	{
+	  doprefix = true;
+	  median = true;
+	  dirname.erase(0, dirname.find(":")+1);
+	}
+      if (prefix == "asym")
+	{
+	  doprefix = true;
+	  asym = true;
+	  dirname.erase(0, dirname.find(":")+1);
+	}
     }
 
+  //now parse for the label
+  if ((dirname.rfind(":") != string::npos))
+    {
+      label = dirname.substr(dirname.rfind(":")+1, dirname.size() - dirname.rfind(":") - 1);
+      opts.labels.push_back(label);
+      dirname.erase(dirname.rfind(":"), dirname.size());
+    }
+  else
+    {
+      label = origdirname;
+      opts.labels.push_back(label);
+    }
+
+  //patch the outdir name if needed
+  if (opts.dirs.size() == 1) {opts.outdir = dirname;}
+
+  if (MCreplica) //make array of subdirectories
+    {
+      //if the given pattern is a directory, list all the subdirectories
+      DIR *dir;
+      dir = opendir (dirname.c_str());
+      if (dir != NULL)
+	{
+	  struct dirent *dp;
+	  while ((dp = readdir (dir)) != NULL)
+	    {
+	      string subdir = dp->d_name;
+	      DIR *sdir;
+	      sdir = opendir((dirname + "/" + subdir).c_str());
+	      if (sdir != NULL)
+		{
+		  //check fit status
+		  string status = fitstat(dirname + "/" + subdir + "/");
+		  if (status == "converged" || status == "pos-def-forced")
+		    dirlist.push_back(dirname + "/" + subdir + "/");
+		  
+		  closedir (sdir);
+		}
+	    }
+	  closedir(dir);
+	}
+      else
+	{
+	  //search one directory up, for all directories matching the given pattern:
+	  dirname = "./" + dirname;
+	  string pattern = dirname.substr(dirname.rfind("/") + 1,dirname.size() - dirname.rfind("/") -1);
+	  dirname.erase(dirname.rfind("/"),dirname.size() - dirname.rfind("/"));
+	  DIR *dir;
+	  dir = opendir((dirname).c_str());
+	  if (dir == NULL)
+	    {
+	      cout << "Error: invalid MC replic pattern, directory " << dirname << " does not exist" << endl;
+	      exit(1);
+	    }
+
+	  struct dirent *dp;
+	  while ((dp = readdir(dir)) != NULL)
+	    {
+	      string subdir = dp->d_name;
+	      if (subdir.find(pattern) != string::npos)
+		{
+		  DIR *sdir;
+		  sdir = opendir((dirname + "/" + subdir).c_str());
+		  if (sdir != NULL)
+		    {
+		      //check if Results.txt exists
+		      ifstream infile((dirname + "/" + subdir + "/Results.txt").c_str());
+		      if (infile.is_open())
+			{
+			  dirlist.push_back(dirname + "/" + subdir + "/");
+			  infile.close();
+			}
+		      closedir (sdir);
+		    }
+		}
+	    }
+	  closedir(dir);
+	}
+      if (dirlist.size() == 0)
+	{
+	  cout << "Error: No directories matchin pattern " << dirname << endl;
+	  exit(1);
+	}
+    }
+  else //This is a single directory, check if it exists
+    {
+      DIR *dir;
+      dir = opendir (dirname.c_str());
+      if (dir != NULL)
+	closedir (dir);
+      else
+	{
+	  cout << "Error: directory " << dirname << " not found" << endl;
+	  exit(1);
+	}
+    }
+
+  outdirs[label] = *this;
+
   //Load PDF data
-  PdfData pdf(dirname, label);
-  pdfmap[label] = pdf;
+  if (!opts.nopdfs)
+    {
+      PdfData pdf(dirname, label);
+      pdfmap[label] = pdf;
+    }
 
   //Load datasets
   Data data(dirname, label);

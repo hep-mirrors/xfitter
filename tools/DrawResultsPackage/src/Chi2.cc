@@ -8,6 +8,19 @@
 
 Chi2::Chi2(string dirname, string label)
 {
+for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdirs[label].dirlist.end(); it++)
+
+  if (outdirs[label].IsMCreplica())
+    {
+      chi2tot.chi2 = 0;
+      chi2tot.chi2_00 = -1;
+      chi2tot.dof = 0;
+      chi2corr.chi2 = 0;
+      chi2corr.chi2_00 = -1;
+      chi2corr.dof = 0;
+      return;
+    }
+
   string fname = dirname + "/Results.txt";
   ifstream f(fname.c_str());
   if (!f.good())
@@ -97,7 +110,7 @@ Chi2::Chi2(string dirname, string label)
 	  if (buffer == "Correlated")
 	    {
 	      iss >> dummy  >> chi2value;
-	      chi2tot.chi2_00 = chi2value;
+	      chi2corr.chi2_00 = chi2value;
 	    }
 
 	  if (buffer != "Dataset")

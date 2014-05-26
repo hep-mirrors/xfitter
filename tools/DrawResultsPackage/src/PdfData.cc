@@ -1,6 +1,10 @@
 #include "PdfData.h"
 
+#include "Outdir.h"
 #include "CommandParser.h"
+#include "Par.h"
+
+#include <TMath.h>
 
 #include <fstream>
 #include <stdlib.h>
@@ -101,101 +105,157 @@ TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf)
 
 PdfData::PdfData(string dirname, string label)
 {
-  //check if errors are symmetric, asymmetric hessian, Monte Carlo
-  char filename[300];
-  //asymmetric hessian
-  sprintf (filename, "%s/pdfs_q2val_s%02dm_%02d.txt", dirname.c_str(), 1, 1);
-  ifstream asfile(filename);
-  if (asfile.is_open())
-    {
-      err = AsymHess;
-      asfile.close();
-    }
-
-  //symmetric hessian errors
-  sprintf (filename, "%s/pdfs_q2val_s%02ds_%02d.txt", dirname.c_str(), 1, 1);
-  ifstream sfile(filename);
-  if (sfile.is_open())
-    {
-      err = SymHess;
-      sfile.close();
-    }
-
-  //MC errors
-  sprintf (filename, "%s/pdfs_q2val_mc%03ds_%02d.txt",dirname.c_str(), 1, 1);
-  ifstream mcfile(filename);
-  if (mcfile.is_open())
+  if (outdirs[label].IsMCreplica())
     {
       err = MC;
-      mcfile.close();
-    }
+      //Loop on Q2 values, read PDF tables
+      int iq2 = 0;
+      while (true)
+	{
+	  iq2++;
+	  //Load PDF MC replica sets
+	  char fname[300];
+	  int iband = 0;
+	  Pdf temppdf;
+	  float q2 = 0;
+	  for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdirs[label].dirlist.end(); it++)
+	    {
+	      iband++;
 
-  //Loop on Q2 values, read PDF tables
-  int iq2 = 0;
-  while (true)
-    {
-      iq2++;
-
-      //Load central PDF
-      char fname[200];
-      sprintf(fname, "%s/pdfs_q2val_%02d.txt", dirname.c_str(), iq2);
-      Pdf temppdf(fname);
-      if (temppdf.GetQ2() == 0)
-	break; //if central file for this q2 index not found, break q2 loop
-
-      Central[temppdf.GetQ2()] = temppdf;
-
-      //Get Pdf errors if requested
-      if (!opts.dobands)
-	continue;
-  
-      //Load PDF error sets
-      int iband = 0;
-      if (err == MC)
-	while (true)
-	  {
-	    iband++;
-	    sprintf (fname, "%s/pdfs_q2val_mc%03ds_%02d.txt", dirname.c_str(), iband, iq2);
-	    Pdf temperr(fname);
-	    if (temperr.GetQ2() == 0)
-	      break;
-	    if (temperr.GetNx() > 0)
-	      Errors[temperr.GetQ2()].push_back(temperr);
-	  }
-      else if (err == SymHess)
-	while (true)
-	  {
-	    iband++;
-	    sprintf (fname, "%s/pdfs_q2val_s%02ds_%02d.txt", dirname.c_str(), iband, iq2);
-	    Pdf temperr(fname);
-	    if (temperr.GetQ2() == 0)
-	      break;
-	    if (temperr.GetNx() > 0)
-	      Errors[temperr.GetQ2()].push_back(temperr);
-	  }
-      else if (err == AsymHess)
-	while (true)
-	  {
-	    iband++;
-	    //positive variation
-	    sprintf (fname, "%s/pdfs_q2val_s%02dm_%02d.txt", dirname.c_str(), iband, iq2);
-	    Pdf temperrplus(fname);
-	    if (temperrplus.GetQ2() == 0)
-	      break;
-	    if (temperrplus.GetNx() > 0)
-	      Errors[temperrplus.GetQ2()].push_back(temperrplus);
-
-	    //negative variation
-	    sprintf(fname, "%s/pdfs_q2val_s%02dp_%02d.txt", dirname.c_str(), iband, iq2);
-	    Pdf temperrminus(fname);
-	    if ((temperrminus.GetQ2() != temperrplus.GetQ2()) || temperrminus.GetNx() == 0)
-	      {
-		cout << "Error, Asymmetric hessian PDF uncertainties, positive variation found, but cannot find down variation: " << fname << endl;
+	      sprintf(fname, "%s/pdfs_q2val_%02d.txt", (*it).c_str(), iq2);
+	      Pdf temperr(fname);
+	      temppdf = temperr;
+	      q2 = temperr.GetQ2();
+	      if (temperr.GetQ2() == 0)
 		break;
-	      }
-	    Errors[temperrminus.GetQ2()].push_back(temperrminus);
-	  }
+
+	      if (temperr.GetNx() > 0)
+		Errors[temperr.GetQ2()].push_back(temperr);
+	    }
+	  if (q2 == 0)
+	    break;
+	  //build central PDF afterwards
+	  Central[temppdf.GetQ2()] = temppdf;
+	}
     }
+  else
+    {
+      //check if errors are symmetric, asymmetric hessian, Monte Carlo
+      char filename[300];
+      //asymmetric hessian
+      sprintf (filename, "%s/pdfs_q2val_s%02dm_%02d.txt", dirname.c_str(), 1, 1);
+      ifstream asfile(filename);
+      if (asfile.is_open())
+	{
+	  err = AsymHess;
+	  asfile.close();
+	}
+
+      //symmetric hessian errors
+      sprintf (filename, "%s/pdfs_q2val_s%02ds_%02d.txt", dirname.c_str(), 1, 1);
+      ifstream sfile(filename);
+      if (sfile.is_open())
+	{
+	  err = SymHess;
+	  sfile.close();
+	}
+
+      //MC errors
+      sprintf (filename, "%s/pdfs_q2val_mc%03ds_%02d.txt",dirname.c_str(), 1, 1);
+      ifstream mcfile(filename);
+      if (mcfile.is_open())
+	{
+	  err = MC;
+	  mcfile.close();
+	}
+
+      //Loop on Q2 values, read PDF tables
+      int iq2 = 0;
+      while (true)
+	{
+	  iq2++;
+
+	  //Load central PDF
+	  char fname[300];
+	  sprintf(fname, "%s/pdfs_q2val_%02d.txt", dirname.c_str(), iq2);
+	  Pdf temppdf(fname);
+	  if (temppdf.GetQ2() == 0)
+	    break; //if central file for this q2 index not found, break q2 loop
+
+	  Central[temppdf.GetQ2()] = temppdf;
+
+	  //Get Pdf errors if requested
+	  if (!opts.dobands)
+	    continue;
+  
+	  //Load PDF error sets
+	  int iband = 0;
+	  if (err == MC)
+	    while (true)
+		{
+		  iband++;
+		  sprintf (fname, "%s/pdfs_q2val_mc%03ds_%02d.txt", dirname.c_str(), iband, iq2);
+		  Pdf temperr(fname);
+		  if (temperr.GetQ2() == 0)
+		    break;
+		  if (temperr.GetNx() > 0)
+		    Errors[temperr.GetQ2()].push_back(temperr);
+		}
+	  else if (err == SymHess)
+	    while (true)
+	      {
+		iband++;
+		sprintf (fname, "%s/pdfs_q2val_s%02ds_%02d.txt", dirname.c_str(), iband, iq2);
+		Pdf temperr(fname);
+		if (temperr.GetQ2() == 0)
+		  break;
+		if (temperr.GetNx() > 0)
+		  Errors[temperr.GetQ2()].push_back(temperr);
+	      }
+	  else if (err == AsymHess)
+	    while (true)
+	      {
+		iband++;
+		//positive variation
+		sprintf (fname, "%s/pdfs_q2val_s%02dm_%02d.txt", dirname.c_str(), iband, iq2);
+		Pdf temperrplus(fname);
+		if (temperrplus.GetQ2() == 0)
+		  break;
+		if (temperrplus.GetNx() > 0)
+		  Errors[temperrplus.GetQ2()].push_back(temperrplus);
+
+		//negative variation
+		sprintf(fname, "%s/pdfs_q2val_s%02dp_%02d.txt", dirname.c_str(), iband, iq2);
+		Pdf temperrminus(fname);
+		if ((temperrminus.GetQ2() != temperrplus.GetQ2()) || temperrminus.GetNx() == 0)
+		  {
+		    cout << "Error, Asymmetric hessian PDF uncertainties, positive variation found, but cannot find down variation: " << fname << endl;
+		    break;
+		  }
+		Errors[temperrminus.GetQ2()].push_back(temperrminus);
+	      }
+	}
+    }
+
+  //Remake central PDF
+  if (err == MC)
+    for (map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) //Loop on q2 values
+      {
+	float q2 = pdfit->first;
+	for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++) //loop on pdf types
+	  for (int ix = 0; ix < Central[q2].GetNx(); ix++) //Loop on x points
+	    {
+	      vector <double> xi;
+	      for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
+		xi.push_back((*eit).GetTable(*pit)[ix]);
+	      double val;
+	      if (outdirs[label].IsMedian())
+		val = Median(xi);
+	      else
+		val = TMath::Mean(xi.begin(), xi.end());
+	      pdfit->second.SetPoint(*pit, ix, val);
+	    }
+      }
 
   //Compute PDF uncertainty bands
   if (!opts.dobands)
@@ -222,18 +282,30 @@ PdfData::PdfData(string dirname, string label)
 	      //MC replica errors
 	      if (err == MC)
 		{
-		  double sum = 0;
-		  double sum2 = 0;
-		  //Loop on error sets
+		  vector <double> xi;
 		  for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
+		    xi.push_back((*eit).GetTable(*pit)[ix]);
+		  if (outdirs[label].IsMedian())
+		    val = Median(xi);
+		  else
+		    val = TMath::Mean(xi.begin(), xi.end());
+
+		  if (outdirs[label].Is68cl())
 		    {
-		      sum += (*eit).GetTable(*pit)[ix];
-		      sum2 += pow((*eit).GetTable(*pit)[ix], 2);
+		      if (outdirs[label].IsAsym())
+			deltaasym(xi, val, eplus, eminus, cl(1));
+		      else
+			eplus = eminus = delta(xi, val, cl(1));
 		    }
-		  double maxp, maxm;
-		  maxm = maxp = sqrt(sum2/(double)Errors[q2].size() - pow(sum/(double)Errors[q2].size(), 2));
-		  eminus = maxm;
-		  eplus = maxp;
+		  else if (outdirs[label].Is90cl())
+		    {
+		      if (outdirs[label].IsAsym())
+			deltaasym(xi, val, eplus, eminus, 0.90);
+		      else
+			eplus = eminus = delta(xi, val, 0.90);
+		    }
+		  else
+		    eminus = eplus = TMath::RMS(xi.begin(), xi.end());
 		}
 	      else if (err == AsymHess)
 		{
@@ -242,7 +314,7 @@ PdfData::PdfData(string dirname, string label)
 		    {
 		      double vm = (*eit).GetTable(*pit)[ix];
 		      double vp = (*(eit+1)).GetTable(*pit)[ix];
-		      if (!opts.asymbands) //symmetrise errors
+		      if (!outdirs[label].IsAsym()) //symmetrise errors
 			{
 			  double err = 0.5*(vp-vm);
 			  eminus += err*err;
@@ -286,6 +358,7 @@ PdfData::PdfData(string dirname, string label)
 		}
 	      Up[q2].SetPoint(*pit, ix, val+eplus);
 	      Down[q2].SetPoint(*pit, ix, val-eminus);
+	      pdfit->second.SetPoint(*pit, ix, val);
 	      pdfit->second.SetErrUp(*pit, ix, eplus);
 	      pdfit->second.SetErrDn(*pit, ix, eminus);
 	    } //End loop on x points

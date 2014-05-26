@@ -27,12 +27,27 @@ int main(int argc, char **argv)
   gErrorIgnoreLevel=1001;
 
   //read output directories
-  vector <Outdir> outdirs;
-  vector<string>::iterator itl = opts.labels.begin();
-  for (vector<string>::iterator itd = opts.dirs.begin(); itd != opts.dirs.end(); itd++, itl++)
+  for (vector<string>::iterator itd = opts.dirs.begin(); itd != opts.dirs.end(); itd++)
+    Outdir out((*itd).c_str());
+
+  //check there are no repetion in labels (should check labels instead of dirs, to avoid same name in root TH1)
+  for (vector<string>::iterator it1 = opts.labels.begin(); it1 != opts.labels.end(); it1++)
+    for (vector<string>::iterator it2 = it1+1; it2 != opts.labels.end(); it2++)
+      if (*it1 == *it2)
+	{
+	  cout << endl;
+	  cout << "Error: label (or directory) " << *it1 << " can appear only once in labels list" << endl;
+	  cout << "Specify different labels" << endl;
+	  cout << endl;
+	  exit(-1);
+	}
+
+  //Associate colors and styles to labels
+  for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
     {
-      Outdir out((*itd).c_str(), (*itl).c_str());
-      outdirs.push_back(out);
+      opts.colors[*itl]  = opts.col[itl-opts.labels.begin()];
+      opts.styles[*itl]  = opts.styl[itl-opts.labels.begin()];
+      opts.markers[*itl] = opts.mark[itl-opts.labels.begin()];
     }
 
   //--------------------------------------------------

@@ -115,21 +115,41 @@ bool FitPainter()
   //points to cm conversion
   float cm = 0.035277778 * points * 5.2;
 
+  int maxchar = 14;
+  for (vector<int>::iterator dit = dataindexlist.begin(); dit != dataindexlist.end(); dit++)
+    maxchar = max(maxchar, (int)finddataname(*dit).size());
+
+  float width = opts.labels.size() * cm +  maxchar*points*0.035277778;
+  float height = (dataindexlist.size() + 3)*points*0.035277778;
+
   fprintf(ftab,"\\documentclass[%dpt]{report}\n", points);
   fprintf(ftab,"\\usepackage{extsizes}\n");
-  fprintf(ftab,"\\usepackage[paperwidth=21cm,paperheight=21cm,left=0.2cm,right=0.2cm]{geometry}\n");
-  fprintf(ftab,"\\usepackage[scaled]{helvet}\n");
-  fprintf(ftab,"\\renewcommand\\familydefault{\\sfdefault}\n");
+  fprintf(ftab,"\\usepackage[paperwidth=21cm,paperheight=21cm,left=0.2cm,right=0.2cm,top=0.5cm,bottom=0.5cm]{geometry}\n");
+  if (opts.font == "helvet")
+    {
+      fprintf(ftab,"\\usepackage[scaled]{helvet}\n");
+      fprintf(ftab,"\\renewcommand\\familydefault{\\sfdefault}\n");
+      fprintf(ftab,"\\usepackage{mathastext}\n");
+    }
+  else if (opts.font == "modernbright")
+    fprintf(ftab,"\\usepackage{cmbright}\n");
+  else if (opts.font == "palatino")
+    fprintf(ftab,"\\usepackage{pxfonts}\n");
   fprintf(ftab,"\\pagestyle{empty}\n");
 
+  fprintf(ftab,"\\usepackage{graphicx}\n");
   fprintf(ftab,"\\usepackage{booktabs}\n");
   fprintf(ftab,"\\usepackage[table]{xcolor}\n");
-  fprintf(ftab,"\\definecolor{lightgray}{gray}{0.85}\n");
+  fprintf(ftab,"\\definecolor{lightgray}{gray}{0.87}\n");
   fprintf(ftab,"\\begin{document}\n");
 
   fprintf(ftab,"\\begin{table}\n");
   fprintf(ftab,"  \\begin{center}\n");
-  fprintf(ftab,"  \\rowcolors{2}{}{lightgray}\n");
+  fprintf(ftab,"  \\rowcolors{2}{lightgray}{}\n");
+  if (height >= width)
+    fprintf(ftab,"  \\resizebox*{!}{\\textwidth}{\n");
+  else
+    fprintf(ftab,"  \\resizebox*{\\textwidth}{!}{\n");
   fprintf(ftab,"    \\begin{tabular}{l");
   for (int i = 0; i < opts.labels.size(); i++)
     fprintf(ftab,"p{%.2fcm}", cm);
@@ -180,6 +200,7 @@ bool FitPainter()
       fprintf(ftab,"& %s / %d", Round(chi2[i][ndata-1])[0].c_str(), dof[i][ndata-1]);
   fprintf(ftab,"  \\\\ \n");
 
+  fprintf(ftab,"  \\rowcolor{white}\n");
   fprintf(ftab,"      \\midrule\n");
   fprintf(ftab,"  $\\chi^2$ p-value  ");
   for (int i = 0; i < opts.labels.size(); i++)
@@ -189,6 +210,7 @@ bool FitPainter()
 
   fprintf(ftab,"      \\bottomrule\n");
   fprintf(ftab,"    \\end{tabular}\n");
+  fprintf(ftab,"  }\n");
   fprintf(ftab,"  \\end{center}\n");
   fprintf(ftab,"\\end{table}\n");
   if (pdfunc)

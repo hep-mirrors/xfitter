@@ -19,15 +19,25 @@ extern map <string, Par> parmap;      //dir label-parameters map
 using namespace std;
 
 class  Outdir {
- protected:    
+ private:    
   string label;
   string dirname;
-  
+  bool MCreplica, cl68, cl90, median, asym;
+
  public:
-  Outdir(string dir, string lab);
-  string GetName() {return dirname;}
-  string GetLabel() {return label;}
+  Outdir() {};
+  Outdir(string dir);
+  string GetName() {return dirname;};
+  string GetLabel() {return label;};
+  bool IsMCreplica() {return MCreplica;};
+  bool Is68cl() {return cl68;};
+  bool Is90cl() {return cl90;};
+  bool IsMedian() {return median;};
+  bool IsAsym() {return asym;};
+  vector <string> dirlist;
 };
+
+extern map <string, Outdir> outdirs; //label-directory map
 
 extern vector <float> q2list();
 extern vector <int> datalist();

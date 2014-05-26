@@ -17,6 +17,13 @@ using namespace std;
 
 //Service functions
 extern vector<string> Round(double value, double error = 0);
+//extern double median(vector <double> xi);
+extern double Median(vector <double> xi);
+
+extern double cl(int sigma);
+extern double delta(vector <double> xi, double central, double ConfLevel);
+extern double deltaasym(vector <double> xi, double central, double& sigma_p, double& sigma_m, double ConfLevel);
+
 
 class CommandParser
 {
@@ -25,11 +32,12 @@ class CommandParser
   CommandParser(int argc, char **argv);
 
   //pdf options
-  bool dobands, filledbands, asymbands, logx;
+  bool dobands, filledbands, asym, logx;
   float rmin, rmax;
   double xmin, xmax;
   bool abserror, relerror;
   bool q2all;
+  bool cl68, cl90, median;
 
   //data pulls options
   bool therr, points;
@@ -45,6 +53,7 @@ class CommandParser
 
   //tables options
   bool chi2nopdf;
+  string font;
 
   //general options
   bool splitplots;
@@ -76,7 +85,7 @@ class CommandParser
   {
     cout << endl;
     cout << "program usage:" << endl;
-    cout << allargs[0] << " [options] dir1[:label1] [dir2:[label2]] [...]" << endl;
+    cout << allargs[0] << " [options] dir1[:label1] [dir2:[label2]] [MC:dirpattern:[label3]] [...]" << endl;
     cout << endl;
     cout << "First directory is used as reference for PDF ratio plots" << endl;
     cout << "and to display data in data plots." << endl;
@@ -86,6 +95,13 @@ class CommandParser
     cout << "(#alpha #bar{u})." << endl;
     cout << "It is possible to specify up to 6 directories, you need to specify at least one directory." << endl;
     cout << endl;
+    cout << "Monte Carlo replica directories:" << endl;
+    cout << "\t To specify a pattern of directories containing Monte Carlo replica" << endl;
+    cout << "\t use the prefix \"MC:\" as in \"MC:dirpattern\"." << endl;
+    cout << "\t If \"dirpattern\" is a directory all the subdirectories" << endl;
+    cout << "\t are considered as Monte Carlo replica runs." << endl;
+    cout << "\t If \"dirpattern\" is not a directory" << endl;
+    cout << "\t all the directories \"dirpattern*\" are considered as Monte Carlo replica runs" << endl;
     cout << "general options:" << endl;
     cout << "\t --help" << endl;
     cout << "\t \t Show this help" << endl;
@@ -116,8 +132,6 @@ class CommandParser
     cout << "\t \t PDF plots are not produced" << endl;
     cout << "\t --bands" << endl;
     cout << "\t \t Draw PDF uncertainty band" << endl;
-    cout << "\t --asymbands" << endl;
-    cout << "\t \t PDF bands are not symmetrised" << endl;
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
     cout << "\t --ratiorange min:max" << endl;
@@ -162,9 +176,31 @@ class CommandParser
     cout << "\t \t Heigth reserved for each shift in points, minimum is 20, maximum is 200" << endl;
     cout << "options for tables:" << endl;
     cout << "\t --no-tables" << endl;
-    cout << "\t \t Tables are not produced" << endl;
+    cout << "\t \t Chi2 and parameter tables are not produced" << endl;
     cout << "\t --chi2-nopdf-uncertainties" << endl;
     cout << "\t \t When chi2 is evaluated with the LHAPDFError routine, this option will add to the chi2 table the chi2 evaluated without PDF uncertainties within brackets" << endl;
+    cout << "\t --helvet-fonts" << endl;
+    cout << "\t \t Use helvetica fonts in tables (default is palatino)" << endl;
+    cout << "\t --cmbright-fonts" << endl;
+    cout << "\t \t Use Computer Modern Bright fonts in tables (default is palatino)" << endl;
+    cout << "Statistical option for PDF error bands in PDF plots and parameter errors in parameter table." << endl;
+    cout << "\t The following options apply to MC-replica and MC error PDF." << endl;
+    cout << "\t The \"asym\" option applies also to asymmetric hessian error PDF." << endl;
+    cout << "\t All the options can be set globally, or separately for each directory" << endl;
+    cout << "\t (or for each pattern of directories in the case of MC replica runs)." << endl;
+    cout << "\t To set the options for a directory, use the syntax [MC:]<option1:>[option2:]directory[:label]" << endl;
+    cout << "\t Example: DrawPdfs MC:68cl:asym:MYMCReplicaRuns" << endl;
+    cout << "\t Directory specific options take precedence with respect to global options." << endl;
+    cout << "\t --median" << endl;
+    cout << "\t \t Use median instead of average for the central values of PDF and parameters" << endl;
+    cout << "\t --68cl" << endl;
+    cout << "\t \t Evaluate 68 cl for PDF and parameters uncertainties. The option --median is activated automatically" << endl;
+    cout << "\t \t Can be use in conjunction with --asymbands to get asymmetric errors" << endl;
+    cout << "\t --90cl" << endl;
+    cout << "\t \t Evaluate 90 cl for PDF and parameters uncertainties. The option --median is activated automatically" << endl;
+    cout << "\t --asym" << endl;
+    cout << "\t \t Evaluate asymmetric errors when possible" << endl;
+    cout << "\t \t Can be use in conjunction with --asymbands to get asymmetric errors" << endl;
     cout << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;
