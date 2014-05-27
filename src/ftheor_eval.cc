@@ -11,6 +11,8 @@
 #include <vector>
 #include <valarray>
 
+#include "herafitter_cpp.h"
+
 #include "TheorEval.h"
 //#include "datasets.icc"
 
@@ -34,11 +36,6 @@ typedef map <int, TheorEval* > tTEmap;
 /// global dataset to theory evaluation pointer map
 tTEmap gTEmap;
 
-
-/// THEO common block link
-extern struct theo_cb {
-  double theo[2000], theo_mod[2000], theo_fix[2000];
-} c_theo_;
 
 extern struct ckm_matrix_cb {
   double Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb;
@@ -177,7 +174,7 @@ int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, i
   vector<int>::const_iterator ibf = binflags->begin();
   for (; ibf!=binflags->end(); ibf++){
     if ( 0 != *ibf ) {
-      c_theo_.theo[*idx+ip-1]=vte[int(ibf-binflags->begin())];
+      c_theo_.theo_[*idx+ip-1]=vte[int(ibf-binflags->begin())];
       ip++;
     }
   }
