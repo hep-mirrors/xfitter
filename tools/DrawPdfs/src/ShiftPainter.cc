@@ -1,6 +1,7 @@
 #include "ShiftPainter.h"
 #include "CommandParser.h"
 #include "DrawLogo.h"
+#include "Outdir.h"
 
 #include <fstream>
 #include <sstream>
@@ -43,9 +44,9 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
   //make shifts list
   shlisttype shlist;
   //read shifts
-  for (vector<string>::iterator dit = dirs.begin(); dit != dirs.end(); dit++)
+  for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
     {
-      string fname = *dit + "/Results.txt";
+      string fname = outdirs[*itl].GetName() + "/Results.txt";
       ifstream f(fname.c_str());
       if (!f.good())
 	{
@@ -73,7 +74,7 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
 	  shtype sh;
 	  sh.val = value;
 	  sh.err = error;
-	  sh.dataid = dit - dirs.begin();
+	  sh.dataid = itl - opts.labels.begin();
 	  shlist[systlabel].push_back(sh);
 	}
       f.close();
