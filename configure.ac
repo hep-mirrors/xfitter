@@ -307,6 +307,9 @@ AC_CONFIG_FILES([include/Makefile
                  tools/DrawResultsPackage/Makefile
                  tools/DrawResultsPackage/src/Makefile
                  tools/DrawResultsPackage/include/Makefile
+                 tools/DrawPdfs/Makefile
+                 tools/DrawPdfs/src/Makefile
+                 tools/DrawPdfs/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
                  datafiles/bcdms/Makefile

@@ -1,9 +1,9 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/DrawResultsPackage \
-          tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src \
+	  tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src \
           genetic/mixmax_r004 genetic/src \
           include interfaces/include FastNLO/include DiffDIS/include \
-          DY/include tools/DrawResultsPackage/include input_steering \
+          DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
           NNPDF/include common common/linalg
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
@@ -22,10 +22,10 @@ include $(top_srcdir)/aminclude.am
 
 # Specify which SUBDIRS to distribute:
 DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/DrawResultsPackage \
-          tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src \
+          tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src \
           genetic/mixmax_r004 genetic/src \
           include interfaces/include FastNLO/include DiffDIS/include \
-          DY/include tools/DrawResultsPackage/include input_steering datafiles/bcdms \
+          DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering datafiles/bcdms \
           NNPDF/include NNPDF/src common common/linalg Hathor/src src
 
 # Also datafiles
