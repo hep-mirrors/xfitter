@@ -6,24 +6,32 @@ using namespace std;
 //Fortran wrapper for lhapdferrors
 
 extern"C" {
+  //LHAPDFErrors functions
   void get_lhapdferrors_();
-
   void getpdfunctype_heraf_(const char name[30], int& lmontecarlo, int& lasymhess, int& lsymmhess);
 
+  //Error logging function
   void hf_errlog_(const int &id, const char text[], int);
 
   double chi2data_theory_(const int &iflag);
+
+  //IO functions
   void writefittedpoints_();
   void store_pdfs_(const char filename[], int);
   void writetheoryfiles_(const int& nnuisance, double theo_cent[2500], const int& symmetricpdferr);
   void fopen_(const int& fnumber, const char fname[], int);
   void fclose_(const int& fnumber);
 
+  //lhapdf6 functions
   void fill_c_common_();
   void print_lhapdf6_();
   void save_data_lhapdf6_(int& iset);
 
+  //applgrid pdf and alphas functions: externally defined alpha_s and pdf routines for fortran callable convolution wrapper
+  void appl_fnpdf_(const double& x, const double& Q, double* f);
+  double appl_fnalphas_(const double& Q);
 
+  //Covariance matrix to nuisance parameter conversion
   void getnuisancefromcovar_(const int& NDimCovar, const int& NDimSyst, const int& NCovar,
 			     double* Covar, double *ANuisance, const double& Tolerance, 
 			     int& Ncorrelated, double* Uncor);
@@ -52,7 +60,7 @@ extern"C" {
     int nparvar_;
     int lhapdferrors_;
     int scale68_;
-      } clhapdf_;
+  } clhapdf_;
 
   //aplhas
   extern struct {
@@ -156,7 +164,7 @@ extern"C" {
   } steering_;
   */
 
-  struct {
+  extern struct {
     double e_stat_poisson_[2500];
     double e_stat_const_[2500];
     double e_uncor_poisson_[2500];

@@ -107,7 +107,8 @@ void get_lhapdferrors_()
 	  char par[10];
 	  sprintf (par, "%d", clhapdf_.nparvar_);
 	  sprintf (mod, "%d", nsets - clhapdf_.nparvar_);
-	  msg = (string) "I: Add " + mod + " model and " + par + " parametrisation uncertainties from : " + lhapdfvarset;
+	  msg = (string) "I: Add " + mod + " model and " + par + " parametrisation uncertainties from " + lhapdfvarset;
+	  hf_errlog_(14012702, msg.c_str(), msg.size());
 	}
 
       for (int iset = 0; iset <= nsets; iset++)
@@ -364,8 +365,8 @@ void get_lhapdferrors_()
       pit->second.th_env_m = 0;
       for (vector <double>::iterator it = pit->second.th_par.begin(); it != pit->second.th_par.end(); it++)
 	{
-	  pit->second.th_env_p = max(0.,max(*it - pit->second.thc, pit->second.th_env_p)) / pit->second.thc;
-	  pit->second.th_env_m = min(0.,min(*it - pit->second.thc, pit->second.th_env_m)) / pit->second.thc;
+	  pit->second.th_env_p = max(0.,max((*it - pit->second.thc)/ pit->second.thc, pit->second.th_env_p));
+	  pit->second.th_env_m = min(0.,min((*it - pit->second.thc)/ pit->second.thc, pit->second.th_env_m));
 	}
     }
   if (totpar > 0)

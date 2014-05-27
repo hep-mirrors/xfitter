@@ -18,15 +18,10 @@ using std::cout;
 using std::endl;
 using namespace std;
 
+#include "herafitter_cpp.h"
+
 #include "appl_grid/appl_grid.h"
 #include "appl_grid/fastnlo.h"
-
-
-
-/// externally defined alpha_s and pdf routines for fortran 
-/// callable convolution wrapper
-extern "C" double appl_fnalphas_(const double& Q); 
-extern "C" void   appl_fnpdf_(const double& x, const double& Q, double* f);
 
 /// create a grid
 extern "C" void appl_bookgrid_(int& id, const int& Nobs, const double* binlims);

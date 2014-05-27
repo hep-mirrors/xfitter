@@ -20,10 +20,7 @@
 using namespace std;
 using namespace appl;
 
-// external pdf functions
-extern "C" void appl_fnpdf_(const double& x, const double& Q, double* f);
-extern "C" double appl_fnalphas_(const double& Q);
-extern "C" void hf_errlog_(const int &id, const char *text, int); 
+#include "herafitter_cpp.h"
 
 void appl_fnpdf_bar(const double& x, const double& Q, double* f)
 {
@@ -413,7 +410,18 @@ TheorEval::Evaluate(const int iorder, const double mur, const double muf, valarr
     cout << "ERROR: Expression RPN calculation error." << endl;
     return -1;
   } else {
-    vte = stk.top()/_units;
+    vte = stk.top();
+    //Normalised cross section
+    if (_normalised)
+      {
+	double integral = 0;
+	for (int bin = 0; bin < _binFlags.size(); bin++)
+	  if (!(vte[bin] != vte[bin])) //protection against nan
+	    integral += (_dsBins.at(1).at(bin) - _dsBins.at(0).at(bin)) * vte[bin];
+	for (int bin = 0; bin < _binFlags.size(); bin++)
+	  vte[bin] /= integral;
+      }
+    vte /= _units;
   }
 }
 
@@ -429,17 +437,6 @@ TheorEval::getGridValues(const int iorder, const double mur, const double muf)
     else
       xs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
 
-    //Normalised cross section
-    if (_normalised)
-      {
-	valarray<double> Xs(xs.data(), xs.size());
-	double integral = 0;
-	for (int bin = 0; bin < g->Nobs(); bin++)
-	  integral += (g->obslow(bin + 1) - g->obslow(bin)) * xs[bin];
-	for (int bin = 0; bin < g->Nobs(); bin++)
-	  xs[bin] /= integral;
-      }
-    
     *(itm->second) = valarray<double>(xs.data(), xs.size());
     /*
     for (int i = 0; i<xs.size(); i++){
