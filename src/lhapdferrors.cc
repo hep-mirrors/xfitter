@@ -1,8 +1,11 @@
 #include "herafitter_cpp.h"
 
+#ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
+#endif
 
 #include <iostream>
+#include <vector>
 #include <iomanip>
 #include <fstream>
 #include <stdlib.h>
@@ -27,6 +30,15 @@ struct point
   double th_err_up;          //theory error up
   double th_err_dn;          //theory error down
 };
+
+//return error if LHAPDF is not enabled
+#ifndef LHAPDF_ENABLED
+void get_lhapdferrors_()
+{
+  string msg = "S: Call to LHAPDFErrors but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
+  hf_errlog_(14060101, msg.c_str(), msg.size());
+}
+#else
 
 void get_lhapdferrors_()
 {
@@ -498,3 +510,4 @@ void get_lhapdferrors_()
   chi2tot = chi2data_theory_(3);
   fclose_(85);
 }
+#endif

@@ -115,6 +115,7 @@ if test $enable_lhapdf; then
     LHAPDF_LDFLAGS=`lhapdf-config --ldflags`
     AC_SUBST(LHAPDF_CPPFLAGS)
     AC_SUBST(LHAPDF_LDFLAGS)
+    AC_DEFINE([LHAPDF_ENABLED],[1],[Define if LHAPDF is enabled])
   fi
 fi
 AM_CONDITIONAL(ENABLE_LHAPDF, [test $enable_lhapdf])
