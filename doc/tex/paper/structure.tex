@@ -22,7 +22,7 @@ are sensitive to light quark and gluon densities mostly through scaling violatio
 covering low and medium $x$ ranges. These data are the basis of any proton PDF extraction,
 and are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
 However, improvements in precision of PDFs require additional constraints on the gluon and 
-quark distributions at high $x$, better understanding of heavy quark distributions and 
+quark distributions at high-$x$, better understanding of heavy quark distributions and 
 decomposition of the light-quark sea.  For these purposes, the measurements of the fixed-target 
 experiments, Tevatron and LHC are of particular importance.
 %
@@ -62,9 +62,11 @@ HERA &DIS NC   &$ep\to eX$      & TR', ACOT \\
      &         &                & \qcdnum) \\  [0.5ex]
 \hline \\ [-2.5ex]
 Fixed Target   &DIS NC          &$ep\to eX$ & ZM (\qcdnum), \\
-     &         &                & TR', ACOT \\ [0.5ex]
+     &         &                & TR', ACOT, \\ [0.5ex]
+     &         &                & FFN (\texttt{OPENQCDRAD}, \\
+     &         &                & \qcdnum) \\  [0.5ex]
 \hline \\ [-2.5ex]
-Tevatron, LHC &Drell Yan &$pp(\bar p)\to l\bar l X$, & \mcfm (\applgrid) \\
+Tevatron, LHC &Drell-Yan &$pp(\bar p)\to l\bar l X$, & \mcfm (\applgrid) \\
               &          &$pp(\bar p)\to l\nu  X$ &                 \\ [0.5ex]
 \cline{2-4}  \\ [-2.0ex]
 %Tevatron, LHC &W charge asym &$pp(\bar p) \to l\nu X$ & MCFM (\texttt{APPLGRID}) \\
@@ -111,9 +113,14 @@ with a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 %and then convoluted with the hard parton cross sections calculated
 %using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 \item
-\bf{QCD analysis:} \rm  The PDFs are extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. The $\chi^2$ function is formed from the input data and the theory prediction.
-The $\chi^2$ is  minimised iteratively 
-with respect to$\vec{p}$ using the MINUIT~\cite{minuit} program.
+\bf{QCD analysis:} \rm  
+The PDFs are 
+are determined by the least square fit, minimising the $\chi^2$ function with respect to $\vec{p}$
+using the MINUIT~\cite{minuit} program.
+%extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. 
+%The $\chi^2$ function is formed from the input data and the theory prediction.
+%The $\chi^2$ is  minimised iteratively 
+%with respect to$\vec{p}$ using the MINUIT~\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, either using 
 a nuisance parameter method for the correlated systematic uncertainties, 
 or a covariance matrix method as described in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
@@ -129,12 +136,12 @@ assumptions for the distributions of the systematic uncertainties i.e. Gauss~\ci
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
 The resulting PDFs are provided in a format ready to be used by the \lhapdf 
 library~\cite{lhapdf,lhapdfweb} (or by \tmdlib \cite{tmdlref}).
-\fitter drawing tools can be used to display the PDFs with their uncertainty at a chosen scale.  
+\fitter drawing tools can be used to display the PDFs with their uncertainties at a chosen scale.  
 %Drawing tools are supplied which allow the PDFs to be
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
-A first set of PDFs extracted by using \fitter is HERAPDF1.0 \cite{h1zeus:2009wt}, shown in Fig.~\ref{fig:hera1}, 
-which is based on HERA~I data.
-Since then several other PDF sets were produced within the HERA \cite{hera:grids} and LHC \cite{atlas:grids} collaborations.
+As an example, a first set of PDFs extracted using \fitter from HERA I data, HERAPDF1.0 \cite{h1zeus:2009wt}, 
+is shown in Fig.~\ref{fig:hera1}.
+%%%Since then several other PDF sets were produced within the HERA \cite{hera:grids} and LHC \cite{atlas:grids} collaborations.
 %In addition to the PDF display, 
 The comparison of data used in the fit to the theory predictions are also produced. 
 % plots which compare the input data to the fitted theory predictions can be produced 
@@ -150,7 +157,9 @@ The comparison of data used in the fit to the theory predictions are also produc
        %of $Q^2=10 \ \GeV^2$ for the HERAPDF1.0 PDF set~\cite{h1zeus:2009wt}.}
  \label{fig:hera1}
 \end{figure}
-In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0 is shown. 
+%In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0 is shown. 
+The inclusive NC data from the HERA I are compared with the predictions based on 
+HERAPDF1.0 PDFs in Fig.~\ref{fig:data}.
 
 Also shown are theory predictions, obtained using the nuisance parameter method, 
 which accounts for correlated systematic
