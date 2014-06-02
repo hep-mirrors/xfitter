@@ -7,13 +7,14 @@
 %are implemented into \fitter: the $k$-factor approximation from lower to higher order in theoretical precision and the fast grid techniques using interfaces to the 
 %packages \texttt{fastNLO} \rm and \texttt{APPLGRID}. These techniques are briefly described below.  
 %\\
-More precise measurements
-require theoretical predictions with equally improved accuracy in
+Precise measurements
+require theoretical predictions with equally good accuracy in
 order to maximize their impact in PDF fits.  Perturbative
-calculations, however, get more and more involved with increasing
-number of Feynman diagrams at the each higher order. 
+calculations, however, get more and more involved with 
+order due to increasing number of Feynman diagrams.
+%with increasing number of Feynman diagrams at the each higher order. 
 Nowadays even the most advanced perturbative techniques in
-combination with recent computing hardware do not lead to sufficiently
+combination with modern computing hardware do not lead to sufficiently
 small turn-around times. The direct inclusion of computationally
 demanding higher-order calculations into iterative fits therefore is
 not possible. Relying on the fact that a full repetition of the
@@ -28,8 +29,10 @@ to resolve this problem: the techniques of $k$-factors and
   The $k$-factors are defined as the ratio of the prediction of a
   higher-order (slow) pQCD calculation to a lower-order (fast)
   calculation. Because the $k$-factors depend on the phase space
-  probed by the measurement they have to be stored into a table in
-  dependence of the relevant kinematic variables. Before the start of
+  probed by the measurement they have to be stored into a 
+  grid depending on
+%table in dependence of 
+  the relevant kinematic variables. Before the start of
   a fitting procedure the table of $k$-factors has to be computed once
   for a given PDF with the time consuming higher-order code. In
   subsequent iteration steps the theory prediction is derived from the
@@ -41,10 +44,10 @@ to resolve this problem: the techniques of $k$-factors and
 %  and are, for example, different for dijet
 %  production from quark-quark or gluon-gluon initial states. 
   as a consequence, they have to be re-evaluated
-  for the newly determined PDF at the end of the fit in order to check
-  for any changes. Usually, the fit is repeated until input and output
-  $k$-factors have converged. In summary, this technique avoids to
-  iterate the higher-order calculation at each step, but still
+  for the newly determined PDF at the end of the fit for the consistency
+  check. Usually, the fit is repeated until input and output
+  $k$-factors have converged. In summary, this technique avoids
+  iterating the higher-order calculation at each step, but still
   requires a couple of repetitions depending on the analysis.
 
 
@@ -64,32 +67,20 @@ to resolve this problem: the techniques of $k$-factors and
 %
   \item In DIS, appropriate treatments of the heavy quarks require  
     computationally slow calculations.
-    For this purpose, ``FAST'' heavy flavour schemes are implemented
+    Therefore, ``FAST'' heavy flavour schemes are implemented
     in \fitter with $k$-factors defined as the ratio of
     calculations at the same perturbative order but for massive vs.\
     massless quarks, e.g.\ NLO (massive)/NLO (massless).
-    In the \fitter
-    implementation, these $k$-factors are calculated only for the
+    These $k$-factors are calculated only for the
     starting PDF and hence, the ``FAST'' heavy flavour schemes should
     only be used for quick checks, i.e. full heavy flavour schemes
-    are recommended. For ACOT case,
+    are normally recommended. For ACOT case,
     %and it is recommended to apply the full heavy flavour schemes 
     due to long computation time, the $k$-factors are used in 
-    the default settings in \fitter.  Fig.~\ref{fig:acotrt} illustrates
-    the PDFs extracted from  the QCD fits to the HERA data, for which 
-     the ``FAST'' method for ACOT was used as a cross check to the main results ~\cite{h1zeus:2009wt}.
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=8cm]{heraacot}
-  \caption{Overview showing the $u-$ and $d$-valence, the total sea
-    (scaled), and gluon (scaled) PDFs of the NLO HERAPDF1.0 set \cite{h1zeus:2009wt} 
-    with their 
-    total uncertainty at the scale of $Q^2 = 10\ \GeV^2$ obtained 
-    using the TR' scheme and compared to the PDFs obtained with 
-    the ACOT scheme using the $k$-factor technique (red).}
- \label{fig:acotrt}
-\end{figure}
+    the default settings in \fitter. 
+%    Fig.~\ref{fig:acotrt} illustrates
+%    the PDFs extracted from the QCD fits to the HERA data, for which 
+%    the ``FAST'' method for ACOT was used as a cross check to the main results ~\cite{h1zeus:2009wt}.
 
 
 
@@ -139,30 +130,32 @@ to resolve this problem: the techniques of $k$-factors and
 
   Fast grid techniques exploit the factorisable nature of the cross sections and 
   the fact that iterative PDF fitting
-  procedures do not impose completely arbitrary changes to the types
-  and shapes of the parameterised functions that represent each PDF\@.
+  procedures do not impose completely arbitrary change in the shape
+  of the parameterised functions that represent each PDF\@.
   Instead, it can be assumed that a generic PDF can be approximated by
   a set of interpolating functions with a sufficient number of
-  strategically well-chosen support points. The quality, i.e.\ the
-  accuracy of this approximation, can be tested and optimised by a
-  number of means, the simplest one being an increase in the number of
-  support points. Ensuring an approximation bias that is negligibly
+  strategically well-chosen support points. The 
+  accuracy of this approximation, can be checked and optimised 
+  in various ways with the simplest one being an increase in the number of
+  support points. Having ensured that the approximation bias
+  is negligibly
   small for all practical purposes this method can be used to perform
-  the time consuming higher-order calculation (see Eq.~\ref{eq:fact})
+  the time consuming higher-order calculations (Eq.~\ref{eq:fact})
   only once for the set of interpolating functions. 
-  The repetition of a cross section evaluation for
-  a particular PDF set then is very fast and implies only sums over
+  Further iteration of a cross section evaluation for
+  a particular PDF set is very fast and implies only sums over
   the set of interpolators multiplied by factors depending on the
-  respective PDF\@. The described approach applies equally to
+  respective PDF\@. The approach applies equally 
+  for the cross sections of
   processes involving one or two hadrons in the initial state as well
-  as to the renormalisation and factorisation scale dependence in the
-  convolution of the PDFs with the partonic cross section.
+  as to their renormalisation and factorisation scale dependence.
+  %in the convolution of the PDFs with the partonic cross section.
 
   This technique was pioneered in the \fastnlo
   project~\cite{Kluge:2006xs} to facilitate the inclusion of
   notoriously time consuming jet cross sections at NLO into PDF fits.
   The \applgrid~\cite{Carli:2010rw} package extended first a similar
-  methodology to DY production. While differing in their interpolation
+  methodology to the DY production. While differing in their interpolation
   and optimisation strategies, both packages construct tables with
   grids for each bin of an observable in two steps: In the first step
   the accessible phase space in the parton momentum fractions $x$ and
@@ -175,8 +168,8 @@ to resolve this problem: the techniques of $k$-factors and
   \asq\@. The approach can in principal be extended to arbitrary
   processes, but requires to establish an interface between the
   higher-order theory programs and the fast interpolation
-  frameworks. Work in that direction is ongoing for both packages.
-  They are described in some more detail in the following:
+  frameworks. Work in that direction is ongoing for both packages
+  and described in more details in the following:
 
 \begin{itemize}
   \item The \fastnlo project~\cite{Kluge:2006xs} has been interfaced
@@ -196,12 +189,11 @@ to resolve this problem: the techniques of $k$-factors and
 
     The latest version of \fastnlo~\cite{Britzger:2012bs} allows for a
     creation of tables where renormalisation and factorisation scales
-    can be chosen
-    freely as a function of two pre-defined observables, e.g.\ jet
+    can be varied as a function of two pre-defined observables, e.g.\ jet
     transverse momentum \pperp and $Q$ for DIS\@. 
-    \fastnlo can be obtained from~\cite{fastNLO:HepForge}, where
-    numerous pre-calculated grid tables for jet cross sections can be
-    downloaded as well. 
+    The \fastnlo code is available online and the
+    jet cross-section grids computed for kinematics of various experiments
+    can be downloaded as well~\cite{fastNLO:HepForge}.
 %    The latest release is compatible with \lhapdf
 %    versions 5 or 6, includes the \as evolution package
 %    \crundec~\cite{Schmidt:2012az}, and can also be linked to use the
@@ -209,7 +201,7 @@ to resolve this problem: the techniques of $k$-factors and
 %    via an optional Python interface.
 
     Dedicated \fastnlo libraries and tables required for comparison to
-    particular datasets are included in the \fitter package. In this
+    particular datasets are included into the \fitter package. In this
     case, the evaluation of the strong coupling constant is taken
     consistently with the PDF evolution from the \qcdnum code. The
     interface to the \fastnlo tables from within \fitter was used in a
@@ -237,20 +229,25 @@ to resolve this problem: the techniques of $k$-factors and
     in addition to the jet cross sections from \nlojetpp 
     in $pp(\bar p)$ and DIS processes, the calculations 
     of DY production are implemented. The look-up tables (grids) can be generated with
-    modified versions of the \mcfm parton level generator for
-    DY~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.  
+    the customised versions of the \mcfm parton level DY
+    generator~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.  
 %    The cross section observables and the grid parameters are 
 %    defined in the \applgrid code.
-    Alternative values of the strong coupling constant as well as 
-    a posteriori variation of the renormalisation 
-    and factorisation scales can be freely chosen in the calculation
-    of the theory predictions with the \applgrid tables. 
-    For NNLO predictions in \fitter $k$-factors can be applied.
+    The variation of the renormalisation and factorisation scales is possible a posteriori,
+    when calculating theory predictions with the \applgrid  tables, and
+    independent variation of the strong coupling constant is also allowed.
+%    Alternative values of the strong coupling constant as well as 
+%    a posteriori variation of the renormalisation 
+%    and factorisation scales can be freely chosen in the calculation
+%    of the theory predictions with the \applgrid tables. 
+    For NNLO predictions in \fitter $k$-factors can be also applied
+    within the \applgrid framework.
 
-    The \fitter interface to \applgrid was used by the ATLAS
+    The \fitter interface to \applgrid was in particular used by the ATLAS
     collaboration to extract the strange quark density of the proton
     from $W$ and $Z$ cross sections~\cite{atlas:strange}. An
-    illustration of ATLAS PDFs extracted using the $k$-factors is shown in
+    illustration of ATLAS PDFs extracted employing the $k$-factor approach 
+    is displayed in
     Fig.~\ref{fig:atlas} together with the comparison to global PDF
     sets CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf}.
 
@@ -260,7 +257,7 @@ to resolve this problem: the techniques of $k$-factors and
   \caption{The strange anti-quark density versus $x$ for the ATLAS
     epWZ free sbar NNLO fit (magenta band) compared to predictions
     from NNPDF2.1 (blue hatched) and CT10 (green hatched) 
-    at $Q^2 = 1.9\ \GeV^2$. The ATLAS fit was performed using $k$-factor method 
+    at $Q^2 = 1.9\ \GeV^2$. The ATLAS fit was performed using $k$-factor approach 
     for NNLO corrections. The figure is taken from \cite{atlas:strange}.}
   \label{fig:atlas}
 \end{figure}

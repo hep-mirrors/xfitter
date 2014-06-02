@@ -153,9 +153,9 @@
   [\eprint{1207.1303}], \urlprefix\url{https://nnpdf.hepforge.org/}.
 
 \bibitem[{\citenamefont{Alekhin \emph{et~al.}}(2013)\citenamefont{Alekhin,
-  Bluemlein, and Moch}}]{ABMpdf}
+  Bl{\"u}mlein, and Moch}}]{ABMpdf}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}},
-  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Bluemlein}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Bl{\"u}mlein}},
   \bibnamefont{and} \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}}
   (\bibinfo{year}{2013}), [\eprint{1310.3059}].
 
@@ -257,17 +257,6 @@
   Collaborations}], \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1001}},
   \bibinfo{pages}{109} (\bibinfo{year}{2010}), [\eprint{arXiv:0911.0884}].
 
-\bibitem[{her(H1prelim-13-141 and ZEUS-prel-13-003, H1prelim-10-142 and
-  ZEUS-prel-10-018, H1prelim-11-042 and ZEUS-prel-11-002)}]{hera:grids}
-\emph{\bibinfo{title}{{HERAPDF1.5LO, NLO and NNLO}}}
-  (\bibinfo{year}{H1prelim-13-141 and ZEUS-prel-13-003, H1prelim-10-142 and
-  ZEUS-prel-10-018, H1prelim-11-042 and ZEUS-prel-11-002}),
-  \bibinfo{note}{available via: http://lhapdf.hepforge.org/pdfsets}.
-
-\bibitem[{atl()}]{atlas:grids}
-\emph{\bibinfo{title}{{ATLAS NNLO epWZ12}}}, \bibinfo{note}{available via:
-  http://lhapdf.hepforge.org/pdfsets}.
-
 \bibitem[{\citenamefont{Devenish and Cooper-Sarkar}(2011)}]{disbook}
 \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Devenish}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Cooper-Sarkar}}
@@ -299,8 +288,11 @@
   Lett.} \textbf{\bibinfo{volume}{B347}}, \bibinfo{pages}{143}
   (\bibinfo{year}{1995}), [\eprint{hep-ph/9411431}].
 
-\bibitem[{\citenamefont{Alekhin}()}]{openqcdrad:page}
+\bibitem[{\citenamefont{Alekhin \emph{et~al.}}()\citenamefont{Alekhin,
+  Bl{\"u}mlein, and Moch}}]{openqcdrad:page}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Bl{\"u}mlein}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}},
   \emph{\bibinfo{title}{{OPENQCDRAD}}}, \bibinfo{note}{a program description
   and the code are available via:
   http://www-zeuthen.desy.de/$\sim$alekhin/OPENQCDRAD}.
@@ -851,6 +843,17 @@
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
   (\bibinfo{year}{2013}), [\eprint{1312.7875}].
+
+\bibitem[{her(H1prelim-13-141 and ZEUS-prel-13-003, H1prelim-10-142 and
+  ZEUS-prel-10-018, H1prelim-11-042 and ZEUS-prel-11-002)}]{hera:grids}
+\emph{\bibinfo{title}{{HERAPDF1.5LO, NLO and NNLO}}}
+  (\bibinfo{year}{H1prelim-13-141 and ZEUS-prel-13-003, H1prelim-10-142 and
+  ZEUS-prel-10-018, H1prelim-11-042 and ZEUS-prel-11-002}),
+  \bibinfo{note}{available via: http://lhapdf.hepforge.org/pdfsets}.
+
+\bibitem[{atl()}]{atlas:grids}
+\emph{\bibinfo{title}{{ATLAS NNLO epWZ12}}}, \bibinfo{note}{available via:
+  http://lhapdf.hepforge.org/pdfsets}.
 
 \bibitem[{\citenamefont{Abelleira~Fernandez
   \emph{et~al.}}(2012)}]{lhec:studies}

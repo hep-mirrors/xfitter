@@ -1,16 +1,15 @@
 
 \fitter is an open source code and it can be downloaded from \cite{herafitter:page}
-together with its supporting documentation. A README file is provided within the package together with fast grid theory files (described in \ref{sec:techniques}) which are associated with the properly formatted data files availabe in \fitter.
+together with its supporting documentation. A README file is provided within the package together with the fast grid theory files (described in section \ref{sec:techniques}) which are associated with the properly formatted data files availabe in \fitter.
 The source code contains all the relevant information to perform QCD fits with HERA DIS data as a default set. The performance time depends on the fitting options and varies from 10 minutes 
-(using 'FAST' techniques as described in  \ref{sec:techniques}) to several hours when full uncertainties are estimated. The \fitter code is a combination of C++ and Fortran 77 libraries with minimal 
+(using 'FAST' techniques as described in section \ref{sec:techniques}) to several hours when full uncertainties are estimated. The \fitter code is a combination of C++ and Fortran 77 libraries with minimal 
 dependencies, i.e. for the default fitting options no external dependences are required  except \qcdnum evolution program \cite{qcdnum} and CERN libs. The \tt ROOT \rm  libaries are only required for the drawing tools and when invoking \applgrid\rm.  
 There are also cache options, fast evolution kernels, and usage of the OpenMP (Open Multi-Processing)  interface which allows parallel applications of the GM-VFNS theory predictions in DIS. 
 In addition, the \fitter references and GNU public licence are provided 
 together with the main source code. 
 
 
-For the following LHC analyses of SM processes 
-the \fitter package was used:
+The \fitter package was used for the following LHC analyses of SM processes:
 %New results that have been based on the \fitter platform include 
 %the following SM processes 
 %studied at the LHC:  
@@ -18,7 +17,7 @@ inclusive Drell-Yan and $W$and $Z$
 production~\cite{atlas:strange,atlas:hm,cms:strange},
 inclusive jets~\cite{atlas:jets,cms:jets} production.
 % and top measurements{\bf you need a reference for the top studies}
-At HERA, the results of QCD analyses using \fitter are 
+The results of QCD analyses using \fitter are also
 published for the inclusive H1 measurements~\cite{h1:2012kk}
 and the recent combination of charm production measurements 
 in DIS~\cite{h1zeus:charm}.
@@ -27,7 +26,7 @@ A determination of the transverse momentum dependent gluon density using precisi
 
 The \fitter platform has been already used to produce PDF grids 
 from the QCD analyses performed at 
-HERA~\cite{h1zeus:2009wt} and at the LHC, using 
+HERA~\cite{h1zeus:2009wt,hera:grids} and at the LHC, using 
 measurements from ATLAS~\cite{atlas:strange,atlas:jets} (ATLAS PDF sets~\cite{atlas:grids}) which can be used to study predictions for SM or beyond SM processes.  Moreover, \fitter provides a possibility to 
 perform impact studies for possible future colliders
 as demonstrated by the QCD studies at the LHeC~\cite{lhec:studies}.
