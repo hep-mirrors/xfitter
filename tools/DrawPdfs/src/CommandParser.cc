@@ -345,18 +345,6 @@ CommandParser::CommandParser(int argc, char **argv):
       cout << endl;
       exit(-1);
     }
-
-  if (outdir == "")
-    if (dirs.size() == 1) {outdir = dirs[0];}
-    else {outdir = "plots/";}
-  
-  //strip MC:
-  if (outdir.substr(0, outdir.rfind(":")) == "MC")
-    outdir.erase(0, outdir.rfind(":")+1);
-
-  if (outdir.rfind("/") != outdir.size() - 1)
-    outdir.append("/");
-
 }
 
 CommandParser opts;

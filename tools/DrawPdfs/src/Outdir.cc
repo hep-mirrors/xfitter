@@ -83,8 +83,9 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
       opts.labels.push_back(label);
     }
 
-  //patch the outdir name if needed
-  if (opts.dirs.size() == 1) {opts.outdir = dirname;}
+  //If plotting only one directory and no outdir name is provided, set the outdir to the current directory
+  if (opts.dirs.size() == 1 && opts.outdir == "" && ! MCreplica)
+    opts.outdir = dirname;
 
   if (MCreplica) //make array of subdirectories
     {

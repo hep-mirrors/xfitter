@@ -30,7 +30,7 @@ int main(int argc, char **argv)
   for (vector<string>::iterator itd = opts.dirs.begin(); itd != opts.dirs.end(); itd++)
     Outdir out((*itd).c_str());
 
-  //check there are no repetion in labels (should check labels instead of dirs, to avoid same name in root TH1)
+  //check there are no repetion in labels to avoid same name in root TH1
   for (vector<string>::iterator it1 = opts.labels.begin(); it1 != opts.labels.end(); it1++)
     for (vector<string>::iterator it2 = it1+1; it2 != opts.labels.end(); it2++)
       if (*it1 == *it2)
@@ -49,6 +49,13 @@ int main(int argc, char **argv)
       opts.styles[*itl]  = opts.styl[itl-opts.labels.begin()];
       opts.markers[*itl] = opts.mark[itl-opts.labels.begin()];
     }
+
+  //Set default out directory
+  if (opts.outdir == "")
+    opts.outdir = "plots/";
+  
+  if (opts.outdir.rfind("/") != opts.outdir.size() - 1)
+    opts.outdir.append("/");
 
   //--------------------------------------------------
   //Pdf plots

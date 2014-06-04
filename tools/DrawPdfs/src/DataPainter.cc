@@ -376,13 +376,20 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       leg->AddEntry(datatot, "#delta total", "f");
     }
   TH1 *mark = (TH1F*)datahistos[0].getth()->Clone();
-  mark->SetMarkerStyle(opts.mark[0]);
+  mark->SetMarkerStyle(opts.markers[labels[0]]);
   mark->SetMarkerSize(2 * opts.resolution / 1200);
   mark->SetMarkerColor(kBlack);
   TLine *cont = new TLine(0, 1, 1, 1);
   cont->SetLineStyle(1);
+  cont->SetLineWidth(opts.lwidth);
   TLine *dash = new TLine(0, 1, 1, 1);
   dash->SetLineStyle(2);
+  dash->SetLineWidth(opts.lwidth);
+  if (datahistos.size() == 1)
+    {
+      cont->SetLineColor(opts.colors[labels[0]]);
+      dash->SetLineColor(opts.colors[labels[0]]);
+    }
   if (opts.points && !datahistos[0].bincenter())
     leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
   else

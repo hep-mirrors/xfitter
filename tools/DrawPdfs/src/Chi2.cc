@@ -12,6 +12,7 @@ for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdir
 
   if (outdirs[label].IsMCreplica())
     {
+      //here should make a cumulative plot of total chi2 of all replica
       chi2tot.chi2 = 0;
       chi2tot.chi2_00 = -1;
       chi2tot.dof = 0;
@@ -65,6 +66,11 @@ for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdir
 
       //read Partial chi2
       iss >> dummy;
+      if (line.find(dummy) == string::npos)
+	{
+	  cout << "Error parsing " << fname << endl;
+	  return;
+	}
       name = line.substr(line.find(dummy), line.size() - line.find(dummy));
       string trimmed = name;
       trimmed.erase(trimmed.find_last_not_of(" ")+1, string::npos);
