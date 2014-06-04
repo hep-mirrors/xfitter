@@ -917,6 +917,9 @@ C---------------------------------
          iparam = 2011
          FlexibleGluon = .true.
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
+ 
+      elseif (PDFStyle.eq.'CTEQHERA') then
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
 
       elseif (PDFStyle.eq.'CTEQ') then
          iparam = 171717

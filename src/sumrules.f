@@ -35,6 +35,9 @@
       double precision fs
       double precision fshermes
       double precision tstr,tNoGlue
+*add for mixed CTEQHERA
+      double precision SumRuleCTEQ
+
 C-----------------------------------------
       kflag=0
       zero = 1d-10
@@ -63,6 +66,7 @@ C    22 Sep 11, VR, Add AS parametrisation
       endif
 
 
+
 C==========================================================
 C Standard parameterisation. 
 C
@@ -74,26 +78,54 @@ C Valence:
 C**********************************************************
 C*     -- sum rule : D - Dbar = 1   :  gives ADval
 C*
-         if (pardval(1).eq.0) then
-            pardval(1) = 1.0d0/CalcIntPdf(pardval)
-         else
-            dv_sum = pardval(1)*CalcIntPdf(pardval)
-         endif
 
+         if (PDFStyle.eq.'CTEQHERA') then
+
+
+C Counting sum-rule for uv:
+            if (ctuval(1).eq.0) then
+               ctuval(1) = 2.0D0 / SumRuleCTEQ(-1,ctuval)
+            else
+              uv_sum = ctuval(1)*SumRuleCTEQ(-1,ctuval)/2
+           endif
+
+
+C Counting sum-rule for dv:
+           if (ctdval(1).eq.0) then
+              ctdval(1) = 1.0D0 / SumRuleCTEQ(-1,ctdval)
+           else
+              dv_sum = ctdval(1)*SumRuleCTEQ(-1,ctdval)
+           endif
+C Also integrate for momentum sum rules
+
+
+            tuv =  ctuval(1)*SumRuleCTEQ(0,ctuval)
+            tdv =  ctdval(1)*SumRuleCTEQ(0,ctdval) 
+         else
+            
+            if (pardval(1).eq.0) then
+               pardval(1) = 1.0d0/CalcIntPdf(pardval)
+            else
+               dv_sum = pardval(1)*CalcIntPdf(pardval)
+            endif
+            
 C**********************************************************
 C*     -- sum rule : U - Ubar = 2   :  gives AUval
 C*
-         if (paruval(1).eq.0) then
-            paruval(1) = 2.0D0/CalcIntPdf(paruval)
-         else
-            uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
-         endif
-
+            if (paruval(1).eq.0) then
+               paruval(1) = 2.0D0/CalcIntPdf(paruval)
+            else
+               uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
+            endif
+            
 C Also integrate momenta, for momentum sum rule:
-         tUv = paruval(1)*CalcIntXpdf(paruval)
-         tDv = pardval(1)*CalcIntXpdf(pardval) 
+            tUv = paruval(1)*CalcIntXpdf(paruval)
+            tDv = pardval(1)*CalcIntXpdf(pardval) 
+         endif
+cv         print*,'sumrules......', tuv, tdv
 
       else
+
          print *,'Un-implemented valence decomposition '//PDF_DECOMPOSITION
          print *,'Stop in sumrules'
          call HF_STOP
@@ -179,13 +211,18 @@ C     standard parametrisation
 
       if (NCHEBGLU.eq.0) then         
       if (lprint) then
-         print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
-         print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
+         if  (PDFStyle.eq.'CTEQHERA') then
+            print '(''uv:'',11F10.4)',(ctuval(i),i=1,6)
+            print '(''dv:'',11F10.4)',(ctdval(i),i=1,6)
+         else
+            print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
+            print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
+         endif
          print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
          print '(''ST:'',11F10.4)',(parstr(i),i=1,10)
-         if (uv_sum.ne.0 .or. dv_sum.ne.0 .or. p_sum.ne.0) then
+         if (uv_sum.ne.0.or. dv_sum.ne.0 .or. p_sum.ne.0) then
             print '(''Sum rules, uv, dv, p:'',3F10.4)'
      $           ,uv_sum, dv_sum, p_sum
          endif

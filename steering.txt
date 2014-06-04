@@ -73,6 +73,7 @@
  ! PDF parameterisation style. Possible styles are currently available:
  !  'HERAPDF' -- HERAPDF-like with uval, dval, Ubar, Dbar, glu evolved pdfs
  !  'CTEQ'        -- CTEQ-like parameterisation
+ !  'CTEQHERA'    -- Hybrid: valence like CTEQ, rest like HERAPDF
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales

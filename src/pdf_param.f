@@ -256,10 +256,13 @@ C  22 Apr 2011: CT parameterisation:
          Call DecodeCtPara(p)
       endif
 
+
 C  22 Sep 2011: AS parameterisation:
       if (IPARAM.eq.1977) then
          Call DecodeASPara(p)
       endif
+
+
 
 C
 C Chebyshev for the gluon:
@@ -347,8 +350,20 @@ C Hermes strange prepare:
 C     simple copy first:
       do i=1,10
          parglue(i) = pars(i)
-         paruval(i) = pars(10+i)
-         pardval(i) = pars(20+i)
+
+         if  (PDFStyle.eq.'CTEQHERA') then
+            if (i.lt.7) then
+               ctuval(i) = pars(10+i)
+               ctdval(i) = pars(20+i)
+            else
+               paruval(i) = pars(10+i)
+               pardval(i) = pars(20+i)
+            endif
+         else
+            paruval(i) = pars(10+i)
+            pardval(i) = pars(20+i)
+         endif
+
          parubar(i) = pars(30+i)
          pardbar(i) = pars(40+i)
          parsea(i) = pars(70+i)
@@ -376,7 +391,13 @@ C     simple copy first:
 
       elseif (index(PDF_DECOMPOSITION,'Dv_Uv_Dbar_Ubar_Str').ne.0) then
 
-         if (pardval(2).eq.0)   pardval(2)=paruval(2)  !  Bud    = Buv 
+         if (PDFStyle.eq.'CTEQHERA') then
+            if (ctdval(2).eq.0) ctdval(2)=ctuval(2)
+         else
+
+            if (pardval(2).eq.0)   pardval(2)=paruval(2) !  Bud    = Buv 
+         endif
+
          if (parubar(2).eq.0)   parubar(2)=pardbar(2)  !  Bubar  = Bdbar
          
          if (parstr(1).eq.0.and.
@@ -429,8 +450,13 @@ c         parstr(3)=parsea(3)+2.
       endif         
 
       if (debug) then
-         print '(''1uv:'',11F10.4)',(paruval(i),i=1,10)
-         print '(''1dv:'',11F10.4)',(pardval(i),i=1,10)
+         if  (PDFStyle.eq.'CTEQHERA') then
+            print '(''1uv:'',11F10.4)',(ctuval(i),i=1,6)
+            print '(''1dv:'',11F10.4)',(ctdval(i),i=1,6)
+         else
+            print '(''1uv:'',11F10.4)',(paruval(i),i=1,10)
+            print '(''1dv:'',11F10.4)',(pardval(i),i=1,10)
+         endif
          print '(''1Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''1Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''1GL:'',11F10.4)',(parglue(i),i=1,10)
@@ -754,7 +780,7 @@ C---------------------------------
 C---------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if (iparam.eq.171717) then
+      if ((iparam.eq.171717).or.(PDFStyle.eq.'CTEQHERA')) then
          UVal = ctpara(x,ctuval)
          return
       endif
@@ -793,7 +819,7 @@ C
 C--------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if (iparam.eq.171717) then
+      if ((iparam.eq.171717).or.(PDFStyle.eq.'CTEQHERA')) then
          DVal = ctpara(x,ctdval)
          return
       endif
