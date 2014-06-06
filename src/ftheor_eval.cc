@@ -175,7 +175,7 @@ int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, i
       c_theo_.theo_[*idx+ip-1]=vte[int(ibf-binflags->begin())];
       ip++;
     }
-      cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
+      //cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
   }
 
   // write the predictions to THEO array
