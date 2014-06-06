@@ -14,25 +14,10 @@
 #include <valarray>
 
 #include "TheorEval.h"
-
-#include "appl_grid/appl_grid.h"
-
-using namespace std;
-using namespace appl;
-
+#include "CommonGrid.h"
 #include "herafitter_cpp.h"
 
-void appl_fnpdf_bar(const double& x, const double& Q, double* f)
-{
-  appl_fnpdf_( x, Q, f);    
-  double fbar[13];
-  for (int fi = 0; fi < 13; fi++)
-    fbar[fi] = f[12-fi];
-  for (int fi = 0; fi < 13; fi++)
-    f[fi] = fbar[fi];
-  return; 
-}
-
+using namespace std;
 
 TheorEval::TheorEval(const int dsId, const int nTerms, const string* stn, const string* stt, 
                      const string* sts, const string& expr)
@@ -49,7 +34,7 @@ TheorEval::TheorEval(const int dsId, const int nTerms, const string* stn, const 
 
 TheorEval::~TheorEval()
 {
-  map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
+  map<CommonGrid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
   for (; itm!= _mapGridToken.end(); itm++){
     delete itm->first;
   }
@@ -128,6 +113,7 @@ TheorEval::assignTokens(list<tToken> &sl)
 	continue;
       }
         
+      /*
       if ( term == string("avg") ) { // special case for avg() function
         t.opr = 4;
         t.name = "avg";
@@ -135,6 +121,7 @@ TheorEval::assignTokens(list<tToken> &sl)
 	sl.push_back(t);
 	continue;
       }
+      */
         
       vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
       if ( found_term == _termNames.end() ) { 
@@ -224,9 +211,9 @@ int
 TheorEval::initTerm(int iterm, valarray<double> *val)
 {
   string term_type =  _termTypes.at(iterm);
-  if ( term_type == string("applgrid") ){
+  if ( term_type.find("grid") != string::npos ){
     this->initGridTerm(iterm, val);
-  } else if (term_type == string("kfactor")) {
+  } else if ( term_type == string("kfactor")) {
     this->initKfTerm(iterm, val);
   } else {
     cout << "ERROR: Unknown term type \"" << term_type << "\""<< endl;
@@ -238,6 +225,15 @@ int
 TheorEval::initGridTerm(int iterm, valarray<double> *val)
 {
   string term_source = _termSources.at(iterm);
+  string term_type =  _termTypes.at(iterm);
+  CommonGrid *g = new CommonGrid(term_type, term_source); 
+  g->SetCollisions(_ppbar);
+  g->SetDynamicScale( _dynamicscale );
+
+  // check the binning with the grids, will be ignored for normalisation grids
+  g->checkBins(_binFlags, _dsBins);
+
+  /*
   appl::grid *g = new appl::grid(term_source);
   if (_dynamicscale != 0)
     {
@@ -253,29 +249,7 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
 
   g->trim();
 
-  // read binning information from grid and compare it to that of data
-  int n_agbins = g->Nobs();
-  /*
-  if (n_agbins != _dsBins.at(0).size() ) {
-    cout << "ERROR: number of bins doesn't match for " << term_source << " in dataset " << _dsId << endl;
-    return -1;
-  }
   */
-  
-  // I assume that we have only 1d binning in the dataset.
-  // Didn't find a good way to deal with multidimentional binning,
-  // since applgrids are always 1d.  -- AS
-  for (int igb = 0; igb <n_agbins-1; igb++){
-    if ( igb >= _binFlags.size() ) break;
-    if ( _binFlags.at(igb) == 0  ) continue;
-    if ( 0 == (_binFlags.at(igb) & 2) ) {
-      if (fabs(g->obslow(igb) - _dsBins.at(0).at(igb)) > 100*DBL_MIN ||
-          fabs(g->obslow(igb+1) - _dsBins.at(1).at(igb)) > 100*DBL_MIN) { 
-        cout << "ERROR: Bin boundaries don't match for bin" << igb << " in dataset " << _dsId << endl;
-        return -1;
-      }
-    }
-  }
 
   // associate grid and valarray pointers in token
   _mapGridToken[g] = val;
@@ -287,37 +261,74 @@ TheorEval::initKfTerm(int iterm, valarray<double> *val)
   string term_source(_termSources.at(iterm));
   // read k-Factor table and compare it's binning to the data
   cout << "reading k-factor table from " << term_source << endl;
+  vector<double> tv;
+  vector<vector<double> > bkf(_dsBins.size(),tv);
+  vector<double> vkf;
   ifstream kff(term_source.c_str());
-  vector<double> vbl, vbu, vkf;
-  if (kff.is_open()) {
-    while (1){
-      double bl(0.), bu(0.), kf(0.);
-      kff >> bl >> bu >> kf;
+  string line;
+  if (kff.is_open()){
+    while (1) {
+      getline(kff,line);
       if (true == kff.eof()) break;
-      vbl.push_back(bl);
-      vbu.push_back(bu);
-      vkf.push_back(kf);
+      if (line.at(0) == '#' ) continue; //ignore comments
+      line.erase(line.find_last_not_of(" \n\r\t")+1); // trim trailing whitespaces
+      stringstream sl(line);
+      // first count words
+      int nw(0);
+      while (sl.good()) {
+        string ts;
+	sl >> ts;
+	nw++;
+      }
+      // check that we have even number of bins (low and high columns)
+      if (0!=(nw-1)%2) {
+        int id = 14040340;
+        char text[] = "S: Bad number of bins in k-factor file. Each bin must have low and high value.";
+        int textlen = strlen(text);
+        hf_errlog_(id, text, textlen);
+      }
+      // check that the number of bins is equal to data binning dimension
+      if ((nw-1) != _dsBins.size()) {
+        int id = 14040341;
+        char text[] = "S: Bad number of bins in k-factor file. Must be equal to data binning dimension.";
+        int textlen = strlen(text);
+        hf_errlog_(id, text, textlen);
+      }
+
+      // now read bins
+      sl.clear();
+      sl.seekg(0);
+      sl.str(line);
+      double tb(0);
+      for (int iw=0; iw<nw-1; iw++) {
+        sl >> tb;
+	bkf.at(iw).push_back(tb);
+      }
+      
+      // and k-factor
+      sl>>tb;
+      vkf.push_back(tb);
     }
     kff.close();
   } else {
-    cout << "ERROR: problem opening k-factor file " << term_source << endl;
-    return -1;
+    int id = 14040339;
+    char text[] = "S: Error reading k-factor file.";
+    int textlen = strlen(text);
+    hf_errlog_(id, text, textlen);
   }
 
-  // check that k-factor file binnig is compatible with data
-  if ( vkf.size() != this->getNbins()) {
-    cout << "ERROR: number of bins doesn't match for " << term_source << " in dataset " << _dsId << endl;
-    return -1;
-  }
-  vector<double>::iterator ikf = vkf.begin();
-  for (; ikf < vkf.end(); ikf++){
-    int ind = int(ikf-vkf.begin());
-    if ( _binFlags.at(ind) == 0 ) continue;
-    if ( 0 == (_binFlags.at(ind) & 2) ) {
-      if (fabs(vbl.at(ind) - _dsBins.at(0).at(ind)) > 100*DBL_MIN ||
-          fabs(vbu.at(ind) - _dsBins.at(1).at(ind)) > 100*DBL_MIN) { 
-        cout << "ERROR: Bin boundaries don't match for bin" << ind << " in dataset " << _dsId << endl;
-        return -1;
+  // check that k-factor file binning is compatible with data
+  for (int iv = 0; iv<_dsBins.size(); iv++){
+    for (int ib = 0; ib<_dsBins.at(iv).size(); ib++){
+      if ( _binFlags.at(ib) == 0 ) continue;
+      if ( 0 == (_binFlags.at(ib) & 2) ) {
+        if (fabs(bkf[iv][ib] - _dsBins[iv][ib]) > 100*DBL_MIN) { 
+          int id = 14040338;
+          char text[] = "S: Data and grid bins don't match.";
+          int textlen = strlen(text);
+          hf_errlog_(id, text, textlen);
+          return -1;
+        }
       }
     }
   }
@@ -333,24 +344,25 @@ TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
     _binFlags.push_back(binFlags[ip]);
   }
 
-  for(int ibd = 0; ibd < nBinDim; ibd++){ 
-    vector<double> bins;
-    bins.clear();
-    for(int ip = 0; ip<nPoints; ip++){
+  for(int ibd = 0; ibd < nBinDim; ibd++){  
+    vector<double> bins;                   
+    bins.clear();                          
+    for(int ip = 0; ip<nPoints; ip++){     
       bins.push_back(allBins[ip*10 + ibd]);
     }
     _dsBins.push_back(bins);
   }
+
+  return _dsBins.size();
 }
 
 int 
 TheorEval::setCKM(const vector<double> &v_ckm)
 {
 #ifdef APPLGRID_CKM
-  map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
+  map<CommonGrid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
   for(; itm != _mapGridToken.end(); itm++){
-    appl::grid* g = itm->first;
-    g->setckm(v_ckm);
+    itm->first->setCKM(v_ckm);
   }
 #else
    int id = 611201320;
@@ -379,12 +391,12 @@ TheorEval::Evaluate(const int iorder, const double mur, const double muf, valarr
     } else if ( it->name == string("sum") ){
       double sum = stk.top().sum();
       stk.top() = sum;
-    } else if ( it->name == string("avg") ){
+/*    } else if ( it->name == string("avg") ){
       if (0 == stk.top().size()) {
         cout << "ERROR: avg() argument dimension is 0." << endl;
       }
       double avg = stk.top().sum()/stk.top().size();
-      stk.top() = avg;
+      stk.top() = avg;*/
     } else if ( it->name == string("+") ){
       valarray<double> a(stk.top());
       stk.pop();
@@ -410,32 +422,18 @@ TheorEval::Evaluate(const int iorder, const double mur, const double muf, valarr
     cout << "ERROR: Expression RPN calculation error." << endl;
     return -1;
   } else {
-    vte = stk.top();
-    //Normalised cross section
-    if (_normalised)
-      {
-	double integral = 0;
-	for (int bin = 0; bin < _binFlags.size(); bin++)
-	  if (!(vte[bin] != vte[bin])) //protection against nan
-	    integral += (_dsBins.at(1).at(bin) - _dsBins.at(0).at(bin)) * vte[bin];
-	for (int bin = 0; bin < _binFlags.size(); bin++)
-	  vte[bin] /= integral;
-      }
-    vte /= _units;
+    vte = stk.top()/_units;
   }
 }
 
 int
 TheorEval::getGridValues(const int iorder, const double mur, const double muf)
 {
-  map<appl::grid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
-  for(; itm != _mapGridToken.end(); itm++){
-    appl::grid* g = itm->first;
+  map<CommonGrid*, valarray<double>*>::iterator itm;
+  for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
+    CommonGrid* g = itm->first;
     vector<double> xs;
-    if (_ppbar)
-      xs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar, appl_fnalphas_, iorder, mur, muf);
-    else
-      xs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
+    xs = g->vconvolute(iorder, mur, muf);
 
     *(itm->second) = valarray<double>(xs.data(), xs.size());
     /*
@@ -443,6 +441,8 @@ TheorEval::getGridValues(const int iorder, const double mur, const double muf)
       cout << xs[i] << endl;
     }
     */
+    
+    
   }
 }
 

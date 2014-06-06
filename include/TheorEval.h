@@ -1,3 +1,23 @@
+/**
+  @class TheorEval
+
+  @brief Theory expression evaluation 
+
+  This class performs evaluation of expression that describes theoretical
+  prediction for a given dataset. The expression may contain APPLgrid terms,
+  k-factor terms and digital numbers, all to be read from corresponding sources
+  and managed accordingly. After reading, it is converted to reverse polish
+  notation and evaluated for every iteration during the fit.
+
+  @author A.Sapronov <sapronov@ifh.de>
+
+  @version 1.1
+
+  @date 2013/08/12
+ */
+ /*
+  2014/03/14: Adding normalisation grids option and more documentation -- AS.
+ */
 #ifndef TheorEval_h
 #define TheorEval_h 1
 
@@ -7,22 +27,28 @@
 #include <valarray>
 #include <vector>
 
-#include "appl_grid/appl_grid.h"
+#include "CommonGrid.h"
+//#include "appl_grid/appl_grid.h"
 
 using namespace std;
 
+//! Arithmetic token struct
+/**
+  @struct tToken
+  A token to store expression terms. The operator field have precedence
+  information:
+  0 -- value token, variable or number
+  -1, -2  -- brackets (, )
+  1 -- operators +, -
+  3 -- operators *, /
+  4 -- functions sum, avg 
+ */
 struct tToken {
   short int opr;  // operator flag, includes precedence
   string name;     // string token
   valarray<double> *val; // value token
 };
 
-//! Manages theretical evaluations with APPLgrid, FastNLO, k-factors
-/*!
- * The class instance correspond to one dataset and performs operations
- * related to the grid managment: open/close, check bins, calculate
- * cross sections, apply cuts, etc.
- */
 class TheorEval{
  private:
   //! The default constructor is hidden
@@ -30,33 +56,91 @@ class TheorEval{
  public:
   ~TheorEval();
   //! Proper constructor for TheorEval class
+  /*! 
+    \param dsID dataset ID for which the expression is evaluated
+    \param nTerms the number of terms in the expression
+    \param stn array of strings with term names
+    \param stt array of strings with term types
+    \param sts array of strings with term sources
+    \param ste string with the expression itself
+
+    TheorEval constructor that should be used in the code.
+  */
   TheorEval(const int dsID, const int nTerms, const string* stn, const string* stt, 
             const string* sts, const string& ste);
   
   //! Evaluates array of predictions for requested expression
+  /*!
+    \param iorder order for grids evaluation
+    \param mur renormalisation scale used in grid evaluation
+    \param muf factorisation scale
+    \param vte the resulting valarray with predictions
+
+    The prupose of this method is to evaluate the expression for current
+    iteration. It updates the expression components and folds the reverse
+    polish notation to calculate the result.
+   */
   int Evaluate(const int iorder, const double mur, const double muf, valarray<double> &vte );
+
   //! Set custom CKM matrix for APPLgrid
-  int setCKM(const vector<double> &);
+  /*!
+    \param v_ckm the 3x3 CMK matrix to be set in the APPLgrid
+
+    The CKM matrix values used in APPLgrids calculations can be updated
+    here.
+   */
+  int setCKM(const vector<double> &v_ckm);
+
   //! Set dataset bins
+  /*!
+    \param nBinDim the binning dimension (only 1d is supported at the moment)
+    \param nPoints number of points (bins)
+    \param binFlags array with flags for each bin
+    \param allBins array of bin boundaries
+
+    This method sets the binning of the dataset.
+   */
   int setBins(int nBinDim, int nPoints, int *binFlags, double *allBins);
   //! Initializes sources for theoretical predictions
+  /*!
+   After the datasets with expressions are read, this method initialises
+   terms such as applgrids and k-factor tabels from their sources.
+   */
   int initTheory();
+  //! Returns numebr of bins in the current dataset
   int getNbins();
+  //! Sets the units in wich the theoretical prediction is perceived
   int setUnits(double units){ _units = units;};
+  //! Returs vector with bin flags for current dataset
   const vector<int> *getBinFlags() const { return &_binFlags; }
+  //! Selects if we have a proton-antiproton collision
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
-  void SetNormalised(int normalised) {_normalised = (normalised == 1);};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
 
  private:
-  //! Checks that the bin boundaries are complied with data ones.
+  //! Checks that the bin boundaries in theory sources are complied with data ones.
   int checkBins();
   //! Tokenize symbolic expression to a list of string tokens
   int tokenize(string &, list<string> &);
+  //! The tokens are assigned to corresponding values
   int assignTokens(list<tToken> &);
+  //! The expression of tokens is converted to RPN
   int convertToRPN(list<tToken> &);
+  //! Initialise terms
+  /*!
+   Depending on the term type, the corresponding initialization method is called
+  */
   int initTerm(int, valarray<double> *);
-  int initGridTerm(int, valarray<double> *);
+
+  //! Initialise applgrid-based term
+  /*!
+   \param iterm expression term index
+   \param val valarray pointer which should be associated with the term
+
+   Initializes the applgrid-based grids and associates the term valarrays with them. 
+  */
+  int initGridTerm(int iterm, valarray<double> *val);
+  //! Initialise K-factor term
   int initKfTerm(int, valarray<double> *);
   //! Get current grid values into the tokens
   int getGridValues(const int iorder, const double mur, const double muf);
@@ -75,14 +159,13 @@ class TheorEval{
 
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
-  map<appl::grid*, valarray<double>* > _mapGridToken;
+  map<CommonGrid*, valarray<double>* > _mapGridToken;
   map<string, valarray<double>* > _mapInitdTerms;
 
-  //ppbar PDF
+  /// ppbar PDF
   bool _ppbar;
-  //Normalised cross section
-  bool _normalised;
-  //bin-by-bin dynamic scale
+
+  /// bin-by-bin dynamic scale
   float _dynamicscale;
 };
 

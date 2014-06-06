@@ -71,6 +71,23 @@ c     Returrn zero if x range falls below qcdnum grid xmin values (to avoid larg
       return
       end
 
+C> @brief PDF for ppbar process
+      subroutine appl_fnpdf_bar(x, Q, xf)
+
+      implicit none
+      double precision x, Q, xft
+      double precision xf(-6:6)
+      integer ifl
+
+      do ifl=0,6
+        xft=xf(ifl)
+        xf(ifl) = xf(-ifl)
+        xf(-ifl)=xft
+      enddo
+
+      return
+      end
+
 C> @brief Register x,Q2 point on a grid
       Subroutine register_pdf_applgrid(x,Q2)
 C----------------------------------------------

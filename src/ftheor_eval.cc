@@ -49,7 +49,6 @@ extern struct thexpr_cb {
   char termsource[16][1000];
   char theorexpr[1000];
   int ppbar_collisions;
-  int normalised;
 } theorexpr_;
 
 /*!
@@ -72,7 +71,6 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sts, ste);
 
   te->SetCollisions(theorexpr_.ppbar_collisions);
-  te->SetNormalised(theorexpr_.normalised);
   te->SetDynamicScale(theorexpr_.dynscale);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
@@ -177,8 +175,8 @@ int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, i
       c_theo_.theo_[*idx+ip-1]=vte[int(ibf-binflags->begin())];
       ip++;
     }
+      cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
   }
-      //cout << *ibf << "\t" << vte[0] << endl;
 
   // write the predictions to THEO array
   if( ip != *np ){
