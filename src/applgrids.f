@@ -79,6 +79,7 @@ C> @brief PDF for ppbar process
       double precision xf(-6:6)
       integer ifl
 
+      call appl_fnpdf(x, Q, xf)
       do ifl=0,6
         xft=xf(ifl)
         xf(ifl) = xf(-ifl)

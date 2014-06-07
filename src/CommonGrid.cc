@@ -38,7 +38,7 @@ void appl_fnpdf_bar(const double& x, const double& Q, double* f)
 }
 */
 
-CommonGrid::CommonGrid(const string & grid_type, const string &grid_source)
+CommonGrid::CommonGrid(const string & grid_type, const string &grid_source): _dynamicscale(0)
 {
   if ( grid_type == "applgrid" ) { 
     _flag = 0;
