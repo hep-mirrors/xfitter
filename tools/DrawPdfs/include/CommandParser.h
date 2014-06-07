@@ -17,13 +17,6 @@ using namespace std;
 
 //Service functions
 extern vector<string> Round(double value, double error = 0);
-//extern double median(vector <double> xi);
-extern double Median(vector <double> xi);
-
-extern double cl(int sigma);
-extern double delta(vector <double> xi, double central, double ConfLevel);
-extern double deltaasym(vector <double> xi, double central, double& sigma_p, double& sigma_m, double ConfLevel);
-
 
 class CommandParser
 {

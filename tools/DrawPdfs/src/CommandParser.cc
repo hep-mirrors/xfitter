@@ -1,7 +1,6 @@
 #include "CommandParser.h"
 
 #include <TStyle.h>
-#include <TMath.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -375,98 +374,4 @@ vector<string> Round(double value, double error)
   result.push_back(Numb);
   
   return result;
-}
-
-double Median(vector <double> xi)
-{
-  int n = xi.size();
-  double x[n];
-  std::copy (xi.begin(), xi.end()-1, x);
-
-  return TMath::Median(n, x);
-}
-
-double cl(int sigma)
-{
-  switch (sigma)
-    {
-    case 1:
-      return 0.682689492137086;
-      break;
-    case 2:
-      return 0.954499736103642;
-      break;
-    case 3:
-      return 0.997300203936740;
-      break;
-    default:
-      cout << "Confidence Level interval available only for sigma = 1, 2, 3, requested: " << sigma << " sigma" << endl;
-      exit(1);
-    }
-}
-
-double delta(vector <double> xi, double central, double ConfLevel)
-{
-  double delta = 0;
-
-  vector <double> deltaxi;
-  vector<double>::iterator i = xi.begin();
-  while (i != xi.end())
-    {
-      deltaxi.push_back(fabs(*i - central));
-      ++i;
-    }
-
-  sort(deltaxi.begin(), deltaxi.end());
-
-  vector<double>::iterator di = deltaxi.begin();
-  while (di != deltaxi.end())
-    {
-      delta = *di;
-      int index = di - deltaxi.begin() + 1;
-      double prob = (double)index / (double)deltaxi.size();
-      //      cout << index << "  " << *di << "  " << prob << endl;
-      if (prob > ConfLevel)
-	break;
-      ++di;
-    }
-  return delta;
-}
-double deltaasym(vector <double> xi, double central, double& delta_p, double& delta_m, double ConfLevel)
-{
-  delta_m = delta_p = 0;
-
-  vector <double> deltaxi;
-  vector<double>::iterator i = xi.begin();
-  while (i != xi.end())
-    {
-      deltaxi.push_back(*i - central);
-      ++i;
-    }
-
-  sort(deltaxi.begin(), deltaxi.end());
-
-  vector<double>::iterator di = deltaxi.begin();
-  while (di != deltaxi.end())
-    {
-      delta_m = fabs(*di);
-      int index = di - deltaxi.begin() + 1;
-      double prob = (double)index / (double)deltaxi.size();
-      //      cout << index << "  " << *di << "  " << prob << endl;
-      if (prob >= ((1-ConfLevel)/2.))
-	break;
-      ++di;
-    }
-
-  di = deltaxi.end();
-  while (di != deltaxi.begin())
-    {
-      delta_p = *di;
-      int index = di - deltaxi.begin() + 1;
-      double prob = (double)index / (double)deltaxi.size();
-      //      cout << index << "  " << *di << "  " << prob << endl;
-      if (prob <= ((1.+ConfLevel)/2.))
-	break;
-      --di;
-    }
 }

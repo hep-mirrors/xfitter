@@ -2,6 +2,7 @@
 
 #include "Outdir.h"
 #include "CommandParser.h"
+#include "pdferrors.h"
 
 #include <TMath.h>
 
@@ -79,9 +80,9 @@ Par::Par(string dirname, string label)
 	  double eplus = 0;
 	  double eminus = 0;
 	  if (outdirs[label].IsMedian())
-	    val = Median(xi);
+	    val = median(xi);
 	  else
-	    val = TMath::Mean(xi.begin(), xi.end());
+	    val = mean(xi);
 
 	  if (outdirs[label].Is68cl())
 	    {
@@ -98,7 +99,7 @@ Par::Par(string dirname, string label)
 		eplus = eminus = delta(xi, val, 0.90);
 	    }
 	  else
-	    eminus = eplus = TMath::RMS(xi.begin(), xi.end());
+	    eminus = eplus = rms(xi);
 
 	  parlist[index].value = val;
 	  parlist[index].error_p = eplus;

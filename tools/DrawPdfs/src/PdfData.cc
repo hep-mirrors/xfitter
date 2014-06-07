@@ -2,6 +2,7 @@
 
 #include "Outdir.h"
 #include "CommandParser.h"
+#include "pdferrors.h"
 #include "Par.h"
 
 #include <TMath.h>
@@ -250,9 +251,9 @@ PdfData::PdfData(string dirname, string label)
 		xi.push_back((*eit).GetTable(*pit)[ix]);
 	      double val;
 	      if (outdirs[label].IsMedian())
-		val = Median(xi);
+		val = median(xi);
 	      else
-		val = TMath::Mean(xi.begin(), xi.end());
+		val = mean(xi);
 	      pdfit->second.SetPoint(*pit, ix, val);
 	    }
       }
@@ -278,17 +279,18 @@ PdfData::PdfData(string dirname, string label)
 	      double val = Cent.GetTable(*pit)[ix];
 	      double eminus = 0;
 	      double eplus = 0;
-	    
+
 	      //MC replica errors
 	      if (err == MC)
 		{
 		  vector <double> xi;
 		  for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
 		    xi.push_back((*eit).GetTable(*pit)[ix]);
+
 		  if (outdirs[label].IsMedian())
-		    val = Median(xi);
+		    val = median(xi);
 		  else
-		    val = TMath::Mean(xi.begin(), xi.end());
+		    val = mean(xi);
 
 		  if (outdirs[label].Is68cl())
 		    {
@@ -305,57 +307,30 @@ PdfData::PdfData(string dirname, string label)
 			eplus = eminus = delta(xi, val, 0.90);
 		    }
 		  else
-		    eminus = eplus = TMath::RMS(xi.begin(), xi.end());
+		    eminus = eplus = rms(xi);
 		}
 	      else if (err == AsymHess)
 		{
-		  //Loop on error sets
-		  for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit+=2)
-		    {
-		      double vm = (*eit).GetTable(*pit)[ix];
-		      double vp = (*(eit+1)).GetTable(*pit)[ix];
-		      if (!outdirs[label].IsAsym()) //symmetrise errors
-			{
-			  double err = 0.5*(vp-vm);
-			  eminus += err*err;
-			  eplus  += err*err;
-			}
-		      else //asymmetric errors
-			{
-			  // down variation:
-			  double d1 = val - vm;
-			  double d2 = val - vp;
-			  double ed = ( d2>d1) ? d2 : d1;
-			
-			  if (ed<0) { ed = 0;}
-			
-			  // up variation
-			  d1 = -d1;
-			  d2 = -d2;
-			  double ep = (d2>d1) ? d2 : d1;    
-			  if (ep<0) {ep = 0;}
-			  eminus += ed*ed;
-			  eplus  += ep*ep;
-			}
-		    }
-		  eminus = sqrt(eminus);
-		  eplus = sqrt(eplus);
+		  vector <double> xi;
+		  xi.push_back(val);
+		  for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
+		    xi.push_back((*eit).GetTable(*pit)[ix]);
+
+		  if (!outdirs[label].IsAsym()) //symmetrise errors
+		    eplus = eminus = ahessdelta(xi);
+		  else //asymmetric errors
+		    ahessdeltaasym(xi, eplus, eminus);
 		}
 	      else if (err == SymHess)
 		{
-		  double maxp = 0;
-		  double maxm = 0;
-		  //Loop on error sets
-		  for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit+=2)
-		    {
-		      double v = (*eit).GetTable(*pit)[ix];
-		      double err = v - val;
-		      eminus += err*err;
-		      eplus  += err*err;
-		    }
-		  eminus = sqrt(eminus);
-		  eplus = sqrt(eplus);
+		  vector <double> xi;
+		  xi.push_back(val);
+		  for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
+		    xi.push_back((*eit).GetTable(*pit)[ix]);
+
+		  eplus = eminus = shessdelta(xi);
 		}
+
 	      Up[q2].SetPoint(*pit, ix, val+eplus);
 	      Down[q2].SetPoint(*pit, ix, val-eminus);
 	      pdfit->second.SetPoint(*pit, ix, val);
