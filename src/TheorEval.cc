@@ -422,7 +422,19 @@ TheorEval::Evaluate(const int iorder, const double mur, const double muf, valarr
     cout << "ERROR: Expression RPN calculation error." << endl;
     return -1;
   } else {
-    vte = stk.top()/_units;
+    vte = stk.top();
+    //Normalised cross section
+    if (_normalised)
+      {
+	double integral = 0;
+	for (int bin = 0; bin < _binFlags.size(); bin++)
+	  if (!(vte[bin] != vte[bin])) //protection against nan
+	    integral += (_dsBins.at(1).at(bin) - _dsBins.at(0).at(bin)) * vte[bin];
+	if (integral != 0)
+	  for (int bin = 0; bin < _binFlags.size(); bin++)
+	    vte[bin] /= integral;
+      }
+    vte /= _units;
   }
 }
 

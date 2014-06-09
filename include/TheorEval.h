@@ -116,6 +116,7 @@ class TheorEval{
   //! Selects if we have a proton-antiproton collision
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
+  void SetNormalised(int normalised) {_normalised = (normalised == 1);};
 
  private:
   //! Checks that the bin boundaries in theory sources are complied with data ones.
@@ -161,6 +162,9 @@ class TheorEval{
   vector<tToken> _exprRPN;
   map<CommonGrid*, valarray<double>* > _mapGridToken;
   map<string, valarray<double>* > _mapInitdTerms;
+
+  /// Normalised theory
+  bool _normalised;
 
   /// ppbar PDF
   bool _ppbar;
