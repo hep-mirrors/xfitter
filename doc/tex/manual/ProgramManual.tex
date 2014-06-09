@@ -494,7 +494,12 @@ $Q^2 \ge 3.5$ & NLO & 79.4 & 3.2 &-0.021 & 13.7 & 4.0 & 6.7 & 196 & 0.927 \\
       \item {\tt TheoryInfoFile} --- (string) Optional additional theory file with extra 
                      information for cross-section calculation. This could be k-factors,
                      {\tt APPLGRID} file or {\tt FastNLO} table.  
-      \item {\tt TheoryType} --- (string) Theory file type ('kfactor', 'applgrid' or 'fastnlo').      
+      \item {\tt TheoryType} --- (string) Theory file type can be set to
+		     'kfactor', 'applgrid', 'fastnlo' or 'expression'. See further for more
+		     details.
+      \item {\tt TermName} --- (string) names of terms used in the theory expression.
+      \item {\tt TermSource} --- (string) pathes from where the term numerical values should be taken.
+      \item {\tt TheorExpr} --- (string) theory epression in simple algebraic form.
       \item {\tt NKFactor}   --- (integer) For kfactor files, number of columns in
                      {\tt TheoryInfoFile}.
       \item {\tt KFactorNames} --- (array of strings) For kfactor files, names of columns in 
@@ -506,6 +511,96 @@ Dataset-wise options are provided by a {\tt CInfo} / {\tt DataInfo} variable set
 varies between data points (e.g. bin borders, hadronisation corrections etc.) it is
 provided in the data file and recognised by the program using reserved column names.
 In the following all these requirements are listed and briefly explained.
+
+The theory type {\it expression} allows a flexibility in theory definition, making
+it possible to set a simple formula in {\tt TheorExpr} string variable.  The
+expression terms must be preliminary defined in {\tt TermName} -- a string value, 
+starting with alphabetical character, {\tt TermType} -- recognized string values are 'kfactor',                                                                                        
+'applgrid' or 'virtgrid', and {\tt TermSource} -- the files from where the
+predictions are taken. {\tt TermType} defines which type of the expression term
+is used:
+\begin{description}
+\item[kfactor] is a term wich denotes an array of \(K\)-factors corresponding
+  to the data bins. The {\tt TermSource} for this term must point to a file with the 
+  \(K\)-factor table, containing three columns: bin lower and higher edges, and the
+  \(K\)-factor value. The comments starting with ``\#'' are ignored.
+\item[applgrid] term tells the parser to initialize the APPLgrid grid for the
+  cross section evaluation. The grid options are defined with additional options
+  in {\tt DataInfo} and {\tt CInfo}.
+\item[virtgrid] can be used if the fit is performed on the multidimensional 
+  measurement results. The {\tt TermSource} in this case is a text file with a virtual
+  grid definition. Consider for example the data are
+  a triple differential measurement of a cross section in \(X\), \(Y\) and \(Z\)
+  observables. Internally the theory prediction for such measurement is
+  represented as a linear array -- a sequence of applgrids for \(Z\), each
+  corresponding to the hyperbin in \(X\) and \(Y\). The virtual grid file in 
+  this case is a table, where each row denotes the hyperbin with its edges,
+  APPLgrid file location and number of bins in it:
+  \begin{align*}
+  X_0^{\mrlow} &\quad X_0^{\mrhigh} \quad Y_0^{\mrlow} \quad Y_0^{\mrhigh} \quad {\mrpa}\_0\_0{\mrdrt} &\quad M(0;0) \\
+  X_0^{\mrlow} &\quad X_0^{\mrhigh} \quad Y_1^{\mrlow} \quad Y_1^{\mrhigh} \quad {\mrpa}\_0\_1{\mrdrt} &\quad M(0;1) \\
+  \ldots \\
+  X_0^{\mrlow} &\quad X_0^{\mrhigh} \quad Y_{N_Y}^{\mrlow} \quad Y_{N_Y}^{\mrhigh} \quad {\mrpa}\_0\_N_Y{\mrdrt} &\quad M(0;N_Y) \\
+  X_1^{\mrlow} &\quad X_1^{\mrhigh} \quad Y_{0}^{\mrlow} \quad Y_{0}^{\mrhigh} \quad {\mrpa}\_1\_0{\mrdrt} &\quad M(1;0) \\
+  X_1^{\mrlow} &\quad X_1^{\mrhigh} \quad Y_{1}^{\mrlow} \quad Y_{1}^{\mrhigh} \quad {\mrpa}\_1\_1{\mrdrt} &\quad M(1;1) \\
+  \ldots \\
+  X_{N_X}^{\mrlow} &\quad X_{N_X}^{\mrhigh} \quad Y_{0}^{\mrlow} \quad Y_{0}^{\mrhigh} \quad {\mrpa}\_N_X\_0{\mrdrt} &\quad M(N_X;0) \\
+  \ldots \\
+  X_{N_X}^{\mrlow} &\quad X_{N_X}^{\mrhigh} \quad Y_{N_Y}^{\mrlow} \quad Y_{N_Y}^{\mrhigh} \quad {\mrpa}\_N_X\_N_Y{\mrdrt} &\quad M(N_X;N_Y) \\
+  \end{align*}
+  where \(N_X,\,N_Y\) are the numbers of hyperbins in \(X,\,Y\) repectively and
+  \(M\) is the number of bins in the corresponding applgrid. The order of hyprebin
+  listing must be same as for the data table and the slowest changing hyperbin 
+  must go first. In case the fitted data is a double-differential cross section, only 
+  one hyperbin needs to be listed, i.e.:
+  \begin{align*}
+  X_0^{\mrlow} &\quad X_0^{\mrhigh} \quad {\mrpa}\_0{\mrdrt} &\quad M(0) \\
+  X_1^{\mrlow} &\quad X_1^{\mrhigh} \quad {\mrpa}\_1{\mrdrt} &\quad M(1) \\
+  \ldots \\
+  X_{N_X}^{\mrlow} &\quad X_{N_X}^{\mrhigh} \quad {\mrpa}\_N_X{\mrdrt} &\quad M(N_X) \\
+  \end{align*}
+  The comments starting with ``\#'' are ignored.
+\end{description}
+The expression recognises simple arithmetic operations
+(+,-,/,*) and 'sum()' function which returns prediction summed over bins.
+Example:
+\begin{verbatim}
+ TheoryType     = 'expression'
+ TermName = 'A1', 'K'
+ TermType = 'applgrid','kfactor'
+ TermSource = 'path/to/grid.root' ,
+              'path/to/kfactor.txt'
+ TheorExpr= 'K*A1'
+\end{verbatim}
+The expression also recognises numerical terms, e.g.  'K*A+0.1', which do not
+require preliminary definition. Due to technical limitations, no spaces are
+allowed in {\tt TheorExpr} value. 
+
+By default the numeric result of the expression is divided by the (hyper)bin
+width. In order to obtain initial values or use 'sum()' operation (integral of
+the differential distribution e.g. for normalization purposes) one should add
+`\_norm' suffix to the the TermType of 'applgrid' or 'virtgrid'. For example: 
+\begin{verbatim}
+ TheoryType     = 'expression'
+ TermName = 'V', 'A'
+ TermType = 'virtgrid','applgrid_norm'
+ TermSource = 'path/to/virtgrid.txt' ,
+              'path/to/applgrid.root'
+ TheorExpr= 'V/sum(A)'
+\end{verbatim}
+
+An example of virtgrid.txt file:
+\begin{verbatim}
+# y1     y2     applgrid                                        n_grid_bins
+0.0     0.3     theoryfiles/atlas/Jets2010-vg/R04/eta1.root        17
+0.3     0.8     theoryfiles/atlas/Jets2010-vg/R04/eta2.root        17
+0.8     1.2     theoryfiles/atlas/Jets2010-vg/R04/eta3.root        17
+1.2     2.1     theoryfiles/atlas/Jets2010-vg/R04/eta4.root        16
+2.1     2.8     theoryfiles/atlas/Jets2010-vg/R04/eta5.root        13
+2.8     3.6     theoryfiles/atlas/Jets2010-vg/R04/eta6.root        10
+3.6     4.4     theoryfiles/atlas/Jets2010-vg/R04/eta7.root         7
+\end{verbatim}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{description}

@@ -218,12 +218,11 @@ another option would be:
 		     'expression'. The last one gives more flexibility in
 		     theory definition, allowing to set a simple formula in
 		     'TheorExpr' string variable with preliminary defined
-		     terms in 'TermName', 'TermType' (can be 'kfactor' or
-		     'applgrid') and 'TermSource' (the files where the
-		     predictions are taken from). The expression recognises
-		     simple arithmetic operations (+,-,/,*) and 'sum()' and
-		     'avg()' functions, returning predictions summed and
-		     averaged over bins respectively. Example:
+		     terms in 'TermName', 'TermType' (can be 'kfactor',
+		     'applgrid' or 'virtgrid') and 'TermSource' (the files from where the
+		     predictions are taken). The expression recognises
+		     simple arithmetic operations (+,-,/,*) and 'sum()' function, 
+		     returning predictions summed over bins. Example:
                      --------------------------
                       TheoryType     = 'expression'
                       TermName = 'A1', 'K' 
@@ -233,16 +232,14 @@ another option would be:
                       TheorExpr= 'K*A1/sum(A1)'
 		     --------------------------
 		     The expression also recognises numerical terms, e.g.
-		     'k*A+0.1'. NB: due to technical limitations, no spaces 
-             are allowed in 'TheorExpr' value.
-             NOTE: when using the 'sum()' operation an extra parameter 
-             should be added in the expression to account for the 
-             difference in the bin width correction for the integrated 
-             vs differential cross sections. For example, if bins are 
-             equidistant the expression for the normalised cross 
-             section should be: "A/sum(A)*BinWidth". This option will
-             be improved in the next release.
-
+		     'k*A+0.1' (due to technical limitations, no spaces 
+		     are allowed in 'TheorExpr' value). By default the numeric result 
+		     of the expression is divided by the bin width. In order
+		     to obtain initial values or use 'sum()' operation (integral
+		     of the differential distribution e.g. for normalization purposes) 
+		     one should add '_norm' suffix to the the TermType of 'applgrid' and
+		     'virtgrid'. For more information on the 'virtgrid' definition
+		     please see program's manual.
       
       NKFactor   --- (integer) For kfactor files, number of columns in
                      TheoryInfoFile
