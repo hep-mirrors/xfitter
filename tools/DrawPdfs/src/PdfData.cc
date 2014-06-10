@@ -14,7 +14,7 @@
 //pdf type
 pdftype pdfts[] = {g, uv, dv, ubar, dbar, s, U, D, Sea, Ubar, Dbar, c, b, dbarubar, sdbar};
 //pdf labels
-string pdflab[] = {"g", "uv", "dv", "#bar{u}", "#bar{d}", "s", "U", "D", "S", "#bar{U}", "#bar{D}", "c", "b", "#bar{d}-#bar{u}", "(s - #bar{d})/(s + #bar{d})"};
+string pdflab[] = {"g", "uv", "dv", "#bar{u}", "#bar{d}", "s", "U", "D", "S", "#bar{U}", "#bar{D}", "c", "b", "#bar{d}-#bar{u}", "s/#bar{d}"};
 //pdf filenames
 string pdffil[] = {"g", "uv", "dv", "ubar", "dbar", "s", "U", "D", "sea", "UBar", "DBar", "c", "b", "dbar-ubar", "sdbar"};
 
@@ -82,8 +82,8 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
 
   PdfTypes.push_back(sdbar);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
-    if ((tablemap[dbar][ix] + tablemap[s][ix]) != 0)
-      tablemap[sdbar].push_back((tablemap[s][ix] - tablemap[dbar][ix])/(tablemap[s][ix] + tablemap[dbar][ix]));
+    if (tablemap[dbar][ix] != 0)
+      tablemap[sdbar].push_back((tablemap[s][ix])/(tablemap[dbar][ix]));
     else
       tablemap[sdbar].push_back(0);
 }

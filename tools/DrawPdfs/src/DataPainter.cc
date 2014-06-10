@@ -90,7 +90,6 @@ void Subplot::Draw(TH1F* histo, string opt)
 
 TCanvas * DataPainter(int dataindex, int subplotindex)
 {
-
   vector <Subplot> datahistos;
   vector <string> labels;
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
@@ -390,12 +389,16 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       cont->SetLineColor(opts.colors[labels[0]]);
       dash->SetLineColor(opts.colors[labels[0]]);
     }
-  if (opts.points && !datahistos[0].bincenter())
-    leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
+  if (opts.onlytheory)
+    leg->AddEntry((TObject*)0, opts.theorylabel.c_str(), "");
   else
-    leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
-  if (!opts.onlytheory)
-    leg->AddEntry(dash, (opts.theorylabel + " + shifts").c_str(), "l");
+    {
+      if (opts.points && !datahistos[0].bincenter())
+	leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
+      else
+	leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
+      leg->AddEntry(dash, (opts.theorylabel + " + shifts").c_str(), "l");
+    }
 
   //Auxiliary legend
   TLegend * leg2 = new TLegend(lmarg+0.4, mb+0.03, 1-rmarg-0.01, mb+0.03 + datahistos.size() * 0.045/my);

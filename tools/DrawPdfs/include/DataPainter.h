@@ -1,5 +1,4 @@
 #include <vector>
-#include <TH1F.h>
 #include <TCanvas.h>
 #include <Dataset.h>
 
