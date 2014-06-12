@@ -56,11 +56,15 @@ class PdfData
   PdfData(string dirname, string label);
 
   pdferr err;   //Type of PDF uncertainties
+  bool model;   //Model PDF uncertainties
+  bool par;   //Parametrisation PDF uncertainties
 
-  map <float, Pdf> Central;           //Q2 values central PDF map
-  map <float, vector <Pdf> > Errors;  //Q2 values PDF errors map
-  map <float, Pdf> Up;                //Q2 values up PDF map
-  map <float, Pdf> Down;              //Q2 values down PDF map
+  map <float, Pdf> Central;               //Q2 values central PDF map
+  map <float, vector <Pdf> > Errors;      //Q2 values PDF errors map
+  map <float, vector <Pdf> > ModelErrors; //Q2 values PDF errors map
+  map <float, vector <Pdf> > ParErrors;   //Q2 values PDF errors map
+  map <float, Pdf> Up;                    //Q2 values up PDF map
+  map <float, Pdf> Down;                  //Q2 values down PDF map
 };
 
 #endif

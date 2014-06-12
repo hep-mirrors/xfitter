@@ -92,12 +92,32 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       colindx++;
     }	  
 
+  //Calculate maximum and minimum of y axis
+  double mx = 0;
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+    for (int i = 0; i < (*it)->GetN(); i++)
+      {
+	double xi = (*it)->GetX()[i];
+	double val = (*it)->GetY()[i];
+	double errhigh = (*it)->GetErrorYhigh(i);
+	if (xi >= opts.xmin && xi <= opts.xmax)
+	  mx = max(mx, val+errhigh);
+      }
+  double mn = mx;
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+    for (int i = 0; i < (*it)->GetN(); i++)
+      {
+	double xi = (*it)->GetX()[i];
+	double val = (*it)->GetY()[i];
+	double errlow = (*it)->GetErrorYlow(i);
+	if (xi >= opts.xmin && xi <= opts.xmax)
+	  mn = min(mn, val-errlow);
+      }
+
   //Prepare TGraphs
   TMultiGraph * mg = new TMultiGraph(((string)cnvname + "_multigraph").c_str(), "");
   TMultiGraph * mg_lines = new TMultiGraph(((string)cnvname + "_multigraph_lines").c_str(), "");
   TMultiGraph * mg_shade = new TMultiGraph(((string)cnvname + "_multigraph_shade").c_str(), "");
-  double mx = 0;
-  double mn = 0;
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
       if (*it == 0)
@@ -129,19 +149,6 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       TGraph *high = new TGraph(npoints, val_x, val_high_y);
       TGraph *low = new TGraph(npoints, val_x, val_low_y);
       TGraph *shade = new TGraph(2*npoints, xsh, ysh);
-
-      //Calculate maximum and minimum of y axis
-      for (int i = 0; i < (*it)->GetN(); i++)
-	{
-	  double xi = high->GetX()[i];
-	  double yi_h = high->GetY()[i];
-	  double yi_l = low->GetY()[i];
-	  if (xi >= opts.xmin && xi <= opts.xmax)
-	    {
-	      mx = max(mx, yi_h);
-	      mn = min(mn, yi_l);
-	    }
-	}
 
       //Set border lines and shade fill
       centr->SetLineColor((*it)->GetLineColor());
@@ -291,21 +298,14 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       rlist.push_back(r);
     }
 
-  mx = 1;
-  mn = 1;
-  if (opts.abserror)
-    {
-      mx = 0;
-      mn = 0;
-    }
-  //Calculate maximum and minimum of y axis
+  //Calculate maximum and minimum of x axis
+  double xmnforbds, xmxforbds;
   for (vector <TGraphAsymmErrors*>::iterator it = rlist.begin(); it != rlist.end(); it++)
     {
       if (*it == 0)
 	continue;
 
       TGraphAsymmErrors* r = *it;
-      double xmnforbds, xmxforbds;
       if (opts.logx)
 	{
 	  double xaxlength = opts.xmax / opts.xmin;
@@ -318,23 +318,46 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 	  xmnforbds = opts.xmin + xaxlength / 4.;
 	  xmxforbds = opts.xmax - xaxlength / 5.;
 	}
+    }
+
+  //Calculate maximum and minimum of y axis
+  mx = 1;
+  if (opts.abserror)
+    mx = 0;
+  for (vector <TGraphAsymmErrors*>::iterator it = rlist.begin(); it != rlist.end(); it++)
+    {
+      if (*it == 0)
+	continue;
+
+      TGraphAsymmErrors* r = *it;
       if (opts.rmax == 0 && opts.rmin == 0)
 	for (int i = 0; i < r->GetN(); i++)
 	  {
 	    double xi = r->GetX()[i];
-	    double yi_h = r->GetY()[i] + r->GetErrorYhigh(i);
-	    double yi_l = r->GetY()[i] - r->GetErrorYlow(i);
+	    double yi_h = r->GetY()[i] + fabs(r->GetErrorYhigh(i));
 	    if (xi >= xmnforbds && xi <= xmxforbds)
-	      {
-		mx = max(mx, yi_h);
-		mn = min(mn, yi_l);
-	      }
+	      mx = max(mx, yi_h);
 	  }
       else
-	{
-	  mx = opts.rmax;
-	  mn = opts.rmin;
-	}
+	mx = opts.rmax;
+    }
+  mn = mx;
+  for (vector <TGraphAsymmErrors*>::iterator it = rlist.begin(); it != rlist.end(); it++)
+    {
+      if (*it == 0)
+	continue;
+
+      TGraphAsymmErrors* r = *it;
+      if (opts.rmax == 0 && opts.rmin == 0)
+	for (int i = 0; i < r->GetN(); i++)
+	  {
+	    double xi = r->GetX()[i];
+	    double yi_l = r->GetY()[i] - fabs(r->GetErrorYlow(i));
+	    if (xi >= xmnforbds && xi <= xmxforbds)
+	      mn = min(mn, yi_l);
+	  }
+      else
+	mn = opts.rmin;
     }
 
   if (opts.rmax == 0 && opts.rmin == 0)
