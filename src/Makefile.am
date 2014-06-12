@@ -24,6 +24,7 @@ FitPDF_SOURCES += fortran_io.f lhapdferrors.cc
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include 
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
+AM_CXXFLAGS += -I$(srcdir)/../tools/DrawPdfs/include
 
 if ENABLE_APPLGRID 
   FitPDF_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
@@ -89,7 +90,8 @@ LDADD+=  ../DY/src/libmydy.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
- ../genetic/src/libgenetic.a
+ ../genetic/src/libgenetic.a \
+ ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran

@@ -1,5 +1,7 @@
 #include "herafitter_cpp.h"
 
+#include "pdferrors.h"
+
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
 #endif
@@ -25,7 +27,6 @@ struct point
   double th_env_m;           //down parametrisation envelope
   vector <double> th_mc;     //monte carlo variations
   double th_mc_mean;         //monte carlo mean
-  double th_mc_sum2;         //monte carlo square sum
   double th_mc_var;          //monte carlo var
   double th_err_up;          //theory error up
   double th_err_dn;          //theory error down
@@ -235,16 +236,11 @@ void get_lhapdferrors_()
   for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
     {
       //MC replica mean
-      pit->second.th_mc_mean = 0;
-      pit->second.th_mc_sum2 = 0;
+      vector <double> xi;
       for (vector <double>::iterator mcit = pit->second.th_mc.begin(); mcit != pit->second.th_mc.end(); mcit++)
-	{
-	  pit->second.th_mc_mean += *mcit;
-	  pit->second.th_mc_sum2 += pow(*mcit, 2);
-	}
-      pit->second.th_mc_mean /= pit->second.th_mc.size();
-      pit->second.th_mc_var = sqrt(pit->second.th_mc_sum2/pit->second.th_mc.size() 
-				   - pow(pit->second.th_mc_mean, 2)) / pit->second.th_mc_mean;
+	xi.push_back(*mcit);
+      pit->second.th_mc_mean = mean(xi);
+      pit->second.th_mc_var = rms(xi);
       totmc = pit->second.th_mc.size();
     }
   if (totmc > 0)
@@ -373,13 +369,16 @@ void get_lhapdferrors_()
   //make envelope;
   for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
     {
-      pit->second.th_env_p = 0;
-      pit->second.th_env_m = 0;
+      vector <double> xi;
+      xi.push_back(pit->second.thc);
       for (vector <double>::iterator it = pit->second.th_par.begin(); it != pit->second.th_par.end(); it++)
-	{
-	  pit->second.th_env_p = max(0.,max((*it - pit->second.thc)/ pit->second.thc, pit->second.th_env_p));
-	  pit->second.th_env_m = min(0.,min((*it - pit->second.thc)/ pit->second.thc, pit->second.th_env_m));
-	}
+	xi.push_back(*it);
+
+      double pareplus, pareminus;
+      deltaenvelope(xi, pareplus, pareminus);
+
+      pit->second.th_env_p = pareplus;
+      pit->second.th_env_m = pareminus;
     }
   if (totpar > 0)
     {
@@ -434,30 +433,27 @@ void get_lhapdferrors_()
   if (totasym)
     for (int i = 0; i < npoints; i++)
       {
-	double err2_up = 0;
-	double err2_dn = 0;
+	vector <double> xi;
+	xi.push_back(pointsmap[i].thc);
 	for (int j = 0; j < totasym; j++)
 	  {
-	    err2_up += pow(max(max((pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc,
-				   (pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc), 0.),2);
-	    err2_dn += pow(max(max((pointsmap[i].thc - pointsmap[i].th_asym_p[j]) / pointsmap[i].thc,
-				   (pointsmap[i].thc - pointsmap[i].th_asym_m[j]) / pointsmap[i].thc), 0.),2);
+	    xi.push_back(pointsmap[i].th_asym_m[j]);
+	    xi.push_back(pointsmap[i].th_asym_p[j]);
 	  }
-	pointsmap[i].th_err_up = sqrt(err2_up);
-	pointsmap[i].th_err_dn = sqrt(err2_dn);
+	double eplus, eminus;
+	ahessdeltaasym(xi, eplus, eminus);
+	pointsmap[i].th_err_up = eplus;
+	pointsmap[i].th_err_dn = eminus;
       }
   if (tothess_s > 0)
     for (int i = 0; i < npoints; i++)
       {
-	double err2_up = 0;
-	double err2_dn = 0;
+	vector <double> xi;
+	xi.push_back(pointsmap[i].thc);
 	for (int j = 0; j < tothess_s; j++)
-	  {
-	    err2_up += pow((pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc, 2);
-	    err2_dn += pow((pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc, 2);
-	  }
-	pointsmap[i].th_err_up = sqrt(err2_up);
-	pointsmap[i].th_err_dn = sqrt(err2_dn);
+	  xi.push_back(pointsmap[i].th_hess_s[j]);
+	pointsmap[i].th_err_up = shessdelta(xi);
+	pointsmap[i].th_err_dn = shessdelta(xi);
       }
   //Square add parametrisation envelope
   if (totpar > 0)
@@ -470,8 +466,8 @@ void get_lhapdferrors_()
   //Set Error in fortran common block
   for (map <int, point>::iterator pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
     {
-      c_theo_.theo_tot_up_[pit->first] = pit->second.th_err_up * pit->second.thc;
-      c_theo_.theo_tot_down_[pit->first] = pit->second.th_err_dn * pit->second.thc;
+      c_theo_.theo_tot_up_[pit->first] = pit->second.th_err_up;
+      c_theo_.theo_tot_down_[pit->first] = pit->second.th_err_dn;
       if (clhapdf_.scale68_)
 	{
 	  c_theo_.theo_tot_up_[pit->first] /= 1.64;

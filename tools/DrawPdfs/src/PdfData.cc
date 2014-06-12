@@ -379,19 +379,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 		  eplus = eminus = shessdelta(xi);
 		}
 
-	      if (model)
-		{
-		  vector <double> xi;
-		  xi.push_back(val);
-
-		  for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
-		    xi.push_back((*eit).GetTable(*pit)[ix]);
-
-		  double modelerr = shessdelta(xi);
-		  eplus = sqrt(pow(eplus, 2) + pow(modelerr, 2));
-		  eminus = sqrt(pow(eminus, 2) + pow(modelerr, 2));
-		}
-
+	      //Add model and parametrisation uncertainties
 	      if (model)
 		{
 		  vector <double> xi;
@@ -408,7 +396,6 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 		  eplus = sqrt(pow(eplus, 2) + pow(modeplus, 2));
 		  eminus = sqrt(pow(eminus, 2) + pow(modeminus, 2));
 		}
-
 	      if (par)
 		{
 		  vector <double> xi;
