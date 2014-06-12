@@ -147,7 +147,7 @@ void get_lhapdferrors_()
 	  double chi2tot;
 	  int iflag = min(2,max(1, cset+1));
 	  chi2tot = chi2data_theory_(iflag);
-	  char chi2c[20];
+	  char chi2c[50];
 	  sprintf(chi2c, "%.2f", chi2tot);
 	  cout << setw(20) << "PDF set number: " << setw(5) << iset 
 	       << setw(15) << "chi2=" << chi2c 
