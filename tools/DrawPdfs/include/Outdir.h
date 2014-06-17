@@ -1,20 +1,23 @@
 #ifndef  Outdir_h
 #define  Outdir_h
 
-#include <vector>
-#include <map>
-#include <string>
-
 #include "PdfData.h"
 #include "Dataset.h"
 #include "Chi2.h"
 #include "Par.h"
 
+#include <TGraphAsymmErrors.h>
+
+#include <vector>
+#include <map>
+#include <string>
 
 extern map <string, PdfData> pdfmap;  //dir label-pdf map	   
 extern map <string, Data> datamap;    //dir label-dataset map
 extern map <string, Chi2> chi2map;    //dir label-chi2 map
 extern map <string, Par> parmap;      //dir label-parameters map
+
+extern vector <TGraphAsymmErrors*> allgraphs; //global TGraph vector to store graphs in plots.root
 
 using namespace std;
 

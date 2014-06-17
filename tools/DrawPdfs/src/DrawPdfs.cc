@@ -268,10 +268,12 @@ int main(int argc, char **argv)
       cout << "Multiple " << opts.ext << " plots saved in: " << (opts.outdir + "*." + opts.ext) << endl;
     }
 
-  //Save TCanvas
+  //Save TCanvas and TGraphs
   if (opts.root)
     {
       TFile * f = new TFile((opts.outdir + "plots.root").c_str(), "recreate");
+      f->mkdir("Canvas");
+      f->cd("Canvas");
       for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
 	(*it)->Write();
       for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
@@ -280,6 +282,13 @@ int main(int argc, char **argv)
 	(*it)->Write();
       for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
 	(*it)->Write();
+
+      f->cd("");
+      f->mkdir("Graphs");
+      f->cd("Graphs");
+      for (vector <TGraphAsymmErrors*>::iterator git = allgraphs.begin(); git != allgraphs.end(); git++)
+	(*git)->Write();
+
       f->Close();
       cout << "TCanvas saved in: " << (opts.outdir + "plots.root") << endl;
     }

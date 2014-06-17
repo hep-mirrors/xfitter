@@ -17,6 +17,12 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 {
   vector <TCanvas*> cnvs;
 
+  char q2str[30];				
+  if (q2 < 10)
+    sprintf(q2str, "%.1f",  q2);
+  else
+    sprintf(q2str, "%.0f",  q2);
+
   vector <TGraphAsymmErrors*> pdfgraphs;
   vector <string> labels;
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
@@ -24,7 +30,14 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       {
 	pdfgraphs.push_back(pdfmap[*itl].Central[q2].GetPdf(ipdf));
 	labels.push_back(*itl);
+
+	char pdfname[80];
+	sprintf(pdfname, "dir%d_q2_%s_pdf_%s", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+	pdfgraphs.back()->SetName(pdfname);
       }
+
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+      allgraphs.push_back(*it);
 
   if (pdfgraphs.size() < 1)
     {
@@ -32,12 +45,6 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       exit(1);
     }
 
-  char q2str[30];				
-  if (q2 < 10)
-    sprintf(q2str, "%.1f",  q2);
-  else
-    sprintf(q2str, "%.0f",  q2);
-  
   char cnvname[30];
   sprintf(cnvname, "q2_%s_pdf_%s",  q2str, pdffiles[ipdf].c_str());
 
