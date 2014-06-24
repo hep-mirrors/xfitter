@@ -39,6 +39,12 @@ void get_lhapdferrors_()
   string msg = "S: Call to LHAPDFErrors but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
   hf_errlog_(14060101, msg.c_str(), msg.size());
 }
+#elif !defined HAVE_ROOT
+void get_lhapdferrors_()
+{
+  string msg = "S: Call to LHAPDFErrors but ROOT library are not linked. Run ./configure with root setup in your PATH";
+  hf_errlog_(14062501, msg.c_str(), msg.size());
+}
 #else
 
 void get_lhapdferrors_()

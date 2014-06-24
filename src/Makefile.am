@@ -90,14 +90,17 @@ LDADD+=  ../DY/src/libmydy.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
- ../genetic/src/libgenetic.a \
- ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
+ ../genetic/src/libgenetic.a
+
+if HAVE_ROOT
+ LDADD+= ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
+endif
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
 
 if ENABLE_APPLGRID 
-  LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB) $(ROOT_LIBS)
+  LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
 endif
 
 if ENABLE_GENETIC
@@ -108,6 +111,6 @@ if ENABLE_LHAPDF
   LDADD+=$(LHAPDF_LDFLAGS)
 endif
 
-if ENABLE_NNPDFWEIGHT
+if HAVE_ROOT
   LDADD+=$(ROOT_LIBS)
 endif
