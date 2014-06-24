@@ -1320,7 +1320,7 @@ C-------------------------------------------------------------------------------
       
       double precision Eigenvalues(NDimCovar)
       integer NWork
-      parameter (NWork = 100000)
+      parameter (NWork = 1000000)
       double precision Work(NWork)
       integer IWork(NWork)
       integer ifail
