@@ -211,7 +211,7 @@ else
   AC_SUBST(ROOT_CFLAGS)
   AC_SUBST(ROOT_LDFLAGS)
   AC_SUBST(ROOT_LIBS)
-  AC_DEFINE([ROOT_ENABLED],[1],[Define if LHAPDF is enabled])
+  AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
 fi
 
 AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
