@@ -244,7 +244,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
     }
 
   leg->Draw();
-  DrawLogo()->Draw();
+  if(DrawLogo()!=0) DrawLogo()->Draw();
 
   //--------------------------------------
   //Ratio Canvas
@@ -560,7 +560,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
   leg2->Draw();
 
-  DrawLogo("dc")->Draw();
+  if(DrawLogo("dc")!=0) DrawLogo("dc")->Draw();
 
   return cnvs;
 }

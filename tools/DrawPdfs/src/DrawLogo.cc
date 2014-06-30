@@ -9,6 +9,7 @@
 
 #include <string>
 #include <iostream>
+#include <sys/stat.h>
 
 #include <CommandParser.h>
 
@@ -34,8 +35,13 @@ TPad * DrawLogo(string pos)
       TString fp = gEnv->GetValue("Root.TTFontPath", "");
       TString bc = fp + "/BlackChancery.ttf";
       TString ar = fp + "/arial.ttf";
+      struct stat st;
+      if(stat(bc,&st) != 0) {
+         cout<<"Warning, cannot find font for HERAFitter logo "<<bc<<" (logo will not be drawn) "<<endl;
+         return 0;
+      } 
       logo->DrawText(500, 600, ver.c_str(), 200, 0, 
-		     bc, TImage::kShadeBelow);
+		    bc, TImage::kShadeBelow);
     }
 
   float dx = 0.1183 * 1.5;

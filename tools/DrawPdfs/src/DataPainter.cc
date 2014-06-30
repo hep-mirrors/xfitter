@@ -988,7 +988,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       cnv->cd(1);
       DrawLabels();
       if (opts.drawlogo)
-	DrawLogo()->Draw();
+        if(DrawLogo()!=0) DrawLogo()->Draw();   
       cnv->cd(2);
       DrawLabels();
     }
@@ -997,7 +997,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       cnv->cd();
       DrawLabels();
       if (opts.drawlogo)
-	DrawLogo()->Draw();
+        if(DrawLogo()!=0) DrawLogo()->Draw();   
     }
 
   return cnv;
