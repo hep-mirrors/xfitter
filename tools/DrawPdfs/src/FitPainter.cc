@@ -37,7 +37,8 @@ bool FitPainter()
   float chi2[opts.labels.size()][ndata];
   float chi2_00[opts.labels.size()][ndata];
   int dof[opts.labels.size()][ndata];
-  string dirname[opts.labels.size()];
+  vector <string> dirname;
+  dirname.resize(opts.labels.size());
   for (int i = 0; i < opts.labels.size(); i++)
     for (int d = 0; d < ndata; d++)
       {

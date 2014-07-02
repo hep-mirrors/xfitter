@@ -31,7 +31,8 @@ bool ParPainter()
   float par[opts.labels.size()][ndata];
   float unc_p[opts.labels.size()][ndata];
   float unc_m[opts.labels.size()][ndata];
-  string dirname[opts.labels.size()];
+  vector <string> dirname;
+  dirname.resize(opts.labels.size());
   for (int i = 0; i < opts.labels.size(); i++)
     for (int d = 0; d < ndata; d++)
       {
