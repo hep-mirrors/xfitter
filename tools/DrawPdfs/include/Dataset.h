@@ -46,12 +46,14 @@ private:
   vector <float> bins1;
   vector <float> bins2;
 
+  bool hastherr;
   bool valid;
  public:
   Subplot() {};
   Subplot(string plotoptions);
   void AddPoint(map <string, float> fline);
   void Init(string label, int dataindex, int subplotindex);
+  bool HasTherr() {return hastherr;};
   bool IsValid() {return valid;};
   void Draw(TH1F* histo, string opt);
   string gettitle() {return title;};

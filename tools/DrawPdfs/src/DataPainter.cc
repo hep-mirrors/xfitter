@@ -120,8 +120,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   string dataname = dtname;
 
   //Set the pads geometry
-  //panels height
-  float dy;
+  float dy; //subpanels height
 
   if (opts.twopanels)
     dy = 0.5 * (1.-bmarg-tmarg);
@@ -135,7 +134,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   TPad* Ratio;
   TPad* Shifts;
   TPad* Pulls;
-  float my, ry, sy, py;
+  float my, ry, sy, py; //my is the main panel height
   float mb;
   if (opts.twopanels || opts.threepanels)
     cnv->Divide(2, 1);
@@ -352,49 +351,59 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     }
 
   //Main legend
-  TLegend * leg = new TLegend(lmarg+0.02+0.02, mb+0.03, mb+0.4/my, lmarg+0.20);
-  leg->SetFillColor(0);
-  leg->SetBorderSize(0);
-  leg->SetTextAlign(12);
-  leg->SetTextSize(txtsize * 0.8/my);
-  leg->SetTextFont(62);
-  string datalab = (string) "Data " + datahistos[0].gettitle();
-  if (datahistos[0].getexperiment() != "")
-    datalab = datahistos[0].getexperiment() + " " + datalab;
-  if (!opts.onlytheory)
-    {
-      leg->AddEntry(data, datalab.c_str(), "pl");
-      leg->AddEntry(data, "#delta uncorrelated", "pe");
-      leg->AddEntry(datatot, "#delta total", "f");
-    }
-  TH1 *mark = (TH1F*)datahistos[0].getth()->Clone();
-  mark->SetMarkerStyle(opts.markers[labels[0]]);
-  mark->SetMarkerSize(2 * opts.resolution / 1200);
-  mark->SetMarkerColor(kBlack);
-  TLine *cont = new TLine(0, 1, 1, 1);
-  cont->SetLineStyle(1);
-  cont->SetLineWidth(opts.lwidth);
-  TLine *dash = new TLine(0, 1, 1, 1);
-  dash->SetLineStyle(2);
-  dash->SetLineWidth(opts.lwidth);
-  if (datahistos.size() == 1)
-    {
-      cont->SetLineColor(opts.colors[labels[0]]);
-      dash->SetLineColor(opts.colors[labels[0]]);
-    }
+  TPaveText* leg1;
   if (opts.onlytheory)
-    leg->AddEntry((TObject*)0, opts.theorylabel.c_str(), "");
+    {
+      leg1 = new TPaveText(lmarg+0.05, mb+0.03, lmarg+0.05+0.3, mb+0.03+0.04/my, "NDC");
+      leg1->AddText(opts.theorylabel.c_str());
+    }
   else
     {
-      if (opts.points && !datahistos[0].bincenter())
-	leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
+      TLegend * leg = new TLegend(lmarg+0.04, mb+0.03, lmarg+0.04+0.30, mb+0.03+0.2/my);
+      string datalab = (string) "Data " + datahistos[0].gettitle();
+      if (datahistos[0].getexperiment() != "")
+	datalab = datahistos[0].getexperiment() + " " + datalab;
+      if (!opts.onlytheory)
+	{
+	  leg->AddEntry(data, datalab.c_str(), "pl");
+	  leg->AddEntry(data, "#delta uncorrelated", "pe");
+	  leg->AddEntry(datatot, "#delta total", "f");
+	}
+      TH1 *mark = (TH1F*)datahistos[0].getth()->Clone();
+      mark->SetMarkerStyle(opts.markers[labels[0]]);
+      mark->SetMarkerSize(2 * opts.resolution / 1200);
+      mark->SetMarkerColor(kBlack);
+      TLine *cont = new TLine(0, 1, 1, 1);
+      cont->SetLineStyle(1);
+      cont->SetLineWidth(opts.lwidth);
+      TLine *dash = new TLine(0, 1, 1, 1);
+      dash->SetLineStyle(2);
+      dash->SetLineWidth(opts.lwidth);
+      if (datahistos.size() == 1)
+	{
+	  cont->SetLineColor(opts.colors[labels[0]]);
+	  dash->SetLineColor(opts.colors[labels[0]]);
+	}
+      if (opts.onlytheory)
+	leg->AddEntry((TObject*)0, opts.theorylabel.c_str(), "");
       else
-	leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
-      leg->AddEntry(dash, (opts.theorylabel + " + shifts").c_str(), "l");
+	{
+	  if (opts.points && !datahistos[0].bincenter())
+	    leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
+	  else
+	    leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
+	  leg->AddEntry(dash, (opts.theorylabel + " + shifts").c_str(), "l");
+	}
+      leg1 = (TPaveText*)leg;
     }
+  leg1->SetFillColor(0);
+  leg1->SetBorderSize(0);
+  leg1->SetTextAlign(12);
+  leg1->SetTextSize(txtsize * 0.8/my);
+  leg1->SetTextFont(62);
 
   //Auxiliary legend
-  TLegend * leg2 = new TLegend(lmarg+0.4, mb+0.03, 1-rmarg-0.01, mb+0.03 + datahistos.size() * 0.045/my);
+  TLegend * leg2 = new TLegend(lmarg+0.4, mb+0.03, lmarg+0.7, mb+0.03 + datahistos.size() * 0.04/my);
   leg2->SetFillColor(0);
   leg2->SetBorderSize(0);
   leg2->SetTextAlign(12);
@@ -489,12 +498,12 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	  gtherr->Draw("P same");
 	}
       if (!opts.points || (*it).bincenter())
-	if (opts.therr)
+	if (opts.therr && (*it).HasTherr())
 	  leg2->AddEntry((*it).gettherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
 	else
 	  leg2->AddEntry((*it).getth(), (labels[it-datahistos.begin()]).c_str(), "l");
       else
-	if (opts.therr)
+	if (opts.therr && (*it).HasTherr())
 	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "pe");
 	else
 	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "p");
@@ -530,7 +539,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   if (!opts.onlytheory)
     datahistos[0].Draw(data, "PE1 same");
 
-  leg->Draw();
+  leg1->Draw();
   leg2->Draw();
 
   //Theory/Data ratio Pad

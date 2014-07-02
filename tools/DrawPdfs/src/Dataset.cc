@@ -36,6 +36,7 @@ void Subplot::AddPoint(map <string, float> fline)
 
 Subplot::Subplot(string plotoptions) :  xmin(0), xmax(0), yminr(0), ymaxr(0), extralabel(""), experiment(""), title(""), xlabel(""), ylabel(""), logx(false), logy(false)
 {
+  hastherr = false;
   valid = false;
   //parse plot options
   //Rewrite in standard C parsing, avoid Root string parsing
@@ -273,6 +274,10 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
 	hpull->SetBinContent(b + 1, pulls[b]);
       hpull->SetBinError(b + 1, 0);
     }
+  
+  for (unsigned int b = 0; b < data.size(); b++)
+    if (therrup[b] != 0 || therrdown[b] != 0)
+      hastherr = true;
 
   //Prepare ratio histograms
   r_th = (TH1F*)hth->Clone();
