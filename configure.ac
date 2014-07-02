@@ -134,6 +134,7 @@ if test x$enable_applgrid == xyes; then
     APPLGRID_LDFLAGS=`applgrid-config --ldcflags`
     AC_SUBST(APPLGRID_CPPFLAGS)
     AC_SUBST(APPLGRID_LDFLAGS)
+    AC_DEFINE([APPLGRID_ENABLED],[1],[Define if applgrid is enabled])
   fi
 fi
 AM_CONDITIONAL(ENABLE_APPLGRID, [test x$enable_applgrid == xyes])

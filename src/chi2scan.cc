@@ -1,8 +1,27 @@
 #include "herafitter_cpp.h"
 
-#ifdef LHAPDF_ENABLED
+//return error if LHAPDF is not enabled
+#if !defined LHAPDF_ENABLED
+void chi2_scan_()
+{
+  string msg = "S: Call to chi2_scan but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
+  hf_errlog_(14060204, msg.c_str(), msg.size());
+}
+#elif !defined ROOT_ENABLED
+void chi2_scan()
+{
+  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
+  hf_errlog_(14062501, msg.c_str(), msg.size());
+}
+#elif !defined APPLGRID_ENABLED
+void chi2_scan_()
+{
+  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
+  hf_errlog_(14062501, msg.c_str(), msg.size());
+}
+#else
+
 #include <LHAPDF/LHAPDF.h>
-#endif
 
 #include "TheorEval.h"
 #include "pdferrors.h"
@@ -15,21 +34,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-
-//return error if LHAPDF is not enabled
-#ifndef LHAPDF_ENABLED
-void chi2_scan_()
-{
-  string msg = "S: Call to chi2_scan but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
-  hf_errlog_(14060204, msg.c_str(), msg.size());
-}
-#elif !defined ROOT_ENABLED
-void get_lhapdferrors_()
-{
-  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
-  hf_errlog_(14062501, msg.c_str(), msg.size());
-}
-#else
 
 void fitchi2(map <double, double> chi2, double& min, double& delta, double& chi2min)
 {
