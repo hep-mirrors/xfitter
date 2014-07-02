@@ -22,6 +22,7 @@ C Read various namelists:
 
       if(Itheory.lt.100) then
          call read_lhapdfnml    ! read lhapdf 
+         call read_chi2scan     ! read chi2scan
 C
 C Decode PDF type:
 C      
@@ -552,6 +553,54 @@ C---
  74   continue
       print '(''Error reading namelist &reweighting, STOP'')'
       call HF_stop
+      end
+
+      subroutine read_chi2scan
+
+      implicit none
+      include 'steering.inc'
+      include 'ntot.inc'
+      include 'theorexpr.inc'
+      include 'chi2scan.inc'
+C------------------------------------
+C (Optional) Chi2Scan steering card
+      namelist/chi2scan/label,central,values,
+     $     dataid,term,TheorySources,scan,pdferrors,
+     $	   chi2lhapdfref,chi2lhapdfset,chi2lhapdfvarset,chi2nparvar,
+     $     chi2parpoint
+
+C Chi2Scan default
+      scan = .false.
+      label = ''
+      term = ''
+      dataid = 0
+      central = 0
+      pdferrors = .false.
+      chi2lhapdfref = ''
+      chi2lhapdfset = ''
+      chi2lhapdfvarset = ''
+      chi2nparvar = 0
+      chi2parpoint = 0
+
+C
+C  Read the chi2scan namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=chi2scan,ERR=70,end=69)
+ 69   continue
+      close (51)
+
+      if (LDebug) then
+C Print the namelist:
+         print chi2scan
+      endif
+
+      return
+C---
+ 70   continue
+      print '(''Error reading namelist &chi2scan, STOP'')'
+      call HF_stop
+
       end
 
 C

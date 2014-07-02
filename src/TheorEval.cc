@@ -463,3 +463,41 @@ TheorEval::getNbins()
 {
   return _dsBins[0].size();
 }
+
+void TheorEval::ChangeTheorySource(string term, string source)
+{
+  vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
+  if ( found_term == _termNames.end())
+    {
+      string msg = (string) "S: Undeclared term " + term;
+      hf_errlog_(14020603, msg.c_str(), msg.size());
+    }
+  int iterm = int(found_term-_termNames.begin());
+  //  cout << "switch " << _termSources[iterm] << " to " << source << endl;
+  _termSources[iterm] = source;
+
+  //delete old applgrid
+  map<CommonGrid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
+  for (; itm!= _mapGridToken.end(); itm++)
+    {
+      if (itm->second == _mapInitdTerms[term])
+	{
+	  delete itm->first;
+	  _mapGridToken.erase(itm);
+	  break;
+	}
+    }
+
+  initTerm(int(found_term-_termNames.begin()), _mapInitdTerms[term]);
+}
+string TheorEval::GetTheorySource(string term)
+{
+  vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
+  if ( found_term == _termNames.end())
+    {
+      string msg = (string) "S: Undeclared term " + term;
+      hf_errlog_(14020603, msg.c_str(), msg.size());
+    }
+  int iterm = int(found_term-_termNames.begin());
+  return _termSources[iterm];
+}

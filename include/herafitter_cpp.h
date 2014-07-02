@@ -6,6 +6,10 @@ using namespace std;
 //Fortran wrapper for lhapdferrors
 
 extern"C" {
+  void chi2_scan_();
+
+  void mc_method_();
+
   //LHAPDFErrors functions
   void get_lhapdferrors_();
   void getpdfunctype_heraf_(const char name[30], int& lmontecarlo, int& lasymhess, int& lsymmhess);
@@ -172,6 +176,24 @@ extern"C" {
     double e_uncor_mult_[2500];
     double e_uncor_logNorm_[2500];
   } cuncerrors_;
+
+  extern struct {
+    char label_[64];
+    double central_;
+    double values_[100];
+    int dataid_[150];
+    char term_[150][16][8];
+    char theorysources_[150][16][100][1000];
+    int scan_;
+    int pdferrors_;
+    char chi2lhapdfref_[128];
+    char chi2lhapdfset_[128];
+    char chi2lhapdfvarset_[128];
+    int chi2nparvar_;
+    int chi2parpoint_;
+
+  } chi2scan_;
 }
+
 
 #endif

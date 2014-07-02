@@ -31,8 +31,6 @@ extern "C" {
   int close_theor_eval_();
 }
 
-typedef map <int, TheorEval* > tTEmap;
-
 /// global dataset to theory evaluation pointer map
 tTEmap gTEmap;
 

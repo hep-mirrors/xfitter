@@ -17,6 +17,8 @@ C-------------------------------------------------------
       include 'systematics.inc'
       include 'g_offset.inc'	
       include 'covar.inc'
+      include 'theorexpr.inc'
+      include 'chi2scan.inc'
 
       integer icond
       integer nOffset
@@ -82,6 +84,11 @@ C-----------------------------------------------------
 
       if (LHAPDFErrors) then  ! PDF errors
          call get_lhapdferrors
+         goto 36
+      endif
+
+      if (SCAN) then  ! chi2 scan
+         call chi2_scan
          goto 36
       endif
 

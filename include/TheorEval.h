@@ -117,6 +117,8 @@ class TheorEval{
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
+  void ChangeTheorySource(string term, string source);
+  string GetTheorySource(string term);
 
  private:
   //! Checks that the bin boundaries in theory sources are complied with data ones.
@@ -172,5 +174,10 @@ class TheorEval{
   /// bin-by-bin dynamic scale
   float _dynamicscale;
 };
+
+typedef map <int, TheorEval* > tTEmap;
+
+/// global dataset to theory evaluation pointer map
+extern tTEmap gTEmap;
 
 #endif

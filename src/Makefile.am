@@ -22,6 +22,9 @@ FitPDF_SOURCES += lhapdf6_output.c c_interface.f
 #LHAPDFErrors
 FitPDF_SOURCES += fortran_io.f lhapdferrors.cc
 
+#Chi2scan
+FitPDF_SOURCES += chi2scan.cc
+
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include 
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 AM_CXXFLAGS += -I$(srcdir)/../tools/DrawPdfs/include
@@ -90,11 +93,9 @@ LDADD+=  ../DY/src/libmydy.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
- ../genetic/src/libgenetic.a
+ ../genetic/src/libgenetic.a \
+ ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
 
-if HAVE_ROOT
- LDADD+= ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
-endif
 
 GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
 GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
