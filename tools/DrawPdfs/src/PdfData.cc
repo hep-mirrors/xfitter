@@ -287,7 +287,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
     }
 
   //Remake central PDF
-  if (err == MC)
+  if (err == MC && opts.dobands)
     for (map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) //Loop on q2 values
       {
 	float q2 = pdfit->first;

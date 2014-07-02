@@ -233,22 +233,15 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   htherrdown = new TH1F((hname + "_therrdown").c_str(), "", bins1.size(),  bin);
   hpull = new TH1F((hname + "_pull").c_str(), "", bins1.size(),  bin);
 
-  if (xmin != 0 && xmax != 0)
-    {
-      hdata->SetAxisRange(xmin, xmax);
-      hdatatot->SetAxisRange(xmin, xmax);
-      hth->SetAxisRange(xmin, xmax);
-      hthshift->SetAxisRange(xmin, xmax);
-      htherr->SetAxisRange(xmin, xmax);
-      htherrup->SetAxisRange(xmin, xmax);
-      htherrdown->SetAxisRange(xmin, xmax);
-      hpull->SetAxisRange(xmin, xmax);
-    }
-  else
+  if (xmin == 0 && xmax == 0)
     {
       xmin = hdata->GetXaxis()->GetBinLowEdge(hdata->GetXaxis()->GetFirst());
-      xmax = hdata->GetXaxis()->GetBinUpEdge(hdata->GetXaxis()->GetLast() - 1);
+      xmax = hdata->GetXaxis()->GetBinUpEdge(hdata->GetXaxis()->GetLast());
     }
+
+  //Compute range for histograms
+  lowrange = max(1, hdata->GetXaxis()->FindFixBin(xmin));
+  uprange = min(hdata->GetNbinsX(), hdata->GetXaxis()->FindFixBin(xmax));
       
   hdata->SetXTitle(xlabel.c_str());
   hdata->SetYTitle(ylabel.c_str());
@@ -289,7 +282,6 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   r_therrdown = (TH1F*)htherrdown->Clone();
 
   //Select reference, data or theory
-  //  TH1F * refdata;
   if (opts.ratiototheory)
     href = (TH1F*)hth->Clone();
   else
@@ -299,24 +291,8 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   for (int b = 1; b <= href->GetNbinsX(); b++)
     href->SetBinError(b, 0);
 
-  /*
-  r_th->Divide(refdata);
-  r_thshift->Divide(refdata);
-  r_therr->Divide(refdata);
-  r_therrup->Divide(refdata);
-  r_therrdown->Divide(refdata);
+  //Ratio histograms are evaluated in plotting in order to use a common reference
 
-  for (int b = 1; b <= r_th->GetNbinsX(); b++)
-    r_th->SetBinError(b, 0);
-  for (int b = 1; b <= r_thshift->GetNbinsX(); b++)
-    r_thshift->SetBinError(b, 0);
-  for (int b = 1; b <= r_therr->GetNbinsX(); b++)
-    r_therr->SetBinError(b, (r_therrup->GetBinContent(b) - r_therrdown->GetBinContent(b)) / 2 );
-  for (int b = 1; b <= r_therrup->GetNbinsX(); b++)
-    r_therrup->SetBinError(b, 0);
-  for (int b = 1; b <= r_therrdown->GetNbinsX(); b++)
-    r_therrdown->SetBinError(b, 0);
-  */
   valid = true;
 }
 

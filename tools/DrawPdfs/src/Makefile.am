@@ -6,7 +6,7 @@ if HAVE_ROOT
 bin_PROGRAMS = DrawPdfs
 
 # source files for the DrawPdfs executable
-DrawPdfs_SOURCES = DrawPdfs.cc PdfsPainter.cc CommandParser.cc DataPainter.cc DrawLogo.cc ShiftPainter.cc FitPainter.cc ParPainter.cc Outdir.cc PdfData.cc Dataset.cc Chi2.cc Par.cc pdferrors.cc
+DrawPdfs_SOURCES = DrawPdfs.cc PdfsPainter.cc CommandParser.cc DataPainter.cc DrawLogo.cc ShiftPainter.cc FitPainter.cc ParPainter.cc Chi2scanPainter.cc Outdir.cc PdfData.cc Dataset.cc Chi2.cc Par.cc Chi2scanData.cc pdferrors.cc
 
 DrawPdfs_CPPFLAGS = -I$(srcdir)/../include $(ROOT_CFLAGS) -w
 

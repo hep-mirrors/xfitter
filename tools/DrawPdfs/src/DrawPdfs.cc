@@ -14,6 +14,7 @@
 #include "ShiftPainter.h"
 #include "FitPainter.h"
 #include "ParPainter.h"
+#include "Chi2scanPainter.h"
 
 
 using namespace std;
@@ -104,6 +105,12 @@ int main(int argc, char **argv)
   vector <TCanvas*> shiftcanvaslist;
   if (! opts.noshifts)
     shiftcanvaslist = ShiftPainter(opts.dirs);
+
+  //--------------------------------------------------
+  //Chi2scan plots
+  vector <TCanvas*> chi2scancanvaslist;
+  //  if (! opts.nochi2scan)
+  chi2scancanvaslist = Chi2scanPainter();
 
   //--------------------------------------------------
   //Create output directory
@@ -230,6 +237,27 @@ int main(int argc, char **argv)
       sprintf(numb, "shift_%d", it - shiftcanvaslist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2 * opts.resolution, (*it)->GetWindowHeight());
       (*it)->DrawClonePad();
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
+    }
+
+  gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth);
+  it = chi2scancanvaslist.begin();
+  for (it = chi2scancanvaslist.begin(); it != chi2scancanvaslist.end();)
+    {
+      char numb[15];
+      sprintf(numb, "chi2scan_%d", it - chi2scancanvaslist.begin());
+      TCanvas * pagecnv;
+      pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
+      pagecnv->Divide(2, 2);
+      for (int i = 1; i <= 4; i++)
+	if (it != chi2scancanvaslist.end())
+	  {
+	    pagecnv->cd(i);
+	    (*it)->DrawClonePad();
+	    it++;
+	  }
       pgn++;
       sprintf(pgnum, "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());

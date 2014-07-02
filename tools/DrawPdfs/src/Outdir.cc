@@ -13,6 +13,7 @@ map <string, PdfData> pdfmap;
 map <string, Data> datamap;
 map <string, Chi2> chi2map;
 map <string, Par> parmap;
+map <string, Chi2scanData> chi2scanmap;
 
 vector <TGraphAsymmErrors*> allgraphs;
 
@@ -190,6 +191,10 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
   //Load parameters
   Par par(dirname, label);
   parmap[label] = par;
+
+  //Load chi2scan
+  Chi2scanData chi2scan(dirname);
+  chi2scanmap[label] = chi2scan;
 }
 
 vector <float> q2list()
@@ -281,4 +286,17 @@ string findparname(int index)
 	name = iit->second.name;
 
   return name;
+}
+vector <string> chi2scanlist()
+{
+  vector <string> c2scanlist;
+  for (map <string, Chi2scanData>::iterator dit = chi2scanmap.begin(); dit != chi2scanmap.end(); dit++) //loop on directories
+    if (dit->second.chi2.size() > 0)
+      c2scanlist.push_back(dit->second.label);
+
+  sort (c2scanlist.begin(), c2scanlist.end());
+  vector<string>::iterator it = unique (c2scanlist.begin(), c2scanlist.end());
+  c2scanlist.resize(distance(c2scanlist.begin(), it));
+
+  return c2scanlist;
 }

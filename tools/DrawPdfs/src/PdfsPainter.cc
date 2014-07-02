@@ -1,6 +1,7 @@
-#include <PdfsPainter.h>
-#include <DrawLogo.h>
-#include <CommandParser.h>
+#include "PdfsPainter.h"
+#include "DrawLogo.h"
+#include "CommandParser.h"
+#include "Outdir.h"
 
 #include <TH1F.h>
 #include <TCanvas.h>
@@ -11,7 +12,6 @@
 
 #include <iostream>
 
-#include "Outdir.h"
 
 vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 {
@@ -244,7 +244,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
     }
 
   leg->Draw();
-  if(DrawLogo()!=0) DrawLogo()->Draw();
+  DrawLogo()->Draw();
 
   //--------------------------------------
   //Ratio Canvas
@@ -560,7 +560,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
   leg2->Draw();
 
-  if(DrawLogo("dc")!=0) DrawLogo("dc")->Draw();
+  DrawLogo("dc")->Draw();
 
   return cnvs;
 }

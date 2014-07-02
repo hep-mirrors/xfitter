@@ -5,6 +5,7 @@
 #include "Dataset.h"
 #include "Chi2.h"
 #include "Par.h"
+#include "Chi2scanData.h"
 
 #include <TGraphAsymmErrors.h>
 
@@ -16,6 +17,7 @@ extern map <string, PdfData> pdfmap;  //dir label-pdf map
 extern map <string, Data> datamap;    //dir label-dataset map
 extern map <string, Chi2> chi2map;    //dir label-chi2 map
 extern map <string, Par> parmap;      //dir label-parameters map
+extern map <string, Chi2scanData> chi2scanmap; //dir label-chi2scan map
 
 extern vector <TGraphAsymmErrors*> allgraphs; //global TGraph vector to store graphs in plots.root
 
@@ -46,6 +48,7 @@ extern vector <float> q2list();
 extern vector <int> datalist();
 extern vector <int> chi2list();
 extern vector <int> parlist();
+extern vector <string> chi2scanlist();
 extern int finddataindex(string name);
 extern string finddataname(int index);
 extern string findparname(int index);

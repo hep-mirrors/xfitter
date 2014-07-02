@@ -29,19 +29,22 @@ TPad * DrawLogo(string pos)
   logo->SetConstRatio(1);
   logo->SetImageQuality(TAttImage::kImgBest);
 
-  //Draw version on logo
+  //Draw HERAFitter version on logo
   if (opts.version)
     {
       TString fp = gEnv->GetValue("Root.TTFontPath", "");
-      TString bc = fp + "/BlackChancery.ttf";
-      TString ar = fp + "/arial.ttf";
+      TString font = fp + "/BlackChancery.ttf";
+      //Check the font file exists
       struct stat st;
-      if(stat(bc,&st) != 0) {
-         cout<<"Warning, cannot find font for HERAFitter logo "<<bc<<" (logo will not be drawn) "<<endl;
-         return 0;
-      } 
+      if (stat(font,&st) != 0) //backup, arial font
+	font = fp + "/arial.ttf";
+      if (stat(font,&st) != 0)
+	{
+	  cout << "Warning, cannot find font: " << font << "; HERAFitter version cannot be drawn on logo "<<endl;
+	  opts.version = false;
+	}
       logo->DrawText(500, 600, ver.c_str(), 200, 0, 
-		    bc, TImage::kShadeBelow);
+		     font, TImage::kShadeBelow);
     }
 
   float dx = 0.1183 * 1.5;

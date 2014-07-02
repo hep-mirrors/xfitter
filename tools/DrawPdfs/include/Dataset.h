@@ -30,6 +30,7 @@ private:
   TH1F* r_therrdown;
   bool logx, logy;
   float xmin, xmax;
+  int lowrange, uprange;
   float yminr, ymaxr;
 
   bool maketgraph;
@@ -74,6 +75,8 @@ private:
   bool getlogy() {return logy;};
   float getxmin() {return xmin;};
   float getxmax() {return xmax;};
+  float getlowrange() {return lowrange;};
+  float getuprange() {return uprange;};
   float getyminr() {return yminr;};
   float getymaxr() {return ymaxr;};
   bool bincenter() {return maketgraph;};

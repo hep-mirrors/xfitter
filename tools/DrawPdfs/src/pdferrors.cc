@@ -4,24 +4,55 @@
 #include <algorithm>
 #include <iostream>
 
-#include <TMath.h>
-
 //Functions for MC errors
 double mean(vector <double> xi)
 {
-  return TMath::Mean(xi.begin(), xi.end());
+  if (xi.size() == 0)
+    {
+      cout << "Error in pdferrors.cc, passed empty vector to double mean(vector <double> xi) "<< endl;
+      return 0;      
+    }
+  double avg = 0;
+  for (vector<double>::iterator it = xi.begin(); it != xi.end(); it++)
+    avg += *it;
+  avg /= xi.size();
+
+  return avg;
 }
 double rms(vector <double> xi)
 {
-  return TMath::RMS(xi.begin(), xi.end());
+  if (xi.size() == 0)
+    {
+      cout << "Error in pdferrors.cc, passed empty vector to double rms(vector <double> xi) "<< endl;
+      return 0;      
+    }
+
+  double sum2 = 0;
+  for (vector<double>::iterator it = xi.begin(); it != xi.end(); it++)
+    sum2 += pow(*it,2);
+  sum2 /= xi.size();
+  return sqrt(fabs(sum2 - pow(mean(xi),2)));
 }
 double median(vector <double> xi)
 {
-  int n = xi.size();
-  double x[n];
-  std::copy (xi.begin(), xi.end()-1, x);
+  if (xi.size() == 0)
+    {
+      cout << "Error in pdferrors.cc, passed empty vector to double median(vector <double> xi) "<< endl;
+      return 0;      
+    }
+  double med = 0;
+  sort(xi.begin(), xi.end());
 
-  return TMath::Median(n, x);
+  if (xi.size() % 2) //odd
+    med = *(xi.begin() + ((xi.size() + 1) / 2) - 1);
+  else //even
+    {
+      med += *(xi.begin() + ((xi.size() / 2) - 1));
+      med += *(xi.begin() + ((xi.size() / 2)));
+      med /=2;
+    }
+
+  return med;
 }
 double cl(int sigma)
 {

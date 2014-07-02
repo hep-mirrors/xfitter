@@ -1,8 +1,7 @@
-#include <DataPainter.h>
-#include <CommandParser.h>
-
-#include <DrawLogo.h>
-#include <Outdir.h>
+#include "DataPainter.h"
+#include "CommandParser.h"
+#include "DrawLogo.h"
+#include "Outdir.h"
 
 #include <TH1F.h>
 #include <TGraphAsymmErrors.h>
@@ -232,9 +231,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     Main->SetLogx();
 
   //Set axis range to allow a small distance between border and plots
-  TAxis * XAx = data->GetXaxis();
-  float axmin = XAx->GetBinLowEdge(XAx->GetFirst());
-  float axmax = XAx->GetBinUpEdge(XAx->GetLast());
+  float axmin = datahistos[0].getxmin();
+  float axmax = datahistos[0].getxmax();
   int nbins = data->GetNbinsX();
 
   if (datahistos[0].getlogx())
@@ -326,14 +324,9 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   up_templ->SetStats(0);
   up_templ->Draw("AXIS");
 
-  /*
-  data->SetStats(0);
   data->SetLineColor(1);
   data->SetMarkerStyle(20);
   data->SetMarkerSize(2 * opts.resolution / 1200);
-  if (!opts.onlytheory)
-    datahistos[0].Draw(data, "PE1 same");
-  */
 
   datatot->SetFillColor(kYellow);
   datatot->SetLineColor(kYellow);
@@ -347,7 +340,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   if (!opts.onlytheory)
     datahistos[0].Draw(data, "PE1 same");
   //reset axis range
-  datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
+  datatot->GetXaxis()->SetRange(datahistos[0].getlowrange(), datahistos[0].getuprange());
 
   if (datahistos[0].getextralabel() != "")
     {
@@ -423,8 +416,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	  if (!opts.onlytheory)
 	    (*it).Draw((TH1F*)(*it).getthshift()->Clone(), "LX same");
 	}
-      (*it).getthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
-
+      (*it).getthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 
       (*it).getth()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
       (*it).getth()->SetLineWidth(opts.lwidth);
@@ -436,7 +428,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	      (*it).getth()->SetAxisRange((*r).lowedge, (*r).upedge);
 	      (*it).Draw((TH1F*)(*it).getth()->Clone(), "LX same");
 	    }
-	  (*it).getth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	  (*it).getth()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 
 	  if (opts.therr)
 	    {    
@@ -455,7 +447,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		      (*it).gettherr()->SetAxisRange((*r).lowedge, (*r).upedge);
 		      (*it).Draw((TH1F*)(*it).gettherr(), "E3L same");
 		    }
-		  (*it).gettherr()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+		  (*it).gettherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 		}
 	    }
 	}
@@ -526,8 +518,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		(*it).gettherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
 		(*it).Draw((TH1F*)(*it).gettherrdown()->Clone(), "LX same");
 	      }
-	    (*it).gettherrup()->SetAxisRange((*it).getxmin(), (*it).getxmax());
-	    (*it).gettherrdown()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	    (*it).gettherrup()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	    (*it).gettherrdown()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	  }
       }
 
@@ -545,7 +537,6 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   Ratio->cd();
   if (datahistos[0].getlogx())
     Ratio->SetLogx();
-
 
   TH1F * refdata = (TH1F*)datahistos[0].getref()->Clone();
   for (int b = 1; b <= refdata->GetNbinsX(); b++)
@@ -710,7 +701,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       if (!opts.onlytheory)
       	datahistos[0].Draw((TH1F*)r_datatot->Clone(), "E3 same");
     }
-  r_datatot->SetAxisRange(datahistos[0].getxmin(), datahistos[0].getxmax());
+  r_datatot->GetXaxis()->SetRange(datahistos[0].getlowrange(), datahistos[0].getuprange());
 
   //plot lines at 1
   TLine *r_one = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
@@ -737,7 +728,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	      if (!opts.onlytheory)
 		(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
 	    }
-	  (*it).getrthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	  (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	}
       
       if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
@@ -747,7 +738,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	      (*it).getrth()->SetAxisRange((*r).lowedge, (*r).upedge);
 	      (*it).Draw((TH1F*)(*it).getrth()->Clone(), "LX same");
 	    }
-	  (*it).getrth()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	  (*it).getrth()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	  if (opts.therr)
 	    {
 	      (*it).getrtherr()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
@@ -764,7 +755,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		      (*it).getrtherr()->SetAxisRange((*r).lowedge, (*r).upedge);
 		      (*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
 		    }
-		  (*it).getrtherr()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+		  (*it).getrtherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 		}
 	    }
 	}
@@ -825,8 +816,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		(*it).getrtherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
 		(*it).Draw((TH1F*)(*it).getrtherrdown()->Clone(), "LX same");
 	      }
-	    (*it).getrtherrup()->SetAxisRange((*it).getxmin(), (*it).getxmax());
-	    (*it).getrtherrdown()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	    (*it).getrtherrup()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	    (*it).getrtherrdown()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	  }
       }
 
@@ -913,7 +904,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	      (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
 	      (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
 	    }
-	  (*it).getrthshift()->SetAxisRange((*it).getxmin(), (*it).getxmax());
+	  (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	}	  
       //plot data
       if (!opts.onlytheory)
@@ -970,25 +961,15 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	  (*it).getpull()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	  datahistos[0].Draw((TH1F*)(*it).getpull()->Clone(), "same ][");
 	}	  
-      /*
-      //redraw lines over fill area
-      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
-	{
-	  TH1F * redrawpull = (TH1F*)(*it).getpull()->Clone();
-	  redrawpull->SetFillStyle(0);
-	  redrawpull->Draw("same ][");
-	}
-      */
     }
 
   //Labels
-
   if (opts.twopanels || opts.threepanels)
     {
       cnv->cd(1);
       DrawLabels();
       if (opts.drawlogo)
-        if(DrawLogo()!=0) DrawLogo()->Draw();   
+        DrawLogo()->Draw();   
       cnv->cd(2);
       DrawLabels();
     }
@@ -997,7 +978,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       cnv->cd();
       DrawLabels();
       if (opts.drawlogo)
-        if(DrawLogo()!=0) DrawLogo()->Draw();   
+        DrawLogo()->Draw();   
     }
 
   return cnv;
