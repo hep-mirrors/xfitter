@@ -1,5 +1,7 @@
 #include "herafitter_cpp.h"
 
+#include <string>
+
 //return error if LHAPDF is not enabled
 #if !defined LHAPDF_ENABLED
 void chi2_scan_()
