@@ -173,7 +173,7 @@ C Drell-Yan:
          call Calc_pdf_applgrid_fast
       endif
 
-      if (IPARAM.eq.301) then
+      if (PDFStyle.eq.'DDIS') then
          call DDIS_FixModelParams(parminuitsave)
       endif
 
