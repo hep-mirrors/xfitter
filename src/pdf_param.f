@@ -252,13 +252,13 @@ C  25 Jan 2011: Poly params for valence:
       endif
 
 C  22 Apr 2011: CT parameterisation:
-      if (IPARAM.eq.171717) then
+      if (PDFStyle.eq.'CTEQ') then
          Call DecodeCtPara(p)
       endif
 
 
 C  22 Sep 2011: AS parameterisation:
-      if (IPARAM.eq.1977) then
+        if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          Call DecodeASPara(p)
       endif
 
@@ -352,6 +352,7 @@ C     simple copy first:
          parglue(i) = pars(i)
 
          if  (PDFStyle.eq.'CTEQHERA') then
+!> the size of the arrays for cteq polynomial is smaller than standard
             if (i.lt.7) then
                ctuval(i) = pars(10+i)
                ctdval(i) = pars(20+i)
@@ -382,19 +383,20 @@ C     simple copy first:
          if (pardbar(1).eq.0) pardbar(1)=pard(1)
          if (paru(1).eq.0)    parU(1)=pard(1)*(1.D0-fs)/(1.D0-fcharm)
          if (parUbar(1).eq.0) parUbar(1)=parU(1)
-         
-      elseif (iparam.eq.2) then
+cv        elseif (iparam.eq.2) then
+cv           if (pardval(2).eq.0)   pardval(2)=paruval(2) !  Bud    = Buv 
+cv           if (parubar(2).eq.0)   parubar(2)=pardbar(2) !  Bubar  = Bdbar
+cv         pardval(2)=paruval(2)
+cv         parubar(2)=pardbar(2)
+cv         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
-         pardval(2)=paruval(2)
-         parubar(2)=pardbar(2)
-         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 
+!> this style is common to HERAPDF, ATLASPDF:
       elseif (index(PDF_DECOMPOSITION,'Dv_Uv_Dbar_Ubar_Str').ne.0) then
 
          if (PDFStyle.eq.'CTEQHERA') then
             if (ctdval(2).eq.0) ctdval(2)=ctuval(2)
          else
-
             if (pardval(2).eq.0)   pardval(2)=paruval(2) !  Bud    = Buv 
          endif
 
@@ -404,22 +406,29 @@ C     simple copy first:
      $        parstr(2).eq.0.and.
      $        parstr(3).eq.0) then
             
-* use coupled strange to Dbar
-            iparam=229  
-
+!> use coupled strange to Dbar
+            FreeStrange=.false.  
+            
          elseif (parstr(2).eq.0.and.parstr(3).ne.0) then
+!> use decoupled strange to Dbar
+            FreeStrange=.true.
             parstr(2)=pardbar(2)
          elseif (parstr(3).eq.0.and.parstr(2).ne.0) then
+!> use decoupled strange to Dbar
+            FreeStrange=.true.
             parstr(3)=pardbar(3)
-         endif
-         
-         if (fs.ne.-10000.and.iparam.ne.229) then
-            parstr(1)=fs/(1.-fs)*pardbar(1)
-         endif
-         
-         if (iparam.ne.229) then
-            if (parubar(1).eq.0) parubar(1) = pardbar(1)! then use ubar=dbar
          else
+!> use decoupled strange to Dbar
+            FreeStrange=.true.
+         endif
+         
+
+         if (fs.ne.-10000.and.(FreeStrange)) then
+!> then use ubar and dbar (not Dbar and Ubar)
+            parstr(1)=fs/(1.-fs)*pardbar(1)
+            if (parubar(1).eq.0) parubar(1) = pardbar(1)
+         else                  
+!> then use Dbar and Ubar
             if (parubar(1).eq.0)   parubar(1)=pardbar(1)*(1.D0-fs) 
      $           /(1.D0-fcharm) !then use Ubar=Dbar
          endif
@@ -433,7 +442,7 @@ c         pardval(2)=0.5
 c         parstr(2)=0.5
 c         parstr(3)=parsea(3)+2.
          
-      elseif (iparam.eq.4) then ! g,uval,dval,sea as in ZEUS-JET fit
+      elseif (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
          pardval(2)=paruval(2)
         
 
@@ -535,6 +544,8 @@ C simple copy first:
 
 C Extra constrains:
       if (pars(31).eq.0) then
+
+
          ctubar(1) = ctdbar(1) * (1.D0-fs)/(1.D0-fcharm) ! normalization ubar = dbar 
          ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
       endif
@@ -683,23 +694,24 @@ C-------------------------------------------------
 
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if (iparam.eq.171717) then
+      if  (PDFStyle.eq.'CTEQ') then
          gluon = ctpara(x,ctglue)
          return
       endif
 
 C    22 Sept 11, VR, Add AS
-      if (iparam.eq.1977) then
+      if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          gluon = splogn(x,asglue)
          return
       endif
       if (nchebglu.eq.0) then
 
+!> HERAPDF, CTEQHERA style goes in here:
          gluon=para(x,parglue)
          
       else
 C
-C SG: Use polynomial representation of cheb. 
+C Use polynomial representation of cheb. 
 C
          gluon = parglue(1) * PolyParam(x,nchebGlu,polyPars,chebxminlog)
          if (ichebtypeGlu.eq.0) then
@@ -780,13 +792,13 @@ C---------------------------------
 C---------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if ((iparam.eq.171717).or.(PDFStyle.eq.'CTEQHERA')) then
+      if ((PDFStyle.eq.'CTEQ').or.(PDFStyle.eq.'CTEQHERA')) then
          UVal = ctpara(x,ctuval)
          return
       endif
 
 C    22 Sep 11, VR, Add AS
-      if (iparam.eq.1977) then
+      if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          UVal = splogn(x,asuval)
          return
       endif
@@ -794,7 +806,9 @@ C    22 Sep 11, VR, Add AS
 C
 C 25 Jan 2011: add polynomial param 
 C
+
       if (NPOLYVAL.eq.0) then
+!> HERAPDF style goes in here
          Uval=para(x,paruval)
       else
 C 
@@ -819,12 +833,12 @@ C
 C--------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if ((iparam.eq.171717).or.(PDFStyle.eq.'CTEQHERA')) then
+      if ((PDFStyle.eq.'CTEQ').or.(PDFStyle.eq.'CTEQHERA')) then
          DVal = ctpara(x,ctdval)
          return
       endif
 C    22 Sep 11, VR, Add AS
-      if (iparam.eq.1977) then
+      if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          DVal = splogn(x,asdval)
          return
       endif
@@ -833,7 +847,9 @@ C    22 Sep 11, VR, Add AS
 C
 C 25 Jan 2011: add polynomial param 
 C
+
       if (NPOLYVAL.eq.0) then
+!> HERAPDF style goes in here
          Dval=para(x,pardval)
       else
 C
@@ -879,6 +895,7 @@ C External function:
 C--------------------------------------------------
 
       if (Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0) then
+
          sea = Ubar(x) + Dbar(x)
       elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then 
 !         print*,'heeeere'
@@ -930,7 +947,8 @@ C-------------------------------------------------
       include 'pdfparam.inc'
       double precision x,para
       
-      if (iparam.eq.4) then 
+
+      if (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
          dbmub=para(x,parstr)
       endif
       return
@@ -956,26 +974,25 @@ C----------------------------------------------------
       endif
       
 
-      
-      if (iparam.eq.171717.or.iparam.eq.1977.or.iparam.eq.229) then
+      if (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
+         qstrange = 0.5 * fs * sea(x)
+         return
+         
+      endif
 
+      if (FreeStrange) then
+         qstrange = para(x, parstr)
+      else
          qstrange = fs * Dbar(x)
+      endif
 
 
 c      elseif (iparam.eq.222222.or.iparam.eq.222223) then
 c         qstrange = fs * Dbar(x)/(1-fs)
+cv      else
+cv      endif
 
-      elseif (iparam.eq.2011) then
-!         qstrange = parstr(1)*x**parstr(2)*(1-x)**parstr(3)
-
-
-         qstrange = para(x, parstr)
-
-
-      elseif (iparam.eq.4) then 
-         qstrange = 0.5 * fs * sea(x)
-
-      endif
+      return
       end
 
 * -------------------------------------------------------
@@ -992,7 +1009,7 @@ c         qstrange = fs * Dbar(x)/(1-fs)
       double precision sing,flav_number,QPDFXQ,vcplus,vicplus,cplus
       integer iflag,iq0,iqc,iqfromq
 
-      if (iparam.eq.4) then
+      if (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
          if (x.eq.1) goto 999
          call hf_get_pdfs(x,q2,pdf)
 * charm a la ZEUS 
@@ -1025,36 +1042,35 @@ C----------------------------------------------
 * new2 jf SPECIAL TEST with dubar
 
 C    22 Sep 11, VR, Add AS
-      if (iparam.eq.1977) then
+      if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          Ubar = splogn(x,asubar)
          return
       endif
-
+      
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if (iparam.eq.171717) then
+      if (PDFStyle.eq.'CTEQ') then
          Ubar = ctpara(x,ctubar)
          return
+      endif
 
-      elseif (iparam.eq.222222.or.iparam.eq.222223
-     $        .or.iparam.eq.2011) then
+      if (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then 
+         Ubar = (0.5d0 * sea(x) - dbmub(x) - qstrange (x) + cbar(x))/2.d0
+         return
+      endif
+     
+cv      elseif (iparam.eq.222222.or.iparam.eq.222223
+cv     $        .or.iparam.eq.2011) then
 ! Ubar=ubar/(1-fc) --> ubar=Ubar*(1-fc)         
 
-         
-         Ubar=para(x,parubar)/(1-fcharm)
 
-      endif
-
-
-      if (iparam.eq.229) then
-
+      if (FreeStrange) then
          Ubar=para(x,parubar)
-
-      elseif (iparam.eq.4) then
- 
-         Ubar = (0.5d0 * sea(x) - dbmub(x) - qstrange (x) + cbar(x))/2.d0
-
+      else
+         Ubar=para(x,parubar)/(1-fcharm)
       endif
+      
+
  
       return
       end
@@ -1080,35 +1096,34 @@ C----------------------------------------------------
 C------------------------------------------------------------
 
 C    22 Sep 11, VR, Add AS
-      if (iparam.eq.1977) then
+
+      if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          Dbar = splogn(x,asdbar)
          return
       endif
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if (iparam.eq.171717) then
+
+      if (PDFStyle.eq.'CTEQ') then
          Dbar = ctpara(x,ctdbar)
          return
+      endif
+
+      if (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
+         Dbar = sea(x) * 0.5d0 - Ubar(x)
+         return
+      endif
 
 !      elseif(iparam.eq.222222.or.iparam.eq.222223) then
 !         Dbar=para(x,pardbar)/(1-fstrange)
-
-      elseif (iparam.eq.2011) then
-
+      if (FreeStrange) then
          Dbar=para(x,pardbar)+para(x,parstr)
-      endif
-
-
-* SPECIAL TEST with ddbar      
-      if (iparam.eq.229) then         
-
+      else
          Dbar=para(x,pardbar)
-
-
-      elseif (iparam.eq.4) then
-         Dbar = sea(x) * 0.5d0 - Ubar(x)
-
       endif
+
+
+
       end
 
 

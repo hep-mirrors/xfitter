@@ -963,7 +963,6 @@ C---------------------------------
      $     PDFStyle.eq.'13p HERAPDF'.or.
      $     PDFStyle.eq. 'HERAPDF'.or.
      $     PDFStyle.eq. 'strange') then
-         iparam = 2011
          FlexibleGluon = .true.
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
  
@@ -971,16 +970,15 @@ C---------------------------------
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
 
       elseif (PDFStyle.eq.'CTEQ') then
-         iparam = 171717
+         FreeStrange=.false.
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
 
 
       elseif ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
-         iparam = 1977
+         FreeStrange=.false.
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
 
-      elseif (PDFStyle.eq.'CHEB') then
-         iparam = 4
+      elseif (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
          PDF_DECOMPOSITION = 'Dv_Uv_Sea_Delta'
 
       elseif (PDFStyle.eq.'LHAPDFQ0') then
@@ -992,7 +990,7 @@ C---------------------------------
          PDF_DECOMPOSITION = 'LHAPDF'
 
       elseif (PDFStyle.eq.'DDIS') then
-         iparam = 301        
+cv         iparam = 301        
          PDF_DECOMPOSITION = 'Diffractive'
       elseif (PDFStyle.eq.'QCDNUM_GRID') then
          PDF_DECOMPOSITION = 'QCDNUM_GRID'

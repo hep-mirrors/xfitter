@@ -92,6 +92,7 @@ C
       logical FLAGRW
       logical DORWONLY
       logical FlexibleGluon    !> Flexible gluon parameterisation
+      logical FreeStrange    !> Free strange parameterisation
       logical Read_QCDNUM_Tables
       logical WriteAlphaSToMemberPDF    !> write alphas header to LHAPDF6 member files
 
@@ -124,7 +125,7 @@ C
      $     , Chi2ExtraSystRescale
 
       common/STEERING2/FLAGRW, DORWONLY, CachePDFs, FlexibleGluon,
-     $     read_qcdnum_tables
+     $     read_qcdnum_tables, FreeStrange
 
 c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
       integer NMXGRID           !> Total number of X-grid sub-ranges
@@ -134,7 +135,8 @@ c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
       common/GRIDS/xmin_grid
 
       character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
-      common/STEERING3/PDF_DECOMPOSITION     
+      common/STEERING3/PDF_DECOMPOSITION
+
 
       common/heavyflav/
      $     aq2,bq2,scalea1,scaleb1,scalec1,hqscale1in,hqscale2in,hqscale2inmass,MASSH

@@ -54,13 +54,13 @@ C
 C==========================================================
 C CTEQ-like parameterisation:
 C
-      if (iparam.eq.171717) then
+      if (PDFStyle.eq.'CTEQ') then
          Call SumRulesCTeq
          Return
       endif
 
 C    22 Sep 11, VR, Add AS parametrisation
-      if (iparam.eq.1977) then
+      if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          Call SumRulesAS
          return
       endif
@@ -80,7 +80,6 @@ C*     -- sum rule : D - Dbar = 1   :  gives ADval
 C*
 
          if (PDFStyle.eq.'CTEQHERA') then
-
 
 C Counting sum-rule for uv:
             if (ctuval(1).eq.0) then
