@@ -232,19 +232,18 @@ void get_lhapdferrors_()
 
 
   //Monte Carlo replica PDF uncertainties
-  int totmc = 0;
-  for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
-    {
-      //MC replica mean
-      vector <double> xi;
-      for (vector <double>::iterator mcit = pit->second.th_mc.begin(); mcit != pit->second.th_mc.end(); mcit++)
-	xi.push_back(*mcit);
-      pit->second.th_mc_mean = mean(xi);
-      pit->second.th_mc_var = rms(xi);
-      totmc = pit->second.th_mc.size();
-    }
+  int totmc = pointsmap.begin()->second.th_mc.size();;
   if (totmc > 0)
     {
+      //MC replica mean and rms
+      for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
+	{
+	  vector <double> xi;
+	  for (vector <double>::iterator mcit = pit->second.th_mc.begin(); mcit != pit->second.th_mc.end(); mcit++)
+	    xi.push_back(*mcit);
+	  pit->second.th_mc_mean = mean(xi);
+	  pit->second.th_mc_var = rms(xi);
+	}
       char num[10];
       sprintf (num, "%d", totmc);
       msg = (string) "I: Found " + num + " Monte Carlo PDF uncertainties variations";
