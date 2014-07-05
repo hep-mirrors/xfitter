@@ -18,6 +18,7 @@ FastNLOHeraFitter::FastNLOHeraFitter(string name) : FastNLOReader(name) {
    //     you have to call SetAlphasEvolution.
    //     It might be also convenient to make your scale choices here!
    //FillAlphasCache();
+  return;
 }
 
 
@@ -44,6 +45,7 @@ bool FastNLOHeraFitter::InitPDF(){
    //
    // It might be necessary that the PDF grid is recalculated/generated.
    //evolution_();
+  return true;
 }
 
 

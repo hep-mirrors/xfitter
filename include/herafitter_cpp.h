@@ -1,7 +1,8 @@
 #ifndef herafitter_cpp_h
 #define herafitter_cpp_h
-
+#include <string>
 using namespace std;
+#include <iostream>
 
 //Fortran wrapper for lhapdferrors
 

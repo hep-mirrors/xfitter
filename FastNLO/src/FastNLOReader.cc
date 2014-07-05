@@ -42,6 +42,8 @@ using namespace std;
 //______________________________________________________________________________
 
 
+const double FastNLOReader::TWOPISQR = 39.47841760435743447533796;
+const double FastNLOReader::TWOPI = 6.28318530717958647692528;
 // some names for nice output
 const string FastNLOReader::fContrName[20] = {
    "Fixed order calculation", "Threshold corrections", "Electroweak corrections", "Non-perturbative corrections",
@@ -203,7 +205,8 @@ void FastNLOReader::InitScalevariation() {
       // and you can choose the functional form of mu_f and mu_r as functions of
       // scale1 and scale1 (called partly scaleQ2 and scalePt).
 
-      if (BBlocksSMCalc[0][0]->ScaleDescript[0].size() <0) {
+     //      if (BBlocksSMCalc[0][0]->ScaleDescript[0].size() <0) {
+     if (BBlocksSMCalc[0][0]->ScaleDescript[0].empty()) {
          warn["InitScalevariation"]<<"No scaledescription available.\n";
          SetFunctionalForm(kScale1 , kMuR);
          SetFunctionalForm(kScale1 , kMuF);
@@ -211,7 +214,8 @@ void FastNLOReader::InitScalevariation() {
       }
 
       // ---- DIS ---- //
-      if (BBlocksSMCalc[0][0]->NPDFDim == 0) {
+           if (BBlocksSMCalc[0][0]->NPDFDim == 0) {
+     //      if (BBlocksSMCalc[0][0]->NPDFDim == 0) {
          SetFunctionalForm(kQuadraticMean , kMuR);
          SetFunctionalForm(kScale1 , kMuF);
       }
