@@ -1180,7 +1180,7 @@ C Sea:
       sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
      $     2.D0*ctdbar(1)*SumRuleCTEQ(0,ctdbar) +
      $     ctuval(1)*SumRuleCTEQ(0,ctuval) +
-     $     ctdval(1)*SumRuleCTEQ(0,ctdval)+ tStr 
+     $     ctdval(1)*SumRuleCTEQ(0,ctdval)+ 2.D0*tStr 
       sumGlue = SumRuleCTEQ(0,ctglue)
 
 

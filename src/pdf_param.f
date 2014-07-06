@@ -407,20 +407,16 @@ cv         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 !> use coupled strange to Dbar
             FreeStrange=.false.  
             
-         elseif (parstr(2).eq.0.and.parstr(3).ne.0) then
-!> use decoupled strange to Dbar
-            FreeStrange=.true.
-            parstr(2)=pardbar(2)
-         elseif (parstr(3).eq.0.and.parstr(2).ne.0) then
-!> use decoupled strange to Dbar
-            FreeStrange=.true.
-            parstr(3)=pardbar(3)
          else
-!> use decoupled strange to Dbar
             FreeStrange=.true.
          endif
+!> couple Bstr and Cstr to dbar when zero:
+         if (FreeStrange) then
+            if (parstr(2).eq.0.and.parstr(3).ne.0) parstr(2)=pardbar(2)
+            if (parstr(3).eq.0.and.parstr(2).ne.0) parstr(3)=pardbar(3)
+            
+         endif
          
-
          if (fs.ne.-10000.and.(FreeStrange)) then
 !> then use ubar and dbar (not Dbar and Ubar)
             parstr(1)=fs/(1.-fs)*pardbar(1)
@@ -563,18 +559,15 @@ C     Impose Buv = Bdv if parameter for Buv = 0.
      $     (ctstr(6).eq.0)) then
 
          FreeStrange=.false.  
-
-      elseif (ctstr(2).eq.0.and.ctstr(3).ne.0) then
-!> use decoupled strange to Dbar
-         FreeStrange=.true.
-         ctstr(2)=ctdbar(2)
-      elseif (ctstr(3).eq.0.and.ctstr(2).ne.0) then
-!> use decoupled strange to Dbar
-         FreeStrange=.true.
-         ctstr(3)=ctdbar(3)
       else
-!> use decoupled strange to Dbar
          FreeStrange=.true.
+      endif
+
+      if (FreeStrange) then
+      
+         if (ctstr(2).eq.0) ctstr(2)=ctdbar(2)
+         if (ctstr(3).eq.0) ctstr(3)=ctdbar(3)
+         if (ctstr(4).eq.0) ctstr(4)=ctdbar(4)
       endif
       
       
