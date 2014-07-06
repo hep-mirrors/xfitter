@@ -367,9 +367,9 @@ C     simple copy first:
 
          parubar(i) = pars(30+i)
          pardbar(i) = pars(40+i)
-         parsea(i) = pars(70+i)
          paru(i) = pars(50+i)
          pard(i) = pars(60+i)
+         parsea(i) = pars(70+i)
          parstr(i) = pars(80+i)
          parother(i) = pars(90+i)
       enddo
@@ -399,9 +399,7 @@ cv         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
          else
             if (pardval(2).eq.0)   pardval(2)=paruval(2) !  Bud    = Buv 
          endif
-
-         if (parubar(2).eq.0)   parubar(2)=pardbar(2)  !  Bubar  = Bdbar
-         
+         if (parubar(2).eq.0)   parubar(2)=pardbar(2)  !  Bubar  = Bdbar 
          if (parstr(1).eq.0.and.
      $        parstr(2).eq.0.and.
      $        parstr(3).eq.0) then
@@ -506,6 +504,7 @@ C   pars(11-16)  - Uv
 C   pars(21-26)  - Dv
 C   pars(31-36)  - Ubar
 C   pars(41-46)  - Dbar
+C   pars(81-86)  - Str
 C   pars(95-100)  - alphas, fstrange, fcharm
 C------------------------------------------------------
       implicit none 
@@ -538,22 +537,58 @@ C simple copy first:
          ctdval(i) = pars(20+i)
          ctubar(i) = pars(30+i)
          ctdbar(i) = pars(40+i)
+cv add str
+         ctstr(i)  = pars(80+i)
          ctother(i)= pars(94+i)
       enddo
 
 
+c      UF = a(1)*exp(a(4)*x)*(1 - x)**a(3)*x**(a(2))*(1 + exp(a(5))*x 
+c     $     + exp(a(6))*x**2)
+
+
 C Extra constrains:
-      if (pars(31).eq.0) then
-
-
-         ctubar(1) = ctdbar(1) * (1.D0-fs)/(1.D0-fcharm) ! normalization ubar = dbar 
+      if (ctubar(1).eq.0) then
          ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
       endif
-
-C Impose Buv = Bdv if parameter for Buv = 0.
-      if (pars(12).eq.0) then
+C     Impose Buv = Bdv if parameter for Buv = 0.
+      if (ctuval(2).eq.0) then
          ctuval(2) = ctdval(2)  ! Buv = Bdv
       endif
+
+!> use coupled strange to Dbar ! 
+      if ((ctstr(1).eq.0).and.(ctstr(2).eq.0)
+     $     .and.(ctstr(3).eq.0).and.
+     $     (ctstr(4).eq.0).and.(ctstr(5).eq.0).and.
+     $     (ctstr(6).eq.0)) then
+
+         FreeStrange=.false.  
+
+      elseif (ctstr(2).eq.0.and.ctstr(3).ne.0) then
+!> use decoupled strange to Dbar
+         FreeStrange=.true.
+         ctstr(2)=ctdbar(2)
+      elseif (ctstr(3).eq.0.and.ctstr(2).ne.0) then
+!> use decoupled strange to Dbar
+         FreeStrange=.true.
+         ctstr(3)=ctdbar(3)
+      else
+!> use decoupled strange to Dbar
+         FreeStrange=.true.
+      endif
+      
+      
+      if (fs.ne.-10000.and.(FreeStrange)) then
+!> then use ubar and dbar (not Dbar and Ubar)
+         ctstr(1)=fs/(1.-fs)*ctdbar(1)
+         if (ctubar(1).eq.0) ctubar(1) = ctdbar(1)
+      else                  
+!> then use Dbar and Ubar
+         if (ctubar(1).eq.0)   ctubar(1)=ctdbar(1)*(1.D0-fs) 
+     $        /(1.D0-fcharm)    !then use Ubar=Dbar
+      endif
+
+
 C (other constraints from sum-rules)
 
 
@@ -961,8 +996,7 @@ C-------------------------------------------------
       implicit none
       include 'steering.inc'
       include 'pdfparam.inc'
-      double precision x,sea,Dbar, para
-
+      double precision x,sea,Dbar, para, ctpara
 C SG: x-dependent fs:
       double precision fs
       double precision fshermes
@@ -973,6 +1007,14 @@ C----------------------------------------------------
          fs = fshermes(x)
       endif
       
+      if (PDFStyle.eq.'CTEQ') then
+         if (FreeStrange) then
+            qstrange = ctpara(x, ctstr)
+         else
+            qstrange = fs * Dbar(x)
+         endif
+         return
+      endif
 
       if (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
          qstrange = 0.5 * fs * sea(x)
@@ -1050,7 +1092,12 @@ C    22 Sep 11, VR, Add AS
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (PDFStyle.eq.'CTEQ') then
-         Ubar = ctpara(x,ctubar)
+         if (FreeStrange) then
+            Ubar=ctpara(x,ctubar)
+         else
+            Ubar=ctpara(x,ctubar)/(1-fcharm)
+         endif
+
          return
       endif
 
@@ -1105,7 +1152,11 @@ C    22 Sep 11, VR, Add AS
 C    22 Apr 11, SG, Add CTEQ-like
 
       if (PDFStyle.eq.'CTEQ') then
-         Dbar = ctpara(x,ctdbar)
+         if (FreeStrange) then
+            Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
+         else
+            Dbar=ctpara(x,ctdbar)
+         endif
          return
       endif
 

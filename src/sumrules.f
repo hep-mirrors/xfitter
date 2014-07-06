@@ -1144,12 +1144,13 @@ C  Created 22 Apr 2011 by SG. Add sum-rules for CTEQ-like parameterisation
 C
 C---------------------------------------------------------------
       implicit none
+      include 'steering.inc'
       include 'pdfparam.inc'
       double precision sumUv, sumDv
       double precision sumMom, sumGlue,x
       integer i
-      double precision SumRuleCTEQ,ctpara
-      double precision ubar,dbar,uval,dval,gluon
+      double precision SumRuleCTEQ,ctpara, tStr
+      double precision ubar,dbar,uval,dval,gluon,str
       
       integer IDebug
       data IDebug/1/
@@ -1165,11 +1166,25 @@ C Counting sum-rule for dv:
       ctdval(1) = 1.0D0 / sumDv
 
 C Momentum sum rule:
+C----------------
+C Sea:
+
+      
+      if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
+         tStr = ctstr(1)*SumRuleCTEQ(0,ctstr)
+      else
+         tStr = 0               ! Strange already included in Dbar
+      endif
+
+
       sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
-     $         2.D0*ctdbar(1)*SumRuleCTEQ(0,ctdbar) +
-     $         ctuval(1)*SumRuleCTEQ(0,ctuval) +
-     $         ctdval(1)*SumRuleCTEQ(0,ctdval) 
+     $     2.D0*ctdbar(1)*SumRuleCTEQ(0,ctdbar) +
+     $     ctuval(1)*SumRuleCTEQ(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQ(0,ctdval)+ tStr 
       sumGlue = SumRuleCTEQ(0,ctglue)
+
+
+
       ctglue(1) = (1.0 - SumMom)/sumGlue
 
 
@@ -1180,13 +1195,16 @@ C Momentum sum rule:
          print '(''Ub:'',6F10.4)',(ctubar(i),i=1,6)
          print '(''Db:'',6F10.4)',(ctdbar(i),i=1,6)
          print '(''GL:'',6F10.4)',(ctglue(i),i=1,6)
+         print '(''ST:'',6F10.4)',(ctstr(i),i=1,6)
       endif
       if (IDebug.eq.10) then
          do i=1,8
             x = 10**(-i/2.)
-            print '(6F12.5)',x,ctpara(x,ctuval),ctpara(x,ctdval),
-     $           ctpara(x,ctubar),ctpara(x,ctdbar),ctpara(x,ctglue)
-            print '(6F12.5)',x,uval(x),dval(x),ubar(x),dbar(x),gluon(x)
+            print '(7F12.5)',x,ctpara(x,ctuval),ctpara(x,ctdval),
+     $           ctpara(x,ctubar),ctpara(x,ctdbar),ctpara(x,ctglue), 
+     $           ctpara(x,ctstr)
+            print '(7F12.5)',x,uval(x),dval(x),ubar(x),dbar(x),
+     $           gluon(x),str(x)
          enddo
       endif
 

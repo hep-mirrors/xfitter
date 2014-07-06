@@ -971,8 +971,8 @@ C---------------------------------
          PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
 
       elseif (PDFStyle.eq.'CTEQ') then
-         FreeStrange=.false.
-         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
+!         FreeStrange=.false.
+         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
 
 
       elseif ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then

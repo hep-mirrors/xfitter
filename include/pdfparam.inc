@@ -41,9 +41,9 @@ C !> internal order of the polynom:
        common/pdfpolyval/PolyUval,PolyDval,NPOLYVALINT
 
 C !> CTEQ-like parameterisation
-       double precision ctuval(1:6), ctdval(1:6), ctubar(1:6), ctdbar(1:6), 
-     $      ctglue(1:6),ctother(1:6)
-       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother
+       double precision ctuval(1:6), ctdval(1:6),ctubar(1:6),ctdbar(1:6), 
+     $      ctglue(1:6),ctother(1:6),ctstr(1:6)
+       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother,ctstr
 
 C !> Add AS parameterisation
        double precision asuval(1:5), asdval(1:5), asubar(1:5), asdbar(1:5),
