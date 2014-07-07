@@ -8,11 +8,11 @@
 
 Chi2::Chi2(string dirname, string label)
 {
-for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdirs[label].dirlist.end(); it++)
-
   if (outdirs[label].IsMCreplica())
     {
       //here should make a cumulative plot of total chi2 of all replica
+      //for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdirs[label].dirlist.end(); it++)
+      //{}
       chi2tot.chi2 = 0;
       chi2tot.chi2_00 = -1;
       chi2tot.dof = 0;
@@ -21,7 +21,7 @@ for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdir
       chi2corr.dof = 0;
       return;
     }
-
+ 
   string fname = dirname + "/Results.txt";
   ifstream f(fname.c_str());
   if (!f.good())

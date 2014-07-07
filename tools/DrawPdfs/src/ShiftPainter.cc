@@ -46,12 +46,15 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
   //read shifts
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
     {
+      if (outdirs[*itl].IsMCreplica())
+	continue;
+
       string fname = outdirs[*itl].GetName() + "/Results.txt";
       ifstream f(fname.c_str());
       if (!f.good())
 	{
 	  cout << "File " << fname << " is empty (or io error)" << endl;
-	  return shiftscnv;
+	  continue;
 	}
 
       string line;

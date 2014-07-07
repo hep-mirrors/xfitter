@@ -130,15 +130,16 @@ int main(int argc, char **argv)
   //Save plots
   int pgn = 0;
   char pgnum[15];
-  gStyle->SetPaperSize(opts.pagewidth * 1.5, opts.pagewidth * 1.5);
+  int plotsperpage = 2;
+  gStyle->SetPaperSize(opts.pagewidth*float(opts.pdfplotsperpage)/2., opts.pagewidth*float(opts.pdfplotsperpage)/2.);
   vector <TCanvas*>::iterator it = pdfscanvaslist.begin();
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)
     {
       char numb[15];
       sprintf(numb, "%d", it - pdfscanvaslist.begin());
-      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
-      pagecnv->Divide(3, 3);
-      for (int i = 1; i <= 9; i++)
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * opts.pdfplotsperpage, opts.resolution * opts.pdfplotsperpage);
+      pagecnv->Divide(opts.pdfplotsperpage, opts.pdfplotsperpage);
+      for (int i = 1; i <= opts.pdfplotsperpage*opts.pdfplotsperpage && it != pdfscanvaslist.end(); i++)
 	{
 	  pagecnv->cd(i);
 	  (*it)->DrawClonePad();
@@ -148,28 +149,14 @@ int main(int argc, char **argv)
       pgn++;
       sprintf(pgnum, "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
-
-      sprintf(numb, "%d", it - pdfscanvaslist.begin());
-      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
-      pagecnv2->Divide(3, 3);
-      for (int i = 10; i <= pdflabels.size(); i++)
-	{
-	  pagecnv2->cd(i - 9);
-	  (*it)->DrawClonePad();
-	  it++;
-	}
-
-      pgn++;
-      sprintf(pgnum, "%d", pgn);
-      pagecnv2->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
   for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
     {
       char numb[15];
       sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
-      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
-      pagecnv->Divide(3, 3);
-      for (int i = 1; i <= 9; i++)
+      TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution *opts.pdfplotsperpage, opts.resolution * opts.pdfplotsperpage);
+      pagecnv->Divide(opts.pdfplotsperpage, opts.pdfplotsperpage);
+      for (int i = 1; i <= opts.pdfplotsperpage*opts.pdfplotsperpage && it != pdfscanvasratiolist.end(); i++)
 	{
 	  pagecnv->cd(i);
 	  (*it)->DrawClonePad();
@@ -178,21 +165,8 @@ int main(int argc, char **argv)
       pgn++;
       sprintf(pgnum, "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
-
-      sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
-      TCanvas * pagecnv2 = new TCanvas(numb, "", 0, 0, opts.resolution * 3, opts.resolution * 3);
-      pagecnv2->Divide(3, 3);
-      for (int i = 10; i <= pdflabels.size(); i++)
-	{
-	  pagecnv2->cd(i - 9);
-	  (*it)->DrawClonePad();
-	  it++;
-	}
-      pgn++;
-      sprintf(pgnum, "%d", pgn);
-      pagecnv2->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
-  
+
   gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth);
   it = datapullscanvaslist.begin();
   for (it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)

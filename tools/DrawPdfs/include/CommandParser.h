@@ -31,6 +31,7 @@ class CommandParser
   bool abserror, relerror;
   bool q2all;
   bool cl68, cl90, median;
+  int pdfplotsperpage;
 
   //data pulls options
   bool therr, points;
@@ -141,6 +142,8 @@ class CommandParser
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "\t --q2all" << endl;
     cout << "\t \t Plot PDF at all stored values of Q2. By default PDF are plotted only at the starting scale Q0" << endl;
+    cout << "\t --pdfplots-per-page <N>" << endl;
+    cout << "\t \t Number of rows and columns of PDF plots per page, default value is 2" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --no-data" << endl;
     cout << "\t \t Data plots are not produced" << endl;

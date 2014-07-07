@@ -126,7 +126,7 @@ void deltaasym(vector <double> xi, double central, double& delta_p, double& delt
       ++di;
     }
 
-  di = deltaxi.end();
+  di = deltaxi.end() - 1;
   while (di != deltaxi.begin())
     {
       delta_p = *di;

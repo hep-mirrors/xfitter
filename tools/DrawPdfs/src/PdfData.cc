@@ -12,11 +12,11 @@
 #include <math.h>
 
 //pdf type
-pdftype pdfts[] = {g, uv, dv, ubar, dbar, s, U, D, Sea, Ubar, Dbar, c, b, dbarubar, sdbar};
+pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarubar, uvdv, U, D, Ubar, Dbar};
 //pdf labels
-string pdflab[] = {"g", "uv", "dv", "#bar{u}", "#bar{d}", "s", "U", "D", "S", "#bar{U}", "#bar{D}", "c", "b", "#bar{d}-#bar{u}", "s/#bar{d}"};
+string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "u_{V}-d_{V}", "U", "D", "#bar{U}", "#bar{D}"};
 //pdf filenames
-string pdffil[] = {"g", "uv", "dv", "ubar", "dbar", "s", "U", "D", "sea", "UBar", "DBar", "c", "b", "dbar-ubar", "sdbar"};
+string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uvdv", "U", "D", "UBar", "DBar"};
 
 vector <pdftype> pdfs(pdfts, pdfts + sizeof(pdfts) / sizeof(pdftype));
 vector <string> pdflabels(pdflab, pdflab + sizeof(pdflab) / sizeof(string));
@@ -80,12 +80,16 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
   for (int ix = 0; ix < NxValues; ix++)
     tablemap[dbarubar].push_back(tablemap[dbar][ix] - tablemap[ubar][ix]);
 
-  PdfTypes.push_back(sdbar);  NPdfs++;
+  PdfTypes.push_back(Rs);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
     if (tablemap[dbar][ix] != 0)
-      tablemap[sdbar].push_back((tablemap[s][ix])/(tablemap[dbar][ix]));
+      tablemap[Rs].push_back((2*tablemap[s][ix])/(tablemap[ubar][ix]+tablemap[dbar][ix]));
     else
-      tablemap[sdbar].push_back(0);
+      tablemap[Rs].push_back(0);
+
+  PdfTypes.push_back(uvdv);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    tablemap[uvdv].push_back(tablemap[uv][ix] - tablemap[dv][ix]);
 }
 
 TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf)

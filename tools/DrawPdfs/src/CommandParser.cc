@@ -27,6 +27,7 @@ CommandParser::CommandParser(int argc, char **argv):
   relerror(false),
   abserror(false),
   q2all(false),
+  pdfplotsperpage(2),
   cl68(false),
   cl90(false),
   median(false),
@@ -219,6 +220,11 @@ CommandParser::CommandParser(int argc, char **argv):
 	  logx = false;
 	else if (*it == "--q2all")
 	  q2all = true;
+	else if (*it == "--pdfplots-per-page")
+	  {
+	    pdfplotsperpage = atoi((*(it+1)).c_str());
+	    allargs.erase(it+1);
+	  }
 	else if (*it == "--outdir")
 	  {
 	    outdir = *(it+1);
