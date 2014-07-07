@@ -54,7 +54,7 @@ The generalised structure functions $\tilde F_{2,3}$
 can be written as linear combinations of the proton structure functions $F_2, F_{2,3}^{\gamma Z}$ 
 and $F_{2,3}^Z$ associated to pure photon exchange terms, photon-$Z$ interference
 terms and pure $Z$ exchange terms, respectively. 
-Structure function $\tilde F_2$ is the dominant contribution to the cross section, 
+The structure function $\tilde F_2$ is the dominant contribution to the cross section, 
 $x \tilde F_3$ becomes important at high $Q^2$ and $\tilde F_L$ is sizable 
 only at high $y$. 
 %In the framework of pQCD the structure functions are directly related to the 
@@ -104,7 +104,7 @@ scattering of lepton off the heavy quark via boson exchange.
 This scheme is expected to be reliable only in the region with $Q^2 \gg m_h^2$.
 %This is the scheme that had been used in the past by PDF groups.
 In \fitter this scheme is available for the DIS structure function calculation 
-via interface to the \qcdnum \cite{qcdnum} package and it benefits 
+via the interface to the \qcdnum \cite{qcdnum} package and it benefits 
 from the fast \qcdnum convolution engine.
 
 \item \bf {Fixed Flavour Number (FFN)}\rm \cite{Laenen:1992, Laenen:1993, Riem:1995}: 
@@ -243,7 +243,8 @@ In the diffractive process the proton is well separated from the
 rest of the hadronic final state by a large rapidity gap.  
 This is interpreted as the dissociation of the virtual photon into
 hadronic system $X$ with the invariant mass much 
-smaller than $W$ and the same net quantum numbers as the exchanged photon.
+smaller than the photon-proton c.o.m energy $W$ and the same net 
+quantum numbers as the exchanged photon.
 %Figure~\ref{fig:diff} illustrates the kinematic variables used to describe
 %the inclusive diffractive DIS process. 
 For such a processes, the 
@@ -336,8 +337,8 @@ calculable coefficient functions with the diffractive quark and gluon distributi
 %==========================================
 %{\bf Regge factorization} 
 %Needed? \\
-The diffractive PDFs in \fitter\ are implemented following the prescription of ZEUS
-collaboration \cite{zeus:diff2009}.
+% The diffractive PDFs in \fitter\ are implemented following the prescription of ZEUS
+% collaboration \cite{zeus:diff2009}.
 %and can be used to reproduce their results.
 %For a  better description of data, a contribution from a secondary Reggeon, $\Reg$, is included, hence
 %\begin{equation}
@@ -402,10 +403,9 @@ heavy quarks (sensitive to $s$- and $c$-quark densities).
 %At LO an analytic calculation is available within the package and described
 %below: 
 
-The LO DY triple differential cross section in
-invariant mass \(M\), boson rapidity \(y\) and c.o.m 
-lepton scattering  angle \(\cos\theta\), for NC, 
-can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
+The LO DY triple differential cross section in invariant mass \(M\), boson rapidity \(y\) 
+and lepton scattering angle \(\cos\theta\) in the parton c.o.m frame, 
+for NC, can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{align}
 % \scriptstyle
  \textstyle

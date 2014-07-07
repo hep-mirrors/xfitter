@@ -3,7 +3,7 @@
 
 \fitter is a flexible open-source platform for the QCD analyses of different experimental measurements, 
 providing a versatile environment for benchmarking studies. It is widely used within 
-LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,cms:jets,h1:2012kk,h1zeus:charm}.  
+LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,h1:2012kk,h1zeus:charm}.  
 
 The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
 \input{workflow.tex}
@@ -100,6 +100,7 @@ by a chosen functional form with a set of free parameters $\vec{p}$.
 These PDFs are evolved to the scale of the measurement $Q^2$, $Q^2>Q_0^2$.
 The evolution follows either DGLAP \cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} (as implemented in \qcdnum~\cite{qcdnum}), CCFM \cite{\CCFM} 
+(as implemented in \texttt{uPDFevolv}~\cite{tmdlref2})
 or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
 The prediction of a particular process cross section is obtained by a convolution of the evolved 
 PDFs and the partonic cross section, calculated at a certain order in QCD 
