@@ -431,7 +431,6 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       (*it).getth()->SetLineWidth(opts.lwidth);
       if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
 	{
-	  vector <range> thranges = historanges((*it).getth());
 	  for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 	    {
 	      (*it).getth()->SetAxisRange((*r).lowedge, (*r).upedge);
@@ -450,11 +449,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		toterr += (*it).gettherr()->GetBinError(b);
 	      if (toterr > 0)
 		{
-		  vector <range> thranges = historanges((*it).getth());
 		  for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 		    {
 		      (*it).gettherr()->SetAxisRange((*r).lowedge, (*r).upedge);
-		      (*it).Draw((TH1F*)(*it).gettherr(), "E3L same");
+		      (*it).Draw((TH1F*)(*it).gettherr()->Clone(), "E3L same");
 		    }
 		  (*it).gettherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 		}
