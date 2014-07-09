@@ -100,8 +100,8 @@ by a chosen functional form with a set of free parameters $\vec{p}$.
 These PDFs are evolved to the scale of the measurement $Q^2$, $Q^2>Q_0^2$.
 The evolution follows either DGLAP \cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} (as implemented in \qcdnum~\cite{qcdnum}), CCFM \cite{\CCFM} 
-(as implemented in \texttt{uPDFevolv}~\cite{tmdlref2})
-or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
+(as implemented in \texttt{uPDFevolv}~\cite{tmdlref2}).
+%or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
 The prediction of a particular process cross section is obtained by a convolution of the evolved 
 PDFs and the partonic cross section, calculated at a certain order in QCD 
 with a relevant theory program (as listed in Tab.~\ref{tab:proc}).
@@ -113,10 +113,11 @@ with a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 %CCFM \cite{\CCFM} or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} 
 %and then convoluted with the hard parton cross sections calculated
 %using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
+Alternatively, predictions using dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} can be also obtained.
 \item
 \bf{QCD analysis:} \rm  
 The PDFs are 
-are determined by the least square fit, minimising the $\chi^2$ function with respect to $\vec{p}$
+are determined by the least square fit, minimising the $\chi^2$ function with respect to free parameters $\vec{p}$
 using the MINUIT~\cite{minuit} program.
 %extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. 
 %The $\chi^2$ function is formed from the input data and the theory prediction.

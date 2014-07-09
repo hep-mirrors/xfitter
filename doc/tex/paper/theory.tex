@@ -44,14 +44,14 @@ and the inelasticity $y$, related by $y=Q^2/sx$, where $s$ is the squared centre
 The NC cross section can be expressed in terms of generalised structure functions:
 \begin{eqnarray}
 %  \nonumber
-   \frac{d^2\sigma_{NC}^{e^{\pm} p}}{dxdQ^2}=\frac{2\pi\alpha^2}{xQ^4} 
-     \big [ Y_{+} \tilde F_2^{\pm} \mp Y_{-}x \tilde F_3^{\pm} - y^2 \tilde F_L^{\pm} \big ],
+   \frac{d^2\sigma_{NC}^{e^{\pm} p}}{dxdQ^2}&=&\frac{2\pi\alpha^2}{xQ^4}\cdot \sigma_{r,NC}^{e^{\pm} p},\\ 
+   \sigma_{r,NC}^{e^{\pm} p}&= &  Y_{+} \tilde F_2^{\pm} \mp Y_{-}x \tilde F_3^{\pm} - y^2 \tilde F_L^{\pm},
  %\label{eq:NC not reduced}
 \end{eqnarray}
-where $Y_{\pm} = 1 \pm (1-y)^2$ (additional terms of $O(1/Q^2)$ are numerically small 
-at the HERA kinematics are neglected). 
+where the electromagnetic coupling constant $\alpha$, the photon propagator and a helicity factor are absorbed in the definition of reduced cross section $\sigma_r$, and  $Y_{\pm} = 1 \pm (1-y)^2$ (additional terms of $O(1/Q^2)$ are numerically small 
+at the HERA kinematics and are neglected). 
 The generalised structure functions $\tilde F_{2,3}$ 
-can be written as linear combinations of the proton structure functions $F_2, F_{2,3}^{\gamma Z}$ 
+can be written as linear combinations of the proton structure functions $F_2^{\gamma}, F_{2,3}^{\gamma Z}$ 
 and $F_{2,3}^Z$ associated to pure photon exchange terms, photon-$Z$ interference
 terms and pure $Z$ exchange terms, respectively. 
 The structure function $\tilde F_2$ is the dominant contribution to the cross section, 
@@ -66,18 +66,20 @@ only at high $y$.
 %($\as g$) appear, in particular $F_L$ is strongly related to the low-$x$ 
 %gluon.
 \\
-The inclusive CC $ep$ cross section can be expressed 
-in terms of another set of structure functions and in LO the $e^+p$ and $e^-p$ cross sections are sensitive to 
+The inclusive CC $ep$ cross section, analogous to the NC case, can be expressed in terms of another set of structure functions and in LO the $e^+p$ and $e^-p$ cross sections are sensitive to 
 different combinations of the quark flavour densities:
 \begin{eqnarray}
+\centering
 %  \nonumber
-    \begin{array}{rll}
-     & & \sigma_{CC}^{e^{+} p} \approx 
+%    \begin{array}{rll}
+   \frac{d^2\sigma_{CC}^{e^{\pm} p}}{dxdQ^2}&=&\frac{1\pm P}{2}\frac{G^2_F}{2\pi x}\big [\frac{M^2_W}{M^2_W+Q^2}\big ]\cdot \sigma_{r,CC}^{e^{\pm} p}\\ 
+      \sigma_{r,CC}^{e^{+} p} &\approx& 
         x [\overline u + \overline c] + (1-y)^2 x [d+s], \\
-     & & \sigma_{CC}^{e^{-} p} \approx 
-        x[u+c] + (1-y)^2 x[\overline d + \overline s].
-    \end{array}
+      \sigma_{r,CC}^{e^{-} p} &\approx& 
+        x[u+c] + (1-y)^2 x[\overline d + \overline s],
+%    \end{array}
 \end{eqnarray}
+where $P$ represents the lepton beam polarisation.
 %Here $U$ and $D$ denote the sum over up- and down-type quarks;
 %the latter include also strange and beauty quarks and 
 %the former charm quarks.
