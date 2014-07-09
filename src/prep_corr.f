@@ -13,7 +13,7 @@
 
       integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax,NCorrMax
 
-      parameter (NIdMax = 3)
+      parameter (NIdMax = 5)
       character *80 Name1
       character *80 Name2
       character *80 MatrixType
@@ -205,7 +205,7 @@ c     Check bin identifiers
             endif
          enddo
          do i=1,NIdColumns2
-            if(IdIdx1(i).le.0) then
+            if(IdIdx2(i).le.0) then
                Call HF_ERRLOG(10040004,
      $'S: Error in reading correlation file: bin not identified')
             endif
@@ -260,7 +260,7 @@ c     Make arrays of bin identification info for bin_i and bin_j
                   do b=1, NIdColumns1
                      Values1(b) = BinValues1(b,i)
                   enddo
-                  do b=1, NIdColumns1
+                  do b=1, NIdColumns2
                      Values2(b) = BinValues2(b,j)
                   enddo
 
@@ -380,6 +380,8 @@ c    Additional check that uncertainty for corresponding correlation matrix is g
      $'S: Stat correlations without stat error given in dataset: '//ndataTmp)
                      endif
                   corr_stat(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+c    Check and fill symetric off-diagonal elements
+                  call CheckCorrMatrix(corr_stat)
                elseif (MatrixType.eq.'Systematic correlations') then
 c    Additional check that uncertainty for corresponding correlation matrix is given
                      if(E_UNC(idx1).eq.0.d0.and.E_UNC_CONST(idx1).eq.0.d0.or.
@@ -388,6 +390,8 @@ c    Additional check that uncertainty for corresponding correlation matrix is g
      $'S: Syst correlations without syst error given in dataset: '//ndataTmp)
                      endif
                   corr_syst(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+c    Check and fill symetric off-diagonal elements
+                  call CheckCorrMatrix(corr_syst)
                elseif (MatrixType.eq.'Systematic covariance matrix') then
 c    Additional check that no uncertainty for covariance matrix is given
                      if(E_UNC(idx1).ne.0.d0.and.E_UNC_CONST(idx1).ne.0.d0.or.
@@ -396,6 +400,8 @@ c    Additional check that no uncertainty for covariance matrix is given
      $'S: For sys cov matrix no sys error should be given in dataset: '//ndataTmp)
                      endif
                   cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+c    Check and fill symetric off-diagonal elements
+                  call CheckCorrMatrix(cov)
                elseif (MatrixType.eq.'Full covariance matrix') then
 c    Additional check that no uncertainty for covariance matrix is given
                      if(E_STA(idx1).ne.0.d0.and.E_STA_CONST(idx1).ne.0.d0.or.
@@ -406,6 +412,8 @@ c    Additional check that no uncertainty for covariance matrix is given
      $'S: For full cov matrix no sys, stat error should be given, set: '//ndataTmp)
                      endif
                   cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+c    Check and fill symetric off-diagonal elements
+                  call CheckCorrMatrix(cov)
                elseif (MatrixType.eq.'Full correlation matrix') then
 c    Additional check that stat and sys uncertainties with full corr matrix are given
                      if(E_STA(idx1).eq.0.d0.and.E_STA_CONST(idx1).eq.0.d0.or.
@@ -416,6 +424,8 @@ c    Additional check that stat and sys uncertainties with full corr matrix are 
      $'S: For full corr matrix sys and stat errors should be given: '//ndataTmp)
                      endif
                   corr(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
+c    Check and fill symetric off-diagonal elements
+                  call CheckCorrMatrix(corr)
                endif
 
 C     Mark the points for covariance matrix method:
@@ -568,6 +578,37 @@ C----------------------------------------------------
       endif
       end
       
+
+      subroutine CheckCorrMatrix(cmatrix)
+C----------------------------------------------------
+C     Check and fill symetric off-diagonal elements if only 
+c     one side is provided 
+C----------------------------------------------------
+      implicit none 
+      include 'ntot.inc'
+      include 'indata.inc'
+
+      double precision cmatrix(NTOT,NTOT)
+      integer i,j
+
+      do i=1,npoints
+        do j=1,npoints
+      
+          if(cmatrix(i,j).ne.cmatrix(j,i)) then
+             if(cmatrix(i,j).ne.0.d0) then 
+                 cmatrix(j,i) = cmatrix(i,j)
+             else if(cmatrix(j,i).ne.0.d0) then
+                 cmatrix(i,j) = cmatrix(j,i)
+             else 
+                Call HF_ERRLOG(14070901,
+     $ 'S: Error: cov matrix element for same bins is not equal')
+             endif
+          endif
+
+        enddo
+      enddo
+            
+      end
       
       subroutine PrintCorrMatrix
 C----------------------------------------------------
