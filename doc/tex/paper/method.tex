@@ -121,7 +121,7 @@ the standard-polynomial one.
   \includegraphics[width=5cm]{chebishev.pdf}
 % \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
 % weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
-  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parameterisation and it is to be compared to the case of the Chebyshev parameterisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique, shown in red, while the  green lines correspond to each replica distribution.}
+  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parameterisation and it is compared to the case of the Chebyshev parameterisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique, shown in red, while the  green lines correspond to each replica distribution.}
  \label{fig:cheb}
 \end{figure}
 
@@ -359,8 +359,7 @@ The implementation relies on the assumption that
 asymmetric uncertainties can be described by a parabolic function
 and the nuisance parameter in Eq.~\ref{eq:aven} is modified as follows
 \begin{equation}
-  m_i(1-\sum_j \gamma^i_{j} b_j) \to 
-m_i\left(1-\sum_j b_j(\omega^i_{j}b_j + \gamma^i_{j})\right),
+  \gamma^i_{j} \to \omega^i_{j}b_j + \gamma^i_{j},
 \end{equation}
 where the coefficients $\omega^i_{j}$, $\gamma^i_{j}$ are defined  
 by the up and down values of the systematic uncertainties,
