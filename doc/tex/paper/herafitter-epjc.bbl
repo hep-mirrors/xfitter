@@ -1,4 +1,4 @@
-\begin{thebibliography}{127}
+\begin{thebibliography}{126}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -99,13 +99,6 @@
   \bibinfo{journal}{submitted to Phys. Rev.} \textbf{\bibinfo{volume}{D}}
   (\bibinfo{year}{2014}{\natexlab{a}}), [\eprint{arXiv:1312.6283}].
 
-\bibitem[{\citenamefont{Chatrchyan
-  \emph{et~al.}}(2014{\natexlab{b}})}]{cms:jets}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
-  \bibinfo{journal}{CMS PAS} \textbf{\bibinfo{volume}{SMP-12-028}}
-  (\bibinfo{year}{2014}{\natexlab{b}}).
-
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2012)}]{h1:2012kk}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 Collaboration}],
@@ -199,6 +192,12 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{445}},
   \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{a}}).
 
+\bibitem[{\citenamefont{Jung \emph{et~al.}}(2014{\natexlab{a}})}]{tmdlref2}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
+  \bibnamefont{\emph{et~al.}}, \emph{\bibinfo{title}{{The CCFM uPDF
+  evolution}}} (\bibinfo{year}{2014}{\natexlab{a}}),
+  \bibinfo{note}{{DESY-14-060}}.
+
 \bibitem[{\citenamefont{Golec-Biernat and
   W\"usthoff}(1999)}]{Golec-Biernat:1998js}
 \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Golec-Biernat}}
@@ -248,8 +247,12 @@
 \bibitem[{lha()}]{lhapdfweb}
 \emph{\bibinfo{title}{{LHAPDF}}}, \urlprefix\url{http://lhapdf.hepforge.org}.
 
-\bibitem[{tmd()}]{tmdlref}
-\bibinfo{note}{{[TMD Collaboration], to be published}}.
+\bibitem[{\citenamefont{Jung \emph{et~al.}}(2014{\natexlab{b}})}]{tmdlref}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
+  \bibnamefont{\emph{et~al.}}, \emph{\bibinfo{title}{{TMDlib and TMDplotter:
+  library and plotting tools for Transverse Momentum Dependent parton
+  distributions}}} (\bibinfo{year}{2014}{\natexlab{b}}),
+  \bibinfo{note}{{DESY-14-059}}.
 
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2010)}]{h1zeus:2009wt}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
@@ -386,12 +389,6 @@
   \bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Verzegnassi}},
   \bibinfo{note}{{in CERN Yellow Report on "Polarization at LEP" 1988.}}
 
-\bibitem[{\citenamefont{Chekanov \emph{et~al.}}(2010)}]{zeus:diff2009}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chekanov}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ZEUS Collaboration}],
-  \bibinfo{journal}{Nucl. Phys.} \textbf{\bibinfo{volume}{B831}},
-  \bibinfo{pages}{1} (\bibinfo{year}{2010}), [\eprint{hep-ex/09114119}].
-
 \bibitem[{\citenamefont{Drell and Yan}(1970)}]{Drell:1970wh}
 \bibinfo{author}{\bibfnamefont{S.~D.} \bibnamefont{Drell}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{T.-M.} \bibnamefont{Yan}},
@@ -474,11 +471,11 @@
   \bibinfo{pages}{122003} (\bibinfo{year}{2002}), [\eprint{hep-ph/0110315}].
 
 \bibitem[{\citenamefont{Chatrchyan
-  \emph{et~al.}}(2014{\natexlab{c}})}]{cms:top}
+  \emph{et~al.}}(2014{\natexlab{b}})}]{cms:top}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
   \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B728}},
-  \bibinfo{pages}{496} (\bibinfo{year}{2014}{\natexlab{c}}),
+  \bibinfo{pages}{496} (\bibinfo{year}{2014}{\natexlab{b}}),
   [\eprint{1307.1907}].
 
 \bibitem[{\citenamefont{Czakon \emph{et~al.}}(2013)\citenamefont{Czakon,

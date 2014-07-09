@@ -17,16 +17,15 @@ hadronic inclusive cross sections are written as
 %The most common approach to calculate the SM cross sections for  
 %such reactions is to use collinear factorisation in perturbative QCD (pQCD)~\cite{Collins:1989}:
 %{\small
-\begin{equation}
+\begin{eqnarray}
 \small
-\begin{array}{lcl}
-\sigma(\as,\mur,\muf) & = &
-\sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2\, f_a(x_1,\as,\muf) 
- f_b(x_2,\as,\muf)\\ 
-& \times & \, \hat{\sigma}^{ab}(x_1,x_2;\as,\mur,\muf),
+%\begin{array}{lcl}
+\sigma(\as,\mur,\muf)&=& \sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2\, f_a(x_1,\as,\muf) 
+ f_b(x_2,\as,\muf) \nonumber \\ 
+&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as,\mur,\muf),
 \label{eq:fact}
-\end{array}
-\end{equation}
+%\end{array}
+\end{eqnarray}
 %}
 where the cross section $\sigma$ for 
 any hard-scattering inclusive process
@@ -77,7 +76,7 @@ probe PDFs in the kinematic ranges, complementary to the DIS measurements.
 Therefore inclusion of the LHC and Tevatron data in the QCD analysis of the proton structure 
 provide additional constraints on the PDFs, improving either their precision, 
 or providing valuable information on the correlations of PDFs with the fundamental 
-QCD parameters like strong coupling or quark masses. 
+QCD parameters like the strong coupling or the quark masses. 
 %
 %\begin{figure}[!ht]
 %   \centering
@@ -110,7 +109,7 @@ This paper is organised as follows.
 The structure and overview of \fitter are presented in section~\ref{sec:structure}.
 Section~\ref{sec:theory} discusses the various processes 
 and corresponding theoretical calculations performed in the collinear factorisation using the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
-Dokshitzer:1977sg,Altarelli:1977zs} formalism, available in \fitter.
+Dokshitzer:1977sg,Altarelli:1977zs} formalism, available in \\ \fitter.
 %
 Section~\ref{sec:techniques} presents various fast techniques employed by the theory calculations used in \fitter.
 Section~\ref{sec:method} elucidates the 
