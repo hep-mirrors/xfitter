@@ -30,8 +30,7 @@ In \fitter various functional forms to parametrise PDFs can be used:
 %using free parameters to be extracted from the fit:
 \begin{description}
 \item \bf {Standard Polynomials:} \rm
-%The term refers to using a simple polynomial to interpolate between the low and high $x$ regions:
-A polynomial form is used to parametrise the $x$-dependence of the PDFs:
+A polynomial functional form is used to parametrise the $x$-dependence of the PDFs:
 %The term standard is understood to refer to a simple polynomial 
 %that interpolates between the low and high $x$ regions:
 \begin{equation}
@@ -39,19 +38,19 @@ A polynomial form is used to parametrise the $x$-dependence of the PDFs:
 \label{eqn:pdf_std}
 \end{equation}
 The standard polynomial form is most commonly used by the PDF groups.
-In HERA PDFs, the parametrised PDFs are the valence distributions
-$xu_v$ and $xd_v$, the gluon distribution $xg$, and the $u$-type and $d$-type sea 
+The parametrised PDFs are the valence distributions
+$xu_v$ and $xd_v$, the gluon distribution $xg$, and the $u$-type and $d$-type sea as constrained by HERA data alone,
 $x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
 $x\bar{D} = x\bar{d} +x\bar{s}$ at the starting scale. 
 %chosen below the charm mass threshold. 
 The form of polynomials $P_i(x)$ depdend on the style, defined as a steering parameter. 
-For the HERAPDF~\cite{h1zeus:2009wt} style takes the Regge-inspired form  
+For the HERAPDF~\cite{h1zeus:2009wt}, the style takes the Regge-inspired form  
 $(1 + \epsilon \sqrt{x} + D x + E x^2)$
 with additional constraints relating to the flavour decomposition of the 
 light sea. 
 For the CTEQ style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$.
 QCD number and momentum sum-rules are used to determine the normalisations $A$ for the valence and gluon
-distributions, and the sum-rule integrals are soved analytically.
+distributions, and the sum-rule integrals are solved analytically.
 
 \item \bf {Bi-Log-Normal Distributions:} \rm
 %A bi-log-normal distribution to parametrise the $x$ dependence of the PDFs is 
@@ -175,7 +174,7 @@ The covariance matrix $C_{ik}$ is given by the sum of statistical, uncorrelated 
 \begin{eqnarray}
 C_{ik}& = & C^{stat}_{ik}+C^{uncor}_{ik}+C^{sys}_{ik}.
 \end{eqnarray}
-With this representation the particular effect of a certain systematic source of the uncertainty 
+With this representation the effect of a certain systematic source of the uncertainty 
 cannot be distinguished from others.
 
 \item \bf{Nuisance Parameters Representation:} \rm
@@ -384,7 +383,7 @@ The minimisation is performed using fixed number of iterations (typically ten), 
 \subsection{Treatment of the Theoretical Input Parameters}
 
 The results of a QCD fit depend not only on the input data but also on the 
-input parameters used in the theoretical calculations. Nowadays, recent PDF sets 
+input parameters used in the theoretical calculations. Nowadays, the PDF groups 
 address the impact of the choices of theoretical parameters by providing
 alternative PDFs with different choices of the mass of the charm quarks $m_c$, 
 mass of the bottom quarks $m_b$ and the value of $\asmz$, etc. 
