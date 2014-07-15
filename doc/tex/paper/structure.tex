@@ -2,7 +2,7 @@
 \label{sec:structure}
 
 \fitter is a flexible open-source platform for the QCD analyses of different experimental measurements, 
-providing a versatile environment for benchmarking studies. It is widely used within 
+providing a versatile environment for benchmarking studies. It is widely used within the
 LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,h1:2012kk,h1zeus:charm}.  
 
 The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
@@ -66,7 +66,7 @@ HERA &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\qcdnum) \\
 %     &         &                & TR', ACOT, \\ [0.5ex]
 %     &         &                & FFN (\texttt{OPENQCDRAD}, \\
 %     &         &                & \qcdnum) \\  [0.5ex]
-\hline \\ [-2.5ex]
+%\hline \\ [-2.5ex]
 Tevatron&Drell-Yan &$pp(\bar p)\to l\bar l X$, & \mcfm (\applgrid) \\
 LHC              &          &$pp(\bar p)\to l\nu  X$ &                 \\ [0.5ex]
 \cline{2-4}  \\ [-2.0ex]
@@ -127,7 +127,7 @@ using the MINUIT~\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, either using 
 a nuisance parameter method for the correlated systematic uncertainties, 
 or a covariance matrix method as described in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
-assumptions for the distributions of the systematic uncertainties i.e. Gauss~\cite{hera-lhc:report2009} (see section~\ref{sec:experimentalerrors}).
+assumptions for the distributions of the systematic uncertainties, like Gauss, LogNormal~\cite{hera-lhc:report2009} (see section~\ref{sec:experimentalerrors}).
 %
 %In the $\chi^2$ minimisation,
 %The parameters $\vec{p}$ of the parametrised PDFs and their uncertainties are extracted from the minimisation fit.

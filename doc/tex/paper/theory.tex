@@ -88,8 +88,7 @@ where $P$ represents the lepton beam polarisation.
 %{\bf check this sentence if it makes sense}.
 The QCD predictions for the DIS structure functions are obtained by convoluting 
 the PDFs with the respective coefficient functions. The DIS measurements span in the kinematic range from low to high $Q^2$, such that  
-the treatment of heavy quarks (charm and beauty) and of their masses becomes important. 
-Several schemes exist and the implemented variants in \fitter are briefly discussed as follows.
+the treatment of heavy quarks (charm and beauty) and of their masses becomes important. There are different approaches to the treatment of heavy quark production that should be equivalent if calculations are carried out to all orders in $\alpha_s$. Several variants of these schemes are implemented in \fitter and they are briefly discussed below.
 
 
 \begin{description}
@@ -405,9 +404,8 @@ heavy quarks (sensitive to $s$- and $c$-quark densities).
 %At LO an analytic calculation is available within the package and described
 %below: 
 
-The LO DY triple differential cross section in invariant mass \(M\), boson rapidity \(y\) 
-and lepton scattering angle \(\cos\theta\) in the parton c.o.m frame, 
-for NC, can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
+The LO DY for NC triple differential cross section in invariant mass \(M\), boson rapidity \(y\) 
+and lepton scattering angle \(\cos\theta\) in the parton c.o.m frame can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{align}
 % \scriptstyle
  \textstyle
@@ -417,7 +415,7 @@ for NC, can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
  + (q\leftrightarrow\bar{q})\right],
 \end{align}
 where \(S\) is the squared c.o.m beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,Q^2)$ 
-is the quark distribution, and 
+are the quark distribution functions, and 
 $P_q$ is a partonic cross section. 
 %\begin{align}
 %  P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
@@ -438,7 +436,7 @@ $P_q$ is a partonic cross section.
 %\end{align}
 \\
 \\
-The expression for CC  scattering has a form:
+The LO expression for CC  scattering has a form:
 \begin{align}
 \frac{d^3\sigma}{dMdyd\cos\theta} &=
  \frac{\pi\alpha^2}{48S\sin^4\theta_W}
@@ -516,7 +514,7 @@ calculations for higher-order contributions to jet production in proton-proton c
 are now quite advanced~\cite{nigel:2013,nigel:2010,Currie:2013dwa}. 
 Within \fitter, programs as \texttt{MCFM} or
 \nlojetpp~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
-calculation of jet production.
+calculations of jet production.
 Similarly to the DY case, the calculation 
 is very demanding in terms of computing power. 
 Therefore fast grid techniques are used  
