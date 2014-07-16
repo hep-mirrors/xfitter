@@ -14,7 +14,7 @@ method of minimisation, interpretation of uncertainties, etc.
 The methodology employed by \fitter  relies on a flexible and modular
 framework that allows for independent integration of the state-of-the-art techniques, either related to the inclusion of a new theoretical calculation, or of new approaches to treat uncertainties. 
 
-In this section we briefly describe the available options in \fitter.
+In this section we describe the available options in \fitter.
 %ranging from the functional form used to parametrise PDFs and the choice of the form of the $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
 %
 %list various types of functional forms used to parametrise PDFs, different definitions for  $\chi^2$ evaluation in extracting the PDF parameters which account for correlated and uncorrelated sources of experimental (or theoretical) uncertainties available in \fitter. 
@@ -30,14 +30,15 @@ In \fitter various functional forms to parametrise PDFs can be used:
 %using free parameters to be extracted from the fit:
 \begin{description}
 \item \bf {Standard Polynomials:} \rm
-A polynomial functional form is used to parametrise the $x$-dependence of the PDFs:
+The standard polynomial form is most commonly used by the PDF groups.
+A polynomial functional form is used to parametrise the $x$-dependence of the PDFs, where index $j$ denotes each parametrised PDF:
 %The term standard is understood to refer to a simple polynomial 
 %that interpolates between the low and high $x$ regions:
 \begin{equation}
- xf(x) = A x^{B} (1-x)^{C} P_i(x),
+ xf_j(x) = A_j x^{B_j} (1-x)^{C_j} P_i(x),
 \label{eqn:pdf_std}
 \end{equation}
-The standard polynomial form is most commonly used by the PDF groups.
+
 The parametrised PDFs are the valence distributions
 $xu_v$ and $xd_v$, the gluon distribution $xg$, and the $u$-type and $d$-type sea as constrained by HERA data alone,
 $x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
@@ -45,7 +46,7 @@ $x\bar{D} = x\bar{d} +x\bar{s}$ at the starting scale.
 %chosen below the charm mass threshold. 
 The form of polynomials $P_i(x)$ depdend on the style, defined as a steering parameter. 
 For the HERAPDF~\cite{h1zeus:2009wt}, the style takes the Regge-inspired form  
-$(1 + \epsilon \sqrt{x} + D x + E x^2)$
+$(1 + \epsilon_j \sqrt{x} + D_j x + E_j x^2)$
 with additional constraints relating to the flavour decomposition of the 
 light sea. 
 For the CTEQ style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$.
@@ -61,7 +62,7 @@ The parametrisation is motivated by multi-particle statistics
 and holds the following functional form:
 %\begin{center}
 \begin{equation}
- xf(x)=a x^{p-b\log(x)}(1-x)^{q-d \log(1-x)}.
+ xf_j(x)=a_j x^{p_j-b_j\log(x)}(1-x)^{q_j-d_j \log(1-x)}.
 \label{eqn:bilog}
 \end{equation}
 %\end{center}
