@@ -233,6 +233,7 @@ an older version from Burkhard \cite{Burkhard}.
 \newcommand{\Pom}{{I\!P}}
 \newcommand{\Reg}{{I\!R}}
 \newcommand{\xpom}{$x_{I\!P}$}
+\newcommand{\xP}{x_\Pom}
 
 
 Similarly to standard DIS, diffractive parton distributions (DPDFs) 
@@ -335,6 +336,18 @@ In this way, the diffractive structure functions can be expressed as convolution
 calculable coefficient functions with the diffractive quark and gluon distribution functions,
  which in general depend on \xpom, $Q^2$, $\beta$, $t$.
 
+The diffractive PDFs in \fitter \cite{Aktas:2006hy, zeus:diff2009} are implemented as a sum 
+of two factorised contributions:
+\begin{equation}
+ \Phi_\Pom(\xP,t)\, f^{Pom}_{a}(\beta,Q^2)
+  + 
+ \Phi_\Reg(\xP,t)\, f^{\Reg}_{a}(\beta,Q^2)
+ \,,
+\end{equation} 
+where $\Phi(\xP,t)$ are the Regge type fluxes.
+The Reggeon PDFs, $f^{\Reg}_{a}$ are taken as those of the pion, while the Pomeron ones,
+$f^{\Pom}_{a}$, are obtained from a fit to the data.
+
 %==========================================
 %{\bf Regge factorization} 
 %Needed? \\
@@ -383,7 +396,7 @@ calculable coefficient functions with the diffractive quark and gluon distributi
 \subsection{Drell-Yan processes  in $pp$ or $p\bar p$ collisions}
 \label{dysection}
 
-%This section presents calculations of Drell Yan processes that can be used to 
+%This section presents calculations of Drell-Yan processes that can be used to 
 %predict lepton pair production at the LHC or Tevatron.
 Drell-Yan process
 provides further valuable information about PDFs.
@@ -443,7 +456,7 @@ The LO expression for CC  scattering has a form:
  \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
  & \sum_{q_1,q_2}V_{q_1q_2}^2f_{q_1}(x_1,Q^2)f_{q_2}(x_2,Q^2),
 \end{align}
-where \(V_{q_1q_2}\) is the Cabibbo-Kabayashi-Masakawa (CKM) quark mixing matrix and \(M_W\) and \(\Gamma_W\)
+where \(V_{q_1q_2}\) is the Cabibbo–Kobayashi–Maskawa (CKM) quark mixing matrix and \(M_W\) and \(\Gamma_W\)
 are the \(W\) boson mass and decay width, respectively.
 
 The simple form of these expressions allows the calculation of integrated
