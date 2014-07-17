@@ -380,8 +380,6 @@ c    Additional check that uncertainty for corresponding correlation matrix is g
      $'S: Stat correlations without stat error given in dataset: '//ndataTmp)
                      endif
                   corr_stat(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
-c    Check and fill symetric off-diagonal elements
-                  call CheckCorrMatrix(corr_stat)
                elseif (MatrixType.eq.'Systematic correlations') then
 c    Additional check that uncertainty for corresponding correlation matrix is given
                      if(E_UNC(idx1).eq.0.d0.and.E_UNC_CONST(idx1).eq.0.d0.or.
@@ -390,8 +388,6 @@ c    Additional check that uncertainty for corresponding correlation matrix is g
      $'S: Syst correlations without syst error given in dataset: '//ndataTmp)
                      endif
                   corr_syst(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
-c    Check and fill symetric off-diagonal elements
-                  call CheckCorrMatrix(corr_syst)
                elseif (MatrixType.eq.'Systematic covariance matrix') then
 c    Additional check that no uncertainty for covariance matrix is given
                      if(E_UNC(idx1).ne.0.d0.and.E_UNC_CONST(idx1).ne.0.d0.or.
@@ -400,8 +396,6 @@ c    Additional check that no uncertainty for covariance matrix is given
      $'S: For sys cov matrix no sys error should be given in dataset: '//ndataTmp)
                      endif
                   cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
-c    Check and fill symetric off-diagonal elements
-                  call CheckCorrMatrix(cov)
                elseif (MatrixType.eq.'Full covariance matrix') then
 c    Additional check that no uncertainty for covariance matrix is given
                      if(E_STA(idx1).ne.0.d0.and.E_STA_CONST(idx1).ne.0.d0.or.
@@ -412,8 +406,6 @@ c    Additional check that no uncertainty for covariance matrix is given
      $'S: For full cov matrix no sys, stat error should be given, set: '//ndataTmp)
                      endif
                   cov(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
-c    Check and fill symetric off-diagonal elements
-                  call CheckCorrMatrix(cov)
                elseif (MatrixType.eq.'Full correlation matrix') then
 c    Additional check that stat and sys uncertainties with full corr matrix are given
                      if(E_STA(idx1).eq.0.d0.and.E_STA_CONST(idx1).eq.0.d0.or.
@@ -424,8 +416,6 @@ c    Additional check that stat and sys uncertainties with full corr matrix are 
      $'S: For full corr matrix sys and stat errors should be given: '//ndataTmp)
                      endif
                   corr(Idx1, Idx2) = buffer(NIdColumns1+NIdColumns2+1)
-c    Check and fill symetric off-diagonal elements
-                  call CheckCorrMatrix(corr)
                endif
 
 C     Mark the points for covariance matrix method:
@@ -436,18 +426,12 @@ C     Mark the points for covariance matrix method:
          close (51)
       enddo                     ! End of loop over correlation files
 
-C     Check the matrixes are symmetric
-c      do i=1,NTOT
-c         do j=1,NTOT
-c            if (corr_stat(i,j).ne.corr_stat(j,i).or.
-c     +           corr_syst(i,j).ne.corr_syst(j,i).or.
-c     +           cov(i,j).ne.cov(j,i).or.
-c     +           corr(i,j).ne.corr(j,i)) then
-c               Call HF_ERRLOG(10040005,
-c     $ 'S: Error: asymmetric matrix correlation/covariance matrix')
-c            endif
-c         enddo
-c      enddo
+
+c    Check and fill symetric off-diagonal elements
+      call CheckCorrMatrix(corr_stat)
+      call CheckCorrMatrix(corr_syst)
+      call CheckCorrMatrix(cov)
+      call CheckCorrMatrix(corr)
 
 
       goto 1200
