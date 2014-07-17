@@ -736,6 +736,62 @@ C
 C--------------------------------------------------------
       end
 
+C-----
+C
+C> @brief extend lists of data-syst sources for data points connected via cov. matrix
+C
+      subroutine expand_syst_lists(tot_matrix,list_covar_inv,n0_in)
+      implicit none
+      include 'ntot.inc'
+      include 'systematics.inc'
+      double precision tot_matrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
+      integer list_covar_inv(NTOT)
+      integer n0_in
+      integer l,j,j1,i,ic,n,jc,k
+      logical flag
+C-------------------------------------------------
+      do l=1,nsys
+         n = n_syst_meas(l)
+         j1 = 1
+         
+         do while ( j1 .le. n)
+            flag = .false.
+C loop over all data, find non-zero correlations
+            j = syst_meas_idx(j1,l)     ! j -> index of the data
+            jc = list_covar_inv(j)
+            if (jc.gt.0) then
+C Check all data which may have correlations with this data point
+               do i=1,n0_in
+                  ic = list_covar_inv(i)
+                  if (ic .gt.0 ) then
+                     if (tot_matrix(jc,ic).ne.0.0) then
+C Check if "i" point is on the list already
+                        do k=1,n
+                           if ( i.eq.syst_meas_idx(k,l)) then
+                              goto 17
+                           endif
+                        enddo
+C New point, add to the lists:
+                        n = n + 1
+                        syst_meas_idx(n,l) = i
+c                        print *,'EXPAND LIST',l,i
+                        flag = .true.
+ 17                     Continue
+                     endif
+                  endif
+               enddo
+            endif
+            if (.not.flag) then
+               j1 = j1 + 1
+            endif
+         enddo
+
+         n_syst_meas(l) = n 
+
+      enddo
+C-------------------------------------------------
+      end
+
 C----------------------------------------------------------------------------------
 C
 C> @brief Determine shifts of nuisance parameters
@@ -775,7 +831,7 @@ C
 
       integer k,l, i1,j1,i,j, j2, i2
       double precision A(NSYSMax,NSYSMax), C(NSysMax)
-      double precision d_minus_t
+      double precision d_minus_t1, d_minus_t2,add
       double precision ShiftExternal(NTOT)
       
       integer com_list(NTot),n_com_list  !> List of affected data, common for two sources.
@@ -792,6 +848,9 @@ C Determine pairs of syst. uncertainties which share  data
       if (LFirst .or. ResetCommonSyst) then
          LFirst = .false.
          ResetCommonSyst = .false. 
+
+         call expand_syst_lists(scaledtotmatrix,list_covar_inv,n0_in)
+
          do l=1,nsys
             do k=l,nsys
                Call Sys_Data_List12(l,k,n_com_list,com_list)
@@ -838,34 +897,44 @@ C Reset the matricies:
          do j=1, nsys
             A(i,j) = 0.0D0
          enddo
-         A(i,i)  = 1.D0
+         A(i,i)  =  1.0D0
       enddo
 
       do l=1,nsys
          if ( SysForm(l) .eq. isNuisance ) then
 C Start with "C"
-            do i1=1,n_syst_meas(l)
-               i = syst_meas_idx(i1,l)
-               if (FitSample(i) ) then
 
+            do i1=1,n_syst_meas(l)         ! loop over all data affected by this source
+               i = syst_meas_idx(i1,l)     ! i -> index of the data
+c            do i=1,n0_in
+               if (FitSample(i) ) then
+                  
+                  d_minus_t1 = daten(i) - theo(i) + ShiftExternal(i)
                   if ( list_covar_inv(i) .eq. 0) then
 C Diagonal error:
-                     d_minus_t = daten(i) - theo(i) + ShiftExternal(i)
-                     C(l) = C(l) + ScaledErrors(i)
-     $                    *ScaledGamma(l,i)*( d_minus_t )
+                     C(l) = C(l) +  ScaledErrors(i)
+     $                    *ScaledGamma(l,i)*( d_minus_t1 )
                   else
 C Covariance matrix, need more complex sum:
-                     i2 = list_covar_inv(i)
-                     do j1=1,n_syst_meas(l)
-                        j = syst_meas_idx(j1,l)
-
-                        if (FitSample(j)) then
-                           d_minus_t = daten(j) - theo(j) 
-     $                          + ShiftExternal(i)
-                           j2 = list_covar_inv(j) 
-                           if (j2 .gt. 0) then
-                              C(l) = C(l) + ScaledTotMatrix(i2,j2)
-     $                             *ScaledGamma(l,i)*( d_minus_t )
+                     i2 = list_covar_inv(i)  ! i2 -> covar. matrix index for i. 
+                     do j1=1,n_syst_meas(l)   
+                        j = syst_meas_idx(j1,l) ! j -> index of the data 
+c                     do j = 1, n0_in
+                        if (j.ge.i) then
+                           if (FitSample(j)) then
+                              d_minus_t2 = daten(j) - theo(j) 
+     $                             + ShiftExternal(j)
+                              j2 = list_covar_inv(j) 
+                              if (j2 .gt. 0) then
+                                 add =  ScaledTotMatrix(i2,j2)
+     $                                *( ScaledGamma(l,i)*d_minus_t2 
+     $                                + ScaledGamma(l,j)*d_minus_t1 )
+                                 if (i.ne.j) then
+                                    C(l) = C(l) + add
+                                 else
+                                    C(l) = C(l) + 0.5*add
+                                 endif
+                              endif
                            endif
                         endif
                      enddo
@@ -877,11 +946,12 @@ C Now A:
 
             do k=l,NSys
 C
-               if ( (sysform(k) .eq. isNuisance ) .and.
-     $              HaveCommonData(k,l) ) then
+               if ( (sysform(k) .eq. isNuisance ) ! ) then
+     $              .and.HaveCommonData(k,l) ) then
 
                   do i1 = 1,n_syst_meas(k)
                      i = syst_meas_idx(i1,k)
+c                     do i=1,n0_in
                      if ( FitSample(i) ) then
                         if (  list_covar_inv(i) .eq. 0) then
 C Diagonal error:
@@ -894,14 +964,19 @@ C Covariance matrix:
                            i2 = list_covar_inv(i)
                            do j1=1,n_syst_meas(l)
                               j = syst_meas_idx(j1,l)
-C                           do j=1,n0_in
-                              if ( FitSample(j) ) then
+C                            do j=i,n0_in
+                              if ( j.ge.i .and. FitSample(j) ) then
                                  j2 = list_covar_inv(j)
                                  if (j2 .gt. 0) then
-                                    A(k,l) = A(k,l) +
+                                    add = 
      $                                   ScaledTotMatrix(i2,j2)
-     $                                   *ScaledGamma(l,i)
-     $                                   *ScaledGamma(k,j)
+     $                             *( ScaledGamma(l,i)*ScaledGamma(k,j)
+     $                               +ScaledGamma(l,j)*ScaledGamma(k,i))
+                                    if ( i.ne.j) then
+                                       A(k,l) = A(k,l) + add
+                                    else
+                                       A(k,l) = A(k,l) + 0.5*add
+                                    endif
                                  endif
                               endif
                            enddo
