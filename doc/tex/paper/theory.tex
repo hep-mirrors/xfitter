@@ -35,7 +35,7 @@ The common DIS kinematic variables are the absolute squared four-momentum of
 the exchange boson, $Q^2$, the Bjorken $x$, 
 %which can be related in the parton model to 
 %the fraction of momentum carried by the struck quark, 
-and the inelasticity $y$, related by $y=Q^2/sx$, where $s$ is the squared centre-of-mass (c.o.m) energy.
+and the inelasticity $y$, related by $y=Q^2/sx$, where $s$ is the squared centre-of-mass (c.o.m.) energy.
 %$s = 4E_eE_p$ at HERA.
 %which is the fraction of the energy 
 %transferred to the hadronic vertex.
@@ -128,7 +128,7 @@ the heavy quark-antiquark pair production in the boson-gluon fusion.
 In \fitter this scheme can be accessed via the 
 \qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD}~\cite{openqcdrad:page}, as implemented by the ABM group.
 Through \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
-are available at Next-to-Leading-Order (NLO), at $O(\as)$, and only electromagnetic exchange contributions are taken into account.
+are available at Next-to-Leading-Order (NLO), at $O(\as^2)$, and only electromagnetic exchange contributions are taken into account.
 Through the ABM implementation the heavy quark contributions to CC structure functions are available 
 %and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 and, for the NC case, the QCD corrections to the coefficient functions at Next-to-Next-to Leading Order (NNLO)
@@ -203,7 +203,7 @@ with the TR' and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt}.
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=8cm]{heraacot}
-  \caption{Overview showing the $u-$ and $d$-valence, the total sea
+  \caption{Overview showing the $u$- and $d$-valence, the total sea
     (scaled), and gluon (scaled) PDFs of the NLO HERAPDF1.0 set \cite{h1zeus:2009wt} 
     with their 
     total uncertainty at the scale of $Q^2 = 10\ \GeV^2$ obtained 
@@ -252,7 +252,7 @@ In the diffractive process the proton is well separated from the
 rest of the hadronic final state by a large rapidity gap.  
 This is interpreted as the dissociation of the virtual photon into
 hadronic system $X$ with the invariant mass much 
-smaller than the photon-proton c.o.m energy $W=ys-Q^2+m_p^2(1-y)$, where $m_p$ is proton's mass,  and the same net 
+smaller than the photon-proton c.o.m. energy $W=ys-Q^2+m_p^2(1-y)$, where $m_p$ is proton's mass,  and the same net 
 quantum numbers as the exchanged photon.
 %Figure~\ref{fig:diff} illustrates the kinematic variables used to describe
 %the inclusive diffractive DIS process. 
@@ -279,7 +279,7 @@ appear for the diffrative process in addition to the usual DIS variables $x$, $Q
 In practice, the variable $M_X$ 
 is often replaced by dimensionless quantity $\beta=\frac{Q^2}{M_X^2+Q^2-t}$.
 %
-In models based on a factorisable pomeron, $\beta$ may be viewed as the fraction of the
+In models based on a factorisable pomeron, $\beta$ may be viewed at LO as the fraction of the
 pomeron longitudinal momentum which is carried by the struck parton, $x=\beta x_{\Pom}$.
 %The diffractive parton distribution functions (DPDFs) are interpreted as probabilities for 
 %finding a parton with a small fraction of the proton momentum $x=\beta\Pom$
@@ -415,6 +415,7 @@ the ratio of the $W$ and $Z$ cross sections (sensitive to the flavor
 composition of the quark sea, in particular to the $s$ density), 
 and associated $W$ and $Z$ production with
 heavy quarks (sensitive to $s$- and $c$-quark densities).
+ Measurements at large boson $p_T\gtrsim M_{W,Z}$ are potentially sensitive to the gluon density~\cite{Malik:2013kba}.
 %
 
 %Currently, the predictions for DY and $W$ and $Z$ production are available
@@ -425,7 +426,7 @@ heavy quarks (sensitive to $s$- and $c$-quark densities).
 %below: 
 
 The LO DY for NC triple differential cross section in invariant mass \(M\), boson rapidity \(y\) 
-and lepton scattering angle \(\cos\theta\) in the parton c.o.m frame can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
+and lepton scattering angle \(\cos\theta\) in the parton c.o.m. frame can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{align}
 % \scriptstyle
  \textstyle
@@ -434,7 +435,7 @@ and lepton scattering angle \(\cos\theta\) in the parton c.o.m frame can be writ
  \frac{\pi\alpha^2}{3MS}\sum_{q}P_q \left[f_q(x_1,Q^2)f_{\bar{q}}(x_2,Q^2) 
  + (q\leftrightarrow\bar{q})\right],
 \end{align}
-where \(S\) is the squared c.o.m beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,Q^2)$ 
+where \(S\) is the squared c.o.m. beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,Q^2)$ 
 are the quark distribution functions, and 
 $P_q$ is a partonic cross section. 
 %\begin{align}
@@ -485,8 +486,8 @@ including the case of realistic kinematic cuts.
 %lepton \(p_{\perp}\) cuts.
 %{\bf I think that this is an inappropriate level of detail about the LO DY calculation which could largely be replaced by references, however I have kept it for now, having moved it from the k-factor section where it did not belong}
 
-Currently, the predictions for DY and $W$ and $Z$ production are available
-to NNLO and $W$, $Z$ in association with heavy flavour quarks - to NLO. There are several possibilities 
+Currently, the predictions for $W$ and $Z/\gamma^*$ production are available
+to NNLO and $W$, $Z$ in association with heavy flavour quarks to NLO. There are several possibilities 
 for obtaining the theoretical
 predictions for DY production in \fitter. 
 
@@ -556,10 +557,9 @@ in $ep$, $pp$ and $p\bar{p}$ collisions
 
 
 
-\subsection{Top-quark production in $pp$ and $p \bar p$ collisions}
+\subsection{Top-quark production in $pp$ or $p \bar p$ collisions}
 
-Top-quark pairs ($t \bar t$) are produced at hadron colliders dominantly via $gg$ fusion 
-and $q \bar q$ annihilation. Measurements of the $t \bar t$ cross sections provide additional 
+Top-quark pairs ($t \bar t$) are produced at hadron colliders dominantly via $gg$ fusion (at the LHC) and $q\bar{q}$ annihilation (at the Tevatron). Measurements of the $t \bar t$ cross sections provide additional 
 constraints in particular on the gluon density at medium to high values of $x$, 
 on $\as$ and on the top-quark mass, $m_t$ \cite{cms:top}. 
 Precise predictions for the total $t \bar t$ cross section are available 

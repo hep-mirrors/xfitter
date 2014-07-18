@@ -5,7 +5,7 @@
 providing a versatile environment for benchmarking studies. It is widely used within the
 LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,h1:2012kk,h1zeus:charm}.  
 
-The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided in four main blocks: %{\bf needs to update figure!}
+The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided into four main blocks: %{\bf needs to update figure!}
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
@@ -20,7 +20,7 @@ are implemented in the \fitter package including the full information on their u
 and correlated uncertainties. HERA data 
 are sensitive to light quark and gluon densities mostly through scaling violations, 
 covering low and medium $x$ ranges. These data are the basis of any proton PDF extraction,
-and are used by all global PDF groups \cite{MSTWpdf, CT10pdf, NNPDFpdf, ABMpdf, JRpdf}. 
+and are used by all global PDF groups \cite{MSTWpdf,CT10pdf,NNPDFpdf,Alekhin:2013nda,JRpdf}. 
 However, improvements in precision of PDFs require additional constraints on the gluon and 
 quark distributions at high-$x$, better understanding of heavy quark distributions and 
 decomposition of the light-quark sea.  For these purposes, the measurements of the fixed-target 
@@ -45,7 +45,7 @@ The processes that are currently available in \fitter framework are listed in Ta
         &     &               &\textbf{calculations, schemes}  \\
 \hline \hline \\ [-2.5ex]
 %\multirow{6}{*}{HERA} &DIS NC   &$ep\to eX$      & TR', ACOT \\
-HERA  &DIS NC   &$ep\to eX$      & TR', ACOT \\
+HERA  &DIS NC   &$ep\to eX$      & TR$^\prime$, ACOT \\
 Fixed Target     &         &                & ZM (\qcdnum) \\
      &         &                & FFN (\texttt{OPENQCDRAD}, \\
      &         &                & \qcdnum), \\ 
@@ -55,10 +55,10 @@ Fixed Target     &         &                & ZM (\qcdnum) \\
 HERA &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\qcdnum) \\
      &         &                & FFN (\texttt{OPENQCDRAD)} \\  [0.5ex]
 \cline{2-4}  \\ [-2.0ex]
-     &DIS jets &$ep\to e\ \mathrm{jets}$      & \nlojetpp (\fastnlo)\\ [0.5ex]
+     &DIS jets &$ep\to e\ \mathrm{jets}X$      & \nlojetpp (\fastnlo)\\ [0.5ex]
 \cline{2-4} \\ [-2.0ex]
      &DIS heavy quarks & $ep\to e c \bar{c} X$, & ZM (\qcdnum), \\
-     &         & $ep\to e b \bar{b} X$ & TR', ACOT, \\
+     &         & $ep\to e b \bar{b} X$ & TR$^\prime$, ACOT, \\
      &         &                & FFN (\texttt{OPENQCDRAD}, \\
      &         &                & \qcdnum) \\  [0.5ex]
 \hline \\ [-2.5ex]
