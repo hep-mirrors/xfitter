@@ -576,11 +576,22 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	}
       else
 	{
-	  (*it).getrth()->Divide(refdata);
-	  (*it).getrthshift()->Divide(refdata);
-	  (*it).getrtherr()->Divide(refdata);
-	  (*it).getrtherrup()->Divide(refdata);
-	  (*it).getrtherrdown()->Divide(refdata);
+	  if (opts.onlytheory && opts.threlerr)
+	    {
+	      (*it).getrth()->Divide((*it).getth());
+	      (*it).getrthshift()->Divide((*it).getth());
+	      (*it).getrtherr()->Divide((*it).getth());
+	      (*it).getrtherrup()->Divide((*it).getth());
+	      (*it).getrtherrdown()->Divide((*it).getth());
+	    }
+	  else
+	    {
+	      (*it).getrth()->Divide(refdata);
+	      (*it).getrthshift()->Divide(refdata);
+	      (*it).getrtherr()->Divide(refdata);
+	      (*it).getrtherrup()->Divide(refdata);
+	      (*it).getrtherrdown()->Divide(refdata);
+	    }
 	}
 
       for (int b = 1; b <= (*it).getrth()->GetNbinsX(); b++)

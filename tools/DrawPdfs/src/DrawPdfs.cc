@@ -255,6 +255,8 @@ int main(int argc, char **argv)
       gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth);
       for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
 	(*it)->Print((opts.outdir + (*it)->GetName() + "." + ext).c_str());
+      for (vector <TCanvas*>::iterator it = chi2scancanvaslist.begin(); it != chi2scancanvaslist.end(); it++)
+	(*it)->Print((opts.outdir + (*it)->GetName() + "." + ext).c_str());
 
       if (opts.ext == "pdf")
 	{
@@ -265,6 +267,8 @@ int main(int argc, char **argv)
 	  for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
 	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	  for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
+	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+	  for (vector <TCanvas*>::iterator it = chi2scancanvaslist.begin(); it != chi2scancanvaslist.end(); it++)
 	    system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
 	}
       cout << "Multiple " << opts.ext << " plots saved in: " << (opts.outdir + "*." + opts.ext) << endl;
@@ -283,6 +287,8 @@ int main(int argc, char **argv)
       for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
 	(*it)->Write();
       for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
+	(*it)->Write();
+      for (vector <TCanvas*>::iterator it = chi2scancanvaslist.begin(); it != chi2scancanvaslist.end(); it++)
 	(*it)->Write();
 
       f->cd("");

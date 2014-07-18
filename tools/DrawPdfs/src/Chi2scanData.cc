@@ -33,6 +33,8 @@ Chi2scanData::Chi2scanData(string dirname)
       pdfmin[i] = pmin;
       pdfdelta[i] = pdelta;
       pdfchi2min[i] = pchi2min;
+      //scale to 68cl
+      //      pdfmin[i] = min + (pdfmin[i] - min) / 1.64;
 
       double val, c2;
       while (f >> val >> c2)

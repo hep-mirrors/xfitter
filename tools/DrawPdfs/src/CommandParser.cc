@@ -42,6 +42,7 @@ CommandParser::CommandParser(int argc, char **argv):
   points(false),
   theorylabel("Theory"),
   onlytheory(false),
+  threlerr(false),
   ratiototheory(false),
   diff(false),
   twopanels(false),
@@ -309,6 +310,12 @@ CommandParser::CommandParser(int argc, char **argv):
 	  {
 	    onlytheory = true;
 	    ratiototheory = true;
+	  }
+	else if (*it == "--theory-rel-errors")
+	  {
+	    onlytheory = true;
+	    ratiototheory = true;
+	    threlerr = true;
 	  }
 	else if (*it == "--ratio-to-theory")
 	  ratiototheory = true;

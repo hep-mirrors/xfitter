@@ -38,6 +38,7 @@ class CommandParser
   string theorylabel;
   bool twopanels,threepanels;
   bool onlytheory;
+  bool threlerr;
   bool ratiototheory;
   bool diff;
 
@@ -161,6 +162,8 @@ class CommandParser
     cout << "\t \t Do not plot data" << endl;
     cout << "\t --ratio-to-theory" << endl;
     cout << "\t \t Use theory as reference for ratio plots" << endl;
+    cout << "\t --theory-rel-errors" << endl;
+    cout << "\t \t Do not plot data, use theory as reference for ratio plots, and plot relative theory uncertainties" << endl;
     cout << "\t --diff" << endl;
     cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
     cout << "options for shifts plots:" << endl;

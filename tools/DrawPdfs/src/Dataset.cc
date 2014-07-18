@@ -243,6 +243,13 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   //Compute range for histograms
   lowrange = max(1, hdata->GetXaxis()->FindFixBin(xmin));
   uprange = min(hdata->GetNbinsX(), hdata->GetXaxis()->FindFixBin(xmax));
+  hdata->GetXaxis()->SetRange(lowrange, uprange);
+  hdatatot->GetXaxis()->SetRange(lowrange, uprange);
+  hth->GetXaxis()->SetRange(lowrange, uprange);
+  htherr->GetXaxis()->SetRange(lowrange, uprange);
+  htherrup->GetXaxis()->SetRange(lowrange, uprange);
+  htherrdown->GetXaxis()->SetRange(lowrange, uprange);
+  hpull->GetXaxis()->SetRange(lowrange, uprange);
       
   hdata->SetXTitle(xlabel.c_str());
   hdata->SetYTitle(ylabel.c_str());
