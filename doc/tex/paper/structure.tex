@@ -15,7 +15,7 @@ The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow}
 %\end{figure}
 \begin{description}
 \item 
-\bf {Input data:} \rm Different available measurements from the various processes
+\bf {Input data:} \rm Different available measurements from various processes
 are implemented in the \fitter package including the full information on their uncorrelated 
 and correlated uncertainties. HERA data 
 are sensitive to light quark and gluon densities mostly through scaling violations, 
@@ -105,7 +105,7 @@ Dokshitzer:1977sg, Altarelli:1977zs} (as implemented in \qcdnum~\cite{qcdnum}), 
 %or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
 The prediction of a particular process cross section is obtained by a convolution of the evolved 
 PDFs and the partonic cross section, calculated at a certain order in QCD 
-with a appropriate theory program (as listed in Tab.~\ref{tab:proc}).
+with a appropriate theory calculation (as listed in Tab.~\ref{tab:proc}).
 %from $Q_0^2$ to the scale of the measurement using the 
 %Dokshitzer-Gribov-Lipatov-Altarelli-Parisi 
 %(DGLAP)~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
@@ -117,9 +117,10 @@ with a appropriate theory program (as listed in Tab.~\ref{tab:proc}).
 Alternatively, predictions using dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} can be also obtained.
 \item
 \bf{QCD analysis:} \rm  
-The PDFs are 
-are determined by the least square fit, minimising the $\chi^2$ function with respect to free parameters $\vec{p}$
-using the MINUIT~\cite{minuit} program.
+The PDFs are determined by the least square fit, minimising the $\chi^2$ function,
+formed using the input data and theory predictions, with the MINUIT~\cite{minuit} program.
+%with respect to free parameters $\vec{p}$ using the MINUIT~\cite{minuit} program.
+%
 %extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. 
 %The $\chi^2$ function is formed from the input data and the theory prediction.
 %The $\chi^2$ is  minimised iteratively 

@@ -30,7 +30,7 @@ in detail in many extensive reviews (see e.g.~\cite{disbook}) and it is only bri
 DIS is the process where a lepton scatters off the constituents of the proton
 by a virtual exchange of a NC 
 or CC vector boson and, as a result, a scattered lepton and a 
-multihadronic final state are produced.
+multi-hadronic final state are produced.
 The common DIS kinematic variables are the absolute squared four-momentum of 
 the exchange boson, $Q^2$, the Bjorken $x$, 
 %which can be related in the parton model to 
@@ -66,7 +66,8 @@ only at high $y$.
 %($\as g$) appear, in particular $F_L$ is strongly related to the low-$x$ 
 %gluon.
 \\
-The inclusive CC $ep$ cross section, analogous to the NC case, can be expressed in terms of another set of structure functions and in Leading Order (LO) in $\alpha_S$, the $e^+p$ and $e^-p$ cross sections are sensitive to 
+The inclusive CC $ep$ cross section, analogous to the NC case, can be expressed in terms of another set 
+of structure functions and in LO in $\alpha_S$, the $e^+p$ and $e^-p$ cross sections are sensitive to 
 different combinations of the quark flavour densities:
 \begin{eqnarray}
 \centering
@@ -87,8 +88,14 @@ where $P$ represents the lepton beam polarisation.
 %Beyond LO, 
 %{\bf check this sentence if it makes sense}.
 The QCD predictions for the DIS structure functions are obtained by convoluting 
-the PDFs with the respective coefficient functions. The DIS measurements span in the kinematic range from low to high $Q^2$, such that  
-the treatment of heavy quarks (charm and beauty) and of their masses becomes important. There are different approaches to the treatment of heavy quark production that should be equivalent if calculations are carried out to all orders in $\alpha_s$. Several variants of these schemes are implemented in \fitter and they are briefly discussed below.
+the PDFs with the respective coefficient functions. 
+
+The DIS measurements
+span from low to high $Q^2$, crossing heavy-quark mass thresholds, thus the
+treatment of heavy quarks (charm and beauty) and of their masses becomes important. 
+There are different approaches to the treatment of heavy quark production that should 
+be equivalent if calculations are carried out to all orders in $\alpha_s$. 
+Several variants of these schemes are implemented in \fitter and they are briefly discussed below.
 
 
 \begin{description}
@@ -126,9 +133,9 @@ Through the ABM implementation the heavy quark contributions to CC structure fun
 %and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 and, for the NC case, the QCD corrections to the coefficient functions at Next-to-Next-to Leading Order (NNLO)
 are provided at the best currently known approximation~\cite{SMoch:npb864}.
-The ABM implementation also includes the running-mass definition of the heavy quark 
-mass ~\cite{Alekhin:runm}, which 
-has the advantage of reducing the sensitivity of the DIS cross sections to
+The ABM implementation also includes 
+the definition in $\overline{\text{MS}}$ scheme with the running heavy-quark mass \cite{Alekhin:runm}.
+The scheme has the advantage of reducing the sensitivity of the DIS cross sections to
 higher order corrections, and improving the theoretical precision of the mass definition. 
 
 
@@ -186,10 +193,10 @@ Within the ACOT package, different variants of the ACOT scheme are available:
 ACOT-Full \cite{Aivazis:1993pi}, S-ACOT-$\chi$ \cite{Kramer:2000hn,Kretzer:2003it}, ACOT-ZM \cite{Aivazis:1993pi}, 
 $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
-The ACOT-Full implementation takes into account the quark masses 
-and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
-but it has the disadvantage that it is computationally intensive (addressed in 
-section~\ref{sec:techniques}).
+%The ACOT-Full implementation takes into account the quark masses 
+%and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
+%but it has the disadvantage that it is computationally intensive (addressed in 
+%section~\ref{sec:techniques}).
 A compasion of PDFs extracted from the QCD fits to the HERA data 
 with the TR' and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt}.
 
@@ -400,7 +407,7 @@ $f^{\Pom}_{a}$, are obtained from a fit to the data.
 %predict lepton pair production at the LHC or Tevatron.
 Drell-Yan process
 provides further valuable information about PDFs.
-In $pp$ and $p\bar p$ scattering, the $Z/\gamma\*$ and $W$ production 
+In $pp$ and $p\bar p$ scattering, the $Z/\gamma^*$ and $W$ production 
 probe bi-linear combinations of quarks. 
 Complementary information on the different quark densities
 can be obtained from the $W$ asymmetry ($d$, $u$ and their ratio),
@@ -525,8 +532,7 @@ Jet production cross sections are currently only known to NLO, although
 %NNLO 
 calculations for higher-order contributions to jet production in proton-proton collisions
 are now quite advanced~\cite{nigel:2013,nigel:2010,Currie:2013dwa}. 
-Within \fitter, programs as \texttt{MCFM} or
-\nlojetpp~\cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
+Within \fitter, the \nlojetpp program \cite{Nagy:1998bb,Nagy:2001fj} may be used for the 
 calculations of jet production.
 Similarly to the DY case, the calculation 
 is very demanding in terms of computing power. 

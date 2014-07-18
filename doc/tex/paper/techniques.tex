@@ -52,7 +52,7 @@ to resolve this problem: the techniques of $k$-factors and
   requires a couple of repetitions depending on the analysis.
 
 
-\begin{itemize}
+%\begin{itemize}
 %\item For the DIS process, the heavy flavour schemes provide accurate but computationally slow calculations. 
 %In \fitter ``FAST'' schemes were implemented 
 %such that the $k$-factors used can be
@@ -66,19 +66,24 @@ to resolve this problem: the techniques of $k$-factors and
 %%%%
 %The method was employed in the QCD fits to the HERA data when ACOT scheme was used as a cross check of the central results \cite{h1zeus:2009wt}, as shown in Fig.~\ref{fig:acotrt}.
 %
-  \item In DIS, appropriate treatments of the heavy quarks require  
-    computationally slow calculations.
-    Therefore, ``FAST'' heavy flavour schemes are implemented
-    in \fitter with $k$-factors defined as the ratio of
-    calculations at the same perturbative order but for massive vs.\
-    massless quarks, e.g.\ NLO (massive)/NLO (massless).
-    These $k$-factors are calculated only for the
-    starting PDF and hence, the ``FAST'' heavy flavour schemes should
-    only be used for quick checks, i.e. full heavy flavour schemes
-    are normally recommended. For the ACOT case,
-    %and it is recommended to apply the full heavy flavour schemes 
-    due to long computation time, the $k$-factors are used in 
-    the default settings in \fitter. 
+%
+%  \item In DIS, appropriate treatments of the heavy quarks require  
+%    computationally slow calculations.
+%    Therefore, ``FAST'' heavy flavour schemes are implemented
+
+An implementation of $k$-factor technique in \fitter is used for the fast 
+approximation of the time-consuming GM-VFN schemes for heavy quarks in DIS.
+`FAST'' heavy-flavour schemes are implemented
+with $k$-factors defined as the ratio of
+calculations at the same perturbative order but for massive vs.\
+massless quarks, e.g.\ NLO (massive)/NLO (massless).
+These $k$-factors are calculated only for the
+starting PDF and hence, the ``FAST'' heavy flavour schemes should
+only be used for quick checks, i.e. full heavy flavour schemes
+are normally recommended. For the ACOT case,
+%and it is recommended to apply the full heavy flavour schemes 
+due to long computation time, the $k$-factors are used in 
+the default settings in \fitter. 
 %    Fig.~\ref{fig:acotrt} illustrates
 %    the PDFs extracted from the QCD fits to the HERA data, for which 
 %    the ``FAST'' method for ACOT was used as a cross check to the main results ~\cite{h1zeus:2009wt}.
@@ -121,8 +126,8 @@ to resolve this problem: the techniques of $k$-factors and
 %    % distributions.
 %    The LO cross sections are then multiplied by $k$-factors to
 %    obtain predictions at NLO\@.
-
-\end{itemize}
+%
+%\end{itemize}
 
 
 %\vspace*{0.25cm}
@@ -141,11 +146,12 @@ support points. The
   in various ways with the simplest one being an increase in the number of
   support points. Having ensured that the approximation bias
   is negligibly
-  small for all practical purposes this method can be used to perform
+  small compared to the experimental and theoretical accuracy 
+  for all practical purposes, this method can be used to perform
   the time consuming higher-order calculations (Eq.~\ref{eq:fact})
   only once for the set of interpolating functions. 
   Further iteration of a cross section evaluation for
-  a particular PDF set is very fast and implies only sums over
+  a particular PDF set is fast and implies only sums over
   the set of interpolators multiplied by factors depending on the
   PDF\@. The approach applies equally 
   for the cross sections of
@@ -157,8 +163,8 @@ support points. The
   project~\cite{Kluge:2006xs} to facilitate the inclusion of
   notoriously time consuming jet cross sections at NLO into PDF fits.
   The \applgrid~\cite{Carli:2010rw} project developed an alternative method
-  and extended its applicability  to other scattering processes, such as
-   DY, heavy quark pair production is association with boson production, etc.
+  and, in addition to jets, extended its applicability to other scattering processes, 
+  such as DY, heavy quark pair production is association with boson production, etc.
   While differing in their interpolation
   and optimisation strategies, both packages construct tables with
   grids for each bin of an observable in two steps: In the first step
@@ -205,8 +211,8 @@ support points. The
 %    via an optional Python interface.
 
     Dedicated \fastnlo libraries and tables with theory predictions  for comparison to
-    particular cross section measurements are included into the \fitter package. In this
-    case, the evaluation of the strong coupling constant is taken
+    particular cross section measurements are included into the \fitter package. 
+    For the \fitter implementation, the evaluation of the strong coupling constant is taken
     consistently with the PDF evolution from the \qcdnum code. 
 %    The interface to the \fastnlo tables from within \fitter was used in a
 %    recent CMS analysis, where the impact on the
