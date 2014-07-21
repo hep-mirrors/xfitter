@@ -23,7 +23,7 @@ method, which is also available in \fitter, is described.
 
 
 
-\subsection{Functional Forms for PDF parametrisation}
+\subsection{Functional Forms for PDF Parametrisation}
 The PDFs are parametrised using several predefined
 functional form and different flavour decomposition.
 %The PDFs are parametrised at a starting scale, chosen to be below charm mass.
@@ -46,11 +46,12 @@ $x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$,
 $x\bar{D} = x\bar{d} +x\bar{s}$ at the starting scale. 
 %chosen below the charm mass threshold. 
 The form of polynomials $P_i(x)$ depdend on the style, defined as a steering parameter. 
-For the HERAPDF~\cite{h1zeus:2009wt}, the style takes the Regge-inspired form  
-$(1 + \epsilon_j \sqrt{x} + D_j x + E_j x^2)$
+The form $(1 + \epsilon_j \sqrt{x} + D_j x + E_j x^2)$
+is used for the HERAPDF \cite{h1zeus:2009wt} style
 with additional constraints relating to the flavour decomposition of the 
 light sea. 
-For the CTEQ style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$.
+For the CTEQ style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$ and,
+in contrast to polynomial form, is positive by constraction.
 QCD number and momentum sum-rules are used to determine the normalisations $A$ for the valence and gluon
 distributions, and the sum-rule integrals are solved analytically.
 
@@ -119,7 +120,8 @@ the standard-polynomial one, for $N_{g,S} = 9$.
 %significantly reduced uncertainty for $x \le 0.0005$.
 \begin{figure}[!ht]
  \centering
-  \includegraphics[width=5cm]{chebishev.pdf}
+%  \includegraphics[width=5cm]{chebishev.pdf}
+  \includegraphics[trim=1cm 4cm 1cm 5cm, clip, width=6cm]{chebishev.pdf}
 % \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
 % weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
   \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parameterisation and it is compared to the case of the Chebyshev parameterisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique with the green lines denoting fits to data replica.  aRed lines indicate the standard deviation about the mean value of these replicas.}
@@ -210,9 +212,13 @@ the $\chi^2$ form is expressed as
 \label{eq:aven}
 \end{equation}}
 %
-where, ${\mu_i}$ is the central value of the measurement $i$ 
-with its relative statistical $\delta_{i,\rm stat}$ 
-and relative uncorrelated systematic uncertainty $\delta_{i,\rm unc}$.
+where, $\delta_{i,\rm stat}$ and $\delta_{i,\rm unc}$ are 
+relative statistical and uncorrelated systematic uncertainties
+of the measurement $i$.
+%where, ${\mu_i}$ is the central value of the measurement $i$ 
+% ${\mu_i}$ is the central value of the measurement $i$ 
+%with its relative statistical $\delta_{i,\rm stat}$ 
+%and relative uncorrelated systematic uncertainty $\delta_{i,\rm unc}$.
 Further, $\gamma^i_j$ quantifies the sensitivity of the
 measurement to the correlated systematic source $j$. 
 The function $\chi^2$ depends in addition on
@@ -249,6 +255,11 @@ form of treating statistical, uncorrelated and correlated systematic uncertainti
 %of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
 %on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
 \end{description}
+Any source of the measurement systematic uncertainty can be treated as additive or multiplicative. 
+The statistical uncertainties can be included as additive or Poisson. Minimisation
+with respect to nuisance parameters is performed analytically, however for more 
+detailed studies of correlations individual nuisance parameters can be included in 
+the \minuit minimisation.
 
 
 \subsection{Treatment of the Experimental Uncertainties}
@@ -270,7 +281,7 @@ the Hessian, Offset, and Monte Carlo method.
 % \label{fig:error}
 %\end{figure}
 \begin{description}
-\item \bf{Hessian method:} \rm
+\item \bf{Hessian (Eigenvector) method:} \rm
 The PDF uncertainties reflecting the uncertainties in experimental data are esitimated by 
 examining the shape of $\chi^2$ in the neighborhood of the minimum \cite{Pumplin:2001ct}.
 %The technique developed in~\cite{Pumplin:2001ct} presents an estimate of PDF uncertainties 
@@ -348,6 +359,14 @@ Similar findings were reported by the MSTW global analysis~\cite{Watt:2012tq}.
           The black lines in the figure are mostly covered by the red lines.}
   \label{fig:mchessian}        
 \end{figure}
+%
+
+Since the MC method requires large number of replicas, the eigenvector representation 
+is often more practical to represent PDF uncertainties.
+As it was illustrated by \cite{Gao:2013bia}, it is possible to transform MC to eigenvector
+representation. Tools to perform this transformation are provided with \fitter and were 
+recently employed to obtain correlated sets of PDFs at different perturbative order \cite{hfcorrpaper}.
+%
 \end{description}
 %
 The nuisance parameter representation of $\chi^2$ in Eq.~\ref{eq:aven} is derived assuming 
@@ -377,7 +396,7 @@ $S_{ij}^{\pm}$,
 %  m_i(1-\sum_j \gamma^i_{j} b_j) \to 
 %m_i\left(1-\sum_j b_j(\omega^i_{j}b_j + \gamma^i_{j})\right).
 %\end{equation}
-The minimisation is performed using fixed number of iterations (typically ten), with rapid convergence.
+%%The minimisation is performed using fixed number of iterations (typically ten), with rapid convergence.
 
 
 
@@ -389,7 +408,7 @@ The results of a QCD fit depend not only on the input data but also on the
 input parameters used in the theoretical calculations. Nowadays, the PDF groups 
 address the impact of the choices of theoretical parameters by providing
 alternative PDFs with different choices of the mass of the charm quarks $m_c$, 
-mass of the bottom quarks $m_b$ and the value of $\asmz$, etc. 
+mass of the bottom quarks $m_b$ and the value of $\asmz$. 
 Another important issue is the choice of the functional form for the PDFs at the 
 starting scale and the value of the starting scale itself. \fitter provides 
 possibility of different user choices of various input parameters of the theory.
@@ -401,9 +420,10 @@ possibility of different user choices of various input parameters of the theory.
 
 
 As an alternative to performing a full QCD fit, \fitter allows to assess the impact of including new
-data in an existing fit using the Bayesian Reweighting technique. Since no fit is performed, the method
+data in an existing fit using the Bayesian Reweighting technique. The method
 provides a fast estimate of the impact of new data on PDFs. 
-Bayesian Reweighting was first proposed for the PDF sets delivered in form of MC replicas ensembles by~\cite{Giele:1998gw} and further developed by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
+Bayesian Reweighting was first proposed for the PDF sets delivered in form of MC replicas ensembles 
+by~\cite{Giele:1998gw} and further developed by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
 More recently, a method to preform Bayesian Reweighting studies starting from PDF fits where uncertainties
 are provided in form of parameter eigenvectors has been also developed~\cite{Watt:2012tq}. The latter is 
 based on generating replica set by introducing Gaussian fluctuations on the central PDF set with a variance determined by the PDF uncertainty given by the eigenvectors. Both reweighting methods are implemented in \fitter.

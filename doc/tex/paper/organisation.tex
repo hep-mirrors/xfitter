@@ -1,0 +1,16 @@
+
+\fitter is an open source code and it can be downloaded from the dedicated webpage \cite{herafitter:page}
+together with its supporting documentation and 
+% A README file is provided within the package together with the 
+fast grid theory files (described in section \ref{sec:techniques}) associated with the properly formatted data files available in \fitter.
+The source code contains all the relevant information to perform QCD fits with HERA DIS data as a default 
+set~\footnote{Default settings in \fitter are tuned to reproduce the central HERAPDF1.0 set.}. 
+The performance time depends on the fitting options and varies from 10 minutes 
+(using 'FAST' techniques as described in section \ref{sec:techniques}) to several hours when full uncertainties are estimated. The \fitter code is a combination of C++ and Fortran 77 libraries with minimal 
+dependencies, i.e. for the default fitting options no external dependences are required except \qcdnum evolution program \cite{qcdnum} and CERN libraries. 
+The \tt ROOT \rm  libaries are only required for the drawing tools and when invoking \applgrid\rm.  
+There are also cache options, fast evolution kernels, and usage of the OpenMP (Open Multi-Processing)  interface which allows parallel applications of the GM-VFNS theory predictions in DIS. 
+In addition, the \fitter references and GNU public licence are provided 
+together with the main source code. 
+
+
