@@ -19,6 +19,24 @@
   !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .false.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+
+   ! The following lines allow to adjust error scaling properties (default: :M)
+  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
+  DataSystType = ':A', ':A'
+&End
+
+&QCDNUM
+   ! do not re-compute QCDNUM tables if they are present and match grid definition
+  Read_QCDNUM_Tables = .true.
+&End 
+
+
 &OutDir
   ! Name of the directory where output will be stored (max 22 characters)
     OutDirName = 'output'
