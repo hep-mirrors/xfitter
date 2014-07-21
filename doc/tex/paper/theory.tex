@@ -67,7 +67,7 @@ only at high $y$.
 %gluon.
 \\
 The inclusive CC $ep$ cross section, analogous to the NC case, can be expressed in terms of another set 
-of structure functions and in LO in $\alpha_S$, the $e^+p$ and $e^-p$ cross sections are sensitive to 
+of structure functions and in LO in $\alpha_s$, the $e^+p$ and $e^-p$ cross sections are sensitive to 
 different combinations of the quark flavour densities:
 \begin{eqnarray}
 \centering
@@ -91,7 +91,9 @@ The QCD predictions for the DIS structure functions are obtained by convoluting
 the PDFs with the respective coefficient functions. 
 
 The DIS measurements
-span from low to high $Q^2$, crossing heavy-quark mass thresholds, thus the
+span a large range of $Q^2$ from few GeV$^2$ to about $10^5$ GeV$^2$,
+%from low to high $Q^2$
+crossing heavy-quark mass thresholds, thus the
 treatment of heavy quarks (charm and beauty) and of their masses becomes important. 
 There are different approaches to the treatment of heavy quark production that should 
 be equivalent if calculations are carried out to all orders in $\alpha_s$. 
@@ -106,7 +108,7 @@ heavy quark densities appear in the proton at $Q^2$ values above $\sim m_h^2$ (h
 and the heavy quarks
 %for $Q^2>>m_h^2$ but 
 are treated as massless in both the initial 
-and final states. The lowest order process is the
+and final states of the hard scattering process. The lowest order process is the
 %scattering of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
 scattering of lepton off the heavy quark via boson exchange.
 This scheme is expected to be reliable only in the region with $Q^2 \gg m_h^2$.
@@ -139,7 +141,7 @@ The scheme has the advantage of reducing the sensitivity of the DIS cross sectio
 higher order corrections, and improving the theoretical precision of the mass definition. 
 
 
-\item \bf{General-Mass Variable-Flavour Number (GM-VFN)}\rm \cite{VFN}:
+\item \bf{General-Mass Variable Flavour Number (GM-VFN)}\rm \cite{VFN}:
 \\
 It this scheme, heavy quark production is treated for
 $Q^2 \le m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
@@ -176,8 +178,8 @@ Both variants are accessible within the \fitter package at LO, NLO and NNLO.
 \vspace{0.1cm}
 \item \bf {GM-VFN ACOT scheme:} \rm
 The Aivazis-Collins-Olness-Tung (ACOT) scheme belongs to the group of VFN factorisation 
-schemes that use the renormalization method of Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
-This scheme unifies the low scale $Q^2 < m_h^2$ and high scale $Q^2 > m_h^2$ regions with a smooth interpolation across the full energy regime. 
+schemes that use the renormalisation method of Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
+This scheme unifies the low scale $Q^2 < m_h^2$ and high scale $Q^2 > m_h^2$ regions with a smooth interpolation across the full energy range. 
 %It is built upon the massive factorisation theorem by Collins~\cite{CWZ} 
 %to incorporate the heavy quark masses for $Q^2 > m_h^2$; hence, it can be consistently applied 
 %order by order in the perturbation theory.
@@ -189,7 +191,7 @@ This scheme unifies the low scale $Q^2 < m_h^2$ and high scale $Q^2 > m_h^2$ reg
 %% is this sentence below is important?
 %%The DGLAP kernels and PDF evolution are pure $\overline{\text{MS}}$, 
 %%therefore, the ACOT scheme is considered to be a minimal extension of the $\overline{\text{MS}}$ scheme.
-Within the ACOT package, different variants of the ACOT scheme are available:
+Within the \tt ACOT\rm package, different variants of the ACOT scheme are available:
 ACOT-Full \cite{Aivazis:1993pi}, S-ACOT-$\chi$ \cite{Kramer:2000hn,Kretzer:2003it}, ACOT-ZM \cite{Aivazis:1993pi}, 
 $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
@@ -226,8 +228,8 @@ gauge bosons masses $M_W$ and
 $M_Z$ are treated symmetrically as basic parameters together with the top, 
 Higgs and fermion masses.
 These electroweak corrections 
-are based on the EPRC package~\cite{SpiesbergerPrivComm}.
-The code provides the running of $\alpha$ using the most recent parametrisation
+are based on the \tt EPRC\rm package~\cite{SpiesbergerPrivComm}.
+The code provides the running of electromagnetic coupling $\alpha$ using the most recent parametrisation
 of the hadronic contribution to $\Delta_\alpha$ \cite{Jegerlehner}, as well as 
 an older version from Burkhard \cite{Burkhard}.
 
@@ -243,7 +245,7 @@ an older version from Burkhard \cite{Burkhard}.
 \newcommand{\xP}{x_\Pom}
 
 
-Similarly to standard DIS, diffractive parton distributions (DPDFs) 
+Similarly to standard PDFs, diffractive parton distributions (DPDFs) 
 can be determined from QCD fits to diffractive cross sections.
 %In this section the diffractive process is briefly described.
 About 10\% of deep inelastic interactions at HERA are diffractive, i.e. leading to
@@ -411,7 +413,7 @@ In $pp$ and $p\bar p$ scattering, the $Z/\gamma^*$ and $W$ production
 probe bi-linear combinations of quarks. 
 Complementary information on the different quark densities
 can be obtained from the $W$ asymmetry ($d$, $u$ and their ratio),
-the ratio of the $W$ and $Z$ cross sections (sensitive to the flavor 
+the ratio of the $W$ and $Z$ cross sections (sensitive to the flavour 
 composition of the quark sea, in particular to the $s$ density), 
 and associated $W$ and $Z$ production with
 heavy quarks (sensitive to $s$- and $c$-quark densities).
@@ -464,11 +466,11 @@ The LO expression for CC  scattering has a form:
  \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
  & \sum_{q_1,q_2}V_{q_1q_2}^2f_{q_1}(x_1,Q^2)f_{q_2}(x_2,Q^2),
 \end{align}
-where \(V_{q_1q_2}\) is the Cabibbo–Kobayashi–Maskawa (CKM) quark mixing matrix and \(M_W\) and \(\Gamma_W\)
+where \(V_{q_1q_2}\) is the Cabibbo-Kobayashi-Maskawa (CKM) quark mixing matrix and \(M_W\) and \(\Gamma_W\)
 are the \(W\) boson mass and decay width, respectively.
 
 The simple form of these expressions allows the calculation of integrated
-cross sections without the use of Monte-Carlo (MC) techniques which often 
+cross sections without the use of Monte Carlo (MC) techniques which often 
 introduce statistical fluctuations.
 %This is particularly useful for PDF fitting purposes because
 %statistical fluctuations are avoided in this case. 
@@ -497,7 +499,7 @@ and $k$-factor or fast grid techniques must be employed (see section~\ref{sec:te
 for details), interfaced to programs such as
 \texttt{MCFM}~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}, 
 available for NLO calculations, or 
-FEWZ~\cite{FEWZ} and DYNNLO \cite{DYNNLO} for NLO and NNLO.
+\tt FEWZ\rm~\cite{FEWZ} and \tt DYNNLO\rm~\cite{DYNNLO} for NLO and NNLO.
  
 
 %The most abundant processes at the LHC are the production of the $W$ and $Z$ bosons, therefore measurements of the $W$ and $Z$ cross-sections are very precise. Their  LO decomposition in terms of quark distributions show strong 

@@ -9,7 +9,7 @@
 %\\
 Precise measurements
 require theoretical predictions with equally good accuracy in
-order to maximize their impact in PDF fits.  Perturbative
+order to maximise their impact in PDF fits.  Perturbative
 calculations, however, get more and more involved with 
 order due to an increasing number of Feynman diagrams.
 %with increasing number of Feynman diagrams at the each higher order. 
@@ -29,11 +29,11 @@ to resolve this problem: the techniques of $k$-factors and
   The $k$-factors are defined as the ratio of the prediction of a
   higher-order (slow) pQCD calculation to a lower-order (fast)
   calculation. Because the $k$-factors depend on the phase space
-  probed by the measurement they have to be stored in a table 
+  probed by the measurement, they have to be stored in a table 
 including dependence on
 %table in dependence of 
   the relevant kinematic variables. Before the start of
-  a fitting procedure the table of $k$-factors has to be computed once
+  a fitting procedure, the table of $k$-factors has to be computed once
   for a given PDF with the time consuming higher-order code. In
   subsequent iteration steps the theory prediction is derived from the
   fast lower-order calculation multiplied by the pre-tabulated
@@ -167,7 +167,7 @@ support points. The
   such as DY, heavy quark pair production is association with boson production, etc.
   While differing in their interpolation
   and optimisation strategies, both packages construct tables with
-  grids for each bin of an observable in two steps: In the first step
+  grids for each bin of an observable in two steps: In the first step,
   the accessible phase space in the parton momentum fractions $x$ and
   the renormalisation and factorisation scales \mur and \muf is
   explored in order to optimize the table size. The second step
@@ -175,7 +175,7 @@ support points. The
   requested observables. Higher-order cross sections can then be
   restored very efficiently from the pre-produced grids while varying
   externally provided PDF sets, \mur and \muf, or the strong coupling
-  \asq\@. The approach can in principle be extended to arbitrary
+  $\alpha_s(\mu_R)$. The approach can in principle be extended to arbitrary
   processes, but requires to establish an interface between the
   higher-order theory programs and the fast interpolation
   frameworks. Work in that direction is ongoing for both packages
