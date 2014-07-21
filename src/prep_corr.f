@@ -28,7 +28,7 @@ C     Temporary buffer to read the data (allows for comments starting with *)
       integer IdIdx1(NIdMax)
       integer IdIdx2(NIdMax)
 
-      integer iCov_type_file(NSET)
+      integer iCov_type_file(NSET**2)
 
 c     matrix buffer
       parameter (NCorrMax = 100*100)
