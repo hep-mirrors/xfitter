@@ -1581,9 +1581,9 @@ C--------------------------------------------------------
 
          open (51,file='steering.txt',status='old')
          read (51,NML=CovarToNuisance,end=19,err=17)
+ 19      continue
          close (51)
 
- 19      continue
 
       endif
 
