@@ -21,6 +21,9 @@ C----------------------------------------------------
       double precision ECM     
       double precision fac
 
+      double precision UncorNew(NTot),UncorConstNew(NTot),
+     $     StatNew(NTot), StatConstNew(NTot),UncorPoissonNew(Ntot)
+
       logical FIRST             !  true : cov matrix recalculated
       logical GNORM             !  correlated part for the luminosity errors
       
@@ -50,6 +53,7 @@ C----------------------------------------------------
  
 
       integer i,j,k,iset,n0,isys,iq2bin,iebin,jsys
+      integer NSysSave
 
 *     ------------------------------------------------
 *     initilialising
@@ -126,6 +130,13 @@ C         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
       call prep_corr
 
 
+* Save original number of syst. errors:
+
+      NSysSave = NSys
+      call covar_to_nui(UncorNew,UncorConstNew,
+     $     StatNew,StatConstNew,UncorPoissonNew) ! covariance to nuicance parameters, if needed.
+
+
       if (LDebug) then
 C
 C Dump beta,alpha matricies
@@ -143,6 +154,23 @@ C
       if (lrand .and. lranddata) then
          call MC_method()
       endif
+
+* 
+      IF (LConvertCovToNui) then
+         do k=1,npoints
+            is_covariance(k) = .false.
+C Also re-set uncorrelated errors:
+            e_uncor_mult(k)   = UncorNew(k)
+            e_stat_poisson(k) = StatNew(k)
+            e_uncor_const(k)  = UncorConstNew(k)
+            e_stat_const(k)   = StatConstNew(k)
+            e_uncor_poisson(k) = UncorPoissonNew(k)
+            
+         enddo
+      else
+         NSys = NSysSave
+      endif
+
 !
 !  Split control/fit sample:
 !

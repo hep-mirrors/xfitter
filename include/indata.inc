@@ -41,8 +41,19 @@ C SG: index of theory bin, if needed
 
       common/CAbstractBins/AbstractBins,KFactors
 
+C Add covariance type:
+      integer NCovTypeMax
+      parameter (NCovTypeMax=5)
+      integer iCovTotal, iCovTotalCorr, iCovSystCorr, iCovSyst, iCovStatCorr
+      parameter (iCovTotal = 1)
+      parameter (iCovTotalCorr = 2)
+      parameter (iCovSyst = 4)
+      parameter (iCovStatCorr = 8)
+      parameter (iCovSystCorr = 16)
+
       logical is_covariance(NTOT)  !> Use covaraince matrix if true
-      common/CStatCovar/is_covariance
+      integer iCov_type(NTOT)      !> type of cov. matrix 
+      common/CStatCovar/is_covariance, iCov_type
 
 
 C !> Add overfitting test by "control" and "fit" sets.

@@ -55,3 +55,7 @@ C !> Add also original systematic errors for asymmetric uncertainties
 C !> Special flag to force recalculations
       logical ResetCommonSyst
       common/SystematicsFlags/ ResetCommonSyst
+
+C !> Covariance matrix -> nuisance
+      logical LConvertCovToNui
+      common/CCovNui/LConvertCovToNui

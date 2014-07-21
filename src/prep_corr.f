@@ -28,6 +28,8 @@ C     Temporary buffer to read the data (allows for comments starting with *)
       integer IdIdx1(NIdMax)
       integer IdIdx2(NIdMax)
 
+      integer iCov_type_file(NSET)
+
 c     matrix buffer
       parameter (NCorrMax = 100*100)
       double precision matrixbuffer(NCorrMax,NCorrMax)
@@ -63,6 +65,7 @@ C     Reset statistical and systematic correlation matrices
          corr_stat(i,i) = 1.d0
          corr_syst(i,i) = 1.d0
          is_covariance(i) = .false.
+         iCov_type(i) = 0
       enddo
 
 
@@ -102,17 +105,21 @@ c     Identify datasets
          idataset2 = FindDataSetByName(Name2)
          write(ndataTmp,'(i3)') idataset1
 
-
          if (MatrixType.eq.'Statistical correlations') then
             has_stat_m(idataset1,idataset2) = .true.
+            iCov_type_file(k) = iCovStatCorr
          elseif (MatrixType.eq.'Systematic correlations') then
             has_syst_m(idataset1,idataset2) = .true.
+            iCov_type_file(k) = iCovSystCorr
          elseif (MatrixType.eq.'Systematic covariance matrix') then
             has_syst_cm(idataset1,idataset2) = .true.
+            iCov_type_file(k) = iCovSyst
          elseif (MatrixType.eq.'Full covariance matrix') then
             has_cov_m(idataset1,idataset2) = .true.
+            iCov_type_file(k) = iCovTotal
          elseif (MatrixType.eq.'Full correlation matrix') then
             has_corr_m(idataset1,idataset2) = .true.
+            iCov_type_file(k) = iCovTotalCorr
          else
             Call HF_ERRLOG(14012917,
      $ 'S: MatrixType not recognised for dataset: '//ndataTmp)
@@ -332,6 +339,10 @@ c                  print *,'Idx1 =', Idx1, 'Idx2 =', Idx2, 'Cov(i,j) =', Cov(idx
 C     Mark the points for covariance matrix method:
                   is_covariance(Idx1) = .true.
                   is_covariance(Idx2) = .true.
+C     Store the type too (it is a bit mask)
+
+                  iCov_type(Idx1) = IOR(icov_type(Idx1),iCov_type_file(k))
+                  iCov_type(Idx2) = IOR(icov_type(Idx2),iCov_type_file(k))
                enddo
             enddo
 
@@ -421,6 +432,10 @@ c    Additional check that stat and sys uncertainties with full corr matrix are 
 C     Mark the points for covariance matrix method:
                is_covariance(Idx1) = .true.
                is_covariance(Idx2) = .true.
+C Store type too
+
+               iCov_type(Idx1) = IOR(icov_type(Idx1),iCov_type_file(k))
+               iCov_type(Idx2) = IOR(icov_type(Idx2),iCov_type_file(k))
             enddo
          endif
          close (51)

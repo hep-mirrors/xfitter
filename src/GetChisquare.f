@@ -1,5 +1,5 @@
 C--------------------------------------------------------  	 
-C> @brief Calculate chisquare
+C> @Brief Calculate chisquare
 C
 C>      - first get error matrix
 C>      - invert error matric to get errors
@@ -54,6 +54,7 @@ c Global initialisation
       if (LFirst) then
          LFirst = .false.
 
+
 C    !> Determine which mechanisms for syst. errors should be used:
          Call Init_Chi2_calc(doMatrix, doNuisance, doExternal) 
 
@@ -61,7 +62,8 @@ C    !> Determine which errors are diagonal and which are using covariance matri
          Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
      $        List_Covar_inv,n0_in)
 
-         ! print*,'NDiag=',NDiag,'NCovar=',NCovar
+         print*,'NDiag=',NDiag,'NCovar=',NCovar
+
 
          do i=1,NCovarMax
             do j=1,NCovarMax
@@ -910,6 +912,7 @@ c            do i=1,n0_in
                if (FitSample(i) ) then
                   
                   d_minus_t1 = daten(i) - theo(i) + ShiftExternal(i)
+
                   if ( list_covar_inv(i) .eq. 0) then
 C Diagonal error:
                      C(l) = C(l) +  ScaledErrors(i)
@@ -1415,9 +1418,10 @@ C-------------------------------------------------------------------------------
       enddo
 
       Ncorrelated = NCovar
+      Run = 0.0D0
       do i=NCovar,1,-1
          Run = Run + EigenValues(i)/Sum
-c         print *,i,EigenValues(i)/Sum,Run, 1.D0-Tolerance
+C         print *,i,EigenValues(i)/Sum,Run, 1.D0-Tolerance
          if (Run  .gt. 1.D0 - Tolerance) then
             Ncorrelated = NCovar - i + 1
             goto 17
@@ -1503,7 +1507,8 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
             devmax = max(abs(dev),devmax)
          enddo
       enddo
-      print '(''Maximum deviation from the original correlation = '',F10.2,''%'')',devmax
+      print '(''Maximum deviation from the original correlation = ''
+     $     ,F10.2,''%'')',devmax
       
       return
  91   call hf_errlog(1,'F:Can not open covar.in file')      
@@ -1512,3 +1517,199 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
  99   call hf_errlog(3,'F:Error reading cov. matrix')
       end
 
+C---------------------------------------------------------------
+C> @brief Convert covariance matricies to nuisance param.
+C>
+C---------------------------------------------------------------
+
+      subroutine covar_to_nui(UncorNew,UncorConstNew,StatNew
+     $     ,StatConstNew, UncorPoissonNew)
+      implicit none
+
+      include 'ntot.inc'
+      include 'covar.inc'
+      include 'indata.inc'
+      include 'theo.inc'
+      include 'systematics.inc'
+      include 'datasets.inc'
+
+      integer NCovar
+      integer List_Covar(NCovarMax)
+
+      double precision UncorNew(NTot),UncorConstNew(NTot),
+     $     StatNew(NTot), StatConstNew(NTot), UncorPoissonNew(Ntot)
+
+      double precision cov_loc(NCovarMax,NCovarMax)
+      double precision anui_loc(NCovarMax,NCovarMax)
+      double precision uncor(NCovarMax)
+
+      double precision unc(NTot) ! input uncor. errors
+      double precision sta(NTot) ! input stat. errors
+
+      integer nui_cor
+      integer i,j,i1,j1
+      integer iCovType, iCovBit
+
+      double precision cor
+      double precision Stat,StatConst
+
+      logical LFirst
+      data LFirst /.true./
+
+      character *80 DataName(NSET)
+      character *3  DataSystType(NSET)
+
+      double precision Tolerance
+      namelist/CovarToNuisance/Tolerance, LConvertCovToNui,
+     $     DataName,DataSystType
+
+      character*8 sys_prefix(NCovTypeMax)
+      data sys_prefix/'CTot_','CTot_','CSyst_','CStat_','CSyst_'/
+      
+      character*80 name_s
+      character*3  name_n, name_t
+
+C--------------------------------------------------------
+      if (LFirst) then
+         LFirst = .false.
+         Tolerance   = 0.
+         LConvertCovToNui = .false.
+         do i=1,NSET
+            DataName(i) = ''
+            DataSystType(i) = ':M'
+         enddo
+
+         open (51,file='steering.txt',status='old')
+         read (51,NML=CovarToNuisance,end=19,err=17)
+         close (51)
+
+ 19      continue
+
+      endif
+
+      do i=1,Npoints
+         theo(i) = daten(i) ! Set theory = data for error scaling         
+         call GetPointErrors(i, Stat, StatConst, Unc(i))
+         Sta(i) = sqrt(Stat**2+StatConst**2)
+         theo(i) = 0.0D0
+
+C Set "new" uncorrelated uncertainties to the "old" values:
+         UncorNew(i) =      e_uncor_mult(i)
+         StatNew(i)  =      e_stat_poisson(i)
+         UncorConstNew(i) = e_uncor_const(i)
+         StatConstNew(i)  = e_stat_const(i)
+         UncorPoissonNew(i) = e_uncor_poisson(i)
+
+      enddo
+
+      do iCovType = 1, NCovTypeMax
+         iCovBit = IShft(1,ICovType-1)
+
+C Create list first:
+         NCovar = 0
+         do i=1,Npoints
+            if ( IAND(icov_type(i),iCovBit).eq.iCovBit ) then
+               NCovar = NCovar + 1
+               List_Covar(NCovar) = i
+            endif
+         enddo
+
+         if (NCovar.eq.0) then
+            cycle   ! nothing to be done
+         endif
+
+C Generate compact matrix:         
+         do i1=1,NCovar
+            i = List_Covar(i1)
+            do j1=1,NCovar
+               j = List_Covar(j1)
+C Use proper source:
+               if (iCovBit .eq. iCovSyst) then
+                  cov_loc(i1,j1) = cov(i,j)
+               elseif (iCovBit .eq. iCovSystCorr) then
+                  cov_loc(i1,j1) = corr_syst(i,j)*Unc(i)*Unc(j)                                    
+               endif
+            enddo
+         enddo
+c      endif
+         
+         do j=1,NCovar
+            Uncor(j) = 0.D0
+         enddo
+
+         if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) ) 
+     $        then
+C Direct diagonalisation:
+            Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
+     $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor)
+         else
+C Try to remove diagonal term first:
+            Call hf_errlog(142107,
+     $   'W:Nuisance rep. code not ready for stat. errors yet')
+         endif
+
+C         print *,'hihi',Nui_cor,tolerance, ncovar
+         
+
+C Define the scaling property based on the first point:
+         name_t = ':M'
+         do i=1,NSET
+            if ( DataName(i).eq.DataSetLabel(JSet(List_Covar(1)))) 
+     $           then
+               name_t = DataSystType(i)
+            endif
+         enddo
+
+         do j1=1,Nui_cor
+            if (j1.lt.10) then
+               write (name_n,'(''00'',i1)') j1
+            elseif (j1.lt.100) then
+               write (name_n,'(''0'',i2)') j1
+            else
+               write (name_n,'(i3)') j1
+            endif
+            name_s = trim(Sys_prefix(icovtype))
+     $           // name_n // '_' 
+     $           // DataSetLabel( JSet(List_Covar(1)) )
+
+
+            Call AddSystematics(Trim(name_s)//name_t)
+            do i1=1,NCovar
+               i = List_Covar(i1)  ! point to the data
+               n_syst_meas(NSYS) = n_syst_meas(NSYS) + 1
+               syst_meas_idx(n_syst_meas(NSYS),NSYS) = i
+               beta(NSYS,i) =  anui_loc(j1,i1)/daten(i)
+            enddo
+         enddo
+         
+         do i1=1,NCovar
+            i = List_Covar(i1)
+            if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) ) 
+     $           then
+C Re-set uncorrelated systematics:                   
+               if (name_t .eq. ':M') then
+                  UncorNew(i) = Uncor(i1)
+                  UncorPoissonNew(i) = 0.0D0
+                  UncorConstNew(i) = 0.0D0
+               elseif (name_t .eq. ':A') then
+                  UncorNew(i) = 0.0D0
+                  UncorPoissonNew(i) = 0.0D0
+                  UncorConstNew(i) = Uncor(i1)
+               elseif (name_t .eq. ':P') then
+                  UncorNew(i) = 0.0D0
+                  UncorPoissonNew(i) = Uncor(i1)
+                  UncorConstNew(i) = 0.0D0
+               endif
+            else
+
+            endif
+         enddo
+
+c         stop
+      enddo
+      goto 18
+ 17   continue      
+      call hf_errlog(1,
+     $     'F:Error reading CovarToNuisance Namelist ! Stop')
+ 18   continue
+      end
