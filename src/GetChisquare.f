@@ -1385,7 +1385,7 @@ C
 C--------------------------------------------------------------------------------
       subroutine GetNuisanceFromCovar( NDimCovar, NDimSyst, NCovar,
      $     Covar, ANuisance, Tolerance, 
-     $     Ncorrelated, Uncor)
+     $     Ncorrelated, Uncor, LSepDiag)
       implicit none
 C--------------------------------------------------------------------------------
       integer NDimCovar, NDimSyst, NCovar
@@ -1394,7 +1394,7 @@ C-------------------------------------------------------------------------------
       double precision Tolerance
       integer Ncorrelated
       double precision Uncor(NDimCovar)
-
+      logical LSepDiag
       
       double precision Eigenvalues(NDimCovar)
       integer NWork
@@ -1403,17 +1403,56 @@ C-------------------------------------------------------------------------------
       integer IWork(NWork)
       integer ifail
 
+      double precision factor, facMax, facMin
+      double precision diag(1000), testm(1000,1000)
       double precision Sum,Run
       integer i,j,k
 
 C--------------------------------------------------------------------------------
       
+C Try to remove diagonal term first:
+
+      if ( LSepDiag ) then
+
+         facMax = 1.0D0
+         facMin = 0.0D0
+
+         do while ((facMax-facMin.gt.0.01).or.(Eigenvalues(1).lt.0))
+            factor = 0.5*(facMax + facMin)
+            do i=1,NCovar
+               do j=1,NCovar
+                  testm(i,j) = Covar(i,j)
+               enddo
+            enddo
+            do j=1,NCovar
+               diag(j) = sqrt(factor*covar(j,j))
+               testm(j,j) = Covar(j,j) - diag(j)*diag(j)
+            enddo
+            Call DSYEVD('V','U',NCovar,testm,NDimCovar, EigenValues, Work, 
+     $           NWork, IWork, NWork, IFail)
+c            print *,EigenValues(1)
+            if (EigenValues(1).lt.0) then
+               facMax = factor
+            else
+               facMin = factor
+            endif
+c            print *,'ha',factor,facMax,facMin
+         enddo
+         ! Ok, subtract diagonal:
+         do j=1,NCovar
+            Covar(j,j) = Covar(j,j) - diag(j)*diag(j)
+         enddo
+
+      endif
+
+
       Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work, 
      $     NWork, IWork, NWork, IFail)
       
       
       Sum = 0
       do i=1,NCovar
+c         print *,i,EigenValues(i)
          Sum = Sum + EigenValues(i)
       enddo
 
@@ -1448,6 +1487,13 @@ C            print *,j,i, ANuisance(i,j),Covar(i,j)
          Uncor(j) = sqrt(Uncor(j))
       enddo
 
+      if (LSepDiag) then
+       ! Add diag back to uncor:
+         do j=1, NCovar
+            Uncor(j) = sqrt( Uncor(j)**2 + diag(j)**2 )
+         enddo
+      endif
+
       end
 
       subroutine CovMatrixConverter(fileName)
@@ -1480,7 +1526,7 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
       close(51)
 
       Call GetNuisanceFromCovar(NTot,NSysMax,NCovar,Cov,Beta,
-     $     Tolerance, NCorr, alpha)
+     $     Tolerance, NCorr, alpha, .false.)
 
       print *,'Nuisance paramters (point, Uncor, Corr1, ... CorrN):'
       print *,'NCorr=',NCorr
@@ -1541,7 +1587,7 @@ C---------------------------------------------------------------
 
       double precision cov_loc(NCovarMax,NCovarMax)
       double precision anui_loc(NCovarMax,NCovarMax)
-      double precision uncor(NCovarMax)
+      double precision uncor(NCovarMax), Diag(NCovarMax)
 
       double precision unc(NTot) ! input uncor. errors
       double precision sta(NTot) ! input stat. errors
@@ -1568,6 +1614,7 @@ C---------------------------------------------------------------
       
       character*80 name_s
       character*3  name_n, name_t
+      double precision factor 
 
 C--------------------------------------------------------
       if (LFirst) then
@@ -1586,6 +1633,7 @@ C--------------------------------------------------------
 
 
       endif
+      
 
       do i=1,Npoints
          theo(i) = daten(i) ! Set theory = data for error scaling         
@@ -1614,6 +1662,8 @@ C Create list first:
             endif
          enddo
 
+c         print *,iCovType,Icovbit,NCovar
+
          if (NCovar.eq.0) then
             cycle   ! nothing to be done
          endif
@@ -1628,6 +1678,8 @@ C Use proper source:
                   cov_loc(i1,j1) = cov(i,j)
                elseif (iCovBit .eq. iCovSystCorr) then
                   cov_loc(i1,j1) = corr_syst(i,j)*Unc(i)*Unc(j)                                    
+               elseif (iCovBit .eq. iCovStatCorr) then
+                  cov_loc(i1,j1) = corr_stat(i,j)*Sta(i)*Sta(j)                                    
                endif
             enddo
          enddo
@@ -1641,9 +1693,12 @@ c      endif
      $        then
 C Direct diagonalisation:
             Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
-     $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor)
+     $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor,.false.)
+         elseif ( iCovBit .eq. iCovStatCorr ) then
+            Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
+     $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor,.true.)
+ 
          else
-C Try to remove diagonal term first:
             Call hf_errlog(142107,
      $   'W:Nuisance rep. code not ready for stat. errors yet')
          endif
@@ -1652,7 +1707,14 @@ C         print *,'hihi',Nui_cor,tolerance, ncovar
          
 
 C Define the scaling property based on the first point:
-         name_t = ':M'
+         if ((iCovBit.eq.iCovSyst).or.(iCovBit.eq.iCovSystCorr))   then
+                  ! Multiplicative is default for syst.
+            name_t = ':M'
+         else
+                  ! Additive is for stat. and full
+            name_t = ':A'
+         endif
+
          do i=1,NSET
             if ( DataName(i).eq.DataSetLabel(JSet(List_Covar(1)))) 
      $           then
@@ -1688,20 +1750,29 @@ C Define the scaling property based on the first point:
      $           then
 C Re-set uncorrelated systematics:                   
                if (name_t .eq. ':M') then
-                  UncorNew(i) = Uncor(i1)
+                  UncorNew(i) = Uncor(i1)/daten(i)
                   UncorPoissonNew(i) = 0.0D0
                   UncorConstNew(i) = 0.0D0
                elseif (name_t .eq. ':A') then
                   UncorNew(i) = 0.0D0
                   UncorPoissonNew(i) = 0.0D0
-                  UncorConstNew(i) = Uncor(i1)
+                  UncorConstNew(i) = Uncor(i1)/daten(i)
                elseif (name_t .eq. ':P') then
                   UncorNew(i) = 0.0D0
-                  UncorPoissonNew(i) = Uncor(i1)
+                  UncorPoissonNew(i) = Uncor(i1)/daten(i)
                   UncorConstNew(i) = 0.0D0
                endif
-            else
+            elseif (iCovBit.eq.iCovStatCorr) then
+               if (name_t .eq. ':A') then
+                  StatNew(i) = 0.0D0
+                  StatConstNew(i) = Uncor(i1)/daten(i)
+               elseif (name_t .eq. ':P') then
+                  StatNew(i) = Uncor(i1)/daten(i)
+                  StatConstNew(i) = 0.0D0
+               endif
 
+            elseif((iCovBit.eq.iCovTotal).or.(iCovBit.eq.iCovTotalCorr))
+     $              then
             endif
          enddo
 
