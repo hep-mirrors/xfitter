@@ -1597,7 +1597,7 @@ C---------------------------------------------------------------
       integer iCovType, iCovBit
 
       double precision cor
-      double precision Stat,StatConst
+      double precision Stat,StatConst,tot1,tot2
 
       logical LFirst
       data LFirst /.true./
@@ -1614,7 +1614,7 @@ C---------------------------------------------------------------
       
       character*80 name_s
       character*3  name_n, name_t
-      double precision factor 
+
 
 C--------------------------------------------------------
       if (LFirst) then
@@ -1662,7 +1662,7 @@ C Create list first:
             endif
          enddo
 
-c         print *,iCovType,Icovbit,NCovar
+         print *,iCovType,Icovbit,NCovar
 
          if (NCovar.eq.0) then
             cycle   ! nothing to be done
@@ -1680,6 +1680,14 @@ C Use proper source:
                   cov_loc(i1,j1) = corr_syst(i,j)*Unc(i)*Unc(j)                                    
                elseif (iCovBit .eq. iCovStatCorr) then
                   cov_loc(i1,j1) = corr_stat(i,j)*Sta(i)*Sta(j)                                    
+
+               elseif (iCovBit .eq. iCovTotal) then
+                  cov_loc(i1,j1) = cov(i,j)
+               elseif (iCovBit .eq. iCovTotalCorr) then
+                  tot1 = sqrt(sta(i)**2+unc(i)**2)
+                  tot2 = sqrt(sta(j)**2+unc(j)**2)
+                  cov_loc(i1,j1) = corr(i,j)*tot1*tot2
+                   
                endif
             enddo
          enddo
@@ -1694,13 +1702,15 @@ c      endif
 C Direct diagonalisation:
             Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
      $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor,.false.)
-         elseif ( iCovBit .eq. iCovStatCorr ) then
+         elseif ( (iCovBit.eq.iCovStatCorr)
+     $           .or.(iCovBit.eq.iCovTotal)
+     $           .or.(iCovBit.eq.iCovTotalCorr) ) then
+C Subtract diagonal as much as possible:
             Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
      $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor,.true.)
- 
          else
             Call hf_errlog(142107,
-     $   'W:Nuisance rep. code not ready for stat. errors yet')
+     $   'W:Nuisance rep. code not ready for this  error type yet')
          endif
 
 C         print *,'hihi',Nui_cor,tolerance, ncovar
@@ -1761,6 +1771,9 @@ C Re-set uncorrelated systematics:
                   UncorNew(i) = 0.0D0
                   UncorPoissonNew(i) = Uncor(i1)/daten(i)
                   UncorConstNew(i) = 0.0D0
+               else
+                  call hf_errlog(22071401,
+     $                 'S: Unknowns scale '//name_t//' STOP')
                endif
             elseif (iCovBit.eq.iCovStatCorr) then
                if (name_t .eq. ':A') then
@@ -1769,10 +1782,28 @@ C Re-set uncorrelated systematics:
                elseif (name_t .eq. ':P') then
                   StatNew(i) = Uncor(i1)/daten(i)
                   StatConstNew(i) = 0.0D0
+               else
+                  call hf_errlog(22071401,
+     $                 'S: Unknowns scale '//name_t//' STOP')
                endif
-
-            elseif((iCovBit.eq.iCovTotal).or.(iCovBit.eq.iCovTotalCorr))
-     $              then
+            elseif ( (iCovBit.eq. iCovTotalCorr)
+     $              .or.(iCovBit.eq. iCovTotal) ) then
+               if (name_t .eq. ':A') then
+                  StatNew(i) = 0.0D0
+                  StatConstNew(i) = Uncor(i1)/daten(i)
+                  UncorNew(i) = 0
+                  UncorPoissonNew(i) = 0
+                  UncorConstNew(i) = 0
+               elseif (name_t .eq. ':P') then
+                  StatNew(i) = Uncor(i1)/daten(i)
+                  StatConstNew(i) = 0
+                  UncorNew(i) = 0
+                  UncorPoissonNew(i) = 0
+                  UncorConstNew(i) = 0
+               else
+                  call hf_errlog(22071401,
+     $                 'S: Unknowns scale '//name_t//' STOP')
+               endif
             endif
          enddo
 
