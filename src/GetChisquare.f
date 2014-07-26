@@ -237,8 +237,8 @@ C !> Add log term
       if ( Chi2PoissonCorr ) then
          call chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
          fchi2_in = fchi2_in + chi2_log
+         print '(''Log term contribution='',F6.2)',chi2_log
       endif
-
        ! print*,'fchi2_in=',fchi2_in
 
 
@@ -1199,19 +1199,34 @@ C--------------------------------------------------------------------------
 
       implicit none
       include 'ntot.inc'
+
       double precision ScaledErrors(Ntot)
       double precision chi2_log
       integer n0_in
 
+
       include 'indata.inc'
       include 'systematics.inc'
+      include 'datasets.inc'
       integer i
+      double precision dchi2
 C-------------------------------------------------------------------------
       chi2_log = 0.D0
+      do i=1,NDATASETS
+         chi2_poi(i) = 0.D0
+      enddo
+
       do i=1,n0_in
          if (FitSample(i)) then
-            chi2_log = chi2_log - log( alpha(i)*alpha(i) 
-     $           * ScaledErrors(i))
+            if ( alpha(i).gt.0 ) then
+               dchi2 = - log( alpha(i)*alpha(i) 
+     $              * ScaledErrors(i))
+
+               
+
+               chi2_log = chi2_log + dchi2
+               chi2_poi(JSET(i)) = chi2_poi(JSET(i)) + dchi2
+            endif
          endif
       enddo
 

@@ -128,7 +128,7 @@ C--------------------------------------------------------------
       double precision DeltaLength
       double precision BSYS(NSYSMax), RSYS(NSYSMax)
       double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
-      double precision pchi2(nset)
+      double precision pchi2(nset),chi2_log
 
 *     ---------------------------------------------------------
 *     declaration related to code flow/debug
@@ -396,7 +396,8 @@ c             call fillvfngrid
       if (doOffset .and. iflag.eq.3) then
         Chi2OffsRecalc = .true.
         Chi2OffsFinal = .true.
-        call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,pchi2,fcorchi2)
+        call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,
+     $       pchi2,fcorchi2) 
       else
         Chi2OffsRecalc = .false.
       endif
@@ -524,20 +525,43 @@ c     $           ,chi2_cont/NControlPoints
          if(itheory.eq.0) then      
          endif
          write(85,*) ' Partial chi2s '
+         chi2_log = 0
          do h1iset=1,nset
-            if (npts(h1iset).gt.0) then
-               write(6,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
-     $              ,h1iset,pchi2(h1iset),npts(h1iset)
-     $              ,datasetlabel(h1iset)
-               write(85,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
-     $              ,h1iset,pchi2(h1iset),npts(h1iset)
-     $              ,datasetlabel(h1iset)
+            if ( Chi2PoissonCorr ) then
+               if (npts(h1iset).gt.0) then
+                  chi2_log = chi2_log + chi2_poi(h1iset)
+                  write(6,'(''Dataset '',i4,F10.2,''('',SP,F6.2,SS,'')'',
+     $                 i6,''  '',A48)')
+     $                 ,h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
+     $                 ,datasetlabel(h1iset)
+                  write(85,'(''Dataset '',i4,F10.2,
+     $                 ''('',SP,F6.2,SS,'')'',
+     $                 i6,''  '',A48)')
+     $                 ,h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
+     $                 ,datasetlabel(h1iset)
+               endif
+            else
+               if (npts(h1iset).gt.0) then
+                  write(6,'(''Dataset '',i4,F10.2,
+     $                 i6,''  '',A48)')
+     $                 ,h1iset,pchi2(h1iset)
+     $                 ,npts(h1iset)
+     $                 ,datasetlabel(h1iset)
+                  write(85,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
+     $                 ,h1iset,pchi2(h1iset),npts(h1iset)
+     $                 ,datasetlabel(h1iset)
+               endif
             endif
          enddo
          write(85,*)
 
          write(6,*) 'Correlated Chi2 ', fcorchi2
          write(85,*) 'Correlated Chi2 ', fcorchi2
+
+         if (Chi2PoissonCorr) then
+            write(6,*) 'Log penalty Chi2 ', chi2_log
+            write(85,*) 'Log penalty Chi2 ', chi2_log
+         endif
 
        base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
 
