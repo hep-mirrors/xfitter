@@ -57,6 +57,7 @@ C
       character*80 DATASETInfoNames(NInfoDimensionMax,NSET)        !> Names of info entries
       double precision DATASETInfo(NInfoDimensionMax,NSET)         !> info values.
 
+      double precision chi2_poi(NSET)
 
       common/datasets/
      $     DATASETInfo
@@ -85,3 +86,5 @@ C
      $     ,GNPlots
      $     ,GPlotOptions
      $     ,UseFixedTheory
+
+      Common/cdatapoi/chi2_poi
