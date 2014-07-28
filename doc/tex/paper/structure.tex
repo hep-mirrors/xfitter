@@ -13,9 +13,9 @@ The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow}
 %   \caption{Schematic structure of the \fitter~program.} 
 % \label{fig:flow}
 %\end{figure}
-\begin{description}
-\item 
-\bf {Input data:} \rm Different available measurements from various processes
+%\begin{description}
+%\item 
+\paragraph{Data:} \rm Different available measurements from various processes
 are implemented in the \fitter package including the full information on their uncorrelated 
 and correlated uncertainties. HERA data 
 are sensitive to light quark and gluon densities mostly through scaling violations, 
@@ -94,8 +94,8 @@ The references for the individual calculations and their implementations are giv
 \end{table}
 %
 \normalsize
-\item
-\bf{Theory predictions:} \rm  Predictions for cross section of different processes are obtained using 
+%\item
+\paragraph{Theory:} \rm  Predictions for cross section of different processes are obtained using 
 the factorisation approach (Eq.~\ref{eq:fact}). The PDFs are parametrised at a starting input scale $Q_0^2$  
 by a chosen functional form with a set of free parameters $\vec{p}$. 
 These PDFs are evolved to the scale of the measurement $Q^2$, $Q^2>Q_0^2$.
@@ -115,8 +115,8 @@ with a appropriate theory calculation (as listed in Tab.~\ref{tab:proc}).
 %and then convoluted with the hard parton cross sections calculated
 %using a relevant theory program (as listed in Tab.~\ref{tab:proc}).
 Alternatively, predictions using dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} can be also obtained.
-\item
-\bf{QCD analysis:} \rm  
+%\item
+\paragraph{QCD analysis:} \rm  
 The PDFs are determined by the least square fit, minimising the $\chi^2$ function,
 formed using the input data and theory predictions, with the \minuit \cite{minuit} program.
 %with respect to free parameters $\vec{p}$ using the MINUIT~\cite{minuit} program.
@@ -135,8 +135,8 @@ assumptions for the distributions of the systematic uncertainties, like Gauss, L
 %Fitted values of $\vec{p}$ and estimated uncertainties are obtained.
 %The fitted parameters $\vec(p)$ and obtained from the uncertainties of the parameters are determined (from chi2+1???)
 %
-\item
-\bf{Results:} \rm 
+%\item
+\paragraph{Results:} \rm 
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
 The resulting PDFs are provided in a format ready to be used by the \lhapdf 
 library~\cite{lhapdf,lhapdfweb} (or by \tmdlib \cite{tmdlref}).
@@ -147,7 +147,7 @@ As an example, a first set of PDFs extracted using \fitter from HERA I data, HER
 is shown in Fig.~\ref{fig:hera1}.
 %%%Since then several other PDF sets were produced within the HERA \cite{hera:grids} and LHC \cite{atlas:grids} collaborations.
 %In addition to the PDF display, 
-The comparison of data used in the fit to the theory predictions are also produced. 
+%The comparison of data used in the fit to the theory predictions are also produced. 
 % plots which compare the input data to the fitted theory predictions can be produced 
 %to demonstrate the fit consistency. 
 \begin{figure}[!ht]
@@ -162,26 +162,28 @@ The comparison of data used in the fit to the theory predictions are also produc
  \label{fig:hera1}
 \end{figure}
 %In Fig.~\ref{fig:data}, a comparison of inclusive NC data from the HERA~I running period with predictions based on HERAPDF1.0 is shown. 
-The inclusive NC data from the HERA I are compared with the predictions based on 
-HERAPDF1.0 PDFs in Fig.~\ref{fig:data}.
-Also shown are theory predictions, obtained using the nuisance parameter method, 
-which accounts for correlated systematic
-shifts when using the nuisance parameter method that accounts for 
-correlated systematic uncertainties (see section~\ref{sec:chi2representation}). 
-The consistency of the measurements and the theory is expressed by pulls, defined as a difference between data 
-and theory divided by the uncorrelated error of the data. 
-In each kinematic bin of the measurement, pulls are provided in units of standard deviation (sigma).  
-%As an additional consistency check between data and the theory predictions, pull information, defined as the difference between data and prediction divided by the uncorrelated uncertainty of the data, is displayed in units of sigma shifts for each given data bin.
-\begin{figure}[!ht]
-   \centering
-   \includegraphics[width=8.6cm]{datatheory.pdf}
-   \caption{An illustration of the consistency of HERA measurements~\cite{h1zeus:2009wt} and the theory predictions, 
-       obtained in \fitter with the default drawing tool.} 
-       %In addition, ratio plots are also provided together with the pull distribution (right panel).}    
- \label{fig:data}
-\end{figure}
+%The inclusive NC data from the HERA I are compared with the predictions based on 
+%HERAPDF1.0 PDFs in Fig.~\ref{fig:data}.
 
-\end{description}
+
+%Also shown are theory predictions, obtained using the nuisance parameter method, 
+%which accounts for correlated systematic
+%shifts when using the nuisance parameter method that accounts for 
+%correlated systematic uncertainties (see section~\ref{sec:chi2representation}). 
+%The consistency of the measurements and the theory is expressed by pulls, defined as a difference between data 
+%and theory divided by the uncorrelated error of the data. 
+%In each kinematic bin of the measurement, pulls are provided in units of standard deviation (sigma).  
+%As an additional consistency check between data and the theory predictions, pull information, defined as the difference between data and prediction divided by the uncorrelated uncertainty of the data, is displayed in units of sigma shifts for each given data bin.
+%\begin{figure}[!ht]
+%   \centering
+%   \includegraphics[width=8.6cm]{datatheory.pdf}
+%   \caption{An illustration of the consistency of HERA measurements~\cite{h1zeus:2009wt} and the theory predictions, 
+%       obtained in \fitter with the default drawing tool.} 
+%       %In addition, ratio plots are also provided together with the pull distribution (right panel).}    
+% \label{fig:data}
+%\end{figure}
+
+%\end{description}
 %
 %This paper provides a comprehensive description of  \\
 %the \fitter\ package.

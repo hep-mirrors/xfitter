@@ -27,9 +27,11 @@ hadronic inclusive cross sections are written as
 %&&\times  \, \hat{\sigma}^{ab}(\frac{x_1}{\xi_1},\frac{x_2}{\xi_2};\as(\mur),Q,\muf,\mur) 
 %+ {\cal O}\left(\frac{\Lambda^2}{Q^2}\right)\,,\\
 %
-\sigma(\as(\mur),\mur,\muf)&=& \sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2 \nonumber \\
-&\times& f_a(x_1,\as(\mur),\muf) 
- f_b(x_2,\as(\mur),\muf) \nonumber \\ 
+%\sigma(\as(\mur),\mur,\muf)&=& \sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2 \nonumber \\
+%&\times& f_a(x_1,\as(\mur),\muf) 
+% f_b(x_2,\as(\mur),\muf) \nonumber \\ 
+%&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur),\mur,\muf)\,
+\sigma(\as(\mur),\mur,\muf)&=& \sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2  f_a(x_1,\muf) f_b(x_2,\muf) \nonumber \\ 
 &\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur),\mur,\muf)\,
 %+{\cal O}\left(\frac{\Lambda^2}{Q^2}\right)\,
 %&&\sigma(h_1  h_2 \rightarrow l^{+} l^{-} + X)  =
@@ -63,9 +65,9 @@ i.e. gluons, quarks and antiquarks of different flavours,
 that are considered
 as the constituents of the proton.
 %
-The PDFs and the partonic cross sections depend on the strong coupling
+The PDFs depend on factorisation scale,$\muf$, while the partonic cross sections depend on the strong coupling
 $\as$, and the factorisation and renormalisation scales,
-$\muf$ and $\mur$, respectively.
+$\muf$ and $\mur$.
 %
 The partonic cross sections $\hat\sigma^{ab}$ are calculated in pQCD whereas
 PDFs are constrained by global fits to variety of the hard-process experimental data employing
