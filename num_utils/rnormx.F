@@ -6,7 +6,6 @@
 * Mathlib gen
 *
 *
-#include "gen/pilot.h"
       SUBROUTINE RNORMX(DEVIAS,NDEV,ROUTIN)
 C        Generator of a vector of independent Gaussian-distributed 
 C        (pseudo-)random numbers, of mean zero and variance one,
