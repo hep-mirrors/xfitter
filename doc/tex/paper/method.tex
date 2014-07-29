@@ -45,13 +45,13 @@ $xu_v$ and $xd_v$, the gluon distribution $xg$, and the $u$-type and $d$-type se
 $x\bar{U}$, $x\bar{D}$, where $x\bar{U} = x\bar{u}$, 
 $x\bar{D} = x\bar{d} +x\bar{s}$ at the starting scale. 
 %chosen below the charm mass threshold. 
-The form of polynomials $P_i(x)$ depdend on the style, defined as a steering parameter. 
+The form of polynomials $P_i(x)$ depend on the style, defined as a steering parameter. 
 The form $(1 + \epsilon_j \sqrt{x} + D_j x + E_j x^2)$
 is used for the HERAPDF \cite{h1zeus:2009wt} style
 with additional constraints relating to the flavour decomposition of the 
 light sea. 
 For the CTEQ style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$ and,
-in contrast to polynomial form, is positive by constraction.
+in contrast to polynomial form, is positive by construction.
 QCD number and momentum sum rules are used to determine the normalisations $A$ for the valence and gluon
 distributions, and the sum rule integrals are solved analytically.
 
@@ -124,7 +124,7 @@ the standard-polynomial one, for $N_{g,S} = 9$.
   \includegraphics[trim=1cm 4cm 1cm 5cm, clip, width=6cm]{chebishev.pdf}
 % \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
 % weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
-  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parameterisation and it is compared to the case of the Chebyshev parameterisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique with the green lines denoting fits to data replica.  aRed lines indicate the standard deviation about the mean value of these replicas.}
+  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parameterisation and it is compared to the case of the Chebyshev parameterisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
  \label{fig:cheb}
 \end{figure}
 
@@ -172,7 +172,7 @@ can be expressed in the following form:
 \begin{eqnarray}
 \chi^2 (m)& = & \sum_{i,k}(m_i-\mu_i)C^{-1}_{ik}(m_k-\mu_k),
 \end{eqnarray}
-where the experimental uncertainties are given in a form of covariance matrix $C_{i,k}$ for measurements in bins $i$ an $k$.
+where the experimental uncertainties are given in a form of covariance matrix $C_{i,k}$ for measurements in bins $i$ and $k$.
 %The $\chi^2$ function depends on the theory parameters $m^i$ 
 %(denoted as the vector $\boldsymbol{m}$).
 The covariance matrix $C_{ik}$ is given by the sum of statistical, uncorrelated and correlated systematic contributions: 
@@ -229,9 +229,11 @@ systematic uncertainties are proportional to the central prediction values
 with the square root of the expected number of events. 
 
 During the $\chi^2$ minimisation, the nuisance parameters $b_j$ and the PDFs are determined. 
+\\
 %The nuisance parameters $b_j$ as well as the PDF parameters are free parameters of the fit. 
 %The fit determines the best PDF parameters to
 %the data taking into account correlated systematic shifts of the data. 
+
 \item  \it{Mixed Form Representation:} \rm
 In some cases, the statistical and systematic uncertainties are provided in different forms.    
 %It can happen that various parts of the systematic and statistical uncertainties are stored in different forms. 
@@ -282,7 +284,7 @@ the Hessian, Offset, and Monte Carlo method.
 %\end{figure}
 \begin{description}
 \item \it{Hessian (Eigenvector) method:} \rm
-The PDF uncertainties reflecting the uncertainties in experimental data are esitimated by 
+The PDF uncertainties reflecting the uncertainties in experimental data are estimated by 
 examining the shape of $\chi^2$ in the neighborhood of the minimum \cite{Pumplin:2001ct}.
 %The technique developed in~\cite{Pumplin:2001ct} presents an estimate of PDF uncertainties 
 %reflecting the experimental precision of data used in the QCD fit by examining the behavior 
@@ -311,7 +313,7 @@ The correlated uncertainties are propagated into the PDF uncertainties performin
 of fit with the experimental data varied by $\pm 1 \sigma$ from the central value  
 for each systematic source.
 Since the resulting deviation of the PDF parameters from the ones obtained in the central 
-fit are statistically independent, they are combined in quadrature to arive to the total 
+fit are statistically independent, they are combined in quadrature to arrive at the total 
 PDF systematic uncertainty.
 %
 %Instead, the correlated systematic uncertainties of the measurement are used to estimate 
@@ -323,6 +325,7 @@ PDF systematic uncertainty.
 
 In most cases, the uncertainties estimated by the offset method are larger than 
 those from the Hessian method.
+\\
 %as the offset method does not use the information on correlated systematic uncertainties 
 %in the central fit.
 

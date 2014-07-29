@@ -1,4 +1,4 @@
-\begin{thebibliography}{131}
+\begin{thebibliography}{132}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -16,6 +16,41 @@
 \emph{\bibinfo{title}{{HERAFitter}}},
   \bibinfo{note}{https://www.herafitter.org}.
 
+\bibitem[{\citenamefont{Collins and Tung}(1986)}]{ZMVFNpub}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{W.-K.} \bibnamefont{Tung}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{278}},
+  \bibinfo{pages}{934} (\bibinfo{year}{1986}).
+
+\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1992)}]{Laenen:1992}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Phys. Lett.}
+  \textbf{\bibinfo{volume}{B291}}, \bibinfo{pages}{325} (\bibinfo{year}{1992}).
+
+\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1993)}]{Laenen:1993}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Nucl. Phys.}
+  \textbf{\bibinfo{volume}{B392}}, \bibinfo{pages}{162, 229}
+  (\bibinfo{year}{1993}).
+
+\bibitem[{\citenamefont{Riemersma \emph{et~al.}}(1995)\citenamefont{Riemersma,
+  Smith, and van Neerven.~W.L.}}]{Riem:1995}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Riemersma}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Smith}}, \bibnamefont{and}
+  \bibinfo{author}{\bibnamefont{van Neerven.~W.L.}}, \bibinfo{journal}{Phys.
+  Lett.} \textbf{\bibinfo{volume}{B347}}, \bibinfo{pages}{143}
+  (\bibinfo{year}{1995}), [\eprint{hep-ph/9411431}].
+
+\bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
+  Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
+\bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Demina}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Keller}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Kramer}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Kretzer}},
+  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Martin}},
+  \bibnamefont{\emph{et~al.}} (\bibinfo{year}{1999}),
+  [\eprint{hep-ph/0005112}].
+
 \bibitem[{\citenamefont{Aad \emph{et~al.}}(2012{\natexlab{a}})}]{Aad:2012tfa}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
@@ -28,6 +63,21 @@
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
   \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B716}},
   \bibinfo{pages}{30} (\bibinfo{year}{2012}), [\eprint{arXiv:1207.7235}].
+
+\bibitem[{\citenamefont{Collins}(2011)}]{Collins:2011zzd}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Collins}},
+  \emph{\bibinfo{title}{{Foundations of perturbative QCD}}},
+  vol.~\bibinfo{volume}{32} (\bibinfo{publisher}{Cambridge monographs on
+  particle physics, nuclear physics and cosmology}, \bibinfo{year}{2011}).
+
+\bibitem[{\citenamefont{Collins \emph{et~al.}}(1988)\citenamefont{Collins,
+  Soper, and Sterman}}]{Collins:1989gx}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}},
+  \bibinfo{author}{\bibfnamefont{D.~E.} \bibnamefont{Soper}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{G.~F.} \bibnamefont{Sterman}},
+  \bibinfo{journal}{Adv.Ser.Direct.High Energy Phys.}
+  \textbf{\bibinfo{volume}{5}}, \bibinfo{pages}{1} (\bibinfo{year}{1988}),
+  [\eprint{hep-ph/0409313}].
 
 \bibitem[{\citenamefont{Perez and Rizvi}(2013)}]{Perez:2012um}
 \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Perez}} \bibnamefont{and}
@@ -148,12 +198,12 @@
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
   \bibinfo{pages}{054028} (\bibinfo{year}{2014}), [\eprint{arXiv:1310.3059}].
 
-\bibitem[{\citenamefont{Jimenez-Delgado and Reya}(2009)}]{JRpdf}
+\bibitem[{\citenamefont{Jimenez-Delgado and
+  Reya}(2014)}]{Jimenez-Delgado:2014twa}
 \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Jimenez-Delgado}}
   \bibnamefont{and} \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Reya}},
-  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D80}},
-  \bibinfo{pages}{114011} (\bibinfo{year}{2009}), [\eprint{arXiv:0909.1711}],
-  \urlprefix\url{http://www.het.physik.tu-dortmund.de/pdfserver/index.html}.
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
+  \bibinfo{pages}{074049} (\bibinfo{year}{2014}), [\eprint{arXiv:1403.1852}].
 
 \bibitem[{\citenamefont{Botje}(2010)}]{qcdnum}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}} (\bibinfo{year}{2010}),
@@ -263,31 +313,6 @@
   (\bibinfo{year}{2011}), \bibinfo{note}{{{\it Deep Inelastic Scattering},
   ISBN: 0199602255,9780199602254}}.
 
-\bibitem[{\citenamefont{Collins and Tung}(1986)}]{ZMVFNpub}
-\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{W.-K.} \bibnamefont{Tung}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{278}},
-  \bibinfo{pages}{934} (\bibinfo{year}{1986}).
-
-\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1992)}]{Laenen:1992}
-\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
-  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Phys. Lett.}
-  \textbf{\bibinfo{volume}{B291}}, \bibinfo{pages}{325} (\bibinfo{year}{1992}).
-
-\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1993)}]{Laenen:1993}
-\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
-  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Nucl. Phys.}
-  \textbf{\bibinfo{volume}{B392}}, \bibinfo{pages}{162, 229}
-  (\bibinfo{year}{1993}).
-
-\bibitem[{\citenamefont{Riemersma \emph{et~al.}}(1995)\citenamefont{Riemersma,
-  Smith, and van Neerven.~W.L.}}]{Riem:1995}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Riemersma}},
-  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Smith}}, \bibnamefont{and}
-  \bibinfo{author}{\bibnamefont{van Neerven.~W.L.}}, \bibinfo{journal}{Phys.
-  Lett.} \textbf{\bibinfo{volume}{B347}}, \bibinfo{pages}{143}
-  (\bibinfo{year}{1995}), [\eprint{hep-ph/9411431}].
-
 \bibitem[{\citenamefont{Alekhin \emph{et~al.}}()\citenamefont{Alekhin,
   Bl{\"u}mlein, and Moch}}]{openqcdrad:page}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}},
@@ -310,16 +335,6 @@
   \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}},
   \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B699}},
   \bibinfo{pages}{345} (\bibinfo{year}{2011}), [\eprint{arXiv:1011.5790}].
-
-\bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
-  Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
-\bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Demina}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Keller}},
-  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Kramer}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Kretzer}},
-  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Martin}},
-  \bibnamefont{\emph{et~al.}} (\bibinfo{year}{1999}),
-  [\eprint{hep-ph/0005112}].
 
 \bibitem[{\citenamefont{Thorne and Roberts}(1998)}]{Thorne:1997ga}
 \bibinfo{author}{\bibfnamefont{R.~S.} \bibnamefont{Thorne}} \bibnamefont{and}
@@ -690,12 +705,6 @@
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Luszczak}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}}
   (\bibinfo{year}{2013}), [\eprint{arXiv:1312.4060}].
-
-\bibitem[{\citenamefont{Collins}(2011)}]{Collins:2011zzd}
-\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Collins}},
-  \emph{\bibinfo{title}{{Foundations of perturbative QCD}}},
-  vol.~\bibinfo{volume}{32} (\bibinfo{publisher}{Cambridge monographs on
-  particle physics, nuclear physics and cosmology.}, \bibinfo{year}{2011}).
 
 \bibitem[{\citenamefont{Aybat and Rogers}(2011)}]{Aybat:2011zv}
 \bibinfo{author}{\bibfnamefont{S.~M.} \bibnamefont{Aybat}} \bibnamefont{and}

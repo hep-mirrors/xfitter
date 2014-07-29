@@ -11,14 +11,17 @@
 %as implemented in the QCDNUM~\cite{qcdnum} program in the $\overline{\text{MS}}$ scheme. 
 %The evolution can be performed in the LO, NLO or NNLO accuracy~\cite{Curci:1980uw,Furmanski:1980cm}.
 %
-In this section the theoretical formalism for various processes available in \fitter is described. 
+In this section the theoretical formalism based on DGLAP evolution equations for various processes 
+available in \fitter is described. 
 
-A direct consequence of factorisation is that scale dependence or ``evolution'' of PDFs can be predicted 
-by the renormalisation group equations (RGE's). 
+A direct consequence of factorisation (Eq. \ref{eq:fact}) is that scale dependence or ``evolution'' of PDFs can be predicted 
+by the renormalisation group equations. 
 By imposing that physical observables are independent on 
 $\muf$, it leads to a representation 
-of parton evolution in terms of integro-differential equations known as 
-DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs} (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi) equations:
+of parton evolution in terms of 
+DGLAP \cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs} equations:
+%integro-differential equations known as 
+%DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs} (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi) equations:
 
 \begin{small}
 \begin{eqnarray}
@@ -32,7 +35,7 @@ where the functions $P_{ij}$ are the evolution kernels or splitting functions, w
 of finding parton $i$ in parton $j$, and have perturbative expansion in $\alpha_s$. 
 The analytic structure of $P_{ij}$ is known at 3-loop in perturbation theory and can be found in the literature. 
 
-Therefore, once PDFs are determined by a direct comparison with the experiments at the initial
+Once PDFs are determined by a direct comparison with the experiments at the initial
 scale $Q_0$, their evolution at the scale $\mu$ is entirely determined by DGLAP equations.
 Alternative approaches to DGLAP evolution, valid in different kinematic regimes, are also implemented in \fitter and will be discussed in the next sections.
 
@@ -106,7 +109,7 @@ different combinations of the quark flavour densities:
 %        x[u+c] + (1-y)^2 x[\overline d + \overline s],
 %    \end{array}
 \end{eqnarray}
-where $P$ represents the lepton beam polarisation and $\tilde W_2$, $\tilde W_3$,$\tilde W_L$ are structure functions analogous to the above NC case.
+where $P$ represents the lepton beam polarisation and $\tilde W_2$, $\tilde W_3$,$\tilde W_L$ are structure functions.
 %Here $U$ and $D$ denote the sum over up- and down-type quarks;
 %the latter include also strange and beauty quarks and 
 %the former charm quarks.
@@ -171,7 +174,7 @@ higher order corrections, and improving the theoretical precision of the mass de
 
 It this scheme, heavy quark production is treated for
 $Q^2 \le m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
-in a masless scheme. 
+in a massless scheme. 
 %in the ZM-VFN scheme with a suitable interpolation in between.
 The recent series of PDF groups that use this scheme are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
 %This scheme is very popular and numerous variants exist.
@@ -195,10 +198,10 @@ The recent series of PDF groups that use this scheme are MSTW, CT(CTEQ), NNPDF, 
 The Thorne-Roberts (TR) scheme~\cite{Thorne:1997ga} was designed to provide a smooth transition 
 from the massive FFN scheme at low scales $Q^2 < m_h^2$ to the massless ZM-VFNS scheme at high scales $Q^2 \gg m_h^2$. 
 However, the original version was technically difficult to implement beyond NLO, and was updated 
-to the TR' scheme~\cite{Thorne:2006qt}.
+to the TR$^\prime$ scheme~\cite{Thorne:2006qt}.
 %which is simpler (and closer to the ACOT-scheme, see below).
-There are two different variants of the TR' schemes: TR' standard (as used in MSTW PDF sets~\cite{Thorne:2006qt,MSTWpdf}) 
-and TR' optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region. 
+There are two different variants of the TR$^\prime$ schemes: TR$^\prime$ standard (as used in MSTW PDF sets~\cite{Thorne:2006qt,MSTWpdf}) 
+and TR$^\prime$ optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region. 
 Both variants are accessible within the \fitter package at LO, NLO and NNLO.
 %%%%
 \vspace{0.1cm}
@@ -225,8 +228,8 @@ For the longitudinal structure function higher order calculations are also avail
 %and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
 %but it has the disadvantage that it is computationally intensive (addressed in 
 %section~\ref{sec:techniques}).
-A compasion of PDFs extracted from the QCD fits to the HERA data 
-with the TR' and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt}.
+A comparison of PDFs extracted from the QCD fits to the HERA data 
+with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt} as taken from \cite{h1zeus:2009wt}.
 
 \begin{figure}[!ht]
 \centering
@@ -235,7 +238,7 @@ with the TR' and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt}.
     (scaled), and gluon (scaled) PDFs of the NLO HERAPDF1.0 set \cite{h1zeus:2009wt} 
     with their 
     total uncertainty at the scale of $Q^2 = 10\ \GeV^2$ obtained 
-    using the TR' scheme and compared to the PDFs obtained with 
+    using the TR$^\prime$ scheme and compared to the PDFs obtained with 
     the ACOT scheme using the $k$-factor technique (red).}
  \label{fig:acotrt}
 \end{figure}
@@ -303,7 +306,7 @@ The factorisable pomeron picture has proved remarkably successful in the descrip
 The kinematic variables squared four-momentum transfer $t$
 (the undetected momentum transfer to the proton system) and
 the mass $M_X$ of the diffractively produced final state 
-appear for the diffrative process in addition to the usual DIS variables $x$, $Q^2$.
+appear for the diffractive process in addition to the usual DIS variables $x$, $Q^2$.
 In practice, the variable $M_X$ 
 is often replaced by dimensionless quantity $\beta=\frac{Q^2}{M_X^2+Q^2-t}$.
 %

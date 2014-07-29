@@ -20,7 +20,7 @@ are implemented in the \fitter package including the full information on their u
 and correlated uncertainties. HERA data 
 are sensitive to light quark and gluon densities mostly through scaling violations, 
 covering low and medium $x$ ranges. These data are the basis of any proton PDF extraction,
-and are used by all global PDF groups \cite{MSTWpdf,CT10pdf,NNPDFpdf,Alekhin:2013nda,JRpdf}. 
+and are used by all global PDF groups \cite{MSTWpdf,CT10pdf,NNPDFpdf,Alekhin:2013nda,Jimenez-Delgado:2014twa}. 
 However, improvements in precision of PDFs require additional constraints on the gluon and 
 quark distributions at high-$x$, better understanding of heavy quark distributions and 
 decomposition of the light-quark sea.  For these purposes, the measurements of the fixed-target 
@@ -41,8 +41,8 @@ The processes that are currently available in \fitter framework are listed in Ta
 
 \begin{tabular}{|l|l|l|l|}
 \hline 
-\textbf{Data} &\textbf{Process}&\textbf{Reaction}&\textbf{Theory} \\
-        &     &               &\textbf{calculations, schemes}  \\
+\textbf{Experimental} &\textbf{Process}&\textbf{Reaction}&\textbf{Theory} \\
+\textbf{Data}         &        &                &\textbf{calculations, schemes}  \\
 \hline \hline \\ [-2.5ex]
 %\multirow{6}{*}{HERA} &DIS NC   &$ep\to eX$      & TR', ACOT \\
 HERA  &DIS NC   &$ep\to eX$      & TR$^\prime$, ACOT \\
@@ -85,8 +85,8 @@ LHC              &          &$pp(\bar p)\to l\nu  X$ &                 \\ [0.5ex
 LHC& DY+heavy quarks &$pp \to VhX$ & \mcfm (\applgrid) \\  [0.5ex]
 \hline
 \end{tabular}
-\caption{The list of processes implemented in the \fitter package. 
-The references for the individual calculations and their implementations are given in the text.
+\caption{The list of experimental data and theory calculation implemented in the \fitter package. 
+The references for the individual calculations and schemes are given in the text.
 }
 %The APPLGRID~\cite{Carli:2010rw} and FastNLO~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs} 
 %techniques for the fast interface to theory calculations are described in section~\ref{sec:techniques}.} 
@@ -127,7 +127,7 @@ formed using the input data and theory predictions, with the \minuit \cite{minui
 %with respect to$\vec{p}$ using the MINUIT~\cite{minuit} program.
 Various choices of accounting for the experimental uncertainties are employed in \fitter, either using 
 a nuisance parameter method for the correlated systematic uncertainties, 
-or a covariance matrix method as described in section~\ref{sec:chi2representation}). In addition, \fitter allows to study different statistics 
+or a covariance matrix method as described in section~\ref{sec:chi2representation}. In addition, \fitter allows to study different statistics 
 assumptions for the distributions of the systematic uncertainties, like Gauss, LogNormal~\cite{hera-lhc:report2009} (see section~\ref{sec:experimentalerrors}).
 %
 %In the $\chi^2$ minimisation,
