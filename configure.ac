@@ -19,6 +19,12 @@ AC_FC_WRAPPERS
 AC_F77_WRAPPERS
 #AC_FC_FREEFORM
 
+# lapack macros
+m4_include([m4/ax_blas.m4])
+m4_include([m4/ax_lapack.m4])
+
+AX_LAPACK
+
 #
 # A lot of code written with 132 char. strings.
 #
@@ -65,23 +71,23 @@ fi
 # Checks for sources.
 AC_CONFIG_SRCDIR([src/main.f])
 
-# Checks for libraries.
-AC_MSG_CHECKING([for CERN libraries])
-if test "x$CERN_ROOT" = "x"; then
-  AC_MSG_ERROR([CERN_ROOT environment variable is not set!
-  CERN_ROOT/lib must be the path to -lkernlib,   -lmathlib, -lpacklib])
-else
-  AC_LANG(Fortran)
-  LDFLAGS+="-L$CERN_ROOT/lib"
-  AC_SEARCH_LIBS([dinv],[kernlib],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lkernlib])],
-  [AC_MSG_ERROR([-lkernlib not found in CERN_ROOT])])
-  AC_SEARCH_LIBS([dgammf],[mathlib],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib])],
-  [AC_MSG_ERROR([-lmathlib not found in CERN_ROOT])])
-  AC_SEARCH_LIBS([dsyevd],[lapack],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -llapack])],
-  [AC_MSG_ERROR([-llapack not found in CERN_ROOT])])
-#  AC_SUBST([CERNLIBS], ["-L$CERN_ROOT/lib -lmathlib  -lkernlib -lpacklib  -llapack -lblas"])
-#  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib  -llapack -lblas])
-fi
+## Checks for libraries.
+#AC_MSG_CHECKING([for CERN libraries])
+#if test "x$CERN_ROOT" = "x"; then
+#  AC_MSG_ERROR([CERN_ROOT environment variable is not set!
+#  CERN_ROOT/lib must be the path to -lkernlib,   -lmathlib, -lpacklib])
+#else
+#  AC_LANG(Fortran)
+#  LDFLAGS+="-L$CERN_ROOT/lib64"
+#  AC_SEARCH_LIBS([dinv],[kernlib],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lkernlib])],
+#  [AC_MSG_ERROR([-lkernlib not found in CERN_ROOT])])
+#  AC_SEARCH_LIBS([dgammf],[mathlib],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib])],
+#  [AC_MSG_ERROR([-lmathlib not found in CERN_ROOT])])
+#  AC_SEARCH_LIBS([dsyevd],[lapack],[AC_MSG_RESULT([Using -L$CERN_ROOT/lib -llapack])],
+#  [AC_MSG_ERROR([-llapack not found in CERN_ROOT])])
+##  AC_SUBST([CERNLIBS], ["-L$CERN_ROOT/lib -lmathlib  -lkernlib -lpacklib  -llapack -lblas"])
+##  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib  -llapack -lblas])
+#fi
 
 AC_MSG_CHECKING([for QCDNUM libraries])
 if test "x$QCDNUM_ROOT" = "x"; then
@@ -287,6 +293,7 @@ AC_CONFIG_FILES([include/Makefile
                  src/Makefile
                  common/Makefile
                  common/linalg/Makefile
+                 common/num_utils/Makefile
                  interfaces/src/Makefile
                  interfaces/include/Makefile
                  FastNLO/src/Makefile

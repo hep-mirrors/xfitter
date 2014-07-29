@@ -58,7 +58,7 @@ endif
 
 
 # libraries to be linked to the main target
-LDADD = $(QCDNUMLIBS)
+LDADD = $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
 if ENABLE_OPENMP
   LDADD+= -lgomp
   AM_FFLAGS+= -fopenmp
@@ -94,6 +94,7 @@ LDADD+=  ../DY/src/libmydy.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
  ../genetic/src/libgenetic.a \
+ ../common/num_utils/libnum_utils.a \
  ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
 
 
