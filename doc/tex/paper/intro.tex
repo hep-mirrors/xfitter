@@ -31,8 +31,8 @@ hadronic inclusive cross sections are written as
 %&\times& f_a(x_1,\as(\mur),\muf) 
 % f_b(x_2,\as(\mur),\muf) \nonumber \\ 
 %&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur),\mur,\muf)\,
-\sigma(\as(\mur),\mur,\muf)&=& \sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2  f_a(x_1,\muf) f_b(x_2,\muf) \nonumber \\ 
-&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur),\mur,\muf)\,
+\sigma(\as(\mur^2),\mur^2,\muf^2)&=& \sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2  f_a(x_1,\muf^2) f_b(x_2,\muf^2) \nonumber \\ 
+&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur^2),\mur^2,\muf^2),
 %+{\cal O}\left(\frac{\Lambda^2}{Q^2}\right)\,
 %&&\sigma(h_1  h_2 \rightarrow l^{+} l^{-} + X)  =
 %\nonumber\\
@@ -65,7 +65,7 @@ i.e. gluons, quarks and antiquarks of different flavours,
 that are considered
 as the constituents of the proton.
 %
-The PDFs depend on factorisation scale,$\muf$, while the partonic cross sections depend on the strong coupling
+The PDFs depend on factorisation scale, $\muf$, while the partonic cross sections depend on the strong coupling,
 $\as$, and the factorisation and renormalisation scales,
 $\muf$ and $\mur$.
 %
@@ -81,8 +81,14 @@ Recent review articles on PDFs can be found in Refs. \cite{Perez:2012um,Forte:20
 %predicting other processes.
 %
 
-{\color{red} Sasha's input }
-%%% RP Sasha's input
+Accurate determination of PDFs as a function of $x$ requires large amount of
+experimental data of a different nature, covering wide kinematic regions
+and sensitive to different kinds of partons. The data are provided together with
+complex models of correlated uncertainties. The PDFs are determined
+from $\chi^2$ fits of the theory predictions to the 
+data \cite{MSTWpdf,CT10pdf,NNPDFpdf,Alekhin:2013nda,Jimenez-Delgado:2014twa}. 
+Rapid addition of the new data from the LHC experiments and new theory developments 
+demand a tool to combined them together in a fast, efficient, open-source platform.
 %Measurements of the inclusive Neutral Current (NC) and Charged Current (CC)  
 %Deep Inelastic Scattering (DIS) at the $ep$ collider HERA provide crucial information for determining the PDFs.
 %The gluon density in small and medium $x$  
@@ -108,9 +114,9 @@ of new experimental data on the SM parameters in the QCD analyses.
 This paper is organised as follows.
 %
 The structure and overview of \fitter are presented in section~\ref{sec:structure}.
-Section~\ref{sec:theory} discusses the various processes 
+Section~\ref{sec:theory} discusses the various processes available in \fitter
 and corresponding theoretical calculations performed in the collinear factorisation using the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
-Dokshitzer:1977sg,Altarelli:1977zs} formalism, available in \\ \fitter.
+Dokshitzer:1977sg,Altarelli:1977zs} formalism.
 %
 Section~\ref{sec:techniques} presents various fast techniques employed by the theory calculations used in \fitter.
 Section~\ref{sec:method} elucidates the 
@@ -121,7 +127,7 @@ methodology of determining PDFs through fits based on various
 minimisation procedure. 
 Alternative approaches to the DGLAP formalism are presented in section~\ref{sec:alternative}.
 %
-Specific applications of the package are given in
-section~\ref{sec:examples} and the summary is presented in section~\ref{sec:summary}.
+\fitter code organisation is discussed in section \ref{sec:organisation}, specific applications 
+of the package are given in section~\ref{sec:examples} and the summary is presented in section~\ref{sec:summary}.
 %
 %{\bf add something more here?.}

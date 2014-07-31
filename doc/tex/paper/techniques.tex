@@ -132,12 +132,11 @@ the default settings in \fitter.
 
 %\vspace*{0.25cm}
 %\item{\bf{}Fast grid technique:}
-\subsection{Fast Grid Techniques}
+\subsection{\emph{Fast Grid} Techniques}
 
-  Fast grid techniques exploit the factorisable nature of the cross sections and 
-  the fact that iterative PDF fitting
-  procedures do not impose completely arbitrary change in the shape
-  of the parameterised functions that represent each PDF\@.
+  \emph{Fast grid} techniques exploit the fact that iterative PDF fitting
+  procedures do not impose completely arbitrary changes to the types
+  and shapes of the parameterised functions that represent each PDF\@.
   Instead, it can be assumed that a generic PDF can be approximated by
   a set of interpolating functions with a sufficient number of
 %  strategically well-chosen 
@@ -167,10 +166,10 @@ support points. The
   such as DY, heavy quark pair production is association with boson production, etc.
   While differing in their interpolation
   and optimisation strategies, both packages construct tables with
-  grids for each bin of an observable in two steps: In the first step,
+  grids for each bin of an observable in two steps: in the first step,
   the accessible phase space in the parton momentum fractions $x$ and
   the renormalisation and factorisation scales \mur and \muf is
-  explored in order to optimize the table size. The second step
+  explored in order to optimise the table size. The second step
   consists of the actual grid filling for the
   requested observables. Higher-order cross sections can then be
   restored very efficiently from the pre-produced grids while varying
@@ -189,8 +188,8 @@ support points. The
     NLO~\cite{Nagy:2003tz,Nagy:2001fj}. To demonstrate the
     applicability to higher-orders, threshold corrections at 2-loop
     order, which approximate the NNLO for the inclusive jet cross
-    section, have been included into the framework as
-    well~\cite{Wobisch:2011ij} following Ref.~\cite{Kidonakis:2000gi}.
+    section, have been included into the framework \cite{Wobisch:2011ij} 
+    following Ref.~\cite{Kidonakis:2000gi}.
     % KR: Maybe not necessary to include in a HERAFitter document
     % Recently it was shown~\cite{Kumar:2013hia,deFlorian:2013qia},
     % however, that in particular for the LHC the jet size $R$
@@ -201,9 +200,9 @@ support points. The
     creation of tables where renormalisation and factorisation scales
     can be varied as a function of two pre-defined observables, e.g.\ jet
     transverse momentum \pperp and $Q$ for DIS\@. 
-    The \fastnlo code is available online and the
+    The \fastnlo code is available online \cite{fastNLO:HepForge} where also the
     jet cross-section grids computed for kinematics of various experiments
-    can be downloaded as well~\cite{fastNLO:HepForge}.
+    can be downloaded.
 %    The latest release is compatible with \lhapdf
 %    versions 5 or 6, includes the \as evolution package
 %    \crundec~\cite{Schmidt:2012az}, and can also be linked to use the
@@ -260,12 +259,12 @@ support points. The
 %both \applgrid for NLO calculations  and the $k$-factor approach for correction to NNLO 
     is displayed in
     Fig.~\ref{fig:atlas} together with the comparison to global PDF
-    sets CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf}.
+    sets CT10~\cite{CT10pdf} and NNPDF2.1~\cite{NNPDFpdf} (taken from \cite{atlas:strange}).
 
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=8cm]{atlas.pdf}
-  \caption{The strange anti-quark density versus $x$ for the ATLAS
+  \caption{The strange antiquark density versus $x$ for the ATLAS
     epWZ free sbar NNLO fit \cite{atlas:strange} (magenta band) compared to predictions
     from NNPDF2.1 (blue hatched) and CT10 (green hatched) 
     at $Q^2 = 1.9\ \GeV^2$. The ATLAS fit was performed using a $k$-factor approach 

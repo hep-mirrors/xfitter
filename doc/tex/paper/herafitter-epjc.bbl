@@ -1,4 +1,4 @@
-\begin{thebibliography}{132}
+\begin{thebibliography}{135}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -91,77 +91,6 @@
   \bibinfo{journal}{Ann.Rev.Nucl.Part.Sci.} \textbf{\bibinfo{volume}{63}},
   \bibinfo{pages}{291} (\bibinfo{year}{2013}), [\eprint{arXiv:1301.6754}].
 
-\bibitem[{\citenamefont{Gribov and
-  Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
-\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
-  \bibinfo{pages}{438} (\bibinfo{year}{1972}{\natexlab{a}}).
-
-\bibitem[{\citenamefont{Gribov and
-  Lipatov}(1972{\natexlab{b}})}]{Gribov:1972rt}
-\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
-  \bibinfo{pages}{675} (\bibinfo{year}{1972}{\natexlab{b}}).
-
-\bibitem[{\citenamefont{Lipatov}(1975)}]{Lipatov:1974qm}
-\bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov. J. Nucl. Phys.} \textbf{\bibinfo{volume}{20}},
-  \bibinfo{pages}{94} (\bibinfo{year}{1975}).
-
-\bibitem[{\citenamefont{Dokshitzer}(1977)}]{Dokshitzer:1977sg}
-\bibinfo{author}{\bibfnamefont{Y.~L.} \bibnamefont{Dokshitzer}},
-  \bibinfo{journal}{Sov.\ Phys.\ JETP} \textbf{\bibinfo{volume}{46}},
-  \bibinfo{pages}{641} (\bibinfo{year}{1977}).
-
-\bibitem[{\citenamefont{Altarelli and Parisi}(1977)}]{Altarelli:1977zs}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Altarelli}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Parisi}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
-  \bibinfo{pages}{298} (\bibinfo{year}{1977}).
-
-\bibitem[{\citenamefont{Aad \emph{et~al.}}(2012{\natexlab{b}})}]{atlas:strange}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
-  \bibinfo{journal}{Phys. Rev. Lett.} \textbf{\bibinfo{volume}{109}},
-  \bibinfo{pages}{012001} (\bibinfo{year}{2012}{\natexlab{b}}),
-  [\eprint{arXiv:1203.4051}].
-
-\bibitem[{\citenamefont{Aad \emph{et~al.}}(2013{\natexlab{a}})}]{atlas:jets}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
-  \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{73}},
-  \bibinfo{pages}{2509} (\bibinfo{year}{2013}{\natexlab{a}}),
-  [\eprint{arXiv:1304:4739}].
-
-\bibitem[{\citenamefont{Aad \emph{et~al.}}(2013{\natexlab{b}})}]{atlas:hm}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
-  \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B725}},
-  \bibinfo{pages}{223} (\bibinfo{year}{2013}{\natexlab{b}}),
-  [\eprint{arXiv::1305.4192}].
-
-\bibitem[{\citenamefont{Chatrchyan
-  \emph{et~al.}}(2014{\natexlab{a}})}]{cms:strange}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
-  \bibinfo{journal}{submitted to Phys. Rev.} \textbf{\bibinfo{volume}{D}}
-  (\bibinfo{year}{2014}{\natexlab{a}}), [\eprint{arXiv:1312.6283}].
-
-\bibitem[{\citenamefont{Aaron \emph{et~al.}}(2012)}]{h1:2012kk}
-\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 Collaboration}],
-  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1209}}, \bibinfo{pages}{061}
-  (\bibinfo{year}{2012}), [\eprint{arXiv:1206.7007}].
-
-\bibitem[{\citenamefont{Abramowicz \emph{et~al.}}(2013)}]{h1zeus:charm}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Abramowicz}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 and ZEUS
-  Collaborations}], \bibinfo{journal}{Eur. Phys. J.}
-  \textbf{\bibinfo{volume}{C73}}, \bibinfo{pages}{2311} (\bibinfo{year}{2013}),
-  [\eprint{arXiv:1211.1182}].
-
 \bibitem[{\citenamefont{Martin \emph{et~al.}}(2009)\citenamefont{Martin,
   Stirling, Thorne, and Watt}}]{MSTWpdf}
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Martin}},
@@ -204,6 +133,36 @@
   \bibnamefont{and} \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Reya}},
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
   \bibinfo{pages}{074049} (\bibinfo{year}{2014}), [\eprint{arXiv:1403.1852}].
+
+\bibitem[{\citenamefont{Gribov and
+  Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
+\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
+  \bibinfo{pages}{438} (\bibinfo{year}{1972}{\natexlab{a}}).
+
+\bibitem[{\citenamefont{Gribov and
+  Lipatov}(1972{\natexlab{b}})}]{Gribov:1972rt}
+\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
+  \bibinfo{pages}{675} (\bibinfo{year}{1972}{\natexlab{b}}).
+
+\bibitem[{\citenamefont{Lipatov}(1975)}]{Lipatov:1974qm}
+\bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov. J. Nucl. Phys.} \textbf{\bibinfo{volume}{20}},
+  \bibinfo{pages}{94} (\bibinfo{year}{1975}).
+
+\bibitem[{\citenamefont{Dokshitzer}(1977)}]{Dokshitzer:1977sg}
+\bibinfo{author}{\bibfnamefont{Y.~L.} \bibnamefont{Dokshitzer}},
+  \bibinfo{journal}{Sov.\ Phys.\ JETP} \textbf{\bibinfo{volume}{46}},
+  \bibinfo{pages}{641} (\bibinfo{year}{1977}).
+
+\bibitem[{\citenamefont{Altarelli and Parisi}(1977)}]{Altarelli:1977zs}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Altarelli}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Parisi}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
+  \bibinfo{pages}{298} (\bibinfo{year}{1977}).
 
 \bibitem[{\citenamefont{Botje}(2010)}]{qcdnum}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}} (\bibinfo{year}{2010}),
@@ -500,11 +459,11 @@
   \bibinfo{pages}{122003} (\bibinfo{year}{2002}), [\eprint{hep-ph/0110315}].
 
 \bibitem[{\citenamefont{Chatrchyan
-  \emph{et~al.}}(2014{\natexlab{b}})}]{cms:top}
+  \emph{et~al.}}(2014{\natexlab{a}})}]{cms:top}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
   \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B728}},
-  \bibinfo{pages}{496} (\bibinfo{year}{2014}{\natexlab{b}}),
+  \bibinfo{pages}{496} (\bibinfo{year}{2014}{\natexlab{a}}),
   [\eprint{arXiv:1307.1907}].
 
 \bibitem[{\citenamefont{Czakon \emph{et~al.}}(2013)\citenamefont{Czakon,
@@ -611,6 +570,13 @@
 \bibitem[{\citenamefont{http://applgrid.hepforge.org}()}]{APPLGRID:HepForge}
 \bibinfo{author}{\bibnamefont{http://applgrid.hepforge.org}},
   \urlprefix\url{http://applgrid.hepforge.org}.
+
+\bibitem[{\citenamefont{Aad \emph{et~al.}}(2012{\natexlab{b}})}]{atlas:strange}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
+  \bibinfo{journal}{Phys. Rev. Lett.} \textbf{\bibinfo{volume}{109}},
+  \bibinfo{pages}{012001} (\bibinfo{year}{2012}{\natexlab{b}}),
+  [\eprint{arXiv:1203.4051}].
 
 \bibitem[{\citenamefont{Glazov \emph{et~al.}}(2011)\citenamefont{Glazov, Moch,
   and Radescu}}]{Chebyshev}
@@ -866,10 +832,56 @@
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}}
   (\bibinfo{year}{2012}), [\eprint{arXiv:1206.1796}].
 
+\bibitem[{\citenamefont{Chatrchyan
+  \emph{et~al.}}(2014{\natexlab{b}})}]{cms:strange}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
+  \bibinfo{journal}{submitted to Phys. Rev.} \textbf{\bibinfo{volume}{D}}
+  (\bibinfo{year}{2014}{\natexlab{b}}), [\eprint{arXiv:1312.6283}].
+
+\bibitem[{\citenamefont{Aad \emph{et~al.}}(2013{\natexlab{a}})}]{atlas:hm}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
+  \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B725}},
+  \bibinfo{pages}{223} (\bibinfo{year}{2013}{\natexlab{a}}),
+  [\eprint{arXiv:1305.4192}].
+
+\bibitem[{\citenamefont{Aad \emph{et~al.}}(2014{\natexlab{a}})}]{Aad:2014qja}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1406}}, \bibinfo{pages}{112}
+  (\bibinfo{year}{2014}{\natexlab{a}}), [\eprint{arXiv:1404.1212}].
+
+\bibitem[{\citenamefont{Aad \emph{et~al.}}(2014{\natexlab{b}})}]{Aad:2014xca}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1405}}, \bibinfo{pages}{068}
+  (\bibinfo{year}{2014}{\natexlab{b}}), [\eprint{arXiv:1402.6263}].
+
+\bibitem[{\citenamefont{Aad \emph{et~al.}}(2013{\natexlab{b}})}]{atlas:jets}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
+  \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{73}},
+  \bibinfo{pages}{2509} (\bibinfo{year}{2013}{\natexlab{b}}),
+  [\eprint{arXiv:1304:4739}].
+
+\bibitem[{\citenamefont{Aaron \emph{et~al.}}(2012)}]{h1:2012kk}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 Collaboration}],
+  \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1209}}, \bibinfo{pages}{061}
+  (\bibinfo{year}{2012}), [\eprint{arXiv:1206.7007}].
+
+\bibitem[{\citenamefont{Abramowicz \emph{et~al.}}(2013)}]{h1zeus:charm}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Abramowicz}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 and ZEUS
+  Collaborations}], \bibinfo{journal}{Eur. Phys. J.}
+  \textbf{\bibinfo{volume}{C73}}, \bibinfo{pages}{2311} (\bibinfo{year}{2013}),
+  [\eprint{arXiv:1211.1182}].
+
 \bibitem[{\citenamefont{Abramowicz \emph{et~al.}}(2014)}]{Abramowicz:2014zub}
 \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Abramowicz}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ZEUS Collaboration}]
-  (\bibinfo{year}{2014}), [\eprint{1405.6915}].
+  (\bibinfo{year}{2014}), [\eprint{arXiv:1405.6915}].
 
 \bibitem[{\citenamefont{Hautmann and Jung}(2013)}]{Jung2014}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
@@ -890,6 +902,17 @@
 \bibitem[{atl()}]{atlas:grids}
 \emph{\bibinfo{title}{{ATLAS NNLO epWZ12}}}, \bibinfo{note}{available via:
   http://lhapdf.hepforge.org/pdfsets}.
+
+\bibitem[{\citenamefont{Butterworth
+  \emph{et~al.}}(2014)\citenamefont{Butterworth, Dissertori, Dittmaier,
+  de~Florian, Glover \emph{et~al.}}}]{Butterworth:2014efa}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Butterworth}},
+  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Dissertori}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Dittmaier}},
+  \bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{de~Florian}},
+  \bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Glover}},
+  \bibnamefont{\emph{et~al.}} (\bibinfo{year}{2014}),
+  [\eprint{arXiv:1405.1067}].
 
 \bibitem[{\citenamefont{Abelleira~Fernandez
   \emph{et~al.}}(2012)}]{lhec:studies}

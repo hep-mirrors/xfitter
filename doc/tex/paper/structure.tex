@@ -1,11 +1,13 @@
 %
 \label{sec:structure}
 
-\fitter is a flexible open-source platform for the QCD analyses of different experimental measurements, 
-providing a versatile environment for benchmarking studies. It is widely used within the
-LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,h1:2012kk,h1zeus:charm}.  
+%\fitter is a flexible open-source platform for the QCD analyses of different experimental measurements, 
+%providing a versatile environment for benchmarking studies. It is widely used within the
+%LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,h1:2012kk,h1zeus:charm}.  
 
-The functionality of \fitter is schematically illustrated in Fig.~\ref{fig:flow} and it can be divided into four main blocks: %{\bf needs to update figure!}
+In this section the functionality of \fitter is described.
+A block diagram in Fig \ref{fig:flow} illustrates the schamatical view
+of the \fitter functionality which can be divided into four main blocks:
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
@@ -45,14 +47,14 @@ The processes that are currently available in \fitter framework are listed in Ta
 \textbf{Data}         &        &                &\textbf{calculations, schemes}  \\
 \hline \hline \\ [-2.5ex]
 %\multirow{6}{*}{HERA} &DIS NC   &$ep\to eX$      & TR', ACOT \\
-HERA  &DIS NC   &$ep\to eX$      & TR$^\prime$, ACOT \\
-Fixed Target     &         &                & ZM (\qcdnum) \\
+HERA, &DIS NC   &$ep\to eX$      & TR$^\prime$, ACOT, \\
+Fixed Target     &         &                & ZM (\qcdnum), \\
      &         &                & FFN (\texttt{OPENQCDRAD}, \\
      &         &                & \qcdnum), \\ 
      &         &                & TMD (uPDFevolv) \\ [0.5ex]
 \hline \\ [-2.5ex]
 %\cline{2-4}  \\ [-2.0ex]
-HERA &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\qcdnum) \\
+HERA &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\qcdnum), \\
      &         &                & FFN (\texttt{OPENQCDRAD)} \\  [0.5ex]
 \cline{2-4}  \\ [-2.0ex]
      &DIS jets &$ep\to e\ \mathrm{jets}X$      & \nlojetpp (\fastnlo)\\ [0.5ex]
@@ -67,7 +69,7 @@ HERA &DIS CC   &$ep\to \nu_e X$ & ACOT, ZM (\qcdnum) \\
 %     &         &                & FFN (\texttt{OPENQCDRAD}, \\
 %     &         &                & \qcdnum) \\  [0.5ex]
 %\hline \\ [-2.5ex]
-Tevatron&Drell-Yan &$pp(\bar p)\to l\bar l X$, & \mcfm (\applgrid) \\
+Tevatron,&Drell-Yan &$pp(\bar p)\to l\bar l X$, & \mcfm (\applgrid) \\
 LHC              &          &$pp(\bar p)\to l\nu  X$ &                 \\ [0.5ex]
 \cline{2-4}  \\ [-2.0ex]
 %Tevatron, LHC &W charge asym &$pp(\bar p) \to l\nu X$ & MCFM (\texttt{APPLGRID}) \\
@@ -100,10 +102,10 @@ the factorisation approach (Eq.~\ref{eq:fact}). The PDFs are parametrised at a s
 by a chosen functional form with a set of free parameters $\vec{p}$. 
 These PDFs are evolved to the scale of the measurement $Q^2$, $Q^2>Q_0^2$.
 The evolution follows either DGLAP \cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
-Dokshitzer:1977sg, Altarelli:1977zs} (as implemented in \qcdnum~\cite{qcdnum}), CCFM \cite{\CCFM} 
+Dokshitzer:1977sg, Altarelli:1977zs} (as implemented in \qcdnum~\cite{qcdnum}) or CCFM \cite{\CCFM} 
 (as implemented in \texttt{uPDFevolv}~\cite{tmdlref2}).
 %or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
-The prediction of a particular process cross section is obtained by a convolution of the evolved 
+The prediction of a cross section of a particular process is obtained by a convolution of the evolved 
 PDFs and the partonic cross section, calculated at a certain order in QCD 
 with a appropriate theory calculation (as listed in Tab.~\ref{tab:proc}).
 %from $Q_0^2$ to the scale of the measurement using the 
@@ -139,12 +141,12 @@ assumptions for the distributions of the systematic uncertainties, like Gauss, L
 \paragraph{Results:} \rm 
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
 The resulting PDFs are provided in a format ready to be used by the \lhapdf 
-library~\cite{lhapdf,lhapdfweb} (or by \tmdlib \cite{tmdlref}).
+library~\cite{lhapdf,lhapdfweb} or by \tmdlib \cite{tmdlref}.
 \fitter drawing tools can be used to display the PDFs with their uncertainties at a chosen scale.  
 %Drawing tools are supplied which allow the PDFs to be
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
 As an example, a first set of PDFs extracted using \fitter from HERA I data, HERAPDF1.0 \cite{h1zeus:2009wt}, 
-is shown in Fig.~\ref{fig:hera1}.
+is shown in Fig.~\ref{fig:hera1} (taken from \cite{h1zeus:2009wt}).
 %%%Since then several other PDF sets were produced within the HERA \cite{hera:grids} and LHC \cite{atlas:grids} collaborations.
 %In addition to the PDF display, 
 %The comparison of data used in the fit to the theory predictions are also produced. 
@@ -155,7 +157,7 @@ is shown in Fig.~\ref{fig:hera1}.
    \includegraphics[width=8cm]{hera1.pdf}
    \caption{Distributions of valence ($xu_v$, $xd_v$), sea ($xS$) and the gluon ($g$) densities in HERAPDF1.0~\cite{h1zeus:2009wt}. 
        The gluon and the sea distributions are scaled down by a factor of 20.
-       The experimental, model and parametrisation uncertainties are shown as colored bands.}
+       The experimental, model and parametrisation uncertainties are shown as coloured bands.}
        %Summary plots of valence ($xu_v$, $xd_v$), total sea ($xS$, scaled) and gluon ($xg$, scaled) densities
        %with their experimental, model and parametrisation uncertainties shown as colored bands at the scale 
        %of $Q^2=10 \ \GeV^2$ for the HERAPDF1.0 PDF set~\cite{h1zeus:2009wt}.}

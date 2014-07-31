@@ -23,20 +23,20 @@ DGLAP \cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarel
 %integro-differential equations known as 
 %DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs} (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi) equations:
 
-\begin{small}
 \begin{eqnarray}
-\frac{d~f_i(x,\mur,\muf)}{d \log\muf^2} = \sum_{j=q\bar{q},g}\int_{x}^{1}\frac{d y}{y} 
-P_{ij}\left(\frac{x}{y};\alpha_s,\mur,\muf\right) f_j(y,\mur,\muf)\,,
+%\frac{d~f_i(x,\mur,\muf)}{d \log\muf^2} = \sum_{j=q\bar{q},g}\int_{x}^{1}\frac{d y}{y} 
+%P_{ij}\left(\frac{x}{y};\alpha_s,\mur,\muf\right) f_j(y,\mur,\muf)\,,
+\frac{d~f_a(x,\muf^2)}{d \log\muf^2} = \sum_{b=q\bar{q},g}\int_{x}^{1}\frac{d z}{z} 
+P_{ab}\left(\frac{x}{z};\muf^2\right) f_b(z,\muf^2)\,,
 \label{eq:dglap}
 \end{eqnarray}
-\end{small}
+%
+where the functions $P_{ab}$ are the evolution kernels or splitting functions, which represent the probability 
+of finding parton $a$ in parton $b$, and have perturbative expansion in $\alpha_s$. 
+%The analytic structure of $P_{ij}$ is known at 3-loop in perturbation theory and can be found in the literature. 
 
-where the functions $P_{ij}$ are the evolution kernels or splitting functions, which represent the probability 
-of finding parton $i$ in parton $j$, and have perturbative expansion in $\alpha_s$. 
-The analytic structure of $P_{ij}$ is known at 3-loop in perturbation theory and can be found in the literature. 
-
-Once PDFs are determined by a direct comparison with the experiments at the initial
-scale $Q_0$, their evolution at the scale $\mu$ is entirely determined by DGLAP equations.
+Once PDFs are determined by a direct comparison with the experimental data at the initial
+scale $Q_0^2$, their evolution at the scale $Q^2 > Q_0^2$ is entirely determined by DGLAP equations.
 Alternative approaches to DGLAP evolution, valid in different kinematic regimes, are also implemented in \fitter and will be discussed in the next sections.
 
 
@@ -54,7 +54,7 @@ Alternative approaches to DGLAP evolution, valid in different kinematic regimes,
 
 DIS data provide the backbone of any PDF fit.
 The for\-ma\-lism that relates the DIS measurements to pQCD and the PDFs has been described
-in detail in many extensive reviews (see e.g.~\cite{disbook}) and it is only briefly summarised here.
+in detail in many extensive reviews (see e.g. Ref. \cite{disbook}) and it is only briefly summarised here.
 DIS is the process where a lepton scatters off the constituents of the proton
 by a virtual exchange of a NC 
 or CC vector boson and, as a result, a scattered lepton and a 
@@ -95,8 +95,7 @@ only at high $y$.
 %gluon.
 \\
 The inclusive CC $ep$ cross section, analogous to the NC case, can be expressed in terms of another set 
-of structure functions and in LO in $\alpha_s$, the $e^+p$ and $e^-p$ cross sections are sensitive to 
-different combinations of the quark flavour densities:
+of structure functions:
 \begin{eqnarray}
 \centering
 %  \nonumber
@@ -110,6 +109,8 @@ different combinations of the quark flavour densities:
 %    \end{array}
 \end{eqnarray}
 where $P$ represents the lepton beam polarisation and $\tilde W_2$, $\tilde W_3$,$\tilde W_L$ are structure functions.
+At LO in $\alpha_s$, the CC $e^+p$ and $e^-p$ cross sections are sensitive to 
+different combinations of the quark flavour densities.
 %Here $U$ and $D$ denote the sum over up- and down-type quarks;
 %the latter include also strange and beauty quarks and 
 %the former charm quarks.
@@ -120,7 +121,7 @@ The QCD predictions for the DIS structure functions are obtained by convoluting
 the PDFs with the respective coefficient functions. 
 
 The DIS measurements
-span a large range of $Q^2$ from few GeV$^2$ to about $10^5$ GeV$^2$,
+span a large range of $Q^2$ from few $\GeV^2$ to about $10^5$ $\GeV^2$,
 %from low to high $Q^2$
 crossing heavy-quark mass thresholds, thus the
 treatment of heavy quarks (charm and beauty) and of their masses becomes important. 
@@ -130,7 +131,7 @@ Several variants of these schemes are implemented in \fitter and they are briefl
 
 
 %\begin{description}
-\paragraph{Zero-Mass Variable Flavour Number (ZM-VFN)\cite{ZMVFNpub}:}
+\paragraph{Zero-Mass Variable Flavour Number (ZM-VFN)\rm \cite{ZMVFNpub}:}
 
 In this scheme, the
 heavy quark densities appear in the proton at $Q^2$ values above $\sim m_h^2$ (heavy quark mass)
@@ -220,7 +221,7 @@ This scheme unifies the low scale $Q^2 < m_h^2$ and high scale $Q^2 > m_h^2$ reg
 %% is this sentence below is important?
 %%The DGLAP kernels and PDF evolution are pure $\overline{\text{MS}}$, 
 %%therefore, the ACOT scheme is considered to be a minimal extension of the $\overline{\text{MS}}$ scheme.
-Within the \tt ACOT\rm package, different variants of the ACOT scheme are available:
+Within the ACOT package, different variants of the ACOT scheme are available:
 ACOT-Full \cite{Aivazis:1993pi}, S-ACOT-$\chi$ \cite{Kramer:2000hn,Kretzer:2003it}, ACOT-ZM \cite{Aivazis:1993pi}, 
 $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
@@ -229,7 +230,7 @@ For the longitudinal structure function higher order calculations are also avail
 %but it has the disadvantage that it is computationally intensive (addressed in 
 %section~\ref{sec:techniques}).
 A comparison of PDFs extracted from the QCD fits to the HERA data 
-with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt} as taken from \cite{h1zeus:2009wt}.
+with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt} (taken from \cite{h1zeus:2009wt}).
 
 \begin{figure}[!ht]
 \centering
@@ -443,7 +444,7 @@ probe bi-linear combinations of quarks.
 Complementary information on the different quark densities
 can be obtained from the $W$ asymmetry ($d$, $u$ and their ratio),
 the ratio of the $W$ and $Z$ cross sections (sensitive to the flavour 
-composition of the quark sea, in particular to the $s$ density), 
+composition of the quark sea, in particular to the $s$-quark density), 
 and associated $W$ and $Z$ production with
 heavy quarks (sensitive to $s$- and $c$-quark densities).
  Measurements at large boson $p_T\gtrsim M_{W,Z}$ are potentially sensitive to the gluon density~\cite{Malik:2013kba}.
@@ -460,15 +461,15 @@ The LO DY for NC triple differential cross section in invariant mass \(M\), boso
 and lepton scattering angle \(\cos\theta\) in the parton c.o.m. frame can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{align}
 % \scriptstyle
- \textstyle
+% \textstyle
 % \frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &= 
  \frac{d^3\sigma}{dM{d}y d\cos\theta} =  
- \frac{\pi\alpha^2}{3MS}\sum_{q}P_q \left[f_q(x_1,Q^2)f_{\bar{q}}(x_2,Q^2) 
+ \frac{\pi\alpha^2}{3MS}\sum\limits_{q}\hat{\sigma}^{q} \left[f_q(x_1,Q^2)f_{\bar{q}}(x_2,Q^2) 
  + (q\leftrightarrow\bar{q})\right],
 \end{align}
 where \(S\) is the squared c.o.m. beam energy, \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,Q^2)$ 
 are the quark distribution functions, and 
-$P_q$ is a partonic cross section. 
+$\hat{\sigma}^{q}$ is a partonic cross section. 
 %\begin{align}
 %  P_q &=  e_l^2e_q^2(1+\cos^2\theta) \nonumber \\
 %      &+  e_le_q\frac{2M^2(M^2-M_Z^2)}{\sin^2\theta_W\cos^2\theta_W
@@ -524,7 +525,7 @@ predictions for DY production in \fitter.
 
 The NLO and NNLO calculations are computing power and time consuming
 %highly demanding in terms of the computing power and time, 
-and $k$-factor or fast grid techniques must be employed (see section~\ref{sec:techniques}
+and $k$-factor or \emph{fast grid} techniques must be employed (see section~\ref{sec:techniques}
 for details), interfaced to programs such as
 \texttt{MCFM}~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}, 
 available for NLO calculations, or 
@@ -555,7 +556,7 @@ available for NLO calculations, or
 
 Cross section for production of the high-transverse-momentum hadronic jets
 is sensitive to the high-$x$ gluon 
-PDF (see e.g.~\cite{MSTWpdf}) 
+PDF (see e.g. Ref.~\cite{MSTWpdf}) 
 therefore this process can be used to improve determination of the gluon PDF,
 %and can thus increase the precision of the 
 %gluon PDF determination, 
@@ -568,7 +569,7 @@ Within \fitter, the \nlojetpp program \cite{Nagy:1998bb,Nagy:2001fj} may be used
 calculations of jet production.
 Similarly to the DY case, the calculation 
 is very demanding in terms of computing power. 
-Therefore fast grid techniques are used  
+Therefore \emph{fast grid} techniques are used  
 to facilitate the QCD analyses including jet cross section measurements.
 %to efficiently perform PDF and
 %$\alpha_S$ fits of jet cross section measurements 
@@ -598,7 +599,7 @@ to full NNLO~\cite{Czakon:2013goa}. They can be computed within \fitter via an i
 to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. Differential $t \bar t$ cross section
 predictions can be used with
 \texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
-at NLO accuracy interfaced to \fitter with fast grid techniques.
+at NLO accuracy interfaced to \fitter with \emph{fast grid} techniques.
 
 Single top quarks are produced via electroweak interactions and single-top cross sections 
 can be used, for example, to probe the ratio of the $u$ and $d$ densities in the proton 
