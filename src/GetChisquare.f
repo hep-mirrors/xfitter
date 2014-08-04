@@ -1677,7 +1677,7 @@ C Create list first:
             endif
          enddo
 
-         print *,iCovType,Icovbit,NCovar
+c         print *,iCovType,Icovbit,NCovar
 
          if (NCovar.eq.0) then
             cycle   ! nothing to be done
