@@ -43,7 +43,7 @@ C---------------------------------------
       enddo
 c     Returrn zero if x range falls below qcdnum grid xmin values (to avoid large weights)
       if ( x .lt. xmin_grid(1) .or. x .gt. 1d0-1d-7 ) then 
-          Call HF_ERRLOG(06021418,
+          Call HF_ERRLOG(14060218,
      $'W: x value below xmin in qcdnum grid, applgrid weight set to 0')
           return
       endif
