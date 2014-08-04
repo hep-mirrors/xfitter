@@ -114,12 +114,6 @@ C Get omega (quadratic term coefficient):
          enddo
       enddo
 
-      do i=1,npoints
-         ALPHA(i) = ALPHA(i) / 100.
-C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-C         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
-      enddo
-
 
 *     ----------------------------------------------------------------------
 
@@ -136,7 +130,7 @@ C         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
 
       if (LDebug) then
 C
-C Dump beta,alpha matricies
+C Dump beta matrix
 C
          open (61,file='beta.dat',status='unknown')
          do k=1,npoints
@@ -174,11 +168,22 @@ C Also re-set uncorrelated errors:
             e_uncor_const(k)  = UncorConstNew(k)
             e_stat_const(k)   = StatConstNew(k)
             e_uncor_poisson(k) = UncorPoissonNew(k)
-            
+
          enddo
       else
          NSys = NSysSave
       endif
+
+C Calculate alpha:
+      do k=1,npoints
+         alpha(k) =  sqrt(e_uncor_mult(k)**2
+     $        +e_stat_poisson(k)**2
+     $        +e_uncor_const(k)**2
+     $        +e_stat_const(k)**2
+     $        +e_uncor_poisson(k)**2)
+     $        *daten(k)
+      enddo
+
 
 !
 !  Split control/fit sample:
@@ -772,9 +777,6 @@ C XXXXXXXXXXXXXXXXXXXXXXXXX
          do i=1,NBinDimension
             AbstractBins(i,npoints) = allbins(i,j)
          enddo
-
-         ALPHA(npoints) = sqrt(UncorError**2+StatError**2
-     $        +StatErrorConst**2)*DATEN(npoints)
 
 
 C Reset:
