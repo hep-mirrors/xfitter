@@ -382,10 +382,10 @@ c             call fillvfngrid
 
 
 * -----------------------------------------------------------
-*     Toy MC samples based on predictions:
+*     Toy MC samples:
 * -----------------------------------------------------------
 
-      if (IFlag.eq.1 .and. lrand .and. .not. LRandData) then
+      if (IFlag.eq.1 .and. lrand) then
          call MC_Method()
       endif 
 

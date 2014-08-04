@@ -122,9 +122,6 @@ C         if (alpha(i).le.0) write(6,*) 'alpha(i) = 0 for point ',i
 
 
 *     ----------------------------------------------------------------------
-*     -- CTEQ-like chi2 :
-*     -- compute the matrix (A) as given in Eq. (B.4) of JHEP07 (2002) 012
-*     -- This is the matrix "sysa" in common/systema/
 
 * prepare correlations
       call prep_corr
@@ -149,11 +146,23 @@ C
       endif
 
 C
-C MC method: fluctuate data according to their uncertainteis.
+C Check if MC method is requested and some of the uncertainties given
+C using covariance matrix. In this case LConvertCotToNui is set to true
+C and warrning message is issued.
 C
-      if (lrand .and. lranddata) then
-         call MC_method()
+      if (LRand) then
+         if (NSys .ne. NSysSave) then
+            if (.not. LConvertCovToNui ) then
+               LConvertCovToNui = .true.
+               call hf_errlog(14080401,
+     $              'W: READ_DATA: MC method requested for cov. info.'
+     $              //' Set LConvertCovToNui to true')
+            endif
+         endif
       endif
+C
+C MC method moved to fcn.f
+C
 
 * 
       IF (LConvertCovToNui) then
