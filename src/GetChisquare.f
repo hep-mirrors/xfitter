@@ -1735,8 +1735,10 @@ C Define the scaling property based on the first point:
          if ((iCovBit.eq.iCovSyst).or.(iCovBit.eq.iCovSystCorr))   then
                   ! Multiplicative is default for syst.
             name_t = ':M'
-         else
-                  ! Additive is for stat. and full
+         elseif ( (iCovBit.eq.iCovStatCorr) ) then
+                  ! Poisson is default for stat. 
+            name_t = ':P'
+         else                   ! Additive is defualt for full
             name_t = ':A'
          endif
 
