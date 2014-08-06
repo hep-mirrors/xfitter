@@ -1,4 +1,4 @@
-\begin{thebibliography}{135}
+\begin{thebibliography}{134}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -197,11 +197,13 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{445}},
   \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{a}}).
 
-\bibitem[{\citenamefont{Jung \emph{et~al.}}(2014{\natexlab{a}})}]{tmdlref2}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
-  \bibnamefont{\emph{et~al.}}, \emph{\bibinfo{title}{{The CCFM uPDF
-  evolution}}} (\bibinfo{year}{2014}{\natexlab{a}}),
-  \bibinfo{note}{{DESY-14-060}}.
+\bibitem[{\citenamefont{Hautmann \emph{et~al.}}(2014)\citenamefont{Hautmann,
+  Jung, and Monfared}}]{tmdlref2}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.~T.} \bibnamefont{Monfared}}
+  (\bibinfo{year}{2014}), \bibinfo{note}{{DESY-14-060}},
+  [\eprint{arXiv:1407.5935}].
 
 \bibitem[{\citenamefont{Golec-Biernat and
   W\"usthoff}(1999)}]{Golec-Biernat:1998js}
@@ -253,12 +255,11 @@
 \bibitem[{lha()}]{lhapdfweb}
 \emph{\bibinfo{title}{{LHAPDF}}}, \urlprefix\url{http://lhapdf.hepforge.org}.
 
-\bibitem[{\citenamefont{Jung \emph{et~al.}}(2014{\natexlab{b}})}]{tmdlref}
+\bibitem[{\citenamefont{Jung \emph{et~al.}}(2014)}]{tmdlref}
 \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
   \bibnamefont{\emph{et~al.}}, \emph{\bibinfo{title}{{TMDlib and TMDplotter:
   library and plotting tools for Transverse Momentum Dependent parton
-  distributions}}} (\bibinfo{year}{2014}{\natexlab{b}}),
-  \bibinfo{note}{{DESY-14-059}}.
+  distributions}}} (\bibinfo{year}{2014}), \bibinfo{note}{{DESY-14-059}}.
 
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2010)}]{h1zeus:2009wt}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
@@ -882,11 +883,6 @@
 \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Abramowicz}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ZEUS Collaboration}]
   (\bibinfo{year}{2014}), [\eprint{arXiv:1405.6915}].
-
-\bibitem[{\citenamefont{Hautmann and Jung}(2013)}]{Jung2014}
-\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
-  (\bibinfo{year}{2013}), [\eprint{arXiv:1312.7875}].
 
 \bibitem[{\citenamefont{Sadykov}(2014)}]{Sadykov:2014aua}
 \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Sadykov}}
