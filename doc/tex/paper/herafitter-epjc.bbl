@@ -1,4 +1,4 @@
-\begin{thebibliography}{134}
+\begin{thebibliography}{137}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -64,11 +64,27 @@
   \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B716}},
   \bibinfo{pages}{30} (\bibinfo{year}{2012}), [\eprint{arXiv:1207.7235}].
 
-\bibitem[{\citenamefont{Collins}(2011)}]{Collins:2011zzd}
-\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Collins}},
-  \emph{\bibinfo{title}{{Foundations of perturbative QCD}}},
-  vol.~\bibinfo{volume}{32} (\bibinfo{publisher}{Cambridge monographs on
-  particle physics, nuclear physics and cosmology}, \bibinfo{year}{2011}).
+\bibitem[{\citenamefont{Collins and Soper}(1982)}]{Collins:1981uw}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{D.~E.} \bibnamefont{Soper}},
+  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B194}},
+  \bibinfo{pages}{445} (\bibinfo{year}{1982}).
+
+\bibitem[{\citenamefont{Collins \emph{et~al.}}(1984)\citenamefont{Collins,
+  Soper, and Sterman}}]{Collins:1983ju}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}},
+  \bibinfo{author}{\bibfnamefont{D.~E.} \bibnamefont{Soper}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{G.~F.} \bibnamefont{Sterman}},
+  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B134}},
+  \bibinfo{pages}{263} (\bibinfo{year}{1984}).
+
+\bibitem[{\citenamefont{Collins \emph{et~al.}}(1985)\citenamefont{Collins,
+  Soper, and Sterman}}]{Collins:1985ue}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}},
+  \bibinfo{author}{\bibfnamefont{D.~E.} \bibnamefont{Soper}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{G.~F.} \bibnamefont{Sterman}},
+  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B261}},
+  \bibinfo{pages}{104} (\bibinfo{year}{1985}).
 
 \bibitem[{\citenamefont{Collins \emph{et~al.}}(1988)\citenamefont{Collins,
   Soper, and Sterman}}]{Collins:1989gx}
@@ -78,6 +94,12 @@
   \bibinfo{journal}{Adv.Ser.Direct.High Energy Phys.}
   \textbf{\bibinfo{volume}{5}}, \bibinfo{pages}{1} (\bibinfo{year}{1988}),
   [\eprint{hep-ph/0409313}].
+
+\bibitem[{\citenamefont{Collins}(2011)}]{Collins:2011zzd}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Collins}},
+  \emph{\bibinfo{title}{{Foundations of perturbative QCD}}},
+  vol.~\bibinfo{volume}{32} (\bibinfo{publisher}{Cambridge monographs on
+  particle physics, nuclear physics and cosmology}, \bibinfo{year}{2011}).
 
 \bibitem[{\citenamefont{Perez and Rizvi}(2013)}]{Perez:2012um}
 \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Perez}} \bibnamefont{and}
