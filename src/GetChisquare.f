@@ -902,6 +902,8 @@ C Reset the matricies:
          A(i,i)  =  1.0D0
       enddo
 
+!$OMP PARALLEL DO
+
       do l=1,nsys
          if ( SysForm(l) .eq. isNuisance ) then
 C Start with "C"
@@ -965,6 +967,7 @@ C Diagonal error:
                         else
 C Covariance matrix:
                            i2 = list_covar_inv(i)
+
                            do j1=1,n_syst_meas(l)
                               j = syst_meas_idx(j1,l)
 C                            do j=i,n0_in
@@ -992,6 +995,8 @@ C                            do j=i,n0_in
             enddo
          endif
       enddo
+
+!$OMP END PARALLEL DO
 
 C
 C Under diagonal:
@@ -1152,12 +1157,11 @@ C 1) Pre-compute sums of systematic shifts:
          enddo        
       enddo
 
-
 C 2) Actual chi2 calculation:
+
       do i1=1,NCovar
          i = list_covar(i1)
          Chi2 = 0
-
          do j1 = 1, NCovar
             j = list_covar(j1)
             Chi2 = Chi2 + SumCov(i1)*SumCov(j1)*ScaledTotMatrix(i1,j1)
