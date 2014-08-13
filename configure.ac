@@ -55,7 +55,7 @@ AC_ARG_ENABLE([trapFPE],
   [AC_HELP_STRING(--enable-trapFPE, [Stop of floating point errors (default=no)])])
 if test x$enable_trapFPE == xyes; then
   echo "Add floating point trap"
-  FFLAGS="$FFLAGS -ffpe-trap='invalid,overflow' "
+  FFLAGS="$FFLAGS -ffpe-trap='invalid,overflow,zero' "
 fi
 
 # Check for check bounds flag
