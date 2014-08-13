@@ -1271,6 +1271,8 @@ C Initialisation:
             SysScalingType(i)  =  isLinear
          else if (CorSysScale .eq. 'NoRescale') then
             SysScalingType(i)  =  isNoRescale
+         else if (CorSysScale .eq. 'Poisson') then
+            SysScalingType(i)  =  isPoisson
          else if (CorSysScale .eq. 'LogNorm') then
             SysScalingType(i)  =  isLogNorm
             call hf_errlog(251120122,
