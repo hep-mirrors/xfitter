@@ -19,7 +19,8 @@ c Adapted from LHAPDF uncertainties.f
          lMonteCarlo = .true.
       else if ((name(:4).eq.'A02M').or.(name(:4).eq.'a02m')
      $        .or.(name(:6).eq.'ABKM09').or.(name(:6).eq.'abkm09')
-     $        .or.(name(:5).eq.'ABM11').or.(name(:5).eq.'abm11')
+     $        .or.(name(:5).eq.'ABM11')
+     $        .or.(name(:5).eq.'abm12')
      $     .or.(index(name,'EIGSYM').gt.0)
      $        ) then            ! symmetric eigenvector PDF sets
          lSymmhess = .true.
