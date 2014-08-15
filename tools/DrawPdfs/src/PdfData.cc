@@ -188,7 +188,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 	  Central[temppdf.GetQ2()] = temppdf;
 
 	  //Get Pdf errors if requested
-	  if (!opts.dobands)
+	  if (!opts.dobands && !outdirs[label].IsProfiled())
 	    continue;
   
 	  //Load PDF error sets
@@ -312,7 +312,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
       }
 
   //Compute PDF uncertainty bands
-  if (!opts.dobands)
+  if (!opts.dobands && !outdirs[label].IsProfiled())
     return;
 
   //Loop on q2 values
