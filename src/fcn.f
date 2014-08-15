@@ -386,8 +386,12 @@ c             call fillvfngrid
 * -----------------------------------------------------------
 
       if (IFlag.eq.1 .and. lrand) then
-         call MC_Method()
+         call MC_Method()         
       endif 
+
+      if (IFlag.eq.1) then
+         NSysData = NSys
+      endif
 
 *     ---------------------------------------------------------
 *     calculate chisquare

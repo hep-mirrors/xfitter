@@ -851,6 +851,7 @@ C Determine pairs of syst. uncertainties which share  data
          LFirst = .false.
          ResetCommonSyst = .false. 
 
+
          call expand_syst_lists(scaledtotmatrix,list_covar_inv,n0_in)
 
          do l=1,nsys
@@ -1035,6 +1036,20 @@ C Ready to invert
                endif
             endif
          enddo
+
+C Also dump correlation matrix for PDF eigenvectors, if present
+         if (iflag.eq.3) then
+            if (nsysdata.ne.nsys) then
+               open (52,file=trim(OutDirName)//'/pdf_vector_cor.dat'
+     $              ,status='unknown')
+               write (52,'(i3)') nsys-nsysdata
+               do l=nsysdata+1,nsys
+                  write (52,'(i3,200F8.4)')  l-nsysdata, (
+     $                 A(k,l)/ersys_in(k)/ersys_in(l),k=nsysdata+1,nsys)
+               enddo
+               close (52)
+            endif
+         endif
       endif
 C--------------------------------------------------------
       end

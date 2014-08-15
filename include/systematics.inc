@@ -4,6 +4,7 @@
       parameter (NSYSMAX = 300)          
 
       integer nSys                     !> Actual number of correlated systematic sources
+      integer nSysData             ! data systematics (not including PDFs)
 
       character*64 SYSTEM              !> Names of correlated systematic errors
       dimension SYSTEM(NSYSMAX) 
@@ -14,7 +15,7 @@
 
       double precision omega(NSYSMAX,NTOT)  !> Quadratic term for influence of syst. errors on measurements.
 
-      common/systema/ALPHA,ALPHA_MOD,BETA,sysa,SYSTEM,NSys
+      common/systema/ALPHA,ALPHA_MOD,BETA,sysa,SYSTEM,NSys, Nsysdata
 
       integer n_syst_meas(NSYSMAX)         ! !> Number of measurements syst. source affects
       integer syst_meas_idx(NTOT,NSYSMAX)  ! !> data points syst. source affects
