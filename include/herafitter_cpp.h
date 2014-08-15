@@ -39,7 +39,7 @@ extern"C" {
   //Covariance matrix to nuisance parameter conversion
   void getnuisancefromcovar_(const int& NDimCovar, const int& NDimSyst, const int& NCovar,
 			     double* Covar, double *ANuisance, const double& Tolerance, 
-			     int& Ncorrelated, double* Uncor);
+			     int& Ncorrelated, double* Uncor, const int& LSepDiag);
 
 
   extern struct {

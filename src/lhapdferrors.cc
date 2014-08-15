@@ -274,7 +274,7 @@ void get_lhapdferrors_()
       int ncorr = 0;	
       getnuisancefromcovar_(dim,npoints,npoints,
 			    covmx,beta_from_covmx,0,
-			    ncorr,alpha_from_covmx);
+			    ncorr,alpha_from_covmx,0);
 
       for (int j = 0; j < ncorr; j++)
 	{
