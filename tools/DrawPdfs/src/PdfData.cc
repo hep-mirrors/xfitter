@@ -523,6 +523,12 @@ void PdfData::profile(string dirname, string label)
 	      corsum += cor;
 	    }
 	    else if (err = SymHess) {
+	      Pdf Up = Errors[q2].at(id-1);
+	      double plus =  Up.GetTable(*pit)[ix] - val;
+	      double cor = - plus*valShift;	      
+	      xi.push_back(plus*errShift+val);
+
+	      corsum += cor;
 	    }    	    
 	  }
 
@@ -535,6 +541,7 @@ void PdfData::profile(string dirname, string label)
 	  }
 
 	  else if (err == SymHess) {
+	    eplus = eminus = shessdelta(xi);
 	  }    	    
 	  
 	  Cent.SetPoint(*pit, ix, val+corsum);
