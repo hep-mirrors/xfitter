@@ -8,6 +8,8 @@
 #include <TMath.h>
 
 #include <fstream>
+#include <sstream>
+#include <iostream>
 #include <stdlib.h>
 #include <math.h>
 
@@ -21,7 +23,6 @@ string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", 
 vector <pdftype> pdfs(pdfts, pdfts + sizeof(pdfts) / sizeof(pdftype));
 vector <string> pdflabels(pdflab, pdflab + sizeof(pdflab) / sizeof(string));
 vector <string> pdffiles(pdffil, pdffil + sizeof(pdffil) / sizeof(string));
-
 
 Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
 {
@@ -427,4 +428,125 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 	    } //End loop on x points
 	}//End loop on pdf types
     }//End loop on q2 values
+
+  if (outdirs[label].IsProfiled() || opts.profiled)
+    profile(dirname, label);
 }
+
+struct pdfshift 
+{
+  double val;
+  double err;
+  int    id;
+};
+
+
+void PdfData::profile(string dirname, string label)
+{
+  vector<pdfshift> pdfshifts;
+
+  // Extract PDF shifts from Results.txt:
+
+  string fname = dirname + "/Results.txt";
+  ifstream f(fname.c_str());
+  if ( ! f.good() ) {
+    cout << "File " << fname << " is empty (or io error)" << endl;
+    return;
+  }
+  string line;
+  string buffer = "";
+  while (buffer != "Name")
+    {
+      getline(f, line);
+      istringstream iss(line);
+      iss >> buffer; 
+    }
+  string systlabel, dummy;
+  float systindex, value, error;
+  int counter = 0;
+  while (getline(f, line))
+    {
+      istringstream iss(line);
+      iss >> systindex >> systlabel  >> value  >> dummy  >> error;       
+      if ( systlabel.find("PDF_nuisance_param") == 0 ) {
+	++counter;
+	pdfshift shift;
+	shift.val = value;
+	shift.err = error;
+	shift.id  = counter;
+        pdfshifts.push_back(shift);
+      }
+    }
+  f.close();
+
+
+  // over all Q2 values
+  for ( map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) {
+    float q2 = pdfit->first;
+    Pdf Cent = pdfit->second;
+    
+
+    // loop over pdf types
+    for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++) {
+      //Loop on x points
+      for (int ix = 0; ix < Cent.GetNx(); ix++)
+	{
+	  double val = Cent.GetTable(*pit)[ix];
+	  double t1 = Up[q2].GetTable(*pit)[ix];
+	  double t2 = Down[q2].GetTable(*pit)[ix];
+	  double corsum = 0;
+	  double eminus = 0; // also  errors
+	  double eplus = 0;  
+	  vector <double> xi;
+	  xi.push_back(val);
+
+	  for ( vector<pdfshift>::iterator shift = pdfshifts.begin(); shift != pdfshifts.end(); shift++) {      
+
+	    int id = shift->id;
+	    double valShift = shift->val;
+	    double errShift = shift->err;
+
+
+	    if (err == AsymHess) {
+	      Pdf Up = Errors[q2].at(2*(id-1));
+	      Pdf Dn = Errors[q2].at(2*(id-1)+1);
+
+	      double plus  = Up.GetTable(*pit)[ix] - val;
+	      double minus = Dn.GetTable(*pit)[ix] - val;
+	      
+
+	      double cor = 0.5*(plus - minus)*valShift  + 0.5*(plus+minus)*valShift*valShift;
+	      
+	      xi.push_back(plus*errShift+val);
+	      xi.push_back(minus*errShift+val);
+
+	      corsum += cor;
+	    }
+	    else if (err = SymHess) {
+	    }    	    
+	  }
+
+	  if ( err == AsymHess ) {
+
+	    if (!outdirs[label].IsAsym()) //symmetrise errors
+	      eplus = eminus = ahessdelta(xi);
+	    else //asymmetric errors
+	      ahessdeltaasym(xi, eplus, eminus);	    
+	  }
+
+	  else if (err == SymHess) {
+	  }    	    
+	  
+	  Cent.SetPoint(*pit, ix, val+corsum);
+	  Cent.SetErrUp(*pit, ix, eplus);
+	  Cent.SetErrDn(*pit, ix, eminus);
+
+
+	  Up[q2].SetPoint(*pit, ix, val+corsum+eplus);
+	  Down[q2].SetPoint(*pit, ix, val+corsum-eminus);
+	}
+    }
+    pdfit->second = Cent;
+  }
+}
+

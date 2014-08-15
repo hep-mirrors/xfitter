@@ -32,10 +32,11 @@ bool FitPainter()
       return true;
     }
 
-  int ndata = dataindexlist.size() + 2;
+  int ndata = dataindexlist.size() + 3;
 
   float chi2[opts.labels.size()][ndata];
   float chi2_00[opts.labels.size()][ndata];
+  float chi2_log[opts.labels.size()][ndata];
   int dof[opts.labels.size()][ndata];
   vector <string> dirname;
   dirname.resize(opts.labels.size());
@@ -44,6 +45,7 @@ bool FitPainter()
       {
 	chi2[i][d] = 0;
 	chi2_00[i][d] = 0;
+	chi2_log[i][d] = 0;
 	dof[i][d] = 0;
       }
 
@@ -66,6 +68,7 @@ bool FitPainter()
 	{
 	  chi2[dir][dat] = chi2map[*itl].chi2list[*dit].chi2;
 	  chi2_00[dir][dat] = chi2map[*itl].chi2list[*dit].chi2_00;
+	  chi2_log[dir][dat] = chi2map[*itl].chi2list[*dit].chi2_log;
 	  dof[dir][dat] = chi2map[*itl].chi2list[*dit].dof;
 	  dir++;
 	}
@@ -80,6 +83,18 @@ bool FitPainter()
       chi2[dir][dat] = chi2map[*itl].chi2corr.chi2;
       chi2_00[dir][dat] = chi2map[*itl].chi2corr.chi2_00;
       dof[dir][dat] = chi2map[*itl].chi2corr.dof;
+      dir++;
+    }
+  dat++;
+
+  //Log penalty chi2
+  //loop on labels (directories)
+  dir = 0;
+  for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
+    {
+      chi2[dir][dat] = chi2map[*itl].chi2log.chi2;
+      chi2_00[dir][dat] = chi2map[*itl].chi2log.chi2_00;
+      dof[dir][dat] = chi2map[*itl].chi2log.dof;
       dir++;
     }
   dat++;
@@ -169,10 +184,20 @@ bool FitPainter()
       for (int i = 0; i < opts.labels.size(); i++)
 	if (dof[i][dit-dataindexlist.begin()] != 0 || chi2[i][dit-dataindexlist.begin()] != 0 )
 	  {
-	    if (chi2_00[i][dit-dataindexlist.begin()] >= 0)
-	      fprintf(ftab,"& %s (%s) / %d", Round(chi2[i][dit-dataindexlist.begin()])[0].c_str(), Round(chi2_00[i][dit-dataindexlist.begin()])[0].c_str(), dof[i][dit-dataindexlist.begin()]);
+	    if (opts.chi2nopdf)
+	      fprintf(ftab,"& %s$|$%s / %d", 
+		      Round(chi2[i][dit-dataindexlist.begin()])[0].c_str(), 
+		      Round(chi2_00[i][dit-dataindexlist.begin()])[0].c_str(), 
+		      dof[i][dit-dataindexlist.begin()]);
+	    else if (opts.logpenalty)
+	      fprintf(ftab,"& %s (%s) / %d", 
+		      Round(chi2[i][dit-dataindexlist.begin()])[0].c_str(), 
+		      Round(chi2_log[i][dit-dataindexlist.begin()], chi2[i][dit-dataindexlist.begin()], true)[0].c_str(), 
+		      dof[i][dit-dataindexlist.begin()]);
 	    else
-	      fprintf(ftab,"& %s / %d", Round(chi2[i][dit-dataindexlist.begin()])[0].c_str(), dof[i][dit-dataindexlist.begin()]);
+	      fprintf(ftab,"& %s / %d", 
+		      Round(chi2[i][dit-dataindexlist.begin()])[0].c_str(), 
+		      dof[i][dit-dataindexlist.begin()]);
 	  }
 	else
 	  fprintf(ftab,"& - ");
@@ -181,24 +206,39 @@ bool FitPainter()
 
   fprintf(ftab,"  Correlated $\\chi^2$  ");
   for (int i = 0; i < opts.labels.size(); i++)
-    if (chi2_00[i][ndata-2] >= 0)
-      fprintf(ftab,"& %s (%s)", Round(chi2[i][ndata-2])[0].c_str(), Round(chi2_00[i][ndata-2])[0].c_str());
+    if (opts.chi2nopdf)
+      fprintf(ftab,"& %s$|$%s", 
+	      Round(chi2[i][ndata-3])[0].c_str(), 
+	      Round(chi2_00[i][ndata-3])[0].c_str());
     else
-      fprintf(ftab,"& %s", Round(chi2[i][ndata-2])[0].c_str());
+      fprintf(ftab,"& %s", 
+	      Round(chi2[i][ndata-3])[0].c_str());
+  fprintf(ftab,"  \\\\ \n");
+
+  fprintf(ftab,"  Log penalty $\\chi^2$  ");
+  for (int i = 0; i < opts.labels.size(); i++)
+    if (opts.chi2nopdf)
+      fprintf(ftab,"& %s$|$%s", 
+	      Round(chi2[i][ndata-2], 0, true)[0].c_str(), 
+	      Round(chi2_00[i][ndata-2], 0, true)[0].c_str());
+    else
+      fprintf(ftab,"& %s", 
+	      Round(chi2[i][ndata-2], 0, true)[0].c_str());
   fprintf(ftab,"  \\\\ \n");
 
   fprintf(ftab,"  \\rowcolor{white}\n");
-  bool pdfunc = false;
   fprintf(ftab,"      \\midrule\n");
   fprintf(ftab,"  Total $\\chi^2$ / dof  ");
   for (int i = 0; i < opts.labels.size(); i++)
-    if (chi2_00[i][ndata-1] >= 0)
-      {
-	fprintf(ftab,"& %s (%s) / %d", Round(chi2[i][ndata-1])[0].c_str(), Round(chi2_00[i][ndata-1])[0].c_str(), dof[i][ndata-1]);
-	pdfunc = true;
-      }
+    if (opts.chi2nopdf)
+	fprintf(ftab,"& %s$|$%s / %d", 
+		Round(chi2[i][ndata-1])[0].c_str(), 
+		Round(chi2_00[i][ndata-1])[0].c_str(), 
+		dof[i][ndata-1]);
     else
-      fprintf(ftab,"& %s / %d", Round(chi2[i][ndata-1])[0].c_str(), dof[i][ndata-1]);
+      fprintf(ftab,"& %s / %d", 
+	      Round(chi2[i][ndata-1])[0].c_str(), 
+	      dof[i][ndata-1]);
   fprintf(ftab,"  \\\\ \n");
 
   fprintf(ftab,"  \\rowcolor{white}\n");
@@ -214,9 +254,10 @@ bool FitPainter()
   fprintf(ftab,"  }\n");
   fprintf(ftab,"  \\end{center}\n");
   fprintf(ftab,"\\end{table}\n");
-  if (pdfunc)
-    fprintf(ftab,"$\\chi^2$ with (w/o) PDF uncertainties  \n");
-
+  if (opts.chi2nopdf)
+    fprintf(ftab,"$\\chi^2$ with$|$w/o PDF uncertainties  \n");
+  else if (opts.logpenalty)
+    fprintf(ftab,"Log penalty term for each dataset is given in brackets \n");
 
   fprintf(ftab,"\n");
   fprintf(ftab,"\\end{document}\n");

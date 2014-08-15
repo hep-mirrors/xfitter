@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <stdlib.h>
 
 Chi2::Chi2(string dirname, string label)
 {
@@ -14,11 +15,14 @@ Chi2::Chi2(string dirname, string label)
       //for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdirs[label].dirlist.end(); it++)
       //{}
       chi2tot.chi2 = 0;
-      chi2tot.chi2_00 = -1;
+      chi2tot.chi2_00 = 0;
       chi2tot.dof = 0;
       chi2corr.chi2 = 0;
-      chi2corr.chi2_00 = -1;
+      chi2corr.chi2_00 = 0;
       chi2corr.dof = 0;
+      chi2log.chi2 = 0;
+      chi2log.chi2_00 = 0;
+      chi2log.dof = 0;
       return;
     }
  
@@ -35,7 +39,8 @@ Chi2::Chi2(string dirname, string label)
   string buffer;
   string dummy, name;
   int index, dof;
-  float chi2value;
+  float chi2value, chi2valuelog;
+  string chi2read;
   while (getline(f, line))
     {
       buffer = "";
@@ -47,7 +52,7 @@ Chi2::Chi2(string dirname, string label)
 	{
 	  iss >> dummy  >> chi2value  >> dof;
 	  chi2tot.chi2 = chi2value;
-	  chi2tot.chi2_00 = -1;
+	  chi2tot.chi2_00 = 0;
 	  chi2tot.dof = dof;
 	}
 
@@ -56,15 +61,40 @@ Chi2::Chi2(string dirname, string label)
 	{
 	  iss >> dummy  >> chi2value;
 	  chi2corr.chi2 = chi2value;
-	  chi2corr.chi2_00 = -1;
+	  chi2corr.chi2_00 = 0;
 	  chi2corr.dof = 0;
+	}
+
+      //read total log penalty chi2
+      if (buffer == "Log")
+	{
+	  iss >> dummy >> dummy  >> chi2value;
+	  chi2log.chi2 = chi2value;
+	  chi2log.chi2_00 = 0;
+	  chi2log.dof = 0;
 	}
 
       if (buffer != "Dataset")
 	continue;
-      iss >> index  >> chi2value  >> dof;
 
       //read Partial chi2
+      iss >> index  >> chi2read;
+      if (chi2read.find("(") != string::npos)
+	{
+	  chi2read.erase(chi2read.find("("));
+	  chi2value = atof(chi2read.c_str());
+	  iss >> chi2read;
+	  chi2read.erase(chi2read.find(")"));
+	  chi2valuelog = atof(chi2read.c_str());
+	  iss >> dof;
+	}
+      else
+	{
+	  chi2value = atof(chi2read.c_str());
+	  chi2valuelog = 0;
+	  iss >> dof;
+	}
+
       iss >> dummy;
       if (line.find(dummy) == string::npos)
 	{
@@ -76,14 +106,15 @@ Chi2::Chi2(string dirname, string label)
       trimmed.erase(trimmed.find_last_not_of(" ")+1, string::npos);
       name = trimmed;
       int dtindex = finddataindex(name);
-      if (dtindex == -1)
+      if (dtindex == 0)
 	{
 	  cout << "Error: could not find index for dataset " << name << endl;
 	  continue;
 	}
       chi2type ch;
       chi2list[dtindex].chi2 = chi2value;
-      chi2list[dtindex].chi2_00 = -1;
+      chi2list[dtindex].chi2_00 = 0;
+      chi2list[dtindex].chi2_log = chi2valuelog;
       chi2list[dtindex].dof = dof;
     }
   f.close();
@@ -119,11 +150,31 @@ Chi2::Chi2(string dirname, string label)
 	      chi2corr.chi2_00 = chi2value;
 	    }
 
+	  //read total log penalty chi2
+	  if (buffer == "Log")
+	    {
+	      iss >> dummy >> dummy  >> chi2value;
+	      chi2log.chi2_00 = chi2value;
+	    }
+
 	  if (buffer != "Dataset")
 	    continue;
-	  iss >> index  >> chi2value  >> dof;
 
 	  //read Partial chi2
+	  iss >> index  >> chi2read;
+	  if (chi2read.find("(") != string::npos)
+	    {
+	      chi2read.erase(chi2read.find("("));
+	      chi2value = atof(chi2read.c_str());
+	      iss >> chi2read;
+	      iss >> dof;
+	    }
+	  else
+	    {
+	      chi2value = atof(chi2read.c_str());
+	      iss >> dof;
+	    }
+
 	  iss >> dummy;
 	  name = line.substr(line.find(dummy), line.size() - line.find(dummy));
 	  string trimmed = name;

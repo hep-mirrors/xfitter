@@ -16,7 +16,7 @@ extern float marg0;
 using namespace std;
 
 //Service functions
-extern vector<string> Round(double value, double error = 0);
+extern vector<string> Round(double value, double error = 0, bool sign = false);
 
 class CommandParser
 {
@@ -48,6 +48,7 @@ class CommandParser
 
   //tables options
   bool chi2nopdf;
+  bool logpenalty;
   string font;
 
   //general options
@@ -73,6 +74,7 @@ class CommandParser
   bool cms, cmspreliminary;
   bool atlas, atlaspreliminary, atlasinternal;
   bool cdfiipreliminary;
+  bool profiled;
 
  private:
   vector <string> allargs;
@@ -127,6 +129,10 @@ class CommandParser
     cout << "\t \t PDF plots are not produced" << endl;
     cout << "\t --bands" << endl;
     cout << "\t \t Draw PDF uncertainty band" << endl;
+    cout << "\t --profiled" << endl;
+    cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
+    cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
+    cout << "\t Example: DrawPdfs profiled:output:profiled output:not-profiled" << endl;
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
     cout << "\t --ratiorange min:max" << endl;
@@ -177,7 +183,11 @@ class CommandParser
     cout << "\t --no-tables" << endl;
     cout << "\t \t Chi2 and parameter tables are not produced" << endl;
     cout << "\t --chi2-nopdf-uncertainties" << endl;
-    cout << "\t \t When chi2 is evaluated with the LHAPDFError routine, this option will add to the chi2 table the chi2 evaluated without PDF uncertainties within brackets" << endl;
+    cout << "\t \t When chi2 is evaluated with the LHAPDFError routine, this option adds to " << endl;
+    cout << "\t \t the chi2 table the chi2 evaluated without PDF uncertainties separated by a | character" << endl;
+    cout << "\t --partial-log-penalty" << endl;
+    cout << "\t \t Show within brackets the partial log penalty chi2 for each dataset in the chi2 table" << endl;
+    cout << "\t \t This option and the above --chi2-nopdf-uncertainties are mutually exclusive" << endl;
     cout << "\t --helvet-fonts" << endl;
     cout << "\t \t Use helvetica fonts in tables (default is palatino)" << endl;
     cout << "\t --cmbright-fonts" << endl;

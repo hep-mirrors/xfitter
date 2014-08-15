@@ -49,11 +49,15 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       if (outdirs[*itl].IsMCreplica())
 	continue;
 
+      //      if (itl->find("profiled")) {
+      //	continue;
+      //      }
+
       string fname = outdirs[*itl].GetName() + "/Results.txt";
       ifstream f(fname.c_str());
       if (!f.good())
 	{
-	  cout << "File " << fname << " is empty (or io error)" << endl;
+	  cout << "File " << fname << " is empty (or io error) (in ShiftPainter)" << endl;
 	  continue;
 	}
 

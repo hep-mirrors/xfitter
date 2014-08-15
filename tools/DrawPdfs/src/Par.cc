@@ -112,7 +112,7 @@ Par::Par(string dirname, string label)
       ifstream f(fname.c_str());
       if (!f.good()) //may be this is not a fit
 	{
-	  cout << "File " << fname << " is empty (or io error)" << endl;
+	  cout << "File " << fname << " is empty (or io error) (in par.cc)" << endl;
 	  return;
 	}
       

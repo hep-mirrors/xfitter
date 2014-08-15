@@ -22,6 +22,16 @@ class Pdf
  public:
   Pdf() {};
   Pdf(string filename);
+  // Copy constructor: (not used)
+  /*  Pdf(const Pdf& prior) : Q2value (prior.Q2value),
+    Xmin (prior.Xmin),
+    Xmax (prior.Xmax),
+    NxValues ( prior.NxValues),
+    NPdfs    ( prior.NPdfs),
+    tablemap ( prior.tablemap),
+    tablemapup ( prior.tablemapup),
+    tablemapdn ( prior.tablemapdn),
+    xpoints  (prior.xpoints)      {}*/
 
   int GetNx(){return NxValues;}     // Number of X points
   int GetNPdfs(){return NPdfs;}     // Number of PDfs
@@ -54,6 +64,9 @@ class PdfData
  public:
   PdfData() {};
   PdfData(string dirname, string label);
+  // Copy constructor, to for profiled PDF: (not used)
+  //PdfData(const PdfData &Prior, string dirname, string label);
+  void profile(string dirname, string label);  //profile PDF uncertainty bands
 
   pdferr err;   //Type of PDF uncertainties
   bool model;   //Model PDF uncertainties

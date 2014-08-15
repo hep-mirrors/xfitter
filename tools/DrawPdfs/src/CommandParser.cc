@@ -17,6 +17,7 @@ float marg0 = 0.003;
 
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
+  profiled(false),
   asym(false),
   logx(true),
   filledbands(false),
@@ -57,6 +58,7 @@ CommandParser::CommandParser(int argc, char **argv):
   shgth(40),
   adjshift(true),
   chi2nopdf(false),
+  logpenalty(false),
   font("palatino"), //font("helvet"), //font("modernbright"),
   cms(false),
   cmspreliminary(false),
@@ -131,6 +133,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  notables = true;
 	else if (*it == "--chi2-nopdf-uncertainties")
 	  chi2nopdf = true;
+	else if (*it == "--partial-log-penalty")
+	  logpenalty = true;
 	else if (*it == "--helvet-fonts")
 	  font = "helvet";
 	else if (*it == "--cmbright-fonts")
@@ -180,6 +184,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--bands")
 	  dobands = true;
+	else if (*it == "--profiled") {
+	  dobands = true;
+	  profiled = true;
+	}
 	else if (*it == "--asym")
 	  {
 	    dobands = true;
@@ -362,7 +370,7 @@ CommandParser::CommandParser(int argc, char **argv):
 CommandParser opts;
 
 //Service functions
-vector<string> Round(double value, double error)
+vector<string> Round(double value, double error, bool sign)
 {
   vector <string> result;
 
@@ -381,7 +389,10 @@ vector<string> Round(double value, double error)
   string D = Dec;
 
   char Numb[50];
-  sprintf (Numb, ((string)"%." + D + "f").c_str(), value);
+  if (sign)
+    sprintf (Numb, ((string)"%+." + D + "f").c_str(), value);
+  else
+    sprintf (Numb, ((string)"%." + D + "f").c_str(), value);
   result.push_back(Numb);
   sprintf (Numb, ((string)"%." + D + "f").c_str(), error);
   result.push_back(Numb);

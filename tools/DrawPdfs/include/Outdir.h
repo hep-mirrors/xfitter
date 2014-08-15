@@ -14,6 +14,7 @@
 #include <string>
 
 extern map <string, PdfData> pdfmap;  //dir label-pdf map	   
+//extern map <string, PdfData> pdfmapProfiled;  //dir label-pdf map for profiled PDFs too
 extern map <string, Data> datamap;    //dir label-dataset map
 extern map <string, Chi2> chi2map;    //dir label-chi2 map
 extern map <string, Par> parmap;      //dir label-parameters map
@@ -28,6 +29,7 @@ class  Outdir {
   string label;
   string dirname;
   bool MCreplica, cl68, cl90, median, asym;
+  bool profiled;
 
  public:
   Outdir() {};
@@ -35,6 +37,7 @@ class  Outdir {
   string GetName() {return dirname;};
   string GetLabel() {return label;};
   bool IsMCreplica() {return MCreplica;};
+  bool IsProfiled() {return profiled;};
   bool Is68cl() {return cl68;};
   bool Is90cl() {return cl90;};
   bool IsMedian() {return median;};

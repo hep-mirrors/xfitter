@@ -15,10 +15,12 @@ map <string, Chi2> chi2map;
 map <string, Par> parmap;
 map <string, Chi2scanData> chi2scanmap;
 
+//map <string, PdfData> pdfmapProfiled;
+
 vector <TGraphAsymmErrors*> allgraphs;
 
 //Constructor, load all the directory data
-Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym)
+Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym), profiled(false)
 {
   //parse dirs for flags and labels
   string pattern = "";
@@ -71,6 +73,12 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
 	  asym = true;
 	  dirname.erase(0, dirname.find(":")+1);
 	}
+      if (prefix == "profiled")
+	{
+	  doprefix = true;
+	  profiled = true;
+	  dirname.erase(0, dirname.find(":")+1);
+      }
     }
 
   //now parse for the label
@@ -79,11 +87,15 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
       label = dirname.substr(dirname.rfind(":")+1, dirname.size() - dirname.rfind(":") - 1);
       opts.labels.push_back(label);
       dirname.erase(dirname.rfind(":"), dirname.size());
+      //if ( opts.profiled)
+      //opts.labels.push_back(label+" profiled");	
     }
   else
     {
       label = origdirname;
       opts.labels.push_back(label);
+      //if ( opts.profiled)
+      //opts.labels.push_back(label+" profiled");	
     }
 
   //If plotting only one directory and no outdir name is provided, set the outdir to the current directory
@@ -178,6 +190,11 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
     {
       PdfData pdf(dirname, label);
       pdfmap[label] = pdf;
+
+      /*      if (opts.profiled) {
+	PdfData Profiled(pdf,dirname,label);
+	pdfmapProfiled[label] = Profiled;
+	}*/
     }
 
   //Load datasets
