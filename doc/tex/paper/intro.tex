@@ -1,14 +1,13 @@
-The constant inflow of new experimental measurements 
-with unprecedented accuracy from hadron colliders is a remarkable challenge 
-for the high energy physics community to provide higher-order theory 
-predictions and to develop efficient tools and methods for data analysis.
+%The constant inflow of new experimental measurements 
+%with unprecedented accuracy from hadron colliders is a remarkable challenge 
+%for the high energy physics community to provide higher-order theory 
+%predictions and to develop efficient tools and methods for data analysis.
 The recent discovery of the Higgs boson \cite{Aad:2012tfa,Chatrchyan:2012ufa} 
 and the extensive searches
 for signals of new physics in LHC proton-proton collisions
-demand high-precision computations to test the validity of the Standard Model (SM)
+demand high-precision calculations and computations to test the validity of the Standard Model (SM)
 and factorisation in Quantum Chromodynamics (QCD).
-According to the collinear factorisation in perturbative QCD (pQCD)
-hadronic inclusive cross sections are written as
+Using collinear factorisation, hadron inclusive cross sections may be written as
 %
 %The discovery of the Higgs boson~\cite{Aad:2012tfa,Chatrchyan:2012ufa}
 %and extensive searches for signals of new physics at the LHC demands accurate precision of the Standard Model (SM) predictions for
@@ -45,12 +44,13 @@ hadronic inclusive cross sections are written as
 %\end{array}
 \end{eqnarray}
 %}
-where the cross section $\sigma$ for 
-any hard-scattering inclusive process
+where the cross section $\sigma$
+% for 
+%any hard-scattering inclusive process
 %$ab \rightarrow X + all$
 is expressed
 as a convolution of Parton Distribution Functions (PDFs) $f_a$ and $f_b$
-with the partonic cross section
+with the parton cross section
 % that describe
 %the 
 %$\hat{\sigma}^{ab \rightarrow H + X}$.
@@ -59,19 +59,18 @@ $\hat{\sigma}^{ab}$.
 At Leading-Order (LO), the PDFs represent 
 the probability of finding a specific parton $a$ ($b$) in the first (second) proton carrying a fraction $x_1$ ($x_2$) of its momentum.
 %
-Indices $a$ and $b$ in the Eq.~\ref{eq:fact} indicate the various 
+The indices $a$ and $b$ in the Eq.~\ref{eq:fact} indicate the various 
 kinds of partons,
 i.e. gluons, quarks and antiquarks of different flavours, 
 that are considered
 as the constituents of the proton.
 %
-The PDFs depend on factorisation scale, $\muf$, while the partonic cross sections depend on the strong coupling,
+The PDFs depend on factorisation scale, $\muf$, while the parton cross sections depend on the strong coupling,
 $\as$, and the factorisation and renormalisation scales,
 $\muf$ and $\mur$.
 %
-The partonic cross sections $\hat\sigma^{ab}$ are calculated in pQCD whereas
-PDFs are constrained by global fits to a variety of hard-process experimental data employing
-universality of PDFs within a particular factorisation scheme \cite{Collins:1981uw,Collins:1983ju,Collins:1985ue,Collins:1989gx,Collins:2011zzd}.
+The parton cross sections $\hat\sigma^{ab}$ are calculable in pQCD whereas
+PDFs are non-perturbative and are thus constrained by global fits to a variety of experimental data. The assumption that PDFs are universal, within a particular factorisation scheme \cite{Collins:1981uw,Collins:1983ju,Collins:1985ue,Collins:1989gx,Collins:2011zzd}, is crucial to this procedure.
 Recent review articles on PDFs can be found in Refs. \cite{Perez:2012um,Forte:2013wc}. 
 %
 %PDFs are assumed to be universal such that different scattering reactions can be used 
@@ -82,13 +81,15 @@ Recent review articles on PDFs can be found in Refs. \cite{Perez:2012um,Forte:20
 %
 
 Accurate determination of PDFs as a function of $x$ requires large amount of
-experimental data of a different nature, covering wide kinematic regions
-and sensitive to different kinds of partons. The data are provided together with
-complex models of correlated uncertainties. The PDFs are determined
-from $\chi^2$ fits of the theory predictions to the 
+hard-process experimental data, covering a wide kinematic region
+and sensitive to different kinds of partons. Measurements of the inclusive Neutral Current (NC) and Charge Current (CC) Deep Inelastic Scattering (DIS) at the $ep$ collider HERA provide crucial information for determining the PDFs. Hard processes in $pp$ and $p \bar p$ collisions at the LHC and the Tevatron, respectively, 
+provide complementary information to the DIS measurements.
+% The data are provided together with
+%complex models of correlated uncertainties.
+ The PDFs are determined
+from $\chi^2$ fits of the theoretical predictions to the 
 data \cite{MSTWpdf,CT10pdf,NNPDFpdf,Alekhin:2013nda,Jimenez-Delgado:2014twa}. 
-Rapid addition of the new data from the LHC experiments and new theory developments 
-demand a tool to combined them together in a fast, efficient, open-source platform.
+The rapid flow of new data from the LHC experiments and the corresponding theoretical developments, which are providing predictions for more complex processes at increasingly higher orders, has motivated the development of a tool to combine them  together in a fast, efficient, open-source platform.
 %Measurements of the inclusive Neutral Current (NC) and Charged Current (CC)  
 %Deep Inelastic Scattering (DIS) at the $ep$ collider HERA provide crucial information for determining the PDFs.
 %The gluon density in small and medium $x$  
@@ -104,30 +105,28 @@ demand a tool to combined them together in a fast, efficient, open-source platfo
 %and heavy quarks, top quark, jet and prompt photon production.
 %
 
-This paper describes the open-source QCD fit platform \fitter which includes the set of tools  essential for a comprehensive global 
-QCD analysis of $pp$, $p\bar{p}$ and $ep$ scattering processes of the experimental measurement. 
-It is developed for determination of PDFs and extraction of fundamental QCD parameters such as the heavy
-quark masses and the strong coupling constant. This platform also provides the basis for 
-comparisons of different theoretical approaches and can be used for direct tests of the impact 
-of new experimental data on the SM parameters in the QCD analyses.
+This paper describes the open-source QCD fit platform \fitter which includes a set of tools designed to facilitate comprehensive global 
+QCD analyses of $pp$, $p\bar{p}$ and $ep$ scattering data. 
+It has been developed for the determination of PDFs and the extraction of fundamental QCD parameters such as the heavy
+quark masses and the strong coupling constant. It also provides a common platform for 
+comparison of different theoretical approaches. Furthermore, it can be used for direct tests of the impact 
+of new experimental data on the PDFs and on the SM parameters.
 
 This paper is organised as follows.
 %
-The structure and overview of \fitter are presented in section~\ref{sec:structure}.
-Section~\ref{sec:theory} discusses the various processes available in \fitter
-and corresponding theoretical calculations performed in the collinear factorisation using the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
-Dokshitzer:1977sg,Altarelli:1977zs} formalism.
-%
-Section~\ref{sec:techniques} presents various fast techniques employed by the theory calculations used in \fitter.
-Section~\ref{sec:method} elucidates the 
+The structure and overview of \fitter are presented in Section~\ref{sec:structure}.
+In Section~\ref{sec:theory} the various processes available in \fitter
+and the corresponding theoretical calculations, performed within the framework of collinear factorisation and the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
+Dokshitzer:1977sg,Altarelli:1977zs} formalism, are discussed. In
+Section~\ref{sec:techniques} tools for fast calculations of the theoretical predictions used in \fitter are presented.
+In Section~\ref{sec:method} the 
 methodology of determining PDFs through fits based on various
 % {\bf (what do you mean here
 %by approaches?)} 
- $\chi^2$ definitions used in the
-minimisation procedure. 
-Alternative approaches to the DGLAP formalism are presented in section~\ref{sec:alternative}.
+ $\chi^2$ definitions is explained. In particular, different treatment of correlated experimental uncertainties are presented.
+Alternative approaches to the DGLAP formalism are presented in Section~\ref{sec:alternative}.
 %
-\fitter code organisation is discussed in section \ref{sec:organisation}, specific applications 
-of the package are given in section~\ref{sec:examples} and the summary is presented in section~\ref{sec:summary}.
+The \fitter code organisation is discussed in Section \ref{sec:organisation}, specific applications 
+of the package are given in Section~\ref{sec:examples} and a summary is presented in Section~\ref{sec:summary}.
 %
 %{\bf add something more here?.}
