@@ -1,10 +1,10 @@
 
 
 %\subsection{Alternative to DGLAP DIS models}
-The QCD calculations based on the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
+QCD calculations based on the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
 Dokshitzer:1977sg,Altarelli:1977zs} evolution equations are very successful in describing
 all relevant hard scattering data in the perturbative region $Q^2 \gtrsim 1 \GeV^2$.
-At small-$x$ and small-$Q^2$ the DGLAP dynamics may be modified by non-perturbative QCD 
+At small-$x$ and small-$Q^2$ DGLAP dynamics may be modified by non-perturbative QCD 
 effects like saturation-based dipole models and other higher twist effects.
 %
 Different approaches that are alternatives to the DGLAP formalism can be used to analyse DIS data in \fitter.
@@ -13,34 +13,23 @@ transverse momentum dependent, or unintegrated PDFs (uPDFs).
 
 \subsection{Dipole Models}
 
-The dipole picture provides an alternative approach to the proton-virtual photon
- scattering at low $x$ providing the description of both inclusive and 
+The dipole picture provides an alternative approach to proton-virtual photon
+ scattering at low $x$ which can be applied to both inclusive and 
 diffractive processes.
  In this approach, the virtual photon fluctuates into a $q\bar q$ (or $q\bar q g$) 
  dipole which interacts with the proton~\cite{NNZ:91}.  
 The dipoles can be considered as quasi-stable quantum mechanical states, which have very long 
-life time $\propto 1/m_p x\;$ and a size which is not changed by scattering.
-%A schematic view of dipole factorisation at small $x$ in DIS is illustrated in figure~\ref{fig:dipole}.
-The dynamics of the interaction are embedded in the dipole scattering amplitude.
-
-%\begin{figure}
-%\begin{center}
-%\includegraphics[width=0.5\linewidth]{figures/dipole.pdf}
-%\end{center}
-%\caption{Schematic diagram of dipole factorisation for the inclusive cross section in DIS.}
-%\label{fig:dipole}
-%\end{figure}
+life time $\propto 1/m_p x\;$ and a size which is not changed by scattering with the proton.
+The dynamics of the interaction are embedded in a dipole scattering amplitude.
 
 Several dipole models which assume different behaviour of the dipole-proton 
-cross sections are implemented in \fitter:
-%\begin{itemize}
-%\item the original Golec-Biernat-W\"usthoff (GBW)~\cite{Golec-Biernat:1998js} 
+cross section are implemented in \fitter:
 the Golec-Biernat-W\"usthoff (GBW)
 dipole saturation model~\cite{Golec-Biernat:1998js},
-the colour glass condensate approach to the high parton density 
-regime called the Iancu-Itakura-Munier (IIM) dipole model~\cite{Iancu:2003ge} and 
 a modified GBW model which takes into account the effects of  
-DGLAP evolution called the Bartels-Golec-Kowalski (BGK) dipole model~\cite{Bartels:2002cj}.
+DGLAP evolution termed the Bartels-Golec-Kowalski (BGK) dipole model~\cite{Bartels:2002cj}
+and the colour glass condensate approach to the high parton density 
+regime termed the Iancu-Itakura-Munier (IIM) dipole model~\cite{Iancu:2003ge}.
 %\end{itemize}
 
 %\begin{description}
@@ -51,64 +40,32 @@ In the GBW model the dipole-proton cross section $\sigma_{\text{dip}}$ is given 
    \sigma_{\text{dip}}(x,r^{2}) = \sigma_{0} \left(1 - \exp \left[-\frac{r^{2}}{4R_{0}^{2}(x)} \right]\right),
 \end{equation}
 where $r$ corresponds to the transverse separation between the quark and the antiquark, and $R_{0}^{2}$
- is 
-%an $x$ dependent scale parameter, having the form $R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$.
-an $x$-dependent scale parameter which represents the spacing of the gluons in the proton. 
-%$R_{0}^{2}(x)=\left(x/x_{0}\right)^{\lambda}$ $R_0^2(x) = (x/x_0)^\lambda/Q_0^2$, 
-%$R_0^2(x) = (x/x_0)^\lambda/1\,{\rm \GeV}^{-2}$ is called the saturation radius.
-$R_0^2(x) = (x/x_0)^\lambda  1/ {\rm \GeV}^{2}$ is called the saturation radius.
+ is an $x$-dependent scale parameter which represents the spacing of the gluons in the proton. 
+$R_{0}^{2}$ takes the form, $R_0^2(x) = (x/x_0)^\lambda  1/ {\rm \GeV}^{2}$, and is called the saturation radius.
 The cross-section normalisation $\sigma_0$, $x_0$, and $\lambda$ are parameters 
 of the model commonly fitted to the DIS data.
-%The fitted parameters are the cross-section normalisation $\sigma_{0}$ and $x_{0}$ and $\lambda$. 
 This model gives exact Bjorken scaling when the dipole size $r$ is small.
 %%%%
-
-%\vspace{0.1cm}
-\paragraph{IIM model:} \rm
-The IIM model assumes an improved expression for the dipole cross section which is based on the 
-Balitsky-Kovchegov equation~\cite{Balitsky:1995ub}. The explicit formula for $\sigma_{\text{dip}}$ 
-can be found in~\cite{Iancu:2003ge}. 
-The alternative scale parameter $\tilde{R}$, $x_{0}$ and $\lambda$ are fitted parameters of the model.
-%The fitted parameters are an alternative scale parameter $\tilde{R}$, $x_{0}$ and $\lambda$.
-
-%\vspace{0.1cm}
+ 
 \paragraph{BGK model:} \rm
 The BGK model is a modification of the GBW model assuming that the
 spacing $R_0$ is inverse of the gluon density and taking
-%The BGK model modifies the GBW model by taking 
 into account the DGLAP evolution of the latter.
-%The dipole cross section is given by
-%\begin{equation}
-%\begin{array}{lcl}
-%   \sigma_{\text{dip}}(x,r^{2})  =  \sigma_{0} 
-%\left(1 - \exp \left[-\frac{\pi^{2} r^{2} \as (\mu^{2}) xg(x,\mu^{2})}{3 \sigma_{0}} \right]\right).
-%\end{array}
-%\label{eBGK}
-%\end{equation}
-%The factorisation scale $\mu^{2} = C_{bgk}/r^{2}+\mu^{2}_{0}$.
-%This model relates to the GBW model using the idea that the spacing $R_0$ is inverse to the gluon density.
 The gluon density parametrised at some starting scale by Eq.~\ref{eqn:pdf_std}
 is evolved to larger scales using DGLAP evolution.
-%Variables $\sigma_{0}$, $\mu^{2}_{0}$ and three parameters for the gluon density, $A_{g}$, $B_{g}$, $C_{g}$,
-%are fitted parameters of the model, while $C_{bgk}$ is fixed to 4.0.
-%The fitted parameters for this model are $\sigma_{0}$, $\mu^{2}_{0}$ and three parameters 
-%for the gluon density: $A_{g}$, $\lambda_{g}$, $C_{g}$. 
-%The parameter $C_{bgk}$ is fixed: $C_{bgk} = 4.0$. 
-%%%%
 
-%\vspace{0.1cm}
 \paragraph{BGK model with valence quarks:} \rm
-
 The dipole models are valid in the low-$x$ region only, where the valence quark contribution to the total proton momentum 
 is 5\% to 15\% for $x$ from 0.0001 to 0.01 \cite{Collaboration:2010ry}.
 %, of the order of 5\%. 
 The new HERA $F_2$ measurements have a precision which is better than 2$\%$. 
-Therefore, in \fitter the contribution of the valence quarks can be taken into account in the original 
-BGK model \cite{Luszczak:2013rxa}.
-%, this is uniquely possible within the \fitter framework.
-% The quality of the fits of the BGK dipole model with valence quarks and without 
-%valence quarks are the same.
-%\end{description}
+Therefore, in \fitter the contribution of the valence quarks can be taken into account~\cite{Luszczak:2013rxa}.
+
+\paragraph{IIM model:} \rm
+The IIM model assumes an expression for the dipole cross section which is based on the 
+Balitsky-Kovchegov equation~\cite{Balitsky:1995ub}. The explicit formula for $\sigma_{\text{dip}}$ 
+can be found in~\cite{Iancu:2003ge}. 
+The alternative scale parameter $\tilde{R}$, $x_{0}$ and $\lambda$ are fitted parameters of the model.
 
 \subsection{Transverse Momentum Dependent PDFs}
 
@@ -118,18 +75,17 @@ BGK model \cite{Luszczak:2013rxa}.
 
 
 QCD calculations of multiple-scale processes  and complex final-states
-require in general transverse-momentum dependent (TMD)~\cite{Collins:2011zzd}, or 
+can necessitate the use of transverse-momentum dependent (TMD)~\cite{Collins:2011zzd}, or 
 unintegrated, parton distribution and parton decay 
 functions~\cite{Aybat:2011zv,Buffing:2013eka,Buffing:2013kca,Buffing:2012sz,Mulders:2008tf,Jadach:2009gm,Hautmann:2009zzb,Hautmann:2012pf,Hautmann:2007gw}.   
-The TMD factorisation has been proven recently \cite{Collins:2011zzd} for inclusive DIS. For 
+TMD factorisation has been proven recently \cite{Collins:2011zzd} for inclusive DIS. TMD factorisation has also been proven in the high-energy (small-$x$) limit \cite{Catani:1990xk,Collins:1991ty,Hautmann:2010be} for 
 particular hadron-hadron scattering processes, like heavy flavor, vector boson and Higgs production, 
-TMD factorisation has also been proven in the high-energy (small-$x$) limit \cite{Catani:1990xk,Collins:1991ty,Hautmann:2010be}.
   
 In the framework of high-energy factorisation~\cite{Catani:1990xk,Catani:1990eg,Catani:1993ww} 
 the DIS cross section can be written as a convolution in 
 both longitudinal and transverse momenta of the TMD parton density function 
-${\cal A}\left(x,\kt,\mu\right)$    
- with the off-shell partonic matrix elements, as follows 
+${\cal A}\left(x,\kt,\mu_{F}^2\right)$    
+ with the off-shell parton scattering matrix elements, as follows 
 \begin{equation}
  \sigma_j (x, Q^2) = \int_x^1  
 d z \int d^2k_t \ 
@@ -154,25 +110,21 @@ in the parton evolution, fully taking into account the
 dependence on the factorisation scale $\mu_{F}$ and on the 
 factorisation scheme~\cite{Catani:1994sq,Catani:1993rn}.  
  
-The cross section $\sigma_j$, ($j= 2, L$) is calculated in a FFN scheme, where
-only the boson-gluon fusion process ($\gamma^* g^* \to q \bar{q}$) is included. The masses of the 
+The cross section $\sigma_j$, ($j= 2, L$) is calculated in a FFN scheme, using the boson-gluon fusion process ($\gamma^* g^* \to q \bar{q}$). The masses of the 
 quarks are explicitly included as parameters of the model.
-%with the light and heavy quark masses being free parameters.
 In addition to $\gamma^* g^* \to q\bar{q}$,  the contribution from valence quarks is included 
 via $\gamma^* q \to q$ by using a CCFM evolution of 
 valence quarks~\cite{Deak:2010gk,Hautmann:2013tba}. 
 
-%\begin{description}
-%\vspace{0.1cm}
 \paragraph{CCFM Grid Techniques:} \rm
 
 The CCFM evolution cannot be written easily in an analytic closed form. For this 
-reason a Monte Carlo method is employed, which is however time-consuming, and 
-cannot be used in a straightforward manner in a fit program. 
+reason a Monte Carlo method is employed, which is however time-consuming, and thus
+cannot be used directly in a fit program. 
 
 Following the  convolution method introduced in~\cite{Jung:2012hy,Hautmann:2013tba}, the 
 kernel $ \tilde {\cal A}\left(x'',\kt,\Pmax\right) $ is determined from the Monte Carlo  solution of the CCFM evolution equation, 
-and then folded with the non-perturbative starting distribution ${\cal A}_0 (x)$
+and then folded with a non-perturbative starting distribution ${\cal A}_0 (x)$
 { 
 \begin{eqnarray}
 x {\cal A}(x,\kt,\Pmax) &= &x\int dx' \int dx'' {\cal A}_0 (x') \tilde{\cal A}\left(x'',\kt,\Pmax\right) 
@@ -190,13 +142,12 @@ evolution variable.
 The kernel $\tilde{\cal A}$ incorporates all of  the dynamics of the evolution.  
 It is defined on a grid of $50\otimes50\otimes50$ bins in $ x, \kt, \Pmax$.  
 The binning in the grid is logarithmic, except for the longitudinal variable 
-$x$ where 40 bins in logarithmic 
+$x$ for which 40 bins in logarithmic 
 spacing below 0.1, and 10 bins in linear spacing above 0.1 are used.
 
-Calculation of the cross section according to Eq.~\ref{kt-factorisation} involves a 
-multidimensional Monte Carlo integration which is time consuming and suffers from numerical fluctuations.  
-This cannot be employed directly in a fit procedure involving the calculation of numerical derivatives 
-in the search for the minimum. Instead the following equation is applied:
+Calculation of the cross section according to Eq.~\ref{kt-factorisation} involves a time-consuming
+multidimensional Monte Carlo integration which suffers from numerical fluctuations.  
+This cannot be employed directly in a fit procedure. Instead the following equation is applied:
 \begin{eqnarray}
 \sigma(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2), 
 \nonumber\\
@@ -205,7 +156,7 @@ in the search for the minimum. Instead the following equation is applied:
  \end{eqnarray}
 where first $ \tilde{ \sigma}(x',Q^2)$ is calculated numerically with a Monte Carlo integration 
 on a grid in $x$ for the values of $Q^2$ used in the fit. Then the last step in Eq.~\ref{final-convolution}  
-is performed with a fast numerical gauss integration, which can be used in standard fit procedures.
+is performed with a fast numerical gauss integration, which can be used directly in the fit.
 
 %\vspace{0.1cm}
 \paragraph{Functional Forms for TMD parametrisation:} \rm
@@ -218,79 +169,13 @@ x{\cal A}_0(x,\kt) = N x^{-B}(1 -x)^{C}\left(1 -D x
    \exp[ - k_t^2 / \sigma^2 ], 
 \label{a0-5par}
 \end{eqnarray}
-with $ \sigma^2  =  Q_0^2 / 2 $ and the free parameters $N, B, C, D, E$.
+where $ \sigma^2  =  Q_0^2 / 2 $ and $N, B, C, D, E$ are free parameters.
 Valence quarks are treated using the method of Ref.~\cite{Deak:2010gk} as described 
 in Ref. \cite{Hautmann:2013tba} with a starting distribution taken from any collinear PDF
-and imposing the flavor sum rule at every scale $p$.
-%At every scale $p$  the flavor sum rule is fulfilled. 
+and imposition of the flavor sum rule at every scale $p$.
 \\
 The TMD parton densities can be plotted either with \fitter provided tools 
 or with \tt TMDplotter\rm~\cite{tmdlref}.
 
 %\end{description}
-
-
-
-%\fitter also incorporates an alternative approach to the collinear DGLAP evolution.
-%In high energy factorization \cite{Catani:1990eg} the measured cross section is written
-% as a convolution of the partonic cross section $\hat{\sigma}(É \kt),$ which depends on the transverse 
-%momentum $\kt$ of the incoming parton, with the $\kt$-dependent parton distribution function 
-%${\cal \tilde A}\left(x,\kt,\Pmax\right)$ (transverse momentum dependent (TMD) or unintegrated uPDF):
-%\begin{equation}
-% \sigma  = \int 
-%\frac{dz}{z} d^2k_t \hat{\sigma}(\frac{x}{z},k_t)  {\cal \tilde A}\left(x,\kt,\Pmax\right)
-%\label{kt-factorisation}
-%\end{equation}
-%where $p$ is the factorization scale.
-%%{\bf would probably be good to explain how the unintegrated relates to the integrated here}
-%Generally, the evolution of ${\cal \tilde A}\left(x,\kt,\Pmax\right)$ 
-%can proceed via the BFKL\cite{BFKL}
-%{\bf you need a BFKL reference},
-%DGLAP~\cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,Dokshitzer:1977sg, Altarelli:1977zs} 
-%or via the CCFM~\cite{\CCFM} evolution equations.
-%In \fitter, an extension of the CCFM evolution has been implemented.
-%Since the evolution cannot be easily obtained in  a closed form, 
-% first a kernel $ {\cal \tilde A}\left(x'',\kt,\Pmax\right) $ 
-%is determined from the MC solution of the CCFM evolution equation, 
-%and is then folded with a non-perturbative starting distribution 
-%${\cal A}_0 (x)$~\cite{Jung:2012hy}:
-%\begin{eqnarray}
-%%\begin{align}
-% x {\cal A}(x,\kt,\Pmax) & = & 
-%   x\int dx' \int dx'' {\cal A}_0 (x) {\cal \tilde A}\left(x'',\kt,\Pmax\right)  \delta(x' \cdot x'' - x) \nonumber \\  
-% & = & \int dx' \int dx'' {\cal A}_0 (x) {\cal \tilde A}\left(x'',\kt,\Pmax\right) \frac{x}{x'} \delta(x'' - \frac{x}{x'}) \nonumber \\ 
-% & = & \int dx' {{\cal A}_0 (x') }  \cdot \frac{x}{x'}{ {\cal \tilde A}\left(\frac{x}{x'},\kt,\Pmax\right). } 
-%%\end{align}
-%\end{eqnarray}
-%The kernel  ${\cal \tilde A}$ includes all the dynamics of the evolution,
-% Sudakov form factors and splitting functions and is determined in 
-%a grid of $50\otimes50\otimes50$ bins in $x,\kt,\Pmax$.  
-%
-%The calculation of the cross section according to Eq.(\ref{kt-factorisation})
-% involves a multidimensional Monte Carlo integration which is time consuming
-% and suffers from numerical fluctuations, and therefore cannot be used directly in a fit
-% procedure.
-%Instead the following procedure is applied:
-%\begin{eqnarray}
-%\nonumber
-%\sigma_r(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2) \\
-%  & = & \int_x^1 dx' {\cal A}_0 (x') \cdot \tilde{ \sigma}(x/x',Q^2). 
-%  \label{final-convolution}
-%\end{eqnarray}
-%
-%The kernel ${\cal \tilde A}$ has to be provided separately and is not
-% calculable within the program. 
-%At the starting scale $Q_0$, a starting distribution ${\cal A}_0$ of the 
-%following form is used:  
-%\begin{eqnarray}
-%x{\cal A}_0(x,\kt) &=& N x^{-B_g} \cdot (1 -x)^{C_g}\left( 1 -D_g x\right) 
-%\label{a0}
-%\end{eqnarray}
-%with free parameters $N,\, B_g,\, C_g,\, D_g$. 
-%
-%The calculation of the $ep$ cross section follows eq.(\ref{kt-factorisation}), 
-%with the off-shell matrix element including quark masses taken from \cite{Catani:1990eg} 
-%in its implementation in {\tt CASCADE} \cite{Jung:2010si}.
-%In addition to the boson gluon fusion process, valence quark initiated 
-%$\gamma q\to q$ processes are included, with the valence quarks taken from~\cite{Deak:2010gk}.
 
