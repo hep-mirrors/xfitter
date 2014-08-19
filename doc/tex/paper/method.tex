@@ -101,7 +101,7 @@ the standard-polynomial one, for $N_{g,S} = 9$.
   \includegraphics[trim=1cm 4cm 1cm 5cm, clip, width=6cm]{chebishev.pdf}
 % \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
 % weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
-  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Chebyshev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique \ref{sec:mc} with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
+  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Chebyshev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique \ref{sec:experimentalerrors} with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
  \label{fig:cheb}
 \end{figure}
 
@@ -376,6 +376,7 @@ $S_{ij}^{\pm}$,
 
 
 \subsection{Treatment of the Theoretical Input Parameters}
+\label{sec:theoryerr}
 
 The results of a QCD fit depend not only on the input data but also on the 
 input parameters used in the theoretical calculations. Nowadays, PDF groups 
@@ -441,7 +442,7 @@ which corresponds to the size of a refitted equiprobable replica set containing 
 This number of effective replicas, $N_\mathrm{eff}$, gives an indicative measure of the optimal size of an 
 unweighted replica set produced using the reweighting/unweighting procedure. No extra information is 
 gained by producing a final unweighted set that has a number of replicas (significantly) larger than 
-$N_\mathrm{eff}$.  Clearly if $N_\mathrm{eff}$ is much smaller than the original number of replicas the new data have great impact, but it is unreliable to use the new reweghted set. Instead a full refit should be performed.
+$N_\mathrm{eff}$.  If $N_\mathrm{eff}$ is much smaller than the original number of replicas the new data have great impact, however it is unreliable to use the new reweghted set. Instead a full refit should be performed.
 
 %On the one hand there is no reason in generating a final unweighted set that has a number of replicas
 %(significantly) larger than $N_\mathrm{eff}$ as no extra information is gained. On the other hand it is

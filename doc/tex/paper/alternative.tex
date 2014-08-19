@@ -133,7 +133,7 @@ x'' - x)
 \nonumber  
 \\
 & = & \int dx' {{\cal A}_0 (x') }  
-\cdot \frac{x}{x'} \ { \tilde{\cal A}\left(\frac{x}{x'},\kt,\Pmax\right) }, 
+\frac{x}{x'} \ { \tilde{\cal A}\left(\frac{x}{x'},\kt,\Pmax\right) }, 
 \end{eqnarray}
 }
 where $\kt$ denotes the transverse momentum of the propagator gluon and $\Pmax$ is the 
@@ -149,9 +149,9 @@ Calculation of the cross section according to Eq.~\ref{kt-factorisation} involve
 multidimensional Monte Carlo integration which suffers from numerical fluctuations.  
 This cannot be employed directly in a fit procedure. Instead the following equation is applied:
 \begin{eqnarray}
-\sigma(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2), 
+\sigma(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2) 
 \nonumber\\
-  & = & \int_x^1 dx' {\cal A}_0 (x') \cdot \tilde{ \sigma}(x/x',Q^2),
+  & = & \int_x^1 dx' {\cal A}_0 (x')  \tilde{ \sigma}(x/x',Q^2),
     \label{final-convolution}
  \end{eqnarray}
 where first $ \tilde{ \sigma}(x',Q^2)$ is calculated numerically with a Monte Carlo integration 
@@ -164,9 +164,9 @@ is performed with a fast numerical gauss integration, which can be used directly
 For the starting distribution ${\cal A}_0$, at the starting scale $Q_0^2$, 
 the following form is used:
 \begin{eqnarray}
-x{\cal A}_0(x,\kt) = N x^{-B}(1 -x)^{C}\left(1 -D x 
-+ E \sqrt{x}   \right) 
-   \exp[ - k_t^2 / \sigma^2 ], 
+x{\cal A}_0(x,\kt) &=& N x^{-B}(1 -x)^{C}\left(1 -D x 
++ E \sqrt{x}   \right) \nonumber\\
+   &\times &\exp[ - k_t^2 / \sigma^2 ], 
 \label{a0-5par}
 \end{eqnarray}
 where $ \sigma^2  =  Q_0^2 / 2 $ and $N, B, C, D, E$ are free parameters.
