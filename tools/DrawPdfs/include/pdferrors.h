@@ -13,9 +13,9 @@ extern double cl(int sigma);
 extern double delta(vector <double> xi, double central, double ConfLevel);
 extern void deltaasym(vector <double> xi, double central, double& delta_p, double& delta_m, double ConfLevel);
 //Hessian PDF errors
-extern double ahessdelta(vector <double> xi , vector < vector <double> > corr = {} );
-extern void ahessdeltaasym(vector <double> xi, double& delta_p, double& delta_m, vector < vector<double> > cor = {} );
-extern double shessdelta(vector <double> xi,  vector < vector<double> > cor = {});
+extern double ahessdelta(vector <double> xi , vector < vector <double> > corr = vector < vector <double> > () );
+extern void ahessdeltaasym(vector <double> xi, double& delta_p, double& delta_m, vector < vector<double> > cor = vector < vector <double> > () );
+extern double shessdelta(vector <double> xi,  vector < vector<double> > cor =vector < vector <double> > () );
 //Experimental+Model+Parametrisation PDF errors
 extern void vardeltaasym(vector <double> xi, int npar, double& delta_p, double& delta_m);
 extern void deltaenvelope(vector <double> xi, double& delta_p, double& delta_m);
