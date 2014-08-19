@@ -139,13 +139,13 @@ void deltaasym(vector <double> xi, double central, double& delta_p, double& delt
     }
 }
 //Functions for Hessian errors
-double ahessdelta(vector <double> xi)
+double ahessdelta(vector <double> xi, vector < vector <double> > corr)
 {
   double ep, em;
-  ahessdeltaasym(xi, ep, em);
+  ahessdeltaasym(xi, ep, em, corr);
   return (ep+em)/2.;
 }
-void ahessdeltaasym(vector <double> xi, double& delta_p, double& delta_m)
+void ahessdeltaasym(vector <double> xi, double& delta_p, double& delta_m, vector < vector<double> > corr )
 {
   if (xi.size() % 2 == 0)
     {
@@ -157,22 +157,51 @@ void ahessdeltaasym(vector <double> xi, double& delta_p, double& delta_m)
   double val = *(xi.begin());
   double ep = 0;
   double em = 0;
-  for (vector<double>::iterator i = xi.begin() + 1; i != xi.end(); i++,i++)
-    {
-      double vm = *i;
-      double vp = *(i+1);
-      ep += pow(max(max(0., vp-val), vm-val),2);
-      em += pow(max(max(0., val-vp), val-vm),2);
-    }
-  delta_p = sqrt(ep);
-  delta_m = sqrt(em);
+
+  if ( corr.empty() ) {
+    for (vector<double>::iterator i = xi.begin() + 1; i != xi.end(); i++,i++)
+      {
+	double vm = *i;
+	double vp = *(i+1);
+	ep += pow(max(max(0., vp-val), vm-val),2);
+	em += pow(max(max(0., val-vp), val-vm),2);
+      }
+    delta_p = sqrt(ep);
+    delta_m = sqrt(em);
+  }
+  else {
+    for (int i=0; i < xi.size()-1; i++, i++)
+      for (int j = 0; j < xi.size()-1; j++,j++) 
+	{
+	  double vm = xi[i+1];
+	  double vp = xi[i+2];
+	  double vm2 = xi[j+1];
+	  double vp2 = xi[j+2];
+	  ep += max(max(0., vp-val), vm-val)*max(max(0., vp2-val), vm2-val)*corr[i/2][j/2];
+	  em += max(max(0., val-vp), val-vm)*max(max(0., val-vp2), val-vm2)*corr[i/2][j/2];
+	}
+    delta_p = sqrt(ep);
+    delta_m = sqrt(em);
+  }
 }
-double shessdelta(vector <double> xi)
+
+
+double shessdelta(vector <double> xi, vector < vector <double> > cor)
 {
   double val = *(xi.begin());
   double err = 0;
-  for (vector<double>::iterator i = xi.begin() + 1; i != xi.end(); i++)
-    err += pow(*i-val, 2);
+
+  if ( cor.empty() ) {
+    for (vector<double>::iterator i = xi.begin() + 1; i != xi.end(); i++)
+      err += pow(*i-val, 2);
+  }
+  else {
+    for (int i=1; i<xi.size(); i++) 
+      for (int j=1; j<xi.size(); j++) 
+	{
+	  err += (xi[i]-val)*(xi[j]-val)*cor[i-1][j-1];
+	}
+  }
   return sqrt(err);
 }
 //Functions for VAR uncertainties

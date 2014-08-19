@@ -479,7 +479,34 @@ void PdfData::profile(string dirname, string label)
     }
   f.close();
 
-
+  // Read also PDF correlation matrix:
+  string ffname = dirname + "/pdf_vector_cor.dat";
+  ifstream ff(ffname.c_str());
+  vector< vector<double> > cor_matrix;
+  if ( ! ff.good() ) {
+    cout << "File " << ffname << " is empty (or io error). Use diagonal approximation for the PDF nuisance parameters." << endl;
+  }
+  else {
+    getline (ff,line);
+    istringstream iss(line);
+    int N;
+    iss >> N;
+    int idx1 = 0;
+    while ( getline (ff,line) ) 
+      {
+	vector <double> aline;
+	istringstream iss(line);
+	int idx2;
+	iss >> idx2;
+	for ( int i = 0; i<N; i++) {
+	  double val;
+	  iss >> val;
+	  aline.push_back(val);
+	}
+	cor_matrix.push_back(aline);
+      }
+    ff.close();
+  }
   // over all Q2 values
   for ( map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) {
     float q2 = pdfit->first;
@@ -535,13 +562,13 @@ void PdfData::profile(string dirname, string label)
 	  if ( err == AsymHess ) {
 
 	    if (!outdirs[label].IsAsym()) //symmetrise errors
-	      eplus = eminus = ahessdelta(xi);
+	      eplus = eminus = ahessdelta(xi, cor_matrix);
 	    else //asymmetric errors
-	      ahessdeltaasym(xi, eplus, eminus);	    
+	      ahessdeltaasym(xi, eplus, eminus, cor_matrix);	    
 	  }
 
 	  else if (err == SymHess) {
-	    eplus = eminus = shessdelta(xi);
+	    eplus = eminus = shessdelta(xi, cor_matrix );
 	  }    	    
 	  
 	  Cent.SetPoint(*pit, ix, val+corsum);
