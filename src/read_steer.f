@@ -1545,11 +1545,7 @@ C
             System(nsys) = SourceName
          endif
       else
-         if (iasym.gt.0) then
-            System(nsys) = SourceName(1:iasym-1)
-         else
-            System(nsys) = SourceName(1:ii-1)
-         endif
+         System(nsys) = SourceName(1:ii-1)
       endif
 
       do while (ii.gt.0) 
