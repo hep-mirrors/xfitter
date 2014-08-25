@@ -27,9 +27,9 @@ cross section are implemented in \fitter:
 the Golec-Biernat-W\"usthoff (GBW)
 dipole saturation model~\cite{Golec-Biernat:1998js},
 a modified GBW model which takes into account the effects of  
-DGLAP evolution termed the Bartels-Golec-Kowalski (BGK) dipole model~\cite{Bartels:2002cj}
+DGLAP evolution, termed the Bartels-Golec-Kowalski (BGK) dipole model~\cite{Bartels:2002cj}
 and the colour glass condensate approach to the high parton density 
-regime termed the Iancu-Itakura-Munier (IIM) dipole model~\cite{Iancu:2003ge}.
+regime, termed the Iancu-Itakura-Munier (IIM) dipole model~\cite{Iancu:2003ge}.
 %\end{itemize}
 
 %\begin{description}
@@ -49,7 +49,7 @@ This model gives exact Bjorken scaling when the dipole size $r$ is small.
  
 \paragraph{BGK model:} \rm
 The BGK model is a modification of the GBW model assuming that the
-spacing $R_0$ is inverse of the gluon density and taking
+spacing $R_0$ is inverse to the gluon density and taking
 into account the DGLAP evolution of the latter.
 The gluon density parametrised at some starting scale by Eq.~\ref{eqn:pdf_std}
 is evolved to larger scales using DGLAP evolution.
@@ -119,11 +119,11 @@ valence quarks~\cite{Deak:2010gk,Hautmann:2013tba}.
 \paragraph{CCFM Grid Techniques:} \rm
 
 The CCFM evolution cannot be written easily in an analytic closed form. For this 
-reason a Monte Carlo method is employed, which is however time-consuming, and thus
+reason a MC method is employed, which is however time-consuming, and thus
 cannot be used directly in a fit program. 
 
 Following the  convolution method introduced in~\cite{Jung:2012hy,Hautmann:2013tba}, the 
-kernel $ \tilde {\cal A}\left(x'',\kt,\Pmax\right) $ is determined from the Monte Carlo  solution of the CCFM evolution equation, 
+kernel $ \tilde {\cal A}\left(x'',\kt,\Pmax\right) $ is determined from the MC  solution of the CCFM evolution equation, 
 and then folded with a non-perturbative starting distribution ${\cal A}_0 (x)$
 { 
 \begin{eqnarray}
@@ -146,7 +146,7 @@ $x$ for which 40 bins in logarithmic
 spacing below 0.1, and 10 bins in linear spacing above 0.1 are used.
 
 Calculation of the cross section according to Eq.~\ref{kt-factorisation} involves a time-consuming
-multidimensional Monte Carlo integration which suffers from numerical fluctuations.  
+multidimensional MC integration which suffers from numerical fluctuations.  
 This cannot be employed directly in a fit procedure. Instead the following equation is applied:
 \begin{eqnarray}
 \sigma(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2) 
@@ -154,7 +154,7 @@ This cannot be employed directly in a fit procedure. Instead the following equat
   & = & \int_x^1 dx' {\cal A}_0 (x')  \tilde{ \sigma}(x/x',Q^2),
     \label{final-convolution}
  \end{eqnarray}
-where first $ \tilde{ \sigma}(x',Q^2)$ is calculated numerically with a Monte Carlo integration 
+where first $ \tilde{ \sigma}(x',Q^2)$ is calculated numerically with a MC integration 
 on a grid in $x$ for the values of $Q^2$ used in the fit. Then the last step in Eq.~\ref{final-convolution}  
 is performed with a fast numerical gauss integration, which can be used directly in the fit.
 

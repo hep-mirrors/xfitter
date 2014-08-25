@@ -37,8 +37,8 @@ The form of polynomials $P_j(x)$ can be varied.
 The form $(1 + \epsilon_j \sqrt{x} + D_j x + E_j x^2)$
 is used for the HERAPDF \cite{h1zeus:2009wt} 
 with additional constraints relating to the flavour decomposition of the 
-light sea. This parametrization is termed HERAPDF-style. The polynomial can also
-be parametrized in the CTEQ-style, $P_i(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$ and,
+light sea. This parametrisation is termed HERAPDF-style. The polynomial can also
+be parametrised in the CTEQ-style, $P_j(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$ and,
 in contrast to  the HERAPDF-style, this is positive by construction.
 QCD number and momentum sum rules are used to determine the normalisations $A$ for the valence and gluon
 distributions, and the sum-rule integrals are solved analytically.
@@ -60,7 +60,7 @@ however, numerical integration of Eq.~\ref{eqn:bilog} is required in order to sa
 %In order to satisfy the QCD sum rules this parametric form requires numerical integration.
 \paragraph{Chebyshev Polynomials:} 
 A flexible parametrisation  based on the Chebyshev polynomials can be employed for the gluon and sea distributions.
-Polynomials with argument $\log(x)$ are considered .or better modelling the low-$x$ asymptotic of those PDFs. The polynomials are multiplied
+Polynomials with argument $\log(x)$ are considered for better modelling the low-$x$ asymptotic of those PDFs. The polynomials are multiplied
 by a factor of $(1-x)$ to ensure that they vanish as $x\to 1$. The resulting parametric form reads
 \begin{eqnarray}
 x g(x) &=& A_g \left(1-x\right) \sum_{i=0}^{N_g-1} A_{g_i} T_i \left(-\frac{\textstyle 2\log x - \log x_{\rm min} } {\textstyle \log x_{\rm min} } \right)\,, \label{eq:glu} \\
@@ -101,7 +101,7 @@ the standard-polynomial one, for $N_{g,S} = 9$.
   \includegraphics[trim=1cm 4cm 1cm 5cm, clip, width=6cm]{chebishev.pdf}
 % \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
 % weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
-  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Chebyshev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique \ref{sec:experimentalerrors} with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
+  \caption{The gluon density is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Chebyshev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique (see section \ref{sec:experimentalerrors}) with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
  \label{fig:cheb}
 \end{figure}
 
@@ -137,7 +137,7 @@ e.g. using a covariance matrix or providing nuisance parameters to encode the de
 each correlated systematic uncertainty for each measured data point.
 %, different scaling options, etc. 
 %In addition, there are various methods to deal with correlated systematic (or statistical) uncertainties. 
-The options available in \fitter are following.
+The options available in \fitter are the following.
 
 \begin{description}
 \item \it {Covariance Matrix Representation:} \rm
@@ -214,7 +214,7 @@ but the bin-to-bin statistical correlations are given in the form of covariance 
 %A situation can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlations are given in the form of a covariance matrix. 
 \fitter\ offers the possibilitiy to include such mixed forms of information. 
 %information, when provided, as well as any other mixed 
-form of treating statistical, uncorrelated and correlated systematic uncertainties. 
+for treating statistical, uncorrelated and correlated systematic uncertainties. 
 %In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
 %\begin{equation} 
 %\begin{eqnarray} 
@@ -395,7 +395,7 @@ data in an existing fit using the Bayesian Reweighting technique. The method
 provides a fast estimate of the impact of new data on PDFs. 
 Bayesian Reweighting was first proposed for PDF sets delivered in the form of MC replicas by~\cite{Giele:1998gw} and further developed by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
 More recently, a method to perform Bayesian Reweighting studies starting from PDF fits for which uncertainties
-are provided in the eigenvectors representation has been also developed~\cite{Watt:2012tq}. The latter is 
+are provided in the eigenvector representation has been also developed~\cite{Watt:2012tq}. The latter is 
 based on generating replica sets by introducing Gaussian fluctuations on the central PDF set with a variance 
 determined by the PDF uncertainty given by the eigenvectors. Both reweighting methods are implemented in \fitter.
 
@@ -410,7 +410,7 @@ predictions obtained from the ensemble as
 and the uncertainty as the standard deviation of the sample.
 
 Upon inclusion of new data the prior probability distribution, given by the prior PDF set, is updated according
-to Bayes Theorem and the weight of each replica, $w_k$, is updated according to
+to Bayes Theorem such that the weight of each replica, $w_k$, is updated according to
 \begin{equation}
  w_k = \frac{(\chi^2_k)^{\frac{1}{2} (N_{\mathrm{data}}-1) } e^{-\frac{1}{2}\chi^2_k}}
           { \frac{1}{N_{\mathrm{rep}}} \sum^{N_{\mathrm{rep}}}_{k=1}(\chi^2_k)^{\frac{1}{2}(N_{\mathrm{data}}-1)} e^{-\frac{1}{2}\chi^2_k}  },

@@ -20,8 +20,7 @@ A direct consequence of factorisation (Eq. \ref{eq:fact}) is that scale dependen
 by the renormalisation group equations. 
 By requiring that physical observables are independent of 
 $\muf$, a representation 
-of parton evolution in terms of the 
-DGLAP equations:
+of parton evolution in terms of the DGLAP equations is obtained:
 %integro-differential equations known as 
 %DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs} (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi) equations:
 
@@ -39,7 +38,8 @@ of finding parton $a$ in parton $b$. They can be calculated as a  perturbative e
 Once PDFs are determined at the initial
 scale $Q_0^2$, their evolution to any other scale $Q^2 > Q_0^2$ is entirely determined by the DGLAP equations.
 The PDFs are then used to calculate cross sections for various different processes.
-Alternative approaches to DGLAP evolution, valid in different kinematic regimes, are also implemented in \fitter and will be discussed in the next sections.
+Alternative approaches to DGLAP evolution, valid in different kinematic regimes, 
+are also implemented in \fitter and will be discussed in section~\ref{sec:alternative}.
 
 
 %The PDFs are determined by measuring the agreement 
@@ -60,7 +60,7 @@ in detail in many extensive reviews (see e.g. Ref. \cite{disbook}) and it is onl
 DIS is the process where a lepton scatters off the partons in the proton
 by a virtual exchange of a NC or CC vector boson and, as a result, a scattered lepton and a 
 multi-hadronic final state are produced.
-The common DIS kinematic variables are the scale of the process $Q^2$, the absolute squared four-momentum of 
+The common DIS kinematic variables are the scale of the process $Q^2$, which is the absolute squared four-momentum of 
 the exchange boson, Bjorken $x$, 
 which can be related in the parton model to 
 the fraction of momentum carried by the struck quark, 
@@ -73,11 +73,12 @@ and the inelasticity $y$. These are related by $y=Q^2/sx$, where $s$ is the squa
 The NC cross section can be expressed in terms of generalised structure functions:
 \begin{eqnarray}
 %  \nonumber
-   \frac{d^2\sigma_{NC}^{e^{\pm} p}}{dxdQ^2}&=&\frac{2\pi\alpha^2}{xQ^4} \sigma_{r,NC}^{e^{\pm} p},\\ 
-   \sigma_{r,NC}^{e^{\pm} p}&= &  Y_{+} \tilde F_2^{\pm} \mp Y_{-}x \tilde F_3^{\pm} - y^2 \tilde F_L^{\pm},
+    \frac{d^2\sigma_{NC}^{e^{\pm} p}}{dxdQ^2}&=&\frac{2\pi\alpha^2 Y_{+}}{xQ^4} \sigma_{r,NC}^{e^{\pm} p},\\ 
+    \sigma_{r,NC}^{e^{\pm} p}&= &  \tilde F_2^{\pm} \mp \frac{Y_{-}}{Y_{+}}x \tilde F_3^{\pm} - \frac{y^2}{Y_{+}} \tilde F_L^{\pm},
  %\label{eq:NC not reduced}
 \end{eqnarray}
-where  $Y_{\pm} = 1 \pm (1-y)^2$ and the electromagnetic coupling constant $\alpha$, the photon propagator and a helicity factor are absorbed in the definition of the reduced cross section $\sigma_r$.
+where  $Y_{\pm} = 1 \pm (1-y)^2$ and the electromagnetic coupling constant $\alpha$, 
+the photon propagator and a helicity factor are absorbed in the definition of the reduced cross section $\sigma_r$.
 %, and  $Y_{\pm} = 1 \pm (1-y)^2$ (additional terms of $O(1/Q^2)$ are numerically sm%all 
 %at the HERA kinematics and are neglected). 
 The generalised structure functions $\tilde F_{2,3}$ 
@@ -142,7 +143,7 @@ The DIS measurements
 span a large range of $Q^2$ from few $\GeV^2$ to about $10^5$ $\GeV^2$,
 %from low to high $Q^2$
 crossing heavy-quark mass thresholds, thus the
-treatment of heavy quark (charm and beauty) production and the chosen values of their masses becomes important. 
+treatment of heavy quark (charm and beauty) production and the chosen values of their masses become important. 
 There are different approaches to the treatment of heavy quark production that would 
 be equivalent if calculations could be carried out to all orders in $\alpha_s$, but which differ at finite order.
 Several variants of these schemes are implemented in \fitter and they are briefly discussed below.
@@ -179,7 +180,9 @@ In \texttt{HERA-} \texttt{Fitter} this scheme can be accessed via the
 \qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD}~\cite{openqcdrad:page}, as implemented by the ABM group.
 This scheme is reliable for $Q^2 \sim m_h^2$.
 In \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
-are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account. In the \texttt{OPEN}\texttt{QCDRAD} implementation the heavy quark contributions to CC structure functions are also available and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
+are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account. 
+In the \texttt{OPEN}\texttt{QCDRAD} implementation the heavy quark contributions to CC structure functions are also available 
+%and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 and, for the NC case, the QCD corrections to the coefficient functions at Next-to-Next-to Leading Order (NNLO)
 are provided at the best currently known approximation~\cite{SMoch:npb864}.
 The  \texttt{OPENQCDRAD} implementation also uses the running heavy-quark mass  \cite{Alekhin:runm} in the $\overline{\text{MS}}$ scheme.
@@ -195,7 +198,7 @@ in the massless scheme with a suitable interpolation inbetween. The details of t
 %in the ZM-VFN scheme with a suitable interpolation in between.
 The PDF groups that use GM-VFN schemes are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
 %This scheme is very popular and numerous variants exist.
-\fitter implements different variants of the GM-VFN scheme and they are presented below:
+\fitter implements different variants of the GM-VFN scheme.
 % 
 \begin{itemize}
 %
@@ -530,11 +533,13 @@ even for the case of realistic kinematic cuts.
 %lepton \(p_{\perp}\) cuts.
 %{\bf I think that this is an inappropriate level of detail about the LO DY calculation which could largely be replaced by references, however I have kept it for now, having moved it from the k-factor section where it did not belong}
 
-Beyond LO, the calculations can no longer be done quickly and MC techniques are often employed. Currently, the predictions for $W$ and $Z/\gamma^*$ production are available up
-to NNLO and the predictions for $W$, $Z$ in association with heavy flavour quarks is available to NLO. There are several possibilities 
+Beyond LO, the calculations can no longer be done quickly and Monte Carlo techniques (see section \ref{sec:experimentalerrors}) are often employed. 
+Currently, the predictions for $W$ and $Z/\gamma^*$ production are available up
+to NNLO and the predictions for $W$, $Z$ in association with heavy flavour quarks is available to NLO.
+
+There are several possibilities 
 for obtaining the theoretical
 predictions for DY production in \fitter. 
-
 The NLO and NNLO calculations are computing power and time consuming
 %highly demanding in terms of the computing power and time, 
 and $k$-factor or \emph{fast grid} techniques must be employed (see section~\ref{sec:techniques}
@@ -603,7 +608,7 @@ in $ep$, $pp$ and $p\bar{p}$ collisions
 
 \subsection{Top-quark Production in $pp$ or $p \bar p$ Collisions}
 
-At the LHC top-quark pairs ($t \bar t$) are produced at hadron colliders dominantly via $gg$ fusion.
+At the LHC top-quark pairs ($t \bar t$) are produced dominantly via $gg$ fusion.
 % and $q\bar{q}$ annihilation (at the Tevatron).
 Thus LHC Measurements of the $t \bar t$ cross sections can provide additional 
 constraints on the gluon density at medium to high values of $x$, 
@@ -611,7 +616,7 @@ on $\as$ and on the top-quark mass, $m_t$ \cite{cms:top}.
 Precise predictions for the total $t \bar t$ cross section are available 
 to full NNLO~\cite{Czakon:2013goa}. They can be computed within \fitter via an interface 
 to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. Differential $t \bar t$ cross section
-predictions can be obtained using
+predictions at NLO can be obtained using
 \texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
 interfaced to \fitter with \emph{fast grid} techniques.
 

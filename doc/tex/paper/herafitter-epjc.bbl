@@ -1,4 +1,4 @@
-\begin{thebibliography}{137}
+\begin{thebibliography}{138}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -15,41 +15,6 @@
 \bibitem[{her()}]{herafitter:page}
 \emph{\bibinfo{title}{{HERAFitter}}},
   \bibinfo{note}{https://www.herafitter.org}.
-
-\bibitem[{\citenamefont{Collins and Tung}(1986)}]{ZMVFNpub}
-\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{W.-K.} \bibnamefont{Tung}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{278}},
-  \bibinfo{pages}{934} (\bibinfo{year}{1986}).
-
-\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1992)}]{Laenen:1992}
-\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
-  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Phys. Lett.}
-  \textbf{\bibinfo{volume}{B291}}, \bibinfo{pages}{325} (\bibinfo{year}{1992}).
-
-\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1993)}]{Laenen:1993}
-\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
-  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Nucl. Phys.}
-  \textbf{\bibinfo{volume}{B392}}, \bibinfo{pages}{162, 229}
-  (\bibinfo{year}{1993}).
-
-\bibitem[{\citenamefont{Riemersma \emph{et~al.}}(1995)\citenamefont{Riemersma,
-  Smith, and van Neerven.~W.L.}}]{Riem:1995}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Riemersma}},
-  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Smith}}, \bibnamefont{and}
-  \bibinfo{author}{\bibnamefont{van Neerven.~W.L.}}, \bibinfo{journal}{Phys.
-  Lett.} \textbf{\bibinfo{volume}{B347}}, \bibinfo{pages}{143}
-  (\bibinfo{year}{1995}), [\eprint{hep-ph/9411431}].
-
-\bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
-  Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
-\bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Demina}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Keller}},
-  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Kramer}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Kretzer}},
-  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Martin}},
-  \bibnamefont{\emph{et~al.}} (\bibinfo{year}{1999}),
-  [\eprint{hep-ph/0005112}].
 
 \bibitem[{\citenamefont{Aad \emph{et~al.}}(2012{\natexlab{a}})}]{Aad:2012tfa}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
@@ -295,6 +260,31 @@
   (\bibinfo{year}{2011}), \bibinfo{note}{{{\it Deep Inelastic Scattering},
   ISBN: 0199602255,9780199602254}}.
 
+\bibitem[{\citenamefont{Collins and Tung}(1986)}]{ZMVFNpub}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{W.-K.} \bibnamefont{Tung}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{278}},
+  \bibinfo{pages}{934} (\bibinfo{year}{1986}).
+
+\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1992)}]{Laenen:1992}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Phys. Lett.}
+  \textbf{\bibinfo{volume}{B291}}, \bibinfo{pages}{325} (\bibinfo{year}{1992}).
+
+\bibitem[{\citenamefont{Laenen \emph{et~al.}}(1993)}]{Laenen:1993}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Laenen}}
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{Nucl. Phys.}
+  \textbf{\bibinfo{volume}{B392}}, \bibinfo{pages}{162, 229}
+  (\bibinfo{year}{1993}).
+
+\bibitem[{\citenamefont{Riemersma \emph{et~al.}}(1995)\citenamefont{Riemersma,
+  Smith, and van Neerven.~W.L.}}]{Riem:1995}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Riemersma}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Smith}}, \bibnamefont{and}
+  \bibinfo{author}{\bibnamefont{van Neerven.~W.L.}}, \bibinfo{journal}{Phys.
+  Lett.} \textbf{\bibinfo{volume}{B347}}, \bibinfo{pages}{143}
+  (\bibinfo{year}{1995}), [\eprint{hep-ph/9411431}].
+
 \bibitem[{\citenamefont{Alekhin \emph{et~al.}}()\citenamefont{Alekhin,
   Bl{\"u}mlein, and Moch}}]{openqcdrad:page}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}},
@@ -317,6 +307,16 @@
   \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}},
   \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B699}},
   \bibinfo{pages}{345} (\bibinfo{year}{2011}), [\eprint{arXiv:1011.5790}].
+
+\bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
+  Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
+\bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Demina}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Keller}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Kramer}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Kretzer}},
+  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Martin}},
+  \bibnamefont{\emph{et~al.}} (\bibinfo{year}{1999}),
+  [\eprint{hep-ph/0005112}].
 
 \bibitem[{\citenamefont{Thorne and Roberts}(1998)}]{Thorne:1997ga}
 \bibinfo{author}{\bibfnamefont{R.~S.} \bibnamefont{Thorne}} \bibnamefont{and}
@@ -679,11 +679,6 @@
   \bibinfo{journal}{Z.Phys.} \textbf{\bibinfo{volume}{C49}},
   \bibinfo{pages}{607} (\bibinfo{year}{1991}).
 
-\bibitem[{\citenamefont{Balitsky}(1996)}]{Balitsky:1995ub}
-\bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Balitsky}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{463}},
-  \bibinfo{pages}{99} (\bibinfo{year}{1996}), [\eprint{hep-ph/9509348}].
-
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2011)}]{Collaboration:2010ry}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 Collaboration}],
@@ -694,6 +689,11 @@
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Luszczak}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}}
   (\bibinfo{year}{2013}), [\eprint{arXiv:1312.4060}].
+
+\bibitem[{\citenamefont{Balitsky}(1996)}]{Balitsky:1995ub}
+\bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Balitsky}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{463}},
+  \bibinfo{pages}{99} (\bibinfo{year}{1996}), [\eprint{hep-ph/9509348}].
 
 \bibitem[{\citenamefont{Aybat and Rogers}(2011)}]{Aybat:2011zv}
 \bibinfo{author}{\bibfnamefont{S.~M.} \bibnamefont{Aybat}} \bibnamefont{and}
@@ -887,6 +887,13 @@
   \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{73}},
   \bibinfo{pages}{2509} (\bibinfo{year}{2013}{\natexlab{b}}),
   [\eprint{arXiv:1304:4739}].
+
+\bibitem[{\citenamefont{Aad \emph{et~al.}}(2013{\natexlab{c}})}]{atlas:photons}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
+  \bibinfo{type}{Tech. Rep.} \bibinfo{number}{ATL-PHYS-PUB-2013-018},
+  \bibinfo{institution}{CERN}, \bibinfo{address}{Geneva}
+  (\bibinfo{year}{2013}{\natexlab{c}}).
 
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2012)}]{h1:2012kk}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
