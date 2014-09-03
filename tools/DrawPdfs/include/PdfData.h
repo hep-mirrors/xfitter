@@ -58,6 +58,14 @@ class Pdf
   vector <double> xpoints;
 };
 
+struct pdfshift 
+{
+  double val;
+  double err;
+  int    id;
+};
+
+
 //Class storing all the PDF data of one directory
 class PdfData
 {
@@ -78,6 +86,8 @@ class PdfData
   map <float, vector <Pdf> > ParErrors;   //Q2 values PDF errors map
   map <float, Pdf> Up;                    //Q2 values up PDF map
   map <float, Pdf> Down;                  //Q2 values down PDF map
+
+  vector<pdfshift> pdfshifts;  // For profiled PDFs, keep shift info
 };
 
 #endif

@@ -1,5 +1,5 @@
 #include "Dataset.h"
-
+#include "Outdir.h"
 #include "CommandParser.h"
 
 #include <TObjArray.h>
@@ -308,6 +308,49 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   valid = true;
 }
 
+void readLineFiles ( int nfile, ifstream **infiles, string *lines) {
+  for (int i=0; i<nfile; i++) {
+    getline(*infiles[i],lines[i]);
+  }
+}
+
+float getTheoryShift (  vector<pdfshift> pdfshifts, pdferr err, string *lines) {
+  // Decode string thing
+  int N = ( err == AsymHess ) ? 2*pdfshifts.size()+1 : pdfshifts.size()+1;
+
+  if (N == 1) return 0;
+
+  double val[N];
+  for (int i=0; i<N; i++) {
+    istringstream iss(lines[i]);
+    // Hardwire !!! //
+    for (int j =0; j<7; j++) {
+      iss >> val[i];
+    }
+  }
+
+  double corSum = 0 ;
+  double cent = val[0];
+  if ( err == AsymHess ) {
+    for ( int i = 0; i<pdfshifts.size(); i++ ) {
+      double plus  = val[i*2+1] - cent;
+      double minus = val[i*2+2] - cent;
+      double valShift = pdfshifts[i].val;
+      double cor = 0.5*(plus - minus)*valShift - 0.5*(plus+minus)*valShift*valShift;
+      corSum += cor;
+    }
+  }
+  else if ( err = SymHess ) {
+    for ( int i = 1; i<=pdfshifts.size(); i++ ) {
+      double plus  = val[i] - cent;
+      double valShift = pdfshifts[i].val;
+      double cor = -plus*valShift;
+      corSum += cor;
+    }
+  }
+  return corSum;
+}       
+
 Data::Data(string dirname, string label)
 {
   //Open datasets file (fittedresults.txt)
@@ -317,8 +360,28 @@ Data::Data(string dirname, string label)
   if (!infile.is_open()) //fittedresults.txt not found
     return;
 
+  // open also files for shifted fittedresults.txt  
+  vector<pdfshift> shifts = pdfmap[label].pdfshifts;
+  pdferr err = pdfmap[label].err;
+
+  int nfiles = ( err == AsymHess) ? shifts.size()*2+1 :shifts.size() + 1; 
+  // reset if shifts is empty.
+  if (nfiles == 1) {nfiles = 0;}
+
+  ifstream *infiles[nfiles];
+  for ( int i = 0; i < nfiles; i++) {
+    sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(),i);   
+    infiles[i] = new ifstream(filename);
+    if (! infiles[i]->is_open() ) {
+      cout << "Error " <<endl;
+      return;
+    }
+  }
+
+
   //Read datasets
-  string line;
+  string line;  string lines[nfiles];
+
   int dtindex, nextdtindex;
   string name;
   float buffer;
@@ -326,14 +389,15 @@ Data::Data(string dirname, string label)
   map <int, string> coltag;
 
   int Ndatasets;
-  getline(infile, line);
+  getline(infile, line); readLineFiles(nfiles,infiles,lines);
+
   istringstream issnd(line);
   issnd >> Ndatasets; // Total number of data sets
 
   if (infile.eof() || Ndatasets == 0)
     return; //empty file, or no datasets found
 
-  getline(infile, line);
+  getline(infile, line); readLineFiles(nfiles,infiles,lines);
   istringstream issdi(line);
   issdi >> nextdtindex;  //Dataset index
 
@@ -343,12 +407,12 @@ Data::Data(string dirname, string label)
       dtindex = nextdtindex;
 
       //Read dataset name
-      getline(infile, name);
+      getline(infile, name); readLineFiles(nfiles,infiles,lines);
       
       //Initialise new dataset
       Dataset dtset(dtindex, name);
 
-      getline(infile, line);
+      getline(infile, line); readLineFiles(nfiles,infiles,lines);
       //Read plot options
       while(!infile.eof())
 	{
@@ -365,7 +429,7 @@ Data::Data(string dirname, string label)
 	  //End of reading subplotindex
 
 	  dtset.subplots[iplot] = Subplot(line);
-	  getline(infile, line);
+	  getline(infile, line); readLineFiles(nfiles,infiles,lines);
 	}
 
       //Read columns tags
@@ -396,7 +460,7 @@ Data::Data(string dirname, string label)
       coltag[13] = "x";
       //end of patch
 
-      getline(infile, line);
+      getline(infile, line); readLineFiles(nfiles,infiles,lines);
       //Loop on data points
       while(!infile.eof())
 	{
@@ -422,7 +486,9 @@ Data::Data(string dirname, string label)
 		  TObjArray* array = str.Tokenize("/");
 		  iplot = ((TObjString*) array->At(0))->GetString().Atoi();
 		  fline["x"] = ((TObjString*) array->At(1))->GetString().Atof();
-		  break;
+	  
+		  break;		  
+
 		}
 	      //end of patch
 	    }
@@ -433,8 +499,14 @@ Data::Data(string dirname, string label)
 	      break; 
 	    }
 	  //Add point to subplot
+
+	  float Thshift = getTheoryShift(shifts, err, lines);
+	  
+	  fline["thorig"] += Thshift;
+
 	  dtset.subplots[iplot].AddPoint(fline);
-	  getline(infile, line);
+	  getline(infile, line); readLineFiles(nfiles,infiles,lines);
+
 	}//End loop on data points
       for (map <int, Subplot>::iterator sit = dtset.subplots.begin(); sit != dtset.subplots.end(); sit++)
 	{

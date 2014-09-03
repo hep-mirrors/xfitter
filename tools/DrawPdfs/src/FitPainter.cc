@@ -1,5 +1,4 @@
 #include "FitPainter.h"
-
 #include "Outdir.h"
 #include "CommandParser.h"
 #include "DrawLogo.h"
@@ -83,6 +82,10 @@ bool FitPainter()
       chi2[dir][dat] = chi2map[*itl].chi2corr.chi2;
       chi2_00[dir][dat] = chi2map[*itl].chi2corr.chi2_00;
       dof[dir][dat] = chi2map[*itl].chi2corr.dof;
+      vector<pdfshift> shifts = pdfmap[*itl].pdfshifts;
+      for ( vector<pdfshift>::iterator sh = shifts.begin(); sh != shifts.end(); sh++) {
+	chi2[dir][dat]  -= (sh->val)*(sh->val);
+      }
       dir++;
     }
   dat++;
@@ -107,6 +110,10 @@ bool FitPainter()
       chi2[dir][dat] = chi2map[*itl].chi2tot.chi2;
       chi2_00[dir][dat] = chi2map[*itl].chi2tot.chi2_00;
       dof[dir][dat] = chi2map[*itl].chi2tot.dof;
+      vector<pdfshift> shifts = pdfmap[*itl].pdfshifts;
+      for ( vector<pdfshift>::iterator sh = shifts.begin(); sh != shifts.end(); sh++) {
+	chi2[dir][dat]  -= (sh->val)*(sh->val);
+      }
       dir++;
     }
 
@@ -205,6 +212,7 @@ bool FitPainter()
     }
 
   fprintf(ftab,"  Correlated $\\chi^2$  ");
+
   for (int i = 0; i < opts.labels.size(); i++)
     if (opts.chi2nopdf)
       fprintf(ftab,"& %s$|$%s", 

@@ -433,17 +433,9 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
     profile(dirname, label);
 }
 
-struct pdfshift 
-{
-  double val;
-  double err;
-  int    id;
-};
-
 
 void PdfData::profile(string dirname, string label)
 {
-  vector<pdfshift> pdfshifts;
 
   // Extract PDF shifts from Results.txt:
 
@@ -542,7 +534,7 @@ void PdfData::profile(string dirname, string label)
 	      double minus = Dn.GetTable(*pit)[ix] - val;
 	      
 
-	      double cor = 0.5*(plus - minus)*valShift  + 0.5*(plus+minus)*valShift*valShift;
+	      double cor = 0.5*(plus - minus)*valShift   - 0.5*(plus+minus)*valShift*valShift;
 	      
 	      xi.push_back(plus*errShift+val);
 	      xi.push_back(minus*errShift+val);
