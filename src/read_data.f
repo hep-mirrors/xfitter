@@ -415,6 +415,10 @@ C
 C Reaction info:
       DATASETREACTION(NDATASETS) = Reaction
 
+C Reset bit-masks for error types:
+      iStatTypesBitMask(NDATASETS) = 0
+      iUncorTypesBitMask(NDATASETS) = 0
+
 C Parse ColumnType, count systematics, etc
       do i=1,NColumn
          if (ColumnType(i).eq.'Flag') then
@@ -427,10 +431,24 @@ C Parse ColumnType, count systematics, etc
          elseif (ColumnType(i).eq.'Error') then
             NUncert = NUncert + 1
             ! Special case: uncorrelated errors (constant or mult)
-            if (index(ColumnName(i),'uncor const').gt.0) then
+            if (index(ColumnName(i),'uncor const').gt.0
+     $           .or.index(ColumnName(i),'uncor:A').gt.0) then
                SystematicType(NUncert) = 'uncor const'
+               iUncorTypesBitMask(NDATASETS) = 
+     $              IOR(iUncorTypesBitMask(NDATASETS), ibConst)
+            elseif ((ColumnName(i).eq.'stat:A')
+     $              .or.(ColumnName(i).eq.'stat const')) then
+               SystematicType(NUncert) = 'stat const'
+               iStatTypesBitMask(NDATASETS) = 
+     $              IOR(iStatTypesBitMask(NDATASETS), ibConst)
             elseif (index(ColumnName(i),'uncor').gt.0) then
                SystematicType(NUncert) = 'uncor'
+               iUncorTypesBitMask(NDATASETS) = 
+     $              IOR(iUncorTypesBitMask(NDATASETS), ibLinear)
+            elseif (ColumnName(i).eq.'stat') then
+               SystematicType(NUncert) = 'stat'
+               iStatTypesBitMask(NDATASETS) = 
+     $              IOR(iStatTypesBitMask(NDATASETS), ibPoisson)
             else
                SystematicType(NUncert) = ColumnName(i)
             endif

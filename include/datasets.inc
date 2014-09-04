@@ -88,3 +88,14 @@ C
      $     ,UseFixedTheory
 
       Common/cdatapoi/chi2_poi
+
+C
+C Keep track of uncertainty types per dataset
+C
+      integer ibConst,ibPoisson,ibLinear
+      parameter (ibConst   = 1)
+      parameter (ibPoisson = 2)
+      parameter (ibLinear  = 4)
+
+      integer iStatTypesBitMask(NSET), iUncorTypesBitMask(NSET)
+      Common/CdatasetErrorTypes/iStatTypesBitMask, iUncorTypesBitMask

@@ -1648,7 +1648,8 @@ C---------------------------------------------------------------
       
       character*80 name_s
       character*3  name_n, name_t
-
+      integer imaskSta, imaskUnc
+      character*80 message
 
 C--------------------------------------------------------
       if (LFirst) then
@@ -1751,12 +1752,44 @@ C         print *,'hihi',Nui_cor,tolerance, ncovar
          
 
 C Define the scaling property based on the first point:
+         imaskSta = iStatTypesBitMask(JSet(List_Covar(1)))
+         imaskUnc = iUncorTypesBitMask(JSet(List_Covar(1)))
+
+
          if ((iCovBit.eq.iCovSyst).or.(iCovBit.eq.iCovSystCorr))   then
                   ! Multiplicative is default for syst.
             name_t = ':M'
+
+            ! Check bits
+            if (iAnd(imaskUnc,ibLinear).eq.imaskUnc) then
+               name_t = ':M'
+            elseif (iAnd(imaskUnc,ibConst).eq.imaskUnc) then
+               name_t = ':A'
+            else              
+               Call hf_errlog(14090401,
+     $ 'W: inconsistent use of uncor and '//
+     $ 'uncor const for dataset: "'//
+     $              Trim(DataSetLabel(JSet(List_Covar(1))))
+     $              //'".  Use multiplicaiive errors')
+            endif
+
          elseif ( (iCovBit.eq.iCovStatCorr) ) then
                   ! Poisson is default for stat. 
             name_t = ':P'
+
+            ! Check bits
+            if (iAnd(imaskSta,ibLinear).eq.imaskSta) then
+               name_t = ':P'
+            elseif (iAnd(imaskSta,ibConst).eq.imaskSta) then
+               name_t = ':A'
+            else              
+               Call hf_errlog(14090402,
+     $ 'W: inconsistent use of stat and '//
+     $ 'stat const for dataset "'//
+     $              Trim(DataSetLabel(JSet(List_Covar(1))))
+     $              //'".  Use Poisson errors')
+            endif
+
          else                   ! Additive is defualt for full
             name_t = ':A'
          endif
