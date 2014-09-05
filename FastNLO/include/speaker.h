@@ -15,9 +15,7 @@ enum Verbosity {DEBUG=-1000, MANUAL=-1, INFO=0, WARNING=1, ERROR=2, SILENT=1000}
 class speaker {
 public:
    speaker(std::string prefix="",say::Verbosity volume=say::INFO,bool err=false,bool quiet=false);
-   speaker(const speaker& spk) {
-      ;
-   };
+   speaker(const speaker& spk);
    ~speaker();
    //speaker(const speaker& spk) : weg(0) {;};
    std::ostream& operator[](std::string fct) const ;
@@ -34,7 +32,9 @@ public:
          else return std::cout<<pref<<arg;
       }
    }
+#ifndef SWIG 
    std::ostream& operator>> (std::string arg) const ;
+#endif
    std::ostream& print(std::string mes) const ;
    void DoSpeak(bool loud) {
       fquiet=!loud;
@@ -45,7 +45,7 @@ public:
    void SetPrefix(std::string prefix) {
       pref=prefix;
    };
-   std::string GetPrefix(std::string prefix) const {
+   std::string GetPrefix() const {
       return pref;
    };
    void SetClassName(std::string classname) {
@@ -94,8 +94,10 @@ extern int SetGlobalVerbosity(Verbosity verbosity);
 class PrimalScream {
 public:
    PrimalScream(std::string classname);//,std::string prefix="");
+   void SetClassName(const std::string classname );
    void SetVerbosity(say::Verbosity volume);
-   std::string cn;
+private:
+   std::string ___cn;
 protected:
    speaker debug;
    speaker man;

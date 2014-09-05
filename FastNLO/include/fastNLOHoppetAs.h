@@ -16,22 +16,36 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef FASTNLOHERAFITTER
-#define FASTNLOHERAFITTER
+//////////////////////////////////////////////////////////////////////////
+//
+//  fastNLOAlphas
+//  This class inherits the PDF interface from
+//  fastNLOLHAPDF, while the alpha_s evolution
+//  is superseeded by the Alphas.h class.
+//lhasub
+//////////////////////////////////////////////////////////////////////////
 
-#include "fastNLOReader.h"
+#ifndef FASTNLOHOPPETAS
+#define FASTNLOHOPPETAS
 
+//#include "fastNLOReader.h"
+//#include <iostream>
+//#include <cstdio>
+//#include <cstdlib>
+//#include <LHAPDF/LHAPDF.h>
+//#include "speaker.h"
+#include "fastNLOHoppet.h"
+//#include "hoppet_v1.h"
 
+class fastNLOHoppetAs : public fastNLOHoppet {
 
-class FastNLOHeraFitter : public fastNLOReader {
+   public:
+      fastNLOHoppetAs(std::string name);
+      fastNLOHoppetAs(std::string name, std::string LHAPDFFile, int PDFSet);
+      // ---- Alphas vars ---- //
+   protected:
+      std::vector<double> GetXFX(double xp, double muf) const ;
 
-public:
-   FastNLOHeraFitter(string name);
-
-protected:
-   // inherited functions
-   double EvolveAlphas(double Q ) const ;
-   bool InitPDF();
-   vector<double> GetXFX(double xp, double muf) const ;
 };
+
 #endif
