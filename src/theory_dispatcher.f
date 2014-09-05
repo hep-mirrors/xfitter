@@ -19,7 +19,8 @@ C-------------------------------------------------------------------
          if(Itheory.lt.100.) then
             Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
          else
-            write(6,*) ' NC e+-p integrated: invalid dataset for itheory > 100 '
+           write(6,*)
+     >       'NC e+-p integrated: invalid dataset for itheory>100'
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
@@ -95,7 +96,7 @@ C Standard DGLAP:& TMDs
              Call GetJetsPPApplGrid(IDataSet)
 	   endif
          else
-            write(6,*) ' pp jets APPLGRID: invalid dataset for ithory > 100 '
+           write(6,*) 'pp jets APPLGRID: invalid dataset for ithory>100'
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.
@@ -103,41 +104,63 @@ C Standard DGLAP:& TMDs
          if(Itheory.lt.100) then
             Call GetJetsFastNLOXsection(IDataSet, .false.)
          else
-            write(6,*) ' FastNLO jets: invalid dataset for itheory > 100 '
+           write(6,*) 'FastNLO jets: invalid dataset for itheory>100'
             call hf_stop
          Endif
-      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised')then
+CMK->
+      elseif (DATASETREACTION(IDataSet).eq.'FastNLO ttbar') then
+         if(Itheory.lt.100) then
+            Call GetTopFastNLOXsection(IDataSet, .false.)
+         else
+           write(6,*)
+     >       'FastNLO top pairs: invalid dataset for itheory > 100'
+            call hf_stop
+         Endif
+       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ttbar normalised')
+     >     then
+         if(Itheory.lt.100) then
+            Call GetTopFastNLOXsectionNormalised(IDataSet, .true.)
+         else
+           write(6,*)
+     >       'FastNLO top pairs norm: invalid dataset for itheory>100'
+           call hf_stop
+         Endif
+CMK <-
+
+       elseif (DATASETREACTION(IDataSet).eq.'FastNLO ep jets normalised'
+     >     ) then
 cv
          if(Itheory.lt.100) then
             call eprc_init(.false.)
             Call GetJetsFastNLOXsectionNormalised(IDataSet)
          else
-            write(6,*) ' FastNLO ep jets normalised: invalid dataset for itheory > 100 '
+           write(6,*)
+     >       'FastNLO ep jets norm.: invalid dataset for itheory>100'
             call hf_stop
          Endif
        elseif (DATASETREACTION(IDataSet).eq.'ttbar') then
          if(Itheory.lt.100) then
             Call GetHathorXsection(IDataSet)
          else
-            write(6,*) ' ttbar: invalid dataset for ithory > 100 '
+           write(6,*) 'ttbar: invalid dataset for itheory>100'
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'DDIS') then
          if(Itheory.lt.100) then
             Call GetDiffDisXsection(IDataSet)
          else
-            write(6,*) ' DDis: invalid dataset for ithory > 100 '
+           write(6,*) 'DDis: invalid dataset for ithory > 100'
             call hf_stop
          Endif
          
-      elseif ((index(DATASETREACTION(IdataSet), ' Dummy').gt.0).or.
-     $        (index(DATASETREACTION(IdataSet), 'Dummy').gt.0)) then
+       elseif ((index(DATASETREACTION(IdataSet), ' Dummy').gt.0).or.
+     $     (index(DATASETREACTION(IdataSet), 'Dummy').gt.0)) then
          if(Itheory.lt.100) then
-            Call GetDummyXsection(IDataSet)
+           Call GetDummyXsection(IDataSet)
          else
-            write(6,*) ' Dummy: invalid dataset for itheory > 100 '
+           write(6,*) ' Dummy: invalid dataset for itheory > 100 '
             call hf_stop
-         Endif
+          Endif
 
 
       else
