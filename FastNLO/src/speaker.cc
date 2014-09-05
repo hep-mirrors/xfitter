@@ -29,6 +29,16 @@ speaker::speaker(std::string prefix,say::Verbosity volume,bool err,bool quiet) {
    fquiet= (quiet || fvol<fverb);
 }
 
+
+speaker::speaker(const speaker& other) :
+   fquiet(other.fquiet), pref(other.pref),
+   errs(other.errs), fvol(other.fvol),
+   cn(other.cn)
+{
+   (*list)[ct++] = this;
+}
+
+
 speaker::~speaker() {
    list->erase(fii);
    if (list->empty()) {
@@ -85,20 +95,25 @@ int speaker::SetGlobalVerbosity(say::Verbosity volume) {
 
 
 PrimalScream::PrimalScream(std::string classname) { //,std::string prefix=""){
-   cn=classname;
-   debug = speaker(" # DEBUG: ",say::DEBUG);
-   debug.SetClassName(cn);
-   man   = speaker(" # ",say::MANUAL);
-   man.SetClassName(cn);
-   info  = speaker(" # INFO: ",say::INFO);
-   info.SetClassName(cn);
+   debug = speaker(" # DEBUG:   ",say::DEBUG);
+   man   = speaker(" # MANUAL:  ",say::MANUAL);
+   info  = speaker(" # INFO:    ",say::INFO);
    warn  = speaker(" # WARNING! ",say::WARNING);
-   warn.SetClassName(cn);
-   error = speaker(" # ERROR! ",say::ERROR,true);
-   error.SetClassName(cn);
+   error = speaker(" # ERROR!   ",say::ERROR,true);
    shout = speaker(" #",say::ERROR,false);
-   shout.SetClassName(cn);
+   shout.SetClassName(___cn);
+   SetClassName(classname);
    //debug["PrimalScream"]<<"Primal Scream initialized."<<std::endl;
+}
+
+void PrimalScream::SetClassName(const std::string classname){
+   ___cn=classname;
+   debug.SetClassName(___cn);
+   man.SetClassName(___cn);
+   info.SetClassName(___cn);
+   warn.SetClassName(___cn);
+   error.SetClassName(___cn);
+   shout.SetClassName(___cn);
 }
 
 void PrimalScream::SetVerbosity(say::Verbosity volume) {
@@ -122,4 +137,3 @@ int SetGlobalVerbosity(Verbosity verbosity) {
    return speaker::SetGlobalVerbosity(verbosity);
 };
 }
-

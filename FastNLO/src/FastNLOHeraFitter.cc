@@ -11,14 +11,13 @@ extern "C"{
 }
 
 
-FastNLOHeraFitter::FastNLOHeraFitter(string name) : FastNLOReader(name) {
+FastNLOHeraFitter::FastNLOHeraFitter(string name) : fastNLOReader(name) {
    // --- fastNLO user: if you have your own alpha_s routing in FastNLOHeraFitter::EvolveAlphas(double,double)
    //     it is convenient to automatically interface it here.
    //     Otherwise the FastNLO alpha_s evolution code Alphas.cc is used, or
    //     you have to call SetAlphasEvolution.
    //     It might be also convenient to make your scale choices here!
    //FillAlphasCache();
-  return;
 }
 
 
@@ -43,9 +42,9 @@ bool FastNLOHeraFitter::InitPDF(){
    // --- fastNLO user: 
    //  Initalize PDF parameters if necessary
    //
+  return true;
    // It might be necessary that the PDF grid is recalculated/generated.
    //evolution_();
-  return true;
 }
 
 
