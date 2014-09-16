@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 39
+    NInputFiles = 43
 
    InputFileNames =
  !
@@ -63,6 +63,17 @@
           'datafiles/lhc/cms/CMS_Z_boson_Rapidity.dat',
           'datafiles/lhc/cms/CMS_eAsymmetry_SPM_12_001.dat',
           'datafiles/lhc/cms/CMS_mAsymmetry_SMP_12_021.dat',
+
+ !
+ ! LHC ttbar 7 TeV data CMS and ATLAS
+ !          
+          'datafiles/lhc/atlas/ttbar/Diff_ttbar_ATL_7TeV_TOT.dat',
+          'datafiles/lhc/atlas/ttbar/Diff_ttbar_7TeV_pt-ATL.dat',
+          'datafiles/lhc/cms/ttbar/Diff_ttbar_7TeV_TOT.dat',
+          'datafiles/lhc/cms/ttbar/Diff_ttbar_7TeV_pt.dat',
+ 
+
+
  !
  ! For atals jets, use R06 or R04 data, but never both at the same time !
  !
