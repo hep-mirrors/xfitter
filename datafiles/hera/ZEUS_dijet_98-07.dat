@@ -27,7 +27,7 @@
    
    IndexDataset = 74
 
-   TheoryInfoFile = 'theoryfiles/fnh4002.tab' 			!new light grids
+   TheoryInfoFile = 'theoryfiles/fnh4002_I875006.tab ' 			!new light grids
    TheoryType     = 'FastNLO'
 
    Percent   = False, False, False, True

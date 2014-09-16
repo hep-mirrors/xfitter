@@ -30,7 +30,7 @@
    
    IndexDataset = 73
 
-   TheoryInfoFile = 'theoryfiles/fnh4401.tab'
+   TheoryInfoFile = 'theoryfiles/fnh4401_I724050.tab '
    TheoryType     = 'FastNLO'
 
    Percent   = False, False, False, True
