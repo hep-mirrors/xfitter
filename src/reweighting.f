@@ -16,6 +16,7 @@ c----------------------------------------------------------------------
       include 'indata.inc'
       include 'alphas.inc'
       include 'theo.inc'
+      include 'pdfparam.inc'
 
       character*72 minfile
       integer rwpdfsets
@@ -41,12 +42,11 @@ c----------------------------------------------------------------------
       integer idatapoint
       integer irow
       integer intfile
-      
 C Function:
       double precision chi2data_theory
       double precision theorypred
-      double precision alphasPDF
       double precision corrmatrix(npoints,npoints)
+      double precision hf_get_alphas
 
 C---------------------------------------------------------------
 c     initialize number of PDF replicas
@@ -69,7 +69,7 @@ C---------------------------------------------------------------
 *     initialize RWPDF steering file 
 *     ------------------------------------------------ 
 
-      RWPDFSET=RWPDFSET(1:index(RWPDFSET,'.LHgrid')-1)
+*     RWPDFSET=RWPDFSET(1:index(RWPDFSET,'.LHgrid')-1)
 
       if ((RWMETHOD.eq.1)) then
          rwpdfsteerfile='input_steering/'//TRIM(RWPDFSET)
@@ -103,7 +103,7 @@ C---------------------------------------------------------------
         pdfreplicagridname='output/'//TRIM(outfilenames)//'/'//
      $       TRIM(RWPDFSET)//'_'//
      $       TRIM(adjustl(stringnreplicas))//
-     $       'InputReplicas.LHgrid'
+     $       'InputReplicas'
         print *,TRIM(pdfreplicagridname)
 
         call InitPDFset(pdfreplicagridname);
@@ -308,11 +308,12 @@ c     $     '.LHgrid'
 *     ------------------------------------------------ 
 *     RWREPLICAS
 
-      do iset=1, rwpdfsets
+         do iset=1, rwpdfsets
          call InitPDF(iset)
 
-         alphas = alphasPDF(Mz)
-         chi2tot = chi2data_theory(min(2,iset),RWMETHOD)  
+          alphas = hf_get_alphas(mz*mz)
+ 
+          chi2tot = chi2data_theory(min(2,iset),RWMETHOD)  
 
          if ((RWMETHOD.eq.1)) then    
             print '(''Got MC set='',i5,'' chi2='',F10.1,'' ndf='',i5)',

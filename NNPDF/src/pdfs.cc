@@ -17,6 +17,7 @@
 
 // LHAPDF
 #include "LHAPDF/LHAPDF.h"
+extern double hf_get_alphas_(double *);
 
 using namespace std;
 
@@ -70,7 +71,7 @@ static vector<double> computeweights(vector<double> const& chi2,vector<int> cons
 {
   vector<double> logw,w;
   double exp_avg=0,wtot=0;
-  size_t nrep = chi2.size();
+  const size_t nrep = chi2.size();
   
   // Calculate Ln(wnn) (nn - not normalised) -> use repnums as index for unweighted PDFs
   for (size_t i=0;i<nrep;i++)
@@ -421,18 +422,30 @@ void PDF::Reweight(rwparam& par)
 }
 
 // Export LHAPDF grid
+
+// LHAPDF 6 structure:
+// directory with PDF name
+// XXX.info
+// XXX_0000.dat --> average value
+// XXX_0001.dat --> NNPDF rw sets
+// 
+
 void PDF::Export(rwparam& rpar) const
 {
-  size_t npx=100, npq2=50;
+  const size_t npx=100, npq2=50;
   typedef double xdim[npx][npq2][13];
   
   // Init x and q2 grid points
+  const LHAPDF::PDFSet set(rpar.prior); //const PDF* pdf = mkPDF(setname, imem);
+   const vector<LHAPDF::PDF*> pdfs = set.mkPDFs();//= LHAPDF::mkPDFs(rpar.prior);
+
   vector<double> xg, qg;
   double qmin=LHAPDF::getQ2min(0);
   double qmax=LHAPDF::getQ2max(0);
   double xmin=LHAPDF::getXmin(0);
   double xmax=LHAPDF::getXmax(0);
-  
+  const size_t cnrep=nrep;
+
   // FORTRAN STANDARDS
   double XCH=0.1;
   
@@ -444,8 +457,10 @@ void PDF::Export(rwparam& rpar) const
       xg.push_back(XCH+(xmax-XCH)*(((double) i ) -51)/(((double) npx ) -51) );
   
   for (size_t i=1; i<(npq2+1); i++)
-    qg.push_back(qmin*pow(qmax/qmin,(((double) i ) -1)/(((double) npq2 ) -1)));
-  
+    qg.push_back(sqrt(qmin*pow(qmax/qmin,(((double) i ) -1)/(((double) npq2 ) -1))));
+
+  const int nflavours=13;
+  int flavours[nflavours]={-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21};
   
   double oas = LHAPDF::getOrderAlphaS();
   double opdf = LHAPDF::getOrderPDF();
@@ -453,8 +468,179 @@ void PDF::Export(rwparam& rpar) const
   cout <<endl<<"Writing out LHAPDF grid: "<<rpar.outfile<<endl;
   cout <<"Using LHAPDF version: "<< LHAPDF::getVersion()<<endl;
 
-
   stringstream ofilename;
+  ofilename.str("");
+  ofilename << "output/" << rpar.outdir.c_str() << "/" << rpar.outfile.c_str()<<"/";
+  mkdir((ofilename.str()).c_str(),0777);
+
+  string outfilename(ofilename.str() + rpar.outfile.c_str());
+  ofstream lhaout_header((outfilename+".info").c_str() );
+  
+  lhaout_header.precision(7);
+  lhaout_header << scientific;
+
+  lhaout_header <<"SetDesc: \"";
+  lhaout_header << rpar.outfile.c_str()<< "  (lhapdf set name) created by the HeraFitter package using " << nrep<< " random replicas, mem=0 => average on replicas; mem=1-" << nrep << "=> PDF replicas\""<<endl;
+  lhaout_header <<"Authors: ... " << endl;
+  lhaout_header <<"Reference: ..." << endl;
+  lhaout_header <<"Format: lhagrid1" << endl;
+  lhaout_header <<"DataVersion: 6" << endl;
+  lhaout_header <<"NumMembers: " << (int)(nrep+1) << endl;
+  lhaout_header <<"Particle: 2212" << endl;
+  lhaout_header <<"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21]" << endl;
+
+  if (oas==0.0)
+    lhaout_header<< "OrderQCD: 0"<<endl;
+  else if (oas==1.0)
+    lhaout_header<< "OrderQCD: 1"<<endl;
+  else if (oas==2.0)
+    lhaout_header<< "OrderQCD: 2"<<endl;
+  else
+    {
+      cout <<"ERR: invalid asorder"<<endl;
+      cout <<oas<<endl;
+      exit(1);
+    }
+
+  lhaout_header <<"AlphaS_Type: ipol" << endl;
+  lhaout_header <<"AlphaS_Qs: [" ;
+  for (size_t i=0; i<npq2; i++) {
+    lhaout_header<<" "<<  qg[i];  // qg --> qgrid --> points in q
+  }
+  lhaout_header <<"]" << endl;     
+
+ lhaout_header <<"AlphaS_Vals: [" ;
+  for (size_t i=0; i<npq2; i++) {
+    //  cout <<" i "<< qg[i]<< hf_get_alphas_(&qg[i])<<  endl; 
+    //cout << LHAPDF::alphasPDF((double)qg[i])<<endl ;  //*qg[i]) ; // qg --> qgrid --> points in q
+ 
+    lhaout_header<<" "<<  pdfs[0]->alphasQ((double)qg[i]);//*qg[i]) ; // qg --> qgrid --> points in q
+  }
+  lhaout_header <<"]" << endl;     
+ 
+  lhaout_header << "AlphaS_Lambda4:  "<<LHAPDF::getLam4(0)<<endl;
+  lhaout_header << "AlphaS_Lambda5:  "<<LHAPDF::getLam5(0)<<endl;
+  lhaout_header.close();
+
+  ofstream lhaout_centralval( (ofilename.str()+"_0000.dat").c_str() );
+
+  lhaout_centralval<< "PdfType: central"<<endl;
+  lhaout_centralval<< "Format: lhagrid1"<<endl;
+  lhaout_centralval<< "---"<<endl;
+   lhaout_centralval.precision(7);
+  lhaout_centralval<< fixed;
+  lhaout_centralval<< scientific;
+
+    /// x grid
+    /// q grid
+    /// flavour array
+
+ for (size_t i=0; i<npx; i++) {
+   lhaout_centralval<<" "<<  xg[i]; // xg --> xgrid --> points in x   lhaout_header<<  " "<<xg[i]<<endl; 
+  }
+ lhaout_centralval<< endl;
+
+for (size_t i=0; i<npq2; i++) {
+   lhaout_centralval<<" "<<  qg[i]; // qg --> qgrid --> points in q
+  }
+ lhaout_centralval<< endl;
+
+lhaout_centralval<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
+ 
+  // Determine values of xfx, place in xfxval array, compute average over replicas for 0th member PDF
+  vector<double> xfxavg;
+  xdim *xfxval = new xdim[cnrep];
+  
+  for (size_t x=0; x<npx; x++)
+    {
+      for (size_t q=0; q<npq2; q++)
+        {
+	  double xval=xg[x], qval=qg[q];
+	      for (int i=0; i<nflavours; i++) 
+             {
+	      xfxavg.clear();
+	      for (size_t n=0; n<nrep; n++)
+                {
+		  LHAPDF::initPDF(repnums[n]+1); 
+		  double val=LHAPDF::xfx(xval,(qval),flavours[i]);
+		  if (abs(val)<1e-50)
+		    val=0;
+		  xfxavg.push_back(val);
+		  xfxval[n][x][q][(i)]=val;
+                }
+	      
+	      double avgval = favg(xfxavg);
+	      if (avgval < 1e-16)
+		avgval = 0;
+	      
+	      lhaout_centralval <<" "<<avgval<<"  ";                
+            }
+	  lhaout_centralval <<endl; 
+        }
+   }
+
+   lhaout_centralval<< "---"<<endl;
+  lhaout_centralval.close();
+
+  // Write out the contents of the xfxvals array to the LHgrid
+  for (size_t n=0; n<nrep; n++)
+    {
+     string filenumber="";
+    if (n+1<10) filenumber="000";
+    else if (n+1<100) filenumber="00";
+    else if (n+1<1000) filenumber="0";
+
+    cout <<  ofilename.str()<<"_"<<filenumber<<(n+1)<<".dat"<< endl;
+    string errset_filename=ofilename.str()+"_";
+    errset_filename=errset_filename+filenumber;
+    errset_filename=errset_filename+Form("%d",n+1);
+    ofstream lhaout_errorset( (errset_filename+".dat").c_str() );
+    lhaout_errorset<< "PdfType: replica"<<endl;
+    lhaout_errorset<< "Format: lhagrid1"<<endl;
+    lhaout_errorset<< "---"<<endl;
+    // x in scientific
+  lhaout_errorset.precision(7);
+  lhaout_errorset << scientific;
+ 
+for (size_t i=0; i<npx; i++) {
+   lhaout_errorset<<" "<<  xg[i]; // xg --> xgrid --> points in x   lhaout_header<<  " "<<xg[i]<<endl; 
+  }
+ lhaout_errorset<< endl;
+
+ for (size_t i=0; i<npq2; i++) {
+   lhaout_errorset<<" "<<  qg[i]; // qg --> qgrid --> points in q
+  }
+ lhaout_errorset<< endl;
+
+lhaout_errorset<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
+ 		
+      for (size_t x=0; x<npx; x++)
+        {
+	  for (size_t q=0; q<npq2; q++)
+            {
+	      for (int i=0; i<13; i++)
+		lhaout_errorset << " "<<xfxval[n][x][q][i]<<"  ";                
+	      lhaout_errorset <<endl; 
+            }
+        }
+      cout << "Writing replica: "<<n+1<<"/"<<nrep;
+      cout<<"\n\033[F\033[J";
+ 
+    lhaout_errorset<< "---"<<endl;
+    lhaout_errorset.close();
+     
+    }
+
+  cout <<"LHAPDF Writeout successful" <<endl<<endl;
+  delete [] xfxval;
+ 
+  return;
+}
+
+
+
+  /*   // OLD CODE!!!!!!! LHAPDF 5
+ stringstream ofilename;
   ofilename.str("");
   ofilename << "output/" << rpar.outdir.c_str() << "/" << rpar.outfile.c_str();
 
@@ -550,7 +736,7 @@ void PDF::Export(rwparam& rpar) const
   
   // Determine values of xfx, place in xfxval array, compute average over replicas for 0th member PDF
   vector<double> xfxavg;
-  xdim *xfxval = new xdim[nrep];
+  xdim *xfxval = new xdim[cnrep];
   
   for (size_t x=0; x<npx; x++)
     {
@@ -578,7 +764,7 @@ void PDF::Export(rwparam& rpar) const
             }
 	  lhaout <<endl; 
         }
-      cout << "Generating grid: "<<x+1<<"/"<<npx;
+      if ((x+1)%10==0)   cout << "Generating grid: "<<x+1/npx<<"%";
       cout<<"\n\033[F\033[J";
     }
   
@@ -611,6 +797,8 @@ void PDF::Export(rwparam& rpar) const
   
   return;
 }
+  */
+
 
 // Note vector chi2 must be chi2/d.o.f
 void PDF::ComputeWeights(vector<double> _chi2, size_t _ndatrw)

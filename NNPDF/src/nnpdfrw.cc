@@ -27,7 +27,6 @@ using namespace std;
 
 // LHAPDF
 #include "LHAPDF/LHAPDF.h"
-#include "LHAPDF/FortranWrappers.h"
 
 using namespace std;
 
@@ -169,15 +168,16 @@ extern "C" void nnnpdf_reweight_( int &npdfs, const char* s) {
 extern "C" void create_randompdfreplicas_( const char* pdfset, const char* directory, int * nrep, int  * isSymmetric) {
 
   int nRandomReplicas = *nrep;
+  const size_t cnRandomReplicas = nRandomReplicas+1;
   stringstream ofilename;
   ofilename.str("");
-  ofilename << "output/" << directory << "/" << pdfset << Form("_%dInputReplicas.LHgrid",nRandomReplicas);
+  ofilename << "output/" << directory << "/" << pdfset << Form("_%dInputReplicas",nRandomReplicas)<<"/"<< pdfset << Form("_%dInputReplicas",nRandomReplicas);
   std::cout << "nnpdfrw isSymmetric  " << *isSymmetric<< std::endl;
   int hasSymmErrorSets = *isSymmetric;
 
-  ifstream file(ofilename.str().c_str());
+  ifstream file((ofilename.str()+"_0000.dat").c_str());
   if(file){
-    std::cout<<"\033[1;31mOutput file " <<ofilename.str()<<" already exists. Skipping generation of random replicas!\033[0m"<<std::endl;
+    std::cout<<"\033[1;31mOutput file " <<((ofilename.str()+"_0000.dat").c_str())<<" already exists. Skipping generation of random replicas!\033[0m"<<std::endl;
     return;
   }
   int size = strlen(directory);
@@ -204,13 +204,24 @@ extern "C" void create_randompdfreplicas_( const char* pdfset, const char* direc
   cout << "**********"<< directory<< endl;
   cout << "**********"<< pdfset<< endl;
 
-  size_t npx=100, npq2=50;
+  const size_t npx=100, npq2=50;
   typedef double xdim[npx][npq2][13];
   
+ const LHAPDF::PDFSet set(pdfset);
+ /// create also VAR version!
+ /*
+ bool var=false;
+ string setname(pdfset); 
+ if (setname.find("EIG")!=std::string::npos) {
+  setname.replace(setname.length()-3,3,"VAR");
+  cout << "Automatically also testing for set: ** "<< setname<< "  -- in case of crash: Check whether the PDF is available" << endl;
+  LHAPDF::PDFSet * varset = new LHAPDF::PDFSet(setname.c_str());
+  }*/
+
   // Init x and q2 grid points
   vector<double> xg, qg;
-  double qmin=LHAPDF::getQ2min(0);
-  double qmax=LHAPDF::getQ2max(0);
+  double qmin=sqrt(LHAPDF::getQ2min(0));
+  double qmax=sqrt(LHAPDF::getQ2max(0));
   double xmin=LHAPDF::getXmin(0);
   double xmax=LHAPDF::getXmax(0);
   
@@ -225,25 +236,277 @@ extern "C" void create_randompdfreplicas_( const char* pdfset, const char* direc
       xg.push_back(XCH+(xmax-XCH)*(((double) i ) -51)/(((double) npx ) -51) );
   
   for (size_t i=1; i<(npq2+1); i++)
-    qg.push_back(qmin*pow(qmax/qmin,(((double) i ) -1)/(((double) npq2 ) -1)));
+    qg.push_back(sqrt((qmin*qmin*pow((qmax*qmax)/(qmin*qmin),(((double) i ) -1)/(((double) npq2 ) -1)))));
   
+  const int nflavs=13;
+  int flavs[nflavs]={-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21};
   
   double oas = LHAPDF::getOrderAlphaS();
   double opdf = LHAPDF::getOrderPDF();
   
-  cout <<endl<<"Writing out replica LHAPDF grid: "<< pdfset << "_InputReplicas.LHgrid" <<endl;
+  cout <<endl<<"Writing out replica LHAPDF grid: "<< pdfset << "_InputReplicas (.LHgrid)" <<endl;
   if (hasSymmErrorSets) cout <<endl<<"creating "<< nRandomReplicas << " random replicas PDF with symmetric errors" <<endl;
   else  cout <<endl<<"creating "<< nRandomReplicas << " random replicas from PDF with asymmetric errors" <<endl;
   cout <<"Using LHAPDF version: "<< LHAPDF::getVersion()<<endl;
-
-
 
   cout << "Creating random replica input LHgrid file" << endl;
   cout << ofilename.str() << endl;
   cout << "------------------------------------------" << endl;
 
   string dir = string(directory);
+   mkdir( ("output/"+dir).c_str() ,0777);
+  dir=dir+"/";
+  dir=dir+pdfset;
+  dir=dir+Form("_%d",nRandomReplicas);
+  dir=dir+"InputReplicas";
   mkdir( ("output/"+dir).c_str() ,0777);
+
+  // Create out files: 
+  // header: contains header, info on PDF sets etc. --> .info
+  // centralval: contains set 0 / mean --> _0000.dat
+  // all other sets: _0001.dat - 000X.dat --> later... (single files)
+
+   // Create XXX.info files: contains header, info on PDF sets etc.
+
+  // string outdir = "output/";
+  // outdir=outdir+dir;
+  ofstream lhaout_header( (ofilename.str()+".info").c_str() );
+  //  ofstream lhaout_centralval( (ofilename+"_0000.dat").c_str() );
+  // ofstream lhaout_errorsets( (ofilename+"/errorsets.txt").c_str() );
+
+  // Write out LHAPDF preamble
+  lhaout_header.precision(7);
+  lhaout_header << scientific;
+
+  lhaout_header <<"SetDesc: \"";
+  lhaout_header << pdfset<< "  (lhapdf set name) created by the HeraFitter package using " << nRandomReplicas<< " random replicas, mem=0 => average on replicas; mem=1-" << nRandomReplicas << "=> PDF replicas\""<<endl;
+  lhaout_header <<"Authors: ... " << endl;
+  lhaout_header <<"Reference: ..." << endl;
+  lhaout_header <<"Format: lhagrid1" << endl;
+  lhaout_header <<"DataVersion: 6" << endl;
+  lhaout_header <<"NumMembers: " << (int)(nRandomReplicas+1) << endl;
+  lhaout_header <<"Particle: 2212" << endl;
+  lhaout_header <<"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21]" << endl;
+
+  if (oas==0.0)
+    lhaout_header<< "OrderQCD: 0"<<endl;
+  else if (oas==1.0)
+    lhaout_header<< "OrderQCD: 1"<<endl;
+  else if (oas==2.0)
+    lhaout_header<< "OrderQCD: 2"<<endl;
+  else
+    {
+      cout <<"ERR: invalid asorder"<<endl;
+      cout <<oas<<endl;
+      exit(1);
+    }
+
+  lhaout_header <<"FlavorScheme: variable" << endl;
+  lhaout_header <<"NumFlavors: 6" << endl;
+  lhaout_header <<"ErrorType: replicas" << endl;
+  lhaout_header <<"XMin: " << LHAPDF::getXmin(0)<<endl;
+  lhaout_header <<"XMax: " <<LHAPDF::getXmax(0)<< endl;
+  lhaout_header <<"QMin: " <<sqrt(LHAPDF::getQ2min(0))<< endl;
+  lhaout_header <<"QMax: " << sqrt(LHAPDF::getQ2max(0))<<endl;
+ lhaout_header <<"MZ: 91.1876" << endl;
+ lhaout_header <<"MUp: 0" << endl;
+ lhaout_header <<"MDown: 0" << endl;
+ lhaout_header <<"MStrange: 0" << endl;
+ lhaout_header <<"MCharm: " << LHAPDF::getQMass(4)<<endl;
+ lhaout_header <<"MBottom: "<< LHAPDF::getQMass(5)<<endl;
+ lhaout_header <<"MTop: "<< LHAPDF::getQMass(6)<<endl;
+ lhaout_header <<"AlphaS_MZ: " <<LHAPDF::alphasPDF(91.1876)<< endl;
+
+  if (oas==0.0)
+    lhaout_header<< "AlphaS_OrderQCD: 0"<<endl;
+  else if (oas==1.0)
+    lhaout_header<< "AlphaS_OrderQCD: 1"<<endl;
+  else if (oas==2.0)
+    lhaout_header<< "AlphaS_OrderQCD: 2"<<endl;
+  else
+    {
+      cout <<"ERR: invalid asorder"<<endl;
+      cout <<oas<<endl;
+      exit(1);
+    }
+
+   lhaout_header <<"AlphaS_Type: ipol" << endl;
+  lhaout_header <<"AlphaS_Qs: [" ;
+  for (size_t i=0; i<npq2; i++) {
+    lhaout_header<<" "<<  qg[i] ;// qg --> qgrid --> points in q
+  }
+  lhaout_header <<"]" << endl;     
+
+ lhaout_header <<"AlphaS_Vals: [" ;
+  for (size_t i=0; i<npq2; i++) {
+    lhaout_header<<" "<<  LHAPDF::alphasPDF(qg[i]) ; // qg --> qgrid --> points in q
+  }
+  lhaout_header <<"]" << endl;     
+ 
+  lhaout_header << "AlphaS_Lambda4:  "<<LHAPDF::getLam4(0)<<endl;
+  lhaout_header << "AlphaS_Lambda5:  "<<LHAPDF::getLam5(0)<<endl;
+  lhaout_header.close();
+
+  // Now write out single error set files
+  // first: preparation of arrays / random numbers
+  // Determine values of xfx, place in xfxval array, compute average over replicas for 0th member PDF
+  vector<double> xfxavg;
+  const size_t nxdim=2;
+  xdim *xfxval = new xdim[nxdim];
+
+  TRandom3 * random=new TRandom3() ;
+
+  double *rand = new double[(LHAPDF::numberPDF()+1)*nRandomReplicas+1]; // array of random numbers
+  for (int ir=0;ir<=(LHAPDF::numberPDF()+1)*nRandomReplicas;ir++) { // 20*40+1 random numbers 
+    rand[ir] = random->Gaus(0.0,1.0); // Gaussian random number
+  }
+ 
+  const vector<LHAPDF::PDF*> pdfs = set.mkPDFs();
+ 
+  cout << "USING NREP: "<<nRandomReplicas<<endl;
+  // Write out the contents of the xfxvals array to the LHgrid
+  for (int n=0; n<nRandomReplicas; n++)
+  {
+    cout <<"\n\033[F\033[J";
+   cout << "Writing replica: "<<n+1<<"/"<<nRandomReplicas<<endl;
+    cout<<"\n\033[F\033[J";
+
+    string filenumber="";
+    if (n+1<10) filenumber="000";
+    else if (n+1<100) filenumber="00";
+    else if (n+1<1000) filenumber="0";
+
+    cout <<  ofilename.str()<<"_"<<filenumber<<(n+1)<<".dat"<< endl;
+    string errset_filename=ofilename.str()+"_";
+    errset_filename=errset_filename+filenumber;
+    errset_filename=errset_filename+Form("%d",n+1);
+    ofstream lhaout_errorset( (errset_filename+".dat").c_str() );
+    lhaout_errorset<< "PdfType: replica"<<endl;
+    lhaout_errorset<< "Format: lhagrid1"<<endl;
+    lhaout_errorset<< "---"<<endl;
+
+ // rest in fixed 
+  lhaout_errorset.precision(8);
+  lhaout_errorset << fixed;
+  lhaout_errorset << scientific;
+ 
+    /// x grid
+    /// q grid
+    /// flavour array
+
+ for (size_t i=0; i<npx; i++) {
+   lhaout_errorset<<" "<<  xg[i]; // xg --> xgrid --> points in x   lhaout_header<<  " "<<xg[i]<<endl; 
+  }
+ lhaout_errorset<< endl;
+
+ for (size_t i=0; i<npq2; i++) {
+   lhaout_errorset<<" "<<  qg[i]; // qg --> qgrid --> points in q
+  }
+ lhaout_errorset<< endl;
+
+lhaout_errorset<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
+ 
+    for (size_t x=0; x<npx; x++)
+    {
+      //      if ((x+1)%10==0) {
+      cout << Form("\r \033[1;34mGenerating x-Q2 grid for replica %d/%d -- %d",n+1,nRandomReplicas, (int)(100*(x+1.0)/npx) )<<" % done \033[0m" << std::flush; //<< endl;
+
+      for (size_t q=0; q<npq2; q++)
+	    {
+	      double xval=xg[x], qval=qg[q];
+	      for (int i=0; i<nflavs; i++) 
+        {
+	  //          pdfs[imem]->xfxQ(21,x,Q); 
+          double centralvalue_FS0 = pdfs[0]->xfxQ(flavs[i],xval,(qval));//LHAPDF::xfx(xval,(qval),flavs[i]);//
+          double val = centralvalue_FS0;
+	     if ( ! (hasSymmErrorSets) ) {  // loop over actual e eigenvectors in order to create random replica n from them
+
+            for (int e=1; e<LHAPDF::numberPDF()+1; e++)       {              // asymmetric eigenvector sets
+              if (e%2==1) {		  
+                double r = rand[(n)*LHAPDF::numberPDF()+e];
+		double eigenvector_pos=pdfs[e]->xfxQ(flavs[i],xval,(qval));//LHAPDF::xfx(xval,(qval),flavs[i]);//LHAPDF::xfx(i,xval,(qval));
+		double eigenvector_neg=pdfs[e+1]->xfxQ(flavs[i],xval,(qval));//LLHAPDF::xfx(xval,(qval),flavs[i]);//LHAPDF::xfx(i,xval,(qval)) ;
+		val=val + 0.5*abs(eigenvector_pos - eigenvector_neg)*(r);
+              }        }  	     }
+          else {
+            for (int e=1; e<LHAPDF::numberPDF()+1; e++) { // symmetric eigenvector sets
+	      double r = rand[(n)*LHAPDF::numberPDF()+e];
+              LHAPDF::initPDF( e );
+              double eigenvector=LHAPDF::xfx(xval,(qval),flavs[i]);//LHAPDF::xfx(i,xval,(qval));
+              val=val+ (eigenvector - centralvalue_FS0) * (r); 
+           }	  }
+
+          if (abs(val)<1e-10) val=0;
+
+ 	  xfxval[0][x][q][(i)]=val;
+	   
+          xfxval[1][x][q][(i)]=xfxval[1][x][q][(i)]+val;
+
+          lhaout_errorset << " "<<xfxval[0][x][q][(i)]<<"  "; 
+        }
+	      lhaout_errorset <<endl; 
+           
+      }
+    }
+    lhaout_errorset<< "---"<<endl;
+    lhaout_errorset.close();
+
+  }///for (int n=0; n<nRandomReplicas; n++) 
+
+  // now create average file
+
+  ofstream lhaout_centralval( (ofilename.str()+"_0000.dat").c_str() );
+
+   lhaout_centralval<< "PdfType: central"<<endl;
+    lhaout_centralval<< "Format: lhagrid1"<<endl;
+    lhaout_centralval<< "---"<<endl;
+
+ // rest in fixed 
+  lhaout_centralval.precision(7);
+  lhaout_centralval<< fixed;
+  lhaout_centralval<< scientific;
+
+    /// x grid
+    /// q grid
+    /// flavour array
+ 
+ for (size_t i=0; i<npx; i++) {
+   lhaout_centralval<<" "<<  xg[i]; // xg --> xgrid --> points in x   lhaout_header<<  " "<<xg[i]<<endl; 
+  }
+ lhaout_centralval<< endl;
+
+for (size_t i=0; i<npq2; i++) {
+   lhaout_centralval<<" "<<  qg[i]; // qg --> qgrid --> points in q
+  }
+ lhaout_centralval<< endl;
+
+lhaout_centralval<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
+
+  for (size_t x=0; x<npx; x++)
+	{
+	  for (size_t q=0; q<npq2; q++)
+    {
+      double xval=xg[x], qval=qg[q];
+      for (int i=0; i<nflavs; i++) 
+      {
+        lhaout_centralval << " "<<xfxval[1][x][q][(i)]/nRandomReplicas<<"  ";  
+      }              
+		  lhaout_centralval <<endl; 
+    }
+	}
+
+    lhaout_centralval<< "---"<<endl;
+  lhaout_centralval.close();
+
+  cout <<"LHAPDF Writeout successful" <<endl<<endl;
+  delete [] xfxval;
+
+  return;
+}
+
+
+  ////////////////////////////////////////////////////////////////
+  /* OLD LHAPDF-5 code 
 
   string outdir = "output/"+dir;
   ofstream lhaout_header( (outdir+"/header.txt").c_str() );
@@ -296,7 +559,7 @@ extern "C" void create_randompdfreplicas_( const char* pdfset, const char* direc
   const double mz = 91.2;
   lhaout_header<< " \'Parameterlist:\'"<<endl;
   lhaout_header<< " \'list', "<<nRandomReplicas<<" , "<<" 1"<<endl;
-  for (size_t i=0; i<(nRandomReplicas+1); i++)
+  for (size_t i=0; i<(cnRandomReplicas); i++)
     lhaout_header << " "<<LHAPDF::alphasPDF(mz)<<endl;
   
   // Order of evolution
@@ -348,7 +611,8 @@ extern "C" void create_randompdfreplicas_( const char* pdfset, const char* direc
   
   // Determine values of xfx, place in xfxval array, compute average over replicas for 0th member PDF
   vector<double> xfxavg;
-  xdim *xfxval = new xdim[2];
+  const size_t nxdim=2;
+  xdim *xfxval = new xdim[nxdim];
 
   TRandom3 random;
 
@@ -466,3 +730,4 @@ extern "C" void create_randompdfreplicas_( const char* pdfset, const char* direc
 
   return;
 }
+*/
