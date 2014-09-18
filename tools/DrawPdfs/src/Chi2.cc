@@ -79,14 +79,30 @@ Chi2::Chi2(string dirname, string label)
 
       //read Partial chi2
       iss >> index  >> chi2read;
-      if (chi2read.find("(") != string::npos)
+      if (chi2read.find("(") != string::npos) //the partial log term is given in brackets
 	{
-	  chi2read.erase(chi2read.find("("));
-	  chi2value = atof(chi2read.c_str());
-	  iss >> chi2read;
-	  chi2read.erase(chi2read.find(")"));
-	  chi2valuelog = atof(chi2read.c_str());
-	  iss >> dof;
+	  if (chi2read.find("(") == (chi2read.size() - 1))
+	    {
+	      chi2read.erase(chi2read.find("("));
+	      chi2value = atof(chi2read.c_str());
+	      iss >> chi2read;
+	      if (chi2read.find(")") != string::npos)
+		chi2read.erase(chi2read.find(")"));
+	      else
+		{
+		  cout << "Error parsing " << fname << endl;
+		  return;
+		}
+	      chi2valuelog = atof(chi2read.c_str());
+	      iss >> dof;
+	    }
+	  else
+	    {
+	      chi2valuelog = atof(chi2read.substr(chi2read.find("("), chi2read.size() - chi2read.find("(") - 1).c_str());
+	      chi2read.erase(chi2read.find("("), chi2read.size() - chi2read.find("("));
+	      chi2value = atof(chi2read.c_str());
+	      iss >> dof;
+	    }
 	}
       else
 	{

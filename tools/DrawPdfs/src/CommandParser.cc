@@ -384,7 +384,7 @@ vector<string> Round(double value, double error, bool sign)
     decimal = -log10(fabs(error)) + 2;
   decimal = max(0, decimal);
 
-  char Dec[2];
+  char Dec[10];
   sprintf (Dec, "%d", decimal);
   string D = Dec;
 

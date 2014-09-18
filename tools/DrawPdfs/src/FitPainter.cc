@@ -227,11 +227,11 @@ bool FitPainter()
   for (int i = 0; i < opts.labels.size(); i++)
     if (opts.chi2nopdf)
       fprintf(ftab,"& %s$|$%s", 
-	      Round(chi2[i][ndata-2], 0, true)[0].c_str(), 
-	      Round(chi2_00[i][ndata-2], 0, true)[0].c_str());
+	      Round(chi2[i][ndata-2], max(1., (double)chi2[i][ndata-2]), true)[0].c_str(), 
+	      Round(chi2_00[i][ndata-2], max(1., (double)chi2_00[i][ndata-2]), true)[0].c_str());
     else
       fprintf(ftab,"& %s", 
-	      Round(chi2[i][ndata-2], 0, true)[0].c_str());
+	      Round(chi2[i][ndata-2], max(1., (double)chi2[i][ndata-2]), true)[0].c_str());
   fprintf(ftab,"  \\\\ \n");
 
   fprintf(ftab,"  \\rowcolor{white}\n");

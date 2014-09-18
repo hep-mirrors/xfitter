@@ -36,7 +36,7 @@ vector<TCanvas*> Chi2scanPainter()
       leg1->SetTextAlign(12);
       leg1->SetTextSize(txtsize * 0.8);
       leg1->SetTextFont(62);
-      TLegend* leg2 = new TLegend(lmarg+0.5,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03);
+      TLegend* leg2 = new TLegend(lmarg+0.48,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03);
       leg2->SetFillColor(0);
       leg2->SetBorderSize(0);
       leg2->SetTextAlign(12);
@@ -73,15 +73,21 @@ vector<TCanvas*> Chi2scanPainter()
       leg1->SetY2(bmarg+0.03+0.045*chi2g.size());
       leg2->SetY2(bmarg+0.03+0.045*chi2g.size());
 
-      //Compute maximum an minimum
+      //Compute maximum an minimum for y axis
       double ymx = 0;
-      double ymn = 0;
       double xmin, xmax, ymin, ymax;
       for (vector<TGraph*>::iterator git = chi2g.begin(); git != chi2g.end(); git++)
 	{
 	  (*git)->ComputeRange(xmin,ymin,xmax,ymax);
 	  ymx = max(ymx,ymax);
 	}
+      double ymn = ymx;
+      for (vector<TGraph*>::iterator git = chi2g.begin(); git != chi2g.end(); git++)
+	{
+	  (*git)->ComputeRange(xmin,ymin,xmax,ymax);
+	  ymn = min(ymin,ymn);
+	}
+
       double delta = ymx - ymn;
       ymx = ymx + delta*0.2;
       ymn = ymn - delta*(0.05+0.1*chi2g.size());
@@ -163,7 +169,7 @@ vector<TCanvas*> Chi2scanPainter()
       leg1->SetTextAlign(12);
       leg1->SetTextSize(txtsize * 0.8);
       leg1->SetTextFont(62);
-      TPaveText* leg2 = new TPaveText(lmarg+0.5,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03, "NDC");
+      TPaveText* leg2 = new TPaveText(lmarg+0.38,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03, "NDC");
       leg2->SetFillColor(0);
       leg2->SetBorderSize(0);
       leg2->SetTextAlign(12);
@@ -195,7 +201,10 @@ vector<TCanvas*> Chi2scanPainter()
 	    leg1->AddEntry(h_delta, (*itl).c_str(), "l");
 
 	    double eplus, eminus;
-	    ahessdeltaasym(xi, eplus, eminus);
+	    if (xi.size() > 80)
+		deltaasym(xi, median(xi), eplus, eminus, cl(1));
+	    else
+	      ahessdeltaasym(xi, eplus, eminus);
 
 	    char res[100];
 	    sprintf (res, "%s +%s -%s", 
@@ -209,7 +218,7 @@ vector<TCanvas*> Chi2scanPainter()
       leg1->SetY2(bmarg+0.03+0.045*pdfdelta.size());
       leg2->SetY2(bmarg+0.03+0.045*pdfdelta.size());
 
-      //Compute maximum an minimum
+      //Compute maximum and minimum for y axis
       double ymx = (*pdfdelta.begin())->GetMaximum();
       double ymn = (*pdfdelta.begin())->GetMinimum();
       for (vector<TH1F*>::iterator it = pdfdelta.begin(); it != pdfdelta.end(); it++)
@@ -220,6 +229,15 @@ vector<TCanvas*> Chi2scanPainter()
       double delta = ymx - ymn;
       ymx = ymx + delta*0.25;
       ymn = ymn - delta*(0.05+0.1*pdfdelta.size());
+
+      //Compute maximum and minimum for x axis
+      double xmx = (*pdfdelta.begin())->GetXaxis()->GetBinUpEdge((*pdfdelta.begin())->GetXaxis()->GetLast());
+      double xmn = (*pdfdelta.begin())->GetXaxis()->GetBinLowEdge((*pdfdelta.begin())->GetXaxis()->GetFirst());
+      for (vector<TH1F*>::iterator it = pdfdelta.begin(); it != pdfdelta.end(); it++)
+	{
+	  xmx = max((*it)->GetXaxis()->GetBinUpEdge((*it)->GetXaxis()->GetLast()), xmx);
+	  xmn = min((*it)->GetXaxis()->GetBinLowEdge((*it)->GetXaxis()->GetFirst()), xmn);
+	}
 
       //Set graphic options
       for (vector<TH1F*>::iterator it = pdfdelta.begin(); it != pdfdelta.end(); it++)
@@ -235,7 +253,13 @@ vector<TCanvas*> Chi2scanPainter()
 	}
 
       //Make template for axis
-      TH1F *templ = (TH1F*)(*pdfdelta.begin())->Clone();
+      TH1F *templ = new TH1F(((string) "templ-pdf_" + cnvname).c_str(), "", xmx-xmn, xmn, xmx);
+      for (unsigned int i = 1; i < xmx; i++)
+	{
+	  char member[10];
+	  sprintf (member, "%d", i);
+	  templ->GetXaxis()->SetBinLabel(i, member);
+	}
       templ->GetYaxis()->SetLabelFont(62);
       templ->GetYaxis()->SetTitleFont(62);
       templ->GetYaxis()->SetLabelSize(txtsize);
@@ -247,6 +271,7 @@ vector<TCanvas*> Chi2scanPainter()
       templ->GetXaxis()->SetLabelSize(txtsize);
       templ->GetXaxis()->SetTitleSize(txtsize);
       //templ->GetXaxis()->SetTitle((lhapdfset + " member").c_str());
+      templ->GetXaxis()->SetTitle("PDF member");
       templ->SetStats(0);
       templ->Draw("AXIS");
       templ->SetMaximum(ymx);
@@ -254,7 +279,7 @@ vector<TCanvas*> Chi2scanPainter()
 
       //Draw
       for (vector<TH1F*>::iterator it = pdfdelta.begin(); it != pdfdelta.end(); it++)
-	(*it)->Draw("hist same");
+	(*it)->Draw("hist same ][");
       leg1->Draw();
       leg2->Draw();
       DrawLogo()->Draw();
