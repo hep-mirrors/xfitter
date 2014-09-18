@@ -176,6 +176,23 @@ if test x$enable_applgrid == xyes; then
 fi
 AM_CONDITIONAL(APPLGRID_DYNSCALE, [test x$ag_dynscale == xyes])
 
+# check if lhapdf version if > 6.1.0 for NNPDF reweighting
+lp_reweig=no
+lp_version=`lhapdf-config --version`
+if test x$enable_nnpdfWeight == xyes; then
+  if test $enable_lhapdf; then
+    AC_MSG_CHECKING([if LHAPDF compatible with NNPDF reweighting])
+    AX_COMPARE_VERSION([6.1.0],[gt],[$lp_version],[lp_reweig=no],[lp_reweig=yes])
+    if test x$lp_reweig == xyes; then
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([LHAPDF_REWEIGHTING],[1],[Define if LHAPDF version compatible with NNPDF reweighting])
+    else
+      AC_MSG_ERROR([The LHAPDF version is not compatible with NNPDF reweighting ( needs v. >= 6.1.1 )])
+    fi
+  fi
+fi
+AM_CONDITIONAL(LHAPDF_REWEIGHTING, [test x$lp_reweig == xyes])
+
 
 # check for genetic installation
 AC_ARG_ENABLE([genetic],
