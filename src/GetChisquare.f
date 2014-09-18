@@ -237,7 +237,7 @@ C !> Add log term
       if ( Chi2PoissonCorr ) then
          call chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
          fchi2_in = fchi2_in + chi2_log
-         print '(''Log term contribution='',F6.2)',chi2_log
+         if (lDebug) print '(''Log term contribution='',F6.2)',chi2_log
       endif
        ! print*,'fchi2_in=',fchi2_in
 
