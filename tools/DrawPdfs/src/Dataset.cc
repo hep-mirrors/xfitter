@@ -308,13 +308,13 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   valid = true;
 }
 
-void readLineFiles ( int nfile, ifstream **infiles, string *lines) {
+void readLineFiles ( int nfile, ifstream **infiles, vector <string> lines) {
   for (int i=0; i<nfile; i++) {
     getline(*infiles[i],lines[i]);
   }
 }
 
-float getTheoryShift (  vector<pdfshift> pdfshifts, pdferr err, string *lines) {
+float getTheoryShift (  vector<pdfshift> pdfshifts, pdferr err, vector <string> lines) {
   // Decode string thing
   int N = ( err == AsymHess ) ? 2*pdfshifts.size()+1 : pdfshifts.size()+1;
 
@@ -380,7 +380,9 @@ Data::Data(string dirname, string label)
 
 
   //Read datasets
-  string line;  string lines[nfiles];
+  string line;  
+  vector <string> lines;
+  lines.reserve(nfiles);
 
   int dtindex, nextdtindex;
   string name;
