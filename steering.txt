@@ -12,10 +12,10 @@
 &End
 
 &InCorr
-  ! Number of statistical correlation files
+  ! Number of correlation (statistical, systematical or full) files
     NCorrFiles = 0
  
-  ! Statistical correlation files:
+  ! Correlation files:
   !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 

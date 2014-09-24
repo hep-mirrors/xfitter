@@ -6,12 +6,12 @@ HERAFITTER has been used as one of the main software packages for the
 determination of the HERAPDF1.0 set proton parton densities (PDFs). HERAPDF
 is a common initiative by the H1 and ZEUS collaborations and extended
 now to the LHC collaborations to provide precision QCD analyses.
-HERAFitter has been used to produce the ATLAS-epWZ12 (NNLO), 
-LHEC (NLO) PDF sets now available in the LHAPDFv5.9.1.
+HERAFitter has been used to produce the ATLAS-epWZ12 (NNLO, available in 
+LHAPDF5.9.1 and LHAPDFv6.1.X), LHEC (NLO) PDF sets available in the LHAPDFv5.9.1.
 
 
 The current package includes code to fit DIS inclusive cross section 
-data, Drell-Yan and jet processes (using APPLGRID and FastNLO
+data, Drell-Yan, jet and ttbar processes (using APPLGRID and FastNLO
 interfaces). The program is distributed under the GPL v3 license, see
 LICENCE file for more details. The program uses the QCD evolution 
 package QCDNUM developed by M. Botje and includes other parts of the code:
@@ -28,6 +28,7 @@ package QCDNUM developed by M. Botje and includes other parts of the code:
 -- TDM (uPDFs) as an alternative to DGLAP formalism (J. Jung)
 -- Diffractive PDFs (W. Slominski)
 -- total ttbar production cross sections via HATHOR (S. Moch et al.)
+-- differential ttbar production cross sections with DiffTop (M. Guzzi, S. Moch et al.)
 
 If the results obtained with the program are to be included in a scientific 
 publication, please use the citations as suggested by the REFERENCES file. 
@@ -87,6 +88,35 @@ another option would be:
 
 -> then the order does matter of the files listed.
 
+   Inclusion of the statistical or systematic correlations of the data 
+   in the fit is done via &InCorr namelist:
+
+&InCorr
+  ! Number of correlation (statistical, systematical or full) files
+    NCorrFiles = 1
+    CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+&End
+   in this case the statistical correlations for H1_NormInclJets_HighQ2_99-07 data file are included
+   (the method also allows to include correlations between data sets via file names, i.e:
+    H1_NormInclJets_HighQ2_99-07___H1_InclJets_HighQ2_99-00.dat.corr)
+
+
+   As additional option for data sets with covariance matrix, it is possible
+   to convert covariance matrix to nuisance parameter representation
+   (following the prescription suggested by J. Gao and P. Nadolsky  in arXiv:1401.0013):
+
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .true.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+
+   ! The following lines allow to adjust error scaling properties 
+   ! (default: :M - multiplicative, A - additive)
+  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
+  DataSystType = ':A', ':A'
+&End
 
   c) Data files format 
 --------------------------
@@ -247,13 +277,20 @@ another option would be:
       KFactorNames - (array of strings) For kfactor files, names of columns in 
                      TheoryInfoFile
 
+      PlotDesc   --- contains options for drawing tools, i.e.:
+            PlotN         - number of plots for data set(s), i.e. SubPlots
+            PlotDefColumn - data variable used to divide the data in SubPlots
+            PlotVarColumn - variable providing bin center information (to be used only if bin edges are missing)
+            PlotDefValue  - ranges of PlotDefColumn used to divide the data in SubPlots
+            PlotOptions(N)- additinal information displayed on the plots like experiment, process, axes titles, example: 
+            PlotOptions(1)='Experiment:H1 ZEUS@ExtraLabel:e^{-}p CC @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 300  @Xlog@Ylog'
 
 
   c.a) FastNLO specific data format
 -----------------------------------
 
   In this subsection we describe data format specific for FastNLO implementation.
-  The program included FastNLOReader for the new format tables (v. 2.0+). The old
+  The program included FastNLO Toolkit for the new format tables (v. 3.2+). The old
   FastNLO table format can be still accessed with the help of APPLGRID (this is not
   tested in the HERAFitter enviroment though). The reader supports both flexible
   and non-flexible scales tables. For flexible tables, scales can be defined
@@ -340,6 +377,7 @@ another option would be:
 
  Other optional minuit cards are stored in the input_steering/: 
 	- CTEQ minuit card
+    - CTEQHERA - hybrid: valence like CTEQ, rest like HERAPDF
 	- CHEBYSHEV minuit card: uval, dval, Sea(=Ubar+Dbar), gluon
 	- BiLog - bi-lognormal parametrisation
     - DIFFRACTION - parametrisation optimised for fits with diffractive DIS data
@@ -555,6 +593,7 @@ i) parametrisation style
 
    'HERAPDF' -- HERAPDF-like with uval, dval, Ubar, Dbar, glu evolved pdfs
    'CTEQ'        -- CTEQ-like parameterisation
+   'CTEQHERA'    -- Hybrid: valence like CTEQ, rest like HERAPDF
    'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
    'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
    'LHAPDF'      -- use lhapdf library to define pdfs at all scales
@@ -666,13 +705,15 @@ j) Options for the chi2 choice:
  general HERAFITTER steering file, steering.txt
  
  The parameters to be set are:
-   FLAGNNPDF    = 0		      ! 0 (default): do NOT run NNPDF reweighting, 1: run reweighting
-   NNPDFSET     = 'NNPDF21_100.LHgrid' ! Which NNPDF set should be used? Give LHAPDF grid file name
-   NNPDFRWDATA  = 'LHCWZdata'          ! arbitrary (directory!) name for new datasample to be put in 
-   NNPDFREWEIGHTMETHOD = 1             ! either 1=chi2 (uses HERA fitter chi2) or 2=data (uses NNPDF chi2)
-   DONNPDFONLY  = True                 ! do do not run usual HERA fit after NNPDF reweighting
-   NNPDFOUTREPLICAS = 10               ! how many output replica of the NNPDF should be kept?
+   FLAGRW	   = False                ! Should reweighting be done?
+   RWPDFSET    = 'HERAPDF15NLO_EIG'   ! LHAPDF grid file 
+   RWDATA  	   = 'HighStat'           ! arbitrary name for new datasample to be put in 
+   RWMETHOD    = 1                    ! either 1=chi2 or 2=data
+   DORWONLY  	 = True               ! do / do not run usual HERA fit
+   RWREPLICAS 	 = 1000               ! Number of input replicas used to build the PDF probability distributions from the Hessian input PDFs 
+   RWOUTREPLICAS  = 100               ! how many output replica of the NNPDF should be kept?
  
+ NOTE: reweighting currently is working with LHAPDF6.1.1 (or higher) version only!
  
  Since a 'fake' minuit fit is run in order to retrieve the theory prediction, the it is at 
  the moment mandatory to have associated minuit steering files as well as output files - 
@@ -680,11 +721,11 @@ j) Options for the chi2 choice:
  
  If NNPDF reweighting is run, it will create an internal steering card to run the actual 
  reweighting routing. This is stored under the following name in:
- input_steering/<name_of_NNPDFSET>_<NNPDFRWDATA>_<chi2_OR_data>.in
+ input_steering/<name_of_RWPDFSET>_<RWDATA>_<chi2_OR_data>.in
  
  Also, the needed files with the chi2 or the data/theory predictions for the new data set, 
  are written out by the NNPDF module. These files can be found in:
- NNPDF/data/<NNPDFRWDATA>
+ NNPDF/data/<RWDATA>
  
  NOTE: if these files already exist for a given data set and reweighting method, the fake 
  minuit fit and the re-writting out of the theory predictions is skipped and the NNPDF 
@@ -695,11 +736,11 @@ j) Options for the chi2 choice:
  
  outputs are stored in:
  
- output/<name_of_the_NNPDFSET>_<NNPDFRWDATA>_<chi2_OR_data>/ (extra subdirectory in output)
+ output/<name_of_the_RWPDFSET>_<RWDATA>_<chi2_OR_data>/ (extra subdirectory in output)
  
  There you can find:
  
- <name_of_the_NNPDFSET>_<NNPDFRWDATA>_<chi2_OR_data>_<Number_of_kept_replica>.LHgrid 
+ <name_of_the_RWPDFSET>_<RWDATA>_<chi2_OR_data>_<Number_of_kept_replica>.LHgrid 
  --> new/updated LHgrid file that can be used
  
  whist-rw.eps 
