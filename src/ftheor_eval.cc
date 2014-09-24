@@ -59,7 +59,11 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
 //  char **TermSource, char *TermExpr)
 {
   // convert fortran strings to c++
-  string stn[theorexpr_.nterms], stt[theorexpr_.nterms], sts[theorexpr_.nterms];
+  //  string stn[theorexpr_.nterms], stt[theorexpr_.nterms], sts[theorexpr_.nterms];
+
+  vector<string> stn;
+  vector<string> stt;
+  vector<string> sts;
   for ( int i = 0; i< theorexpr_.nterms; i++){
     stn[i].assign(theorexpr_.termname[i], string(theorexpr_.termname[i]).find(' '));
     stt[i].assign(theorexpr_.termtype[i], string(theorexpr_.termtype[i]).find(' '));

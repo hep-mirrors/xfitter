@@ -176,7 +176,7 @@ public:
     if(empty() || chset.empty()) return *this;
     // for(int i=0; i < chset.size(); i++) if(at(0) == chset[i]) {Unquote1(chset[i]); break;}
     char qc;
-    if(qc = BeginsWithChr(chset)) Unquote1(qc);
+    if(qc == BeginsWithChr(chset)) Unquote1(qc);
     return *this;
   }
 

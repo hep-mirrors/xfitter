@@ -66,8 +66,10 @@ class TheorEval{
 
     TheorEval constructor that should be used in the code.
   */
-  TheorEval(const int dsID, const int nTerms, const string* stn, const string* stt, 
-            const string* sts, const string& ste);
+  //  TheorEval(const int dsID, const int nTerms, const string* stn, const string* stt, 
+  //            const string* sts, const string& ste);
+TheorEval(const int dsID, const int nTerms, const std::vector<string> stn, const std::vector<string> stt,
+            const std::vector<string> sts, const string& ste);
   
   //! Evaluates array of predictions for requested expression
   /*!
