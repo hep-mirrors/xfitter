@@ -12,25 +12,22 @@
 0) Pre-requirements.
 ====================
 
--- QCDNUM version at least qcdnum-17-00/04, can be found at 
+-- QCDNUM version at least qcdnum-17-00/06, can be found at 
   http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html
 
--- CERNLIB. Note that for CERNLIB one can use /afs/ installation from CERN:
-  /afs/cern.ch/sw/lcg/external/cernlib/
-
--- Link to recent Root libraries (e.g. version 5.26)
+-- Link to recent Root libraries (e.g. version 5.34)
 
 -- Optional: APPLGRID
 
 -- HERAfitter has been tested on various platforms: 
-   SL4, SL5 (32 and 64 bit),  Ubuntu 10.10, MacOXS
+   SL4, SL5, SL6 (32 and 64 bit),  Ubuntu 10.10-14.04, MacOXS
 
 1) INSTALLATION (basic installation)
 ====================================
 
-  a) Specify CERN_ROOT and QCDNUM_ROOT environment variables such that 
-     $CERN_ROOT/lib  and $QCDNUM_ROOT/lib point to the corresponding libraries
-     ( e.g. export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/x86_64-slc5-gcc43-opt)
+  a) Specify QCDNUM_ROOT environment variables such that 
+     $QCDNUM_ROOT/lib point to the corresponding libraries
+     (e.g. export QCDNUM_ROOT=/your/path/to/qcdnum/lib)
 
   b) Run:
 
@@ -56,8 +53,8 @@
 1B) INSTALLATION (with APPLGRID)
 =================================
 
-  a) Specify CERN_ROOT and QCDNUM_ROOT variables such that 
-     $CERN_ROOT/lib  and $QCDNUM_ROOT/lib point to the corresponding libraries
+  a) Specify QCDNUM_ROOT variables such that 
+     $QCDNUM_ROOT/lib point to the corresponding libraries
 
      Install APPLGRID version 1.1.6 or later. Description can be found at
          http://projects.hepforge.org/applgrid/
@@ -93,7 +90,7 @@
     make install
 
 
-1D) INSTALLATION with LHAPDF 
+1D) INSTALLATION with LHAPDF (v5 or 6)
 ============================================
   a) include lhapdf-config in your PATH variable
 	(e.g. export PATH=/your/path/to/lhapdf/bin)
@@ -118,15 +115,20 @@ The lhapdf will be used if you change  PDFStyle = 'LHAPDF' in the steering card.
     make 
     make install
 
+NOTE: reweighting currently is working with LHAPDF6.1.1 or higher versions only
+
+
 1F) Modules such as 
  - DIPOLE
  - DiffDIS (Diffractive DIS)  
  - DY (LO)
+ - ttbar with DiffTop
  - heavy flavour schemes RT, ACOT, ABM 
 
 can be ran with simple INSTALLATION procedure as described above.
 Their activation is possible through the input steerings in the 
 steering.txt (use appropriate cards stored in input_steering/!)
+
 
 1F) INSTALLATION for TMD(updf)
 ============================================
@@ -136,7 +138,6 @@ steering.txt (use appropriate cards stored in input_steering/!)
       
   a) set environment variables:
   
-    export CERN_ROOT=/cern/pro 
     export QCDNUM_ROOT=/h1wgs/h1desy11/x04/usr/glazov/openfitter/qcdnum-17-00-03
     export CASCADE_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/$SYSNAME
     export PYTHIA_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/$SYSNAME
