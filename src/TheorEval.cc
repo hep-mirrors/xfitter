@@ -19,8 +19,8 @@
 
 using namespace std;
 
-TheorEval::TheorEval(const int dsId, const int nTerms, const string* stn, const string* stt, 
-                     const string* sts, const string& expr)
+TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
+                     const std::vector<string> sts, const string& expr)
 {
   _dsId = dsId;
   _nTerms = nTerms;
