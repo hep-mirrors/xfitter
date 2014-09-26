@@ -169,7 +169,7 @@ vector<TCanvas*> Chi2scanPainter()
       leg1->SetTextAlign(12);
       leg1->SetTextSize(txtsize * 0.8);
       leg1->SetTextFont(62);
-      TPaveText* leg2 = new TPaveText(lmarg+0.38,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03, "NDC");
+      TPaveText* leg2 = new TPaveText(lmarg+0.43,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03, "NDC");
       leg2->SetFillColor(0);
       leg2->SetBorderSize(0);
       leg2->SetTextAlign(12);
@@ -247,8 +247,6 @@ vector<TCanvas*> Chi2scanPainter()
 
 	  (*it)->SetStats(0);
 	  (*it)->SetLineWidth(opts.lwidth);
-	  (*it)->GetXaxis()->CenterLabels();
-	  (*it)->GetXaxis()->LabelsOption("v");
 	  (*it)->SetTitle("");
 	}
 
@@ -256,10 +254,17 @@ vector<TCanvas*> Chi2scanPainter()
       TH1F *templ = new TH1F(((string) "templ-pdf_" + cnvname).c_str(), "", xmx-xmn, xmn, xmx);
       for (unsigned int i = 1; i < xmx; i++)
 	{
-	  char member[10];
-	  sprintf (member, "%d", i);
-	  templ->GetXaxis()->SetBinLabel(i, member);
+	  if (i % 5 == 1)
+	    {
+	      char member[10];
+	      sprintf (member, "%d", i);
+	      templ->GetXaxis()->SetBinLabel(i, member);
+	    }
+	  else
+	      templ->GetXaxis()->SetBinLabel(i, "");
 	}
+      templ->GetXaxis()->CenterLabels();
+      templ->GetXaxis()->LabelsOption("v");
       templ->GetYaxis()->SetLabelFont(62);
       templ->GetYaxis()->SetTitleFont(62);
       templ->GetYaxis()->SetLabelSize(txtsize);
@@ -268,7 +273,7 @@ vector<TCanvas*> Chi2scanPainter()
       templ->GetYaxis()->SetTitle((*it).c_str());
       templ->GetXaxis()->SetLabelFont(62);
       templ->GetXaxis()->SetTitleFont(62);
-      templ->GetXaxis()->SetLabelSize(txtsize);
+      templ->GetXaxis()->SetLabelSize(txtsize*1.5);
       templ->GetXaxis()->SetTitleSize(txtsize);
       //templ->GetXaxis()->SetTitle((lhapdfset + " member").c_str());
       templ->GetXaxis()->SetTitle("PDF member");

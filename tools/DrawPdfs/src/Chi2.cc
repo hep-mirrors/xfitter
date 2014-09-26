@@ -34,6 +34,11 @@ Chi2::Chi2(string dirname, string label)
       return;
     }
 
+  //initialise chi2log to 0
+  chi2log.chi2 = 0;
+  chi2log.chi2_00 = 0;
+  chi2log.dof = 0;
+
   //make chi2 list
   string line;
   string buffer;
@@ -98,7 +103,7 @@ Chi2::Chi2(string dirname, string label)
 	    }
 	  else
 	    {
-	      chi2valuelog = atof(chi2read.substr(chi2read.find("("), chi2read.size() - chi2read.find("(") - 1).c_str());
+	      chi2valuelog = atof(chi2read.substr(chi2read.find("(") + 1, chi2read.size() - chi2read.find("(") - 1).c_str());
 	      chi2read.erase(chi2read.find("("), chi2read.size() - chi2read.find("("));
 	      chi2value = atof(chi2read.c_str());
 	      iss >> dof;
