@@ -307,7 +307,7 @@ void chi2_scan_()
 	  //MC errors
 	  if (MonteCarloPDFErr)
 	    {
-	      central = mean(xi);
+	      central = median(xi);
 	      deltaasym(xi, central, eplus, eminus, cl(1));
 	    }
       
