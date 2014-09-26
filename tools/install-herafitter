@@ -1,0 +1,486 @@
+#!/bin/bash
+#####################################################################
+## Configuration ####################################################
+
+## Programs versions
+lhapdfver=6.1.4
+hoppetver=1.1.5
+applgridver=1.4.56
+qcdnumver=17-00-06
+
+## Optional manual configurations
+#MANUALCONF=1
+
+## Option 1: Use local environment
+## These settings assume that root is already in your PATH and boost lib is installed
+## For versions older than 1.1.0, need to specify the location of CERNLIB
+#MODE=local
+#export CERN_ROOT=/usr/lib
+
+## Option 2: Setup environment from CERN afs
+## These settings include compiler, cernlib and root
+#MODE=cern
+#gccv=4.6
+#os=slc6
+#arch=x86_64
+#rootversion=5.34.18
+
+## End of Configuration ####################################################
+#####################################################################
+#Check for dummies
+if [[ $0 == bash || $0 = csh ]]
+then
+    echo "Please don't source me, I am an executable!"
+    echo "Give me attributes with:"
+    echo "chmod +x install-herafitter"
+    echo "and run me with:"
+    echo "./install-herafitter"
+    return 2
+fi
+
+if [[ -z $1 ]]
+then
+    echo
+    echo "usage:"
+    echo "$0 <version|deps>"
+    echo
+    echo "available versions:"
+    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    echo "$vers"
+    echo "trunk"
+    echo
+    echo "to reinstall only dependences, run:"
+    echo "$0 deps"
+    echo
+    exit
+fi
+mode=$1
+shift 1
+
+#in deps mode, read version from the version file
+if [[ $mode != "deps" ]]
+    then
+    version=$mode
+else
+    if [[ ! -e version ]]
+	then
+	echo
+	echo "could not find file \"version\""
+	echo "cannot determine current version"
+	echo "run first:"
+	echo "$0 <version>"
+	echo
+	exit
+    fi
+    version=`cat version`
+    echo "reinstalling dependencies for HERAFitter version $version"
+fi
+
+#check that requested version exists
+if [[ $version != "trunk" ]]
+    then
+    exist=0
+    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    do
+	if [[ $version == $ver ]]
+	then
+	    exist=1
+	fi
+    done
+    if [[ $exist == 0 ]]
+    then
+	echo
+	echo "version $version not found, available versions:"
+	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+	echo "$vers"
+	echo "trunk"
+	echo
+	exit
+    fi
+fi
+
+if [[ $mode != "deps" && -e herafitter-${version} ]]
+then
+    echo
+    echo "herafitter-${version} already exists, remove it first"
+    echo "To reinstall only dependences, run:"
+    echo "$0 deps"
+    echo
+    exit
+fi
+if [[ $mode == "deps" && ! -e herafitter-${version} ]]
+then
+    echo
+    echo "herafitter-${version} does not exist, install it first with:"
+    echo "$0 $version"
+    echo
+    exit
+fi
+
+#automatically detect system:
+if [[ -z $MANUALCONF ]]
+then
+    which sw_vers >& /dev/null
+    if [[ $? == 0 ]]
+    then
+	echo "Detected Mac OS X system"
+	MODE=local
+	if [[ $version != "trunk" ]]
+	then
+	    which cernlib >& /dev/null
+	    if [[ $? != 0 ]]
+	    then
+		echo "Error, cernlib not installed in the system"
+		echo "Try:"
+		echo "apt-get install cernlib"
+		exit
+	    fi
+	    export CERN_ROOT=/usr/lib
+	fi
+    else
+	SYS=$(echo `lsb_release -i |cut -d: -f2`)
+	ver=$(echo `lsb_release -r |cut -d: -f2`)
+	if [[ $SYS == Scientific* && $ver == 6.* ]]
+	then
+	    echo "Detected SL6 Linux distribution"
+	    MODE=cern
+	    gccv=4.6
+	    os=slc6
+	    arch=x86_64
+	    rootversion=5.34.18
+	    boostver=1.48.0
+	    pyth=2.6
+	elif [[ $SYS == Scientific* && $ver == 5.* ]]
+	then
+	    echo "Detected SL5 Linux distribution"
+	    MODE=cern
+	    gccv=4.3
+	    os=slc5
+	    arch=x86_64
+	    rootversion=5.34.00
+	    boostver=1.48.0
+	    python=2.6.5
+	    pyth=2.6
+	elif [[ $SYS == "Ubuntu" ]]
+	then
+	    echo "Detected Ubuntu distribution"
+	    MODE=local
+	    if [[ $version != "trunk" ]]
+	    then
+		which cernlib >& /dev/null
+		if [[ $? != 0 ]]
+		then
+		    echo "Error, cernlib not installed in the system"
+		    echo "Try:"
+		    echo "apt-get install cernlib"
+		    exit
+		fi
+		export CERN_ROOT=/usr/lib
+	    fi
+	else
+	    echo "Sorry, I don't recognize your system:"
+	    echo "$SYS $ver"
+	    echo "I will assume you have root installed in your system,"
+            echo "gcc version >= 4.3, python, boost libraries, and wget"
+	    echo "If this doesn't work, and you have /afs/cern.ch mounted"
+	    echo "edit me (I am $0) and try to setup appropriate settings"
+	    echo "in the section: manual configuration"
+	    echo
+	    MODE="local"
+	fi
+    fi
+fi
+if [[ $MODE == "cern" ]]
+    then
+    if [[ ! -e /afs/cern.ch ]]
+	then
+	echo
+	echo "/afs/cern.ch not mounted, forcing local MODE"
+	echo "Fasten you seat belt"
+	echo "I hope you have root, gcc >= 4.3, python and boost libraries"
+	echo "all installed in your system"
+	echo
+	MODE="local"
+    fi
+fi
+
+if [[ $MODE == "cern" ]]
+then
+    compiler=`echo gcc${gccv} | sed "s/\.//"`
+    . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
+    if [[ $version != "trunk" ]]
+	then
+	export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt
+    fi
+    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
+    if [[ $os == slc5 ]]
+    then
+	PYTHONBIN=/afs/cern.ch/sw/lcg/external/Python/${python}/${arch}-${os}-${compiler}-opt/bin
+	PATH=$PYTHONBIN:$PATH
+	export BOOST=--with-boost=/afs/cern.ch/sw/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
+    fi
+    if [[ $os == slc6 ]]
+    then
+	export BOOST=--with-boost=/afs/cern.ch/sw/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
+    fi
+fi
+
+#check some basic dependendencies before starting the installation
+which svn >& /dev/null
+if [[ $? != 0 ]]
+then
+    echo "Error, svn not found"
+    exit
+fi
+
+which root >& /dev/null
+if [[ $? != 0 ]]
+then
+    echo "Error, root not found"
+    exit
+fi
+
+which wget >& /dev/null
+if [[ $? == 0 ]]
+then
+    http=wget
+else
+    which curl >& /dev/null
+    if [[ $? == 0 ]]
+    then
+	http=curl
+    else
+	echo "Error, wget or curl not found"
+	exit
+    fi
+fi
+    
+#directory:
+CURRENTDIR=`pwd`
+
+#clean up
+rm version setup.sh compile quickstart.readme.txt >& /dev/null
+rm install.log >& /dev/null
+
+#Make all dependencies
+rm -rf deps >& /dev/null
+mkdir deps
+cd deps
+
+#lhapdf:
+echo "Installing LHAPDF $lhapdfver..."
+if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
+then
+    lhapdf="LHAPDF"
+    withboost=$BOOST
+else
+    lhapdf="lhapdf"
+fi
+if [[ $http == "curl" ]]
+then
+    curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+else
+    wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+fi
+tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+cd ${lhapdf}-${lhapdfver} 
+./configure --prefix=$CURRENTDIR/deps/lhapdf $withboost >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+make -j 9 install >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+
+#hoppet:
+echo "Installing HOPPET $hoppetver..."
+if [[ $http == "curl" ]]
+then
+    curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
+else
+    wget http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+fi
+tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
+cd hoppet-${hoppetver}
+./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+
+# setup paths for applgrid:
+export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
+export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
+
+#applgrid:
+echo "Installing APPLGRID $applgridver..."
+if [[ $http == "curl" ]]
+then
+    curl https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
+else
+    wget https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
+fi
+tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
+cd applgrid-$applgridver
+./configure --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+make   >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+
+export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
+
+#qcdnum
+echo "Installing QCDNUM $qcdnumver..."
+qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
+if [[ $http == "curl" ]]
+then
+    curl http://www.nikhef.nl/~h24/qcdnum/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+else
+    wget http://www.nikhef.nl/~h24/qcdnum/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+fi
+tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+cd qcdnum-${qcdnumver}
+./makelibs  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+
+cd $CURRENTDIR
+
+
+#herafitter
+if [[ $mode != "deps" ]]
+then
+    echo "Installing HERAFitter $version..."
+    if [[ $version == "trunk" ]]
+    then
+	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk herafitter-trunk >> $CURRENTDIR/install.log  2>&1
+    else
+	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/herafitter-${version} >> $CURRENTDIR/install.log  2>&1
+    fi
+else
+    make -C herafitter-${version} clean >> $CURRENTDIR/install.log  2>&1
+fi
+
+
+#make a setup run enviroment script
+echo $version > version
+echo "export CURRENTDIR=`pwd`" > setup.sh
+echo "export version=\`cat version\`" >> setup.sh
+echo "export PATH=$CURRENTDIR/herafitter-$version/bin:\$PATH" >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
+if [[ $MODE == "cern" ]]
+then
+    echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
+    if [[ $version != "trunk" ]]
+	then
+	echo export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt      >> setup.sh
+    fi
+    echo . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh >> setup.sh
+fi
+
+#make a compilation script
+echo source ./setup.sh > compile
+echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-17-00-06  >> compile
+echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
+echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
+echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
+echo cd herafitter-\$version                                        >> compile
+echo autoreconf --install                                 >> compile
+echo ./configure --enable-applgrid --enable-lhapdf        >> compile
+echo make -j 9 install                                    >> compile
+
+chmod +x compile
+echo "Compiling HERAFitter $version..."
+./compile >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+
+# run test
+source ./setup.sh
+cd herafitter-${version}
+FitPDF >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error in testing FitPDF executable, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+echo "HERAFitter installation successful!"
+echo "Check install.log file for details"
+echo
+# setup a run dir
+if [[ ! -e run ]]
+then
+    mkdir -p run
+    cp  herafitter-${version}/steering.txt \
+	herafitter-${version}/minuit.in.txt \
+	herafitter-${version}/ewparam.txt \
+	run
+    rsync -a --exclude=".*" herafitter-${version}/datafiles run/
+    rsync -a --exclude=".*" herafitter-${version}/theoryfiles run/
+else
+    echo "\"run\" directory already exists, I won't touch it"
+    echo
+fi
+
+#quick start guide
+if [[ ! -e quickstart-readme.txt ]]
+then
+    echo "for a quick start do:" >> quickstart-readme.txt
+    echo >> quickstart-readme.txt
+    echo "source setup.sh #setup environment" >> quickstart-readme.txt
+    echo "cd run          #enter your run directory" >> quickstart-readme.txt
+    echo "FitPDF          #run your fit" >> quickstart-readme.txt
+    echo >> quickstart-readme.txt
+    echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
+    echo "Data and theory files are in datafiles and theoryfiles directory" >> quickstart-readme.txt
+    echo >> quickstart-readme.txt
+    echo "After the fit, display you results with:" >> quickstart-readme.txt
+    echo "DrawPdfs output/" >> quickstart-readme.txt
+    echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
+    echo "You can find further documentation in herafitter-$version/README and herafitter-$version/doc/tex/manual/" >> quickstart-readme.txt
+    echo "-----------------------------------------------------------"
+    cat quickstart-readme.txt
+    echo "-----------------------------------------------------------"
+    echo 
+    echo "To read again these instructions, see quickstart-readme.txt"
+    echo "Have fun!"
+fi
