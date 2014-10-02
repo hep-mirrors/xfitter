@@ -137,7 +137,7 @@ e.g. using a covariance matrix or providing nuisance parameters to encode the de
 each correlated systematic uncertainty for each measured data point.
 %, different scaling options, etc. 
 %In addition, there are various methods to deal with correlated systematic (or statistical) uncertainties. 
-The options available in \fitter are the following.
+The options available in \fitter are the following:
 
 \begin{description}
 \item \it {Covariance Matrix Representation:} \rm
@@ -214,7 +214,7 @@ but the bin-to-bin statistical correlations are given in the form of covariance 
 %A situation can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlations are given in the form of a covariance matrix. 
 \fitter\ offers the possibilitiy to include such mixed forms of information. 
 %information, when provided, as well as any other mixed 
-for treating statistical, uncorrelated and correlated systematic uncertainties. 
+%for treating statistical, uncorrelated and correlated systematic uncertainties. 
 %In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
 %\begin{equation} 
 %\begin{eqnarray} 
@@ -230,7 +230,7 @@ for treating statistical, uncorrelated and correlated systematic uncertainties.
 %on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
 \end{description}
 Any source of measured systematic uncertainty can be treated as additive or multiplicative. 
-The statistical uncertainties can be included as additive or Poisson. Minimisation
+The statistical uncertainties can be included as additive or following the Poisson statistics. Minimisation
 with respect to nuisance parameters is performed analytically, however for more 
 detailed studies of correlations individual nuisance parameters can be included in 
 the \minuit minimisation.

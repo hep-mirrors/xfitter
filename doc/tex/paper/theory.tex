@@ -139,13 +139,11 @@ the PDFs with appropriate hard-process scattering matrix elements, which are ref
 %The QCD predictions for the DIS structure functions are obtained by convoluting 
 %the PDFs with the respective coefficient functions. 
 
-The DIS measurements
-span a large range of $Q^2$ from few $\GeV^2$ to about $10^5$ $\GeV^2$,
-%from low to high $Q^2$
-crossing heavy-quark mass thresholds, thus the
-treatment of heavy quark (charm and beauty) production and the chosen values of their masses become important. 
-There are different approaches to the treatment of heavy quark production that would 
-be equivalent if calculations could be carried out to all orders in $\alpha_s$, but which differ at finite order.
+The DIS measurements span a large range of $Q^2$ from few $\GeV^2$ to about $10^5$ $\GeV^2$,
+crossing heavy-quark mass thresholds, thus the treatment of heavy quark (charm and beauty) 
+production and the chosen values of their masses become important. 
+There are different schemes for the treatment of heavy quark production. 
+%that would be equivalent if calculations could be carried out to all orders in $\alpha_s$, but which differ at finite order.
 Several variants of these schemes are implemented in \fitter and they are briefly discussed below.
 
 
@@ -168,7 +166,8 @@ from the fast \qcdnum convolution engine.
 
 \paragraph{Fixed Flavour Number (FFN)\rm:} 
 
-In this scheme \cite{Laenen:1992, Laenen:1993, Riem:1995}, only the gluon and the light quarks are considered
+In this rigorous quantum field theory scheme \cite{Laenen:1992, Laenen:1993, Riem:1995}, 
+only the gluon and the light quarks are considered
 as partons within the proton and massive 
 quarks are produced perturbatively in the final state.
 The lowest order process is
@@ -196,7 +195,7 @@ In these schemes \cite{VFN}, heavy quark production is treated for
 $Q^2 \sim m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
 in the massless scheme with a suitable interpolation inbetween. The details of this interpolation differ between different implementations.
 %in the ZM-VFN scheme with a suitable interpolation in between.
-The PDF groups that use GM-VFN schemes are MSTW, CT(CTEQ), NNPDF, and HERAPDF.
+The PDF groups that use GM-VFN schemes are MSTW, CT (CTEQ), NNPDF, and HERAPDF.
 %This scheme is very popular and numerous variants exist.
 \fitter implements different variants of the GM-VFN scheme.
 % 
@@ -324,7 +323,8 @@ the mass $M_X$ of the diffractively produced final state.
 In practice, the variable $M_X$ 
 is often replaced by dimensionless quantity $\beta=\frac{Q^2}{M_X^2+Q^2-t}$.
 In models based on a factorisable pomeron, $\beta$ may be viewed at LO as the fraction of the
-pomeron longitudinal momentum which is carried by the struck parton, $x=\beta x_{\Pom}$.
+pomeron longitudinal momentum, $x_{\Pom}$, which is carried by the struck parton, $x=\beta x_{\Pom}$,
+where $P$ denotes the momentum of the proton.
 %The diffractive parton distribution functions (DPDFs) are interpreted as probabilities for 
 %finding a parton with a small fraction of the proton momentum $x=\beta\Pom$
 \\
@@ -365,7 +365,7 @@ with the ``reduced cross-section'':
 %\end{equation}
 %where $m_p$ is the proton mass.
 
-Substituting $x = x_{\Pom}\beta$ we can relate Eq.~\ref{Dxs} to the standard DIS formula.
+%Substituting $x = x_{\Pom}\beta$ we can relate Eq.~\ref{Dxs} to the standard DIS formula.
 %\begin{equation}
 %\begin{array}{lcl}
 %\frac{d\sigma}{d\beta\,dQ^2\,dx_{\Pom}\,dt} =
@@ -384,7 +384,7 @@ Substituting $x = x_{\Pom}\beta$ we can relate Eq.~\ref{Dxs} to the standard DIS
 %\end{array}
 %\end{equation}
 %%The H1 and ZEUS data files typically contain $x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}$.
-In this way, the diffractive structure functions can be expressed as convolutions of 
+The diffractive structure functions can be expressed as convolutions of 
 calculable coefficient functions with the diffractive quark and gluon distribution functions,
  which in general depend on \xpom, $Q^2$, $\beta$, $t$.
 
@@ -455,11 +455,11 @@ provides further valuable information about PDFs.
 In $pp$ and $p\bar p$ scattering, the $Z/\gamma^*$ and $W$ production 
 probe bi-linear combinations of quarks. 
 Complementary information on the different quark densities
-can be obtained from the $W$ asymmetry ($d$, $u$ and their ratio),
+can be obtained from the $W^{\pm}$ asymmetry ($d$, $u$ and their ratio),
 the ratio of the $W$ and $Z$ cross sections (sensitive to the flavour 
 composition of the quark sea, in particular to the $s$-quark density), 
 and associated $W$ and $Z$ production with
-heavy quarks (sensitive to $s$- and $c$-quark densities).
+heavy quarks (sensitive to $c$- and $b$-quark densities).
  Measurements at large boson $p_T\gtrsim M_{W,Z}$ are potentially sensitive to the gluon density~\cite{Malik:2013kba}.
 %
 
@@ -587,7 +587,7 @@ calculations of jet production.
 Similarly to the DY case, the calculation 
 is very demanding in terms of computing power. 
 Therefore \emph{fast grid} techniques are used  
-to facilitate the QCD analyses including jet cross section measurements.
+to facilitate the QCD analyses including jet cross section measurements
 %to efficiently perform PDF and
 %$\alpha_S$ fits of jet cross section measurements 
 in $ep$, $pp$ and $p\bar{p}$ collisions
