@@ -46,6 +46,8 @@ C Standard DGLAP:& TMDs
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
          Call GetNCCharmXsection(IDataSet, HFSCHEME)
+      elseif (DATASETREACTION(IDataSet).eq.'NC e+-p beauty') then
+         Call GetNCBeautyXsection(IDataSet, HFSCHEME)
        elseif (DATASETREACTION(IDataSet).eq.'NC e+-p FL') then
          Call GetNCFL(IDataSet, HFSCHEME)
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
