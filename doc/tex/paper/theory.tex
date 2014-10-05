@@ -193,7 +193,8 @@ higher order corrections, and improving the theoretical precision of the mass de
 
 In these schemes \cite{VFN}, heavy quark production is treated for
 $Q^2 \sim m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
-in the massless scheme with a suitable interpolation inbetween. The details of this interpolation differ between different implementations.
+in the massless scheme with a suitable interpolation in between. 
+The details of this interpolation differ between different implementations.
 %in the ZM-VFN scheme with a suitable interpolation in between.
 The PDF groups that use GM-VFN schemes are MSTW, CT (CTEQ), NNPDF, and HERAPDF.
 %This scheme is very popular and numerous variants exist.
@@ -227,26 +228,14 @@ Both variants are accessible within the \fitter package at LO, NLO and NNLO.
 \item \it {GM-VFN ACOT scheme:} \rm
 The Aivazis-Collins-Olness-Tung (ACOT) scheme belongs to the group of VFN factorisation 
 schemes that use the renormalisation method of Collins-Wilczek-Zee (CWZ) \cite{CWZ}.
-This scheme unifies the low scale $Q^2 \sim m_h^2$ and high scale $Q^2 > m_h^2$ regions with a smooth interpolation across the full energy range. 
-%It is built upon the massive factorisation theorem by Collins~\cite{CWZ} 
-%to incorporate the heavy quark masses for $Q^2 > m_h^2$; hence, it can be consistently applied 
-%order by order in the perturbation theory.
+This scheme unifies the low scale $Q^2 \sim m_h^2$ and high scale $Q^2 > m_h^2$ regions
+%with a smooth interpolation across the full energy range. 
+in a coherent framework across the full energy range.
 %
-%This scheme involves a mixture of the $\overline{\text{MS}}$ scheme 
-%for light and heavy (when the factorisation scale is larger than the heavy quark mass) partons
-%and the zero-momentum subtraction renormalisation scheme for graphs with heavy quark lines 
-%(if the factorisation scale is smaller than the mass of the heavy quark threshold). 
-%% is this sentence below is important?
-%%The DGLAP kernels and PDF evolution are pure $\overline{\text{MS}}$, 
-%%therefore, the ACOT scheme is considered to be a minimal extension of the $\overline{\text{MS}}$ scheme.
 Within the ACOT package, different variants of the ACOT scheme are available:
 ACOT-Full \cite{Aivazis:1993pi}, S-ACOT-$\chi$ \cite{Kramer:2000hn,Kretzer:2003it}, ACOT-ZM \cite{Aivazis:1993pi}, 
 $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
-%The ACOT-Full implementation takes into account the quark masses 
-%and it reduces to ZM $\overline{\text{MS}}$ scheme in the limit of masses going to zero, 
-%but it has the disadvantage that it is computationally intensive (addressed in 
-%section~\ref{sec:techniques}).
 A comparison of PDFs extracted from the QCD fits to the HERA data 
 with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt} (taken from \cite{h1zeus:2009wt}).
 

@@ -188,9 +188,9 @@
   Jung, and Monfared}}]{tmdlref2}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{S.~T.} \bibnamefont{Monfared}}
-  (\bibinfo{year}{2014}), \bibinfo{note}{{DESY-14-060}},
-  [\eprint{arXiv:1407.5935}].
+  \bibinfo{author}{\bibfnamefont{S.~T.} \bibnamefont{Monfared}},
+  \bibinfo{journal}{Eur.\ Phys.\ J.\ C} \textbf{\bibinfo{volume}{74}},
+  \bibinfo{pages}{3082} (\bibinfo{year}{2014}), [\eprint{arXiv:1407.5935}].
 
 \bibitem[{\citenamefont{Golec-Biernat and
   W\"usthoff}(1999)}]{Golec-Biernat:1998js}
@@ -601,6 +601,13 @@
   \bibinfo{pages}{012001} (\bibinfo{year}{2012}{\natexlab{b}}),
   [\eprint{arXiv:1203.4051}].
 
+\bibitem[{\citenamefont{Chatrchyan
+  \emph{et~al.}}(2014{\natexlab{b}})}]{cms:strange}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
+  \bibinfo{journal}{submitted to Phys. Rev.} \textbf{\bibinfo{volume}{D}}
+  (\bibinfo{year}{2014}{\natexlab{b}}), [\eprint{arXiv:1312.6283}].
+
 \bibitem[{\citenamefont{Glazov \emph{et~al.}}(2011)\citenamefont{Glazov, Moch,
   and Radescu}}]{Chebyshev}
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Glazov}},
@@ -854,13 +861,6 @@
 \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}} \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}}
   (\bibinfo{year}{2012}), [\eprint{arXiv:1206.1796}].
-
-\bibitem[{\citenamefont{Chatrchyan
-  \emph{et~al.}}(2014{\natexlab{b}})}]{cms:strange}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
-  \bibinfo{journal}{submitted to Phys. Rev.} \textbf{\bibinfo{volume}{D}}
-  (\bibinfo{year}{2014}{\natexlab{b}}), [\eprint{arXiv:1312.6283}].
 
 \bibitem[{\citenamefont{Aad \emph{et~al.}}(2013{\natexlab{a}})}]{atlas:hm}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
