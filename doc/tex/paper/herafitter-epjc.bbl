@@ -694,8 +694,9 @@
 
 \bibitem[{\citenamefont{Luszczak and Kowalski}(2013)}]{Luszczak:2013rxa}
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Luszczak}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}}
-  (\bibinfo{year}{2013}), [\eprint{arXiv:1312.4060}].
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
+  \bibinfo{pages}{074051} (\bibinfo{year}{2013}), [\eprint{arXiv:1312.4060}].
 
 \bibitem[{\citenamefont{Balitsky}(1996)}]{Balitsky:1995ub}
 \bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Balitsky}},
