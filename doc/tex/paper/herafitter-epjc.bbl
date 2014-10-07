@@ -1,4 +1,4 @@
-\begin{thebibliography}{138}
+\begin{thebibliography}{139}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -586,6 +586,13 @@
   [\bibinfo{collaboration}{fastNLO Collaboration}] (\bibinfo{year}{2012}),
   [\eprint{arXiv:1208.3641}].
 
+\bibitem[{\citenamefont{Guzzi \emph{et~al.}}(2014)\citenamefont{Guzzi, Lipka,
+  and Moch}}]{Guzzi:2014wia}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Guzzi}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Lipka}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.-O.} \bibnamefont{Moch}}
+  (\bibinfo{year}{2014}), [\eprint{arXiv:1406.0386}].
+
 \bibitem[{\citenamefont{http://fastnlo.hepforge.org}()}]{fastNLO:HepForge}
 \bibinfo{author}{\bibnamefont{http://fastnlo.hepforge.org}},
   \urlprefix\url{http://fastnlo.hepforge.org}.
@@ -605,8 +612,9 @@
   \emph{et~al.}}(2014{\natexlab{b}})}]{cms:strange}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Chatrchyan}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}],
-  \bibinfo{journal}{submitted to Phys. Rev.} \textbf{\bibinfo{volume}{D}}
-  (\bibinfo{year}{2014}{\natexlab{b}}), [\eprint{arXiv:1312.6283}].
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D90}},
+  \bibinfo{pages}{032004} (\bibinfo{year}{2014}{\natexlab{b}}),
+  [\eprint{arXiv:1312.6283}].
 
 \bibitem[{\citenamefont{Glazov \emph{et~al.}}(2011)\citenamefont{Glazov, Moch,
   and Radescu}}]{Chebyshev}
