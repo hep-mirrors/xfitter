@@ -105,7 +105,7 @@ static vector<double> computeweights(vector<double> const& chi2,vector<int> cons
   return w;
 }
 
-// Computes total (over all data in the new set) chi2 between one observable replica and the experimental value.
+// Compute total (over all data in the new set) chi2 between one observable replica and the experimental value.
 // Takes an inverted CovMatrix
 static double Compute_totChi2(vector<double> const& ex, vector<double> const& th, TMatrixDSym const& iCovMat)
 {	
@@ -435,9 +435,9 @@ void PDF::Export(rwparam& rpar) const
   const size_t npx=100, npq2=50;
   typedef double xdim[npx][npq2][13];
   
-  // Init x and q2 grid points
-  const LHAPDF::PDFSet set(rpar.prior); //const PDF* pdf = mkPDF(setname, imem);
-   const vector<LHAPDF::PDF*> pdfs = set.mkPDFs();//= LHAPDF::mkPDFs(rpar.prior);
+  // Init x and q2 grid points //
+ const LHAPDF::PDFSet set(rpar.prior); //const PDF* pdf = mkPDF(setname, imem);
+ const vector<LHAPDF::PDF*> pdfs = set.mkPDFs();//= LHAPDF::mkPDFs(rpar.prior);
 
   vector<double> xg, qg;
   double qmin=LHAPDF::getQ2min(0);
@@ -460,7 +460,7 @@ void PDF::Export(rwparam& rpar) const
     qg.push_back(sqrt(qmin*pow(qmax/qmin,(((double) i ) -1)/(((double) npq2 ) -1))));
 
   const int nflavours=13;
-  int flavours[nflavours]={-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21};
+  int flavours[nflavours]={-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 0};
   
   double oas = LHAPDF::getOrderAlphaS();
   double opdf = LHAPDF::getOrderPDF();
@@ -522,8 +522,8 @@ void PDF::Export(rwparam& rpar) const
   lhaout_header << "AlphaS_Lambda5:  "<<LHAPDF::getLam5(0)<<endl;
   lhaout_header.close();
 
-  ofstream lhaout_centralval( (ofilename.str()+"_0000.dat").c_str() );
-
+  ofstream lhaout_centralval( (outfilename+"_0000.dat").c_str() );
+ 
   lhaout_centralval<< "PdfType: central"<<endl;
   lhaout_centralval<< "Format: lhagrid1"<<endl;
   lhaout_centralval<< "---"<<endl;
@@ -562,7 +562,9 @@ lhaout_centralval<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
 	      for (size_t n=0; n<nrep; n++)
                 {
 		  LHAPDF::initPDF(repnums[n]+1); 
+		  //pdfs[(repnums[n]+1)]
 		  double val=LHAPDF::xfx(xval,(qval),flavours[i]);
+		  //	  if (flavours[i]==21)cout<<val<<"  "<<LHAPDF::xfx(xval,(qval),0)<<endl;
 		  if (abs(val)<1e-50)
 		    val=0;
 		  xfxavg.push_back(val);
@@ -590,8 +592,8 @@ lhaout_centralval<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
     else if (n+1<100) filenumber="00";
     else if (n+1<1000) filenumber="0";
 
-    cout <<  ofilename.str()<<"_"<<filenumber<<(n+1)<<".dat"<< endl;
-    string errset_filename=ofilename.str()+"_";
+    cout <<  outfilename<<"_"<<filenumber<<(n+1)<<".dat"<< endl;
+    string errset_filename=outfilename+"_";
     errset_filename=errset_filename+filenumber;
     errset_filename=errset_filename+Form("%d",n+1);
     ofstream lhaout_errorset( (errset_filename+".dat").c_str() );
@@ -630,6 +632,11 @@ lhaout_errorset<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
     lhaout_errorset.close();
      
     }
+  cout << "These are the PDF sets that are written out from the original set to the new reweighted PDF set. Please note, that some sets can occur twice or even more often. If there is only one or very few sets to be written out, then the reweighted set will not be so reliable (or the reweighting can be deemed a failure). Please make sure you were using consistently NNLO predictions with NNLO sets etc." << endl;
+   for (size_t n=0; n<nrep; n++)
+     {
+       cout<< repnums[n]+1<<" / " <<nrep<< endl;
+     }
 
   cout <<"LHAPDF Writeout successful" <<endl<<endl;
   delete [] xfxval;

@@ -200,7 +200,7 @@ C---------------------------------------------------------------
 
       write(87,'(A,A,A,A,A)') 'LHGRIDFILE:  ',TRIM(outfilenames),
 c     $     '.LHgrid' 
-     $     '_nRep',TRIM(adjustl(stringnreplicas)),'.LHgrid' 
+     $     '_nRep',TRIM(adjustl(stringnreplicas)) 
       write(87,'(A,I4)') 'LHGRIDNREP: ',RWOUTREPLICAS 
       write(87,'(A)') 'DESCRIPTION: ' 
       write(87,'(A)') 'ENDDESC' 

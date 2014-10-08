@@ -129,8 +129,8 @@ extern "C" void nnnpdf_reweight_( int &npdfs, const char* s) {
     for (size_t i=0; i<NPOINTS; i++)
         palph[i]=palph[i]/(intp);
   
-  TCanvas *dCpa = new TCanvas("paPlot", "P(#alpha)",12,38,699,499);		
   TGraph* dpalpha= new TGraph(NPOINTS,alpha,palph);
+  TCanvas *dCpa = new TCanvas("paPlot", "P(#alpha)",12,38,699,499);		
     
   //  dCpa->GetPad(0)->SetLogx();
   
@@ -157,8 +157,10 @@ extern "C" void nnnpdf_reweight_( int &npdfs, const char* s) {
     
   dpalpha->Draw("AL");
 	
+  cout << (("output/"+paout).c_str()) << endl;
+  cout <<dCpa << endl;
   dCpa->Print(("output/"+paout).c_str());
-
+  cout << "hello"<<endl;
   //  exit(0);
   return;
 }
