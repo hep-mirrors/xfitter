@@ -31,8 +31,8 @@ Using collinear factorisation, hadron inclusive cross sections may be written as
 % f_b(x_2,\as(\mur),\muf) \nonumber \\ 
 %&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur),\mur,\muf)\,
 \sigma(\as(\mur^2),\mur^2,\muf^2)&=& \sum\limits_{a,b}\,  \int\limits_{0}\limits^{1} dx_1\ dx_2  f_a(x_1,\muf^2) f_b(x_2,\muf^2) \nonumber \\ 
-&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur^2),\mur^2,\muf^2),
-%+{\cal O}\left(\frac{\Lambda^2}{Q^2}\right)\,
+&\times&  \, \hat{\sigma}^{ab}(x_1,x_2;\as(\mur^2),\mur^2,\muf^2)  \nonumber \\
+&+&{\cal O}\left(\frac{\Lambda_{QCD}^2}{Q^2}\right)\,
 %&&\sigma(h_1  h_2 \rightarrow l^{+} l^{-} + X)  =
 %\nonumber\\
 %&&\sum\limits_{a,b}\,  \int_{x_1}^{1}_1 \int_{x_2}^{1} d_2\, f_{h_1\rightarrow a_1,\as(\mur),\mur,\muf)
@@ -54,7 +54,8 @@ with the parton cross section
 % that describe
 %the 
 %$\hat{\sigma}^{ab \rightarrow H + X}$.
-$\hat{\sigma}^{ab}$.
+$\hat{\sigma}^{ab}$,  involving a momentum transfer 
+$q$ such that $Q^2 = |q^2| >> \Lambda_{QCD}^2$. 
 %
 At Leading-Order (LO), the PDFs represent 
 the probability of finding a specific parton $a$ ($b$) in the first (second) proton carrying a fraction $x_1$ ($x_2$) of its momentum.
@@ -70,7 +71,7 @@ $\as$, and the factorisation and renormalisation scales,
 $\muf$ and $\mur$.
 %
 The parton cross sections $\hat\sigma^{ab}$ are calculable in perturbative QCD (pQCD) whereas
-PDFs are non-perturbative and are thus constrained by global fits to a variety of experimental data. The assumption that PDFs are universal, within a particular factorisation scheme \cite{Collins:1981uw,Collins:1983ju,Collins:1985ue,Collins:1989gx,Collins:2011zzd}, is crucial to this procedure.
+PDFs are non-perturbative and are usually constrained by global fits to a variety of experimental data. The assumption that PDFs are universal, within a particular factorisation scheme \cite{Collins:1981uw,Collins:1983ju,Collins:1985ue,Collins:1989gx,Collins:2011zzd}, is crucial to this procedure.
 Recent review articles on PDFs can be found in Refs. \cite{Perez:2012um,Forte:2013wc}. 
 %
 %PDFs are assumed to be universal such that different scattering reactions can be used 
@@ -113,7 +114,7 @@ of new experimental data on the PDFs and on the SM parameters.
 
 This paper is organised as follows.
 %
-The structure and overview of \fitter are presented in section~\ref{sec:structure}.
+The structure and an overview of \fitter are presented in section~\ref{sec:structure}.
 In section~\ref{sec:theory} the various processes available in \fitter
 and the corresponding theoretical calculations, performed within the framework of collinear factorisation and the DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
 Dokshitzer:1977sg,Altarelli:1977zs} formalism, are discussed. In

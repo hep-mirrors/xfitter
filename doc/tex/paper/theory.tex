@@ -16,7 +16,7 @@ In this section the theoretical formalism based on DGLAP \cite{Gribov:1972ri,Gri
 %available in \fitter 
 is described. 
 
-A direct consequence of factorisation (Eq. \ref{eq:fact}) is that scale dependence or ``evolution'' of the PDFs can be predicted 
+A direct consequence of factorisation (Eq. \ref{eq:fact}) is that the scale dependence or ``evolution'' of the PDFs can be predicted 
 by the renormalisation group equations. 
 By requiring that physical observables are independent of 
 $\muf$, a representation 
@@ -36,7 +36,7 @@ where the functions $P_{ab}$ are the evolution kernels or splitting functions, w
 of finding parton $a$ in parton $b$. They can be calculated as a  perturbative expansion in $\alpha_s$. 
 %The analytic structure of $P_{ij}$ is known at 3-loop in perturbation theory and can be found in the literature. 
 Once PDFs are determined at the initial
-scale $Q_0^2$, their evolution to any other scale $Q^2 > Q_0^2$ is entirely determined by the DGLAP equations.
+scale $\mu_F^2 = Q_0^2$, their evolution to any other scale $Q^2 > Q_0^2$ is entirely determined by the DGLAP equations.
 The PDFs are then used to calculate cross sections for various different processes.
 Alternative approaches to DGLAP evolution, valid in different kinematic regimes, 
 are also implemented in \fitter and will be discussed in section~\ref{sec:alternative}.
@@ -58,7 +58,7 @@ are also implemented in \fitter and will be discussed in section~\ref{sec:altern
 The for\-ma\-lism that relates the DIS measurements to pQCD and the PDFs has been described
 in detail in many extensive reviews (see e.g. Ref. \cite{disbook}) and it is only briefly summarised here.
 DIS is the process where a lepton scatters off the partons in the proton
-by a virtual exchange of a NC or CC vector boson and, as a result, a scattered lepton and a 
+by a virtual exchanged of a NC or CC vector boson and, as a result, a scattered lepton and a 
 multi-hadronic final state are produced.
 The common DIS kinematic variables are the scale of the process $Q^2$, which is the absolute squared four-momentum of 
 the exchange boson, Bjorken $x$, 
@@ -78,12 +78,12 @@ The NC cross section can be expressed in terms of generalised structure function
  %\label{eq:NC not reduced}
 \end{eqnarray}
 where  $Y_{\pm} = 1 \pm (1-y)^2$ and the electromagnetic coupling constant $\alpha$, 
-the photon propagator and a helicity factor are absorbed in the definition of the reduced cross section $\sigma_r$.
+the photon propagator and a helicity factor are factored out in the definition of the reduced cross section $\sigma_r$.
 %, and  $Y_{\pm} = 1 \pm (1-y)^2$ (additional terms of $O(1/Q^2)$ are numerically sm%all 
 %at the HERA kinematics and are neglected). 
 The generalised structure functions $\tilde F_{2,3}$ 
 can be written as linear combinations of the proton structure functions $F^{\gamma}_2, F^{\gamma Z}_{2,3}$ 
-and $F^Z_{2,3}$, which are associated to pure photon exchange terms, photon-$Z$ interference
+and $F^Z_{2,3}$, which are associated with pure photon exchange terms, photon-$Z$ interference
 terms and pure $Z$ exchange terms, respectively. 
 The structure function $\tilde F_2$ is the dominant contribution to the cross section, 
 $x \tilde F_3$ becomes important at high $Q^2$ and $\tilde F_L$ is sizable 
@@ -175,18 +175,22 @@ the heavy quark-antiquark pair production via boson-gluon fusion.
 %the fusion of a gluon in the proton
 %with a boson from the lepton to produce a heavy quark and an antiquark.
 %The recent series of PDFs that use this scheme as default are ABM and JR PDF groups.
-In \texttt{HERA-} \texttt{Fitter} this scheme can be accessed via the 
+In \texttt{HERA}\texttt{Fitter} this scheme can be accessed via the 
 \qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD}~\cite{openqcdrad:page}, as implemented by the ABM group.
 This scheme is reliable for $Q^2 \sim m_h^2$.
 In \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
 are available at Next-to-Leading-Order (NLO) and only electromagnetic exchange contributions are taken into account. 
 In the \texttt{OPEN}\texttt{QCDRAD} implementation the heavy quark contributions to CC structure functions are also available 
 %and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
-and, for the NC case, the QCD corrections to the coefficient functions at Next-to-Next-to Leading Order (NNLO)
+and, for the NC case, the QCD corrections to the coefficient functions in Next-to-Next-to Leading Order (NNLO)
 are provided at the best currently known approximation~\cite{SMoch:npb864}.
 The  \texttt{OPENQCDRAD} implementation also uses the running heavy-quark mass  \cite{Alekhin:runm} in the $\overline{\text{MS}}$ scheme.
-This scheme has the advantage of reducing the sensitivity of the DIS cross sections to
-higher order corrections, and improving the theoretical precision of the mass definition. 
+
+It is sometimes argued that this scheme reduces the sensitivity of the DIS cross sections to higher order corrections ~\cite{SMoch:npb864}. It is also known to have smaller non-perturbative corrections than the pole mass scheme 
+\cite{Beneke:1998ui}.
+
+%This scheme has the advantage of reducing the sensitivity of the DIS cross sections to
+%higher order corrections, and improving the theoretical precision of the mass definition. 
 
 
 \paragraph{General-Mass Variable Flavour Number (GM-VFN)\rm:}
@@ -285,17 +289,18 @@ an older version from Burkhard \cite{Burkhard}.
 
 
 %Similarly to standard PDFs,
-Diffractive parton distributions (DPDFs) 
-can be determined from QCD fits to diffractive cross sections in a similar way to the determination of the standard PDFs.
-%In this section the diffractive process is briefly described.
 About 10\% of deep inelastic interactions at HERA are diffractive, such that the interacting proton stays intact ($ep\to eXp$). 
+%In this section the diffractive process is briefly described.
 The proton is well separated from the 
 rest of the hadronic final state by a large rapidity gap.  
 This is interpreted as the dissociation of the virtual photon into
 hadronic system $X$ with an invariant mass much 
-smaller than the photon-proton c.o.m. energy $W=ys-Q^2+m_p^2(1-y)$, where $m_p$ is proton's mass. Such a process is assumed to be mediated by the exchange of a hard Pomeron 
+smaller than the photon-proton c.o.m. energy $W=ys-Q^2+m_p^2(1-y)$, where $m_p$ is proton's mass. Such a process is often assumed to be mediated by the exchange of a hard Pomeron 
 or a secondary Reggeon with vacuum quantum numbers. 
 This factorisable pomeron picture has proved remarkably successful in the description of most of the diffractive data.
+Diffractive parton distributions (DPDFs) 
+can be determined from QCD fits to diffractive cross sections in a similar way to the determination of the standard PDFs \cite{Collins:1997sr}.
+
 %
 %\begin{figure}[!ht]
 %\begin{center}
@@ -380,7 +385,7 @@ calculable coefficient functions with the diffractive quark and gluon distributi
 The diffractive PDFs \cite{Aktas:2006hy, zeus:diff2009} in \fitter are implemented as a sum 
 of two factorised contributions:
 \begin{equation}
- \Phi_\Pom(\xP,t)\, f^{Pom}_{a}(\beta,Q^2)
+ \Phi_\Pom(\xP,t)\, f^{\Pom}_{a}(\beta,Q^2)
   + 
  \Phi_\Reg(\xP,t)\, f^{\Reg}_{a}(\beta,Q^2)
  \,,
@@ -467,11 +472,11 @@ and lepton scattering angle \(\cos\theta\) in the parton c.o.m. frame can be wri
 % \textstyle
 % \frac{\mathrm{d}^3\sigma}{\mathrm{d}M\mathrm{d}y\mathrm{d}\cos\theta} &= 
  \frac{d^3\sigma}{dM{d}y d\cos\theta} &=&  
- \frac{\pi\alpha^2}{3MS}\sum\limits_{q}\hat{\sigma}^{q}(\cos\theta, M)  \nonumber \\
+ \frac{\pi\alpha^2}{3Ms}\sum\limits_{q}\hat{\sigma}^{q}(\cos\theta, M)  \nonumber \\
  &\times &\left[f_q(x_1,M^2)f_{\bar{q}}(x_2,M^2) 
  + (q\leftrightarrow\bar{q})\right],
 \end{eqnarray}
-where \(S\) is the squared c.o.m. beam energy, the parton momentum fractions are given by \(x_{1,2} = \frac{M}{\sqrt{S}}\exp(\pm y)\), $f_q(x_1,M^2)$ 
+where \(s\) is the squared c.o.m. beam energy, the parton momentum fractions are given by \(x_{1,2} = \frac{M}{\sqrt{s}}\exp(\pm y)\), $f_q(x_1,M^2)$ 
 are the PDFs at the scale of the invariant mass, and 
 $\hat{\sigma}^{q}$ is the parton-parton hard scattering cross section. 
 %\begin{align}
@@ -496,22 +501,22 @@ $\hat{\sigma}^{q}$ is the parton-parton hard scattering cross section.
 The corresponding CC triple differential cross section has the form:
 \begin{eqnarray}
 \frac{d^3\sigma}{dMdyd\cos\theta} &=&
- \frac{\pi\alpha^2}{48S\sin^4\theta_W}
+ \frac{\pi\alpha^2}{48s\sin^4\theta_W}
  \frac{M^3(1-\cos\theta)^2}{(M^2-M_W^2)+\Gamma_W^2M_W^2}  \nonumber \\
  &\times& \sum_{q_1,q_2}V_{q_1q_2}^2f_{q_1}(x_1,M^2)f_{q_2}(x_2,M^2),
 \end{eqnarray}
 where \(V_{q_1q_2}\) is the Cabibbo-Kobayashi-Maskawa (CKM) quark mixing matrix and \(M_W\) and \(\Gamma_W\)
 are the \(W\) boson mass and decay width, respectively.
 
-The simple form of these expressions allows analytic calculation of integrated
+The simple LO form of these expressions allows analytic calculation of integrated
 cross sections.
 % without the use of Monte Carlo (MC) techniques which often 
 %introduce statistical fluctuations.
 %This is particularly useful for PDF fitting purposes because
 %statistical fluctuations are avoided in this case. 
-In both NC and CC expressions the PDFs depend only on boson rapidity \(y\) and
+In both NC and CC expressions the PDFs depend only on the boson rapidity \(y\) and
 invariant mass \(M\), while
-the integral in \(\cos\theta\) can be solved analytically
+the integral in \(\cos\theta\) can be evaluated analytically
 even for the case of realistic kinematic cuts.
 %. This form 
 %provides easy means to apply kinematic cuts to theory predictions to emulate data.
@@ -600,7 +605,7 @@ in $ep$, $pp$ and $p\bar{p}$ collisions
 
 At the LHC top-quark pairs ($t \bar t$) are produced dominantly via $gg$ fusion.
 % and $q\bar{q}$ annihilation (at the Tevatron).
-Thus LHC Measurements of the $t \bar t$ cross sections can provide additional 
+Thus LHC measurements of the $t \bar t$ cross sections can provide additional 
 constraints on the gluon distribution at medium to high values of $x$, 
 on $\as$ and on the top-quark mass, $m_t$ \cite{cms:top}. 
 Precise predictions for the total $t \bar t$ cross section are available 

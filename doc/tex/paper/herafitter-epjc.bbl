@@ -1,4 +1,4 @@
-\begin{thebibliography}{139}
+\begin{thebibliography}{140}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -307,6 +307,11 @@
   \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}},
   \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B699}},
   \bibinfo{pages}{345} (\bibinfo{year}{2011}), [\eprint{arXiv:1011.5790}].
+
+\bibitem[{\citenamefont{Beneke}(1999)}]{Beneke:1998ui}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Beneke}},
+  \bibinfo{journal}{Phys.Rept.} \textbf{\bibinfo{volume}{317}},
+  \bibinfo{pages}{1} (\bibinfo{year}{1999}), [\eprint{hep-ph/9807443}].
 
 \bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
   Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}

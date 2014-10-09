@@ -56,7 +56,7 @@ and has the following functional form:
 \end{equation}
 %\end{center}
 This function can be regarded as a generalisation of the standard polynomial form described above,
-however, numerical integration of Eq.~\ref{eqn:bilog} is required in order to satisfy the QCD sum rules.
+however, numerical integration of Eq.~\ref{eqn:bilog} is required in order to impose the QCD sum rules.
 %In order to satisfy the QCD sum rules this parametric form requires numerical integration.
 \paragraph{Chebyshev Polynomials:} 
 A flexible parametrisation  based on the Chebyshev polynomials can be employed for the gluon and sea distributions.
@@ -102,7 +102,7 @@ the standard-polynomial one, for $N_{g,S} = 9$.
   \includegraphics[trim=1cm 4cm 1cm 5cm, clip, width=6cm]{chebishev.pdf}
 % \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
 % weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
-  \caption{The gluon distribution is shown at the starting scale. The black lines correspond to the uncertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Chebyshev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique (see section \ref{sec:experimentalerrors}) with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
+  \caption{The gluon density is shown at the starting scale $Q^2=1.9$ GeV$^2$. The black lines correspond to the uncertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Chebyshev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique (see section \ref{sec:experimentalerrors}) with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
  \label{fig:cheb}
 \end{figure}
 
@@ -113,7 +113,7 @@ theoretical predictions for the cross sections for all the processes available i
 This is possible via an interface to \lhapdf~\cite{lhapdf,lhapdfweb} providing access to the 
 global PDF sets.
 %available at different orders.
-\fitter also allows to evolve PDFs from \lhapdf with \qcdnum using the corresponding grids as a starting scale.
+\fitter also allows one to evolve PDFs from \lhapdf with \qcdnum using the corresponding grids as a starting scale.
 %locally through the \fitter or taken as provided by the \lhapdf grids. 
 Fig. \ref{fig:pdfs} illustrates a comparison of various PDFs accessed from \lhapdf as produced with the drawing 
 tools available in \fitter.
@@ -218,7 +218,7 @@ In some cases, the statistical and systematic uncertainties of experimental data
 For example, the correlated experimental systematic uncertainties are available as nuisance parameters
 but the bin-to-bin statistical correlations are given in the form of covariance matrix.
 %A situation can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlations are given in the form of a covariance matrix. 
-\fitter\ offers the possibilitiy to include such mixed forms of information. 
+\fitter\ offers the possibility to include such mixed forms of information 
 %information, when provided, as well as any other mixed 
 %for treating statistical, uncorrelated and correlated systematic uncertainties. 
 %In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
@@ -346,7 +346,7 @@ Since the MC method requires large number of replicas, the eigenvector represent
 is a more convenient way to store the PDF uncertainties.
 It is possible to transform MC to eigenvector
 representation as shown by \cite{Gao:2013bia}. Tools to perform this transformation are provided with \fitter and were 
-recently employed for the representation of correlated sets of PDFs at different perturbative order \cite{hfcorrpaper}.
+recently employed for the representation of correlated sets of PDFs at different perturbative orders \cite{hfcorrpaper}.
 %
 \end{description}
 %
@@ -449,7 +449,7 @@ which corresponds to the size of a refitted equiprobable replica set containing 
 This number of effective replicas, $N_\mathrm{eff}$, gives an indicative measure of the optimal size of an 
 unweighted replica set produced using the reweighting/unweighting procedure. No extra information is 
 gained by producing a final unweighted set that has a number of replicas (significantly) larger than 
-$N_\mathrm{eff}$.  If $N_\mathrm{eff}$ is much smaller than the original number of replicas the new data have great impact, however it is unreliable to use the new reweghted set. Instead a full refit should be performed.
+$N_\mathrm{eff}$.  If $N_\mathrm{eff}$ is much smaller than the original number of replicas the new data have great impact, however it is unreliable to use the new reweighted set. Instead a full refit should be performed.
 
 %On the one hand there is no reason in generating a final unweighted set that has a number of replicas
 %(significantly) larger than $N_\mathrm{eff}$ as no extra information is gained. On the other hand it is
