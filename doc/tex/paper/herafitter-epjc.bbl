@@ -184,13 +184,15 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{445}},
   \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{a}}).
 
-\bibitem[{\citenamefont{Hautmann \emph{et~al.}}(2014)\citenamefont{Hautmann,
-  Jung, and Monfared}}]{tmdlref2}
+\bibitem[{\citenamefont{Hautmann
+  \emph{et~al.}}(2014{\natexlab{a}})\citenamefont{Hautmann, Jung, and
+  Monfared}}]{tmdlref2}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{S.~T.} \bibnamefont{Monfared}},
   \bibinfo{journal}{Eur.\ Phys.\ J.\ C} \textbf{\bibinfo{volume}{74}},
-  \bibinfo{pages}{3082} (\bibinfo{year}{2014}), [\eprint{arXiv:1407.5935}].
+  \bibinfo{pages}{3082} (\bibinfo{year}{2014}{\natexlab{a}}),
+  [\eprint{arXiv:1407.5935}].
 
 \bibitem[{\citenamefont{Golec-Biernat and
   W\"usthoff}(1999)}]{Golec-Biernat:1998js}
@@ -242,11 +244,16 @@
 \bibitem[{lha()}]{lhapdfweb}
 \emph{\bibinfo{title}{{LHAPDF}}}, \urlprefix\url{http://lhapdf.hepforge.org}.
 
-\bibitem[{\citenamefont{Jung \emph{et~al.}}(2014)}]{tmdlref}
-\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
-  \bibnamefont{\emph{et~al.}}, \emph{\bibinfo{title}{{TMDlib and TMDplotter:
-  library and plotting tools for Transverse Momentum Dependent parton
-  distributions}}} (\bibinfo{year}{2014}), \bibinfo{note}{{DESY-14-059}}.
+\bibitem[{\citenamefont{Hautmann
+  \emph{et~al.}}(2014{\natexlab{b}})\citenamefont{Hautmann, Jung, Kramer,
+  Mulders, Nocera \emph{et~al.}}}]{Hautmann:2014kza}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Kramer}},
+  \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Mulders}},
+  \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Nocera}},
+  \bibnamefont{\emph{et~al.}} (\bibinfo{year}{2014}{\natexlab{b}}),
+  [\eprint{1408.3015}].
 
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2010)}]{h1zeus:2009wt}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
@@ -796,14 +803,6 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{360}},
   \bibinfo{pages}{3} (\bibinfo{year}{1991}).
 
-\bibitem[{\citenamefont{Hautmann \emph{et~al.}}(2011)\citenamefont{Hautmann,
-  Jung, and Pandis}}]{Hautmann:2010be}
-\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
-  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{V.}~\bibnamefont{Pandis}},
-  \bibinfo{journal}{AIP Conf.Proc.} \textbf{\bibinfo{volume}{1350}},
-  \bibinfo{pages}{263} (\bibinfo{year}{2011}), [\eprint{arXiv:1011.6157}].
-
 \bibitem[{\citenamefont{Catani \emph{et~al.}}(1991)\citenamefont{Catani,
   Ciafaloni, and Hautmann}}]{Catani:1990eg}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}},
@@ -942,6 +941,14 @@
 \bibitem[{\citenamefont{Sadykov}(2014)}]{Sadykov:2014aua}
 \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Sadykov}}
   (\bibinfo{year}{2014}), [\eprint{arXiv:1401.1133}].
+
+\bibitem[{\citenamefont{Dooling \emph{et~al.}}(2014)\citenamefont{Dooling,
+  Hautmann, and Jung}}]{Dooling:2014kia}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Dooling}},
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}},
+  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B736}},
+  \bibinfo{pages}{293} (\bibinfo{year}{2014}), [\eprint{1406.2994}].
 
 \bibitem[{her(H1prelim-13-141 and ZEUS-prel-13-003, H1prelim-10-142 and
   ZEUS-prel-10-018, H1prelim-11-042 and ZEUS-prel-11-002)}]{hera:grids}
