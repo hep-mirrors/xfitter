@@ -82,7 +82,7 @@ the default settings in \fitter.
   and, in addition to jets, extended its applicability to other scattering processes, 
   such as DY and heavy quark pair production in association with boson production.
   The packages differ in their interpolation
-  and optimisation strategies, but both packages construct tables with
+  and optimisation strategies, but both of them construct tables with
   grids for each bin of an observable in two steps: in the first step,
   the accessible phase space in the parton momentum fractions $x$ and
   the renormalisation and factorisation scales \mur and \muf is
@@ -123,14 +123,15 @@ the default settings in \fitter.
 
 \item In the \applgrid package~\cite{Carli:2010rw,APPLGRID:HepForge},
     in addition to jet cross sections for
-    $pp(\bar p)$ and DIS processes, calculations 
+    $pp(p\bar p)$ and DIS processes, calculations 
     of DY production are also implemented. The grids are generated with
     the customised versions of the \mcfm parton level DY
     generator~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.
     Variation of the renormalisation and factorisation scales is possible a posteriori,
     when calculating theory predictions with the \applgrid  tables, and
-    independent variation of the strong coupling constant is also allowed.
-    For NNLO predictions in \fitter, the $k$-factors technique can be also applied
+    independent variation of $\alpha_S$ is also allowed.
+%    For NNLO predictions in \fitter, the $k$-factors technique can be also applied
+    For higher-order predictions, the $k$-factors technique can be also applied
     within the \applgrid framework.
 
     As an example, the \fitter interface to \applgrid was used by the ATLAS~\cite{atlas:strange}

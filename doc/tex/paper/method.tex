@@ -38,7 +38,7 @@ The form $(1 + \epsilon_j \sqrt{x} + D_j x + E_j x^2)$
 is used for the HERAPDF \cite{h1zeus:2009wt} 
 with additional constraints relating to the flavour decomposition of the 
 light sea. This parametrisation is termed HERAPDF-style. The polynomial can also
-be parametrised in the CTEQ-style, $P_j(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$ and,
+be parametrised in the CTEQ-style, where $P_j(x)$ takes the form $e^{a_3x} (1 + e^{a_4} x + e^{a_5} x^2)$ and,
 in contrast to  the HERAPDF-style, this is positive by construction.
 QCD number and momentum sum rules are used to determine the normalisations $A$ for the valence and gluon
 distributions, and the sum-rule integrals are solved analytically.
@@ -115,7 +115,7 @@ global PDF sets.
 %available at different orders.
 \fitter also allows one to evolve PDFs from \lhapdf with \qcdnum using the corresponding grids as a starting scale.
 %locally through the \fitter or taken as provided by the \lhapdf grids. 
-Fig. \ref{fig:pdfs} illustrates a comparison of various PDFs accessed from \lhapdf as produced with the drawing 
+Fig. \ref{fig:pdfs} illustrates a comparison of various gluon PDFs accessed from \lhapdf as produced with the drawing 
 tools available in \fitter.
 %\end{description}
 %
@@ -143,7 +143,6 @@ each correlated systematic uncertainty for each measured data point.
 %, different scaling options, etc. 
 %In addition, there are various methods to deal with correlated systematic (or statistical) uncertainties. 
 The options available in \fitter are the following:
-
 \begin{description}
 \item \it {Covariance Matrix Representation:} \rm
 For a data point $\mu_i$ with a corresponding theory prediction $m_i$, 
@@ -153,7 +152,7 @@ can be expressed in the following form:
 \begin{eqnarray}
 \chi^2 (m)& = & \sum_{i,k}(m_i-\mu_i)C^{-1}_{ik}(m_k-\mu_k),
 \end{eqnarray}
-where the experimental uncertainties are given as a covariance matrix $C_{i,k}$ for measurements in bins $i$ and $k$.
+where the experimental uncertainties are given as a covariance matrix $C_{ik}$ for measurements in bins $i$ and $k$.
 %The $\chi^2$ function depends on the theory parameters $m^i$ 
 %(denoted as the vector $\boldsymbol{m}$).
 The covariance matrix $C_{ik}$ is given by a sum of statistical, uncorrelated and correlated systematic contributions: 
@@ -161,8 +160,6 @@ The covariance matrix $C_{ik}$ is given by a sum of statistical, uncorrelated an
 C_{ik}& = & C^{stat}_{ik}+C^{uncor}_{ik}+C^{sys}_{ik}.
 \end{eqnarray}
 Using this representation one cannot distinguish the separate effect of each source of systematic uncertainty. 
-\\
-
 \item \it{Nuisance Parameters Representation:} \rm
 In this case the $\chi^2$ form is expressed as
 \label{sec:nuisance_representation}
@@ -207,11 +204,9 @@ systematic uncertainties are proportional to the central prediction values
 with the square root of the expected number of events. 
 
 During the $\chi^2$ minimisation, the nuisance parameters $b_j$ and the PDFs are determined, such that the effect of different sources of systematic uncertainties can be distinguished.
-\\
 %The nuisance parameters $b_j$ as well as the PDF parameters are free parameters of the fit. 
 %The fit determines the best PDF parameters to
 %the data taking into account correlated systematic shifts of the data. 
-
 \item  \it{Mixed Form Representation:} \rm
 In some cases, the statistical and systematic uncertainties of experimental data are provided in different forms.    
 %It can happen that various parts of the systematic and statistical uncertainties are stored in different forms. 
@@ -235,7 +230,7 @@ but the bin-to-bin statistical correlations are given in the form of covariance 
 %of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
 %on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
 \end{description}
-Any source of measured systematic uncertainty can be treated as additive or multiplicative. 
+Any source of measured systematic uncertainty can be treated as additive (i.e. as absolute uncertainty) or multiplicative (i.e. as a relative uncertainty). 
 The statistical uncertainties can be included as additive or following the Poisson statistics. Minimisation
 with respect to nuisance parameters is performed analytically, however for more 
 detailed studies of correlations individual nuisance parameters can be included in 
@@ -261,7 +256,7 @@ the Hessian, Offset, and Monte Carlo method.
 %\end{figure}
 \begin{description}
 \item \it{Hessian (Eigenvector) method:} \rm
-The PDF uncertainties reflecting the uncertainties in experimental data are estimated by 
+The PDF uncertainties reflecting the data experimental uncertainties are estimated by 
 examining the shape of $\chi^2$ in the neighbourhood of the minimum \cite{Pumplin:2001ct}.
 %The technique developed in~\cite{Pumplin:2001ct} presents an estimate of PDF uncertainties 
 %reflecting the experimental precision of data used in the QCD fit by examining the behavior 
@@ -308,7 +303,7 @@ those from the Hessian method.
 %in the central fit.
 
 \item \it{Monte Carlo method:} \rm
-The Monte-Carlo technique \cite{Giele:1998gw, mcmethod2} can also be used to determine PDF uncertainties.
+The Monte Carlo (MC) technique \cite{Giele:1998gw, mcmethod2} can also be used to determine PDF uncertainties.
 The uncertainties are estimated using pseudo-data replicas (typically $>100$) 
 randomly generated from the measurement central values and their systematic and statistical uncertainties 
 taking into account all point-to-point correlations.
@@ -337,7 +332,7 @@ Similar findings were reported by the MSTW global analysis~\cite{Watt:2012tq}.
            and the MC approach (with more than 100 replicas) assuming Gaussian distribution for uncertainty 
            distributions, shown here for each replica 
           (green lines) together with the evaluated standard deviation (red lines) \cite{hera-lhc:report2009}.
-          The black lines in the figure are difficult to see because agreement of the methods is so good that thet are mostly covered by the red lines.}
+          The black and red lines in the figure are superimposed because agreement of the methods is so good that it is hard to distinguish them.}
   \label{fig:mchessian}        
 \end{figure}
 %
@@ -392,7 +387,7 @@ alternative PDFs with different choices of the mass of the charm quarks, $m_c$,
 mass of the bottom quarks, $m_b$, and the value of $\asmz$. 
 Other important aspects are the choice of the functional form for the PDFs at the 
 starting scale and the value of the starting scale itself. \fitter provides the
-possibility of different user choices of all these inputs to the theory.
+possibility of different user choices of all these inputs.% to the theory.
 %a platform in which such choices can readily be varied within a common framework.
 
 \subsection{Bayesian Reweighting Techniques}

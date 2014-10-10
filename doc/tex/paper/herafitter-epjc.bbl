@@ -1,4 +1,4 @@
-\begin{thebibliography}{140}
+\begin{thebibliography}{142}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -339,10 +339,11 @@
   \bibinfo{journal}{Phys.\ Rev.\ D} \textbf{\bibinfo{volume}{86}},
   \bibinfo{pages}{074017} (\bibinfo{year}{2012}), [\eprint{arXiv:1201.6180}].
 
-\bibitem[{\citenamefont{Collins}(1998)}]{CWZ}
+\bibitem[{\citenamefont{Collins}(1998{\natexlab{a}})}]{CWZ}
 \bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}},
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D58}},
-  \bibinfo{pages}{094002} (\bibinfo{year}{1998}), [\eprint{hep-ph/9806259}].
+  \bibinfo{pages}{094002} (\bibinfo{year}{1998}{\natexlab{a}}),
+  [\eprint{hep-ph/9806259}].
 
 \bibitem[{\citenamefont{Aivazis \emph{et~al.}}(1994)\citenamefont{Aivazis,
   Collins, Olness, and Tung}}]{Aivazis:1993pi}
@@ -386,6 +387,12 @@
   \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Penso}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Verzegnassi}},
   \bibinfo{note}{{in CERN Yellow Report on "Polarization at LEP" 1988.}}
+
+\bibitem[{\citenamefont{Collins}(1998{\natexlab{b}})}]{Collins:1997sr}
+\bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D57}},
+  \bibinfo{pages}{3051} (\bibinfo{year}{1998}{\natexlab{b}}),
+  [\eprint{hep-ph/9709499}].
 
 \bibitem[{\citenamefont{Aktas \emph{et~al.}}(2006)}]{Aktas:2006hy}
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Aktas}}
@@ -699,17 +706,16 @@
   \bibinfo{journal}{Z.Phys.} \textbf{\bibinfo{volume}{C49}},
   \bibinfo{pages}{607} (\bibinfo{year}{1991}).
 
+\bibitem[{\citenamefont{Mueller}(1994)}]{Mueller:1993rr}
+\bibinfo{author}{\bibfnamefont{A.~H.} \bibnamefont{Mueller}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{415}},
+  \bibinfo{pages}{373} (\bibinfo{year}{1994}).
+
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2011)}]{Collaboration:2010ry}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 Collaboration}],
   \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{C71}},
   \bibinfo{pages}{1579} (\bibinfo{year}{2011}), [\eprint{arXiv:1012.4355}].
-
-\bibitem[{\citenamefont{Luszczak and Kowalski}(2013)}]{Luszczak:2013rxa}
-\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Luszczak}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}},
-  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
-  \bibinfo{pages}{074051} (\bibinfo{year}{2013}), [\eprint{arXiv:1312.4060}].
 
 \bibitem[{\citenamefont{Balitsky}(1996)}]{Balitsky:1995ub}
 \bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Balitsky}},
@@ -926,6 +932,12 @@
 \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Abramowicz}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ZEUS Collaboration}]
   (\bibinfo{year}{2014}), [\eprint{arXiv:1405.6915}].
+
+\bibitem[{\citenamefont{Luszczak and Kowalski}(2013)}]{Luszczak:2013rxa}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Luszczak}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Kowalski}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
+  \bibinfo{pages}{074051} (\bibinfo{year}{2013}), [\eprint{arXiv:1312.4060}].
 
 \bibitem[{\citenamefont{Sadykov}(2014)}]{Sadykov:2014aua}
 \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Sadykov}}
