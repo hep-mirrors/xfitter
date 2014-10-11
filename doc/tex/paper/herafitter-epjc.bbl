@@ -151,10 +151,11 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
   \bibinfo{pages}{298} (\bibinfo{year}{1977}).
 
-\bibitem[{\citenamefont{Botje}(2010)}]{qcdnum}
-\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}} (\bibinfo{year}{2010}),
-  \bibinfo{note}{%QCDNUM version $17\beta$,% \tt
-  http://www.nikef.nl/h24/qcdnum/index.html}, [\eprint{arXiv:1005.1481}].
+\bibitem[{\citenamefont{Botje}(2011)}]{qcdnum}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}},
+  \bibinfo{journal}{Comput.Phys.Commun.} \textbf{\bibinfo{volume}{182}},
+  \bibinfo{pages}{490} (\bibinfo{year}{2011}), \bibinfo{note}{\tt
+  http://www.nikef.nl/h24/qcdnum/index.html\rm}, [\eprint{1005.1481}].
 
 \bibitem[{\citenamefont{Ciafaloni}(1988{\natexlab{a}})}]{CCFMa}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
