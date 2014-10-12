@@ -18,16 +18,16 @@ is described.
 
 A direct consequence of factorisation (Eq. \ref{eq:fact}) is that the scale dependence or ``evolution'' of the PDFs can be predicted 
 by the renormalisation group equations. 
-By requiring that physical observables are independent of 
+By requiring physical observables to be independent of 
 $\muf$, a representation 
-of parton evolution in terms of the DGLAP equations is obtained:
+of the parton evolution in terms of the DGLAP equations is obtained:
 %integro-differential equations known as 
 %DGLAP~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,Dokshitzer:1977sg,Altarelli:1977zs} (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi) equations:
 
 \begin{eqnarray}
 %\frac{d~f_i(x,\mur,\muf)}{d \log\muf^2} = \sum_{j=q\bar{q},g}\int_{x}^{1}\frac{d y}{y} 
 %P_{ij}\left(\frac{x}{y};\alpha_s,\mur,\muf\right) f_j(y,\mur,\muf)\,,
-\frac{d~f_a(x,\muf^2)}{d \log\muf^2} = \sum_{b=q\bar{q},g}\int_{x}^{1}\frac{d z}{z} 
+\frac{d~f_a(x,\muf^2)}{d \log\muf^2} = \sum_{b=q,\bar{q},g}\int_{x}^{1}\frac{d z}{z} 
 P_{ab}\left(\frac{x}{z};\muf^2\right) f_b(z,\muf^2)\,,
 \label{eq:dglap}
 \end{eqnarray}
@@ -58,12 +58,12 @@ are also implemented in \fitter and will be discussed in section~\ref{sec:altern
 The for\-ma\-lism that relates the DIS measurements to pQCD and the PDFs has been described
 in detail in many extensive reviews (see e.g. Ref. \cite{disbook}) and it is only briefly summarised here.
 DIS is the process where a lepton scatters off the partons in the proton
-by a virtual exchanged of a NC or CC vector boson and, as a result, a scattered lepton and a 
+by a virtual exchanged of a neutral ($\gamma/Z$) or charged ($W^{\pm}$) vector boson and, as a result, a scattered lepton and a 
 multi-hadronic final state are produced.
 The common DIS kinematic variables are the scale of the process $Q^2$, which is the absolute squared four-momentum of 
 the exchange boson, Bjorken $x$, 
 which can be related in the parton model to 
-the fraction of momentum carried by the struck quark, 
+the momentum fraction that is carried by the struck quark, 
 and the inelasticity $y$. These are related by $y=Q^2/sx$, where $s$ is the squared centre-of-mass (c.o.m.) energy.
 %$s = 4E_eE_p$ at HERA.
 %which is the fraction of the energy 
@@ -77,8 +77,8 @@ The NC cross section can be expressed in terms of generalised structure function
     \sigma_{r,NC}^{e^{\pm} p}&= &  \tilde F_2^{\pm} \mp \frac{Y_{-}}{Y_{+}}x \tilde F_3^{\pm} - \frac{y^2}{Y_{+}} \tilde F_L^{\pm},
  %\label{eq:NC not reduced}
 \end{eqnarray}
-where  $Y_{\pm} = 1 \pm (1-y)^2$ and the electromagnetic coupling constant $\alpha$, 
-the photon propagator and a helicity factor are factored out in the definition of the reduced cross section $\sigma_r$.
+where  $Y_{\pm} = 1 \pm (1-y)^2$ and $\alpha$ is the electromagnetic coupling constant.
+%the photon propagator and a helicity factor are factored out in the definition of the reduced cross section $\sigma_r$.
 %, and  $Y_{\pm} = 1 \pm (1-y)^2$ (additional terms of $O(1/Q^2)$ are numerically sm%all 
 %at the HERA kinematics and are neglected). 
 The generalised structure functions $\tilde F_{2,3}$ 
@@ -94,8 +94,8 @@ PDFs, i.e. at leading order (LO)  $F_2$ is the weighted momentum sum of quark an
  $xF_3$ is related to their difference, 
 %$xF_3 \approx x \sum 2e_q a_q (q- \overline q)$ (where $a_q$ is the axial-vector 
 %quark coupling and $e_q$ the quark electric charge)
-and $F_L$ vanishes. At higher orders, terms related to the gluon distribution distribution
-($\as g$) appear, in particular $F_L$ is strongly related to the low-$x$ 
+and $F_L$ vanishes. At higher orders, terms related to the gluon distribution
+appear, in particular $F_L$ is strongly related to the low-$x$ 
 gluon.
 \\
 The inclusive CC $ep$ cross section, analogous to the NC $ep$ case, can be expressed in terms of another set 
@@ -139,7 +139,7 @@ the PDFs with appropriate hard-process scattering matrix elements, which are ref
 %The QCD predictions for the DIS structure functions are obtained by convoluting 
 %the PDFs with the respective coefficient functions. 
 
-The DIS measurements span a large range of $Q^2$ from few $\GeV^2$ to about $10^5$ $\GeV^2$, crossing heavy quark mass thresholds, thus the treatment of heavy quark (charm and beauty) 
+The DIS measurements span a large range of $Q^2$ from a few $\GeV^2$ to about $10^5$ $\GeV^2$, crossing heavy quark mass thresholds, thus the treatment of heavy quark (charm and beauty) 
 production and the chosen values of their masses become important. 
 There are different schemes for the treatment of heavy quark production. 
 %that would be equivalent if calculations could be carried out to all orders in $\alpha_s$, but which differ at finite order.
@@ -155,7 +155,7 @@ are then treated as massless in both the initial
 and final states of the hard scattering process. The lowest order process is the
 %scattering of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
 scattering of the lepton off the heavy quark via electroweak boson exchange.
-This scheme is expected to be reliable in the region with $Q^2 \gg m_h^2$.
+This scheme is expected to be reliable in the region where $Q^2 \gg m_h^2$.
 %This is the scheme that had been used in the past by PDF groups.
 In \fitter this scheme is available for the DIS structure function calculation 
 via the interface to the \qcdnum \cite{qcdnum} package, thus it benefits 
@@ -172,24 +172,24 @@ the heavy quark-antiquark pair production via boson-gluon fusion.
 %with a boson from the lepton to produce a heavy quark and an antiquark.
 %The recent series of PDFs that use this scheme as default are ABM and JR PDF groups.
 In \texttt{HERA}\texttt{Fitter} this scheme can be accessed via the 
-\qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD}~\cite{openqcdrad:page}, as implemented by the ABM group.
+\qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD}~\cite{openqcdrad:page} as implemented by the ABM group.
 This scheme is reliable for $Q^2 \sim m_h^2$.
 In \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
 are available at Next-to-Leading Order (NLO) and only electromagnetic exchange contributions are taken into account. 
 In the \texttt{OPEN}\texttt{QCDRAD} implementation the heavy quark contributions to CC structure functions are also available 
 %and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 and, for the NC case, the QCD corrections to the coefficient functions in Next-to-Next-to Leading Order (NNLO)
-are provided at the best currently known approximation~\cite{SMoch:npb864}.
-The  \texttt{OPENQCDRAD} implementation also uses the running heavy quark mass in the $\overline{\text{MS}}$ scheme~\cite{Alekhin:runm}.
+are provided in the best currently known approximation~\cite{SMoch:npb864}.
+The  \texttt{OPENQCDRAD} implementation uses the running heavy quark mass in the $\overline{\text{MS}}$ scheme~\cite{Alekhin:runm}.
 
 It is sometimes argued that this scheme reduces the sensitivity of the DIS cross sections to higher order corrections ~\cite{SMoch:npb864}. It is also known to have smaller non-perturbative corrections than the pole mass scheme 
 \cite{Beneke:1998ui}.
 
 \paragraph{General-Mass Variable Flavour Number (GM-VFN)\rm:\\}
-In these schemes \cite{VFN}, heavy quark production is treated for
+In this scheme \cite{VFN}, heavy quark production is treated for
 $Q^2 \sim m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
 in the massless scheme with a suitable interpolation in between. 
-The details of this interpolation differ between different implementations.
+The details of this interpolation differ between implementations.
 %in the ZM-VFN scheme with a suitable interpolation in between.
 The PDF groups that use GM-VFN schemes are MSTW, CT (CTEQ), NNPDF, and HERAPDF.
 %This scheme is very popular and numerous variants exist.
@@ -212,12 +212,12 @@ The PDF groups that use GM-VFN schemes are MSTW, CT (CTEQ), NNPDF, and HERAPDF.
 %
 The Thorne-Roberts (TR) scheme~\cite{Thorne:1997ga} was designed to provide a smooth transition 
 from the massive FFN scheme at low scales $Q^2 \sim m_h^2$ to the massless ZM-VFNS scheme at high scales $Q^2 \gg m_h^2$. 
-However, the original version was technically difficult to implement beyond NLO, and was updated 
+Because the original version was technically difficult to implement beyond NLO, it was updated 
 to the TR$^\prime$ scheme~\cite{Thorne:2006qt}.
 %which is simpler (and closer to the ACOT-scheme, see below).
-There are two different variants of the TR$^\prime$ schemes: TR$^\prime$ standard (as used in MSTW PDF sets~\cite{Thorne:2006qt,MSTWpdf}) 
+There are two variants of the TR$^\prime$ schemes: TR$^\prime$ standard (as used in MSTW PDF sets~\cite{Thorne:2006qt,MSTWpdf}) 
 and TR$^\prime$ optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region. 
-Both variants are accessible within the \fitter package at LO, NLO and NNLO.
+Both TR$^\prime$ variants are accessible within the \fitter package at LO, NLO and NNLO.
 %%%%
 \vspace{0.1cm}
 \item \it {GM-VFN ACOT scheme:} \rm
@@ -227,22 +227,21 @@ This scheme unifies the low scale $Q^2 \sim m_h^2$ and high scale $Q^2 > m_h^2$ 
 %with a smooth interpolation across the full energy range. 
 in a coherent framework across the full energy range.
 %
-Within the ACOT package, different variants of the ACOT scheme are available:
+Within the ACOT package, the following variants of the ACOT scheme are available:
 ACOT-Full \cite{Aivazis:1993pi}, S-ACOT-$\chi$ \cite{Kramer:2000hn,Kretzer:2003it}, ACOT-ZM \cite{Aivazis:1993pi}, 
 $\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
-A comparison of PDFs extracted from the QCD fits to the HERA data 
+A comparison of PDFs extracted from QCD fits to the HERA data 
 with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt} (taken from \cite{h1zeus:2009wt}).
 
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=8cm]{heraacot}
-  \caption{Overview showing the $u$- and $d$-valence, the total sea
-    (scaled), and gluon (scaled) PDFs of the NLO HERAPDF1.0 set \cite{h1zeus:2009wt} 
-    with their 
-    total uncertainty at the scale of $Q^2 = 10\ \GeV^2$ obtained 
-    using the TR$^\prime$ scheme and compared to the PDFs obtained with 
-    the ACOT scheme using the $k$-factor technique (red).}
+   \caption{Distributions of valence ($xu_v$, $xd_v$), sea ($xS$) and the gluon ($g$) PDFs in HERAPDF1.0~\cite{h1zeus:2009wt}
+       with their total uncertainties at the scale of $Q^2 = 10\ \GeV^2$ obtained 
+       using the TR$^\prime$ scheme and compared to the PDFs obtained with 
+       the ACOT scheme using the $k$-factor technique (red).
+       The gluon and the sea distributions are scaled down by a factor of 20.}
  \label{fig:acotrt}
 \end{figure}
 
@@ -254,9 +253,9 @@ with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotr
 \subsection{Electroweak Corrections to DIS}
 %%%%%%%%%%%
 %\item \bf {Electroweak corrections for \texorpdfstring{$ep$}{ep} scattering:} \rm
-Calculations of higher-order electroweak corrections to DIS scattering at 
-HERA are available in \fitter in the on-shell scheme. In this scheme the
-gauge bosons masses $m_W$ and 
+Calculations of higher-order electroweak corrections to DIS at 
+HERA are available in \fitter in the on-shell scheme. In this scheme, the
+masses of the gauge bosons $m_W$ and 
 $m_Z$ are treated as basic parameters together with the top, 
 Higgs and fermion masses.
 These electroweak corrections 
@@ -264,7 +263,7 @@ are based on the \texttt{EPRC} package~\cite{SpiesbergerPrivComm}.
 The code calculates the running of the electromagnetic coupling $\alpha$ using the most recent parametrisation
 of the hadronic contribution
 % to $\Delta_\alpha$ 
-\cite{Jegerlehner}, as well as 
+\cite{Jegerlehner} as well as 
 an older version from Burkhard \cite{Burkhard}.
 
 

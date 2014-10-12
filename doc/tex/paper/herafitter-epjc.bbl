@@ -1,4 +1,4 @@
-\begin{thebibliography}{142}
+\begin{thebibliography}{145}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -254,7 +254,7 @@
   \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Mulders}},
   \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Nocera}},
   \bibnamefont{\emph{et~al.}} (\bibinfo{year}{2014}{\natexlab{b}}),
-  [\eprint{1408.3015}].
+  [\eprint{arXiv:1408.3015}].
 
 \bibitem[{\citenamefont{Aaron \emph{et~al.}}(2010)}]{h1zeus:2009wt}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
@@ -464,6 +464,25 @@
   \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vicini}},
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D83}},
   \bibinfo{pages}{113008} (\bibinfo{year}{2011}), [\eprint{arXiv:1104.2056}].
+
+\bibitem[{\citenamefont{Bardin \emph{et~al.}}(2012)\citenamefont{Bardin,
+  Bondarenko, Christova, Kalinovskaya, Rumyantsev
+  \emph{et~al.}}}]{Bardin:2012jk}
+\bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{Bardin}},
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Bondarenko}},
+  \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Christova}},
+  \bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Kalinovskaya}},
+  \bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Rumyantsev}},
+  \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{JETP Lett.}
+  \textbf{\bibinfo{volume}{96}}, \bibinfo{pages}{285} (\bibinfo{year}{2012}),
+  [\eprint{1207.4400}].
+
+\bibitem[{\citenamefont{Bondarenko and Sapronov}(2013)}]{Bondarenko:2013nu}
+\bibinfo{author}{\bibfnamefont{S.~G.} \bibnamefont{Bondarenko}}
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{A.~A.}
+  \bibnamefont{Sapronov}}, \bibinfo{journal}{Comput.Phys.Commun.}
+  \textbf{\bibinfo{volume}{184}}, \bibinfo{pages}{2343} (\bibinfo{year}{2013}),
+  [\eprint{1301.3687}].
 
 \bibitem[{\citenamefont{Gehrmann-De~Ridder
   \emph{et~al.}}(2013)\citenamefont{Gehrmann-De~Ridder, Gehrmann, Glover, and
@@ -804,6 +823,11 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{360}},
   \bibinfo{pages}{3} (\bibinfo{year}{1991}).
 
+\bibitem[{\citenamefont{Hautmann}(2002)}]{Hautmann:2002tu}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B535}},
+  \bibinfo{pages}{159} (\bibinfo{year}{2002}), [\eprint{hep-ph/0203140}].
+
 \bibitem[{\citenamefont{Catani \emph{et~al.}}(1991)\citenamefont{Catani,
   Ciafaloni, and Hautmann}}]{Catani:1990eg}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}},
@@ -949,7 +973,7 @@
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}},
   \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B736}},
-  \bibinfo{pages}{293} (\bibinfo{year}{2014}), [\eprint{1406.2994}].
+  \bibinfo{pages}{293} (\bibinfo{year}{2014}), [\eprint{arXiv:1406.2994}].
 
 \bibitem[{her(H1prelim-13-141 and ZEUS-prel-13-003, H1prelim-10-142 and
   ZEUS-prel-10-018, H1prelim-11-042 and ZEUS-prel-11-002)}]{hera:grids}

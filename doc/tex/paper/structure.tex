@@ -5,9 +5,9 @@
 %providing a versatile environment for benchmarking studies. It is widely used within the
 %LHC experiments~\cite{atlas:strange,atlas:jets,atlas:hm,cms:strange,h1:2012kk,h1zeus:charm}.  
 
-In this section the functionality of \fitter is described.
-A block diagram in Fig. \ref{fig:flow} gives a schematic view
-of the \fitter functionality which can be divided into four main blocks:
+%In this section the functionality of \fitter is described.
+The diagram in Fig. \ref{fig:flow} gives a schematic overview
+of the \fitter structure and functionality, which can be divided into four main blocks:
 \input{workflow.tex}
 %\begin{figure}[!ht]
 %   \centering
@@ -17,17 +17,17 @@ of the \fitter functionality which can be divided into four main blocks:
 %\end{figure}
 %\begin{description}
 %\item 
-\paragraph{Data:} Different measurements from various processes
+\paragraph{Data:} Measurements from various processes
 are implemented in the \fitter package including the full information on their uncorrelated 
 and correlated uncertainties. HERA inclusive scattering data 
-are sensitive to quark PDFs and to gluon PDFs through scaling violations and the longitudinal structure function $F_L$.  
+are sensitive to quark and to gluon PDFs through scaling violations and the longitudinal structure function $F_L$.  
 %covering low and medium $x$ ranges. 
 These data are the backbone of any proton PDF extraction,
 and are used by all global PDF groups \cite{MSTWpdf,CT10pdf,NNPDFpdf,Alekhin:2013nda,Jimenez-Delgado:2014twa}.  They can be supplemented by HERA measurements sensitive to heavy quarks and by HERA jet measurements, which have direct sensitivity to the gluon PDF.
-However, the kinematic range of HERA data mostly covers low and medium $x$ ranges.
+However, the kinematic range of HERA data mostly covers low and medium ranges in $x$.
 Improvements in precision of PDFs require additional constraints on the gluon and 
 quark distributions at high-$x$, better understanding of heavy quark distributions and 
-decomposition of the light-quark sea.  For these purposes, measurements from the fixed-target 
+decomposition of the light-quark sea.  For these purposes, measurements from fixed-target 
 experiments, the Tevatron and the LHC can be used.
 % are of particular importance.
 %
@@ -36,7 +36,7 @@ experiments, the Tevatron and the LHC can be used.
 %where HERA data is not measured precisely, such as the high $x$ region for the gluon and valence 
 %quark distributions from Tevatron and fixed target experiments.
 %
-The processes that are currently available in the \fitter framework are listed in Tab.~\ref{tab:proc}.
+The processes that are currently available within the \fitter framework are listed in Tab.~\ref{tab:proc}.
 
 %
 \begin{table}
@@ -78,7 +78,7 @@ LHC              &          &$pp(\bar p)\to l\nu  X$ &                 \\ [0.5ex
 %Tevatron, LHC &W charge asym &$pp(\bar p) \to l\nu X$ & MCFM (\texttt{APPLGRID}) \\
 %\hline
               &top pair   &$pp(\bar p) \to t\bar t X$  & \mcfm (\applgrid),  \\
-              &            &                            & \texttt{HATHOR}      \\  [0.5ex] 
+              &            &                            & \texttt{HATHOR}, \texttt{DiffTop} \\ [0.5ex] 
 \cline{2-4}  \\ [-2.0ex]
               &single top &$pp(\bar p) \to t l \nu X$,      & \mcfm (\applgrid) \\
               &           &$pp(\bar p) \to tX$,             &  \\
@@ -103,29 +103,29 @@ The references for the individual calculations and schemes are given in the text
 \paragraph{Theory:}  
 %Predictions for cross section of different processes are obtained using 
 %the factorisation approach (Eq.~\ref{eq:fact}).
- The PDFs are parametrised at a starting input scale, $Q_0^2$,  
+ The PDFs are parametrised at a starting scale, $Q_0^2$,  
 by a chosen functional form with a set of free parameters $\vec{p}$. 
 These PDFs are evolved to the scale of the measurement $Q^2$, $Q^2>Q_0^2$.
-The evolution uses the DGLAP formalism \cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
-Dokshitzer:1977sg, Altarelli:1977zs} (as implemented in \qcdnum~\cite{qcdnum}) by default, however CCFM evolution \cite{\CCFM} is also available 
-(as implemented in \texttt{uPDFevolv}~\cite{tmdlref2}).
+By default, the evolution uses the DGLAP formalism \cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
+Dokshitzer:1977sg, Altarelli:1977zs} as implemented in \qcdnum~\cite{qcdnum}. Alternatively, 
+the CCFM evolution \cite{\CCFM} as implemented in \texttt{uPDFevolv}~\cite{tmdlref2} can be chosen.
 %or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
-The prediction of the cross section for a particular process is obtained, assuming factorisation,  by the convolution of the evolved 
-PDFs and the appropriate hard-process parton scattering cross section.
-Appropriate theory calculations are listed in Tab.~\ref{tab:proc}.
-Alternatively, predictions using dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} can also be obtained.
+The prediction of the cross section for a particular process is obtained, assuming factorisation, by the convolution of the evolved 
+PDFs with the corresponding hard-process parton scattering cross section.
+Available theory calculations are listed in Tab.~\ref{tab:proc}.
+Predictions using dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} can also be obtained.
 %\item
 \paragraph{QCD Analysis:} \rm  
-The PDFs are determined by a least square fit, minimising a $\chi^2$ function, constructed using the input data and theory predictions, with the \minuit \cite{minuit} program.
+The PDFs are determined in a least squares fit, minimising a $\chi^2$ function that is constructed from the input data and theory predictions, with the \minuit \cite{minuit} program.
 %with respect to free parameters $\vec{p}$ using the MINUIT~\cite{minuit} program.
 %
 %extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. 
 %The $\chi^2$ function is formed from the input data and the theory prediction.
 %The $\chi^2$ is  minimised iteratively 
 %with respect to$\vec{p}$ using the MINUIT~\cite{minuit} program.
-In \fitter various choices are available to account for the experimental uncertainties. Correlated experimental uncertainties can be accounted for using 
+In \fitter various choices are available for the treatment of experimental uncertainties. Correlated experimental uncertainties can be accounted for using 
 a nuisance parameter method  
-or a covariance matrix method as described in section~\ref{sec:chi2representation}.  Different statistical assumptions for the distributions of the systematic uncertainties, like Gaussian or LogNormal~\cite{hera-lhc:report2009} can also be studied (see section~\ref{sec:experimentalerrors}).
+or a covariance matrix method as described in section~\ref{sec:chi2representation}.  Different statistical assumptions for the distributions of the systematic uncertainties, e.g. Gaussian or LogNormal~\cite{hera-lhc:report2009}, can also be studied (see section~\ref{sec:experimentalerrors}).
 %\item
 \paragraph{Results:}
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
@@ -135,8 +135,8 @@ library~\cite{lhapdf,lhapdfweb} or by \tmdlib \cite{Hautmann:2014kza}.
 %Drawing tools are supplied which allow the PDFs to be
 %graphically  displayed at chosen scales by the users with their one sigma uncertainty bands. 
 As an example, the first set of PDFs extracted using \fitter from HERA I data, HERAPDF1.0 \cite{h1zeus:2009wt}, 
-is shown in Fig.~\ref{fig:hera1} (taken from \cite{h1zeus:2009wt}).
- Note that the PDFs displayed are parton momentum distributions $xf(x,\mu_F^2)$ since this is how PDFs are conventionally stored and displayed.
+is shown in Fig.~\ref{fig:hera1} (taken from Ref. \cite{h1zeus:2009wt}).
+Note that following conventions, the PDFs are displayed as parton momentum distributions $xf(x,\mu_F^2)$.
 %%%Since then several other PDF sets were produced within the HERA \cite{hera:grids} and LHC \cite{atlas:grids} collaborations.
 %In addition to the PDF display, 
 %The comparison of data used in the fit to the theory predictions are also produced. 
@@ -145,7 +145,7 @@ is shown in Fig.~\ref{fig:hera1} (taken from \cite{h1zeus:2009wt}).
 \begin{figure}[!ht]
    \centering
    \includegraphics[width=8cm]{hera1.pdf}
-   \caption{Distributions of valence ($xu_v$, $xd_v$), sea ($xS$) and the gluon ($g$) densities in HERAPDF1.0~\cite{h1zeus:2009wt}. 
+   \caption{Distributions of valence ($xu_v$, $xd_v$), sea ($xS$) and the gluon ($g$) PDFs in HERAPDF1.0~\cite{h1zeus:2009wt}. 
        The gluon and the sea distributions are scaled down by a factor of 20.
        The experimental, model and parametrisation uncertainties are shown as coloured bands.}
        %Summary plots of valence ($xu_v$, $xd_v$), total sea ($xS$, scaled) and gluon ($xg$, scaled) densities
