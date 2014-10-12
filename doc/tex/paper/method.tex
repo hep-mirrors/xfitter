@@ -2,13 +2,13 @@
 %\fitter\ is a unique QCD fit platform that provides many options to the user to perform a quantitative assessment of impact level for a new data or new theoretical prediction. The quest on nailing down the uncertainties on PDFs have lead, on one hand, to highly precise measurements that are in need of careful handling of all provided sources of uncertainties, and on the other hand to numerous software packages that provide higher order calculations in QCD to match the precision of data.
 
 
-When performing a QCD analysis to determine PDFs there are various assumptions and choices to be made concerning, for example, the functional form of the input parametrisation, the treatment of heavy quarks and their mass values, alternative theoretical calculations, alternative representations of the fit $\chi^2$, different ways of treating correlated systematic uncertainties.
+When performing a QCD analysis to determine PDFs there are various assumptions and choices to be made concerning, for example, the functional form of the input parametrisation, the treatment of heavy quarks and their mass values, alternative theoretical calculations, alternative representations of the fit $\chi^2$ and for different ways of treating correlated systematic uncertainties.
 %
- It is useful to be able to discriminate or quantify the effect of the chosen ansatz, within a common framework, and 
+ It is useful to discriminate or quantify the effect of a chosen ansatz within a common framework and 
 \fitter is optimally designed for such tests.
 %
 The methodology employed by \fitter  relies on a flexible and modular
-framework that allows for independent integration of the state-of-the-art techniques, either related to the inclusion of a new theoretical calculation, or of new approaches to treat data and their uncertainties. 
+framework that allows for independent integration of state-of-the-art techniques, either related to the inclusion of a new theoretical calculation, or of new approaches to treat data and their uncertainties. 
 
 In this section we describe the available options for the fit methodology in \fitter.
 %ranging from the functional form used to parametrise PDFs and the choice of the form of the $\chi^2$ function, to different methods to assess the experimental uncertainties on extracted PDFs.
@@ -18,7 +18,7 @@ In addition, as an alternative approach to a complete QCD fit, the Bayesian rewe
 method, which is also available in \fitter, is described.
 \subsection{Functional Forms for PDF Parametrisation}
 The PDFs can be parametrised using several predefined
-functional forms and different flavour decompositions:
+functional forms and flavour decompositions:
 \paragraph{Standard Polynomials:} 
 The standard polynomial form is the most commonly used. A polynomial functional form is used to parametrise the $x$-dependence of the PDFs, where index $j$ denotes each parametrised PDF flavour:
 \begin{equation}
@@ -135,11 +135,11 @@ tools available in \fitter.
 % \subsection{Representation of $\chi^2$}
 \label{sec:chi2representation}
 
-The PDF parameters are determined in \fitter by minimisation of the
+The PDF parameters are determined in \fitter by minimisation of a
 $\chi^2$ function taking into account correlated and uncorrelated measurement uncertainties.
 %The PDF parameters are extracted in a $\chi^2$ minimisation process.
 %The construction of the $\chi^2$  accounts for the experimental uncertainties.
-There are various forms of the $\chi^2$ 
+There are various forms of $\chi^2$, 
 e.g. using a covariance matrix or providing nuisance parameters to encode the dependence of 
 each correlated systematic uncertainty for each measured data point.
 %, different scaling options, etc. 
@@ -161,9 +161,9 @@ The covariance matrix $C_{ik}$ is given by a sum of statistical, uncorrelated an
 \begin{eqnarray}
 C_{ik}& = & C^{stat}_{ik}+C^{uncor}_{ik}+C^{sys}_{ik}.
 \end{eqnarray}
-Using this representation one cannot distinguish the separate effect of each source of systematic uncertainty. 
-\item \it{Nuisance Parameters Representation:} \rm
-In this case the $\chi^2$ form is expressed as
+Using this representation one cannot distinguish the effect of each source of systematic uncertainty. 
+\item \it{Nuisance Parameter Representation:} \rm
+In this case, the $\chi^2$ is expressed as
 \label{sec:nuisance_representation}
 %\begin{eqnarray} 
 %    \chi^2\left(\boldsymbol{m},\boldsymbol{b}\right) &= &  
@@ -198,7 +198,7 @@ of the measurement $i$.
 %and relative uncorrelated systematic uncertainty $\delta_{i,\rm unc}$.
 Further, $\gamma^i_j$ quantifies the sensitivity of the
 measurement to the correlated systematic source $j$. 
-The function $\chi^2$ depends in addition on
+The function $\chi^2$ depends on
  the set of systematic nuisance parameters $b_j$.
 This definition of the $\chi^2$ function assumes that
 systematic uncertainties are proportional to the central prediction values
@@ -212,10 +212,10 @@ During the $\chi^2$ minimisation, the nuisance parameters $b_j$ and the PDFs are
 \item  \it{Mixed Form Representation:} \rm
 In some cases, the statistical and systematic uncertainties of experimental data are provided in different forms.    
 %It can happen that various parts of the systematic and statistical uncertainties are stored in different forms. 
-For example, the correlated experimental systematic uncertainties are available as nuisance parameters
-but the bin-to-bin statistical correlations are given in the form of covariance matrix.
+For example, the correlated experimental systematic uncertainties are available as nuisance parameters,
+but the bin-to-bin statistical correlations are given in the form of a covariance matrix.
 %A situation can be envisaged when the correlated systematic experimental uncertainties are provided as nuisance parameters, but the statistical bin-to-bin correlations are given in the form of a covariance matrix. 
-\fitter\ offers the possibility to include such mixed forms of information 
+\fitter\ offers the possibility to include such mixed forms of information. 
 %information, when provided, as well as any other mixed 
 %for treating statistical, uncorrelated and correlated systematic uncertainties. 
 %In the case of off-diagonal statistical uncertainties, the $\chi^2$ function
@@ -234,8 +234,8 @@ but the bin-to-bin statistical correlations are given in the form of covariance 
 \end{description}
 Any source of measured systematic uncertainty can be treated as additive (i.e. as absolute uncertainty) or multiplicative (i.e. as a relative uncertainty). 
 The statistical uncertainties can be included as additive or following the Poisson statistics. Minimisation
-with respect to nuisance parameters is performed analytically, however for more 
-detailed studies of correlations individual nuisance parameters can be included in 
+with respect to nuisance parameters is performed analytically, however, for more 
+detailed studies of correlations individual nuisance parameters can be included into 
 the \minuit minimisation.
 
 
@@ -259,14 +259,14 @@ the Hessian, Offset, and Monte Carlo method.
 \begin{description}
 \item \it{Hessian (Eigenvector) method:} \rm
 The PDF uncertainties reflecting the data experimental uncertainties are estimated by 
-examining the shape of $\chi^2$ in the neighbourhood of the minimum \cite{Pumplin:2001ct}.
+examining the shape of the $\chi^2$ function in the neighbourhood of the minimum \cite{Pumplin:2001ct}.
 %The technique developed in~\cite{Pumplin:2001ct} presents an estimate of PDF uncertainties 
 %reflecting the experimental precision of data used in the QCD fit by examining the behavior 
 %of $\chi^2$ in the neighborhood of the minimum. 
-Following approach of Ref. \cite{Pumplin:2001ct}, the Hessian matrix is defined by the second 
+Following the approach of Ref. \cite{Pumplin:2001ct}, the Hessian matrix is defined by the second 
 derivatives of $\chi^2$ on the fitted PDF parameters. The matrix is diagonalised and the 
 Hessian eigenvectors are computed. 
-Due to orthogonality, these vectors correspond to independent sources of
+Due to orthogonality these vectors correspond to independent sources of
 uncertainty in the obtained PDFs.
 \\
 %
@@ -281,14 +281,14 @@ The Offset method \cite{Botje:2001fx} uses
 %the measurements to PDFs \cite{Botje:2001fx} is Offset method.
 %, which has the practical advantage that it does not require the inversion of a large measurement covariance matrix.
 %
-the $\chi^2$ function for the central fit, however only
+the $\chi^2$ function for the central fit, but only
 uncorrelated uncertainties are taken into account. 
 The goodness of the fit can no longer be judged from the $\chi^2$ since correlated uncertainties are ignored. 
 The correlated uncertainties are propagated into the PDF uncertainties by performing variants 
 of the fit with the experimental data varied by $\pm 1 \sigma$ from the central value  
 for each systematic source.
 The resulting deviations of the PDF parameters from the ones obtained in the central 
-fit are statistically independent, and they can be combined in quadrature to arrive at the total 
+fit are statistically independent, and they can be combined in quadrature to derive a total 
 PDF systematic uncertainty.
 %
 %Instead, the correlated systematic uncertainties of the measurement are used to estimate 
@@ -361,7 +361,7 @@ The nuisance parameter in Eq.~\ref{eq:aven} is modified as follows
   \gamma^i_{j} \to \omega^i_{j}b_j + \gamma^i_{j},
 \end{equation}
 where the coefficients $\omega^i_{j}$, $\gamma^i_{j}$ are defined  
-from the maximum and minimum shifts of the cross sections due to variaion of the systematic uncertainty $j$, 
+from the maximum and minimum shifts of the cross sections due to a  variation of the systematic uncertainty $j$, 
 $S_{ij}^{\pm}$,
 \begin{equation}
   \omega^i_{j}=\frac{1}{2}\left(S_{ij}^{+}+S_{ij}^{-}\right), \\
@@ -405,7 +405,7 @@ determined by the PDF uncertainty given by the eigenvectors. Both reweighting me
 
 The Bayesian Reweighting technique relies on the fact that MC replicas of a PDF set give 
 a representation of the probability distribution in the space of PDFs. In particular, the PDFs are represented 
-as ensembles of $N_{\rm rep}$ equiprobable ({\em i.e.} having all weight equal to unity) replicas, $\{f\}$. 
+as ensembles of $N_{\rm rep}$ equiprobable ({\em i.e.} having weights equal to unity) replicas, $\{f\}$. 
 The central value for a given observable, $\mathcal{O}(\{f\})$, is computed as the average of the 
 predictions obtained from the ensemble as
 \begin{equation}
@@ -413,14 +413,14 @@ predictions obtained from the ensemble as
 \end{equation}
 and the uncertainty as the standard deviation of the sample.
 
-Upon inclusion of new data the prior probability distribution, given by the prior PDF set, is updated according
+Upon inclusion of new data the prior probability distribution, given by theoriginal PDF set, is modified according
 to Bayes Theorem such that the weight of each replica, $w_k$, is updated according to
 \begin{equation}
  w_k = \frac{(\chi^2_k)^{\frac{1}{2} (N_{\mathrm{data}}-1) } e^{-\frac{1}{2}\chi^2_k}}
           { \frac{1}{N_{\mathrm{rep}}} \sum^{N_{\mathrm{rep}}}_{k=1}(\chi^2_k)^{\frac{1}{2}(N_{\mathrm{data}}-1)} e^{-\frac{1}{2}\chi^2_k}  },
 \end{equation}
 where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the specific replica for which the 
-weight is calculated and $\chi^2_k$ is the chi-square of the new data obtained using the $k$-th PDF replica.
+weight is calculated and $\chi^2_k$ is the $\chi^2$ of the new data obtained using the $k$-th PDF replica.
 %{\small
 %\begin{equation}
 %% \chi^2 (y,\mathrm{PDF}_k) = \sum_{i,j=1}^{N_{\mathrm{data}}} (y_i - y_i(\mathrm{PDF}_k)) \sigma^{-1}_{ij} (y_j-y_j(\mathrm{PDF}_k))\,. 
@@ -433,7 +433,7 @@ inclusion of new data, the prediction for a given observable after inclusion of 
 \langle\mathcal{O}(\{f\})\rangle =  \frac{1}{N_{\mathrm{rep}}} \sum_{k=1}^{N_{\mathrm{rep}}} w_k \mathcal{O}(f^{k}).
 \end{equation}
 
-To simplify the use of reweighted set, an unweighted set ({\em i.e.} a set of equiprobable replicas which incorporates 
+To simplify the use of a reweighted set, an unweighted set ({\em i.e.} a set of equiprobable replicas which incorporates 
 the information contained in the weights) is generated according to the unweighting procedure described in~\cite{Ball:2011gg}. 
 The number of effective replicas of a reweighted set is measured by its Shannon 
 Entropy~\cite{Ball:2010gb}
@@ -444,9 +444,9 @@ N_\mathrm{eff}\equiv
 \end{equation}
 which corresponds to the size of a refitted equiprobable replica set containing the same amount of information. 
 This number of effective replicas, $N_\mathrm{eff}$, gives an indicative measure of the optimal size of an 
-unweighted replica set produced using the reweighting/unweighting procedure. No extra information is 
+unweighted replica set produced with the reweighting/unweighting procedure. No extra information is 
 gained by producing a final unweighted set that has a number of replicas (significantly) larger than 
-$N_\mathrm{eff}$.  If $N_\mathrm{eff}$ is much smaller than the original number of replicas the new data have great impact, however it is unreliable to use the new reweighted set. Instead a full refit should be performed.
+$N_\mathrm{eff}$.  If $N_\mathrm{eff}$ is much smaller than the original number of replicas the new data have great impact, however, it is unreliable to use the new reweighted set. In this case, instead, a full refit should be performed.
 
 %On the one hand there is no reason in generating a final unweighted set that has a number of replicas
 %(significantly) larger than $N_\mathrm{eff}$ as no extra information is gained. On the other hand it is

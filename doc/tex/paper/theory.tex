@@ -283,9 +283,9 @@ About 10\% of deep inelastic interactions at HERA are diffractive, such that the
 %In this section the diffractive process is briefly described.
 The proton is well separated from the 
 rest of the hadronic final state by a large rapidity gap.  
-This is interpreted as the dissociation of the virtual photon into
+This is interpreted as the dissociation of the virtual photon into a
 hadronic system $X$ with an invariant mass much 
-smaller than the photon-proton c.o.m. energy $W=ys-Q^2+m_p^2(1-y)$, where $m_p$ is proton's mass. Such a process is often assumed to be mediated by the exchange of a hard Pomeron 
+smaller than the photon-proton c.o.m. energy $W=ys-Q^2+m_p^2(1-y)$, where $m_p$ is the proton mass. Such a process is often assumed to be mediated by the exchange of a hard Pomeron 
 or a secondary Reggeon with vacuum quantum numbers. 
 This factorisable Pomeron picture has proved remarkably successful in the description of most of the diffractive data.
 Diffractive parton distributions (DPDFs) 
@@ -301,11 +301,11 @@ can be determined from QCD fits to diffractive cross sections in a similar way t
 %\label{fig:diff}
 %\end{figure}
 
-In addition to the usual DIS variables $x$, $Q^2$, extra kinematic variables are needed to describe the diffractive process. These are the squared four-momentum transfer of the exchange Pomeron or Reggeon, $t$, and 
+In addition to the usual DIS variables $x$, $Q^2$, extra kinematic variables are needed to describe the diffractive process. These are the squared four-momentum transfer of the exchanged Pomeron or Reggeon, $t$, and 
 %(the undetected momentum transfer to the proton system) and
 the mass $m_X$ of the diffractively produced final state. 
 In practice, the variable $m_X$ 
-is often replaced by dimensionless quantity $\beta=\frac{Q^2}{m_X^2+Q^2-t}$.
+is often replaced by the dimensionless quantity $\beta=\frac{Q^2}{m_X^2+Q^2-t}$.
 In models based on a factorisable Pomeron, $\beta$ may be viewed at LO as the fraction of the
 Pomeron longitudinal momentum, $x_{\Pom}$, which is carried by the struck parton, $x=\beta x_{\Pom}$,
 where $P$ denotes the momentum of the proton.
@@ -315,7 +315,7 @@ where $P$ denotes the momentum of the proton.
 For the inclusive case, the diffractive cross-section reads as:
 \begin{equation}
 \begin{array}{lcl}
-  \frac{d\sigma}{d\beta\,dQ^2dx_{\Pom}\,dt}
+    \frac{d^4\sigma}{d\beta\,dQ^2dx_{\Pom}\,dt}
 =
   \frac{2\pi\alpha^2}{\beta Q^4}\,
     \left( 1 +  (1-y)^2 \right) \ensuremath{\overline\sigma}^{D(4)}(\beta,Q^2,x_{\Pom},t)
@@ -370,7 +370,7 @@ with the ``reduced cross-section'':
 %%The H1 and ZEUS data files typically contain $x_{\Pom}\ensuremath{\overline\sigma}^{D(3)}$.
 The diffractive structure functions can be expressed as convolutions of 
 calculable coefficient functions with the diffractive quark and gluon distribution functions,
- which in general depend on \xpom, $Q^2$, $\beta$, $t$.
+ which in general depend on \xpom, $Q^2$, $\beta$ and $t$.
 
 The diffractive PDFs \cite{Aktas:2006hy, zeus:diff2009} in \fitter are implemented as a sum 
 of two factorised contributions:
@@ -434,8 +434,8 @@ $f^{\Pom}_{a}$, can be obtained from a fit to the data.
 
 %This section presents calculations of Drell-Yan processes that can be used to 
 %predict lepton pair production at the LHC or Tevatron.
-Drell-Yan (DY) process
-provides further valuable information about PDFs.
+The Drell-Yan (DY) process
+provides valuable information about PDFs.
 In $pp$ and $p\bar p$ scattering, the $Z/\gamma^*$ and $W$ production 
 probe bi-linear combinations of quarks. 
 Complementary information on the different quark densities
@@ -455,7 +455,7 @@ distribution~\cite{Malik:2013kba}.
 %At LO an analytic calculation is available within the package and described
 %below: 
 
-At LO  the DY NC triple differential cross section in invariant mass \(m\), boson rapidity \(y\) 
+At LO the DY NC cross section triple differential in invariant mass \(m\), boson rapidity \(y\) 
 and lepton scattering angle \(\cos\theta\) in the parton c.o.m. frame can be written as~\cite{Drell:1970wh,Yamada:1981mw}:
 \begin{eqnarray}
 % \scriptstyle
@@ -488,7 +488,7 @@ $\hat{\sigma}^{q}$ is the parton-parton hard scattering cross section.
 %\end{align}
 \\
 \\
-The corresponding CC triple differential cross section has the form:
+The corresponding triple differential CC cross section has the form:
 \begin{eqnarray}
 \frac{d^3\sigma}{dmdyd\cos\theta} &=&
  \frac{\pi\alpha^2}{48s\sin^4\theta_W}
@@ -498,7 +498,7 @@ The corresponding CC triple differential cross section has the form:
 where \(V_{q_1q_2}\) is the Cabibbo-Kobayashi-Maskawa (CKM) quark mixing matrix and \(m_W\) and \(\Gamma_W\)
 are the \(W\) boson mass and decay width, respectively.
 
-The simple LO form of these expressions allows analytic calculation of integrated
+The simple LO form of these expressions allows for the analytic calculations of integrated
 cross sections.
 % without the use of Monte Carlo (MC) techniques which often 
 %introduce statistical fluctuations.
@@ -522,13 +522,12 @@ Beyond LO, the calculations are often time-consuming and Monte Carlo generators 
 Currently, the predictions for $W$ and $Z/\gamma^*$ production are available up
 to NNLO and the predictions for $W$, $Z$ in association with heavy flavour quarks is available to NLO.
 
-There are several possibilities 
-for obtaining the theoretical
+There are several possibilities to obtain the theoretical
 predictions for DY production in \fitter. 
-The NLO and NNLO calculations are computing power and time consuming
+The NLO and NNLO calculations are time consuming
 %highly demanding in terms of the computing power and time, 
 and $k$-factor or \emph{fast grid} techniques must be employed (see section~\ref{sec:techniques}
-for details), interfaced to programs such as
+for details), which are interfaced to programs such as
 \texttt{MCFM}~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}, 
 available for NLO calculations, or 
 \tt FEWZ\rm~\cite{FEWZ} and \tt DYNNLO\rm~\cite{DYNNLO} for NLO and NNLO, with electro-weak corrections estimated using \tt MCSANC\rm~\cite{Bardin:2012jk, Bondarenko:2013nu}.
@@ -558,15 +557,15 @@ available for NLO calculations, or
 
 The cross section for production of high $p_T$ hadronic jets
 is sensitive to the high-$x$ gluon 
-PDF (see e.g. Ref.~\cite{MSTWpdf}) 
-therefore this process can be used to improve the determination of the gluon PDF,
+PDF (see e.g. Ref.~\cite{MSTWpdf}). 
+Therefore this process can be used to improve the determination of the gluon PDF,
 %and can thus increase the precision of the 
 %gluon PDF determination, 
 which is particularly important for Higgs production and searches for new physics.
-Jet production cross sections are currently known only to NLO, although 
+Jet production cross sections are currently known only to NLO.
 %NNLO 
-calculations for higher-order contributions to jet production in $pp$ collisions
-are now quite advanced~\cite{nigel:2013,nigel:2010,Currie:2013dwa}. 
+Calculations for higher-order contributions to jet production in $pp$ collisions
+are in progress~\cite{nigel:2013,nigel:2010,Currie:2013dwa}. 
 Within \fitter, the \nlojetpp program \cite{Nagy:1998bb,Nagy:2001fj} may be used for 
 calculations of jet production.
 Similarly to the DY case, the calculation 
@@ -575,12 +574,12 @@ Therefore \emph{fast grid} techniques are used
 to facilitate the QCD analyses including jet cross section measurements
 %to efficiently perform PDF and
 %$\alpha_S$ fits of jet cross section measurements 
-in $ep$, $pp$ and $p\bar{p}$ collisions
+in $ep$, $pp$ and $p\bar{p}$ collisions.
 %Therefore, to allow the possibility to include  $ep$, $pp$ or $p\bar p$ 
 %jet cross section 
 %measurements in QCD fits in order to extract PDFs and $\as$, the fast 
 %grid techniques are used 
-(for details see section~\ref{sec:techniques}).
+For details see section~\ref{sec:techniques}.
 
 
 %the perturbative
@@ -593,13 +592,13 @@ in $ep$, $pp$ and $p\bar{p}$ collisions
 
 \subsection{Top-quark Production in $pp$ or $p \bar p$ Collisions}
 
-At the LHC top-quark pairs ($t \bar t$) are produced dominantly via $gg$ fusion.
+At the LHC, top-quark pairs ($t \bar t$) are produced dominantly via $gg$ fusion.
 % and $q\bar{q}$ annihilation (at the Tevatron).
-Thus LHC measurements of the $t \bar t$ cross sections can provide additional 
+Thus, LHC measurements of the $t \bar t$ cross section provide additional 
 constraints on the gluon distribution at medium to high values of $x$, 
 on $\as$ and on the top-quark mass, $m_t$ \cite{cms:top}. 
 Precise predictions for the total $t \bar t$ cross section are available 
-to full NNLO~\cite{Czakon:2013goa}. They can be computed within \fitter via an interface 
+to NNLO~\cite{Czakon:2013goa}. They can be computed within \fitter via an interface 
 to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. Differential $t \bar t$ cross section
 predictions at NLO can be obtained using
 \texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
@@ -608,6 +607,9 @@ interfaced to \fitter with \emph{fast grid} techniques.
 Single top quarks are produced via electroweak interactions and the measurement of their production cross section can be used, for example, to probe the ratio of the $u$ and $d$ densities in the proton 
 as well as the $b$-quark PDF. Predictions 
 for single-top production are available to NLO accuracy using \texttt{MCFM}.
+\\
+\\
+DiffTop
 
 
 %\subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}

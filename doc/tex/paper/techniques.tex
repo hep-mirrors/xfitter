@@ -6,14 +6,12 @@ calculations become more complex and time-consuming at higher
 orders due to the increasing number of relevant Feynman diagrams.
 The direct inclusion of computationally
 demanding higher-order calculations into iterative fits is thus
-not possible currently since even the most advanced perturbative techniques in
-combination with modern computing hardware do not lead to sufficiently
-small turn-around times. However, a full repetition of the
+not possible currently. However, a full repetition of the
 perturbative calculation for small changes in input parameters is
 not necessary at each step of the iteration.
 Two methods have been developed which take advantage of this
 to solve the problem: the $k$-factor technique and the
-\emph{fast grids} technique. Both are available in \fitter.
+\emph{fast grid} technique. Both are available in \fitter.
 
 %\begin{description}
 %\item{\bf$k$-factor technique:}
@@ -37,9 +35,9 @@ including their dependence on
   check. The fit must be repeated until input and output
   $k$-factors have converged. In summary, this technique avoids
   iteration of the higher-order calculation at each step, but still
-  requires typically a few iterations.
+  requires typically a few re-evaluations.
 
-In \fitter the $k$-factor technique is also used for the fast 
+In \fitter, the $k$-factor technique is also used for the fast 
 computation of the time-consuming GM-VFN schemes for heavy quarks in DIS.
 ``FAST'' heavy-flavour schemes are implemented
 with $k$-factors defined as the ratio of
@@ -49,8 +47,8 @@ These $k$-factors are calculated only for the
 starting PDF and hence, the ``FAST'' heavy flavour schemes should
 only be used for quick checks. Full heavy flavour schemes
 should be used by default. However, for the ACOT scheme,
-due to exceptionally long computation time, the $k$-factors are used in 
-the default settings in \fitter. 
+due to exceptionally long computation times, the $k$-factors are used in 
+the default setup of \fitter. 
 
 %\vspace*{0.25cm}
 %\item{\bf{}Fast grid technique:}
@@ -131,7 +129,7 @@ the default settings in \fitter.
     when calculating theory predictions with the \applgrid  tables, and
     independent variation of $\alpha_S$ is also allowed.
 %    For NNLO predictions in \fitter, the $k$-factors technique can be also applied
-    For higher-order predictions, the $k$-factors technique can be also applied
+    For higher-order predictions, the $k$-factors technique can also be applied
     within the \applgrid framework.
 
     As an example, the \fitter interface to \applgrid was used by the ATLAS~\cite{atlas:strange}

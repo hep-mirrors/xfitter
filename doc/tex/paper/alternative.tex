@@ -7,7 +7,7 @@ all relevant hard scattering data in the perturbative region $Q^2 \gtrsim $ few 
 At small-$x$ and small-$Q^2$ DGLAP dynamics may be modified
  by saturation and other (non-perturbative) higher-twist effects.
 %
-Different approaches that are alternatives to the DGLAP formalism can be used to analyse DIS data in \fitter.
+Different approaches alternative to the DGLAP formalism can be used to analyse DIS data in \fitter.
 These include several dipole models and the use of 
 transverse momentum dependent, or unintegrated PDFs (uPDFs).
 
@@ -22,14 +22,14 @@ The dipoles can be considered as quasi-stable quantum mechanical states, which h
 life time $\propto 1/m_p x\;$ and a size which is not changed by scattering with the proton.
 The dynamics of the interaction are embedded in a dipole scattering amplitude.
 
-Several dipole models which assume different behaviour of the dipole-proton 
-cross section are implemented in \fitter:
+Several dipole models, which assume different behaviours of the dipole-proton 
+cross section, are implemented in \fitter:
 the Golec-Biernat-W\"usthoff (GBW)
 dipole saturation model~\cite{Golec-Biernat:1998js},
 a modified GBW model which takes into account the effects of  
 DGLAP evolution, termed the Bartels-Golec-Kowalski (BGK) dipole model~\cite{Bartels:2002cj}
 and the colour glass condensate approach to the high parton density 
-regime, termed the Iancu-Itakura-Munier (IIM) dipole model~\cite{Iancu:2003ge}.
+regime, named the Iancu-Itakura-Munier (IIM) dipole model~\cite{Iancu:2003ge}.
 %\end{itemize}
 
 %\begin{description}
@@ -43,7 +43,7 @@ where $r$ corresponds to the transverse separation between the quark and the ant
  is an $x$-dependent scale parameter which represents the spacing of the gluons in the proton. 
 $R_{0}^{2}$ takes the form, $R_0^2(x) = (x/x_0)^\lambda  1/ {\rm \GeV}^{2}$, and is called the saturation radius.
 The cross-section normalisation $\sigma_0$, $x_0$, and $\lambda$ are parameters 
-of the model commonly fitted to the DIS data.
+of the model fitted to the DIS data.
 This model gives exact Bjorken scaling when the dipole size $r$ is small.
 %%%%
  
@@ -78,25 +78,25 @@ The alternative scale parameter $\tilde{R}$, $x_{0}$ and $\lambda$ are fitted pa
 
 QCD calculations of multiple-scale processes  and complex final-states
 can necessitate the use of transverse-momentum dependent (TMD)~\cite{Collins:2011zzd}, or 
-unintegrated, parton distribution and parton decay 
+unintegrated parton distribution and parton decay 
 functions~\cite{Aybat:2011zv,Buffing:2013eka,Buffing:2013kca,Buffing:2012sz,Mulders:2008tf,Jadach:2009gm,Hautmann:2009zzb,Hautmann:2012pf,Hautmann:2007gw}.   
 TMD factorisation has been proven recently \cite{Collins:2011zzd} for inclusive DIS. TMD factorisation has also been proven in the high-energy (small-$x$) limit \cite{Catani:1990xk,Collins:1991ty,Hautmann:2002tu} for 
-particular hadron-hadron scattering processes, like heavy flavor, vector boson and Higgs production.
+particular hadron-hadron scattering processes, like heavy flavour, vector boson and Higgs production.
   
 In the framework of high-energy factorisation~\cite{Catani:1990xk,Catani:1990eg,Catani:1993ww} 
 the DIS cross section can be written as a convolution in 
 both longitudinal and transverse momenta of the TMD parton distribution function 
 ${\cal A}\left(x,\kt,\mu_{F}^2\right)$    
- with the off-shell parton scattering matrix elements, as follows 
+ with the off-shell parton scattering matrix elements as follows 
 \begin{equation}
  \sigma_j (x, Q^2) = \int_x^1  
 d z \int d^2k_t \ 
 \hat{\sigma}_j(x,Q^2,{z},k_t) \ 
- {\cal  A}\left( {z} ,\kt, \mu_{F}^2 \right) 
+ {\cal  A}\left( {z} ,\kt, \mu_{F}^2 \right), 
 \label{kt-factorisation}
 \end{equation}
-with the DIS cross sections 
-$\sigma_j$($j= 2 , L$),  related to the  structure functions $F_2$ and $F_L$.
+where the DIS cross sections 
+$\sigma_j$ ($j= 2 , L$) are related to the  structure functions $F_2$ and $F_L$.
 The hard-scattering kernels ${\hat \sigma}_j$ of Eq.~\ref{kt-factorisation},    are $k_t$-dependent and the evolution  of the 
 transverse-momentum dependent gluon distribution 
 ${\cal A} $ is obtained by combining the resummation of small-$x$ logarithmic 
@@ -107,12 +107,12 @@ CCFM evolution equation~\cite{Ciafaloni:1987ur,Catani:1989sg,Marchesini:1994wr}.
 The factorisation formula (\ref{kt-factorisation})  
 allows resummation of logarithmically enhanced small-$x$ contributions  
 to all orders in perturbation theory,  
-both in the  hard scattering coefficients and 
+both in the  hard-scattering coefficients and 
 in the parton evolution, fully taking into account the 
 dependence on the factorisation scale $\mu_{F}$ and on the 
 factorisation scheme~\cite{Catani:1994sq,Catani:1993rn}.  
  
-The cross section $\sigma_j$, ($j= 2, L$) is calculated in a FFN scheme, using the boson-gluon fusion process ($\gamma^* g^* \to q \bar{q}$). The masses of the 
+The cross section $\sigma_j$ ($j= 2, L$) is calculated in a FFN scheme, using the boson-gluon fusion process ($\gamma^* g^* \to q \bar{q}$). The masses of the 
 quarks are explicitly included as parameters of the model.
 In addition to $\gamma^* g^* \to q\bar{q}$,  the contribution from valence quarks is included 
 via $\gamma^* q \to q$ by using a CCFM evolution of 
@@ -121,7 +121,7 @@ valence quarks~\cite{Deak:2010gk,Hautmann:2013tba}.
 \paragraph{CCFM Grid Techniques:} \rm
 
 The CCFM evolution cannot be written easily in an analytic closed form. For this 
-reason a MC method is employed, which is however time-consuming, and thus
+reason, a MC method is employed, which is, however, time-consuming, and thus
 cannot be used directly in a fit program. 
 
 Following the  convolution method introduced in~\cite{Jung:2012hy,Hautmann:2013tba}, the 
@@ -148,7 +148,7 @@ $x$ for which 40 bins in logarithmic
 spacing below 0.1, and 10 bins in linear spacing above 0.1 are used.
 
 Calculation of the cross section according to Eq.~\ref{kt-factorisation} involves a time-consuming
-multidimensional MC integration which suffers from numerical fluctuations.  
+multidimensional MC integration, which suffers from numerical fluctuations.  
 This cannot be employed directly in a fit procedure. Instead the following equation is applied:
 \begin{eqnarray}
 \sigma(x,Q^2) & = & \int_x^1 d x_g {\cal A}(x_g,\kt,\Pmax) \hat{ \sigma}(x,x_g,Q^2) 
@@ -158,7 +158,7 @@ This cannot be employed directly in a fit procedure. Instead the following equat
  \end{eqnarray}
 where first $ \tilde{ \sigma}(x',Q^2)$ is calculated numerically with a MC integration 
 on a grid in $x$ for the values of $Q^2$ used in the fit. Then the last step in Eq.~\ref{final-convolution}  
-is performed with a fast numerical gauss integration, which can be used directly in the fit.
+is performed with a fast numerical Gauss integration, which can be used directly in the fit.
 
 %\vspace{0.1cm}
 \paragraph{Functional Forms for TMD parametrisation:} \rm
@@ -174,7 +174,7 @@ x{\cal A}_0(x,\kt) &=& N x^{-B}(1 -x)^{C}\left(1 -D x
 where $ \sigma^2  =  Q_0^2 / 2 $ and $N, B, C, D, E$ are free parameters.
 Valence quarks are treated using the method of Ref.~\cite{Deak:2010gk} as described 
 in Ref. \cite{Hautmann:2013tba} with a starting distribution taken from any collinear PDF
-and imposition of the flavor sum rule at every scale $p$.
+and imposition of the flavour sum rule at every scale $p$.
 \\
 The TMD parton densities can be plotted either with \fitter tools 
 or with \tt TMDplotter\rm~\cite{Hautmann:2014kza}.
