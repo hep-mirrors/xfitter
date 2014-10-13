@@ -1,4 +1,4 @@
-\begin{thebibliography}{145}
+\begin{thebibliography}{146}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -844,6 +844,18 @@
   \bibinfo{journal}{Phys.\ Lett.\ B} \textbf{\bibinfo{volume}{307}},
   \bibinfo{pages}{147} (\bibinfo{year}{1993}).
 
+\bibitem[{\citenamefont{Catani and Hautmann}(1994)}]{Catani:1994sq}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{427}},
+  \bibinfo{pages}{475} (\bibinfo{year}{1994}), [\eprint{hep-ph/9405388}].
+
+\bibitem[{\citenamefont{Catani and Hautmann}(1993)}]{Catani:1993rn}
+\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B315}},
+  \bibinfo{pages}{157} (\bibinfo{year}{1993}).
+
 \bibitem[{\citenamefont{Lipatov}(1997)}]{Lipatov:1996ts}
 \bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Lipatov}},
   \bibinfo{journal}{Phys.Rept.} \textbf{\bibinfo{volume}{286}},
@@ -874,18 +886,6 @@
   \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{b}}),
   [\eprint{hep-ph/9412327}].
 
-\bibitem[{\citenamefont{Catani and Hautmann}(1994)}]{Catani:1994sq}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{427}},
-  \bibinfo{pages}{475} (\bibinfo{year}{1994}), [\eprint{hep-ph/9405388}].
-
-\bibitem[{\citenamefont{Catani and Hautmann}(1993)}]{Catani:1993rn}
-\bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Catani}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
-  \bibinfo{journal}{Phys.Lett.} \textbf{\bibinfo{volume}{B315}},
-  \bibinfo{pages}{157} (\bibinfo{year}{1993}).
-
 \bibitem[{\citenamefont{Deak \emph{et~al.}}(2010)\citenamefont{Deak, Hautmann,
   Jung, and Kutak}}]{Deak:2010gk}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Deak}},
@@ -894,6 +894,15 @@
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Kutak}},
   \emph{\bibinfo{title}{{Forward-Central Jet Correlations at the Large Hadron
   Collider}}} (\bibinfo{year}{2010}), [\eprint{arXiv:1012.6037}].
+
+\bibitem[{\citenamefont{Deak \emph{et~al.}}(2012)\citenamefont{Deak, Hautmann,
+  Jung, and Kutak}}]{Deak:2011ga}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Deak}},
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Kutak}},
+  \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{C72}},
+  \bibinfo{pages}{1982} (\bibinfo{year}{2012}), [\eprint{1112.6354}].
 
 \bibitem[{\citenamefont{Hautmann and Jung}(2014)}]{Hautmann:2013tba}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
