@@ -202,8 +202,11 @@ The function $\chi^2$ depends on
  the set of systematic nuisance parameters $b_j$.
 This definition of the $\chi^2$ function assumes that
 systematic uncertainties are proportional to the central prediction values
-(multiplicative errors), whereas the statistical uncertainties scale 
+(multiplicative uncertainties, $m_i(1-\sum_j\gamma_j^ib_j)$), whereas the statistical uncertainties scale 
 with the square root of the expected number of events. 
+However, additive treatment of uncertainties is also possible in \fitter.
+% ($m_i+\sum_j\Gamma_j^ib_j$, where $\Gamma_j^i$ is correlated systematic uncertainty)
+
 
 During the $\chi^2$ minimisation, the nuisance parameters $b_j$ and the PDFs are determined, such that the effect of different sources of systematic uncertainties can be distinguished.
 %The nuisance parameters $b_j$ as well as the PDF parameters are free parameters of the fit. 
@@ -232,7 +235,7 @@ but the bin-to-bin statistical correlations are given in the form of a covarianc
 %of the covariance matrix $C_{{\rm stat.}~ij}$ are expressed as a dependence
 %on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
 \end{description}
-Any source of measured systematic uncertainty can be treated as additive (i.e. as absolute uncertainty) or multiplicative (i.e. as a relative uncertainty). 
+Any source of measured systematic uncertainty can be treated as additive or multiplicative, as described above. 
 The statistical uncertainties can be included as additive or following the Poisson statistics. Minimisation
 with respect to nuisance parameters is performed analytically, however, for more 
 detailed studies of correlations individual nuisance parameters can be included into 

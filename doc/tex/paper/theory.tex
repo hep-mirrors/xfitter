@@ -180,7 +180,7 @@ In the \texttt{OPEN}\texttt{QCDRAD} implementation the heavy quark contributions
 %and, for the NC case, the QCD corrections to the massive Wilson coefficients at Next-to-Next-to Leading Order (NNLO)
 and, for the NC case, the QCD corrections to the coefficient functions in Next-to-Next-to Leading Order (NNLO)
 are provided in the best currently known approximation~\cite{SMoch:npb864}.
-The  \texttt{OPENQCDRAD} implementation uses the running heavy quark mass in the $\overline{\text{MS}}$ scheme~\cite{Alekhin:runm}.
+The  \texttt{OPENQCDRAD} implementation uses in addition the running heavy quark mass in the $\overline{\text{MS}}$ scheme~\cite{Alekhin:runm}.
 
 It is sometimes argued that this scheme reduces the sensitivity of the DIS cross sections to higher order corrections ~\cite{SMoch:npb864}. It is also known to have smaller non-perturbative corrections than the pole mass scheme 
 \cite{Beneke:1998ui}.
@@ -240,7 +240,7 @@ with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotr
    \caption{Distributions of valence ($xu_v$, $xd_v$), sea ($xS$) and the gluon ($g$) PDFs in HERAPDF1.0~\cite{h1zeus:2009wt}
        with their total uncertainties at the scale of $Q^2 = 10\ \GeV^2$ obtained 
        using the TR$^\prime$ scheme and compared to the PDFs obtained with 
-       the ACOT scheme using the $k$-factor technique (red).
+       the ACOT-Full scheme using the $k$-factor technique (red).
        The gluon and the sea distributions are scaled down by a factor of 20.}
  \label{fig:acotrt}
 \end{figure}
@@ -284,8 +284,8 @@ About 10\% of deep inelastic interactions at HERA are diffractive, such that the
 The proton is well separated from the 
 rest of the hadronic final state by a large rapidity gap.  
 This is interpreted as the dissociation of the virtual photon into a
-hadronic system $X$ with an invariant mass much 
-smaller than the photon-proton c.o.m. energy $W=ys-Q^2+m_p^2(1-y)$, where $m_p$ is the proton mass. Such a process is often assumed to be mediated by the exchange of a hard Pomeron 
+hadronic system $X$ with a squared invariant mass much 
+smaller than the photon-proton c.o.m. energy $W^2=ys-Q^2+m_p^2(1-y)$, where $m_p$ is the proton mass. Such a process is often assumed to be mediated by the exchange of a hard Pomeron 
 or a secondary Reggeon with vacuum quantum numbers. 
 This factorisable Pomeron picture has proved remarkably successful in the description of most of the diffractive data.
 Diffractive parton distributions (DPDFs) 
