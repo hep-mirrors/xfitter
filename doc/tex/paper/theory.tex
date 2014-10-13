@@ -597,20 +597,27 @@ At the LHC, top-quark pairs ($t \bar t$) are produced dominantly via $gg$ fusion
 Thus, LHC measurements of the $t \bar t$ cross section provide additional 
 constraints on the gluon distribution at medium to high values of $x$, 
 on $\as$ and on the top-quark mass, $m_t$ \cite{cms:top}. 
-Precise predictions for the total $t \bar t$ cross section are available 
-to NNLO~\cite{Czakon:2013goa}. They can be computed within \fitter via an interface 
-to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. Differential $t \bar t$ cross section
-predictions at NLO can be obtained using
-\texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
+Precise predictions for the total inclusive $t \bar t$ cross section are available 
+up to NNLO~\cite{Czakon:2013goa,Czakon:2011xx}. Currently, they can be computed within \fitter via an interface 
+to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. 
+
+Fixed-order QCD predictions for the differential $t \bar t$ cross section at NLO can be obtained by using
+the program \texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
 interfaced to \fitter with \emph{fast grid} techniques.
 
-Single top quarks are produced via electroweak interactions and the measurement of their production cross section can be used, for example, to probe the ratio of the $u$ and $d$ densities in the proton 
+Single top quarks are produced by exchanging electroweak bosons and the measurement of their production cross section can be used, for example, 
+to probe the ratio of the $u$ and $d$ distributions in the proton 
 as well as the $b$-quark PDF. Predictions 
-for single-top production are available to NLO accuracy using \texttt{MCFM}.
+for single-top production are available at the NLO accuracy by using \texttt{MCFM}.
 \\
 \\
-DiffTop
-
+Approximate predictions up to NNLO in QCD for the differential $t\bar{t}$ cross section in one-particle 
+inclusive kinematics are available in \fitter through an interface to the program \difftop \cite{Guzzi:2014wia,difftop-web}.
+It uses methods of QCD threshold resummation beyond the leading logarithmic approximation.
+This allows the users to estimate the impact of the recent $t\bar{t}$ differential cross section measurements on the uncertainty 
+of the gluon density within a QCD PDF fit at NNLO.
+A fast evaluation of the \difftop differential cross sections is possible via an interface to \emph{fast grid}
+computations \cite{dis2014Fast}. 
 
 %\subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}
 %

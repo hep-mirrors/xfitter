@@ -1,4 +1,4 @@
-\begin{thebibliography}{144}
+\begin{thebibliography}{147}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -536,6 +536,12 @@
   \bibinfo{journal}{Phys. Rev. Lett.} \textbf{\bibinfo{volume}{110}},
   \bibinfo{pages}{252004} (\bibinfo{year}{2013}), [\eprint{arXiv:1303.6254}].
 
+\bibitem[{\citenamefont{Czakon and Mitov}(2014)}]{Czakon:2011xx}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Czakon}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Mitov}},
+  \bibinfo{journal}{Comput.Phys.Commun.} \textbf{\bibinfo{volume}{185}},
+  \bibinfo{pages}{2930} (\bibinfo{year}{2014}), [\eprint{arXiv:1112.5675}].
+
 \bibitem[{\citenamefont{Aliev \emph{et~al.}}(2011)\citenamefont{Aliev, Lacker,
   Langenfeld, Moch, Uwer \emph{et~al.}}}]{Aliev:2010zk}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Aliev}},
@@ -575,6 +581,35 @@
   \bibinfo{author}{\bibfnamefont{R.~K.} \bibnamefont{Ellis}}
   (\bibinfo{year}{2012}), \bibinfo{note}{report FERMILAB-PUB-12-078-T},
   [\eprint{arXiv:1204.1513}].
+
+\bibitem[{\citenamefont{Guzzi
+  \emph{et~al.}}(2014{\natexlab{a}})\citenamefont{Guzzi, Lipka, and
+  Moch}}]{Guzzi:2014wia}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Guzzi}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Lipka}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.-O.} \bibnamefont{Moch}}
+  (\bibinfo{year}{2014}{\natexlab{a}}), [\eprint{arXiv:1406.0386}].
+
+\bibitem[{\citenamefont{Guzzi
+  \emph{et~al.}}(2014{\natexlab{b}})\citenamefont{Guzzi, Lipka, and
+  Moch}}]{difftop-web}
+\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Guzzi}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Lipka}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}}
+  (\bibinfo{year}{2014}{\natexlab{b}}),
+  \bibinfo{note}{{\url{https://difftop.hepforge.org/}}}.
+
+\bibitem[{\citenamefont{Britzger \emph{et~al.}}(2014)\citenamefont{Britzger,
+  Guzzi, Rabbertz, Sieber, Stober, and Markus}}]{dis2014Fast}
+\bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{Britzger}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Guzzi}},
+  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Rabbertz}},
+  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Sieber}},
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Stober}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{W.}~\bibnamefont{Markus}}, in
+  \emph{\bibinfo{booktitle}{{DIS 2014 - XXII. International Workshop on
+  Deep-Inelastic Scattering and Related Subjects}}} (\bibinfo{year}{2014}),
+  \bibinfo{note}{{\url{http://indico.cern.ch/event/258017/session/1/contribution/202}}}.
 
 \bibitem[{\citenamefont{Kluge \emph{et~al.}}(2006)\citenamefont{Kluge,
   Rabbertz, and Wobisch}}]{Kluge:2006xs}
@@ -624,13 +659,6 @@
   \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Wobisch}}
   [\bibinfo{collaboration}{fastNLO Collaboration}] (\bibinfo{year}{2012}),
   [\eprint{arXiv:1208.3641}].
-
-\bibitem[{\citenamefont{Guzzi \emph{et~al.}}(2014)\citenamefont{Guzzi, Lipka,
-  and Moch}}]{Guzzi:2014wia}
-\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Guzzi}},
-  \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Lipka}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{S.-O.} \bibnamefont{Moch}}
-  (\bibinfo{year}{2014}), [\eprint{arXiv:1406.0386}].
 
 \bibitem[{\citenamefont{http://fastnlo.hepforge.org}()}]{fastNLO:HepForge}
 \bibinfo{author}{\bibnamefont{http://fastnlo.hepforge.org}},
@@ -891,7 +919,7 @@
   \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Kutak}},
   \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{C72}},
-  \bibinfo{pages}{1982} (\bibinfo{year}{2012}), [\eprint{1112.6354}].
+  \bibinfo{pages}{1982} (\bibinfo{year}{2012}), [\eprint{arXiv:1112.6354}].
 
 \bibitem[{\citenamefont{Hautmann and Jung}(2014)}]{Hautmann:2013tba}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
