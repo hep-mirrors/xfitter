@@ -1,4 +1,4 @@
-\begin{thebibliography}{146}
+\begin{thebibliography}{144}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -78,6 +78,36 @@
   \bibinfo{journal}{Ann.Rev.Nucl.Part.Sci.} \textbf{\bibinfo{volume}{63}},
   \bibinfo{pages}{291} (\bibinfo{year}{2013}), [\eprint{arXiv:1301.6754}].
 
+\bibitem[{\citenamefont{Gribov and
+  Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
+\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
+  \bibinfo{pages}{438} (\bibinfo{year}{1972}{\natexlab{a}}).
+
+\bibitem[{\citenamefont{Gribov and
+  Lipatov}(1972{\natexlab{b}})}]{Gribov:1972rt}
+\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
+  \bibinfo{pages}{675} (\bibinfo{year}{1972}{\natexlab{b}}).
+
+\bibitem[{\citenamefont{Lipatov}(1975)}]{Lipatov:1974qm}
+\bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
+  \bibinfo{journal}{Sov. J. Nucl. Phys.} \textbf{\bibinfo{volume}{20}},
+  \bibinfo{pages}{94} (\bibinfo{year}{1975}).
+
+\bibitem[{\citenamefont{Dokshitzer}(1977)}]{Dokshitzer:1977sg}
+\bibinfo{author}{\bibfnamefont{Y.~L.} \bibnamefont{Dokshitzer}},
+  \bibinfo{journal}{Sov.\ Phys.\ JETP} \textbf{\bibinfo{volume}{46}},
+  \bibinfo{pages}{641} (\bibinfo{year}{1977}).
+
+\bibitem[{\citenamefont{Altarelli and Parisi}(1977)}]{Altarelli:1977zs}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Altarelli}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Parisi}},
+  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
+  \bibinfo{pages}{298} (\bibinfo{year}{1977}).
+
 \bibitem[{\citenamefont{Martin \emph{et~al.}}(2009)\citenamefont{Martin,
   Stirling, Thorne, and Watt}}]{MSTWpdf}
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Martin}},
@@ -121,35 +151,11 @@
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
   \bibinfo{pages}{074049} (\bibinfo{year}{2014}), [\eprint{arXiv:1403.1852}].
 
-\bibitem[{\citenamefont{Gribov and
-  Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
-\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
-  \bibinfo{pages}{438} (\bibinfo{year}{1972}{\natexlab{a}}).
-
-\bibitem[{\citenamefont{Gribov and
-  Lipatov}(1972{\natexlab{b}})}]{Gribov:1972rt}
-\bibinfo{author}{\bibfnamefont{V.~N.} \bibnamefont{Gribov}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{15}},
-  \bibinfo{pages}{675} (\bibinfo{year}{1972}{\natexlab{b}}).
-
-\bibitem[{\citenamefont{Lipatov}(1975)}]{Lipatov:1974qm}
-\bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
-  \bibinfo{journal}{Sov. J. Nucl. Phys.} \textbf{\bibinfo{volume}{20}},
-  \bibinfo{pages}{94} (\bibinfo{year}{1975}).
-
-\bibitem[{\citenamefont{Dokshitzer}(1977)}]{Dokshitzer:1977sg}
-\bibinfo{author}{\bibfnamefont{Y.~L.} \bibnamefont{Dokshitzer}},
-  \bibinfo{journal}{Sov.\ Phys.\ JETP} \textbf{\bibinfo{volume}{46}},
-  \bibinfo{pages}{641} (\bibinfo{year}{1977}).
-
-\bibitem[{\citenamefont{Altarelli and Parisi}(1977)}]{Altarelli:1977zs}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Altarelli}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Parisi}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{126}},
-  \bibinfo{pages}{298} (\bibinfo{year}{1977}).
+\bibitem[{\citenamefont{Aaron \emph{et~al.}}(2010)}]{h1zeus:2009wt}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 and ZEUS
+  Collaborations}], \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1001}},
+  \bibinfo{pages}{109} (\bibinfo{year}{2010}), [\eprint{arXiv:0911.0884}].
 
 \bibitem[{\citenamefont{Botje}(2011)}]{qcdnum}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}},
@@ -157,10 +163,10 @@
   \bibinfo{pages}{490} (\bibinfo{year}{2011}), \bibinfo{note}{\tt
   http://www.nikef.nl/h24/qcdnum/index.html\rm}, [\eprint{1005.1481}].
 
-\bibitem[{\citenamefont{Ciafaloni}(1988{\natexlab{a}})}]{CCFMa}
+\bibitem[{\citenamefont{Ciafaloni}(1988)}]{CCFMa}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{296}},
-  \bibinfo{pages}{49} (\bibinfo{year}{1988}{\natexlab{a}}).
+  \bibinfo{pages}{49} (\bibinfo{year}{1988}).
 
 \bibitem[{\citenamefont{Catani
   \emph{et~al.}}(1990{\natexlab{a}})\citenamefont{Catani, Fiorani, and
@@ -180,10 +186,10 @@
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{336}},
   \bibinfo{pages}{18} (\bibinfo{year}{1990}{\natexlab{b}}).
 
-\bibitem[{\citenamefont{Marchesini}(1995{\natexlab{a}})}]{CCFMd}
+\bibitem[{\citenamefont{Marchesini}(1995)}]{CCFMd}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Marchesini}},
   \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{445}},
-  \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{a}}).
+  \bibinfo{pages}{49} (\bibinfo{year}{1995}).
 
 \bibitem[{\citenamefont{Hautmann
   \emph{et~al.}}(2014{\natexlab{a}})\citenamefont{Hautmann, Jung, and
@@ -255,12 +261,6 @@
   \bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Nocera}},
   \bibnamefont{\emph{et~al.}} (\bibinfo{year}{2014}{\natexlab{b}}),
   [\eprint{arXiv:1408.3015}].
-
-\bibitem[{\citenamefont{Aaron \emph{et~al.}}(2010)}]{h1zeus:2009wt}
-\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Aaron}}
-  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 and ZEUS
-  Collaborations}], \bibinfo{journal}{JHEP} \textbf{\bibinfo{volume}{1001}},
-  \bibinfo{pages}{109} (\bibinfo{year}{2010}), [\eprint{arXiv:0911.0884}].
 
 \bibitem[{\citenamefont{Devenish and Cooper-Sarkar}(2011)}]{disbook}
 \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Devenish}} \bibnamefont{and}
@@ -874,17 +874,6 @@
   \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
   \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{28}},
   \bibinfo{pages}{822} (\bibinfo{year}{1978}).
-
-\bibitem[{\citenamefont{Ciafaloni}(1988{\natexlab{b}})}]{Ciafaloni:1987ur}
-\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
-  \bibinfo{journal}{Nucl. Phys.} \textbf{\bibinfo{volume}{B296}},
-  \bibinfo{pages}{49} (\bibinfo{year}{1988}{\natexlab{b}}).
-
-\bibitem[{\citenamefont{Marchesini}(1995{\natexlab{b}})}]{Marchesini:1994wr}
-\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Marchesini}},
-  \bibinfo{journal}{Nucl.\ Phys.\ B} \textbf{\bibinfo{volume}{445}},
-  \bibinfo{pages}{49} (\bibinfo{year}{1995}{\natexlab{b}}),
-  [\eprint{hep-ph/9412327}].
 
 \bibitem[{\citenamefont{Deak \emph{et~al.}}(2010)\citenamefont{Deak, Hautmann,
   Jung, and Kutak}}]{Deak:2010gk}
