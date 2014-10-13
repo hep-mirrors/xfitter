@@ -161,7 +161,8 @@
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}},
   \bibinfo{journal}{Comput.Phys.Commun.} \textbf{\bibinfo{volume}{182}},
   \bibinfo{pages}{490} (\bibinfo{year}{2011}), \bibinfo{note}{\tt
-  http://www.nikef.nl/h24/qcdnum/index.html\rm}, [\eprint{1005.1481}].
+  http://www.nikhef.nl/user/h24/qcdnum/index.html\rm},
+  [\eprint{arXiv:1005.1481}].
 
 \bibitem[{\citenamefont{Ciafaloni}(1988)}]{CCFMa}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},

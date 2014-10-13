@@ -18,17 +18,20 @@ of the \fitter structure and functionality, which can be divided into four main 
 %\begin{description}
 %\item 
 \paragraph{Data:} Measurements from various processes
-are implemented in the \fitter package including the full information on their uncorrelated 
+are provided in the \fitter package including the information on their uncorrelated 
 and correlated uncertainties. HERA inclusive scattering data 
 are sensitive to quark and to gluon PDFs through scaling violations and the longitudinal structure function $F_L$.  
 %covering low and medium $x$ ranges. 
-These data are the backbone of any proton PDF extraction,
-and are used by all current PDF groups: MSTW~\cite{MSTWpdf}, CT~\cite{CT10pdf}, NNPDF~\cite{NNPDFpdf}, ABM~\cite{Alekhin:2013nda}, JR~\cite{Jimenez-Delgado:2014twa}, HERAPDF~\cite{h1zeus:2009wt}.  They can be supplemented by HERA measurements sensitive to heavy quarks and by HERA jet measurements, which have direct sensitivity to the gluon PDF.
-However, the kinematic range of HERA data mostly covers low and medium ranges in $x$.
-Improvements in precision of PDFs require additional constraints on the gluon and 
-quark distributions at high-$x$, better understanding of heavy quark distributions and 
-decomposition of the light-quark sea.  For these purposes, measurements from fixed-target 
+These data are the basis of any proton PDF extraction, and are used in all current PDF sets 
+from MSTW \cite{MSTWpdf}, CT \cite{CT10pdf}, NNPDF \cite{NNPDFpdf}, ABM \cite{Alekhin:2013nda}, JR \cite{Jimenez-Delgado:2014twa} 
+and HERAPDF \cite{h1zeus:2009wt} groups. Measurements of charm and beauty quark production at HERA are 
+sensitive to heavy quark PDFs, jet measurements have direct sensitivity to the gluon PDF. However, the kinematic range 
+of HERA data mostly covers low and medium ranges in $x$.
+Measurements from the fixed target experiments, the Tevatron and the LHC provide additional constraints
+on the gluon and quark distributions at high-$x$, better understanding of heavy quark 
+distributions and decomposition of the light-quark sea. For these purposes, measurements from fixed-target
 experiments, the Tevatron and the LHC can be used.
+
 % are of particular importance.
 %
 %Additional measurements provide constraints to the sea flavour decomposition, such as the new 
@@ -105,28 +108,30 @@ The references for the individual calculations and schemes are given in the text
 %Predictions for cross section of different processes are obtained using 
 %the factorisation approach (Eq.~\ref{eq:fact}).
  The PDFs are parametrised at a starting scale, $Q_0^2$,  
-by a chosen functional form with a set of free parameters $\vec{p}$. 
+using a functional form and a set of free parameters $\vec{p}$. 
 These PDFs are evolved to the scale of the measurement $Q^2$, $Q^2>Q_0^2$.
 By default, the evolution uses the DGLAP formalism \cite{Gribov:1972ri, Gribov:1972rt, Lipatov:1974qm,
 Dokshitzer:1977sg, Altarelli:1977zs} as implemented in \qcdnum~\cite{qcdnum}. Alternatively, 
 the CCFM evolution \cite{\CCFM} as implemented in \texttt{uPDFevolv}~\cite{tmdlref2} can be chosen.
 %or dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj}.
 The prediction of the cross section for a particular process is obtained, assuming factorisation, by the convolution of the evolved 
-PDFs with the corresponding hard-process parton scattering cross section.
-Available theory calculations are listed in Tab.~\ref{tab:proc}.
+PDFs with the corresponding parton scattering cross section.
+Available theory calculations for each process are listed in Tab.~\ref{tab:proc}.
 Predictions using dipole models~\cite{Golec-Biernat:1998js,Iancu:2003ge,Bartels:2002cj} can also be obtained.
 %\item
 \paragraph{QCD Analysis:} \rm  
-The PDFs are determined in a least squares fit, minimising a $\chi^2$ function that is constructed from the input data and theory predictions, with the \minuit \cite{minuit} program.
+The PDFs are determined in a least squares fit: a $\chi^2$ function, which compares the input data and theory predictions, 
+is minimised with the \minuit \cite{minuit} program.
 %with respect to free parameters $\vec{p}$ using the MINUIT~\cite{minuit} program.
 %
 %extracted from a least square fit by minimising the  $\chi^2$ function with respect to free parameters. 
 %The $\chi^2$ function is formed from the input data and the theory prediction.
 %The $\chi^2$ is  minimised iteratively 
 %with respect to$\vec{p}$ using the MINUIT~\cite{minuit} program.
-In \fitter various choices are available for the treatment of experimental uncertainties. Correlated experimental uncertainties can be accounted for using 
+In \fitter various choices are available for the treatment of experimental uncertainties in the $\chi^2$ definition. 
+Correlated experimental uncertainties can be accounted for using 
 a nuisance parameter method  
-or a covariance matrix method as described in section~\ref{sec:chi2representation}.  Different statistical assumptions for the distributions of the systematic uncertainties, e.g. Gaussian or LogNormal~\cite{hera-lhc:report2009}, can also be studied (see section~\ref{sec:experimentalerrors}).
+or a covariance matrix method as described in Sec.~\ref{sec:chi2representation}.  Different statistical assumptions for the distributions of the systematic uncertainties, e.g. Gaussian or LogNormal~\cite{hera-lhc:report2009}, can also be studied (see Sec.~\ref{sec:experimentalerrors}).
 %\item
 \paragraph{Results:}
 %The fitted parameters $\vec{p}$ and their estimated uncertainties are produced. 
