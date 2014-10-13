@@ -14,7 +14,7 @@
 
 \bibitem[{her()}]{herafitter:page}
 \emph{\bibinfo{title}{{HERAFitter}}},
-  \bibinfo{note}{https://www.herafitter.org}.
+  \urlprefix\url{https://www.herafitter.org}.
 
 \bibitem[{\citenamefont{Aad \emph{et~al.}}(2012{\natexlab{a}})}]{Aad:2012tfa}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
@@ -160,9 +160,8 @@
 \bibitem[{\citenamefont{Botje}(2011)}]{qcdnum}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Botje}},
   \bibinfo{journal}{Comput.Phys.Commun.} \textbf{\bibinfo{volume}{182}},
-  \bibinfo{pages}{490} (\bibinfo{year}{2011}), \bibinfo{note}{\tt
-  http://www.nikhef.nl/user/h24/qcdnum/index.html\rm},
-  [\eprint{arXiv:1005.1481}].
+  \bibinfo{pages}{490} (\bibinfo{year}{2011}), [\eprint{arXiv:1005.1481}],
+  \urlprefix\url{http://www.nikhef.nl/user/h24/qcdnum/index.html}.
 
 \bibitem[{\citenamefont{Ciafaloni}(1988)}]{CCFMa}
 \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Ciafaloni}},
@@ -300,7 +299,7 @@
   \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Bl{\"u}mlein}},
   \bibnamefont{and} \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}},
   \emph{\bibinfo{title}{{OPENQCDRAD}}},
-  \bibinfo{note}{http://www-zeuthen.desy.de/$\sim$alekhin/OPENQCDRAD}.
+  \urlprefix\url{http://www-zeuthen.desy.de/$\sim$alekhin/OPENQCDRAD}.
 
 \bibitem[{\citenamefont{Kawamura \emph{et~al.}}(2012)\citenamefont{Kawamura,
   Lo~Presti, Moch, and Vogt}}]{SMoch:npb864}
@@ -598,26 +597,25 @@
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Lipka}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Moch}}
   (\bibinfo{year}{2014}{\natexlab{b}}),
-  \bibinfo{note}{{\url{https://difftop.hepforge.org/}}}.
+  \urlprefix\url{https://difftop.hepforge.org/}.
 
 \bibitem[{\citenamefont{Britzger \emph{et~al.}}(2014)\citenamefont{Britzger,
-  Guzzi, Rabbertz, Sieber, Stober, and Markus}}]{dis2014Fast}
+  Guzzi, Rabbertz, Sieber, Stober, and Wobisch}}]{dis2014Fast}
 \bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{Britzger}},
   \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Guzzi}},
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Rabbertz}},
   \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Sieber}},
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Stober}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{W.}~\bibnamefont{Markus}}, in
-  \emph{\bibinfo{booktitle}{{DIS 2014 - XXII. International Workshop on
-  Deep-Inelastic Scattering and Related Subjects}}} (\bibinfo{year}{2014}),
-  \bibinfo{note}{{\url{http://indico.cern.ch/event/258017/session/1/contribution/202}}}.
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Wobisch}}, in
+  \emph{\bibinfo{booktitle}{{DIS 2014}}} (\bibinfo{year}{2014}),
+  \urlprefix\url{http://indico.cern.ch/event/258017/session/1/contribution/202}.
 
 \bibitem[{\citenamefont{Kluge \emph{et~al.}}(2006)\citenamefont{Kluge,
   Rabbertz, and Wobisch}}]{Kluge:2006xs}
 \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Kluge}},
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Rabbertz}}, \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Wobisch}}, pp.
-  \bibinfo{pages}{483--486} (\bibinfo{year}{2006}), [\eprint{hep-ph/0609285}].
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Wobisch}}
+  (\bibinfo{year}{2006}), [\eprint{hep-ph/0609285}].
 
 \bibitem[{\citenamefont{Carli \emph{et~al.}}(2010)}]{Carli:2010rw}
 \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Carli}}
@@ -643,8 +641,7 @@
   \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Kluge}},
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Rabbertz}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Stober}}
-  [\bibinfo{collaboration}{fastNLO Collaboration}] (\bibinfo{year}{2011}),
-  [\eprint{arXiv:1109.1310}].
+  (\bibinfo{year}{2011}), [\eprint{arXiv:1109.1310}].
 
 \bibitem[{\citenamefont{Kidonakis and Owens}(2001)}]{Kidonakis:2000gi}
 \bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Kidonakis}} \bibnamefont{and}
@@ -658,8 +655,7 @@
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Rabbertz}},
   \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Stober}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Wobisch}}
-  [\bibinfo{collaboration}{fastNLO Collaboration}] (\bibinfo{year}{2012}),
-  [\eprint{arXiv:1208.3641}].
+  (\bibinfo{year}{2012}), [\eprint{arXiv:1208.3641}].
 
 \bibitem[{\citenamefont{http://fastnlo.hepforge.org}()}]{fastNLO:HepForge}
 \bibinfo{author}{\bibnamefont{http://fastnlo.hepforge.org}},
@@ -1007,11 +1003,11 @@
 \emph{\bibinfo{title}{{HERAPDF1.5LO, NLO and NNLO}}}
   (\bibinfo{year}{H1prelim-13-141 and ZEUS-prel-13-003, H1prelim-10-142 and
   ZEUS-prel-10-018, H1prelim-11-042 and ZEUS-prel-11-002}),
-  \bibinfo{note}{available via: http://lhapdf.hepforge.org/pdfsets}.
+  \bibinfo{note}{available via: {\url{http://lhapdf.hepforge.org/pdfsets}}}.
 
 \bibitem[{atl()}]{atlas:grids}
 \emph{\bibinfo{title}{{ATLAS NNLO epWZ12}}}, \bibinfo{note}{available via:
-  http://lhapdf.hepforge.org/pdfsets}.
+  {\url{http://lhapdf.hepforge.org/pdfsets}}}.
 
 \bibitem[{\citenamefont{Butterworth
   \emph{et~al.}}(2014)\citenamefont{Butterworth, Dissertori, Dittmaier,
