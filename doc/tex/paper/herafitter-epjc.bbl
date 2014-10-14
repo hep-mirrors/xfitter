@@ -12,10 +12,6 @@
 \providecommand{\bibinfo}[2]{#2}
 \providecommand{\eprint}[1]{\href{http://arxiv.org/abs/#1}{#1}}
 
-\bibitem[{her()}]{herafitter:page}
-\emph{\bibinfo{title}{{HERAFitter}}},
-  \urlprefix\url{https://www.herafitter.org}.
-
 \bibitem[{\citenamefont{Aad \emph{et~al.}}(2012{\natexlab{a}})}]{Aad:2012tfa}
 \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Aad}}
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{ATLAS Collaboration}],
@@ -77,6 +73,10 @@
   \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Watt}},
   \bibinfo{journal}{Ann.Rev.Nucl.Part.Sci.} \textbf{\bibinfo{volume}{63}},
   \bibinfo{pages}{291} (\bibinfo{year}{2013}), [\eprint{arXiv:1301.6754}].
+
+\bibitem[{her()}]{herafitter:page}
+\emph{\bibinfo{title}{{HERAFitter}}},
+  \urlprefix\url{https://www.herafitter.org}.
 
 \bibitem[{\citenamefont{Gribov and
   Lipatov}(1972{\natexlab{a}})}]{Gribov:1972ri}
