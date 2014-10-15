@@ -229,8 +229,7 @@ in a coherent framework across the full energy range.
 %
 Within the ACOT package, the following variants of the ACOT scheme are available:
 ACOT-Full \cite{Aivazis:1993pi}, S-ACOT-$\chi$ \cite{Kramer:2000hn,Kretzer:2003it} and ACOT-ZM \cite{Aivazis:1993pi}
-%$\overline{\text{MS}}$ at LO and NLO. 
-at LO and NLO. 
+$\overline{\text{MS}}$ at LO and NLO. 
 For the longitudinal structure function higher order calculations are also available. 
 A comparison of PDFs extracted from QCD fits to the HERA data 
 with the TR$^\prime$ and ACOT-Full schemes is illustrated in Fig.~\ref{fig:acotrt} (taken from \cite{h1zeus:2009wt}).
@@ -454,7 +453,7 @@ can be obtained from the $W^{\pm}$ asymmetry ($d$, $u$ and their ratio),
 the ratio of the $W$ and $Z$ cross sections (sensitive to the flavour 
 composition of the quark sea, in particular to the $s$-quark distribution), 
 and associated $W$ and $Z$ production with
-heavy quarks (sensitive to $c$- and $b$-quark densities).
+heavy quarks (sensitive to $s$, $c$- and $b$-quark densities).
  Measurements at large boson transverse momentum $p_T\gtrsim m_{W,Z}$ are potentially sensitive to the gluon 
 distribution~\cite{Malik:2013kba}.
 %
@@ -529,15 +528,15 @@ even for the case of realistic kinematic cuts.
 %lepton \(p_{\perp}\) cuts.
 %{\bf I think that this is an inappropriate level of detail about the LO DY calculation which could largely be replaced by references, however I have kept it for now, having moved it from the k-factor section where it did not belong}
 
-Beyond LO, the calculations are often time-consuming and Monte Carlo generators are often employed. 
+Beyond LO, the calculations are often time-consuming and Monte Carlo generators are employed. 
 Currently, the predictions for $W$ and $Z/\gamma^*$ production are available up
 to NNLO and the predictions for $W$ and $Z$ production in association with heavy flavour quarks are available to NLO.
 
 There are several possibilities to obtain the theoretical
 predictions for DY production in \fitter. 
-The NLO and NNLO calculations are time consuming
-%highly demanding in terms of the computing power and time, 
-and $k$-factor or \emph{fast grid} techniques must be employed (see Sec.~\ref{sec:techniques}
+The NLO and NNLO calculations can be implemented using $k$-factor or \emph{fast grid} techniques (see Sec.~\ref{sec:techniques}
+%The NLO and NNLO calculations are time consuming
+%and $k$-factor or \emph{fast grid} techniques must be employed (see Sec.~\ref{sec:techniques}
 for details), which are interfaced to programs such as
 \texttt{MCFM}~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}, 
 available for NLO calculations, or 
