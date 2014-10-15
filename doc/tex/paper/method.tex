@@ -240,6 +240,36 @@ The statistical uncertainties can be included as additive or following the Poiss
 with respect to nuisance parameters is performed analytically, however, for more 
 detailed studies of correlations individual nuisance parameters can be included into 
 the \minuit minimisation.
+\\ \\
+%
+The nuisance parameter representation of $\chi^2$ in Eq.~\ref{eq:aven} is derived assuming 
+symmetric experimental errors, however, the published systematic uncertainties are 
+often asymmetric.
+%Generally, the experimental uncertainties using nuisance parameters are 
+%symmetrised when QCD fits 
+%are performed, however often the provided uncertainties are rather asymmetric.
+\fitter provides the possibility to use asymmetric systematic uncertainties.
+The implementation relies on the assumption that 
+asymmetric uncertainties can be described by a parabolic function.
+The nuisance parameter in Eq.~\ref{eq:aven} is modified as follows
+\begin{equation}
+  \gamma^i_{j} \to \omega^i_{j}b_j + \gamma^i_{j},
+\end{equation}
+where the coefficients $\omega^i_{j}$, $\gamma^i_{j}$ are defined  
+from the maximum and minimum shifts of the cross sections due to a  variation of the systematic uncertainty $j$, 
+$S_{ij}^{\pm}$,
+\begin{equation}
+  \omega^i_{j}=\frac{1}{2}\left(S_{ij}^{+}+S_{ij}^{-}\right), \\
+  \gamma^i_{j}=\frac{1}{2}\left(S_{ij}^{+}-S_{ij}^{-}\right). 
+\end{equation}
+%For this case the definition of the $\chi^2$ from Eq.~\ref{eq:aven} is extended with the parabolic approximation 
+%for asymmetric uncertainties, such that the expected cross section is adjusted to be
+%\begin{equation}
+%  m_i(1-\sum_j \gamma^i_{j} b_j) \to 
+%m_i\left(1-\sum_j b_j(\omega^i_{j}b_j + \gamma^i_{j})\right).
+%\end{equation}
+%%The minimisation is performed using fixed number of iterations (typically ten), with rapid convergence.
+
 
 
 \subsection{Treatment of the Experimental Uncertainties}
@@ -349,35 +379,6 @@ representation as shown by \cite{Gao:2013bia}. Tools to perform this transformat
 recently employed for the representation of correlated sets of PDFs at different perturbative orders \cite{hfcorrpaper}.
 %
 \end{description}
-%
-The nuisance parameter representation of $\chi^2$ in Eq.~\ref{eq:aven} is derived assuming 
-symmetric experimental errors, however, the published systematic uncertainties are 
-often asymmetric.
-%Generally, the experimental uncertainties using nuisance parameters are 
-%symmetrised when QCD fits 
-%are performed, however often the provided uncertainties are rather asymmetric.
-\fitter provides the possibility to use asymmetric systematic uncertainties.
-The implementation relies on the assumption that 
-asymmetric uncertainties can be described by a parabolic function.
-The nuisance parameter in Eq.~\ref{eq:aven} is modified as follows
-\begin{equation}
-  \gamma^i_{j} \to \omega^i_{j}b_j + \gamma^i_{j},
-\end{equation}
-where the coefficients $\omega^i_{j}$, $\gamma^i_{j}$ are defined  
-from the maximum and minimum shifts of the cross sections due to a  variation of the systematic uncertainty $j$, 
-$S_{ij}^{\pm}$,
-\begin{equation}
-  \omega^i_{j}=\frac{1}{2}\left(S_{ij}^{+}+S_{ij}^{-}\right), \\
-  \gamma^i_{j}=\frac{1}{2}\left(S_{ij}^{+}-S_{ij}^{-}\right). 
-\end{equation}
-%For this case the definition of the $\chi^2$ from Eq.~\ref{eq:aven} is extended with the parabolic approximation 
-%for asymmetric uncertainties, such that the expected cross section is adjusted to be
-%\begin{equation}
-%  m_i(1-\sum_j \gamma^i_{j} b_j) \to 
-%m_i\left(1-\sum_j b_j(\omega^i_{j}b_j + \gamma^i_{j})\right).
-%\end{equation}
-%%The minimisation is performed using fixed number of iterations (typically ten), with rapid convergence.
-
 
 
 
