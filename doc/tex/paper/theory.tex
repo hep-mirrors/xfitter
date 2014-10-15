@@ -280,16 +280,25 @@ an older version from Burkhard \cite{Burkhard}.
 
 %Similarly to standard PDFs,
 About 10\% of deep inelastic interactions at HERA are diffractive, such that the interacting proton stays intact ($ep\to eXp$). 
-%In this section the diffractive process is briefly described.
-The proton is well separated from the 
-rest of the hadronic final state by a large rapidity gap.  
-This is interpreted as the dissociation of the virtual photon into a
-hadronic system $X$ with a squared invariant mass much 
-smaller than the photon-proton centre-of-mass energy $W^2=ys-Q^2+m_p^2(1-y)$, where $m_p$ is the proton mass. Such a process is often assumed to be mediated by the exchange of a hard Pomeron 
-or a secondary Reggeon with vacuum quantum numbers. 
-This factorisable Pomeron picture has proved remarkably successful in the description of most of the diffractive data.
-Diffractive parton distributions (DPDFs) 
-can be determined from QCD fits to diffractive cross sections in a similar way to the determination of the standard PDFs \cite{Collins:1997sr}.
+The outgoing proton is separated from the rest of the final hadronic system, $X$, by a large rapidity gap.  
+Such events are a subset of DIS where the hadronic state $X$ comes from the interaction of the
+virtual photon with a colour-neutral cluster stripped off the proton \cite{Hebecker:1999vf}.
+The process can be described analogously to the inclusive DIS, by means of the diffractive parton distributions 
+(DPDFs) \cite{Collins:1997sr}.
+The parametrization of the colour-neutral exchange in terms of factorisable `hard' Pomeron and a secondary 
+Reggeon \cite{Ingelman:1984ns}, both having a hadron-like partonic structure, 
+has proved remarkably successful in the description of most of the diffractive data.
+It has also provided a practical method to determine DPDFs from fits to the diffractive cross sections.
+%The proton is well separated from the 
+%rest of the hadronic final state by a large rapidity gap.  
+%This is interpreted as the dissociation of the virtual photon into a
+%hadronic system $X$ with a squared invariant mass much 
+%smaller than the photon-proton centre-of-mass energy $W^2=ys-Q^2+m_p^2(1-y)$, where $m_p$ is the proton mass. 
+%Such a process is often assumed to be mediated by the exchange of a hard Pomeron 
+%or a secondary Reggeon with vacuum quantum numbers. 
+%This factorisable Pomeron picture has proved remarkably successful in the description of most of the diffractive data.
+%Diffractive parton distributions (DPDFs) 
+%can be determined from QCD fits to diffractive cross sections in a similar way to the determination of the standard PDFs \cite{Collins:1997sr}.
 
 %
 %\begin{figure}[!ht]
@@ -301,7 +310,8 @@ can be determined from QCD fits to diffractive cross sections in a similar way t
 %\label{fig:diff}
 %\end{figure}
 
-In addition to the usual DIS variables $x$, $Q^2$, extra kinematic variables are needed to describe the diffractive process. These are the squared four-momentum transfer of the exchanged Pomeron or Reggeon, $t$, and 
+In addition to the usual DIS variables $x$, $Q^2$, extra kinematic variables are needed to describe the diffractive process. 
+These are the squared four-momentum transfer of the exchanged Pomeron or Reggeon, $t$, and 
 %(the undetected momentum transfer to the proton system) and
 the mass $m_X$ of the diffractively produced final state. 
 In practice, the variable $m_X$ 
@@ -372,7 +382,7 @@ The diffractive structure functions can be expressed as convolutions of
 calculable coefficient functions with the diffractive quark and gluon distribution functions,
  which in general depend on \xpom, $Q^2$, $\beta$ and $t$.
 
-The diffractive PDFs \cite{Aktas:2006hy, zeus:diff2009} in \fitter are implemented as a sum 
+The DPDFs \cite{Aktas:2006hy, zeus:diff2009} in \fitter are implemented as a sum 
 of two factorised contributions:
 \begin{equation}
  \Phi_\Pom(\xP,t)\, f^{\Pom}_{a}(\beta,Q^2)

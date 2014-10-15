@@ -1,4 +1,4 @@
-\begin{thebibliography}{147}
+\begin{thebibliography}{149}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -396,11 +396,22 @@
   \bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Verzegnassi}},
   \bibinfo{note}{{in CERN Yellow Report on "Polarization at LEP" 1988.}}
 
+\bibitem[{\citenamefont{Hebecker}(1999)}]{Hebecker:1999vf}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Hebecker}},
+  \bibinfo{journal}{Acta Phys.Polon.} \textbf{\bibinfo{volume}{B30}},
+  \bibinfo{pages}{3777} (\bibinfo{year}{1999}), [\eprint{hep-ph/9909504}].
+
 \bibitem[{\citenamefont{Collins}(1998{\natexlab{b}})}]{Collins:1997sr}
 \bibinfo{author}{\bibfnamefont{J.~C.} \bibnamefont{Collins}},
   \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D57}},
   \bibinfo{pages}{3051} (\bibinfo{year}{1998}{\natexlab{b}}),
   [\eprint{hep-ph/9709499}].
+
+\bibitem[{\citenamefont{Ingelman and Schlein}(1985)}]{Ingelman:1984ns}
+\bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Ingelman}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{P.~E.} \bibnamefont{Schlein}},
+  \bibinfo{journal}{Phys. Lett.} \textbf{\bibinfo{volume}{B152}},
+  \bibinfo{pages}{256} (\bibinfo{year}{1985}).
 
 \bibitem[{\citenamefont{Aktas \emph{et~al.}}(2006)}]{Aktas:2006hy}
 \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Aktas}}
