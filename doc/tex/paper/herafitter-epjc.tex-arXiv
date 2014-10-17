@@ -1,0 +1,366 @@
+%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is a  template file for the LaTeX package SVJour3 width change file svepjc3.clo
+% for Springer journal:
+% The European Physical Journal C
+%
+% Copy it to a new file with a new name and use it as the basis
+% for your article. Delete % signs as needed.
+%
+% This template includes a few options for different layouts and
+% content for various journals. Please consult a previous issue of
+% your journal as needed.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% First comes an example EPS file -- just ignore it and
+% proceed on the \documentclass line
+% your LaTeX will extract the file if required
+%\begin{filecontents*}{example.eps}
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 19 19 221 221
+%%CreationDate: Mon Sep 29 1997
+%%Creator: programmed by hand (JK)
+%%EndComments
+%gsave
+%newpath
+%  20 20 moveto
+%  20 220 lineto
+%  220 220 lineto
+%  220 20 lineto
+%closepath
+%2 setlinewidth
+%gsave
+%  .4 setgray fill
+%grestore
+%stroke
+%grestore
+%\end{filecontents*}
+%
+%\RequirePackage{fix-cm}
+%
+\documentclass[twocolumn,epjc3]{svjour3}  
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
+%
+% RP
+% \RequirePackage{graphicx}
+\RequirePackage[pdftex]{graphicx}
+%
+\RequirePackage{mathptmx}      % use Times fonts if available on your TeX system
+%
+
+% insert here the call for the packages your document requires
+%\RequirePackage{latexsym}
+%\RequirePackage[numbers,sort&compress]{natbib}
+%\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue,linkcolor=blue]{hyperref}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+
+\usepackage[utf8]{inputenc} % standard UTF-8 input encoding
+\usepackage{amsmath,amssymb}
+\usepackage[unicode,hypertexnames,setpagesize,%
+    pdftex,%
+    colorlinks,%
+    citecolor=blue,%
+    hyperindex,%
+    plainpages=false,%
+    bookmarksopen,%
+    bookmarksnumbered%
+  ]{hyperref}
+% to turned off hypernation uncomment line below
+%\usepackage[none]{hyphenat} 
+
+% --- DO NOT remove this line:
+\providecommand\texorpdfstring[2]{#1}
+\usepackage[numbers,square,comma,sort&compress]{natbib}
+
+\usepackage{textcomp}
+
+% for displaying the line numbers:
+\usepackage{lineno,xcolor}
+%\linenumbers
+\setlength\linenumbersep{5pt}
+\renewcommand\linenumberfont{\normalfont\tiny\sffamily\color{gray}}
+
+% for TDM part
+\def\kt{\ensuremath{k_t}}
+\newcommand{\Pmax}{p}
+\newcommand{\CCFM}{CCFMa,CCFMb,Catani:1989sg,CCFMd}
+
+
+% for tikz pictures
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,positioning}
+
+% for tables
+\usepackage{multirow}
+
+\bibliographystyle{herafitter-epjc}
+
+
+\usepackage{xspace}
+%\newcommand\fitter{\mbox{\tt HERAFitter}}
+\providecommand{\fitter}{{\texttt{HERA\-Fitter}}\xspace}
+\providecommand{\fastnlo}{{\texttt{fastNLO}}\xspace}
+\providecommand{\applgrid}{{\texttt{APPL\-GRID}}\xspace}
+\providecommand{\qcdnum}{{\texttt{QCDNUM}}\xspace}
+\providecommand{\minuit}{{\texttt{MINUIT}}\xspace}
+\providecommand{\mcfm}{{\texttt{MCFM}}\xspace}
+\providecommand{\difftop}{{\texttt{DiffTop}}\xspace}
+\providecommand{\nlojetpp}{{\texttt{NLOJet++}}\xspace}
+\providecommand{\lhapdf}{{\texttt{LHAPDF}}\xspace}
+\providecommand{\crundec}{{\texttt{CRunDec}}\xspace}
+\providecommand{\hoppet}{{\texttt{HOPPET}}\xspace}
+\providecommand{\GeV}{\ensuremath{\,\text{Ge\hspace{-.08em}V}}\xspace}
+\providecommand{\pperp}{\ensuremath{p_{\perp}}\xspace}
+\providecommand{\mur}{\ensuremath{\mu_\mathrm{R}}\xspace}
+\providecommand{\muf}{\ensuremath{\mu_\mathrm{F}}\xspace}
+\providecommand{\as}{\ensuremath{\alpha_\mathrm{s}}\xspace}
+\providecommand{\asmz}{\ensuremath{\alpha_\mathrm{s}(m_Z)}\xspace}
+\providecommand{\asq}{\ensuremath{\alpha_\mathrm{s}(Q)}\xspace}
+\providecommand{\tmdlib}{{\texttt{TMDlib}}\xspace}
+
+
+%
+\journalname{Eur. Phys. J. C}
+%
+\begin{document}\sloppy
+
+\title{HERAFitter %\thanksref{t1}
+}
+\subtitle{Open Source QCD Fit Project \\
+    { \small {Version 1.0 (svn -1654)} }
+}
+
+%\titlerunning{Short form of title}        % if too long for running head
+
+% author list 
+\input{authors.tex}
+%
+%
+%\thankstext{t1}{Grants or other notes
+%about the article that should go on the front page should be
+%placed here. General acknowledgments should be placed at the end of the article.
+%\thankstext{e1}{e-mail: fauthor@example.com}
+
+%\authorrunning{Short form of author list} % if too long for running head
+
+%\institute{Version 0.7 (svn 1383)
+%\institute{Deutsches Elektronen-Synchrotron, DESY,
+%            Notkestr. 85, 22607 Hamburg \label{addr1}
+%           \and
+%           Second address \label{addr2}
+%           \and
+%           \emph{Present Address:} if needed\label{addr3}
+%}
+
+\date{Received: date / Accepted: date}
+% The correct dates will be entered by the editor
+
+
+\setcounter{tocdepth}{4}
+\maketitle
+
+\begin{abstract}
+\fitter is an open-source package
+that provides a framework for the determination of the
+parton distribution functions (PDFs) of the proton and for
+many different kinds of analyses in Quantum Chromodynamics (QCD).
+%
+It encodes results from a wide range of experimental measurements in lepton-proton deep inelastic scattering and proton-proton (proton-antiproton) collisions at hadron colliders.
+%
+These are complemented with a variety of theoretical options for calculating PDF-dependent cross section predictions corresponding to the measurements.
+%
+The framework covers a large number of the existing
+methods and schemes used for PDF determination.
+%, and multiple options for the parameterisation of the
+%non-perturbative quantities, including the PDF functional forms. 
+%
+The data and theoretical predictions are brought together through numerous methodological options for carrying out PDF fits and plotting tools to help visualise the results. 
+%
+While primarily based on the approach of collinear factorisation, \fitter also provides facilities for fits of dipole models and transverse-momentum dependent PDFs.
+%
+The package can be used to study the impact of new precise measurements from hadron colliders.
+%
+This paper describes the general structure of \fitter and its wide choice of options.  
+%
+
+
+
+%Measurements of lepton-proton deep inelastic scattering
+%and of proton-proton (proton-antiproton) collisions
+%at hadron colliders are included in the \fitter package,
+%and are used to probe and constrain
+%the partonic content of the proton.
+
+%The PDFs are determined by using 
+%the factorisation properties of the hadron cross sections 
+%in which short-distance perturbatively calculable parton scattering cross sections       
+%and the non-perturbative universal PDFs,
+%are factorised.
+
+%The \fitter platform provides a common
+%environment for QCD analyses using a variety of theoretical calculations and
+%methodological options. A broad range of options for the treatment of the experimental uncertainties is also provided.
+%The general structure of \fitter together with the choices of options available within it are described in this paper.
+
+%The paper presents the \fitter package \cite{herafitter:page}
+%which provides a framework for Quantum Chromodynamics (QCD) analyses related 
+%to the proton structure.
+%%in the context of multi-processes and multi-experiments.
+%The main processes sensitive to the Parton Distribution Functions (PDFs) 
+%of the proton are Deep-Inelastic-Scattering (DIS) 
+%in $ep$ collisions at HERA and Drell-Yan (DY), jet and top quark production in 
+%$pp$ ($p\bar{p}$) collisions at the LHC (Tevatron).
+%Data of recent measurements are included into \fitter and can 
+%be used for PDF determination
+% based on the concept of the factorisable nature 
+%of the cross sections of hard scattering measurements into process dependent 
+%partonic scattering and universal PDFs.
+%\fitter provides a comprehensive choice of options in the treatment of the experimental 
+%data uncertainties, a large number of theoretical and methodological options 
+%through interfaces to external software packages which are described here.
+%
+\keywords{PDFs \and QCD \and Fit \and proton structure}
+% \PACS{PACS code1 \and PACS code2 \and more}
+% \subclass{MSC code1 \and MSC code2 \and more}
+\end{abstract}
+   
+
+%\tableofcontents
+            
+
+\section{Introduction}
+\label{sec:intro}
+\input{intro.tex}
+\section{The HERAFitter Structure}
+\input{structure.tex}
+\section{Theoretical formalism using DGLAP evolution}
+\label{sec:theory}
+\input{theory.tex}
+
+
+%\input{}
+%Text with citations \cite{RefB} and \cite{RefJ}.
+\section{Computational Techniques}
+\label{sec:techniques}
+\input{techniques.tex}
+
+\section{Fit Methodology}
+\label{sec:method}
+\input{method.tex}
+
+\section{Alternatives to DGLAP Formalism}
+\label{sec:alternative}
+\input{alternative.tex}
+
+\section{\fitter Code Organisation}
+\label{sec:organisation}
+\input{organisation.tex}
+
+\section{Applications of \fitter}
+\label{sec:examples}
+\input{examples.tex}
+
+
+\section{Summary}
+\label{sec:outlook}
+\input{summary.tex}
+
+%as required. Don't forget to give each section
+%and subsection a unique label (see Sect.~\ref{sec:1}).
+%\paragraph{Paragraph headings} Use paragraph headings as needed.
+%\begin{equation}
+%a^2+b^2=c^2
+%\end{equation}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% For one-column wide figures use
+%\begin{figure}
+%% Use the relevant command to insert your figure file.
+%% For example, with the graphicx package use
+%  \includegraphics{example.eps}
+%% figure caption is below the figure
+%\caption{Please write your figure caption here}
+%\label{fig:1}       % Give a unique label
+%\end{figure}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% For two-column wide figures use
+%\begin{figure*}
+%% Use the relevant command to insert your figure file.
+%% For example, with the graphicx package use
+%  \includegraphics[width=0.75\textwidth]{example.eps}
+%% figure caption is below the figure
+%\caption{Please write your figure caption here}
+%\label{fig:2}       % Give a unique label
+%\end{figure*}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% For tables use
+%\begin{table}
+%% table caption is above the table
+%\caption{Please write your table caption here}
+%\label{tab:1}       % Give a unique label
+%% For LaTeX tables use
+%\begin{tabular}{lll}
+%\hline\noalign{\smallskip}
+%first & second & third  \\
+%\noalign{\smallskip}\hline\noalign{\smallskip}
+%number & number & number \\
+%number & number & number \\
+%\noalign{\smallskip}\hline
+%\end{tabular}
+%\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{acknowledgements}
+\fitter developers team acknowledges the kind hospitality of DESY 
+and funding by the Helmholtz Alliance "Physics at the Terascale" of the Helmholtz Association.
+We are grateful to the DESY IT department for their support of the \fitter  developers. We thank the H1 and ZEUS collaborations for the support in the initial stage of the project.
+Additional support was received from the BMBF-JINR cooperation program,
+the Heisenberg-Landau program, the RFBR grant 12-02-91526-CERN~a, 
+the Polish NSC project DEC-2011/03/B/ST2/00220 and 
+a dedicated funding of the Initiative and Networking Fond of Helmholtz Association SO-072. 
+We also acknowledge Nathan Hartland with Luigi Del Debbio for contributing to the 
+implementation of the Bayesian Reweighting technique and
+would like to thank R. Thorne for fruitful discussions.
+\end{acknowledgements}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BibTeX users please use one of
+%\bibliographystyle{spbasic}      % basic style, author-year citations
+%\bibliographystyle{spmpsci}      % mathematics and physical sciences
+%\bibliographystyle{spphys}       % APS-like style for physics
+%\bibliography{}   % name your BibTeX data base
+
+
+\bibliography{herafitter-epjc.bib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Non-BibTeX users please use
+%\begin{thebibliography}{}
+%%
+%% and use \bibitem to create references. Consult the Instructions
+%% for authors for reference list style.
+%%
+%\bibitem{RefJ}
+%% Format for Journal Reference
+%Author, Article title, Journal, Volume, page numbers (year)
+%% Format for books
+%\bibitem{RefB}
+%Author, Book title, page numbers. Publisher, place (year)
+
+%\end{thebibliography}
+
+
+\end{document}
+% end of file template.tex
+

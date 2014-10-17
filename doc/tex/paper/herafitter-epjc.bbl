@@ -1,4 +1,4 @@
-\begin{thebibliography}{149}
+\begin{thebibliography}{150}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -309,6 +309,15 @@
   \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Vogt}},
   \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B864}},
   \bibinfo{pages}{399} (\bibinfo{year}{2012}).
+
+\bibitem[{\citenamefont{Bierenbaum
+  \emph{et~al.}}(2009)\citenamefont{Bierenbaum, Blumlein, and
+  Klein}}]{Bierenbaum:2009mv}
+\bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Bierenbaum}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Blumlein}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Klein}},
+  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B820}},
+  \bibinfo{pages}{417} (\bibinfo{year}{2009}), [\eprint{arXiv:0904.3563}].
 
 \bibitem[{\citenamefont{Alekhin and Moch}(2011)}]{Alekhin:runm}
 \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Alekhin}} \bibnamefont{and}
