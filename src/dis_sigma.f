@@ -63,6 +63,19 @@ C----------------------------------------------------
       endif
       end
 
+C----------------------------------------------------
+C> \brief Get DIS NC F2
+C> \param IDataSet index of data set
+C> \param local_hfscheme heavy flavour scheme
+C----------------------------------------------------
+      Subroutine GetNCF2(IDataSet, local_hfscheme)
+      include 'steering.inc'
+      if(itheory.ge.100) then
+         call GetNCxskt(IDataSet, 'F2')
+      else
+         call GetDisXsection(IDataSet, 'F2', local_hfscheme)
+      endif
+      end
 
 C----------------------------------------------------
 C> \brief Get DIS NC cross section
@@ -403,6 +416,8 @@ C
                factor=2*pi*alphaem_run**2/(x(i)*q2(i)**2)*convfac
             else if (XSecType.eq.'FL') then
                factor=1.D0
+            else if (XSecType.eq.'F2') then
+               factor=1.D0
             else
                print *, 'GetDisXsection, XSecType',XSecType,
      $              'not supported'
@@ -621,6 +636,8 @@ c         XSec = FL !hp
          XSec = F2b - y*y/yplus*FLb
       else if(XSecType.eq.'FL') then
          XSec = FL
+      else if(XSecType.eq.'F2') then
+         XSec = F2
       else
          print *, 'CalcReducedXsectionForXYQ2, XSecType',
      $        XSecType,'not supported'
@@ -690,6 +707,7 @@ C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
             CALL ZMSTFUN(3,CCEM3F,X,Q2,XF3,npts,0) 
          endif
       elseif (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS'
+     $        .or.XSecType.eq.'F2'
      $        .or.XSecType.eq.'FL'.or.XSecType.eq.'BEAUTYDIS') then
 C     u-type ( u+c ) contributions 
          CALL ZMSTFUN(1,CNEP2F,X,Q2,FL,npts,0)
@@ -709,6 +727,7 @@ C     d-type (d + s + b) contributions
 c     for NC needs to combine F2p with F2m etc.        
 
       if(XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS'.or.
+     $     XSecType.eq.'F2'.or.
      $     XSecType.eq.'FL'.or.XSecType.eq.'BEAUTYDIS') then
          if(EWFIT.eq.0) then
 C
