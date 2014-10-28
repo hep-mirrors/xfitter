@@ -164,6 +164,9 @@ c call kt factorisation sigma_red
                phit = phitl + phic + phib
                phil = phill + philc + philb
             endif
+            if(XSecType.eq.'F2') then
+               phil =0
+            endif
             phi = phit - epsilon*phil
             if (XSecType.eq.'FL') then
                 phi = phil
@@ -178,7 +181,7 @@ c call kt factorisation sigma_red
            Xsec(i) = phi
          Endif
          if(Xsecqpm(idx).eq.0) then
-            if(IcasHF.lt.4.and.XsecType.ne.'FL') then
+            if(IcasHF.lt.4.and.XsecType.ne.'FL' ) then
                If(Itheory.eq.101) then
                   phiqpm = 0
                   if(auh(7).gt.0.001) call sigqpm(xx,q2x,phiqpm,phieqpm)
