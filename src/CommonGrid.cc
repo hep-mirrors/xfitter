@@ -235,7 +235,8 @@ CommonGrid::checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins
       if ( 0 == (bin_flags.at(ib) & 2) ) {
         bool found_bin = false;
         for (int ibg = 0; ibg < gb[iv].size(); ibg++){
-          if (fabs(gb[iv][ibg] - data_bins[data_bins.size()-_ndim+iv][ib]) < 100*DBL_MIN) 
+	  //          if (fabs(gb[iv][ibg] - data_bins[data_bins.size()-_ndim+iv][ib]) < 100*DBL_MIN) 
+          if (fabs(*(short*)& gb[iv][ibg] - *(short*)& data_bins[data_bins.size()-_ndim+iv][ib]) < 2 ) 
 	    found_bin = true;
 	}
 	if ( !found_bin ){ 
