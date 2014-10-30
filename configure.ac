@@ -331,6 +331,7 @@ AC_CONFIG_FILES([include/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
+                 QEDevol/src/Makefile
                  tools/DrawResultsPackage/Makefile
                  tools/DrawResultsPackage/src/Makefile
                  tools/DrawResultsPackage/include/Makefile

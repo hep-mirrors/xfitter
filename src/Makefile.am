@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 pkginclude_HEADERS = offset.h
 # Explicit depence for all files:
-# *.o: ../include/*.inc 
+*.o: ../include/*.inc 
 
 # the main target, i.e. the executable to build
 bin_PROGRAMS = FitPDF
@@ -94,6 +94,7 @@ LDADD+=  ../DY/src/libmydy.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
  ../genetic/src/libgenetic.a \
+ ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
  ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
 
