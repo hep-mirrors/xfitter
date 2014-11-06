@@ -399,11 +399,13 @@ possibility of different user choices of all these inputs.% to the theory.
 As an alternative to performing a full QCD fit, \fitter allows the user to assess the impact of including new
 data in an existing fit using the Bayesian Reweighting technique. The method
 provides a fast estimate of the impact of new data on PDFs. 
-Bayesian Reweighting was first proposed for PDF sets delivered in the form of MC replicas by~\cite{Giele:1998gw} and further developed by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
+Bayesian Reweighting was first proposed for PDF sets delivered in the form of MC replicas by~\cite{Giele:1998gw} 
+and further developed by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
 More recently, a method to perform Bayesian Reweighting studies starting from PDF fits for which uncertainties
 are provided in the eigenvector representation has been also developed~\cite{Watt:2012tq}. The latter is 
 based on generating replica sets by introducing Gaussian fluctuations on the central PDF set with a variance 
 determined by the PDF uncertainty given by the eigenvectors. Both reweighting methods are implemented in \fitter.
+Note that the precise form of the weights used by both methods has recently been questioned \cite{Sato:2013ika,Paukkunen:2014zia}.
 
 The Bayesian Reweighting technique relies on the fact that MC replicas of a PDF set give 
 a representation of the probability distribution in the space of PDFs. In particular, the PDFs are represented 

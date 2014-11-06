@@ -73,12 +73,16 @@ the default setup of \fitter.
   of processes involving one or two hadrons in the initial state and to
   assess their renormalisation and factorisation scale variation.
 
-  This technique was pioneered by the \fastnlo
-  project~\cite{Kluge:2006xs} to facilitate the inclusion of
-   time consuming NLO jet cross section predictions into PDF fits.
-  The \applgrid~\cite{Carli:2010rw} project developed an alternative method
-  and, in addition to jets, extended its applicability to other scattering processes, 
-  such as DY and heavy quark production in association with boson production.
+%  This technique was pioneered by the \fastnlo
+%  project~\cite{Kluge:2006xs} to facilitate the inclusion of
+%   time consuming NLO jet cross section predictions into PDF fits.
+%  The \applgrid~\cite{Carli:2010rw} project developed an alternative method
+%  and, in addition to jets, extended its applicability to other scattering processes, 
+%  such as DY and heavy quark production in association with boson production.
+  This technique serves to facilitate the inclusion of time consuming
+  NLO jet cross section predictions into PDF fits and has been implemented
+  in the two projects, \fastnlo \cite{Adloff:2000tq,Kluge:2006xs} 
+  and \applgrid \cite{Carli:2005ji,Carli:2010rw}.
   The packages differ in their interpolation
   and optimisation strategies, but both of them construct tables with
   grids for each bin of an observable in two steps: in the first step,
@@ -114,10 +118,13 @@ the default setup of \fitter.
     Jet cross section grids computed for the kinematics of various experiments
     can be downloaded from this site.
 
-    The \fastnlo libraries and tables with theory predictions  for comparison to
+    The \fastnlo libraries and tables with theory predictions for comparison to
     particular cross section measurements are included in the \fitter package. 
     For the \fitter implementation, the evaluation of the strong coupling constant is done
     consistently with the PDF evolution from the \qcdnum code. 
+    The interface to the \fastnlo tables from within \fitter was used in a recent
+    CMS analysis, where the impact on extraction of the PDFs from the inclusive 
+    jet cross section is investigated \cite{Khachatryan:2014waa}.
 \\
 \item In the \applgrid package~\cite{Carli:2010rw,APPLGRID:HepForge},
     in addition to jet cross sections for

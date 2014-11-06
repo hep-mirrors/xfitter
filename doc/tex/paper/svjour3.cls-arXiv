@@ -429,7 +429,9 @@ to\/}: \ignorespaces#1}}\endgroup\ignorespaces}
     \fi
     \ifnum\value{inst}>\authdepth
        \def\stripauthor##1\and##2\endauthor{%
-       \protected@xdef\@author{##1\unskip\unskip\if!##2!\else\ et al.\fi}}%
+% RP         
+%      \protected@xdef\@author{##1\unskip\unskip\if!##2!\else\ et al.\fi}}%
+       \protected@xdef\@author{\unskip\unskip\if!##2!\else\ \fi}}%
        \expandafter\stripauthor\@author\and\endauthor
     \else
        \gdef\and{\unskip, \ignorespaces}%
@@ -533,8 +535,7 @@ later}
 \def\makeheadbox{{%
 \hbox to0pt{\vbox{\baselineskip=10dd\hrule\hbox
 to\hsize{\vrule\kern3pt\vbox{\kern3pt
-\hbox{\bfseries\@journalname\ manuscript No.}
-\hbox{(will be inserted by the editor)}
+\hbox{\bfseries\@journalname }
 \kern3pt}\hfil\kern3pt\vrule}\hrule}%
 \hss}}}
 %

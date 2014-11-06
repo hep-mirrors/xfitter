@@ -1,4 +1,4 @@
-\begin{thebibliography}{150}
+\begin{thebibliography}{155}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname bibnamefont\endcsname\relax
   \def\bibnamefont#1{#1}\fi
@@ -495,14 +495,14 @@
   \bibinfo{author}{\bibfnamefont{L.}~\bibnamefont{Rumyantsev}},
   \bibnamefont{\emph{et~al.}}, \bibinfo{journal}{JETP Lett.}
   \textbf{\bibinfo{volume}{96}}, \bibinfo{pages}{285} (\bibinfo{year}{2012}),
-  [\eprint{1207.4400}].
+  [\eprint{arXiv:1207.4400}].
 
 \bibitem[{\citenamefont{Bondarenko and Sapronov}(2013)}]{Bondarenko:2013nu}
 \bibinfo{author}{\bibfnamefont{S.~G.} \bibnamefont{Bondarenko}}
   \bibnamefont{and} \bibinfo{author}{\bibfnamefont{A.~A.}
   \bibnamefont{Sapronov}}, \bibinfo{journal}{Comput.Phys.Commun.}
   \textbf{\bibinfo{volume}{184}}, \bibinfo{pages}{2343} (\bibinfo{year}{2013}),
-  [\eprint{1301.3687}].
+  [\eprint{arXiv:1301.3687}].
 
 \bibitem[{\citenamefont{Gehrmann-De~Ridder
   \emph{et~al.}}(2013)\citenamefont{Gehrmann-De~Ridder, Gehrmann, Glover, and
@@ -630,12 +630,25 @@
   \emph{\bibinfo{booktitle}{{DIS 2014}}} (\bibinfo{year}{2014}),
   \urlprefix\url{http://indico.cern.ch/event/258017/session/1/contribution/202}.
 
+\bibitem[{\citenamefont{Adloff \emph{et~al.}}(2001)}]{Adloff:2000tq}
+\bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Adloff}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{H1 Collaboration}],
+  \bibinfo{journal}{Eur.Phys.J.} \textbf{\bibinfo{volume}{C19}},
+  \bibinfo{pages}{289} (\bibinfo{year}{2001}), [\eprint{hep-ex/0010054}].
+
 \bibitem[{\citenamefont{Kluge \emph{et~al.}}(2006)\citenamefont{Kluge,
   Rabbertz, and Wobisch}}]{Kluge:2006xs}
 \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Kluge}},
   \bibinfo{author}{\bibfnamefont{K.}~\bibnamefont{Rabbertz}}, \bibnamefont{and}
   \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Wobisch}}
   (\bibinfo{year}{2006}), [\eprint{hep-ph/0609285}].
+
+\bibitem[{\citenamefont{Carli \emph{et~al.}}(2005)\citenamefont{Carli, Salam,
+  and Siegert}}]{Carli:2005ji}
+\bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Carli}},
+  \bibinfo{author}{\bibfnamefont{G.~P.} \bibnamefont{Salam}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Siegert}}
+  (\bibinfo{year}{2005}), [\eprint{hep-ph/0510324}].
 
 \bibitem[{\citenamefont{Carli \emph{et~al.}}(2010)}]{Carli:2010rw}
 \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Carli}}
@@ -680,6 +693,11 @@
 \bibitem[{\citenamefont{http://fastnlo.hepforge.org}()}]{fastNLO:HepForge}
 \bibinfo{author}{\bibnamefont{http://fastnlo.hepforge.org}},
   \urlprefix\url{http://fastnlo.hepforge.org}.
+
+\bibitem[{\citenamefont{Khachatryan \emph{et~al.}}(2014)}]{Khachatryan:2014waa}
+\bibinfo{author}{\bibfnamefont{V.}~\bibnamefont{Khachatryan}}
+  \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{CMS Collaboration}]
+  (\bibinfo{year}{2014}), [\eprint{arXiv:1410.6765}].
 
 \bibitem[{\citenamefont{http://applgrid.hepforge.org}()}]{APPLGRID:HepForge}
 \bibinfo{author}{\bibnamefont{http://applgrid.hepforge.org}},
@@ -771,6 +789,19 @@
   \bibnamefont{\emph{et~al.}} [\bibinfo{collaboration}{NNPDF Collaboration}],
   \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B849}},
   \bibinfo{pages}{112} (\bibinfo{year}{2011}), [\eprint{arXiv:1012.0836}].
+
+\bibitem[{\citenamefont{Sato \emph{et~al.}}(2014)\citenamefont{Sato, Owens, and
+  Prosper}}]{Sato:2013ika}
+\bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Sato}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Owens}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Prosper}},
+  \bibinfo{journal}{Phys.Rev.} \textbf{\bibinfo{volume}{D89}},
+  \bibinfo{pages}{114020} (\bibinfo{year}{2014}), [\eprint{arXiv:1310.1089}].
+
+\bibitem[{\citenamefont{Paukkunen and Zurita}(2014)}]{Paukkunen:2014zia}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Paukkunen}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Zurita}}
+  (\bibinfo{year}{2014}), [\eprint{arXiv:1402.6623}].
 
 \bibitem[{\citenamefont{Nikolaev and Zakharov}(1991)}]{NNZ:91}
 \bibinfo{author}{\bibfnamefont{N.~N.} \bibnamefont{Nikolaev}} \bibnamefont{and}

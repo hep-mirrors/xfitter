@@ -39,7 +39,8 @@
 %
 %\RequirePackage{fix-cm}
 %
-\documentclass[twocolumn,epjc3]{svjour3}  
+%\documentclass[twocolumn,epjc3]{svjour3}  
+\documentclass[twocolumn]{svjour3}  
 %
 \smartqed  % flush right qed marks, e.g. at end of proof
 %
@@ -125,15 +126,14 @@
 
 
 %
-\journalname{Eur. Phys. J. C}
+%\journalname{Eur. Phys. J. C}
+\journalname{DESY Report 14-188}
 %
 \begin{document}\sloppy
 
 \title{HERAFitter %\thanksref{t1}
 }
-\subtitle{Open Source QCD Fit Project \\
-    { \small {Version 1.0 (svn -1654)} }
-}
+\subtitle{Open Source QCD Fit Project \\  }
 
 %\titlerunning{Short form of title}        % if too long for running head
 
@@ -157,7 +157,8 @@
 %           \emph{Present Address:} if needed\label{addr3}
 %}
 
-\date{Received: date / Accepted: date}
+%\date{Received: date / Accepted: date}
+\date{}
 % The correct dates will be entered by the editor
 
 
@@ -224,7 +225,7 @@ This paper describes the general structure of \fitter and its wide choice of opt
 %data uncertainties, a large number of theoretical and methodological options 
 %through interfaces to external software packages which are described here.
 %
-\keywords{PDFs \and QCD \and Fit \and proton structure}
+%\keywords{PDFs \and QCD \and Fit \and proton structure}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
 \end{abstract}
