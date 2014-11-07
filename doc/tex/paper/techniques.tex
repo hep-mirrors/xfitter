@@ -92,11 +92,15 @@ the default setup of \fitter.
   the grid is filled for the
   requested observables. Higher-order cross sections can then be
   obtained very efficiently from the pre-produced grids while varying
-  externally provided PDF sets, \mur and \muf, or the strong coupling
-  $\alpha_s(\mu_R)$. This approach can in principle be extended to arbitrary
+  externally provided PDF sets, \mur and \muf, or $\alpha_s(\mu_R)$. 
+  This approach can in principle be extended to arbitrary
   processes. This requires an interface between the
-  higher-order theory programs and the fast interpolation
-  frameworks. Currently available processes for each package are as follows:
+  higher-order theory programs and the fast interpolation frameworks.
+  For the \fitter implementations of the two packages, the evaluation of $\alpha_s$
+  is done consistently with the PDF evolution code.
+  %Currently available processes for each package are as follows:
+  A brief description of each package is given below:
+                                                     
 
 \begin{itemize}
   \item The \fastnlo project~\cite{Kluge:2006xs} has been interfaced
@@ -120,8 +124,8 @@ the default setup of \fitter.
 
     The \fastnlo libraries and tables with theory predictions for comparison to
     particular cross section measurements are included in the \fitter package. 
-    For the \fitter implementation, the evaluation of the strong coupling constant is done
-    consistently with the PDF evolution from the \qcdnum code. 
+    %For the \fitter implementation, the evaluation of the strong coupling constant is done
+    %consistently with the PDF evolution from the \qcdnum code. 
     The interface to the \fastnlo tables from within \fitter was used in a recent
     CMS analysis, where the impact on extraction of the PDFs from the inclusive 
     jet cross section is investigated \cite{Khachatryan:2014waa}.
@@ -129,9 +133,11 @@ the default setup of \fitter.
 \item In the \applgrid package~\cite{Carli:2010rw,APPLGRID:HepForge},
     in addition to jet cross sections for
     $pp(p\bar p)$ and DIS processes, calculations 
-    of DY production are also implemented. The grids are generated with
-    the customised versions of the \mcfm parton level DY
-    generator~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.
+    of DY production and other processes are also implemented using an interface to the
+    %of DY production are also implemented. The grids are generated with
+    %the customised versions of the \mcfm parton level DY
+    %generator~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.
+    standard \mcfm parton level generator~\cite{Campbell:1999ah,Campbell:2000je,Campbell:2010ff}.
     Variation of the renormalisation and factorisation scales is possible a posteriori,
     when calculating theory predictions with the \applgrid  tables, and
     independent variation of $\alpha_S$ is also allowed.
