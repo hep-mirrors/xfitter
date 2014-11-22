@@ -173,7 +173,7 @@ TheorEval::convertToRPN(list<tToken> &sl)
     //  tknstk.push(t);
     //}
     if ( t.opr >0 ) {
-      if ( tknstk.size() > 0 && t.opr <= tknstk.top().opr ) {
+      while ( tknstk.size() > 0 && t.opr <= tknstk.top().opr ) {
         _exprRPN.push_back(tknstk.top());
 	tknstk.pop();
       }
@@ -197,14 +197,15 @@ TheorEval::convertToRPN(list<tToken> &sl)
     tknstk.pop();
   }
   
+  
   /*
   vector<tToken>::iterator it= _exprRPN.begin();
   for (;it!=_exprRPN.end(); it++){
-    if (it->opr == 0 ){
-      cout << it->name << "\t" << (*it->val)[0] << endl;
-    }
+    cout << it->name << " " ;
   }
+  cout << endl;
   */
+  
 }
 
 int
@@ -490,6 +491,7 @@ void TheorEval::ChangeTheorySource(string term, string source)
 
   initTerm(int(found_term-_termNames.begin()), _mapInitdTerms[term]);
 }
+
 string TheorEval::GetTheorySource(string term)
 {
   vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
