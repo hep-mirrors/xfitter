@@ -201,6 +201,7 @@ c	Call updfgrid(1)
 	write(6,*) ' Qbar_my  ',Qbarmy 
       
       do Iparton=0,2
+      Jev = 0 
       write(6,*) ' evolving parton ID: ',Iparton 
         if(iparton.eq.0) then 
            gluon=.true.
@@ -306,7 +307,8 @@ c here include a factor of pi coming from d^2 k --> dkt^2
       Maxpr=5
       Nmongo=27
 C---Number of events
-      Nev=10000000 
+c      Nev=100000000 ! very long
+      Nev=10000000 ! std
 c      Nev=5000000 ! old 
 c      Nev=2000000
 c      Nev=20000  
@@ -694,7 +696,11 @@ C--Choose starting conditions for branching
       common/f2fit/au(50),first
       Double precision ininorm(-6:6)
       common/smininorm/ininorm
-	
+      
+      Double Precision Ncall, sumkt, Wtest
+      Double Precision pi
+      pi = 4.*atan(1.)
+     
      
       iktscheme =1
 
@@ -715,7 +721,7 @@ C         xmymin=max(0.95e-5,xmin) !old
          x0 = xmymin*(xmax/xmymin)**SMrgen(2)
          Wx0 = x0*log(xmax/xmymin)
 c--choose starting Qt
-         PHI_K = 2*3.1415*Smrgen(3)
+         PHI_K = 2*pi*Smrgen(3)
          P(1,0)= sqrt(qx2)*cos(phi_k)
          P(2,0)= sqrt(qx2)*sin(phi_k)
 c      P(1,0)= SMrgau(1,0.0d0,Qx)
@@ -729,7 +735,7 @@ c--choose starting Qt
           qgmax = Sbig
           qx2 = qgmin*((qgmax/qgmin)**SMrgen(1))
 c--choose starting Qt
-          PHI_K = 2*3.1415*Smrgen(3)
+          PHI_K = 2*pi*Smrgen(3)
           P(1,0)= sqrt(qx2)*cos(phi_k)
           P(2,0)= sqrt(qx2)*sin(phi_k)
 c          write(6,*) ' sminfn_gluon ',iktscheme,qx2,P(1,0),P(2,0)
@@ -751,7 +757,7 @@ c          write(6,*) ' sminfn_gluon ',iktscheme,qx2,P(1,0),P(2,0)
              Qx2 = QGMIN*((QGMAX/QGMIN)**SMrgen(1))
              WQG2 = Qx2*LOG(QGMAX/QGMIN)
 c--choose starting Qt
-             PHI_K = 2*3.1415*Smrgen(3)
+             PHI_K = 2*pi*Smrgen(3)
              P(1,0)= sqrt(qx2)*cos(phi_k)
              P(2,0)= sqrt(qx2)*sin(phi_k)
 	       A1 = au(1)
@@ -770,19 +776,34 @@ c               ALPHAS = 0.2
                write(6,*) ' sminfn; r02 = (X0/X01)**LAM; with x01 = ',x01,' lam = ',lam
 	         first=.false.
 	       endif
-             x0=xmin**SMrgen(3)
+
+             xmymin=max(1e-7,xmin)  
+              
+             x0 = xmymin*(xmax/xmymin)**SMrgen(4)
+             Wx0 = x0*log(xmax/xmymin)
              R02 = (X0/X01)**LAM
+   	       Scale=P(1,0)**2+P(2,0)**2
              glu = 3.*SIGM0*R02*SCALE*EXP(-R02*SCALE)
              xgx0 = glu/4./9.8696/ALPHAS
-	       xgmax=12.
-	       xgmax=1500.
-             test = xgx0*WQG2/xgmax
-             Wt0 = xgx0*WQG2
+c	       xgmax=12.
+c	       xgmax=1200.
+c	       xgmax=10000.
+c             test = xgx0/x0*WQG2*Wx0/xgmax
+             Wt0 = xgx0/x0*Wx0*WQG2
+	       Wt0 = Wt0*(1-x0)**4.2
+c	       If (test.gt.1)then
+c                write(6,*) ' fatal in saturation: xgx0 > xgmax :',
+c     &        wt0,xgmax
+c             endif
+ccc	     Wt = 1.
              Wt = Wt0
-	       If (test.gt.1)then
-                write(6,*) ' fatal in saturation: xgx0 > xgmax :',
-     &         xgx0*WQG2,xgmax
-             endif
+c             write(6,*) sigm0,R02,scale,alphas,x0,x01,lam
+cc             write(6,*)  wt,wt0,x0,scale,xgx0,Wx0,WQG2
+ccc              SMtest=SMrgen(5)
+c	      write(6,*) ' xmaxmin ',x0,xmax,xgx0,sigm0,r02,scale,alphas
+c	      write(6,*) test,SMtest
+ccc             If (test.lt.SMtest) go to 9
+c             write(6,*) ' event acepted ',x0             
           else    
              xmymin=max(1e-7,xmin)   
              x0 = xmymin*(xmax/xmymin)**SMrgen(2)
@@ -813,7 +834,14 @@ c	write(6,*) gluon,quark,photon
 
 	  If(iparton.eq.0) then
 	    Kid(0) = 21
-          ininorm(0) = Xnor
+          if(itheory.eq.105) then
+            Wtest = Wtest + Wt*x0
+            ininorm(0) = Xnor*Wtest/Jev
+            ininorm(3) = Xnor*Wtest/Jev
+          else
+            ininorm(0) = Xnor ! old
+            ininorm(3) = Xnor ! old
+          endif
 	  else
 	    Kid(0) = iparton
           if(ipartonO.ne.iparton) first1=.true.
@@ -822,10 +850,11 @@ c	write(6,*) gluon,quark,photon
 c here do the starting distribution for the valence quarks
           PARM(1) = 'DEFAULT' 
 ccc          VAL(1) = 60701 ! HERAPDF15(NLO)  is not anymore in latest lhapdf
-c          VAL(1) = 60500 ! HERAPDF10(NLO) 
+cc          VAL(1) = 60500 ! HERAPDF10(NLO) 
           VAL(1) = 10551 ! CTEQ66
 	    If(first1) then
               ipartonO=iparton
+              xgmax = 0.
               CALL PDFSET(PARM,VAL)
 c calculate the integral over xgx	
 
@@ -867,10 +896,11 @@ c                    write(6,*) 'xx, sum ',xx,sum
 		  Xnor =  xnormn  ! really respect mom-sum rule for valence quarks 
               ininorm(iparton)=Xnor
 c              write(6,*) '  sminfn Xnorm new :',xnormn
-	        first1 = .false.	 
+	        first1 = .false.
 	    endif  
           QQ=Qs
 	    QQ2=QQ*QQ
+	    
 	    xx=x0	  
 
           CALL STRUCTM(XX,QQ,UPV,DNV,USEA,DSEA,STR,CHM,BOT,TOP,GLU)
@@ -906,7 +936,6 @@ c--compute xgbar
 c--proton spectator
       Call SMvdif(4,p2,P(1,0),pspec)
 ctest............	
-c	Qval = 10.0
 	yphton = 1
 	yphbar = 0.
 	Wini = 1.
@@ -916,7 +945,6 @@ cend.......... test.........
       q1(4)=yphton*p1(4)+yphbar*p2(4)
 c--electron spectator
       Call SMvdif(4,p1,q1,espec)
-c      Wt=1.
       q1(5)=-Qval
       P(6,0)=Wt
       P(7,0)=0.
@@ -1020,17 +1048,16 @@ c      Parameter (Nbp=20)
       Double Precision xm11(0:Nbx),xm21(0:Nbk),xm31(0:Nbp)
       Double Precision xm12(0:Nbx),xm22(0:Nbk),xm32(0:Nbp)
       Double Precision xm1(0:Nbx),xm2(0:Nbk),xm3(0:Nbp)
-
-	Double Precision x3norm(-4:4,0:Nbp)
+      Double Precision x3norm(-4:4,0:Nbp),x3normf(-4:4,0:Nbp),x3normN(-4:4,0:Nbp)
       Double Precision Val1,Val2,Val3
       Integer I,J,K,Iflag,Irr,Err
       Integer ix1,ix2,ix3
-      Integer nval2,ncall,Nrejx1,Nrejx2
+      double Precision nval2,Nrejx1,Nrejx2
       Double Precision x1minL,x1maxL,x1dif,x2dif,x3dif
       Double Precision x1minlin,x1maxlin,xcheck
       Integer NbxL,Nbxlin
       Double Precision x2minL,x2maxL,q2min,q2max,p3max,p3min
-      Double Precision Xgnorm,Xgn,xgmy,wtmy,Xnormtest
+      Double Precision Xgnorm,Xgn,xgmy,wtmy,Xnormtest,momsum
 c limits
       Double Precision x1min,x1max,x2min,x2max,x3min,x3max
       Double Precision x1dm,x2dm,x3dm
@@ -1047,19 +1074,21 @@ c limits
       LOGICAL ex
 	data nold/1/
       Data xxxx/'gluon'/
-	data ncall/0/
 	Integer iprint
 	Data iprint/0/
       Double precision ininorm(-6:6)
       common/smininorm/ininorm
+      Double precision ncount0, ncount3
       
 c      write(6,*) ' updfgrid ',iflag
 	
       If(iflag.eq.1) Then
 	   do ki=-4,4
-	   do k=0,nbp
-	   x3norm(ki,k) = 0.
-	   enddo
+	     do k=0,nbp
+	       x3norm(ki,k) = 0.
+	       x3normf(ki,k) = 0.
+	       x3normN(ki,k) = 0.
+	     enddo
 	   enddo
 
 c initilaze grid
@@ -1179,8 +1208,10 @@ cc            Val3 = x3(Nbp+1)
          endif
 	   if(kid(Ifin).eq.21) then
 	      ki=0
+            ncount0 = ncount0 + 1
 	      else
 	      ki=kid(ifin)
+            if(ki.eq.3) ncount3 = ncount3 + 1
 	   Endif
          
          ix3=-1
@@ -1199,10 +1230,14 @@ c		write(6,*) ' updfgrid ',ix3,x3(ix3),val3
           else
             wt0my=1.
          endif
+	   x3normN(ki,ix3) = x3normN(ki,ix3) + 1.
 c norm to initial condition (old style)
 ccc	 x3norm(ki,ix3) = x3norm(ki,ix3) + x0*wt0my  
+c norm to flavor sum rule at each scale 
+	    x3normf(ki,ix3) = x3normf(ki,ix3) + wtmy
 c norm to momentum sum rule at each scale 
-	   x3norm(ki,ix3) = x3norm(ki,ix3) + xgmy*wtmy  
+          x3norm(ki,ix3) = x3norm(ki,ix3) + xgmy*wtmy
+	      
 	   Xin = Xin + x0
 	   if (Excode.ne.0) then
 c            write(6,*) ' updfgrid return: Excode = ',Excode 
@@ -1258,15 +1293,14 @@ c               write(6,*) ' val2 = ',val2,' too high: x2(Nbk) = ',x2(Nbk+1)
 
          Xgn = Xgn + wtmy*xgmy
 
-	   ncall = ncall + 1
       Elseif(iflag.eq.3) Then
 c xgx defined here is actually g(x)
 c corresponds: d g(x)/dlnx = x dg(x)/dx
          if(iprint.eq.1) then
            write(6,*) Xgn,x1dif,Xgnorm,x1maxL,x1minL,Nbx
-           write(6,*) 'ncall=',ncall
+c           write(6,*) 'ncall=',ncall(ki)
 	     write(6,*) ' rej x1 cut ',Nrejx1,' rej x2 cut ',Nrejx2
-	     write(6,*)  ' xgn/ncall =',xgn/real(ncall)
+c	     write(6,*)  ' xgn/ncall =',xgn/real(ncall(1))
 	     write(6,*) ' updfgrid: X3norm = ',(X3norm(1,i),i=0,Nbp)
 	   endif
 c
@@ -1278,7 +1312,23 @@ c
                sum = 0
                Do K = 0, Nbp
                  Xnormtest = max(x3norm(ki,k),1.)
-                 Xgnorm = ininorm(ki)/Xnormtest
+                 momsum = x3norm(0,k)/max(x3normN(0,k),1.d0) + x3norm(3,k)/max(x3normN(3,k),1.d0)
+                 if(ki.eq.1) then
+                    Xgnorm = 1./max(x3normf(ki,k),1.d0)
+                 elseif(ki.eq.2) then
+                    Xgnorm = 2./max(x3normf(ki,k),1.d0)                   
+                 elseif(abs(ki).eq.3) then
+         
+c                    Xgnorm = ininorm(ki)/(0*max(x3normN(0,k),1.d0)+max(x3normN(3,k),1.d0)) 
+                     Xgnorm = ininorm(ki)/Jev/momsum          
+		     else
+c                    Xgnorm = ininorm(ki)/Xnormtest
+c                    Xgnorm = ininorm(ki)/(max(x3normN(0,k),1.d0)+0*max(x3normN(3,k),1.d0))
+                     Xgnorm = ininorm(ki)/Jev/momsum          
+     		     endif
+c                 if(xgnorm.gt.0) then
+c                   write(6,*) 'xgnorm ',xgnorm,ki,i,j,k
+c                 endif
                  xgx_f(ki,I,J,K) = xgx(ki,I,J,K)/x2b(j)/x1b(i)*Xgnorm
                Enddo
             Enddo
@@ -1328,7 +1378,7 @@ c write output to file
 	   endif
       Endif
       Return
-   50 write(6,*) ' error opening file'
+   50 write(6,*) ' updfgrid error opening file',filname
       Return
   100     format(' |',E12.4,' | ',F8.5,' | ',F8.5,' | ',F8.5,' |')
       End
@@ -1406,8 +1456,8 @@ c	  write(6,*) ' integrate Sudakov and produce lookup table'
          QFAC=(1.1*qlim/sqrt(q2lo))**POWER
 C--IS=1 FOR GLUON->GLUON+GLUON FORM FACTOR
 C--IS=2 FOR quark->gluon+quark FORM FACTOR
-C--IS=3 FOR quark->quark+GLUON FORM FACTOR
-C--IS=4 FOR gluon->quark+antiquark FORM FACTOR
+C--IS=3 FOR gluon->quark+antiquark FORM FACTOR
+C--IS=4 FOR quark->quark+GLUON FORM FACTOR
          DO 11 Is = 1,Ismax
 	      ISS=IS
             SUD(1,IS)=0.
@@ -2616,6 +2666,9 @@ C (NMXSUD= max no of entries in lookup table)
       Double Precision wz
       Common/smweights/wz
       Double Precision Cf,Ca
+      Double Precision nf_light
+      
+      nf_light = 3.
       Cf = 4.d0/3.d0
       Ca = 3.d0
       ktcut = 0.4
@@ -2675,12 +2728,12 @@ C--Limit on Qtem
       ktold = P(1,I)**2 + P(2,I)**2
       QQt0=Sqrt(QQtx**2+QQty**2)
       QQt0=Sqrt(ktold)
-      if(nobran.ge.1) then
-c no branching at all:
-         Qbar=-1.
-         tmax = 1.E12
-c         write(6,*) ' no-branching selected '	  
-      endif
+c      if(nobran.ge.1) then
+cc no branching at all:
+c         Qbar=-1.
+c         tmax = 1.E12
+cc         write(6,*) ' no-branching selected '	  
+c      endif
 	
 C--Find Qtem
       Call SMqtem(.false.)
@@ -2696,6 +2749,13 @@ c only g -> g g
 	   Qtem = Qtemgg
 	   Ttem = Ttemgg
       Endif   
+      if(nobran.ge.1) then
+c no branching at all:
+         Qbar=-1.
+         tmax = 1.E12
+	 Qtem = Qmax
+c         write(6,*) ' no-branching selected '	  
+      endif
       if(Qtem.gt.Qmax) then
 c	   write(6,*) ' Qtem = ',Qtem,' > ',Qmax 
 	   go to 600
@@ -2760,7 +2820,7 @@ c      write(6,*) ' smbran suda: ',IS,Qtem,sudtest,sudakov(IS)
       if(wg.lt.0 ) write(6,*) ' smbran_new-all-std: wg < 0 ',wg
 
       if(Iqg.eq.1) then 
-         wxqg = asbmy(scal*qtem*ynow)* Splittqg(znow) *0.5/2./Ca *wz
+         wxqg = asbmy(scal*qtem*ynow)* 2*nf_light*Splittqg(znow) *0.5/2./Ca *wz
          wxqg = wxqg * Sudakov(4)/Sudakov(1)
       endif
       wxqq = asbmy(scal*qtem*ynow)* Splittqq(znow)*Cf /2./Ca *wz
@@ -2773,20 +2833,24 @@ c call my modified smzval
       If(Kid(Ifin).ne.21) Then
          if(smrgen(3).le.wxqq/(wxqq+wxgq)) then
 	      Kid(I+1) = Kid(Ifin)
+ 	      wg = wxqq
             else
-            write(6,*) ' SBRAN FATAL: select g - splitting for quark'
+cc            write(6,*) ' SBRAN FATAL: select g - splitting for quark'
             
 	      Kid(I+1) = 21 
          Endif
 	Elseif(Kid(Ifin).eq.21) Then 
          if(smrgen(4).le.wxgg/(wxgg+wxqg)) then
 	      Kid(I+1) = 21
+	      wg = wxgg
             else
-            write(6,*) ' SBRAN FATAL: select q - splitting for gluon'
-	      Kid(I+1) = Kid(Ifin)
+cc            write(6,*) ' SBRAN FATAL: select q - splitting for gluon'
+c	      Kid(I+1) = Kid(Ifin)
+	      Kid(I+1) = 3 ! test
+            wg=wxqg
          Endif
 	Endif
-	wg = wxgg
+c	wg = wxgg
       if(wg.eq.0) then
          write(6,*) 'smbran weight = 0',wg,wxqq, Qtemgg,Qtemqg,Qbar
       endif 

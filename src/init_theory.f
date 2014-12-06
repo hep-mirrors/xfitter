@@ -25,7 +25,6 @@ C Init evolution code:
 
          if (ewfit.gt.0) call eprc_init(.true.)
       elseif(itheory.ge.100) then       
-c          here goes a call to non-DGLAP 
 cc           write(6,*) ' in ini_theory for itheory =',itheory
       endif
 

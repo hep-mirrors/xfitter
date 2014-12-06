@@ -1541,7 +1541,7 @@ c	   endif
          Endif
       XP=0.D0
       IRES(2)=1
-C here do some gymnastics to make cut on theta angle of electron
+C here do some gymnastics to make cd .. on theta angle of electron
       IF(THEMA.LT.180.D0.OR.THEMI.GE.0.D0) THEN
 C go first to ep LAB system
          CALL PYROBO(3,3,0.D0,0.D0,CM(1)/CM(4),CM(2)/CM(4),CM(3)/CM(4))
@@ -2042,6 +2042,7 @@ C
 #include "caspara1.inc"
 #include "caspara.inc"
 #include "casluco.inc"
+#include "casludat1.inc"
 #include "caspara5.inc"
 #include "caspart.inc"
 #include "casgki.inc"
@@ -2081,7 +2082,7 @@ c      DATA Sfcut /1.d-9/
       Double Precision SumAab,SumAnab,SumaL
       Double Precision SumB1ab,SumB1nab,SumB2ab,SumB2nab
       Double Precision SumC1ab,SumC1nab,SumC2ab,SumC2nab
-      Double Precision SUMA,SUMB,SUMC,SUMC1,SUMC2
+      Double Precision SUMA,SUMB,SUMC,SUMC1,SUMC2,SUMCL
       Double Precision A1,A2,A3,Asum
       double Precision XPQC1,XPQC2,QSUM
 	Double Precision rntest,Rleg,xsecnorm
@@ -2103,7 +2104,7 @@ c      DATA Sfcut /1.d-9/
 	Double Precision MEQG
       
 	Double Precision QQg,lambda
-	Double Precision Qscal
+	Double Precision Qscal 
 	Integer Iqqbar
 	Common/GLUDAT2/Qscal,Iqqbar
 c      Data IQBAR/1/
@@ -2393,6 +2394,8 @@ c        write(6,*) ' no mass ',m2
       SumB2nab = 0d0
       SumC2ab = 0d0
       SumC2nab = 0d0
+      SumC2 = 0
+      Sumcl = 0
       epsilon = 0D0
 c      write(6,*) ' K12 ',K12,' K22 ',K22
 c      IF(E2.GT.CUT) write(6,*) ' meoffsh ',E1,E2,CUT,M2
@@ -2522,7 +2525,8 @@ c         write(6,*) ' SumC2ab ',SumC2ab,SumC2nab
          ELSE
             write(6,*) ' meoffsh - scale: q or q_bar '
          ENDIF
-	      write(6,*) ' meoffsh - scale for alphas ',Qscal
+	      write(6,*) ' meoffsh - renorm. scale ',Qscal
+	      write(6,*) ' meoffsh - fact. scale   ',scalfaf
          FIRST=.FALSE.
       ENDIF
 
@@ -2602,6 +2606,12 @@ c         ru=1d0/uh
 c         Scale=2d0*(sL*rt*ru)/((sL*rt*ru)**2+rt**2+ru**2)
       ELSEIF(IQ2.EQ.7) THEN
          Scale = max(stmax1,stmax2)**2
+c test average
+c         PT2Q = (P(KF1,1)**2 +P(KF1,2)**2+P(KF2,1)**2 +P(KF2,2)**2)/2.
+c         SCALE = 4D0*M2 + PT2Q
+c test maximum
+c         PT2Q = max(P(KF1,1)**2 +P(KF1,2)**2,P(KF2,1)**2 +P(KF2,2)**2)
+c         SCALE = 4D0*M2 + PT2Q
       ELSE
          WRITE(6,*) ' NO VALID Q2 SCALE. STOP'
          STOP
@@ -2623,6 +2633,8 @@ c	alph_em = 1./137.
          XPQ1(i) = 0.d0
          XPQ2(i) = 0.d0
       end do
+      stmax1 = stmax1 *scalfaf
+      stmax2 = stmax2 *scalfaf
       If(Ires(1).ne.0) then
          if(stmax1.lt.sqrt(sss)) then
             call cauniglu(K(1,2),XG1SF,SFSCAL1,STMAX1,XPQ1)
@@ -2678,16 +2690,58 @@ c         write(6,*) ' meoffsh IFLflag = ',IFLflag
          WTG= dble(XPQ2(0))
          SUMA = (Cab*SumAab + CabB*SumAnab)*WTG
 cc this is for gamma*q -> gq
-	   XPQC2 = dble(XPQ2(3)+xpq2(-3))
-	   Cab = 16.D0*PI*PI*ALPHA_S*ALPH_EM*QF2*8./3.
-	   CabB = 0D0
-         SUMC2 = (Cab*SumC2ab + CabB*SumC2nab)*XPQC2
-	   SUMC2 = 0
-         SUMC =  SUMC2
+c         XPQC2 = 0
+c	   XPQC2 = dble(XPQ2(3)+xpq2(-3))
+c	   Cab = 16.D0*PI*PI*ALPHA_S*ALPH_EM*QF2*8./3.
+c	   CabB = 0D0
+c         SUMC2 = (Cab*SumC2ab + CabB*SumC2nab)*XPQC2
+c	   SUMC2 = 0
+c         
+c         SUMC =  SUMC2
 c       write(6,*) ' meoffsh checks 4',SumC2ab,SumC,Cab,XPQC2
    	   Rleg = 0.6
          K(NIA1,2) = 22
          K(NIA2,2) = 21
+cc this is for gamma*q -> gq
+c	   XPQC2 = dble(XPQ2(3)+xpq2(-3))
+c	   Cab = 16.D0*PI*PI*ALPHA_S*ALPH_EM*QF2*8./3.
+c	   CabB = 0D0
+c         SUMC2 = (Cab*SumC2ab + CabB*SumC2nab)*XPQC2
+c	   SUMC2 = 0
+c         SUMC =  SUMC2
+c ME from Coll-Fact
+         xpqc2 = 0.
+c         do i=-3,3
+c         XPQC2= xpqc2 + XPQ2(I)*DFLOAT(PYCHGE(I))**2/9.D0
+c         write(6,*) ' xpqc2 ',i,xpqc2
+c         end do
+	   XPQC2 = dble(XPQ2(3)+xpq2(-3))*DFLOAT(PYCHGE(3))**2/9.D0
+         Q2 = -k12
+         if(abs(th).gt.10.and.abs(uh).gt.1.and.abs(sh).gt.1) then
+            SUMC2 = 16.D0*8.D0/3.D0*PI*PI*ALPHA_S*ALPH_EM*(-TH/SH - SH/TH + 2.D0*UH*Q2/SH/
+     +      TH - 2.D0*UH*Q2/(SH+Q2)**2)
+            SUMCL = 16.D0*32.D0/3.D0*PI*PI*Q2*(Q2+SH+TH)/(SH+Q2)**2
+            SUMCL = 0.
+cc         SUMC2 = 16.D0*8.D0/3.D0*PI*PI*ALPHA_S*ALPH_EM*(-uH/SH - SH/TH + 2.D0*tH*Q2/SH/
+c     +   uH - 2.D0*tH*Q2/(SH+Q2)**2)
+         else
+            SUMC2=0
+            SUMCL = 0.
+         endif
+                   If(IFLflag.eq.0) then 
+C transverse and longitudinal          
+            SumC = SumC2 - epsilon*SumCL ! hannes hack
+            Elseif(IFLflag.eq.1) then
+C transverse         
+            SumC = SumC2  
+            Elseif(IFLFLag.eq.2) then
+C longitudinal          
+            SumC = SumCL ! hannes hack
+         Endif
+c ensure DGLAP treatment
+	   If(sfscal2.gt.scale*scalfa) SUMC = 0 
+	   If(sfscal2.gt.STMAX2**2) SUMC = 0 
+         SUMC =  SUMC*XPQC2
       ELSEIF(Ires(1).ne.0.and.Ires(2).ne.0) THEN
 C glu glu -> qqbar
          Cab = 16D0*PI**2*ALPHA_S**2/2D0/NC
@@ -2759,77 +2813,6 @@ c      endif
          IRESPRO = 1
       ENDIF
 
-      If(Irespro.eq.3) then
-         write(6,*) ' meoffsh: should not eneter here with Irespro = ',irespro
-         rntest = dcasrn()     
-         if(SumC1/SumC.gt.rntest) then
-            NFLT = -NFLAV-1
-            rntest = dcasrn()
-            QSUM = -DBLE(XPQC1)*rntest
-  200       NFLT = NFLT + 1
-            IF(NFLT.EQ.0) GOTO 200
-c               write(6,*) ' test ',QSUM,XPQC1,NFLT,XPQ2(NFLT)
-            QSUM = QSUM + DBLE(XPQ2(NFLT))
-            IF(QSUM.LE.0.0D0) GOTO 200
-            IF(NFLT.GT.NFLAV) write(6,*) ' meoffsh NFL > NFLAV ',
-     +      NFLT, NFLAV
-            K(NIA1,2) = 21
-            K(NIA2,2) = NFLT
-            K(NF1,2) = 21
-            K(NF2,2) =  NFLT
-         Else
-            NFLT = -NFLAV-1
-            rntest = dcasrn()
-            QSUM = -DBLE(XPQC2)*rntest
-  201       NFLT = NFLT + 1
-            IF(NFLT.EQ.0) GOTO 201
-c               write(6,*) ' test ',QSUM,XPQC1,NFLT,XPQ2(NFLT)
-            QSUM = QSUM + DBLE(XPQ1(NFLT))
-            IF(QSUM.LE.0.0D0) GOTO 201
-            IF(NFLT.GT.NFLAV) write(6,*) ' meoffsh NFL > NFLAV ',
-     +      NFLT, NFLAV
-            K(NIA2,2) = 21
-            K(NIA1,2) = NFLT
-            K(NF2,2) = 21
-            K(NF1,2) =  NFLT
-         
-         endif
-c get color configuartion for gq --> gq
-         A1 = 0.5
-         A2 = 0.5
-         ASUM = A1 + A2
-         ICOLORA = 0
-         IF(A1/ASUM.lt.dcasrn()) THEN
-            ICOLORA=2
-         ELSE
-            ICOLORA=1
-         ENDIF
-      elseif(irespro.eq.2) then
-         A1 = 1.
-         A2 = 1.
-         A3 = 1.
-         ASUM = A1+A2+A3
-         RNTEST = dcasrn()
-         ICOLORA = 0
-         IF((A1+A2)/ASUM.lt.rntest) THEN
-            ICOLORA=3
-         ELSEIF(A1/ASUM.lt.rntest) THEN
-            ICOLORA=2
-         ELSE
-            ICOLORA=1
-         ENDIF
-         K(NIA2,2) = 21
-         K(NIA1,2) = 21
-         K(NF2,2) = 21
-         K(NF1,2) = 21
-      elseif(irespro.eq.1) then
-            K(NIA2,2) = K(KIA2,2)
-            K(NIA1,2) = K(KIA1,2)
-            K(NF2,2) = K(KF2,2)
-            K(NF1,2) = K(KF1,2)
-      else
-         Write(6,*) ' now valid irespro found: irespro = ',irespro
-      endif
 c      write(6,*) ' meoffsh NFLT ',NFLT,NFLAV
 
 C new cut for on-shell DGLAP
@@ -2865,6 +2848,9 @@ cc      PT2 = PYP(KF2,9)
       PT2 = PYP(NF2,9)
       CALL CUTG(PT2,NACC)
       IF(NACC.EQ.0) SUM2 = 0
+
+      PT2 = min(PYP(KF1,9),PYP(KF2,9)) ! hannes new
+      If(PT2.le.PARU(112)**2) SUM2 = 0 ! hannes new
 
 c cut to ensure collinear treatment
       IF(Ires(1).ne.0.and.IPRO.EQ.10.and.(IRPB.eq.1.or.IRPC.eq.1)) then
@@ -3902,13 +3888,13 @@ c           write(6,*) ' new readgrid x,q2,p,xpq',x,q2,p,glu
       if(dval.gt.0.) xpq(2) = dval
       if(ssea.gt.0.) xpq(3) = ssea
       if(ssea.gt.0.) xpq(-3) = ssea
-c      if(glu.gt.1000000) then
-c         write(6,*) ' new readgrid gluon x,q2,p,xpq',x,q2,p,glu
+      if(glu.gt.5E6) then
+         write(6,*) ' new readgrid gluon x,q2,p,xpq',x,q2,p,glu
 c         write(6,*) ' i,j,k ',i,j,k
-c      endif
-      if(ssea.gt.1000000) then
+      endif
+      if(ssea.gt.5E6) then
          write(6,*) ' new readgrid sea x,q2,p,xpq',x,q2,p,ssea
-         write(6,*) ' i,j,k ',i,j,k
+c         write(6,*) ' i,j,k ',i,j,k
       endif
       return
 
@@ -4253,13 +4239,13 @@ c       write(6,*) ' p  ',xa(3),a(na(1)+na(2)+na(3))
       Parameter (n1=51,n2=51,n3=51)
 c      Real Q2x,xx,px,xpd
 c      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD(0:n2,0:n1,0:n3)
-      Real Q2x,xx,px,xpd0,xpd1,xpd2
-      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD0(0:n2,0:n1,0:n3),XPD1(0:n2,0:n1,0:n3),XPD2(0:n2,0:n1,0:n3)
+      Real Q2x,xx,px,xpd0,xpd1,xpd2,xpd3
+      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3),XPD0(0:n2,0:n1,0:n3),XPD1(0:n2,0:n1,0:n3),XPD2(0:n2,0:n1,0:n3),XPD3(0:n2,0:n1,0:n3)
       Real amax
       Dimension amax(0:n2)
       Real kl,kt,xpqm
 c      Double Precision XA(3),f_grid(n1,n2,n3),A(N1+N2+N3)
-      Double Precision XA(3),f_grid0(n1,n2,n3),f_grid1(n1,n2,n3),f_grid2(n1,n2,n3),A(N1+N2+N3)
+      Double Precision XA(3),f_grid0(n1,n2,n3),f_grid1(n1,n2,n3),f_grid2(n1,n2,n3),f_grid3(n1,n2,n3),A(N1+N2+N3)
       INTEGER NA(3)
       DATA NA/n1,n2,n3/
       Double Precision DHFINT
@@ -4270,14 +4256,14 @@ c      Double Precision XA(3),f_grid(n1,n2,n3),A(N1+N2+N3)
       COMMON /GLUDAT/QG0,ikincut,Ipgg,ns_sel
       Integer IGLU
       Common/CAGLUON/Iglu
-	Double Precision Qscal
+	Double Precision Qscal 
 	Integer Iqqbar
-	Common/GLUDAT2/Qscal,Iqqbar
+	Common/GLUDAT2/Qscal,Iqqbar 
       Integer i,j,k,in,irr,igrid,ip,n2test
       Integer ipoint,kf,it
 	Integer Iset,Iccfmset
 c      Real scal,rx,rq2,rp,rkms,glu,xpqmax,xm
-      Double Precision scal,rx,rq2,rp,glu,uval,dval,xpqmax,xm
+      Double Precision scal,rx,rq2,rp,glu,uval,dval,ssea,xpqmax,xm
       Double Precision RKMS4B,RKMS3B,RKMS2B,RKMS1B,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4
       Real xl,pl
 	Integer n1min,n1max,n2min,n2max,n3min,n3max,ncall
@@ -4504,7 +4490,12 @@ c     Ipgg = 3 ! Pgg=(as(q)*B(1-z)/z +as(q)*B*z/(1-z)), as(q) eveywhere + full s
                do k=1,n3
 cc                  write(6,*) j,i,k,RX,RQ2,RP,RKMS
 cc                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS
-                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4
+cc                  write(6,*) ' in ccfmstfu ',iccfmset
+                  if(iccfmset.lt.111) then
+                     READ(30,*,Err=90 ) RX,RQ2,RP,RKMS0
+                  else
+                    READ(30,*,Err=90 ) RX,RQ2,RP,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4
+                  endif
                   xx(i) = rx
                   q2x(j) = rq2
                   px(k) = rp
@@ -4512,6 +4503,7 @@ c                  xpd(i,j,k) = max(0.,rkms)*scal
                   xpd0(i,j,k) = max(0.,rkms0)*scal
                   xpd1(i,j,k) = max(0.,rkms1)*scal
                   xpd2(i,j,k) = max(0.,rkms2)*scal
+                  xpd3(i,j,k) = max(0.,rkms3)*scal
                enddo
             enddo
          enddo
@@ -4542,6 +4534,7 @@ c                  f_grid(j,i,k) = xpd(i,j,k)
                   f_grid0(j,i,k) = xpd0(i,j,k)
                   f_grid1(j,i,k) = xpd1(i,j,k)
                   f_grid2(j,i,k) = xpd2(i,j,k)
+                  f_grid3(j,i,k) = xpd3(i,j,k)
                ENDDO
             ENDDO
          ENDDO
@@ -4673,6 +4666,7 @@ c         glu = DHFINT(3,XA,NA,A,f_grid)/q2
          glu = DHFINT(3,XA,NA,A,f_grid0)/q2
          uval = DHFINT(3,XA,NA,A,f_grid1)/q2
          dval = DHFINT(3,XA,NA,A,f_grid2)/q2
+         ssea = DHFINT(3,XA,NA,A,f_grid3)/q2
       endif
       DO  IP=-6,6
          XPQ(IP)=0.0
@@ -4680,6 +4674,8 @@ c         glu = DHFINT(3,XA,NA,A,f_grid)/q2
       if(glu.gt.0.) xpq(0) = glu
       if(uval.gt.0.) xpq(1) = uval
       if(dval.gt.0.) xpq(2) = dval
+      if(ssea.gt.0.) xpq(3) = ssea
+      if(ssea.gt.0.) xpq(-3) = ssea
       if(glu.gt.5000000) then
          
 ccc         write(6,*) ' new ccfmstfu x,q2,p,xpq',x,q2,p,glu
@@ -4972,6 +4968,7 @@ c      write(6,*) ' sigcalc x,y, q2, sqrts ',xn,yma,q2n,sqrt(sss)
          IPRO = 10
          NFLAV = 3
       endif
+c      write(6,*) ' sigcalc ipro , ihfla ', ipro,nflav,ihfla,icasHF
       CALL CASCADE
 c
 c Print out result of integration of x-section
@@ -5419,6 +5416,9 @@ C
       COMMON /INTEGR/ ACC1,ACC2,IINT,NCB
       Integer IGLU
 	Common/CAGLUON/Iglu
+	Double Precision Qscal
+	Integer Iqqbar
+	Common/GLUDAT2/Qscal,Iqqbar
 
 C---Determine the machine accuacy EPSMAC (D= 2.E-06)
       EPSMAC = 0.5
@@ -5803,6 +5803,15 @@ c                  PRINT 10400, PARAM,LND,RDEF,REA
                RDEF = SNGL(SCALFA)
                IF (ABS(RDEF-REA).GT.EPSMAC) THEN
                   SCALFA = DBLE(REA)
+c                  PRINT 10300, PARAM,LND,RDEF,REA
+               ELSE
+c                  PRINT 10400, PARAM,LND,RDEF,REA
+               ENDIF
+            ENDIF
+            IF (PARAM.EQ.'SCAF') THEN
+               RDEF = SNGL(SCALFAF)
+               IF (ABS(RDEF-REA).GT.EPSMAC) THEN
+                  SCALFAF = DBLE(REA)
 c                  PRINT 10300, PARAM,LND,RDEF,REA
                ELSE
 c                  PRINT 10400, PARAM,LND,RDEF,REA
@@ -6228,9 +6237,9 @@ c      WRITE(6,*) ' BLOCK DATA for CASCADE  initialised'
       DOUBLE PRECISION SIN2W,XMW2
       COMMON/ELWEAK/SIN2W,XMW2
 	DOUBLE PRECISION XMW
-	Double Precision Qscal
+	Double Precision Qscal 
 	Integer Iqqbar
-	Common/GLUDAT2/Qscal,Iqqbar
+	Common/GLUDAT2/Qscal,Iqqbar 
 
       CALL BCASIN
 c select unintegrated gluon : 	
@@ -6264,6 +6273,8 @@ c select integration procedure
 C FINAL STATE PARTON SHOWER
       IFPS = 1
       ILEPTO = 1
+c     scale factor for final state PS
+      SCALFAF = 1.      
 C LEPIN KE = 11
       KE = 11
 	Ires(1) = 0
@@ -8619,7 +8630,7 @@ c         stmax2 = sqrt(q2)
 c	   write(6,*) ' meqg: stmax,xpq1,xpq2 ',
 c     &	   STMAX,XPQ1(0),XPQ2(0)
          xpqc2 = 0
-         NFL=3
+         NFL=2
          do i=-NFL,NFL
          XPQC2= xpqc2 + XPQ2(I)*DFLOAT(PYCHGE(I))**2/9.D0
 c         write(6,*) 'meqg: xpqc2 ',i,xpq2(i)
