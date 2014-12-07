@@ -102,7 +102,7 @@
   CorrFileNames(1) = 'datafiles/lhc/cms/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
   CorrFileNames(2) = 'datafiles/lhc/cms/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
   CorrFileNames(3) = 'datafiles/lhc/cms/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
-  CorrFileNames(4) = 'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004___CMS_IncJets2011_QCD_11_004.corr'
+  CorrFileNames(4) = 'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
   CorrFileNames(5) = 'datafiles/tevatron/wzinclusive/D0_W_asymmetry.corr'
 &End
 
