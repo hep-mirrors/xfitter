@@ -2,21 +2,23 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 4
+    NInputFiles = 5
  
   ! Input files:
     InputFileNames(1) = 'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.dat'
     InputFileNames(2) = 'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.dat'
     InputFileNames(3) = 'datafiles/hera/H1ZEUS_CC_e-p_HERA1.0.dat'
     InputFileNames(4) = 'datafiles/hera/H1ZEUS_CC_e+p_HERA1.0.dat'
+    InputFileNames(5) = 'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004.dat'
 &End
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 0
+    NCorrFiles = 1
  
   ! Correlation files:
   !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+  CorrFileNames(1) = 'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
 &End
 
 &CovarToNuisance
