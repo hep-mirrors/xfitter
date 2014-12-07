@@ -1778,7 +1778,7 @@ C Define the scaling property based on the first point:
             name_t = ':P'
 
             ! Check bits
-            if (iAnd(imaskSta,ibLinear).eq.imaskSta) then
+            if (iAnd(imaskSta,ibPoisson).eq.imaskSta) then
                name_t = ':P'
             elseif (iAnd(imaskSta,ibConst).eq.imaskSta) then
                name_t = ':A'
