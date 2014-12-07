@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 43
+    NInputFiles = 44
 
    InputFileNames =
  !
@@ -63,6 +63,7 @@
           'datafiles/lhc/cms/CMS_Z_boson_Rapidity.dat',
           'datafiles/lhc/cms/CMS_eAsymmetry_SPM_12_001.dat',
           'datafiles/lhc/cms/CMS_mAsymmetry_SMP_12_021.dat',
+          'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004.dat',
 
  !
  ! LHC ttbar 7 TeV data CMS and ATLAS
@@ -94,14 +95,15 @@
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 4
+    NCorrFiles = 5
  
   ! Correlation files:
   !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
   CorrFileNames(1) = 'datafiles/lhc/cms/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
   CorrFileNames(2) = 'datafiles/lhc/cms/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
   CorrFileNames(3) = 'datafiles/lhc/cms/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
-  CorrFileNames(4) = 'datafiles/tevatron/wzinclusive/D0_W_asymmetry.corr'
+  CorrFileNames(4) = 'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004___CMS_IncJets2011_QCD_11_004.corr'
+  CorrFileNames(5) = 'datafiles/tevatron/wzinclusive/D0_W_asymmetry.corr'
 &End
 
 &CovarToNuisance
