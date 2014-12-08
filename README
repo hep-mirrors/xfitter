@@ -634,20 +634,16 @@ j) Options for the chi2 choice:
   *         hanes.jung@desy.de                    *
   *************************************************
                  
- 0. set environment variables (with SYSNAME=i586_rhel50 or similar)
-    export CERN_ROOT=/cern/pro 
-    export QCDNUM_ROOT=/h1wgs/h1desy11/x04/usr/glazov/openfitter/qcdnum-17-00-03
-    export CASCADE_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/cascade/2.2.04/$SYSNAME
-    export PYTHIA_ROOT=/afs/desy.de/group/alliance/mcg/public/MCGenerators/pythia6/425/$SYSNAME
-
+ 0. set environment variables (please see INSTALLATION file) and run
+     
     ./configure --enable-updf --enable-lhapdf --enable-checkBounds
 
  1. use steering and minuit input files from "input_steering":
 
-    cp input-steering/steering.txt.kt-factorisation steering.txt
-    cp input-steering/minuit.in.txt.kt-factorisation minuit.in.txt
-    cp input-steering/steer-ep-CASCADE steer-ep
-    cp input-steering/steer_gluon-evolv steer_gluon-evolv
+    cp input_steering/steering.txt.kt-factorisation steering.txt
+    cp input_steering/minuit.in.txt.kt-factorisation minuit.in.txt
+    cp input_steering/steer-ep-CASCADE steer-ep
+    cp input_steering/steer_gluon-evolv steer_gluon-evolv
    
  2. edit steering.txt:
     &CCFMFiles: give name for output grid file for uPDF.&HeraFitter 
@@ -660,7 +656,7 @@ j) Options for the chi2 choice:
     bin/FitPDF 
    
  4. plotting F2 fit results:
-    DrawResults ! will draw F2 results
+    bin/DrawPdfs output ! will draw F2 results
 
 
 4) USING NNPDF REWEIGHTING PROGRAM
