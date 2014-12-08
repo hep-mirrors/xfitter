@@ -1,10 +1,11 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/DrawResultsPackage \
-	  tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src \
+SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
+          common/num_utils tools/DrawResultsPackage \
+          tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include DiffDIS/include \
           DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
-          NNPDF/include common common/linalg common/num_utils 
+          NNPDF/include   
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
