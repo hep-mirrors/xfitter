@@ -309,7 +309,7 @@ c here include a factor of pi coming from d^2 k --> dkt^2
 C---Number of events
 c      Nev=100000000 ! very long
       Nev=10000000 ! std
-c      Nev=5000000 ! old 
+      Nev=5000000 ! old 
 c      Nev=2000000
 c      Nev=20000  
       Print *
@@ -692,6 +692,7 @@ C--Choose starting conditions for branching
       Integer Itheory
       Common/theory/Itheory
 	Real A1,A2,A3,A4,A5,A6
+ 
 	double precision au 
       common/f2fit/au(50),first
       Double precision ininorm(-6:6)

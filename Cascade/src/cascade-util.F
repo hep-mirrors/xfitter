@@ -9037,7 +9037,7 @@ c      Real f2_int
       
       Integer jfound
       
-      Iread = 0
+      Iread = 1
       
       
       x = xn

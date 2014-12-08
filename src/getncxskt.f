@@ -144,8 +144,14 @@ c somthing needs to be done here for FL
             elseif(Itheory.eq.102.or.Itheory.eq.105) then 
             if(Xsecglu(idx).eq.0) then
 c something needs to be done here for FL
-              call sigcalc(xx,q2x,phi,phie)
-              Xsecglu(idx) = phi
+              IcasHF=0
+              call sigcalc(xx,q2x,phil,phie)
+              IcasHF=4
+              call sigcalc(xx,q2x,phic,phie)
+              IcasHF=5
+              call sigcalc(xx,q2x,phib,phie)
+              
+              Xsecglu(idx) = phil+phic+phib
             endif
             
             else
