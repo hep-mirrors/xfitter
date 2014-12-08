@@ -19,6 +19,8 @@
 #include <TLine.h>
 #include <math.h>
 
+#include "FileOpener.h"
+
 struct shtype
 {
   double val;
@@ -47,43 +49,50 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
     {
       if (outdirs[*itl].IsMCreplica())
-	continue;
+        continue;
 
       //      if (itl->find("profiled")) {
-      //	continue;
+      //        continue;
       //      }
 
-      string fname = outdirs[*itl].GetName() + "/Results.txt";
-      ifstream f(fname.c_str());
-      if (!f.good())
-	{
-	  cout << "File " << fname << " is empty (or io error) (in ShiftPainter)" << endl;
-	  continue;
-	}
+      // string fname = outdirs[*itl].GetName() + "/Results.txt";
+      // ifstream f(fname.c_str());
+      // if (!f.good())
+        // {
+          // cout << "File " << fname << " is empty (or io error) (in ShiftPainter)" << endl;
+          // continue;
+        // }
+        
+      string dirname = outdirs[*itl].GetName();
+      InFileOpener_t fo;
+      fo.Add(dirname + "/Results.txt");
+      fo.Add(dirname + "/Results_0.txt");
+      if(fo.Open()) continue;
+      ifstream &f = fo.GetStream();
 
       string line;
       string buffer = "";
       while (buffer != "Name")
-	{
-	  getline(f, line);
-	  istringstream iss(line);
-	  iss >> buffer; 
-	}
+        {
+          getline(f, line);
+          istringstream iss(line);
+          iss >> buffer; 
+        }
 
       //make shifts list
       string systlabel, dummy;
       float systindex, value, error;
       while (getline(f, line))
-	{
-	  istringstream iss(line);
-	  iss >> systindex >> systlabel  >> value  >> dummy  >> error; 
-	  
-	  shtype sh;
-	  sh.val = value;
-	  sh.err = error;
-	  sh.dataid = itl - opts.labels.begin();
-	  shlist[systlabel].push_back(sh);
-	}
+        {
+          istringstream iss(line);
+          iss >> systindex >> systlabel  >> value  >> dummy  >> error; 
+          
+          shtype sh;
+          sh.val = value;
+          sh.err = error;
+          sh.dataid = itl - opts.labels.begin();
+          shlist[systlabel].push_back(sh);
+        }
       f.close();
     }
 
@@ -129,31 +138,31 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       float xerr[dirs.size()][nshifts];
       float y[dirs.size()][nshifts];
       for (int d = 0; d < dirs.size(); d++)
-	for (int s = 0; s < nshifts; s++)
-	  {
-	    y[d][s] = -100;
-	    x[d][s] =  0;
-	    xerr[d][s] = 0;
-	  }
+        for (int s = 0; s < nshifts; s++)
+          {
+            y[d][s] = -100;
+            x[d][s] =  0;
+            xerr[d][s] = 0;
+          }
       //loop on shifts
       map<string, vector<shtype> >::iterator sit = shlist.begin();
       map<string, vector<shtype> >::iterator sitlast = shlist.begin();
       advance(sitlast, nshifts);
       int i = 0;
       for (shlisttype::iterator sit = shlist.begin(); sit != sitlast; sit++, i++)
-	{
-	  //loop on directories
-	  for (vector<shtype>::iterator dit = (*sit).second.begin(); dit != (*sit).second.end(); dit++)
-	    {
-	      x[(*dit).dataid][i] = (*dit).val;
-	      xerr[(*dit).dataid][i] = (*dit).err;
-	      y[(*dit).dataid][i] = i + s*opts.spp + 1;
-	      //displace
-	      y[(*dit).dataid][i] += -0.5 + ((float)(*dit).dataid + 1) / (float)(dirs.size() + 1);
-	    }
-	}
+        {
+          //loop on directories
+          for (vector<shtype>::iterator dit = (*sit).second.begin(); dit != (*sit).second.end(); dit++)
+            {
+              x[(*dit).dataid][i] = (*dit).val;
+              xerr[(*dit).dataid][i] = (*dit).err;
+              y[(*dit).dataid][i] = i + s*opts.spp + 1;
+              //displace
+              y[(*dit).dataid][i] += -0.5 + ((float)(*dit).dataid + 1) / (float)(dirs.size() + 1);
+            }
+        }
 
-      //make legend	     
+      //make legend             
       TLegend * leg2 = new TLegend(0.6, 1-tmarg-0.087-dirs.size()*0.025, 1-0.02, 1-tmarg-0.087);
       leg2->SetFillColor(0);
       leg2->SetBorderSize(0);
@@ -161,41 +170,41 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       leg2->SetTextFont(62);
       leg2->SetTextSize(txtsize);
 
-      //make TGraphs	     
+      //make TGraphs             
       int nd = 0;
       for (vector<string>::iterator dit = dirs.begin(); dit != dirs.end(); dit++)
-	{
-	  TGraphErrors * gshift = new TGraphErrors(nshifts, x[nd], y[nd], xerr[nd]);
-	  if (dirs.size() == 1)
-	    {
-	      gshift->SetMarkerSize(4.*opts.resolution/1200.);
-	      gshift->SetMarkerStyle(8);
-	    }
-	  else
-	    {
-	      gshift->SetMarkerSize(3.*opts.resolution/1200.);
-	      gshift->SetMarkerStyle(opts.markers[opts.labels[nd]]);
-	      gshift->SetLineColor(opts.colors[opts.labels[nd]]);
-	      gshift->SetMarkerColor(opts.colors[opts.labels[nd]]);
-	    }
-	  gshift->SetTitle("");
-	  gshift->GetYaxis()->SetNdivisions(max(minshifts,nshifts)+1);
-	  gshift->SetMinimum(s*opts.spp+0.1);
-	  gshift->SetMaximum(s*opts.spp+max(minshifts,nshifts)+0.9);
-	  gshift->GetXaxis()->SetLabelFont(62);
-	  gshift->GetXaxis()->SetLabelSize(txtsize);
-	  gshift->GetYaxis()->SetLabelFont(62);
-	  gshift->GetYaxis()->SetLabelSize(txtsize);
-	  gshift->GetXaxis()->SetNdivisions(505);
-	  gshift->GetXaxis()->Set(100, -3, 7);
-	  gshift->GetXaxis()->SetTickLength(0.01);
-	  if (nd == 0)
-	    gshift->Draw("AP");
-	  else
-	    gshift->Draw("P same");
-	  leg2->AddEntry(gshift, (opts.labels[nd]).c_str(), "p");
-	  nd++;
-	}
+        {
+          TGraphErrors * gshift = new TGraphErrors(nshifts, x[nd], y[nd], xerr[nd]);
+          if (dirs.size() == 1)
+            {
+              gshift->SetMarkerSize(4.*opts.resolution/1200.);
+              gshift->SetMarkerStyle(8);
+            }
+          else
+            {
+              gshift->SetMarkerSize(3.*opts.resolution/1200.);
+              gshift->SetMarkerStyle(opts.markers[opts.labels[nd]]);
+              gshift->SetLineColor(opts.colors[opts.labels[nd]]);
+              gshift->SetMarkerColor(opts.colors[opts.labels[nd]]);
+            }
+          gshift->SetTitle("");
+          gshift->GetYaxis()->SetNdivisions(max(minshifts,nshifts)+1);
+          gshift->SetMinimum(s*opts.spp+0.1);
+          gshift->SetMaximum(s*opts.spp+max(minshifts,nshifts)+0.9);
+          gshift->GetXaxis()->SetLabelFont(62);
+          gshift->GetXaxis()->SetLabelSize(txtsize);
+          gshift->GetYaxis()->SetLabelFont(62);
+          gshift->GetYaxis()->SetLabelSize(txtsize);
+          gshift->GetXaxis()->SetNdivisions(505);
+          gshift->GetXaxis()->Set(100, -3, 7);
+          gshift->GetXaxis()->SetTickLength(0.01);
+          if (nd == 0)
+            gshift->Draw("AP");
+          else
+            gshift->Draw("P same");
+          leg2->AddEntry(gshift, (opts.labels[nd]).c_str(), "p");
+          nd++;
+        }
  
       TLine *one = new TLine(1, s*opts.spp+0.1, 1, s*opts.spp+nshifts+0.9);
       one->SetLineStyle(2);
@@ -204,15 +213,15 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       one->Draw();
       minusone->Draw();
 
-	   //horizontal grid
-	  if (dirs.size() > 1)
-	    for (int h = 0; h <= nshifts; h++)
-	      {
-		TLine *hgrid = new TLine(-3, s*opts.spp+h+0.5, 7, s*opts.spp+h+0.5);
-		hgrid->SetLineStyle(3);
-		hgrid->SetLineWidth(0.5);
-		hgrid->Draw();
-	    }
+           //horizontal grid
+          if (dirs.size() > 1)
+            for (int h = 0; h <= nshifts; h++)
+              {
+                TLine *hgrid = new TLine(-3, s*opts.spp+h+0.5, 7, s*opts.spp+h+0.5);
+                hgrid->SetLineStyle(3);
+                hgrid->SetLineWidth(0.5);
+                hgrid->Draw();
+            }
 
       leg2->Draw();
 
@@ -230,14 +239,14 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       leg->SetTextSize(txtsize);
       i = nshifts + s*opts.spp;
       for (shlisttype::iterator slab = sitlast; slab != shlist.begin();)
-	{
-	  slab--;
-	  char num[10];
-	  sprintf (num, "%d", i);
-	  string label = (string) num + "  " + slab->first.c_str();
-	  leg->AddText(label.c_str());
-	  i--;
-	}
+        {
+          slab--;
+          char num[10];
+          sprintf (num, "%d", i);
+          string label = (string) num + "  " + slab->first.c_str();
+          leg->AddText(label.c_str());
+          i--;
+        }
       leg->Draw();
 
       //delete plotted shifts

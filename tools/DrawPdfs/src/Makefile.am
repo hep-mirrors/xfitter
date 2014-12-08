@@ -8,9 +8,9 @@ bin_PROGRAMS = DrawPdfs
 # source files for the DrawPdfs executable
 DrawPdfs_SOURCES = DrawPdfs.cc PdfsPainter.cc CommandParser.cc DataPainter.cc DrawLogo.cc ShiftPainter.cc FitPainter.cc ParPainter.cc Chi2scanPainter.cc Outdir.cc PdfData.cc Dataset.cc Chi2.cc Par.cc Chi2scanData.cc pdferrors.cc
 
-DrawPdfs_CPPFLAGS = -I$(srcdir)/../include $(ROOT_CFLAGS) -w
+DrawPdfs_CPPFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../../common $(ROOT_CFLAGS) -w
 
 # libraries to be linked to the main target
-DrawPdfs_LDADD = $(ROOT_LIBS)
+DrawPdfs_LDADD = $(ROOT_LIBS)  ../../../common/libHFcommon.a 
 
 endif

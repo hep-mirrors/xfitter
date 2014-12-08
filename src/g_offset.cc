@@ -54,8 +54,16 @@ static int CollectOffsetFits(const string& outdir) {
   ofstream covdat((fpath+"offset.save.txt").c_str());
   covdat << "Parameters  " << nVarPar << endl;
   covdat << scientific;
-  for(int j=0; j < nVarPar; j++)
-    covdat << setw(3) << (j+1) << "  "  << mfp.UID(mfp.VarIndex(j)) << "  "  << gOffs.Param(j) << "  " << sqrt(CovTot[j][j]) << endl;
+  for(int j=0; j < nVarPar; j++) {
+    int par_index = mfp.VarIndex(j);
+    double tot_err = sqrt(CovTot[j][j]);
+    mfp.SetErr(par_index, tot_err); // --- sloppy
+    covdat << setw(3) << (j+1)
+           << "  "  << mfp.UID(par_index)
+           << "  "  << gOffs.Param(j)
+           << "  " << tot_err
+           << endl;
+  }
   covdat << endl;
   Cstat.ShowL(covdat, "Stat. Covariance");
   Csyst.ShowL(covdat, "Syst. Covariance");
@@ -65,6 +73,8 @@ static int CollectOffsetFits(const string& outdir) {
   // covdat.width(6);
   CovTot.ShowL(covdat, "Correlation", true);
   covdat.close();
+  
+  mfp.Write((fpath+"MI_saved_final.txt").c_str(), "p");
   
   // CovTot.deCorrelate(5);
   // cout.unsetf(ios::floatfield);

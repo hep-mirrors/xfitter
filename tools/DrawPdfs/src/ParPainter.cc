@@ -131,7 +131,10 @@ bool ParPainter()
 
   for (vector<int>::iterator pit = parindexlist.begin(); pit != parindexlist.end(); pit++)
     {
-      fprintf(ftab,"  %s ", findparname(*pit).c_str());
+      TString name(findparname(*pit));
+      name.ReplaceAll("_","\\_");
+      // fprintf(ftab,"  %s ", findparname(*pit).c_str());
+      fprintf(ftab,"  %s ", name.Data());
       for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
 	{
 	  int l = itl-opts.labels.begin();

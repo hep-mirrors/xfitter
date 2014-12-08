@@ -129,6 +129,7 @@ C--------------------------------------------------------------
       double precision BSYS(NSYSMax), RSYS(NSYSMax)
       double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
       double precision pchi2(nset),chi2_log
+      double precision pchi2offs(nset)
 
 *     ---------------------------------------------------------
 *     declaration related to code flow/debug
@@ -401,7 +402,7 @@ c             call fillvfngrid
         Chi2OffsRecalc = .true.
         Chi2OffsFinal = .true.
         call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,
-     $       pchi2,fcorchi2) 
+     $       pchi2offs,fcorchi2) 
       else
         Chi2OffsRecalc = .false.
       endif
@@ -483,21 +484,26 @@ c             call fillvfngrid
 
       endif ! end  lprint
 
-
+! ----------------  RESULTS OUTPUT ---------------------------------
       if (iflag.eq.1) then
          write(85,*) 'First iteration ',chi2out,ndf,chi2out/ndf
       endif
 
       if (iflag.eq.3) then
+!          write(85,*),'NFCN3 ',nfcn3
          write(85,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
-         if (doOffset .and. iflag.eq.3)
+!          if (doOffset .and. iflag.eq.3)
+         if (doOffset)
      $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(85,*)
+         
          write(6,*)
          write(6,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
-         if (doOffset .and. iflag.eq.3)
+!          if (doOffset .and. iflag.eq.3)
+         if (doOffset)
      $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(6,*)
+! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
          ! Store minuit parameters
          call write_pars(nfcn3)
@@ -526,8 +532,19 @@ c     $           ,chi2_cont/NControlPoints
 
 
       if (iflag.eq.3) then
-         if(itheory.eq.0) then      
-         endif
+!          if(itheory.eq.0) then      
+!          endif
+         
+      if (doOffset) then
+        fcorchi2 = 0d0
+        do h1iset=1,nset
+          pchi2(h1iset) = pchi2offs(h1iset)
+          fcorchi2 = fcorchi2 + pchi2offs(h1iset)
+        enddo
+!         fcorchi2 = chi2out+OffsDchi2
+      endif
+      
+! ----------------  RESULTS OUTPUT ---------------------------------
          write(85,*) ' Partial chi2s '
          chi2_log = 0
          do h1iset=1,nset
@@ -558,9 +575,10 @@ c     $           ,chi2_cont/NControlPoints
             endif
          enddo
          write(85,*)
+         write(85,*) 'Correlated Chi2 ', fcorchi2
+! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
          write(6,*) 'Correlated Chi2 ', fcorchi2
-         write(85,*) 'Correlated Chi2 ', fcorchi2
 
          if (Chi2PoissonCorr) then
             write(6,*) 'Log penalty Chi2 ', chi2_log

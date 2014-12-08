@@ -1,6 +1,6 @@
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   \author Wojtek Slominski, Jagiellonian Univ., Physics Dept.
-  \date 2011--2012
+  \date 2011--2014
   \copyright Creative Commons license CC-BY-NC 3.0
 _____________________________________________________________*/
 
@@ -11,7 +11,7 @@ _____________________________________________________________*/
 #include <cmath>
 #include "TextReader.h"
 
-// oooooooooooooooooooooooooooooooooooooooo
+// -o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
 class FitParam_t {
   // --- FORTRAN Minuit parameter is identified by id
   int M_id;
@@ -53,6 +53,7 @@ public:
   
   // ========================================
   FitParam_t(const string& name, double val, double step = 0.0) {
+    M_id = 0;
     M_name = name;
     M_value = val;
     M_err = step;
@@ -62,6 +63,7 @@ public:
   
   // ========================================
   FitParam_t(const string& name, double val, double step, double Lo, double Hi) {
+    M_id = 0;
     M_name = name;
     M_value = val;
     M_err = step;
@@ -257,15 +259,16 @@ public:
   }
   
   // ================================================
+  string Name(int ig) {return M_pars[ig].M_name; }
   int UID(int ig) {return M_pars[ig].M_id; }
   double Value(int ig) {return M_pars[ig].M_value; }
   double Error(int ig) {return M_pars[ig].M_err; }
-  
-  // ================================================
-  void SetSysErr(int ig, double se) { M_pars[ig].M_syserr = se; }
-  
-  // ================================================
   double SysError(int ig) {return M_pars[ig].M_syserr; }
+  
+  // ================================================
+  void SetVal(int ig, double v) { M_pars[ig].M_value = v; }
+  void SetErr(int ig, double e) { M_pars[ig].M_err = e; }
+  void SetSysErr(int ig, double se) { M_pars[ig].M_syserr = se; }
   
   // ================================================
   double GetError(int ig) { return hypot(M_pars[ig].M_err, M_pars[ig].M_syserr); }
