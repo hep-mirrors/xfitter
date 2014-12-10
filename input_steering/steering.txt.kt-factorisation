@@ -16,9 +16,9 @@
 &End
 
 &InCorr
-  ! Number of statistical correlation files
+  ! Number of correlation (statistical, systematical or full) files
     NCorrFiles = 0
-  ! Statistical correlation files:
+  ! Correlation files:
   !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 *
@@ -43,15 +43,28 @@
                        !    uPDF4 fit calculating kernel on fly, grid of sigma_hat
 
 
- ! New "chi2" style, uncomment if you want to use it: 
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
 
- !  CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
- !  Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
-
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
  !  Chi2ExtraParam = 'PoissonCorr'
-
-
-  CHI2Style = 'HERAPDF'
 
  ! Debug flag
   LDEBUG     = False

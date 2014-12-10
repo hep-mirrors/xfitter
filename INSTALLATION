@@ -140,6 +140,8 @@ steering.txt (use appropriate cards stored in input_steering/!)
     for example (with SYSNAME=x86_64-slc6-gcc46-opt or similar):
     export PYTHIA_ROOT=/afs/cern.ch/sw/lcg/external/MCGenerators/pythia6/428.2/$SYSNAME
     export CASCADE_ROOT=/afs/cern.ch/sw/lcg/external/MCGenerators/cascade/2.2.04/$SYSNAME
+    export LD_LIBRARY_PATH=$PYTHIA_ROOT/lib/:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$CASCADE_ROOT/lib/:$LD_LIBRARY_PATH
 
   b) Run:
 
