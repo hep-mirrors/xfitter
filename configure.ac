@@ -13,6 +13,7 @@ AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_RANLIB
 
+AM_PROG_CC_C_O
 # Fortran configures
 AC_FC_LIBRARY_LDFLAGS
 AC_FC_WRAPPERS
@@ -31,6 +32,7 @@ AX_LAPACK
 FCFLAGS="$FCFLAGS -ffixed-line-length-132"
 FFLAGS="$FFLAGS -ffixed-line-length-132"
 
+PKG_CHECK_MODULES([YAML], [yaml-0.1], AM_CONDITIONAL([HAVE_YAML],[true]), AM_CONDITIONAL([HAVE_YAML],[false]))
 # openmp suport
 m4_include([m4/ax_openmp.m4])
 
@@ -332,6 +334,8 @@ AC_CONFIG_FILES([include/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
+                 pdf2yaml/Makefile
+                 tools/PostProcess/Makefile
                  tools/DrawResultsPackage/Makefile
                  tools/DrawResultsPackage/src/Makefile
                  tools/DrawResultsPackage/include/Makefile
