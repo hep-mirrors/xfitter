@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <libgen.h>
 #include <yaml.h>
 #include "c2yaml.h"
 #include "list.h"
@@ -176,7 +177,7 @@ void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours) {
 int load_lhapdf6_member(Pdf *pdf, char *path) {
         double d_tmp;
         int i_tmp, i, j, k;
-        size_t s_len=0, b_len=0;
+        size_t s_len=100, b_len=0;
         char *line=NULL;
         FILE *s_stream=NULL;
         FILE *b_stream=NULL;
@@ -240,8 +241,10 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
                 for(j=0; j<pdf->nq; j++) {
                         pdf->val[i][j]=malloc(sizeof(double)*pdf->n_pdf_flavours);
                         for(k=0; k < pdf->n_pdf_flavours; k++) 
-                                if(!fscanf(fp,"%lg", &pdf->val[i][j][k])) fprintf(stderr, 
-                                                "Error in pdf member format\n");
+                                if(!fscanf(fp,"%lg", &pdf->val[i][j][k])) { 
+                                        fprintf(stderr, "Error in pdf member format\n");
+                                        return 1;
+                                }
                 }
         }
         fclose(fp);
@@ -281,4 +284,95 @@ void pdf_free(Pdf *pdf) {
                 free(pdf->val[i]);
         }
         free(pdf->val);
+}
+
+int load_lhapdf6_set(PdfSet *pdf_set, char *path) {
+        int i;
+        char *path_tmp=strdup(path); 
+        char *pdf_name=basename(path_tmp); 
+
+        size_t len=100;
+        char *info_path=NULL; 
+        FILE *ss=open_memstream(&info_path, &len);
+        fprintf(ss, "%s/%s.info", path, pdf_name);
+        fflush(ss);
+        FILE *info_fp=fopen(info_path, "r");
+        if(!info_fp) { 
+                fprintf(stderr, "cannot open file %s\n", info_path);
+                return 1;
+        }
+        fclose(ss);
+        free(info_path);
+
+        pdf_set->info=info_load(info_fp);
+        fclose(info_fp);
+
+        Info_Node *node=info_node_where(pdf_set->info, "NumMembers");
+        pdf_set->n_members = atoi(node->value.string);
+
+        pdf_set->members=malloc(sizeof(Pdf)*(pdf_set->n_members)); 
+        char *member_path;          //FREE
+        for(i=0; i<pdf_set->n_members; i++) { 
+                member_path=NULL; 
+                ss=open_memstream(&member_path, &len);
+                fprintf(ss,"%s/%s_%04d.dat",path,pdf_name,i);
+                fflush(ss);
+                printf("load: %s\n", member_path);
+                if(load_lhapdf6_member(&pdf_set->members[i], member_path)) return 1; //FREE
+                fclose(ss);
+                free(member_path);
+        }
+
+        free(path_tmp);
+        return 0;
+}
+
+int save_lhapdf6_set(PdfSet *pdf_set, char *path) {
+        int i;
+        char *path_tmp=strdup(path); 
+        char *pdf_name=basename(path_tmp); 
+        char *member_path;
+        FILE *ss;
+        size_t len=100;
+
+        mkdir(path, 0755);
+
+        char *info_path=NULL; 
+        ss=open_memstream(&info_path, &len);
+        fprintf(ss,"%s/%s.info", path, pdf_name);
+        fflush(ss);
+        FILE *info_fp=fopen(info_path,"w");
+        if(!info_fp) { 
+                fprintf(stderr, "Error: can't open file %s\n", info_path);
+                return 1;
+        }
+        info_save(pdf_set->info, info_fp);
+        fclose(ss);
+        fclose(info_fp);
+        free(info_path);
+
+        for(i=0; i< pdf_set->n_members; i++) { 
+                member_path=NULL; len=100;
+                ss=open_memstream(&member_path, &len);
+                fprintf(ss, "%s/%s_%04d.dat", path, pdf_name, i);
+                fflush(ss);
+                printf("save: %s\n", member_path);
+                save_lhapdf6_member(&pdf_set->members[i], member_path); 
+                fclose(ss);
+                free(member_path);
+        }
+                free(path_tmp);
+}
+
+void pdf_set_free(PdfSet *pdf_set) {
+        int i;
+        for(i=0; i<pdf_set->n_members; i++) pdf_free(&pdf_set->members[i]);
+        info_free(pdf_set->info);
+        free(pdf_set->members);
+}
+
+// utility function
+char *n2str(char *s, double n ){ 
+        sprintf(s,"%g",n);
+        return s;
 }

@@ -10,7 +10,7 @@ static void help() {
         exit(0);
 }
 int rotate(int argc,char* argv[]) {
-        if(!strcmp(argv[0],"--help") || argc!=3) help();
+        if(argc!=3) help();
         int i, j, ix, iq, ifl, i_tmp; // counters and dummy vars
         char *mfile=argv[0];
         char *in_path=argv[1];
@@ -33,9 +33,19 @@ int rotate(int argc,char* argv[]) {
         
         Info *info=info_load(info_fp);
         fclose(info_fp);
+
+
         Info_Node *node=info_node_where(info, "NumMembers");
         int n_members=atoi(node->value.string);
         printf("NumMembers: %d\n", n_members);
+        node=info_node_where(info, "ErrorType");
+        char *error_type=strdup(node->value.string);
+
+        printf("ErrorType: %s\n", error_type);
+        if(!strcmp(error_type,"replicas")) { 
+                fprintf(stderr, "Wrong ErrorType, need symmhessian or hessian\n");
+                exit(1);
+        }
 
         Pdf *members=malloc(sizeof(Pdf)*(n_members)); 
         char *member_path;          //FREE
@@ -65,9 +75,6 @@ int rotate(int argc,char* argv[]) {
                         fprintf(stderr, "bad rotation matrix format\n");
         }
 
-        if(n_matrix!=(n_members-1)/2) {
-                fprintf(stderr, "Number of pdf members and matrix dimension are inconsistent\n");
-        }
         
         Pdf *rot_members=malloc(sizeof(Pdf)*(n_members-1)); //FREE
         rot_members--;
@@ -87,6 +94,10 @@ int rotate(int argc,char* argv[]) {
                 members[i].val[ix][iq][ifl]-=members[0].val[ix][iq][ifl]; 
                 
         // matrix product ( M- and M+ in parallel )
+        if(!strcmp(error_type,"hessian")) { 
+        if(n_matrix!=(n_members-1)/2) {
+                fprintf(stderr, "Number of pdf members and matrix dimension are inconsistent\n");
+        }
         for(i=1; i<n_members; i++ ) 
         for(ix=0; ix<rot_members[i].nx; ix++ ) 
         for(iq=0; iq<rot_members[i].nq; iq++ ) 
@@ -95,6 +106,23 @@ int rotate(int argc,char* argv[]) {
                         for(j=(i+1)%2+1; j<n_members; j+=2) {
                         rot_members[i].val[ix][iq][ifl]+=members[j].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
                 }
+        }
+        
+        } else if(!strcmp(error_type,"symmhessian")) {
+        if(n_matrix!=n_members-1) {
+                fprintf(stderr, "Number of pdf members and matrix dimension are inconsistent\n");
+        }
+        for(i=1; i<n_members; i++ ) 
+        for(ix=0; ix<rot_members[i].nx; ix++ ) 
+        for(iq=0; iq<rot_members[i].nq; iq++ ) 
+        for(ifl=0; ifl< rot_members[i].n_pdf_flavours; ifl++ ) {
+                        rot_members[i].val[ix][iq][ifl]=0;
+                        for(j=1; j<n_members; j++) {
+                        rot_members[i].val[ix][iq][ifl]+=members[j].val[ix][iq][ifl]*rot_matrix[i-1][j-1];
+                }
+        }
+        } else {
+                fprintf(stderr, "Wrong ErrorType, need symmhessian or hessian\n");
         }
                 
         // {M'-, M'+} + M0 
@@ -120,7 +148,7 @@ int rotate(int argc,char* argv[]) {
         for(i=0; i<n_members; i++) { 
                 member_path=NULL; 
                 ss=open_memstream(&member_path, &len);
-                fprintf(ss,"%s/%s_%04d.dat",out_path,pdf_out_name,i);
+                fprintf(ss, "%s/%s_%04d.dat", out_path, pdf_out_name, i);
                 fflush(ss);
                 printf("save: %s\n", member_path);
                 if(i==0) save_lhapdf6_member(&members[i], member_path); 
@@ -144,6 +172,7 @@ int rotate(int argc,char* argv[]) {
         free(rot_matrix);
         free(in_path_tmp);
         free(out_path_tmp);
+        free(error_type);
 
 
         return 0;
