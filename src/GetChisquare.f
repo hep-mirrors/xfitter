@@ -1431,10 +1431,10 @@ C-------------------------------------------------------------------------------
       logical LSepDiag
       
       double precision Eigenvalues(NDimCovar)
-      integer NWork
-      parameter (NWork = 1000000)
-      double precision Work(NWork)
-      integer IWork(NWork)
+c      integer NWork
+c      parameter (NWork = 1000000)
+c      double precision Work(NWork)
+c      integer IWork(NWork)
       integer ifail
 
       double precision factor, facMax, facMin
@@ -1462,8 +1462,10 @@ C Try to remove diagonal term first:
                diag(j) = sqrt(factor*covar(j,j))
                testm(j,j) = Covar(j,j) - diag(j)*diag(j)
             enddo
-            Call DSYEVD('V','U',NCovar,testm,NDimCovar, EigenValues, Work, 
-     $           NWork, IWork, NWork, IFail)
+c            Call DSYEVD('V','U',NCovar,testm,NDimCovar, EigenValues, Work, 
+c     $           NWork, IWork, NWork, IFail)
+            Call MyDSYEVD(NCovar,testm,NDimCovar, EigenValues,IFail)
+
 c            print *,EigenValues(1)
             if (EigenValues(1).lt.0) then
                facMax = factor
@@ -1480,9 +1482,10 @@ c            print *,'ha',factor,facMax,facMin
       endif
 
 
-      Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work, 
-     $     NWork, IWork, NWork, IFail)
+c      Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work, 
+c     $     NWork, IWork, NWork, IFail)
       
+      Call MyDSYEVD(NCovar,Covar,NDimCovar, EigenValues,IFail)
       
       Sum = 0
       do i=1,NCovar
@@ -1883,4 +1886,42 @@ c         stop
       call hf_errlog(1,
      $     'F:Error reading CovarToNuisance Namelist ! Stop')
  18   continue
+      end
+
+
+C--------------------------------------------------------  	 
+C> @Brief Interface to lapack, to dynamically allocate work arrays 
+      subroutine MyDSYEVD(NCovar,Covar,NDimCovar, EigenValues,ifail)
+      implicit none
+      integer NCovar, NDimCovar
+      double precision Covar(NDimCovar,NDimCovar), EigenValues(NCovar)
+      integer IFail
+      double precision Work
+      integer IWork
+C Determine optimal size of the work array:                                                                                                             
+      Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work,
+     $     -1, IWork, -1, IFail)
+
+
+      print *,'MyDSYEVD: optimal dimensions for work arrays:'
+     $     ,  int(work)+1, iwork
+      call MyDSYEVD2(NCovar,Covar,NDimCovar, EigenValues,
+     $     int(work)+1,iwork,ifail)
+
+      end
+
+      subroutine MyDSYEVD2(NCovar,Covar,NDimCovar, EigenValues, nwork,
+     $     nlwork,ifail)
+      implicit none
+      integer NCovar, NDimCovar
+      double precision Covar(NDimCovar,NDimCovar), EigenValues(NCovar)
+      integer nwork, nlwork
+      double precision Work(nwork)  ! Dynamic array                                                                                                     
+      integer IWork(nlwork)         ! Dynamic array                                                                                                     
+      integer IFail
+C---------------------------------------------------------------------                                                                                  
+      Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work,
+     $     nwork, IWork, nlwork, IFail)
+
+
       end
