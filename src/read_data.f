@@ -504,7 +504,7 @@ C Not found:
             if (j.eq.0)  then
 C--- Add new source
                Call AddSystematics(SystematicType(i))
-               CompressIdx(i) = NSYS
+               CompressIdx(i) = NSYS               
             else
                CompressIdx(i) = j
             endif
@@ -1138,14 +1138,14 @@ C
       Namelist/InTheory/InputTheoNames
       integer i
 C-----------------------------------------------------------------
-      do i=1,NInputFiles
+      do i=1,NSET ! InputFiles
          InputTheoNames(i) = ''
       enddo      
 
       open (51,file='steering.txt',status='old')
       read (51,NML=InTheory,END=141,ERR=42)
       
-      do i=1,NInputFiles
+      do i=1,NSET ! InputFiles
          if ( InputTheoNames(i) .ne. '') then
             call hf_errlog(13052901,'I:Use fixed theory predictions') 
             Call read_theory_file(InputTheoNames(i),i)
@@ -1218,11 +1218,13 @@ C---------------------------------------------------------------------
       open (52,file=FileName,err=101)
       read (52,nml=Data,err=102,end=103)
 C Basic consistency check:
-      if (NData.ne.NDATAPOINTS(IdxDataSet)) then
-         print *,ndata,NDATAPOINTS(IdxDataSet),IdxDataSet
-         call hf_errlog(4,
-     $        'F:Mismatch for number of points in theory file '
-     $        //trim(FileName))
+      if (.not. pdfrotate) then
+         if (NData.ne.NDATAPOINTS(IdxDataSet)) then
+            print *,ndata,NDATAPOINTS(IdxDataSet),IdxDataSet
+            call hf_errlog(4,
+     $           'F:Mismatch for number of points in theory file '
+     $           //trim(FileName))
+         endif
       endif
 
        do i=1,NColumn
@@ -1240,9 +1242,11 @@ C Basic consistency check:
       enddo  
 
 C Some more basic checks:
-      if (DATASETBinningDimension(IdxDataSet).ne. NBinDimension) then
+      if (.not. pdfrotate) then
+       if (DATASETBinningDimension(IdxDataSet).ne. NBinDimension) then
          call hf_errlog(6,'F:Binning dimension does not match in file '
-     $        //trim(filename))
+     $         //trim(filename))
+       endif
       endif
       
       if (idxSigma.eq.0) then
@@ -1324,7 +1328,12 @@ C Reset:
          enddo
 
 C Store:
-         idx = DATASETIDX(idxdataset,ipoint)
+         if (pdfrotate) then
+            NPoints = NPoints + 1
+            idx = NPoints
+         else
+            idx = DATASETIDX(idxdataset,ipoint)
+         endif
 
          theo_fix(idx)  = buffer(idxSigma)
 
@@ -1338,8 +1347,9 @@ C Store:
      $           ) then
 
 
-               BETA(CompressIdx(i),idx) = -syst(i)
                
+               BETA(CompressIdx(i),idx) = -syst(i)
+
 C     Store also asymmetric errors:
                iLen   = Len_trim( SystematicType(i))
                isPlus  = SystematicType(i)(iLen:iLen).eq.'+'
@@ -1417,6 +1427,10 @@ C--- Add data point to the syst. list (this will help to speedup loops):
      $                 = idx
 
                endif
+            elseif (SystematicType(i).eq.'stat') then
+               theo_stat(idx) = Syst(i)
+            elseif (SystematicType(i).eq.'uncor') then
+               theo_unc(idx) =  Syst(i)
             endif
          enddo
 
@@ -1469,7 +1483,7 @@ c         do j=1,NUncert
  101  Call HF_ErrLog(1,'F:Can not open file '//Trim(FileName))
  102  Call HF_ErrLog(2,'F:Error reading data namelist from the file '
      $     //Trim(FileName))
- 103  Call HF_ErrLog(3,'F:Namelist data not fond in the file '
+ 103  Call HF_ErrLog(3,'F:Namelist data not found in the file '
      $     //Trim(FileName))
  1017 Call HF_ErrLog(8,'F:Can not read theory file content '
      $     //trim(FileName))

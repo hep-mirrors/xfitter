@@ -95,6 +95,7 @@ C
       logical FreeStrange    !> Free strange parameterisation
       logical Read_QCDNUM_Tables
       logical WriteAlphaSToMemberPDF    !> write alphas header to LHAPDF6 member files
+      logical pdfrotate   ! Special branch to perform PDF re-diagonalization
 
       character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
       logical Chi2PoissonCorr, Chi2FirstIterationRescale, Chi2ExtraSystRescale
@@ -119,7 +120,7 @@ C
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
      $     CorChi2Type, hf_scheme, AsymErrorsIterations,
-     $     LUseAPPLgridCKM
+     $     LUseAPPLgridCKM, pdfrotate
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale

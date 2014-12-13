@@ -8,6 +8,9 @@ C---------------------------------------------------
       implicit none
 
       include 'steering.inc'
+      include 'ntot.inc'
+      include 'indata.inc'
+      include 'systematics.inc'
 C=================================================
 
       call Set_Defaults  ! global defaults
@@ -15,6 +18,14 @@ C=================================================
 C Read various namelists:
       call read_hfitternml  ! main steering FIRST
       call read_systematicsnml ! Read (optional) systematics namelist SECOND
+
+C Special branch for rotation 
+      if (pdfrotate) then
+         call read_theoryfilesNML
+         call rediagonalize(NPoints,NSys)
+         call hf_stop
+      endif
+
       call read_infilesnml   ! Read data file names THIRD
       call read_ewparsnml   ! electroweak parameters
       call read_outputnml   ! output options
@@ -195,6 +206,7 @@ c 2012-11-08 WS: set default for DoBands
 
       Debug = .false.
 
+      pdfrotate = .false.
 C
 C Names of syst. error sources:
 C
@@ -238,7 +250,7 @@ C Main steering parameters namelist
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations
+     $     AsymErrorsIterations, pdfRotate
 
 C--------------------------------------------------------------
 
