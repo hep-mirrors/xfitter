@@ -75,7 +75,7 @@ class PdfData
   // Copy constructor, to for profiled PDF: (not used)
   //PdfData(const PdfData &Prior, string dirname, string label);
   void profile(string dirname, string label);  //profile PDF uncertainty bands
-
+  void pdfRotate(string dirname, string label);  //rotate PDF
   pdferr err;   //Type of PDF uncertainties
   bool model;   //Model PDF uncertainties
   bool par;   //Parametrisation PDF uncertainties

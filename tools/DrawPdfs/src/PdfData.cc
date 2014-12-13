@@ -189,9 +189,9 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 
           Central[temppdf.GetQ2()] = temppdf;
 
-          //Get Pdf errors if requested
-          if (!opts.dobands && !outdirs[label].IsProfiled())
-            continue;
+	  //Get Pdf errors if requested
+	  if (!opts.dobands && !outdirs[label].IsProfiled() && !outdirs[label].IsRotated())
+	    continue;
   
           //Load PDF error sets
           int iband = 1;
@@ -314,7 +314,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
       }
 
   //Compute PDF uncertainty bands
-  if (!opts.dobands && !outdirs[label].IsProfiled())
+  if (!opts.dobands && !outdirs[label].IsProfiled() &&!outdirs[label].IsRotated())
     return;
 
   //Loop on q2 values
@@ -433,8 +433,90 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 
   if (outdirs[label].IsProfiled() || opts.profiled)
     profile(dirname, label);
+  if (outdirs[label].IsRotated() )
+    pdfRotate(dirname, label);
+  
 }
 
+
+void PdfData::pdfRotate(string dirname, string label)
+{ 
+  // Extra rotations from rot.dat file
+  string fname = dirname + "/rot.dat";
+  ifstream f(fname.c_str());
+  if ( ! f.good() ) {
+    cout << "File " << fname << " is empty (or io error)" << endl;
+    exit(1);
+  }
+
+  vector< vector<double> > rotation;
+  string line;
+  getline (f,line);
+  istringstream iss(line);
+  int N;
+  iss >> N;
+  int idx1 = 0;
+  while ( getline (f,line) ) 
+    {
+	vector <double> aline;
+	istringstream iss(line);
+	int idx2;
+	iss >> idx2;
+	for ( int i = 0; i<N; i++) {
+	  double val;
+	  iss >> val;
+	  aline.push_back(val);
+	}
+	rotation.push_back(aline);
+    }
+  f.close();
+
+  int iRotation = outdirs[label].rSet()-1;
+  //  for (int id=0; id<N; id++) {
+  //  std::cout << iRotation << " " << rotation[iRotation][id]<<"\n";
+  // }
+
+  for ( map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) {
+    float q2 = pdfit->first;
+    Pdf Cent = pdfit->second;
+    
+
+    // loop over pdf types
+    for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++) {
+      //Loop on x points
+      for (int ix = 0; ix < Cent.GetNx(); ix++)
+	{
+	  double val = Cent.GetTable(*pit)[ix];
+	  double corsum = 0;
+	  double eminus = 0; // also  errors
+	  double eplus = 0;  
+	
+	  // For now CT10 only:
+	  for ( int id=0; id<N; id++) {
+	    Pdf Up = Errors[q2].at(2*(id));
+	    Pdf Dn = Errors[q2].at(2*(id)+1);
+	    double plus  = Up.GetTable(*pit)[ix] - val;
+	    double minus = Dn.GetTable(*pit)[ix] - val;
+
+
+	    corsum += 0.5*(plus-minus)*rotation[iRotation][id];
+
+	    //	    corsum += 0.5*(plus-minus)*rotation[iRotation][id];
+	  }
+	  
+	  Cent.SetPoint(*pit, ix, val+corsum);
+	  Cent.SetErrUp(*pit, ix, eplus);
+	  Cent.SetErrDn(*pit, ix, eminus);
+	  
+
+	  Up[q2].SetPoint(*pit, ix, val+corsum+eplus);
+	  Down[q2].SetPoint(*pit, ix, val+corsum-eminus);
+	}
+    }
+    pdfit->second = Cent;
+  }
+  
+}
 
 void PdfData::profile(string dirname, string label)
 {
