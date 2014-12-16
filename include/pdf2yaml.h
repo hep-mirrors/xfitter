@@ -12,7 +12,7 @@ typedef struct info_node_s {
         union {
                 char* string;
                 struct {
-                        double *p;
+                        double *vals;
                         double size;
                 } darray;
         } value;
@@ -23,11 +23,12 @@ typedef List Info;
 void info_free(Info *info);
 Info *info_add_node_str(Info *info, char* key, char *value);
 Info *info_add_node_darray(Info *info, char* key, double *darray, int size);
-
 void info_save(const Info *info, FILE *output);
+Info *info_dup(const Info *info);
 
 Info_Node *info_node_where(Info *info, char *key);
-
+int info_node_update_str(Info_Node *node, const char *new_value);
+Info_Node *info_node_dup(Info_Node *node);
 Info *info_load(FILE *input);
 
 // Pdf member
@@ -55,6 +56,7 @@ typedef struct PdfSet_s {
 void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours);
 int load_lhapdf6_member(Pdf *pdf, char *path);
 int save_lhapdf6_member(Pdf *pdf, char *path);
+Pdf *pdf_dup(Pdf *pdf);
 void pdf_free(Pdf *pdf);
 
 //void pdf_set_initialize(PdfSet *pdf_set);

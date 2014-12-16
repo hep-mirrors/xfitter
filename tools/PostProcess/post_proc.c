@@ -7,12 +7,14 @@ extern int profile(int argc, char* argv[]);
 extern int rotate(int argc, char* argv[]);
 extern int symmetrize(int argc, char* argv[]);
 extern int custom(int argc, char* argv[]);
+extern int reweight(int argc, char* argv[]);
 static int help(int argc, char* argv[]);
 
 static const struct command options[]={
         {"symmetrize",symmetrize},
         {"rotate",rotate},
         {"profile",profile},
+        {"reweight",reweight},
         {"custom",custom},
         {"help", help},
         {"-h", help},
@@ -23,7 +25,7 @@ static int help(int argc, char *argv[]) {
         int i;
         char *module_opt[]={"--help"};
         if(!argc) { 
-                puts("usage postproc <module> [<args>]\n\nfor command info use \n\tpostproc help module");
+                puts("usage: postproc <module> [<args>]\n\nfor command info use \n\tpostproc help module");
                 puts("\navailable modules:");
                 for(i=0; i<sizeof(options)/sizeof(struct command); i++) 
                         if(options[i].function!=help) printf("\t%s\n", options[i].command);
@@ -44,6 +46,7 @@ static int help(int argc, char *argv[]) {
 int main (int argc, char **argv) {
 
         int i;
+        int result=0;
         argc--;
         argv++;
         if(!argc) { 
@@ -52,8 +55,9 @@ int main (int argc, char **argv) {
         }
         for(i=0; i<sizeof(options)/sizeof(struct command); i++) {
                 if(!strcmp(options[i].command,argv[0])) {
-                        options[i].function(--argc, ++argv);
+                        result=options[i].function(--argc, ++argv);
                         break;
                 }
         }
+        return result;
 }

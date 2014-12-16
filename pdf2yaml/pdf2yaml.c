@@ -87,13 +87,12 @@ Info *info_add_node_darray(Info *info, char* key, double *darray, int size) {
         node->node_type=DARRAY;
         node->key=malloc(strlen(key)+1);
         strncpy(node->key, key, strlen(key)+1);
-        node->value.darray.p=malloc(sizeof(double)*size);
-        memcpy(node->value.darray.p, darray, sizeof(double)*size);
+        node->value.darray.vals=malloc(sizeof(double)*size);
+        memcpy(node->value.darray.vals, darray, sizeof(double)*size);
         node->value.darray.size=size;
         info=list_append(info, node);
         return info;
 }
-
 
 void info_save(const Info *info, FILE *output) {
         yaml_document_t doc;
@@ -120,7 +119,7 @@ void info_save(const Info *info, FILE *output) {
                                 s2yaml(&doc,node->value.string));
                 if(node->node_type==DARRAY)
                 yaml_document_append_mapping_pair(&doc, root, s2yaml(&doc,node->key), 
-                                d_array2yaml(&doc,node->value.darray.p,node->value.darray.size));
+                                d_array2yaml(&doc,node->value.darray.vals,node->value.darray.size));
 
                 it=it->next;
         }
@@ -140,6 +139,45 @@ Info_Node *info_node_where(Info *info, char *key) {
         return NULL;
 }
 
+int info_node_update_str(Info_Node *node, const char *new_value) {
+        if(node->node_type!=STRING) return 1;
+        free(node->value.string);
+        node->value.string=strdup(new_value);
+        return 0;
+}
+
+Info_Node *info_node_dup(Info_Node *node) {
+        int size;
+        Info_Node *new_node= malloc(sizeof(Info_Node));
+        new_node->key=strdup(node->key);
+        if(node->node_type==STRING) { 
+                new_node->node_type=STRING;
+                new_node->value.string=strdup(node->value.string);
+        }
+        if(node->node_type==DARRAY) {
+                new_node->node_type=DARRAY;
+                size=node->value.darray.size;
+                new_node->value.darray.size=size;
+                new_node->value.darray.vals=malloc(sizeof(double)*size);
+                memcpy(new_node->value.darray.vals, node->value.darray.vals, sizeof(double)*size);
+        }
+        return new_node;
+}
+
+Info *info_dup(const Info *info) {
+        Info_Node *node;
+        Info *new_info=NULL;
+        Info *r=(Info*)list_reverse(info);
+        Info *it;
+        for(it=r; it; it=it->next) {
+                node=it->data;
+                node=info_node_dup(node);
+                new_info=(Info*)list_append(new_info, node);
+        }
+        list_free(r);
+        return new_info;
+}
+
 void info_free(Info *info) {
         Info *it;
         Info_Node *node;
@@ -147,7 +185,7 @@ void info_free(Info *info) {
                 node=it->data;
                 free(node->key);
                 if(node->node_type==STRING) free(node->value.string);
-                if(node->node_type==DARRAY) free(node->value.darray.p);
+                if(node->node_type==DARRAY) free(node->value.darray.vals);
                 free(node);
         }
         list_free(info);
@@ -171,6 +209,17 @@ void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours) {
                 pdf->val[i]=malloc(sizeof(double*)*pdf->nq);
                 for(j=0; j<pdf->nq; j++) pdf->val[i][j]=malloc(sizeof(double)*pdf->n_pdf_flavours);
         }
+}
+
+Pdf *pdf_dup(Pdf *pdf) {
+        int i, j;
+        Pdf *new_pdf=malloc(sizeof(Pdf));
+        pdf_initialize(new_pdf, pdf->nx, pdf->nq, pdf->n_pdf_flavours);
+        new_pdf->info=info_dup(pdf->info);
+        for(i=0; i<pdf->nx; i++) 
+                for(j=0; j<pdf->nq; j++)
+                        memcpy(new_pdf->val[i][j], pdf->val[i][j], sizeof(double)*pdf->n_pdf_flavours);
+        return new_pdf;
 }
 
 // load Pdf member from file. It does not require pdf_initialize for *pdf argument
