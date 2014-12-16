@@ -24,8 +24,8 @@ int symmetrize(int argc,char* argv[]) {
         for(iq=0; iq<pdf_set.members[i].nq; iq++) 
         for(ifl=0; ifl<pdf_set.members[i].n_pdf_flavours; ifl++) {
                 pdf_set.members[i].val[ix][iq][ifl]=(pdf_set.members[i].val[ix][iq][ifl] //TODO
-                                -pdf_set.members[i+1].val[ix][iq][ifl])/2.0;
-                        //+pdf_set.members[0].val[ix][iq][ifl];
+                                -pdf_set.members[i+1].val[ix][iq][ifl])/2.0
+                        +pdf_set.members[0].val[ix][iq][ifl];
         }
         for(i=1; i<pdf_set.n_members; i+=2) pdf_free(&pdf_set.members[i+1]);
 
