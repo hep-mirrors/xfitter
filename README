@@ -638,6 +638,10 @@ j) Options for the chi2 choice:
      
     ./configure --enable-updf --enable-lhapdf --enable-checkBounds
 
+    NOTE: by default uPDF code uses cteq66 PDFs for the starting 
+          distribution for the valence quarks (Cascade/src/evolve_tmd.F), 
+          please make sure you have it downloaded and linked.
+
  1. use steering and minuit input files from "input_steering":
 
     cp input_steering/steering.txt.kt-factorisation steering.txt
