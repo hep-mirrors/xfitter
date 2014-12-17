@@ -833,6 +833,10 @@ C
 
       integer k,l, i1,j1,i,j, j2, i2
       double precision A(NSYSMax,NSYSMax), C(NSysMax)
+      double precision, allocatable :: AA(:,:)
+
+      
+
       double precision d_minus_t1, d_minus_t2,add
       double precision ShiftExternal(NTOT)
       
@@ -847,6 +851,7 @@ C-
 C--------------------------------------------------------
 
 C Determine pairs of syst. uncertainties which share  data
+
       if (LFirst .or. ResetCommonSyst) then
          LFirst = .false.
          ResetCommonSyst = .false. 
@@ -1040,14 +1045,47 @@ C Ready to invert
 C Also dump correlation matrix for PDF eigenvectors, if present
          if (iflag.eq.3) then
             if (nsysdata.ne.nsys) then
+
+               Allocate(AA(nsys-nsysdata,nsys-nsysdata))
+
+               open (52,file=trim(OutDirName)//'/pdf_shifts.dat',
+     $              status='unknown')
+               write (52,'(''LHAPDF set='',A32)') 
+     $              trim(adjustl(LHAPDFSET))
+               write (52,'(i3)') nsys-nsysdata
+               do l=nsysdata+1,nsys
+                  write (52,'(i3,2F8.4)') l-nsysdata,rsys_in(l), 
+     $                 ersys_in(l)
+               enddo
+               close (52)
+
+
                open (52,file=trim(OutDirName)//'/pdf_vector_cor.dat'
      $              ,status='unknown')
                write (52,'(i3)') nsys-nsysdata
                do l=nsysdata+1,nsys
                   write (52,'(i3,200F8.4)')  l-nsysdata, (
      $                 A(k,l)/ersys_in(k)/ersys_in(l),k=nsysdata+1,nsys)
+                  do k=nsysdata+1,nsys
+                     AA(k-nsysdata,l-nsysdata) = A(k,l)
+                  enddo
                enddo
                close (52)
+C Also rotation matrix:
+               Call MyDSYEVD(Nsys-nsysdata,AA,NSys-nsysdata,C,ifail)
+               open (52,file=trim(OutDirName)//'/pdf_rot.dat'
+     $              ,status='unknown')
+               write (52,'(''LHAPDF set='',A32)') 
+     $              trim(adjustl(LHAPDFSET))
+               write (52,'(i4)') nsys-nsysdata
+               do i=nsys-nsysdata,1,-1
+                  print *,'haha',i,C(i),ifail
+                  AA(i,i) = AA(i,i)*sqrt(C(i))
+                  write (52,'(i5,200F10.6)') i,
+     $                 (AA(j,i),j=1,nsys-nsysdata)
+               enddo
+               close (52)
+               
             endif
          endif
       endif
@@ -1438,7 +1476,8 @@ c      integer IWork(NWork)
       integer ifail
 
       double precision factor, facMax, facMin
-      double precision diag(1000), testm(1000,1000)
+
+      double precision, allocatable :: testm(:,:),diag(:)
       double precision Sum,Run
       integer i,j,k
 
@@ -1447,6 +1486,9 @@ C-------------------------------------------------------------------------------
 C Try to remove diagonal term first:
 
       if ( LSepDiag ) then
+
+         allocate(testm(NCovar,NCovar))
+         allocate(diag(NCovar))
 
          facMax = 1.0D0
          facMin = 0.0D0
@@ -1464,7 +1506,7 @@ C Try to remove diagonal term first:
             enddo
 c            Call DSYEVD('V','U',NCovar,testm,NDimCovar, EigenValues, Work, 
 c     $           NWork, IWork, NWork, IFail)
-            Call MyDSYEVD(NCovar,testm,NDimCovar, EigenValues,IFail)
+            Call MyDSYEVD(NCovar,testm,NCovar, EigenValues,IFail)
 
 c            print *,EigenValues(1)
             if (EigenValues(1).lt.0) then
@@ -1898,13 +1940,17 @@ C> @Brief Interface to lapack, to dynamically allocate work arrays
       integer IFail
       double precision Work
       integer IWork
+      Character*80 msg
+C---------------------------------------------------------------
 C Determine optimal size of the work array:                                                                                                             
       Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work,
      $     -1, IWork, -1, IFail)
 
 
-      print *,'MyDSYEVD: optimal dimensions for work arrays:'
-     $     ,  int(work)+1, iwork
+      write (msg,
+     $ '(''I:MyDSYEVD: optimal dimensions for work arrays:'',2i6)')
+     $     int(work)+1, iwork
+      call HF_ERRLOG(14121701,msg)
       call MyDSYEVD2(NCovar,Covar,NDimCovar, EigenValues,
      $     int(work)+1,iwork,ifail)
 

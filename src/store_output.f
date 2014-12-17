@@ -580,6 +580,7 @@ C----------------------------------------------------------------
 C> \brief Write theory prediction in format of input data tables.
 C> \param NNuisance number of error sets
 C> \param Theo_cent central value of theory predction
+C> \param SymmetricPDFErr use symmetric or assymmetric errros (beta vs betaasym) 
 C----------------------------------------------------------------
       Subroutine WriteTheoryFiles(NNuisance,Theo_cent,SymmetricPDFErr)
       implicit none

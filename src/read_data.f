@@ -1189,6 +1189,7 @@ C
       integer ilen
       integer ipoint
       logical isPlus, isMinus
+      integer iBin
       integer NBinDimension, idxSigma, NUncert
       character*4096 CTmp
       double precision buffer(ncolumnMax)
@@ -1225,6 +1226,10 @@ C Basic consistency check:
      $           'F:Mismatch for number of points in theory file '
      $           //trim(FileName))
          endif
+      else
+         NDataSets = max(NDataSets,idxdataset)
+         NDATAPOINTS(IdxDataSet) = NData
+         Datasetlabel(idxdataset) = Name
       endif
 
        do i=1,NColumn
@@ -1243,10 +1248,16 @@ C Basic consistency check:
 
 C Some more basic checks:
       if (.not. pdfrotate) then
-       if (DATASETBinningDimension(IdxDataSet).ne. NBinDimension) then
-         call hf_errlog(6,'F:Binning dimension does not match in file '
-     $         //trim(filename))
-       endif
+         if (DATASETBinningDimension(IdxDataSet).ne. NBinDimension) then
+            call hf_errlog(6,
+     $           'F:Binning dimension does not match in file '
+     $           //trim(filename))
+         endif
+      else
+         DATASETBinningDimension(IdxDataSet) = NBinDimension
+         do i=1,NBinDimension
+            DATASETBinNames(i,idxdataset) = ColumnName(i)
+         enddo
       endif
       
       if (idxSigma.eq.0) then
@@ -1307,13 +1318,30 @@ C Read the colums
 
          read (ctmp,*,err=1019)(buffer(i),i=1,NColumn)
 
+
+C Store:
+         if (pdfrotate) then
+            NPoints = NPoints + 1
+            idx = NPoints
+            DATASETIDX(idxdataset,ipoint) = idx
+         else
+            idx = DATASETIDX(idxdataset,ipoint)
+         endif
+
+
          iError = 0
+         iBin   = 0
          do i=1,NColumn
             if (ColumnType(i).eq.'Error') then
                iError = iError + 1
                syst(iError) = buffer(i)    
                if (.not. Percent(iError)) then
                   syst(iError) = syst(iError)/buffer(idxSigma)*100.
+               endif
+            elseif (ColumnType(i).eq.'Bin') then
+               iBin  = iBin + 1
+               if (pdfrotate) then                  
+                  AbstractBins(iBin,idx) = buffer(i)
                endif
             endif
          enddo
@@ -1327,13 +1355,6 @@ C Reset:
             endif
          enddo
 
-C Store:
-         if (pdfrotate) then
-            NPoints = NPoints + 1
-            idx = NPoints
-         else
-            idx = DATASETIDX(idxdataset,ipoint)
-         endif
 
          theo_fix(idx)  = buffer(idxSigma)
 

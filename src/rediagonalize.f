@@ -14,14 +14,21 @@ C      include 'datasets.inc'
       include 'theo.inc'
 
       integer Ndata,NSyst
-      integer i,j,k
+      integer i,j,k,nsysloc
       double precision theo_err2_loc(Ndata)
       double precision Eigenvalues(Nsyst)  
       double precision RotBeta(Nsyst,Ndata)  ! dynamic 
       double precision totpdf(Ndata),totpdftest(Ndata)
+c      double precision, allocatable :: test(:,:)
+
       logical lreset 
 C-------------------------------------
-      print *,'ndata=',ndata
+
+      nsysloc = nsys*2 - nsys  ! that is ugly fix of the Fortran optimization problem
+      
+C      print *,'ndata=',ndata
+      call read_lhapdfnml
+
       lreset = .false.
       do k=1,ndata
          theo_err2_loc(k) = (theo_fix(k)/100.)**2
@@ -60,10 +67,13 @@ c         print *,'ho',sqrt(theo_err2_loc(k))
          print '(i4,F10.2)',i,Eigenvalues(i)
       enddo
 
-      print '(''Creating rot.dat file ...'')'
+      print '(''Creating pdf_rot.dat file ...'')'
 
-      open (51,file=trim(OutDirName)//'/rot.dat'
+      open (51,file=trim(OutDirName)//'/pdf_rot.dat'
      $     ,status='unknown')
+      write (51,'(''LHAPDF set='',A32)') 
+     $     trim(adjustl(LHAPDFSET))
+      
       write (51,'(i4)') NSyst
       do i=NSyst,1,-1
          write (51,'(i5,200F10.6)') i,( Cov(j,i),j=1,NSyst)
@@ -93,5 +103,18 @@ c         print *,totpdf(k),totpdftest(k)
      $        /totpdf(k)**2*100.,i=nsyst,1,-1)
       enddo
       print *,' '
+      
+
+      do k=1,ndata
+         do j=1,nsyst
+            beta(nsyst-j+1,k) = rotbeta(j,k)/100.
+         enddo
+      enddo
+c      print *,nsyst,nsysloc
+      nsys = 0
+c      print *,nsyst,nsysloc      
+
+      call WriteTheoryFiles(nsysloc,theo_fix,.true.)
+
 C-------------------------------------
       end
