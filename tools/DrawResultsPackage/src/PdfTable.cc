@@ -15,7 +15,7 @@ PdfTable::PdfTable(TString fName){
   fTable    = NULL;
 
   // Read the file fName
-  ifstream infile(fName.Data());
+  std::ifstream infile(fName.Data());
   if (!infile.is_open()) {
     //std::cout << "Can not open file "<<fName.Data()<<std::endl;
     return;
@@ -117,7 +117,7 @@ const int PdfTable::GetIndex(string name){
 
 PdfTable* PdfTable::CreatePdfTable(const Char_t* filename) {
   PdfTable* tab = NULL;
-  ifstream ifile(filename);
+  std::ifstream ifile(filename);
   if(ifile)  tab = new PdfTable(filename);
   return tab;
 }

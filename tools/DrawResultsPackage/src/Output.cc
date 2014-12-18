@@ -81,7 +81,7 @@ Int_t Output::Prepare(bool DrawBand, TString option) {
 }
 
 void Output::PrepareMandyParameters() {
-  ifstream input(fDirectory->Data());
+  std::ifstream input(fDirectory->Data());
   if(!input.is_open()) return;
 
   Char_t buffer[256];
@@ -194,7 +194,7 @@ void Output::PrepareMandyParameters() {
 }
 
 Bool_t Output::CheckFile() {
-  ifstream input(fDirectory->Data());
+  std::ifstream input(fDirectory->Data());
   if(!input.is_open()) return false;
   input.close();
   return true;
@@ -220,7 +220,7 @@ void Output::PrepareParameters() {
   char buffer[256];
   filename->Form("%s/parsout_0",fDirectory->Data());
   
-  ifstream infile(filename->Data());
+  std::ifstream infile(filename->Data());
 
   if(!infile.is_open()) { cout << "Output::Parameters: can not open file %s" << filename->Data()<<endl; return;}
 
@@ -251,7 +251,7 @@ void Output::PrepareParameters() {
   }
 
   filename->Form("%s/Results.txt",fDirectory->Data());
-  ifstream infile2(filename->Data());
+  std::ifstream infile2(filename->Data());
   if(!infile2.is_open()) { cout << "Output::PrepareDataSets: can not open file %s" << filename->Data()<<endl; return;}
   while(!infile2.eof()) {
     infile2.getline(buffer, 256);
@@ -319,7 +319,7 @@ void Output::PrepareName() {
   char buffer[256];
   filename.Form("%s/fit.name",fDirectory->Data());
   
-  ifstream infile(filename.Data());
+  std::ifstream infile(filename.Data());
   if (!infile.is_open()) {
     fName->Form(fDirectory->Data());
   }
@@ -434,7 +434,7 @@ Int_t Output::PrepareDataSets() {
   double bin1, bin2, data, uncorrerr, toterr, theory, theory_mod, therr_up, therr_down, pull;
 
 
-  ifstream infile(filename->Data());
+  std::ifstream infile(filename->Data());
   if(!infile.is_open()) { cout << "Output::PrepareDataSets: can not open file %s" << filename->Data()<<endl; return 1;}
   infile.getline(buffer, BUFFERSIZE);  // number of data sets
   str.Form(buffer); 
