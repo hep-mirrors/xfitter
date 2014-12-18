@@ -1467,7 +1467,7 @@ double fastNLOReader::CalcReferenceAlphas() {
       else mu = 91.1876111111+(fMuRFunc*0.1)+(fScaleFacMuR);
    } else mu = 91.187611111115*(fScaleFacMuR+0.1)+fScalevar*0.1;
    double as = CalcAlphas(mu);
-   if (isnan(as)) {
+   if (std::isnan(as)) {
       error["CalcReferenceAlphas"]<<"Reference alphas is a 'nan' for scale mu="<<mu<<endl;
       //exit(1);
    }

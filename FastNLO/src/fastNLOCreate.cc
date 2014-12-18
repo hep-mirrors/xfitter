@@ -1310,7 +1310,7 @@ void fastNLOCreate::FillContributionFlexHHC(fastNLOCoeffAddFlex* c, int ObsBin) 
          for (unsigned int m1 = 0 ; m1<nmu1.size() ; m1++) {
             for (unsigned int mu2 = 0 ; mu2<nmu2.size() ; mu2++) {
                double wfnlo = nxup[x1].second * nxlo[x2].second * nmu1[m1].second * nmu2[mu2].second / BinSize[ObsBin];
-               if (isnan(wfnlo)) {
+               if (std::isnan(wfnlo)) {
                   error[""]<<"wfnlo is a nan."<<endl;
                   fKernX1[ObsBin]->PrintGrid();
                   fKernX2[ObsBin]->PrintGrid();
@@ -1394,7 +1394,7 @@ void fastNLOCreate::FillContributionFlexDIS(fastNLOCoeffAddFlex* c, int ObsBin) 
       for (unsigned int m1 = 0 ; m1<nmu1.size() ; m1++) {
          for (unsigned int mu2 = 0 ; mu2<nmu2.size() ; mu2++) {
             double wfnlo = nx[ix].second * nmu1[m1].second * nmu2[mu2].second / BinSize[ObsBin];
-            if (isnan(wfnlo)) {
+            if (std::isnan(wfnlo)) {
                error[""]<<"wfnlo is a nan."<<endl;
                fKernX1[ObsBin]->PrintGrid();
                fKernMu1[ObsBin]->PrintGrid();
@@ -1447,15 +1447,15 @@ inline void fastNLOCreate::HalfMatrixCheck(int& xminbin, int& xmaxbin, int& subp
 // ___________________________________________________________________________________________________
 bool fastNLOCreate::CheckWeightIsNan() {
    //! check if weights contain isnan
-   if (isnan(fEvent._w)) {
+   if (std::isnan(fEvent._w)) {
       error["CheckWeightIsNan"]<<"(Scale-independent) weight is 'nan'"<<endl;
       return true;
    }
-   if (isnan(fEvent._wf)) {
+   if (std::isnan(fEvent._wf)) {
       error["CheckWeightIsNan"]<<"Factorization scale dependent weight is 'nan'"<<endl;
       return true;
    }
-   if (isnan(fEvent._wr)) {
+   if (std::isnan(fEvent._wr)) {
       error["CheckWeightIsNan"]<<"Renormalization scale dependent weight is 'nan'"<<endl;
       return true;
    }

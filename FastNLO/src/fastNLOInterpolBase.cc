@@ -178,7 +178,7 @@ vector<double> fastNLOInterpolBase::MakeLinearGrid(double min, double max, int n
 
 void fastNLOInterpolBase::MakeGrids(double min, double max, int nNodes){
    // first make fhgrid and then make fgrid
-   if ( isnan(min) || isnan(max) || nNodes <= 0 ) {
+   if ( std::isnan(min) || std::isnan(max) || nNodes <= 0 ) {
       error["MakeGrids"]<<"Cannot make unreasoanble grid! Requested: nNodes="<<nNodes<<", min="<<min<<", max="<<max<<". Exiting."<<endl;
       exit(1);
    }
@@ -208,7 +208,7 @@ void fastNLOInterpolBase::MakeGrids(double min, double max, int nNodes){
    default:
       error["MakeGrid"]<<"Unknown grid type."<<endl;
    }
-   if ( isnan(lo) || isnan(hi) ) {
+   if ( std::isnan(lo) || std::isnan(hi) ) {
       error["MakeGrids"]<<"Cannot convert min and max value to 'H'-space. min="<<min<<", H(min)="<<lo<<", max="<<max<<", H(max)="<<hi<<". Exiting."<<endl;
       exit(1);
    }
@@ -219,7 +219,7 @@ void fastNLOInterpolBase::MakeGrids(double min, double max, int nNodes){
    else if ( nNodes > 1 ) {
       for(int l=0;l<nNodes;l++){
          hgrid[l]   = lo +  double(l)/double(nNodes-1)*del;
-         if ( isnan(hgrid[l]) ) {
+         if ( std::isnan(hgrid[l]) ) {
             error["MakeGrids"]<<"Grid point could not be calculated. Hnode="<<hgrid[l]<<endl;
          }
       }

@@ -64,7 +64,7 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    map<int, FastNLOHeraFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    if(FastNLOIterator != gFastNLO_array.end( )) {
      int id = 12032301;
-     char* text = "I: Double initialization of the same fastnlo data set!";
+     const char* text = "I: Double initialization of the same fastnlo data set!";
      hf_errlog_(&id, text, (long)strlen(text));
      //hf_stop_();
      return 1;
@@ -295,6 +295,8 @@ int fastnlopointskip_(const int *idataset, int *point, int *npoints) {
   
   BoolArray*     usedpoints = UsedPointsIterator->second;
   usedpoints->at(*point-1) = false;
+
+  return 0;
 }
 
 int CreateUsedPointsArray(int idataset, int npoints) {
@@ -303,6 +305,8 @@ int CreateUsedPointsArray(int idataset, int npoints) {
   for (int i=0; i<npoints; i++)
     usedpoints->push_back(true);
   gUsedPoints_array.insert(pair<int, BoolArray*>(idataset, usedpoints) );
+
+  return 0;
 }
 
 
