@@ -1079,7 +1079,7 @@ C Also rotation matrix:
      $              trim(adjustl(LHAPDFSET))
                write (52,'(i4)') nsys-nsysdata
                do i=nsys-nsysdata,1,-1
-                  print *,'haha',i,C(i),ifail
+C                  print *,'haha',i,C(i),ifail
                   AA(i,i) = AA(i,i)*sqrt(C(i))
                   write (52,'(i5,200F10.6)') i,
      $                 (AA(j,i),j=1,nsys-nsysdata)
