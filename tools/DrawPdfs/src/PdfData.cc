@@ -442,7 +442,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 void PdfData::pdfRotate(string dirname, string label)
 { 
   // Extra rotations from rot.dat file
-  string fname = dirname + "/rot.dat";
+  string fname = dirname + "/pdf_rot.dat";
   ifstream f(fname.c_str());
   if ( ! f.good() ) {
     cout << "File " << fname << " is empty (or io error)" << endl;
@@ -452,6 +452,8 @@ void PdfData::pdfRotate(string dirname, string label)
   vector< vector<double> > rotation;
   string line;
   getline (f,line);
+  std::cout<<line <<std::endl;
+  getline (f, line);
   istringstream iss(line);
   int N;
   iss >> N;
