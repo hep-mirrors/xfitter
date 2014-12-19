@@ -7,6 +7,12 @@ _____________________________________________________________*/
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#if __cplusplus < 201103L
+#define constexpr 
+#endif
+
+
+
 #include <ctime>
 // #include <iostream>
 #include <sstream>
@@ -14,7 +20,7 @@ using namespace std;
 
 // ooooooooooooooooooooooooooooooooo
 class Timer_t {
-  static const double sec = 1./CLOCKS_PER_SEC;
+  constexpr static const double sec = 1./CLOCKS_PER_SEC;
   clock_t M_start;
   
 public:
