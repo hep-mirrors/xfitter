@@ -215,9 +215,9 @@ C------------------------------------------------------------------------
       character *(*) CFile
 C Namelist  variables:    
       integer ndataMax,ninfomax,nsystMax,ncolumnMax
-      parameter (ndataMax=1000)
+      parameter (ndataMax=ntot)
       parameter (ninfoMax=100)
-      parameter (nsystMax=500)
+      parameter (nsystMax=nsysmax)
 
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
 
@@ -275,7 +275,7 @@ C--------------------------------------------------------------
       double precision XSections(ndataMax)
       integer          binFlags(ndataMax)
       integer          nDSbins
-      double precision AllBins(10,ndataMax)
+      double precision AllBins(NBinDimensionMax,ndataMax)
       double precision Syst(nsystmax)
 
       double precision Akfact(NKFactMax)
@@ -1175,7 +1175,7 @@ C-----------------------------------------------------------------
       include 'theo.inc'
 C
       integer nsystMax,ncolumnMax
-      parameter (nsystMax=500)
+      parameter (nsystMax=nsysmax)
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
       
       character*80 Name
