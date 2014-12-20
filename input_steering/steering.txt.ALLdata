@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 44
+    NInputFiles = 47
 
    InputFileNames =
  !
@@ -78,19 +78,30 @@
  !
  ! For atals jets, use R06 or R04 data, but never both at the same time !
  !
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_00_03.dat'
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_03_08.dat'
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_08_12.dat'
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_12_21.dat'
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_21_28.dat'
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_28_36.dat'
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_36_44.dat'
+          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_00_03.dat',
+          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_03_08.dat',
+          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_08_12.dat',
+          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_12_21.dat',
+          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_21_28.dat',
+          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_28_36.dat',
+          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_36_44.dat',
  !
  !  W/Z cross sections are given at NNLO !
  !
-          'datafiles/lhc/atlas/WZ2010/WP_applgrid_nnlo.dat'
-          'datafiles/lhc/atlas/WZ2010/WM_applgrid_nnlo.dat'
-          'datafiles/lhc/atlas/WZ2010/Z0_applgrid_nnlo.dat'
+          'datafiles/lhc/atlas/WZ2010/WP_applgrid_nnlo.dat',
+          'datafiles/lhc/atlas/WZ2010/WM_applgrid_nnlo.dat',
+          'datafiles/lhc/atlas/WZ2010/Z0_applgrid_nnlo.dat',
+
+ !
+ ! ATLAS DY HM and LM at NNLO!
+ !
+
+           'datafiles/lhc/atlas/DY/dy_highmass.dat', 
+           'datafiles/lhc/atlas/DY/dy_lowmass.dat',
+           'datafiles/lhc/atlas/DY/dy_lowmass_extended.dat'
+
+
+
 &End
 
 &InCorr
