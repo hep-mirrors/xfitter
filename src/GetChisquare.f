@@ -833,15 +833,16 @@ C
 
       integer k,l, i1,j1,i,j, j2, i2
       double precision A(NSYSMax,NSYSMax), C(NSysMax)
-      double precision, allocatable :: AA(:,:)
 
-      
+      double precision, allocatable :: AA(:,:)
+      double precision, allocatable :: AA2(:,:)
+      double precision, allocatable :: RR(:,:)      
 
       double precision d_minus_t1, d_minus_t2,add
       double precision ShiftExternal(NTOT)
       
       integer com_list(NTot),n_com_list  !> List of affected data, common for two sources.
-      integer IR(2*NSysMax), Ifail
+      integer IR(2*NSysMax), Ifail,  Npdf
 
       logical lfirst
       data lfirst /.true./
@@ -851,6 +852,7 @@ C-
 C--------------------------------------------------------
 
 C Determine pairs of syst. uncertainties which share  data
+
 
       if (LFirst .or. ResetCommonSyst) then
          LFirst = .false.
@@ -1072,17 +1074,74 @@ C Also dump correlation matrix for PDF eigenvectors, if present
                enddo
                close (52)
 C Also rotation matrix:
-               Call MyDSYEVD(Nsys-nsysdata,AA,NSys-nsysdata,C,ifail)
+               npdf = Nsys-nsysdata
+               Call MyDSYEVD(Npdf,AA,Npdf,C,ifail)
+               
+C scale to take into account error reduction
+               do i=1,Npdf
+                  do j=1,Npdf
+                     AA(j,i) = AA(j,i)*sqrt(C(i))
+                  enddo
+               enddo
+
+C We want to preserve original directions as much as possible
+
+               Allocate(RR(Npdf,Npdf))
+               Allocate(AA2(Npdf,Npdf))
+
+               do k=npdf,1,-1
+
+                  do i=1,npdf
+                     do j=1,npdf
+                        RR(i,j) = 0.
+                        if (i.eq.j) then
+                           RR(i,j) = 1.
+                        endif
+
+                        RR(i,j) = RR(i,j) + AA(k,i)*AA(k,j)
+
+                     enddo
+                  enddo
+               
+
+                  Call MyDSYEVD(k,RR,Npdf,C,ifail)
+C rotate rotation matrix:
+                  do i=1,k
+                     do j=1,k
+                        AA2(i,j) = 0.
+                        do l=1,k
+                           AA2(i,j) = AA2(i,j) + AA(i,l)*RR(l,j)
+                        enddo
+                     enddo
+                  enddo               
+
+
+                  do i=1,k
+                     do j=1,k
+                        AA(i,j) = AA2(i,j)
+                     enddo
+                  enddo
+               enddo ! loop over k.
+
+C Last loop to keep the direction of the original vectors
+               do i=1,npdf
+                  if (AA(i,i).lt.0) then
+                     do j=1,npdf
+                        AA(j,i) = -AA(j,i)
+                     enddo
+                  endif
+               enddo
+
+
                open (52,file=trim(OutDirName)//'/pdf_rot.dat'
      $              ,status='unknown')
                write (52,'(''LHAPDF set='',A32)') 
      $              trim(adjustl(LHAPDFSET))
-               write (52,'(i4)') nsys-nsysdata
-               do i=nsys-nsysdata,1,-1
+               write (52,'(i4)') Npdf
+               do i=1,Npdf
 C                  print *,'haha',i,C(i),ifail
-                  AA(i,i) = AA(i,i)*sqrt(C(i))
                   write (52,'(i5,200F10.6)') i,
-     $                 (AA(j,i),j=1,nsys-nsysdata)
+     $                 (AA(j,i),j=1,Npdf)
                enddo
                close (52)
                
