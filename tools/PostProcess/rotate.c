@@ -79,8 +79,8 @@ int rotate(int argc,char* argv[]) {
         Pdf *rot_members=malloc(sizeof(Pdf)*(n_members-1)); //FREE
         rot_members--;
         for(i=1; i<n_members;i++) {
-                pdf_initialize(&rot_members[i], members[i].nx, members[i].nq, members[i].n_pdf_flavours);
-                rot_members[i].info=members[i].info;
+                pdf_initialize(&rot_members[i], 
+                                members[i].nx, members[i].nq, members[i].n_pdf_flavours, members[i].info);
                 memcpy(rot_members[i].x, members[i].x, sizeof(double)*members[i].nx);
                 memcpy(rot_members[i].q, members[i].q, sizeof(double)*members[i].nq);
                 memcpy(rot_members[i].pdf_flavours, members[i].pdf_flavours, sizeof(int)*members[i].n_pdf_flavours);
@@ -161,7 +161,7 @@ int rotate(int argc,char* argv[]) {
         pdf_free(&members[0]);
         for(i=1; i<n_members; i++) {
                 pdf_free(&members[i]);
-                rot_members[i].info=NULL;
+//                rot_members[i].info=NULL;
                 pdf_free(&rot_members[i]);
         }
         free(members);

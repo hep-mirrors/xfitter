@@ -14,19 +14,20 @@ int custom(int argc,char* argv[]) {
         if(!strcmp(argv[0],"--help")) help();
 
         int i, j, ix, iq, ifl, i_tmp; // counters and dummy vars
-        char *in_path=argv[0];
+        char *in_path1=argv[0];
+        char *in_path2=argv[1];
 
         /***                      CUSTOM CODE                      ***/
-        PdfSet pdf_set;
-        if(load_lhapdf6_set(&pdf_set, in_path)) return 1;
+        PdfSet pdf_set1;
+        PdfSet pdf_set2;
+        if(load_lhapdf6_set(&pdf_set1, in_path1)) return 1;
+        if(load_lhapdf6_set(&pdf_set2, in_path2)) return 1;
 
-        Pdf *copy=pdf_dup(&pdf_set.members[0]);
+        if(pdf_set_cmp(&pdf_set1, &pdf_set2)) puts("ok");
 
-        info_save(copy->info, stdout);
-        
         /***                    END CUSTOM CODE                    ***/
-        pdf_set_free(&pdf_set);
-        pdf_free(copy);
+        pdf_set_free(&pdf_set2);
+        pdf_set_free(&pdf_set1);
 
         return 0;
 }

@@ -2,11 +2,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <libgen.h>
+#include <math.h>
+#include <float.h>
 #include <yaml.h>
 #include "c2yaml.h"
 #include "list.h"
 #include "pdf2yaml.h"
-
+//#define DBL_CMP(x, y) (fabs(x-y) < 10 * FLT_EPSILON) 
+#define DBL_CMP(x, y) ( fabs(x-y) <= ((fabs(x) > fabs(y)) ? fabs(x) : fabs(y))*25.0*FLT_EPSILON  )
 // Pdf info
 static Info *parse_yaml_seq(Info *info, yaml_document_t *doc, yaml_node_t *mkey, yaml_node_t *mval);
 static Info *parse_yaml_map(Info *info, yaml_document_t *doc, yaml_node_t *node);
@@ -28,7 +31,7 @@ static Info *parse_yaml_map(Info *info, yaml_document_t *doc, yaml_node_t *node)
         return info;
 }
 
-static Info *parse_yaml_seq(Info *info, yaml_document_t *doc, yaml_node_t *mkey, yaml_node_t *mval) {
+static Info *parse_yaml_seq( Info *info, yaml_document_t *doc, yaml_node_t *mkey, yaml_node_t *mval) {
         int seq_size=0,i=0;
         yaml_node_item_t *seq_it, *top, *end, *start;
         yaml_node_t *seq_node;
@@ -36,7 +39,7 @@ static Info *parse_yaml_seq(Info *info, yaml_document_t *doc, yaml_node_t *mkey,
         top=mval->data.sequence.items.top;
         end=mval->data.sequence.items.end;
         for(seq_size=0, seq_it=start; seq_it!=end && seq_it!= top; seq_it++) seq_size++;
-        double *darray=malloc(sizeof(double)*seq_size);
+        double *darray=calloc(seq_size, sizeof(double));
         seq_it=start;
         while(seq_it!=end && seq_it!= top) {
                 seq_node=yaml_document_get_node(doc, *seq_it);
@@ -164,6 +167,35 @@ Info_Node *info_node_dup(Info_Node *node) {
         return new_node;
 }
 
+int info_node_cmp(Info_Node *node1, Info_Node *node2) {
+        if(node1==node2) return 1;
+        double x,y;
+        int res=1;
+        int i;
+        if(node1->node_type!=node2->node_type) return 0;
+        if(node1->node_type==STRING) {
+                res*=!strcmp(node1->key, node2->key);
+                res*=!strcmp(node1->value.string, node2->value.string); 
+        }
+
+        if(node1->node_type==DARRAY) {
+                res*=!strcmp(node1->key, node2->key);
+                if(node1->value.darray.size!=node2->value.darray.size) return 0;
+                for(i=0; i<node1->value.darray.size; i++) {
+                        x=node1->value.darray.vals[i];
+                        y=node2->value.darray.vals[i];
+                        res*=(DBL_CMP(node1->value.darray.vals[i], node2->value.darray.vals[i]));
+                        if(!res) {
+                                fprintf(stderr, "Error pdf_cmp(info %s): %1.8e %1.8e\n", node1->key,
+                                                node1->value.darray.vals[i]-node2->value.darray.vals[i], FLT_EPSILON);
+                                return 0;
+                        }
+                }
+        }
+
+        return res;
+}
+
 Info *info_dup(const Info *info) {
         Info_Node *node;
         Info *new_info=NULL;
@@ -176,6 +208,17 @@ Info *info_dup(const Info *info) {
         }
         list_free(r);
         return new_info;
+}
+
+int info_cmp(Info *info1, Info *info2) {
+        while(1) {
+                if(info1==info2) return 1;
+                if(info1==NULL || info2==NULL) return 0;
+                if(!info_node_cmp(info1->data, info2->data)) return 0;
+                info1=info1->next;
+                info2=info2->next;
+        }
+        return 0;
 }
 
 void info_free(Info *info) {
@@ -194,7 +237,7 @@ void info_free(Info *info) {
 //                     Pdf member
 
 // allocate memory for empty Pdf member
-void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours) {
+void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours, Info *info) {
         int i, j, k;
         pdf->nx=nx;
         pdf->nq=nq;
@@ -203,6 +246,7 @@ void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours) {
         pdf->x=malloc(sizeof(double)*pdf->nx);
         pdf->q=malloc(sizeof(double)*pdf->nq);
         pdf->pdf_flavours=malloc(sizeof(int)*pdf->n_pdf_flavours);
+        pdf->info=info_dup(info);
 
         pdf->val=malloc(sizeof(double **)*pdf->nx);
         for(i=0; i<pdf->nx; i++) {
@@ -211,17 +255,94 @@ void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours) {
         }
 }
 
+int pdf_cpy(Pdf *dest, const Pdf *src) {
+        int i, j;
+        if(dest->nx!=src->nx || 
+                        dest->nq!=src->nq || 
+                        dest->n_pdf_flavours!=src->n_pdf_flavours )
+                fputs("pdf_copy: grids are inconsistent or dest is not initialized", stderr);
+
+        memcpy(dest->x, src->x, sizeof(double)*src->nx);
+        memcpy(dest->q, src->q, sizeof(double)*src->nq);
+        memcpy(dest->pdf_flavours, src->pdf_flavours, sizeof(int)*src->n_pdf_flavours);
+
+        for(i=0; i<src->nx; i++) 
+                for(j=0; j<src->nq; j++)
+                        memcpy(dest->val[i][j], src->val[i][j], sizeof(double)*src->n_pdf_flavours);
+        return 0;
+}
+
 Pdf *pdf_dup(Pdf *pdf) {
         int i, j;
         Pdf *new_pdf=malloc(sizeof(Pdf));
-        pdf_initialize(new_pdf, pdf->nx, pdf->nq, pdf->n_pdf_flavours);
-        new_pdf->info=info_dup(pdf->info);
-        for(i=0; i<pdf->nx; i++) 
-                for(j=0; j<pdf->nq; j++)
-                        memcpy(new_pdf->val[i][j], pdf->val[i][j], sizeof(double)*pdf->n_pdf_flavours);
+        pdf_initialize(new_pdf, pdf->nx, pdf->nq, pdf->n_pdf_flavours, pdf->info);
+        pdf_cpy(new_pdf, pdf);
         return new_pdf;
 }
 
+int pdf_cmp(Pdf *pdf1, Pdf *pdf2) {
+        int ix, iq, ifl;
+        int res=1;
+        if(pdf1->nx!=pdf2->nx) {
+                fprintf(stderr, "Error pdf_cmp(nx): %d %d\n", pdf1->nx, pdf2->nx );
+                return 0;
+        }
+
+        if(pdf1->nq!=pdf2->nq) {
+                fprintf(stderr, "Error pdf_cmp(nq): %d %d\n", pdf1->nq, pdf2->nq ); 
+                return 0;
+        }
+
+        if(pdf1->n_pdf_flavours!=pdf2->n_pdf_flavours) { 
+                fprintf(stderr, "Error pdf_cmp(n_pdf_flavours): %d %d\n", 
+                                pdf1->n_pdf_flavours, pdf2->n_pdf_flavours);
+                return 0;
+        }
+
+        if(!info_cmp(pdf1->info, pdf2->info)) {
+                fputs("Error pdf_cmp(info)\n", stderr);
+                return 0;
+        }
+        
+        for(ix=0; ix< pdf1->nx; ix++) { 
+                res*=(fabs(pdf1->x[ix]-pdf2->x[ix])<FLT_EPSILON);
+                if(!res) { 
+                        fprintf(stderr, "Error pdf_cmp(x): %g %g\n", pdf1->x[ix], pdf2->x[ix]);
+                        return 0;
+                }
+        }
+
+        for(iq=0; iq< pdf1->nq; iq++) {
+                res*=(fabs(pdf1->q[iq]-pdf2->q[iq])<FLT_EPSILON);
+                if(!res) { 
+                        fprintf(stderr, "Error pdf_cmp(q): %g %g\n", pdf1->q[iq], pdf2->q[iq]);
+                        return 0;
+                }
+        }
+
+        for(ifl=0; ifl< pdf1->n_pdf_flavours; ifl++) {
+                res*=(pdf1->pdf_flavours[ifl]==pdf2->pdf_flavours[ifl]);
+                if(!res) { 
+                        fprintf(stderr, "Error pdf_cmp(pdf_flavours): %d %d\n", 
+                                        pdf1->pdf_flavours[ifl], pdf2->pdf_flavours[ifl]);
+                        return 0;
+                }
+        }
+        if(!res) return 0;
+
+        for(ix=0; ix< pdf1->nx; ix++) 
+        for(iq=0; iq< pdf1->nq; iq++) 
+        for(ifl=0; ifl< pdf1->n_pdf_flavours; ifl++) {
+                res*=(fabs(pdf1->val[ix][iq][ifl]-pdf2->val[ix][iq][ifl])<FLT_EPSILON);
+                if(!res) { 
+                        fprintf(stderr, "Error pdf_cmp(val): %g %g\n", 
+                                        pdf1->val[ix][iq][ifl], pdf2->val[ix][iq][ifl]);
+                        return 0;
+                }
+        }
+
+        return res;
+}
 // load Pdf member from file. It does not require pdf_initialize for *pdf argument
 int load_lhapdf6_member(Pdf *pdf, char *path) {
         double d_tmp;
@@ -413,6 +534,42 @@ int save_lhapdf6_set(PdfSet *pdf_set, char *path) {
                 free(path_tmp);
 }
 
+void pdf_set_initialize(PdfSet *pdf_set, int n_members, int nx, int nq, int n_pdf_flavours, Info *info, Info *minfo) {
+        int i;
+        pdf_set->n_members=n_members;        
+        pdf_set->info=info_dup(info);
+        pdf_set->members=malloc(sizeof(Pdf)*pdf_set->n_members);
+        for(i=0; i< pdf_set->n_members; i++) 
+                pdf_initialize(&pdf_set->members[i], nx, nq, n_pdf_flavours, minfo);
+}
+
+PdfSet *pdf_set_dup(PdfSet *pdf_set) {
+        int i;
+        Pdf *member;
+        PdfSet *copy=malloc(sizeof(PdfSet));
+        copy->info=info_dup(pdf_set->info);
+        copy->n_members=pdf_set->n_members;
+        copy->members=malloc(sizeof(Pdf)*copy->n_members);
+        for(i=0; i<copy->n_members; i++) { 
+                member=pdf_dup(&pdf_set->members[i]);
+                copy->members[i]=*member;
+                free(member);
+        }
+        return copy;
+}
+
+int pdf_set_cmp(PdfSet *pdf_set1, PdfSet *pdf_set2) {
+        int i;
+        if(!info_cmp(pdf_set1->info, pdf_set2->info)) {
+                fprintf(stderr, "Error pdf_set_cmp(info)\n");
+                return 0;
+        }
+        if(pdf_set1->n_members!=pdf_set2->n_members) return 0;
+        for(i=0; i<pdf_set1->n_members; i++)
+                if(!pdf_cmp(&pdf_set1->members[i],&pdf_set2->members[i])) return 0;
+        return 1;
+}
+
 void pdf_set_free(PdfSet *pdf_set) {
         int i;
         for(i=0; i<pdf_set->n_members; i++) pdf_free(&pdf_set->members[i]);
@@ -422,6 +579,6 @@ void pdf_set_free(PdfSet *pdf_set) {
 
 // utility function
 char *n2str(char *s, double n ){ 
-        sprintf(s,"%g",n);
+        sprintf(s,"%1.6e",n);
         return s;
 }
