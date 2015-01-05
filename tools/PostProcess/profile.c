@@ -10,7 +10,7 @@ typedef struct shifts_s {
 } Shifts;
 
 static void help(){
-        puts("postproc profile [--no-omega] [--quad-appr] ");
+        puts("postproc profile [--no-omega] [--quad-appr] pdf_shifts pdf_rot pdf_in pdf_out");
         exit(0);
 }
 
