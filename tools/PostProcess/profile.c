@@ -166,13 +166,14 @@ int profile(int argc, char* argv[]) {
         for(iq=0; iq<rot_set->members[i].nq; iq++ ) 
         for(ifl=0; ifl< rot_set->members[i].n_pdf_flavours; ifl++ ) {
                         rot_set->members[i].val[ix][iq][ifl]=0;
+			rot_set->members[i+1].val[ix][iq][ifl]=0;
                         for(j=(i+1)%2+1; j<rot_set->n_members; j+=2) {
-                        gamma=0.5*(pdf_set.members[j].val[ix][iq][ifl]-pdf_set.members[j+1].val[ix][iq][ifl]);
-                        ome=0.5*(pdf_set.members[j].val[ix][iq][ifl]-pdf_set.members[j+1].val[ix][iq][ifl]);
-                        rot_set->members[i].val[ix][iq][ifl]+=
-                                rot_matrix[(i-1)/2][(j-1)/2]*(gamma+ome*rot_matrix[(i-1)/2][(j-1)/2]);
-                        rot_set->members[i+1].val[ix][iq][ifl]-=
-                                rot_matrix[(i-1)/2][(j-1)/2]*(gamma-ome*rot_matrix[(i-1)/2][(j-1)/2]);
+			  gamma=0.5*(pdf_set.members[j].val[ix][iq][ifl]-pdf_set.members[j+1].val[ix][iq][ifl]);
+			  ome=0.5*(pdf_set.members[j].val[ix][iq][ifl]+pdf_set.members[j+1].val[ix][iq][ifl]);
+			  rot_set->members[i].val[ix][iq][ifl]+=
+			    rot_matrix[(i-1)/2][(j-1)/2]*(gamma+ome*rot_matrix[(i-1)/2][(j-1)/2]);
+			  rot_set->members[i+1].val[ix][iq][ifl]-=
+			    rot_matrix[(i-1)/2][(j-1)/2]*(gamma-ome*rot_matrix[(i-1)/2][(j-1)/2]);
                 }
         }
 
