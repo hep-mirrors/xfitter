@@ -10,7 +10,10 @@ typedef struct shifts_s {
 } Shifts;
 
 static void help(){
-        puts("postproc profile [--no-omega] [--quad-appr] pdf_shifts pdf_rot pdf_in pdf_out");
+        puts("postproc profile [--no-omega] [--quad-approx] pdf_shifts pdf_rot pdf_in pdf_out\n");
+	puts("Options are");
+	puts("  --no-omega:    use symmetric approximation for the central PDF (default: asymmetric, quadratic approximation)");
+	puts("  --quad-approx: use quadratic approximation for PDF errors (default: piecewise linear, separate for + and - PDF variations)\n");
         exit(0);
 }
 
@@ -31,16 +34,24 @@ int profile(int argc, char* argv[]) {
         for(i=0; i<argc; i++) {
                 if(!strcmp(argv[i], "--no-omega")) { 
                         omega=0;
-                        puts("no omega");
+                        puts("no omega term for the central PDF");
                         flagc++;
                 }
-                if(!strcmp(argv[i], "--quad-appr")) { 
-                        quad_approx=1;
-                        puts("quadratic approximation");
-                        flagc++;
+                if(!strcmp(argv[i], "--quad-approx")) { 
+		        quad_approx=1;
+			flagc++;
                 }
         }
+       
         if((argc-flagc)!=4 || !strcmp(argv[0],"--help")) { help(); exit(0);}
+
+	if (quad_approx == 1) {
+	  puts("quadratic approximation for the uncertainties");
+	}
+	else {
+	  puts("piecewise approximation for the uncertainties");
+	}
+
         argv+=flagc;
         char *shifts_path=argv[0];
         char *rot_path=argv[1];
