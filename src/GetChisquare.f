@@ -1133,7 +1133,7 @@ C Last loop to keep the direction of the original vectors
                enddo
 
 
-               open (52,file=trim(OutDirName)//'/pdf_rot.dat'
+               open (52,file=trim(OutDirName)//'/pdf_rotate.dat'
      $              ,status='unknown')
                write (52,'(''LHAPDF set='',A32)') 
      $              trim(adjustl(LHAPDFSET))
@@ -1145,6 +1145,8 @@ C                  print *,'haha',i,C(i),ifail
                enddo
                close (52)
                
+               DeAllocate(AA,AA2,RR)
+   
             endif
          endif
       endif

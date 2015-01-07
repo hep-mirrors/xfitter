@@ -67,9 +67,9 @@ c         print *,'ho',sqrt(theo_err2_loc(k))
          print '(i4,F10.2)',i,Eigenvalues(i)
       enddo
 
-      print '(''Creating pdf_rot.dat file ...'')'
+      print '(''Creating pdf_rotation.dat file ...'')'
 
-      open (51,file=trim(OutDirName)//'/pdf_rot.dat'
+      open (51,file=trim(OutDirName)//'/pdf_rotation.dat'
      $     ,status='unknown')
       write (51,'(''LHAPDF set='',A32)') 
      $     trim(adjustl(LHAPDFSET))
