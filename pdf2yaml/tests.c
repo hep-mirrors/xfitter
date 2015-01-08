@@ -8,24 +8,31 @@
         if(!FUNC()) printf("failed\n"); else printf("ok\n"); } while(0);
 
 int TEST_info_add_node_str(){
+        int res;
         Info *info=NULL;
         info=info_add_node_str(info, "KEY", "VALUE");
         Info_Node *node=info->data;
         char *str=node->value.string;
-        return (strcmp("VALUE", str)==0 && strcmp("KEY", node->key)==0 );
+        res = (strcmp("VALUE", str)==0 && strcmp("KEY", node->key)==0 );
+        info_free(info);
+        return res;
 }
 
 int TEST_info_add_node_darray(){
+        int res;
         Info *info=NULL;
         double darray[]={0.0001,3.14,30};
         info=info_add_node_darray(info, "KEY", darray, 3);
         Info_Node *node=info->data;
-        return (node->value.darray.size==3 && 
+        res = (node->value.darray.size==3 && 
                         node->value.darray.vals[1]==3.14 && 
                         strcmp("KEY", node->key)==0 );
+        info_free(info);
+        return res;
 }
 
 int TEST_info_save() {
+        int res;
         Info *info=NULL;
         info=info_add_node_str(info, "KEY", "VALUE");
         FILE *fp=tmpfile();
@@ -33,21 +40,30 @@ int TEST_info_save() {
         fp=freopen(NULL, "r", fp);
         size_t len;
         char *str=NULL;
-        if(!getline(&str, &len, fp)) return 1;
-        return (strcmp("KEY: VALUE\n", str)==0);
+        if(!getline(&str, &len, fp)) return 0;
+        res = (strcmp("KEY: VALUE\n", str)==0);
+        close(fp);
+        info_free(info);
+        free(str);
+        return res;
 }
 
 int TEST_info_dup() {
+        int res;
         Info *info=NULL;
         info=info_add_node_str(info, "KEY1", "VALUE1");
         double darray[]={10,20,30};
         info=info_add_node_darray(info, "KEY2", darray, 3);
 
         Info *copy=info_dup(info);
-        return info_cmp(copy, info);
+        res = info_cmp(copy, info);
+        info_free(info);
+        info_free(copy);
+        return res;
 }
 
 int TEST_info_node_where() {
+        int res;
         double darray[]={10,20,30};
         Info *info=NULL;
         info=info_add_node_str(info, "KEY1", "VALUE1");
@@ -55,10 +71,12 @@ int TEST_info_node_where() {
         info=info_add_node_str(info, "KEY3", "VALUE3");
         info=info_add_node_str(info, "KEY4", "VALUE4");
         Info_Node *node=info_node_where(info, "KEY3");
-        return(strcmp("VALUE3", node->value.string)==0);
+        res =(strcmp("VALUE3", node->value.string)==0);
+        return res;
 }
 
 int TEST_info_node_update_str() {
+        int res;
         double darray[]={10,20,30};
         Info *info=NULL;
         info=info_add_node_str(info, "KEY1", "VALUE1");
@@ -67,19 +85,23 @@ int TEST_info_node_update_str() {
         info=info_add_node_str(info, "KEY4", "VALUE4");
         Info_Node *node=info_node_where(info, "KEY3");
         info_node_update_str(node, "UPDATED");
-        return(strcmp("UPDATED", node->value.string)==0);
+        res =(strcmp("UPDATED", node->value.string)==0);
+        return res;
 }
 
 int TEST_info_node_dup() {
+        int res;
         Info *info;
         info=info_add_node_str(info, "KEY1", "VALUE1");
         Info_Node *node1=info_node_where(info, "KEY1");
         Info_Node *node2=info_node_dup(node1);
 
-        return info_node_cmp(node1, node2 );
+        res = info_node_cmp(node1, node2 );
+        return res;
 }
 
 int TEST_info_load() {
+        int res;
         Info *info=NULL;
         info=info_add_node_str(info, "KEY1", "VALUE1");
         info=info_add_node_str(info, "KEY2", "VALUE2");
@@ -87,23 +109,27 @@ int TEST_info_load() {
         info_save(info, fp);
         fp=freopen(NULL, "r", fp);
         Info *loaded=info_load(fp);
-        return info_cmp(info, loaded );
+        res = info_cmp(info, loaded );
+        return res;
 }
 
 int TEST_pdf_initialize() {
+        int res;
         Pdf pdf;
         pdf_initialize(&pdf, 100, 100, 6, NULL);
         pdf.val[10][10][1]=1.5;
-        return (
+        res = (
                         pdf.nx==100 && 
                         pdf.nq==100 && 
                         pdf.n_pdf_flavours==6 &&
                         pdf.val[10][10][1]==1.5
                         );
         
+        return res;
 }
 
 int TEST_save_load_lhapdf6_member() {
+        int res;
         int ix, iq, ifl;
         Pdf pdf;
         Info *info=info_add_node_str(NULL, "KEY", "VALUE");
@@ -123,10 +149,12 @@ int TEST_save_load_lhapdf6_member() {
         save_lhapdf6_member(&pdf, path);
         Pdf loaded;
         load_lhapdf6_member(&loaded, path);
-        return( pdf_cmp(&loaded, &pdf));
+        res =( pdf_cmp(&loaded, &pdf));
+        return res;
 }
 
 int TEST_pdf_dup() {
+        int res;
         int ix, iq, ifl;
         Pdf pdf;
         Info *info=info_add_node_str(NULL, "KEY", "VALUE");
@@ -144,10 +172,12 @@ int TEST_pdf_dup() {
 
         Pdf *copy=pdf_dup(&pdf);
 
-        return (pdf_cmp(&pdf, copy));
+        res = (pdf_cmp(&pdf, copy));
 
+        return res;
 }
 int TEST_pdf_cpy() {
+        int res;
         int ix, iq, ifl;
         Pdf pdf;
         Info *info=info_add_node_str(NULL, "KEY", "VALUE");
@@ -167,10 +197,12 @@ int TEST_pdf_cpy() {
         pdf_initialize(&copy, pdf.nx, pdf.nq, pdf.n_pdf_flavours, pdf.info);
         pdf_cpy(&copy, &pdf);
 
-        return pdf_cmp(&copy, &pdf);
+        res = pdf_cmp(&copy, &pdf);
+        return res;
 }
 
 int TEST_pdf_set_initialize() {
+        int res;
         int ix, iq, ifl;
         PdfSet pdf_set;
         Pdf pdf, pdf2;
@@ -196,10 +228,12 @@ int TEST_pdf_set_initialize() {
         pdf_set_initialize(&pdf_set, 2, 2, 2, 2, info, minfo);
         pdf_set.members[0]=pdf;
         pdf_set.members[1]=pdf2;
-        return (pdf_set.members[0].q[0]==1.9 && pdf_set.members[1].q[0]==4.9);
+        res = (pdf_set.members[0].q[0]==1.9 && pdf_set.members[1].q[0]==4.9);
+        return res;
 }
 
 int TEST_save_load_lhapdf6_set() {
+        int res;
         puts("");
         int ix, iq, ifl;
         PdfSet pdf_set;
@@ -231,10 +265,12 @@ int TEST_save_load_lhapdf6_set() {
         PdfSet loaded;
         load_lhapdf6_set(&loaded, path);
         
-        return(pdf_set_cmp(&loaded, &pdf_set));
+        res =(pdf_set_cmp(&loaded, &pdf_set));
+        return res;
 }
 
 int TEST_pdf_set_dup() {
+        int res;
         int ix, iq, ifl;
         PdfSet pdf_set;
         Pdf pdf, pdf2;
@@ -264,7 +300,8 @@ int TEST_pdf_set_dup() {
         PdfSet *copy=pdf_set_dup(&pdf_set);
 
 
-        return (pdf_set_cmp(copy, &pdf_set));
+        res = (pdf_set_cmp(copy, &pdf_set));
+        return res;
 }
 
 //utility function for int/double convertion to char*

@@ -579,6 +579,6 @@ void pdf_set_free(PdfSet *pdf_set) {
 
 // utility function
 char *n2str(char *s, double n ){ 
-        sprintf(s,"%1.6e",n);
+        sprintf(s,"%1.6g",n);
         return s;
 }

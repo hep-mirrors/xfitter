@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include "pdf2yaml.h"
+#include <math.h>
 
 typedef struct shifts_s {
         double *val;
@@ -10,10 +11,9 @@ typedef struct shifts_s {
 } Shifts;
 
 static void help(){
-        puts("postproc profile [--no-omega] [--quad-approx] pdf_shifts pdf_rot pdf_in pdf_out\n");
+        puts("postproc profile [--piecewise-linear] pdf_shifts pdf_rotation pdf_dir_in pdf_dir_out");
 	puts("Options are");
-	puts("  --no-omega:    use symmetric approximation for the central PDF (default: asymmetric, quadratic approximation)");
-	puts("  --quad-approx: use quadratic approximation for PDF errors (default: piecewise linear, separate for + and - PDF variations)\n");
+        puts("  --piecewise-linear: use piecewise linear approximation (default: quadratic approximation )");
         exit(0);
 }
 
@@ -29,28 +29,15 @@ int profile(int argc, char* argv[]) {
         int i_err, i, j, ix, iq, ifl;
 
         int flagc=0;
-        int omega=1;
-        int quad_approx=0;
+        int quad_approx=1;
         for(i=0; i<argc; i++) {
-                if(!strcmp(argv[i], "--no-omega")) { 
-                        omega=0;
-                        puts("no omega term for the central PDF");
+                if(!strcmp(argv[i], "--piecewise-linear")) { 
+                        quad_approx=0;
                         flagc++;
-                }
-                if(!strcmp(argv[i], "--quad-approx")) { 
-		        quad_approx=1;
-			flagc++;
                 }
         }
        
         if((argc-flagc)!=4 || !strcmp(argv[0],"--help")) { help(); exit(0);}
-
-	if (quad_approx == 1) {
-	  puts("quadratic approximation for the uncertainties");
-	}
-	else {
-	  puts("piecewise approximation for the uncertainties");
-	}
 
         argv+=flagc;
         char *shifts_path=argv[0];
@@ -150,6 +137,7 @@ int profile(int argc, char* argv[]) {
         for(ifl=0; ifl< pdf_set.members[i].n_pdf_flavours; ifl++ ) 
                 pdf_set.members[i].val[ix][iq][ifl]-=Center->val[ix][iq][ifl]; 
         
+        if(quad_approx) {
         for(ix=0; ix<pdf_set.members[0].nx; ix++ ) 
         for(iq=0; iq<pdf_set.members[0].nq; iq++ ) 
         for(ifl=0; ifl< pdf_set.members[0].n_pdf_flavours; ifl++ ) 
@@ -159,11 +147,21 @@ int profile(int argc, char* argv[]) {
                         (pdf_set.members[i*2+1].val[ix][iq][ifl]
                          -pdf_set.members[i*2+2].val[ix][iq][ifl])/2.0;
 
-                         if(omega) pdf_set.members[0].val[ix][iq][ifl]-= 
+                         pdf_set.members[0].val[ix][iq][ifl]-= 
                          shifts.val[i]*shifts.val[i]*
                          (pdf_set.members[i*2+1].val[ix][iq][ifl]
                           +pdf_set.members[i*2+2].val[ix][iq][ifl])/2.0;
                          }
+        } else {
+        for(ix=0; ix<pdf_set.members[0].nx; ix++ ) 
+        for(iq=0; iq<pdf_set.members[0].nq; iq++ ) 
+        for(ifl=0; ifl< pdf_set.members[0].n_pdf_flavours; ifl++ ) 
+        for(i=0; i<shifts.n; i++ ) 
+                pdf_set.members[0].val[ix][iq][ifl]-= 
+                       fabs(shifts.val[i])*( shifts.val[i] >0 ?
+                        pdf_set.members[i*2+2].val[ix][iq][ifl]:
+                         pdf_set.members[i*2+1].val[ix][iq][ifl]);
+        }
 
         PdfSet *rot_set=pdf_set_dup(&pdf_set);
 

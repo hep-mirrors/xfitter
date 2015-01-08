@@ -6,12 +6,27 @@
 #include "pdf2yaml.h"
 
 static void help() {
-        puts("usage: postproc rotate matrix_file pdf_dir_in pdf_dir_out\n");
+        puts("usage: postproc rotate [--piecewise-linear] matrix_file pdf_dir_in pdf_dir_out\n");
+	puts("Options are");
+        puts("  --piecewise-linear: use piecewise linear approximation (default: quadratic approximation )");
         exit(0);
 }
 int rotate(int argc,char* argv[]) {
-        if(argc!=3) help();
         int i, j, ix, iq, ifl, i_tmp; // counters and dummy vars
+        int flagc=0;
+        int quad_approx=1;
+        char *line=NULL;
+        for(i=0; i<argc; i++) {
+                if(!strcmp(argv[i], "--piecewise-linear")) { 
+                        quad_approx=0;
+                        flagc++;
+                }
+        }
+       
+        if((argc-flagc)!=3 || !strcmp(argv[0],"--help")) { help(); exit(0);}
+
+        argv+=flagc;
+
         char *mfile=argv[0];
         char *in_path=argv[1];
         char *out_path=argv[2];
@@ -21,6 +36,7 @@ int rotate(int argc,char* argv[]) {
 
         char *out_path_tmp=strdup(out_path); //FREE
         char *pdf_out_name=basename(out_path_tmp);
+        char *pdf_name;
         
         size_t len=0;
         char *info_path=NULL; 
@@ -59,20 +75,47 @@ int rotate(int argc,char* argv[]) {
                 fclose(ss);
                 free(member_path);
         }
-        
-        FILE *matrix_fp=fopen(mfile, "r");
-        if(!matrix_fp) { fprintf(stderr, "Error loading rotation matrix: %s\n", mfile); exit(1);}
-        int n_matrix;
-        if( fscanf(matrix_fp, "%d", &n_matrix ));
 
-        printf("n_matrix: %d\n", n_matrix);
+        //--------------- parse rotation matrix
+
+        FILE *fp=fopen(mfile, "r");
+        if(!fp) {
+                fputs("cant open rotation matrix file!", stderr);
+                exit(1);
+        }
+
+        if(getline(&line, &len, fp)==-1) {
+                fputs("cant open rotation matrix file!", stderr);
+                exit(1);
+        }
+        sscanf(line, "LHAPDF set=%ms", &pdf_name);
+        if(strcmp(pdf_name,pdf_in_name)) {
+                fprintf(stderr, "input PDF set and rotation matrix file are inconsistent:\n"
+                        "\t\"%s\" in rotation matrix file, \"%s\" in input PDF set\n", pdf_name, pdf_in_name);
+                exit(1);
+        }
+        free(pdf_name);
+
+        int n_matrix;
+        i_tmp=fscanf(fp, "%d", &n_matrix );
+        if (!i_tmp || i_tmp==EOF){ 
+                fputs("Bad rotation matrix", stderr);
+                exit(1);
+        }
+
+//        printf("n_matrix: %d\n", n_matrix);
 
         double **rot_matrix=malloc(sizeof(double*)*n_matrix); //FREE
         for(i=0; i< n_matrix; i++) {
-                if(fscanf(matrix_fp, "%d", &i_tmp));
+                i_tmp=fscanf(fp, "%*d");
                 rot_matrix[i]= malloc(sizeof(double)*n_matrix); //FREE
-                for(j=0; j<n_matrix; j++) if(!fscanf(matrix_fp, "%lg", &rot_matrix[i][j])) 
-                        fprintf(stderr, "bad rotation matrix format\n");
+                for(j=0; j<n_matrix; j++) { 
+                        i_tmp=fscanf(fp, "%lg", &rot_matrix[i][j]); 
+                        if(!i_tmp || i_tmp==EOF) {
+                                fprintf(stderr, "bad rotation matrix format\n");
+                                exit(1);
+                        }
+                }
         }
 
         
@@ -97,20 +140,64 @@ int rotate(int argc,char* argv[]) {
         if(!strcmp(error_type,"hessian")) { 
         if(n_matrix!=(n_members-1)/2) {
                 fprintf(stderr, "Number of pdf members and matrix dimension are inconsistent\n");
+                exit(1);
         }
-        for(i=1; i<n_members; i++ ) 
-        for(ix=0; ix<rot_members[i].nx; ix++ ) 
-        for(iq=0; iq<rot_members[i].nq; iq++ ) 
-        for(ifl=0; ifl< rot_members[i].n_pdf_flavours; ifl++ ) {
+        if(quad_approx) {
+
+        double ome, gamma;
+
+        for(i=1; i<n_members; i+=2 ) 
+        for(ix=0; ix<members[i].nx; ix++ ) 
+        for(iq=0; iq<members[i].nq; iq++ ) 
+        for(ifl=0; ifl<members[i].n_pdf_flavours; ifl++ ) {
+                        rot_members[i].val[ix][iq][ifl]=0;
+			rot_members[i+1].val[ix][iq][ifl]=0;
+                        for(j=(i+1)%2+1; j<n_members; j+=2) {
+			  gamma=0.5*(members[j].val[ix][iq][ifl]-members[j+1].val[ix][iq][ifl]);
+			  ome=0.5*(members[j].val[ix][iq][ifl]+members[j+1].val[ix][iq][ifl]);
+			  rot_members[i].val[ix][iq][ifl]+=
+			    rot_matrix[(i-1)/2][(j-1)/2]*(gamma+ome*rot_matrix[(i-1)/2][(j-1)/2]);
+			  rot_members[i+1].val[ix][iq][ifl]-=
+			    rot_matrix[(i-1)/2][(j-1)/2]*(gamma-ome*rot_matrix[(i-1)/2][(j-1)/2]);
+                }
+        }
+
+        } else {
+        for(i=1; i<n_members; i+=2 ) 
+        for(ix=0; ix<members[i].nx; ix++ ) 
+        for(iq=0; iq<members[i].nq; iq++ ) 
+        for(ifl=0; ifl<members[i].n_pdf_flavours; ifl++ ) {
                         rot_members[i].val[ix][iq][ifl]=0;
                         for(j=(i+1)%2+1; j<n_members; j+=2) {
-                        rot_members[i].val[ix][iq][ifl]+=members[j].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
+                        if(rot_matrix[(i-1)/2][(j-1)/2]>0)
+                        rot_members[i].val[ix][iq][ifl]+=
+                                members[j].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
+                        else
+                        rot_members[i].val[ix][iq][ifl]-=
+                                members[j+1].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
                 }
+        }
+
+        for(i=2; i<n_members; i+=2 ) 
+        for(ix=0; ix<members[i].nx; ix++ ) 
+        for(iq=0; iq<members[i].nq; iq++ ) 
+        for(ifl=0; ifl<members[i].n_pdf_flavours; ifl++ ) {
+                        rot_members[i].val[ix][iq][ifl]=0;
+                        for(j=(i+1)%2+1; j<n_members; j+=2) {
+                        if(rot_matrix[(i-1)/2][(j-1)/2]>0)
+                        rot_members[i].val[ix][iq][ifl]+=
+                                members[j].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
+                        else
+                        rot_members[i].val[ix][iq][ifl]-=
+                                members[j-1].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
+                }
+        }
         }
         
         } else if(!strcmp(error_type,"symmhessian")) {
         if(n_matrix!=n_members-1) {
                 fprintf(stderr, "Number of pdf members and matrix dimension are inconsistent\n");
+                exit(1);
         }
         for(i=1; i<n_members; i++ ) 
         for(ix=0; ix<rot_members[i].nx; ix++ ) 
@@ -123,6 +210,7 @@ int rotate(int argc,char* argv[]) {
         }
         } else {
                 fprintf(stderr, "Wrong ErrorType, need symmhessian or hessian\n");
+                exit(1);
         }
                 
         // {M'-, M'+} + M0 
@@ -140,7 +228,10 @@ int rotate(int argc,char* argv[]) {
         fprintf(ss,"%s/%s.info", out_path, pdf_out_name);
         fflush(ss);
         info_fp=fopen(info_path,"w");
-        if(!info_fp) fprintf(stderr, "Error: can't open file %s\n", info_path);
+        if(!info_fp) {
+                fprintf(stderr, "Error: can't open file %s\n", info_path);
+                exit(1);
+        }
         info_save(info, info_fp);
         fclose(ss);
         free(info_path);
