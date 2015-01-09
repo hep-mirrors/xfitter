@@ -32,13 +32,31 @@ AX_LAPACK
 FCFLAGS="$FCFLAGS -ffixed-line-length-132"
 FFLAGS="$FFLAGS -ffixed-line-length-132"
 
-PKG_CHECK_MODULES([YAML], [yaml-0.1], AM_CONDITIONAL([HAVE_YAML],[true]), AM_CONDITIONAL([HAVE_YAML],[false]))
+AC_ARG_ENABLE([postprocess],
+                 [AS_HELP_STRING([--enable-postprocess],[enable postproc tool])])
+
+AS_IF([test "$enable_postprocess" = "yes"], [
+        AC_MSG_CHECKING([for libyaml])
+        AC_LANG_PUSH(C)
+        SAVED_LIBS=$LIBS
+        LIBS="-lyaml $LIBS"
+                AC_LINK_IFELSE(
+                               [AC_LANG_PROGRAM([#include<yaml.h>],[yaml_document_t doc;])],
+                                [AC_MSG_RESULT([yes])]
+                                [AM_CONDITIONAL([HAVE_YAML],[true])],
+                                [AC_MSG_RESULT([no])]
+                                [AM_CONDITIONAL([HAVE_YAML],[false])]
+                                [AC_MSG_WARN([libyaml is not installed. PostProcess tool is not available.])]
+                                )
+                LIBS=$SAVED_LIBS
+        AC_LANG_POP(C)],
+[AM_CONDITIONAL([HAVE_YAML], [false])]
+)
 # openmp suport
 m4_include([m4/ax_openmp.m4])
 
 AC_ARG_ENABLE([openmp],
-                 [AS_HELP_STRING([--enable-openmp],[enable 
-                  openmp support])])
+                 [AS_HELP_STRING([--enable-openmp],[enable openmp support])])
 : ${enable_openmp=no} 
 
 AS_IF([test "$enable_openmp" = "yes"], [
