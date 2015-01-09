@@ -34,6 +34,7 @@ FFLAGS="$FFLAGS -ffixed-line-length-132"
 
 AC_ARG_ENABLE([postprocess],
                  [AS_HELP_STRING([--enable-postprocess],[enable postproc tool])])
+: ${enable_postprocess=yes} 
 
 AS_IF([test "$enable_postprocess" = "yes"], [
         AC_MSG_CHECKING([for libyaml])
