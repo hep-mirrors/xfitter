@@ -8,6 +8,7 @@ libpdf2yaml_a_SOURCES = c2yaml.c list.c pdf2yaml.c
 noinst_PROGRAMS = tests
 tests_SOURCES= tests.c
 tests_LDADD= -L. -lpdf2yaml -lyaml
+tests_DEPENDENCIES= libpdf2yaml.a
 
 AM_CFLAGS = -I$(srcdir)/../include
 
