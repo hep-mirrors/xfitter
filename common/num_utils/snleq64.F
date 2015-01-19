@@ -8,6 +8,7 @@
 * Adopted from CERNLIB by V. Kolesnikov and A. Sapronov (14.07.2014)
 *
       SUBROUTINE DSNLEQ(N,X,F,FTOL,XTOL,MAXF,IPRT,INFO,SUB,W)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
 C     Based on   J.J. More  and  M.Y. Cosnard
 C
