@@ -311,13 +311,14 @@ c     &        '   +-toterr      theory      pull     dataset  '
 
             PlotVarColIdx = GetBinIndex(i,TRIM(Gplotvarcol(i)))
 
-            if(PlotVarColIdx.eq.0) then
+            if(PlotVarColIdx.eq.0.and.GNPlots(i).eq.0) then
                if(Gplotvarcol(i).eq.'undefined') then
                   call HF_Errlog(13021000,
-     $                 'W:Plotting options not set for data set')
+     $                  'W: Plotting options not set for data set: ' 
+     $                   //DATASETLABEL(i))
                else
                   call HF_Errlog(13012901,
-     $                 'W:Plotting: Can not find one of the columns')
+     $                 'W: Plotting: Can not find one of the columns')
                endif
                PlotVar = 0.
             else 
