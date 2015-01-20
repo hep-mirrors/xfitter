@@ -715,8 +715,8 @@ C Re-scale for systematic shifts:
                endif
             enddo
          endif
-         ScaledErrors(i) = sqrt((Stat*Sum)**2+StatConst**2+Unc**2+Offs*daten(i)**2)
-         ScaledErrorsStat(i) = sqrt((Stat*Sum)**2+StatConst**2)
+         ScaledErrors(i) = sqrt((Stat*sqrt(Sum))**2+StatConst**2+Unc**2+Offs*daten(i)**2)
+         ScaledErrorsStat(i) = sqrt((Stat*sqrt(Sum))**2+StatConst**2)
          ScaledErrorsSyst(i) = sqrt(Unc**2+Offs*daten(i)**2)
       enddo
 
