@@ -428,7 +428,7 @@ lhaout_errorset<< "-6 -5 -4 -3 -2 -1 1 2 3 4 5 6 21" << endl;
                 double r = rand[(n)*LHAPDF::numberPDF()+e];
 		double eigenvector_pos=pdfs[e]->xfxQ(flavs[i],xval,(qval));//LHAPDF::xfx(xval,(qval),flavs[i]);//LHAPDF::xfx(i,xval,(qval));
 		double eigenvector_neg=pdfs[e+1]->xfxQ(flavs[i],xval,(qval));//LLHAPDF::xfx(xval,(qval),flavs[i]);//LHAPDF::xfx(i,xval,(qval)) ;
-		val=val + 0.5*abs(eigenvector_pos - eigenvector_neg)*(r);
+		val=val + 0.5*(eigenvector_pos - eigenvector_neg)*(r);
               }        }  	     }
           else {
             for (int e=1; e<LHAPDF::numberPDF()+1; e++) { // symmetric eigenvector sets
