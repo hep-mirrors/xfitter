@@ -32,6 +32,7 @@ private:
   float xmin, xmax;
   int lowrange, uprange;
   float yminr, ymaxr;
+  float ymin, ymax;
 
   bool maketgraph;
   vector <float> valx;
@@ -81,6 +82,8 @@ private:
   float getuprange() {return uprange;};
   float getyminr() {return yminr;};
   float getymaxr() {return ymaxr;};
+  float getymin() {return ymin;};
+  float getymax() {return ymax;};
   bool bincenter() {return maketgraph;};
 };
 

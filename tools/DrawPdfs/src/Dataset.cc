@@ -34,7 +34,7 @@ void Subplot::AddPoint(map <string, float> fline)
   pulls.push_back(fline["pull"]);
 }
 
-Subplot::Subplot(string plotoptions) :  xmin(0), xmax(0), yminr(0), ymaxr(0), extralabel(""), experiment(""), title(""), xlabel(""), ylabel(""), logx(false), logy(false)
+Subplot::Subplot(string plotoptions) :  xmin(0), xmax(0), yminr(0), ymaxr(0), ymin(0), ymax(0), extralabel(""), experiment(""), title(""), xlabel(""), ylabel(""), logx(false), logy(false)
 {
   hastherr = false;
   valid = false;
@@ -95,6 +95,16 @@ Subplot::Subplot(string plotoptions) :  xmin(0), xmax(0), yminr(0), ymaxr(0), ex
 	{
 	  str.ReplaceAll("YmaxR:","");
 	  ymaxr = str.Atof();
+	}
+      else if(str.BeginsWith("Ymin:")) 
+	{
+	  str.ReplaceAll("Ymin:","");
+	  ymin = str.Atof();
+	}
+      else if(str.BeginsWith("Ymax:")) 
+	{
+	  str.ReplaceAll("Ymax:","");
+	  ymax = str.Atof();
 	}
       else if(str.BeginsWith("Xlog"))
 	logx = true;

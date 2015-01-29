@@ -28,15 +28,16 @@ vector<TCanvas*> Chi2scanPainter()
       cnv->SetLeftMargin(lmarg);
       cnv->SetRightMargin(rmarg);
       cnv->SetTopMargin(tmarg);
+      cnv->SetBottomMargin(bmarg);
 
       //Initialise legends
-      TLegend* leg1 = new TLegend(lmarg+0.01, bmarg+0.03, lmarg+0.2,  bmarg+0.03);
+      TLegend* leg1 = new TLegend(lmarg+0.01, bmarg+0.015, lmarg+0.18,  bmarg+0.015);
       leg1->SetFillColor(0);
       leg1->SetBorderSize(0);
       leg1->SetTextAlign(12);
       leg1->SetTextSize(txtsize * 0.8);
       leg1->SetTextFont(62);
-      TLegend* leg2 = new TLegend(lmarg+0.48,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03);
+      TLegend* leg2 = new TLegend(lmarg+0.48,  bmarg+0.015, lmarg+0.48+0.15, bmarg+0.015);
       leg2->SetFillColor(0);
       leg2->SetBorderSize(0);
       leg2->SetTextAlign(12);
@@ -158,18 +159,19 @@ vector<TCanvas*> Chi2scanPainter()
       char cnvname[100];
       sprintf(cnvname, "deltapdf_%s",  (*it).c_str());
       TCanvas* cnv = new TCanvas(cnvname, "", 0, 0, opts.resolution, opts.resolution);
-      cnv->SetLeftMargin(lmarg);
+      cnv->SetLeftMargin(lmarg+0.01);
       cnv->SetRightMargin(rmarg);
       cnv->SetTopMargin(tmarg);
-  
+      cnv->SetBottomMargin(bmarg);
+
       //Initialise legends
-      TLegend* leg1 = new TLegend(lmarg+0.01, bmarg+0.03, lmarg+0.2,  bmarg+0.03);
+      TLegend* leg1 = new TLegend(lmarg+0.018, bmarg+0.015, lmarg+0.15,  bmarg+0.015);
       leg1->SetFillColor(0);
       leg1->SetBorderSize(0);
       leg1->SetTextAlign(12);
       leg1->SetTextSize(txtsize * 0.8);
       leg1->SetTextFont(62);
-      TPaveText* leg2 = new TPaveText(lmarg+0.43,  bmarg+0.03, 1-rmarg-0.01, bmarg+0.03, "NDC");
+      TPaveText* leg2 = new TPaveText(lmarg+0.48,  bmarg+0.015, 1-rmarg-0.01, bmarg+0.015, "NDC");
       leg2->SetFillColor(0);
       leg2->SetBorderSize(0);
       leg2->SetTextAlign(12);
@@ -197,6 +199,9 @@ vector<TCanvas*> Chi2scanPainter()
 
 	    pdfdelta.push_back(h_delta);
 	    h_delta->SetLineColor(opts.colors[*itl]);
+	    if (opts.bw)
+	      h_delta->SetLineStyle(opts.lstyles[*itl]);
+
 
 	    leg1->AddEntry(h_delta, (*itl).c_str(), "l");
 
@@ -228,7 +233,7 @@ vector<TCanvas*> Chi2scanPainter()
 	}
       double delta = ymx - ymn;
       ymx = ymx + delta*0.25;
-      ymn = ymn - delta*(0.05+0.1*pdfdelta.size());
+      ymn = ymn - delta*(0.05+0.11*pdfdelta.size());
 
       //Compute maximum and minimum for x axis
       double xmx = (*pdfdelta.begin())->GetXaxis()->GetBinUpEdge((*pdfdelta.begin())->GetXaxis()->GetLast());
@@ -269,7 +274,7 @@ vector<TCanvas*> Chi2scanPainter()
       templ->GetYaxis()->SetTitleFont(62);
       templ->GetYaxis()->SetLabelSize(txtsize);
       templ->GetYaxis()->SetTitleSize(txtsize);
-      templ->GetYaxis()->SetTitleOffset(offset+0.3);
+      templ->GetYaxis()->SetTitleOffset(offset+0.4);
       templ->GetYaxis()->SetTitle((*it).c_str());
       templ->GetXaxis()->SetLabelFont(62);
       templ->GetXaxis()->SetTitleFont(62);
@@ -285,8 +290,8 @@ vector<TCanvas*> Chi2scanPainter()
       //Draw
       for (vector<TH1F*>::iterator it = pdfdelta.begin(); it != pdfdelta.end(); it++)
 	(*it)->Draw("hist same ][");
-      leg1->Draw();
       leg2->Draw();
+      leg1->Draw();
       DrawLogo()->Draw();
 
       //Store Canvas

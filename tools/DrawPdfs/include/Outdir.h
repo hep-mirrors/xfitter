@@ -30,6 +30,7 @@ class  Outdir {
   string dirname;
   bool MCreplica, cl68, cl90, median, asym;
   bool profiled;
+  bool scale68;
   int  RotatedSet;
  public:
   Outdir() {};
@@ -38,6 +39,7 @@ class  Outdir {
   string GetLabel() {return label;};
   bool IsMCreplica() {return MCreplica;};
   bool IsProfiled() {return profiled;};
+  bool Scale68() {return scale68;};
   bool IsRotated() {return RotatedSet>0;};
   int  rSet()  {return RotatedSet; };
   bool Is68cl() {return cl68;};

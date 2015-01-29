@@ -280,7 +280,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     mx = dataerr->GetMaximum();
   for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      if (opts.therr)
+      if (opts.therr && !opts.noupband)
 	mx = max(mx, (float)((*it).gettherrup()->GetMaximum()));
       else
 	mx = max(mx, (float)((*it).getth()->GetMaximum()));
@@ -295,7 +295,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     mn = hmin(dataerr);
   for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
-      if (opts.therr)
+      if (opts.therr && !opts.noupband)
 	mn = min(mn, (float)(hmin((*it).gettherrdown())));
       else
 	mn= min(mn, (float)(hmin((*it).getth())));
@@ -316,6 +316,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       float delta = mx - mn;
       mx = mx + delta * 0.45/my;
       mn = mn - delta * 0.7/my;
+    }
+  if (datahistos[0].getymax() != 0 && datahistos[0].getymin() != 0)
+    {
+      mx = datahistos[0].getymax();
+      mn = datahistos[0].getymin();
     }
 
   up_templ->SetMaximum(mx);
@@ -346,8 +351,21 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       TLatex l;
       l.SetNDC();
       l.SetTextFont(42);
-      l.SetTextSize(0.04/my);
-      l.DrawLatex(lmarg+0.05, (1-tmarg/my) - 0.13/my, datahistos[0].getextralabel().c_str());
+
+      float vertdist;
+      float txtsz;
+      if (opts.atlasinternal || opts.atlaspreliminary || opts.atlas)
+	{
+	  vertdist = 0.13;
+	  txtsz = 1.;
+	}
+      else
+	{
+	  vertdist = 0.08;
+	  txtsz = 1.2;
+	}
+      l.SetTextSize(txtsz*0.04/my);
+      l.DrawLatex(lmarg+0.05, (1-tmarg/my) - vertdist/my, datahistos[0].getextralabel().c_str());
     }
 
   //Main legend
@@ -429,6 +447,9 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 
       (*it).getth()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
       (*it).getth()->SetLineWidth(opts.lwidth);
+      if (opts.bw)
+	(*it).getth()->SetLineStyle(opts.lstyles[labels[it-datahistos.begin()]]);
+
       if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
 	{
 	  for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
@@ -438,9 +459,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    }
 	  (*it).getth()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 
-	  if (opts.therr)
+	  if (opts.therr && !opts.noupband)
 	    {    
 	      (*it).gettherr()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	      if (opts.bw)
+		(*it).gettherr()->SetLineStyle(opts.lstyles[labels[it-datahistos.begin()]]);
 	      (*it).gettherr()->SetMarkerSize(0);
 	      (*it).gettherr()->SetFillColor(opts.colors[labels[it-datahistos.begin()]]);
 	      (*it).gettherr()->SetFillStyle(opts.styles[labels[it-datahistos.begin()]]);
@@ -480,7 +503,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 
 	      //Set Y error
 	      float errup, errdown;
-	      if (opts.therr)
+	      if (opts.therr && !opts.noupband)
 		{    
 		  errup = (*it).gettherrup()->GetBinContent(b + 1) - (*it).getth()->GetBinContent(b + 1);
 		  errdown = (*it).getth()->GetBinContent(b + 1) - (*it).gettherrdown()->GetBinContent(b + 1);
@@ -496,19 +519,19 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	  gtherr->Draw("P same");
 	}
       if (!opts.points || (*it).bincenter())
-	if (opts.therr && (*it).HasTherr())
+	if (opts.therr && !opts.noupband && (*it).HasTherr())
 	  leg2->AddEntry((*it).gettherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
 	else
 	  leg2->AddEntry((*it).getth(), (labels[it-datahistos.begin()]).c_str(), "l");
       else
-	if (opts.therr && (*it).HasTherr())
+	if (opts.therr && !opts.noupband && (*it).HasTherr())
 	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "pe");
 	else
 	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "p");
     }
 
   //draw theory error borders
-  if (opts.therr)
+  if (opts.therr && !opts.noupband)
     for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
       {
 	(*it).gettherrup()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
@@ -736,6 +759,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 
       (*it).getrth()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
       (*it).getrth()->SetLineWidth(opts.lwidth);
+      if (opts.bw)
+	(*it).getrth()->SetLineStyle(opts.lstyles[labels[it-datahistos.begin()]]);
 
       vector <range> rthranges = historanges((*it).getrthshift());
       if (!opts.threepanels)

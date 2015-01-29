@@ -31,7 +31,8 @@ class CommandParser
   bool abserror, relerror;
   bool q2all;
   bool cl68, cl90, median;
-  int pdfplotsperpage;
+  int plotsperpage;
+  bool scale68;
 
   //data pulls options
   bool therr, points;
@@ -41,6 +42,7 @@ class CommandParser
   bool threlerr;
   bool ratiototheory;
   bool diff;
+  bool noupband;
 
   //shifts options
   int spp, shgth;
@@ -60,9 +62,11 @@ class CommandParser
   vector <string> dirs, labels;
   map <string, int> colors;
   map <string, int> styles;
+  map <string, int> lstyles;
   map <string, int> markers;
   int col[6];
   int styl[6];
+  int lstyl[6];
   int mark[6];
   float lwidth;
   float resolution, pagewidth;
@@ -75,6 +79,7 @@ class CommandParser
   bool atlas, atlaspreliminary, atlasinternal;
   bool cdfiipreliminary;
   bool profiled;
+  bool bw;
 
  private:
   vector <string> allargs;
@@ -118,17 +123,23 @@ class CommandParser
     cout << "\t \t Select among 3 additional color patterns" << endl;
     cout << "\t --thicklines" << endl;
     cout << "\t \t Thicker lines in all plots (better for small plots in slides)" << endl;
+    cout << "\t --largetext" << endl;
+    cout << "\t \t Larger text size in all plots (better for small plots in slides)" << endl;
+    cout << "\t --bw" << endl;
+    cout << "\t \t Black and white compatible plots" << endl;
     cout << "\t --lowres" << endl;
     cout << "\t \t Low resolution logo (smaller file)" << endl;
     cout << "\t --highres" << endl;
     cout << "\t \t High resolution logo (paper quality)" << endl;
     cout << "\t --no-version" << endl;
     cout << "\t \t Do not show version on logo" << endl;
+    cout << "\t --plots-per-page <N>" << endl;
+    cout << "\t \t Number of rows and columns of PDF and data plots per page, default value is 2" << endl;
     cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
     cout << "\t \t PDF plots are not produced" << endl;
     cout << "\t --bands" << endl;
-    cout << "\t \t Draw PDF uncertainty band" << endl;
+    cout << "\t \t Draw PDF uncertainty bands" << endl;
     cout << "\t --profiled" << endl;
     cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
@@ -149,13 +160,13 @@ class CommandParser
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "\t --q2all" << endl;
     cout << "\t \t Plot PDF at all stored values of Q2. By default PDF are plotted only at the starting scale Q0" << endl;
-    cout << "\t --pdfplots-per-page <N>" << endl;
-    cout << "\t \t Number of rows and columns of PDF plots per page, default value is 2" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --no-data" << endl;
     cout << "\t \t Data plots are not produced" << endl;
     cout << "\t --therr" << endl;
-    cout << "\t \t Plot theory errors if availables" << endl;
+    cout << "\t \t Plot theory uncertainties if available" << endl;
+    cout << "\t --noupband" << endl;
+    cout << "\t \t Do not plot theory uncertainties in the upper panel" << endl;
     cout << "\t --points" << endl;
     cout << "\t \t Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
     cout << "\t --theory <label>" << endl;
@@ -210,6 +221,8 @@ class CommandParser
     cout << "\t --asym" << endl;
     cout << "\t \t Evaluate asymmetric errors when possible" << endl;
     cout << "\t \t Can be use in conjunction with --asymbands to get asymmetric errors" << endl;
+    cout << "\t --scale68" << endl;
+    cout << "\t \t Scale PDF uncertainty bands by 1.645 (affects only PDF plots)" << endl;
     cout << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;

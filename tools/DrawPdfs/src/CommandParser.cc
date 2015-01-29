@@ -17,7 +17,9 @@ float marg0 = 0.003;
 
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
+  scale68(false),
   profiled(false),
+  bw(false),
   asym(false),
   logx(true),
   filledbands(false),
@@ -28,7 +30,7 @@ CommandParser::CommandParser(int argc, char **argv):
   relerror(false),
   abserror(false),
   q2all(false),
-  pdfplotsperpage(2),
+  plotsperpage(2),
   cl68(false),
   cl90(false),
   median(false),
@@ -40,6 +42,7 @@ CommandParser::CommandParser(int argc, char **argv):
   pagewidth(20),
   lwidth(2),
   therr(false),
+  noupband(false),
   points(false),
   theorylabel("Theory"),
   onlytheory(false),
@@ -90,6 +93,13 @@ CommandParser::CommandParser(int argc, char **argv):
   mark[4] = 31;
   mark[5] = 27;
 
+  lstyl[0] = 1;
+  lstyl[1] = 2;
+  lstyl[2] = 3;
+  lstyl[3] = 4;
+  lstyl[4] = 5;
+  lstyl[5] = 6;
+
   //Set Hatches style
   gStyle->SetHatchesSpacing(2);
   gStyle->SetHatchesLineWidth(lwidth);
@@ -109,6 +119,15 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--thicklines")
 	  lwidth = 3;
+	else if (*it == "--largetext")
+	  {
+	    txtsize = 0.05;
+	    lmarg = 0.18;
+	    bmarg = 0.13;
+	    offset = 1.6;
+	  }
+	else if (*it == "--bw")
+	  bw = true;
 	else if (*it == "--lowres")
 	  {
 	    resolution = 400;
@@ -184,6 +203,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--bands")
 	  dobands = true;
+	else if (*it == "--scale68")
+	  scale68 = true;
 	else if (*it == "--profiled") {
 	  dobands = true;
 	  profiled = true;
@@ -229,9 +250,9 @@ CommandParser::CommandParser(int argc, char **argv):
 	  logx = false;
 	else if (*it == "--q2all")
 	  q2all = true;
-	else if (*it == "--pdfplots-per-page")
+	else if (*it == "--plots-per-page")
 	  {
-	    pdfplotsperpage = atoi((*(it+1)).c_str());
+	    plotsperpage = atoi((*(it+1)).c_str());
 	    allargs.erase(it+1);
 	  }
 	else if (*it == "--outdir")
@@ -307,6 +328,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--therr")
 	  therr = true;
+	else if (*it == "--noupband")
+	  noupband = true;
 	else if (*it == "--points")
 	  points = true;
 	else if (*it == "--theory")

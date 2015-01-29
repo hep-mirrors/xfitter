@@ -371,20 +371,30 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
                   for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
                     xi.push_back((*eit).GetTable(*pit)[ix]);
 
-                  if (!outdirs[label].IsAsym()) //symmetrise errors
-                    eplus = eminus = ahessdelta(xi);
-                  else //asymmetric errors
-                    ahessdeltaasym(xi, eplus, eminus);
-                }
+		  if (!outdirs[label].IsAsym()) //symmetrise errors
+		    eplus = eminus = ahessdelta(xi);
+		  else //asymmetric errors
+		    ahessdeltaasym(xi, eplus, eminus);
+		  if (outdirs[label].Scale68())
+		    {
+		      eplus = eplus/1.645;
+		      eminus = eminus/1.645;
+		    }
+		}
               else if (err == SymHess)
                 {
                   vector <double> xi;
                   xi.push_back(val);
                   for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
-                    xi.push_back((*eit).GetTable(*pit)[ix]);
+		    xi.push_back((*eit).GetTable(*pit)[ix]);
 
-                  eplus = eminus = shessdelta(xi);
-                }
+		  eplus = eminus = shessdelta(xi);
+		  if (outdirs[label].Scale68())
+		    {
+		      eplus = eplus/1.645;
+		      eminus = eminus/1.645;
+		    }
+		}
 
               //Add model and parametrisation uncertainties
               if (model)

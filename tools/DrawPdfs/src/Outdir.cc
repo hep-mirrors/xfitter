@@ -20,7 +20,7 @@ map <string, Chi2scanData> chi2scanmap;
 vector <TGraphAsymmErrors*> allgraphs;
 
 //Constructor, load all the directory data
-Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym), profiled(false),RotatedSet(0)
+Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym), profiled(false), scale68(false), RotatedSet(0)
 {
   //parse dirs for flags and labels
   string pattern = "";
@@ -92,6 +92,12 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
 
 	  dirname.erase(0, dirname.find(":")+1);
 	}
+      if (prefix == "scale68")
+	{
+	  doprefix = true;
+	  scale68 = true;
+	  dirname.erase(0, dirname.find(":")+1);
+      }
     }
 
   //now parse for the label
