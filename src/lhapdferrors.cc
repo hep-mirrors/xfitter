@@ -52,6 +52,9 @@ void get_lhapdferrors_()
   //Start program
   int npoints = cndatapoints_.npoints_;
   int nsysloc = systema_.nsys_;
+
+  cout << " NSYST = " << nsysloc << "\n";
+
   int MonteCarloPDFErr = 0;
   int AsymHessPDFErr = 0;
   int SymmHessPDFErr = 0;
@@ -493,6 +496,7 @@ void get_lhapdferrors_()
       for (int j = 0; j < npoints; j++)
 	sysmeas_.syst_meas_idx_[i][j] = j + 1;
       systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to PDF uncertainties
+      csysttype_.isysttype_[i] = 2; // THEORY
     }
 
   //Add the PDF uncertainties to the total number of systematic uncertainties

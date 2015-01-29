@@ -194,6 +194,11 @@ extern"C" {
     int chi2parpoint_;
 
   } chi2scan_;
+
+  extern struct {
+    int isysttype_[300];
+  } csysttype_;
+
 }
 
 

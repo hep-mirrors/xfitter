@@ -843,6 +843,8 @@ C
       
       integer com_list(NTot),n_com_list  !> List of affected data, common for two sources.
       integer IR(2*NSysMax), Ifail,  Npdf
+      
+      integer nsystheo, itheoisys(NSysMax)
 
       logical lfirst
       data lfirst /.true./
@@ -1046,18 +1048,33 @@ C Ready to invert
 
 C Also dump correlation matrix for PDF eigenvectors, if present
          if (iflag.eq.3) then
-            if (nsysdata.ne.nsys) then
 
-               Allocate(AA(nsys-nsysdata,nsys-nsysdata))
+C Loop over all sources, find theory sources, count them.
+            nsystheo = 0
+            do l=1,nsys
+               if ( ISystType(l) .eq. iTheorySyst) then
+                  nsystheo = nsystheo + 1
+                  itheoisys(nsystheo) = l  ! reference from "theory" index to "sys" index
+               endif
+            enddo
+
+
+            if (nsystheo.gt.0) then
+
+               npdf = nsystheo
+               
+               Allocate(AA(npdf,npdf))
 
                open (52,file=trim(OutDirName)//'/pdf_shifts.dat',
      $              status='unknown')
                write (52,'(''LHAPDF set='',A32)') 
      $              trim(adjustl(LHAPDFSET))
-               write (52,'(i3)') nsys-nsysdata
-               do l=nsysdata+1,nsys
-                  write (52,'(i3,2F8.4)') l-nsysdata,rsys_in(l), 
-     $                 ersys_in(l)
+               write (52,'(i3)') npdf
+               
+               do l=1,npdf
+                  write (52,'(i3,2F8.4)') l,
+     $                 rsys_in(itheoisys(l)), 
+     $                 ersys_in(itheoisys(l))
                enddo
                close (52)
 
@@ -1065,16 +1082,19 @@ C Also dump correlation matrix for PDF eigenvectors, if present
                open (52,file=trim(OutDirName)//'/pdf_vector_cor.dat'
      $              ,status='unknown')
                write (52,'(i3)') nsys-nsysdata
-               do l=nsysdata+1,nsys
-                  write (52,'(i3,200F8.4)')  l-nsysdata, (
-     $                 A(k,l)/ersys_in(k)/ersys_in(l),k=nsysdata+1,nsys)
-                  do k=nsysdata+1,nsys
-                     AA(k-nsysdata,l-nsysdata) = A(k,l)
+               do l=1,npdf
+                  write (52,'(i3,200F8.4)')  l, (
+     $                 A(itheoisys(k),itheoisys(l))
+     $                 /ersys_in(itheoisys(k))
+     $                 /ersys_in(itheoisys(l)),
+     $                 k=1,npdf)
+                  do k=1,npdf
+                     AA(k,l) = A(itheoisys(k),itheoisys(l))
                   enddo
                enddo
                close (52)
+
 C Also rotation matrix:
-               npdf = Nsys-nsysdata
                Call MyDSYEVD(Npdf,AA,Npdf,C,ifail)
                
 C scale to take into account error reduction
@@ -1920,7 +1940,7 @@ C Define the scaling property based on the first point:
      $           // DataSetLabel( JSet(List_Covar(1)) )
 
 
-            Call AddSystematics(Trim(name_s)//name_t)
+            Call AddSystematics(Trim(name_s)//name_t,iDataSyst)
             do i1=1,NCovar
                i = List_Covar(i1)  ! point to the data
                n_syst_meas(NSYS) = n_syst_meas(NSYS) + 1

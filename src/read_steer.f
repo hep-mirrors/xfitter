@@ -1265,10 +1265,11 @@ C-----------------------------------------
       include 'steering.inc'
       character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax)
       double precision ScaleByNameFactor(nsysmax)
-      
+      character*8 SystematicType(nsysmax)   !  'data' or 'theory', data is default
+
       namelist/ Systematics/ListOfSources,ScaleByNameName
-     $     ,ScaleByNameFactor
-      integer i,ii
+     $     ,ScaleByNameFactor,SystematicType
+      integer i,ii,iType
 C----------------------------------------
 
 C Initialisation:
@@ -1277,7 +1278,7 @@ C Initialisation:
          SysScaleFactor(i) = 1.0D0
          ListOfSources(i) = ' '
          ScaleByNameName(i) = ' '
-
+         SystematicType(i) = 'data'
  ! Set default scaling behaviour:
          if (CorSysScale .eq. 'Linear' ) then
             SysScalingType(i)  =  isLinear
@@ -1327,7 +1328,16 @@ C Decode:
 C
       do i=1,nsysmax
          if (ListOfSources(i).ne.' ') then
-            Call AddSystematics(ListOfSources(i))
+            if (SystematicType(i).eq.'data') then
+               iType = iDataSyst
+            elseif (SystematicType(i).eq.'theory') then
+               iType = iTheorySyst
+            else
+               iType = iDataSyst
+               Call HF_ERRLOG(2015012901,
+     $              'W:Unknown systematics type, set to data')
+            endif
+            Call AddSystematics(ListOfSources(i),iType)
          else
             goto 77
          endif
@@ -1513,12 +1523,13 @@ C
 C
 !> @param SName name of added systematic source. 
 C-----------------------------------------------------------------------------
-      Subroutine AddSystematics(SName)
+      Subroutine AddSystematics(SName,iType)
 
       implicit none
       include 'ntot.inc'
       include 'systematics.inc'
       character*(*) SName
+      integer iType
 
       character*64 SourceName
       
@@ -1587,6 +1598,8 @@ C
          SourceName = SourceName(ii+2:)
          ii = index(SourceName,':')
       enddo
+
+      ISystType(nsys) = iType
 
 C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then

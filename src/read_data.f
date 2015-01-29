@@ -503,7 +503,7 @@ C--- Check if the source already exists:
 C Not found:
             if (j.eq.0)  then
 C--- Add new source
-               Call AddSystematics(SystematicType(i))
+               Call AddSystematics(SystematicType(i),iDataSyst)
                CompressIdx(i) = NSYS               
             else
                CompressIdx(i) = j
@@ -1134,6 +1134,7 @@ C
       include 'ntot.inc'
       include 'steering.inc'
       include 'datasets.inc'
+      include 'systematics.inc'
       character*256 InputTheoNames(NSET)
       Namelist/InTheory/InputTheoNames
       integer i
@@ -1145,6 +1146,7 @@ C-----------------------------------------------------------------
       open (51,file='steering.txt',status='old')
       read (51,NML=InTheory,END=141,ERR=42)
       
+
       do i=1,NSET ! InputFiles
          if ( InputTheoNames(i) .ne. '') then
             call hf_errlog(13052901,'I:Use fixed theory predictions') 
@@ -1293,10 +1295,12 @@ C--- Ignore: special case
          else
 C--- Check if the source already exists:         
             j = SystematicsExist(SystematicType(i))
+
+
 C Not found:
             if (j.eq.0)  then
 C--- Add new source
-               Call AddSystematics(SystematicType(i))
+               Call AddSystematics(SystematicType(i),iTheorySyst)
                CompressIdx(i) = NSYS
             else
                CompressIdx(i) = j

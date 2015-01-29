@@ -60,3 +60,11 @@ C !> Special flag to force recalculations
 C !> Covariance matrix -> nuisance
       logical LConvertCovToNui
       common/CCovNui/LConvertCovToNui
+
+C Keep track of data and theory systematics:
+      integer iDataSyst, iTheorySyst
+      parameter (iDataSyst = 1)
+      parameter (iTheorySyst = 2)
+
+      integer ISystType(NSYSMAX)        ! data/theory (something else ?)
+      common/CSystType/ISystType
