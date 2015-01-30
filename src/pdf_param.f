@@ -527,8 +527,10 @@ C Hermes strange prepare:
       endif
 
 C simple copy first:
-      do i=1,6
+      do i=1,9
          ctglue(i) = pars(i)
+      enddo
+      do i=1,6
          ctuval(i) = pars(10+i)
          ctdval(i) = pars(20+i)
          ctubar(i) = pars(30+i)
@@ -557,6 +559,10 @@ C     Impose Buv = Bdv if parameter for Buv = 0.
      $     .and.(ctstr(3).eq.0).and.
      $     (ctstr(4).eq.0).and.(ctstr(5).eq.0).and.
      $     (ctstr(6).eq.0)) then
+
+         ctstr(2)=ctdbar(2)
+         ctstr(3)=ctdbar(3)
+         ctstr(4)=ctdbar(4)
 
          FreeStrange=.false.  
       else
@@ -596,10 +602,10 @@ C  UF = a0*E**(a3*x)*(1 - x)**a2*x**(a1 + n)*(1 + E**a4*x + E**a5*x**2)
 C
 C-----------------------------------------------------
       implicit none
-      double precision x,a(1:6)
+      double precision x,a(1:9)
       double precision UF
       UF = a(1)*exp(a(4)*x)*(1 - x)**a(3)*x**(a(2))*(1 + exp(a(5))*x 
-     $     + exp(a(6))*x**2)
+     $     + exp(a(6))*x**2)-a(7)*x**a(8)*(1-x)**a(9)
       
       ctpara = UF
 

@@ -1151,6 +1151,7 @@ C---------------------------------------------------------------
       integer i
       double precision SumRuleCTEQ,ctpara, tStr
       double precision ubar,dbar,uval,dval,gluon,str
+      double precision CalcIntegral
       
       integer IDebug
       data IDebug/1/
@@ -1182,6 +1183,7 @@ C Sea:
      $     ctuval(1)*SumRuleCTEQ(0,ctuval) +
      $     ctdval(1)*SumRuleCTEQ(0,ctdval)+ 2.D0*tStr 
       sumGlue = SumRuleCTEQ(0,ctglue)
+      sumMom = sumMom - ctglue(7)*CalcIntegral(ctglue(8),ctglue(9))
 
 
 
@@ -1190,12 +1192,12 @@ C Sea:
 
 
       if (IDebug.eq.1) then
-         print '(''uv:'',6F10.4)',(ctuval(i),i=1,6)
-         print '(''dv:'',6F10.4)',(ctdval(i),i=1,6)
-         print '(''Ub:'',6F10.4)',(ctubar(i),i=1,6)
-         print '(''Db:'',6F10.4)',(ctdbar(i),i=1,6)
-         print '(''GL:'',6F10.4)',(ctglue(i),i=1,6)
-         print '(''ST:'',6F10.4)',(ctstr(i),i=1,6)
+         print '(''uv:'',9F10.4)',(ctuval(i),i=1,9)
+         print '(''dv:'',9F10.4)',(ctdval(i),i=1,9)
+         print '(''Ub:'',9F10.4)',(ctubar(i),i=1,9)
+         print '(''Db:'',9F10.4)',(ctdbar(i),i=1,9)
+         print '(''GL:'',9F10.4)',(ctglue(i),i=1,9)
+         print '(''ST:'',x9F10.4)',(ctstr(i),i=1,9)
       endif
       if (IDebug.eq.10) then
          do i=1,8
