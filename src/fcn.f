@@ -178,7 +178,7 @@ c updf stuff
       Common/theory/Itheory_ca
       Integer idx
 
-      character*2 TypeC, FormC
+      character*2 TypeC, FormC, TypeD
       character*64 Msg
       
 
@@ -650,8 +650,15 @@ C !> Store also type of systematic source info
              TypeC = ':M'
           endif
 
-          write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A10,2A2)')
-     $         jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, TypeC
+          if (ISystType(jsys).eq. iDataSyst) then
+             TypeD = ':D'
+          elseif (ISystType(jsys).eq. iTheorySyst ) then
+             TypeD = ':T'
+          endif
+
+          write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
+     $         jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, 
+     $         TypeC,TypeD
        enddo
 
 c AS release applgrids

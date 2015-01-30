@@ -1944,7 +1944,7 @@ C Define the scaling property based on the first point:
      $           // DataSetLabel( JSet(List_Covar(1)) )
 
 
-            Call AddSystematics(Trim(name_s)//name_t,iDataSyst)
+            Call AddSystematics(Trim(name_s)//name_t)
             do i1=1,NCovar
                i = List_Covar(i1)  ! point to the data
                n_syst_meas(NSYS) = n_syst_meas(NSYS) + 1

@@ -1269,10 +1269,9 @@ C-----------------------------------------
       include 'steering.inc'
       character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax)
       double precision ScaleByNameFactor(nsysmax)
-      character*8 SystematicType(nsysmax)   !  'data' or 'theory', data is default
 
       namelist/ Systematics/ListOfSources,ScaleByNameName
-     $     ,ScaleByNameFactor,SystematicType
+     $     ,ScaleByNameFactor
       integer i,ii,iType
 C----------------------------------------
 
@@ -1282,7 +1281,6 @@ C Initialisation:
          SysScaleFactor(i) = 1.0D0
          ListOfSources(i) = ' '
          ScaleByNameName(i) = ' '
-         SystematicType(i) = 'data'
  ! Set default scaling behaviour:
          if (CorSysScale .eq. 'Linear' ) then
             SysScalingType(i)  =  isLinear
@@ -1332,16 +1330,7 @@ C Decode:
 C
       do i=1,nsysmax
          if (ListOfSources(i).ne.' ') then
-            if (SystematicType(i).eq.'data') then
-               iType = iDataSyst
-            elseif (SystematicType(i).eq.'theory') then
-               iType = iTheorySyst
-            else
-               iType = iDataSyst
-               Call HF_ERRLOG(2015012901,
-     $              'W:Unknown systematics type, set to data')
-            endif
-            Call AddSystematics(ListOfSources(i),iType)
+            Call AddSystematics(ListOfSources(i))
          else
             goto 77
          endif
@@ -1524,16 +1513,20 @@ C
 !>   :O  - "offset"     -- use offset method for error propagation.
 !>
 !>   :E  - "external"   -- use minuit to minimise.
+!>
+!>   :D  - "data" (not theory), default for data files
+!>
+!>   :T  - "theory" (not data), default for theory files
+!>
 C
 !> @param SName name of added systematic source. 
 C-----------------------------------------------------------------------------
-      Subroutine AddSystematics(SName,iType)
+      Subroutine AddSystematics(SName)
 
       implicit none
       include 'ntot.inc'
       include 'systematics.inc'
       character*(*) SName
-      integer iType
 
       character*64 SourceName
       
@@ -1575,6 +1568,8 @@ C
          System(nsys) = SourceName(1:ii-1)
       endif
 
+      ISystType(nsys) = iDataSyst       ! Default
+
       do while (ii.gt.0) 
          if ( SourceName(ii+1:ii+1) .eq.'A' ) then
             SysScalingType(nsys) = isNoRescale
@@ -1592,6 +1587,10 @@ C
             SysForm(nsys) = isOffset
          elseif ( SourceName(ii+1:ii+1) .eq.'E' ) then
             SysForm(nsys) = isExternal
+         elseif ( SourceName(ii+1:ii+1) .eq.'D' ) then
+            ISystType(nsys) = iDataSyst            
+         elseif ( SourceName(ii+1:ii+1) .eq.'T' ) then
+            ISystType(nsys) = iTheorySyst
          else
             print *,'WARRNING: Unknown systematics modifier ',
      $            SourceName(ii+1:)
@@ -1603,7 +1602,6 @@ C
          ii = index(SourceName,':')
       enddo
 
-      ISystType(nsys) = iType
 
 C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then

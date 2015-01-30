@@ -503,7 +503,7 @@ C--- Check if the source already exists:
 C Not found:
             if (j.eq.0)  then
 C--- Add new source
-               Call AddSystematics(SystematicType(i),iDataSyst)
+               Call AddSystematics(SystematicType(i))
                CompressIdx(i) = NSYS               
             else
                CompressIdx(i) = j
@@ -1294,13 +1294,24 @@ C--- Ignore: special case
 
          else
 C--- Check if the source already exists:         
+            if (index(SystematicType(i),':D').eq.0
+     $           .and.index(SystematicType(i),':T').eq.0 ) then
+               j = len_trim(SystematicType(i))
+               if ( SystematicType(i)(j:j).eq.'+') then
+                  SystematicType(i) = SystematicType(i)(1:j-1)//':T+'
+               elseif ( SystematicType(i)(j:j).eq.'-') then
+                  SystematicType(i) = SystematicType(i)(1:j-1)//':T-'
+               else
+                  SystematicType(i) = SystematicType(i)(1:j)//':T'
+               endif
+            endif
             j = SystematicsExist(SystematicType(i))
 
 
 C Not found:
             if (j.eq.0)  then
 C--- Add new source
-               Call AddSystematics(SystematicType(i),iTheorySyst)
+               Call AddSystematics(SystematicType(i))
                CompressIdx(i) = NSYS
             else
                CompressIdx(i) = j
