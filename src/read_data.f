@@ -701,7 +701,10 @@ C By default it is fitted:
          
          if (npoints.ge.NTOT) then
             print 
-     $ '('' ReadDataFile Error, increase NTOT value inside ntot.inc'')'
+     $           '(''ReadDataFile Error: exceeding NTOT'')'
+            print '(''Current NTOT='',i6)',NTOT
+            print '('' Increase NTOT in ntot.inc'')'
+            print '('' and NTOT_C in dimensions.h'')'
             call HF_stop
          endif
 

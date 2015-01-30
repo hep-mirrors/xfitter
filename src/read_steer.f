@@ -1538,9 +1538,10 @@ C-----------------------------------------
       nsys = nsys + 1
       if (NSYS.gt.NSysMax) then
          print 
-     $        '(''ReadDataFile Error: exeeding NSysMax'')'
+     $        '(''ReadDataFile Error: exceeding NSysMax'')'
          print '(''Current NSysMax='',i6)',NSysMax
          print '(''Increase NSysMax in systematics.inc'')'
+         print '(''and NSYSMAX_C in dimensions.h'')'
          call HF_stop
       endif
 
