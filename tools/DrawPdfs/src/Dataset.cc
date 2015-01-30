@@ -389,7 +389,7 @@ Data::Data(string dirname, string label)
     sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(),i);   
     infiles[i] = new ifstream(filename);
     if (! infiles[i]->is_open() ) {
-      cout << "Error " <<endl;
+      cout << "Error " << filename << " not found " << endl;
       return;
     }
   }

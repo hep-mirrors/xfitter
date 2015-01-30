@@ -113,6 +113,7 @@ TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf)
 
 PdfData::PdfData(string dirname, string label) : model(false), par(false)
 {
+  err = None; //Default value, means no pdf variations are found in the directory
   if (outdirs[label].IsMCreplica())
     {
       err = MC;
@@ -532,7 +533,8 @@ void PdfData::pdfRotate(string dirname, string label)
 
 void PdfData::profile(string dirname, string label)
 {
-
+  if (err != AsymHess || err != SymHess)
+    cout << "Error: cannot profile " << dirname << ", no Hessian pdf uncertainties found" << endl;
   // Extract PDF shifts from Results.txt:
 
   // string fname = dirname + "/Results.txt";
@@ -645,7 +647,7 @@ void PdfData::profile(string dirname, string label)
 
               corsum += cor;
             }
-            else if (err = SymHess) {
+            else if (err == SymHess) {
               Pdf Up = Errors[q2].at(id-1);
               double plus =  Up.GetTable(*pit)[ix] - val;
               double cor = - plus*valShift;              

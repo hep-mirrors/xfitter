@@ -9,7 +9,7 @@
 
 using namespace std;
 
-enum pdferr {AsymHess, SymHess, MC};
+enum pdferr {None, AsymHess, SymHess, MC};
 enum pdftype{uv=0, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarubar, uvdv, U, D, Ubar, Dbar};
 
 extern vector <pdftype> pdfs;
