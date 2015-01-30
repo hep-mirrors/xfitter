@@ -1165,6 +1165,10 @@ C some defaults
                Chi2FirstIterationRescale = .true.
             elseif(Chi2ExtraParam(i).eq.'ExtraSystRescale') then
                Chi2ExtraSystRescale = .true.
+c switch on the log poisson correction if ExtraSysRescale was called              
+               Chi2PoissonCorr = .true.
+               call HF_errlog(15012601,
+     $    'I: extra log corr (Poisson) activated with ExtraSystRescale')
             elseif(Chi2ExtraParam(i).ne.'undefined') then
                print *,'Unsupported Chi2ExtraParam = ',Chi2ExtraParam(i)
                call HF_stop
