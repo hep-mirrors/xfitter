@@ -1,4 +1,5 @@
 !> @brief Extra minimization parameters to be passed to Minuit
+#include "dimensions.h"
       integer nExtraParamMax   !> Maximum number of parameters
       parameter (nExtraParamMax=NEXTRAPARAMMAX_C)
 
