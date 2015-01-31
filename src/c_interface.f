@@ -1,9 +1,9 @@
       subroutine fill_c_common
-        include 'd506cm.inc'
-        include 'ntot.inc'
-        include 'c_interface.inc'
-        include 'steering.inc'
-        include 'couplings.inc'
+#include "d506cm.inc"
+#include "ntot.inc"
+#include "c_interface.inc"
+#include "steering.inc"
+#include "couplings.inc"
 
         c_mz= mz
 

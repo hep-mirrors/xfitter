@@ -9,8 +9,8 @@ C--------------------------------------------------------------
 
       implicit none
 
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
 
       integer i,ix,idx,iq2,iflag
       double precision q2,x,gval,sing,umin,dmin
@@ -48,7 +48,7 @@ C--------------------------------------------------------------
      $     '21','22','23','24','25','26','27','28','29','30',
      $     '31','32','33','34','35','36','37','38','39','40' /
 
-      include 'thresholds.inc'
+#include "thresholds.inc"
 
       real*4 glun00h100,ubar00h100,uval00h100,dbar00h100
       real*4 dval00h100,cbar00h100,sbar00h100,bbar00h100
@@ -270,12 +270,12 @@ C--------------------------------------------------
 
       implicit none
       
-      include 'steering.inc'
-      include 'ntot.inc'
-      include 'datasets.inc'
-      INCLUDE 'indata.inc'
-      include 'systematics.inc'
-      INCLUDE 'theo.inc'
+#include "steering.inc"
+#include "ntot.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "theo.inc"
       
       integer i,j,index,PlotVarColIdx,PreviousPlots
       double precision PlotVar,PullVar
@@ -369,9 +369,9 @@ C-------------------------------------------------------------
 C Extra output of PDF parameters
 C-------------------------------------------------------------
       implicit none
-      include 'fcn.inc'
-      include 'endmini.inc'
-      include 'steering.inc'
+#include "fcn.inc"
+#include "endmini.inc"
+#include "steering.inc"
       integer ifcn3
 
       integer i
@@ -417,8 +417,8 @@ C--------------------------------------------------------------------
       Subroutine FindBestFCN3
 
       implicit none
-      include 'endmini.inc'
-      include 'steering.inc'
+#include "endmini.inc"
+#include "steering.inc"
       integer i,iminCont, kflag
       double precision aminCont
 
@@ -502,12 +502,12 @@ C----------------------------------------------------
 
       implicit none
 
-      include 'steering.inc'
-      include 'ntot.inc'
-      include 'datasets.inc'
-      INCLUDE 'indata.inc'
-      include 'systematics.inc'
-      INCLUDE 'theo.inc'
+#include "steering.inc"
+#include "ntot.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "theo.inc"
 
       integer i,j,index,k,reacindx
       
@@ -585,11 +585,11 @@ C> \param SymmetricPDFErr use symmetric or assymmetric errros (beta vs betaasym)
 C----------------------------------------------------------------
       Subroutine WriteTheoryFiles(NNuisance,Theo_cent,SymmetricPDFErr)
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'systematics.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "systematics.inc"
+#include "datasets.inc"
+#include "indata.inc"
 
       integer NNuisance
       double precision Theo_cent(Ntot)

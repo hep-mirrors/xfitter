@@ -6,13 +6,13 @@ C----------------------------------------------------
 
       implicit none
 *     ------------------------------------------------
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'      
-      include 'systematics.inc'
-      include 'indata.inc'
-      include 'couplings.inc'
-      include 'for_debug.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "systematics.inc"
+#include "indata.inc"
+#include "couplings.inc"
+#include "for_debug.inc"
 
       character*10  cdummy
       character   adum 
@@ -205,12 +205,12 @@ C------------------------------------------------------------------------
       subroutine ReadDataFile(CFile)
 
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'systematics.inc'
-      include 'theorexpr.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "theorexpr.inc"
 
       character *(*) CFile
 C Namelist  variables:    
@@ -703,8 +703,7 @@ C By default it is fitted:
             print 
      $           '(''ReadDataFile Error: exceeding NTOT'')'
             print '(''Current NTOT='',i6)',NTOT
-            print '('' Increase NTOT in ntot.inc'')'
-            print '('' and NTOT_C in dimensions.h'')'
+            print '('' Increase NTOT_C in include/dimensions.h'')'
             call HF_stop
          endif
 
@@ -1034,8 +1033,8 @@ C----------------------------------------------------------------------------
       subroutine prepare_control_fit()
 
       implicit none
-      include "ntot.inc"
-      include "indata.inc"
+#include "ntot.inc"
+#include "indata.inc"
       integer i
       real ranflat
 C----------------------------------------------------------------------------
@@ -1074,9 +1073,9 @@ C-------------------------------------------------------------
       implicit none
       integer Idx
       double precision StatError, StatErrorConst,UncorError,UncorConstError
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'indata.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "indata.inc"
 C---------------------------------------------------------
 C 
       if (StatScale.eq.'NoRescale') then
@@ -1134,10 +1133,10 @@ C---------------------------------------------------------
       subroutine read_theoryfilesNML
 C
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "systematics.inc"
       character*256 InputTheoNames(NSET)
       Namelist/InTheory/InputTheoNames
       integer i
@@ -1172,12 +1171,12 @@ C-----------------------------------------------------------------
       implicit none
       character *(*) FileName
       integer IdxDataSet
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'systematics.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "theo.inc"
 C
       integer nsystMax,ncolumnMax
       parameter (nsystMax=nsysmax)

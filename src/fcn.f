@@ -20,9 +20,9 @@ C---------------------------------------------------------
       double precision g_dummy(*),parminuit(*),chi2out,futil
       external futil
 
-      include 'fcn.inc'
-      include 'endmini.inc'
-      include 'for_debug.inc'
+#include "fcn.inc"
+#include "endmini.inc"
+#include "for_debug.inc"
       
       integer i
 
@@ -98,21 +98,21 @@ C------------------------------------------------------------------------------
 C--------------------------------------------------------------
       integer iflag
 
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'alphas.inc'
-      include 'for_debug.inc'
-      include 'couplings.inc'
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'systematics.inc'
-      INCLUDE 'theo.inc'
-      INCLUDE 'indata.inc'
-      INCLUDE 'thresholds.inc'
-      include 'fcn.inc'
-      include 'polarity.inc'
-      include 'endmini.inc'
-      include 'fractal.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
+#include "alphas.inc"
+#include "for_debug.inc"
+#include "couplings.inc"
+#include "ntot.inc"
+#include "datasets.inc"
+#include "systematics.inc"
+#include "theo.inc"
+#include "indata.inc"
+#include "thresholds.inc"
+#include "fcn.inc"
+#include "polarity.inc"
+#include "endmini.inc"
+#include "fractal.inc"
 *     ---------------------------------------------------------
 *     declaration related to alphas
 *     for RT code, transfer alpha S
@@ -686,7 +686,7 @@ C---------------------------------------------------------------------
       double precision function GetTempChi2()
 
       implicit none
-      include 'pdfparam.inc'
+#include "pdfparam.inc"
       integer i
       double precision chi2
       double precision xscale(3)

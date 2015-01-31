@@ -1,12 +1,12 @@
       Subroutine GetDYCCXsection(IDataSet)
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'fcn.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "fcn.inc"
       integer IDataSet
 C-------------------------------------------------
       if (DATASETTheoryType(IDataSet).eq.'kfactor') then
@@ -19,13 +19,13 @@ C-------------------------------------------------
 
       Subroutine GetDYNCXsection(IDataSet)
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'fcn.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "fcn.inc"
       integer IDataSet
 C-------------------------------------------------
       if (DATASETTheoryType(IDataSet).eq.'kfactor') then
@@ -45,13 +45,13 @@ C Calculate DY CC cross section using APPLGRID interface.
 C
 C---------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'scales.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "scales.inc"
 
       integer IDataSet      ! data set index
       integer NPMax         ! max. number of DY points
@@ -192,13 +192,13 @@ C Calculate DY W+, W- and asymmetry cross sections
 C
 C------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'fcn.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "fcn.inc"
       integer IDataSet
 C-------------------------------------------
       integer NPmax
@@ -282,13 +282,13 @@ C The normalization of the predictions is added 15/11/2011
 C
 C------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'fcn.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "fcn.inc"
       integer IDataSet
 C-------------------------------------------
       integer NPmax

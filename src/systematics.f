@@ -7,10 +7,10 @@ c
 
       implicit none 
 
-      include 'ntot.inc'
-      include 'indata.inc'
-      include 'systematics.inc'
-      include 'for_debug.inc'
+#include "ntot.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "for_debug.inc"
 
       integer ir(nsys)
       integer i,j,k,ifail

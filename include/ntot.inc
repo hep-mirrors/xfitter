@@ -1,9 +1,10 @@
+#include "dimensions.h"
 C
 C Basic definitions for 
 C
 
       integer NTOT        !> Total number of data points
-      parameter(NTOT = 2500)
+      parameter(NTOT = NTOT_C)
 
 
       integer NCovarMax   !> Total number of data points, treated by covariance matrix

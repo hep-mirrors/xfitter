@@ -3,14 +3,14 @@
 
       implicit none
 
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'endmini.inc'
-      include 'alphas.inc'
-      include 'thresholds.inc'
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'g_offset.inc'	
+#include "steering.inc"
+#include "pdfparam.inc"
+#include "endmini.inc"
+#include "alphas.inc"
+#include "thresholds.inc"
+#include "ntot.inc"
+#include "systematics.inc"
+#include "g_offset.inc"	"
 
       integer shift_dir
       double precision a
@@ -30,7 +30,7 @@
      +     's36','s37','s38','s39','s40'/
 
 
-      include 'couplings.inc'
+#include "couplings.inc"
 
 C SG: x-dependent fs:
       double precision fs0

@@ -8,14 +8,14 @@ C                'sqrt(S)','e charge', 'reduced', 'e polarity'
 C
 C---------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'fcn.inc'
-      include 'couplings.inc'
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "fcn.inc"
+#include "couplings.inc"
+#include "qcdnumhelper.inc"
 
       character*(*) XSecType
       integer IDataSet

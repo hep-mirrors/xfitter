@@ -4,11 +4,11 @@
 *     and given covariance matrix cov
 *     ------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'covar.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "covar.inc"
 
 
       integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax,NCorrMax
@@ -487,8 +487,8 @@ C  Return idataset index for a give data set name
 C----------------------------------------------------
 
       implicit none 
-      include 'ntot.inc'
-      include 'datasets.inc'      
+#include "ntot.inc"
+#include "datasets.inc"
 
       character *80 name
       integer i
@@ -515,8 +515,8 @@ C     Returns the # of points in a given dataset
 C----------------------------------------------------
 
       implicit none 
-      include 'ntot.inc'
-      include 'datasets.inc'      
+#include "ntot.inc"
+#include "datasets.inc"
 
       integer idataset
 
@@ -537,9 +537,9 @@ C     assume values Values
 C----------------------------------------------------
 
       implicit none 
-      include 'ntot.inc'
-      include 'datasets.inc'      
-      include 'indata.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "indata.inc"
 
 
       integer m, i, idataset, NValues, idx, IdIdxMax, ngoodpoints
@@ -584,8 +584,8 @@ C     Check and fill symetric off-diagonal elements if only
 c     one side is provided 
 C----------------------------------------------------
       implicit none 
-      include 'ntot.inc'
-      include 'indata.inc'
+#include "ntot.inc"
+#include "indata.inc"
 
       double precision cmatrix(NTOT,NTOT)
       integer i,j
@@ -615,9 +615,9 @@ C     Dumps correlation matrices to correlation_matrix.txt
 C     for debuggins purposes
 C----------------------------------------------------
       implicit none 
-      include 'ntot.inc'
-      include 'indata.inc'
-      include 'covar.inc'
+#include "ntot.inc"
+#include "indata.inc"
+#include "covar.inc"
 
       integer i,j
       

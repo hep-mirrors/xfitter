@@ -29,8 +29,8 @@ AX_LAPACK
 #
 # A lot of code written with 132 char. strings.
 #
-FCFLAGS="$FCFLAGS -ffixed-line-length-132"
-FFLAGS="$FFLAGS -ffixed-line-length-132"
+FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp"
+FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp"
 
 AC_ARG_ENABLE([postprocess],
                  [AS_HELP_STRING([--enable-postprocess],[enable postproc tool])])

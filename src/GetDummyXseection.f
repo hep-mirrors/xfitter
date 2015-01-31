@@ -3,11 +3,11 @@
 
 
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
 
       integer i,idx
       integer IDataSet      ! data set index

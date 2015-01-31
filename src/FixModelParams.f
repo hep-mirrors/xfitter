@@ -4,7 +4,7 @@ C-
 C (to be called fron fcn. parsminuit is a vector of minuit parameters.
 C
       Implicit none 
-      include 'extrapars.inc'
+#include "extrapars.inc"
 
       integer GetParameterIndex
       double precision p(*)

@@ -7,10 +7,10 @@ C---------------------------------------------------
 
       implicit none
 
-      include 'steering.inc'
-      include 'ntot.inc'
-      include 'indata.inc'
-      include 'systematics.inc'
+#include "steering.inc"
+#include "ntot.inc"
+#include "indata.inc"
+#include "systematics.inc"
 C=================================================
 
       call Set_Defaults  ! global defaults
@@ -83,18 +83,18 @@ C Set default values for stearable variables.
 C
 C -------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'couplings.inc'
-      include 'pdflength.inc'
-      include 'pdfparam.inc'
-      include 'datasets.inc'
-      include 'systematics.inc'
-      include 'reweighting.inc'
-      include 'scales.inc'
-      include 'indata.inc'
-      include 'for_debug.inc'
-      include 'extrapars.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "couplings.inc"
+#include "pdflength.inc"
+#include "pdfparam.inc"
+#include "datasets.inc"
+#include "systematics.inc"
+#include "reweighting.inc"
+#include "scales.inc"
+#include "indata.inc"
+#include "for_debug.inc"
+#include "extrapars.inc"
 
       integer i
 C------------------------------------------------------
@@ -224,12 +224,12 @@ C----------------------------------------------
 
       implicit none
       
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'steering.inc'
-      include 'scales.inc'
-      include 'indata.inc'
-      include 'for_debug.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "scales.inc"
+#include "indata.inc"
+#include "for_debug.inc"
 C-----------------------------------------------
 
       character*32 Chi2SettingsName(5)
@@ -344,8 +344,8 @@ C-----------------------------------------
 
       implicit none
 C Namelist for EW parameters:
-      include 'couplings.inc'
-      include 'steering.inc'
+#include "couplings.inc"
+#include "steering.inc"
 
       namelist/EWpars/alphaem, gf, sin2thw, convfac,
      $ Mz, Mw, Mh, wz, ww, wh, wtp,
@@ -399,9 +399,9 @@ C-------------------------------------------------------
       subroutine Read_InCorrNml
 
       implicit none
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
 C Namelist for statistical correlations to read
       namelist/InCorr/NCorrFiles,CorrFileNames
 C----------------------------------------------------------
@@ -436,7 +436,7 @@ C-------------------------------------------------------
       subroutine read_hqscalesnml
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       character*32 MassHQ
 C-------------------------------------------------------
 C (Optional) set HQ scale
@@ -487,8 +487,8 @@ C----------------------------------------
       subroutine read_lhapdfnml
 
       implicit none
-      include 'steering.inc'
-      include 'reweighting.inc'
+#include "steering.inc"
+#include "reweighting.inc"
 C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/LHAPDFSET,ILHAPDFSET,
@@ -570,10 +570,10 @@ C---
       subroutine read_chi2scan
 
       implicit none
-      include 'steering.inc'
-      include 'ntot.inc'
-      include 'theorexpr.inc'
-      include 'chi2scan.inc'
+#include "steering.inc"
+#include "ntot.inc"
+#include "theorexpr.inc"
+#include "chi2scan.inc"
 C------------------------------------
 C (Optional) Chi2Scan steering card
       namelist/chi2scan/label,central,values,
@@ -621,7 +621,7 @@ C-------------------------------------------------------
       subroutine read_mcerrorsnml
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
 C (Optional) MC method namelist
       namelist/MCErrors/LRand, ISeeDMC, StaType, SysType, LRandData 
 C------------------------------------------------------
@@ -651,9 +651,9 @@ C--------------------------------------------------------
       subroutine read_chebnml
 
       implicit none
-      include 'steering.inc'
-      include 'pdflength.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdflength.inc"
+#include "pdfparam.inc"
 C---------------------------------------------
 C (Optional) Chebyshev namelist
       namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
@@ -697,7 +697,7 @@ C-------------------------------------------------------------
       subroutine read_polynml
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
 C (Optional) Polynomial parameterisation for valence
       namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
 C-------------------------------------------
@@ -725,10 +725,10 @@ C-------------------------------------------------------
       subroutine read_infilesnml
 
       implicit none
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'steering.inc'
-      include 'scales.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "scales.inc"
 C---
       integer i
 C Namelist for datafiles to read
@@ -774,7 +774,7 @@ C------------------------------------------------------
       implicit none
 C updf stuff
 C Namelist for datafiles 
-      include 'steering.inc'
+#include "steering.inc"
 
       character*132 CCFMfilename  !> Names of input files
       namelist/CCFMFiles/CCFMfilename
@@ -811,9 +811,9 @@ C---------------------------------------------------------
       subroutine read_scalesnml
 
       implicit none
-      include 'ntot.inc'
-      include 'scales.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "scales.inc"
+#include "steering.inc"
 C (Optional) Data-set dependent scales
       namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder
 C---------------------------------------------
@@ -840,7 +840,7 @@ C------------------------------------------------
       subroutine read_outputnml
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       integer i, ilastq2
 
 C Output style namelist
@@ -884,7 +884,7 @@ C------------------------------------------------
       subroutine read_outdirnml
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       namelist/OutDir/OutDirName, LHAPDF6OutDir
       LOGICAL ex
 C--------------------------------------------------------
@@ -933,7 +933,7 @@ C---------------------------------------
       Subroutine SetPDFType()
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
 
 
       if (PDFType.eq.'proton'.or. PDFType.eq.'PROTON') then
@@ -966,7 +966,7 @@ C---------------------------------------
       implicit none
 
       logical lhapdffile_exists
-      include 'steering.inc'
+#include "steering.inc"
 C---------------------------------
 
       FlexibleGluon = .false.
@@ -1044,7 +1044,7 @@ C---------------------------------------
       Subroutine SetHFSCHEME
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
 C---------------------------------
       
       if (HF_SCHEME.eq.'ZMVFNS') then
@@ -1089,7 +1089,7 @@ C---------------------------------------
 
       implicit none
       character*(*) MassHQ
-      include 'steering.inc'
+#include "steering.inc"
 C---------------------------------
 
       if (MassHQ.eq.'mc') then
@@ -1121,7 +1121,7 @@ C---------------------------------------
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8) 
       integer i
-      include 'steering.inc'
+#include "steering.inc"
 C---------------------------------
 
       if (Chi2SettingsName(1).eq.'undefined') then
@@ -1184,7 +1184,7 @@ C-------------------------------------
       Subroutine ReadExtraParam
 
       implicit none
-      include 'extrapars.inc'
+#include "extrapars.inc"
       integer maxExtra
       parameter (maxExtra=50)
       character*32 name(maxExtra)
@@ -1235,7 +1235,7 @@ C-----------------------------------------------
       Subroutine AddExternalParam(name, value, step, min, max)
 
       implicit none
-      include 'extrapars.inc'
+#include "extrapars.inc"
       character*(*) name
       double precision value, step, min, max
 C---------------------------------------------
@@ -1264,9 +1264,9 @@ C-----------------------------------------
       Subroutine read_systematicsnml
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "steering.inc"
       character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax)
       double precision ScaleByNameFactor(nsysmax)
 
@@ -1366,9 +1366,9 @@ C-----------------------------------------
       Subroutine Read_CSOffsetNML
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "steering.inc"
       namelist/CSOffset/ CorSysIndex, UsePrevFit
       ! .................................
 
@@ -1402,7 +1402,7 @@ C
 
       implicit none
       character*(*) Order
-      include 'steering.inc'
+#include "steering.inc"
 C--------------------------------------------------
       if (Order.eq.'LO') then
          I_Fit_Order = 1
@@ -1425,7 +1425,7 @@ C--------------------------------------------------
       subroutine DecodeTheoryType(TheoryType)
 
       character*(*) TheoryType
-      include 'steering.inc'
+#include "steering.inc"
 C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
          iTheory =  0
@@ -1460,8 +1460,8 @@ C
 
       implicit none
       character*(*) SourceName
-      include 'ntot.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "systematics.inc"
       integer j,i,iasym
       character*64 Name
 C----------------------------------------------------------------
@@ -1524,8 +1524,8 @@ C-----------------------------------------------------------------------------
       Subroutine AddSystematics(SName)
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "systematics.inc"
       character*(*) SName
 
       character*64 SourceName
@@ -1540,8 +1540,7 @@ C-----------------------------------------
          print 
      $        '(''ReadDataFile Error: exceeding NSysMax'')'
          print '(''Current NSysMax='',i6)',NSysMax
-         print '(''Increase NSysMax in systematics.inc'')'
-         print '(''and NSYSMAX_C in dimensions.h'')'
+         print '(''Increase NSYSMAX_C in include/dimensions.h'')'
          call HF_stop
       endif
 
@@ -1617,7 +1616,7 @@ C Register external systematics:
       Subroutine CheckInputs
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       character*48 CMess 
 C----------------------------------------------------------
 !      if ( I_Fit_order .eq. 1 ) then

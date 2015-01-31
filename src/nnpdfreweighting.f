@@ -6,15 +6,15 @@ c----------------------------------------------------------------------
       implicit none
       external fcn
 
-      include 'steering.inc'
-      include 'thresholds.inc'
-      include 'couplings.inc'
-      include 'for_debug.inc'
-      include 'fcn.inc'
-      include 'nnpdf.inc'
-      include 'ntot.inc'
-      include 'indata.inc'
-      include 'alphas.inc'
+#include "steering.inc"
+#include "thresholds.inc"
+#include "couplings.inc"
+#include "for_debug.inc"
+#include "fcn.inc"
+#include "nnpdf.inc"
+#include "ntot.inc"
+#include "indata.inc"
+#include "alphas.inc"
 
       character*72 minfile
       integer npdfsets

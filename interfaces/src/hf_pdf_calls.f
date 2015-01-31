@@ -7,8 +7,8 @@ C  Output: 13 PDF values
 C----------------------------------------------------------------------
       implicit none
 C----------------------------------------------------------------------
-      include 'steering.inc'
-      include 'fcn.inc'
+#include "steering.inc"
+#include "fcn.inc"
       double precision x,q2,pdfsf(-6:6)
       integer i
       double precision A,Z, tmpU,tmpD,tmpUb,tmpDb
@@ -67,7 +67,7 @@ C
 C----------------------------------------------------------------------
       implicit none
 C----------------------------------------------------------------------
-      include 'steering.inc'
+#include "steering.inc"
       integer NPoints
       double precision pdfdef(*),Xarray(*),Q2array(*),PDFout(*)
       integer icheck
@@ -101,8 +101,8 @@ C Get data-set depdendent renormalisation scale
 C
 C------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'scales.inc'
+#include "ntot.inc"
+#include "scales.inc"
       integer iDataSet
 C------------------------------------------------------
 
@@ -118,8 +118,8 @@ C Get data-set depdendent renormalisation scale
 C
 C------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'scales.inc'
+#include "ntot.inc"
+#include "scales.inc"
       integer iDataSet
 C------------------------------------------------------
 
@@ -146,7 +146,7 @@ C  Output: 13 PDF values
 C----------------------------------------------------------------------
       implicit none
 C----------------------------------------------------------------------
-      include 'steering.inc'
+#include "steering.inc"
       double precision x,q2,pdfsf(-6:6)
 C----------------------------------------------------------------------
 !$OMP CRITICAL

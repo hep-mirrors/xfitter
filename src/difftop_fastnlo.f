@@ -7,9 +7,9 @@ C  By M. Guzzi and K. Lipka
 C
 C---------------------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
 
       logical UseNormalisation
       integer IDataSet
@@ -46,12 +46,12 @@ C  Created 25/06/2014. Calculate top-pair production cross sections
 C
 C---------------------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
 
       logical UseNormalisation
       integer IDataSet

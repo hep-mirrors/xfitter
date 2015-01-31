@@ -12,14 +12,14 @@ C  \date 2012-03
 C  \copyright Creative Commons license CC-BY-NC 3.0 
 C---------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'fcn.inc'
-      include 'couplings.inc'
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "fcn.inc"
+#include "couplings.inc"
+#include "qcdnumhelper.inc"
 
 cjt      character*(*) XSecType
       integer IDataSet

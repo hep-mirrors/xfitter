@@ -1,7 +1,7 @@
-
+#include "dimensions.h"
 * 
       integer NSYSMAX                  !> Maximum number of correlated systematic sources
-      parameter (NSYSMAX = 300)          
+      parameter (NSYSMAX = NSYSMAX_C)          
 
       integer nSys                     !> Actual number of correlated systematic sources
       integer nSysData             ! data systematics (not including PDFs)

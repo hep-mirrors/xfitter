@@ -5,9 +5,9 @@
 
       implicit none
 
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'for_debug.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
+#include "for_debug.inc"
 
       integer kflag
       double precision t1,t2,t3,t4,term
@@ -930,7 +930,7 @@ C  Created 20 Jul 2011 by VR. Add sum-rules for A.Schoening parameterisation
 C
 C---------------------------------------------------------------
       implicit none
-      include 'pdfparam.inc'
+#include "pdfparam.inc"
 
       double precision sumUv, sumDv
       double precision sumMom, sumGlue,x
@@ -1144,8 +1144,8 @@ C  Created 22 Apr 2011 by SG. Add sum-rules for CTEQ-like parameterisation
 C
 C---------------------------------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision sumUv, sumDv
       double precision sumMom, sumGlue,x
       integer i

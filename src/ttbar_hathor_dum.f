@@ -7,12 +7,12 @@ c----------------------------------------------------------
 
       Subroutine GetHathorXsection(IDataSet)
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
 
       integer IDataSet
 

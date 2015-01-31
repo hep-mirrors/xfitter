@@ -4,7 +4,7 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C-----------------------------------------------
       Subroutine GetNCXsection(IDataSet, local_hfscheme)
-      include 'steering.inc'
+#include "steering.inc"
 
       if(itheory.ge.100) then
          call GetNCxskt(IDataSet, 'NCDIS')
@@ -29,7 +29,7 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C----------------------------------------------------
       Subroutine GetNCCharmXsection(IDataSet, local_hfscheme)
-      include 'steering.inc'
+#include "steering.inc"
       if(itheory.ge.100) then
          call GetNCxskt(IDataSet, 'CHARMDIS')
       else
@@ -42,7 +42,7 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C----------------------------------------------------
       Subroutine GetNCBeautyXsection(IDataSet, local_hfscheme)
-      include 'steering.inc'
+#include "steering.inc"
       if(itheory.ge.100) then
          call GetNCxskt(IDataSet, 'BEAUTYDIS')
       else
@@ -55,7 +55,7 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C----------------------------------------------------
       Subroutine GetNCFL(IDataSet, local_hfscheme)
-      include 'steering.inc'
+#include "steering.inc"
       if(itheory.ge.100) then
          call GetNCxskt(IDataSet, 'FL')
       else
@@ -69,7 +69,7 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C----------------------------------------------------
       Subroutine GetNCF2(IDataSet, local_hfscheme)
-      include 'steering.inc'
+#include "steering.inc"
       if(itheory.ge.100) then
          call GetNCxskt(IDataSet, 'F2')
       else
@@ -114,12 +114,12 @@ C---------------------------------------------------------------
       Subroutine  GetIntegratedDisXsection(IDataSet, XSecType, local_hfscheme)
 
       implicit none
-      include 'ntot.inc'
-      include 'couplings.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "couplings.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "qcdnumhelper.inc"
 
       character*(*) XSecType
       integer IDataSet
@@ -314,15 +314,15 @@ C---------------------------------------------------------------
       Subroutine GetDisXsection(IDataSet, XSecType, local_hfscheme)
 
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'fcn.inc'
-      include 'couplings.inc'
-      include 'qcdnumhelper.inc'
-      include 'for_debug.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "fcn.inc"
+#include "couplings.inc"
+#include "qcdnumhelper.inc"
+#include "for_debug.inc"
 
       character*(*) XSecType
       integer IDataSet, local_hfscheme
@@ -456,9 +456,9 @@ C---------------------------------------------------------------
       Subroutine ReadPolarityAndCharge(IDataSet,charge,polarity)
 
       implicit none
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'polarity.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "polarity.inc"
 
 C Input:
       integer IDataSet
@@ -540,10 +540,10 @@ C---------------------------------------------------------------
      $     IDataSet,XSecType,local_hfscheme,XSec)
 
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "qcdnumhelper.inc"
 
 C Input:
       integer npts, IDataSet, local_hfscheme
@@ -662,9 +662,9 @@ C---------------------------------------------------------------
      $     q2, x, npts, polarity, charge, XSecType)
 
       implicit none
-      include 'steering.inc'
-      include 'couplings.inc'
-      include 'qcdnumhelper.inc'
+#include "steering.inc"
+#include "couplings.inc"
+#include "qcdnumhelper.inc"
 
 C Input:
       double precision X(NPMaxDIS),Q2(NPMaxDIS)
@@ -846,11 +846,11 @@ C---------------------------------------------------------------
      $     charge, local_hfscheme, IDataSet)
 
       implicit none
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'steering.inc'
-      include 'fcn.inc'
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "fcn.inc"
+#include "qcdnumhelper.inc"
 
 C Input:
       double precision x(NPMaxDIS), q2(NPMaxDIS)
@@ -948,11 +948,11 @@ C---------------------------------------------------------------
      $        x, q2, npts, XSecType, F2gamma, FLgamma, local_hfscheme, IDataSet)
 
       implicit none
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'steering.inc'
-      include 'fcn.inc'
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "fcn.inc"
+#include "qcdnumhelper.inc"
 
 C Input:
       double precision x(NPMaxDIS), q2(NPMaxDIS)
@@ -1039,7 +1039,7 @@ C---------------------------------------------------------------
      $     x, q2, npts, XSecType)
 
       implicit none
-      include 'qcdnumhelper.inc'
+#include "qcdnumhelper.inc"
       
 C Input:
       double precision X(NPMaxDIS),Q2(NPMaxDIS)
@@ -1092,12 +1092,12 @@ C---------------------------------------------------------------
      $     F2gamma, FLgamma, IDataSet)
 
       implicit none
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'couplings.inc'
-      include 'steering.inc'
-      include 'fcn.inc'
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "couplings.inc"
+#include "steering.inc"
+#include "fcn.inc"
+#include "qcdnumhelper.inc"
       
 C Input:
       double precision X(NPMaxDIS),Q2(NPMaxDIS)
@@ -1168,12 +1168,12 @@ C---------------------------------------------------------------
       
 
       implicit none
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'steering.inc'
-      include 'fcn.inc'
-      include 'fractal.inc'      
-      include 'qcdnumhelper.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "fcn.inc"
+#include "fractal.inc"      "
+#include "qcdnumhelper.inc"
 
 C     Input:
       double precision x(NPMaxDIS), q2(NPMaxDIS)

@@ -28,8 +28,8 @@ C> @brief Interface to QCDNUM PDF call.
 C
       implicit none
 C------------------------------------
-      include 'fcn.inc'
-      include 'steering.inc'
+#include "fcn.inc"
+#include "steering.inc"
       double precision x, Q, Q2
       double precision xf(-6:6)
       integer iqnset, iqnchk,ifl
@@ -94,7 +94,7 @@ C> @brief Register x,Q2 point on a grid
 C----------------------------------------------
       implicit none
       double precision x,Q2
-      include 'applgrid_fastpdf.inc'
+#include "applgrid_fastpdf.inc"
       logical LFirstTime
       data LFirstTime/.true./
       integer ILoc
@@ -141,8 +141,8 @@ C increase ref.
 C Fast code to cacl. PDFs for applgrid
       Subroutine Calc_pdf_applgrid_fast
       implicit none
-      include 'applgrid_fastpdf.inc'
-      include 'steering.inc'
+#include "applgrid_fastpdf.inc"
+#include "steering.inc"
       integer ICheck,i,ibuf,inbuf,iset,isel
 
       double precision fdef(13,13)
@@ -180,7 +180,7 @@ C Retrieve next PDF value from the buffer
 C
       implicit none
       double precision pdfs(-6:6)
-      include 'applgrid_fastpdf.inc'
+#include "applgrid_fastpdf.inc"
       integer IRound,i
       data IRound/0/
 C----------------------------------------

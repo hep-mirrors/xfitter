@@ -5,13 +5,13 @@ C---------------------------------------------
 C---------------------------------------------
       Subroutine rediagonalize(Ndata,Nsyst)
       implicit none      
-      include 'ntot.inc'
-      include 'steering.inc'
-C      include 'datasets.inc'
-      include 'indata.inc'
-      include 'systematics.inc'
-      include 'covar.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "steering.inc"
+C#include "datasets.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "covar.inc"
+#include "theo.inc"
 
       integer Ndata,NSyst
       integer i,j,k,nsysloc

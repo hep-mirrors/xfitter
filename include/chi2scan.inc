@@ -1,9 +1,10 @@
+#include "dimensions.h"
 C
 C Steering for chi2 scan
 C
 
       integer Nchi2points
-      parameter (Nchi2points = 100)
+      parameter (Nchi2points = NCHI2POINTS_C)
 
 c label for the parameter
       character*64 label

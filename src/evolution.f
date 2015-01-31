@@ -8,9 +8,9 @@
 *
      
       implicit double precision (a-h,o-z)
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'thresholds.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
+#include "thresholds.inc"
 c      common/thresholds/q0,qc,qb
 
       double precision func0,func1,func24,func22
@@ -154,7 +154,7 @@ cv ===
       double precision function func0(id,x)
 *     ----------------------------------------------------
       implicit double precision (a-h,o-z)
-      include 'steering.inc'
+#include "steering.inc"
 
       double precision pdfval, q0
       dimension pdfval(-6:6)
@@ -179,7 +179,7 @@ cv ===
       double precision function func1(id,x)
 *     ----------------------------------------------------
       implicit double precision (a-h,o-z)
-      include 'pdfparam.inc'
+#include "pdfparam.inc"
 
       if (id.eq.0) func1=gluon(x)
       if (id.eq.1) func1=H1D(x)
@@ -198,8 +198,8 @@ cv ===
       double precision function func22(id,x)
 *     ----------------------------------------------------
       implicit double precision (a-h,o-z)
-      include 'pdfparam.inc'
-      include 'steering.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
 
       func22 = 0.D0
       if (id.eq.0) func22=gluon(x)
@@ -235,7 +235,7 @@ C----------------------------
 *     ----------------------------------------------------
 
       implicit double precision (a-h,o-z)
-      include 'pdfparam.inc'
+#include "pdfparam.inc"
 
 
       if (id.eq.0) func24=gluon(x)
@@ -256,7 +256,7 @@ C----------------------------
 *     ----------------------------------------------------
 
       implicit double precision (a-h,o-z)
-      include 'pdfparam.inc'
+#include "pdfparam.inc"
       
       PARAMETER(ParDumpFactor=1.d-3)
       

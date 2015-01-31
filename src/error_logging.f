@@ -72,7 +72,7 @@ C-----------------------------------------------------------------------
 
       implicit none
 
-      include 'for_debug.inc'
+#include "for_debug.inc"
 
       INTEGER   MAXERR,MAXTXT,NMODS 
       PARAMETER (MAXERR=400, MAXTXT=20000, NMODS=10)

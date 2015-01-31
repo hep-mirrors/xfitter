@@ -10,9 +10,9 @@ C
 C---------------------------------------------------------------
       implicit none
 
-      include 'steering.inc'
-      include 'couplings.inc'
-      include 'qcdnumhelper.inc'
+#include "steering.inc"
+#include "couplings.inc"
+#include "qcdnumhelper.inc"
 
 
  

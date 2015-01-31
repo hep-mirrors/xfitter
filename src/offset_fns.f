@@ -1,8 +1,8 @@
 c ===============================================
       Subroutine Offset_SaveStatCov
       implicit none
-      include 'fcn.inc'
-      include 'steering.inc'
+#include "fcn.inc"
+#include "steering.inc"
       integer j,k
 c      integer nparFCN ! number of fit parameters
       ! character*16 OffsLabel
@@ -31,8 +31,8 @@ c      integer nparFCN ! number of fit parameters
 c ===============================================
       Subroutine Offset_SaveParams(mu)
       implicit none
-      include 'fcn.inc'
-      include 'steering.inc'
+#include "fcn.inc"
+#include "steering.inc"
       integer mu
       double precision VAL,ERR,XLOLIM,XUPLIM
       integer IU,IUINT
@@ -59,9 +59,9 @@ c ===============================================
 c ===============================================
       Subroutine Offset_Finalize(iErr)
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "systematics.inc"
       integer iErr
       integer OffsetCollect
       integer nOffset
@@ -93,9 +93,9 @@ c ===============================================
       Subroutine RecovCentrPars
       implicit none
       ! include 'ntot.inc'
-      include 'steering.inc'
-      include 'iofnames.inc'
-      include 'for_debug.inc'
+#include "steering.inc"
+#include "iofnames.inc"
+#include "for_debug.inc"
       ! include 'systematics.inc'
       ! integer iErr
       character*32 Suffix

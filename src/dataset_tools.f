@@ -6,10 +6,10 @@ C  Return bin index corresponding to name CName
 C
 C-----------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-c      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+c#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
       integer IDataSet
       character *(*) CName
       integer i
@@ -35,10 +35,10 @@ C  Return info index corresponding to name CName
 C
 C-----------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-c      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+c#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
       integer IDataSet
       character *(*) CName
       integer i
@@ -62,7 +62,7 @@ C      print *,'ERROR: Could not find index for information ',cname
 !>
 !>
       implicit none
-      include 'extrapars.inc'
+#include "extrapars.inc"
       character*(*) CName
       integer i
 C--------------------------------------------------
@@ -86,10 +86,10 @@ C  Return info index corresponding to kfactor name CName
 C
 C-----------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-c      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+c#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
       integer IDataSet
       character *(*) CName
       integer i
@@ -229,8 +229,8 @@ C--------------------------------------------------------------
       Double Precision Bins(NBin)
       double precision CutMin
       character *(*) BinNames(NBin)
-      include 'ntot.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "steering.inc"
 
       integer idxQ2,idxX,idxY,i
       real*4 q2,x,y, cut
@@ -273,7 +273,7 @@ C--------------------------------------------------------------
 C
 C 26/07/2010: added pq2max cut
 C
-      include 'steering.inc'
+#include "steering.inc"
       real*4 q2,x,y, whad2, cut
       logical fail
 

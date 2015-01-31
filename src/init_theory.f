@@ -3,8 +3,8 @@
 *     ------------------------------------------------
 
       implicit none 
-      include 'ntot.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "steering.inc"
 
 
 *     ------------------------------------------------
@@ -49,8 +49,8 @@ ccc        write(6,*) ' ini_theory: no data sets initialised for theory ',itheor
 *
 *----------------------- ------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "steering.inc"
 C----------------------------------------
 
 
@@ -76,11 +76,11 @@ C---------------------------------
 
       implicit none
 
-      include 'ntot.inc'
-      INCLUDE 'steering.inc'
-      INCLUDE 'thresholds.inc'
-      INCLUDE 'couplings.inc'
-      INCLUDE 'datasets.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "thresholds.inc"
+#include "couplings.inc"
+#include "datasets.inc"
 
          !> QCDNUM grid definitions
 c     xmin_grid defined in steering.inc
@@ -326,9 +326,9 @@ C Created 31/12/12. Split RT code initialisation from QCDNUM
 C
 C-------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'couplings.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "couplings.inc"
 
 C RT parameters
       INTEGER alphaSorderin,alphaSnfmaxin
@@ -410,9 +410,9 @@ C Created 31/12/12. Split FF code initialisation from QCDNUM
 C
 C-------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'couplings.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "couplings.inc"
       integer nwords, ierr
 C-------------------------------------------------------------
       ierr = 1
@@ -452,9 +452,9 @@ C Created 31/12/12. Split FF code initialisation from QCDNUM
 C
 C-------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'couplings.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "couplings.inc"
 
       integer nwords,ierr
       double precision hqmass(3)
@@ -505,9 +505,9 @@ C Created 31/12/12. Split ABKM code initialisation from QCDNUM
 C
 C-------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'couplings.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "couplings.inc"
 
 c ABKM parameters:
       double precision rmass8in,rmass10in
@@ -569,11 +569,11 @@ C June 2, 2011, Initialise theory for different data and theory models
 C
 C---------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'theorexpr.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "theorexpr.inc"
 C-----------------------------------
       integer IDataSet
 C---------------------------------------------------------------
@@ -644,10 +644,10 @@ C Initialise tables for DY process for calculations
 C
 C------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
       integer IDataSet
 C---------------------------------------------------------
 
@@ -685,10 +685,10 @@ C Initialise tables for DY process for calculations
 C
 C------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
       integer IDataSet
 C---------------------------------------------------------
 
@@ -715,10 +715,10 @@ C Initialise tables for DY process for calculations
 C
 C------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
       integer IDataSet
 C---------------------------------------------------------
 
@@ -745,11 +745,11 @@ C Initialise tables for DY process for calculations using k-factors
 C
 C------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
       integer IDataSet
 
       integer GetBinIndex                                                                                                                                    
@@ -847,11 +847,11 @@ C Initialise tables for DY process for calculations using applgrid
 C
 C------------------------------------------------------------     
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
       integer IDataSet, IGridID
       integer i
 
@@ -888,11 +888,11 @@ C Initialise tables for DY process for calculations using k-factors
 C
 C------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
       integer IDataSet
 
       integer GetBinIndex                                                                                                                                    
@@ -999,11 +999,11 @@ C------------------------------------------------------------
       implicit none
       integer IDataSet
 C------------------------------------------------------------
-      include 'ntot.inc'
-C      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
+#include "ntot.inc"
+C#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
 
       integer NfnloGrids
       parameter (NfnloGrids=100)
@@ -1093,8 +1093,8 @@ C
 C------------------------------------------------------------
       implicit none
       integer IDataSet
-      include 'ntot.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+#include "datasets.inc"
 
       integer GetInfoIndex
 
@@ -1131,9 +1131,9 @@ C
 C------------------------------------------------------------
       implicit none
       integer IDataSet
-      include 'ntot.inc'
-      include 'datasets.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
       integer GetInfoIndex
       integer idxSqrtS, idxReaction, idxPrecisionLevel
       double precision sqrtS
@@ -1205,7 +1205,7 @@ C    12/08/2011: Move reading of the namelist to read_steer
 C
 C-----------------------------------------------------
       implicit none
-      include 'couplings.inc'
+#include "couplings.inc"
 C
 C set derived values
 C
@@ -1250,9 +1250,9 @@ c-------------------------------------------------------
 
       implicit none
       integer IDataSet
-      include 'ntot.inc'
-c      include 'steering.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+c#include "steering.inc"
+#include "datasets.inc"
       double precision sqrtS
       integer idxSqrtS
       integer GetInfoIndex
@@ -1268,7 +1268,7 @@ c      include 'steering.inc'
       end
 
       Subroutine ReadXGridNML
-        include 'ntot.inc'
+#include "ntot.inc"
         double precision grid(NXGridMax)
         double precision Q20
         integer NXgrid

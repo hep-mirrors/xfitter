@@ -8,17 +8,17 @@ C-------------------------------------------------------
       implicit none
       external fcn
 
-      include 'steering.inc'
-      include 'thresholds.inc'
-      include 'couplings.inc'
-      include 'for_debug.inc'
-      include 'ntot.inc'
-      include 'indata.inc'
-      include 'systematics.inc'
-      include 'g_offset.inc'	
-      include 'covar.inc'
-      include 'theorexpr.inc'
-      include 'chi2scan.inc'
+#include "steering.inc"
+#include "thresholds.inc"
+#include "couplings.inc"
+#include "for_debug.inc"
+#include "ntot.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "g_offset.inc"	"
+#include "covar.inc"
+#include "theorexpr.inc"
+#include "chi2scan.inc"
 
       integer icond
       integer nOffset

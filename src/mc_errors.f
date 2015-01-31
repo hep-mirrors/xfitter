@@ -7,13 +7,13 @@ C------------------------------------------------------------
       Subroutine MC_method()
 
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'      
-      include 'systematics.inc'
-      include 'indata.inc'
-      include 'for_debug.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"      "
+#include "systematics.inc"
+#include "indata.inc"
+#include "for_debug.inc"
+#include "theo.inc"
 
       integer istage,systypeMod
 
@@ -382,7 +382,7 @@ C------------------------------------------------------------------------
       subroutine init_rnd_seeds()
 
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       integer icount,ntime,ndate
 C Common from CERNLIB datime:
       integer IS

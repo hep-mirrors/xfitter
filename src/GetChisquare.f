@@ -12,9 +12,9 @@ C---------------------------------------------------------
      $     fcorchi2_in)
       implicit none
 
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "systematics.inc"
       
       integer n0_in, flag_in
       double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
@@ -268,8 +268,8 @@ C------------------------------------------------------------------
       implicit none
       logical doMatrix, doNuisance, doExternal
       ! logical doOffset
-      include 'ntot.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "systematics.inc"
       integer k, n_m, n_n, n_e, n_o
       character*64 Msg
 C----------------------
@@ -352,10 +352,10 @@ C-------------------------------------------------------------------------------
      $     List_Covar_inv, n0_in)
 
       implicit none
-      include 'ntot.inc'
-      include 'indata.inc'
-      include 'systematics.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "indata.inc"
+#include "systematics.inc"
+#include "steering.inc"
       integer NDiag, NCovar, List_Diag(NTOT), List_Covar(NTOT), 
      $     List_Covar_inv(NTOT), n0_in
       integer i,k,l
@@ -426,10 +426,10 @@ C---------------------------------------------------------
       subroutine Chi2_calc_readExternal( rsys_in, ersys_in, IFlag )
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'endmini.inc'
-      include 'extrapars.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "endmini.inc"
+#include "extrapars.inc"
       double precision rsys_in(nsysmax), ersys_in(nsysmax)
       integer i,idx, iflag
       integer GetParameterIndex
@@ -472,15 +472,15 @@ C---------------------------------------------------------
 
       implicit none
 
-      include 'ntot.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "systematics.inc"
 
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
       double precision ScaledOmega(NSysMax,Ntot) !> Scaled Omega matrix
 
-      include 'indata.inc'
-      include 'theo.inc'
-c      include 'steering.inc'
+#include "indata.inc"
+#include "theo.inc"
+c#include "steering.inc"
 
       integer i1,j1,i,j,k
       integer scaling_type
@@ -527,10 +527,10 @@ C-------------------------------------------------------------------------------
 
       implicit none
 C
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'indata.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "indata.inc"
+#include "theo.inc"
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
       integer List_Covar_Inv(NTOT)
@@ -583,10 +583,10 @@ C-----------------------------------------------------------
       implicit none
       integer Idx
       double precision Stat, StatConst, Uncor
-      include 'ntot.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "steering.inc"
       double precision d,t,mix
 C-------------------------------------------------------------
       d = daten(idx)
@@ -625,7 +625,7 @@ C----------------------------------------------------------------------------
      $              ScaledTotMatrix, NCovar)
 
       implicit none
-      include 'ntot.inc'
+#include "ntot.inc"
 
       double precision ScaledErrorMatrix(NCovarMax,NCovarMax) ! stat+uncor error matrix
       double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
@@ -672,11 +672,11 @@ C-----------------------------------------------------------------------
      $     rsys_in,n0_in, NCovar, List_Covar, Iterate)
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'steering.inc'
-      include 'theo.inc'
-      include 'covar.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "steering.inc"
+#include "theo.inc"
+#include "covar.inc"
 
       double precision ScaledErrors(NTot), ScaledErrorMatrix(NCovarMax
      $     ,NCovarMax)
@@ -688,7 +688,7 @@ C-----------------------------------------------------------------------
       double precision Stat, StatConst, Unc, Sum
 c       
       
-      include 'indata.inc'
+#include "indata.inc"
       double precision Offs
 C-------------------------------------------------------
 
@@ -748,8 +748,8 @@ C> @brief extend lists of data-syst sources for data points connected via cov. m
 C
       subroutine expand_syst_lists(tot_matrix,list_covar_inv,n0_in)
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "systematics.inc"
       double precision tot_matrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
       integer list_covar_inv(NTOT)
       integer n0_in
@@ -820,11 +820,11 @@ C-------------------------------------------------------------------------------
      $     ,rsys_in,ersys_in,list_covar_inv,  iflag, n0_in, ScaledOmega)
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'theo.inc'
-      include 'indata.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "theo.inc"
+#include "indata.inc"
+#include "steering.inc"
 C
       double precision ScaledErrors(NTOT)
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
@@ -1190,8 +1190,8 @@ C-------------------------------------------------------------------------------
       subroutine Sys_Data_list12(isys1,isys2,n_list,i_list)
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "systematics.inc"
       integer isys1, isys2, i_list(NTot), n_list
       integer i1,j1, i,j
 C---------------------------------------------------------------
@@ -1236,11 +1236,11 @@ C----------------------------------------------------------------------
      $     ,fchi2_in, pchi2_in, fcorchi2_in)
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'theo.inc'
-      include 'indata.inc'
-      include 'steering.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "theo.inc"
+#include "indata.inc"
+#include "steering.inc"
 
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledErrors(Ntot)  ! uncorrelated uncertainties, diagonal
@@ -1340,16 +1340,16 @@ C--------------------------------------------------------------------------
       subroutine chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
 
       implicit none
-      include 'ntot.inc'
+#include "ntot.inc"
 
       double precision ScaledErrors(Ntot)
       double precision chi2_log
       integer n0_in
 
 
-      include 'indata.inc'
-      include 'systematics.inc'
-      include 'datasets.inc'
+#include "indata.inc"
+#include "systematics.inc"
+#include "datasets.inc"
       integer i
       double precision dchi2
 C-------------------------------------------------------------------------
@@ -1387,9 +1387,9 @@ C------------------------------------------------------------------------
       Subroutine Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in, n0_in)
 
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "theo.inc"
       double precision ScaledErrors(Ntot)  ! uncorrelated uncertainties, diagonal
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision rsys_in(NSysMax)
@@ -1427,9 +1427,9 @@ C---------------------------------------------------------------------
      $     rsys_in,Iteration,LStop) 
       
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'systematics.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "systematics.inc"
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledGammaSav(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledOmega(NSysMax,Ntot) ! Scaled Omega matrix
@@ -1507,9 +1507,9 @@ C> @param rsys_in     shifts of systematic uncertaintis (input)
 
       implicit none
 C------------
-      include 'ntot.inc'
+#include "ntot.inc"
 
-      include 'systematics.inc'
+#include "systematics.inc"
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledOmega(NSysMax,Ntot) !
       double precision rsys_in(NSysMax)
@@ -1662,9 +1662,9 @@ C            print *,j,i, ANuisance(i,j),Covar(i,j)
 
       subroutine CovMatrixConverter(fileName)
       implicit none
-      include 'ntot.inc'
-      include 'systematics.inc'
-      include 'covar.inc'
+#include "ntot.inc"
+#include "systematics.inc"
+#include "covar.inc"
       character*(*) fileName
       integer ncovar
       double precision tolerance
@@ -1736,12 +1736,12 @@ C---------------------------------------------------------------
      $     ,StatConstNew, UncorPoissonNew)
       implicit none
 
-      include 'ntot.inc'
-      include 'covar.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'systematics.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+#include "covar.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "systematics.inc"
+#include "datasets.inc"
 
       integer NCovar
       integer List_Covar(NCovarMax)

@@ -5,15 +5,15 @@ C 22 Nov 2011 P. Belov (pavel.belov@desy.de)
 C=======================================================
       implicit none
 C-------------------------------------------------------
-      include 'dipole.inc'
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
-      include 'qcdnumhelper.inc'
-      include 'fcn.inc'
+#include "dipole.inc"
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "qcdnumhelper.inc"
+#include "fcn.inc"
 C-------------------------------------------------------
       integer IDataSet
 
@@ -149,8 +149,8 @@ C This subroutine ius called by subroutine fcn
 C-------------------------------------------------------
       implicit none
 
-      include 'steering.inc'
-      include 'pdfparam.inc'      
+#include "steering.inc"
+#include "pdfparam.inc"      "
 
       parglue(1) = 0.0d0
       parubar(1) = 0.0d0
@@ -168,8 +168,8 @@ C This subroutine ius called by subroutine fcn
 C-------------------------------------------------------
       implicit none
 
-      include 'steering.inc'
-      include 'pdfparam.inc'      
+#include "steering.inc"
+#include "pdfparam.inc"      "
 
 C      parglue(1) = 0.0d0
 C      parubar(1) = 0.0d0
@@ -189,9 +189,9 @@ C 22 Nov 2011 P.Belov
 C upd: 01/12/2011
 C-------------------------------------------------------
       implicit none 
-      include 'dipole.inc'
-      include 'extrapars.inc'
-      include 'steering.inc'
+#include "dipole.inc"
+#include "extrapars.inc"
+#include "steering.inc"
 
       integer idx
       integer GetParameterIndex
@@ -235,8 +235,8 @@ C  Set type of dipole fit.
 C  This subroutine ius called by subroutine read_steer.
 C---------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'dipole.inc'
+#include "steering.inc"
+#include "dipole.inc"
 C---------------------------------
 
       open (51,file='steering.txt',status='old')
@@ -278,8 +278,8 @@ C and valence quarks from DGLAP
 C
 C---------------------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       integer IDataSet
       integer kflag
 C----------------------------

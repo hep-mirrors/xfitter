@@ -12,13 +12,13 @@ C--------------------------------------------------------
 
       double precision p(*)
       integer iflag
-      include 'pdfparam.inc'
-      include 'steering.inc'
-      include 'alphas.inc'
-      include 'thresholds.inc'
-      include 'extrapars.inc'
-      include 'polarity.inc'
-      include 'couplings.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
+#include "alphas.inc"
+#include "thresholds.inc"
+#include "extrapars.inc"
+#include "polarity.inc"
+#include "couplings.inc"
       integer i
 
       double precision fs,rs
@@ -300,7 +300,7 @@ C  22 Nov 2011: dipole model parameters
 * -------------------------------------------------------
 
       implicit none
-      include 'thresholds.inc'
+#include "thresholds.inc"
 
       double precision q
       
@@ -324,9 +324,9 @@ C   pars(51-60)  - sea, delta
 C   pars(91-100)  - others
 C------------------------------------------------------
       implicit none 
-      include 'pdfparam.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
+#include "for_debug.inc"
       double precision pars(*)
       integer i,j
       logical lfirstt
@@ -504,8 +504,8 @@ C   pars(81-86)  - Str
 C   pars(95-100)  - alphas, fstrange, fcharm
 C------------------------------------------------------
       implicit none 
-      include 'pdfparam.inc'
-      include 'steering.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
       double precision pars(*)
       integer i
       logical lfirstt
@@ -621,8 +621,8 @@ C   pars(51-55)  - Dbar
 C   pars(1-5)  - gluon
 C------------------------------------------------------
       implicit none 
-      include 'pdfparam.inc'
-      include 'steering.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
       double precision pars(*)
       integer i
       logical lfirstt
@@ -718,8 +718,8 @@ c value in allowed range
 * x *g(x,Q2)
 
       implicit none
-      include 'pdfparam.inc'
-      include 'steering.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
       double precision x
       integer i
 C External function:
@@ -765,8 +765,8 @@ C
 C Utility to convert chebyshev to standard polynomial expansion.
 C
       implicit none
-      include 'pdfparam.inc'
-      include 'steering.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
       integer i
 C---------------------------------
       if (nchebGlu.gt.0) then
@@ -788,8 +788,8 @@ C---------------------------------
       double precision function H1U(x)
 * -------------------------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,para
 
 
@@ -804,8 +804,8 @@ C---------------------------------
       double precision function H1D(x)
 * -------------------------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,para
 
 
@@ -819,8 +819,8 @@ C---------------------------------
       double precision function Uval(x)
 * -------------------------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,x23
       double precision PolyVal,ctpara,para,splogn
 C---------------------------------------------------
@@ -860,8 +860,8 @@ C
       double precision function Dval(x)
 * -------------------------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,x23
       double precision PolyVal,ctpara,para,splogn
 C--------------------------------------------------------
@@ -921,8 +921,8 @@ C------------------------------------------------
       double precision function sea(x)
 * -------------------------------------------------------
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,Ubar,Dbar
 C External function:
       double precision PolyParam,para
@@ -977,8 +977,8 @@ C-------------------------------------------------
 * -------------------------------------------------------
 * new jf , added to fit a la ZEUS, dbmub = dbar-ubar (not Dbar - Ubar)
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,para
       
 
@@ -993,8 +993,8 @@ C-------------------------------------------------
 * -------------------------------------------------------
 * new jf , added to fit a la ZEUS, qstrange = 0.1 (i.e. fstrange *.5) * sea
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,sea,Dbar, para, ctpara
 C SG: x-dependent fs:
       double precision fs
@@ -1041,9 +1041,9 @@ cv      endif
 * -------------------------------------------------------
 * new2 jf    
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'thresholds.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
+#include "thresholds.inc"
       double precision x,pdf,q2
       dimension pdf(-6:6)
 
@@ -1072,9 +1072,9 @@ cv      endif
 * new2 jf    
 * corrected for iparam=2 and iparam = 3 or 4
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'thresholds.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
+#include "thresholds.inc"
       double precision x,sea,dbmub,qstrange,cbar
       double precision sing,flav_number,QPDFXQ
       integer iflag,iq0,iqb,iqc,iqfromq,jtest
@@ -1126,8 +1126,8 @@ cv     $        .or.iparam.eq.2011) then
 * -------------------------------------------------------
 * new2 jf
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x,sea,Ubar
       double precision ctpara,para,splogn
 C SG: x-dependent fs:
@@ -1185,8 +1185,8 @@ C X-dependent strange fraction, inspired by HERMES data
 C Created 31 Oct 2009 by SG.
 C
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision x
       double precision hermes_xcent,hermes_xrise
       parameter (hermes_xcent= 0.07)
@@ -1225,8 +1225,8 @@ C Created 27 Jan 2011 by SG. Transfer parameters from MINUIT array p to
 C internal arrays PolyUval and PolyDval
 C
       implicit none
-      include 'steering.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
       double precision p(*)
       integer iflag,i,nn
       double precision ptmp(100)
@@ -1335,9 +1335,9 @@ C Add extra constraint for the PDF "length" = int_wmin^wmax \sqrt{1+pdf'(W)**2} 
 C
       implicit none
       
-      include 'steering.inc'
-      include 'pdfparam.inc'
-      include 'pdflength.inc'
+#include "steering.inc"
+#include "pdfparam.inc"
+#include "pdflength.inc"
       double precision DeltaChi2
       double precision pdflen(5)
       double precision zero
@@ -1398,7 +1398,7 @@ C
 C Utility to calculate pdf length element in W for power parameterization.
 C
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       double precision W,a,b,c,d,e,f,q2,x,der,derw,p,ap,bp,cp
 C----------------------------------------------------
 C Assume Q2=4
@@ -1429,7 +1429,7 @@ C
 C Utility to calculate pdf length element in W for chebyshev parameterization.
 C
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       integer ncheb,iType
       double precision W,poly(ncheb),a,xminlog
       double precision Q2,X,XX,Sum,der,derw,sum2
@@ -1480,8 +1480,8 @@ C---------------------------------------------------
 C---------------------------------------------------
       implicit none
       double precision W
-      include 'pdfparam.inc'
-      include 'steering.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
 C
       double precision PowerLen,ChebLen
 C----------------------------------------------------
@@ -1502,8 +1502,8 @@ C---------------------------------------------------
 C---------------------------------------------------
       implicit none
       double precision W
-      include 'pdfparam.inc'
-      include 'steering.inc'
+#include "pdfparam.inc"
+#include "steering.inc"
 C
       double precision PowerLen,ChebLen
 C----------------------------------------------------
@@ -1528,8 +1528,8 @@ C This subroutine ius called by subroutine fcn
 C-------------------------------------------------------
       implicit none
 
-      include 'steering.inc'
-      include 'pdfparam.inc'      
+#include "steering.inc"
+#include "pdfparam.inc"      "
       integer imode
 
       double precision savglue(10)
@@ -1591,9 +1591,9 @@ C !> Read PDF from a text file.
 
       double precision function pdf_from_text(x,id)
       implicit none
-      include 'steering.inc'
-      include 'ntot.inc'
-      include 'pdfparam.inc'
+#include "steering.inc"
+#include "ntot.inc"
+#include "pdfparam.inc"
       double precision x
       integer id
       logical lfirst
@@ -1688,8 +1688,8 @@ C      stop
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine DecodeFractal(pars)
 
-      include 'fractal.inc'
-      include 'extrapars.inc'
+#include "fractal.inc"
+#include "extrapars.inc"
             
       
       integer GetParameterIndex

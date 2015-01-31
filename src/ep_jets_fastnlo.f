@@ -5,9 +5,9 @@ C  Created 06/03/2012.  Calculate ep jets cross sections normalised to dis cross
 C
 C---------------------------------------------------------------------------
 
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'datasets.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
 
       integer IDataSet
       integer GetInfoIndex
@@ -34,12 +34,12 @@ C  Created 01/08/2011.  Calculate ep jets cross sections
 C
 C---------------------------------------------------------------------------
       implicit none
-      include 'ntot.inc'
-      include 'steering.inc'
-      include 'for_debug.inc'
-      include 'datasets.inc'
-      include 'indata.inc'
-      include 'theo.inc'
+#include "ntot.inc"
+#include "steering.inc"
+#include "for_debug.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "theo.inc"
 
       integer IDataSet
       logical UseNormalisation
@@ -91,7 +91,7 @@ C  Created 05/12/2011.  Get pdfset to be used by qcdnum
 C
 C---------------------------------------------------------------------------
       implicit none
-      include 'steering.inc'
+#include "steering.inc"
       integer pdfset
       pdfset = IPDFSET
       end
