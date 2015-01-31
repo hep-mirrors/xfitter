@@ -1,6 +1,6 @@
 !> @brief Extra minimization parameters to be passed to Minuit
       integer nExtraParamMax   !> Maximum number of parameters
-      parameter (nExtraParamMax=50)
+      parameter (nExtraParamMax=NEXTRAPARAMMAX_C)
 
       integer nExtraParam      !> Actual number of parameters
       character*32 ExtraParamNames(nExtraParamMax)     !> Names of extra pars

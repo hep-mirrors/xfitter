@@ -15,7 +15,7 @@ C-------------------------------------------------------
 #include "ntot.inc"
 #include "indata.inc"
 #include "systematics.inc"
-#include "g_offset.inc"	"
+#include "g_offset.inc"
 #include "covar.inc"
 #include "theorexpr.inc"
 #include "chi2scan.inc"

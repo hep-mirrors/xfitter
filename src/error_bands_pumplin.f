@@ -10,7 +10,7 @@
 #include "thresholds.inc"
 #include "ntot.inc"
 #include "systematics.inc"
-#include "g_offset.inc"	"
+#include "g_offset.inc"
 
       integer shift_dir
       double precision a

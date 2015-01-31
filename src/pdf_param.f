@@ -1529,7 +1529,7 @@ C-------------------------------------------------------
       implicit none
 
 #include "steering.inc"
-#include "pdfparam.inc"      "
+#include "pdfparam.inc"
       integer imode
 
       double precision savglue(10)

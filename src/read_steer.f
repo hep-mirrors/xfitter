@@ -1245,7 +1245,10 @@ C
       if (nExtraParam.gt. nExtraParamMax) then
          print *,'Number of extra parameters exceeds the limit'
          print *,'nExtraParam=',nExtraParam
-         print *,'Check your steering, stopping'
+         print *,'nExtraParamMax=',nExtraParamMax
+         print *,'Check your steering'
+         print *,'or increase NEXTRAPARAMMAX_C in include/dimensions.h'
+         print *,'stopping'
          call HF_stop
       endif
       ExtraParamNames(nExtraParam) = name

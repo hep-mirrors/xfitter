@@ -150,7 +150,7 @@ C-------------------------------------------------------
       implicit none
 
 #include "steering.inc"
-#include "pdfparam.inc"      "
+#include "pdfparam.inc"
 
       parglue(1) = 0.0d0
       parubar(1) = 0.0d0
@@ -169,7 +169,7 @@ C-------------------------------------------------------
       implicit none
 
 #include "steering.inc"
-#include "pdfparam.inc"      "
+#include "pdfparam.inc"
 
 C      parglue(1) = 0.0d0
 C      parubar(1) = 0.0d0

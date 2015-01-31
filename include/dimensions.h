@@ -7,3 +7,6 @@
 #ifndef NCHI2POINTS_C
 #define NCHI2POINTS_C 100
 #endif
+#ifndef NEXTRAPARAMMAX
+#define NEXTRAPARAMMAX_C 50
+#endif

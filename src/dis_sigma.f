@@ -1172,7 +1172,7 @@ C---------------------------------------------------------------
 #include "datasets.inc"
 #include "steering.inc"
 #include "fcn.inc"
-#include "fractal.inc"      "
+#include "fractal.inc"
 #include "qcdnumhelper.inc"
 
 C     Input:
