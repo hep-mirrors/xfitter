@@ -533,7 +533,7 @@ void PdfData::pdfRotate(string dirname, string label)
 
 void PdfData::profile(string dirname, string label)
 {
-  if (err != AsymHess || err != SymHess)
+  if (err != AsymHess && err != SymHess)
     cout << "Error: cannot profile " << dirname << ", no Hessian pdf uncertainties found" << endl;
   // Extract PDF shifts from Results.txt:
 
