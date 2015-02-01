@@ -15,6 +15,7 @@ C---------------------------------------------------------
 #include "ntot.inc"
 #include "steering.inc"
 #include "systematics.inc"
+#include "indata.inc"
       
       integer n0_in, flag_in
       double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
@@ -177,17 +178,27 @@ C  !> Sum covariance matricies and invert the total:
 C !> same for diagonal part:
             do i=1,n0_in
 
-            if(NCovar.eq.0.and.ScaledErrors(i).eq.0.0d0) then
-c no cov matrix and no ScaledErrors errors, break                
-               print*,'GetNewChisquare: no stat and unc errors in data!'
-               print*,'(possibly cov matrix forgot to be included?)'
-               call hf_stop
-            endif
+               if(NCovar.eq.0.and.ScaledErrors(i).eq.0.0d0) then
+c     no cov matrix and no ScaledErrors errors, break                
+                  print*,
+     $               'GetNewChisquare: no stat and unc errors in data!'
+                  print*,'(possibly cov matrix forgot to be included?)'
+                  call hf_stop
+               endif
 
-               ScaledErrors(i) = 1.D0 
-     $              / (ScaledErrors(i)*ScaledErrors(i))
+               if ( .not. is_covariance(i) ) then
+                  ScaledErrors(i) = 1.D0 
+     $                 / (ScaledErrors(i)*ScaledErrors(i))
+               else
+                  if (ScaledErrors(i).eq.0.0D0) then
+                     ScaledErrors(i) = 1.D0
+                  else
+                     ScaledErrors(i) = 1.D0 
+     $                    / (ScaledErrors(i)*ScaledErrors(i))                     
+                  endif
+               endif
             enddo
-
+            
          endif
 
 
