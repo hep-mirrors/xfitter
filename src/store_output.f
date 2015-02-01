@@ -322,7 +322,11 @@ c     &        '   +-toterr      theory      pull     dataset  '
                endif
                PlotVar = 0.
             else 
-               PlotVar = AbstractBins(PlotVarColIdx,index)
+               if ( PlotVarColIdx.eq.0) then
+                  PlotVar = 1
+               else
+                  PlotVar = AbstractBins(PlotVarColIdx,index)
+               endif
             endif
 
 c set pull to zero if no unc error 
