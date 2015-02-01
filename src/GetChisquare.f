@@ -1605,6 +1605,7 @@ c            print *,'ha',factor,facMax,facMin
          do j=1,NCovar
             Covar(j,j) = Covar(j,j) - diag(j)*diag(j)
          enddo
+         DeAllocate(testm)
 
       endif
 
@@ -1656,6 +1657,7 @@ C            print *,j,i, ANuisance(i,j),Covar(i,j)
          do j=1, NCovar
             Uncor(j) = sqrt( Uncor(j)**2 + diag(j)**2 )
          enddo
+         DeAllocate(diag)
       endif
 
       end
