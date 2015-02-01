@@ -71,7 +71,7 @@ void get_lhapdferrors_()
   string outdirname = string(coutdirname_.outdirname_, 128);
   outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
 
-  getpdfunctype_heraf_(lhapdfset.c_str(), MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr);
+  getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
   string msg = "";
   if (MonteCarloPDFErr)
     msg = (string) "I: Use Monte Carlo errors approach for: " + lhapdfset;
@@ -104,7 +104,7 @@ void get_lhapdferrors_()
 	{
 	  LHAPDF::initPDFSet(lhapdfset.c_str());
 	  //	  LHAPDF::initPDFSetByName(lhapdfset.c_str());
-	  getpdfunctype_heraf_(lhapdfset.c_str(), MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr);
+	  getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
 	}
       else if (pdfset ==  1)
 	{

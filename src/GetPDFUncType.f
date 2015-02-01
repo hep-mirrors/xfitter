@@ -1,9 +1,9 @@
 c Adapted from LHAPDF uncertainties.f
-      subroutine GetPDFUncType_HERAF(name,
-     $     lMonteCarlo,lAsymhess,lSymmhess)
+      subroutine GetPDFUncType_HERAF(lMonteCarlo,lAsymhess,lSymmhess
+     $     ,name)
       implicit none
       logical lMonteCarlo,lAsymhess,lSymmhess
-      character*30 name
+      character*(*) name
       lMonteCarlo = .false.
       lAsymhess = .false.
       lSymmhess = .false.

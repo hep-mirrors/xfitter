@@ -219,7 +219,7 @@ void chi2_scan_()
 	  int MonteCarloPDFErr = 0;
 	  int AsymHessPDFErr = 0;
 	  int SymmHessPDFErr = 0;
-	  getpdfunctype_heraf_(lhapdfset.c_str(), MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr);
+	  getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
       
 	  //Build the chi2 map
 	  map <double, double> chi2; //central PDF map of parameters value and chi2 values

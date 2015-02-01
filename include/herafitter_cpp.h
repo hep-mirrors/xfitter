@@ -14,7 +14,7 @@ extern"C" {
 
   //LHAPDFErrors functions
   void get_lhapdferrors_();
-  void getpdfunctype_heraf_(const char name[30], int& lmontecarlo, int& lasymhess, int& lsymmhess);
+  void getpdfunctype_heraf_(int& lmontecarlo, int& lasymhess, int& lsymmhess, const char name[], int len);
 
   //Error logging function
   void hf_errlog_(const int &id, const char text[], int);
