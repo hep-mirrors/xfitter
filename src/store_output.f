@@ -323,7 +323,7 @@ c     &        '   +-toterr      theory      pull     dataset  '
                PlotVar = 0.
             else 
                if ( PlotVarColIdx.eq.0) then
-                  PlotVar = 1
+                  PlotVar = 0
                else
                   PlotVar = AbstractBins(PlotVarColIdx,index)
                endif
