@@ -517,7 +517,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   mg_ratio->GetXaxis()->SetTitle(" x  ");
   mg_ratio->GetYaxis()->SetTitle(((string)" x" + pdflabels[ipdf] + "(x,Q^{2})/x" + pdflabels[ipdf] + "(x,Q^{2})_{ref}").c_str());
   if (opts.relerror)
-    mg_ratio->GetYaxis()->SetTitle(((string)" #deltax" + pdflabels[ipdf] + "/#deltax" + pdflabels[ipdf] + "_{ref}").c_str());
+    mg_ratio->GetYaxis()->SetTitle(((string)" #deltax" + pdflabels[ipdf] + "/x" + pdflabels[ipdf]).c_str());
   if (opts.abserror)
     mg_ratio->GetYaxis()->SetTitle(((string)" #deltax" + pdflabels[ipdf] + "").c_str());
 
@@ -542,7 +542,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
     mg_ratio_lines->Draw("l");
 
   //Make legend
-  TLegend * leg2 = new TLegend(lmarg+0.15, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.55, 1-tmarg-0.01);
+  TLegend * leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.55, 1-tmarg-0.01);
   leg2->SetTextFont(62);
   leg2->SetTextSize(txtsize);
   leg2->SetFillColor(0);

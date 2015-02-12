@@ -323,6 +323,42 @@ CommandParser::CommandParser(int argc, char **argv):
 		col[4] = kGreen + 2;
 		col[5] = kYellow + 1;
 	      }
+	    else if (pattern == 4)
+	      {
+		col[0] = kBlue + 1;
+		col[1] = kAzure - 9;
+		col[2] = kAzure + 3;
+		col[3] = kAzure + 4;
+		col[4] = kAzure + 5;
+		col[5] = kAzure + 6;
+	      }
+	    else if (pattern == 5)
+	      {
+		col[0] = kOrange + 7;
+		col[1] = kYellow;
+		col[2] = kRed - 1;
+		col[3] = kOrange + 4;
+		col[4] = kOrange + 2;
+		col[5] = kOrange -1;
+	      }
+	    else if (pattern == 6)
+	      {
+		col[0] = kGreen + 2;
+		col[1] = kSpring - 9;
+		col[2] = kGreen + 1;
+		col[3] = kSpring + 4;
+		col[4] = kSpring + 2;
+		col[5] = kSpring + 7;
+	      }
+	    else if (pattern == 7)
+	      {
+		col[0] = kRed - 2;
+		col[1] = kAzure - 9;
+		col[2] = kSpring - 9;
+		col[3] = kOrange + 7;
+		col[4] = kSpring + 2;
+		col[5] = kSpring + 7;
+	      }
 
 	      allargs.erase(it+1);
 	  }

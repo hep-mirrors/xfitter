@@ -668,7 +668,11 @@ void PdfData::profile(string dirname, string label)
           else if (err == SymHess) {
             eplus = eminus = shessdelta(xi, cor_matrix );
           }                
-          
+	  if (outdirs[label].Scale68())
+	    {
+	      eplus = eplus/1.645;
+	      eminus = eminus/1.645;
+	    }
           Cent.SetPoint(*pit, ix, val+corsum);
           Cent.SetErrUp(*pit, ix, eplus);
           Cent.SetErrDn(*pit, ix, eminus);
