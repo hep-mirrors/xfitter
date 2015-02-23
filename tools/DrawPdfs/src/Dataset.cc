@@ -71,6 +71,11 @@ Subplot::Subplot(string plotoptions) :  xmin(0), xmax(0), yminr(0), ymaxr(0), ym
 	  str.ReplaceAll("Experiment:","");
 	  experiment = str.Data();
 	}
+      if(str.BeginsWith("Lumi:")) 
+	{
+	  str.ReplaceAll("Lumi:","");
+	  lumilabel = str.Data();
+	}
       if(str.BeginsWith("Title:")) 
 	{
 	  str.ReplaceAll("Title:","");

@@ -13,6 +13,7 @@ class Subplot
 private:
   string title, xlabel, ylabel; //data label, used for data legend
   string extralabel; //extra label
+  string lumilabel;  //luminosity label
   string experiment; //experiment or collaboration
   TH1F* href;
   TH1F* hdata;
@@ -59,6 +60,7 @@ private:
   void Draw(TH1F* histo, string opt);
   string gettitle() {return title;};
   string getextralabel() {return extralabel;};
+  string getlumilabel() {return lumilabel;};
   string getexperiment() {return experiment;};
   TH1F* getref() {return href;};
   TH1F* getdata() {return hdata;};

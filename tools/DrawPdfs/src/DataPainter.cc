@@ -361,11 +361,33 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	}
       else
 	{
-	  vertdist = 0.08;
-	  txtsz = 1.2;
+	  vertdist = 0.05;
+	  txtsz = 1.;
 	}
       l.SetTextSize(txtsz*0.04/my);
       l.DrawLatex(lmarg+0.05, (1-tmarg/my) - vertdist/my, datahistos[0].getextralabel().c_str());
+    }
+
+  if (datahistos[0].getlumilabel() != "")
+    {
+      TLatex l;
+      l.SetNDC();
+      l.SetTextFont(42);
+
+      float vertdist;
+      float txtsz;
+      if (opts.atlasinternal || opts.atlaspreliminary || opts.atlas)
+	{
+	  vertdist = 0.18;
+	  txtsz = 1.;
+	}
+      else
+	{
+	  vertdist = 0.13;
+	  txtsz = 1.;
+	}
+      l.SetTextSize(txtsz*0.04/my);
+      l.DrawLatex(lmarg+0.05, (1-tmarg/my) - vertdist/my, datahistos[0].getlumilabel().c_str());
     }
 
   //Main legend
