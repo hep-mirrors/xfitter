@@ -766,11 +766,15 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     }
   r_datatot->GetXaxis()->SetRange(datahistos[0].getlowrange(), datahistos[0].getuprange());
 
-  //plot lines at 1
-  TLine *r_one = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
-  r_one->SetLineStyle(2);
-  r_one->SetLineStyle(1);
-  r_one->Draw();
+  //plot lines at 1 (or 0 for diff plots)
+  TLine *r_ref;
+  if (opts.diff)
+    r_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 0, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 0);
+  else
+    r_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
+  r_ref->SetLineStyle(2);
+  r_ref->SetLineStyle(1);
+  r_ref->Draw();
 
   //Draw ratios
   for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
@@ -954,11 +958,15 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	datahistos[0].Draw(r_data, "PE1 same");
       */
 
-      //plot lines at 1
-      TLine *rs_one = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
-      rs_one->SetLineStyle(2);
-      rs_one->SetLineStyle(1);
-      rs_one->Draw();
+      //plot lines at 1 (or 0 for diff plots)
+      TLine *rs_ref;
+      if (opts.diff)
+	rs_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 0, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 0);
+      else
+	rs_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
+      rs_ref->SetLineStyle(2);
+      rs_ref->SetLineStyle(1);
+      rs_ref->Draw();
 
       //Draw ratios
       for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
