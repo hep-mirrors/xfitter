@@ -14,12 +14,13 @@
       call Init_EW_parameters
 
 *     ------------------------------------------------
-*     Initialise qcdnum
+*     Initialise qcdnum and APFEL
 *     ------------------------------------------------
-
-      if(itheory.eq.0) then
+      if(itheory.eq.0.or.itheory.eq.10) then
 C Init evolution code:
          call qcdnum_ini
+C Init APFEL if needed
+         if(itheory.eq.10) call apfel_ini
 
          call Init_heavy_flavours
 
@@ -1227,6 +1228,7 @@ C      call EPRC_INIT(.true.)
 
 C-----------------------------------------------------
       end
+
       Subroutine LHAPDFsubr(x, qmu2, xf)
 C-------------------------------------------------------
 C
@@ -1240,6 +1242,37 @@ C--------------------------------------------------------
       call evolvePDF(x, sqrt(qmu2), xf)
       end
 
+      Subroutine APFELsubr(x, qmu2, xf)
+C-------------------------------------------------------
+C
+C External PDF reading for APFEL
+C
+C--------------------------------------------------------
+      implicit double precision (a-h,o-z)
+*
+#include "steering.inc"
+*
+      integer i
+      double precision xPDFj
+      double precision x,qmu2
+      dimension xf(-6:6)
+
+      double precision q2p
+      common / PrevoiusQ / q2p
+*
+*     Perform evolution with APFEL only if the final scale has changed
+*
+      if(qmu2.ne.q2p)then
+         call EvolveAPFEL(dsqrt(q2p),dsqrt(qmu2))
+         call SetPDFSet("apfel")
+c         call EvolveAPFEL(dsqrt(dble(starting_scale)),dsqrt(qmu2))
+      endif
+*
+      call xPDFall(x,xf)
+      q2p = qmu2
+*
+      return
+      end
 
 c ------------------------------------------------------
 c

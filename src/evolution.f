@@ -122,6 +122,9 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
 
       if (IPDFSET.eq.5) return  ! for external pdf evolution not needed!
 
+C ---- APFEL ----
+      if (IPDFSET.eq.7) return
+
 cv ===
       if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
          call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
@@ -129,7 +132,7 @@ cv ===
       elseif (PDF_DECOMPOSITION.eq.'QCDNUM_GRID') then
          call evolfg(1,func22text,def22,iq0,eps)
 
-      elseif (Index(PDF_DECOMPOSITION,'D_U_Dbar_Ubar').gt.0) then   ! D,U,Dbar,Ubar 
+      elseif (Index(PDF_DECOMPOSITION,'D_U_Dbar_Ubar').gt.0) then ! D,U,Dbar,Ubar 
          call evolfg(1,func1,def1,iq0,eps) !evolve all pdf's: H1
 
       elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then
@@ -139,7 +142,7 @@ cv ===
          call evolfg(1,func30,def30,iq0,eps) !evolve all pdf's: ZEUS diffractive (hard Pomeron)
 
       elseif (Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0) then
-         call evolfg(1,func22,def22,iq0,eps)  ! uv, dv, Ubar, Dbar (and also strange)
+         call evolfg(1,func22,def22,iq0,eps) ! uv, dv, Ubar, Dbar (and also strange)
 
       else
          print *,'Unknown PDF Decomposition: '//PDF_DECOMPOSITION
@@ -189,7 +192,6 @@ cv ===
       if (id.eq.6) func1=2*qstrange(x)
       if (id.eq.5) func1=0.d0
 
-
       return
       end
       
@@ -205,9 +207,7 @@ cv ===
       if (id.eq.0) func22=gluon(x)
       if (id.eq.1) func22=dval(x)
       if (id.eq.2) func22=uval(x)
-      
       if (id.eq.3) func22=2*qstrange(x)
-      
       if (id.eq.4) func22=ubar(x)
       if (id.eq.5) func22=dbar(x)
       if (id.eq.6) func22=0.d0
@@ -274,4 +274,100 @@ C----------------------------
       endif
       return
       end
+*
+************************************************************************
+*
+*     Subroutine that defines the PDFs to be evolved with APFEL.
+*     (predefined name)
+*
+************************************************************************
+      subroutine ExternalSetAPFEL(x,xf)
+*
+      implicit none
+#include "steering.inc"
+**
+*     Input Variables
+*
+      double precision x
+**
+*     Internal Variables
+*
+      integer ipdf
+      double precision q0
+      double precision gluon
+      double precision pdf_from_text
+      double precision qstrange,Ubar,Dbar,H1U,H1D
+      double precision sea,dbmub,dval,uval
+      double precision dfac,ParDumpFactor
+      parameter(ParDumpFactor=1.d-3)
+**
+*     Output Variables
+*
+      double precision xf(-6:7)
+*
+*     Set PDFs to zero
+*
+      do ipdf=-6,7
+         xf(ipdf) = 0d0
+      enddo
+      if(x.gt.1d0) x = 1d0
+*
+*     Construct PDFs addording to the PDF decomposition
+*
+      if(PDF_DECOMPOSITION.eq.'LHAPDF')then
+         q0 = sqrt(starting_scale)
+         call evolvePDF(x, q0, xf)
 
+      elseif(PDF_DECOMPOSITION.eq.'QCDNUM_GRID')then
+         xf(-3) = ( pdf_from_text(x,3) - pdf_from_text(x,6) ) / 2d0
+         xf(-2) = pdf_from_text(x,4)
+         xf(-1) = pdf_from_text(x,5)
+         xf(0)  = pdf_from_text(x,0)
+         xf(1)  = pdf_from_text(x,1) - pdf_from_text(x,5)
+         xf(2)  = pdf_from_text(x,2) - pdf_from_text(x,4)
+         xf(3)  = ( pdf_from_text(x,3) + pdf_from_text(x,6) ) / 2d0
+
+      elseif(Index(PDF_DECOMPOSITION,'D_U_Dbar_Ubar').gt.0)then ! D,U,Dbar,Ubar 
+         xf(-3) = qstrange(x)
+         xf(-2) = Ubar(x)
+         xf(-1) = Dbar(x)
+         xf(0)  = gluon(x)
+         xf(1)  = H1D(x) - xf(-3)
+         xf(2)  = H1U(x)
+         xf(3)  = xf(-3)
+
+      elseif(Index(PDF_DECOMPOSITION,'Sea').gt.0)then
+         xf(-2) = sea(x) / 4d0 - dbmub(x) / 2d0
+         xf(-1) = sea(x) / 4d0 + dbmub(x) / 2d0
+         xf(0)  = gluon(x)
+         xf(1)  = dval(x) + xf(-1)
+         xf(2)  = uval(x) + xf(-2)
+
+      elseif(PDF_DECOMPOSITION.eq.'Diffractive')then
+         dfac = dexp(-ParDumpFactor/(1.00001d0-x))
+*
+         xf(-3) = dfac * Uval(x)
+         xf(-2) = xf(-3)
+         xf(-1) = xf(-3)
+         xf(0)  = dfac * gluon(x)
+         xf(1)  = xf(-3)
+         xf(2)  = xf(-3)
+         xf(3)  = xf(-3)
+
+      elseif(Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0)then
+         xf(-3) = qstrange(x)
+         xf(-2) = ubar(x)
+         xf(-1) = dbar(x) - xf(-3)
+         xf(0)  = gluon(x)
+         xf(1)  = dval(x) + xf(-1)
+         xf(2)  = uval(x) + xf(-2)
+         xf(3)  = xf(-3)
+
+      else
+         print *,'Unknown PDF Decomposition: '//PDF_DECOMPOSITION
+         print *,'Stop in evolution'
+         call HF_Stop
+      endif
+*
+      return
+      end

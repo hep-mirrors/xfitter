@@ -83,13 +83,18 @@ C
 C  Return alpha_S value for a given Q2
 C
 C----------------------------------------------------
-      implicit none 
+      implicit none
+#include "steering.inc" 
       double precision Q2
       integer nf,ierr
-      double precision ASFUNC
+      double precision ASFUNC,alphaQCD
 
 C----------------------------------------------------
-      HF_Get_alphas = ASFUNC(q2,nf,ierr) 
+      if (itheory.eq.10) then
+         HF_Get_alphas = alphaQCD(dsqrt(q2))
+      else
+         HF_Get_alphas = ASFUNC(q2,nf,ierr) 
+      endif
 C----------------------------------------------------
       end
 

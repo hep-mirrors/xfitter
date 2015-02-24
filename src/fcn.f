@@ -160,6 +160,7 @@ C  x-dependent fs:
       double precision fs0,epsi
       double precision fshermes
       external LHAPDFsubr
+      external APFELsubr
 c updf stuff
       logical firsth
       double precision auh 
@@ -177,6 +178,8 @@ c updf stuff
       Integer Itheory_ca
       Common/theory/Itheory_ca
       Integer idx
+      double precision q2p
+      common / PrevoiusQ / q2p
 
       character*2 TypeC, FormC, TypeD
       character*64 Msg
@@ -236,7 +239,7 @@ c        write(6,*) ' fcn npoint ',npoints
 *     ---------------------------------------------------------
 
       kflag=0
-      if (Itheory.eq.0)  then 
+      if (Itheory.eq.0.or.Itheory.eq.10)  then 
          call SumRules(kflag)
       endif
       if (kflag.eq.1) then
@@ -249,12 +252,20 @@ c        write(6,*) ' fcn npoint ',npoints
 *      set alphas
 *     -----------------------------------------------------
 
-      if(itheory.eq.0) then 
-         call setalf(dble(alphas),Mz*Mz)
-         alphaSzero= hf_get_alphas(1.0D0)
+      if(itheory.eq.0.or.itheory.eq.10) then 
+         if (itheory.eq.0) then
+            call setalf(dble(alphas),Mz*Mz)
+         else
+            call SetAlphaQCDRef(dble(alphas),dble(Mz))
+         endif
+         alphaSzero= hf_get_alphas(1D0)
          call RT_SetAlphaS(alphaSzero)
          if(IPDFSET.eq.5) then
             call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
+         elseif (IPDFSET.eq.7) then
+            q2p = starting_scale
+            call SetPDFSet("external")
+            call PDFINP(APFELsubr,  IPDFSET, dble(0.001), epsi, nwds)
          endif
       endif 
 
@@ -286,7 +297,7 @@ C      for dipole model fits.
       if (Debug) then
          print*,'before evolution'
       endif
-      if (Itheory.eq.0) then         
+      if (Itheory.eq.0.or.Itheory.eq.10) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 

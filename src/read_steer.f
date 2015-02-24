@@ -1432,6 +1432,9 @@ C--------------------------------------------------
 C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
          iTheory =  0
+      elseif (TheoryType.eq.'DGLAP_APFEL') then
+         iTheory = 10        
+         IPDFSET = 7
       else if ( TheoryType.eq.'DIPOLE') then
       else if ( TheoryType.eq.'FRACTAL') then
          iTheory = 50

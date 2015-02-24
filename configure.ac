@@ -147,6 +147,25 @@ if test $enable_lhapdf; then
 fi
 AM_CONDITIONAL(ENABLE_LHAPDF, [test $enable_lhapdf])
 
+# check for apfel installation
+AC_ARG_ENABLE([apfel],
+  [AC_HELP_STRING(--enable-apfel, [use apfel (default=no)])])
+if test $enable_apfel; then
+  AC_MSG_CHECKING([for apfel installation])
+  apfel_config=`which apfel-config`
+  if test x$apfel_config == x; then
+    AC_MSG_ERROR([Unable to find apfel-config.])
+  else 
+    AC_MSG_RESULT([Using $apfel_config])
+    APFEL_CPPFLAGS=`apfel-config --cppflags`
+    APFEL_LDFLAGS=`apfel-config --ldflags`
+    AC_SUBST(APFEL_CPPFLAGS)
+    AC_SUBST(APFEL_LDFLAGS)
+    AC_DEFINE([APFEL_ENABLED],[1],[Define if APFEL is enabled])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_APFEL, [test $enable_apfel])
+
 # check for applgrid installation
 AC_ARG_ENABLE([applgrid],
   [AC_HELP_STRING(--enable-applgrid, [use applgrid for fast pdf convolutions (default=no)])])

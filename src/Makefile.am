@@ -29,6 +29,12 @@ AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 AM_CXXFLAGS += -I$(srcdir)/../tools/DrawPdfs/include
 
+if ENABLE_APFEL
+  FitPDF_SOURCES+= apfel.f
+else 
+  FitPDF_SOURCES+= apfel_dum.f
+endif
+
 if ENABLE_APPLGRID 
   FitPDF_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
 else 
@@ -56,6 +62,10 @@ if ENABLE_APPLGRID
   AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
 endif
 
+if ENABLE_APFEL 
+  AM_CPPFLAGS+=$(APFEL_CPPFLAGS)
+  AM_FFLAGS+=$(APFEL_CPPFLAGS)
+endif
 
 # libraries to be linked to the main target
 LDADD = $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
@@ -104,6 +114,10 @@ GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
+endif
+
+if ENABLE_APFEL
+  LDADD+=$(APFEL_LDFLAGS)
 endif
 
 if ENABLE_GENETIC
