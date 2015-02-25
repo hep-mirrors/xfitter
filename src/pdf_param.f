@@ -252,10 +252,9 @@ C  25 Jan 2011: Poly params for valence:
       endif
 
 C  22 Apr 2011: CT parameterisation:
-      if (PDFStyle.eq.'CTEQ') then
+      if (PDFStyle.eq.'CTEQ'.or.PDFStyle.eq.'CTEQHERA') then
          Call DecodeCtPara(p)
       endif
-
 
 C  22 Sep 2011: AS parameterisation:
         if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
@@ -350,21 +349,8 @@ C Hermes strange prepare:
 C     simple copy first:
       do i=1,10
          parglue(i) = pars(i)
-
-         if  (PDFStyle.eq.'CTEQHERA') then
-!> the size of the arrays for cteq polynomial is smaller than standard
-            if (i.lt.7) then
-               ctuval(i) = pars(10+i)
-               ctdval(i) = pars(20+i)
-            else
-               paruval(i) = pars(10+i)
-               pardval(i) = pars(20+i)
-            endif
-         else
-            paruval(i) = pars(10+i)
-            pardval(i) = pars(20+i)
-         endif
-
+         paruval(i) = pars(10+i)
+         pardval(i) = pars(20+i)
          parubar(i) = pars(30+i)
          pardbar(i) = pars(40+i)
          paru(i) = pars(50+i)
@@ -394,11 +380,7 @@ cv         parUbar(1)=pardbar(1)*(1.D0-fs)/(1.D0-fcharm)
 !> this style is common to HERAPDF, ATLASPDF:
       elseif (index(PDF_DECOMPOSITION,'Dv_Uv_Dbar_Ubar_Str').ne.0) then
 
-         if (PDFStyle.eq.'CTEQHERA') then
-            if (ctdval(2).eq.0) ctdval(2)=ctuval(2)
-         else
-            if (pardval(2).eq.0)   pardval(2)=paruval(2) !  Bud    = Buv 
-         endif
+         if (pardval(2).eq.0)   pardval(2)=paruval(2) !  Bud    = Buv 
          if (parubar(2).eq.0)   parubar(2)=pardbar(2)  !  Bubar  = Bdbar 
          if (parstr(1).eq.0.and.
      $        parstr(2).eq.0.and.
@@ -453,13 +435,8 @@ c         parstr(3)=parsea(3)+2.
       endif         
 
       if (debug) then
-         if  (PDFStyle.eq.'CTEQHERA') then
-            print '(''1uv:'',11F10.4)',(ctuval(i),i=1,6)
-            print '(''1dv:'',11F10.4)',(ctdval(i),i=1,6)
-         else
-            print '(''1uv:'',11F10.4)',(paruval(i),i=1,10)
-            print '(''1dv:'',11F10.4)',(pardval(i),i=1,10)
-         endif
+         print '(''1uv:'',11F10.4)',(paruval(i),i=1,10)
+         print '(''1dv:'',11F10.4)',(pardval(i),i=1,10)
          print '(''1Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''1Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''1GL:'',11F10.4)',(parglue(i),i=1,10)
@@ -529,15 +506,13 @@ C Hermes strange prepare:
 C simple copy first:
       do i=1,9
          ctglue(i) = pars(i)
-      enddo
-      do i=1,6
          ctuval(i) = pars(10+i)
          ctdval(i) = pars(20+i)
          ctubar(i) = pars(30+i)
          ctdbar(i) = pars(40+i)
 cv add str
          ctstr(i)  = pars(80+i)
-         ctother(i)= pars(94+i)
+         ctother(i)= pars(90+i)
       enddo
 
 
@@ -546,47 +521,18 @@ c     $     + exp(a(6))*x**2)
 
 
 C Extra constrains:
-      if (ctubar(1).eq.0) then
-         ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
-      endif
-C     Impose Buv = Bdv if parameter for Buv = 0.
-      if (ctuval(2).eq.0) then
-         ctuval(2) = ctdval(2)  ! Buv = Bdv
-      endif
+      if (ctubar(2).eq.0) ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
+      if (ctuval(2).eq.0) ctuval(2) = ctdval(2)  ! Buv = Bdv
+
+!> use ubar and dbar (not Dbar and Ubar)
+      ctstr(1)=fs/(1.-fs)*ctdbar(1)
+      if (ctubar(1).eq.0) ctubar(1) = ctdbar(1)
 
 !> use coupled strange to Dbar ! 
-      if ((ctstr(1).eq.0).and.(ctstr(2).eq.0)
-     $     .and.(ctstr(3).eq.0).and.
-     $     (ctstr(4).eq.0).and.(ctstr(5).eq.0).and.
-     $     (ctstr(6).eq.0)) then
-
-         ctstr(2)=ctdbar(2)
-         ctstr(3)=ctdbar(3)
-         ctstr(4)=ctdbar(4)
-
-         FreeStrange=.false.  
-      else
-         FreeStrange=.true.
-      endif
-
-      if (FreeStrange) then
-      
-         if (ctstr(2).eq.0) ctstr(2)=ctdbar(2)
-         if (ctstr(3).eq.0) ctstr(3)=ctdbar(3)
-         if (ctstr(4).eq.0) ctstr(4)=ctdbar(4)
-      endif
-      
-      
-      if (fs.ne.-10000.and.(FreeStrange)) then
-!> then use ubar and dbar (not Dbar and Ubar)
-         ctstr(1)=fs/(1.-fs)*ctdbar(1)
-         if (ctubar(1).eq.0) ctubar(1) = ctdbar(1)
-      else                  
-!> then use Dbar and Ubar
-         if (ctubar(1).eq.0)   ctubar(1)=ctdbar(1)*(1.D0-fs) 
-     $        /(1.D0-fcharm)    !then use Ubar=Dbar
-      endif
-
+      if (ctstr(2).eq.0) ctstr(2)=ctdbar(2)
+      if (ctstr(3).eq.0) ctstr(3)=ctdbar(3)
+      if (ctstr(4).eq.0) ctstr(4)=ctdbar(4)
+            
 
 C (other constraints from sum-rules)
 
@@ -608,6 +554,24 @@ C-----------------------------------------------------
      $     + exp(a(6))*x**2)-a(7)*x**a(8)*(1-x)**a(9)
       
       ctpara = UF
+
+      end
+
+      double precision function ctherapara(x,a)
+C----------------------------------------------------
+C
+C hybrid cteq-hera parameterisation: 
+c  UF = (A*x**B)*(1 - x)**C * exp(A4*x) * (1 + D*x + E*x**2) 
+c     -AP*x**BP*(1-x)**CP
+C
+C-----------------------------------------------------
+      implicit none
+      double precision x,a(1:9)
+      double precision UF
+      UF = a(1)*(1 - x)**a(3)*x**(a(2))*exp(a(6)*x)*(1 + a(4)*x 
+     $     + a(5)*x**2)-a(7)*x**a(8)*(1-x)**a(9)
+      
+      ctherapara = UF
 
       end
 
@@ -723,13 +687,18 @@ c value in allowed range
       double precision x
       integer i
 C External function:
-      double precision PolyParam,ctpara,para,splogn
+      double precision PolyParam,ctpara,ctherapara,para,splogn
 C-------------------------------------------------
 
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if  (PDFStyle.eq.'CTEQ') then
+      if (PDFStyle.eq.'CTEQ') then
          gluon = ctpara(x,ctglue)
+         return
+      endif
+
+      if (PDFStyle.eq.'CTEQHERA') then
+         gluon = ctherapara(x,ctglue)
          return
       endif
 
@@ -740,7 +709,7 @@ C    22 Sept 11, VR, Add AS
       endif
       if (nchebglu.eq.0) then
 
-!> HERAPDF, CTEQHERA style goes in here:
+!> HERAPDF style goes in here:
          gluon=para(x,parglue)
          
       else
@@ -822,12 +791,17 @@ C---------------------------------
 #include "steering.inc"
 #include "pdfparam.inc"
       double precision x,x23
-      double precision PolyVal,ctpara,para,splogn
+      double precision PolyVal,ctpara,ctherapara,para,splogn
 C---------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if ((PDFStyle.eq.'CTEQ').or.(PDFStyle.eq.'CTEQHERA')) then
+      if (PDFStyle.eq.'CTEQ') then
          UVal = ctpara(x,ctuval)
+         return
+      endif
+
+      if (PDFStyle.eq.'CTEQHERA') then
+         UVal = ctherapara(x,ctuval)
          return
       endif
 
@@ -863,12 +837,16 @@ C
 #include "steering.inc"
 #include "pdfparam.inc"
       double precision x,x23
-      double precision PolyVal,ctpara,para,splogn
+      double precision PolyVal,ctpara,ctherapara,para,splogn
 C--------------------------------------------------------
 
 C    22 Apr 11, SG, Add CTEQ-like
-      if ((PDFStyle.eq.'CTEQ').or.(PDFStyle.eq.'CTEQHERA')) then
+      if (PDFStyle.eq.'CTEQ') then
          DVal = ctpara(x,ctdval)
+         return
+      endif
+      if (PDFStyle.eq.'CTEQHERA') then
+         DVal = ctherapara(x,ctdval)
          return
       endif
 C    22 Sep 11, VR, Add AS
@@ -995,7 +973,7 @@ C-------------------------------------------------
       implicit none
 #include "steering.inc"
 #include "pdfparam.inc"
-      double precision x,sea,Dbar, para, ctpara
+      double precision x,sea,Dbar, para, ctpara,ctherapara
 C SG: x-dependent fs:
       double precision fs
       double precision fshermes
@@ -1007,11 +985,12 @@ C----------------------------------------------------
       endif
       
       if (PDFStyle.eq.'CTEQ') then
-         if (FreeStrange) then
-            qstrange = ctpara(x, ctstr)
-         else
-            qstrange = fs * Dbar(x)
-         endif
+         qstrange = ctpara(x, ctstr)
+         return
+      endif
+
+      if (PDFStyle.eq.'CTEQHERA') then
+         qstrange = ctherapara(x, ctstr)
          return
       endif
 
@@ -1078,7 +1057,7 @@ cv      endif
       double precision x,sea,dbmub,qstrange,cbar
       double precision sing,flav_number,QPDFXQ
       integer iflag,iq0,iqb,iqc,iqfromq,jtest
-      double precision ctpara,para, splogn
+      double precision ctpara,ctherapara,para, splogn
 C----------------------------------------------
 * new2 jf SPECIAL TEST with dubar
 
@@ -1091,14 +1070,15 @@ C    22 Sep 11, VR, Add AS
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (PDFStyle.eq.'CTEQ') then
-         if (FreeStrange) then
-            Ubar=ctpara(x,ctubar)
-         else
-            Ubar=ctpara(x,ctubar)/(1-fcharm)
-         endif
-
+         Ubar=ctpara(x,ctubar)/(1-fcharm)
          return
       endif
+
+      if (PDFStyle.eq.'CTEQHERA') then
+         Ubar=ctherapara(x,ctubar)/(1-fcharm)
+         return
+      endif
+
 
       if (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then 
          Ubar = (0.5d0 * sea(x) - dbmub(x) - qstrange (x) + cbar(x))/2.d0
@@ -1129,7 +1109,7 @@ cv     $        .or.iparam.eq.2011) then
 #include "steering.inc"
 #include "pdfparam.inc"
       double precision x,sea,Ubar
-      double precision ctpara,para,splogn
+      double precision ctpara,ctherapara,para,splogn
 C SG: x-dependent fs:
       double precision fs
       double precision fshermes
@@ -1149,13 +1129,13 @@ C    22 Sep 11, VR, Add AS
       endif
 
 C    22 Apr 11, SG, Add CTEQ-like
-
       if (PDFStyle.eq.'CTEQ') then
-         if (FreeStrange) then
-            Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
-         else
-            Dbar=ctpara(x,ctdbar)
-         endif
+         Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
+         return
+      endif
+
+      if (PDFStyle.eq.'CTEQHERA') then
+         Dbar=ctherapara(x,ctdbar)+ctherapara(x,ctstr)
          return
       endif
 

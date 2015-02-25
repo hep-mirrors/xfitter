@@ -36,7 +36,7 @@
       double precision fshermes
       double precision tstr,tNoGlue
 *add for mixed CTEQHERA
-      double precision SumRuleCTEQ
+      double precision SumRuleCTEQ, SumRuleCTEQhera
 
 C-----------------------------------------
       kflag=0
@@ -56,6 +56,11 @@ C CTEQ-like parameterisation:
 C
       if (PDFStyle.eq.'CTEQ') then
          Call SumRulesCTeq
+         Return
+      endif
+
+      if (PDFStyle.eq.'CTEQHERA') then
+         Call SumRulesCTEQHera
          Return
       endif
 
@@ -79,48 +84,24 @@ C**********************************************************
 C*     -- sum rule : D - Dbar = 1   :  gives ADval
 C*
 
-         if (PDFStyle.eq.'CTEQHERA') then
-
-C Counting sum-rule for uv:
-            if (ctuval(1).eq.0) then
-               ctuval(1) = 2.0D0 / SumRuleCTEQ(-1,ctuval)
-            else
-              uv_sum = ctuval(1)*SumRuleCTEQ(-1,ctuval)/2
-           endif
-
-
-C Counting sum-rule for dv:
-           if (ctdval(1).eq.0) then
-              ctdval(1) = 1.0D0 / SumRuleCTEQ(-1,ctdval)
-           else
-              dv_sum = ctdval(1)*SumRuleCTEQ(-1,ctdval)
-           endif
-C Also integrate for momentum sum rules
-
-
-            tuv =  ctuval(1)*SumRuleCTEQ(0,ctuval)
-            tdv =  ctdval(1)*SumRuleCTEQ(0,ctdval) 
+         if (pardval(1).eq.0) then
+            pardval(1) = 1.0d0/CalcIntPdf(pardval)
          else
-            
-            if (pardval(1).eq.0) then
-               pardval(1) = 1.0d0/CalcIntPdf(pardval)
-            else
-               dv_sum = pardval(1)*CalcIntPdf(pardval)
-            endif
+            dv_sum = pardval(1)*CalcIntPdf(pardval)
+         endif
             
 C**********************************************************
 C*     -- sum rule : U - Ubar = 2   :  gives AUval
 C*
-            if (paruval(1).eq.0) then
-               paruval(1) = 2.0D0/CalcIntPdf(paruval)
-            else
-               uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
-            endif
+         if (paruval(1).eq.0) then
+            paruval(1) = 2.0D0/CalcIntPdf(paruval)
+         else
+            uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
+         endif
             
 C Also integrate momenta, for momentum sum rule:
-            tUv = paruval(1)*CalcIntXpdf(paruval)
-            tDv = pardval(1)*CalcIntXpdf(pardval) 
-         endif
+         tUv = paruval(1)*CalcIntXpdf(paruval)
+         tDv = pardval(1)*CalcIntXpdf(pardval) 
 cv         print*,'sumrules......', tuv, tdv
 
       else
@@ -210,13 +191,8 @@ C     standard parametrisation
 
       if (NCHEBGLU.eq.0) then         
       if (lprint) then
-         if  (PDFStyle.eq.'CTEQHERA') then
-            print '(''uv:'',11F10.4)',(ctuval(i),i=1,6)
-            print '(''dv:'',11F10.4)',(ctdval(i),i=1,6)
-         else
-            print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
-            print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
-         endif
+         print '(''uv:'',11F10.4)',(paruval(i),i=1,10)
+         print '(''dv:'',11F10.4)',(pardval(i),i=1,10)
          print '(''Ub:'',11F10.4)',(parubar(i),i=1,10)
          print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
@@ -1213,6 +1189,84 @@ C Sea:
       end
 
 
+ccccccccccccccccccccccccccccccccccccccccc
+
+      Subroutine SumRulesCTEQHera
+C---------------------------------------------------------------
+C 
+C  Sum-rules for CTEQ-HERA hybrid parameterisation 
+C
+C---------------------------------------------------------------
+      implicit none
+#include "steering.inc"
+#include "pdfparam.inc"
+      double precision sumUv, sumDv
+      double precision sumMom, sumGlue,x
+      integer i
+      double precision SumRuleCTEQhera,ctherapara, tStr
+      double precision ubar,dbar,uval,dval,gluon,str
+      double precision CalcIntegral
+      
+      integer IDebug
+      data IDebug/1/
+
+C---------------------------------------------------------------
+
+C Counting sum-rule for uv:
+      sumUv = SumRuleCTEQhera(-1,ctuval)
+      ctuval(1) = 2.0D0 / sumUv
+
+C Counting sum-rule for dv:
+      sumDv = SumRuleCTEQhera(-1,ctdval)
+      ctdval(1) = 1.0D0 / sumDv
+
+C Momentum sum rule:
+C----------------
+C Sea:
+
+      
+      if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
+         tStr = ctstr(1)*SumRuleCTEQhera(0,ctstr)
+      else
+         tStr = 0               ! Strange already included in Dbar
+      endif
+
+
+      sumMom = 2.D0*ctubar(1)*SumRuleCTEQhera(0,ctubar) +
+     $     2.D0*ctdbar(1)*SumRuleCTEQhera(0,ctdbar) +
+     $     ctuval(1)*SumRuleCTEQhera(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQhera(0,ctdval)+ 2.D0*tStr 
+      sumGlue = SumRuleCTEQhera(0,ctglue)
+      sumMom = sumMom - ctglue(7)*CalcIntegral(ctglue(8),ctglue(9))
+
+
+
+      ctglue(1) = (1.0 - SumMom)/sumGlue
+
+
+
+      if (IDebug.eq.1) then
+         print '(''uv:'',9F10.4)',(ctuval(i),i=1,9)
+         print '(''dv:'',9F10.4)',(ctdval(i),i=1,9)
+         print '(''Ub:'',9F10.4)',(ctubar(i),i=1,9)
+         print '(''Db:'',9F10.4)',(ctdbar(i),i=1,9)
+         print '(''GL:'',9F10.4)',(ctglue(i),i=1,9)
+         print '(''ST:'',x9F10.4)',(ctstr(i),i=1,9)
+      endif
+      if (IDebug.eq.10) then
+         do i=1,8
+            x = 10**(-i/2.)
+            print '(7F12.5)',x,ctherapara(x,ctuval),ctherapara(x,ctdval),
+     $           ctherapara(x,ctubar),ctherapara(x,ctdbar),ctherapara(x,ctglue), 
+     $           ctherapara(x,ctstr)
+            print '(7F12.5)',x,uval(x),dval(x),ubar(x),dbar(x),
+     $           gluon(x),str(x)
+         enddo
+      endif
+
+      end
+
+
 
       double precision function SumRuleCTEQ(n,acteq)
 C---------------------------------------------------------------
@@ -1244,6 +1298,39 @@ C-----------------------------------------------------
      & )/DGammF(2 + acteq(2) + acteq(3) + n)
 
       SumRuleCTEQ = YF
+
+      end
+
+      double precision function SumRuleCTEQhera(n,acteq)
+C---------------------------------------------------------------
+C Sum-rule integral for 
+C  
+C UF = a1*exp(a6*x)*(1 - x)**a3*x**(a2 + n)*(1 + a4*x + a5*x**2)
+C
+C parameterisation where n = 0 (momentum sum-rule) or -1 ( counting sum rule)
+C---------------------------------------------------------------
+      implicit none 
+      integer n
+      double precision acteq(1:6)
+      double precision YF
+      double precision DGammF,HypG1F1r, HypG1F1
+C-----------------------------------------------------
+      YF = (
+     &  DGammF(1 + acteq(3) )*DGammF(1 + acteq(2) + n)*(
+     &   Hypg1F1(1 + acteq(2) + n,2 + acteq(2) + acteq(3) + n,
+     $     acteq(6)) + 
+     &   (1 + acteq(2) + n)*DGammF(2 + acteq(2) + acteq(3) + n)*
+     &   ( acteq(4)*
+     &    Hypg1F1R(2 + acteq(2) + n,3 + acteq(2)
+     $     + acteq(3) + n,acteq(6)) + 
+     &     acteq(5)*(2 + acteq(2) + n)*
+     &    Hypg1F1R(3 + acteq(2) + n,4 + acteq(2)
+     $     + acteq(3) + n,acteq(6))
+     &   )
+     &  )
+     & )/DGammF(2 + acteq(2) + acteq(3) + n)
+
+      SumRuleCTEQhera = YF
 
       end
 
