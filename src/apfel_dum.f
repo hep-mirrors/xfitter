@@ -15,3 +15,21 @@ c----------------------------------------------------------
       call exit(-10)
       return 
       end
+
+      subroutine alphaqcd
+      end
+
+
+      subroutine setpdfset
+      end
+
+      subroutine xpdfall
+      end
+
+      subroutine setalphaqcdref
+      end
+
+
+      subroutine evolveapfel
+      end
+
