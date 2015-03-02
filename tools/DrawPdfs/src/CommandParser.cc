@@ -299,7 +299,7 @@ CommandParser::CommandParser(int argc, char **argv):
 	    if (pattern == 1)
 	      {
 		col[0] = kBlue + 2;
-		col[1] = kYellow - 7;
+		col[1] = kOrange;
 		col[2] = kGreen - 3;
 		col[3] = kRed + 1;
 		col[5] = kOrange + 7;

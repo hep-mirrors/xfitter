@@ -124,6 +124,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   //Prepare TGraphs
   TMultiGraph * mg = new TMultiGraph(((string)cnvname + "_multigraph").c_str(), "");
   TMultiGraph * mg_lines = new TMultiGraph(((string)cnvname + "_multigraph_lines").c_str(), "");
+  TMultiGraph * mg_dotted_lines = new TMultiGraph(((string)cnvname + "_multigraph_dotted_lines").c_str(), "");
   TMultiGraph * mg_shade = new TMultiGraph(((string)cnvname + "_multigraph_shade").c_str(), "");
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
@@ -157,16 +158,34 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       TGraph *low = new TGraph(npoints, val_x, val_low_y);
       TGraph *shade = new TGraph(2*npoints, xsh, ysh);
 
+      TGraph *high_dot = new TGraph(npoints, val_x, val_high_y);
+      TGraph *low_dot = new TGraph(npoints, val_x, val_low_y);
+
+      TGraph *high_shade = new TGraph(npoints, val_x, val_high_y);
+      TGraph *low_shade = new TGraph(npoints, val_x, val_low_y);
+
       //Set border lines and shade fill
       centr->SetLineColor((*it)->GetLineColor());
       centr->SetLineStyle(1);
       centr->SetLineWidth(opts.lwidth);
       high->SetLineColor((*it)->GetLineColor());
-      high->SetLineStyle(1);
       high->SetLineWidth(opts.lwidth);
+      high->SetLineStyle(1);
+      high_dot->SetLineWidth(1);
+      high_dot->SetLineColor((*it)->GetLineColor());
+      high_dot->SetLineStyle(3);
+      high_shade->SetLineWidth(1);
+      high_shade->SetLineColor((*it)->GetLineColor());
+      high_shade->SetLineStyle(1);
       low->SetLineColor((*it)->GetLineColor());
-      low->SetLineStyle(1);
       low->SetLineWidth(opts.lwidth);
+      low->SetLineStyle(1);
+      low_dot->SetLineWidth(1);
+      low_dot->SetLineColor((*it)->GetLineColor());
+      low_dot->SetLineStyle(3);
+      low_shade->SetLineWidth(1);
+      low_shade->SetLineColor((*it)->GetLineColor());
+      low_shade->SetLineStyle(1);
       shade->SetLineColor((*it)->GetLineColor());
       shade->SetFillColor((*it)->GetLineColor());
       shade->SetFillStyle((*it)->GetFillStyle());
@@ -177,7 +196,14 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       mg_lines->Add(centr);
       mg_lines->Add(high);
       mg_lines->Add(low);
-      mg_shade->Add(shade);
+      if (it+1 != pdfgraphs.end())
+	{
+	  mg_dotted_lines->Add(high_dot);
+	  mg_dotted_lines->Add(low_dot);
+	}
+      mg_shade->Add(shade, "f");
+      mg_shade->Add(high_shade, "l");
+      mg_shade->Add(low_shade, "l");
     }
 
   //Make the TCanvas
@@ -220,9 +246,11 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   mg->GetYaxis()->SetTitleOffset(offset);
 
   //mg->Draw("LE3");
-  mg_shade->Draw("f");
-  if (!opts.filledbands)
-    mg_lines->Draw("L");
+  mg_shade->Draw("");
+  if (opts.filledbands)
+    mg_dotted_lines->Draw("l");
+  else
+    mg_lines->Draw("l");
 
   //Make legend
   TLegend * leg = new TLegend(lmarg+0.05, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.35, 1-tmarg-0.01);
@@ -379,6 +407,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   //prepare TGraphs for line borders and graph shade
   TMultiGraph * mg_ratio = new TMultiGraph(((string)cnvname + "_multigraph_ratio").c_str(), "");
   TMultiGraph * mg_ratio_lines = new TMultiGraph(((string)cnvname + "_multigraph_ratio_lines").c_str(), "");
+  TMultiGraph * mg_ratio_dotted_lines = new TMultiGraph(((string)cnvname + "_multigraph_ratio_dotted_lines").c_str(), "");
   TMultiGraph * mg_ratio_shade = new TMultiGraph(((string)cnvname + "_multigraph_ratio_shade").c_str(), "");
   double tolerance = 0.01;   //tolerance for graph boundaries
   for (vector <TGraphAsymmErrors*>::iterator it = rlist.begin(); it != rlist.end(); it++)
@@ -459,6 +488,13 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       TGraph *r_low = new TGraph(npoints, val_x, val_low_y);
       TGraph *r_shade = new TGraph(2*npoints, xsh, ysh);
 
+      TGraph *r_high_dot = new TGraph(npoints, val_x, val_high_y);
+      TGraph *r_low_dot = new TGraph(npoints, val_x, val_low_y);
+
+      TGraph *r_high_shade = new TGraph(npoints, val_x, val_high_y);
+      TGraph *r_low_shade = new TGraph(npoints, val_x, val_low_y);
+
+
       //Set border lines and shade fill
       r_centr->SetLineColor(r->GetLineColor());
       r_centr->SetLineStyle(1);
@@ -466,21 +502,40 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       r_high->SetLineColor(r->GetLineColor());
       r_high->SetLineStyle(1);
       r_high->SetLineWidth(opts.lwidth);
+      r_high_dot->SetLineWidth(1);
+      r_high_dot->SetLineColor(r->GetLineColor());
+      r_high_dot->SetLineStyle(3);
+      r_high_shade->SetLineWidth(1);
+      r_high_shade->SetLineColor(r->GetLineColor());
+      r_high_shade->SetLineStyle(1);
       r_low->SetLineColor(r->GetLineColor());
       r_low->SetLineStyle(1);
       r_low->SetLineWidth(opts.lwidth);
+      r_low_dot->SetLineWidth(1);
+      r_low_dot->SetLineColor(r->GetLineColor());
+      r_low_dot->SetLineStyle(3);
+      r_low_shade->SetLineWidth(1);
+      r_low_shade->SetLineColor(r->GetLineColor());
+      r_low_shade->SetLineStyle(1);
       r_shade->SetLineColor(r->GetLineColor());
-      r_shade->SetLineColor(0);
       r_shade->SetFillColor(r->GetLineColor());
       r_shade->SetFillStyle(r->GetFillStyle());
       r_shade->SetLineWidth(0);
+
 
       //add graphs
       mg_ratio->Add(r);
       mg_ratio_lines->Add(r_centr);
       mg_ratio_lines->Add(r_high);
       mg_ratio_lines->Add(r_low);
-      mg_ratio_shade->Add(r_shade);
+      if (it+1 != pdfgraphs.end())
+	{
+	  mg_ratio_dotted_lines->Add(r_high_dot);
+	  mg_ratio_dotted_lines->Add(r_low_dot);
+	}
+      mg_ratio_shade->Add(r_shade, "f");
+      mg_ratio_shade->Add(r_high_shade, "l");
+      mg_ratio_shade->Add(r_low_shade, "l");
     }
 
   //Make the TCanvas
@@ -537,8 +592,10 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   mg_ratio->GetYaxis()->SetNdivisions(506);
 
   //  mg_ratio->Draw("ALE3");
-  mg_ratio_shade->Draw("f");
-  if (!opts.filledbands)
+  mg_ratio_shade->Draw("");
+  if (opts.filledbands)
+    mg_ratio_dotted_lines->Draw("l");
+  else
     mg_ratio_lines->Draw("l");
 
   //Make legend

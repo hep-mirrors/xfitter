@@ -443,7 +443,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   leg1->SetTextFont(62);
 
   //Auxiliary legend
-  TLegend * leg2 = new TLegend(lmarg+0.4, mb+0.03, lmarg+0.7, mb+0.03 + datahistos.size() * 0.04/my);
+  int leg2size =  datahistos.size();
+  if (leg2size == 1 && (opts.therr && !opts.noupband && (datahistos.begin())->HasTherr()))
+    leg2size++;
+  TLegend * leg2 = new TLegend(lmarg+0.4, mb+0.03, lmarg+0.7, mb+0.03 + leg2size * 0.04/my);
   leg2->SetFillColor(0);
   leg2->SetBorderSize(0);
   leg2->SetTextAlign(12);
@@ -540,16 +543,26 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    }
 	  gtherr->Draw("P same");
 	}
-      if (!opts.points || (*it).bincenter())
-	if (opts.therr && !opts.noupband && (*it).HasTherr())
-	  leg2->AddEntry((*it).gettherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
-	else
-	  leg2->AddEntry((*it).getth(), (labels[it-datahistos.begin()]).c_str(), "l");
+      if (datahistos.size() == 1)
+	{
+	  leg2->AddEntry((TObject*)0, (labels[it-datahistos.begin()]).c_str(), "");
+	  if (opts.therr && !opts.noupband && (*it).HasTherr())
+	    if (!opts.points || (*it).bincenter())
+	      leg2->AddEntry((*it).gettherr(), "Theory uncertainty", "lf");
+	    else
+	      leg2->AddEntry((*it).gettherr(), "Theory uncertainty", "pe");
+	}
       else
-	if (opts.therr && !opts.noupband && (*it).HasTherr())
-	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "pe");
+	if (!opts.points || (*it).bincenter())
+	  if (opts.therr && !opts.noupband && (*it).HasTherr())
+	    leg2->AddEntry((*it).gettherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
+	  else
+	    leg2->AddEntry((*it).getth(), (labels[it-datahistos.begin()]).c_str(), "l");
 	else
-	  leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "p");
+	  if (opts.therr && !opts.noupband && (*it).HasTherr())
+	    leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "pe");
+	  else
+	    leg2->AddEntry(gtherr, (labels[it-datahistos.begin()]).c_str(), "p");
     }
 
   //draw theory error borders
