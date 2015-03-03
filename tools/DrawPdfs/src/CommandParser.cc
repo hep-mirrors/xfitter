@@ -359,6 +359,16 @@ CommandParser::CommandParser(int argc, char **argv):
 		col[4] = kSpring + 2;
 		col[5] = kSpring + 7;
 	      }
+	    else if (pattern == 8)
+	      {
+		col[0] = kRed - 2;
+		col[1] = kBlue + 1;
+		col[2] = kGreen + 1;
+		col[3] = kOrange + 7;
+		col[4] = kSpring + 2;
+		col[5] = kSpring + 7;
+	      }
+
 
 	      allargs.erase(it+1);
 	  }

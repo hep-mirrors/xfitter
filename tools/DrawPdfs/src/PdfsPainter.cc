@@ -173,7 +173,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       high->SetLineStyle(1);
       high_dot->SetLineWidth(1);
       high_dot->SetLineColor((*it)->GetLineColor());
-      high_dot->SetLineStyle(3);
+      high_dot->SetLineStyle(2);
       high_shade->SetLineWidth(1);
       high_shade->SetLineColor((*it)->GetLineColor());
       high_shade->SetLineStyle(1);
@@ -182,7 +182,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       low->SetLineStyle(1);
       low_dot->SetLineWidth(1);
       low_dot->SetLineColor((*it)->GetLineColor());
-      low_dot->SetLineStyle(3);
+      low_dot->SetLineStyle(2);
       low_shade->SetLineWidth(1);
       low_shade->SetLineColor((*it)->GetLineColor());
       low_shade->SetLineStyle(1);
@@ -469,9 +469,9 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 	  r->SetPointError(i, 0, 0, errlow, errhigh);
 
 	  val_x[i] = r->GetX()[i];
-	  val_y[i] = ratio_tol;
-	  val_high_y[i] = high_tol;
-	  val_low_y[i] = low_tol;
+	  val_y[i] = ratio;
+	  val_high_y[i] = high;
+	  val_low_y[i] = low;
 	}
     
       //shade TGraph
@@ -504,7 +504,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       r_high->SetLineWidth(opts.lwidth);
       r_high_dot->SetLineWidth(1);
       r_high_dot->SetLineColor(r->GetLineColor());
-      r_high_dot->SetLineStyle(3);
+      r_high_dot->SetLineStyle(2);
       r_high_shade->SetLineWidth(1);
       r_high_shade->SetLineColor(r->GetLineColor());
       r_high_shade->SetLineStyle(1);
@@ -513,7 +513,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       r_low->SetLineWidth(opts.lwidth);
       r_low_dot->SetLineWidth(1);
       r_low_dot->SetLineColor(r->GetLineColor());
-      r_low_dot->SetLineStyle(3);
+      r_low_dot->SetLineStyle(2);
       r_low_shade->SetLineWidth(1);
       r_low_shade->SetLineColor(r->GetLineColor());
       r_low_shade->SetLineStyle(1);
