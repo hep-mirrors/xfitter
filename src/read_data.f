@@ -385,11 +385,11 @@ C Reset scales to 1.0
       print *,CFile
       read(51,NML=Data,err=98)
 
-      PlotN = 0
+      PlotN = -1
       read(51,NML=PlotDesc,end=96,err=97)
  96   continue
 
-      if(PlotN.eq.0) then  ! SUPPORT OLD FORMAT WITHOUT PLOTDESC NAMELIST, GET TO END OF DATA NAMELIST
+      if(PlotN.eq.-1) then  ! SUPPORT OLD FORMAT WITHOUT PLOTDESC NAMELIST, GET TO END OF DATA NAMELIST
          close(51)
          open(51,file=CFile,status='old',err=99)
          read(51,NML=Data,err=98)
