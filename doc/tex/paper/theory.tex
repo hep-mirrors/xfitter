@@ -90,9 +90,13 @@ $x \tilde F_3$ becomes important at high $Q^2$ and $\tilde F_L$ is sizable
 only at high $y$. 
 In the framework of pQCD, the structure functions are directly related to the 
 PDFs: at LO $F_2$ is the weighted momentum sum of quark and anti-quark distributions, 
+\textcolor{red}{
 $F_2~\approx~x \sum e^2_q (q+ \overline q)$ (where $e_q$ is the quark electric charge),
+}
 $xF_3$ is related to their difference, 
-$xF_3~\approx~x \sum 2e_q a_q (q- \overline q)$ ($a_q$ is the axial-vector quark coupling)
+\textcolor{red}{
+$xF_3~\approx~x \sum 2e_q a_q (q- \overline q)$ ($a_q$ is the axial-vector quark coupling),
+}
 and $F_L$ vanishes. At higher orders, terms related to the gluon distribution
 appear, in particular $F_L$ is strongly related to the low-$x$ 
 gluon.
@@ -115,6 +119,7 @@ where $P$ represents the lepton beam polarisation.
 % and $\tilde W_2$, $\tilde W_3$,$\tilde W_L$ are structure functions.
 At LO in $\alpha_s$, the CC $e^+p$ and $e^-p$ cross sections are sensitive to 
 different combinations of the quark flavour densities:
+\textcolor{red}{
  \begin{eqnarray}
   \nonumber
      \sigma_{r,CC}^{e^{+} p} &\approx& 
@@ -123,6 +128,7 @@ different combinations of the quark flavour densities:
      \sigma_{r,CC}^{e^{-} p} &\approx& 
        x[u+c] + (1-y)^2 x[\overline d + \overline s].
  \end{eqnarray}
+}
 %Here $U$ and $D$ denote the sum over up- and down-type quarks;
 %the latter include also strange and beauty quarks and 
 %the former charm quarks.
@@ -156,8 +162,13 @@ are then treated as massless in both the initial
 and final states of the hard scattering process. The lowest order process is the
 %scattering of a heavy quark in the proton with the lepton via (electroweak) boson exchange.
 scattering of the lepton off the heavy quark via electroweak boson exchange.
-This scheme is expected to be reliable in the region where $Q^2 \gg m_h^2$.
-%This is the scheme that had been used in the past by PDF groups.
+% Greame W suggestion:
+\textcolor{red}{
+This scheme is expected to be reliable only in the region where $Q^2\gg m_h^2$, and it is inaccurate for lower 
+$Q^2$ values since it misses corrections of order $m_h^2/Q^2$, while the other schemes mentioned 
+below are accurate up to order $\Lambda_{\rm QCD}^2/Q^2$ albeit with different perturbative orderings.
+}
+%This scheme is expected to be reliable in the region where $Q^2 \gg m_h^2$.
 In \fitter this scheme is available for the DIS structure function calculation 
 via the interface to the \qcdnum \cite{qcdnum} package, thus it benefits 
 from the fast \qcdnum convolution engine.
@@ -174,7 +185,11 @@ the heavy quark-antiquark pair production via boson-gluon fusion.
 %The recent series of PDFs that use this scheme as default are ABM and JR PDF groups.
 In \texttt{HERA}\texttt{Fitter} this scheme can be accessed via the 
 \qcdnum implementation or through the interface to the open-source code \texttt{OPENQCDRAD}~\cite{openqcdrad:page} as implemented by the ABM group.
-This scheme is reliable for $Q^2 \sim m_h^2$.
+\textcolor{red}{
+This scheme is reliable only for $Q\sim m_h^2$, since it does not resum logarithms of the 
+form $\ln(Q^2/m_h^2)$ which become important for $Q^2\gg m_h^2$.
+}
+%This scheme is reliable for $Q^2 \sim m_h^2$.
 In \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
 are available at Next-to-Leading Order (NLO) and only electromagnetic exchange contributions are taken into account. 
 In the \texttt{OPEN}\texttt{QCDRAD} implementation the heavy quark contributions to CC structure functions are also available 
@@ -182,13 +197,16 @@ In the \texttt{OPEN}\texttt{QCDRAD} implementation the heavy quark contributions
 and, for the NC case, the QCD corrections to the coefficient functions in Next-to-Next-to Leading Order (NNLO)
 are provided in the best currently known approximation~\cite{SMoch:npb864,Bierenbaum:2009mv}.
 The  \texttt{OPENQCDRAD} implementation uses in addition the running heavy quark mass in the $\overline{\text{MS}}$ scheme~\cite{Alekhin:runm}.
-
-It is sometimes argued that this scheme reduces the sensitivity of the DIS cross sections to higher order 
-corrections ~\cite{SMoch:npb864,Bierenbaum:2009mv}. It is also known to have smaller non-perturbative corrections than the pole mass scheme 
-\cite{Beneke:1998ui}.
+\textcolor{red}{
+It is sometimes argued that this $\overline{\text{MS}}$ scheme reduces the sensitivity of the DIS cross sections to higher order 
+corrections ~\cite{Alekhin:runm}. 
+%corrections ~\cite{SMoch:npb864,Bierenbaum:2009mv}. 
+}
+It is also known to have smaller non-perturbative corrections than the pole mass scheme \cite{Beneke:1998ui}.
 
 \paragraph{General-Mass Variable Flavour Number (GM-VFN)\rm:\\}
-In this scheme \cite{VFN}, heavy quark production is treated for
+%In this scheme \cite{VFN}, heavy quark production is treated for
+\textcolor{red}{In this scheme \cite{Thorne:2008xf} }, heavy quark production is treated for
 $Q^2 \sim m_h^2$ in the FFN scheme and for $Q^2 \gg m_h^2$
 in the massless scheme with a suitable interpolation in between. 
 The details of this interpolation differ between implementations.
@@ -220,6 +238,10 @@ to the TR$^\prime$ scheme~\cite{Thorne:2006qt}.
 There are two variants of the TR$^\prime$ schemes: TR$^\prime$ standard (as used in MSTW PDF sets~\cite{Thorne:2006qt,MSTWpdf}) 
 and TR$^\prime$ optimal~\cite{Thorne:6180}, with a smoother transition across the heavy quark threshold region. 
 Both TR$^\prime$ variants are accessible within the \fitter package at LO, NLO and NNLO.
+\textcolor{red}{
+At NNLO, an approximation is needed for the massive $\mathcal{O}(\alpha_s^3)$ NC coefficient 
+functions relevant for $Q^2\sim m_h^2$, as for the FFN scheme.
+}
 %%%%
 \vspace{0.1cm}
 \item \it {GM-VFN ACOT scheme:} \rm
@@ -608,9 +630,12 @@ At the LHC, top-quark pairs ($t \bar t$) are produced dominantly via $gg$ fusion
 Thus, LHC measurements of the $t \bar t$ cross section provide additional 
 constraints on the gluon distribution at medium to high values of $x$, 
 on $\as$ and on the top-quark mass, $m_t$ \cite{cms:top}. 
+\textcolor{red}{
 Precise predictions for the total inclusive $t \bar t$ cross section are available 
-up to NNLO~\cite{Czakon:2013goa,Czakon:2011xx}. Currently, they can be computed within \fitter via an interface 
+%up to NNLO~\cite{Czakon:2013goa,Czakon:2011xx}. Currently, they can be computed within \fitter via an interface 
+up to NNLO~\cite{Czakon:2013goa} and they can be computed within \fitter via an interface 
 to the program \texttt{HATHOR}~\cite{Aliev:2010zk}. 
+}
 
 Fixed-order QCD predictions for the differential $t \bar t$ cross section at NLO can be obtained by using
 the program \texttt{MCFM}~\cite{Campbell:2010ff,Campbell:2009ss,Campbell:2005bb,Campbell:2004ch,Campbell:2012uf} 
