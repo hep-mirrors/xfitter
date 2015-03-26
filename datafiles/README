@@ -1,0 +1,5 @@
+### Data tables in HERAFitter format ###
+
+The data tables are grouped according to the collider, experiment and process,
+such that the path to a data sets looks like:
+colliderName/experimentName/processType/arxivNumber/
