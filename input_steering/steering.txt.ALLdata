@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 47
+    NInputFiles = 46
 
    InputFileNames =
  !
@@ -56,7 +56,6 @@
   ! CMS Jets:
           'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004.dat',
   ! CMS Top production:
-          'datafiles/lhc/cms/topProduction/cms-pas-top-11-024/CMS-TOP-11-024_prelim.dat',
           'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT.dat',
           'datafiles/lhc/cms/topProduction/1211.2220/Diff_ttbar_7TeV_pt.dat',
   ! ATLAS W, Z production:
