@@ -382,12 +382,6 @@ AC_CONFIG_FILES([include/Makefile
                  tools/DrawPdfs/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
-                 datafiles/bcdms/Makefile
-                 datafiles/hera/Makefile
-                 datafiles/lhc/atlas/Jets2010/Makefile
-                 datafiles/lhc/atlas/WZ2010/Makefile
-                 datafiles/lhc/cms/Makefile
-                 datafiles/tevatron/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then
