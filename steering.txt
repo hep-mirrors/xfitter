@@ -5,10 +5,11 @@
     NInputFiles = 4
  
   ! Input files:
-    InputFileNames(1) = 'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.dat'
-    InputFileNames(3) = 'datafiles/hera/H1ZEUS_CC_e-p_HERA1.0.dat'
-    InputFileNames(4) = 'datafiles/hera/H1ZEUS_CC_e+p_HERA1.0.dat'
+    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat'
+    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat'
+
 &End
 
 &InCorr
@@ -16,7 +17,7 @@
     NCorrFiles = 0
  
   ! Correlation files:
-  !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+  !  CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 
 &CovarToNuisance
@@ -55,10 +56,9 @@
 * Main steering cards
 *
 &HeraFitter 
-  TheoryType = 'DGLAP'       ! 'DGLAP'       -- collinear evolution
-                             ! 'DGLAP_APFEL' -- collinear evolution with APFEL
-                             ! 'DIPOLE'      -- dipole model 
-                             ! 'uPDF'        -- un-integrated PDFs
+  TheoryType = 'DGLAP' ! 'DGLAP'  -- colinear evolution
+                       ! 'DIPOLE' -- dipole model 
+                       ! 'uPDF'   -- un-integrated PDFs
                                 !uPDF1 fit with kernel ccfm-grid.dat file
                                 !uPDF2 fit evolved uPDF, fit just normalisation
                                 !uPDF3 fit using precalculated grid of sigma_hat
