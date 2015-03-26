@@ -7,114 +7,92 @@
 
    InputFileNames =
  !
- ! H1 and ZEUS combined:
- ! 
-          'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.dat',
-          'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.dat',
-          'datafiles/hera/H1ZEUS_CC_e-p_HERA1.0.dat',
-          'datafiles/hera/H1ZEUS_CC_e+p_HERA1.0.dat',
-
- ! H1 jets:
+ ! HERA
+  ! H1 and ZEUS combined Inclusive DIS:
+          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',
+          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
+          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
+          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
+  ! H1 Jets:
+          'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat',
+          'datafiles/hera/h1/jets/0706.3722/H1_InclJets_HighQ2_99-00.dat',
+          'datafiles/hera/h1/jets/0911.5678/H1_InclJets_LowQ2_99-00.dat',
+  ! ZEUS Jets:
+          'datafiles/hera/zeus/jets/0208037/ZEUS_InclJets_HighQ2_96-97.dat',
+          'datafiles/hera/zeus/jets/0608048/ZEUS_InclJets_HighQ2_98-00.dat',
+          'datafiles/hera/zeus/jets/1010.6167/ZEUS_dijet_98-07.dat',
+  ! H1 Inclusive DIS low Ep:
+          'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',
+  ! H1 and ZEUS combined Charm production:
+          'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined.dat', 
  !
-          'datafiles/hera/H1_NormInclJets_HighQ2_99-07.dat',
-          'datafiles/hera/H1_InclJets_HighQ2_99-00.dat',
-          'datafiles/hera/H1_InclJets_LowQ2_99-00.dat',
- ! ZEUS jets:
-          'datafiles/hera/ZEUS_InclJets_HighQ2_96-97.dat',
-          'datafiles/hera/ZEUS_InclJets_HighQ2_98-00.dat',
-          'datafiles/hera/ZEUS_dijet_98-07.dat',
+ ! Fixed Target
+  ! BCDMS F2 proton:
+          'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.100gev.dat',
+          'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.120gev.dat',
+          'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.200gev.dat',
+          'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.280gev.dat',
  !
- !
- ! H1 low Ep inclusive:
- !
-          'datafiles/hera/H1_LowEp_460_575.dat',
- !
- ! HERA combined charm data:
- !
-          'datafiles/hera/H1ZEUS_Charm_combined.dat', 
- !
- ! BCDMS:
- !
-          'datafiles/bcdms/BCDMS_F2p.100gev.dat',
-          'datafiles/bcdms/BCDMS_F2p.120gev.dat',
-          'datafiles/bcdms/BCDMS_F2p.200gev.dat',
-          'datafiles/bcdms/BCDMS_F2p.280gev.dat',
- !
- ! Tevatron:
- !
-          'datafiles/tevatron/CDF_JETS2008.dat',
-          'datafiles/tevatron/D0_JETS.dat',
-! need Hathor package
-          'datafiles/tevatron/CDF-TOP-CONF-NOTE-9913_prelim.dat',
- !
- ! Tevatron W, Z inclusive cross sections and asymmetries:
- !
-          'datafiles/tevatron/wzinclusive/D0_Z_Boson_Rapidity.dat',
-          'datafiles/tevatron/wzinclusive/CDF_Z_Boson_Rapidity.dat',
-	  'datafiles/tevatron/wzinclusive/D0_Wmu_pt25_asymmetry.dat',
-	  'datafiles/tevatron/wzinclusive/D0_Wmu_pt35_asymmetry.dat',
-	  'datafiles/tevatron/wzinclusive/CDF_W_asymmetry.dat',
-	  'datafiles/tevatron/wzinclusive/D0_W_asymmetry.dat',
-
+ ! Tevatron
+  ! CDF Jets, W, Z production:
+          'datafiles/tevatron/cdf/jets/0807.2204/CDF_JETS2008.dat',
+ 	  'datafiles/tevatron/cdf/wProduction/0901.2169/CDF_W_asymmetry.dat',
+          'datafiles/tevatron/cdf/zProduction/0908.3914/CDF_Z_Boson_Rapidity.dat',
+  ! D0  Jets, W, Z production:    
+          'datafiles/tevatron/d0/jets/0802.2400/D0_JETS.dat',
+    	  'datafiles/tevatron/d0/zProduction/0702025/D0_Z_Boson_Rapidity.dat',
+ 	  'datafiles/tevatron/d0/wProduction/1309.2591/D0_Wmu_pt25_asymmetry.dat',
+ 	  'datafiles/tevatron/d0/wProduction/1309.2591/D0_Wmu_pt35_asymmetry.dat',
+ 	  'datafiles/tevatron/d0/wProduction/1312.2895/D0_W_asymmetry.dat',
+  ! CDF and D0 combined Top production:
+  ! NOTE: need Hathor package
+          'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT.dat',
  !
  ! LHC
- !
-          'datafiles/lhc/cms/CMS-TOP-11-024_prelim.dat',
-          'datafiles/lhc/cms/CMS_Z_boson_Rapidity.dat',
-          'datafiles/lhc/cms/CMS_eAsymmetry_SPM_12_001.dat',
-          'datafiles/lhc/cms/CMS_mAsymmetry_SMP_12_021.dat',
-          'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004.dat',
-
- !
- ! LHC ttbar 7 TeV data CMS and ATLAS
- !          
-          'datafiles/lhc/atlas/ttbar/Diff_ttbar_ATL_7TeV_TOT.dat',
-          'datafiles/lhc/atlas/ttbar/Diff_ttbar_7TeV_pt-ATL.dat',
-          'datafiles/lhc/cms/ttbar/Diff_ttbar_7TeV_TOT.dat',
-          'datafiles/lhc/cms/ttbar/Diff_ttbar_7TeV_pt.dat',
- 
-
-
- !
- ! For atals jets, use R06 or R04 data, but never both at the same time !
- !
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_00_03.dat',
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_03_08.dat',
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_08_12.dat',
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_12_21.dat',
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_21_28.dat',
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_28_36.dat',
-          'datafiles/lhc/atlas/Jets2010/inclusivejets_R06_36_44.dat',
- !
- !  W/Z cross sections are given at NNLO !
- !
-          'datafiles/lhc/atlas/WZ2010/WP_applgrid_nnlo.dat',
-          'datafiles/lhc/atlas/WZ2010/WM_applgrid_nnlo.dat',
-          'datafiles/lhc/atlas/WZ2010/Z0_applgrid_nnlo.dat',
-
- !
- ! ATLAS DY HM and LM at NNLO!
- !
-
-           'datafiles/lhc/atlas/DY/dy_highmass.dat', 
-           'datafiles/lhc/atlas/DY/dy_lowmass.dat',
-           'datafiles/lhc/atlas/DY/dy_lowmass_extended.dat'
-
-
+  ! CMS W, Z production:
+          'datafiles/lhc/cms/zProduction/1110.4973/CMS_Z_boson_Rapidity.dat',
+          'datafiles/lhc/cms/wProduction/1206.2598/CMS_eAsymmetry_SPM_12_001.dat',
+          'datafiles/lhc/cms/wProduction/1312.6283/CMS_mAsymmetry_SMP_12_021.dat',
+  ! CMS Jets:
+          'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004.dat',
+  ! CMS Top production:
+          'datafiles/lhc/cms/topProduction/cms-pas-top-11-024/CMS-TOP-11-024_prelim.dat',
+          'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT.dat',
+          'datafiles/lhc/cms/topProduction/1211.2220/Diff_ttbar_7TeV_pt.dat',
+  ! ATLAS W, Z production:
+          'datafiles/lhc/atlas/wProduction/1203.4051/WP_applgrid_nnlo.dat',
+          'datafiles/lhc/atlas/wProduction/1203.4051/WM_applgrid_nnlo.dat',
+          'datafiles/lhc/atlas/zProduction/1203.4051/Z0_applgrid_nnlo.dat',
+  ! ATLAS Drell-Yann:
+           'datafiles/lhc/atlas/drellYan/1305.4192/dy_highmass.dat', 
+           'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass.dat',
+           'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass_extended.dat',
+  ! ATLAS Jets
+  ! NOTE: use R06 or R04 data, but never both at the same time !
+          'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_00_03.dat',
+          'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_03_08.dat',
+          'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_08_12.dat',
+          'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_12_21.dat',
+          'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_21_28.dat',
+          'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_28_36.dat',
+          'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_36_44.dat',
+  ! ATLAS Top:
+          'datafiles/lhc/atlas/topProduction/atlas-conf-2012-024/Diff_ttbar_ATL_7TeV_TOT.dat',
+          'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat'
 
 &End
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 5
+    NCorrFiles = 6
  
   ! Correlation files:
-  !  CorrFileNames(1) = 'datafiles/hera/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
-  CorrFileNames(1) = 'datafiles/lhc/cms/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
-  CorrFileNames(2) = 'datafiles/lhc/cms/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
-  CorrFileNames(3) = 'datafiles/lhc/cms/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
-  CorrFileNames(4) = 'datafiles/lhc/cms/Jets2011_7TeV/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
-  CorrFileNames(5) = 'datafiles/tevatron/wzinclusive/D0_W_asymmetry.corr'
+    CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+    CorrFileNames(2) = 'datafiles/lhc/cms/wProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
+    CorrFileNames(3) = 'datafiles/lhc/cms/wProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
+    CorrFileNames(4) = 'datafiles/lhc/cms/zProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
+    CorrFileNames(5) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
+    CorrFileNames(6) = 'datafiles/tevatron/d0/wProduction/1312.2895/D0_W_asymmetry.corr'
 &End
 
 &CovarToNuisance
