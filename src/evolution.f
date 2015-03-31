@@ -1,4 +1,3 @@
-
       subroutine Evolution
 
 *
@@ -281,7 +280,7 @@ C----------------------------
 *     (predefined name)
 *
 ************************************************************************
-      subroutine ExternalSetAPFEL(x,xf)
+      subroutine ExternalSetAPFEL(x,q0,xf)
 *
       implicit none
 #include "steering.inc"
@@ -289,11 +288,11 @@ C----------------------------
 *     Input Variables
 *
       double precision x
+      double precision q0
 **
 *     Internal Variables
 *
       integer ipdf
-      double precision q0
       double precision gluon
       double precision pdf_from_text
       double precision qstrange,Ubar,Dbar,H1U,H1D
@@ -315,7 +314,7 @@ C----------------------------
 *     Construct PDFs addording to the PDF decomposition
 *
       if(PDF_DECOMPOSITION.eq.'LHAPDF')then
-         q0 = sqrt(starting_scale)
+c         q0 = sqrt(starting_scale)
          call evolvePDF(x, q0, xf)
 
       elseif(PDF_DECOMPOSITION.eq.'QCDNUM_GRID')then

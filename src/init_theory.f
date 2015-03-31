@@ -65,6 +65,8 @@ C Other schemes:
          Call RT_Init()
       elseif ( mod(HFSCHEME,10).eq.4) then
          Call ABKM_init()
+      elseif ( mod(HFSCHEME,10).eq.5) then
+         Call FONLL_init()
       endif
 C---------------------------------
       end
@@ -1324,4 +1326,70 @@ c#include "steering.inc"
  8128   continue
         print '(''Error reading xgrid. Stop'')'
         call hf_stop
+      end
+*
+************************************************************************
+*
+*     Initialization routine for the FONLL scheme provided by APFEL.
+*
+*     Author: Valerio Bertone
+*     Created: 25/03/2015
+*
+************************************************************************
+      subroutine FONLL_init()
+*
+      implicit none
+*
+#include "ntot.inc"
+#include "steering.inc"
+#include "couplings.inc"
+*
+      integer PtOrder
+      double precision MCharm,MBottom,MTop
+      double precision Q_ref,Alphas_ref
+      double precision hf_get_alphas
+      character*7 Scheme
+*
+      MCharm  = mch
+      MBottom = mbt
+      MTop    = mtp
+*
+      Q_ref      = mz
+      Alphas_ref = hf_get_alphas(Q_ref*Q_ref)
+*
+      PtOrder = I_FIT_ORDER - 1
+*
+      write(6,*) ' ---------------------------------------------'
+      write(6,*) 'Info from FONLL_init:'
+*
+      if (I_FIT_order.eq.1) then
+         write(6,*) 'You have selected the FONLL scheme at LO'
+         write(6,*) '(Note that this is equivalent to the ZM-VFNS)'
+         Scheme = "ZM-VFNS"
+      elseif (I_FIT_order.eq.2) then
+         if(HFSCHEME.eq.5)then
+            write(6,*) 'You have selected the FONLL-A scheme'
+            Scheme = "FONLL-A"
+         elseif(HFSCHEME.eq.55)then
+            write(6,*) 'You have selected the FONLL-B scheme'
+            Scheme = "FONLL-B"
+         else
+            write(6,*) "At NLO only the FONLL-A and FONLL-B ",
+     1                 "schemes are possible"
+            call HF_stop
+         endif
+      elseif (I_FIT_order.eq.3) then
+         if(HFSCHEME.eq.555)then
+            write(6,*) 'You have selected the FONLL-C scheme'
+            Scheme = "FONLL-C"
+         else
+            write(6,*) "At NNLO only the FONLL-C scheme is possible"
+            call HF_stop
+         endif
+      endif
+*
+      call FONLL_Set_Input(Mcharm,MBottom,MTop,
+     1                     Q_ref,Alphas_ref,PtOrder,Scheme)
+*
+      return
       end

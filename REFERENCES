@@ -78,7 +78,18 @@ Cite as:        arXiv:hep-ph/9312319v2
 	
      http://www-zeuthen.desy.de/~alekhin/OPENQCDRAD/ 
 
+1111) FONLL general-mass variable-flavor-number scheme: (for HF_SCHEME = 'FONLL-A', 'FONLL-B', 'FONLL-C') from APFEL
+--------------------------------------------------------------------------------------------------------------------
 
+"APFEL: A PDF Evolution Library with QED corrections"
+V. Bertone, S. Carrazza and J. Rojo,
+Comput. Phys. Commun.  185 (2014) 1647,
+e-Print arXiv:1310.1394 [hep-ph].
+
+"Heavy quarks in deep-inelastic scattering"
+S. Forte, E. Laenen, P. Nason and J. Rojo,
+Nucl. Phys. B 834 (2010) 116,
+e-Print arXiv:1001.2312 [hep-ph].
 
 2) Chi2 definition ( CHI2Style = 'XXXX')
 -----------------------------------------

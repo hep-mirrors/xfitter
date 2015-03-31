@@ -130,9 +130,10 @@
 * Main steering cards
 *
 &HeraFitter 
-  TheoryType = 'DGLAP' ! 'DGLAP'  -- colinear evolution
-                       ! 'DIPOLE' -- dipole model 
-                       ! 'uPDF'   -- un-integrated PDFs
+  TheoryType = 'DGLAP' ! 'DGLAP'        -- collinear evolution
+                       ! 'DGLAP_APFEL'  -- collinear evolution with APFEL
+                       ! 'DIPOLE'       -- dipole model 
+                       ! 'uPDF'         -- un-integrated PDFs
                                 !uPDF1 fit with kernel ccfm-grid.dat file
                                 !uPDF2 fit evolved uPDF, fit just normalisation
                                 !uPDF3 fit using precalculated grid of sigma_hat
@@ -143,17 +144,20 @@
   Q02     = 1.9 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
- ! ---  HF_SCHEME = 'ZMVFNS'    : ZM-VFNS (massless),
- ! ---  HF_SCHEME = 'RT'        :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'RT OPT'        :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT OPT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT Chi' : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
- ! ---  HF_SCHEME = 'FF'        : Fixed Flavour Number Scheme (qcdnum)
- ! ---  HF_SCHEME = 'FF ABM'    : Fixed Flavour Number Scheme (ABM)
+ ! ---  HF_SCHEME = 'ZMVFNS'      : ZM-VFNS (massless),
+ ! ---  HF_SCHEME = 'RT'          :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT FAST'     : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'RT OPT'      :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT OPT FAST' : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'ACOT Full'   : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi'    : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM'     : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'FF'          : Fixed Flavour Number Scheme (qcdnum)
+ ! ---  HF_SCHEME = 'FF ABM'      : Fixed Flavour Number Scheme (ABM)
  ! ---  HF_SCHEME = 'FF ABM RUNM' : Fixed Flavour Number Scheme (ABM) using run mass def
+ ! ---  HF_SCHEME = 'FONLL-A'     : FONLL-A mass scheme provided by APFEL (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B'     : FONLL-B mass scheme provided by APFEL (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-C'     : FONLL-C mass scheme provided by APFEL (available only at NNLO)
 
   HF_SCHEME = 'RT'
 

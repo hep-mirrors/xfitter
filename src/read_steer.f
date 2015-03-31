@@ -1071,6 +1071,12 @@ C---------------------------------
          HFSCHEME = 44 
       elseif (HF_SCHEME.eq.'FF ABM RUNM') then
          HFSCHEME = 444
+      elseif (HF_SCHEME.eq.'FONLL-A') then
+         HFSCHEME = 5
+      elseif (HF_SCHEME.eq.'FONLL-B') then
+         HFSCHEME = 55
+      elseif (HF_SCHEME.eq.'FONLL-C') then
+         HFSCHEME = 555
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'

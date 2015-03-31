@@ -606,7 +606,15 @@ C
             call UseABKMFFScheme(F2, FL, XF3, F2c, FLc, F2b, FLb, 
      $           x, q2, npts, XSecType, charge, polarity, F2gamma,
      $           FLgamma, IDataSet)
+
+         elseif (mod(local_hfscheme,10).eq.5) then
+
+            call UseFONLLScheme(F2,FL,xF3,F2c,FLc,F2b,FLb, 
+     1                          x,q2,npts,polarity,XSecType,
+     2                          charge,local_hfscheme,IDataSet)
+
          endif
+
       elseif (itheory.eq.50) then
          call UseFractalFit(F2, FL, XF3, x,q2,npts,XSecType, IDataSet)
          
@@ -1210,4 +1218,92 @@ C     Additional variables:
 
 C     ---------------------------------------
       
+      end
+
+
+
+
+C----------------------------------------------------------------
+C> Calculates F2, FL, XF3, F2c, FLc, F2b, FLb according to FONLL scheme
+C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] polarity of the lepton beam
+C> \param[in] charge of the lepton beam
+C> \param[in] XSecType DIS process type
+C> \param[in] local_hfscheme heavy flavour scheme
+C> \param[in] IDataSet data set index
+C> \param[in] F2in, FLin, XF3in structure functions calculated by QCDNUM
+C
+C  Created by Valerio Bertone, 25/03/2015
+C---------------------------------------------------------------
+      subroutine UseFONLLScheme(F2,FL,xF3,F2c,FLc,F2b,FLb, 
+     1                          x,q2,npts,polarity,XSecType,
+     2                          charge,local_hfscheme,IDataSet)
+*
+      implicit none
+*
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "fcn.inc"
+#include "qcdnumhelper.inc"
+**
+*     Input Varibales
+*
+      integer npts,IDataSet
+      integer local_hfscheme
+      double precision x(NPMaxDIS),q2(NPMaxDIS)
+      double precision charge,polarity
+      character*(*) XSecType
+**
+*     Internal Variables
+*
+      integer i
+**
+*     Output Variables
+*
+      double precision F2(NPMaxDIS),FL(NPMaxDIS),xF3(NPMaxDIS)
+      double precision F2c(NPMaxDIS),FLc(NPMaxDIS)
+      double precision F2b(NPMaxDIS),FLb(NPMaxDIS)
+*
+      call SetPolarizationDIS(polarity)
+*
+      if(XSecType.eq.'CCDIS')then
+         call SetProcessDIS("CC")
+      elseif(XSecType.eq.'NCDIS')then
+         call SetProcessDIS("NC")
+      elseif(XSecType.eq.'CHARMDIS'.or.XSecType.eq.'BEAUTYDIS') then
+         call SetProcessDIS("EM")
+      else
+         write(6,*) 'UseFONLLScheme, XSecType', XSecType,
+     1              'not supported'
+         stop
+      endif
+*
+      if(charge.lt.0d0)then
+         call SetProjectileDIS("electron")
+      else
+         call SetProjectileDIS("positron")
+      endif
+*
+      do i=1,npts
+         call sf_fonll_wrap(x(i),q2(i),
+     1                      F2(i),FL(i),xF3(i),
+     2                      F2c(i),FLc(i),F2b(i),FLb(i)) 
+      enddo
+*     Adjust sign of F3
+      xF3 = - charge * xF3
+*     Divide structure functions by 2 for the CC process
+      if(XSecType.eq.'CCDIS')then
+         F2  = 0.5d0 * F2
+         FL  = 0.5d0 * FL
+         xF3 = - 0.5d0 * charge * xF3
+         F2c = 0.5d0 * F2c
+         FLc = 0.5d0 * FLc
+         F2b = 0.5d0 * F2b
+         FLb = 0.5d0 * FLb
+      endif
+*
+      return
       end
