@@ -8,7 +8,7 @@ C Namelist for data set declarations
 
 C Namelist for statistical correlation declarations
       integer NCorrFiles                    !> Number of correlation files
-      character*80 CorrFileNames(NSET**2)   !> Names of correlation files
+      character*256 CorrFileNames(NSET**2)   !> Names of correlation files
 
       logical UseFixedTheory(NSET)          !> Used fixed theory predictions
 
