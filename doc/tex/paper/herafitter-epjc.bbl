@@ -330,15 +330,10 @@
   \bibinfo{journal}{Phys.Rept.} \textbf{\bibinfo{volume}{317}},
   \bibinfo{pages}{1} (\bibinfo{year}{1999}), [\eprint{hep-ph/9807443}].
 
-\bibitem[{\citenamefont{Demina \emph{et~al.}}(1999)\citenamefont{Demina,
-  Keller, Kramer, Kretzer, Martin \emph{et~al.}}}]{VFN}
-\bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Demina}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Keller}},
-  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Kramer}},
-  \bibinfo{author}{\bibfnamefont{S.}~\bibnamefont{Kretzer}},
-  \bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Martin}},
-  \bibnamefont{\emph{et~al.}} (\bibinfo{year}{1999}),
-  [\eprint{hep-ph/0005112}].
+\bibitem[{\citenamefont{Thorne and Tung}(2008)}]{Thorne:2008xf}
+\bibinfo{author}{\bibfnamefont{R.}~\bibnamefont{Thorne}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{W.}~\bibnamefont{Tung}}
+  (\bibinfo{year}{2008}), [\eprint{hep-ph/0809.0714}].
 
 \bibitem[{\citenamefont{Thorne and Roberts}(1998)}]{Thorne:1997ga}
 \bibinfo{author}{\bibfnamefont{R.~S.} \bibnamefont{Thorne}} \bibnamefont{and}
@@ -555,12 +550,6 @@
   \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Mitov}},
   \bibinfo{journal}{Phys. Rev. Lett.} \textbf{\bibinfo{volume}{110}},
   \bibinfo{pages}{252004} (\bibinfo{year}{2013}), [\eprint{arXiv:1303.6254}].
-
-\bibitem[{\citenamefont{Czakon and Mitov}(2014)}]{Czakon:2011xx}
-\bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Czakon}} \bibnamefont{and}
-  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Mitov}},
-  \bibinfo{journal}{Comput.Phys.Commun.} \textbf{\bibinfo{volume}{185}},
-  \bibinfo{pages}{2930} (\bibinfo{year}{2014}), [\eprint{arXiv:1112.5675}].
 
 \bibitem[{\citenamefont{Aliev \emph{et~al.}}(2011)\citenamefont{Aliev, Lacker,
   Langenfeld, Moch, Uwer \emph{et~al.}}}]{Aliev:2010zk}
@@ -871,12 +860,13 @@
   \bibinfo{journal}{Acta Phys.Polon.} \textbf{\bibinfo{volume}{B40}},
   \bibinfo{pages}{2139} (\bibinfo{year}{2009}).
 
-\bibitem[{\citenamefont{Hautmann \emph{et~al.}}(2012)\citenamefont{Hautmann,
-  Hentschinski, and Jung}}]{Hautmann:2012pf}
+\bibitem[{\citenamefont{Hautmann
+  \emph{et~al.}}(2012{\natexlab{a}})\citenamefont{Hautmann, Hentschinski, and
+  Jung}}]{Hautmann:2012pf}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
   \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Hentschinski}},
   \bibnamefont{and} \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}}
-  (\bibinfo{year}{2012}), [\eprint{arXiv:1205.6358}].
+  (\bibinfo{year}{2012}{\natexlab{a}}), [\eprint{arXiv:1205.6358}].
 
 \bibitem[{\citenamefont{Hautmann and Jung}(2008)}]{Hautmann:2007gw}
 \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}} \bibnamefont{and}
@@ -950,6 +940,16 @@
   \bibinfo{author}{\bibfnamefont{L.~N.} \bibnamefont{Lipatov}},
   \bibinfo{journal}{Sov.\ J.\ Nucl.\ Phys.} \textbf{\bibinfo{volume}{28}},
   \bibinfo{pages}{822} (\bibinfo{year}{1978}).
+
+\bibitem[{\citenamefont{Hautmann
+  \emph{et~al.}}(2012{\natexlab{b}})\citenamefont{Hautmann, Hentschinski, and
+  Jung}}]{Hautmann:2012sh}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Hautmann}},
+  \bibinfo{author}{\bibfnamefont{M.}~\bibnamefont{Hentschinski}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Jung}},
+  \bibinfo{journal}{Nucl.Phys.} \textbf{\bibinfo{volume}{B865}},
+  \bibinfo{pages}{54} (\bibinfo{year}{2012}{\natexlab{b}}),
+  [\eprint{1205.1759}].
 
 \bibitem[{\citenamefont{Deak \emph{et~al.}}(2010)\citenamefont{Deak, Hautmann,
   Jung, and Kutak}}]{Deak:2010gk}
