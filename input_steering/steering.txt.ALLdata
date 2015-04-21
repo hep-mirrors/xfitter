@@ -144,20 +144,27 @@
   Q02     = 1.9 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
- ! ---  HF_SCHEME = 'ZMVFNS'      : ZM-VFNS (massless),
- ! ---  HF_SCHEME = 'RT'          :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT FAST'     : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'RT OPT'      :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT OPT FAST' : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'ACOT Full'   : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT Chi'    : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT ZM'     : ACOT - F.Olness Version (massless), using k-factors  
- ! ---  HF_SCHEME = 'FF'          : Fixed Flavour Number Scheme (qcdnum)
- ! ---  HF_SCHEME = 'FF ABM'      : Fixed Flavour Number Scheme (ABM)
- ! ---  HF_SCHEME = 'FF ABM RUNM' : Fixed Flavour Number Scheme (ABM) using run mass def
- ! ---  HF_SCHEME = 'FONLL-A'     : FONLL-A mass scheme provided by APFEL (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-B'     : FONLL-B mass scheme provided by APFEL (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-C'     : FONLL-C mass scheme provided by APFEL (available only at NNLO)
+ ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless),
+ ! ---  HF_SCHEME = 'RT'               :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT FAST'          : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'RT OPT'           :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT OPT FAST'      : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'ACOT Full'        : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi'         : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM'          : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'FF'               : Fixed Flavour Number Scheme (qcdnum)
+ ! ---  HF_SCHEME = 'FF ABM'           : Fixed Flavour Number Scheme (ABM)
+ ! ---  HF_SCHEME = 'FF ABM RUNM'      : Fixed Flavour Number Scheme (ABM) using run mass def
+ ! ---  HF_SCHEME = 'FONLL-A'          : FONLL-A mass scheme provided by APFEL with pole masses (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM OFF' : FONLL-A mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM ON'  : FONLL-A mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B'          : FONLL-B mass scheme provided by APFEL with pole masses (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM OFF' : FONLL-B mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM ON'  : FONLL-B mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-C'          : FONLL-C mass scheme provided by APFEL with pole masses (available only at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
+                                       ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
 
   HF_SCHEME = 'RT'
 

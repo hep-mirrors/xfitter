@@ -1349,6 +1349,8 @@ c#include "steering.inc"
       double precision Q_ref,Alphas_ref
       double precision hf_get_alphas
       character*7 Scheme
+      character*5 MassScheme
+      logical runm
 *
       MCharm  = mch
       MBottom = mbt
@@ -1362,33 +1364,87 @@ c#include "steering.inc"
       write(6,*) ' ---------------------------------------------'
       write(6,*) 'Info from FONLL_init:'
 *
+      MassScheme = "Pole"
+      runm       = .false.
       if (I_FIT_order.eq.1) then
          write(6,*) 'You have selected the FONLL scheme at LO'
-         write(6,*) '(Note that this is equivalent to the ZM-VFNS)'
+         write(6,*) '*****************************************'
+         write(6,*) '*** This is equivalent to the ZM-VFNS ***'
+         write(6,*) '*****************************************'
          Scheme = "ZM-VFNS"
       elseif (I_FIT_order.eq.2) then
          if(HFSCHEME.eq.5)then
-            write(6,*) 'You have selected the FONLL-A scheme'
+            write(6,*) "You have selected the FONLL-A scheme",
+     1                 " with poles masses"
             Scheme = "FONLL-A"
+         elseif(HFSCHEME.eq.1005)then
+            write(6,*) "You have selected the FONLL-A scheme",
+     1                 " with MSbar masses (running OFF)"
+            Scheme     = "FONLL-A"
+            MassScheme = "MSbar"
+         elseif(HFSCHEME.eq.2005)then
+            write(6,*) "You have selected the FONLL-A scheme",
+     1                 " with MSbar masses (running ON)"
+            Scheme     = "FONLL-A"
+            MassScheme = "MSbar"
+            runm       = .true.
          elseif(HFSCHEME.eq.55)then
-            write(6,*) 'You have selected the FONLL-B scheme'
+            write(6,*) "You have selected the FONLL-B scheme",
+     1                 " with poles masses"
             Scheme = "FONLL-B"
+         elseif(HFSCHEME.eq.1055)then
+            write(6,*) "You have selected the FONLL-B scheme",
+     1                 " with MSbar masses (running OFF)"
+            Scheme     = "FONLL-B"
+            MassScheme = "MSbar"
+         elseif(HFSCHEME.eq.2055)then
+            write(6,*) "You have selected the FONLL-B scheme",
+     1                 " with MSbar masses (running ON)"
+            Scheme     = "FONLL-B"
+            MassScheme = "MSbar"
+            runm       = .true.
          else
-            write(6,*) "At NLO only the FONLL-A and FONLL-B ",
-     1                 "schemes are possible"
-            call HF_stop
+            call HF_errlog(310320151, 'F: '//
+     1                    'At NLO only the FONLL-A and FONLL-B '//
+     2                    'schemes are possible')
          endif
       elseif (I_FIT_order.eq.3) then
          if(HFSCHEME.eq.555)then
-            write(6,*) 'You have selected the FONLL-C scheme'
+            write(6,*) "You have selected the FONLL-C scheme",
+     1                 " with poles masses"
             Scheme = "FONLL-C"
+         elseif(HFSCHEME.eq.1555)then
+            write(6,*) "You have selected the FONLL-C scheme",
+     1                 " with MSbar masses (running OFF)"
+            Scheme     = "FONLL-C"
+            MassScheme = "MSbar"
+         elseif(HFSCHEME.eq.2555)then
+            write(6,*) "You have selected the FONLL-C scheme",
+     1                 " with MSbar masses (running ON)"
+            Scheme     = "FONLL-C"
+            MassScheme = "MSbar"
+            runm       = .true.
          else
-            write(6,*) "At NNLO only the FONLL-C scheme is possible"
-            call HF_stop
+            call HF_errlog(310320152, 'F: '//
+     1                    'At NNLO only the FONLL-C scheme '//
+     2                    'is possible')
          endif
       endif
 *
-      call FONLL_Set_Input(Mcharm,MBottom,MTop,
+*     If the MSbar masses are used check that APFEL is used also
+*     for the evolution.
+*
+      if(MassScheme.eq."MSbar")then
+         if(iTheory.ne.10)then
+            call HF_errlog(21042015, 'F: '//
+     1                'When using the FONLL scheme with the MSbar '//
+     2                'masses, APFEL must be used for the evolution. '//
+     3                'Please set TheoryType = "DGLAP_APFEL" in the '//
+     4                'steering.txt card.')
+         endif
+      endif
+*
+      call FONLL_Set_Input(MassScheme,runm,Mcharm,MBottom,MTop,
      1                     Q_ref,Alphas_ref,PtOrder,Scheme)
 *
       return

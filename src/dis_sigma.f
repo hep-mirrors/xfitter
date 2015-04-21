@@ -1276,9 +1276,9 @@ C---------------------------------------------------------------
       elseif(XSecType.eq.'CHARMDIS'.or.XSecType.eq.'BEAUTYDIS') then
          call SetProcessDIS("EM")
       else
-         write(6,*) 'UseFONLLScheme, XSecType', XSecType,
-     1              'not supported'
-         stop
+         write(6,*) 'UseFONLLScheme, XSecType ',XSecType,
+     1              ' not supported'
+         call HF_stop
       endif
 *
       if(charge.lt.0d0)then

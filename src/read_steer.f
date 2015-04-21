@@ -1073,10 +1073,22 @@ C---------------------------------
          HFSCHEME = 444
       elseif (HF_SCHEME.eq.'FONLL-A') then
          HFSCHEME = 5
+      elseif (HF_SCHEME.eq.'FONLL-A RUNM OFF') then
+         HFSCHEME = 1005
+      elseif (HF_SCHEME.eq.'FONLL-A RUNM ON') then
+         HFSCHEME = 2005
       elseif (HF_SCHEME.eq.'FONLL-B') then
          HFSCHEME = 55
+      elseif (HF_SCHEME.eq.'FONLL-B RUNM OFF') then
+         HFSCHEME = 1055
+      elseif (HF_SCHEME.eq.'FONLL-B RUNM ON') then
+         HFSCHEME = 2055
       elseif (HF_SCHEME.eq.'FONLL-C') then
          HFSCHEME = 555
+      elseif (HF_SCHEME.eq.'FONLL-C RUNM OFF') then
+         HFSCHEME = 1555
+      elseif (HF_SCHEME.eq.'FONLL-C RUNM ON') then
+         HFSCHEME = 2555
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'
@@ -1439,7 +1451,7 @@ C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
          iTheory =  0
       elseif (TheoryType.eq.'DGLAP_APFEL') then
-         iTheory = 10        
+         iTheory = 10
          IPDFSET = 7
       else if ( TheoryType.eq.'DIPOLE') then
       else if ( TheoryType.eq.'FRACTAL') then

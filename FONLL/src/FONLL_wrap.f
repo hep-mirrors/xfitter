@@ -3,7 +3,7 @@
 *     Initialization routine for the FONLL scheme.
 *
 ************************************************************************
-      subroutine FONLL_Set_Input(Mcharm,MBottom,MTop,
+      subroutine FONLL_Set_Input(MassScheme,runm,Mcharm,MBottom,MTop,
      1                           Q_ref,Alphas_ref,PtOrder,Scheme)
 *
       implicit none
@@ -14,6 +14,8 @@
       double precision MCharm,MBottom,MTop
       double precision Q_ref,Alphas_ref
       character*7 Scheme
+      character*5 MassScheme
+      logical runm
 *
 *     Set EW parameters
 *
@@ -28,9 +30,12 @@
 *     APFEL settings
 *
 c      call EnableTargetMassCorrections(.true.)
-c      call SetMSbarMasses(Mcharm,MBottom,MTop)
-c      call EnableMassRunning(.false.)
-      call SetPoleMasses(Mcharm,MBottom,MTop)
+      if(MassScheme(1:4).eq."Pole")then
+         call SetPoleMasses(Mcharm,MBottom,MTop)
+      elseif(MassScheme.eq."MSbar")then
+         call SetMSbarMasses(Mcharm,MBottom,MTop)
+         call EnableMassRunning(runm)
+      endif
       call SetAlphaQCDRef(Alphas_ref,Q_ref)
       call SetPerturbativeOrder(PtOrder)
       call SetMassScheme(scheme)

@@ -24,15 +24,20 @@
       call SetGridParameters(3,20,3,7d-1)
       call LockGrids(.true.)                     ! Lock subgrids
       call SetPerturbativeOrder(I_FIT_ORDER-1)   ! Set perturbative order
-      if(HFSCHEME.eq.3)then                      ! Set mass scheme for the PDF evolution
+      if(HF_SCHEME(1:2).eq."FF")then             ! Set mass scheme for the PDF evolution
          call SetFFNS(3)
       else
          call SetVFNS
       endif
-      call SetPoleMasses(dble(HF_MASS(1)),dble(HF_MASS(2)),  ! Heavy-quark thresholds in the Pole scheme
-     1                   dble(HF_MASS(3)))
-c      call SetMSbarMasses(dble(HF_MASS(1)),dble(HF_MASS(2)),  ! Heavy-quark thresholds in the MSbar scheme
-c     1                    dble(HF_MASS(3)))
+      if(HF_SCHEME(9:12).eq."RUNM")then
+         call SetMSbarMasses(dble(HF_MASS(1)),dble(HF_MASS(2)), ! Heavy-quark thresholds in the MSbar scheme
+     1                       dble(HF_MASS(3)))
+         call EnableMassRunning(.false.)
+         if(HF_SCHEME(14:15).eq."ON") call EnableMassRunning(.true.)
+      else
+         call SetPoleMasses(dble(HF_MASS(1)),dble(HF_MASS(2)),  ! Heavy-quark thresholds in the Pole scheme
+     1                      dble(HF_MASS(3)))
+      endif
 *
 *     Initialize APFEL
 *

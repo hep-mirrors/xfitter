@@ -17,6 +17,7 @@ LICENCE file for more details. The program uses the QCD evolution
 package QCDNUM developed by M. Botje and includes other parts of the code:
 -- VFNS from R. Thorne, G. Watt (MSTW) @ LO, NLO, NNLO
 -- VFNS from F. Olness (ACOT) @ LO, NLO and NNLO, NNNLO corrections for FL 
+-- VFNS from APFEL (FONLL) @ LO, NLO and NNLO
 -- FFNS from S. Alekhin (ABM) @ NLO, NNLO (pole and running heavy quark masses)
 -- DY LO+k-factor calculation from A. Sapronov
 -- PDF error estimation from J. Pumplin
@@ -494,6 +495,7 @@ genetic
      RT-VFS                                 [from Robert Thorne]
      ZMVFNS                                 [qcdnum]   
      ACOT (ACOT-Full, ACOT-ZM, S-ACOT-Chi)  [from Fred Olness]
+     FONLL	      	       		    [as implemented in APFEL]
 
   -FFNS (Fixed Flavour Number Scheme)       [qcdnum]
    also available in ABM (openqcdrad-1.6)   [from Sergey Alekhin]
