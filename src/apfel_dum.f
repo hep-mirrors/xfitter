@@ -130,3 +130,11 @@ c----------------------------------------------------------
       subroutine setmassscheme
       call print_apfel_error_message
       end
+
+      subroutine setmsbarmasses
+      call print_apfel_error_message
+      end
+
+      subroutine enablemassrunning
+      call print_apfel_error_message
+      end
