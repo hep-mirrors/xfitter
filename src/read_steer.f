@@ -815,12 +815,29 @@ C---------------------------------------------------------
 #include "scales.inc"
 #include "steering.inc"
 C (Optional) Data-set dependent scales
-      namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder
+      integer i_fit_order_save,i
+      character*8 DataSetTheoryOrder(NSet)
+      namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder,
+     $     DataSetTheoryOrder
 C---------------------------------------------
+      do i=1,NSet
+         DataSetTheoryOrder(i) = ''
+      enddo
+
       open (51,file='steering.txt',status='old')
       read (51,NML=Scales,END=123,ERR=124)
  123  Continue
       close (51)
+
+C Check datasetorder
+      I_Fit_Order_Save = I_Fit_Order
+      do i=1,NSet
+         if (DataSetTheoryOrder(i).ne.'') then
+            call DecodeOrder(DataSetTheoryOrder(i))
+            DataSetIOrder(i) = I_Fit_Order
+         endif
+      enddo
+      I_Fit_Order = I_Fit_Order_Save
 
       if (LDebug) then
          print Scales
