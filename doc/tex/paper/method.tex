@@ -17,8 +17,10 @@ In this section we describe the available options for the fit methodology in \fi
 In addition, as an alternative approach to a complete QCD fit, the Bayesian reweighting
 method, which is also available in \fitter, is described.
 \subsection{Functional Forms for PDF Parametrisation}
+A careful consideration must be taken when assigning PDF freedom via functional forms.
 The PDFs can be parametrised using several predefined
-functional forms and flavour decompositions:
+functional forms and flavour decompositions, as described briefly below.
+The choice of functional form can lead to different shape in PDF distributions and consequently the size of the PDF uncertainties can depend on the the flexibility of the parametric choice. 
 \paragraph{Standard Polynomials:} 
 The standard polynomial form is the most commonly used. A polynomial functional form is used to parametrise the $x$-dependence of the PDFs, where index $j$ denotes each parametrised PDF flavour:
 \begin{equation}
@@ -75,7 +77,7 @@ where $T_i$ are first-type Chebyshev polynomials of order $i$.
 %the standard-polynomial parametrisation with a similar number of parameters.
 The normalisation factor $A_g$ is derived from the momentum sum rule analytically.
 Values of $N_{g,S}$ to $15$ are allowed, however the fit quality is already similar
-to that of the standard-polynomial parametrisation from $N_{g,S} \ge 5$  and has a similar number of free parameters.
+to that of the standard-polynomial parametrisation from $N_{g,S} \ge 5$  and has a similar number of free parameters \cite{Chebyshev}.
 %
 %where the sum runs over $i$ up to $N_{g,S}=15$ order Chebyshev polynomials of the first type $T_i$ for
 %the gluon, $g$, and sea-quark, $S$, density, respectively. 
@@ -91,22 +93,24 @@ to that of the standard-polynomial parametrisation from $N_{g,S} \ge 5$  and has
 %
 %The low-$x$ uncertainties in the PDFs determined from the HERA data using different 
 %parametrisatons were studied in Ref.~\cite{Chebyshev}.
-Fig. \ref{fig:cheb} (taken from \cite{Chebyshev})
-shows a comparison of the gluon distribution obtained with the parametrisation Eqs.~\ref{eq:glu}, \ref{eq:sea} to 
-the standard-polynomial one, for $N_{g,S} = 9$.
+%%%%%%%%%
+% Removed post second EPJC reading
+%%Fig. \ref{fig:cheb} (taken from \cite{Chebyshev})
+%%shows a comparison of the gluon distribution obtained with the parametrisation Eqs.~\ref{eq:glu}, \ref{eq:sea} to 
+%%the standard-polynomial one, for $N_{g,S} = 9$.
 
 %with a reduced parametrisation uncertainty. 
 %An additional regularisation prior leads to a 
 %significantly reduced uncertainty for $x \le 0.0005$.
-\begin{figure}[!ht]
- \centering
-%  \includegraphics[width=5cm]{chebishev.pdf}
-  \includegraphics[trim=1cm 4cm 1cm 5cm, clip, width=6cm]{chebishev.pdf}
-% \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
-% weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
-  \caption{The gluon density is shown at the starting scale $Q^2=1.9$ GeV$^2$. The black lines correspond to the uncertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Chebyshev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo technique (see Sec. \ref{sec:experimentalerrors}) with the green lines denoting fits to data replica.  Red lines indicate the standard deviation about the mean value of these replicas.}
- \label{fig:cheb}
-\end{figure}
+%\begin{figure}[!ht]
+% \centering
+%%  \includegraphics[width=5cm]{chebishev.pdf}
+%  \includegraphics[trim=1cm 4cm 1cm 5cm, clip, width=6cm]{chebishev.pdf}
+%% \caption{Gluon PDF at the scale of $Q^2=1.9 \  \GeV^2$ for various values of the length-prior 
+%% weight $\alpha$ \cite{Chebyshev} using the Chebyshev parametrisation expanded to the 15th order.}
+%  \caption{The gluon density is shown at the starting scale $Q^2=1.9$ GeV$^2$. The black lines correspond to the unc%ertainty band of the gluon distribution using a standard parametrisation and it is compared to the case of the Cheby%shev parametrisation \cite{Chebyshev}. The uncertainty band for the latter case is estimated using the Monte Carlo t%echnique (see Sec. \ref{sec:experimentalerrors}) with the green lines denoting fits to data replica.  Red lines indi%cate the standard deviation about the mean value of these replicas.}
+% \label{fig:cheb}
+%\end{figure}
 
 %
 \paragraph{External PDFs:} \rm 
