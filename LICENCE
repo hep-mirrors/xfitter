@@ -15,9 +15,14 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    NOTE: HERAFitter (from release 1.1.0) includes several CERN Program 
+    NOTE: 
+    1) HERAFitter (from release 1.1.0) includes several CERN Program 
     Library (CERNLIB) modules which are under the terms of the GNU General 
     Public License (http://cernlib.web.cern.ch/cernlib/conditions.html)
+    2) HERAFitter recommends (from release 1.0.0) that the HERAFitter Logo  
+    is to be used when figures are produced by the HERAFitter Drawing Tools.
+    
+
 
  ---------------------------------------------------------------------------
 
