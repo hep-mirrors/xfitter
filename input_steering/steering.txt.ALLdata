@@ -36,32 +36,32 @@
  ! Tevatron
   ! CDF Jets, W, Z production:
           'datafiles/tevatron/cdf/jets/0807.2204/CDF_JETS2008.dat',
- 	  'datafiles/tevatron/cdf/wProduction/0901.2169/CDF_W_asymmetry.dat',
-          'datafiles/tevatron/cdf/zProduction/0908.3914/CDF_Z_Boson_Rapidity.dat',
+ 	  'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry.dat',
+          'datafiles/tevatron/cdf/wzProduction/0908.3914/CDF_Z_Boson_Rapidity.dat',
   ! D0  Jets, W, Z production:    
           'datafiles/tevatron/d0/jets/0802.2400/D0_JETS.dat',
-    	  'datafiles/tevatron/d0/zProduction/0702025/D0_Z_Boson_Rapidity.dat',
- 	  'datafiles/tevatron/d0/wProduction/1309.2591/D0_Wmu_pt25_asymmetry.dat',
- 	  'datafiles/tevatron/d0/wProduction/1309.2591/D0_Wmu_pt35_asymmetry.dat',
- 	  'datafiles/tevatron/d0/wProduction/1312.2895/D0_W_asymmetry.dat',
+    	  'datafiles/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity.dat',
+ 	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry.dat',
+ 	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry.dat',
+ 	  'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.dat',
   ! CDF and D0 combined Top production:
   ! NOTE: need Hathor package
           'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT.dat',
  !
  ! LHC
   ! CMS W, Z production:
-          'datafiles/lhc/cms/zProduction/1110.4973/CMS_Z_boson_Rapidity.dat',
-          'datafiles/lhc/cms/wProduction/1206.2598/CMS_eAsymmetry_SPM_12_001.dat',
-          'datafiles/lhc/cms/wProduction/1312.6283/CMS_mAsymmetry_SMP_12_021.dat',
+          'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity.dat',
+          'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001.dat',
+          'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021.dat',
   ! CMS Jets:
           'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004.dat',
   ! CMS Top production:
           'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT.dat',
           'datafiles/lhc/cms/topProduction/1211.2220/Diff_ttbar_7TeV_pt.dat',
   ! ATLAS W, Z production:
-          'datafiles/lhc/atlas/wProduction/1203.4051/WP_applgrid_nnlo.dat',
-          'datafiles/lhc/atlas/wProduction/1203.4051/WM_applgrid_nnlo.dat',
-          'datafiles/lhc/atlas/zProduction/1203.4051/Z0_applgrid_nnlo.dat',
+          'datafiles/lhc/atlas/wzProduction/1203.4051/WP_applgrid_nnlo.dat',
+          'datafiles/lhc/atlas/wzProduction/1203.4051/WM_applgrid_nnlo.dat',
+          'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
   ! ATLAS Drell-Yann:
            'datafiles/lhc/atlas/drellYan/1305.4192/dy_highmass.dat', 
            'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass.dat',
@@ -87,11 +87,11 @@
  
   ! Correlation files:
     CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
-    CorrFileNames(2) = 'datafiles/lhc/cms/wProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
-    CorrFileNames(3) = 'datafiles/lhc/cms/wProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
-    CorrFileNames(4) = 'datafiles/lhc/cms/zProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
+    CorrFileNames(2) = 'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
+    CorrFileNames(3) = 'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
+    CorrFileNames(4) = 'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
     CorrFileNames(5) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
-    CorrFileNames(6) = 'datafiles/tevatron/d0/wProduction/1312.2895/D0_W_asymmetry.corr'
+    CorrFileNames(6) = 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
 &End
 
 &CovarToNuisance
