@@ -32,6 +32,30 @@ struct point
   double th_err_dn;          //theory error down
 };
 
+vector <double> mcweights(vector<double> const& chi2, int ndata)
+{
+  vector<double> w;
+  const int nrep = chi2.size();
+  
+  vector<double> logw;
+  // Calculate Ln(wnn) (nn - not normalised) -> use repnums as index for unweighted PDFs
+  for (vector <double>::const_iterator c = chi2.begin(); c != chi2.end(); c++)
+    logw.push_back( - *c/(2.0) +( (((double) ndata)-1.0)/2.)*log(*c)); //Bayesian
+  //    logw.push_back( - *c/(2.0)); //Giele-Keller
+
+
+  // Calculate weights
+  for (vector <double>::iterator l = logw.begin(); l != logw.end(); l++)
+    w.push_back(exp(*l));
+
+  //normalise
+  double wtot = accumulate(w.begin(),w.end(),0.0); 
+  for (vector <double>::iterator wi = w.begin(); wi != w.end(); wi++)
+    w[wi-w.begin()] *= (nrep/wtot); 
+  
+  return w;
+}
+
 //return error if LHAPDF is not enabled
 #ifndef LHAPDF_ENABLED
 void get_lhapdferrors_()
@@ -62,6 +86,7 @@ void get_lhapdferrors_()
   int ParPDFErr = 0;
 
   map <int, point> pointsmap;
+  vector <double> chi2;
 
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
   lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
@@ -157,6 +182,7 @@ void get_lhapdferrors_()
 	       << setw(15) << "chi2=" << chi2c 
 	       << setw(15) << "ndf=" << cfcn_.ndfmini_ 
 	       << endl;
+	  chi2.push_back(chi2tot);
 
 	  //Write results of chi2 calculation
 	  char tag[10];
@@ -238,6 +264,15 @@ void get_lhapdferrors_()
   int totmc = pointsmap.begin()->second.th_mc.size();;
   if (totmc > 0)
     {
+      //Store weights for reweighting
+      vector <double> weights = mcweights(chi2, npoints);
+      ofstream chi2wf((outdirname + "/mcrew.txt").c_str());
+      vector <double>::iterator c = chi2.begin();
+      vector <double>::iterator w = weights.begin();
+      for (; c != chi2.end(); c++, w++)
+	chi2wf << (c - chi2.begin()) << "\t" << *c << "\t" << *w << endl;
+      chi2wf.close();
+      
       //MC replica mean and rms
       for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
 	{
@@ -496,6 +531,7 @@ void get_lhapdferrors_()
       for (int j = 0; j < npoints; j++)
 	sysmeas_.syst_meas_idx_[i][j] = j + 1;
       systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to PDF uncertainties
+      //      systscal_.sysscalingtype_[i] = 0;  //No scaling for PDF uncertainties
       csysttype_.isysttype_[i] = 2; // THEORY
     }
 
