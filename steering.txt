@@ -107,8 +107,9 @@
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
+ !  'LHAPDFNATIVE'-- use lhapdf library to access pdfs and alphas
  !  'DDIS'        -- use Diffractive DIS 
- !  'BiLog'        -- bi-lognormal parametrisation 
+ !  'BiLog'       -- bi-lognormal parametrisation 
 
   PDFStyle = 'HERAPDF'
 
