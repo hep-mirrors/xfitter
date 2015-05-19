@@ -41,11 +41,13 @@ C---------------------------------------
       do ifl=-6,6
         xf(ifl)=0.d0
       enddo
-c     Returrn zero if x range falls below qcdnum grid xmin values (to avoid large weights)
-      if ( x .lt. xmin_grid(1) .or. x .gt. 1d0-1d-7 ) then 
-          Call HF_ERRLOG(14060218,
+c     Return zero if x range falls below qcdnum grid xmin values (to avoid large weights)
+      if (PDFStyle.ne.'LHAPDFNATIVE') then
+         if ( x .lt. xmin_grid(1) .or. x .gt. 1d0-1d-7 ) then 
+            Call HF_ERRLOG(14060218,
      $'W: x value below xmin in qcdnum grid, applgrid weight set to 0')
-          return
+            return
+         endif
       endif
 
       Q2 = Q*Q

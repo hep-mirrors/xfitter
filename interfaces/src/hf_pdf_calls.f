@@ -14,6 +14,10 @@ C----------------------------------------------------------------------
       double precision A,Z, tmpU,tmpD,tmpUb,tmpDb
       data A,Z /207,82/
 C----------------------------------------------------------------------
+      if (PDFStyle.eq.'LHAPDFNATIVE') then
+         call evolvePDF(x, sqrt(q2), pdfsf)
+      endif
+
       if (x.ge.1.D0) then
          do i=-6,6
             PDFSF(i) = 0
@@ -88,12 +92,17 @@ C----------------------------------------------------
       double precision Q2
       integer nf,ierr
       double precision ASFUNC,alphaQCD
+      double precision alphaspdf
 
 C----------------------------------------------------
+      if (PDFStyle.eq.'LHAPDFNATIVE') then
+         HF_Get_alphas = alphaspdf(dsqrt(q2))
+      else
       if (itheory.eq.10) then
          HF_Get_alphas = alphaQCD(dsqrt(q2))
       else
          HF_Get_alphas = ASFUNC(q2,nf,ierr) 
+      endif
       endif
 C----------------------------------------------------
       end

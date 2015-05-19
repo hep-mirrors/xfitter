@@ -543,7 +543,8 @@ C
          endif
 
 C  check if the PDFstyle is indeed Ok
-         if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0') then
+         if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0' 
+     $        .and. PDFStyle.ne.'LHAPDFNATIVE') then
             call HF_Errlog(12032303,
      $           'W:WARNING: Setting PDF style to LHAPDFQ0')
             PDFStyle = 'LHAPDFQ0'
@@ -1019,6 +1020,10 @@ C---------------------------------
          iparam = 0
          PDF_DECOMPOSITION = 'LHAPDF'
 
+      elseif (PDFStyle.eq.'LHAPDFNATIVE') then
+         iparam = 0
+         PDF_DECOMPOSITION = 'LHAPDF'
+
       elseif (PDFStyle.eq.'DDIS') then
 cv         iparam = 301        
          PDF_DECOMPOSITION = 'Diffractive'
@@ -1030,7 +1035,8 @@ cv         iparam = 301
          call HF_stop
       endif
 
-      if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')) then
+      if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')
+     $     .or.(PDFStyle.eq.'LHAPDFNATIVE')) then
          INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
          if(lhapdffile_exists) then
             call InitPDFset(LHAPDFSET)
@@ -1044,7 +1050,7 @@ cv         iparam = 301
          
          call InitPDF(ILHAPDFSET)
 
-         if(PDFStyle.eq.'LHAPDF') then
+         if(PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFNATIVE') then
             IPDFSET = 5
          endif
       endif
@@ -1669,7 +1675,8 @@ C----------------------------------------------------------
 
 
       if (LHAPDFErrors) then
-         if(PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0') then
+         if(PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0'
+     $        .and.PDFStyle.ne.'LHAPDFNATIVE') then
             call HF_Errlog(03062013,
      $ 'W:WARRNING PDFstyle is not LHAPDF, setting PDFErrors to False')
              LHAPDFErrors = .false.
