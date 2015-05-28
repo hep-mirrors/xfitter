@@ -363,9 +363,9 @@ echo "Installing QCDNUM $qcdnumver..."
 qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
 if [[ $http == "curl" ]]
 then
-    curl http://www.nikhef.nl/~h24/qcdnum/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+    curl http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
 else
-    wget http://www.nikhef.nl/~h24/qcdnum/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    wget http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 fi
 tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
 cd qcdnum-${qcdnumver}
@@ -455,7 +455,10 @@ then
 	herafitter-${version}/ewparam.txt \
 	run
     rsync -a --exclude=".*" herafitter-${version}/datafiles run/
-    rsync -a --exclude=".*" herafitter-${version}/theoryfiles run/
+    if [[ $version != "trunk" && `echo $version | sed "s/\.//g"` -le 111 ]]
+    then
+        rsync -a --exclude=".*" herafitter-${version}/theoryfiles run/
+    fi
 else
     echo "\"run\" directory already exists, I won't touch it"
     echo
@@ -471,7 +474,12 @@ then
     echo "FitPDF          #run your fit" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
     echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
-    echo "Data and theory files are in datafiles and theoryfiles directory" >> quickstart-readme.txt
+    if [[ $version == "trunk" || `echo $version | sed "s/\.//g"` -gt 111 ]]
+        then 
+        echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
+    else 
+        echo "Data and theory files are in datafiles and theoryfiles directory" >> quickstart-readme.txt
+    fi
     echo >> quickstart-readme.txt
     echo "After the fit, display you results with:" >> quickstart-readme.txt
     echo "DrawPdfs output/" >> quickstart-readme.txt
