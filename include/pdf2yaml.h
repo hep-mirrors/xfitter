@@ -4,8 +4,17 @@
 #include <yaml.h>
 #include "c2yaml.h"
 #include "list.h"
-#include <assert.h>
 
+#define EACH_IN_PDF(pdf_p, ig, ix, iq, ifl) for(ig=0; ig<(pdf_p)->ngrids; ig++) \
+        for(ix=0; ix<(pdf_p)->nx[ig]; ix++ ) \
+        for(iq=0; iq<(pdf_p)->nq[ig]; iq++ ) \
+        for(ifl=0; ifl< (pdf_p)->n_pdf_flavours[ig]; ifl++ ) 
+
+#define EACH_IN_SET(pdf_set_p, im, ig, ix, iq, ifl) for(im=0; im<(pdf_set_p)->n_members; im++) \
+        for(ig=0; ig<(pdf_set_p)->members[im].ngrids; ig++) \
+        for(ix=0; ix<(pdf_set_p)->members[im].nx[ig]; ix++) \
+        for(iq=0; iq<(pdf_set_p)->members[im].nq[ig]; iq++) \
+        for(ifl=0; ifl<(pdf_set_p)->members[im].n_pdf_flavours[ig]; ifl++) 
 // Info
 typedef struct info_node_s {
         enum {STRING, DARRAY} node_type;
@@ -38,16 +47,18 @@ Info *info_load(FILE *input);
 typedef struct Pdf_s {
 Info *info;
 
-int nx;
-double *x;
+int ngrids;
 
-int nq;
-double *q;
+int *nx;
+double **x;
 
-int n_pdf_flavours;
-int *pdf_flavours;
+int *nq;
+double **q;
 
-double ***val; /* over x, q, pdf_flavour */
+int *n_pdf_flavours;
+int **pdf_flavours;
+
+double ****val; /* over grid, x, q, pdf_flavour */
 } Pdf;
 
 typedef struct PdfSet_s {
@@ -56,7 +67,8 @@ typedef struct PdfSet_s {
         Pdf *members;
 } PdfSet;
 
-void pdf_initialize(Pdf *pdf, int nx, int nq, int n_pdf_flavours, Info *info);
+void pdf_add_grid(Pdf *pdf, int nx, int nq, int n_pdf_flavours);
+void pdf_initialize(Pdf *pdf, Info *info);
 int load_lhapdf6_member(Pdf *pdf, char *path);
 int save_lhapdf6_member(Pdf *pdf, char *path);
 Pdf *pdf_dup(Pdf *pdf);
@@ -66,7 +78,7 @@ void pdf_free(Pdf *pdf);
 
 int load_lhapdf6_set(PdfSet *pdf_set, char *path);
 int save_lhapdf6_set(PdfSet *pdf_set, char *path);
-void pdf_set_initialize(PdfSet *pdf_set, int n_members, int nx, int nq, int n_pdf_flavours, Info *info, Info *minfo);
+void pdf_set_initialize(PdfSet *pdf_set, int n_members, Info *info);
 PdfSet *pdf_set_dup(PdfSet *pdf_set);
 int pdf_set_cmp(PdfSet *pdf_set1, PdfSet *pdf_set2);
 void pdf_set_free(PdfSet *pdf_set);
