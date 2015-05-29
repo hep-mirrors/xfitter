@@ -2,13 +2,10 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include "pdf2yaml.h"
+#include "utils.h"
+#include "rotate.h"
 #include <math.h>
 
-typedef struct shifts_s {
-        double *val;
-        double *err;
-        int n;
-} Shifts;
 
 static void help(){
         puts("postproc profile [--piecewise-linear] pdf_shifts pdf_rotation pdf_dir_in pdf_dir_out");
@@ -17,16 +14,9 @@ static void help(){
         exit(0);
 }
 
-static void shifts_file_error(void) {
-                fputs("wrong format of shifts file!", stderr);
-                exit(1);
-}
-
-//void shifts_free(Shifts *shifts);
-
 int profile(int argc, char* argv[]) {
 
-        int i_err, i, j, ix, iq, ifl;
+        int i, ig, ix, iq, ifl;
 
         int flagc=0;
         int quad_approx=1;
@@ -44,10 +34,7 @@ int profile(int argc, char* argv[]) {
         char *rot_path=argv[1];
         char *in_path=argv[2];
         char *out_path=argv[3];
-        char *pdf_name;
         char *line=NULL;
-        size_t len;
-        FILE *fp;
         Shifts shifts;
 
         
@@ -55,191 +42,121 @@ int profile(int argc, char* argv[]) {
         char *in_path_tmp=strdup(in_path); //FREE
         char *pdf_in_name=basename(in_path_tmp); 
 
-        //--------------- parse shifts
+        //--------------- load shifts
 
-        fp=fopen(shifts_path, "r");
-        if(!fp) {
-                fputs("cant open shifts file!", stderr);
-                exit(1);
-        }
+        if( load_shifts(&shifts, shifts_path)) return EXIT_FAILURE;
 
-
-        if(getline(&line, &len, fp)==-1) shifts_file_error();
-        sscanf(line, "LHAPDF set=%ms", &pdf_name);
-        if(strcmp(pdf_name,pdf_in_name)) {
+        if(strcmp(shifts.pdf_name,pdf_in_name)) {
                 fprintf(stderr, "input PDF set and shifts file are inconsistent:\n"
-                                "\t\"%s\" in shifts, \"%s\" in input PDF set\n", pdf_name, pdf_in_name);
-                exit(1);
-        }
-        free(pdf_name);
-
-        i_err=fscanf(fp, "%d", &shifts.n);
-        if(!i_err || i_err==EOF) shifts_file_error();
-
-        shifts.val=malloc(sizeof(double)*shifts.n);
-        shifts.err=malloc(sizeof(double)*shifts.n);
-        for(i=0; i< shifts.n; i++) {
-                i_err=fscanf(fp, "%*d%lg%lg", &shifts.val[i], &shifts.err[i]);
-                if(!i_err || i_err==EOF) shifts_file_error();
-        }
-        fclose(fp);
-
-
-        //--------------- parse correlation matrix
-
-        fp=fopen(rot_path, "r");
-        if(!fp) {
-                fputs("cant open rotation matrix file!", stderr);
+                                "\t\"%s\" in shifts, \"%s\" in input PDF set\n", shifts.pdf_name, pdf_in_name);
                 exit(1);
         }
 
-        if(getline(&line, &len, fp)==-1) shifts_file_error();
-        sscanf(line, "LHAPDF set=%ms", &pdf_name);
-        if(strcmp(pdf_name,pdf_in_name)) {
+
+        //--------------- load rotation matrix
+
+        RotMatrix rot_matrix;
+        if(load_rotation_matrix(&rot_matrix, rot_path)) return EXIT_FAILURE;
+        if(strcmp(rot_matrix.pdf_name,pdf_in_name)) {
                 fprintf(stderr, "input PDF set and rotation matrix file are inconsistent:\n"
-                        "\t\"%s\" in rotation matrix file, \"%s\" in input PDF set\n", pdf_name, pdf_in_name);
-                exit(1);
-        }
-        free(pdf_name);
-
-        int n_matrix;
-        i_err=fscanf(fp, "%d", &n_matrix );
-        if (!i_err || i_err==EOF){ 
-                fputs("Bad rotation matrix", stderr);
-                exit(1);
+                        "\t\"%s\" in rotation matrix file, \"%s\" in input PDF set\n", rot_matrix.pdf_name, pdf_in_name);
+                return(EXIT_FAILURE);
         }
 
-//        printf("n_matrix: %d\n", n_matrix);
 
-        double **rot_matrix=malloc(sizeof(double*)*n_matrix); //FREE
-        for(i=0; i< n_matrix; i++) {
-                i_err=fscanf(fp, "%*d");
-                rot_matrix[i]= malloc(sizeof(double)*n_matrix); //FREE
-                for(j=0; j<n_matrix; j++) { 
-                        i_err=fscanf(fp, "%lg", &rot_matrix[i][j]); 
-                        if(!i_err || i_err==EOF) {
-                                fprintf(stderr, "bad rotation matrix format\n");
-                                exit(1);
-                        }
-                }
-        }
 
-        PdfSet pdf_set;
+        PdfSet pdf_set, shifted;
         if(load_lhapdf6_set(&pdf_set, in_path)) return 1;
+
+        Info_Node *node=info_node_where(pdf_set.info, "ErrorType");
+        char *error_type=strdup(node->value.string);
+        printf("ErrorType: %s\n", error_type);
 
         Pdf  *Center;
         Center=pdf_dup(&pdf_set.members[0]);
 
+
+
         // prepare pdf delta, {M+, M-} - M0
         for(i=1; i<pdf_set.n_members; i++ ) 
-        for(ix=0; ix<pdf_set.members[i].nx; ix++ ) 
-        for(iq=0; iq<pdf_set.members[i].nq; iq++ ) 
-        for(ifl=0; ifl< pdf_set.members[i].n_pdf_flavours; ifl++ ) 
-                pdf_set.members[i].val[ix][iq][ifl]-=Center->val[ix][iq][ifl]; 
+                EACH_IN_PDF(Center, ig, ix, iq, ifl)
+                pdf_set.members[i].val[ig][ix][iq][ifl]-=Center->val[ig][ix][iq][ifl]; 
         
-        if(quad_approx) {
-        for(ix=0; ix<pdf_set.members[0].nx; ix++ ) 
-        for(iq=0; iq<pdf_set.members[0].nq; iq++ ) 
-        for(ifl=0; ifl< pdf_set.members[0].n_pdf_flavours; ifl++ ) 
-        for(i=0; i<shifts.n; i++ ) {
-                pdf_set.members[0].val[ix][iq][ifl]+= 
-                        shifts.val[i]*
-                        (pdf_set.members[i*2+1].val[ix][iq][ifl]
-                         -pdf_set.members[i*2+2].val[ix][iq][ifl])/2.0;
 
-                         pdf_set.members[0].val[ix][iq][ifl]-= 
+
+
+        if(!strcmp(error_type,"hessian")) { 
+        if(quad_approx) {
+
+        EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
+        for(i=0; i<shifts.n; i++ ) {
+                pdf_set.members[0].val[ig][ix][iq][ifl]+= 
+                        shifts.val[i]*
+                        (pdf_set.members[i*2+1].val[ig][ix][iq][ifl]
+                         -pdf_set.members[i*2+2].val[ig][ix][iq][ifl])/2.0;
+
+                         pdf_set.members[0].val[ig][ix][iq][ifl]-= 
                          shifts.val[i]*shifts.val[i]*
-                         (pdf_set.members[i*2+1].val[ix][iq][ifl]
-                          +pdf_set.members[i*2+2].val[ix][iq][ifl])/2.0;
+                         (pdf_set.members[i*2+1].val[ig][ix][iq][ifl]
+                          +pdf_set.members[i*2+2].val[ig][ix][iq][ifl])/2.0;
                          }
         } else {
-        for(ix=0; ix<pdf_set.members[0].nx; ix++ ) 
-        for(iq=0; iq<pdf_set.members[0].nq; iq++ ) 
-        for(ifl=0; ifl< pdf_set.members[0].n_pdf_flavours; ifl++ ) 
+        EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
         for(i=0; i<shifts.n; i++ ) 
-                pdf_set.members[0].val[ix][iq][ifl]-= 
+                pdf_set.members[0].val[ig][ix][iq][ifl]-= 
                        fabs(shifts.val[i])*( shifts.val[i] >0 ?
-                        pdf_set.members[i*2+2].val[ix][iq][ifl]:
-                         pdf_set.members[i*2+1].val[ix][iq][ifl]);
+                        pdf_set.members[i*2+2].val[ig][ix][iq][ifl]:
+                         pdf_set.members[i*2+1].val[ig][ix][iq][ifl]);
+        }
+        } else if(!strcmp(error_type,"symmhessian")) {
+        EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
+        for(i=0; i<shifts.n; i++ ) 
+                        pdf_set.members[0].val[ig][ix][iq][ifl]+= 
+                        shifts.val[i]*pdf_set.members[i].val[ig][ix][iq][ifl];
         }
 
-        PdfSet *rot_set=pdf_set_dup(&pdf_set);
 
-        
-        if(quad_approx) {
 
-        double ome, gamma;
 
-        for(i=1; i<rot_set->n_members; i+=2 ) 
-        for(ix=0; ix<rot_set->members[i].nx; ix++ ) 
-        for(iq=0; iq<rot_set->members[i].nq; iq++ ) 
-        for(ifl=0; ifl< rot_set->members[i].n_pdf_flavours; ifl++ ) {
-                        rot_set->members[i].val[ix][iq][ifl]=0;
-			rot_set->members[i+1].val[ix][iq][ifl]=0;
-                        for(j=(i+1)%2+1; j<rot_set->n_members; j+=2) {
-			  gamma=0.5*(pdf_set.members[j].val[ix][iq][ifl]-pdf_set.members[j+1].val[ix][iq][ifl]);
-			  ome=0.5*(pdf_set.members[j].val[ix][iq][ifl]+pdf_set.members[j+1].val[ix][iq][ifl]);
-			  rot_set->members[i].val[ix][iq][ifl]+=
-			    rot_matrix[(i-1)/2][(j-1)/2]*(gamma+ome*rot_matrix[(i-1)/2][(j-1)/2]);
-			  rot_set->members[i+1].val[ix][iq][ifl]-=
-			    rot_matrix[(i-1)/2][(j-1)/2]*(gamma-ome*rot_matrix[(i-1)/2][(j-1)/2]);
+        for(i=1; i<pdf_set.n_members; i++ ) 
+                EACH_IN_PDF(Center, ig, ix, iq, ifl)
+                pdf_set.members[i].val[ig][ix][iq][ifl]+=pdf_set.members[0].val[ig][ix][iq][ifl]; 
+
+
+        //rotation
+
+        if(!strcmp(error_type,"hessian")) { 
+
+                if(rot_matrix.n!=(pdf_set.n_members-1)/2.0) {
+                        fprintf(stderr, "Number of pdf members and matrix dimension are inconsistent\n");
+                        exit(EXIT_FAILURE);
                 }
-        }
 
+                if(quad_approx) hessian_quadapprox_rotate(&pdf_set, rot_matrix.val, &shifted);
+                else hessian_by_M_direction_rotate(&pdf_set, rot_matrix.val, &shifted);
+
+        } else if(!strcmp(error_type,"symmhessian")) {
+
+                if(rot_matrix.n!=pdf_set.n_members-1) {
+                        fprintf(stderr, "Number of pdf members and matrix dimension are inconsistent\n");
+                        exit(EXIT_FAILURE);
+                }
+
+                symmhessian_rotate(&pdf_set, rot_matrix.val, &shifted);
         } else {
-        for(i=1; i<rot_set->n_members; i+=2 ) 
-        for(ix=0; ix<rot_set->members[i].nx; ix++ ) 
-        for(iq=0; iq<rot_set->members[i].nq; iq++ ) 
-        for(ifl=0; ifl< rot_set->members[i].n_pdf_flavours; ifl++ ) {
-                        rot_set->members[i].val[ix][iq][ifl]=0;
-                        for(j=(i+1)%2+1; j<rot_set->n_members; j+=2) {
-                        if(rot_matrix[(i-1)/2][(j-1)/2]>0)
-                        rot_set->members[i].val[ix][iq][ifl]+=
-                                pdf_set.members[j].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
-                        else
-                        rot_set->members[i].val[ix][iq][ifl]-=
-                                pdf_set.members[j+1].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
-                }
+                fprintf(stderr, "Wrong ErrorType, need symmhessian or hessian\n");
+                exit(1);
         }
 
-        for(i=2; i<rot_set->n_members; i+=2 ) 
-        for(ix=0; ix<rot_set->members[i].nx; ix++ ) 
-        for(iq=0; iq<rot_set->members[i].nq; iq++ ) 
-        for(ifl=0; ifl< rot_set->members[i].n_pdf_flavours; ifl++ ) {
-                        rot_set->members[i].val[ix][iq][ifl]=0;
-                        for(j=(i+1)%2+1; j<rot_set->n_members; j+=2) {
-                        if(rot_matrix[(i-1)/2][(j-1)/2]>0)
-                        rot_set->members[i].val[ix][iq][ifl]+=
-                                pdf_set.members[j].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
-                        else
-                        rot_set->members[i].val[ix][iq][ifl]-=
-                                pdf_set.members[j-1].val[ix][iq][ifl]*rot_matrix[(i-1)/2][(j-1)/2];
-                }
-        }
-        }
-        
-        
-        // {M'-, M'+} + M0 
-        for(i=1; i<rot_set->n_members; i++ ) 
-        for(ix=0; ix<rot_set->members[i].nx; ix++ ) 
-        for(iq=0; iq<rot_set->members[i].nq; iq++ ) 
-        for(ifl=0; ifl< rot_set->members[i].n_pdf_flavours; ifl++ ) 
-                rot_set->members[i].val[ix][iq][ifl]=rot_set->members[0].val[ix][iq][ifl]+rot_set->members[i].val[ix][iq][ifl];
-        
-        save_lhapdf6_set(rot_set, out_path);       
+        save_lhapdf6_set(&shifted, out_path);       
         puts("profiled\n");
         free(in_path_tmp);
         free(shifts.val);
         free(shifts.err);
         free(line);
         
-        for(i=0; i<n_matrix; i++) { 
-                free(rot_matrix[i]);
-        }
-
         pdf_set_free(&pdf_set);
         pdf_free(Center);
-        pdf_set_free(rot_set);
         return 0;
 }
 

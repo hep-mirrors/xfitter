@@ -14,7 +14,7 @@ static void help(void) {
 int reweight(int argc,char* argv[]) {
         if( argc==0 || !strcmp(argv[0],"--help")) help();
 
-        int i, ix, iq, ifl; // counters and dummy vars
+        int im, ig, ix, iq, ifl; // counters and dummy vars
         char *in_path=argv[0];
         char *out_path=argv[1];
 
@@ -22,10 +22,7 @@ int reweight(int argc,char* argv[]) {
         if(load_lhapdf6_set(&pdf_set, in_path)) return 1;
         
         // over all x, q, pdfs_flavours
-        for(i=1; i<pdf_set.n_members; i++) 
-        for(ix=0; ix<pdf_set.members[i].nx; ix++) 
-        for(iq=0; iq<pdf_set.members[i].nq; iq++) 
-        for(ifl=0; ifl<pdf_set.members[i].n_pdf_flavours; ifl++) {
+        EACH_IN_SET(&pdf_set, im, ig, ix, iq, ifl) {
                 //pdf_set.members[i].val[ix][iq][ifl]= ...
         }
 
