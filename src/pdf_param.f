@@ -24,13 +24,18 @@ C--------------------------------------------------------
       double precision fs,rs
       double precision fshermes
       double precision alphasPDF, StepAlphaS, StepFs
-
+      double precision Aph, Bph, Cph
+      double precision StepAph, StepBph, StepCph
       	
 C-------------------------------------------------------
       logical LFirstTime
       data LFirstTime /.true./
-      integer idxAlphaS, idxRS,   !> indices for alphas and fs
-     $     idxFCharm, idxFS
+      integer idxAlphaS, idxRS, idxFCharm, idxFS   !> indices for alphas and fs
+      integer idphA, idphB, idphC !> indices for photon Pdf
+      data idphA/0/
+      data idphB/0/
+      data idphC/0/
+
       integer GetParameterIndex  !> function to read parameter index
 C-------------------------------------------------------
       integer idxShiftPolLHp   !> indices shiftpol
@@ -39,7 +44,7 @@ C-------------------------------------------------------
       integer idxShiftPolRHm    !> indices shiftpol
       integer idxShiftPolT   !> indices shiftpol
       integer idxShiftPolL   !> indices shiftpol
-
+      
 C-------------------------------------------------------
       !> Additional scaling parameter "temperature"
       integer idxTemperature
@@ -62,8 +67,30 @@ C-------------------------------------------------------
 
       if (LFirstTime) then    
          LFirstTime = .false.
-         idxAlphaS = GetParameterIndex('alphas')
-       
+         if (ITheory.eq.25) then
+            idphA = GetParameterIndex('Aph')
+            idphB = GetParameterIndex('Bph')
+            idphC = GetParameterIndex('Cph')
+
+            if ((idphA.eq.0).and.(idphB.eq.0).and.(idphC.eq.0)) then
+               print *,'Did not find photon parameters'
+               print *,'Add to ExtraParamters with the name Aph,Bph,Cph'
+               Call HF_errlog(15052700,
+     $              'S: Add to ExtraParamters with the name Aph,Bph,Cph')
+
+            else
+               idphA = iExtraParamMinuit(idphA)
+               idphB = iExtraParamMinuit(idphB)
+               idphC = iExtraParamMinuit(idphC)
+
+               StepAph=ExtraParamStep(idphA)
+               StepBph=ExtraParamStep(idphB)
+               StepCph=ExtraParamStep(idphC)
+            endif
+            
+         endif
+
+         idxAlphaS = GetParameterIndex('alphas')     
          if (idxAlphaS.eq.0) then
             print *,'Did not find alpha_S parameter'
             print *,'Add to ExtraParamters with the name alphas'
@@ -199,7 +226,7 @@ C "Temperature"
 
 C Get from extra pars:
       alphas=p(idxAlphaS)      
-
+      
       if (idxFS.ne.0) then
          fstrange=p(idxFS)
       elseif (idxRS.ne.0) then
@@ -240,9 +267,16 @@ C Hermes strange prepare:
          Vcs = p(idxVcs)
       endif
 
+
+
 !!!!!!!!!!!!!!!!!!!!!!!
 
 C 10 Aug 2011: Standard parametrisation:
+      if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0))then
+         parphoton(1)= p(idphA)
+         parphoton(2)= p(idphB)
+         parphoton(3)= p(idphC)
+      endif
       Call DecodePara(p)
 
 
@@ -254,6 +288,12 @@ C  25 Jan 2011: Poly params for valence:
 C  22 Apr 2011: CT parameterisation:
       if (PDFStyle.eq.'CTEQ'.or.PDFStyle.eq.'CTEQHERA') then
          Call DecodeCtPara(p)
+         if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0)) then
+            ctphoton(1)= p(idphA)
+            ctphoton(2)= p(idphB)
+            ctphoton(3)= p(idphC)
+         endif
+
       endif
 
 C  22 Sep 2011: AS parameterisation:
@@ -360,7 +400,6 @@ C     simple copy first:
          parother(i) = pars(90+i)
       enddo
 
-
       if (PDF_DECOMPOSITION.eq.'D_U_Dbar_Ubar') then     !  H1PDF2k like
 
          if (pard(2).eq.0)    pard(2)=paru(2)
@@ -441,6 +480,9 @@ c         parstr(3)=parsea(3)+2.
          print '(''1Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''1GL:'',11F10.4)',(parglue(i),i=1,10)
          print '(''1ST:'',11F10.4)',(parstr(i),i=1,10)
+          if (ITheory.eq.25) then
+             print '(''1PH:'',11F10.4)',(parphoton(i),i=1,10)
+          endif
       endif
 
 C---------------------------------------------------------
@@ -514,7 +556,6 @@ cv add str
          ctstr(i)  = pars(80+i)
          ctother(i)= pars(90+i)
       enddo
-
 
 c      UF = a(1)*exp(a(4)*x)*(1 - x)**a(3)*x**(a(2))*(1 + exp(a(5))*x 
 c     $     + exp(a(6))*x**2)
@@ -724,6 +765,35 @@ C Do nothing
          endif
          
       endif
+      end
+
+* -------------------------------------------------------
+      double precision function photon(x)
+* -------------------------------------------------------
+* x *photon(x,Q2)
+
+      implicit none
+#include "pdfparam.inc"
+#include "steering.inc"
+      double precision x
+      integer i
+C External function:
+      double precision ctpara,ctherapara,para
+C-------------------------------------------------
+
+
+C    22 Apr 11, SG, Add CTEQ-like
+      if (PDFStyle.eq.'CTEQ') then
+         photon = ctpara(x,ctphoton)
+         return
+      elseif (PDFStyle.eq.'CTEQHERA') then
+         photon = ctherapara(x,ctphoton)
+         return
+      else
+         photon=para(x,parphoton)
+         
+      endif
+      
       end
 
 

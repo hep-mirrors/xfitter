@@ -34,7 +34,7 @@
 
       double precision fs
       double precision fshermes
-      double precision tstr,tNoGlue
+      double precision tstr,tNoGlue,tPho
 *add for mixed CTEQHERA
       double precision SumRuleCTEQ, SumRuleCTEQhera
 
@@ -139,15 +139,20 @@ C Sea:
 
          tUb = parubar(1)*CalcIntXpdf(parubar)
          tDb = pardbar(1)*CalcIntXpdf(pardbar)
+         if (iTheory.eq.25) then
+            tPho = parphoton(1)*CalcIntXpdf(parphoton)
+         else
+            tPho = 0 !> activate it only when QED is needed
+         endif
 
          if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
             tStr = parstr(1)*CalcIntXpdf(parstr)
          else
-            tStr = 0   ! Strange already included in Dbar
+            tStr = 0   !> Strange already included in Dbar
          endif
 
 C Total sea integral:
-         tsea = 2.0d0 * (tUb + tDb + tStr)
+         tsea = 2.0d0 * (tUb + tDb + tStr + tPho)
 
       elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then
 
@@ -168,7 +173,7 @@ C Total sea integral:
 C
 C 1 - (valence + sea momentum):
 C      
-      tNoGlue = 1.D0 - ( tUv + tDv + tSea )
+      tNoGlue = 1.D0 - ( tUv + tDv + tSea + tPho)
 
 C*******************************************************************
 
@@ -180,7 +185,8 @@ C Calculate gluon normalisation, taking into account flexible piece:
       if (parglue(1).eq.0) then  !> Impose sum rule
          parglue(1)=(tNoGlue+parglue(7)*tgMRST)/tg
       else
-         p_sum = parglue(1)*tg + tUv + tDv + tSea - parglue(7)*tgMRST
+         p_sum = parglue(1)*tg + tUv + tDv + tSea 
+     $        + tPho - parglue(7)*tgMRST
       endif
 
 C*******************************************************************
@@ -197,6 +203,9 @@ C     standard parametrisation
          print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
          print '(''ST:'',11F10.4)',(parstr(i),i=1,10)
+         if (iTheory.eq.25) then
+            print '(''PH:'',11F10.4)',(parphoton(i),i=1,10)
+         endif
          if (uv_sum.ne.0.or. dv_sum.ne.0 .or. p_sum.ne.0) then
             print '(''Sum rules, uv, dv, p:'',3F10.4)'
      $           ,uv_sum, dv_sum, p_sum

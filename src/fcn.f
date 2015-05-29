@@ -239,7 +239,7 @@ c        write(6,*) ' fcn npoint ',npoints
 *     ---------------------------------------------------------
 
       kflag=0
-      if (Itheory.eq.0.or.Itheory.eq.10)  then 
+      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.25)  then 
          call SumRules(kflag)
       endif
       if (kflag.eq.1) then
@@ -252,8 +252,8 @@ c        write(6,*) ' fcn npoint ',npoints
 *      set alphas
 *     -----------------------------------------------------
 
-      if(itheory.eq.0.or.itheory.eq.10) then 
-         if (itheory.eq.0) then
+      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.25) then 
+         if (itheory.eq.0.or.itheory.eq.25) then
             call setalf(dble(alphas),Mz*Mz)
          else
             call SetAlphaQCDRef(dble(alphas),dble(Mz))
@@ -297,7 +297,7 @@ C      for dipole model fits.
       if (Debug) then
          print*,'before evolution'
       endif
-      if (Itheory.eq.0.or.Itheory.eq.10) then         
+      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.25) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 

@@ -7,8 +7,9 @@ C !> Standard parameterisation
      $     ,parubar(1:10), pardbar(1:10)
      $     ,parglue(1:10),paru(1:10), pard(1:10)
      $     ,parstr(1:10),parsea(1:10),parother(1:10)
+     $     ,parphoton(1:10)
        common/stpar/paruval,pardval,parubar,pardbar,
-     $      parglue,paru,pard,parstr,parsea,parother
+     $      parglue,paru,pard,parstr,parsea,parother,parphoton
 
 C---
        double precision fcharm,fstrange !> charm, strange fractions
@@ -42,8 +43,8 @@ C !> internal order of the polynom:
 
 C !> CTEQ-like parameterisation
        double precision ctuval(1:9), ctdval(1:9),ctubar(1:9),ctdbar(1:9), 
-     $      ctglue(1:9),ctother(1:9),ctstr(1:9)
-       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother,ctstr
+     $      ctglue(1:9),ctother(1:9),ctstr(1:9), ctphoton(1:9)
+       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother,ctstr,ctphoton
 
 C !> Add AS parameterisation
        double precision asuval(1:5), asdval(1:5), asubar(1:5), asdbar(1:5),

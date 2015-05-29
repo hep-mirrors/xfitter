@@ -16,7 +16,7 @@
 *     ------------------------------------------------
 *     Initialise qcdnum and APFEL
 *     ------------------------------------------------
-      if(itheory.eq.0.or.itheory.eq.10) then
+      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.25) then
 C Init evolution code:
          call qcdnum_ini
 C Init APFEL if needed
@@ -246,7 +246,7 @@ C Remove duplicates:
             i = i + 1
          endif
       enddo
-
+ 
       print *,' '
       print *,'Info FROM QCDNUM_INI'
       print '('' Init Q2 grid with number of nodes='',i5)',NQALL      
