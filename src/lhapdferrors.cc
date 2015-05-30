@@ -14,7 +14,7 @@
 #include <string.h>
 #include <map>
 #include <math.h>
-
+#include <numeric>
 
 struct point
 {
