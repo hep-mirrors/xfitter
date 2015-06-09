@@ -414,12 +414,12 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
 
         // read grids
         int ngrids=0;
-        while(!feof(fp)) {
+        while(1) {
 
         // read x line / finalize at the end of file
         if(getline(&line, &size, fp)==-1) { 
                 fclose(fp);
-                if(pdf->ngrids==0) {fprintf(stderr, "Error in pdf member format\n"); return EXIT_FAILURE;}
+                if(pdf->ngrids==0) {fprintf(stderr, "Error in pdf member format, can't read x line\n"); return EXIT_FAILURE;}
                 pdf->ngrids=ngrids;
                 return 0;
         }
@@ -436,7 +436,7 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
         line=NULL;
         size=0;
 
-        if(!getline(&line, &size, fp)) { fprintf(stderr, "Error in pdf member format\n"); return 1;}
+        if(!getline(&line, &size, fp)) { fprintf(stderr, "Error in pdf member format, cant't read q line\n"); return 1;}
         s_stream=fmemopen(line,size,"r"); 
         pdf->q[ngrids]=NULL;
         b_stream=open_memstream((char**)&pdf->q[ngrids], &b_len); 
@@ -449,7 +449,7 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
         line=NULL;
         size=0;
 
-        if(!getline(&line, &size, fp)) { fprintf(stderr, "Error in pdf member format\n"); return 1;}
+        if(!getline(&line, &size, fp)) { fprintf(stderr, "Error in pdf member format, can't read flavours line\n"); return 1;}
         s_stream=fmemopen(line,size,"r"); 
         pdf->pdf_flavours[ngrids]=NULL;
         b_stream=open_memstream((char**)&pdf->pdf_flavours[ngrids], &b_len); 
@@ -468,11 +468,11 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
                 pdf->val[ngrids][i]=malloc(sizeof(double*)*pdf->nq[ngrids]);
                 for(j=0; j<pdf->nq[ngrids]; j++) {
                         pdf->val[ngrids][i][j]=malloc(sizeof(double)*pdf->n_pdf_flavours[ngrids]);
-                        if(getline(&line, &size, fp)==-1) { fprintf(stderr, "Error in pdf member format\n"); return EXIT_FAILURE;}
+                        if(getline(&line, &size, fp)==-1) { fprintf(stderr, "Error in pdf member format, grid row is missed\n"); return EXIT_FAILURE;}
                         s_stream=fmemopen(line,size,"r"); 
                         for(k=0; k < pdf->n_pdf_flavours[ngrids]; k++) {
                                 if(!fscanf(s_stream,"%lg", &pdf->val[ngrids][i][j][k])) { 
-                                        fprintf(stderr, "Error in pdf member format\n");
+                                        fprintf(stderr, "Error in pdf member format, grid column is missed\n");
                                         return EXIT_FAILURE;
                                 }
                         }
@@ -487,15 +487,13 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
 
         // check grid delimiter ---
         i_tmp=getline(&line, &size, fp);
-        if(strcmp(line,"---\n")) { 
-                fprintf(stderr, "Error in pdf member format\n");
+        if(strcmp(line,"---") && strcmp(line,"---\n")) { 
+                fprintf(stderr, "Error in pdf member format, can't find yaml delimiter '---'\n");
                 return EXIT_FAILURE;
         }
         free(line);
         line=NULL;
         size=0;
-
-
 
         ngrids++;
         }
@@ -576,7 +574,10 @@ int load_lhapdf6_set(PdfSet *pdf_set, char *path) {
                 fprintf(ss,"%s/%s_%04d.dat",path,pdf_name,i);
                 fflush(ss);
                 printf("load: %s\n", member_path);
-                if(load_lhapdf6_member(&pdf_set->members[i], member_path)) return 1; //FREE
+                if(load_lhapdf6_member(&pdf_set->members[i], member_path)) { 
+                        fprintf(stderr, "cannot read member %d\n", i);       
+                        return 1;
+                } 
                 fclose(ss);
                 free(member_path);
         }
