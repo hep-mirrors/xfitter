@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 46
+    NInputFiles = 49
 
    InputFileNames =
  !
@@ -17,6 +17,12 @@
           'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat',
           'datafiles/hera/h1/jets/0706.3722/H1_InclJets_HighQ2_99-00.dat',
           'datafiles/hera/h1/jets/0911.5678/H1_InclJets_LowQ2_99-00.dat',
+
+	  'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
+	  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
+	  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
+
+
   ! ZEUS Jets:
           'datafiles/hera/zeus/jets/0208037/ZEUS_InclJets_HighQ2_96-97.dat',
           'datafiles/hera/zeus/jets/0608048/ZEUS_InclJets_HighQ2_98-00.dat',
@@ -83,7 +89,8 @@
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 6
+    NCorrFiles = 12
+
  
   ! Correlation files:
     CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
@@ -92,6 +99,14 @@
     CorrFileNames(4) = 'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
     CorrFileNames(5) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
     CorrFileNames(6) = 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
+
+  CorrFileNames(7) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  CorrFileNames(8) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
+  CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(12) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+
 &End
 
 &CovarToNuisance
@@ -123,6 +138,7 @@
 &Scales 
     DataSetMuR  = 34*1.0     ! Set muR scale to 1 for all datasets
     DataSetMuF  = 34*1.0     ! Set muF scale to 1 for all datasets
+    DataSetIOrder = 34*2   
 &End
 
 
