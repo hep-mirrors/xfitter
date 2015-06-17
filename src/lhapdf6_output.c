@@ -215,13 +215,16 @@ void print_lhapdf6_opt_(){
 
 
 
-void print_q2subgrid(GridQX grid, FILE *fp, double iqmin, double iqmax, char fns_mask[]) { //{{{
+void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[]) { //{{{
 
         int ix, iq2, i; 
         double val;
+        const double OFFSET=1e-3; // see call PDFINP in fcn.f
 
         int pdg_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,21};
         int qcdnum_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,0};
+
+        double (*swap_fun)(struct GridQX_s grid, int pid, int ix, int iq2); 
 
         for(ix=0;ix<grid.nx;ix++) 
                 fprintf(fp, "%e ", grid.x[ix]);
@@ -239,7 +242,7 @@ void print_q2subgrid(GridQX grid, FILE *fp, double iqmin, double iqmax, char fns
 
 
         for(ix=0; ix<grid.nx; ix++) {
-                for(iq2=iqmin; iq2<=iqmax; iq2++){
+                for(iq2=iqmin; iq2<iqmax; iq2++){
                         for(i=0;i<(int)(sizeof(qcdnum_flavours)/sizeof(int));i++) {
                                 val=grid.pdf_ij(grid, qcdnum_flavours[i], ix, iq2);
                                 if(fns_mask[i] && fabs(val)>2*DBL_EPSILON)
@@ -247,8 +250,26 @@ void print_q2subgrid(GridQX grid, FILE *fp, double iqmin, double iqmax, char fns
                                 else
                                         fprintf(fp, "%e ", 0.0);
                         }
+
+
                         fprintf(fp, "\n");
                 }
+
+                //near the threshold
+                swap_fun=grid.raw_pdf_ij;
+                grid.raw_pdf_ij=raw_external_pdf_ij;
+                grid.q2[iqmax]-=OFFSET;
+                for(i=0;i<(int)(sizeof(qcdnum_flavours)/sizeof(int));i++) {
+                        val=grid.pdf_ij(grid, qcdnum_flavours[i], ix, iqmax);
+                        if(fns_mask[i] && fabs(val)>2*DBL_EPSILON)
+                                fprintf(fp, "%e ", val);
+                        else
+                                fprintf(fp, "%e ", 0.0);
+                }
+                grid.raw_pdf_ij=swap_fun;
+                grid.q2[iqmax]+=OFFSET;
+
+                fprintf(fp, "\n");
         }
 
         fprintf(fp, "---\n");
@@ -278,6 +299,7 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
 
         
  //       print_q2subgrid(grid, fp, qfrmiq(0) , qfrmiq(grid.nq2-1));
+
         char ch_mask[]={0,0,1,1,1,1,1,1,0,0,1};
         print_q2subgrid(grid, fp, 0, iqfrmq(mch2), ch_mask);
         char bt_mask[]={0,1,1,1,1,1,1,1,1,0,1};
