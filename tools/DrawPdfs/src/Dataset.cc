@@ -362,8 +362,8 @@ float getTheoryShift (  vector<pdfshift> pdfshifts, pdferr err, vector <string> 
     }
   }
   else if ( err = SymHess ) {
-    for ( int i = 1; i<=pdfshifts.size(); i++ ) {
-      double plus  = val[i] - cent;
+    for ( int i = 0; i < pdfshifts.size(); i++ ) {
+      double plus  = val[i+1] - cent;
       double valShift = pdfshifts[i].val;
       double cor = -plus*valShift;
       corSum += cor;
