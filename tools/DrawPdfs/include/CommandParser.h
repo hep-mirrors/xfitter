@@ -38,6 +38,8 @@ class CommandParser
   bool therr, points;
   string theorylabel;
   bool twopanels,threepanels;
+  bool multitheory;
+  bool nothshifts;
   bool onlytheory;
   bool threlerr;
   bool ratiototheory;
@@ -78,7 +80,7 @@ class CommandParser
   bool cms, cmspreliminary;
   bool atlas, atlaspreliminary, atlasinternal;
   bool cdfiipreliminary;
-  bool profiled;
+  bool profile, reweight;
   bool bw;
 
  private:
@@ -140,10 +142,18 @@ class CommandParser
     cout << "\t \t PDF plots are not produced" << endl;
     cout << "\t --bands" << endl;
     cout << "\t \t Draw PDF uncertainty bands" << endl;
-    cout << "\t --profiled" << endl;
+    cout << "\t --profile" << endl;
     cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
-    cout << "\t Example: DrawPdfs profiled:output:profiled output:not-profiled" << endl;
+    cout << "\t Example: DrawPdfs profile:output:\"profiled\" output:\"not-profiled\"" << endl;
+    cout << "\t --reweight" << endl;
+    cout << "\t \t Draw Reweighted PDF (only for MC replica sets)" << endl;
+    cout << "\t \t To set this option only for one directory, use the syntax reweighted:directory[:label]" << endl;
+    cout << "\t Example: DrawPdfs reweight:output:\"reweighted\" output:\"not-reweighted\"" << endl;
+    cout << "\t options for rotation:" << endl;
+    cout << "\t \t Draw Rotated PDF (only for Hessian sets)" << endl;
+    cout << "\t \t To set this option, use the syntax rotate:<n>:directory[:label]" << endl;
+    cout << "\t Example: DrawPdfs rotate:5:output:\"rotated-5\" output:\"not-rotated\"" << endl;
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
     cout << "\t --ratiorange min:max" << endl;
@@ -167,6 +177,8 @@ class CommandParser
     cout << "\t \t Plot theory uncertainties if available" << endl;
     cout << "\t --noupband" << endl;
     cout << "\t \t Do not plot theory uncertainties in the upper panel" << endl;
+    cout << "\t --nothshifts" << endl;
+    cout << "\t \t Do not plot theory+shifts lines" << endl;
     cout << "\t --points" << endl;
     cout << "\t \t Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
     cout << "\t --theory <label>" << endl;
@@ -183,6 +195,8 @@ class CommandParser
     cout << "\t \t Do not plot data, use theory as reference for ratio plots, and plot relative theory uncertainties" << endl;
     cout << "\t --diff" << endl;
     cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
+    cout << "\t --multitheory" << endl;
+    cout << "\t \t Plot ratios of theory predictions in separate panels (up to three)" << endl;
     cout << "options for shifts plots:" << endl;
     cout << "\t --no-shifts" << endl;
     cout << "\t \t Shifts plots are not produced" << endl;

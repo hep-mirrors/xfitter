@@ -18,7 +18,7 @@
 //pdf type
 pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarubar, uvdv, U, D, Ubar, Dbar};
 //pdf labels
-string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "u_{V}-d_{V}", "U", "D", "#bar{U}", "#bar{D}"};
+string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}/u_{V}", "U", "D", "#bar{U}", "#bar{D}"};
 //pdf filenames
 string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uvdv", "U", "D", "UBar", "DBar"};
 
@@ -92,7 +92,10 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
 
   PdfTypes.push_back(uvdv);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
-    tablemap[uvdv].push_back(tablemap[uv][ix] - tablemap[dv][ix]);
+    if (tablemap[uv][ix] != 0)
+      tablemap[uvdv].push_back(tablemap[dv][ix] / tablemap[uv][ix]);
+    else
+      tablemap[uvdv].push_back(0);
 }
 
 TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf)
@@ -191,7 +194,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
           Central[temppdf.GetQ2()] = temppdf;
 
 	  //Get Pdf errors if requested
-	  if (!opts.dobands && !outdirs[label].IsProfiled() && !outdirs[label].IsRotated())
+	  if (!opts.dobands && !outdirs[label].IsProfiled() && !outdirs[label].IsRotated() && !outdirs[label].IsReweighted())
 	    continue;
   
           //Load PDF error sets
@@ -294,8 +297,17 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
         }
     }
 
+  //Read weights for Bayesian reweighting
+  if (err == MC && outdirs[label].IsReweighted())
+    {
+      double n, chi2, w;
+      ifstream mcwfile((dirname + "/mcrew.txt").c_str());
+      while (mcwfile >> n >> chi2 >> w)
+	mcw.push_back(w);
+    }
+
   //Remake central PDF
-  if (err == MC && opts.dobands)
+  if (err == MC && (opts.dobands || outdirs[label].IsReweighted()))
     for (map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) //Loop on q2 values
       {
         float q2 = pdfit->first;
@@ -306,7 +318,9 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
               for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
                 xi.push_back((*eit).GetTable(*pit)[ix]);
               double val;
-              if (outdirs[label].IsMedian())
+	      if (outdirs[label].IsReweighted())
+                val = mean(xi, mcw);
+	      else if (outdirs[label].IsMedian())
                 val = median(xi);
               else
                 val = mean(xi);
@@ -315,7 +329,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
       }
 
   //Compute PDF uncertainty bands
-  if (!opts.dobands && !outdirs[label].IsProfiled() &&!outdirs[label].IsRotated())
+  if (!opts.dobands && !outdirs[label].IsProfiled() && !outdirs[label].IsRotated() && !outdirs[label].IsReweighted())
     return;
 
   //Loop on q2 values
@@ -343,12 +357,16 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
                   for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
                     xi.push_back((*eit).GetTable(*pit)[ix]);
 
-                  if (outdirs[label].IsMedian())
+		  if (outdirs[label].IsReweighted())
+                    val = mean(xi, mcw);
+                  else if (outdirs[label].IsMedian())
                     val = median(xi);
                   else
                     val = mean(xi);
 
-                  if (outdirs[label].Is68cl())
+		  if (outdirs[label].IsReweighted())
+                    eminus = eplus = rms(xi, mcw);
+                  else if (outdirs[label].Is68cl())
                     {
                       if (outdirs[label].IsAsym())
                         deltaasym(xi, val, eplus, eminus, cl(1));
@@ -442,7 +460,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
         }//End loop on pdf types
     }//End loop on q2 values
 
-  if (outdirs[label].IsProfiled() || opts.profiled)
+  if (outdirs[label].IsProfiled())
     profile(dirname, label);
   if (outdirs[label].IsRotated() )
     pdfRotate(dirname, label);

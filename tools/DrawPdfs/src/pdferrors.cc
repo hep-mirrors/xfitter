@@ -19,6 +19,29 @@ double mean(vector <double> xi)
 
   return avg;
 }
+double mean(vector <double> xi, vector <double> w)
+{
+  if (xi.size() == 0)
+    {
+      cout << "Error in pdferrors.cc, passed empty vector to double mean(vector <double> xi) "<< endl;
+      return 0;      
+    }
+  if (w.size() == 0)
+    return mean(xi);
+
+  double avg = 0;
+  double sumw = 0;
+  vector<double>::iterator it = xi.begin();
+  vector<double>::iterator wit = w.begin();
+  for (; it != xi.end(); it++, wit++)
+    {
+      avg += (*it)*(*wit);
+      sumw += *wit;
+    }
+  avg /= sumw;
+
+  return avg;
+}
 double rms(vector <double> xi)
 {
   if (xi.size() == 0)
@@ -32,6 +55,28 @@ double rms(vector <double> xi)
     sum2 += pow(*it,2);
   sum2 /= xi.size();
   return sqrt(fabs(sum2 - pow(mean(xi),2)));
+}
+double rms(vector <double> xi, vector <double> w)
+{
+  if (xi.size() == 0)
+    {
+      cout << "Error in pdferrors.cc, passed empty vector to double rms(vector <double> xi) "<< endl;
+      return 0;      
+    }
+  if (w.size() == 0)
+    return rms(xi);
+
+  double sum2 = 0;
+  double sumw = 0;
+  vector<double>::iterator it = xi.begin();
+  vector<double>::iterator wit = w.begin();
+  for (; it != xi.end(); it++, wit++)
+    {
+      sum2 += pow((*it),2)*(*wit);
+      sumw += *wit;
+    }
+  sum2 /= sumw;
+  return sqrt(fabs(sum2 - pow(mean(xi, w),2)));
 }
 double median(vector <double> xi)
 {

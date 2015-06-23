@@ -106,6 +106,25 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   char cnvname[15];
   sprintf(cnvname, "data_%d-%d",  dataindex, subplotindex);
 
+  if (opts.multitheory)
+    {
+      if (datahistos.size() == 2)
+	{
+	  opts.twopanels = true;
+	  opts.threepanels = false;
+	}
+      if (datahistos.size() == 3)
+	{
+	  opts.twopanels = false;
+	  opts.threepanels = true;
+	}
+      if (datahistos.size() > 3)
+	{
+	  cout << "Cannot plot in multitheory mode more than 3 directories" << endl;
+	  return 0;
+	}
+    }
+  
   TCanvas * cnv;
   if (opts.twopanels || opts.threepanels)
     cnv = new TCanvas(cnvname, "", 0, 0, 2 * opts.resolution, opts.resolution);
@@ -399,7 +418,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     }
   else
     {
-      TLegend * leg = new TLegend(lmarg+0.04, mb+0.03, lmarg+0.04+0.30, mb+0.03+0.2/my);
+      TLegend * leg;
+      if (opts.nothshifts)
+	leg = new TLegend(lmarg+0.04, mb+0.03, lmarg+0.04+0.30, mb+0.03+0.12/my);
+      else
+	leg = new TLegend(lmarg+0.04, mb+0.03, lmarg+0.04+0.30, mb+0.03+0.2/my);
       string datalab = (string) "Data " + datahistos[0].gettitle();
       if (datahistos[0].getexperiment() != "")
 	datalab = datahistos[0].getexperiment() + " " + datalab;
@@ -428,11 +451,13 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	leg->AddEntry((TObject*)0, opts.theorylabel.c_str(), "");
       else
 	{
-	  if (opts.points && !datahistos[0].bincenter())
-	    leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
-	  else
-	    leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
-	  leg->AddEntry(dash, (opts.theorylabel + " + shifts").c_str(), "l");
+	  if (!opts.nothshifts)
+	    if (opts.points && !datahistos[0].bincenter())
+	      leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
+	    else
+	      leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
+	  if (!opts.nothshifts)
+	    leg->AddEntry(dash, (opts.theorylabel + " + shifts").c_str(), "l");
 	}
       leg1 = (TPaveText*)leg;
     }
@@ -466,7 +491,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	{
 	  (*it).getthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
 	  if (!opts.onlytheory)
-	    (*it).Draw((TH1F*)(*it).getthshift()->Clone(), "LX same");
+	    if (!opts.nothshifts)
+	      (*it).Draw((TH1F*)(*it).getthshift()->Clone(), "LX same");
 	}
       (*it).getthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 
@@ -789,6 +815,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   r_ref->SetLineStyle(1);
   r_ref->Draw();
 
+  TLegend * legr;
+  if (opts.multitheory)
+    legr = new TLegend(lmarg+0.04, marg0/ry+0.03, lmarg+0.04+0.30, marg0/ry+0.03+0.04/ry);
+
   //Draw ratios
   for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
     {
@@ -808,7 +838,9 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    {
 	      (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
 	      if (!opts.onlytheory)
-		(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+		if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
+		  if (!opts.nothshifts)
+		    (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
 	    }
 	  (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	}
@@ -818,7 +850,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	    {
 	      (*it).getrth()->SetAxisRange((*r).lowedge, (*r).upedge);
-	      (*it).Draw((TH1F*)(*it).getrth()->Clone(), "LX same");
+	      if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
+		(*it).Draw((TH1F*)(*it).getrth()->Clone(), "LX same");
 	    }
 	  (*it).getrth()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	  if (opts.therr)
@@ -835,7 +868,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 		    {
 		      (*it).getrtherr()->SetAxisRange((*r).lowedge, (*r).upedge);
-		      (*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
+		      if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
+			(*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
 		    }
 		  (*it).getrtherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 		}
@@ -876,9 +910,23 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	      r_gtherr->SetPointEYhigh(b, errup);
 	      r_gtherr->SetPointEYlow(b, errdown);
 	    }
-	  r_gtherr->Draw("P same");
+	  if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
+	    r_gtherr->Draw("P same");
 	}
-    }	  
+      if (opts.multitheory && (it - datahistos.begin() == 0))
+	{
+	  if (!opts.points || (*it).bincenter())
+	    if (opts.therr && (*it).HasTherr())
+	      legr->AddEntry((*it).getrtherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
+	    else
+	      legr->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "l");
+	  else
+	    if (opts.therr && (*it).HasTherr())
+	      legr->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "pe");
+	    else
+	      leg2->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "p");
+	}
+    }
   
   //draw theory error borders
   if (opts.therr)
@@ -894,9 +942,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	      {
 		(*it).getrtherrup()->SetAxisRange((*r).lowedge, (*r).upedge);
-		(*it).Draw((TH1F*)(*it).getrtherrup()->Clone(), "LX same");
+		if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
+		  (*it).Draw((TH1F*)(*it).getrtherrup()->Clone(), "LX same");
 		(*it).getrtherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
-		(*it).Draw((TH1F*)(*it).getrtherrdown()->Clone(), "LX same");
+		if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
+		  (*it).Draw((TH1F*)(*it).getrtherrdown()->Clone(), "LX same");
 	      }
 	    (*it).getrtherrup()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	    (*it).getrtherrdown()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
@@ -907,8 +957,199 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   if (!opts.onlytheory)
     datahistos[0].Draw(r_data, "PE1 same");
 
+  if (opts.multitheory)
+    {
+      legr->SetFillColor(0);
+      legr->SetBorderSize(0);
+      legr->SetTextAlign(12);
+      legr->SetTextFont(62);
+      legr->SetTextSize(txtsize * 0.8/ry);
+      legr->Draw();
+    }
+
   //Theory+shifts/Data ratio Pad (optional)
-  if (opts.threepanels)
+  if (opts.multitheory && datahistos.size() == 3)
+    {
+      Shifts->cd();
+      if (datahistos[0].getlogx())
+	Shifts->SetLogx();
+
+      //Set up template histogram for axis
+      r_templ->GetYaxis()->SetLabelSize(txtsize/sy);
+      r_templ->GetYaxis()->SetTitleSize(txtsize/sy);
+      r_templ->GetYaxis()->SetTitleOffset((offset+0.3) * sy);
+
+      //draw axis
+      r_templ->DrawCopy("AXIS");
+
+      //draw data
+      vector <range> rdtranges = historanges(r_datatot);
+      for (vector<range>::iterator r = rdtranges.begin(); r != rdtranges.end(); r++)
+	{
+	  r_datatot->SetAxisRange((*r).lowedge, (*r).upedge);
+	  if (!opts.onlytheory)
+	    datahistos[0].Draw((TH1F*)r_datatot->Clone(), "E3 same");
+	}
+      r_datatot->GetXaxis()->SetRange(datahistos[0].getlowrange(), datahistos[0].getuprange());
+
+      //plot lines at 1 (or 0 for diff plots)
+      TLine *r_ref;
+      if (opts.diff)
+	r_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 0, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 0);
+      else
+	r_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
+      r_ref->SetLineStyle(2);
+      r_ref->SetLineStyle(1);
+      r_ref->Draw();
+
+      TLegend * legr = new TLegend(lmarg+0.04, marg0/sy+0.03, lmarg+0.04+0.30, marg0/sy+0.03+0.04/sy);
+
+      //Draw ratios
+      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+	{
+	  (*it).getrthshift()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	  (*it).getrthshift()->SetLineStyle(2);
+	  (*it).getrthshift()->SetLineWidth(opts.lwidth);
+
+	  (*it).getrth()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	  (*it).getrth()->SetLineWidth(opts.lwidth);
+	  if (opts.bw)
+	    (*it).getrth()->SetLineStyle(opts.lstyles[labels[it-datahistos.begin()]]);
+
+	  vector <range> rthranges = historanges((*it).getrthshift());
+	  if (!opts.threepanels)
+	    {
+	      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+		{
+		  (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
+		  if (!opts.onlytheory)
+		    if (!opts.multitheory || (it - datahistos.begin() == 1)) //if in multitheory mode, plot only the second theory
+		      if (!opts.nothshifts)
+			(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+		}
+	      (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	    }
+      
+	  if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
+	    {
+	      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+		{
+		  (*it).getrth()->SetAxisRange((*r).lowedge, (*r).upedge);
+		  if (!opts.multitheory || (it - datahistos.begin() == 1)) //if in multitheory mode, plot only the second theory
+		    (*it).Draw((TH1F*)(*it).getrth()->Clone(), "LX same");
+		}
+	      (*it).getrth()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	      if (opts.therr)
+		{
+		  (*it).getrtherr()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+		  (*it).getrtherr()->SetMarkerSize(0);
+		  (*it).getrtherr()->SetFillColor(opts.colors[labels[it-datahistos.begin()]]);
+		  (*it).getrtherr()->SetFillStyle(opts.styles[labels[it-datahistos.begin()]]);
+		  float toterr = 0;
+		  for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
+		    toterr += (*it).gettherr()->GetBinError(b);
+		  if (toterr > 0)
+		    {
+		      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+			{
+			  (*it).getrtherr()->SetAxisRange((*r).lowedge, (*r).upedge);
+			  if (!opts.multitheory || (it - datahistos.begin() == 1)) //if in multitheory mode, plot only the second theory
+			    (*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
+			}
+		      (*it).getrtherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+		    }
+		}
+	    }
+	  else //plot as displaced TGraphs
+	    {
+	      TGraphAsymmErrors * r_gtherr = new TGraphAsymmErrors((*it).getrth());
+	      r_gtherr->SetMarkerStyle(opts.markers[labels[it-datahistos.begin()]]);
+	      r_gtherr->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	      r_gtherr->SetMarkerSize(2 * opts.resolution / 1200);
+	      r_gtherr->SetMarkerColor(opts.colors[labels[it-datahistos.begin()]]);
+	      for (int b = 0; b < r_gtherr->GetN(); b++)
+		{
+		  //Set X error to 0
+		  r_gtherr->SetPointEXlow(b, 0);
+		  r_gtherr->SetPointEXhigh(b, 0);
+
+		  //displace horizontally
+		  double x, y;
+		  r_gtherr->GetPoint(b, x, y);
+		  float width = (*it).getrth()->GetBinWidth(b + 1);
+		  float lowedge = (*it).getrth()->GetBinLowEdge(b + 1);
+		  x = lowedge + (it - datahistos.begin() + 1) * width/(datahistos.size() + 1);
+		  r_gtherr->SetPoint(b, x, y);
+		  //Set Y error
+		  float errup, errdown;
+		  if (opts.therr)
+		    {    
+		      errup = (*it).getrtherrup()->GetBinContent(b + 1) - (*it).getrth()->GetBinContent(b + 1);
+		      errdown = (*it).getrth()->GetBinContent(b + 1) - (*it).getrtherrdown()->GetBinContent(b + 1);
+		    }
+		  else
+		    {
+		      errup = 0;
+		      errdown = 0;
+		    }
+		  r_gtherr->SetPointEYhigh(b, errup);
+		  r_gtherr->SetPointEYlow(b, errdown);
+		}
+	      if (!opts.multitheory || (it - datahistos.begin() == 1)) //if in multitheory mode, plot only the second theory
+		r_gtherr->Draw("P same");
+	    }
+	  if (it - datahistos.begin() == 1)
+	    {
+	      if (!opts.points || (*it).bincenter())
+		if (opts.therr && (*it).HasTherr())
+		  legr->AddEntry((*it).getrtherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
+		else
+		  legr->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "l");
+	      else
+		if (opts.therr && (*it).HasTherr())
+		  legr->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "pe");
+		else
+		  leg2->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "p");
+	    }
+	}
+  
+      //draw theory error borders
+      if (opts.therr)
+	for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+	  {
+	    (*it).getrtherrup()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	    (*it).getrtherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	    (*it).getrtherrup()->SetLineWidth(opts.lwidth);
+	    (*it).getrtherrdown()->SetLineWidth(opts.lwidth);
+	    if (!opts.points || (*it).bincenter())
+	      {
+		vector <range> rthranges = historanges((*it).getth());
+		for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+		  {
+		    (*it).getrtherrup()->SetAxisRange((*r).lowedge, (*r).upedge);
+		    if (!opts.multitheory || (it - datahistos.begin() == 1)) //if in multitheory mode, plot only the second theory
+		      (*it).Draw((TH1F*)(*it).getrtherrup()->Clone(), "LX same");
+		    (*it).getrtherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
+		    if (!opts.multitheory || (it - datahistos.begin() == 1)) //if in multitheory mode, plot only the second theory
+		      (*it).Draw((TH1F*)(*it).getrtherrdown()->Clone(), "LX same");
+		  }
+		(*it).getrtherrup()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+		(*it).getrtherrdown()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	      }
+	  }
+
+      //Draw data points
+      if (!opts.onlytheory)
+	datahistos[0].Draw(r_data, "PE1 same");
+
+      legr->SetFillColor(0);
+      legr->SetBorderSize(0);
+      legr->SetTextAlign(12);
+      legr->SetTextFont(62);
+      legr->SetTextSize(txtsize * 0.8/sy);
+      legr->Draw();
+    }
+  else if (opts.threepanels)
     {
       Shifts->cd();
       if (datahistos[0].getlogx())
@@ -988,7 +1229,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	    {
 	      (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
-	      (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+	      if (!opts.nothshifts)
+		(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
 	    }
 	  (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	}	  
@@ -998,7 +1240,192 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     }
 
   //Theory-Data pulls pad
-  if (opts.twopanels || opts.threepanels)
+  if (opts.multitheory && datahistos.size() >= 2)
+    {
+      int nth = datahistos.size();
+      Pulls->cd();
+      if (datahistos[0].getlogx())
+	Pulls->SetLogx();
+
+      //Set up template histogram for axis
+      r_templ->GetXaxis()->SetLabelSize(txtsize/py);
+      r_templ->GetXaxis()->SetTitleSize(txtsize/py);
+
+      r_templ->GetYaxis()->SetLabelSize(txtsize/py);
+      r_templ->GetYaxis()->SetTitleSize(txtsize/py);
+      r_templ->GetYaxis()->SetTitleOffset((offset+0.3) * py);
+
+      //draw axis
+      r_templ->DrawCopy("AXIS");
+
+      //draw data
+      vector <range> rdtranges = historanges(r_datatot);
+      for (vector<range>::iterator r = rdtranges.begin(); r != rdtranges.end(); r++)
+	{
+	  r_datatot->SetAxisRange((*r).lowedge, (*r).upedge);
+	  if (!opts.onlytheory)
+	    datahistos[0].Draw((TH1F*)r_datatot->Clone(), "E3 same");
+	}
+      r_datatot->GetXaxis()->SetRange(datahistos[0].getlowrange(), datahistos[0].getuprange());
+
+      //plot lines at 1 (or 0 for diff plots)
+      TLine *r_ref;
+      if (opts.diff)
+	r_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 0, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 0);
+      else
+	r_ref = new TLine(r_templ->GetBinLowEdge(r_templ->GetXaxis()->GetFirst()), 1, r_templ->GetXaxis()->GetBinUpEdge(r_templ->GetXaxis()->GetLast()), 1);
+      r_ref->SetLineStyle(2);
+      r_ref->SetLineStyle(1);
+      r_ref->Draw();
+
+      TLegend * legr = new TLegend(lmarg+0.04, bmarg/py+0.03, lmarg+0.04+0.30, bmarg/py+0.03+0.04/py);
+
+      //Draw ratios
+      for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+	{
+	  (*it).getrthshift()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	  (*it).getrthshift()->SetLineStyle(2);
+	  (*it).getrthshift()->SetLineWidth(opts.lwidth);
+
+	  (*it).getrth()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	  (*it).getrth()->SetLineWidth(opts.lwidth);
+	  if (opts.bw)
+	    (*it).getrth()->SetLineStyle(opts.lstyles[labels[it-datahistos.begin()]]);
+
+	  vector <range> rthranges = historanges((*it).getrthshift());
+	  if (!opts.threepanels)
+	    {
+	      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+		{
+		  (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
+		  if (!opts.onlytheory)
+		    if (!opts.multitheory || (it - datahistos.begin() == nth-1)) //if in multitheory mode, plot only the second theory
+		      if (!opts.nothshifts)
+			(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+		}
+	      (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	    }
+      
+	  if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
+	    {
+	      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+		{
+		  (*it).getrth()->SetAxisRange((*r).lowedge, (*r).upedge);
+		  if (!opts.multitheory || (it - datahistos.begin() == nth-1)) //if in multitheory mode, plot only the second theory
+		    (*it).Draw((TH1F*)(*it).getrth()->Clone(), "LX same");
+		}
+	      (*it).getrth()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	      if (opts.therr)
+		{
+		  (*it).getrtherr()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+		  (*it).getrtherr()->SetMarkerSize(0);
+		  (*it).getrtherr()->SetFillColor(opts.colors[labels[it-datahistos.begin()]]);
+		  (*it).getrtherr()->SetFillStyle(opts.styles[labels[it-datahistos.begin()]]);
+		  float toterr = 0;
+		  for (int b = 1; b <= (*it).gettherr()->GetNbinsX(); b++)
+		    toterr += (*it).gettherr()->GetBinError(b);
+		  if (toterr > 0)
+		    {
+		      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+			{
+			  (*it).getrtherr()->SetAxisRange((*r).lowedge, (*r).upedge);
+			  if (!opts.multitheory || (it - datahistos.begin() == nth-1)) //if in multitheory mode, plot only the second theory
+			    (*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
+			}
+		      (*it).getrtherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+		    }
+		}
+	    }
+	  else //plot as displaced TGraphs
+	    {
+	      TGraphAsymmErrors * r_gtherr = new TGraphAsymmErrors((*it).getrth());
+	      r_gtherr->SetMarkerStyle(opts.markers[labels[it-datahistos.begin()]]);
+	      r_gtherr->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	      r_gtherr->SetMarkerSize(2 * opts.resolution / 1200);
+	      r_gtherr->SetMarkerColor(opts.colors[labels[it-datahistos.begin()]]);
+	      for (int b = 0; b < r_gtherr->GetN(); b++)
+		{
+		  //Set X error to 0
+		  r_gtherr->SetPointEXlow(b, 0);
+		  r_gtherr->SetPointEXhigh(b, 0);
+
+		  //displace horizontally
+		  double x, y;
+		  r_gtherr->GetPoint(b, x, y);
+		  float width = (*it).getrth()->GetBinWidth(b + 1);
+		  float lowedge = (*it).getrth()->GetBinLowEdge(b + 1);
+		  x = lowedge + (it - datahistos.begin() + 1) * width/(datahistos.size() + 1);
+		  r_gtherr->SetPoint(b, x, y);
+		  //Set Y error
+		  float errup, errdown;
+		  if (opts.therr)
+		    {    
+		      errup = (*it).getrtherrup()->GetBinContent(b + 1) - (*it).getrth()->GetBinContent(b + 1);
+		      errdown = (*it).getrth()->GetBinContent(b + 1) - (*it).getrtherrdown()->GetBinContent(b + 1);
+		    }
+		  else
+		    {
+		      errup = 0;
+		      errdown = 0;
+		    }
+		  r_gtherr->SetPointEYhigh(b, errup);
+		  r_gtherr->SetPointEYlow(b, errdown);
+		}
+	      if (!opts.multitheory || (it - datahistos.begin() == nth-1)) //if in multitheory mode, plot only the second theory
+		r_gtherr->Draw("P same");
+	    }
+	  if (it - datahistos.begin() == nth-1)
+	    {
+	      if (!opts.points || (*it).bincenter())
+		if (opts.therr && (*it).HasTherr())
+		  legr->AddEntry((*it).getrtherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
+		else
+		  legr->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "l");
+	      else
+		if (opts.therr && (*it).HasTherr())
+		  legr->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "pe");
+		else
+		  leg2->AddEntry((*it).getrth(), (labels[it-datahistos.begin()]).c_str(), "p");
+	    }
+	}	  
+  
+      //draw theory error borders
+      if (opts.therr)
+	for (vector <Subplot>::iterator it = datahistos.begin(); it != datahistos.end(); it++)
+	  {
+	    (*it).getrtherrup()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	    (*it).getrtherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
+	    (*it).getrtherrup()->SetLineWidth(opts.lwidth);
+	    (*it).getrtherrdown()->SetLineWidth(opts.lwidth);
+	    if (!opts.points || (*it).bincenter())
+	      {
+		vector <range> rthranges = historanges((*it).getth());
+		for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
+		  {
+		    (*it).getrtherrup()->SetAxisRange((*r).lowedge, (*r).upedge);
+		    if (!opts.multitheory || (it - datahistos.begin() == nth-1)) //if in multitheory mode, plot only the second theory
+		      (*it).Draw((TH1F*)(*it).getrtherrup()->Clone(), "LX same");
+		    (*it).getrtherrdown()->SetAxisRange((*r).lowedge, (*r).upedge);
+		    if (!opts.multitheory || (it - datahistos.begin() == nth-1)) //if in multitheory mode, plot only the second theory
+		      (*it).Draw((TH1F*)(*it).getrtherrdown()->Clone(), "LX same");
+		  }
+		(*it).getrtherrup()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+		(*it).getrtherrdown()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
+	      }
+	  }
+
+      //Draw data points
+      if (!opts.onlytheory)
+	datahistos[0].Draw(r_data, "PE1 same");
+
+      legr->SetFillColor(0);
+      legr->SetBorderSize(0);
+      legr->SetTextAlign(12);
+      legr->SetTextFont(62);
+      legr->SetTextSize(txtsize * 0.8/py);
+      legr->Draw();
+    }
+  else if (opts.twopanels || opts.threepanels)
     {
       Pulls->cd();
       if (datahistos[0].getlogx())

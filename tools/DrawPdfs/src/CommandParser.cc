@@ -18,7 +18,8 @@ float marg0 = 0.003;
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
   scale68(false),
-  profiled(false),
+  profile(false),
+  reweight(false),
   bw(false),
   asym(false),
   logx(true),
@@ -51,6 +52,8 @@ CommandParser::CommandParser(int argc, char **argv):
   diff(false),
   twopanels(false),
   threepanels(false),
+  multitheory(false),
+  nothshifts(false),
   version(true),
   drawlogo(true),
   nodata(false),
@@ -205,9 +208,13 @@ CommandParser::CommandParser(int argc, char **argv):
 	  dobands = true;
 	else if (*it == "--scale68")
 	  scale68 = true;
-	else if (*it == "--profiled") {
+	else if (*it == "--profile") {
 	  dobands = true;
-	  profiled = true;
+	  profile = true;
+	}
+	else if (*it == "--reweight") {
+	  dobands = true;
+	  reweight = true;
 	}
 	else if (*it == "--asym")
 	  {
@@ -402,6 +409,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	  twopanels = true;
 	else if (*it == "--3panels")
 	  threepanels = true;
+	else if (*it == "--multitheory")
+	  multitheory = true;
+	else if (*it == "--nothshifts")
+	  nothshifts = true;
 	else
 	  {
 	    cout << endl;

@@ -88,6 +88,7 @@ class PdfData
   map <float, Pdf> Down;                  //Q2 values down PDF map
 
   vector<pdfshift> pdfshifts;  // For profiled PDFs, keep shift info
+  vector<double> mcw;          // For reweighted PDFs, keep Bayesian weights info
 };
 
 #endif

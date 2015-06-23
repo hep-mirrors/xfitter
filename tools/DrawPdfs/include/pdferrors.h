@@ -7,7 +7,9 @@ using namespace std;
 
 //Monte Carlo PDF errors
 extern double mean(vector <double> xi);
+extern double mean(vector <double> xi, vector <double> w);
 extern double rms(vector <double> xi);
+extern double rms(vector <double> xi, vector <double> w);
 extern double median(vector <double> xi);
 extern double cl(int sigma);
 extern double delta(vector <double> xi, double central, double ConfLevel);

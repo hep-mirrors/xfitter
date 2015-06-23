@@ -20,7 +20,7 @@ map <string, Chi2scanData> chi2scanmap;
 vector <TGraphAsymmErrors*> allgraphs;
 
 //Constructor, load all the directory data
-Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym), profiled(opts.profiled), scale68(opts.scale68), RotatedSet(0)
+Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym), profiled(opts.profile), reweighted(opts.reweight), scale68(opts.scale68), RotatedSet(0), rotated(false)
 {
   //parse dirs for flags and labels
   string pattern = "";
@@ -73,23 +73,26 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
 	  asym = true;
 	  dirname.erase(0, dirname.find(":")+1);
 	}
-      if (prefix == "profiled")
+      if (prefix == "profile")
 	{
 	  doprefix = true;
 	  profiled = true;
 	  dirname.erase(0, dirname.find(":")+1);
 	}
-      if (prefix == "rot") 
+      if (prefix == "reweight")
 	{
-	  //	  std::cout << "rot " ;
 	  doprefix = true;
+	  reweighted = true;
+	  dirname.erase(0, dirname.find(":")+1);
+	}
+      if (prefix == "rotate") 
+	{
+	  doprefix = true;
+	  rotated = true;
 	  dirname.erase(0, dirname.find(":")+1);
 	  prefix = dirname.substr(0,dirname.find(":"));
 	  RotatedSet = atoi(prefix.c_str());
 	  // std::cout << RotatedSet << "\n";
-
-	  
-
 	  dirname.erase(0, dirname.find(":")+1);
 	}
       if (prefix == "scale68")

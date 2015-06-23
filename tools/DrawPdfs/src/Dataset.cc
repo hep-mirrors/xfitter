@@ -1,6 +1,7 @@
 #include "Dataset.h"
 #include "Outdir.h"
 #include "CommandParser.h"
+#include "pdferrors.h"
 
 #include <TObjArray.h>
 #include <TObjString.h>
@@ -334,14 +335,15 @@ vector <string> readLineFiles ( int nfile, ifstream **infiles)
   return lines;
 }
 
-float getTheoryShift (  vector<pdfshift> pdfshifts, pdferr err, vector <string> lines) {
+float getTheoryShift (vector<pdfshift> pdfshifts, pdferr err, vector <string> lines)
+{
   // Decode string thing
   int N = ( err == AsymHess ) ? 2*pdfshifts.size()+1 : pdfshifts.size()+1;
-
+  
   if (N == 1) return 0;
-
+  
   double val[N];
-
+  
   for (int i=0; i<N; i++) {
     istringstream iss(lines[i]);
     // Hardwire !!! //
@@ -372,6 +374,27 @@ float getTheoryShift (  vector<pdfshift> pdfshifts, pdferr err, vector <string> 
   return corSum;
 }       
 
+float getTheoryReweight (vector<double> weights, vector <string> lines)
+{
+  // Decode string thing
+  int N = weights.size();
+  
+  if (N == 1) return 0;
+  
+  vector <double> xi;
+  
+  for (int i = 0; i < N; i++) {
+    istringstream iss(lines[i]);
+    // Hardwire !!! //
+    double buffer;
+    for (int j =0; j<7; j++)
+      iss >> buffer;
+    xi.push_back(buffer);
+  }
+
+  return mean(xi, weights);
+}       
+
 Data::Data(string dirname, string label)
 {
   //Open datasets file (fittedresults.txt)
@@ -381,11 +404,20 @@ Data::Data(string dirname, string label)
   if (!infile.is_open()) //fittedresults.txt not found
     return;
 
-  // open also files for shifted fittedresults.txt  
-  vector<pdfshift> shifts = pdfmap[label].pdfshifts;
+  // open also files for shifted or reweighted fittedresults.txt
+  int nfiles = 0;
   pdferr err = pdfmap[label].err;
-
-  int nfiles = ( err == AsymHess) ? shifts.size()*2+1 :shifts.size() + 1; 
+  if (outdirs[label].IsProfiled())
+    {
+      if ( err == AsymHess)
+	nfiles = pdfmap[label].pdfshifts.size()*2+1;
+      else if ( err == SymHess)
+	nfiles = pdfmap[label].pdfshifts.size()+1;
+    }
+  if (outdirs[label].IsReweighted())
+    if ( err == MC)
+      nfiles = pdfmap[label].mcw.size();
+  
   // reset if shifts is empty.
   if (nfiles == 1) {nfiles = 0;}
 
@@ -398,7 +430,6 @@ Data::Data(string dirname, string label)
       return;
     }
   }
-
 
   //Read datasets
   string line;  
@@ -523,18 +554,21 @@ Data::Data(string dirname, string label)
 	    }
 	  //Add point to subplot
 
-	  float Thshift = getTheoryShift(shifts, err, lines);
+	  //Hessian profile the theory prediction
+	  if (outdirs[label].IsProfiled())
+	    fline["thorig"] += getTheoryShift(pdfmap[label].pdfshifts, err, lines);
 	  
-	  fline["thorig"] += Thshift;
+	  //Bayesian reweight the theory prediction
+	  if (outdirs[label].IsReweighted())
+	    fline["thorig"] = getTheoryReweight(pdfmap[label].mcw, lines);
 
 	  dtset.subplots[iplot].AddPoint(fline);
 	  getline(infile, line); lines = readLineFiles(nfiles,infiles);
 
 	}//End loop on data points
       for (map <int, Subplot>::iterator sit = dtset.subplots.begin(); sit != dtset.subplots.end(); sit++)
-	{
-	  (*sit).second.Init(label, dtindex, (*sit).first);
-	}
+	(*sit).second.Init(label, dtindex, (*sit).first);
+
       datamap[dtindex] = dtset;
     }//End loop on datasets
 }
