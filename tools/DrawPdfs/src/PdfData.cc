@@ -598,7 +598,6 @@ void PdfData::profile(string dirname, string label)
   // Read also PDF correlation matrix:
   string ffname = dirname + "/pdf_vector_cor.dat";
   ifstream ff(ffname.c_str());
-  vector< vector<double> > cor_matrix;
   if ( ! ff.good() ) {
     cout << "File " << ffname << " is empty (or io error). Use diagonal approximation for the PDF nuisance parameters." << endl;
   }

@@ -324,62 +324,83 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   valid = true;
 }
 
-vector <string> readLineFiles ( int nfile, ifstream **infiles)
+vector <string> readLineFiles (int nfile, ifstream *infiles)
 {
   vector <string> lines;
   for (int i=0; i<nfile; i++) {
     string line;
-    getline(*infiles[i],line);
+    getline(infiles[i],line);
     lines.push_back(line);
   }
   return lines;
 }
 
-float getTheoryShift (vector<pdfshift> pdfshifts, pdferr err, vector <string> lines)
+void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_matrix, pdferr err, vector <string> lines, double& corSum, double& errplus, double& errminus)
 {
   // Decode string thing
   int N = ( err == AsymHess ) ? 2*pdfshifts.size()+1 : pdfshifts.size()+1;
   
-  if (N == 1) return 0;
+  if (N == 1) return;
   
-  double val[N];
+  vector <double> val;
   
   for (int i=0; i<N; i++) {
     istringstream iss(lines[i]);
     // Hardwire !!! //
-    for (int j =0; j<7; j++) {
-      iss >> val[i];
-    }
+    double buffer;
+    for (int j =0; j<7; j++)
+      iss >> buffer;
+    val.push_back(buffer);
   }
 
-  double corSum = 0 ;
+  vector <double> xi;
+  corSum = 0;
   double cent = val[0];
-  if ( err == AsymHess ) {
-    for ( int i = 0; i<pdfshifts.size(); i++ ) {
-      double plus  = val[i*2+1] - cent;
-      double minus = val[i*2+2] - cent;
-      double valShift = pdfshifts[i].val;
-      double cor = 0.5*(plus - minus)*valShift - 0.5*(plus+minus)*valShift*valShift;
-      corSum += cor;
+  xi.push_back(cent);
+  if ( err == AsymHess )
+    {
+      for ( int i = 0; i<pdfshifts.size(); i++ )
+	{
+	  double plus  = val[i*2+1] - cent;
+	  double minus = val[i*2+2] - cent;
+	  double valShift = pdfshifts[i].val;
+	  double errShift = pdfshifts[i].err;
+	  //compute shifted central value
+	  double cor = 0.5*(plus - minus)*valShift - 0.5*(plus+minus)*valShift*valShift;
+	  corSum += cor;
+	  //compute reduced uncertainties
+	  xi.push_back(plus*errShift+cent);
+	  xi.push_back(minus*errShift+cent);
+	}
+      ahessdeltaasym(xi, errplus, errminus, cor_matrix);            
     }
-  }
-  else if ( err = SymHess ) {
-    for ( int i = 0; i < pdfshifts.size(); i++ ) {
-      double plus  = val[i+1] - cent;
-      double valShift = pdfshifts[i].val;
-      double cor = -plus*valShift;
-      corSum += cor;
+  else if ( err = SymHess )
+    {
+      for ( int i = 0; i < pdfshifts.size(); i++ )
+	{
+	  double plus  = val[i+1] - cent;
+	  double valShift = pdfshifts[i].val;
+	  double errShift = pdfshifts[i].err;
+	  //compute shifted central value
+	  double cor = -plus*valShift;
+	  corSum += cor;
+	  //compute reduced uncertainties
+	  xi.push_back(plus*errShift+cent);
+	}
+      errplus = errminus = shessdelta(xi, cor_matrix);
     }
-  }
-  return corSum;
 }       
 
-float getTheoryReweight (vector<double> weights, vector <string> lines)
+void getTheoryReweight (vector<double> weights, vector <string> lines, double& val, double& err)
 {
+  val = 0;
+  err = 0;
+
   // Decode string thing
   int N = weights.size();
   
-  if (N == 1) return 0;
+  if (N == 0)
+    return;
   
   vector <double> xi;
   
@@ -392,7 +413,8 @@ float getTheoryReweight (vector<double> weights, vector <string> lines)
     xi.push_back(buffer);
   }
 
-  return mean(xi, weights);
+  val = mean(xi, weights);
+  err = rms(xi, weights);
 }       
 
 Data::Data(string dirname, string label)
@@ -401,34 +423,38 @@ Data::Data(string dirname, string label)
   char filename[300];
   sprintf (filename, "%s/fittedresults.txt", dirname.c_str());
   ifstream infile(filename);
-  if (!infile.is_open()) //fittedresults.txt not found
-    return;
+  if (!infile.is_open())
+    {
+      cout << "Error " << filename << " not found " << endl;
+      return;
+    }
 
-  // open also files for shifted or reweighted fittedresults.txt
+  //open files for shifted or reweighted fittedresults.txt
   int nfiles = 0;
   pdferr err = pdfmap[label].err;
   if (outdirs[label].IsProfiled())
     {
-      if ( err == AsymHess)
+      if (err == AsymHess)
 	nfiles = pdfmap[label].pdfshifts.size()*2+1;
-      else if ( err == SymHess)
+      else if (err == SymHess)
 	nfiles = pdfmap[label].pdfshifts.size()+1;
     }
   if (outdirs[label].IsReweighted())
-    if ( err == MC)
+    if (err == MC)
       nfiles = pdfmap[label].mcw.size();
   
   // reset if shifts is empty.
   if (nfiles == 1) {nfiles = 0;}
 
-  ifstream *infiles[nfiles];
+  ifstream infiles[nfiles];
   for ( int i = 0; i < nfiles; i++) {
     sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(),i);   
-    infiles[i] = new ifstream(filename);
-    if (! infiles[i]->is_open() ) {
-      cout << "Error " << filename << " not found " << endl;
-      return;
-    }
+    infiles[i].open(filename);
+    if (!infiles[i].is_open())
+      {
+	cout << "Error " << filename << " not found " << endl;
+	return;
+      }
   }
 
   //Read datasets
@@ -542,7 +568,6 @@ Data::Data(string dirname, string label)
 		  fline["x"] = ((TObjString*) array->At(1))->GetString().Atof();
 	  
 		  break;		  
-
 		}
 	      //end of patch
 	    }
@@ -556,11 +581,24 @@ Data::Data(string dirname, string label)
 
 	  //Hessian profile the theory prediction
 	  if (outdirs[label].IsProfiled())
-	    fline["thorig"] += getTheoryShift(pdfmap[label].pdfshifts, err, lines);
+	    {
+	      double cor, eplus, eminus;
+	      getTheoryShift(pdfmap[label].pdfshifts, pdfmap[label].cor_matrix, err, lines, cor, eplus, eminus);
+	      fline["thorig"] += cor;
+	      fline["therr+"] = eplus;
+	      fline["therr-"] = eminus;
+	    }
 	  
 	  //Bayesian reweight the theory prediction
 	  if (outdirs[label].IsReweighted())
-	    fline["thorig"] = getTheoryReweight(pdfmap[label].mcw, lines);
+	    {
+	      double value, error;
+	      getTheoryReweight(pdfmap[label].mcw, lines, value, error);
+	      fline["thorig"] = value;
+	      fline["therr+"] = error;
+	      fline["therr-"] = error;
+	    }
+	      
 
 	  dtset.subplots[iplot].AddPoint(fline);
 	  getline(infile, line); lines = readLineFiles(nfiles,infiles);
@@ -571,4 +609,11 @@ Data::Data(string dirname, string label)
 
       datamap[dtindex] = dtset;
     }//End loop on datasets
+
+  for ( int i = 0; i < nfiles; i++)
+    {
+      sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(),i);   
+      if (infiles[i].is_open())
+	infiles[i].close();
+    }
 }

@@ -87,8 +87,9 @@ class PdfData
   map <float, Pdf> Up;                    //Q2 values up PDF map
   map <float, Pdf> Down;                  //Q2 values down PDF map
 
-  vector<pdfshift> pdfshifts;  // For profiled PDFs, keep shift info
-  vector<double> mcw;          // For reweighted PDFs, keep Bayesian weights info
+  vector <pdfshift> pdfshifts;          // PDF shifts for PDF profiling
+  vector <vector <double> > cor_matrix; // correlation matrix of pdf shifts for PDF profiling
+  vector<double> mcw;                   // Bayesian weights for PDF reweighting
 };
 
 #endif
