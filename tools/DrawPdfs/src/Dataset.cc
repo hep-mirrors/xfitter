@@ -324,14 +324,15 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   valid = true;
 }
 
-vector <string> readLineFiles (int nfile, ifstream *infiles)
+vector <string> readLineFiles (vector <ifstream*> infiles)
 {
   vector <string> lines;
-  for (int i=0; i<nfile; i++) {
-    string line;
-    getline(infiles[i],line);
-    lines.push_back(line);
-  }
+  for (int i=0; i<infiles.size(); i++)
+    {
+      string line;
+      getline(*infiles[i],line);
+      lines.push_back(line);
+    }
   return lines;
 }
 
@@ -397,7 +398,7 @@ void getTheoryReweight (vector<double> weights, vector <string> lines, double& v
   err = 0;
 
   // Decode string thing
-  int N = weights.size();
+  int N = lines.size();
   
   if (N == 0)
     return;
@@ -421,7 +422,11 @@ Data::Data(string dirname, string label)
 {
   //Open datasets file (fittedresults.txt)
   char filename[300];
-  sprintf (filename, "%s/fittedresults.txt", dirname.c_str());
+  if (outdirs[label].IsMCreplica())
+    sprintf (filename, "%s/fittedresults.txt", outdirs[label].dirlist.begin()->c_str());
+  else
+    sprintf (filename, "%s/fittedresults.txt", dirname.c_str());
+
   ifstream infile(filename);
   if (!infile.is_open())
     {
@@ -446,16 +451,29 @@ Data::Data(string dirname, string label)
   // reset if shifts is empty.
   if (nfiles == 1) {nfiles = 0;}
 
-  ifstream infiles[nfiles];
-  for ( int i = 0; i < nfiles; i++) {
-    sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(),i);   
-    infiles[i].open(filename);
-    if (!infiles[i].is_open())
+  vector <ifstream*> infiles;
+  for ( int i = 0; i < nfiles; i++)
+    {
+      sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(), i);
+      infiles.push_back(new ifstream(filename));
+      if (!infiles[i]->is_open())
+	{
+	  cout << "Error " << filename << " not found " << endl;
+	  return;
+	}
+    }
+  
+  if (outdirs[label].IsMCreplica())
+    for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdirs[label].dirlist.end(); it++)
       {
-	cout << "Error " << filename << " not found " << endl;
-	return;
+	string fname = (*it) + "/fittedresults.txt";
+	infiles.push_back(new ifstream(fname.c_str()));
+	if (!infiles[infiles.size()-1]->is_open())
+	  {
+	    cout << "Error " << filename << " not found " << endl;
+	    return;
+	  }
       }
-  }
 
   //Read datasets
   string line;  
@@ -469,7 +487,7 @@ Data::Data(string dirname, string label)
   map <int, string> coltag;
 
   int Ndatasets;
-  getline(infile, line); lines = readLineFiles(nfiles,infiles);
+  getline(infile, line); lines = readLineFiles(infiles);
 
   istringstream issnd(line);
   issnd >> Ndatasets; // Total number of data sets
@@ -477,7 +495,7 @@ Data::Data(string dirname, string label)
   if (infile.eof() || Ndatasets == 0)
     return; //empty file, or no datasets found
 
-  getline(infile, line); lines = readLineFiles(nfiles,infiles);
+  getline(infile, line); lines = readLineFiles(infiles);
   istringstream issdi(line);
   issdi >> nextdtindex;  //Dataset index
 
@@ -487,12 +505,12 @@ Data::Data(string dirname, string label)
       dtindex = nextdtindex;
 
       //Read dataset name
-      getline(infile, name); lines = readLineFiles(nfiles,infiles);
+      getline(infile, name); lines = readLineFiles(infiles);
       
       //Initialise new dataset
       Dataset dtset(dtindex, name);
 
-      getline(infile, line); lines = readLineFiles(nfiles,infiles);
+      getline(infile, line); lines = readLineFiles(infiles);
       //Read plot options
       while(!infile.eof())
 	{
@@ -509,7 +527,7 @@ Data::Data(string dirname, string label)
 	  //End of reading subplotindex
 
 	  dtset.subplots[iplot] = Subplot(line);
-	  getline(infile, line); lines = readLineFiles(nfiles,infiles);
+	  getline(infile, line); lines = readLineFiles(infiles);
 	}
 
       //Read columns tags
@@ -540,7 +558,7 @@ Data::Data(string dirname, string label)
       coltag[13] = "x";
       //end of patch
 
-      getline(infile, line);  lines = readLineFiles(nfiles,infiles);
+      getline(infile, line);  lines = readLineFiles(infiles);
       //Loop on data points
       while(!infile.eof())
 	{
@@ -599,9 +617,20 @@ Data::Data(string dirname, string label)
 	      fline["therr-"] = error;
 	    }
 	      
+	  if (outdirs[label].IsMCreplica())
+	    {
+	      double value, error;
+	      vector <double> w;
+	      getTheoryReweight(w, lines, value, error);
+	      fline["thorig"] = value;
+	      fline["therr+"] = error;
+	      fline["therr-"] = error;
+	      fline["thmod"] = value;
+	      fline["pull"] = 0.;
+	    }
 
 	  dtset.subplots[iplot].AddPoint(fline);
-	  getline(infile, line); lines = readLineFiles(nfiles,infiles);
+	  getline(infile, line); lines = readLineFiles(infiles);
 
 	}//End loop on data points
       for (map <int, Subplot>::iterator sit = dtset.subplots.begin(); sit != dtset.subplots.end(); sit++)
@@ -610,10 +639,8 @@ Data::Data(string dirname, string label)
       datamap[dtindex] = dtset;
     }//End loop on datasets
 
-  for ( int i = 0; i < nfiles; i++)
-    {
-      sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(),i);   
-      if (infiles[i].is_open())
-	infiles[i].close();
-    }
+  //Close files to avoid memory leak
+  for (int i = 0; i < infiles.size(); i++)
+    if (infiles[i]->is_open())
+      infiles[i]->close();
 }
