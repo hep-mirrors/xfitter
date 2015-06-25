@@ -267,6 +267,8 @@ void get_lhapdferrors_()
       //Store weights for reweighting
       vector <double> weights = mcweights(chi2, npoints);
       ofstream chi2wf((outdirname + "/mcrew.txt").c_str());
+      chi2wf << "LHAPDF set= " << lhapdfset << endl;
+      chi2wf << weights.size() << endl;
       vector <double>::iterator c = chi2.begin();
       vector <double>::iterator w = weights.begin();
       for (; c != chi2.end(); c++, w++)

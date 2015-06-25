@@ -3,6 +3,7 @@
 #include <string.h>
 #include <libgen.h>
 #include <math.h>
+#include <sys/stat.h>
 #include <float.h>
 #include <yaml.h>
 #include "c2yaml.h"
@@ -262,9 +263,10 @@ void pdf_add_grid(Pdf *pdf, int nx, int nq, int n_pdf_flavours) {
 
         pdf->ngrids++;
 }
-// allocate memory for empty Pdf member
+
+// create empty Pdf member
 void pdf_initialize(Pdf *pdf, Info *info) {
-        pdf->info=info_dup(info);
+        pdf->info=info;
         pdf->ngrids=0;
         pdf->nx=NULL;
         pdf->nq=NULL;
@@ -273,13 +275,25 @@ void pdf_initialize(Pdf *pdf, Info *info) {
         pdf->q=NULL;
         pdf->pdf_flavours=NULL;
         pdf->val=NULL;
-
 }
 
+//initialize new Pdf, copy grid and info from *src and allocate memmory for pdf.val;
+void pdf_initialize_as(Pdf *pdf, const Pdf *src) {
+        int ig, i, j;
+        Info *info=info_dup(src->info);
+        pdf_initialize(pdf, info);
+        for(ig=0; ig<src->ngrids; ig++) {
+                pdf_add_grid(pdf, src->nx[ig], src->nq[ig], src->n_pdf_flavours[ig]);
+                memcpy(pdf->x[ig], src->x[ig], sizeof(double)*src->nx[ig]);
+                memcpy(pdf->q[ig], src->q[ig], sizeof(double)*src->nq[ig]);
+                memcpy(pdf->pdf_flavours[ig], src->pdf_flavours[ig], sizeof(int)*src->n_pdf_flavours[ig]);
+        }
+}
+
+//initialize new Pdf, and make a deep copy from *src
 int pdf_cpy(Pdf *dest, const Pdf *src) {
         int ig, i, j;
-        Info *info;
-        info=info_dup(src->info);
+        Info *info=info_dup(src->info);
         pdf_initialize(dest, info);
         for(ig=0; ig<src->ngrids; ig++) {
                 pdf_add_grid(dest, src->nx[ig], src->nq[ig], src->n_pdf_flavours[ig]);
@@ -573,7 +587,6 @@ int load_lhapdf6_set(PdfSet *pdf_set, char *path) {
                 ss=open_memstream(&member_path, &len);
                 fprintf(ss,"%s/%s_%04d.dat",path,pdf_name,i);
                 fflush(ss);
-                printf("load: %s\n", member_path);
                 if(load_lhapdf6_member(&pdf_set->members[i], member_path)) { 
                         fprintf(stderr, "cannot read member %d\n", i);       
                         return 1;
@@ -615,7 +628,6 @@ int save_lhapdf6_set(PdfSet *pdf_set, char *path) {
                 ss=open_memstream(&member_path, &len);
                 fprintf(ss, "%s/%s_%04d.dat", path, pdf_name, i);
                 fflush(ss);
-                printf("save: %s\n", member_path);
                 save_lhapdf6_member(&pdf_set->members[i], member_path); 
                 fclose(ss);
                 free(member_path);
@@ -631,6 +643,15 @@ void pdf_set_initialize(PdfSet *pdf_set, int n_members, Info *info) {
         pdf_set->members=malloc(sizeof(Pdf)*pdf_set->n_members);
 //        for(i=0; i< pdf_set->n_members; i++) 
 //                pdf_initialize(&pdf_set->members[i], minfo);
+}
+
+void pdf_set_initialize_as(PdfSet *pdf_set, const PdfSet *src) {
+        int i;
+        pdf_set->n_members=src->n_members;        
+        pdf_set->info=info_dup(src->info);
+        pdf_set->members=malloc(sizeof(Pdf)*pdf_set->n_members);
+        for(i=0; i< pdf_set->n_members; i++) 
+                pdf_initialize_as(&pdf_set->members[i], &src->members[i]);
 }
 
 PdfSet *pdf_set_dup(PdfSet *pdf_set) {

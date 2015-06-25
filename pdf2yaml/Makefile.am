@@ -10,7 +10,7 @@ tests_SOURCES= tests.c
 tests_LDADD= -L. -lpdf2yaml -lyaml
 tests_DEPENDENCIES= libpdf2yaml.a
 
-AM_CFLAGS = -I$(srcdir)/../include
+AM_CFLAGS = -fpic -I$(srcdir)/../include
 
 #TEST= tests
 endif

@@ -44,3 +44,22 @@ List *list_reverse(const List *list) {
 /*         } */
 /*         return this; */
 }
+
+void list_delete_child(List *parent) {
+        List *child=parent->next;
+        if(child==NULL) return;
+        parent->next=child->next;
+        free(child);
+}
+
+void list_push_child(List *parent, void *data) {
+        List *child=parent->next;
+        parent->next=list_append(child, data);
+}
+
+List *list_get_parent(List *list, List *child) {
+        List *parent;
+        for(parent=list; parent->next!=child && parent->next!=NULL; parent=parent->next);
+        return parent;
+}
+

@@ -131,6 +131,28 @@ int TEST_pdf_initialize() {
         return res;
 }
 
+int TEST_pdf_initialize_as() {
+        int res;
+        Pdf pdf;
+        Pdf pdf_test;
+        pdf_initialize(&pdf, NULL);
+        pdf_add_grid(&pdf, 200, 100, 6);
+        pdf_add_grid(&pdf, 200, 100, 6);
+        pdf_add_grid(&pdf, 100, 200, 10);
+        pdf.val[2][10][10][1]=1.5;
+        
+        pdf_initialize_as(&pdf_test, &pdf);
+        pdf.val[2][10][10][1]=1.5;
+
+        res = (
+                        pdf.nx[2]==100 && 
+                        pdf.nq[2]==200 && 
+                        pdf.n_pdf_flavours[2]==10 &&
+                        pdf.val[2][10][10][1]==1.5
+                        );
+        return res;
+}
+
 int TEST_pdf_dup() {
         int res;
         int ix, iq, ifl;
@@ -287,6 +309,40 @@ int TEST_pdf_set_initialize() {
         pdf_cpy(&pdf_set.members[1],&pdf_set.members[0]);
 
         res=(pdf_set.members[0].val[0][1][1][1]==1.5);
+        return res;
+}
+
+int TEST_pdf_set_initialize_as() {
+        int res;
+        int ix, iq, ifl;
+        PdfSet pdf_set;
+        Pdf pdf, pdf2;
+        Info *info=NULL, *minfo=NULL;
+        info=info_add_node_str(NULL, "KEY", "VALUE");
+        minfo=info_add_node_str(NULL, "MKEY", "MVALUE");
+
+        pdf_set_initialize(&pdf_set, 2, info);
+
+        pdf_initialize(&pdf_set.members[0], minfo);
+        pdf_add_grid(&pdf_set.members[0], 2, 3, 3);
+        pdf_cpy(&pdf_set.members[1],&pdf_set.members[0]);
+        PdfSet new_set;
+        pdf_set_initialize_as(&new_set, &pdf_set);
+        for(ix=0; ix< new_set.members[0].nx[0] ; ix++)
+        for(iq=0; iq< new_set.members[0].nq[0] ; iq++)
+        for(ifl=0; ifl< new_set.members[0].n_pdf_flavours[0] ; ifl++) new_set.members[0].val[0][ix][iq][ifl]=1.0;
+        new_set.members[0].val[0][1][1][1]=1.5;
+        new_set.members[0].x[0][0]=0;
+        new_set.members[0].x[0][1]=1;
+        new_set.members[0].q[0][0]=1.9;
+        new_set.members[0].q[0][1]=110.0;
+        new_set.members[0].q[0][2]=150.0;
+        new_set.members[0].pdf_flavours[0][0]=-2;
+        new_set.members[0].pdf_flavours[0][1]=2;
+        new_set.members[0].pdf_flavours[0][2]=4;
+
+
+        res=(new_set.members[0].val[0][1][1][1]==1.5);
         return res;
 }
 
@@ -465,11 +521,13 @@ CHECK(TEST_info_node_dup);
 CHECK(TEST_info_load);
 
 CHECK(TEST_pdf_initialize);
+CHECK(TEST_pdf_initialize_as);
 CHECK(TEST_pdf_dup);
 CHECK(TEST_pdf_cpy);
 CHECK(TEST_save_load_lhapdf6_member);
 //
 CHECK(TEST_pdf_set_initialize);
+CHECK(TEST_pdf_set_initialize_as);
 CHECK(TEST_pdf_set_dup);
 CHECK(TEST_save_load_lhapdf6_set);
 CHECK(TEST_each_in_pdf);
