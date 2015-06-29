@@ -115,13 +115,11 @@ int reweight(int argc,char* argv[]) {
         char buf[20];
         info_node_update_str(nmem, n2str(buf, n_outreps));
 
-        Info *info_mem=info_dup(pdf_set_in.members[0].info);
-        info_mem=info_add_node_str(info_mem,"SetDesc", "reweighted");
-
         pdf_set_initialize(&pdf_set, n_outreps, info);
         for(im=0; im<pdf_set.n_members; im++) {
-                pdf_initialize_as(&pdf_set.members[im], &pdf_set_in.members[0]);
-                pdf_set.members[im].info=info_dup(info_mem);
+                pdf_initialize_as(&pdf_set.members[im], &pdf_set_in.members[im]);
+                pdf_set.members[im].info=
+                        info_add_node_str(pdf_set.members[im].info, "SetDesc", "reweighted");
         }
 
         EACH_IN_SET_ERRORS(&pdf_set, im, ig, ix, iq, ifl) {
