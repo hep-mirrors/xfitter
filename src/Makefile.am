@@ -53,7 +53,7 @@ else
 endif
 
 # FORTRAN compiler flags to be used for the main target
-AM_FFLAGS = -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
+AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
 
 # 
 AM_CPPFLAGS = -I$(srcdir)/../include 
@@ -76,7 +76,7 @@ endif
 
 if ENABLE_LHAPDF 
   AM_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
-  AM_FFLAGS+=$(LHAPDF_CPPFLAGS)
+  AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
 LDADD += ../Cascade/src/libcasutil.a

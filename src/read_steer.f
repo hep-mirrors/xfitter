@@ -908,7 +908,7 @@ C------------------------------------------------
 C--------------------------------------------------------
 C  Read the OutDir namelist:
 C
-      LHAPDF6OutDir='herapdf'
+      LHAPDF6OutDir='hf_pdf'
       open (51,file='steering.txt',status='old')
       read (51,NML=OutDir,END=152,ERR=56)
  152  continue

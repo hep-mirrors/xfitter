@@ -8,11 +8,10 @@
 
 extern struct { //{{{
         double mz;
-        char LHAPDF6OutDir[128], OutDirName[128];
+        char LHAPDF6OutDir[128], OutDirName[128], lhapdfset[128];
         double grid[500];
         int nx;
         int read_xgrid;
-        int nvarl[200];
         int dobands;
         float hf_mass[3];
         int i_fit_order, ipdfset;
@@ -50,7 +49,6 @@ double raw_qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2);
 double raw_external_pdf_ij(GridQX grid, int pid, int ix, int iq2);
 double qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2);
 double lead_pdf_ij(GridQX grid, int pid, int ix, int iq2);
-int get_NumMembers();
 void save_alphas_info(FILE* fp, GridQX grid);
 
 extern double qfrmiq_(int *);
@@ -64,8 +62,12 @@ extern double hf_get_alphas_(double *);
 extern int getord_(int *);
 extern int grpars_(int *, double *, double *, int *, double *, double *, int *);
 extern int getcbt_(int *, double *, double *, double *);
+extern void getpdfunctype_heraf_(int *mc, int *asymh, int *symh, char *name, size_t size);
+extern void hf_errlog_(int *, char *, size_t);
+extern int get_nmembers_();
 
-extern getval_(char *, double *, int);
+
+extern void getval_(char *, double *, int);
 //}}}
 
 
@@ -358,7 +360,7 @@ void save_info(char *pdf_dir) { //{{{
         fprintf(fp,"Reference: ...\n");
         fprintf(fp,"Format: lhagrid1\n");
         fprintf(fp,"DataVersion: 1\n");
-        fprintf(fp,"NumMembers: %i\n",get_NumMembers());
+        fprintf(fp,"NumMembers: %i\n",get_nmembers_());
         fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
         fprintf(fp,"OrderQCD: %i\n", ccommoninterface_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
         fprintf(fp,"FlavorScheme: %s\n", get_flavor_scheme());
@@ -429,10 +431,20 @@ char* get_flavor_scheme() { //{{{
 
 
 char* get_error_type(){ //{{{
-        char* error_type;
-        if(ccommoninterface_.dobands) 
-                error_type="replicas";
-        else error_type="hessian";
+        int mc, asymh, symh;
+        size_t size;
+        char *name;
+        char* error_type=NULL;
+        int err_num=29061520;
+        char *err_str="W: lhapdf6 output, cant determine error type.";
+        getpdfunctype_heraf_(&mc, &asymh, &symh, ccommoninterface_.lhapdfset, size);
+
+        if(mc) error_type="replicas";
+        if(asymh) error_type="hessian";
+        if(symh) error_type="symmhessian";
+        if(error_type==NULL) {
+                hf_errlog_(&err_num, err_str, strlen(err_str));
+        }
         return error_type;
 }
 //}}}
@@ -440,22 +452,26 @@ char* get_error_type(){ //{{{
 
 
 char* get_pdf_type(int pdf_set){ //{{{
-        char* pdf_type;
+        char* pdf_type=NULL;
+        int mc, asymh, symh;
+        size_t size;
+        char *name;
+        int err_num=29061551;
+        char *err_str="W: lhapdf6 output, cant determine error type.";
+        getpdfunctype_heraf_(&mc, &asymh, &symh, ccommoninterface_.lhapdfset, size);
+
         if(!pdf_set) pdf_type="central";
-        else pdf_type="error";
+        else if(asymh || symh) pdf_type="error";
+        else if(mc) pdf_type="replica";
+
+        if(pdf_type==NULL) {
+                hf_errlog_(&err_num, err_str, strlen(err_str));
+        }
         return pdf_type;
 }
 //}}}
 
 
-
-int get_NumMembers(){ //{{{
-        const int MNE=200; // see endmini.inc
-        int npar=1, i; // central value
-        for(i=0;i<MNE;i++) if(ccommoninterface_.nvarl[i]==1) npar+=2;
-        return npar;
-}
-//}}}
 
 int iqfrmq(double q) {
         return iqfrmq_(&q)-1;

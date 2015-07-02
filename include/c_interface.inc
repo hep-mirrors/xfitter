@@ -10,12 +10,11 @@ C
 
       character*128 c_LHAPDF6OutDir
       character*128 c_OutDirName
+      character*128 c_LHAPDFSET
 
       double precision c_xgrid(NXGridMax)
       integer c_nx
       logical c_read_xgrid
-
-      integer c_nvarl(200) ! see d506cm.inc in minuit
 
       logical c_useGridLHAPDF5
       logical c_WriteAlphaSToMemberPDF
@@ -27,8 +26,8 @@ C
       logical c_dobands
 
       common/CCommonInterface/ c_mz, c_LHAPDF6OutDir, 
-     $ c_OutDirName, c_xgrid, c_nx, c_read_xgrid,
-     $  c_nvarl, c_dobands, c_hf_mass, c_i_fit_order, c_ipdfset, c_lead, 
+     $ c_OutDirName, c_LHAPDFSET, c_xgrid, c_nx, c_read_xgrid,
+     $  c_dobands, c_hf_mass, c_i_fit_order, c_ipdfset, c_lead, 
      $  c_useGridLHAPDF5, c_writeLHAPDF6, c_WriteAlphaSToMemberPDF
 
      
