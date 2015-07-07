@@ -1311,11 +1311,13 @@ C-----------------------------------------
 #include "ntot.inc"
 #include "systematics.inc"
 #include "steering.inc"
-      character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax)
-      double precision ScaleByNameFactor(nsysmax)
+      character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax),
+     $     PriorScaleName(nsysmax)
+      double precision ScaleByNameFactor(nsysmax),
+     $     PriorScaleFactor(nsysmax)
 
       namelist/ Systematics/ListOfSources,ScaleByNameName
-     $     ,ScaleByNameFactor
+     $     ,ScaleByNameFactor, PriorScaleName, PriorScaleFactor
       integer i,ii,iType
 C----------------------------------------
 
@@ -1325,7 +1327,10 @@ C Initialisation:
          SysScaleFactor(i) = 1.0D0
          ListOfSources(i) = ' '
          ScaleByNameName(i) = ' '
- ! Set default scaling behaviour:
+         PriorScaleName(i) = ' '
+         PriorScaleFactor(i) = 1.0D0
+         SysPriorScale(i) = 1.0D0
+! Set default scaling behaviour:
          if (CorSysScale .eq. 'Linear' ) then
             SysScalingType(i)  =  isLinear
          else if (CorSysScale .eq. 'NoRescale') then
@@ -1386,6 +1391,13 @@ C
             do ii=1,nsys
                if (ScaleByNameName(i) .eq. System(ii)) then
                   SysScaleFactor(ii) = ScaleByNameFactor(i)
+               endif
+            enddo
+         endif
+         if (PriorScaleName(i).ne.' ') then
+            do ii=1,nsys
+               if ( PriorScaleName(i) .eq. System(ii) ) then
+                  SysPriorScale(ii) = PriorScaleFactor(i)
                endif
             enddo
          endif

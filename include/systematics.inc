@@ -68,3 +68,7 @@ C Keep track of data and theory systematics:
 
       integer ISystType(NSYSMAX)        ! data/theory (something else ?)
       common/CSystType/ISystType
+
+C Penalty term for systematic sources, 1 by default.
+      double precision     SysPriorScale(nsysmax)
+      common/CSystPrior/SysPriorScale
