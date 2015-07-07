@@ -924,7 +924,8 @@ C Reset the matricies:
          do j=1, nsys
             A(i,j) = 0.0D0
          enddo
-         A(i,i)  =  1.0D0
+C Penalty term, unity by default
+         A(i,i)  =  SysPriorScale(i) 
       enddo
 
 !$OMP PARALLEL DO
@@ -1331,7 +1332,8 @@ C Sums:
 C Correlated chi2 part:
       fcorchi2_in = 0.d0
       do k=1,NSys
-         fcorchi2_in = fcorchi2_in + rsys_in(k)**2
+         fcorchi2_in = fcorchi2_in 
+     $        + rsys_in(k)**2 * SysPriorScale(k)
       enddo
       fchi2_in = fchi2_in + fcorchi2_in
 
@@ -1549,6 +1551,7 @@ C> @param ANuisance -- Output nuisance parameter representation
 C> @param Tolerance -- fractional sum of eigenvalues for the sourced treated as uncorrelated uncertainty. 0: NCorrelated = NCovar, 1: NCorrelated = 0.
 C> @param Ncorrelated -- Output number of correlated nuisance parameters
 C> @param Uncor      -- Output uncorrelated uncertainty 
+C  @param LSepDiag   -- Separate diagonal part
 C
 C--------------------------------------------------------------------------------
       subroutine GetNuisanceFromCovar( NDimCovar, NDimSyst, NCovar,
@@ -1565,10 +1568,6 @@ C-------------------------------------------------------------------------------
       logical LSepDiag
       
       double precision Eigenvalues(NDimCovar)
-c      integer NWork
-c      parameter (NWork = 1000000)
-c      double precision Work(NWork)
-c      integer IWork(NWork)
       integer ifail
 
       double precision factor, facMax, facMin
@@ -1589,6 +1588,30 @@ C Try to remove diagonal term first:
          facMax = 1.0D0
          facMin = 0.0D0
 
+C First check if the matrix positive definite
+         
+         do i=1,NCovar
+            do j=1,NCovar
+               testm(i,j) = Covar(i,j)
+            enddo
+         enddo
+         Call MyDSYEVD(NCovar,testm,NCovar, EigenValues,IFail)
+
+         if (EigenValues(1).lt.0) then
+            print 
+     $   '(''Negative eigenvalue for the covariance matrix '',G12.3)',
+     $           Eigenvalues(1)
+            Call hf_errlog(2015050701,
+     $           'S: Covariance matrix is not positive definite')
+
+         endif
+
+
+         do i=1,NCovar
+            do j=1,NCovar
+               testm(i,j) = Covar(i,j)
+            enddo
+         enddo
          do while ((facMax-facMin.gt.0.01).or.(Eigenvalues(1).lt.0))
             factor = 0.5*(facMax + facMin)
             do i=1,NCovar
@@ -1600,17 +1623,15 @@ C Try to remove diagonal term first:
                diag(j) = sqrt(factor*covar(j,j))
                testm(j,j) = Covar(j,j) - diag(j)*diag(j)
             enddo
-c            Call DSYEVD('V','U',NCovar,testm,NDimCovar, EigenValues, Work, 
-c     $           NWork, IWork, NWork, IFail)
+
             Call MyDSYEVD(NCovar,testm,NCovar, EigenValues,IFail)
 
-c            print *,EigenValues(1)
+
             if (EigenValues(1).lt.0) then
                facMax = factor
             else
                facMin = factor
             endif
-c            print *,'ha',factor,facMax,facMin
          enddo
          ! Ok, subtract diagonal:
          do j=1,NCovar
@@ -1619,10 +1640,6 @@ c            print *,'ha',factor,facMax,facMin
          DeAllocate(testm)
 
       endif
-
-
-c      Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work, 
-c     $     NWork, IWork, NWork, IFail)
       
       Call MyDSYEVD(NCovar,Covar,NDimCovar, EigenValues,IFail)
       
@@ -2019,7 +2036,6 @@ C Re-set uncorrelated systematics:
             endif
          enddo
 
-c         stop
       enddo
       goto 18
  17   continue      
