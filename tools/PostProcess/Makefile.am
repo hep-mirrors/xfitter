@@ -9,7 +9,7 @@ bin_PROGRAMS = postproc
 # source files for the DrawPdfs executable
 postproc_SOURCES = post_proc.c utils.c profile.c rotate.c custom.c symmetrize.c reweight.c
 
-postproc_CFLAGS = -O0 -g -I$(srcdir)/../../include
+postproc_CFLAGS = -I$(srcdir)/../../include
 postproc_CFLAGS += -Wall
 
 # libraries to be linked to the main target

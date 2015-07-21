@@ -93,6 +93,7 @@ int reweight(int argc,char* argv[]) {
 
 
         j=0;
+        repnums[0]=0; // to copy info from original central set
         for(i=1; i< n_outreps; i++) {
 
                 double xpos = (double)i*step;
@@ -117,7 +118,7 @@ int reweight(int argc,char* argv[]) {
 
         pdf_set_initialize(&pdf_set, n_outreps, info);
         for(im=0; im<pdf_set.n_members; im++) {
-                pdf_initialize_as(&pdf_set.members[im], &pdf_set_in.members[im]);
+                pdf_initialize_as(&pdf_set.members[im], &pdf_set_in.members[repnums[im]]);
                 pdf_set.members[im].info=
                         info_add_node_str(pdf_set.members[im].info, "SetDesc", "reweighted");
         }
