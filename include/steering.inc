@@ -168,3 +168,6 @@ C
       character*128 OutDirName   !> outout dir name
       character*128 LHAPDF6OutDir
       common/COutDirName/OutDirName, LHAPDF6OutDir
+
+      character*32 RunningMode
+      common/CRunningMode/RunningMode

@@ -241,7 +241,7 @@ C-----------------------------------------------
       character*8 Order  ! 
       character*16 TheoryType
       integer i
-
+      
 C Main steering parameters namelist
       namelist/HERAFitter/
      $     ITheory, IOrder,         ! keep for backward compatibility
@@ -250,13 +250,14 @@ C Main steering parameters namelist
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate
+     $     AsymErrorsIterations, pdfRotate, RunningMode
 
 C--------------------------------------------------------------
 
 C Some defaults
       Order     = ' '
       TheoryType = ' '
+      RunningMode = ' '
       Chi2SettingsName(1) = 'undefined' ! triggering the old style chi2 settings
       do i=1, 8
          Chi2ExtraParam(i) = 'undefined'
@@ -269,19 +270,12 @@ C
       read (51,NML=HERAFitter,END=141,ERR=42)
       close (51)
 
-C Backward compatibility for b0.3 release !!!!
+
       goto 142
  141  continue
       close (51)
 
-!      call HF_ErrLog(13011501,
-!     $ 'W:WARNING: Using obsolete h1fitter namelist.'//
-!     $     ' Will be deprecated with v1.0!')
-!      open (51,file='steering.txt',status='old')
-!      read (51,NML=H1Fitter,END=41,ERR=42)
-!      close (51)
  142  continue
-C  End of backward compatibility !!!
 
 C 
       if (AsymErrorsIterations .gt. 0) then
@@ -291,6 +285,30 @@ C
      $        'I: Symmetrise asymmetric uncertainties if present')
       endif
 
+C Decode Running Mode:
+      if ( RunningMode .eq. ' ' ) then
+         Call hf_errlog(15072201,
+     $        'I: RunningMode not set, check LHAPDFERRors for backward'
+     $        //' compatibility')
+         lhapdferrors = .false.
+         pdfrotate = .false.
+      else if  ( RunningMode .eq. 'Fit') then
+         lhapdferrors = .false.
+         pdfrotate = .false.
+      else if  ( RunningMode .eq. 'PDF Rotate') then
+         lhapdferrors = .false.
+         pdfrotate = .true. 
+      else if  ( RunningMode .eq. 'LHAPDF Analysis') then
+         lhapdferrors = .true. 
+         if ( index(pdfstyle,'LHAPDF').eq.0) then
+            Call hf_errlog(15072203,'I: Set LHAPDF Style.')
+            PDFSTYLE = 'LHAPDF'
+         endif
+         pdfrotate = .false.
+      else
+         call hf_errlog(15072202,'F:Running mode unknonw value: '//
+     $        trim(RunningMode))
+      endif
 
 C Decode computation order:
       if (Order.ne.' ') then
@@ -498,6 +516,8 @@ C (Optional) LHAPDF steering card
 C (Optional) reweighting steering card
       namelist/reweighting/FLAGRW,RWPDFSET,RWDATA
      $     ,RWMETHOD,DORWONLY,RWREPLICAS,RWOUTREPLICAS
+      
+      logical lhapdferrors_save
 
 C------------------------------------------------------------
 C Reweighting defaults
@@ -510,7 +530,9 @@ C Reweighting defaults
       RWOUTREPLICAS = 0
 
 C LHAPDFErrors default
-      LHAPDFErrors = .false.
+
+      lhapdferrors_save = lhapdferrors ! may be set by running mode.
+
       Scale68 = .false.
       NPARVAR = 0
       LHAPDFVARSET = ''
@@ -524,6 +546,10 @@ C
       read (51,NML=lhapdf,ERR=67,end=68)
  68   continue
       close (51)
+
+      if ( RunningMode .ne. ' ' ) then
+         lhapdferrors = lhapdferrors_save
+      endif
 
 C
 C  Read the reweighting namelist:
