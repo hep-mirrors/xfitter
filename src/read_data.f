@@ -908,7 +908,11 @@ C--- Add data point to the syst. list (this will help to speedup loops):
          PreviousPlots = 0
 
          do i=1,NDATASETS-1
-            PreviousPlots = PreviousPlots + GNPlots(i)
+c additional check to avoid boundary error (GNPlots getting negative) 
+c for data which have no Drawing options defined       
+            if(GNPlots(i).gt.0) then
+               PreviousPlots = PreviousPlots + GNPlots(i)
+            endif   
          enddo
          
          do i=1,PlotN
