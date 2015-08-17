@@ -5,9 +5,9 @@
 ## Programs versions
 lhapdfver=6.1.4
 hoppetver=1.1.5
-applgridver=1.4.56
+applgridver=1.4.70
 qcdnumver=17-00-06
-
+apfelver=2.5.3
 ## Optional manual configurations
 #MANUALCONF=1
 
@@ -45,7 +45,8 @@ then
     echo "$0 <version|deps>"
     echo
     echo "available versions:"
-    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+#    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    vers=`svn --no-auth-cache --trust-server-cert https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
     echo "$vers"
     echo "trunk"
     echo
@@ -357,6 +358,28 @@ fi
 cd - >& /dev/null
 
 export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
+#apfel
+echo "Installing APFEL trunk"
+git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
+cd  apfel
+./configure --prefix=$CURRENTDIR/apfel  >> $CURRENTDIR/install.log  2>&1
+
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+# setup paths for apfel:
+export PATH=$CURRENTDIR/apfel/bin/:$PATH
+
+
 
 #qcdnum
 echo "Installing QCDNUM $qcdnumver..."
@@ -403,6 +426,7 @@ echo "export PATH=$CURRENTDIR/herafitter-$version/bin:\$PATH" >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 if [[ $MODE == "cern" ]]
 then
     echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
@@ -410,7 +434,9 @@ then
 	then
 	echo export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt      >> setup.sh
     fi
+    echo cd /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin >> setup.sh
     echo . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh >> setup.sh
+    echo cd - >>setup.sh
 fi
 
 #make a compilation script
@@ -419,9 +445,10 @@ echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-17-00-06  >> compile
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/apfel/bin/:\$PATH     >> compile
 echo cd herafitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
-echo ./configure --enable-applgrid --enable-lhapdf        >> compile
+echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel        >> compile
 echo make -j 9 install                                    >> compile
 
 chmod +x compile
