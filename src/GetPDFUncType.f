@@ -36,6 +36,7 @@ c Adapted from LHAPDF uncertainties.f
       subroutine GetPDFUncType_HERAF_lhapdf6(lMonteCarlo,lAsymhess,
      $        lSymmhess,name)
       implicit none
+
       character*(*) name
       logical lMonteCarlo,lAsymhess,lSymmhess
       ! logical variables for lhapdf interface 
@@ -44,6 +45,11 @@ c Adapted from LHAPDF uncertainties.f
       lMonteCarlo = .false.
       lAsymhess = .false.
       lSymmhess = .false.
+
+#ifndef LHAPDF_ENABLED
+      call hf_errlog(14081501, "S: Call to lhapdf function but"//
+     $      "HERAfitter compiled without --enable-lhapdf switch")
+#else
 
       call getnset(nset)
       call getpdfunctypem(nset, lhapdf_mc, lhapdf_symmetric)
@@ -64,6 +70,9 @@ c Adapted from LHAPDF uncertainties.f
                       lSymmhess=.false.
                       lAsymhess=.false.
               endif
+#endif
+      
+
       end subroutine GetPDFUncType_HERAF_lhapdf6
       
 
