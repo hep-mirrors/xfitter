@@ -434,7 +434,7 @@ then
 	then
 	echo export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt      >> setup.sh
     fi
-    echo cd /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin >> setup.sh
+    echo cd /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root >> setup.sh
     echo . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh >> setup.sh
     echo cd - >>setup.sh
 fi
