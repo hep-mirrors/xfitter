@@ -253,7 +253,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
     mg_lines->Draw("l");
 
   //Make legend
-  TLegend * leg = new TLegend(lmarg+0.05, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.35, 1-tmarg-0.01);
+  TLegend * leg = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
   leg->SetTextFont(62);
   leg->SetTextSize(txtsize);
   leg->SetFillColor(0);
@@ -601,10 +601,10 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
   //Make legend
   TLegend * leg2;
-  if (ipdf == ubar || ipdf == dbar || ipdf == s || ipdf == Sea)
+  if (ipdf == ubar || ipdf == dbar || ipdf == s || ipdf == Sea || ipdf == g)
     leg2 = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
   else
-    leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.48, 1-tmarg-0.01);
+    leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.45, 1-tmarg-0.01);
   leg2->SetTextFont(62);
   leg2->SetTextSize(txtsize);
   leg2->SetFillColor(0);
