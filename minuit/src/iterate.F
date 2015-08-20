@@ -1197,6 +1197,7 @@ C  Wraper around Umat common.
 C  Return values from UMAT matrix
 C
 
+#include "./d506dp.inc"
 #include "./d506cm.inc"
       integer i,j
       double precision hquad,umat,vmat,tvec,errmat
