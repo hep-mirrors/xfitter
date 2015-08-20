@@ -16,11 +16,11 @@
 #include "FileOpener.h"
 
 //pdf type
-pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarubar, uvdv, U, D, Ubar, Dbar};
+pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv};
 //pdf labels
-string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}/u_{V}", "U", "D", "#bar{U}", "#bar{D}"};
+string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}"};
 //pdf filenames
-string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uvdv", "U", "D", "UBar", "DBar"};
+string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv"};
 
 vector <pdftype> pdfs(pdfts, pdfts + sizeof(pdfts) / sizeof(pdftype));
 vector <string> pdflabels(pdflab, pdflab + sizeof(pdflab) / sizeof(string));
@@ -79,9 +79,9 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
     }
 
   //custom pdf types
-  PdfTypes.push_back(dbarubar);  NPdfs++;
+  PdfTypes.push_back(dbarminubar);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
-    tablemap[dbarubar].push_back(tablemap[dbar][ix] - tablemap[ubar][ix]);
+    tablemap[dbarminubar].push_back(tablemap[dbar][ix] - tablemap[ubar][ix]);
 
   PdfTypes.push_back(Rs);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
@@ -90,12 +90,42 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
     else
       tablemap[Rs].push_back(0);
 
-  PdfTypes.push_back(uvdv);  NPdfs++;
+  PdfTypes.push_back(uvmindv);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
     if (tablemap[uv][ix] != 0)
-      tablemap[uvdv].push_back(tablemap[dv][ix] / tablemap[uv][ix]);
+      tablemap[uvmindv].push_back(tablemap[uv][ix] - tablemap[dv][ix]);
     else
-      tablemap[uvdv].push_back(0);
+      tablemap[uvmindv].push_back(0);
+
+  PdfTypes.push_back(goversea);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[Sea][ix] != 0)
+      tablemap[goversea].push_back(tablemap[g][ix] / tablemap[Sea][ix]);
+    else
+      tablemap[goversea].push_back(0);
+
+  PdfTypes.push_back(doveru);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if ((tablemap[uv][ix] + tablemap[ubar][ix]) != 0)
+      tablemap[doveru].push_back((tablemap[dv][ix] + tablemap[dbar][ix]) / (tablemap[uv][ix] + tablemap[ubar][ix]));
+    else
+      tablemap[doveru].push_back(0);
+
+  PdfTypes.push_back(dbaroverubar);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[ubar][ix] != 0)
+      tablemap[dbaroverubar].push_back(tablemap[dbar][ix] / tablemap[ubar][ix]);
+    else
+      tablemap[dbaroverubar].push_back(0);
+
+  PdfTypes.push_back(dvoveruv);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[uv][ix] != 0)
+      tablemap[dvoveruv].push_back(tablemap[dv][ix] / tablemap[uv][ix]);
+    else
+      tablemap[dvoveruv].push_back(0);
+
+
 }
 
 TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf)
