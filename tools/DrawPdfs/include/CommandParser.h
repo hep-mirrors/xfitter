@@ -236,7 +236,7 @@ class CommandParser
     cout << "\t \t Evaluate asymmetric errors when possible" << endl;
     cout << "\t \t Can be use in conjunction with --asymbands to get asymmetric errors" << endl;
     cout << "\t --scale68" << endl;
-    cout << "\t \t Scale PDF uncertainty bands by 1.645 (affects only PDF plots)" << endl;
+    cout << "\t \t Scale PDF uncertainty bands by 1.645 (affects PDF and data plots)" << endl;
     cout << endl;
     cout << "\t to set axis titles, axis range and log scales add PlotDesc options in the data file" << endl;
     cout << "\t Example:" << endl;

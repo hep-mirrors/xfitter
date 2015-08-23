@@ -336,7 +336,7 @@ vector <string> readLineFiles (vector <ifstream*> infiles)
   return lines;
 }
 
-void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_matrix, pdferr err, vector <string> lines, double& corSum, double& errplus, double& errminus)
+void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_matrix, pdferr err, vector <string> lines, bool scale68, double& corSum, double& errplus, double& errminus)
 {
   // Decode string thing
   int N = ( err == AsymHess ) ? 2*pdfshifts.size()+1 : pdfshifts.size()+1;
@@ -362,8 +362,17 @@ void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_m
     {
       for ( int i = 0; i<pdfshifts.size(); i++ )
 	{
-	  double plus  = val[i*2+1] - cent;
-	  double minus = val[i*2+2] - cent;
+	  double plus, minus;
+	  if (scale68)
+	    {
+	      plus  = (val[i*2+1] - cent) / 1.645;
+	      minus = (val[i*2+2] - cent) / 1.645;
+	    }
+	  else
+	    {
+	      plus  = val[i*2+1] - cent;
+	      minus = val[i*2+2] - cent;
+	    }
 	  double valShift = pdfshifts[i].val;
 	  double errShift = pdfshifts[i].err;
 	  //compute shifted central value
@@ -595,13 +604,19 @@ Data::Data(string dirname, string label)
 	      nextdtindex = (int) buffer;
 	      break; 
 	    }
-	  //Add point to subplot
+
+	  //Plain 90cl -> 68cl scaling
+	  if (outdirs[label].Scale68())
+	    {
+	      fline["therr+"] = fline["therr+"]/1.645;
+	      fline["therr-"] = fline["therr-"]/1.645;
+	    }
 
 	  //Hessian profile the theory prediction
 	  if (outdirs[label].IsProfiled())
 	    {
 	      double cor, eplus, eminus;
-	      getTheoryShift(pdfmap[label].pdfshifts, pdfmap[label].cor_matrix, err, lines, cor, eplus, eminus);
+	      getTheoryShift(pdfmap[label].pdfshifts, pdfmap[label].cor_matrix, err, lines, outdirs[label].Scale68(), cor, eplus, eminus);
 	      fline["thorig"] += cor;
 	      fline["therr+"] = eplus;
 	      fline["therr-"] = eminus;
@@ -616,7 +631,8 @@ Data::Data(string dirname, string label)
 	      fline["therr+"] = error;
 	      fline["therr-"] = error;
 	    }
-	      
+
+	  //Cumulative theory predictions for MC replica runs
 	  if (outdirs[label].IsMCreplica())
 	    {
 	      double value, error;
@@ -629,6 +645,7 @@ Data::Data(string dirname, string label)
 	      fline["pull"] = 0.;
 	    }
 
+	  //Add point to subplot
 	  dtset.subplots[iplot].AddPoint(fline);
 	  getline(infile, line); lines = readLineFiles(infiles);
 
