@@ -312,7 +312,8 @@ int pdf_cpy(Pdf *dest, const Pdf *src) {
 Pdf *pdf_dup(Pdf *pdf) {
         int i, j, k;
         Pdf *new_pdf=malloc(sizeof(Pdf));
-        pdf_initialize(new_pdf, pdf->info);
+        Info *info=info_dup(pdf->info);
+        pdf_initialize(new_pdf, info);
         for(i=0; i< pdf->ngrids; i++) {
                 pdf_add_grid(new_pdf, pdf->nx[i], pdf->nq[i], pdf->n_pdf_flavours[i]);
 

@@ -503,7 +503,7 @@ int TEST_each_in_set() {
 
         EACH_IN_SET(&pdf_set, im, ig, ix, iq, ifl) pdf_set.members[im].val[ig][ix][iq][ifl]*=2;
         EACH_IN_SET(&pdf_set, im, ig, ix, iq, ifl) pdf_set.members[im].val[ig][ix][iq][ifl]-=1;
-        pdf_set_cmp(&pdf_set, orig);
+        res=pdf_set_cmp(&pdf_set, orig);
         return res;
 }
 //utility function for int/double convertion to char*
