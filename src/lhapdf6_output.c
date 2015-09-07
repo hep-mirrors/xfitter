@@ -97,7 +97,7 @@ GridQX new_grid() { //{{{
                 grid.nx=ccommoninterface_.nx;
                 grid.x=malloc(sizeof(double)*grid.nx);
                 grid.q2=malloc(sizeof(double)*grid.nq2);
-                for(ix=0;ix<grid.nx;ix++) grid.x[ix]= ccommoninterface_.grid[ix];
+                for(ix=0;ix<=grid.nx;ix++) grid.x[ix]= ccommoninterface_.grid[ix];grid.x[grid.nx-1]=1.;
                 for(iq2=1;iq2<=grid.nq2;iq2++) grid.q2[iq2-1]=qfrmiq_(&iq2);
                 grid.raw_pdf_ij=raw_external_pdf_ij;
                 grid.pdf_ij=qcdnum_pdf_ij;
@@ -118,7 +118,7 @@ GridQX new_grid() { //{{{
                 grpars_(&grid.nx,&grid.xmin,&grid.xmax,&grid.nq2,&grid.q2min,&grid.q2max,&inull);
                 grid.x=malloc(sizeof(double)*grid.nx);
                 grid.q2=malloc(sizeof(double)*grid.nq2);
-                for(ix=1;ix<=grid.nx;ix++) grid.x[ix-1]=xfrmix_(&ix);
+                for(ix=1;ix<=grid.nx;ix++) grid.x[ix-1]=xfrmix_(&ix);grid.x[grid.nx-1]=1.;
                 for(iq2=1;iq2<=grid.nq2;iq2++) grid.q2[iq2-1]=qfrmiq_(&iq2);
                 grid.raw_pdf_ij=raw_qcdnum_pdf_ij;
                 grid.pdf_ij=qcdnum_pdf_ij;
