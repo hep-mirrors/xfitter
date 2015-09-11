@@ -49,17 +49,17 @@
    PlotDefColumn = 'Q2'
    PlotDefValue = 2.6, 5.5, 7.5, 12.5, 18.5, 35., 65., 125., 205., 355., 655., 2005.
    PlotVarColumn = 'x'
-   PlotOptions(1)  = 'Title:Q2 = 5   @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(2)  = 'Title:Q2 = 7   @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(3)  = 'Title:Q2 = 12  @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(4)  = 'Title:Q2 = 18  @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(5)  = 'Title:Q2 = 32  @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(6)  = 'Title:Q2 = 60  @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(7)  = 'Title:Q2 = 120 @Xmin:0.00001@Xmax:0.1@Ymin:0.010@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(8)  = 'Title:Q2 = 200 @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(9)  = 'Title:Q2 = 350 @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(10) = 'Title:Q2 = 650 @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
-   PlotOptions(11) = 'Title:Q2 = 2000@Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5YminR:-1.0@YmaxR:1.0@Xlog'
+   PlotOptions(1)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 5   @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(2)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 7   @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(3)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 12  @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(4)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 18  @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(5)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 32  @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(6)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 60  @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(7)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 120 @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(8)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 200 @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(9)  = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 350 @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(10) = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 650 @XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
+   PlotOptions(11) = 'ExtraLabel: H1 ZEUS Charm@Title:Q2 = 2000@XTitle: x @YTitle: #sigma^{cc}_{red} @Xmin:0.00001@Xmax:0.1@Ymin:0.001@Ymax:.5@YminR:0.7@YmaxR:1.3@Xlog'
 &End
 0.0001800 5.0000000 0.2744840 0.1494901 7.0158024 4.5417428 10.7707195 -0.1322 0.0824 1.4074 0.1769 -0.0070 0.2475 -0.5006 -0.9228 -0.3360 -0.0993 0.0680 -0.7217 0.7493 -1.0986 -0.4887 1.0772 -0.8957 -2.1849 -1.9261 1.8882 -0.3956 0.6508 -0.2992 -1.6624 -3.0496 -0.5688 1.1255 -1.3848 0.2312 -1.2609 0.2912 1.8810 -1.6019 -0.0309 -0.3506 -0.2910 -0.5126 -0.2041 -0.1211 -0.2036 -0.6341 -1.1171 -1.104424 0.210714
 0.0005000 7.0000000 0.1383399 0.1553077 3.5318661 2.4856689 7.2710562 -0.1214 0.0702 1.3036 0.2562 -0.1446 0.2449 -0.5324 -0.7886 -0.4526 -0.4676 0.0631 -0.7532 0.3932 -1.4166 -0.6463 1.3222 -1.6935 -1.2997 0.1740 1.4495 -0.7111 0.6849 0.0406 -1.1007 -2.5382 -0.8832 0.5594 -0.5943 -0.3373 -0.7363 0.7172 0.5229 -2.3409 -1.1164 0.4615 -0.3335 -0.2174 -0.4302 -0.2890 -0.0821 -0.5295 -0.5101 -0.557599 0.009019
