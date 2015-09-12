@@ -1263,6 +1263,7 @@ C----------------------------------------------------------------------
 
       integer i,j, i1, j1, k
       double precision d,t, chi2, sum
+      integer offdiag
       
       double precision SumCov(NCovarMax)
 
@@ -1271,6 +1272,7 @@ C---------------------------------------------------------------------------
  ! Also zero fit/control sample chi2s
       chi2_fit = 0.
       chi2_cont = 0.
+      offdiag = 0
 
 C Diagonal part:
       do i1=1,NDiag
@@ -1311,10 +1313,18 @@ C 2) Actual chi2 calculation:
 
       do i1=1,NCovar
          i = list_covar(i1)
-         Chi2 = 0
+         Chi2 = 0d0
          do j1 = 1, NCovar
             j = list_covar(j1)
             Chi2 = Chi2 + SumCov(i1)*SumCov(j1)*ScaledTotMatrix(i1,j1)
+            if ( ( JSET(i) .ne. JSET(j) ) 
+     $           .and. (ScaledTotMatrix(i1,j1) .ne. 0d0 ) ) then
+               if ( offdiag .eq. 0 ) then
+                  call hf_errlog(15090916,
+     $                 'I: Offdiag. elements in inverse covariance. Partial chisq values are set to zero')
+               endif
+               offdiag = offdiag+1
+            endif
          enddo
 C Sums:
          if ( FitSample(i) ) then
@@ -1326,6 +1336,15 @@ C Sums:
          endif         
 
       enddo
+
+c reset partial chisq to 0, if there are offdiagonal elements
+c partial chisq are not reasonably defined
+      if ( offdiag .ne. 0 ) then
+         do i1=1,NCovar
+            i = list_covar(i1)
+            pchi2_in(JSET(i)) = 0d0
+         enddo
+      endif
 
        ! print*,'chi2_calc2: ',fchi2_in
 
