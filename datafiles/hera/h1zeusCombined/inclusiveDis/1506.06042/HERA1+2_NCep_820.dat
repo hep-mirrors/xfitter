@@ -14,6 +14,43 @@
   IndexDataset =   104
   Percent = 172*true
 &End 
+&PlotDesc
+   PlotN = 31
+   PlotDefColumn = 'Q2'
+   PlotDefValue = 3.0, 4.0, 5., 7., 10., 13., 16., 19., 28., 36., 46., 61., 100., 130., 170., 220., 270., 350., 450., 550., 700.,900., 1100., 1300., 1700., 2500., 4000., 7000., 10000., 15000., 25000., 35000.
+   PlotVarColumn = 'x'
+   PlotOptions(1)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 3.5 @Xlog'
+   PlotOptions(2)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 4.5 @Xlog'
+   PlotOptions(3)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 6.5 @Xlog'
+   PlotOptions(4)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 8.5 @Xlog'
+   PlotOptions(5)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 12  @Xlog'
+   PlotOptions(6)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 15  @Xlog'
+   PlotOptions(7)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 18  @Xlog'
+   PlotOptions(8)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 27  @Xlog'
+   PlotOptions(9)  = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 35  @Xlog'
+   PlotOptions(10) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 45  @Xlog'
+   PlotOptions(11) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 60  @Xlog'
+   PlotOptions(12) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 90  @Xlog'
+   PlotOptions(13) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 120 @Xlog'
+   PlotOptions(14) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 150 @Xlog'
+   PlotOptions(15) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 200 @Xlog'
+   PlotOptions(16) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 250 @Xlog'
+   PlotOptions(17) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 300 @Xlog'
+   PlotOptions(18) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 400 @Xlog'
+   PlotOptions(19) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 500 @Xlog'
+   PlotOptions(20) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 650 @Xlog'
+   PlotOptions(21) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 800  @Xlog'
+   PlotOptions(22) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 1000 @Xlog'
+   PlotOptions(23) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 1200 @Xlog'
+   PlotOptions(24) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 1500 @Xlog'
+   PlotOptions(25) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 2000 @Xlog'
+   PlotOptions(26) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 3000 @Xlog'
+   PlotOptions(27) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 5000 @Xlog'
+   PlotOptions(28) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 8000 @Xlog'
+   PlotOptions(29) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 12000@Xlog'
+   PlotOptions(30) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 20000@Xlog'
+   PlotOptions(31) = 'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) E_{p}=820GeV @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 30000@Xlog'
+&End
 *        Q2           x           y    Average     StatErr        Uncor    Cor1    ... 
 4.5000E-02  6.2100E-07	8.0337E-01  7.8496E-02	5.0622E+00  1.4974E+00	 0.059	-0.055	 0.070	-0.219	 0.401	-0.414	-0.020	 0.045	-0.002	-0.032	 0.028	-0.416	-0.119	 0.414	-0.674	-0.147	-0.220	 0.016	 0.030	 0.061	 0.198	-1.020	-0.119	 0.045	 0.275	-0.762	 0.694	-0.479	 0.378	-0.426	 0.196	 1.289	 1.257	 1.597	 0.621	 1.342	-1.633	 2.073	-2.868	-0.127	-0.790	 0.530	-0.162	 0.162	-1.152	 1.515	 0.181	 0.359	-0.447	-0.900	 1.005	-0.329	 0.874	 0.225	-1.302	 0.125	 0.474	-0.447	 0.220	-0.067	 0.018	-0.120	 0.093	-0.856	-0.810	 0.672	 0.604	-1.378	-0.555	-0.478	 0.420	-0.218	-0.571	-1.497	-0.021	-0.798	 0.228	-1.627	 0.150	 0.011	 0.015	 0.026	-0.091	-0.043	-0.253	-0.267	-0.719	 0.601	 0.070	-0.038	-0.003	-0.042	-0.044	-0.927	 0.000	-0.011	 0.002	-0.023	 0.049	 0.131	-0.107	-0.700	-0.472	 0.135	 0.011	-0.006	 0.013	 0.021	-0.105	 0.108	-0.004	-1.282	 0.064	 0.103	 0.013	 0.011	 0.004	 0.842	 0.309	 0.000	 0.104	-0.002	-0.004	 0.025	 0.011	 0.016	-0.072	-0.117	 0.025	-0.010	 0.004	 0.002	-0.017	-0.137	-0.033	 0.016	-0.008	 0.001	 0.000	-0.002	 0.003	 0.003	-0.000	-0.002	 0.034	-0.234	 0.002	 0.039	 0.006	-0.001	-0.022	-0.003	 0.004	-0.001	 0.001	 0.001	-0.003	-0.000	-0.105	 0.003	 0.000	 0.006 9.00589E+00 3.15685 -7.46407 -0.0025479 -0.0165614 0.0203832 1.24665 -0.750038
 6.5000E-02  8.9700E-07	8.0337E-01  1.0872E-01	2.9855E+00  1.4970E+00	 0.059	-0.055	 0.070	-0.219	 0.401	-0.414	-0.009	 0.057	-0.002	-0.027	 0.037	-0.275	-0.083	 0.392	-0.665	-0.103	-0.001	 0.006	 0.021	 0.058	 0.186	-1.082	-0.015	 0.054	 0.630	-0.921	 1.235	 0.324	 0.352	-0.450	 0.081	 1.005	 0.868	 0.881	 0.276	 1.039	-1.716	 1.830	-2.216	-0.402	-0.482	 0.392	-0.201	 0.460	-0.923	 1.007	 0.158	 0.309	-0.305	-0.663	 0.888	 0.344	 0.795	 0.455	-0.754	-0.135	 0.129	-0.047	 0.348	-0.083	 0.318	-0.147	 0.225	-1.021	-0.808	 0.737	 0.209	-1.136	-0.536	-0.412	 0.367	-0.191	-0.543	-1.470	 0.059	-0.850	 0.125	-0.816	 0.067	 0.002	 0.012	 0.023	-0.086	-0.039	-0.228	-0.236	-0.633	 0.293	 0.012	 0.016	-0.005	-0.093	-0.047	 1.157	-0.002	-0.023	 0.008	 0.048	-0.054	-0.010	-0.006	 0.094	 0.090	 0.180	 0.013	-0.009	-0.004	-0.059	 0.825	 0.271	 0.005	-1.441	 0.068	 0.114	 0.043	 0.078	-0.002	 0.051	-0.002	-0.001	-0.159	-0.002	-0.009	 0.018	 0.007	 0.008	-0.039	-0.080	 0.020	-0.019	 0.019	 0.007	-0.029	-0.146	-0.018	 0.003	 0.014	-0.003	 0.003	-0.002	-0.049	 0.000	-0.002	-0.003	-0.246	 0.098	 0.002	 0.004	 0.003	-0.001	-0.016	-0.002	 0.004	-0.001	 0.001	 0.001	-0.002	-0.000	-0.064	 0.003	 0.000	 0.006 7.11349E+00 3.02612 -7.39514 0 -0.0183959 0.0183959 1.42262 -0.899648
