@@ -138,3 +138,12 @@ c----------------------------------------------------------
       subroutine enablemassrunning
       call print_apfel_error_message
       end
+
+      subroutine setpropagatorcorrection
+      call print_apfel_error_message
+      end
+
+      subroutine setewcouplings
+      call print_apfel_error_message
+      end
+

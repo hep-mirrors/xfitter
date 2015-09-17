@@ -766,6 +766,12 @@ C
             vd = cvd + (2.d0/3.d0)*epsilon*sin2thw2
             au = cau
             ad = cad
+*
+*     Feed the EW parameters to APFEL 
+*
+            call SetSin2ThetaW(sin2thw)
+            call SetPropagatorCorrection(deltar)
+            call SetEWCouplings(vd,vu,ad,au)
          endif
          
          do i=1,npts
