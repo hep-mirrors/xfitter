@@ -21,7 +21,7 @@
 *
       call SetZMass(Mz)
       call SetWMass(Mw)
-      call SetSinThetaW(sin2thw)
+      call SetSin2ThetaW(sin2thw)
       call SetGFermi(gf)
       call SetCKM(Vud, Vus, Vub,
      1            Vcd, Vcs, Vcb,
