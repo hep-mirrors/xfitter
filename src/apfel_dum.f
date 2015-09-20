@@ -115,7 +115,7 @@ c----------------------------------------------------------
       call print_apfel_error_message
       end
 
-      subroutine setsinthetaw
+      subroutine setsin2thetaw
       call print_apfel_error_message
       end
 
@@ -147,3 +147,14 @@ c----------------------------------------------------------
       call print_apfel_error_message
       end
 
+      subroutine enabledynamicalscalevariations
+      call print_apfel_error_message
+      end
+
+      subroutine setrenqratio
+      call print_apfel_error_message
+      end
+
+      subroutine setfacqratio
+      call print_apfel_error_message
+      end
