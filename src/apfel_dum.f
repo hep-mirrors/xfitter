@@ -158,3 +158,9 @@ c----------------------------------------------------------
       subroutine setfacqratio
       call print_apfel_error_message
       end
+
+      function HeavyQuarkMass(i,Q)
+      integer i
+      double precision Q,HeavyQuarkMass
+      call print_apfel_error_message
+      end

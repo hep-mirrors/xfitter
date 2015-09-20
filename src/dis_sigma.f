@@ -1266,6 +1266,8 @@ C---------------------------------------------------------------
 *     Internal Variables
 *
       integer i
+      double precision muoQ
+      double precision s2,m2,HeavyQuarkMass
 **
 *     Output Variables
 *
@@ -1294,6 +1296,18 @@ C---------------------------------------------------------------
       endif
 *
       do i=1,npts
+         if(XSecType.eq.'CHARMDIS'.or.XSecType.eq.'BEAUTYDIS')then
+c            muoQ = dsqrt( ( q2(i) + 4d0 * hf_mass(1)**2d0 ) / q2(i) )
+            s2   = scalea1 * q2(i)
+            m2   = scaleb1 * HeavyQuarkMass(3+massh,dsqrt(q2(i)))**2d0
+            muoQ = dsqrt( ( s2 + 4d0 * m2 ) / q2(i) )
+            call SetRenQRatio(muoQ)
+            call SetFacQRatio(muoQ)
+         else
+            call SetRenQRatio(1d0)
+            call SetFacQRatio(1d0)
+         endif
+*
          call sf_fonll_wrap(x(i),q2(i),
      1                      F2(i),FL(i),xF3(i),
      2                      F2c(i),FLc(i),F2b(i),FLb(i)) 

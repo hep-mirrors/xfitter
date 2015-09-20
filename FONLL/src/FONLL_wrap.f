@@ -30,6 +30,7 @@
 *     APFEL settings
 *
 c      call EnableTargetMassCorrections(.true.)
+      call EnableDynamicalScaleVariations(.true.)
       if(MassScheme(1:4).eq."Pole")then
          call SetPoleMasses(Mcharm,MBottom,MTop)
       elseif(MassScheme.eq."MSbar")then
