@@ -172,7 +172,7 @@ Par::Par(string dirname, string label)
         //Read fit status
         fitstatus = fitstat(dirname);
       }
-      uncertainties = "migrad-hesse"; //--- a text printed by ParPainter
+      uncertainties = hessestat(dirname);
     }
 }
 
@@ -189,14 +189,34 @@ string fitstat(string dir)
   string line;
   while (getline(ff, line))
     {
-      if (line.find("STATUS=OK") != string::npos)
+      if (line.find("STATUS=CONVERGED") != string::npos)
         {
           status = "converged";
           break;
         }
       if (line.find("STATUS=FAILED") != string::npos)
-        {
           status = "failed";
+    }
+  ff.close();
+  return status;
+}
+
+string hessestat(string dir)
+{
+  //Read fit status
+  string status = "not-a-fit";
+  string fname = dir + "/minuit.out.txt";
+  ifstream ff(fname.c_str());
+  if (!ff.good())
+    return status;
+  else
+    status = "undefined";
+  string line;
+  while (getline(ff, line))
+    {
+      if (line.find("STATUS=OK") != string::npos)
+        {
+          status = "migrad-hesse";  //--- a text printed by ParPainter
           break;
         }
       if (line.find("STATUS=NOT POSDEF") != string::npos)

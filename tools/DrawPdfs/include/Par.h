@@ -8,6 +8,7 @@
 using namespace std;
 
 extern string fitstat(string dir);
+extern string hessestat(string dir);
 
 struct partype
 {

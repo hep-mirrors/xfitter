@@ -142,7 +142,8 @@ bool ParPainter()
 	  if (unc_p[l][p] != 0 && unc_m[l][p] != 0 && par[l][p] != 0 )
 	    {
 	      if (unc_p[l][p] == unc_m[l][p]) //symmetric case
-		if (parmap[*itl].fitstatus != "pos-def-forced")
+		//if (parmap[*itl].fitstatus != "pos-def-forced")
+		if (parmap[*itl].uncertainties != "pos-def-forced")
 		  fprintf(ftab,"& $%s \\pm %s$", Round(par[l][p], unc_p[l][p])[0].c_str(), Round(unc_p[l][p], unc_p[l][p])[1].c_str());
 		else
 		  fprintf(ftab,"& $%s \\pm \\textcolor{red}{ %s }$", Round(par[l][p], unc_p[l][p])[0].c_str(), Round(unc_p[l][p], unc_p[l][p])[1].c_str());
@@ -164,12 +165,22 @@ bool ParPainter()
   fprintf(ftab,"  \\rowcolor{white}\n");
   fprintf(ftab," Fit status  ");
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
-    fprintf(ftab," & %s", parmap[*itl].fitstatus.c_str());
+  {
+    if (parmap[*itl].fitstatus != "converged")
+      fprintf(ftab," & \\textcolor{red}{ %s }", parmap[*itl].fitstatus.c_str());
+    else 
+      fprintf(ftab," & %s", parmap[*itl].fitstatus.c_str());
+  }
   fprintf(ftab,"  \\\\ \n");
   fprintf(ftab,"  \\rowcolor{white}\n");
   fprintf(ftab," Uncertainties  ");
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
-    fprintf(ftab," & %s", parmap[*itl].uncertainties.c_str());
+  {
+	if (parmap[*itl].uncertainties != "pos-def-forced")
+       fprintf(ftab," & %s", parmap[*itl].uncertainties.c_str());
+    else
+      fprintf(ftab," & \\textcolor{red}{ %s }", parmap[*itl].uncertainties.c_str());
+  }
   fprintf(ftab,"  \\\\ \n");
 
   fprintf(ftab,"      \\bottomrule\n");
