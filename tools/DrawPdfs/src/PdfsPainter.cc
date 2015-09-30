@@ -25,15 +25,37 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
   vector <TGraphAsymmErrors*> pdfgraphs;
   vector <string> labels;
+  TGraphAsymmErrors* pdfempunc[6][3];
+  bool blIs3bands[6];
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
     if (pdfmap[*itl].Central.find(q2) !=  pdfmap[*itl].Central.end())
       {
-	pdfgraphs.push_back(pdfmap[*itl].Central[q2].GetPdf(ipdf));
-	labels.push_back(*itl);
+        char pdfname[80];
+        blIs3bands[itl - opts.labels.begin()] = outdirs[*itl].Is3bands();
+        if (!blIs3bands[itl - opts.labels.begin()]) {
+          pdfgraphs.push_back(pdfmap[*itl].Central[q2].GetPdf(ipdf));
+	  labels.push_back(*itl);
 
-	char pdfname[80];
-	sprintf(pdfname, "dir%d_q2_%s_pdf_%s", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
-	pdfgraphs.back()->SetName(pdfname);
+	  sprintf(pdfname, "dir%d_q2_%s_pdf_%s", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+	  pdfgraphs.back()->SetName(pdfname);
+        } else {
+          pdfgraphs.push_back(pdfmap[*itl].Central[q2].GetPdfCen(ipdf));
+          labels.push_back(*itl);
+          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_cen", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          pdfgraphs.back()->SetName(pdfname);
+
+          pdfempunc[itl - opts.labels.begin()][0] = pdfmap[*itl].Central[q2].GetPdfParam(ipdf);
+          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_param", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          pdfempunc[itl - opts.labels.begin()][0]->SetName(pdfname);
+
+          pdfempunc[itl - opts.labels.begin()][1] = pdfmap[*itl].Central[q2].GetPdfModel(ipdf);
+          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_model", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          pdfempunc[itl - opts.labels.begin()][1]->SetName(pdfname);
+
+          pdfempunc[itl - opts.labels.begin()][2] = pdfmap[*itl].Central[q2].GetPdfExp(ipdf);
+          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_exp", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          pdfempunc[itl - opts.labels.begin()][2]->SetName(pdfname);
+        }
       }
 
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
@@ -75,6 +97,11 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 	      if (xi <= opts.xmin || xi >= opts.xmax)
 		{
 		  (*it)->RemovePoint(i);
+                  if (blIs3bands[it - pdfgraphs.begin()]) {
+                    pdfempunc[it - pdfgraphs.begin()][0]->RemovePoint(i);
+                    pdfempunc[it - pdfgraphs.begin()][1]->RemovePoint(i);
+                    pdfempunc[it - pdfgraphs.begin()][2]->RemovePoint(i);
+                  }
 		  removed = true;
 		  break;
 		}
@@ -87,7 +114,15 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
       if (*it == 0)
-	continue;
+        continue;
+
+      if (blIs3bands[it - pdfgraphs.begin()]) {
+        pdfempunc[it - pdfgraphs.begin()][0]->SetFillColor(3);
+        pdfempunc[it - pdfgraphs.begin()][1]->SetFillColor(5);
+        pdfempunc[it - pdfgraphs.begin()][2]->SetFillColor(2);
+        for (int iun=0; iun<3; iun++) pdfempunc[it - pdfgraphs.begin()][iun]->SetFillStyle(1001);
+      }
+
       (*it)->SetFillColor(opts.colors[labels[it-pdfgraphs.begin()]]);
       if (opts.filledbands)
 	(*it)->SetFillStyle(1001);
@@ -106,7 +141,12 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       {
 	double xi = (*it)->GetX()[i];
 	double val = (*it)->GetY()[i];
-	double errhigh = (*it)->GetErrorYhigh(i);
+	double errhigh;
+        if (!blIs3bands[it - pdfgraphs.begin()]) {
+          errhigh = (*it)->GetErrorYhigh(i);
+        } else {
+          errhigh = pdfempunc[it - pdfgraphs.begin()][0]->GetErrorYhigh(i);
+        }
 	if (xi >= opts.xmin && xi <= opts.xmax)
 	  mx = max(mx, val+errhigh);
       }
@@ -116,7 +156,12 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       {
 	double xi = (*it)->GetX()[i];
 	double val = (*it)->GetY()[i];
-	double errlow = (*it)->GetErrorYlow(i);
+	double errlow;
+        if (!blIs3bands[it - pdfgraphs.begin()]) {
+          errlow = (*it)->GetErrorYlow(i);
+        } else {
+          errlow = pdfempunc[it - pdfgraphs.begin()][0]->GetErrorYlow(i);
+        }
 	if (xi >= opts.xmin && xi <= opts.xmax)
 	  mn = min(mn, val-errlow);
       }
@@ -133,7 +178,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       //Prepare graph line borders and graph shade
       int npoints = (*it)->GetN();
       double val_x[npoints], val_y[npoints], val_high_y[npoints], val_low_y[npoints]; 
-      double xsh[2*npoints], ysh[2*npoints];
+      double xsh[2*npoints], ysh[2*npoints], yshEMP[3][2*npoints];
 
       for (int i = 0; i < (*it)->GetN(); i++)
 	{
@@ -151,6 +196,13 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 	  ysh[i] = val + errhigh;
 	  xsh[npoints + i] = (*it)->GetX()[npoints-i-1];
 	  ysh[npoints + i] = (*it)->GetY()[npoints-i-1] - (*it)->GetErrorYlow(npoints-i-1);
+
+          if (blIs3bands[it - pdfgraphs.begin()]) {
+            for (int iun=0; iun<3; iun++) {
+              yshEMP[iun][i] = val + pdfempunc[it - pdfgraphs.begin()][iun]->GetErrorYhigh(i);
+              yshEMP[iun][npoints + i] = (*it)->GetY()[npoints-i-1] - pdfempunc[it - pdfgraphs.begin()][iun]->GetErrorYlow(npoints-i-1);
+            }
+          }
 	}
 
       TGraph *centr = new TGraph(npoints, val_x, val_y);
@@ -163,6 +215,16 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
       TGraph *high_shade = new TGraph(npoints, val_x, val_high_y);
       TGraph *low_shade = new TGraph(npoints, val_x, val_low_y);
+
+      TGraph *shadeEMP[3];
+      if (blIs3bands[it - pdfgraphs.begin()]) {
+        for (int iun=0; iun<3; iun++) {
+          shadeEMP[iun] = new TGraph(2*npoints, xsh, yshEMP[iun]);
+          shadeEMP[iun]->SetFillColor(pdfempunc[it - pdfgraphs.begin()][iun]->GetFillColor());
+          shadeEMP[iun]->SetFillStyle(pdfempunc[it - pdfgraphs.begin()][iun]->GetFillStyle());
+          shadeEMP[iun]->SetLineWidth(0);
+        }
+      }
 
       //Set border lines and shade fill
       centr->SetLineColor((*it)->GetLineColor());
@@ -202,6 +264,11 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 	  mg_dotted_lines->Add(low_dot);
 	}
       mg_shade->Add(shade, "f");
+      if (blIs3bands[it - pdfgraphs.begin()]) {
+        for (int iun=0; iun<3; iun++) {
+          mg_shade->Add(shadeEMP[iun], "f");
+        }
+      }
       mg_shade->Add(high_shade, "l");
       mg_shade->Add(low_shade, "l");
     }

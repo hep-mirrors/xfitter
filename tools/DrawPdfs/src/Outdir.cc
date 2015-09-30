@@ -100,7 +100,14 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
 	  doprefix = true;
 	  scale68 = true;
 	  dirname.erase(0, dirname.find(":")+1);
-      }
+        }
+      if (prefix == "3bands")
+        {
+          doprefix = true;
+          
+          bands3 = true;
+          dirname.erase(0, dirname.find(":")+1);
+        }
     }
 
   //now parse for the label

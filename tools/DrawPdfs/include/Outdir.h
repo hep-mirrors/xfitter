@@ -28,7 +28,7 @@ class  Outdir {
  private:    
   string label;
   string dirname;
-  bool MCreplica, cl68, cl90, median, asym;
+  bool MCreplica, cl68, cl90, median, asym, bands3;
   bool profiled;
   bool reweighted;
   bool scale68;
@@ -49,6 +49,7 @@ class  Outdir {
   bool Is90cl() {return cl90;};
   bool IsMedian() {return median;};
   bool IsAsym() {return asym;};
+  bool Is3bands() {return bands3;};
   vector <string> dirlist;
 };
 

@@ -128,7 +128,7 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
 
 }
 
-TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf)
+TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf, int iunctype)
 {
   if (GetNx() == 0)
     return 0;
@@ -138,8 +138,24 @@ TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf)
   if (tablemapup[ipdf].size() > 0 && tablemapdn[ipdf].size() > 0)
     for (int i = 0; i < GetNx();  i++)
       {
-        temp->SetPointEYhigh(i, tablemapup[ipdf][i]);
-        temp->SetPointEYlow(i, tablemapdn[ipdf][i]);
+        switch (iunctype)
+        {
+          case 1 :     // for exp unc. only
+           temp->SetPointEYhigh(i, tablemapexpup[ipdf][i]);
+           temp->SetPointEYlow(i, tablemapexpdn[ipdf][i]);
+           break;
+          case 2 :     // for exp + model unc.
+           temp->SetPointEYhigh(i, tablemapmodelup[ipdf][i]);
+           temp->SetPointEYlow(i, tablemapmodeldn[ipdf][i]);
+           break;
+          case 3 :     // for exp + model + param unc.
+           temp->SetPointEYhigh(i, tablemapup[ipdf][i]);
+           temp->SetPointEYlow(i, tablemapdn[ipdf][i]);
+           break;
+          default :    // for no unc. band
+           temp->SetPointEYhigh(i, 0);
+           temp->SetPointEYlow(i, 0);
+        }
       }
   return temp;
 }
@@ -275,7 +291,8 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
               }
 
           //check for model errors
-          sprintf (filename, "%s/pdfs_q2val_m%02dm_%02d.txt",dirname.c_str(), iband+1, 1);
+         // iband = 1;
+          sprintf (filename, "%s/pdfs_q2val_m%02dm_%02d.txt",dirname.c_str(), iband, 1);
           ifstream modelfile(filename);
           if (modelfile.is_open())
             {
@@ -306,7 +323,8 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
               }
 
           //check for parametrisation errors
-          sprintf (filename, "%s/pdfs_q2val_p%02ds_%02d.txt",dirname.c_str(), iband+1, 1);
+         // iband = 1;
+          sprintf (filename, "%s/pdfs_q2val_p%02ds_%02d.txt",dirname.c_str(), iband, 1);
           ifstream parfile(filename);
           if (parfile.is_open())
             {
@@ -369,6 +387,10 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
       Pdf Cent = pdfit->second;
       Up[q2] = Cent;
       Down[q2] = Cent;
+      UpExp[q2] = Cent;
+      DownExp[q2] = Cent;
+      UpModel[q2] = Cent;
+      DownModel[q2] = Cent;
 
       //loop on pdf types
       for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++)
@@ -445,6 +467,12 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 		    }
 		}
 
+              UpExp[q2].SetPoint(*pit, ix, val+eplus);
+              DownExp[q2].SetPoint(*pit, ix, val-eminus);
+              pdfit->second.SetPoint(*pit, ix, val);
+              pdfit->second.SetExpUp(*pit, ix, eplus);
+              pdfit->second.SetExpDn(*pit, ix, eminus);
+
               //Add model and parametrisation uncertainties
               if (model)
                 {
@@ -462,6 +490,12 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
                   eplus = sqrt(pow(eplus, 2) + pow(modeplus, 2));
                   eminus = sqrt(pow(eminus, 2) + pow(modeminus, 2));
                 }
+
+              UpModel[q2].SetPoint(*pit, ix, val+eplus);
+              DownModel[q2].SetPoint(*pit, ix, val-eminus);
+              pdfit->second.SetModelUp(*pit, ix, eplus);
+              pdfit->second.SetModelDn(*pit, ix, eminus);
+
               if (par)
                 {
                   vector <double> xi;
@@ -483,7 +517,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 
               Up[q2].SetPoint(*pit, ix, val+eplus);
               Down[q2].SetPoint(*pit, ix, val-eminus);
-              pdfit->second.SetPoint(*pit, ix, val);
+//              pdfit->second.SetPoint(*pit, ix, val);
               pdfit->second.SetErrUp(*pit, ix, eplus);
               pdfit->second.SetErrDn(*pit, ix, eminus);
             } //End loop on x points
