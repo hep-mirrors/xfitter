@@ -254,7 +254,8 @@ C
             XSecP(j) = EmToEtotRatio*XSecN(j) + (1.D0-EmToEtotRatio)*XSecP(j)
 
             Yplus  = 1. + (1.-y(j))**2
-            XSecP(j) = XSecP(j) * YPlus
+c Y plus needed only for NC cross sections, move lower
+c           XSecP(j) = XSecP(j) * YPlus
 
             factor=1.D0
             if (XSecType.eq.'CCDIS') then
@@ -268,7 +269,7 @@ c               alphaem_run = alm_mz/(1. - alm_mz * 2/(3.*pi)*log(q2(j)/mz**2))
                   alphaem_run = aemrun(q2(j))
                endif
 
-               factor=2*pi*alphaem_run**2/(x(j)*q2(j)**2)*convfac
+               factor=2*pi*alphaem_run**2*YPlus/(x(j)*q2(j)**2)*convfac
             else
                print *, 'GetIntegratedDisXsection, XSecType',XSecType,
      $              'not supported' 
@@ -329,7 +330,7 @@ C---------------------------------------------------------------
       integer idxQ2, idxX, idxY, i,  idx, idxS
       
       double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS),XSec(NPMaxDIS)
-      double precision Charge, polarity, alphaem_run, factor, S
+      double precision Charge, polarity, alphaem_run, factor, S, YPlus
       logical IsReduced
 
 C Functions:
@@ -405,6 +406,8 @@ C
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
 
+         Yplus  = 1. + (1.-Y(i))**2
+
          factor=1.D0
          if(.not. IsReduced) then
             if (XSecType.eq.'CCDIS') then
@@ -413,7 +416,7 @@ C
      $              XSecType.eq.'BEAUTYDIS') then
 !               alphaem_run = aemrun(q2(i))
                alphaem_run = alphaem
-               factor=2*pi*alphaem_run**2/(x(i)*q2(i)**2)*convfac
+               factor=2*pi*alphaem_run**2*Yplus/(x(i)*q2(i)**2)*convfac
             else if (XSecType.eq.'FL') then
                factor=1.D0
             else if (XSecType.eq.'F2') then
