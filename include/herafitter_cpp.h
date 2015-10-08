@@ -28,6 +28,9 @@ extern"C" {
   void fopen_(const int& fnumber, const char fname[], int);
   void fclose_(const int& fnumber);
 
+  //banner
+  void hfbanner_();
+
   //lhapdf6 functions
   void fill_c_common_();
   void print_lhapdf6_();

@@ -30,9 +30,9 @@ C-------------------------------------------------------
       character*80 command
 C-----------------------------------------------------
 *     ------------------------------------------------
-*     Print info message
+*     Print HFitter banner
 *     ------------------------------------------------
-      call herafitterInfo
+      call hfbanner
 
       narg = command_argument_count()
       if (narg.gt.0) then
