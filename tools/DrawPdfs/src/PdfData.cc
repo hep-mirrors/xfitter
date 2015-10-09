@@ -350,6 +350,9 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
     {
       double n, chi2, w;
       ifstream mcwfile((dirname + "/mcrew.txt").c_str());
+      string line;
+      getline (mcwfile,line);
+      getline (mcwfile, line);
       while (mcwfile >> n >> chi2 >> w)
 	mcw.push_back(w);
     }
