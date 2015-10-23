@@ -3,11 +3,6 @@ c     this file contains dummy MELA interface routines
 c     which are called in case HERAfitter was not compiled
 c     with --enable-mela option
 c----------------------------------------------------------
-      subroutine mela_init
-      call print_apfel_error_message
-      return 
-      end
-
       subroutine print_mela_error_message
       print *, '--------------------------------------------------'
       print *, 'MELA: You have chosen to use MELA but HERAfitter'
@@ -16,15 +11,22 @@ c----------------------------------------------------------
       return 
       end
 
+      subroutine mela_init
+      call print_mela_error_message
+      return 
+      end
+
       subroutine readparameters
       call print_mela_error_message
+      return 
       end
 
       subroutine SetHERAFitterParametersMELA
       call print_mela_error_message
+      return 
       end
-
 
       subroutine xstructurefunctions
       call print_mela_error_message
+      return 
       end
