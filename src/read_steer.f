@@ -1098,6 +1098,8 @@ C---------------------------------
       
       if (HF_SCHEME.eq.'ZMVFNS') then
           HFSCHEME = 0
+      elseif (HF_SCHEME.eq.'ZMVFNS MELA') then
+          HFSCHEME = 6
       elseif (HF_SCHEME.eq.'ACOT ZM') then
           HFSCHEME = 1 
       elseif (HF_SCHEME.eq.'ACOT Full') then

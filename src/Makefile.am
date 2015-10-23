@@ -35,6 +35,12 @@ else
   FitPDF_SOURCES+= apfel_dum.f
 endif
 
+if ENABLE_MELA
+  FitPDF_SOURCES+= mela.f
+else 
+  FitPDF_SOURCES+= mela_dum.f
+endif
+
 if ENABLE_APPLGRID 
   FitPDF_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
 else 
@@ -119,6 +125,10 @@ endif
 
 if ENABLE_APFEL
   LDADD+=$(APFEL_LDFLAGS)
+endif
+
+if ENABLE_MELA
+  LDADD+=$(MELA_LDFLAGS)
 endif
 
 if ENABLE_GENETIC

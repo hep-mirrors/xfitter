@@ -166,6 +166,23 @@ if test $enable_apfel; then
 fi
 AM_CONDITIONAL(ENABLE_APFEL, [test $enable_apfel])
 
+# check for mela installation
+AC_ARG_ENABLE([mela],
+  [AC_HELP_STRING(--enable-mela, [use mela (default=no)])])
+if test $enable_mela; then
+  AC_MSG_CHECKING([for mela installation])
+  mela_config=`which mela-config`
+  if test x$mela_config == x; then
+    AC_MSG_ERROR([Unable to find mela-config.])
+  else 
+    AC_MSG_RESULT([Using $mela_config])
+    MELA_LDFLAGS=`mela-config --ldflags`
+    AC_SUBST(MELA_LDFLAGS)
+    AC_DEFINE([MELA_ENABLED],[1],[Define if MELA is enabled])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_MELA, [test $enable_mela])
+
 # check for applgrid installation
 AC_ARG_ENABLE([applgrid],
   [AC_HELP_STRING(--enable-applgrid, [use applgrid for fast pdf convolutions (default=no)])])

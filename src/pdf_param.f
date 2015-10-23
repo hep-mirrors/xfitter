@@ -752,7 +752,6 @@ C    22 Sept 11, VR, Add AS
 
 !> HERAPDF style goes in here:
          gluon=para(x,parglue)
-         
       else
 C
 C Use polynomial representation of cheb. 

@@ -106,10 +106,18 @@ C--       -6  -5  -4   -3   -2   -1   0   1   2   3   4   5   6
      +     0., 0., 0., -1.,  0.,  0., 0., 0., 0., 1., 0., 0., 0., !s-
      +     78*0.    /
 
-
+      integer i
+*
+*     Set parameters of the initial scale PDFs to be used by MELA
+*
+      if (mod(hfscheme,10).eq.6) then
+         call SetHERAFitterParametersMELA(parubar,pardbar,
+     1                                    paruval,pardval,
+     2                                    parglue,
+     3                                    fstrange,fcharm)
+      endif
 
 c      call grpars(nx,xmi,xma,nq,qmi,qma,nord)
-
 
       q0=starting_scale
 

@@ -578,6 +578,7 @@ C
       endif
 
       if (itheory.lt.50) then
+
          call UseZmvnsScheme(F2, FL, xF3, F2gamma, FLgamma,
      $        q2, x, npts, polarity, charge, XSecType)
 
@@ -615,6 +616,12 @@ C
             call UseFONLLScheme(F2,FL,xF3,F2c,FLc,F2b,FLb, 
      1                          x,q2,npts,polarity,XSecType,
      2                          charge,local_hfscheme,IDataSet)
+
+         elseif (mod(local_hfscheme,10).eq.6) then
+
+            call UseMELAZmvnsScheme(F2,FL,xF3,F2c,FLc,F2b,FLb, 
+     1                              x,q2,npts,XSecType,
+     2                              charge,IDataSet)
 
          endif
 
@@ -1327,6 +1334,87 @@ c            muoQ = dsqrt( ( q2(i) + 4d0 * hf_mass(1)**2d0 ) / q2(i) )
          F2b = 0.5d0 * F2b
          FLb = 0.5d0 * FLb
       endif
+*
+      return
+      end
+
+
+C----------------------------------------------------------------
+C> Calculates F2, FL, XF3, F2c, FLc, F2b, FLb in the ZM-VFNS scheme using MELA
+C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions
+C> \param[in] q2, x kinematic bin
+C> \param[in] npts total number of points
+C> \param[in] polarity of the lepton beam
+C> \param[in] charge of the lepton beam
+C> \param[in] XSecType DIS process type
+C> \param[in] local_hfscheme heavy flavour scheme
+C> \param[in] IDataSet data set index
+C> \param[in] F2in, FLin, XF3in structure functions calculated by QCDNUM
+C
+C  Created by Valerio Bertone, 08/09/2015
+C---------------------------------------------------------------
+      subroutine UseMELAZmvnsScheme(F2,FL,xF3,F2c,FLc,F2b,FLb, 
+     1                              x,q2,npts,XSecType,
+     2                              charge,IDataSet)
+*
+      implicit none
+*
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "fcn.inc"
+#include "qcdnumhelper.inc"
+**
+*     Input Varibales
+*
+      integer npts,IDataSet
+      integer local_hfscheme
+      double precision x(NPMaxDIS),q2(NPMaxDIS)
+      double precision charge
+      character*(*) XSecType
+**
+*     Internal Variables
+*
+      integer i
+      integer nQ
+      double complex Q(2)
+      double complex SFx(3,0:6)
+**
+*     Output Variables
+*
+      double precision F2(NPMaxDIS),FL(NPMaxDIS),xF3(NPMaxDIS)
+      double precision F2c(NPMaxDIS),FLc(NPMaxDIS)
+      double precision F2b(NPMaxDIS),FLb(NPMaxDIS)
+*
+      if(XSecType.ne.'NCDIS'.and.XSecType.ne.'CHARMDIS'.and.
+     1   XSecType.ne.'BEAUTYDIS') then
+         write(6,*) 'UseMELAZmvnsScheme, XSecType ',XSecType,
+     1              ' not supported'
+         call HF_stop
+      endif
+*
+      if(charge.gt.0d0)then
+         write(6,*) 'UseMELAZmvnsScheme, charge ',charge,
+     1              ' not supported'
+         call HF_stop
+      endif
+*
+      nQ   = 2
+      Q(1) = sqrt(starting_scale)
+      do i=1,npts
+         Q(2) = dsqrt(q2(i))
+         call xStructureFunctions(x(i),nQ,Q,SFx)
+*
+         F2(i)  = abs(SFx(1,0))
+         FL(i)  = abs(SFx(2,0))
+         xF3(i) = abs(SFx(3,0))
+
+         F2c(i) = abs(SFx(1,4))
+         FLc(i) = abs(SFx(2,4))
+
+         F2b(i) = abs(SFx(1,5))
+         FLb(i) = abs(SFx(2,5))
+      enddo
 *
       return
       end

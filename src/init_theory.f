@@ -57,7 +57,6 @@ C----------------------------------------
 
 c Extra init for QCDNUM schemes:
       Call ZMVFNS_init()
-
 C Other schemes:
       if (mod(HFSCHEME,10).eq.3) then
          Call FF_init()
@@ -67,6 +66,8 @@ C Other schemes:
          Call ABKM_init()
       elseif ( mod(HFSCHEME,10).eq.5) then
          Call FONLL_init()
+      elseif ( mod(HFSCHEME,10).eq.6) then
+         Call MELA_init()
       endif
 C---------------------------------
       end
@@ -1255,7 +1256,6 @@ C--------------------------------------------------------
 #include "steering.inc"
 *
       integer i
-      double precision xPDFj
       double precision x,qmu2
       dimension xf(-6:6)
 
