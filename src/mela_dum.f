@@ -3,7 +3,7 @@ c     this file contains dummy MELA interface routines
 c     which are called in case HERAfitter was not compiled
 c     with --enable-mela option
 c----------------------------------------------------------
-      subroutine mela_ini
+      subroutine mela_init
       call print_apfel_error_message
       return 
       end
@@ -21,5 +21,10 @@ c----------------------------------------------------------
       end
 
       subroutine SetHERAFitterParametersMELA
+      call print_mela_error_message
+      end
+
+
+      subroutine xstructurefunctions
       call print_mela_error_message
       end
