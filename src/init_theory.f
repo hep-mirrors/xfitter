@@ -263,7 +263,15 @@ C Remove duplicates:
       call qcinit(6,' ')        !initialize
       call setord(I_FIT_ORDER)         !LO, NLO, NNLO
 
-      call gxmake(xmin_grid,iwt_xgrid,nmxgrid,NXBINS,nx,iosp)    !x-grid
+      print *,"gxmake xmingrid: ",xmin_grid
+      print *,"gxmake iwgt    : ",iwt_xgrid
+      print *,"gxmake nx: ",nmxgrid
+      print *,"gxmake nxb: ",nxbins
+      call gxmake(xmin_grid,iwt_xgrid,nmxgrid,NXBINS,nx,iosp) !x-grid
+      print *,"qqmake xmingrid: ",Q2Grid
+      print *,"gqmake iwgt    : ",WQGrid
+      print *,"gqmake nx: ",NQALL
+      print *,"gqmake nxb: ",NQ2bins
       call gqmake(Q2Grid,WQGrid,NQAll,NQ2bins,nqout)             !mu2-grid
 
       print '(''Requested, actual number of x bins are: '',2i5)', 
@@ -600,6 +608,8 @@ C
      $           DATASETREACTION(IDataSet).eq.'NC ppbar' ) then
             Call InitDYNCXsectionDataset(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
+            Call InitJetsPPApplGridDataSet(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'pp jets fastNLO') then
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.   
      $           DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then ! for backward compatibility
@@ -1030,7 +1040,9 @@ C functions:
 C------------------------------------------------------------
       
       
-      if (DATASETTheoryType(IDataSet).eq.'FastNLO') then
+      if (DATASETTheoryType(IDataSet).eq.'expression') then
+        return
+      elseif (DATASETTheoryType(IDataSet).eq.'FastNLO') then
          call appl_ngrids(n)
          ct = DATASETTheoryFile(IDataSet)
          call appl_readfastnlogrids(IGridIDfnlo,ct(1:Index(ct,' ')-1)//char(0))
@@ -1047,8 +1059,6 @@ C Store first index:
          DATASETTheoryIndex(IDataSet) = IGridIDfnlo(1)
          IGridID = IGridIDfnlo(1)
 
-      elseif (DATASETTheoryType(IDataSet).eq.'expression') then
-        return
       else
          call appl_readgrid(IGridID,DATASETTheoryFile(IDataSet))
 C Store index:

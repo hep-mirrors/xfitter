@@ -15,6 +15,7 @@
 #include "CommonGrid.h"
 
 #include "appl_grid/appl_grid.h"
+#include <FastNLOHeraFitter.h>
 
 using namespace std;
 using namespace appl;
@@ -52,6 +53,8 @@ CommonGrid::CommonGrid(const string & grid_type, const string &grid_source): _dy
   } else if ( grid_type == "virtgrid_norm" ) { 
     _flag = 3; 
     this->readVirtGrid(grid_source);
+  } else if ( grid_type.find("ast") != string::npos ) { // fastNLO
+     this->initfastNLO(grid_source);
   } else {
     int id = 14032542;
     char text[] = "S: Unknown grid type in theory expression.";
@@ -90,10 +93,26 @@ CommonGrid::readAPPLgrid(const string &grid_source)
   tHyperBin hb;
   hb.b = b;
   hb.g = g;
+  hb.f = NULL;
   hb.ngb = g->Nobs();
   _hbins.push_back(hb);
   _ndim = 2;
   return _hbins.size();
+}
+
+int
+CommonGrid::initfastNLO(const string &grid_source)
+{
+   FastNLOHeraFitter* fnlo = new FastNLOHeraFitter(grid_source);
+   
+   tHyperBin hb;
+   hb.b = NULL;
+   hb.g = NULL;
+   hb.f = fnlo;
+   hb.ngb = fnlo->GetNObsBin();
+   _hbins.push_back(hb);
+   _ndim = 2;
+   return _hbins.size();
 }
 
 int
@@ -155,39 +174,64 @@ CommonGrid::readVirtGrid(const string &grid_source)
 std::vector<double> 
 CommonGrid::vconvolute(const int iorder, const double mur, const double muf)
 {
-  vector<double> xs;
-  vector<tHyperBin>::iterator ihb;
-  for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
-    vector<double> gxs;
-    appl::grid *g = ihb->g;
-    // extract convoluted cross sections
-    if (_ppbar)
-      gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar_, appl_fnalphas_, iorder, mur, muf);
-    else
-      gxs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
-    // compute virtual bin width if available,
-    double bw(1.);
-    for (int ibb = 0; ibb<(_ndim-2)/2; ibb++){
-      bw *= ihb->b[2*ibb+1] - ihb->b[2*ibb];
-    }
-    if ( 0!= bw){
-      for(vector<double>::iterator ixs = gxs.begin(); ixs!=gxs.end(); ixs++) (*ixs)/=bw;
-    } else {
-      int id = 14040842;
-      char text[] = "S: Bin width for virtual grid is 0, cannot scale.";
-      int textlen = strlen(text);
-      hf_errlog_(id, text, textlen);
-    }
-    // scale by bin width if normalization is requested
-    if ( 0 != (_flag & 1) ) {
-      for(vector<double>::iterator ixs = gxs.begin(); ixs!=gxs.end(); ixs++){
-        (*ixs) *= g->deltaobs(int(ixs - gxs.begin())) * bw;
+   // calculate cross sections with fastNLO or applgrid
+   vector<tHyperBin>::iterator ihb;
+   for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
+      if ( ihb->g ) 
+	 return vconvolute_appl(iorder,mur,muf,&(*ihb));
+      else if ( ihb->f )
+	 return vconvolute_fastnlo(iorder,mur,muf,ihb->f);
+      else {
+	 int id = 15010262;
+	 char text[] = "S: Either applgrid or fastNLO must be present.";
+	 int textlen = strlen(text);
+	 hf_errlog_(id, text, textlen);	 
       }
-    }
-    // append to the total vector
-    xs.insert(xs.end(), gxs.begin(), gxs.begin()+ihb->ngb);
-  }
+   }
+}
 
+std::vector<double> 
+CommonGrid::vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOHeraFitter* fnlo)
+{
+   fnlo->FillAlphasCache();
+   fnlo->FillPDFCache();
+   fnlo->SetScaleFactorsMuRMuF(mur, muf);
+   fnlo->CalcCrossSection();
+   return fnlo->GetCrossSection();
+}
+
+std::vector<double> 
+CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf, tHyperBin* ihb)
+{
+  vector<double> xs;
+  vector<double> gxs;
+  appl::grid *g = ihb->g;
+  // extract convoluted cross sections
+  if (_ppbar)
+     gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar_, appl_fnalphas_, iorder, mur, muf);
+  else
+     gxs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
+  // compute virtual bin width if available,
+  double bw(1.);
+  for (int ibb = 0; ibb<(_ndim-2)/2; ibb++){
+     bw *= ihb->b[2*ibb+1] - ihb->b[2*ibb];
+  }
+  if ( 0!= bw){
+     for(vector<double>::iterator ixs = gxs.begin(); ixs!=gxs.end(); ixs++) (*ixs)/=bw;
+  } else {
+     int id = 14040842;
+     char text[] = "S: Bin width for virtual grid is 0, cannot scale.";
+     int textlen = strlen(text);
+     hf_errlog_(id, text, textlen);
+  }
+  // scale by bin width if normalization is requested
+  if ( 0 != (_flag & 1) ) {
+     for(vector<double>::iterator ixs = gxs.begin(); ixs!=gxs.end(); ixs++){
+        (*ixs) *= g->deltaobs(int(ixs - gxs.begin())) * bw;
+     }
+  }
+  // append to the total vector
+  xs.insert(xs.end(), gxs.begin(), gxs.begin()+ihb->ngb);
   return xs;
 }
 

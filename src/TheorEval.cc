@@ -211,8 +211,9 @@ TheorEval::convertToRPN(list<tToken> &sl)
 int
 TheorEval::initTerm(int iterm, valarray<double> *val)
 {
+   
   string term_type =  _termTypes.at(iterm);
-  if ( term_type.find("grid") != string::npos ){
+  if ( term_type.find("grid") != string::npos || term_type.find("ast") != string::npos ){ //appl'grid' or f'ast'NLO
     this->initGridTerm(iterm, val);
   } else if ( term_type == string("kfactor")) {
     this->initKfTerm(iterm, val);
@@ -228,11 +229,33 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
   string term_source = _termSources.at(iterm);
   string term_type =  _termTypes.at(iterm);
   CommonGrid *g = new CommonGrid(term_type, term_source); 
-  g->SetCollisions(_ppbar);
-  g->SetDynamicScale( _dynamicscale );
-
-  // check the binning with the grids, will be ignored for normalisation grids
-  g->checkBins(_binFlags, _dsBins);
+  if (  term_type.find("grid") != string::npos ) {
+     g->SetCollisions(_ppbar);
+     g->SetDynamicScale( _dynamicscale );
+     
+     // check the binning with the grids, will be ignored for normalisation grids
+     g->checkBins(_binFlags, _dsBins);
+  }
+  else if ( term_type.find("ast") != string::npos ){
+   // DataInfo       = 7000.     , 1.                 , -1.      , -1.
+   // CInfo          = 'sqrt(S)' , 'PublicationUnits' , 'MurDef' , 'MufDef'
+     bool PublicationUnits = true; // todo: take from steering CInfo
+     int murdef = -1; // todo: take from steering CInfo
+     int mufdef = -1; // todo: take from steering CInfo
+     double murscale = 1;// todo take from steering 
+     double mufscale = 1;// todo take from steering 
+     if(PublicationUnits)
+	g->getHBins().back().f->SetUnits(fastNLO::kPublicationUnits);
+     else 
+	g->getHBins().back().f->SetUnits(fastNLO::kAbsoluteUnits);
+     
+     if(murdef>=0.)
+	g->getHBins().back().f->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (murdef)));
+     if(mufdef>=0.)
+	g->getHBins().back().f->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (mufdef)));
+     
+     g->getHBins().back().f->SetScaleFactorsMuRMuF(  murscale, mufscale);
+  }
 
   /*
   appl::grid *g = new appl::grid(term_source);
