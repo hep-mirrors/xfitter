@@ -38,6 +38,10 @@
   Vcd			= 0.22560d0
   Vcs			= 0.97334d0
   Vcb			= 0.41500d-1
+  Vtd			= 0.867d-2
+  Vts			= 0.40d-1
+  Vtb			= 0.999146d0
+
 
   !*** fermion masses
 
