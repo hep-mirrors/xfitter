@@ -261,11 +261,19 @@ c        write(6,*) ' fcn npoint ',npoints
          alphaSzero= hf_get_alphas(1D0)
          call RT_SetAlphaS(alphaSzero)
          if(IPDFSET.eq.5) then
-            call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
+#ifndef QCDNUM_WITH_AUTOTOOLS
+           call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
+#else
+           call PDFEXT(LHAPDFsubr, IPDFSET, 0, dble(0.001), epsi)
+#endif
          elseif (IPDFSET.eq.7) then
             q2p = starting_scale
             call SetPDFSet("external")
+#ifndef QCDNUM_WITH_AUTOTOOLS
             call PDFINP(APFELsubr,  IPDFSET, dble(0.001), epsi, nwds)
+#else
+            call PDFEXT(APFELsubr,  IPDFSET, 0, dble(0.001), epsi)
+#endif
          endif
       endif 
 

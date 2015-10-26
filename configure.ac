@@ -111,11 +111,20 @@ AC_CONFIG_SRCDIR([src/main.f])
 #fi
 
 AC_MSG_CHECKING([for QCDNUM libraries])
-if test "x$QCDNUM_ROOT" = "x"; then
-   AC_MSG_ERROR([QCDNUM enviroment not set ! QCDNUM_ROOT/lib must point to libhqstf.a  libmbutil.a  libqcdnum.a  libzmstf.a])
-else
-  AC_SUBST([QCDNUMLIBS], ["-L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil"])
-  AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
+qcdnum_config=`which qcdnum-config`
+if test x$qcdnum_config == x; then
+  if test "x$QCDNUM_ROOT" = "x"; then
+     AC_MSG_ERROR([QCDNUM enviroment not set ! for QCDNUM version below 17-01-10, QCDNUM_ROOT/lib must point to libhqstf.a  libmbutil.a  libqcdnum.a  libzmstf.a, above 17-01-10 version, qcdnum-config must be defined])
+  else
+    AC_SUBST([QCDNUMLIBS], ["-L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil"])
+    AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
+  fi  
+else  
+  qg_version=`qcdnum-config --version`
+  AC_MSG_RESULT([Using QCDNUM $qg_version with $qcdnum_config])
+  QCDNUMLIBS=`qcdnum-config --ldflags`
+  AC_SUBST(QCDNUMLIBS)
+  AC_DEFINE([QCDNUM_WITH_AUTOTOOLS],[1],[Define if QCDNUM version with autotools is available (above 17-01-10)])
 fi
 
 
