@@ -250,14 +250,18 @@ another option would be:
 		     theory definition, allowing to set a simple formula in
 		     'TheorExpr' string variable with preliminary defined
 		     terms in 'TermName', 'TermType' (can be 'kfactor',
-		     'applgrid' or 'virtgrid') and 'TermSource' (the files from where the
-		     predictions are taken). The expression recognises
-		     simple arithmetic operations (+,-,/,*) and 'sum()' function, 
-		     returning predictions summed over bins. Example:
+		     'applgrid' or 'virtgrid') and 'TermSource' (the files from
+		     where the predictions are taken). TermInfo can be a
+		     special option string for fast cross section evaluation.
+		     See what options are supported for each theory type. The
+		     expression recognises simple arithmetic operations
+		     (+,-,/,*) and 'sum()' function, returning predictions
+		     summed over bins. Example:
                      --------------------------
                       TheoryType     = 'expression'
                       TermName = 'A1', 'K' 
                       TermType = 'applgrid','kfactor'
+                      TermInfo = '',''
                       TermSource = 'path/to/grid.root' , 
                                    'path/to/kfactor.txt'
                       TheorExpr= 'K*A1/sum(A1)'
