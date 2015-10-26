@@ -264,7 +264,7 @@ C Namelist definition:
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
      $     ,SystScales, IndexDataset
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
-     $     ,TermName,TermType,TermSource,TheorExpr
+     $     ,TermName,TermType,TermInfo, TermSource,TheorExpr
      $     ,ColumnName, ColumnType, NColumn
      $     ,NTheoryFiles 
 
@@ -355,6 +355,7 @@ C Reset to default:
       do i=1,NTermsMax
         TermName(i) = ' '
         TermType(i) = ' '
+        TermInfo(i) = ' '
         TermSource(i) = ' '
       enddo
       TheorExpr = ' '
@@ -521,6 +522,8 @@ C Count theory expression terms
         TermName(i) = trim(CTmp)
         CTmp = TermType(i)
         TermType(i) = trim(CTmp)
+        CTmp = TermInfo(i)
+        TermInfo(i) = trim(CTmp)
         CTmp = TermSource(i)
         TermSource(i) = trim(CTmp)
       enddo
@@ -998,7 +1001,7 @@ c but firest check that there are two columns per each bin dimension
           Theoryunit = 1.
         endif
 
-        call set_theor_units(NDATASETS, Theoryunit)
+!        call set_theor_units(NDATASETS, Theoryunit)
         call init_theor_eval(NDATASETS)
       endif
 

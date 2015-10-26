@@ -23,7 +23,7 @@ extern "C" {
 //    char **TermSource, char *TermExpr);
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
     double *allBins);
-  int set_theor_units_(int *dsId, double *units);
+//  int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
   int get_theor_eval_(int *dsId, int* np, int* idx);
@@ -43,6 +43,7 @@ extern struct thexpr_cb {
   int nterms;
   char termname[16][8];
   char termtype[16][80];
+  char terminfo[16][80];
   char termsource[16][1000];
   char theorexpr[1000];
   int ppbar_collisions;
@@ -68,15 +69,17 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   // convert fortran strings to c++
   vector<string> stn(theorexpr_.nterms);
   vector<string> stt(theorexpr_.nterms);
+  vector<string> sti(theorexpr_.nterms);
   vector<string> sts(theorexpr_.nterms);
   for ( int i = 0; i< theorexpr_.nterms; i++){
     stn[i].assign(theorexpr_.termname[i], string(theorexpr_.termname[i]).find(' '));
     stt[i].assign(theorexpr_.termtype[i], string(theorexpr_.termtype[i]).find(' '));
+    sti[i].assign(theorexpr_.terminfo[i], string(theorexpr_.terminfo[i]).find(' '));
     sts[i].assign(theorexpr_.termsource[i], string(theorexpr_.termsource[i]).find(' '));
   }
   string ste;
   ste.assign(theorexpr_.theorexpr, string(theorexpr_.theorexpr).find(' '));
-  TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sts, ste);
+  TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sti, sts, ste);
 
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetDynamicScale(theorexpr_.dynscale);
@@ -114,6 +117,7 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
   return 1;
 }
 
+/*
 int set_theor_units_(int *dsId, double *units)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
@@ -127,6 +131,7 @@ int set_theor_units_(int *dsId, double *units)
   te->setUnits(*units);
   return 1;
 }
+*/
 
 /*!
  Initializes theory for requested dataset.

@@ -48,7 +48,7 @@ class CommonGrid {
 
   //! Selects if we have a proton-antiproton collision
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
-  void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
+  void SetDynamicScale(double dynscale) {_dynamicscale = dynscale;};
   //! Check that the data and grid bins are consistent
   int checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins);
 
@@ -94,7 +94,7 @@ class CommonGrid {
   bool _ppbar;
 
   /// bin-by-bin dynamic scale
-  float _dynamicscale;
+  double _dynamicscale;
 };
 
 #endif

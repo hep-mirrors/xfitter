@@ -5,7 +5,8 @@ C> Common block for theory expression
       double precision dynscale
       integer NTerms
       character*8 TermName(NTermsMax)
-      character*80  TermType(NTermsMax)
+      character*80 TermType(NTermsMax)
+      character*80 TermInfo(NTermsMax)
       character*1000 TermSource(NTermsMax)
       character*1000 TheorExpr
       integer ppbar_collisions
@@ -13,4 +14,5 @@ C> Common block for theory expression
       integer murdef
       integer mufdef
 
-      common/theorexpr/ dynscale, NTerms, TermName, TermType, TermSource, TheorExpr, ppbar_collisions, normalised, murdef, mufdef
+      common/theorexpr/ dynscale, NTerms, TermName, TermType, TermInfo, 
+     & TermSource, TheorExpr, ppbar_collisions, normalised, murdef, mufdef

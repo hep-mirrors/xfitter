@@ -31,7 +31,10 @@
 #include "CommonGrid.h"
 //#include "appl_grid/appl_grid.h"
 
-using namespace std;
+using std::valarray;
+using std::vector;
+using std::string;
+using std::map;
 
 //! Arithmetic token struct
 /**
@@ -62,13 +65,14 @@ class TheorEval{
     \param nTerms the number of terms in the expression
     \param stn array of strings with term names
     \param stt array of strings with term types
+    \param sti array of strings with term info
     \param sts array of strings with term sources
     \param ste string with the expression itself
 
     TheorEval constructor that should be used in the code.
   */
   TheorEval(const int dsID, const int nTerms, const std::vector<string> stn, const std::vector<string> stt,
-            const std::vector<string> sts, const string& ste);
+            const std::vector<string> sti, const std::vector<string> sts, const string& ste);
   
   //! Evaluates array of predictions for requested expression
   /*!
@@ -110,8 +114,6 @@ class TheorEval{
   int initTheory();
   //! Returns numebr of bins in the current dataset
   int getNbins();
-  //! Sets the units in wich the theoretical prediction is perceived
-  int setUnits(double units){ _units = units;};
   //! Returs vector with bin flags for current dataset
   const vector<int> *getBinFlags() const { return &_binFlags; }
   //! Selects if we have a proton-antiproton collision
@@ -160,6 +162,7 @@ class TheorEval{
   double _units;
   vector<string> _termNames;
   vector<string> _termTypes;
+  vector<string> _termInfos;
   vector<string> _termSources;
   string _expr;
   vector<int> _binFlags;

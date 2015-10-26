@@ -26,16 +26,15 @@ using namespace std;
 // } cscales_;
 
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
-                     const std::vector<string> sts, const string& expr)
+                     const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
 {
-  _dsId = dsId;
   // _iOrd = cscales_.datasetiorder[_dsId-1];
   // _xmur = cscales_.datasetmur[_dsId-1];
   // _xmuf = cscales_.datasetmuf[_dsId-1];
-  _nTerms = nTerms;
   for (int it= 0 ; it<nTerms; it++ ){
     _termNames.push_back(stn[it]);
     _termTypes.push_back(stt[it]);
+    _termInfos.push_back(sti[it]);
     _termSources.push_back(sts[it]);
   }
   _expr.assign(expr);
@@ -227,7 +226,11 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
   } else if ( term_type == string("kfactor")) {
     this->initKfTerm(iterm, val);
   } else {
-    cout << "ERROR: Unknown term type \"" << term_type << "\""<< endl;
+    int id = 15102301;
+    char text[] = "S: Unknown term type in expression for term";
+    std::cout << "Unknown term type in expression for term " << _termNames[iterm] << std::endl;
+    int textlen = strlen(text);
+    hf_errlog_(id, text, textlen);
     return -1;
   }
 }
@@ -481,7 +484,7 @@ TheorEval::Evaluate(valarray<double> &vte )
 	  for (int bin = 0; bin < _binFlags.size(); bin++)
 	    vte[bin] /= integral;
       }
-    vte /= _units;
+    //vte /= _units;
   }
 }
 
