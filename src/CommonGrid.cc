@@ -111,7 +111,9 @@ CommonGrid::initfastNLO(const string &grid_source)
    hb.f = fnlo;
    hb.ngb = fnlo->GetNObsBin();
    _hbins.push_back(hb);
-   _ndim = 2;
+   _ndim = fnlo->GetNumDiffBin(); // _ndim not needed for fastNLO
+   for ( int i = 0 ; i<_ndim ; i++ ) 
+      if ( fnlo->GetIDiffBin(i) != 1 ) _ndim++;
    return _hbins.size();
 }
 
@@ -193,9 +195,10 @@ CommonGrid::vconvolute(const int iorder, const double mur, const double muf)
 std::vector<double> 
 CommonGrid::vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOHeraFitter* fnlo)
 {
+   //! calculate fastNLO cross sections
+   fnlo->SetScaleFactorsMuRMuF(mur, muf);
    fnlo->FillAlphasCache();
    fnlo->FillPDFCache();
-   fnlo->SetScaleFactorsMuRMuF(mur, muf);
    fnlo->CalcCrossSection();
    return fnlo->GetCrossSection();
 }

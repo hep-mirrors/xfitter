@@ -305,6 +305,7 @@ c     Normalise applgrid prediction to 1
 c     bin-by-bin dynamic scale in applgrid prediction
       double precision theory_dynscale
 
+  
       integer i,j,iBin,iError
       logical LReadKFactor
 
@@ -614,6 +615,29 @@ C     ---> copy the names in a new variable
      $        Name
            call HF_errlog(14042001,trim(Msg))
         endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'MurDef')
+        murdef = -1    ! defaults: scale1 for pp/ppbar
+        if ( idxReaction .ne. 0 ) then
+           murdef = DATASETInfo(idxReaction, NDATASETS)
+           if ( murdef .ne. -1 ) then
+              write (Msg,'(''I: Use mur defintion '',i1,'' for fastNLO dataset: '',A20,'' '')')
+     $             murdef,Name
+              call HF_errlog(15102301,trim(Msg))
+           endif
+        endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'MufDef')
+        mufdef = -1    ! defaults: scale1 for pp/ppbar
+        if ( idxReaction .ne. 0 ) then
+           mufdef = DATASETInfo(idxReaction, NDATASETS)
+           if ( murdef .ne. -1 ) then
+              write (Msg,'(''I: Use muf defintion '',i1,'' for fastNLO dataset: '',A20,'' '')')
+     $             murdef, Name
+              call HF_errlog(15102302,trim(Msg))
+           endif
+        endif
+
 
         call set_theor_eval(NDATASETS)
       endif

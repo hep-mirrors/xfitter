@@ -48,6 +48,8 @@ extern struct thexpr_cb {
   char theorexpr[1000];
   int ppbar_collisions;
   int normalised;
+  int murdef;
+  int mufdef;
 } theorexpr_;
 
 /*!
@@ -59,9 +61,9 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
 //  char **TermSource, char *TermExpr)
 {
   // convert fortran strings to c++
-  vector<string> stn; stn.resize(theorexpr_.nterms);
-  vector<string> stt; stt.resize(theorexpr_.nterms);
-  vector<string> sts; sts.resize(theorexpr_.nterms);
+  vector<string> stn(theorexpr_.nterms);
+  vector<string> stt(theorexpr_.nterms);
+  vector<string> sts(theorexpr_.nterms);
   for ( int i = 0; i< theorexpr_.nterms; i++){
     stn[i].assign(theorexpr_.termname[i], string(theorexpr_.termname[i]).find(' '));
     stt[i].assign(theorexpr_.termtype[i], string(theorexpr_.termtype[i]).find(' '));
@@ -74,6 +76,9 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetDynamicScale(theorexpr_.dynscale);
   te->SetNormalised(theorexpr_.normalised);
+  te->SetMurDef(theorexpr_.murdef);
+  te->SetMufDef(theorexpr_.mufdef);
+
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }

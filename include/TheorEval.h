@@ -117,6 +117,8 @@ class TheorEval{
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
+  void SetMurDef(int MurDef) { _MurDef = MurDef;}; //!< Set mur definition for fastNLO flexible-scale tables
+  void SetMufDef(int MufDef) { _MufDef = MufDef;}; //!< Set muf definition for fastNLO flexible-scale tables
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
 
@@ -170,6 +172,10 @@ class TheorEval{
 
   /// ppbar PDF
   bool _ppbar;
+
+  /// fastNLO flexible-scale defintions
+  int _MurDef;
+  int _MufDef;
 
   /// bin-by-bin dynamic scale
   float _dynamicscale;

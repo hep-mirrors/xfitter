@@ -10,5 +10,7 @@ C> Common block for theory expression
       character*1000 TheorExpr
       integer ppbar_collisions
       integer normalised
+      integer murdef
+      integer mufdef
 
-      common/theorexpr/ dynscale, NTerms, TermName, TermType, TermSource, TheorExpr, ppbar_collisions, normalised
+      common/theorexpr/ dynscale, NTerms, TermName, TermType, TermSource, TheorExpr, ppbar_collisions, normalised, murdef, mufdef

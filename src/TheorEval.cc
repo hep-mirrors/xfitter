@@ -237,24 +237,19 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
      g->checkBins(_binFlags, _dsBins);
   }
   else if ( term_type.find("ast") != string::npos ){
-   // DataInfo       = 7000.     , 1.                 , -1.      , -1.
-   // CInfo          = 'sqrt(S)' , 'PublicationUnits' , 'MurDef' , 'MufDef'
-     bool PublicationUnits = true; // todo: take from steering CInfo
-     int murdef = -1; // todo: take from steering CInfo
-     int mufdef = -1; // todo: take from steering CInfo
-     double murscale = 1;// todo take from steering 
-     double mufscale = 1;// todo take from steering 
+     bool PublicationUnits = true; // todo: take from new steering flag 'TermNorm'
      if(PublicationUnits)
 	g->getHBins().back().f->SetUnits(fastNLO::kPublicationUnits);
      else 
 	g->getHBins().back().f->SetUnits(fastNLO::kAbsoluteUnits);
      
-     if(murdef>=0.)
-	g->getHBins().back().f->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (murdef)));
-     if(mufdef>=0.)
-	g->getHBins().back().f->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (mufdef)));
-     
-     g->getHBins().back().f->SetScaleFactorsMuRMuF(  murscale, mufscale);
+     if(_MurDef>=0)
+	g->getHBins().back().f->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MurDef)));
+     if(_MufDef>=0)
+	g->getHBins().back().f->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MufDef)));
+     // double murscale = 1;// set later
+     // double mufscale = 1;// set later
+     // g->getHBins().back().f->SetScaleFactorsMuRMuF(  murscale, mufscale);
   }
 
   /*
