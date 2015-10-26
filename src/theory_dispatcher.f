@@ -64,8 +64,7 @@ C Standard DGLAP:& TMDs
          if(Itheory.lt.100) then
            if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
              !call set_theor_CKM(IDataSet,
-             call get_theor_eval(IDataSet, DataSetIOrder(IDataSet)-1,
-     $         DataSetMuR(IDataSet), DataSetMuF(IDataSet), 
+             call get_theor_eval(IDataSet, 
      $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
            else
             Call GetDYCCXsection(IDataSet)
@@ -79,8 +78,7 @@ C Standard DGLAP:& TMDs
          if(Itheory.lt.100) then
            if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
              !call set_theor_CKM(IDataSet,
-             call get_theor_eval(IDataSet, DataSetIOrder(IDataSet)-1,
-     $         DataSetMuR(IDataSet), DataSetMuF(IDataSet), 
+             call get_theor_eval(IDataSet, 
      $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
            else
              call GetDYNCXsection(IDataSet)
@@ -93,8 +91,7 @@ C Standard DGLAP:& TMDs
          if(Itheory.lt.100) then
            if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
              !call set_theor_CKM(IDataSet,
-             call get_theor_eval(IDataSet, DataSetIOrder(IDataSet)-1,
-     $         DataSetMuR(IDataSet), DataSetMuF(IDataSet), 
+             call get_theor_eval(IDataSet, 
      $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
            else
              Call GetJetsPPApplGrid(IDataSet)
@@ -107,8 +104,7 @@ C Standard DGLAP:& TMDs
          if(Itheory.lt.100) then
            if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
              !call set_theor_CKM(IDataSet,
-             call get_theor_eval(IDataSet, DataSetIOrder(IDataSet)-1,
-     $         DataSetMuR(IDataSet), DataSetMuF(IDataSet), 
+             call get_theor_eval(IDataSet, 
      $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
            else
              Call GetJetsPPApplGrid(IDataSet)

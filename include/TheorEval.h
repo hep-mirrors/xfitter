@@ -11,12 +11,13 @@
 
   @author A.Sapronov <sapronov@ifh.de>
 
-  @version 1.1
+  @version 1.2
 
   @date 2013/08/12
  */
  /*
   2014/03/14: Adding normalisation grids option and more documentation -- AS.
+  2015/10/22: Adding fastNLO interface -- DB.
  */
 #ifndef TheorEval_h
 #define TheorEval_h 1
@@ -80,7 +81,7 @@ class TheorEval{
     iteration. It updates the expression components and folds the reverse
     polish notation to calculate the result.
    */
-  int Evaluate(const int iorder, const double mur, const double muf, valarray<double> &vte );
+  int Evaluate(valarray<double> &vte );
 
   //! Set custom CKM matrix for APPLgrid
   /*!
@@ -117,8 +118,8 @@ class TheorEval{
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-  void SetMurDef(int MurDef) { _MurDef = MurDef;}; //!< Set mur definition for fastNLO flexible-scale tables
-  void SetMufDef(int MufDef) { _MufDef = MufDef;}; //!< Set muf definition for fastNLO flexible-scale tables
+   void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
+  void SetOrdScales(int iord, double mur, double muf) { _iOrd=iord; _xmur=mur; _xmuf=muf;}; //!< set order and scale factors
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
 
@@ -148,10 +149,13 @@ class TheorEval{
   //! Initialise K-factor term
   int initKfTerm(int, valarray<double> *);
   //! Get current grid values into the tokens
-  int getGridValues(const int iorder, const double mur, const double muf);
+  int getGridValues();
 
  private:
   int _dsId;
+  int _iOrd;
+  int _xmur;
+  int _xmuf;
   int _nTerms;
   double _units;
   vector<string> _termNames;

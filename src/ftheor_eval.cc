@@ -26,8 +26,7 @@ extern "C" {
   int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
-  int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, 
-    int* np, int* idx);
+  int get_theor_eval_(int *dsId, int* np, int* idx);
   int close_theor_eval_();
 }
 
@@ -51,6 +50,12 @@ extern struct thexpr_cb {
   int murdef;
   int mufdef;
 } theorexpr_;
+
+extern struct ord_scales {
+   double datasetmur[150];
+   double datasetmuf[150];
+   int datasetiorder[150];
+} cscales_;
 
 /*!
  Creates theory evaluation object and adds it to the global map by 
@@ -76,9 +81,8 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetDynamicScale(theorexpr_.dynscale);
   te->SetNormalised(theorexpr_.normalised);
-  te->SetMurDef(theorexpr_.murdef);
-  te->SetMufDef(theorexpr_.mufdef);
-
+  te->SetMurMufDef(theorexpr_.murdef,theorexpr_.mufdef);
+  te->SetOrdScales(cscales_.datasetiorder[*dsId-1],cscales_.datasetmur[*dsId-1],cscales_.datasetmuf[*dsId-1]);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }
@@ -159,8 +163,9 @@ int update_theor_ckm_()
 /*!
  Evaluates theory for requested dataset and writes it to the global THEO array.
  */
-int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, int*idx)
+int get_theor_eval_(int *dsId, int *np, int*idx)
 {
+
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { 
     cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
@@ -171,7 +176,7 @@ int get_theor_eval_(int *dsId, int *iorder, double *mur, double *muf, int *np, i
   valarray<double> vte;
   TheorEval *te = gTEmap.at(*dsId);
   vte.resize(te->getNbins());
-  te->Evaluate(*iorder, *mur, *muf, vte);
+  te->Evaluate(vte);
 
   // Get bin flags, and abandon bins flagged 0
   const vector<int> *binflags = te->getBinFlags();

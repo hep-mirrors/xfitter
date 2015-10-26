@@ -196,7 +196,9 @@ std::vector<double>
 CommonGrid::vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOHeraFitter* fnlo)
 {
    //! calculate fastNLO cross sections
-   fnlo->SetScaleFactorsMuRMuF(mur, muf);
+   if ( mur != fnlo->GetScaleFactorMuR() || mur != fnlo->GetScaleFactorMuF()) 
+      fnlo->SetScaleFactorsMuRMuF(mur, muf);
+   // iorder is already set earlier
    fnlo->FillAlphasCache();
    fnlo->FillPDFCache();
    fnlo->CalcCrossSection();

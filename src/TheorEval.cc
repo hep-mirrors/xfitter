@@ -19,10 +19,19 @@
 
 using namespace std;
 
+// extern struct ord_scales {
+//    double datasetmur[150];
+//    double datasetmuf[150];
+//    int datasetiorder[150];
+// } cscales_;
+
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
                      const std::vector<string> sts, const string& expr)
 {
   _dsId = dsId;
+  // _iOrd = cscales_.datasetiorder[_dsId-1];
+  // _xmur = cscales_.datasetmur[_dsId-1];
+  // _xmuf = cscales_.datasetmuf[_dsId-1];
   _nTerms = nTerms;
   for (int it= 0 ; it<nTerms; it++ ){
     _termNames.push_back(stn[it]);
@@ -238,18 +247,37 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
   }
   else if ( term_type.find("ast") != string::npos ){
      bool PublicationUnits = true; // todo: take from new steering flag 'TermNorm'
+     //FastNLOReader* fnlo = g->getHBins().back().f;
+     FastNLOHeraFitter* fnlo = g->getHBins().back().f; 
      if(PublicationUnits)
-	g->getHBins().back().f->SetUnits(fastNLO::kPublicationUnits);
+	fnlo->SetUnits(fastNLO::kPublicationUnits);
      else 
-	g->getHBins().back().f->SetUnits(fastNLO::kAbsoluteUnits);
+	fnlo->SetUnits(fastNLO::kAbsoluteUnits);
      
+
+     // --- set scales
      if(_MurDef>=0)
-	g->getHBins().back().f->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MurDef)));
+	fnlo->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MurDef)));
      if(_MufDef>=0)
-	g->getHBins().back().f->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MufDef)));
-     // double murscale = 1;// set later
-     // double mufscale = 1;// set later
-     // g->getHBins().back().f->SetScaleFactorsMuRMuF(  murscale, mufscale);
+	fnlo->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MufDef)));
+     if ( _xmur!=1 || _xmuf!=1 )
+	fnlo->SetScaleFactorsMuRMuF(_xmur, _xmuf);
+
+     // --- set order  
+     if ( _iOrd == 1 ) {
+	fnlo->SetContributionON(fastNLO::kFixedOrder,1,false); // switch 'off' NLO
+     }
+     else if (_iOrd==2) {
+	// that's fastNLO default
+     }
+     else if (_iOrd==3) {
+	fnlo->SetContributionON(fastNLO::kFixedOrder,2,true); // switch 'on' NNLO
+     }
+     else {
+	printf("fastNLO pert. order is not defined, ordercalc = %d:\n",_iOrd);
+	exit(1);
+     }
+
   }
 
   /*
@@ -392,10 +420,10 @@ TheorEval::setCKM(const vector<double> &v_ckm)
 }
 
 int
-TheorEval::Evaluate(const int iorder, const double mur, const double muf, valarray<double> &vte )
+TheorEval::Evaluate(valarray<double> &vte )
 {
   // get values from grids
-  this->getGridValues(iorder, mur, muf);
+   this->getGridValues();
 
   // calculate expression result
   stack<valarray<double> > stk;
@@ -458,13 +486,13 @@ TheorEval::Evaluate(const int iorder, const double mur, const double muf, valarr
 }
 
 int
-TheorEval::getGridValues(const int iorder, const double mur, const double muf)
+TheorEval::getGridValues()
 {
   map<CommonGrid*, valarray<double>*>::iterator itm;
   for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
     CommonGrid* g = itm->first;
     vector<double> xs;
-    xs = g->vconvolute(iorder, mur, muf);
+    xs = g->vconvolute(_iOrd, _xmur, _xmuf);
 
     *(itm->second) = valarray<double>(xs.data(), xs.size());
     /*
