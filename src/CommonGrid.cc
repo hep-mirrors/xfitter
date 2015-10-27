@@ -180,7 +180,8 @@ CommonGrid::vconvolute(const int iorder, const double mur, const double muf)
    vector<tHyperBin>::iterator ihb;
    for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
       if ( ihb->g ) 
-	 return vconvolute_appl(iorder,mur,muf,&(*ihb));
+	 // have to decrement iorder, since for appl_grid 0 -> LO, 1 -> NLO, etc.
+	 return vconvolute_appl(iorder-1,mur,muf,&(*ihb));
       else if ( ihb->f )
 	 return vconvolute_fastnlo(iorder,mur,muf,ihb->f);
       else {
