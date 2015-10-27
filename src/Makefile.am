@@ -19,9 +19,6 @@ FitPDF_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
 FitPDF_SOURCES += lhapdf6_output.c c_interface.f
 
-FitPDF_SOURCES += TheorEval.cc ftheor_eval.cc 
-
-
 #LHAPDFErrors
 FitPDF_SOURCES += fortran_io.f lhapdferrors.cc
 
@@ -45,7 +42,7 @@ else
 endif
 
 if ENABLE_APPLGRID 
-  FitPDF_SOURCES+= fappl_grid.cxx applgrids.f CommonGrid.cc
+  FitPDF_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
 else 
   FitPDF_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
 endif
