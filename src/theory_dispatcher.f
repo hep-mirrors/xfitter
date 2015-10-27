@@ -52,6 +52,16 @@ C Standard DGLAP:& TMDs
          Call GetNCFL(IDataSet, HFSCHEME)
        elseif (DATASETREACTION(IDataSet).eq.'NC e+-p F2') then
          Call GetNCF2(IDataSet, HFSCHEME)
+c           
+      elseif (DATASETREACTION(IDataSet).eq.'CC e+-p integrated') then         
+         if(Itheory.lt.100.) then
+            Call GetIntegratedCCXsection(IDataSet, HFSCHEME)
+         else
+           write(6,*)
+     >       'CC e+-p integrated: invalid dataset for itheory>100'
+            call hf_stop
+         Endif
+c          
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
          if(Itheory.lt.100) then
             Call GetCCXsection(IDataSet, HFSCHEME)

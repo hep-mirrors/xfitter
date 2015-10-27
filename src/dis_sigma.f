@@ -132,13 +132,14 @@ C---------------------------------------------------------------
       integer nxsplit
       parameter(nxsplit=25)
 
-      double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS),XSecP(NPMaxDIS),XSecN(NPMaxDIS)
-      double precision q2_1, q2_2, alphaem_run, factor, XSec, YPlus
+      double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS),XSecT(NPMaxDIS)
+      double precision XSecP(NPMaxDIS),XSecM(NPMaxDIS)
+      double precision q2_1,q2_2,x_1,x_2, alphaem_run, factor, XSec, YPlus
       double precision dq2(NPMaxDIS), dx(NPMaxDIS)
       double precision Charge, polarity, S
-      double precision q2min,q2max,xmin,xmax
+      double precision q2min,q2max,xmin,xmax,ymin,ymax
       double precision EmToEtotRatio, alm_mz
-      logical LoopOverYBins, CopyValue
+      logical CopyValue
       integer NSubBins
 
 
@@ -159,12 +160,9 @@ C
 C Get indexes for Q2, x and y bins:
 C
       idxQ2min = GetBinIndex(IDataSet,'q2min')
-      idxXmin  = GetBinIndex(IDataSet,'xmin')
       idxYmin = GetBinIndex(IDataSet,'ymin')
       idxQ2max = GetBinIndex(IDataSet,'q2max')
-      idxXmax  = GetBinIndex(IDataSet,'xmax')
       idxYmax = GetBinIndex(IDataSet,'ymax')
-      LoopOverYBins = .false.
       S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)'), IDataSet))**2
       EmToEtotRatio=(DATASETInfo(GetInfoIndex(IDataSet,
      $     'lumi(e-)/lumi(tot)'),IDataSet))
@@ -173,12 +171,9 @@ C
          call HF_errlog(12100800,
      + 'F: Q2 bins not well defined in a data file that expecting to calculate DIS cross sections')
       endif
-      if (idxXmin.eq.0 .or. idxXmax.eq.0) then
-         if (idxYmin.eq.0 .or. idxYmax.eq.0) then
+      if (idxYmin.eq.0 .or. idxYmax.eq.0) then
          call HF_errlog(12100801,
-     + 'F: x or y bins need to be defined in a data file to calculate DIS cross sections')
-         endif
-         LoopOverYBins = .true.
+     + 'F: y bins need to be defined in a data file to calculate DIS cross sections')
       endif
 
       do i=1,NDATAPOINTS(IDataSet)
@@ -189,12 +184,6 @@ C
             if((idxQ2min.gt.0).and.(idxQ2max.gt.0)) then
                if((AbstractBins(idxQ2min,idx).ne.AbstractBins(idxQ2min,idx-1)).or.
      +              (AbstractBins(idxQ2max,idx).ne.AbstractBins(idxQ2max,idx-1))) then
-                  CopyValue = .false.
-               endif
-            endif
-            if((idxXmin.gt.0).and.(idxXmax.gt.0)) then
-               if((AbstractBins(idxXmin,idx).ne.AbstractBins(idxXmin,idx-1)).or.
-     +              (AbstractBins(idxXmax,idx).ne.AbstractBins(idxXmax,idx-1))) then
                   CopyValue = .false.
                endif
             endif
@@ -213,49 +202,99 @@ C
 
          q2min = AbstractBins(idxQ2min,idx)
          q2max = AbstractBins(idxQ2max,idx)
+         ymin  = AbstractBins(idxYmin,idx)
+         ymax  = AbstractBins(idxYmax,idx)
+         xmin = q2min / (S * ymax)
+         xmax = q2max / (S * ymin)
+c add checks on x kinematics
+         if(xmin.lt.1D-5) then
+            xmin = 1D-5
+         endif
+         if(xmax.gt.0.98) then
+           xmax = 0.98
+         endif 
 
+
+c do integration in log space for Q2 and x, if linear scale wanted, see
+c example below for x (commented out)         
          j=0
          do iq2=0,nq2split
             q2_1 = q2_2
             q2_2 = exp( log(q2min) + (log(q2max) - log(q2min)) / nq2split*dble(iq2))            
             if(iq2.gt.0) then
-               do ix=0, nxsplit-1
-                  j=j+1
-                  dq2(j) = q2_2 - q2_1
-                  q2(j) = exp( log(q2_1) + 0.5*(log(q2_2) - log(q2_1)) ) 
+               do ix=0, nxsplit
+                  x_1 = x_2
+                  x_2 = exp( log(xmin) + (log(xmax) - log(xmin)) / nxsplit*dble(ix))            
+                  if(ix.gt.0) then
+                     j=j+1
+                     dq2(j) = q2_2 - q2_1
+                     q2(j) = exp( log(q2_1) + 0.5*(log(q2_2) - log(q2_1)) ) 
 
-                  
-                  if(LoopOverYBins) then
-                     xmax = q2(j) / (S * AbstractBins(idxYmin,idx))
-                     xmin = q2(j) / (S * AbstractBins(idxYmax,idx))
-                  else
-                     xmax = AbstractBins(idxXmax,idx)
-                     xmin = AbstractBins(idxXmin,idx)
+                     dx(j) = x_2 - x_1
+                     x(j) = exp( log(x_1) + 0.5*(log(x_2) - log(x_1)) ) 
+  
+                     y(j) = q2(j) / (S * x(j))
+c check that calculated y values agree with limits given in data file                  
+                     if(y(j).lt.AbstractBins(idxYmin,idx).or.y(j).gt.AbstractBins(idxYmax,idx)) then
+                       y(j)  = 0.d0
+                     endif 
+
                   endif
-                  
-                  x(j) = xmin + (xmax-xmin)/dble(nxsplit)*(dble(ix)+0.5)
-                  dx(j) = (xmax-xmin) / dble(nxsplit)
-                  y(j) = q2(j) / (S * x(j))
                enddo
             endif
          enddo                  ! loop over q2 subgrid
          NSubBins = j
 
-         polarity = 0.D0
+c -------  same with linear integration in x:         
+c         j=0
+c         do iq2=0,nq2split
+c            q2_1 = q2_2
+c            q2_2 = exp( log(q2min) + (log(q2max) - log(q2min)) / nq2split*dble(iq2))            
+c            if(iq2.gt.0) then
+c               do ix=0, nxsplit-1
+c                  j=j+1
+c                  dq2(j) = q2_2 - q2_1
+c                  q2(j) = exp( log(q2_1) + 0.5*(log(q2_2) - log(q2_1)) ) 
+c
+c                  
+c                  if(LoopOverYBins) then
+c                     xmax = q2(j) / (S * AbstractBins(idxYmin,idx))
+c                     xmin = q2(j) / (S * AbstractBins(idxYmax,idx))
+c                  else
+c                     xmax = AbstractBins(idxXmax,idx)
+c                     xmin = AbstractBins(idxXmin,idx)
+c                  endif
+c                  
+c                  x(j) = xmin + (xmax-xmin)/dble(nxsplit)*(dble(ix)+0.5)
+c                  dx(j) = (xmax-xmin) / dble(nxsplit)
+c                  y(j) = q2(j) / (S * x(j))
+c               enddo
+c            endif
+c         enddo                  ! loop over q2 subgrid
+c         NSubBins = j
 
 
+         call ReadPolarityAndCharge(idataset,charge,polarity)
+         call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins,charge,
+     $        polarity,IDataSet,XSecType, local_hfscheme, XSecT)
+c also get x-os sections for e+ and e- to calculate ratio later         
          call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins, 1.D0,
      $        polarity,IDataSet,XSecType, local_hfscheme, XSecP)
          call CalcReducedXsectionForXYQ2(X,Y,Q2,NSubBins,-1.D0,
-     $        polarity,IDataSet,XSecType, local_hfscheme, XSecN)
+     $        polarity,IDataSet,XSecType, local_hfscheme, XSecM)
 
          XSec = 0.D0
          do j=1, NSubBins
-            XSecP(j) = EmToEtotRatio*XSecN(j) + (1.D0-EmToEtotRatio)*XSecP(j)
+            if(EmToEtotRatio.ne.0.D0) then
+               XSecT(j) = EmToEtotRatio*XSecM(j) + (1.D0-EmToEtotRatio)*XSecP(j)
+            endif
 
             Yplus  = 1. + (1.-y(j))**2
-c Y plus needed only for NC cross sections, move lower
-c           XSecP(j) = XSecP(j) * YPlus
+
+c do add cross section if y was outside of cuts
+            if(y(j).eq.0.D0) then
+               XSecT(j) = 0.D0
+            endif
 
             factor=1.D0
             if (XSecType.eq.'CCDIS') then
@@ -277,11 +316,11 @@ c               alphaem_run = alm_mz/(1. - alm_mz * 2/(3.*pi)*log(q2(j)/mz**2))
             endif
 
 
-            XSecP(j) = XSecP(j) * factor
-            XSecP(j) = XSecP(j) * dq2(j)
-            XSecP(j) = XSecP(j) * dx(j)
+            XSecT(j) = XSecT(j) * factor
+            XSecT(j) = XSecT(j) * dq2(j)
+            XSecT(j) = XSecT(j) * dx(j)
 
-            XSec = XSec+XSecP(j)
+            XSec = XSec+XSecT(j)
          enddo
          
          THEO(idx) =  XSec
@@ -429,7 +468,6 @@ C
          endif
 
          THEO(idx) =  XSec(i)*factor
-
 
       enddo
 
