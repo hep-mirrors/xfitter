@@ -4,7 +4,6 @@ AC_INIT([herafitter], [trunk], [herafitter-help@desy.de])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(${PWD})
 
-
 # Checks for programs.
 AC_PROG_FC([gfortran])
 AC_PROG_F77([gfortran])
@@ -23,6 +22,10 @@ AC_F77_WRAPPERS
 # lapack macros
 m4_include([m4/ax_blas.m4])
 m4_include([m4/ax_lapack.m4])
+# compare versions
+m4_include([m4/ax_compare_version.m4])
+# openmp suport
+m4_include([m4/ax_openmp.m4])
 
 AX_LAPACK
 
@@ -53,8 +56,6 @@ AS_IF([test "$enable_postprocess" = "yes"], [
         AC_LANG_POP(C)],
 [AM_CONDITIONAL([HAVE_YAML], [false])]
 )
-# openmp suport
-m4_include([m4/ax_openmp.m4])
 
 AC_ARG_ENABLE([openmp],
                  [AS_HELP_STRING([--enable-openmp],[enable openmp support])])
@@ -80,7 +81,6 @@ if test x$enable_trapFPE == xyes; then
 fi
 
 # Check for check bounds flag
-
 AC_ARG_ENABLE([checkBounds],
   [AC_HELP_STRING(--enable-checkBounds, [add -fbounds-check flag for compilation (default=no)])])
 if test x$enable_checkBounds == xyes; then
@@ -110,23 +110,26 @@ AC_CONFIG_SRCDIR([src/main.f])
 ##  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib  -llapack -lblas])
 #fi
 
-AC_MSG_CHECKING([for QCDNUM libraries])
+#AC_MSG_CHECKING([for QCDNUM libraries])
+#if test "x$QCDNUM_ROOT" = "x"; then
+#   AC_MSG_ERROR([QCDNUM enviroment not set ! QCDNUM_ROOT/lib must point to libhqstf.a  libmbutil.a  libqcdnum.a  libzmstf.a])
+#else
+#  AC_SUBST([QCDNUMLIBS], ["-L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil"])
+#  AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
+#fi
+
+# check for QCDNUM installation
+AC_MSG_CHECKING([for QCDNUM installation])
 qcdnum_config=`which qcdnum-config`
 if test x$qcdnum_config == x; then
-  if test "x$QCDNUM_ROOT" = "x"; then
-     AC_MSG_ERROR([QCDNUM enviroment not set ! for QCDNUM version below 17-01-10, QCDNUM_ROOT/lib must point to libhqstf.a  libmbutil.a  libqcdnum.a  libzmstf.a, above 17-01-10 version, qcdnum-config must be defined])
-  else
-    AC_SUBST([QCDNUMLIBS], ["-L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil"])
-    AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
-  fi  
-else  
-  qg_version=`qcdnum-config --version`
-  AC_MSG_RESULT([Using QCDNUM $qg_version with $qcdnum_config])
+  AC_MSG_ERROR([Unable to find qcdnum-config.])
+else 
+  QCDNUMVERS=`qcdnum-config --version`
   QCDNUMLIBS=`qcdnum-config --ldflags`
+  AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
-  AC_DEFINE([QCDNUM_WITH_AUTOTOOLS],[1],[Define if QCDNUM version with autotools is available (above 17-01-10)])
+  AX_COMPARE_VERSION([17-01-10],[ge],[$QCDNUMVERS],[],[AC_MSG_ERROR([QCDNUM version outdated (17-01-10 or later needed).])])
 fi
-
 
 # NNPDF reweighting
 AC_ARG_ENABLE([nnpdfWeight],
@@ -146,9 +149,10 @@ if test $enable_lhapdf; then
   if test x$lhapdf_config == x; then
     AC_MSG_ERROR([Unable to find lhapdf-config.])
   else 
-    AC_MSG_RESULT([Using $lhapdf_config])
+    LHAPDFVERS=`lhapdf-config --version`
     LHAPDF_CPPFLAGS=`lhapdf-config --cppflags`
     LHAPDF_LDFLAGS=`lhapdf-config --ldflags`
+    AC_MSG_RESULT([Using $lhapdf_config version $LHAPDFVERS])
     AC_SUBST(LHAPDF_CPPFLAGS)
     AC_SUBST(LHAPDF_LDFLAGS)
     AC_DEFINE([LHAPDF_ENABLED],[1],[Define if LHAPDF is enabled])
@@ -165,12 +169,14 @@ if test $enable_apfel; then
   if test x$apfel_config == x; then
     AC_MSG_ERROR([Unable to find apfel-config.])
   else 
-    AC_MSG_RESULT([Using $apfel_config])
+    APFELVERS=`apfel-config --version`
     APFEL_CPPFLAGS=`apfel-config --cppflags`
     APFEL_LDFLAGS=`apfel-config --ldflags`
+    AC_MSG_RESULT([Using $apfel_config version $APFELVERS])
     AC_SUBST(APFEL_CPPFLAGS)
     AC_SUBST(APFEL_LDFLAGS)
     AC_DEFINE([APFEL_ENABLED],[1],[Define if APFEL is enabled])
+    AX_COMPARE_VERSION([2.6.1],[ge],[$APFELVERS],[],[AC_MSG_ERROR([APFEL version outdated (2.6.1 or later needed).])])
   fi
 fi
 AM_CONDITIONAL(ENABLE_APFEL, [test $enable_apfel])
@@ -184,10 +190,12 @@ if test $enable_mela; then
   if test x$mela_config == x; then
     AC_MSG_ERROR([Unable to find mela-config.])
   else 
-    AC_MSG_RESULT([Using $mela_config])
+    MELAVERS=`mela-config --version`
     MELA_LDFLAGS=`mela-config --ldflags`
+    AC_MSG_RESULT([Using $mela_config version $MELAVERS])
     AC_SUBST(MELA_LDFLAGS)
     AC_DEFINE([MELA_ENABLED],[1],[Define if MELA is enabled])
+    AX_COMPARE_VERSION([2.0.0],[ge],[$MELAVERS],[],[AC_MSG_ERROR([MELA version outdated (2.0.0 or later needed).])])
   fi
 fi
 AM_CONDITIONAL(ENABLE_MELA, [test $enable_mela])
@@ -201,9 +209,10 @@ if test x$enable_applgrid == xyes; then
   if test x$applgrid_config == x; then
     AC_MSG_ERROR([Unable to find applgrid-config.])
   else 
-    AC_MSG_RESULT([Using $applgrid_config])
+    APPLGRIDVERS=`applgrid-config --version`
     APPLGRID_CPPFLAGS=`applgrid-config --cxxflags`
     APPLGRID_LDFLAGS=`applgrid-config --ldcflags`
+    AC_MSG_RESULT([Using $applgrid_config version $APPLGRIDVERS])
     AC_SUBST(APPLGRID_CPPFLAGS)
     AC_SUBST(APPLGRID_LDFLAGS)
     AC_DEFINE([APPLGRID_ENABLED],[1],[Define if applgrid is enabled])
@@ -212,7 +221,6 @@ fi
 AM_CONDITIONAL(ENABLE_APPLGRID, [test x$enable_applgrid == xyes])
 
 # check if applgrid support CKM replacement
-m4_include([m4/ax_compare_version.m4])
 ag_ckm=no
 ag_version=`applgrid-config --version`
 if test x$enable_applgrid == xyes; then
