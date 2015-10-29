@@ -4,7 +4,7 @@
 #include "fastNLOTable.h"
 #include "fastNLOPDFLinearCombinations.h"
 
-using namespace std;
+ using namespace std;
 
 class fastNLOReader : public fastNLOTable , public fastNLOPDFLinearCombinations {
    //
@@ -46,13 +46,26 @@ public:
 
    // ---- Do the cross section calculation ---- //
    void CalcCrossSection();
+   double RescaleCrossSectionUnits(double binsize, int xunits);                         // Rescale according to kAbsoluteUnits and Ipublunits settings
 
    // ---- Getters for results---- //
-   vector < double > GetCrossSection();
-   vector < vector < double > > GetCrossSection2Dim();
+   struct XsUncertainty {                                                               //! Struct for returning vectors with cross section and relative uncertainty
+      vector < double > xs;
+      vector < double > dxsl;
+      vector < double > dxsu;
+   };
+
+   vector < double > GetCrossSection();                                                 //! Return vector with all cross section values
+
+   //! Return struct with vectors containing the cross section values and the selected scale uncertainty
+   XsUncertainty GetScaleUncertainty( const EScaleUncertaintyStyle eScaleUnc );
+   // Deprecated: Replaced by struct as return object: Return vector of pairs with all cross section values first and pairs of scale uncertainties second
+   //   vector < pair < double, pair <double, double> > > GetScaleUncertainty( const EScaleUncertaintyStyle eScaleUnc );
+
    vector < double > GetReferenceCrossSection();
    vector < double > GetKFactors();
    vector < double > GetQScales(int irelord);                                           //!< Order (power of alpha_s) rel. to LO: 0 --> LO, 1 --> NLO
+   vector < vector < double > > GetCrossSection2Dim();
 
    // ---- Getters for fastNLOReader member variables ---- //
    fastNLO::EScaleFunctionalForm GetMuRFunctionalForm() const { return fMuRFunc; };
@@ -63,7 +76,7 @@ public:
    double GetScaleFactorMuR() const { return fScaleFacMuR; };
    double GetScaleFactorMuF() const { return fScaleFacMuF; };
    int GetScaleVariation() const { return fScalevar; };
-   std::string GetScaleDescription(const ESMOrder eOrder, int iScale=0) const;
+   string GetScaleDescription(const ESMOrder eOrder, int iScale=0) const;
    double GetNevt(const ESMOrder eOrder) const;
 
    int GetNScaleVariations() const;                                                     //!< Get number of available scale variations
@@ -114,6 +127,7 @@ protected:
    double FuncLinearSum(double scale1 , double scale2) ;
    double FuncMax(double scale1 , double scale2) ;
    double FuncMin(double scale1 , double scale2) ;
+   double FuncProd(double scale1 , double scale2) ;
    double FuncExpProd2(double scale1 , double scale2) ;
 
    void CalcCrossSectionv21(fastNLOCoeffAddFlex* B , bool IsLO = false);

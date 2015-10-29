@@ -2,9 +2,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "fastNLOCoeffBase.h"
-#include "fastNLOTools.h"
-#include "fastNLOGeneratorConstants.h"
+#include "fastnlotk/fastNLOCoeffBase.h"
+#include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
 
@@ -44,7 +43,11 @@ void fastNLOCoeffBase::ReadBase(istream& table){
       error["ReadBase"]<<"Cannot read from file."<<endl;
    }
 
-   fastNLOTools::ReadMagicNo(table);
+   if (!fastNLOTools::ReadMagicNo(table)) {
+      say::error["ReadBase"]<<"Did not find initial magic number, aborting!"<<endl;
+      say::error["ReadBase"]<<"Please check compatibility of tables and program version!"<<endl;
+      exit(1);
+   }
 
    table >> IXsectUnits;
    table >> IDataFlag;
@@ -77,8 +80,12 @@ void fastNLOCoeffBase::ReadBase(istream& table){
 
 //________________________________________________________________________________________________________________ //
 void fastNLOCoeffBase::EndReadCoeff(istream& table){
-   //debug["EndReadCoeff"]<<endl;
-   fastNLOTools::ReadMagicNo(table);
+   if (!fastNLOTools::ReadMagicNo(table)) {
+      say::error["ReadBase"]<<"Did not find final magic number, aborting!"<<endl;
+      say::error["ReadBase"]<<"Please check compatibility of tables and program version!"<<endl;
+      say::error["ReadBase"]<<"This might also be provoked by lines with unexpected non-numeric content like 'inf' or 'nan'!"<<endl;
+      exit(1);
+   }
    fastNLOTools::PutBackMagicNo(table);
 }
 
@@ -109,11 +116,11 @@ void fastNLOCoeffBase::Write(ostream& table) {
 //________________________________________________________________________________________________________________ //
 bool fastNLOCoeffBase::IsCompatible(const fastNLOCoeffBase& other) const {
    if( fNObsBins != other.GetNObsBin() ){
-      debug["IsCompatible"]<<"fNObsBins != other.GetNObsBin()"<<endl;
+      warn["IsCompatible"]<<"fNObsBins != other.GetNObsBin()"<<endl;
       return false;
    }
    if( IXsectUnits != other.GetIXsectUnits() ){
-      debug["IsCompatible"]<<"IXsectUnits != other.GetIXsectUnits()"<<endl;
+      warn["IsCompatible"]<<"IXsectUnits != other.GetIXsectUnits()"<<endl;
       return false;
    }
    if( IDataFlag != other.GetIDataFlag() ){
@@ -138,10 +145,13 @@ bool fastNLOCoeffBase::IsCompatible(const fastNLOCoeffBase& other) const {
          debug["IsCompatible"]<<"One table with NScale=5 and one with NScaleDep=6"<<endl;
          // continue;
       }
-      else return false;
+      else {
+	 warn["IsCompatible"]<<"Incompatible NScaleDep found!()"<<endl;
+	 return false;
+      }
    }
    debug["IsCompatible"]<<"Both tables are compatible"<<endl;
-   // chcekc descripts here ?!
+   // check descripts here ?!
    //bool potentialcompatible = true;
    //vector < string > CtrbDescript;
    //vector < string > CodeDescript;

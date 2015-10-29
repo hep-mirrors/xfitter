@@ -18,24 +18,25 @@ public:
    speaker(const speaker& spk);
    ~speaker();
    //speaker(const speaker& spk) : weg(0) {;};
-   std::ostream& operator[](std::string fct) const ;
-   const speaker& operator+ (std::string fct) const {
+   const speaker& operator= (const speaker& other);
+   std::ostream& operator[](const std::string& fct) const ;
+   const speaker& operator+ (const std::string& fct) const {
       return this->prefix(fct);
    }
-   const speaker& prefix(std::string fct) const ;
-   std::ostream& operator()(std::string fct) const ;
+   const speaker& prefix(const std::string& fct) const ;
+   std::ostream& operator()(const std::string& fct) const ;
 
-   template<typename T> std::ostream& operator<< (T arg) const {
+   template<typename T> std::ostream& operator<< (const T& arg) const {
       if (fquiet) return *weg;
       else {
          if (errs && fe2cerr) return std::cerr<<pref<<arg;
          else return std::cout<<pref<<arg;
       }
    }
-#ifndef SWIG 
-   std::ostream& operator>> (std::string arg) const ;
+#ifndef SWIG
+   std::ostream& operator>> (const std::string& arg) const ;
 #endif
-   std::ostream& print(std::string mes) const ;
+   std::ostream& print(const std::string& mes) const ;
    void DoSpeak(bool loud) {
       fquiet=!loud;
    };
@@ -96,15 +97,14 @@ public:
    PrimalScream(std::string classname);//,std::string prefix="");
    void SetClassName(const std::string classname );
    void SetVerbosity(say::Verbosity volume);
-private:
-   std::string ___cn;
-protected:
    speaker debug;
    speaker man;
    speaker info;
    speaker warn;
    speaker error;
    speaker shout;
+private:
+   std::string ___cn;
 };
 
 #endif //SPEAKER_H_

@@ -2,8 +2,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "fastNLOCoeffAddBase.h"
-#include "fastNLOTools.h"
+#include "fastnlotk/fastNLOCoeffAddBase.h"
+#include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
 using namespace fastNLO;
@@ -300,26 +300,57 @@ void fastNLOCoeffAddBase::Add(const fastNLOCoeffAddBase& other){
 //________________________________________________________________________________________________________________ //
 bool fastNLOCoeffAddBase::IsCompatible(const fastNLOCoeffAddBase& other) const {
    // chek CoeffBase variables
-   if ( ! ((fastNLOCoeffBase*)this)->IsCompatible(other)) return false;
+   if ( ! ((fastNLOCoeffBase*)this)->IsCompatible(other)) {
+      say::debug["fastNLOCoeffAddBase::IsCompatible"]<<"fastNLOCoeffBase not compatible."<<endl;
+      return false;
+   }
    if ( IRef != other.GetIRef() ) {
       //warn["IsCompatible"]<<""<<endl;
+      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of IRef detected."<<endl;
       return false;
    }
    if ( IScaleDep != other.GetIScaleDep() ) {
-      //warn["IsCompatible"]<<""<<endl;
+      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of IScaleDep detected."<<endl;
       return false;
    }
    if ( Npow != other.GetNpow() ) {
+      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of NPow detected."<<endl;
       //warn["IsCompatible"]<<""<<endl;
       return false;
    }
    if ( GetNPDF() != other.GetNPDF() ) {
+      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of NPDF detected."<<endl;
       //warn["IsCompatible"]<<""<<endl;
       return false;
    }
    if ( NSubproc != other.GetNSubproc() ) {
+      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different numbers for NSubproc detected."<<endl;
       //warn["IsCompatible"]<<""<<endl;
       return false;
+   }
+   // check x-nodes briefly
+   if ( fNObsBins != other.GetNObsBin() ){
+      say::warn["IsCompatible"]<<"Different number of bins detected."<<endl;
+      return false;
+   }
+   // check x-nodes briefly
+   for ( int i = 0 ; i< fNObsBins ;i++ ){
+      if ( GetNxmax(i) != other.GetNxmax(i) ){
+	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of x-nodes detected."<<endl;
+	 return false;
+      }
+      if ( GetNxtot1(i) != other.GetNxtot1(i) ){
+	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of x-nodes detected."<<endl;
+	 return false;
+      }
+      if ( GetXNode1(i,0) != other.GetXNode1(i,0) ){
+	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different values for x-nodes detected."<<endl;
+	 return false;
+      }
+      if ( GetXNode1(i,1) != other.GetXNode1(i,1) ){
+	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different values for x-nodes detected."<<endl;
+	 return false;
+      }
    }
    // succesful!
    return true;

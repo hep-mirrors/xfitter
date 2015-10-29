@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "fastNLOCoeffMult.h"
+#include "fastnlotk/fastNLOCoeffMult.h"
 
 using namespace std;
 using namespace fastNLO;

@@ -43,7 +43,7 @@ public:
    void ResizePdfLC();
    void ResizePdfSplLC();
    void ResizeSigmaTilde();
-
+   bool IsCompatible(const fastNLOCoeffAddFix& other) const;                   //!< Check for compatibility of two contributions for merging/adding
 
 protected:
    fastNLOCoeffAddFix();

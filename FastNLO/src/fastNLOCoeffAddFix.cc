@@ -2,9 +2,9 @@
 #include <iostream>
 #include <cmath>
 
-#include "fastNLOTools.h"
-#include "fastNLOCoeffAddFix.h"
-#include "speaker.h"
+#include "fastnlotk/fastNLOTools.h"
+#include "fastnlotk/fastNLOCoeffAddFix.h"
+#include "fastnlotk/speaker.h"
 
 using namespace std;
 
@@ -213,6 +213,34 @@ int fastNLOCoeffAddFix::GetTotalScalenodes() const {
    //       //Nscalenode[scaledim];
    //    }
    //    return totalscalenodes;
+}
+
+
+//________________________________________________________________________________________________________________ //
+bool  fastNLOCoeffAddFix::IsCompatible(const fastNLOCoeffAddFix& other) const {
+   //! Check for compatibility for merging/adding of two contributions
+   if ( ! ((fastNLOCoeffAddBase*)this)->IsCompatible(other)) return false;
+   if ( GetNScaleNode() != other.GetNScaleNode() ) {
+      say::warn["IsCompatible"]<<"Incompatible number of scale nodes found."<<endl;                                                                                     
+      return false;
+   }
+   if ( GetNScalevar() != other.GetNScalevar() ) {
+      say::warn["IsCompatible"]<<"Incompatible number of scale variations found."<<endl;                                                                                     
+      return false;
+   }
+   if ( GetAvailableScaleFactors()[GetNScalevar()-1] != other.GetAvailableScaleFactors()[GetNScalevar()-1] ) {
+      say::warn["IsCompatible"]<<"Incompatible scale variations found."<<endl;                                                                                     
+      return false;
+   }
+   for ( int i=0 ; i<fNObsBins ; i++ ){
+      for ( int is=0 ; is<GetNScaleNode() ; is++ ){
+	 if ( GetScaleNode(i,0,is) != other.GetScaleNode(i,0,is) ) {
+	    say::warn["IsCompatible"]<<"Incompatible scale node found."<<endl;                                                                                     
+	    return false;
+	 }
+      }
+   }
+   return true; 
 }
 
 

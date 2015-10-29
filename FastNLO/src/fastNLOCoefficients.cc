@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "fastNLOCoefficients.h"
+#include "fastnlotk/fastNLOCoefficients.h"
 
 using namespace std;
 using namespace fastNLO;

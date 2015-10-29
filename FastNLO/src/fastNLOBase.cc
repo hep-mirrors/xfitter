@@ -4,9 +4,9 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
-#include "fastNLOConstants.h"
-#include "fastNLOBase.h"
-#include "fastNLOTools.h"
+#include "fastnlotk/fastNLOConstants.h"
+#include "fastnlotk/fastNLOBase.h"
+#include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
 
@@ -15,26 +15,26 @@ bool fastNLOBase::fWelcomeOnce = false;
 
 
 //______________________________________________________________________________
-fastNLOBase::fastNLOBase() : PrimalScream("fastNLOBase") ,  fPrecision(8) {
+fastNLOBase::fastNLOBase() : fPrecision(8), logger("fastNLOBase") {
    if (!fWelcomeOnce) PrintWelcomeMessage();
 }
 
 
 //______________________________________________________________________________
-fastNLOBase::fastNLOBase(string name) : PrimalScream("fastNLOBase") , ffilename(name), fPrecision(8)  {
+fastNLOBase::fastNLOBase(string name) : ffilename(name), fPrecision(8), logger("fastNLOBase") {
    if (!fWelcomeOnce) PrintWelcomeMessage();
 }
 
 
 //______________________________________________________________________________
 fastNLOBase::fastNLOBase(const fastNLOBase& other) :
-   PrimalScream("fastNLOBase"),
    ffilename(other.ffilename), fPrecision(other.fPrecision),
    Itabversion(other.Itabversion), ScenName(other.ScenName),
    Ncontrib(other.Ncontrib), Nmult(other.Nmult),
    Ndata(other.Ndata), NuserString(other.NuserString),
    NuserInt(other.NuserInt), NuserFloat(other.NuserFloat),
-   Imachine(other.Imachine) {
+   Imachine(other.Imachine),
+   logger("fastNLOBase") {
    //! copy constructor
 }
 
@@ -49,7 +49,7 @@ ifstream* fastNLOBase::OpenFileRead() {
    //! Open file-stream for reading table
    // does file exist?
    if (access(ffilename.c_str(), R_OK) != 0) {
-      error["OpenFileRead"]<<"File does not exist! Was looking for: "<<ffilename<<". Exiting."<<endl;
+      logger.error["OpenFileRead"]<<"File does not exist! Was looking for: "<<ffilename<<". Exiting."<<endl;
       exit(1);
    }
    ifstream* strm = new ifstream(ffilename.c_str(),ios::in);
@@ -81,10 +81,14 @@ void fastNLOBase::ReadTable() {
 void fastNLOBase::ReadHeader(istream& table) {
    table.peek();
    if (table.eof()) {
-      error["ReadHeader"]<<"Cannot read from stream."<<endl;
+      logger.error["ReadHeader"]<<"Cannot read from stream."<<endl;
    }
 
-   fastNLOTools::ReadMagicNo(table);
+   if (!fastNLOTools::ReadMagicNo(table)) {
+      logger.error["ReadHeader"]<<"Did not find initial magic number, aborting!"<<endl;
+      logger.error["ReadHeader"]<<"Please check compatibility of tables and program version!"<<endl;
+      exit(1);
+   }
    table >> Itabversion;
    table >> ScenName;
    table >> Ncontrib;
@@ -115,7 +119,11 @@ void fastNLOBase::ReadHeader(istream& table) {
    }
    table >> NuserFloat;
    table >> Imachine;
-   fastNLOTools::ReadMagicNo(table);
+   if (!fastNLOTools::ReadMagicNo(table)) {
+      logger.error["ReadHeader"]<<"Did not find final magic number, aborting!"<<endl;
+      logger.error["ReadHeader"]<<"Please check compatibility of tables and program version!"<<endl;
+      exit(1);
+   }
    fastNLOTools::PutBackMagicNo(table);
 }
 
@@ -155,11 +163,11 @@ ofstream* fastNLOBase::OpenFileWrite() {
    //! open ofstream for writing tables
    //! do overwrite existing table
    if (access(ffilename.c_str(), F_OK) == 0) {
-      info["OpenFileWrite"]<<"Overwriting the already existing table file: " << ffilename << endl;
+      logger.info["OpenFileWrite"]<<"Overwriting the already existing table file: " << ffilename << endl;
    }
    ofstream* stream = new ofstream(ffilename.c_str(),ios::out);
    if (!stream->good()) {
-      error["OpenFileWrite"]<<"Cannot open file '"<<ffilename<<"' for writing. Aborting."<<endl;
+      logger.error["OpenFileWrite"]<<"Cannot open file '"<<ffilename<<"' for writing. Aborting."<<endl;
       exit(2);
    }
    stream->precision(fPrecision);
@@ -180,15 +188,15 @@ void fastNLOBase::CloseFileWrite(ofstream& table) {
 //______________________________________________________________________________
 bool fastNLOBase::IsCompatibleHeader(const fastNLOBase& other) const {
    if (Itabversion!= other.GetItabversion()) {
-      warn["IsCompatibleHeader"]<<"Differing versions of table format: "<<Itabversion<<" and "<< other.GetItabversion()<<endl;
+      logger.warn["IsCompatibleHeader"]<<"Differing versions of table format: "<<Itabversion<<" and "<< other.GetItabversion()<<endl;
       return false;
    }
    if (Ndata + other.GetNdata() > 1) {
-      warn["IsCompatibleHeader"]<<"Two tables containing both experimental data are incompatible"<<endl;
+      logger.warn["IsCompatibleHeader"]<<"Two tables containing both experimental data are incompatible"<<endl;
       return false;
    }
    if (ScenName!= other.GetScenName()) {
-      warn["IsCompatibleHeader"]<<"Differing names of scenarios: "<<ScenName.c_str()<<" and "<<other.ScenName.c_str()<<endl;
+      logger.warn["IsCompatibleHeader"]<<"Differing names of scenarios: "<<ScenName.c_str()<<" and "<<other.ScenName.c_str()<<endl;
       // continue...
    }
    return true;
@@ -217,7 +225,7 @@ void fastNLOBase::SetContributionHeader() {
 
 //______________________________________________________________________________
 void fastNLOBase::ResetHeader() {
-   debug["ResetHeader"]<<endl;
+   logger.debug["ResetHeader"]<<endl;
    SetNcontrib(0);
    SetNmult(0);
    SetNdata(0);
@@ -253,9 +261,6 @@ void fastNLOBase::PrintHeader() const {
 
 //______________________________________________________________________________
 void fastNLOBase::PrintWelcomeMessage() {
-   //---  Initialization for nice printing
-   const string CSEPS = " ##################################################################################\n";
-   const string LSEPS = " #---------------------------------------------------------------------------------\n";
 
    char fnlo[100];
    sprintf(fnlo,"%c[%d;%dmfast%c[%d;%dmNLO\033[0m",27,0,31,27,0,34);
@@ -270,42 +275,43 @@ void fastNLOBase::PrintWelcomeMessage() {
    char quotev2[200]         = FNLO_QUOTEv2;
    char years[100]           = FNLO_YEARS;
 
-   shout>>"\n";
-   shout>>""<<CSEPS;
-   shout<<"\n";
-   shout<<" "<<fnlo<<"_"<<subproject<<endl;
-   shout<<" Version "<<package_version<<"_"<<svnrev<<endl;
-   shout<<"\n";
-   shout<<" C++ program and toolkit to read and create fastNLO v2 tables and"<<endl;
-   shout<<" derive QCD cross sections using PDFs, e.g. from LHAPDF"<<endl;
-   shout<<"\n";
-   shout>>""<<LSEPS;
-   shout<<"\n";
-   shout<<" Copyright © "<<years<<" "<<fnlo<<" Collaboration"<<endl;
-   shout<<" "<<authors<<endl;
-   shout<<"\n";
-   shout>>" # This program is free software: you can redistribute it and/or modify"<<endl;
-   shout>>" # it under the terms of the GNU General Public License as published by"<<endl;
-   shout>>" # the Free Software Foundation, either version 3 of the License, or"<<endl;
-   shout>>" # (at your option) any later version."<<endl;
-   shout>>" #\n";
-   shout>>" # This program is distributed in the hope that it will be useful,"<<endl;
-   shout>>" # but WITHOUT ANY WARRANTY; without even the implied warranty of"<<endl;
-   shout>>" # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the"<<endl;
-   shout>>" # GNU General Public License for more details."<<endl;
-   shout>>" #\n";
-   shout>>" # You should have received a copy of the GNU General Public License"<<endl;
-   shout>>" # along with this program. If not, see <http://www.gnu.org/licenses/>."<<endl;
-   shout>>" #\n";
-   shout>>""<<LSEPS;
-   shout>>" #\n";
-   shout<<" The projects web page can be found at:"<<endl;
-   shout<<"   "<<webpage<<endl;
-   shout<<"\n";
-   shout<<" If you use this code, please cite:"<<endl;
-   shout<<"   "<<authorsv14<<", "<<quotev14<<endl;
-   shout<<"   "<<authorsv2<<", "<<quotev2<<endl;
-   shout<<"\n";
-   shout>>""<<CSEPS;
+   cout  << endl;
+   cout  << fastNLO::_CSEPSC << endl;
+   speaker &shout = logger.shout;
+   shout << "" << endl;
+   shout << fnlo << "_" << subproject << endl;
+   shout << "Version " << package_version << "_" << svnrev << endl;
+   shout << "" << endl;
+   shout << "C++ program and toolkit to read and create fastNLO v2 tables and" << endl;
+   shout << "derive QCD cross sections using PDFs, e.g. from LHAPDF" << endl;
+   shout << "" << endl;
+   cout  << fastNLO::_SSEPSC << endl;
+   shout << "" << endl;
+   shout << "Copyright © " << years << " " << fnlo << " Collaboration" << endl;
+   shout << authors << endl;
+   shout << "" << endl;
+   shout << "This program is free software: you can redistribute it and/or modify" << endl;
+   shout << "it under the terms of the GNU General Public License as published by" << endl;
+   shout << "the Free Software Foundation, either version 3 of the License, or" << endl;
+   shout << "(at your option) any later version." << endl;
+   shout << "" << endl;
+   shout << "This program is distributed in the hope that it will be useful," << endl;
+   shout << "but WITHOUT ANY WARRANTY; without even the implied warranty of" << endl;
+   shout << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << endl;
+   shout << "GNU General Public License for more details." << endl;
+   shout << "" << endl;
+   shout << "You should have received a copy of the GNU General Public License" << endl;
+   shout << "along with this program. If not, see <http://www.gnu.org/licenses/>." << endl;
+   shout << "" << endl;
+   cout  << fastNLO::_SSEPSC << endl;
+   shout << "" << endl;
+   shout << "The projects web page can be found at:" << endl;
+   shout << "  " << webpage << endl;
+   shout << "" << endl;
+   shout << "If you use this code, please cite:" << endl;
+   shout << "  " << authorsv14 << ", " << quotev14 << endl;
+   shout << "  " << authorsv2 << ", " << quotev2 << endl;
+   shout << "" << endl;
+   cout  << fastNLO::_CSEPSC << endl;
    fWelcomeOnce = true;
 }

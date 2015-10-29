@@ -71,8 +71,7 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    }
    
   
-   FastNLOHeraFitter* fnloreader = NULL;
-   fnloreader = new FastNLOHeraFitter( thfile );  
+   FastNLOHeraFitter* fnloreader = new FastNLOHeraFitter( thfile );  
    
    if(*PublicationUnits)
      fnloreader->SetUnits(fastNLO::kPublicationUnits);
@@ -233,7 +232,7 @@ int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *to
    double bin[Nthpoints];
    for ( unsigned int b = 0 ; b < xs.size() ; b++ ) 
      {
-       bin[b] = fnloreader->GetLoBin(b,0);
+       bin[b] = fnloreader->GetObsBinLoBound(b,0);
        thbin[b] = bin[b];
      }
 

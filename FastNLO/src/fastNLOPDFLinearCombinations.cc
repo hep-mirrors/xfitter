@@ -1,7 +1,7 @@
 #include <cmath>
 #include <cstdlib>
-#include "fastNLOConstants.h"
-#include "fastNLOPDFLinearCombinations.h"
+#include "fastnlotk/fastNLOConstants.h"
+#include "fastnlotk/fastNLOPDFLinearCombinations.h"
 
 using namespace std;
 using namespace fastNLO;
@@ -312,6 +312,17 @@ vector<double> fastNLOPDFLinearCombinations::CalcPDFHHC(const fastNLOCoeffAddBas
       H[5] += H[6];
       H.resize(6);
    }
+
+   // KR: For debugging purposes switch off subprocesses by uncommenting the following line(s)
+   // H[0] = 0.;
+   // H[1] = 0.;
+   // H[2] = 0.;
+   // H[3] = 0.;
+   // H[4] = 0.;
+   // H[5] = 0.;
+   // H[6] = 0.;
+   // KR DEBUG
+
    return H;
 
 }

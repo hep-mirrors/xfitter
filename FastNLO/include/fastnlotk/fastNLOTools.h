@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "fastNLOConstants.h"
+#include "fastnlotk/fastNLOConstants.h"
 #include "speaker.h"
 
 namespace fastNLOTools {

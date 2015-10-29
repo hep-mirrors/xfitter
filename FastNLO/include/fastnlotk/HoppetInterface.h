@@ -2,6 +2,8 @@
 
 class fastNLOReader;
 
+extern "C" void evolvepdf_(const double& x, const double& Q, double* xf);
+
 class HoppetInterface {
    public:
       static void InitHoppet(fastNLOReader&);

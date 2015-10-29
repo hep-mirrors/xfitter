@@ -19,11 +19,11 @@ class fastNLOCoeffBase : public PrimalScream {
    friend class fastNLOTable;
 
 public:
-   fastNLOCoeffBase(int NObsBin);						//! Use this constructor
-   virtual ~fastNLOCoeffBase(){;};						//! destructor	
-   //fastNLOCoeffBase(const fastNLOCoeffBase& coeff);				//! Use compiler-default
-   virtual fastNLOCoeffBase* Clone() const;					//!< returns 'new' copy of this instance.
-   
+   fastNLOCoeffBase(int NObsBin);                                               //! Use this constructor
+   virtual ~fastNLOCoeffBase(){;};                                              //! destructor
+   //fastNLOCoeffBase(const fastNLOCoeffBase& coeff);                           //! Use compiler-default
+   virtual fastNLOCoeffBase* Clone() const;                                     //!< returns 'new' copy of this instance.
+
    virtual void Read(istream& table);
    virtual void Write(ostream& table);
    //void Add(fastNLOCoeffBase* other);
@@ -54,7 +54,7 @@ public:
    bool GetIsFlexibleScale() const { return (NScaleDep>=3) && (IAddMultFlag==0); }
 
    vector<string > GetContributionDescription() const { return CtrbDescript; }
-   void SetContributionDescription(vector<string > descr ) { CtrbDescript = descr; };		//! Set contribution description
+   void SetContributionDescription(vector<string > descr ) { CtrbDescript = descr; };           //! Set contribution description
    vector<string > GetCodeDescription() const { return CodeDescript; }
 
 

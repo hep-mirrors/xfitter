@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
-#include "fastNLOTools.h"
+#include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
 using namespace say;
@@ -15,8 +15,20 @@ namespace fastNLOTools {
       //! Read values according to the size() of the given vector
       //! from table (v2.0 format).
       for( unsigned int i=0 ; i<v.size() ; i++){
-         table >> v[i];
-         v[i] *= nevts;
+         // KR: Add check on inf and NaN
+         //         table >> v[i];
+         //         v[i] *= nevts;
+         char buffer[256];
+         table >> buffer;
+         double value = atof(buffer);
+         if ( isfinite(value) ) {
+            v[i]  = value;
+            v[i] *= nevts;
+         } else {
+            error["ReadVector"]<<"Non-finite number read from table, aborted! value = " << value << endl;
+            error["ReadVector"]<<"Please check the table content." << endl;
+            exit(1);
+         }
       }
       return v.size();
    }
@@ -34,9 +46,21 @@ namespace fastNLOTools {
          v.resize(nProcLast);
       }
       for(unsigned int i0=0;i0<v.size();i0++){
-         table >> v[i0];
-         v[i0] *= nevts;
-         nn++;
+         // KR: Add check on inf and NaN
+         //         table >> v[i0];
+         //         v[i0] *= nevts;
+         char buffer[256];
+         table >> buffer;
+         double value = atof(buffer);
+         if ( isfinite(value) ) {
+            v[i0]  = value;
+            v[i0] *= nevts;
+            nn++;
+         } else {
+            error["ReadFlexibleVector"]<<"Non-finite number read from table, aborted! value = " << value << endl;
+            error["ReadFlexibleVector"]<<"Please check the table content." << endl;
+            exit(1);
+         }
       }
       return nn;
    }

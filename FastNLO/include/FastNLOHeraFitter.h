@@ -19,7 +19,7 @@
 #ifndef FASTNLOHERAFITTER
 #define FASTNLOHERAFITTER
 
-#include "fastNLOReader.h"
+#include "fastnlotk/fastNLOReader.h"
 
 
 

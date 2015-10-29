@@ -2,8 +2,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "fastNLOTools.h"
-#include "fastNLOCoeffAddFlex.h"
+#include "fastnlotk/fastNLOTools.h"
+#include "fastnlotk/fastNLOCoeffAddFlex.h"
 
 using namespace std;
 
@@ -249,6 +249,34 @@ void fastNLOCoeffAddFlex::Clear() {
    fastNLOTools::ClearVector(SigmaRef_s2);
 }
 
+//________________________________________________________________________________________________________________ // 
+bool  fastNLOCoeffAddFlex::IsCompatible(const fastNLOCoeffAddFlex& other) const {
+   //! Check for compatibility for merging/adding of two contributions 
+   if ( ! ((fastNLOCoeffAddBase*)this)->IsCompatible(other)) return false;
+   for ( int i=0 ; i<fNObsBins ; i++ ){ 
+      if ( GetNScaleNode1(i) != other.GetNScaleNode1(i) ) {
+	 say::warn["fastNLOCoeffAddFlex::IsCompatible"]<<"Incompatible number of scale nodes found."<<endl;
+	 return false;
+      }
+      if ( GetNScaleNode2(i) != other.GetNScaleNode2(i) ) {
+	 say::warn["fastNLOCoeffAddFlex::IsCompatible"]<<"Incompatible number of scale nodes found."<<endl;
+	 return false;
+      }
+      for ( unsigned int is1 = 0 ; is1<GetNScaleNode1(i) ; is1++ ) {
+	 if ( GetScaleNode1(i,is1) != other.GetScaleNode1(i,is1) ) {
+	    say::warn["fastNLOCoeffAddFlex::IsCompatible"]<<"Incompatible scale1 node found."<<endl;
+	    return false;
+	 }
+      }
+      for ( unsigned int is2 = 0 ; is2<GetNScaleNode2(i) ; is2++ ) {
+	 if ( GetScaleNode2(i,is2) != other.GetScaleNode2(i,is2) ) {
+	    say::warn["fastNLOCoeffAddFlex::IsCompatible"]<<"Incompatible scale2 node found."<<endl;
+	    return false;
+	 }
+      }
+   }
+   return true;
+}
 
 //________________________________________________________________________________________________________________ //
 void fastNLOCoeffAddFlex::NormalizeCoefficients(){

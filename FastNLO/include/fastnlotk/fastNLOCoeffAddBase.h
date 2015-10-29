@@ -49,7 +49,7 @@ public:
    string GetScaleDescription(int iScale=0) const { return ScaleDescript[0][iScale]; };         // getter for scale description of scale iScale
    vector<vector<string > > GetScaleDescr() const { return ScaleDescript; }
    int GetNxtot1(int iBin) const { return XNode1[iBin].size(); }
-   int GetNxtot2(int iBin) const { return XNode2[iBin].size(); }
+   int GetNxtot2(int iBin) const { return XNode2.size() > 0 ? XNode2[iBin].size() : -1; }
 
    double GetXNode1(int iObsBin, int iNode) const { return XNode1[iObsBin][iNode]; }
    double GetXNode2(int iObsBin, int iNode) const { return XNode2[iObsBin][iNode]; }
