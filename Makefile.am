@@ -3,7 +3,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           common/num_utils tools/DrawResultsPackage \
           tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
-          include interfaces/include FastNLO/include DiffDIS/include \
+          include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
           NNPDF/include pdf2yaml tools/PostProcess/
 if ENABLE_HATHOR
@@ -25,7 +25,7 @@ include $(top_srcdir)/aminclude.am
 DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/DrawResultsPackage \
           tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src common/num_utils \
-          include interfaces/include FastNLO/include DiffDIS/include \
+          include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
           NNPDF/include NNPDF/src common common/linalg Hathor/src pdf2yaml tools/PostProcess src
 

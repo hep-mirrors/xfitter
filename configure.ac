@@ -389,6 +389,7 @@ AC_CONFIG_FILES([include/Makefile
                  interfaces/include/Makefile
                  FastNLO/src/Makefile
                  FastNLO/include/Makefile
+                 FastNLO/include/fastnlotk/Makefile
                  minuit/src/Makefile
                  EW/src/Makefile
                  RT/src/Makefile
