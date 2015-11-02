@@ -3,11 +3,11 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.1.4
+lhapdfver=6.1.5
 hoppetver=1.1.5
 applgridver=1.4.70
-qcdnumver=17-00-06
-apfelver=2.5.3
+qcdnumver=17-01-10
+apfelver=2.6.3
 ## Optional manual configurations
 #MANUALCONF=1
 
@@ -392,12 +392,34 @@ else
 fi
 tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
 cd qcdnum-${qcdnumver}
-./makelibs  >> $CURRENTDIR/install.log  2>&1
+if [[ $version == "trunk" ]]
+then
+ ./configure --prefix=$CURRENTDIR/qcdnum  >> $CURRENTDIR/install.log  2>&1
+ if [[ $? != 0 ]]
+ then
+    echo "Error, check install.log for details"
+    exit
+ fi 
+ make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+ if [[ $? != 0 ]]
+ then
+    echo "Error, check install.log for details"
+    exit
+ fi
+ cd - >& /dev/null
+ # setup paths for qcdnum:
+ export PATH=$CURRENTDIR/qcdnum/bin/:$PATH
+
+else
+ ./makelibs  >> $CURRENTDIR/install.log  2>&1
+fi
+
 if [[ $? != 0 ]]
 then
     echo "Error, check install.log for details"
     exit
 fi
+
 cd - >& /dev/null
 
 cd $CURRENTDIR
@@ -427,6 +449,11 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >>
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
+if [[ $version == "trunk" ]]
+ then
+ echo export LD_LIBRARY_PATH=\$CURRENTDIR/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
+fi
+
 if [[ $MODE == "cern" ]]
 then
     echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
@@ -441,7 +468,12 @@ fi
 
 #make a compilation script
 echo source ./setup.sh > compile
-echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-17-00-06  >> compile
+if [[ $version != "trunk" ]]	
+ then
+ echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-17-00-06  >> compile
+ else
+ echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH       >> compile
+fi
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
