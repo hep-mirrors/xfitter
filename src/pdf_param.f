@@ -67,7 +67,7 @@ C-------------------------------------------------------
 
       if (LFirstTime) then    
          LFirstTime = .false.
-         if (ITheory.eq.25) then
+         if (ITheory.eq.11.or.ITheory.eq.25) then
             idphA = GetParameterIndex('Aph')
             idphB = GetParameterIndex('Bph')
             idphC = GetParameterIndex('Cph')
@@ -480,7 +480,7 @@ c         parstr(3)=parsea(3)+2.
          print '(''1Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''1GL:'',11F10.4)',(parglue(i),i=1,10)
          print '(''1ST:'',11F10.4)',(parstr(i),i=1,10)
-          if (ITheory.eq.25) then
+          if (ITheory.eq.11.or.ITheory.eq.25) then
              print '(''1PH:'',11F10.4)',(parphoton(i),i=1,10)
           endif
       endif

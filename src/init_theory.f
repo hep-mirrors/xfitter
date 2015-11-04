@@ -6,7 +6,6 @@
 #include "ntot.inc"
 #include "steering.inc"
 
-
 *     ------------------------------------------------
 *     Initialise EW parameters
 *     ------------------------------------------------
@@ -16,11 +15,14 @@
 *     ------------------------------------------------
 *     Initialise qcdnum and APFEL
 *     ------------------------------------------------
-      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.25) then
+      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
+     $.or.itheory.eq.25) then
 C Init evolution code:
          call qcdnum_ini
 C Init APFEL if needed
          if(itheory.eq.10) call apfel_ini
+C Init QEDEVOL if needed
+         if(itheory.eq.11) call qedevol_ini
 
          call Init_heavy_flavours
 

@@ -40,7 +40,7 @@
 
 &OutDir
   ! Name of the directory where output will be stored (max 22 characters)
-    OutDirName = 'output'
+    OutDirName = 'output/qedevol0'
 &End
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
@@ -75,8 +75,9 @@
                 !                      set to LHAPDFQ0, LHAPDF or LHAPDFNATIVE, sets it to LHAPDF
                 ! 'PDF Rotate'      -- performs PDF re-diagonalization. Requires theo.in files to operate properly  
 
-  TheoryType = 'DGLAP' ! 'DGLAP'        -- collinear evolution
+  TheoryType = 'DGLAP_QEDEVOL' ! 'DGLAP'        -- collinear evolution
                        ! 'DGLAP_APFEL'  -- collinear evolution with APFEL
+                       ! 'DGLAP_QEDEVOL'  -- collinear evolution with QEDEVOL
                        ! 'DIPOLE'       -- dipole model 
                        ! 'uPDF'         -- un-integrated PDFs
                                 !uPDF1 fit with kernel ccfm-grid.dat file
@@ -169,9 +170,9 @@
 * Add extra to minuit parameters. These MUST include alpha_S and fs
 *
 &ExtraMinimisationParameters
-   name  = 'alphas',   'fs',   'fcharm'
-   value =  0.1176 ,   0.31,      0.
-   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
+   name  = 'alphas',   'fs',   'fcharm', 'Aph', 'Bph',    'Cph'
+   value =  0.1176 ,   0.31,      0.,       0.0,     0.0,    0.0
+   step  =  0.0    ,   0.0 ,      0.,    0.0,     0.0,    0.0     ! set to 0 to avoid minimisation 
 &End
 
 

@@ -161,6 +161,7 @@ C  x-dependent fs:
       double precision fshermes
       external LHAPDFsubr
       external APFELsubr
+      external QEDEVOLsubr
 c updf stuff
       logical firsth
       double precision auh 
@@ -239,7 +240,8 @@ c        write(6,*) ' fcn npoint ',npoints
 *     ---------------------------------------------------------
 
       kflag=0
-      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.25)  then 
+      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
+     $.or.itheory.eq.25)  then 
          call SumRules(kflag)
       endif
       if (kflag.eq.1) then
@@ -252,8 +254,9 @@ c        write(6,*) ' fcn npoint ',npoints
 *      set alphas
 *     -----------------------------------------------------
 
-      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.25) then 
-         if (itheory.eq.0.or.itheory.eq.25) then
+      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
+     $.or.itheory.eq.25) then 
+         if (itheory.eq.0.or.itheory.eq.11.or.itheory.eq.25) then
             call setalf(dble(alphas),Mz*Mz)
          else
             call SetAlphaQCDRef(dble(alphas),dble(Mz))
@@ -269,6 +272,11 @@ c           call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
             call SetPDFSet("external")
 c            call PDFINP(APFELsubr,  IPDFSET, dble(0.001), epsi, nwds)
             call PDFEXT(APFELsubr,  IPDFSET, 0, dble(0.001), epsi)
+         elseif (IPDFSET.eq.8) then
+            q2p = starting_scale
+c            call SetPDFSet("external")
+            call qedevol_main
+            call PDFEXT(QEDEVOLsubr,  IPDFSET, 1, dble(0.001), epsi)
          endif
       endif 
 
@@ -300,7 +308,8 @@ C      for dipole model fits.
       if (Debug) then
          print*,'before evolution'
       endif
-      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.25) then         
+      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
+     $.or.itheory.eq.25) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 

@@ -132,6 +132,10 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
 C ---- APFEL ----
       if (IPDFSET.eq.7) return
 
+C ---- QEDEVOL ----
+      if (IPDFSET.eq.8) return
+
+
 cv ===
       if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
          call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
@@ -378,3 +382,4 @@ c         q0 = sqrt(starting_scale)
 *
       return
       end
+

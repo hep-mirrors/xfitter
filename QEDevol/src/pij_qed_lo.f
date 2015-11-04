@@ -81,13 +81,9 @@ C     =============================================
       implicit double precision (a-h,o-z)
 
       qq       = qmu2    !avoid compiler warning
-c!      dqcP144A = 4.D0/3.D0
-c!     $*(4.D0*int(nf/2)-int((nf+1)/2))
-c!     $*dqcP0FGA(x,nf)
       dqcP144A = 4.D0/9.D0
      $*(4.D0*int(nf/2)-int((nf+1)/2))
      $*dqcP0FGA(x,nf)
-
 
       return
       end
@@ -99,9 +95,6 @@ C     =============================================
       implicit double precision (a-h,o-z)
 
       qq       = qmu2    !avoid compiler warning
-c!      dqcP244A = 4.D0/3.D0
-c!     $*(4.D0*int(nf/2)+int((nf+1)/2))
-c!     $*dqcP0FGA(x,nf)
       dqcP244A = 4.D0/9.D0
      $*(4.D0*int(nf/2)+int((nf+1)/2))
      $*dqcP0FGA(x,nf)
@@ -142,11 +135,7 @@ C     =============================================
       xx       = x       !avoid compiler warning
       qq       = qmu2    !avoid compiler warning
       jf       = nf      !avoid compiler warning
-c!!      dqcP444D = -1.D0/9.D0
-c!!     $*(4.D0*int(nf/2)+int((nf+1)/2))
-c!      dqcP444D = -2.D0/9.D0
-c!     $*(4.D0*int(nf/2)+int((nf+1)/2))
-      dqcP444D = -2.D0/27.D0
+      dqcP444D = -2.D0/9.D0
      $*(4.D0*int(nf/2)+int((nf+1)/2))
 
       return

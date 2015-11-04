@@ -12,9 +12,9 @@ C     Get alpha_s/2pi
       mf     = nf             !avoid compiler warning
       AsVal1 = 0.D0
       if(ithresh .ge. 0) then
-        AsVal1 = GetAlfN(iq,1,ierr)
+        AsVal1 = altabn(0,iq,1,ierr)
       elseif(ithresh .eq. -1) then
-        AsVal1 = GetAlfN(-iq,1,ierr)
+        AsVal1 = altabn(0,-iq,1,ierr)
       else
         stop 'AsVal1: wrong ithresh'
       endif
@@ -36,9 +36,9 @@ C     Get (alpha_s/2pi)^2
       mf     = nf             !avoid compiler warning
       AsVal2 = 0.D0
       if(ithresh .ge. 0) then
-        AsVal2 = GetAlfN(iq,2,ierr)
+        AsVal2 = altabn(0,iq,2,ierr)
       elseif(ithresh .eq. -1) then
-        AsVal2 = GetAlfN(-iq,2,ierr)
+        AsVal2 = altabn(0,-iq,2,ierr)
       else
         stop 'AsVal2: wrong ithresh'
       endif
@@ -60,9 +60,9 @@ C     Get (alpha_s/2pi)^3
       mf     = nf             !avoid compiler warning
       AsVal3 = 0.D0
       if(ithresh .ge. 0) then
-        AsVal3 = GetAlfN(iq,3,ierr)
+        AsVal3 = altabn(0,iq,3,ierr)
       elseif(ithresh .eq. -1) then
-        AsVal3 = GetAlfN(-iq,3,ierr)
+        AsVal3 = altabn(0,-iq,3,ierr)
       else
         stop 'AsVal3: wrong ithresh'
       endif
@@ -81,7 +81,7 @@ C     Get alpha_em/2pi
 
       mthresh = ithresh          !avoid compiler warning
 
-c      AemVal1 = aem0
+c      AemVal1 = 0d0
 c      return
 
       aemb = aem0
