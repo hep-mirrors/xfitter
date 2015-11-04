@@ -8,5 +8,5 @@
 #define NCHI2POINTS_C 100
 #endif
 #ifndef NEXTRAPARAMMAX
-#define NEXTRAPARAMMAX_C 50
+#define NEXTRAPARAMMAX_C 150
 #endif
