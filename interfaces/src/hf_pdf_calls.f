@@ -9,13 +9,27 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 #include "steering.inc"
 #include "fcn.inc"
-      double precision x,q2,pdfsf(-6:6)
+
+
+      double precision x,q2
+     $     ,pdfsf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
+
       integer i
       double precision A,Z, tmpU,tmpD,tmpUb,tmpDb
       data A,Z /207,82/
+
+      double precision FSNSXQ
 C----------------------------------------------------------------------
       if (PDFStyle.eq.'LHAPDFNATIVE') then
          call evolvePDF(x, sqrt(q2), pdfsf)
+         return
+      endif
+
+      if (Itheory.Eq.11) then
+C QED evolution:
+         call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)         
+         PDFSF(N_CHARGE_PDF+1) = FSNSXQ( iPDFSET,13,x,q2,ICheck_QCDNUM)
+
          return
       endif
 

@@ -56,12 +56,12 @@ C--------------------------------------------------------------
       double precision nf
 
       double precision pdf
-      dimension pdf(-6:6)
+      dimension pdf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF )
 
 
       double precision pdfl,hf_get_alphas,alphas(0:160),q2valpdf(0:160)
      $     ,xvalpdf(0:160)
-      dimension pdfl(-6:6)
+      dimension pdfl(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF )
       integer iq,jx,j
 
   ! Store how many PDFs are written out:

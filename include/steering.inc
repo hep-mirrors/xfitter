@@ -171,3 +171,10 @@ C
 
       character*32 RunningMode
       common/CRunningMode/RunningMode
+
+C Define number of charged+gluon and addtional neutral PDFs:
+      integer N_CHARGE_PDF
+      integer N_NEUTRAL_PDF
+      parameter ( N_CHARGE_PDF = 6)
+      parameter ( N_NEUTRAL_PDF = 1)
+

@@ -31,14 +31,14 @@ C------------------------------------
 #include "fcn.inc"
 #include "steering.inc"
       double precision x, Q, Q2
-      double precision xf(-6:6)
+      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
       integer iqnset, iqnchk,ifl
       
 C---------------------------------------
 
       iqnset = IPDFSET
       iqnchk = 0
-      do ifl=-6,6
+      do ifl=-N_CHARGE_PDF,N_CHARGE_PDF+N_NEUTRAL_PDF
         xf(ifl)=0.d0
       enddo
 c     Return zero if x range falls below qcdnum grid xmin values (to avoid large weights)
@@ -75,10 +75,10 @@ c     Return zero if x range falls below qcdnum grid xmin values (to avoid large
 
 C> @brief PDF for ppbar process
       subroutine appl_fnpdf_bar(x, Q, xf)
-
       implicit none
+#include "steering.inc"
       double precision x, Q, xft
-      double precision xf(-6:6)
+      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
       integer ifl
 
       call appl_fnpdf(x, Q, xf)
@@ -181,7 +181,8 @@ C
 C Retrieve next PDF value from the buffer
 C
       implicit none
-      double precision pdfs(-6:6)
+#include "steering.inc"
+      double precision pdfs(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
 #include "applgrid_fastpdf.inc"
       integer IRound,i
       data IRound/0/
@@ -191,7 +192,7 @@ C Reached the last, start over
          IRound = 0
       endif
       IRound = IRound + 1
-      do i=-6,6
+      do i=-N_CHARGE_PDF,N_CHARGE_PDF+N_NEUTRAL_PDF
          PDFs(i) = APPLPDF(IRefApp(IRound),i)
       enddo
       end

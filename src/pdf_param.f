@@ -1093,7 +1093,7 @@ cv      endif
 #include "pdfparam.inc"
 #include "thresholds.inc"
       double precision x,pdf,q2
-      dimension pdf(-6:6)
+      dimension pdf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
 
       double precision sing,flav_number,QPDFXQ,vcplus,vicplus,cplus
       integer iflag,iq0,iqc,iqfromq
