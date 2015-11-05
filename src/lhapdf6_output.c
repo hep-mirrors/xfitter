@@ -15,7 +15,8 @@ extern struct { //{{{
         int dobands;
         float hf_mass[3];
         int i_fit_order, ipdfset;
-        int lead, useGridLHAPDF5, writeLHAPDF6, WriteAlphaSToMemberPDF;
+  int lead, useGridLHAPDF5, writeLHAPDF6, WriteAlphaSToMemberPDF,
+    c_itheory;
 } ccommoninterface_;
 //}}}
 
@@ -58,6 +59,8 @@ int iqfrmq(double);
 extern double xfrmix_(int *);
 extern double fvalij_(int *,int *,int *,int *,int *);
 extern double fvalxq_(int *,int *,double *,double *,int *);
+extern double fsnsij_(int *,int *,int *,int *,int *);
+extern double fsnsxq_(int *,int *,double *,double *,int *);
 extern double hf_get_alphas_(double *);
 extern int getord_(int *);
 extern int grpars_(int *, double *, double *, int *, double *, double *, int *);
@@ -141,7 +144,15 @@ double raw_qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2) { //{{{
         int inull;
         ix+=1;
         iq2+=1;
-        return fvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
+	if ( fabs(pid)<=6) {
+	  return fvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
+	}
+	else {
+	  // Hardwire photon for now:
+	  pid = 13;
+	  double val = fsnsij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
+	  return val;	  
+	}
 }
 
 
@@ -151,7 +162,14 @@ double raw_external_pdf_ij(GridQX grid, int pid, int ix, int iq2) {
         double x,q2;
         x=grid.x[ix];
         q2=grid.q2[iq2];
-        return fvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
+	if ( fabs(pid)<=6) {
+	  return fvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
+	}
+	else {
+	  // Hardwire photon for now:
+	  pid = 13;
+	  return fsnsxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
+	}
 }
 //}}}
 
@@ -223,8 +241,14 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[
         double val;
         const double OFFSET=1e-3; // see call PDFINP in fcn.f
 
-        int pdg_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,21};
-        int qcdnum_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,0};
+        int pdg_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,21,22};   // Add photon
+        int qcdnum_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,0,7};
+
+	int NPDFToStore = (int) (sizeof(qcdnum_flavours)/sizeof(int));
+
+	if ( ccommoninterface_.c_itheory != 11) {
+	  NPDFToStore--;
+	}
 
         double (*swap_fun)(struct GridQX_s grid, int pid, int ix, int iq2); 
 
@@ -238,19 +262,20 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[
         fprintf(fp, "\n");
 
 
-        for(i=0;i<(int)(sizeof(pdg_flavours)/sizeof(int));i++) 
+        for(i=0;i<NPDFToStore ;i++) 
                 fprintf(fp, "%i ", pdg_flavours[i]);
         fprintf(fp, "\n");
 
 
         for(ix=0; ix<grid.nx; ix++) {
                 for(iq2=iqmin; iq2<iqmax; iq2++){
-                        for(i=0;i<(int)(sizeof(qcdnum_flavours)/sizeof(int));i++) {
+                        for(i=0;i< NPDFToStore;i++) {
                                 val=grid.pdf_ij(grid, qcdnum_flavours[i], ix, iq2);
+
                                 if(fns_mask[i] && fabs(val)>2*DBL_EPSILON)
-                                        fprintf(fp, "%e ", val);
+				  fprintf(fp, "%e ", val);
                                 else
-                                        fprintf(fp, "%e ", 0.0);
+				  fprintf(fp, "%e ", 0.0);
                         }
 
 
@@ -261,7 +286,7 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[
                 swap_fun=grid.raw_pdf_ij;
                 grid.raw_pdf_ij=raw_external_pdf_ij;
                 grid.q2[iqmax]-=OFFSET;
-                for(i=0;i<(int)(sizeof(qcdnum_flavours)/sizeof(int));i++) {
+                for(i=0;i<NPDFToStore;i++) {
                         val=grid.pdf_ij(grid, qcdnum_flavours[i], ix, iqmax);
                         if(fns_mask[i] && fabs(val)>2*DBL_EPSILON)
                                 fprintf(fp, "%e ", val);
