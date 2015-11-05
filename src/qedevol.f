@@ -351,15 +351,17 @@ C     Put 14 pdf and 4 alpha tables in the store
 
       do ix = 1,200
         x = xfrmix(ix)
-        call ExternalSetQEDEVOL(x,q0,xf)
-        start1(1,ix)=xf(-2)+xf(2)-((xf(-1)+xf(1))+(xf(-3)+xf(3)))
-        start1(2,ix)=xf(-2)+xf(2)+((xf(-1)+xf(1))+(xf(-3)+xf(3)))
-        start1(3,ix)=xf(0)
-        start2(1,ix)=xf(2)-xf(-2)-((xf(1)-xf(-1))+(xf(3)-xf(-3)))
-        start2(2,ix)=xf(2)-xf(-2)+((xf(1)-xf(-1))+(xf(3)-xf(-3)))
-        start3(1,ix)=xf(1)+xf(-1)-(xf(3)+xf(-3))
-        start7(1,ix)=xf(1)-xf(-1)-(xf(3)-xf(-3))
-        start1(4,ix)=xf(7)
+        if (x.ne.0) then 
+           call ExternalSetQEDEVOL(x,q0,xf)
+           start1(1,ix)=xf(-2)+xf(2)-((xf(-1)+xf(1))+(xf(-3)+xf(3)))
+           start1(2,ix)=xf(-2)+xf(2)+((xf(-1)+xf(1))+(xf(-3)+xf(3)))
+           start1(3,ix)=xf(0)
+           start2(1,ix)=xf(2)-xf(-2)-((xf(1)-xf(-1))+(xf(3)-xf(-3)))
+           start2(2,ix)=xf(2)-xf(-2)+((xf(1)-xf(-1))+(xf(3)-xf(-3)))
+           start3(1,ix)=xf(1)+xf(-1)-(xf(3)+xf(-3))
+           start7(1,ix)=xf(1)-xf(-1)-(xf(3)-xf(-3))
+           start1(4,ix)=xf(7)
+        endif
       enddo
 
 c      call READTAB(storu,nstoru,11,'qcdweights.wt','',1,isetpij,nwu,ie)
