@@ -246,7 +246,7 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[
 
 	int NPDFToStore = (int) (sizeof(qcdnum_flavours)/sizeof(int));
 
-	if ( ccommoninterface_.c_itheory != 11) {
+	if ( (ccommoninterface_.c_itheory != 11) && (ccommoninterface_.c_itheory != 35) ) {
 	  NPDFToStore--;
 	}
 
