@@ -13,10 +13,15 @@
 *
 *     Define basic settings
 *
-      call SetTheory("QCD")                      ! Set QCD evolution (default)
+      if(iTheory.eq.35)then
+         call SetTheory("QUniD")                 ! Set QCD+QED evolution (default)
+         call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of muF
+      else
+         call SetTheory("QCD")                   ! Set QCD evolution (default)
+         call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of alphas (rather than muF => faster for short steps)
+      endif
       call SetFastEvolution(.true.)              ! Use fast evolution (default)
       call SetAlphaEvolution("exact")            ! Use exact solution on the beta functions (default)
-      call SetPDFEvolution("exactalpha")         ! Use DGLAP evolution in terms of alphas (rather than muF => faster for short steps)
       call SetQLimits(0.5d0,20000d0)             ! Evolution limits
       call SetNumberOfGrids(3)                   ! x-space grid settings
       call SetGridParameters(1,40,3,9.8d-7)

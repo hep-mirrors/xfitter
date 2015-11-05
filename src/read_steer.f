@@ -1518,6 +1518,9 @@ C------------------------------------------------
       elseif (TheoryType.eq.'DGLAP_APFEL') then
          iTheory = 10
          IPDFSET = 7
+      elseif (TheoryType.eq.'DGLAP_APFEL_QED') then
+         iTheory = 35
+         IPDFSET = 7
       elseif (TheoryType.eq.'DGLAP_QEDEVOL') then
          iTheory = 11
          IPDFSET = 8

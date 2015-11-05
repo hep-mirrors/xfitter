@@ -16,11 +16,13 @@
 *     Initialise qcdnum and APFEL
 *     ------------------------------------------------
       if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25) then
+     $.or.itheory.eq.25.or.itheory.eq.35) then
 C Init evolution code:
          call qcdnum_ini
 C Init APFEL if needed
-         if(itheory.eq.10) call apfel_ini
+         if(itheory.eq.10.or.itheory.eq.35) call apfel_ini
+C Init QEDEVOL if needed
+         if(itheory.eq.11) call qedevol_ini
 C Init QEDEVOL if needed
          if(itheory.eq.11) call qedevol_ini
 
@@ -137,6 +139,10 @@ C Functions:
       integer iqfrmq
 
       common/ext_xgrid/xgrid,NXGridAct,ReadXGrid
+
+C Memory parameters of QCDNUM
+      integer ver,mxg,mxx,mqq,msr,mce,mbf,mky,nwf
+
 C---------------------------------------------------------------------------------------
 
 C-----  DEFAULTS -----------
@@ -263,6 +269,66 @@ C Remove duplicates:
       print *,' '
 
       call qcinit(6,' ')        !initialize
+*
+*     After the initialization of QCDNUM, the code checks that the memory parameters
+*     used to compile QCDNUM are appropriate.
+*
+      call getint('vers',ver)
+      call getint('mxg0',mxg)
+      call getint('mxx0',mxx)
+      call getint('mqq0',mqq)
+      call getint('mst0',msr)
+      call getint('mce0',mce)
+      call getint('mbf0',mbf)
+      call getint('mky0',mky)
+      call getint('nwf0',nwf)
+*
+      if(ver.lt.170110 )then
+         call HF_errlog(231020151, 'F: '//
+     1   'Obsolete version of QCDNUM. '//
+     2   'Install version 17.01.10 or later.')
+      endif
+      if(mxg.lt.5      )then
+         call HF_errlog(231020152, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least mxg0 = 5 in qcdnum.inc.')
+      endif
+      if(mxx.lt.300    )then
+         call HF_errlog(231020153, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least mxx0 = 300 in qcdnum.inc.')
+      endif
+      if(mqq.lt.150    )then
+         call HF_errlog(231020154, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least mqq0 = 150 in qcdnum.inc.')
+      endif
+      if(msr.lt.30     )then
+         call HF_errlog(231020155, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least mst0 = 30 in qcdnum.inc.')
+      endif
+      if(mce.lt.20     )then
+         call HF_errlog(231020156, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least mce0 = 20 in qcdnum.inc.')
+      endif
+      if(mbf.lt.10     )then
+         call HF_errlog(231020157, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least mbf0 = 10 in qcdnum.inc.')
+      endif
+      if(mky.lt.50     )then
+         call HF_errlog(231020158, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least mky0 = 50 in qcdnum.inc.')
+      endif
+      if(nwf.lt.1200000)then
+         call HF_errlog(231020159, 'F: '//
+     1   'QCDNUM memory allocation insufficient. '//
+     2   'Recompile QCDNUM with at least nwf0 = 1200000 in qcdnum.inc.')
+      endif
+*
       call setord(I_FIT_ORDER)         !LO, NLO, NNLO
 
       print *,"gxmake xmingrid: ",xmin_grid
@@ -1263,13 +1329,13 @@ C
 C External PDF reading for APFEL
 C
 C--------------------------------------------------------
-      implicit double precision (a-h,o-z)
+      implicit none
 *
 #include "steering.inc"
 *
       integer i
       double precision x,qmu2
-      dimension xf(-6:6)
+      double precision xf(-6:6)
 
       double precision q2p
       common / PrevoiusQ / q2p
@@ -1279,11 +1345,41 @@ C--------------------------------------------------------
       if(qmu2.ne.q2p)then
          call EvolveAPFEL(dsqrt(q2p),dsqrt(qmu2))
          call SetPDFSet("apfel")
-c         call EvolveAPFEL(dsqrt(dble(starting_scale)),dsqrt(qmu2))
       endif
 *
       call xPDFall(x,xf)
       q2p = qmu2
+*
+      return
+      end
+*
+      Subroutine APFELsubrPhoton(x, qmu2, xf)
+C-------------------------------------------------------
+C
+C External PDF reading for APFEL (including the photon)
+C
+C--------------------------------------------------------
+      implicit none
+*
+#include "steering.inc"
+*
+      double precision x,qmu2
+      double precision xf(-6:7)
+
+      double precision q2p
+      common / PrevoiusQ / q2p
+*
+*     Perform evolution with APFEL only if the final scale has changed
+*
+      if(qmu2.ne.q2p)then
+c         call EvolveAPFEL(dsqrt(q2p),dsqrt(qmu2))
+c         call SetPDFSet("apfel")
+         call EvolveAPFEL(dsqrt(dble(starting_scale)),dsqrt(qmu2))
+      endif
+*
+      call xPDFallPhoton(x,xf)
+      q2p = qmu2
+      write(19,*) "......... ",x, qmu2, xf(7)
 *
       return
       end
@@ -1447,7 +1543,7 @@ c#include "steering.inc"
 *     for the evolution.
 *
       if(MassScheme.eq."MSbar")then
-         if(iTheory.ne.10)then
+         if(iTheory.ne.10.and.iTheory.ne.35)then
             call HF_errlog(21042015, 'F: '//
      1                'When using the FONLL scheme with the MSbar '//
      2                'masses, APFEL must be used for the evolution. '//

@@ -309,6 +309,7 @@ C----------------------------
       double precision pdf_from_text
       double precision qstrange,Ubar,Dbar,H1U,H1D
       double precision sea,dbmub,dval,uval
+      double precision photon
       double precision dfac,ParDumpFactor
       parameter(ParDumpFactor=1.d-3)
 **
@@ -379,6 +380,10 @@ c         q0 = sqrt(starting_scale)
          print *,'Stop in evolution'
          call HF_Stop
       endif
+*
+*     Photon PDF
+*
+      if(itheory.eq.35) xf(7) = photon(x)
 *
       return
       end

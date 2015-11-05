@@ -161,6 +161,7 @@ C  x-dependent fs:
       double precision fshermes
       external LHAPDFsubr
       external APFELsubr
+      external APFELsubrPhoton
       external QEDEVOLsubr
 c updf stuff
       logical firsth
@@ -241,7 +242,7 @@ c        write(6,*) ' fcn npoint ',npoints
 
       kflag=0
       if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25)  then 
+     $.or.itheory.eq.25.or.itheory.eq.35)  then 
          call SumRules(kflag)
       endif
       if (kflag.eq.1) then
@@ -255,7 +256,7 @@ c        write(6,*) ' fcn npoint ',npoints
 *     -----------------------------------------------------
 
       if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25) then 
+     $.or.itheory.eq.25.or.itheory.eq.35) then 
          if (itheory.eq.0.or.itheory.eq.11.or.itheory.eq.25) then
             call setalf(dble(alphas),Mz*Mz)
          else
@@ -266,12 +267,21 @@ c        write(6,*) ' fcn npoint ',npoints
          if(IPDFSET.eq.5) then
 c adjust to QCDNUM-17-01-10 and newer versions             
 c           call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
-           call PDFEXT(LHAPDFsubr, IPDFSET, 0, dble(0.001), epsi)
+            call PDFEXT(LHAPDFsubr, IPDFSET, 0, dble(0.001), epsi)
          elseif (IPDFSET.eq.7) then
             q2p = starting_scale
             call SetPDFSet("external")
-c            call PDFINP(APFELsubr,  IPDFSET, dble(0.001), epsi, nwds)
-            call PDFEXT(APFELsubr,  IPDFSET, 0, dble(0.001), epsi)
+            if(itheory.eq.35)then
+               call PDFEXT(APFELsubrPhoton, IPDFSET, 1, dble(0.001),
+     1              epsi)
+            else
+               call PDFEXT(APFELsubr, IPDFSET, 0, dble(0.001), epsi)
+            endif
+         elseif (IPDFSET.eq.8) then
+            q2p = starting_scale
+c            call SetPDFSet("external")
+            call qedevol_main
+            call PDFEXT(QEDEVOLsubr,  IPDFSET, 1, dble(0.001), epsi)
          elseif (IPDFSET.eq.8) then
             q2p = starting_scale
 c            call SetPDFSet("external")
@@ -309,7 +319,7 @@ C      for dipole model fits.
          print*,'before evolution'
       endif
       if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25) then         
+     $.or.itheory.eq.25.or.itheory.eq.35) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 

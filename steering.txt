@@ -40,7 +40,7 @@
 
 &OutDir
   ! Name of the directory where output will be stored (max 22 characters)
-    OutDirName = 'output/qedevol0'
+    OutDirName = 'output'
 &End
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
@@ -75,11 +75,12 @@
                 !                      set to LHAPDFQ0, LHAPDF or LHAPDFNATIVE, sets it to LHAPDF
                 ! 'PDF Rotate'      -- performs PDF re-diagonalization. Requires theo.in files to operate properly  
 
-  TheoryType = 'DGLAP_QEDEVOL' ! 'DGLAP'        -- collinear evolution
-                       ! 'DGLAP_APFEL'  -- collinear evolution with APFEL
-                       ! 'DGLAP_QEDEVOL'  -- collinear evolution with QEDEVOL
-                       ! 'DIPOLE'       -- dipole model 
-                       ! 'uPDF'         -- un-integrated PDFs
+  TheoryType = 'DGLAP_APFEL_QED' ! 'DGLAP'            -- collinear evolution
+                       ! 'DGLAP_APFEL'      -- collinear evolution with APFEL
+                       ! 'DGLAP_QEDEVOL'    -- collinear evolution with QEDEVOL
+                       ! 'DGLAP_APFEL_QED'  -- collinear evolution with APFEL with QED corrections
+                       ! 'DIPOLE'           -- dipole model 
+                       ! 'uPDF'             -- un-integrated PDFs
                                 !uPDF1 fit with kernel ccfm-grid.dat file
                                 !uPDF2 fit evolved uPDF, fit just normalisation
                                 !uPDF3 fit using precalculated grid of sigma_hat
