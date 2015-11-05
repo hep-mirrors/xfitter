@@ -19,6 +19,8 @@
         c_nx= nxgrid
         c_read_xgrid= ReadXGrid
 
+        c_itheory = itheory
+
         c_dobands= dobands
         c_hf_mass(1)= hf_mass(1)
         c_hf_mass(2)= hf_mass(2)

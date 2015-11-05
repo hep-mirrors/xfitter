@@ -24,10 +24,12 @@ C
       integer c_i_fit_order
       real*4  c_hf_mass(3)
       logical c_dobands
+      integer c_itheory
 
       common/CCommonInterface/ c_mz, c_LHAPDF6OutDir, 
      $ c_OutDirName, c_LHAPDFSET, c_xgrid, c_nx, c_read_xgrid,
      $  c_dobands, c_hf_mass, c_i_fit_order, c_ipdfset, c_lead, 
-     $  c_useGridLHAPDF5, c_writeLHAPDF6, c_WriteAlphaSToMemberPDF
+     $  c_useGridLHAPDF5, c_writeLHAPDF6, c_WriteAlphaSToMemberPDF,
+     $  c_itheory
 
      
