@@ -28,6 +28,10 @@ c----------------------------------------------------------
       call print_apfel_error_message
       end
 
+      subroutine xpdfallphoton
+      call print_apfel_error_message
+      end
+
       subroutine setalphaqcdref
       call print_apfel_error_message
       end
