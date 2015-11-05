@@ -23,8 +23,6 @@ C Init APFEL if needed
          if(itheory.eq.10.or.itheory.eq.35) call apfel_ini
 C Init QEDEVOL if needed
          if(itheory.eq.11) call qedevol_ini
-C Init QEDEVOL if needed
-         if(itheory.eq.11) call qedevol_ini
 
          call Init_heavy_flavours
 
