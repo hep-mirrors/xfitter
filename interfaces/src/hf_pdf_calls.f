@@ -25,11 +25,11 @@ C----------------------------------------------------------------------
          return
       endif
 
-      if (Itheory.Eq.11) then
+      if (Itheory.Eq.11 .or. ITheory.eq.35 ) then
 C QED evolution:
          call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)         
          PDFSF(N_CHARGE_PDF+1) = FSNSXQ( iPDFSET,13,x,q2,ICheck_QCDNUM)
-
+c         print *,ipdfset,x,q2, PDFSF(N_CHARGE_PDF+1), PDFSF(0)
          return
       endif
 
