@@ -176,6 +176,15 @@ cv
            write(6,*) 'DDis: invalid dataset for ithory > 100'
             call hf_stop
          Endif
+
+C HVQMNR for heavy-quark production in pp 
+      elseif (DATASETREACTION(IDataSet).eq.'HVQMNR pp QQbar') then
+         if(Itheory.lt.100) then
+            Call GetHVQMNRXsection(IDataSet)
+         else
+            write(6,*) ' invalid dataset for ithory > 100 '
+            call hf_stop
+         Endif
          
        elseif ((index(DATASETREACTION(IdataSet), ' Dummy').gt.0).or.
      $     (index(DATASETREACTION(IdataSet), 'Dummy').gt.0)) then

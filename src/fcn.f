@@ -69,6 +69,9 @@ C !> Also store for each fcn=3 call:
 
       call HF_errlog(12020515,'I: FCN is called')
 
+C Print MINUIT extra parameters
+      call printminuitextrapars
+
 *     ---------------------------------------------------------
 *     PDF parameterisation at the starting scale
 *     ---------------------------------------------------------
@@ -187,6 +190,11 @@ c updf stuff
       character*64 Msg
       integer NextraSets
       
+      double precision rmass,rmassp,rcharge
+      COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)
+
+C Penalty from MINUIT extra parameters constraints
+      double precision extraparsconstrchi2
 
 C--------------------------------------------------------------
 *     ---------------------------------------------------------
@@ -357,7 +365,13 @@ c iglu is set in sigcalc to iglu=1111
 
 c fill PDFs for ABKM scheme
       if (mod(HFSCHEME,10).eq.4) then 
-             call PDFFILLGRID
+c update heavy-quark masses (for FF ABM and FF ABM RUNM schemes)
+        if (HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
+          call UpdateHQMasses()
+          rmass(8)  = HF_MASS(1)
+          rmass(10) = HF_MASS(2)
+        endif
+        call PDFFILLGRID
 c this will need to BMSN             
 c             call fillvfngrid
       endif
@@ -505,6 +519,11 @@ c             call fillvfngrid
          fchi2 = fchi2 + TempChi2
       endif
       
+      
+c Penalty from MINUIT extra parameters constraints
+      call getextraparsconstrchi2(extraparsconstrchi2)
+      fchi2 = fchi2 + extraparsconstrchi2
+
 
       chi2out = fchi2+
      $     shift_polRHp**2+shift_polRHm**2+
@@ -749,3 +768,68 @@ C Over d,e and F
       GetTempChi2 = chi2*Temperature
 C---------------------------------------------------------------------
       end
+
+
+C---------------------------------------------------------
+C Update heavy-quark mass values for FF ABM RUNM or FF ABM
+C---------------------------------------------------------
+      subroutine UpdateHQMasses
+      implicit none
+#include "couplings.inc"
+#include "steering.inc"
+#include "extrapars.inc"
+      integer imc,imb,imt
+      data imc,imb,imt /0,0,0/
+      save imc,imb,imt
+      integer GetParameterIndex
+      character*256 parname
+      double precision par,unc,ll,ul
+      integer st
+      ! check scheme
+      if (HFSCHEME.ne.4.and.HFSCHEME.ne.444) then
+        continue
+      endif
+      ! mc
+      if(imc.eq.0) then
+        imc=GetParameterIndex('mc')
+        if(imc.eq.0) then
+          imc=-1
+        else
+          imc=iExtraParamMinuit(imc)
+        endif
+      endif
+      if(imc.gt.0) then
+        call MNPOUT(imc,parname,par,unc,ll,ul,st)
+        HF_MASS(1)=par
+        mch=par
+      endif
+      ! mb
+      if(imb.eq.0) then
+        imb=GetParameterIndex('mb')
+        if(imb.eq.0) then
+          imb=-1
+        else
+          imb=iExtraParamMinuit(imb)
+        endif
+      endif
+      if(imb.gt.0) then
+        call MNPOUT(imb,parname,par,unc,ll,ul,st)
+        HF_MASS(2)=par
+        mbt=par
+      endif
+      ! mt
+      if(imt.eq.0) then
+        imt=GetParameterIndex('mt')
+        if(imt.eq.0) then
+          imt=-1
+        else
+          imt=iExtraParamMinuit(imt)
+        endif
+      endif
+      if(imt.gt.0) then
+        call MNPOUT(imt,parname,par,unc,ll,ul,st)
+        HF_MASS(3)=par
+        mtp=par
+      endif
+      end
+      

@@ -12,7 +12,8 @@ sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
 getncxskt.f Getgridkt.f GetDummyXsection.f \
-GetDiffDisXsection.f FixModelParams.f reweighting.f prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f
+GetDiffDisXsection.f FixModelParams.f reweighting.f prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
+ExtraParConstr.cc
 
 # WS 2013-01-19 for the Offset method
 FitPDF_SOURCES += offset_fns.f g_offset.cc
@@ -74,7 +75,19 @@ if ENABLE_APFEL
 endif
 
 # libraries to be linked to the main target
-LDADD = $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
+LDADD = $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
+
+if ENABLE_LHAPDF 
+  LDADD+=$(LHAPDF_LDFLAGS)
+endif
+
+if HAVE_ROOT
+  LDADD+=$(ROOT_LIBS)
+endif
+
+# libraries to be linked to the main target
+LDADD+= $(LIBS) $(FLIBS)
+
 if ENABLE_OPENMP
   LDADD+= -lgomp
   AM_FFLAGS+= -fopenmp
@@ -96,6 +109,13 @@ endif
 if ENABLE_HATHOR
   LDADD+= ../Hathor/src/libHathor.a \
   $(HATHOR_ROOT)/libHathor.a
+endif
+
+# Link with HVQMNR library, otherwise with dummy stub
+if ENABLE_HVQMNR
+  LDADD += ../HVQMNR/src/libHVQMNR.a $(ROOT_LIBS)
+else
+  FitPDF_SOURCES += hvqmnr_dum.f	
 endif
 
 LDADD+=  ../DY/src/libmydy.a\
@@ -133,12 +153,4 @@ endif
 
 if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a
-endif
-
-if ENABLE_LHAPDF 
-  LDADD+=$(LHAPDF_LDFLAGS)
-endif
-
-if HAVE_ROOT
-  LDADD+=$(ROOT_LIBS)
 endif

@@ -1267,8 +1267,10 @@ C-------------------------------------
       character*32 name(maxExtra)
       double precision Value(maxExtra),Step(maxExtra)
      $     ,Min(maxExtra),Max(maxExtra)
+     $     ,ConstrVal(maxExtra),ConstrUnc(maxExtra)
 
       namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
+     $                                     ,ConstrVal,ConstrUnc
       integer i
 C----------------------------------------
       
@@ -1287,7 +1289,8 @@ C
          
          do i=1,maxExtra
             if (name(i).ne.' ') then
-               call AddExternalParam(name(i),value(i), step(i), min(i), max(i))
+               call AddExternalParam(name(i),value(i), step(i), min(i), max(i)
+     $              ,ConstrVal(i),ConstrUnc(i))
             endif
          enddo
       enddo
@@ -1308,13 +1311,16 @@ C
 !> @param value of extra parameter
 !> @param step gradient of parameter in case of fitting
 !> @param min, max range of allowed values in case of fitting
+!> @param constrval constrain to this value in case of fitting
+!> @param construnc uncertainty on constrain in case of fitting
 C-----------------------------------------------
-      Subroutine AddExternalParam(name, value, step, min, max)
+      Subroutine AddExternalParam(name, value, step, min, max, 
+     $                            constrval, construnc)
 
       implicit none
 #include "extrapars.inc"
       character*(*) name
-      double precision value, step, min, max
+      double precision value, step, min, max, constrval, construnc
 C---------------------------------------------
 C Add extra param
 C
@@ -1333,6 +1339,8 @@ C
       ExtraParamStep (nExtraParam) = step
       ExtraParamMin  (nExtraParam) = min
       ExtraParamMax  (nExtraParam) = max
+      ExtraParamConstrVal  (nExtraParam) = constrval
+      ExtraParamConstrUnc  (nExtraParam) = construnc
       end
 
 
@@ -1710,7 +1718,8 @@ C
 
 C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then
-         call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0)
+         call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0
+     $                         ,0.0D0,0.0D0)
       endif
 
       end

@@ -9,7 +9,10 @@
       double precision ExtraParamStep (nExtraParamMax) !> Initial step size
       double precision ExtraParamMin  (nExtraParamMax) !> Min value 
       double precision ExtraParamMax  (nExtraParamMax) !> Max value
+      double precision ExtraParamConstrVal(nExtraParamMax) !> External constraint (central value)
+      double precision ExtraParamConstrUnc(nExtraParamMax) !> External constraint (uncertainty)
       integer iExtraParamMinuit       (nExtraParamMax) !> Minuit param. index
 
       common/ExtraPars/ExtraParamNames,ExtraParamValue,ExtraParamStep,
-     $     ExtraParamMin,ExtraParamMax,iExtraParamMinuit,nExtraParam
+     $     ExtraParamMin,ExtraParamMax,ExtraParamConstrVal,
+     $     ExtraParamConstrUnc,iExtraParamMinuit,nExtraParam

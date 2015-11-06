@@ -196,8 +196,11 @@ C----- Read grid definitions from the steering.txt
 
 C Check that scales are in proper order:
       if (q0.gt.qc) then
-         print *,'Starting scale must be below charm threshold, stop'
-         call HF_stop
+c In fixed-flavour scheme starting scale can be above charm threshold
+         if(HFSCHEME.ne.3.and.HFSCHEME.ne.4.and.HFSCHEME.ne.444) then
+            print *,'Starting scale must be below charm threshold, stop'
+            call HF_stop
+         endif
       endif
       
       if (qc.gt.qb) then

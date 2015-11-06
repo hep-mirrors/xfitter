@@ -290,6 +290,14 @@ if test x$enable_hathor == xyes; then
 fi
 AM_CONDITIONAL(ENABLE_HATHOR, [test x$enable_hathor == xyes])
 
+# check for HVQMNR installation
+AC_ARG_ENABLE([hvqmnr],
+  [AC_HELP_STRING(--enable-hvqmnr, [use hvqmnr for heavy-flavour pp cross section predictions (default=no)])])
+if test x$enable_hvqmnr == xyes; then
+  AC_MSG_CHECKING([for HVQMNR installation])
+fi
+AM_CONDITIONAL(ENABLE_HVQMNR, [test x$enable_hvqmnr == xyes])
+
 AC_MSG_CHECKING([for root installation])
 root_config=`which root-config`
 if test x$root_config == x; then
@@ -399,6 +407,7 @@ AC_CONFIG_FILES([include/Makefile
                  DY/src/Makefile
                  DY/include/Makefile
                  Hathor/src/Makefile
+                 HVQMNR/src/Makefile
                  ACOT/src/Makefile
                  ABM/src/Makefile
 		 FONLL/src/Makefile

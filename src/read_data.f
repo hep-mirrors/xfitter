@@ -704,7 +704,7 @@ C Scale the syst. erros:
          nDSbins = nDSbins +1
 
 C Apply cuts:
-         if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName)) then
+         if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName,IndexDataset)) then
 	   ! set excluding flag for those bins that were cut
            binFlags(j) = 0
            if((Reaction.eq.'FastNLO jets').or.

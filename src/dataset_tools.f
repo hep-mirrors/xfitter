@@ -108,7 +108,7 @@ C----------------------------------------------------------------
       end
 
 
-      Logical Function FailSelectionCuts(reaction,nbin,bins,binnames)
+      Logical Function FailSelectionCuts(reaction,nbin,bins,binnames,IndexDataset)
 C----------------------------------------------------------------------
 C  Created 24/05/11 by SG.
 C
@@ -119,6 +119,7 @@ C----------------------------------------------------------------------
       double precision bins(nbin)                   ! values of variables
       character *(*) reaction                       ! reaction type
       character *(*) binnames(nbin)                 ! variable names 
+      integer IndexDataset                          ! dataset index
 
 C Extra DIS selection
       logical FailDISSelection
@@ -134,10 +135,16 @@ C Namelist variables:
       character *80 Variable(NRulesMax)         !> names of variables to apply cuts
       double precision CutValueMin(NRulesMax)   !> Min. value of the cut
       double precision CutValueMax(NRulesMax)   !> Max. value of the cut
+      integer NDatasetMax
+      parameter (NDatasetMax = 10)
+      integer NDataset(NRulesMax)               !> actual number of provided dataset indices
+      save NDataset                             
+      integer Dataset(NDatasetMax,NRulesMax)    !> dataset indices
 
-      namelist  /Cuts/Variable,CutValueMin,CutValueMax,ProcessName
+      namelist  /Cuts/Variable,CutValueMin,CutValueMax,ProcessName,Dataset
 
       integer i,j,k
+      logical CheckThisDataSet
 C------------------------------------------------
 
       FailSelectionCuts = .false. 
@@ -161,10 +168,23 @@ C Count rules
             if (ProcessName(i).ne.' ') then
                NRules = NRules + 1
                
+C Count number of dataset indices   
+               NDataset(i)  = 0
+               do j=1,NDatasetMax
+                 if(Dataset(j,i).eq.0) then
+                   exit
+                 else
+                   NDataset(i) = NDataset(i) + 1            
+                 endif
+               enddo
+               
                print ' ("ProcessName  ",A80)',ProcessName(i)
                print ' ("Variable:    ",A80)',Variable(i)
                print ' ("CutValueMin: ",E15.5)',CutValueMin(i)
                print ' ("CutValueMax: ",E15.5)',CutValueMax(i)
+               do j=1,NDataset(i)
+                 print ' ("Dataset(",I0,"): ",I6)',j,Dataset(j,i)
+               enddo
                
             endif
          enddo
@@ -183,6 +203,22 @@ C-- Run over all rules, check for appropriate process/variable
                endif
                goto 17          ! next rule               
             else
+
+C Check dataset indices, if they were provided     
+               CheckThisDataSet = .true.  ! by default check all datasets
+               if(NDataset(j).gt.0) then
+                 CheckThisDataSet = .false.  ! explicit list was provided, now default is false
+                 do k=1,NDataset(j)
+                   if(DataSet(k,j).eq.IndexDataset) then
+                     CheckThisDataSet = .true.  ! item matches current datset, stop loop
+                     exit
+                   endif
+                 enddo
+               endif
+               if(.not.CheckThisDataSet) then
+                 goto 17  ! next rule
+               endif
+
                do k=1,nbin
                   if (Variable(j).eq.BinNames(k)) then
                      if (

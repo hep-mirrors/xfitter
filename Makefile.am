@@ -10,6 +10,10 @@ if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
 
+if ENABLE_HVQMNR
+  SUBDIRS+= HVQMNR/src
+endif
+
 SUBDIRS+= NNPDF/src
 
 SUBDIRS+= common
