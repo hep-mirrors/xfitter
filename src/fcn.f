@@ -185,6 +185,7 @@ c updf stuff
 
       character*2 TypeC, FormC, TypeD
       character*64 Msg
+      integer NextraSets
       
 
 C--------------------------------------------------------------
@@ -264,10 +265,17 @@ c        write(6,*) ' fcn npoint ',npoints
          endif
          alphaSzero= hf_get_alphas(1D0)
          call RT_SetAlphaS(alphaSzero)
+
+
+         NextraSets = 0
+         if (ExtraPdfs) then
+            NextraSets = 1
+         endif
+
          if(IPDFSET.eq.5) then
 c adjust to QCDNUM-17-01-10 and newer versions             
 c           call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
-            call PDFEXT(LHAPDFsubr, IPDFSET, 0, dble(0.001), epsi)
+            call PDFEXT(LHAPDFsubr, IPDFSET, NextraSets, dble(0.001), epsi)
          elseif (IPDFSET.eq.7) then
             q2p = starting_scale
             call SetPDFSet("external")

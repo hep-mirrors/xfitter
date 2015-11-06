@@ -1314,11 +1314,16 @@ C
 C External PDF reading for QCDNUM
 C
 C--------------------------------------------------------
-      implicit double precision (a-h,o-z)
+      implicit none
+#include "steering.inc"
 
       double precision x,qmu2
-      dimension xf(-6:6)
-      call evolvePDF(x, sqrt(qmu2), xf)
+      double precision xf(-6:7)
+      if ( ExtraPdfs ) then
+         call evolvePDFphoton(x, sqrt(qmu2), xf, xf(7))
+      else
+         call evolvePDF(x, sqrt(qmu2), xf)
+      endif      
       end
 
       Subroutine APFELsubr(x, qmu2, xf)
