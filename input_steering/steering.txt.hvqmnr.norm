@@ -153,9 +153,9 @@
 *
 &ExtraMinimisationParameters
  ! set step to 0 to avoid minimisation 
-   name  = 'alphas','fs','fcharm', 'mc',  'mb','HVQMNR_mf_AB','HVQMNR_mr_AB','HVQMNR_fragpar_c','HVQMNR_fragpar_b'
-   value =  0.1059 ,0.31,      0.,1.257, 4.192,           1.0,           1.0,               4.4,              11.0
-   step  =  0.0    ,0.0 ,      0.,0.100, 0.100,           0.0,           0.0,               0.0,              0.00
+   name  = 'alphas','fs','fcharm', 'mc',  'mb','MNRmf_AB','MNRmr_AB','MNRfrag_c','MNRfrag_b'
+   value =  0.1059 ,0.31,      0.,1.257, 4.192,       1.0,       1.0,        4.4,       11.0
+   step  =  0.0    ,0.0 ,      0.,0.100, 0.100,       0.0,       0.0,        0.0,       0.00
 &End
 
 

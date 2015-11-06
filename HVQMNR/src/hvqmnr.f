@@ -189,24 +189,24 @@ C-------------------------------------------------------------------------------
 C Read parameters for perturbative scales from MINUIT extra parameters
 C
 C Scales for charm and beauty production are parametrised as:
-C mu_f(c)^2 = HVQMNR_mf_A_c * pT_c^2 + HVQMNR_mf_B_c * m_c^2 + HVQMNR_mf_C_c
-C mu_r(c)^2 = HVQMNR_mr_A_c * pT_c^2 + HVQMNR_mr_B_c * m_c^2 + HVQMNR_mr_C_c
-C mu_f(b)^2 = HVQMNR_mf_A_b * pT_b^2 + HVQMNR_mf_B_b * m_b^2 + HVQMNR_mf_C_b
-C mu_r(b)^2 = HVQMNR_mr_A_b * pT_b^2 + HVQMNR_mr_B_b * m_b^2 + HVQMNR_mr_C_b
+C mu_f(c)^2 = MNRmf_A_c * pT_c^2 + MNRmf_B_c * m_c^2 + MNRmf_C_c
+C mu_r(c)^2 = MNRmr_A_c * pT_c^2 + MNRmr_B_c * m_c^2 + MNRmr_C_c
+C mu_f(b)^2 = MNRmf_A_b * pT_b^2 + MNRmf_B_b * m_b^2 + MNRmf_C_b
+C mu_r(b)^2 = MNRmr_A_b * pT_b^2 + MNRmr_B_b * m_b^2 + MNRmr_C_b
 C where mu_f(c), mu_r(c), mu_f(b), mu_r(b) are factorisation and renormalisation 
 C scales for charm and beauty production, respectively, pT is transverse momentum 
 C and m_c, m_b are charm and beauty quark masses.
 C
-C In total, one can provide all 12 parameters (HVQMNR_mf_A_c, HVQMNR_mf_B_c, HVQMNR_mf_C_c,
-C HVQMNR_mr_A_c, HVQMNR_mr_B_c, HVQMNR_mr_C_c, HVQMNR_mf_A_b, HVQMNR_mf_B_b, HVQMNR_mf_C_b,
-C HVQMNR_mr_A_b, HVQMNR_mr_B_b, HVQMNR_mr_C_b), however there are the foolowing rules:
+C In total, one can provide all 12 parameters (MNRmf_A_c, MNRmf_B_c, MNRmf_C_c,
+C MNRmr_A_c, MNRmr_B_c, MNRmr_C_c, MNRmf_A_b, MNRmf_B_b, MNRmf_C_b,
+C MNRmr_A_b, MNRmr_B_b, MNRmr_C_b), however there are the foolowing rules:
 C 1) if suffix _c (_b) at the end of variable name is omitted, the parameter is applied 
 C    for both charm and beauty production
-C 2) instead of providing e.g. HVQMNR_mr_A_c and HVQMNR_mr_B_c the user can provide one 
-C    parameter HVQMNR_mr_AB_c so then HVQMNR_mr_A_c = HVQMNR_mr_B_c = HVQMNR_mr_AB_c
+C 2) instead of providing e.g. MNRmr_A_c and MNRmr_B_c the user can provide one 
+C    parameter MNRmr_AB_c so then MNRmr_A_c = MNRmr_B_c = MNRmr_AB_c
 C 3) if parameters *_C_* are not provided, they are set to 0
 C So e.g. for charm production only it is enough to provide just the following two parameters 
-C HVQMNR_mr_AB and HVQMNR_mf_AB.
+C MNRmr_AB and MNRmf_AB.
 C---------------------------------------------------------------------------------------------
       implicit none
       ! input variables:
@@ -225,17 +225,17 @@ C-------------------------------------------------------------------------------
       integer GetParameterIndex
 #include "extrapars.inc"
 
-      iA=GetParameterIndex('HVQMNR_m'//mu//'_AB')
+      iA=GetParameterIndex('MNRm'//mu//'_AB')
       iB=iA
       if(iA.eq.0) then
-        iA=GetParameterIndex('HVQMNR_m'//mu//'_A')
-        iB=GetParameterIndex('HVQMNR_m'//mu//'_B')
+        iA=GetParameterIndex('MNRm'//mu//'_A')
+        iB=GetParameterIndex('MNRm'//mu//'_B')
         if(iA.eq.0.or.iB.eq.0) then
-          iA=GetParameterIndex('HVQMNR_m'//mu//'_AB_'//q)
+          iA=GetParameterIndex('MNRm'//mu//'_AB_'//q)
           iB=iA
           if(iA.eq.0) then
-            iA=GetParameterIndex('HVQMNR_m'//mu//'_A_'//q)
-            iB=GetParameterIndex('HVQMNR_m'//mu//'_B_'//q)
+            iA=GetParameterIndex('MNRm'//mu//'_A_'//q)
+            iB=GetParameterIndex('MNRm'//mu//'_B_'//q)
           endif
         endif
       endif
@@ -248,9 +248,9 @@ C-------------------------------------------------------------------------------
         call MNPOUT(iA,parname,A,unc,ll,ul,st)
         call MNPOUT(iB,parname,B,unc,ll,ul,st)
       endif
-      iC=GetParameterIndex('HVQMNR_m'//mu//'_C')
+      iC=GetParameterIndex('MNRm'//mu//'_C')
       if(iC.eq.0) then
-        iC=GetParameterIndex('HVQMNR_m'//mu//'_C_'//q)
+        iC=GetParameterIndex('MNRm'//mu//'_C_'//q)
       endif
       if(iC.eq.0) then
         C=0
@@ -266,7 +266,7 @@ C-----------------------------------------------------------------------
 C Read fragmentation parameter
 C
 C Parameters for non-perturbative fragmentation can be provided 
-C as MINUIT extra parameters HVQMNR_fragpar_c or HVQMNR_fragpar_b
+C as MINUIT extra parameters MNRfrag_c or MNRfrag_b
 C for charm and beauty production, respectively.
 C-----------------------------------------------------------------------
       implicit none
@@ -285,7 +285,7 @@ C-----------------------------------------------------------------------
       integer GetParameterIndex
 #include "extrapars.inc"
 
-      iFFpar=GetParameterIndex('HVQMNR_fragpar_'//q)
+      iFFpar=GetParameterIndex('MNRfrag_'//q)
       if(iFFpar.eq.0) then
         call makenan(FFpar)
       else
