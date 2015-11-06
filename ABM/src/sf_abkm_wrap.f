@@ -4,6 +4,7 @@
 C-------------------------------------------------------------------------
 C
 C Created by RP 09 Jan 2012. A wraper around abkm functions
+C Updated to OPENQCDRAD-2.0b4 version Nov 2016
 C
 C  Input parameters: x,Q2
 C                   iflag,index        -- iflag=1: get k-factor, index: data point global, unique index.
@@ -123,32 +124,36 @@ C Input variables:
       double precision hqscale1in,hqscale2in
       
 C Common variables:
-      integer npdftot,kordpdf,kschemepdf,kpdfset
+      integer npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
 c      common /forpdfset/ kschemepdf,kordpdf
-      common /forpdfset/ npdftot,kordpdf,kschemepdf,kpdfset
+      common /forpdfset/ npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
 
       double precision rmass,rmassp,rcharge
       COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)
 
-      double precision q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+      double precision q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
       double precision alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1
       double precision hqscale2
       integer nfeff,kordalps,kfeff,kordhq,kordf2,kordfl,kordf3
+      logical alsmz 
 
-      common /FORALPSRENORM/ q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+      common /FORALPSRENORM/ q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
      , ,alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1,hqscale2
      , ,nfeff,kordalps,kfeff
      , ,kordhq,kordf2,kordfl,kordf3
+     , ,alsmz
 
-      logical msbarm,hqnons
+      logical msbarm,hqnons,bmsnfopt,bmsnnlo,vloop
       double precision ddnnlohq
       common /forschemedef/ ddnnlohq,msbarm,hqnons
+     ,  ,bmsnfopt,bmsnnlo,vloop
 C-------------------------------      
 
       rmass(8)  = rmass8in
       rmass(10) = rmass10in
       kschemepdf= kschemepdfin
 c set same order for pdf, light, heavy quarks      
+      print*,'kordpdfin, rmass8in,rmass10in  ', kordpdfin, rmass8in,rmass10in
       kordpdf   = kordpdfin
       kordhq    = kordpdfin
       kordf2    = kordpdfin

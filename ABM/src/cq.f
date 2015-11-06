@@ -3,70 +3,82 @@ c-------------
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
       INCLUDE 'APSCOM6.'
-      INCLUDE 'CONSTCOM.'
+      INCLUDE 'CONSTCOM.' 
+      INCLUDE 'PDFCOM.' 
+ 
+      common  /forqgspl/ xb0,q2,xlog,an,an2,an3,kn,iqn,ixn,isn,ihqn
 
-      common  /forqgspl/ xb0,q2,xlog,an,an2,an3,kn,iqn,ixn,isn
-
-!  Set up the boundary conditions for the strong copuling evolution 
-!  using the 3-flavour strong coupling at the scale of the c-quark mass
+!  Set up the boundary conditions for the strong coupling evolution 
+!  using the 3-flavour strong coupling at the scale of 4-flavour matching
 !  stored in the grid   
-      alphas0=xqg(0,0.1d0,rmass(8)**2,0)
-      q20alphas=rmass(8)**2
+        alphas0=xqg(0,0.1d0,vfnth(4)**2,0)
+        q20alphas=vfnth(4)**2
 
       do is=-nsmgrid,nspgrid
-        Q2=0.04*exp(exp(sgrid(is))*log(q2ini/0.04))
-!  generation of the LO 4-flavour PDFs
+!  Take the 3-flavour PDFs as an input for the matching conditions
+        isch0=0
+!  filling the LO 4-flavour PDFs 
+        isch1=-2
+        Q2=0.04*exp(exp(sgrid(is,isch1))*log(q2ini(isch1)/0.04))
         AN=ALPHAS_ffn4(q2)/4./PI 
         an2=an**2
-        call fillvfx(is,8,0)
-!  generation of the NLO 4-flavour PDFs
+        call fillvfx(is,8,0,isch0,isch1)
+!  filling the NLO 4-flavour PDFs 
         if (kordhq.ge.1) then 
-          call fillvfx(is,8,1)
+          isch1=-3
+          call fillvfx(is,8,1,isch0,isch1)
         end if 
-!  generation of the LO 5-flavour PDFs
+!  Take the LO 4-flavour PDFs as an input for the matching conditions
+        isch0=-2
+!  filling the LO 5-flavour PDFs 
+        isch1=-4
+        Q2=0.04*exp(exp(sgrid(is,isch1))*log(q2ini(isch1)/0.04))
         AN=ALPHAS_ffn5(q2)/4./PI 
         an2=an**2
-        call fillvfx(is,10,0)
-!  generation of the NLO 5-flavour PDFs
+        call fillvfx(is,10,0,isch0,isch1)
         if (kordhq.ge.1) then 
-          call fillvfx(is,10,1)
+!  Take the NLO 4-flavour PDFs as an input for the matching conditions
+          isch0=-3
+!  filling the NLO 5-flavour PDFs 
+          isch1=-5
+          call fillvfx(is,10,1,isch0,isch1)
         end if 
       end do
-
+ 
       return 
       end
 c-------------
-      subroutine fillvfx(is,nhq,kome)
+      subroutine fillvfx(is,nhq,kome,isch0,isch1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
       INCLUDE 'APSCOM6.'
       INCLUDE 'CONSTCOM.'
+      INCLUDE 'PDFCOM.' 
 
-      common  /forqgspl/ xb0,q2,xlog,an,an2,an3,kn,iqn,ixn,isn
+      common  /forqgspl/ xb0,q2,xlog,an,an2,an3,kn,iqn,ixn,isn,ihqn
 
       real*8 fsp(nxtot),bs(nxtot),cs(nxtot),ds(nxtot),xx(nxtot)
 
-!  Set ischem=-2 for the LO 4-flavour 
-!      ischem=-3 for the NLO 4-flavour
-!      ischem=-4 for the LO 5-flavour
-!      ischem=-5 for the NLO 5-flavour PDFs
+      an2=an**2
+      ischem=isch1
 
-      ischem=-(nhq-8)-kome-2
       do ix=-nxmgrid,nxpgrid
         xx(ix+nxmgrid+1)=xgrid(ix)
       end do
 
-      DO IX=-nxmgrid,nxpgrid-1
+      do IX=-nxmgrid,nxpgrid-1
+! FOPT matching 
         Y(ischem,0,IX,is)=an*4*pi
         do iq=1,nhq
-          Y(ischem,iq,IX,is)=hqpdf(XGRID(IX),is,iq,nhq,kome)
+          Y(ischem,iq,IX,is)=hqpdf(XGRID(IX),is,iq,nhq,kome,isch0)
         end do 
         Y(ischem,nhq+1,IX,is)=Y(ischem,nhq,IX,is)
       end do
-        Y(ischem,IQ,nxpgrid,is)=an*4*pi
+      Y(ischem,0,nxpgrid,is)=Y(ischem,0,nxpgrid-1,is)
+
       do iq=1,nhq+1
-        Y(ischem,IQ,nxpgrid,is)=0D0
-        do ix=-nxmgrid,nxpgrid
+        Y(ischem,iq,nxpgrid,is)=0D0
+        do ix=-nxmgrid,nxpgrid 
           fsp(ix+nxmgrid+1)=y(ischem,iq,ix,is)
         end do
         call spline (nxmgrid+nxpgrid+1,xx,fsp,bs,cs,ds)
@@ -80,14 +92,14 @@ c-------------
       return 
       end
 C------------------
-      real*8 function hqpdf(xb,is,iq,ihq,kome)
+      real*8 function hqpdf(xb,is,iq,ihq,kome,isch0)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
       INCLUDE 'APSCOM6.'
       include 'CONSTCOM.'
       include 'PRECCOM.'
 
-      COMMON  /FORQGSPL/ XB0,Q2,XLOG,AN,AN2,an3,kn,iqn,ixn,isn
+      COMMON  /FORQGSPL/ XB0,Q2,XLOG,AN,AN2,an3,kn,iqn,ixn,isn,ihqn
       common /forhqpdf/ r,kome0
       real*8 q(nflim)
 
@@ -96,9 +108,9 @@ C------------------
       xb0=xb
       iqn=iq
       isn=is
-!  Take the 3-flavour PDFs as an input for the matching conditions
-!  both for 4- and 5-flavour PDFs generation
-      kn=0
+      ihqn=ihq
+      kn=isch0
+
       kome0=kome
       r=q2/rmass(ihq)**2  
 
@@ -112,7 +124,7 @@ c Local terms for the gluon and quark pieces
         hqpdf=hqpdf*XQGX1(kn,1,XB,IS) 
       end if
 
-      if (iq.ge.2.and.iq.le.7+2*kn) then 
+      if (iq.ge.2.and.iq.le.ihq-1) then 
         hqpdf=1
         if (kome.ge.1) hqpdf=hqpdf + an2*ome_qqns_2_local(xb,r)
         hqpdf=hqpdf*XQGX1(kn,iq,XB,IS)  
@@ -120,7 +132,17 @@ c Local terms for the gluon and quark pieces
 
 c  integration of the total regular term 
 
-        CALL GAUSS1(hqpdfi2,log(xb),0d0,nmthq,res,EPS2)
+      if (xb.ge.0.1) then  
+        CALL GAUSS1(hqpdfi1
+     ,            ,log(1d-8),log(1.-xb),nmthq,res,EPS)
+      else 
+        CALL GAUSS1(hqpdfi1
+     ,            ,log(1d-8),log(0.9d0),nmthq,df1,EPS1)
+        CALL GAUSS1(hqpdfi2,log(xb)
+     ,            ,log(0.1d0),nmthq,df2,EPS2)
+        res=df1+df2
+        eps=sqrt(eps1**2+eps2**2)
+      end if 
 
       hqpdf=hqpdf+res
 
@@ -153,7 +175,7 @@ C------------------
       include 'CONSTCOM.'
       real*8 q(13)
 
-      common  /forqgspl/ xb0,q2,xlog,an,an2,an3,kn,iqn,ixn,isn
+      common  /forqgspl/ xb0,q2,xlog,an,an2,an3,kn,iqn,ixn,isn,ihqn
       common /forhqpdf/ r,kome0
 
       y=xb0/z
@@ -168,7 +190,7 @@ c   gluon distribution
           hqpdfi=hqpdfi+ome_gg_2_singular(z,r)*(glu-glu0)
           hqpdfi=hqpdfi+ome_gg_2(z,r)*glu
           qps=0.
-          do k=2,7+2*kn
+          do k=2,ihqn-1
             qps=qps+xqgx1(kn,k,y,isn)   
           end do
           hqpdfi=hqpdfi+ome_gq_2(z,r)*qps
@@ -178,7 +200,7 @@ c   gluon distribution
 
 c  light quark disributions
 
-      if (iqn.ge.2.and.iqn.le.7+2*kn) then 
+      if (iqn.ge.2.and.iqn.le.ihqn-1) then 
         if (kome0.ge.1) then 
           pdf0=xqgx1(kn,iqn,xb0,isn)   
           pdfc=xqgx1(kn,iqn,y,isn)      
@@ -190,12 +212,12 @@ c  light quark disributions
 
 c  heavy quark distributions
 
-      if (iqn.ge.8+2*kn) then 
+      if (iqn.ge.ihqn) then 
         glu=xqgx1(kn,1,y,isn)   
         hqpdfi=hqpdfi+ome_g_1(z,r)*an*glu
         if (kome0.ge.1) then 
           qps=0.
-          do k=2,7+2*kn
+          do k=2,ihqn-1
             qps=qps+xqgx1(kn,k,y,isn)   
           end do
           hqpdfi=hqpdfi + an2*(ome_g_2(z,r)*glu + ome_q_2(z,r)*qps)

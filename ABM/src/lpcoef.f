@@ -280,7 +280,7 @@ c  (NF-independent, local piece)
 
       dl1=log(1-z)
       c2nsp_2_0_nf0_local=-338.046+14.2222*dl1**4/4.
-     -       -61.3333*dl1**3/3.-31.105*dl1*2/2.+188.64*dl1
+     -       -61.3333*dl1**3/3.-31.105*dl1**2/2.+188.64*dl1
 
       return 
       end
@@ -325,8 +325,6 @@ c  (NF^1, local piece)
 
       return 
       end
-
-
 C------------------
       real*8 function c3nsm_2_0_nf0(z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -772,7 +770,7 @@ C------------------
       RETURN
       END
 C-----------------
-      SUBROUTINE cgridini(xblow,nxp,nxm)
+      SUBROUTINE cgridini
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
       include 'APSCOM6.'
@@ -781,24 +779,24 @@ C-----------------
       xc1=0.2d0
       xbcmax=0.999d0
 
-      XLOG0=LOG(XBlow)
+      XLOG0=LOG(XBmin)
       xclog1=log(xc1)
       xclog2=log(1-xc1)
 
-      DELcp=(xclog2-log(1-xbcmax))/(nxp-1)
-      DELcm=-(XLOG0-xclog1)/nxm
+      DELcp=(xclog2-log(1-xbcmax))/(nxpgrid-1)
+      DELcm=-(XLOG0-xclog1)/nxmgrid
 
-      DO I=0,nxp-1
+      DO I=0,nxpgrid-1
         xcgrid(I)=1-exp(xclog2-delcp*i)
       end do
-      xcgrid(nxp)=1.
+      xcgrid(nxpgrid)=1.
 
-      DO I=-nxm,0
+      DO I=-nxmgrid,0
         XcGRID(I)=EXP(XcLOG1+DELcm*I)
       end do
 
       do nfi=3,6
-        DO IX=-nxm,nxp-1
+        DO IX=-nxmgrid,nxpgrid-1
           z=xcgrid(ix)
           cgrid(1,2,2,1,nfi,ix)=clns_3_0(z,nfi)
           cgrid(1,2,2,2,nfi,ix)=clg_3_0(z,nfi) 

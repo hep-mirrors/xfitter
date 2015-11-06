@@ -12,9 +12,9 @@
       if (kordhq.ge.3) 
      -   print *,'FLCHARM_FFN IS NOT READY FOR KORDHQ=',kordhq
 
-!  Set the 3-flavour scheme
+!  Save the current scheme status
       kschemepdfs=kschemepdf
-      kschemepdf=0
+      kschemepdf=0   
 
 !  The mass and charge of heavy quark
       rm2=rmass(nq)**2
@@ -63,7 +63,7 @@
       eta=sp/4./rm2-1.
 
 !  The number of fermions for the strong coupling constant.
-      nfe=nfloops(q2,kschemepdf)
+      nfe=nfloops(q2ss,kschemepdf)
 
       rfac0=1.
       rfac1=1.
@@ -147,7 +147,7 @@ C------------------
       external f2charmi
       common /forf2charm/ xb0,q2ss,rm2,qqs,rmu2,an,rq,nb0,nt0,ni0,nq0
 
-!  Set the 3-flavour scheme
+!  Save the current scheme status
       kschemepdfs=kschemepdf
       kschemepdf=0
 
@@ -165,7 +165,7 @@ C------------------
       xb0=xb
       q2ss=q2
       qqs=qq
-
+ 
       a=1./(1.+4.*rm2/q2)
       if (xb.lt.a) then
         CALL GAUSS1(f2charmi,log(xb),log(a),nf2hq,f2c,EPS)
@@ -189,7 +189,7 @@ C------------------
 
       common /forf2charm/ xb0,q2ss,rm2,qqs,rmu2,an,rq,nb0,nt0,ni0,nq0
 !  The decoupling constants for nf=3 
-      data d1dec,d1dec2, d2dec, beta0
+      data d1dec, d1dec2, d2dec, beta0
      -    /1.33333333d0, 1.77777778d0, 10.3192955234169d0, 2.25d0/
 
       z=dexp(t)
@@ -285,23 +285,33 @@ C------------------
       rq=q2/(q2+rm2)
       xi=min(xb/rq,1d0)
 
-!  The factor appearing if the renormalization scale is not equal
+!  The number of fermions for the strong coupling constant.
+      nfe=nfloops(q2ss,kschemepdf)
+
+!  The factors appearing if the renormalization scale is not equal
 !  to the factorization scale rmu2. 
 
-!  The number of fermions for the strong coupling constant.
-      nfe=nfloops(q2,kschemepdf)
-
+      rfac0=1.
+      rfac1=1.
       alr=-log(rscale)
       bet0=(11-2./3.*nfe)*alr
-      rfac0=1-an*bet0
+      bet1=(102-38/3.*nfe)*alr
+
+      if (kordhq.ge.1) then
+!  The change in the strong coupling scale is taken into account in the grid
+        an=xqg(0,0.1d0,rmu2,kschemepdf)/4./pi
+        rfac0=1-an*bet0
+      end if
+      if (kordhq.eq.2) then
+        rfac0=1-an*bet0-an**2*(bet1-bet0**2)
+        rfac1=1-an*2*bet0
+      end if
 
 !  The LO term 
       ftnucharm=2*xb*f2cqqpm(nb,nt,ni,xi,rmu2)/xi
 
 !  The NLO contribution 
       if (kordhq.ge.1.and.xi.lt.1d0) then 
-!  The change in the strong coupling scale is taken into account in the grid
-        an=xqg(0,0.1d0,rmu2,kschemepdf)/4./pi*rfac0
         xb0=xb
         q2ss=q2
         nb0=nb
@@ -331,6 +341,7 @@ C------------------
           ftnucharm=ftnucharm + 4*d1dec*dftx*(xi-xb)*fac
         end if 
       end if
+      ftnucharm=ftnucharm*rfac0
 
 !  Restore the initial scheme
       kschemepdf=kschemepdfs
@@ -345,11 +356,37 @@ C------------------
       include 'PDFCOM.'
 
       common /forf2charm/ xb0,q2ss,rm2,qqs,rmu2,an,rq,nb0,nt0,ni0,nq0
+      data d1dec /1.33333333d0/
 
       xi=xb0/rq
       z=xi/y
 
+      xin=q2ss/rm2
+      eta=xin*(1./(rq*y)-1.)-1.
+
       rl=log((1-rq*y)/(1-rq)/y)
+      rlmf=log((rm2+q2ss)/rmu2)
+
+!  The number of fermions for the strong coupling constant.
+      nfe=nfloops(q2ss,kschemepdf)
+
+!  The factors appearing if the renormalization scale is not equal
+!  to the factorization scale rmu2. 
+      rfac0=1.
+      rfac1=1.
+      alr=-log(rscale)
+      bet0=(11-2./3.*nfe)*alr
+      bet1=(102-38/3.*nfe)*alr
+
+      if (kordhq.ge.1) then
+        rfac0=1-an*bet0
+      end if
+      if (kordhq.eq.2) then
+        rfac0=1-an*bet0-an**2*(bet1-bet0**2)
+        rfac1=1-an*2*bet0
+      end if
+
+      glu0=xqg(1,z,rmu2,kschemepdf)
 
 !  The gluon-initiated contribution 
       pqg0=(y**2+(1-y)**2)/2.
@@ -359,7 +396,7 @@ C------------------
       ftg=ftg+(1-rq)*y/(1-rq*y)-1
       ftg=ftg+(1-rq)*y*rl*(2+rq*y*(-4))
 
-      ftg=ftg*xqg(1,z,rmu2,kschemepdf)
+      ftg=ftg*glu0
 
 !  The quark-initiated contribution 
       ftz=f2cqqpm(nb0,nt0,ni0,z,rmu2)
@@ -375,8 +412,35 @@ C------------------
       ftq0=ftq0+0.5*(1-y)/(1-rq*y)**2*(ftz-ftx)
       ftq0=cf*ftq0
 
-!  The total contribution in the pole definition of the heavy-quark mass
+!  The total NLO term
       ftnucharmi=(ftq0+ftq+ftg)/xi
+
+!  The asymptotic NNLO terms 
+      if (kordhq.ge.2.and.q2ss.ge.50d0) then 
+!  Gluon contribution 
+        call cthqg20cc_asy(eta,xin,cc20)
+        call cthqg21cc_asy(eta,xin,cc21)
+        call chqg22cc_asy(eta,xin,cc22)
+
+        ftcharmnnloi=glu0*(cc20 + cc21*rlmf + cc22*rlmf**2)/16.
+
+!  Pure-singlet contribution 
+        ps0=xpscqqpm(z,rmu2)
+
+        call cthqps20cc_asy(eta,xin,cc20)
+        call cthqps21cc_asy(eta,xin,cc21)
+        call chqps22cc_asy(eta,xin,cc22)
+
+        ftcharmnnloi=ftcharmnnloi + ps0*(cc20 
+     +   + cc21*rlmf + cc22*rlmf**2)/16.
+
+        if(msbarm) then
+          dhg10 = 2-4*y+4*y**2
+          ftcharmnnloi=ftcharmnnloi - d1dec/4.*glu0
+        end if
+
+        ftnucharmi=ftnucharmi + ftcharmnnloi*8*an/xi*rfac1
+      end if
 
       return
       end
@@ -406,23 +470,32 @@ C------------------
       rq=q2/(q2+rm2)
       xi=min(xb/rq,1d0)
 
-!  The factor appearing if the renormalization scale is not equal
-!  to the factorization scale rmu2. 
-
 !  The number of fermions for the strong coupling constant.
-      nfe=nfloops(q2,kschemepdf)
+      nfe=nfloops(q2ss,kschemepdf)
 
+!  The factors appearing if the renormalization scale is not equal
+!  to the factorization scale rmu2. 
+      rfac0=1.
+      rfac1=1.
       alr=-log(rscale)
       bet0=(11-2./3.*nfe)*alr
-      rfac0=1-an*bet0
+      bet1=(102-38/3.*nfe)*alr
+
+      if (kordhq.ge.1) then
+!  The change in the strong coupling scale is taken into account in the grid
+        an=xqg(0,0.1d0,rmu2,kschemepdf)/4./pi
+        rfac0=1-an*bet0
+      end if
+      if (kordhq.eq.2) then
+        rfac0=1-an*bet0-an**2*(bet1-bet0**2)
+        rfac1=1-an*2*bet0
+      end if
 
 !  The LO term 
       f3nucharm=2*f3cqqpm(nb,nt,ni,xi,rmu2)/xi
-
+      
 !  The NLO contribution 
       if (kordhq.ge.1.and.xi.lt.1d0) then 
-!  The change in the strong coupling scale is taken into account in the grid
-        an=xqg(0,0.1d0,rmu2,kschemepdf)/4./pi*rfac0
         xb0=xb
         q2ss=q2
         nb0=nb
@@ -452,6 +525,7 @@ C------------------
           f3nucharm=f3nucharm + 4*d1dec*df3x*(xi-xb)*fac
         end if
       end if
+      f3nucharm=f3nucharm*rfac0
 
 !  Restore the initial scheme
       kschemepdf=kschemepdfs
@@ -466,11 +540,38 @@ C------------------
       include 'PDFCOM.'
 
       common /forf2charm/ xb0,q2ss,rm2,qqs,rmu2,an,rq,nb0,nt0,ni0,nq0
+      data d1dec /1.33333333d0/
 
       xi=xb0/rq
       z=xi/y
 
+      xin=q2ss/rm2
+      eta=xin*(1./(rq*y)-1.)-1.
+
       rl=log((1-rq*y)/(1-rq)/y)
+      rlmf=log((rm2+q2ss)/rmu2)
+      rlm=log((rm2+q2ss)/rm2)
+
+!  The number of fermions for the strong coupling constant.
+      nfe=nfloops(q2ss,kschemepdf)
+
+!  The factors appearing if the renormalization scale is not equal
+!  to the factorization scale rmu2. 
+      rfac0=1.
+      rfac1=1.
+      alr=-log(rscale)
+      bet0=(11-2./3.*nfe)*alr
+      bet1=(102-38/3.*nfe)*alr
+
+      if (kordhq.ge.1) then
+        rfac0=1-an*bet0
+      end if
+      if (kordhq.eq.2) then
+        rfac0=1-an*bet0-an**2*(bet1-bet0**2)
+        rfac1=1-an*2*bet0
+      end if
+
+      glu0=xqg(1,z,rmu2,kschemepdf)
 
 !  The gluon-initiated contribution 
       pqg0=(y**2+(1-y)**2)/2.
@@ -478,7 +579,7 @@ C------------------
       f3g=f3g+pqg0*(2*log(1-y)-log(1-rq*y)-log(y))
       f3g=f3g+y*(1-y)*2*(1-rq)
       f3g=f3g+(1-rq)*y*rl*(-2*(1-y)+rq*y*2)
-      f3g=f3g*xqg(1,z,rmu2,kschemepdf)
+      f3g=f3g*glu0
 
 !  The quark-initiated contribution 
       f3z=f3cqqpm(nb0,nt0,ni0,z,rmu2)
@@ -494,9 +595,41 @@ C------------------
       f3q0=f3q0+0.5*(1-y)/(1-rq*y)**2*(f3z-f3x)
       f3q0=cf*f3q0
 
-!  The total contribution 
+!  The total NLO contribution 
       if (nb0.eq.6) f3nucharmi=(f3q0+f3q+f3g)/xi
       if (nb0.eq.7) f3nucharmi=(f3q0+f3q-f3g)/xi
+
+!  The asymptotic NNLO terms 
+      if (kordhq.ge.2.and.q2ss.ge.50d0) then 
+!  Gluon contribution 
+        call c3hqg20cc_asy(eta,xin,cc20)
+        call c3hqg21cc_asy(eta,xin,cc21)
+        call chqg22cc_asy(eta,xin,cc22)
+
+        f3charmnnloi=glu0*(cc20 + cc21*rlmf + cc22*rlmf**2)/16.
+
+!  Pure-singlet contribution 
+        ps0=xpscqqpm(z,rmu2)
+
+        call c3hqps20cc_asy(eta,xin,cc20)
+        call c3hqps21cc_asy(eta,xin,cc21)
+        call chqps22cc_asy(eta,xin,cc22)
+
+        f3charmnnloi=f3charmnnloi + ps0*(cc20 
+     +   + cc21*rlmf + cc22*rlmf**2)/16.
+
+        if(msbarm) then
+          dhg10 = 2-4*y+4*y**2
+          f3charmnnloi=f3charmnnloi + d1dec/4.*glu0
+        end if
+
+        f3charmnnloi=f3charmnnloi*8*an/xi*rfac1
+
+        if (nb0.eq.6) f3nucharmi=f3nucharmi + f3charmnnloi
+        if (nb0.eq.7) f3nucharmi=f3nucharmi - f3charmnnloi
+
+
+      end if
 
       return
       end
@@ -526,23 +659,33 @@ c  The decoupling constant for nf=3
       rq=q2/(q2+rm2)
       xi=min(xb/rq,1d0)
 
-!  The factor appearing if the renormalization scale is not equal
+!  The number of fermions for the strong coupling constant.
+      nfe=nfloops(q2ss,kschemepdf)
+
+!  The factors appearing if the renormalization scale is not equal
 !  to the factorization scale rmu2. 
 
-!  The number of fermions for the strong coupling constant.
-      nfe=nfloops(q2,kschemepdf)
-
+      rfac0=1.
+      rfac1=1.
       alr=-log(rscale)
       bet0=(11-2./3.*nfe)*alr
-      rfac0=1-an*bet0
+      bet1=(102-38/3.*nfe)*alr
+
+      if (kordhq.ge.1) then
+!  The change in the strong coupling scale is taken into account in the grid
+        an=xqg(0,0.1d0,rmu2,kschemepdf)/4./pi
+        rfac0=1-an*bet0
+      end if
+      if (kordhq.eq.2) then
+        rfac0=1-an*bet0-an**2*(bet1-bet0**2)
+        rfac1=1-an*2*bet0
+      end if
 
 !  The LO term 
       f2nucharm=2*f2cqqpm(nb,nt,ni,xi,rmu2)
 
 !  The NLO contribution 
       if (kordhq.ge.1.and.xi.lt.1d0) then 
-!  The change in the strong coupling scale is taken into account in the grid
-        an=xqg(0,0.1d0,rmu2,kschemepdf)/4./pi*rfac0
         xb0=xb
         q2ss=q2
         nb0=nb
@@ -573,6 +716,7 @@ c  The decoupling constant for nf=3
           df2x=(f2xp-f2xm)/2./delder0/xi
           f2nucharm=f2nucharm + 4*d1dec*(f2x+xi*df2x)*(1-xb/xi)*fac
         end if 
+        f2nucharm=f2nucharm*rfac0
       end if
 
 !  Restore the initial scheme
@@ -588,20 +732,46 @@ c  The decoupling constant for nf=3
       include 'PDFCOM.'
 
       common /forf2charm/ xb0,q2ss,rm2,qqs,rmu2,an,rq,nb0,nt0,ni0,nq0
+      data d1dec /1.33333333d0/
 
       xi=xb0/rq
       z=xi/y
 
+      xin=q2ss/rm2
+      eta=xin*(1./(rq*y)-1.)-1.
+
       rl=log((1-rq*y)/(1-rq)/y)
+      rlmf=log((rm2+q2ss)/rmu2)
+
+!  The number of fermions for the strong coupling constant.
+      nfe=nfloops(q2ss,kschemepdf)
+
+!  The factors appearing if the renormalization scale is not equal
+!  to the factorization scale rmu2. 
+      rfac0=1.
+      rfac1=1.
+      alr=-log(rscale)
+      bet0=(11-2./3.*nfe)*alr
+      bet1=(102-38/3.*nfe)*alr
+
+      if (kordhq.ge.1) then
+        rfac0=1-an*bet0
+      end if
+      if (kordhq.eq.2) then
+        rfac0=1-an*bet0-an**2*(bet1-bet0**2)
+        rfac1=1-an*2*bet0
+      end if
+
+      glu0=xqg(1,z,rmu2,kschemepdf)
 
 !  The gluon-initiated contribution 
       pqg0=(y**2+(1-y)**2)/2.
-      f2g=pqg0*(rl+log((q2ss+rm2)/rmu2))
+      f2g=pqg0*(rl+rlmf)
       f2g=f2g+pqg0*(2*log(1-y)-log(1-rq*y)-log(y))
       f2g=f2g+y*(1-y)*(8-18*(1-rq)+12*(1-rq)**2)
       f2g=f2g+(1-rq)/(1-rq*y)-1
       f2g=f2g+(1-rq)*y*rl*(6*rq+rq*y*(-12*rq))
-      f2g=f2g*xqg(1,z,rmu2,kschemepdf)
+      f2g=f2g*glu0
 
 !  The quark-initiated contribution 
       f2z=f2cqqpm(nb0,nt0,ni0,z,rmu2)
@@ -610,7 +780,7 @@ c  The decoupling constant for nf=3
       f2q=-(1+y**2)*log(y)/(1-y)
       f2q=cf*f2q*f2z
 
-      f2q0=(1+y**2)/(1-y)*log((q2ss+rm2)/rmu2)*(f2z-f2x)
+      f2q0=(1+y**2)/(1-y)*rlmf*(f2z-f2x)
       f2q0=f2q0+(2*log(1-y)-log(1-rq*y))/(1-y)*((1+y**2)*f2z-2*f2x)
       f2q0=f2q0+2.*(1+y)*f2z
       f2q0=f2q0+1./(1-rq*y)*((-1-y)*f2z+2*f2x)
@@ -618,8 +788,35 @@ c  The decoupling constant for nf=3
       f2q0=f2q0+2*(rq-1)/(1-y)/(1-rq*y)*(f2z-f2x)
       f2q0=cf*f2q0
 
-!  The total contribution 
-      f2nucharmi=(f2q0+f2q+f2g)/xi
+!  The total NLO term 
+      f2nucharmi=(f2q0+f2q+f2g)/xi*rfac0
+
+!  The asymptotic NNLO terms 
+      if (kordhq.ge.2.and.q2ss.ge.50d0) then 
+!  Gluon contribution 
+        call c2hqg20cc_asy(eta,xin,cc20)
+        call c2hqg21cc_asy(eta,xin,cc21)
+        call chqg22cc_asy(eta,xin,cc22)
+ 
+        f2charmnnloi=glu0*(cc20 + cc21*rlmf + cc21*rlmf**2)/16.
+
+!  Pure-singlet contribution 
+        ps0=xpscqqpm(z,rmu2)
+
+        call c2hqps20cc_asy(eta,xin,cc20)
+        call c2hqps21cc_asy(eta,xin,cc21)
+        call chqps22cc_asy(eta,xin,cc22)
+
+        f2charmnnloi=f2charmnnloi + ps0*(cc20 
+     +   + cc21*rlmf + cc22*rlmf**2)/16.
+
+        if(msbarm) then
+          dhg10 = 2-4*y+4*y**2
+          f2charmnnloi=f2charmnnloi - d1dec/4.*glu0
+        end if
+
+        f2nucharmi=f2nucharmi + f2charmnnloi*8*an/xi*rfac1
+      end if
 
       return
       end

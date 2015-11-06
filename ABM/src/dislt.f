@@ -59,7 +59,7 @@ C------------------
       z=xb0/y
 
       rfac=1.
-      if (kordf2.ge.2) then 
+      if (kordf3.ge.2) then 
         alr=-log(rscale)
         bet0=11-2./3.*nfe
         rfac=1-an*bet0*alr

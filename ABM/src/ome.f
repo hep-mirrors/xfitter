@@ -441,35 +441,33 @@ csm addition for MSbar running mass
       return 
       end
 C-----------------
-      SUBROUTINE omegridini(xblow,nxp,nxm)
+      SUBROUTINE omegridini
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
-      include 'OMECOM.'
+      include 'APSCOM6.'
 
 c  Initialization of the grid -- it is called once at the beginning
-c  XBLOW is minimal value of x in the grid, NXP and NXM are the grid
-c  dimensions for the large- and small-x pieces, respectively
 
       xo1=0.2d0
       xbomax=0.999d0
 
-      XLOG0=LOG(XBlow)
+      XLOG0=LOG(Xbmin)
       xolog1=log(xo1)
       xolog2=log(1-xo1)
 
-      DELop=(xolog2-log(1-xbomax))/(nxp-1)
-      DELom=-(XLOG0-xolog1)/nxm
+      DELop=(xolog2-log(1-xbomax))/(nxpgrid-1)
+      DELom=-(XLOG0-xolog1)/nxmgrid
 
-      DO I=0,nxp-1
+      DO I=0,nxpgrid-1
         xogrid(I)=1-exp(xolog2-delop*i)
       end do
-      xogrid(nxp)=1.
+      xogrid(nxpgrid)=1.
 
-      DO I=-nxm,0
+      DO I=-nxmgrid,0
         xogrid(I)=EXP(xolog1+delom*I)
       end do
 
-      DO IX=-nxm,nxp-1
+      DO IX=-nxmgrid,nxpgrid-1
         z=xogrid(ix)
         omegrid(1,1,ix)=ome_g_2_0(z)*z*(1-z)
         omegrid(1,2,ix)=ome_g_2_1(z)*z*(1-z)
@@ -483,7 +481,7 @@ C------------------
       subroutine omeintx(kint,xx,cc)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
-      include 'OMECOM.'
+      include 'APSCOM6.'
 
       real*8 cc(2)
 

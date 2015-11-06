@@ -502,7 +502,7 @@ genetic
      FONLL	      	       		    [as implemented in APFEL]
 
   -FFNS (Fixed Flavour Number Scheme)       [qcdnum]
-   also available in ABM (openqcdrad-1.6)   [from Sergey Alekhin]
+   also available in ABM (openqcdrad-2.0b4) [from Sergey Alekhin]
       
   IMPORTANT if running with FFNS (nf=3): 
   - only neutral current DIS data should be used in FF scheme due to missing NLO 

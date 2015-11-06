@@ -17,8 +17,8 @@ c The value of starting evolution scale is defined by Q20ALPHAS,
 c the value of alphas_s for 3 flavours at this scale is defined by ALPHAS0.
 c
 c The value of alphas_s for 4(5) flavours is matched with one for 3(4) flavours
-c at the scale equal to mass of c-(b-)quark. The mass of c-quarks is defined 
-c by RMASS(8) and one of b-quark is defined by RMASS(10).
+c at the scales VFNTH(4) (VFNTH(5)) equal to mass of c-(b-)quark, respectively,
+c by default
 c
 c The service variables NFEFF, Q2REP and the constant PI are aslo stored in 
 c /COMMON/ of CONSTCOM.
@@ -35,17 +35,38 @@ c \alpha_s in the 3-flavour scheme
 
       include 'CONSTCOM.'
       include 'PRECCOM.'
+      include 'PDFCOM.'
 
       external alphastt
       real*8 tt(1),ww(20),res(1)
 
-c  transfer the variables by the /COMMON/ of 'CONSTCOM.'
+! \alpha_s(q2s) in the 3-flavour scheme is ....
 
-      q2s=q20alphas
-      alpss=alphas0
+      if (alsmz) then 
+! ... mathched with the 4-flavour one at the scale of c-quark mass
+        alpss=alphas_ffn4(vfnth(4)**2)
+        q2s=vfnth(4)**2
+        if (kordalps.eq.2) then 
+! NNLO matching with MSbar mass at scale mu = mbar
+! see e.g. hep-ph/0004189 eq.(23)
+          if (msbarm) then
+            alpss=alpss*(1.d0-(alpss/pi)**2*(-11.d0/72.d0))
+          else
+! NNLO matching with on-shell mass at scale mu = M_h
+! see e.g. hep-ph/0004189 eq.(25)
+            alpss=alpss*(1.d0-(alpss/pi)**2*(7.d0/72.d0))
+          end if
+        end if
+      else
+! ... or defined from the 3-flavour input transfered by /COMMON/ in 'CONSTCOM.'
+        q2s=q20alphas
+        alpss=alphas0
+      end if 
+
+! \alpha_s(q2) is obtained from the numerical solution of the RG equation 
+! taknig \alpha_s(q2s) as input
       nfeff=3
       q2rep=q2
-
 c  initial approximation for the solution 
       tt(1)=0.1d0
       CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
@@ -68,23 +89,45 @@ c   \alpha_s in the 4-flavour scheme
       external alphastt
       real*8 tt(1),ww(20),res(1)
 
-      alpss=alphas_ffn(rmass(8)**2)
-      q2s=rmass(8)**2
-      nfeff=4
-      q2rep=q2
+! \alpha_s(q2s) in the 4-flavour scheme is ....
 
-      if (kordalps.eq.2) then 
-csm NNLO matching with MSbar mass at scale mu = mbar
-csm see e.g. hep-ph/0004189 eq.(23)
-        if (msbarm) then 
-          alpss=alpss*(1.d0+(alpss/pi)**2*(-11.d0/72.d0))
-        else
-csm NNLO matching with on-shell mass at scale mu = M_h
-csm see e.g. hep-ph/0004189 eq.(25)
-          alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/72.d0))
+      if (alsmz) then 
+! ... mathched with the 5-flavour one at the scale of b-quark mass
+        alpss=alphas_ffn5(vfnth(5)**2)
+        q2s=vfnth(5)**2
+        if (kordalps.eq.2) then 
+! NNLO matching with MSbar mass at scale mu = mbar
+! see e.g. hep-ph/0004189 eq.(23)
+          if (msbarm) then
+            alpss=alpss*(1.d0-(alpss/pi)**2*(-11.d0/72.d0))
+          else
+! NNLO matching with on-shell mass at scale mu = M_h
+! see e.g. hep-ph/0004189 eq.(25)
+            alpss=alpss*(1.d0-(alpss/pi)**2*(7.d0/72.d0))
+          end if
+        end if
+      else
+! ... or mathched with the 3-flavour one at the scale of c-quark mass
+        alpss=alphas_ffn(vfnth(4)**2)
+        q2s=vfnth(4)**2
+
+        if (kordalps.eq.2) then 
+! NNLO matching with MSbar mass at scale mu = mbar
+! see e.g. hep-ph/0004189 eq.(23)
+          if (msbarm) then 
+            alpss=alpss*(1.d0+(alpss/pi)**2*(-11.d0/72.d0))
+          else
+! NNLO matching with on-shell mass at scale mu = M_h
+! see e.g. hep-ph/0004189 eq.(25)
+            alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/72.d0))
+          end if
         end if
       end if
 
+! \alpha_s(q2) is obtained from the numerical solution of the RG equation 
+! taknig \alpha_s(q2s) as input
+      nfeff=4
+      q2rep=q2
 c  initial approximation for the solution 
       tt(1)=0.1d0
       CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
@@ -107,27 +150,33 @@ c   \alpha_s in the 5-flavour scheme
       external alphastt
       real*8 tt(1),ww(20),res(1)
 
-c  transfer the variables by the /COMMON/ of 'CONSTCOM.'
-c  \alpha_s in the 5-flavour scheme is mathched with the 4-flavour 
-c  one at the scale of b-quark mass
+! \alpha_s(q2s) in the 5-flavour scheme is ....
 
-      alpss=alphas_ffn4(rmass(10)**2)
-      q2s=rmass(10)**2
-      nfeff=5
-      q2rep=q2
-
-      if (kordalps.eq.2) then 
-csm NNLO matching with MSbar mass at scale mu = mbar
-csm see e.g. hep-ph/0004189 eq.(23)
-        if (msbarm) then
-          alpss=alpss*(1.d0+(alpss/pi)**2*(-11.d0/72.d0))
-        else
-csm NNLO matching with on-shell mass at scale mu = M_h
-csm see e.g. hep-ph/0004189 eq.(25)
-          alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/72.d0))
+      if (alsmz) then 
+! ... defined from the 5-flavour input transfered by /COMMON/ in 'CONSTCOM.'
+        q2s=rmass(41)**2
+        alpss=alphas0
+      else
+! ... or mathched with the 4-flavour one at the scale of b-quark mass
+        alpss=alphas_ffn4(vfnth(5)**2)
+        q2s=vfnth(5)**2
+        if (kordalps.eq.2) then 
+! NNLO matching with MSbar mass at scale mu = mbar
+! see e.g. hep-ph/0004189 eq.(23)
+          if (msbarm) then
+            alpss=alpss*(1.d0+(alpss/pi)**2*(-11.d0/72.d0))
+          else
+! NNLO matching with on-shell mass at scale mu = M_h
+! see e.g. hep-ph/0004189 eq.(25)
+            alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/72.d0))
+          end if
         end if
       end if
 
+! \alpha_s(q2) is obtained from the numerical solution of the RG equation 
+! taknig \alpha_s(q2s) as input
+      nfeff=5
+      q2rep=q2
 c  initial approximation for the solution 
       tt(1)=0.1d0
       CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
@@ -193,7 +242,6 @@ c  interface for the subroutine DSNLEQ
 
       dimension X(*),F(*) 
 
-crp      f(k)=alphast(x(1))    
       f(k)=alphast(x)    
 
       RETURN 
@@ -219,25 +267,28 @@ crp      f(k)=alphast(x(1))
       integer FUNCTION nfloops(q2,kpdf)
 
 !  The number of fermions in the loops of the strong coupling evolution 
-!  For negative kpdf values it changes with a scale, otherwise it is 
-!  defined as kpdf+3
    
       implicit double precision (a-h,o-z)
 
       include 'CONSTCOM.'
 
+! 3-, 4-, and 5-flavour PDFs 
       if (kpdf.ge.0) then 
         nfloops=kpdf+3
-      else
-!  the scales below the c-quark mass: 3 fermions 
-        if (q2.le.rmass(8)**2) nfloops=3
-
-!  the scales above the c-quark mass and below the c-quark mass: 4 fermions
-        if (q2.gt.rmass(8)**2.and.q2.le.rmass(10)**2) nfloops=4
-
-!  the scales above the b-quark mass: 5 fermions
-        if (q2.gt.rmass(10)**2) nfloops=5
       end if
+! 3-flavour PDFs with the variable number of flavours
+      if (kpdf.eq.-1) then 
+!   the scales below the c-quark mass: 3 fermions 
+        if (q2.le.vfnth(4)**2) nfloops=3
+!   the scales above the c-quark mass and below the c-quark mass: 4 fermions
+        if (q2.gt.vfnth(4)**2.and.q2.le.vfnth(5)**2) nfloops=4
+!   the scales above the b-quark mass: 5 fermions
+        if (q2.gt.vfnth(5)**2) nfloops=5
+      end if
+! LO and NLO 4-flavour PDFs 
+      if (kpdf.eq.-2.or.kpdf.eq.-3) nfloops=4 
+! LO and NLO 5-flavour PDFs 
+      if (kpdf.eq.-4.or.kpdf.eq.-5) nfloops=5 
 
       return
       end

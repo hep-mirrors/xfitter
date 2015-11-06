@@ -261,8 +261,6 @@ c-----------------------
 ! s-quark contribution 
         f3qpm=f3qpm + 2*vqd*aqd*(xqgn(6,xb,q2,kschemepdf)
      -                          -xqgn(7,xb,q2,kschemepdf))
-        write(6,*)'inside f3qpm,vqd,aqd,xqgn(6),xb,q2,kschemepdf', 
-     $  f3qpm,vqd,aqd,xqgn(6,xb,q2,kschemepdf),xb,q2,kschemepdf
       end if
 
 ! lepton-proton NC scattering (photon-Z interference)
@@ -292,7 +290,6 @@ c-----------------------
       end if
 
       f3qpm=f3qpm/xb
-
  
       return 
       end

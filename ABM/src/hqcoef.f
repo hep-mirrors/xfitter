@@ -12259,7 +12259,8 @@ c xi = Q^2/m2
       return
       end
 c------------------------------------
-c mass derivative of Longitudinal coefficient function, see above for additional comments
+c mass derivative of Longitudinal coefficient function, 
+c see above for additional comments
       double precision function dborn_l(eta,xi)
       implicit real*8  (a-h,o-z)
 
