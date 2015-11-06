@@ -29,6 +29,11 @@ c----------------------------------------------------------
       return 
       end
 
+      subroutine evolvepdfphoton(a)
+      call print_lhapdf_messg
+      return 
+      end
+
 
       double precision function alphasPDF(a)
       call print_lhapdf_messg
@@ -39,3 +44,9 @@ c----------------------------------------------------------
       call print_lhapdf_messg
       return 
       end
+
+      logical function has_photon()
+      call print_lhapdf_messg
+      has_photon = .false.
+      end
+

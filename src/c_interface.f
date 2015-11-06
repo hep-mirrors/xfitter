@@ -30,6 +30,7 @@
         c_lead= lead
         c_useGridLHAPDF5= useGridLHAPDF5
         c_writeLHAPDF6= writeLHAPDF6
+        c_extrapdfs   = extrapdfs
       end
 
       function get_nmembers()

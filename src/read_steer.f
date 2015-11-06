@@ -106,6 +106,9 @@ C------------------------------------------------------
       nExtraParam = 0
 
       Itheory = 0
+
+      ExtraPdfs = .false.
+
       EWFIT=0
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
@@ -1010,6 +1013,7 @@ C---------------------------------------
       implicit none
 
       logical lhapdffile_exists
+      logical has_photon
 #include "steering.inc"
 C---------------------------------
 
@@ -1071,10 +1075,14 @@ cv         iparam = 301
          endif
 
       ! Get number of sets:
-         call numberPDF(nLHAPDF_Sets)  
-         
-         
+         call numberPDF(nLHAPDF_Sets)                    
          call InitPDF(ILHAPDFSET)
+
+         if (has_photon()) then
+            ExtraPdfs = .true. 
+         else
+            ExtraPdfs = .false.
+         endif
 
          if(PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFNATIVE') then
             IPDFSET = 5
@@ -1521,9 +1529,11 @@ C------------------------------------------------
       elseif (TheoryType.eq.'DGLAP_APFEL_QED') then
          iTheory = 35
          IPDFSET = 7
+         ExtraPdfs = .true.
       elseif (TheoryType.eq.'DGLAP_QEDEVOL') then
          iTheory = 11
          IPDFSET = 8
+         ExtraPdfs = .true.
       else if ( TheoryType.eq.'DIPOLE') then
       else if ( TheoryType.eq.'FRACTAL') then
          iTheory = 50

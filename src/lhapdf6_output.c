@@ -16,7 +16,7 @@ extern struct { //{{{
         float hf_mass[3];
         int i_fit_order, ipdfset;
   int lead, useGridLHAPDF5, writeLHAPDF6, WriteAlphaSToMemberPDF,
-    c_itheory;
+    c_itheory, c_extrapdfs;
 } ccommoninterface_;
 //}}}
 
@@ -246,7 +246,7 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[
 
 	int NPDFToStore = (int) (sizeof(qcdnum_flavours)/sizeof(int));
 
-	if ( (ccommoninterface_.c_itheory != 11) && (ccommoninterface_.c_itheory != 35) ) {
+	if ( ! ccommoninterface_.c_extrapdfs ) {
 	  NPDFToStore--;
 	}
 
@@ -386,7 +386,12 @@ void save_info(char *pdf_dir) { //{{{
         fprintf(fp,"Format: lhagrid1\n");
         fprintf(fp,"DataVersion: 1\n");
         fprintf(fp,"NumMembers: %i\n",get_nmembers_());
-        fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
+	if (  ccommoninterface_.c_extrapdfs ) {
+	  fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21, 22]\n");
+	}
+	else {
+	  fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
+	}
         fprintf(fp,"OrderQCD: %i\n", ccommoninterface_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
         fprintf(fp,"FlavorScheme: %s\n", get_flavor_scheme());
         fprintf(fp,"ErrorType: %s\n", get_error_type());

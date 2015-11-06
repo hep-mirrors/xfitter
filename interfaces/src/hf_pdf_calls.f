@@ -10,7 +10,6 @@ C----------------------------------------------------------------------
 #include "steering.inc"
 #include "fcn.inc"
 
-
       double precision x,q2
      $     ,pdfsf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
 
@@ -21,11 +20,16 @@ C----------------------------------------------------------------------
       double precision FSNSXQ
 C----------------------------------------------------------------------
       if (PDFStyle.eq.'LHAPDFNATIVE') then
-         call evolvePDF(x, sqrt(q2), pdfsf)
+         if (ExtraPdfs) then
+C photon is present !
+            call evolvePDFphoton(x, sqrt(q2), pdfsf, pdfsf(7))
+         else
+            call evolvePDF(x, sqrt(q2), pdfsf)
+         endif
          return
       endif
 
-      if (Itheory.Eq.11 .or. ITheory.eq.35 ) then
+      if ( ExtraPdfs ) then
 C QED evolution:
          call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)         
          PDFSF(N_CHARGE_PDF+1) = FSNSXQ( iPDFSET,13,x,q2,ICheck_QCDNUM)
