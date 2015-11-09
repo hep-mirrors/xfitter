@@ -10,7 +10,7 @@ void chi2_scan_()
   hf_errlog_(14060204, msg.c_str(), msg.size());
 }
 #elif !defined ROOT_ENABLED
-void chi2_scan()
+void chi2_scan_()
 {
   string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
   hf_errlog_(14062501, msg.c_str(), msg.size());
