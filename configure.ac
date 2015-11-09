@@ -27,13 +27,22 @@ m4_include([m4/ax_compare_version.m4])
 # openmp suport
 m4_include([m4/ax_openmp.m4])
 
-AX_LAPACK
-
 #
 # A lot of code written with 132 char. strings.
 #
 FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp"
 FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp"
+
+# check for lapack and blas
+AX_BLAS
+if test "$ax_blas_ok" = "no"; then
+   AC_MSG_ERROR([Cannot find BLAS libraries])
+fi
+
+AX_LAPACK
+if test "$ax_lapack_ok" = "no"; then
+   AC_MSG_ERROR([Cannot find LAPACK libraries])
+fi
 
 AC_ARG_ENABLE([postprocess],
                  [AS_HELP_STRING([--enable-postprocess],[enable postproc tool])])
