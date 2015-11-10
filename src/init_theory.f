@@ -1385,7 +1385,6 @@ c         call SetPDFSet("apfel")
 *
       call xPDFallPhoton(x,xf)
       q2p = qmu2
-      write(19,*) "......... ",x, qmu2, xf(7)
 *
       return
       end
