@@ -1684,7 +1684,7 @@ C     defined here
 C
 C     H.BURKHARDT
 C
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT REAL*8(A-H,M,O-Z)
 C
       COMMON /GSW/    SW,CW,SW2,CW2
      *              ,MW,MZ,MH,ME,MMY,MTAU,MU,MD,MS,MC,MB,MT
