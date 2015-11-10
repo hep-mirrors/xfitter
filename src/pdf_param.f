@@ -67,7 +67,7 @@ C-------------------------------------------------------
 
       if (LFirstTime) then    
          LFirstTime = .false.
-         if (ITheory.eq.11.or.ITheory.eq.25) then
+         if (ITheory.eq.11.or.ITheory.eq.25.or.ITheory.eq.35) then
             idphA = GetParameterIndex('Aph')
             idphB = GetParameterIndex('Bph')
             idphC = GetParameterIndex('Cph')
