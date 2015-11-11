@@ -1,4 +1,4 @@
-      parameter (nxplim=201,nxmlim=201,nsplim=241,nsmlim=121,nflim=11)
+      parameter (nxplim=201,nxmlim=201,nsplim=61,nsmlim=121,nflim=13)
       parameter (nxtot=nxmlim+nxplim+1)
 
       COMMON /GRIDSET/ DELX1,DELX2,delxp,DELS1(-5:2),DELS2(-5:2)
