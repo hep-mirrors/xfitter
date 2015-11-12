@@ -31,16 +31,20 @@ C------------------------------------
 #include "fcn.inc"
 #include "steering.inc"
       double precision x, Q, Q2
-      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
+      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF)
+      double precision xfe(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
       integer iqnset, iqnchk,ifl
       
 C---------------------------------------
 
       iqnset = IPDFSET
       iqnchk = 0
-      do ifl=-N_CHARGE_PDF,N_CHARGE_PDF+N_NEUTRAL_PDF
+      do ifl=-N_CHARGE_PDF,N_CHARGE_PDF
         xf(ifl)=0.d0
+        xfe(ifl)=0.d0
       enddo
+      xfe(N_CHARGE_PDF+N_NEUTRAL_PDF)=0.d0
+
 c     Return zero if x range falls below qcdnum grid xmin values (to avoid large weights)
       if (PDFStyle.ne.'LHAPDFNATIVE') then
          if ( x .lt. xmin_grid(1) .or. x .gt. 1d0-1d-7 ) then 
@@ -62,12 +66,18 @@ c     Return zero if x range falls below qcdnum grid xmin values (to avoid large
 
       if (LFastAPPLGRID) then
          if (IFlagFCN.eq.1) then
-            call hf_get_pdfs(x, Q2, xf)
+            call hf_get_pdfs(x, Q2, xfe)
+            do ifl=-N_CHARGE_PDF,N_CHARGE_PDF
+              xf(ifl)=xfe(ifl)
+            enddo
          else
             call Retrive_pdf_applgrid_fast(xf)
          endif
       else
-         call hf_get_pdfs( x, Q2, xf)
+         call hf_get_pdfs( x, Q2, xfe)
+         do ifl=-N_CHARGE_PDF,N_CHARGE_PDF
+           xf(ifl)=xfe(ifl)
+         enddo
       endif
 
       return
