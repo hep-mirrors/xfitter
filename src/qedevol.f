@@ -41,16 +41,16 @@ C     ------------------------------------------------------------------
       dimension idw10(1,1,4),idf10(1)
       dimension itypes(6)                                   !table types
       dimension itypes1(6)                                  !table types
-      dimension start1(4,200)
-      dimension start2(2,200)
-      dimension start3(1,200)
-      dimension start4(1,200)
-      dimension start5(1,200)
-      dimension start6(1,200)
-      dimension start7(1,200)
-      dimension start8(1,200)
-      dimension start9(1,200)
-      dimension start10(1,200)
+      dimension start1(4,1000)
+      dimension start2(2,1000)
+      dimension start3(1,1000)
+      dimension start4(1,1000)
+      dimension start5(1,1000)
+      dimension start6(1,1000)
+      dimension start7(1,1000)
+      dimension start8(1,1000)
+      dimension start9(1,1000)
+      dimension start10(1,1000)
 
       data itypes/6*0/                                 !initialise types
       data itypes1/6*0/                                !initialise types
@@ -68,8 +68,12 @@ C     Order should not exceed that of the nxn weight calculation
       if(iordqcd+iordqed.gt.mxord) stop 'Evolution order too large'
 
 C     Set evolution parameters
-      call setord(mxord-1)
+      call setord(iordqcd)
+      call setint('nopt',444)
+      alphas = hf_get_alphas(mz*mz)
       call setalf(0.1176d0,mz*mz)                     !input alphas
+      call grpars(nx, xmi, xma, nq, qmi, qma, iord)
+
       q0 = starting_scale
       q2c = hf_mass(1)**2
       q2b = hf_mass(2)**2
@@ -167,7 +171,7 @@ C     PDF table identifiers
       idf9(1) = 1000*isetw+513                                     !V_sb
       idf10(1) = 1000*isetw+514                                    !V_ct
 
-      do ix = 1,200
+      do ix = 1,nx
         x = xfrmix(ix)
         call ExternalSetQEDEVOL(x,q0,xf)
         start1(1,ix)=xf(-2)+xf(2)-((xf(-1)+xf(1))+(xf(-3)+xf(3)))
@@ -179,6 +183,8 @@ C     PDF table identifiers
         start7(1,ix)=xf(1)-xf(-1)-(xf(3)-xf(-3))
         start1(4,ix)=xf(7)
       enddo
+
+
 
       iqlim(1) = iq0
       iqlim(2) = iq0
@@ -192,7 +198,7 @@ C     PDF table identifiers
         call EvDglap(storu,idw7,ida3,idf7,start7,1,1,iqlim,nf,eps)
       enddo
 
-      do ix = 1,199
+      do ix = 1,nx
         start4(1,ix) = 0.5D0*EvPdfij(storu,idf1(1),ix,iqc,1)
      $                 +0.5D0*EvPdfij(storu,idf1(2),ix,iqc,1)
         start8(1,ix) = 0.5D0*EvPdfij(storu,idf2(1),ix,iqc,1)
@@ -215,7 +221,7 @@ C     PDF table identifiers
         call EvDglap(storu,idw8,ida3,idf8,start8,1,1,iqlim,nf,eps)
       enddo
 
-      do ix = 1,199
+      do ix = 1,nx
         start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
      $                 +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
      $                 -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
@@ -244,8 +250,8 @@ C     PDF table identifiers
         call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
       enddo
 
-      call dumptab(storu,isetw,11,'qcdweights.wt','')
-      call dumptab(storu,isetw1,12,'qedweights.wt','')
+c      call dumptab(storu,isetw,11,'qcdweights.wt','')
+c      call dumptab(storu,isetw1,12,'qedweights.wt','')
 
       return
       end
@@ -296,16 +302,16 @@ C     ------------------------------------------------------------------
       dimension idw10(1,1,4),idf10(1)
       dimension itypes(6)                                   !table types
       dimension itypes1(6)                                  !table types
-      dimension start1(4,200)
-      dimension start2(2,200)
-      dimension start3(1,200)
-      dimension start4(1,200)
-      dimension start5(1,200)
-      dimension start6(1,200)
-      dimension start7(1,200)
-      dimension start8(1,200)
-      dimension start9(1,200)
-      dimension start10(1,200)
+      dimension start1(4,1000)
+      dimension start2(2,1000)
+      dimension start3(1,1000)
+      dimension start4(1,1000)
+      dimension start5(1,1000)
+      dimension start6(1,1000)
+      dimension start7(1,1000)
+      dimension start8(1,1000)
+      dimension start9(1,1000)
+      dimension start10(1,1000)
 
       data itypes/6*0/                                 !initialise types
       data itypes1/6*0/                                !initialise types
@@ -324,9 +330,11 @@ C     Order should not exceed that of the nxn weight calculation
       if(iordqcd+iordqed.gt.mxord) stop 'Evolution order too large'
 
 C     Set evolution parameters
-      call setord(mxord-1)
-      alphas = hf_get_alphas(mz*mz)
-      call setalf(alphas,mz*mz)
+c      call setord(iordqcd)
+c      call setint('nopt',444)
+c      alphas = hf_get_alphas(mz*mz)
+      call grpars(nx, xmi, xma, nq, qmi, qma, iord)
+c      call setalf(alphas,mz*mz)
       q0 = starting_scale
       q2c = hf_mass(1)**2
       q2b = hf_mass(2)**2
@@ -349,7 +357,7 @@ C     Put 14 pdf and 4 alpha tables in the store
       itypes(6) = 4
 
 
-      do ix = 1,200
+      do ix = 1,nx
         x = xfrmix(ix)
         if (x.ne.0) then 
            call ExternalSetQEDEVOL(x,q0,xf)
@@ -364,9 +372,6 @@ C     Put 14 pdf and 4 alpha tables in the store
         endif
       enddo
 
-c      call READTAB(storu,nstoru,11,'qcdweights.wt','',1,isetpij,nwu,ie)
-c      call READTAB(storu,nstoru,12,'qedweights.wt','',0,isetpij2,nwu2,ie2)
-
       iqlim(1) = iq0
       iqlim(2) = iq0
       nf = 1
@@ -380,7 +385,7 @@ c      call READTAB(storu,nstoru,12,'qedweights.wt','',0,isetpij2,nwu2,ie2)
       enddo
 
 
-      do ix = 1,199
+      do ix = 1,nx
         start4(1,ix) = 0.5D0*EvPdfij(storu,idf1(1),ix,iqc,1)
      $                 +0.5D0*EvPdfij(storu,idf1(2),ix,iqc,1)
         start8(1,ix) = 0.5D0*EvPdfij(storu,idf2(1),ix,iqc,1)
@@ -403,7 +408,7 @@ c      call READTAB(storu,nstoru,12,'qedweights.wt','',0,isetpij2,nwu2,ie2)
         call EvDglap(storu,idw8,ida3,idf8,start8,1,1,iqlim,nf,eps)
       enddo
 
-      do ix = 1,199
+      do ix = 1,nx
         start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
      $                 +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
      $                 -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
