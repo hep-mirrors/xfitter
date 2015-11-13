@@ -137,7 +137,7 @@ else
   QCDNUMLIBS=`qcdnum-config --ldflags`
   AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
-  AX_COMPARE_VERSION([17-01-10],[ge],[$QCDNUMVERS],[],[AC_MSG_ERROR([QCDNUM version outdated (17-01-10 or later needed).])])
+  AX_COMPARE_VERSION([17-01-10],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-10 or later needed).])],[])
 fi
 
 # NNPDF reweighting
@@ -185,7 +185,7 @@ if test $enable_apfel; then
     AC_SUBST(APFEL_CPPFLAGS)
     AC_SUBST(APFEL_LDFLAGS)
     AC_DEFINE([APFEL_ENABLED],[1],[Define if APFEL is enabled])
-    AX_COMPARE_VERSION([2.6.1],[ge],[$APFELVERS],[],[AC_MSG_ERROR([APFEL version outdated (2.6.1 or later needed).])])
+    AX_COMPARE_VERSION([2.6.1],[gt],[$APFELVERS],[AC_MSG_ERROR([APFEL version outdated (2.6.1 or later needed).])],[])
   fi
 fi
 AM_CONDITIONAL(ENABLE_APFEL, [test $enable_apfel])
@@ -204,7 +204,7 @@ if test $enable_mela; then
     AC_MSG_RESULT([Using $mela_config version $MELAVERS])
     AC_SUBST(MELA_LDFLAGS)
     AC_DEFINE([MELA_ENABLED],[1],[Define if MELA is enabled])
-    AX_COMPARE_VERSION([2.0.0],[ge],[$MELAVERS],[],[AC_MSG_ERROR([MELA version outdated (2.0.0 or later needed).])])
+    AX_COMPARE_VERSION([2.0.0],[gt],[$MELAVERS],[AC_MSG_ERROR([MELA version outdated (2.0.0 or later needed).])],[])
   fi
 fi
 AM_CONDITIONAL(ENABLE_MELA, [test $enable_mela])
