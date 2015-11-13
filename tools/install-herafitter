@@ -6,8 +6,10 @@
 lhapdfver=6.1.5
 hoppetver=1.1.5
 applgridver=1.4.70
-qcdnumver=17-01-10
-apfelver=2.6.3
+qcdnumver=17-01-11
+#apfelver=2.6.3
+melaver=2.0.0
+
 ## Optional manual configurations
 #MANUALCONF=1
 
@@ -358,11 +360,15 @@ fi
 cd - >& /dev/null
 
 export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
+
+
+
 #apfel
 echo "Installing APFEL trunk"
 git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
-cd  apfel
-./configure --prefix=$CURRENTDIR/apfel  >> $CURRENTDIR/install.log  2>&1
+mv apfel apfel-trunk
+cd  apfel-trunk
+./configure --prefix=$CURRENTDIR/deps/apfel  >> $CURRENTDIR/install.log  2>&1
 
 if [[ $? != 0 ]]
 then
@@ -377,8 +383,35 @@ then
 fi
 cd - >& /dev/null
 # setup paths for apfel:
-export PATH=$CURRENTDIR/apfel/bin/:$PATH
+export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
 
+#mela
+echo "Installing MELA $melaver..."
+melastripver=`echo $melaver |sed "s/-//g"`
+if [[ $http == "curl" ]]
+then
+curl http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz > mela-${melastripver}.tar.gz 2>> $CURRENTDIR/install.log
+else
+wget http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+fi
+tar xfz mela-${melastripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+cd  mela-${melaver}
+./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
+
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi  
+make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+# setup paths for apfel:
+export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
 
 
 #qcdnum
@@ -394,23 +427,27 @@ tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
 cd qcdnum-${qcdnumver}
 if [[ $version == "trunk" ]]
 then
- ./configure --prefix=$CURRENTDIR/qcdnum  >> $CURRENTDIR/install.log  2>&1
- if [[ $? != 0 ]]
+ echo $qcdnumstripver
+ if [[ $qcdnumstripver -ge 170110 ]] 
  then
+  ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
+  if [[ $? != 0 ]]
+  then
     echo "Error, check install.log for details"
     exit
- fi 
- make -j 9 install  >> $CURRENTDIR/install.log  2>&1
- if [[ $? != 0 ]]
- then
+  fi 
+  make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+  if [[ $? != 0 ]]
+  then
     echo "Error, check install.log for details"
     exit
- fi
- cd - >& /dev/null
+  fi
+  cd - >& /dev/null
  # setup paths for qcdnum:
- export PATH=$CURRENTDIR/qcdnum/bin/:$PATH
-
+  export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
+ fi
 else
+ export QCDNUM_ROOT=$CURRENTDIR/deps/qcdnum-${qcdnumver} 
  ./makelibs  >> $CURRENTDIR/install.log  2>&1
 fi
 
@@ -445,13 +482,19 @@ echo $version > version
 echo "export CURRENTDIR=`pwd`" > setup.sh
 echo "export version=\`cat version\`" >> setup.sh
 echo "export PATH=$CURRENTDIR/herafitter-$version/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/lhapd/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
 if [[ $version == "trunk" ]]
  then
- echo export LD_LIBRARY_PATH=\$CURRENTDIR/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
+ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 fi
 
 if [[ $MODE == "cern" ]]
@@ -470,17 +513,23 @@ fi
 echo source ./setup.sh > compile
 if [[ $version != "trunk" ]]	
  then
- echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-17-00-06  >> compile
+ echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-${qcdnumver}  >> compile
  else
  echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH       >> compile
 fi
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/apfel/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 echo cd herafitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
-echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel        >> compile
+if [[ $version == "trunk" ]]
+ then 
+ echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela        >> compile
+ else
+ echo ./configure --enable-applgrid --enable-lhapdf       >> compile
+fi
 echo make -j 9 install                                    >> compile
 
 chmod +x compile
