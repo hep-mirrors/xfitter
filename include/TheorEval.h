@@ -156,8 +156,8 @@ class TheorEval{
  private:
   int _dsId;
   int _iOrd;
-  int _xmur;
-  int _xmuf;
+  double _xmur;
+  double _xmuf;
   int _nTerms;
   double _units;
   vector<string> _termNames;
