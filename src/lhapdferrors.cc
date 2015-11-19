@@ -290,8 +290,8 @@ void get_lhapdferrors_()
       hf_errlog_(25051401, msg.c_str(), msg.size());
 
       //Evaluate MC covariance matrix
-      int dim = npoints;
-      double covmx[dim*dim];
+      unsigned int dim = npoints;
+      double *covmx = new  double [dim*dim];
       for (map <int, point>::iterator  pit1 = pointsmap.begin(); pit1 != pointsmap.end(); pit1++)
 	for (map <int, point>::iterator  pit2 = pointsmap.begin(); pit2 != pointsmap.end(); pit2++)
 	  {
@@ -302,13 +302,16 @@ void get_lhapdferrors_()
 		msg = (string)"S: Error: inconsistent number of MC replica per point";
 		hf_errlog_(25051402, msg.c_str(), msg.size());
 	      }
+
 	    covmx[j*dim+i] = 0;
+
+
 	    for (int mc = 0; mc < totmc; mc++)
 	      covmx[j*dim+i] += (pit1->second.th_mc[mc] - pit1->second.th_mc_mean) * (pit2->second.th_mc[mc] - pit2->second.th_mc_mean) / (double)totmc;
 	  }
 
       //Evaluate covariance matrix to nuisance parameters conversion      
-      double beta_from_covmx[dim*npoints];
+      double *beta_from_covmx = new double [dim*npoints];
       double alpha_from_covmx[dim];
 
       int ncorr = 0;	
@@ -330,6 +333,8 @@ void get_lhapdferrors_()
 	    }
 	  nsysloc += 1;
 	}
+      delete covmx;
+      delete beta_from_covmx;
     }
 
   //Asymmetric PDF uncertainties, including hessian and model
