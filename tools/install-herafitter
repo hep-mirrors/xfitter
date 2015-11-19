@@ -47,8 +47,7 @@ then
     echo "$0 <version|deps>"
     echo
     echo "available versions:"
-#    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
-    vers=`svn --no-auth-cache --trust-server-cert https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
     echo "$vers"
     echo "trunk"
     echo
