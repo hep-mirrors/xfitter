@@ -75,7 +75,7 @@
                 !                      set to LHAPDFQ0, LHAPDF or LHAPDFNATIVE, sets it to LHAPDF
                 ! 'PDF Rotate'      -- performs PDF re-diagonalization. Requires theo.in files to operate properly  
 
-  TheoryType = 'DGLAP_QEDEVOL' ! 'DGLAP'            -- collinear evolution
+  TheoryType = 'DGLAP' ! 'DGLAP'            -- collinear evolution
                        ! 'DGLAP_APFEL'      -- collinear evolution with APFEL
                        ! 'DGLAP_QEDEVOL'    -- collinear evolution with QEDEVOL
                        ! 'DGLAP_APFEL_QED'  -- collinear evolution with APFEL with QED corrections
