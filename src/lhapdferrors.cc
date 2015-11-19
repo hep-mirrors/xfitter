@@ -319,6 +319,15 @@ void get_lhapdferrors_()
 			    covmx,beta_from_covmx,0,
 			    ncorr,alpha_from_covmx,0);
 
+
+      if ( ncorr + nsysloc > NSYSMAX_C ) {
+	char csys[6];
+	sprintf( csys,"%i", ncorr + nsysloc) ;
+	msg = (string) "S: Too many systematic sources, increase NSYSMAX_C to " + csys + " at least in  include/dimensions.h and recompile";
+	hf_errlog_(15111901,msg.c_str(), msg.size());
+
+      }
+
       for (int j = 0; j < ncorr; j++)
 	{
 	  for (int i = 0; i < npoints; i++)
