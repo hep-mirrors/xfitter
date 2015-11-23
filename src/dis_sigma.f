@@ -518,8 +518,10 @@ C Functions:
       err_pol_unc=0.d0
       err_pol_corL=0.d0
       err_pol_corT=0.d0
-      polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'),
+      if(GetInfoIndex(IDataSet,'e polarity').ne.0) then
+         polarity = DATASETInfo( GetInfoIndex(IDataSet,'e polarity'),
      $     IDataSet)
+      endif
       if (polarity.ne.0) then
          err_pol_unc = 
      $        DATASETInfo( GetInfoIndex(IDataSet,'pol err unc'), IDataSet)
@@ -528,7 +530,9 @@ C Functions:
          err_pol_corT = 
      $        DATASETInfo( GetInfoIndex(IDataSet,'pol err corTpol'), IDataSet)
       endif
-      charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
+      if(GetInfoIndex(IDataSet,'e charge').ne.0) then
+         charge = DATASETInfo( GetInfoIndex(IDataSet,'e charge'), IDataSet)
+      endif
 
       if (charge.lt.0.) then
          if (polarity.gt.0) then
