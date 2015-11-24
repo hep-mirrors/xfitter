@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([herafitter], [trunk], [herafitter-help@desy.de])
+AC_INIT([XFitter],[1.2.0],[herafitter-help@desy.de],[xfitter])
 
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(${PWD})
@@ -436,6 +436,8 @@ AC_CONFIG_FILES([include/Makefile
                  tools/DrawPdfs/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
+		 bin/Makefile
+		 bin/xfitter-config
                  Makefile])
 
 if test x$enable_doc = xyes; then
