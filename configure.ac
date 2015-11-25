@@ -2,7 +2,7 @@
 AC_INIT([XFitter],[1.2.0],[herafitter-help@desy.de],[xfitter])
 
 AM_INIT_AUTOMAKE
-AC_PREFIX_DEFAULT(${PWD})
+#AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
 AC_PROG_FC([gfortran])
@@ -137,7 +137,7 @@ else
   QCDNUMLIBS=`qcdnum-config --ldflags`
   AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
-  AX_COMPARE_VERSION([17-01-10],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-10 or later needed).])],[])
+  AX_COMPARE_VERSION([17-01-11],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-11 or later needed).])],[])
 fi
 
 # NNPDF reweighting

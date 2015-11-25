@@ -1,5 +1,5 @@
                ------------------------------------------------
-                  HERAFITTER   --- PDF fit program from HERA.
+                  XFITTER   --- PDF fit program from HERA.
                ------------------------------------------------
 
  For the description and usage of the package please refer to the README file.               
@@ -8,69 +8,61 @@
 
                  Installation and Usage Instructions
 
-
 0) Pre-requirements.
 ====================
 
--- QCDNUM version at least qcdnum-17-00/06, can be found at 
-  http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html
+-- QCDNUM version at least qcdnum-17-01/11, can be found at 
+   http://www.nikhef.nl/~h24/qcdnum/QcdnumDownload.html
 
 -- Link to recent Root libraries (e.g. version 5.34)
 
--- Optional: APPLGRID
+-- XFitter has been tested on various platforms: 
+   SL4, SL5, SL6 (32 and 64 bit), Ubuntu 10.10-14.04, MacOXS
 
--- HERAfitter has been tested on various platforms: 
-   SL4, SL5, SL6 (32 and 64 bit),  Ubuntu 10.10-14.04, MacOXS
+-- Optional: APPLgrid, LHAPDF, APFEL, MELA
 
 1) INSTALLATION (basic installation)
 ====================================
 
-  a) Specify QCDNUM_ROOT environment variables such that 
-     $QCDNUM_ROOT/lib point to the corresponding libraries
-     (e.g. export QCDNUM_ROOT=/your/path/to/qcdnum/lib)
+  a) Run:
 
-  b) Run:
-
-    ./configure
+    ./configure (--prefix=/your/installation/path/)
     make 
     make install
 
-    --> you should get bin/FitPDF executable file installed
+  b) make sure that "/your/installation/path/bin" is in your PATH.
+    --> you should get "FitPDF" executable file installed.
 
-  c) Run a check
+  c) Run a check from the source folder:
 
-    bin/FitPDF 
+    FitPDF
 
   d) Storing of the outputs: output/ (default, name can be changed in the steering.txt)
 	- minuit.out.txt  			(minuit output)
 	- Results.txt 				(chiquare and the systematic shifts)
 	- lhapdf.block.txt			(ready to use LHAPDF style grids, run tools/tolhapdf.cmd)
 	- fittedresults.txt			(theory predictions for each fitted data point)
-	- pulls.first/last.txt		(pulls at the start and end of the fit)
-	- pdfs_q2val_0i.txt, i=1, user defined (PDF sets at predefined Q2 values, as set in the steering.txt)	
+	- pulls.first/last.txt			(pulls at the start and end of the fit)
+	- pdfs_q2val_0i.txt			(user defined PDF sets at predefined Q2 values, as set in the steering.txt)	
 
-
-1B) INSTALLATION (with APPLGRID)
+1B) INSTALLATION (with APPLgrid)
 =================================
 
-  a) Specify QCDNUM_ROOT variables such that 
-     $QCDNUM_ROOT/lib point to the corresponding libraries
-
-     Install APPLGRID version 1.1.6 or later. Description can be found at
-         http://projects.hepforge.org/applgrid/
+  a) Install APPLgrid version 1.1.6 or later. Description can be found at
+     http://projects.hepforge.org/applgrid/
 
   b) Run:
 
-    ./configure --enable-applgrid
+    ./configure --enable-applgrid (--prefix=/your/installation/path/)
     make 
     make install
 
-    --> you should get bin/FitPDF executable file installed
+  c) make sure that "/your/installation/path/bin" is in your PATH.
+    --> you should get "FitPDF" executable file installed.
 
-  c) Run a check
+  d) Run a check from the source folder:
 
-    bin/FitPDF 
-
+    FitPDF
 
 1C) INSTALLATION (with Hathor)
 =================================
@@ -82,16 +74,16 @@
   b) Define a variable HATHOR_ROOT such that $HATHOR_ROOT points to the
      directory of your Hathor installation
 
-  c) Install the HERAFitter as described above but configuring it
+  c) Install the XFitter as described above but configuring it
      with the option "--enable-hathor" before building it
 
-    ./configure --enable-hathor
+    ./configure --enable-hathor (--prefix=/your/installation/path/)
     make 
     make install
 
-
 1D) INSTALLATION with LHAPDF (v5 or 6)
 ============================================
+
   a) include lhapdf-config in your PATH variable
 	(e.g. export PATH=/your/path/to/lhapdf/bin)
   b) include libLHAPDF.so library in your LD_LIBRARY_PATH variable
@@ -100,23 +92,20 @@
 
 The lhapdf will be used if you change  PDFStyle = 'LHAPDF' in the steering card.
 
-    ./configure --enable-lhapdf
-    make 
+    ./configure --enable-lhapdf (--prefix=/your/installation/path/)
+    make
     make install
-
 
 1E) INSTALLATION with NNPDF reweighting tool
 ============================================
 	- needs linking to LHAPDF 
 	README located in ./NNPDF directory
 
-
-    ./configure --enable-lhapdf --enable-nnpdf
+    ./configure --enable-lhapdf --enable-nnpdf (--prefix=/your/installation/path/)
     make 
     make install
 
 NOTE: reweighting currently is working with LHAPDF6.1.1 or higher versions only
-
 
 1F) Modules such as 
  - DIPOLE
@@ -145,15 +134,15 @@ steering.txt (use appropriate cards stored in input_steering/!)
 
   b) Run:
 
-   ./configure --enable-updf --enable-lhapdf --enable-checkBounds
+   ./configure --enable-updf --enable-lhapdf --enable-checkBounds (--prefix=/your/installation/path/)
     make 
     make install
 
-    --> you should get bin/FitPDF executable file installed
+    --> you should get "FitPDF" executable file installed
 
   c) Run a check
 
-    bin/FitPDF 
+    FitPDF
 
 ============================================
 
