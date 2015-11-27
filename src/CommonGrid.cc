@@ -67,7 +67,8 @@ CommonGrid::~CommonGrid(){
   vector<tHyperBin>::iterator ihb;
   for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
     delete[] ihb->b;
-    delete ihb->g;
+    if ( ihb->g )  delete ihb->g;
+    if ( ihb->f )  delete ihb->f;
   }
 }
 
