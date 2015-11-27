@@ -5,7 +5,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
-          NNPDF/include pdf2yaml tools/PostProcess/ bin
+          NNPDF/include pdf2yaml tools/PostProcess/ 
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
@@ -44,3 +44,4 @@ DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/D
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README README-MacOSX LICENCE REFERENCES ewparam.txt minuit.in.txt steering.txt 
+bin_SCRIPTS = xfitter-config

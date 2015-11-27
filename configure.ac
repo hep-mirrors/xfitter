@@ -1,8 +1,11 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([XFitter],[1.2.0],[herafitter-help@desy.de],[xfitter])
 
+#Suppress verbose output when compiling (use make V=99 for verbose output)
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 AM_INIT_AUTOMAKE
-#AC_PREFIX_DEFAULT(${PWD})
+AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
 AC_PROG_FC([gfortran])
@@ -436,8 +439,7 @@ AC_CONFIG_FILES([include/Makefile
                  tools/DrawPdfs/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
-		 bin/Makefile
-		 bin/xfitter-config
+		 xfitter-config
                  Makefile])
 
 if test x$enable_doc = xyes; then
