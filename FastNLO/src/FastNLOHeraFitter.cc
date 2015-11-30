@@ -60,7 +60,7 @@ vector<double> FastNLOHeraFitter::GetXFX(double xp, double muf) const {
    //  x-proton and factorisation scale.
    //
    double muf2 = muf*muf;
-   vector < double > xfx(13);
+   vector < double > xfx(14);// 13+1 for photon
    HF_GET_PDFS_WRAP(&xp, &muf2, &xfx[0]);
    return xfx;
 }
