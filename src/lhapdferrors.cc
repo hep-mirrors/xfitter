@@ -15,6 +15,7 @@
 #include <map>
 #include <math.h>
 #include <numeric>
+#include <algorithm>
 
 struct point
 {
