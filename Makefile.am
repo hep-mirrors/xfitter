@@ -1,3 +1,4 @@
+ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
           common/num_utils tools/DrawResultsPackage \

@@ -132,11 +132,12 @@ LDADD+=  ../DY/src/libmydy.a\
  ../genetic/src/libgenetic.a \
  ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
- ../tools/DrawPdfs/src/DrawPdfs-pdferrors.o
+ ../tools/DrawPdfs/src/libpdferrors.la
 
 
-GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
-GFRTLIB  = -L $(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
+#GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
+#GFRTLIB  = -L$(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
+GFRTLIB  = -lgfortran
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)

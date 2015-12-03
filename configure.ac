@@ -1,6 +1,7 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([XFitter],[1.2.0],[herafitter-help@desy.de],[xfitter])
-
+AC_INIT([XFitter],[1.2.0],[herafitter-help@desy.de],[xfitter],[http://xfitter.org])
+m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
+	
 #Suppress verbose output when compiling (use make V=99 for verbose output)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -13,7 +14,7 @@ AC_PROG_F77([gfortran])
 
 AC_PROG_CPP
 AC_PROG_CXX
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 
 AM_PROG_CC_C_O
 # Fortran configures
@@ -21,6 +22,10 @@ AC_FC_LIBRARY_LDFLAGS
 AC_FC_WRAPPERS
 AC_F77_WRAPPERS
 #AC_FC_FREEFORM
+
+#Use libtoolize to build libraries
+LT_INIT
+AC_CONFIG_MACRO_DIR([m4])
 
 # lapack macros
 m4_include([m4/ax_blas.m4])
@@ -282,26 +287,57 @@ if test x$enable_hvqmnr == xyes; then
 fi
 AM_CONDITIONAL(ENABLE_HVQMNR, [test x$enable_hvqmnr == xyes])
 
-AC_MSG_CHECKING([for root installation])
-root_config=`which root-config`
-if test x$root_config == x; then
-  AC_MSG_WARN([Unable to find root-config.])
-  if test x$enable_applgrid == xyes; then
-     AC_MSG_ERROR([Root is required for APPLGRID])
-  fi
-else 
-  AC_MSG_RESULT([Using $root_config])
-  root_ok=1
-  ROOT_CFLAGS=`root-config --cflags`
-  ROOT_LDFLAGS=`root-config --ldflags`
-  ROOT_LIBS=`root-config --libs`
-  AC_SUBST(ROOT_CFLAGS)
-  AC_SUBST(ROOT_LDFLAGS)
-  AC_SUBST(ROOT_LIBS)
-  AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
-fi
+# check for ROOT libraries
+AC_ARG_ENABLE([root],[AS_HELP_STRING([--enable-root],[use ROOT libraries])]): ${enable_root=yes}
 
+AS_IF([test "$enable_root" = "yes"], [
+	    AC_MSG_CHECKING([for ROOT installation])
+	    root_config=`which root-config`
+	    if test x$root_config == x; then
+	      AC_MSG_ERROR([Unable to find root-config, install ROOT or configure with --disable-root])
+	    else 
+	      AC_MSG_RESULT([Using $root_config])
+	      root_ok=1
+	      ROOT_CFLAGS=`root-config --cflags`
+	      ROOT_LDFLAGS=`root-config --ldflags`
+	      ROOT_LIBS=`root-config --libs`
+	      AC_SUBST(ROOT_CFLAGS)
+	      AC_SUBST(ROOT_LDFLAGS)
+	      AC_SUBST(ROOT_LIBS)
+	      AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
+	    fi
+	  ],
+	  [
+	    AC_MSG_WARN([ROOT libraries are disabled, DrawPdfs not available])
+	    if test x$enable_applgrid == xyes; then
+	       AC_MSG_ERROR([Root is required for APPLGRID])
+	    fi
+	    ])
 AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
+
+
+#AC_MSG_CHECKING([for root installation])
+#root_config=`which root-config`
+#if test x$root_config == x; then
+#  AC_MSG_WARN([Unable to find root-config.])
+#  if test x$enable_applgrid == xyes; then
+#     AC_MSG_ERROR([Root is required for APPLGRID])
+#  fi
+#  if test x$enable_nnpdfWeight == xyes; then
+#     AC_MSG_ERROR([Root is required for NNPDF])
+#  fi
+#else 
+#  AC_MSG_RESULT([Using $root_config])
+#  root_ok=1
+#  ROOT_CFLAGS=`root-config --cflags`
+#  ROOT_LDFLAGS=`root-config --ldflags`
+#  ROOT_LIBS=`root-config --libs`
+#  AC_SUBST(ROOT_CFLAGS)
+#  AC_SUBST(ROOT_LDFLAGS)
+#  AC_SUBST(ROOT_LIBS)
+#  AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
+#fi
+#AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
 
 # UPDFs
