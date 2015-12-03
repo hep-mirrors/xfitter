@@ -242,7 +242,7 @@ c  interface for the subroutine DSNLEQ
 
       dimension X(*),F(*) 
 
-      f(k)=alphast(x)    
+      f(k)=alphast(x(1))    
 
       RETURN 
       END 

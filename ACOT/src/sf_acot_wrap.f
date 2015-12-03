@@ -179,8 +179,8 @@ c     data maxFactor,small /1.0d1, 1.e-12/
       data maxFactor,small /999d0, 1.e-12/
       
       COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
-      common /fred/ xmc,xmb,HMASS
-      common/fredew/ sinw2, xmw, xmz
+cSG      common /fred/ xmc,xmb,HMASS
+cSG      common/fredew/ sinw2, xmw, xmz
 
 C Local table of k-factors
       integer NKfactMax,nTotal,i,j

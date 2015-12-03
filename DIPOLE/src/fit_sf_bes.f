@@ -8,7 +8,7 @@ c...
       data DEBUG_PRINT/.false./
       
       common/chsteer/ cm,icharm
-      common/pass1/ sig0,xlam,x0,xm
+      common/pass1/ sig0,xlam,x0,xm, cBGK, eBKG
 
 c...light quark contribution
         call masscorr(xnew,xbj,xm,Q2)       !mass correction
@@ -240,7 +240,7 @@ c------------------------------------------------------------
 C------------------------------------------------------------
        FUNCTION WAVE_T(Z,R,Q2)
        IMPLICIT REAL*8(A-H,O-Z)
-       common/pass1/ sig0,xlam,x0,xm
+       common/pass1/ sig0,xlam,x0,xm,  cBGK, eBKG
 
 C       print *,sig0,xlam,x0,xm
 C       stop
@@ -258,7 +258,7 @@ C       stop
 C------------------------------------------------------------ 
        FUNCTION WAVE_L(Z,R,Q2)
        IMPLICIT REAL*8(A-H,O-Z)
-       common/pass1/ sig0,xlam,x0,xm
+       common/pass1/ sig0,xlam,x0,xm,  cBGK, eBKG
 
         QBAR2 = Z*(1.d0-Z)*Q2 + XM*XM
          QBAR = DSQRT(QBAR2)
@@ -321,7 +321,7 @@ C
 C Dipole cross section from Iancu, Itakura, Munier paper
 C
       IMPLICIT REAL*8(A-H,O-Z)
-      common/pass1/ sig0,xlam,x0,xm
+      common/pass1/ sig0,xlam,x0,xm,  cBGK, eBKG
 C-------------------------------------------------------------
       Qs  = (x0/x)**(xlam/2)
       rQs = r*Qs
@@ -339,7 +339,7 @@ c
 c...saturation model without evolution
 c
       IMPLICIT REAL*8(A-H,O-Z) 
-      common/pass1/ sig0,xlam,x0,xm
+      common/pass1/ sig0,xlam,x0,xm,  cBGK, eBKG
 
            tmp = (xx/x0)**xlam 
       R_02_sat = r**2 / (4.d0*tmp)
