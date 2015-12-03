@@ -143,15 +143,6 @@ else
   AX_COMPARE_VERSION([17-01-11],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-11 or later needed).])],[])
 fi
 
-# NNPDF reweighting
-AC_ARG_ENABLE([nnpdfWeight],
-  [AC_HELP_STRING(--enable-nnpdfWeight, [use NNPDF weighting (default=no)])])
-if test x$enable_nnpdfWeight == xyes; then
-  enable_lhapdf=1
-  echo "Force LHAPDF installation"
-fi
-AM_CONDITIONAL(ENABLE_NNPDFWEIGHT, [test x$enable_nnpdfWeight == xyes])
-
 # check for lhapdf installation
 AC_ARG_ENABLE([lhapdf],
   [AC_HELP_STRING(--enable-lhapdf, [use lhapdf (default=no)])])
@@ -261,25 +252,6 @@ if test x$enable_applgrid == xyes; then
   fi
 fi
 AM_CONDITIONAL(APPLGRID_DYNSCALE, [test x$ag_dynscale == xyes])
-
-# check if lhapdf version if > 6.1.0 for NNPDF reweighting
-lp_reweig=no
-lp_version=`lhapdf-config --version`
-if test x$enable_nnpdfWeight == xyes; then
-  if test $enable_lhapdf; then
-    AC_MSG_CHECKING([if LHAPDF compatible with NNPDF reweighting])
-    AX_COMPARE_VERSION([6.1.0],[gt],[$lp_version],[lp_reweig=no],[lp_reweig=yes])
-    if test x$lp_reweig == xyes; then
-      AC_MSG_RESULT([yes])
-      AC_DEFINE([LHAPDF_REWEIGHTING],[1],[Define if LHAPDF version compatible with NNPDF reweighting])
-    else
-      AC_MSG_ERROR([The LHAPDF version is not compatible with NNPDF reweighting ( needs v. >= 6.1.1 )])
-    fi
-  fi
-fi
-AM_CONDITIONAL(LHAPDF_REWEIGHTING, [test x$lp_reweig == xyes])
-
-
 # check for genetic installation
 AC_ARG_ENABLE([genetic],
     [AC_HELP_STRING(--enable-genetic, [use genetic for general minimia search (defaults=no)])])
@@ -316,9 +288,6 @@ if test x$root_config == x; then
   AC_MSG_WARN([Unable to find root-config.])
   if test x$enable_applgrid == xyes; then
      AC_MSG_ERROR([Root is required for APPLGRID])
-  fi
-  if test x$enable_nnpdfWeight == xyes; then
-     AC_MSG_ERROR([Root is required for NNPDF])
   fi
 else 
   AC_MSG_RESULT([Using $root_config])
@@ -423,8 +392,6 @@ AC_CONFIG_FILES([include/Makefile
                  ACOT/src/Makefile
                  ABM/src/Makefile
 		 FONLL/src/Makefile
-                 NNPDF/src/Makefile
-                 NNPDF/include/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile

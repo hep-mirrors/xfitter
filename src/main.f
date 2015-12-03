@@ -73,15 +73,6 @@ C-----------------------------------------------------
       call hf_errlog(12020503,
      +     'I: theory modules initialised successfully') 
 
-
-*     ------------------------------------------------
-*     Do NNPDF if initialized
-*     ------------------------------------------------
-      if (FLAGRW) then 
-         call pdfreweighting
-         if (DORWONLY) goto 36
-      endif
-
       if (LHAPDFErrors) then  ! PDF errors
          call get_lhapdferrors
          goto 36

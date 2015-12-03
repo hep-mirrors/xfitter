@@ -340,15 +340,3 @@
   ILHAPDFSET = 0               ! Set number withing PdfSet
 &End
 
-*
-* (Optional) reweighting steering cards
-* 
-&reweighting
-  FLAGRW	  = False                 ! Should reweighting be done?
-  RWPDFSET    = 'HERAPDF15NLO_EIG'    ! LHAPDF grid file 
-  RWDATA  	  = 'HighStat'            ! arbitrary name for new datasample to be put in 
-  RWMETHOD    = 1                     ! either 1=chi2 or 2=data
-  DORWONLY  	 = True               ! do / do not run usual HERA fit
-  RWREPLICAS 	 = 1000               ! Number of input replicas used to build the PDF probability distributions from the Hessian input PDFs 
-  RWOUTREPLICAS  = 100                ! how many output replica of the NNPDF should be kept?
-&End

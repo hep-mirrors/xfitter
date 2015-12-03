@@ -32,28 +32,43 @@ struct point
   double th_err_dn;          //theory error down
 };
 
-vector <double> mcweights(vector<double> const& chi2, int ndata)
+vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
 {
   vector<double> w;
   const int nrep = chi2.size();
   
-  vector<double> logw;
-  // Calculate Ln(wnn) (nn - not normalised) -> use repnums as index for unweighted PDFs
-  for (vector <double>::const_iterator c = chi2.begin(); c != chi2.end(); c++)
-    logw.push_back( - *c/(2.0) +( (((double) ndata)-1.0)/2.)*log(*c)); //Bayesian
-  //    logw.push_back( - *c/(2.0)); //Giele-Keller
+  vector<double> logw;  // Calculate Ln(wnn) (nn - not normalised) -> use repnums as index for unweighted PDFs
+  for (vector <double>::const_iterator c = chi2.begin(); c != chi2.end(); c++) {
+    if ( (GK_method) == false) {
+      logw.push_back( - (*c)/(2.0) +( (((double) ndata)-1.0)/2.)*log(*c)); //Bayesian
+    }
+    if ( (GK_method) == true)  logw.push_back(- (*c)/(2.0)); //Giele-Keller
+  }
 
+  // Get maximum value of log(w)
+  double exp_avg = *(max_element(logw.begin(), logw.end()));
+  //exp_avg =0;//only needed to normalise
 
   // Calculate weights
-  for (vector <double>::iterator l = logw.begin(); l != logw.end(); l++)
-    w.push_back(exp(*l));
+  for (size_t i=0 ;i<nrep; i++) {
+    w.push_back(exp(logw[i] - exp_avg ));
+  }
 
-  //normalise
+  //Drop any weights smaller than 1e-12
   double wtot = accumulate(w.begin(),w.end(),0.0); 
-  for (vector <double>::iterator wi = w.begin(); wi != w.end(); wi++)
-    w[wi-w.begin()] *= (nrep/wtot); 
-  
-  return w;
+
+  for (size_t i=0; i<w.size(); i++) {
+    if ((w[i]*(nrep/wtot)) < 1e-12)
+      w[i]=0;
+  }
+
+     wtot=accumulate(w.begin(),w.end(),0.0);  // Normalise weights so Sum(weights)=N
+
+     for (size_t i=0;i<w.size();i++){
+     	w[i]*=(nrep/wtot); 
+    }
+
+   return w;
 }
 
 //return error if LHAPDF is not enabled
@@ -152,7 +167,7 @@ void get_lhapdferrors_()
 	  hf_errlog_(14012702, msg.c_str(), msg.size());
 	}
 
-      for (int iset = 0; iset <= nsets; iset++)
+     for (int iset = 0; iset <= nsets; iset++)
 	{
 	  //Init PDF member and alphas(MZ)
 	  LHAPDF::initPDF(iset);
@@ -176,14 +191,16 @@ void get_lhapdferrors_()
 	  double chi2tot;
 	  int iflag = min(2,max(1, cset+1));
 	  chi2tot = chi2data_theory_(iflag);
-	  char chi2c[50];
+	  char chi2c[500];
 	  sprintf(chi2c, "%.2f", chi2tot);
-	  cout << setw(20) << "PDF set number: " << setw(5) << iset 
+
+ 	  cout << setw(20) << "PDF set number: " << setw(5) << iset 
 	       << setw(15) << "chi2=" << chi2c 
 	       << setw(15) << "ndf=" << cfcn_.ndfmini_ 
 	       << endl;
-	  chi2.push_back(chi2tot);
 
+	  chi2.push_back(chi2tot) ;
+  
 	  //Write results of chi2 calculation
 	  char tag[10];
 	  sprintf (tag, "_%04d", cset);
@@ -265,15 +282,40 @@ void get_lhapdferrors_()
   if (totmc > 0)
     {
       //Store weights for reweighting
-      vector <double> weights = mcweights(chi2, npoints);
-      ofstream chi2wf((outdirname + "/mcrew.txt").c_str());
-      chi2wf << "LHAPDF set= " << lhapdfset << endl;
-      chi2wf << weights.size() << endl;
-      vector <double>::iterator c = chi2.begin();
-      vector <double>::iterator w = weights.begin();
-      for (; c != chi2.end(); c++, w++)
-	chi2wf << (c - chi2.begin()) << "\t" << *c << "\t" << *w << endl;
+      vector <double> weights = mcweights(chi2, npoints, false);
+ 
+      ofstream chi2wf((outdirname + "/pdf_BAYweights.dat").c_str());
+
+      vector <double>::iterator ic = chi2.begin();
+      vector <double>::iterator iw = weights.begin();
+
+      string lhapdfsetname=lhapdfset;
+      if (lhapdfsetname.find(".LHgrid")!=string::npos)   lhapdfsetname.erase(lhapdfsetname.find(".LHgrid"));
+
+      chi2wf << "LHAPDF set=   " << lhapdfsetname<<endl;
+      chi2wf << "Reweight method=   BAYESIAN"<<endl;
+      chi2wf << "ndata=   " << npoints <<endl;
+
+      chi2wf << cset << endl;
+
+      for (; ic != chi2.end(); ic++, iw++)
+	chi2wf << (ic - chi2.begin()) << "\t" << *ic << "\t" << *iw << endl;
       chi2wf.close();
+      
+      vector <double> weights_GK = mcweights(chi2, npoints, true);
+      ofstream chi2wf2((outdirname + "/pdf_GKweights.dat").c_str());
+
+      ic = chi2.begin();
+      iw = weights_GK.begin();
+
+      chi2wf2 << "LHAPDF set=   " << lhapdfsetname<<endl;
+      chi2wf2 << "Reweight method=   GIELE-KELLER"<<endl;
+      chi2wf2 << "ndata=   " << npoints <<endl;
+      chi2wf2 << cset << endl;
+
+      for (; ic != chi2.end(); ic++, iw++)
+	chi2wf2 << (ic - chi2.begin()) << "\t" << *ic << "\t" << *iw << endl;
+      chi2wf2.close();
       
       //MC replica mean and rms
       for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)

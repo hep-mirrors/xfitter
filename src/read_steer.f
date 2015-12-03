@@ -90,7 +90,6 @@ C -------------------------------------------
 #include "pdfparam.inc"
 #include "datasets.inc"
 #include "systematics.inc"
-#include "reweighting.inc"
 #include "scales.inc"
 #include "indata.inc"
 #include "for_debug.inc"
@@ -503,34 +502,19 @@ C Print the namelist:
       end
 
 C
-!> Read lhapdf and reweighting namelists
+!> Read lhapdf namelists
 C----------------------------------------
       subroutine read_lhapdfnml
 
       implicit none
 #include "steering.inc"
-#include "reweighting.inc"
 C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/LHAPDFSET,ILHAPDFSET,
      $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
      $     WriteAlphaSToMemberPDF
 
-C (Optional) reweighting steering card
-      namelist/reweighting/FLAGRW,RWPDFSET,RWDATA
-     $     ,RWMETHOD,DORWONLY,RWREPLICAS,RWOUTREPLICAS
-      
       logical lhapdferrors_save
-
-C------------------------------------------------------------
-C Reweighting defaults
-
-      FLAGRW = .false.
-      RWMETHOD = 1
-      DORWONLY = .false.
-      RWPDFSET = ''
-      RWREPLICAS = 0
-      RWOUTREPLICAS = 0
 
 C LHAPDFErrors default
 
@@ -554,24 +538,8 @@ C
          lhapdferrors = lhapdferrors_save
       endif
 
-C
-C  Read the reweighting namelist:
-C 
-      open (51,file='steering.txt',status='old')
-      read (51,NML=reweighting,END=75,ERR=74)
- 75   continue
-      close (51)
-C
-C check whether RWPDFSET and LHAPDF set are equal
-C
-      if (FLAGRW) then
-         if (TRIM(RWPDFSET) .ne. TRIM(LHAPDFSET)) then
-            call HF_ErrLog(12032302,'W:WARNING: Setting LHAPDF set to '
-     $           //TRIM(RWPDFSET))
-            LHAPDFSET=RWPDFSET
-         endif
-
 C  check if the PDFstyle is indeed Ok
+      if  ( RunningMode .eq. 'LHAPDF Analysis') then
          if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0' 
      $        .and. PDFStyle.ne.'LHAPDFNATIVE') then
             call HF_Errlog(12032303,
@@ -583,7 +551,6 @@ C  check if the PDFstyle is indeed Ok
       if (LDebug) then
 C Print the namelist:
          print lhapdf
-         print reweighting
       endif
 
       return
@@ -592,9 +559,6 @@ C---
       print '(''Error reading namelist &lhapdf, STOP'')'
       call HF_stop
 
- 74   continue
-      print '(''Error reading namelist &reweighting, STOP'')'
-      call HF_stop
       end
 
       subroutine read_chi2scan

@@ -1,4 +1,8 @@
-In this section a different approach to PDF studies based on the reweighing techniques is described. 
+In this section a alternative approaches to PDF studies are described. These are PDF profiling and reweighting. The later allows to update probability distribution based PDF (e.g. NNPDF PDF sets) to be updated with new data inputs. PDF profiling is a bit more universal, it compares data and MC predictions and based on the $\chi^2$-minimization technique implemented in the \fitter, it constraints the individual PDF eigenvector sets of the input PDFs taking into account also the data uncertainties. Both of these techniques are implemented in the \fitter and are described below.
+
+
+\subsection{Bayesian Reweighting}
+
 Bayesian reweighting of PDF sets is a way to include new data into an existing PDF set without actually carrying out a full-blown fitting procedure. 
 It was first suggested by Giele and Keller~\cite{Giele:1998gw} and first pursued in practice by the NNPDF Collaboration~\cite{Ball:2011gg,Ball:2010gb}. 
 Watt and Thorne~\cite{Watt:2012tq} have also proposed a scheme for how to implement the Bayesian reweighting technique for PDF predictions based on central values with errors determined using the Hessian Eigenvector Method. 
@@ -13,7 +17,7 @@ but also on other standard PDF sets. This one can investigate how the data impac
 
 The Bayesian Reweighting technique essentially uses PDF probability distributions as input, applies weights to these distributions based on how well the new data is described and outputs an updated PDF probability distribution. In the following paragraphs, firstly the construction of these PDF probability distributions is described, then the calculation of the weights to update the PDF probability distribution is introduced and lastly, the configuration of the module within the \fitter framework is explained.
 
-\subsection{PDF probability distributions}
+\subsubsection{PDF probability distributions}
 
 PDF probability distributions are constructed as finite ensembles of $N_{\mathrm{rep}}$ parton distribution functions $\mathrm{PDF}_k$, $\mathcal{E} = \{PDF_k, k = 1, . . . ,N_{\mathrm{rep}}\}$. Observables $\mathcal{O}(\mathrm{PDF})$ are conventionally calculated from the average of the predictions obtained from the ensemble:
 
@@ -54,7 +58,7 @@ the above prescription simplifies to:
  \mathrm{PDF}_k = \mathrm{PDF}_0  + \sum_{j=0}^{n} \left[ \mathrm{PDF}_j - \mathrm{PDF}_0 \right] R_{jk}
 \end{equation}
 
-\subsection{Bayesian Reweighting of PDF sets}
+\subsubsection{Bayesian Reweighting of PDF sets}
 
 Once PDF probability distributions are available as inputs, they can be updated to incorporate the new data. This is achieved by applying weights to the PDF probability distributions such that the prediction for observable $\langle\mathcal{O}(\mathrm{PDF})\rangle$ from equation \ref{eq:meanReplicas} changes to:
 
@@ -77,31 +81,144 @@ where $N_{\mathrm{data}}$ is the number of new data points, $k$ denotes the spec
 The weighted PDF probability distribution can be turned into a new ensemble of PDF replicas, based on which predictions for any observable can be calculated. This new, reweighted PDF probability distribution commonly is chosen to be based upon a smaller number of PDF sets compared to the input PDF probability distribution, because replicas that are incompatible with the data are discarded 
 in order to create a more stream-lined PDF set.
 
-\subsection{Usage of the PDF reweighting in the \fitter framework}
+\subsection{Profiling}
+
+The impact of a new data set on a given PDF set can be quantitatively
+estimated with a profiling procedure~\cite{Paukkunen:2014zia}. The
+profiling is performed using a $\chi^2$ function which includes both
+the experimental uncertainties and the theoretical uncertainties
+arising from PDF variations:
+
+\begin{eqnarray}
+\nonumber \lefteqn{\chi^2(\boldsymbol{\beta_{\rm exp}},\boldsymbol{\beta_{\rm th}}) = }  \\ 
+&& \nonumber \sum_{i=1}^{N_{\rm data}} \frac{\textstyle \left( \sigma^{\rm exp}_i + \sum_j \Gamma^{\rm exp}_{ij} \beta_{j,\rm exp} - \sigma^{\rm th}_i - \sum_k \Gamma^{\rm th}_{ik}\beta_{k,\rm th} \right)^2}{\Delta_i^2} \\
+&&   + \sum_j \beta_{j,\rm exp}^2 + \sum_k \beta_{k,\rm th}^2\,.   \label{eq:chi2prof}
+\end{eqnarray}
+The correlated experimental and theoretical uncertainties are included
+using the nuisance parameter vectors $\boldsymbol{\beta_{\rm exp}}$
+and $\boldsymbol{\beta_{\rm th}}$, respectively. Their influence on
+the data and theory predictions is described by the $\Gamma^{\rm
+exp}_{ij}$ and $\Gamma^{\rm th}_{ik}$ matrices. The index $i$ runs
+over all $N_{\rm data}$ data points, whereas the index $j$ ($k$)
+corresponds to the experimental (theoretical) uncertainty nuisance
+parameters. The measurements and the uncorrelated experimental
+uncertainties are given by $\sigma^{\rm exp}_i$ and $\Delta_i$\,, respectively, and
+the theory predictions are $\sigma_i^{\rm th}$. The $\chi^2$ function of
+Eq.~\ref{eq:chi2prof} can be generalised to account for asymmetric PDF
+uncertainties:
+
+\begin{eqnarray}
+   \Gamma^{\rm th}_{ik} \to \Gamma^{\rm th}_{ik} +  \Omega^{\rm th}_{ik}\beta_{k, \rm th}\,, \label{eq:iter}
+\end{eqnarray}
+where $\Gamma^{\rm th}_{ik} = 0.5(\Gamma^{\rm th+}_{ik} - \Gamma^{\rm
+th-}_{ik})$ and $\Omega^{\rm th}_{ik} = 0.5(\Gamma^{\rm th+}_{ik}
++ \Gamma^{\rm th-}_{ik})$ are determined from the shifts of
+predictions corresponding to up ($\Gamma^{\rm th+}_{ik}$) and down
+($ \Gamma^{\rm th-}_{ik}$) PDF uncertainty eigenvectors.
+
+The minimisation of Eq.~\ref{eq:chi2prof} in its original form leads
+to a system of linear equations. The generalised function, with
+asymmetric PDF uncertainties, is minimised iteratively: the values of $\Gamma^{\rm
+th+}_{ik}$ are updated using $\beta_{k, \rm th}$ from the
+previous iteration and following the substitution of Eq.~\ref{eq:iter}.
+Several iterations are required to converge, and the procedure is verified
+using the MINUIT program which yields identical results.
+
+The value at the minimum of the $\chi^2$ function provides a
+compatibility test of the data and theory.
+In addition, the values at the minimum of the nuisance parameters
+$\beta^{\rm min}_{k,\rm th}$ can be interpreted as optimisation
+(``profiling'') of PDFs to describe the data~\cite{Paukkunen:2014zia}. Explicitly, the profiled
+central PDF set $f'_0$ is given by
+
+%\begin{small}
+\begin{equation}
+   f'_0 = f_0 + \sum_k  \beta^{\rm min}_{k, {\rm
+   th}} \left( \frac{f^{+}_k - f^{-}_k}{2}  - \beta^{\rm min}_{k, {\rm th}}  \frac{f^{+}_k + f^{-}_k - 2f_0}{2} \right)\,, \label{eq:prof}
+\end{equation}
+%\end{small}
+where $f_0$ is the original central PDF set and $f^{\pm}_k$ represents the
+eigenvector sets corresponding to up and down variations.
+
+The shifted PDFs have reduced uncertainties. In general, the
+shifted eigenvectors are no longer orthogonal, but can be transformed
+to an orthogonal representation using a standard diagonalisation
+procedure, as in Ref.~\cite{Aaron:2009bp}.
+In this method the covariance matrix $C$ of the PDF nuisance
+parameters is diagonalised as
+
+\begin{eqnarray}
+  \lefteqn{\boldsymbol{\beta_{\rm th}^T} C \boldsymbol{\beta_{\rm th}} = \boldsymbol{\beta_{\rm th}^T} G^T D G \boldsymbol{\beta_{\rm th}} = 
+  \boldsymbol{\beta_{\rm th}^T} (\sqrt{D} G)^T \sqrt{D}G \boldsymbol{\beta_{\rm th}}}  \nonumber \\
+&&  =  (G' \boldsymbol{\beta_{\rm th}})^T  G'\boldsymbol{\beta_{\rm th}} = \boldsymbol{(\beta'_{\rm th})^T}  \boldsymbol{\beta'_{\rm th}}\,,
+\label{eq:diag}
+\end{eqnarray} 
+where $G$ is an orthogonal matrix, $D$ is a positive definite diagonal
+matrix, and $\sqrt{D}$ is a diagonal matrix built of
+$\sqrt{D_{ii}}$. The matrices $G$ and $D$ can be constructed using
+the eigenvectors and eigenvalues of the matrix $C$. The transformation
+$G'$ can be adjusted, using orthogonal transformations, to keep the
+new eigenvector basis aligned along the original as much as
+possible. As a result of this adjustment, the transformation matrix
+can take a triangular form with all diagonal elements greater than
+zero.
+
+The method can be extended to PDF sets with asymmetric
+uncertainties: the transformation matrix is
+determined using symmetrised uncertainties as in
+Eq.~\ref{eq:diag}, and the orthogonal up and down PDF eigenvectors
+$f^{+'}_i$ and $f^{-'}_i$ are calculated as
+
+\begin{small}
+\begin{eqnarray}
+\nonumber   f^{+'}_i =& f'_0 + \sum_j G'_{ji} \left( \frac{f^{+}_j - f^{-}_j}{2} + G'_{ji} \frac{f^{+}_j + f^{-}_j - 2 f_0}{2}\right),  \\
+\nonumber   f^{-'}_i =& f'_0 - \sum_j G'_{ji} \left( \frac{f^{+}_j - f^{-}_j}{2} - G'_{ji} \frac{f^{+}_j + f^{-}_j - 2 f_0}{2}\right).  
+\end{eqnarray} 
+\end{small}
+
+\subsection{Usage of the alternative approaches in the \fitter framework}
  
-The \fitter ramework can be used to apply PDF reweighting for
-NNPDF-style PDF probability distributions as well as for PDF sets with Hessian PDF eigenvector error sets. 
+The \fitter framework can be used to apply either PDF reweighting for
+NNPDF-style PDF probability distributions as well as for PDF profiling for PDF sets with Hessian PDF eigenvector error sets. The \fitter will automatically determine which method to use based on the specified input PDF. 
 
-This requires that the {\tt NNPDF reweight} and the {\tt LHAPDF} modules are installed, see sections \ref{sec:install_nnpdfrweight} and \ref{sec:install_lhapdf}. In the \fitter steering files, the PDF reweighting needs to be switched on and the relevant parameters have to be set: 
-
-\begin{itemize}
- \item \textbf{FLAGRW}: (En/dis) able reweighting
- \item \textbf{RWPDFSET}: Name of the PDF set to be reweighted
- \item \textbf{RWDATA}: Arbitrary name for the data to be updated, used to create the names of the output PDF set and the directory
- \item \textbf{RWMETHOD}: Do the reweighting based on chi2 (method 1, where you read in \fitter data files and theory predictions and calculate the chi2 based on them) or on data (method 2, where you have to provide an input text file with theoretical predictions {--} the input format of this input file will be explained below)
- \item \textbf{DORWONLY}: Disable the usual PDF fit, such that only the reweighting is done 
- \item \textbf{RWREPLICAS}: Number of input replicas used for the PDF probability distributions (not applicable for NNPDF sets, since they come with a fixed number of replicas)
- \item \textbf{RWOUTREPLICAS}: Number of replicas in the output PDF set.
-\end{itemize}
-
-The setup of the module is such that it is parsing the \fitter steering file and from the specified settings it creates a special reweighting steering file in the directory {\tt input\_steering} with the pattern {\tt <RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>.in}. 
-
-In the output directory, a sub-directory is created for the output of the reweighting procedure. Its name pattern is: {\tt output/<RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>/} and it will contain the following files:
+This requires that the {\tt LHAPDF} module is installed, see sections \ref{sec:install_lhapdf}. In the \fitter steering files, as {\tt RunningMode} the following parameter has to be chosen: {\tt 'LHAPDF Analysis'}. This will write out the following files into the {\tt output} directory:
 
 \begin{itemize}
- \item {\tt <RWPDFSET>\_<RWDATA>\_<RWMETHOD: chi2 or data>\_nRep<RWOUTREPLICAS>.LHgrid}: The output PDF probability distribution in form of an .LHgrid file, which allows easy usage.
- \item {\tt whist-rw.eps}: Plot with the distributions of weights calculated for each replica. The meaning of this plot is further described in~\cite{Ball:2011gg,Ball:2010gb}.
- \item {\tt palpha-rw.eps}: Plot with the probability for each replica to describe the data. The meaning of this plot is further described in~\cite{Ball:2011gg,Ball:2010gb}.
- \item {\tt <RWPDFSET>\_<RWREPLICAS>InputReplicas.LHgrid}: This is the PDF probability function that has been produced from the eigenvector PDF sets produced by the Hessian method (not applicable for NNPDF sets).
+ \item \textbf{NNPDF-style PDFs}:
+ \begin{itemize}
+  \item {\tt pdf\_BAYweights.dat}
+  \item {\tt pdf\_GKweights.dat}
+ \end{itemize}
+  \item \textbf{Hessian PDFs}:
+ \begin{itemize}
+   \item {\tt{pdf\_vector\_cor.dat}}
+   \item {\tt{pdf\_shifts.dat}}
+   \item {\tt{pdf\_rotate.dat}}  
+% -rw-rw-r-- 1 kristin kristin 5,4K Okt 23 16:45 Results.txt
+% -rw-rw-r-- 1 kristin kristin 5,7K Okt 23 16:45 fittedresults.txt
 \end{itemize}
+\end{itemize}
+
+
+These files can be used to either perform reweighting or profiling as described in the following. The module {\tt tools/PostProcess} is used for this purpose. Therefore the user has to change into this directory for further steps. 
+
+\subsubsection{{\tt PostProcess}: Bayesian Reweighting}
+
+The following steps need to be taken to reweight PDF sets after the main code has been run:
+
+\textbf{./postproc reweight
+usage: postproc reweight number\_output\_replicas pdf\_weights pdf\_dir\_in pdf\_dir\_out}
+
+here, the following parameters need to be given:
+\begin{itemize}
+\item {\tt number\_output\_replicas } is the number of PDF sets that the replica should contain after the reweighting. 
+\item {\tt pdf\_weights  } is the file with the weights (the output of the main part of the \fitter so either {\tt pdf\_BAYweights.dat} or {\tt pdf\_GKweights.dat}, depending on which weighting scheme you want to use.
+\item {\tt pdf\_dir\_in }is the directory of the input PDF set, e.g. {\tt /share/LHAPDF/NNPDF30\_nlo\_as\_0118}
+\item {\tt pdf\_dir\_out }is the directory of the input PDF set, e.g. {\tt /share/LHAPDF/NNPDF30\_myNewPDFset}
+\end{itemize}
+
+Eventually, some check histograms will be produced.
+
+\subsubsection{{\tt PostProcess}: Profiling}
+
 

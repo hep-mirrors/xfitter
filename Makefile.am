@@ -5,7 +5,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
-          NNPDF/include pdf2yaml tools/PostProcess/ 
+          pdf2yaml tools/PostProcess/ 
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
@@ -13,8 +13,6 @@ endif
 if ENABLE_HVQMNR
   SUBDIRS+= HVQMNR/src
 endif
-
-SUBDIRS+= NNPDF/src
 
 SUBDIRS+= common
 if BUILD_DOCS
@@ -31,7 +29,7 @@ DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/D
           genetic/mixmax_r004 genetic/src common/num_utils \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
-          NNPDF/include NNPDF/src common common/linalg Hathor/src pdf2yaml tools/PostProcess src
+          common common/linalg Hathor/src pdf2yaml tools/PostProcess src
 
 
 # DOXYGEN SUPPORT

@@ -2,13 +2,12 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 4
+    NInputFiles = 3
  
   ! Input files:
-    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat'
-    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat'
-    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat'
+InputFileNames(1) = 'datafiles/lhc/atlas/wzProduction/1203.4051/WP_applgrid_nnlo.dat'
+InputFileNames(2) = 'datafiles/lhc/atlas/wzProduction/1203.4051/WM_applgrid_nnlo.dat'
+InputFileNames(3) = 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat'
 
 &End
 
@@ -68,7 +67,7 @@
 * Main steering cards
 *
 &HeraFitter 
-  RunningMode = 'Fit'  
+  RunningMode = 'LHAPDF Analysis'  
                 ! 'Fit'             -- standard MINUIT-minimization of PDF and other parameters
                 ! 'LHAPDF Analysis' -- Evalutate input LHAPDF set uncertaitnies, chi2, profiling or reweighting
                 !                      Requires &LHAPDF namelist to specify the set name. If PDFSTYLE is not
@@ -343,19 +342,7 @@
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'CT10nlo' ! LHAPDF grid file 
+  LHAPDFSET  = 'NNPDF30_nlo_as_0118' ! LHAPDF grid file 
   ILHAPDFSET = 0               ! Set number withing PdfSet
 &End
 
-*
-* (Optional) reweighting steering cards
-* 
-&reweighting
-  FLAGRW	  = False                 ! Should reweighting be done?
-  RWPDFSET    = 'HERAPDF15NLO_EIG'    ! LHAPDF grid file 
-  RWDATA  	  = 'HighStat'            ! arbitrary name for new datasample to be put in 
-  RWMETHOD    = 1                     ! either 1=chi2 or 2=data
-  DORWONLY  	 = True               ! do / do not run usual HERA fit
-  RWREPLICAS 	 = 1000               ! Number of input replicas used to build the PDF probability distributions from the Hessian input PDFs 
-  RWOUTREPLICAS  = 100                ! how many output replica of the NNPDF should be kept?
-&End
