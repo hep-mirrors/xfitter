@@ -2,12 +2,13 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 3
+    NInputFiles = 4
  
   ! Input files:
-InputFileNames(1) = 'datafiles/lhc/atlas/wzProduction/1203.4051/WP_applgrid_nnlo.dat'
-InputFileNames(2) = 'datafiles/lhc/atlas/wzProduction/1203.4051/WM_applgrid_nnlo.dat'
-InputFileNames(3) = 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat'
+    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat'
+    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat'
+    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat'
+    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat'
 
 &End
 
@@ -67,7 +68,7 @@ InputFileNames(3) = 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo
 * Main steering cards
 *
 &HeraFitter 
-  RunningMode = 'LHAPDF Analysis'  
+  RunningMode = 'Fit'  
                 ! 'Fit'             -- standard MINUIT-minimization of PDF and other parameters
                 ! 'LHAPDF Analysis' -- Evalutate input LHAPDF set uncertaitnies, chi2, profiling or reweighting
                 !                      Requires &LHAPDF namelist to specify the set name. If PDFSTYLE is not
@@ -342,7 +343,6 @@ InputFileNames(3) = 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'NNPDF30_nlo_as_0118' ! LHAPDF grid file 
+  LHAPDFSET  = 'CT10nlo' ! LHAPDF grid file 
   ILHAPDFSET = 0               ! Set number withing PdfSet
 &End
-
