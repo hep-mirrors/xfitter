@@ -48,8 +48,8 @@ TPad * DrawLogo(string pos)
 		       font, TImage::kShadeBelow);
     }
 
-  float dx = 0.1183 * 1.5;
-  float dy = 0.0744 * 1.5;
+  float dx = 0.0768 * 1.5;
+  float dy = 0.0597 * 1.5;
 
   float x, y;
   x = 1-rmarg-0.01;
