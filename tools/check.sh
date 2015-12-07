@@ -18,7 +18,7 @@ echo "========================================"
 cp input_steering/minuit.in.txt.10pHERAPDF minuit.in.txt
 cp input_steering/steering.txt.def steering.txt
 
-bin/FitPDF >/dev/null
+bin/xfitter >/dev/null
 
 grep  'After' output/Results.txt > temp/out.txt
 grep  'After' examples/output/Results.txt > temp/def.txt

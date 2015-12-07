@@ -7,7 +7,7 @@
 #include "utils.h"
 
 static void help() {
-        puts("usage: postproc symmetrize pdf_dir_in pdf_dir_out");
+        puts("usage: xfitter-process symmetrize pdf_dir_in pdf_dir_out");
         exit(EXIT_SUCCESS);
 }
 

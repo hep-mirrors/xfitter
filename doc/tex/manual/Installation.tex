@@ -31,11 +31,11 @@ SL4, SL5 (32 and 64 bit), SL6 (64 bit),  Ubuntu 10.10 (gcc and gfortran version 
     make 
     make install
 \end{verbatim}
-After these commands are finished, the executable {\tt bin/FitPDF} 
+After these commands are finished, the executable {\tt bin/xfitter} 
 file should be installed
 \item  Run a check:
 \begin{verbatim}
-    bin/FitPDF 
+    bin/xfitter 
 \end{verbatim}
 \end{itemize}
 %%%%%%%%%%%
@@ -53,11 +53,11 @@ variables point to the {\tt APPLGRID} environment.
     make 
     make install
 \end{verbatim}
-After these commands are finished, the executable {\tt bin/FitPDF} 
+After these commands are finished, the executable {\tt bin/xfitter} 
 file should be installed
 \item  Run a check:
 \begin{verbatim}
-    bin/FitPDF 
+    bin/xfitter 
 \end{verbatim}
 \end{itemize}
 %%%%%%%%%%%
@@ -100,12 +100,12 @@ Note: For installation allowing for PDF reweighting, the latest version of {\tt 
     make 
     make install
 \end{verbatim}
-After these commands are finished, the executable {\tt bin/FitPDF} 
+After these commands are finished, the executable {\tt bin/xfitter} 
 file should be installed
 \item Set {\tt FLAGRW = True} in the steering file and change also the other parameters of the {\tt \&reweighting} namelist if needed.
 \item  Run a check:
 \begin{verbatim}
-    bin/FitPDF 
+    bin/xfitter 
 \end{verbatim}
 \end{itemize}
 
@@ -183,7 +183,7 @@ where {\tt SYSNAME } = i586\_rhel50 or similar.
   (evolution parameters are set in \verb+steer_gluon-evolv+). After evolution of the kernel, $\hat {\sigma}$ is
   calculated in a grid in $x$ at the  $Q^2$ values used in the data sets selected. The ${\hat \sigma}$ values are   
   stored for transverse and longitudinal cross sections for light quarks ($n_f \leq 3$), charm and beauty quarks.
-\item run the program: bin/FitPDF 
+\item run the program: bin/xfitter 
    
 \item plotting $F_2$ fit results: \\
 DrawResults  will draw $F_2$ results. \\

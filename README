@@ -528,7 +528,7 @@ genetic
   The quality of the fit can be judged based on total chi2 per degrees of freedom.
   It is printed for each iteration as 
                       Iteration   Chi2   NDF       Chi2/NDF
-   FitPDF f,ndf,f/ndf      3      588.64 579        1.02
+   xfitter f,ndf,f/ndf      3      588.64 579        1.02
 together with PDFs:
 uv:    3.7171    0.6656    4.6522    0.0000    9.6938    0.0000    0.0000    0.0000    0.0000    0.0000
 dv:    2.1893    0.6656    4.2914    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
@@ -563,12 +563,10 @@ ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0
   &Output namelist in the steering.txt
   
   The PDF information and data to theory comparisons can be plotted using 
-  the bin/DrawResults program. The fit output directory as an argument must be 
-  specified when calling the drawing program. Calling the program with two 
-  arguments provides comparison of the PDFs obtained in the two fits.
-  NOTE: As an alternative, the bin/DrawPdfs program can be used to draw PDFs and 
-  data to theory comparisons including pull information. For available options 
-  of DrawPDFs program please type: bin/DrawPdfs --help
+  the bin/xfitter-draw program. The program requires the fit output directory as an argument. 
+  Calling the program with more directories as arguments provides comparison of the PDFs 
+  obtained in the various fits. 
+  For a full list of the available options of xfitter-draw please type: bin/xfitter-draw --help
   
   Finally, the HERAFitter package provides PDFs in LHAPDF format. To obtain the
   LHAPDF grid file, run tools/tolhapdf.cmd script. The script produces 
@@ -663,10 +661,10 @@ j) Options for the chi2 choice:
    all other parameters are standard
 
  3. run the program:
-    bin/FitPDF 
+    bin/xfitter
    
  4. plotting F2 fit results:
-    bin/DrawPdfs output ! will draw F2 results
+    bin/xfitter-draw output ! will draw F2 results
 
 
 4) USING NNPDF REWEIGHTING PROGRAM

@@ -52,11 +52,11 @@ if test "$ax_lapack_ok" = "no"; then
    AC_MSG_ERROR([Cannot find LAPACK libraries])
 fi
 
-AC_ARG_ENABLE([postprocess],
-                 [AS_HELP_STRING([--enable-postprocess],[enable postproc tool])])
-: ${enable_postprocess=yes} 
+AC_ARG_ENABLE([process],
+                 [AS_HELP_STRING([--enable-process],[enable xfitter-process tool])])
+: ${enable_process=yes} 
 
-AS_IF([test "$enable_postprocess" = "yes"], [
+AS_IF([test "$enable_process" = "yes"], [
         AC_MSG_CHECKING([for libyaml])
         AC_LANG_PUSH(C)
         SAVED_LIBS=$LIBS
@@ -67,7 +67,7 @@ AS_IF([test "$enable_postprocess" = "yes"], [
                                 [AM_CONDITIONAL([HAVE_YAML],[true])],
                                 [AC_MSG_RESULT([no])]
                                 [AM_CONDITIONAL([HAVE_YAML],[false])]
-                                [AC_MSG_WARN([libyaml is not installed. PostProcess tool is not available.])]
+                                [AC_MSG_WARN([libyaml is not installed, xfitter-process tool is not available.])]
                                 )
                 LIBS=$SAVED_LIBS
         AC_LANG_POP(C)],
@@ -308,7 +308,7 @@ AS_IF([test "$enable_root" = "yes"], [
 	    fi
 	  ],
 	  [
-	    AC_MSG_WARN([ROOT libraries are disabled, DrawPdfs not available])
+	    AC_MSG_WARN([ROOT libraries are disabled, xfitter-draw not available])
 	    if test x$enable_applgrid == xyes; then
 	       AC_MSG_ERROR([Root is required for APPLGRID])
 	    fi
@@ -433,10 +433,10 @@ AC_CONFIG_FILES([include/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
                  pdf2yaml/Makefile
-                 tools/PostProcess/Makefile
-                 tools/DrawPdfs/Makefile
-                 tools/DrawPdfs/src/Makefile
-                 tools/DrawPdfs/include/Makefile
+                 tools/process/Makefile
+                 tools/draw/Makefile
+                 tools/draw/src/Makefile
+                 tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
 		 xfitter-config

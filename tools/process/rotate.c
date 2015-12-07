@@ -12,7 +12,7 @@
 
 
 static void help() {
-        puts("usage: postproc rotate [--piecewise-linear] matrix_file pdf_dir_in pdf_dir_out\n");
+        puts("usage: xfitter-process rotate [--piecewise-linear] matrix_file pdf_dir_in pdf_dir_out\n");
 	puts("Options are");
         puts("  --piecewise-linear: use piecewise linear approximation (default: quadratic approximation )");
         exit(0);

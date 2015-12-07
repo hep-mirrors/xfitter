@@ -1,0 +1,29 @@
+#AUTOMAKE_OPTIONS = foreign
+
+if HAVE_YAML
+SUBDIRS = ../../pdf2yaml
+
+# the main target, i.e. the executable to build
+bin_PROGRAMS = xfitter-process
+
+# source files for the xfitter-process executable
+xfitter_process_SOURCES = xfitter-process.c utils.c profile.c rotate.c custom.c symmetrize.c reweight.c 
+
+
+xfitter_process_CFLAGS = -I$(srcdir)/../../include
+xfitter_process_CFLAGS += -Wall
+
+# libraries to be linked to the main target
+xfitter_process_LDADD = -L../../pdf2yaml/ -lpdf2yaml -lyaml
+
+
+if HAVE_ROOT
+   xfitter_process_SOURCES += rootplot.cc 
+   xfitter_process_CPPFLAGS = -I$(srcdir)/../../include  $(ROOT_CFLAGS) -w
+   xfitter_process_LDADD += $(ROOT_LIBS) 
+else 
+   xfitter_process_SOURCES += rootplot_dummy.cc
+endif
+
+
+endif

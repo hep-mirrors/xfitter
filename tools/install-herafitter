@@ -543,10 +543,10 @@ fi
 # run test
 source ./setup.sh
 cd herafitter-${version}
-FitPDF >> $CURRENTDIR/install.log  2>&1
+xfitter >> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
 then
-    echo "Error in testing FitPDF executable, check install.log for details"
+    echo "Error in testing xfitter executable, check install.log for details"
     exit
 fi
 cd - >& /dev/null
@@ -578,7 +578,7 @@ then
     echo >> quickstart-readme.txt
     echo "source setup.sh #setup environment" >> quickstart-readme.txt
     echo "cd run          #enter your run directory" >> quickstart-readme.txt
-    echo "FitPDF          #run your fit" >> quickstart-readme.txt
+    echo "xfitter          #run your fit" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
     echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
     if [[ $version == "trunk" || `echo $version | sed "s/\.//g"` -gt 111 ]]
@@ -589,7 +589,7 @@ then
     fi
     echo >> quickstart-readme.txt
     echo "After the fit, display you results with:" >> quickstart-readme.txt
-    echo "DrawPdfs output/" >> quickstart-readme.txt
+    echo "xfitter-draw output/" >> quickstart-readme.txt
     echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
     echo "You can find further documentation in herafitter-$version/README and herafitter-$version/doc/tex/manual/" >> quickstart-readme.txt
     echo "-----------------------------------------------------------"

@@ -3,7 +3,7 @@
 #   Turn on Verbose Mode
 set -x
 #
-PROGRAM=FitPDF
+PROGRAM=xfitter
 #
 LOGFILE=${PROGRAM}.log
 ERRFILE=${PROGRAM}.err

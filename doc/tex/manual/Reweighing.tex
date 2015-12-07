@@ -200,14 +200,14 @@ This requires that the {\tt LHAPDF} module is installed, see sections \ref{sec:i
 \end{itemize}
 
 
-These files can be used to either perform reweighting or profiling as described in the following. The module {\tt tools/PostProcess} is used for this purpose. Therefore the user has to change into this directory for further steps. 
+These files can be used to either perform reweighting or profiling as described in the following. The module {\tt tools/process} is used for this purpose. Therefore the user has to change into this directory for further steps. 
 
-\subsubsection{{\tt PostProcess}: Bayesian Reweighting}
+\subsubsection{{\tt xfitter-process}: Bayesian Reweighting}
 
 The following steps need to be taken to reweight PDF sets after the main code has been run:
 
-\textbf{./postproc reweight
-usage: postproc reweight number\_output\_replicas pdf\_weights pdf\_dir\_in pdf\_dir\_out}
+\textbf{./xfitter-process reweight
+usage: xfitter-process reweight number\_output\_replicas pdf\_weights pdf\_dir\_in pdf\_dir\_out}
 
 here, the following parameters need to be given:
 \begin{itemize}
@@ -219,6 +219,6 @@ here, the following parameters need to be given:
 
 Eventually, some check histograms will be produced.
 
-\subsubsection{{\tt PostProcess}: Profiling}
+\subsubsection{{\tt xfitter-process}: Profiling}
 
 

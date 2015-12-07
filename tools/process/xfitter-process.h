@@ -1,5 +1,5 @@
-#ifndef post_proc_h
-#define post_proc_h
+#ifndef xfitter_process_h
+#define xfitter_process_h
 
 struct command {
         char* command;

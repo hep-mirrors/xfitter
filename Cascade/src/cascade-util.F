@@ -4911,7 +4911,7 @@ c
 c Start integration of x-section
 c
 c      CALL PTIME(' cascade  ',1,0)
-ccc	Fccfm1 = .true. Now set FitPDF
+ccc	Fccfm1 = .true. Now set xfitter
 	Fccfm2 = .true.
 	First = .true.
       
@@ -5069,7 +5069,7 @@ c
 c Start integration of x-section
 c
 c      CALL PTIME(' cascade  ',1,0)
-ccc	Fccfm1 = .true. Now set FitPDF
+ccc	Fccfm1 = .true. Now set xfitter
 	Fccfm2 = .true.
 	First = .true.
 c iglu is set by steer-ep  for itheory=102

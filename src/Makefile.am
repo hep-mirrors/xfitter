@@ -4,10 +4,10 @@ pkginclude_HEADERS = offset.h
 *.o: ../include/*.inc 
 
 # the main target, i.e. the executable to build
-bin_PROGRAMS = FitPDF
+bin_PROGRAMS = xfitter
 
 # all source files which go into the main target
-FitPDF_SOURCES = main.f hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
+xfitter_SOURCES = main.f hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
 sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
@@ -16,47 +16,47 @@ GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize
 ExtraParConstr.cc
 
 # WS 2013-01-19 for the Offset method
-FitPDF_SOURCES += offset_fns.f g_offset.cc
+xfitter_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
-FitPDF_SOURCES += lhapdf6_output.c c_interface.f
+xfitter_SOURCES += lhapdf6_output.c c_interface.f
 
 #LHAPDFErrors
-FitPDF_SOURCES += fortran_io.f lhapdferrors.cc
+xfitter_SOURCES += fortran_io.f lhapdferrors.cc
 
 #Chi2scan
-FitPDF_SOURCES += chi2scan.cc
+xfitter_SOURCES += chi2scan.cc
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
-AM_CXXFLAGS += -I$(srcdir)/../tools/DrawPdfs/include
+AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 
 if ENABLE_APFEL
-  FitPDF_SOURCES+= apfel.f
+  xfitter_SOURCES+= apfel.f
 else 
-  FitPDF_SOURCES+= apfel_dum.f
+  xfitter_SOURCES+= apfel_dum.f
 endif
 
 if ENABLE_MELA
-  FitPDF_SOURCES+= mela.f
+  xfitter_SOURCES+= mela.f
 else 
-  FitPDF_SOURCES+= mela_dum.f
+  xfitter_SOURCES+= mela_dum.f
 endif
 
 if ENABLE_APPLGRID 
-  FitPDF_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
+  xfitter_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
 else 
-  FitPDF_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
+  xfitter_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
 endif
 
 if ENABLE_LHAPDF 
 else
-  FitPDF_SOURCES+= lhapdf_dum.f
+  xfitter_SOURCES+= lhapdf_dum.f
 endif
 
 if ENABLE_HATHOR
-  FitPDF_SOURCES+= ttbar_hathor.f
+  xfitter_SOURCES+= ttbar_hathor.f
 else
-  FitPDF_SOURCES+= ttbar_hathor_dum.f	
+  xfitter_SOURCES+= ttbar_hathor_dum.f	
 endif
 
 # FORTRAN compiler flags to be used for the main target
@@ -114,7 +114,7 @@ endif
 if ENABLE_HVQMNR
   LDADD += ../HVQMNR/src/libHVQMNR.a $(ROOT_LIBS)
 else
-  FitPDF_SOURCES += hvqmnr_dum.f	
+  xfitter_SOURCES += hvqmnr_dum.f	
 endif
 
 LDADD+=  ../DY/src/libmydy.a\
@@ -132,7 +132,7 @@ LDADD+=  ../DY/src/libmydy.a\
  ../genetic/src/libgenetic.a \
  ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
- ../tools/DrawPdfs/src/libpdferrors.la
+ ../tools/draw/src/libpdferrors.la
 
 
 #GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )

@@ -537,7 +537,7 @@ c Penalty from MINUIT extra parameters constraints
          call cpu_time(time3)
          print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
          write(6,'(A20,i6,F12.2,i6,F12.2)') '
-     $        FitPDF chi2out,ndf,chi2out/ndf ',ifcncount, chi2out, 
+     $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out, 
      $        ndf, chi2out/ndf
 
 

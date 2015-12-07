@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "post_proc.h"
+#include "xfitter-process.h"
 
 extern int profile(int argc, char* argv[]);
 extern int rotate(int argc, char* argv[]);
@@ -25,7 +25,7 @@ static int help(int argc, char *argv[]) {
         int i;
         char *module_opt[]={"--help"};
         if(!argc) { 
-                puts("usage: postproc <module> [<args>]\n\nfor command info use \n\tpostproc help module");
+                puts("usage: xfitter-process <module> [<args>]\n\nfor command info use \n\txfitter-process help module");
                 puts("\navailable modules:");
                 for(i=0; i<sizeof(options)/sizeof(struct command); i++) 
                         if(options[i].function!=help) printf("\t%s\n", options[i].command);

@@ -8,7 +8,7 @@
 
 
 static void help(){
-        puts("postproc profile [--piecewise-linear] pdf_shifts pdf_rotation pdf_dir_in pdf_dir_out");
+        puts("xfitter-process profile [--piecewise-linear] pdf_shifts pdf_rotation pdf_dir_in pdf_dir_out");
 	puts("Options are");
         puts("  --piecewise-linear: use piecewise linear approximation (default: quadratic approximation )");
         exit(0);

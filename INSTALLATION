@@ -16,7 +16,7 @@
 
 -- Link to recent Root libraries (e.g. version 5.34)
 
--- XFitter has been tested on various platforms: 
+-- xFitter has been tested on various platforms: 
    SL4, SL5, SL6 (32 and 64 bit), Ubuntu 10.10-14.04, MacOXS
 
 -- Optional: APPLgrid, LHAPDF, APFEL, MELA
@@ -31,11 +31,11 @@
     make install
 
   b) make sure that "/your/installation/path/bin" is in your PATH.
-    --> you should get "FitPDF" executable file installed.
+    --> you should get "xfitter" executable file installed.
 
   c) Run a check from the source folder:
 
-    FitPDF
+    xfitter
 
   d) Storing of the outputs: output/ (default, name can be changed in the steering.txt)
 	- minuit.out.txt  			(minuit output)
@@ -58,11 +58,11 @@
     make install
 
   c) make sure that "/your/installation/path/bin" is in your PATH.
-    --> you should get "FitPDF" executable file installed.
+    --> you should get "xfitter" executable file installed.
 
   d) Run a check from the source folder:
 
-    FitPDF
+    xfitter
 
 1C) INSTALLATION (with Hathor)
 =================================
@@ -138,11 +138,11 @@ steering.txt (use appropriate cards stored in input_steering/!)
     make 
     make install
 
-    --> you should get "FitPDF" executable file installed
+    --> you should get "xfitter" executable file installed
 
   c) Run a check
 
-    FitPDF
+    xfitter
 
 ============================================
 

@@ -4,7 +4,7 @@ echo "PBS_O_HOST=$PBS_O_HOST"
 echo "PBS_O_HOME=$PBS_O_HOME"
 echo "PBS_O_WORKDIR=$PBS_O_WORKDIR"
 module load gcc
-PROGRAM=FitPDF
+PROGRAM=xfitter
 #
 LOGFILE=${PROGRAM}.log
 ERRFILE=${PROGRAM}.err

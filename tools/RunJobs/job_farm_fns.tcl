@@ -245,7 +245,7 @@ proc CollectResults {} {
     set rc [JobGetResults [split $sj \t]]
     if {$rc > 0} {
       Say "Sthg. wrong or missing in the job results..." err
-      Say "See FitPDF.err and FitPDF.log files.\nYou may also need to look at the job output files packed in 'output.zip'."
+      Say "See xfitter.err and xfitter.log files.\nYou may also need to look at the job output files packed in 'output.zip'."
     } elseif {$rc < 0} {
       Say "  will try to get it later."
       lappend RunningJobs $sj
@@ -269,7 +269,7 @@ proc job_get1 {jrec} {
   # --- Get job results from the farm
   # --- jrec = job record = list: nCS iCS jid tmpdir ...
   # --- return 0 on success
-  if {[catch {farm_getresults $jrec FitPDF.err FitPDF.log $::CCfname ewparam.txt minuit.in.txt output.zip} ans ]} {
+  if {[catch {farm_getresults $jrec xfitter.err xfitter.log $::CCfname ewparam.txt minuit.in.txt output.zip} ans ]} {
     Say "[string trim $ans]" err
     return 1
   }
@@ -356,7 +356,7 @@ proc run_local {useprev {mu ""}} {
   Say $msg  info
   file mkdir $output_dir
   make_ControlCards $useprev $mu
-  set ofn [file join $output_dir "FitPDF"]
+  set ofn [file join $output_dir "xfitter"]
   if {$mu != ""} {append ofn "_[Suffix $mu]"}
   set rc [catch {exec $MainExe > $ofn.log 2> $ofn.err} ans]
   if {$rc} {

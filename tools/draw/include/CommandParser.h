@@ -145,15 +145,15 @@ class CommandParser
     cout << "\t --profile" << endl;
     cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
-    cout << "\t Example: DrawPdfs profile:output:\"profiled\" output:\"not-profiled\"" << endl;
+    cout << "\t Example: xfitter-draw profile:output:\"profiled\" output:\"not-profiled\"" << endl;
     cout << "\t --reweight" << endl;
     cout << "\t \t Draw Reweighted PDF (only for MC replica sets)" << endl;
     cout << "\t \t To set this option only for one directory, use the syntax reweighted:directory[:label]" << endl;
-    cout << "\t Example: DrawPdfs reweight:output:\"reweighted\" output:\"not-reweighted\"" << endl;
+    cout << "\t Example: xfitter-draw reweight:output:\"reweighted\" output:\"not-reweighted\"" << endl;
     cout << "\t options for rotation:" << endl;
     cout << "\t \t Draw Rotated PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option, use the syntax rotate:<n>:directory[:label]" << endl;
-    cout << "\t Example: DrawPdfs rotate:5:output:\"rotated-5\" output:\"not-rotated\"" << endl;
+    cout << "\t Example: xfitter-draw rotate:5:output:\"rotated-5\" output:\"not-rotated\"" << endl;
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
     cout << "\t --ratiorange min:max" << endl;
@@ -223,7 +223,7 @@ class CommandParser
     cout << "\t All the options can be set globally, or separately for each directory" << endl;
     cout << "\t (or for each pattern of directories in the case of MC replica runs)." << endl;
     cout << "\t To set the options for a directory, use the syntax [MC:]<option1:>[option2:]directory[:label]" << endl;
-    cout << "\t Example: DrawPdfs MC:68cl:asym:MYMCReplicaRuns" << endl;
+    cout << "\t Example: xfitter-draw MC:68cl:asym:MYMCReplicaRuns" << endl;
     cout << "\t Directory specific options take precedence with respect to global options." << endl;
     cout << "\t --median" << endl;
     cout << "\t \t Use median instead of average for the central values of PDF and parameters" << endl;

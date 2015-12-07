@@ -12,7 +12,7 @@ typedef struct weights_s {
 } Weights;
 
 static void help(void) {
-        puts("usage: postproc reweight number_output_replicas pdf_weights pdf_dir_in pdf_dir_out");
+        puts("usage: xfitter-process reweight number_output_replicas pdf_weights pdf_dir_in pdf_dir_out");
         exit(0);
 }
 
