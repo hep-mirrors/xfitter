@@ -1,11 +1,11 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
-          common/num_utils tools/DrawResultsPackage \
+          common/num_utils \
           tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
+          DY/include tools/DrawPdfs/include input_steering \
           pdf2yaml tools/PostProcess/ 
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
@@ -25,11 +25,11 @@ SUBDIRS+= src $(DOCS)
 include $(top_srcdir)/aminclude.am
 
 # Specify which SUBDIRS to distribute:
-DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src tools/DrawResultsPackage \
+DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
           tools/DrawPdfs tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src common/num_utils \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/DrawResultsPackage/include tools/DrawPdfs/include input_steering \
+          DY/include tools/DrawPdfs/include input_steering \
           common common/linalg Hathor/src pdf2yaml tools/PostProcess src
 
 

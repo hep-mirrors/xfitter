@@ -434,9 +434,6 @@ AC_CONFIG_FILES([include/Makefile
                  QEDevol/src/Makefile
                  pdf2yaml/Makefile
                  tools/PostProcess/Makefile
-                 tools/DrawResultsPackage/Makefile
-                 tools/DrawResultsPackage/src/Makefile
-                 tools/DrawResultsPackage/include/Makefile
                  tools/DrawPdfs/Makefile
                  tools/DrawPdfs/src/Makefile
                  tools/DrawPdfs/include/Makefile
