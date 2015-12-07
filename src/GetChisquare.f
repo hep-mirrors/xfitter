@@ -1430,7 +1430,12 @@ C------------------------------------------------------------------------
       integer i,k
 C------------------------------------------------------------------
       do i=1,n0_in
-         ALPHA_MOD(i) =  1.D0/sqrt(ScaledErrors(i))
+         if(ScaledErrors(i).ne.1.0D0) then
+           ALPHA_MOD(i) =  1.D0/sqrt(ScaledErrors(i))
+        else 
+c special case if no scaled errors given, i.e. given total cov matrix            
+            ALPHA_MOD(i) =  0.0D0
+        endif
          THEO_MOD(i)  = THEO(i)
          do k=1,NSYS
             THEO_MOD(i) = THEO_MOD(i) - ScaledGamma(k,i)*RSys_in(k)
