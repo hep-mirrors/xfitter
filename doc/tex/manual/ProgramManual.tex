@@ -114,8 +114,8 @@ The following namelist blocks are encountered:
 \item  {\tt InFiles}: Namelist to control input data
 \item  {\tt InCorr}: Namelist to control statistical correlation files
 \item  {\tt Scales} (Optional): Namelist to modify renormalisation/factorisation scale
-\item  {\tt HeraFitter}: Main steering cards. 
-%Further details can be found in the appendix \ref{sec:herafitter}. 
+\item  {\tt xFitter}: Main steering cards. 
+%Further details can be found in the appendix \ref{sec:xFitter}. 
 \item  {\tt ExtraMinimisationParameters}:  Namelist to add extra to minuit parameters.
 \item  {\tt Output}: Namelist that outputs steering cards 
 \item  {\tt Cuts}: Namelist for process dependent cuts
@@ -323,7 +323,7 @@ Statements in minuit.out.txt which are useful for interpreting the results of th
 \item \tt{ERROR MATRIX ACCURATE}   \rm       \; errors estimated with HESSE method
 \end{itemize}
 
-{\bf HERAFitter parameters for diffractive fits} \\
+{\bf \fitter parameters for diffractive fits} \\
 %%-----------------------------------------------------------
 \label{sec:HFitterPar}
 
@@ -331,7 +331,7 @@ Statements in minuit.out.txt which are useful for interpreting the results of th
 % ExtraMinimisationParameters
 
 \begin{tabular}{l|l|l}
-Parameter & HERAFitter name & input file\\
+Parameter & \fitter name & input file\\
 % \hline
 $\Cini {\mathrm G}1$ & Ag & minuit.in.txt \\
 $\Cini {\mathrm G}2$ & Bg & minuit.in.txt \\
@@ -345,7 +345,7 @@ $\alpha_\Reg(0)$ & Reggeon\_a0 & steering.txt \\
 \end{tabular}
 \vspace{0.7cm}
 
-{\bf HERAFitter parameters for dipole fits} \\
+{\bf \fitter parameters for dipole fits} \\
 The default  initial parameters for the fit without valence quarks are : 
 \begin{table}[h]
 \tiny
@@ -404,7 +404,7 @@ $Q^2 \ge 3.5$ & NLO & 79.4 & 3.2 &-0.021 & 13.7 & 4.0 & 6.7 & 196 & 0.927 \\
      \item{\tt Name}        --- (string) provides the name of the data set
     \item{\tt  Reaction}    --- (string) reaction type of the data set. Reaction type is used 
                       to trigger the corresponding theory calculation. The following 
-                      reaction types  are currently supported by the HERAFitter:
+                      reaction types  are currently supported by the \fitter:
                       \begin{itemize}
                         \item {\tt 'NC e+-p'}  -- double differential NC ep scattering
                                       (ZM-VFNS and RT-VFNS schemes) 
