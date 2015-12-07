@@ -87,6 +87,8 @@
 
 
   Order  = 'NLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
+ !  for DIS EW fits:  set EWFIT = 1
+  EWFIT = 0 
 
   Q02     = 1.9 ! Evolution starting scale
 

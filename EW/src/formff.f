@@ -15,7 +15,7 @@ C             containing "$" -> "_"
 C---->  
 *
 *       Date: 27.May 2012
-*       Modified for HeraFitter by HS
+*       Modified for xFitter by HS
 *
 C---->  
 C
