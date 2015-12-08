@@ -111,12 +111,18 @@ The format of the steering file follows standard "namelist" conventions.
 Comments start with exclamation mark (similarly used for data file format).
 The following namelist blocks are encountered:
 \begin{itemize}
-\item  {\tt InFiles}: Namelist to control input data
-\item  {\tt InCorr}: Namelist to control statistical correlation files
-\item  {\tt Scales} (Optional): Namelist to modify renormalisation/factorisation scale
 \item  {\tt xFitter}: Main steering cards. 
+\item  {\tt InFiles}: Namelist to specify input data
+\item  {\tt InTheory}: (Optional) Namelist to provide fixed theory predictions with uncertainties as text files.
+\item  {\tt InCorr}: (Optional) Namelist to control statistical correlation files
+\item  {\tt Scales}: (Optional) Namelist to modify renormalisation/factorisation scale
+\item  {\tt CovarToNuisance} (Optional) Namelist to convert covariance matrix to nuisance parameter representation
+for data sets were some of the uncertainties are represented using covarainace or correlation matricies.
 %Further details can be found in the appendix \ref{sec:xFitter}. 
+\item  {\tt QCDNUM}: (Optional) Namelist to modify {\tt QCDNUM} evolution parameters such as $x$ and $Q^2$ grids.
+\item  {\tt Systematics}: (Optional) Namelist to modify behavior of different systematic sources.
 \item  {\tt ExtraMinimisationParameters}:  Namelist to add extra to minuit parameters.
+\item  {\tt OutDir}: (Optional) allows to modify default output directory 
 \item  {\tt Output}: Namelist that outputs steering cards 
 \item  {\tt Cuts}: Namelist for process dependent cuts
 \item  {\tt MCErrors} (Optional):Namelist for MC errors steering cards
@@ -124,38 +130,56 @@ The following namelist blocks are encountered:
 \item  {\tt Poly} (Optional): pure polynomial parameterisation for valence quarks
 \item  {\tt HQScale} (Optional): choose the factorisation scale for HQs
 \item  {\tt lhapdf} (Optional):LHAPDF steering card
-\item  {\tt reweighting} (Optional): reweighting steering cards
 \end{itemize}
 
 These namelist blocks are described in greater details in the User's example \ref{section:example}. 
 
-
+The main namelist {\tt xFitter} specifies most important features of the program. They are controlled
+by the following keywords:
 \begin{description}
-\item \it\bf Theory type: \rm\\
- 
-here is a steering flag which defines the theory type via the chosen evolution.
+\item \it\bf RunningMode: \rm\\
+defines the mode in which the program can be used. Possible values are:
+\begin{itemize}
+\item {\tt RunningMode = 'Fit'} -- the default mode which uses MINUIT-based minimisation of PDFs and other parameters.
+\item {\tt RunningMode = 'LHAPDF Analysis'} -- uses PDFs from the {\tt LHAPDF} library to produce predictions for the
+central PDF set as well as eigenvector or MC replica variations. This mode requires {\tt --enable-lhapdf} flag 
+at the package  configuration stage. The resulting predictions can be analysed using the {\tt xfitter-process} program
+to perform PDF profiling or reweighting, following the formalism discussed in Section~\ref{sec:reweighting}.
+\item {\tt RunningMode = 'PDF Rotate'} -- dedicated mode, which uses  {\tt InTheory} tabulated predictions to perform
+re-diagonalization of PDFs along data predictions. The output of this mode can be processed using
+{\tt rotate} module of  the {\tt  xfitter-process} program
+\end{itemize}
+\item \it\bf TheoryType: \rm\\
+ is a steering flag which defines the theory type via the chosen evolution.
 The following types are supported:
 \begin{itemize}
-\item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories. For this type another 
- flag is needed to specify the order of the perturbative series in $\alpha_S$:
-\tt{Order}\rm which can be leading order (LO), next-to-leading order (NLO) and when available NNLO.
+\item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories, using default QCDNUM evolution.
+Other versions of DGLAP evolution include:  {\tt TheoryType = 'DGLAP\_APFEL'}, 
+where QCDNUM is replaced by APFEL, requires
+{\tt --enable-apfel};   {\tt TheoryType = 'DGLAP\_QEDEVOL'}, where QCDNUM evolution includes photon PDF;  
+{\tt TheoryType = 'DGLAP\_APFEL\_QED'}, where DGLAP evolution is performed by APFEL and includes photon PDF.  
+For these types another 
+ flag is needed to specify the order of the perturbative series in $\alpha_S$:\\
+{\tt Order}  which can be leading order ('LO'), next-to-leading order ('NLO') and when available 'NNLO'.
 \item \tt{TheoryType = 'DIPOLE' }\rm as used for the dipole models;
 \item \tt{TheoryType = 'uPDF' }\rm as used for the un-integrated PDFs (with 4 variants)
 \end{itemize}
 
-\item \it\bf Starting scale: \rm\\
+\item {\bf Starting scale}: 
 The evolution starting scale is set via flag  \tt{Q02}\rm, commonly set below charm threshold, as imposed by QCDNUM.
 
-\item \it\bf Scheme type: \rm\\
-For the DIS process, several schemes are available for heavy quark treatments via  \tt{HF\_SCHEME}\rm flag.
+\item {\it\bf DIS Heavy Flavour Scheme type:} \\
+For the DIS process, several schemes are available for heavy quark treatments via  {\tt HF\_SCHEME} flag.
 \begin{itemize}
   \item VFNS (Variable Flavour Number Schemes):
     \begin{itemize}
      \item RT-VFNS  schemes                               [from Robert Thorne], \tt{HF\_SCHEME = RT, RT OPT}\rm, as well as the fast variants based on k-factors \tt{RT FAST, RT OPT FAST}
      \item Zero Mass VFNS                                 [qcdnum], \tt{ZM-VFNS}\rm   
      \item  ACOT (ACOT-Full, ACOT-ZM, S-ACOT-Chi) schemes  [from Fred Olness], \tt{HF\_SCHEME = ACOT Full, ACOT Chi, ACOT ZM}\rm, they are all based on k-factors. 
+     \item FONLL schemes, from 'A' to 'C' with MSbar or pole masses for the heavy quarks, e.g. 
+     {\tt HF\_SCHEME = 'FONLL-A', 'FONLL-A RUNM OFF', 'FONLL-A RUNM ON'}.
     \end{itemize}
-  \item FFNS (Fixed Flavour Number Scheme)
+    \item FFNS (Fixed Flavour Number Scheme)
     \begin{itemize}
     \item via QCDNUM, \tt{HF\_SCHEME = FF}\rm 
     \item via ABM (openqcdrad-1.6)   [from Sergey Alekhin], \tt{HF\_SCHEME = FF ABM}\rm
@@ -177,44 +201,44 @@ IMPORTANT to note if running with FFNS (nf=3):
     by setting \tt{HF\_SCHEME = FF ABM RUNM} \rm in \tt{steering.txt} \rm. 
 \end{itemize}
 
-\item \it\bf PDF parametrisation style: \rm\\
+\item {\bf PDFType:} \\
+can be set to 'proton' (default) or 'lead' (experimental option)
+
+\item {\bf PDF parametrisation style:}\\
 There are various types of parametric functional form supported by \fitter\ .
 They are accessed via the steering flag called \tt{PDFStyle}\rm. Available styles
 are summarised as follows:
 
 \begin{tabular}{ll}
- \tt  '10p HERAPDF'   & -- HERAPDF-like with extra assumption Buv = Bdv \\
- \tt   '13p HERAPDF' & -- HERAPDF-like with Buv and Bdv floated independently and two fur-\\
-                     &  ther free parameters for the gluon PDF which allow it to be negative at \\
-                     &  low scale\\
- \tt   '10p H12000'  & -- H12000-like (D,U,Dbar,Ubar+g) \\
- \tt   'CTEQ'        & -- CTEQ-like parameterisation \\
- \tt   'CHEB'        & -- CHEBYSHEV parameterisation based on glu, sea, uval, dval evolved\\
-                     &  pdfs \\
- \tt  'LHAPDFQ0'    & -- use lhapdf library to define pdfs at starting scale and evolve with local \\
-                    &  qcdnum parameters \\
- \tt  'LHAPDF'      & -- use lhapdf library to define pdfs at all scales\\
+ \tt  'HERAPDF'   & -- HERAPDF-like with  $u_v$, $d_v$, $\bar{U}$, $\bar{D}$, and $g$ evolved pdfs \\
+ \tt   'CTEQ'      & -- CTEQ-like parameterisation  \\
+ \tt  'CTEQHERA'   & -- Hybrid, with valence like CTEQ, rest as HERAPDF.\\
+ \tt   'CHEB'       & -- CHEBYSHEV parameterisation based on $g$, $\Sigma$, $u_v$, $d_v$ evolved pdfs \\
+ \tt  'LHAPDFQ0'    & -- use LHAPDF library to define PDFs at starting scale and evolve with local \\
+                    &  QCDNUM parameters \\
+ \tt  'LHAPDF'      & -- use LHAPDF library to define PDFs at all scales at the QCDNUM grid points. \\
+                    &    Uses QCDNUM to perform PDF interpolation and to evaluate $\alpha_S$. \\
+ \tt  'LHAPDFNATIVE' & -- native access to LHAPDF PDFs and $\alpha_S$ for all $x$, $Q^2$ values.  \\ 
+                    & To compute predictions for the ZMVFNS structure function this option falls \\
+                    &  back to the behaviour of 'LHAPDF' flag.\\
  \tt   ' DDIS'        & -- use Diffractive DIS \\
  \tt  'BiLog'       & -- bi-lognormal parametrisation \\
 \end{tabular}
 
 
 These styles were described in details in section~\ref{sec:pdfparam}.
-The LHAPDF style can be used only with proper configuration settings,
+The LHAPDF-type styles can be used only with proper configuration settings,
  as explained in the section~\ref{sec:install}.
-\item \it\bf  Definition of Chisquares:\rm\\
-Currently two different formats of defining $\chi^2$ are supported.
-The new format is explained in the section \ref{sec:chi2}.
-%Currently two different styles are supported for a smoother 
-%transition to the new style which is more flexible.
-The old format corresponds to {\tt CHI2Style}  --- (string) choice of the $\chi^2$ function:\\
-\begin{tabular}{ll}
-    {\tt 'H12000'}& -- Pascaud-like, systematic shifts to theory, no scaling of statistical, uncorrelated errors.\\
-    {\tt 'HERAPDF'}& -- Pascaud-like + "mixed error scaling"\\
-    {\tt 'HERAPDF Sqrt'}&   -- Pascaud-like + "sqrt error scaling"\\
-    {\tt 'HERAPDF Linear'}& -- Pascaud-like + "linear error scaling"\\
-    {\tt 'Offset'}& -- Offset method activated\\
- \end{tabular}
+\item {\bf  Definition of Chisquares:}\\
+The $\chi^2$ function definitions are given in \ref{sec:chi2}.
+Different  options for various $\chi^2$ terms are controlled by the flag {\tt 'CHI2SettingsName'}
+which can have following values: 
+\begin{itemize}
+\item {\tt 'StatScale', 'UncorSysScale', 'CorSysScale'} for statistical, uncorrelated, and correlated
+systematic uncertainties
+\item {\tt 'UncorChi2Type', 'CorChi2Type'}
+\end{itemize}
+
 
 \item \it\bf (logical) debug flag:\rm
  The debug flag will be turned on for more print outs via \tt LDEBUG. \rm
