@@ -2,35 +2,60 @@
 \label{sec:install}
 %%%%%%%%%%%
 
-The Installation Instructions are dependent on which modules are activated via the configuration option. 
+To install {\fitter} together with the most commonly used modules it is suggested to use the default installation script:
+
+{\scriptsize
+{\tt https://wiki-zeuthen.desy.de/HERAFitter/HERAFitter/DownloadPage?action=AttachFile\&do=view\&target=install-herafitter}
+}
+
+If you want to install the package manually, use the following instruciton.
+
+\subsubsection{Core Installation and Modules}
+The Installation Instructions are dependent on which modules are activated via the configuration option. To see complete list of options and possible
+modules, run
+\begin{verbatim}
+./configure --help
+\end{verbatim}
 \subsubsection{Pre-requirements}
 
-The following packages are needed in order to build the \fitter\ package:
-\begin{itemize}
-\item QCDNUM~\cite{qcdnum} versions more recent than {\tt qcdnum-17-00-03} should be used. These can be found at \\
-  {\tt http://mbotje.web.cern.ch/mbotje/qcdnum/Site/QCDNUM17.html}
-\item {\tt CERNLIB} libraries. Note that for {\tt CERNLIB} one can use the {\tt /afs/} installation from CERN:\\
-  {\tt /afs/cern.ch/sw/lcg/external/cernlib/}
-%\item Link to recent Root libraries (e.g. version 5.26)
-%\item Optional: {\tt APPLGRID}
-\end{itemize}
 The \fitter\ program has been tested on various platforms:\\
-SL4, SL5 (32 and 64 bit), SL6 (64 bit),  Ubuntu 10.10 (gcc and gfortran version 4.6.3), Mac OS (gcc and gfortran version 4.7.2) 
+ SL6 (64 bit),  Ubuntu 14.04, Mac OS.  The following programs and system libraries are required:
+\begin{itemize}
+ \item {\tt gfortran}, {\tt gcc} and {\tt g++}  comiliers.   
+ \item {\tt lapack}, {\tt blas} libraries
+\end{itemize}
+
+The following package is required in order to build the \fitter\ package:
+\begin{itemize}
+\item QCDNUM~\cite{qcdnum} versions starting from {\tt qcdnum-17-01-11} should be used. These can be found at \\
+  {\tt http://www.nikhef.nl/$\sim$h24/qcdnum/QcdnumDownload.html}
+\end{itemize}
 
 %%%%%%%%%%%
-\subsubsection{Default Installation}
+\subsubsection{Default Minimal Installation}
 \begin{itemize}
 \item
- Specify {\tt CERN\_ROOT} 
-     and {\tt QCDNUM\_ROOT} variables such that\\
-     \verb'$CERN_ROOT/lib'  and \verb'$QCDNUM_ROOT/lib'
- point to the corresponding libraries
+ Makesure that QCDNUM installation directory is added to the executabel
+ path and that {\tt LD\_LIBRARY\_PATH} points to the QCDNUM libraries.
+ To verify that, type
+\begin{verbatim}
+ qcdnum-config  --libdir
+\end{verbatim}
+and check that the printed directory is indeed included in the {\tt LD\_LIBRARY\_PATH} list.
+
 \item Run:
 \begin{verbatim}
     ./configure
     make 
     make install
 \end{verbatim}
+If your system does not have {\tt root} analysis package installed, you can use the {\fitter} core functionality, however certain packages such as {\tt xfitter-draw} 
+can not be built. The support of these programs is included by default and thus 
+{\tt root} package is required when you run {\tt configure} script without 
+additional options. You may disable root by configuring using 
+{\tt configure --disable-root} option.
+
+
 After these commands are finished, the executable {\tt bin/xfitter} 
 file should be installed
 \item  Run a check:
@@ -39,17 +64,26 @@ file should be installed
 \end{verbatim}
 \end{itemize}
 %%%%%%%%%%%
-\subsubsection{Installation with {\tt APPLGRID}}
+\subsubsection{Installation with external packages
+( {\tt APPLGRID}, {\tt APFEL}, {\tt MELA}, {\tt LHAPDF} )}
 \begin{itemize}
-\item
- Specify {\tt CERN\_ROOT} and {QCDNUM\_ROOT} variables such that\\
-     \verb'$CERN_ROOT/lib' and \verb'$QCDNUM_ROOT/lib'
- point to the corresponding libraries
+\item Make sure that {\tt QCDNUM} bin directory and libraries are included
+in the paths as described in the previous section
 \item Make sure that {\tt \$PATH} and {\tt \$LD\_LIBRARY\_PATH} 
-variables point to the {\tt APPLGRID} environment.
+variables point to the external package(s) enviroment.
 \item Run:
 \begin{verbatim}
-    ./configure --enable-applgrid
+   # For applgrid only:
+    ./configure --enable-applgrid 
+   # For mela only:  
+   # ./configure --enable-mela 
+   # For apfel only:
+   # ./configure --enable-apfel
+   # For lhapdf only 
+   # ./configure --enable-lhapdf
+   # For all packages:
+   #  ./configure --enable-applgrid  --enable-mela  --enable-apfel  --enable-lhapdf
+
     make 
     make install
 \end{verbatim}
@@ -61,58 +95,12 @@ file should be installed
 \end{verbatim}
 \end{itemize}
 %%%%%%%%%%%
-\subsubsection{Installation with {\tt LHAPDF}}\label{sec:install_lhapdf}
-
-Installation with LHAPDF requires the {\tt LHAPDF} package, available online at:\\
-{\tt http://lhapdf.hepforge.org/install}.
-Then
-\begin{verbatim}
-tar -xvzf lhapdf-v.r.p.tar.gz
-cd lhapdf-v.r.p
-./configure --prefix=/path/to/directory (and/or --enable-low-memory)
-make
-make install
-cd /path/to/directory/share/lhapdf
-mkdir PDFsets
-\end{verbatim}
-
-Once installed, create the path that will be linked to the \fitter package.\\
- Specify \verb'LD_LIBRARY_PATH'
-     and {\tt LHAPATH} variables such that they
- point to the corresponding libraries, and location of PDF sets (where lhapdf tables are stored)
-\begin{verbatim}
-export LD_LIBRARY_PATH=/path/to/directory/lhapdf-v.r.p/lib:$LD_LIBRARY_PATH
-export LHAPATH=/path/to/directory/share/lhapdf/PDFsets
-\end{verbatim}
-
-
-
-%%%%%%%%%%%
-\subsection{Installation with {\tt PDF reweighting}}\label{sec:install_nnpdfrweight}
-
-Note: For installation allowing for PDF reweighting, the latest version of {\tt LHAPDF}, lhapdf-5.8.7b2, should be installed.
-
-\begin{itemize}
-\item Make sure that {\tt \$LD\_LIBRARY\_PATH} includes the LHAPDF libraries.
-\item Run:
-\begin{verbatim}
-    ./configure --enable-lhapdf  --enable-nnpdfWeight
-    make 
-    make install
-\end{verbatim}
-After these commands are finished, the executable {\tt bin/xfitter} 
-file should be installed
-\item Set {\tt FLAGRW = True} in the steering file and change also the other parameters of the {\tt \&reweighting} namelist if needed.
-\item  Run a check:
-\begin{verbatim}
-    bin/xfitter 
-\end{verbatim}
-\end{itemize}
 
 
 %%%%%%%%%%%
 \subsubsection{Installation with {\tt HATHOR}}
-
+ Note that support of {\tt HATHOR} is suspended in {\fitter}. Please use
+ this option with extra caution.
  \begin{itemize}
   \item Download Hathor from 
 \begin{verbatim}
@@ -186,7 +174,7 @@ where {\tt SYSNAME } = i586\_rhel50 or similar.
 \item run the program: bin/xfitter 
    
 \item plotting $F_2$ fit results: \\
-DrawResults  will draw $F_2$ results. \\
+xfitter-draw  can be used to draw $F_2$ results. \\
 The uPDFs need to be plotted with an external package (currently not available).
 \end{itemize}
 
