@@ -7,6 +7,8 @@ extern int profile(int argc, char* argv[]);
 extern int rotate(int argc, char* argv[]);
 extern int symmetrize(int argc, char* argv[]);
 extern int custom(int argc, char* argv[]);
+extern void interpolation(double x, double Q2, double* values, char* pdfset_path, char* pdfset_number);
+extern int combine(int argc,char* argv[]);
 extern int reweight(int argc, char* argv[]);
 static int help(int argc, char* argv[]);
 
@@ -16,6 +18,10 @@ static const struct command options[]={
         {"profile",profile},
         {"reweight",reweight},
         {"custom",custom},
+#ifdef LHAPDF_ENABLED
+		{"interpolation", interpolation},
+		{"combine", combine},
+#endif
         {"help", help},
         {"-h", help},
         {"--help", help},
@@ -53,6 +59,11 @@ int main (int argc, char **argv) {
                 help(0,argv); 
                 exit(0);
         }
+#ifdef ENABLE_LHAPDF
+		printf("ENABLE_LHAPDF\n");
+#elseif 
+		printf("NO_ENABLE_LHAPDF");
+#endif
         for(i=0; i<sizeof(options)/sizeof(struct command); i++) {
                 if(!strcmp(options[i].command,argv[0])) {
                         result=options[i].function(--argc, ++argv);
