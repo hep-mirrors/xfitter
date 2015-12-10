@@ -1,5 +1,5 @@
 c----------------------------------------------------------
-c     These routines are called in case the HERAfitter was
+c     These routines are called in case the xFitter was
 c     not compiled with --enable-hathor option but the
 c     ttbar reaction type is chosen in a config file
 c----------------------------------------------------------
@@ -17,7 +17,7 @@ c----------------------------------------------------------
       integer IDataSet
 
       print *, '--------------------------------------------------'
-      print *, 'You have chosen to use Hathor but HERAfitter is not'
+      print *, 'You have chosen to use Hathor but xFitter is not'
       print *, 'compiled with --enable-hathor option.'
       
       call hf_stop ! Fatal error
@@ -29,7 +29,7 @@ c----------------------------------------------------------
 
       Subroutine hathorinit()
       print *, '--------------------------------------------------'
-      print *, 'You have chosen to use Hathor but HERAfitter is not'
+      print *, 'You have chosen to use Hathor but xFitter is not'
       print *, 'compiled with --enable-hathor option.'
 
       call hf_stop ! Fatal error

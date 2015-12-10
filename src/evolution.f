@@ -111,7 +111,7 @@ C--       -6  -5  -4   -3   -2   -1   0   1   2   3   4   5   6
 *     Set parameters of the initial scale PDFs to be used by MELA
 *
       if (mod(hfscheme,10).eq.6) then
-         call SetHERAFitterParametersMELA(parubar,pardbar,
+         call SetxFitterParametersMELA(parubar,pardbar,
      1                                    paruval,pardval,
      2                                    parglue,
      3                                    fstrange,fcharm)

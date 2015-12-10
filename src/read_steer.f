@@ -245,7 +245,7 @@ C-----------------------------------------------
       integer i
       
 C Main steering parameters namelist
-      namelist/HERAFitter/
+      namelist/xFitter/
      $     ITheory, IOrder,         ! keep for backward compatibility
      $     Q02, HF_SCHEME, PDFStyle, PDFType, 
      $     LDebug, ifsttype,  LFastAPPLGRID, LUseAPPLgridCKM,
@@ -266,10 +266,10 @@ C Some defaults
       enddo
       AsymErrorsIterations = 0
 C
-C  Read the main HERAFitter namelist:
+C  Read the main xFitter namelist:
 C
       open (51,file='steering.txt',status='old')
-      read (51,NML=HERAFitter,END=141,ERR=42)
+      read (51,NML=xFitter,END=141,ERR=42)
       close (51)
 
 
@@ -344,16 +344,16 @@ C
 
       if (LDebug) then
 C Print the namelist:
-         print HERAFitter
+         print xFitter
       endif
 
       return
 
  41   continue
-      print '(''Namelist &HERAFitter NOT found'')'
+      print '(''Namelist &xFitter NOT found'')'
       call HF_stop
  42   continue
-      print '(''Error reading namelist &HERAFitter, STOP'')'
+      print '(''Error reading namelist &xFitter, STOP'')'
       call HF_stop
       end
 

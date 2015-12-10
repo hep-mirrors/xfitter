@@ -42,7 +42,7 @@
               if(PDF_DECOMPOSITION.eq."LHAPDF") then
 #ifndef LHAPDF_ENABLED
             call hf_errlog(29061521, "S: Call to lhapdf function but"//
-     $      "HERAfitter compiled without --enable-lhapdf switch")
+     $      "xFitter compiled without --enable-lhapdf switch")
 #else
                       call getnset(nset)
                       call numberpdfm(nset, get_nmembers)

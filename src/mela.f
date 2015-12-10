@@ -43,7 +43,7 @@
       write(7,'(a)') "HQMASS   = 'POLE'                       # Heavy quark mass scheme ('POLE','MSBAR')"
       write(7,'(a)') "KRF      = 1                            # muR / muF"
       write(7,'(a)') "EVOL     = 'SPACE'                      # Evolution ('SPACE' = space-like (PDFs),'TIME' = time-like (FFs))"
-      write(7,'(a)') "DISTF    = 'HERAFitter'                 # Input distributions"
+      write(7,'(a)') "DISTF    = 'xFitter'                 # Input distributions"
       write(7,'(a)') "#########################################"
       write(7,'(a)') "# Coupling                              #"
       write(7,'(a)') "#########################################"

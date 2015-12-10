@@ -34,7 +34,7 @@
 *-----------------------------------------------------------------------
 *                    PROPOSAL FOR ERROR NUMBERING                          
 *                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~                          
-*  For HERAFitter code:
+*  For xFitter code:
 *  ------------------
 *  To add a new error number so that it would not clash with already 
 *  existing ones it is proposed to put the date of coding into it:        
@@ -97,7 +97,7 @@ C-----------------------------------------------------------------------
      +   'Serious messages:',
      +   'Fatal messages:'/
 
-      DATA MOD_NAME /'HERAFitter',  ! ID = YYMMDDnn
+      DATA MOD_NAME /'xFitter',  ! ID = YYMMDDnn
 !     +               'HFitter',   ! ID = YYMMDDnn
      +               'Minuit',    ! ID =   1- 99
      +               'Acot',      ! ID = 100-199

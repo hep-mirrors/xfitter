@@ -1,11 +1,11 @@
 c----------------------------------------------------------
 c     this file contains dummy APFEL interface routines
-c     which are called in case HERAfitter was not compiled
+c     which are called in case xFitter was not compiled
 c     with --enable-apfel option
 c----------------------------------------------------------
       subroutine print_apfel_error_message
       print *, '--------------------------------------------------'
-      print *, 'APFEL: You have chosen to use APFEL but HERAfitter'
+      print *, 'APFEL: You have chosen to use APFEL but xFitter'
       print *, 'is not compiled with --enable-apfel option.'
       call exit(-10)
       return 

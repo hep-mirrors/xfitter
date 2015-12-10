@@ -48,7 +48,7 @@ c Adapted from LHAPDF uncertainties.f
 
 #ifndef LHAPDF_ENABLED
       call hf_errlog(14081501, "S: Call to lhapdf function but"//
-     $      "HERAfitter compiled without --enable-lhapdf switch")
+     $      "xFitter compiled without --enable-lhapdf switch")
 #else
 
       call getnset(nset)
@@ -93,7 +93,7 @@ c Adapted from LHAPDF uncertainties.f
               if(PDF_DECOMPOSITION.eq."LHAPDF") then
 #ifndef LHAPDF_ENABLED
              call hf_errlog(26061547, "S: Call to lhapdf function but"//
-     $      "HERAfitter compiled without --enable-lhapdf switch")
+     $      "xFitter compiled without --enable-lhapdf switch")
 #else
                       call getlhapdfversion(version)
                       if(index(version, '5.').eq.1) then

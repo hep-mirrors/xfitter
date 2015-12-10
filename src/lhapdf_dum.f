@@ -1,11 +1,11 @@
 c----------------------------------------------------------
 c     this file contains dummy lhapdf interface routines
-c     which are called in case HERAfitter was not compiled
+c     which are called in case xFitter was not compiled
 c     with --enable-lhapdf option
 c----------------------------------------------------------
 
       subroutine print_lhapdf_messg
-      call hf_errlog(14060201, 'S: Call to lhapdf function but HERAfitter compiled without --enable-lhapdf switch')
+      call hf_errlog(14060201, 'S: Call to lhapdf function but xFitter compiled without --enable-lhapdf switch')
       return
       end
       

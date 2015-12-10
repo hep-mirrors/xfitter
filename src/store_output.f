@@ -526,7 +526,7 @@ C      write(90,*)ndatasets
 
         write(90,*) '!* '
         write(90,*) 
-     $  '!* Swimming set from HERAFITTER for the HERAverager'
+     $  '!* Swimming set from XFITTER for the HERAverager'
         write(90,*) '&Data'
         write(90,*) '  Name = ''Swimming'' '
         write(90,*) '  NData = ',NPOINTS

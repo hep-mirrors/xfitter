@@ -1,4 +1,4 @@
-      program HERAFitter 
+      program xFitter 
 C--------------------------------------------------------
 C
 C> HERA PDF Fit Program
