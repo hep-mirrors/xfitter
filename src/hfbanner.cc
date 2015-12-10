@@ -1,5 +1,5 @@
 #include <iostream>
-#include "herafitter_cpp.h"
+#include "xfitter_cpp.h"
 
 using namespace std;
 void hfbanner_()

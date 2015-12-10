@@ -1,4 +1,4 @@
-#include "herafitter_cpp.h"
+#include "xfitter_cpp.h"
 
 #include "pdferrors.h"
 

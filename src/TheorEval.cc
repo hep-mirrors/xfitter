@@ -15,7 +15,7 @@
 
 #include "TheorEval.h"
 #include "CommonGrid.h"
-#include "herafitter_cpp.h"
+#include "xfitter_cpp.h"
 
 using namespace std;
 
@@ -251,7 +251,7 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
   else if ( term_type.find("ast") != string::npos ){
      bool PublicationUnits = true; // todo: take from new steering flag 'TermNorm'
      //FastNLOReader* fnlo = g->getHBins().back().f;
-     FastNLOHeraFitter* fnlo = g->getHBins().back().f; 
+     FastNLOxFitter* fnlo = g->getHBins().back().f; 
      if(PublicationUnits)
 	fnlo->SetUnits(fastNLO::kPublicationUnits);
      else 

@@ -15,7 +15,7 @@
 #include "CommonGrid.h"
 
 #include "appl_grid/appl_grid.h"
-#include <FastNLOHeraFitter.h>
+#include <FastNLOxFitter.h>
 
 using namespace std;
 using namespace appl;
@@ -104,7 +104,7 @@ CommonGrid::readAPPLgrid(const string &grid_source)
 int
 CommonGrid::initfastNLO(const string &grid_source)
 {
-   FastNLOHeraFitter* fnlo = new FastNLOHeraFitter(grid_source);
+   FastNLOxFitter* fnlo = new FastNLOxFitter(grid_source);
    
    tHyperBin hb;
    hb.b = NULL;
@@ -195,7 +195,7 @@ CommonGrid::vconvolute(const int iorder, const double mur, const double muf)
 }
 
 std::vector<double> 
-CommonGrid::vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOHeraFitter* fnlo)
+CommonGrid::vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOxFitter* fnlo)
 {
    //! calculate fastNLO cross sections
    if ( mur != fnlo->GetScaleFactorMuR() || mur != fnlo->GetScaleFactorMuF()) 

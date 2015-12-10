@@ -8,7 +8,7 @@
 //
 //   $Id: fappl.cxx, v1.0   Wed May 21 14:31:36 CEST 2008 sutt
 //   
-//   08/04/2011 AS: changed names to include in HERAfitter
+//   08/04/2011 AS: changed names to include in xFitter
 
 #include <map>
 #include <iostream>
@@ -18,7 +18,7 @@ using std::cout;
 using std::endl;
 using namespace std;
 
-#include "herafitter_cpp.h"
+#include "xfitter_cpp.h"
 
 #include "appl_grid/appl_grid.h"
 #include "appl_grid/fastnlo.h"

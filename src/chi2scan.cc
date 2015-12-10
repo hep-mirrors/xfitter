@@ -1,4 +1,4 @@
-#include "herafitter_cpp.h"
+#include "xfitter_cpp.h"
 
 #include <string>
 
@@ -109,7 +109,7 @@ void chi2_scan_()
     else
       values.push_back(chi2scan_.values_[i]);
 
-  //check if the parameter label correspond to a parameter in herafitter
+  //check if the parameter label correspond to a parameter in xfitter
   //else load applgrid or table scan
   vector <int> dataid;
   for (int i = 0; i < 150; i++)

@@ -11,7 +11,7 @@
 #include <vector>
 #include <valarray>
 
-#include "herafitter_cpp.h"
+#include "xfitter_cpp.h"
 
 #include "TheorEval.h"
 //#include "datasets.icc"
