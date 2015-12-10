@@ -54,7 +54,7 @@ namespace HVQMNR
     // Get precalculated PDFs in form of needed "structure functions" (gg, qq and qg)
     int GetSF(double& pdf_gg, double& pdf_qq, double& pdf_qq_a, double& pdf_qg, double& pdf_qg_a, double& pdf_qg_r, double& pdf_qg_a_r, double adoptx1, double adoptx2, double mf2 = -1.0);
 
-    // Get PDFs (recalculate, e.g. call to HERAFitter routine)
+    // Get PDFs (recalculate, e.g. call to xFitter routine)
     void GetPDF(double mf2, double x, double pdf[13]);
     // Get strong coupling
     double GetAs(double mr2);

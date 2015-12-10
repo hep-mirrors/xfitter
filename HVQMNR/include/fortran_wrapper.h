@@ -4,7 +4,7 @@
 
 extern "C"
 {
-  // Interface to HERAFitter FORTRAN routines
+  // Interface to xFitter FORTRAN routines
 	void hf_get_pdfs_(double *x, double *q2, double* pdf);
 	double hf_get_alphas_(double* q2);
   void hf_stop_();

@@ -34,9 +34,9 @@ if [[ $0 == bash || $0 = csh ]]
 then
     echo "Please don't source me, I am an executable!"
     echo "Give me attributes with:"
-    echo "chmod +x install-herafitter"
+    echo "chmod +x install-xfitter"
     echo "and run me with:"
-    echo "./install-herafitter"
+    echo "./install-xfitter"
     return 2
 fi
 
@@ -47,7 +47,7 @@ then
     echo "$0 <version|deps>"
     echo
     echo "available versions:"
-    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
     echo "$vers"
     echo "trunk"
     echo
@@ -75,14 +75,14 @@ else
 	exit
     fi
     version=`cat version`
-    echo "reinstalling dependencies for HERAFitter version $version"
+    echo "reinstalling dependencies for xFitter version $version"
 fi
 
 #check that requested version exists
 if [[ $version != "trunk" ]]
     then
     exist=0
-    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
     do
 	if [[ $version == $ver ]]
 	then
@@ -93,7 +93,7 @@ if [[ $version != "trunk" ]]
     then
 	echo
 	echo "version $version not found, available versions:"
-	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
 	echo "$vers"
 	echo "trunk"
 	echo
@@ -101,19 +101,19 @@ if [[ $version != "trunk" ]]
     fi
 fi
 
-if [[ $mode != "deps" && -e herafitter-${version} ]]
+if [[ $mode != "deps" && -e xfitter-${version} ]]
 then
     echo
-    echo "herafitter-${version} already exists, remove it first"
+    echo "xfitter-${version} already exists, remove it first"
     echo "To reinstall only dependences, run:"
     echo "$0 deps"
     echo
     exit
 fi
-if [[ $mode == "deps" && ! -e herafitter-${version} ]]
+if [[ $mode == "deps" && ! -e xfitter-${version} ]]
 then
     echo
-    echo "herafitter-${version} does not exist, install it first with:"
+    echo "xfitter-${version} does not exist, install it first with:"
     echo "$0 $version"
     echo
     exit
@@ -461,18 +461,18 @@ cd - >& /dev/null
 cd $CURRENTDIR
 
 
-#herafitter
+#xfitter
 if [[ $mode != "deps" ]]
 then
-    echo "Installing HERAFitter $version..."
+    echo "Installing xFitter $version..."
     if [[ $version == "trunk" ]]
     then
-	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk herafitter-trunk >> $CURRENTDIR/install.log  2>&1
+	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk fitter-trunk >> $CURRENTDIR/install.log  2>&1
     else
 	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/herafitter-${version} >> $CURRENTDIR/install.log  2>&1
     fi
 else
-    make -C herafitter-${version} clean >> $CURRENTDIR/install.log  2>&1
+    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
 fi
 
 
@@ -480,7 +480,7 @@ fi
 echo $version > version
 echo "export CURRENTDIR=`pwd`" > setup.sh
 echo "export version=\`cat version\`" >> setup.sh
-echo "export PATH=$CURRENTDIR/herafitter-$version/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
@@ -521,7 +521,7 @@ echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
-echo cd herafitter-\$version                                        >> compile
+echo cd xfitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
 if [[ $version == "trunk" ]]
  then 
@@ -532,7 +532,7 @@ fi
 echo make -j 9 install                                    >> compile
 
 chmod +x compile
-echo "Compiling HERAFitter $version..."
+echo "Compiling xFitter $version..."
 ./compile >> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
 then
@@ -542,7 +542,7 @@ fi
 
 # run test
 source ./setup.sh
-cd herafitter-${version}
+cd xfitter-${version}
 xfitter >> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
 then
@@ -550,21 +550,21 @@ then
     exit
 fi
 cd - >& /dev/null
-echo "HERAFitter installation successful!"
+echo "xFitter installation successful!"
 echo "Check install.log file for details"
 echo
 # setup a run dir
 if [[ ! -e run ]]
 then
     mkdir -p run
-    cp  herafitter-${version}/steering.txt \
-	herafitter-${version}/minuit.in.txt \
-	herafitter-${version}/ewparam.txt \
+    cp  xfitter-${version}/steering.txt \
+	xfitter-${version}/minuit.in.txt \
+	xfitter-${version}/ewparam.txt \
 	run
-    rsync -a --exclude=".*" herafitter-${version}/datafiles run/
+    rsync -a --exclude=".*" xfitter-${version}/datafiles run/
     if [[ $version != "trunk" && `echo $version | sed "s/\.//g"` -le 111 ]]
     then
-        rsync -a --exclude=".*" herafitter-${version}/theoryfiles run/
+        rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
     fi
 else
     echo "\"run\" directory already exists, I won't touch it"
@@ -591,7 +591,7 @@ then
     echo "After the fit, display you results with:" >> quickstart-readme.txt
     echo "xfitter-draw output/" >> quickstart-readme.txt
     echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
-    echo "You can find further documentation in herafitter-$version/README and herafitter-$version/doc/tex/manual/" >> quickstart-readme.txt
+    echo "You can find further documentation in xfitter-$version/README and xfitter-$version/doc/tex/manual/" >> quickstart-readme.txt
     echo "-----------------------------------------------------------"
     cat quickstart-readme.txt
     echo "-----------------------------------------------------------"

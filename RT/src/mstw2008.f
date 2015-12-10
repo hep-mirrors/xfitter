@@ -1,4 +1,4 @@
-C--   G.W. 12/04/2012 Improved version for implementation in HERAFitter.
+C--   G.W. 12/04/2012 Improved version for implementation in xFitter.
 C--   - Include corrections to FL at order alpha_S^2 [RST 26-02-2009].
 C--   - No longer set F2c or F2b to zero if negative.
 C--   - Fix typo xcmax->xbmax when calculating cgvfl for FLb.
