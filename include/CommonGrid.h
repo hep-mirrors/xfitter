@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "appl_grid/appl_grid.h"
-#include <FastNLOHeraFitter.h>
+#include <FastNLOxFitter.h>
 
 using namespace std;
 using namespace appl;
@@ -30,7 +30,7 @@ struct tHyperBin {
   double *b;
   int ngb;
   appl::grid *g;
-  FastNLOHeraFitter* f;
+  FastNLOxFitter* f;
 };
 
 class CommonGrid {
@@ -76,7 +76,7 @@ class CommonGrid {
    //! convolute applgrid
    std::vector<double> vconvolute_appl(const int iorder, const double mur, const double muf, tHyperBin* ihb);
    //! calculate fastNLO
-   std::vector<double> vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOHeraFitter* fnlo);
+   std::vector<double> vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOxFitter* fnlo);
 
  private:
   int _ndim;

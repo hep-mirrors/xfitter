@@ -17,7 +17,7 @@ C General dataset info
      $      NDATASETS                 !> Number of datasets 
      $     ,NDATAPOINTS(NSET)         !> Number of data points per dataset
      $     ,DATASETIDX(NSET,NTOT)     !> Index from dataset point to global data array
-      integer DATASETNUMBER(NSET)     !> HeraFitter dataset number
+      integer DATASETNUMBER(NSET)     !> xFitter dataset number
 
       character*80 DATASETLABEL(NSET) !> Dataset name
 C SG: reaction type:
