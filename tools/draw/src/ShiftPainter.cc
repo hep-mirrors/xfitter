@@ -254,15 +254,15 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       s++;
 
       cnv->cd();
-      TPad * heraflogo = DrawLogo();
+      TPad * xfitterlogo = DrawLogo();
       float dx = 0.1183 * 1.5;
       float dy = 0.0744 * 1.5;
       float xl, yl;
       xl = 0.5-0.01-0.01;
       yl = 1-tmarg-0.015;
 
-      heraflogo->SetPad(xl-dx/2, yl-dy/2, xl, yl);
-      heraflogo->Draw();
+      xfitterlogo->SetPad(xl-dx/2, yl-dy/2, xl, yl);
+      xfitterlogo->Draw();
     }
 
   return shiftscnv;

@@ -29,7 +29,7 @@ TPad * DrawLogo(string pos)
   logo->SetConstRatio(1);
   logo->SetImageQuality(TAttImage::kImgBest);
 
-  //Draw HERAFitter version on logo
+  //Draw xFitter version on logo
   if (opts.version)
     {
       TString fp = gEnv->GetValue("Root.TTFontPath", "");
@@ -40,7 +40,7 @@ TPad * DrawLogo(string pos)
 	font = fp + "/arial.ttf";
       if (stat(font,&st) != 0)
 	{
-	  cout << "Warning, cannot find font: " << font << "; HERAFitter version cannot be drawn on logo "<<endl;
+	  cout << "Warning, cannot find font: " << font << "; xFitter version cannot be drawn on logo "<<endl;
 	  opts.version = false;
 	}
       else
