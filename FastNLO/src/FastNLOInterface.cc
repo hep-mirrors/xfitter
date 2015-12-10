@@ -7,7 +7,7 @@
 //
 //   FastNLOInterface
 //                                                                      //
-//  The interface through which fortran based herafitter interacts with   //
+//  The interface through which fortran based xfitter interacts with   //
 //  c++ version of FastNLOReader.                                       // 
 //                                                                      //
 //                                                                      //
@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <map>
-#include <FastNLOHeraFitter.h>
+#include <FastNLOxFitter.h>
 #include <cmath>
 #include <string>
 
@@ -54,14 +54,14 @@ extern "C" {
 
 
 
-map<int, FastNLOHeraFitter*> gFastNLO_array;
+map<int, FastNLOxFitter*> gFastNLO_array;
 map<int, BoolArray*>     gUsedPoints_array;
 int CreateUsedPointsArray(int idataset, int npoints);
 
 int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale) {
 
   
-   map<int, FastNLOHeraFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
+   map<int, FastNLOxFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    if(FastNLOIterator != gFastNLO_array.end( )) {
      int id = 12032301;
      const char* text = "I: Double initialization of the same fastnlo data set!";
@@ -71,7 +71,7 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    }
    
   
-   FastNLOHeraFitter* fnloreader = new FastNLOHeraFitter( thfile );  
+   FastNLOxFitter* fnloreader = new FastNLOxFitter( thfile );  
    
    if(*PublicationUnits)
      fnloreader->SetUnits(fastNLO::kPublicationUnits);
@@ -87,14 +87,14 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
     
    
 
-   gFastNLO_array.insert(pair<int, FastNLOHeraFitter*>(*idataset, fnloreader) );
+   gFastNLO_array.insert(pair<int, FastNLOxFitter*>(*idataset, fnloreader) );
    return 0;
 }
 
 
 int fastnlocalc_(const int *idataset, double *xsec) {
   
-   map<int, FastNLOHeraFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
+   map<int, FastNLOxFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
    if(FastNLOIterator == gFastNLO_array.end( )) {
      int id = 12032302;
@@ -103,7 +103,7 @@ int fastnlocalc_(const int *idataset, double *xsec) {
      hf_errlog_(&id, text, (long)strlen(text)); // this terminates the program by default
    }
    
-   FastNLOHeraFitter* fnloreader = FastNLOIterator->second;
+   FastNLOxFitter* fnloreader = FastNLOIterator->second;
 
    if(UsedPointsIterator == gUsedPoints_array.end( )) 
      CreateUsedPointsArray(*idataset, fnloreader->GetNObsBin());
@@ -142,7 +142,7 @@ int fastnlocalc_(const int *idataset, double *xsec) {
 //MK14 New function for Difftop calculation: it is called in trunk/src/difftop_fastnlo.f
 int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *tot, int *Npt, int *I_FIT_ORDER){
   
-   map<int, FastNLOHeraFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
+   map<int, FastNLOxFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
    if(FastNLOIterator == gFastNLO_array.end( )) {
      int id = 12032302;
@@ -151,7 +151,7 @@ int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *to
      hf_errlog_(&id, text, (long)strlen(text)); // this terminates the program by default
    }
    
-   FastNLOHeraFitter* fnloreader = FastNLOIterator->second;
+   FastNLOxFitter* fnloreader = FastNLOIterator->second;
 
    if(UsedPointsIterator == gUsedPoints_array.end( )) 
      CreateUsedPointsArray(*idataset, fnloreader->GetNObsBin());

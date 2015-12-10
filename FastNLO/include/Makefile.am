@@ -1,4 +1,4 @@
 AUTOMAKE_OPTIONS = foreign
 
-pkginclude_HEADERS =  FastNLOHeraFitter.h  FastNLOInterface.h  
+pkginclude_HEADERS =  FastNLOxFitter.h  FastNLOInterface.h  
 #fastnlotk/fastNLOReader.h fastnlotk/speaker.h
