@@ -176,7 +176,7 @@ C                          U      D      S      C      B      T
        DATA CHARGE   /   +2.0,  -1.0,  -1.0,  +2.0,  -1.0,  +2.0/
 
 C      common /fred/ xmc,xmb,Hmass !*** PULL VALUES FROM QCDNUM  fio 14 FEB. 2011
-       common /fred/ xmc,xmb,Hmass !*** PULL FROM HERAFITTER
+       common /fred/ xmc,xmb,Hmass !*** PULL FROM XFITTER
 C----------------------------------------------------------------------
 C PULL MC AND MB FROM QCDNUM USING 
 C      common /fred/ xmc,xmb

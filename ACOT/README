@@ -18,7 +18,7 @@ olness@smu.edu
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-                 Running ACOT in HERA-Fitter
+                 Running ACOT in xFitter
 
 
 0) General ACOT philosophy
@@ -54,4 +54,4 @@ This writes on unit 62.
 ====================================
 
 This is a beta version that has been "hacked" to adapt to the
-HERA-Fitter framework, and is for testing purposes only.
+xFitter framework, and is for testing purposes only.

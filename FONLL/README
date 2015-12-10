@@ -3,7 +3,7 @@
                ------------------------------------------------
 
 The FONLL structure functions are provided by the APFEL program which
-can be interfaced to HERAfitter by configuring it with the --enable-apfel
+can be interfaced to xFitter by configuring it with the --enable-apfel
 flag.
 
 REFERENCE:
@@ -29,7 +29,7 @@ Valerio Bertone: valerio.bertone@cern.ch
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-                 Running FONLL in HERA-Fitter
+                 Running FONLL in xFitter
 
 In order to use one of the possible variants of the FONLL scheme the user should
 set in the steering.txt card one of the following options:
