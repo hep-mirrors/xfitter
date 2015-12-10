@@ -8,7 +8,7 @@ hoppetver=1.1.5
 applgridver=1.4.70
 qcdnumver=17-01-11
 #apfelver=2.6.3
-melaver=2.0.0
+melaver=2.0.1
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -360,10 +360,8 @@ cd - >& /dev/null
 
 export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
 
-
-
 #apfel
-echo "Installing APFEL trunk"
+echo "Installing APFEL trunk..."
 git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
 mv apfel apfel-trunk
 cd  apfel-trunk
@@ -386,15 +384,20 @@ export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
 
 #mela
 echo "Installing MELA $melaver..."
-melastripver=`echo $melaver |sed "s/-//g"`
-if [[ $http == "curl" ]]
-then
-curl http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz > mela-${melastripver}.tar.gz 2>> $CURRENTDIR/install.log
-else
-wget http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-fi
-tar xfz mela-${melastripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
-cd  mela-${melaver}
+git clone https://github.com/vbertone/MELA.git >>$CURRENTDIR/install.log 2>&1
+mv MELA mela-${melaver}
+cd mela-${melaver}
+git checkout tags/${melaver} >>$CURRENTDIR/install.log 2>&1
+#echo "Installing MELA $melaver..."
+#melastripver=`echo $melaver |sed "s/-//g"`
+#if [[ $http == "curl" ]]
+#then
+#curl http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz > mela-${melastripver}.tar.gz 2>> $CURRENTDIR/install.log
+#else
+#wget http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+#fi
+#tar xfz mela-${melastripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+#cd  mela-${melaver}
 ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
 
 if [[ $? != 0 ]]
@@ -426,7 +429,7 @@ tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
 cd qcdnum-${qcdnumver}
 if [[ $version == "trunk" ]]
 then
- echo $qcdnumstripver
+# echo $qcdnumstripver
  if [[ $qcdnumstripver -ge 170110 ]] 
  then
   ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
@@ -467,7 +470,7 @@ then
     echo "Installing xFitter $version..."
     if [[ $version == "trunk" ]]
     then
-	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk fitter-trunk >> $CURRENTDIR/install.log  2>&1
+	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk xfitter-trunk >> $CURRENTDIR/install.log  2>&1
     else
 	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/herafitter-${version} >> $CURRENTDIR/install.log  2>&1
     fi
