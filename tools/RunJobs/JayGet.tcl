@@ -2,7 +2,7 @@ catch {source $tcl_rcFileName}
 source [file join [file dirname [info script]] job_farm_fns.tcl]
 
 #-------------------------------------------------
-#  Retrieve HERAFitter jobs from a farm
+#  Retrieve xFitter jobs from a farm
 #-------------------------------------------------
 
 set Version 1.2

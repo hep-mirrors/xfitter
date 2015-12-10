@@ -7,7 +7,7 @@ catch {source $tcl_rcFileName}
 source [file join [file dirname [info script]] job_farm_fns.tcl]
 
 # -------------------------------------------------
-#  Configure Jay -- HERAFitter batch utilities
+#  Configure Jay -- xFitter batch utilities
 # -------------------------------------------------
 
 set Version 1.3
@@ -44,15 +44,15 @@ set argc [llength $argv]
 
 # Pause "$thisDir\n[pwd]"
 if {$Opts(local) && [string eq $thisDir [pwd]]} {Stop 1 "JayConfig -local\ncannot be run in the installation directory" "" $isMSWin}
-set EnvOK [info exists env(HERAFITTER_SYS)]
-if $EnvOK {set MainCodeDir $env(HERAFITTER_SYS)} {
+set EnvOK [info exists env(XFITTER_SYS)]
+if $EnvOK {set MainCodeDir $env(XFITTER_SYS)} {
   set MainCodeDir [file normalize [file join $thisDir ../..]]
-  # Say "It is recommended to set env. var.\n   HERAFITTER_SYS=installation folder of the HERA Fitter\n" warn
+  # Say "It is recommended to set env. var.\n   XFITTER_SYS=installation folder of the  xFitter\n" warn
   # Say "I assume it is '$MainCodeDir'"
-  # if {![cYes "I assume that the HERA Fitter installation directory is:\n$MainCodeDir\n"]} {exit}
+  # if {![cYes "I assume that the xFitter installation directory is:\n$MainCodeDir\n"]} {exit}
 }
 
-set UserHFdir "~/.HERAFitter"
+set UserHFdir "~/.xFitter"
 set UserHFdir [file normalize $UserHFdir]
 file mkdir $UserHFdir
 if {$Opts(local)} {set dest_dir [pwd]} {set dest_dir $UserHFdir}
@@ -61,8 +61,8 @@ set sty err
 
 # Say [PathRelTo [pwd] $MainCodeDir 1]
 if {[file pathtype [PathRelTo $dest_dir $MainCodeDir 1]] != "absolute"} {
-  # if {![Yes "Current path '[pwd]'\nis within the HERAFitter installation tree." "Are you sure to continue?" no "?" $isMSWin]} {exit}
-  if {![Yes "You have chosen to save current configuration in the folder\n$dest_dir\nwhich is within the HERAFitter installation tree." "Are you sure to continue?" no "?" $isMSWin]} {exit}
+  # if {![Yes "Current path '[pwd]'\nis within the xFitter installation tree." "Are you sure to continue?" no "?" $isMSWin]} {exit}
+  if {![Yes "You have chosen to save current configuration in the folder\n$dest_dir\nwhich is within the xFitter installation tree." "Are you sure to continue?" no "?" $isMSWin]} {exit}
 }
 set trg_cfg [file join $dest_dir "jay.cfg.tcl"]
 # Pause $trg_cfg

@@ -5,36 +5,8 @@
 # _____________________________________________________________
 
 # -------------------------------------------------
-#   Routines to run HERAFitter jobs on a farm
-# -------------------------------------------------
-set Version 1.3
-
-# source [file join [file dirname [info script]] utils.tcl]
-lappend auto_path [file join [file dirname [info script]] ../../common/TkTcl]
-package require cl_opts
-
-# ----------------
-#     Defaults
-# ----------------
-
-# ===============================
-proc Initialize {{lvl 2}} {
-  set ::InitMode $lvl
-  uplevel #0 {
-    foreach key {Type Name User Host Queue TimeLimit WorkDir Driver} {set Farm($key) ""}
-    set QuickInput 0 ; # --- create new input.zip for each job, otherwise update only
-
-    source [file join [file dirname [info script]] jay_def_cfg.tcl]
-    # Say "MainCodeDir = $MainCodeDir"
-    set MainExe [file join $MainCodeDir $MainExeRel]
-
-    set UserHFdir "~/.HERAFitter"
-    source_if_exists [file join $UserHFdir jay.cfg.tcl]
-    source_if_exists jay.cfg.tcl
-
-    if {$InitMode} {
-      if {[file pathtype [PathRelTo [pwd] $MainCodeDir 1]] != "absolute"} {
-        if {![Yes "Current working directory\nis within the HERAFitter installation tree." "Do you really want to run here?" no "?" $isMSWin]} {exit}
+#   Routines to run xFitter jobs on a farm
+# --------------------------------------------xFitter installation tree." "Do you really want to run here?" no "?" $isMSWin]} {exit}
       }
       link_here datafiles
       if {$InitMode > 1} {
