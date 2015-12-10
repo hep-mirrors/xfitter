@@ -18,6 +18,24 @@
   ! CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr
 &End
 
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .false.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+
+   ! The following lines allow to adjust error scaling properties (default: :M)
+  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
+  DataSystType = ':A', ':A'
+&End
+
+&QCDNUM
+   ! do not re-compute QCDNUM tables if they are present and match grid definition
+  Read_QCDNUM_Tables = .true.
+&End 
+
+
 &OutDir
   ! Name of the directory where output will be stored (max 22 characters)
     OutDirName = 'output'
@@ -31,46 +49,108 @@
     ! DataSetMuF  = 4*1.0     ! Set muF scale to 1 for all 4 datasets
 ! &End
 
+*
+* (Optional) List systematic sources, modify their scaling properties:
+*
+&Systematics
+ !C      List sources, Results.txt file would list them first. Use the usual :A, :P, 
+ !C      qualifiers to change the scalling properties
+ !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
+ !C      Modify the prior in chi2 definition (1.0 is default):
+ !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
+ !  PriorScaleFactor = 0.0, 0.0 
+&End
+ 
 
 *
 * Main steering cards
 *
 &HeraFitter 
+  RunningMode = 'Fit'  
+                ! 'Fit'             -- standard MINUIT-minimization of PDF and other parameters
+                ! 'LHAPDF Analysis' -- Evalutate input LHAPDF set uncertaitnies, chi2, profiling or reweighting
+                !                      Requires &LHAPDF namelist to specify the set name. If PDFSTYLE is not
+                !                      set to LHAPDFQ0, LHAPDF or LHAPDFNATIVE, sets it to LHAPDF
+                ! 'PDF Rotate'      -- performs PDF re-diagonalization. Requires theo.in files to operate properly  
+
   TheoryType = 'DGLAP' ! 'DGLAP'  -- collinear evolution
+                       ! 'DGLAP_APFEL'      -- collinear evolution with APFEL
+                       ! 'DGLAP_QEDEVOL'    -- collinear evolution with QEDEVOL
+                       ! 'DGLAP_APFEL_QED'  -- collinear evolution with APFEL with QED corrections
                        ! 'DIPOLE' -- dipole model 
                        ! 'uPDF'   -- un-integrated PDFs
+                                !uPDF1 fit with kernel ccfm-grid.dat file
+                                !uPDF2 fit evolved uPDF, fit just normalisation
+                                !uPDF3 fit using precalculated grid of sigma_hat
+                      		!uPDF4 fit calculating kernel on fly, grid of sigma_hat
+
 
   Order  = 'NLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
 
   Q02     = 1.8 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
- ! ---  HF_SCHEME = 'ZMVFNS'    : ZM-VFNS (massless),
- ! ---  HF_SCHEME = 'RT'        :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'RT OPT'        :  Thorne-Roberts VFNS (massive)
- ! ---  HF_SCHEME = 'RT OPT FAST'   : Fast approximate TR VFNS scheme, usign k-factor
- ! ---  HF_SCHEME = 'ACOT Full' : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT Chi' : ACOT - F.Olness Version (massive), using k-factors  
- ! ---  HF_SCHEME = 'ACOT ZM'   : ACOT - F.Olness Version (massless), using k-factors  
- ! ---  HF_SCHEME = 'FF'        : Fixed Flavour Number Scheme (qcdnum)
- ! ---  HF_SCHEME = 'FF ABM'    : Fixed Flavour Number Scheme (ABM)
- ! ---  HF_SCHEME = 'FF ABM RUNM' : Fixed Flavour Number Scheme (ABM) using run mass def
+ ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless) from QCDNUM,
+ ! ---  HF_SCHEME = 'ZMVFNS MELA'      : ZM-VFNS (massless) from MELA (N-space),
+ ! ---  HF_SCHEME = 'RT'               :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT FAST'          : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'RT OPT'           :  Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT OPT FAST'      : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'ACOT Full'        : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi'         : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM'          : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'FF'               : Fixed Flavour Number Scheme (qcdnum)
+ ! ---  HF_SCHEME = 'FF ABM'           : Fixed Flavour Number Scheme (ABM)
+ ! ---  HF_SCHEME = 'FF ABM RUNM'      : Fixed Flavour Number Scheme (ABM) using run mass def
+ ! ---  HF_SCHEME = 'FONLL-A'          : FONLL-A mass scheme provided by APFEL with pole masses (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM OFF' : FONLL-A mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM ON'  : FONLL-A mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B'          : FONLL-B mass scheme provided by APFEL with pole masses (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM OFF' : FONLL-B mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM ON'  : FONLL-B mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-C'          : FONLL-C mass scheme provided by APFEL with pole masses (available only at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
+                                       ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
 
   HF_SCHEME = 'RT'
+
+ ! PDF type. Possible types are currently available:
+ ! 'proton'  -- default (fitting proton data)
+ ! 'lead'    -- fitting ONLY lead data (can't be used in combination with proton data)
 
 
  ! PDF parameterisation style. Possible styles are currently available:
  !  'HERAPDF'     -- HERAPDF-like with uval, dval, Ubar, Dbar, glu evolved pdfs
  !  'CTEQ'        -- CTEQ-like parameterisation
+ !  'CTEQHERA'    -- Hybrid: valence like CTEQ, rest like HERAPDF
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
+ !  'LHAPDFNATIVE'-- use lhapdf library to access pdfs and alphas
  !  'DDIS'        -- HERA-like, two-component (P+R) DPDFs parametrisation
+ !  'BiLog'       -- bi-lognormal parametrisation 
 
   PDFStyle = 'DDIS'
 
- ! New "chi2" style, uncomment if you want to use it: 
+ ! =====================================================
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
 
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
    Chi2Settings     = 'Poisson'  , 'NoRescale',        'NoRescale'     , 'Diagonal'     , 'Offset'
@@ -78,9 +158,11 @@
 
  !  Chi2ExtraParam = 'PoissonCorr'
 
+ ! Flag to define if native APPLgrid CKM values should be kept.
+ LUseAPPLgridCKM = True
+
  ! Debug flag
   LDEBUG     = False
- ! LDEBUG     = True
 &End
 
 
@@ -88,9 +170,9 @@
 * Add extra to minuit parameters. These MUST include alpha_S and fs
 *
 &ExtraMinimisationParameters
-   name  = 'alphas',   'fs',   'fcharm'
-   value =  0.1176 ,   0.31,      0.
-   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
+   name  = 'alphas',   'fs',   'fcharm', 'Aph', 'Bph',    'Cph'
+   value =  0.1176 ,   0.31,      0.,       0.0,     0.0,    0.0
+   step  =  0.0    ,   0.0 ,      0.,       0.0,     0.0,    0.0     ! set to 0 to avoid minimisation 
 &End
 
 &ExtraMinimisationParameters
@@ -107,7 +189,6 @@
 &Output 
   ! -- Error bands on parton distributions
   DoBands = False     
-  ! DoBands = True     
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
   Q2VAL = 1.8, 6., 20., 60., 200.
@@ -119,6 +200,22 @@
   OUTXRANGE = 1E-4, 0.9999
 &End
 
+*
+* (Optional) Offset method parameters 
+*
+&CSOffset
+  ! -- CorSysIndex = ±n results in a single fit to data shifted (down or up) by the n-th correlated error source
+  ! -- CorSysIndex = 0 corresponds to the central fit (unshifted data)
+  ! -- Unspecified CorSysIndex results in fits to all central and shifted data
+  
+  !   CorSysIndex  =  0
+  
+  ! -- Use previous fit results if exist in output dir
+  !    0 - never use (default) 
+  !    1 - use as input to the current fit
+  !    2 - do not run fit again
+  UsePrevFit = 0
+&End
 
 
 *
@@ -180,13 +277,25 @@
    CutValueMin(8)     = 0.0
    CutValueMax(8)     = 2.5
 
+  !--------------------- NC ep charm ----------------
+
+   ProcessName(9)     = 'NC e+-p charm'
+   Variable(9)        = 'Q2'
+   CutValueMin(9)     = 3.5 
+   CutValueMax(9)     = 10000.0
+
+   ProcessName(10)     = 'NC e+-p charm'
+   Variable(10)        = 'x'
+   CutValueMin(10)     = 0.000001 
+   CutValueMax(10)     = 1.0
+
   !--------------------- DDIS --------------------------
 
   ! For ZEUS DPDF fit 2009
-   ProcessName(9)     = 'DDIS'
-   Variable(9)        = 'Q2'
-   CutValueMin(9)     =  5. 
-   CutValueMax(9)     =  1.E9
+   ProcessName(11)     = 'DDIS'
+   Variable(11)        = 'Q2'
+   CutValueMin(11)     =  5. 
+   CutValueMax(11)     =  1.E9
 
 &End
 
@@ -251,9 +360,9 @@
 *
 *
 * (Optional) choose the factorisation scale for HQs
-* tuned via parameters:    mu_f^2 = scalea1 * ( Q^2 + scaleb1 * 4*m_h^2)
-* Available for 'FF', 'FF ABM', 'ACOT Full', 'ZMVFNS' and 'ACOT Chi' options
-*
+* tuned via parameters:    mu_f^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2
+* Available for 'FF', 'FF ABM' options (heavy quarks scale)
+* Also defines scale for 'ZMVFNS'.'ACOT Full' and 'ACOT Chi' options ( for these options scale is being set for heavy quarks and light quarks).  
 &HQScale
    scalea1    =  1. 
    scaleb1    =  0.  
@@ -264,6 +373,19 @@
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'cteq66.LHgrid' ! LHAPDF grid file 
+  LHAPDFSET  = 'CT10nlo' ! LHAPDF grid file 
   ILHAPDFSET = 0               ! Set number withing PdfSet
+&End
+
+*
+* (Optional) reweighting steering cards
+* 
+&reweighting
+  FLAGRW	  = False                 ! Should reweighting be done?
+  RWPDFSET    = 'HERAPDF15NLO_EIG'    ! LHAPDF grid file 
+  RWDATA  	  = 'HighStat'            ! arbitrary name for new datasample to be put in 
+  RWMETHOD    = 1                     ! either 1=chi2 or 2=data
+  DORWONLY  	 = True               ! do / do not run usual HERA fit
+  RWREPLICAS 	 = 1000               ! Number of input replicas used to build the PDF probability distributions from the Hessian input PDFs 
+  RWOUTREPLICAS  = 100                ! how many output replica of the NNPDF should be kept?
 &End
