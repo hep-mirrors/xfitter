@@ -1,12 +1,12 @@
                ------------------------------------------------
-                  HERAFITTER   --- PDF fit program from HERA.
+                  xFitter   --- PDF fit program from HERA.
                ------------------------------------------------
 
-HERAFITTER has been used as one of the main software packages for the
+xFitter has been used as one of the main software packages for the
 determination of the HERAPDF1.0 set proton parton densities (PDFs). HERAPDF
 is a common initiative by the H1 and ZEUS collaborations and extended
 now to the LHC collaborations to provide precision QCD analyses.
-HERAFitter has been used to produce the ATLAS-epWZ12 (NNLO, available in 
+xFitter has been used to produce the ATLAS-epWZ12 (NNLO, available in 
 LHAPDF5.9.1 and LHAPDFv6.1.X), LHEC (NLO) PDF sets available in the LHAPDFv5.9.1.
 
 
@@ -34,7 +34,7 @@ package QCDNUM developed by M. Botje and includes other parts of the code:
 If the results obtained with the program are to be included in a scientific 
 publication, please use the citations as suggested by the REFERENCES file. 
 
-For support information, please visit https://herafitter.org/HERAFitter
+For support information, please visit https://wiki-zeuthen.desy.de/xFitter/xFitter
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -139,7 +139,7 @@ another option would be:
 
       Reaction    --- (string) reaction type of the data set. Reaction type is used 
                       to trigger corresponding theory calculation. The following 
-                      reaction types  are currently supported by the HERAFitter:
+                      reaction types  are currently supported by the xFitter:
 
                         'NC e+-p'  -- double differential NC ep scattering
                         'CC e+-p'  -- double differential CC ep scattering
@@ -297,7 +297,7 @@ another option would be:
   In this subsection we describe data format specific for FastNLO implementation.
   The program included FastNLO Toolkit for the new format tables (v. 3.2+). The old
   FastNLO table format can be still accessed with the help of APPLGRID (this is not
-  tested in the HERAFitter enviroment though). The reader supports both flexible
+  tested in the xFitter enviroment though). The reader supports both flexible
   and non-flexible scales tables. For flexible tables, scales can be defined
   through the CInfo mechanism in the data file. Below more details on different
   data file variables are given.
@@ -568,7 +568,7 @@ ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0
   obtained in the various fits. 
   For a full list of the available options of xfitter-draw please type: bin/xfitter-draw --help
   
-  Finally, the HERAFitter package provides PDFs in LHAPDF format. To obtain the
+  Finally, the xFitter package provides PDFs in LHAPDF format. To obtain the
   LHAPDF grid file, run tools/tolhapdf.cmd script. The script produces 
   PDFs.LHgrid file which can be read by lhapdf version  lhapdf-5.8.6.tar.gz
   or later
@@ -577,7 +577,7 @@ ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0
 h) PDF type
 ------------------------------
 
- Currently there are two PDF types which can be fitted in HERAFitter:
+ Currently there are two PDF types which can be fitted in xFitter:
  'proton' for fitting proton data and 'lead' for fitting lead data
  (cannot be used in the combination with proton data). The PDF type 
  is set in the steering.txt with a flag PDFType:
@@ -588,7 +588,7 @@ h) PDF type
 i) parametrisation style
 ------------------------------
 
- There are various types of parametric functional form supported by HERAFitter. 
+ There are various types of parametric functional form supported by xFitter. 
  They are accessed via the steering flag called PDFStyle:
  
   PDFStyle = 'HERAPDF'
@@ -608,7 +608,7 @@ i) parametrisation style
 j) Options for the chi2 choice:
 ------------------------------
 
-  The form of the chi2 function in HERAFitter is based on nuisance parameters 
+  The form of the chi2 function in xFitter is based on nuisance parameters 
   or the covariance matrix. The form and the scaling properties of the uncertainties 
   are controlled globally by the CHI2SettingsName and Chi2Settings variables:
 
@@ -654,8 +654,8 @@ j) Options for the chi2 choice:
     cp input_steering/steer_gluon-evolv steer_gluon-evolv
    
  2. edit steering.txt:
-    &CCFMFiles: give name for output grid file for uPDF.&HeraFitter 
-    &HeraFitter 
+    &CCFMFiles: give name for output grid file for uPDF.&xFitter 
+    &xFitter 
     TheoryType = 'uPDF4'  | fit calculating kernel on fly, grid of sigma_hat
 
    all other parameters are standard
@@ -706,7 +706,7 @@ j) Options for the chi2 choice:
  ---------------------------------
  
  The option to run the NNPDF reweighting tool is switched on using a namelist in the 
- general HERAFITTER steering file, steering.txt
+ general xFitter steering file, steering.txt
  
  The parameters to be set are:
    FLAGRW	   = False                ! Should reweighting be done?

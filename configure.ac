@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([XFitter],[1.2.0],[herafitter-help@desy.de],[xfitter],[http://xfitter.org])
+AC_INIT([XFitter],[1.2.0],[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
 	
 #Suppress verbose output when compiling (use make V=99 for verbose output)
