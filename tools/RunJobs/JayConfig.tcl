@@ -10,7 +10,7 @@ source [file join [file dirname [info script]] job_farm_fns.tcl]
 #  Configure Jay -- xFitter batch utilities
 # -------------------------------------------------
 
-set Version 1.3
+set Version 2.0.0
 set _TEST_JS 0
 # set Verbose 1
 
@@ -47,7 +47,7 @@ if {$Opts(local) && [string eq $thisDir [pwd]]} {Stop 1 "JayConfig -local\ncanno
 set EnvOK [info exists env(XFITTER_SYS)]
 if $EnvOK {set MainCodeDir $env(XFITTER_SYS)} {
   set MainCodeDir [file normalize [file join $thisDir ../..]]
-  # Say "It is recommended to set env. var.\n   XFITTER_SYS=installation folder of the  xFitter\n" warn
+  # Say "It is recommended to set env. var.\n   XFITTER_SYS=installation folder of the xFitter\n" warn
   # Say "I assume it is '$MainCodeDir'"
   # if {![cYes "I assume that the xFitter installation directory is:\n$MainCodeDir\n"]} {exit}
 }
@@ -101,7 +101,7 @@ if {$argc} {
     # set msg "Your farm: $Farm(Type) $Farm(Name)"
   # }
   set msg "No farm selected"
-  set msgd "Run:\n  JayConfig <farm_name>    to select a new farm\n  JayConfig -?             for help"
+  set msgd "You can only run jobs locally via JayRun.\nRun:\n  JayConfig <farm_name>    to select a new farm\n  JayConfig --help         for help"
 }
 
 set rList {JayRun JayGet JaySub}

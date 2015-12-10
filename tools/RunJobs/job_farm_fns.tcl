@@ -1,12 +1,40 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # \author Wojtek Slominski, Jagiellonian Univ., Physics Dept.
-  # \date 2012--2013
+  # \date 2012--2015
   # \copyright Creative Commons license CC-BY-NC 3.0
 # _____________________________________________________________
 
 # -------------------------------------------------
 #   Routines to run xFitter jobs on a farm
-# --------------------------------------------xFitter installation tree." "Do you really want to run here?" no "?" $isMSWin]} {exit}
+# -------------------------------------------------
+set Version 2.0.0
+
+# source [file join [file dirname [info script]] utils.tcl]
+lappend auto_path [file join [file dirname [info script]] ../../common/TkTcl]
+package require cl_opts
+
+# ----------------
+#     Defaults
+# ----------------
+
+# ===============================
+proc Initialize {{lvl 2}} {
+  set ::InitMode $lvl
+  uplevel #0 {
+    foreach key {Type Name User Host Queue TimeLimit WorkDir Driver} {set Farm($key) ""}
+    set QuickInput 0 ; # --- create new input.zip for each job, otherwise update only
+
+    source [file join [file dirname [info script]] jay_def_cfg.tcl]
+    # Say "MainCodeDir = $MainCodeDir"
+    set MainExe [file join $MainCodeDir $MainExeRel]
+
+    set UserHFdir "~/.xFitter"
+    source_if_exists [file join $UserHFdir jay.cfg.tcl]
+    source_if_exists jay.cfg.tcl
+
+    if {$InitMode} {
+      if {[file pathtype [PathRelTo [pwd] $MainCodeDir 1]] != "absolute"} {
+        if {![Yes "Current working directory\nis within the xFitter installation tree." "Do you really want to run here?" no "?" $isMSWin]} {exit}
       }
       link_here datafiles
       if {$InitMode > 1} {
@@ -217,7 +245,7 @@ proc CollectResults {} {
     set rc [JobGetResults [split $sj \t]]
     if {$rc > 0} {
       Say "Sthg. wrong or missing in the job results..." err
-      Say "See xfitter.err and xfitter.log files.\nYou may also need to look at the job output files packed in 'output.zip'."
+      Say "See $::MainExeName.err and $::MainExeName.log files.\nYou may also need to look at the job output files packed in 'output.zip'."
     } elseif {$rc < 0} {
       Say "  will try to get it later."
       lappend RunningJobs $sj
@@ -241,7 +269,7 @@ proc job_get1 {jrec} {
   # --- Get job results from the farm
   # --- jrec = job record = list: nCS iCS jid tmpdir ...
   # --- return 0 on success
-  if {[catch {farm_getresults $jrec xfitter.err xfitter.log $::CCfname ewparam.txt minuit.in.txt output.zip} ans ]} {
+  if {[catch {farm_getresults $jrec $::MainExeName.err $::MainExeName.log $::CCfname ewparam.txt minuit.in.txt output.zip} ans ]} {
     Say "[string trim $ans]" err
     return 1
   }
@@ -326,9 +354,10 @@ proc run_local {useprev {mu ""}} {
   if {$mu != ""} {append msg " CorSysIndex = $mu,"}
   append msg " UsePrev = $useprev ..."
   Say $msg  info
+  Say "  Output dir: $output_dir"
   file mkdir $output_dir
-  make_ControlCards $useprev $mu
-  set ofn [file join $output_dir "xfitter"]
+  if {$useprev ne ""} {make_ControlCards $useprev $mu}
+  set ofn [file join $output_dir "$::MainExeName"]
   if {$mu != ""} {append ofn "_[Suffix $mu]"}
   set rc [catch {exec $MainExe > $ofn.log 2> $ofn.err} ans]
   if {$rc} {

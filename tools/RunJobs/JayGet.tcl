@@ -1,11 +1,11 @@
 catch {source $tcl_rcFileName}
 source [file join [file dirname [info script]] job_farm_fns.tcl]
 
-#-------------------------------------------------
+# -------------------------------------------------
 #  Retrieve xFitter jobs from a farm
-#-------------------------------------------------
+# -------------------------------------------------
 
-set Version 1.2
+set Version 2.0.0
 set _TEST_JS 0
 # set Verbose 1
 
