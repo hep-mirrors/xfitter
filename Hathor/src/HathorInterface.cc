@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <cstring>
 #include "Hathor.h"
-#include "../interface/HERAFitterPdf.h"
+#include "../interface/xFitterPdf.h"
 
 extern "C" {
   int hathorinit_(const int* idataset, const double& sqrtS, const bool& ppbar, const double& mt,
@@ -24,7 +24,7 @@ extern "C" {
 
 // FIXME: delete pointers at the end! (in some hathordestroy_ or so)
 std::map<int, Hathor*> hathor_array;   
-HERAFitterPdf* pdf;
+xFitterPdf* pdf;
 int* rndStore;
 double mtop;
 
@@ -32,7 +32,7 @@ int hathorinit_(const int* idataset, const double& sqrtS, const bool& ppbar, con
 		const unsigned int& pertubOrder, const unsigned int& precisionLevel) {
 
   if(hathor_array.size()==0) {
-    pdf = new HERAFitterPdf();
+    pdf = new xFitterPdf();
 
     mtop = mt;
     std::cout << " Top mass and renorm./fact. scale used for Hathor [GeV]: " << mtop << std::endl;
