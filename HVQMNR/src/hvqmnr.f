@@ -92,7 +92,11 @@ C-----------------------------------------------------------------------
         print *,'ERROR IN GetHVQMNRXsection: no fragfraction for abs x-sections'
         call HF_stop      
       endif
-      fragfraction = DATASETInfo(i,IDataSet)
+      if(i.ne.0) then
+         fragfraction = DATASETInfo(i,IDataSet)
+      else 
+         fragfraction = 0d0
+      endif
 
       ! Read needed MINUIT parameters
       ! (enough to do this only once per each iteration)
