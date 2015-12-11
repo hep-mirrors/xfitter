@@ -122,7 +122,7 @@ C Gluon:
 C Check chebyshev and flexible gluon:
       if (nchebglu.eq.0) then
          if (FlexibleGluon) then
-            tg = CalcIntXpdfFixN(parglue,7)             
+            tg = CalcIntXpdfFixN(parglue,6)             
             tgMRST=CalcIntegral(parglue(8),parglue(9))
          else
             tg = CalcIntXpdf(parglue)
@@ -302,7 +302,7 @@ C---------------------------------------------------------------
       double precision function CalcIntXpdfFixN(pdfpars,n)
 C---------------------------------------------------------------
 C Calculated  \int xpdf(x) dx using the standard PDF
-C parameterisation. Sum up to N-th term (max N=10)
+C parameterisation. Sum up to N-th term (max N=6)
 C---------------------------------------------------------------
       implicit none
       double precision pdfpars(10)
