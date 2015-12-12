@@ -184,7 +184,10 @@ quark  thresholds are considered in \fitter\ :
  \begin{enumerate}
   \item[$\bullet$] the Thorne Roberts (TR) scheme with its variants at NLO and
   NNLO~\cite{Thorne:1997ga,Thorne:2006qt} as provided by the MSTW group,
-  \item[$\bullet$] the ACOT scheme with its variants at LO and NLO as provided by the CTEQ group, 
+  \item[$\bullet$] the ACOT scheme with its variants at LO and NLO as
+    provided by the CTEQ group, 
+    \item the FONLL scheme at NLO and NNLO~\cite{Forte:2010ta}
+      provided by the external code {\tt APFEL}~\cite{Bertone:2013vaa},
   \item[$\bullet$]  BMSN scheme at NLO and NNLO~\footnote{The BMSN scheme as provided by the ABM group
       currently is not yet fully implemented in \fitter\ .}.
   \end{enumerate}
@@ -282,6 +285,40 @@ without violating the definition of a GM-VFNS is what mainly distinguish the ACO
 \end{center}
 \end{figure}
 %
+
+%%%%
+\subsubsection{General Mass Variable Flavour Scheme: FONLL scheme}
+
+The FONLL scheme was originally introduced to describe the
+transverse-momentum distribution of heavy flavours in hadronic
+collisions \cite{Cacciari:1998it}, while its application to DIS
+structure functions was presented more recently in
+Ref.~\cite{Forte:2010ta} and is presently used by the NNPDF
+collaboration. The name is motivated by the fact that the method was
+originally used to combine a fixed (second) order (FO) calculation
+with a next-to-leading-log (NLL) one. However, the method is entirely
+general and can be used to combine consistently a fixed-order with a
+resummed calculations to any order.
+
+The FONLL scheme relies on standard QCD factorization and calculations
+with massive quarks in the decoupling scheme of
+Ref.~\cite{Collins:1978wz} and with massless quarks in the
+$\overline{\mbox{MS}}$ scheme. It is based upon the idea of looking at
+both the massless and massive calculations as power expansions in the
+strong coupling constant $\alpha_s$, and replacing the coefficients of
+the expansion in the former with their exact massive counterparts in
+the latter. Exactly like the other GM-VFNSs presented above, also the
+FONLL method is intended to provide a framework capable to be accurate
+over a wide range of energies. Actually, it has been recently shown
+that the FONLL scheme is equivalent to the S-ACOT variant of the ACOT
+scheme to all orders, while, when an intrinsic charm component is
+included to the FONLL scheme, it is identical to ACOT FULL, again to
+all orders in perturbation theory~\cite{Ball:2015tna,Ball:2015dpa}.
+
+All presently available variants of the FONLL scheme, \textit{i.e.} A,
+B and C, are available in \fitter\ by means of their implementation in
+the {\tt APFEL} code~\cite{Bertone:2013vaa}.
+
 %%%%
 \subsubsection{Fixed -Flavour Number Scheme}
 
