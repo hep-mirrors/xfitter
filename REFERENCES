@@ -1,14 +1,14 @@
 
-If you use the HERAFITTER package in a scientific publication, please consider adding the
-following references. The main citations list contains the papers which should be cited 
-for any use of the HERAFITTER program. In addition, some citations are required depending
-on the modules, data and theory tables used in the program.
+If you use the xFitter (former HERAFitter) package in a scientific publication, please 
+consider adding the following references. The main citations list contains the papers 
+which should be cited for any use of the xFitter program. In addition, some citations 
+are required depending on the modules, data and theory tables used in the program.
 
 ==================
   Main citations
 ==================
 
-HERAFitter   
+xFitter   
 ---------
 1) "HERAFitter, Open Source QCD Fit Project"
 By S. Alekhin at al., DESY Report 14-188, 7 Nov 2014, Published in EPJC (2015), 75: 304,
