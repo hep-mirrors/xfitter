@@ -11,7 +11,7 @@ on the modules, data and theory tables used in the program.
 HERAFitter   
 ---------
 1) "HERAFitter, Open Source QCD Fit Project"
-By S. Alekhin at al., DESY Report 14-188, 7 Nov 2014, submitted to Eur.Phys.J.C.
+By S. Alekhin at al., DESY Report 14-188, 7 Nov 2014, Published in EPJC (2015), 75: 304,
 e-Print: arXiv:1410.4412 [hep-ex]
 
 2) "Combined Measurement and QCD Analysis of the Inclusive e+- p Scattering Cross Sections at HERA."
@@ -73,7 +73,7 @@ e-Print: hep-ph/0601245
 
 "The Effect of Changes of Variable Flavour Number Scheme on PDFs and Predicted Cross Sections"
 R.S. Thorne.  Jan 2012.  14pp.
-Submitted to Phys.Rev.D.
+Published in Phys.Rev. D86 (2012) 074017
 e-Print: arXiv:1201.6180 [hep-ph]
 
 11) ACOT-variable flavour number scheme ( for HF_SCHEME = 'ACOT Full' or 'ACOT Chi')  
@@ -244,6 +244,13 @@ e-Print: hep-ph/0312333 [hep-ph] PDF
 -"Top-quark pair production at hadron colliders: differential cross section and phenomenological applications with DiffTop"
 M. Guzzi, K. Lipka, S-O. Moch
 e-Print: arXiv:1406.0386 [hep-ph]
+
+
+11) MNR code (is used)
+---------------------------------------------
+M. Mangano, P. Nason and G. Ridolfi
+Published in Nucl. Phys. B 373 (1992) 295
+from http://www.ge.infn.it/~ridolfi/hvqlibx.tgz
 
 
 =============================
