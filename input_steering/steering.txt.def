@@ -50,8 +50,9 @@
 * dependently. The numbering follows sequential numbering of input files
 *
 &Scales 
-    DataSetMuR  = 4*1.0     ! Set muR scale to 1 for all 4 datasets
-    DataSetMuF  = 4*1.0     ! Set muF scale to 1 for all 4 datasets
+    DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 7 datasets
+    DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 7 datasets
+   !DataSetIOrder = 7*2     ! Set orders for datasets (e.g. 2 for APPLgrids)
 &End
 
 *
@@ -87,7 +88,8 @@
                                 !uPDF1 fit with kernel ccfm-grid.dat file
                                 !uPDF2 fit evolved uPDF, fit just normalisation
                                 !uPDF3 fit using precalculated grid of sigma_hat
-                 	        !uPDF4 fit calculating kernel on fly, grid of sigma_hat
+                 	            !uPDF4 fit calculating kernel on fly, grid of sigma_hat
+
 
   Order  = 'NLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
 
@@ -117,7 +119,7 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
 
-  HF_SCHEME = 'RT'
+  HF_SCHEME = 'RT OPT'
 
  ! PDF type. Possible types are currently available:
  ! 'proton'  -- default (fitting proton data)
@@ -159,7 +161,7 @@
 
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
    Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
- !  Chi2ExtraParam = 'PoissonCorr'
+   Chi2ExtraParam = 'PoissonCorr'
 
  ! Flag to define if native APPLgrid CKM values should be kept.
  LUseAPPLgridCKM = True
@@ -175,7 +177,7 @@
 *
 &ExtraMinimisationParameters
    name  = 'alphas',   'fs',   'fcharm'
-   value =  0.1176 ,   0.31,      0.  
+   value =  0.118 ,   0.4,      0.
    step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
 &End
 
@@ -348,4 +350,5 @@
 &lhapdf
   LHAPDFSET  = 'CT10nlo' ! LHAPDF grid file 
   ILHAPDFSET = 0               ! Set number withing PdfSet
+  !LHAPDFErrors = True
 &End
