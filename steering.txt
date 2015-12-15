@@ -50,8 +50,8 @@
 * dependently. The numbering follows sequential numbering of input files
 *
 &Scales 
-    DataSetMuR  = 4*1.0     ! Set muR scale to 1 for all 4 datasets
-    DataSetMuF  = 4*1.0     ! Set muF scale to 1 for all 4 datasets
+    DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 7 datasets
+    DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 7 datasets
 &End
 
 *
@@ -117,7 +117,7 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
 
-  HF_SCHEME = 'RT'
+  HF_SCHEME = 'RT OPT'
 
  ! PDF type. Possible types are currently available:
  ! 'proton'  -- default (fitting proton data)
@@ -159,7 +159,7 @@
 
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
    Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
- !  Chi2ExtraParam = 'PoissonCorr'
+   Chi2ExtraParam = 'PoissonCorr'
 
  ! Flag to define if native APPLgrid CKM values should be kept.
  LUseAPPLgridCKM = True
@@ -174,9 +174,9 @@
 * Add extra to minuit parameters. These MUST include alpha_S and fs
 *
 &ExtraMinimisationParameters
-   name  = 'alphas',   'fs',   'fcharm', 'Aph', 'Bph',    'Cph'
-   value =  0.1176 ,   0.31,      0.,       0.0,     0.0,    0.0
-   step  =  0.0    ,   0.0 ,      0.,    0.0,     0.0,    0.0     ! set to 0 to avoid minimisation 
+   name  = 'alphas',   'fs',   'fcharm'
+   value =  0.118 ,   0.4,      0.
+   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
 &End
 
 
