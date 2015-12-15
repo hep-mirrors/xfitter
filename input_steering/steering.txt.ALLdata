@@ -152,11 +152,23 @@
     DataSetTheoryOrder = 55*'NLO'  ! This makes APPLGRID grids to work OK   
 &End
 
+*
+* (Optional) List systematic sources, modify their scaling properties:
+*
+&Systematics
+ !C      List sources, Results.txt file would list them first. Use the usual :A, :P,
+ !C      qualifiers to change the scalling properties
+ !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
+ !C      Modify the prior in chi2 definition (1.0 is default):
+ !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
+ !  PriorScaleFactor = 0.0, 0.0
+&End
+
 
 *
 * Main steering cards
 *
-&HeraFitter 
+&xFitter 
   RunningMode = 'Fit'  
                 ! 'Fit'             -- standard MINUIT-minimization of PDF and other parameters
                 ! 'LHAPDF Analysis' -- Evalutate input LHAPDF set uncertaitnies, chi2, profiling or reweighting
@@ -173,6 +185,7 @@
                                 !uPDF1 fit with kernel ccfm-grid.dat file
                                 !uPDF2 fit evolved uPDF, fit just normalisation
                                 !uPDF3 fit using precalculated grid of sigma_hat
+                                !uPDF4 fit calculating kernel on fly, grid of sigma_hat
 
 
   Order  = 'NLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
@@ -180,7 +193,8 @@
   Q02     = 1.9 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors :
- ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless),
+ ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless) from QCDNUM,
+ ! ---  HF_SCHEME = 'ZMVFNS MELA'      : ZM-VFNS (massless) from MELA (N-space),
  ! ---  HF_SCHEME = 'RT'               :  Thorne-Roberts VFNS (massive)
  ! ---  HF_SCHEME = 'RT FAST'          : Fast approximate TR VFNS scheme, usign k-factor
  ! ---  HF_SCHEME = 'RT OPT'           :  Thorne-Roberts VFNS (massive)
@@ -217,6 +231,7 @@
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
+ !  'LHAPDFNATIVE'-- use lhapdf library to access pdfs and alphas
  !  'DDIS'        -- use Diffractive DIS 
  !  'BiLog'        -- bi-lognormal parametrisation 
 
