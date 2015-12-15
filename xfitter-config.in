@@ -7,7 +7,7 @@ exec_prefix=@exec_prefix@
 if [[ $# -eq 0 || -n $( echo $* | egrep -- "--help|-h" ) ]]; then
     echo
     echo "xfitter-config: configuration tool for XFitter"
-    echo "                webpage: https://wiki-zeuthen.desy.de/HERAFitter"
+    echo "                webpage: https://wiki-zeuthen.desy.de/xFitter"
     echo
     echo "Usage: xfitter-config [[--help|-h] | [--prefix] | [--ldflags]]"
     echo "Options:"

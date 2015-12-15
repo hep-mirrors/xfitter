@@ -12,7 +12,7 @@
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 //                                                                      //
-//  The interface through which fortran based herafitter interacts with   //
+//  The interface through which fortran based xfitter interacts with   //
 //  c++ version of FastNLOReader.                                       // 
 //                                                                      //
 //                                                                      //

@@ -239,7 +239,7 @@ another option would be:
 
       IndexDataset -- (integer) Internal H1 Fitter index of the data set. Provide unique
                       numbers to get extra info for chi2/dof for each data set.
-      	              To index new data sets please refer to the table available in www.herafitter.org
+      	              To index new data sets please refer to the table available in www.xfitter.org
 	
       TheoryInfoFile --- (string) Optional additional theory file with extra 
                      information for cross-section calculation. This could be k-factors,

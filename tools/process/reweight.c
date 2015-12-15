@@ -135,7 +135,7 @@ int reweight(int argc,char* argv[]) {
         PdfSet pdf_set;
         Info *info=info_dup(pdf_set_in.info);
         Info_Node *desc=info_node_where(info, "SetDesc");
-        info_node_update_str(desc, "created by the HeraFitter package");
+        info_node_update_str(desc, "created by the xFitter package");
         Info_Node *nmem=info_node_where(info, "NumMembers");
         char buf[20];
         info_node_update_str(nmem, n2str(buf, n_outreps+1));
