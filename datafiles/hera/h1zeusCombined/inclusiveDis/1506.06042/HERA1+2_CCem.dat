@@ -19,16 +19,16 @@
    PlotDefColumn = 'Q2'
    PlotVarColumn = 'x'
    PlotDefValue = 290., 310., 510., 1100., 1600., 2100., 3100., 5100., 8100., 16000., 31000 
-   PlotOptions(1)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 300  @Ymin:0.01@Xlog@Ylog'
-   PlotOptions(2)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 500  @Ymin:0.01@Xlog@Ylog'
-   PlotOptions(3)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 1000 @Ymin:0.001@Xlog@Ylog'
-   PlotOptions(4)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 1500 @Ymin:0.001@Xlog@Ylog'
-   PlotOptions(5)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 2000 @Ymin:0.001@Xlog@Ylog'
-   PlotOptions(6)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 3000 @Ymin:0.0005@Xlog@Ylog'
-   PlotOptions(7)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 5000 @Ymin:0.0001@Xlog@Ylog'
-   PlotOptions(8)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 8000 @Ymin:0.0001@Xlog@Ylog'
-   PlotOptions(9)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 15000@Ymin:0.00001@Xlog@Ylog'
-   PlotOptions(10) = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d#sigma/dx @Title:Q^{2} = 30000@Ymin:0.00001@Xlog@Ylog'
+   PlotOptions(1)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 300  @Ymin:0.01@Xlog@Ylog'
+   PlotOptions(2)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 500  @Ymin:0.01@Xlog@Ylog'
+   PlotOptions(3)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 1000 @Ymin:0.001@Xlog@Ylog'
+   PlotOptions(4)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 1500 @Ymin:0.001@Xlog@Ylog'
+   PlotOptions(5)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 2000 @Ymin:0.001@Xlog@Ylog'
+   PlotOptions(6)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 3000 @Ymin:0.0005@Xlog@Ylog'
+   PlotOptions(7)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 5000 @Ymin:0.0001@Xlog@Ylog'
+   PlotOptions(8)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 8000 @Ymin:0.0001@Xlog@Ylog'
+   PlotOptions(9)  = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 15000@Ymin:0.00001@Xlog@Ylog'
+   PlotOptions(10) = 'Experiment:HERA1+2@ExtraLabel:e^{-}p #rightarrow #nuX (CC) @XTitle: x @YTitle: d^{2}#sigma/dxdQ^{2} @Title:Q^{2} = 30000@Ymin:0.00001@Xlog@Ylog'
 &End
 *        Q2           x           y    Average     StatErr        Uncor    Cor1    ... 
 3.0000E+02  8.0000E-03	3.7055E-01  1.8618E+00	3.1939E+01  2.3822E+01	 0.344	 0.070	-0.043	 0.437	 0.723	-0.175	-0.001	-0.004	-0.003	 0.006	-0.030	-0.026	-0.001	-0.011	 0.004	-0.015	 0.031	-0.020	 0.000	 0.017	 0.017	 0.028	-0.029	-0.341	-0.003	 0.001	-0.032	 0.037	 0.062	-0.127	 0.066	 0.027	-0.197	 0.095	 0.065	-0.024	-0.013	-0.032	-0.053	-0.052	-0.000	-0.172	-0.113	 0.053	 0.180	 0.116	-0.090	-0.023	-0.213	 0.120	-0.105	 0.240	-0.038	-0.033	-0.260	 0.641	-0.564	-0.277	 0.270	-0.288	-0.013	 0.208	-0.047	-0.072	 0.095	 0.114	 0.183	 0.229	-0.393	 0.302	 0.264	-0.226	 0.117	-0.017	 0.129	 0.014	-0.240	-0.047	-0.043	-0.397	-0.117	 0.380	-0.201	-0.497	-0.162	 0.195	 0.119	 0.010	 0.285	 0.300	 0.718	-0.493	 0.460	-0.007	 0.789	-0.288	-0.297	-0.882	-0.667	 0.674	-0.756	 0.547	-0.447	-0.043	-0.208	-0.277	 0.875	-0.235	 0.048	-0.298	-0.140	-0.050	-2.071	 0.748	-0.312	 0.280	 4.505	-0.035	-0.015	 3.761	 0.033	-0.995	 0.496	 0.949	-4.470	-0.119	-0.931	 0.490	 0.938	 0.136	 0.006	 0.166	-0.130	-0.009	 0.153	 0.038	-0.108	 0.278	 0.106	 0.179	 0.010	-0.118	 0.033	 0.018	 0.002	 0.006	-0.082	 0.037	-0.086	-0.091	-0.002	-0.004	-0.142	-0.028	-0.069	-0.006	-0.004	-0.008	 0.000	-0.072	 0.015	-0.147 4.07538E+01 5.27984 0 -0.0107423 0.494145 -0.354496 -2.92411 -0.686746

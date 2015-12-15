@@ -22,7 +22,28 @@
 !   SystematicType = 'stat', 'uncor', 'ignore','h1_low_ep_sp_1','h1_low_ep_sp_2','h1_low_ep_sp_3','h1_low_ep_sp_4','h1_low_ep_sp_5','h1_low_ep_sp_6','h1_low_ep_sp_7','h1_low_ep_sp_8','corlum'
 
    Percent = 3*false, 9*true
+&End
 
+&PlotDesc
+   PlotN = 15
+   PlotDefColumn = 'Q2'
+   PlotDefValue = 1., 1.6, 1.9, 2.4, 2.6, 3., 4.4, 6., 7., 10., 14., 19., 21., 30., 40., 50., 90., 100.
+   PlotVarColumn = 'x'
+   PlotOptions(1)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 1.5   @Xlog'
+   PlotOptions(2)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 2.0  @Xlog'
+   PlotOptions(3)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 2.5  @Xlog'
+   PlotOptions(4)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 3.5  @Xlog'
+   PlotOptions(5)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 5.0  @Xlog'
+   PlotOptions(6)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 6.5  @Xlog'
+   PlotOptions(7)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 8.5  @Xlog'
+   PlotOptions(8)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 12  @Xlog'
+   PlotOptions(9)  = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 15  @Xlog'
+   PlotOptions(10) = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 20  @Xlog'
+   PlotOptions(11) = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 25 @Xlog'
+   PlotOptions(12) = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 35 @Xlog'
+   PlotOptions(13) = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 45 @Xlog'
+   PlotOptions(14) = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 60 @Xlog'
+   PlotOptions(15) = 'Experiment:H1@ExtraLabel:e^{+}p #rightarrow NC, E_{p}=460, 575 GeV @XTitle: x @YTitle: #sigma_{red} @Title:Q^{2} = 90 @Xlog'
 &END
 0.3480000E-04 0.1500000E+01 0.8503008E+00 0.5211089E+00 0.4214555E-01 0.2584716E-01 0.5494925E-01 1.5992 3.0795 1.2992 -1.7480 1.9597 -0.4633 0.4744 -0.3363 0.5
 0.4640000E-04 0.2000000E+01 0.8503008E+00 0.7072232E+00 0.3225768E-01 0.3048149E-01 0.5250138E-01 1.0784 2.0767 1.2906 -1.7857 1.9397 -0.0139 1.2342 -0.3364 0.5
