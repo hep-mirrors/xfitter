@@ -555,21 +555,24 @@ interfaced to the \fitter .
 
 \subsubsection{FastNLO}
 The fastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
-enables the inclusion of jet data in PDF and $\alpha_s$ fits.
+enables the inclusion of hadron-induced differential data in PDF and $\alpha_s$ fits
+and is mostly used for jet cross sections in DIS and hadron-hadron collisions.
 This tool uses multi-dimensional interpolation
 techniques to convert the convolutions of perturbative 
 coefficients with parton distribution functions and 
 the strong coupling into simple products.
+The phase space of the interpolations are optimized for each individual data point during
+the generation of the fastNLO tables.
 %Although the concept is process independent, 
 The perturbative 
-coefficients are calculated by the \texttt{NLOJET++}
-program~\cite{Nagy:1998bb} where calculations for jet-production
+coefficients for jet-production in NLO are calculated by the \texttt{NLOJET++}
+program~\cite{Nagy:1998bb} where calculations 
 in DIS~\cite{Nagy:2001xb}  as well as in hadron-hadron 
 collisions~\cite{Nagy:2003tz,Nagy:2001fj} with threshold-corrections 
 of $\mathcal{O}$(NNLO) for inclusive jet cross 
 sections~\cite{Kidonakis:2000gi} are available.
 
-The fastNLO libraries are included in the \fitter\
+The fastNLO code is included as source code in the \fitter\
 package and no further requirements or compilation options
 are needed. In order to include a new measurement into the PDF-fit,
 the fastNLO tables have to be specified. These tables include all
@@ -578,6 +581,8 @@ calculated process for all bins of a certain dataset.
 Tables for almost all published jet measurements
 are available through the project website {\tt http://fastnlo.hepforge.org}.
 %or have otherwise to be calculated by using the full fastNLO package.
+The calculation of a new fastNLO table requires to download the full
+fastNLO toolkit package and a suitable generator code from the website.
 
 Features of the fastNLO concept are the very quick convolution of the
 perturbative coefficients with the PDFs, of
@@ -593,7 +598,7 @@ the free choice~\cite{Britzger:2012bs} of the renormalization and the factorizat
 scale as a function of two pre-defined observables.
 The evaluation of the strong coupling constant, which enters
 the cross section calculation, is taken consistently from the 
-QCDNUM evolution code.
+QCDNUM evolution code, or from LHAPDF if specified.
 
 
 \subsubsection{APPLGRID}
