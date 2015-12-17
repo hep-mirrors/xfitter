@@ -97,7 +97,7 @@ c     xmin_grid defined in steering.inc
 
       integer NQGridHF  !> Increase number of Q2 grid points to ensure that HF thresholds and the starting
                         !> Q2 scale are in.
-      parameter (NQGridHF=NQGrid+4)  
+      parameter (NQGridHF=NQGrid+5)  
 
 
 c set-up of the constants
@@ -116,7 +116,7 @@ c set-up of the constants
       data as0/0.364/, r20/2.D0/!, nfin/0/ !alphas, NNLO, VFNS
       integer I,ndum,ierr,j
 
-      double precision a,b,qt
+      double precision a,b,qt, qmz
       
       integer id1,id2
       integer nw,nwords,nx
@@ -182,6 +182,7 @@ C---------------------
       qc = HF_MASS(1)**2
       qb = HF_MASS(2)**2
       qt = HF_MASS(3)**2
+      qmz= Mz**2
 
 
 C----- Read grid definitions from the steering.txt
@@ -210,6 +211,7 @@ c In fixed-flavour scheme starting scale can be above charm threshold
       
       if (qb.gt.qt) then
          print *,'Bottom mass must be below top mass, stop'
+         call HF_stop
       endif
 
       do i=1,NQGrid 
@@ -220,11 +222,13 @@ C Add extra points:
       Q2Grid(NQGrid+1) = q0
       Q2Grid(NQGrid+2) = qc
       Q2Grid(NQGrid+3) = qb
-      Q2Grid(NQGrid+4) = qt
+      Q2Grid(NQGrid+4) = qmz
+      Q2Grid(NQGrid+5) = qt
       WQGrid(NQGrid+1) = 4.D0
       WQGrid(NQGrid+2) = 2.D0
-      WQGrid(NQGrid+3) = 1.5D0
-      WQGrid(NQGrid+4) = 1.D0
+      WQGrid(NQGrid+3) = 1.3D0
+      WQGrid(NQGrid+4) = 1.1D0
+      WQGrid(NQGrid+5) = 1.D0
 
 C Sort the Q2Grid:
       do i=1,NQGridHF
