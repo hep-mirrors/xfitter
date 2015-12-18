@@ -524,6 +524,7 @@ $Q^2 \ge 3.5$ & NLO & 79.4 & 3.2 &-0.021 & 13.7 & 4.0 & 6.7 & 196 & 0.927 \\
       \item {\tt TheoryType} --- (string) Theory file type can be set to
 		     'kfactor', 'applgrid', 'fastnlo' or 'expression'. See further for more
 		     details.
+      \item {\tt TermInfo} --- (string) list of specific options for term processors.
       \item {\tt TermName} --- (string) names of terms used in the theory expression.
       \item {\tt TermSource} --- (string) pathes from where the term numerical values should be taken.
       \item {\tt TheorExpr} --- (string) theory epression in simple algebraic form.
@@ -539,13 +540,14 @@ varies between data points (e.g. bin borders, hadronisation corrections etc.) it
 provided in the data file and recognised by the program using reserved column names.
 In the following all these requirements are listed and briefly explained.
 
-The theory type {\it expression} allows a flexibility in theory definition, making
-it possible to set a simple formula in {\tt TheorExpr} string variable.  The
-expression terms must be preliminary defined in {\tt TermName} -- a string value, 
-starting with alphabetical character, {\tt TermType} -- recognized string values are 'kfactor',                                                                                        
-'applgrid' or 'virtgrid', and {\tt TermSource} -- the files from where the
-predictions are taken. {\tt TermType} defines which type of the expression term
-is used:
+The theory type {\it expression} allows a flexibility in theory definition
+making it possible to set a simple formula in {\tt TheorExpr} string variable.
+The expression terms must be preliminary defined in {\tt TermName} -- a string
+value, starting with alphabetical character, {\tt TermType} -- recognized string values
+are 'kfactor', 'applgrid' or 'virtgrid', {\tt TermInfo} -- additional
+options for the term processing code, and {\tt TermSource} -- the files from
+where the predictions are taken. {\tt TermType} defines which type of the
+expression term is used:
 \begin{description}
 \item[kfactor] is a term wich denotes an array of \(K\)-factors corresponding
   to the data bins. The {\tt TermSource} for this term must point to a file with the 
