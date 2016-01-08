@@ -374,9 +374,11 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
   if (err == MC && outdirs[label].IsReweighted())
     {
       double n, chi2, w;
-      ifstream mcwfile((dirname + "/mcrew.txt").c_str());
+      ifstream mcwfile((dirname + "/pdf_BAYweights.dat").c_str());
       string line;
       getline (mcwfile,line);
+      getline (mcwfile, line);
+      getline (mcwfile, line);
       getline (mcwfile, line);
       while (mcwfile >> n >> chi2 >> w)
 	mcw.push_back(w);
@@ -392,7 +394,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
             {
               vector <double> xi;
               for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
-                xi.push_back((*eit).GetTable(*pit)[ix]);
+		xi.push_back((*eit).GetTable(*pit)[ix]);
               double val;
 	      if (outdirs[label].IsReweighted())
                 val = mean(xi, mcw);
