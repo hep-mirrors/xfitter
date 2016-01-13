@@ -53,6 +53,7 @@ for example the electron-proton deep inelastic scattering (DIS) process in secti
 \ref{dis}, the Drell-Yan process in section \ref{DY}. 
 For the jet cross section calculations, \fitter\ uses  
 APPLGRID or FastNLO, see section \ref{sec:theory:jets}.
+Section \ref{hvqmnr} describes heavy-quark production in hadron collisions at NLO.
 In section \ref{ttbar} the $t\bar{t}$ cross sections are calculated based on the HATHOR package.
 Alternative approaches to collinear factorisation
 are also discussed, see sections \ref{dipole} for Dipole models and 
@@ -511,6 +512,21 @@ and thus allowing to for fast QCD fits.
 These methods are described in more detail in section \ref{sec:theory:jets}.
 An independent treatment for the electro-weak corrections is applied as the 
 independent k-factors, using packages such as SANC and FEWZ.
+
+%%%%%%%%%%%
+\subsection{Heavy-quark production in hadron collisions at NLO}
+\label{hvqmnr}
+Theoretical predictions for heavy-quark production in pp collisions are obtained 
+using the massive NLO calculations~\cite{Nason:1987xz,Nason:1989zy,Mangano:1991jk} 
+in the FFNS, also available as part of the Mangano-Nason-Ridolfi (MNR) calculations~\cite{mnrcode:page}.
+In \fitter\ the one-particle inclusive variant of the calculations is implemented~\cite{Zenaiev:2015rfa,OZthesis}. 
+The pole mass definition is employed.
+Additionally non-perturbative quark to parton fragmentation is implemented 
+(including most popular Kartvelishvili~\cite{Kartvelishvili:1977pi}, 
+Peterson~\cite{Peterson:1982ak} and BCFY functions~\cite{Braaten:1994bz}). 
+All flexibility of the original MNR code is retained: the factorisation 
+and renormalisation scales, heavy-quark mass, strong coupling constant, 
+fragmentation function and PDFs may be changed in each iteration, i.e.\ treated as fit parameters.
 
 %%%%%%%%%%%
 \subsection{Cross Sections for \texorpdfstring{$t\bar{t}$}{t-tbar} production in $pp$ or $p\bar p$ collisions}
