@@ -69,15 +69,15 @@ C---------------------------------------------------------
          call HF_stop
       endif
       If(Firstgrid) then
-         inquire(FILE='theoryfiles/updf/f2qpm-grid.dat',EXIST=ex)
+         inquire(FILE='Cascade/updfGrids/f2qpm-grid.dat',EXIST=ex)
 c create grid
          if(ex) then
-            open(4,FILE='theoryfiles/updf/f2qpm-grid.dat', FORM='formatted',
+            open(4,FILE='Cascade/updfGrids/f2qpm-grid.dat', FORM='formatted',
      +      STATUS='OLD',IOSTAT=IRR,ERR=220)
-            write(6,*) ' theoryfiles/updf/f2qpm-grid.dat existing '
+            write(6,*) ' Cascade/updfGrids/f2qpm-grid.dat existing '
          else 
             write(6,*) '  creating f2qpm-grid.dat ' 
-            open(4,FILE='theoryfiles/updf/f2qpm-grid.dat', FORM='formatted',STATUS='NEW',
+            open(4,FILE='Cascade/updfGrids/f2qpm-grid.dat', FORM='formatted',STATUS='NEW',
      +      IOSTAT=IRR,ERR=220)
             iread = 0
          Endif
