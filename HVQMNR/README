@@ -9,7 +9,7 @@ in the original MNR code, available at www.ge.infn.it/~ridolfi/hvqlibx.tgz)
 by the trapezoidal rule in nested loops (implemented here). This allows 
 for separation of the most time consuming parts in the top loop(s). 
 The one-particle inclusive variant of the calculations was used. 
-Additionally non-perturbative quark -> parton fragmentation is implmented 
+Additionally non-perturbative quark -> parton fragmentation is implemented 
 (including most popular Kartvelishvili, Peterson and BCFY functions). 
 All flexibility of the original MNR code was retained: the factorisation 
 and renormalisation scales, heavy-quark mass, strong coupling constant, 
