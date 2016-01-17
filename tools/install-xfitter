@@ -7,8 +7,9 @@ lhapdfver=6.1.5
 hoppetver=1.1.5
 applgridver=1.4.70
 qcdnumver=17-01-11
-#apfelver=2.6.3
+apfelver=2.7.0
 melaver=2.0.1
+
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -47,7 +48,9 @@ then
     echo "$0 <version|deps>"
     echo
     echo "available versions:"
-    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
+    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    echo "$vers"
+    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
     echo "$vers"
     echo "trunk"
     echo
@@ -77,23 +80,39 @@ else
     version=`cat version`
     echo "reinstalling dependencies for xFitter version $version"
 fi
+# strip the xfitter version
+stripversion=`echo $version |sed "s/\.//g"`
+
 
 #check that requested version exists
 if [[ $version != "trunk" ]]
     then
     exist=0
-    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
+    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
     do
 	if [[ $version == $ver ]]
 	then
 	    exist=1
 	fi
     done
+
+    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
+    do
+	if [[ $version == $ver ]]
+	then
+	    exist=1
+	fi
+    done
+
+
+
     if [[ $exist == 0 ]]
     then
 	echo
 	echo "version $version not found, available versions:"
-	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
+	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+	echo "$vers"
+	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
 	echo "$vers"
 	echo "trunk"
 	echo
@@ -101,19 +120,19 @@ if [[ $version != "trunk" ]]
     fi
 fi
 
-if [[ $mode != "deps" && -e xfitter-${version} ]]
+if [[ $mode != "deps" && -e xfitter-${version} &&  -e herafitter-${version} ]]
 then
     echo
-    echo "xfitter-${version} already exists, remove it first"
+    echo "xfitter-${version} or  herafitter-${version}  already exists, remove it first"
     echo "To reinstall only dependences, run:"
     echo "$0 deps"
     echo
     exit
 fi
-if [[ $mode == "deps" && ! -e xfitter-${version} ]]
+if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
 then
     echo
-    echo "xfitter-${version} does not exist, install it first with:"
+    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
     echo "$0 $version"
     echo
     exit
@@ -361,10 +380,11 @@ cd - >& /dev/null
 export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
 
 #apfel
-echo "Installing APFEL trunk..."
+echo "Installing APFEL $apfelver..."
 git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
-mv apfel apfel-trunk
-cd  apfel-trunk
+mv apfel apfel-${apfelver}
+cd  apfel-${apfelver}
+git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
 ./configure --prefix=$CURRENTDIR/deps/apfel  >> $CURRENTDIR/install.log  2>&1
 
 if [[ $? != 0 ]]
@@ -427,12 +447,14 @@ else
 fi
 tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
 cd qcdnum-${qcdnumver}
-if [[ $version == "trunk" ]]
+if [[ $version == "trunk" || $stripversion -ge 120  ]]
 then
 # echo $qcdnumstripver
  if [[ $qcdnumstripver -ge 170110 ]] 
  then
   ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
+  export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
+
   if [[ $? != 0 ]]
   then
     echo "Error, check install.log for details"
@@ -446,13 +468,16 @@ then
   fi
   cd - >& /dev/null
  # setup paths for qcdnum:
-  export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
+
+ else
+ export QCDNUM_ROOT=$CURRENTDIR/deps/qcdnum-${qcdnumver} 
+ ./makelibs  >> $CURRENTDIR/install.log  2>&1
  fi
+
 else
  export QCDNUM_ROOT=$CURRENTDIR/deps/qcdnum-${qcdnumver} 
  ./makelibs  >> $CURRENTDIR/install.log  2>&1
 fi
-
 if [[ $? != 0 ]]
 then
     echo "Error, check install.log for details"
@@ -468,11 +493,19 @@ cd $CURRENTDIR
 if [[ $mode != "deps" ]]
 then
     echo "Installing xFitter $version..."
+
     if [[ $version == "trunk" ]]
     then
-	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk xfitter-trunk >> $CURRENTDIR/install.log  2>&1
+	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk xfitter-trunk >> $CURRENTDIR/install.log  2>&1
     else
-	svn --no-auth-cache --trust-server-cert --non-interactive co --username  herafitter-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/herafitter-${version} >> $CURRENTDIR/install.log  2>&1
+   	if [[ $stripversion -ge 120 ]] 
+	then
+	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/xfitter-${version} xfitter-${version} >> $CURRENTDIR/install.log  2>&1
+
+
+	else
+	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/herafitter-${version} xfitter-${version} >> $CURRENTDIR/install.log  2>&1 
+	fi
     fi
 else
     make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
@@ -494,7 +527,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
-if [[ $version == "trunk" ]]
+if [[ $version == "trunk" || $stripversion -ge 120 ]]
  then
  echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 fi
@@ -502,7 +535,7 @@ fi
 if [[ $MODE == "cern" ]]
 then
     echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-    if [[ $version != "trunk" ]]
+    if [[ $version != "trunk" || $stripversion -ge 120 ]]
 	then
 	echo export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt      >> setup.sh
     fi
@@ -513,10 +546,11 @@ fi
 
 #make a compilation script
 echo source ./setup.sh > compile
-if [[ $version != "trunk" ]]	
+if [[ $version != "trunk" && $stripversion -le 111]]	
  then
  echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-${qcdnumver}  >> compile
  else
+ echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
  echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH       >> compile
 fi
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
@@ -524,9 +558,12 @@ echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
+
+
 echo cd xfitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
-if [[ $version == "trunk" ]]
+
+if [[ $version == "trunk" || $stripversion -ge 120 ]]
  then 
  echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela        >> compile
  else
@@ -536,6 +573,7 @@ echo make -j 9 install                                    >> compile
 
 chmod +x compile
 echo "Compiling xFitter $version..."
+
 ./compile >> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
 then
@@ -546,7 +584,15 @@ fi
 # run test
 source ./setup.sh
 cd xfitter-${version}
-xfitter >> $CURRENTDIR/install.log  2>&1
+
+if [[ $version == "trunk" || $stripversion -ge 120 ]]
+then
+bin/xfitter >> $CURRENTDIR/install.log  2>&1
+else
+bin/FitPDF >> $CURRENTDIR/install.log  2>&1
+fi
+
+
 if [[ $? != 0 ]]
 then
     echo "Error in testing xfitter executable, check install.log for details"
@@ -565,7 +611,7 @@ then
 	xfitter-${version}/ewparam.txt \
 	run
     rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-    if [[ $version != "trunk" && `echo $version | sed "s/\.//g"` -le 111 ]]
+    if [[ $stripversion -le 111 ]]
     then
         rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
     fi
@@ -584,7 +630,7 @@ then
     echo "xfitter          #run your fit" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
     echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
-    if [[ $version == "trunk" || `echo $version | sed "s/\.//g"` -gt 111 ]]
+    if [[ $version == "trunk" || $stripversion -ge 120 ]]
         then 
         echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
     else 
