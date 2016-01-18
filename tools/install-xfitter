@@ -546,7 +546,7 @@ fi
 
 #make a compilation script
 echo source ./setup.sh > compile
-if [[ $version != "trunk" && $stripversion -le 111]]	
+if [[ $version != "trunk" && $stripversion -le 111 ]]	
  then
  echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-${qcdnumver}  >> compile
  else
