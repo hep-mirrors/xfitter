@@ -146,7 +146,7 @@ then
     then
 	echo "Detected Mac OS X system"
 	MODE=local
-	if [[ $version != "trunk" ]]
+	if [[ $version != "trunk" && $stripversion -le 110 ]]
 	then
 	    which cernlib >& /dev/null
 	    if [[ $? != 0 ]]
@@ -186,7 +186,7 @@ then
 	then
 	    echo "Detected Ubuntu distribution"
 	    MODE=local
-	    if [[ $version != "trunk" ]]
+	    if [[ $version != "trunk" && $stripversion -le 110 ]]
 	    then
 		which cernlib >& /dev/null
 		if [[ $? != 0 ]]
@@ -229,7 +229,7 @@ if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
     . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-    if [[ $version != "trunk" ]]
+    if [[ $version != "trunk" && $stripversion -le 110 ]]
 	then
 	export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt
     fi
@@ -535,7 +535,7 @@ fi
 if [[ $MODE == "cern" ]]
 then
     echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-    if [[ $version != "trunk" || $stripversion -ge 120 ]]
+    if [[ $version != "trunk" && $stripversion -le 110 ]]
 	then
 	echo export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt      >> setup.sh
     fi
@@ -611,7 +611,7 @@ then
 	xfitter-${version}/ewparam.txt \
 	run
     rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-    if [[ $stripversion -le 111 ]]
+    if [[ $version != "trunk" && $stripversion -le 111 ]]
     then
         rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
     fi
@@ -627,7 +627,12 @@ then
     echo >> quickstart-readme.txt
     echo "source setup.sh #setup environment" >> quickstart-readme.txt
     echo "cd run          #enter your run directory" >> quickstart-readme.txt
+    if [[ $version == "trunk" || $stripversion -ge 120 ]]
+    then 
     echo "xfitter          #run your fit" >> quickstart-readme.txt
+    else
+    echo "FitPDF           #run your fit" >> quickstart-readme.txt
+    fi
     echo >> quickstart-readme.txt
     echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
     if [[ $version == "trunk" || $stripversion -ge 120 ]]
@@ -638,7 +643,12 @@ then
     fi
     echo >> quickstart-readme.txt
     echo "After the fit, display you results with:" >> quickstart-readme.txt
+    if [[ $version == "trunk" || $stripversion -ge 120 ]]
+    then 
     echo "xfitter-draw output/" >> quickstart-readme.txt
+    else
+    echo "DrawPdfs output/" >> quickstart-readme.txt
+    fi
     echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
     echo "You can find further documentation in xfitter-$version/README and xfitter-$version/doc/tex/manual/" >> quickstart-readme.txt
     echo "-----------------------------------------------------------"
