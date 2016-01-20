@@ -231,6 +231,8 @@ C----------------------------------------------
 #include "steering.inc"
 #include "scales.inc"
 #include "indata.inc"
+#include "theorexpr.inc"
+#include "chi2scan.inc"
 #include "for_debug.inc"
 C-----------------------------------------------
 
@@ -290,23 +292,31 @@ C
 C Decode Running Mode:
       if ( RunningMode .eq. ' ' ) then
          Call hf_errlog(15072201,
-     $        'I: RunningMode not set, check LHAPDFERRors for backward'
-     $        //' compatibility')
+     $        'I: RunningMode not set,check LHAPDFERRors'
+     $        //' and SCAN for backward compatibility')
+         scan = .false.
          lhapdferrors = .false.
          pdfrotate = .false.
       else if  ( RunningMode .eq. 'Fit') then
+         scan = .false.
          lhapdferrors = .false.
          pdfrotate = .false.
       else if  ( RunningMode .eq. 'PDF Rotate') then
+         scan = .false.
          lhapdferrors = .false.
          pdfrotate = .true. 
       else if  ( RunningMode .eq. 'LHAPDF Analysis') then
+         scan = .false.
          lhapdferrors = .true. 
          if ( index(pdfstyle,'LHAPDF').eq.0) then
             Call hf_errlog(15072203,'I: Set LHAPDF Style.')
             PDFSTYLE = 'LHAPDF'
          endif
          pdfrotate = .false.
+      else if  ( RunningMode .eq. 'Chi2 Scan') then
+         scan = .true.
+         lhapdferrors = .false.
+         pdfrotate = .false. 
       else
          call hf_errlog(15072202,'F:Running mode unknonw value: '//
      $        trim(RunningMode))
