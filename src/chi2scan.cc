@@ -222,10 +222,8 @@ void chi2_scan_()
 	      char cid[10];
 	      sprintf(cid, "%d", *dit);
 	      char vl[10];
-	      sprintf(cid, "%f.3", *vit);
-	      char tm[10];
-	      sprintf(cid, "%s", *tit);
-	      string msg = (string)"S: Error in chi2scan namelist: source not found for value, "  + vl + ", dataset " + cid + ", term " + tm;
+	      sprintf(vl, "%f.3", *vit);
+	      string msg = (string)"S: Error in chi2scan namelist: source not found for value, "  + vl + ", dataset " + cid + ", term " + (*tit);
 	      hf_errlog_(16012001, msg.c_str(), msg.size());
 	    }
 	  source.erase(source.find_first_of(" "), string::npos);
