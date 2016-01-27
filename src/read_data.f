@@ -1534,24 +1534,26 @@ c      do i=1,NData
       do i=1,Npoints
 c         do j=1,NUncert
          if (NUncert.gt.0) then
-            do j=CompressIdx(1),CompressIdx(NUncert)
-               idx = DATASETIDX(idxdataset,i)
-
-               if (NAsymPlus(j).eq.1
-     +              .and. NAsymMinus(j).eq.1 ) then !Asymmetric errors (flip up and down errors because assigned to theory)
-                  THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) +
-     +                 MAX(MAX(BetaAsym(j,1,idx), 
-     +                 BetaAsym(j,2,idx)),
-     +                 0d0) ** 2
-                  THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) +
-     +                 MAX(MAX(-BetaAsym(j,1,idx), 
-     +                 -BetaAsym(j,2,idx)),
-     +                 0d0) ** 2
-               else             !Symmetric errors
-                  THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) 
-     +                 + Beta(j, idx) ** 2
-                  THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) 
-     +                 + Beta(j, idx) ** 2
+               do j=CompressIdx(1),CompressIdx(NUncert)
+                  if (j.gt.0) then
+                  idx = DATASETIDX(idxdataset,i)
+                  
+                  if (NAsymPlus(j).eq.1
+     +                 .and. NAsymMinus(j).eq.1 ) then !Asymmetric errors (flip up and down errors because assigned to theory)
+                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) +
+     +                    MAX(MAX(BetaAsym(j,1,idx), 
+     +                    BetaAsym(j,2,idx)),
+     +                    0d0) ** 2
+                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) +
+     +                    MAX(MAX(-BetaAsym(j,1,idx), 
+     +                    -BetaAsym(j,2,idx)),
+     +                    0d0) ** 2
+                  else          !Symmetric errors
+                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) 
+     +                    + Beta(j, idx) ** 2
+                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) 
+     +                    + Beta(j, idx) ** 2
+                  endif
                endif
             enddo
          endif
