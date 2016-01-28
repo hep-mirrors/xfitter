@@ -147,6 +147,10 @@ int reweight(int argc,char* argv[]) {
                         info_add_node_str(pdf_set.members[im].info, "SetDesc", "reweighted");
         }
 
+	EACH_IN_SET(&pdf_set, im, ig, ix, iq, ifl) {
+	  pdf_set.members[0].val[ig][ix][iq][ifl]=0;
+	}
+
        EACH_IN_SET_ERRORS(&pdf_set, im, ig, ix, iq, ifl) {
                 pdf_set.members[im].val[ig][ix][iq][ifl]=pdf_set_in.members[repnums[im]].val[ig][ix][iq][ifl];
                 pdf_set.members[0].val[ig][ix][iq][ifl]+=pdf_set_in.members[repnums[im]].val[ig][ix][iq][ifl]/(double)pdf_set.n_members;
