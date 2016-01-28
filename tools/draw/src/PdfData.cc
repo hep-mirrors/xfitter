@@ -6,12 +6,16 @@
 #include "Par.h"
 
 #include <TMath.h>
+#include <TCanvas.h>
+#include <TStyle.h>
+#include <TH1.h>
 
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
+#include <numeric>
 
 #include "FileOpener.h"
 
@@ -373,17 +377,23 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
   //Read weights for Bayesian reweighting
   if (err == MC && outdirs[label].IsReweighted())
     {
+      double ndata;
       double n, chi2, w;
-      ifstream mcwfile((dirname + "/pdf_BAYweights.dat").c_str());
+      ifstream mcwfile;
+      if (outdirs[label].IsBAY()) mcwfile.open((dirname + "/pdf_BAYweights.dat").c_str());
+      if (outdirs[label].IsGK()) mcwfile.open((dirname + "/pdf_GKweights.dat").c_str());
       string line;
       getline (mcwfile,line);
       getline (mcwfile, line);
       getline (mcwfile, line);
+      line.erase(line.begin(),line.begin()+8);    
+     ndata=atoi( line.c_str() );
       getline (mcwfile, line);
-      while (mcwfile >> n >> chi2 >> w)
+     while (mcwfile >> n >> chi2 >> w) {
+	mcchi2.push_back(chi2);
 	mcw.push_back(w);
-    }
-
+      }
+   }
   //Remake central PDF
   if (err == MC && (opts.dobands || outdirs[label].IsReweighted()))
     for (map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) //Loop on q2 values

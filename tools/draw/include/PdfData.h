@@ -108,6 +108,11 @@ class PdfData
   vector <pdfshift> pdfshifts;          // PDF shifts for PDF profiling
   vector <vector <double> > cor_matrix; // correlation matrix of pdf shifts for PDF profiling
   vector<double> mcw;                   // Bayesian weights for PDF reweighting
+  vector<double> mcchi2;                   // Chi2 for PDF reweighting (needed for control plots)
+
+
+
+
 };
 
 #endif

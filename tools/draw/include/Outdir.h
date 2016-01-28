@@ -31,6 +31,8 @@ class  Outdir {
   bool MCreplica, cl68, cl90, median, asym, bands3;
   bool profiled;
   bool reweighted;
+  bool GK;
+  bool BAY;
   bool scale68;
   bool rotated;
   int RotatedSet;
@@ -42,6 +44,8 @@ class  Outdir {
   bool IsMCreplica() {return MCreplica;};
   bool IsProfiled() {return profiled;};
   bool IsReweighted() {return reweighted;};
+  bool IsGK() {return GK;};
+  bool IsBAY() {return BAY;};
   bool Scale68() {return scale68;};
   bool IsRotated() {return rotated;};
   int  rSet()  {return RotatedSet; };

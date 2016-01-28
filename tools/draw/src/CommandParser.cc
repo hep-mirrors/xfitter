@@ -20,6 +20,8 @@ CommandParser::CommandParser(int argc, char **argv):
   scale68(false),
   profile(false),
   reweight(false),
+  GKweight(false),
+  BAYweight(false),
   bw(false),
   asym(false),
   logx(true),
@@ -212,9 +214,15 @@ CommandParser::CommandParser(int argc, char **argv):
 	  dobands = true;
 	  profile = true;
 	}
-	else if (*it == "--reweight") {
+	else if (*it == "--reweight-BAY") {
 	  dobands = true;
 	  reweight = true;
+	  BAYweight = true;
+	}
+	else if (*it == "--reweight-GK") {
+	  dobands = true;
+	  reweight = true;
+	  GKweight = true;
 	}
 	else if (*it == "--asym")
 	  {

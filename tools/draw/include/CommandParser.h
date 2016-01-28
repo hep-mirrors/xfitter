@@ -80,7 +80,7 @@ class CommandParser
   bool cms, cmspreliminary;
   bool atlas, atlaspreliminary, atlasinternal;
   bool cdfiipreliminary;
-  bool profile, reweight;
+  bool profile, reweight, BAYweight, GKweight;
   bool bw;
 
  private:
@@ -146,10 +146,11 @@ class CommandParser
     cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw profile:output:\"profiled\" output:\"not-profiled\"" << endl;
-    cout << "\t --reweight" << endl;
+    cout << "\t --reweight(-BAY/-GK)" << endl;
     cout << "\t \t Draw Reweighted PDF (only for MC replica sets)" << endl;
-    cout << "\t \t To set this option only for one directory, use the syntax reweighted:directory[:label]" << endl;
-    cout << "\t Example: xfitter-draw reweight:output:\"reweighted\" output:\"not-reweighted\"" << endl;
+    cout << "\t \t To set this option only for one directory, use the syntax reweight-BAY:directory[:label]" << endl;
+    cout << "\t \t To use the Giele-Keller weights instead of Bayesian weights, use the syntax reweight-GK:directory[:label]" << endl;
+    cout << "\t Example: xfitter-draw reweight-BAY:output:\"reweighted\" output:\"not-reweighted\"" << endl;
     cout << "\t options for rotation:" << endl;
     cout << "\t \t Draw Rotated PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option, use the syntax rotate:<n>:directory[:label]" << endl;
