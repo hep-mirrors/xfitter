@@ -25,7 +25,7 @@ the user of available functionalities.
 \begin{tabular}{lp{4cm}p{10cm}}
 \hline
 \hline
-\small\bf{steerings} & $\bullet$ steering.txt:& free PDF parameters to be varied by MINUIT \\
+\small\bf{steerings} & $\bullet$ steering.txt:& free PDF parameters to be varied by \minuit \\
  & $\bullet$ minui.in.txt:& main steering card \\
  & $\bullet$ ewparam.txt:& settings of electroweak parameters, as well as masses \\
 \toprule
@@ -35,8 +35,8 @@ the user of available functionalities.
 & $\bullet$ init\_theory.f: & initialising theory modules \\
 & $\bullet$ dataset\_tools.f:&  allocating bin indices \\
 & $\bullet$ error\_logging.f: &  error logging information\\
-& $\bullet$ minuit\_ini.f: & initialise minuit module \\
-& $\bullet$ fcn.f: & passes to minuit the $\chi^2$ to be minimised \\
+& $\bullet$ minuit\_ini.f: & initialise \minuit module \\
+& $\bullet$ fcn.f: & passes to \minuit the $\chi^2$ to be minimised \\
 & $\bullet$ pdf\_param.f:  &  parametrisation of the PDFs at starting scale\\
 & $\bullet$ sumrules.f: & PDF constraints at starting scale, such as QCD sum rules. \\
 & $\bullet$ evolution.f: & evolution of PDFs \\
@@ -57,7 +57,7 @@ the user of available functionalities.
 & $\bullet$ dy\_cc\_sigma.f  & calulates the DY cross sections \\
 & $\bullet$ applgrids\_dum.f    & protective file against miss-use of flags in steering\\
 & $\bullet$ fappl\_grid.cxx  &  \tiny (used only with ENABLE\_APPLGRID) \\
-& $\bullet$ applgrids.f    &  passing PDFs to APPLGRID \tiny (used only with ENABLE\_APPLGRID) \\
+& $\bullet$ applgrids.f    &  passing PDFs to \applgrid \tiny (used only with ENABLE\_APPLGRID) \\
 & $\bullet$ pp\_jets\_applgrid.f   & calulates $pp$ jets cross sections  \\
 & $\bullet$ ep\_jets\_fastnlo.f  &  calulates $ep$ jets cross sections \\\cmidrule{2-3} 
 & $\bullet$ getncxskt.f  & access the NC cross sections grids for uPDFs\\
@@ -92,7 +92,7 @@ the user of available functionalities.
                          of kinematic cuts                              
       \item {\tt minuit.in.txt}
                    --  controls minimisation parameters and minimisation 
-                         strategy. Standard Minuit commands can be provided
+                         strategy. Standard \minuit commands can be provided
                          in this file
       \item {\tt ewparam.txt}    --  controls electroweak parameters such
         as W and Z boson masses and CKM matrix parameters.
@@ -119,9 +119,9 @@ The following namelist blocks are encountered:
 \item  {\tt CovarToNuisance} (Optional) Namelist to convert covariance matrix to nuisance parameter representation
 for data sets were some of the uncertainties are represented using covarainace or correlation matricies.
 %Further details can be found in the appendix \ref{sec:xFitter}. 
-\item  {\tt QCDNUM}: (Optional) Namelist to modify {\tt QCDNUM} evolution parameters such as $x$ and $Q^2$ grids.
+\item  {\tt QCDNUM}: (Optional) Namelist to modify \qcdnum evolution parameters such as $x$ and $Q^2$ grids.
 \item  {\tt Systematics}: (Optional) Namelist to modify behavior of different systematic sources.
-\item  {\tt ExtraMinimisationParameters}:  Namelist to add extra to minuit parameters.
+\item  {\tt ExtraMinimisationParameters}:  Namelist to add extra to \minuit parameters.
 \item  {\tt OutDir}: (Optional) allows to modify default output directory 
 \item  {\tt Output}: Namelist that outputs steering cards 
 \item  {\tt Cuts}: Namelist for process dependent cuts
@@ -129,7 +129,7 @@ for data sets were some of the uncertainties are represented using covarainace o
 \item  {\tt Cheb} (Optional): Chebyshev study namelist
 \item  {\tt Poly} (Optional): pure polynomial parameterisation for valence quarks
 \item  {\tt HQScale} (Optional): choose the factorisation scale for HQs
-\item  {\tt lhapdf} (Optional):LHAPDF steering card
+\item  {\tt lhapdf} (Optional):\lhapdf steering card
 \end{itemize}
 
 These namelist blocks are described in greater details in the User's example \ref{section:example}. 
@@ -140,8 +140,8 @@ by the following keywords:
 \item \it\bf RunningMode: \rm\\
 defines the mode in which the program can be used. Possible values are:
 \begin{itemize}
-\item {\tt RunningMode = 'Fit'} -- the default mode which uses MINUIT-based minimisation of PDFs and other parameters.
-\item {\tt RunningMode = 'LHAPDF Analysis'} -- uses PDFs from the {\tt LHAPDF} library to produce predictions for the
+\item {\tt RunningMode = 'Fit'} -- the default mode which uses \minuit-based minimisation of PDFs and other parameters.
+\item {\tt RunningMode = 'LHAPDF Analysis'} -- uses PDFs from the \lhapdf library to produce predictions for the
 central PDF set as well as eigenvector or MC replica variations. This mode requires {\tt --enable-lhapdf} flag 
 at the package  configuration stage. The resulting predictions can be analysed using the {\tt xfitter-process} program
 to perform PDF profiling or reweighting, following the formalism discussed in Section~\ref{sec:reweighting}.
@@ -153,11 +153,11 @@ re-diagonalization of PDFs along data predictions. The output of this mode can b
  is a steering flag which defines the theory type via the chosen evolution.
 The following types are supported:
 \begin{itemize}
-\item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories, using default QCDNUM evolution.
+\item \tt{TheoryType = 'DGLAP' }\rm as used for collinear evolution theories, using default \qcdnum evolution.
 Other versions of DGLAP evolution include:  {\tt TheoryType = 'DGLAP\_APFEL'}, 
-where QCDNUM is replaced by APFEL, requires
-{\tt --enable-apfel};   {\tt TheoryType = 'DGLAP\_QEDEVOL'}, where QCDNUM evolution includes photon PDF;  
-{\tt TheoryType = 'DGLAP\_APFEL\_QED'}, where DGLAP evolution is performed by APFEL and includes photon PDF.  
+where \qcdnum is replaced by \apfel, requires
+{\tt --enable-apfel};   {\tt TheoryType = 'DGLAP\_QEDEVOL'}, where \qcdnum evolution includes photon PDF;  
+{\tt TheoryType = 'DGLAP\_APFEL\_QED'}, where DGLAP evolution is performed by \apfel and includes photon PDF.  
 For these types another 
  flag is needed to specify the order of the perturbative series in $\alpha_S$:\\
 {\tt Order}  which can be leading order ('LO'), next-to-leading order ('NLO') and when available 'NNLO'.
@@ -166,7 +166,7 @@ For these types another
 \end{itemize}
 
 \item {\bf Starting scale}: 
-The evolution starting scale is set via flag  \tt{Q02}\rm, commonly set below charm threshold, as imposed by QCDNUM.
+The evolution starting scale is set via flag  \tt{Q02}\rm, commonly set below charm threshold, as imposed by \qcdnum.
 
 \item {\it\bf DIS Heavy Flavour Scheme type:} \\
 For the DIS process, several schemes are available for heavy quark treatments via  {\tt HF\_SCHEME} flag.
@@ -181,7 +181,7 @@ For the DIS process, several schemes are available for heavy quark treatments vi
     \end{itemize}
     \item FFNS (Fixed Flavour Number Scheme)
     \begin{itemize}
-    \item via QCDNUM, \tt{HF\_SCHEME = FF}\rm 
+    \item via \qcdnum, \tt{HF\_SCHEME = FF}\rm 
     \item via ABM (openqcdrad-1.6)   [from Sergey Alekhin], \tt{HF\_SCHEME = FF ABM}\rm
     \end{itemize}
 \end{itemize}
@@ -214,20 +214,20 @@ are summarised as follows:
  \tt   'CTEQ'      & -- CTEQ-like parameterisation  \\
  \tt  'CTEQHERA'   & -- Hybrid, with valence like CTEQ, rest as HERAPDF.\\
  \tt   'CHEB'       & -- CHEBYSHEV parameterisation based on $g$, $\Sigma$, $u_v$, $d_v$ evolved pdfs \\
- \tt  'LHAPDFQ0'    & -- use LHAPDF library to define PDFs at starting scale and evolve with local \\
-                    &  QCDNUM parameters \\
- \tt  'LHAPDF'      & -- use LHAPDF library to define PDFs at all scales at the QCDNUM grid points. \\
-                    &    Uses QCDNUM to perform PDF interpolation and to evaluate $\alpha_S$. \\
- \tt  'LHAPDFNATIVE' & -- native access to LHAPDF PDFs and $\alpha_S$ for all $x$, $Q^2$ values.  \\ 
+ \tt  'LHAPDFQ0'    & -- use \lhapdf library to define PDFs at starting scale and evolve with local \\
+                    &  \qcdnum parameters \\
+ \tt  'LHAPDF'      & -- use \lhapdf library to define PDFs at all scales at the \qcdnum grid points. \\
+                    &    Uses \qcdnum to perform PDF interpolation and to evaluate $\alpha_S$. \\
+ \tt  'LHAPDFNATIVE' & -- native access to \lhapdf PDFs and $\alpha_S$ for all $x$, $Q^2$ values.  \\ 
                     & To compute predictions for the ZMVFNS structure function this option falls \\
-                    &  back to the behaviour of 'LHAPDF' flag.\\
+                    &  back to the behaviour of '\lhapdf' flag.\\
  \tt   ' DDIS'        & -- use Diffractive DIS \\
  \tt  'BiLog'       & -- bi-lognormal parametrisation \\
 \end{tabular}
 
 
 These styles were described in details in section~\ref{sec:pdfparam}.
-The LHAPDF-type styles can be used only with proper configuration settings,
+The \lhapdf-type styles can be used only with proper configuration settings,
  as explained in the section~\ref{sec:install}.
 \item {\bf  Definition of Chisquares:}\\
 The $\chi^2$ function definitions are given in \ref{sec:chi2}.
@@ -266,7 +266,7 @@ Maximum 100 cuts can be used by default.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The specific input files are stored in the {\tt $input\_steerings$} directory and 
-it contains the following ready to use inputs (with corresponding minuit files):
+it contains the following ready to use inputs (with corresponding \minuit files):
 
 \begin{itemize}
 \item  {\tt steering.txt.ALLdata}: all data files 
@@ -285,20 +285,20 @@ it contains the following ready to use inputs (with corresponding minuit files):
 %%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\item \bf {{\tt Minuit} steering cards}\rm
+\item \bf {\minuit steering cards}\rm
 
 
-The minuit steering card is described below, a sample file is presented 
+The \minuit steering card is described below, a sample file is presented 
 in Fig.~\ref{fig:minuit}
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.45\linewidth]{figures/minuit.pdf}
 \end{center}
-\caption{An example of a minuit steering card.}
+\caption{An example of a \minuit steering card.}
 \label{fig:minuit}
 \end{figure}
 
-The first three lines set the title and specify the list of MINUIT parameters which are to follow.      
+The first three lines set the title and specify the list of \minuit parameters which are to follow.      
 The index of parameters is the first column and it is hardwired to the source code:\\
 
 \begin{tabular}{ll}
@@ -325,16 +325,16 @@ if these columns are not filled then there are no bounds.
 Only parameters that have non-zero stepsize are varied 
 in the fit (free parameters). Another way to fix the parameters is
 simply by typing at the end of the list of parameters ``FIX parameter number''.  
-(make sure there is one line free before the minuit list).
-Examples of commands taken by minuit are:\\
+(make sure there is one line free before the \minuit list).
+Examples of commands taken by \minuit are:\\
 
 \begin{tabular}{ll}
 call fcn 3  &   fit is not performed, only 1 iteration, useful for testing\\
-            &    Minuit parameters ARE NOT minimized. \\
+            &    \minuit parameters ARE NOT minimized. \\
 migrad       & fit is performed (default number of calls 2000).\\
 migrad 20000 & fit is performed up to 20000 calls, then terminates.\\
-hesse        & Hessian estimate of the \tt{MINUIT}\rm parameters \\
-& (more reliable than \tt{MINUIT}\rm)\\
+hesse        & Hessian estimate of the \minuit parameters \\
+& (more reliable than \minuit \\
 \end{tabular}
 
 
@@ -439,19 +439,19 @@ $Q^2 \ge 3.5$ & NLO & 79.4 & 3.2 &-0.021 & 13.7 & 4.0 & 6.7 & 196 & 0.927 \\
                                       colliders (LO+kfactors and APPLGRID interface)
                         \item {\tt 'NC pp'}    -- single differential $d \sigma_Z / d y_Z$ at $pp$ and
                                       $p\bar{p}$ colliders
-                                      ({\tt LO} with k-factors and {\tt APPLGRID} interface)
+                                      ({\tt LO} with k-factors and \applgrid interface)
 
                         \item 'pp jets APPLGRID' -- $pp\to$ inclusive jet production, using
-                                     {\tt APPLGRID}
+                                     \applgrid
 
-                        \item 'pp jets fastNLO -- $pp\to$ inclusive jet production, using
-                                     {\tt fastNLO}. 
+                        \item 'pp jets FastNLO -- $pp\to$ inclusive jet production, using
+                                     \fastnlo. 
 
-                        \item 'FastNLO jets' -- jet cross sections using {\tt fastNLO} interface.
+                        \item 'FastNLO jets' -- jet cross sections using \fastnlo interface.
                                      All $ep$, $pp$ and $p\bar{p}$ colliders are supported.
 
                         \item 'FastNLO ep jets normalised' -- jet cross sections in the $ep$ collisions 
-                                     using {\tt fastNLO} interface and normalised to the inclusive DIS cross sections.
+                                     using \fastnlo interface and normalised to the inclusive DIS cross sections.
 
                       \end{itemize}                       
       \item {\tt NData}       --- (integer) specifies number of data points in the file. 
@@ -520,7 +520,7 @@ $Q^2 \ge 3.5$ & NLO & 79.4 & 3.2 &-0.021 & 13.7 & 4.0 & 6.7 & 196 & 0.927 \\
                       numbers to get extra info for $\chi^2/dof$ for each data set.      
       \item {\tt TheoryInfoFile} --- (string) Optional additional theory file with extra 
                      information for cross-section calculation. This could be k-factors,
-                     {\tt APPLGRID} file or {\tt FastNLO} table.  
+                     \applgrid file or \fastnlo table.  
       \item {\tt TheoryType} --- (string) Theory file type can be set to
 		     'kfactor', 'applgrid', 'fastnlo' or 'expression'. See further for more
 		     details.
@@ -553,7 +553,7 @@ expression term is used:
   to the data bins. The {\tt TermSource} for this term must point to a file with the 
   \(K\)-factor table, containing three columns: bin lower and higher edges, and the
   \(K\)-factor value. The comments starting with ``\#'' are ignored.
-\item[applgrid] term tells the parser to initialize the APPLgrid grid for the
+\item[applgrid] term tells the parser to initialize the \applgrid grid for the
   cross section evaluation. The grid options are defined with additional options
   in {\tt DataInfo} and {\tt CInfo}.
 \item[virtgrid] can be used if the fit is performed on the multidimensional 
@@ -561,10 +561,10 @@ expression term is used:
   grid definition. Consider for example the data are
   a triple differential measurement of a cross section in \(X\), \(Y\) and \(Z\)
   observables. Internally the theory prediction for such measurement is
-  represented as a linear array -- a sequence of applgrids for \(Z\), each
+  represented as a linear array -- a sequence of \applgrid grids for \(Z\), each
   corresponding to the hyperbin in \(X\) and \(Y\). The virtual grid file in 
   this case is a table, where each row denotes the hyperbin with its edges,
-  APPLgrid file location and number of bins in it:
+  \applgrid file location and number of bins in it:
   \begin{align*}
   X_0^{\mrlow} &\quad X_0^{\mrhigh} \quad Y_0^{\mrlow} \quad Y_0^{\mrhigh} \quad {\mrpa}\_0\_0{\mrdrt} &\quad M(0;0) \\
   X_0^{\mrlow} &\quad X_0^{\mrhigh} \quad Y_1^{\mrlow} \quad Y_1^{\mrhigh} \quad {\mrpa}\_0\_1{\mrdrt} &\quad M(0;1) \\
@@ -578,7 +578,7 @@ expression term is used:
   X_{N_X}^{\mrlow} &\quad X_{N_X}^{\mrhigh} \quad Y_{N_Y}^{\mrlow} \quad Y_{N_Y}^{\mrhigh} \quad {\mrpa}\_N_X\_N_Y{\mrdrt} &\quad M(N_X;N_Y) \\
   \end{align*}
   where \(N_X,\,N_Y\) are the numbers of hyperbins in \(X,\,Y\) repectively and
-  \(M\) is the number of bins in the corresponding applgrid. The order of hyprebin
+  \(M\) is the number of bins in the corresponding \applgrid. The order of hyprebin
   listing must be same as for the data table and the slowest changing hyperbin 
   must go first. In case the fitted data is a double-differential cross section, only 
   one hyperbin needs to be listed, i.e.:
@@ -677,9 +677,9 @@ the following columns need to present in the correctly formatted input file:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\item \bf{Data format requirements for FastNLO} \rm
+\item \bf{Data format requirements for \fastnlo} \rm
 
-In this subsection we describe data format specific for the FastNLO implementation
+In this subsection we describe data format specific for the \fastnlo implementation
 accessed by choosing 'FastNLO jets' and 'FastNLO ep jets normalised' reaction types.
 Examples of properly formatted files are:
 
@@ -687,26 +687,26 @@ Examples of properly formatted files are:
 
    {\tt datafiles/HERA/H1\_NormInclJets\_HighQ2\_99-07.dat}.
 
-{\tt TheoryType = 'FastNLO'} indicates usage of the FastNLO. The variable {\tt ThoryInfoFile} 
-should contain the proper path to the FastNLO table in version 2.0 or higher.
+{\tt TheoryType = 'FastNLO'} indicates usage of the \fastnlo. The variable {\tt ThoryInfoFile} 
+should contain the proper path to the \fastnlo table in version 2.0 or higher.
 \fitter\ supports both flexible and inflexible scales.
-Older FastNLO tables can be still accessed through the APPLGRID interface.
+Older \fastnlo tables can be still accessed through the \applgrid interface.
 
 The following fields are required to be present in the {\tt CInfo} list:
 
 \begin{itemize}
 
     \item {\tt 'PublicationUnits'} --- The desired units in which the cross sections 
-    are calculated by the FastNLO code. If the corresponding {\tt DataInfo} field is 
+    are calculated by the \fastnlo code. If the corresponding {\tt DataInfo} field is 
     set to '1.' the cross sections will be given in the same units as used in the
     relevant publication. In the case it is set to '0.', absolute cross section
     units will be used. 
 
     \item {\tt 'MurDef', 'MufDef'} --- The renormalisation and factorisation scale definitions
-    used with variable scale FastNLO tables. If the chosen FastNLO table does not support 
+    used with variable scale \fastnlo tables. If the chosen \fastnlo table does not support 
     variable scales, these fields will be ignored and the scale embedded within the table will 
     be used instead. The values of the corresponding {\tt DataInfo} fields set 
-    the renormalisation scale $\mu_r$ and factorisation scale $\mu_f$ following the FastNLO standard:
+    the renormalisation scale $\mu_r$ and factorisation scale $\mu_f$ following the \fastnlo standard:
     \begin{align*} 
        \text{value} :&\quad \text{definition} \\
        0 :&\quad   \mu_{r/f}^2 = \mu_1^2 \\
@@ -752,11 +752,11 @@ information specific to each data point to be passed. They are listed below:
 
 \begin{itemize}
      \item{\tt 'Z0Corr'} --- (optional) The correction due to the $Z_0$ boson exchange.
-                 If it is given, each point calculated by the FastNLO code will be
+                 If it is given, each point calculated by the \fastnlo code will be
                  multiplied by the {\tt Z0Corr} value.
 
      \item{\tt 'NPCorr'} --- (optional) The non-perturbative correction.
-                 If it is given, each point calculated by the FastNLO code will be
+                 If it is given, each point calculated by the \fastnlo code will be
                  multiplied by the {\tt NPCorr} value. {\tt Z0Corr} and {\tt NPCorr} can be added 
                  simultaneously, and in this case the calculated cross sections
                  will be multiplied by the product {\tt Z0Corr} * {\tt NPCorr}.
@@ -790,10 +790,10 @@ information specific to each data point to be passed. They are listed below:
   to the {\tt output/Results.txt} file. The {\tt Results.txt} file contains additional 
   information about shifts of the correlated systematic uncertainties.
 
-  The minimization information from the {\tt minuit} program is stored using the standard {\tt minuit} output format in the {\tt output/minuit.out.txt}
-  file. The level of verbosity for this information can be changed by {\tt minuit} commands
+  The minimization information from the \minuit program is stored using the standard \minuit output format in the {\tt output/minuit.out.txt}
+  file. The level of verbosity for this information can be changed by \minuit commands
   in the {\tt minuit.in.txt} file. 
-  It is a good idea to check that minuit does not report any errors
+  It is a good idea to check that \minuit does not report any errors
   or warnings at the end of minimisation.
   
   Point by point comparison of the data and predictions after the minimization 
@@ -823,10 +823,10 @@ information specific to each data point to be passed. They are listed below:
   where the information is read. Calling the {\tt bin/DrawResults} program with two
   arguments provides a comparison of the PDFs obtained in the two fits.
   
-  In addition the \fitter\ package provides PDFs in the {\tt LHAPDF} format as {\tt output/lhapdf.block.txt} file. 
+  In addition the \fitter\ package provides PDFs in the \lhapdf format as {\tt output/lhapdf.block.txt} file. 
   To obtain the
-  {\tt LHAPDF} grid file, run the {\tt tools/tolhapdf.cmd} script. The script provides a
-  {\tt PDFs.LHgrid} file which can be read by the lhapdf version lhapdf-5.8.6.tar.gz
+  \lhapdf grid file, run the {\tt tools/tolhapdf.cmd} script. The script provides a
+  {\tt PDFs.LHgrid} file which can be read by the \lhapdf version lhapdf-5.8.6.tar.gz
   or later.
 %%%%%%%%%%%
 

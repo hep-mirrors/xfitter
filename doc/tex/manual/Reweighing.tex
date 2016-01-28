@@ -10,8 +10,8 @@ Watt and Thorne~\cite{Watt:2012tq} have also proposed a scheme for how to implem
 %allows these methods to be used to update any PDF that is available either as a probability distribution... or as a PDf eigenvector set
 %
 The \fitter package allows these methods to be used to update any PDF that is available either as a probability distribution
-(i.e. a lhapdf .LHgrid file in NNPDF format) or as a PDf eigenvector set 
-(i.e. any PDF set in lhapdf .LHgrid file format with errors determined using the Hessian Eigenvector Method).
+(i.e. a \lhapdf .LHgrid file in NNPDF format) or as a PDf eigenvector set 
+(i.e. any PDF set in \lhapdf .LHgrid file format with errors determined using the Hessian Eigenvector Method).
 This enables the user to assess the impact of new data not only on the {\tt HERAPDF} using the full-blown fit procedure 
 but also on other standard PDF sets. This one can investigate how the data impact different PDF sets.
 
@@ -122,7 +122,7 @@ asymmetric PDF uncertainties, is minimised iteratively: the values of $\Gamma^{\
 th+}_{ik}$ are updated using $\beta_{k, \rm th}$ from the
 previous iteration and following the substitution of Eq.~\ref{eq:iter}.
 Several iterations are required to converge, and the procedure is verified
-using the MINUIT program which yields identical results.
+using the \minuit program which yields identical results.
 
 The value at the minimum of the $\chi^2$ function provides a
 compatibility test of the data and theory.
@@ -181,7 +181,7 @@ $f^{+'}_i$ and $f^{-'}_i$ are calculated as
 The \fitter framework can be used to apply either PDF reweighting for
 NNPDF-style PDF probability distributions as well as for PDF profiling for PDF sets with Hessian PDF eigenvector error sets. The \fitter will automatically determine which method to use based on the specified input PDF. 
 
-This requires that the {\tt LHAPDF} module is installed, see sections \ref{sec:install_lhapdf}. In the \fitter steering files, as {\tt RunningMode} the following parameter has to be chosen: {\tt 'LHAPDF Analysis'}. This will write out the following files into the {\tt output} directory:
+This requires that the \lhapdf module is installed, see sections \ref{sec:install_lhapdf}. In the \fitter steering files, as {\tt RunningMode} the following parameter has to be chosen: {\tt 'LHAPDF Analysis'}. This will write out the following files into the {\tt output} directory:
 
 \begin{itemize}
  \item \textbf{NNPDF-style PDFs}:

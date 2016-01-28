@@ -38,7 +38,7 @@ in parametrising the PDFs at a starting scale  $Q^2_0$, chosen to be below the c
 The PDFs are then evolved using coupled, integro-differential
 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi (DGLAP)~\cite{Gribov:1972ri,Gribov:1972rt,Lipatov:1974qm,
 Dokshitzer:1977sg,Altarelli:1977zs} evolution equations 
-as implemented in the QCDNUM~\cite{qcdnum} program in the $\overline{\text{MS}}$ scheme 
+as implemented in the \qcdnum~\cite{qcdnum} program in the $\overline{\text{MS}}$ scheme 
 (LO, NLO nd NNLO evolutions are available~\cite{Curci:1980uw,Furmanski:1980cm}).
 %The renormalisation and factorisation scales are set to $Q^2$. 
 %(LO and NNLO evolutions are also available).
@@ -52,7 +52,7 @@ In the following sections, the theoretical input for various processes is descri
 for example the electron-proton deep inelastic scattering (DIS) process in section 
 \ref{dis}, the Drell-Yan process in section \ref{DY}. 
 For the jet cross section calculations, \fitter\ uses  
-APPLGRID or FastNLO, see section \ref{sec:theory:jets}.
+APPLGRID or \fastnlo, see section \ref{sec:theory:jets}.
 Section \ref{hvqmnr} describes heavy-quark production in hadron collisions at NLO.
 In section \ref{ttbar} the $t\bar{t}$ cross sections are calculated based on the HATHOR package.
 Alternative approaches to collinear factorisation
@@ -169,14 +169,14 @@ For the DIS processes these are the Fixed-Flavour number
 (FFN)~\cite{Laenen:1992, Laenen:1993, Riem:1995} or the general mass 
 Variable-Flavour number (GM-VFN)~\cite{VFN} schemes. 
 %\fitter\ implements the zero mass variable flavour number (ZMVFN) scheme
-% from QCDNUM and are discussed in the following subsections.
+% from \qcdnum and are discussed in the following subsections.
 In the FFN scheme, heavy quark contributions are explicitly included in the hard cross sections. 
 In the VFN scheme, PDFs corresponding to heavy quarks are introduced and the number of active 
 flavors changes by one unit when the scale crosses the threshold for heavy quark distribution ($Q^2 > m_{Q}^2$).
 
 
 %The various treatments for the heavy quark thresholds are implemented as provided by the MSTW group
-The evolution program QCDNUM~\cite{qcdnum} used in \fitter\ provides 
+The evolution program \qcdnum~\cite{qcdnum} used in \fitter\ provides 
 the calculations of the deep inelastic structure functions in the zero-mass, 
 generalised mass and the fixed flavour number schemes. 
 VFN schemes with various treatments for the heavy 
@@ -188,13 +188,13 @@ quark  thresholds are considered in \fitter\ :
   \item[$\bullet$] the ACOT scheme with its variants at LO and NLO as
     provided by the CTEQ group, 
     \item the FONLL scheme at NLO and NNLO~\cite{Forte:2010ta}
-      provided by the external code {\tt APFEL}~\cite{Bertone:2013vaa},
+      provided by the external code \apfel~\cite{Bertone:2013vaa},
   \item[$\bullet$]  BMSN scheme at NLO and NNLO~\footnote{The BMSN scheme as provided by the ABM group
       currently is not yet fully implemented in \fitter\ .}.
   \end{enumerate}
 \end{center}  
 The fixed-flavour number scheme
-is available via the QCDNUM implementation and via the 
+is available via the \qcdnum implementation and via the 
 {\tt OPENQCDRAD}~\cite{openqcdrad:page} interface.
 Each of these schemes is briefly discussed below.
 
@@ -229,14 +229,14 @@ Both of these variants are accessible within the \fitter\ package.
 The calculations are available to NLO and NNLO. In addition, a fast version of the scheme 
 is available (i.e. RT FAST) by using the k-factor technique. 
 The k-factors are defined as the ratio between massless and massive scheme. 
-They are applied to the fast massless scheme accessed by QCDNUM. 
+They are applied to the fast massless scheme accessed by \qcdnum. 
 However, the k-factors are only calculated correctly for the PDF parameters which enter the first 
 iteration of the minimisation and are not updated with each iteration. 
 Hence the RT-fast calculation must be repeated by inputting the final PDF parameters 
 and iterating this procedure until the input and output PDFs are not significantly different
 %The k-factors are applied at the first iteration of the minimisation process enabling the code to run fast, 
 %as the k-factors are defined as the ratio between massless and massive scheme, while the massless scheme 
-%accessed via QCDNUM is very fast.
+%accessed via \qcdnum is very fast.
 
  
 %%%%
@@ -318,16 +318,16 @@ all orders in perturbation theory~\cite{Ball:2015tna,Ball:2015dpa}.
 
 All presently available variants of the FONLL scheme, \textit{i.e.} A,
 B and C, are available in \fitter\ by means of their implementation in
-the {\tt APFEL} code~\cite{Bertone:2013vaa}.
+the \apfel code~\cite{Bertone:2013vaa}.
 
 %%%%
 \subsubsection{Fixed -Flavour Number Scheme}
 
 As mentioned before, in the FFN scheme only the gluon and the light quarks are considered
 as partons within the proton, massive quarks are produced perturbatively in the final state.
-\fitter\ includes the FFN scheme from ABM~\cite{openqcdrad:page} and can also use the QCDNUM implementation.
+\fitter\ includes the FFN scheme from ABM~\cite{openqcdrad:page} and can also use the \qcdnum implementation.
 %The fixed-flavour number scheme for DIS structure functions in \fitter\ can be selected via {\tt HF$\_$SCHEME}
-%using QCDNUM or ABM~\cite{openqcdrad:page} implementation.
+%using \qcdnum or ABM~\cite{openqcdrad:page} implementation.
 
 In addition, a recent variation of the fixed-flavour number scheme in which the running mass definition
 of the heavy quark mass is used in the $\overline{\text{MS}}$ scheme~\cite{Alekhin:runm} is implemented
@@ -335,7 +335,7 @@ in \fitter\ .This variant is realised via the interface to the open-source code
 OPENQCDRAD~\cite{openqcdrad:page}.
 This scheme has the advantage of reducing the sensitivity of the DIS cross sections to
 higher order corrections, and improving the theoretical precision of the mass definition. 
-In QCDNUM, the calculation of the heavy quark contributions to DIS structure functions
+In \qcdnum, the calculation of the heavy quark contributions to DIS structure functions
 are available at NLO and only electromagnetic exchange contributions are taken into account.
 In the ABM implementation, the QCD corrections to the massive Wilson coefficients 
 up to the currently best known approximate NNLO for the neutral-current (NC) 
@@ -360,7 +360,7 @@ for the charged-current (CC) case are available.
 %the heavy quark contributions to DIS structure functions $F_2$ and $F_L$ (and $F_3$ in the charged 
 %current case) are calculated in the FFNS and together with the light-flavor contributions are 
 %provided for the theory prediction calculation (theory$\_$dispatcher.f).
-%The interpolation to PDFs and $\alpha_s$ evolution from QCDNUM are set up in the interface to OPENQCDRAD. \\
+%The interpolation to PDFs and $\alpha_s$ evolution from \qcdnum are set up in the interface to OPENQCDRAD. \\
 %The variation of the renormalisation and factorisation scales for heavy quarks is 
 %possible (see available options in steering.txt file).
 %
@@ -399,7 +399,7 @@ predict lepton pair production at the LHC or Tevatron.
 The Drell-Yan process is shown in Fig.~\ref{fig:dy}. 
 The calculations of the Drell Yan processes are known for many observables up to NNLO order.
 For example, there are packages such as FEWZ~\cite{FEWZ} and DYNNLO~\cite{DYNNLO} for NNLO
-or MCFM~\cite{MCFM} for NLO calculations. However, due to the complicated nature of these
+or \mcfm~\cite{MCFM} for NLO calculations. However, due to the complicated nature of these
 calculation involving an increased number of diagrams with each additional order, these 
 calculations are too slow to be used iteratively in a fit.
 There are various methods to overcome this shortage: using the k-factors approximation 
@@ -490,7 +490,7 @@ the factorised part of the expression which is independent of PDFs can be
 calculated only once for all minimisation iterations.
 The leading order code in \fitter\ package implements this 
 optimisation and uses fast convolution routines provided by
-QCDNUM. Currently the full width LO calculations are optimised 
+\qcdnum. Currently the full width LO calculations are optimised 
 for lepton pseudorapidity and boson rapidity distributions with the
 possibility to apply lepton \(p_{\perp}\) cuts.
 %making this procedure flexible to describe data.
@@ -504,7 +504,7 @@ k-factors to obtain predictions at NLO or NNLO precision.
 %%%%
 
 Alternatively, one can obtain the NLO predictions directly by using 
-APPLGRID or FASTNLO techniques, which rely on the factorisation theorem by 
+APPLGRID or \fastnlo techniques, which rely on the factorisation theorem by 
 decoupling the hard scattering coefficients from PDFs.
 The hard scattering coefficients are calculated once and stored into a grid 
 for a given kinematic bin, speeding up the convolution process with the PDFs 
@@ -569,8 +569,8 @@ coefficients have to be pre-computed in a PDF and $\alpha_s$
 independent way. For this purpose, two similar tools are
 interfaced to the \fitter .
 
-\subsubsection{FastNLO}
-The fastNLO project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
+\subsubsection{\fastnlo}
+The \fastnlo project~\cite{Kluge:2006xs,Wobisch:2011ij,Britzger:2012bs}
 enables the inclusion of hadron-induced differential data in PDF and $\alpha_s$ fits
 and is mostly used for jet cross sections in DIS and hadron-hadron collisions.
 This tool uses multi-dimensional interpolation
@@ -578,43 +578,43 @@ techniques to convert the convolutions of perturbative
 coefficients with parton distribution functions and 
 the strong coupling into simple products.
 The phase space of the interpolations are optimized for each individual data point during
-the generation of the fastNLO tables.
+the generation of the \fastnlo tables.
 %Although the concept is process independent, 
 The perturbative 
-coefficients for jet-production in NLO are calculated by the \texttt{NLOJET++}
+coefficients for jet-production in NLO are calculated by the \nlojetpp
 program~\cite{Nagy:1998bb} where calculations 
 in DIS~\cite{Nagy:2001xb}  as well as in hadron-hadron 
 collisions~\cite{Nagy:2003tz,Nagy:2001fj} with threshold-corrections 
 of $\mathcal{O}$(NNLO) for inclusive jet cross 
 sections~\cite{Kidonakis:2000gi} are available.
 
-The fastNLO code is included as source code in the \fitter\
+The \fastnlo code is included as source code in the \fitter\
 package and no further requirements or compilation options
 are needed. In order to include a new measurement into the PDF-fit,
-the fastNLO tables have to be specified. These tables include all
+the \fastnlo tables have to be specified. These tables include all
 necessary information about the perturbative coefficients and the
 calculated process for all bins of a certain dataset. 
 Tables for almost all published jet measurements
 are available through the project website {\tt http://fastnlo.hepforge.org}.
 %or have otherwise to be calculated by using the full fastNLO package.
-The calculation of a new fastNLO table requires to download the full
-fastNLO toolkit package and a suitable generator code from the website.
+The calculation of a new \fastnlo table requires to download the full
+\fastnlo toolkit package and a suitable generator code from the website.
 
-Features of the fastNLO concept are the very quick convolution of the
+Features of the \fastnlo concept are the very quick convolution of the
 perturbative coefficients with the PDFs, of
 $\mathcal{O}(100 ms)$, and the very high accuracy
 of the interpolation procedure. 
-The fastNLO tables are conventionally calculated
+The \fastnlo tables are conventionally calculated
 for multiple factors of the factorization scale, 
 and the renormalization scale factor can be chosen freely.
-Some of the fastNLO tables already allow for 
+Some of the \fastnlo tables already allow for 
 %already involve a scale-independent
 %concept~\cite{Britzger:2012bs}, which allows for 
 the free choice~\cite{Britzger:2012bs} of the renormalization and the factorization
 scale as a function of two pre-defined observables.
 The evaluation of the strong coupling constant, which enters
 the cross section calculation, is taken consistently from the 
-QCDNUM evolution code, or from LHAPDF if specified.
+\qcdnum evolution code, or from \lhapdf if specified.
 
 
 \subsubsection{APPLGRID}
@@ -634,16 +634,16 @@ variation of factorization and renormalization scales in
 calculations.
 
 The look-up tables (grids) can be generated with modified versions
-of MCFM~\cite{Campbell:1999ah,Campbell:2010ff} or 
-NLOjet++~\cite{Nagy:2001fj} software as distributed
+of \mcfm~\cite{Campbell:1999ah,Campbell:2010ff} or 
+\nlojetpp~\cite{Nagy:2001fj} software as distributed
 with the full version of APPLGRID package.
 % NLO calculations
 %for the current analysis are performed with the help of APPLGRID
 %generated grids based on MCFM calculations. 
 
-APPLGRID supports an interface to the MCFM parton level generators,
+APPLGRID supports an interface to the \mcfm parton level generators,
 hence model input parameters such as electroweak parameters
-are in fact pre-set following the MCFM input steering card, while
+are in fact pre-set following the \mcfm input steering card, while
 binning and definitions of the observables for which the
 differential cross sections are needed are set in the 
 APPLGRID code. 

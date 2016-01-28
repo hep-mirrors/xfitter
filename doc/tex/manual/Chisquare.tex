@@ -89,7 +89,7 @@ on $m_i$ and the dependence of $\delta_{\rm stat}$ on $b_j$ is ignored.
 
 Eq.~\ref{eq:chi2gen} allows for two methods for fast determination
 of the minimum, without need to include the formal nuisance parameters
-corresponding to the systematic error sources into the minuit minimisation.
+corresponding to the systematic error sources into the \minuit minimisation.
 In the first method a minimisation vs. $b_j$ is used to define the covariance
 matrix for the systematic uncertainties which is determined as
 \begin{equation}
@@ -145,7 +145,7 @@ which depends on shifts of $b_j$, is implemented using an iterative approach: fo
 matrix is scaled in a similar manner. In this case the correlation matrix is assumed to be fixed, the diagonal
 elements are updated using the prescription describe above and the covariance matrix is rescaled accordingly.
 
-The modifications of the covariance matrix at each iteration of the minuit minimisation may lead to systematic
+The modifications of the covariance matrix at each iteration of the \minuit minimisation may lead to systematic
 biases. There are two approaches that can be used to avoid these biases. In the first approach the covariance matrix is calculated
 using the expected values at the first iteration of the minimisation and kept fixed to these values for further
 iterations. This method requires several repetitions of the minimisation, to ensure that values close to optimal
@@ -184,7 +184,7 @@ sources.
 The shifts of the systematic sources are reported in the {\sc Results.txt} file. The uncertainty on the shift
 is however estimated only approximately, neglecting the correlation with the theory parameters. An accurate determination
 of the uncertainty can be achieved by using the toy MC method (see section~\ref{sec:ToyMC}) or by using {\sc ':E'} 
-modifier. In the latter case the systematic source is treated using the {\tt Minuit} minimisation. Note, however,
+modifier. In the latter case the systematic source is treated using the \minuit minimisation. Note, however,
 that this approach can slow the minimisation convergence considerably.
 \begin{table}
 \begin{center}
@@ -237,7 +237,7 @@ uncertainty is $\Delta_i = \delta_{i, {\rm stat}}\sqrt{m^i\mu^i}$   }
   {\sc :N}  &  Nuisance parameter treatment \\
   {\sc :C}  &  Covariance matrix treatment \\
   {\sc :O}  &  Offset method treatment \\
-  {\sc :E}  &  Nuisance parameter, included in {\sc Minuit} (``External'')\\
+  {\sc :E}  &  Nuisance parameter, included in \minuit (``External'')\\
 \hline
 \end{tabular}
 \end{center}
