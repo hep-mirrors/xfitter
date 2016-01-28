@@ -250,6 +250,22 @@ class CommandParser
 	 << endl;
     cout << "\t &End" << endl;
     cout << endl;
+    cout << "Option for 3-band PDF uncertainty bands (HERAPDF style) in PDF plots." << endl;
+    cout << "\t --bands 3bands:<dir-full-uncert>" << endl;
+    cout << "\t \t draw PDFs with three uncertainty bands: experimental (red), model (yellow) parametrisation (green)." << endl;
+    cout << "\t The model uncertainty originates from variation of model parameters (e.g. masses of heavy quarks, Q^2 cuts on data, etc.),"  << endl; 
+    cout << "\t parametrisation - from variations of the parameters in the fit and variation of the starting scale Q_0^2."<< endl;
+    cout << " \t Directory <dir-full-uncert> should have fit results for experimental, model and parametrisation variations. " << endl;
+    cout << " \t The file names for experimental variations should follow convention as follows: " << endl;
+    cout << " \t pdfs_q2val_s01m_01.txt  " << endl;
+    cout << " \t pdfs_q2val_s01p_01.txt  " << endl;
+    cout << " \t ...  " << endl;
+    cout << " \t where s01m stands for experimental error (s), number of fitted parameters (01 to N) and minus (m) or plus (p) variation; " << endl;
+    cout << " \t the last number stands for the index of the Q^2 value at which PDFs are drawn (defined in Q2VAL in steering.txt). " << endl;
+    cout << " \t Similarly, m11m stands for model uncertainty and the number should start from N+1 (here assuming that N=10 for exp errors)." << endl;
+    cout << " \t Finally, p14m stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
+    cout << " \t NOTE: if command '--bands <dir-full-uncert>' is used, the total uncertainty in red is drawn." << endl;
+    cout << endl;
   };  
 };
 
