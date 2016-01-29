@@ -60,7 +60,7 @@ the above prescription simplifies to:
 
 \subsubsection{Bayesian Reweighting of PDF sets}
 
-Once PDF probability distributions are available as inputs, they can be updated to incorporate the new data. This is achieved by applying weights to the PDF probability distributions such that the prediction for observable $\langle\mathcal{O}(\mathrm{PDF})\rangle$ from equation \ref{eq:meanReplicas} changes to:
+Once PDF probability distributions are available as inputs, they can be updated to incorporate the new data. This is achieved by applying weights to the PDF probability distributions such that the prediction for observable $\langle\mathcal{O}(\mathrm{PDF})\rangle$ from Eq.~\ref{eq:meanReplicas} changes to:
 
 \begin{equation}
  \langle\mathcal{O}^{\mathrm{new}}(\mathrm{PDF})\rangle = \frac{1}{N_{\mathrm{rep}}} \sum_{k=1}^{N_{\mathrm{rep}}} w_k \mathcal{O}(\mathrm{PDF}_k)
@@ -82,6 +82,7 @@ The weighted PDF probability distribution can be turned into a new ensemble of P
 in order to create a more stream-lined PDF set.
 
 \subsection{Profiling}
+\label{sec:profiling}
 
 The impact of a new data set on a given PDF set can be quantitatively
 estimated with a profiling procedure~\cite{Paukkunen:2014zia}. The
@@ -181,7 +182,7 @@ $f^{+'}_i$ and $f^{-'}_i$ are calculated as
 The \fitter framework can be used to apply either PDF reweighting for
 NNPDF-style PDF probability distributions as well as for PDF profiling for PDF sets with Hessian PDF eigenvector error sets. The \fitter will automatically determine which method to use based on the specified input PDF. 
 
-This requires that the \lhapdf module is installed, see sections \ref{sec:install_lhapdf}. In the \fitter steering files, as {\tt RunningMode} the following parameter has to be chosen: {\tt 'LHAPDF Analysis'}. This will write out the following files into the {\tt output} directory:
+This requires that the \lhapdf module is installed, see sections \ref{sec:installation}. In the \fitter steering files, as {\tt RunningMode} the following parameter has to be chosen: {\tt 'LHAPDF Analysis'}. This will write out the following files into the {\tt output} directory:
 
 \begin{itemize}
  \item \textbf{NNPDF-style PDFs}:
