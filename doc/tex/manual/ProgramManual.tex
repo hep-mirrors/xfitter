@@ -230,13 +230,15 @@ These styles were described in details in section~\ref{sec:pdfparam}.
 The \lhapdf-type styles can be used only with proper configuration settings,
  as explained in the section~\ref{sec:install}.
 \item {\bf  Definition of Chisquares:}\\
-The $\chi^2$ function definitions are given in \ref{sec:chi2}.
-Different  options for various $\chi^2$ terms are controlled by the flag {\tt 'CHI2SettingsName'}
-which can have following values: 
+The $\chi^2$ function definitions and {\fitter} implementation are given in \ref{sec:chi2}.
+Briefly, different  options for various $\chi^2$ terms are controlled by the flag {\tt 'CHI2SettingsName'}
+to specify the term and by the flag {\tt Chi2Settings} to specify the options. 
+ {\tt 'CHI2SettingsName'} can have following values: 
 \begin{itemize}
 \item {\tt 'StatScale', 'UncorSysScale', 'CorSysScale'} for statistical, uncorrelated, and correlated
-systematic uncertainties
-\item {\tt 'UncorChi2Type', 'CorChi2Type'}
+systematic uncertainties. Their scaling properties can be {\tt 'NoRescale'}, {\tt 'Poisson'} or {\tt 'Linear'}
+\item {\tt 'UncorChi2Type', 'CorChi2Type'} control treatment of systematics uncertainties correlation. They 
+can take values of 'Diagonal', 'Hessian'   
 \end{itemize}
 
 

@@ -91,16 +91,16 @@ the experimental uncertainties and the theoretical uncertainties
 arising from PDF variations:
 
 \begin{eqnarray}
-\nonumber \lefteqn{\chi^2(\boldsymbol{\beta_{\rm exp}},\boldsymbol{\beta_{\rm th}}) = }  \\ 
-&& \nonumber \sum_{i=1}^{N_{\rm data}} \frac{\textstyle \left( \sigma^{\rm exp}_i + \sum_j \Gamma^{\rm exp}_{ij} \beta_{j,\rm exp} - \sigma^{\rm th}_i - \sum_k \Gamma^{\rm th}_{ik}\beta_{k,\rm th} \right)^2}{\Delta_i^2} \\
-&&   + \sum_j \beta_{j,\rm exp}^2 + \sum_k \beta_{k,\rm th}^2\,.   \label{eq:chi2prof}
+\nonumber \lefteqn{\chi^2(\boldsymbol{b_{\rm exp}},\boldsymbol{b_{\rm th}}) = }  \\ 
+&& \nonumber \sum_{i=1}^{N_{\rm data}} \frac{\textstyle \left( \sigma^{\rm exp}_i + \sum_{\ci} \Gamma^{\rm exp}_{i\ci} b_{\ci,\rm exp} - \sigma^{\rm th}_i - \sum_{\ck} \Gamma^{\rm th}_{i\ck}b_{\ck,\rm th} \right)^2}{\Delta_i^2} \\
+&&   + \sum_{\ci} b_{\ci,\rm exp}^2 + \sum_{\ck} b_{\ck,\rm th}^2\,.   \label{eq:chi2prof}
 \end{eqnarray}
 The correlated experimental and theoretical uncertainties are included
-using the nuisance parameter vectors $\boldsymbol{\beta_{\rm exp}}$
-and $\boldsymbol{\beta_{\rm th}}$, respectively. Their influence on
+using the nuisance parameter vectors $\boldsymbol{b_{\rm exp}}$
+and $\boldsymbol{b_{\rm th}}$, respectively. Their influence on
 the data and theory predictions is described by the $\Gamma^{\rm
-exp}_{ij}$ and $\Gamma^{\rm th}_{ik}$ matrices. The index $i$ runs
-over all $N_{\rm data}$ data points, whereas the index $j$ ($k$)
+exp}_{i\ci}$ and $\Gamma^{\rm th}_{i\ck}$ matrices. The index $i$ runs
+over all $N_{\rm data}$ data points, whereas the index $\ci$ ($\ck$)
 corresponds to the experimental (theoretical) uncertainty nuisance
 parameters. The measurements and the uncorrelated experimental
 uncertainties are given by $\sigma^{\rm exp}_i$ and $\Delta_i$\,, respectively, and
@@ -109,18 +109,18 @@ Eq.~\ref{eq:chi2prof} can be generalised to account for asymmetric PDF
 uncertainties:
 
 \begin{eqnarray}
-   \Gamma^{\rm th}_{ik} \to \Gamma^{\rm th}_{ik} +  \Omega^{\rm th}_{ik}\beta_{k, \rm th}\,, \label{eq:iter}
+   \Gamma^{\rm th}_{i\ck} \to \Gamma^{\rm th}_{i\ck} +  \Omega^{\rm th}_{i\ck}b_{\ck, \rm th}\,, \label{eq:iter}
 \end{eqnarray}
-where $\Gamma^{\rm th}_{ik} = 0.5(\Gamma^{\rm th+}_{ik} - \Gamma^{\rm
-th-}_{ik})$ and $\Omega^{\rm th}_{ik} = 0.5(\Gamma^{\rm th+}_{ik}
-+ \Gamma^{\rm th-}_{ik})$ are determined from the shifts of
-predictions corresponding to up ($\Gamma^{\rm th+}_{ik}$) and down
-($ \Gamma^{\rm th-}_{ik}$) PDF uncertainty eigenvectors.
+where $\Gamma^{\rm th}_{i\ck} = 0.5(\Gamma^{\rm th+}_{i\ck} - \Gamma^{\rm
+th-}_{i\ck})$ and $\Omega^{\rm th}_{i\ck} = 0.5(\Gamma^{\rm th+}_{i\ck}
++ \Gamma^{\rm th-}_{i\ck})$ are determined from the shifts of
+predictions corresponding to up ($\Gamma^{\rm th+}_{i\ck}$) and down
+($ \Gamma^{\rm th-}_{i\ck}$) PDF uncertainty eigenvectors.
 
 The minimisation of Eq.~\ref{eq:chi2prof} in its original form leads
 to a system of linear equations. The generalised function, with
 asymmetric PDF uncertainties, is minimised iteratively: the values of $\Gamma^{\rm
-th+}_{ik}$ are updated using $\beta_{k, \rm th}$ from the
+th+}_{i\ck}$ are updated using $\beta_{k, \rm th}$ from the
 previous iteration and following the substitution of Eq.~\ref{eq:iter}.
 Several iterations are required to converge, and the procedure is verified
 using the \minuit program which yields identical results.
@@ -128,17 +128,17 @@ using the \minuit program which yields identical results.
 The value at the minimum of the $\chi^2$ function provides a
 compatibility test of the data and theory.
 In addition, the values at the minimum of the nuisance parameters
-$\beta^{\rm min}_{k,\rm th}$ can be interpreted as optimisation
+$b^{\rm min}_{\ck,\rm th}$ can be interpreted as optimisation
 (``profiling'') of PDFs to describe the data~\cite{Paukkunen:2014zia}. Explicitly, the profiled
 central PDF set $f'_0$ is given by
 
 %\begin{small}
 \begin{equation}
-   f'_0 = f_0 + \sum_k  \beta^{\rm min}_{k, {\rm
-   th}} \left( \frac{f^{+}_k - f^{-}_k}{2}  - \beta^{\rm min}_{k, {\rm th}}  \frac{f^{+}_k + f^{-}_k - 2f_0}{2} \right)\,, \label{eq:prof}
+   f'_0 = f_0 + \sum_\ck b^{\rm min}_{\ck, {\rm
+   th}} \left( \frac{f^{+}_\ck - f^{-}_\ck}{2}  - b^{\rm min}_{\ck, {\rm th}}  \frac{f^{+}_\ck + f^{-}_\ck - 2f_0}{2} \right)\,, \label{eq:prof}
 \end{equation}
 %\end{small}
-where $f_0$ is the original central PDF set and $f^{\pm}_k$ represents the
+where $f_0$ is the original central PDF set and $f^{\pm}_\ck$ represents the
 eigenvector sets corresponding to up and down variations.
 
 The shifted PDFs have reduced uncertainties. In general, the
@@ -149,9 +149,9 @@ In this method the covariance matrix $C$ of the PDF nuisance
 parameters is diagonalised as
 
 \begin{eqnarray}
-  \lefteqn{\boldsymbol{\beta_{\rm th}^T} C \boldsymbol{\beta_{\rm th}} = \boldsymbol{\beta_{\rm th}^T} G^T D G \boldsymbol{\beta_{\rm th}} = 
-  \boldsymbol{\beta_{\rm th}^T} (\sqrt{D} G)^T \sqrt{D}G \boldsymbol{\beta_{\rm th}}}  \nonumber \\
-&&  =  (G' \boldsymbol{\beta_{\rm th}})^T  G'\boldsymbol{\beta_{\rm th}} = \boldsymbol{(\beta'_{\rm th})^T}  \boldsymbol{\beta'_{\rm th}}\,,
+  \lefteqn{\boldsymbol{b_{\rm th}^T} C \boldsymbol{b_{\rm th}} = \boldsymbol{b_{\rm th}^T} G^T D G \boldsymbol{b_{\rm th}} = 
+  \boldsymbol{b_{\rm th}^T} (\sqrt{D} G)^T \sqrt{D}G \boldsymbol{b_{\rm th}}}  \nonumber \\
+&&  =  (G' \boldsymbol{b_{\rm th}})^T  G'\boldsymbol{b_{\rm th}} = \boldsymbol{(b'_{\rm th})^T}  \boldsymbol{b'_{\rm th}}\,,
 \label{eq:diag}
 \end{eqnarray} 
 where $G$ is an orthogonal matrix, $D$ is a positive definite diagonal
@@ -168,12 +168,12 @@ The method can be extended to PDF sets with asymmetric
 uncertainties: the transformation matrix is
 determined using symmetrised uncertainties as in
 Eq.~\ref{eq:diag}, and the orthogonal up and down PDF eigenvectors
-$f^{+'}_i$ and $f^{-'}_i$ are calculated as
+$f^{+'}_\ck$ and $f^{-'}_\ck$ are calculated as
 
 \begin{small}
 \begin{eqnarray}
-\nonumber   f^{+'}_i =& f'_0 + \sum_j G'_{ji} \left( \frac{f^{+}_j - f^{-}_j}{2} + G'_{ji} \frac{f^{+}_j + f^{-}_j - 2 f_0}{2}\right),  \\
-\nonumber   f^{-'}_i =& f'_0 - \sum_j G'_{ji} \left( \frac{f^{+}_j - f^{-}_j}{2} - G'_{ji} \frac{f^{+}_j + f^{-}_j - 2 f_0}{2}\right).  
+\nonumber   f^{+'}_\ci =& f'_0 + \sum_\ck G'_{\ck\ci} \left( \frac{f^{+}_\ck - f^{-}_\ck}{2} + G'_{\ck \ci} \frac{f^{+}_\ck + f^{-}_\ck - 2 f_0}{2}\right),  \\
+\nonumber   f^{-'}_\ci =& f'_0 - \sum_\ck G'_{\ck\ci} \left( \frac{f^{+}_\ck - f^{-}_\ck}{2} - G'_{\ck \ci} \frac{f^{+}_\ck + f^{-}_\ck - 2 f_0}{2}\right).  
 \end{eqnarray} 
 \end{small}
 
