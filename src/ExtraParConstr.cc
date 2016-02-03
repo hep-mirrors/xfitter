@@ -8,8 +8,6 @@ extern "C" {
 	// interface to MINUIT
 	void mnpout_(int*,char*,double*,double*,double*,double*,int*,int); 
 
-	// actual routine
-	void getextraparsconstrchi2_(double& chi2) {
 		#include "dimensions.h"
 		const int nExtraParamMax=NEXTRAPARAMMAX_C;
 		struct COMMON_ExtraPars_t {
@@ -18,6 +16,9 @@ extern "C" {
 			int iExtraParamMinuit[nExtraParamMax], nExtraParam;
 		};
 		extern COMMON_ExtraPars_t extrapars_;
+
+	// actual routine
+	void getextraparsconstrchi2_(double& chi2) {
 
 		int len=1024;
 		char parname[len];
@@ -42,14 +43,6 @@ extern "C" {
 
 	// actual routine
 	void printminuitextrapars_() {
-		#include "dimensions.h"
-		const int nExtraParamMax=NEXTRAPARAMMAX_C;
-		struct COMMON_ExtraPars_t {
-			char Names[nExtraParamMax][32];
-			double Value[nExtraParamMax], Step[nExtraParamMax], Min[nExtraParamMax], Max[nExtraParamMax], ConstrVal[nExtraParamMax], ConstrUnc[nExtraParamMax];
-			int iExtraParamMinuit[nExtraParamMax], nExtraParam;
-		};
-		extern COMMON_ExtraPars_t extrapars_;
 
 		int len=1024;
 		char parname[len];
@@ -88,3 +81,4 @@ extern "C" {
 		}
 	}
 }
+
