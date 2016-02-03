@@ -51,19 +51,14 @@ C-----------------------------------------------------------------------
      $                   mf_A_c,mf_B_c,mf_C_c,mr_A_c,mr_B_c,mr_C_c,
      $                   mf_A_b,mf_B_b,mf_C_b,mr_A_b,mr_B_b,mr_C_b,
      $                   fragpar_c,fragpar_b,debug
-      data               mf_A_c,mf_B_c,mf_C_c,mr_A_c,mr_B_c,mr_C_c
-     $                  /1.00d0,1.00d0,0.00d0,1.00d0,1.00d0,0.00d0/,
-     $                   mf_A_b,mf_B_b,mf_C_b,mr_A_b,mr_B_b,mr_C_b
-     $                  /1.00d0,1.00d0,0.00d0,1.00d0,1.00d0,0.00d0/,
-     $                   fragpar_c,fragpar_b/4.4d0,11.0d0/
       save /HVQMNR_PARS/
 
       ! Check running mode. Currently the code works correctly only in the fit mode.
-      !if ( RunningMode .ne. 'Fit') then
-      !  print *,'ERROR IN GetHVQMNRXsection'
-      !  print *,'Only RunningMode = ''Fit'' is supported'
-      !  call HF_stop
-      !endif
+      if ( RunningMode .ne. 'Fit') then
+        print *,'ERROR IN GetHVQMNRXsection'
+        print *,'Only RunningMode = ''Fit'' is supported'
+        call HF_stop
+      endif
 
       ! First call: make some checks, set needed parameters
       if(IfcnCount.eq.1) then
@@ -261,12 +256,8 @@ C-------------------------------------------------------------------------------
       else
         iA=iExtraParamMinuit(iA)
         iB=iExtraParamMinuit(iB)
-        if(iA.ne.0) then
-          call MNPOUT(iA,parname,A,unc,ll,ul,st)
-        endif
-        if(iB.ne.0) then
-          call MNPOUT(iB,parname,B,unc,ll,ul,st)
-        endif
+        call MNPOUT(iA,parname,A,unc,ll,ul,st)
+        call MNPOUT(iB,parname,B,unc,ll,ul,st)
       endif
       iC=GetParameterIndex('MNRm'//mu//'_C')
       if(iC.eq.0) then
@@ -310,9 +301,7 @@ C-----------------------------------------------------------------------
         call makenan(FFpar)
       else
         iFFpar=iExtraParamMinuit(iFFpar)
-        if(iFFpar.ne.0) then
-          call MNPOUT(iFFpar,parname,FFpar,unc,ll,ul,st)
-        endif
+        call MNPOUT(iFFpar,parname,FFpar,unc,ll,ul,st)
       endif
       end
 

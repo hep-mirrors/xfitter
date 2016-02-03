@@ -188,8 +188,6 @@ extern "C"
       }
 
       // Update parameters and perform calculation
-      printf("A: %f B: %f C: %f\n", hvqmnr_pars_.mf_A_c, hvqmnr_pars_.mf_B_c, hvqmnr_pars_.mf_C_c);
-      printf("mc: %f fc: %f\n", hvqmnr_pars_.mc, hvqmnr_pars_.fragpar_c);
       mnr.SetScaleCoef(hvqmnr_pars_.mf_A_c, hvqmnr_pars_.mf_B_c, hvqmnr_pars_.mf_C_c, hvqmnr_pars_.mr_A_c, hvqmnr_pars_.mr_B_c, hvqmnr_pars_.mr_C_c);
       mnr.CalcXS(&grid, hvqmnr_pars_.mc);
       HVQMNR::Grid::InterpolateGrid(&grid, &grid_smoothed, hvqmnr_pars_.mc);
@@ -287,8 +285,6 @@ extern "C"
       }
 
       // Update parameters and perform calculation
-      printf("A: %f B: %f C: %f\n", hvqmnr_pars_.mf_A_b, hvqmnr_pars_.mf_B_b, hvqmnr_pars_.mf_C_b);
-      printf("mc: %f fc: %f\n", hvqmnr_pars_.mb, hvqmnr_pars_.fragpar_b);
       mnr.SetScaleCoef(hvqmnr_pars_.mf_A_b, hvqmnr_pars_.mf_B_b, hvqmnr_pars_.mf_C_b, hvqmnr_pars_.mr_A_b, hvqmnr_pars_.mr_B_b, hvqmnr_pars_.mr_C_b);
       mnr.CalcXS(&grid, hvqmnr_pars_.mb);
       HVQMNR::Grid::InterpolateGrid(&grid, &grid_smoothed, hvqmnr_pars_.mb);
