@@ -1,0 +1,125 @@
+% chi^2 definitions in xFitter
+% Author: Wojtek Slominski 2016-02-02
+%
+% --- enclose in braces to make \defs local in case you iclude this file directly.
+{%
+\def\SetO(#1,#2){%
+  \def\xO{#1}%
+  \def\yO{#2}%
+}%
+\def\TranO(#1,#2){%
+  \FPeval\xO{(#1)+\xO}%
+  \FPeval\yO{(#2)+\yO}%
+}%
+\def\Put(#1,#2){%
+  \FPeval\xv{(#1)+\xO}%
+  \FPeval\yv{(#2)+\yO}%
+  \put(\xv,\yv)%
+}%
+\SetO(0,0)%
+\large
+\unitlength=1mm%
+% ====================================
+\begin{picture}(140,106)(1,3)
+\linethickness{0.2mm}
+\SetO(10,15)
+
+\Put(-10,85){\color{blue} \bf Simple approach}
+
+\Put(0,60){
+\(
+ \chi^2
+ =
+ \displaystyle
+ \sum_i
+ \frac{\left(\mu_i - {\hat m}_i \right)^2}
+{\Delta_i^2}
+ + \sum_\alpha b^2_\alpha
+\)
+\hspace*{22mm}
+\(\displaystyle {\hat m}_i = m_i + \sum_\alpha \Gamma_{i\alpha} \, b_\alpha \)
+}
+
+\Put(19.5,74){\vector(0,-2){8}}
+\Put(11,76){measurement}
+
+\Put(20,47.5){\vector(1,2){4}}
+% \Put(20,43){uncorrelated\\ error}
+\Put(5,42){\parbox{30mm}{\centering
+% \sf\small
+uncorrelated\\[-2pt]
+error}}
+
+\Put(47,47.5){\vector(-1,2){4}}
+\Put(30,42){\parbox{50mm}{\centering
+sum over correlated\\[-2pt]
+systematic sources}}
+
+\TranO(-8,0)
+\Put(86,72){\vector(1,-2){4}}
+\Put(78,74){theory}
+
+\Put(106.5,72){\vector(1,-2){4}}
+\Put(97,74){nuisance parameter}
+
+\Put(106,49){\vector(0,2){9}}
+\Put(100,45){correlated error}
+
+\TranO(8,0)
+
+% -------------------------------------------
+
+\def\CM{\mathcal{C}}
+
+\Put(-10,25){\color{blue} \bf Full covariance matrix approach}
+
+\Put(0,14){
+\(
+\chi^2 =
+  \left ( \boldsymbol{\mu} - \boldsymbol{m} \right)^{\rm T}
+  % + \Gamma\,\boldsymbol{b}
+  \CM^{-1}
+  \left( \boldsymbol{\mu} - \boldsymbol{m} \right)
+  % + \boldsymbol{b}^2
+\)
+}
+
+\Put(0,5){
+\(
+  \ \ \ \ \  =
+  \displaystyle
+  \sum_{ij} \left ( \mu_i - m_i \right )   
+  \CM^{-1}_{ij} 
+  \big ( \mu_j - m_j \big )
+\)
+% -------------------
+\hspace*{14mm}
+
+\(
+\mathcal C = \CM^\mathrm{stat} + \CM^\mathrm{unc} + \CM^\mathrm{syst}
+\)
+}
+
+\SetO(0,15)
+\Put(70,15){statistical \hspace{3mm} uncorrelated \hspace{3mm} correlated}
+\Put(84,14){\vector(1.5,-2){4}}
+\Put(102,14){\vector(0,-1){5}}
+\Put(119,14){\vector(-1.5,-2){4}}
+
+% -------------------------------------------
+
+\SetO(10,0)
+\Put(0,5) {\(
+\displaystyle
+% \textstyle
+\CM^\mathrm{stat}_{ij} = \mathrm{Corr}^\mathrm{stat}_{ij} \,\Delta^\mathrm{stat}_i \Delta^\mathrm{stat}_j
+\hspace{9mm}
+\CM^\mathrm{unc}_{ij} = \delta_{ij} \, \Delta^\mathrm{unc}_i \Delta^\mathrm{unc}_j
+\hspace{9mm}
+\CM^\mathrm{syst}_{ij} = \sum_\alpha \Gamma_{i\alpha} \Gamma_{j\alpha}
+\)}
+
+% \Put(5,0){correlations between bins}
+\end{picture}
+}
+\endinput
