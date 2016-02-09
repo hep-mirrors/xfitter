@@ -78,6 +78,37 @@ C Not found
 C--------------------------------------------------
       end
 
+! [--- WS 2015-10-04
+! =========================================================
+!> \brief Get current value of an extra-parameter by name.
+!> \details During the fit reads current value stored in \c parminuitsave.
+      double precision function XParValueByName(Pname)
+        implicit none
+        character*(*) Pname
+#include "endmini.inc"
+        ! for parminuitsave
+#include "extrapars.inc"
+#include "fcn.inc"
+        integer idx
+        ! functions:
+        integer GetParameterIndex
+
+        ! 1-based index of Pname in ExtraParams
+        idx = GetParameterIndex(Pname)
+        if (idx.eq.0) then
+           print *,'Minuit Extra parameter "',Pname,'" not defined.'
+           call HF_stop
+        endif
+        if(NparFCN.gt.0) then
+          ! iExtraParamMinuit gives global Minuit index
+          XParValueByName = parminuitsave(iExtraParamMinuit(idx))
+        else
+          XParValueByName = ExtraParamValue(idx)
+        endif
+      end
+! ---]
+
+
       integer Function GetKFactIndex(IDataSet,CName)
 C-----------------------------------------------------------------
 C
@@ -87,7 +118,6 @@ C
 C-----------------------------------------------------------------
       implicit none
 #include "ntot.inc"
-c#include "steering.inc"
 #include "for_debug.inc"
 #include "datasets.inc"
       integer IDataSet
