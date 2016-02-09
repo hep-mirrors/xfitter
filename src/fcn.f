@@ -1,6 +1,6 @@
 C---------------------------------------------------------
 C> @brief  Main minimization subroutine for MINUIT
-C
+C>
 C> @param  npar      number of currently variable parameters
 C> @param  g_dummy   the (optional) vector of first derivatives
 C> @param  chi2out   the calculated function value
@@ -28,6 +28,9 @@ C---------------------------------------------------------
 
 C function:
       double precision chi2data_theory
+! [--- WS 2015-10-10
+      double precision XParValueByName
+! ---]
 
 C-----------------------------------------------------------------
       
@@ -78,11 +81,28 @@ C Print MINUIT extra parameters
 
       call PDF_Param_Iteration(parminuit,iflag)
 
+! [--- WS 2015-10-10
+#ifdef TRACE_CHISQ
+      call MntInpGetparams ! calls MInput.GetMinuitParams();
+#endif
+!       if(doHiTwist) then
+!         print '(''HiTwist:'',6F10.4)',XParValueByName('HT_x0'), XParValueByName('HT_sig0'), XParValueByName('HT_lambda') 
+!       endif
+! ---]
+      
 *
 * Evaluate the chi2:
 *     
       chi2out = chi2data_theory(iflag)
-* 
+      
+#ifdef TRACE_CHISQ
+      if (iflag.eq.1) then
+        ! print *,'INIT'
+        call MntInpWritepar('minuit.all_in.txt')
+        call MntShowVNames(ndfMINI)
+      endif
+      call MntShowVValues(chi2out)
+#endif
       
       return
       end
