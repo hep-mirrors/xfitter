@@ -35,6 +35,10 @@ C----------------------------------------------------------------------
       MinuitSave = TRIM(OutDirName)//'/minuit.save'//Suffix
 
       MinuitIn='minuit.in.txt' 
+! [--- WS 2015-10-03
+      ! UsePrevFit 0 is default
+      Call MntInpRead(MinuitIn,"tpc",1)
+! ---]
       if(UsePrevFit .ge. 1) then
         AltInp = TRIM(OutDirName)//'/minuit.save'//Suffix
         INQUIRE(FILE=AltInp, EXIST = file_exists)
@@ -46,16 +50,20 @@ C----------------------------------------------------------------------
         endif
         if(file_exists) then
           ! --- Change parameters acc. to the found minuit-saved file
-          ! Call MntInpRead(Trim(MinuitIn)//CHAR(0))
-          ! Call MntInpReadPar(Trim(AltInp)//CHAR(0))
-          Call MntInpRead(MinuitIn,"tpc",1)
-          Call MntInpRead(AltInp,"p",1)
+          ! Call MntInpRead(MinuitIn,"tpc",1)
+          Call MntInpRead(AltInp,"p",2)  ! 2 = higher verbosity level
           MinuitIn='minuit.temp.in.txt' 
-          ! Call MntInpWrite(Trim(MinuitIn)//CHAR(0))
+          if(UsePrevFit.eq.2) Call MntInpSetCmd("call fcn 3;set print 3;save;return")
           Call MntInpWrite(MinuitIn)
-          Call MntInpFixXtra
+          Call MntInpFixXtra ! apply new values to already defined ExtraParameters
         endif
       endif
+
+! [--- WS 2015-10-03 - set 'chitrace.log' as the chi^2 log file.
+#ifdef TRACE_CHISQ
+      Call MntChiTrace(TRIM(OutDirName)//'/chitrace.log')
+#endif
+! ---]
 
       return
       end
@@ -124,7 +132,8 @@ C----------------------------------------------------------------------
       
       if(UsePrevFit.eq.2 .and. FileExists(ResultsFile)) then
         print *,'==>  Using previous fit results.'
-        return
+        if(doOffset) return ! WS 2015-10-03
+        ! return
       endif
       
       print *,'==>  Starting the fit...'
