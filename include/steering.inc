@@ -163,7 +163,7 @@ C
       integer ILHAPDFSET              !> LHAPDF set number
       integer nLHAPDF_Sets 	      !> Number of members in LHAPDF set
       integer NPARVAR                 !> For LHAPDF VAR PDF, number of parameter variations
-      logical LHAPDFErrors	!> For LHAPDF PDFtype, loop over eighensets
+      logical LHAPDFErrors	!> For LHAPDF PDFtype, loop over eigensets
       logical Scale68           !> Scale LHAPDF uncertainties from 90cl to 68cl
       common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,LHAPDFErrors,Scale68
 
@@ -179,4 +179,13 @@ C Define number of charged+gluon and addtional neutral PDFs:
       integer N_NEUTRAL_PDF
       parameter ( N_CHARGE_PDF = 6)
       parameter ( N_NEUTRAL_PDF = 1)
+
+C     30/08/2015 KK
+C     WS 2015-10-02 parameters, errors and limits moved to ExtraParams
+C     Namelist for Higher Twists
+
+      logical doHiTwist
+      character*32 HiTwistType
+      character*64 HiTwistSubType
+      common/Twistvars/doHiTwist,HiTwistType,HiTwistSubType
 
