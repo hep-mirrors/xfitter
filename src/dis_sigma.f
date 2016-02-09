@@ -108,7 +108,7 @@ C> \param IDataSet index of data set
 C> \param local_hfscheme heavy flavour scheme
 C> \param XSecType type of the DIS process
 C
-C> \autor Krzisztof Nowak
+C> \author Krzysztof Nowak
 C> \date 20/01/2012
 C---------------------------------------------------------------
       Subroutine  GetIntegratedDisXsection(IDataSet, XSecType, local_hfscheme)
@@ -376,6 +376,9 @@ C Functions:
       integer GetBinIndex
       integer GetInfoIndex
       double precision AEMRUN
+! [--- KK 2015-08-30
+      double precision dsigma_red_t4
+! ---]
 
 c H1qcdfunc
       integer ifirst
@@ -468,6 +471,19 @@ C
          endif
 
          THEO(idx) =  XSec(i)*factor
+         
+! [--- KK 2015-08-30, WS 2015-10-10
+C         print*,'Twist study: Prepare to implemented. doHiTwist = ', doHiTwist
+         if(doHiTwist) then
+           if (XSecType.eq.'NCDIS') then 
+!              print*,'Twist study: Past doHiTwist check. HiTwistType = ',HiTwistType
+             if(HiTwistType.eq.'Twist4') then
+!               print*,'Twist study: Twist4 from LM implemented'
+               THEO(idx) = THEO(idx) + dsigma_red_t4(Y(i),X(i),Q2(i))
+             endif
+           endif
+         endif
+! ---]
 
       enddo
 
