@@ -20,6 +20,9 @@ xfitter_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
 xfitter_SOURCES += lhapdf6_output.c c_interface.f
 
+# WS 2016-01-13 DIS higher twist contributions
+xfitter_SOURCES += dis_sigma_ht.f
+
 #LHAPDFErrors
 xfitter_SOURCES += fortran_io.f lhapdferrors.cc
 
