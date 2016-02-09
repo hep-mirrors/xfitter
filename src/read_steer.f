@@ -1,6 +1,6 @@
 C---------------------------------------------------
 C 
-!> Read steering file steer.txt
+!> Read steering file steering.txt
 C
 C---------------------------------------------------
       subroutine read_steer
@@ -60,6 +60,9 @@ c WS 2013-01-07 always read CSOffsetNML
         call Read_CSOffsetNML   ! Offset method parameters
       ! endif
 
+C 30/08/2015  KK - Twist analyses
+      call read_HigherTwists
+
       if(Itheory.lt.100) then
 C
 C Also read extra minuit parameters:
@@ -75,11 +78,11 @@ C 09/01/2013 Check consistency of the input
 
       end
 
-!> Set default values for stearable variables.
+!> Set default values for steerable variables.
       subroutine Set_Defaults
 C ===========================================
 C
-C Set default values for stearable variables.
+C Set default values for steerable variables.
 C
 C -------------------------------------------
       implicit none
@@ -147,7 +150,7 @@ C     Initialise LHAPDF parameters
       IPDFSET = 1
 
 C 25 Jan 2011
-C     Pure polinomial param for the valence quarks:
+C     Pure polynomial param for the valence quarks:
 C     by default starting from N=61 for Uv and N=71 for Dv
       NPOLYVAL = 0
 
@@ -991,6 +994,7 @@ C---------------------------------------
 #include "steering.inc"
 C---------------------------------
 
+      ! --- FlexibleGluon is used in SumRules
       FlexibleGluon = .false.
       
       if (PDFStyle.eq.'10p HERAPDF'.or.
@@ -1230,7 +1234,8 @@ c switch on the log poisson correction if ExtraSysRescale was called
       
 
 C
-!> Read ExtraMinimisationParameters namelists
+!> @brief Read ExtraMinimisationParameters namelists.
+!> @details Read as many instances of the namelist as exist.
 C-------------------------------------
       Subroutine ReadExtraParam
 
@@ -1281,7 +1286,7 @@ C----------------------------------------
 
 C
 !> Add extra fitting parameters
-!> @param name of extra paramet
+!> @param name of extra parameter
 !> @param value of extra parameter
 !> @param step gradient of parameter in case of fitting
 !> @param min, max range of allowed values in case of fitting
@@ -1679,7 +1684,7 @@ C
          elseif ( SourceName(ii+1:ii+1) .eq.'T' ) then
             ISystType(nsys) = iTheorySyst
          else
-            print *,'WARRNING: Unknown systematics modifier ',
+            print *,'WARNING: Unknown systematics modifier ',
      $            SourceName(ii+1:)
             Call HF_errlog(12090002,
      $'W:WARNING: wrong form or bias correction for a systematic source')
@@ -1698,9 +1703,42 @@ C Register external systematics:
 
       end
 
- !>
- !>  Check consistency of the data input, abort for unsupported combinations
- !>
+! 30/08/2015 KK - read Higher Twist parameters.
+! WS 2015-10-04 - read steering options. Parameters moved to \c ExtraMinimisationParameters.
+C--------------------------------------------------------
+!>  Read higher twists options from the 'HighTwist' namelist.
+      subroutine read_HigherTwists
+
+      implicit none
+      include 'steering.inc'
+
+      namelist/HighTwist/doHiTwist,HiTwistType,HiTwistSubType
+
+      doHiTwist = .false.
+      HiTwistType = 'Twist4'
+      HiTwistSubType = 'lam-sig-x0'
+      open (51,file='steering.txt',status='old')
+      read (51,NML=HighTwist,ERR=134,end=131)
+ 
+ 131  continue
+      close (51)
+
+      if (doHiTwist) then
+        if (LDebug) then
+          print HighTwist
+        endif
+      endif
+
+      return
+C-----------------
+134   continue
+      print '(''Error reading namelist &HighTwist, STOP'')'
+      call HF_stop
+      end
+
+!>
+!>  Check consistency of the data input, abort for unsupported combinations
+!>
       Subroutine CheckInputs
 
       implicit none
