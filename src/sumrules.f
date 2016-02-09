@@ -251,7 +251,9 @@ C---------------------------------------------------------------
       double precision CalcIntegral
 C---------------------------------------------------------------
       sum =  CalcIntegral(pdfpars(2),pdfpars(3)) 
-      do i=1,7
+      ! WS 2015-10-08
+      ! do i=1,7
+      do i=1,3
          if ( pdfpars(3+i).ne.0 ) then
             sum = sum + pdfpars(3+i) 
      $           * CalcIntegral(pdfpars(2)+i,pdfpars(3))
@@ -282,7 +284,9 @@ C---------------------------------------------------------------
       double precision CalcIntegral
 C---------------------------------------------------------------
       sum =  CalcIntegral(pdfpars(2)-1,pdfpars(3)) 
-      do i=1,7
+      ! WS 2015-10-08
+      ! do i=1,7
+      do i=1,3
          if ( pdfpars(3+i).ne.0 ) then
             sum = sum + pdfpars(3+i) 
      $           * CalcIntegral(pdfpars(2)+i-1,pdfpars(3))
