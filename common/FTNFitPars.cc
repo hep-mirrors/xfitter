@@ -69,10 +69,29 @@ const int XPbase=101;
 static FTNFitPars_t MInput;
 
 // ==========================================================
+/**
+  @brief Replace all parameters by those defined in Minuit.
+  @details Do nothing if the Minuit parameters undefined.
+*/
 void FTNFitPars_t::GetMinuitParams() {
   double fmin, fedm, errdef;
   int npari, nparx, istat;
   mnstat_(&fmin, &fedm, &errdef, &npari, &nparx, &istat);
+  // Provides the user with information concerning the current status
+  //    of the current minimization. Namely, it returns:
+  //  FMIN: the best function value found so far
+  //  FEDM: the estimated vertical distance remaining to minimum
+  //  ERRDEF: the value of UP defining parameter uncertainties
+  //  NPARI: the number of currently variable parameters
+  //  NPARX: the highest (external) parameter number defined by user
+  //  ISTAT: a status integer indicating how good is the covariance
+  //     matrix:  0= not calculated at all
+  //              1= approximation only, not accurate
+  //              2= full matrix, but forced positive-definite
+  //              3= full accurate covariance matrix
+  
+  if(!nparx) return;
+  
   const int namlen=10;
   int iuext, iuint;
   double val, err, xlolim, xuplim;
@@ -88,6 +107,7 @@ void FTNFitPars_t::GetMinuitParams() {
     if(!xlolim && !xuplim) AddParam(i, name, val, err);
     else AddParam(i, name, val, err, xlolim, xuplim);
   }
+  fix_v2g();
 }
 
 // ==========================================================
@@ -139,11 +159,21 @@ extern "C" {
   }
   // void mntinpreadpar_(const char* fn, int fnLEN) {MInput.Read(FTNstring(fn, fnLEN).c_str(), "p");}
   void mntinphascmd_(const char* cmd, int* ans, int cmdLEN) {*ans = MInput.HasCommand(FTNstring(cmd, cmdLEN).c_str());}
+  void mntinpsetcmd_(const char* cmd, int cmdLEN) {MInput.SetCommands(FTNstring(cmd, cmdLEN).c_str());}
   void mntinpwrite_  (const char* fn, int fnLEN) {MInput.Write(FTNstring(fn, fnLEN).c_str());}
   void mntinpwritepar_  (const char* fn, int fnLEN) {MInput.Write(FTNstring(fn, fnLEN).c_str(), "p");}
   void mntinpfixxtra_() {MInput.SetExtraParams();}
   void mntinpgetparams_() {MInput.GetMinuitParams();}
+  void mntinpsetparams_(const double* vals) {MInput.SetVarValues(vals);}
   void recoverparams_(const char* outdir, const char* fn, int oLEN, int fnLEN) {
     RecoverCentralParams(FTNstring(outdir, oLEN).c_str(), FTNstring(fn, fnLEN).c_str());
   }
+  double mntparamvalue_(const char* name, int* idx, int nLEN) {
+    *idx = MInput.Index(FTNstring(name, nLEN).c_str());
+    return *idx < 0 ? 0 : MInput.Value(*idx);
+  }
+  void mntchitrace_(const char* fn, int fnLEN) {MInput.OpenTrace(FTNstring(fn, fnLEN));}
+  void mnttrclose_() {MInput.CloseTrace();}
+  void mntshowvvalues_(double* chi2) {MInput.ShowVVals(*chi2);}
+  void mntshowvnames_(int* ndf) {MInput.ShowVNames(*ndf);}
 }

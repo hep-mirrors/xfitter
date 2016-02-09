@@ -1,6 +1,6 @@
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   \author Wojtek Slominski, Jagiellonian Univ., Physics Dept.
-  \date 2011--2014
+  \date 2011--2015
   \copyright Creative Commons license CC-BY-NC 3.0
 _____________________________________________________________*/
 
@@ -11,7 +11,7 @@ _____________________________________________________________*/
 #include <cmath>
 #include "TextReader.h"
 
-// -o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
+// -o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
 class FitParam_t {
   // --- FORTRAN Minuit parameter is identified by id
   int M_id;
@@ -36,7 +36,8 @@ public:
   double Error() const {return M_err;}
   
   // ========================================
-  string FlagString() {
+  /// @brief Return 4-letter string of active flags.
+  string FlagString() const {
     string fs("CFUL");
     string::reverse_iterator rit;
     int k=0;
@@ -104,8 +105,7 @@ public:
 };
 
 
-
-// oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+// -o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
 class FitPars_base_t {
 protected:
   vector<FitParam_t> M_pars;
@@ -127,6 +127,9 @@ public:
   void SetVerbose(int v) {M_verbose = v;}
     
   // ================================================
+  /**
+    @brief Define order of parameters by name, before their creation.
+  */
   void SetNames(const string& names) {
     M_nameList = Xstring(names).Split(" \t,");
   }
@@ -138,7 +141,7 @@ public:
   }
   
   // ================================================
-  Xstring GetFmtIn() {
+  Xstring GetFmtIn() const {
     return M_fmt_in;
   }
   
@@ -155,12 +158,17 @@ public:
   // }
   
   // ================================================
-  void Show(ostream &ostr=cout, bool full_err=false);
+  void Show(ostream &ostr=cout, bool full_err=false) const;
   
   // ================================================
-  void ShowF(ostream &ostr=cout, bool full_err=false);
+  void ShowF(ostream &ostr=cout, bool full_err=false) const;
   
   // ================================================
+  void ShowVarVals(ostream &ostr=cout) const;
+  void ShowVarNames(ostream &ostr=cout) const;
+  
+  // ================================================
+  /// @brief Rename some parameters.
   void SetMapping(const string& old_new) {
     StringList renmap = Xstring(old_new).Split(" \t,=");
     if(renmap.size() & 1) throw Fiasco("Uneven # items in the name map list");
@@ -182,10 +190,21 @@ public:
     M_InNames.push_back(name);
   }
   
+  // =============================================================
+  void Import(const FitPars_base_t& fp, int id_min = 0);
+  
+  // =============================================================
+  void Import(const string& fn, int id_min = 0) {
+    FitPars_base_t mip;
+    mip.ReadMnSaved(fn);
+    Import(mip, id_min);
+  }
+  
 private:
   // ================================================
-  string NewName(const string& old) {
-    if(M_NamesMap.count(old)) return M_NamesMap[old];
+  string NewName(const string& old) const {
+    // if(M_NamesMap.count(old)) return M_NamesMap[old];
+    if(M_NamesMap.count(old)) return M_NamesMap.at(old);
     return old;
   }
   
@@ -229,9 +248,21 @@ public:
   // }
   
   // ================================================
-  int Index(int Id) {
+  int Index(int Id) const {
     int j, N = M_pars.size();
     for(j=0; j < N; j++) if(M_pars[j].M_id == Id) return j;
+    return -1;
+  }
+  
+  // ================================================
+  /**
+  @brief Case sensitive search for a first match.
+  
+  Same as \c M_InNames.Index(const string& snam) if \c M_NamesMap empty.
+  */
+  int Index(const string& snam) const {
+    int j, N = M_pars.size();
+    for(j=0; j < N; j++) if(M_pars[j].M_name == snam) return j;
     return -1;
   }
   
@@ -247,6 +278,15 @@ public:
   }
   
   // ================================================
+  int GetNVar() {
+    fix_v2g();
+    return M_var2glb.size();
+  }
+  
+  // ================================================
+  int GetN() const {return M_pars.size();}
+  
+  // ================================================
   vector<int> GetVarIndices() {
     fix_v2g();
     return M_var2glb;
@@ -259,11 +299,14 @@ public:
   }
   
   // ================================================
-  string Name(int ig) {return M_pars[ig].M_name; }
-  int UID(int ig) {return M_pars[ig].M_id; }
-  double Value(int ig) {return M_pars[ig].M_value; }
-  double Error(int ig) {return M_pars[ig].M_err; }
-  double SysError(int ig) {return M_pars[ig].M_syserr; }
+  string Name(int ig) const {return M_pars[ig].M_name; }
+  int UID(int ig) const {return M_pars[ig].M_id; }
+  double Value(int ig) const {return M_pars[ig].M_value; }
+  double Error(int ig) const {return M_pars[ig].M_err; }
+  double SysError(int ig) const {return M_pars[ig].M_syserr; }
+  
+  // ================================================
+  double GetError(int ig) const { return hypot(M_pars[ig].M_err, M_pars[ig].M_syserr); }
   
   // ================================================
   void SetVal(int ig, double v) { M_pars[ig].M_value = v; }
@@ -271,7 +314,11 @@ public:
   void SetSysErr(int ig, double se) { M_pars[ig].M_syserr = se; }
   
   // ================================================
-  double GetError(int ig) { return hypot(M_pars[ig].M_err, M_pars[ig].M_syserr); }
+  void SetVarValues(const double* vals) {
+    // fix_v2g();
+    int N = M_var2glb.size();
+    for(int ig=0; ig < N; ig++) M_pars[ig].M_value = *vals++;
+  }
   
 };
 

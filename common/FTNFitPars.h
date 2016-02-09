@@ -1,6 +1,6 @@
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   \author Wojtek Slominski, Jagiellonian Univ., Physics Dept.
-  \date 2012-11-02
+  \date 2012-2015
   \copyright Creative Commons license CC-BY-NC 3.0
 _____________________________________________________________*/
 
@@ -13,12 +13,19 @@ _____________________________________________________________*/
 // #define TST_SHOW(a) cout << #a" = '" << (a) <<"'"<< endl;
 
 
-// oooooooooooooooooooooooooooooooooooooooo
+// -o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
 class FTNFitPars_t : public FitPars_base_t {
   string M_tit;
   StringList M_cmd;
+  ofstream M_trfil;
+  int Nchi_tr;
   
   public:
+  // ================================================
+  ~FTNFitPars_t() {
+    if(M_trfil.is_open()) M_trfil.close();
+  }
+  
   // ================================================
   string ReadTitle(const char * fnsave) {
     M_tit.erase();
@@ -63,6 +70,7 @@ class FTNFitPars_t : public FitPars_base_t {
 
   // ================================================
   void Read(const char* fn, Xstring what="tpc") {
+    // START_XCODE
     if(M_verbose) cout << "===> Reading ["<< what << "] from '" << fn <<"'"<< endl;
     if(what.ToLower().Contains("t")) ReadTitle(fn);
     if(what.ToLower().Contains("p")) {
@@ -73,6 +81,7 @@ class FTNFitPars_t : public FitPars_base_t {
       ReadCommands(fn);
       if(M_verbose) cout << M_cmd.size() << " commands read."<< endl;
     }
+    // END_XCODE
   }
 
   // ================================================
@@ -105,6 +114,51 @@ class FTNFitPars_t : public FitPars_base_t {
     ofstream out(fn);
     Write(out, what);
     out.close();
+  }
+  
+  // ================================================
+  void OpenTrace(const string& fn) {
+    if(!fn.empty()) M_trfil.open(fn.c_str());
+    // if(M_trfil.is_open()) ShowVarNames(M_trfil);
+    // else ShowVarNames(cout);
+    Nchi_tr = 0;
+  }
+  
+  // ================================================
+  void CloseTrace() {
+    M_trfil.close();
+  }
+  
+  // ================================================
+  void ShowVNames(int ndf) {
+    int nv = GetNVar();
+    if(M_trfil.is_open()) {
+      M_trfil << "#$NDF = "<< ndf << endl;
+      M_trfil << "#---\n";
+      M_trfil << "#     "<< setw(15) << "chi2";
+      ShowVarNames(M_trfil);
+      M_trfil << "#  1";
+      for(int j=0; j <= nv; j++) M_trfil << setw(15) << j+2;
+      M_trfil << endl;
+    }
+    else {
+      cout << "#     "<< setw(15) << "chi2";
+      ShowVarNames(cout);
+    }
+  }
+  
+  // ================================================
+  void ShowVVals(double chi2) {
+    if(M_trfil.is_open()) {
+      M_trfil << setw(6) << ++Nchi_tr << setw(15) << chi2;
+      ShowVarVals(M_trfil);
+      // if(!(Nchi_tr % 50)) M_trfil.flush();
+      if(!(Nchi_tr % 50)) Write("minuit.all.txt", "p");
+    }
+    else {
+      cout << setw(6) << ++Nchi_tr << setw(15) << chi2;
+      ShowVarVals(cout);
+    }
   }
   
   // ==========================================================

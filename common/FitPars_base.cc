@@ -11,7 +11,7 @@ _____________________________________________________________*/
 
 
 // ================================================
-void FitPars_base_t::Show(ostream &ostr, bool full_err) {
+void FitPars_base_t::Show(ostream &ostr, bool full_err) const {
   int j, N = M_pars.size();
   int wName = 0;
   for(j=0; j < N; j++) wName = max(static_cast<int>(M_pars[j].M_name.size()), wName);
@@ -37,7 +37,7 @@ void FitPars_base_t::Show(ostream &ostr, bool full_err) {
 }
 
 // ================================================
-void FitPars_base_t::ShowF(ostream &ostr, bool full_err) {
+void FitPars_base_t::ShowF(ostream &ostr, bool full_err) const {
   int j, N = M_pars.size();
   int wName = 10;
   // for(j=0; j < N; j++) wName = max(static_cast<int>(M_pars[j].M_name.size()), wName);
@@ -52,15 +52,52 @@ void FitPars_base_t::ShowF(ostream &ostr, bool full_err) {
     if(M_pars[j].IsVar()) {
       ostr << (full_err ? GetError(j) : M_pars[j].Error());
       if(M_pars[j].HasLimits()) {
-        ostr <<"  [ ";
+        // ostr <<"  [ ";
+        ostr <<"  ";
         if(M_pars[j].HasLowerLimit()) ostr << M_pars[j].M_lo;
-        ostr <<" : ";
+        // ostr <<" : ";
+        ostr <<"  ";
         if(M_pars[j].HasUpperLimit()) ostr << M_pars[j].M_up;
-        ostr <<" ]";
+        // ostr <<" ]";
       }
     }
     else ostr << 0;
     ostr << endl;
+  }
+  ostr << endl;
+}
+
+// // ================================================
+// void FitPars_base_t::ShowVarVals(ostream &ostr) {
+  // int N = M_pars.size();
+  // for(int j=0; j < N; j++) {
+    // if(!M_pars[j].IsVar()) continue
+    // ostr <<" "<< M_pars[j].M_value;
+  // }
+  // ostr << endl;
+// }
+
+// ================================================
+// Uses \c M_var2glb.
+void FitPars_base_t::ShowVarVals(ostream &ostr) const {
+  int N = M_var2glb.size();
+  for(int j=0; j < N; j++) {
+    ostr << setw(15)
+    // <<" "
+    << M_pars[M_var2glb[j]].M_value;
+  }
+  ostr << endl;
+}
+
+// ================================================
+// Uses \c M_var2glb.
+void FitPars_base_t::ShowVarNames(ostream &ostr) const {
+  int N = M_var2glb.size();
+  // ostr << "# ";
+  for(int j=0; j < N; j++) {
+    ostr << setw(15)
+    // <<" "
+    << M_pars[M_var2glb[j]].M_name;
   }
   ostr << endl;
 }
@@ -81,6 +118,10 @@ int FitPars_base_t::read_FTN(TextReader_t& tx, int ioffs) {
     if(tx[j].IsBlank()) break;
     npar++;
     StringList toks = Xstring(tx[j]).Split("' \t");
+    // cout << tx[j] <<"\n"
+        // << toks.size()
+        // <<"  "<< toks[0]
+        // << endl;
     bool HasEnum = toks[0].IsInt();
     if(HasEnum) {
       id = toks[0].GetInt();
@@ -192,6 +233,19 @@ int FitPars_base_t::ReadMnSaved(const string& fnsave, const string& old_new) {
       // }
     // }
   }
+  fix_v2g();
   return N;
+}
+
+// =============================================================
+void FitPars_base_t::Import(const FitPars_base_t& fp, int id_min) {
+  int id0=id_min, N = fp.GetN();
+  for(int j=0; j < N; j++) {
+    M_pars.push_back(fp.M_pars[j]);
+    // --- find first free UID
+    while(Index(id0) >= 0) id0++;
+    M_pars.back().M_id = id0;
+    M_InNames.push_back(fp.M_pars[j].M_name);
+  }
 }
 
