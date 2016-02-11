@@ -2,12 +2,15 @@
                   xFitter   --- PDF fit program from HERA.
                ------------------------------------------------
 
-xFitter has been used as one of the main software packages for the
-determination of the HERAPDF1.0 set proton parton densities (PDFs). HERAPDF
-is a common initiative by the H1 and ZEUS collaborations and extended
-now to the LHC collaborations to provide precision QCD analyses.
-xFitter has been used to produce the ATLAS-epWZ12 (NNLO, available in 
-LHAPDF5.9.1 and LHAPDFv6.1.X), LHEC (NLO) PDF sets available in the LHAPDFv5.9.1.
+xFitter is an open source QCD fit framework desinged to extract PDFs 
+and assess the impact of new data. The xFitter project is is a 
+common initiative by the H1 and ZEUS collaborations and extended 
+to the LHC collaborations to provide precision QCD analyses. 
+xFitter has been used as one of the main software packages for the 
+determination of the HERA proton parton densities (PDFs), HERAPDFs. 
+xFitter has been used to produce the ATLAS-epWZ12 (NNLO, available 
+in LHAPDF5.9.1 and LHAPDFv6.1.X), LHeC (NLO) PDF sets. For further 
+details please check xfitter.org web page.
 
 
 The current package includes code to fit DIS inclusive cross section 
@@ -30,6 +33,8 @@ package QCDNUM developed by M. Botje and includes other parts of the code:
 -- Diffractive PDFs (W. Slominski)
 -- total ttbar production cross sections via HATHOR (S. Moch et al.)
 -- differential ttbar production cross sections with DiffTop (M. Guzzi, S. Moch et al.)
+-- MNR calculation for heavy quark production (Mangano, Nason and Ridolfi, 
+   implemented by O.Zenaiev)
 
 If the results obtained with the program are to be included in a scientific 
 publication, please use the citations as suggested by the REFERENCES file. 
@@ -369,7 +374,7 @@ another option would be:
 
   The minuit card contains the list of parameters used in the fits.
   The default card (minuit.in.txt) located in the trunk is linked to the 
-  STANDARD PARAMETRISATION form as used for HERAPDF1.0 (10 free parameters).
+  STANDARD PARAMETRISATION form as used for HERAPDF2.0 (14 free parameters).
   	
 
   STANDARD PARAMETRISATION has the form: 
@@ -568,10 +573,11 @@ ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0
   obtained in the various fits. 
   For a full list of the available options of xfitter-draw please type: bin/xfitter-draw --help
   
-  Finally, the xFitter package provides PDFs in LHAPDF format. To obtain the
-  LHAPDF grid file, run tools/tolhapdf.cmd script. The script produces 
-  PDFs.LHgrid file which can be read by lhapdf version  lhapdf-5.8.6.tar.gz
-  or later
+  Finally, the xFitter package provides PDFs in LHAPDF format (version 5 and 6). 
+  To obtain the LHAPDF5.X grid file, run tools/tolhapdf.cmd script. The script 
+  produces PDFs.LHgrid file which can be read by lhapdf version lhapdf-5.8.6.tar.gz
+  or later. The LHAPDF6.X version grids are produced atomatically in hf_pdf directory
+
 
 
 h) PDF type
@@ -705,57 +711,30 @@ j) Options for the chi2 choice:
  1) RUNNING the NNPDF reweighting
  ---------------------------------
  
- The option to run the NNPDF reweighting tool is switched on using a namelist in the 
- general xFitter steering file, steering.txt
- 
- The parameters to be set are:
-   FLAGRW	   = False                ! Should reweighting be done?
-   RWPDFSET    = 'HERAPDF15NLO_EIG'   ! LHAPDF grid file 
-   RWDATA  	   = 'HighStat'           ! arbitrary name for new datasample to be put in 
-   RWMETHOD    = 1                    ! either 1=chi2 or 2=data
-   DORWONLY  	 = True               ! do / do not run usual HERA fit
-   RWREPLICAS 	 = 1000               ! Number of input replicas used to build the PDF probability distributions from the Hessian input PDFs 
-   RWOUTREPLICAS  = 100               ! how many output replica of the NNPDF should be kept?
- 
+ In order to use the reweighting technique, first the LHAPDF library has to be installed
+ and linked as described in the INSTALLATION file. 
  NOTE: reweighting currently is working with LHAPDF6.1.1 (or higher) version only!
- 
- Since a 'fake' minuit fit is run in order to retrieve the theory prediction, the it is at 
- the moment mandatory to have associated minuit steering files as well as output files - 
- these can be found in:  input_steering/minuit.XXX.nnpdf.txt
- 
- If NNPDF reweighting is run, it will create an internal steering card to run the actual 
- reweighting routing. This is stored under the following name in:
- input_steering/<name_of_RWPDFSET>_<RWDATA>_<chi2_OR_data>.in
- 
- Also, the needed files with the chi2 or the data/theory predictions for the new data set, 
- are written out by the NNPDF module. These files can be found in:
- NNPDF/data/<RWDATA>
- 
- NOTE: if these files already exist for a given data set and reweighting method, the fake 
- minuit fit and the re-writting out of the theory predictions is skipped and the NNPDF 
- reweighting step is directly run.
- 
- 2) OUTPUTS
- ---------------------------------
- 
- outputs are stored in:
- 
- output/<name_of_the_RWPDFSET>_<RWDATA>_<chi2_OR_data>/ (extra subdirectory in output)
- 
- There you can find:
- 
- <name_of_the_RWPDFSET>_<RWDATA>_<chi2_OR_data>_<Number_of_kept_replica>.LHgrid 
- --> new/updated LHgrid file that can be used
- 
- whist-rw.eps 
- --> weight distributions (used in the reweighting procedure - replicas with high 
- weights are kept, low weight replicas are thrown out)
 
- palpha-rw.eps 
- --> distribution of probability, is essentially a measure of the competibility of 
- the new data with the old data (should be around around 1, if it is larger than that, 
- say around 1.7, then then the new data are incompatible with the ones included in the 
- fit - 0.5 for example however suspiciously good.
+ First, in the xFitter steering files, as RunningMode the following parameter has to 
+ be chosen: 'LHAPDF Analysis'. This will write out the following files into the output 
+ directory:
+
+  NNPDF-style PDFs:
+    pdf BAYweights.dat (Bayesian) and pdf GKweights.dat (Giele-Keller reweighting)
+  Hessian PDFs:
+    pdf vector cor.dat, pdf shifts.dat, pdf rotate.dat (can be used to either 
+    perform reweighting or profiling, for more details please see Manual) 
+
+  Then the xfitter-process has to be run in order to perform the reweighting:
+
+  ./xfitter-process reweight <number_output_replicas> <pdf_weights> <pdf_dir_in> <pdf_dir_out>
+
+  where <number_output_replicas> is the number of PDF sets that the replica 
+    should contain after the reweighting,
+  <pdf_weights> refers to BAYweights.dat or GKweights.dat output files,
+  <pdf_dir_in>  is the directory of the input PDF set,
+  <pdf_dir_out> is the directory of the output PDF set.
+
 
 
 5) DESCRIPTION OF DiffDIS PACKAGE

@@ -40,15 +40,16 @@
   d) Storing of the outputs: output/ (default, name can be changed in the steering.txt)
 	- minuit.out.txt  			(minuit output)
 	- Results.txt 				(chiquare and the systematic shifts)
-	- lhapdf.block.txt			(ready to use LHAPDF style grids, run tools/tolhapdf.cmd)
+	- lhapdf.block.txt			(ready to use LHAPDF5.X style grids, run tools/tolhapdf.cmd)
+	- hf_pdf		          	(directory with the ready to use LHAPDF6.X style grids)
 	- fittedresults.txt			(theory predictions for each fitted data point)
-	- pulls.first/last.txt			(pulls at the start and end of the fit)
+	- pulls.first/last.txt		(pulls at the start and end of the fit)
 	- pdfs_q2val_0i.txt			(user defined PDF sets at predefined Q2 values, as set in the steering.txt)	
 
 1B) INSTALLATION (with APPLgrid)
 =================================
 
-  a) Install APPLgrid version 1.1.6 or later. Description can be found at
+  a) Install APPLgrid version 1.4.56 or later. Description can be found at
      http://projects.hepforge.org/applgrid/
 
   b) Run:
@@ -70,11 +71,12 @@
   a) Download Hathor version 1.5 from http://www.physik.hu-berlin.de/pep/tools/hathor.html
      and install it according to the instructions given there
      (requires LHAPDF library)
+     NOTE: Hathor versions above 1.5 are not supported to work with xFitter 
 
   b) Define a variable HATHOR_ROOT such that $HATHOR_ROOT points to the
      directory of your Hathor installation
 
-  c) Install the XFitter as described above but configuring it
+  c) Install the xFitter as described above but configuring it
      with the option "--enable-hathor" before building it
 
     ./configure --enable-hathor (--prefix=/your/installation/path/)

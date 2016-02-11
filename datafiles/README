@@ -3,3 +3,8 @@
 The data tables are grouped according to the collider, experiment and process,
 such that the path to a data sets looks like:
 colliderName/experimentName/processType/arxivNumber/
+
+By default only HERA data are provided together with the xFitter package, 
+in order to download other datasets (ATLAS, Tevatron, etc) please use 
+getter.sh script available in xfitter.org release download web page 
+(type ./getter.sh --help for instructions how to use it).
