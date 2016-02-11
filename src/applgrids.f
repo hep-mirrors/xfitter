@@ -101,6 +101,27 @@ C> @brief PDF for ppbar process
       return
       end
 
+C> @brief PDF for pn process
+      subroutine appl_fnpdf_neut(x, Q, xf)
+      implicit none
+#include "steering.inc"
+      double precision x, Q, xft
+      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
+      integer ifl
+
+      call appl_fnpdf(x, Q, xf)
+      ! switch up and down
+      xft=xf(1)
+      xf(1) = xf(2)
+      xf(2) = xft
+      ! switch anti-up and anti-down
+      xft=xf(-1)
+      xf(-1) = xf(-2)
+      xf(-2) = xft
+
+      return
+      end
+
 C> @brief Register x,Q2 point on a grid
       Subroutine register_pdf_applgrid(x,Q2)
 C----------------------------------------------

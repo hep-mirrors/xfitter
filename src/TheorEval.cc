@@ -38,6 +38,8 @@ TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string>
     _termSources.push_back(sts[it]);
   }
   _expr.assign(expr);
+
+  _ppbar = false;
 }
 
 TheorEval::~TheorEval()
@@ -240,9 +242,29 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
 {
   string term_source = _termSources.at(iterm);
   string term_type =  _termTypes.at(iterm);
+  string term_info =  _termInfos.at(iterm);
   CommonGrid *g = new CommonGrid(term_type, term_source); 
   if (  term_type.find("grid") != string::npos ) {
-     g->SetCollisions(_ppbar);
+     // set the collision for the grid term
+     string collision ("pp"); // default is pp
+
+     // this is to have backward-compatibility with Tevatron datasets
+     if ( _ppbar ) collision.assign(string("ppbar"));
+     // otherwise we check beams in the TermInfo lines
+     else {
+       size_t beams_pos = term_info.find(string("beams"));
+       if ( beams_pos != string::npos ){
+         size_t semicol_pos = term_info.find(';', beams_pos);
+         size_t eq_pos = term_info.find('=', beams_pos);
+	 collision.assign(term_info.substr(eq_pos, semicol_pos - eq_pos));
+       }
+     }
+
+     // strip blanks
+     collision.erase(std::remove(collision.begin(), collision.end(), ' '), collision.end());
+
+     // and set the collision
+     g->SetCollisions(collision);
      g->SetDynamicScale( _dynamicscale );
      
      // check the binning with the grids, will be ignored for normalisation grids

@@ -33,6 +33,8 @@ struct tHyperBin {
   FastNLOxFitter* f;
 };
 
+enum tCollisions { PP, PPBAR, PN, PD, PNUC, NUCNUC };
+
 class CommonGrid {
  private:
   //! Hidden default constructor
@@ -47,7 +49,7 @@ class CommonGrid {
   CommonGrid(const string & grid_type, const string &grid_source);
 
   //! Selects if we have a proton-antiproton collision
-  void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
+  void SetCollisions(const string &collisions);// {_ppbar = (ppbar == 1);};
   void SetDynamicScale(double dynscale) {_dynamicscale = dynscale;};
   //! Check that the data and grid bins are consistent
   int checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins);
@@ -91,7 +93,7 @@ class CommonGrid {
   vector<tHyperBin> _hbins;
 
   /// ppbar PDF
-  bool _ppbar;
+  tCollisions _collision;
 
   /// bin-by-bin dynamic scale
   double _dynamicscale;

@@ -23,6 +23,7 @@ using namespace appl;
 // external pdf functions
 extern "C" void appl_fnpdf_(const double& x, const double& Q, double* f);
 extern "C" void appl_fnpdf_bar_(const double& x, const double& Q, double* f);
+extern "C" void appl_fnpdf_neut_(const double& x, const double& Q, double* f);
 extern "C" double appl_fnalphas_(const double& Q);
 extern "C" void hf_errlog_(const int &id, const char *text, int); 
 
@@ -214,10 +215,19 @@ CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf
   vector<double> gxs;
   appl::grid *g = ihb->g;
   // extract convoluted cross sections
-  if (_ppbar)
-     gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar_, appl_fnalphas_, iorder, mur, muf);
-  else
-     gxs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf);
+  switch (_collision) {
+    case PP : gxs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf); break;
+    case PPBAR : gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar_, appl_fnalphas_, iorder, mur, muf); break;
+    case PN : gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_neut_, appl_fnalphas_, iorder, mur, muf); break;
+    default: {
+      int id = 16020542;
+      char text[] = "S: Unknown collision type for applgrid selected.";
+      int textlen = strlen(text);
+      hf_errlog_(id, text, textlen);
+      break;
+    }
+  }
+
   // compute virtual bin width if available,
   double bw(1.);
   for (int ibb = 0; ibb<(_ndim-2)/2; ibb++){
@@ -304,6 +314,23 @@ CommonGrid::checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins
   return 0;
 }
 
+void
+CommonGrid::SetCollisions(const string &collision)
+{
+  if (collision == string("pp")) _collision = PP;
+  else if (collision == string("pbar")) _collision = PPBAR;
+  else if (collision == string("pn")) _collision = PN;
+  else if (collision == string("pd")) _collision = PD;
+  else if (collision == string("pnuc")) _collision = PNUC;
+  else if (collision == string("nucnuc")) _collision = NUCNUC;
+  else {
+    int id = 16020401;
+    char text[] = "S: Unknown collision type.";
+    std::cerr << "Unknown collision type: " << collision << endl;
+    int textlen = strlen(text);
+    hf_errlog_(id, text, textlen);
+  }
+}
 
 int 
 CommonGrid::setCKM(const vector<double> &v_ckm)
