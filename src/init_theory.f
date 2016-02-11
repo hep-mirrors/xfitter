@@ -1246,6 +1246,11 @@ C------------------------------------------------------------
 
       mtop = HF_MASS(3)
 
+      if (mtop.gt.200d0) then
+            call HF_errlog(11022016, 'F: '//
+     1          'Top quark mass is above 200 GeV in ewparams.txt, '//
+     2          ' Hathor cannot produce sensible results, please fix.')
+      endif
       call hathorinit(IDataSet, sqrtS, ppbar, mtop, I_FIT_ORDER, precisionLevel)
       end
 
