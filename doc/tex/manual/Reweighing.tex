@@ -205,9 +205,9 @@ These files can be used to either perform reweighting or profiling as described 
 
 \subsubsection{{\tt xfitter-process}: Bayesian Reweighting}
 
-The following steps need to be taken to reweight PDF sets after the main code has been run:
+To get the results as LHAPDF files, the xfitter-process has to be run in order:
 
-\textbf{./xfitter-process reweight
+\textbf{bin/xfitter-process reweight
 usage: xfitter-process reweight number\_output\_replicas pdf\_weights pdf\_dir\_in pdf\_dir\_out}
 
 here, the following parameters need to be given:
@@ -218,7 +218,25 @@ here, the following parameters need to be given:
 \item {\tt pdf\_dir\_out }is the directory of the input PDF set, e.g. {\tt /share/LHAPDF/NNPDF30\_myNewPDFset}
 \end{itemize}
 
-Eventually, some check histograms will be produced.
+  two checks plots are automatically created when running the reweighting:
+\begin{itemize}
+\item {\tt ./weights.pdf}: weight distributions (used in the reweighting procedure - replicas with high 
+ weights are kept, low weight replicas are thrown out)
+
+\item {\tt ./palpha.pdf} (only for Bayesian weighting): distribution of the probability, that the uncertainties 
+ of the new data should be re-scaled by a factor of alpha. The rescaling factor alpha should 
+ therefore ideally be 1. It is essentially a measure of the compatibility of 
+ the new data with the old data (it should be around around 1, if it is larger than that, 
+ say around 1.7, then then the new data are incompatible with the ones included in the 
+ fit - 0.5 for example however suspiciously good).
+\end{itemize}
+
+To plot the results as comparions with the input data, the bin/xfitter-draw program can be run just as for the other fits, e.g. using the command:
+ 
+\textbf{bin/xfitter-draw reweight-BAY:output:"BAYreweighted" reweight-GK:output:"GKreweighted''}
+
+Help on the drawing program in general can be obtained running:
+\textbf{bin/xfitter-draw --help}
 
 \subsubsection{{\tt xfitter-process}: Profiling}
 

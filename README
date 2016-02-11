@@ -735,7 +735,7 @@ a) To get the results as LHAPDF files, the xfitter-process has to be run in orde
   <pdf_dir_in>  is the directory of the input PDF set,
   <pdf_dir_out> is the directory of the output PDF set.
 
-  two checks plots are autmatically printed out when running the reweighting:
+  two checks plots are automatically created when running the reweighting:
   ./weights.pdf --> weight distributions (used in the reweighting procedure - replicas with high 
  weights are kept, low weight replicas are thrown out)
 
