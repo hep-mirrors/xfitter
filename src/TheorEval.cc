@@ -256,7 +256,7 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
        if ( beams_pos != string::npos ){
          size_t semicol_pos = term_info.find(';', beams_pos);
          size_t eq_pos = term_info.find('=', beams_pos);
-	 collision.assign(term_info.substr(eq_pos, semicol_pos - eq_pos));
+	 collision.assign(term_info.substr(eq_pos+1, semicol_pos - eq_pos-1));
        }
      }
 

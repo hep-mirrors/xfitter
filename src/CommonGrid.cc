@@ -318,7 +318,7 @@ void
 CommonGrid::SetCollisions(const string &collision)
 {
   if (collision == string("pp")) _collision = PP;
-  else if (collision == string("pbar")) _collision = PPBAR;
+  else if (collision == string("ppbar")) _collision = PPBAR;
   else if (collision == string("pn")) _collision = PN;
   else if (collision == string("pd")) _collision = PD;
   else if (collision == string("pnuc")) _collision = PNUC;
