@@ -708,7 +708,7 @@ j) Options for the chi2 choice:
  for the given new data set are also provided.
  
  
- 1) RUNNING the NNPDF reweighting
+1) RUNNING the NNPDF reweighting
  ---------------------------------
  
  In order to use the reweighting technique, first the LHAPDF library has to be installed
@@ -725,9 +725,9 @@ j) Options for the chi2 choice:
     pdf vector cor.dat, pdf shifts.dat, pdf rotate.dat (can be used to either 
     perform reweighting or profiling, for more details please see Manual) 
 
-  Then the xfitter-process has to be run in order to perform the reweighting:
+a) To get the results as LHAPDF files, the xfitter-process has to be run in order:
 
-  ./xfitter-process reweight <number_output_replicas> <pdf_weights> <pdf_dir_in> <pdf_dir_out>
+  bin/xfitter-process reweight <number_output_replicas> <pdf_weights> <pdf_dir_in> <pdf_dir_out>
 
   where <number_output_replicas> is the number of PDF sets that the replica 
     should contain after the reweighting,
@@ -735,6 +735,20 @@ j) Options for the chi2 choice:
   <pdf_dir_in>  is the directory of the input PDF set,
   <pdf_dir_out> is the directory of the output PDF set.
 
+  two checks plots are autmatically printed out when running the reweighting:
+  ./weights.pdf --> weight distributions (used in the reweighting procedure - replicas with high 
+ weights are kept, low weight replicas are thrown out)
+
+ ./palpha.pdf (only for Bayesian weighting) --> distribution of the probability, that the uncertainties 
+ of the new data should be re-scaled by a factor of alpha. The rescaling factor alpha should 
+ therefore ideally be 1. It is essentially a measure of the compatibility of 
+ the new data with the old data (it should be around around 1, if it is larger than that, 
+ say around 1.7, then then the new data are incompatible with the ones included in the 
+ fit - 0.5 for example however suspiciously good).
+
+b) To plot the results as comparions with the input data, the bin/xfitter-draw program can be run just as for the other fits, e.g. using the command:
+ 
+  bin/xfitter-draw reweight-BAY:output:"BAYreweighted" reweight-GK:output:"GKreweighted"
 
 
 5) DESCRIPTION OF DiffDIS PACKAGE
