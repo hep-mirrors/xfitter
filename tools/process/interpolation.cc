@@ -1,20 +1,29 @@
+#include "xfitter_cpp.h"
+#define LHAPDF6 6
+
+#if LHAPDF_FAMILY == LHAPDF6
 #include "LHAPDF/LHAPDF.h"
 #include "LHAPDF/PDFSet.h"
 #include "LHAPDF/PDF.h"
 #include "LHAPDF/Factories.h"
+#endif
 #include <iostream>
 #include <cstring>
 #include <libgen.h>
 #include <vector>
+#include <cstdlib>
 #include <map>
 
 using namespace std;
+#if LHAPDF_FAMILY == LHAPDF6
 using namespace LHAPDF;
+#endif
 
 extern "C" {
   void interpolation(double x, double Q, char* pdfset_path, int n_flavours, int* pdf_flavours, int pdf_number, double* values);
 }
 
+#if LHAPDF_FAMILY == LHAPDF6
 void interpolation(double x, double Q, char* pdfset_path,int n_flavours, int* pdf_flavours, int pdf_number, double* values){
   
   string pdfset_path_str(pdfset_path);
@@ -36,3 +45,9 @@ void interpolation(double x, double Q, char* pdfset_path,int n_flavours, int* pd
   }
 
 }
+#else 
+void interpolation(double x, double Q, char* pdfset_path,int n_flavours, int* pdf_flavours, int pdf_number, double* values){
+  cerr<< "S: the grid combination is not applicable to LHAPDFv < 6.x" << endl;
+  exit(1);
+}
+#endif

@@ -167,9 +167,15 @@ if test $enable_lhapdf; then
     LHAPDF_CPPFLAGS=`lhapdf-config --cppflags`
     LHAPDF_LDFLAGS=`lhapdf-config --ldflags`
     AC_MSG_RESULT([Using $lhapdf_config version $LHAPDFVERS])
+    AC_SUBST(LHAPDF_FAMILY)
     AC_SUBST(LHAPDF_CPPFLAGS)
     AC_SUBST(LHAPDF_LDFLAGS)
     AC_DEFINE([LHAPDF_ENABLED],[1],[Define if LHAPDF is enabled])
+
+    lhapdf_family=`lhapdf-config --version | sed 's/\..*$//'`
+    if test "x$lhapdf_family" != "x5"; then 
+      AC_DEFINE([LHAPDF_FAMILY],[6],[Define value of LHAPDF family])
+    fi
   fi
 fi
 AM_CONDITIONAL(ENABLE_LHAPDF, [test $enable_lhapdf])
