@@ -462,12 +462,11 @@ char* get_flavor_scheme() { //{{{
 
 char* get_error_type(){ //{{{
         int mc, asymh, symh;
-        size_t size;
         char *name;
         char* error_type=NULL;
         int err_num=29061520;
         char *err_str="W: lhapdf6 output, cant determine error type.";
-        getpdfunctype_heraf_(&mc, &asymh, &symh, ccommoninterface_.lhapdfset, size);
+        getpdfunctype_heraf_(&mc, &asymh, &symh, ccommoninterface_.lhapdfset, strlen(ccommoninterface_.lhapdfset));
 
         if(mc) error_type="replicas";
         if(asymh) error_type="hessian";
@@ -484,11 +483,10 @@ char* get_error_type(){ //{{{
 char* get_pdf_type(int pdf_set){ //{{{
         char* pdf_type=NULL;
         int mc, asymh, symh;
-        size_t size;
         char *name;
         int err_num=29061551;
         char *err_str="W: lhapdf6 output, cant determine error type.";
-        getpdfunctype_heraf_(&mc, &asymh, &symh, ccommoninterface_.lhapdfset, size);
+        getpdfunctype_heraf_(&mc, &asymh, &symh, ccommoninterface_.lhapdfset, strlen(ccommoninterface_.lhapdfset));
 
         if(!pdf_set) pdf_type="central";
         else if(asymh || symh) pdf_type="error";
