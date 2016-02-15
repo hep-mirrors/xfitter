@@ -55,6 +55,7 @@
 &Scales 
     DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
     DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
+ !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
 &End
 
 *
@@ -120,7 +121,6 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
-!  HF_SCHEME = 'FONLL-C'
   HF_SCHEME = 'RT OPT'
 
  ! PDF type. Possible types are currently available:
@@ -136,8 +136,9 @@
  !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
  !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
  !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
+ !  'LHAPDFNATIVE'-- use lhapdf library to access pdfs and alphas
  !  'DDIS'        -- use Diffractive DIS 
- !  'BiLog'        -- bi-lognormal parametrisation 
+ !  'BiLog'       -- bi-lognormal parametrisation 
 
   PDFStyle = 'HERAPDF'
 
@@ -213,7 +214,7 @@
   ! Rule #1: Q2 cuts
    ProcessName(1)     = 'NC e+-p'
    Variable(1)        = 'Q2'
-   CutValueMin(1)     = 3.5 
+   CutValueMin(1)     = 3.5
    CutValueMax(1)     = 1000000.0
 
   ! Rule #2: x cuts
@@ -226,7 +227,7 @@
 
    ProcessName(3)     = 'CC e+-p'
    Variable(3)        = 'Q2'
-   CutValueMin(3)     = 3.5 
+   CutValueMin(3)     = 3.5
    CutValueMax(3)     = 1000000.0
 
    ProcessName(4)     = 'CC e+-p'
@@ -350,6 +351,7 @@
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'CT10nlo' ! LHAPDF grid file 
-  ILHAPDFSET = 0               ! Set number withing PdfSet
+  LHAPDFSET  = 'CT10nlo'       ! LHAPDF grid file 
+  ILHAPDFSET = 0               ! Set number within PdfSet
+  !LHAPDFErrors = True         ! Take into account PDF uncertaintes 
 &End
