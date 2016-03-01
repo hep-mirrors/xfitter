@@ -54,6 +54,12 @@ CommonGrid::CommonGrid(const string & grid_type, const string &grid_source): _dy
   } else if ( grid_type == "virtgrid_norm" ) { 
     _flag = 3; 
     this->readVirtGrid(grid_source);
+  } else if ( grid_type == "applgrid_normhyperbin" ) { 
+    _flag = 4;
+    this->readAPPLgrid(grid_source);
+  } else if ( grid_type == "virtgrid_normhyperbin" ) { 
+    _flag = 5;
+    this->readVirtGrid(grid_source);
   } else if ( grid_type.find("ast") != string::npos ) { // fastNLO
      this->initfastNLO(grid_source);
   } else {
@@ -175,17 +181,18 @@ CommonGrid::readVirtGrid(const string &grid_source)
   return _hbins.size();
 }
 
-std::vector<double> 
+std::vector< std::vector<double> >
 CommonGrid::vconvolute(const int iorder, const double mur, const double muf)
 {
    // calculate cross sections with fastNLO or applgrid
    vector<tHyperBin>::iterator ihb;
+   std::vector< std::vector<double> > result;
    for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
       if ( ihb->g ) 
 	 // have to decrement iorder, since for appl_grid 0 -> LO, 1 -> NLO, etc.
-	 return vconvolute_appl(iorder-1,mur,muf,&(*ihb));
+	      result.push_back(vconvolute_appl(iorder-1,mur,muf,&(*ihb)));
       else if ( ihb->f )
-	 return vconvolute_fastnlo(iorder,mur,muf,ihb->f);
+	      result.push_back(vconvolute_fastnlo(iorder,mur,muf,ihb->f));
       else {
 	 int id = 15010262;
 	 char text[] = "S: Either applgrid or fastNLO must be present.";
@@ -193,6 +200,7 @@ CommonGrid::vconvolute(const int iorder, const double mur, const double muf)
 	 hf_errlog_(id, text, textlen);	 
       }
    }
+   return result;
 }
 
 std::vector<double> 
@@ -241,13 +249,16 @@ CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf
      int textlen = strlen(text);
      hf_errlog_(id, text, textlen);
   }
+
+  // scale by hyperbin width if requested
+  if(0 != (_flag & 1) && _flag <= 3) 
+    for(vector<double>::iterator ixs = gxs.begin(); ixs!=gxs.end(); ixs++)
+      (*ixs) *= bw * g->deltaobs(int(ixs - gxs.begin()));
   // scale by bin width if normalization is requested
-  if ( 0 != (_flag & 1) ) {
-     for(vector<double>::iterator ixs = gxs.begin(); ixs!=gxs.end(); ixs++){
-        (*ixs) *= g->deltaobs(int(ixs - gxs.begin())) * bw;
-     }
-  }
-  // append to the total vector
+  else if(_flag > 3) 
+    for(vector<double>::iterator ixs = gxs.begin(); ixs!=gxs.end(); ixs++)
+      (*ixs) *= bw;
+
   xs.insert(xs.end(), gxs.begin(), gxs.begin()+ihb->ngb);
   return xs;
 }
@@ -256,7 +267,7 @@ int
 CommonGrid::checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins)
 {
   // do not check bins for normalization grids
-  if ( 0 != (_flag & 1) ) return 0;
+  if ( 0 != (_flag & 1) || _flag > 3 ) return 0;
 
   // compute number of bins in the virtual grid. Compare to the number of data bins
   int n_gbins(0);
