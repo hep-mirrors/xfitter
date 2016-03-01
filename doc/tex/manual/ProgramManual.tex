@@ -619,6 +619,9 @@ the differential distribution e.g. for normalization purposes) one should add
               'path/to/applgrid.root'
  TheorExpr= 'V/sum(A)'
 \end{verbatim}
+In order to obtain cross sections for a multidimensional measurement divided by 
+the last bin width only (i.e. not divided by the hyperbin width), one should 
+use TermType of 'applgrid\_normhyperbin' or 'virtgrid\_normhyperbin'.
 
 An example of virtgrid.txt file:
 \begin{verbatim}
