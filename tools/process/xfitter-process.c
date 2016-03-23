@@ -19,7 +19,6 @@ static const struct command options[]={
         {"reweight",reweight},
         {"custom",custom},
 #ifdef LHAPDF_ENABLED
-		{"interpolation", interpolation},
 		{"combine", combine},
 #endif
         {"help", help},
