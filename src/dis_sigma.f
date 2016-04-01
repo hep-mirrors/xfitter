@@ -1298,9 +1298,6 @@ C     ---------------------------------------
       
       end
 
-
-
-
 C----------------------------------------------------------------
 C> Calculates F2, FL, XF3, F2c, FLc, F2b, FLb according to FONLL scheme
 C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions
@@ -1311,7 +1308,6 @@ C> \param[in] charge of the lepton beam
 C> \param[in] XSecType DIS process type
 C> \param[in] local_hfscheme heavy flavour scheme
 C> \param[in] IDataSet data set index
-C> \param[in] F2in, FLin, XF3in structure functions calculated by QCDNUM
 C
 C  Created by Valerio Bertone, 25/03/2015
 C---------------------------------------------------------------
@@ -1337,9 +1333,10 @@ C---------------------------------------------------------------
 **
 *     Internal Variables
 *
-      integer i
+      integer i,nh
       double precision muoQ
       double precision s2,m2,HeavyQuarkMass
+      double precision dummy
 **
 *     Output Variables
 *
@@ -1354,7 +1351,7 @@ C---------------------------------------------------------------
       elseif(XSecType.eq.'NCDIS')then
          call SetProcessDIS("NC")
       elseif(XSecType.eq.'CHARMDIS'.or.XSecType.eq.'BEAUTYDIS') then
-         call SetProcessDIS("EM")
+         call SetProcessDIS("NC")
       else
          write(6,*) 'UseFONLLScheme, XSecType ',XSecType,
      1              ' not supported'
@@ -1367,23 +1364,59 @@ C---------------------------------------------------------------
          call SetProjectileDIS("positron")
       endif
 *
+      call SetPDFSet("external1")
+*
+*     First compute structure functions with m2 / Q2 = scalea1
+*
+      muoQ = dsqrt(scalea1)
+      call SetRenQRatio(muoQ)
+      call SetFacQRatio(muoQ)
       do i=1,npts
-         if(XSecType.eq.'CHARMDIS'.or.XSecType.eq.'BEAUTYDIS')then
-c            muoQ = dsqrt( ( q2(i) + 4d0 * hf_mass(1)**2d0 ) / q2(i) )
+         call sf_fonll_wrap(x(i),q2(i),muoQ,
+     1                      F2(i),FL(i),xF3(i),
+     2                      F2c(i),FLc(i),F2b(i),FLb(i))
+      enddo
+*
+*     If scaleb1 is different from zero ...
+*
+      if(scaleb1.ne.0d0)then
+*     Subtract heavy quark contributions
+         do i=1,npts
+            F2(i) = F2(i) - F2c(i) - F2b(i)
+            FL(i) = FL(i) - FLc(i) - FLb(i)
+         enddo
+*     number of heavy quarks in the final state (squared)
+         nh = 4                           ! NC
+         if(XSecType.eq.'CCDIS') nh = 1   ! CC
+*     Recompute the charm contribution at the right scales and add it back
+*     to the total structure functions
+         do i=1,npts
             s2   = scalea1 * q2(i)
-            m2   = scaleb1 * HeavyQuarkMass(3+massh,dsqrt(q2(i)))**2d0
-            muoQ = dsqrt( ( s2 + 4d0 * m2 ) / q2(i) )
+            m2   = scaleb1 * HF_MASS(1)**2 !HeavyQuarkMass(4,dsqrt(q2(i)))**2d0
+            muoQ = dsqrt( ( s2 + nh * m2 ) / q2(i) )
             call SetRenQRatio(muoQ)
             call SetFacQRatio(muoQ)
-         else
-            call SetRenQRatio(1d0)
-            call SetFacQRatio(1d0)
-         endif
-*
-         call sf_fonll_wrap(x(i),q2(i),
-     1                      F2(i),FL(i),xF3(i),
-     2                      F2c(i),FLc(i),F2b(i),FLb(i)) 
-      enddo
+            call sf_fonll_wrap(x(i),q2(i),muoQ,
+     1                         dummy,dummy,dummy,
+     2                         F2c(i),FLc(i),dummy,dummy)
+            F2(i) = F2(i) + F2c(i)
+            FL(i) = FL(i) + FLc(i)
+         enddo
+*     Recompute the bottom contribution at the right scales and add it back
+*     to the total structure functions
+         do i=1,npts
+            s2   = scalea1 * q2(i)
+            m2   = scaleb1 * HF_MASS(2)**2 !HeavyQuarkMass(5,dsqrt(q2(i)))**2d0
+            muoQ = dsqrt( ( s2 + nh * m2 ) / q2(i) )
+            call SetRenQRatio(muoQ)
+            call SetFacQRatio(muoQ)
+            call sf_fonll_wrap(x(i),q2(i),muoQ,
+     1                         dummy,dummy,dummy,
+     2                         dummy,dummy,F2b(i),FLb(i))
+            F2(i) = F2(i) + F2b(i)
+            FL(i) = FL(i) + FLb(i)
+         enddo
+      endif
 *     Adjust sign of F3
       xF3 = - charge * xF3
 *     Divide structure functions by 2 for the CC process
@@ -1399,7 +1432,6 @@ c            muoQ = dsqrt( ( q2(i) + 4d0 * hf_mass(1)**2d0 ) / q2(i) )
 *
       return
       end
-
 
 C----------------------------------------------------------------
 C> Calculates F2, FL, XF3, F2c, FLc, F2b, FLb in the ZM-VFNS scheme using MELA

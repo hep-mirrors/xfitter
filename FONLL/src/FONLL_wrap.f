@@ -16,6 +16,12 @@
       character*7 Scheme
       character*5 MassScheme
       logical runm
+      double precision Q2save
+      common / PreviousQ2 / Q2save
+*
+*     Initialize Q2save
+*
+      Q2save = 0d0
 *
 *     Set EW parameters
 *
@@ -29,7 +35,6 @@
 *
 *     APFEL settings
 *
-c      call EnableTargetMassCorrections(.true.)
       call EnableDynamicalScaleVariations(.true.)
       if(MassScheme(1:4).eq."Pole")then
          call SetPoleMasses(Mcharm,MBottom,MTop)
@@ -41,9 +46,10 @@ c      call EnableTargetMassCorrections(.true.)
       call SetPerturbativeOrder(PtOrder)
       call SetMassScheme(scheme)
       call SetNumberOfGrids(3)
-      call SetGridParameters(1,40,3,9.8d-7)
-      call SetGridParameters(2,30,3,1d-2)
-      call SetGridParameters(3,20,3,7d-1)
+c      call EnableDampingFONLL(.false.)
+      call SetGridParameters(1,50,3,9.8d-7)
+      call SetGridParameters(2,40,3,1d-2)
+      call SetGridParameters(3,40,3,7d-1)
 *
 *     Initialize the APFEL DIS module
 *
@@ -57,13 +63,13 @@ c      call EnableTargetMassCorrections(.true.)
 *     Routine that returns the structure functions
 *
 ************************************************************************
-      subroutine sf_fonll_wrap(x,Q2,F2,FL,xF3,F2c,FLc,F2b,FLb)
+      subroutine sf_fonll_wrap(x,Q2,muoQ,F2,FL,xF3,F2c,FLc,F2b,FLb)
 *
       implicit none
 **
 *     Input Variables
 *
-      double precision x,Q2
+      double precision x,Q2,muoQ
 **
 *     Internal Variables
 *
@@ -71,15 +77,17 @@ c      call EnableTargetMassCorrections(.true.)
       double precision F2total,FLtotal,F3total
       double precision F2charm,FLcharm
       double precision F2bottom,FLbottom
+      double precision Q2save
+      common / PreviousQ2 / Q2save
 **
 *     Output Variables
 *
       double precision F2,FL,xF3,F2c,FLc,F2b,FLb
 *
-      Q = dsqrt(Q2)
-*
-      call SetPDFSet("external1")
-      call ComputeStructureFunctionsAPFEL(Q,Q)
+      if(Q2.ne.Q2save)then
+         Q = dsqrt(Q2)
+         call ComputeStructureFunctionsAPFEL(Q*muoQ,Q)
+      endif
 *
       F2  = F2total(x)
       FL  = FLtotal(x)
@@ -88,6 +96,8 @@ c      call EnableTargetMassCorrections(.true.)
       FLc = FLcharm(x)
       F2b = F2bottom(x)
       FLb = FLbottom(x)
+*
+      Q2save = Q2
 *
       return
       end
