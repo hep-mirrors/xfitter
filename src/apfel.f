@@ -8,8 +8,16 @@
       implicit none
 *
 #include "steering.inc"
-#include "alphas.inc"
 #include "couplings.inc"
+#include "thresholds.inc"
+#include "extrapars.inc"
+*
+      integer GetParameterIndex
+      double precision alphas
+*
+*     Reference value of alphas taken from the extraparameters
+*
+      alphas = ExtraParamValue(GetParameterIndex('alphas'))
 *
 *     Define basic settings
 *
@@ -34,15 +42,15 @@
       else
          call SetVFNS
       endif
+      call SetAlphaqcdRef(alphas,Mz)
       if(HF_SCHEME(9:12).eq."RUNM")then
-         call SetMSbarMasses(dble(HF_MASS(1)),dble(HF_MASS(2)), ! Heavy-quark thresholds in the MSbar scheme
-     1                       dble(HF_MASS(3)))
+         call SetMSbarMasses(mch,mbt,mtp) ! Heavy-quark thresholds in the MSbar scheme
          call EnableMassRunning(.false.)
          if(HF_SCHEME(14:15).eq."ON") call EnableMassRunning(.true.)
       else
-         call SetPoleMasses(dble(HF_MASS(1)),dble(HF_MASS(2)),  ! Heavy-quark thresholds in the Pole scheme
-     1                      dble(HF_MASS(3)))
+         call SetPoleMasses(mch,mbt,mtp)  ! Heavy-quark thresholds in the Pole scheme
       endif
+      call SetMassMatchingScales(kmuc,kmub,kmut)
 *
 *     Initialize APFEL
 *

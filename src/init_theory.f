@@ -177,11 +177,16 @@ C Default extra info:
       ReportXGrid = .false.
       ReadXGrid= .false.
 
+C----- Rescaling factors for the heavy-quark threholds (used by APFEL)
+      kmuc = 1d0
+      kmub = 1d0
+      kmut = 1d0
+
 C---------------------
       q0 = starting_scale
-      qc = HF_MASS(1)**2
-      qb = HF_MASS(2)**2
-      qt = HF_MASS(3)**2
+      qc = ( kmuc * HF_MASS(1) )**2
+      qb = ( kmub * HF_MASS(2) )**2
+      qt = ( kmut * HF_MASS(3) )**2
       qmz= Mz**2
 
 
@@ -1465,11 +1470,12 @@ c#include "steering.inc"
 #include "ntot.inc"
 #include "steering.inc"
 #include "couplings.inc"
+#include "extrapars.inc"
 *
       integer PtOrder
+      integer GetParameterIndex
       double precision MCharm,MBottom,MTop
       double precision Q_ref,Alphas_ref
-      double precision hf_get_alphas
       character*7 Scheme
       character*5 MassScheme
       logical runm
@@ -1479,7 +1485,7 @@ c#include "steering.inc"
       MTop    = mtp
 *
       Q_ref      = mz
-      Alphas_ref = hf_get_alphas(Q_ref*Q_ref)
+      Alphas_ref = ExtraParamValue(GetParameterIndex('alphas'))
 *
       PtOrder = I_FIT_ORDER - 1
 *

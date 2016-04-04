@@ -9,6 +9,8 @@
       implicit none
 *
       include 'couplings.inc'
+**
+*     Input Variables
 *
       integer PtOrder
       double precision MCharm,MBottom,MTop
@@ -18,6 +20,11 @@
       logical runm
       double precision Q2save
       common / PreviousQ2 / Q2save
+**
+*     Internal Variables
+*
+      double precision Qc,Qb,Qt,McQ,MbQ,MtQ
+      double precision HeavyQuarkMass
 *
 *     Initialize Q2save
 *
@@ -37,9 +44,9 @@
 *
       call EnableDynamicalScaleVariations(.true.)
       if(MassScheme(1:4).eq."Pole")then
-         call SetPoleMasses(Mcharm,MBottom,MTop)
+         call SetPoleMasses(MCharm,MBottom,MTop)
       elseif(MassScheme.eq."MSbar")then
-         call SetMSbarMasses(Mcharm,MBottom,MTop)
+         call SetMSbarMasses(MCharm,MBottom,MTop)
          call EnableMassRunning(runm)
       endif
       call SetAlphaQCDRef(Alphas_ref,Q_ref)
@@ -50,6 +57,22 @@ c      call EnableDampingFONLL(.false.)
       call SetGridParameters(1,50,3,9.8d-7)
       call SetGridParameters(2,40,3,1d-2)
       call SetGridParameters(3,40,3,7d-1)
+*
+      Qc = MCharm
+      Qb = MBottom
+      Qt = MTop
+      if(Qc.ne.MCharm.or.Qb.ne.MBottom.or.Qt.ne.MTop)then
+         call InitializeAPFEL()
+         McQ = HeavyQuarkMass(4,Qc)
+         MbQ = HeavyQuarkMass(5,Qb)
+         MtQ = HeavyQuarkMass(6,Qt)
+         if(MassScheme(1:4).eq."Pole")then
+            call SetPoleMasses(McQ,MbQ,MtQ)
+         elseif(MassScheme.eq."MSbar")then
+            call SetMSbarMasses(McQ,MbQ,MtQ)
+            call SetMassScaleReference(Qc,Qb,Qt)
+         endif
+      endif
 *
 *     Initialize the APFEL DIS module
 *

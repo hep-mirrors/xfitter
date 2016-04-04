@@ -44,6 +44,14 @@ c----------------------------------------------------------
       call print_apfel_error_message
       end
 
+      subroutine initializeapfel
+      call print_apfel_error_message
+      end
+
+      subroutine setmassscalereference
+      call print_apfel_error_message
+      end
+
       subroutine setpolarizationdis
       call print_apfel_error_message
       end
