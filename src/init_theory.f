@@ -141,6 +141,9 @@ C Functions:
 C Memory parameters of QCDNUM
       integer ver,mxg,mxx,mqq,msr,mce,mbf,mky,nwf
 
+C
+      double precision kmuc, kmub, kmut
+
 C---------------------------------------------------------------------------------------
 
 C-----  DEFAULTS -----------
