@@ -14,6 +14,7 @@
 *
       integer GetParameterIndex
       double precision alphas
+      double precision  kmuc, kmub, kmut
 *
 *     Reference value of alphas taken from the extraparameters
 *
