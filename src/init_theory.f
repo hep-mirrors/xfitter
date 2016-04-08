@@ -128,7 +128,7 @@ c set-up of the constants
 
       namelist/qcdnum/xmin_grid, iwt_xgrid, iosp, wgt_q2, QARR,
      $     NQ2bins, NXbins, Read_QCDNUM_Tables, ICheck_QCDNUM,
-     $     ReportXGrid, ReadXGrid
+     $     ReportXGrid, ReadXGrid, kmuc, kmub, kmut
 
       double precision xgrid(NXGridMax)
       integer NXGridAct
@@ -182,13 +182,6 @@ C----- Rescaling factors for the heavy-quark threholds (used by APFEL)
       kmub = 1d0
       kmut = 1d0
 
-C---------------------
-      q0 = starting_scale
-      qc = ( kmuc * HF_MASS(1) )**2
-      qb = ( kmub * HF_MASS(2) )**2
-      qt = ( kmut * HF_MASS(3) )**2
-      qmz= Mz**2
-
 
 C----- Read grid definitions from the steering.txt
       Read_QCDNUM_Tables = .false.
@@ -199,6 +192,17 @@ C----- Read grid definitions from the steering.txt
  1771 continue
 
       close (51)
+
+
+C--------------------- kmuc/kmub/kmut can be re-defined  in the namelist file:
+
+      q0 = starting_scale
+      qc = ( kmuc * HF_MASS(1) )**2
+      qb = ( kmub * HF_MASS(2) )**2
+      qt = ( kmut * HF_MASS(3) )**2
+      qmz= Mz**2
+
+
 
 C Check that scales are in proper order:
       if (q0.gt.qc) then
