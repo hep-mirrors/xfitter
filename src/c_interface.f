@@ -4,6 +4,7 @@
 #include "c_interface.inc"
 #include "steering.inc"
 #include "couplings.inc"
+#include "thresholds.inc"
 
         c_mz= mz
 
@@ -31,6 +32,10 @@
         c_useGridLHAPDF5= useGridLHAPDF5
         c_writeLHAPDF6= writeLHAPDF6
         c_extrapdfs   = extrapdfs
+        c_kmuc = kmuc
+        c_kmub = kmub
+        c_kmut = kmut
+
       end
 
       function get_nmembers()
