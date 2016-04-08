@@ -13,10 +13,11 @@ extern struct { //{{{
         int nx;
         int read_xgrid;
         int dobands;
-        float hf_mass[3];
+        float hf_mass[3];        
         int i_fit_order, ipdfset;
   int lead, useGridLHAPDF5, writeLHAPDF6, WriteAlphaSToMemberPDF,
     c_itheory, c_extrapdfs;
+  float c_kmuc, c_kmub, c_kmut;
 } ccommoninterface_;
 //}}}
 
@@ -324,19 +325,24 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
         double mbt2=ccommoninterface_.hf_mass[1]*ccommoninterface_.hf_mass[1];
         double mtp2=ccommoninterface_.hf_mass[2]*ccommoninterface_.hf_mass[2];
 
+	double kmuc=ccommoninterface_.c_kmuc;
+	double kmub=ccommoninterface_.c_kmub;
+	double kmut=ccommoninterface_.c_kmut;
+	
+
         
  //       print_q2subgrid(grid, fp, qfrmiq(0) , qfrmiq(grid.nq2-1));
 
         char ch_mask[]={0,0,1,1,1,1,1,1,0,0,1};
-        print_q2subgrid(grid, fp, 0, iqfrmq(mch2), ch_mask);
+        print_q2subgrid(grid, fp, 0, iqfrmq(mch2*kmuc*kmuc), ch_mask);
         char bt_mask[]={0,1,1,1,1,1,1,1,1,0,1};
-        print_q2subgrid(grid, fp, iqfrmq(mch2), iqfrmq(mbt2), bt_mask);
+        print_q2subgrid(grid, fp, iqfrmq(mch2*kmuc*kmuc), iqfrmq(mbt2*kmub*kmub), bt_mask);
         char tp_mask[]={1,1,1,1,1,1,1,1,1,1,1};
         if(mtp2 < qfrmiq(grid.nq2-1)) {
-                print_q2subgrid(grid, fp, iqfrmq(mbt2), iqfrmq(mtp2), tp_mask);
-                print_q2subgrid(grid, fp, iqfrmq(mtp2), grid.nq2-1, tp_mask);
+                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub), iqfrmq(mtp2*kmut*kmut), tp_mask);
+                print_q2subgrid(grid, fp, iqfrmq(mtp2*kmut*kmut), grid.nq2-1, tp_mask);
         } else {
-                print_q2subgrid(grid, fp, iqfrmq(mbt2), grid.nq2-1, tp_mask);
+                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub), grid.nq2-1, tp_mask);
         }
         fclose(fp);
         delete_grid(grid);
