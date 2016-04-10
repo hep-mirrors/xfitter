@@ -427,6 +427,14 @@ void save_alphas_info(FILE* fp, GridQX grid) { //{{{
         double q2;
         double mz2=ccommoninterface_.mz*ccommoninterface_.mz;
 
+	// Also get thresholds info:
+	double ct = ccommoninterface_.hf_mass[0]*ccommoninterface_.c_kmuc;
+	double bt = ccommoninterface_.hf_mass[1]*ccommoninterface_.c_kmub;
+	double tt = ccommoninterface_.hf_mass[2]*ccommoninterface_.c_kmut;
+	
+	
+
+
         getord_(&as_order);
 
         fprintf(fp,"AlphaS_MZ: %g\n", hf_get_alphas_(&mz2));
@@ -435,14 +443,46 @@ void save_alphas_info(FILE* fp, GridQX grid) { //{{{
 
         fprintf(fp,"AlphaS_Qs: [");
         for(iq2=0;iq2<grid.nq2;iq2++) {
-                fprintf(fp,"%g",sqrt(grid.q2[iq2]));
-                if(iq2!=grid.nq2-1) fprintf(fp,", ");
+
+	  double q = sqrt(grid.q2[iq2]);
+	  if ( fabs(q-ct) < 0.0001 ) {
+	    fprintf(fp,"%g,",q);  // print threshold twice	  
+	  } 
+	  if ( fabs(q-bt) < 0.0001 ) {
+	    fprintf(fp,"%g,",q);  // print threshold twice	  
+	  } 	 
+	  if ( fabs(q-tt) < 0.0001 ) {
+	    fprintf(fp,"%g,",q);  // print threshold twice	  
+	  } 
+
+	  fprintf(fp,"%g",q);
+	  if(iq2!=grid.nq2-1) fprintf(fp,", ");
         }
         fprintf(fp,"]\n");
 
         fprintf(fp,"AlphaS_Vals: [");
         for(iq2=0;iq2<grid.nq2;iq2++) {
-                q2=grid.q2[iq2];
+		double q = sqrt(grid.q2[iq2]);
+		double epsilon = 0;
+
+		// Thresholds:
+		if ( fabs(q-ct) < 0.0001 ) {
+		  epsilon = 0.0001;
+		  double q2l = q*q-epsilon;
+		  fprintf(fp,"%g,",hf_get_alphas_(&q2l));		  
+		} 
+		if ( fabs(q-bt) < 0.0001 ) {
+		  epsilon = 0.0001;
+		  double q2l = q*q-epsilon;
+		  fprintf(fp,"%g,",hf_get_alphas_(&q2l));		  
+		} 	 
+		if ( fabs(q-tt) < 0.0001 ) {
+		  epsilon = 0.0001;
+		  double q2l = q*q-epsilon;
+		  fprintf(fp,"%g,",hf_get_alphas_(&q2l));		  
+		} 
+
+                q2=grid.q2[iq2]+epsilon;
                 fprintf(fp,"%g",hf_get_alphas_(&q2));
                 if(iq2!=grid.nq2-1) fprintf(fp,", ");
         }
