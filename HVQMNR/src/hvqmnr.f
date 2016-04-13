@@ -63,7 +63,7 @@ C-----------------------------------------------------------------------
       ! First call: make some checks, set needed parameters
       if(IfcnCount.eq.1) then
         ! Check HF scheme
-        if(HFSCHEME.ne.4) then
+        if(HFSCHEME.ne.3.and.HFSCHEME.ne.4) then
            print *,'Error in GetHVQMNRXsection: calculation does not ',
      $     'support HFSCHEME=',HFSCHEME
            call HF_stop
