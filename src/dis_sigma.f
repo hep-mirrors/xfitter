@@ -1369,6 +1369,7 @@ C---------------------------------------------------------------
 *     First compute structure functions with m2 / Q2 = scalea1
 *
       muoQ = dsqrt(scalea1)
+c      muoQ = 1d0
       call SetRenQRatio(muoQ)
       call SetFacQRatio(muoQ)
       do i=1,npts
@@ -1380,6 +1381,7 @@ C---------------------------------------------------------------
 *     If scaleb1 is different from zero ...
 *
       if(scaleb1.ne.0d0)then
+c      if(scalea1.ne.1d0.or.scaleb1.ne.0d0)then
 *     Subtract heavy quark contributions
          do i=1,npts
             F2(i) = F2(i) - F2c(i) - F2b(i)

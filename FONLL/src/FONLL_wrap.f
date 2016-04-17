@@ -63,9 +63,12 @@ c      call EnableDampingFONLL(.false.)
       Qt = MTop
       if(Qc.ne.MCharm.or.Qb.ne.MBottom.or.Qt.ne.MTop)then
          call InitializeAPFEL()
-         McQ = HeavyQuarkMass(4,Qc)
-         MbQ = HeavyQuarkMass(5,Qb)
-         MtQ = HeavyQuarkMass(6,Qt)
+         McQ = Qc
+         if(Qc.ne.MCharm)  McQ = HeavyQuarkMass(4,Qc)
+         MbQ = Qb
+         if(Qb.ne.MBottom) MbQ = HeavyQuarkMass(5,Qb)
+         MtQ = Qt
+         if(Qt.ne.MTop)    MtQ = HeavyQuarkMass(6,Qt)
          if(MassScheme(1:4).eq."Pole")then
             call SetPoleMasses(McQ,MbQ,MtQ)
          elseif(MassScheme.eq."MSbar")then
