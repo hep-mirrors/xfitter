@@ -1480,6 +1480,7 @@ C---------------------------------------------------------------------
       integer iterMax
       parameter (iterMax = 10)
 
+      character*64 largershiftsyst
 C----------------------------------------------------------
       if ( AsymErrorsIterations.eq.0) then
          LStop = .true.
@@ -1495,7 +1496,12 @@ C----------------------------------------------------------
 C calculate shift in rsys:
       shift = 0.
       do i=1,nsys
-         shift = max(shift, abs(rsys_in(i)-rsys_save(i)))
+         if (abs(rsys_in(i)-rsys_save(i)).gt.shift) then
+            shift = max(shift, abs(rsys_in(i)-rsys_save(i)))
+            largershiftsyst = system(i)
+         endif
+c         print *, i, system(i), rsys_in(i),rsys_save(i),
+c     .        abs(rsys_in(i)-rsys_save(i))
       enddo
 
       do i=1,nsys
@@ -1522,7 +1528,9 @@ C recalulate
 
 C ! Check if max. shift is small:
          if ( shift.gt. 0.05) then
-            print *,'ERROR: Large nuisance parameter shift =',shift
+            print *,'ERROR: Large nuisance parameter change in shift'
+            print *,'from last iteration for ',largershiftsyst
+            print *,'DeltaShift=',shift
             print *,'CONSIDER INCREASING AsymErrorsIterations to'
      $           ,AsymErrorsIterations+5
             call HF_errlog(13053001,

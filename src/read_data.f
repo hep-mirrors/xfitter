@@ -68,6 +68,8 @@ C      NSYS = 0
       do i=1,nsysMax
          do j=1,ntot
             BETA(i,j) = 0.d0
+            betaasym(i,1,j) = 0d0
+            betaasym(i,2,j) = 0d0
          enddo
          n_syst_meas(i) = 0  ! Also zero reference table
       enddo
