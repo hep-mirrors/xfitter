@@ -170,6 +170,9 @@
 
  ! Debug flag
   LDEBUG     = False
+
+ ! Quadratic approximation for asymmetric uncertainties
+ ! AsymErrorsIterations = 10
 &End
 
 
@@ -200,6 +203,12 @@
 
   ! x-range of output (standard = 1E-4 1.0)
   OUTXRANGE = 1E-4, 0.9999
+
+  ! Do not write out LHAPDF6 output
+  ! WriteLHAPDF6 = false
+
+  ! Write out LHAPDF5 output
+  ! WriteLHAPDF5 = false
 &End
 
 
@@ -353,5 +362,6 @@
 &lhapdf
   LHAPDFSET  = 'CT10nlo'       ! LHAPDF grid file 
   ILHAPDFSET = 0               ! Set number within PdfSet
-  !LHAPDFErrors = True         ! Take into account PDF uncertaintes 
+  ! LHAPDFErrors = True        ! Take into account PDF uncertaintes 
+  ! DataToTheo = True          ! reset data to predictions for set 0, for sensitivity studies
 &End
