@@ -376,7 +376,7 @@ void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_m
 	  double valShift = pdfshifts[i].val;
 	  double errShift = pdfshifts[i].err;
 	  //compute shifted central value
-	  double cor = 0.5*(plus - minus)*valShift - 0.5*(plus+minus)*valShift*valShift;
+	  double cor = 0.5*(plus - minus)*valShift + 0.5*(plus+minus)*valShift*valShift;
 	  corSum += cor;
 	  //compute reduced uncertainties
 	  xi.push_back(plus*errShift+cent);
@@ -392,7 +392,7 @@ void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_m
 	  double valShift = pdfshifts[i].val;
 	  double errShift = pdfshifts[i].err;
 	  //compute shifted central value
-	  double cor = -plus*valShift;
+	  double cor = plus*valShift;
 	  corSum += cor;
 	  //compute reduced uncertainties
 	  xi.push_back(plus*errShift+cent);

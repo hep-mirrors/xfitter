@@ -193,46 +193,17 @@ c        open(82,file=h1name)
  999  continue
 
 
-
+      if ( WriteLHAPDF5 ) then
 
 cv store for LHAPDF
 cv HERAPDF in LHAPDF5 format
 cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot 
-      DO Iq=0,160
-         Q2=10**(8.30103/160D0*Iq )
-         q2valpdf(iq) = q2
-         alphas(iq)=hf_get_alphas(q2)
-      enddo
-
-
-      DO jx=0,160
-         IF(Jx.LE.80)THEN
-            X=10**(6D0/120D0*Jx-6D0)
-         ELSE
-            X=10**(2D0/80D0*(Jx-80)-201D-2)
-         ENDIF
-         xvalpdf(jx) = x
-      enddo
-
-C Prepare LHAPDF output
-
-
-      do iq2=1,23
-         write (76,'(7E12.4)') (q2valpdf((iq2-1)*7+j),j=0,6)
-      enddo
-
-      do jx=1,23
-         write (76,'(7E12.4)') (xvalpdf((jx-1)*7+j),j=0,6)
-      enddo
-
-      do iq2=1,23
-         write (76,'(7E12.4)') (alphas((iq2-1)*7+j),j=0,6)
-      enddo
-
-
-      DO Iq=0,160
-         Q2=10**(8.30103/160D0*Iq )
-cv         grid(162+iq)=q2
+         DO Iq=0,160
+            Q2=10**(8.30103/160D0*Iq )
+            q2valpdf(iq) = q2
+            alphas(iq)=hf_get_alphas(q2)
+         enddo
+         
 
          DO jx=0,160
             IF(Jx.LE.80)THEN
@@ -240,17 +211,48 @@ cv         grid(162+iq)=q2
             ELSE
                X=10**(2D0/80D0*(Jx-80)-201D-2)
             ENDIF
-cv       grid(1+jx)=x
-            call  hf_get_pdfs(x,q2,pdfl)
-            write(76,666) PDFl(0), PDFl(2)-PDFl(-2), PDFl(1)-PDFl(-1),
-     $           PDFl(-2), PDFl(-1),
-     $           PDFl(3), PDFl(4), PDFl(5)
-
-
+            xvalpdf(jx) = x
          enddo
-      ENDDO
+         
+C Prepare LHAPDF output
 
-      close (76)
+
+         do iq2=1,23
+            write (76,'(7E12.4)') (q2valpdf((iq2-1)*7+j),j=0,6)
+         enddo
+         
+         do jx=1,23
+            write (76,'(7E12.4)') (xvalpdf((jx-1)*7+j),j=0,6)
+         enddo
+         
+         do iq2=1,23
+            write (76,'(7E12.4)') (alphas((iq2-1)*7+j),j=0,6)
+         enddo
+         
+
+         DO Iq=0,160
+            Q2=10**(8.30103/160D0*Iq )
+c     v         grid(162+iq)=q2
+
+            DO jx=0,160
+               IF(Jx.LE.80)THEN
+                  X=10**(6D0/120D0*Jx-6D0)
+               ELSE
+                  X=10**(2D0/80D0*(Jx-80)-201D-2)
+               ENDIF
+c     v       grid(1+jx)=x
+               call  hf_get_pdfs(x,q2,pdfl)
+               write(76,666) PDFl(0), PDFl(2)-PDFl(-2), PDFl(1)-PDFl(-1),
+     $              PDFl(-2), PDFl(-1),
+     $              PDFl(3), PDFl(4), PDFl(5)
+               
+
+            enddo
+         ENDDO
+
+         close (76)
+
+      endif
 
  666   format(8(2x,G12.6))
 
@@ -652,11 +654,11 @@ C---------------------------------------------------------
      $           ,advance='no' )
      $           ( trim(DATASETBinNames(i,iset)),
      $           i=1,DATASETBinningDimension(iset) ), 'theory',
-     $           ( trim(System(nsys+i))//'-', 
-     $           trim(System(nsys+i))//'+',i=1,NNuisance-1)
+     $           ( trim(System(nsys+i))//'+', 
+     $           trim(System(nsys+i))//'-',i=1,NNuisance-1)
             write (51,'(A,''",'',''"'',A,''"'')')       
-     $           ( trim(System(nsys+i))//'-', 
-     $           trim(System(nsys+i))//'+',i=NNuisance,NNuisance)
+     $           ( trim(System(nsys+i))//'+', 
+     $           trim(System(nsys+i))//'-',i=NNuisance,NNuisance)
             write (51,'(''   Percent = '',I3,''*True'')') NNuisance*2 
          endif
 
@@ -668,14 +670,14 @@ C---------------------------------------------------------
                write (51,'(200E12.4)') 
      $  ( AbstractBins(j,ipoint),j=1,DATASETBinningDimension(iset)),
      $           theo_cent(ipoint),
-     $  ( Beta(j,ipoint)*100.0,
+     $  ( -Beta(j,ipoint)*100.0,               ! negative sign, since it is inverted in lhapdferrors.cc
      $           j=NSys+1
      $           ,NSys+NNuisance) 
             else
-               write (51,'(200E12.4)') 
+               write (51,'(200E14.6)') 
      $  ( AbstractBins(j,ipoint),j=1,DATASETBinningDimension(iset)),
      $           theo_cent(ipoint),
-     $  ( BetaAsym(j,1,ipoint)*100.0, BetaAsym(j,2,ipoint)*100., 
+     $  ( -BetaAsym(j,1,ipoint)*100.0, -BetaAsym(j,2,ipoint)*100., 
      $           j=NSys+1
      $           ,NSys+NNuisance) 
             endif

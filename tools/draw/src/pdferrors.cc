@@ -215,18 +215,56 @@ void ahessdeltaasym(vector <double> xi, double& delta_p, double& delta_m, vector
     delta_m = sqrt(em);
   }
   else {
+    //Approximate formula for asymmetric uncertainties in the presence of correlations
+    //Works well in the limit of small correlations
+    // v_p and v_m are the plus and minus PDF variations, C (corr[][]) is the correlation matrix
+    // v_p^T C v_p and v_m^T C v_m are the plus and minus uncertainties
+    //The sign of the positive and negative variation is inferred from C v_p and C v_m
+    //The exact formula require to decompose C in C = R^T D R
+    //and establish positive and negative variations based on u_p = R v_p and u_m = R v_m
+    //When C is diagonal the two approach are identical
     for (int i=0; i < xi.size()-1; i++, i++)
-      for (int j = 0; j < xi.size()-1; j++,j++) 
-	{
-	  double vm = xi[i+1];
-	  double vp = xi[i+2];
-	  double vm2 = xi[j+1];
-	  double vp2 = xi[j+2];
-	  ep += max(max(0., vp-val), vm-val)*max(max(0., vp2-val), vm2-val)*corr[i/2][j/2];
-	  em += max(max(0., val-vp), val-vm)*max(max(0., val-vp2), val-vm2)*corr[i/2][j/2];
-	}
-    delta_p = sqrt(ep);
-    delta_m = sqrt(em);
+      {
+	double vmi = xi[i+1]-val;
+	double vpi = xi[i+2]-val;
+	double vpisj = 0.;
+	double vmisj = 0.;
+	for (int j = 0; j < xi.size()-1; j++,j++) 
+	  {
+	    double vmj = xi[j+1]-val;
+	    double vpj = xi[j+2]-val;
+
+	    // ep += vpi*vpj*corr[i/2][j/2];
+	    // em += vmi*vmj*corr[i/2][j/2];
+
+	    vpisj += vpj*corr[i/2][j/2];
+	    vmisj += vmj*corr[i/2][j/2];
+	  }
+	
+	//Use C v_p and C v_m to establish the sign of the variation
+	if (vpisj > 0 && vpisj > vmisj)
+	  ep += vpi*vpisj;
+	else if (vmisj > 0)
+	  ep += vmi*vmisj;
+
+	if (-vpisj > 0 && -vpisj > -vmisj)
+	  em += vpi*vpisj;
+	else if (-vmisj > 0)
+	  em += vmi*vmisj;
+
+	//Alternative formula: use v_p^T and v_m^T to establish the sign of the variation
+	//if (vpi > 0 && vpi > vmi)
+	//  ep += vpi*vpisj;
+	//else if (vmi > 0)
+	//  ep += vmi*vmisj;
+	//   
+	//if (-vpi > 0 && -vpi > -vmi)
+	//  em += vpi*vpisj;
+	//else if (-vmi > 0)
+	//  em += vmi*vmisj;
+      }
+    delta_p = sqrt(fabs(ep));
+    delta_m = sqrt(fabs(em));
   }
 }
 
@@ -236,17 +274,14 @@ double shessdelta(vector <double> xi, vector < vector <double> > cor)
   double val = *(xi.begin());
   double err = 0;
 
-  if ( cor.empty() ) {
+  if (cor.empty())
     for (vector<double>::iterator i = xi.begin() + 1; i != xi.end(); i++)
       err += pow(*i-val, 2);
-  }
-  else {
+  else
     for (int i=1; i<xi.size(); i++) 
       for (int j=1; j<xi.size(); j++) 
-	{
-	  err += (xi[i]-val)*(xi[j]-val)*cor[i-1][j-1];
-	}
-  }
+	err += (xi[i]-val)*(xi[j]-val)*cor[i-1][j-1];
+
   return sqrt(err);
 }
 //Functions for VAR uncertainties

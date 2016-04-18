@@ -21,6 +21,7 @@
       logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
       logical UseGridLHAPDF5     !> store PDFs in LHAPDF5 format
       logical WriteLHAPDF6     !> store PDFs in LHAPDF6 format
+      logical WriteLHAPDF5     
       real*4 
      $     starting_scale,     !> Evolution starting scale
      $     strange_frac, 
@@ -122,7 +123,7 @@ C
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
      $     CorChi2Type, hf_scheme, AsymErrorsIterations,
-     $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs
+     $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
@@ -180,6 +181,11 @@ C Define number of charged+gluon and addtional neutral PDFs:
       parameter ( N_CHARGE_PDF = 6)
       parameter ( N_NEUTRAL_PDF = 1)
 
+
+C  Extra handling of LHAPDF:
+      logical DataToTheo  ! if true, reset data to theory for sensitivity studies using hessian errors
+      common/CDataToTheo/DataToTheo
+
 C     30/08/2015 KK
 C     WS 2015-10-02 parameters, errors and limits moved to ExtraParams
 C     Namelist for Higher Twists
@@ -188,4 +194,5 @@ C     Namelist for Higher Twists
       character*32 HiTwistType
       character*64 HiTwistSubType
       common/Twistvars/doHiTwist,HiTwistType,HiTwistSubType
+
 

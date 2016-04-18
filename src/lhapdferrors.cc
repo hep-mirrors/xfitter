@@ -1,6 +1,7 @@
 #include "xfitter_cpp.h"
 
 #include "pdferrors.h"
+#include "dimensions.h"
 
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
@@ -29,9 +30,12 @@ struct point
   vector <double> th_mc;     //monte carlo variations
   double th_mc_mean;         //monte carlo mean
   double th_mc_var;          //monte carlo var
+  vector <double> th_scale_p; //scale plus variations
+  vector <double> th_scale_m; //scale minus variations
   double th_err_up;          //theory error up
   double th_err_dn;          //theory error down
 };
+
 
 vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
 {
@@ -156,6 +160,8 @@ void get_lhapdferrors_()
       //Number of PDF members
       int nsets = LHAPDF::numberPDF(); 	  
       cout << "Number of PDF members for this set: " << nsets << endl;
+      if (nsets == 1)
+	nsets = 0;
 
       //VAR set info message
       if (pdfset ==  1)
@@ -170,6 +176,10 @@ void get_lhapdferrors_()
 
      for (int iset = 0; iset <= nsets; iset++)
 	{
+	  //skip central member of the VAR set
+	  if (pdfset == 1 && iset == 0)
+	    continue;
+
 	  //Init PDF member and alphas(MZ)
 	  LHAPDF::initPDF(iset);
 	  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
@@ -229,9 +239,9 @@ void get_lhapdferrors_()
 		filename += "s_";   //Symmetric suffix
 	      else
 		if ((cset%2) == 1)
-		  filename += "m_";  //Asymmetric minus suffix
+		  filename += "p_";  //Asymmetric minus suffix
 		else
-		  filename += "p_";  //Asymmetric plus suffix
+		  filename += "m_";  //Asymmetric plus suffix
 	    }
 	  filename += " ";
 
@@ -256,14 +266,14 @@ void get_lhapdferrors_()
 		  pointsmap[i].th_hess_s.push_back(c_theo_.theo_[i]);
 		else if (AsymHessPDFErr)
 		  if ((cset%2) == 1)
-		    pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
-		  else
 		    pointsmap[i].th_asym_p.push_back(c_theo_.theo_[i]);
+		  else
+		    pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
 		else if (ModPDFErr)
 		  if ((cset%2) == 1)
-		    pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
-		  else
 		    pointsmap[i].th_asym_p.push_back(c_theo_.theo_[i]);
+		  else
+		    pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
 		else if (ParPDFErr)
 		  pointsmap[i].th_par.push_back(c_theo_.theo_[i]);
 	      }
@@ -410,10 +420,16 @@ void get_lhapdferrors_()
     {
       for (int i = 0; i < npoints; i++)
 	{
-	  systema_.beta_[i][nsysloc] = (pointsmap[i].th_asym_p[j] - pointsmap[i].th_asym_m[j]) / 2. / pointsmap[i].thc;
-	  systasym_.betaasym_[i][1][nsysloc] = (pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	  systasym_.betaasym_[i][0][nsysloc] = (pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	  systasym_.omega_[i][nsysloc] = (pointsmap[i].th_asym_p[j] + pointsmap[i].th_asym_m[j] - 2*pointsmap[i].thc) / 2. / pointsmap[i].thc;
+	  //account for the sign flip due to applying a theory variation as a shift to the data
+	  systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
+	  systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
+	  
+	  //systema_.beta_[i][nsysloc] = (pointsmap[i].th_asym_p[j] - pointsmap[i].th_asym_m[j]) / 2. / pointsmap[i].thc;
+	  //systasym_.betaasym_[i][1][nsysloc] = (pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  //systasym_.betaasym_[i][0][nsysloc] = (pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  //systasym_.omega_[i][nsysloc] = (pointsmap[i].th_asym_p[j] + pointsmap[i].th_asym_m[j] - 2*pointsmap[i].thc) / 2. / pointsmap[i].thc;
 	  if (clhapdf_.scale68_)
 	    {
 	      systema_.beta_[i][nsysloc]  /= 1.64;
@@ -440,7 +456,7 @@ void get_lhapdferrors_()
     {
       for (int i = 0; i < npoints; i++)
 	{
-	  systema_.beta_[i][nsysloc] = (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  systema_.beta_[i][nsysloc] = - (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;  // negative sign here, opposite to data
 	  systasym_.omega_[i][nsysloc] = 0;
 	  if (clhapdf_.scale68_)
 	    {
@@ -473,17 +489,27 @@ void get_lhapdferrors_()
       double pareplus, pareminus;
       deltaenvelope(xi, pareplus, pareminus);
 
-      pit->second.th_env_p = pareplus;
-      pit->second.th_env_m = pareminus;
+      pit->second.th_env_p = pit->second.thc + pareplus;
+      pit->second.th_env_m = pit->second.thc - pareminus;
     }
   if (totpar > 0)
     {
       for (int i = 0; i < npoints; i++)
 	{
-	  systema_.beta_[i][nsysloc] = (pointsmap[i].th_env_p - pointsmap[i].th_env_m) / 2.;
-	  systasym_.betaasym_[i][1][nsysloc] = pointsmap[i].th_env_m;
-	  systasym_.betaasym_[i][0][nsysloc] = pointsmap[i].th_env_p;
-	  systasym_.omega_[i][nsysloc] = (pointsmap[i].th_env_p + pointsmap[i].th_env_m) / 2.;
+	  //account for the sign flip due to applying a theory variation as a shift to the data
+	  systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].thc) / pointsmap[i].thc;
+	  systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_env_m - pointsmap[i].thc) / pointsmap[i].thc;
+	  systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
+	  systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
+
+	  //treat as symmetric
+	  //systema_.beta_[i][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].th_env_m) / 2./ pointsmap[i].thc;
+	  //systasym_.omega_[i][nsysloc] = 0;
+	  
+	  //systema_.beta_[i][nsysloc] = (pointsmap[i].th_env_p - pointsmap[i].th_env_m) / 2.;
+	  //systasym_.betaasym_[i][1][nsysloc] = pointsmap[i].th_env_m;
+	  //systasym_.betaasym_[i][0][nsysloc] = pointsmap[i].th_env_p;
+	  //systasym_.omega_[i][nsysloc] = (pointsmap[i].th_env_p + pointsmap[i].th_env_m) / 2.;
 	  if (clhapdf_.scale68_)
 	    {
 	      systema_.beta_[i][nsysloc]  /= 1.64;
@@ -506,7 +532,7 @@ void get_lhapdferrors_()
     }
 
   //Set central theory value in fortran common block
-  double theo_cent[2500];
+  double theo_cent[NTOT_C];
   for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
     theo_cent[pit->first] = pit->second.thc;
   bool symm = false;

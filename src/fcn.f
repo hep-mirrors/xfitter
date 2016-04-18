@@ -466,7 +466,18 @@ c             call fillvfngrid
       endif 
 
       if (IFlag.eq.1) then
-         NSysData = NSys
+         NSysData = 0
+         do i=1,NSys
+            if ( ISystType(i) .eq. iDataSyst) then
+               NSysData = NSysData + 1
+            endif
+         enddo
+      endif
+
+      if ( (IFlag.eq.1).and.(DataToTheo)) then
+         do i=1,npoints
+            daten(i) = theo(i)
+         enddo
       endif
 
 *     ---------------------------------------------------------

@@ -265,6 +265,7 @@ C Some defaults
       Order     = ' '
       TheoryType = ' '
       RunningMode = ' '
+      HF_SCHEME = 'ZMVFNS'
       Chi2SettingsName(1) = 'undefined' ! triggering the old style chi2 settings
       do i=1, 8
          Chi2ExtraParam(i) = 'undefined'
@@ -525,7 +526,7 @@ C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/LHAPDFSET,ILHAPDFSET,
      $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
-     $     WriteAlphaSToMemberPDF
+     $     WriteAlphaSToMemberPDF, DataToTheo
 
       logical lhapdferrors_save
 
@@ -539,6 +540,8 @@ C LHAPDFErrors default
 
 C
       WriteAlphaSToMemberPDF = .false.
+
+      DataToTheo = .false.
 C
 C  Read the lhapdf namelist:
 C
@@ -872,11 +875,14 @@ C------------------------------------------------
 
 C Output style namelist
       namelist/Output/DoBands, Q2VAL, OutNX, OutXRange,
-     $                      UseGridLHAPDF5, WriteLHAPDF6
+     $                      UseGridLHAPDF5, WriteLHAPDF6,
+     $     WriteLHAPDF5
 
 C--------------------------------------------------------
 C  Read the output namelist:
 C
+      WriteLHAPDF5 = .false.  ! default: no
+
       open (51,file='steering.txt',status='old')
       read (51,NML=Output,END=51,ERR=52)
       close (51)

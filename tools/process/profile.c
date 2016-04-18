@@ -86,36 +86,37 @@ int profile(int argc, char* argv[]) {
 
 
         if(!strcmp(error_type,"hessian")) { 
-        if(quad_approx) {
+	  if( 1  ) {
 
-        EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
-        for(i=0; i<shifts.n; i++ ) {
-                pdf_set.members[0].val[ig][ix][iq][ifl]+= 
-                        shifts.val[i]*
-                        (pdf_set.members[i*2+1].val[ig][ix][iq][ifl]
-                         -pdf_set.members[i*2+2].val[ig][ix][iq][ifl])/2.0;
-
-                         pdf_set.members[0].val[ig][ix][iq][ifl]-= 
-                         shifts.val[i]*shifts.val[i]*
-                         (pdf_set.members[i*2+1].val[ig][ix][iq][ifl]
-                          +pdf_set.members[i*2+2].val[ig][ix][iq][ifl])/2.0;
-                         }
-        } else {
-        EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
-        for(i=0; i<shifts.n; i++ ) 
-                pdf_set.members[0].val[ig][ix][iq][ifl]-= 
-                       fabs(shifts.val[i])*( shifts.val[i] >0 ?
-                        pdf_set.members[i*2+2].val[ig][ix][iq][ifl]:
-                         pdf_set.members[i*2+1].val[ig][ix][iq][ifl]);
-        }
+	    EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
+	      for(i=0; i<shifts.n; i++ ) {
+		pdf_set.members[0].val[ig][ix][iq][ifl]+= 
+		  shifts.val[i]*
+		  (pdf_set.members[i*2+1].val[ig][ix][iq][ifl]
+		   -pdf_set.members[i*2+2].val[ig][ix][iq][ifl])/2.0;
+		
+		pdf_set.members[0].val[ig][ix][iq][ifl] += 
+		  shifts.val[i]*shifts.val[i]*
+		  (pdf_set.members[i*2+1].val[ig][ix][iq][ifl]
+		   +pdf_set.members[i*2+2].val[ig][ix][iq][ifl])/2.0;
+	      }
+	  } 
+	  else {
+	    EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
+	      for(i=0; i<shifts.n; i++ ) 
+		pdf_set.members[0].val[ig][ix][iq][ifl]-= 
+		  fabs(shifts.val[i])*( shifts.val[i] >0 ?
+					pdf_set.members[i*2+2].val[ig][ix][iq][ifl]:
+					pdf_set.members[i*2+1].val[ig][ix][iq][ifl]);
+	  }
         } else if(!strcmp(error_type,"symmhessian")) {
 	  
 	  EACH_IN_PDF(&pdf_set.members[0], ig, ix, iq, ifl)
 	    for(i=0; i<shifts.n; i++ ) 
-	      pdf_set.members[0].val[ig][ix][iq][ifl]-= 
+	      pdf_set.members[0].val[ig][ix][iq][ifl] += 
 		shifts.val[i]*pdf_set.members[i+1].val[ig][ix][iq][ifl];
         }
-
+	
 
 
 

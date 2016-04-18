@@ -300,7 +300,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
             while (true)
               {
                 //positive variation
-                sprintf (fname, "%s/pdfs_q2val_s%02dm_%02d.txt", dirname.c_str(), iband, iq2);
+                sprintf (fname, "%s/pdfs_q2val_s%02dp_%02d.txt", dirname.c_str(), iband, iq2);
                 Pdf temperrplus(fname);
                 if (temperrplus.GetQ2() == 0)
                   break;
@@ -308,7 +308,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
                   Errors[temperrplus.GetQ2()].push_back(temperrplus);
 
                 //negative variation
-                sprintf(fname, "%s/pdfs_q2val_s%02dp_%02d.txt", dirname.c_str(), iband, iq2);
+                sprintf(fname, "%s/pdfs_q2val_s%02dm_%02d.txt", dirname.c_str(), iband, iq2);
                 Pdf temperrminus(fname);
                 if ((temperrminus.GetQ2() != temperrplus.GetQ2()) || temperrminus.GetNx() == 0)
                   {
@@ -332,7 +332,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
             while (true)
               {
                 //positive variation
-                sprintf (fname, "%s/pdfs_q2val_m%02dm_%02d.txt", dirname.c_str(), iband, iq2);
+                sprintf (fname, "%s/pdfs_q2val_m%02dp_%02d.txt", dirname.c_str(), iband, iq2);
                 Pdf temperrplus(fname);
                 if (temperrplus.GetQ2() == 0)
                   break;
@@ -340,7 +340,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
                   ModelErrors[temperrplus.GetQ2()].push_back(temperrplus);
 
                 //negative variation
-                sprintf(fname, "%s/pdfs_q2val_m%02dp_%02d.txt", dirname.c_str(), iband, iq2);
+                sprintf(fname, "%s/pdfs_q2val_m%02dm_%02d.txt", dirname.c_str(), iband, iq2);
                 Pdf temperrminus(fname);
                 if ((temperrminus.GetQ2() != temperrplus.GetQ2()) || temperrminus.GetNx() == 0)
                   {
@@ -761,7 +761,7 @@ void PdfData::profile(string dirname, string label)
               double minus = Dn.GetTable(*pit)[ix] - val;
               
 
-              double cor = 0.5*(plus - minus)*valShift   - 0.5*(plus+minus)*valShift*valShift;
+              double cor = 0.5*(plus - minus)*valShift   + 0.5*(plus+minus)*valShift*valShift;
               
               xi.push_back(plus*errShift+val);
               xi.push_back(minus*errShift+val);
@@ -771,7 +771,7 @@ void PdfData::profile(string dirname, string label)
             else if (err == SymHess) {
               Pdf Up = Errors[q2].at(id-1);
               double plus =  Up.GetTable(*pit)[ix] - val;
-              double cor = - plus*valShift;              
+              double cor =  plus*valShift;              
               xi.push_back(plus*errShift+val);
 
               corsum += cor;
