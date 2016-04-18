@@ -23,6 +23,8 @@ c Generalise to n datasets and m terms
 
       logical SCAN
       logical pdferrors
+      logical pdfprofile
+      logical scaleprofile
 
       character*128  chi2lhapdfref        !> lhapdf reference set (to be used for reference theory)
       character*128  chi2lhapdfset        !> lhapdf test set
@@ -34,5 +36,6 @@ c Generalise to n datasets and m terms
       common/chi2scan/           
      $     label,central,values,
      $     dataid,term,TheorySources,SCAN,pdferrors,
+     $	   pdfprofile,scaleprofile,
      $	   chi2lhapdfref,chi2lhapdfset,chi2lhapdfvarset,chi2nparvar,
      $	   chi2parpoint

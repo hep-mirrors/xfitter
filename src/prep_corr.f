@@ -648,3 +648,25 @@ C----------------------------------------------------
  1003 format (A, 500I7)
             
       end
+
+      subroutine PrintCovMatrix
+C----------------------------------------------------
+C     Dumps covariance matrices to covariance_matrix.txt
+C     for debuggins purposes
+C----------------------------------------------------
+      implicit none 
+#include "ntot.inc"
+#include "indata.inc"
+#include "covar.inc"
+
+      integer i,j
+      
+      print *, 'Printing covariance_matrix.txt ...'
+
+      OPEN(UNIT=12, FILE="covariance_matrix.txt", ACTION="write", STATUS="replace")
+
+      DO i=1,npoints
+         WRITE(12,*) (cov(i,j), j=1,npoints)
+      END DO
+      
+      end

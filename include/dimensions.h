@@ -10,3 +10,6 @@
 #ifndef NEXTRAPARAMMAX
 #define NEXTRAPARAMMAX_C 150
 #endif
+#ifndef NSET_C
+#define NSET_C 150
+#endif

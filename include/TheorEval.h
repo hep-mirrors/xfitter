@@ -122,6 +122,7 @@ class TheorEval{
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
    void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
   void SetOrdScales(int iord, double mur, double muf) { _iOrd=iord; _xmur=mur; _xmuf=muf;}; //!< set order and scale factors
+  void GetOrdScales(int &iord, double &mur, double &muf) { iord=_iOrd; mur=_xmur; muf=_xmuf;}; //!< get order and scale factors
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
 

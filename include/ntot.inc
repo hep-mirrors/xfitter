@@ -11,7 +11,7 @@ C
       parameter (NCovarMax = 1000)
 
       integer nset            !> Total number of datasets   
-      parameter (NSET = 150)
+      parameter (NSET = NSET_C)
 
       integer NKFactMax          !> Max. number of k-factors
       parameter (NKFactMax = 10)

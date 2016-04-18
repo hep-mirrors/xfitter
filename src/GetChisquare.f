@@ -1625,6 +1625,10 @@ C First check if the matrix positive definite
             print 
      $   '(''Negative eigenvalue for the covariance matrix '',G12.3)',
      $           Eigenvalues(1)
+            print *,'List of eigenvalues'
+            do i=1,NCovar
+               print *,i,Eigenvalues(i)
+            enddo
             Call hf_errlog(2015050701,
      $           'S: Covariance matrix is not positive definite')
 

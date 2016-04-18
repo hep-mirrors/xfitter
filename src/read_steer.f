@@ -585,6 +585,7 @@ C------------------------------------
 C (Optional) Chi2Scan steering card
       namelist/chi2scan/label,central,values,
      $     dataid,term,TheorySources,scan,pdferrors,
+     $     pdfprofile,scaleprofile,
      $	   chi2lhapdfref,chi2lhapdfset,chi2lhapdfvarset,chi2nparvar,
      $     chi2parpoint
 
@@ -595,6 +596,8 @@ C Chi2Scan default
       dataid = 0
       central = 0
       pdferrors = .false.
+      pdfprofile = .false.
+      scaleprofile = .false.
       chi2lhapdfref = ''
       chi2lhapdfset = ''
       chi2lhapdfvarset = ''

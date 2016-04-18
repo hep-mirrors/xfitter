@@ -186,11 +186,13 @@ extern"C" {
     char label_[64];
     double central_;
     double values_[NCHI2POINTS_C];
-    int dataid_[150];
-    char term_[150][16][8];
-    char theorysources_[150][16][NCHI2POINTS_C][1000];
+    int dataid_[NSET_C];
+    char term_[NSET_C][16][8];
+    char theorysources_[NSET_C][16][NCHI2POINTS_C][1000];
     int scan_;
     int pdferrors_;
+    int pdfprofile_;
+    int scaleprofile_;
     char chi2lhapdfref_[128];
     char chi2lhapdfset_[128];
     char chi2lhapdfvarset_[128];
