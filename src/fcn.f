@@ -65,11 +65,6 @@ C !> Also store for each fcn=3 call:
          enddo
       endif
 
-      if (lprint) then
-        IfcnCount=IfcnCount+1
-        write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
-      endif
-
       call HF_errlog(12020515,'I: FCN is called')
 
 C Print MINUIT extra parameters
@@ -216,6 +211,12 @@ c updf stuff
 C Penalty from MINUIT extra parameters constraints
       double precision extraparsconstrchi2
 
+
+C--OZ 21.04.2016 Increment IfcnCount here instead of fcn routine
+      IfcnCount=IfcnCount+1
+      if (lprint) then
+        write(6,*) ' ===========  Calls to fcn= IfcnCount ',IfcnCount
+      endif
 C--------------------------------------------------------------
 *     ---------------------------------------------------------
 *     initialise variables 
