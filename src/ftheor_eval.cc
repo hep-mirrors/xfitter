@@ -34,10 +34,6 @@ extern "C" {
 tTEmap gTEmap;
 
 
-extern struct ckm_matrix_cb {
-  double Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb;
-} ckm_matrix_;
-
 extern struct thexpr_cb {
   double dynscale;
   int nterms;

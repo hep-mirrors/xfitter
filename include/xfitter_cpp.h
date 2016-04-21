@@ -69,6 +69,7 @@ extern"C" {
     int nparvar_;
     int lhapdferrors_;
     int scale68_;
+    int nremovepriors_;
   } clhapdf_;
 
   //aplhas
@@ -82,6 +83,10 @@ extern"C" {
     double mw_;
     double mh_;
   } boson_masses_;
+
+  extern struct ckm_matrix_cb {
+    double Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb;
+  } ckm_matrix_;
 
   extern struct {
     int iflagfcn_;     // FCN minuit flag, set by minuit (1-init, 2-iteration, 3-finalisation)
@@ -126,7 +131,11 @@ extern"C" {
     int chi2offsrecalc_;
   } systscal_;
 
-  /*
+  //Penalty term for systematic sources, 1 by default.
+  extern struct {
+    double syspriorscale_[NSYSMAX_C];
+  } csystprior_;
+  
   extern struct {
     float q2val_[40];
     float starting_scale_;
@@ -153,25 +162,41 @@ extern"C" {
     int nchebglu_;
     float chebxmin_;
     int nchebsea_;
-    real wmnlen_;
-    real wmxlen_;
+    float wmnlen_;
+    float wmxlen_;
     int ichebtypeglu_;
     int ichebtypesea_;
     int ifsttype_;
     int iseedmc_;
-      common/STEERING/
-     $     ,IOFFSETCHEBSEA,EWFIT
-     $     ,npolyval, lead
-     $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, ICHECK_QCDNUM
-     $     ,UsePrevFit
-     $     ,CorrSystByOffset,CorSysIndex
-     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
-     $     CorChi2Type, hf_scheme, AsymErrorsIterations,
-     $     LUseAPPLgridCKM
+    int ioffsetchebsea_;
+    int ewfit_;
+    int npolyval_;
+    int lead_;
+    int izpopoly_;
+    int ipolysqr_;
+    int useapplg_;
+    int napplgrids_;
+    int lfitdy_;
+    int lfastapplgrid_;
+    int lranddata_;
+    int idh_mod_;
+    int ipdfset_;
+    int icheck_qcdnum_;
+    int useprevfit_;
+    int corrsystbyoffset_;
+    int corsysindex_;
+    char statscale_[32];
+    char uncorsysscale_[32];
+    char corsysscale_[32];
+    char uncorchi2type_[32];
+    char corchi2type_[32];
+    char hf_scheme_[32];
+    int asymerrorsiterations_;
+    int luseapplgridckm_;
+    int pdfrotate_;
+    int ExtraPdfs_;
+    int WriteLHAPDF5_;
   } steering_;
-  */
 
   extern struct {
     double e_stat_poisson_[NTOT_C];
@@ -205,6 +230,21 @@ extern"C" {
     int isysttype_[NSYSMAX_C];
   } csysttype_;
 
+
+  extern struct {
+    double men_;
+    double mel_;
+    double mmn_;
+    double mmo_;
+    double mtn_;
+    double mta_;
+    double mup_;
+    double mdn_;
+    double mch_;
+    double mst_;
+    double mtp_;
+    double mbt_;
+  } fermion_masses_;
 }
 
 

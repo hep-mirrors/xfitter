@@ -158,7 +158,7 @@ void get_lhapdferrors_()
 	  LHAPDF::initPDFSet(lhapdfvarset.c_str());
 	}
       //Number of PDF members
-      int nsets = LHAPDF::numberPDF(); 	  
+      int nsets = LHAPDF::numberPDF();
       cout << "Number of PDF members for this set: " << nsets << endl;
       if (nsets == 1)
 	nsets = 0;
@@ -176,6 +176,8 @@ void get_lhapdferrors_()
 
      for (int iset = 0; iset <= nsets; iset++)
 	{
+	  clhapdf_.ilhapdfset_ = iset;
+
 	  //skip central member of the VAR set
 	  if (pdfset == 1 && iset == 0)
 	    continue;
@@ -184,6 +186,14 @@ void get_lhapdferrors_()
 	  LHAPDF::initPDF(iset);
 	  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 	  
+	  //set also mc, mb and mt from LHAPDF
+	  steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
+	  steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
+	  steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+
+	  //set the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
+	  fill_c_common_();
+	    
 	  //In VAR PDF set determine if it is a model or parametrisation variation
 	  if (pdfset == 1)
 	    {
@@ -246,9 +256,11 @@ void get_lhapdferrors_()
 	  filename += " ";
 
 	  store_pdfs_(filename.c_str(), filename.size());
+	  //Save the input PDFs in LHAPDF6 format
 	  if (cset == 0)
 	    {
-              fill_c_common_();
+	      strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 128);
+	      fill_c_common_();
 	      print_lhapdf6_();
 	    }
 	  else
@@ -597,6 +609,7 @@ void get_lhapdferrors_()
 	}
     }
   
+  clhapdf_.ilhapdfset_ = 0;
   LHAPDF::initPDF(0);
   c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 
@@ -617,6 +630,15 @@ void get_lhapdferrors_()
 	sysmeas_.syst_meas_idx_[i][j] = j + 1;
       systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to PDF uncertainties
       //      systscal_.sysscalingtype_[i] = 0;  //No scaling for PDF uncertainties
+      if ((nsysloc-i) <= clhapdf_.nremovepriors_)
+	{
+	  char nuispar[64];
+	  sprintf (nuispar, "PDF_nuisance_param_%02d", i+1 - systema_.nsys_);
+	  cout << "Remove prior for syst " << nuispar << endl;
+	  string msg = (string) "I: Remove prior for systematic " + nuispar;
+	  hf_errlog_(15082401, msg.c_str(), msg.size());
+	  csystprior_.syspriorscale_[i] = 0.;
+	}
       csysttype_.isysttype_[i] = 2; // THEORY
     }
 
@@ -624,7 +646,7 @@ void get_lhapdferrors_()
   systema_.nsys_ = nsysloc;
   systematicsflags_.resetcommonsyst_ = true;
 
-  cout << "Total Number of systematic uncertainties: " << systema_.nsys_;
+  cout << "Total Number of systematic uncertainties: " << systema_.nsys_ << endl;
   fname = outdirname + "/Results.txt";
   fopen_(85, fname.c_str(), fname.size());
   chi2tot = chi2data_theory_(3);

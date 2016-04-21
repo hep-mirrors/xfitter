@@ -166,7 +166,8 @@ C
       integer NPARVAR                 !> For LHAPDF VAR PDF, number of parameter variations
       logical LHAPDFErrors	!> For LHAPDF PDFtype, loop over eigensets
       logical Scale68           !> Scale LHAPDF uncertainties from 90cl to 68cl
-      common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,LHAPDFErrors,Scale68
+      integer nremovepriors       !> remove prior of last <n> PDF nuisance parameters
+      common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,LHAPDFErrors,Scale68,nremovepriors
 
       character*128 OutDirName   !> outout dir name
       character*128 LHAPDF6OutDir
