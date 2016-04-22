@@ -123,6 +123,7 @@ endif
 LDADD+=  ../DY/src/libmydy.a\
  ../RT/src/libmyrt.a \
  ../ACOT/src/libmyacot.a \
+ ../SACOT/src/libmysacot.a \
  ../FONLL/src/libmyfonll.a \
  ../EW/src/libmyew.a \
  ../ABM/src/libmyabm.a \
