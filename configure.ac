@@ -438,6 +438,7 @@ AC_CONFIG_FILES([include/Makefile
                  Hathor/src/Makefile
                  HVQMNR/src/Makefile
                  ACOT/src/Makefile
+                 SACOT/src/Makefile 
                  ABM/src/Makefile
 		 FONLL/src/Makefile
                  Cascade/src/Makefile

@@ -1135,6 +1135,10 @@ C---------------------------------
          HFSCHEME = 1555
       elseif (HF_SCHEME.eq.'FONLL-C RUNM ON') then
          HFSCHEME = 2555
+      elseif (HF_SCHEME.eq.'S-ACOT Chi') then
+          HFSCHEME = 17
+      elseif (HF_SCHEME.eq.'S-ACOT Chi RC') then
+          HFSCHEME = 27
       else
          print *,'Unsupported HFSCHEME =',HF_SCHEME
          print *,'Check value in steering.txt'

@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
           common/num_utils \
-          tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src FONLL/src Cascade/src \
+          tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include input_steering \
@@ -26,7 +26,7 @@ include $(top_srcdir)/aminclude.am
 
 # Specify which SUBDIRS to distribute:
 DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
-          tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src ABM/src FONLL/src Cascade/src \
+          tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src common/num_utils \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include input_steering \

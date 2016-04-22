@@ -470,6 +470,8 @@ C
             endif
          endif
 
+         if (local_hfscheme==27) factor=1d0
+
          THEO(idx) =  XSec(i)*factor
          
 ! [--- KK 2015-08-30, WS 2015-10-10
@@ -612,7 +614,7 @@ C Input:
       double precision X(NPMaxDIS),Y(NPMaxDIS),Q2(NPMaxDIS)
       double precision Charge, polarity
 C Output: 
-      double precision XSec(NPMaxDIS)
+      double precision XSec(NPMaxDIS),XSecs(NPMaxDIS)
       integer i, idx
       double precision yplus(NPMaxDIS), yminus(NPMaxDIS)
       double precision F2(NPMaxDIS),xF3(NPMaxDIS),FL(NPMaxDIS)
@@ -681,6 +683,12 @@ C
      1                              x,q2,npts,XSecType,
      2                              charge,IDataSet)
 
+         elseif (mod(local_hfscheme,10).eq.7) then
+
+            call UseSAcotchiScheme(F2,FL,XF3,F2c,FLc,F2b,FLb,xsecs,
+     $           x, q2, y, npts, polarity, XSecType, F2in, FLin, XF3in,
+     $           charge, local_hfscheme, IDataSet)
+
          endif
 
       elseif (itheory.eq.50) then
@@ -719,6 +727,7 @@ c         XSec = FL !hp
      $        XSecType,'not supported'
          stop
       endif
+      if (local_hfscheme==27) XSec = XSecs
       
       end
 
@@ -1015,8 +1024,128 @@ c         endif
 
       end
 
+C----------------------------------------------------------------      
+C> Calculates F2, FL, XF3, F2c, FLc, F2b, FLb according to ACOT scheme
+C> \param[out] F2, FL, xF3, F2c, FLc, F2b, FLb structure functions    
+C> \param[in] q2, x kinematic bin                                     
+C> \param[in] npts total number of points                             
+C> \param[in] polarity of the lepton beam                             
+C> \param[in] charge of the lepton beam                               
+C> \param[in] XSecType DIS process type                              
+C> \param[in] local_hfscheme heavy flavour scheme                     
+C> \param[in] IDataSet data set index                                
+C> \param[in] F2in, FLin, XF3in structure functions calculated by QCDNUM
+C                                                                       
+C  Created by Krzysztof Nowak, 23/01/2012                               
+C---------------------------------------------------------------        
+Cmarco2014 IN PROGRESS---------------------------------------------    
 
+      subroutine UseSAcotchiScheme(F2,FL,XF3,F2c,FLc,F2b,FLb,XSec,
+     $     x, q2, y, npts, polarity, XSecType,  F2in, FLin, XF3in,
+     $     charge, local_hfscheme, IDataSet)
 
+      implicit none
+#include "ntot.inc"
+#include "datasets.inc"
+#include "steering.inc"
+#include "fcn.inc"
+#include "qcdnumhelper.inc"
+C Input: 
+      double precision x(NPMaxDIS), q2(NPMaxDIS),y(NPMaxDIS)
+      double precision charge, polarity
+      integer npts,IDataSet
+      character*(*) XSecType
+      double precision F2in(NPMaxDIS), FLin(NPMaxDIS), xF3in(NPMaxDIS)
+C Output: 
+      double precision F2(NPMaxDIS), FL(NPMaxDIS), xF3(NPMaxDIS)
+      double precision F2c(NPMaxDIS),FLc(NPMaxDIS)
+      double precision F2b(NPMaxDIS),FLb(NPMaxDIS)
+      double precision XSec(NPMaxDIS)
+
+C Additional variables:
+      integer icharge, i, idx, local_hfscheme,ID_WZ
+      logical UseKFactors
+      double precision StrFn(0:3)   !f123l(4),f123lc(4),f123lb(4)
+
+c communication with S-ACOT-chi module 
+      integer lio               !flag to distinguish among the 4 H1ZEUS data sets 
+      integer iLptn1,iLptn2     !labels for init partons
+      double precision xsecs
+c
+      integer idis
+c test 
+      character t1*23,t2*23
+
+      !call t2f(t1)   
+
+      if(XSecType.eq.'CCDIS') then
+        if(charge.eq.-1) then
+          lio=21
+        elseif(charge.eq.1) then
+          lio=-21
+        endif
+      else if (XSecType.eq.'NCDIS') then
+         if (charge.eq.-1) then
+           lio=22
+         elseif (charge.eq.1) then
+           lio=-22
+         endif
+      else if (XSecType.eq.'CHARMDIS') then
+         !if (charge.eq.-1) then
+         !  lio=22 
+         !elseif (charge.eq.1) then
+         !  lio=-22
+         !endif
+         print*,'Not supported for the moment'
+         stop
+      else if (XSecType.eq.'FL') then
+         print*,'FL is not supported by SACOT-chi for the moment'
+         stop
+      else if (XSecType.eq.'F2') then
+         print*,'F2 is not supported by SACOT-chi for the moment'
+         stop
+      else
+         print *, 'UseSACOTChischeme, XSecType', XSecType,
+     $     'not supported'
+         stop
+      endif
+
+      iLptn1 = lio/10
+      iLptn2 = sign(mod(abs(lio),10),lio)
+
+C for the moment
+      if (mod(local_hfscheme,10).eq.7) then
+        UseKFactors = .true.    !S-ACOT-chi implements several definitions  
+                                !for the K-factors 
+      else
+        print*,'UNDER CONSTRUCTION! ======================='
+        STOP
+      endif
+
+      ID_WZ=1
+      Call SetEwk(ID_WZ)
+
+      idis =mod(local_hfscheme/10,10)
+          !=1, using structure as output 
+          !=2, using reduce cross section as output    
+
+      do i=1,npts
+c        idx =  DATASETIDX(IDataSet,i) 
+c        print*,'Idataset, idx = ', IdataSet, idx 
+
+        call sf_sacotchi_wrap(idis,XSecType,x(i),q2(i),y(i)
+     &  ,StrFn,iLptn1,iLptn2,xsecs)
+
+        if (idis==1) then !using structure as output 
+          F2(i) = StrFn(2)
+          FL(i) = StrFn(0)
+          xF3(i)= StrFn(3)*x(i)
+        else if (idis==2) then !using reduce cross section as output 
+          xsec(i)=xsecs
+        end if
+      enddo
+                                                                  
+      end
 C----------------------------------------------------------------
 C> \brief Calculates F2, FL, XF3, F2c, FLc, F2b, FLb 
 C>  according to Robert Thorne scheme

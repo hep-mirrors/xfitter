@@ -108,6 +108,7 @@
  ! ---  HF_SCHEME = 'ACOT Full'        : ACOT - F.Olness Version (massive), using k-factors  
  ! ---  HF_SCHEME = 'ACOT Chi'         : ACOT - F.Olness Version (massive), using k-factors  
  ! ---  HF_SCHEME = 'ACOT ZM'          : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'S-ACOT Chi RC'    : S-ACOT-chi scheme - CTEQ-TEA Version, using reduced cross section
  ! ---  HF_SCHEME = 'FF'               : Fixed Flavour Number Scheme (qcdnum)
  ! ---  HF_SCHEME = 'FF ABM'           : Fixed Flavour Number Scheme (ABM)
  ! ---  HF_SCHEME = 'FF ABM RUNM'      : Fixed Flavour Number Scheme (ABM) using run mass def
