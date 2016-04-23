@@ -139,7 +139,7 @@ C Sea:
 
          tUb = parubar(1)*CalcIntXpdf(parubar)
          tDb = pardbar(1)*CalcIntXpdf(pardbar)
-         if (iTheory.eq.11.or.iTheory.eq.25.or.iTheory.eq.35) then
+         if (iTheory.eq.11.or.iTheory.eq.35) then
             tPho = parphoton(1)*CalcIntXpdf(parphoton)
          else
             tPho = 0 !> activate it only when QED is needed
@@ -203,7 +203,7 @@ C     standard parametrisation
          print '(''Db:'',11F10.4)',(pardbar(i),i=1,10)
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
          print '(''ST:'',11F10.4)',(parstr(i),i=1,10)
-         if (iTheory.eq.11.or.iTheory.eq.25.or.iTheory.eq.35) then
+         if (iTheory.eq.11.or.iTheory.eq.35) then
             print '(''PH:'',11F10.4)',(parphoton(i),i=1,10)
          endif
          if (uv_sum.ne.0.or. dv_sum.ne.0 .or. p_sum.ne.0) then

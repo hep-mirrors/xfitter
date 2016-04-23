@@ -118,9 +118,7 @@ C--------------------------------------------------------------
 
 #include "steering.inc"
 #include "pdfparam.inc"
-#include "alphas.inc"
 #include "for_debug.inc"
-#include "couplings.inc"
 #include "ntot.inc"
 #include "datasets.inc"
 #include "systematics.inc"
@@ -131,12 +129,6 @@ C--------------------------------------------------------------
 #include "polarity.inc"
 #include "endmini.inc"
 #include "fractal.inc"
-*     ---------------------------------------------------------
-*     declaration related to alphas
-*     for RT code, transfer alpha S
-*     ---------------------------------------------------------
-      double precision alphaszero
-      double precision hf_get_alphas
 
 *     ---------------------------------------------------------
 *     declaration related to chisquare
@@ -173,20 +165,16 @@ C--------------------------------------------------------------
       double precision GetTempChi2   ! Temperature penalty for D, E... params.
       double precision OffsDchi2   ! correction for final Offset calculation
       
-
 C  x-dependent fs:
-      double precision fs0,epsi
+      double precision fs0
       double precision fshermes
-      external LHAPDFsubr
-      external APFELsubr
-      external APFELsubrPhoton
-      external QEDEVOLsubr
+
 c updf stuff
       logical firsth
       double precision auh 
       common/f2fit/auh(50),firsth
-	Logical Firstd,Fccfm1,Fccfm2
-	Common/ myfirst/Firstd,Fccfm1,Fccfm2
+      Logical Firstd,Fccfm1,Fccfm2
+      Common/ myfirst/Firstd,Fccfm1,Fccfm2
       Integer IGLU
       Common/CAGLUON/Iglu
       character filename*132
@@ -198,12 +186,9 @@ c updf stuff
       Integer Itheory_ca
       Common/theory/Itheory_ca
       Integer idx
-      double precision q2p
-      common / PrevoiusQ / q2p
 
       character*2 TypeC, FormC, TypeD
       character*64 Msg
-      integer NextraSets
       
       double precision rmass,rmassp,rcharge
       COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)
@@ -272,7 +257,7 @@ c        write(6,*) ' fcn npoint ',npoints
 
       kflag=0
       if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25.or.itheory.eq.35)  then 
+     $.or.itheory.eq.35)  then 
          call SumRules(kflag)
       endif
       if (kflag.eq.1) then
@@ -281,53 +266,6 @@ c        write(6,*) ' fcn npoint ',npoints
      +        'F: FCN - problem in SumRules, kflag = 1')
       endif
 
-*     -----------------------------------------------------
-*      set alphas
-*     -----------------------------------------------------
-
-      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25.or.itheory.eq.35) then 
-         if (itheory.eq.0.or.itheory.eq.11.or.itheory.eq.25) then
-            call setalf(dble(alphas),Mz*Mz)
-         else
-            call SetAlphaQCDRef(dble(alphas),dble(Mz))
-         endif
-         alphaSzero= hf_get_alphas(1D0)
-         call RT_SetAlphaS(alphaSzero)
-
-
-         NextraSets = 0
-         if (ExtraPdfs) then
-            NextraSets = 1
-         endif
-
-         if(IPDFSET.eq.5) then
-c adjust to QCDNUM-17-01-10 and newer versions             
-c           call PDFINP(LHAPDFsubr, IPDFSET, dble(0.001), epsi, nwds)
-            call PDFEXT(LHAPDFsubr, IPDFSET, NextraSets, dble(0.001), epsi)
-         elseif (IPDFSET.eq.7) then
-            q2p = starting_scale
-            call SetPDFSet("external")
-            if(itheory.eq.35)then
-               call PDFEXT(APFELsubrPhoton, IPDFSET, 1, dble(0.001),
-     1              epsi)
-            else
-               call PDFEXT(APFELsubr, IPDFSET, 0, dble(0.001), epsi)
-            endif
-         elseif (IPDFSET.eq.8) then
-            q2p = starting_scale
-c            call SetPDFSet("external")
-            call qedevol_main
-            call PDFEXT(QEDEVOLsubr,  IPDFSET, 1, dble(0.001), epsi)
-         elseif (IPDFSET.eq.8) then
-            q2p = starting_scale
-c            call SetPDFSet("external")
-            call qedevol_main
-            call PDFEXT(QEDEVOLsubr,  IPDFSET, 1, dble(0.001), epsi)
-         endif
-      endif 
-
-      
       if (iflag.eq.1) then
          open(87,file=TRIM(OutDirName)//'/pulls.first.txt')
       endif
@@ -339,15 +277,13 @@ c            call SetPDFSet("external")
          enddo
       endif
 
-
 C
 C     Call a subrotine which vanishes nonvalence DGLAP contribution
-C      for dipole model fits.
-
+C     for dipole model fits.
+C
       if (DipoleModel.eq.3.or.DipoleModel.eq.4) then
          call LeaveOnlyValenceQuarks
       endif
-
 
 *     ---------------------------------------------------------  	 
 *     Call evolution
@@ -355,8 +291,8 @@ C      for dipole model fits.
       if (Debug) then
          print*,'before evolution'
       endif
-      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25.or.itheory.eq.35) then         
+      if (itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
+     1    itheory.eq.35) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 

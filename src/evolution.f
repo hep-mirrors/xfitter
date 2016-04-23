@@ -6,10 +6,13 @@
 * but needed when one store all pdfs.
 *
      
-      implicit double precision (a-h,o-z)
+c      implicit double precision (a-h,o-z)
+      implicit none
 #include "steering.inc"
 #include "pdfparam.inc"
 #include "thresholds.inc"
+#include "alphas.inc"
+#include "couplings.inc"
 c      common/thresholds/q0,qc,qb
 
       double precision func0,func1,func24,func22
@@ -24,7 +27,6 @@ c      common/thresholds/q0,qc,qb
       double precision def0, def1, def24, def22,pdfv,glu,glu1,x
       double precision def30
 
-
       dimension pdfv(-6:6)
       dimension def22(-6:6,12)    !flavor composition
       dimension def1(-6:6,12)    !flavor composition
@@ -35,10 +37,38 @@ c      common/thresholds/q0,qc,qb
       integer iq0, iqfrmq
       double precision eps
 cjt test
-      
+      integer nfin
+      double precision q2c,q2b
+
       data nfin/0/
       data q2c/3.D0/, q2b/25.D0/, q2b/200.D0/            !thresh and mu20
-       
+
+*     ---------------------------------------------------------
+*     declaration related to alphas
+*     for RT code, transfer alpha S
+*     --------------------------------------------------------- 
+      double precision alphaszero
+      double precision hf_get_alphas
+
+*     ---------------------------------------------------------
+*     Subroutine of the external evolution codes
+*     --------------------------------------------------------- 
+      external LHAPDFsubr
+      external APFELsubr
+      external APFELsubrPhoton
+      external QEDEVOLsubr
+
+      double precision epsi
+
+*     ---------------------------------------------------------
+*     Save scale in a common to avoid APFEL to evolve if the
+*     scale does not change.
+*     --------------------------------------------------------- 
+      double precision q2p
+      common / PrevoiusQ / q2p
+
+      integer NextraSets
+
 cjt test 
 cv======
 cv Remark:
@@ -112,9 +142,9 @@ C--       -6  -5  -4   -3   -2   -1   0   1   2   3   4   5   6
 *
       if (mod(hfscheme,10).eq.6) then
          call SetxFitterParametersMELA(parubar,pardbar,
-     1                                    paruval,pardval,
-     2                                    parglue,
-     3                                    fstrange,fcharm)
+     1                                 paruval,pardval,
+     2                                 parglue,
+     3                                 fstrange,fcharm)
       endif
 
 c      call grpars(nx,xmi,xma,nq,qmi,qma,nord)
@@ -127,14 +157,61 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
 
       iq0  = iqfrmq(q0)         !starting scale
 
-      if (IPDFSET.eq.5) return  ! for external pdf evolution not needed!
+*
+*     Initialize alphas
+*
+      if (itheory.eq.0.or.itheory.eq.11) then
+         call setalf(dble(alphas),Mz*Mz)
+      else
+         call SetAlphaQCDRef(dble(alphas),dble(Mz))
+      endif
+      alphaSzero = hf_get_alphas(1D0)
+      call RT_SetAlphaS(alphaSzero)
 
+      NextraSets = 0
+      if (ExtraPdfs) then
+         NextraSets = 1
+      endif
+
+C ---- LHAPDF ----
+      if(IPDFSET.eq.5) then
+         call PDFEXT(LHAPDFsubr,IPDFSET,NextraSets,dble(0.001),epsi)
+         return
 C ---- APFEL ----
-      if (IPDFSET.eq.7) return
-
+      elseif (IPDFSET.eq.7) then
+         q2p = starting_scale
+         call SetPDFSet("external")
+         if(itheory.eq.35)then
+            call PDFEXT(APFELsubrPhoton,IPDFSET,1,dble(0.001),epsi)
+         else
+            call PDFEXT(APFELsubr,      IPDFSET,0,dble(0.001),epsi)
+cC ====================================================================
+cC     Stuff for the implementation of the H-VFNS
+cC ====================================================================
+c*     3 flavours
+c            call SetMaxFlavourPDFs(3)
+c            call SetMaxFlavourAlpha(3)
+c            call PDFEXT(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
+c*     4 flavours
+c            call SetMaxFlavourPDFs(4)
+c            call SetMaxFlavourAlpha(4)
+c            call PDFEXT(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
+c*     5 flavours
+c            call SetMaxFlavourPDFs(5)
+c            call SetMaxFlavourAlpha(5)
+c            call PDFEXT(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
+c*     6 flavours (default)
+c            call SetMaxFlavourPDFs(6)
+c            call SetMaxFlavourAlpha(6)
+cC ====================================================================
+         endif
+         return
 C ---- QEDEVOL ----
-      if (IPDFSET.eq.8) return
-
+      elseif (IPDFSET.eq.8) then
+         call qedevol_main
+         call PDFEXT(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
+         return
+      endif
 
 cv ===
       if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
@@ -388,3 +465,80 @@ c         q0 = sqrt(starting_scale)
       return
       end
 
+      Subroutine LHAPDFsubr(x, qmu2, xf)
+C-------------------------------------------------------
+C
+C External PDF reading for QCDNUM
+C
+C--------------------------------------------------------
+      implicit none
+#include "steering.inc"
+
+      double precision x,qmu2
+      double precision xf(-6:7)
+      if ( ExtraPdfs ) then
+         call evolvePDFphoton(x, sqrt(qmu2), xf, xf(7))
+      else
+         call evolvePDF(x, sqrt(qmu2), xf)
+      endif      
+      end
+
+      Subroutine APFELsubr(x, qmu2, xf)
+C-------------------------------------------------------
+C
+C External PDF reading for APFEL
+C
+C--------------------------------------------------------
+      implicit none
+*
+#include "steering.inc"
+*
+      integer i
+      double precision x,qmu2
+      double precision xf(-6:6)
+
+      double precision q2p
+      common / PrevoiusQ / q2p
+*
+*     Perform evolution with APFEL only if the final scale has changed
+*
+      if(qmu2.ne.q2p)then
+         call EvolveAPFEL(dsqrt(q2p),dsqrt(qmu2))
+         call SetPDFSet("apfel")
+      endif
+*
+      call xPDFall(x,xf)
+      q2p = qmu2
+*
+      return
+      end
+*
+      Subroutine APFELsubrPhoton(x, qmu2, xf)
+C-------------------------------------------------------
+C
+C External PDF reading for APFEL (including the photon)
+C
+C--------------------------------------------------------
+      implicit none
+*
+#include "steering.inc"
+*
+      double precision x,qmu2
+      double precision xf(-6:7)
+
+      double precision q2p
+      common / PrevoiusQ / q2p
+*
+*     Perform evolution with APFEL only if the final scale has changed
+*
+      if(qmu2.ne.q2p)then
+c         call EvolveAPFEL(dsqrt(q2p),dsqrt(qmu2))
+c         call SetPDFSet("apfel")
+         call EvolveAPFEL(dsqrt(dble(starting_scale)),dsqrt(qmu2))
+      endif
+*
+      call xPDFallPhoton(x,xf)
+      q2p = qmu2
+*
+      return
+      end

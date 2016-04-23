@@ -1521,8 +1521,6 @@ C--------------------------------------------------
 C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
          iTheory =  0
-      elseif (TheoryType.eq.'DGLAP_QED') then
-         iTheory = 25
       elseif (TheoryType.eq.'DGLAP_APFEL') then
          iTheory = 10
          IPDFSET = 7

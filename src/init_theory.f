@@ -16,7 +16,7 @@
 *     Initialise qcdnum and APFEL
 *     ------------------------------------------------
       if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.25.or.itheory.eq.35) then
+     $.or.itheory.eq.35) then
 C Init evolution code:
          call qcdnum_ini
 C Init APFEL if needed
@@ -1327,84 +1327,6 @@ C  DELTA-R AND EFFECTIVE WEAK MIXING ANGLE FROM ZNCV
 C      call EPRC_INIT(.true.)
 
 C-----------------------------------------------------
-      end
-
-      Subroutine LHAPDFsubr(x, qmu2, xf)
-C-------------------------------------------------------
-C
-C External PDF reading for QCDNUM
-C
-C--------------------------------------------------------
-      implicit none
-#include "steering.inc"
-
-      double precision x,qmu2
-      double precision xf(-6:7)
-      if ( ExtraPdfs ) then
-         call evolvePDFphoton(x, sqrt(qmu2), xf, xf(7))
-      else
-         call evolvePDF(x, sqrt(qmu2), xf)
-      endif      
-      end
-
-      Subroutine APFELsubr(x, qmu2, xf)
-C-------------------------------------------------------
-C
-C External PDF reading for APFEL
-C
-C--------------------------------------------------------
-      implicit none
-*
-#include "steering.inc"
-*
-      integer i
-      double precision x,qmu2
-      double precision xf(-6:6)
-
-      double precision q2p
-      common / PrevoiusQ / q2p
-*
-*     Perform evolution with APFEL only if the final scale has changed
-*
-      if(qmu2.ne.q2p)then
-         call EvolveAPFEL(dsqrt(q2p),dsqrt(qmu2))
-         call SetPDFSet("apfel")
-      endif
-*
-      call xPDFall(x,xf)
-      q2p = qmu2
-*
-      return
-      end
-*
-      Subroutine APFELsubrPhoton(x, qmu2, xf)
-C-------------------------------------------------------
-C
-C External PDF reading for APFEL (including the photon)
-C
-C--------------------------------------------------------
-      implicit none
-*
-#include "steering.inc"
-*
-      double precision x,qmu2
-      double precision xf(-6:7)
-
-      double precision q2p
-      common / PrevoiusQ / q2p
-*
-*     Perform evolution with APFEL only if the final scale has changed
-*
-      if(qmu2.ne.q2p)then
-c         call EvolveAPFEL(dsqrt(q2p),dsqrt(qmu2))
-c         call SetPDFSet("apfel")
-         call EvolveAPFEL(dsqrt(dble(starting_scale)),dsqrt(qmu2))
-      endif
-*
-      call xPDFallPhoton(x,xf)
-      q2p = qmu2
-*
-      return
       end
 
 c ------------------------------------------------------
