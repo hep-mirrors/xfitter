@@ -11,6 +11,7 @@
 #include "ntot.inc"
 #include "systematics.inc"
 #include "g_offset.inc"
+#include "fcn.inc"
 
       integer shift_dir
       double precision a
@@ -157,7 +158,7 @@ C
             kflag = 0
             call SumRules(kflag)
             call Evolution
-
+            ifcncount = ifcncount+1
 C
 C Write results out:
 C
