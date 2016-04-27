@@ -39,31 +39,37 @@
       end
 
       function get_nmembers()
-#include "d506cm.inc"
-#include "steering.inc"
-              integer get_nmembers, nset, i
-              get_nmembers=0
 
-              if(PDF_DECOMPOSITION.eq."LHAPDF") then
+#include "steering.inc"
+
+      integer get_nmembers, nset, i
+      double precision fmin, fedm, errdef
+      integer  npari, nparx, istat
+
+      get_nmembers=0
+
+      if(PDF_DECOMPOSITION.eq."LHAPDF") then
 #ifndef LHAPDF_ENABLED
-            call hf_errlog(29061521, "S: Call to lhapdf function but"//
-     $      "xFitter compiled without --enable-lhapdf switch")
+         call hf_errlog(29061521, "S: Call to lhapdf function but"//
+     $        "xFitter compiled without --enable-lhapdf switch")
 #else
-                      call getnset(nset)
-                      call numberpdfm(nset, get_nmembers)
-                      if(get_nmembers.gt.1) then
-                              get_nmembers=get_nmembers+1
-                      endif
+         call getnset(nset)
+         call numberpdfm(nset, get_nmembers)
+         if(get_nmembers.gt.1) then
+            get_nmembers=get_nmembers+1
+         endif
 #endif
-              else
-                      get_nmembers=1 !central value
-                      
-                      if(dobands) then
-                      do i=1,MNE
-                              if(nvarl(i).eq.1) then
-                                      get_nmembers=get_nmembers+2
-                              endif
-                      enddo
-                      endif
-              endif
-              end 
+      else
+         get_nmembers=1         !central value
+         
+         if(dobands) then
+            call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+            get_nmembers=2*npari + 1  ! central + 2*vars
+         endif
+
+         if (dobandssym)  then
+            call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+            get_nmembers= npari + 1  ! central + vars
+         endif
+      endif
+      end 
