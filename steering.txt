@@ -193,7 +193,8 @@
 *
 &Output 
   ! -- Error bands on parton distributions
-  DoBands = False     
+  DoBands = False        ! asymmetric bands (J. Pumplin)
+  DoBandsSym = False     ! symmetric bands ( HESSE )
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
   Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
