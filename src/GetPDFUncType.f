@@ -108,6 +108,10 @@ c Adapted from LHAPDF uncertainties.f
                       endif
 #endif
               else
-                      lAsymhess=.true.
+                 if ( DoBandsSym ) then
+                    lSymmhess=.true.
+                 else
+                    lAsymhess=.true.
+                 endif
               endif
       end subroutine GetPDFUncType_HERAF

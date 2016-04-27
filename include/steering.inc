@@ -16,6 +16,7 @@
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
       logical DOBANDS            !> Produce PDF error bands 
+      logical DoBandsSym        !> Produce symmetric bands
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
       logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
@@ -123,7 +124,8 @@ C
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
      $     CorChi2Type, hf_scheme, AsymErrorsIterations,
-     $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5
+     $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5, 
+     $     DoBandsSym
       
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale

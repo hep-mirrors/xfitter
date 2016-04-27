@@ -128,7 +128,8 @@ c ..........................................................
         if(icond .ne. 0) goto 36
         Call RecovCentrPars
         if (DOBANDS) then
-           write(6,*) ' --- Calculating error bands from Offset errors...'
+           write(6,*) 
+     $          ' --- Calculating error bands from Offset errors...'
            ! --- set the scale by defining delta chi2 value
            ! --- for MNCOMD(fcn,'ITERATE 10',...) it is set by SET ERRDEF dchi2
            ! --- with default value of 5
@@ -148,17 +149,20 @@ c ..........................................................
         endif
 
         if (DOBANDS) then
-          write(6,*) ' --- Calculate error bands ...'
-          lprint = .false.    
-          call hf_errlog(12020506, 'I: Calculation of error bands required')
-          call MNCOMD(fcn,'ITERATE 10',icond,0)
-          call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
-          call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
-          call Error_Bands_Pumplin
+           write(6,*) ' --- Calculate error bands ...'
+           lprint = .false.    
+           call hf_errlog
+     $          (12020506, 'I: Calculation of error bands required')
+           call MNCOMD(fcn,'ITERATE 10',icond,0)
+           call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
+           call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
+           call Error_Bands_Pumplin
+        elseif (DoBandsSym) then
+           call ErrBandsSym
         endif
       
-        close (24)
-        close (25)
+       close (24)
+       close (25)
       endif
 
  36   continue
@@ -177,3 +181,4 @@ c ..........................................................
       end
 
 C-----------------------------------------------------
+

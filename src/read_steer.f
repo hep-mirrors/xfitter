@@ -189,6 +189,7 @@ C PDF output options:
 
 c 2012-11-08 WS: set default for DoBands
       DoBands = .false.
+      DoBandsSym = .false.
       outnx = 101
       do i=1,NBANDS
        Q2VAL(i) = -1.
@@ -876,7 +877,7 @@ C------------------------------------------------
 C Output style namelist
       namelist/Output/DoBands, Q2VAL, OutNX, OutXRange,
      $                      UseGridLHAPDF5, WriteLHAPDF6,
-     $     WriteLHAPDF5
+     $     WriteLHAPDF5, DoBandsSym
 
 C--------------------------------------------------------
 C  Read the output namelist:
@@ -928,6 +929,11 @@ C
       read (51,NML=OutDir,END=152,ERR=56)
  152  continue
       close (51)
+
+      if (DoBands .and. DoBandsSym) then
+         Call hf_errlog(16042701,
+     $  'F: Both DoBands and DoBandsSym are set: chose one')
+      endif
 
 C check if limit of 22 char is not exceeded:      
       if(LEN(TRIM(OutDirName)).gt.22) then

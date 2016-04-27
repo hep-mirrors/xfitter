@@ -179,4 +179,146 @@ C
       return
       end
 
+!> =================================================
+!> Generate error bands for symmetrian hessian case
+!> =================================================
+      subroutine ErrBandsSym
+      implicit none
+#include "endmini.inc"
+#include "fcn.inc"
+#include "steering.inc"
+      external fcn
+      integer icond
+      double precision fmin, fedm, errdef
+      integer npari, nparx, istat, ifail
+      integer i,j, ind, ind2, mpar, jext
+      double precision, allocatable :: Amat(:,:)
+      double precision, allocatable :: eigenvalues(:)
+C
+      integer  iunint(MNE)  ! internal param. number
+      integer  iexint(MNE)  ! external param. number
+      double precision 
+     $     parval, parerr,parlolim,parhilim
+      
+      double precision a(MNE)
+      integer idx,idx2,iint,kflag
 
+      character *64 parname
+
+      character*48 name,name2
+      character*48 base,base2
+      character tag(40)*3
+      data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
+     +     's06','s07','s08','s09','s10',
+     +     's11','s12','s13','s14','s15',
+     +     's16','s17','s18','s19','s20',
+     +     's21','s22','s23','s24','s25',
+     +     's26','s27','s28','s29','s30',
+     +     's31','s32','s33','s34','s35',
+     +     's36','s37','s38','s39','s40'/
+
+
+C------------------------------------------------------------------------
+      call MNCOMD(fcn,'HESSE',icond,0)
+C     Check the covariance matrix:
+      call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+      print *,'Covariance matrix status =',istat,npari
+      
+      if (istat .ne. 3) then
+         call hf_errlog(16042702,
+     $        'S:Problems with error matrix, can not produce bands')
+      endif
+
+      mpar = 0
+      do ind=1,nparx
+         call mnpout(ind,parname,parval,parerr,parlolim,
+     $        parhilim,iunint(ind))
+         if (iunint(ind).gt.0) then
+            write (6,*) 'Parameter',ind,' name=',parname
+            write (6,*) 'Internal index=',iunint(ind)
+            write (6,*) ' '
+            mpar = mpar + 1
+         endif
+      enddo
+
+      do ind=1,mpar
+         do ind2=1,nparx
+            if (iunint(ind2).eq.ind) then
+               iexint(ind) = ind2
+            endif
+         enddo
+      enddo
+
+
+      Allocate(Amat(Npari, Npari))
+      Allocate(Eigenvalues(Npari))
+      
+
+      call MNEMAT( Amat, Npari)
+      
+C Diagonalize:
+      call MyDSYEVD( Npari, Amat, Npari, Eigenvalues, ifail)
+
+C scale the matirx
+      do i=1,npari
+         do j=1,npari
+            Amat(j,i) = Amat(j,i) * sqrt(Eigenvalues(i))
+         enddo
+      enddo
+      
+C
+C Loop over de-correlated errors:
+C
+      do j=1,Npari
+         jext = iexint(j)
+         base = TRIM(OutDirName)//'/pdfs_q2val_'//tag(j)
+         idx = index(base,' ')-1
+         
+         base2 = TRIM(OutDirName)//'/pdfs_'//tag(j)
+         idx2  = index(base2,' ')-1
+         
+         if (idx.gt.0) then
+            name  = base(1:idx)//'s_'
+            name2 = base2(1:idx2)//'s.lhgrid'
+         else
+            name = base//'s_'
+            name2 = base2//'s.lhgrid'
+         endif
+         
+         
+C     
+C Shift variable paramters by the j-th de-correlated error:
+C
+         do i=1,MNE
+            a(i) = pkeep(i) 
+            iint = iunint(i)
+            if (iint.gt.0) then
+               a(i) = a(i) + Amat(iint,j)
+            endif
+         enddo                  ! i
+
+
+C
+C Decode "a". 2 stands for IFLag = 2, which is a normal iteration.
+C
+         call PDF_param_iteration(a,2)
+         
+C
+C     Fix some pars by sum-rules:
+C
+         kflag = 0
+         call SumRules(kflag)
+         call Evolution
+         ifcncount = ifcncount+1
+C     
+C Write results out:
+C
+         open (76,file=name2,status='unknown')
+         call store_pdfs(name)
+         close (76)
+
+         call save_data_lhapdf6(j)
+
+      enddo                     ! j
+
+      end
