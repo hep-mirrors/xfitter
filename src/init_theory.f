@@ -193,6 +193,18 @@ C----- Read grid definitions from the steering.txt
 
       close (51)
 
+C     If any of the rescaling factors kmuc, kmub, or kmut is different from one,
+C     check that APFEL is used for the evolution otherwise stop the code.
+      if(kmuc.ne.1d0.or.kmub.ne.1d0.or.kmut.ne.1d0)then
+         if(itheory.ne.10.and.itheory.ne.35)then
+            call HF_errlog(28042016, 'F: '//
+     1           'When using displaced heavy quark thresholds, '//
+     2           'APFEL must be used for the evolution. '//
+     3           'Please set TheoryType = "DGLAP_APFEL" or '//
+     4           'TheoryType = "DGLAP_APFEL_QED" in the '//
+     5           'steering.txt card.')
+         endif
+      endif
 
 C--------------------- kmuc/kmub/kmut can be re-defined  in the namelist file:
 
