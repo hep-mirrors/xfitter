@@ -957,6 +957,9 @@ C check if limit of 22 char is not exceeded:
          print OutDir
       endif
 
+C make sure that the status file is not  present in the directory:
+      call system("rm -f "//trim(OutDirName)//"/Status.out")
+
       return
  56   continue
       print '(''Error reading namelist &OutDir, STOP'')'
