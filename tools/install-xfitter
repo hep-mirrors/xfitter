@@ -384,7 +384,7 @@ echo "Installing APFEL $apfelver..."
 git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
 mv apfel apfel-${apfelver}
 cd  apfel-${apfelver}
-git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
+#git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
 ./configure --prefix=$CURRENTDIR/deps/apfel  >> $CURRENTDIR/install.log  2>&1
 
 if [[ $? != 0 ]]
