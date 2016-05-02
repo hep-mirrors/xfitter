@@ -50,6 +50,10 @@ vector <range> historanges(TH1F *h)
 
 void Subplot::Draw(TH1F* histo, string opt)
 {
+  if (bins1.size() == 1)
+    if (opt.find("E3") != string::npos)
+      opt.replace(opt.find("E3"), opt.find("E3")+2, "E2");
+      
   if (maketgraph)
     {
       TGraphAsymmErrors * graph = new TGraphAsymmErrors(histo);
@@ -70,7 +74,7 @@ void Subplot::Draw(TH1F* histo, string opt)
 	opt.insert(0, "A");
 
       if (opt.find("E1") != string::npos)
-	opt.erase(opt.find("E1") + 1);
+	opt.erase(opt.find("E1")+1);
 
       if (opt.find("][") != string::npos) //this is a pull histo, force drawing as histogram
 	{
@@ -442,13 +446,14 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	{
 	  cont->SetLineColor(opts.colors[labels[0]]);
 	  dash->SetLineColor(opts.colors[labels[0]]);
+	  mark->SetMarkerColor(opts.colors[labels[0]]);
 	}
       if (opts.onlytheory)
 	leg->AddEntry((TObject*)0, opts.theorylabel.c_str(), "");
       else
 	{
 	  if (!opts.nothshifts)
-	    if (opts.points && !datahistos[0].bincenter())
+	    if ((opts.points && !datahistos[0].bincenter()) || datahistos[0].nbins() == 1)
 	      leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
 	    else
 	      leg->AddEntry(cont, opts.theorylabel.c_str(), "l");
@@ -488,7 +493,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	  (*it).getthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
 	  if (!opts.onlytheory)
 	    if (!opts.nothshifts)
-	      (*it).Draw((TH1F*)(*it).getthshift()->Clone(), "LX same");
+	      if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) //plot as continous line
+		(*it).Draw((TH1F*)(*it).getthshift()->Clone(), "LX same");
+	      else
+		(*it).Draw((TH1F*)(*it).getthshift()->Clone(), "hist ][ same"); //plot as histogram in points mode
 	}
       (*it).getthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 
@@ -497,7 +505,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       if (opts.bw)
 	(*it).getth()->SetLineStyle(opts.lstyles[labels[it-datahistos.begin()]]);
 
-      if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
+      if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) //plot as continous line with dashed error bands
 	{
 	  for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
 	    {
@@ -569,13 +577,13 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	{
 	  leg2->AddEntry((TObject*)0, (labels[it-datahistos.begin()]).c_str(), "");
 	  if (opts.therr && !opts.noupband && (*it).HasTherr())
-	    if (!opts.points || (*it).bincenter())
+	    if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
 	      leg2->AddEntry((*it).gettherr(), "Theory uncertainty", "lf");
 	    else
 	      leg2->AddEntry((*it).gettherr(), "Theory uncertainty", "pe");
 	}
       else
-	if (!opts.points || (*it).bincenter())
+	if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
 	  if (opts.therr && !opts.noupband && (*it).HasTherr())
 	    leg2->AddEntry((*it).gettherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
 	  else
@@ -595,7 +603,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	(*it).gettherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	(*it).gettherrup()->SetLineWidth(opts.lwidth);
 	(*it).gettherrdown()->SetLineWidth(opts.lwidth);
-	if (!opts.points || (*it).bincenter())
+	if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
 	  {
 	    vector <range> thranges = historanges((*it).getth());
 	    for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
@@ -836,12 +844,16 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	      if (!opts.onlytheory)
 		if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
 		  if (!opts.nothshifts)
-		    (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+		    if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
+		      (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+		    else
+		      (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "hist ][ same");
+
 	    }
 	  (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	}
       
-      if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
+      if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) //plot as continous line with dashed error bands
 	{
 	  for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 	    {
@@ -911,7 +923,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	}
       if (opts.multitheory && (it - datahistos.begin() == 0))
 	{
-	  if (!opts.points || (*it).bincenter())
+	  if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
 	    if (opts.therr && (*it).HasTherr())
 	      legr->AddEntry((*it).getrtherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
 	    else
@@ -932,7 +944,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	(*it).getrtherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	(*it).getrtherrup()->SetLineWidth(opts.lwidth);
 	(*it).getrtherrdown()->SetLineWidth(opts.lwidth);
-	if (!opts.points || (*it).bincenter())
+	if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
 	  {
 	    vector <range> rthranges = historanges((*it).getth());
 	    for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
@@ -1021,12 +1033,15 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		  if (!opts.onlytheory)
 		    if (!opts.multitheory || (it - datahistos.begin() == 1)) //if in multitheory mode, plot only the second theory
 		      if (!opts.nothshifts)
-			(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+			if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
+			  (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+			else
+			  (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "hist ][ same");
 		}
 	      (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	    }
       
-	  if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
+	  if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) //plot as continous line with dashed error bands
 	    {
 	      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 		{
@@ -1096,7 +1111,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    }
 	  if (it - datahistos.begin() == 1)
 	    {
-	      if (!opts.points || (*it).bincenter())
+	      if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) 
 		if (opts.therr && (*it).HasTherr())
 		  legr->AddEntry((*it).getrtherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
 		else
@@ -1117,7 +1132,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    (*it).getrtherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	    (*it).getrtherrup()->SetLineWidth(opts.lwidth);
 	    (*it).getrtherrdown()->SetLineWidth(opts.lwidth);
-	    if (!opts.points || (*it).bincenter())
+	    if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) 
 	      {
 		vector <range> rthranges = historanges((*it).getth());
 		for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
@@ -1226,7 +1241,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    {
 	      (*it).getrthshift()->SetAxisRange((*r).lowedge, (*r).upedge);
 	      if (!opts.nothshifts)
-		(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+		if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1)
+		  (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+		else
+		  (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "hist ][ same");
 	    }
 	  (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	}	  
@@ -1297,12 +1315,15 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 		  if (!opts.onlytheory)
 		    if (!opts.multitheory || (it - datahistos.begin() == nth-1)) //if in multitheory mode, plot only the second theory
 		      if (!opts.nothshifts)
-			(*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+			if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) 
+			  (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "LX same");
+			else
+			  (*it).Draw((TH1F*)(*it).getrthshift()->Clone(), "hist ][ same");
 		}
 	      (*it).getrthshift()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
 	    }
       
-	  if (!opts.points || (*it).bincenter()) //plot as continous line with dashed error bands
+	  if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) //plot as continous line with dashed error bands
 	    {
 	      for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)
 		{
@@ -1372,7 +1393,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    }
 	  if (it - datahistos.begin() == nth-1)
 	    {
-	      if (!opts.points || (*it).bincenter())
+	      if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) 
 		if (opts.therr && (*it).HasTherr())
 		  legr->AddEntry((*it).getrtherr(), (labels[it-datahistos.begin()]).c_str(), "lf");
 		else
@@ -1393,7 +1414,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	    (*it).getrtherrdown()->SetLineColor(opts.colors[labels[it-datahistos.begin()]]);
 	    (*it).getrtherrup()->SetLineWidth(opts.lwidth);
 	    (*it).getrtherrdown()->SetLineWidth(opts.lwidth);
-	    if (!opts.points || (*it).bincenter())
+	    if ((!opts.points || (*it).bincenter()) && (*it).nbins() > 1) 
 	      {
 		vector <range> rthranges = historanges((*it).getth());
 		for (vector<range>::iterator r = rthranges.begin(); r != rthranges.end(); r++)

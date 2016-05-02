@@ -87,6 +87,7 @@ private:
   float getymin() {return ymin;};
   float getymax() {return ymax;};
   bool bincenter() {return maketgraph;};
+  int nbins() {return bins1.size();};
 };
 
 //Class storing all the information of one dataset
