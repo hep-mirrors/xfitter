@@ -70,6 +70,8 @@ extern"C" {
     int lhapdferrors_;
     int scale68_;
     int nremovepriors_;
+    int lhapdfprofile_;
+    int lhascaleprofile_;
   } clhapdf_;
 
   //aplhas

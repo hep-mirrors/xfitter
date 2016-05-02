@@ -527,7 +527,8 @@ C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/LHAPDFSET,ILHAPDFSET,
      $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
-     $     WriteAlphaSToMemberPDF,DataToTheo,nremovepriors
+     $     WriteAlphaSToMemberPDF,DataToTheo,nremovepriors,
+     $     lhapdfprofile,lhascaleprofile
 
       logical lhapdferrors_save
 
@@ -535,6 +536,9 @@ C LHAPDFErrors default
 
       lhapdferrors_save = lhapdferrors ! may be set by running mode.
 
+      lhapdfprofile = .true.
+      lhascaleprofile = .false.
+      
       Scale68 = .false.
       NPARVAR = 0
       LHAPDFVARSET = ''

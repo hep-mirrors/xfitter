@@ -362,8 +362,14 @@
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'CT10nlo'       ! LHAPDF grid file 
-  ILHAPDFSET = 0               ! Set number within PdfSet
-  ! LHAPDFErrors = True        ! Take into account PDF uncertaintes 
-  ! DataToTheo = True          ! reset data to predictions for set 0, for sensitivity studies
+  LHAPDFSET  = 'CT10nlo'               ! LHAPDF grid file 
+  ILHAPDFSET = 0                       ! Set a PDF member of the PDF set (use together with LHAPDFPROFILE = False)
+  ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
+  ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set
+  ! LHAPDFPROFILE = False              ! run only on the set specified by ILHAPDFSET
+  ! LHASCALEPROFILE = True             ! Add QCD scale variations as nuisance parameters
+  ! SCALE68 = false                    ! Scale PDF uncertainties by a factor 1/1.645
+  ! WriteAlphaSToMemberPDF = false
+  ! NREMOVEPRIORS = 0                  ! Remove prior from the last n PDF nuisance parameters
+  ! DataToTheo = True                  ! reset data to predictions corresponding to member 0, for sensitivity studies
 &End
