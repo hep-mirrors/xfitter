@@ -201,4 +201,6 @@ C     Namelist for Higher Twists
       character*64 HiTwistSubType
       common/Twistvars/doHiTwist,HiTwistType,HiTwistSubType
 
-
+      logical ReadParsFromFile
+      character*128 ParsFileName, CovFileName  ! Names of 
+      common/CparsFromFile/ ParsFileName, CovFileName, ReadParsFromFile

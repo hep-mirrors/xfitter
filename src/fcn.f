@@ -641,11 +641,21 @@ c     $           ,chi2_cont/NControlPoints
              
 
           else
+C  Hardwire:
+             if ( ReadParsFromFile .and. DoBandsSym) then
+                call ReadPars(ParsFileName, pkeep)
+                call PDF_param_iteration(pkeep,2)
+                kflag = 0
+                call SumRules(kflag)
+             endif
+             
              call Evolution
+
 C LHAPDF output:
 c WS: for the Offset method save central fit only
             if (CorSysIndex.eq.0) then
               open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
+
               call store_pdfs(base_pdfname)
               call fill_c_common
               call print_lhapdf6

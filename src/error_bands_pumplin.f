@@ -191,7 +191,7 @@ C
       integer icond
       double precision fmin, fedm, errdef
       integer npari, nparx, istat, ifail
-      integer i,j, ind, ind2, mpar, jext
+      integer i,j, k, ind, ind2, mpar, jext
       double precision, allocatable :: Amat(:,:)
       double precision, allocatable :: eigenvalues(:)
 C
@@ -217,16 +217,28 @@ C
      +     's31','s32','s33','s34','s35',
      +     's36','s37','s38','s39','s40'/
 
+C Function
+      double precision GetUmat
+
+
 
 C------------------------------------------------------------------------
-      call MNCOMD(fcn,'HESSE',icond,0)
+
+      if (ReadParsFromFile) then
+         call ReadPars(ParsFileName,pkeep)
+         call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+      else
+C         call MNCOMD(fcn,'SET ERRDEF 9',icond,0)
+         call MNCOMD(fcn,'HESSE',icond,0)
+C         call MNCOMD(fcn,'ITERATE 10',icond,0)
 C     Check the covariance matrix:
-      call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
-      print *,'Covariance matrix status =',istat,npari
+         call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+         print *,'Covariance matrix status =',istat,npari
       
-      if (istat .ne. 3) then
-         call hf_errlog(16042702,
-     $        'S:Problems with error matrix, can not produce bands')
+         if (istat .ne. 3) then
+            call hf_errlog(16042702,
+     $           'S:Problems with error matrix, can not produce bands')
+         endif
       endif
 
       mpar = 0
@@ -236,6 +248,7 @@ C     Check the covariance matrix:
          if (iunint(ind).gt.0) then
             write (6,*) 'Parameter',ind,' name=',parname
             write (6,*) 'Internal index=',iunint(ind)
+            pkeep(ind) = parval
             write (6,*) ' '
             mpar = mpar + 1
          endif
@@ -254,7 +267,11 @@ C     Check the covariance matrix:
       Allocate(Eigenvalues(Npari))
       
 
-      call MNEMAT( Amat, Npari)
+      if (ReadParsFromFile) then
+         call ReadParCovMatrix(CovFileName, Amat, Npari)
+      else
+         call MNEMAT( Amat, Npari)
+      endif
       
 C Diagonalize:
       call MyDSYEVD( Npari, Amat, Npari, Eigenvalues, ifail)
@@ -262,10 +279,10 @@ C Diagonalize:
 C scale the matirx
       do i=1,npari
          do j=1,npari
-            Amat(j,i) = Amat(j,i) * sqrt(Eigenvalues(i))
+            Amat(j,i) = Amat(j,i) * sqrt(Eigenvalues(i)) 
          enddo
       enddo
-      
+
 C
 C Loop over de-correlated errors:
 C
@@ -294,6 +311,7 @@ C
             iint = iunint(i)
             if (iint.gt.0) then
                a(i) = a(i) + Amat(iint,j)
+C               a(i) = a(i) + GetUmat(iint,j)               
             endif
          enddo                  ! i
 
@@ -321,4 +339,71 @@ C
 
       enddo                     ! j
 
+      end
+
+!> read parameter values from the pars out file
+      subroutine ReadPars(FileName, pvals)
+      implicit none
+      character*(*) FileName
+      double precision pvals(*)
+      integer IStatus
+
+      character*120 buff
+      double precision fmin, fedm, errdef
+      integer npari, nparx, istat, ind,ii
+      character*100 parname
+      double precision parval, parerr, parlolim, parhilim
+C------------------------------------------------
+      print *,'Reading parameter values from '//trim(FileName)
+      open (51,file=FileName, status='old',err=3) 
+ 1    read (51,'(A120)',end=2, err=4) buff
+      
+      call MNPARS(buff,IStatus)
+      goto 1
+C Decode
+
+ 2    close (51)
+
+      call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+      do ind=1,nparx
+         call mnpout(ind,parname,parval,parerr,parlolim,
+     $        parhilim,ii)
+         pvals(ind) = parval
+      enddo
+      
+
+
+      return
+ 3    call hf_errlog(16042810,'F: Can not find parameters file = '
+     $     //trim(FileName)//', STOP')
+ 4    call hf_errlog(16042811,'F: Can not read parameters file = '
+     $     //trim(FileName)//', STOP')
+      end
+
+      subroutine ReadParCovMatrix( FileName, Cov, Npars)
+      implicit none
+      character *(*) FileName
+      integer NPars
+      double precision Cov(Npars,Npars)
+      integer i,j
+C---------------------------------------------------
+      open (51, file=FileName, status='old', err=1)
+      
+      print *,npars
+      do i=1,NPars
+         read (51,*,err=2,end=3) ( Cov(j,i),j=1,NPars )
+         print '(20E10.2)' ,( Cov(j,i),j=1,NPars ) 
+      enddo      
+      print *,'Read covariance matrix from '//trim(FileName)
+      close (51)
+      return
+ 1    call hf_errlog(16042820,
+     $    'F: Can not open file with parameters covariance matrix '
+     $     //trim(FileName)//', STOP')
+ 2    call hf_errlog(16042821,
+     $  'F: Error while reading file with parameters covariance matrix '
+     $     //trim(FileName)//', STOP')
+ 3    call hf_errlog(16042822,
+     $    'F: Unexpected end of file with parameters covariance matrix '
+     $     //trim(FileName)//', STOP')
       end

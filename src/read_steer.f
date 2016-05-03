@@ -882,11 +882,15 @@ C Output style namelist
       namelist/Output/DoBands, Q2VAL, OutNX, OutXRange,
      $                      UseGridLHAPDF5, WriteLHAPDF6,
      $     WriteLHAPDF5, DoBandsSym
+     $     ,ReadParsFromFile, ParsFileName, CovFileName
 
 C--------------------------------------------------------
 C  Read the output namelist:
 C
       WriteLHAPDF5 = .false.  ! default: no
+      ReadParsFromFile = .false.
+      ParsFileName = ''
+      CovFileName = ''
 
       open (51,file='steering.txt',status='old')
       read (51,NML=Output,END=51,ERR=52)
