@@ -12,7 +12,7 @@ C
 C-----------------------------------------------------------------------------
       Implicit Double Precision (A-H, O-Z)
       Dimension F123Lxcb(3,4), F123L(4),F123Lc(4),F123Lb(4)
-      Common /Ischeme/ Isch, Iset, Iflg, Ihad  !*** pass info out to Fnc123 and Fcc123
+      Common /Ischeme/ Isch, Iset, Iflg, Ihad !*** pass info out to Fnc123 and Fcc123
 
       Character*80 Message ! Error message text
 
@@ -145,11 +145,14 @@ C-----------------------------------------------------------------------------
      >   term(3), facgg(3),facgz(3),faczz(3)
       Parameter(Iset4F4=14)
       PARAMETER (PI=3.14159265359)
+
+c      Common /Iacot/  nord  !*** pass nord to ACOT module from Subroutine SetHFSCHEME
       Common /Ischeme/ Isch, Iset, Iflg, Ihad
       Common  / ActInt /  AERR, RERR, iActL, iActU
       logical ifirst
       data ifirst /.true./
       save ifirst
+#include "steering.inc"
 
 C-----------------------------------------------------------------------------
 C     DATA SINW2, XMW, XMZ   / 0.23D0,   80.4D0,  91.2D0 /
@@ -174,22 +177,21 @@ c     if(kord.le.1) return
 
 
       if(ifirst) then 
-         nord=1
+c     *** UPDATED 19 APRIL 2016: FIO: 
+C     *** GET "NORD" FROM COMMON BLOCK PASSED FROM STEERING.TXT
+c         nord=1
          write(6,*) ' First time in ACOT module ' 
          write(6,*) ' set NORD =2,3 FOR N2LO OR N3LO  ' 
          write(6,*) ' set NORD to any other value to skip  N2LO OR N3LO' 
-         nord=3
-         nord=1
          write(6,*) ' NORD =',nord
 c         read( 5,*)  nord
-         if((nord.ne.2).and.(nord.ne.3)) nord=1
-         if(nord.ne.1) then 
+C         if(nord.ne.1) then 
             open(63,file='output/KfactorsACOT3.txt')
             write(63,*) ' OUTPUT NLO AND N3LO K-FACTORS: NORD = ',nord
             write(63,*) 
      >   '  icharge, XBJ, Q,XMU, polar, ',
      >   '  ratios-F123L NxLO/NLO, NLO F123L, NxLO F123L '
-          endif
+C          endif
          ifirst=.false.
       endif
 

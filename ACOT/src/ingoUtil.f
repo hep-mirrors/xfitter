@@ -1,7 +1,14 @@
 
 c ... PDF interface
       subroutine mypdf(x,Q2,pdf,iset,iorder,A1,Z1)
+C============================================================================= 
+C      Front end program for  N3LO pdf's: Fred Olness  27 April 2016 (needs checking)
+C
+C============================================================================= 
       implicit none
+
+      include 'couplings.inc'  !*** Get quark masses from this:
+
       double precision x,Q2 ! Input
       integer iset,iorder   ! Input
       double precision A1,Z1           ! Input
@@ -16,11 +23,17 @@ c ... PDF interface
       integer pdfini, nfix
       save pdfini
 
-      double precision singlet,xm0,xmc,xmb,HMASS,q2c,q2b,q2t
+      double precision singlet,xm0,xmc,xmb,xmt,HMASS,q2c,q2b,q2t
       integer ierr
 
 c      common /fred/ xm0,xmc,xmb,HMASS
 c     =================================================================================================
+ 
+!     taken from couplings.inc
+      xmc=mch                   
+      xmb=mbt     
+      xmt=mtp
+
 
       do i=-6,6,1
          pdf(i)=0.0d0
@@ -37,29 +50,39 @@ c     ==========================================================================
 
 c     =================================================================================================
 c     use qcdnum pdfs
+c      call fpdfxq(1,x,q2,xpdf,1)                  !interpolate all pdf's
+      call hf_get_pdfs(x,q2,xpdf)                  !interpolate all pdf's
 
-      call fpdfxq(1,x,q2,xpdf,1)                  !interpolate all pdf's
-      call getcbt(nfix,q2c,q2b,q2t)  !**** nfix=0 FFS, or nfix =3,4,5,6 VFNS
+c     use qcdnum mass values
+c      call getcbt(nfix,q2c,q2b,q2t)  !**** nfix=0 FFS, or nfix =3,4,5,6 VFNS
+
 
       do i=-6,6,1
          pdf(i)=xpdf(i)/x
       enddo
 
+c   convert to CTEQ convention: u=1, d=2
       pdf(+2) = xpdf(+1)/x
       pdf(+1) = xpdf(+2)/x
       pdf(-2) = xpdf(-1)/x
       pdf(-1) = xpdf(-2)/x
     
-      pdf(+6)=0.0d0
-      pdf(-6)=0.0d0
-      if(q2.lt.q2b) then
+
+
+
+      if(q.lt.xmc) then
+         pdf(+4)=0.0d0
+         pdf(-4)=0.0d0
+      endif
+
+      if(q.lt.xmb) then
          pdf(+5)=0.0d0
          pdf(-5)=0.0d0
       endif
-c      return
-      if(q2.lt.q2c) then
-         pdf(+4)=0.0d0
-         pdf(-4)=0.0d0
+
+      if(q.lt.xmt) then
+         pdf(+6)=0.0d0
+         pdf(-6)=0.0d0
       endif
 
 c     UPDATE: IF PDF IS NEGATIVE: SET TO ZERO: FIO 21 Nov. 2011

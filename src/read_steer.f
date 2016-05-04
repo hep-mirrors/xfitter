@@ -1105,6 +1105,7 @@ C---------------------------------------
       Subroutine SetHFSCHEME
 
       implicit none
+
 #include "steering.inc"
 C---------------------------------
       
@@ -1114,10 +1115,31 @@ C---------------------------------
           HFSCHEME = 6
       elseif (HF_SCHEME.eq.'ACOT ZM') then
           HFSCHEME = 1 
+          nordAcot=1
+      elseif (HF_SCHEME.eq.'ACOT ZM +N2LO') then
+          HFSCHEME = 1
+          nordAcot=2
+      elseif (HF_SCHEME.eq.'ACOT ZM +N3LO') then
+          HFSCHEME = 1
+          nordAcot=3
       elseif (HF_SCHEME.eq.'ACOT Full') then
           HFSCHEME = 11 
+          nordAcot=1
+      elseif (HF_SCHEME.eq.'ACOT Full +N2LO') then
+          HFSCHEME = 11
+          nordAcot=2
+      elseif (HF_SCHEME.eq.'ACOT Full +N3LO') then
+          HFSCHEME = 11
+          nordAcot=3
       elseif (HF_SCHEME.eq.'ACOT Chi') then
           HFSCHEME = 111 
+          nordAcot=1
+      elseif (HF_SCHEME.eq.'ACOT Chi +N2LO') then
+          HFSCHEME = 111
+          nordAcot=2
+      elseif (HF_SCHEME.eq.'ACOT Chi +N3LO') then
+          HFSCHEME = 111
+          nordAcot=3
       elseif (HF_SCHEME.eq.'RT') then
           HFSCHEME = 2
       elseif (HF_SCHEME.eq.'RT FAST') then
