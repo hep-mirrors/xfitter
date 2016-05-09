@@ -4,7 +4,7 @@ cache:
 before_script:
   - ./scripts/install-deps.sh
 
-all_tests:
+build:
   scripts:
-    - ./scripts/
+    - ./scripts/test-build.sh
 
