@@ -302,8 +302,9 @@ if test x$enable_dyturbo == xyes; then
   dyturbo_config=`which dyturbo-config`
 fi
 
-if test x$dyturbo_config == x; then
-    AC_MSG_ERROR([Unable to find dyturbo-config.])
+if test x$enable_dyturbo == xyes; then
+   if test x$dyturbo_config == x; then
+       AC_MSG_ERROR([Unable to find dyturbo-config.])
 else 
     AC_MSG_RESULT([Using $dyturbo_config])
     DYTURBO_CPPFLAGS=`dyturbo-config --cppflags`
@@ -341,6 +342,8 @@ else
   cubadir="${PWD}/Cuba-4.2"
   AC_MSG_RESULT([Using $cubadir])
 fi
+fi
+
 AM_CONDITIONAL(ENABLE_DYTURBO, [test x$enable_dyturbo == xyes])
 
 
