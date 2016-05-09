@@ -72,7 +72,8 @@ void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures
 void Dyturbo::Calculate(const double muren, const double mufac, const double mures)
 {
   opts.nproc = proc;
-
+  nproc_.nproc_               = opts.nproc;
+ 
   opts.kmuren = muren;
   opts.kmufac = mufac;
   opts.kmures = mures;
@@ -120,7 +121,7 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   for (vector<double>::iterator it = values.begin(); it != values.end(); it++, itl++, itu++)
     {
       //Setbounds
-      //      cout << yl << "  " << yh << "  " << ml << "  " << mh << endl;
+      cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
       setbounds(ml, mh, *itl, *itu, yl, yh);
       //get cross section
       double value, error;
@@ -131,14 +132,14 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
       else	    
 	cacheyrapint_(ymin, ymax);
       resintegr2d(value, error);
-      //      cout << "resummation result " << value/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+      cout << "resummation result " << value/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
       *it = value;
       vector <double> vals;
       ctintegr2d(vals, error);
-      //      cout << "counterterm result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+      cout << "counterterm result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
       *it += vals[0];
       *it /= (*itu - *itl);
-      //      cout << *itl << "  " << *itu << "  " << *it << endl;
+      cout << *itl << "  " << *itu << "  " << *it << endl;
     }
   return;
 }
