@@ -34,8 +34,16 @@ extern "C" {
 tTEmap gTEmap;
 
 
+//extern struct ckm_matrix_cb {
+//  double Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb;
+//} ckm_matrix_;
+
 extern struct thexpr_cb {
   double dynscale;
+  double ylow;
+  double yhigh;
+  double mlow;
+  double mhigh;
   int nterms;
   char termname[16][8];
   char termtype[16][80];
@@ -44,14 +52,16 @@ extern struct thexpr_cb {
   char theorexpr[1000];
   int ppbar_collisions;
   int normalised;
+  int bindensity;
   int murdef;
   int mufdef;
 } theorexpr_;
 
 extern struct ord_scales {
-   double datasetmur[150];
-   double datasetmuf[150];
-   int datasetiorder[150];
+   double datasetmur[NSET_C];
+   double datasetmuf[NSET_C];
+   double datasetmures[NSET_C];
+   int datasetiorder[NSET_C];
 } cscales_;
 
 /*!
@@ -79,9 +89,14 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
 
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetDynamicScale(theorexpr_.dynscale);
+  te->SetYLow(theorexpr_.ylow);
+  te->SetYHigh(theorexpr_.yhigh);
+  te->SetMLow(theorexpr_.mlow);
+  te->SetMHigh(theorexpr_.mhigh);
   te->SetNormalised(theorexpr_.normalised);
+  te->SetBinDensity(theorexpr_.bindensity);
   te->SetMurMufDef(theorexpr_.murdef,theorexpr_.mufdef);
-  te->SetOrdScales(cscales_.datasetiorder[*dsId-1],cscales_.datasetmur[*dsId-1],cscales_.datasetmuf[*dsId-1]);
+  te->SetOrdScales(cscales_.datasetiorder[*dsId-1],cscales_.datasetmur[*dsId-1],cscales_.datasetmuf[*dsId-1],cscales_.datasetmures[*dsId-1]);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }
@@ -188,7 +203,7 @@ int get_theor_eval_(int *dsId, int *np, int*idx)
       c_theo_.theo_[*idx+ip-1]=vte[int(ibf-binflags->begin())];
       ip++;
     }
-      //cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
+    //    cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
   }
 
   // write the predictions to THEO array

@@ -7,8 +7,17 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include input_steering \
           pdf2yaml tools/process/
+
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
+endif
+
+if ENABLE_DYTURBO
+  SUBDIRS+= dyturbo
+endif
+
+if ENABLE_CUTE
+  SUBDIRS+= cute/src cute/CuTe-1.1.0
 endif
 
 if ENABLE_HVQMNR

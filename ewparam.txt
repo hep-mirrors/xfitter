@@ -42,6 +42,7 @@
   Vts                   = 0.04076d0
   Vtb                   = 0.999133d0
 
+
   !*** fermion masses
 
   ! lepton masses
@@ -61,5 +62,8 @@
   mch			= 1.43d0    ! Synchronize with QCDNUM,RT
   mtp			= 173d0    ! Synchronize with QCDNUM
   mbt			= 4.5d0   ! Synchronize with QCDNUM,RT
+
+ !Cute Lambda cut-off
+  lambdanp = 0.43
    
 &end

@@ -38,3 +38,8 @@ C Electroweak common blocks
       common/ckm_matrix/ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb
       common/fermion_masses/men, mel, mmn, mmo, mtn, mta, mup, mdn,
      + mch, mst, mtp, mbt
+      
+C Lambda non-perturbative cut-off
+
+      double precision lambdanp
+      common/c_lambda/lambdanp

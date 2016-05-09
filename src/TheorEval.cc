@@ -227,6 +227,11 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
     this->initGridTerm(iterm, val);
   } else if ( term_type == string("kfactor")) {
     this->initKfTerm(iterm, val);
+    //CUTE
+  } else if (term_type == string("cute")) {
+    this->initCuteTerm(iterm, val);
+  } else if (term_type == string("dyturbo")) {
+    this->initDyturboTerm(iterm, val);
   } else {
     int id = 15102301;
     char text[] = "S: Unknown term type in expression for term";
@@ -325,6 +330,58 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
 
   // associate grid and valarray pointers in token
   _mapGridToken[g] = val;
+}
+
+//CUTE
+//initialise map of cute terms
+void TheorEval::initCuteTerm(int iterm, valarray<double> *val)
+{
+#ifdef ENABLE_CUTE
+
+  //file name associated to the cute term:
+  string term_source = _termSources.at(iterm);
+
+  //initialise the Cute prediction with the input file
+  Cute *c  = new Cute(term_source);
+
+  //initialise the Cute prediction with binning
+  c->SetBins(_dsBins.at(0), _dsBins.at(1), _bindensity);
+
+  // associate grid and valarray pointers in token
+  _mapCuteTerms[c] = val;
+#else
+      int id = 0405201401;
+      char text[] = "S: Asked for CuTe prediction, but Cute not enabled";
+      int textlen = strlen(text);
+      hf_errlog_(id, text, textlen);
+#endif
+}
+
+//CUTE
+//initialise map of cute terms
+void TheorEval::initDyturboTerm(int iterm, valarray<double> *val)
+{
+#ifdef ENABLE_DYTURBO
+  //file name associated to the dyturbo term:
+  string term_source = _termSources.at(iterm);
+
+  //initialise the dyturbo prediction with the input file
+  Dyturbo *dyt  = new Dyturbo(term_source);
+
+  //initialise the dyturbo prediction with binning
+  dyt->SetBins(_dsBins.at(0), _dsBins.at(1), _ylow, _yhigh, _mlow, _mhigh);
+
+  //initialise order and scales of the dyturbo prediction
+  dyt->SetOrdScales(_iOrd, _xmur, _xmuf, _xmures);
+  
+  // associate grid and valarray pointers in token
+  _mapDyturboTerms[dyt] = val;
+#else
+      int id = 0405201401;
+      char text[] = "S: Asked for DYTURBO prediction, but DYTURBO not enabled";
+      int textlen = strlen(text);
+      hf_errlog_(id, text, textlen);
+#endif
 }
 
 int
@@ -450,6 +507,12 @@ TheorEval::Evaluate(valarray<double> &vte )
   // get values from grids
    this->getGridValues();
 
+  //CUTE
+  this->getCuteValues();
+
+  //DYTURBO
+  this->getDyturboValues();
+
   // calculate expression result
   stack<valarray<double> > stk;
   vector<tToken>::iterator it = _exprRPN.begin();
@@ -517,22 +580,57 @@ TheorEval::getGridValues()
   for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
     CommonGrid* g = itm->first;
     vector<double> xs;
-    std::vector< std::vector<double> > result = g->vconvolute(_iOrd, _xmur, _xmuf);
+    std::vector< std::vector<double> > result = g->vconvolute(min(_iOrd,2), _xmur, _xmuf);
     for(int i = 0; i < result.size(); i++)
       for(int j = 0; j < result[i].size(); j++)
         xs.push_back(result[i][j]);
 
     (itm->second)->resize(xs.size());
     *(itm->second) = valarray<double>(xs.data(), xs.size());
-    /*
+
     for (int i = 0; i<xs.size(); i++){
       cout << xs[i] << endl;
     }
-    */
+
     
     
   }
 }
+
+
+//CUTE
+void TheorEval::getCuteValues()
+{
+#ifdef ENABLE_CUTE
+  for(map<Cute*, valarray<double>* >::iterator it = _mapCuteTerms.begin(); it != _mapCuteTerms.end(); it++)
+    {
+      it->first->Calculate(_xmur, _xmuf);
+      *(it->second) = valarray<double>(it->first->values.data(), it->first->values.size());
+
+      /*
+      for (int i = 0; i < it->first->values.size(); i++)
+	cout << it->first->values[i] << endl;
+      */
+    }
+#endif
+}
+
+//DYTURBO
+void TheorEval::getDyturboValues()
+{
+#ifdef ENABLE_DYTURBO
+  for(map<Dyturbo*, valarray<double>* >::iterator it = _mapDyturboTerms.begin(); it != _mapDyturboTerms.end(); it++)
+    {
+      it->first->Calculate(_xmur, _xmuf, _xmures);
+      *(it->second) = valarray<double>(it->first->values.data(), it->first->values.size());
+      /*
+      for (int i = 0; i < it->first->values.size(); i++)
+	cout << it->first->values[i] << endl;
+      */
+    }
+#endif
+}
+
 
 int
 TheorEval::getNbins()

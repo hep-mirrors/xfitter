@@ -389,7 +389,6 @@ C Reset scales to 1.0
       print *,'Reading data file ...'
       print *,CFile
       read(51,NML=Data,err=98)
-
       PlotN = -1
       read(51,NML=PlotDesc,end=96,err=97)
  96   continue
@@ -594,7 +593,7 @@ C     ---> copy the names in a new variable
         do i = 1,NTermsMax
           if(TermType(i).eq.'applgrid'.and.DataSetIOrder(NDATASETS).gt.2) then
             print*,'Cannot run NNLO fit with applgrids, please specify DataSetTheoryOrder="NLO" in Scales in steering.txt'
-            call HF_stop
+c            call HF_stop
           endif
         enddo
       endif
@@ -638,6 +637,57 @@ C     ---> copy the names in a new variable
       write (Msg,'(''I: Emulate dynamic scale dataset: '',A20,'' '')')
      $        Name
            call HF_errlog(14042001,trim(Msg))
+        endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'bindensity')
+        bindensity = 1               ! defaults to applgrid scale
+        if ( idxReaction .ne. 0 ) then
+           bindensity = DATASETInfo(idxReaction, NDATASETS)
+
+      write (Msg,'(''I: Set bindensity for resummed calculations: ''
+     .      ,A20,'' '')')
+     $        Name
+           call HF_errlog(14042701,trim(Msg))
+        endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'ylow')
+        ylow = -5d0
+        if ( idxReaction .ne. 0 ) then
+           ylow = DATASETInfo(idxReaction, NDATASETS)
+
+      write (Msg,'(''I: Set ylow for theory calculation: '',A20,'' '')')
+     $        Name
+           call HF_errlog(14042701,trim(Msg))
+        endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'yhigh')
+        yhigh = 5d0
+        if ( idxReaction .ne. 0 ) then
+           yhigh = DATASETInfo(idxReaction, NDATASETS)
+
+      write (Msg,'(''I: Set yhigh for theory calculation: '',A20,'' '')')
+     $        Name
+           call HF_errlog(14042701,trim(Msg))
+        endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'mlow')
+        mlow = 0d0
+        if ( idxReaction .ne. 0 ) then
+           mlow = DATASETInfo(idxReaction, NDATASETS)
+
+      write (Msg,'(''I: Set mlow for theory calculation: '',A20,'' '')')
+     $        Name
+           call HF_errlog(14042701,trim(Msg))
+        endif
+
+        idxReaction = GetInfoIndex(NDATASETS,'mhigh')
+        mhigh = 13000d0
+        if ( idxReaction .ne. 0 ) then
+           mhigh = DATASETInfo(idxReaction, NDATASETS)
+
+      write (Msg,'(''I: Set mhigh for theory calculation: '',A20,'' '')')
+     $        Name
+           call HF_errlog(14042701,trim(Msg))
         endif
 
         idxReaction = GetInfoIndex(NDATASETS,'MurDef')

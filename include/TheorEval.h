@@ -28,6 +28,15 @@
 #include <valarray>
 #include <vector>
 
+#ifdef ENABLE_CUTE
+#include "CuteInterface.h"
+#endif
+
+#ifdef ENABLE_DYTURBO
+#include "DyturboInterface.h"
+#endif
+
+#include "appl_grid/appl_grid.h"
 #include "CommonGrid.h"
 //#include "appl_grid/appl_grid.h"
 
@@ -119,10 +128,15 @@ class TheorEval{
   //! Selects if we have a proton-antiproton collision
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
+  void SetYLow(float y) {_ylow = y;};
+  void SetYHigh(float y) {_yhigh = y;};
+  void SetMLow(float m) {_mlow = m;};
+  void SetMHigh(float m) {_mhigh = m;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-   void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
-  void SetOrdScales(int iord, double mur, double muf) { _iOrd=iord; _xmur=mur; _xmuf=muf;}; //!< set order and scale factors
-  void GetOrdScales(int &iord, double &mur, double &muf) { iord=_iOrd; mur=_xmur; muf=_xmuf;}; //!< get order and scale factors
+  void SetBinDensity(int bindensity) {_bindensity = bindensity;};
+  void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
+  void SetOrdScales(int iord, double mur, double muf, double mures) { _iOrd=iord; _xmur=mur; _xmuf=muf; _xmures = mures;}; //!< set order and scale factors
+  void GetOrdScales(int &iord, double &mur, double &muf, double &mures) { iord=_iOrd; mur=_xmur; muf=_xmuf; mures = _xmures;}; //!< get order and scale factors
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
 
@@ -151,14 +165,19 @@ class TheorEval{
   int initGridTerm(int iterm, valarray<double> *val);
   //! Initialise K-factor term
   int initKfTerm(int, valarray<double> *);
+  void initCuteTerm(int iterm, valarray<double> *val);
+  void initDyturboTerm(int iterm, valarray<double> *val);
   //! Get current grid values into the tokens
   int getGridValues();
+  void getCuteValues();
+  void getDyturboValues();
 
  private:
   int _dsId;
   int _iOrd;
   double _xmur;
   double _xmuf;
+  double _xmures;
   int _nTerms;
   double _units;
   vector<string> _termNames;
@@ -169,6 +188,19 @@ class TheorEval{
   vector<int> _binFlags;
   vector<vector<double> > _dsBins;
   vector<valarray<double> > _kFactors;
+
+  //CUTE
+  //map of cute predictions, is iterated on all terms when evaluating predictions
+#ifdef ENABLE_CUTE
+  map <Cute*, valarray<double>* > _mapCuteTerms;
+#endif
+
+#ifdef ENABLE_DYTURBO
+  map <Dyturbo*, valarray<double>* > _mapDyturboTerms;
+#endif
+
+  //cute
+  //_exprRPN is the vector of all the terms, in tToken format
 
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
@@ -187,6 +219,13 @@ class TheorEval{
 
   /// bin-by-bin dynamic scale
   float _dynamicscale;
+  float _ylow;
+  float _yhigh;
+  float _mlow;
+  float _mhigh;
+
+  //number of calculation points per bin
+  int _bindensity;
 };
 
 typedef map <int, TheorEval* > tTEmap;

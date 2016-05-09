@@ -269,6 +269,81 @@ if test x$enable_applgrid == xyes; then
   fi
 fi
 AM_CONDITIONAL(APPLGRID_DYNSCALE, [test x$ag_dynscale == xyes])
+
+# check for enable cute
+AC_ARG_ENABLE([cute],
+  [AC_HELP_STRING(--enable-cute, [use cute (default=no)])])
+if test x$enable_cute == xyes; then
+   AC_DEFINE([ENABLE_CUTE],[1],[Define ENABLE_CUTE to enable CuTe calculations])
+   AC_MSG_NOTICE([***** Check for gsl  *****])
+   AC_MSG_CHECKING([for gsl installation])
+  GSL_CONFIG=`which gsl-config`
+  if test x$GSL_CONFIG == x; then
+      AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],[AC_MSG_ERROR([cannot find library gslcblas])])
+      AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[],[AC_MSG_ERROR([cannot find library gsl])])
+      AC_SUBST([LIB_GSL],[""])
+      AC_SUBST([INC_GSL],[""])
+      AC_SUBST([IDD_GSL],[""])
+      AC_MSG_ERROR([Unable to find gsl-config.])
+  else 
+    AC_MSG_RESULT([Using $GSL_CONFIG])
+    AC_SUBST([LIB_GSL],`$GSL_CONFIG --libs`)
+    AC_SUBST([INC_GSL],`$GSL_CONFIG --cflags`)
+    AC_SUBST([LDD_GSL],["-Xlinker -R`$GSL_CONFIG --prefix`/lib"])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_CUTE, [test x$enable_cute == xyes])
+
+# check for enable dyturbo
+AC_ARG_ENABLE([dyturbo],
+  [AC_HELP_STRING(--enable-dyturbo, [use dyturbo (default=no)])])
+if test x$enable_dyturbo == xyes; then
+  AC_MSG_CHECKING([for dyturbo installation])
+  dyturbo_config=`which dyturbo-config`
+fi
+
+if test x$dyturbo_config == x; then
+    AC_MSG_ERROR([Unable to find dyturbo-config.])
+else 
+    AC_MSG_RESULT([Using $dyturbo_config])
+    DYTURBO_CPPFLAGS=`dyturbo-config --cppflags`
+    DYTURBO_LDFLAGS=`dyturbo-config --ldflags`
+#    DYTURBO_LDFLAGS=`dyturbo-config --libdir`/libdyturbo.la
+    AC_SUBST(DYTURBO_CPPFLAGS)
+    AC_SUBST(DYTURBO_LDFLAGS)
+    AC_DEFINE([ENABLE_DYTURBO],[1],[Define ENABLE_DYTURBO to enable Dyturbo calculations])
+
+
+  # check for Cuba installation
+  AC_MSG_CHECKING([for Cuba library installation])
+  # search in Cuba-4.2
+  cubalib=`ls ${PWD}/Cuba-4.2/libcuba.a`
+  if test x$cubalib == x; then
+    # if not found, install it
+    AC_MSG_RESULT([Install Cuba])
+    version=4.2
+    rm -r Cuba-${version}
+    wget http://www.feynarts.de/cuba/Cuba-${version}.tar.gz
+    tar -xzvf Cuba-${version}.tar.gz
+    rm Cuba-${version}.tar.gz
+
+    cd Cuba-${version}
+    sed -i "s/MINSLICE 10/MINSLICE 1/" src/common/Parallel.c
+    ./configure
+    make
+    cd ../
+  fi
+  AC_MSG_RESULT([Using ${PWD}/Cuba-4.2 ])
+  CUBA_CPPFLAGS="-I${PWD}/Cuba-4.2"
+  CUBA_LDFLAGS="-L${PWD}/Cuba-4.2 -lcuba"
+  AC_SUBST(CUBA_CPPFLAGS)
+  AC_SUBST(CUBA_LDFLAGS)
+  cubadir="${PWD}/Cuba-4.2"
+  AC_MSG_RESULT([Using $cubadir])
+fi
+AM_CONDITIONAL(ENABLE_DYTURBO, [test x$enable_dyturbo == xyes])
+
+
 # check for genetic installation
 AC_ARG_ENABLE([genetic],
     [AC_HELP_STRING(--enable-genetic, [use genetic for general minimia search (defaults=no)])])
@@ -446,6 +521,11 @@ AC_CONFIG_FILES([include/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
                  pdf2yaml/Makefile
+                 cute/src/Makefile
+                 cute/include/Makefile
+                 cute/CuTe-1.1.0/Makefile
+                 cute/CuTe-1.1.0/src/Makefile
+                 dyturbo/Makefile
                  tools/process/Makefile
                  tools/draw/Makefile
                  tools/draw/src/Makefile

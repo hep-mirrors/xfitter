@@ -386,7 +386,7 @@ C Namelist for EW parameters:
      $ Mz, Mw, Mh, wz, ww, wh, wtp,
      $ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb,
      $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
-     $ mch, mst, mtp, mbt
+     $ mch, mst, mtp, mbt, lambdanp
 C--------------------------------------------------
       open (51,file='ewparam.txt',status='old')
       read (51,NML=EWpars,END=43,ERR=44)
@@ -765,6 +765,7 @@ C
       do i=1,NInputFiles
          DataSetMuR(i)    = 1.0D0
          DataSetMuF(i)    = 1.0D0
+         DataSetMuRes(i)    = 1.0D0
          DataSetIOrder(i) = I_Fit_Order
       enddo
 C---------------------
@@ -835,8 +836,8 @@ C---------------------------------------------------------
 C (Optional) Data-set dependent scales
       integer i_fit_order_save,i
       character*8 DataSetTheoryOrder(NSet)
-      namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder,
-     $     DataSetTheoryOrder
+      namelist/Scales/DataSetMuR,DataSetMuF,DataSetMuRes,
+     $     DataSetIOrder,DataSetTheoryOrder
 C---------------------------------------------
       do i=1,NSet
          DataSetTheoryOrder(i) = ''

@@ -3,6 +3,8 @@ C> Common block for theory expression
       parameter (NTermsMax = 16)
 
       double precision dynscale
+      double precision ylow,yhigh
+      double precision mlow,mhigh
       integer NTerms
       character*8 TermName(NTermsMax)
       character*80 TermType(NTermsMax)
@@ -11,8 +13,10 @@ C> Common block for theory expression
       character*1000 TheorExpr
       integer ppbar_collisions
       integer normalised
+      integer bindensity
       integer murdef
       integer mufdef
 
-      common/theorexpr/ dynscale, NTerms, TermName, TermType, TermInfo, 
-     & TermSource, TheorExpr, ppbar_collisions, normalised, murdef, mufdef
+      common/theorexpr/ dynscale, ylow, yhigh, mlow, mhigh, NTerms,
+     . TermName, TermType, TermInfo, TermSource, TheorExpr, 
+     . ppbar_collisions, normalised, bindensity, murdef, mufdef

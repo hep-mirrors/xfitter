@@ -55,6 +55,8 @@ C-------------------------------------------------------
       
       integer idxVcs
 
+      integer idxLnp
+
       logical LPolFits       !> Logical to init polarisation fits
       data LPolFits/.false./
 
@@ -151,6 +153,12 @@ c            print*,'idxFs', idxFs, ExtraParamStep(idxFS),ExtraParamValue(idxFS)
          if (idxVcs.gt.0) then
             idxVcs = iExtraParamMinuit(idxVcs)
             call hf_errlog(20112013,'I:Float Vcs')
+         endif
+
+         idxLnp = GetParameterIndex('lambda')
+         if (idxLnp.gt.0) then
+            idxLnp = iExtraParamMinuit(idxLnp)
+            call hf_errlog(27051402,'I:Float lambda cut-off')
          endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -268,6 +276,10 @@ C Hermes strange prepare:
       endif
 
 
+
+      if (idxLnp.gt.0) then
+         Lambdanp = p(idxLnp)
+      endif
 
 !!!!!!!!!!!!!!!!!!!!!!!
 

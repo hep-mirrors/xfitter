@@ -623,15 +623,18 @@ void chi2_scan_()
 	      map <int, int> iordmap;
 	      map <int, double> murmap;
 	      map <int, double> mufmap;
+	      map <int, double> muresmap;
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
 		{
 		  int iord;
 		  double mur0;
 		  double muf0;
-		  gTEmap[*dit]->GetOrdScales(iord, mur0, muf0);
+		  double mures0;
+		  gTEmap[*dit]->GetOrdScales(iord, mur0, muf0, mures0);
 		  iordmap[*dit] = iord;
 		  murmap[*dit] = mur0;
 		  mufmap[*dit] = muf0;
+		  muresmap[*dit] = mures0;
 		}
 
 	      double factor = 2.;
@@ -639,33 +642,33 @@ void chi2_scan_()
 
 	      //mur*2
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
-		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit]*factor, mufmap[*dit]);
+		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit]*factor, mufmap[*dit], muresmap[*dit]);
 	      chi2tot = chi2data_theory_(2);
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
 	      //mur*0.5
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
-		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit]/factor, mufmap[*dit]);
+		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit]/factor, mufmap[*dit], muresmap[*dit]);
 	      chi2tot = chi2data_theory_(2);
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
 
 	      //muf*2
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
-		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit], mufmap[*dit]*factor);
+		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit], mufmap[*dit]*factor, muresmap[*dit]);
 	      chi2tot = chi2data_theory_(2);
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
 	      //muf*0.5
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
-		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit], mufmap[*dit]/factor);
+		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit], mufmap[*dit]/factor, muresmap[*dit]);
 	      chi2tot = chi2data_theory_(2);
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
 
 	      //restore nominal scale
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
-		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit], mufmap[*dit]);
+		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit], mufmap[*dit], muresmap[*dit]);
 	    }
 	  
 	  //Add PDF uncertainties as nuisance parameters to the chi2

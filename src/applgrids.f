@@ -304,3 +304,17 @@ C---------------------------------------------------------
 
       end
 
+      double precision function flav_threshold(fl)
+      implicit none
+C------------------------------------
+      include 'thresholds.inc'
+      include 'steering.inc'
+      integer fl
+
+      if (fl.eq.6) flav_threshold = HF_MASS(3)
+      if (fl.eq.5) flav_threshold = HF_MASS(2)
+      if (fl.eq.4) flav_threshold = HF_MASS(1)
+      if (fl.le.3) flav_threshold = 0
+
+      return
+      end

@@ -68,6 +68,16 @@ AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../mi
 # 
 AM_CPPFLAGS = -I$(srcdir)/../include 
 
+if ENABLE_CUTE
+  AM_CPPFLAGS += -I$(srcdir)/../cute/include
+  AM_CPPFLAGS += -I$(srcdir)/../cute/CuTe-1.1.0/src/
+  AM_CXXFLAGS +=  $(INC_GSL)
+endif
+
+if ENABLE_DYTURBO
+  AM_CPPFLAGS += -I$(srcdir)/../dyturbo $(DYTURBO_CPPFLAGS)
+endif
+
 if ENABLE_APPLGRID 
   AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
 endif
@@ -149,6 +159,14 @@ endif
 
 if ENABLE_APFEL
   LDADD+=$(APFEL_LDFLAGS)
+endif
+
+if ENABLE_CUTE
+  LDADD += ../cute/src/libCuteInterface.a ../cute/CuTe-1.1.0/src/libcute.a $(LIB_GSL)
+endif
+
+if ENABLE_DYTURBO
+  LDADD += ../dyturbo/libDyturboInterface.la $(DYTURBO_LDFLAGS) $(CUBA_LDFLAGS) -L../pdf2yaml/ -lpdf2yaml -lyaml
 endif
 
 if ENABLE_MELA

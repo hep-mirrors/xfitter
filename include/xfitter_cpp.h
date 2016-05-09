@@ -40,6 +40,13 @@ extern"C" {
   void appl_fnpdf_(const double& x, const double& Q, double* f);
   double appl_fnalphas_(const double& Q);
 
+  //QCDnum initialisation
+  void qcdnum_ini_();
+
+  //Cute interface functions
+  double flav_number_(const double& q);
+  double flav_threshold_(const int& fl);
+
   //Covariance matrix to nuisance parameter conversion
   void getnuisancefromcovar_(const int& NDimCovar, const int& NDimSyst, const int& NCovar,
 			     double* Covar, double *ANuisance, const double& Tolerance, 
@@ -208,6 +215,10 @@ extern"C" {
     double e_uncor_mult_[NTOT_C];
     double e_uncor_logNorm_[NTOT_C];
   } cuncerrors_;
+
+  extern struct {
+    double lambdanp_;
+  } c_lambda_;
 
   extern struct {
     char label_[64];

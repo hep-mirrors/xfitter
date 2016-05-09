@@ -269,9 +269,24 @@ void get_lhapdferrors_()
 	      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
 	      steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
 	      steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
-
+	      //	  qcdnum_ini_();
+	      
 	      //set the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
 	      fill_c_common_();
+	    
+	      //In VAR PDF set determine if it is a model or parametrisation variation
+	      if (pdfset == 1)
+		{
+		  MonteCarloPDFErr = 0;
+		  AsymHessPDFErr = 0;
+		  SymmHessPDFErr = 0;
+		  ParPDFErr = 0;
+		  ModPDFErr = 0;
+		  if (iset > (nsets - clhapdf_.nparvar_))
+		    ParPDFErr = true;
+		  else
+		    ModPDFErr = true;
+		}
 
 	      //In VAR PDF set determine if it is a model or parametrisation variation
 	      if (pdfset == 1)
@@ -341,9 +356,16 @@ void get_lhapdferrors_()
 	      filename += " ";
 
 	      store_pdfs_(filename.c_str(), filename.size());
-	      
 	      //Save the input PDFs in LHAPDF6 format
-	      save_data_lhapdf6_(iset);
+	      if (cset == 0)
+		{
+		  strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 128);
+		  fill_c_common_();
+		  //	      qcdnum_ini_();
+		  print_lhapdf6_();
+		}
+	      else
+		save_data_lhapdf6_(iset);
 
 	      //Store all PDF variations
 	      for (int i = 0; i < npoints; i++)
@@ -395,6 +417,7 @@ void get_lhapdferrors_()
       map <int, int> iordmap;
       map <int, double> murmap;
       map <int, double> mufmap;
+      map <int, double> muresmap;
 
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	{
@@ -402,10 +425,11 @@ void get_lhapdferrors_()
 	  double mur0;
 	  double muf0;
 	  double mures0;
-	  tit->second->GetOrdScales(iord, mur0, muf0);
+	  tit->second->GetOrdScales(iord, mur0, muf0, mures0);
 	  iordmap[tit->first] = iord;
 	  murmap[tit->first] = mur0;
 	  mufmap[tit->first] = muf0;
+	  muresmap[tit->first] = mures0;
 	}
 
       //Apply a factor for scale variations
@@ -414,7 +438,7 @@ void get_lhapdferrors_()
 
       //mur*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]*factor, mufmap[tit->first]);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]*factor, mufmap[tit->first], muresmap[tit->first]);
       chi2tot = chi2data_theory_(2);
       char chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -430,7 +454,7 @@ void get_lhapdferrors_()
 
       //mur*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]/factor, mufmap[tit->first]);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]/factor, mufmap[tit->first], muresmap[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -446,7 +470,7 @@ void get_lhapdferrors_()
 
       //muf*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]*factor);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]*factor, muresmap[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -462,7 +486,7 @@ void get_lhapdferrors_()
 
       //muf*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]/factor);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]/factor, muresmap[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -476,9 +500,41 @@ void get_lhapdferrors_()
 	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
       cset++;
 
+      //mures*2
+      for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]*factor);
+      chi2tot = chi2data_theory_(2);
+      chi2c[500];
+      sprintf(chi2c, "%.2f", chi2tot);
+      cout << setw(20) << "mures = 2.0: "
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << endl;
+      tag[10]; sprintf (tag, "_%04d", cset);
+      writefittedpoints_(); //write out fittedresults.txt file
+      mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
+      cset++;
+
+      //mures*0.5
+      for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]/factor);
+      chi2tot = chi2data_theory_(2);
+      chi2c[500];
+      sprintf(chi2c, "%.2f", chi2tot);
+      cout << setw(20) << "mures = 0.5: "
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << endl;
+      tag[10]; sprintf (tag, "_%04d", cset);
+      writefittedpoints_(); //write out fittedresults.txt file
+      mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
+      cset++;
+
       //restore nominal scale
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]);
+        tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]);
     }
   /*************************************************/
 
@@ -778,7 +834,6 @@ void get_lhapdferrors_()
       strcpy(systema_.system_[j],nuispar);
     }
 
-  
   //Set central theory value in fortran common block
   double theo_cent[NTOT_C];
   for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
