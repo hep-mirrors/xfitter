@@ -20,16 +20,24 @@
 #include <valarray>
 #include <vector>
 
+#ifdef APPLGRID_ENABLED
 #include "appl_grid/appl_grid.h"
+#endif
 #include <FastNLOxFitter.h>
 
 using namespace std;
+#ifdef APPLGRID_ENABLED
 using namespace appl;
+#endif
 
 struct tHyperBin {
   double *b;
   int ngb;
+#ifdef APPLGRID_ENABLED
   appl::grid *g;
+#else
+  void* g;
+#endif
   FastNLOxFitter* f;
   // default constructor
   tHyperBin(): b(NULL), ngb(0), g(NULL), f(NULL) {}
