@@ -1105,8 +1105,8 @@ C---------------------------------------
       Subroutine SetHFSCHEME
 
       implicit none
-      integer nordAcot
-      Common /Iacot/  nordAcot  !*** pass nordAcot to ACOT module
+!      integer nordAcot
+!      Common /Iacot/  nordAcot  !*** pass nordAcot to ACOT module
 
 #include "steering.inc"
 C---------------------------------
