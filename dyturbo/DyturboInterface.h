@@ -24,6 +24,7 @@ class Dyturbo
   vector<double> binwidth;
   double yl, yh;
   double ml, mh;
+  int proc;
   string infile;
 };
 

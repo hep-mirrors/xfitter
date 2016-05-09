@@ -30,7 +30,8 @@ using namespace std;
 Dyturbo::Dyturbo(string file): infile(file)
 {
   dyturboinit(file);
-
+  proc = opts.nproc;
+  
   //set up the right PDF in LHAPDF, to override DYTURBO pdf
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
   lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
@@ -71,6 +72,8 @@ void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures
 
 void Dyturbo::Calculate(const double muren, const double mufac, const double mures)
 {
+  opts.nproc = proc;
+
   opts.kmuren = muren;
   opts.kmufac = mufac;
   opts.kmures = mures;
