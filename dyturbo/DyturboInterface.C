@@ -71,9 +71,17 @@ void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures
 
 void Dyturbo::Calculate(const double muren, const double mufac, const double mures)
 {
+  dyturboinit(infile);
+  /*
   opts.nproc = proc;
-  nproc_.nproc_               = opts.nproc;
- 
+  nproc_.nproc_ = opts.nproc;
+
+  opts.mlow = ml;
+  opts.mhigh = mh;
+  limits_.wsqmin_=pow(opts.mlow,2);
+  limits_.wsqmax_=pow(opts.mhigh,2);
+  */
+
   opts.kmuren = muren;
   opts.kmufac = mufac;
   opts.kmures = mures;
