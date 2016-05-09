@@ -3,6 +3,7 @@ cache:
     - deps
 
 before_script:
+  - pwd
   - ./scripts/install-deps.sh
 
 job:
