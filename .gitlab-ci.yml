@@ -1,10 +1,11 @@
 cache:
-  paths: "deps"
+  paths: 
+    - deps
 
 before_script:
   - ./scripts/install-deps.sh
 
-build:
-  scripts:
+job:
+  script:
     - ./scripts/test-build.sh
 
