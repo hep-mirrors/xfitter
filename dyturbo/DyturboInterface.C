@@ -15,6 +15,12 @@
 #include "dyturbo/rapint.h"
 #include "dyturbo/mcfm_interface.h"
 
+#include "dyturbo/mesq.h"
+#include "dyturbo/anomalous.h"
+#include "dyturbo/switch.h"
+#include "dyturbo/gaussrules.h"
+#include "dyturbo/resconst.h"
+
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
 #endif
@@ -73,26 +79,51 @@ void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures
 
 void Dyturbo::Calculate(const double muren, const double mufac, const double mures)
 {
-  //  dyturboinit(infile);
+  //dyturboinit(infile);
   opts.nproc = proc;
 
   opts.mlow = ml;
   opts.mhigh = mh;
 
-  mcfm::init();
-  iniflavreduce_();
-  
-  opts.kmuren = muren;
-  opts.kmufac = mufac;
-  opts.kmures = mures;
-  coupling::initscales();
-
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
   lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
   int member = clhapdf_.ilhapdfset_;
 
-  opts.LHAPDFmember = member;
   opts.LHAPDFset = lhapdfset;
+  opts.LHAPDFmember = member;
+
+  opts.kmuren = muren;
+  opts.kmufac = mufac;
+  opts.kmures = mures;
+  
+  /*
+  //Minimal reinitialisation
+  nnlo_.order_ = opts.order;
+  mcfm::init();
+  iniflavreduce_();
+  coupling::initscales();
+  */
+
+  //Full reinitialisation
+  dofill_.doFill_ = 0;
+  g_param_.g_param_ = opts.g_param;
+  nnlo_.order_ = opts.order;
+  qtcut_.xqtcut_= opts.xqtcut; //Cut on qt/Q
+  mcfm::init();
+  iniflavreduce_(); //need to call this after nproc_.nproc_ is set
+  coupling::initscales();
+  gr::init(); //nodes and weights of gaussian quadrature rules
+  mellinint::initgauss(); //gaussian quadrature for mellin inversion
+  mesq::init(); //EW couplings for born amplitudes
+  rapint::init(); //allocate memory for the rapidity quadrature
+  resconst::init(); //calculate beta, A and B coefficients
+  anomalous::init(); //calculate anomalous dimensions, C1, C2 and gamma coefficients
+  pdfevol::init(); //transform the PDF from x- to N-space at the factorisation scale
+  pegasus::init(); //initialise Pegasus QCD and transform the PDF from x- to N-space at the starting scale
+  resint::init(); //initialise dequad integration for the bessel integral
+  switching::init(); //switching function initialisation
+  rescinit_();
+  //End reinitialisation
 
   setg();
   setalphas();
