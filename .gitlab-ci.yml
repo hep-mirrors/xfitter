@@ -1,0 +1,13 @@
+cache:
+  paths: 
+    - deps
+
+before_script:
+  - ls -la
+  - pwd
+  - ./scripts/install-deps.sh
+
+job:
+  script:
+    - ./scripts/test-build.sh
+
