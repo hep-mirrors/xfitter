@@ -14,9 +14,9 @@ melaver=2.0.1
 
 CURRENTDIR=$(pwd)
 LOCALINST="$CURRENTDIR/deps"
-export BOOST="--with-boost=/afs/cern.ch/sw/lcg/external/Boost/1.48.0_python2.6/x86_64-slc6-gcc46-opt"
+#export BOOST="--with-boost=/afs/cern.ch/sw/lcg/external/Boost/1.48.0_python2.6/x86_64-slc6-gcc46-opt"
 
-. /afs/cern.ch/sw/lcg/contrib/gcc/4.6/x86_64-slc6-gcc46-opt/setup.sh
+#. /afs/cern.ch/sw/lcg/contrib/gcc/4.6/x86_64-slc6-gcc46-opt/setup.sh
 
 function _check_result () {
   if [[ $1 != 0 ]]; then
@@ -43,7 +43,7 @@ fi
 wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
 cd ${lhapdf}-${lhapdfver} 
-./configure --prefix=$LOCALINST $withboost >> $CURRENTDIR/install.log  2>&1
+./configure --prefix=$LOCALINST >> $CURRENTDIR/install.log  2>&1
 _check_result $? "LHAPDF configure"
 make -j 9 install >> $CURRENTDIR/install.log  2>&1
 _check_result $? "LHAPDF compile"
