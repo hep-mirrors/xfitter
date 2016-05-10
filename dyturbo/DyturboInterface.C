@@ -80,6 +80,7 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   opts.mhigh = mh;
 
   mcfm::init();
+  iniflavreduce_();
   
   opts.kmuren = muren;
   opts.kmufac = mufac;
