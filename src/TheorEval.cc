@@ -580,7 +580,7 @@ TheorEval::getGridValues()
   for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
     CommonGrid* g = itm->first;
     vector<double> xs;
-    std::vector< std::vector<double> > result = g->vconvolute(min(_iOrd,2), _xmur, _xmuf);
+    std::vector< std::vector<double> > result = g->vconvolute(min(_iOrd-1,2), _xmur, _xmuf); //reduce one order, for V+j contribution
     for(int i = 0; i < result.size(); i++)
       for(int j = 0; j < result[i].size(); j++)
         xs.push_back(result[i][j]);

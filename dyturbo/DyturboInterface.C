@@ -13,6 +13,7 @@
 #include "dyturbo/resint.h"
 #include "dyturbo/coupling.h"
 #include "dyturbo/rapint.h"
+#include "dyturbo/mcfm_interface.h"
 
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
@@ -62,6 +63,7 @@ void Dyturbo::SetBins(vector <double> ledge, vector <double> uedge, double ylow,
 void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures)
 {
   opts.order = iord-1;
+  nnlo_.order_ = opts.order;
   opts.kmuren = kmuren;
   opts.kmufac = kmufac;
   if (kmures > 0)
@@ -71,17 +73,14 @@ void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures
 
 void Dyturbo::Calculate(const double muren, const double mufac, const double mures)
 {
-  dyturboinit(infile);
-  /*
+  //  dyturboinit(infile);
   opts.nproc = proc;
-  nproc_.nproc_ = opts.nproc;
 
   opts.mlow = ml;
   opts.mhigh = mh;
-  limits_.wsqmin_=pow(opts.mlow,2);
-  limits_.wsqmax_=pow(opts.mhigh,2);
-  */
 
+  mcfm::init();
+  
   opts.kmuren = muren;
   opts.kmufac = mufac;
   opts.kmures = mures;
