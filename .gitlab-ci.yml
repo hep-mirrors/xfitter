@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 image: "docker.cern.ch/linuxsupport/cc7-base"
 
+=======
+>>>>>>> dac024f5558e9a4e66cc80b586a6f3db383b4c9a
 cache:
   paths: 
     - deps
 
 before_script:
+<<<<<<< HEAD
   - yum install -y tar wget make
   - yum install -y gcc gcc-c++ gcc-gfortran
   - yum install -y python python-devel
@@ -13,11 +17,17 @@ before_script:
   - yum install -y blas blas-devel lapack lapack-devel
   - yum install -y root root-physics root-multiproc
   - . ./scripts/setup.sh
+=======
+  - ls -la
+>>>>>>> dac024f5558e9a4e66cc80b586a6f3db383b4c9a
   - ./scripts/install-deps.sh
 
 job:
   script:
     - ./scripts/test-build.sh
+<<<<<<< HEAD
   only:
     - master
+=======
+>>>>>>> dac024f5558e9a4e66cc80b586a6f3db383b4c9a
 
