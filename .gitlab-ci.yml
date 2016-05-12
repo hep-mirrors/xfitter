@@ -1,13 +1,23 @@
+image: "docker.cern.ch/linuxsupport/cc7-base"
+
 cache:
   paths: 
     - deps
 
 before_script:
-  - ls -la
-  - pwd
+  - yum install -y tar wget make
+  - yum install -y gcc gcc-c++ gcc-gfortran
+  - yum install -y python python-devel
+  - yum install -y boost-devel
+  - yum install -y autoconf automake libtool
+  - yum install -y blas blas-devel lapack lapack-devel
+  - yum install -y root root-physics root-multiproc
+  - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 
 job:
   script:
     - ./scripts/test-build.sh
+  only:
+    - master
 
