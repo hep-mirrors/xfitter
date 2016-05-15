@@ -4,7 +4,7 @@ import sys
 import commands
 import numpy
 
-# make sure lhapdf is in path:
+# make sure  lhapdf is in path:
 line = commands.getstatusoutput('lhapdf-config  --libdir')
 sys.path.append(line[1]+"/python2.7/site-packages")
 import lhapdf

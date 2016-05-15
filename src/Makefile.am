@@ -5,9 +5,10 @@ pkginclude_HEADERS = offset.h
 
 # the main target, i.e. the executable to build
 bin_PROGRAMS = xfitter
+noinst_LIBRARIES = libxfitter.a
 
 # all source files which go into the main target
-xfitter_SOURCES = main.f hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
+libxfitter_a_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
 sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
@@ -16,39 +17,39 @@ GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize
 ExtraParConstr.cc
 
 # WS 2013-01-19 for the Offset method
-xfitter_SOURCES += offset_fns.f g_offset.cc
+libxfitter_a_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
-xfitter_SOURCES += lhapdf6_output.c c_interface.f
+libxfitter_a_SOURCES += lhapdf6_output.c c_interface.f
 
 # WS 2016-01-13 DIS higher twist contributions
-xfitter_SOURCES += dis_sigma_ht.f
+libxfitter_a_SOURCES += dis_sigma_ht.f
 
 #LHAPDFErrors
-xfitter_SOURCES += fortran_io.f lhapdferrors.cc
+libxfitter_a_SOURCES += fortran_io.f lhapdferrors.cc
 
 #Chi2scan
-xfitter_SOURCES += chi2scan.cc
+libxfitter_a_SOURCES += chi2scan.cc
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 
 if ENABLE_APFEL
-  xfitter_SOURCES+= apfel.f
+  libxfitter_a_SOURCES+= apfel.f
 else 
-  xfitter_SOURCES+= apfel_dum.f
+  libxfitter_a_SOURCES+= apfel_dum.f
 endif
 
 if ENABLE_MELA
-  xfitter_SOURCES+= mela.f
+  libxfitter_a_SOURCES+= mela.f
 else 
-  xfitter_SOURCES+= mela_dum.f
+  libxfitter_a_SOURCES+= mela_dum.f
 endif
 
 if ENABLE_APPLGRID 
-  xfitter_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
+  libxfitter_a_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
 else 
-  xfitter_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
+  libxfitter_a_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
 endif
 
 if ENABLE_APFELGRID
@@ -57,13 +58,13 @@ endif
 
 if ENABLE_LHAPDF 
 else
-  xfitter_SOURCES+= lhapdf_dum.f
+  libxfitter_a_SOURCES+= lhapdf_dum.f
 endif
 
 if ENABLE_HATHOR
-  xfitter_SOURCES+= ttbar_hathor.f
+  libxfitter_a_SOURCES+= ttbar_hathor.f
 else
-  xfitter_SOURCES+= ttbar_hathor_dum.f	
+  libxfitter_a_SOURCES+= ttbar_hathor_dum.f	
 endif
 
 # FORTRAN compiler flags to be used for the main target
@@ -85,11 +86,19 @@ if ENABLE_APFELGRID
   AM_CPPFLAGS+=$(APFELGRID_CPPFLAGS)
 endif
 
+# xFitter main library:
+LDADD = libxfitter.a
+
 # libraries to be linked to the main target
-LDADD = $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
+LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
+
+# separate list for python: 
+F2PYLIBS = libxfitter.a 
+F2PYLIBS +=  $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS) $(LIBS) $(FLIBS)
 
 if ENABLE_LHAPDF 
   LDADD+=$(LHAPDF_LDFLAGS)
+  F2PYLIBS +=  $(LHAPDF_LDFLAGS)
 endif
 
 if HAVE_ROOT
@@ -109,11 +118,14 @@ if ENABLE_LHAPDF
   AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
-LDADD += ../Cascade/src/libcasutil.a
-LDADD += ../common/libHFcommon.a
+# LDADD += ../Cascade/src/libcasutil.a
+# LDADD += ../common/libHFcommon.a
+# F2PYLIBS += ../Cascade/src/libcasutil.a
+# F2PYLIBS += ../common/libHFcommon.a
 
 if ENABLE_UPDF
    LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 
+   F2PYLIBS +=  $(CASCADELIBS)  $(PYTHIALIBS) 
 endif
 
 if ENABLE_HATHOR
@@ -125,10 +137,12 @@ endif
 if ENABLE_HVQMNR
   LDADD += ../HVQMNR/src/libHVQMNR.a $(ROOT_LIBS)
 else
-  xfitter_SOURCES += hvqmnr_dum.f	
+  libxfitter_a_SOURCES += hvqmnr_dum.f	
 endif
 
-LDADD+=  ../DY/src/libmydy.a\
+XFLIBS =  ../DY/src/libmydy.a\
+ ../Cascade/src/libcasutil.a \
+ ../common/libHFcommon.a \
  ../RT/src/libmyrt.a \
  ../ACOT/src/libmyacot.a \
  ../SACOT/src/libmysacot.a \
@@ -144,15 +158,17 @@ LDADD+=  ../DY/src/libmydy.a\
  ../genetic/src/libgenetic.a \
  ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
- ../tools/draw/src/libpdferrors.la
+ ../tools/draw/src/pdferrors.o
 
 
-#GFRTLLIB = $(shell gfortran  -print-file-name=libgfortran.a )
-#GFRTLIB  = -L$(subst /libgfortran.a, ,$(GFRTLLIB)) -lgfortran
+LDADD += $(XFLIBS)
+F2PYLIBS += $(XFLIBS)
+
 GFRTLIB  = -lgfortran
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
+  F2PYLIBS += -L/home/glazov/openfitter/applgrid/lib -lAPPLgrid  -L/usr/lib/x86_64-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread  -lm -ldl  -L/home/glazov/openfitter/hoppet/lib -lhoppet_v1
 endif
 
 if ENABLE_APFELGRID 
@@ -161,12 +177,19 @@ endif
 
 if ENABLE_APFEL
   LDADD+=$(APFEL_LDFLAGS)
+  F2PYLIBS +=  $(APFEL_LDFLAGS)
 endif
 
 if ENABLE_MELA
   LDADD+=$(MELA_LDFLAGS)
+  F2PYLIBS +=  $(MELA_LDFLAGS)
 endif
 
 if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a
 endif
+
+xfitter_SOURCES = main.f
+
+python:
+	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
