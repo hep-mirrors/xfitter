@@ -135,8 +135,9 @@ class TheorEval{
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
   void SetBinDensity(int bindensity) {_bindensity = bindensity;};
   void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
-  void SetOrdScales(int iord, double mur, double muf, double mures) { _iOrd=iord; _xmur=mur; _xmuf=muf; _xmures = mures;}; //!< set order and scale factors
+  void SetOrdScales(int iord, double mur, double muf, double mures, double muC3 = 1.) { _iOrd=iord; _xmur=mur; _xmuf=muf; _xmures = mures; _xmuC3 = muC3;}; //!< set order and scale factors
   void GetOrdScales(int &iord, double &mur, double &muf, double &mures) { iord=_iOrd; mur=_xmur; muf=_xmuf; mures = _xmures;}; //!< get order and scale factors
+  void GetOrdScales(int &iord, double &mur, double &muf, double &mures, double &muC3) { iord=_iOrd; mur=_xmur; muf=_xmuf; mures = _xmures; muC3 = _xmuC3;}; //!< get order and scale factors
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
 
@@ -178,6 +179,7 @@ class TheorEval{
   double _xmur;
   double _xmuf;
   double _xmures;
+  double _xmuC3;
   int _nTerms;
   double _units;
   vector<string> _termNames;

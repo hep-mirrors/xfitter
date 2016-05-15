@@ -766,6 +766,7 @@ C
          DataSetMuR(i)    = 1.0D0
          DataSetMuF(i)    = 1.0D0
          DataSetMuRes(i)    = 1.0D0
+         DataSetMuC3(i)    = 1.0D0
          DataSetIOrder(i) = I_Fit_Order
       enddo
 C---------------------
@@ -837,6 +838,7 @@ C (Optional) Data-set dependent scales
       integer i_fit_order_save,i
       character*8 DataSetTheoryOrder(NSet)
       namelist/Scales/DataSetMuR,DataSetMuF,DataSetMuRes,
+     $     DataSetMuC3,
      $     DataSetIOrder,DataSetTheoryOrder
 C---------------------------------------------
       do i=1,NSet

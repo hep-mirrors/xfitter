@@ -372,7 +372,7 @@ void TheorEval::initDyturboTerm(int iterm, valarray<double> *val)
   dyt->SetBins(_dsBins.at(0), _dsBins.at(1), _ylow, _yhigh, _mlow, _mhigh);
 
   //initialise order and scales of the dyturbo prediction
-  dyt->SetOrdScales(_iOrd, _xmur, _xmuf, _xmures);
+  dyt->SetOrdScales(_iOrd, _xmur, _xmuf, _xmures, _xmuC3);
   
   // associate grid and valarray pointers in token
   _mapDyturboTerms[dyt] = val;
@@ -621,7 +621,7 @@ void TheorEval::getDyturboValues()
 #ifdef ENABLE_DYTURBO
   for(map<Dyturbo*, valarray<double>* >::iterator it = _mapDyturboTerms.begin(); it != _mapDyturboTerms.end(); it++)
     {
-      it->first->Calculate(_xmur, _xmuf, _xmures);
+      it->first->Calculate(_xmur, _xmuf, _xmures, _xmuC3);
       *(it->second) = valarray<double>(it->first->values.data(), it->first->values.size());
       /*
       for (int i = 0; i < it->first->values.size(); i++)

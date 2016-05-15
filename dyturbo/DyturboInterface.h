@@ -12,9 +12,9 @@ class Dyturbo
   Dyturbo(string file);
 
   void SetBins(vector <double> ledge, vector <double> uedge, double ylow, double yhigh, double mlow, double mhigh);
-  void SetOrdScales(int iord, double kmuren, double kmufac, double kmures = -1.);
+  void SetOrdScales(int iord, double kmuren, double kmufac, double kmures = -1., double muC3 = 1.);
 
-  void Calculate(const double muren, const double mufac, const double mures);
+  void Calculate(const double muren, const double mufac, const double mures, const double muC3 = 1.);
   
   vector<double> upedge;
   vector<double> lowedge;
@@ -26,6 +26,7 @@ class Dyturbo
   double ml, mh;
   int proc;
   string infile;
+  int order;
 };
 
 

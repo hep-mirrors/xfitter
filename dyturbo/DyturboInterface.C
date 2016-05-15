@@ -66,35 +66,41 @@ void Dyturbo::SetBins(vector <double> ledge, vector <double> uedge, double ylow,
   mh = mhigh;
 }
 
-void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures)
+void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures, double muC3)
 {
-  opts.order = iord-1;
+  order = iord-1;
+  
+  opts.order = order;
   nnlo_.order_ = opts.order;
   opts.kmuren = kmuren;
   opts.kmufac = kmufac;
   if (kmures > 0)
     opts.kmures = kmures;
   coupling::initscales();
+  opts.C3 = muC3;
 }
 
-void Dyturbo::Calculate(const double muren, const double mufac, const double mures)
+void Dyturbo::Calculate(const double muren, const double mufac, const double mures, const double muC3)
 {
-  //dyturboinit(infile);
-  opts.nproc = proc;
+  //re-read input file
+  opts.readfromfile(infile.c_str());
 
+  //restore overwritten settings
+  opts.order = order;
+  opts.nproc = proc;
   opts.mlow = ml;
   opts.mhigh = mh;
-
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
   lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
   int member = clhapdf_.ilhapdfset_;
-
   opts.LHAPDFset = lhapdfset;
   opts.LHAPDFmember = member;
 
+  //set scales
   opts.kmuren = muren;
   opts.kmufac = mufac;
   opts.kmures = mures;
+  opts.C3 = muC3;
   
   /*
   //Minimal reinitialisation

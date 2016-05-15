@@ -61,6 +61,7 @@ extern struct ord_scales {
    double datasetmur[NSET_C];
    double datasetmuf[NSET_C];
    double datasetmures[NSET_C];
+   double datasetmuc3[NSET_C];
    int datasetiorder[NSET_C];
 } cscales_;
 
@@ -96,7 +97,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   te->SetNormalised(theorexpr_.normalised);
   te->SetBinDensity(theorexpr_.bindensity);
   te->SetMurMufDef(theorexpr_.murdef,theorexpr_.mufdef);
-  te->SetOrdScales(cscales_.datasetiorder[*dsId-1],cscales_.datasetmur[*dsId-1],cscales_.datasetmuf[*dsId-1],cscales_.datasetmures[*dsId-1]);
+  te->SetOrdScales(cscales_.datasetiorder[*dsId-1],cscales_.datasetmur[*dsId-1],cscales_.datasetmuf[*dsId-1],cscales_.datasetmures[*dsId-1],cscales_.datasetmuc3[*dsId-1]);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }

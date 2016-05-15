@@ -418,6 +418,7 @@ void get_lhapdferrors_()
       map <int, double> murmap;
       map <int, double> mufmap;
       map <int, double> muresmap;
+      map <int, double> muC3map;
 
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	{
@@ -425,17 +426,20 @@ void get_lhapdferrors_()
 	  double mur0;
 	  double muf0;
 	  double mures0;
-	  tit->second->GetOrdScales(iord, mur0, muf0, mures0);
+	  double muC30;
+	  tit->second->GetOrdScales(iord, mur0, muf0, mures0, muC30);
 	  iordmap[tit->first] = iord;
 	  murmap[tit->first] = mur0;
 	  mufmap[tit->first] = muf0;
 	  muresmap[tit->first] = mures0;
+	  muC3map[tit->first] = muC30;
 	}
 
       //Apply a factor for scale variations
       double factor = 2.;
       double chi2tot;
 
+      bool mv;
       //mur*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]*factor, mufmap[tit->first], muresmap[tit->first]);
@@ -447,7 +451,7 @@ void get_lhapdferrors_()
 	   << endl;
       char tag[10]; sprintf (tag, "_%04d", cset);
       writefittedpoints_(); //write out fittedresults.txt file
-      bool mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
+      mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
       cset++;
@@ -523,6 +527,39 @@ void get_lhapdferrors_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mures = 0.5: "
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << endl;
+      tag[10]; sprintf (tag, "_%04d", cset);
+      writefittedpoints_(); //write out fittedresults.txt file
+      mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
+      cset++;
+
+      factor = sqrt(2.);
+      //C3*sqrt(2)
+      for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first], muC3map[tit->first]*factor);
+      chi2tot = chi2data_theory_(2);
+      chi2c[500];
+      sprintf(chi2c, "%.2f", chi2tot);
+      cout << setw(20) << "muC3 = sqrt(2.0): "
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << endl;
+      tag[10]; sprintf (tag, "_%04d", cset);
+      writefittedpoints_(); //write out fittedresults.txt file
+      mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
+      cset++;
+
+      //C3/sqrt(2)
+      for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first], muC3map[tit->first]/factor);
+      chi2tot = chi2data_theory_(2);
+      chi2c[500];
+      sprintf(chi2c, "%.2f", chi2tot);
+      cout << setw(20) << "muC3 = 1/sqrt(2): "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
