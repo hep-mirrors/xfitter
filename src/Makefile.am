@@ -168,7 +168,7 @@ GFRTLIB  = -lgfortran
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
-  F2PYLIBS += -L/home/glazov/openfitter/applgrid/lib -lAPPLgrid  -L/usr/lib/x86_64-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread  -lm -ldl  -L/home/glazov/openfitter/hoppet/lib -lhoppet_v1
+  F2PYLIBS += $($shell sed 's|-m64||; s|-pthread||; s|-rdynamic|' $(APPLGRID_LDFLAGS) ) $(GFRTLIB)
 endif
 
 if ENABLE_APFELGRID 
