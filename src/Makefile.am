@@ -158,9 +158,13 @@ F2PYLIBS += $(XFLIBS)
 
 GFRTLIB  = -lgfortran
 
+APPLGRID_1 = $(subst -m64,,$(APPLGRID_LDFLAGS))
+APPLGRID_2 = $(subst -pthread,,$(APPLGRID_1))
+APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
+
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
-  F2PYLIBS += $($shell sed 's|-m64||; s|-pthread||; s|-rdynamic|' $(APPLGRID_LDFLAGS) ) $(GFRTLIB)
+  F2PYLIBS +=  $(APPLGRID_3)
 endif
 
 if ENABLE_APFEL
