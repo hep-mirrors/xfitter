@@ -442,7 +442,7 @@ void get_lhapdferrors_()
       bool mv;
       //mur*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]*factor, mufmap[tit->first], muresmap[tit->first]);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]*factor, mufmap[tit->first], muresmap[tit->first], muC3map[tit->first]);
       chi2tot = chi2data_theory_(2);
       char chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -458,7 +458,7 @@ void get_lhapdferrors_()
 
       //mur*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]/factor, mufmap[tit->first], muresmap[tit->first]);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]/factor, mufmap[tit->first], muresmap[tit->first], muC3map[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -474,7 +474,7 @@ void get_lhapdferrors_()
 
       //muf*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]*factor, muresmap[tit->first]);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]*factor, muresmap[tit->first], muC3map[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -490,7 +490,7 @@ void get_lhapdferrors_()
 
       //muf*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]/factor, muresmap[tit->first]);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]/factor, muresmap[tit->first], muC3map[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -506,7 +506,7 @@ void get_lhapdferrors_()
 
       //mures*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]*factor);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]*factor, muC3map[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
@@ -522,7 +522,7 @@ void get_lhapdferrors_()
 
       //mures*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
-	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]/factor);
+	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]/factor, muC3map[tit->first]);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
