@@ -17,9 +17,14 @@ C---------------------------------------------------
 
 
       subroutine init_theory_py
-c       call init_theory_modules
+      call init_theory_modules
       end
      
+      subroutine Fit()
+      call do_fit
+      call close_theor_eval
+      call HF_errsum(6)
+      end
       
       subroutine Input_Data_Table( dataIn, statIn, systIn,
      $     nData, nSyst)
@@ -82,12 +87,6 @@ cf2py intent(hide) nTheoEig
       end
 
 
-      subroutine Fit()
-      call init_theory_modules
-      call do_fit
-      call close_theor_eval
-      call HF_errsum(6)
-      end
       
       subroutine Profile( Chi2 )
 
@@ -112,7 +111,6 @@ C
       common/profile_out/sys_shifts, sys_shifts_err, 
      $     dataset_chi2, corr_chi2
 
-      call init_theory_modules
 
       call GetNewChisquare( 3, NPoints, Chi2, sys_shifts, 
      $     sys_shifts_err, dataset_chi2, corr_chi2)
