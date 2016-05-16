@@ -3,19 +3,26 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 7
+    NInputFiles = 8
  
   ! Input files:
 
-    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
-    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
-    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
-    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
-    InputFileNames(5) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
-    InputFileNames(6) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat'
-    InputFileNames(7) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat'
+    !InputFileNames(1)  = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
+    !InputFileNames(2)  = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
+    !InputFileNames(3)  = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
+    !InputFileNames(4)  = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
+    !InputFileNames(5)  = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
+    !InputFileNames(6)  = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat'
+    !InputFileNames(7)  = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat'
 
-
+    InputFileNames(1)  = 'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R04_00_03.dat'
+    InputFileNames(2)  = 'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R04_03_08.dat'
+    InputFileNames(3) = 'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R04_08_12.dat'
+    InputFileNames(4) = 'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R04_12_21.dat'
+    InputFileNames(5) = 'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R04_21_28.dat'
+    InputFileNames(6) = 'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R04_28_36.dat'
+    InputFileNames(7) = 'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R04_36_44.dat'
+    InputFileNames(8) = 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat'
 &End
 
 &InCorr
@@ -94,7 +101,7 @@
                                 !uPDF4 fit calculating kernel on fly, grid of sigma_hat
 
 
-  Order  = 'NNLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
+  Order  = 'NLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
 
   Q02     = 1.9 ! Evolution starting scale
 
@@ -128,7 +135,7 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
-  HF_SCHEME = 'RT OPT'
+  HF_SCHEME = 'ZMVFNS'
 
  ! PDF type. Possible types are currently available:
  ! 'proton'  -- default (fitting proton data)
