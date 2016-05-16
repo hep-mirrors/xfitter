@@ -116,7 +116,8 @@ void get_lhapdferrors_()
   lhapdfvarset = lhapdfvarset.erase(lhapdfvarset.find_last_not_of(" ")+1, string::npos);
   bool pdfprofile = clhapdf_.lhapdfprofile_;
   bool scaleprofile = clhapdf_.lhascaleprofile_;
-
+  double scalefactor = clhapdf_.scalefactor_;
+  
   string outdirname = string(coutdirname_.outdirname_, 128);
   outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
 
@@ -436,7 +437,7 @@ void get_lhapdferrors_()
 	}
 
       //Apply a factor for scale variations
-      double factor = sqrt(2.);
+      double factor = scalefactor;//2.;//sqrt(2.);
       double chi2tot;
 
       bool mv;
