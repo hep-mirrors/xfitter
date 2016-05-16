@@ -28,7 +28,8 @@
 #include <valarray>
 #include <vector>
 
-#include "CommonGrid.h"
+class CommonGrid;
+class ReactionTheory;
 //#include "appl_grid/appl_grid.h"
 
 using std::valarray;
@@ -149,6 +150,8 @@ class TheorEval{
    Initializes the applgrid-based grids and associates the term valarrays with them. 
   */
   int initGridTerm(int iterm, valarray<double> *val);
+  //! Initialise reaction term
+  int initReactionTerm(int iterm, valarray<double> *val)
   //! Initialise K-factor term
   int initKfTerm(int, valarray<double> *);
   //! Get current grid values into the tokens
@@ -173,6 +176,7 @@ class TheorEval{
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
   map<CommonGrid*, valarray<double>* > _mapGridToken;
+  map<ReactionTheory*, valarray<double>* > _mapReactionToken;
   map<string, valarray<double>* > _mapInitdTerms;
 
   /// Normalised theory
