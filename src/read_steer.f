@@ -1295,6 +1295,7 @@ C-------------------------------------
 
       implicit none
 #include "extrapars.inc"
+#include "alphas.inc"
       integer maxExtra
       parameter (maxExtra=50)
       character*32 name(maxExtra)
@@ -1305,6 +1306,7 @@ C-------------------------------------
       namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
      $                                     ,ConstrVal,ConstrUnc
       integer i
+      integer GetParameterIndex
 C----------------------------------------
       
       open (51,file='steering.txt',status='old')
@@ -1330,11 +1332,12 @@ C
  71   continue
       print '(''Got '',i5,'' extra minuit parameters'')',nExtraParam
       close (51)
+C --- Set value of alphas
+      alphas = ExtraParamValue(GetParameterIndex('alphas'))
       return
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'
       call HF_stop
-
 C----------------------------------------
       end
 

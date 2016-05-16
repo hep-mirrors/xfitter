@@ -269,6 +269,27 @@ if test x$enable_applgrid == xyes; then
   fi
 fi
 AM_CONDITIONAL(APPLGRID_DYNSCALE, [test x$ag_dynscale == xyes])
+
+# check for APFELgrid installation
+AC_ARG_ENABLE([apfelgrid],
+  [AC_HELP_STRING(--enable-apfelgrid, [use apfelgrid for fast pdf convolutions (default=no)])])
+if test x$enable_apfelgrid == xyes; then
+  AC_MSG_CHECKING([for apfelgrid installation])
+  apfelgrid_config=`which apfelgrid-config`
+  if test x$apfelgrid_config == x; then
+    AC_MSG_ERROR([Unable to find apfelgrid-config.])
+  else
+    APFELGRIDVERS=`apfelgrid-config --version`
+    APFELGRID_CPPFLAGS=`apfelgrid-config --cxxflags`
+    APFELGRID_LDFLAGS=`apfelgrid-config --ldflags`
+    AC_MSG_RESULT([Using $apfelgrid_config version $APFELGRIDVERS])
+    AC_SUBST(APFELGRID_CPPFLAGS)
+    AC_SUBST(APFELGRID_LDFLAGS)
+    AC_DEFINE([APFELGRID_ENABLED],[1],[Define if apfelgrid is enabled])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_APFELGRID, [test x$enable_apfelgrid == xyes])
+
 # check for genetic installation
 AC_ARG_ENABLE([genetic],
     [AC_HELP_STRING(--enable-genetic, [use genetic for general minimia search (defaults=no)])])

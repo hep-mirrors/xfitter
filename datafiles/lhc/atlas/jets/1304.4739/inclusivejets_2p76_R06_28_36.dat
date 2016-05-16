@@ -1,0 +1,35 @@
+
+&DATA
+  Name = 'ATLAS 2.76 TeV Jet data 2.8 <= |y| < 3.6 R=0.6'
+  NDATA = 5
+  NColumn = 28
+  ColumnType = 2*'Bin',2*'Dummy','Sigma','Error',22*'Error'
+  ColumnName = 'pt1','pt2','YBinSize','NPCorr','Sigma','stat', 
+		'JES1_RelSys_5' , 'JES2_RelSys_11' , 'JES3_RelSys_17' , 'JES4_RelSys_23' , 'JES5_RelSys_29' , 'JES6_ForwardGenRelSys_88' , 
+         'JES7_RelSys_36' , 'JES8_RelSys_42' , 'JES9_RelSys_48' , 'JES10_RelSys_54' , 'JES11_RelSys_60' , 
+         'JES12_RelSys_66' , 'JES13_RelSys_72' ,  'JES15_ForwardJES_89' , 'UnfClosureRelSys2p76_74' , 'MatchingRelSys2p76_75' , 'JERRelSys_80' , 
+         'YResoRelSys_82' , 'RecoEffRelSys_85' , 'TriggerEffRelSys_uncorr' , 
+         'CleaningEffRelSys_uncorr' , 'atlas_lumi_2p76'
+  NInfo   = 1
+  DataInfo = 2760.
+  CInfo    = 'sqrt(S)'
+  IndexDataset = 332 
+  Reaction  = 'pp jets APPLGRID'
+  TheoryType = 'expression'
+  TermName = 'A1', 'K'
+  TermType = 'applgrid','kfactor'
+  TermSource = 'datafiles/lhc/atlas/jets/1304.4739/atlas-incljets-R06-eta6.root', 'datafiles/lhc/atlas/jets/1304.4739/inclusivejetsKF_R06_28_36.dat'
+  TheorExpr= 'K*A1*1000' 
+  Percent   = 50*True
+&END
+&PlotDesc
+PlotN = 1
+PlotDefColumn = 'pt2'
+PlotDefValue = 20., 1500.
+PlotOptions(1)  = 'Experiment:ATLAS@ExtraLabel:pp #rightarrow jets; #sqrt{s} = 2.76 TeV; R=0.6 2.8 #leq |y| < 3.6 @Title:2010 @XTitle: #p_{T}[GeV] @YTitle: d#sigma/dyd#p_{T} [pb/GeV] @Xlog@Ylog'
+&End
+20.000000	30.000000	1.6	1.116485	558332		1.840608		14.754058	11.602910	17.998361	6.809526	5.714225	34.067371	2.678638	5.320024	5.563312	-0.005534	0.027313	3.420364	-0.008508	6.995644	0.118510	0.375635	-20.589844	-0.416409	2.000000	2.000000	-0.500013	2.7
+30.000000	45.000000	1.6	1.049869	43999.4		1.974864		8.708636	12.410796	11.318958	6.238737	3.439414	36.432017	3.779443	4.107312	6.100386	0.018410	0.006556	4.447056	-0.079779	7.763577	0.463026	0.258531	-10.053435	0.022574	1.000000	2.000000	-0.500013	2.7
+45.000000	60.000000	1.6	1.027213	3266.67		1.983704		1.351031	13.681686	11.163354	5.610585	2.959448	30.547859	5.012879	2.559708	7.881956	0.451292	0.024863	3.317953	1.131449	9.237616	3.084708	0.057058	-3.903208	-0.541256	1.000000	1.000000	-0.500013	2.7
+60.000000	80.000000	1.6	1.020458	255.827		3.321680		-1.955604	11.694864	6.375138	4.237501	6.150651	23.456313	5.574749	2.122214	9.170436	0.939407	-0.002249	0.300037	4.766996	8.702647	5.504439	0.031558	-5.996516	-0.627740	1.000000	1.000000	-0.500013	2.7
+80.000000	110.000000	1.6	1.018242	7.53		12.212561		-0.744843	13.030531	5.685960	5.970880	2.548131	18.758646	4.982800	1.239619	11.818918	1.998688	0.060061	-0.799445	10.785226	8.459788	-2.299622	0.004093	-4.322586	2.438743	1.000000	1.000000	-0.500013	2.7

@@ -1,0 +1,33 @@
+
+&DATA
+  Name = 'ATLAS 2.76 TeV Jet data 3.6 <= |y| < 4.4 R=0.6'
+  NDATA = 3
+  NColumn = 28
+  ColumnType = 2*'Bin',2*'Dummy','Sigma','Error',22*'Error'
+  ColumnName = 'pt1','pt2','YBinSize','NPCorr','Sigma','stat', 
+		'JES1_RelSys_6' , 'JES2_RelSys_12' , 'JES3_RelSys_18' , 'JES4_RelSys_24' , 'JES5_RelSys_30' , 'JES6_ForwardGenRelSys_88' , 
+         'JES7_RelSys_37' , 'JES8_RelSys_43' , 'JES9_RelSys_49' , 'JES10_RelSys_55' , 'JES11_RelSys_61' , 
+         'JES12_RelSys_67' , 'JES13_RelSys_73' ,  'JES15_ForwardJES_89' , 'UnfClosureRelSys2p76_74' , 'MatchingRelSys2p76_75' , 'JERRelSys_81' , 
+         'YResoRelSys_82' , 'RecoEffRelSys_86' , 'TriggerEffRelSys_uncorr' , 
+         'CleaningEffRelSys_uncorr' , 'atlas_lumi_2p76'
+  NInfo   = 1
+  DataInfo = 2760.
+  CInfo    = 'sqrt(S)'
+  IndexDataset = 333 
+  Reaction  = 'pp jets APPLGRID'
+  TheoryType = 'expression'
+  TermName = 'A1', 'K'
+  TermType = 'applgrid','kfactor'
+  TermSource = 'datafiles/lhc/atlas/jets/1304.4739/atlas-incljets-R06-eta7.root', 'datafiles/lhc/atlas/jets/1304.4739/inclusivejetsKF_R06_36_44.dat'
+  TheorExpr= 'K*A1*1000' 
+  Percent   = 50*True
+&END
+&PlotDesc
+PlotN = 1
+PlotDefColumn = 'pt2'
+PlotDefValue = 20., 1500.
+PlotOptions(1)  = 'Experiment:ATLAS@ExtraLabel:pp #rightarrow jets; #sqrt{s} = 2.76 TeV; R=0.6 3.6 #leq |y| < 4.4 @Title:2010 @XTitle: #p_{T}[GeV] @YTitle: d#sigma/dyd#p_{T} [pb/GeV] @Xlog@Ylog'
+&End
+20.000000	30.000000	1.6	0.994964	87294		4.551256		21.030167	16.895837	24.791120	4.779604	7.699503	73.562010	4.145763	7.170624	7.771308	-0.000215	-0.008573	5.098984	-0.001341	13.688749	1.391286	0.612031	-25.049058	-2.482643	2.000000	2.000000	-0.500013	2.7
+30.000000	45.000000	1.6	0.953034	2219.92		5.029852		17.437400	24.713099	22.415038	6.770430	7.467424	107.574782	8.407670	8.707690	12.446947	0.004803	-0.007485	9.357820	0.003147	22.938792	5.360322	1.454353	-14.238627	-2.433099	1.000000	1.000000	-0.500013	2.7
+45.000000	60.000000	1.6	0.916334	14.33		15.706637		1.740994	30.777674	17.588170	2.878804	6.744286	82.242627	9.604181	5.818844	15.153157	-0.419453	-0.002624	6.607003	3.460032	30.546665	2.178850	0.400742	-26.261528	-12.730751	1.000000	1.000000	-0.500013	2.7

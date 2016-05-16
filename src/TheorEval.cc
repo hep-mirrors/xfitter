@@ -244,7 +244,7 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
   string term_type =  _termTypes.at(iterm);
   string term_info =  _termInfos.at(iterm);
   CommonGrid *g = new CommonGrid(term_type, term_source); 
-  if (  term_type.find("grid") != string::npos ) {
+  if (  term_type.find("grid") != string::npos && !(term_type.find("apfel") != string::npos) ) {
      // set the collision for the grid term
      string collision ("pp"); // default is pp
 
@@ -302,9 +302,31 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
 	printf("fastNLO pert. order is not defined, ordercalc = %d:\n",_iOrd);
 	exit(1);
      }
-
   }
+  else if ( term_type.find("apfel") != string::npos ){
+    // set the collision for the grid term                                                                                                                                                  
+    string collision ("pp"); // default is pp                                                                                                                                               
 
+    // this is to have backward-compatibility with Tevatron datasets                                                                                                                        
+    if ( _ppbar ) collision.assign(string("ppbar"));
+    // otherwise we check beams in the TermInfo lines                                                                                                                                       
+    else {
+      size_t beams_pos = term_info.find(string("beams"));
+      if ( beams_pos != string::npos ){
+	size_t semicol_pos = term_info.find(';', beams_pos);
+	size_t eq_pos = term_info.find('=', beams_pos);
+	collision.assign(term_info.substr(eq_pos+1, semicol_pos - eq_pos-1));
+      }
+    }
+
+    // strip blanks                                                                                                                                                                         
+    collision.erase(std::remove(collision.begin(), collision.end(), ' '), collision.end());
+
+    // and set the collision                                                                                                                                                                
+    g->SetCollisions(collision);
+
+    //g->SetCollisions("pp");
+  }
   /*
   appl::grid *g = new appl::grid(term_source);
   if (_dynamicscale != 0)

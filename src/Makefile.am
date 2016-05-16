@@ -51,6 +51,10 @@ else
   xfitter_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
 endif
 
+if ENABLE_APFELGRID
+  xfitter_SOURCES+= APFELgridGeneration.cc
+endif
+
 if ENABLE_LHAPDF 
 else
   xfitter_SOURCES+= lhapdf_dum.f
@@ -75,6 +79,10 @@ endif
 if ENABLE_APFEL 
   AM_CPPFLAGS+=$(APFEL_CPPFLAGS)
   AM_FFLAGS+=$(APFEL_CPPFLAGS)
+endif
+
+if ENABLE_APFELGRID 
+  AM_CPPFLAGS+=$(APFELGRID_CPPFLAGS)
 endif
 
 # libraries to be linked to the main target
@@ -145,6 +153,10 @@ GFRTLIB  = -lgfortran
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
+endif
+
+if ENABLE_APFELGRID 
+  LDADD+=$(APFELGRID_LDFLAGS)
 endif
 
 if ENABLE_APFEL
