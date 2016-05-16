@@ -436,7 +436,7 @@ void get_lhapdferrors_()
 	}
 
       //Apply a factor for scale variations
-      double factor = 2.;
+      double factor = sqrt(2.);
       double chi2tot;
 
       bool mv;
@@ -446,7 +446,7 @@ void get_lhapdferrors_()
       chi2tot = chi2data_theory_(2);
       char chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "mur = 2.0: "
+      cout << setw(20) << "mur = " << factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       char tag[10]; sprintf (tag, "_%04d", cset);
@@ -462,7 +462,7 @@ void get_lhapdferrors_()
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "mur = 0.5: "
+      cout << setw(20) << "mur = " << 1./factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
@@ -478,7 +478,7 @@ void get_lhapdferrors_()
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "muf = 2.0: "
+      cout << setw(20) << "muf = " << factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
@@ -494,7 +494,7 @@ void get_lhapdferrors_()
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "muf = 0.5: "
+      cout << setw(20) << "muf = " << 1./factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
@@ -510,7 +510,7 @@ void get_lhapdferrors_()
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "mures = 2.0: "
+      cout << setw(20) << "mures = " << factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
@@ -526,7 +526,7 @@ void get_lhapdferrors_()
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "mures = 0.5: "
+      cout << setw(20) << "mures = " << 1./factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
@@ -536,14 +536,14 @@ void get_lhapdferrors_()
 	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
       cset++;
 
-      factor = sqrt(2.);
+      //factor = sqrt(2.);
       //C3*sqrt(2)
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first], muC3map[tit->first]*factor);
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "muC3 = sqrt(2.0): "
+      cout << setw(20) << "muC3 = " << factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
@@ -559,7 +559,7 @@ void get_lhapdferrors_()
       chi2tot = chi2data_theory_(2);
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
-      cout << setw(20) << "muC3 = 1/sqrt(2): "
+      cout << setw(20) << "muC3 = " << 1./factor << ": "
 	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
