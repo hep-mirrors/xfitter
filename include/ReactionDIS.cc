@@ -4,13 +4,15 @@
 #include <vector>
 #include <valarray>
 
+#include "ReactionTheory.h"
+
 using namespace std::string;
 using namespace std::list;
 
 /**
-  @class Reaction_FTDY_E866
+  @class ReactionDIS
 
-  @brief A class for cross sections for fixed target DY E866 experiment
+  @brief A class for cross sections for HERA DIS NC experiment
 
   Based on the ReactionTheory class. Reads options of beam energy, cuts, and 
   produces cross section in the x2 bins.
@@ -18,19 +20,19 @@ using namespace std::list;
   @author A.Sapronov <sapronov@ifh.de>
 
   @version 0.1
-  @date 2016/01/21
+  @date 2016/05/17
   */
 
-class Reaction_FTDY_E866 :: public ReactionTheory 
+class ReactionDIS :: public ReactionTheory 
 {
  public:
-  Reaction_FTDY_E866() {};
-  ~Reaction_FTDY_E866(){};
+  ReactionDIS() {};
+  ~ReactionDIS(){};
 
-  Reaction_FTDY_E866(string subtype);
+  ReactionDIS(string subtype);
 
-  Reaction_FTDY_E866(const Reaction_FTDY_E866  &);
-  void operator =(const Reaction_FTDY_E866 &);
+  ReactionDIS(const ReactionDIS  &);
+  void operator =(const ReactionDIS &);
   
  private:
 
