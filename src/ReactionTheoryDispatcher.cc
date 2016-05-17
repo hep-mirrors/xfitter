@@ -11,7 +11,7 @@
 
 #include "ReactionTheoryDispatcher.h"
 #include "ReactionTheory.h"
-#include "Reaction_FTDY_NC.h"
+#include "ReactionDIS.h"
 
 using std::list;
 using std::string;
@@ -23,8 +23,12 @@ ReactionTheoryDispatcher::~ReactionTheoryDispatcher()
 ReactionTheory &ReactionTheoryDispatcher::getReactionTheory(const string &reaction_type)
 {
   ReactionTheory *rt(NULL);
-  if ( reaction_type == string("FTDY_NC_pp") ) rt = new Reaction_FTDY_NC(string("pp"));
-  else if ( reaction_type == string("FTDY_NC_pn") ) rt = new Reaction_FTDY_NC(string("pn"));
+  if ( reaction_type == string("NC e+-p") ) rt = new ReactionDIS(string("NCDIS"));
+  else if ( reaction_type == string("CC e+-p") ) rt = new ReactionDIS(string("CCDIS"));
+  else if ( reaction_type == string("NC e+-p charm") ) rt = new ReactionDIS(string("CHARMDIS"));
+  else if ( reaction_type == string("NC e+-p beauty") ) rt = new ReactionDIS(string("BEAUTYDIS"));
+  else if ( reaction_type == string("NC e+-p FL") ) rt = new ReactionDIS(string("FL"));
+  else if ( reaction_type == string("NC e+-p F2") ) rt = new ReactionDIS(string("F2"));
   else {
     int id = 16012101;
     char text[] = "S: Unknown reaction type in theory expression.";

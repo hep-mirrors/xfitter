@@ -10,7 +10,6 @@
 #include <string>
 
 #include "ReactionTheory.h"
-#include "Reaction_FTDY_NC.h"
 
 using std::list;
 using std::string;
