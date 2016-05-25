@@ -59,6 +59,10 @@ C
 
       double precision chi2_poi(NSET)
 
+C VB: For the hybrid VFNS
+      integer DATASETMaxNF(NSET)                                   !> Maximum number of active flavours per dataset
+      logical UseHVFNS                                             !> Whether the H-VFNS has to be used
+
       common/datasets/
      $     DATASETInfo
      $     ,DATASETKFactorNames
@@ -76,6 +80,7 @@ C
      $     ,NInputFiles
      $     ,InputFileNames
      $     ,DATASETNKfactors
+     $     ,DATASETMaxNF
      $     ,DATASETTheoryIndex
      $     ,NCorrFiles
      $     ,CorrFileNames
@@ -86,6 +91,7 @@ C
      $     ,GNPlots
      $     ,GPlotOptions
      $     ,UseFixedTheory
+     $     ,UseHVFNS
 
       Common/cdatapoi/chi2_poi
 

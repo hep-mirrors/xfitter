@@ -87,6 +87,7 @@ C
       logical LFastAPPLGRID
 
       integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
+      integer vIPDFSET         !>  value of IPDFSET for each dataset
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
       logical lead             !> Flag to trigger lead PDF	
       logical deuteron             !> Flag to trigger deuteron PDF	
@@ -123,7 +124,7 @@ C
      $     ,npolyval, lead
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, ICHECK_QCDNUM
+     $     ,IPDFSET, vIPDFSET, ICHECK_QCDNUM
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,

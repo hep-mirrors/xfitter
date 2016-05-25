@@ -148,6 +148,7 @@ C     Initialise LHAPDF parameters
       LHAPDFSET = 'cteq65.LHgrid'
       ILHAPDFSET = 0
       IPDFSET = 1
+      vIPDFSET = IPDFSET
 
 C 25 Jan 2011
 C     Pure polynomial param for the valence quarks:
@@ -766,7 +767,9 @@ C
          DataSetMuR(i)    = 1.0D0
          DataSetMuF(i)    = 1.0D0
          DataSetIOrder(i) = I_Fit_Order
+         DataSetMaxNF(i)  = 0
       enddo
+      UseHVFNS = .false.
 C---------------------
       if (LDebug) then
          print InFiles
@@ -832,11 +835,12 @@ C---------------------------------------------------------
 #include "ntot.inc"
 #include "scales.inc"
 #include "steering.inc"
+#include "datasets.inc"
 C (Optional) Data-set dependent scales
       integer i_fit_order_save,i
       character*8 DataSetTheoryOrder(NSet)
       namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder,
-     $     DataSetTheoryOrder
+     $     DataSetTheoryOrder,DataSetMaxNF
 C---------------------------------------------
       do i=1,NSet
          DataSetTheoryOrder(i) = ''
@@ -853,6 +857,14 @@ C Check datasetorder
          if (DataSetTheoryOrder(i).ne.'') then
             call DecodeOrder(DataSetTheoryOrder(i))
             DataSetIOrder(i) = I_Fit_Order
+         endif
+C Check if the H-VFNS has to be used
+         if(DataSetMaxNF(i).ne.0)then
+C Check that MaxNF is between 3 and 6
+            if(DataSetMaxNF(i).lt.3.or.
+     1         DataSetMaxNF(i).gt.6) call hf_errlog(2105201601,
+     2              'F: DataSetMaxNF must be between 3 and 6')
+            UseHVFNS = .true.
          endif
       enddo
       I_Fit_Order = I_Fit_Order_Save
@@ -1090,6 +1102,7 @@ cv         iparam = 301
 
          if(PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFNATIVE') then
             IPDFSET = 5
+            vIPDFSET = IPDFSET
          endif
       endif
 
@@ -1596,7 +1609,8 @@ C------------------------------------------------
          print *,'Check your steering.txt file'
          call hf_stop
       endif
-      
+      vIPDFSET = IPDFSET
+
       end
 
 C
