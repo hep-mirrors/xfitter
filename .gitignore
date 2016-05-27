@@ -33,3 +33,6 @@ libtool
 ltmain.sh
 unpolarised.wgt
 zmstf.wgt
+
+# vim swap file
+*.swp
