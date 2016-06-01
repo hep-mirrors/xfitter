@@ -1016,7 +1016,7 @@ C---------------------------------------
       implicit none
 
       logical lhapdffile_exists
-      logical has_photon
+      integer*1 has_photon
 #include "steering.inc"
 C---------------------------------
 
@@ -1082,11 +1082,17 @@ cv         iparam = 301
          call numberPDF(nLHAPDF_Sets)                    
          call InitPDF(ILHAPDFSET)
 
-         if (has_photon()) then
+         if(has_photon().eq.1.) then    
             ExtraPdfs = .true. 
          else
             ExtraPdfs = .false.
          endif
+
+         if(PDFStyle.eq.'LHAPDFQ0'.and.ExtraPdfs) then
+            call hf_errlog(16060101,
+     $    'S: LHAPDFQ0 option cannot be used with QED (photon) PDFs')
+         endif
+
 
          if(PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFNATIVE') then
             IPDFSET = 5
