@@ -7,9 +7,9 @@ lhapdfver=6.1.5
 hoppetver=1.1.5
 applgridver=1.4.70
 qcdnumver=17-01-11
-apfelver=2.7.0
+apfelver=master #2.7.0
 melaver=2.0.1
-
+apfelgridver=master #1.0
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -385,7 +385,7 @@ git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
 mv apfel apfel-${apfelver}
 cd  apfel-${apfelver}
 #git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
-./configure --prefix=$CURRENTDIR/deps/apfel  >> $CURRENTDIR/install.log  2>&1
+./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
 
 if [[ $? != 0 ]]
 then
@@ -401,6 +401,14 @@ fi
 cd - >& /dev/null
 # setup paths for apfel:
 export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
+
+#apfelgrid
+echo "Installing APFELgrid $apfelgridver..."
+git clone https://github.com/nhartland/APFELgrid.git >>$CURRENTDIR/install.log 2>&1
+mv apfelgrid apfelgrid-${apfelver}
+cd  apfelgrid-${apfelver}
+#git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
+./setup.sh  >> $CURRENTDIR/install.log  2>&1
 
 #mela
 echo "Installing MELA $melaver..."

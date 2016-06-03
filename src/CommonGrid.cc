@@ -12,6 +12,7 @@
 #include <sstream>
 #include <float.h>
 
+#include "xfitter_cpp.h"
 #include "CommonGrid.h"
 
 #include "appl_grid/appl_grid.h"
@@ -26,6 +27,20 @@ extern "C" void appl_fnpdf_bar_(const double& x, const double& Q, double* f);
 extern "C" void appl_fnpdf_neut_(const double& x, const double& Q, double* f);
 extern "C" double appl_fnalphas_(const double& Q);
 extern "C" void hf_errlog_(const int &id, const char *text, int); 
+
+#ifdef APFELGRID_ENABLED
+#include "APFELgrid/fastkernel.h"
+#include "APFELgrid/transform.h"
+// PDF in the evolution basis needed by APFELgrid
+extern "C" void apfel_fnpdf_(const double& x, const double& Q, double* f);
+void fkpdf (const double& x, const double& Q, const size_t& n, double* pdf)
+{
+  static double* lha_pdf = new double[13];
+  apfel_fnpdf_(x,Q,lha_pdf);
+  NNPDF::LHA2EVLN<double, double>(lha_pdf, pdf);
+}
+#include "APFELgridGeneration.h"
+#endif
 
 /*
 void appl_fnpdf_bar(const double& x, const double& Q, double* f)
@@ -62,6 +77,8 @@ CommonGrid::CommonGrid(const string & grid_type, const string &grid_source): _dy
     this->readVirtGrid(grid_source);
   } else if ( grid_type.find("ast") != string::npos ) { // fastNLO
      this->initfastNLO(grid_source);
+  } else if ( grid_type == "apfelgrid" ) { // APFELgrid
+    this->readAPFELgrid(grid_source);
   } else {
     int id = 14032542;
     char text[] = "S: Unknown grid type in theory expression.";
@@ -74,8 +91,11 @@ CommonGrid::~CommonGrid(){
   vector<tHyperBin>::iterator ihb;
   for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
     delete[] ihb->b;
-    if ( ihb->g )  delete ihb->g;
-    if ( ihb->f )  delete ihb->f;
+    if ( ihb->g  )  delete ihb->g;
+    if ( ihb->f  )  delete ihb->f;
+#ifdef APFELGRID_ENABLED
+    if ( ihb->fk )  delete ihb->fk;
+#endif
   }
 }
 
@@ -99,30 +119,119 @@ CommonGrid::readAPPLgrid(const string &grid_source)
   g->trim();
 
   tHyperBin hb;
-  hb.b = b;
-  hb.g = g;
-  hb.f = NULL;
+  hb.b   = b;
+  hb.g   = g;
+  hb.f   = NULL;
+  hb.fk  = NULL;
   hb.ngb = g->Nobs();
   _hbins.push_back(hb);
   _ndim = 2;
   return _hbins.size();
 }
 
+
+int
+CommonGrid::readAPFELgrid(const string &grid_source)
+{
+#ifdef APFELGRID_ENABLED
+  // Read FK table
+  ifstream infile;
+  infile.open(grid_source.c_str());
+  NNPDF::FKTable<double> *FK;
+
+  // If an FK table exists, read it
+  if(infile) {
+    FK = new NNPDF::FKTable<double>(infile);
+
+    // Check that the relevant parameters agree with those given in the steering card
+    double AsRef   = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "AlphasRef")).c_str());
+    double QRef    = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "QRef")).c_str());
+    double Q0      = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "Q0")).c_str());
+    double MCharm  = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MCharm")).c_str());
+    double MBottom = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MBottom")).c_str());
+    double MTop    = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MTop")).c_str());
+    int    PtOrd   = atoi((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "PerturbativeOrder")).c_str());
+
+    double dAsRef   = abs( AsRef / c_alphas_.alphas_ - 1 );
+    double dQRef    = abs( QRef / boson_masses_.mz_ - 1 );
+    double dQ0      = abs( Q0 / sqrt(steering_.starting_scale_) - 1 );
+    double dMCharm  = abs( MCharm / fermion_masses_.mch_ - 1);
+    double dMBottom = abs( MBottom / fermion_masses_.mbt_ - 1);
+    double dMTop    = abs( MTop / fermion_masses_.mtp_ - 1);
+    int    dPtOrd   = abs( PtOrd + 1 - steering_.i_fit_order_);
+
+    double toll = 1e-5;
+    if( dAsRef > toll || dQRef > toll || dQ0 > toll || dMCharm > toll || dMBottom > toll || dMTop > toll || dPtOrd > 0 ) {
+      cout << "The evolution parameters in '" << grid_source << "' do not correspond to those in the steering card. Regenerating FK table ..." << endl;
+      cout << endl;
+
+      // Move original file
+      cout << "Moving '" << grid_source << "' into '" << grid_source << "-old'" << endl;
+      cout << endl;
+      rename(grid_source.c_str(), (grid_source + "-old").c_str());
+
+      // Generate FK table is absent
+      APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale_),
+      			       fermion_masses_.mch_, fermion_masses_.mbt_, fermion_masses_.mtp_,
+			       c_alphas_.alphas_, boson_masses_.mz_,
+			       steering_.i_fit_order_ - 1);
+
+      // Reread FK table
+      ifstream infile1;
+      infile1.open(grid_source.c_str());
+      FK = new NNPDF::FKTable<double>(infile1);
+    }
+  }
+  // If no FK table exists, generate it
+  else {
+    cout << "The file '" << grid_source << "' does not exist. Generating FK table ..." << endl;
+    cout << endl;
+
+    // Generate FK table is absent
+    APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale_),
+			     fermion_masses_.mch_, fermion_masses_.mbt_, fermion_masses_.mtp_,
+			     c_alphas_.alphas_, boson_masses_.mz_,
+			     steering_.i_fit_order_ - 1);
+
+    // Read FK table
+    ifstream infile1;
+    infile1.open(grid_source.c_str());
+    FK = new NNPDF::FKTable<double>(infile1);
+  }
+
+  tHyperBin hb;
+  hb.b   = NULL;
+  hb.g   = NULL;
+  hb.f   = NULL;
+  hb.fk  = FK;
+  hb.ngb = FK->GetNData();
+  _hbins.push_back(hb);
+  _ndim = 2;
+  return _hbins.size();
+#else
+  int id = 16051601;
+  char text[] = "S: APFELgrid must be present. Recompile with --enable-apfelgrid to use this option.";
+  int textlen = strlen(text);
+  hf_errlog_(id, text, textlen);
+#endif
+}
+
 int
 CommonGrid::initfastNLO(const string &grid_source)
 {
-   FastNLOxFitter* fnlo = new FastNLOxFitter(grid_source);
+  FastNLOxFitter* fnlo = new FastNLOxFitter(grid_source);
    
-   tHyperBin hb;
-   hb.b = NULL;
-   hb.g = NULL;
-   hb.f = fnlo;
-   hb.ngb = fnlo->GetNObsBin();
-   _hbins.push_back(hb);
-   _ndim = fnlo->GetNumDiffBin(); // _ndim not needed for fastNLO
-   for ( int i = 0 ; i<_ndim ; i++ ) 
-      if ( fnlo->GetIDiffBin(i) != 1 ) _ndim++;
-   return _hbins.size();
+  tHyperBin hb;
+  hb.b   = NULL;
+  hb.g   = NULL;
+  hb.f   = fnlo;
+  hb.fk  = NULL;
+  hb.ngb = fnlo->GetNObsBin();
+  _hbins.push_back(hb);
+  _ndim = fnlo->GetNumDiffBin(); // _ndim not needed for fastNLO
+  for ( int i = 0 ; i<_ndim ; i++ ) 
+    if ( fnlo->GetIDiffBin(i) != 1 ) _ndim++;
+  return _hbins.size();
 }
 
 int
@@ -190,12 +299,14 @@ CommonGrid::vconvolute(const int iorder, const double mur, const double muf)
    for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
       if ( ihb->g ) 
 	 // have to decrement iorder, since for appl_grid 0 -> LO, 1 -> NLO, etc.
-	      result.push_back(vconvolute_appl(iorder-1,mur,muf,&(*ihb)));
+	result.push_back(vconvolute_appl(iorder-1,mur,muf,&(*ihb)));
       else if ( ihb->f )
-	      result.push_back(vconvolute_fastnlo(iorder,mur,muf,ihb->f));
+	result.push_back(vconvolute_fastnlo(iorder,mur,muf,ihb->f));
+      else if ( ihb->fk )
+	result.push_back(vconvolute_apfelg(&(*ihb)));
       else {
 	 int id = 15010262;
-	 char text[] = "S: Either applgrid or fastNLO must be present.";
+	 char text[] = "S: Either applgrid or fastNLO or APFELgrid must be present.";
 	 int textlen = strlen(text);
 	 hf_errlog_(id, text, textlen);	 
       }
@@ -261,6 +372,31 @@ CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf
 
   xs.insert(xs.end(), gxs.begin(), gxs.begin()+ihb->ngb);
   return xs;
+}
+
+std::vector<double> 
+CommonGrid::vconvolute_apfelg(tHyperBin* ihb)
+{
+#ifdef APFELGRID_ENABLED
+  NNPDF::FKTable<double> *FK = ihb->fk;
+  double* gxs = new double[FK->GetNData()];
+
+  // extract convoluted cross sections
+  switch (_collision) {
+    case PP : FK->Convolute(fkpdf, 1, gxs); break;
+    default: {
+      int id = 1605121;
+      char text[] = "S: Only PP collisions currently available in APFELgrid.";
+      int textlen = strlen(text);
+      hf_errlog_(id, text, textlen);
+      break;
+    }
+  }
+  vector<double> xs(gxs, gxs + FK->GetNData());
+  return xs;
+#else
+  cout << "ERROR: calling dummy procedure for theory evaluation. Recompile with --enable-apfelgrid to use this option." << endl;
+#endif
 }
 
 int

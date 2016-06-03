@@ -46,10 +46,14 @@ else
   libxfitter_a_SOURCES+= mela_dum.f
 endif
 
-if ENABLE_APPLGRID 
+if ENABLE_APPLGRID
   libxfitter_a_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
 else 
   libxfitter_a_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
+endif
+
+if ENABLE_APFELGRID
+  libxfitter_a_SOURCES+= APFELgridGeneration.cc
 endif
 
 if ENABLE_LHAPDF 
@@ -76,6 +80,11 @@ endif
 if ENABLE_APFEL 
   AM_CPPFLAGS+=$(APFEL_CPPFLAGS)
   AM_FFLAGS+=$(APFEL_CPPFLAGS)
+endif
+
+
+if ENABLE_APFELGRID
+  AM_CPPFLAGS+=$(APFELGRID_CPPFLAGS)
 endif
 
 # xFitter main library:
@@ -165,6 +174,11 @@ APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
   F2PYLIBS +=  $(APPLGRID_3)
+endif
+
+if ENABLE_APFELGRID 
+  LDADD+=$(APFELGRID_LDFLAGS)
+  F2PYLIBS+=$(APFELGRID_LDFLAGS) 
 endif
 
 if ENABLE_APFEL

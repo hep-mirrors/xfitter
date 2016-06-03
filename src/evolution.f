@@ -13,6 +13,8 @@ c      implicit double precision (a-h,o-z)
 #include "thresholds.inc"
 #include "alphas.inc"
 #include "couplings.inc"
+#include "ntot.inc"
+#include "datasets.inc"
 c      common/thresholds/q0,qc,qb
 
       double precision func0,func1,func24,func22
@@ -48,7 +50,6 @@ cjt test
 *     for RT code, transfer alpha S
 *     --------------------------------------------------------- 
       double precision alphaszero
-      double precision hf_get_alphas
 
 *     ---------------------------------------------------------
 *     Subroutine of the external evolution codes
@@ -58,7 +59,9 @@ cjt test
       external APFELsubrPhoton
       external QEDEVOLsubr
 
-      double precision epsi
+      double precision epsi,delta
+      double precision hf_get_alphas,asRef,Q2Ref
+      parameter(delta=0.999d0)
 
 *     ---------------------------------------------------------
 *     Save scale in a common to avoid APFEL to evolve if the
@@ -179,31 +182,47 @@ C ---- LHAPDF ----
          return
 C ---- APFEL ----
       elseif (IPDFSET.eq.7) then
-         q2p = starting_scale
-         call SetPDFSet("external")
          if(itheory.eq.35)then
+            q2p = starting_scale
+            call SetPDFSet("external")
             call PDFEXT(APFELsubrPhoton,IPDFSET,1,dble(0.001),epsi)
          else
-            call PDFEXT(APFELsubr,      IPDFSET,0,dble(0.001),epsi)
-cC ====================================================================
-cC     Stuff for the implementation of the H-VFNS
-cC ====================================================================
-c*     3 flavours
-c            call SetMaxFlavourPDFs(3)
-c            call SetMaxFlavourAlpha(3)
-c            call PDFEXT(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
-c*     4 flavours
-c            call SetMaxFlavourPDFs(4)
-c            call SetMaxFlavourAlpha(4)
-c            call PDFEXT(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
-c*     5 flavours
-c            call SetMaxFlavourPDFs(5)
-c            call SetMaxFlavourAlpha(5)
-c            call PDFEXT(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
-c*     6 flavours (default)
-c            call SetMaxFlavourPDFs(6)
-c            call SetMaxFlavourAlpha(6)
-cC ====================================================================
+*     6 flavours (default)
+            q2p = starting_scale
+            call SetPDFSet("external")
+            call SetMaxFlavourPDFs(6)
+            call SetMaxFlavourAlpha(6)
+            call PDFEXT(APFELsubr,IPDFSET,0,dble(0.001),epsi)
+C
+C     If the use of the H-VFNS is required, enable the evolutions
+C     with different values of NFmax
+C
+            if(UseHVFNS)then
+*     5 flavours
+               q2p = starting_scale
+               call SetPDFSet("external")
+               call SetMaxFlavourPDFs(5)
+               call SetMaxFlavourAlpha(5)
+               call PDFEXT(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
+*     4 flavours (redefine alphas)
+               q2p   = starting_scale
+               Q2Ref = ( mbt * kmub * delta )**2 
+               asRef = HF_Get_alphas(Q2ref)
+               call SetAlphaQCDRef(asRef,dsqrt(Q2Ref))
+               call SetPDFSet("external")
+               call SetMaxFlavourPDFs(4)
+               call SetMaxFlavourAlpha(4)
+               call PDFEXT(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
+*     3 flavours (redefine alphas)
+               q2p   = starting_scale
+               Q2Ref = ( mch * kmuc * delta )**2 
+               asRef = HF_Get_alphas(Q2ref)
+               call SetAlphaQCDRef(asRef,dsqrt(Q2Ref))
+               call SetPDFSet("external")
+               call SetMaxFlavourPDFs(3)
+               call SetMaxFlavourAlpha(3)
+               call PDFEXT(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
+            endif
          endif
          return
 C ---- QEDEVOL ----

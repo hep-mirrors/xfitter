@@ -24,6 +24,9 @@
 #include "appl_grid/appl_grid.h"
 #endif
 #include <FastNLOxFitter.h>
+#ifdef APFELGRID_ENABLED
+#include "APFELgrid/fastkernel.h"
+#endif
 
 using namespace std;
 #ifdef APPLGRID_ENABLED
@@ -39,8 +42,13 @@ struct tHyperBin {
   void* g;
 #endif
   FastNLOxFitter* f;
+#ifdef APFELGRID_ENABLED
+  NNPDF::FKTable<double> *fk;
+#else
+  void* fk;
+#endif
   // default constructor
-  tHyperBin(): b(NULL), ngb(0), g(NULL), f(NULL) {}
+tHyperBin(): b(NULL), ngb(0), g(NULL), f(NULL), fk(NULL) {}
 };
 
 enum tCollisions { PP, PPBAR, PN, PD, PNUC, NUCNUC };
@@ -84,11 +92,15 @@ class CommonGrid {
   int readVirtGrid(const string &grid_source);
   //! Read the virtual grid
   int initfastNLO(const string &grid_source);
+  //! Read the APFELgrid
+  int readAPFELgrid(const string &grid_source);
 
    //! convolute applgrid
    std::vector<double> vconvolute_appl(const int iorder, const double mur, const double muf, tHyperBin* ihb);
    //! calculate fastNLO
    std::vector<double> vconvolute_fastnlo(const int iorder, const double mur, const double muf, FastNLOxFitter* fnlo);
+   //! convolute APFELgrid
+   std::vector<double> vconvolute_apfelg(tHyperBin* ihb);
 
  private:
   int _ndim;

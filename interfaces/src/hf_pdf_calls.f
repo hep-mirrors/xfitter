@@ -31,9 +31,9 @@ C photon is present !
 
       if ( ExtraPdfs ) then
 C QED evolution:
-         call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)         
-         PDFSF(N_CHARGE_PDF+N_NEUTRAL_PDF) = FSNSXQ( iPDFSET,13,x,q2,ICheck_QCDNUM)
-c         print *,ipdfset,x,q2, PDFSF(N_CHARGE_PDF+1), PDFSF(0)
+         call FPDFXQ(viPDFSET,x,q2,PDFSF,ICheck_QCDNUM)         
+         PDFSF(N_CHARGE_PDF+N_NEUTRAL_PDF) = FSNSXQ(viPDFSET,13,x,q2,ICheck_QCDNUM)
+c         print *,vipdfset,x,q2, PDFSF(N_CHARGE_PDF+1), PDFSF(0)
          return
       endif
 
@@ -97,7 +97,7 @@ C----------------------------------------------------------------------
       data icheck/1/  ! Force PDF checks
 C----------------------------------------------------------------------
       call mypdflist
-     $     (IPDFSET,pdfdef,Xarray,Q2ARRAY,PDFout,Npoints,Icheck)
+     $     (vIPDFSET,pdfdef,Xarray,Q2ARRAY,PDFout,Npoints,Icheck)
       end
 
       double precision Function HF_Get_alphas(q2)
@@ -183,7 +183,7 @@ C----------------------------------------------------------------------
       double precision x,q2,pdfsf(-6:6)
 C----------------------------------------------------------------------
 !$OMP CRITICAL
-      call FPDFXQ(iPDFSET,x,q2,PDFSF,ICheck_QCDNUM)
+      call FPDFXQ(viPDFSET,x,q2,PDFSF,ICheck_QCDNUM)
 !$OMP END CRITICAL
 C----------------------------------------------------------------------
       end

@@ -2,11 +2,12 @@
 
 #include "pdferrors.h"
 #include "dimensions.h"
-#include "TheorEval.h"
 
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
 #endif
+
+#include "TheorEval.h"
 
 #include <iostream>
 #include <vector>
