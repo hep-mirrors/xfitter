@@ -39,13 +39,16 @@ m4_include([m4/ax_openmp.m4])
 # A lot of code written with 132 char. strings.
 #
 if test "uname -m" = "64"; then
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp -mcmodel=medium"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp -mcmodel=medium"
+   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
+   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
 else
    echo "Disabling mcmodel=medium option"
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp"
+   FCFLAGS="$FCFLAGS -ffixed-line-length-132  -fPIC -cpp"
+   FFLAGS="$FFLAGS -ffixed-line-length-132  -fPIC -cpp"
 fi    
+
+CFLAGS="$CFLAGS -fPIC"
+CPPFLAGS="$CPPFLAGS -fPIC"
 
 # check for lapack and blas
 AX_BLAS
