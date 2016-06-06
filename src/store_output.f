@@ -387,6 +387,9 @@ C-------------------------------------------------------------
       character*32 parname
       character*32 fname
 
+      double precision, allocatable :: errIterate(:,:)
+      
+
 C-------------------------------------------------------------
       if (ifcn3.lt.10) then
 c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
@@ -400,8 +403,27 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
       endif
 
       open (71,file=fname,status='unknown')
+
+      if (DoBands .and. ifcn3.eq.0) then
+         Allocate(errIterate(MNE,MNE))
+         call GetErrMatScaled(errIterate)
+      endif
+
       do i=1,mne
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
+
+C
+C For bands, replace by "iterate" estimate, if present
+C     
+         if ( Dobands .and. ipar.gt.0 .and. ifcn3.eq.0 ) then
+            if ( errIterate(ipar,ipar).gt.0 ) then
+               err = sqrt(errIterate(ipar,ipar))
+               val = pkeep(i)
+               call hf_errlog(1060402016,
+     $ 'I: Write uncertainties to parsout_0 using Iterate method')
+            endif
+         endif
+
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then
                write (71,72) i, Trim(parname), val,err
@@ -410,6 +432,10 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
             endif
          endif
       enddo
+
+      if (DoBands .and. ifcn3.eq.0) then
+         deallocate(errIterate)
+      endif
  72   format (I5,'   ','''',A,'''',4F12.6)
       close(71)
 
