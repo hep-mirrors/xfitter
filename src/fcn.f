@@ -196,6 +196,10 @@ c updf stuff
 C Penalty from MINUIT extra parameters constraints
       double precision extraparsconstrchi2
 
+      logical Lfirst
+      data Lfirst/.true./
+      save Lfirst
+
 
 C--OZ 21.04.2016 Increment IfcnCount here instead of fcn routine
       IfcnCount=IfcnCount+1
@@ -411,10 +415,11 @@ c             call fillvfngrid
          enddo
       endif
 
-      if ( (IFlag.eq.1).and.(DataToTheo)) then
+      if ( (IFlag.eq.1).and.(DataToTheo) .and. LFirst) then
          do i=1,npoints
             daten(i) = theo(i)
          enddo
+         LFirst = .false.
       endif
 
 *     ---------------------------------------------------------

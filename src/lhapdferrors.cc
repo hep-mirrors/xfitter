@@ -146,7 +146,7 @@ void get_lhapdferrors_()
 
   //Evaluate chi2 for the central PDF member
   double chi2tot;
-  //chi2tot = chi2data_theory_(1); //Needed for initialiion
+  // chi2tot = chi2data_theory_(1); //Needed for initialiion
   string fname = outdirname + "/Results.txt";
   fopen_(85, fname.c_str(), fname.size());
   chi2tot = chi2data_theory_(3);
