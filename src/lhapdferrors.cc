@@ -508,7 +508,7 @@ void get_lhapdferrors_()
       chi2wf << "Reweight method=   BAYESIAN"<<endl;
       chi2wf << "ndata=   " << npoints <<endl;
 
-      chi2wf << cset << endl;
+      chi2wf << totmc << endl;
 
       for (; ic != chi2.end(); ic++, iw++)
 	chi2wf << (ic - chi2.begin()) << "\t" << *ic << "\t" << *iw << endl;
@@ -523,7 +523,7 @@ void get_lhapdferrors_()
       chi2wf2 << "LHAPDF set=   " << lhapdfsetname<<endl;
       chi2wf2 << "Reweight method=   GIELE-KELLER"<<endl;
       chi2wf2 << "ndata=   " << npoints <<endl;
-      chi2wf2 << cset << endl;
+      chi2wf2 << totmc << endl;
 
       for (; ic != chi2.end(); ic++, iw++)
 	chi2wf2 << (ic - chi2.begin()) << "\t" << *ic << "\t" << *iw << endl;
