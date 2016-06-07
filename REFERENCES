@@ -28,10 +28,10 @@ By H1 and ZEUS Collaborations (F.D. Aaron et al.). DESY-09-158, Oct 2009. 61pp.
 Published in JHEP 1001:109,2010. 
 e-Print: arXiv:0911.0884 [hep-ex]
 
-"A Precision Measurement of the Inclusive ep Scattering Cross Section at HERA."
-By H1 Collaboration (F.D. Aaron et al.). DESY-09-005, 2009. 35pp. 
-Published in Eur.Phys.J.C64:561-587,2009. 
-e-Print: arXiv:0904.3513 [hep-ex] 
+"Inclusive Deep Inelastic Scattering at High Q2 with Longitudinally Polarised Lepton Beams at HERA"
+By H1 Collaboration (F.D. Aaron et al.) DESY-12-107
+Published in JHEP 09 (2012) 061
+e-Print: arXiv:1206.7007 [hep-ex] 
 
 QCDNUM  ( evolution code )
 -------
@@ -114,9 +114,13 @@ S. Forte, E. Laenen, P. Nason and J. Rojo,
 Published in Nucl. Phys. B 834 (2010) 116,
 e-Print: arXiv:1001.2312 [hep-ph].
 
-2) Chi2 definition ( CHI2Style = 'XXXX')
+2) Chi2 definitions 
 -----------------------------------------
 'H12000':
+ CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+ Chi2Settings     = 'NoRescale'  , 'NoRescale', 'Linear'     , 'Diagonal'     , 'Hessian'
+
+
 "Measurement and QCD analysis of neutral and charged current cross-sections at HERA"
 By H1 Collaboration (C. Adloff et al.). DESY-03-038, Apr 2003. 54pp. 
 Published in Eur.Phys.J.C30:1-32,2003. 
@@ -127,13 +131,30 @@ By ZEUS Collaboration (S. Chekanov et al.). DESY-02-105, Aug 2002. 50pp.
 Published in Phys.Rev.D67:012007,2003. 
 e-Print: hep-ex/0208023
 
-'HERAPDF': 
+'HERAPDF1.0': 
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+
 Add two references above (for 'H12000'), in addition: 
 
 "Measurement of the Inclusive ep Scattering Cross Section at Low Q^2 and x at HERA"
 F.D. Aaron et al. DESY-08-171, 2009. 90pp. 
 Published in Eur.Phys.J.C63:625-678,2009. 
 e-Print: arXiv:0904.0929 [hep-ex]
+
+
+'HERAPDF2.0', 'H12012':
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2ExtraParam = 'PoissonCorr' 
+
+Add two references above (for 'H12000'), in addition: 
+
+"Inclusive Deep Inelastic Scattering at High Q2 with Longitudinally Polarised Lepton Beams at HERA"
+By H1 Collaboration (F.D. Aaron et al.)	DESY-12-107
+Published in JHEP 09 (2012) 061
+e-Print: arXiv:1206.7007 [hep-ex]
+
 
 3) PDFStyle  (PDFStyle = 'XXXX')
 ----------------------------------
