@@ -306,7 +306,7 @@ void get_lhapdferrors_()
 	      chi2tot = chi2data_theory_(3);
 	      fclose_(85);
 	      */
-	      chi2tot = chi2data_theory_(1);
+	      chi2tot = chi2data_theory_(2);
 
 	      char chi2c[500];
 	      sprintf(chi2c, "%.2f", chi2tot);
