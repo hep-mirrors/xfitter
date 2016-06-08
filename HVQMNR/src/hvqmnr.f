@@ -53,13 +53,6 @@ C-----------------------------------------------------------------------
      $                   fragpar_c,fragpar_b,debug
       save /HVQMNR_PARS/
 
-      ! Check running mode. Currently the code works correctly only in the fit mode.
-      if ( RunningMode .ne. 'Fit') then
-        print *,'ERROR IN GetHVQMNRXsection'
-        print *,'Only RunningMode = ''Fit'' is supported'
-        call HF_stop
-      endif
-
       ! First call: make some checks, set needed parameters
       if(IfcnCount.eq.1) then
         ! Check HF scheme
