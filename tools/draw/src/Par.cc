@@ -180,6 +180,25 @@ string fitstat(string dir)
 {
   //Read fit status
   string status = "not-a-fit";
+
+  // First check the Status.out file:
+  ifstream fOk((dir+"/Status.out").c_str());
+  if (!fOk.good()) { 
+    return status;
+  }
+  else {
+    string line;
+    while (getline(fOk,line)) {
+      if (line.find("OK") !=  string::npos) 	{
+	status = "fit OK";
+      }
+      else {
+	status = "not-a-fit";
+	return status;
+      }
+    }
+  }
+
   string fname = dir + "/minuit.out.txt";
   ifstream ff(fname.c_str());
   if (!ff.good())
@@ -205,22 +224,41 @@ string hessestat(string dir)
 {
   //Read fit status
   string status = "not-a-fit";
+
+  // First check the Status.out file:
+  ifstream fOk((dir+"/Status.out").c_str());
+  if (!fOk.good()) { 
+    return status;
+  }
+  else {
+    string line;
+    while (getline(fOk,line)) {
+      if (line.find("OK") !=  string::npos) 	{
+	status = "fit OK";
+      }
+      else {
+	status = "not-a-fit";
+	return status;
+      }
+    }
+  }
+
   string fname = dir + "/minuit.out.txt";
   ifstream ff(fname.c_str());
   if (!ff.good())
     return status;
   else
     status = "undefined";
+
   string line;
   while (getline(ff, line))
     {
       if (line.find("STATUS=OK") != string::npos)
-        {
-          status = "migrad-hesse";  //--- a text printed by ParPainter
-          break;
-        }
+	status = "migrad-hesse";  //--- a text printed by ParPainter
       if (line.find("STATUS=NOT POSDEF") != string::npos)
         status = "pos-def-forced";
+      if (line.find("ERROR MATRIX FROM ITERATE") != string::npos)
+	status = "iterate";
     }
   ff.close();
   return status;
