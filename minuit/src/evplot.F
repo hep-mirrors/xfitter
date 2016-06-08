@@ -10,7 +10,7 @@ c
 	common /umatco/ hquad(MNI,MNI), umat(MNI,MNI), vmat(MNI,MNI), 
      &	                tvec(MNI), errmat(MNI,MNI)
 
-	dimension errmatscaled(MNI,MNI)
+	double precision errmatscaled(MNI,MNI)
         common/umatco2/errmatscaled
 
 	write(isyswr,100) 
@@ -58,6 +58,9 @@ c ======================
 	write(isyswr,200) 2*UP
 200	format(/1x,'Error matrix multiplied by 2*UP =',g14.6,':')
 
+	write(isyswr,199) 
+ 199    format(/1x,'ERROR MATRIX FROM ITERATE')
+
 	do i = 1, npar
 	do j = 1, npar
 	   errmatscaled(i,j) = 2.d0*UP*errmat(i,j)
@@ -78,13 +81,13 @@ c **	   write(isyswr,210)
       subroutine GetErrMatScaled(emat)
 #include "./d506dp.inc"
 #include "./d506cm.inc"
-      dimension errmatscaled(MNI,MNI)
+      double precision errmatscaled(MNI,MNI)
       common/umatco2/errmatscaled
-      double precision emat(MNI,MNI)
+      double precision emat(MNE,MNE)
       integer i,j
 C
-      do i=1,MNI
-         do j=1,MNI
+      do i=1,npar
+         do j=1,npar
             emat(i,j) = errmatscaled(i,j)
          enddo
       enddo
