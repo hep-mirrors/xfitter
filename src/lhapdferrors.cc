@@ -871,6 +871,11 @@ void get_lhapdferrors_()
   
   if (pdfprofile || scaleprofile)
     {
+
+      // Reset the central PDF set:
+      LHAPDF::initPDFSet(lhapdfset.c_str());
+      LHAPDF::initPDF(central_pdfmember);
+
       cout << "-------------------------------------------" << endl;
       cout << "Chi2 test on central prediction with PDF and/or scale uncertainties:" << endl;
 
