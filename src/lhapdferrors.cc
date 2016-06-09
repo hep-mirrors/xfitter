@@ -197,7 +197,7 @@ void get_lhapdferrors_()
   
   /*****************************************************/
   // PDF variations
-  int cset = 1; //gloabl counter on total pdf and scale variations;
+  int cset = 1; //global counter on total pdf and scale variations;
   if (pdfprofile)
     {
       cout << "-------------------------------------------" << endl;
@@ -380,6 +380,16 @@ void get_lhapdferrors_()
 	      cset++;
 	    } //End of loop on PDF members
 	} //End loop on eig var PDF sets
+
+      // Reset the central PDF set:
+      LHAPDF::initPDFSet(lhapdfset.c_str());
+      LHAPDF::initPDF(central_pdfmember);
+      clhapdf_.ilhapdfset_ = central_pdfmember;
+      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
+      steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
+      steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+
     }//End of pdfprofile
 
   /*************************************************/
@@ -871,11 +881,6 @@ void get_lhapdferrors_()
   
   if (pdfprofile || scaleprofile)
     {
-
-      // Reset the central PDF set:
-      LHAPDF::initPDFSet(lhapdfset.c_str());
-      LHAPDF::initPDF(central_pdfmember);
-
       cout << "-------------------------------------------" << endl;
       cout << "Chi2 test on central prediction with PDF and/or scale uncertainties:" << endl;
 
