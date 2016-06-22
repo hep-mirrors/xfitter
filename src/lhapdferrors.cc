@@ -846,8 +846,8 @@ void get_lhapdferrors_()
   if (totpar > 0)
     for (int i = 0; i < npoints; i++)
       {
-	pointsmap[i].th_err_up = sqrt(pow(pointsmap[i].th_err_up,2) + pow(pointsmap[i].th_env_p,2));
-	pointsmap[i].th_err_dn = sqrt(pow(pointsmap[i].th_err_dn,2) + pow(pointsmap[i].th_env_m,2));
+	pointsmap[i].th_err_up = sqrt(pow(pointsmap[i].th_err_up,2) + pow(pointsmap[i].th_env_p-pointsmap[i].thc,2));
+	pointsmap[i].th_err_dn = sqrt(pow(pointsmap[i].th_err_dn,2) + pow(pointsmap[i].th_env_m-pointsmap[i].thc,2));
       }
 
   //Square add scale variations
