@@ -157,7 +157,8 @@ c        open(82,file=h1name)
 *      DbmUb=d_Dbar-d_Ubar
             u_sea=pdf(-2)
             d_sea=pdf(-1)
-            str=pdf(-3)
+            str = (pdf(-3)+pdf(3))/2.d0
+
 
             chm = 0.0d0
             if (q2.gt.qc) then
