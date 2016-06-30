@@ -537,6 +537,7 @@ void get_lhapdferrors_()
 	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
       cset++;
 
+      /*
       //factor = sqrt(2.);
       //C3*sqrt(2)
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
@@ -569,6 +570,7 @@ void get_lhapdferrors_()
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
       cset++;
+      */
 
       //restore nominal scale
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
