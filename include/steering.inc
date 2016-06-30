@@ -104,6 +104,10 @@ C
       character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
       logical Chi2PoissonCorr, Chi2FirstIterationRescale, Chi2ExtraSystRescale
 
+      integer nordAcot
+      common /Iacot/  nordAcot  !*** pass nordAcot to ACOT module     
+
+
       integer AsymErrorsIterations !> Number of iterations for asymmetric errors. 0 -- off 
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,

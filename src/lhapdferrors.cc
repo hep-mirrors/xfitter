@@ -174,7 +174,12 @@ void get_lhapdferrors_()
   store_pdfs_(filename.c_str(), filename.size());
       
   //Save the input PDFs in LHAPDF6 format
-  strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 128);
+  if ( strstr(coutdirname_.lhapdf6outdir_ ,"hf_pdf") != NULL) { 
+    // Overwrite default name with the PDF name
+    string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset_;
+    hf_errlog_(15051301,msg.c_str(), msg.size());
+    strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 128);
+  }  
   fill_c_common_(); //set the PDF name and the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
   print_lhapdf6_();
   //save_data_lhapdf6_(pdfmember);
