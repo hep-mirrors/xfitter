@@ -156,6 +156,9 @@ c ..........................................................
            call MNCOMD(fcn,'ITERATE 10',icond,0)
            call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
            call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
+
+           call write_pars(0)
+
            call Error_Bands_Pumplin
         elseif (DoBandsSym) then
            call ErrBandsSym

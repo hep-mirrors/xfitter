@@ -10,7 +10,8 @@ c
 	common /umatco/ hquad(MNI,MNI), umat(MNI,MNI), vmat(MNI,MNI), 
      &	                tvec(MNI), errmat(MNI,MNI)
 
-	dimension errtmp(MNI,MNI)
+	double precision errmatscaled(MNI,MNI)
+        common/umatco2/errmatscaled
 
 	write(isyswr,100) 
 100	format(1x,'EVPLOT: eigenvalues of the Hessian')
@@ -57,18 +58,40 @@ c ======================
 	write(isyswr,200) 2*UP
 200	format(/1x,'Error matrix multiplied by 2*UP =',g14.6,':')
 
+	write(isyswr,199) 
+ 199    format(/1x,'ERROR MATRIX FROM ITERATE')
+
 	do i = 1, npar
 	do j = 1, npar
-	   errtmp(i,j) = 2.d0*UP*errmat(i,j)
+	   errmatscaled(i,j) = 2.d0*UP*errmat(i,j)
 	enddo
 	enddo
 
 	do i = 1, npar
 c **	   write(isyswr,210) 
 210	   format(1x)
-	   write(isyswr,220) (errtmp(i,j),j=1,i)
+	   write(isyswr,220) (errmatscaled(i,j),j=1,i)
 220	   format(1x,11e10.3)
 	enddo
 
 	return
 	end
+
+!> Return scaled error matrix for Iterate method
+      subroutine GetErrMatScaled(emat)
+#include "./d506dp.inc"
+#include "./d506cm.inc"
+      double precision errmatscaled(MNI,MNI)
+      common/umatco2/errmatscaled
+      double precision emat(MNE,MNE)
+      integer i,j
+C
+      do i=1,npar
+         do j=1,npar
+            emat(i,j) = errmatscaled(i,j)
+         enddo
+      enddo
+C
+      end
+
+      
