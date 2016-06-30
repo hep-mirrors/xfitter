@@ -397,6 +397,8 @@ c         q0 = sqrt(starting_scale)
          call HF_Stop
       endif
 *
+      return
+      end
 
       double precision function flav_threshold(fl)
       implicit none
