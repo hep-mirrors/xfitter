@@ -36,7 +36,6 @@ C------------------------------------
       integer iqnset, iqnchk,ifl
       
 C---------------------------------------
-
       iqnset = IPDFSET
       iqnchk = 0
       do ifl=-N_CHARGE_PDF,N_CHARGE_PDF
@@ -61,7 +60,6 @@ c     Return zero if x range falls below qcdnum grid xmin values (to avoid large
          Call Register_pdf_applgrid(x,q2)
 
       endif
-
 
 
       if (LFastAPPLGRID) then
@@ -303,6 +301,102 @@ C---------------------------------------------------------
       ILoc = -1
 
       end
+*
+************************************************************************
+*
+*     Subroutine that returns the PDFs at the initial scale in the
+*     physical basis. Needed by APFELgrid
+*
+************************************************************************
+      subroutine apfel_fnpdf(x, Q0, xf)
+*
+      implicit none
+#include "steering.inc"
+**
+*     Input Variables
+*
+      double precision x
+      double precision q0
+**
+*     Internal Variables
+*
+      integer ipdf
+      double precision gluon
+      double precision pdf_from_text
+      double precision qstrange,Ubar,Dbar,H1U,H1D
+      double precision sea,dbmub,dval,uval
+      double precision photon
+      double precision dfac,ParDumpFactor
+      parameter(ParDumpFactor=1.d-3)
+**
+*     Output Variables
+*
+      double precision xf(-6:6)
+*
+*     Set PDFs to zero
+*
+      do ipdf=4,6
+         xf(ipdf)  = 0d0
+         xf(-ipdf) = 0d0
+      enddo
+      if(x.gt.1d0) x = 1d0
+*
+*     Construct PDFs addording to the PDF decomposition
+*
+      if(PDF_DECOMPOSITION.eq.'LHAPDF')then
+c         q0 = sqrt(starting_scale)
+         call evolvePDF(x, q0, xf)
+
+      elseif(PDF_DECOMPOSITION.eq.'QCDNUM_GRID')then
+         xf(-3) = ( pdf_from_text(x,3) - pdf_from_text(x,6) ) / 2d0
+         xf(-2) = pdf_from_text(x,4)
+         xf(-1) = pdf_from_text(x,5)
+         xf(0)  = pdf_from_text(x,0)
+         xf(1)  = pdf_from_text(x,1) - pdf_from_text(x,5)
+         xf(2)  = pdf_from_text(x,2) - pdf_from_text(x,4)
+         xf(3)  = ( pdf_from_text(x,3) + pdf_from_text(x,6) ) / 2d0
+
+      elseif(Index(PDF_DECOMPOSITION,'D_U_Dbar_Ubar').gt.0)then ! D,U,Dbar,Ubar 
+         xf(-3) = qstrange(x)
+         xf(-2) = Ubar(x)
+         xf(-1) = Dbar(x)
+         xf(0)  = gluon(x)
+         xf(1)  = H1D(x) - xf(-3)
+         xf(2)  = H1U(x)
+         xf(3)  = xf(-3)
+
+      elseif(Index(PDF_DECOMPOSITION,'Sea').gt.0)then
+         xf(-2) = sea(x) / 4d0 - dbmub(x) / 2d0
+         xf(-1) = sea(x) / 4d0 + dbmub(x) / 2d0
+         xf(0)  = gluon(x)
+         xf(1)  = dval(x) + xf(-1)
+         xf(2)  = uval(x) + xf(-2)
+
+      elseif(PDF_DECOMPOSITION.eq.'Diffractive')then
+         dfac = dexp(-ParDumpFactor/(1.00001d0-x))
+*
+         xf(-3) = dfac * Uval(x)
+         xf(-2) = xf(-3)
+         xf(-1) = xf(-3)
+         xf(0)  = dfac * gluon(x)
+         xf(1)  = xf(-3)
+         xf(2)  = xf(-3)
+         xf(3)  = xf(-3)
+
+      elseif(Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0)then
+         xf(-3) = qstrange(x)
+         xf(-2) = ubar(x)
+         xf(-1) = dbar(x) - xf(-3)
+         xf(0)  = gluon(x)
+         xf(1)  = dval(x) + xf(-1)
+         xf(2)  = uval(x) + xf(-2)
+         xf(3)  = xf(-3)
+      else
+         print *,'Unknown PDF Decomposition: '//PDF_DECOMPOSITION
+         print *,'Stop in evolution'
+         call HF_Stop
+      endif
+*
 
       double precision function flav_threshold(fl)
       implicit none

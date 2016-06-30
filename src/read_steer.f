@@ -148,6 +148,7 @@ C     Initialise LHAPDF parameters
       LHAPDFSET = 'cteq65.LHgrid'
       ILHAPDFSET = 0
       IPDFSET = 1
+      vIPDFSET = IPDFSET
 
 C 25 Jan 2011
 C     Pure polynomial param for the valence quarks:
@@ -768,7 +769,9 @@ C
          DataSetMuRes(i)    = 1.0D0
          DataSetMuC3(i)    = 1.0D0
          DataSetIOrder(i) = I_Fit_Order
+         DataSetMaxNF(i)  = 0
       enddo
+      UseHVFNS = .false.
 C---------------------
       if (LDebug) then
          print InFiles
@@ -834,12 +837,13 @@ C---------------------------------------------------------
 #include "ntot.inc"
 #include "scales.inc"
 #include "steering.inc"
+#include "datasets.inc"
 C (Optional) Data-set dependent scales
       integer i_fit_order_save,i
       character*8 DataSetTheoryOrder(NSet)
       namelist/Scales/DataSetMuR,DataSetMuF,DataSetMuRes,
      $     DataSetMuC3,
-     $     DataSetIOrder,DataSetTheoryOrder
+     $     DataSetIOrder,DataSetTheoryOrder,DataSetMaxNF
 C---------------------------------------------
       do i=1,NSet
          DataSetTheoryOrder(i) = ''
@@ -856,6 +860,14 @@ C Check datasetorder
          if (DataSetTheoryOrder(i).ne.'') then
             call DecodeOrder(DataSetTheoryOrder(i))
             DataSetIOrder(i) = I_Fit_Order
+         endif
+C Check if the H-VFNS has to be used
+         if(DataSetMaxNF(i).ne.0)then
+C Check that MaxNF is between 3 and 6
+            if(DataSetMaxNF(i).lt.3.or.
+     1         DataSetMaxNF(i).gt.6) call hf_errlog(2105201601,
+     2              'F: DataSetMaxNF must be between 3 and 6')
+            UseHVFNS = .true.
          endif
       enddo
       I_Fit_Order = I_Fit_Order_Save
@@ -1019,7 +1031,7 @@ C---------------------------------------
       implicit none
 
       logical lhapdffile_exists
-      logical has_photon
+      integer*1 has_photon
 #include "steering.inc"
 C---------------------------------
 
@@ -1085,14 +1097,21 @@ cv         iparam = 301
          call numberPDF(nLHAPDF_Sets)                    
          call InitPDF(ILHAPDFSET)
 
-         if (has_photon()) then
+         if(has_photon().eq.1.) then    
             ExtraPdfs = .true. 
          else
             ExtraPdfs = .false.
          endif
 
+         if(PDFStyle.eq.'LHAPDFQ0'.and.ExtraPdfs) then
+            call hf_errlog(16060101,
+     $    'S: LHAPDFQ0 option cannot be used with QED (photon) PDFs')
+         endif
+
+
          if(PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFNATIVE') then
             IPDFSET = 5
+            vIPDFSET = IPDFSET
          endif
       endif
 
@@ -1298,6 +1317,7 @@ C-------------------------------------
 
       implicit none
 #include "extrapars.inc"
+#include "alphas.inc"
       integer maxExtra
       parameter (maxExtra=50)
       character*32 name(maxExtra)
@@ -1308,6 +1328,7 @@ C-------------------------------------
       namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
      $                                     ,ConstrVal,ConstrUnc
       integer i
+      integer GetParameterIndex
 C----------------------------------------
       
       open (51,file='steering.txt',status='old')
@@ -1333,11 +1354,12 @@ C
  71   continue
       print '(''Got '',i5,'' extra minuit parameters'')',nExtraParam
       close (51)
+C --- Set value of alphas
+      alphas = ExtraParamValue(GetParameterIndex('alphas'))
       return
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'
       call HF_stop
-
 C----------------------------------------
       end
 
@@ -1596,7 +1618,8 @@ C------------------------------------------------
          print *,'Check your steering.txt file'
          call hf_stop
       endif
-      
+      vIPDFSET = IPDFSET
+
       end
 
 C

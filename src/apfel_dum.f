@@ -171,6 +171,14 @@ c----------------------------------------------------------
       call print_apfel_error_message
       end
 
+      subroutine setmaxflavourpdfs
+      call print_apfel_error_message
+      end
+
+      subroutine setmaxflavouralpha
+      call print_apfel_error_message
+      end
+
       function HeavyQuarkMass(i,Q)
       integer i
       double precision Q,HeavyQuarkMass

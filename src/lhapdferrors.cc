@@ -2,11 +2,12 @@
 
 #include "pdferrors.h"
 #include "dimensions.h"
-#include "TheorEval.h"
 
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
 #endif
+
+#include "TheorEval.h"
 
 #include <iostream>
 #include <vector>
@@ -146,7 +147,8 @@ void get_lhapdferrors_()
 
   //Evaluate chi2 for the central PDF member
   double chi2tot;
-  //chi2tot = chi2data_theory_(1); //Needed for initialiion
+  //  mc_method_();
+  chi2tot = chi2data_theory_(1); //Needed for initialiion
   string fname = outdirname + "/Results.txt";
   fopen_(85, fname.c_str(), fname.size());
   chi2tot = chi2data_theory_(3);
@@ -196,7 +198,7 @@ void get_lhapdferrors_()
   
   /*****************************************************/
   // PDF variations
-  int cset = 1; //gloabl counter on total pdf and scale variations;
+  int cset = 1; //global counter on total pdf and scale variations;
   if (pdfprofile)
     {
       cout << "-------------------------------------------" << endl;
@@ -320,7 +322,7 @@ void get_lhapdferrors_()
 	      chi2tot = chi2data_theory_(3);
 	      fclose_(85);
 	      */
-	      chi2tot = chi2data_theory_(1);
+	      chi2tot = chi2data_theory_(2);
 
 	      char chi2c[500];
 	      sprintf(chi2c, "%.2f", chi2tot);
@@ -401,6 +403,16 @@ void get_lhapdferrors_()
 	      cset++;
 	    } //End of loop on PDF members
 	} //End loop on eig var PDF sets
+
+      // Reset the central PDF set:
+      LHAPDF::initPDFSet(lhapdfset.c_str());
+      LHAPDF::initPDF(central_pdfmember);
+      clhapdf_.ilhapdfset_ = central_pdfmember;
+      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
+      steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
+      steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+
     }//End of pdfprofile
 
   /*************************************************/
@@ -603,7 +615,7 @@ void get_lhapdferrors_()
       chi2wf << "Reweight method=   BAYESIAN"<<endl;
       chi2wf << "ndata=   " << npoints <<endl;
 
-      chi2wf << cset << endl;
+      chi2wf << totmc << endl;
 
       for (; ic != chi2.end(); ic++, iw++)
 	chi2wf << (ic - chi2.begin()) << "\t" << *ic << "\t" << *iw << endl;
@@ -618,7 +630,7 @@ void get_lhapdferrors_()
       chi2wf2 << "LHAPDF set=   " << lhapdfsetname<<endl;
       chi2wf2 << "Reweight method=   GIELE-KELLER"<<endl;
       chi2wf2 << "ndata=   " << npoints <<endl;
-      chi2wf2 << cset << endl;
+      chi2wf2 << totmc << endl;
 
       for (; ic != chi2.end(); ic++, iw++)
 	chi2wf2 << (ic - chi2.begin()) << "\t" << *ic << "\t" << *iw << endl;
@@ -929,8 +941,8 @@ void get_lhapdferrors_()
   if (totpar > 0)
     for (int i = 0; i < npoints; i++)
       {
-	pointsmap[i].th_err_up = sqrt(pow(pointsmap[i].th_err_up,2) + pow(pointsmap[i].th_env_p,2));
-	pointsmap[i].th_err_dn = sqrt(pow(pointsmap[i].th_err_dn,2) + pow(pointsmap[i].th_env_m,2));
+	pointsmap[i].th_err_up = sqrt(pow(pointsmap[i].th_err_up,2) + pow(pointsmap[i].th_env_p-pointsmap[i].thc,2));
+	pointsmap[i].th_err_dn = sqrt(pow(pointsmap[i].th_err_dn,2) + pow(pointsmap[i].th_env_m-pointsmap[i].thc,2));
       }
 
   //Square add scale variations

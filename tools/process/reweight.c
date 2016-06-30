@@ -105,7 +105,9 @@ int reweight(int argc,char* argv[]) {
 	  vec_chi2[i]=((chi2.val[i]));
         }
 
+#ifdef ROOT_ENABLED
 	FillwHist(vec_weight, vec_chi2, ndata, nrep_old, GK_method);
+#endif
 
         j=0;
         repnums[0]=0; // to copy info from original central set
@@ -125,7 +127,7 @@ int reweight(int argc,char* argv[]) {
 
 	  repnums[i]=j;//(repnums_old[j]); // vector containing new replicas in terms of member numbers of input set 
 
-	  fprintf(stdout, "%i / %d\n", j , n_outreps);
+	  fprintf(stdout, "%i / %d\n", (int) j , n_outreps);
 
         }		
         /// 

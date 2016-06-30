@@ -12,7 +12,34 @@ C---------------------------------------------------------------
 #include "scales.inc"
       integer IDataSet,kflag!
 C-------------------------------------------------------------------
-
+      vIPDFSET = IPDFSET
+      if(UseHVFNS)then
+         if(iTheory.ne.10)then
+            call hf_errlog(2105201302,"F: the H-VFNS can be used only"//
+     1                                " with 'DGLAP_APFEL'")
+         endif
+         if(mod(HFSCHEME,10).ne.5)then
+            call hf_errlog(2105201303,"F: the H-VFNS can be used only"//
+     1                                " with the FONLL scheme")
+         endif
+         call SetMaxFlavourPDFs(6)
+         call SetMaxFlavourAlpha(6)
+         if(DataSetMaxNF(IDataSet).eq.5)then
+            call SetMaxFlavourPDFs(5)
+            call SetMaxFlavourAlpha(5)
+            vIPDFSET = IPDFSET + 1
+         elseif(DataSetMaxNF(IDataSet).eq.4)then
+            call SetMaxFlavourPDFs(4)
+            call SetMaxFlavourAlpha(4)
+            vIPDFSET = IPDFSET + 2
+         elseif(DataSetMaxNF(IDataSet).eq.3)then
+            call SetMaxFlavourPDFs(3)
+            call SetMaxFlavourAlpha(3)
+            vIPDFSET = IPDFSET + 3
+         endif
+c         call usepar(vIPDFSET)
+      endif
+C-------------------------------------------------------------------
       if ( UseFixedTheory(IDataSet)) then
          Call UseFixedTheoryXsection(IDataSet) 
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
@@ -200,7 +227,7 @@ C HVQMNR for heavy-quark production in pp
             Call hf_errlog(01110113,'F: theory_disp: unknown reaction "'
      $                //TRIM(DATASETREACTION(IDataSet)) //'"')
       endif
-
+      vIPDFSET = IPDFSET
 
       end
 

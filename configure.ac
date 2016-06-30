@@ -39,13 +39,16 @@ m4_include([m4/ax_openmp.m4])
 # A lot of code written with 132 char. strings.
 #
 if test "uname -m" = "64"; then
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp -mcmodel=medium"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp -mcmodel=medium"
+   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
+   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
 else
    echo "Disabling mcmodel=medium option"
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp"
+   FCFLAGS="$FCFLAGS -ffixed-line-length-132  -fPIC -cpp"
+   FFLAGS="$FFLAGS -ffixed-line-length-132  -fPIC -cpp"
 fi    
+
+CFLAGS="$CFLAGS -fPIC"
+CPPFLAGS="$CPPFLAGS -fPIC"
 
 # check for lapack and blas
 AX_BLAS
@@ -346,6 +349,25 @@ fi
 
 AM_CONDITIONAL(ENABLE_DYTURBO, [test x$enable_dyturbo == xyes])
 
+# check for APFELgrid installation
+AC_ARG_ENABLE([apfelgrid],
+  [AC_HELP_STRING(--enable-apfelgrid, [use apfelgrid for fast pdf convolutions (default=no)])])
+if test x$enable_apfelgrid == xyes; then
+  AC_MSG_CHECKING([for apfelgrid installation])
+  apfelgrid_config=`which apfelgrid-config`
+  if test x$apfelgrid_config == x; then
+    AC_MSG_ERROR([Unable to find apfelgrid-config.])
+  else
+    APFELGRIDVERS=`apfelgrid-config --version`
+    APFELGRID_CPPFLAGS=`apfelgrid-config --cxxflags`
+    APFELGRID_LDFLAGS=`apfelgrid-config --ldflags`
+    AC_MSG_RESULT([Using $apfelgrid_config version $APFELGRIDVERS])
+    AC_SUBST(APFELGRID_CPPFLAGS)
+    AC_SUBST(APFELGRID_LDFLAGS)
+    AC_DEFINE([APFELGRID_ENABLED],[1],[Define if apfelgrid is enabled])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_APFELGRID, [test x$enable_apfelgrid == xyes])
 
 # check for genetic installation
 AC_ARG_ENABLE([genetic],

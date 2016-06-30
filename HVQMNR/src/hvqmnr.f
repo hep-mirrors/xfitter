@@ -53,13 +53,6 @@ C-----------------------------------------------------------------------
      $                   fragpar_c,fragpar_b,debug
       save /HVQMNR_PARS/
 
-      ! Check running mode. Currently the code works correctly only in the fit mode.
-      if ( RunningMode .ne. 'Fit') then
-        print *,'ERROR IN GetHVQMNRXsection'
-        print *,'Only RunningMode = ''Fit'' is supported'
-        call HF_stop
-      endif
-
       ! First call: make some checks, set needed parameters
       if(IfcnCount.eq.1) then
         ! Check HF scheme
@@ -234,6 +227,9 @@ C-------------------------------------------------------------------------------
       integer st
       ! called routine
       integer GetParameterIndex
+      ! default settings
+      double precision defmuA,defmuB,defmuC
+      data defmuA,defmuB,defmuC /1.0,1.0,0.0/
 #include "extrapars.inc"
 
       iA=GetParameterIndex('MNRm'//mu//'_AB')
@@ -250,24 +246,37 @@ C-------------------------------------------------------------------------------
           endif
         endif
       endif
+      ! parameters not in ExtraParamMinuit -> using default values
       if(iA.eq.0.or.iB.eq.0) then
-        call makenan(A)
-        call makenan(B)
+        A=defmuA
+        B=defmuB
       else
         iA=iExtraParamMinuit(iA)
         iB=iExtraParamMinuit(iB)
         call MNPOUT(iA,parname,A,unc,ll,ul,st)
+        ! parameter in ExtraParamMinuit, nut not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
+        if(st.lt.0) then
+          A=defmuA
+        endif
         call MNPOUT(iB,parname,B,unc,ll,ul,st)
+        ! parameter in ExtraParamMinuit, nut not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
+        if(st.lt.0) then
+          B=defmuB
+        endif
       endif
       iC=GetParameterIndex('MNRm'//mu//'_C')
       if(iC.eq.0) then
         iC=GetParameterIndex('MNRm'//mu//'_C_'//q)
       endif
       if(iC.eq.0) then
-        C=0
+        C=defmuC
       else
         iC=iExtraParamMinuit(iC)
         call MNPOUT(iC,parname,C,unc,ll,ul,st)
+        ! parameter in ExtraParamMinuit, nut not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
+        if(st.lt.0) then
+          C=defmuC
+        endif
       endif
       end
 
@@ -294,14 +303,36 @@ C-----------------------------------------------------------------------
       integer st
       ! called routine
       integer GetParameterIndex
+      ! default settings
+      double precision defFFc,defFFb
+      data defFFc,defFFb /4.4,11.0/
 #include "extrapars.inc"
 
       iFFpar=GetParameterIndex('MNRfrag_'//q)
+      ! parameter not in ExtraParamMinuit -> using default value
       if(iFFpar.eq.0) then
-        call makenan(FFpar)
+        if(q.eq.'c') then
+          FFpar=defFFc
+        else if(q.eq.'b') then
+          FFpar=defFFb
+        else
+          write(*,*)'Warning in GetFPar(): no default value for q = ',q
+          call makenan(FFpar)
+        endif
       else
         iFFpar=iExtraParamMinuit(iFFpar)
         call MNPOUT(iFFpar,parname,FFpar,unc,ll,ul,st)
+        ! parameter in ExtraParamMinuit, nut not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
+        if(st.lt.0) then
+          if(q.eq.'c') then
+            FFpar=defFFc
+          else if(q.eq.'b') then
+            FFpar=defFFb
+          else
+            write(*,*)'Warning in GetFPar(): no default value for q = ',q
+            call makenan(FFpar)
+          endif
+        endif
       endif
       end
 
