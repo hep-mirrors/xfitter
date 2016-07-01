@@ -46,6 +46,7 @@ CommandParser::CommandParser(int argc, char **argv):
   lwidth(2),
   therr(false),
   noupband(false),
+  errbandcol(kYellow),
   points(false),
   theorylabel("Theory"),
   onlytheory(false),
@@ -180,17 +181,35 @@ CommandParser::CommandParser(int argc, char **argv):
 	    allargs.erase(it+1);
 	  }
 	else if (*it == "--cms")
-	  cms = true;
+	  {
+	    cms = true;
+	    drawlogo = false;
+	  }
 	else if (*it == "--cms-preliminary")
-	  cmspreliminary = true;
+	  {
+	    cmspreliminary = true;
+	    drawlogo = false;
+	  }
 	else if (*it == "--atlas")
-	  atlas = true;
+	  {
+	    atlas = true;
+	    drawlogo = false;
+	  }
 	else if (*it == "--atlas-internal")
-	  atlasinternal = true;
+	  {
+	    atlasinternal = true;
+	    drawlogo = false;
+	  }
 	else if (*it == "--atlas-preliminary")
-	  atlaspreliminary = true;
+	  {
+	    atlaspreliminary = true;
+	    drawlogo = false;
+	  }
 	else if (*it == "--cdfii-preliminary")
-	  cdfiipreliminary = true;
+	  {
+	    cdfiipreliminary = true;
+	    drawlogo = false;
+	  }
 	else if (*it == "--hidden")
 	  {
 	    cout << endl;
@@ -391,6 +410,10 @@ CommandParser::CommandParser(int argc, char **argv):
 	  therr = true;
 	else if (*it == "--noupband")
 	  noupband = true;
+	else if (*it == "--greenband")
+	  errbandcol = kGreen - 3;
+	else if (*it == "--blueband")
+	  errbandcol = kAzure - 9;
 	else if (*it == "--points")
 	  points = true;
 	else if (*it == "--theory")
