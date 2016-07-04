@@ -14,22 +14,24 @@ melaver=2.0.1
 
 #. scripts/setup.sh
 
+if false; then
 if [ -e $_LOCALINST ] ; then
   echo "Dependencies taken from cache, skip installation"
   exit
+fi
 fi
 
 #export BOOST="--with-boost=/afs/cern.ch/sw/lcg/external/Boost/1.48.0_python2.6/x86_64-slc6-gcc46-opt"
 
 #Make all dependencies
-rm -rf $_LOCALINST >& /dev/null
+#rm -rf $_LOCALINST >& /dev/null
 _LOG="$_CURRENTDIR/install.log"
 rm -rf $_LOG
-mkdir $_LOCALINST && cd $_LOCALINST
+mkdir -p $_LOCALINST && cd $_LOCALINST
 pwd
 
 #lhapdf:
-
+if false ; then
 echo "Installing LHAPDF $lhapdfver..."
 if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
 then
@@ -41,7 +43,7 @@ fi
 wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $_LOG 2>&1
 tar xzf ${lhapdf}-${lhapdfver}.tar.gz  >> $_LOG 2>&1
 cd ${lhapdf}-${lhapdfver} 
-./configure --prefix=$_LOCALINST >> $_LOG  2>&1
+./configure --prefix=$_LOCALINST --with-boost=/afs/cern.ch/sw/lcg/external/Boost/1.53.0_python2.7/x86_64-slc6-gcc46-opt >> $_LOG  2>&1
 _check_result $? "LHAPDF configure" $_LOG
 make -j 9 install >> $_LOG  2>&1
 _check_result $? "LHAPDF compile" $_LOG
@@ -74,8 +76,8 @@ cd - >& /dev/null
 #apfel
 echo "Installing APFEL $apfelver..."
 #git clone https://github.com/scarrazza/apfel.git >>$_LOG 2>&1
-wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >>$_LOG 2>&1
-tar xzf ${apfelver}.tar.gz >>$_LOG 2>&1
+#wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >>$_LOG 2>&1
+#tar xzf ${apfelver}.tar.gz >>$_LOG 2>&1
 cd  apfel-${apfelver}
 #git checkout tags/${apfelver} >>$_LOG 2>&1
 ./configure --prefix=$_LOCALINST  >> $_LOG  2>&1
@@ -89,6 +91,7 @@ echo "Installing MELA $melaver..."
 wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >>$_LOG 2>&1
 #git clone https://github.com/vbertone/MELA.git >>$_LOG 2>&1
 tar xzf ${melaver}.tar.gz  >>$_LOG 2>&1
+fi
 #mv MELA mela-${melaver}
 cd MELA-${melaver}
 #git checkout tags/${melaver} >>$_LOG 2>&1
