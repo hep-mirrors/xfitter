@@ -355,8 +355,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   data->SetMarkerStyle(20);
   data->SetMarkerSize(2 * opts.resolution / 1200);
 
-  datatot->SetFillColor(kYellow);
-  datatot->SetLineColor(kYellow);
+  datatot->SetFillColor(opts.errbandcol);
+  datatot->SetLineColor(opts.errbandcol);
   vector <range> dtranges = historanges(datatot);
   for (vector<range>::iterator r = dtranges.begin(); r != dtranges.end(); r++)
     {
