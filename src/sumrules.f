@@ -152,7 +152,7 @@ C Sea:
          endif
 
 C Total sea integral:
-         tsea = 2.0d0 * (tUb + tDb + tStr + tPho)
+         tsea = 2.0d0 * (tUb + tDb + tStr)
 
       elseif (Index(PDF_DECOMPOSITION,'Sea').gt.0) then
 
@@ -194,6 +194,7 @@ C*******************************************************************
 C     propagate the normalizations and other parameters to
 C     standard parametrisation
 
+cVR      print*,'........................................tphoton', tPho
 
       if (NCHEBGLU.eq.0) then         
       if (lprint) then
