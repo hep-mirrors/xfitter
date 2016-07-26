@@ -15,8 +15,6 @@
 
 #include "TheorEval.h"
 #include "CommonGrid.h"
-#include "ReactionTheory.h"
-#include "ReactionTheoryDispatcher.h"
 #include "xfitter_cpp.h"
 
 using namespace std;
@@ -227,8 +225,6 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
   string term_type =  _termTypes.at(iterm);
   if ( term_type.find("grid") != string::npos || term_type.find("ast") != string::npos ){ //appl'grid' or f'ast'NLO
     this->initGridTerm(iterm, val);
-  } else if ( term_type == string("reaction")) {
-    this->initReactionTerm(iterm, val);
   } else if ( term_type == string("kfactor")) {
     this->initKfTerm(iterm, val);
   } else {
@@ -354,20 +350,6 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
 }
 
 int
-TheorEval::initReactionTerm(int iterm, valarray<double> *val)
-{
-  string term_source = _termSources.at(iterm);
-  string term_type =  _termTypes.at(iterm);
-  string term_info =  _termInfos.at(iterm);
-  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
-  rt->setOptions(_termInfos.at(iterm));
-  rt->setBinning(_binFlags, _dsBins);
-  rt->resultAt(val);
-
-  _mapReactionToken[rt] = val;
-}
-
-int
 TheorEval::initKfTerm(int iterm, valarray<double> *val)
 {
   string term_source(_termSources.at(iterm));
@@ -488,8 +470,7 @@ int
 TheorEval::Evaluate(valarray<double> &vte )
 {
   // get values from grids
-  this->getGridValues();
-  this->getReactionValues();
+   this->getGridValues();
 
   // calculate expression result
   stack<valarray<double> > stk;
@@ -573,18 +554,6 @@ TheorEval::getGridValues()
     
     
   }
-}
-
-int
-TheorEval::getReactionValues()
-{
-  map<ReactionTheory*, valarray<double>*>::iterator itm;
-  for(itm = _mapReactionToken.begin(); itm != _mapReactionToken.end(); itm++){
-    ReactionTheory* rt = itm->first;
-    rt->compute();
-  }
-
-  return 1;
 }
 
 int
