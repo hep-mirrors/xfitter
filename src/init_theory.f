@@ -121,6 +121,8 @@ c set-up of the constants
       integer id1,id2
       integer nw,nwords,nx
       integer iqb,iqc,iqt
+      double precision tiny
+      parameter(tiny=1d-3)
 
 
       integer NQ2bins, NXbins !> requested number of x,q2 bins
@@ -389,9 +391,10 @@ C         stop
         call ReadXGridNML()
       endif
 
-      iqc =iqfrmq(qc)  !> Charm
-      iqb =iqfrmq(qb)  !> Bottom
-      iqt =iqfrmq(qt)  !> Top
+      iqc =iqfrmq(qc+tiny)  !> Charm                                                                                                                                                                    
+      iqb =iqfrmq(qb+tiny)  !> Bottom  
+      iqt =iqfrmq(qt+tiny)  !> Top            
+
       if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
          print *,'Fixed Flavour Number Scheme set with nf=3'
