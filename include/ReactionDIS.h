@@ -12,10 +12,9 @@ using namespace std::list;
 /**
   @class ReactionDIS
 
-  @brief A class for cross sections for HERA DIS NC experiment
+  @brief A wrapper class for cross DIS NC sections of HERA
 
-  Based on the ReactionTheory class. Reads options of beam energy, cuts, and 
-  produces cross section in the x2 bins.
+  Based on the ReactionTheory class. Reads options produces 3d cross section.
 
   @author A.Sapronov <sapronov@ifh.de>
 
