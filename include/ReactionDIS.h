@@ -6,8 +6,8 @@
 
 #include "ReactionTheory.h"
 
-using namespace std::string;
-using namespace std::list;
+using std::string;
+using std::list;
 
 /**
   @class ReactionDIS
@@ -22,19 +22,20 @@ using namespace std::list;
   @date 2016/05/17
   */
 
-class ReactionDIS :: public ReactionTheory 
+class ReactionDIS : public ReactionTheory 
 {
  public:
   ReactionDIS() {};
-  ~ReactionDIS(){};
+  ~ReactionDIS();
 
-  ReactionDIS(string subtype);
+  ReactionDIS(const string &subtype);
 
   ReactionDIS(const ReactionDIS  &);
-  void operator =(const ReactionDIS &);
+  ReactionDIS & operator =(const ReactionDIS &);
   
+ public:
+  int compute();
  private:
 
-  void parseOptions();
-  void compute();
+  int parseOptions();
 };
