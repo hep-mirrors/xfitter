@@ -23,3 +23,11 @@ ReactionDIS::ReactionDIS(const string &subtype)
   
 }
 
+ReactionDIS::parseOptions()
+{
+
+}
+
+ReactionDIS::compute()
+{
+}
