@@ -7,4 +7,4 @@ pkginclude_HEADERS = covar.inc     extrapars.inc  indata.inc    pdflength.inc   
                     alphas.inc   datasets.inc  fcn.inc        iofnames.inc  pdfparam.inc      scales.inc       theorexpr.inc \
                     applgrid_fastpdf.inc  dipole.inc    for_debug.inc    polarity.inc      steering.inc thresholds.inc \
                     couplings.inc  endmini.inc   g_offset.inc   ntot.inc   qcdnumhelper.inc  systematics.inc  xfitter_cpp.h\
-		    TheorEval.h CommonGrid.h
+		    TheorEval.h CommonGrid.h ReactionTheoryDispatcher.h ReactionTheory.h ReactionDIS.h

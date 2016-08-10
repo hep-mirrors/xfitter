@@ -30,6 +30,9 @@ libxfitter_a_SOURCES += fortran_io.f lhapdferrors.cc
 #Chi2scan
 libxfitter_a_SOURCES += chi2scan.cc
 
+# ReactionTheory
+libxfitter_a_SOURCES += ReactionTheoryDispatcher.cc ReactionTheory.cc ReactionDIS.cc
+
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
