@@ -4,8 +4,9 @@
 #include <vector>
 #include <valarray>
 
-using namespace std::string;
-using namespace std::list;
+using std::string;
+using std::vector;
+using std::valarray;
 
 /**
   @class ReactionTheory
@@ -24,22 +25,22 @@ class ReactionTheory
 {
  public:
   ReactionTheory() {};
-  ~ReactionTheory(){};
+  ~ReactionTheory();
 
   ReactionTheory(string subtype) : _subtype(subtype) {};
 
   ReactionTheory(const ReactionTheory &);
-  void operator =(const ReactionTheory &);
+  ReactionTheory & operator =(const ReactionTheory &);
 
  public:
   void setOptions(const string &reaction_options) { _ro = reaction_options; this->parseOptions(); };
   void setBinning(vector<int> &binFlags, vector<vector<double> > &dsBins){ _binFlags=binFlags; _dsBins = dsBins; } ;
   void resultAt(valarray<double> *val){ _val = val; };
   
+  virtual int compute() = 0;
  protected:
 
-  virtual void parseOptions() = 0;
-  virtual void compute() = 0;
+  virtual int parseOptions() = 0;
 
  protected:
   string _subtype;

@@ -36,6 +36,7 @@ using std::valarray;
 using std::vector;
 using std::string;
 using std::map;
+using std::list;
 
 //! Arithmetic token struct
 /**
@@ -151,11 +152,13 @@ class TheorEval{
   */
   int initGridTerm(int iterm, valarray<double> *val);
   //! Initialise reaction term
-  int initReactionTerm(int iterm, valarray<double> *val)
+  int initReactionTerm(int iterm, valarray<double> *val);
   //! Initialise K-factor term
   int initKfTerm(int, valarray<double> *);
   //! Get current grid values into the tokens
   int getGridValues();
+  //! Update the reaction values into the tokens
+  int getReactionValues();
 
  private:
   int _dsId;

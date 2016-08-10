@@ -20,10 +20,10 @@ ReactionTheory::~ReactionTheory()
 
 ReactionTheory::ReactionTheory(const ReactionTheory &rt) : _subtype(rt._subtype), 
 							   _ro(rt._ro),
-							   _binsFlags(rt._binsFlags),
+							   _binFlags(rt._binFlags),
 							   _dsBins(rt._dsBins)
 {
-  _val = new valarray<double>(rt._val.size());
+  _val = new valarray<double>(rt._val->size());
 }
 
 ReactionTheory &
@@ -31,7 +31,7 @@ ReactionTheory::operator=(const ReactionTheory &rt)
 {
   _subtype = rt._subtype;
   _ro = rt._ro;
-  _binsFlags = rt._binsFlags;
+  _binFlags = rt._binFlags;
   _dsBins = rt._dsBins;
 
   _val = new valarray<double>(*(rt._val));

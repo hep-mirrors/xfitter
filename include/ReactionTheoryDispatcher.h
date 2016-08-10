@@ -5,8 +5,8 @@
 
 class ReactionTheory;
 
-using namespace std::string;
-using namespace std::list;
+using std::string;
+using std::list;
 
 /**
   @class ReactionTheoryDispatcher
@@ -31,13 +31,14 @@ class ReactionTheoryDispatcher
 
  private:
   ReactionTheoryDispatcher() {};
-  ~ReactionTheoryDispatcher(){};
+  ~ReactionTheoryDispatcher();
 
   ReactionTheoryDispatcher(const ReactionTheoryDispatcher &);
   void operator =(const ReactionTheoryDispatcher &);
 
  public:
-  ReactionTheory &getReactionTheory(const string &reaction_type);
+  ReactionTheory *getReactionTheory(const string &reaction_type);
+  void releaseReactionTheories();
   
  private:
   /// list of created theories

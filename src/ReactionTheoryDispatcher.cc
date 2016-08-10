@@ -8,10 +8,12 @@
 
 #include <list>
 #include <string>
+#include <cstring>
 
 #include "ReactionTheoryDispatcher.h"
 #include "ReactionTheory.h"
 #include "ReactionDIS.h"
+#include "xfitter_cpp.h"
 
 using std::list;
 using std::string;
@@ -20,7 +22,7 @@ ReactionTheoryDispatcher::~ReactionTheoryDispatcher()
 {
 }
 
-ReactionTheory &ReactionTheoryDispatcher::getReactionTheory(const string &reaction_type)
+ReactionTheory *ReactionTheoryDispatcher::getReactionTheory(const string &reaction_type)
 {
   ReactionTheory *rt(NULL);
   if ( reaction_type == string("NC e+-p") ) rt = new ReactionDIS(string("NCDIS"));
@@ -44,9 +46,9 @@ ReactionTheory &ReactionTheoryDispatcher::getReactionTheory(const string &reacti
 }
 
 
-ReactionTheory &ReactionTheoryDispatcher::releaseReactionTheories()
+void ReactionTheoryDispatcher::releaseReactionTheories()
 {
-  while (!_rt_list.size() ) do {
+  while (!_rt_list.size() ) {
     delete _rt_list.back();
     _rt_list.pop_back();
   }
