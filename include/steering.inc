@@ -160,6 +160,11 @@ C
 
       common/DipoleModelType/DipoleModel
 
+C  A.L
+      integer DipCsModel       !> to use saturation or not use this is the asnwer
+      common/DipCsModelType/DipCsModel
+C         
+
       character*32 PDFStyle           !> PDF style definition
       common/CPdfStyle/PDFStyle
 

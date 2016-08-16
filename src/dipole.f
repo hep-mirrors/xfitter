@@ -269,7 +269,42 @@ C---------------------------------
 
       end
 
+C 7/06/2016: Agnieszka L. fits with and without saturation
+            subroutine SetDipCsType
+C---------------------------------------
+C Set type of dipole fit.
+C This subroutine is called by subroutine read_steer.
+C---------------------------------------
+      implicit none
+#include "steering.inc"
+#include "dipole.inc"
+C---------------------------------
 
+      open (51,file='steering.txt',status='old')
+      read (51,NML=DipCsType,END=181,ERR=182)
+ 181   continue      
+      close (51)
+
+      if (TypeOfDipCs.eq.'saturation') then
+         DipCsModel = 1
+      elseif (TypeOfDipCs.eq.'linear') then
+         DipCsModel = 0
+      else
+         write(*,*) 'TypeOfDipCs parameter not recognised. Using linear.'
+         DipCsModel = 0
+         goto 183
+      endif
+
+      goto 183
+ 182   continue
+      print '(''Namelist &DipCsType NOT found'')'
+      DipCsModel = 0
+
+ 183   continue
+
+      end
+c
+c      
       subroutine dipoleBGK(IDataSet)
 C---------------------------------------------------
 C

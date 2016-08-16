@@ -200,8 +200,8 @@
 *   step  = 0.05,    0.010,    0.01E-04, 0.
 *** BGK initial parameters ************************************
 *   name  = 'SIG0',  'XLAM',  'X0',        'XM', 'cBGK', 'eBGK'
-*   value = 79.450,  0.29596, 0.17507E-03, 0.0,  4.0,    6.67
-*   step  =  0.05,   0.0,     0.0,         0.0,  0.0,    0.1
+*   value = 118.34,  0.29596, 0.17507E-03, 0.14,  4.0,    1.9
+*   step  =  0.05,   0.0,     0.0,         0.0,  0.0,    0.0
 ***************************************************************
 *
 *  Optional:
@@ -218,6 +218,17 @@
   !    'BGK' - BGK dipole model with DGLAP evolution from QCDNUM
 
   TypeOfDipoleFit = 'BGK'
+
+&End
+
+* dipole cross sectin type 
+&DipcsType 
+
+  ! -- Choises of the dipole model fits:
+  !    'saturation' - DIP_CS with saturation
+  !    'linear' - DIP_CS without saturation
+
+  TypeOfDipCs = 'saturation'
 
 &End
 
@@ -391,4 +402,7 @@
   ILHAPDFSET = 0               ! Set number within PdfSet
 &End
 
- 
+
+  
+  
+  
