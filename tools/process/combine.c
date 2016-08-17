@@ -21,9 +21,19 @@ typedef struct Member_List_s{
   char * in_path;
 } Member_List;
 
+//extern
+//#if defined (__cplusplus)
+//extern "C" {
+//#endif
+
 extern double alphas_ipol(double q, char * setname, int pdf_number);
 extern void interpolation(double x, double Q, char* setname,
     int n_flavours, int *pdf_flavours, int pdf_number, double* values);
+
+//#if defined (__cplusplus)
+//}
+//#endif
+
 
 Member_List ** arg_parser(int n_added_sets, char ** args);
 void add_grids(Pdf * pdf, Pdf * grid_pdf);

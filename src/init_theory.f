@@ -16,8 +16,9 @@
 *     Initialise qcdnum and APFEL
 *     ------------------------------------------------
       if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.35) then
+     $.or.itheory.eq.35.or.itheory.eq.20) then
 C Init evolution code:
+         NPDFs_ABM=3
          call qcdnum_ini
 C Init APFEL if needed
          if(itheory.eq.10.or.itheory.eq.35) call apfel_ini
@@ -121,6 +122,9 @@ c set-up of the constants
       integer id1,id2
       integer nw,nwords,nx
       integer iqb,iqc,iqt
+
+      double precision r2cin, r2bin, r2tin
+
       double precision tiny
       parameter(tiny=1d-3)
 
@@ -221,7 +225,8 @@ C--------------------- kmuc/kmub/kmut can be re-defined  in the namelist file:
 C Check that scales are in proper order:
       if (q0.gt.qc) then
 c In fixed-flavour scheme starting scale can be above charm threshold
-         if(HFSCHEME.ne.3.and.HFSCHEME.ne.4.and.HFSCHEME.ne.444) then
+         if(HFSCHEME.ne.3.and.HFSCHEME.ne.4.and.HFSCHEME.ne.444.and.
+     1      HFSCHEME.ne.4444.and.HFSCHEME.ne.44444) then
             print *,'Starting scale must be below charm threshold, stop'
             call HF_stop
          endif
@@ -394,10 +399,18 @@ C         stop
       iqc =iqfrmq(qc+tiny)  !> Charm                                                                                                                                                                    
       iqb =iqfrmq(qb+tiny)  !> Bottom  
       iqt =iqfrmq(qt+tiny)  !> Top            
-
+C     this is to initialise QCDNUM in mixfns
+      r2cin = mch*mch
+      r2bin = mbt*mbt
+      r2tin = mtp*mtp
       if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
          print *,'Fixed Flavour Number Scheme set with nf=3'
+      elseif ((HFSCHEME.eq.4444).or.
+     .        (HFSCHEME.eq.44444)) then
+         call mixfns(3,r2cin,r2bin,r2tin)
+         print *,'Fixed Flavour Number Scheme B is set, ',
+     .        'with nf(PDFS)=3 and nf(alpha_s)=3,4,5'
       else
         call setcbt(0,iqc,iqb,iqt) !thesholds in the ffns
       endif
@@ -622,6 +635,8 @@ c ABKM parameters:
       double precision rmass8in,rmass10in
       integer kschemepdfin,kordpdfin
       logical msbarmin
+      double precision q20in
+      integer abm_vloop
 
 C-------------------------------------------------------------
       call initgridconst
@@ -631,13 +646,20 @@ C-------------------------------------------------------------
 c  c and b - quark masses         
       rmass8in=HF_MASS(1)
       rmass10in=HF_MASS(2)
-
+c PDF evolution starting scale
+      q20in = starting_scale
 ! the pole mass definition by default =false (for running mass def in msbar: msbarmin=.true.)
-      if(HFSCHEME.eq.444) then
+      if(HFSCHEME.eq.444.or.HFSCHEME.eq.44444) then
         msbarmin=.true.
       else
         msbarmin=.false.
       endif
+      if((HFSCHEME.eq.4444).or.(HFSCHEME.eq.44444)) then
+         abm_vloop=1
+      else
+         abm_vloop=0
+      endif
+
       print*,'---------------------------------------------'
       print*,'INFO from ABKM_init:'
       print*,'FF ABM running mass def? T(rue), (F)alse:', msbarmin
@@ -668,7 +690,7 @@ cc        rscale=1d0
 
       call ABKM_Set_Input(
      $     kschemepdfin,kordpdfin,rmass8in,rmass10in,msbarmin,
-     $     hqscale1in,hqscale2in)
+     $     hqscale1in,hqscale2in,q20in,abm_vloop)
       end
 
       Subroutine init_theory_datasets

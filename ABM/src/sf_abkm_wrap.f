@@ -112,7 +112,7 @@ c b quark
       end
 
       Subroutine ABKM_Set_Input(kschemepdfin,kordpdfin,rmass8in,
-     $      rmass10in,msbarmin,hqscale1in,hqscale2in) 
+     $      rmass10in,msbarmin,hqscale1in,hqscale2in,q20in,abm_vloop) 
 C---------------------------------------------------------------------------
 C  Wraper for INPUT common, set parameters
 C---------------------------------------------------------------------------
@@ -122,7 +122,8 @@ C Input variables:
       integer kschemepdfin,kordpdfin
       logical msbarmin
       double precision hqscale1in,hqscale2in
-      
+      integer abm_vloop
+      double precision q20in
 C Common variables:
       integer npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
 c      common /forpdfset/ kschemepdf,kordpdf
@@ -147,7 +148,20 @@ c      common /forpdfset/ kschemepdf,kordpdf
       double precision ddnnlohq
       common /forschemedef/ ddnnlohq,msbarm,hqnons
      ,  ,bmsnfopt,bmsnnlo,vloop
+      integer NF
+      double precision DELX1,DELX2,delxp,DELS1,DELS2,xlog1,xlog2,x1
+      double precision q2ini,q2min,q2max,xbmin,xbmax
+      integer nxmgrid,nxpgrid,nspgrid,nsmgrid,khalf
+      COMMON /GRIDSET/ DELX1,DELX2,delxp,DELS1(-5:2),DELS2(-5:2)
+     ,     ,xlog1,xlog2,x1,q2ini(-5:2),q2min,q2max,xbmin,xbmax
+     ,     ,nxmgrid,nxpgrid,nspgrid,nsmgrid,khalf
+      double precision Mz
+
 C-------------------------------      
+C     FFNS B:
+      if(abm_vloop.eq.1) then
+         vloop=.true.
+      endif
 
       rmass(8)  = rmass8in
       rmass(10) = rmass10in
@@ -158,14 +172,36 @@ c set same order for pdf, light, heavy quarks
       kordhq    = kordpdfin
       kordf2    = kordpdfin
 c follow recommendation of Sergey Alekhin for FL    
-      kordfl    = kordpdfin+1
+c      kordfl    = kordpdfin+1
+c for FF3B of HERAPDF2.0 http://arxiv.org/pdf/1506.06042v3.pdf, F_L(alphas) has been used
+      kordfl    = kordpdfin
       kordf3    = kordpdfin
       kordalps  = kordpdfin
 c run in running m scheme
       msbarm    = msbarmin 
       hqscale1  = hqscale1in
       hqscale2  = hqscale2in
-       
+c when the PDF evolution is made by OpenQCDRad, we need to have starting scale value
+C OK 6.02.14
+      kordkernel = 1
+c      Mz = 91.1876d0
+c      q20alphas = Mz*Mz !2d0
+c      alphas0 = 0.10597 !0.3
+
+      q20 = q20in
+      q2max = 2.99d8
+      q2min = 0.99d0
+      xbmin = 0.99d-6
+
+      !   the number of nodes in the x-grid at x>0.3 and x<0.3, respectively
+      nxpgrid=100
+      nxmgrid=100
+!   the number of nodes in the x-grid at Q2>Q20 and Q2<Q20, respectively
+      nspgrid=60 !60*4
+      nsmgrid=60
+
+      NF=5
+
 C--------------------------------------------------------------------------
       end
 

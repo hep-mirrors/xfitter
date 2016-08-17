@@ -66,7 +66,7 @@
       data nflqcd,nf2qcd1,nf2qcd2,nf3qcd /1, 1, 1, 1/
 ! Default value for the number intervals for computing convolutions of 
 ! splitting functions with the PDFs in the evolution equations 
-      data kprecdq /1/
+      data kprecdq /4/
 
 ! Take the 3-flavour NNLO PDFs as a default
       data kschemepdf /0/
@@ -122,7 +122,7 @@
 !   the margins of x-grid
       data xbmin, xbmax /5d-6, 0.999d0/
 !   midpoint of the x-grid: log(x) interpolation below x1 and log(1-x) above x1
-      data x1 /0.2d0/
+      data x1 /0.5d0/
 !   the number of nodes in the x-grid above and below x1, respectively
       data nxpgrid, nxmgrid /100, 100/
 !   the margins of Q2-grid
@@ -140,7 +140,8 @@
       call omegridini
       call cgridini
 c RP this call will be needed for evolution, currently not used
-c     call pgridini
+c OK: now it is used for 'DGLAP_ABM'
+      call pgridini
 
 !  Take square of the CKM matrix elements to save computing time
       do i=1,3

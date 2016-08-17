@@ -58,6 +58,7 @@ cjt test
       external APFELsubr
       external APFELsubrPhoton
       external QEDEVOLsubr
+      external OpenQCDRadPDFs
 
       double precision epsi,delta
       double precision hf_get_alphas,asRef,Q2Ref
@@ -163,7 +164,7 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
 *
 *     Initialize alphas
 *
-      if (itheory.eq.0.or.itheory.eq.11) then
+      if (itheory.eq.0.or.itheory.eq.11.or.itheory.eq.20) then
          call setalf(dble(alphas),Mz*Mz)
       else
          call SetAlphaQCDRef(dble(alphas),dble(Mz))
@@ -230,9 +231,13 @@ C ---- QEDEVOL ----
          call qedevol_main
          call PDFEXT(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
          return
+      elseif (IPDFSET.eq.20) then
+         call apeqsol
+         call PDFEXT(OpenQCDRadPDFs,IPDFSET,0,dble(0.001),epsi)
       endif
 
 cv ===
+      if(IPDFSET.ne.20) then !do not do evolution if it is already made by OpenQCDRad
       if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
          call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
 
@@ -255,6 +260,7 @@ cv ===
          print *,'Unknown PDF Decomposition: '//PDF_DECOMPOSITION
          print *,'Stop in evolution'
          call HF_Stop
+      endif
       endif
 
       return
@@ -561,3 +567,40 @@ c         call SetPDFSet("apfel")
 *
       return
       end
+
+      Subroutine OpenQCDRadPDFs(x, qmu2, xf)
+C-------------------------------------------------------
+C
+C External PDF reading evolved by OpenQCDRad
+C
+C--------------------------------------------------------
+      implicit none
+
+#include "steering.inc"
+
+      double precision x,qmu2
+      double precision xf(-6:6)
+      integer iNPDFs_ABM
+      REAL*8 xqg
+      iNPDFs_ABM = NPDFS_ABM
+
+      xf(-6) = 0
+      xf( 6) = 0
+      xf(-5) = xqg(11,x,qmu2,iNPDFs_ABM-3)
+      xf( 5) = xqg(10,x,qmu2,iNPDFs_ABM-3)
+      xf(-4) = xqg(9,x,qmu2,iNPDFs_ABM-3)
+      xf( 4) = xqg(8,x,qmu2,iNPDFs_ABM-3)
+      xf(-3) = xqg(7,x,qmu2,iNPDFs_ABM-3)
+      xf( 3) = xqg(6,x,qmu2,iNPDFs_ABM-3)
+      xf(-2) = xqg(5,x,qmu2,iNPDFs_ABM-3)
+      xf( 2) = xqg(4,x,qmu2,iNPDFs_ABM-3)
+      xf(-1) = xqg(3,x,qmu2,iNPDFs_ABM-3)
+      xf( 1) = xqg(2,x,qmu2,iNPDFs_ABM-3)
+      xf( 0) = xqg(1,x,qmu2,iNPDFs_ABM-3)
+      
+
+
+      return
+      end
+
+

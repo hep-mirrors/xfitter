@@ -209,3 +209,7 @@ C     Namelist for Higher Twists
       logical ReadParsFromFile
       character*128 ParsFileName, CovFileName  ! Names of 
       common/CparsFromFile/ ParsFileName, CovFileName, ReadParsFromFile
+
+C For FFNS B scheme: need to specify n of FF PDFs for each dataset
+      double precision NPDFs_ABM
+      common/CPDFS_ABM/ NPDFs_ABM

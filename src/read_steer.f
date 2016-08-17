@@ -1177,6 +1177,10 @@ C---------------------------------
          HFSCHEME = 44 
       elseif (HF_SCHEME.eq.'FF ABM RUNM') then
          HFSCHEME = 444
+      elseif (HF_SCHEME.eq.'FF B ABM') then
+         HFSCHEME = 4444
+      elseif (HF_SCHEME.eq.'FF B ABM RUNM') then
+         HFSCHEME = 44444
       elseif (HF_SCHEME.eq.'FONLL-A') then
          HFSCHEME = 5
       elseif (HF_SCHEME.eq.'FONLL-A RUNM OFF') then
@@ -1583,7 +1587,10 @@ C--------------------------------------------------
 #include "steering.inc"
 C------------------------------------------------
       if (TheoryType.eq.'DGLAP') then
-         iTheory =  0
+         iTheory = 0
+      elseif (TheoryType.eq.'DGLAP_ABM') then
+         iTheory = 20
+         IPDFSET = 20
       elseif (TheoryType.eq.'DGLAP_APFEL') then
          iTheory = 10
          IPDFSET = 7

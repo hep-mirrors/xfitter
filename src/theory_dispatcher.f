@@ -10,9 +10,38 @@ C---------------------------------------------------------------
 #include "for_debug.inc"
 #include "datasets.inc"
 #include "scales.inc"
+c added by Oleg Kuprash 24.06.14 to read alphas(mz):
+#include "couplings.inc"
+
       integer IDataSet,kflag!
+      integer GetInfoIndex
+      double precision HF_Get_alphas,alphas_my
 C-------------------------------------------------------------------
       vIPDFSET = IPDFSET
+      NPDFs_ABM=3
+      if(mod(HFSCHEME,10).eq.4) then
+         print *,IDataSet,
+     $        ' get theory for datafile ',
+     $        TRIM(DATASETREACTION(IDataSet)),' ',
+     $        TRIM(InputFileNames(IDataSet))
+
+         if(GetInfoIndex(IDataSet,'NPDFs_ABM').gt.0) then
+            NPDFs_ABM=(DATASETInfo(GetInfoIndex(IDataSet,
+     $           'NPDFs_ABM'),IDataSet))
+         else
+c            print *,'dataset ',IDataSet, DATASETREACTION(IDataSet)
+            print *,'NPDFs_ABM not found in dataset, please set it'
+            call hf_stop
+         endif
+c         print *,'dataset = ', DATASETREACTION(IDataSet)
+c     print *,'index: ', GetInfoIndex(IDataSet,'NPDFs_ABM')
+         viPDFSET = viPDFSET + NPDFs_ABM-3
+         alphas_my=hf_get_alphas(Mz*Mz)
+         print *,'in theory_dispatcher: npdfs_abm = ',NPDFs_ABM,
+     .        'alphas(Mz) = ',alphas_my
+c     , HF_Get_alphas(Mz)
+      endif
+
       if(UseHVFNS)then
          if(iTheory.ne.10)then
             call hf_errlog(2105201302,"F: the H-VFNS can be used only"//
@@ -228,7 +257,7 @@ C HVQMNR for heavy-quark production in pp
      $                //TRIM(DATASETREACTION(IDataSet)) //'"')
       endif
       vIPDFSET = IPDFSET
-
+      NPDFs_ABM=3
       end
 
       Subroutine GetTheoryIteration

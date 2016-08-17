@@ -730,8 +730,7 @@ c value in allowed range
 C External function:
       double precision PolyParam,ctpara,ctherapara,para,splogn
 C-------------------------------------------------
-
-
+      
 C    22 Apr 11, SG, Add CTEQ-like
       if (PDFStyle.eq.'CTEQ') then
          gluon = ctpara(x,ctglue)
@@ -764,6 +763,7 @@ C Do nothing
          endif
          
       endif
+
       end
 
 * -------------------------------------------------------

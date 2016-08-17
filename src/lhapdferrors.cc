@@ -38,6 +38,7 @@ struct point
   double th_err_dn;          //theory error down
 };
 
+tTEmap gTEmap;
 
 vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
 {

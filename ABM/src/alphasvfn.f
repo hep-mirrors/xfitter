@@ -38,7 +38,8 @@ c \alpha_s in the 3-flavour scheme
       include 'PDFCOM.'
 
       external alphastt
-      real*8 tt(1),ww(20),res(1)
+c      real*8 tt(1),ww(20),res(1)
+      double precision tt(1),ww(20),res(1)
 
 ! \alpha_s(q2s) in the 3-flavour scheme is ....
 
@@ -59,6 +60,7 @@ c \alpha_s in the 3-flavour scheme
         end if
       else
 ! ... or defined from the 3-flavour input transfered by /COMMON/ in 'CONSTCOM.'
+c         print*,'in alphas_ffn ',q20alphas,alphas0
         q2s=q20alphas
         alpss=alphas0
       end if 
@@ -69,10 +71,16 @@ c \alpha_s in the 3-flavour scheme
       q2rep=q2
 c  initial approximation for the solution 
       tt(1)=0.1d0
-      CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
+c      print *,'calling DSNLEQ'
+c      print *,tt(1),res(1),alphastol,INFO
+cOK 05.03.15      CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
+c      CALL RSNLEQ(1,tt,res,alphastol,alphastol,200,1,INFO,alphastt,WW)
+c      print *,'after DSNLEQ'
+c      print *,tt(1),res(1),alphastol,INFO
 
-      alphas_ffn=tt(1)
-
+cOK 05.03.15      alphas_ffn=tt(1)
+      alphas_ffn=hf_get_alphas(Q2)
+c      print*,'in alphas_ffn ',q20alphas,alphas0,q2rep,alphas_ffn
       RETURN
       END
 C----------------------
@@ -130,9 +138,10 @@ c   \alpha_s in the 4-flavour scheme
       q2rep=q2
 c  initial approximation for the solution 
       tt(1)=0.1d0
-      CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
+c      CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
 
-      alphas_ffn4=tt(1)
+cOK 05.03.15      alphas_ffn4=tt(1)
+      alphas_ffn4=hf_get_alphas(Q2)
 
       RETURN
       END
@@ -179,9 +188,10 @@ c   \alpha_s in the 5-flavour scheme
       q2rep=q2
 c  initial approximation for the solution 
       tt(1)=0.1d0
-      CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
+c      CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
 
-      alphas_ffn5=tt(1)
+cOK 05.03.15      alphas_ffn5=tt(1)
+      alphas_ffn5=hf_get_alphas(Q2)
 
       RETURN
       END
@@ -255,11 +265,14 @@ c  interface for the subroutine DSNLEQ
       implicit double precision (a-h,o-z)
 
 !  The number of loops changes at the scales equal to the quark masses 
-      nfa=nfloops(q2,-1)
+cOK 05.03.15      nfa=nfloops(q2,-1)
 
-      if (nfa.eq.3) alphas_vfn=alphas_ffn(q2)
-      if (nfa.eq.4) alphas_vfn=alphas_ffn4(q2)
-      if (nfa.eq.5) alphas_vfn=alphas_ffn5(q2)
+cOK 05.03.15      if (nfa.eq.3) alphas_vfn=alphas_ffn(q2)
+cOK 05.03.15      if (nfa.eq.4) alphas_vfn=alphas_ffn4(q2)
+cOK 05.03.15      if (nfa.eq.5) alphas_vfn=alphas_ffn5(q2)
+      alphas_vfn=hf_get_alphas(Q2)
+
+c      print*,'alphas_vfn:q2,nfa,as: ',q2,nfa,alphas_vfn
 
       return
       end
@@ -293,13 +306,13 @@ c  interface for the subroutine DSNLEQ
       return
       end
 !----------------------
-      real*8 FUNCTION alphas_abkm(q2)
+!commented by O.K. 7.01.15 (the same name as in utilities113.f      real*8 FUNCTION alphas(q2)
 
 !  The same as alphas_ffn, used for the compatibility purposes
 
-      implicit double precision (a-h,o-z)
+!      implicit double precision (a-h,o-z)
 
-      alphas_abkm=alphas_ffn(q2)
+!      alphas=alphas_ffn(q2)
 
-      return 
-      end
+!      return 
+!      end

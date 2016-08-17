@@ -257,7 +257,7 @@ c        write(6,*) ' fcn npoint ',npoints
 
       kflag=0
       if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.35)  then 
+     $.or.itheory.eq.20.or.itheory.eq.35)  then 
          call SumRules(kflag)
       endif
       if (kflag.eq.1) then
@@ -292,7 +292,7 @@ C
          print*,'before evolution'
       endif
       if (itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
-     1    itheory.eq.35) then         
+     1    itheory.eq.20.or.itheory.eq.35) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 
@@ -323,7 +323,8 @@ c iglu is set in sigcalc to iglu=1111
 c fill PDFs for ABKM scheme
       if (mod(HFSCHEME,10).eq.4) then 
 c update heavy-quark masses (for FF ABM and FF ABM RUNM schemes)
-        if (HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
+        if (HFSCHEME.eq.4.or.HFSCHEME.eq.444.or.
+     1      HFSCHEME.eq.4444.or.HFSCHEME.eq.44444) then
           call UpdateHQMasses()
           rmass(8)  = HF_MASS(1)
           rmass(10) = HF_MASS(2)

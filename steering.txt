@@ -84,7 +84,7 @@
                 !                      set to LHAPDFQ0, LHAPDF or LHAPDFNATIVE, sets it to LHAPDF
                 ! 'PDF Rotate'      -- performs PDF re-diagonalization. Requires theo.in files to operate properly  
 
-  TheoryType = 'DGLAP' ! 'DGLAP'  -- colinear evolution
+  TheoryType = 'DGLAP_ABM' ! 'DGLAP'  -- colinear evolution
                        ! 'DGLAP_APFEL'      -- collinear evolution with APFEL
                        ! 'DGLAP_QEDEVOL'    -- collinear evolution with QEDEVOL
                        ! 'DGLAP_APFEL_QED'  -- collinear evolution with APFEL with QED corrections
@@ -130,7 +130,7 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
-  HF_SCHEME = 'RT OPT'
+  HF_SCHEME = 'FF B ABM'
 
  ! PDF type. Possible types are currently available:
  ! 'proton'  -- default (fitting proton data)

@@ -30,8 +30,12 @@ C------------------
       end if
 
       q2st=q20
-      xbmax=0.999d0
-      x1=0.2
+c      xbmax=0.999d0
+c      x1=0.2
+c Oleg Kuprash: 17.08.2016
+      xbmax=0.9999999d0!0.99999d0
+      x1=0.5d0
+
       xlog1=log(x1)
       xlog2=log(1-x1)
 
@@ -119,6 +123,9 @@ C------------------
       if (kpdf.eq.-1) then 
 !  Find a position of m_c^2 in the Q-grid for the 3-flavour PDFs with 
 !  the fixed number of flavours in the loops (kpdf=0)
+!OK next line added by Oleg Kuprash to have dels1(0) and dels2(0) nonzero
+        CALL APEQSGRID(Q2min,Q2max,xbmin,0,q2st)
+        print*,vfnth(4),q2ini(0),dels1(0),dels2(0)
         s=log(log(vfnth(4)**2/0.04)/log(q2ini(0)/0.04))
         if (s.ge.0.) then
           is=int(s/dels1(0))
