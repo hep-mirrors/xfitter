@@ -24,6 +24,7 @@
       if(iTheory.eq.35)then
          call SetTheory("QUniD")                 ! Set QCD+QED evolution (default)
          call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of muF
+         if(I_FIT_ORDER.gt.1) call EnableNLOQEDcorrections(.true.)
       else
          call SetTheory("QCD")                   ! Set QCD evolution (default)
          call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of alphas (rather than muF => faster for short steps)

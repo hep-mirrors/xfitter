@@ -31,18 +31,17 @@ C------------------------------------
 #include "fcn.inc"
 #include "steering.inc"
       double precision x, Q, Q2
-      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF)
+      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
       double precision xfe(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
       integer iqnset, iqnchk,ifl
       
 C---------------------------------------
       iqnset = IPDFSET
       iqnchk = 0
-      do ifl=-N_CHARGE_PDF,N_CHARGE_PDF
+      do ifl=-N_CHARGE_PDF,N_CHARGE_PDF+N_NEUTRAL_PDF
         xf(ifl)=0.d0
         xfe(ifl)=0.d0
       enddo
-      xfe(N_CHARGE_PDF+N_NEUTRAL_PDF)=0.d0
 
 c     Return zero if x range falls below qcdnum grid xmin values (to avoid large weights)
       if (PDFStyle.ne.'LHAPDFNATIVE') then
@@ -65,7 +64,7 @@ c     Return zero if x range falls below qcdnum grid xmin values (to avoid large
       if (LFastAPPLGRID) then
          if (IFlagFCN.eq.1) then
             call hf_get_pdfs(x, Q2, xfe)
-            do ifl=-N_CHARGE_PDF,N_CHARGE_PDF
+            do ifl=-N_CHARGE_PDF,N_CHARGE_PDF+N_NEUTRAL_PDF
               xf(ifl)=xfe(ifl)
             enddo
          else
@@ -73,11 +72,10 @@ c     Return zero if x range falls below qcdnum grid xmin values (to avoid large
          endif
       else
          call hf_get_pdfs( x, Q2, xfe)
-         do ifl=-N_CHARGE_PDF,N_CHARGE_PDF
+         do ifl=-N_CHARGE_PDF,N_CHARGE_PDF+N_NEUTRAL_PDF
            xf(ifl)=xfe(ifl)
          enddo
       endif
-
       return
       end
 
@@ -90,7 +88,7 @@ C> @brief PDF for ppbar process
       integer ifl
 
       call appl_fnpdf(x, Q, xf)
-      do ifl=0,6
+      do ifl=1, N_CHARGE_PDF
         xft=xf(ifl)
         xf(ifl) = xf(-ifl)
         xf(-ifl)=xft
