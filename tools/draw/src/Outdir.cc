@@ -207,7 +207,19 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
                       ifstream infile((dirname + "/" + subdir + "/Results.txt").c_str());
                       if (infile.is_open())
                       {
-                          dirlist.push_back(dirname + "/" + subdir + "/");
+                          NTotRep += 1;
+                          if ( opts.looseRepSelection ) {
+                              // Good enough to try
+                              dirlist.push_back(dirname + "/" + subdir + "/");
+                          }
+                          else
+                          {
+                              // extensive fit status
+                              string status = fitstat(dirname + "/" + subdir + "/") ;   
+                              if (status == "converged" || status == "pos-def-forced" || opts.looseRepSelection ) {    
+                                  dirlist.push_back(dirname + "/" + subdir + "/");
+                              }
+                          }
                           infile.close();
                       }
                       closedir (sdir);
