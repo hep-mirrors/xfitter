@@ -88,6 +88,7 @@ C
 
       integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
       integer vIPDFSET         !>  value of IPDFSET for each dataset
+      integer cIDataSet        !>  dataset index to be used to dermine the number of active flavour in the H-VFNS
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
       logical lead             !> Flag to trigger lead PDF	
       logical deuteron             !> Flag to trigger deuteron PDF	
@@ -124,7 +125,7 @@ C
      $     ,npolyval, lead
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, vIPDFSET, ICHECK_QCDNUM
+     $     ,IPDFSET, vIPDFSET, cIDataSet, ICHECK_QCDNUM
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,

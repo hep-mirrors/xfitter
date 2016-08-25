@@ -61,10 +61,12 @@ C
 
 C VB: For the hybrid VFNS
       integer DATASETMaxNF(NSET)                                   !> Maximum number of active flavours per dataset
+      double precision DATASETSwitchScales(4:6,NSET)               !> Charm, bottom, and top switching scales per dataset
       logical UseHVFNS                                             !> Whether the H-VFNS has to be used
 
       common/datasets/
      $     DATASETInfo
+     $ 	   ,DATASETSwitchScales
      $     ,DATASETKFactorNames
      $     ,DATASETTheoryFile
      $     ,DATASETTheoryType

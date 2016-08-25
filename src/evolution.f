@@ -59,9 +59,8 @@ cjt test
       external APFELsubrPhoton
       external QEDEVOLsubr
 
-      double precision epsi,delta
-      double precision hf_get_alphas,asRef,Q2Ref
-      parameter(delta=0.999d0)
+      double precision epsi
+      double precision hf_get_alphas,asRef
 
 *     ---------------------------------------------------------
 *     Save scale in a common to avoid APFEL to evolve if the
@@ -166,7 +165,12 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
       if (itheory.eq.0.or.itheory.eq.11) then
          call setalf(dble(alphas),Mz*Mz)
       else
+*     Make sure that alphas is correctly set at the Z mass
+         call SetMaxFlavourPDFs(5)
+         call SetMaxFlavourAlpha(5)
          call SetAlphaQCDRef(dble(alphas),dble(Mz))
+         asref = HF_Get_alphas(dble(starting_scale))
+         call SetAlphaQCDRef(asref,dsqrt(dble(starting_scale)))
       endif
       alphaSzero = hf_get_alphas(1D0)
       call RT_SetAlphaS(alphaSzero)
@@ -206,18 +210,12 @@ C
                call PDFEXT(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
 *     4 flavours (redefine alphas)
                q2p   = starting_scale
-               Q2Ref = ( mbt * kmub * delta )**2 
-               asRef = HF_Get_alphas(Q2ref)
-               call SetAlphaQCDRef(asRef,dsqrt(Q2Ref))
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(4)
                call SetMaxFlavourAlpha(4)
                call PDFEXT(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
 *     3 flavours (redefine alphas)
                q2p   = starting_scale
-               Q2Ref = ( mch * kmuc * delta )**2 
-               asRef = HF_Get_alphas(Q2ref)
-               call SetAlphaQCDRef(asRef,dsqrt(Q2Ref))
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(3)
                call SetMaxFlavourAlpha(3)
