@@ -209,7 +209,7 @@
 *
 &DipoleType
 
-  ! -- Choises of the dipole model fits:
+  ! -- Choices of the dipole model fits:
   !    'NONE' - dipole predictions are disabled (default)
   !    'GBW'  - GBW dipole model
   !    'IIM'  - IIM dipole model
@@ -221,10 +221,10 @@
 
 &End
 
-* dipole cross sectin type 
+* dipole cross section type 
 &DipcsType 
 
-  ! -- Choises of the dipole model fits:
+  ! -- Choices of the dipole model fits:
   !    'saturation' - DIP_CS with saturation
   !    'linear' - DIP_CS without saturation
 

@@ -269,7 +269,7 @@ C---------------------------------
 
       end
 
-C 7/06/2016: Agnieszka L. fits with and without saturation
+C 7/06/2016 A.L: fits with and without saturation
             subroutine SetDipCsType
 C---------------------------------------
 C Set type of dipole fit.

@@ -302,7 +302,7 @@ C=         print *,'1',dip_cs,dip_cs2,xx,r,y
 C       BGK dipole model:
 C      print *,'BGK parameters ',cBGK,eBGK
        r02 = R_02_evol(r,xx)
-C 7/06/2016  A.L
+C 7/06/2016  
       if (DipCsModel.eq.1) then
         DIP_CS = sig0 * (1.0D0 - dexp(-r02))
 c      write(82 ,1043)  DIP_CS,r02,r,xx,sig0

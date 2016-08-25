@@ -153,17 +153,17 @@ c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
      $     aq2,bq2,scalea1,scaleb1,scalec1,hqscale1in,hqscale2in,hqscale2inmass,MASSH
 
 
-C
+
 C     Value for selection of a dipole model fit
-C
+
       integer DipoleModel
 
       common/DipoleModelType/DipoleModel
 
-C  A.L
-      integer DipCsModel       !> to use saturation or not use this is the asnwer
+
+      integer DipCsModel       !> to use saturation or not use this is the answer
       common/DipCsModelType/DipCsModel
-C         
+        
 
       character*32 PDFStyle           !> PDF style definition
       common/CPdfStyle/PDFStyle
