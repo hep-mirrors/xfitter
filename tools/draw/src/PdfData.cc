@@ -22,8 +22,8 @@
 //pdf type
 pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue };
 //pdf labels
-string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", 
-   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g"};
+string pdflab[] = {"xu_{V}", "xd_{V}", "xg", "x#Sigma", "x#bar{u}", "x#bar{d}", "xs", "(s+#bar{s})/(#bar{u}+#bar{d})", "xc", "xb", "x#bar{d}-x#bar{u}", "xd_{V}-xu_{V}", "xU", "xD", "x#bar{U}", "x#bar{D}", "g/#Sigma", 
+   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","x#gamma","#Sigma/g","#gamma/g"};
 //pdf filenames
 string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv","rs","ph","sg","gg"
 		   };

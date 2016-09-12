@@ -207,10 +207,15 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     }
   else
     {
-      Ratio->SetPad(0, 0, 1, bmarg+dy);
+            Ratio->SetPad(0, 0, 1, bmarg+dy);
       Ratio->SetTopMargin(marg0/(bmarg+dy));
       Ratio->SetBottomMargin(bmarg/(bmarg+dy));
       ry = dy+bmarg;
+      //voica
+      //      Ratio->SetPad(0, 0, 1, bmarg+dy);
+      //Ratio->SetTopMargin(1.07);
+      //Ratio->SetBottomMargin(0.9);
+      //ry = dy+bmarg;
     }
   Ratio->SetLeftMargin(lmarg+0.02);
   Ratio->SetRightMargin(rmarg);
@@ -382,7 +387,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	{
 	  vertdist = 0.10;
 	  txtsz = 1.;
-	  infolabel = datahistos[0].getextralabel() + "; " + datahistos[0].getlumilabel();
+	  //	  infolabel = datahistos[0].getextralabel() + "; " + datahistos[0].getlumilabel();
+	  infolabel = datahistos[0].getextralabel() + " " + datahistos[0].getlumilabel();
 	}
       else
 	{
@@ -429,8 +435,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       if (!opts.onlytheory)
 	{
 	  leg->AddEntry(data, datalab.c_str(), "pl");
-	  leg->AddEntry(data, "#delta uncorrelated", "pe");
-	  leg->AddEntry(datatot, "#delta total", "f");
+	  //	  leg->AddEntry(data, "#delta uncorrelated", "pe");
+	  //leg->AddEntry(datatot, "#delta total", "f");
+	  // voica
+	  leg->AddEntry(data, "uncorrelated unc.", "pe");
+	  leg->AddEntry(datatot, "total unc.", "f");
 	}
       TH1 *mark = (TH1F*)datahistos[0].getth()->Clone();
       mark->SetMarkerStyle(opts.markers[labels[0]]);
@@ -793,8 +802,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       delta = 0;
     }
 
-  r_templ->SetMaximum(mx + delta * 0.2);
-  r_templ->SetMinimum(mn - delta * 0.2);
+  //    r_templ->SetMaximum(mx + delta * 0.2);
+  //  r_templ->SetMinimum(mn - delta * 0.2);
+  //voica
+    r_templ->SetMaximum(1.095);
+    r_templ->SetMinimum(0.905);
 
   //draw axis
   r_templ->DrawCopy("AXIS");

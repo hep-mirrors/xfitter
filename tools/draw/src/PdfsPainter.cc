@@ -284,7 +284,9 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   cnv->SetTopMargin(tmarg);
 
   //graphical settings
-  mg->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x,Q^{2})").c_str());
+  //voica:  remove x from the labels
+  //  mg->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x,Q^{2})").c_str());
+  mg->SetTitle(((string)" ; x  ; " + pdflabels[ipdf] + "(x,Q^{2})").c_str());
 
   mg->Draw("AXIS"); //need to draw with A option to create axis
 
@@ -294,22 +296,42 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       double delta = mx - mn;
       mx = mx + delta * (0.1 + 0.1 * pdfgraphs.size());
       mn = mn - delta * 0.05;
-      mg->SetMaximum(mx);
-      mg->SetMinimum(mn);
+      //voica:  this is where I play with y ranges
+	  if (ipdf == ubar || ipdf == dbar || ipdf == s ) // || ipdf == g)
+	    {
+	    mg->SetMinimum(0.);
+	    mg->SetMaximum(0.55);
+	    }
+	  else if
+	    (ipdf == Rs) // || ipdf == g)   
+	    {
+	      mg->SetMaximum(1.7);
+	      mg->SetMinimum(0.2);
+	    }
+          else
+            {
+              mg->SetMaximum(mx);
+              mg->SetMinimum(mn);
+            }
+
+
     }
-  
+
+
   mg->GetXaxis()->Set(100, opts.xmin, opts.xmax);
   mg->GetXaxis()->SetRange(opts.xmin, opts.xmax);
   mg->GetXaxis()->SetTitleFont(62);
   mg->GetXaxis()->SetLabelFont(62);
-  mg->GetXaxis()->SetTitleSize(txtsize);
-  mg->GetXaxis()->SetLabelSize(txtsize);
+  //voica: increase the label size
+  mg->GetXaxis()->SetTitleSize(txtsize*1.2);
+  mg->GetXaxis()->SetLabelSize(txtsize*1.2);
   //  mg->GetXaxis()->SetTitleOffset(offset);
 
   mg->GetYaxis()->SetTitleFont(62);
   mg->GetYaxis()->SetLabelFont(62);
-  mg->GetYaxis()->SetTitleSize(txtsize);
-  mg->GetYaxis()->SetLabelSize(txtsize);      
+  //voica: increase the label size
+  mg->GetYaxis()->SetTitleSize(txtsize*1.2);
+  mg->GetYaxis()->SetLabelSize(txtsize*1.2);      
   mg->GetYaxis()->SetTitleOffset(offset);
 
   //mg->Draw("LE3");
@@ -319,13 +341,15 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   else
     mg_lines->Draw("l");
 
+  /* 
   //Make legend
   TLegend * leg = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
   leg->SetTextFont(62);
-  leg->SetTextSize(txtsize);
+  leg->SetTextSize(txtsize*1.2);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
+  //voica: i added x in PdfData labeling, hence no need for x here.
   //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
   leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
 
@@ -343,6 +367,72 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   if (opts.drawlogo)
     DrawLogo()->Draw();
   DrawLabels("ur");
+  */
+
+  // ---- voica ---- play with legend for the tribands!
+  //Make legend
+  //  TLegend * leg = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
+
+  // I'm adding 3 extra legends for tribands 
+
+  TLegend * leg_v1 = new TLegend(lmarg+0.38, 1-tmarg-0.08, lmarg+0.43, 1-tmarg-0.11);
+  leg_v1->SetFillColor(3);
+  //  leg_v1->SetFillStyle(4000);
+  leg_v1 ->SetBorderSize(0);
+
+  TLegend * leg_v2 = new TLegend(lmarg+0.38, 1-tmarg-0.09, lmarg+0.43, 1-tmarg-0.11);
+  leg_v2->SetFillColor(5);
+  // leg_v2->SetFillStyle(4000);
+  leg_v2 ->SetBorderSize(0);
+
+
+  TLegend * leg_v3 = new TLegend(lmarg+0.38, 1-tmarg-0.10, lmarg+0.43, 1-tmarg-0.11);
+  leg_v3->SetFillColor(2);
+  //  leg_v3->SetFillStyle(4000);
+  leg_v3 ->SetBorderSize(0);
+
+
+
+  TLegend * leg = new TLegend(lmarg+0.43, 1-tmarg-0.075-pdfgraphs.size()*0.05, lmarg+0.53, 1-tmarg-0.01);
+  leg->SetTextFont(62);
+  leg->SetTextSize(txtsize*1.1);
+  leg->SetFillColor(-1);
+  leg->SetFillStyle(4000);
+  leg->SetBorderSize(0);
+  //  leg ->SetLegendBorderSize(0); 
+
+  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+
+  for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
+    {
+      if (*it == 0)
+	continue;
+
+      if (opts.dobands)
+	leg->AddEntry((*it), labels[it-pdfgraphs.begin()].c_str(), "");
+      else
+	leg->AddEntry((*it), labels[it-pdfgraphs.begin()].c_str(), "l");
+
+      //   leg->AddEntry((*it), labels[it-pdfgraphs.begin()].c_str(), "lf");
+    }
+
+  if (opts.dobands)
+    {
+    leg_v1->AddEntry((TObject*)0, "", "");
+    leg_v2->AddEntry((TObject*)0, "", "");
+    leg_v3->AddEntry((TObject*)0, "", "");
+
+    leg_v1-> Draw("s");
+    leg_v2-> Draw("s");
+    leg_v3-> Draw("s");
+    }
+  leg->Draw("s");
+  if (opts.drawlogo)
+    DrawLogo()->Draw();
+  DrawLabels("ul");
+
+
 
   //--------------------------------------
   //Ratio Canvas
