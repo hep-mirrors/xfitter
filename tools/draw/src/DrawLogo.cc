@@ -114,7 +114,8 @@ void ATLASinternal()
 {
   TLatex p; 
   p.SetNDC();
-  p.SetTextFont(42);
+  //  p.SetTextFont(42);
+  p.SetTextFont(62);
   p.SetTextSize(ratio*0.04);
   p.DrawLatex(ratio*(labx+0.19), laby-0.05, "Internal");
 }
