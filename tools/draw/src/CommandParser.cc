@@ -197,16 +197,22 @@ CommandParser::CommandParser(int argc, char **argv):
 	  {
 	    atlas = true;
 	    drawlogo = false;
+	    gStyle->SetPadTickX(1);
+	    gStyle->SetPadTickY(1);
 	  }
 	else if (*it == "--atlas-internal")
 	  {
 	    atlasinternal = true;
 	    drawlogo = false;
+	    gStyle->SetPadTickX(1);
+	    gStyle->SetPadTickY(1);
 	  }
 	else if (*it == "--atlas-preliminary")
 	  {
 	    atlaspreliminary = true;
 	    drawlogo = false;
+	    gStyle->SetPadTickX(1);
+	    gStyle->SetPadTickY(1);
 	  }
 	else if (*it == "--cdfii-preliminary")
 	  {
