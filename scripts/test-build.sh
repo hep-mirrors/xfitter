@@ -2,8 +2,31 @@
 
 # This script tests building the xFitter code in different configurations
 
+print_usage() {
+    echo "USAGE: ./test-build.sh [options]"
+    echo "where [options] is a list of configure modules, automatically preceeded by -enable "
+    echo "Example ./test-build.sh applgrid lhapdf"
+    echo "will run ./configure --enable-applgrid --enable-lhapdf"
+    echo "Empty list build default configuration"
+    echo "To disable an option, use: ./test-build.sh root=no"
+}
+
+####
+if (grep -i help <<< $@); then
+    print_usage
+    return
+fi
+
+_DATE=$(date +%F.%H%I)
 _LOG="buildlog_${_DATE}.log"
+echo ${_DATE} ${_LOG}
 touch ${_LOG}
+
+# combine config string
+conf_args=""
+for arg in $@; do
+  conf_args=$conf_args" --enable-"$arg
+done
 
 # autotools function
 function run_autotools () {
@@ -34,10 +57,11 @@ function run_make_install () {
 }
 
 # basic config
-
-if [[ $1 -eq "basic" ]]; then
+#if [[ $1 == "basic" ]]; then
+  make maintainer-clean
   run_autotools
-  run_configure
+  echo "Running ./configure $conf_args"
+  run_configure $conf_args
   run_make
   run_make_install
   if [[ ${_RESULT} -eq 0 ]]; then
@@ -45,4 +69,6 @@ if [[ $1 -eq "basic" ]]; then
   else
     echo "Basic compile test FAIL."
   fi
-fi
+#fi
+
+exit

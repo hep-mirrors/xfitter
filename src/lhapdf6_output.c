@@ -257,11 +257,9 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[
                 fprintf(fp, "%e ", grid.x[ix]);
         fprintf(fp, "\n");
 
-
         for(iq2=iqmin; iq2<=iqmax; iq2++)
                 fprintf(fp, "%e ", sqrt(grid.q2[iq2]));
         fprintf(fp, "\n");
-
 
         for(i=0;i<NPDFToStore ;i++) 
                 fprintf(fp, "%i ", pdg_flavours[i]);
@@ -328,21 +326,20 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
 	double kmuc=ccommoninterface_.c_kmuc;
 	double kmub=ccommoninterface_.c_kmub;
 	double kmut=ccommoninterface_.c_kmut;
-	
 
-        
+	double tiny = 1e-3;
+	        
  //       print_q2subgrid(grid, fp, qfrmiq(0) , qfrmiq(grid.nq2-1));
-
         char ch_mask[]={0,0,1,1,1,1,1,1,0,0,1};
-        print_q2subgrid(grid, fp, 0, iqfrmq(mch2*kmuc*kmuc), ch_mask);
+        print_q2subgrid(grid, fp, 0, iqfrmq(mch2*kmuc*kmuc+tiny), ch_mask);
         char bt_mask[]={0,1,1,1,1,1,1,1,1,0,1};
-        print_q2subgrid(grid, fp, iqfrmq(mch2*kmuc*kmuc), iqfrmq(mbt2*kmub*kmub), bt_mask);
+        print_q2subgrid(grid, fp, iqfrmq(mch2*kmuc*kmuc+tiny), iqfrmq(mbt2*kmub*kmub+tiny), bt_mask);
         char tp_mask[]={1,1,1,1,1,1,1,1,1,1,1};
         if(mtp2 < qfrmiq(grid.nq2-1)) {
-                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub), iqfrmq(mtp2*kmut*kmut), tp_mask);
-                print_q2subgrid(grid, fp, iqfrmq(mtp2*kmut*kmut), grid.nq2-1, tp_mask);
+                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), iqfrmq(mtp2*kmut*kmut+tiny), tp_mask);
+                print_q2subgrid(grid, fp, iqfrmq(mtp2*kmut*kmut+tiny), grid.nq2-1, tp_mask);
         } else {
-                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub), grid.nq2-1, tp_mask);
+                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), grid.nq2-1, tp_mask);
         }
         fclose(fp);
         delete_grid(grid);
