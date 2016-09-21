@@ -13,8 +13,12 @@ C =========================================================
       
       common/chsteer/ cm,icharm
 
-C
+
 C     Namelist of dipole type variable
-C
+
       character*32 TypeOfDipoleFit
       namelist/DipoleType/TypeOfDipoleFit
+
+      character*32 TypeOfDipCs
+      namelist/DipCsType/TypeOfDipCs
+     
