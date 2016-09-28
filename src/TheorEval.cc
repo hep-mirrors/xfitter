@@ -377,7 +377,7 @@ TheorEval::initKfTerm(int iterm, valarray<double> *val)
       // check that we have even number of bins (low and high columns)
       if (0!=(nw-1)%2) {
         int id = 14040340;
-        char text[] = "S: Bad number of bins in k-factor file. Each bin must have low and high value.";
+        char text[] = "W: Bad number of bins in k-factor file. Each bin must have low and high value.";
         int textlen = strlen(text);
         hf_errlog_(id, text, textlen);
       }

@@ -1009,7 +1009,7 @@ c but firest check that there are two columns per each bin dimension
           print *, 'Problem reading data from ', CFile
           print *, 'There must be two bin columns per each bin dimension'
           print *, 'for applgrid based fits.'
-          call hf_stop
+C          call hf_stop
         endif
       
         call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 
