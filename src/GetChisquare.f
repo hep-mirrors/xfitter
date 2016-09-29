@@ -260,6 +260,16 @@ C
          Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
       endif
 
+      do k=1,nsys
+         do j=1,n_syst_meas(k)
+            i = syst_meas_idx(j,k)
+
+            scgamma(k,i) = ScaledGamma(k,i)
+            scomega(k,i) = ScaledOmega(k,i)
+            sysshift(k) = rsys_in(k)
+         enddo
+      enddo
+
 
       return 
       end
@@ -1761,7 +1771,7 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
       print *,'Nuisance paramters (point, Uncor, Corr1, ... CorrN):'
       print *,'NCorr=',NCorr
       do i=1,NCovar
-         print '(I4,300E12.4)',i,alpha(i),(beta(j,i),j=1,NCorr)
+         print '(I4,300E16.8)',i,alpha(i),(beta(j,i),j=1,NCorr)
       enddo
 
       dev = 0.

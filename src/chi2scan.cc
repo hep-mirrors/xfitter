@@ -4,6 +4,8 @@
 #include <string>
 #include <iomanip>
 
+#include <TError.h>
+
 //return error if LHAPDF is not enabled
 #if !defined LHAPDF_ENABLED
 void chi2_scan_()
@@ -60,6 +62,7 @@ struct point
 
 void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, double& deltam, double& chi2min, string name)
 {
+  gErrorIgnoreLevel=1001;
   TGraph *chi2graph = new TGraph(chi2.size());
   int i = 0;
   for (map<double, double>::iterator it = chi2.begin(); it != chi2.end(); it++, i++)
@@ -495,6 +498,7 @@ void chi2_scan_()
       
       map <int, point> pointsmap;
       map <double, double> chi2; //map of parameters value and chi2 values
+      map <int, map <double, double> > systchi2; //map of systematic uncertainties (removed one-by-one) and map of parameters value and chi2
       
       int totset = 0; //total number of PDF members
       int sets = 1;
@@ -972,10 +976,126 @@ void chi2_scan_()
 	       << endl;
 	  
 	  chi2[*vit] = chi2tot;
+
+	  cout << "Start uncertainty decomposition" << endl;
+	  //Uncertainty decomposition, loop on systematic uncertainties
+	  //remove one by one, apply shift, and recalculate chi2
+	  int totsyst = systema_.nsys_;
+	  for (int s = 0; s < totsyst; s++)
+	    {
+	      double savebetaasym[npoints][2][totsyst];
+	      double savebeta[npoints][totsyst];
+	      double saveomega[npoints][totsyst];
+	      double savetheo[npoints];
+	      double savedata[npoints];
+	      for (int p = 0; p < npoints; p++)
+		{
+		  //save current uncertainty
+		  savebetaasym[p][0][s] = systasym_.betaasym_[p][0][s];
+		  savebetaasym[p][1][s] = systasym_.betaasym_[p][1][s];
+		  savebeta[p][s] = systema_.beta_[p][s];
+		  saveomega[p][s] = systasym_.omega_[p][s];
+
+		  //save current theory
+		  savetheo[p] = c_theo_.theo_[p];
+		  //save current data
+		  savedata[p] = indata2_.daten_[p];
+
+		  //remove uncertainty
+		  systasym_.betaasym_[p][0][s] = 0;
+		  systasym_.betaasym_[p][1][s] = 0;
+		  systema_.beta_[p][s] = 0;
+		  systasym_.omega_[p][s] = 0;
+
+		  //shift the data (should know the shift at the chi2 minimum, need two iterations for that)
+		  //indata2_.daten_[p] = indata2_.daten_[p]
+		  //+ systexport_.sysshift_[s]*systexport_.scgamma_[p][s]
+		  //+ systexport_.sysshift_[s]*systexport_.sysshift_[s]*systexport_.scomega_[p][s];
+
+		  //offset the data
+		  //indata2_.daten_[p] = indata2_.daten_[p] + systexport_.scgamma_[p][s] + systexport_.scomega_[p][s];
+		  //indata2_.daten_[p] = indata2_.daten_[p] + savebeta[p][s]*savetheo[p] + saveomega[p][s]*savetheo[p];
+		} //end loop on points
+
+	      //calculate chi2
+	      systchi2[s][*vit] = chi2data_theory_(2);
+	      /*
+	      char chi2c[20];
+	      sprintf(chi2c, "%.8f", systchi2[s][*vit]);
+	      cout << setw(15) << (label + "=") << *vit
+		   << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system_[s]
+		   << setw(15) << "chi2=" << chi2c 
+		   << setw(15) << "ndf=" << cfcn_.ndfmini_ 
+		   << endl;
+	      */
+
+	      for (int p = 0; p < npoints; p++)
+		{
+		  //restore uncertainty
+		  systasym_.betaasym_[p][0][s] = savebetaasym[p][0][s];
+		  systasym_.betaasym_[p][1][s] = savebetaasym[p][1][s];
+		  systema_.beta_[p][s] = savebeta[p][s];
+		  systasym_.omega_[p][s] = saveomega[p][s];
+
+		  /*
+		  //restore theory
+		  c_theo_.theo_[p] = savetheo[p];
+		  //restore data
+		  indata2_.daten_[p] = savedata[p];
+		  */
+		} //end loop on points
+		  
+	    }//end loop on uncertainties
+	  
 	} //end loop on parameter values
 
       //Central PDF
       fitchi2_and_store (chi2, min, deltap, deltam, chi2min,"chi2scan.txt");
+
+      //func.open((outdir + "/unc_dec.txt").c_str(), ofstream::out | ofstream::app);
+      //func.close();
+      
+      //Loop on uncertainties
+      double deltap2_tot = 0;
+      double deltam2_tot = 0;
+      for (int s = 0; s < systema_.nsys_; s++)
+	{
+	  double min_i, deltap_i, deltam_i, chi2min_i;
+	  char chi2name[100];
+	  sprintf(chi2name, "chi2scan_syst_%d.txt", s);
+	  fitchi2_and_store (systchi2[s], min_i, deltap_i, deltam_i, chi2min_i, chi2name);
+	  deltap2_tot += max(0.,deltap*deltap-deltap_i*deltap_i);
+	  deltam2_tot += max(0.,deltam*deltam-deltam_i*deltam_i);
+	  
+	  char nuispar[64];
+	  strcpy(nuispar,systema_.system_[s]);
+	  nuispar[63] = '\0';
+	  string nuislabel = string(nuispar);
+	  nuislabel.erase(nuislabel.find_last_not_of(" \n\r\t")+1); // trim trailing whitespaces
+
+	  cout << nuislabel << "\t+" << sqrt(max(0.,deltap*deltap-deltap_i*deltap_i)) << "\t-" << sqrt(max(0.,deltam*deltam-deltam_i*deltam_i)) << endl;
+
+	  //ofstream func((outdir + "/unc_dec.txt").c_str());
+	  ofstream func;
+	  func.open((outdir + "/unc_dec.txt").c_str(), ofstream::out | ofstream::app);
+	  func << setprecision(6) << nuislabel << "\t+" << sqrt(max(0.,deltap*deltap-deltap_i*deltap_i)) << "\t-" << sqrt(max(0.,deltam*deltam-deltam_i*deltam_i)) << endl;
+	  func.close();
+
+	  /*
+	  cout << setw(35) << nuislabel
+	       << "  +- " << min_i - min
+	       << endl;
+	  */
+	}
+      cout << "Statistical" << "\t+" << sqrt(max(0.,deltap*deltap-deltap2_tot)) << "\t-" << sqrt(max(0.,deltam*deltam-deltam2_tot)) << endl;
+      cout << "Total" << "\t\t+" << deltap << "\t-" << deltam << endl;
+
+      ofstream func;
+      func.open((outdir + "/unc_dec.txt").c_str(), ofstream::out | ofstream::app);
+      func << setprecision(6);
+      func << "Statistical" << "\t\t+" << sqrt(max(0.,deltap*deltap-deltap2_tot)) << "\t-" << sqrt(max(0.,deltam*deltam-deltam2_tot)) << endl;
+      func << "Total" << "\t\t\t+" << deltap << "\t-" << deltam << endl;
+      func.close();
     }
   
   //Pick up the value closest to the minimum
