@@ -3,13 +3,21 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles =  1
+    NInputFiles =  7
  
   ! Input files:
 
   !  InputFileNames(1) = 'datafiles/lhc/atlas/drellYan/1305.4192/dy_highmass.dat'
   !  InputFileNames(1) = 'ave_proc_Z3D101.dat'
   InputFileNames = 
+    'z3d_ttt/massBin0.dat',
+    'z3d_ttt/massBin1.dat',
+    'z3d_ttt/massBin2.dat',
+    'z3d_ttt/massBin3.dat',
+    'z3d_ttt/massBin4.dat',
+    'z3d_ttt/massBin5.dat',
+    'z3d_ttt/massBin6.dat',
+
     'z3d/massBin0.dat',
     'z3d/massBin1.dat',
     'z3d/massBin2.dat',
@@ -17,6 +25,8 @@
     'z3d/massBin4.dat',
     'z3d/massBin5.dat',
     'z3d/massBin6.dat',
+
+
 &End
 
 &InTheory
@@ -53,7 +63,7 @@
 
 &OutDir
   ! Name of the directory where output will be stored (max 22 characters)
-    OutDirName = 'tth2only'
+    OutDirName = 'bay1st1.2mmht'
 &End
 
 *
@@ -76,9 +86,9 @@
  !C      Modify the prior in chi2 definition (1.0 is default):
  !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
  !  PriorScaleFactor = 0.0, 0.0 
-  ListOfSources = 'thetaW:T' 
-  PriorScaleName = 'thetaW'
-  PriorScaleFactor = 0.0
+ ! ListOfSources = 'thetaW:T' 
+ ! PriorScaleName = 'thetaW'
+ ! PriorScaleFactor = 0.0
 &End
 
 
@@ -366,8 +376,8 @@
 *
 &lhapdf
  ! LHAPDFSET  = 'MMHT2014p3d'       ! LHAPDF grid file 
-   LHAPDFSET  = 'CT10nlo'       ! LHAPDF grid file 
- ! LHAPDFSET  =  'MMHT2014nnlo68cl' ! 
+ !  LHAPDFSET  = 'CT10nlo'       ! LHAPDF grid file 
+  LHAPDFSET  =  'MMHT2014nnlo68cl' ! 
  ! LHAPDFSET  =  'abm12lhc_5_nnlo' 
   ILHAPDFSET = 0               ! Set number within PdfSet
  ! LHAPDFErrors = False        ! Take into account PDF uncertaintes 
