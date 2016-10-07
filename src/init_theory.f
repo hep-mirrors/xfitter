@@ -395,6 +395,14 @@ C         stop
       iqb =iqfrmq(qb+tiny)  !> Bottom  
       iqt =iqfrmq(qt+tiny)  !> Top            
 
+C 7/10/16 Reset top threshold if beyond kinematic limit: 
+      if (qt.gt.QARR(2)) then
+         iqt = 0.
+         call hf_errlog(2016100701,
+     $  'I: Top threshold beyond kinematic limit: turn off top PDF')
+      endif
+
+
       if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
          print *,'Fixed Flavour Number Scheme set with nf=3'
