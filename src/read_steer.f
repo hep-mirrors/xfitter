@@ -884,11 +884,12 @@ C has "DataSetSwitchScales" different from zero (default).
                if(ihq.eq.6) DataSetSwitchScales(ihq,i) = mtp
             endif
 C Check that the switching scales are ordered
-            if(ihq.gt.4.and.
-     1           DataSetSwitchScales(ihq,i).lt.
-     2           DataSetSwitchScales(ihq-1,i))
-     3           call hf_errlog(24081601,
-     4           'F: DataSetSwitchScales must be ordered')
+            if(ihq.gt.4)then
+               if(DataSetSwitchScales(ihq,i).lt.
+     1              DataSetSwitchScales(ihq-1,i))
+     2              call hf_errlog(24081601,
+     3              'F: DataSetSwitchScales must be ordered')
+            endif
          enddo
       enddo
       I_Fit_Order = I_Fit_Order_Save
