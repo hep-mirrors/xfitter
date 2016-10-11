@@ -20,3 +20,11 @@ job:
     - ./scripts/test-build.sh
   only:
     - master
+
+nightly_devel:
+  script:
+    - ./scripts/test-build.sh
+    - ./scripts/test-build.sh apfel applgrid lhapdf
+  only:
+    - devel
+    - triggers
