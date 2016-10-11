@@ -764,10 +764,13 @@ C
 C  Data-set dependent scales. First set defaults
 C
       do i=1,NInputFiles
-         DataSetMuR(i)    = 1.0D0
-         DataSetMuF(i)    = 1.0D0
-         DataSetIOrder(i) = I_Fit_Order
-         DataSetMaxNF(i)  = 0
+         DataSetMuR(i)            = 1.0D0
+         DataSetMuF(i)            = 1.0D0
+         DataSetIOrder(i)         = I_Fit_Order
+         DataSetMaxNF(i)          = 0
+         DataSetSwitchScales(4,i) = 0d0
+         DataSetSwitchScales(5,i) = 0d0
+         DataSetSwitchScales(6,i) = 0d0
       enddo
       UseHVFNS = .false.
 C---------------------
@@ -836,11 +839,12 @@ C---------------------------------------------------------
 #include "scales.inc"
 #include "steering.inc"
 #include "datasets.inc"
+#include "couplings.inc"
 C (Optional) Data-set dependent scales
-      integer i_fit_order_save,i
+      integer i_fit_order_save,i,ihq
       character*8 DataSetTheoryOrder(NSet)
       namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder,
-     $     DataSetTheoryOrder,DataSetMaxNF
+     $     DataSetTheoryOrder,DataSetMaxNF,DataSetSwitchScales
 C---------------------------------------------
       do i=1,NSet
          DataSetTheoryOrder(i) = ''
@@ -858,14 +862,35 @@ C Check datasetorder
             call DecodeOrder(DataSetTheoryOrder(i))
             DataSetIOrder(i) = I_Fit_Order
          endif
-C Check if the H-VFNS has to be used
+C Check if the H-VFNS has to be used because some dataset
+C has "DataSetMaxNF" different from zero (default).
          if(DataSetMaxNF(i).ne.0)then
 C Check that MaxNF is between 3 and 6
             if(DataSetMaxNF(i).lt.3.or.
      1         DataSetMaxNF(i).gt.6) call hf_errlog(2105201601,
      2              'F: DataSetMaxNF must be between 3 and 6')
             UseHVFNS = .true.
+         else
+            DataSetMaxNF(i) = 6
          endif
+C Check if the H-VFNS has to be used because some dataset
+C has "DataSetSwitchScales" different from zero (default).
+         do ihq=4,6
+            if(DataSetSwitchScales(ihq,i).ne.0d0)then
+               UseHVFNS = .true.
+            else
+               if(ihq.eq.4) DataSetSwitchScales(ihq,i) = mch
+               if(ihq.eq.5) DataSetSwitchScales(ihq,i) = mbt
+               if(ihq.eq.6) DataSetSwitchScales(ihq,i) = mtp
+            endif
+C Check that the switching scales are ordered
+            if(ihq.gt.4)then
+               if(DataSetSwitchScales(ihq,i).lt.
+     1              DataSetSwitchScales(ihq-1,i))
+     2              call hf_errlog(24081601,
+     3              'F: DataSetSwitchScales must be ordered')
+            endif
+         enddo
       enddo
       I_Fit_Order = I_Fit_Order_Save
 
