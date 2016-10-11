@@ -20,6 +20,8 @@ job:
     - ./scripts/test-build.sh
   only:
     - master
+  except:
+    - triggers
 
 nightly_devel:
   script:
