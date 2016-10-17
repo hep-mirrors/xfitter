@@ -63,10 +63,11 @@ extern"C" {
 
   extern struct {
     double scgamma_[NTOT_C][NSYSMAX_C]; //scaled gamma
-    double scomega_[NTOT_C][NSYSMAX_C];    //scaled omega
-    double sysshift_[NSYSMAX_C];               //systematic shift
+    double scomega_[NTOT_C][NSYSMAX_C]; //scaled omega
+    double sysshift_[NSYSMAX_C];        //systematic shift
+    double scerrors_[NTOT_C];           //scaled uncorrelated errors
   } systexport_;
-
+  
   extern struct {
     double daten_[NTOT_C];   //!> Data values
     double e_unc_[NTOT_C];              //!> Uncorelated uncertainty 
