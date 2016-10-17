@@ -2,11 +2,12 @@
 
 #include "xfitter_cpp.h"
 
+#include "dyturbo/dyturbo.h"
+#include "dyturbo/phasespace.h"
 #include "dyturbo/settings.h"
 #include "dyturbo/cubacall.h"
-#include "dyturbo/integr.h"
+//#include "dyturbo/integr.h"
 #include "dyturbo/ctintegr.h"
-#include "dyturbo/init.h"
 #include "dyturbo/pdf.h"
 #include "dyturbo/pdfevol.h"
 #include "dyturbo/pegasus.h"
@@ -14,6 +15,7 @@
 #include "dyturbo/coupling.h"
 #include "dyturbo/rapint.h"
 #include "dyturbo/mcfm_interface.h"
+#include "dyturbo/dyres_interface.h"
 
 #include "dyturbo/mesq.h"
 #include "dyturbo/anomalous.h"
@@ -35,7 +37,21 @@ using namespace std;
 //Constructor
 Dyturbo::Dyturbo(string file): infile(file)
 {
-  dyturboinit(file);
+  //int argc = 2;
+  //char** argv = new char*[10] ;
+  //std::strcpy(argv[0], file.c_str());
+  //DYTurbo::Init(argc,argv);
+  gaussinit_();             //initialisation of fortran gaussian quadrature nodes and weights
+  coupling::SMparameters(); //initialisation of unused MCFM parameters
+  // parsing options from input file
+  opts.readfromfile      (file);
+  DYTurbo::init_params();
+
+
+  //DYTurbo::WarmUp();
+  //DYTurbo::PrintTable::Header();
+  DYTurbo::PrintTable::Settings();
+  
   proc = opts.nproc;
   
   //set up the right PDF in LHAPDF, to override DYTURBO pdf
@@ -88,8 +104,8 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   //restore overwritten settings
   opts.order = order;
   opts.nproc = proc;
-  opts.mlow = ml;
-  opts.mhigh = mh;
+  //opts.mlow = ml;
+  //opts.mhigh = mh;
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
   lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
   int member = clhapdf_.ilhapdfset_;
@@ -111,24 +127,33 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   */
 
   //Full reinitialisation
-  dofill_.doFill_ = 0;
-  g_param_.g_param_ = opts.g_param;
-  nnlo_.order_ = opts.order;
-  qtcut_.xqtcut_= opts.xqtcut; //Cut on qt/Q
-  mcfm::init();
-  iniflavreduce_(); //need to call this after nproc_.nproc_ is set
-  coupling::initscales();
-  gr::init(); //nodes and weights of gaussian quadrature rules
-  mellinint::initgauss(); //gaussian quadrature for mellin inversion
-  mesq::init(); //EW couplings for born amplitudes
-  rapint::init(); //allocate memory for the rapidity quadrature
-  resconst::init(); //calculate beta, A and B coefficients
-  anomalous::init(); //calculate anomalous dimensions, C1, C2 and gamma coefficients
-  pdfevol::init(); //transform the PDF from x- to N-space at the factorisation scale
-  pegasus::init(); //initialise Pegasus QCD and transform the PDF from x- to N-space at the starting scale
-  resint::init(); //initialise dequad integration for the bessel integral
-  switching::init(); //switching function initialisation
-  rescinit_();
+  DYTurbo::init_params();
+  /*
+    dofill_.doFill_ = 0;
+    dyres::init();
+    mcfm::init();
+    iniflavreduce_(); //need to call this after nproc_.nproc_ is set
+    coupling::initscales();
+    //C++ resum
+    //initialise all the C modules
+    gr::init(); //nodes and weights of gaussian quadrature rules
+    mellinint::initgauss(); //gaussian quadrature for mellin inversion
+    mesq::init(); //EW couplings for born amplitudes
+    rapint::init(); //allocate memory for the rapidity quadrature
+    resconst::init(); //calculate beta, A and B coefficients
+    anomalous::init(); //calculate anomalous dimensions, C1, C2 and gamma coefficients
+    pdfevol::init(); //transform the PDF from x- to N-space at the factorisation scale
+    pegasus::init(); //initialise Pegasus QCD and transform the PDF from x- to N-space at the starting scale
+    resint::init(); //initialise dequad integration for the bessel integral
+    //end C++ resum
+    //V+j fixed order initialisation
+    vjint::init();
+    vjloint::init();
+    //
+    loint::init(); //Born term initialisation
+    switching::init(); //switching function initialisation
+    rescinit_();
+  */
   //End reinitialisation
 
   setg();
@@ -152,14 +177,15 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   */
   
   //recompute PDF moments
-  if (opts.resumcpp)
-    {
-      pdfevol::init();
-      pegasus::init();
-      resint::init();
-    }
-  else
-    initmoments_();
+  if (!opts.fixedorder)
+    if (opts.resumcpp)
+      {
+	pdfevol::init();
+	pegasus::init();
+	resint::init();
+      }
+    else
+      initmoments_();
 
   vector<double>::iterator itl = lowedge.begin();
   vector<double>::iterator itu = upedge.begin();
@@ -167,24 +193,35 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     {
       //Setbounds
       cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
-      setbounds(ml, mh, *itl, *itu, yl, yh);
+      phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
       //get cross section
-      double value, error;
-      if (opts.resumcpp)
-	//C++ resum
-	rapint::cache(ymin, ymax);
-      //end C++ resum
-      else	    
-	cacheyrapint_(ymin, ymax);
-      resintegr2d(value, error);
-      cout << "resummation result " << value/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-      *it = value;
+      double error;
       vector <double> vals;
-      ctintegr2d(vals, error);
-      cout << "counterterm result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-      *it += vals[0];
-      *it /= (*itu - *itl);
-      cout << *itl << "  " << *itu << "  " << *it << endl;
+      if (!opts.fixedorder)
+	{
+	  if (opts.resumcpp)
+	    //C++ resum
+	    rapint::cache(phasespace::ymin, phasespace::ymax);
+	  //end C++ resum
+	  else	    
+	    cacheyrapint_(phasespace::ymin, phasespace::ymax);
+	  resintegr2d(vals, error);
+	  cout << "resummation result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  *it = vals[0];
+	  ctintegr2d(vals, error);
+	  cout << "counterterm result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  *it += vals[0];
+	  *it /= (*itu - *itl);
+	  cout << *itl << "  " << *itu << "  " << *it << endl;
+	}
+      else
+	{
+	  vjlointegr5d(vals, error);
+	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  cout << "V+J LO result " << vals[0] << "  " << error << endl;
+	  *it = vals[0];
+	  //*it /= (*itu - *itl);
+	}
     }
   return;
 }
