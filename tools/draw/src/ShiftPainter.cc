@@ -254,15 +254,19 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       s++;
 
       cnv->cd();
-      TPad * xfitterlogo = DrawLogo();
-      float dx = 0.1183 * 1.5;
-      float dy = 0.0744 * 1.5;
-      float xl, yl;
-      xl = 0.5-0.01-0.01;
-      yl = 1-tmarg-0.015;
+      if (opts.drawlogo)
+	{
+	  TPad * xfitterlogo = DrawLogo();
+	  float dx = 0.1183 * 1.5;
+	  float dy = 0.0744 * 1.5;
+	  float xl, yl;
+	  xl = 0.5-0.01-0.01;
+	  yl = 1-tmarg-0.015;
 
-      xfitterlogo->SetPad(xl-dx/2, yl-dy/2, xl, yl);
-      xfitterlogo->Draw();
+	  xfitterlogo->SetPad(xl-dx/2, yl-dy/2, xl, yl);
+	  xfitterlogo->Draw();
+	}
+      DrawLabels("ur half");
     }
 
   return shiftscnv;

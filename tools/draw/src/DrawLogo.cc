@@ -13,6 +13,11 @@
 
 #include <CommandParser.h>
 
+//label position
+float labx;
+float laby;
+float ratio;
+
 using namespace std;
 TPad * DrawLogo(string pos)
 {
@@ -54,7 +59,7 @@ TPad * DrawLogo(string pos)
   float x, y;
   x = 1-rmarg-0.01;
   y = 1-tmarg-0.01;
-  if (pos == "dc")
+  if (pos == "bc")
     {
       x = 0.74;
       y = 0.12 + dy;
@@ -74,8 +79,8 @@ void CMS()
   TLatex l; //l.SetTextAlign(12);
   l.SetNDC();
   l.SetTextFont(42);
-  l.SetTextSize(0.04);
-  l.DrawLatex(lmarg+0.05, 1-tmarg+0.01, "CMS");
+  l.SetTextSize(ratio*0.04);
+  l.DrawLatex(ratio*(lmarg+0.05), 1-tmarg+0.01, "CMS");
 }
 
 void CMSpreliminary()
@@ -83,17 +88,8 @@ void CMSpreliminary()
   TLatex l; //l.SetTextAlign(12);
   l.SetNDC();
   l.SetTextFont(42);
-  l.SetTextSize(0.04);
-  l.DrawLatex(lmarg+0.05, 1-tmarg+0.01, "CMS Preliminary");
-}
-
-void ATLASpreliminary()
-{
-  TLatex p; 
-  p.SetNDC();
-  p.SetTextFont(42);
-  p.SetTextSize(0.04);
-  p.DrawLatex(lmarg+0.19, 1-tmarg-0.05, "Preliminary");
+  l.SetTextSize(ratio*0.04);
+  l.DrawLatex(ratio*(lmarg+0.05), 1-tmarg+0.01, "CMS Preliminary");
 }
 
 void ATLAS()
@@ -101,8 +97,17 @@ void ATLAS()
   TLatex l; //l.SetTextAlign(12);
   l.SetNDC();
   l.SetTextFont(72);
-  l.SetTextSize(0.04);
-  l.DrawLatex(lmarg+0.05, 1-tmarg-0.05, "ATLAS");
+  l.SetTextSize(ratio*0.04);
+  l.DrawLatex(ratio*(labx+0.05), laby-0.05, "ATLAS");
+}
+
+void ATLASpreliminary()
+{
+  TLatex p; 
+  p.SetNDC();
+  p.SetTextFont(42);
+  p.SetTextSize(ratio*0.04);
+  p.DrawLatex(ratio*(labx+0.19), laby-0.05, "Preliminary");
 }
 
 void ATLASinternal()
@@ -110,25 +115,43 @@ void ATLASinternal()
   TLatex p; 
   p.SetNDC();
   p.SetTextFont(42);
-  p.SetTextSize(0.04);
-  p.DrawLatex(lmarg+0.19, 1-tmarg-0.05, "Internal");
+  p.SetTextSize(ratio*0.04);
+  p.DrawLatex(ratio*(labx+0.19), laby-0.05, "Internal");
 }
 
 //CDF Run II Preliminary
 TPaveText * CDFIIpreliminary()
 {
-  TPaveText *cdfii = new TPaveText(0.45, 1-tmarg+0.01, 0.95, 0.95, "NDC");
+  TPaveText *cdfii = new TPaveText(ratio*0.45, 1-tmarg+0.02, ratio*0.95, 0.96, "NDC");
   cdfii->AddText("CDF Run II Preliminary");
   cdfii->SetTextAlign(12);
   cdfii->SetTextFont(62);
-  cdfii->SetTextSize(0.04);
+  cdfii->SetTextSize(ratio*0.04);
   cdfii->SetBorderSize(0);
   cdfii->SetFillColor(0);
   return cdfii;
 }
 
-void DrawLabels()
+void DrawLabels(string pos)
 {
+  labx = lmarg;
+  laby = 1-tmarg;
+  if (pos.find("ur") != string::npos)
+    if (opts.atlas)
+      labx = 1. - rmarg - 0.19;
+    else
+      labx = 1. - rmarg - 0.19 - 0.20;
+
+  if (pos.find("bc") != string::npos)
+    {
+      labx = lmarg + 0.3;
+      laby = bmarg + 0.05 + 0.03;
+    }
+
+  ratio = 1.;
+  if (pos.find("half") != string::npos)
+    ratio = 0.5;
+    
   if (opts.cms)
     CMS();
   if (opts.cmspreliminary)

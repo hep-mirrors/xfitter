@@ -147,12 +147,14 @@ C using covariance matrix. In this case LConvertCotToNui is set to true
 C and warrning message is issued.
 C
       if (LRand) then
-         if (NSys .ne. NSysSave) then
-            if (.not. LConvertCovToNui ) then
-               LConvertCovToNui = .true.
-               call hf_errlog(14080401,
+         if (STATYPE.ne.0.or.SYSTYPE.ne.0) then
+            if (NSys .ne. NSysSave) then
+               if (.not. LConvertCovToNui ) then
+                  LConvertCovToNui = .true.
+                  call hf_errlog(14080401,
      $              'W: READ_DATA: MC method requested for cov. info.'
      $              //' Set LConvertCovToNui to true')
+               endif
             endif
          endif
       endif

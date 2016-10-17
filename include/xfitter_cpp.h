@@ -69,6 +69,24 @@ extern"C" {
   } systasym_;
 
   extern struct {
+    double scgamma_[NTOT_C][NSYSMAX_C]; //scaled gamma
+    double scomega_[NTOT_C][NSYSMAX_C];    //scaled omega
+    double sysshift_[NSYSMAX_C];               //systematic shift
+  } systexport_;
+
+  extern struct {
+    double daten_[NTOT_C];   //!> Data values
+    double e_unc_[NTOT_C];              //!> Uncorelated uncertainty 
+    double e_tot_[NTOT_C];              //!> Total uncertainty
+    double e_sta_[NTOT_C];              //!> Uncorelated uncertainty
+    double e_sta_const_[NTOT_C];              //!> Uncorelated uncertainty 
+    double e_unc_const_[NTOT_C];        //!> Uncorelated, unscaled error
+    int jset_[NTOT_C];        //!> Uncorelated, unscaled error
+    int indextheorybin_[NTOT_C];
+    int jplot_[NTOT_C];
+  } indata2_;
+  
+  extern struct {
     char lhapdfset_[128];
     char lhapdfvarset_[128];
     int ilhapdfset_;

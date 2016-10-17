@@ -260,6 +260,16 @@ C
          Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
       endif
 
+      do k=1,nsys
+         do j=1,n_syst_meas(k)
+            i = syst_meas_idx(j,k)
+
+            scgamma(k,i) = ScaledGamma(k,i)
+            scomega(k,i) = ScaledOmega(k,i)
+            sysshift(k) = rsys_in(k)
+         enddo
+      enddo
+
 
       return 
       end
@@ -1761,7 +1771,7 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
       print *,'Nuisance paramters (point, Uncor, Corr1, ... CorrN):'
       print *,'NCorr=',NCorr
       do i=1,NCovar
-         print '(I4,300E12.4)',i,alpha(i),(beta(j,i),j=1,NCorr)
+         print '(I4,300E16.8)',i,alpha(i),(beta(j,i),j=1,NCorr)
       enddo
 
       dev = 0.
@@ -1818,6 +1828,7 @@ C---------------------------------------------------------------
       double precision cov_loc(NCovarMax,NCovarMax)
       double precision anui_loc(NCovarMax,NCovarMax)
       double precision uncor(NCovarMax), Diag(NCovarMax)
+      double precision uncorSt(NCovarMax)  ! from stat. subtraction
 
       double precision unc(NTot) ! input uncor. errors
       double precision sta(NTot) ! input stat. errors
@@ -1836,8 +1847,9 @@ C---------------------------------------------------------------
       character *3  DataSystType(NSET)
 
       double precision Tolerance
+      logical LSubtractStat
       namelist/CovarToNuisance/Tolerance, LConvertCovToNui,
-     $     DataName,DataSystType
+     $     DataName,DataSystType, LSubtractStat
 
       character*8 sys_prefix(NCovTypeMax)
       data sys_prefix/'CTot_','CTot_','CSyst_','CStat_','CSyst_'/
@@ -1852,6 +1864,7 @@ C--------------------------------------------------------
          LFirst = .false.
          Tolerance   = 0.
          LConvertCovToNui = .false.
+         LSubtractStat = .false.
          do i=1,NSET
             DataName(i) = ''
             DataSystType(i) = ':M'
@@ -1870,6 +1883,7 @@ C--------------------------------------------------------
          theo(i) = daten(i) ! Set theory = data for error scaling         
          call GetPointErrors(i, Stat, StatConst, Unc(i))
          Sta(i) = sqrt(Stat**2+StatConst**2)
+
          theo(i) = 0.0D0
 
 C Set "new" uncorrelated uncertainties to the "old" values:
@@ -1926,6 +1940,7 @@ c      endif
          
          do j=1,NCovar
             Uncor(j) = 0.D0
+            UncorSt(j) = 0.D0
          enddo
 
          if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) ) 
@@ -1937,8 +1952,20 @@ C Direct diagonalisation:
      $           .or.(iCovBit.eq.iCovTotal)
      $           .or.(iCovBit.eq.iCovTotalCorr) ) then
 C Subtract diagonal as much as possible:
+
+            if (LSubtractStat) then
+               Call SubtractStat(cov_loc,sta,NCovarMax,NCovar, UncorSt)
+            endif
+
             Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
      $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor,.true.)
+
+            if (LSubtractStat) then
+               do j=1,NCovar
+                  Uncor(j) = sqrt(Uncor(j)**2 + UncorSt(j)**2)
+               enddo
+            endif
+
          else
             Call hf_errlog(142107,
      $   'W:Nuisance rep. code not ready for this  error type yet')
@@ -2078,6 +2105,45 @@ C Re-set uncorrelated systematics:
       call hf_errlog(1,
      $     'F:Error reading CovarToNuisance Namelist ! Stop')
  18   continue
+      end
+
+
+      subroutine SubtractStat(cov,sta,ncovMax,ncov,unc)
+      implicit none
+      integer ncovMax, ncov
+      double precision cov(ncovMax,ncovMax),sta(*),unc(*)
+      integer i,j, IFail
+      double precision, allocatable :: c_loc(:,:), eig(:)
+C----------------------------------------------------------
+
+C First check if this is possible:
+      allocate( c_loc(ncov,ncov) )
+      allocate( eig(ncov) )
+      do i=1,ncov
+         do j=1,ncov
+            c_loc(i,j) = cov(i,j)
+         enddo
+         c_loc(i,i) = c_loc(i,i) - sta(i)*sta(i)
+      enddo
+
+      call MyDSYEVD(ncov, c_loc, ncov, eig, IFail)
+
+      if (eig(1).gt.0) then
+         do i=1,ncov
+            unc(i) = sta(i)
+            cov(i,i) = cov(i,i) - sta(i)*sta(i)
+         enddo
+      else
+         do i=1,ncov
+            unc(i) = 0.0
+         enddo
+         call hf_errlog(18081601,
+     $'W:Can not subtract stat. component from covariance matrix:'//
+     $' perhaps it is not diagonal?')
+      endif
+
+      deallocate (c_loc)
+      deallocate ( eig )
       end
 
 

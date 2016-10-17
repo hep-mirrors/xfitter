@@ -45,7 +45,8 @@ class CommandParser
   bool ratiototheory;
   bool diff;
   bool noupband;
-
+  int errbandcol;
+  
   //shifts options
   int spp, shgth;
   bool adjshift;
@@ -82,8 +83,9 @@ class CommandParser
   bool cdfiipreliminary;
   bool profile, reweight, BAYweight, GKweight;
   bool bw;
-
- private:
+  bool looseRepSelection;
+    
+private:
   vector <string> allargs;
   void help(void)
   {
@@ -137,6 +139,10 @@ class CommandParser
     cout << "\t \t Do not show version on logo" << endl;
     cout << "\t --plots-per-page <N>" << endl;
     cout << "\t \t Number of rows and columns of PDF and data plots per page, default value is 2" << endl;
+    cout << "\t --loose-mc-replica-selection" <<endl;
+    cout << "\t \t Do not check for fit convergence for MC replica " <<endl;
+    
+
     cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
     cout << "\t \t PDF plots are not produced" << endl;
@@ -196,6 +202,10 @@ class CommandParser
     cout << "\t \t Do not plot data, use theory as reference for ratio plots, and plot relative theory uncertainties" << endl;
     cout << "\t --diff" << endl;
     cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
+    cout << "\t --greenband" << endl;
+    cout << "\t \t The total experimental uncertainty is shown with a green band" << endl;
+    cout << "\t --blueband" << endl;
+    cout << "\t \t The total experimental uncertainty is shown with a blue band" << endl;
     cout << "\t --multitheory" << endl;
     cout << "\t \t Plot ratios of theory predictions in separate panels (up to three)" << endl;
     cout << "options for shifts plots:" << endl;

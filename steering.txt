@@ -33,6 +33,9 @@
    ! Tolerance -- zero means exact transformation
   Tolerance = 0.0
 
+   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
+  LSubtractStat = .false.
+
    ! The following lines allow to adjust error scaling properties (default: :M)
   DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
   DataSystType = ':A', ':A'

@@ -53,6 +53,13 @@ C !> Add also original systematic errors for asymmetric uncertainties
       logical LAsymSyst(NSYSMAX) !> asymmetric uncertainty
       Common/SystAsym/BetaAsym,omega,LAsymSyst
 
+C !> gamma omega and shifts for external usage
+      double precision scgamma(NSYSMAX,NTOT)
+      double precision scomega(NSYSMAX,NTOT)
+      double precision sysshift(NSYSMAX)
+      common/systexport/scgamma,scomega,sysshift
+
+
 C !> Special flag to force recalculations
       logical ResetCommonSyst
       common/SystematicsFlags/ ResetCommonSyst
