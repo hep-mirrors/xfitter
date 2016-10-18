@@ -402,6 +402,7 @@ void chi2_scan_()
 		{
 		  //Init PDF member and alphas(MZ)
 		  LHAPDF::initPDF(iset);
+		  clhapdf_.ilhapdfset_ = iset;
 		  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 
 		  //In VAR PDF set determine if it is a model or parametrisation variation
@@ -566,6 +567,7 @@ void chi2_scan_()
 		  
 		  //Init PDF member and alphas(MZ)
 		  LHAPDF::initPDF(iset);
+		  clhapdf_.ilhapdfset_ = iset;
 		  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 		  
 		  //In VAR PDF set determine if it is a model or parametrisation variation
@@ -623,6 +625,7 @@ void chi2_scan_()
 	    {
 	      LHAPDF::initPDFSet(lhapdfset.c_str());
 	      LHAPDF::initPDF(0);
+	      clhapdf_.ilhapdfset_ = 0;
 	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 	      map <int, int> iordmap;
 	      map <int, double> murmap;
@@ -645,6 +648,8 @@ void chi2_scan_()
 	      double chi2tot;
 
 	      //mur*2
+	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
+		cout << factor << "  " << murmap[*dit]*factor << endl;
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
 		gTEmap[*dit]->SetOrdScales(iordmap[*dit], murmap[*dit]*factor, mufmap[*dit], muresmap[*dit]);
 	      chi2tot = chi2data_theory_(2);
@@ -939,6 +944,7 @@ void chi2_scan_()
 
 
 	  LHAPDF::initPDF(0);
+	  clhapdf_.ilhapdfset_ = 0;
 	  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 
 	  cout << "-------------------------------------------" << endl;
