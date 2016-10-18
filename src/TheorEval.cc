@@ -684,6 +684,18 @@ void TheorEval::ChangeTheorySource(string term, string source)
 	}
     }
 
+  //delete old dyturbo
+  map <Dyturbo*, valarray<double>* >::iterator itt = _mapDyturboTerms.begin();
+  for (; itt!= _mapDyturboTerms.end(); itt++)
+    {
+      if (itt->second == _mapInitdTerms[term])
+	{
+	  delete itt->first;
+	  _mapDyturboTerms.erase(itt);
+	  break;
+	}
+    }
+  
   initTerm(int(found_term-_termNames.begin()), _mapInitdTerms[term]);
 }
 
