@@ -602,7 +602,8 @@ TheorEval::getGridValues()
   for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
     CommonGrid* g = itm->first;
     vector<double> xs;
-    std::vector< std::vector<double> > result = g->vconvolute(min(_iOrd-1,2), _xmur, _xmuf); //reduce one order, for V+j contribution
+    //std::vector< std::vector<double> > result = g->vconvolute(min(_iOrd-1,2), _xmur, _xmuf); //reduce one order, for V+j contribution --> set this in the input file!!!
+    std::vector< std::vector<double> > result = g->vconvolute(_iOrd, _xmur, _xmuf);
     for(int i = 0; i < result.size(); i++)
       for(int j = 0; j < result[i].size(); j++)
         xs.push_back(result[i][j]);
@@ -610,9 +611,9 @@ TheorEval::getGridValues()
     (itm->second)->resize(xs.size());
     *(itm->second) = valarray<double>(xs.data(), xs.size());
 
-    for (int i = 0; i<xs.size(); i++){
-      cout << xs[i] << endl;
-    }
+    //    for (int i = 0; i<xs.size(); i++){
+    //      cout << xs[i] << endl;
+    //    }
 
     
     
@@ -695,7 +696,8 @@ void TheorEval::ChangeTheorySource(string term, string source)
 	  break;
 	}
     }
-  
+
+  //initialise the new term
   initTerm(int(found_term-_termNames.begin()), _mapInitdTerms[term]);
 }
 
