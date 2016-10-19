@@ -1435,15 +1435,30 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	  } //end loop on points
 		
 	//calculate chi2
-	systchi2[sign][s][value] = chi2data_theory_(2);
+	//systchi2[sign][s][value] = chi2data_theory_(2);
+
+	int iflag = 2;
+	int n0 = npoints;
+	double fchi2 = 0.;
+	double rsys[totsyst];
+	double ersys[totsyst];
+	for (int i = 0; i < totsyst; i++)
+	  {
+	    rsys[i] = 0.;
+	    ersys[i] = 0.;
+	  }
+	double pchi2[NSET_C];
+	double fcorchi2 = 0.;
+	getnewchisquare_(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2);
+	systchi2[sign][s][value] = fchi2;
 		  
-	char chi2c[20];
-	sprintf(chi2c, "%.8f", systchi2[sign][s][value]);
-	cout << setw(15) << value
-	     << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system_[s]
-	     << setw(15) << "chi2=" << chi2c 
-	     << setw(15) << "ndf=" << cfcn_.ndfmini_
-	     << endl;
+	//char chi2c[20];
+	//sprintf(chi2c, "%.8f", systchi2[sign][s][value]);
+	//cout << setw(15) << value
+	//     << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system_[s]
+	//     << setw(15) << "chi2=" << chi2c 
+	//     << setw(15) << "ndf=" << cfcn_.ndfmini_
+	//     << endl;
 		
 	for (int p = 0; p < npoints; p++)
 	  {
@@ -1505,7 +1520,23 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	  cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 
 	//calculate chi2
-	systchi2[sign][p+totsyst][value] = chi2data_theory_(2);
+	//systchi2[sign][p+totsyst][value] = chi2data_theory_(2);
+
+	int iflag = 2;
+	int n0 = npoints;
+	double fchi2 = 0.;
+	double rsys[totsyst];
+	double ersys[totsyst];
+	for (int i = 0; i < totsyst; i++)
+	  {
+	    rsys[i] = 0.;
+	    ersys[i] = 0.;
+	  }
+	double pchi2[NSET_C];
+	double fcorchi2 = 0.;
+	getnewchisquare_(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2);
+	systchi2[sign][p+totsyst][value] = fchi2;
+	
 	//char chi2c[20];
 	//sprintf(chi2c, "%.8f", systchi2[sign][p+totsyst][value]);
 	//cout << setw(15) << value
