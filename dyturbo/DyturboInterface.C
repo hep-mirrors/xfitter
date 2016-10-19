@@ -50,7 +50,7 @@ Dyturbo::Dyturbo(string file): infile(file)
 
   //DYTurbo::WarmUp();
   //DYTurbo::PrintTable::Header();
-  DYTurbo::PrintTable::Settings();
+  //DYTurbo::PrintTable::Settings();
   
   proc = opts.nproc;
   
@@ -190,10 +190,11 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   vector<double>::iterator itl = lowedge.begin();
   vector<double>::iterator itu = upedge.begin();
   //cout << "xw " << opts.xw << endl;  
+  //  cout << "scale_.scale_ " << scale_.scale_ << endl;  
   for (vector<double>::iterator it = values.begin(); it != values.end(); it++, itl++, itu++)
     {
       //Setbounds
-      cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
+      //cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
       phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
       //get cross section
       double error;
@@ -219,7 +220,7 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	{
 	  vjlointegr5d(vals, error);
 	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-	  //cout << "V+J LO result " << vals[0] << "  " << error << endl;
+	  //cout << "V+J LO result " << *itl << "  " << *itu << "  " << vals[0] << "  " << error << endl;
 	  *it = vals[0];
 	  //*it /= (*itu - *itl);
 	}
