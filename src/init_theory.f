@@ -282,11 +282,10 @@ C Remove duplicates:
       do while (i.lt.NQAll)
          if (  abs(Q2Grid(i)-Q2Grid(i+1)).lt.1.D-5 .or. 
      $        ( Q2Grid(i).eq.0 ) ) then
-            do j=i+1,NQAll
+            do j=i+1,NQAll-1               
                Q2Grid(j) = Q2Grid(j+1)
                WQGrid(j) = WQGrid(j+1)
             enddo
-            print *,'remove'
             NQAll = NQAll-1
          else
             i = i + 1
