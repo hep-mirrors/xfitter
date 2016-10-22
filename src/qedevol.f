@@ -221,14 +221,16 @@ C     PDF table identifiers
         call EvDglap(storu,idw8,ida3,idf8,start8,1,1,iqlim,nf,eps)
       enddo
 
-      do ix = 1,nx
-        start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
-     $                 +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
-     $                 -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
-        start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
-     $                  +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
-     $                  -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
-      enddo
+      if (iqt.gt.0) then
+         do ix = 1,nx
+            start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
+            start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
+         enddo
+      endif
 
       iqlim(1) = iqb
       iqlim(2) = iqb
@@ -240,15 +242,17 @@ C     PDF table identifiers
         call EvDglap(storu,idw9,ida3,idf9,start9,1,1,iqlim,nf,eps)
       enddo
 
-      iqlim(1) = iqt
-      iqlim(2) = iqt
-      nf = 1
-      do while (nf.gt.0)
-        iqlim(1) = iqlim(2)
-        iqlim(2) = 99999
-        call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
-        call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
-      enddo
+      if (iqt.gt.0) then
+         iqlim(1) = iqt
+         iqlim(2) = iqt
+         nf = 1
+         do while (nf.gt.0)
+            iqlim(1) = iqlim(2)
+            iqlim(2) = 99999
+            call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
+            call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
+         enddo
+      endif
 
 c      call dumptab(storu,isetw,11,'qcdweights.wt','')
 c      call dumptab(storu,isetw1,12,'qedweights.wt','')
@@ -408,15 +412,16 @@ C     Put 14 pdf and 4 alpha tables in the store
         call EvDglap(storu,idw8,ida3,idf8,start8,1,1,iqlim,nf,eps)
       enddo
 
-      do ix = 1,nx
-        start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
-     $                 +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
-     $                 -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
-        start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
-     $                  +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
-     $                  -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
-      enddo
-
+      if (iqt.gt.0) then
+         do ix = 1,nx
+            start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
+            start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
+         enddo
+      endif
 
       iqlim(1) = iqb
       iqlim(2) = iqb
@@ -428,15 +433,17 @@ C     Put 14 pdf and 4 alpha tables in the store
         call EvDglap(storu,idw9,ida3,idf9,start9,1,1,iqlim,nf,eps)
       enddo
 
-      iqlim(1) = iqt
-      iqlim(2) = iqt
-      nf = 1
-      do while (nf.gt.0)
-        iqlim(1) = iqlim(2)
-        iqlim(2) = 99999
-        call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
-        call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
-      enddo
+      if (iqt.gt.0) then
+         iqlim(1) = iqt
+         iqlim(2) = iqt
+         nf = 1
+         do while (nf.gt.0)
+            iqlim(1) = iqlim(2)
+            iqlim(2) = 99999
+            call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
+            call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
+         enddo
+      endif
 
       return
       end
@@ -481,11 +488,15 @@ C--------------------------------------------------------
       call evtable(storu,idf3(1),x,1,qmu2,1,xdeltads,1)
       call evtable(storu,idf4(1),x,1,qmu2,1,xdeltauc,1)
       call evtable(storu,idf5(1),x,1,qmu2,1,xdeltasb,1)
-      call evtable(storu,idf6(1),x,1,qmu2,1,xdeltact,1)
+      if (iqt.gt.0) then
+         call evtable(storu,idf6(1),x,1,qmu2,1,xdeltact,1)
+      endif
       call evtable(storu,idf7(1),x,1,qmu2,1,xvds,1)
       call evtable(storu,idf8(1),x,1,qmu2,1,xvuc,1)
       call evtable(storu,idf9(1),x,1,qmu2,1,xvsb,1)
-      call evtable(storu,idf10(1),x,1,qmu2,1,xvct,1)
+      if (iqt.gt.0) then
+         call evtable(storu,idf10(1),x,1,qmu2,1,xvct,1)
+      endif
 
       do i = -6,7
         xf(i) = 0d0
