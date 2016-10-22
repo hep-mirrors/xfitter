@@ -10,6 +10,7 @@
 #include "steering.inc"
 #include "alphas.inc"
 #include "couplings.inc"
+#include "thresholds.inc"
 
       dimension xf(-6:7)
 
@@ -75,9 +76,13 @@ C     Set evolution parameters
       call grpars(nx, xmi, xma, nq, qmi, qma, iord)
 
       q0 = starting_scale
-      q2c = hf_mass(1)**2
-      q2b = hf_mass(2)**2
-      q2t = hf_mass(3)**2
+
+C also add threshold values:
+
+      q2c = qc
+      q2b = qb
+      q2t = qt
+
       iqc  = iqfrmq(q2c)                          !charm threshold
       iqb  = iqfrmq(q2b)                          !bottom threshold
       iqt  = iqfrmq(q2t)                          !top threshold
@@ -242,6 +247,7 @@ C     PDF table identifiers
         call EvDglap(storu,idw9,ida3,idf9,start9,1,1,iqlim,nf,eps)
       enddo
 
+
       if (iqt.gt.0) then
          iqlim(1) = iqt
          iqlim(2) = iqt
@@ -272,6 +278,7 @@ c      call dumptab(storu,isetw1,12,'qedweights.wt','')
 #include "steering.inc"
 #include "alphas.inc"
 #include "couplings.inc"
+#include "thresholds.inc"
 
       dimension xf(-6:7)
 
@@ -340,9 +347,9 @@ c      alphas = hf_get_alphas(mz*mz)
       call grpars(nx, xmi, xma, nq, qmi, qma, iord)
 c      call setalf(alphas,mz*mz)
       q0 = starting_scale
-      q2c = hf_mass(1)**2
-      q2b = hf_mass(2)**2
-      q2t = hf_mass(3)**2
+      q2c = qc
+      q2b = qb
+      q2t = qt
       iqc  = iqfrmq(q2c)                           !charm threshold
       iqb  = iqfrmq(q2b)                          !bottom threshold
       iqt  = iqfrmq(q2t)                          !top threshold
@@ -412,6 +419,7 @@ C     Put 14 pdf and 4 alpha tables in the store
         call EvDglap(storu,idw8,ida3,idf8,start8,1,1,iqlim,nf,eps)
       enddo
 
+
       if (iqt.gt.0) then
          do ix = 1,nx
             start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
@@ -422,7 +430,7 @@ C     Put 14 pdf and 4 alpha tables in the store
      $           -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
          enddo
       endif
-
+ 
       iqlim(1) = iqb
       iqlim(2) = iqb
       nf = 1
@@ -432,6 +440,7 @@ C     Put 14 pdf and 4 alpha tables in the store
         call EvDglap(storu,idw5,ida3,idf5,start5,1,1,iqlim,nf,eps)
         call EvDglap(storu,idw9,ida3,idf9,start9,1,1,iqlim,nf,eps)
       enddo
+
 
       if (iqt.gt.0) then
          iqlim(1) = iqt
@@ -457,6 +466,7 @@ C--------------------------------------------------------
       implicit double precision (a-h,o-z)
 *
 #include "steering.inc"
+#include "thresholds.inc"
       double precision x,qmu2
       double precision xdelta,xsigma,xgluon,xphoton,xdeltav,xv,xdeltads,
      $ xdeltauc,xdeltasb,xvds,xvuc,xvsb
@@ -488,12 +498,18 @@ C--------------------------------------------------------
       call evtable(storu,idf3(1),x,1,qmu2,1,xdeltads,1)
       call evtable(storu,idf4(1),x,1,qmu2,1,xdeltauc,1)
       call evtable(storu,idf5(1),x,1,qmu2,1,xdeltasb,1)
+
+
+      iqt  = iqfrmq(qt)                          !top threshold
+
       if (iqt.gt.0) then
          call evtable(storu,idf6(1),x,1,qmu2,1,xdeltact,1)
       endif
       call evtable(storu,idf7(1),x,1,qmu2,1,xvds,1)
       call evtable(storu,idf8(1),x,1,qmu2,1,xvuc,1)
       call evtable(storu,idf9(1),x,1,qmu2,1,xvsb,1)
+
+
       if (iqt.gt.0) then
          call evtable(storu,idf10(1),x,1,qmu2,1,xvct,1)
       endif
