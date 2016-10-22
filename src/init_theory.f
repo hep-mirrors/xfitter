@@ -116,7 +116,7 @@ c set-up of the constants
       data as0/0.364/, r20/2.D0/!, nfin/0/ !alphas, NNLO, VFNS
       integer I,ndum,ierr,j
 
-      double precision a,b,qt, qmz
+      double precision a,b, qmz
       
       integer id1,id2
       integer nw,nwords,nx
