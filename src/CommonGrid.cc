@@ -92,15 +92,19 @@ CommonGrid::CommonGrid(const string & grid_type, const string &grid_source): _dy
 }
 
 CommonGrid::~CommonGrid(){
-  vector<tHyperBin>::iterator ihb;
-  for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
-    delete[] ihb->b;
-    if ( ihb->f  )  delete ihb->f;
-#ifdef APFELGRID_ENABLED
-    if ( ihb->g  )  delete ihb->g;
-    if ( ihb->fk )  delete ihb->fk;
+    vector<tHyperBin>::iterator ihb;
+    for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
+        delete[] ihb->b;
+        if ( ihb->f  )  delete ihb->f;
+        
+#ifdef APPLGRID_ENABLED
+        if ( ihb->g  )  delete ihb->g;
 #endif
-  }
+    
+#ifdef APFELGRID_ENABLED
+        if ( ihb->fk )  delete ihb->fk;
+#endif
+    }
 }
 
 int
@@ -134,8 +138,8 @@ CommonGrid::readAPPLgrid(const string &grid_source)
   _ndim = 2;
   return _hbins.size();
 #else
-  int id = 16051601;
-  char text[] = "S: APFELgrid must be present. Recompile with --enable-apfelgrid to use this option.";
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
   int textlen = strlen(text);
   hf_errlog_(id, text, textlen);
 #endif
@@ -304,8 +308,8 @@ CommonGrid::readVirtGrid(const string &grid_source)
   }
   return _hbins.size();
 #else
-  int id = 16051601;
-  char text[] = "S: APFELgrid must be present. Recompile with --enable-apfelgrid to use this option.";
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
   int textlen = strlen(text);
   return 0;
 #endif
@@ -396,8 +400,8 @@ CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf
   xs.insert(xs.end(), gxs.begin(), gxs.begin()+ihb->ngb);
   return xs;
 #else
-  int id = 16051601;
-  char text[] = "S: APFELgrid must be present. Recompile with --enable-apfelgrid to use this option.";
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
   int textlen = strlen(text);
 #endif
 }
@@ -489,8 +493,8 @@ CommonGrid::checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins
   
   return 0;
 #else
-  int id = 16051601;
-  char text[] = "S: APFELgrid must be present. Recompile with --enable-apfelgrid to use this option.";
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
   int textlen = strlen(text);
   hf_errlog_(id, text, textlen);
   return 0;
@@ -523,8 +527,8 @@ CommonGrid::setCKM(const vector<double> &v_ckm)
   _hbins.at(0).g->setckm(v_ckm);
   return 0;
 #else
-  int id = 16051601;
-  char text[] = "S: APFELgrid must be present. Recompile with --enable-apfelgrid to use this option.";
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
   int textlen = strlen(text);
   hf_errlog_(id, text, textlen);
 #endif
