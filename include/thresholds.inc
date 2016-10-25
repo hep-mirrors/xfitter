@@ -5,7 +5,8 @@ C
      $      q0           !> Evolution starting scale
      $     ,qc           !> Charm threshold
      $     ,qb           !> Bottom threshold
-      common/thresholds/q0,qc,qb
+     $     ,qt
+      common/thresholds/q0,qc,qb,qt
 
       double precision 
      $      kmuc           !> Charm threshold rescaling factor

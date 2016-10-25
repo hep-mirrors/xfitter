@@ -116,7 +116,7 @@ c set-up of the constants
       data as0/0.364/, r20/2.D0/!, nfin/0/ !alphas, NNLO, VFNS
       integer I,ndum,ierr,j
 
-      double precision a,b,qt, qmz
+      double precision a,b, qmz
       
       integer id1,id2
       integer nw,nwords,nx
@@ -246,12 +246,19 @@ C Add extra points:
       Q2Grid(NQGrid+2) = qc
       Q2Grid(NQGrid+3) = qb
       Q2Grid(NQGrid+4) = qmz
-      Q2Grid(NQGrid+5) = qt
       WQGrid(NQGrid+1) = 4.D0
       WQGrid(NQGrid+2) = 2.D0
       WQGrid(NQGrid+3) = 1.3D0
       WQGrid(NQGrid+4) = 1.1D0
-      WQGrid(NQGrid+5) = 1.D0
+
+      if (qt.lt.qarr(2)) then
+         WQGrid(NQGrid+5) = 1.D0
+         Q2Grid(NQGrid+5) = qt
+      else
+         ! no top
+         WQGrid(NQGrid+5) = 0.
+         Q2Grid(NQGrid+5) = qb
+      endif
 
 C Sort the Q2Grid:
       do i=1,NQGridHF
@@ -273,8 +280,9 @@ C Sort the Q2Grid:
 C Remove duplicates:
       i = 1
       do while (i.lt.NQAll)
-         if (  abs(Q2Grid(i)-Q2Grid(i+1)).lt.1.D-5 ) then
-            do j=i+1,NQAll
+         if (  abs(Q2Grid(i)-Q2Grid(i+1)).lt.1.D-5 .or. 
+     $        ( Q2Grid(i).eq.0 ) ) then
+            do j=i+1,NQAll-1               
                Q2Grid(j) = Q2Grid(j+1)
                WQGrid(j) = WQGrid(j+1)
             enddo
@@ -287,8 +295,8 @@ C Remove duplicates:
       print *,' '
       print *,'Info FROM QCDNUM_INI'
       print '('' Init Q2 grid with number of nodes='',i5)',NQALL      
-      print '('' Q2 values at:'',20F11.1)',(Q2grid(i),i=1,NQALL)
-      print '('' Weights are :'',20F11.1)',(WQgrid(i),i=1,NQALL)
+      print '('' Q2 values at:'',20F14.1)',(Q2grid(i),i=1,NQALL)
+      print '('' Weights are :'',20F14.1)',(WQgrid(i),i=1,NQALL)
       print *,' '
       print '('' Init X  grid with number of nodes='',i5)',NMXGRID
       print '('' X  values at:'',20E11.2)',(xmin_grid(i),i=1,NMXGRID),1.0
@@ -359,15 +367,7 @@ C Remove duplicates:
 *
       call setord(I_FIT_ORDER)         !LO, NLO, NNLO
 
-      print *,"gxmake xmingrid: ",xmin_grid
-      print *,"gxmake iwgt    : ",iwt_xgrid
-      print *,"gxmake nx: ",nmxgrid
-      print *,"gxmake nxb: ",nxbins
       call gxmake(xmin_grid,iwt_xgrid,nmxgrid,NXBINS,nx,iosp) !x-grid
-      print *,"qqmake xmingrid: ",Q2Grid
-      print *,"gqmake iwgt    : ",WQGrid
-      print *,"gqmake nx: ",NQALL
-      print *,"gqmake nxb: ",NQ2bins
       call gqmake(Q2Grid,WQGrid,NQAll,NQ2bins,nqout)             !mu2-grid
 
       print '(''Requested, actual number of x bins are: '',2i5)', 
@@ -394,6 +394,14 @@ C         stop
       iqc =iqfrmq(qc+tiny)  !> Charm                                                                                                                                                                    
       iqb =iqfrmq(qb+tiny)  !> Bottom  
       iqt =iqfrmq(qt+tiny)  !> Top            
+
+C 7/10/16 Reset top threshold if beyond kinematic limit: 
+      if (qt.gt.QARR(2)) then
+         iqt = 0.
+         call hf_errlog(2016100701,
+     $  'I: Top threshold beyond kinematic limit: turn off top PDF')
+      endif
+      
 
       if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
