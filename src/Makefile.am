@@ -14,7 +14,7 @@ evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcd
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
 getncxskt.f Getgridkt.f GetDummyXsection.f \
 GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
-ExtraParConstr.cc
+ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc 
 
 # WS 2013-01-19 for the Offset method
 libxfitter_a_SOURCES += offset_fns.f g_offset.cc
@@ -47,9 +47,10 @@ else
 endif
 
 if ENABLE_APPLGRID
-  libxfitter_a_SOURCES+= fappl_grid.cxx applgrids.f TheorEval.cc ftheor_eval.cc CommonGrid.cc
+  libxfitter_a_SOURCES+= fappl_grid.cxx applgrids.f 
 else 
-  libxfitter_a_SOURCES+= applgrids_dum.f ftheor_eval_dum.cc
+  libxfitter_a_SOURCES+= applgrids_dum.f 
+# REMOVE ftheor_eval_dum.cc
 endif
 
 if ENABLE_APFELGRID
