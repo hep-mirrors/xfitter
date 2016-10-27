@@ -5,7 +5,7 @@
 
 
 static void help() {
-  puts("usage: postproc combine outdir dir1 dir2[:pdfs]");
+  puts("usage: xfitter-process combine outdir dir1 dir2[:pdfs]");
   puts("          outdir -  path to output set");
   puts("          dir1 - path to pdf containing grid");
   puts("          dir2 - path to interpolated pdfs");
