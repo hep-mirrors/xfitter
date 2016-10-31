@@ -5,12 +5,11 @@
 
 
 static void help() {
-  puts("usage: xfitter-process combine pdf_dir_out base_pdf_dir added_pdf_dirs[:pdfs]");
+  puts("usage: xfitter-process combine pdf_dir_out base_pdf_dir added_pdf_dir1[:pdfs] added_pdf_dir2[:pdfs] ...");
   puts("          pdf_dir_out -  path to output set");
   puts("          base_pdf_dir - path to pdf containing grid");
-  puts("          added_pdf_dirs - paths to interpolated pdfs");
-  puts("          pdfs - numbers of interpolated pdfs, separated by commas");
-  puts("          e.g. 2,7,15");
+  puts("          added_pdf_dir1,2,... - paths to interpolated pdfs from 1 or more sets");
+  puts("          pdfs - numbers of interpolated pdfs, separated by commas, e.g. 2,7,15");
   puts("          there should be no space between number and comma");
   exit(0);
 }
