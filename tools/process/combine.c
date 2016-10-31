@@ -5,10 +5,10 @@
 
 
 static void help() {
-  puts("usage: xfitter-process combine outdir dir1 dir2[:pdfs]");
-  puts("          outdir -  path to output set");
-  puts("          dir1 - path to pdf containing grid");
-  puts("          dir2 - path to interpolated pdfs");
+  puts("usage: xfitter-process combine pdf_dir_out base_pdf_dir added_pdf_dirs[:pdfs]");
+  puts("          pdf_dir_out -  path to output set");
+  puts("          base_pdf_dir - path to pdf containing grid");
+  puts("          added_pdf_dirs - paths to interpolated pdfs");
   puts("          pdfs - numbers of interpolated pdfs, separated by commas");
   puts("          e.g. 2,7,15");
   puts("          there should be no space between number and comma");
