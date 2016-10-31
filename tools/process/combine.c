@@ -46,9 +46,7 @@ int combine(int argc, char* argv[0]){
   Member_List** member_lists;
   Info_Node * alphas_qs;
   Info_Node * alphas_vals;
-  int forcepositive = 1;
-
-  for (i_added_set = 0; i_added_set < n_added_sets; i_added_set++) {
+  for (i_added_set = 0; i_added_set<n_added_sets; i_added_set++) {
     args[i_added_set] = argv[i_added_set+2];
   }
 
@@ -64,11 +62,6 @@ int combine(int argc, char* argv[0]){
     PdfSet Set2;
     if (member_lists[i_added_set]->in_path == NULL) puts("NULLL");
     if (load_lhapdf6_set(&Set2, member_lists[i_added_set]->in_path)) return 1;    
-
-    Info_Node* FP_par = info_node_where(Set2.info, "ForcePositive");
-    if (FP_par == NULL || FP_par->value.string == "0") {
-      forcepositive = 0;
-    }
 
     char * setname = basename(member_lists[i_added_set]->in_path);
     if (member_lists[i_added_set]->n_pdfs == 0) {
@@ -143,14 +136,6 @@ int combine(int argc, char* argv[0]){
   
   info_node_update_str(info_node_where(SetOut->info, "NumMembers"), tot_pdf_number_str);  
   
-  Info_Node* FP_par_orig = info_node_where(Set1.info, "ForcePositive");
-  //printf("forcepositive = %i\n", forcepositive);
-  if (FP_par_orig != NULL) {
-    if (!strcmp(FP_par_orig->value.string, "1") && forcepositive == 0) {
-      info_node_update_str (info_node_where (SetOut->info, "ForcePositive"), "0");  
-    }
-  }
-
   save_lhapdf6_set(SetOut, out_path);
 
   tot_pdf_number=0;
@@ -190,7 +175,6 @@ Member_List ** arg_parser(int n_added_sets, char ** args) {
     exit(1);
   }
   for (i_added_set=0; i_added_set<n_added_sets; i_added_set++){
-    i = 0;    
     colon = strchr(args[i_added_set], ':');
     member_lists[i_added_set]=malloc(sizeof(Member_List)); 
     if( !member_lists[i_added_set] ) {
@@ -214,7 +198,7 @@ Member_List ** arg_parser(int n_added_sets, char ** args) {
         printf("Memory could not be allocated!");
         exit(1);
       }
-     
+      i=0;
       while (comma2 != NULL) {
         strncpy(pdf_number, comma1+1, comma2 - comma1-1);
         member_lists[i_added_set]->pdf_numbers = realloc(member_lists[i_added_set]->pdf_numbers,(i+1)*sizeof(int));
