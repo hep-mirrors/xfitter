@@ -150,6 +150,10 @@ int profile(int argc, char* argv[]) {
                 exit(1);
         }
 
+	Info_Node* FP = info_node_where(shifted.info, "ForcePositive");
+	if(FP == NULL) shifted.info = info_add_node_str(shifted.info, "ForcePositive", "0");
+	else info_node_update_str(FP, "0");
+
         save_lhapdf6_set(&shifted, out_path);       
         puts("profiled\n");
         free(in_path_tmp);
