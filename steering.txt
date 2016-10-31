@@ -1,5 +1,3 @@
-
-
 *  Namelist to control input data
 *
 
