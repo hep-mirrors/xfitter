@@ -86,6 +86,10 @@ int rotate(int argc,char* argv[]) {
                 exit(1);
         }
 
+        Info_Node* FP = info_node_where(rotated.info, "ForcePositive");
+        if(FP == NULL) rotated.info = info_add_node_str(rotated.info, "ForcePositive", "0");
+        else info_node_update_str(FP, "0");
+
         save_lhapdf6_set(&rotated, out_path);
         
         return EXIT_SUCCESS;
