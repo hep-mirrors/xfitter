@@ -24,17 +24,19 @@ C--------------------------------------------------------
       double precision fs,rs
       double precision fshermes
       double precision alphasPDF, StepAlphaS, StepFs
-      double precision Aph, Bph, Cph
-      double precision StepAph, StepBph, StepCph
+      double precision Aph, Bph, Cph, Dph, Eph
+      double precision StepAph, StepBph, StepCph, StepDph, StepEph
       	
 C-------------------------------------------------------
       logical LFirstTime
       data LFirstTime /.true./
       integer idxAlphaS, idxRS, idxFCharm, idxFS   !> indices for alphas and fs
-      integer idphA, idphB, idphC !> indices for photon Pdf
+      integer idphA, idphB, idphC, idphD, idphE !> indices for photon Pdf
       data idphA/0/
       data idphB/0/
       data idphC/0/
+      data idphD/0/
+      data idphE/0/
 
       integer GetParameterIndex  !> function to read parameter index
 C-------------------------------------------------------
@@ -71,21 +73,30 @@ C-------------------------------------------------------
             idphA = GetParameterIndex('Aph')
             idphB = GetParameterIndex('Bph')
             idphC = GetParameterIndex('Cph')
+            idphD = GetParameterIndex('Dph')
+            idphE = GetParameterIndex('Eph')
 
-            if ((idphA.eq.0).and.(idphB.eq.0).and.(idphC.eq.0)) then
+            if ((idphA.eq.0).and.(idphB.eq.0).and.(idphC.eq.0).and.
+     $           (idphD.eq.0).and.(idphE.eq.0)) then
                print *,'Did not find photon parameters'
-               print *,'Add to ExtraParamters with the name Aph,Bph,Cph'
+               print *,'Add to ExtraParamters with the name 
+     $              Aph,Bph,Cph,Dph,Eph'
                Call HF_errlog(15052700,
-     $              'S: Add to ExtraParamters with the name Aph,Bph,Cph')
+     $              'S: Add to ExtraParamters with the name 
+     $              Aph,Bph,Cph,Dph,Eph')
 
             else
                idphA = iExtraParamMinuit(idphA)
                idphB = iExtraParamMinuit(idphB)
                idphC = iExtraParamMinuit(idphC)
+               idphD = iExtraParamMinuit(idphD)
+               idphE = iExtraParamMinuit(idphE)
 
                StepAph=ExtraParamStep(idphA)
                StepBph=ExtraParamStep(idphB)
                StepCph=ExtraParamStep(idphC)
+               StepDph=ExtraParamStep(idphD)
+               StepEph=ExtraParamStep(idphE)
             endif
             
          endif
@@ -272,10 +283,13 @@ C Hermes strange prepare:
 !!!!!!!!!!!!!!!!!!!!!!!
 
 C 10 Aug 2011: Standard parametrisation:
-      if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0))then
+      if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0).or. 
+     $    (idphD.ne.0).or.(idphE.ne.0))then
          parphoton(1)= p(idphA)
          parphoton(2)= p(idphB)
          parphoton(3)= p(idphC)
+         parphoton(4)= p(idphD)
+         parphoton(5)= p(idphE)
       endif
       Call DecodePara(p)
 
@@ -288,10 +302,14 @@ C  25 Jan 2011: Poly params for valence:
 C  22 Apr 2011: CT parameterisation:
       if (PDFStyle.eq.'CTEQ'.or.PDFStyle.eq.'CTEQHERA') then
          Call DecodeCtPara(p)
-         if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0)) then
-            ctphoton(1)= p(idphA)
-            ctphoton(2)= p(idphB)
-            ctphoton(3)= p(idphC)
+         if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0).or.
+     $    (idphD.ne.0).or.(idphE.ne.0))then
+         ctphoton(1)= p(idphA)
+         ctphoton(2)= p(idphB)
+         ctphoton(3)= p(idphC)
+         ctphoton(4)= p(idphD)
+         ctphoton(5)= p(idphE)
+
          endif
 
       endif

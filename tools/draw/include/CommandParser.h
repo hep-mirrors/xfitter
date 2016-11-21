@@ -83,8 +83,9 @@ class CommandParser
   bool cdfiipreliminary;
   bool profile, reweight, BAYweight, GKweight;
   bool bw;
-
- private:
+  bool looseRepSelection;
+    
+private:
   vector <string> allargs;
   void help(void)
   {
@@ -138,6 +139,10 @@ class CommandParser
     cout << "\t \t Do not show version on logo" << endl;
     cout << "\t --plots-per-page <N>" << endl;
     cout << "\t \t Number of rows and columns of PDF and data plots per page, default value is 2" << endl;
+    cout << "\t --loose-mc-replica-selection" <<endl;
+    cout << "\t \t Do not check for fit convergence for MC replica " <<endl;
+    
+
     cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
     cout << "\t \t PDF plots are not produced" << endl;
