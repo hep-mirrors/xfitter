@@ -106,6 +106,9 @@ CommandParser::CommandParser(int argc, char **argv):
   lstyl[4] = 5;
   lstyl[5] = 6;
 
+  // tight MC replica selection by default:
+  looseRepSelection = false;
+  
   //Set Hatches style
   gStyle->SetHatchesSpacing(2);
   gStyle->SetHatchesLineWidth(lwidth);
@@ -289,6 +292,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	    plotsperpage = atoi((*(it+1)).c_str());
 	    allargs.erase(it+1);
 	  }
+	else if (*it == "--loose-mc-replica-selection")
+	  looseRepSelection = true;
 	else if (*it == "--outdir")
 	  {
 	    outdir = *(it+1);

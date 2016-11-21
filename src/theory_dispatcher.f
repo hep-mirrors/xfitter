@@ -10,9 +10,13 @@ C---------------------------------------------------------------
 #include "for_debug.inc"
 #include "datasets.inc"
 #include "scales.inc"
-      integer IDataSet,kflag!
+#include "alphas.inc"
+#include "couplings.inc"
+      integer IDataSet
+      double precision asref,HF_Get_alphas
 C-------------------------------------------------------------------
-      vIPDFSET = IPDFSET
+      vIPDFSET  = IPDFSET
+      cIDataSet = IDataSet
       if(UseHVFNS)then
          if(iTheory.ne.10)then
             call hf_errlog(2105201302,"F: the H-VFNS can be used only"//
@@ -22,6 +26,7 @@ C-------------------------------------------------------------------
             call hf_errlog(2105201303,"F: the H-VFNS can be used only"//
      1                                " with the FONLL scheme")
          endif
+*
          call SetMaxFlavourPDFs(6)
          call SetMaxFlavourAlpha(6)
          if(DataSetMaxNF(IDataSet).eq.5)then

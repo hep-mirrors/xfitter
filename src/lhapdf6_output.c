@@ -236,20 +236,29 @@ void print_lhapdf6_opt_(){
 
 
 
-void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[]) { //{{{
+void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, int iSubGrid, int AddTop) { //{{{ 
+  // iSubGrid = 4, 5, 6, 7:  below charm, bottom, top, above all: first flavour to cut off.
 
         int ix, iq2, i; 
         double val;
         const double OFFSET=1e-3; // see call PDFINP in fcn.f
 
-        int pdg_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,21,22};   // Add photon
-        int qcdnum_flavours[]={-5,-4,-3,-2,-1,1,2,3,4,5,0,7};
+	// Add top too:
+	int PDG_NoTop[] = { -5,-4,-3,-2,-1,1,2,3,4,5,21,22};
+	int PDG_Top[]   = {-6, -5,-4,-3,-2,-1,1,2,3,4,5,6, 21,22};
+	int QCDNUM_NoTop[] = {-5,-4,-3,-2,-1,1,2,3,4,5,0,7};
+	int QCDNUM_Top[]   = {-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,0,7};
+	
 
-	int NPDFToStore = (int) (sizeof(qcdnum_flavours)/sizeof(int));
+        int *pdg_flavours = (AddTop >0 ) ? PDG_Top :  PDG_NoTop;
+	int *qcdnum_flavours = (AddTop>0) ? QCDNUM_Top : QCDNUM_NoTop;	
+	int NPDFToStore = (AddTop>0) ? (int) (sizeof(QCDNUM_Top)/sizeof(int)) : (sizeof(QCDNUM_NoTop)/sizeof(int))   ;
 
 	if ( ! ccommoninterface_.c_extrapdfs ) {
 	  NPDFToStore--;
 	}
+
+
 
         double (*swap_fun)(struct GridQX_s grid, int pid, int ix, int iq2); 
 
@@ -267,37 +276,42 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, char fns_mask[
 
 
         for(ix=0; ix<grid.nx; ix++) {
-                for(iq2=iqmin; iq2<iqmax; iq2++){
-                        for(i=0;i< NPDFToStore;i++) {
-                                val=grid.pdf_ij(grid, qcdnum_flavours[i], ix, iq2);
+	  for(iq2=iqmin; iq2<iqmax; iq2++){
+	    for(i=0;i< NPDFToStore;i++) {
+	      
+	      
+	      val= ( (fabs(qcdnum_flavours[i]) >= iSubGrid) && (fabs(pdg_flavours[i])<7) ) ? 0:  grid.pdf_ij(grid, qcdnum_flavours[i], ix, iq2);
 
-                                if(fns_mask[i] && fabs(val)>2*DBL_EPSILON)
-				  fprintf(fp, "%e ", val);
-                                else
-				  fprintf(fp, "%e ", 0.0);
-                        }
+	      if( fabs(val)>2*DBL_EPSILON)
+		fprintf(fp, "%e ", val);
+	      else
+		fprintf(fp, "%e ", 0.0);
+	    }
+	    
 
+	    fprintf(fp, "\n");
+	  }
+	  
+	  //near the threshold
+	  swap_fun=grid.raw_pdf_ij;
+	  grid.raw_pdf_ij=raw_external_pdf_ij;
+	  grid.q2[iqmax]-=OFFSET;
+	  for(i=0;i<NPDFToStore;i++) {
+	    val= ( (fabs(qcdnum_flavours[i]) >= iSubGrid) && (fabs(pdg_flavours[i])<7) ) ? 0 : grid.pdf_ij(grid, qcdnum_flavours[i], ix, iqmax);
+	    
+	    
 
-                        fprintf(fp, "\n");
-                }
-
-                //near the threshold
-                swap_fun=grid.raw_pdf_ij;
-                grid.raw_pdf_ij=raw_external_pdf_ij;
-                grid.q2[iqmax]-=OFFSET;
-                for(i=0;i<NPDFToStore;i++) {
-                        val=grid.pdf_ij(grid, qcdnum_flavours[i], ix, iqmax);
-                        if(fns_mask[i] && fabs(val)>2*DBL_EPSILON)
-                                fprintf(fp, "%e ", val);
-                        else
-                                fprintf(fp, "%e ", 0.0);
-                }
-                grid.raw_pdf_ij=swap_fun;
-                grid.q2[iqmax]+=OFFSET;
-
-                fprintf(fp, "\n");
+	    if( fabs(val)>2*DBL_EPSILON)
+	      fprintf(fp, "%e ", val);
+	    else
+	      fprintf(fp, "%e ", 0.0);
+	  }
+	  grid.raw_pdf_ij=swap_fun;
+	  grid.q2[iqmax]+=OFFSET;
+	  
+	  fprintf(fp, "\n");
         }
-
+	
         fprintf(fp, "---\n");
 }
 //}}}
@@ -328,18 +342,19 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
 	double kmut=ccommoninterface_.c_kmut;
 
 	double tiny = 1e-3;
+
 	        
  //       print_q2subgrid(grid, fp, qfrmiq(0) , qfrmiq(grid.nq2-1));
-        char ch_mask[]={0,0,1,1,1,1,1,1,0,0,1};
-        print_q2subgrid(grid, fp, 0, iqfrmq(mch2*kmuc*kmuc+tiny), ch_mask);
-        char bt_mask[]={0,1,1,1,1,1,1,1,1,0,1};
-        print_q2subgrid(grid, fp, iqfrmq(mch2*kmuc*kmuc+tiny), iqfrmq(mbt2*kmub*kmub+tiny), bt_mask);
-        char tp_mask[]={1,1,1,1,1,1,1,1,1,1,1};
-        if(mtp2 < qfrmiq(grid.nq2-1)) {
-                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), iqfrmq(mtp2*kmut*kmut+tiny), tp_mask);
-                print_q2subgrid(grid, fp, iqfrmq(mtp2*kmut*kmut+tiny), grid.nq2-1, tp_mask);
+	int AddTop = (mtp2 < qfrmiq(grid.nq2-1));
+
+
+        print_q2subgrid(grid, fp, 0, iqfrmq(mch2*kmuc*kmuc+tiny), 4, AddTop);
+        print_q2subgrid(grid, fp, iqfrmq(mch2*kmuc*kmuc+tiny), iqfrmq(mbt2*kmub*kmub+tiny), 5, AddTop);
+        if(AddTop>0) {
+	  print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), iqfrmq(mtp2*kmut*kmut+tiny), 6, AddTop);
+	  print_q2subgrid(grid, fp, iqfrmq(mtp2*kmut*kmut+tiny), grid.nq2-1, 7, AddTop);
         } else {
-                print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), grid.nq2-1, tp_mask);
+	  print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), grid.nq2-1, 6, AddTop);
         }
         fclose(fp);
         delete_grid(grid);
@@ -389,11 +404,25 @@ void save_info(char *pdf_dir) { //{{{
         fprintf(fp,"Format: lhagrid1\n");
         fprintf(fp,"DataVersion: 1\n");
         fprintf(fp,"NumMembers: %i\n",get_nmembers_());
+
+        double mtp2=ccommoninterface_.hf_mass[2]*ccommoninterface_.hf_mass[2];
+	int addTop = (mtp2 < qfrmiq(grid.nq2-1));
+
 	if (  ccommoninterface_.c_extrapdfs ) {
-	  fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21, 22]\n");
+	  if (addTop>0) {
+	    fprintf(fp,"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, 22]\n");
+	  }
+	  else {
+	    fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21, 22]\n");
+	  }
 	}
 	else {
-	  fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
+	  if (addTop>0) {
+	    fprintf(fp,"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21]\n");
+	  }
+	  else {
+	    fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
+	  }
 	}
         fprintf(fp,"OrderQCD: %i\n", ccommoninterface_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
         fprintf(fp,"FlavorScheme: %s\n", get_flavor_scheme());

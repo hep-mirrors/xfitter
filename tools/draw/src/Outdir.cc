@@ -139,74 +139,104 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
   if (opts.dirs.size() == 1 && opts.outdir == "" && ! MCreplica)
     opts.outdir = dirname;
 
-  if (MCreplica) //make array of subdirectories
-    {
+  if (MCreplica) //make array of subdirectories      
+  {
+      int NTotRep = 0;
       //if the given pattern is a directory, list all the subdirectories
       DIR *dir;
       dir = opendir (dirname.c_str());
       if (dir != NULL)
-	{
-	  struct dirent *dp;
-	  while ((dp = readdir (dir)) != NULL)
-	    {
-	      string subdir = dp->d_name;
-	      DIR *sdir;
-	      sdir = opendir((dirname + "/" + subdir).c_str());
-	      if (sdir != NULL)
-		{
-		  //check fit status
-		  string status = fitstat(dirname + "/" + subdir + "/");
-		  if (status == "converged" || status == "pos-def-forced")
-		    dirlist.push_back(dirname + "/" + subdir + "/");
-		  
-		  closedir (sdir);
-		}
-	    }
-	  closedir(dir);
-	}
+      {
+          struct dirent *dp;
+          while ((dp = readdir (dir)) != NULL)
+          {
+              string subdir = dp->d_name;
+              DIR *sdir;
+              sdir = opendir((dirname + "/" + subdir).c_str());
+              if (sdir != NULL)
+              {
+                  // First check if directory contains something useful
+                  ifstream infile((dirname + "/" + subdir + "/Results.txt").c_str());
+                  if (infile.is_open()) {  
+                      NTotRep += 1;
+                      if ( opts.looseRepSelection ) {
+                          // Good enough to try
+                          dirlist.push_back(dirname + "/" + subdir + "/");
+                      }
+                  }
+                  
+                  if ( ! opts.looseRepSelection) {
+                      // extensive fit status
+                      string status = fitstat(dirname + "/" + subdir + "/") ;   
+                      if (status == "converged" || status == "pos-def-forced" || opts.looseRepSelection ) {    
+                          dirlist.push_back(dirname + "/" + subdir + "/");
+                      }
+                  }
+                  
+                  
+                  closedir (sdir);
+              }
+          }
+          closedir(dir);
+      }
       else
-	{
-	  //search one directory up, for all directories matching the given pattern:
-	  dirname = "./" + dirname;
-	  string pattern = dirname.substr(dirname.rfind("/") + 1,dirname.size() - dirname.rfind("/") -1);
-	  dirname.erase(dirname.rfind("/"),dirname.size() - dirname.rfind("/"));
-	  DIR *dir;
-	  dir = opendir((dirname).c_str());
-	  if (dir == NULL)
-	    {
-	      cout << "Error: invalid MC replic pattern, directory " << dirname << " does not exist" << endl;
-	      exit(1);
-	    }
-
-	  struct dirent *dp;
-	  while ((dp = readdir(dir)) != NULL)
-	    {
-	      string subdir = dp->d_name;
-	      if (subdir.find(pattern) != string::npos)
-		{
-		  DIR *sdir;
-		  sdir = opendir((dirname + "/" + subdir).c_str());
-		  if (sdir != NULL)
-		    {
-		      //check if Results.txt exists
-		      ifstream infile((dirname + "/" + subdir + "/Results.txt").c_str());
-		      if (infile.is_open())
-			{
-			  dirlist.push_back(dirname + "/" + subdir + "/");
-			  infile.close();
-			}
-		      closedir (sdir);
-		    }
-		}
-	    }
-	  closedir(dir);
-	}
+      {
+          //search one directory up, for all directories matching the given pattern:
+          dirname = "./" + dirname;
+          string pattern = dirname.substr(dirname.rfind("/") + 1,dirname.size() - dirname.rfind("/") -1);
+          dirname.erase(dirname.rfind("/"),dirname.size() - dirname.rfind("/"));
+          DIR *dir;
+          dir = opendir((dirname).c_str());
+          if (dir == NULL)
+          {
+              cout << "Error: invalid MC replic pattern, directory " << dirname << " does not exist" << endl;
+              exit(1);
+          }
+          
+          struct dirent *dp;
+          while ((dp = readdir(dir)) != NULL)
+          {
+              string subdir = dp->d_name;
+              if (subdir.find(pattern) != string::npos)
+              {
+                  DIR *sdir;
+                  sdir = opendir((dirname + "/" + subdir).c_str());
+                  if (sdir != NULL)
+                  {
+                      //check if Results.txt exists
+                      ifstream infile((dirname + "/" + subdir + "/Results.txt").c_str());
+                      if (infile.is_open())
+                      {
+                          NTotRep += 1;
+                          if ( opts.looseRepSelection ) {
+                              // Good enough to try
+                              dirlist.push_back(dirname + "/" + subdir + "/");
+                          }
+                          else
+                          {
+                              // extensive fit status
+                              string status = fitstat(dirname + "/" + subdir + "/") ;   
+                              if (status == "converged" || status == "pos-def-forced" || opts.looseRepSelection ) {    
+                                  dirlist.push_back(dirname + "/" + subdir + "/");
+                              }
+                          }
+                          infile.close();
+                      }
+                      closedir (sdir);
+                  }
+              }
+          }
+          closedir(dir);
+      }
       if (dirlist.size() == 0)
-	{
-	  cout << "Error: No directories matchin pattern " << dirname << endl;
-	  exit(1);
-	}
-    }
+      {
+          cout << "Error: No directories matchin pattern " << dirname << endl;
+          exit(1);
+      };
+      cout << "Selected number of MC replica="  << dirlist.size() << " out of " << NTotRep << " directories with Results.txt file present  \n";
+      
+  } // end of MC replica
+  
   else //This is a single directory, check if it exists
     {
       DIR *dir;

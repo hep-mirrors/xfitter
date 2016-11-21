@@ -16,6 +16,7 @@
 #include "TheorEval.h"
 #include "CommonGrid.h"
 #include "xfitter_cpp.h"
+#include <string.h> 
 
 using namespace std;
 
