@@ -41,7 +41,7 @@ class ReactionTheory
 
  public:
   virtual string getReactionName() const {};
-  virtual void initAtStart(const string &) {};
+  virtual void initAtStart(const string &) =0;
   virtual void setxFitterParameters(map<string,double> &xfitter_pars) {*_xfitter_pars = xfitter_pars; };
   virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx> &) { alpha_S = palpha_S; };
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
@@ -64,3 +64,6 @@ class ReactionTheory
   map<string, vector<double> > *_dsBins;
   map<string, double > *_xfitter_pars;
 };
+
+
+typedef ReactionTheory * create_t();

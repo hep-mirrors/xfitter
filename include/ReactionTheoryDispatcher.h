@@ -44,3 +44,4 @@ class ReactionTheoryDispatcher
   /// list of created theories
   list<ReactionTheory*> _rt_list;
 };
+
