@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 #include <valarray>
@@ -7,6 +8,11 @@
 using std::string;
 using std::vector;
 using std::valarray;
+
+typedef double (*pxFx)(double*, double*);
+typedef double (*pZeroParFunc)();
+typedef double (*pOneParFunc)(double*);
+typedef double (*pTwoParFunc)(double*, double*);
 
 /**
   @class ReactionTheory
@@ -21,32 +27,39 @@ using std::valarray;
   @date 2016/01/21
   */
 
+//class Evolution;
+
 class ReactionTheory 
 {
  public:
   ReactionTheory() {};
   ~ReactionTheory();
 
-  ReactionTheory(string subtype) : _subtype(subtype) {};
-
   ReactionTheory(const ReactionTheory &);
   ReactionTheory & operator =(const ReactionTheory &);
 
  public:
-  void setOptions(const string &reaction_options) { _ro = reaction_options; this->parseOptions(); };
-  void setBinning(vector<int> &binFlags, vector<vector<double> > &dsBins){ _binFlags=binFlags; _dsBins = dsBins; } ;
-  void resultAt(valarray<double> *val){ _val = val; };
+  virtual string getReactionName() const;
+  virtual void initAtStart(const string &);
+  virtual void setxFitterParameters(map<string,double> &xfitter_pars) {*_xfitter_pars = xfitter_pars };
+  virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx>) { alpha_S = palpha_S; };
+  virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
+  virtual void initAtIteration();
+  virtual void setBinning(map<string,vector<double> > dsBins){ *_dsBins = dsBins; } ;
+//  virtual void resultAt(valarray<double> *val){ _val = val; };
   
-  virtual int compute() = 0;
+  virtual int compute(valarray<double> &val, map<string, valarray<double> > &err) = 0;
  protected:
 
   virtual int parseOptions() = 0;
+  double (*alpha_S)(double *);
 
  protected:
   string _subtype;
   valarray<double> *_val;
   string _ro;
-  vector<int> _binFlags;
   /// dataset bins
-  vector<vector<double> > _dsBins;
+  /// must contain 'binFlag' key
+  map<string, vector<double> > *_dsBins;
+  map<string, double > *_evolution_pars;
 };
