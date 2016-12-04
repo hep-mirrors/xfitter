@@ -13,7 +13,12 @@
 #include "ReactionTheoryDispatcher.h"
 #include "ReactionTheory.h"
 #include "ReactionDIS.h"
+
+#include "TestTheory.h"
+
 #include "xfitter_cpp.h"
+
+#include "TheoryRepository.h"
 
 using std::list;
 using std::string;
@@ -24,7 +29,13 @@ ReactionTheoryDispatcher::~ReactionTheoryDispatcher()
 
 ReactionTheory *ReactionTheoryDispatcher::getReactionTheory(const string &reaction_type)
 {
-  ReactionTheory *rt(NULL);
+  ReactionTheory *rt = xfitter::TheoryRepository[reaction_type];
+
+  if ( rt == NULL ) {
+    // not found, raise exception
+    string msg  = "F: Theory module "+reaction_type+" not found";
+    hf_errlog_(16120401,msg.c_str(), msg.size());
+  }
   /*
   if ( reaction_type == string("NC e+-p") ) rt = new ReactionDIS(string("NCDIS"));
   else if ( reaction_type == string("CC e+-p") ) rt = new ReactionDIS(string("CCDIS"));
