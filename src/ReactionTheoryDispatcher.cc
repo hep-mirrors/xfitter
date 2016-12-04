@@ -25,6 +25,7 @@ ReactionTheoryDispatcher::~ReactionTheoryDispatcher()
 ReactionTheory *ReactionTheoryDispatcher::getReactionTheory(const string &reaction_type)
 {
   ReactionTheory *rt(NULL);
+  /*
   if ( reaction_type == string("NC e+-p") ) rt = new ReactionDIS(string("NCDIS"));
   else if ( reaction_type == string("CC e+-p") ) rt = new ReactionDIS(string("CCDIS"));
   else if ( reaction_type == string("NC e+-p charm") ) rt = new ReactionDIS(string("CHARMDIS"));
@@ -39,6 +40,7 @@ ReactionTheory *ReactionTheoryDispatcher::getReactionTheory(const string &reacti
 
     return NULL;
   }
+  */
 
   _rt_list.push_back(rt);
 

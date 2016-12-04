@@ -5,6 +5,7 @@
 #include <vector>
 #include <valarray>
 
+using std::map;
 using std::string;
 using std::vector;
 using std::valarray;
@@ -33,25 +34,25 @@ class ReactionTheory
 {
  public:
   ReactionTheory() {};
-  ~ReactionTheory();
+  ~ReactionTheory() {};
 
   ReactionTheory(const ReactionTheory &);
   ReactionTheory & operator =(const ReactionTheory &);
 
  public:
-  virtual string getReactionName() const;
-  virtual void initAtStart(const string &);
-  virtual void setxFitterParameters(map<string,double> &xfitter_pars) {*_xfitter_pars = xfitter_pars };
-  virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx>) { alpha_S = palpha_S; };
+  virtual string getReactionName() const {};
+  virtual void initAtStart(const string &) {};
+  virtual void setxFitterParameters(map<string,double> &xfitter_pars) {*_xfitter_pars = xfitter_pars; };
+  virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx> &) { alpha_S = palpha_S; };
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
-  virtual void initAtIteration();
+  virtual void initAtIteration() {};
   virtual void setBinning(map<string,vector<double> > dsBins){ *_dsBins = dsBins; } ;
 //  virtual void resultAt(valarray<double> *val){ _val = val; };
   
-  virtual int compute(valarray<double> &val, map<string, valarray<double> > &err) = 0;
+  virtual int compute(valarray<double> &val, map<string, valarray<double> > &err) {};
  protected:
 
-  virtual int parseOptions() = 0;
+  virtual int parseOptions() {};
   double (*alpha_S)(double *);
 
  protected:
@@ -61,5 +62,5 @@ class ReactionTheory
   /// dataset bins
   /// must contain 'binFlag' key
   map<string, vector<double> > *_dsBins;
-  map<string, double > *_evolution_pars;
+  map<string, double > *_xfitter_pars;
 };

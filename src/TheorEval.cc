@@ -361,9 +361,9 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string term_type =  _termTypes.at(iterm);
   string term_info =  _termInfos.at(iterm);
   ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
-  rt->setOptions(_termInfos.at(iterm));
-  rt->setBinning(_binFlags, _dsBins);
-  rt->resultAt(val);
+  rt->initAtStart(_termInfos.at(iterm));
+//  rt->setBinning(_binFlags, _dsBins);
+//  rt->resultAt(val);
 
   _mapReactionToken[rt] = val;
 }
@@ -582,7 +582,7 @@ TheorEval::getReactionValues()
   map<ReactionTheory*, valarray<double>*>::iterator itm;
   for(itm = _mapReactionToken.begin(); itm != _mapReactionToken.end(); itm++){
     ReactionTheory* rt = itm->first;
-    rt->compute();
+//    rt->compute();
   }
 
   return 1;

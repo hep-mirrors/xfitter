@@ -14,14 +14,7 @@
 using std::list;
 using std::string;
 
-ReactionTheory::~ReactionTheory()
-{
-}
-
-ReactionTheory::ReactionTheory(const ReactionTheory &rt) : _subtype(rt._subtype), 
-							   _ro(rt._ro),
-							   _binFlags(rt._binFlags),
-							   _dsBins(rt._dsBins)
+ReactionTheory::ReactionTheory(const ReactionTheory &rt)
 {
   _val = new valarray<double>(rt._val->size());
 }
@@ -29,12 +22,14 @@ ReactionTheory::ReactionTheory(const ReactionTheory &rt) : _subtype(rt._subtype)
 ReactionTheory &
 ReactionTheory::operator=(const ReactionTheory &rt)
 {
+  /*
   _subtype = rt._subtype;
   _ro = rt._ro;
   _binFlags = rt._binFlags;
   _dsBins = rt._dsBins;
 
   _val = new valarray<double>(*(rt._val));
+  */
 
   return *this;
 }
