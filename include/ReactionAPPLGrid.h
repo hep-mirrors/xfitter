@@ -28,6 +28,8 @@ class ReactionAPPLGrid : public ReactionTheory
 
   ReactionAPPLGrid(const ReactionAPPLGrid  &){};
   ReactionAPPLGrid & operator =(const ReactionAPPLGrid &r){return *(new ReactionAPPLGrid(r));};
+
+  string getReactionName() const {return string("APPLGrid");};
   
  public:
   int compute();

@@ -5,7 +5,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/draw/include input_steering \
+          DY/include tools/draw/include input_steering ag \
           pdf2yaml tools/process/
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src

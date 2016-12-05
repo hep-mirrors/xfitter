@@ -476,6 +476,7 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
+		 ag/Makefile
 		 xfitter-config
                  Makefile])
 

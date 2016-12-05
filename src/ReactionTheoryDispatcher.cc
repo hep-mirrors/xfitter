@@ -13,7 +13,11 @@
 #include "ReactionTheoryDispatcher.h"
 #include "ReactionTheory.h"
 #include "ReactionDIS.h"
+
+
 #include "xfitter_cpp.h"
+
+// #include "TheoryRepository.h"
 
 using std::list;
 using std::string;
@@ -24,7 +28,8 @@ ReactionTheoryDispatcher::~ReactionTheoryDispatcher()
 
 ReactionTheory *ReactionTheoryDispatcher::getReactionTheory(const string &reaction_type)
 {
-  ReactionTheory *rt(NULL);
+  //  ReactionTheory *rt = xfitter::TheoryRepository[reaction_type];
+
   /*
   if ( reaction_type == string("NC e+-p") ) rt = new ReactionDIS(string("NCDIS"));
   else if ( reaction_type == string("CC e+-p") ) rt = new ReactionDIS(string("CCDIS"));
@@ -42,9 +47,9 @@ ReactionTheory *ReactionTheoryDispatcher::getReactionTheory(const string &reacti
   }
   */
 
-  _rt_list.push_back(rt);
+  //  _rt_list.push_back(rt);
 
-  return rt;
+  return NULL;
 }
 
 

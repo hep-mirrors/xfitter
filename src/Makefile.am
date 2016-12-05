@@ -17,6 +17,7 @@ dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.
 getncxskt.f Getgridkt.f GetDummyXsection.f \
 GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
 ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc
+
 # WS 2013-01-19 for the Offset method
 libxfmain_la_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
@@ -46,6 +47,8 @@ if ENABLE_APPLGRID
 #  libagtheory_la_SOURCES= ReactionAPPLGrid.cc
 else
   libxfmain_la_SOURCES+= applgrids_dum.f
+#lib_LTLIBRARIES = libagtheory.la
+
 # REMOVE ftheor_eval_dum.cc
 endif
 if ENABLE_APFELGRID
@@ -102,7 +105,7 @@ endif
 AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
 
 # 
-AM_CPPFLAGS = -I$(srcdir)/../include 
+AM_CPPFLAGS = -I$(srcdir)/../include   -DPREFIX="\"$(prefix)\""
 
 if ENABLE_APPLGRID 
   AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
@@ -205,7 +208,7 @@ APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
-  libagtheory_la_LDFLAGS= $(APPLGRID_LDFLAGS) $(GFRTLIB)
+#  libagtheory_la_LDFLAGS= $(APPLGRID_LDFLAGS) $(GFRTLIB)
   F2PYLIBS +=  $(APPLGRID_3)
 endif
 
