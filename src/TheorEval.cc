@@ -366,11 +366,18 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 //  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
 
   string libname = gReactionLibs[term_source];
+  if (libname == "") {
+    string text = "F: Reaction " +term_source + " not present in Reactions.txt file";
+    hf_errlog_(16120501,text.c_str(),text.size());
+  }
+
   ReactionTheory * rt;
   if ( gNameReaction.find(term_source) == gNameReaction.end()) {
     void *theory_handler = dlopen((string("./lib/")+libname).c_str(), RTLD_NOW);
     if (theory_handler == NULL)  { 
       std::cout  << dlerror() << std::endl;
+      string text = "F: Reaction shared library ./lib/"  + libname  +  " not present for " +term_source + ". Check Reactions.txt file" ;
+      hf_errlog_(16120502,text.c_str(),text.size());
     }
     
     // reset errors
