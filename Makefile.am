@@ -32,11 +32,6 @@ DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
           DY/include tools/draw/include input_steering \
           common common/linalg Hathor/src pdf2yaml tools/process src
 
-
-# DOXYGEN SUPPORT
-# ensure the distribution of the doxygen configuration file
-#EXTRA_DIST = doxygen.cfg
-
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
 #TESTS_ENVIRONMENT = $(SHELL) 
