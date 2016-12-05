@@ -12,6 +12,7 @@
 #include <stack>
 #include <float.h>
 #include <valarray>
+#include <dlfcn.h>
 
 #include "TheorEval.h"
 #include "CommonGrid.h"
@@ -27,6 +28,8 @@ using namespace std;
 //    double datasetmuf[150];
 //    int datasetiorder[150];
 // } cscales_;
+
+
 
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
@@ -360,8 +363,22 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string term_source = _termSources.at(iterm);
   string term_type =  _termTypes.at(iterm);
   string term_info =  _termInfos.at(iterm);
-  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
-  rt->initAtStart(_termInfos.at(iterm));
+//  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
+
+  void *theory_handler = dlopen("./src/.libs/libagtheory.so.0.0.0", RTLD_NOW);
+  if (theory_handler == NULL)  { 
+  std::cout  << dlerror() << std::endl;
+  }
+  // reset errors
+  dlerror();
+
+  create_t *dispatch_theory = (create_t*) dlsym(theory_handler, "create");
+  ReactionTheory * rt = dispatch_theory();
+
+  rt->initAtStart("hello world");
+
+  exit(1);
+  //rt->initAtStart(_termInfos.at(iterm));
 //  rt->setBinning(_binFlags, _dsBins);
 //  rt->resultAt(val);
 

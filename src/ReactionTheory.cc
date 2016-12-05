@@ -7,6 +7,7 @@
  */
 
 #include <list>
+#include <iostream>
 #include <string>
 
 #include "ReactionTheory.h"
@@ -33,3 +34,4 @@ ReactionTheory::operator=(const ReactionTheory &rt)
 
   return *this;
 }
+
