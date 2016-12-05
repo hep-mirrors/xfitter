@@ -40,7 +40,7 @@ class ReactionTheory
   ReactionTheory & operator =(const ReactionTheory &);
 
  public:
-  virtual string getReactionName() const {};
+  virtual string getReactionName() const =0;
   virtual void initAtStart(const string &) =0;
   virtual void setxFitterParameters(map<string,double> &xfitter_pars) {*_xfitter_pars = xfitter_pars; };
   virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx> &) { alpha_S = palpha_S; };
