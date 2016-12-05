@@ -71,7 +71,7 @@ libxfmain_la_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/includ
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 libxfmain_la_CFLAGS=
-libxfmain_la_CPPFLAGS=
+libxfmain_la_CPPFLAGS= -DPREFIX="\"$(prefix)\""
 libxfmain_la_FFLAGS= $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
 if ENABLE_LHAPDF
   libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
@@ -232,7 +232,7 @@ if ENABLE_GENETIC
 endif
 
 xfitter_SOURCES = main.f
-xfitter_LDFLAGS = -lxfmain
+xfitter_LDFLAGS = -lxfmain -lxffnlo
 
 python:
 	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
