@@ -123,8 +123,8 @@ lib'''+ name.lower()+'''xfitter_la_SOURCES = Reaction'''+name+'''.cc
 
 print "Update configure.ac file"
 os.system("sed 's|xfitter-config|xfitter-config\\n		 reactions/" +name +"/src/Makefile|' configure.ac  >/tmp/configure.ac")
-# os.system("cp /tmp/configure.ac configure.ac")
+os.system("cp /tmp/configure.ac configure.ac")
 
 print "Update Makefile.am"
 os.system("sed 's|tools/process|tools/process reactions/" +name +"/src|' Makefile.am > /tmp/Makefile.am")
-# os.system("cp /tmp/Makefile.am Makefile.am")
+os.system("cp /tmp/Makefile.am Makefile.am")
