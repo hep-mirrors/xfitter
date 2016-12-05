@@ -365,7 +365,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string term_info =  _termInfos.at(iterm);
 //  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
 
-  void *theory_handler = dlopen("./src/.libs/libagtheory.so.0.0.0", RTLD_NOW);
+  void *theory_handler = dlopen("./ag/.libs/libagtheory.so.0.0.0", RTLD_NOW);
   if (theory_handler == NULL)  { 
   std::cout  << dlerror() << std::endl;
   }

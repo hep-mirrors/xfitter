@@ -49,11 +49,11 @@ else
   libxfitter_a_SOURCES+= mela_dum.f
 endif
 
-lib_LTLIBRARIES = libagtheory.la
+#lib_LTLIBRARIES = libagtheory.la
 
 if ENABLE_APPLGRID
   libxfitter_a_SOURCES+= fappl_grid.cxx applgrids.f 
-  libagtheory_la_SOURCES= ReactionAPPLGrid.cc
+#  libagtheory_la_SOURCES= ReactionAPPLGrid.cc
 else 
   libxfitter_a_SOURCES+= applgrids_dum.f 
 # REMOVE ftheor_eval_dum.cc
@@ -180,7 +180,7 @@ APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
-  libagtheory_la_LDFLAGS= $(APPLGRID_LDFLAGS) $(GFRTLIB)
+#  libagtheory_la_LDFLAGS= $(APPLGRID_LDFLAGS) $(GFRTLIB)
   F2PYLIBS +=  $(APPLGRID_3)
 endif
 
