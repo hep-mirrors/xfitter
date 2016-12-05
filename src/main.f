@@ -53,6 +53,7 @@ C-----------------------------------------------------
 *     ------------------------------------------------ 
       call read_steer
 
+
 * Init random numbers 
       call init_rnd_seeds()
 
@@ -69,6 +70,7 @@ C-----------------------------------------------------
 *     ------------------------------------------------
 *     Initialise theory modules
 *     ------------------------------------------------
+
       call init_theory_modules
       call hf_errlog(12020503,
      +     'I: theory modules initialised successfully') 
