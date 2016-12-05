@@ -197,8 +197,12 @@ class TheorEval{
 };
 
 typedef map <int, TheorEval* > tTEmap;
+typedef map <string, string> tReactionLibsmap;
+typedef map <string, ReactionTheory *> tNameReactionmap;
 
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
+extern tReactionLibsmap gReactionLibs;
+extern tNameReactionmap gNameReaction;
 
 #endif

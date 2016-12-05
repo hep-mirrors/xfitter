@@ -365,21 +365,29 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string term_info =  _termInfos.at(iterm);
 //  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
 
-  void *theory_handler = dlopen("./ag/.libs/libagtheory.so.0.0.0", RTLD_NOW);
-  if (theory_handler == NULL)  { 
-  std::cout  << dlerror() << std::endl;
+  string libname = gReactionLibs[term_source];
+  ReactionTheory * rt;
+  if ( gNameReaction.find(term_source) == gNameReaction.end()) {
+    void *theory_handler = dlopen((string("./lib/")+libname).c_str(), RTLD_NOW);
+    if (theory_handler == NULL)  { 
+      std::cout  << dlerror() << std::endl;
+    }
+    
+    // reset errors
+    dlerror();
+ 
+    create_t *dispatch_theory = (create_t*) dlsym(theory_handler, "create");
+    rt = dispatch_theory();
+    gNameReaction[term_source] = rt;
+ 
+  } else {
+    rt = gNameReaction[term_source];
   }
-  // reset errors
-  dlerror();
-
-  create_t *dispatch_theory = (create_t*) dlsym(theory_handler, "create");
-  ReactionTheory * rt = dispatch_theory();
-
-  rt->initAtStart("hello world");
-
-  exit(1);
-  //rt->initAtStart(_termInfos.at(iterm));
+  rt->initAtStart(term_info);
+  std::cout << rt->getReactionName() << std::endl;
 //  rt->setBinning(_binFlags, _dsBins);
+
+  //rt->initAtStart(_termInfos.at(iterm));
 //  rt->resultAt(val);
 
   _mapReactionToken[rt] = val;

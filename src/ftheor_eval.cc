@@ -9,6 +9,7 @@
  */
 
 #include <vector>
+#include <fstream>
 #include <valarray>
 
 #include "xfitter_cpp.h"
@@ -27,11 +28,14 @@ extern "C" {
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
   int get_theor_eval_(int *dsId, int* np, int* idx);
+  int read_reactions_();
   int close_theor_eval_();
 }
 
 /// global dataset to theory evaluation pointer map
 tTEmap gTEmap;
+tReactionLibsmap gReactionLibs;
+tNameReactionmap gNameReaction;
 
 
 extern struct thexpr_cb {
@@ -207,3 +211,23 @@ int close_theor_eval_()
 
   gTEmap.clear();
 }
+
+
+/*!
+ */
+int read_reactions_()
+{
+  ifstream frt("Reactions.txt");
+  while (1){
+    string rname, lib;
+    frt >> rname >> lib;
+    if (frt.eof()) break;
+    if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
+      // possible check
+    }
+    gReactionLibs[rname] = lib;
+
+  }
+  return 1;
+}
+
