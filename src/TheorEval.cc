@@ -368,7 +368,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string libname = gReactionLibs[term_source];
   ReactionTheory * rt;
   if ( gNameReaction.find(term_source) == gNameReaction.end()) {
-    void *theory_handler = dlopen((string("./lib/")+libname).c_str(), RTLD_NOW);
+    void *theory_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
     if (theory_handler == NULL)  { 
       std::cout  << dlerror() << std::endl;
     }

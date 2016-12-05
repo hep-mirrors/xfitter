@@ -78,7 +78,7 @@ endif
 AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
 
 # 
-AM_CPPFLAGS = -I$(srcdir)/../include 
+AM_CPPFLAGS = -I$(srcdir)/../include   -DPREFIX="\"$(prefix)\""
 
 if ENABLE_APPLGRID 
   AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
