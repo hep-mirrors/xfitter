@@ -113,10 +113,10 @@ with open("reactions/"+name+"/src/Makefile.am","w+") as f:
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated 
 
-lib_LTLIBRARIES = lib'''+ name.lower() + '''xfitter.la
-lib'''+ name.lower()+'''xfitter_la_SOURCES = Reaction'''+name+'''.cc
+lib_LTLIBRARIES = lib'''+ name.lower() + '''_xfitter.la
+lib'''+ name.lower()+'''_xfitter_la_SOURCES = Reaction'''+name+'''.cc
 
-# lib'''+ name.lower()+'''xfitter_la_LDFLAGS = place_if_needed  
+# lib'''+ name.lower()+'''_xfitter_la_LDFLAGS = place_if_needed  
 
  ''')
 
