@@ -232,7 +232,9 @@ if ENABLE_GENETIC
 endif
 
 xfitter_SOURCES = main.f
-xfitter_LDFLAGS = -lxfmain -lxffnlo
+xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src
+xfitter_LDFLAGS += -L${top_srcdir}/src -lxfmain
+xfitter_LDFLAGS += -L${top_srcdir}/FastNLO/src -lxffnlo
 
 python:
 	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
