@@ -116,7 +116,7 @@ fi
 
 
 # Checks for sources.
-AC_CONFIG_SRCDIR([src/main.f])
+AC_CONFIG_SRCDIR([xfitter/main.f])
 
 ## Checks for libraries.
 #AC_MSG_CHECKING([for CERN libraries])
@@ -443,6 +443,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 # Output
 AC_CONFIG_FILES([include/Makefile 
                  src/Makefile
+                 xfitter/Makefile
                  common/Makefile
                  common/linalg/Makefile
                  common/num_utils/Makefile

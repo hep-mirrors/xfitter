@@ -1,103 +1,19 @@
 AUTOMAKE_OPTIONS = foreign
-pkginclude_HEADERS = offset.h
+#pkginclude_HEADERS = #offset.h
 # Explicit depence for all files:
 *.o: ../include/*.inc 
 
-# # the main target, i.e. the executable to build
-# bin_PROGRAMS = xfitter
-# noinst_LIBRARIES = libxfitter.a
-# 
-# xfitter_SOURCES = main.f
-# xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src -lxfmain -lxffnlo
-# #xfitter_LDADD = 
-# # all source files which go into the main target
-# libxfitter_a_SOURCES = 
-# 
+# the main target, i.e. the executable to build
+bin_PROGRAMS = xfitter
 
-
-# the main shared library
-lib_LTLIBRARIES = libxfmain.la libagtheory.la
-
-libxfmain_la_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
-sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
-evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcdfunc.f\
-dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
-getncxskt.f Getgridkt.f GetDummyXsection.f \
-GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f  \
-ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc
-
-# WS 2013-01-19 for the Offset method
-libxfmain_la_SOURCES += offset_fns.f g_offset.cc
-# LHAPDF6 output
-libxfmain_la_SOURCES += lhapdf6_output.c c_interface.f
-# WS 2016-01-13 DIS higher twist contributions
-libxfmain_la_SOURCES += dis_sigma_ht.f
-#LHAPDFErrors
-libxfmain_la_SOURCES += fortran_io.f lhapdferrors.cc
-#Chi2scan
-libxfmain_la_SOURCES += chi2scan.cc
-# ReactionTheory
-libxfmain_la_SOURCES += ReactionTheoryDispatcher.cc ReactionTheory.cc ReactionDIS.cc
-# optional sources
-# these should be moved to indiviual shared libraries in the future
-if ENABLE_APFEL
-  libxfmain_la_SOURCES+= apfel.f
-else
-  libxfmain_la_SOURCES+= apfel_dum.f
-endif
-if ENABLE_MELA
-  libxfmain_la_SOURCES+= mela.f
-else
-  libxfmain_la_SOURCES+= mela_dum.f
-endif
-if ENABLE_APPLGRID
-  libxfmain_la_SOURCES+= fappl_grid.cxx applgrids.f
-  libagtheory_la_SOURCES= ReactionAPPLGrid.cc
-else
-  libxfmain_la_SOURCES+= applgrids_dum.f
-#lib_LTLIBRARIES = libagtheory.la
-# REMOVE ftheor_eval_dum.cc
-endif
-
-
-if ENABLE_APFELGRID
-  libxfmain_la_SOURCES+= APFELgridGeneration.cc
-endif
-if ENABLE_LHAPDF
-else
-  libxfmain_la_SOURCES+= lhapdf_dum.f
-endif
-if ENABLE_HATHOR
-  libxfmain_la_SOURCES+= ttbar_hathor.f
-else
-  libxfmain_la_SOURCES+= ttbar_hathor_dum.f
-endif
-
-#
-# flags for libfxmain
-#
-libxfmain_la_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
-libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
-libxfmain_la_CXXFLAGS += -I$(srcdir)/../tools/draw/include
-libxfmain_la_CFLAGS=
-libxfmain_la_CPPFLAGS= -DPREFIX="\"$(prefix)\""
-libxfmain_la_FFLAGS= $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
-if ENABLE_LHAPDF
-  libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
-  libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
-endif
-# libraries, where this library depends upon
-libxfmain_la_LDFLAGS = -ldl
-
-
+xfitter_SOURCES = main.f
+xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src -lxfmain -lxffnlo
+#xfitter_LDADD = 
+# all source files which go into the main target
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
-
- 
-#lib_LTLIBRARIES = libagtheory.la
-
 
 # FORTRAN compiler flags to be used for the main target
 AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
@@ -120,7 +36,9 @@ if ENABLE_APFELGRID
 endif
 
 # xFitter main library:
-LDADD = libxfitter.a
+#noinst_LIBRARIES = libxfitter.a
+#libxfitter_a_SOURCES = 
+LDADD = #libxfitter.a
 ###################LDADD += libxfitter.a
 
 # libraries to be linked to the main target
@@ -174,7 +92,7 @@ if ENABLE_HVQMNR
 #  libxfitter_a_SOURCES += hvqmnr_dum.f	need more
 else
 #  libxfitter_a_SOURCES += hvqmnr_dum.f
-  libxfmain_la_SOURCES += hvqmnr_dum.f	
+#  libxfmain_la_SOURCES += hvqmnr_dum.f	
 endif
 
 XFLIBS =  ../DY/src/libmydy.a\
@@ -186,7 +104,6 @@ XFLIBS =  ../DY/src/libmydy.a\
  ../FONLL/src/libmyfonll.a \
  ../EW/src/libmyew.a \
  ../ABM/src/libmyabm.a \
- ../FastNLO/src/libFastNLO.a \
  ../DIPOLE/src/libmydipole.a \
  ../DiffDIS/src/libDiffDIS.a\
  ../interfaces/src/libinterfaces.a\
@@ -196,6 +113,8 @@ XFLIBS =  ../DY/src/libmydy.a\
  ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
  ../tools/draw/src/pdferrors.o
+
+# ../FastNLO/src/libFastNLO.a 
 
 
 LDADD += $(XFLIBS)
@@ -232,5 +151,5 @@ if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a
 endif
 
-#python:
-#	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
+python:
+	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
