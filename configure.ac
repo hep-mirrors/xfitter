@@ -479,6 +479,7 @@ AC_CONFIG_FILES([include/Makefile
                  input_steering/Makefile
 		 ag/Makefile
 		 xfitter-config
+		 reactions/fastNLO/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then
