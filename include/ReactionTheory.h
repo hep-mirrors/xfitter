@@ -49,10 +49,10 @@ class ReactionTheory
   virtual void setBinning(map<string,vector<double> > dsBins){ *_dsBins = dsBins; } ;
 //  virtual void resultAt(valarray<double> *val){ _val = val; };
   
-  virtual int compute(valarray<double> &val, map<string, valarray<double> > &err) {};
+  virtual int compute(valarray<double> &val, map<string, valarray<double> > &err) = 0;
  protected:
 
-  virtual int parseOptions() {};
+  virtual int parseOptions() { return 0;};
   double (*alpha_S)(double *);
 
  protected:

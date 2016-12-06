@@ -66,11 +66,10 @@ class Reaction'''+name+''' : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "'''+name+ '''" ;};
-    int compute();
-  private:
-
     void initAtStart(const string &); 
-    int parseOptions(){};
+    virtual int compute(valarray<double> &val, map<string, valarray<double> > &err);
+  protected:
+    virtual int parseOptions(){ return 0;};
 };
 
 ''')
@@ -99,8 +98,9 @@ void Reaction'''+name+'''::initAtStart(const string &s)
 }
 
 // Main function to compute results at an iteration
-int Reaction'''+name+'''::compute()
+int Reaction'''+name+'''::compute(valarray<double> &val, map<string, valarray<double> > &err)
 {
+  return 0;
 }
 
 ''')
