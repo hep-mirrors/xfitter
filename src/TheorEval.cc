@@ -391,11 +391,25 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     rt = gNameReaction[term_source];
   }
   rt->initAtStart(term_info);
-  std::cout << rt->getReactionName() << std::endl;
-//  rt->setBinning(_binFlags, _dsBins);
+
+  // Make sure the name matches:
+  if ( rt->getReactionName() == term_source) {
+    std::cout << "Use reaction " << rt->getReactionName() << std::endl;
+  }
+  else {
+    string text = "F: Reaction " +term_source + " does not match with library: "+rt->getReactionName();
+    hf_errlog_(16120801,text.c_str(),text.size());
+  }
+   
+  rt->setBinning(_dsId, &gDataBins[_dsId]);
+  //  
 
   //rt->initAtStart(_termInfos.at(iterm));
-//  rt->resultAt(val);
+  //  rt->resultAt(val);
+  //  rt->printInfo();
+  
+  //  exit(0);
+
 
   _mapReactionToken[rt] = val;
 }
@@ -614,11 +628,19 @@ TheorEval::getReactionValues()
   map<ReactionTheory*, valarray<double>*>::iterator itm;
   for(itm = _mapReactionToken.begin(); itm != _mapReactionToken.end(); itm++){
     ReactionTheory* rt = itm->first;
-//    rt->compute();
+     map<string, valarray<double> > errors;
+     
+     int result =  rt->compute(_dsId, *(itm->second), errors);
+     
+     if (result != 0) {
+       string text = "F:(from TheorEval::getReactionValues)  Failed to compute theory";
+       hf_errlog_(16081202,text.c_str(),text.size());
+     }
   }
-
+  
   return 1;
 }
+
 
 int
 TheorEval::getNbins()
