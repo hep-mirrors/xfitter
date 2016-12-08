@@ -413,7 +413,7 @@ c             call fillvfngrid
 
       if ( (IFlag.eq.1).and.(DataToTheo)) then
          do i=1,npoints
-            daten(i) = theo(i)
+            daten(i) = theo(i) + 1.0D-14
          enddo
       endif
 
