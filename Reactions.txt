@@ -1,1 +1,2 @@
 fastNLO libfastnlo_xfitter.so
+testZMVFNS libtestzmvfns_xfitter.so
