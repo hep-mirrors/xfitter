@@ -23,7 +23,7 @@ extern "C" {
   int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType, 
 //    char **TermSource, char *TermExpr);
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
-    double *allBins);
+		      double *allBins, char binNames[10][80]);
 //  int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
@@ -36,7 +36,7 @@ extern "C" {
 tTEmap gTEmap;
 tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
-
+tDataBins gDataBins;
 
 extern struct thexpr_cb {
   double dynscale;
@@ -103,7 +103,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
  write details on argumets
  */
 int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
-  double *allBins)
+		    double *allBins, char binNames[10][80])
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { 
@@ -112,6 +112,22 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
     exit(1);
   }
   
+  // Store bin information
+
+  map<string, valarray<double> > namedBins;
+  for (int i=0; i<*nBinDimension; i++) {
+    string name = binNames[i];
+    name.erase(name.find(" "));
+    //    cout << name << " " << *dsId <<endl;
+    valarray<double> bins(*nPoints); 
+    for ( int j = 0; j<*nPoints; j++) {
+      bins[j] = allBins[j*10 + i];
+    }
+
+    namedBins[name] = bins;
+  }
+  gDataBins[*dsId] = namedBins;
+
   TheorEval *te = gTEmap.at(*dsId);
   te->setBins(*nBinDimension, *nPoints, binFlags, allBins);
   return 1;
