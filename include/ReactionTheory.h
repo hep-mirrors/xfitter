@@ -46,22 +46,44 @@ class ReactionTheory
   virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx> &) { alpha_S = palpha_S; };
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
-  virtual void setBinning(map<string,vector<double> > dsBins){ *_dsBins = dsBins; } ;
-//  virtual void resultAt(valarray<double> *val){ _val = val; };
-  
-  virtual int compute(valarray<double> &val, map<string, valarray<double> > &err) = 0;
+  virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
+  virtual void setDatasetParamters( int dataSetID, map<string,string> pars) {} ;
+//  virtual void resultAt(valarray<double> *val){ _val = val; };  
+  virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
+
+  virtual void printInfo(){};
+
  protected:
 
   virtual int parseOptions() { return 0;};
   double (*alpha_S)(double *);
 
+  // Helper function to get bin values for a given data set, bin name. Returns null if not found
+  valarray<double> *GetBinValues(int idDS, string binName)
+  { 
+    map<string, valarray<double> >* mapBins =  _dsBins[idDS];
+    if (mapBins == NULL ) {
+      return NULL;
+    }
+    else { 
+      map<string, valarray<double> >::iterator binPair = mapBins->find(binName);
+      if ( binPair == mapBins->end() ) {
+	return NULL;
+      }
+      else {
+	return &binPair->second;
+      }
+    }
+  };
+
  protected:
   string _subtype;
   valarray<double> *_val;
   string _ro;
-  /// dataset bins
+  /// dataset bins, map based on datasetID (integer)
   /// must contain 'binFlag' key
-  map<string, vector<double> > *_dsBins;
+  vector<int> _dsIDs;
+  map<int, map<string, valarray<double> >* > _dsBins;
   map<string, double > *_xfitter_pars;
 };
 
