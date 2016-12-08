@@ -26,7 +26,7 @@ void ReactionfastNLO::initAtStart(const string &s)
 }
 
 // Main function to compute results at an iteration
-int ReactionfastNLO::compute(valarray<double> &val, map<string, valarray<double> > &err)
+int ReactionfastNLO::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
    return 0;
 }

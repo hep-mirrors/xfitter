@@ -67,7 +67,7 @@ class Reaction'''+name+''' : public ReactionTheory
   public:
     virtual string getReactionName() const { return  "'''+name+ '''" ;};
     void initAtStart(const string &); 
-    virtual int compute(valarray<double> &val, map<string, valarray<double> > &err);
+    virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
     virtual int parseOptions(){ return 0;};
 };
@@ -98,7 +98,7 @@ void Reaction'''+name+'''::initAtStart(const string &s)
 }
 
 // Main function to compute results at an iteration
-int Reaction'''+name+'''::compute(valarray<double> &val, map<string, valarray<double> > &err)
+int Reaction'''+name+'''::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
   return 0;
 }
@@ -106,7 +106,7 @@ int Reaction'''+name+'''::compute(valarray<double> &val, map<string, valarray<do
 ''')
 
 
-print "Creating source file  reactions/"+name+"/src/Makefile.am"
+print "Creating autoconf file  reactions/"+name+"/src/Makefile.am"
 with open("reactions/"+name+"/src/Makefile.am","w+") as f:
     f.write('''
 # Created by AddReaction.py on ''' + datetime.date.today().isoformat() + '''

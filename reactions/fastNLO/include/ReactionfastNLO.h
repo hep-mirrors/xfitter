@@ -26,7 +26,7 @@ class ReactionfastNLO : public ReactionTheory
   public:
     virtual string getReactionName() const { return  "fastNLO" ;};
     void initAtStart(const string &); 
-    virtual int compute(valarray<double> &val, map<string, valarray<double> > &err);
+    virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
     virtual int parseOptions(){ return 0;};
 };
