@@ -1013,7 +1013,7 @@ C          call hf_stop
         endif
       
         call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 
-     &    binFlags, allbins )
+     &    binFlags, allbins, binname )
 
         idxUnit = GetInfoIndex(NDATASETS,'theoryunit')
         if (idxUnit.gt.0) then
