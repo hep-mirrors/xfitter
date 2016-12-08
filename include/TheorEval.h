@@ -200,9 +200,19 @@ typedef map <int, TheorEval* > tTEmap;
 typedef map <string, string> tReactionLibsmap;
 typedef map <string, ReactionTheory *> tNameReactionmap;
 
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// Host here also global list of bins:
+typedef map <int, map<string, valarray <double> > > tDataBins;
+
+// and list of parameters
+typedef map <int, double> tParameters;
+
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
 extern tReactionLibsmap gReactionLibs;
 extern tNameReactionmap gNameReaction;
+
+extern tDataBins gDataBins;
+extern tParameters gParameters;
 
 #endif
