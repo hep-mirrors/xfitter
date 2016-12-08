@@ -716,6 +716,8 @@ C
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets fastNLO') then
             Call InitJetsPPApplGridDataSet(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'reaction') then
+            Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.   
      $           DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then ! for backward compatibility
             Call InitJetsFastNLODataSet(IDataSet)
