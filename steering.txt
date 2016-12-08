@@ -3,12 +3,14 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 7
+    NInputFiles = 1
  
   ! Input files:
 
-    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
-    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
+ !   InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
+     InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
+     InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920_two.dat'
+ !   InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
     InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
     InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
     InputFileNames(5) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
@@ -133,7 +135,7 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
-  HF_SCHEME = 'RT OPT'
+  HF_SCHEME = 'ZMVFNS'
 
  ! PDF type. Possible types are currently available:
  ! 'proton'  -- default (fitting proton data)
@@ -198,6 +200,12 @@
    step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
 &End
 
+
+&ExtraMinimisationParameters
+  name  = 'FL_fudge'
+  value =  1.02
+  step  =  0.01
+&End
 
 *
 * Output steering cards
