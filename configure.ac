@@ -477,7 +477,6 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
-		 ag/Makefile
 		 xfitter-config
 		 reactions/testZMVFNS/src/Makefile
 		 reactions/fastNLO/src/Makefile
