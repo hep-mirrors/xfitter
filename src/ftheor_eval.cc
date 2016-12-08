@@ -30,6 +30,7 @@ extern "C" {
   int get_theor_eval_(int *dsId, int* np, int* idx);
   int read_reactions_();
   int close_theor_eval_();
+  void add_to_param_map_(double &value, char *name, int &len);
 }
 
 /// global dataset to theory evaluation pointer map
@@ -37,6 +38,7 @@ tTEmap gTEmap;
 tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 tDataBins gDataBins;
+tParameters gParameters;
 
 extern struct thexpr_cb {
   double dynscale;
@@ -245,5 +247,13 @@ int read_reactions_()
 
   }
   return 1;
+}
+
+// Store parameter to the global map:
+void add_to_param_map_(double &value, char *name, int &len) {
+  string nam = name;
+  nam.erase(nam.find(" "));
+  gParameters[nam] = &value;
+  std::cout << nam << std::endl;
 }
 

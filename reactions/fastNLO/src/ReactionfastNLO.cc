@@ -18,11 +18,12 @@ extern "C" ReactionfastNLO* create() {
 
 
 // Initialize at the start of the computation
-void ReactionfastNLO::initAtStart(const string &s)
+int ReactionfastNLO::initAtStart(const string &s)
 {
    // for testing purposes: create an object here
    fastNLOTable* fnlo = new fastNLOTable();
    fnlo->PrintHeader();
+   return 0;
 }
 
 // Main function to compute results at an iteration

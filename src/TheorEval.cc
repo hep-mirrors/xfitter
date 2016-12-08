@@ -390,7 +390,16 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   } else {
     rt = gNameReaction[term_source];
   }
-  rt->initAtStart(term_info);
+
+  // transfer the parameters:
+  rt->setxFitterParameters(gParameters);
+
+  if (rt->initAtStart(term_info) != 0) {
+    // failed to init, somehow ...
+      string text = "F:Failed to init reaction " +term_source  ;
+      hf_errlog_(16120803,text.c_str(),text.size());
+  };
+
 
   // Make sure the name matches:
   if ( rt->getReactionName() == term_source) {

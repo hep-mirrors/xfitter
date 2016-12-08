@@ -41,8 +41,8 @@ class ReactionTheory
 
  public:
   virtual string getReactionName() const =0;
-  virtual void initAtStart(const string &) =0;
-  virtual void setxFitterParameters(map<string,double> &xfitter_pars) {*_xfitter_pars = xfitter_pars; };
+  virtual int  initAtStart(const string &) =0;
+  virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; };
   virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx> &) { alpha_S = palpha_S; };
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
@@ -57,6 +57,18 @@ class ReactionTheory
 
   virtual int parseOptions() { return 0;};
   double (*alpha_S)(double *);
+
+  // Check if a parameter is present on the list:
+  bool checkParam(string name) 
+  {
+    return (_xfitter_pars.find(name) !=  _xfitter_pars.end());
+  }
+
+  // Helper function to get a parameter
+  double GetParam(string name) const 
+  {
+    return *_xfitter_pars.at(name);
+  }
 
   // Helper function to get bin values for a given data set, bin name. Returns null if not found
   valarray<double> *GetBinValues(int idDS, string binName)
@@ -84,7 +96,7 @@ class ReactionTheory
   /// must contain 'binFlag' key
   vector<int> _dsIDs;
   map<int, map<string, valarray<double> >* > _dsBins;
-  map<string, double > *_xfitter_pars;
+  map<string, double* > _xfitter_pars;
 };
 
 

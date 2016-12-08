@@ -22,8 +22,15 @@ extern "C" {
 
 
 // Initialize at the start of the computation
-void ReactiontestZMVFNS::initAtStart(const string &s)
+int ReactiontestZMVFNS::initAtStart(const string &s)
 {
+  // Required for FL tests:
+  std::cout << checkParam("FL_fudge") << std::endl;
+  if ( ! checkParam("FL_fudge") ) {
+    std::cout << "\n\n FATAL ERROR: FL_fudge ExtraMinimisationParameters missing !!! \n\n" <<std::endl;
+    return 1;
+  }
+  return 0;
 }
 
 // Main function to compute results at an iteration
@@ -73,6 +80,11 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
   f2 = 4./9.*f2u + 1./9.*f2d;
   fl = 4./9.*flu + 1./9.*fld;
 
+  // Fudge FL:
+  double fudge = GetParam("FL_fudge");
+  std::cout << "FL fudge: " << fudge << std::endl;
+
+  fl *= fudge;
   
   // compute reduced x-section:
   for (int i = 0; i<Npnt; i++) {

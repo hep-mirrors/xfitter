@@ -205,7 +205,7 @@ typedef map <string, ReactionTheory *> tNameReactionmap;
 typedef map <int, map<string, valarray <double> > > tDataBins;
 
 // and list of parameters
-typedef map <int, double> tParameters;
+typedef map <string, double*> tParameters;
 
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;

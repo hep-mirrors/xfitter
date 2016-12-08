@@ -1428,6 +1428,10 @@ C
       ExtraParamMax  (nExtraParam) = max
       ExtraParamConstrVal  (nExtraParam) = constrval
       ExtraParamConstrUnc  (nExtraParam) = construnc
+C Also add it to c++ map ...
+      print *,name,value
+      call add_To_Param_Map( ExtraParamValue(nExtraParam) , name)
+
       end
 
 

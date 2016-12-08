@@ -19,7 +19,7 @@ C--------------------------------------------------------
 #include "extrapars.inc"
 #include "polarity.inc"
 #include "couplings.inc"
-      integer i
+      integer i,idx
 
       double precision fs,rs
       double precision fshermes
@@ -61,6 +61,14 @@ C-------------------------------------------------------
       data LPolFits/.false./
 
 C-------------------------------------------------------
+
+C make sure that par values are updated
+      do i=1,nExtraParam
+         idx = iExtraParamMinuit(
+     $       GetParameterIndex(trim(ExtraParamNames(i))))
+         ExtraParamValue(i) = p(idx)
+      enddo
+
       if(ITheory.ge.100) return 
       if(Itheory.eq.50) then
          call DecodeFractal(p) 
