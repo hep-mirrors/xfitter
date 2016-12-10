@@ -23,11 +23,11 @@ class ReactiontestZMVFNS : public ReactionTheory
 //    ~ReactiontestZMVFNS(const ReactiontestZMVFNS &){};
 //    ReactiontestZMVFNS & operator =(const ReactionAtestZMVFNS &r){return *(new ReactiontestZMVFNS(r));};
 
-  public:
+ public:
     virtual string getReactionName() const { return  "testZMVFNS" ;};
     int initAtStart(const string &); 
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
-  protected:
+ protected:
     virtual int parseOptions(){ return 0;};
 };
 

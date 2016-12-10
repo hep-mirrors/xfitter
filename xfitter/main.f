@@ -72,6 +72,9 @@ C-----------------------------------------------------
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
 
+*  
+      call init_func_map()
+
 *     ------------------------------------------------
 *     Initialise theory modules
 *     ------------------------------------------------

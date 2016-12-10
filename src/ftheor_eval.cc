@@ -11,7 +11,7 @@
 #include <vector>
 #include <fstream>
 #include <valarray>
-
+#include "get_pdfs.h"
 #include "xfitter_cpp.h"
 
 #include "TheorEval.h"
@@ -31,6 +31,7 @@ extern "C" {
   int read_reactions_();
   int close_theor_eval_();
   void add_to_param_map_(double &value, char *name, int &len);
+  void init_func_map_();
 }
 
 /// global dataset to theory evaluation pointer map
@@ -39,6 +40,7 @@ tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 tDataBins gDataBins;
 tParameters gParameters;
+t2Dfunctions g2Dfunctions;
 
 extern struct thexpr_cb {
   double dynscale;
@@ -255,5 +257,18 @@ void add_to_param_map_(double &value, char *name, int &len) {
   nam.erase(nam.find(" "));
   gParameters[nam] = &value;
   std::cout << nam << std::endl;
+}
+
+
+// a bunch of functions 
+double xg( double *x, double *q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
+double xu( double *x, double *q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
+double xub( double *x, double *q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
+
+
+void init_func_map_() {
+  g2Dfunctions["xg"] = &xg;
+  g2Dfunctions["xu"] = &xu;
+  g2Dfunctions["xub"] = &xub;
 }
 

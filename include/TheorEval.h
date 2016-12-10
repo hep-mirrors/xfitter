@@ -207,6 +207,10 @@ typedef map <int, map<string, valarray <double> > > tDataBins;
 // and list of parameters
 typedef map <string, double*> tParameters;
 
+// and list of 2-par functions
+typedef double (*pTwoParFunc)(double*, double*);
+typedef map <string, pTwoParFunc> t2Dfunctions;
+
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
 extern tReactionLibsmap gReactionLibs;
@@ -214,5 +218,6 @@ extern tNameReactionmap gNameReaction;
 
 extern tDataBins gDataBins;
 extern tParameters gParameters;
+extern t2Dfunctions g2Dfunctions;
 
 #endif

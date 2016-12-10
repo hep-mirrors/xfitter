@@ -10,7 +10,7 @@
 #ifdef __cplusplus
 extern "C"  /* prevent C++ name mangling */
 #endif
-void HF_GET_PDFS_WRAP(const double *x, const double *q2, double *pdfs);
+void HF_GET_PDFS_WRAP(double *x,  double *q2, double *pdfs);
 
 
 //
@@ -20,7 +20,7 @@ void HF_GET_PDFS_WRAP(const double *x, const double *q2, double *pdfs);
 #ifdef __cplusplus
 extern "C"  /* prevent C++ name mangling */
 #endif
-double HF_GET_ALPHAS_WRAP(const double *q2);
+double HF_GET_ALPHAS_WRAP( double *q2);
 
 
 //

@@ -30,6 +30,8 @@ int ReactiontestZMVFNS::initAtStart(const string &s)
     std::cout << "\n\n FATAL ERROR: FL_fudge ExtraMinimisationParameters missing !!! \n\n" <<std::endl;
     return 1;
   }
+
+
   return 0;
 }
 
@@ -40,19 +42,19 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
 
   // Get bin arrays, check that Q2, x and y are present:
 
-  std::valarray<double> *q2p  = GetBinValues(1,"Q2");  
-  std::valarray<double> *xp  = GetBinValues(1,"x");  
-  std::valarray<double> *yp  = GetBinValues(1,"y");  
+  std::valarray<double> *q2p  = GetBinValues(dataSetID,"Q2");  
+  std::valarray<double> *xp  = GetBinValues(dataSetID,"x");  
+  std::valarray<double> *yp  = GetBinValues(dataSetID,"y");  
   
   if (q2p == NULL || xp == NULL || yp == NULL ) {
     std::cout << "\n\nFATAL ERROR: DIS NC requires x,Q2 and y bins to be present !!!" << std::endl;
     std::cout << "CHECK THE DATAFILE !!!" << std::endl;
     return 1;
   }
+
   std::valarray<double> q2 = *q2p;
   std::valarray<double> x = *xp;
   std::valarray<double> y = *yp;
-
 
   // Compute u and d-type F2s:
 
@@ -85,7 +87,15 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
   std::cout << "FL fudge: " << fudge << std::endl;
 
   fl *= fudge;
+
+  // look at alpha_S:
+  double q = 100;
+  std::cout << " alpha_S(100.) = " << (*alpha_S)(&q) << std::endl;
   
+  // look at gluon:
+  double xx = 0.001;
+  std::cout << " xg(100,0.001) = " << (*PDFs)["xg"](&xx,&q) << std::endl;
+
   // compute reduced x-section:
   for (int i = 0; i<Npnt; i++) {
     double yplus = 1+(1-y[i])*(1-y[i]);

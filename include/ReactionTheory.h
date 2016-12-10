@@ -10,10 +10,11 @@ using std::string;
 using std::vector;
 using std::valarray;
 
-typedef double (*pxFx)(double*, double*);
+// typedef double (*pxFx)(double*, double*);
 typedef double (*pZeroParFunc)();
 typedef double (*pOneParFunc)(double*);
 typedef double (*pTwoParFunc)(double*, double*);
+typedef void   (*pThreeParSub)(double*, double*, double*);  
 
 /**
   @class ReactionTheory
@@ -43,7 +44,8 @@ class ReactionTheory
   virtual string getReactionName() const =0;
   virtual int  initAtStart(const string &) =0;
   virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; };
-  virtual void setEvolFunctions(double (*palpha_S)(double *) , map<string, pxFx> &) { alpha_S = palpha_S; };
+  virtual void setEvolFunctions(double (*palpha_S)(double *), map<string, pTwoParFunc> *func2D  ) { alpha_S = palpha_S; PDFs = func2D; };
+				//, 
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
@@ -57,6 +59,7 @@ class ReactionTheory
 
   virtual int parseOptions() { return 0;};
   double (*alpha_S)(double *);
+  map<string, pTwoParFunc> *PDFs;
 
   // Check if a parameter is present on the list:
   bool checkParam(string name) 

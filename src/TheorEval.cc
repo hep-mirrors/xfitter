@@ -19,6 +19,7 @@
 #include "ReactionTheory.h"
 #include "ReactionTheoryDispatcher.h"
 #include "xfitter_cpp.h"
+#include "get_pdfs.h"
 #include <string.h> 
 
 using namespace std;
@@ -391,17 +392,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     rt = gNameReaction[term_source];
   }
 
-  // transfer the parameters:
-  rt->setxFitterParameters(gParameters);
-
-  if (rt->initAtStart(term_info) != 0) {
-    // failed to init, somehow ...
-      string text = "F:Failed to init reaction " +term_source  ;
-      hf_errlog_(16120803,text.c_str(),text.size());
-  };
-
-
-  // Make sure the name matches:
+  // First make sure the name matches:
   if ( rt->getReactionName() == term_source) {
     std::cout << "Use reaction " << rt->getReactionName() << std::endl;
   }
@@ -409,16 +400,30 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     string text = "F: Reaction " +term_source + " does not match with library: "+rt->getReactionName();
     hf_errlog_(16120801,text.c_str(),text.size());
   }
-   
-  rt->setBinning(_dsId, &gDataBins[_dsId]);
-  //  
 
-  //rt->initAtStart(_termInfos.at(iterm));
-  //  rt->resultAt(val);
+  // transfer the parameters:
+  rt->setxFitterParameters(gParameters);
+
+  // set alpha_S, pdfs:
+  rt->setEvolFunctions( &HF_GET_ALPHAS_WRAP, &g2Dfunctions);
+
+  // Set bins
+  rt->setBinning(_dsId, &gDataBins[_dsId]);
+
+
+  // initialize
+  if (rt->initAtStart(term_info) != 0) {
+    // failed to init, somehow ...
+      string text = "F:Failed to init reaction " +term_source  ;
+      hf_errlog_(16120803,text.c_str(),text.size());
+  };
+
+
+  // pointer to alpha_S 
+  //rt->
+
   //  rt->printInfo();
   
-  //  exit(0);
-
 
   _mapReactionToken[rt] = val;
 }
