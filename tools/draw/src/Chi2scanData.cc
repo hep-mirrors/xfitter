@@ -33,7 +33,7 @@ Chi2scanData::Chi2scanData(string dirname)
       string fname = dirname + "/" + chi2name;
       ifstream fpdf(fname.c_str());
       if (!fpdf.good())
-	return;
+	break;
 
       string lab;
       string dummy;
@@ -69,4 +69,17 @@ Chi2scanData::Chi2scanData(string dirname)
 	pdfchi2[i][val] = c2;
       i++;
     }
+
+  //read uncertainties summary
+  string fname_unc = dirname + "/unc_summary.txt";
+  ifstream func(fname_unc.c_str());
+  if (!func.good())
+    return;
+  getline(func,dummy);
+  func >> dummy >> statp >> statm;
+  func >> dummy >> systp >> systm;
+  func >> dummy >> pdfp >> pdfm;
+  func >> dummy >> dummy >> scalep >> scalem; 
+  func >> dummy >> dummy >> totdecp >> totdecm;
+  func >> dummy >> dummy >> dummy >> totp >> totm;
 }

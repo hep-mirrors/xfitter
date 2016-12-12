@@ -15,7 +15,7 @@
 #include "FitPainter.h"
 #include "ParPainter.h"
 #include "Chi2scanPainter.h"
-
+#include "Chi2scanUnc.h"
 
 using namespace std;
 
@@ -121,10 +121,12 @@ int main(int argc, char **argv)
   //Fit and parameters results plots
   bool chi2tab = true;
   bool partab = true;
+  bool uncsummary = true;
   if (!opts.notables)
     {
       chi2tab = FitPainter();
       partab = ParPainter();
+      uncsummary = Chi2scanUnc();
     }
 
   //--------------------------------------------------
@@ -320,6 +322,8 @@ int main(int argc, char **argv)
     inputfiles = inputfiles + " " + opts.outdir + "chi2.pdf";
   if (!partab)
     inputfiles = inputfiles + " " + opts.outdir + "par.pdf";
+  if (!uncsummary)
+    inputfiles = inputfiles + " " + opts.outdir + "unc_summary.pdf";
 
   //A4 is /PageSize [842 595]
   string gscommand = "gs -dBATCH -q -sDEVICE=" + format + "write -sOutputFile=" + opts.outdir + "plots." + format 

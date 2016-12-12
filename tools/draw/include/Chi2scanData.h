@@ -38,5 +38,9 @@ class Chi2scanData
 
   map <int, double> pdfmin;
   map <int, map <double, double> > pdfchi2;
+
+  //uncertainty decomposition
+  double statp, statm, systp, systm, pdfp, pdfm, scalep, scalem, totdecp, totdecm, totp, totm;
+
 };
 #endif
