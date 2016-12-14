@@ -237,7 +237,7 @@ int close_theor_eval_()
  */
 int read_reactions_()
 {
-  ifstream frt("Reactions.txt");
+  ifstream frt((PREFIX+string("/Reactions.txt")).c_str());
   while (1){
     string rname, lib;
     frt >> rname >> lib;
