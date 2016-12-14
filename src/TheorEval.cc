@@ -407,6 +407,9 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   // set alpha_S, pdfs:
   rt->setEvolFunctions( &HF_GET_ALPHAS_WRAP, &g2Dfunctions);
 
+  // simplify interfaces to LHAPDF:
+  rt->setXFX(&HF_GET_PDFS_WRAP);
+
   // Set bins
   rt->setBinning(_dsId, &gDataBins[_dsId]);
 

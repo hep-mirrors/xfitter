@@ -16,6 +16,9 @@ typedef double (*pOneParFunc)(double*);
 typedef double (*pTwoParFunc)(double*, double*);
 typedef void   (*pThreeParSub)(double*, double*, double*);  
 
+// Function to emulate LHAPDF xfx behavior:
+typedef void   (*pXFXlike)(double*, double*, double*);
+
 /**
   @class ReactionTheory
 
@@ -48,12 +51,17 @@ class ReactionTheory
 				//, 
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
+  virtual void setXFX(pXFXlike xfx){ _xfx = xfx; };
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
   virtual void setDatasetParamters( int dataSetID, map<string,string> pars) {} ;
 //  virtual void resultAt(valarray<double> *val){ _val = val; };  
   virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
 
   virtual void printInfo(){};
+
+  // Helper functions to emmulate LHAPDF6 calls:
+  void xfx(double x, double q, double* results){double q2=q*q; (*_xfx)(&x,&q2,&results[0]); };
+  double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
 
  protected:
 
@@ -100,6 +108,9 @@ class ReactionTheory
   vector<int> _dsIDs;
   map<int, map<string, valarray<double> >* > _dsBins;
   map<string, double* > _xfitter_pars;
+ private:
+  pXFXlike _xfx;
+
 };
 
 

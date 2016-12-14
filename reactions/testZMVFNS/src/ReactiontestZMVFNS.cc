@@ -96,6 +96,13 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
   double xx = 0.001;
   std::cout << " xg(100,0.001) = " << (*PDFs)["xg"](&xx,&q) << std::endl;
 
+  // another look at gluon:
+  std::valarray<double> pdfV(13);
+  xfx(xx,10.,&pdfV[0]);
+  std::cout << " xg(100,0.001) (meth 2) = " << pdfV[6] << std::endl;
+  std::cout << " xg(100,0.001) (meth 3) = " << xfx(xx,10.,0) << std::endl;
+  
+
   // compute reduced x-section:
   for (int i = 0; i<Npnt; i++) {
     double yplus = 1+(1-y[i])*(1-y[i]);
