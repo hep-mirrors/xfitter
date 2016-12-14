@@ -238,15 +238,21 @@ int close_theor_eval_()
 int read_reactions_()
 {
   ifstream frt((PREFIX+string("/Reactions.txt")).c_str());
-  while (1){
-    string rname, lib;
-    frt >> rname >> lib;
-    if (frt.eof()) break;
-    if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
-      // possible check
-    }
-    gReactionLibs[rname] = lib;
+  if ( frt.is_open() ) {
+    while (1){
+      string rname, lib;
+      frt >> rname >> lib;
+      if (frt.eof()) break;
+      if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
+	// possible check
+      }
+      gReactionLibs[rname] = lib;
 
+    }
+  }
+  else {
+    string text = "F: can not open Reactions.txt file. Check your xFitter directory";
+    hf_errlog_(16121401,text.c_str(),text.size());
   }
   return 1;
 }
