@@ -44,11 +44,11 @@ class ReactionTheory
   ReactionTheory & operator =(const ReactionTheory &);
 
  public:
-  virtual string getReactionName() const =0;
-  virtual int  initAtStart(const string &) =0;
-  virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; };
-  virtual void setEvolFunctions(double (*palpha_S)(double *), map<string, pTwoParFunc> *func2D  ) { alpha_S = palpha_S; PDFs = func2D; };
-				//, 
+  virtual string getReactionName() const =0;  ///< Should return expected reaction name. Normally generated automatically by AddReaction.py
+  virtual int  initAtStart(const string &) =0; ///< Initialization first time ReactionTheory implementation is called
+  virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map
+  virtual void setEvolFunctions(double (*palpha_S)(double *), map<string, pTwoParFunc> *func2D  ) { alpha_S = palpha_S; PDFs = func2D; }; 
+				///< Set alpha_S and PDF maps
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
   virtual void setXFX(pXFXlike xfx){ _xfx = xfx; };
