@@ -94,7 +94,10 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
   
   // look at gluon:
   double xx = 0.001;
+  double (*xg)(double *, double *) = (*PDFs)["xg"];
+
   std::cout << " xg(100,0.001) = " << (*PDFs)["xg"](&xx,&q) << std::endl;
+  std::cout << " xg(100,0.001) = " << xg(&xx,&q) << std::endl;
 
   // another look at gluon:
   std::valarray<double> pdfV(13);
