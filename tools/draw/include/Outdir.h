@@ -36,6 +36,8 @@ class  Outdir {
   bool scale68;
   bool rotated;
   int RotatedSet;
+  bool singlePDF;
+  int singlePDFlabel;
  public:
   Outdir() {};
   Outdir(string dir);
@@ -48,7 +50,9 @@ class  Outdir {
   bool IsBAY() {return BAY;};
   bool Scale68() {return scale68;};
   bool IsRotated() {return rotated;};
+  bool IsSingleSet() {return singlePDF; };
   int  rSet()  {return RotatedSet; };
+  int  pdfSet() {return singlePDFlabel;}; 
   bool Is68cl() {return cl68;};
   bool Is90cl() {return cl90;};
   bool IsMedian() {return median;};
