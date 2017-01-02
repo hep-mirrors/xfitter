@@ -478,6 +478,9 @@ AC_CONFIG_FILES([include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
 		 xfitter-config
+		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
+		 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+		 reactions/BaseHVQMNR/src/Makefile
 		 reactions/testZMVFNS/src/Makefile
 		 reactions/fastNLO/src/Makefile
                  Makefile])

@@ -1,2 +1,5 @@
 fastNLO libfastnlo_xfitter.so
 testZMVFNS libtestzmvfns_xfitter.so
+BaseHVQMNR libbasehvqmnr_xfitter.so
+HVQMNR_LHCb_7TeV_charm libhvqmnr_lhcb_7tev_charm_xfitter.so
+HVQMNR_LHCb_7TeV_beauty libhvqmnr_lhcb_7tev_beauty_xfitter.so

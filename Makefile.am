@@ -6,7 +6,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include input_steering  \
-          pdf2yaml tools/process reactions/testZMVFNS/src reactions/fastNLO/src/ 
+          pdf2yaml tools/process reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src reactions/BaseHVQMNR/src reactions/testZMVFNS/src reactions/fastNLO/src/ 
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
@@ -30,7 +30,7 @@ DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
           genetic/mixmax_r004 genetic/src common/num_utils \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include input_steering \
-          common common/linalg Hathor/src pdf2yaml tools/process reactions/testZMVFNS/src reactions/fastNLO/src src xfitter
+          common common/linalg Hathor/src pdf2yaml tools/process reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src reactions/BaseHVQMNR/src reactions/testZMVFNS/src reactions/fastNLO/src src xfitter
 
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex

@@ -60,6 +60,16 @@ TheorEval::~TheorEval()
   for (; it!=_exprRPN.end(); it++){
     if ( ! it->val ) { delete it->val; it->val = NULL; }
   }
+
+  // OZ delete reactions
+  for (tNameReactionmap::iterator itt = gNameReaction.begin(); itt!=gNameReaction.end(); itt++)
+  {
+    if(itt->second)
+    {
+      delete itt->second;
+      itt->second = NULL;
+    }
+  }
 }
 
 int
@@ -413,6 +423,11 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   // Set bins
   rt->setBinning(_dsId, &gDataBins[_dsId]);
 
+
+  // OZ Set dataset parameters
+  map<string,string> pars;
+  pars.insert(std::pair<std::string, std::string>(term_info, ""));
+  rt->setDatasetParamters(_dsId, pars);
 
   // initialize
   if (rt->initAtStart(term_info) != 0) {
