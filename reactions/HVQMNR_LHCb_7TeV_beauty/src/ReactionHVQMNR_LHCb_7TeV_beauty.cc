@@ -42,6 +42,7 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
     
   // read needed theory parameters
   UpdateParameters();
+  PrintParameters();
 
   // stereing parameters for this calculation (modify only if you understand what you are doing)
   Steering steer;
@@ -58,6 +59,8 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
   steer.nbz   = 100;
     
   DefaultInit(steer, _pars.mb, _mnr, _frag, _grid, _gridSmoothed);
+  //if(_debug)
+    printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(): at initialisation mb = %f\n", _pars.mb);
   // MNR (parton-level calculation)
   _mnr.SetDebug(_debug);
   _mnr.fC_sh = TMath::Power(7000.0, 2.0); // centre-of-mass energy squared

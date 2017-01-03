@@ -42,6 +42,7 @@ int ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(const string &s)
     
   // read needed theory parameters
   UpdateParameters();
+  PrintParameters();
 
   // stereing parameters for this calculation (modify only if you understand what you are doing)
   Steering steer;
@@ -51,15 +52,15 @@ int ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(const string &s)
   steer.nptsm = 500;
   steer.ymin  = 2.0;
   steer.ymax  = 6.0;
-  steer.ny= 40;
+  steer.ny    = 40;
   steer.nsfnb = 500;
   steer.nx3   = 25;
   steer.nx4   = 125;
   steer.nbz   = 50;
     
   DefaultInit(steer, _pars.mc, _mnr, _frag, _grid, _gridSmoothed);
-  if(_debug)
-    printf("at initialisation mc = %f\n", _pars.mc);
+  //if(_debug)
+    printf("ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(): at initialisation mc = %f\n", _pars.mc);
   // MNR (parton-level calculation)
   _mnr.SetDebug(_debug);
   _mnr.fC_sh = TMath::Power(7000.0, 2.0); // centre-of-mass energy squared
