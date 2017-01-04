@@ -38,7 +38,7 @@ class ReactionTheory
 {
  public:
   ReactionTheory() {};
-  ~ReactionTheory() {};
+  virtual ~ReactionTheory() {};
 
   ReactionTheory(const ReactionTheory &);
   ReactionTheory & operator =(const ReactionTheory &);
