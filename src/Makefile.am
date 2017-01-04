@@ -16,7 +16,7 @@ pkginclude_HEADERS = offset.h
 
 
 # the main shared library
-lib_LTLIBRARIES = libxfmain.la libagtheory.la
+lib_LTLIBRARIES = libxfmain.la
 
 libxfmain_la_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
 sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
@@ -52,11 +52,8 @@ else
 endif
 if ENABLE_APPLGRID
   libxfmain_la_SOURCES+= fappl_grid.cxx applgrids.f
-  libagtheory_la_SOURCES= ReactionAPPLGrid.cc
 else
   libxfmain_la_SOURCES+= applgrids_dum.f
-#lib_LTLIBRARIES = libagtheory.la
-# REMOVE ftheor_eval_dum.cc
 endif
 
 
@@ -80,7 +77,7 @@ libxfmain_la_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/includ
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 libxfmain_la_CFLAGS=
-libxfmain_la_CPPFLAGS= -DPREFIX="\"$(prefix)\""
+libxfmain_la_CPPFLAGS= -I$(srcdir)/../include -DPREFIX="\"$(prefix)\""
 libxfmain_la_FFLAGS= $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
 if ENABLE_LHAPDF
   libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
@@ -91,32 +88,18 @@ libxfmain_la_LDFLAGS = -ldl
 
 
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
-AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
-AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
-
- 
-#lib_LTLIBRARIES = libagtheory.la
-
-
-# FORTRAN compiler flags to be used for the main target
-AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
-
-# 
-AM_CPPFLAGS = -I$(srcdir)/../include   -DPREFIX="\"$(prefix)\""
-
 if ENABLE_APPLGRID 
-  AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
+  libxfmain_la_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
 endif
 
 if ENABLE_APFEL 
-  AM_CPPFLAGS+=$(APFEL_CPPFLAGS)
-  AM_FFLAGS+=$(APFEL_CPPFLAGS)
+  libxfmain_la_CPPFLAGS+=$(APFEL_CPPFLAGS)
+  libxfmain_la_FFLAGS+=$(APFEL_CPPFLAGS)
 endif
 
 
 if ENABLE_APFELGRID
-  AM_CPPFLAGS+=$(APFELGRID_CPPFLAGS)
+  libxfmain_la_CPPFLAGS+=$(APFELGRID_CPPFLAGS)
 endif
 
 # xFitter main library:
@@ -145,12 +128,12 @@ LDADD+= $(LIBS) $(FLIBS)
 
 if ENABLE_OPENMP
   LDADD+= -lgomp
-  AM_FFLAGS+= -fopenmp
+  libxfmain_la_FFLAGS+= -fopenmp
 endif
 
 if ENABLE_LHAPDF 
-  AM_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
-  AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
+  libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
+  libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
 # LDADD += ../Cascade/src/libcasutil.a
