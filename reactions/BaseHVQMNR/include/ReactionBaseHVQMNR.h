@@ -125,11 +125,12 @@ class ReactionBaseHVQMNR : public ReactionTheory
     // check equality of float numbers with tolerance
     bool IsEqual(const double val1, const double val2, const double eps = 1e-6);
     
-    // read values from terminfo in format key1=value1:key2=value2:...
+    // TODO this old commented out code to be removed one day
+    /*// read values from terminfo in format key1=value1:key2=value2:...
     int readFromTermInfo(const std::string& str, const std::string& key, int& value);
     int readFromTermInfo(const std::string& str, const std::string& key, float& value);
     int readFromTermInfo(const std::string& str, const std::string& key, double& value);
-    int readFromTermInfo(const std::string& str, const std::string& key, std::string& value);
+    int readFromTermInfo(const std::string& str, const std::string& key, std::string& value);*/
 
     // read parameters for perturbative scales from MINUIT extra parameters
     void GetMuPar(const char mu, const char q, double& A, double& B, double& C);

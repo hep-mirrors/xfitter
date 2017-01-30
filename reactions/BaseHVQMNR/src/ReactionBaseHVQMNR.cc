@@ -57,7 +57,8 @@ void ReactionBaseHVQMNR::setDatasetParamters(int dataSetID, map<string,string> p
   }
 
   // set parameters for new dataset
-  std::string str = pars.begin()->first;
+  // TODO this old commented out code to be removed one day
+  /*std::string str = pars.begin()->first;
   DataSet& ds = ret.first->second;
   // "FinalState=" must be provided
   if(readFromTermInfo(str, "FinalState=", ds.FinalState))
@@ -75,6 +76,34 @@ void ReactionBaseHVQMNR::setDatasetParamters(int dataSetID, map<string,string> p
   }
   else
   {
+    if(ds.NormY != 0)
+      printf("Warning: FragFrac=%f will be ignored for normalised cross sections\n", ds.FragFraction);
+  }*/
+  DataSet& ds = ret.first->second;
+  // mandatory "FinalState="
+  map<string,string>::iterator it = pars.find("FinalState");
+  if(it == pars.end())
+    error(16123002, "F: TermInfo must contain FinalState=...");
+  else
+    ds.FinalState = it->second;
+  
+  // optional "NormY="
+  it = pars.find("NormY");
+  if(it == pars.end())
+    ds.NormY = 0; // default value is unnormalised absolute cross section
+  else
+    ds.NormY = atoi(it->second.c_str());
+
+  // optional "FragFrac=" (must be provided for absolute cross section)
+  it = pars.find("FragFrac");
+  if(it == pars.end())
+  {
+    if(ds.NormY == 0)
+      error(16123003, "F: for absolute cross section TermInfo must contain FragFrac=...");
+  }
+  else
+  {
+    ds.FragFraction = atof(it->second.c_str());
     if(ds.NormY != 0)
       printf("Warning: FragFrac=%f will be ignored for normalised cross sections\n", ds.FragFraction);
   }
@@ -351,7 +380,8 @@ void ReactionBaseHVQMNR::PrintParameters() const
   printf("fragpar_c = %f  fragpar_b = %f\n", _pars.fragpar_c, _pars.fragpar_b);
 }
 
-// read string value for provided key
+// TODO this old commented out code to be removed one day
+/*// read string value for provided key
 int ReactionBaseHVQMNR::readFromTermInfo(const std::string& str, const std::string& key, std::string& value)
 {
   //printf("read str = %s\n", str.c_str());
@@ -399,4 +429,4 @@ int ReactionBaseHVQMNR::readFromTermInfo(const std::string& str, const std::stri
   int status = readFromTermInfo(str, key, value_float);
   value = value_float;
   return status;
-}
+}*/
