@@ -128,7 +128,10 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
       bins[j] = allBins[j*10 + i];
     }
 
-    namedBins[name] = bins;
+    //namedBins[name] = bins; // OZ 30.012017 this is not legal in C++ < C++11 and does not work with gcc 4.4.7
+    valarray<double>& insertedBins = namedBins[name];
+    insertedBins.resize(bins.size());
+    insertedBins = bins;
   }
   gDataBins[*dsId] = namedBins;
 
