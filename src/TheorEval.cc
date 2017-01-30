@@ -422,11 +422,24 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 
   // Set bins
   rt->setBinning(_dsId, &gDataBins[_dsId]);
-
-
-  // OZ Set dataset parameters
-  map<string,string> pars;
-  pars.insert(std::pair<std::string, std::string>(term_info, ""));
+  
+  // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
+  map<string, string> pars;
+  std::size_t pos0 = 0;
+  while(pos0 < term_info.size())
+  {
+    std::size_t pos1 = term_info.find("=", pos0);
+    std::size_t pos2 = term_info.find(":", pos1);
+    if(pos2 == std::string::npos) // last key=value does not have trailing :
+      pos2 = term_info.size();
+    std::string key = std::string(term_info, pos0, pos1 - pos0);
+    std::string value = std::string(term_info, pos1 + 1, pos2 - pos1 - 1);
+    pars[key] = value;
+    pos0 = pos2 + 1;
+  }
+  //printf("read term_info %s\n", term_info.c_str());
+  //for(map<string, string>::iterator it = pars.begin(); it != pars.end(); it++)
+  //  printf("  %s=%s\n", (it->first).c_str(), (it->second).c_str());
   rt->setDatasetParamters(_dsId, pars);
 
   // initialize
