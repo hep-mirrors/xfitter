@@ -159,6 +159,8 @@ class TheorEval{
   int getGridValues();
   //! Update the reaction values into the tokens
   int getReactionValues();
+  //! 
+  map<string, string> SplitTermInfo(const string& term_info);
 
  private:
   int _dsId;

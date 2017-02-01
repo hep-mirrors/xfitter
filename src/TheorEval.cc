@@ -424,22 +424,8 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   rt->setBinning(_dsId, &gDataBins[_dsId]);
   
   // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
-  map<string, string> pars;
-  std::size_t pos0 = 0;
-  while(pos0 < term_info.size())
-  {
-    std::size_t pos1 = term_info.find("=", pos0);
-    std::size_t pos2 = term_info.find(":", pos1);
-    if(pos2 == std::string::npos) // last key=value does not have trailing :
-      pos2 = term_info.size();
-    std::string key = std::string(term_info, pos0, pos1 - pos0);
-    std::string value = std::string(term_info, pos1 + 1, pos2 - pos1 - 1);
-    pars[key] = value;
-    pos0 = pos2 + 1;
-  }
-  //printf("read term_info %s\n", term_info.c_str());
-  //for(map<string, string>::iterator it = pars.begin(); it != pars.end(); it++)
-  //  printf("  %s=%s\n", (it->first).c_str(), (it->second).c_str());
+  map<string, string> pars = SplitTermInfo(term_info);
+  // and transfer to the module
   rt->setDatasetParamters(_dsId, pars);
 
   // initialize
@@ -730,4 +716,52 @@ string TheorEval::GetTheorySource(string term)
     }
   int iterm = int(found_term-_termNames.begin());
   return _termSources[iterm];
+}
+
+map<string, string> TheorEval::SplitTermInfo(const string& term_info)
+{
+  // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
+  map<string, string> pars;
+  std::size_t pos0 = 0;
+  while(pos0 < term_info.size())
+  {
+    std::size_t pos1 = term_info.find("=", pos0);
+    std::size_t pos2 = term_info.find(":", pos0);
+    if(pos2 == std::string::npos) // last key=value does not have trailing :
+      pos2 = term_info.size();
+    // check for possible wrong format
+    if(pos0 == 0 && pos1 == std::string::npos)
+    { // no = in non empty term_info
+      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
+      hf_errlog_(17020101, text.c_str(), text.size());
+    }
+    if(pos2 < pos1)
+    { // two : : without = between them
+      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
+      hf_errlog_(17020101, text.c_str(), text.size());
+    }
+    std::size_t pos11 = term_info.find("=", pos1 + 1);
+    if(pos11 != std::string::npos && pos11 < pos2)
+    { // two = = without : between them
+      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
+      hf_errlog_(17020101, text.c_str(), text.size());
+    }
+    // split into key value pair
+    std::string key = std::string(term_info, pos0, pos1 - pos0);
+    std::string value = std::string(term_info, pos1 + 1, pos2 - pos1 - 1);
+    // check if this key already exists
+    if(pars.find(key) != pars.end())
+    {
+      string text = "W: Replacing existing key when reading TermInfo";
+      hf_errlog_(17020102, text.c_str(), text.size());
+    }
+    // add to map
+    pars[key] = value;
+    // start next search iteration after current :
+    pos0 = pos2 + 1;
+  }
+  //printf("read term_info %s\n", term_info.c_str());
+  //for(map<string, string>::iterator it = pars.begin(); it != pars.end(); it++)
+  //  printf("  %s=%s\n", (it->first).c_str(), (it->second).c_str());
+  return pars;
 }
