@@ -241,7 +241,9 @@ namespace MNR
   double MNR::GetAs(double mr2) 
   {
     //return hf_get_alphas_(&mr2);
-    return _reactionTheory->alpha_S(&mr2);
+    //return _reactionTheory->alpha_S(&mr2);
+    double q = TMath::Sqrt(mr2);
+    return _reactionTheory->alphaS(q);
   }
 
   void MNR::Precalc(Grid* grid) 

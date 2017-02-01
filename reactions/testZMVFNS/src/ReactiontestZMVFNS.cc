@@ -90,7 +90,8 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
 
   // look at alpha_S:
   double q = 100;
-  std::cout << " alpha_S(100.) = " << (*alpha_S)(&q) << std::endl;
+  //std::cout << " alpha_S(100.) = " << (*alpha_S)(&q) << std::endl;
+  std::cout << " alpha_S(Q = 100 GeV) = " << alphaS(q) << std::endl;
   
   // look at gluon:
   double xx = 0.001;

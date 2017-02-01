@@ -24,7 +24,7 @@
 class ReactionBaseHVQMNR : public ReactionTheory
 {
   // allow access to alphas routine of ReactionTheory.h
-  friend class MNR::MNR;
+  //friend class MNR::MNR;
 
   public:
     ReactionBaseHVQMNR();

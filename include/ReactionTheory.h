@@ -62,6 +62,10 @@ class ReactionTheory
   // Helper functions to emmulate LHAPDF6 calls:
   void xfx(double x, double q, double* results){double q2=q*q; (*_xfx)(&x,&q2,&results[0]); };
   double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
+  
+  // strong coupling at scale q [GeV]
+  double alphaS(double q) { double q2 = q * q; return alpha_S(&q2); }
+
 
  protected:
 
