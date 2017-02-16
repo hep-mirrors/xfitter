@@ -6,7 +6,7 @@
 lhapdfver=6.1.5
 hoppetver=1.1.5
 applgridver=1.4.70
-qcdnumver=17-01-11
+qcdnumver=17-01-13
 apfelver=master #2.7.0
 melaver=2.0.1
 apfelgridver=master #1.0
@@ -20,7 +20,7 @@ apfelgridver=master #1.0
 #MODE=local
 #export CERN_ROOT=/usr/lib
 
-## Option 2: Setup environment from CERN afs
+## Option 2: Setup environment from CERN cvmfs
 ## These settings include compiler, cernlib and root
 #MODE=cern
 #gccv=4.6
@@ -165,12 +165,12 @@ then
 	then
 	    echo "Detected SL6 Linux distribution"
 	    MODE=cern
-	    gccv=4.6
+	    gccv=4.8
 	    os=slc6
 	    arch=x86_64
-	    rootversion=5.34.18
-	    boostver=1.48.0
-	    pyth=2.6
+	    rootversion=5.34.36
+	    boostver=1.53.0
+	    pyth=2.7
 	elif [[ $SYS == Scientific* && $ver == 5.* ]]
 	then
 	    echo "Detected SL5 Linux distribution"
@@ -203,7 +203,7 @@ then
 	    echo "$SYS $ver"
 	    echo "I will assume you have root installed in your system,"
             echo "gcc version >= 4.3, python, boost libraries, and wget"
-	    echo "If this doesn't work, and you have /afs/cern.ch mounted"
+	    echo "If this doesn't work, and you have /cvmfs/sft.cern.ch mounted"
 	    echo "edit me (I am $0) and try to setup appropriate settings"
 	    echo "in the section: manual configuration"
 	    echo
@@ -213,10 +213,11 @@ then
 fi
 if [[ $MODE == "cern" ]]
     then
-    if [[ ! -e /afs/cern.ch ]]
+#    if [[ ! -e /afs/cern.ch ]]
+    if [[ ! -e /cvmfs/sft.cern.ch ]]
 	then
 	echo
-	echo "/afs/cern.ch not mounted, forcing local MODE"
+	echo "/cvmfs/sft.cern.ch not mounted, forcing local MODE"
 	echo "Fasten you seat belt"
 	echo "I hope you have root, gcc >= 4.3, python and boost libraries"
 	echo "all installed in your system"
@@ -228,21 +229,25 @@ fi
 if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
-    . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
+#    . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
+    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
     if [[ $version != "trunk" && $stripversion -le 110 ]]
 	then
+	echo "LEGACY CODE, exporting CERN_ROOT for CERNLIB ! "
 	export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt
     fi
-    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
+#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
+    . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
     if [[ $os == slc5 ]]
     then
+        echo "LEGACY SL5 ! using afs"
 	PYTHONBIN=/afs/cern.ch/sw/lcg/external/Python/${python}/${arch}-${os}-${compiler}-opt/bin
 	PATH=$PYTHONBIN:$PATH
 	export BOOST=--with-boost=/afs/cern.ch/sw/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
     fi
     if [[ $os == slc6 ]]
     then
-	export BOOST=--with-boost=/afs/cern.ch/sw/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
+	export BOOST=--with-boost=/cvmfs/sft.cern.ch/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
     fi
 fi
 
@@ -504,7 +509,8 @@ then
 
     if [[ $version == "trunk" ]]
     then
-	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk xfitter-trunk >> $CURRENTDIR/install.log  2>&1
+#	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk xfitter-trunk >> $CURRENTDIR/install.log  2>&1
+	git clone ssh://git@gitlab.cern.ch:7999/fitters/xfitter.git >> $CURRENTDIR/install.log  2>&1 
     else
    	if [[ $stripversion -ge 120 ]] 
 	then
@@ -542,13 +548,16 @@ fi
 
 if [[ $MODE == "cern" ]]
 then
-    echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
+#    echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
+    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
     if [[ $version != "trunk" && $stripversion -le 110 ]]
 	then
 	echo export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt      >> setup.sh
     fi
-    echo cd /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root >> setup.sh
-    echo . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh >> setup.sh
+#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
+#    echo cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root >> setup.sh
+
+    echo . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh >> setup.sh
     echo cd - >>setup.sh
 fi
 
