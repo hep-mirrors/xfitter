@@ -32,7 +32,8 @@ C photon is present !
 
       if ( ExtraPdfs ) then
 C QED evolution:
-         call FPDFXQ(Q2viPDFSET(Q2),x,q2,PDFSF,ICheck_QCDNUM)         
+C         call FPDFXQ(Q2viPDFSET(Q2),x,q2,PDFSF,ICheck_QCDNUM)         
+         call ALLFXQ(Q2viPDFSET(Q2),x,q2,PDFSF,N_NEUTRAL_PDF,ICheck_QCDNUM)         
          PDFSF(N_CHARGE_PDF+N_NEUTRAL_PDF) = FSNSXQ(Q2viPDFSET(Q2),13,x,q2,ICheck_QCDNUM)
 c         print *,vipdfset,x,q2, PDFSF(N_CHARGE_PDF+1), PDFSF(0)
          return
@@ -185,7 +186,9 @@ C----------------------------------------------------------------------
       double precision x,q2,pdfsf(-6:6)
 C----------------------------------------------------------------------
 !$OMP CRITICAL
-      call FPDFXQ(Q2viPDFSET(q2),x,q2,PDFSF,ICheck_QCDNUM)
+
+CC      call FPDFXQ(Q2viPDFSET(q2),x,q2,PDFSF,ICheck_QCDNUM)
+      call ALLFXQ(Q2viPDFSET(q2),x,q2,PDFSF,0,ICheck_QCDNUM)
 !$OMP END CRITICAL
 C----------------------------------------------------------------------
       end
