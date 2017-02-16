@@ -3,11 +3,11 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.1.5
+lhapdfver=6.1.6
 hoppetver=1.1.5
 applgridver=1.4.70
 qcdnumver=17-01-13
-apfelver=master #2.7.0
+apfelver=master #2.7.2 ?
 melaver=2.0.1
 apfelgridver=master #1.0
 
@@ -48,11 +48,9 @@ then
     echo "$0 <version|deps>"
     echo
     echo "available versions:"
-    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    vers=`git ls-remote --tags https://gitlab.cern.ch/fitters/xfitter.git | sed 's|/| |g; s|\^| |' | awk '{print $4}' | uniq`
     echo "$vers"
-    vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
-    echo "$vers"
-    echo "trunk"
+    echo "master"
     echo
     echo "to reinstall only dependences, run:"
     echo "$0 deps"
@@ -85,10 +83,10 @@ stripversion=`echo $version |sed "s/\.//g"`
 
 
 #check that requested version exists
-if [[ $version != "trunk" ]]
+if [[ $version != "master" ]]
     then
     exist=0
-    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+    for ver in ``
     do
 	if [[ $version == $ver ]]
 	then
@@ -96,25 +94,23 @@ if [[ $version != "trunk" ]]
 	fi
     done
 
-    for ver in `svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
+    vers=`git ls-remote --tags https://gitlab.cern.ch/fitters/xfitter.git | sed 's|/| |g; s|\^| |' | awk '{print $4}' | uniq`
+ 
+    for ver in $vers
     do
 	if [[ $version == $ver ]]
 	then
 	    exist=1
 	fi
     done
-
-
 
     if [[ $exist == 0 ]]
     then
 	echo
 	echo "version $version not found, available versions:"
-	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep herafitter |cut -d\- -f2 | cut -d/ -f1`
+	echo ""
 	echo "$vers"
-	vers=`svn --no-auth-cache --trust-server-cert --non-interactive ls --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases | grep xfitter |cut -d\- -f2 | cut -d/ -f1`
-	echo "$vers"
-	echo "trunk"
+	echo "master"
 	echo
 	exit
     fi
@@ -123,7 +119,7 @@ fi
 if [[ $mode != "deps" && -e xfitter-${version} &&  -e herafitter-${version} ]]
 then
     echo
-    echo "xfitter-${version} or  herafitter-${version}  already exists, remove it first"
+    echo "xfitter-${version} already exists, remove it first"
     echo "To reinstall only dependences, run:"
     echo "$0 deps"
     echo
@@ -146,18 +142,6 @@ then
     then
 	echo "Detected Mac OS X system"
 	MODE=local
-	if [[ $version != "trunk" && $stripversion -le 110 ]]
-	then
-	    which cernlib >& /dev/null
-	    if [[ $? != 0 ]]
-	    then
-		echo "Error, cernlib not installed in the system"
-		echo "Try:"
-		echo "apt-get install cernlib"
-		exit
-	    fi
-	    export CERN_ROOT=/usr/lib
-	fi
     else
 	SYS=$(echo `lsb_release -i |cut -d: -f2`)
 	ver=$(echo `lsb_release -r |cut -d: -f2`)
@@ -186,18 +170,6 @@ then
 	then
 	    echo "Detected Ubuntu distribution"
 	    MODE=local
-	    if [[ $version != "trunk" && $stripversion -le 110 ]]
-	    then
-		which cernlib >& /dev/null
-		if [[ $? != 0 ]]
-		then
-		    echo "Error, cernlib not installed in the system"
-		    echo "Try:"
-		    echo "apt-get install cernlib"
-		    exit
-		fi
-		export CERN_ROOT=/usr/lib
-	    fi
 	else
 	    echo "Sorry, I don't recognize your system:"
 	    echo "$SYS $ver"
@@ -231,11 +203,6 @@ then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
 #    . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
     . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-    if [[ $version != "trunk" && $stripversion -le 110 ]]
-	then
-	echo "LEGACY CODE, exporting CERN_ROOT for CERNLIB ! "
-	export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt
-    fi
 #    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
     . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
     if [[ $os == slc5 ]]
@@ -252,10 +219,10 @@ then
 fi
 
 #check some basic dependendencies before starting the installation
-which svn >& /dev/null
+which git >& /dev/null
 if [[ $? != 0 ]]
 then
-    echo "Error, svn not found"
+    echo "Error, git not found"
     exit
 fi
 
@@ -288,238 +255,229 @@ CURRENTDIR=`pwd`
 rm version setup.sh compile quickstart.readme.txt >& /dev/null
 rm install.log >& /dev/null
 
+
+
+# keep for debugging
+installDeps=1
+
+
+if [[ $installDeps == 0 ]]
+then
+   echo "Skip installation of dependences"
+else    
 #Make all dependencies
-rm -rf deps >& /dev/null
-mkdir deps
-cd deps
-
+    rm -rf deps >& /dev/null
+    mkdir deps
+    cd deps
 #lhapdf:
-echo "Installing LHAPDF $lhapdfver..."
-if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
-then
-    lhapdf="LHAPDF"
-    withboost=$BOOST
-else
-    lhapdf="lhapdf"
-fi
-if [[ $http == "curl" ]]
-then
-    curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
-else
-    wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-fi
-tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-cd ${lhapdf}-${lhapdfver} 
-./configure --prefix=$CURRENTDIR/deps/lhapdf $withboost >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-make -j 9 install >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-cd - >& /dev/null
+    echo "Installing LHAPDF $lhapdfver..."
+    if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
+    then
+	lhapdf="LHAPDF"
+	withboost=$BOOST
+    else
+	lhapdf="lhapdf"
+    fi
 
-#hoppet:
-echo "Installing HOPPET $hoppetver..."
-if [[ $http == "curl" ]]
-then
-    curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
-else
-    wget http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+    if [[ $http == "curl" ]]
+    then
+	curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+    else
+	wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
+    tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    cd ${lhapdf}-${lhapdfver} 
+    ./configure --prefix=$CURRENTDIR/deps/lhapdf $withboost >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    make -j 9 install >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    cd - >& /dev/null
+
+ #hoppet:
+    echo "Installing HOPPET $hoppetver..."
+    if [[ $http == "curl" ]]
+    then
+	curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
+    else
+	wget http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+    fi
+    tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
+    cd hoppet-${hoppetver}
+    ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    cd - >& /dev/null
+
+ # setup paths for applgrid:
+    export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
+    export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
+
+ #applgrid:
+    echo "Installing APPLGRID $applgridver..."
+    if [[ $http == "curl" ]]
+    then
+	curl https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
+    else
+	wget https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
+    fi
+    tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
+    cd applgrid-$applgridver
+    ./configure --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    make   >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    cd - >& /dev/null
+
+    export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
+
+ #apfel
+    echo "Installing APFEL $apfelver..."
+    git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
+    mv apfel apfel-${apfelver}
+    cd  apfel-${apfelver}
+ #git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
+    ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
+
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    cd - >& /dev/null
+ # setup paths for apfel:
+    export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
+
+ #apfelgrid
+    echo "Installing APFELgrid $apfelgridver..."
+    git clone https://github.com/nhartland/APFELgrid.git >>$CURRENTDIR/install.log 2>&1
+    mv apfelgrid apfelgrid-${apfelver}
+    cd  apfelgrid-${apfelver}
+ #git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
+    ./setup.sh  >> $CURRENTDIR/install.log  2>&1
+
+ #mela
+    echo "Installing MELA $melaver..."
+    git clone https://github.com/vbertone/MELA.git >>$CURRENTDIR/install.log 2>&1
+    mv MELA mela-${melaver}
+    cd mela-${melaver}
+    git checkout tags/${melaver} >>$CURRENTDIR/install.log 2>&1
+ #echo "Installing MELA $melaver..."
+ #melastripver=`echo $melaver |sed "s/-//g"`
+ #if [[ $http == "curl" ]]
+ #then
+ #curl http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz > mela-${melastripver}.tar.gz 2>> $CURRENTDIR/install.log
+ #else
+ #wget http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+ #fi
+ #tar xfz mela-${melastripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+ #cd  mela-${melaver}
+    ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
+
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi  
+    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    cd - >& /dev/null
+ # setup paths for apfel:
+    export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
+
+
+ #qcdnum
+    echo "Installing QCDNUM $qcdnumver..."
+    qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
+    if [[ $http == "curl" ]]
+    then
+	curl http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+    else
+	wget http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
+    tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+    cd qcdnum-${qcdnumver}
+
+    ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
+    export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
+    
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi 
+    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
+    cd - >& /dev/null
 fi
-tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
-cd hoppet-${hoppetver}
-./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-cd - >& /dev/null
-
-# setup paths for applgrid:
-export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
-export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
-
-#applgrid:
-echo "Installing APPLGRID $applgridver..."
-if [[ $http == "curl" ]]
-then
-    curl https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
-else
-    wget https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
-fi
-tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
-cd applgrid-$applgridver
-./configure --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-make   >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-cd - >& /dev/null
-
-export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
-
-#apfel
-echo "Installing APFEL $apfelver..."
-git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
-mv apfel apfel-${apfelver}
-cd  apfel-${apfelver}
-#git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
-./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
-
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-cd - >& /dev/null
-# setup paths for apfel:
-export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
-
-#apfelgrid
-echo "Installing APFELgrid $apfelgridver..."
-git clone https://github.com/nhartland/APFELgrid.git >>$CURRENTDIR/install.log 2>&1
-mv apfelgrid apfelgrid-${apfelver}
-cd  apfelgrid-${apfelver}
-#git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
-./setup.sh  >> $CURRENTDIR/install.log  2>&1
-
-#mela
-echo "Installing MELA $melaver..."
-git clone https://github.com/vbertone/MELA.git >>$CURRENTDIR/install.log 2>&1
-mv MELA mela-${melaver}
-cd mela-${melaver}
-git checkout tags/${melaver} >>$CURRENTDIR/install.log 2>&1
-#echo "Installing MELA $melaver..."
-#melastripver=`echo $melaver |sed "s/-//g"`
-#if [[ $http == "curl" ]]
-#then
-#curl http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz > mela-${melastripver}.tar.gz 2>> $CURRENTDIR/install.log
-#else
-#wget http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-#fi
-#tar xfz mela-${melastripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
-#cd  mela-${melaver}
-./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
-
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi  
-make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-cd - >& /dev/null
-# setup paths for apfel:
-export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
-
-
-#qcdnum
-echo "Installing QCDNUM $qcdnumver..."
-qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
-if [[ $http == "curl" ]]
-then
-    curl http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
-else
-    wget http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-fi
-tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
-cd qcdnum-${qcdnumver}
-if [[ $version == "trunk" || $stripversion -ge 120  ]]
-then
-# echo $qcdnumstripver
- if [[ $qcdnumstripver -ge 170110 ]] 
- then
-  ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
-  export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
-
-  if [[ $? != 0 ]]
-  then
-    echo "Error, check install.log for details"
-    exit
-  fi 
-  make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-  if [[ $? != 0 ]]
-  then
-    echo "Error, check install.log for details"
-    exit
-  fi
-  cd - >& /dev/null
- # setup paths for qcdnum:
-
- else
- export QCDNUM_ROOT=$CURRENTDIR/deps/qcdnum-${qcdnumver} 
- ./makelibs  >> $CURRENTDIR/install.log  2>&1
- fi
-
-else
- export QCDNUM_ROOT=$CURRENTDIR/deps/qcdnum-${qcdnumver} 
- ./makelibs  >> $CURRENTDIR/install.log  2>&1
-fi
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
-
-cd - >& /dev/null
-
 cd $CURRENTDIR
 
 
-#xfitter
+ #xfitter
 if [[ $mode != "deps" ]]
 then
     echo "Installing xFitter $version..."
 
-    if [[ $version == "trunk" ]]
+    
+    if [[ $version == "master" ]]
     then
-#	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/trunk xfitter-trunk >> $CURRENTDIR/install.log  2>&1
-	git clone ssh://git@gitlab.cern.ch:7999/fitters/xfitter.git >> $CURRENTDIR/install.log  2>&1 
+	git clone https://gitlab.cern.ch/fitters/xfitter.git >> $CURRENTDIR/install.log  2>&1 
+	mv xfitter xfitter-master
     else
-   	if [[ $stripversion -ge 120 ]] 
+	if [[ $http == "curl" ]]
 	then
-	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/xfitter-${version} xfitter-${version} >> $CURRENTDIR/install.log  2>&1
-
-
+	    curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
 	else
-	svn --no-auth-cache --trust-server-cert --non-interactive co --username  xfitter-svn-user@desy.de --password=PDFfits https://svnsrv.desy.de/basic/h1fitter/releases/herafitter-${version} xfitter-${version} >> $CURRENTDIR/install.log  2>&1 
+	    wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
+	    mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz	    
 	fi
+       # unpack nicely:
+	rm -fr xfitter-${version} 
+	mkdir xfitter-${version} ; tar xfz xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
     fi
 else
     make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
@@ -541,35 +499,24 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
-if [[ $version == "trunk" || $stripversion -ge 120 ]]
- then
- echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
-fi
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
+
 
 if [[ $MODE == "cern" ]]
 then
 #    echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
     echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-    if [[ $version != "trunk" && $stripversion -le 110 ]]
-	then
-	echo export CERN_ROOT=/afs/cern.ch/sw/lcg/external/cernlib/2006a/${arch}-${os}-${compiler}-opt      >> setup.sh
-    fi
 #    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
 #    echo cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root >> setup.sh
 
-    echo . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh >> setup.sh
-    echo cd - >>setup.sh
+    echo "cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/" >> setup.sh
+    echo ". /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh ">> setup.sh
+    echo "cd -" >>setup.sh
 fi
 
 #make a compilation script
 echo source ./setup.sh > compile
-if [[ $version != "trunk" && $stripversion -le 111 ]]	
- then
- echo export QCDNUM_ROOT=\$CURRENTDIR/deps/qcdnum-${qcdnumver}  >> compile
- else
- echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
- echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH       >> compile
-fi
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
@@ -580,12 +527,8 @@ echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 echo cd xfitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
 
-if [[ $version == "trunk" || $stripversion -ge 120 ]]
- then 
- echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela        >> compile
- else
- echo ./configure --enable-applgrid --enable-lhapdf       >> compile
-fi
+echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela        >> compile
+
 echo make -j 9 install                                    >> compile
 
 chmod +x compile
@@ -602,12 +545,8 @@ fi
 source ./setup.sh
 cd xfitter-${version}
 
-if [[ $version == "trunk" || $stripversion -ge 120 ]]
-then
 bin/xfitter >> $CURRENTDIR/install.log  2>&1
-else
-bin/FitPDF >> $CURRENTDIR/install.log  2>&1
-fi
+
 
 
 if [[ $? != 0 ]]
@@ -628,10 +567,7 @@ then
 	xfitter-${version}/ewparam.txt \
 	run
     rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-    if [[ $version != "trunk" && $stripversion -le 111 ]]
-    then
-        rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
-    fi
+    rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
 else
     echo "\"run\" directory already exists, I won't touch it"
     echo
@@ -644,28 +580,13 @@ then
     echo >> quickstart-readme.txt
     echo "source setup.sh #setup environment" >> quickstart-readme.txt
     echo "cd run          #enter your run directory" >> quickstart-readme.txt
-    if [[ $version == "trunk" || $stripversion -ge 120 ]]
-    then 
     echo "xfitter          #run your fit" >> quickstart-readme.txt
-    else
-    echo "FitPDF           #run your fit" >> quickstart-readme.txt
-    fi
     echo >> quickstart-readme.txt
     echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
-    if [[ $version == "trunk" || $stripversion -ge 120 ]]
-        then 
-        echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
-    else 
-        echo "Data and theory files are in datafiles and theoryfiles directory" >> quickstart-readme.txt
-    fi
+    echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
     echo "After the fit, display you results with:" >> quickstart-readme.txt
-    if [[ $version == "trunk" || $stripversion -ge 120 ]]
-    then 
     echo "xfitter-draw output/" >> quickstart-readme.txt
-    else
-    echo "DrawPdfs output/" >> quickstart-readme.txt
-    fi
     echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
     echo "You can find further documentation in xfitter-$version/README and xfitter-$version/doc/tex/manual/" >> quickstart-readme.txt
     echo "-----------------------------------------------------------"
