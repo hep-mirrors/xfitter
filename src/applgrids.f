@@ -198,9 +198,15 @@ C----------------------------------------
       ICheck = 1 ! force QCDNUM checks
       iset = IPDFSET
 
+
+      ! First call gluon:
+      call fflist(iset,fdef(1,7),0,XAPPLPDF,QAPPLPDF, 
+     $     APPLPDF(1,0),NAPPLPDFINT,ICHECK) 
       do i=1,13
-         call mypdflist(iset,fdef(1,i),XAPPLPDF,QAPPLPDF,
-     $        APPLPDF(1,i-7),NAPPLPDFINT,ICHECK) 
+         if (i.ne.7) then
+            call fflist(iset,fdef(1,i),1,XAPPLPDF,QAPPLPDF, 
+     $           APPLPDF(1,i-7),NAPPLPDFINT,0)  ! no check          
+         endif
       enddo
 
       end
