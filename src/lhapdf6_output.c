@@ -60,8 +60,8 @@ int iqfrmq(double);
 extern double xfrmix_(int *);
 extern double fvalij_(int *,int *,int *,int *,int *);
 extern double fvalxq_(int *,int *,double *,double *,int *);
-extern double fsnsij_(int *,int *,int *,int *,int *);
-extern double fsnsxq_(int *,int *,double *,double *,int *);
+extern double bvalij_(int *,int *,int *,int *,int *);
+extern double bvalxq_(int *,int *,double *,double *,int *);
 extern double hf_get_alphas_(double *);
 extern int getord_(int *);
 extern int grpars_(int *, double *, double *, int *, double *, double *, int *);
@@ -151,7 +151,7 @@ double raw_qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2) { //{{{
 	else {
 	  // Hardwire photon for now:
 	  pid = 13;
-	  double val = fsnsij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
+	  double val = bvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
 	  return val;	  
 	}
 }
@@ -169,7 +169,7 @@ double raw_external_pdf_ij(GridQX grid, int pid, int ix, int iq2) {
 	else {
 	  // Hardwire photon for now:
 	  pid = 13;
-	  return fsnsxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
+	  return bvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
 	}
 }
 //}}}

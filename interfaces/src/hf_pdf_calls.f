@@ -17,7 +17,6 @@ C----------------------------------------------------------------------
       double precision A,Z, tmpU,tmpD,tmpUb,tmpDb
       data A,Z /207,82/
 
-      double precision FSNSXQ
 
 C----------------------------------------------------------------------
       if (PDFStyle.eq.'LHAPDFNATIVE') then
@@ -34,7 +33,7 @@ C photon is present !
 C QED evolution:
 C         call FPDFXQ(Q2viPDFSET(Q2),x,q2,PDFSF,ICheck_QCDNUM)         
          call ALLFXQ(Q2viPDFSET(Q2),x,q2,PDFSF,N_NEUTRAL_PDF,ICheck_QCDNUM)         
-         PDFSF(N_CHARGE_PDF+N_NEUTRAL_PDF) = FSNSXQ(Q2viPDFSET(Q2),13,x,q2,ICheck_QCDNUM)
+C         PDFSF(N_CHARGE_PDF+N_NEUTRAL_PDF) = FSNSXQ(Q2viPDFSET(Q2),13,x,q2,ICheck_QCDNUM)
 c         print *,vipdfset,x,q2, PDFSF(N_CHARGE_PDF+1), PDFSF(0)
          return
       endif
