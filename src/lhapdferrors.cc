@@ -393,9 +393,11 @@ void get_lhapdferrors_()
       LHAPDF::initPDF(central_pdfmember);
       clhapdf_.ilhapdfset_ = central_pdfmember;
       c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+#if LHAPDF_FAMILY == LHAPDF6
       steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
       steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
       steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+#endif
 
     }//End of pdfprofile
 
@@ -411,9 +413,11 @@ void get_lhapdferrors_()
       LHAPDF::initPDF(central_pdfmember);
       clhapdf_.ilhapdfset_ = central_pdfmember;
       c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+#if LHAPDF_FAMILY == LHAPDF6
       steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
       steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
       steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+#endif
 
       //Store current values of scales
       map <int, int> iordmap;

@@ -21,6 +21,8 @@ c Adapted from LHAPDF uncertainties.f
      $        .or.(name(:6).eq.'ABKM09').or.(name(:6).eq.'abkm09')
      $        .or.(name(:5).eq.'ABM11')
      $        .or.(name(:5).eq.'abm12')
+     $        .or.(name(:6).eq.'ABMP15')
+     $        .or.(name(:6).eq.'ABMP16')
      $     .or.(index(name,'EIGSYM').gt.0)
      $        ) then            ! symmetric eigenvector PDF sets
          lSymmhess = .true.
