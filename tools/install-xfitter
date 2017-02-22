@@ -363,7 +363,12 @@ else
 
  #apfel
     echo "Installing APFEL $apfelver..."
-    wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    if [[ $http == "curl" ]]
+    then
+	curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
+    else
+	wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
     mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
     tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfel-${apfelver}
@@ -386,7 +391,12 @@ else
 
  #apfelgrid
     echo "Installing APFELgrid $apfelgridver..."
-    wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    if [[ $http == "curl" ]]
+    then
+	curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+    else
+	wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
     mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
     tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd APFELgrid-${apfelgridver}
@@ -395,7 +405,13 @@ else
 
  #mela
     echo "Installing MELA $melaver..."
-    wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+
+    if [[ $http == "curl" ]]
+    then
+	curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
+    else
+	wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
     mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
     tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd MELA-${melaver}
