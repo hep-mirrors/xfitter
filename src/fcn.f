@@ -154,7 +154,7 @@ C--------------------------------------------------------------
       double precision x
       double precision quv,qdv, qus, qds, qst, qch, qbt, qgl
       integer iq, ix, nndi, ndi,ndi2
-      character*35 base_pdfname
+      character*300 base_pdfname
       integer npts(nset)
       double precision f2SM,f1SM,flSM
       integer i,j,kflag,jsys,ndf,n0,h1iset,jflag,k,pr,nwds

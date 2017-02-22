@@ -119,7 +119,7 @@ void get_lhapdferrors_()
   bool pdfprofile = clhapdf_.lhapdfprofile_;
   bool scaleprofile = clhapdf_.lhascaleprofile_;
 
-  string outdirname = string(coutdirname_.outdirname_, 128);
+  string outdirname = string(coutdirname_.outdirname_, 256);
   outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
 
   /*****************************************************/
@@ -182,7 +182,7 @@ void get_lhapdferrors_()
     // Overwrite default name with the PDF name
     string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset_;
     hf_errlog_(15051301,msg.c_str(), msg.size());
-    strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 128);
+    strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 256);
   }  
   fill_c_common_(); //set the PDF name and the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
   print_lhapdf6_();

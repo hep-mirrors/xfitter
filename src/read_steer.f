@@ -988,9 +988,9 @@ C
       endif
 
 C check if limit of 22 char is not exceeded:      
-      if(LEN(TRIM(OutDirName)).gt.22) then
+      if(LEN(TRIM(OutDirName)).gt.256) then
           call hf_errlog(09092013,
-     $   'F: Name of result directory is too long (max is 22 char) ')
+     $   'F: Name of result directory is too long (max is 256 char) ')
           call hf_stop
       endif
 

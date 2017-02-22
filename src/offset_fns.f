@@ -6,7 +6,7 @@ c ===============================================
       integer j,k
 c      integer nparFCN ! number of fit parameters
       ! character*16 OffsLabel
-      character*64 OutFile
+      character*300 OutFile
       double precision Cov(nparFCN,nparFCN)
       do j=1,nparFCN
         do k=1,nparFCN

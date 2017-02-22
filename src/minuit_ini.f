@@ -18,7 +18,7 @@ C----------------------------------------------------------------------
       ! common/io_Fnames/ResultsFile,MinuitIn,MinuitOut,MinuitSave
       
       character*32 Suffix
-      character*72 AltInp
+      character*300 AltInp
       character*32 OffsLabel
       logical file_exists
       ! .............................

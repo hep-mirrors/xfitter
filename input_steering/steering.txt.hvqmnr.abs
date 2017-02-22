@@ -54,7 +54,7 @@
 
 
 &OutDir
-  ! Name of the directory where output will be stored (max 22 characters)
+  ! Name of the directory where output will be stored (max 255 characters)
     OutDirName = 'output_abs'
 &End
 *
