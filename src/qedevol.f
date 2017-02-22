@@ -311,6 +311,7 @@ C     ------------------------------------------------------------------
       dimension idw8(1,1,4),idf8(1)
       dimension idw9(1,1,4),idf9(1)
       dimension idw10(1,1,4),idf10(1)
+      dimension idf(0:13)
       dimension itypes(6)                                   !table types
       dimension itypes1(6)                                  !table types
       dimension start1(4,1000)
@@ -323,7 +324,22 @@ C     ------------------------------------------------------------------
       dimension start8(1,1000)
       dimension start9(1,1000)
       dimension start10(1,1000)
-
+      dimension def(-6:6,12)
+      data def /
+C--   tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
+C--   -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6..
+     + 1.,-1., 1.,-1., 1.,-1., 0.,-1., 1.,-1., 1.,-1., 1.,   !Delta_S
+     + 1., 1., 1., 1., 1., 1., 0., 1., 1., 1., 1., 1., 1.,   !Sigma
+     +-1., 1.,-1., 1.,-1., 1., 0.,-1., 1.,-1., 1.,-1., 1.,   !Delta_V
+     +-1.,-1.,-1.,-1.,-1.,-1., 0., 1., 1., 1., 1., 1., 1.,   !V
+     + 0., 0., 0.,-1., 0., 1., 0., 1., 0.,-1., 0., 0., 0.,   !Delta_ds
+     + 0., 0., 0., 1., 0.,-1., 0., 1., 0.,-1., 0., 0., 0.,   !V_ds
+     + 0., 0.,-1., 0., 1., 0., 0., 0., 1., 0.,-1., 0., 0.,   !Delta_uc
+     + 0., 0., 1., 0.,-1., 0., 0., 0., 1., 0.,-1., 0., 0.,   !V_uc
+     + 0.,-1., 0., 1., 0., 0., 0., 0., 0., 1., 0.,-1., 0.,   !Delta_sb
+     + 0., 1., 0.,-1., 0., 0., 0., 0., 0., 1., 0.,-1., 0.,   !V_sb
+     +-1., 0., 1., 0., 0., 0., 0., 0., 0., 0., 1., 0.,-1.,   !Delta_ct
+     + 1., 0.,-1., 0., 0., 0., 0., 0., 0., 0., 1., 0.,-1. /  !V_ct
       data itypes/6*0/                                 !initialise types
       data itypes1/6*0/                                !initialise types
 
@@ -334,6 +350,20 @@ C     ------------------------------------------------------------------
      $idw3,ida3,idf3,idw4,idf4,idw5,idf5,idw6,idf6,idw7,idf7,idw8,idf8,
      $idw9,idf9,idw10,idf10
 
+      idf(0) = idf1(3)     !gluon
+      idf(1) = idf1(1)     !Delta_S
+      idf(2) = idf1(2)     !Sigma
+      idf(3) = idf2(1)     !Delta_V
+      idf(4) = idf2(2)     !V
+      idf(5) = idf3(1)     !Delta_ds
+      idf(6) = idf7(1)     !V_ds
+      idf(7) = idf4(1)     !Delta_uc
+      idf(8) = idf8(1)     !V_uc
+      idf(9) = idf5(1)     !Delta_sb
+      idf(10) = idf9(1)    !V_sb
+      idf(11) = idf6(1)    !Delta_ct
+      idf(12) = idf10(1)   !V_ct
+      idf(13) = idf1(4)    !photon
 
       lun = 6 !stdout, -6 stdout w/out banner page
 
@@ -453,6 +483,8 @@ C     Put 14 pdf and 4 alpha tables in the store
             call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
          enddo
       endif
+
+      call EVPCOPY (storu, idf, def, 1, 8)
 
       return
       end
