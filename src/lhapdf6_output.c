@@ -8,7 +8,7 @@
 
 extern struct { //{{{
         double mz;
-        char LHAPDF6OutDir[128], OutDirName[128], lhapdfset[128];
+        char LHAPDF6OutDir[256], OutDirName[256], lhapdfset[128];
         double grid[500];
         int nx;
         int read_xgrid;
@@ -202,7 +202,7 @@ void print_lhapdf6(char *pdf_dir){ //{{{
         if(!ccommoninterface_.writeLHAPDF6) return;
 
         int central_set=0;
-        char *outdir=sfix(ccommoninterface_.OutDirName,128);
+        char *outdir=sfix(ccommoninterface_.OutDirName,256);
         char *path=malloc(sizeof(char)*(strlen(outdir)+strlen(pdf_dir)+2));
         sprintf(path,"%s/%s",outdir,pdf_dir);
         mkdir(path,0755);
@@ -324,7 +324,7 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
         GridQX grid=new_grid();
         FILE* fp;
 
-        char *outdir=sfix(ccommoninterface_.OutDirName,128);
+        char *outdir=sfix(ccommoninterface_.OutDirName,256);
         char *path=malloc(sizeof(char)*(strlen(outdir)+2*strlen(pdf_dir)+3+strlen("_XXXX.dat")));
         sprintf(path,"%s/%s/%s_%04i.dat",outdir,pdf_dir,pdf_dir,*pdf_set);
 
@@ -393,7 +393,7 @@ void save_info(char *pdf_dir) { //{{{
         FILE* fp;
         GridQX grid=new_grid();
 
-        char *outdir=sfix(ccommoninterface_.OutDirName,128);
+        char *outdir=sfix(ccommoninterface_.OutDirName,256);
         char *path=malloc(sizeof(char)*(strlen(outdir)+2*strlen(pdf_dir)+3+strlen(".info")));
         sprintf(path,"%s/%s/%s.info",outdir,pdf_dir,pdf_dir);
 

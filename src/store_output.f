@@ -386,7 +386,7 @@ C-------------------------------------------------------------
       double precision val,err,xlo,xhi
       integer ipar
       character*32 parname
-      character*32 fname
+      character*300 fname
 
       double precision, allocatable :: errIterate(:,:)
       

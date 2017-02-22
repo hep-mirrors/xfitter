@@ -98,8 +98,8 @@ extern"C" {
       } cfcn_;
 
   extern struct {
-    char outdirname_[128]; // outout dir name
-    char lhapdf6outdir_[128];
+    char outdirname_[256]; // outout dir name
+    char lhapdf6outdir_[256];
   } coutdirname_;
 
   extern struct {

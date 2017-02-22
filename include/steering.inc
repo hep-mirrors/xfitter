@@ -185,8 +185,8 @@ C     Value for selection of a dipole model fit
       common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,
      $	 LHAPDFErrors,Scale68,nremovepriors,lhapdfprofile,lhascaleprofile
 
-      character*128 OutDirName   !> outout dir name
-      character*128 LHAPDF6OutDir
+      character*256 OutDirName   !> outout dir name
+      character*256 LHAPDF6OutDir
       common/COutDirName/OutDirName, LHAPDF6OutDir
 
       character*32 RunningMode
