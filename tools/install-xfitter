@@ -7,9 +7,9 @@ lhapdfver=6.1.6
 hoppetver=1.1.5
 applgridver=1.4.70
 qcdnumver=17-01-13
-apfelver=master #2.7.2 ?
+apfelver=3.0.0
 melaver=2.0.1
-apfelgridver=master #1.0
+apfelgridver=1.0.1
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -363,10 +363,10 @@ else
 
  #apfel
     echo "Installing APFEL $apfelver..."
-    git clone https://github.com/scarrazza/apfel.git >>$CURRENTDIR/install.log 2>&1
-    mv apfel apfel-${apfelver}
-    cd  apfel-${apfelver}
- #git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
+    wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
+    tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    cd apfel-${apfelver}
     ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
 
     if [[ $? != 0 ]]
@@ -386,28 +386,19 @@ else
 
  #apfelgrid
     echo "Installing APFELgrid $apfelgridver..."
-    git clone https://github.com/nhartland/APFELgrid.git >>$CURRENTDIR/install.log 2>&1
-    mv APFELgrid apfelgrid-${apfelver}
-    cd  apfelgrid-${apfelver}
- #git checkout tags/${apfelver} >>$CURRENTDIR/install.log 2>&1
+    wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
+    tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    cd APFELgrid-${apfelgridver}
     ./setup.sh  >> $CURRENTDIR/install.log  2>&1
+    cd - >& /dev/null
 
  #mela
     echo "Installing MELA $melaver..."
-    git clone https://github.com/vbertone/MELA.git >>$CURRENTDIR/install.log 2>&1
-    mv MELA mela-${melaver}
-    cd mela-${melaver}
-    git checkout tags/${melaver} >>$CURRENTDIR/install.log 2>&1
- #echo "Installing MELA $melaver..."
- #melastripver=`echo $melaver |sed "s/-//g"`
- #if [[ $http == "curl" ]]
- #then
- #curl http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz > mela-${melastripver}.tar.gz 2>> $CURRENTDIR/install.log
- #else
- #wget http://apfel.hepforge.org/downloads/mela-${melastripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
- #fi
- #tar xfz mela-${melastripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
- #cd  mela-${melaver}
+    wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
+    tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    cd MELA-${melaver}
     ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
 
     if [[ $? != 0 ]]
@@ -422,9 +413,8 @@ else
 	exit
     fi
     cd - >& /dev/null
- # setup paths for apfel:
+ # setup paths for mela:
     export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
-
 
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
