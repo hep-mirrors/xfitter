@@ -4,12 +4,27 @@
 
 from glob import glob
 from os import system
+from sys import argv
+
+
+if len(argv)<2:
+    print (
+'''Usage:
+to run locally:
+  tester.py local
+to submit (only for nafhh-herafitter): 
+  tester.py Submit  
+to analyse (only for nafhh-herafitter):
+  tester.py Ana   
+'''
+    )
+    exit(0)
 
 steerings = glob('input_steering/steering.txt*')
 minuits   = glob('input_steering/minuit.in.txt*')
 ewpars    = glob('input_steering/ewparam.txt*')
 
-print minuits
+# print minuits
 
 # find what exaclty we can test
 tests = set()
@@ -33,17 +48,23 @@ for t in tests:
     # now maybe find corresponding file:
     for st in steerings:
         if st.find(t)>0:
-            print ("copy "+st)
+#            print ("copy "+st)
             system('cp '+st+' steering.txt')
     for mn in minuits:
         if mn.find(t)>0:
-            print ("copy "+mn)
+#            print ("copy "+mn)
             system('cp '+mn+' minuit.in.txt')
 
     for ew in ewpars:
         if ew.find(t)>0:
-            print ("copy "+ew)
+#            print ("copy "+ew)
             system('cp '+ew+' ewparam.txt')
 
-    system('bin/xfitter')
-    exit(0)
+    if argv[1] == "Submit":
+        system('./run_one.py UT_'+t)
+    elif argv[1] == "Ana":
+        system("ls -l  batch_out/UT_"+t+'/0/xfitter.log')
+        system("grep 'After'  batch_out/UT_"+t+'/0/xfitter.log')
+    elif argv[1] == "local":
+        print ("Run xfitter...")
+        system("bin/xfitter > UT_"+t+".out")
