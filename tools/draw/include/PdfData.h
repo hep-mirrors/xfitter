@@ -88,6 +88,7 @@ class PdfData
   //PdfData(const PdfData &Prior, string dirname, string label);
   void profile(string dirname, string label);  //profile PDF uncertainty bands
   void pdfRotate(string dirname, string label);  //rotate PDF
+  void pdfSet(string dirname, string label);  // get single set 
   pdferr err;   //Type of PDF uncertainties
   bool model;   //Model PDF uncertainties
   bool par;   //Parametrisation PDF uncertainties

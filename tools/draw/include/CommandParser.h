@@ -157,10 +157,18 @@ private:
     cout << "\t \t To set this option only for one directory, use the syntax reweight-BAY:directory[:label]" << endl;
     cout << "\t \t To use the Giele-Keller weights instead of Bayesian weights, use the syntax reweight-GK:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw reweight-BAY:output:\"reweighted\" output:\"not-reweighted\"" << endl;
+
     cout << "\t options for rotation:" << endl;
     cout << "\t \t Draw Rotated PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option, use the syntax rotate:<n>:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw rotate:5:output:\"rotated-5\" output:\"not-rotated\"" << endl;
+
+    cout << "\t options for individual eigen sets:" << endl;
+    cout << "\t \t Draw individual eigen (or MC replica) set from a complete run" << endl;
+    cout << "\t \t To set this option, use the syntax set:<n>:directory[:label]" << endl;
+    cout << "\t Example: xfitter-draw --bands set:5:output:\"set 5\" output:\"Total Band\"" << endl;
+
+
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
     cout << "\t --ratiorange min:max" << endl;

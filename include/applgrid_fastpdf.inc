@@ -2,7 +2,7 @@ C
 C Buffer for fast PDF calls for APPLGRID
 C
       integer NAPPLPDFMAX  !> max. number of entries
-      parameter (NAPPLPDFMAX=500000) 
+      parameter (NAPPLPDFMAX=100000)   ! 17 Feb 2017: reduce default size (rarely used)
       integer NAPPLPDF     !> actual number of entries
       integer NAPPLPDFINT  !> number of entries in internal storage
 
