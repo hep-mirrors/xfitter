@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 55
+    NInputFiles = 59
 
    InputFileNames =
  !
@@ -17,12 +17,13 @@
     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat',
     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat',
     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat',
- ! HERA I
-  ! H1 and ZEUS combined Inclusive DIS:
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
+
+ ! HERA I (commented out, I+II replaces the samples)
+  ! H1 and ZEUS combined Inclusive DIS: 
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
 
   ! H1 Jets:
           'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat',
@@ -33,15 +34,19 @@
 	  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
 	  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
 
-
   ! ZEUS Jets:
           'datafiles/hera/zeus/jets/0208037/ZEUS_InclJets_HighQ2_96-97.dat',
           'datafiles/hera/zeus/jets/0608048/ZEUS_InclJets_HighQ2_98-00.dat',
           'datafiles/hera/zeus/jets/1010.6167/ZEUS_dijet_98-07.dat',
-  ! H1 Inclusive DIS low Ep:
-          'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',
+
+  ! H1 Inclusive DIS low Ep: (included in HERA I+II combination, comment)
+    !      'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',
+
   ! H1 and ZEUS combined Charm production:
           'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined.dat', 
+  ! beaty:
+          'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex.dat',
+	  'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty.dat',
  !
  ! Fixed Target
   ! BCDMS F2 proton:
@@ -94,7 +99,28 @@
           'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_36_44.dat',
   ! ATLAS Top:
           'datafiles/lhc/atlas/topProduction/atlas-conf-2012-024/Diff_ttbar_ATL_7TeV_TOT.dat',
-          'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat'
+          'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
+
+  ! Dec 2016 ATLAS W,Z:
+       'datafiles/lhc/atlas/wzProduction/1612.03016/wminus.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/wplus.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cc.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cf.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zylow_cc.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cc.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cf.dat',
+  ! LHCb:
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty.dat',
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dch_pty.dat',
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dstar_pty.dat',
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Ds_pty.dat',
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Lambdac_pt.dat',
+
+  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bch_pty.dat',
+  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bzero_pty.dat',
+  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bs_pty.dat',
+&End
+       
 
 &End
 
@@ -125,7 +151,7 @@
   LConvertCovToNui = .false.
 
    ! Tolerance -- zero means exact transformation
-  Tolerance = 0.0
+  Tolerance = 0.9
 
    ! The following lines allow to adjust error scaling properties (default: :M)
   DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'

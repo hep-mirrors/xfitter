@@ -25,7 +25,7 @@ C     Evolution parameters
 C     ------------------------------------------------------------------
 C     Declarations for the nxn evolution toolbox
 C     ------------------------------------------------------------------
-      parameter (nstoru = 20000000)                 !size of local store
+      parameter (nstoru = 1000000)                 !size of local store
       dimension storu(nstoru)                               !local store
       dimension iqlim(2)
 
@@ -296,7 +296,7 @@ c      data ichk/1/                                  !yes/no check limits
 C     ------------------------------------------------------------------
 C     Declarations for the nxn evolution toolbox
 C     ------------------------------------------------------------------
-      parameter (nstoru = 20000000)                 !size of local store
+      parameter (nstoru = 1000000)                 !size of local store
       dimension storu(nstoru)                               !local store
       dimension iqlim(2)
 
@@ -504,7 +504,7 @@ C--------------------------------------------------------
      $ xdeltauc,xdeltasb,xvds,xvuc,xvsb
       dimension xf(-6:7)
 
-      parameter (nstoru = 20000000)                 !size of local store
+      parameter (nstoru = 1000000)                 !size of local store
       dimension storu(nstoru)
       dimension idw1(4,4,4),idf1(4),ida1(4,4,4)
       dimension idw2(2,2,4),idf2(2),ida2(2,2,4)
