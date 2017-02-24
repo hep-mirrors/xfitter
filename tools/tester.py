@@ -48,16 +48,16 @@ for t in tests:
     # now maybe find corresponding file:
     for st in steerings:
         if st.replace("input_steering/steering.txt.","") == t:
-            print ("copy "+st)
+           # print ("copy "+st)
             system('cp '+st+' steering.txt')
     for mn in minuits:
         if mn.replace("input_steering/minuit.in.txt.","") == t:
-            print ("copy "+mn)
+           # print ("copy "+mn)
             system('cp '+mn+' minuit.in.txt')
 
     for ew in ewpars:
         if ew.replace("input_steering/ewparam.txt.","")== t:
-            print ("copy "+ew)
+           # print ("copy "+ew)
             system('cp '+ew+' ewparam.txt')
 
     if argv[1] == "Submit":
