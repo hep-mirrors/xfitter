@@ -24,8 +24,8 @@ steerings = glob('input_steering/steering.txt*')
 minuits   = glob('input_steering/minuit.in.txt*')
 ewpars    = glob('input_steering/ewparam.txt*')
 
-# print minuits
 
+# print minuits
 # find what exaclty we can test
 tests = set()
 
@@ -54,7 +54,6 @@ for t in tests:
         if mn.replace("input_steering/minuit.in.txt.","") == t:
            # print ("copy "+mn)
             system('cp '+mn+' minuit.in.txt')
-
     for ew in ewpars:
         if ew.replace("input_steering/ewparam.txt.","")== t:
            # print ("copy "+ew)
