@@ -10,12 +10,12 @@ echo "========================================"
 echo "Running checks"
 echo "========================================"
 echo "validation test: "
-echo "PASS if code runs properly DIS code and produces HERAPDF1.0"
-echo "FAIL if code fails to reproduce HERAPDF1.0"
+echo "PASS if code runs properly DIS code and produces HERAPDF2.0"
+echo "FAIL if code fails to reproduce HERAPDF2.0"
 echo "========================================"
 
 
-cp input_steering/minuit.in.txt.10pHERAPDF minuit.in.txt
+cp input_steering/minuit.in.txt.def minuit.in.txt
 cp input_steering/steering.txt.def steering.txt
 
 bin/xfitter >/dev/null
