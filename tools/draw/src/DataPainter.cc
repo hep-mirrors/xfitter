@@ -452,7 +452,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	leg->AddEntry((TObject*)0, opts.theorylabel.c_str(), "");
       else
 	{
-	  if (!opts.nothshifts)
+	  if (opts.nothshifts)
 	    if ((opts.points && !datahistos[0].bincenter()) || datahistos[0].nbins() == 1)
 	      leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
 	    else
