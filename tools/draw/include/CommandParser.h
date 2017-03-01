@@ -281,7 +281,7 @@ private:
     cout << " \t where s01m stands for experimental error (s), number of fitted parameters (01 to N) and minus (m) or plus (p) variation; " << endl;
     cout << " \t the last number stands for the index of the Q^2 value at which PDFs are drawn (defined in Q2VAL in steering.txt). " << endl;
     cout << " \t Similarly, m11m stands for model uncertainty and the number should start from N+1 (here assuming that N=10 for exp errors)." << endl;
-    cout << " \t Finally, p14m stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
+    cout << " \t Finally, p14s stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
     cout << " \t NOTE: if command '--bands <dir-full-uncert>' is used, the total uncertainty in red is drawn." << endl;
     cout << endl;
   };  

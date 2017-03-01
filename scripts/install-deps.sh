@@ -8,8 +8,8 @@
 lhapdfver=6.1.5
 hoppetver=1.1.5
 applgridver=1.4.70
-qcdnumver=17-01-12
-apfelver=2.7.0
+qcdnumver=17-01-13
+apfelver=2.7.2
 melaver=2.0.1
 
 #. scripts/setup.sh

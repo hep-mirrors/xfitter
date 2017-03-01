@@ -47,6 +47,11 @@ V. Bertone, S. Carrazza and J. Rojo,
 Published in Comput. Phys. Commun.  185 (2014) 1647,
 e-Print: arXiv:1310.1394 [hep-ph].
 
+When using APFEL with NLO QED corrections, please cite:
+"The photon PDF from high-mass Drell Yan data at the LHC"
+xFitter Developers' Team (F. Giuli et al.),
+e-Print: arXiv:1701.08553
+
 MELA ( N-space evolution code + structure functions )
 -------
 "Reference results for time-like evolution up to O(alpha_s^3)"
@@ -220,12 +225,17 @@ DESY 11-150, FERMILAB-PUB-11-418-PPD, Sep 2011. arXiv:1109.1310v1 [hep-ph]
 D. Britzger, K. Rabbertz, F. Stober, M. Wobisch, "New features in version 2 of the fastNLO project",
 in the proceedings of the XX International Workshop on Deep Inelastic Scattering (DIS12), 26-30th March 2012 hep-ph/1208.3641.
 
+7) APFELgrid (if APFELgrid tables are used)
+"APFELgrid: a high performance tool for parton density determinations"
+V. Bertone, S. Carrazza and N. P. Hartland,
+Published in Comput. Phys. Commun. 212 (2017) 205.
+e-Print: arXiv:1605.02070 
 
-7) HATHOR (if used)
+8) HATHOR (if used)
 ---------------------------------------------
 from http://www-zeuthen.desy.de/~moch/hathor/
 
-8) NNPDFreweighting (if used) 
+9) NNPDFreweighting (if used) 
 ---------------------------------------------
 Description of NNPDF method to create NNPDF PDF sets:	
 
@@ -253,7 +263,7 @@ Published in JHEP 1208 (2012) 052
 e-Print: arXiv:1205.4024 [hep-ph]
 
 
-9) kt-factorisation
+10) kt-factorisation
 ---------------------------------------------
 
 Determination of transverse momentum dependent gluon density from HERA structure function measurements. 
@@ -276,7 +286,7 @@ M. Guzzi, K. Lipka, S-O. Moch
 e-Print: arXiv:1406.0386 [hep-ph]
 
 
-11) MNR code (if used)
+12) MNR code (if used)
 ---------------------------------------------
 M. Mangano, P. Nason and G. Ridolfi
 Published in Nucl. Phys. B 373 (1992) 295

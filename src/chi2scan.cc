@@ -165,7 +165,7 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   deltam = deltam4;
   
   //store chi2
-  string outdir = string(coutdirname_.outdirname_, 128);
+  string outdir = string(coutdirname_.outdirname_, 256);
   outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
 
   string label = string(chi2scan_.label_, 64);
@@ -277,7 +277,7 @@ void chi2_scan_()
   bool scaleprofile = chi2scan_.scaleprofile_;
   //  bool scaleprofile = true;
 
-  string outdir = string(coutdirname_.outdirname_, 128);
+  string outdir = string(coutdirname_.outdirname_, 256);
   outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
 
   map <int, map <string, string> > centralsources;

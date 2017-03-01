@@ -226,7 +226,7 @@ C
 C ---- QEDEVOL ----
       elseif (IPDFSET.eq.8) then
          call qedevol_main
-         call PDFEXT(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
+CC         call PDFEXT(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
          return
       endif
 

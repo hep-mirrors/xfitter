@@ -119,7 +119,7 @@ void get_lhapdferrors_()
   bool pdfprofile = clhapdf_.lhapdfprofile_;
   bool scaleprofile = clhapdf_.lhascaleprofile_;
 
-  string outdirname = string(coutdirname_.outdirname_, 128);
+  string outdirname = string(coutdirname_.outdirname_, 256);
   outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
 
   /*****************************************************/
@@ -182,7 +182,7 @@ void get_lhapdferrors_()
     // Overwrite default name with the PDF name
     string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset_;
     hf_errlog_(15051301,msg.c_str(), msg.size());
-    strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 128);
+    strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 256);
   }  
   fill_c_common_(); //set the PDF name and the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
   print_lhapdf6_();
@@ -393,9 +393,11 @@ void get_lhapdferrors_()
       LHAPDF::initPDF(central_pdfmember);
       clhapdf_.ilhapdfset_ = central_pdfmember;
       c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+#if LHAPDF_FAMILY == LHAPDF6
       steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
       steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
       steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+#endif
 
     }//End of pdfprofile
 
@@ -411,9 +413,11 @@ void get_lhapdferrors_()
       LHAPDF::initPDF(central_pdfmember);
       clhapdf_.ilhapdfset_ = central_pdfmember;
       c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+#if LHAPDF_FAMILY == LHAPDF6
       steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
       steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
       steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+#endif
 
       //Store current values of scales
       map <int, int> iordmap;
