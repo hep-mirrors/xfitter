@@ -78,12 +78,13 @@ C-------------------------------------------------------
 
             if ((idphA.eq.0).and.(idphB.eq.0).and.(idphC.eq.0).and.
      $           (idphD.eq.0).and.(idphE.eq.0)) then
-               print *,'Did not find photon parameters'
-               print *,'Add to ExtraParamters with the name 
-     $              Aph,Bph,Cph,Dph,Eph'
-               Call HF_errlog(15052700,
-     $              'S: Add to ExtraParamters with the name 
-     $              Aph,Bph,Cph,Dph,Eph')
+               if( PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0') then
+
+                  print *,'Did not find photon parameters'
+                  print *,'Add to ExtraParamters: Aph,Bph,Cph,Dph,Eph'
+                  Call HF_errlog(15052700,
+     $                 'W: Add to ExtraParamters: Aph,Bph,Cph,Dph,Eph')
+               endif
 
             else
                idphA = iExtraParamMinuit(idphA)
