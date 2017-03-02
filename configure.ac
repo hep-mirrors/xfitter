@@ -480,7 +480,6 @@ AC_CONFIG_FILES([include/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then
-AC_CONFIG_FILES([doc/tex/manual/Makefile
-                 doc/tex/paper/Makefile])
+AC_CONFIG_FILES([doc/tex/manual/Makefile])
 fi
 AC_OUTPUT

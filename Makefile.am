@@ -17,7 +17,7 @@ endif
 
 SUBDIRS+= common
 if BUILD_DOCS
-  DOCS=doc/tex/manual doc/tex/paper
+  DOCS=doc/tex/manual
 endif
 #$(info ${DOCS})
 SUBDIRS+= src $(DOCS)
