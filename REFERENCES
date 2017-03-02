@@ -16,17 +16,17 @@ e-Print: arXiv:1410.4412 [hep-ex]
 
 Also add a reference to the xFitter web portal:  xfitter.org
 
+==================================
+ Citations depending on the usage
+==================================
 
-QCDNUM  ( evolution code )
+QCDNUM  ( main evolution code, almost always needs to be cited, unless very specific study, e.g. using OPENQCDRAD or PDFSTYLE='LHAPDFNATIVE' or RunningMode ='PDF Rotate' )
 ---------
 "Fast QCD Evolution and Convolution", M. Botje,
 NIKHEF-10-002, May 2010. 74pp. 
 Published in Comput.Phys.Commun.182:490-532,2011. 
 e-Print: arXiv:1005.1481 [hep-ph]
 
-==================================
- Citations depending on the usage
-==================================
 
 LHAPDF6 ( RunningMode = 'LHAPDF Analysis', PDFStyle = 'LHAPDF', and similar )
 -----------
