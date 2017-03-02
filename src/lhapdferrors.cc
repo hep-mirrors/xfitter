@@ -79,6 +79,7 @@ vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
    return w;
 }
 
+
 //return error if LHAPDF is not enabled
 #ifndef LHAPDF_ENABLED
 void get_lhapdferrors_()
@@ -86,7 +87,21 @@ void get_lhapdferrors_()
   string msg = "S: Call to LHAPDFErrors but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
   hf_errlog_(14060101, msg.c_str(), msg.size());
 }
+
+void set_verbosity_(int& i)
+{
+  string msg = "S: Call to LHAPDF set_verbosity but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
+  hf_errlog_(17030201, msg.c_str(), msg.size());
+}
+
 #else
+
+void set_verbosity_(int& i)
+{
+  LHAPDF::setVerbosity(i);
+}
+
+    
 
 void get_lhapdferrors_()
 {
@@ -96,6 +111,7 @@ void get_lhapdferrors_()
   cout << "  -----------------------" << endl;
   cout << endl << endl << endl;
 
+  
   //Start program
   int npoints = cndatapoints_.npoints_;
   int nsysloc = systema_.nsys_;
