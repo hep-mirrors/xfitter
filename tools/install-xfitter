@@ -155,6 +155,16 @@ then
 	    rootversion=5.34.36
 	    boostver=1.53.0
 	    pyth=2.7
+        elif [[ $SYS == CentOS* && $ver == 7.* ]]
+        then
+            echo "Detected CentOS7 Linux distribution"
+            MODE=cern
+            gccv=4.8
+            os=centos7
+            arch=x86_64
+            rootversion=6.08.04
+            boostver=1.53.0
+            pyth=2.7
 	elif [[ $SYS == Scientific* && $ver == 5.* ]]
 	then
 	    echo "Detected SL5 Linux distribution"
