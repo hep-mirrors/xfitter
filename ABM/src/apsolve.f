@@ -103,7 +103,7 @@ C------------------
         end do
         DO IQ=1,7
           DO IX=-nxmgrid,nxpgrid-1
-            Y(kpdf,IQ,IX,0)=XQG0(0,IQ,XGRID(IX),ix)
+CSG            Y(kpdf,IQ,IX,0)=XQG0(0,IQ,XGRID(IX),ix)
             fsp(ix+nxmgrid+1)=y(kpdf,iq,ix,0)
           end do
           fsp(nxpgrid+nxmgrid+1)=y(kpdf,iq,nxpgrid,0)
