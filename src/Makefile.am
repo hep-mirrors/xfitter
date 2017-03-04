@@ -207,6 +207,3 @@ endif
 
 xfitter_SOURCES = main.f
 
-python:
-	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.la  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
-
