@@ -1,8 +1,8 @@
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libnum_utils.a
+noinst_LTLIBRARIES = libnum_utils.la
 
-libnum_utils_a_SOURCES = dchpws.F ddilog.F dgammf.F ranlux.F rnorml.F rnormx.F \
+libnum_utils_la_SOURCES = dchpws.F ddilog.F dgammf.F ranlux.F rnorml.F rnormx.F \
                          rnpssn.F snleq64.F dbesk0.F dgquad.F d107d1.F \
 			 ranmar.F \
 			 dfact.F dinv.F deqinv.F dfeqn.F deqn.F dfinv.F \

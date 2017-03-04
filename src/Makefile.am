@@ -89,7 +89,7 @@ if ENABLE_APFELGRID
 endif
 
 # xFitter main library:
-LDADD = libxfitter.a
+LDADD = libxfitter.la
 
 # libraries to be linked to the main target
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
@@ -120,10 +120,10 @@ if ENABLE_LHAPDF
   AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
-# LDADD += ../Cascade/src/libcasutil.a
-# LDADD += ../common/libHFcommon.a
-# F2PYLIBS += ../Cascade/src/libcasutil.a
-# F2PYLIBS += ../common/libHFcommon.a
+# LDADD += ../Cascade/src/libcasutil.la
+# LDADD += ../common/libHFcommon.la
+# F2PYLIBS += ../Cascade/src/libcasutil.la
+# F2PYLIBS += ../common/libHFcommon.la
 
 if ENABLE_UPDF
    LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 
@@ -131,36 +131,36 @@ if ENABLE_UPDF
 endif
 
 if ENABLE_HATHOR
-  LDADD+= ../Hathor/src/libHathor.a \
-  $(HATHOR_ROOT)/libHathor.a
+  LDADD+= ../Hathor/src/libHathor.la \
+  $(HATHOR_ROOT)/libHathor.la
 endif
 
 # Link with HVQMNR library, otherwise with dummy stub
 if ENABLE_HVQMNR
-  LDADD += ../HVQMNR/src/libHVQMNR.a $(ROOT_LIBS)
+  LDADD += ../HVQMNR/src/libHVQMNR.la $(ROOT_LIBS)
 else
   libxfitter_la_SOURCES += hvqmnr_dum.f	
 endif
 
-XFLIBS =  ../DY/src/libmydy.a\
- ../Cascade/src/libcasutil.a \
- ../common/libHFcommon.a \
- ../RT/src/libmyrt.a \
- ../ACOT/src/libmyacot.a \
- ../SACOT/src/libmysacot.a \
- ../FONLL/src/libmyfonll.a \
- ../EW/src/libmyew.a \
- ../ABM/src/libmyabm.a \
- ../FastNLO/src/libFastNLO.a \
- ../DIPOLE/src/libmydipole.a \
+XFLIBS =  ../DY/src/libmydy.la\
+ ../Cascade/src/libcasutil.la \
+ ../common/libHFcommon.la \
+ ../RT/src/libmyrt.la \
+ ../ACOT/src/libmyacot.la \
+ ../SACOT/src/libmysacot.la \
+ ../FONLL/src/libmyfonll.la \
+ ../EW/src/libmyew.la \
+ ../ABM/src/libmyabm.la \
+ ../FastNLO/src/libFastNLO.la \
+ ../DIPOLE/src/libmydipole.la \
  ../DiffDIS/src/libDiffDIS.a\
- ../interfaces/src/libinterfaces.a\
- ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
+ ../interfaces/src/libinterfaces.la\
+ ../minuit/src/libmyminuit.la $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
- ../genetic/src/libgenetic.a \
- ../QEDevol/src/libQEDevol.a \
- ../common/num_utils/libnum_utils.a \
- ../tools/draw/src/pdferrors.o
+ ../genetic/src/libgenetic.la \
+ ../QEDevol/src/libQEDevol.la \
+ ../common/num_utils/libnum_utils.la \
+ ../tools/draw/src/libpdferrors.la
 
 
 LDADD += $(XFLIBS)
@@ -193,7 +193,7 @@ if ENABLE_MELA
 endif
 
 if ENABLE_GENETIC
-  LDADD+= ../genetic/mixmax_r004/libmixmax.a
+  LDADD+= ../genetic/mixmax_r004/libmixmax.la
 endif
 
 
