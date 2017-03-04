@@ -157,6 +157,22 @@ else
   AX_COMPARE_VERSION([17-01-13],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-13 or later needed).])],[])
 fi
 
+
+# check for boost, needed for pyton interfaces:
+AC_ARG_ENABLE([python],
+                 [AS_HELP_STRING([--enable-python],[enable xfitter python interface])])
+: ${enable_python=yes}
+
+AS_IF([test "$enable_python" = "yes"], [
+       BOOST_REQUIRE([1.40.0],[ AM_CONDITIONAL([HAVE_BOOST],[false]) ])
+       BOOST_PYTHON
+       AM_CONDITIONAL([HAVE_BOOST],[true])
+      ],
+      [AM_CONDITIONAL([HAVE_BOOST],[false] )
+      ]
+)
+
+
 # check for lhapdf installation
 AC_ARG_ENABLE([lhapdf],
   [AC_HELP_STRING(--enable-lhapdf, [use lhapdf (default=no)])])
