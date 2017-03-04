@@ -5,10 +5,10 @@ pkginclude_HEADERS = offset.h
 
 # the main target, i.e. the executable to build
 bin_PROGRAMS = xfitter
-noinst_LIBRARIES = libxfitter.a
+lib_LTLIBRARIES = libxfitter.la
 
 # all source files which go into the main target
-libxfitter_a_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
+libxfitter_la_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
 sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
@@ -17,55 +17,55 @@ GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize
 ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc 
 
 # WS 2013-01-19 for the Offset method
-libxfitter_a_SOURCES += offset_fns.f g_offset.cc
+libxfitter_la_SOURCES += offset_fns.f g_offset.cc
 # LHAPDF6 output
-libxfitter_a_SOURCES += lhapdf6_output.c c_interface.f
+libxfitter_la_SOURCES += lhapdf6_output.c c_interface.f
 
 # WS 2016-01-13 DIS higher twist contributions
-libxfitter_a_SOURCES += dis_sigma_ht.f
+libxfitter_la_SOURCES += dis_sigma_ht.f
 
 #LHAPDFErrors
-libxfitter_a_SOURCES += fortran_io.f lhapdferrors.cc
+libxfitter_la_SOURCES += fortran_io.f lhapdferrors.cc
 
 #Chi2scan
-libxfitter_a_SOURCES += chi2scan.cc
+libxfitter_la_SOURCES += chi2scan.cc
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 
 if ENABLE_APFEL
-  libxfitter_a_SOURCES+= apfel.f
+  libxfitter_la_SOURCES+= apfel.f
 else 
-  libxfitter_a_SOURCES+= apfel_dum.f
+  libxfitter_la_SOURCES+= apfel_dum.f
 endif
 
 if ENABLE_MELA
-  libxfitter_a_SOURCES+= mela.f
+  libxfitter_la_SOURCES+= mela.f
 else 
-  libxfitter_a_SOURCES+= mela_dum.f
+  libxfitter_la_SOURCES+= mela_dum.f
 endif
 
 if ENABLE_APPLGRID
-  libxfitter_a_SOURCES+= fappl_grid.cxx applgrids.f 
+  libxfitter_la_SOURCES+= fappl_grid.cxx applgrids.f 
 else 
-  libxfitter_a_SOURCES+= applgrids_dum.f 
+  libxfitter_la_SOURCES+= applgrids_dum.f 
 # REMOVE ftheor_eval_dum.cc
 endif
 
 if ENABLE_APFELGRID
-  libxfitter_a_SOURCES+= APFELgridGeneration.cc
+  libxfitter_la_SOURCES+= APFELgridGeneration.cc
 endif
 
 if ENABLE_LHAPDF 
 else
-  libxfitter_a_SOURCES+= lhapdf_dum.f
+  libxfitter_la_SOURCES+= lhapdf_dum.f
 endif
 
 if ENABLE_HATHOR
-  libxfitter_a_SOURCES+= ttbar_hathor.f
+  libxfitter_la_SOURCES+= ttbar_hathor.f
 else
-  libxfitter_a_SOURCES+= ttbar_hathor_dum.f	
+  libxfitter_la_SOURCES+= ttbar_hathor_dum.f	
 endif
 
 # FORTRAN compiler flags to be used for the main target
@@ -95,7 +95,7 @@ LDADD = libxfitter.a
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
 
 # separate list for python: 
-F2PYLIBS = libxfitter.a 
+F2PYLIBS = libxfitter.la 
 F2PYLIBS +=  $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS) $(LIBS) $(FLIBS)
 
 if ENABLE_LHAPDF 
@@ -139,7 +139,7 @@ endif
 if ENABLE_HVQMNR
   LDADD += ../HVQMNR/src/libHVQMNR.a $(ROOT_LIBS)
 else
-  libxfitter_a_SOURCES += hvqmnr_dum.f	
+  libxfitter_la_SOURCES += hvqmnr_dum.f	
 endif
 
 XFLIBS =  ../DY/src/libmydy.a\
@@ -196,7 +196,17 @@ if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a
 endif
 
+
+if HAVE_BOOST
+   lib_LTLIBRARIES += libxfitter_fit.la
+   libxfitter_fit_la_SOURCES = xFitter_fit.cc
+   libxfitter_fit_la_CPPFLAGS = $(BOOST_PYTHON_CPPFLAGS) 
+   libxfitter_fit_la_LDFLAGS = $(BOOST_PYTHON_LIBS)  $(F2PYLIBS) 
+endif
+
+
 xfitter_SOURCES = main.f
 
 python:
-	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
+	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.la  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
+

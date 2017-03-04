@@ -164,6 +164,7 @@ AC_ARG_ENABLE([python],
 : ${enable_python=yes}
 
 AS_IF([test "$enable_python" = "yes"], [
+#       AM_PATH_PYTHON([2.7], [ AM_CONDITIONAL([HAVE_BOOST],[false]) ])
        BOOST_REQUIRE([1.40.0],[ AM_CONDITIONAL([HAVE_BOOST],[false]) ])
        BOOST_PYTHON
        AM_CONDITIONAL([HAVE_BOOST],[true])
