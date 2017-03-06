@@ -227,3 +227,32 @@ c  heavy quark distributions
 
       return 
       end
+C------------------
+      real*8 function XQGX1(k,iq,XB,IS)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+
+      INCLUDE 'APSCOM6.'
+
+      data xbsave /-1d0/
+
+      save xbsave,ix,aa
+      
+      if (xb.ne.xbsave) then 
+        do ix=-nxmgrid,nxpgrid-1
+          if (xb.lt.xgrid(ix+1)) goto 300
+        end do
+ 300    xbsave=xb
+      end if
+
+      aa=xb-xgrid(ix)
+
+      if (khalf.eq.0) then 
+        xqgx1=y(k,iq,ix,is)+aa*bcoeff(k,iq,ix,is)
+     +     +aa**2*ccoeff(k,iq,ix,is)+aa**3*dcoeff(k,iq,ix,is)
+      else 
+        xqgx1=yhalf(k,iq,ix)+aa*bcoeffh(iq,ix)
+     +     +aa**2*ccoeffh(iq,ix)+aa**3*dcoeffh(iq,ix)
+      end if
+
+      RETURN
+      END
