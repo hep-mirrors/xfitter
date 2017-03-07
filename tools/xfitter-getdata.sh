@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 #########################################################################
 # script to download data files from hepforge stored in xFitter package #
 # author: RP, March 2017                                                #
@@ -24,7 +24,7 @@ if [[ "$1" = "help" ]] || [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]] || [[ "$1" 
     echo " ./xfitter-getdata.sh ALL "
     echo " "  
     echo "To download a specific data set do: "
-    echo " ./xfitter-getdata.sh arXivNumber "
+    echo " ./xfitter-getdata.sh arXivNumber(reportNumber) "
     echo " "  
     echo "this will download the indicated dataset with the directory " 
     echo "structure ready to be used in xFitter "
@@ -32,9 +32,30 @@ if [[ "$1" = "help" ]] || [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]] || [[ "$1" 
     echo " "  
     echo "Note, that related theory or correlation files (if any) "
     echo "will be downloaded together with the specified data file "
+    echo " "  
+    echo "===> to see available data sets to download type: "
+    echo " ./xfitter-getdata.sh --print (or -p) "
     echo "------------------------------------------------------------"
     exit 0
 fi
+
+if [[ "$1" = "-p" ]] || [[ "$1" = "--print" ]] ; then
+    echo "------------------------------------------------------------"
+    echo "available data sets in xFitter to download (arXivNumber or reportNumber) "
+    # read html page with datafiles to tmp file
+    lynx --dump http://xfitter.hepforge.org/data.html > o
+    # remove all lines above References AND remove README lines 
+    sed  -i -e '1,/References/d' -e '/README/d' o
+    # print only text after last slash AND remove tar.gz at the end of string
+    awk '{gsub(".tar.gz", " ", $0); print $NF}' FS=/ o
+    # rm not needed file 
+    rm o
+    echo " "  
+    echo "example: ./xfitter-getdata.sh 1412.2862 "
+    echo "------------------------------------------------------------"
+    exit 0
+fi
+
 
 
 # first dowload all data if requested:
