@@ -11,15 +11,28 @@ if [ $# -eq 0 ]
 fi    
 
 if [[ "$1" = "help" ]] || [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]] || [[ "$1" = "h" ]] ; then
-    echo "---------------------------------------------------------------------------------------------------------------------------"
-    echo "For the list of available data sets please check http://xfitter.hepforge.org/data.html "
-    echo "                                                  or input_steering/steering.txt.ALLdata in xFitter code "
-    echo "To download all available data sets do:           ./xfitter-getdata.sh ALL"
-    echo "To download a data set do:                        ./xfitter-getdata.sh datafile_name, this will download"
-    echo "                                                  the indicated dataset to directory as it is in the fitter" 
-    echo "                                                  structure (dirCollider/dirExperiment/dirReactionType/dirArxivNumber)"
-    echo "Note, that related theory or correlation files (if any) will be downloaded together with the specified data file "
-    echo "---------------------------------------------------------------------------------------------------------------------------"
+    echo "------------------------------------------------------------"
+    echo "xfitter-getdata.sh script allows to download public data"
+    echo "sets from the xFitter package (from hepforge)"  
+    echo " "  
+    echo "For the list of available data sets please check:"
+    echo "  http://xfitter.hepforge.org/data.html "
+    echo " "  
+    echo "or input_steering/steering.txt.ALLdata in xFitter package "
+    echo " "  
+    echo "To download all available data sets do: " 
+    echo " ./xfitter-getdata.sh ALL "
+    echo " "  
+    echo "To download a specific data set do: "
+    echo " ./xfitter-getdata.sh arXivNumber "
+    echo " "  
+    echo "this will download the indicated dataset with the directory " 
+    echo "structure ready to be used in xFitter "
+    echo "(dirCollider/dirExperiment/dirReactionType/dirArxivNumber)"
+    echo " "  
+    echo "Note, that related theory or correlation files (if any) "
+    echo "will be downloaded together with the specified data file "
+    echo "------------------------------------------------------------"
     exit 0
 fi
 
