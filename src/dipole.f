@@ -280,10 +280,14 @@ C---------------------------------------
 #include "dipole.inc"
 C---------------------------------
 
+C Set default to avoid extra printout:
+      TypeOfDipCs = 'linear'
+
       open (51,file='steering.txt',status='old')
       read (51,NML=DipCsType,END=181,ERR=182)
  181   continue      
       close (51)
+      
 
       if (TypeOfDipCs.eq.'saturation') then
          DipCsModel = 1
