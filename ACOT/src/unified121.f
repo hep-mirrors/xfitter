@@ -1600,7 +1600,7 @@ C----------------------------------------------------------------------
       common /str/ str 
       common /counter/ i
       common /delta1/ delta1
-      common /sud/ sud
+      common /com_sud/ sud
       common /subq/ subq
       common /acotlo/ acotlo
       common /vecax/ Sp, Sm, Rqp, Rqm
@@ -1922,7 +1922,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       common /counter/ i
       common /kinematic/ xb, Q2, m1, m2, Q2f, xi, chi, chit, m1s, m2s
       common /str/ str
-      common /sud/ sud
+      common /com_sud/ sud
       common /subq/ subq
       common /delta1/ delta1
 
