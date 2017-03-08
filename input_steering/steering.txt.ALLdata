@@ -98,7 +98,7 @@
           'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_28_36.dat',
           'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_36_44.dat',
   ! ATLAS Top:
-          'datafiles/lhc/atlas/topProduction/atlas-conf-2012-024/Diff_ttbar_ATL_7TeV_TOT.dat',
+          'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT.dat',
           'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
 
   ! Dec 2016 ATLAS W,Z:
