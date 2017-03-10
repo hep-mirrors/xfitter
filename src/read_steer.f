@@ -1067,8 +1067,7 @@ C---------------------------------
       ! --- FlexibleGluon is used in SumRules
       FlexibleGluon = .false.
       
-      if (PDFStyle.eq.'10p HERAPDF'.or.
-     $     PDFStyle.eq.'13p HERAPDF'.or.
+      if (
      $     PDFStyle.eq. 'HERAPDF'.or.
      $     PDFStyle.eq. 'strange') then
          FlexibleGluon = .true.
@@ -1125,6 +1124,9 @@ cv         iparam = 301
       ! Get number of sets:
          call numberPDF(nLHAPDF_Sets)                    
          call InitPDF(ILHAPDFSET)
+
+      ! avoid extra printout from LHAPDF:
+         call set_verbosity(0)
 
          if(has_photon().eq.1.) then    
             ExtraPdfs = .true. 
