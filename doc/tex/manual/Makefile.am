@@ -1,5 +1,5 @@
 
-dist_data_DATA = writeup.pdf 
+EXTRA_DIST = writeup.pdf 
 
 if BUILD_DOCS
 
@@ -11,7 +11,7 @@ MANNAME = writeup
 MANTEXSRC = $(MANNAME).tex Theory.tex Reweighing.tex ProgramManual.tex PDFparametrisation.tex Introduction.tex Installation.tex ErrorTreatment.tex Chisquare.tex dpdfs.tex UsersExample.tex Namelist.tex latex-defs.tex
 MANAUX = $(MANNAME).aux
 MANPDF = $(MANNAME).pdf
-EXTRA_DIST = $(MANTEXSRC)
+# EXTRA_DIST = $(MANTEXSRC)
 
 CLEANFILES = $(MANPDF) $(MANNAME).log $(MANNAME).idx $(MANNAME).out \
  $(MANNAME).toc $(MANAUX)  $(MANNAME).blg  $(MANNAME).bbl

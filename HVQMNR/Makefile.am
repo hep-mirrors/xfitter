@@ -1,2 +1,2 @@
 
-dist_data_DATA = README
+EXTRA_DIST = README

@@ -1,2 +1,2 @@
 
-dist_data_DATA = plot_lhapdf.py  setup.py  testPlot.py
+EXTRA_DIST = plot_lhapdf.py  setup.py  testPlot.py

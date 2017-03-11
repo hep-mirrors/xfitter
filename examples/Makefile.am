@@ -1,5 +1,5 @@
 
-dist_data_DATA = ./ZEUS-DDIS_2009/fitC/ewparam.txt \
+EXTRA_DIST = ./ZEUS-DDIS_2009/fitC/ewparam.txt \
  ./ZEUS-DDIS_2009/fitC/steering.txt \
  ./ZEUS-DDIS_2009/fitC/minuit.in.txt \
  ./ZEUS-DDIS_2009/fitC/output/fittedresults.txt \

@@ -5,12 +5,12 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/draw/include input_steering \
+          DY/include tools/draw/include  \
           pdf2yaml tools/process/ tools/ 
 
 DIST_SUBDIRS = $(SUBDIRS)  Hathor/src  HVQMNR/src doc/tex/manual  ACOT SACOT datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
-           FONLL HVQMNR HVQMNR/include/ python/ 
+           FONLL HVQMNR HVQMNR/include/ python/ input_steering/
 
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
@@ -49,5 +49,6 @@ include $(top_srcdir)/aminclude.am
 #TESTS_ENVIRONMENT = $(SHELL) 
 #TESTS= ./tools/check.sh
 
-EXTRA_DIST= README INSTALLATION LICENCE REFERENCES ewparam.txt minuit.in.txt steering.txt testPythonInterface.py
+EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \
+  ewparam.txt minuit.in.txt steering.txt testPythonInterface.py
 bin_SCRIPTS = xfitter-config

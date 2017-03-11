@@ -1,4 +1,4 @@
-dist_data_DATA = covar.in                   minuit.in.txt.CTEQHERA                      steer_gluon-evolv \
+EXTRA_DIST = covar.in                   minuit.in.txt.CTEQHERA                      steer_gluon-evolv \
                  ewparam.txt.def            minuit.in.txt.DIFFRACTION                  steer_gluon-saturation \
                  ewparam.txt.DIFFRACTION    minuit.in.txt.dipole                       steering.txt.ALLdata \
                  ewparam.txt.HERAI+II.NLO   minuit.in.txt.fractal                      steering.txt.def \

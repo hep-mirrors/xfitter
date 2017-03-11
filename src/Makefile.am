@@ -196,7 +196,7 @@ if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a
 endif
 
-dist_data_DATA = xfitter_py.F
+EXTRA_DIST = xfitter_py.F
 
 xfitter_SOURCES = main.f
 
