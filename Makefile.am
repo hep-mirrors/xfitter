@@ -6,7 +6,12 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include input_steering \
-          pdf2yaml tools/process/
+          pdf2yaml tools/process/ tools/ 
+
+DIST_SUBDIRS = $(SUBDIRS)  Hathor/src  HVQMNR/src doc/tex/manual  ACOT SACOT datafiles QEDevol/include \
+           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
+           FONLL HVQMNR HVQMNR/include/ python/ 
+
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
@@ -24,13 +29,15 @@ SUBDIRS+= src $(DOCS)
 
 include $(top_srcdir)/aminclude.am
 
+
+
 # Specify which SUBDIRS to distribute:
-DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
-          tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
-          genetic/mixmax_r004 genetic/src common/num_utils \
-          include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/draw/include input_steering \
-          common common/linalg Hathor/src pdf2yaml tools/process src
+#DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
+#          tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
+#          genetic/mixmax_r004 genetic/src common/num_utils \
+#          include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
+#          DY/include tools/draw/include input_steering \
+#          common common/linalg Hathor/src pdf2yaml tools/process src
 
 
 # DOXYGEN SUPPORT
@@ -42,5 +49,5 @@ DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
 #TESTS_ENVIRONMENT = $(SHELL) 
 #TESTS= ./tools/check.sh
 
-EXTRA_DIST= README README-MacOSX LICENCE REFERENCES ewparam.txt minuit.in.txt steering.txt 
+EXTRA_DIST= README INSTALLATION LICENCE REFERENCES ewparam.txt minuit.in.txt steering.txt testPythonInterface.py
 bin_SCRIPTS = xfitter-config

@@ -1,11 +1,14 @@
-docfiles = writeup.tex
+
+dist_data_DATA = writeup.pdf 
 
 if BUILD_DOCS
+
+docfiles = writeup.tex
 
 infiles = $(docfiles)
 docfiles += writeup.pdf
 MANNAME = writeup
-MANTEXSRC = $(MANNAME).tex Theory.tex Reweighing.tex ProgramManual.tex PDFparametrisation.tex Introduction.tex Installation.tex ErrorTreatment.tex Chisquare.tex dpdfs.tex UsersExample.tex Namelist.tex
+MANTEXSRC = $(MANNAME).tex Theory.tex Reweighing.tex ProgramManual.tex PDFparametrisation.tex Introduction.tex Installation.tex ErrorTreatment.tex Chisquare.tex dpdfs.tex UsersExample.tex Namelist.tex latex-defs.tex
 MANAUX = $(MANNAME).aux
 MANPDF = $(MANNAME).pdf
 EXTRA_DIST = $(MANTEXSRC)
@@ -19,7 +22,8 @@ $(MANPDF): $(srcdir)/$(MANTEXSRC)
 	$(PDFLATEX) $<
 	$(PDFLATEX) $<
 	$(PDFLATEX) $<
+
+# dist_doc_DATA = $(docfiles)
 endif
 
 docdir = ${datadir}/doc/${PACKAGE}
-dist_doc_DATA = $(docfiles)
