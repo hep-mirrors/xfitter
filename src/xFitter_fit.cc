@@ -5,6 +5,7 @@ using boost::python::object;
 
 // Fortran interface
 extern "C" {
+  void hfbanner_();
   void read_steer_();
   void read_data_();
   void init_theory_modules_();
@@ -26,6 +27,7 @@ void fit() {
 BOOST_PYTHON_MODULE(libxfitter_fit)
 {
     using namespace boost::python;
+    def("logo", hfbanner_);
     def("read_steer",read_steer_);
     def("read_data" ,read_data_);
     def("init_theory",init_theory_modules_);
