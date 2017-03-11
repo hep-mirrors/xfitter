@@ -1,11 +1,14 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([XFitter],[1.2.0],[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
+AC_INIT([XFitter],
+m4_esyscmd_s(git describe --always 2>&1 | awk '/Not a git/  {print "v2.0.0"}; !/Not a git/ {print $0}'),
+[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
 	
 #Suppress verbose output when compiling (use make V=99 for verbose output)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-AM_INIT_AUTOMAKE
+#Make sure long file names are saved by make dist:
+AM_INIT_AUTOMAKE([1.9 tar-ustar])
 AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
@@ -477,15 +480,22 @@ AC_CONFIG_FILES([include/Makefile
                  DY/src/Makefile
                  DY/include/Makefile
                  Hathor/src/Makefile
+                 Hathor/interface/Makefile
+                 HVQMNR/Makefile
                  HVQMNR/src/Makefile
+                 HVQMNR/include/Makefile
                  ACOT/src/Makefile
-                 SACOT/src/Makefile 
+                 ACOT/Makefile
+                 SACOT/src/Makefile
+                 SACOT/Makefile 
                  ABM/src/Makefile
 		 FONLL/src/Makefile
+                 FONLL/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
+                 QEDevol/include/Makefile
                  pdf2yaml/Makefile
                  tools/process/Makefile
                  tools/draw/Makefile
@@ -493,6 +503,12 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
+                 tools/Makefile
+                 datafiles/Makefile
+                 datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/Makefile
+                 doc/logo/Makefile
+                 examples/Makefile
+                 python/Makefile
 		 xfitter-config
                  Makefile])
 
