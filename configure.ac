@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([XFitter],
-m4_esyscmd_s(git describe 2>&1 | awk '/Not a git/  {print "v2.0.0"}; !/Not a git/ {print $0}'),
+m4_esyscmd_s(git describe --always 2>&1 | awk '/Not a git/  {print "v2.0.0"}; !/Not a git/ {print $0}'),
 [xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
 	
