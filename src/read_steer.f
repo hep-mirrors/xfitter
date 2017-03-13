@@ -1037,10 +1037,7 @@ C check if limit of 22 char is not exceeded:
       call hf_errlog(250420132,
      $     'I: Creating directory to store results: '//TRIM(OutDirName))
       CALL system('mkdir -p '//TRIM(OutDirName))
-
       
-      call system("rm -f "//trim(OutDirName)//"/Status.out")
-
       return
  56   continue
       print '(''Error reading namelist &OutDir, STOP'')'
