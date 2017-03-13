@@ -973,7 +973,6 @@ C------------------------------------------------
 #include "steering.inc"
       namelist/OutDir/OutDirName, LHAPDF6OutDir
       LOGICAL ex
-      integer status
 C--------------------------------------------------------
 C  Read the OutDir namelist:
 C
