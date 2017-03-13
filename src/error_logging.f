@@ -213,6 +213,16 @@ C-----------------------------------------------------------------------
       DO 100 ISEVER=1,4
 
 * for each severity level loop over all messages and
+         if (ISEVER.eq.2) then
+C Set color on
+            write (LL,'(A10)',advance='no') achar(27)//'[34m'
+         endif
+
+         if (ISEVER.ge.3) then
+C Set color on
+            write (LL,'(A10)',advance='no') achar(27)//'[31m'
+         endif
+
 
         FIRMES=.TRUE.
         DO 110 IMESS=1,NEN
@@ -254,6 +264,9 @@ C-----------------------------------------------------------------------
 110     CONTINUE
 
 100   CONTINUE
+
+      write (LL,'(A10)',advance='no') achar(27)//'[0m'
+
       WRITE(LL,905)
 
 *     reset error tables

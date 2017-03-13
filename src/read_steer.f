@@ -994,24 +994,50 @@ C check if limit of 22 char is not exceeded:
           call hf_stop
       endif
 
-      inquire(FILE=TRIM(OutDirName),EXIST=ex)
-      if(ex) then
-          call hf_errlog(250420131,
-     $   'I: Results written to existing directory: '//TRIM(OutDirName))
-      else 
-          call hf_errlog(250420132,
-     $     'I: Creating directory to store results: '//TRIM(OutDirName))
-          CALL system('mkdir -p '//TRIM(OutDirName))
-      endif
-
 
       if (LDebug) then
          print OutDir
       endif
 
-C make sure that the status file is not  present in the directory:
-      call system("rm -f "//trim(OutDirName)//"/Status.out")
 
+
+      inquire(FILE=TRIM(OutDirName),EXIST=ex)
+      if(ex) then
+         inquire(FILE=TRIM(OutDirName)//"_OLD",EXIST=ex)
+         if (ex) then
+            call hf_errlog(1303201701,
+     $           'W: Remving directory to backup results: '
+     $           //TRIM(OutDirName)//"_OLD")
+            call system("rm -fr "//trim(OutDirName)//"_OLD")
+
+            print *,achar(27)//'[31m'//
+     $           'W: Remving directory to backup results: '
+     $           //TRIM(OutDirName)//"_OLD"
+     $           //achar(27)//'[0m'
+
+
+         endif
+
+         call hf_errlog(1303201702,
+     $        'W: Backup '//TRIM(OutDirName)//' to '
+     $        //TRIM(OutDirName)//"_OLD"
+     $        )
+
+            print *,achar(27)//'[31m'//
+     $        'W: Backup '//TRIM(OutDirName)//' to '
+     $        //TRIM(OutDirName)//"_OLD"
+     $           //achar(27)//'[0m'
+
+
+
+         call system("mv "//trim(OutDirName)//" "
+     $        //trim(OutDirName)//"_OLD")
+      endif
+
+      call hf_errlog(250420132,
+     $     'I: Creating directory to store results: '//TRIM(OutDirName))
+      CALL system('mkdir -p '//TRIM(OutDirName))
+      
       return
  56   continue
       print '(''Error reading namelist &OutDir, STOP'')'

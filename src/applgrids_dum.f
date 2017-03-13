@@ -91,7 +91,7 @@ C
       print *,'NO APPLGRIDs INITIALIZED'
       print *,'NO APPLGRID interface comiled'
       print *,'DUMMY version applgrids_dum has been called!'
-      call HF_errlog(12020601,'W: DUMMY version applgrids_dum called!')
+      call HF_errlog(12020601,'I: DUMMY version applgrids_dum called!') ! downgrade to INFO 
 C
       end
 
