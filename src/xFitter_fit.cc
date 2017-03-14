@@ -23,10 +23,26 @@ void fit() {
   hf_errsum_(io);
 }
 
+
+// Test to move an array around
+
+float sumvals(int array_length, boost::python::numeric::array in) {
+  float value = 0.0;
+  for (unsigned int i = 0; i<array_length; i++) {
+    value += boost::python::extract<float>(in[i]);
+  }
+  return value;
+}
+
+
 // Python interface
 BOOST_PYTHON_MODULE(libxfitter_fit)
 {
     using namespace boost::python;
+
+    boost::python::numeric::array::set_module_and_type("numpy","ndarray");
+    def("sumvals",sumvals);
+
     def("logo", hfbanner_);
     def("read_steer",read_steer_);
     def("read_data" ,read_data_);
