@@ -70,26 +70,16 @@ fi
 testtest=`echo $FC  | awk '/ifort/ {print "yes"}'`
 
 if test "$testtest" = "yes"; then
-# ifortran:                                                                                                                                                         
+# ifortran:
   AC_MSG_WARN([Intel compiler detected, setting options])
-<<<<<<< HEAD
   FCFLAGS="$FCFLAGS -132 -Difort=1"
   FFLAGS="$FFLAGS -132 -Difort=1"
-=======
-  FCFLAGS="$FCFLAGS -132"
-  FFLAGS="$FFLAGS -132"
->>>>>>> e1d20efb18890a01117f85d49508f137cc2b1ce9
   NOAUTOFCFLAG="-noauto"
 else
-# gfortran most likely:                                                                                                                                              
+# gfortran most likely:
   AC_MSG_NOTICE([gfortran compiler options])
-<<<<<<< HEAD
   FCFLAGS="$FCFLAGS  -ffixed-line-length-132 -Difort=0"
   FFLAGS="$FFLAGS  -ffixed-line-length-132 -Difort=0"
-=======
-  FCFLAGS="$FCFLAGS  -ffixed-line-length-132"
-  FFLAGS="$FFLAGS  -ffixed-line-length-132"
->>>>>>> e1d20efb18890a01117f85d49508f137cc2b1ce9
   NOAUTOFCFLAG="-fno-automatic"
 fi
 
