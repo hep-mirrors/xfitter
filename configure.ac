@@ -79,7 +79,7 @@ else
   AC_MSG_NOTICE([gfortran compiler options])
   FCFLAGS="$FCFLAGS  -ffixed-line-length-132"
   FFLAGS="$FFLAGS  -ffixed-line-length-132"
-  NOAUTOFCFLAG = "-fno-automatic"
+  NOAUTOFCFLAG="-fno-automatic"
 fi
 
 AC_SUBST(NOAUTOFCFLAG)
