@@ -23,10 +23,11 @@ if test "x$FC" == "x"; then
   fi
 fi
 
-AC_PROG_FC
-
 # Reset F77:
 F77=$FC
+
+AC_PROG_FC
+AC_PROG_F77
 
 AC_PROG_CPP
 AC_PROG_CXX
@@ -71,14 +72,14 @@ testtest=`echo $FC  | awk '/ifort/ {print "yes"}'`
 if test "$testtest" = "yes"; then
 # ifortran:                                                                                                                                                         
   AC_MSG_WARN([Intel compiler detected, setting options])
-  FCFLAGS="$FCFLAGS -132"
-  FFLAGS="$FFLAGS -132"
+  FCFLAGS="$FCFLAGS -132 -Difort=1"
+  FFLAGS="$FFLAGS -132 -Difort=1"
   NOAUTOFCFLAG="-noauto"
 else
 # gfortran most likely:                                                                                                                                              
   AC_MSG_NOTICE([gfortran compiler options])
-  FCFLAGS="$FCFLAGS  -ffixed-line-length-132"
-  FFLAGS="$FFLAGS  -ffixed-line-length-132"
+  FCFLAGS="$FCFLAGS  -ffixed-line-length-132 -Difort=0"
+  FFLAGS="$FFLAGS  -ffixed-line-length-132 -Difort=0"
   NOAUTOFCFLAG="-fno-automatic"
 fi
 

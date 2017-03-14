@@ -999,11 +999,17 @@ C check if limit of 22 char is not exceeded:
          print OutDir
       endif
 
-
-
-      inquire(FILE=TRIM(OutDirName),EXIST=ex)
+#ifdef ifort
+      inquire(directory=TRIM(OutDirName),EXIST=ex)
+#else
+      inquire(file=TRIM(OutDirName),EXIST=ex)
+#endif
       if(ex) then
-         inquire(FILE=TRIM(OutDirName)//"_OLD",EXIST=ex)
+#ifdef ifort
+         inquire(directory=TRIM(OutDirName)//"_OLD",EXIST=ex)
+#else
+         inquire(file=TRIM(OutDirName)//"_OLD",EXIST=ex)
+#endif
          if (ex) then
             call hf_errlog(1303201701,
      $           'W: Remving directory to backup results: '
