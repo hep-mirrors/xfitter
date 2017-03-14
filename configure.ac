@@ -13,12 +13,29 @@ AM_INIT_AUTOMAKE([1.9 tar-ustar])
 AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
-AC_PROG_FC([gfortran])
-AC_PROG_F77([gfortran])
+# AC_PROG_FC([gfortran])
+# AC_PROG_F77([gfortran])
+
+
+# Try to respect users' Fortran compiler variables
+if test "x$FC" == "x"; then
+  if test "x$F77" == "x"; then
+    FC="$GFORTRAN"
+  else
+    FC="$F77"
+  fi
+fi
+AC_PROG_FC
+
+F77=$FC
+
+# AC_PROG_F77
+# AC_PROG_FC
 
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+
 
 AM_PROG_CC_C_O
 # Fortran configures
@@ -43,12 +60,12 @@ m4_include([m4/ax_openmp.m4])
 # A lot of code written with 132 char. strings.
 #
 if test "uname -m" = "64"; then
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
+   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -132 -cpp  -fPIC -mcmodel=medium"
+   FFLAGS="$FFLAGS -ffixed-line-length-132 -132 -cpp  -fPIC -mcmodel=medium"
 else
    echo "Disabling mcmodel=medium option"
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132  -fPIC -cpp"
-   FFLAGS="$FFLAGS -ffixed-line-length-132  -fPIC -cpp"
+   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -132 -fPIC -cpp"
+   FFLAGS="$FFLAGS -ffixed-line-length-132   -132 -fPIC -cpp"
 fi    
 
 CFLAGS="$CFLAGS -fPIC"

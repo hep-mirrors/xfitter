@@ -69,7 +69,7 @@ else
 endif
 
 # FORTRAN compiler flags to be used for the main target
-AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
+AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -noauto -I$(srcdir)/../minuit/src
 
 # 
 AM_CPPFLAGS = -I$(srcdir)/../include 
