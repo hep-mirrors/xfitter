@@ -999,13 +999,13 @@ C check if limit of 22 char is not exceeded:
          print OutDir
       endif
 
-#ifdef ifort
+#if ifort==1
       inquire(directory=TRIM(OutDirName),EXIST=ex)
 #else
       inquire(file=TRIM(OutDirName),EXIST=ex)
 #endif
       if(ex) then
-#ifdef ifort
+#if ifort==1
          inquire(directory=TRIM(OutDirName)//"_OLD",EXIST=ex)
 #else
          inquire(file=TRIM(OutDirName)//"_OLD",EXIST=ex)
