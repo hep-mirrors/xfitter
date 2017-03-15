@@ -86,11 +86,11 @@ C Functions:
       NFmax1=NFmax
 C  Get cross section
 
-      print*,'+++++++++++++++++++++++++++++++++++++++++++++++'
-      print*,'Top pair prod Xsec is being computed by DiffTop'
-      print*,'+++++++++++++++++++++++++++++++++++++++++++++++'
+c      print*,'+++++++++++++++++++++++++++++++++++++++++++++++'
+c      print*,'Top pair prod Xsec is being computed by DiffTop'
+c      print*,'+++++++++++++++++++++++++++++++++++++++++++++++'
 
-      call fastnlocalctop(IDataSet,XSec,ThBin,TOTXsec,Npth,I_FIT_ORDER)
+      call fastnlocalctop(IDataSet,XSec,ThBin,TOTXsec,Npth)
       
 
       idxVarlow = GetBinIndex(IDataSet,'ptlow')
@@ -99,7 +99,7 @@ C  Get cross section
       xmin=ThBin(1)
       xmax=ThBin(Npth)
 
-      print*,'DiffTop tot Xsec: xmin, xmax, TOTXsec=',xmin,xmax,TOTXsec
+c      print*,'DiffTop tot Xsec: xmin, xmax, TOTXsec=',xmin,xmax,TOTXsec
 
 
 
