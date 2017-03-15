@@ -584,7 +584,7 @@ ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0
   Finally, the xFitter package provides PDFs in LHAPDF format (version 5 and 6). 
   To obtain the LHAPDF5.X grid file, run tools/tolhapdf.cmd script. The script 
   produces PDFs.LHgrid file which can be read by lhapdf version lhapdf-5.8.6.tar.gz
-  or later. The LHAPDF6.X version grids are produced atomatically in hf_pdf directory
+  or later. The LHAPDF6.X version grids are produced atomatically in xfitter_pdf directory
 
 
 
