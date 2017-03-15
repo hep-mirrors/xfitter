@@ -49,6 +49,14 @@ TPad * DrawLogo(string pos)
 	  opts.version = false;
 	}
       else 
+	// first see if there is an escale character [ to indicate color. If yes, that is a sign of the release name. Draw it separately
+	if ( ver.find("[") !=std::string::npos ) {
+	  string release = ver.substr(ver.find("m ")+2,ver.find("0m")-ver.find("m ")-4);
+	  ver = ver.substr(0,ver.find("[")-1);
+	  // std::cout << release << " " << ver << std::endl;
+	  logo->DrawText(340, 80, release.c_str(), 80, 0, 
+		       font, TImage::kEmbossed);	  
+	};
 	logo->DrawText(200, 510, ver.c_str(), 80, 0, 
 		       font, TImage::kShadeBelow);
     }
