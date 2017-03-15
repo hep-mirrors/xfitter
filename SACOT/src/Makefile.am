@@ -11,5 +11,5 @@ libmysacot_a_SOURCES =  0mDisPac.F 1uti.F \
                         pdf.F pdfh.F \
                         Acot05.F GmJSa.F GmJS.F GotSK1Q.F KinForm.F lhXsec.F SFnGm.F SfZm05.F StrFnGm.F ZmNNLO.F \
                         sf_sacotchi_wrap.F
-AM_FFLAGS = -I$(srcdir)/../../include -fno-automatic -ffixed-line-length-132
+AM_FFLAGS = -I$(srcdir)/../../include $(NOAUTOFCFLAG) -ffixed-line-length-132
 

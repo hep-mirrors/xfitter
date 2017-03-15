@@ -42,7 +42,7 @@
 	- minuit.out.txt  			(minuit output)
 	- Results.txt 				(chiquare and the systematic shifts)
 	- lhapdf.block.txt			(ready to use LHAPDF5.X style grids, run tools/tolhapdf.cmd)
-	- hf_pdf		          	(directory with the ready to use LHAPDF6.X style grids)
+	- xfitter_pdf	          	(directory with the ready to use LHAPDF6.X style grids)
 	- fittedresults.txt			(theory predictions for each fitted data point)
 	- pulls.first/last.txt		(pulls at the start and end of the fit)
 	- pdfs_q2val_0i.txt			(user defined PDF sets at predefined Q2 values, as set in the steering.txt)	

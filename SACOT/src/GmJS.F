@@ -660,7 +660,7 @@ c xx     >	ERREST,IER, IACTA, IACTB)
       Real*8 :: XX, QQ, bmu, bms, eps, zmax
       common /F2LHQ/ XX, QQ, bmu, bms, eps, zmax
       Real*8 :: xz, A1Hgz
-      common /F2sub/ xz, A1Hgz
+      common /Cf2sub/ xz, A1Hgz
       Integer Ihadn, ir
       Common /F2LHQhad/ Ihadn
       Integer :: jNf, jPrtn
@@ -916,7 +916,7 @@ cmarco*********************************************************
       Real*8 :: XX, QQ, bmu, bms, eps, zmax
       common /F2LHQ/ XX, QQ, bmu, bms, eps, zmax
       Real*8 :: xz, A1Hgz
-      common /F2sub/ xz, A1Hgz
+      common /Cf2sub/ xz, A1Hgz
       Integer Ihadn
       Common /F2LHQhad/ Ihadn
 
@@ -935,7 +935,7 @@ cmarco*********************************************************
       Real*8 :: XX, QQ, bmu, bms, eps, zmax
       common /F2LHQ/ XX, QQ, bmu, bms, eps, zmax
       Real*8 :: xz, A1Hgz
-      common /F2sub/ xz, A1Hgz
+      common /Cf2sub/ xz, A1Hgz
       Integer Ihadn
       Common /F2LHQhad/ Ihadn
 
@@ -959,7 +959,7 @@ cmarco
       Real*8 :: XX, QQ, bmu, bms, eps, zmax
       common /F2LHQ/ XX, QQ, bmu, bms, eps, zmax
       Real*8 :: xz, A1Hgz
-      common /F2sub/ xz, A1Hgz 
+      common /Cf2sub/ xz, A1Hgz 
       Integer Ihadn, ir
       Common /F2LHQhad/ Ihadn
 
@@ -983,7 +983,7 @@ c      Real*8 :: A1Hg, c2np1a0, c2np1Dk !functions
 c      Real*8 :: XX, QQ, bmu, bms, eps, zmax
 c     common /F2LHQ/ XX, QQ, bmu, bms, eps, zmax
 c      Real*8 :: xz, A1Hgz, A1Hgzx, CL, Dk
-c      common /F2sub/ xz, A1Hgz
+c      common /CF2sub/ xz, A1Hgz
 c
 c      A1Hgzx=A1Hg(xz/z,eps)
 c      CL= c2np1a0(z,0)
