@@ -19,6 +19,29 @@ float laby;
 float xratio;
 
 using namespace std;
+
+// Function to find standard font to be used
+string FontToUse() {
+  FILE *process;
+  char buff[1024];
+
+  process = popen("fc-match --format=%{file} LiberationSans-Regular.ttf", "r");
+  if (process != NULL) {
+    fgets(buff, sizeof(buff), process);
+  }
+  pclose(process);
+  // Reprot if found other font
+  static bool reported = false;
+  if ( ! reported ) {
+    if ( string(buff).find("LiberationSans-Regular.ttf") == string::npos ) {
+      cout << "Could not find LiberationSans-Regular.ttf; using font " << string(buff) << endl;
+      reported = true;
+    }
+  }
+  return string(buff);
+}
+
+
 TPad * DrawLogo(string pos)
 {
   string ver = VERSION;
@@ -37,12 +60,11 @@ TPad * DrawLogo(string pos)
   //Draw xFitter version on logo
   if (opts.version)
     {
-      TString fp = gEnv->GetValue("Root.TTFontPath", "");
-      TString font = fp + "/BlackChancery.ttf";
-      //Check the font file exists
+
+      TString font = FontToUse();
       struct stat st;
-      if (stat(font,&st) != 0) //backup, arial font
-	font = fp + "/DroidSansFallback.ttf";
+      //      cout << font << endl;
+
       if (stat(font,&st) != 0)
 	{
 	  cout << "Warning, cannot find font: " << font << "; xFitter version cannot be drawn on logo "<<endl;
