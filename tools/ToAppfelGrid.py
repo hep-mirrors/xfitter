@@ -26,7 +26,8 @@ def Fk_file(name):
     with open(name+'_fk',"w+") as w:
         with open(name, "r+") as r:
             for l in r:
-                l = l.replace('applgrid','apfelgrid')
+                if l.lower().find('termtype')>=0:
+                    l = l.replace('applgrid','apfelgrid')
                 l = l.replace('.root','.fk')
                 w.write(l)
     return name
@@ -37,14 +38,14 @@ def fk_steering():
             indata  = 0
             for l in f:
                 res = 0
-                if l.find('&InFiles')>=0:
+                if l.lower().find('&infiles')>=0:
                     infiles = 1
                 if infiles>0:
-                    if l.find('&End')>=0:
+                    if l.lower().find('&end')>=0:
                         infiles = 0
                 if infiles>0:
 #                    print (l,infiles)
-                    if (l.find('InputFileNames')>=0) & (l.find('=')>=0):
+                    if (l.lower().find('inputfilenames')>=0) & (l.find('=')>=0):
                         n = l.rstrip().split("=")
                         res = Fk_file(n[1].replace(' ','')[1:-1])
                     else:
