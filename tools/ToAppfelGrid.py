@@ -31,7 +31,10 @@ def Fk_file(name):
                 l = l.replace('.root','.fk')
                 w.write(l)
     return name
+
 def fk_steering():
+    ''' Read steering.txt, produce steering.txt_fk '''
+    list = []
     with open("steering.txt"+"_fk","w+") as w:
         with open("steering.txt","r+") as f:
             infiles = 0
@@ -55,11 +58,41 @@ def fk_steering():
                     w.write(l)
                 else:
                     w.write(l.replace(res,res+'_fk'))
-def fk_all():
-    list = glob('datafiles/*/*/*/*/*.dat')
-    for name in list:
-        Fk_file(name)
+                    list.append(res+'_fk')
+    return list
 
+def fk_all():    
+    listAll = glob('datafiles/*/*/*/*/*.dat')
+    list = []
+    for name in listAll:
+        res = Fk_file(name)
+        if res != 0:
+            list.append(res+'_fk')
+    return list
+
+def split_steer(list):
+    ''' generate steering files to speed up generation of .fk files '''
+    
+    for i in range(len(list)):
+        file = list[i]
+        with open("steering.txt_fk"+str(i),"w+") as w:
+            with open("steering.txt","r+") as f:
+                for l in f:
+                    infiles = 0
+                    for l in f:
+                        res = 0
+                        if l.lower().find('&infiles')>=0:
+                            infiles = 1
+                        if infiles>0:
+                            if l.lower().find('&end')>=0:
+                                infiles = 0
+                                w.write('''
+&InFiles 
+  NInputFiles = 1
+  InputFileNames = ''' +"'"+file+"'"+'\n&End\n')
+                        else:
+                            if infiles == 0:
+                                w.write(l)
 
 # main
 if len(argv)<2:
@@ -69,6 +102,7 @@ Usage:
    file.dat      -- convert data file, generate file.dat_fk
    steering.txt  -- convert steering.txt and connected data files, generate steering.txt_fx (plus data files)
    ALL           -- convert all data files following standard datafiles/  data tree, generate _fk files
+   steering.txt SPLIT -- prepare steering.txt files to run in parallel on the batch, to speedup fk grids generation
 ''')
     exit (1)
 
@@ -76,7 +110,10 @@ file = argv[1]
     
 if file == "steering.txt":
     print ('steering')
-    fk_steering()
+    list = fk_steering()
+    if len(argv)>2:
+        if argv[2] == "SPLIT":
+            split_steer(list)
 elif file == "ALL":
     print ('all')
     fk_all()
