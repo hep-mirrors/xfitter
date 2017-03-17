@@ -400,6 +400,7 @@ else
     export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
 
  #apfelgrid
+    lhapdf get NNPDF30_nlo_as_0118
     echo "Installing APFELgrid $apfelgridver..."
     if [[ $http == "curl" ]]
     then
@@ -411,6 +412,11 @@ else
     tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd APFELgrid-${apfelgridver}
     ./setup.sh  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 1 ]]
+    then
+	echo "Error, check install.log for details"
+	exit
+    fi
     cd - >& /dev/null
 
  #mela
@@ -543,7 +549,7 @@ echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 echo cd xfitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
 
-echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela        >> compile
+echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela  --enable-apfelgrid     >> compile
 
 echo make -j 9 install                                    >> compile
 
