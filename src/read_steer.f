@@ -1012,12 +1012,12 @@ C check if limit of 22 char is not exceeded:
 #endif
          if (ex) then
             call hf_errlog(1303201701,
-     $           'W: Remving directory to backup results: '
+     $           'W: Removing directory to backup results: '
      $           //TRIM(OutDirName)//"_OLD")
             call system("rm -fr "//trim(OutDirName)//"_OLD")
 
             print *,achar(27)//'[31m'//
-     $           'W: Remving directory to backup results: '
+     $           'W: Removing directory to backup results: '
      $           //TRIM(OutDirName)//"_OLD"
      $           //achar(27)//'[0m'
 

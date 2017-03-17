@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 59
+    NInputFiles = 58
 
    InputFileNames =
  !
@@ -20,13 +20,13 @@
 
  ! HERA I (commented out, I+II replaces the samples)
   ! H1 and ZEUS combined Inclusive DIS: 
-     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',  superseded
      !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
      !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
      !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
 
   ! H1 Jets:
-          'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat',
+     !>     'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat',  ! superseded.
           'datafiles/hera/h1/jets/0706.3722/H1_InclJets_HighQ2_99-00.dat',
           'datafiles/hera/h1/jets/0911.5678/H1_InclJets_LowQ2_99-00.dat',
 
@@ -40,7 +40,7 @@
           'datafiles/hera/zeus/jets/1010.6167/ZEUS_dijet_98-07.dat',
 
   ! H1 Inclusive DIS low Ep: (included in HERA I+II combination, comment)
-    !      'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',
+    !      'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',  ! superseded
 
   ! H1 and ZEUS combined Charm production:
           'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined.dat', 
@@ -109,8 +109,8 @@
        'datafiles/lhc/atlas/wzProduction/1612.03016/zylow_cc.dat',
        'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cc.dat',
        'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cf.dat',
-  ! LHCb:
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty.dat',
+  ! LHCb:  need fixed flavour scheme, see steering.txt.hvqmnr.abs (and .norm)
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty.dat',  
   !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dch_pty.dat',
   !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dstar_pty.dat',
   !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Ds_pty.dat',
@@ -126,23 +126,23 @@
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 12
+    NCorrFiles = 11
 
  
   ! Correlation files:
-    CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
-    CorrFileNames(2) = 'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
-    CorrFileNames(3) = 'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
-    CorrFileNames(4) = 'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
-    CorrFileNames(5) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
-    CorrFileNames(6) = 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
+  !   CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+    CorrFileNames(1) = 'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
+    CorrFileNames(2) = 'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
+    CorrFileNames(3) = 'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
+    CorrFileNames(4) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
+    CorrFileNames(5) = 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
 
-  CorrFileNames(7) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-  CorrFileNames(8) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-  CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-  CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
-  CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-  CorrFileNames(12) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(6) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  CorrFileNames(7) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(8) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
+  CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
 
 &End
 
