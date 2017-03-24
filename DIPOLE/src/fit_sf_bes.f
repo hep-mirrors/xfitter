@@ -327,24 +327,6 @@ C=         DIP_CS = sigma_proton(r,y) * SIGMA0
       RETURN
       END
 
-C--------------------------------------------------------------
-      Function dip_csiim(r,xx)
-C
-C Dipole cross section from Iancu, Itakura, Munier paper
-C
-      IMPLICIT REAL*8(A-H,O-Z)
-      common/pass1/ sig0,xlam,x0,xm,  cBGK, eBKG
-C-------------------------------------------------------------
-      Qs  = (x0/x)**(xlam/2)
-      rQs = r*Qs
-      
-      if (rQs.le.2) then
-         
-      else
-         aN = 1 - exp(aa)
-      endif
-
-      end
 c---------------------------------------------------------------
       FUNCTION R_02_sat(r,xx)
 c

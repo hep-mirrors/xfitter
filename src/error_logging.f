@@ -279,19 +279,19 @@ C Set color on
 
 999   RETURN
 
-900   FORMAT(// 12X,33('*')/12X,3('*'),7X,'Error Summary',7X,3('*')/
-     +       12X,33('*')/' '
-     +       /' Total number of logged errors:      ',I6,
-     +       /' Total number of errors not recorded:',I8)
-901   FORMAT(//,' List of errors sorted by severity level:'//
+900   FORMAT(// 12X,36('*')/12X,3('*'),7X,'Messages Summary',7X,3('*')/
+     +       12X,36('*')/' '
+     +       /' Total number of logged messages:      ',I6,
+     +       /' Total number of messages not recorded:',I8)
+901   FORMAT(//,' List of messages sorted by severity level:'//
      + ' *',78('-')/
-     + ' *','   Module   |   Error | Error |'/
-     + ' *','     Name   |    Type | Count |   Error Description'/
+     + ' *','   Module   | Message |Message|'/
+     + ' *','     Name   |    Type | Count | Message Description'/
      + ' *',78('-'))
 902   FORMAT(2X,A12,I10,I8,1X,A)
 903   FORMAT(31X,A)
 904   FORMAT(/2X,A/1X,'*',23('-'))
-905   FORMAT(/' *',78('-')//'  End of Error Summary'/)
+905   FORMAT(/' *',78('-')//'  End of Message Summary'/)
       END
 
 *--------------------------------------------

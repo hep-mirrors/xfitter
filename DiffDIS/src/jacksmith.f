@@ -62,7 +62,7 @@ c in xbj (Bjorken x) and mq2 (Q^2).
       common/include/nborn, ngcorr, nqcorr, ifch
       common/mass/m2, mq2, xbj
       common/coupling/scale, alphas, nlf, eh2
-      common/pdf/ipdf
+      common/compdf/ipdf
       common/quark/q
       COMMON/JSPARAM/qfac,mfac
 c      ,ichoose
@@ -301,7 +301,7 @@ c      external QPDFXQ
       common/lq3/sumq3,sumelq3
       common/lq4/sumq4,sumelq4
       common/lq5/sumq5,sumelq5
-      common/pdf/ipdf
+      common/compdf/ipdf
       common/quark/q
       common/TRSFPAR/alambda,flavor,qsct,qsdt,iord
       data ncount/0/

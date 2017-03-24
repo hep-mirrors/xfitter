@@ -194,7 +194,7 @@ void get_lhapdferrors_()
   store_pdfs_(filename.c_str(), filename.size());
       
   //Save the input PDFs in LHAPDF6 format
-  if ( strstr(coutdirname_.lhapdf6outdir_ ,"hf_pdf") != NULL) { 
+  if ( strstr(coutdirname_.lhapdf6outdir_ ,"xfitter_pdf") != NULL) { 
     // Overwrite default name with the PDF name
     string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset_;
     hf_errlog_(15051301,msg.c_str(), msg.size());
