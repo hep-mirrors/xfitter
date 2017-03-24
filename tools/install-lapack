@@ -31,11 +31,11 @@ mkdir -p build
 cd build
 rm -fr $CURRENTDIR/deps/lapack
 cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/lapack .. >> $CURRENTDIR/install_lapack.log 2>&1
-make -j 12 install >> $CURRENTDIR/install_yam.log 2>&1
+make -j 12 install >> $CURRENTDIR/install_lapack.log 2>&1
 
 if [[ $? != 0 ]]
 then
-  echo "Error, check install.log for details"
+  echo "Error, check install_lapack.log for details"
   exit
 fi
 

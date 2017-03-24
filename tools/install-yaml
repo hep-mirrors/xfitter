@@ -38,7 +38,7 @@ make -j 12 install >> $CURRENTDIR/install_yam.log 2>&1
 
 if [[ $? != 0 ]]
 then
-  echo "Error, check install.log for details"
+  echo "Error, check install_yam.log for details"
   exit
 fi
 
@@ -55,7 +55,7 @@ make install >> $CURRENTDIR/install_yam.log 2>&1
 
 if [[ $? != 0 ]]
 then
-  echo "Error, check install.log for details"
+  echo "Error, check install_yam.log for details"
   exit
 fi
 
