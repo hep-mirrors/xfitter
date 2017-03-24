@@ -6,7 +6,8 @@ AUTOMAKE_OPTIONS = foreign
 # the main target, i.e. the executable to build
 bin_PROGRAMS = xfitter
 
-xfitter_SOURCES = main.f
+xfitter_SOURCES = cmain.cxx
+
 xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src -lxfmain -lxffnlo
 #xfitter_LDADD = 
 # all source files which go into the main target
@@ -151,5 +152,3 @@ if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a
 endif
 
-python:
-	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
