@@ -1,20 +1,38 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([XFitter],[1.2.0],[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
+
+AC_INIT([XFitter],
+m4_esyscmd(git describe --always 2>&1 | awk '/Not a git/  {print "2.0.0\033@<:@1;32m FrozenFrog\033@<:@0m"}; !/Not a git/ {print $0}'  | tr -d '\n'),
+[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
-	
+
 #Suppress verbose output when compiling (use make V=99 for verbose output)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-AM_INIT_AUTOMAKE
+#Make sure long file names are saved by make dist:
+AM_INIT_AUTOMAKE([1.9 tar-ustar])
 AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
-AC_PROG_FC([gfortran])
-AC_PROG_F77([gfortran])
+
+# Try to respect users' Fortran compiler variables
+if test "x$FC" == "x"; then
+  if test "x$F77" == "x"; then
+    FC="$GFORTRAN"
+  else
+    FC="$F77"
+  fi
+fi
+
+# Reset F77:
+F77=$FC
+
+AC_PROG_FC
+AC_PROG_F77
 
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+
 
 AM_PROG_CC_C_O
 # Fortran configures
@@ -39,13 +57,33 @@ m4_include([m4/ax_openmp.m4])
 # A lot of code written with 132 char. strings.
 #
 if test "uname -m" = "64"; then
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
+   FCFLAGS="$FCFLAGS  -cpp  -fPIC -mcmodel=medium"
+   FFLAGS="$FFLAGS    -cpp  -fPIC -mcmodel=medium"
 else
    echo "Disabling mcmodel=medium option"
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132  -fPIC -cpp"
-   FFLAGS="$FFLAGS -ffixed-line-length-132  -fPIC -cpp"
+   FCFLAGS="$FCFLAGS   -fPIC -cpp"
+   FFLAGS="$FFLAGS     -fPIC -cpp"
 fi    
+
+
+# fortran detection:
+testtest=`echo $FC  | awk '/ifort/ {print "yes"}'`
+
+if test "$testtest" = "yes"; then
+# ifortran:
+  AC_MSG_WARN([Intel compiler detected, setting options])
+  FCFLAGS="$FCFLAGS -132 -Difort=1"
+  FFLAGS="$FFLAGS -132 -Difort=1"
+  NOAUTOFCFLAG="-noauto"
+else
+# gfortran most likely:
+  AC_MSG_NOTICE([gfortran compiler options])
+  FCFLAGS="$FCFLAGS  -ffixed-line-length-132 -Difort=0"
+  FFLAGS="$FFLAGS  -ffixed-line-length-132 -Difort=0"
+  NOAUTOFCFLAG="-fno-automatic"
+fi
+
+AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
@@ -461,15 +499,22 @@ AC_CONFIG_FILES([include/Makefile
                  DY/src/Makefile
                  DY/include/Makefile
                  Hathor/src/Makefile
+                 Hathor/interface/Makefile
+                 HVQMNR/Makefile
                  HVQMNR/src/Makefile
+                 HVQMNR/include/Makefile
                  ACOT/src/Makefile
-                 SACOT/src/Makefile 
+                 ACOT/Makefile
+                 SACOT/src/Makefile
+                 SACOT/Makefile 
                  ABM/src/Makefile
 		 FONLL/src/Makefile
+                 FONLL/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
+                 QEDevol/include/Makefile
                  pdf2yaml/Makefile
                  tools/process/Makefile
                  tools/draw/Makefile
@@ -477,6 +522,12 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
+                 tools/Makefile
+                 datafiles/Makefile
+                 datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/Makefile
+                 doc/logo/Makefile
+                 examples/Makefile
+                 python/Makefile
 		 xfitter-config
 		 reactions/BaseHVQMNR/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile

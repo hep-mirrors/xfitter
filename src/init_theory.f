@@ -721,15 +721,13 @@ C
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.   
      $           DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then ! for backward compatibility
             Call InitJetsFastNLODataSet(IDataSet)
-CMK14: the function InitJetsFastNLODataSet initiates fastNLO without process specification
-CMK14: for details see FastNLOInterface.cc (fcn fnloreader)
         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ttbar') then 
             Call InitJetsFastNLODataSet(IDataSet)
+            Call setfastnlotoppar(IDataSet)
           elseif (DATASETREACTION(IDataSet).eq
      >        .'FastNLO ttbar normalised') then 
-
             Call InitJetsFastNLODataSet(IDataSet)
-CMK14end
+            Call setfastnlotoppar(IDataSet)
          elseif (DATASETREACTION(IDataSet)
      $           .eq.'FastNLO ep jets normalised') then
             Call InitIntegratedNCXsectionDataset(IDataSet)
@@ -1209,13 +1207,14 @@ C------------------------------------------------------------
       subroutine InitJetsFastNLODataSet(IDataSet)
 C------------------------------------------------------------
 C
-C Initialize FastNLO reader
+C Initialize fastNLO
 C
 C------------------------------------------------------------
       implicit none
       integer IDataSet
 #include "ntot.inc"
 #include "datasets.inc"
+#include "steering.inc"
 
       integer GetInfoIndex
 
@@ -1241,7 +1240,9 @@ C------------------------------------------------------------
 
       call fastnloinit(DATASETLABEL(IDataSet),IDataSet
      >  ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet)
-     >  ,' ')-1)//char(0),PubUnits, MurDef, MurScale, MufDef, MufScale);
+     >  ,' ')-1)//char(0)
+     >  ,I_FIT_ORDER
+     >  ,PubUnits, MurDef, MurScale, MufDef, MufScale);
       end
 
       subroutine InitHathorDataSet(IDataSet)

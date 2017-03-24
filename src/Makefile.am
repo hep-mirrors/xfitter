@@ -78,14 +78,13 @@ libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 libxfmain_la_CFLAGS=
 libxfmain_la_CPPFLAGS= -I$(srcdir)/../include -DPREFIX="\"$(prefix)\""
-libxfmain_la_FFLAGS= $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
+libxfmain_la_FFLAGS= $(DEFS) -cpp -I$(srcdir)/../include  $(NOAUTOFCFLAG)  -I$(srcdir)/../minuit/src
 if ENABLE_LHAPDF
   libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
   libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 # libraries, where this library depends upon
 libxfmain_la_LDFLAGS = -ldl
-
 
 
 if ENABLE_APPLGRID 

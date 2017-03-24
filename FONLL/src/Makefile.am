@@ -6,5 +6,5 @@ noinst_LIBRARIES = libmyfonll.a
 *.o: ../../include/couplings.inc
 
 libmyfonll_a_SOURCES = FONLL_wrap.f
-AM_FFLAGS = -I$(srcdir)/../../include -fno-automatic -ffixed-line-length-132
+AM_FFLAGS = -I$(srcdir)/../../include $(NOAUTOFCFLAG) -ffixed-line-length-132
 

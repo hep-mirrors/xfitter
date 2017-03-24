@@ -11,5 +11,5 @@ fit_sf_bes.o: ../../include/steering.inc ../../include/dipole.inc
 libmydipole_a_SOURCES = fit_simps.f \
 			fit_sf_bes.f \
 			xsect_dipole_proton.c
-AM_FFLAGS = -I$(srcdir)/../../include -fno-automatic
+AM_FFLAGS = -I$(srcdir)/../../include $(NOAUTOFCFLAG)
 # -finit-local-zero -ffixed-line-length-132

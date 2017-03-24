@@ -73,7 +73,7 @@ c  The O(\alpha_s^2) coefficient in A_{Hq}^{PS}, the ln(\mu/m)^0 term
       include 'CONSTCOM.'
       complex*16 WGPLG
 
-      s121mz=realpart(WGPLG(1,2,1d0-z))
+      s121mz=dreal(WGPLG(1,2,1d0-z))
       s111mz=ddilog(1-z)
       dlz=log(z)
       dlz2=dlz*dlz
@@ -197,10 +197,10 @@ csm decoupling coefficients to one loop (expansion in alphas/(4*pi)
 csm see e.g. hep-ph/0004189 eq.(17)
       d1dec = 4.d0*(4.d0/3.d0)
 
-      s121mz=realpart(WGPLG(1,2,1d0-z))
-      s12mz=realpart(WGPLG(1,2,-z))
-      s211mz=realpart(WGPLG(2,1,1d0-z))
-      s21mz=realpart(WGPLG(2,1,-z))
+      s121mz=dreal(WGPLG(1,2,1d0-z))
+      s12mz=dreal(WGPLG(1,2,-z))
+      s211mz=dreal(WGPLG(2,1,1d0-z))
+      s21mz=dreal(WGPLG(2,1,-z))
       s111mz=ddilog(1-z)
       s11mz=ddilog(-z)
       dlz=log(z)

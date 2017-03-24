@@ -11,15 +11,16 @@
 0) Pre-requirements.
 ====================
 
--- QCDNUM version at least qcdnum-17-01/11, can be found at 
+-- QCDNUM version at least qcdnum-17-01/13, can be found at 
    http://www.nikhef.nl/~h24/qcdnum/QcdnumDownload.html
 
--- Link to recent Root libraries (e.g. version 5.34)
+-- Link to recent Root libraries (e.g. version 5.34). This is optional, but recommended to enable drawing tools, APPLgrid.
 
--- xFitter has been tested on various platforms: 
-   SL4, SL5, SL6 (32 and 64 bit), Ubuntu 10.10-14.04, MacOXS
+-- xFitter has been tested on various 64bit platforms: 
+   SL6,CenOS7, Ubuntu 14.04,16.04 MacOXS
 
 -- Optional: APPLgrid, LHAPDF, APFEL, MELA
+
 
 1) INSTALLATION (basic installation)
 ====================================
@@ -41,10 +42,16 @@
 	- minuit.out.txt  			(minuit output)
 	- Results.txt 				(chiquare and the systematic shifts)
 	- lhapdf.block.txt			(ready to use LHAPDF5.X style grids, run tools/tolhapdf.cmd)
-	- hf_pdf		          	(directory with the ready to use LHAPDF6.X style grids)
+	- xfitter_pdf	          	(directory with the ready to use LHAPDF6.X style grids)
 	- fittedresults.txt			(theory predictions for each fitted data point)
 	- pulls.first/last.txt		(pulls at the start and end of the fit)
 	- pdfs_q2val_0i.txt			(user defined PDF sets at predefined Q2 values, as set in the steering.txt)	
+
+
+  e) To get more data files, one can use xfitter-getdata.sh script 
+  type: ./xfitter-getdata.sh -h for help. Alternatively, data files can be downloaded from the hepforge page:
+
+      http://xfitter.hepforge.org/data.html
 
 1B) INSTALLATION (with APPLgrid)
 =================================
