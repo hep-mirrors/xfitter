@@ -185,6 +185,8 @@ extern"C" {
     int lranddata_;
     int idh_mod_;
     int ipdfset_;
+    int vIPDFSET;
+    int cIDataSet;
     int icheck_qcdnum_;
     int useprevfit_;
     int corrsystbyoffset_;
@@ -200,6 +202,8 @@ extern"C" {
     int pdfrotate_;
     int ExtraPdfs_;
     int WriteLHAPDF5_;
+    int DoBandsSym;
+    int steering_check;   // Keep this always last
   } steering_;
 
   extern struct {

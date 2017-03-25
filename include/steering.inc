@@ -111,6 +111,8 @@ C
 
 
       integer AsymErrorsIterations !> Number of iterations for asymmetric errors. 0 -- off 
+
+      integer steering_check
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
@@ -132,7 +134,7 @@ C
      $     CorChi2Type, hf_scheme, AsymErrorsIterations,
      $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5, 
      $     DoBandsSym
-      
+     $     , steering_check ! Keep this at the end of the common block 
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
 
