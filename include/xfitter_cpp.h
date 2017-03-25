@@ -49,205 +49,227 @@ extern"C" {
 
 
   extern struct {
-    double alpha_[NTOT_C];       // Total uncorrelated errors
-    double alpha_mod_[NTOT_C];   // Total uncorrelated errors modified
-    double beta_[NTOT_C][NSYSMAX_C];   // Influence of systematic errors on measurements
-    double sysa_[NSYSMAX_C][NSYSMAX_C];    // Correlation matrix of systematics
-    char system_[NSYSMAX_C][64];     // Names of correlated systematic errors
-    int nsys_;                 // Actual number of correlated systematic sources
+    double alpha[NTOT_C];       // Total uncorrelated errors
+    double alpha_mod[NTOT_C];   // Total uncorrelated errors modified
+    double beta[NTOT_C][NSYSMAX_C];   // Influence of systematic errors on measurements
+    double sysa[NSYSMAX_C][NSYSMAX_C];    // Correlation matrix of systematics
+    char system[NSYSMAX_C][64];     // Names of correlated systematic errors
+    int nsys;                 // Actual number of correlated systematic sources
   } systema_;
 
   extern struct {
-    double betaasym_[NTOT_C][2][NSYSMAX_C];      
-    double omega_[NTOT_C][NSYSMAX_C];   // Quadratic term for influence of syst. errors on measurements.
-    int lasymsyst_[NSYSMAX_C];        // asymmetric uncertainty
+    double betaasym[NTOT_C][2][NSYSMAX_C];      
+    double omega[NTOT_C][NSYSMAX_C];   // Quadratic term for influence of syst. errors on measurements.
+    int lasymsyst[NSYSMAX_C];        // asymmetric uncertainty
   } systasym_;
 
   extern struct {
-    char lhapdfset_[128];
-    char lhapdfvarset_[128];
-    int ilhapdfset_;
-    int nlhapdf_sets_;
-    int nparvar_;
-    int lhapdferrors_;
-    int scale68_;
-    int nremovepriors_;
-    int lhapdfprofile_;
-    int lhascaleprofile_;
+    char lhapdfset[128];
+    char lhapdfvarset[128];
+    int ilhapdfset;
+    int nlhapdf_sets;
+    int nparvar;
+    int lhapdferrors;
+    int scale68;
+    int nremovepriors;
+    int lhapdfprofile;
+    int lhascaleprofile;
   } clhapdf_;
 
   //aplhas
   extern struct {
-    double alphas_;
+    double alphas;
   } c_alphas_;
 
   //boson masses
   extern struct {
-    double mz_;
-    double mw_;
-    double mh_;
+    double Mz;
+    double Mw;
+    double Mh;
   } boson_masses_;
 
+  // Widths:
+  extern struct {
+    double Wz, Ww, Wh, Wtp;
+  } widths_;
+
+  // CKM
   extern struct ckm_matrix_cb {
     double Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb;
   } ckm_matrix_;
 
+  // EW coupligs:
   extern struct {
-    int iflagfcn_;     // FCN minuit flag, set by minuit (1-init, 2-iteration, 3-finalisation)
-    int nparfcn_;
-    int ndfmini_;
-    int ifcncount_;    // Count number of iterations
+    double Alphaem;
+    double sin2thW;
+    double cos2thW;
+  } ew_couplings_;
+
+    // Constants:
+  extern struct {
+    double Gf, ConvFac;
+  } constants_;
+
+
+  extern struct {
+    int iflagfcn;     // FCN minuit flag, set by minuit (1-init, 2-iteration, 3-finalisation)
+    int nparfcn;
+    int ndfmini;
+    int ifcncount;    // Count number of iterations
       } cfcn_;
 
   extern struct {
-    char outdirname_[256]; // outout dir name
-    char lhapdf6outdir_[256];
+    char outdirname[256]; // outout dir name
+    char lhapdf6outdir[256];
   } coutdirname_;
 
   extern struct {
-    double theo_[NTOT_C];          // Theory predictions, filled for each iteration
-    double theo_mod_[NTOT_C];      // Theory predictions, filled for each iteration
-    double theo_fix_[NTOT_C];      // Fixed theory prediction (if given by &InTheory namelist)
-    double theo_unc_[NTOT_C];      // Uncorrelated uncertainty on theory predictions 
-    double theo_tot_up_[NTOT_C];	 // Total up uncertainty on theory predictions 
-    double theo_tot_down_[NTOT_C]; // Total down uncertainty on theory predictions
+    double theo[NTOT_C];          // Theory predictions, filled for each iteration
+    double theo_mod[NTOT_C];      // Theory predictions, filled for each iteration
+    double theo_fix[NTOT_C];      // Fixed theory prediction (if given by &InTheory namelist)
+    double theo_unc[NTOT_C];      // Uncorrelated uncertainty on theory predictions 
+    double theo_tot_up[NTOT_C];	 // Total up uncertainty on theory predictions 
+    double theo_tot_down[NTOT_C]; // Total down uncertainty on theory predictions
   } c_theo_;
 
   extern struct {
-    int npoints_;       // Actual number of data points
+    int npoints;       // Actual number of data points
   } cndatapoints_;
 
   extern struct {
-    int n_syst_meas_[NSYSMAX_C];          // Number of measurements syst. source affects
-    int syst_meas_idx_[NSYSMAX_C][NTOT_C];  // data points syst. source affects	   
+    int n_syst_meas[NSYSMAX_C];          // Number of measurements syst. source affects
+    int syst_meas_idx[NSYSMAX_C][NTOT_C];  // data points syst. source affects	   
   } sysmeas_;
 
   extern struct {
-    int resetcommonsyst_;
+    int resetcommonsyst;
   } systematicsflags_;
 
   extern struct {
-    double sysscalefactor_[NSYSMAX_C];
-    int sysscalingtype_[NSYSMAX_C];
-    int sysform_[NSYSMAX_C];
-    int dooffset_;
-    int chi2offsfinal_;
-    int chi2offsrecalc_;
+    double sysscalefactor[NSYSMAX_C];
+    int sysscalingtype[NSYSMAX_C];
+    int sysform[NSYSMAX_C];
+    int dooffset;
+    int chi2offsfinal;
+    int chi2offsrecalc;
   } systscal_;
 
   //Penalty term for systematic sources, 1 by default.
   extern struct {
-    double syspriorscale_[NSYSMAX_C];
+    double syspriorscale[NSYSMAX_C];
   } csystprior_;
   
   extern struct {
-    float q2val_[40];
-    float starting_scale_;
-    float strange_frac_;
-    double chi2maxerror_;
-    float hf_mass_[3];
-    float charm_frac_;
-    int ldebug_;
-    int dobands_;
-    int usegridlhapdf5_;
-    int writelhapdf6_;
-    int h1qcdfunc_;
-    int writealphastomemberpdf_;
-    int itheory_;
-    int i_fit_order_;
-    int iparam_;
-    int hfscheme_;
-    int lrand_;
-    int statype_;
-    int systype_;
-    float outxrange_[2];
-    int outnx_;
-    int ilenpdf_;
-    int nchebglu_;
-    float chebxmin_;
-    int nchebsea_;
-    float wmnlen_;
-    float wmxlen_;
-    int ichebtypeglu_;
-    int ichebtypesea_;
-    int ifsttype_;
-    int iseedmc_;
-    int ioffsetchebsea_;
-    int ewfit_;
-    int npolyval_;
-    int lead_;
-    int izpopoly_;
-    int ipolysqr_;
-    int useapplg_;
-    int napplgrids_;
-    int lfitdy_;
-    int lfastapplgrid_;
-    int lranddata_;
-    int idh_mod_;
-    int ipdfset_;
-    int icheck_qcdnum_;
-    int useprevfit_;
-    int corrsystbyoffset_;
-    int corsysindex_;
-    char statscale_[32];
-    char uncorsysscale_[32];
-    char corsysscale_[32];
-    char uncorchi2type_[32];
-    char corchi2type_[32];
-    char hf_scheme_[32];
-    int asymerrorsiterations_;
-    int luseapplgridckm_;
-    int pdfrotate_;
-    int ExtraPdfs_;
-    int WriteLHAPDF5_;
+    float q2val[40];
+    float starting_scale;
+    float strange_frac;
+    double chi2maxerror;
+    float hf_mass[3];
+    float charm_frac;
+    int ldebug;
+    int dobands;
+    int usegridlhapdf5;
+    int writelhapdf6;
+    int h1qcdfunc;
+    int writealphastomemberpdf;
+    int itheory;
+    int i_fit_order;
+    int iparam;
+    int hfscheme;
+    int lrand;
+    int statype;
+    int systype;
+    float outxrange[2];
+    int outnx;
+    int ilenpdf;
+    int nchebglu;
+    float chebxmin;
+    int nchebsea;
+    float wmnlen;
+    float wmxlen;
+    int ichebtypeglu;
+    int ichebtypesea;
+    int ifsttype;
+    int iseedmc;
+    int ioffsetchebsea;
+    int ewfit;
+    int npolyval;
+    int lead;
+    int izpopoly;
+    int ipolysqr;
+    int useapplg;
+    int napplgrids;
+    int lfitdy;
+    int lfastapplgrid;
+    int lranddata;
+    int idh_mod;
+    int ipdfset;
+    int vIPDFSET;
+    int cIDataSet;
+    int icheck_qcdnum;
+    int useprevfit;
+    int corrsystbyoffset;
+    int corsysindex;
+    char statscale[32];
+    char uncorsysscale[32];
+    char corsysscale[32];
+    char uncorchi2type[32];
+    char corchi2type[32];
+    char hf_scheme[32];
+    int asymerrorsiterations;
+    int luseapplgridckm;
+    int pdfrotate;
+    int ExtraPdfs;
+    int WriteLHAPDF5;
+    int DoBandsSym;
   } steering_;
 
   extern struct {
-    double e_stat_poisson_[NTOT_C];
-    double e_stat_const_[NTOT_C];
-    double e_uncor_poisson_[NTOT_C];
-    double e_uncor_const_[NTOT_C];
-    double e_uncor_mult_[NTOT_C];
-    double e_uncor_logNorm_[NTOT_C];
+    double e_stat_poisson[NTOT_C];
+    double e_stat_const[NTOT_C];
+    double e_uncor_poisson[NTOT_C];
+    double e_uncor_const[NTOT_C];
+    double e_uncor_mult[NTOT_C];
+    double e_uncor_logNorm[NTOT_C];
   } cuncerrors_;
 
   extern struct {
-    char label_[64];
-    double central_;
-    double values_[NCHI2POINTS_C];
-    int dataid_[NSET_C];
-    char term_[NSET_C][16][8];
-    char theorysources_[NSET_C][16][NCHI2POINTS_C][1000];
-    int scan_;
-    int pdferrors_;
-    int pdfprofile_;
-    int scaleprofile_;
-    char chi2lhapdfref_[128];
-    char chi2lhapdfset_[128];
-    char chi2lhapdfvarset_[128];
-    int chi2nparvar_;
-    int chi2parpoint_;
+    char label[64];
+    double central;
+    double values[NCHI2POINTS_C];
+    int dataid[NSET_C];
+    char term[NSET_C][16][8];
+    char theorysources[NSET_C][16][NCHI2POINTS_C][1000];
+    int scan;
+    int pdferrors;
+    int pdfprofile;
+    int scaleprofile;
+    char chi2lhapdfref[128];
+    char chi2lhapdfset[128];
+    char chi2lhapdfvarset[128];
+    int chi2nparvar;
+    int chi2parpoint;
 
   } chi2scan_;
 
   extern struct {
-    int isysttype_[NSYSMAX_C];
+    int isysttype[NSYSMAX_C];
   } csysttype_;
 
 
   extern struct {
-    double men_;
-    double mel_;
-    double mmn_;
-    double mmo_;
-    double mtn_;
-    double mta_;
-    double mup_;
-    double mdn_;
-    double mch_;
-    double mst_;
-    double mtp_;
-    double mbt_;
+    double men;
+    double mel;
+    double mmn;
+    double mmo;
+    double mtn;
+    double mta;
+    double mup;
+    double mdn;
+    double mch;
+    double mst;
+    double mtp;
+    double mbt;
   } fermion_masses_;
 }
 
