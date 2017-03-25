@@ -73,7 +73,7 @@ endif
 #
 # flags for libfxmain
 #
-libxfmain_la_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
+libxfmain_la_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include -std=c++11
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 libxfmain_la_CFLAGS=
@@ -107,7 +107,6 @@ LDADD = libxfitter.a
 
 # libraries to be linked to the main target
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
-# Comment for now: -lyaml-cpp
 
 # separate list for python: 
 F2PYLIBS = 
