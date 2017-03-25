@@ -101,19 +101,18 @@ if test "$ax_lapack_ok" = "no"; then
    AC_MSG_ERROR([Cannot find LAPACK libraries. Consider using tools/install-lapack to install.])
 fi
 
-# Comment for now:
 
-# AC_MSG_CHECKING([for yaml-cpp])
-# AC_LANG_PUSH(C++)
-# AC_LINK_IFELSE(
-#  [AC_LANG_PROGRAM([#include <yaml-cpp/yaml.h>],[YAML::Node node;])],
-#  [AC_MSG_RESULT([yes])]
-#  [AM_CONDITIONAL([HAVE_YAMLPP],[true])],
-#  [AC_MSG_RESULT([no])]
-#  [AM_CONDITIONAL([HAVE_YAMLPP],[false])]
-#  [AC_MSG_ERROR([yaml-cpp is not installed. Install manually, or use tools/install-yaml helper script.])]
-#  )
-# AC_LANG_POP(C++)
+AC_MSG_CHECKING([for yaml-cpp])
+AC_LANG_PUSH(C++)
+AC_LINK_IFELSE(
+ [AC_LANG_PROGRAM([#include <yaml-cpp/yaml.h>],[YAML::Node node;])],
+ [AC_MSG_RESULT([yes])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[true])],
+ [AC_MSG_RESULT([no])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[false])]
+ [AC_MSG_ERROR([yaml-cpp is not installed. Install manually, or use tools/install-yaml helper script.])]
+ )
+AC_LANG_POP(C++)
 
 
 
