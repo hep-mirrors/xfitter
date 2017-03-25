@@ -46,7 +46,11 @@ class ReactionTheory
  public:
   virtual string getReactionName() const =0;  ///< Should return expected reaction name. Normally generated automatically by AddReaction.py
   virtual int  initAtStart(const string &) =0; ///< Initialization first time ReactionTheory implementation is called
+
   virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map
+  virtual void setxFitterParametersI(map<string,int> &xfitter_pars) {_xfitter_pars_i = xfitter_pars; }; ///< Set environment map
+  virtual void setxFitterParametersS(map<string,string> &xfitter_pars) {_xfitter_pars_s = xfitter_pars; }; ///< Set environment map
+
   virtual void setEvolFunctions(double (*palpha_S)(double *), map<string, pTwoParFunc> *func2D  ) { alpha_S = palpha_S; PDFs = func2D; }; 
 				///< Set alpha_S and PDF maps
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
@@ -76,14 +80,30 @@ class ReactionTheory
   // Check if a parameter is present on the list:
   bool checkParam(string name) 
   {
-    return (_xfitter_pars.find(name) !=  _xfitter_pars.end());
+    return (_xfitter_pars.find(name) !=  _xfitter_pars.end()) 
+      || (_xfitter_pars_i.find(name) !=  _xfitter_pars_i.end()) 
+      || (_xfitter_pars_s.find(name) !=  _xfitter_pars_s.end()) 
+      ;
   }
 
-  // Helper function to get a parameter
-  double GetParam(string name) const 
+  // Helper function to get a parameter (double)
+  double GetParam(string name) const
   {
     return *_xfitter_pars.at(name);
   }
+
+  // Helper function to get a parameter (integer)
+  int GetParamI(string name)  const
+  {
+    return _xfitter_pars_i.at(name);
+  }
+
+  // Helper function to get a parameter (string)
+  string GetParamS(string name)  const
+  {
+    return _xfitter_pars_s.at(name);
+  }
+
 
   // Helper function to get bin values for a given data set, bin name. Returns null if not found
   valarray<double> *GetBinValues(int idDS, string binName)
@@ -112,6 +132,8 @@ class ReactionTheory
   vector<int> _dsIDs;
   map<int, map<string, valarray<double> >* > _dsBins;
   map<string, double* > _xfitter_pars;
+  map<string, int > _xfitter_pars_i;
+  map<string, string > _xfitter_pars_s;
  private:
   pXFXlike _xfx;
 
