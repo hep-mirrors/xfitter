@@ -207,7 +207,9 @@ typedef map <string, ReactionTheory *> tNameReactionmap;
 typedef map <int, map<string, valarray <double> > > tDataBins;
 
 // and list of parameters
-typedef map <string, double*> tParameters;
+
+template<typename T>
+using tParameters = std::map <string, T>; 
 
 // and list of 2-par functions
 typedef double (*pTwoParFunc)(double*, double*);
@@ -219,7 +221,12 @@ extern tReactionLibsmap gReactionLibs;
 extern tNameReactionmap gNameReaction;
 
 extern tDataBins gDataBins;
-extern tParameters gParameters;
+
+extern tParameters<double*> gParameters;
+extern tParameters<int>    gParametersI;
+extern tParameters<string> gParametersS;
+
+
 extern t2Dfunctions g2Dfunctions;
 
 #endif
