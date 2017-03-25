@@ -43,7 +43,7 @@ LDADD = #libxfitter.a
 ###################LDADD += libxfitter.a
 
 # libraries to be linked to the main target
-LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
+LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) -lyaml-cpp
 
 # separate list for python: 
 F2PYLIBS = 
