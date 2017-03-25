@@ -40,5 +40,5 @@ include $(top_srcdir)/aminclude.am
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \
-  ewparam.txt minuit.in.txt steering.txt testPythonInterface.py
+  ewparam.txt minuit.in.txt steering.txt testPythonInterface.py parameters.yaml
 bin_SCRIPTS = xfitter-config tools/xfitter-getdata.sh

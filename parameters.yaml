@@ -1,0 +1,37 @@
+#
+# Test file to illustrate how parameters can be transferred
+#
+
+
+FL_fudge : 
+  value: 1.2
+  step:  0.1
+  prior: 1.2  
+  priorUnc: 0.1
+
+a : 2.1232
+b : This is a test number one
+c : 3e-12
+Order : NLO
+NFlavour : 5
+
+hf_scheme : ZMVFNS
+
+# We want to fit alphaS, making this explicitly:
+AalphaS: 
+  value: 20.0
+  step:  0.0
+  prior: 20.0  
+  priorUnc: 0.1
+  min: 19.0
+  max: 21.0
+
+# We want to fit mB, however, implicitly:
+AmB: [4.75, 0.01, 4., 6., 4.75, 0.2]
+
+# another implicit way
+Amc:
+  - 1.4
+  - 0.01
+  - 1.2
+  - 1.6
