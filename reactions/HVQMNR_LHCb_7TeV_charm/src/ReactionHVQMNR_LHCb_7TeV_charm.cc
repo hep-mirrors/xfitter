@@ -104,9 +104,9 @@ void ReactionHVQMNR_LHCb_7TeV_charm::initAtIteration()
 {
   // protection against overdoing
   // TODO: remove this trick
-  if(_ifcncount_last == cfcn_.ifcncount_)
+  if(_ifcncount_last == cfcn_.ifcncount)
     return;
-  _ifcncount_last = cfcn_.ifcncount_;
+  _ifcncount_last = cfcn_.ifcncount;
 
   //printf("ReactionHVQMNR_LHCb_7TeV_charm::initAtIteration()\n");
 

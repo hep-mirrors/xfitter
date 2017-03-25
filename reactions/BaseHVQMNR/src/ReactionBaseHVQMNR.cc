@@ -30,7 +30,7 @@ ReactionBaseHVQMNR::ReactionBaseHVQMNR() : _mnr(MNR::MNR(this))
   // set initialisation status flag
   _isInitAtStart = false;
   // set debugging flag
-  _debug = steering_.ldebug_;
+  _debug = steering_.ldebug;
   //_debug = 1;
 }
 
@@ -219,10 +219,10 @@ double ReactionBaseHVQMNR::FindXSecPtYBin(const TH2* histXSec, const double ymin
 void ReactionBaseHVQMNR::CheckHFScheme()
 {
   // check HF scheme
-  if(steering_.hfscheme_ != 3 && steering_.hfscheme_ != 4)
+  if(steering_.hfscheme != 3 && steering_.hfscheme != 4)
   {
     char str[256];
-    sprintf(str, "S: calculation does not support HFSCHEME = %d (only 3, 4 supported)", steering_.hfscheme_);
+    sprintf(str, "S: calculation does not support HFSCHEME = %d (only 3, 4 supported)", steering_.hfscheme);
     error(16123007, str);
   }
 }
@@ -354,8 +354,8 @@ double ReactionBaseHVQMNR::GetFragPar(const char q)
 void ReactionBaseHVQMNR::UpdateParameters()
 {
   // heavy-quark masses
-  _pars.mc = fermion_masses_.mch_;
-  _pars.mb = fermion_masses_.mbt_;
+  _pars.mc = fermion_masses_.mch;
+  _pars.mb = fermion_masses_.mbt;
   // scale parameters
   GetMuPar('f', 'c', _pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c);
   GetMuPar('r', 'c', _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
