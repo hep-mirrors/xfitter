@@ -8,7 +8,7 @@
 Makefile.in
 Makefile
 bin/
-src/xfitter
+xfitter/xfitter
 tools/MakeLHAPDF/tolhapdf
 tools/draw/src/xfitter-draw
 tools/process/xfitter-process
