@@ -1410,7 +1410,7 @@ C
          do i=1,maxExtra
             if (name(i).ne.' ') then
                call AddExternalParam(name(i),value(i), step(i), min(i), max(i)
-     $              ,ConstrVal(i),ConstrUnc(i))
+     $              ,ConstrVal(i),ConstrUnc(i),.true.)
             endif
          enddo
       enddo
@@ -1434,17 +1434,20 @@ C
 !> @param min, max range of allowed values in case of fitting
 !> @param constrval constrain to this value in case of fitting
 !> @param construnc uncertainty on constrain in case of fitting
+!> @param to_gparam send to gParameters or not
 C-----------------------------------------------
       Subroutine AddExternalParam(name, value, step, min, max, 
-     $                            constrval, construnc)
+     $                            constrval, construnc, to_gParam)
 
       implicit none
 #include "extrapars.inc"
       character*(*) name
       double precision value, step, min, max, constrval, construnc
+      logical to_gParam
 C---------------------------------------------
 C Add extra param
 C
+
       nExtraParam = nExtraParam + 1
       if (nExtraParam.gt. nExtraParamMax) then
          print *,'Number of extra parameters exceeds the limit'
@@ -1463,8 +1466,10 @@ C
       ExtraParamConstrVal  (nExtraParam) = constrval
       ExtraParamConstrUnc  (nExtraParam) = construnc
 C Also add it to c++ map ...
-      print *,name,value
-      call add_To_Param_Map( ExtraParamValue(nExtraParam) , name)
+      if (to_gParam) then
+         call add_To_Param_Map( ExtraParamValue(nExtraParam) 
+     $        , ExtraParamNames(nExtraParam)//char(0))
+      endif
 
       end
 
@@ -1843,7 +1848,7 @@ C
 C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then
          call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0
-     $                         ,0.0D0,0.0D0)
+     $                         ,0.0D0,0.0D0,.false.)
       endif
 
       end
