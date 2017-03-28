@@ -222,6 +222,7 @@ extern"C" {
     int ExtraPdfs;
     int WriteLHAPDF5;
     int DoBandsSym;
+    int steering_check;   // Keep this always last
   } steering_;
 
   extern struct {

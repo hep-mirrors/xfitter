@@ -23,6 +23,18 @@
 using namespace std;
 
 extern "C" {
+  // ! check consistency of C and Fortran common blocks
+  void common_check_(int *i);
+}
+
+void common_check_(int *i) {
+  if ( *i != steering_.steering_check) {
+    string text = "F: Inconsistency of the fortran common steering and C-structure steering_. Check steering.inc and xfitter_cpp.h that the list of variables matches";
+    hf_errlog_(17032505,text.c_str(),text.size());
+  }
+}
+
+extern "C" {
   int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType, 
 //    char **TermSource, char *TermExpr);
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
