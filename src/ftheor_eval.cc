@@ -70,8 +70,8 @@ extern struct thexpr_cb {
   int nterms;
   char termname[16][8];
   char termtype[16][80];
-  char terminfo[16][80];
-  char termsource[16][1000];
+  char terminfo[16][256];
+  char termsource[16][256];
   char theorexpr[1000];
   int ppbar_collisions;
   int normalised;
@@ -293,9 +293,9 @@ void add_to_param_map_(double &value, char *name, int len) {
 
 
 // a bunch of functions 
-double xg( double *x, double *q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
-double xu( double *x, double *q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
-double xub( double *x, double *q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
+double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
+double xu(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
+double xub(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
 
 
 void init_func_map_() {
