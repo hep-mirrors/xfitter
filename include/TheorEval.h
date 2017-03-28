@@ -122,7 +122,7 @@ class TheorEval{
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-   void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
+  void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
   void SetOrdScales(int iord, double mur, double muf) { _iOrd=iord; _xmur=mur; _xmuf=muf;}; //!< set order and scale factors
   void GetOrdScales(int &iord, double &mur, double &muf) { iord=_iOrd; mur=_xmur; muf=_xmuf;}; //!< get order and scale factors
   void ChangeTheorySource(string term, string source);
@@ -212,7 +212,10 @@ template<typename T>
 using tParameters = std::map <string, T>; 
 
 // and list of 2-par functions
-typedef double (*pTwoParFunc)(double*, double*);
+
+
+typedef double (*pTwoParFunc)(const double&, const double&);
+// using pTwoParFunc  = std::function< double(const double&, const double&) >;
 typedef map <string, pTwoParFunc> t2Dfunctions;
 
 /// global dataset to theory evaluation pointer map
