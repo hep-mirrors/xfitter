@@ -87,6 +87,7 @@ AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
+CXXFLAGS="$CXXFLAGS -std=c++11"
 
 # check for lapack and blas
 AC_MSG_CHECKING([for blas])
@@ -546,6 +547,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 reactions/APPLgrid/src/Makefile
 		 reactions/BaseHVQMNR/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
