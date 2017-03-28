@@ -35,3 +35,13 @@ ReactionTheory::operator=(const ReactionTheory &rt)
   return *this;
 }
 
+bool ReactionTheory::notMasked(int DSID, int Bin) {
+  auto bins = _dsBins[DSID];
+  auto flag = bins->find("binFlag");
+  if ( flag == bins->end()) {  // DS has no bin "binFlag"
+    return true;
+  }
+  else {
+    return flag->second[Bin];
+  }
+}
