@@ -417,10 +417,10 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   rt->setxFitterParametersS(gParametersS);
 
   // set alpha_S, pdfs:
-  rt->setEvolFunctions( &HF_GET_ALPHAS_WRAP, &g2Dfunctions);
+  rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
 
   // simplify interfaces to LHAPDF:
-  rt->setXFX(&HF_GET_PDFS_WRAP);
+  rt->setXFX(&HF_GET_PDFSQ_WRAP);
 
   // Set bins
   rt->setBinning(_dsId, &gDataBins[_dsId]);
@@ -638,7 +638,7 @@ TheorEval::getGridValues()
   for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
     CommonGrid* g = itm->first;
     vector<double> xs;
-    std::vector< std::vector<double> > result = g->vconvolute(_iOrd, _xmur, _xmuf);
+    std::vector< std::vector<double> > result = g->vconvolute(_iOrd, _xmur, _xmuf);        
     for(int i = 0; i < result.size(); i++)
       for(int j = 0; j < result[i].size(); j++)
         xs.push_back(result[i][j]);
