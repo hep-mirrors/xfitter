@@ -24,7 +24,6 @@ extern "C" {
 }
 
 void common_check_(int *i) {
-  std::cout << steering_.hf_scheme_ << "\n";
   if ( *i != steering_.steering_check) {
     string text = "F: Inconsistency of the fortran common steering and C-structure steering_. Check steering.inc and xfitter_cpp.h that the list of variables matches";
     hf_errlog_(17032505,text.c_str(),text.size());
