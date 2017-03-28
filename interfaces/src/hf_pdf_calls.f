@@ -1,3 +1,8 @@
+      subroutine HF_Get_PDFsQ(x,q,PDFSF)
+      double precision x,q,PDFSF(*)
+      call HF_Get_PDFs(x,q*q,PDFSF)
+      end
+
       subroutine HF_Get_PDFs(x,q2,PDFSF)
 C----------------------------------------------------------------------
 C Interface to PDF 
@@ -133,6 +138,34 @@ C----------------------------------------------------
       endif
 C----------------------------------------------------
       end
+
+
+      double precision Function HF_Get_alphasQ(Q)
+C----------------------------------------------------
+C
+C  Return alpha_S value for a given Q
+C
+C----------------------------------------------------
+      implicit none
+#include "steering.inc" 
+      double precision Q
+      integer nf,ierr
+      double precision ASFUNC,alphaQCD
+      double precision alphaspdf
+
+C----------------------------------------------------
+      if (PDFStyle.eq.'LHAPDFNATIVE') then
+         HF_Get_alphasQ = alphaspdf(Q)
+      else
+      if (itheory.eq.10) then
+         HF_Get_alphasQ = alphaQCD(Q)
+      else
+         HF_Get_alphasQ = ASFUNC(Q*Q,nf,ierr) 
+      endif
+      endif
+C----------------------------------------------------
+      end
+
 
 
       double precision function hf_get_mur(iDataSet)
