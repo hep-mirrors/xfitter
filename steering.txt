@@ -3,19 +3,14 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 1
+    NInputFiles = 3
  
   ! Input files:
 
- !   InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
-     InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
-     InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920_two.dat'
- !   InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
-    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
-    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
-    InputFileNames(5) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
-    InputFileNames(6) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat'
-    InputFileNames(7) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat'
+     InputFileNames = 
+     'Z0_applgrid_nnlo_reaction.dat',
+     'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
 
 
 &End
@@ -60,7 +55,7 @@
 &Scales 
     DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
     DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
- !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
+    DataSetTheoryOrder = 7*'NLO',"NLO",'NNLO'
  !   DataSetMaxNF(2) = 4    ! Enable the H-VFNS (requires APFEL)
  !   DataSetMaxNF = 9*5
 &End
