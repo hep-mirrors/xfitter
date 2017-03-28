@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <valarray>
+#include <functional>
 
 using std::map;
 using std::string;
@@ -11,13 +12,20 @@ using std::vector;
 using std::valarray;
 
 // typedef double (*pxFx)(double*, double*);
+
+
 typedef double (*pZeroParFunc)();
-typedef double (*pOneParFunc)(double*);
-typedef double (*pTwoParFunc)(double*, double*);
-typedef void   (*pThreeParSub)(double*, double*, double*);  
+typedef double (*pOneParFunc)(const double&);
+typedef double (*pTwoParFunc)(const double&, const double& );
+typedef void   (*pThreeParSub)(const double& , const double&, const double&);  
 
 // Function to emulate LHAPDF xfx behavior:
-typedef void   (*pXFXlike)(double*, double*, double*);
+typedef void   (*pXFXlike)(const double&, const double&, double*);
+
+//using pZeroParFunc = std::function< double() >;
+//using pOneParFunc  = std::function< double(const double&) >;
+//using pTwoParFunc  = std::function< double(const double&, const double&) >;
+//using pXFXlike     = std::function< void(const double& , const double&, double* ) >;
 
 /**
   @class ReactionTheory
@@ -51,7 +59,7 @@ class ReactionTheory
   virtual void setxFitterParametersI(map<string,int> &xfitter_pars) {_xfitter_pars_i = xfitter_pars; }; ///< Set environment map
   virtual void setxFitterParametersS(map<string,string> &xfitter_pars) {_xfitter_pars_s = xfitter_pars; }; ///< Set environment map
 
-  virtual void setEvolFunctions(double (*palpha_S)(double *), map<string, pTwoParFunc> *func2D  ) { alpha_S = palpha_S; PDFs = func2D; }; 
+  virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { alpha_S = palpha_S; PDFs = func2D; }; 
 				///< Set alpha_S and PDF maps
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
@@ -64,17 +72,20 @@ class ReactionTheory
   virtual void printInfo(){};
 
   // Helper functions to emmulate LHAPDF6 calls:
-  void xfx(double x, double q, double* results){double q2=q*q; (*_xfx)(&x,&q2,&results[0]); };
+  void xfx(const double& x, const double& q, double* results){ (_xfx)(x,q,results); };
   double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
   
   // strong coupling at scale q [GeV]
-  double alphaS(double q) { double q2 = q * q; return alpha_S(&q2); }
+  double alphaS(double q) { return alpha_S(q); }
 
+  const pXFXlike getXFX() { return _xfx;};
+  // Default helper to determine if bin is masked or not
+  virtual bool notMasked(int DSID, int Bin);
 
  protected:
 
   virtual int parseOptions() { return 0;};
-  double (*alpha_S)(double *);
+  double (*alpha_S)(const double& );
   map<string, pTwoParFunc> *PDFs;
 
   // Check if a parameter is present on the list:
@@ -88,8 +99,11 @@ class ReactionTheory
 
   // Helper function to get a parameter (double)
   double GetParam(string name) const
-  {
-    return *_xfitter_pars.at(name);
+  {    
+    if (_xfitter_pars.find(name) != _xfitter_pars.end() ) 
+      return *_xfitter_pars.at(name);
+    else
+      return 0;
   }
 
   // Helper function to get a parameter (integer)
@@ -109,13 +123,13 @@ class ReactionTheory
   valarray<double> *GetBinValues(int idDS, string binName)
   { 
     map<string, valarray<double> >* mapBins =  _dsBins[idDS];
-    if (mapBins == NULL ) {
-      return NULL;
+    if (mapBins == nullptr ) {
+      return nullptr;
     }
     else { 
       map<string, valarray<double> >::iterator binPair = mapBins->find(binName);
       if ( binPair == mapBins->end() ) {
-	return NULL;
+	return nullptr;
       }
       else {
 	return &binPair->second;

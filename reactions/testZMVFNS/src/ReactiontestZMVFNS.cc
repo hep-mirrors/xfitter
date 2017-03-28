@@ -42,20 +42,14 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
 
   // Get bin arrays, check that Q2, x and y are present:
 
-  std::valarray<double> *q2p  = GetBinValues(dataSetID,"Q2");  
-  std::valarray<double> *xp  = GetBinValues(dataSetID,"x");  
-  std::valarray<double> *yp  = GetBinValues(dataSetID,"y");  
-  
-  if (q2p == NULL || xp == NULL || yp == NULL ) {
+  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");  
+  if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
     std::cout << "\n\nFATAL ERROR: DIS NC requires x,Q2 and y bins to be present !!!" << std::endl;
     std::cout << "CHECK THE DATAFILE !!!" << std::endl;
     return 1;
   }
 
-  std::valarray<double> q2 = *q2p;
-  std::valarray<double> x = *xp;
-  std::valarray<double> y = *yp;
-
+  auto q2 = *q2p, x = *xp, y = *yp;
   // Compute u and d-type F2s:
 
   int Npnt = q2.size();
@@ -95,10 +89,10 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
   
   // look at gluon:
   double xx = 0.001;
-  double (*xg)(double *, double *) = (*PDFs)["xg"];
+  pTwoParFunc xg = (*PDFs)["xg"];
 
-  std::cout << " xg(100,0.001) = " << (*PDFs)["xg"](&xx,&q) << std::endl;
-  std::cout << " xg(100,0.001) = " << xg(&xx,&q) << std::endl;
+  std::cout << " xg(100,0.001) = " << (*PDFs)["xg"](xx,q) << std::endl;
+  std::cout << " xg(100,0.001) = " << xg(xx,q) << std::endl;
 
   // another look at gluon:
   std::valarray<double> pdfV(13);
