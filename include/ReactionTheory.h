@@ -59,14 +59,15 @@ class ReactionTheory
   virtual void setxFitterParametersI(map<string,int> &xfitter_pars) {_xfitter_pars_i = xfitter_pars; }; ///< Set environment map
   virtual void setxFitterParametersS(map<string,string> &xfitter_pars) {_xfitter_pars_s = xfitter_pars; }; ///< Set environment map
 
-  virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { alpha_S = palpha_S; PDFs = func2D; }; 
+  virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { _alpha_S = palpha_S; PDFs = func2D; }; 
 				///< Set alpha_S and PDF maps
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
   virtual void setXFX(pXFXlike xfx){ _xfx = xfx; };
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
-  virtual void setDatasetParamters( int dataSetID, map<string,string> pars) {} ;
-//  virtual void resultAt(valarray<double> *val){ _val = val; };  
+
+  /// Set dataset and reaction parameters
+  virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
   virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
 
   virtual void printInfo(){};
@@ -76,16 +77,17 @@ class ReactionTheory
   double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
   
   // strong coupling at scale q [GeV]
-  double alphaS(double q) { return alpha_S(q); }
+  double alphaS(double q) { return _alpha_S(q); }
 
+  // Return pointer-functions for external use:
   const pXFXlike getXFX() { return _xfx;};
+  const pOneParFunc getAlphaS() { return _alpha_S;}
   // Default helper to determine if bin is masked or not
   virtual bool notMasked(int DSID, int Bin);
 
  protected:
 
   virtual int parseOptions() { return 0;};
-  double (*alpha_S)(const double& );
   map<string, pTwoParFunc> *PDFs;
 
   // Check if a parameter is present on the list:
@@ -145,11 +147,16 @@ class ReactionTheory
   /// must contain 'binFlag' key
   vector<int> _dsIDs;
   map<int, map<string, valarray<double> >* > _dsBins;
+  /// GLobal double parameters:
   map<string, double* > _xfitter_pars;
+  /// GLobal integer parameters:
   map<string, int > _xfitter_pars_i;
+  /// GLobal string parameters:
   map<string, string > _xfitter_pars_s;
+
  private:
   pXFXlike _xfx;
+  pOneParFunc _alpha_S;
 
 };
 

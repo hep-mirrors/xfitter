@@ -7,10 +7,6 @@
 
 #include "ReactionAPPLgrid.h"
 
-// some hacking, to transfer XFX and alpha_S from class
-pOneParFunc gAs  = nullptr;
-pXFXlike    gXFX = nullptr;
-
  // the class factories
 extern "C" ReactionAPPLgrid* create() {
   return new ReactionAPPLgrid();
@@ -37,13 +33,13 @@ int OrderMap(std::string ord) {
  // Initialize at the start of the computation
 int ReactionAPPLgrid::initAtStart(const string &s )
 {
-   gXFX = getXFX();
-   gAs  = alpha_S;
+  //   gXFX = getXFX();
+  //  gAs  = alpha_S;
    return 0;
 }
 
  // Initialisze for a given dataset:
-void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> pars) {
+void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
 // Get grid name:
    if ( pars.find("GridName") != pars.end() )  {
      try {
@@ -81,7 +77,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
  // Main function to compute results at an iteration
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
  // Convolute the grid:
-   std::vector<double> vals =  _grids[dataSetID]->vconvolute( gXFX, gAs, _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+   std::vector<double> vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
 
    int j=0; 
    for (std::size_t i=0; i<vals.size(); i++) {
