@@ -77,6 +77,9 @@ extern struct thexpr_cb {
   int normalised;
   int murdef;
   int mufdef;
+  int ninfo;  // dataset info as well  
+  double datainfo[100];
+  char CInfo[100][80];
 } theorexpr_;
 
 extern struct ord_scales {

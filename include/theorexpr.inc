@@ -14,5 +14,15 @@ C> Common block for theory expression
       integer murdef
       integer mufdef
 
+C Also store dataset info here
+      integer ninfoMax
+      parameter (ninfoMax=100)
+      integer ninfo
+      double precision datainfo(ninfoMax)
+      character *80 CInfo(ninfoMax)
+
+
       common/theorexpr/ dynscale, NTerms, TermName, TermType, TermInfo, 
-     & TermSource, TheorExpr, ppbar_collisions, normalised, murdef, mufdef
+     &     TermSource, TheorExpr, ppbar_collisions, normalised, 
+     $     murdef, mufdef,
+     $     ninfo, datainfo, CInfo

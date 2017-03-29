@@ -217,9 +217,8 @@ C------------------------------------------------------------------------
 
       character *(*) CFile
 C Namelist  variables:    
-      integer ndataMax,ninfomax,nsystMax,ncolumnMax
+      integer ndataMax,nsystMax,ncolumnMax
       parameter (ndataMax=ntot)
-      parameter (ninfoMax=100)
       parameter (nsystMax=nsysmax)
 
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
@@ -227,13 +226,12 @@ C Namelist  variables:
       character *80 Name
       integer  NData
       integer  NUncert
-      integer  NInfo
       integer  NBinDimension
 
       
       character *80 BinName(NBinDimensionMax)
-      double precision datainfo(ninfoMax)
-      character *80 CInfo(ninfoMax)
+c      double precision datainfo(ninfoMax)
+c      character *80 CInfo(ninfoMax)
       character *80 Reaction
 
       double precision buffer(ncolumnMax)
