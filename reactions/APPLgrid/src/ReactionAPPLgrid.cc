@@ -78,12 +78,8 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
  // Convolute the grid:
    std::vector<double> vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
-
-   int j=0; 
    for (std::size_t i=0; i<vals.size(); i++) {
-      if ( notMasked(dataSetID, i))  {
-	 val[j++] = vals[i];
-      }
+       val[i] = vals[i];
    }
   return 0;
 }
