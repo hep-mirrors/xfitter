@@ -111,6 +111,13 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   ste.assign(theorexpr_.theorexpr, string(theorexpr_.theorexpr).find(' '));
   TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sti, sts, ste);
 
+  for (int i=0; i<theorexpr_.ninfo; i++) {
+    std::string n(theorexpr_.CInfo[i]);
+    n = n.substr(0,80);
+    n.erase(std::remove(n.begin(), n.end(), ' '), n.end());
+    te->AddDSParameter(n, theorexpr_.datainfo[i]);
+  } 
+ 
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetDynamicScale(theorexpr_.dynscale);
   te->SetNormalised(theorexpr_.normalised);

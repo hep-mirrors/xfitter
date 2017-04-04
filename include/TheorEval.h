@@ -120,6 +120,8 @@ class TheorEval{
   const vector<int> *getBinFlags() const { return &_binFlags; }
   //! Selects if we have a proton-antiproton collision
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
+  //! Add parameters global for a dataset such as collision energy, polarisation etc
+  void AddDSParameter(const string& name, double value) {_dsPars[name] = value;};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
   void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
@@ -196,6 +198,9 @@ class TheorEval{
 
   /// bin-by-bin dynamic scale
   float _dynamicscale;
+
+  /// also keep DS pars, which are valid for all terms 
+  map <string, double> _dsPars;
 };
 
 typedef map <int, TheorEval* > tTEmap;

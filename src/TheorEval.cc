@@ -428,11 +428,8 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
   map<string, string> pars = SplitTermInfo(term_info);
 
-  // also generate map from CInfo -> DataInfo  (empty for now)
-  map<string, double> dsPars = {};
-
   // and transfer to the module
-  rt->setDatasetParamters(_dsId, pars, dsPars);
+  rt->setDatasetParamters(_dsId, pars, _dsPars);
 
   // initialize
   if (rt->initAtStart(term_info) != 0) {
