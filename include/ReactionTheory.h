@@ -63,7 +63,7 @@ class ReactionTheory
 				///< Set alpha_S and PDF maps
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
-  virtual void setXFX(pXFXlike xfx){ _xfx = xfx; };
+  virtual void setXFX(pXFXlike xfx, string type="p" ){ _xfx[type] = xfx; };
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
 
   /// Set dataset and reaction parameters
@@ -73,14 +73,14 @@ class ReactionTheory
   virtual void printInfo(){};
 
   // Helper functions to emmulate LHAPDF6 calls:
-  void xfx(const double& x, const double& q, double* results){ (_xfx)(x,q,results); };
+  void xfx(const double& x, const double& q, double* results){ (_xfx["p"])(x,q,results); };
   double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
   
   // strong coupling at scale q [GeV]
   double alphaS(double q) { return _alpha_S(q); }
 
   // Return pointer-functions for external use:
-  const pXFXlike getXFX() { return _xfx;};
+  const pXFXlike getXFX(string type="p") { return _xfx[type];};
   const pOneParFunc getAlphaS() { return _alpha_S;}
   // Default helper to determine if bin is masked or not
   virtual bool notMasked(int DSID, int Bin);
@@ -155,7 +155,7 @@ class ReactionTheory
   map<string, string > _xfitter_pars_s;
 
  private:
-  pXFXlike _xfx;
+  map<string,pXFXlike> _xfx;
   pOneParFunc _alpha_S;
 
 };

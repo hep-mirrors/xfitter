@@ -420,7 +420,8 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
 
   // simplify interfaces to LHAPDF:
-  rt->setXFX(&HF_GET_PDFSQ_WRAP);
+  rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
+  rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
 
   // Set bins
   rt->setBinning(_dsId, &gDataBins[_dsId]);
