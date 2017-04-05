@@ -227,6 +227,11 @@ C
       do i=1,NSYS
          System(i) = ' '
       enddo
+
+C Check variables for common blocks:
+      steering_check = 171717
+      call common_check(steering_check)
+
       end
 
 
