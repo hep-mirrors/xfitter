@@ -1,7 +1,30 @@
+C> @brief PDF for p (vs Q)
+
       subroutine HF_Get_PDFsQ(x,q,PDFSF)
       double precision x,q,PDFSF(*)
       call HF_Get_PDFs(x,q*q,PDFSF)
       end
+
+C> @brief PDF for pbar  (vs Q)
+
+      subroutine HF_Get_PDFsQ_bar(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      do ifl =1,N_CHARGE_PDF
+         xft=xf(ifl)
+         xf(ifl) = xf(-ifl)
+         xf(-ifl)=xft
+      enddo
+
+      end subroutine
+
+
 
       subroutine HF_Get_PDFs(x,q2,PDFSF)
 C----------------------------------------------------------------------

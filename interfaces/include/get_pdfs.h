@@ -21,6 +21,15 @@ extern "C"  /* prevent C++ name mangling */
 #endif
 void HF_GET_PDFSQ_WRAP(const double &x,  const double &q, double *pdfs);
 
+//
+// Function to obtain PDFs
+// 
+#define HF_GET_PDFSQ_BAR_WRAP F77_FUNC_ (hf_get_pdfsq_bar, HF_GET_PDFSQ_BAR)
+#ifdef __cplusplus
+extern "C"  /* prevent C++ name mangling */
+#endif
+void HF_GET_PDFSQ_BAR_WRAP(const double &x,  const double &q, double *pdfs);
+
 
 //
 // Function to get alphaS
