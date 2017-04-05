@@ -71,16 +71,30 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
   if (_muR[dataSetID] == 0) _muR[dataSetID] = 1.0; 
   if (_muF[dataSetID] == 0) _muF[dataSetID] = 1.0;
 
+// Determine if pp or ppbar
+  collType = collision::pp;
+  if (parsDataset.find("ppbar") != parsDataset.end() ) {
+    collType = collision::ppbar;
+  }
 }
 
 
  // Main function to compute results at an iteration
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
  // Convolute the grid:
-   std::vector<double> vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
-   for (std::size_t i=0; i<vals.size(); i++) {
-       val[i] = vals[i];
-   }
+  std::vector<double> vals(val.size());
+  switch (collType) 
+    {
+    case collision::pp :  
+      vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+    case collision::ppbar :  
+      vals =  _grids[dataSetID]->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+    case collision::pd :
+      ;
+    }
+  for (std::size_t i=0; i<vals.size(); i++) {
+    val[i] = vals[i];
+  }
   return 0;
 }
 
