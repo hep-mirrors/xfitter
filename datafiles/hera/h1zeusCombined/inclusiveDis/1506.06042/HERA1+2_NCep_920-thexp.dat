@@ -3,7 +3,7 @@
 
 &Data 
   Name = "HERA1+2 NCep 920" 
-  Reaction  = 'reaction'
+  Reaction  = 'NC e+-p'
   NData =   100
   NColumn =   176
   ColumnType = 3*"Bin","Sigma", 172*"Error"

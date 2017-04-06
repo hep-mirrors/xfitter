@@ -47,6 +47,11 @@ c         call usepar(vIPDFSET)
 C-------------------------------------------------------------------
       if ( UseFixedTheory(IDataSet)) then
          Call UseFixedTheoryXsection(IDataSet) 
+      elseif ( DATASETTheoryType(IDataSet).eq.'expression' ) then  ! 6/04/17 This has priority
+
+         call get_theor_eval(IDataSet, 
+     $        NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
+
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
          if(Itheory.lt.100.) then
             Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
