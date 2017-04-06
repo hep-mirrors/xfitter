@@ -33,8 +33,6 @@ int OrderMap(std::string ord) {
  // Initialize at the start of the computation
 int ReactionAPPLgrid::initAtStart(const string &s )
 {
-  //   gXFX = getXFX();
-  //  gAs  = alpha_S;
    return 0;
 }
 
@@ -76,6 +74,9 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
   if (parsDataset.find("ppbar") != parsDataset.end() ) {
     _collType = collision::ppbar;
   }
+  if (parsDataset.find("pn") != parsDataset.end() ) {
+    _collType = collision::pn;
+  }
 }
 
 
@@ -89,8 +90,8 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
       vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
     case collision::ppbar :  
       vals =  _grids[dataSetID]->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
-    case collision::pd :
-      ;
+    case collision::pn :
+      vals =  _grids[dataSetID]->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
     }
   for (std::size_t i=0; i<vals.size(); i++) {
     val[i] = vals[i];

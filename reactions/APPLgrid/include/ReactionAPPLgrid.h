@@ -34,7 +34,7 @@ class ReactionAPPLgrid : public ReactionTheory
     virtual int parseOptions(){ return 0;};    
 
  private:
-    enum class collision { pp, ppbar, pd}  _collType;
+    enum class collision { pp, ppbar, pn}  _collType;
     map<int, std::shared_ptr<appl::grid> > _grids;
     map<int, int> _order;
     map<int, double> _muR, _muF; // !> renormalisation and factorisation scales

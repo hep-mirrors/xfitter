@@ -422,6 +422,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   // simplify interfaces to LHAPDF:
   rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
   rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
+  rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
 
   // Set bins
   rt->setBinning(_dsId, &gDataBins[_dsId]);

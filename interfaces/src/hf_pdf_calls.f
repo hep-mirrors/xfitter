@@ -24,6 +24,27 @@ C-----
 
       end subroutine
 
+C> @brief PDF for n  (vs Q)
+      subroutine HF_Get_PDFsQ_n(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      ! switch up and down
+      xft=xf(1)
+      xf(1) = xf(2)
+      xf(2) = xft
+      ! switch anti-up and anti-down
+      xft=xf(-1)
+      xf(-1) = xf(-2)
+      xf(-2) = xft
+
+      end subroutine
+
 
 
       subroutine HF_Get_PDFs(x,q2,PDFSF)
