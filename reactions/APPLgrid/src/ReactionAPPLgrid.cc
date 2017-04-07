@@ -6,6 +6,7 @@
 */
 
 #include "ReactionAPPLgrid.h"
+#include "xfitter_cpp_base.h"
 
  // the class factories
 extern "C" ReactionAPPLgrid* create() {
@@ -13,10 +14,7 @@ extern "C" ReactionAPPLgrid* create() {
 }
 
 
-// Place here temporary. Should go in simplified xfitter_cpp.h-like.
-extern "C" {
-  void hf_errlog_(const int &id, const char text[], int);
-}
+// Probably some other place is better for this function:
 int OrderMap(std::string ord) {
   std::map <string,int> mOrderMap  = { {"NNNLO",4}, {"NNLO",3}, {"NLO",2}, {"LO",1} };
   if ( mOrderMap.find(ord) != mOrderMap.end() ) {

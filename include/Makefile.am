@@ -10,4 +10,4 @@ APFELgridGeneration.h  couplings.inc  extrapars.inc  iofnames.inc  pdf2yaml.h   
 applgrid_fastpdf.inc   covar.inc      fcn.inc        list.h        pdflength.inc     ReactionTheory.h            theorexpr.inc \
 c2yaml.h               datasets.inc   for_debug.inc    pdfparam.inc      scales.inc                  thresholds.inc \
 chi2scan.inc           dimensions.h   fractal.inc     polarity.inc      steering.inc \
-c_interface.inc        dipole.inc     g_offset.inc   Makefile.in   qcdnumhelper.inc  systematics.inc             xfitter_cpp.h 
+c_interface.inc        dipole.inc     g_offset.inc   Makefile.in   qcdnumhelper.inc  systematics.inc             xfitter_cpp.h xfitter_cpp_base.h

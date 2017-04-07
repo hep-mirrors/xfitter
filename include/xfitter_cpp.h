@@ -1,9 +1,11 @@
 #ifndef xfitter_cpp_h
 #define xfitter_cpp_h
+
 #include "dimensions.h"
 #include <string>
 using namespace std;
 #include <iostream>
+#include "xfitter_cpp_base.h"
 
 //Fortran wrapper for lhapdferrors
 
@@ -18,9 +20,6 @@ extern"C" {
   void set_verbosity_(int &level);
     
     
-  //Error logging function
-  void hf_errlog_(const int &id, const char text[], int);
-
   double chi2data_theory_(const int &iflag);
 
   //IO functions
