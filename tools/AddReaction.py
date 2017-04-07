@@ -129,3 +129,7 @@ os.system("cp /tmp/configure.ac configure.ac")
 print "Update Makefile.am"
 os.system("sed 's|tools/process|tools/process reactions/" +name +"/src|' Makefile.am > /tmp/Makefile.am")
 os.system("cp /tmp/Makefile.am Makefile.am")
+
+print "Update doxygen.cfg"
+os.system("sed 's|reactions/APPLgrid/include|reactions/APPLgrid/include reactions/" +name +"/src reactions/" +name +"/include|' doxygen.cfg > /tmp/doxygen.cfg   ")
+os.system("cp /tmp/doxygen.cfg  doxygen.cfg")
