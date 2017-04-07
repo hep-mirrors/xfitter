@@ -66,23 +66,32 @@ class ReactionTheory
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
   virtual void initAtIteration() {};
   virtual void setXFX(pXFXlike xfx, string type="p" ){ _xfx[type] = xfx; };
+
+  
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
 
-  /// Set dataset and reaction parameters
+  //! Set dataset @param dataSetID parameters which can be term- and dataset-specific
   virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
-  virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
 
+  //! Main function to compute predictions for @param dataSetID 
+  virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;  
+ 
+  //! Provide additional optional information about the reaction
   virtual void printInfo(){};
 
-  /// Helper functions to emmulate LHAPDF6 calls:
+  //! Helper function to emmulate LHAPDF6 calls to get PDFs
   void xfx(const double& x, const double& q, double* results){ (_xfx["p"])(x,q,results); };
+  
+  //!  Helper function to emmulate LHAPDF6 calls to get PDFs
   double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
   
   //! strong coupling at scale q [GeV]
   double alphaS(double q) { return _alpha_S(q); }
 
-  //! Return pointer-functions for external use:
+  //! Return pointer-function to XFX for external use
   const pXFXlike getXFX(string type="p") { return _xfx[type];};
+
+  //!  Return pointer-function to alphaS for external use
   const pOneParFunc getAlphaS() { return _alpha_S;}
 
   //! Default helper to determine if bin is masked or not
@@ -99,8 +108,7 @@ class ReactionTheory
   virtual int parseOptions() { return 0;};
   map<string, pTwoParFunc> *PDFs;
 
-  // Check if a parameter is present on the list:
-  bool checkParam(string name) 
+  bool checkParam(string name)         ///< Check if a parameter is present on the list
   {
     return (_xfitter_pars.find(name) !=  _xfitter_pars.end()) 
       || (_xfitter_pars_i.find(name) !=  _xfitter_pars_i.end()) 
