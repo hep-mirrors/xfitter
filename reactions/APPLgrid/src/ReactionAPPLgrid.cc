@@ -6,7 +6,6 @@
 */
 
 #include "ReactionAPPLgrid.h"
-#include "xfitter_cpp_base.h"
 
  // the class factories
 extern "C" ReactionAPPLgrid* create() {

@@ -6,6 +6,8 @@
 #include <valarray>
 #include <functional>
 
+#include "xfitter_cpp_base.h"
+
 using std::map;
 using std::string;
 using std::vector;
@@ -72,18 +74,25 @@ class ReactionTheory
 
   virtual void printInfo(){};
 
-  // Helper functions to emmulate LHAPDF6 calls:
+  /// Helper functions to emmulate LHAPDF6 calls:
   void xfx(const double& x, const double& q, double* results){ (_xfx["p"])(x,q,results); };
   double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
   
-  // strong coupling at scale q [GeV]
+  //! strong coupling at scale q [GeV]
   double alphaS(double q) { return _alpha_S(q); }
 
-  // Return pointer-functions for external use:
+  //! Return pointer-functions for external use:
   const pXFXlike getXFX(string type="p") { return _xfx[type];};
   const pOneParFunc getAlphaS() { return _alpha_S;}
-  // Default helper to determine if bin is masked or not
+
+  //! Default helper to determine if bin is masked or not
   virtual bool notMasked(int DSID, int Bin);
+ 
+  //! Helper function to report not implemented functionality 
+  void NOT_IMPLEMENTED(const string& functionName) {
+    string message = "F: Function "+functionName+" is not implemented for module" + getReactionName();
+    hf_errlog_(17040701,message.c_str(),message.size());
+  } 
 
  protected:
 
