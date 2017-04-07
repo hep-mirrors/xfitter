@@ -1,5 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
-pkginclude_HEADERS = JScif.h TRc.h trs.h 
+
+dist_noinst_HEADERS = JScif.h TRc.h trs.h 
 # defparams.inc DDIS.coca xdr.c
 # The name of the library
 noinst_LIBRARIES = libDiffDIS.a

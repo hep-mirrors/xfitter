@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 noinst_LIBRARIES = libnum_utils.a
-pkginclude_HEADERS = c205body.inc  d107rd.inc  fact.inc  feqn.inc  finv.inc
+dist_noinst_HEADERS = c205body.inc  d107rd.inc  fact.inc  feqn.inc  finv.inc
 
 libnum_utils_a_SOURCES = dchpws.F ddilog.F dgammf.F ranlux.F rnorml.F rnormx.F \
                          rnpssn.F snleq64.F dbesk0.F dgquad.F d107d1.F \

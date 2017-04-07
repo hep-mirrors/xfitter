@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-pkginclude_HEADERS = offset.h
+dist_noinst_HEADERS = offset.h
 # Explicit depence for all files:
 *.o: ../include/*.inc 
 
