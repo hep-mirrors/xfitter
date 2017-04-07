@@ -273,7 +273,7 @@ int close_theor_eval_()
  */
 int read_reactions_()
 {
-  ifstream frt((PREFIX+string("/Reactions.txt")).c_str());
+  ifstream frt((PREFIX+string("/lib/Reactions.txt")).c_str());
   if ( frt.is_open() ) {
     while (1){
       string rname, lib;
@@ -287,7 +287,7 @@ int read_reactions_()
     }
   }
   else {
-    string text = "F: can not open Reactions.txt file. Check your xFitter directory";
+    string text = string("F: can not open Reactions.txt file. Check your ")+PREFIX+string("/lib directory");
     hf_errlog_(16121401,text.c_str(),text.size());
   }
   return 1;
