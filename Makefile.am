@@ -30,9 +30,8 @@ SUBDIRS+= src xfitter $(DOCS)
 
 include $(top_srcdir)/aminclude.am
 
-
-
-
+reactiondir = $(prefix)
+reaction_DATA = Reactions.txt
 
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
