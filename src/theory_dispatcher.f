@@ -274,6 +274,8 @@ C Drell-Yan:
          call DDIS_FixModelParams(parminuitsave)
       endif
 
+C Also for reactions:
+      call init_at_iteration
 
       end
 

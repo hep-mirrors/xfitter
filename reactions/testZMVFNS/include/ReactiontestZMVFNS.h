@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ReactionTheory.h"
+#include <iostream>
 
 /**
   @class' ReactiontestZMVFNS
@@ -27,6 +28,7 @@ class ReactiontestZMVFNS : public ReactionTheory
     virtual string getReactionName() const { return  "testZMVFNS" ;};
     int initAtStart(const string &); 
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
+    virtual void initAtIteration() override { std::cout << " FROM INIT AT ITERATION " << std::endl; };
  protected:
     virtual int parseOptions(){ return 0;};
 };

@@ -19,6 +19,7 @@
 #include "TheorEval.h"
 //#include "datasets.icc"
 #include <yaml-cpp/yaml.h>
+#include "ReactionTheory.h"
 
 using namespace std;
 
@@ -53,6 +54,7 @@ extern "C" {
 			 const double &min, const double &max, 
 			 const double &prior, const double &priorUnc,
 			 const int &add, int len);
+  void init_at_iteration_(); ///< Loop over reactions, initialize them
 }
 
 /// global dataset to theory evaluation pointer map
@@ -497,4 +499,10 @@ void parse_params_(){
     parse_file(userPars);
   }
   ParsToFortran_();
+}
+
+void init_at_iteration_() {
+  for ( auto reaction : gNameReaction ) {
+    reaction.second->initAtIteration();
+  }
 }
