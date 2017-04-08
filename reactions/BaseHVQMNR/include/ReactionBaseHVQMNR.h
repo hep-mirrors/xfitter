@@ -101,7 +101,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
     std::vector<TH2D*> _hCalculatedXSec;
     // status flags
     bool _isInitAtStart;
-    int _ifcncount_last;
+    //int _ifcncount_last;
 
     // check if appropriate heavy-flavour scheme is used
     void CheckHFScheme();

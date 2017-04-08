@@ -100,11 +100,11 @@ void ReactionHVQMNR_LHCb_7TeV_beauty::initAtIteration()
 {
   // protection against overdoing
   // TODO: remove this trick
-  if(_ifcncount_last == cfcn_.ifcncount)
-    return;
-  _ifcncount_last = cfcn_.ifcncount;
+  //if(_ifcncount_last == cfcn_.ifcncount)
+  //  return;
+  //_ifcncount_last = cfcn_.ifcncount;
 
-  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtIteration()\n");
+  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtIteration() %d \n", cfcn_.ifcncount);
 
   // read needed MINUIT parameters (enough to be done once per iteration)
   UpdateParameters();
@@ -125,7 +125,7 @@ void ReactionHVQMNR_LHCb_7TeV_beauty::initAtIteration()
 int ReactionHVQMNR_LHCb_7TeV_beauty::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
   // TODO move to core xFitter
-  initAtIteration();
+  //initAtIteration();
   //printf("ReactionHVQMNR_LHCb_7TeV_beauty::compute() %d\n", dataSetID);
   
   // get histogramm with cross sections for needed dataset
