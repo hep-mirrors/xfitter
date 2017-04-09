@@ -17,7 +17,8 @@
   TheoryType = 'expression'
   TermName = 'R'
   TermType = 'reaction'
-  TermSource = 'testZMVFNS'
+ ! TermSource = 'testZMVFNS'
+  TermSource = 'BaseDISNC'
   TermInfo = ''
   TheorExpr = 'R'
 &End 
