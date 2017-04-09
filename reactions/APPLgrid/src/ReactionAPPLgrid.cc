@@ -85,10 +85,13 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
     {
     case collision::pp :  
       vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+      break; 
     case collision::ppbar :  
       vals =  _grids[dataSetID]->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+      break;
     case collision::pn :
       vals =  _grids[dataSetID]->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+      break;
     }
   for (std::size_t i=0; i<vals.size(); i++) {
     val[i] = vals[i];
