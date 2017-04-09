@@ -8,9 +8,9 @@
   ! Input files:
 
      InputFileNames = 
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
      'Z0_applgrid_nnlo_reaction.dat',
      'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
 
 
 &End
@@ -195,12 +195,6 @@
    step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
 &End
 
-
-&ExtraMinimisationParameters
-  name  = 'FL_fudge'
-  value =  1.02
-  step  =  0.01
-&End
 
 *
 * Output steering cards
