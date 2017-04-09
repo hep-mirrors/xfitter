@@ -2,16 +2,12 @@
 # Test file to illustrate how parameters can be transferred
 #
 
+Mz : 91.1876
+Mw : 80.385
+sin2thW : 
+  value : 0.23127
+  step  : 0.02  
 
-FL_fudge : 
-  value: 1.2
-  step:  0.1
-  prior: 1.2  
-  priorUnc: 0.1
-
-a : 2.1232
-b : This is a test number one
-c : 3e-12
 Order : NLO
 NFlavour : 5
 
@@ -26,15 +22,6 @@ AalphaS:
   min: 19.0
   max: 21.0
 
-# We want to fit mB, however, implicitly:
-AmB: [4.75, 0.01, 4., 6., 4.75, 0.2]
-
-# another implicit way
-Amc:
-  - 1.4
-  - 0.01
-  - 1.2
-  - 1.6
 
 Order: NNLO
 muF: 1.0

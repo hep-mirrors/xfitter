@@ -547,6 +547,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 reactions/BaseDISNC/src/Makefile
 		 reactions/APPLgrid/src/Makefile
 		 reactions/BaseHVQMNR/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
