@@ -29,6 +29,8 @@ class ReactionBaseDISNC : public ReactionTheory
     virtual void initAtIteration() override; 
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) override ;
  protected:
+    enum class dataType { sigred, f2b, f2c} _dataType;  //!< Define compute output.
+
     /* 
        A few methods specific for DIS NC process. 
     */

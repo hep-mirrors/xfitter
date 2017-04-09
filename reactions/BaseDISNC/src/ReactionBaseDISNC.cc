@@ -16,13 +16,20 @@ void print(T d) {
 
 // Helpers for QCDNUM:
 
-//! F2,FL
-const double CNEP2F[] = {0.,0.,1.,0.,1.,0.,0.,0.,1.,0.,1.,0.,0.}; //u
+//! F2,FL full
+const double CNEP2F[] = {0.,0.,1.,0.,1.,0.,0.,0.,1.,0.,1.,0.,0.}; //u  (top off ?)
 const double CNEM2F[] = {0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0.}; //d
 
-//! xF3
+//! xF3 full
 const double CNEP3F[] = {0.,0.,-1.,0.,-1.,0.,0.,0.,1.,0.,1.,0.,0.}; //u
 const double CNEM3F[] = {0.,-1.,0.,-1.,0.,-1.,0.,1.,0.,1.,0.,1.,0.}; //d
+
+//! c
+const double CNEP2Fc[] = {0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.}; //c
+
+//! b
+const double CNEM2Fb[] = {0.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.}; //b
+
 
 // define QCDNUM function:
 extern "C" {
@@ -45,7 +52,18 @@ int ReactionBaseDISNC::initAtStart(const string &s)
 // Main function to compute results at an iteration
 int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  sred(dataSetID, val, err) ;
+  switch ( _dataType) 
+    {
+    case dataType::sigred :
+      sred(dataSetID, val, err) ;
+      break ;
+    case dataType::f2c :
+      F2(dataSetID, val, err) ;
+      break ;
+    case dataType::f2b :
+      F2(dataSetID, val, err) ;
+      break ;
+    }
   return 0;
 }
 
@@ -61,7 +79,7 @@ void ReactionBaseDISNC::initAtIteration() {
   _vu =  _au - (4./3.)*_sin2thetaW;
   _vd =  _ad + (2./3.)*_sin2thetaW;
   
-  print (_Mz);
+  //  print (_Mz);
 
   // Re-set internal maps (faster access):
   for ( auto ds : _dsIDs)  {
@@ -83,6 +101,15 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
 
+  _dataType = dataType::sigred;  // Reduced cross section by default.
+  if ( parsDataset.find("F2c") != parsDataset.end() ) {
+    _dataType = dataType::f2c;
+  }
+  if ( parsDataset.find("F2b") != parsDataset.end() ) {
+    _dataType = dataType::f2b;
+  }
+
+
   // Allocate internal arrays:
   _f2u[dataSetID].resize(_npoints[dataSetID]);
   _f2d[dataSetID].resize(_npoints[dataSetID]);
@@ -90,10 +117,7 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
   _fld[dataSetID].resize(_npoints[dataSetID]);
   _xf3u[dataSetID].resize(_npoints[dataSetID]);
   _xf3d[dataSetID].resize(_npoints[dataSetID]);
-
 }
-
-
 
 void ReactionBaseDISNC::F2gamma BASE_PARS
 {
@@ -116,7 +140,6 @@ void ReactionBaseDISNC::F2Z BASE_PARS
   val = (_vu*_vu + _au*_au) * f2u + (_vd*_vd + _ad*_ad) * f2d ;
 }
 
-
 void ReactionBaseDISNC::F2 BASE_PARS
 {
   valarray<double> f2g(_npoints[dataSetID]);
@@ -137,7 +160,6 @@ void ReactionBaseDISNC::F2 BASE_PARS
  
   val = f2g - (_ve + charge*pol*_ae)*k*f2gZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * f2Z; 
 }
-
 
 void ReactionBaseDISNC::FLgamma BASE_PARS
 {
@@ -182,7 +204,6 @@ void ReactionBaseDISNC::FL BASE_PARS
   val = flg - (_ve + charge*pol*_ae)*k*flgZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * flZ; 
 }
 
-
 void ReactionBaseDISNC::xF3gammaZ BASE_PARS 
 {
   valarray<double> xf3u, xf3d;
@@ -214,7 +235,6 @@ void ReactionBaseDISNC::xF3       BASE_PARS
   val = -(_ae + charge*pol*_ve)*k * xf3gZ + (2*_ae*_ve + charge*pol*(_ve*_ve + _ae*_ae))*k*k * xf3Z;
 }
 
-
 void ReactionBaseDISNC::sred BASE_PARS
 {
   auto *yp  = GetBinValues(dataSetID,"y");
@@ -234,8 +254,8 @@ void ReactionBaseDISNC::sred BASE_PARS
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
 
-
   val = f2 - y*y/yplus*fl - charge*(yminus/yplus)*xf3 ;
+
 }
 
 
@@ -249,8 +269,19 @@ void ReactionBaseDISNC::GetF2ud(int dataSetID, valarray<double>& f2u, valarray<d
     
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
-    zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);    
+    switch ( _dataType )
+      {
+      case dataType::sigred :
+	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);    
+	break ;
+      case dataType::f2c :
+	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
+	break ;
+      case dataType::f2b :
+	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
+	break ;
+      }
   }
   f2u = _f2u[dataSetID];
   f2d = _f2d[dataSetID];
@@ -266,8 +297,19 @@ void ReactionBaseDISNC::GetFLud(int dataSetID, valarray<double>& flu, valarray<d
     
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-    zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
+    switch ( _dataType )
+      {
+      case dataType::sigred : 
+	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
+	break ;
+      case dataType::f2c : 
+	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
+	break ;     
+      case dataType::f2b : 
+	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
+	break ;      
+      }
   }
   flu = _flu[dataSetID];
   fld = _fld[dataSetID];
@@ -283,8 +325,13 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
     
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
-    zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
+    if ( _dataType == dataType::sigred ) {
+      zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
+      zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
+    }
+    else {
+      NOT_IMPLEMENTED(" xF3 b,c ");
+    }
   }
   xf3u = _xf3u[dataSetID];
   xf3d = _xf3d[dataSetID];
