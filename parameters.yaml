@@ -11,6 +11,10 @@ sin2thW :
 Order : NLO
 NFlavour : 5
 
+mch : 1.43
+mbt : 4.5
+
+# not active:
 hf_scheme : ZMVFNS
 
 # We want to fit alphaS, making this explicitly:

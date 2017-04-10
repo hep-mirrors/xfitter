@@ -6,7 +6,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include \
-          pdf2yaml tools/process reactions/BaseDISNC/src reactions/APPLgrid/src reactions/BaseHVQMNR/src reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src \
+          pdf2yaml tools/process reactions/BaseDISNC/src  reactions/RT_DISNC/src reactions/APPLgrid/src reactions/BaseHVQMNR/src reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src \
           reactions/testZMVFNS/src reactions/fastNLO/src/ 
 
 DIST_SUBDIRS = $(SUBDIRS)  Hathor/src  HVQMNR/src doc/tex/manual  ACOT SACOT datafiles QEDevol/include \
