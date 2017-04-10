@@ -102,12 +102,20 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
 
   _dataType = dataType::sigred;  // Reduced cross section by default.
+  string msg = "I: Calculating DIS NC reduced cross section";
   if ( parsDataset.find("F2c") != parsDataset.end() ) {
-    _dataType = dataType::f2c;
+    _dataType = dataType::f2c;    
+    msg = "I: Calculating DIS NC F2c";
   }
   if ( parsDataset.find("F2b") != parsDataset.end() ) {
     _dataType = dataType::f2b;
+    msg = "I: Calculating DIS NC F2b";
   }
+  if ( parsDataset.find("reduced") != parsDataset.end() ) {
+    _dataType = dataType::sigred;
+    msg = "I: Calculating DIS NC reduced cross section";
+  }
+  hf_errlog_(17041001, msg.c_str(), msg.size());
 
 
   // Allocate internal arrays:
