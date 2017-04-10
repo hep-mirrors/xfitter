@@ -8,7 +8,7 @@ bin_PROGRAMS = xfitter
 
 xfitter_SOURCES = cmain.cxx
 
-xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src -lxfmain -lxffnlo
+xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src  -L${top_srcdir}/RT/src -lxfmain -lxffnlo -lmyrt
 #xfitter_LDADD = 
 # all source files which go into the main target
 
@@ -99,7 +99,6 @@ endif
 XFLIBS =  ../DY/src/libmydy.a\
  ../Cascade/src/libcasutil.a \
  ../common/libHFcommon.a \
- ../RT/src/libmyrt.a \
  ../ACOT/src/libmyacot.a \
  ../SACOT/src/libmysacot.a \
  ../FONLL/src/libmyfonll.a \
