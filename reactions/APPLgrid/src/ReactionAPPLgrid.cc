@@ -12,21 +12,6 @@ extern "C" ReactionAPPLgrid* create() {
   return new ReactionAPPLgrid();
 }
 
-
-// Probably some other place is better for this function:
-int OrderMap(std::string ord) {
-  std::map <string,int> mOrderMap  = { {"NNNLO",4}, {"NNLO",3}, {"NLO",2}, {"LO",1} };
-  if ( mOrderMap.find(ord) != mOrderMap.end() ) {
-    return mOrderMap[ord];
-  }
-  else {
-    string text = "F: Can not convert "+ord+" to computation order";
-    hf_errlog_(17032803,text.c_str(),text.size());
-    return -1;
-  }
-}
-
-
  // Initialize at the start of the computation
 int ReactionAPPLgrid::initAtStart(const string &s )
 {
@@ -58,6 +43,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
        int localOrder = OrderMap( pars["Order"] );
        order = localOrder>order ? order : localOrder;
    }
+
    _order[dataSetID] = order;
 // Determine MuR and MuF.  Use default 
   _muR[dataSetID] =  pars.find("muR") == pars.end() ? GetParam("muR") : stod(pars["muR"]);
