@@ -18,7 +18,8 @@
   TermName = 'R'
   TermType = 'reaction'
  ! TermSource = 'testZMVFNS'
-  TermSource = 'BaseDISNC'
+  TermSource = 'use:hf_scheme_DISNC'
+ ! TermSource = 'BaseDISNC'
   TermInfo = ''
   TheorExpr = 'R'
 &End 

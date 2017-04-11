@@ -20,9 +20,12 @@ C Also store dataset info here
       integer ninfo
       double precision datainfo(ninfoMax)
       character *80 CInfo(ninfoMax)
+      character *80 dsname
+      integer ds_index
 
+C And some basic vars:
 
       common/theorexpr/ dynscale, NTerms, TermName, TermType, TermInfo, 
      &     TermSource, TheorExpr, ppbar_collisions, normalised, 
      $     murdef, mufdef,
-     $     ninfo, datainfo, CInfo
+     $     ninfo, datainfo, CInfo, dsname, ds_index

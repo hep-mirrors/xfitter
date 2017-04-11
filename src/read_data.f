@@ -482,6 +482,9 @@ C Extra info:
          DATASETInfo(i,NDATASETS) =      DataInfo(i)
       enddo
 
+      dsname = name
+      ds_index = IndexDataset 
+
 C Prepare systematics:
       do i=1,NUncert
 C--- Statistical: special case

@@ -27,6 +27,8 @@
 #include <string>
 #include <valarray>
 #include <vector>
+#include <yaml-cpp/yaml.h>
+
 
 class CommonGrid;
 class ReactionTheory;
@@ -201,6 +203,13 @@ class TheorEval{
 
   /// also keep DS pars, which are valid for all terms 
   map <string, double> _dsPars;
+
+  /// Name !
+  std::string _ds_name;
+ public:
+  void SetDSname(std::string& name) { _ds_name = name;}
+ protected:
+  const std::string GetDSname() { return _ds_name; };
 };
 
 typedef map <int, TheorEval* > tTEmap;
@@ -227,14 +236,17 @@ typedef map <string, pTwoParFunc> t2Dfunctions;
 extern tTEmap gTEmap;
 extern tReactionLibsmap gReactionLibs;
 extern tNameReactionmap gNameReaction;
-
 extern tDataBins gDataBins;
-
 extern tParameters<double*> gParameters;
 extern tParameters<int>    gParametersI;
 extern tParameters<string> gParametersS;
-
-
+extern tParameters<vector<double> > gParametersV;
+extern tParameters<YAML::Node> gParametersY;
 extern t2Dfunctions g2Dfunctions;
+
+/// Helper function to determine scope-specific parameter value for complex parameters
+
+const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex);
+
 
 #endif

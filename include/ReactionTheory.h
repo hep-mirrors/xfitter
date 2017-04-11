@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 #include <valarray>
-#include <functional>
+// #include <functional>
+#include <yaml-cpp/yaml.h>
 
 #include "xfitter_cpp_base.h"
 
@@ -57,9 +58,11 @@ class ReactionTheory
   virtual string getReactionName() const =0;  ///< Should return expected reaction name. Normally generated automatically by AddReaction.py
   virtual int  initAtStart(const string &) =0; ///< Initialization first time ReactionTheory implementation is called
 
-  virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map
-  virtual void setxFitterParametersI(map<string,int> &xfitter_pars) {_xfitter_pars_i = xfitter_pars; }; ///< Set environment map
-  virtual void setxFitterParametersS(map<string,string> &xfitter_pars) {_xfitter_pars_s = xfitter_pars; }; ///< Set environment map
+  virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map for doubles
+  virtual void setxFitterParametersI(map<string,int> &xfitter_pars) {_xfitter_pars_i = xfitter_pars; }; ///< Set environment map for integers
+  virtual void setxFitterParametersS(map<string,string> &xfitter_pars) {_xfitter_pars_s = xfitter_pars; }; ///< Set environment map for strings
+  virtual void setxfitterparametersYaml(map<string,YAML::Node> &xfitter_pars) {_xfitter_pars_node = xfitter_pars; }; ///< Set map for complex parameters
+  virtual void setxfitterparametersYaml(map<string,vector<double> > &xfitter_pars) {_xfitter_pars_vec = xfitter_pars; }; ///< Set map for vector parameters
 
   virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { _alpha_S = palpha_S; PDFs = func2D; }; 
 				///< Set alpha_S and PDF maps
@@ -89,7 +92,7 @@ class ReactionTheory
   double alphaS(double q) { return _alpha_S(q); }
 
   //! Return pointer-function to XFX for external use
-  const pXFXlike getXFX(string type="p") { return _xfx[type];};
+  const pXFXlike getXFX(const string& type="p") { return _xfx[type];};
 
   //!  Return pointer-function to alphaS for external use
   const pOneParFunc getAlphaS() { return _alpha_S;}
@@ -108,16 +111,18 @@ class ReactionTheory
   virtual int parseOptions() { return 0;};
   map<string, pTwoParFunc> *PDFs;
 
-  bool checkParam(string name)         ///< Check if a parameter is present on the list
+  bool checkParam(string name)         ///< Check if a parameter is present on one of the global list
   {
     return (_xfitter_pars.find(name) !=  _xfitter_pars.end()) 
       || (_xfitter_pars_i.find(name) !=  _xfitter_pars_i.end()) 
       || (_xfitter_pars_s.find(name) !=  _xfitter_pars_s.end()) 
+      || (_xfitter_pars_vec.find(name) !=  _xfitter_pars_vec.end()) 
+      || (_xfitter_pars_node.find(name) !=  _xfitter_pars_node.end()) 
       ;
   }
 
   // Helper function to get a parameter (double)
-  double GetParam(string name) const
+  double GetParam(const string& name) const
   {    
     if (_xfitter_pars.find(name) != _xfitter_pars.end() ) 
       return *_xfitter_pars.at(name);
@@ -126,20 +131,33 @@ class ReactionTheory
   }
 
   // Helper function to get a parameter (integer)
-  int GetParamI(string name)  const
+  int GetParamI(const string& name)  const
   {
     return _xfitter_pars_i.at(name);
   }
 
+  string GetParamY(const string& name, int dsID=-1) const;
+
   // Helper function to get a parameter (string)
-  string GetParamS(string name)  const
+  string GetParamS(const string& name, int dsID=-1)  const
   {
-    return _xfitter_pars_s.at(name);
+    if (_xfitter_pars_s.find(name) != _xfitter_pars_s.end() ) {
+      return _xfitter_pars_s.at(name);
+    }
+    else {
+      return GetParamY(name, dsID);  // 
+    }
+  }
+
+  // Helper function to get a parameter (vector)
+  vector<double> GetParamV(const string& name) const
+  {
+    return _xfitter_pars_vec.at(name);
   }
 
 
   // Helper function to get bin values for a given data set, bin name. Returns null if not found
-  valarray<double> *GetBinValues(int idDS, string binName)
+  valarray<double> *GetBinValues(int idDS, const string& binName)
   { 
     map<string, valarray<double> >* mapBins =  _dsBins[idDS];
     if (mapBins == nullptr ) {
@@ -170,6 +188,12 @@ class ReactionTheory
   map<string, int > _xfitter_pars_i;
   /// GLobal string parameters:
   map<string, string > _xfitter_pars_s;
+
+  /// Global vector of double parameters:
+  map< string, vector<double> > _xfitter_pars_vec;
+  
+  /// Global YAML node parameters, for complex cases.
+  map< string, YAML::Node > _xfitter_pars_node;
 
  private:
   map<string,pXFXlike> _xfx;

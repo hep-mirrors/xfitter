@@ -375,6 +375,13 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string term_type =  _termTypes.at(iterm);
   string term_info =  _termInfos.at(iterm);
 //  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
+  
+
+  // Re-define term-source if "use:" string is found:
+  if ( term_source.find("use:") != std::string::npos ) {
+    term_source =  GetParamDS(term_source.substr(4),GetDSname(),_dsPars["FileIndex"]);
+  }
+
 
   string libname = gReactionLibs[term_source];
   if (libname == "") {
@@ -769,4 +776,37 @@ map<string, string> TheorEval::SplitTermInfo(const string& term_info)
   //for(map<string, string>::iterator it = pars.begin(); it != pars.end(); it++)
   //  printf("  %s=%s\n", (it->first).c_str(), (it->second).c_str());
   return pars;
+}
+
+const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex) {
+  // First check the list of strings, if present there. If yes, just return
+  if ( gParametersS.find(ParName) != gParametersS.end() ) {
+    return gParametersS[ParName];
+  }
+  // Now check the complex list:
+  if ( gParametersY.find(ParName) != gParametersY.end() ) {
+    YAML::Node Node = gParametersY[ParName];
+
+    // Default:
+    if ( Node["value"]) {
+      std::string Val = Node["value"].as<string>();
+
+      if (Node[DSname]) {
+	Val = Node[DSname].as<string>();
+      }
+      if (Node[DSindex]) {
+	Val = Node[DSindex].as<string>();
+      }
+
+      return Val;
+    }
+    else {
+      string text = "F: missing value field for parameter " + ParName;
+      hf_errlog_(17041101,text.c_str(),text.size());            
+      return "";
+    }
+  }
+  else {
+    return "";
+  }
 }

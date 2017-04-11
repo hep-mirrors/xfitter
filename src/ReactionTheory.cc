@@ -45,3 +45,11 @@ bool ReactionTheory::notMasked(int DSID, int Bin) {
     return flag->second[Bin];
   }
 }
+
+string ReactionTheory::GetParamY(const string& name, int dsID ) const {
+  if ( _xfitter_pars_node.find(name) != _xfitter_pars_node.end() ) {
+  }
+  else {
+    return "";
+  }
+}

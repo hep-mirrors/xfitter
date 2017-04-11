@@ -62,9 +62,14 @@ tTEmap gTEmap;
 tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 tDataBins gDataBins;
+
 tParameters<double*> gParameters;
 tParameters<int>    gParametersI;
 tParameters<string> gParametersS;
+
+tParameters<vector<double> > gParametersV; ///< Vectors of double parameters
+tParameters<YAML::Node> gParametersY;      ///< Store complete nodes for complex cases
+
 t2Dfunctions g2Dfunctions;
 
 extern struct thexpr_cb {
@@ -82,6 +87,8 @@ extern struct thexpr_cb {
   int ninfo;  // dataset info as well  
   double datainfo[100];
   char CInfo[100][80];
+  char dsname[80];
+  int  ds_index;
 } theorexpr_;
 
 extern struct ord_scales {
@@ -89,6 +96,13 @@ extern struct ord_scales {
    double datasetmuf[150];
    int datasetiorder[150];
 } cscales_;
+
+inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    s.erase(s.find_last_not_of(t) + 1);
+    return s;
+}
+
 
 /*!
  Creates theory evaluation object and adds it to the global map by 
@@ -113,13 +127,23 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   ste.assign(theorexpr_.theorexpr, string(theorexpr_.theorexpr).find(' '));
   TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sti, sts, ste);
 
+  // Store CINFO
   for (int i=0; i<theorexpr_.ninfo; i++) {
     std::string n(theorexpr_.CInfo[i]);
     n = n.substr(0,80);
     n.erase(std::remove(n.begin(), n.end(), ' '), n.end());
     te->AddDSParameter(n, theorexpr_.datainfo[i]);
   } 
- 
+  // Store some other basic info
+  theorexpr_.dsname[79] = '\0';
+  std::string n(theorexpr_.dsname);
+  // Erase trailing spaces
+  n = rtrim(n)," ";
+
+  te->SetDSname(n);
+  te->AddDSParameter("Index",theorexpr_.ds_index); // dataset index
+  te->AddDSParameter("FileIndex",*dsId); 
+
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetDynamicScale(theorexpr_.dynscale);
   te->SetNormalised(theorexpr_.normalised);
@@ -326,9 +350,6 @@ void parse_file(std::string name)
 
     YAML::Node node = YAML::LoadFile(name);
 
-
-  
-
     for ( YAML::iterator it = node.begin(); it != node.end(); ++it) {
       YAML::Node key = it->first;
       YAML::Node value = it->second;
@@ -345,15 +366,15 @@ void parse_file(std::string name)
 	  continue;
 	}
 	catch (const std::exception& e) {
-	}
+        }
 
-	try {
+        try {
 	  double f = value.as<double>();
 	  gParameters[p_name] = new double(f);
 	  continue;
-	}
-	catch (const std::exception& e) {
-	}
+        }
+        catch (const std::exception& e) {
+        }
 	
 	try {
 	  std::string s = value.as<std::string>();
@@ -363,24 +384,27 @@ void parse_file(std::string name)
 	catch (const std::exception& e) {
 	}      
       }
-      else
-	{ // Potentially this may go to minuit, if step is not zero.
+      else { // Potentially this may go to minuit, if step is not zero.
 	  
-	  // Defaults
-	  double val = 0;
-	  double step = 0;
-	  double minv  = 0;
-	  double maxv  = 0;
-	  double priorVal = 0;
-	  double priorUnc = 0;
-	  int add = true;
 	  
-	  if (value.IsMap()) {
+	if (value.IsMap()) {
+
+	  // Check if this is a minimisation block, true if step is present
+	  if (value["step"]) {  
+	    // Defaults
+	    double val = 0;
+	    double step = 0;
+	    double minv  = 0;
+	    double maxv  = 0;
+	    double priorVal = 0;
+	    double priorUnc = 0;
+	    int add = true;
+	    
 	    if (value["value"]) {
 	      val = value["value"].as<double>();
 	    }
 	    else {
-	      string text = "F: missing value field for parameter" + p_name;
+	      string text = "F: missing value field for parameter " + p_name;
 	      hf_errlog_(17032401,text.c_str(),text.size());       
 	    }
 	    if (value["step"]) step = value["step"].as<double>();
@@ -388,36 +412,30 @@ void parse_file(std::string name)
 	    if (value["priorUnc"]) priorUnc = value["priorUnc"].as<double>();
 	    if (value["min"]) minv = value["min"].as<double>();
 	    if (value["max"]) maxv = value["max"].as<double>();
-
-	    // for ( YAML::iterator it2 = value.begin(); it2 != value.end(); ++it2) {
-	    //std::cout << " " << it2->first << " " ;
-	    //std::cout << " " << it2->second << "\n" ;
-	    //}
-
-	  }
-	  else if (value.IsSequence() ) {
-	    int len = value.size();
-	    if (len == 0) {
-	      string text = "F: missing value field for parameter" + name;
-	      hf_errlog_(17032402,text.c_str(),text.size());       
+	    // Goes to fortran
+	    addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
+			      priorVal, priorUnc, add, p_name.size());
 	    }
-	    else {
-	      val = value[0].as<double>();
-	    }
-	    if (len>1) step = value[1].as<double>();
-	    if (len>2) minv = value[2].as<double>();
-	    if (len>3) maxv = value[3].as<double>();
-	    if (len>4) priorVal = value[4].as<double>();
-	    if (len>5) priorUnc = value[5].as<double>();
+	  else {
+	    // no step, store as it is as a yaml node:
+	    gParametersY[p_name] = value;
 	  }
-	  // Goes to fortran
-	  addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
-			    priorVal, priorUnc, add, p_name.size());
 	}
+	
+	else if (value.IsSequence() ) {
+	  size_t len = value.size();
+	  vector<double> v(len);
+	  for (size_t i=0; i<len; i++) {
+	    v[i] = value[i].as<double>();
+	  }
+	  gParametersV[p_name] = v;
+	}
+      }	  
     }
-  }  
+  }
   catch (const std::exception& e) {
-    string text = "F: Problems reading yaml-parameters file: " + name;
+    std::cout << e.what() << std::endl;
+    string text = "F: Problems reading yaml-parameters file: " + name + " : "+e.what();
     hf_errlog_(17032503,text.c_str(),text.size());
   }
 

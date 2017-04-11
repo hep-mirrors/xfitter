@@ -6,16 +6,19 @@ Mz : 91.1876
 Mw : 80.385
 sin2thW : 
   value : 0.23127
-  step  : 0.02  
+  step  : 0.02
 
 Order : NLO
 NFlavour : 5
 
-mch : 1.43
+mch : 1.43 
 mbt : 4.5
 
-# not active:
-hf_scheme : ZMVFNS
+# speficify HF scheme:
+hf_scheme_DISNC : 
+  value : 'RT_DISNC'
+  'HERA1+2 NCep 920' : 'BaseDISNC'
+#  1 : BaseDISNC  
 
 # We want to fit alphaS, making this explicitly:
 AalphaS: 
@@ -27,7 +30,9 @@ AalphaS:
   max: 21.0
 
 
-Order: NNLO
 muF: 1.0
 muR: 1.0
 
+# Example of vectors
+
+testVec :  [1., 2., 3., 4.]
