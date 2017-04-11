@@ -101,7 +101,7 @@ void ReactionRT_DISNC::F2gamma_RT BASE_PARS
 		 f2, f2c, f2b, fl, flc, flb,
 		 iflag, i+1, 1., 0.1, 0 );
 
-    switch ( _dataType) 
+    switch ( GetDataType(dataSetID) ) 
       {
       case dataType::sigred :
 	val[i] = f2; break;

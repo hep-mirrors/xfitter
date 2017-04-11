@@ -52,7 +52,7 @@ int ReactionBaseDISNC::initAtStart(const string &s)
 // Main function to compute results at an iteration
 int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  switch ( _dataType) 
+  switch ( GetDataType(dataSetID) ) 
     {
     case dataType::sigred :
       sred(dataSetID, val, err) ;
@@ -101,18 +101,18 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
 
-  _dataType = dataType::sigred;  // Reduced cross section by default.
+  _dataType[dataSetID] = dataType::sigred;  // Reduced cross section by default.
   string msg = "I: Calculating DIS NC reduced cross section";
   if ( parsDataset.find("F2c") != parsDataset.end() ) {
-    _dataType = dataType::f2c;    
+    _dataType[dataSetID] = dataType::f2c;    
     msg = "I: Calculating DIS NC F2c";
   }
   if ( parsDataset.find("F2b") != parsDataset.end() ) {
-    _dataType = dataType::f2b;
+    _dataType[dataSetID] = dataType::f2b;
     msg = "I: Calculating DIS NC F2b";
   }
   if ( parsDataset.find("reduced") != parsDataset.end() ) {
-    _dataType = dataType::sigred;
+    _dataType[dataSetID] = dataType::sigred;
     msg = "I: Calculating DIS NC reduced cross section";
   }
   hf_errlog_(17041001, msg.c_str(), msg.size());
@@ -277,7 +277,7 @@ void ReactionBaseDISNC::GetF2ud(int dataSetID, valarray<double>& f2u, valarray<d
     
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( _dataType )
+    switch ( GetDataType(dataSetID) )
       {
       case dataType::sigred :
 	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
@@ -305,7 +305,7 @@ void ReactionBaseDISNC::GetFLud(int dataSetID, valarray<double>& flu, valarray<d
     
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( _dataType )
+    switch ( GetDataType(dataSetID) )
       {
       case dataType::sigred : 
 	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
@@ -333,7 +333,7 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
     
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    if ( _dataType == dataType::sigred ) {
+    if ( GetDataType(dataSetID) == dataType::sigred ) {
       zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
       zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
     }
