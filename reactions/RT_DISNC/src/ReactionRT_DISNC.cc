@@ -35,12 +35,12 @@ int ReactionRT_DISNC::initAtStart(const string &s)
   return isout;
 }
 
-// Main function to compute results at an iteration
-int ReactionRT_DISNC::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
-{
-  return Super::compute(dataSetID,val,err);
+void ReactionRT_DISNC::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
+  Super::setDatasetParamters(dataSetID, pars, parsDataset);
+  // Allocate internal arrays:
+  _f2rt[dataSetID].resize(GetNpoint(dataSetID));
+  _flrt[dataSetID].resize(GetNpoint(dataSetID));
 }
-
 
 // 
 void ReactionRT_DISNC::initAtIteration() {
@@ -64,6 +64,12 @@ void ReactionRT_DISNC::initAtIteration() {
 
   rt_set_input_(varin, mc, mb, as_q0, as_MZ,  asOrederIn, alphaSnfmaxin, iord);
   wate96_();
+  // Flag for internal arrays
+  for ( auto ds : _dsIDs)  {
+    (_f2rt[ds])[0] = -100.;
+    (_flrt[ds])[0] = -100.;
+  }
+
  }
 
 // RT
@@ -81,35 +87,69 @@ void ReactionRT_DISNC::F2 BASE_PARS
 
   // Re-scale F2:
   val = f2base * f2gamma_RT / f2gamma_base;
+}
 
-  std::cout << f2gamma_RT[0] << " "<<f2gamma_base[0] << std::endl;
+void ReactionRT_DISNC::FL BASE_PARS 
+{
+  valarray<double> flbase, flgamma_base;
+  valarray<double> flgamma_RT(GetNpoint(dataSetID));
+
+  // Get ZMVFNs F2s:
+  Super::FLgamma(dataSetID, flgamma_base, err);
+  Super::FL(dataSetID, flbase, err);
+
+  // Get RT F2gamma
+  FLgamma_RT(dataSetID, flgamma_RT, err);
+
+  // Re-scale F2:
+  val = flbase * flgamma_RT / flgamma_base;
 }
 
 void ReactionRT_DISNC::F2gamma_RT BASE_PARS 
 {
-  // Get x,Q2 arrays:
-  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
-  auto q2 = *q2p, x = *xp;
-  
-  const size_t Np = GetNpoint(dataSetID);
-  int iflag = 1;
-
-  double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
-
-  for (size_t i=0; i<Np; i++) {
-    mstwnc_wrap_(x[i], q2[i], 1,
-		 f2, f2c, f2b, fl, flc, flb,
-		 iflag, i+1, 1., 0.1, 0 );
-
-    switch ( GetDataType(dataSetID) ) 
-      {
-      case dataType::sigred :
-	val[i] = f2; break;
-      case dataType::f2c :
-	val[i] = f2c; break ;
-      case dataType::f2b :
-	val[i] = f2b; break ;
-      }
-  }
+  calcF2FL(dataSetID);
+  val = _f2rt[dataSetID];
 }
 
+void ReactionRT_DISNC::FLgamma_RT BASE_PARS 
+{
+  calcF2FL(dataSetID);
+  val = _flrt[dataSetID];
+}
+
+
+// Place calculations in one function, to optimize calls.
+void ReactionRT_DISNC::calcF2FL(int dataSetID) {
+  if ( (_f2rt[dataSetID][0]< -99.) ) { // compute
+  // Get x,Q2 arrays:
+    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
+    auto q2 = *q2p, x = *xp;
+  
+    const size_t Np = GetNpoint(dataSetID);
+    int iflag = 1;
+
+    double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
+
+    for (size_t i=0; i<Np; i++) {
+      mstwnc_wrap_(x[i], q2[i], 1,
+		   f2, f2c, f2b, fl, flc, flb,
+		   iflag, i+1, 1., 0.1, 0 );
+
+      switch ( GetDataType(dataSetID) ) 
+      {
+      case dataType::sigred :
+	_f2rt[dataSetID][i] = f2; 
+	_flrt[dataSetID][i] = fl; 
+	break;
+      case dataType::f2c :
+	_f2rt[dataSetID][i] = f2c; 
+	_flrt[dataSetID][i] = flc;
+	break ;
+      case dataType::f2b :
+	_f2rt[dataSetID][i] = f2b; 
+	_flrt[dataSetID][i] = flb; 
+	break ;
+      }
+    }
+  }
+}
