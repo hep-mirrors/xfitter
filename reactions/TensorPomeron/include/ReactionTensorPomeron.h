@@ -26,6 +26,7 @@ class ReactionTensorPomeron : public ReactionTheory
   virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) override;
   virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) override;
   virtual void actionAtFCN3() override;
+  virtual void errorBandAction(int ivector) override; 
  
  private:
   map <int, int> _npoints;
@@ -59,6 +60,7 @@ class ReactionTensorPomeron : public ReactionTheory
 
   const double q2a0(double q2) { return b0q2(q2)/(1. + 1./r0q2(q2)); }
   const double q2a1(double q2) { return b1q2(q2)/(1. + 1./r1q2(q2)); }
-  
+
+  void writeOut(const std::string& file);   ///< Store b and a functions.
 };
 

@@ -212,8 +212,17 @@ void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT)
 }
 
 void ReactionTensorPomeron::actionAtFCN3() {
+  writeOut("pomeron.csv");
+}
+
+void ReactionTensorPomeron::errorBandAction(int ivector) {
+  std::string FileName = "pom_"+std::to_string(ivector)+"_.csv";
+  writeOut(FileName);
+}
+
+void ReactionTensorPomeron::writeOut(const std::string& file) {
   std::ofstream f;
-  f.open("pomeron.csv") ; // XXXX should go to ./output !!!
+  f.open("file") ; // XXXX should go to ./output !!!
   f << "logQ2  q2a0  q2a1  b0  b1  r0  r1 " << std::endl;
   for ( double q2l =-2; q2l<log(50.0); q2l += 0.1) {
     double q2 = exp(q2l);
@@ -226,4 +235,5 @@ void ReactionTensorPomeron::actionAtFCN3() {
       << " " << r1q2(q2)  
       << std::endl;
   }
+  f.close();
 }
