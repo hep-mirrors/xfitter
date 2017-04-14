@@ -23,7 +23,7 @@ class ReactionTensorPomeron : public ReactionTheory
   virtual string getReactionName() const { return  "TensorPomeron" ;};
   virtual int initAtStart(const string &s) override;
   virtual void initAtIteration() override; 
-  virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
+  virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) override;
   virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) override;
  
  private:
@@ -46,8 +46,8 @@ class ReactionTensorPomeron : public ReactionTheory
   vector<double> _s0bn, _s1bn, _s0rn, _s1rn; ///< spline knots
   tk::spline _s0b, _s1b, _s0r, _s1r;
 
-  void sigma_L (int dataSetID, valarray<double> sL);
-  void sigma_LT(int dataSetID, valarray<double> sLT);
+  void sigma_L (int dataSetID, valarray<double>& sL);
+  void sigma_LT(int dataSetID, valarray<double>& sLT);
 
   // Q2 dependences
   const double b0q2(double q2){ return exp( _s0b(q2+_m02) ); }
