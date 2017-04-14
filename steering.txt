@@ -3,13 +3,15 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 2
+    NInputFiles = 4
  
   ! Input files:
 
      InputFileNames = 
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
      'Z0_applgrid_nnlo_reaction.dat',
      'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
 
