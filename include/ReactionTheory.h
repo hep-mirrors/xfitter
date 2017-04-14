@@ -80,6 +80,9 @@ class ReactionTheory
   //! Perform optional action when minuit fcn 3 is called (normally after fit)
   virtual void actionAtFCN3() {};
 
+  //! Perform optional action when called from error band estimation sequence.
+  virtual void errorBandAction(int ivector) {};
+
   //! Set dataset @param dataSetID parameters which can be term- and dataset-specific
   virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
 

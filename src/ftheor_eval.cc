@@ -56,6 +56,7 @@ extern "C" {
 			 const int &add, int len);
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
+  void error_band_action_(const int& i); ///< Loop over rections, call error_band_action
 }
 
 /// global dataset to theory evaluation pointer map
@@ -530,5 +531,12 @@ void fcn3action_()
 {
   for ( auto reaction : gNameReaction ) {
     reaction.second->actionAtFCN3();
+  }
+}
+
+void error_band_action(const int& i) {
+  for ( auto reaction : gNameReaction ) {
+    reaction.second->initAtIteration();   // Init parameters first
+    reaction.second->errorBandAction(i);
   }
 }
