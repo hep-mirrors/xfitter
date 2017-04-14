@@ -6,3 +6,4 @@ HVQMNR_LHCb_7TeV_beauty libhvqmnr_lhcb_7tev_beauty_xfitter.so
 APPLgrid libapplgrid_xfitter.so
 BaseDISNC libbasedisnc_xfitter.so
 RT_DISNC librt_disnc_xfitter.so
+TensorPomeron libtensorpomeron_xfitter.so
