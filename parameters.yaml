@@ -55,76 +55,76 @@ m12     : 0.5
 # spline b0:
 s0bv0 :
   value : -5.59
-  step  : 0.00
+  step  : 0.01
 s0bv1 :
   value : -4.76
-  step  : 0.00
+  step  : 0.01
 s0bv2 :
   value : -5.09
-  step  : 0.00
+  step  : 0.01
 s0bv3 :
   value : -5.73
-  step  : 0.00
+  step  : 0.01
 s0bv4 :
   value : -6.11
-  step  : 0.00
+  step  : 0.01
 s0bv5 :
   value : -6.596
-  step  : 0.00
+  step  : 0.01
 s0bv6 :
   value : -6.892
-  step  : 0.00
+  step  : 0.01
 
 # spline b1:
 
 s1bv0 : 
   value : -0.789
-  step  :  0.00
+  step  :  0.01
 s1bv1 : 
   value : -1.444
-  step  :  0.00
+  step  :  0.01
 s1bv2 : 
   value : -2.354
-  step  :  0.00
+  step  :  0.01
 s1bv3 : 
   value : -3.338
-  step  :  0.00
+  step  :  0.01
 s1bv4 : 
   value : -4.508
-  step  :  0.00
+  step  :  0.01
 s1bv5 : 
   value : -7.300
-  step  :  0.00
+  step  :  0.01
 
 # spline r0:
 s0rv0 : 
   value : -1.12 
-  step  : 0.00
+  step  : 0.01
 s0rv1 : 
   value : -1.226
-  step  : 0.00
+  step  : 0.01
 s0rv2 : 
   value : -2.30 
-  step  : 0.00
+  step  : 0.01
 
 # spline r1:
 s1rv0 : 
   value : -3.42 
-  step  : 0.00
+  step  : 0.01
 s1rv1 : 
   value : -1.86
-  step  : 0.00
+  step  : 0.01
 s1rv2 : 
   value : -6.1
-  step  : 0.00
+  step  : 0.01
 
 # slopes:
 
 epsilon0 : 
   value : 0.310
-  step  : 0.00
+  step  : 0.01
 
 epsilon1 : 
   value : 0.079
-  step  : 0.00
+  step  : 0.01
 
