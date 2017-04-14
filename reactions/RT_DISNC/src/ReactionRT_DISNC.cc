@@ -47,8 +47,7 @@ void ReactionRT_DISNC::initAtIteration() {
 
   Super::initAtIteration ();
   // optimal:
-  double varin[4] = {0.0, 1.0, -2./3., 1.0};
-
+  vector<double> varin = GetParamV("varin"); // {0.0, 1.0, -2./3., 1.0};
   const double mc = GetParam("mch");
   const double mb = GetParam("mbt");
   const double mZ = GetParam("Mz");
@@ -62,7 +61,7 @@ void ReactionRT_DISNC::initAtIteration() {
   const int  asOrederIn = 0;  // ???
   const int  alphaSnfmaxin = 3;
 
-  rt_set_input_(varin, mc, mb, as_q0, as_MZ,  asOrederIn, alphaSnfmaxin, iord);
+  rt_set_input_(&varin[0], mc, mb, as_q0, as_MZ,  asOrederIn, alphaSnfmaxin, iord);
   wate96_();
   // Flag for internal arrays
   for ( auto ds : _dsIDs)  {

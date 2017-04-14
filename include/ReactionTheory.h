@@ -61,8 +61,8 @@ class ReactionTheory
   virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map for doubles
   virtual void setxFitterParametersI(map<string,int> &xfitter_pars) {_xfitter_pars_i = xfitter_pars; }; ///< Set environment map for integers
   virtual void setxFitterParametersS(map<string,string> &xfitter_pars) {_xfitter_pars_s = xfitter_pars; }; ///< Set environment map for strings
-  virtual void setxfitterparametersYaml(map<string,YAML::Node> &xfitter_pars) {_xfitter_pars_node = xfitter_pars; }; ///< Set map for complex parameters
-  virtual void setxfitterparametersYaml(map<string,vector<double> > &xfitter_pars) {_xfitter_pars_vec = xfitter_pars; }; ///< Set map for vector parameters
+  virtual void setxFitterparametersYaml(map<string,YAML::Node> &xfitter_pars) {_xfitter_pars_node = xfitter_pars; }; ///< Set map for complex parameters
+  virtual void setxFitterparametersVec(map<string,vector<double> > &xfitter_pars) {_xfitter_pars_vec = xfitter_pars; }; ///< Set map for vector parameters
 
   virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { _alpha_S = palpha_S; PDFs = func2D; }; 
 				///< Set alpha_S and PDF maps

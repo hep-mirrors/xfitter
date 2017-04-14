@@ -422,6 +422,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   rt->setxFitterParameters(gParameters);
   rt->setxFitterParametersI(gParametersI);
   rt->setxFitterParametersS(gParametersS);
+  rt->setxFitterparametersVec(gParametersV);
 
   // set alpha_S, pdfs:
   rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
