@@ -8,6 +8,7 @@
 
 #include "ReactionTensorPomeron.h"
 #include <math.h>
+#include <fstream>
 
 // the class factories
 extern "C" ReactionTensorPomeron* create() {
@@ -89,14 +90,24 @@ void  ReactionTensorPomeron::setDatasetParamters( int dataSetID, map<string,stri
   _s0rn = GetParamV("s0rn");
   _s1rn = GetParamV("s1rn");
 
+  _m02 = GetParam("m02");
+  _m12 = GetParam("m12");
+
+  // goto log, add offset:
+  auto toLog = []( vector<double>& a, double b) { 
+    for (size_t i=0; i<a.size(); i++) {
+      a[i] = log(a[i]+b);
+    } 
+  };
+
+  toLog(_s0bn,_m02); toLog(_s1bn,_m12); toLog(_s0rn,0.0); toLog(_s1rn,0.0);
+
   _mp   = GetParam("mP");
   _alpha_em = GetParam("alphaEM");
 
   _alphaP = GetParam("alphaP");
   _beta   = GetParam("beta");
 
-  _m02 = GetParam("m02");
-  _m12 = GetParam("m12");
 
   // Basic kinematic vars:
   _x[dataSetID] = *xp;
@@ -200,3 +211,19 @@ void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT)
   sLT = prefix*(p0+p1)*suffix;
 }
 
+void ReactionTensorPomeron::actionAtFCN3() {
+  std::ofstream f;
+  f.open("pomeron.csv") ; // XXXX should go to ./output !!!
+  f << "logQ2  q2a0  q2a1  b0  b1  r0  r1 " << std::endl;
+  for ( double q2l =-2; q2l<log(50.0); q2l += 0.1) {
+    double q2 = exp(q2l);
+    f << q2l 
+      << " " << q2a0(q2) 
+      << " " << q2a1(q2) 
+      << " " << b0q2(q2) 
+      << " " << b1q2(q2)  
+      << " " << r0q2(q2) 
+      << " " << r1q2(q2)  
+      << std::endl;
+  }
+}

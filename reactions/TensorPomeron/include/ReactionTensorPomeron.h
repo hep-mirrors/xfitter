@@ -25,6 +25,7 @@ class ReactionTensorPomeron : public ReactionTheory
   virtual void initAtIteration() override; 
   virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) override;
   virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) override;
+  virtual void actionAtFCN3() override;
  
  private:
   map <int, int> _npoints;
@@ -50,11 +51,11 @@ class ReactionTensorPomeron : public ReactionTheory
   void sigma_LT(int dataSetID, valarray<double>& sLT);
 
   // Q2 dependences
-  const double b0q2(double q2){ return exp( _s0b(q2+_m02) ); }
-  const double b1q2(double q2){ return exp( _s1b(q2+_m12) ); }
+  const double b0q2(double q2){ return exp( _s0b(log(q2+_m02)) ); }
+  const double b1q2(double q2){ return exp( _s1b(log(q2+_m12)) ); }
 
-  const double r0q2(double q2){ return exp( _s0r(q2) ); }
-  const double r1q2(double q2){ return exp( _s1r(q2) ); }
+  const double r0q2(double q2){ return exp( _s0r(log(q2)) ); }
+  const double r1q2(double q2){ return exp( _s1r(log(q2)) ); }
 
   const double q2a0(double q2) { return b0q2(q2)/(1. + 1./r0q2(q2)); }
   const double q2a1(double q2) { return b1q2(q2)/(1. + 1./r1q2(q2)); }
