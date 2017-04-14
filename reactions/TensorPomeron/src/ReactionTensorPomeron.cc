@@ -132,14 +132,20 @@ int ReactionTensorPomeron::compute(int dataSetID, valarray<double> &val, map<str
 
   sigma_L(dataSetID, sL);
   sigma_LT(dataSetID, sLT);
+
   
   double prefix           = 1.0/(4.*M_PI*M_PI*_alpha_em);
   valarray<double> yf     = Yp/(1.0+(1.0-y)*(1.0-y));
   valarray<double> df     = 1.0/(1.0+2.0*delta);
   valarray<double> kf     = 0.5 * Q2*(W2 - _mp*_mp)/pq;
 
+
   val = prefix*yf*df*kf*(sLT - f*sL);
-  
+
+  for (size_t i=0; i<sLT.size(); i++) {
+    //    std::cout << i << " "<< " " << yf[i] << " " << df[i] << " " << kf[i] << " "<< sLT[i] << " "  << f[i] << "\n";
+  }
+
   return 0;
 }
 
@@ -152,7 +158,7 @@ valarray<double> power( valarray<double> arr, double p) {
 }
 
 
-void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double> sL) 
+void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double>& sL) 
 {
   auto W2 = _W2[dataSetID] ;
   auto Q2 = _q2[dataSetID] ;
@@ -174,7 +180,7 @@ void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double> sL)
   sL = prefix*( p0*2.0*(qa0*suf_a + b0*suf_b) + p1*2.0*(qa1*suf_a + b1*suf_b) );
 }
 
-void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double> sLT) 
+void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT) 
 {
   auto W2 = _W2[dataSetID] ;
   auto Q2 = _q2[dataSetID] ;
@@ -185,6 +191,7 @@ void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double> sLT)
 
 
   valarray<double> prefix =  4. * M_PI * _alpha_em / ( W2*(W2 - _mp*_mp) ) ;
+
   valarray<double> suffix =  ( pq *pq + Q2*_mp*_mp) ;
 
   valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * power(_alphaP*W2, _epsilon0) * 4.* b0;
