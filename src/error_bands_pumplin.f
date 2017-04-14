@@ -337,6 +337,7 @@ C
 
          call save_data_lhapdf6(j)
 
+         call error_band_action(j)
       enddo                     ! j
 
       end
