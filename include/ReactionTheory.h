@@ -67,11 +67,18 @@ class ReactionTheory
   virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { _alpha_S = palpha_S; PDFs = func2D; }; 
 				///< Set alpha_S and PDF maps
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
-  virtual void initAtIteration() {};
-  virtual void setXFX(pXFXlike xfx, string type="p" ){ _xfx[type] = xfx; };
 
+  //! Set XFX function for different hadrons (proton: p, neutron: n, anti-proton: pbar)
+  virtual void setXFX(pXFXlike xfx, string type="p" ){ _xfx[type] = xfx; };
   
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
+
+
+  //! Perform optional re-initialization for a given iteration
+  virtual void initAtIteration() {};
+
+  //! Perform optional action when minuit fcn 3 is called (normally after fit)
+  virtual void actionAtFCN3() {};
 
   //! Set dataset @param dataSetID parameters which can be term- and dataset-specific
   virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;

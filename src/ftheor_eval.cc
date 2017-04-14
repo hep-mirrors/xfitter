@@ -55,6 +55,7 @@ extern "C" {
 			 const double &prior, const double &priorUnc,
 			 const int &add, int len);
   void init_at_iteration_(); ///< Loop over reactions, initialize them
+  void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
 }
 
 /// global dataset to theory evaluation pointer map
@@ -522,5 +523,12 @@ void parse_params_(){
 void init_at_iteration_() {
   for ( auto reaction : gNameReaction ) {
     reaction.second->initAtIteration();
+  }
+}
+
+void fcn3action_()
+{
+  for ( auto reaction : gNameReaction ) {
+    reaction.second->actionAtFCN3();
   }
 }
