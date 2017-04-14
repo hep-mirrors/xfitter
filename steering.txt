@@ -3,12 +3,13 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 1
+    NInputFiles = 2
  
   ! Input files:
 
      InputFileNames = 
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      'Z0_applgrid_nnlo_reaction.dat',
      'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
 
@@ -41,6 +42,8 @@
 &QCDNUM
    ! do not re-compute QCDNUM tables if they are present and match grid definition
   Read_QCDNUM_Tables = .true.
+  NQ2bins = 50
+  NXbins = 50
 &End 
 
 
@@ -233,13 +236,13 @@
   ! Rule #1: Q2 cuts
    ProcessName(1)     = 'NC e+-p'
    Variable(1)        = 'Q2'
-   CutValueMin(1)     = 0.0
+   CutValueMin(1)     = 0.000
    CutValueMax(1)     = 50.0
 
   ! Rule #2: x cuts
    ProcessName(2)     = 'NC e+-p'
    Variable(2)        = 'x'
-   CutValueMin(2)     = 0.000001 
+   CutValueMin(2)     = 0.00000001 
    CutValueMax(2)     = 1.0
 
   !---------------------  CC ep  ------------------
