@@ -216,15 +216,15 @@ void ReactionTensorPomeron::actionAtFCN3() {
 }
 
 void ReactionTensorPomeron::errorBandAction(int ivector) {
-  std::string FileName = "pom_"+std::to_string(ivector)+"_.csv";
+  std::string FileName = "pom_"+std::to_string(ivector)+".csv";
   writeOut(FileName);
 }
 
 void ReactionTensorPomeron::writeOut(const std::string& file) {
   std::ofstream f;
-  f.open("file") ; // XXXX should go to ./output !!!
+  f.open(file) ; // XXXX should go to ./output !!!
   f << "logQ2  q2a0  q2a1  b0  b1  r0  r1 " << std::endl;
-  for ( double q2l =-2; q2l<log(50.0); q2l += 0.1) {
+  for ( double q2l =-3; q2l<log(50.0); q2l += 0.1) {
     double q2 = exp(q2l);
     f << q2l 
       << " " << q2a0(q2) 
