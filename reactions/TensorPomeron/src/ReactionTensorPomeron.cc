@@ -150,12 +150,7 @@ int ReactionTensorPomeron::compute(int dataSetID, valarray<double> &val, map<str
   valarray<double> df     = 1.0/(1.0+2.0*delta);
   valarray<double> kf     = 0.5 * Q2*(W2 - _mp*_mp)/pq;
 
-
   val = prefix*yf*df*kf*(sLT - f*sL);
-
-  for (size_t i=0; i<sLT.size(); i++) {
-    //    std::cout << i << " "<< " " << yf[i] << " " << df[i] << " " << kf[i] << " "<< sLT[i] << " "  << f[i] << "\n";
-  }
 
   return 0;
 }
@@ -182,7 +177,7 @@ void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double>& sL)
 
 
   valarray<double> prefix =  4. * M_PI * _alpha_em / ( W2*(W2 - _mp*_mp) ) ;
-  valarray<double> suf_a =  ( pq *pq + Q2*_mp*_mp) ;
+  valarray<double> suf_a =  (4.* pq *pq + Q2*_mp*_mp) ;
   valarray<double> suf_b =  ( Q2*_mp*_mp );
 
   valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * power(_alphaP*W2, _epsilon0) ;
