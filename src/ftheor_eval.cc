@@ -534,7 +534,7 @@ void fcn3action_()
   }
 }
 
-void error_band_action(const int& i) {
+void error_band_action_(const int& i) {
   for ( auto reaction : gNameReaction ) {
     reaction.second->initAtIteration();   // Init parameters first
     reaction.second->errorBandAction(i);
