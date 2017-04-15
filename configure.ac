@@ -548,6 +548,7 @@ AC_CONFIG_FILES([include/Makefile
                  python/Makefile
 		 xfitter-config
 		 reactions/TensorPomeron/src/Makefile
+		 reactions/TensorPomeron/scripts/Makefile
 		 reactions/RT_DISNC/src/Makefile
 		 reactions/BaseDISNC/src/Makefile
 		 reactions/APPLgrid/src/Makefile
