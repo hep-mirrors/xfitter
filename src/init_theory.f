@@ -508,6 +508,10 @@ C------------------------------------
       endif
 
       print*,' ---------------------------------------------'
+
+      !!!  Additional call to set PDF and alphaS interface 
+      call set_qcdnum_pdfs_rt
+
 C-
          call RT_Set_Input(varin,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
