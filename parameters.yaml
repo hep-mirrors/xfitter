@@ -2,6 +2,8 @@
 # Test file to illustrate how parameters can be transferred
 #
 
+# include : test.yaml  # Can include any file
+
 Mz : 91.1876
 Mw : 80.385
 sin2thW : 

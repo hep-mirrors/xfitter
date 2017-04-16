@@ -343,6 +343,13 @@ void init_func_map_() {
 }
 
 
+// Helper function
+bool is_file_exist(const char *fileName)
+{
+    std::ifstream infile(fileName);
+    return infile.good();
+}
+
 
 
 void parse_file(std::string name)
@@ -358,6 +365,18 @@ void parse_file(std::string name)
 
     // parameter name
       string p_name = key.as<string>();
+
+      //  Check if asked to read another file:
+      if ( p_name == "include" ) {
+	auto fileName =  value.as<string>();
+	if (is_file_exist(fileName.c_str())) {
+	  parse_file( fileName );
+	}
+	else {
+	  string msg = "F: Include Yaml parameters file "+fileName+" not found";
+	  hf_errlog_(17041601,msg.c_str(), msg.size());
+	}
+      }
 
       if (value.IsScalar()) {
       // Alright, store directly
@@ -502,13 +521,6 @@ void ParsToFortran_(){
   
 }
 
-
-// Helper function
-bool is_file_exist(const char *fileName)
-{
-    std::ifstream infile(fileName);
-    return infile.good();
-}
 
 
 void parse_params_(){
