@@ -185,7 +185,7 @@ class TheorEval{
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
   map<CommonGrid*, valarray<double>* > _mapGridToken;
-  map<ReactionTheory*, valarray<double>* > _mapReactionToken;
+  map< std::pair<ReactionTheory*,int> , valarray<double>* > _mapReactionToken;
   map<string, valarray<double>* > _mapInitdTerms;
 
   /// Normalised theory

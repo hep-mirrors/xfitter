@@ -433,13 +433,22 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
 
   // Set bins
-  rt->setBinning(_dsId, &gDataBins[_dsId]);
+  rt->setBinning(_dsId*1000+iterm, &gDataBins[_dsId]);
   
   // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
   map<string, string> pars = SplitTermInfo(term_info);
 
+  // Add string pars on the global list:
+  //  for ( auto p : pars) {
+  //  rt->addParameterS( p.first, p.second);
+  //}
+  // Add double pars on the global list:
+  //for ( auto p : _dsPars) {
+  //  rt->addParameter( p.first, &p.second);
+  //}
+
   // and transfer to the module
-  rt->setDatasetParamters(_dsId, pars, _dsPars);
+  rt->setDatasetParamters(_dsId*1000+iterm, pars, _dsPars);
 
   // initialize
   if (rt->initAtStart(term_info) != 0) {
@@ -455,7 +464,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   //  rt->printInfo();
   
 
-  _mapReactionToken[rt] = val;
+  _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
 }
 
 int
@@ -669,17 +678,18 @@ TheorEval::getGridValues()
 int
 TheorEval::getReactionValues()
 {
-  map<ReactionTheory*, valarray<double>*>::iterator itm;
-  for(itm = _mapReactionToken.begin(); itm != _mapReactionToken.end(); itm++){
-    ReactionTheory* rt = itm->first;
-     map<string, valarray<double> > errors;
+  //  map<ReactionTheory*, valarray<double>*>::iterator itm;
+  for(auto itm = _mapReactionToken.begin(); itm != _mapReactionToken.end(); itm++){
+    ReactionTheory* rt = (itm->first).first;
+    int idTerm =  (itm->first).second;
+    map<string, valarray<double> > errors;
      
-     int result =  rt->compute(_dsId, *(itm->second), errors);
+    int result =  rt->compute(_dsId*1000+idTerm, *(itm->second), errors);
      
-     if (result != 0) {
-       string text = "F:(from TheorEval::getReactionValues)  Failed to compute theory";
-       hf_errlog_(16081202,text.c_str(),text.size());
-     }
+    if (result != 0) {
+      string text = "F:(from TheorEval::getReactionValues)  Failed to compute theory";
+      hf_errlog_(16081202,text.c_str(),text.size());
+    }
   }
   
   return 1;
