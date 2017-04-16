@@ -50,6 +50,11 @@ beta    : 1.87
 m02     : 0.0
 m12     : 0.5
 
+# Regeon:
+alphaR   : 0.9
+epsilonR : -0.4525
+betaR    : 3.68
+
 # fitted parameters:
 
 # spline b0:
