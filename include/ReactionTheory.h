@@ -8,6 +8,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "xfitter_cpp_base.h"
+#include "xfitter_pars.h"
 
 using std::map;
 using std::string;
@@ -35,7 +36,7 @@ typedef void   (*pXFXlike)(const double&, const double&, double*);
 
   @brief A base class manages for reaction theories
 
-  It provides an interface wich must present in the derived classes
+  It provides an interface which must present in the derived classes
 
   @author A.Sapronov <sapronov@ifh.de>
 
@@ -63,6 +64,8 @@ class ReactionTheory
   virtual void setxFitterParametersS(map<string,string> &xfitter_pars) {_xfitter_pars_s = xfitter_pars; }; ///< Set environment map for strings
   virtual void setxFitterparametersYaml(map<string,YAML::Node> &xfitter_pars) {_xfitter_pars_node = xfitter_pars; }; ///< Set map for complex parameters
   virtual void setxFitterparametersVec(map<string,vector<double> > &xfitter_pars) {_xfitter_pars_vec = xfitter_pars; }; ///< Set map for vector parameters
+
+  virtual void resetParameters(const YAML::Node& node); ///< Reset reaction-specific parameters 
 
   virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { _alpha_S = palpha_S; PDFs = func2D; }; 
 				///< Set alpha_S and PDF maps

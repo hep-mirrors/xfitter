@@ -53,3 +53,9 @@ string ReactionTheory::GetParamY(const string& name, int dsID ) const {
     return "";
   }
 }
+
+void ReactionTheory::resetParameters(const YAML::Node& node) {
+  XFITTER_PARS::parse_node( node, _xfitter_pars, _xfitter_pars_i, _xfitter_pars_s, _xfitter_pars_vec, _xfitter_pars_node);
+}
+
+

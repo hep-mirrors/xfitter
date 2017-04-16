@@ -27,12 +27,10 @@
 #include <string>
 #include <valarray>
 #include <vector>
-#include <yaml-cpp/yaml.h>
 
 
 class CommonGrid;
 class ReactionTheory;
-//#include "appl_grid/appl_grid.h"
 
 using std::valarray;
 using std::vector;
@@ -220,10 +218,6 @@ typedef map <string, ReactionTheory *> tNameReactionmap;
 // Host here also global list of bins:
 typedef map <int, map<string, valarray <double> > > tDataBins;
 
-// and list of parameters
-
-template<typename T>
-using tParameters = std::map <string, T>; 
 
 // and list of 2-par functions
 
@@ -237,15 +231,9 @@ extern tTEmap gTEmap;
 extern tReactionLibsmap gReactionLibs;
 extern tNameReactionmap gNameReaction;
 extern tDataBins gDataBins;
-extern tParameters<double*> gParameters;
-extern tParameters<int>    gParametersI;
-extern tParameters<string> gParametersS;
-extern tParameters<vector<double> > gParametersV;
-extern tParameters<YAML::Node> gParametersY;
 extern t2Dfunctions g2Dfunctions;
 
 /// Helper function to determine scope-specific parameter value for complex parameters
-
 const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex);
 
 

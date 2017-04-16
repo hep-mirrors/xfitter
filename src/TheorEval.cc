@@ -22,6 +22,9 @@
 #include "get_pdfs.h"
 #include <string.h> 
 
+#include <yaml-cpp/yaml.h>
+#include "xfitter_pars.h"
+
 using namespace std;
 
 // extern struct ord_scales {
@@ -404,33 +407,54 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     create_t *dispatch_theory = (create_t*) dlsym(theory_handler, "create");
     rt = dispatch_theory();
     gNameReaction[term_source] = rt;
+
+
+  // First make sure the name matches:
+    if ( rt->getReactionName() == term_source) {
+      string msg =  "I: Use reaction "+ rt->getReactionName();
+      hf_errlog_(17041610+_dsId,msg.c_str(),msg.size());
+    }
+    else {
+      string text = "F: Reaction " +term_source + " does not match with library: "+rt->getReactionName();
+      hf_errlog_(16120801,text.c_str(),text.size());
+    }
+
+
+    // Some initial stuff:
+
+    // transfer the parameters:
+    rt->setxFitterParameters(XFITTER_PARS::gParameters);
+    rt->setxFitterParametersI(XFITTER_PARS::gParametersI);
+    rt->setxFitterParametersS(XFITTER_PARS::gParametersS);
+    rt->setxFitterparametersVec(XFITTER_PARS::gParametersV);
+    rt->setxFitterparametersYaml(XFITTER_PARS::gParametersY);
+  
+    // Override some global pars for reaction specific:
+    if ( XFITTER_PARS::gParametersY[term_source] ) {
+      rt->resetParameters(XFITTER_PARS::gParametersY[term_source]);
+    }
+
+    // set alpha_S, pdfs:
+    rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
+
+    // simplify interfaces to LHAPDF:
+    rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
+    rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
+    rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
+
+    // initialize
+    if (rt->initAtStart("") != 0) {
+      // failed to init, somehow ...
+      string text = "F:Failed to init reaction " +term_source  ;
+      hf_errlog_(16120803,text.c_str(),text.size());
+    };
  
   } else {
     rt = gNameReaction[term_source];
   }
 
-  // First make sure the name matches:
-  if ( rt->getReactionName() == term_source) {
-    std::cout << "Use reaction " << rt->getReactionName() << std::endl;
-  }
-  else {
-    string text = "F: Reaction " +term_source + " does not match with library: "+rt->getReactionName();
-    hf_errlog_(16120801,text.c_str(),text.size());
-  }
 
-  // transfer the parameters:
-  rt->setxFitterParameters(gParameters);
-  rt->setxFitterParametersI(gParametersI);
-  rt->setxFitterParametersS(gParametersS);
-  rt->setxFitterparametersVec(gParametersV);
-
-  // set alpha_S, pdfs:
-  rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
-
-  // simplify interfaces to LHAPDF:
-  rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
-  rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
-  rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
+  /// Reaction-term / dataset specific:
 
   // Set bins
   rt->setBinning(_dsId*1000+iterm, &gDataBins[_dsId]);
@@ -438,31 +462,8 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
   map<string, string> pars = SplitTermInfo(term_info);
 
-  // Add string pars on the global list:
-  //  for ( auto p : pars) {
-  //  rt->addParameterS( p.first, p.second);
-  //}
-  // Add double pars on the global list:
-  //for ( auto p : _dsPars) {
-  //  rt->addParameter( p.first, &p.second);
-  //}
-
   // and transfer to the module
   rt->setDatasetParamters(_dsId*1000+iterm, pars, _dsPars);
-
-  // initialize
-  if (rt->initAtStart(term_info) != 0) {
-    // failed to init, somehow ...
-      string text = "F:Failed to init reaction " +term_source  ;
-      hf_errlog_(16120803,text.c_str(),text.size());
-  };
-
-
-  // pointer to alpha_S 
-  //rt->
-
-  //  rt->printInfo();
-  
 
   _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
 }
@@ -791,12 +792,12 @@ map<string, string> TheorEval::SplitTermInfo(const string& term_info)
 
 const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex) {
   // First check the list of strings, if present there. If yes, just return
-  if ( gParametersS.find(ParName) != gParametersS.end() ) {
-    return gParametersS[ParName];
+  if ( XFITTER_PARS::gParametersS.find(ParName) != XFITTER_PARS::gParametersS.end() ) {
+    return XFITTER_PARS::gParametersS[ParName];
   }
   // Now check the complex list:
-  if ( gParametersY.find(ParName) != gParametersY.end() ) {
-    YAML::Node Node = gParametersY[ParName];
+  if ( XFITTER_PARS::gParametersY.find(ParName) != XFITTER_PARS::gParametersY.end() ) {
+    YAML::Node Node = XFITTER_PARS::gParametersY[ParName];
 
     // Default:
     if ( Node["value"]) {

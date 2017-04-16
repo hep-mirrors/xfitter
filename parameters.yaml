@@ -16,8 +16,10 @@ NFlavour : 5
 mch : 1.43 
 mbt : 4.5
 
+
 # Optimal RT scheme:
-varin : [0.0, 1.0, -0.666666666667, 1.0]
+RT_DISNC:               # Reaction-specific settings
+  varin : [0.0, 1.0, -0.666666666667, 1.0]
 
 # speficify HF scheme:
 hf_scheme_DISNC : 
