@@ -10,7 +10,7 @@ sin2thW :
   value : 0.23127
   step  : 0.02
 
-Order : NLO
+Order : NNLO
 NFlavour : 5
 
 mch : 1.43 
@@ -37,8 +37,10 @@ AalphaS:
   max: 21.0
 
 
-muF: 1.0
-muR: 1.0
+APPLgrid:  # APPLgrid specific
+  muF: 1.0
+  muR: 1.0
+  Order : NLO   # APPLgrids are at max. NLO for now
 
 # Example of vectors
 

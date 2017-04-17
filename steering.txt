@@ -9,7 +9,7 @@
 
      InputFileNames = 
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
-     'Z0_applgrid_nnlo_reaction.dat',
+     'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
      'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
 
 
@@ -53,9 +53,9 @@
 * dependently. The numbering follows sequential numbering of input files
 *
 &Scales 
-    DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
-    DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
-    DataSetTheoryOrder = 7*'NLO',"NLO",'NNLO'
+ !   DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
+ !   DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
+ !   DataSetTheoryOrder = 7*'NLO',"NLO",'NNLO'
  !   DataSetMaxNF(2) = 4    ! Enable the H-VFNS (requires APFEL)
  !   DataSetMaxNF = 9*5
 &End
