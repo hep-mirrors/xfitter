@@ -222,4 +222,7 @@ void ReactionTensorPomeron::writeOut(const std::string& file) {
       << std::endl;
   }
   f.close();
+
+  // also write out the parameters, to make next iteration easier
+  std::cout <<  emitReactionLocalPars() << std::endl;
 }
