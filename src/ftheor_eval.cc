@@ -11,7 +11,6 @@
 #include <vector>
 #include <fstream>
 #include <valarray>
-#include <string.h>
 
 #include "get_pdfs.h"
 #include "xfitter_cpp.h"
@@ -46,14 +45,7 @@ extern "C" {
   int get_theor_eval_(int *dsId, int* np, int* idx);
   int read_reactions_();
   int close_theor_eval_();
-  void add_to_param_map_(double &value, char *name, int len);
   void init_func_map_();
-  void parse_params_();
-  void addexternalparam_(const char name[],  const double &val, 
-			 const double  &step,
-			 const double &min, const double &max, 
-			 const double &prior, const double &priorUnc,
-			 const int &add, int len);
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
   void error_band_action_(const int& i); ///< Loop over rections, call error_band_action
@@ -64,13 +56,6 @@ tTEmap gTEmap;
 tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 tDataBins gDataBins;
-
-tParameters<double*> gParameters;
-tParameters<int>    gParametersI;
-tParameters<string> gParametersS;
-
-tParameters<vector<double> > gParametersV; ///< Vectors of double parameters
-tParameters<YAML::Node> gParametersY;      ///< Store complete nodes for complex cases
 
 t2Dfunctions g2Dfunctions;
 
@@ -321,14 +306,6 @@ int read_reactions_()
   return 1;
 }
 
-// Store parameter to the global map:
-void add_to_param_map_(double &value, char *name, int len) {
-  string nam = name;
-  nam.erase(nam.find(" "));
-  gParameters[nam] = &value;
-  //  std::cout << nam << std::endl;
-}
-
 
 // a bunch of functions 
 double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
@@ -340,185 +317,6 @@ void init_func_map_() {
   g2Dfunctions["xg"] = &xg;
   g2Dfunctions["xu"] = &xu;
   g2Dfunctions["xub"] = &xub;
-}
-
-
-
-
-void parse_file(std::string name)
-{
-  try {
-    
-
-    YAML::Node node = YAML::LoadFile(name);
-
-    for ( YAML::iterator it = node.begin(); it != node.end(); ++it) {
-      YAML::Node key = it->first;
-      YAML::Node value = it->second;
-
-    // parameter name
-      string p_name = key.as<string>();
-
-      if (value.IsScalar()) {
-      // Alright, store directly
-      // Try to read as int, float, string:
-	try {
-	  int i = value.as<int>();
-	  gParametersI[p_name] = i;
-	  continue;
-	}
-	catch (const std::exception& e) {
-        }
-
-        try {
-	  double f = value.as<double>();
-	  gParameters[p_name] = new double(f);
-	  continue;
-        }
-        catch (const std::exception& e) {
-        }
-	
-	try {
-	  std::string s = value.as<std::string>();
-	  gParametersS[p_name] = s;
-	  continue;
-	}
-	catch (const std::exception& e) {
-	}      
-      }
-      else { // Potentially this may go to minuit, if step is not zero.
-	  
-	  
-	if (value.IsMap()) {
-
-	  // Check if this is a minimisation block, true if step is present
-	  if (value["step"]) {  
-	    // Defaults
-	    double val = 0;
-	    double step = 0;
-	    double minv  = 0;
-	    double maxv  = 0;
-	    double priorVal = 0;
-	    double priorUnc = 0;
-	    int add = true;
-	    
-	    if (value["value"]) {
-	      val = value["value"].as<double>();
-	    }
-	    else {
-	      string text = "F: missing value field for parameter " + p_name;
-	      hf_errlog_(17032401,text.c_str(),text.size());       
-	    }
-	    if (value["step"]) step = value["step"].as<double>();
-	    if (value["prior"]) priorVal = value["prior"].as<double>();
-	    if (value["priorUnc"]) priorUnc = value["priorUnc"].as<double>();
-	    if (value["min"]) minv = value["min"].as<double>();
-	    if (value["max"]) maxv = value["max"].as<double>();
-	    // Goes to fortran
-	    addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
-			      priorVal, priorUnc, add, p_name.size());
-	    }
-	  else {
-	    // no step, store as it is as a yaml node:
-	    gParametersY[p_name] = value;
-	  }
-	}
-	
-	else if (value.IsSequence() ) {
-	  size_t len = value.size();
-	  vector<double> v(len);
-	  for (size_t i=0; i<len; i++) {
-	    v[i] = value[i].as<double>();
-	  }
-	  gParametersV[p_name] = v;
-	}
-      }	  
-    }
-  }
-  catch (const std::exception& e) {
-    std::cout << e.what() << std::endl;
-    string text = "F: Problems reading yaml-parameters file: " + name + " : "+e.what();
-    hf_errlog_(17032503,text.c_str(),text.size());
-  }
-
-  return;
-}
-
-
-void ParsToFortran_(){
-
-// helper macros
-#define FortAssignD(NameV,Struc)  if (gParameters.find(#NameV) != gParameters.end()) Struc.NameV = *gParameters[#NameV]; 
-#define FortAssignS(NameV,Struc)  if (gParametersS.find(#NameV) != gParametersS.end()) strcpy(Struc.NameV,gParametersS[#NameV].c_str());
-#define FortAssignI(NameV,Struc)  if (gParametersI.find(#NameV) != gParametersI.end()) Struc.NameV = gParametersI[#NameV]; 
-
-  // CKM:
-  FortAssignD(Vud,ckm_matrix_)
-  FortAssignD(Vus,ckm_matrix_)
-  FortAssignD(Vub,ckm_matrix_)
-  FortAssignD(Vcd,ckm_matrix_)
-  FortAssignD(Vcs,ckm_matrix_)
-  FortAssignD(Vcb,ckm_matrix_)
-  FortAssignD(Vtd,ckm_matrix_)
-  FortAssignD(Vts,ckm_matrix_)
-  FortAssignD(Vtb,ckm_matrix_)
-
-    // Boson masses
-  FortAssignD(Mz,boson_masses_)
-  FortAssignD(Mw,boson_masses_)
-  FortAssignD(Mh,boson_masses_)
-
-    // Width
-  FortAssignD(Wz,widths_)
-  FortAssignD(Ww,widths_)
-  FortAssignD(Wh,widths_)
-  FortAssignD(Wtp,widths_)
-
-    // EW couplings
-  FortAssignD(Alphaem,ew_couplings_)
-  FortAssignD(sin2thW,ew_couplings_)
-  FortAssignD(cos2thW,ew_couplings_)
-
-    // constants
-  FortAssignD(Gf,constants_)
-  FortAssignD(ConvFac,constants_)
-
-  //Fermion masses:
-  FortAssignD(men,fermion_masses_)  // electron neutrino
-  FortAssignD(mel,fermion_masses_)
-  FortAssignD(mmn,fermion_masses_)
-  FortAssignD(mmo,fermion_masses_)
-  FortAssignD(mtn,fermion_masses_)
-  FortAssignD(mta,fermion_masses_)
-  FortAssignD(mup,fermion_masses_)
-  FortAssignD(mdn,fermion_masses_)
-  FortAssignD(mch,fermion_masses_)
-  FortAssignD(mst,fermion_masses_)
-  FortAssignD(mtp,fermion_masses_)
-  FortAssignD(mbt,fermion_masses_)
-
-    // Steering
-  FortAssignS(hf_scheme,steering_)
-  
-}
-
-
-// Helper function
-bool is_file_exist(const char *fileName)
-{
-    std::ifstream infile(fileName);
-    return infile.good();
-}
-
-
-void parse_params_(){
-  parse_file("parameters.yaml");
-
-  std::string userPars = "user_parameters.yaml";
-  if ( is_file_exist(userPars.c_str() )) {
-    parse_file(userPars);
-  }
-  ParsToFortran_();
 }
 
 void init_at_iteration_() {

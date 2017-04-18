@@ -23,6 +23,8 @@ extern "C" {
   void rt_set_input_(const double* varin, const double& mCharmin, const double& mBottomin, const double& alphaSQ0in,
 		     const double& alphaSMZin, const int& alphaSorderin, const double& alphaSnfmaxin, const int& iordin);
   void wate96_();
+  // use external instead of include:
+  void rt_set_pdfs_alphaS( pXFXlike xfx, pOneParFunc aS);    //!< Set PDFs and alphaS
 }
 
 
@@ -60,6 +62,9 @@ void ReactionRT_DISNC::initAtIteration() {
   const int  iord = OrderMap( order) - 1;
   const int  asOrederIn = 0;  // ???
   const int  alphaSnfmaxin = 3;
+
+  // set PDFs, alphaS functions:
+  rt_set_pdfs_alphaS( getXFX(), getAlphaS() );
 
   rt_set_input_(&varin[0], mc, mb, as_q0, as_MZ,  asOrederIn, alphaSnfmaxin, iord);
   wate96_();

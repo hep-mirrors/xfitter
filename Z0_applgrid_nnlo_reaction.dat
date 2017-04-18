@@ -28,7 +28,7 @@
  TermType = 'reaction','kfactor'
  TermSource = 'APPLgrid', 
               'datafiles/lhc/atlas/wzProduction/1203.4051/KF-Z0-nnlo2nlo-ew.txt'
- TermInfo  = 'GridName=datafiles/lhc/atlas/wzProduction/1203.4051/Z0-applgrid.root:Order=NLO', ' ' 
+ TermInfo  = 'GridName=datafiles/lhc/atlas/wzProduction/1203.4051/Z0-applgrid.root', ' ' 
  TheorExpr = 'K*A1/1.e5'
 
  PERCENT = F, 32*T
