@@ -46,18 +46,28 @@ def plotsub(x,v,err):
     fill_between(x,v-err,v+err, alpha=0.8)
     plot(x,v,'-',color='r')
 
+def add_cols(a):
+    a['q2'] = exp(a['logQ2'])
+    a['a0'] = a['q2a0']/a['q2']
+    a['a1'] = a['q2a1']/a['q2']
+    a['r0'] = a['q2a0']/(a['b0']-a['q2a0'])
+    a['r1'] = a['q2a1']/(a['b1']-a['q2a1'])
+    return a
 
 # main
 
 a= read_csv("pom/pomeron.csv",sep="\s+")
+a = add_cols(a)
 d = []
 for i in range(42):
     t = read_csv("pom/pom_"+str(i+1)+".csv","\s+")
+    t = add_cols(t)
     d.append(t)
 
 
-vars = ["b0", "b1", "q2a0", "q2a1"]
-ylab = ["$b_0$", "$b_1$", "$Q^2 a_0$", "$Q^2 a_1$"]
+vars = ["b0", "b1", "a0", "a1","q2a0","q2a1",'r0','r1']
+# vars = ["b0", "b1", "q2a0", "q2a1"]
+ylab = ["$b_0$", "$b_1$", "a0", "a1", "$Q^2 a_0$", "$Q^2 a_1$",'r0','r1']
 
 x = array(a.logQ2/log(10.))
 
@@ -65,7 +75,7 @@ figure(figsize=(12,12))
 
 for i in range(len(vars)):
     esym = symband(a,d,vars[i])
-    subplot(220+i+1)
+    subplot(420+i+1)
     plotsub(x,array(a[vars[i]]),esym)
     xlabel("$\log_{10} Q^2$",size=16)
 
