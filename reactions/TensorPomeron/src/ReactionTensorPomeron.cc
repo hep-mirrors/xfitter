@@ -9,6 +9,7 @@
 #include "ReactionTensorPomeron.h"
 #include <math.h>
 #include <fstream>
+#include <string.h>
 
 // the class factories
 extern "C" ReactionTensorPomeron* create() {
@@ -21,45 +22,35 @@ int ReactionTensorPomeron::initAtStart(const string &s)
   return 0;
 }
 
+
+vector<double> ReactionTensorPomeron::getSplinePar(const std::string& vn){
+  size_t len =  GetParamV(vn).size();
+  vector<double> out(len);
+  // fudge the name
+  std::string n2 = vn.substr(0,3);
+
+  for (size_t i=0; i<len; i++) {
+    out[i] = GetParam(n2+"v"+std::to_string(i));
+  }
+  return out;
+}
+
 void ReactionTensorPomeron::initAtIteration() 
 {
-  // Get spline pars
-  vector<double> s0bv(7);
-  s0bv[0] = GetParam("s0bv0");
-  s0bv[1] = GetParam("s0bv1");
-  s0bv[2] = GetParam("s0bv2");
-  s0bv[3] = GetParam("s0bv3");
-  s0bv[4] = GetParam("s0bv4");
-  s0bv[5] = GetParam("s0bv5");
-  s0bv[6] = GetParam("s0bv6");
+  // Get spline pars  
 
+  vector<double> s0bv = getSplinePar("s0bn");
   _s0b.set_points(_s0bn, s0bv);
 
-  vector<double> s1bv(6);
-  s1bv[0] = GetParam("s1bv0");
-  s1bv[1] = GetParam("s1bv1");
-  s1bv[2] = GetParam("s1bv2");
-  s1bv[3] = GetParam("s1bv3");
-  s1bv[4] = GetParam("s1bv4");
-  s1bv[5] = GetParam("s1bv5");
-
+  vector<double> s1bv = getSplinePar("s1bn");
   _s1b.set_points(_s1bn, s1bv);
 
-
-  vector<double> s0rv(3);
-  s0rv[0] = GetParam("s0rv0");
-  s0rv[1] = GetParam("s0rv1");
-  s0rv[2] = GetParam("s0rv2");
-
+  vector<double> s0rv = getSplinePar("s0rn");
   _s0r.set_points(_s0rn, s0rv);
 
-
-  vector<double> s1rv(3);
-  s1rv[0] = GetParam("s1rv0");
-  s1rv[1] = GetParam("s1rv1");
-  s1rv[2] = GetParam("s1rv2");
-
+  vector<double> s1rv = getSplinePar("s1rn");
   _s1r.set_points(_s1rn, s1rv);
+
 
   _epsilon0 = GetParam("epsilon0");
   _epsilon1 = GetParam("epsilon1");

@@ -62,5 +62,7 @@ class ReactionTensorPomeron : public ReactionTheory
   const double q2a1(double q2) { return b1q2(q2)/(1. + 1./r1q2(q2)); }
 
   void writeOut(const std::string& file);   ///< Store b and a functions.
+  vector<double> getSplinePar(const std::string& vn); ///< Helper to decode variable pars.
+  
 };
 
