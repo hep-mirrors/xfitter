@@ -58,4 +58,37 @@ void ReactionTheory::resetParameters(const YAML::Node& node) {
   XFITTER_PARS::parse_node( node, _xfitter_pars, _xfitter_pars_i, _xfitter_pars_s, _xfitter_pars_vec, _xfitter_pars_node);
 }
 
+/// Dump local parameters for the reaction. Update to the current state for the fitted parameters.
+std::string ReactionTheory::emitReactionLocalPars() const {
+
+  if ( _xfitter_pars_node.find(getReactionName()) ==  _xfitter_pars_node.end()) {
+    return "";
+  }
+
+
+  YAML::Emitter out;
+  YAML::Node pars = _xfitter_pars_node.at(getReactionName());
+
+  // update pars:
+  for ( YAML::iterator it = pars.begin(); it != pars.end(); ++it) {
+    auto value = it->second;
+    string name  = (it->first).as<string>();
+    if ( value.IsMap() ) {
+      if (value["step"]) {
+	// Update:
+	value["value"] = GetParam(name);
+      }
+    }
+  }
+  // Dump with prefix:
+  YAML::Node n;
+  n[getReactionName()] = pars;
+
+  out.SetIndent(2);
+  out.SetSeqFormat(YAML::Flow);
+
+  out << n;
+  return out.c_str();
+}
+
 
