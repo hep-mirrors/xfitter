@@ -120,9 +120,12 @@ class ReactionTheory
   } 
 
  protected:
+  map<string, pTwoParFunc> *PDFs;
 
   virtual int parseOptions() { return 0;};
-  map<string, pTwoParFunc> *PDFs;
+
+  /// Generate report on the state of parameters, local for the given reaction.
+  std::string  emitReactionLocalPars() const;
 
   bool checkParam(string name)         ///< Check if a parameter is present on one of the global list
   {

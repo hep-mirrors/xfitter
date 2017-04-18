@@ -21,8 +21,10 @@ extern "C" {
 			 const double  &step,
 			 const double &min, const double &max, 
 			 const double &prior, const double &priorUnc,
-			 const int &add, int len);
-  void add_to_param_map_(double &value, char *name, int len);
+			 const int &add, 
+			 map<std::string,double*> *map,
+			 int len);
+  void add_to_param_map_(map<std::string,double*>* map,double &value, int& global, char *name, int len);
 }
 
 
@@ -143,7 +145,7 @@ namespace XFITTER_PARS {
 	    if (value["max"]) maxv = value["max"].as<double>();
 	    // Goes to fortran
 	    addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
-			      priorVal, priorUnc, add, p_name.size());
+			      priorVal, priorUnc, add, &dMap, p_name.size());
 	  }
 	  else {
 	    // no step, store as it is as a yaml node:
@@ -228,11 +230,16 @@ void parse_params_(){
   XFITTER_PARS::ParsToFortran();
 }
 
-// Store parameter to the global map, fortran interface:
-void add_to_param_map_(double &value, char *name, int len) {
+// Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:
+void add_to_param_map_(map<std::string,double*> *map, double &value, int& global, char *name, int len) {
   string nam = name;
   nam.erase(nam.find(" "));
-  XFITTER_PARS::gParameters[nam] = &value;
-  //  std::cout << nam << std::endl;
+
+  if ( global>0 ) {
+    XFITTER_PARS::gParameters[nam] = &value;
+  }
+  else {
+    (*map)[nam] = &value;
+  }
 }
 
