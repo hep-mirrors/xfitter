@@ -46,36 +46,90 @@ void ReactionTensorPomeron::initAtIteration()
   vector<double> s1bv = getSplinePar("s1bn");
   _s1b.set_points(_s1bn, s1bv);
 
-  vector<double> s0rv = getSplinePar("s0rn");
-  _s0r.set_points(_s0rn, s0rv);
+  if ( _splineR ) {
+    vector<double> s0rv = getSplinePar("s0rn");
+    _s0r.set_points(_s0rn, s0rv);
 
-  vector<double> s1rv = getSplinePar("s1rn");
-  _s1r.set_points(_s1rn, s1rv);
-
+    vector<double> s1rv = getSplinePar("s1rn");
+    _s1r.set_points(_s1rn, s1rv);
+  }
+  else {
+    // Different param. for R:
+    _r0 = GetParam("r0");
+    _r1 = GetParam("r1");
+    _delta0 = GetParam("delta0");
+    _delta1 = GetParam("delta1");
+  }
 
   _epsilon0 = GetParam("epsilon0");
   _epsilon1 = GetParam("epsilon1");
 
+
+  // Also reggeon
+  _c0ir = GetParam("c0ir");
+  _c1ir = GetParam("c1ir");
+  _alphaIR = GetParam("alphaIR");
+  _epsilonR = _alphaIR - 1.;
+
   // Update internal valarrays too
   for (int ds : _dsIDs) {
-    auto *q2p = GetBinValues(ds,"Q2");  
-    for ( size_t i=0; i<(*q2p).size(); i++) {
-      _b0[ds][i] = b0q2((*q2p)[i]);
-      _b1[ds][i] = b1q2((*q2p)[i]);
-      _qa0[ds][i] = q2a0((*q2p)[i]);
-      _qa1[ds][i] = q2a1((*q2p)[i]);
+    auto q2 = _q2[ds];
+    for ( size_t i=0; i<(q2).size(); i++) {
+      _b0[ds][i] = b0q2((q2)[i]);
+      _b1[ds][i] = b1q2((q2)[i]);
+      _qa0[ds][i] = q2a0((q2)[i]);
+      _qa1[ds][i] = q2a1((q2)[i]);
+
+      _b2[ds][i]  = b2q2((q2)[i]);
+      _qa2[ds][i] = q2a2((q2)[i]);
+
     }
   }
 }
 
 void  ReactionTensorPomeron::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) 
 {
-  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");  
-  if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
-    string msg = "F: Q2, x or Y bins are missing for NC DIS reaction for dataset " + std::to_string(dataSetID);
-    hf_errlog_(17040801,msg.c_str(), msg.size());
+
+  // First see if ep or gamma p:
+  _isReduced[dataSetID] = false;
+  if (parsDataset.find("reduced") != parsDataset.end()) {
+    _isReduced[dataSetID] = parsDataset["reduced"] > 0;
   }
-  _npoints[dataSetID] = (*q2p).size();
+
+
+  // Proton mass
+  _mp   = GetParam("mP");
+
+
+  if (_isReduced[dataSetID]) {
+    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");  
+    if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
+      string msg = "F: Q2, x or Y bins are missing for NC DIS reaction for dataset " + std::to_string(dataSetID);
+      hf_errlog_(17040801,msg.c_str(), msg.size());
+    }
+    _npoints[dataSetID] = (*q2p).size();
+    // Basic kinematic vars:
+    _x[dataSetID] = *xp;
+    _q2[dataSetID] = *q2p;
+    _y[dataSetID] = *yp;
+    _W2[dataSetID] = (*q2p)*(1./(*xp)-1.) + _mp*_mp;
+  }
+  else {
+    auto *wp = GetBinValues(dataSetID,"W") ;
+    if (wp == nullptr) {
+      string msg = "F: W bins are missing for gamma-p reaction for dataset " + std::to_string(dataSetID);
+      hf_errlog_(17042201,msg.c_str(), msg.size());
+    }
+    _npoints[dataSetID] = (*wp).size();
+    _W2[dataSetID] = (*wp)*(*wp);
+    _q2[dataSetID].resize(_npoints[dataSetID]);
+    for ( auto  &q2 : _q2[dataSetID] ) {
+      q2 = 0.0;
+    }
+    _y[dataSetID].resize(_npoints[dataSetID]);
+    _x[dataSetID].resize(_npoints[dataSetID]);
+
+  }
 
   _s0bn = GetParamV("s0bn");
   _s1bn = GetParamV("s1bn");
@@ -84,6 +138,8 @@ void  ReactionTensorPomeron::setDatasetParamters( int dataSetID, map<string,stri
 
   _m02 = GetParam("m02");
   _m12 = GetParam("m12");
+
+  _convFact = GetParam("ubarnFromGeV");
 
   // goto log, add offset:
   auto toLog = []( vector<double>& a, double b) { 
@@ -94,18 +150,22 @@ void  ReactionTensorPomeron::setDatasetParamters( int dataSetID, map<string,stri
 
   toLog(_s0bn,_m02); toLog(_s1bn,_m12); toLog(_s0rn,0.0); toLog(_s1rn,0.0);
 
-  _mp   = GetParam("mP");
   _alpha_em = GetParam("alphaEM");
 
   _alphaP = GetParam("alphaP");
   _beta   = GetParam("beta");
 
+  _splineR = GetParamI("SplineForR"); 
 
-  // Basic kinematic vars:
-  _x[dataSetID] = *xp;
-  _q2[dataSetID] = *q2p;
-  _y[dataSetID] = *yp;
-  _W2[dataSetID] = (*q2p)*(1./(*xp)-1.) + _mp*_mp;
+  if (_splineR) {
+    std::string text = "I: Unsing spline param. for R in TensorPomeron model";
+    hf_errlog_(17042201,text.c_str(), text.size());
+  }
+  _mr = GetParam("mr");
+
+  _alphaR = GetParam("alphaR");
+  _betaR  = GetParam("betaR");
+
   _pq[dataSetID] = 0.5*(_W2[dataSetID]+_q2[dataSetID]-_mp*_mp);
   _delta[dataSetID] = 0.5*_mp*_mp*_q2[dataSetID]/(_pq[dataSetID]*_pq[dataSetID]);
   _Yp[dataSetID] = 1. + (1. - _y[dataSetID])*(1. - _y[dataSetID]) + _y[dataSetID]*_y[dataSetID]*_delta[dataSetID];
@@ -113,8 +173,10 @@ void  ReactionTensorPomeron::setDatasetParamters( int dataSetID, map<string,stri
 
   _b0[dataSetID].resize(_npoints[dataSetID]);
   _b1[dataSetID].resize(_npoints[dataSetID]);
+  _b2[dataSetID].resize(_npoints[dataSetID]);
   _qa0[dataSetID].resize(_npoints[dataSetID]);
   _qa1[dataSetID].resize(_npoints[dataSetID]);
+  _qa2[dataSetID].resize(_npoints[dataSetID]);
 }
 
 // Main function to compute results at an iteration
@@ -133,20 +195,25 @@ int ReactionTensorPomeron::compute(int dataSetID, valarray<double> &val, map<str
   auto  f = _f[dataSetID] ;
   auto delta = _delta[dataSetID] ;
 
-  sigma_L(dataSetID, sL);
-  sigma_LT(dataSetID, sLT);
-
+  if ( _isReduced[dataSetID] ) {
+    sigma_L(dataSetID, sL);
+    sigma_LT(dataSetID, sLT);
   
-  double prefix           = 1.0/(4.*M_PI*M_PI*_alpha_em);
-  valarray<double> yf     = Yp/(1.0+(1.0-y)*(1.0-y));
-  valarray<double> df     = 1.0/(1.0+2.0*delta);
-  valarray<double> kf     = 0.5 * Q2*(W2 - _mp*_mp)/pq;
+    double prefix           = 1.0/(4.*M_PI*M_PI*_alpha_em);
+    valarray<double> yf     = Yp/(1.0+(1.0-y)*(1.0-y));
+    valarray<double> df     = 1.0/(1.0+2.0*delta);
+    valarray<double> kf     = 0.5 * Q2*(W2 - _mp*_mp)/pq;
 
-  val = prefix*yf*df*kf*(sLT - f*sL);
-
+    val = prefix*yf*df*kf*(sLT - f*sL);
+  }
+  else {
+    sigma_LT(dataSetID, sLT);
+    val = _convFact*sLT;
+  }
   return 0;
 }
 
+/// Helper for valarrays
 valarray<double> power( valarray<double> arr, double p) {
   valarray<double> res(arr.size());
   for (size_t i=0; i<arr.size(); i++) {
@@ -167,6 +234,10 @@ void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double>& sL)
   auto qa0 = _qa0[dataSetID] ;
   auto qa1 = _qa1[dataSetID] ;
 
+  // Reggeon:
+  auto b2 = _b2[dataSetID];
+  auto qa2 = _qa2[dataSetID];
+
 
   valarray<double> prefix =  4. * M_PI * _alpha_em / ( W2*(W2 - _mp*_mp) ) ;
   valarray<double> suf_a =  (4.* pq *pq + Q2*_mp*_mp) ;
@@ -174,8 +245,15 @@ void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double>& sL)
 
   valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * power(_alphaP*W2, _epsilon0) ;
   valarray<double> p1 = 3*_beta * cos(_epsilon1 * M_PI / 2.0) * power(_alphaP*W2, _epsilon1) ;
+  
+  // Reggeon
+  valarray<double> r  = 3*_beta * cos(_epsilonR * M_PI / 2.0) * power(_alphaP*W2, _epsilonR) ;
 
-  sL = prefix*( p0*2.0*(qa0*suf_a + b0*suf_b) + p1*2.0*(qa1*suf_a + b1*suf_b) );
+  sL = prefix*( 
+	       p0*2.0*(qa0*suf_a + b0*suf_b) 
+	       + p1*2.0*(qa1*suf_a + b1*suf_b) 
+	       + r*2.0*(qa2*suf_a + b2*suf_b) 
+		);
 }
 
 void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT) 
@@ -186,7 +264,7 @@ void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT)
 
   auto b0 = _b0[dataSetID] ;
   auto b1 = _b1[dataSetID] ;
-
+  auto b2 = _b2[dataSetID] ;
 
   valarray<double> prefix =  4. * M_PI * _alpha_em / ( W2*(W2 - _mp*_mp) ) ;
 
@@ -194,8 +272,10 @@ void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT)
 
   valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * power(_alphaP*W2, _epsilon0) * 4.* b0;
   valarray<double> p1 = 3*_beta * cos(_epsilon1 * M_PI / 2.0) * power(_alphaP*W2, _epsilon1) * 4.* b1;
+  // Reggeon:
+  valarray<double>  r = 3*_beta * cos(_epsilonR * M_PI / 2.0) * power(_alphaP*W2, _epsilonR) * 4.* b2; 
 
-  sLT = prefix*(p0+p1)*suffix;
+  sLT = prefix*(p0+p1 +  r )*suffix;
 }
 
 void ReactionTensorPomeron::actionAtFCN3() {
@@ -226,4 +306,22 @@ void ReactionTensorPomeron::writeOut(const std::string& file) {
   }
   f.close();
 
+}
+
+const double ReactionTensorPomeron::r0q2(double q2) { 
+  if (_splineR) {
+    return exp( _s0r(log(q2)) ); 
+  }
+  else {
+    return _r0*q2 * pow( (1.0 + q2/(_mr*_mr)), _delta0-1); 
+  }
+}
+
+const double ReactionTensorPomeron::r1q2(double q2) { 
+  if (_splineR) {
+    return exp( _s1r(log(q2)) ); 
+  }
+  else {
+    return _r1*q2 * pow( (1.0 + q2/(_mr*_mr)), _delta1-1); 
+  }
 }

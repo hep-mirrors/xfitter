@@ -30,19 +30,28 @@ class ReactionTensorPomeron : public ReactionTheory
  
  private:
   map <int, int> _npoints;
-  double _e0, _e1;  ///< pomeron slopes
   double _mp, _alpha_em;
   double _alphaP, _beta;
   double _m02, _m12;
+  double _convFact;
 
-  // the main fit target:
+  // hard and soft pomeron slopes:
   double _epsilon0, _epsilon1;
+
+  map <int,bool> _isReduced;
+
+  /// Flag for spline param. for R
+  int _splineR;
+  double _mr, _r0, _r1, _delta0, _delta1;
+
+  /// Reggeon
+  double _alphaR, _betaR, _epsilonR, _alphaIR, _c0ir, _c1ir;
 
   // store also kin vars:
   map <int, valarray<double> > _x,_q2,_y, _W2,_delta,_Yp, _f, _pq;
   
   // and derrived too:
-  map <int, valarray<double> > _b0,_b1,_qa0,_qa1;
+  map <int, valarray<double> > _b0,_b1,_qa0,_qa1, _b2, _qa2; 
 
   // spline functions
   vector<double> _s0bn, _s1bn, _s0rn, _s1rn; ///< spline knots
@@ -55,11 +64,16 @@ class ReactionTensorPomeron : public ReactionTheory
   const double b0q2(double q2){ return exp( _s0b(log(q2+_m02)) ); }
   const double b1q2(double q2){ return exp( _s1b(log(q2+_m12)) ); }
 
-  const double r0q2(double q2){ return exp( _s0r(log(q2)) ); }
-  const double r1q2(double q2){ return exp( _s1r(log(q2)) ); }
+  // Reggeon
+  const double b2q2(double q2){ return exp(_c0ir - q2/_c1ir);  }
 
-  const double q2a0(double q2) { return b0q2(q2)/(1. + 1./r0q2(q2)); }
-  const double q2a1(double q2) { return b1q2(q2)/(1. + 1./r1q2(q2)); }
+  const double r0q2(double q2);
+  const double r1q2(double q2);
+  const double r2q2(double q2) {return 0.; } //!< Reggeon FL=0.
+
+  const double q2a0(double q2) { return 0.5*b0q2(q2)/(1. + 1./r0q2(q2)); }
+  const double q2a1(double q2) { return 0.5*b1q2(q2)/(1. + 1./r1q2(q2)); }
+  const double q2a2(double q2) { return 0.5*b2q2(q2)/(1. + 1./r2q2(q2)); }
 
   void writeOut(const std::string& file);   ///< Store b and a functions.
   vector<double> getSplinePar(const std::string& vn); ///< Helper to decode variable pars.
