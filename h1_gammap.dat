@@ -1,0 +1,35 @@
+* "Z.Phys.C69 (1995) 27 [hep-ex/9509001]"
+&Data 
+  Name = "H1 gammaP" 
+  Reaction = "NC e+-p"
+  NData =   1
+  NColumn =   4
+  ColumnType = 1*"Bin","Sigma", 2*"Error"
+  ColumnName = "W", "Sigma","stat","uncor"
+
+  NInfo =  4
+  CInfo =        "sqrt(S)",     "e charge",   "reduced", "e polarity"
+  DataInfo =     0.3003E+03,    0.1000E+01,    0.0,      0.0000E+00,
+
+  IndexDataset =   204
+  Percent = 172*true
+
+
+  TheoryType = 'expression'
+  TermName = 'R'
+  TermType = 'reaction'
+  TermSource = 'use:hf_scheme_DISNC'
+  TermInfo = ''
+  TheorExpr = 'R'
+&End
+
+&PlotDesc
+  PlotN = 1
+  PlotDefColumn = 'W'
+  PlotDefValue = 0., 1000.
+  PlotVarColumn = 'W'
+ PlotOptions  = 
+  'Experiment:H1@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC), E_{p} = 820 GeV @XTitle: W @YTitle: #sigma_{red}  @Title:Q^{2} = 0.0 @Xlog'
+&end
+* W  s[mub] stat syst 
+200 165.0 1.2 6.7

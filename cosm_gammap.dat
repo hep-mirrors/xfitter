@@ -1,0 +1,37 @@
+* fake gamma-p total cross section data,    Phys.Atom.Nucl. 66 (2003) 565-574
+&Data 
+  Name = "Cosmic-rays gammaP" 
+  Reaction = "NC e+-p"
+  NData =   4
+  NColumn =   3
+  ColumnType = 1*"Bin","Sigma", 1*"Error"
+  ColumnName = "W", "Sigma","stat"
+
+  NInfo =  4
+  CInfo =        "sqrt(S)",     "e charge",   "reduced", "e polarity"
+  DataInfo =     0.1000E+03,    0.1000E+01,    0.0,      0.0000E+00,
+
+  IndexDataset =   234
+  Percent = 172*true
+
+
+  TheoryType = 'expression'
+  TermName = 'R'
+  TermType = 'reaction'
+  TermSource = 'use:hf_scheme_DISNC'
+  TermInfo = ''
+  TheorExpr = 'R'
+&End
+
+&PlotDesc
+  PlotN = 1
+  PlotDefColumn = 'W'
+  PlotDefValue = 0., 1000.
+  PlotVarColumn = 'W'
+  PlotOptions  =  'Experiment:COSM@XTitle: W @YTitle: #sigma  @Title:Q^{2} = 0.0 @Xlog'
+&end
+* W  s[mub] stat  
+45.39 128. 10.9375 
+53.89 146. 10.2739726027 
+75.39 148. 15.5405405405 
+133.49 152. 52.6315789474

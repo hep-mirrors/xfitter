@@ -3,16 +3,19 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 4
+    NInputFiles = 8
  
   ! Input files:
 
      InputFileNames = 
+     'h1_gammap.dat',
+     'zeus_gammap.dat',
+     'slac_gammap.dat',
+     'cosm_gammap.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
-
 
 &End
 
@@ -243,7 +246,7 @@
    ProcessName(2)     = 'NC e+-p'
    Variable(2)        = 'x'
    CutValueMin(2)     = 0.00000001 
-   CutValueMax(2)     = 1.0
+   CutValueMax(2)     = 0.01
 
   !---------------------  CC ep  ------------------
 
