@@ -10,6 +10,7 @@
 #include <math.h>
 #include <fstream>
 #include <string.h>
+#include <iostream>
 
 // the class factories
 extern "C" ReactionTensorPomeron* create() {
@@ -199,6 +200,8 @@ void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT)
 
 void ReactionTensorPomeron::actionAtFCN3() {
   writeOut("pomeron.csv");
+  // also write out the parameters, to make next iteration easier
+  std::cout <<  emitReactionLocalPars() << std::endl;
 }
 
 void ReactionTensorPomeron::errorBandAction(int ivector) {
@@ -223,6 +226,4 @@ void ReactionTensorPomeron::writeOut(const std::string& file) {
   }
   f.close();
 
-  // also write out the parameters, to make next iteration easier
-  std::cout <<  emitReactionLocalPars() << std::endl;
 }
