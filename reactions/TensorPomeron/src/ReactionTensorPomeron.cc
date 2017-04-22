@@ -213,16 +213,6 @@ int ReactionTensorPomeron::compute(int dataSetID, valarray<double> &val, map<str
   return 0;
 }
 
-/// Helper for valarrays
-valarray<double> power( valarray<double> arr, double p) {
-  valarray<double> res(arr.size());
-  for (size_t i=0; i<arr.size(); i++) {
-    res[i] = pow(arr[i],p);
-  }
-  return res;
-}
-
-
 void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double>& sL) 
 {
   auto W2 = _W2[dataSetID] ;
@@ -243,11 +233,11 @@ void ReactionTensorPomeron::sigma_L(int dataSetID, valarray<double>& sL)
   valarray<double> suf_a =  (4.* pq *pq + Q2*_mp*_mp) ;
   valarray<double> suf_b =  ( Q2*_mp*_mp );
 
-  valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * power(_alphaP*W2, _epsilon0) ;
-  valarray<double> p1 = 3*_beta * cos(_epsilon1 * M_PI / 2.0) * power(_alphaP*W2, _epsilon1) ;
+  valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * pow(_alphaP*W2, _epsilon0) ;
+  valarray<double> p1 = 3*_beta * cos(_epsilon1 * M_PI / 2.0) * pow(_alphaP*W2, _epsilon1) ;
   
   // Reggeon
-  valarray<double> r  = 3*_beta * cos(_epsilonR * M_PI / 2.0) * power(_alphaP*W2, _epsilonR) ;
+  valarray<double> r  = 3*_beta * cos(_epsilonR * M_PI / 2.0) * pow(_alphaP*W2, _epsilonR) ;
 
   sL = prefix*( 
 	       p0*2.0*(qa0*suf_a + b0*suf_b) 
@@ -270,10 +260,10 @@ void ReactionTensorPomeron::sigma_LT(int dataSetID, valarray<double>& sLT)
 
   valarray<double> suffix =  ( pq *pq + Q2*_mp*_mp) ;
 
-  valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * power(_alphaP*W2, _epsilon0) * 4.* b0;
-  valarray<double> p1 = 3*_beta * cos(_epsilon1 * M_PI / 2.0) * power(_alphaP*W2, _epsilon1) * 4.* b1;
+  valarray<double> p0 = 3*_beta * cos(_epsilon0 * M_PI / 2.0) * pow(_alphaP*W2, _epsilon0) * 4.* b0;
+  valarray<double> p1 = 3*_beta * cos(_epsilon1 * M_PI / 2.0) * pow(_alphaP*W2, _epsilon1) * 4.* b1;
   // Reggeon:
-  valarray<double>  r = 3*_beta * cos(_epsilonR * M_PI / 2.0) * power(_alphaP*W2, _epsilonR) * 4.* b2; 
+  valarray<double>  r = 3*_beta * cos(_epsilonR * M_PI / 2.0) * pow(_alphaP*W2, _epsilonR) * 4.* b2; 
 
   sLT = prefix*(p0+p1 +  r )*suffix;
 }
