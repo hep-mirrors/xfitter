@@ -33,7 +33,8 @@
       2.5, 3.0, 4.0, 5., 7., 9., 11., 13., 16., 19., 23., 28., 35., 45., 
       60., 70., 90., 120., 150., 200., 250., 300., 400., 500., 650., 800., 1000., 
    PlotVarColumn = 'x'
-   PlotOptions  =     'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 0.15 @Xlog'
+   PlotOptions  =     
+    'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 0.15 @Xlog'
     'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 0.20 @Xlog'
     'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 0.25 @Xlog'
     'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 0.35 @Xlog'
@@ -70,7 +71,6 @@
     'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 650  @Xlog'
     'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 800  @Xlog'
     'Experiment:HERA1+2@ExtraLabel:e^{+}p #rightarrow e^{+}X (NC) @XTitle: x @YTitle: #sigma_{red}  @Title:Q^{2} = 1000  @Xlog'
-
 &End
 *        Q2           x           y    Average     StatErr        Uncor    Cor1    ... 
 1.5000E-01  5.0200E-06	2.9526E-01  1.8481E-01	3.7945E+00  1.5002E+00	 0.059	-0.055	 0.071	-0.219	 0.402	-0.415	-0.045	 0.007	-0.003	-0.037	 0.041	-0.706	-0.077	 0.427	-0.672	-0.320	-1.800	 0.263	 0.834	 1.081	 0.203	 0.303	-0.144	 0.065	-1.125	 0.021	-0.246	-0.412	 0.162	 0.392	 0.110	-0.089	 0.042	 0.451	 0.280	 0.051	 0.485	 0.057	-0.485	 0.213	-0.276	 0.186	-0.071	-0.078	-0.012	 0.036	 0.029	 0.132	-0.123	-0.066	 0.243	-0.554	 0.217	-0.188	-0.586	 0.209	 0.299	-0.315	-0.036	-0.009	 0.010	-0.015	-0.050	 0.083	-0.109	 0.075	 0.492	-0.407	-0.061	-0.170	 0.176	-0.111	-0.473	-0.570	 0.009	-0.069	 0.035	-0.388	 0.074	-0.000	 0.008	 0.012	-0.062	-0.028	-0.156	-0.156	-0.459	-0.185	 0.135	-0.081	 0.002	-0.043	-0.045	-0.538	-0.000	-0.028	 0.012	 0.077	-0.090	-0.044	 0.032	 0.128	 0.055	 0.044	-0.014	 0.012	-0.017	-0.074	 0.632	 0.081	 0.007	 0.098	-0.010	-0.031	-0.016	-0.045	 0.003	-0.185	 0.051	-0.001	-0.247	-0.002	-0.005	 0.003	-0.001	-0.003	 0.020	 0.023	-0.001	 0.002	 0.008	 0.003	-0.020	-0.174	-0.043	 0.023	-0.013	 0.001	-0.000	-0.003	-0.009	 0.002	-0.000	-0.001	-0.015	-0.053	 0.001	 0.010	 0.003	-0.001	-0.006	-0.001	 0.003	-0.001	 0.001	 0.001	-0.001	-0.000	-0.099	 0.003	-0.000	 0.006 5.45475E+00 1.39062 -0.173151 -0.00541096 0 0.00541096 0.350367 -0.205973

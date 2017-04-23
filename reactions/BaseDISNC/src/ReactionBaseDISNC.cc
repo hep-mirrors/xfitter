@@ -21,8 +21,8 @@ const double CNEP2F[] = {0.,0.,1.,0.,1.,0.,0.,0.,1.,0.,1.,0.,0.}; //u  (top off 
 const double CNEM2F[] = {0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0.}; //d
 
 //! xF3 full
-const double CNEP3F[] = {0.,0.,-1.,0.,-1.,0.,0.,0.,1.,0.,1.,0.,0.}; //u
-const double CNEM3F[] = {0.,-1.,0.,-1.,0.,-1.,0.,1.,0.,1.,0.,1.,0.}; //d
+const double CNEP3F[] = {0., 0.,-1., 0.,-1., 0.,0.,0.,1.,0.,1.,0.,0.}; //u
+const double CNEM3F[] = {0.,-1., 0.,-1., 0.,-1.,0.,1.,0.,1.,0.,1.,0.}; //d
 
 //! c
 const double CNEP2Fc[] = {0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.}; //c
@@ -138,7 +138,7 @@ void ReactionBaseDISNC::F2gammaZ BASE_PARS
 {
   valarray<double> f2u, f2d;
   GetF2ud(dataSetID, f2u,  f2d);
-  val = 2*( 2./3.*_vu * f2u - 1./3.*_vd * f2d );
+  val = 2.*( 2./3.*_vu * f2u - 1./3.*_vd * f2d );
 }
 
 void ReactionBaseDISNC::F2Z BASE_PARS
@@ -166,7 +166,7 @@ void ReactionBaseDISNC::F2 BASE_PARS
   double pol     = GetPolarisation(dataSetID);
   double charge = GetCharge(dataSetID);
  
-  val = f2g - (_ve + charge*pol*_ae)*k*f2gZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * f2Z; 
+  val = f2g - (_ve + charge*pol*_ae)*k*f2gZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * f2Z;  
 }
 
 void ReactionBaseDISNC::FLgamma BASE_PARS
@@ -180,7 +180,7 @@ void ReactionBaseDISNC::FLgammaZ BASE_PARS
 {
   valarray<double> flu, fld;
   GetFLud(dataSetID, flu,  fld);
-  val = 2*( 2./3.*_vu * flu - 1./3.*_vd * fld );
+  val = 2.*( 2./3.*_vu * flu - 1./3.*_vd * fld );
 }
 
 void ReactionBaseDISNC::FLZ BASE_PARS
@@ -209,21 +209,21 @@ void ReactionBaseDISNC::FL BASE_PARS
   double pol     = GetPolarisation(dataSetID);
   double charge = GetCharge(dataSetID);
  
-  val = flg - (_ve + charge*pol*_ae)*k*flgZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * flZ; 
+  val = flg - (_ve + charge*pol*_ae)*k*flgZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * flZ;  
 }
 
 void ReactionBaseDISNC::xF3gammaZ BASE_PARS 
 {
   valarray<double> xf3u, xf3d;
   GetxF3ud(dataSetID, xf3u,  xf3d);
-  val = 2/3 * _au * xf3u - 1/3 * _ad * xf3d ;
+  val = 2.*(2./3. * _au * xf3u - 1./3. * _ad * xf3d) ;
 }
 
 void ReactionBaseDISNC::xF3Z      BASE_PARS 
 {
   valarray<double> xf3u, xf3d;
   GetxF3ud(dataSetID, xf3u,  xf3d);
-  val = _vu * _au * xf3u + _vd * _ad * xf3d ;
+  val = 2.*(_vu * _au * xf3u + _vd * _ad * xf3d) ;
 }
 
 void ReactionBaseDISNC::xF3       BASE_PARS 
@@ -240,7 +240,7 @@ void ReactionBaseDISNC::xF3       BASE_PARS
   double pol     = GetPolarisation(dataSetID);
   double charge  = GetCharge(dataSetID);
 
-  val = -(_ae + charge*pol*_ve)*k * xf3gZ + (2*_ae*_ve + charge*pol*(_ve*_ve + _ae*_ae))*k*k * xf3Z;
+  val =  (_ae*charge + pol*_ve)*k * xf3gZ + (-2*_ae*_ve*charge - pol*(_ve*_ve + _ae*_ae))*k*k * xf3Z;
 }
 
 void ReactionBaseDISNC::sred BASE_PARS
@@ -257,13 +257,12 @@ void ReactionBaseDISNC::sred BASE_PARS
   valarray<double> xf3(_npoints[dataSetID]);
   xF3(dataSetID, xf3, err);
 
-  double charge = GetCharge(dataSetID);
+//  double charge = GetCharge(dataSetID);   xF3 is alredy charge-dependent.
 
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
 
-  val = f2 - y*y/yplus*fl - charge*(yminus/yplus)*xf3 ;
-
+  val = f2 - y*y/yplus*fl + (yminus/yplus)*xf3 ;  
 }
 
 
@@ -321,6 +320,7 @@ void ReactionBaseDISNC::GetFLud(int dataSetID, valarray<double>& flu, valarray<d
   }
   flu = _flu[dataSetID];
   fld = _fld[dataSetID];
+
 }
 
 void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarray<double>& xf3d )
@@ -339,7 +339,7 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
     }
     else {
       NOT_IMPLEMENTED(" xF3 b,c ");
-    }
+    }    
   }
   xf3u = _xf3u[dataSetID];
   xf3d = _xf3d[dataSetID];
@@ -348,8 +348,7 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
 
 void ReactionBaseDISNC::kappa(int dataSetID, valarray<double>& k) {
   auto *q2p = GetBinValues(dataSetID,"Q2");
-  double cos2thetaW = sqrt(1-_sin2thetaW*_sin2thetaW);
+  double cos2thetaW = 1-_sin2thetaW;
 
-  k= 1./(4*_sin2thetaW*cos2thetaW)  * (*q2p)/( (*q2p)+_Mz*_Mz);
-
+  k= 1./(4*_sin2thetaW*cos2thetaW)  * (*q2p)/( (*q2p)+_Mz*_Mz);  
 }

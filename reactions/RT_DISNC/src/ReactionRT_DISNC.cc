@@ -135,10 +135,14 @@ void ReactionRT_DISNC::calcF2FL(int dataSetID) {
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
 
     for (size_t i=0; i<Np; i++) {
-      mstwnc_wrap_(x[i], q2[i], 1,
-		   f2, f2c, f2b, fl, flc, flb,
-		   iflag, i+1, 1., 0.1, 0 );
-
+        if (q2[i]>1.0) {
+            
+            mstwnc_wrap_(x[i], q2[i], 1,
+                         f2, f2c, f2b, fl, flc, flb,
+                         iflag, i+1, 1., 0.1, 0 );
+        }
+        
+        
       switch ( GetDataType(dataSetID) ) 
       {
       case dataType::sigred :
