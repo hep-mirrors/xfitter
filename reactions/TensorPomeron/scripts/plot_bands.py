@@ -42,8 +42,22 @@ def symband(c,v,var):
     esym = sqrt(sum(0.25*(b[:,0,:]-b[:,1,:])**2,axis=0))
     return esym
 
-def plotsub(x,v,err):
-    fill_between(x,v-err,v+err, alpha=0.8)
+def asymband(c,v,var):
+    cc = array(c[var])
+    l = []
+    for i in range(len(v)):
+        a = array(v[i][var])
+        l.append(a)
+    vv = array(l)
+    o = vv-cc
+    b = o.reshape(len(v)/2,2,len(c))
+
+    eup = sqrt( sum ( maximum(b[:,0,:],maximum(b[:,1,:],0.0))**2,axis=0))
+    edn = sqrt( sum ( maximum(-b[:,0,:],maximum(-b[:,1,:],0.0))**2,axis=0))
+    return edn,eup
+
+def plotsub(x,v,err1,err2):
+    fill_between(x,v-err1,v+err2, alpha=0.8)
     plot(x,v,'-',color='r')
 
 def add_cols(a):
@@ -74,9 +88,12 @@ x = array(a.logQ2/log(10.))
 figure(figsize=(12,12))
 
 for i in range(len(vars)):
-    esym = symband(a,d,vars[i])
+#    esym = symband(a,d,vars[i])
+    edn,eup   = asymband(a,d,vars[i])
     subplot(420+i+1)
-    plotsub(x,array(a[vars[i]]),esym)
+
+#    plotsub(x,array(a[vars[i]]),esym,esym)
+    plotsub(x,array(a[vars[i]]),edn,eup)
     xlabel("$\log_{10} Q^2$",size=16)
 
     xx = gca()
