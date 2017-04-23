@@ -213,7 +213,7 @@ C write out once more (with theory errors filled)
       end
 
 C-----------------------------------------------------------
-C> @brief Compute asymmetric uncertainties for theory predictions based on eigenvector variations
+C> @brief Compute asymmetric uncertainties for theory predictions based on eigenvector variations, asymmetric hessian
 C  
 C  @param TheoVars 3-D array of theory variations shaped as ndata, 2, nvector
 C  @param nd number of data points, ndata
@@ -246,6 +246,32 @@ C-----------------------------------------
 
       end
 
+C-----------------------------------------------------------
+C> @brief Compute asymmetric uncertainties for theory predictions based on eigenvector variations, symmetric hessian
+C  
+C  @param TheoVars 3-D array of theory variations shaped as ndata, nvector
+C  @param nd number of data points, ndata
+C  @param nv number of eigenvectors, nvector
+C-----------------------------------------------------------
+      subroutine GetTheoErrorsSym(TheoVars,nd,nv)
+      implicit none
+      integer nd,nv 
+      double precision TheoVars(nd,nv)
+#include "ntot.inc"
+#include "theo.inc"
+      integer i
+      double precision e(NTOT)
+C-----------------------------------------
+      e = 0.0  ! set to 0
+      do i=1,nv
+         e = e + (TheoVars(:,i)-THEO)**2
+      enddo
+
+      theo_tot_up = sqrt(e)
+      theo_tot_down = sqrt(e)
+
+      end
+
 
 !> =================================================
 !> Generate error bands for symmetrian hessian case
@@ -255,6 +281,9 @@ C-----------------------------------------
 #include "endmini.inc"
 #include "fcn.inc"
 #include "steering.inc"
+#include "ntot.inc"
+#include "systematics.inc"
+#include "theo.inc"
       external fcn
       integer icond
       double precision fmin, fedm, errdef
@@ -288,6 +317,10 @@ C
 C Function
       double precision GetUmat
 
+      double precision chichi
+      double precision chi2data_theory ! function
+C for theory errors:
+      double precision, allocatable :: TheoVars(:,:)
 
 
 C------------------------------------------------------------------------
@@ -350,6 +383,8 @@ C scale the matirx
             Amat(j,i) = Amat(j,i) * sqrt(Eigenvalues(i)) 
          enddo
       enddo
+      
+      allocate(TheoVars(NTOT,Npari))
 
 C
 C Loop over de-correlated errors:
@@ -389,13 +424,12 @@ C Decode "a". 2 stands for IFLag = 2, which is a normal iteration.
 C
          call PDF_param_iteration(a,2)
          
-C
-C     Fix some pars by sum-rules:
-C
-         kflag = 0
-         call SumRules(kflag)
-         call Evolution
          ifcncount = ifcncount+1
+         chichi = chi2data_theory(2)  ! sum-rules and evolution are inside
+         
+         TheoVars(:,j) = THEO        ! save for error calc.
+
+
 C     
 C Write results out:
 C
@@ -408,6 +442,17 @@ C
          call error_band_action(j)
       enddo                     ! j
 
+
+C write out once more (with theory errors filled)
+
+      Theo = TheoFCN3           ! restore
+      Theo_mod = TheoModFCN3
+      ALPHA_Mod = ALphaModFCN3
+
+      call GetTheoErrorsSym(TheoVars,ntot,Npari)      
+      call writefittedpoints
+
+      deallocate(TheoVars)
       end
 
 !> read parameter values from the pars out file
