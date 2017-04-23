@@ -12,6 +12,7 @@
 #include "systematics.inc"
 #include "g_offset.inc"
 #include "fcn.inc"
+#include "theo.inc"
 
       integer shift_dir
       double precision a
@@ -50,11 +51,16 @@ C SG: x-dependent fs:
      $     parval, parerr,parlolim,parhilim
 
       integer mpar
+      double precision chichi
+      double precision chi2data_theory ! function
 
       double precision shift
 C Function
       double precision GetUmat
       ! double precision DecorVarShift
+
+C for theory errors:
+      double precision, allocatable :: TheoVars(:,:,:)
 
 C---------------------------------------------------------------
       
@@ -62,8 +68,6 @@ C
 C  Fix relation between internal and external params.
 C
       mpar = 0
-
-
 
       do ind=1,MNE
          call mnpout(ind,parname,parval,parerr,parlolim,
@@ -95,6 +99,12 @@ C
 
 
       npar = MNE !> npar runs over external parameters.
+
+C
+C Allocate 
+C
+      allocate(TheoVars(NTOT,2,mpar))
+
 
 
 C
@@ -155,10 +165,20 @@ C
 C
 C Fix some pars by sum-rules:
 C
-            kflag = 0
-            call SumRules(kflag)
-            call Evolution
+
+C 23 Apr 2017: replace by chi2data_theory(2) (needs checks, potentially)
+C
+c            kflag = 0
+c            call SumRules(kflag)
+c            call Evolution
+c
+C end replace 23 Apr 2017
+
             ifcncount = ifcncount+1
+            chichi = chi2data_theory(2)
+
+            TheoVars(:,(shift_dir+1)/2+1,j) = THEO
+
 C
 C Write results out:
 C
@@ -178,8 +198,54 @@ C
 
       enddo  ! j
 
+C write out once more (with theory errors filled)
+
+      Theo = TheoFCN3           ! restore
+      Theo_mod = TheoModFCN3
+      ALPHA_Mod = ALphaModFCN3
+
+      call GetTheoErrorsAsym(TheoVars,ntot,mpar)      
+      call writefittedpoints
+
+      deallocate(TheoVars)
+      
       return
       end
+
+C-----------------------------------------------------------
+C> @brief Compute asymmetric uncertainties for theory predictions based on eigenvector variations
+C  
+C  @param TheoVars 3-D array of theory variations shaped as ndata, 2, nvector
+C  @param nd number of data points, ndata
+C  @param nv number of eigenvectors, nvector
+C-----------------------------------------------------------
+      subroutine GetTheoErrorsAsym(TheoVars,nd,nv)
+      implicit none
+      integer nd,nv 
+      double precision TheoVars(nd,2,nv)
+#include "ntot.inc"
+#include "theo.inc"
+      integer i,j
+      double precision up,dn,eu,ed
+C-----------------------------------------
+      do i=1,nd
+         up = 0.
+         dn = 0.
+         do j=1,nv
+            eu = (max(max(0.,  TheoVars(i,1,j)-Theo(i) )
+     $           , TheoVars(i,2,j)-Theo(i)))**2
+            ed = (max(max(0., -TheoVars(i,1,j)+Theo(i) )
+     $           ,-TheoVars(i,2,j)+Theo(i)))**2
+
+            up = up + eu
+            dn = dn + ed
+         enddo
+         theo_tot_up(i) = sqrt(up)
+         theo_tot_down(i) = sqrt(dn)
+      enddo
+
+      end
+
 
 !> =================================================
 !> Generate error bands for symmetrian hessian case

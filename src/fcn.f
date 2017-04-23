@@ -454,6 +454,11 @@ c             call fillvfngrid
          if (dobands) then
             print *,'SAVE PDF values'
          endif
+
+         TheoFCN3 = Theo  ! save 
+         TheoModFCN3 = Theo_Mod
+         ALphaModFCN3 = ALPHA_Mod
+
 *     ---------------------------------------------------------
 *     write out data points with fitted theory
 *     ---------------------------------------------------------
