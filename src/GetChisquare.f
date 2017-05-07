@@ -605,9 +605,11 @@ C-------------------------------------------------------------
 
       if ( t.le.0 ) then
          t = d
-         call HF_errlog(13011601,
-     $ 'W: Negative or zero prediction.'//
-     $ ' Reset to data for error scaling.')
+         if (e_stat_poisson(idx).ne.0) then ! warning only if scaling is needed/
+            call HF_errlog(13011601,
+     $           'W: Negative or zero prediction.'//
+     $           ' Reset to data for error scaling.')
+         endif
       endif
 
       mix = sqrt(abs(d*t))
