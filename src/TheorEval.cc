@@ -280,6 +280,9 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
      else 
 	fnlo->SetUnits(fastNLO::kAbsoluteUnits);
      
+  // OZ 9.05.2017
+  if(term_type.find("norm") != string::npos)
+    fnlo->SetUnits(fastNLO::kAbsoluteUnits);
 
      // --- set scales
      if(_MurDef>=0)
