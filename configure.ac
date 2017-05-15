@@ -547,6 +547,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 reactions/Fractal_DISNC/src/Makefile
 		 reactions/RT_DISNC/src/Makefile
 		 reactions/BaseDISNC/src/Makefile
 		 reactions/APPLgrid/src/Makefile
