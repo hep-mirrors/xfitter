@@ -22,14 +22,13 @@ fi
 #export BOOST="--with-boost=/afs/cern.ch/sw/lcg/external/Boost/1.48.0_python2.6/x86_64-slc6-gcc46-opt"
 
 #Make all dependencies
-rm -rf $_LOCALINST >& /dev/null
+#rm -rf $_LOCALINST >& /dev/null
 _LOG="$_CURRENTDIR/install.log"
 rm -rf $_LOG
-mkdir $_LOCALINST && cd $_LOCALINST
+mkdir -p $_LOCALINST && cd $_LOCALINST
 pwd
 
 #lhapdf:
-
 echo "Installing LHAPDF $lhapdfver..."
 if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
 then

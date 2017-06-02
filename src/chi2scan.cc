@@ -4,6 +4,8 @@
 #include <string>
 #include <iomanip>
 
+#include <TError.h>
+
 //return error if LHAPDF is not enabled
 #if !defined LHAPDF_ENABLED
 void chi2_scan_()
@@ -60,6 +62,7 @@ struct point
 
 void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, double& deltam, double& chi2min, string name)
 {
+  gErrorIgnoreLevel=1001;
   TGraph *chi2graph = new TGraph(chi2.size());
   int i = 0;
   for (map<double, double>::iterator it = chi2.begin(); it != chi2.end(); it++, i++)
@@ -90,6 +93,9 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   //3rd order fit
   TF1 *parfit3 = new TF1("ParFit3", "pol3");
   chi2graph->Fit(parfit3, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
+  parfit3->SetParameter(2,a);
+  parfit3->SetParameter(1,b);
+  parfit3->SetParameter(0,c);
   double a3 = parfit3->GetParameter(3);
   double b3 = parfit3->GetParameter(2);
   double c3 = parfit3->GetParameter(1);
@@ -106,6 +112,10 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
 
   //4th order fit
   TF1 *parfit4 = new TF1("ParFit4", "pol4");
+  parfit4->SetParameter(3,a3);
+  parfit4->SetParameter(2,b3);
+  parfit4->SetParameter(1,c3);
+  parfit4->SetParameter(0,d3);
   chi2graph->Fit(parfit4, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
   double a4 = parfit4->GetParameter(4);
   double b4 = parfit4->GetParameter(3);
@@ -188,6 +198,10 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
 
   fchi2.close();
 }
+
+
+void decompose(map <int, map <int, map <double, double> > > &systchi2, double value);
+void decompose_fits(map <int, map <int, map <double, double> > > systchi2, double min, vector <double> &deltapi, vector <double> &deltami);
 
 void chi2_scan_()
 {
@@ -275,8 +289,8 @@ void chi2_scan_()
   bool lhapdferror = chi2scan_.pdferrors_;
   bool lhapdfprofile = chi2scan_.pdfprofile_;
   bool scaleprofile = chi2scan_.scaleprofile_;
-  //  bool scaleprofile = true;
-
+  bool decomposition = true;
+  
   string outdir = string(coutdirname_.outdirname_, 128);
   outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
 
@@ -308,7 +322,13 @@ void chi2_scan_()
   //variables which stores results
   double min, deltap, deltam, chi2min;
   double central, eplus, eminus;
+  vector <double> deltapi; //uncertainty decomposition
+  vector <double> deltami; //uncertainty decomposition
 
+  //decomposition
+  //map <int, map <double, double> > systchi2; //map of systematic uncertainties (removed one-by-one) and map of parameters value and chi2
+  map <int, map <int, map <double, double> > > systchi2; //map of offset chi2 values for [plus/minus][systematic uncertainties][parameters value]
+  
   if (lhapdfset.size() == 0)
     {
       //Fit mode: perform a PDF fit at each value of the parameter (not implemented)
@@ -348,8 +368,14 @@ void chi2_scan_()
 	       << setw(15) << "ndf=" << cfcn_.ndfmini_ 
 	       << endl;
 	  chi2[*vit] = chi2tot;
+
+	  if (decomposition)
+	    decompose(systchi2, *vit);
 	}
       fitchi2_and_store (chi2, min, deltap, deltam, chi2min, "chi2scan.txt");
+
+      if (decomposition)
+	decompose_fits(systchi2, min, deltapi, deltami);
     }
   else if(lhapdferror && !lhapdfprofile) //lhapdferror mode
     {
@@ -399,6 +425,7 @@ void chi2_scan_()
 		{
 		  //Init PDF member and alphas(MZ)
 		  LHAPDF::initPDF(iset);
+		  clhapdf_.ilhapdfset_ = iset;
 		  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 
 		  //In VAR PDF set determine if it is a model or parametrisation variation
@@ -562,6 +589,7 @@ void chi2_scan_()
 		  
 		  //Init PDF member and alphas(MZ)
 		  LHAPDF::initPDF(iset);
+		  clhapdf_.ilhapdfset_ = iset;
 		  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 		  
 		  //In VAR PDF set determine if it is a model or parametrisation variation
@@ -619,6 +647,7 @@ void chi2_scan_()
 	    {
 	      LHAPDF::initPDFSet(lhapdfset.c_str());
 	      LHAPDF::initPDF(0);
+	      clhapdf_.ilhapdfset_ = 0;
 	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 	      map <int, int> iordmap;
 	      map <int, double> murmap;
@@ -935,6 +964,7 @@ void chi2_scan_()
 
 
 	  LHAPDF::initPDF(0);
+	  clhapdf_.ilhapdfset_ = 0;
 	  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 
 	  cout << "-------------------------------------------" << endl;
@@ -946,7 +976,7 @@ void chi2_scan_()
 	      for (int j = 0; j < npoints; j++)
 		sysmeas_.syst_meas_idx_[i][j] = j + 1;
 	      systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to PDF uncertainties
-	      //      systscal_.sysscalingtype_[i] = 0;  //No scaling for PDF uncertainties
+	      //systscal_.sysscalingtype_[i] = 0;  //No scaling for PDF uncertainties
 	      csysttype_.isysttype_[i] = 2; // THEORY
 	      //systscal_.sysform_[i] = 4; //External (Minuit Fit)
 	      //systscal_.sysform_[i] = 3; //Offset (Minuit Fit)
@@ -957,7 +987,7 @@ void chi2_scan_()
 	  systematicsflags_.resetcommonsyst_ = true;
 
 	  //double chi2tot = chi2data_theory_(2);
-	  char vl[10];
+	  char vl[50];
 	  sprintf(vl, "%.3f", *vit);
 	  string fname = outdir + "/Results_" + vl + ".txt";
 	  fopen_(85, fname.c_str(), fname.size());
@@ -975,10 +1005,17 @@ void chi2_scan_()
 	       << endl;
 	  
 	  chi2[*vit] = chi2tot;
-	} //end loop on parameter values
 
+	  if (decomposition)
+	    decompose(systchi2, *vit);
+	} //end loop on parameter values
+      
+      
       //Central PDF
       fitchi2_and_store (chi2, min, deltap, deltam, chi2min,"chi2scan.txt");
+
+      if (decomposition)
+	decompose_fits(systchi2, min, deltapi, deltami);
     }
   
   //Pick up the value closest to the minimum
@@ -1131,6 +1168,470 @@ void chi2_scan_()
   cout << "Chi2 at minimum: " << chi2min << "  "  << "ndf=" << (cfcn_.ndfmini_-1) << endl;
   if (lhapdferror && ! lhapdfprofile)
     cout << "PDF uncertainties: " <<  central << "+" << eplus << "-" << eminus << endl;
+  if (decomposition)
+    {
+      //uncertainties decomposition
+      double statp = 0;
+      double statm = 0;
+      double systp = 0;
+      double systm = 0;
+      double PDFp = 0;
+      double PDFm= 0;
+      double scalesp = 0;
+      double scalesm = 0;
+      for (int s = 0; s < systema_.nsys_; s++)
+	{
+	  char nuispar[64];
+	  strcpy(nuispar,systema_.system_[s]);
+	  nuispar[63] = '\0';
+	  string nuislabel = string(nuispar);
+	  nuislabel.erase(nuislabel.find_last_not_of(" \n\r\t")+1); // trim trailing whitespaces
+
+	  //cout << nuislabel << "\t+" << deltapi[s] << "\t-" << deltami[s] << endl;
+
+	  ofstream func;
+	  func.open((outdir + "/unc_dec.txt").c_str(), ofstream::out | ofstream::app);
+	  func << setprecision(6) << nuislabel << "\t" << deltapi[s] << "\t" << deltami[s] << endl;
+	  func.close();
+
+	  if (nuislabel.find("PDF_nuisance_param_") != string::npos)
+	    {
+	      PDFp += pow(max(max(0.,  deltapi[s]),  deltami[s]), 2);
+	      PDFm += pow(max(max(0., -deltapi[s]), -deltami[s]), 2);
+	    }
+	  else if (nuislabel.find("scale_nuisance_param_") != string::npos)
+	    {
+	      scalesp += pow(max(max(0.,  deltapi[s]),  deltami[s]), 2);
+	      scalesm += pow(max(max(0., -deltapi[s]), -deltami[s]), 2);
+	    }
+	  else if (nuislabel.find("CStat_") != string::npos)
+	    {
+	      statp += pow(max(max(0.,  deltapi[s]),  deltami[s]), 2);
+	      statm += pow(max(max(0., -deltapi[s]), -deltami[s]), 2);
+	    }
+	  else
+	    {
+	      systp += pow(max(max(0.,  deltapi[s]),  deltami[s]), 2);
+	      systm += pow(max(max(0., -deltapi[s]), -deltami[s]), 2);
+	    }
+	}
+      //Loop on statistical uncertainties
+      int npoints = cndatapoints_.npoints_;
+      for (int p = 0; p < npoints; p++)
+	{
+	  int idx = p+systema_.nsys_;
+	  char statname[100];
+	  sprintf(statname, "stat_%d", p);
+
+	  string statlabel = string(statname);
+
+	  //cout << statlabel << "\t" << deltapi[idx] << "\t" << deltami[idx] << endl;
+
+	  ofstream func;
+	  func.open((outdir + "/unc_dec.txt").c_str(), ofstream::out | ofstream::app);
+	  func << setprecision(6) << statlabel << "\t" << deltapi[idx] << "\t" << deltami[idx] << endl;
+	  func.close();
+
+	  statp += pow(max(max(0.,  deltapi[idx]),  deltami[idx]), 2);
+	  statm += pow(max(max(0., -deltapi[idx]), -deltami[idx]), 2);
+	}      
+      cout << endl;
+      cout << "Uncertainty decomposition" << endl;
+      cout << "Statistical" << "\t+" << sqrt(statp) << "\t-" << sqrt(statm) << endl;
+      cout << "Systematic"  << "\t+" << sqrt(systp) << "\t-" << sqrt(systm) << endl;
+      cout << "PDFs"        << "\t\t+" << sqrt(PDFp) << "\t-" << sqrt(PDFm) << endl;
+      cout << "QCD scales"  << "\t+" << sqrt(scalesp) << "\t-" << sqrt(scalesm) << endl;
+      cout << "Total (decomposed)" << "\t+" << sqrt(statp+systp+PDFp+scalesp) << "\t-" <<  sqrt(statm+systm+PDFm+scalesm) << endl;
+      cout << "Total (from fit)" << "\t+" << deltap << "\t-" << deltam << endl;
+
+      ofstream func;
+      func.open((outdir + "/unc_summary.txt").c_str(), ofstream::out | ofstream::app);
+      func << setprecision(6);
+      func << "Uncertainty decomposition" << endl;
+      func << "Statistical" << "\t+" << sqrt(statp) << "\t-" << sqrt(statm) << endl;
+      func << "Systematic"  << "\t+" << sqrt(systp) << "\t-" << sqrt(systm) << endl;
+      func << "PDFs"        << "\t\t+" << sqrt(PDFp) << "\t-" << sqrt(PDFm) << endl;
+      func << "QCD scales"  << "\t+" << sqrt(scalesp) << "\t-" << sqrt(scalesm) << endl;
+      func << "Total (decomposed)" << "\t+" << sqrt(statp+systp+PDFp+scalesp) << "\t-" <<  sqrt(statm+systm+PDFm+scalesm) << endl;
+      func << "Total (from fit)" << "\t+" << deltap << "\t-" << deltam << endl;
+      func.close();
+    }
+      
   cout << endl;
 }
 #endif
+
+void decompose(map <int, map <int, map <double, double> > > &systchi2, double value)
+{
+  cout << "Start uncertainty decomposition" << endl;
+  int npoints = cndatapoints_.npoints_;
+  /********************** Technique 1 *******************************
+   //remove one-by-one each uncertainty from the chi2 and recalculate chi2 (should apply shift)
+	  
+   //loop on systematic uncertainties
+	  int totsyst = systema_.nsys_;
+	  for (int s = 0; s < totsyst; s++)
+	    {
+	      double savebetaasym[npoints][2][totsyst];
+	      double savebeta[npoints][totsyst];
+	      double saveomega[npoints][totsyst];
+	      double savetheo[npoints];
+	      double savedata[npoints];
+	      for (int p = 0; p < npoints; p++)
+		{
+		//save current uncertainty
+		  savebetaasym[p][0][s] = systasym_.betaasym_[p][0][s];
+		  savebetaasym[p][1][s] = systasym_.betaasym_[p][1][s];
+		  savebeta[p][s] = systema_.beta_[p][s];
+		  saveomega[p][s] = systasym_.omega_[p][s];
+
+		  //save current theory
+		  savetheo[p] = c_theo_.theo_[p];
+		  //save current data
+		  savedata[p] = indata2_.daten_[p];
+
+		  //remove uncertainty
+		  systasym_.betaasym_[p][0][s] = 0;
+		  systasym_.betaasym_[p][1][s] = 0;
+		  systema_.beta_[p][s] = 0;
+		  systasym_.omega_[p][s] = 0;
+
+		  //shift the data (should know the shift at the chi2 minimum, need two iterations for that)
+		  //indata2_.daten_[p] = indata2_.daten_[p]
+		  //+ systexport_.sysshift_[s]*systexport_.scgamma_[p][s]
+		  //+ systexport_.sysshift_[s]*systexport_.sysshift_[s]*systexport_.scomega_[p][s];
+
+		  //offset the data
+		  //indata2_.daten_[p] = indata2_.daten_[p] + systexport_.scgamma_[p][s] + systexport_.scomega_[p][s];
+		  //indata2_.daten_[p] = indata2_.daten_[p] + savebeta[p][s]*savetheo[p] + saveomega[p][s]*savetheo[p];
+		} //end loop on points
+
+		//calculate chi2
+	      systchi2[s][value] = chi2data_theory_(2);
+
+	      //char chi2c[20];
+	      //sprintf(chi2c, "%.8f", systchi2[s][value]);
+	      //cout << setw(15) << (label + "=") << value
+	      //	   << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system_[s]
+	      //	   << setw(15) << "chi2=" << chi2c 
+	      //	   << setw(15) << "ndf=" << cfcn_.ndfmini_ 
+	      //     << endl;
+
+	      for (int p = 0; p < npoints; p++)
+		{
+		//restore uncertainty
+		  systasym_.betaasym_[p][0][s] = savebetaasym[p][0][s];
+		  systasym_.betaasym_[p][1][s] = savebetaasym[p][1][s];
+		  systema_.beta_[p][s] = savebeta[p][s];
+		  systasym_.omega_[p][s] = saveomega[p][s];
+
+
+		  ////restore theory
+		  //c_theo_.theo_[p] = savetheo[p];
+		  ////restore data
+		  //indata2_.daten_[p] = savedata[p];
+
+		} //end loop on points
+		  
+	    }//end loop on uncertainties
+  */
+	  
+  /********************** Technique 2 *******************************/
+  //offset the data one by one
+
+  int totsyst = systema_.nsys_;
+  //theory and data
+  double savetheo[npoints];
+  double savedata[npoints];
+  //systematic uncertainties
+  double savebetaasym[npoints][2][totsyst];
+  double savebeta[npoints][totsyst];
+  double saveomega[npoints][totsyst];
+  double savescgamma[npoints][totsyst];
+  double savescomega[npoints][totsyst];
+  //statistical uncertainties
+  double savestatpoi[npoints];
+  double savestatconst[npoints];
+  double saveuncorpoi[npoints];
+  double saveuncorconst[npoints];
+	      
+  for (int p = 0; p < npoints; p++)
+    {
+      for (int s = 0; s < systema_.nsys_; s++)
+	{
+	  //save current uncertainty
+	  savebetaasym[p][0][s] = systasym_.betaasym_[p][0][s];
+	  savebetaasym[p][1][s] = systasym_.betaasym_[p][1][s];
+	  savebeta[p][s] = systema_.beta_[p][s];
+	  saveomega[p][s] = systasym_.omega_[p][s];
+
+	  //save current scaled gamma and omega
+	  savescgamma[p][s] = systexport_.scgamma_[p][s];
+	  savescomega[p][s] = systexport_.scomega_[p][s];
+	}
+	      
+      //save current theory
+      savetheo[p] = c_theo_.theo_[p];
+      //save current data
+      savedata[p] = indata2_.daten_[p];
+	      
+      //save current stat uncertainties
+      savestatpoi[p] = cuncerrors_.e_stat_poisson_[p];
+      savestatconst[p] = cuncerrors_.e_stat_const_[p];
+      saveuncorpoi[p] = cuncerrors_.e_uncor_poisson_[p];
+      saveuncorconst[p] = cuncerrors_.e_uncor_const_[p];
+    }
+	  
+  //loop on systematic uncertainties
+  for (int s = 0; s < totsyst; s++)
+    for (int sign = 0; sign < 2; sign++)
+      {
+	//offset the data
+	for (int p = 0; p < npoints; p++)
+	  {
+	    //offset the data by one standard deviation of the current systematic uncertainty
+	    if (sign == 0)
+	      {
+		indata2_.daten_[p] = savedata[p] + savescgamma[p][s] + savescomega[p][s];                     //These are the Gamma eventually scaled to the theory
+		//if (systscal_.sysscalingtype_[s] == 0) //data-like uncertainty, scaled to the data
+		//  indata2_.daten_[p] = savedata[p] + savebeta[p][s]*savedata[p] + saveomega[p][s]*savedata[p];    //These are the original unscaled Gamma
+		//else if (systscal_.sysscalingtype_[s] == 1) //theory-like uncertainty, scaled to the theory
+		//  indata2_.daten_[p] = savedata[p] + savebeta[p][s]*savetheo[p] + saveomega[p][s]*savetheo[p];  //These are the original Gamma scaled to the theory
+		//else if (systscal_.sysscalingtype_[s] == 2) //poissonian
+		//  indata2_.daten_[p] = savedata[p] + savebeta[p][s]*sqrt(savetheo[p]*savedata[p]) + saveomega[p][s]*sqrt(savetheo[p]*savedata[p]);
+	      }
+	    else
+	      {
+		indata2_.daten_[p] = savedata[p] - savescgamma[p][s] + savescomega[p][s];                     //These are the Gamma eventually scaled to the theory
+		//if (systscal_.sysscalingtype_[s] == 0) //data-like uncertainty, scaled to the data
+		//  indata2_.daten_[p] = savedata[p] - savebeta[p][s]*savedata[p] + saveomega[p][s]*savedata[p];    //These are the original unscaled Gamma
+		//else if (systscal_.sysscalingtype_[s] == 1) //theory-like uncertainty, scaled to the theory
+		//  indata2_.daten_[p] = savedata[p] - savebeta[p][s]*savetheo[p] + saveomega[p][s]*savetheo[p];  //These are the original Gamma scaled to the theory
+		//else if (systscal_.sysscalingtype_[s] == 2) //poissonian
+		//  indata2_.daten_[p] = savedata[p] - savebeta[p][s]*sqrt(savetheo[p]*savedata[p]) + saveomega[p][s]*sqrt(savetheo[p]*savedata[p]);
+	      }
+	    //cout << p << " daten " << indata2_.daten_[p] << " savedata " <<  savedata[p] << " savegamma " <<  savescgamma[p][s] << " saveomega " << savescomega[p][s] << endl;
+	  }
+
+	//recompute beta and omega, and uncorrelated uncertainties, so that absolute errors are unchanged
+	for (int p = 0; p < npoints; p++)
+	  {
+	    if (indata2_.daten_[p] == 0) continue;
+
+	    for (int s2 = 0; s2 < totsyst; s2++)
+	      {
+		double fac = 1;
+		if (systscal_.sysscalingtype_[s2] == 0) //additive uncertainty
+		  fac = savedata[p]/indata2_.daten_[p]; 
+		else if (systscal_.sysscalingtype_[s2] == 1) //multiplicative uncertainty
+		  fac = 1.;
+		else if (systscal_.sysscalingtype_[s2] == 2) //poissonian uncertainty
+		  fac = sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+			
+		systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2]*fac;
+		systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2]*fac;
+		systema_.beta_[p][s2] = savebeta[p][s2]*fac;
+		systasym_.omega_[p][s2] = saveomega[p][s2]*fac;
+	      }
+	    cuncerrors_.e_stat_const_[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
+	    cuncerrors_.e_uncor_const_[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
+	    if (cuncerrors_.e_stat_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	      cuncerrors_.e_stat_poisson_[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	    if (cuncerrors_.e_uncor_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	      cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	  } //end loop on points
+		
+	//calculate chi2
+	//systchi2[sign][s][value] = chi2data_theory_(2);
+
+	int iflag = 2;
+	int n0 = npoints;
+	double fchi2 = 0.;
+	double rsys[totsyst];
+	double ersys[totsyst];
+	for (int i = 0; i < totsyst; i++)
+	  {
+	    rsys[i] = 0.;
+	    ersys[i] = 0.;
+	  }
+	double pchi2[NSET_C];
+	double fcorchi2 = 0.;
+	getnewchisquare_(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2);
+	systchi2[sign][s][value] = fchi2;
+		  
+	//char chi2c[20];
+	//sprintf(chi2c, "%.8f", systchi2[sign][s][value]);
+	//cout << setw(15) << value
+	//     << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system_[s]
+	//     << setw(15) << "chi2=" << chi2c 
+	//     << setw(15) << "ndf=" << cfcn_.ndfmini_
+	//     << endl;
+		
+	for (int p = 0; p < npoints; p++)
+	  {
+	    //restore uncertainty
+	    for (int s2 = 0; s2 < totsyst; s2++)
+	      {
+		systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2];
+		systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2];
+		systema_.beta_[p][s2] = savebeta[p][s2];
+		systasym_.omega_[p][s2] = saveomega[p][s2];
+	      }
+
+	    //restore theory
+	    c_theo_.theo_[p] = savetheo[p];
+	    //restore data
+	    indata2_.daten_[p] = savedata[p];
+		    
+	    //restore stat uncertainties
+	    cuncerrors_.e_stat_poisson_[p] = savestatpoi[p];
+	    cuncerrors_.e_stat_const_[p] = savestatconst[p];
+	    cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p];
+	    cuncerrors_.e_uncor_const_[p] = saveuncorconst[p];
+	  } //end loop on points
+      }//end loop on systematic uncertainties and plus/minus
+	
+  //loop on statistical uncertainties (also loop on points)
+  for (int p = 0; p < npoints; p++)
+    for (int sign = 0; sign < 2; sign++)
+      {
+	//offset the data
+	if (sign == 0)
+	  indata2_.daten_[p] = savedata[p] + systexport_.scerrors_[p];
+	else
+	  indata2_.daten_[p] = savedata[p] - systexport_.scerrors_[p];
+
+	//recompute beta and omega, and stat uncertainties, so that scaled errors are invariant
+	//if (indata2_.daten_[p] == 0) continue;
+
+	for (int s2 = 0; s2 < totsyst; s2++)
+	  {
+	    double fac = 1.;
+	    if (systscal_.sysscalingtype_[s2] == 0) //additive uncertainty
+	      fac = savedata[p]/indata2_.daten_[p];
+	    else if (systscal_.sysscalingtype_[s2] == 1)
+	      fac = 1.;
+	    else if (systscal_.sysscalingtype_[s2] == 2)
+	      fac = sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+			
+	    systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2]*fac;
+	    systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2]*fac;
+	    systema_.beta_[p][s2] = savebeta[p][s2]*fac;
+	    systasym_.omega_[p][s2] = saveomega[p][s2]*fac;
+	  }
+	cuncerrors_.e_stat_const_[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
+	cuncerrors_.e_uncor_const_[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
+	if (cuncerrors_.e_stat_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	  cuncerrors_.e_stat_poisson_[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	if (cuncerrors_.e_uncor_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	  cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+
+	//calculate chi2
+	//systchi2[sign][p+totsyst][value] = chi2data_theory_(2);
+
+	int iflag = 2;
+	int n0 = npoints;
+	double fchi2 = 0.;
+	double rsys[totsyst];
+	double ersys[totsyst];
+	for (int i = 0; i < totsyst; i++)
+	  {
+	    rsys[i] = 0.;
+	    ersys[i] = 0.;
+	  }
+	double pchi2[NSET_C];
+	double fcorchi2 = 0.;
+	getnewchisquare_(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2);
+	systchi2[sign][p+totsyst][value] = fchi2;
+	
+	//char chi2c[20];
+	//sprintf(chi2c, "%.8f", systchi2[sign][p+totsyst][value]);
+	//cout << setw(15) << value
+	//     << setw(6) << "stat" << setw(4) << p // << setw(20) << systema_.system_[s]
+	//     << setw(15) << "chi2=" << chi2c 
+	//     << setw(15) << "ndf=" << cfcn_.ndfmini_ 
+	//     << endl;
+		  
+	//restore uncertainty
+	for (int s = 0; s < totsyst; s++)
+	  {
+	    systasym_.betaasym_[p][0][s] = savebetaasym[p][0][s];
+	    systasym_.betaasym_[p][1][s] = savebetaasym[p][1][s];
+	    systema_.beta_[p][s] = savebeta[p][s];
+	    systasym_.omega_[p][s] = saveomega[p][s];
+	  }
+
+	//restore theory
+	c_theo_.theo_[p] = savetheo[p];
+	//restore data
+	indata2_.daten_[p] = savedata[p];
+
+	//restore stat uncertainties
+	cuncerrors_.e_stat_poisson_[p] = savestatpoi[p];
+	cuncerrors_.e_stat_const_[p] = savestatconst[p];
+	cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p];
+	cuncerrors_.e_uncor_const_[p] = saveuncorconst[p];
+      } //end loop on stat uncertainties and plus/minus
+  /***************************************************/
+}
+
+void decompose_fits(map <int, map <int, map <double, double> > > systchi2, double min, vector <double> &deltapi, vector <double> &deltami)
+{
+  int npoints = cndatapoints_.npoints_;
+  /***************** Technique 1 ******************/
+  /*
+  //Loop on uncertainties
+  double deltap2_tot = 0;
+  double deltam2_tot = 0;
+  for (int s = 0; s < systema_.nsys_; s++)
+  {
+  double min_i, deltap_i, deltam_i, chi2min_i;
+  char chi2name[100];
+  sprintf(chi2name, "chi2scan_syst_%d.txt", s);
+  fitchi2_and_store (systchi2[s], min_i, deltap_i, deltam_i, chi2min_i, chi2name);
+  deltap2_tot += max(0.,deltap*deltap-deltap_i*deltap_i);
+  deltam2_tot += max(0.,deltam*deltam-deltam_i*deltam_i);
+
+  deltapi.push_back(sqrt(max(0.,deltap*deltap-deltap_i*deltap_i)));
+  deltami.push_back(sqrt(max(0.,deltam*deltam-deltam_i*deltam_i)));
+  }
+  */
+
+  /***************** Technique 2 ******************/
+  //Loop on systematic uncertainties
+  for (int s = 0; s < systema_.nsys_; s++)
+    {
+      double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
+      char chi2name[100];
+      sprintf(chi2name, "chi2scan_syst_%d_p.txt", s);
+      fitchi2_and_store (systchi2[0][s], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
+
+      sprintf(chi2name, "chi2scan_syst_%d_m.txt", s);
+      fitchi2_and_store (systchi2[1][s], min_i_m, deltap_i, deltam_i, chi2min_i, chi2name);
+
+      deltapi.push_back(min_i_p - min);
+      deltami.push_back(min_i_m - min);
+
+      //deltapi.push_back(max(max(0., min_i_p - min), min_i_m - min));
+      //deltami.push_back(max(max(0., min - min_i_p), min - min_i_m));
+    }
+  //Loop on statistical uncertainties
+  for (int p = 0; p < npoints; p++)
+    {
+      int idx = p+systema_.nsys_;
+      double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
+      char chi2name[100];
+      sprintf(chi2name, "chi2scan_syst_%d_p.txt", idx);
+      fitchi2_and_store (systchi2[0][idx], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
+
+      sprintf(chi2name, "chi2scan_syst_%d_m.txt", idx);
+      fitchi2_and_store (systchi2[1][idx], min_i_m, deltap_i, deltam_i, chi2min_i, chi2name);
+
+      deltapi.push_back(min_i_p - min);
+      deltami.push_back(min_i_m - min);
+
+      //deltapi.push_back(max(max(0., min_i_p - min), min_i_m - min));
+      //deltami.push_back(max(max(0., min - min_i_p), min - min_i_m));
+    }
+  /***********************************/
+}

@@ -8,6 +8,6 @@
 using namespace std;
 
 TPad * DrawLogo(string pos = "ul");
-void DrawLabels();
+void DrawLabels(string pos = "ul");
 
 #endif

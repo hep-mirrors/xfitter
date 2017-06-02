@@ -118,17 +118,16 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   opts.kmures = mures;
   opts.C3 = muC3;
   
-  /*
   //Minimal reinitialisation
-  nnlo_.order_ = opts.order;
+  /*
+  dyres::init();
   mcfm::init();
   iniflavreduce_();
   coupling::initscales();
   */
 
   //Full reinitialisation
-  DYTurbo::init_params();
-  /*
+    DYTurbo::init_params();
     dofill_.doFill_ = 0;
     dyres::init();
     mcfm::init();
@@ -153,7 +152,6 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     loint::init(); //Born term initialisation
     switching::init(); //switching function initialisation
     rescinit_();
-  */
   //End reinitialisation
 
   setg();
@@ -189,10 +187,12 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 
   vector<double>::iterator itl = lowedge.begin();
   vector<double>::iterator itu = upedge.begin();
+  //cout << "xw " << opts.xw << endl;  
+  //  cout << "scale_.scale_ " << scale_.scale_ << endl;  
   for (vector<double>::iterator it = values.begin(); it != values.end(); it++, itl++, itu++)
     {
       //Setbounds
-      cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
+      //cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
       phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
       //get cross section
       double error;
@@ -212,9 +212,9 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	  cout << "counterterm result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
 	  *it += vals[0];
 	  //vjlointegr5d(vals, error);
-	  vjintegr3d(vals, error);
-	  cout << "V+J result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-	  *it += vals[0];
+	  //	  vjintegr3d(vals, error);
+	  //	  cout << "V+J result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  //	  *it += vals[0];
 	  *it /= (*itu - *itl);
 	  cout << *itl << "  " << *itu << "  " << *it << endl;
 	}
@@ -222,7 +222,7 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	{
 	  vjlointegr5d(vals, error);
 	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-	  cout << "V+J LO result " << vals[0] << "  " << error << endl;
+	  //cout << "V+J LO result " << *itl << "  " << *itu << "  " << vals[0] << "  " << error << endl;
 	  *it = vals[0];
 	  //*it /= (*itu - *itl);
 	}
