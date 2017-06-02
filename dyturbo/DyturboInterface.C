@@ -3,6 +3,9 @@
 #include "xfitter_cpp.h"
 
 #include "dyturbo/dyturbo.h"
+#include "dyturbo/vjint.h"
+#include "dyturbo/vjloint.h"
+#include "dyturbo/loint.h"
 #include "dyturbo/phasespace.h"
 #include "dyturbo/settings.h"
 #include "dyturbo/cubacall.h"
@@ -149,7 +152,7 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     vjint::init();
     vjloint::init();
     //
-    loint::init(); //Born term initialisation
+    //loint::init(); //Born term initialisation
     switching::init(); //switching function initialisation
     rescinit_();
   //End reinitialisation
@@ -193,7 +196,8 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     {
       //Setbounds
       //cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
-      phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
+      //phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
+      phasespace::setbounds(*itl, *itu, 0, 4000, yl, yh);
       //get cross section
       double error;
       vector <double> vals;
@@ -220,8 +224,10 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	}
       else
 	{
-	  vjlointegr5d(vals, error);
+	  //vjlointegr5d(vals, error);
+	  bornintegr2d(vals, error);
 	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  cout << "LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
 	  //cout << "V+J LO result " << *itl << "  " << *itu << "  " << vals[0] << "  " << error << endl;
 	  *it = vals[0];
 	  //*it /= (*itu - *itl);
