@@ -201,7 +201,7 @@ if ENABLE_CUTE
 endif
 
 if ENABLE_DYTURBO
-  LDADD += ../dyturbo/libDyturboInterface.la $(DYTURBO_LDFLAGS) $(CUBA_LDFLAGS) -L../pdf2yaml/ -lpdf2yaml -lyaml
+  LDADD += ../dyturbo/libDyturboInterface.la $(DYTURBO_LDFLAGS) $(CUBA_LDFLAGS) $(CHAPLIN_LDFLAGS) -L../pdf2yaml/ -lpdf2yaml -lyaml
 endif
 
 if ENABLE_MELA

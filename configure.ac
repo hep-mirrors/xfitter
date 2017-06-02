@@ -344,6 +344,34 @@ else
   AC_SUBST(CUBA_LDFLAGS)
   cubadir="${PWD}/Cuba-4.2"
   AC_MSG_RESULT([Using $cubadir])
+
+# check for Chaplin installation, and install it if missing                                                                                                                                                                                  
+AC_MSG_CHECKING([for chaplin library installation])
+AC_SEARCH_LIBS([hpl2],[hpl3],[
+        AC_MSG_RESULT([Using -lchaplin from system installation])
+        CHAPLIN_LDFLAGS=-lchaplin],
+        [
+        CHAPLIN_VERSION=1.2
+        AC_SUBST(CHAPLIN_VERSION)
+        # search for local istallation of chaplin-1.2                                                                                                                                                                                        
+        chaplinlib=`ls ${PWD}/chaplin-${CHAPLIN_VERSION}/lib/libchaplin.a`
+        if test x$chaplinlib == x; then
+          # if not found, install it                                                                                                                                                                                                         
+           AC_MSG_RESULT([Install chaplin ${CHAPLIN_VERSION}])
+           ${srcdir}/install-chaplin
+        fi
+        chaplinlib=`ls ${PWD}/chaplin-${CHAPLIN_VERSION}/lib/libchaplin.a`
+        if test x$chaplinlib == x; then
+           AC_MSG_ERROR([Failed to install chaplin ${CHAPLIN_VERSION}.])
+        fi
+
+        CHAPLIN_LDFLAGS="-L${PWD}/chaplin-${CHAPLIN_VERSION}/lib -lchaplin"
+        AC_MSG_RESULT([Using -lchaplin from local installation ${PWD}/chaplin-${CHAPLIN_VERSION}])
+        ])
+
+AC_SUBST(CHAPLIN_LDFLAGS)
+
+
 fi
 fi
 
