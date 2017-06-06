@@ -7,6 +7,8 @@ C---------------------------------------------------
 
       implicit none
 
+
+
 #include "steering.inc"
 #include "ntot.inc"
 #include "indata.inc"
@@ -1094,8 +1096,9 @@ C
 C---------------------------------------
       Subroutine SetPDFStyle()
 
-      implicit none
 
+      implicit none
+      external CheckForPDF
       logical lhapdffile_exists
       integer*1 has_photon
 #include "steering.inc"
@@ -1148,6 +1151,8 @@ cv         iparam = 301
          print *,'Check value in steering.txt'
          call HF_stop
       endif
+
+      call checkforpdf(LHAPDFSET)
 
       if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')
      $     .or.(PDFStyle.eq.'LHAPDFNATIVE')) then
