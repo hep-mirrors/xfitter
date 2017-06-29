@@ -290,7 +290,7 @@ void chi2_scan_()
   bool lhapdfprofile = chi2scan_.pdfprofile_;
   bool scaleprofile = chi2scan_.scaleprofile_;
   bool decomposition = true;
-  
+
   string outdir = string(coutdirname_.outdirname_, 128);
   outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
 
@@ -315,6 +315,8 @@ void chi2_scan_()
       LHAPDF::initPDFSet(lhapdfref.c_str());
       LHAPDF::initPDF(0);
       c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+      strcpy(clhapdf_.lhapdfset_,lhapdfref.c_str());
+      clhapdf_.ilhapdfset_ = 0;
     }
   //  mc_method_();
   chi2data_theory_(1);
@@ -341,6 +343,8 @@ void chi2_scan_()
     {
       LHAPDF::initPDFSet(lhapdfset.c_str());
       LHAPDF::initPDF(0);
+      strcpy(clhapdf_.lhapdfset_,lhapdfset.c_str());
+      clhapdf_.ilhapdfset_ = 0;
       map <double, double> chi2; //map of parameters value and chi2 values
 
       //Loop on parameters points
@@ -407,12 +411,16 @@ void chi2_scan_()
 	  for (int pdfset = 0; pdfset < sets; pdfset++)
 	    {
 	      if (pdfset ==  0 && sets > 1)
-		LHAPDF::initPDFSet(lhapdfset.c_str());
+		{
+		  LHAPDF::initPDFSet(lhapdfset.c_str());
+		  strcpy(clhapdf_.lhapdfset_,lhapdfset.c_str());
+		}
 	      else if (pdfset ==  1)
 		{
 		  if (lhapdfvarset == "")
 		    continue;
 		  LHAPDF::initPDFSet(lhapdfvarset.c_str());
+		  strcpy(clhapdf_.lhapdfset_,lhapdfvarset.c_str());
 		}
 	      //Number of PDF members
 	      int nsets = LHAPDF::numberPDF();
@@ -513,6 +521,8 @@ void chi2_scan_()
       if (sets == 2)
 	vardeltaasym(xi, chi2scan_.chi2nparvar_, eplus, eminus); //need to set npar
 
+      //if (decomposition)
+      //decompose_fits(systchi2, min, deltapi, deltami);
     }
   else if(lhapdfprofile) //lhapdferror profile mode
     {
@@ -567,12 +577,17 @@ void chi2_scan_()
 	  for (int pdfset = 0; pdfset < sets; pdfset++)
 	    {
 	      if (pdfset ==  0 && sets > 1)
-		LHAPDF::initPDFSet(lhapdfset.c_str());
+		{
+		  LHAPDF::initPDFSet(lhapdfset.c_str());
+		  strcpy(clhapdf_.lhapdfset_,lhapdfset.c_str());
+		}
+		  
 	      else if (pdfset ==  1)
 		{
 		  if (lhapdfvarset == "")
 		    continue;
 		  LHAPDF::initPDFSet(lhapdfvarset.c_str());
+		  strcpy(clhapdf_.lhapdfset_,lhapdfvarset.c_str());
 		}
 	      //Number of PDF members
 	      int nsets = LHAPDF::numberPDF();
@@ -647,6 +662,7 @@ void chi2_scan_()
 	    {
 	      LHAPDF::initPDFSet(lhapdfset.c_str());
 	      LHAPDF::initPDF(0);
+	      strcpy(clhapdf_.lhapdfset_,lhapdfset.c_str());
 	      clhapdf_.ilhapdfset_ = 0;
 	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 	      map <int, int> iordmap;
@@ -1078,12 +1094,16 @@ void chi2_scan_()
       for (int pdfset = 0; pdfset < sets; pdfset++)
 	{
 	  if (pdfset ==  0 && sets > 1)
-	    LHAPDF::initPDFSet(lhapdfset.c_str());
+	    {
+	      LHAPDF::initPDFSet(lhapdfset.c_str());
+	      strcpy(clhapdf_.lhapdfset_,lhapdfset.c_str());
+	    }
 	  else if (pdfset ==  1)
 	    {
 	      if (lhapdfvarset == "")
 		continue;
 	      LHAPDF::initPDFSet(lhapdfvarset.c_str());
+	      strcpy(clhapdf_.lhapdfset_,lhapdfvarset.c_str());
 	    }
 	  //Number of PDF members
 	  int nsets = LHAPDF::numberPDF();
@@ -1099,6 +1119,7 @@ void chi2_scan_()
 	      
 	      //Init PDF member and alphas(MZ)
 	      LHAPDF::initPDF(iset);
+	      clhapdf_.ilhapdfset_ = iset;
 	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 	      
 	      //In VAR PDF set determine if it is a model or parametrisation variation
@@ -1168,7 +1189,7 @@ void chi2_scan_()
   cout << "Chi2 at minimum: " << chi2min << "  "  << "ndf=" << (cfcn_.ndfmini_-1) << endl;
   if (lhapdferror && ! lhapdfprofile)
     cout << "PDF uncertainties: " <<  central << "+" << eplus << "-" << eminus << endl;
-  if (decomposition)
+  if (decomposition && !(lhapdferror && !lhapdfprofile))
     {
       //uncertainties decomposition
       double statp = 0;
