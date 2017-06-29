@@ -96,6 +96,9 @@ AM_CONDITIONAL(ENABLE_OPENMP, test true = false)
 AC_SUBST(OPENMP_CFLAGS)
 dnl OpenMP checker only defines for C when compiling both C and C++
 OPENMP_CXXFLAGS=$OPENMP_CFLAGS
+
+CXXFLAGS="$CXXFLAGS -std=c++11"
+
 AC_SUBST(OPENMP_CXXFLAGS)
 
 # Check for trapFPE flag
