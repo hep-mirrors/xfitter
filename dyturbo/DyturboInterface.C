@@ -237,7 +237,7 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	  //vjlointegr5d(vals, error);
 	  bornintegr2d(vals, error);
 	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-	  cout << "LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  //cout << "LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
 	  //cout << "V+J LO result " << *itl << "  " << *itu << "  " << vals[0] << "  " << error << endl;
 	  *it = vals[0];
 	  //*it /= (*itu - *itl);
