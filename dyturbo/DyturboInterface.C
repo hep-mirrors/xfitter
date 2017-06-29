@@ -3,6 +3,9 @@
 #include "xfitter_cpp.h"
 
 #include "dyturbo/dyturbo.h"
+#include "dyturbo/vjint.h"
+#include "dyturbo/vjloint.h"
+#include "dyturbo/loint.h"
 #include "dyturbo/phasespace.h"
 #include "dyturbo/settings.h"
 #include "dyturbo/cubacall.h"
@@ -50,7 +53,6 @@ Dyturbo::Dyturbo(string file): infile(file)
 
   //DYTurbo::WarmUp();
   //DYTurbo::PrintTable::Header();
-  DYTurbo::PrintTable::Settings();
   
   proc = opts.nproc;
   
@@ -64,6 +66,8 @@ Dyturbo::Dyturbo(string file): infile(file)
   c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 #endif
 
+  //DYTurbo::PrintTable::Settings();
+  
   int iord;
   double mur0;
   double muf0;
@@ -107,7 +111,8 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   //opts.mlow = ml;
   //opts.mhigh = mh;
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
-  lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
+  //lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos); //not sure why this +1 was here...
+  lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" "), string::npos);
   int member = clhapdf_.ilhapdfset_;
   opts.LHAPDFset = lhapdfset;
   opts.LHAPDFmember = member;
@@ -127,7 +132,9 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   */
 
   //Full reinitialisation
-    DYTurbo::init_params();
+  //cout << "Start reinit" << endl;
+  //DYTurbo::init_params();
+
     dofill_.doFill_ = 0;
     dyres::init();
     mcfm::init();
@@ -135,23 +142,28 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     coupling::initscales();
     //C++ resum
     //initialise all the C modules
-    gr::init(); //nodes and weights of gaussian quadrature rules
+    //gr::init(); //nodes and weights of gaussian quadrature rules --> skip this to speed up
     mellinint::initgauss(); //gaussian quadrature for mellin inversion
     mesq::init(); //EW couplings for born amplitudes
     rapint::init(); //allocate memory for the rapidity quadrature
     resconst::init(); //calculate beta, A and B coefficients
-    anomalous::init(); //calculate anomalous dimensions, C1, C2 and gamma coefficients
-    pdfevol::init(); //transform the PDF from x- to N-space at the factorisation scale
-    pegasus::init(); //initialise Pegasus QCD and transform the PDF from x- to N-space at the starting scale
-    resint::init(); //initialise dequad integration for the bessel integral
+    if (!opts.fixedorder)
+      {
+	anomalous::init(); //calculate anomalous dimensions, C1, C2 and gamma coefficients
+	pdfevol::init(); //transform the PDF from x- to N-space at the factorisation scale
+	pegasus::init(); //initialise Pegasus QCD and transform the PDF from x- to N-space at the starting scale
+	resint::init(); //initialise dequad integration for the bessel integral
+      }
     //end C++ resum
     //V+j fixed order initialisation
     vjint::init();
     vjloint::init();
     //
-    loint::init(); //Born term initialisation
+    //loint::init(); //Born term initialisation
     switching::init(); //switching function initialisation
     rescinit_();
+
+  //cout << "End reinit" << endl;
   //End reinitialisation
 
   setg();
@@ -193,7 +205,9 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     {
       //Setbounds
       //cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
-      phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
+      //phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
+      phasespace::setbounds(*itl, *itu, 0, 4000, yl, yh);
+      phasespace::setcthbounds(opts.costhmin, opts.costhmax);
       //get cross section
       double error;
       vector <double> vals;
@@ -220,8 +234,10 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	}
       else
 	{
-	  vjlointegr5d(vals, error);
+	  //vjlointegr5d(vals, error);
+	  bornintegr2d(vals, error);
 	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  cout << "LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
 	  //cout << "V+J LO result " << *itl << "  " << *itu << "  " << vals[0] << "  " << error << endl;
 	  *it = vals[0];
 	  //*it /= (*itu - *itl);
