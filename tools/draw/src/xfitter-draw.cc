@@ -15,7 +15,8 @@
 #include "FitPainter.h"
 #include "ParPainter.h"
 #include "Chi2scanPainter.h"
-
+#include "Chi2scanUnc.h"
+#include "Chi2scanGauss.h"
 
 using namespace std;
 
@@ -114,6 +115,12 @@ int main(int argc, char **argv)
   chi2scancanvaslist = Chi2scanPainter();
 
   //--------------------------------------------------
+  //Chi2gauss plots
+  vector <TCanvas*> chi2scangausscanvaslist;
+  //  if (! opts.nochi2scan)
+  chi2scangausscanvaslist = Chi2scanGauss();
+  
+  //--------------------------------------------------
   //Create output directory
   system(((string)"mkdir -p " + opts.outdir).c_str());
 
@@ -121,10 +128,12 @@ int main(int argc, char **argv)
   //Fit and parameters results plots
   bool chi2tab = true;
   bool partab = true;
+  bool uncsummary = true;
   if (!opts.notables)
     {
       chi2tab = FitPainter();
       partab = ParPainter();
+      uncsummary = Chi2scanUnc();
     }
 
   //--------------------------------------------------
@@ -241,6 +250,27 @@ int main(int argc, char **argv)
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
+  gStyle->SetPaperSize(opts.pagewidth, opts.pagewidth);
+  it = chi2scangausscanvaslist.begin();
+  for (it = chi2scangausscanvaslist.begin(); it != chi2scangausscanvaslist.end();)
+    {
+      char numb[15];
+      sprintf(numb, "chi2scan_gauss_%d", it - chi2scangausscanvaslist.begin());
+      TCanvas * pagecnv;
+      pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
+      pagecnv->Divide(2, 2);
+      for (int i = 1; i <= 4; i++)
+	if (it != chi2scangausscanvaslist.end())
+	  {
+	    pagecnv->cd(i);
+	    (*it)->DrawClonePad();
+	    it++;
+	  }
+      pgn++;
+      sprintf(pgnum, "%d", pgn);
+      pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
+    }
+  
   if (opts.splitplots)
     {
       string ext = opts.ext;
@@ -320,6 +350,8 @@ int main(int argc, char **argv)
     inputfiles = inputfiles + " " + opts.outdir + "chi2.pdf";
   if (!partab)
     inputfiles = inputfiles + " " + opts.outdir + "par.pdf";
+  if (!uncsummary)
+    inputfiles = inputfiles + " " + opts.outdir + "unc_summary.pdf";
 
   //A4 is /PageSize [842 595]
   string gscommand = "gs -dBATCH -q -sDEVICE=" + format + "write -sOutputFile=" + opts.outdir + "plots." + format 

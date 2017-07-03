@@ -1225,7 +1225,7 @@ void chi2_scan_()
 	      scalesp += pow(max(max(0.,  deltapi[s]),  deltami[s]), 2);
 	      scalesm += pow(max(max(0., -deltapi[s]), -deltami[s]), 2);
 	    }
-	  else if (nuislabel.find("CStat_") != string::npos)
+	  else if (nuislabel.find("CStat_") != string::npos || nuislabel.find("stat") != string::npos)
 	    {
 	      statp += pow(max(max(0.,  deltapi[s]),  deltami[s]), 2);
 	      statm += pow(max(max(0., -deltapi[s]), -deltami[s]), 2);

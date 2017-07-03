@@ -46,6 +46,7 @@ class CommandParser
   bool diff;
   bool noupband;
   int errbandcol;
+  int rootfont;
   
   //shifts options
   int spp, shgth;

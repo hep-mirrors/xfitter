@@ -277,7 +277,7 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
   parmap[label] = par;
 
   //Load chi2scan
-  Chi2scanData chi2scan(dirname);
+  Chi2scanData chi2scan(dirname, label);
   chi2scanmap[label] = chi2scan;
 }
 

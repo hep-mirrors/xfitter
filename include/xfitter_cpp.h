@@ -54,7 +54,7 @@ extern"C" {
 
   //chi2 evaluation
   void getnewchisquare_(int &flag_in, int &n0_in, double &fchi2_in, double *rsys_in, double *ersys_in, double *pchi2_in, double &fcorchi2_in);
-  
+
   extern struct {
     double alpha_[NTOT_C];       // Total uncorrelated errors
     double alpha_mod_[NTOT_C];   // Total uncorrelated errors modified
