@@ -39,24 +39,18 @@ int ReactionFractal_DISNC::compute(int dataSetID, valarray<double> &val, map<str
   double f_D3  = GetParam("D3");
   double f_R   = GetParam("R");
 
-  std::valarray<double> part(Npnt);
   for (size_t i=0; i<Npnt; i++) {
-    part[i] = pow(x[i],-f_D1*log(q2[i]/f_Q02+1.0));
+  
+    f2[i] = f_D0 * f_Q02* pow( ( q2[i] / ( q2[i] + f_Q02) ), f_D2-1.0)
+    * ( pow(x[i], -f_D2+1.0) ) / ( 1.0 +f_D3 - f_D1 * log (x[i] ))
+      * (pow(x[i],-f_D1*log(q2[i]/f_Q02+1.0))
+	 * pow(q2[i]/f_Q02+1.0,f_D3+1.0)-1.0);
+    //    std::cout << f2[i] << " " << pow(q2[i]/f_Q02+1.0,f_D3+1.0) << " " <<  ( pow(x[i], -f_D2+1.0) ) / ( 1.0 +f_D3 - f_D1 * log (x[i] )) << "\n";
   }
-
-  f2 = f_D0 * f_Q02* pow( ( q2 / ( q2 + f_Q02) ), f_D2-1.0)
-    * ( pow(x, -f_D2+1.0) ) / ( 1+f_D3 - f_D1 * log (x ))
-    * part
-    * ( pow(q2/f_Q02+1.0,f_D3+1)-1.0);
-
   fl = f2*f_R/(1.0+f_R);
 
   val = f2 - y*y/(1.0+(1.0-y)*(1.0-y))*fl;
-
-  std::cout << f_D0 << " " << f_Q02 << " " << f_D1 << " " << f_D2 << " "<< f_D3 << "\n";
-  std::cout << q2[0] << " " << f2[0] << " "<< part[0] << std::endl;
-  exit(0);
-
+ 
   return 0;
 }
 
