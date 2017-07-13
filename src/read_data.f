@@ -269,7 +269,7 @@ C Namelist definition:
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
      $     ,TermName,TermType,TermInfo, TermSource,TheorExpr
      $     ,ColumnName, ColumnType, NColumn
-     $     ,NTheoryFiles 
+     $     ,NTheoryFiles
 
       namelist/PlotDesc/PlotN, PlotDefColumn, PlotDefValue, 
      $     PlotVarColumn, PlotOptions
@@ -1005,11 +1005,12 @@ C Store k-factors:
 C Set data binning information in theory evaluations
 c but firest check that there are two columns per each bin dimension
       if ( DATASETTheoryType(NDATASETS).eq.'expression' ) then
-        if ( mod(NBinDimension,2) .ne. 0 ) then
+        if ( mod(NBinDimension,2) .ne. 0 
+     1        .and. DATASETREACTION(NDATASETS)(4:7).ne."e+-p") then
           print *, 'Problem reading data from ', CFile
           print *, 'There must be two bin columns per each bin dimension'
           print *, 'for applgrid based fits.'
-          !call hf_stop
+          call hf_stop
         endif
       
         call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 

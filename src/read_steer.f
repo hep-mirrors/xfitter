@@ -763,7 +763,7 @@ C-------------------------------------------------------
 C---
       integer i
 C Namelist for datafiles to read
-      namelist/InFiles/NInputFiles,InputFileNames
+      namelist/InFiles/NInputFiles,InputFileNames,AllAPFELgrid
 C-------------------------------------------------
 C  Read the data namelist:
 C
@@ -785,6 +785,7 @@ C
          DataSetSwitchScales(6,i) = 0d0
       enddo
       UseHVFNS = .false.
+      AllAPFELgrid = .false.
 C---------------------
       if (LDebug) then
          print InFiles

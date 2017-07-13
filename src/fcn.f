@@ -291,8 +291,8 @@ C
       if (Debug) then
          print*,'before evolution'
       endif
-      if (itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
-     1    itheory.eq.35) then         
+      if ((itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
+     1    itheory.eq.35).and.(.not.AllAPFELgrid)) then         
          call Evolution
       elseif(Itheory.ge.100) then
           if(itheory.eq.101) then 

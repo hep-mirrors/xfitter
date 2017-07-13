@@ -217,3 +217,8 @@ C     Namelist for Higher Twists
       logical ReadParsFromFile
       character*128 ParsFileName, CovFileName  ! Names of 
       common/CparsFromFile/ ParsFileName, CovFileName, ReadParsFromFile
+
+C     Flag to tell the code that all predictions will be computed with APFELgrid.
+C     In this case the PDF evolution at each iteration is not computed.
+      logical AllAPFELgrid
+      common/AllAPFELgridCommon/ AllAPFELgrid
