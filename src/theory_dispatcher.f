@@ -56,19 +56,22 @@ C-------------------------------------------------------------------
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p') then
-
-         if (DipoleModel.eq.1.or.DipoleModel.eq.2) then
-            call DipolePrediction(IDataSet)
-         elseif (DipoleModel.eq.3.or.DipoleModel.eq.4) then
-            Call GetNCXsection(IDataSet, HFSCHEME)
-            Call DipolePrediction(IDataSet)
-         elseif (DipoleModel.eq.5) then
-            Call DipoleBGK(IDataSet)
+         if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
+            call get_theor_eval(IDataSet,
+     1           NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
          else
+            if (DipoleModel.eq.1.or.DipoleModel.eq.2) then
+               call DipolePrediction(IDataSet)
+            elseif (DipoleModel.eq.3.or.DipoleModel.eq.4) then
+               Call GetNCXsection(IDataSet, HFSCHEME)
+               Call DipolePrediction(IDataSet)
+            elseif (DipoleModel.eq.5) then
+               Call DipoleBGK(IDataSet)
+            else
 C Standard DGLAP:& TMDs
-            Call GetNCXsection(IDataSet, HFSCHEME)
+               Call GetNCXsection(IDataSet, HFSCHEME)
+            endif
          endif
-
       elseif (DATASETREACTION(IDataSet).eq.'muon p') then
          if(Itheory.lt.100) then
             Call GetNCXsection(IDataSet, HFSCHEME)
@@ -77,7 +80,12 @@ C Standard DGLAP:& TMDs
             call hf_stop
          Endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p charm') then
-         Call GetNCCharmXsection(IDataSet, HFSCHEME)
+         if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
+            call get_theor_eval(IDataSet,
+     1           NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
+         else
+            Call GetNCCharmXsection(IDataSet, HFSCHEME)
+         endif
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p beauty') then
          Call GetNCBeautyXsection(IDataSet, HFSCHEME)
        elseif (DATASETREACTION(IDataSet).eq.'NC e+-p FL') then
@@ -95,12 +103,17 @@ c
          Endif
 c          
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p') then
-         if(Itheory.lt.100) then
-            Call GetCCXsection(IDataSet, HFSCHEME)
+         if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
+            call get_theor_eval(IDataSet,
+     1           NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
          else
-            write(6,*) ' CC e+-p: invalid dataset for itheory > 100 '
-            call hf_stop
-         Endif
+            if(Itheory.lt.100) then
+               Call GetCCXsection(IDataSet, HFSCHEME)
+            else
+               write(6,*) ' CC e+-p: invalid dataset for itheory > 100 '
+               call hf_stop
+            Endif
+         endif
       elseif (DATASETREACTION(IDataSet).eq.'CC pp' .or.
      $        DATASETREACTION(IDataSet).eq.'CC ppbar' ) then
          if(Itheory.lt.100) then

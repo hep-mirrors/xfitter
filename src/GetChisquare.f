@@ -873,7 +873,7 @@ C Determine pairs of syst. uncertainties which share  data
 
       if (LFirst .or. ResetCommonSyst) then
          LFirst = .false.
-         ResetCommonSyst = .false. 
+         ResetCommonSyst = .false.
 
 
          call expand_syst_lists(scaledtotmatrix,list_covar_inv,n0_in)
@@ -979,7 +979,7 @@ C Now A:
 C
                if ( (sysform(k) .eq. isNuisance ) ! ) then
      $              .and.HaveCommonData(k,l) ) then
-
+C=================================================================
                   do i1 = 1,n_syst_meas(k)
                      i = syst_meas_idx(i1,k)
 c                     do i=1,n0_in
@@ -1016,8 +1016,8 @@ C                            do j=i,n0_in
                         endif
                      endif
                   enddo
-
-               endif               
+C=================================================================
+               endif
             enddo
          endif
       enddo
