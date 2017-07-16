@@ -8,7 +8,7 @@ Mz : 91.1876
 Mw : 80.385
 sin2thW : 
   value : 0.23127
-  step  : 0.02
+  step  : 0.0
 
 Order : NNLO
 NFlavour : 5
