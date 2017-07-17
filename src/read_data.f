@@ -129,6 +129,8 @@ C Get omega (quadratic term coefficient):
       call covar_to_nui(UncorNew,UncorConstNew,
      $     StatNew,StatConstNew,UncorPoissonNew) ! covariance to nuicance parameters, if needed.
 
+      call reduce_nui(UncorNew,UncorConstNew
+     $     ,UncorPoissonNew)    ! We can also reduce number of nuisance parameters 
 
       if (LDebug) then
 C
