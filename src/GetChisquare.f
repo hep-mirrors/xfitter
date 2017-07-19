@@ -205,12 +205,24 @@ c     no cov matrix and no ScaledErrors errors, break
 C !> Next determine nuisance parameter shifts
          omegaIteration = 1
          do 
-            Call Chi2_calc_syst_shifts(
-     $           ScaledErrors
-     $           ,ScaledTotMatrix
-     $           ,ScaledGamma
-     $           ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
-     $           ,scaledOmega)
+            if ( LConvertCovToNui .and. do_reduce 
+     $           .and. flag_in .ne. 3 ) then
+                  ! use simplified (slightly) faster version of the code
+               call chi2_calc_syst_shifts_simple(
+     $              ScaledErrors
+     $              ,ScaledGamma
+     $              ,rsys_in
+     $              ,n0_in
+     $              )
+c               stop
+            else
+               Call Chi2_calc_syst_shifts(
+     $              ScaledErrors
+     $              ,ScaledTotMatrix
+     $              ,ScaledGamma
+     $              ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
+     $              ,scaledOmega)
+            endif
 
 C !> Asymmetric errors loop:
             Call UseOmegaScale(ScaledGamma
@@ -810,6 +822,106 @@ c                        print *,'EXPAND LIST',l,i
       enddo
 C-------------------------------------------------
       end
+
+
+      
+      subroutine chi2_calc_syst_shifts_simple(
+     $     ScaledErrors
+     $     ,ScaledGamma
+     $     ,rsys_in,   n0_in)
+
+      implicit none
+#include "ntot.inc"
+#include "systematics.inc"
+#include "theo.inc"
+#include "indata.inc"
+#include "steering.inc"
+C
+      double precision ScaledErrors(NTOT)
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision rsys_in(NSYSMax)
+      double precision A(NSYSMax,NSYSMax), C(NSysMax)      
+      double precision d_minus_t1
+      integer   n0_in
+      integer i,j,l,i1,k
+      integer ifail
+      integer IR(2*NSysMax)
+
+      double precision time1, time2
+C--------------------------------------------------------------------------------------------
+C Reset the matricies:
+      do i=1,nsys
+         C(i) = 0.0D0
+         do j=1, nsys
+            A(i,j) = 0.0D0
+         enddo
+C Penalty term, unity by default
+         A(i,i)  =  SysPriorScale(i) 
+      enddo
+
+
+      
+!$OMP PARALLEL DO
+
+      do l=1,nsys
+C Start with "C"
+
+         do i1=1,n_syst_meas(l) ! loop over all data affected by this source
+            i = syst_meas_idx(i1,l) ! i -> index of the data
+c         do i=1,n0_in
+ 
+            d_minus_t1 = daten(i) - theo(i)
+
+C  Diagonal error:
+            C(l) = C(l) +  ScaledErrors(i)
+     $           *ScaledGamma(l,i)*( d_minus_t1 )
+            
+         enddo
+      enddo
+
+      call cpu_time(time1)
+         
+C Now A:
+      do i=1,n0_in
+         do l=1,nsys
+            do k=l,NSys
+c            do i1 = 1,n_syst_meas(k)
+c               i = syst_meas_idx(i1,k)
+C Diagonal error:
+               A(k,l) = A(k,l) +
+     $              ScaledErrors(i)
+     $              *ScaledGamma(l,i)
+     $              *ScaledGamma(k,i)
+            enddo
+         enddo
+      enddo
+
+!$OMP END PARALLEL DO
+      call cpu_time(time2)
+      print *,'CPU LOOP=',time2-time1
+C
+C Under diagonal:
+C
+      do l=1,nsys
+         do k=1,l-1
+            A(k,l) = A(l,k)
+         enddo
+      enddo
+
+C Ready to invert
+      if (nsys.gt.0) then
+         
+         Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
+         
+         do l=1,nsys
+            rsys_in(l) = - C(l)
+         enddo
+      endif
+
+      call cpu_time(time1)
+C--------------------------------------------------------------------------------------------
+      end
+
 
 C----------------------------------------------------------------------------------
 C
@@ -1827,7 +1939,6 @@ C
 
       character*80 name_s
 
-      logical do_reduce
       double precision tolerance
       logical lfirst
       data lfirst/.true./
