@@ -1086,17 +1086,17 @@ c                     do j = 1, n0_in
                   endif
                endif
             enddo
-
 C Now A:
 
-            do k=l,NSys
+            do i=1,n0_in
+               do k=l,NSys
 C
                if ( (sysform(k) .eq. isNuisance ) ! ) then
      $              .and.HaveCommonData(k,l) ) then
 
-                  do i1 = 1,n_syst_meas(k)
-                     i = syst_meas_idx(i1,k)
-c                     do i=1,n0_in
+c                  do i1 = 1,n_syst_meas(k)
+c                     i = syst_meas_idx(i1,k)
+c
                      if ( FitSample(i) ) then
                         if (  list_covar_inv(i) .eq. 0) then
 C Diagonal error:
@@ -1129,9 +1129,10 @@ C                            do j=i,n0_in
 
                         endif
                      endif
-                  enddo
+c                  enddo
 
-               endif               
+                  endif               
+               enddo
             enddo
          endif
       enddo
@@ -1795,7 +1796,7 @@ C First check if the matrix positive definite
       
       Sum = 0
       do i=1,NCovar
-c         print *,i,EigenValues(i)
+c         print *,'Eig',i,EigenValues(i)
          Sum = Sum + EigenValues(i)
       enddo
 
