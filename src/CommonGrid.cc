@@ -335,9 +335,9 @@ CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf
   appl::grid *g = ihb->g;
   // extract convoluted cross sections
   switch (_collision) {
-    case PP : gxs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf); break;
-    case PPBAR : gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar_, appl_fnalphas_, iorder, mur, muf); break;
-    case PN : gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_neut_, appl_fnalphas_, iorder, mur, muf); break;
+      case PP : gxs = g->vconvolute(appl_fnpdf_, appl_fnalphas_, iorder, mur, muf ); break;
+      case PPBAR : gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_bar_, appl_fnalphas_, iorder, mur, muf); break;
+      case PN : gxs = g->vconvolute(appl_fnpdf_, appl_fnpdf_neut_, appl_fnalphas_, iorder, mur, muf); break;
     default: {
       int id = 16020542;
       char text[] = "S: Unknown collision type for applgrid selected.";
