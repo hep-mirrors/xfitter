@@ -411,6 +411,8 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
         FILE *fp=fopen(path,"r");
         if(!fp) { fprintf(stderr, "cannot open file %s", path); return 1; }
 
+
+
         pdf_initialize(pdf, NULL);
 
         // load info 
@@ -421,7 +423,7 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
                 free(line);
                 line=NULL;
                 size=0;
-        } while(i_tmp=getline(&line, &size, fp), strcmp(line,"---\n"));
+        } while(i_tmp=getline(&line, &size, fp), !strstr(line,"---\n")  ); // 6/08/17: allow for --- not from first position   strcmp(line,"---\n"));  
 
         free(line);
         line=NULL;
@@ -502,7 +504,7 @@ int load_lhapdf6_member(Pdf *pdf, char *path) {
 
         // check grid delimiter ---
         i_tmp=getline(&line, &size, fp);
-        if(strcmp(line,"---") && strcmp(line,"---\n")) { 
+        if( !strstr(line,"---") ) { 
                 fprintf(stderr, "Error in pdf member format, can't find yaml delimiter '---'\n");
                 return EXIT_FAILURE;
         }
