@@ -198,7 +198,7 @@ int ReactionHathor::compute(int dataSetID, valarray<double> &val, map<string, va
   double dum = 0.0;
   val[0] = 0.0;
   hathor->getResult(0, val[0], dum);
-  printf("VAL ************ %f\n", val[0]);
+  //printf("VAL ************ %f\n", val[0]);
 
   return 0;
 }
