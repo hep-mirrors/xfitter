@@ -147,7 +147,7 @@ endif
 
 if ENABLE_HATHOR
   LDADD+= ../Hathor/src/libHathor.a \
-  $(HATHOR_ROOT)/libHathor.a
+  $(HATHOR_LIBS)
 endif
 
 # Link with HVQMNR library, otherwise with dummy stub

@@ -367,6 +367,17 @@ if test x$enable_hathor == xyes; then
     AC_MSG_ERROR([HATHOR_ROOT environment variable is not set!.])
   else 
     AC_MSG_RESULT([Using $HATHOR_ROOT])
+    AC_CHECK_FILE([$HATHOR_ROOT/libHathor.a],,[AC_MSG_ERROR([HATHOR_ROOT must contain libHathor.a])])
+    # check which hathor libraries are available:
+    # (1) Hathor-1.5 contains one library libHathor.a,
+    # (2) Hathor-2.0 contains two libraries libHathor.a and libff.a, both have to be used
+    HATHOR_LIBS="$HATHOR_ROOT/libHathor.a"
+    AC_CHECK_FILE([$HATHOR_ROOT/libff.a],HATHOR_LIBS+=" $HATHOR_ROOT/libff.a",)
+    echo "Found Hathor libraries $HATHOR_LIBS"
+    AC_SUBST(HATHOR_LIBS)
+  fi
+  if test ! $enable_lhapdf; then
+    AC_MSG_ERROR([Hathor-2.0 requires LHAPDF: please configure with --enable-lhapdf])
   fi
 fi
 AM_CONDITIONAL(ENABLE_HATHOR, [test x$enable_hathor == xyes])
@@ -547,6 +558,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 reactions/Hathor/src/Makefile
 		 reactions/RT_DISNC/src/Makefile
 		 reactions/BaseDISNC/src/Makefile
 		 reactions/APPLgrid/src/Makefile
