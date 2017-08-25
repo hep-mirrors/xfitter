@@ -96,13 +96,16 @@ class ReactionTheory
   virtual void printInfo(){};
 
   //! Helper function to emmulate LHAPDF6 calls to get PDFs
-  void xfx(const double& x, const double& q, double* results){ (_xfx["p"])(x,q,results); };
+   void xfx(const double& x, const double& q, double* results) const { (_xfx.at("p"))(x,q,results); };
   
   //!  Helper function to emmulate LHAPDF6 calls to get PDFs
-  double xfx(double x, double q, int iPDF){ double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
+  double xfx(double x, double q, int iPDF) const { double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
+  
+  //!  Helper function to emmulate LHAPDF6 calls to get PDFs
+  std::vector<double> xfx(double x, double q) const { vector<double> pdfs(13); xfx(x,q,&pdfs[0]); return pdfs;};
   
   //! strong coupling at scale q [GeV]
-  double alphaS(double q) { return _alpha_S(q); }
+  double alphaS(double q) const { return _alpha_S(q); }
 
   //! Return pointer-function to XFX for external use
   const pXFXlike getXFX(const string& type="p") { return _xfx[type];};

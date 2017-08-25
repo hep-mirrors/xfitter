@@ -2,6 +2,8 @@
 #pragma once
 
 #include "ReactionTheory.h"
+//#include <memory> 
+#include "fastnlotk/fastNLOReader.h" // this is still the old interface
 
 /**
   @class' ReactionfastNLO
@@ -14,8 +16,7 @@
   @date 2016-12-06
   */
 
-class ReactionfastNLO : public ReactionTheory
-{
+class ReactionfastNLO : public ReactionTheory, public fastNLOReader {
   public:
     ReactionfastNLO(){};
 
@@ -26,8 +27,16 @@ class ReactionfastNLO : public ReactionTheory
   public:
     virtual string getReactionName() const { return  "fastNLO" ;};
     int  initAtStart(const string &); 
+    virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
-    virtual int parseOptions(){ return 0;};
+   virtual int parseOptions(){ return 0;};
+   //std::unique_ptr<FastNLOxFitter> fnlo;
+
+   // fastNLO inherited functions 
+   double EvolveAlphas(double Q ) const ;
+   bool InitPDF();
+   vector<double> GetXFX(double xp, double muf) const ;
+
 };
 

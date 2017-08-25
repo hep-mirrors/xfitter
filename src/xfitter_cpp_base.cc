@@ -15,3 +15,9 @@ int OrderMap(std::string ord) {
     return -1;
   }
 }
+
+
+// Maybe some other place is better for this function:
+void hf_errlog(int id,const std::string& message) {
+   hf_errlog_(id,message.c_str(),message.size());
+}

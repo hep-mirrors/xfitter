@@ -12,5 +12,5 @@ extern"C" {
 
 // Some basic other functions
 int OrderMap(std::string ord);
-
+void hf_errlog(int id, const std::string& message);
 

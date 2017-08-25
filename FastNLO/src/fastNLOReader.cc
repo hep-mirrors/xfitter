@@ -1578,8 +1578,8 @@ bool fastNLOReader::TestAlphas() {
 //______________________________________________________________________________
 bool fastNLOReader::TestXFX() {
    vector<double> pdftest = GetXFX(1.e-2,10);
-   if (pdftest.size() <= 13) {
-      error["TestXFX"]<<"The pdf array must have the size of 13 flavors.\n";
+   if (pdftest.size() < 13) {
+      error["TestXFX"]<<"The pdf array must have the size of 13 flavors, but has only size "<<pdftest.size()<<"\n";
       return false;
    }
    // if ( pdftest[6] == 0. )printf("fastNLOReader. Warning. There seems to be no gluon in the pdf.\n");
