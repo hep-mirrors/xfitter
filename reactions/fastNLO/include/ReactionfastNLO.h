@@ -17,26 +17,25 @@
   */
 
 class ReactionfastNLO : public ReactionTheory, public fastNLOReader {
-  public:
+public:
     ReactionfastNLO(){};
 
 //    ~ReactionfastNLO(){};
 //    ~ReactionfastNLO(const ReactionfastNLO &){};
 //    ReactionfastNLO & operator =(const ReactionAfastNLO &r){return *(new ReactionfastNLO(r));};
 
-  public:
-    virtual string getReactionName() const { return  "fastNLO" ;};
-    int  initAtStart(const string &); 
-    virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
-    virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
-  protected:
+public:
+   virtual string getReactionName() const { return  "fastNLO" ;};
+   int  initAtStart(const string &) { return 0; } //< nothing todo
+   virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+   virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
+protected:
    virtual int parseOptions(){ return 0;};
    //std::unique_ptr<FastNLOxFitter> fnlo;
-
    // fastNLO inherited functions 
-   double EvolveAlphas(double Q ) const ;
-   bool InitPDF();
-   vector<double> GetXFX(double xp, double muf) const ;
+   double EvolveAlphas(double Q ) const { return this->alphaS(Q); } //!< provide alpha_s to fastNLO      
+   bool InitPDF() { return true;}; //!< required by fastNLO
+   vector<double> GetXFX(double xp, double muf) const { return this->xfx(xp,muf); }//!< provide PDFs to fastNLO
 
 };
 

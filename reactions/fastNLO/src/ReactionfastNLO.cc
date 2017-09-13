@@ -17,13 +17,6 @@ extern "C" ReactionfastNLO* create() {
 
 
 //______________________________________________________________________________
-// Initialize at the start of the computation
-int ReactionfastNLO::initAtStart(const string &s) {
-   // Nothing todo.
-   return 0;
-}
-
-//______________________________________________________________________________
 // Initialise for a given dataset:
 void ReactionfastNLO::setDatasetParamters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
    if ( !pars.count("Filename") )  
@@ -37,26 +30,78 @@ void ReactionfastNLO::setDatasetParamters(int dataSetID, map<string,string> pars
    this->SetFilename(filename);
    
    // --- Set order of calculation
-   /*
-   // for ( auto ipars : pars  ) cout<<ipars.first<<"\t\t"<<ipars.second<<endl;
-   // for ( auto ipars : parsDataset   cout<<ipars.first<<"\t\t"<<ipars.second<<endl;
-
-   int order = OrderMap( GetParamS("Order"));  // Global order
-   if (pars.find("Order") != pars.end() ) { // Local order 
-      int localOrder = OrderMap( pars["Order"] );
-      order = localOrder>order ? order : localOrder;
+   if ( pars.count("Order") ) { // Local order 
+      hf_errlog(17090501,"I: Setting fastNLO order: "+pars["Order"]);
+      bool success=true;
+      // fastNLO default is 'NLO'
+      if (pars["Order"]=="NNLO" ) success&=this->SetContributionON(fastNLO::kFixedOrder, 2, true);
+      else if (pars["Order"]=="NLO" ) {;}
+      else if (pars["Order"]=="LO" )  success&=this->SetContributionON(fastNLO::kFixedOrder, 1, false);
+      else if (pars["Order"]=="Thr" ) success&=this->SetContributionON(fastNLO::kThresholdCorrection, 1, true);
+      else {
+	 hf_errlog(17090502,"E: fastNLO. Unrecognized order: "+pars["Order"]);
+      }
+      if (!success) {
+	 hf_errlog(17090503,"W: fastNLO. Requested order cannot be set.");
+      }
    }
-   */
 
-   // --- Set scales
-   // todo
-   hf_errlog(17082506,"W: ReactionfastNLO. scale settings, order, etc. not yet implemented");
+   // --- Set scale factors
+   double cmur=1, cmuf=1;
+   if ( pars.count("ScaleFacMuR") ) { // Local order 
+      hf_errlog(17090504,"I: Setting fastNLO scale factor mu_R: "+pars["ScaleFacMuR"]);
+      cmur=GetParam("ScaleFacMuR");
+   }
+   if ( pars.count("ScaleFacMuF") ) { // Local order 
+      hf_errlog(17090505,"I: Setting fastNLO scale factor mu_F: "+pars["ScaleFacMuF"]);
+      cmuf=GetParam("ScaleFacMuF");
+   }
+   if ( cmur!=1 || cmuf!=1 ) 
+      this->SetScaleFactorsMuRMuF(cmur,cmuf);
 
-   // --- Set futher parameters
-   // todo
-
+   // --- Set scale choice
+   if ( !this->GetIsFlexibleScaleTable() && 
+	(pars.count("ScaleChoiceMuR") || pars.count("ScaleChoiceMuF") ) ) {
+      hf_errlog(17090508,"W: fastNLO. Scale choice requested, but this is not a flexible scale table.");
+   }
+   else {
+      const std::map<std::string,fastNLO::EScaleFunctionalForm> sclmap{
+	 {"kScale1"              ,fastNLO::kScale1},
+	 {"kScale2"              ,fastNLO::kScale2},              
+	 {"kQuadraticSum"        ,fastNLO::kQuadraticSum},        
+	 {"kQuadraticMean"       ,fastNLO::kQuadraticMean},       
+	 {"kQuadraticSumOver4"   ,fastNLO::kQuadraticSumOver4},   
+	 {"kLinearMean"          ,fastNLO::kLinearMean},          
+	 {"kLinearSum"           ,fastNLO::kLinearSum},           
+	 {"kScaleMax"            ,fastNLO::kScaleMax},            
+	 {"kScaleMin"            ,fastNLO::kScaleMin},            
+	 {"kProd"                ,fastNLO::kProd},                
+	    // {"kS2plusS1half"        ,fastNLO::kS2plusS1half},        
+	    // {"kPow4Sum"             ,fastNLO::kPow4Sum},             
+	    // {"kWgtAvg"              ,fastNLO::kWgtAvg},              
+	    // {"kS2plusS1fourth"      ,fastNLO::kS2plusS1fourth},      
+	    // {"kExpProd2"            ,fastNLO::kExpProd2},            
+	    // {"kExtern"              ,fastNLO::kExtern},              
+	    // {"kConst"               ,fastNLO::kConst},
+	    };              
+      // set mu_r
+      if ( pars.count("ScaleChoiceMuR") ) { // 
+	 hf_errlog(17090504,"I: Setting fastNLO scale choice mu_R: "+pars["ScaleChoiceMuR"]);
+	 if ( sclmap.count(GetParamS("ScaleFacMuR"))==0 )
+	      hf_errlog(17090504,"W: fastNLO. Scale choice for mu_R not available: "+GetParamS("ScaleFacMuR"));
+	 else
+	    this->SetMuRFunctionalForm(sclmap.at(GetParamS("ScaleFacMuR")));
+      }
+      // set mu_f
+      if ( pars.count("ScaleChoiceMuF") ) { // Local order 
+	 hf_errlog(17090506,"I: Setting fastNLO scale choice mu_F: "+pars["ScaleChoiceMuF"]);
+	 if ( sclmap.count(GetParamS("ScaleFacMuF"))==0 )
+	    hf_errlog(17090507,"W: fastNLO. Scale choice for mu_F not available: "+GetParamS("ScaleFacMuF"));
+	 else 
+	    this->SetMuFFunctionalForm(sclmap.at(GetParamS("ScaleFacMuF")));
+      }
+   }
 }
-   
 
 //______________________________________________________________________________
 // Main function to compute results at an iteration
@@ -71,27 +116,4 @@ int ReactionfastNLO::compute(int dataSetID, valarray<double> &val, map<string, v
 }
 
 
-//______________________________________________________________________________
-double ReactionfastNLO::EvolveAlphas(double Q ) const {
-   // Implementation of Alpha_s evolution as function of the
-   // factorization scale [and alphas(Mz)].
-   // here we access the getter method from xfitter
-   return this->alphaS(Q);
-}
 
-
-//______________________________________________________________________________
-bool ReactionfastNLO::InitPDF(){
-   //  Initalize PDF parameters if necessary. Not needed for xFitter
-   return true;
-}
-
-
-//______________________________________________________________________________
-vector<double> ReactionfastNLO::GetXFX(double xp, double muf) const {
-   //  GetXFX is used to get the parton array from the
-   //  pdf-interface. It should return a vector of 13
-   //  parton flavors from tbar to t at a certain
-   //  x-proton and factorisation scale.
-   return this->xfx(xp,muf);
-}
