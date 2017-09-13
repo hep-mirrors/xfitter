@@ -29,32 +29,47 @@ void ReactionfastNLO::setDatasetParamters(int dataSetID, map<string,string> pars
    this->ReadTable();
    this->SetFilename(filename);
    
-   // --- Set order of calculation
+   // --- Set order of calculation 
    if ( pars.count("Order") ) { // Local order 
-      hf_errlog(17090501,"I: Setting fastNLO order: "+pars["Order"]);
-      bool success=true;
-      // fastNLO default is 'NLO'
-      if (pars["Order"]=="NNLO" ) success&=this->SetContributionON(fastNLO::kFixedOrder, 2, true);
-      else if (pars["Order"]=="NLO" ) {;}
-      else if (pars["Order"]=="LO" )  success&=this->SetContributionON(fastNLO::kFixedOrder, 1, false);
-      else if (pars["Order"]=="Thr" ) success&=this->SetContributionON(fastNLO::kThresholdCorrection, 1, true);
-      else {
-	 hf_errlog(17090502,"E: fastNLO. Unrecognized order: "+pars["Order"]);
-      }
-      if (!success) {
-	 hf_errlog(17090503,"W: fastNLO. Requested order cannot be set.");
-      }
+      hf_errlog(17090510,"W: Ignoring key 'Order' in .dat file. Only global parameter 'Order' is used.");
+   }
+   string order = GetParamS("Order");  // Global order
+   //hf_errlog(17090501,"I: Setting fastNLO order: "+order);
+   //hf_errlog(17090501,"I: Setting fastNLO order: "+order);
+   bool success=true;
+   // fastNLO default is 'NLO'
+   if (order=="NNLO" ) success &= this->SetContributionON(fastNLO::kFixedOrder, 2, true); // swith NNLO ON
+   else if (order=="NLO" ) {;}
+   else if (order=="LO" )  success &= this->SetContributionON(fastNLO::kFixedOrder, 1, false); // switch NLO OFF
+   else    hf_errlog(17090502,"E: fastNLO. Unrecognized order: "+order);
+   // --- threshold corrections
+   if ( pars.count("ThresholdCorrection")) {
+      int iThr = std::stoi(pars["ThresholdCorrection"]);
+      hf_errlog(17090511,"I: fastNLO. Activate threshold corrections.");
+      success &= this->SetContributionON(fastNLO::kThresholdCorrection, iThr, true);
+   }
+   if (!success)  hf_errlog(17090503,"W: fastNLO. Requested order "+order+" cannot be set.");
+   
+   // --- Set Units
+   if ( pars.count("Units") ) { // Local order 
+      string units = pars["Units"] ;
+      if ( units=="absolute" ) 
+	 this->SetUnits(fastNLO::kAbsoluteUnits);
+      else if ( units=="publication" ) 
+	 this->SetUnits(fastNLO::kPublicationUnits);
+      else
+	 hf_errlog(17090514,"E: fastNLO. Unrecognized parameter for key Units");
    }
 
    // --- Set scale factors
    double cmur=1, cmuf=1;
-   if ( pars.count("ScaleFacMuR") ) { // Local order 
+   if ( pars.count("ScaleFacMuR") ) {
       hf_errlog(17090504,"I: Setting fastNLO scale factor mu_R: "+pars["ScaleFacMuR"]);
-      cmur=GetParam("ScaleFacMuR");
+      cmur=std::stod(pars["ScaleFacMuR"]);//GetParam("ScaleFacMuR");
    }
-   if ( pars.count("ScaleFacMuF") ) { // Local order 
+   if ( pars.count("ScaleFacMuF") ) {
       hf_errlog(17090505,"I: Setting fastNLO scale factor mu_F: "+pars["ScaleFacMuF"]);
-      cmuf=GetParam("ScaleFacMuF");
+      cmuf=std::stod(pars["ScaleFacMuF"]);//GetParam("ScaleFacMuF");
    }
    if ( cmur!=1 || cmuf!=1 ) 
       this->SetScaleFactorsMuRMuF(cmur,cmuf);
@@ -87,20 +102,21 @@ void ReactionfastNLO::setDatasetParamters(int dataSetID, map<string,string> pars
       // set mu_r
       if ( pars.count("ScaleChoiceMuR") ) { // 
 	 hf_errlog(17090504,"I: Setting fastNLO scale choice mu_R: "+pars["ScaleChoiceMuR"]);
-	 if ( sclmap.count(GetParamS("ScaleFacMuR"))==0 )
-	      hf_errlog(17090504,"W: fastNLO. Scale choice for mu_R not available: "+GetParamS("ScaleFacMuR"));
+	 if ( sclmap.count(pars["ScaleChoiceMuR"])==0 )
+	      hf_errlog(17090504,"W: fastNLO. Scale choice for mu_R not available: "+pars["ScaleChoiceMuR"]);
 	 else
-	    this->SetMuRFunctionalForm(sclmap.at(GetParamS("ScaleFacMuR")));
+	    this->SetMuRFunctionalForm(sclmap.at(pars["ScaleChoiceMuR"]));
       }
       // set mu_f
       if ( pars.count("ScaleChoiceMuF") ) { // Local order 
 	 hf_errlog(17090506,"I: Setting fastNLO scale choice mu_F: "+pars["ScaleChoiceMuF"]);
-	 if ( sclmap.count(GetParamS("ScaleFacMuF"))==0 )
-	    hf_errlog(17090507,"W: fastNLO. Scale choice for mu_F not available: "+GetParamS("ScaleFacMuF"));
+	 if ( sclmap.count(pars["ScaleChoiceMuF"])==0 )
+	    hf_errlog(17090507,"W: fastNLO. Scale choice for mu_F not available: "+pars["ScaleChoiceMuF"]);
 	 else 
-	    this->SetMuFFunctionalForm(sclmap.at(GetParamS("ScaleFacMuF")));
+	    this->SetMuFFunctionalForm(sclmap.at(pars["ScaleChoiceMuF"]));
       }
    }
+
 }
 
 //______________________________________________________________________________
