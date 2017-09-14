@@ -111,8 +111,10 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   //opts.mlow = ml;
   //opts.mhigh = mh;
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
-  //lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos); //not sure why this +1 was here...
-  lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" "), string::npos);
+
+  //issue with deleting last character from the PDF name
+  lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos); //--> use this for LHAPDF analysis
+  //lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" "), string::npos); //--> use this for chi2scan analysis
   int member = clhapdf_.ilhapdfset_;
   opts.LHAPDFset = lhapdfset;
   opts.LHAPDFmember = member;
@@ -205,8 +207,9 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     {
       //Setbounds
       //cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
-      //phasespace::setbounds(ml, mh, *itl, *itu, yl, yh);
-      phasespace::setbounds(*itl, *itu, 0, 4000, yl, yh);
+      //phasespace::setbounds(ml, mh, *itl, *itu, yl, yh); //pt bins
+      phasespace::setbounds(*itl, *itu, 0, 4000, yl, yh); //m bins
+      //phasespace::setbounds(ml, mh, 0, 4000, *itl, *itu); //y bins
       phasespace::setcthbounds(opts.costhmin, opts.costhmax);
       //get cross section
       double error;
@@ -236,10 +239,18 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	{
 	  //vjlointegr5d(vals, error);
 	  bornintegr2d(vals, error);
+	  *it = vals[0];
+	  if (opts.order > 0)
+	    {
+	      vjintegr3d(vals, error);
+	      *it += vals[0];
+	      ctintegr2d(vals, error);
+	      *it += vals[0];
+	    }
 	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
 	  //cout << "LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
 	  //cout << "V+J LO result " << *itl << "  " << *itu << "  " << vals[0] << "  " << error << endl;
-	  *it = vals[0];
+
 	  //*it /= (*itu - *itl);
 	}
     }
