@@ -847,7 +847,6 @@ C
       integer ifail
       integer IR(2*NSysMax)
 
-      double precision time1, time2
 C--------------------------------------------------------------------------------------------
 C Reset the matricies:
       do i=1,nsys
@@ -879,8 +878,6 @@ C  Diagonal error:
          enddo
       enddo
 
-      call cpu_time(time1)
-         
 C Now A:
       do i=1,n0_in
          do l=1,nsys
@@ -897,8 +894,7 @@ C Diagonal error:
       enddo
 
 !$OMP END PARALLEL DO
-      call cpu_time(time2)
-      print *,'CPU LOOP=',time2-time1
+      !call cpu_time(time2)
 C
 C Under diagonal:
 C
@@ -918,7 +914,6 @@ C Ready to invert
          enddo
       endif
 
-      call cpu_time(time1)
 C--------------------------------------------------------------------------------------------
       end
 
