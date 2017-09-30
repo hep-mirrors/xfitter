@@ -24,6 +24,7 @@ RT_DISNC:               # Reaction-specific settings
 # speficify HF scheme:
 hf_scheme_DISNC : 
   value : 'RT_DISNC'
+#  value : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC'
 #  1 : BaseDISNC  
 

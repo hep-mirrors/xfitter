@@ -7,3 +7,4 @@ APPLgrid libapplgrid_xfitter.so
 BaseDISNC libbasedisnc_xfitter.so
 RT_DISNC librt_disnc_xfitter.so
 Hathor libhathor_xfitter.so
+FFABM_DISNC libffabm_disnc_xfitter.so
