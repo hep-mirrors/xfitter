@@ -31,13 +31,10 @@ class ReactionFFABM_DISNC : public ReactionBaseDISNC
     virtual void FL BASE_PARS override;
     virtual void xF3 BASE_PARS override;
 
-    //virtual void F2gamma_RT BASE_PARS;
-    //virtual void FLgamma_RT BASE_PARS;
-
   private:
-    map <int,valarray<double> > _f2rt;
-    map <int,valarray<double> > _flrt;
-    map <int,valarray<double> > _f3rt;
+    map <int,valarray<double> > _f2abm;
+    map <int,valarray<double> > _flabm;
+    map <int,valarray<double> > _f3abm;
 
     // parameters initialised at iteration
     double _mc;

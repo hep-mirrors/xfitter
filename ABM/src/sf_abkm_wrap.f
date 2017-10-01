@@ -1,4 +1,4 @@
-      subroutine sf_abkm_wrap(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,
+       subroutine sf_abkm_wrap(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,
      $   flcabkm,f3cabkm,f2babkm,flbabkm,f3babkm,ncflag,charge,
      $   polar,sin2thw,cos2thw,MZ)
 C-------------------------------------------------------------------------
@@ -168,4 +168,28 @@ c run in running m scheme
        
 C--------------------------------------------------------------------------
       end
+      
+      Subroutine ABKM_Set_Input_OrderFl(flordin)
+C  OZ 1.10.2017 set O(alpha_S) for F_L
+C---------------------------------------------------------------------------
+      implicit none
+C Input variables:
+      integer flordin
+      
+C Common variables:
+      double precision q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+      double precision alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1
+      double precision hqscale2
+      integer nfeff,kordalps,kfeff,kordhq,kordf2,kordfl,kordf3
+      logical alsmz 
 
+      common /FORALPSRENORM/ q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+     , ,alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1,hqscale2
+     , ,nfeff,kordalps,kfeff
+     , ,kordhq,kordf2,kordfl,kordf3
+     , ,alsmz
+      
+C-------------------------------      
+      kordfl = kordf2+flordin
+C-------------------------------      
+      end
