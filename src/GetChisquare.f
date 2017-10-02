@@ -841,6 +841,12 @@ C
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
       double precision rsys_in(NSYSMax)
       double precision A(NSYSMax,NSYSMax), C(NSysMax)      
+
+      double precision AS(n0_in,NSysMax)  ! automatic, scaled sys.
+
+      double precision ASp(n0_in*(NsysMax+1)/2), 
+     $     SGp(n0_in*(NsysMax+1)/2)
+
       double precision d_minus_t1
       integer   n0_in
       integer i,j,l,i1,k
@@ -859,7 +865,13 @@ C Penalty term, unity by default
          A(i,i)  =  SysPriorScale(i) 
       enddo
 
-
+      do i=1,n0_in
+         do j=1,nsys
+            AS(i,j) = 
+     $           ScaledErrors(i)
+     $           *ScaledGamma(j,i)
+         enddo
+      enddo
       
 !$OMP PARALLEL DO
 
@@ -873,8 +885,8 @@ c         do i=1,n0_in
             d_minus_t1 = daten(i) - theo(i)
 
 C  Diagonal error:
-            C(l) = C(l) +  ScaledErrors(i)
-     $           *ScaledGamma(l,i)*( d_minus_t1 )
+            C(l) = C(l) +  AS(i,l)
+     $           *( d_minus_t1 )
             
          enddo
       enddo
@@ -882,19 +894,32 @@ C  Diagonal error:
       call cpu_time(time1)
          
 C Now A:
-      do i=1,n0_in
-         do l=1,nsys
-            do k=l,NSys
+c      do i=1,n0_in
+c         do l=1,nsys
+c            do k=l,NSys
 c            do i1 = 1,n_syst_meas(k)
 c               i = syst_meas_idx(i1,k)
 C Diagonal error:
-               A(k,l) = A(k,l) +
-     $              ScaledErrors(i)
-     $              *ScaledGamma(l,i)
-     $              *ScaledGamma(k,i)
-            enddo
-         enddo
-      enddo
+c               A(k,l) = A(k,l) +
+C     $              ScaledErrors(i)
+C     $              *ScaledGamma(l,i)
+c     $              AS(i,l)
+c     $              *ScaledGamma(k,i)
+c            enddo
+c         enddo
+c      enddo
+
+C use BLAS: L L; R L; R U; L U
+c      call dsymm('R','U',nsys,nsys, 1.0D0, AS, n0_in, ScaledGamma
+c     $     , nsysmax
+c     $     , 0.D0, A, nsysmax)
+
+      call dgemm('N','N',nsys,nsys, n0_in, 1.0D0
+     $     , ScaledGamma
+     $     , nsysmax
+     $     , AS
+     $     , n0_in
+     $     , 0.D0, A, nsysmax)
 
 !$OMP END PARALLEL DO
       call cpu_time(time2)
