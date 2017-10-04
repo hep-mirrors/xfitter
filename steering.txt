@@ -28,7 +28,7 @@
 
 &ReduceSyst
   do_reduce = .true.
-  tolerance = 0.0005
+  tolerance = 0.0
 &End
 
 &CovarToNuisance
