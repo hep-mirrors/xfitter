@@ -73,11 +73,7 @@ alphaS:
 
 #
 # APPLgrid settings:
-#--------------------------------------
-APPLgrid:  # APPLgrid specific
-  muF: 1.0
-  muR: 1.0
-  Order : NLO   # APPLgrids are at max. NLO for now
+include : reactions/APPLgrid/yaml/parameters.yaml
 
 
 #
