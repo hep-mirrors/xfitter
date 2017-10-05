@@ -32,7 +32,7 @@ NFlavour : 5
 #
 # RT DIS scheme settings:
 #-------------------------
-include : reactions/RT_DISNC/yanl/parameters.yaml
+include : reactions/RT_DISNC/yaml/parameters.yaml
 
 # FF ABM scheme
 # runm: 0 for pole mass (default); 1 for MSbar running mass
