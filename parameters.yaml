@@ -43,6 +43,10 @@ hf_scheme_DISNC :
 #  'HERA1+2 NCep 920' : 'BaseDISNC'
 #  1 : BaseDISNC  
 
+
+hf_scheme_DISCC :
+  value : 'BaseDISCC'
+
 # We want to fit alphaS, making this explicitly:
 AalphaS: 
   value: 20.0
