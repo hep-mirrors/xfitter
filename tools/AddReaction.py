@@ -122,7 +122,7 @@ lib'''+ name.lower()+'''_xfitter_la_SOURCES = Reaction'''+name+'''.cc
 
 # lib'''+ name.lower()+'''_xfitter_la_LDFLAGS = place_if_needed  
 
-datadir = ${prefix}/yaml/reaction/'''+name+'''
+datadir = ${prefix}/yaml/reactions/'''+name+'''
 data_DATA = ../yaml/parameters.yaml
 
  ''')
