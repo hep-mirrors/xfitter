@@ -8,4 +8,6 @@ librt_disnc_xfitter_la_SOURCES = ReactionRT_DISNC.cc
 
 librt_disnc_xfitter_la_LDFLAGS =  -lbasedisnc_xfitter -L$(top_srcdir)/reactions/BaseDISNC/src/.libs   
 
+datadir = ${prefix}/yaml/reactions/RT_DISNC
+data_DATA = ../yaml/parameters.yaml
 

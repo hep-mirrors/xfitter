@@ -34,6 +34,9 @@ print "Creating directories in reactions/"+name
 
 os.system("mkdir -p reactions/"+name+"/include")
 os.system("mkdir -p reactions/"+name+"/src")
+os.system("mkdir -p reactions/"+name+"/yaml")
+os.system("touch reactions/"+name+"/yaml/parameters.yaml")
+
 
 print "Creating header file  reactions/"+name+"/include/Reaction"+name+".h"
 
@@ -118,6 +121,9 @@ lib_LTLIBRARIES = lib'''+ name.lower() + '''_xfitter.la
 lib'''+ name.lower()+'''_xfitter_la_SOURCES = Reaction'''+name+'''.cc
 
 # lib'''+ name.lower()+'''_xfitter_la_LDFLAGS = place_if_needed  
+
+datadir = ${prefix}/yaml/reaction/'''+name+'''
+data_DATA = ../yaml/parameters.yaml
 
  ''')
 

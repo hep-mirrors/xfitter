@@ -8,4 +8,5 @@ libfractal_disnc_xfitter_la_SOURCES = ReactionFractal_DISNC.cc
 
 # libfractal_disnc_xfitter_la_LDFLAGS = place_if_needed  
 
- 
+datadir = ${prefix}/yaml/reactions/Fractal_DISNC
+data_DATA = ../yaml/parameters.yaml

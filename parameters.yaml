@@ -32,7 +32,7 @@ NFlavour : 5
 #
 # RT DIS scheme settings:
 #-------------------------
-include : reactions/RT_DISNC/yaml/parameters.yaml
+include : yaml/reactions/RT_DISNC/parameters.yaml
 
 # FF ABM scheme
 # runm: 0 for pole mass (default); 1 for MSbar running mass
@@ -73,12 +73,12 @@ alphaS:
 
 #
 # APPLgrid settings:
-include : reactions/APPLgrid/yaml/parameters.yaml
+include : yaml/reactions/APPLgrid/parameters.yaml
 
 
 #
 # (optional) Fractal module parameters:
 #----------------------
-# include : reactions/Fractal_DISNC/yaml/parameters.yaml
+# include : yaml/reactions/Fractal_DISNC/parameters.yaml
 
 
