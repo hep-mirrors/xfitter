@@ -561,6 +561,7 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/BaseDISCC/src/Makefile
 		 reactions/FFABM_DISNC/src/Makefile
 		 reactions/Hathor/src/Makefile
+		 reactions/Fractal_DISNC/src/Makefile
 		 reactions/RT_DISNC/src/Makefile
 		 reactions/BaseDISNC/src/Makefile
 		 reactions/APPLgrid/src/Makefile
