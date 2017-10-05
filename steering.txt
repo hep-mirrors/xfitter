@@ -3,14 +3,28 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 3
+    NInputFiles = 7
  
   ! Input files:
 
      InputFileNames = 
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
-     'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
-     'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
+
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat',
+    ! 'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
+    ! 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
 
 
 &End
@@ -130,7 +144,7 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
-  HF_SCHEME = 'ZMVFNS'
+  HF_SCHEME = 'RT OPT'
 
  ! PDF type. Possible types are currently available:
  ! 'proton'  -- default (fitting proton data)

@@ -1,30 +1,38 @@
 #
-# Test file to illustrate how parameters can be transferred
+# File to store parameters for theory modules. Overwrites fortran-based ewparam.txt.
 #
 
-# include : test.yaml  # Can include any file
+#include : test.yaml  # Can include any file
 
+#
+# EW parameters
+#---------------------------
 Mz : 91.1876
 Mw : 80.384
-
 gf : 1.16638e-5
-
 convFac : 0.389379338e9
 
 sin2thW : 
   value : 0.23127
   step  : 0.0
 
-Order : NLO
-NFlavour : 5
-
+#
+# quark masses:
+#------------------
 mch : 1.43 
 mbt : 4.5
 
 
-# Optimal RT scheme:
-RT_DISNC:               # Reaction-specific settings
-  varin : [0.0, 1.0, -0.666666666667, 1.0]
+#
+# QCD parameters
+#------------------------
+Order : NNLO
+NFlavour : 5
+
+#
+# RT DIS scheme settings:
+#-------------------------
+include : reactions/RT_DISNC/yanl/parameters.yaml
 
 # FF ABM scheme
 # runm: 0 for pole mass (default); 1 for MSbar running mass
@@ -36,52 +44,45 @@ FFABM_DISNC:
   scalea1: 1.0
   scaleb1: 1.0
 
-# speficify HF scheme:
+#
+# speficify HF scheme used for DIS NC processes:
+#
 hf_scheme_DISNC : 
-  value : 'RT_DISNC'
+  value : 'RT_DISNC'        # global specification 
 #  value : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC'  # datafile specific (based on name)
 #  1 : BaseDISNC  
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see below)
 
-
+#
+# HF scheme for DIS CC:
+#
 hf_scheme_DISCC :
-  value : 'BaseDISCC'
+  value : 'BaseDISCC'  # this is zero mass scheme
 
-# We want to fit alphaS, making this explicitly:
-AalphaS: 
-  value: 20.0
+#
+# AlphaS, incuding options to fit it:
+#
+alphaS: 
+  value: 0.118
   step:  0.0
-  prior: 20.0  
+  prior: 0.118  
   priorUnc: 0.1
-  min: 19.0
-  max: 21.0
+  min: 0.1
+  max: 0.3
 
-
+#
+# APPLgrid settings:
+#--------------------------------------
 APPLgrid:  # APPLgrid specific
   muF: 1.0
   muR: 1.0
   Order : NLO   # APPLgrids are at max. NLO for now
 
-# Example of vectors
 
-testVec :  [1., 2., 3., 4.]
+#
+# (optional) Fractal module parameters:
+#----------------------
+# include : reactions/Fractal_DISNC/yaml/parameters.yaml
 
-Fractal_DISNC :
-  D0 : 
-    value : 0.75
-    step  : 0.01
-  Q02 :
-    value : 0.093
-    step  : 0.01
-  D1 :
-    value : 0.052
-    step  : 0.01
-  D2 :
-    value : 1.08
-    step  : 0.01
-  D3 :
-    value : -1.16
-    step  : 0.01
-  R :
-    value : 0.56
-    step  : 0.01
+
