@@ -84,8 +84,14 @@ namespace XFITTER_PARS {
 	  parse_file( fileName );
 	}
 	else {
-	  string msg = "F: Include Yaml parameters file "+fileName+" not found";
-	  hf_errlog_(17041601,msg.c_str(), msg.size());
+	  // Now try default location:
+	  if (is_file_exist((PREFIX +string("/")+fileName).c_str())) {
+	    parse_file( PREFIX +string("/")+fileName );
+	  }
+	  else {
+	    string msg = "F: Include Yaml parameters file "+fileName+" not found";
+	    hf_errlog_(17041601,msg.c_str(), msg.size());
+	  }
 	}
       }
       
