@@ -37,8 +37,12 @@
 &End
 
 &ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
   do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
   tolerance = 0.0
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
+  useBlas = .false.
 &End
 
 &CovarToNuisance
@@ -197,6 +201,7 @@
 
  ! Debug flag
   LDEBUG     = False
+
 
  ! Quadratic approximation for asymmetric uncertainties
  ! AsymErrorsIterations = 10

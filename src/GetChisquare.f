@@ -841,6 +841,12 @@ C
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
       double precision rsys_in(NSYSMax)
       double precision A(NSYSMax,NSYSMax), C(NSysMax)      
+
+      double precision AS(n0_in,NSysMax)  ! automatic, scaled sys.
+
+      double precision ASp(n0_in*(NsysMax+1)/2), 
+     $     SGp(n0_in*(NsysMax+1)/2)
+
       double precision d_minus_t1
       integer   n0_in
       integer i,j,l,i1,k
@@ -855,11 +861,15 @@ C Reset the matricies:
          do j=1, nsys
             A(i,j) = 0.0D0
          enddo
-C Penalty term, unity by default
-         A(i,i)  =  SysPriorScale(i) 
       enddo
 
-
+      do i=1,n0_in
+         do j=1,nsys
+            AS(i,j) = 
+     $           ScaledErrors(i)
+     $           *ScaledGamma(j,i)
+         enddo
+      enddo
       
 !$OMP PARALLEL DO
 
@@ -873,28 +883,54 @@ c         do i=1,n0_in
             d_minus_t1 = daten(i) - theo(i)
 
 C  Diagonal error:
-            C(l) = C(l) +  ScaledErrors(i)
-     $           *ScaledGamma(l,i)*( d_minus_t1 )
+            C(l) = C(l) +  AS(i,l)
+     $           *( d_minus_t1 )
             
          enddo
       enddo
 
       call cpu_time(time1)
-         
-C Now A:
-      do i=1,n0_in
-         do l=1,nsys
-            do k=l,NSys
-c            do i1 = 1,n_syst_meas(k)
-c               i = syst_meas_idx(i1,k)
-C Diagonal error:
-               A(k,l) = A(k,l) +
-     $              ScaledErrors(i)
-     $              *ScaledGamma(l,i)
-     $              *ScaledGamma(k,i)
+
+
+      if ( .not. UseBlas ) then
+      
+         do i=1,n0_in
+            do l=1,nsys
+               do k=l,NSys
+c Diagonal error:
+                  A(k,l) = A(k,l) +
+     $                 AS(i,l)
+     $                 *ScaledGamma(k,i)
+               enddo
             enddo
          enddo
+      else
+C symmetric matrix does not work
+c      print *,A(1,1),A(nsys,nsys)
+Cuse BLAS: L L; R L; R U; L U
+c      call cublas_dsymm('L','U',nsys,n0_in, 1.0D0, ScaledGamma, n0_in, AS
+c      call dsymm('L','U',nsys,n0_in, 1.0D0, ScaledGamma, n0_in, AS
+C use BLAS: L L; R L; R U; L U
+c      call dsymm('R','U',nsys,nsys, 1.0D0, AS, n0_in, ScaledGamma
+c     $     , nsysmax
+c     $     , 0.D0, A, nsysmax)
+
+         call dgemm('N','N',nsys,nsys, n0_in, 1.0D0
+c     call cublas_dgemm('N','N',nsys,nsys, n0_in, 1.0D0
+     $     , ScaledGamma
+     $        , nsysmax
+     $     , AS
+     $     , n0_in
+     $     , 0.D0, A, nsysmax)
+
+      endif
+         
+C Penalty term, unity by default
+      do i=1,nsys
+         A(i,i) = A(i,i) + SysPriorScale(i)
       enddo
+      
+c      print *,A(1,1),A(nsys,nsys)
 
 !$OMP END PARALLEL DO
       call cpu_time(time2)
@@ -1943,9 +1979,10 @@ C
       double precision tolerance
       logical lfirst
       data lfirst/.true./
-      namelist/ReduceSyst/do_reduce,tolerance
+      namelist/ReduceSyst/do_reduce,tolerance, useBlas
       
 C------------------------------------------------
+      useBlas = .false.
       if (lfirst) then
          lfirst = .false.
          Tolerance = 0.

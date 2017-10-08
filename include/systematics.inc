@@ -60,7 +60,8 @@ C !> Special flag to force recalculations
 C !> Covariance matrix -> nuisance
       logical LConvertCovToNui
       logical do_reduce
-      common/CCovNui/LConvertCovToNui, do_reduce
+      logical useBlas
+      common/CCovNui/LConvertCovToNui, do_reduce, useBlas
 
 C Keep track of data and theory systematics:
       integer iDataSyst, iTheorySyst
