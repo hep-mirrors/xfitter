@@ -6,7 +6,7 @@
      , ,nc,nf,nfe,nfc
       common /FORQCDHOCORR/ zeta2,zeta3,zeta4
 
-      COMMON /CONSTANTS_ABKM/ pi,alpha,alphady,rmpr,gfer2,sintc,sintw2
+      COMMON /CONSTANTS/ pi,alpha,alphady,rmpr,gfer2,sintc,sintw2
      ,,rmw,rmz,rgz,ckm(3,3),ckm2(3,3)
 
       COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)

@@ -1,6 +1,3 @@
-C--------------------------------------------------------------------------
-C OZ 7.10.17 call user alpha_S and PDF routines (provided in sf_abkm_wrap.F)
-#define USER
 C-----------------
       SUBROUTINE PDFFILLGRID
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)

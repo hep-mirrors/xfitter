@@ -1,0 +1,10 @@
+      common /forpreccontrol/ delder,alphastol
+     , ,nmthq,nflhq,nf2hq,nf3hq,nflqcd,nf2qcd1,nf2qcd2,nf3qcd
+     , ,omeint,lpcint
+      common /fordsxqgt/ kprecdq
+
+       logical omeint,lpcint
+
+
+      
+

@@ -1,0 +1,7 @@
+      common /forpdfset/ npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
+
+      common /forschemedef/ ddnnlohq,msbarm,hqnons
+     ,  ,bmsnfopt,bmsnnlo,vloop
+
+      logical msbarm,hqnons,bmsnfopt,bmsnnlo,vloop
+

@@ -176,15 +176,6 @@ c     call pgridini
 #ifdef ABM11
       npdftot=28
 #endif
-#ifdef ABM12
-      npdftot=28
-#endif
-#ifdef ABMP15
-      npdftot=28
-#endif
-#ifdef ABMP16
-      npdftot=28
-#endif
 #ifdef MSTW08
       npdftot=40
 #endif
