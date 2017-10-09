@@ -871,7 +871,6 @@ C Reset the matricies:
          enddo
       enddo
       
-!$OMP PARALLEL DO
 
       do l=1,nsys
 C Start with "C"
@@ -893,7 +892,9 @@ C  Diagonal error:
 
 
       if ( .not. UseBlas ) then
-      
+
+!$OMP PARALLEL DO
+         
          do i=1,n0_in
             do l=1,nsys
                do k=l,NSys
@@ -904,6 +905,9 @@ c Diagonal error:
                enddo
             enddo
          enddo
+!$OMP END PARALLEL DO
+
+
       else
 C symmetric matrix does not work
 c      print *,A(1,1),A(nsys,nsys)
@@ -932,7 +936,6 @@ C Penalty term, unity by default
       
 c      print *,A(1,1),A(nsys,nsys)
 
-!$OMP END PARALLEL DO
       call cpu_time(time2)
       print *,'CPU LOOP=',time2-time1
 C
