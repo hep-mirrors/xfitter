@@ -192,6 +192,13 @@ c run in running m scheme
       msbarm    = msbarmin 
       hqscale1  = hqscale1in
       hqscale2  = hqscale2in
+      
+c 10.10.2017 Discussion with Sergey Alekhin:
+c The parameter HQNONS drives the nonsinglet contribution to the charm production. 
+c It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user. 
+c In ABMP16 fit it was set to .false.
+c (makes small difference which reaches few % only at highest Q2 of the HERA data and is negligible for practical purposes)
+      hqnons = .false.
        
 C--------------------------------------------------------------------------
       end
