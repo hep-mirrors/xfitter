@@ -49,10 +49,7 @@
 
 &OutDir
   ! Name of the directory where output will be stored (max 255 characters)
-    OutDirName = 'output21_abm11nnlo'
-    !OutDirName = 'output21_abm11nlo'
-    !OutDirName = 'output21_abm11nlo_runm'
-    !OutDirName = 'output21_abm11nnlo_runm'
+    OutDirName = 'output'
 &End
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
@@ -136,9 +133,7 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
-!  HF_SCHEME = 'RT OPT'
-  HF_SCHEME = 'FF ABM'
-!  HF_SCHEME = 'FF ABM RUNM'
+  HF_SCHEME = 'RT OPT'
 
  ! PDF type. Possible types are currently available:
  ! 'proton'  -- default (fitting proton data)
@@ -157,7 +152,7 @@
  !  'DDIS'        -- use Diffractive DIS 
  !  'BiLog'       -- bi-lognormal parametrisation 
 
-  PDFStyle = 'LHAPDFNATIVE'
+  PDFStyle = 'HERAPDF'
 
  ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  !
@@ -378,7 +373,7 @@
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'abm11_3n_nnlo'               ! LHAPDF grid file 
+  LHAPDFSET  = 'CT10nlo'               ! LHAPDF grid file 
   ILHAPDFSET = 0                       ! Set a PDF member of the PDF set (use together with LHAPDFPROFILE = False)
   ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
   ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set

@@ -1,4 +1,6 @@
-C OZ 7.10.17 updated to openqcdrad-2.1beta2
+C
+C OZ 10.10.17 updated to openqcdrad-2.1
+C New user routines for PDFs and alpha_S have to be provided in this version
 
       FUNCTION useralphas(q2,kschemepdf,kordpdf,kpdfset)
 
@@ -197,7 +199,7 @@ c 10.10.2017 Discussion with Sergey Alekhin:
 c The parameter HQNONS drives the nonsinglet contribution to the charm production. 
 c It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user. 
 c In ABMP16 fit it was set to .false.
-c (makes small difference which reaches few % only at highest Q2 of the HERA data and is negligible for practical purposes)
+c (makes small difference which reaches few % only at highest Q2 of the charm HERA data and is negligible for practical purposes)
       hqnons = .false.
        
 C--------------------------------------------------------------------------
