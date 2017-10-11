@@ -920,7 +920,7 @@ c     $     , nsysmax
 c     $     , 0.D0, A, nsysmax)
 
          call dgemm('N','N',nsys,nsys, n0_in, 1.0D0
-c     call cublas_dgemm('N','N',nsys,nsys, n0_in, 1.0D0
+C         call cublas_dgemm('N','N',nsys,nsys, n0_in, 1.0D0
      $     , ScaledGamma
      $        , nsysmax
      $     , AS
