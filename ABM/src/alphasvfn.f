@@ -185,7 +185,7 @@ c  initial approximation for the solution
 
       RETURN
       END
-C--------------
+C--------------x(
       real*8 FUNCTION alphast(XX)
 
 c  solution of the renormgroup differential equation for \alpha_s
@@ -242,7 +242,7 @@ c  interface for the subroutine DSNLEQ
 
       dimension X(*),F(*) 
 
-      f(k)=alphast(x)    
+      f(k)=alphast(x(1))    
 
       RETURN 
       END 
