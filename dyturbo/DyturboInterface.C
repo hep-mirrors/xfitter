@@ -207,10 +207,13 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
     {
       //Setbounds
       //cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
+      //cout << yl << "  " << yh << "  " << *itl << "  " << *itu << "  " << opts.costhmin << "  " << opts.costhmax << "  " << opts.nproc << endl;
+
       //phasespace::setbounds(ml, mh, *itl, *itu, yl, yh); //pt bins
       phasespace::setbounds(*itl, *itu, 0, 4000, yl, yh); //m bins
       //phasespace::setbounds(ml, mh, 0, 4000, *itl, *itu); //y bins
       phasespace::setcthbounds(opts.costhmin, opts.costhmax);
+
       //get cross section
       double error;
       vector <double> vals;
@@ -223,36 +226,34 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	  else	    
 	    cacheyrapint_(phasespace::ymin, phasespace::ymax);
 	  resintegr2d(vals, error);
-	  cout << "resummation result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  //cout << "RES result " << vals[0] << "  " << error << endl;
 	  *it = vals[0];
 	  ctintegr2d(vals, error);
-	  cout << "counterterm result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
+	  //cout << "CT result " << vals[0] << "  " << error << endl;
 	  *it += vals[0];
-	  //vjlointegr5d(vals, error);
+	  vjlointegr5d(vals, error);
 	  //	  vjintegr3d(vals, error);
-	  //	  cout << "V+J result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-	  //	  *it += vals[0];
-	  *it /= (*itu - *itl);
-	  cout << *itl << "  " << *itu << "  " << *it << endl;
+	  //cout << "V+J result " << vals[0] << "  " << error << endl;
+	  *it += vals[0];
 	}
       else
 	{
 	  //vjlointegr5d(vals, error);
 	  bornintegr2d(vals, error);
 	  *it = vals[0];
+	  //cout << "BORN result " << vals[0] << "  " << error << endl;
 	  if (opts.order > 0)
 	    {
-	      vjintegr3d(vals, error);
-	      *it += vals[0];
 	      ctintegr2d(vals, error);
+	      //cout << "CT result " << vals[0] << "  " << error << endl;
+	      *it += vals[0];
+	      vjlointegr5d(vals, error);
+	      //cout << "V+J result " << vals[0] << "  " << error << endl;
 	      *it += vals[0];
 	    }
-	  //cout << "V+J LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-	  //cout << "LO result " << vals[0]/(*itu - *itl) << "  " << error/(*itu - *itl) << endl;
-	  //cout << "V+J LO result " << *itl << "  " << *itu << "  " << vals[0] << "  " << error << endl;
-
-	  //*it /= (*itu - *itl);
 	}
+      *it /= (*itu - *itl);
+      //cout << "TOT result " << *itl << "  " << *itu << "  " << *it *(*itu - *itl) << endl;
     }
   return;
 }
