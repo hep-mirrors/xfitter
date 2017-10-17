@@ -44,6 +44,12 @@ FFABM_DISNC:
   scalea1: 1.0
   scaleb1: 1.0
 
+FFABM_DISCC:
+  runm: 1
+  ordfl: 1
+  scalea1: 1.0
+  scaleb1: 1.0
+
 #
 # speficify HF scheme used for DIS NC processes:
 #
@@ -59,6 +65,7 @@ hf_scheme_DISNC :
 #
 hf_scheme_DISCC :
   value : 'BaseDISCC'  # this is zero mass scheme
+#  value : 'FFABM_DISCC'
 
 #
 # AlphaS, incuding options to fit it:

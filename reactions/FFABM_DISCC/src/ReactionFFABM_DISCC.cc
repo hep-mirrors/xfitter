@@ -1,17 +1,21 @@
  
 /*
-   @file ReactionFFABM_DISNC.cc
-   @date 2017-09-29
+   @file ReactionFFABM_DISCC.cc
+   @date 2017-10-09
    @author  AddReaction.py
-   Created by  AddReaction.py on 2017-09-29
+   Created by  AddReaction.py on 2017-10-09
 */
 
-#include "ReactionFFABM_DISNC.h"
+#include "ReactionFFABM_DISCC.h"
 
 // the class factories
-extern "C" ReactionFFABM_DISNC* create() {
-  return new ReactionFFABM_DISNC();
+extern "C" ReactionFFABM_DISCC* create() {
+  return new ReactionFFABM_DISCC();
 }
+
+// TODO: in the future this reaction should be improved,
+// currently it duplicates ReactionFFABM_DISNC with very few lines changed,
+// common code should be separated
 
 // wrappers from:
 //  ABM/src/sf_abkm_wrap.f
@@ -27,7 +31,7 @@ extern "C" {
   void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
                        const double& rmass8in, const double& rmass10in, const int& msbarmin,
                        double& hqscale1in, const double& hqscale2in, const int& flagthinterface);
-  //void abkm_update_hq_masses_(const double& rmass8in, const double& rmass10in);
+  //void abkm_update_hq_masses_(double& rmass8in, double& rmass10in);
   void abkm_set_input_orderfl_(const int& flord);
   void initgridconst_();
   void pdffillgrid_();
@@ -43,10 +47,9 @@ extern "C" {
 
 
 // Initialize at the start of the computation
-int ReactionFFABM_DISNC::initAtStart(const string &s)
+int ReactionFFABM_DISCC::initAtStart(const string &s)
 {
-  //int isout = Super::initAtStart(s);
-  int isout = 0;
+  int isout = Super::initAtStart(s);
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
   double hqscale1in = GetParam("scalea1");
@@ -89,7 +92,7 @@ int ReactionFFABM_DISNC::initAtStart(const string &s)
   return isout;
 }
 
-void ReactionFFABM_DISNC::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
+void ReactionFFABM_DISCC::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
   Super::setDatasetParamters(dataSetID, pars, parsDataset);
   // Allocate internal arrays:
   _f2abm[dataSetID].resize(GetNpoint(dataSetID));
@@ -98,7 +101,7 @@ void ReactionFFABM_DISNC::setDatasetParamters( int dataSetID, map<string,string>
 }
 
 //
-void ReactionFFABM_DISNC::initAtIteration() {
+void ReactionFFABM_DISCC::initAtIteration() {
 
   Super::initAtIteration ();
 
@@ -124,10 +127,10 @@ void ReactionFFABM_DISNC::initAtIteration() {
 }
 
 // Place calculations in one function, to optimize calls.
-void ReactionFFABM_DISNC::calcF2FL(int dataSetID) {
+void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   if ( (_f2abm[dataSetID][0]< -99.) ) { // compute
 
-      // NC
+      // CC
       int ncflag = 1;
 
       double charge = GetCharge(dataSetID);
@@ -151,13 +154,13 @@ void ReactionFFABM_DISNC::calcF2FL(int dataSetID) {
             }
 
 
-          switch ( GetDataType(dataSetID) )
+          /*switch ( GetDataType(dataSetID) )
             {
-            case dataType::sigred :
+            case dataType::sigred :*/
               _f2abm[dataSetID][i] = f2 + f2c + f2b;
               _flabm[dataSetID][i] = fl + flc + flb;
               _f3abm[dataSetID][i] = x[i] * (f3 + f3c + f3b);
-              break;
+              /*break;
             case dataType::f2c :
               _f2abm[dataSetID][i] = f2c;
               _flabm[dataSetID][i] = flc;
@@ -168,24 +171,24 @@ void ReactionFFABM_DISNC::calcF2FL(int dataSetID) {
               _flabm[dataSetID][i] = flb;
               _f3abm[dataSetID][i] = x[i] * f3b;
               break ;
-            }
+            }*/
         }
   }
 }
 
-void ReactionFFABM_DISNC::F2 BASE_PARS
+void ReactionFFABM_DISCC::F2 BASE_PARS
 {
   calcF2FL(dataSetID);
   val = _f2abm[dataSetID];
 }
 
-void ReactionFFABM_DISNC::FL BASE_PARS
+void ReactionFFABM_DISCC::FL BASE_PARS
 {
   calcF2FL(dataSetID);
   val = _flabm[dataSetID];
 }
 
-void ReactionFFABM_DISNC::xF3 BASE_PARS
+void ReactionFFABM_DISCC::xF3 BASE_PARS
 {
   calcF2FL(dataSetID);
   val = _f3abm[dataSetID];
