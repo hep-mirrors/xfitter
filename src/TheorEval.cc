@@ -17,7 +17,6 @@
 #include "TheorEval.h"
 #include "CommonGrid.h"
 #include "ReactionTheory.h"
-#include "ReactionTheoryDispatcher.h"
 #include "xfitter_cpp.h"
 #include "get_pdfs.h"
 #include <string.h> 

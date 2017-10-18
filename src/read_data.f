@@ -130,6 +130,10 @@ C Get omega (quadratic term coefficient):
      $     StatNew,StatConstNew,UncorPoissonNew) ! covariance to nuicance parameters, if needed.
 
 
+      call reduce_nui(UncorNew,UncorConstNew
+     $     ,UncorPoissonNew) ! We can also reduce number of nuisance parameters 
+
+
       if (LDebug) then
 C
 C Dump beta matrix

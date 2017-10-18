@@ -205,12 +205,24 @@ c     no cov matrix and no ScaledErrors errors, break
 C !> Next determine nuisance parameter shifts
          omegaIteration = 1
          do 
-            Call Chi2_calc_syst_shifts(
-     $           ScaledErrors
-     $           ,ScaledTotMatrix
-     $           ,ScaledGamma
-     $           ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
-     $           ,scaledOmega)
+            if ( LConvertCovToNui .and. do_reduce 
+     $           .and. flag_in .ne. 3 ) then
+                  ! use simplified (slightly) faster version of the code
+               call chi2_calc_syst_shifts_simple(
+     $              ScaledErrors
+     $              ,ScaledGamma
+     $              ,rsys_in
+     $              ,n0_in
+     $              )
+c               stop
+            else
+               Call Chi2_calc_syst_shifts(
+     $              ScaledErrors
+     $              ,ScaledTotMatrix
+     $              ,ScaledGamma
+     $              ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
+     $              ,scaledOmega)
+            endif
 
 C !> Asymmetric errors loop:
             Call UseOmegaScale(ScaledGamma
@@ -811,6 +823,145 @@ c                        print *,'EXPAND LIST',l,i
 C-------------------------------------------------
       end
 
+
+      
+      subroutine chi2_calc_syst_shifts_simple(
+     $     ScaledErrors
+     $     ,ScaledGamma
+     $     ,rsys_in,   n0_in)
+
+      implicit none
+#include "ntot.inc"
+#include "systematics.inc"
+#include "theo.inc"
+#include "indata.inc"
+#include "steering.inc"
+C
+      double precision ScaledErrors(NTOT)
+      double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
+      double precision rsys_in(NSYSMax)
+      double precision A(NSYSMax,NSYSMax), C(NSysMax)      
+
+      double precision AS(n0_in,NSysMax)  ! automatic, scaled sys.
+
+      double precision ASp(n0_in*(NsysMax+1)/2), 
+     $     SGp(n0_in*(NsysMax+1)/2)
+
+      double precision d_minus_t1
+      integer   n0_in
+      integer i,j,l,i1,k
+      integer ifail
+      integer IR(2*NSysMax)
+
+      double precision time1, time2
+C--------------------------------------------------------------------------------------------
+C Reset the matricies:
+      do i=1,nsys
+         C(i) = 0.0D0
+         do j=1, nsys
+            A(i,j) = 0.0D0
+         enddo
+      enddo
+
+      do i=1,n0_in
+         do j=1,nsys
+            AS(i,j) = 
+     $           ScaledErrors(i)
+     $           *ScaledGamma(j,i)
+         enddo
+      enddo
+      
+
+      do l=1,nsys
+C Start with "C"
+
+         do i1=1,n_syst_meas(l) ! loop over all data affected by this source
+            i = syst_meas_idx(i1,l) ! i -> index of the data
+c         do i=1,n0_in
+ 
+            d_minus_t1 = daten(i) - theo(i)
+
+C  Diagonal error:
+            C(l) = C(l) +  AS(i,l)
+     $           *( d_minus_t1 )
+            
+         enddo
+      enddo
+
+      call cpu_time(time1)
+
+
+      if ( .not. UseBlas ) then
+
+!$OMP PARALLEL DO
+         
+         do i=1,n0_in
+            do l=1,nsys
+               do k=l,NSys
+c Diagonal error:
+                  A(k,l) = A(k,l) +
+     $                 AS(i,l)
+     $                 *ScaledGamma(k,i)
+               enddo
+            enddo
+         enddo
+!$OMP END PARALLEL DO
+
+
+      else
+C symmetric matrix does not work
+c      print *,A(1,1),A(nsys,nsys)
+Cuse BLAS: L L; R L; R U; L U
+c      call cublas_dsymm('L','U',nsys,n0_in, 1.0D0, ScaledGamma, n0_in, AS
+c      call dsymm('L','U',nsys,n0_in, 1.0D0, ScaledGamma, n0_in, AS
+C use BLAS: L L; R L; R U; L U
+c      call dsymm('R','U',nsys,nsys, 1.0D0, AS, n0_in, ScaledGamma
+c     $     , nsysmax
+c     $     , 0.D0, A, nsysmax)
+
+         call dgemm('N','N',nsys,nsys, n0_in, 1.0D0
+C         call cublas_dgemm('N','N',nsys,nsys, n0_in, 1.0D0
+     $     , ScaledGamma
+     $        , nsysmax
+     $     , AS
+     $     , n0_in
+     $     , 0.D0, A, nsysmax)
+
+      endif
+         
+C Penalty term, unity by default
+      do i=1,nsys
+         A(i,i) = A(i,i) + SysPriorScale(i)
+      enddo
+      
+c      print *,A(1,1),A(nsys,nsys)
+
+      call cpu_time(time2)
+      print *,'CPU LOOP=',time2-time1
+C
+C Under diagonal:
+C
+      do l=1,nsys
+         do k=1,l-1
+            A(k,l) = A(l,k)
+         enddo
+      enddo
+
+C Ready to invert
+      if (nsys.gt.0) then
+         
+         Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
+         
+         do l=1,nsys
+            rsys_in(l) = - C(l)
+         enddo
+      endif
+
+      call cpu_time(time1)
+C--------------------------------------------------------------------------------------------
+      end
+
+
 C----------------------------------------------------------------------------------
 C
 C> @brief Determine shifts of nuisance parameters
@@ -974,17 +1125,17 @@ c                     do j = 1, n0_in
                   endif
                endif
             enddo
-
 C Now A:
 
-            do k=l,NSys
+            do i=1,n0_in
+               do k=l,NSys
 C
                if ( (sysform(k) .eq. isNuisance ) ! ) then
      $              .and.HaveCommonData(k,l) ) then
 
-                  do i1 = 1,n_syst_meas(k)
-                     i = syst_meas_idx(i1,k)
-c                     do i=1,n0_in
+c                  do i1 = 1,n_syst_meas(k)
+c                     i = syst_meas_idx(i1,k)
+c
                      if ( FitSample(i) ) then
                         if (  list_covar_inv(i) .eq. 0) then
 C Diagonal error:
@@ -1017,9 +1168,10 @@ C                            do j=i,n0_in
 
                         endif
                      endif
-                  enddo
+c                  enddo
 
-               endif               
+                  endif               
+               enddo
             enddo
          endif
       enddo
@@ -1683,7 +1835,7 @@ C First check if the matrix positive definite
       
       Sum = 0
       do i=1,NCovar
-c         print *,i,EigenValues(i)
+c         print *,'Eig',i,EigenValues(i)
          Sum = Sum + EigenValues(i)
       enddo
 
@@ -1793,6 +1945,139 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
  92   call hf_errlog(2,'F:Can not read Covar namelist')
  93   call hf_errlog(3,'F:Can not find Covar namelist')
  99   call hf_errlog(3,'F:Error reading cov. matrix')
+      end
+
+C---------------------------------------------------------
+C
+C @brief redunce number of nuisance parameters by first constructing the covariance matrix and keeping only impprtant vectors
+C
+      subroutine reduce_nui(UncorNew,UncorConstNew
+     $     , UncorPoissonNew)
+      implicit none
+
+#include "ntot.inc"
+#include "systematics.inc"
+#include "indata.inc"
+      integer iCovarType
+
+      double precision UncorNew(NTot),UncorConstNew(NTot),
+     $     StatNew(NTot), StatConstNew(NTot), UncorPoissonNew(Ntot)
+
+      integer isys_scaling, isys
+
+      double precision, allocatable :: C(:,:)    ! covariance matrix
+      double precision, allocatable :: S(:,:,:)  ! nuisance param representation of it.
+
+      double precision uncor_loc(NTOT, 0:n_sys_scaling_max-1) 
+      integer nui_cor(0:n_sys_scaling_max-1)
+      logical l_present(0:n_sys_scaling_max-1)
+
+      integer i,j
+
+      character*3 name_t(0:n_sys_scaling_max-1), name_n
+      data name_t/':A',':M',':P'/
+
+      character*80 name_s
+
+      double precision tolerance
+      logical lfirst
+      data lfirst/.true./
+      namelist/ReduceSyst/do_reduce,tolerance, useBlas
+      
+C------------------------------------------------
+      useBlas = .false.
+      if (lfirst) then
+         lfirst = .false.
+         Tolerance = 0.
+         do_reduce = .false.
+         open (51,file='steering.txt',status='old')
+         read (51,NML=ReduceSyst,end=19,err=17)
+ 19      continue
+         close (51)
+      endif
+
+      if (.not. do_reduce) return
+
+      LConvertCovToNui = .true.
+
+      ! Allocate covariance matrix for the data
+      Allocate(C(npoints,npoints))
+      ! Allocate space to save syst. vecctors
+      Allocate(S(npoints,npoints,n_sys_scaling_max))
+
+      do isys_scaling=0,n_sys_scaling_max-1  ! loop over scaling type
+         ! Clean the covariance matrix
+         C = 0.0
+         l_present(isys_scaling) = .false.
+         do isys=1,nSys
+            if ( SysScalingType(isys).eq.isys_scaling ) then
+               l_present(isys_scaling) = .true.
+
+               ! add to covariance matrix
+               do i=1,NPoints
+                  do j=1,NPoints
+                     C(i,j) = C(i,j) + beta(isys,i)*daten(i)
+     $                                *beta(isys,j)*daten(j)
+                  enddo
+               enddo
+            endif
+         enddo
+         ! translate to 
+         if (l_present(isys_scaling)) then
+            call GetNuisanceFromCovar(NPoints,NPoints,NPoints, 
+     $           C, S(1,1,isys_scaling+1), tolerance, 
+     $           Nui_cor(isys_scaling), 
+     $           Uncor_loc(1, isys_scaling), .false.)
+         else
+            Nui_cor(isys_scaling) = 0
+         endif
+
+      enddo
+
+
+      ! now re-set all systematic sources and set them new.
+      NSys = 0
+      N_Syst_Meas = 0
+
+      UncorNew = sqrt( UncorNew**2 + Uncor_loc(:,isLinear)**2)
+      UncorPoissonNew = sqrt( UncorPoissonNew**2 
+     $     + Uncor_loc(:,isPoisson)**2)
+      UncorConstNew = sqrt( UncorConstNew**2 
+     $     + Uncor_loc(:,isNoRescale)**2)
+
+
+      do isys_scaling=0,n_sys_scaling_max-1
+         ! use type to define new name
+c         if (isys_scaling .eq. isNoRescale ) then
+c            name_t = ':A'
+c         endif
+         do isys=1,Nui_Cor(isys_scaling)
+            if (isys.lt.10) then
+               write (name_n,'(''00'',i1)') isys
+            elseif (isys.lt.100) then
+               write (name_n,'(''0'',i2)') isys
+            elseif (isys.lt.1000) then
+               write (name_n,'(i3)') isys
+            endif
+            name_s = 'reduced_'//name_n
+            call AddSystematics(trim(name_s)//name_t(isys_scaling))
+            do i=1,NPoints
+               n_syst_meas(NSYS) = n_syst_meas(NSYS) + 1
+               syst_meas_idx(n_syst_meas(NSYS),NSYS) = i
+               beta(NSYS,i) =  S(isys,i,isys_scaling+1) /daten(i)               
+            enddo
+         enddo
+      enddo
+
+      Deallocate(C)
+      Deallocate(S)
+      
+      goto 18
+ 17   continue      
+      call hf_errlog(1,
+     $     'F:Error reading ReduceSyst Namelist ! Stop')
+ 18   continue
+
       end
 
 C---------------------------------------------------------------

@@ -8,6 +8,9 @@ if ENABLE_APPLGRID
 
 # libapplgrid_xfitter_la_LDFLAGS = place_if_needed  
   libapplgrid_xfitter_la_CPPFLAGS = $(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
+
+
 endif
 
- 
+datadir = ${prefix}/yaml/reactions/APPLgrid
+data_DATA = ../yaml/parameters.yaml

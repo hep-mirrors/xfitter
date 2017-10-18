@@ -680,7 +680,7 @@ cc        rscale=1d0
 
       call ABKM_Set_Input(
      $     kschemepdfin,kordpdfin,rmass8in,rmass10in,msbarmin,
-     $     hqscale1in,hqscale2in)
+     $     hqscale1in,hqscale2in,0)
       end
 
       Subroutine init_theory_datasets

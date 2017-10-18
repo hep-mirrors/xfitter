@@ -331,7 +331,7 @@ else
     if [[ $? != 0 ]]
     then
 	echo "Error, check install.log for details"
-	exit
+#	exit
     fi
     cd - >& /dev/null
 

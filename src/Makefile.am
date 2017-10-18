@@ -37,7 +37,7 @@ libxfmain_la_SOURCES += fortran_io.f lhapdferrors.cc
 #Chi2scan
 libxfmain_la_SOURCES += chi2scan.cc
 # ReactionTheory
-libxfmain_la_SOURCES += ReactionTheoryDispatcher.cc ReactionTheory.cc ReactionDIS.cc
+libxfmain_la_SOURCES += ReactionTheory.cc
 # optional sources
 # these should be moved to indiviual shared libraries in the future
 if ENABLE_APFEL
@@ -85,7 +85,7 @@ if ENABLE_LHAPDF
 endif
 # libraries, where this library depends upon
 libxfmain_la_LDFLAGS = -ldl
-
+# libxfmain_la_LDFLAGS = -ldl  -L./ -lfortran_thunking -L/usr/local/cuda/lib64 -lcudart -lcublas
 
 if ENABLE_APPLGRID 
   libxfmain_la_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
