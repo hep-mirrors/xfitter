@@ -103,15 +103,15 @@ void ReactionfastNLO::setDatasetParamters(int dataSetID, map<string,string> pars
       if ( pars.count("ScaleChoiceMuR") ) { // 
 	 hf_errlog(17090504,"I: Setting fastNLO scale choice mu_R: "+pars["ScaleChoiceMuR"]);
 	 if ( sclmap.count(pars["ScaleChoiceMuR"])==0 )
-	      hf_errlog(17090504,"W: fastNLO. Scale choice for mu_R not available: "+pars["ScaleChoiceMuR"]);
-	 else
+	      hf_errlog(17090522,"F: fastNLO. Scale choice for mu_R not available: "+pars["ScaleChoiceMuR"]);
+	 else 
 	    this->SetMuRFunctionalForm(sclmap.at(pars["ScaleChoiceMuR"]));
       }
       // set mu_f
       if ( pars.count("ScaleChoiceMuF") ) { // Local order 
 	 hf_errlog(17090506,"I: Setting fastNLO scale choice mu_F: "+pars["ScaleChoiceMuF"]);
-	 if ( sclmap.count(pars["ScaleChoiceMuF"])==0 )
-	    hf_errlog(17090507,"W: fastNLO. Scale choice for mu_F not available: "+pars["ScaleChoiceMuF"]);
+	 if ( sclmap.count(pars["ScaleChoiceMuF"])==0 ) 
+	    hf_errlog(17090523,"F: fastNLO. Scale choice for mu_F not available: "+pars["ScaleChoiceMuF"]);
 	 else 
 	    this->SetMuFFunctionalForm(sclmap.at(pars["ScaleChoiceMuF"]));
       }
