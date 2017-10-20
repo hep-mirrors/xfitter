@@ -53,7 +53,8 @@
       call SetPerturbativeOrder(PtOrder)
       call SetMassScheme(scheme)
       call SetNumberOfGrids(3)
-c      call EnableDampingFONLL(.false.)
+      call EnableDampingFONLL(.false.)
+c      call SetDampingPowerFONLL(-1,2,2)
       call SetGridParameters(1,50,3,9.8d-7)
       call SetGridParameters(2,40,3,1d-2)
       call SetGridParameters(3,40,3,7d-1)
@@ -76,6 +77,11 @@ c      call EnableDampingFONLL(.false.)
             call SetMassScaleReference(Qc,Qb,Qt)
          endif
       endif
+*
+*     Small-x resummation
+*
+c      call SetSmallxResummation(.true.,"NLL")
+c      call SetQLimits(1.65d0,300d0)
 *
 *     Initialize the APFEL DIS module
 *

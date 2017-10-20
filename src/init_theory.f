@@ -164,6 +164,8 @@ C Q2 grid weights
       WGT_q2(1) = 1.d0
       WGT_q2(2) = 1.d0
 C Basic Q2 grid:
+c      QARR(1) = starting_scale
+c      QARR(2) = 89000d0 ! needed for lhapdf grid  
       QARR(1) = 1.
       QARR(2) = 2.05D8 ! needed for lhapdf grid  
 c      QARR(2) =  64000000.      ! enough for 8 TeV LHC.

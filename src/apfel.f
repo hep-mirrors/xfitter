@@ -52,6 +52,11 @@
       endif
       call SetMassMatchingScales(kmuc,kmub,kmut)
 *
+*     Small-x resummation
+*
+c      call SetSmallxResummation(.true.,"NLL")
+c      call SetQLimits(1.65d0,300d0)
+*
 *     Initialize APFEL
 *
       call InitializeAPFEL
