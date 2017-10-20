@@ -52,14 +52,22 @@ int ReactionFFABM_DISCC::initAtStart(const string &s)
   int isout = Super::initAtStart(s);
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
-  double hqscale1in = GetParam("scalea1");
-  double hqscale2in = GetParam("scaleb1");
+  double hqscale1in = 1.0;
+  double hqscale2in = 1.0;
+  if(checkParam("scalea1"))
+    hqscale1in = GetParam("scalea1");
+  if(checkParam("scaleb1"))
+    hqscale2in = GetParam("scaleb1");
 
   // pole or MCbar running mass treatment (default pole)
-  bool msbarmin = GetParamI("runm");
+  bool msbarmin = false;
+  if(checkParam("runm"))
+    msbarmin = GetParamI("runm");
 
   // O(alpha_S) F_L = O(alpha_S) F_2 + ordfl (default ordfl = 1)
-  int ordfl = GetParamI("ordfl");
+  int ordfl = 1;
+  if(checkParam("ordfl"))
+    ordfl = GetParamI("ordfl");
 
   initgridconst_();
 
@@ -131,7 +139,7 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   if ( (_f2abm[dataSetID][0]< -99.) ) { // compute
 
       // CC
-      int ncflag = 1;
+      int ncflag = 0;
 
       double charge = GetCharge(dataSetID);
       double polarity = GetPolarisation(dataSetID);

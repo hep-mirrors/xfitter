@@ -49,14 +49,22 @@ int ReactionFFABM_DISNC::initAtStart(const string &s)
   int isout = 0;
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
-  double hqscale1in = GetParam("scalea1");
-  double hqscale2in = GetParam("scaleb1");
+  double hqscale1in = 1.0;
+  double hqscale2in = 1.0;
+  if(checkParam("scalea1"))
+    hqscale1in = GetParam("scalea1");
+  if(checkParam("scaleb1"))
+    hqscale2in = GetParam("scaleb1");
 
   // pole or MCbar running mass treatment (default pole)
-  bool msbarmin = GetParamI("runm");
+  bool msbarmin = false;
+  if(checkParam("runm"))
+    msbarmin = GetParamI("runm");
 
   // O(alpha_S) F_L = O(alpha_S) F_2 + ordfl (default ordfl = 1)
-  int ordfl = GetParamI("ordfl");
+  int ordfl = 1;
+  if(checkParam("ordfl"))
+    ordfl = GetParamI("ordfl");
 
   initgridconst_();
 
@@ -151,19 +159,19 @@ void ReactionFFABM_DISNC::calcF2FL(int dataSetID) {
             }
 
 
-          switch ( GetDataType(dataSetID) )
+          switch ( GetDataFlav(dataSetID) )
             {
-            case dataType::sigred :
+            case dataFlav::incl :
               _f2abm[dataSetID][i] = f2 + f2c + f2b;
               _flabm[dataSetID][i] = fl + flc + flb;
               _f3abm[dataSetID][i] = x[i] * (f3 + f3c + f3b);
               break;
-            case dataType::f2c :
+            case dataFlav::c :
               _f2abm[dataSetID][i] = f2c;
               _flabm[dataSetID][i] = flc;
               _f3abm[dataSetID][i] = x[i] * f3c;
               break ;
-            case dataType::f2b :
+            case dataFlav::b :
               _f2abm[dataSetID][i] = f2b;
               _flabm[dataSetID][i] = flb;
               _f3abm[dataSetID][i] = x[i] * f3b;
