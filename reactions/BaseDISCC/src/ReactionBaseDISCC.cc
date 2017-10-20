@@ -109,7 +109,22 @@ void  ReactionBaseDISCC::setDatasetParamters( int dataSetID, map<string,string> 
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
   _isReduced[dataSetID]    =  (parsDataset.find("reduced")       != parsDataset.end()) ? parsDataset["reduced"] : 0;
-  
+
+  // check if settings are provided in the new format key=value
+  map<string,string>::iterator it = pars.find("type");
+  if ( it != pars.end() ) {
+    if(it->second == "sigred")
+    {
+      _isReduced[dataSetID] = 1;
+    }
+    else
+    {
+      char buffer[256];
+      sprintf(buffer, "F: dataset with id = %d has unknown type = %s", dataSetID, it->second.c_str());
+      string str = buffer;
+      hf_errlog_(17101903, str.c_str(), str.length());
+    }
+  }
 
   // Allocate internal arrays:
   _f2u[dataSetID].resize(_npoints[dataSetID]);
