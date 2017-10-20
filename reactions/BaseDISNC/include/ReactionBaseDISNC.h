@@ -29,7 +29,8 @@ class ReactionBaseDISNC : public ReactionTheory
     virtual void initAtIteration() override; 
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) override ;
  protected:
-    enum class dataType { sigred, f2b, f2c} ;  //!< Define compute output.
+    enum class dataType { sigred, f2, fl} ;  //!< Define compute output.
+    enum class dataFlav { incl, c, b} ;      //!< Define final state.
 
     /* 
        A few methods specific for DIS NC process. 
@@ -65,7 +66,8 @@ class ReactionBaseDISNC : public ReactionTheory
     map <int, int>     _npoints ;           //!< Number of points in a dataset.
     map <int, double>  _polarisation ;      //!< longitudinal polarisation
     map <int, double>  _charge;             //!< lepton beam charge
-    map <int, dataType> _dataType;
+    map <int, dataType> _dataType;          //!< cross section (reduced, F2, FL)
+    map <int, dataFlav> _dataFlav;          //!< flavour (incl, c, b)
 
  protected:
     // some parameters which may change from iteration to iteration:
@@ -81,6 +83,7 @@ class ReactionBaseDISNC : public ReactionTheory
     const double GetPolarisation (int dataSetID) {return _polarisation[dataSetID];}
     const double GetCharge(int dataSetID) {return _charge[dataSetID]; }
     const dataType GetDataType(int dataSetID) {return _dataType[dataSetID]; }
+    const dataFlav GetDataFlav(int dataSetID) {return _dataFlav[dataSetID]; }
 
     // Another decomposition:
     virtual void GetF2ud( int dataSetID, valarray<double>& f2u, valarray<double>& f2d);

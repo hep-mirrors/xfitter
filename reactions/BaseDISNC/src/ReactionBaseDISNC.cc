@@ -8,6 +8,7 @@
 
 #include "ReactionBaseDISNC.h"
 #include <iostream>
+#include <cstdio>
 
 template <typename T>
 void print(T d) {
@@ -52,16 +53,16 @@ int ReactionBaseDISNC::initAtStart(const string &s)
 // Main function to compute results at an iteration
 int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  switch ( GetDataType(dataSetID) ) 
+  switch ( GetDataType(dataSetID) )
     {
     case dataType::sigred :
       sred(dataSetID, val, err) ;
       break ;
-    case dataType::f2c :
+    case dataType::f2 :
       F2(dataSetID, val, err) ;
       break ;
-    case dataType::f2b :
-      F2(dataSetID, val, err) ;
+    case dataType::fl :
+      FL(dataSetID, val, err) ;
       break ;
     }
   return 0;
@@ -101,19 +102,73 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
 
-  _dataType[dataSetID] = dataType::sigred;  // Reduced cross section by default.
+  // Inclusive reduced cross section by default.
+  _dataType[dataSetID] = dataType::sigred;
+  _dataFlav[dataSetID] = dataFlav::incl;
   string msg = "I: Calculating DIS NC reduced cross section";
-  if ( parsDataset.find("F2c") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::f2c;    
-    msg = "I: Calculating DIS NC F2c";
+  if ( parsDataset.find("F2") != parsDataset.end() ) {
+    _dataType[dataSetID] = dataType::f2;
+    msg = "I: Calculating DIS NC F2";
   }
-  if ( parsDataset.find("F2b") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::f2b;
-    msg = "I: Calculating DIS NC F2b";
+  if ( parsDataset.find("FL") != parsDataset.end() ) {
+    _dataType[dataSetID] = dataType::fl;
+    msg = "I: Calculating DIS NC FL";
   }
   if ( parsDataset.find("reduced") != parsDataset.end() ) {
     _dataType[dataSetID] = dataType::sigred;
     msg = "I: Calculating DIS NC reduced cross section";
+  }
+
+  // check if settings are provided in the new format key=value
+  map<string,string>::iterator it = pars.find("type");
+  if ( it != pars.end() ) {
+    if(it->second == "sigred")
+    {
+      _dataType[dataSetID] = dataType::sigred;
+      msg = "I: Calculating DIS NC reduced cross section";
+    }
+    else if(it->second == "F2")
+    {
+      _dataType[dataSetID] = dataType::f2;
+      msg = "I: Calculating DIS NC F2";
+    }
+    else if(it->second == "FL")
+    {
+      _dataType[dataSetID] = dataType::fl;
+      msg = "I: Calculating DIS NC FL";
+    }
+    else
+    {
+      char buffer[256];
+      sprintf(buffer, "F: dataset with id = %d has unknown type = %s", dataSetID, it->second.c_str());
+      string str = buffer;
+      hf_errlog_(17101901, str.c_str(), str.length());
+    }
+  }
+  it = pars.find("flav");
+  if ( it != pars.end() ) {
+    if(it->second == "incl")
+    {
+      _dataFlav[dataSetID] = dataFlav::incl;
+      msg += " inclusive";
+    }
+    else if(it->second == "c")
+    {
+      _dataFlav[dataSetID] = dataFlav::c;
+      msg += " charm";
+    }
+    else if(it->second == "b")
+    {
+      _dataFlav[dataSetID] = dataFlav::b;
+      msg += " beauty";
+    }
+    else
+    {
+      char buffer[256];
+      sprintf(buffer, "F: dataset with id = %d has unknown flav = %s", dataSetID, it->second.c_str());
+      string str = buffer;
+      hf_errlog_(17101902, str.c_str(), str.length());
+    }
   }
   hf_errlog_(17041001, msg.c_str(), msg.size());
 
@@ -276,16 +331,16 @@ void ReactionBaseDISNC::GetF2ud(int dataSetID, valarray<double>& f2u, valarray<d
     
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataType(dataSetID) )
+    switch ( GetDataFlav(dataSetID) )
       {
-      case dataType::sigred :
+      case dataFlav::incl :
 	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
 	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);    
 	break ;
-      case dataType::f2c :
+      case dataFlav::c :
 	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
 	break ;
-      case dataType::f2b :
+      case dataFlav::b :
 	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
 	break ;
       }
@@ -304,16 +359,16 @@ void ReactionBaseDISNC::GetFLud(int dataSetID, valarray<double>& flu, valarray<d
     
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataType(dataSetID) )
+    switch ( GetDataFlav(dataSetID) )
       {
-      case dataType::sigred : 
+      case dataFlav::incl :
 	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
 	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
 	break ;
-      case dataType::f2c : 
+      case dataFlav::c :
 	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
 	break ;     
-      case dataType::f2b : 
+      case dataFlav::b :
 	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
 	break ;      
       }
@@ -333,13 +388,20 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
     
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    if ( GetDataType(dataSetID) == dataType::sigred ) {
+    // OZ 19.10.2017 TODO: F3 is massless in VFNS?
+    //if ( GetDataType(dataSetID) == dataType::sigred ) {
+    if ( GetDataFlav(dataSetID) == dataFlav::incl ) {
       zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
       zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
     }
-    else {
-      NOT_IMPLEMENTED(" xF3 b,c ");
-    }    
+    else
+    {
+      for(int p = 0; p < Npnt; p++)
+        _xf3u[dataSetID][p] = _xf3d[dataSetID][p] = 0;
+    }
+    //else {
+    //  NOT_IMPLEMENTED("xF3 c,b");
+    //}
   }
   xf3u = _xf3u[dataSetID];
   xf3d = _xf3d[dataSetID];
