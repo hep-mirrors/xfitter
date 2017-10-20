@@ -23,11 +23,10 @@
 *
       if(iTheory.eq.35)then
          call SetTheory("QUniD")                 ! Set QCD+QED evolution (default)
-         call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of muF
       else
          call SetTheory("QCD")                   ! Set QCD evolution (default)
-         call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of alphas (rather than muF => faster for short steps)
       endif
+      call SetPDFEvolution("exactalpha")         ! Use DGLAP evolution in terms of alphas (rather than muF => faster for short steps)
       call SetFastEvolution(.true.)              ! Use fast evolution (default)
       call SetAlphaEvolution("exact")            ! Use exact solution on the beta functions (default)
       call SetQLimits(0.5d0,20000d0)             ! Evolution limits
@@ -54,8 +53,10 @@
 *
 *     Small-x resummation
 *
-c      call SetSmallxResummation(.true.,"NLL")
-c      call SetQLimits(1.65d0,300d0)
+      if(HF_SCHEME(9:12).eq."NLLx")then
+         call SetSmallxResummation(.true.,"NLL")
+         call SetQLimits(1.65d0,300d0)
+      endif
 *
 *     Initialize APFEL
 *

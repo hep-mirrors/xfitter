@@ -4,7 +4,7 @@
 *
 ************************************************************************
       subroutine FONLL_Set_Input(MassScheme,runm,Mcharm,MBottom,MTop,
-     1                           Q_ref,Alphas_ref,PtOrder,Scheme)
+     1                           Q_ref,Alphas_ref,PtOrder,Scheme,Smallx)
 *
       implicit none
 *
@@ -17,7 +17,7 @@
       double precision Q_ref,Alphas_ref
       character*7 Scheme
       character*5 MassScheme
-      logical runm
+      logical runm,Smallx
       double precision Q2save
       common / PreviousQ2 / Q2save
 **
@@ -53,7 +53,7 @@
       call SetPerturbativeOrder(PtOrder)
       call SetMassScheme(scheme)
       call SetNumberOfGrids(3)
-      call EnableDampingFONLL(.false.)
+c      call EnableDampingFONLL(.false.)
 c      call SetDampingPowerFONLL(-1,2,2)
       call SetGridParameters(1,50,3,9.8d-7)
       call SetGridParameters(2,40,3,1d-2)
@@ -80,8 +80,10 @@ c      call SetDampingPowerFONLL(-1,2,2)
 *
 *     Small-x resummation
 *
-c      call SetSmallxResummation(.true.,"NLL")
-c      call SetQLimits(1.65d0,300d0)
+      if(Smallx)then
+         call SetSmallxResummation(.true.,"NLL")
+         call SetQLimits(1.65d0,300d0)
+      endif
 *
 *     Initialize the APFEL DIS module
 *
