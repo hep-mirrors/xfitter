@@ -388,7 +388,7 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
     
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    // OZ 19.10.2017 TODO: F3 is massless in VFNS?
+    // OZ 19.10.2017 TODO: F3 is 0 in VFNS for heavy quarks?
     //if ( GetDataType(dataSetID) == dataType::sigred ) {
     if ( GetDataFlav(dataSetID) == dataFlav::incl ) {
       zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
