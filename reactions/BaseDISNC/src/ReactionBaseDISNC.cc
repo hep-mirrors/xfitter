@@ -120,6 +120,8 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
   }
 
   // check if settings are provided in the new format key=value
+
+  // type: sigred, F2, FL
   map<string,string>::iterator it = pars.find("type");
   if ( it != pars.end() ) {
     if(it->second == "sigred")
@@ -145,6 +147,8 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
       hf_errlog_(17101901, str.c_str(), str.length());
     }
   }
+
+  // flav: incl, c, b
   it = pars.find("flav");
   if ( it != pars.end() ) {
     if(it->second == "incl")
@@ -172,6 +176,15 @@ void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> 
   }
   hf_errlog_(17041001, msg.c_str(), msg.size());
 
+  // e charge: double
+  it = pars.find("echarge");
+  if ( it != pars.end() )
+    _charge[dataSetID] = atof(it->second.c_str());
+
+  // e polarity: double
+  it = pars.find("epolarity");
+  if ( it != pars.end() )
+    _polarisation[dataSetID] = atof(it->second.c_str());
 
   // Allocate internal arrays:
   _f2u[dataSetID].resize(_npoints[dataSetID]);

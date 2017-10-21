@@ -111,6 +111,8 @@ void  ReactionBaseDISCC::setDatasetParamters( int dataSetID, map<string,string> 
   _isReduced[dataSetID]    =  (parsDataset.find("reduced")       != parsDataset.end()) ? parsDataset["reduced"] : 0;
 
   // check if settings are provided in the new format key=value
+
+  // type: sigred (no F2, FL implemented so far)
   map<string,string>::iterator it = pars.find("type");
   if ( it != pars.end() ) {
     if(it->second == "sigred")
@@ -125,6 +127,16 @@ void  ReactionBaseDISCC::setDatasetParamters( int dataSetID, map<string,string> 
       hf_errlog_(17101903, str.c_str(), str.length());
     }
   }
+
+  // e charge: double
+  it = pars.find("echarge");
+  if ( it != pars.end() )
+    _charge[dataSetID] = atof(it->second.c_str());
+
+  // e polarity: double
+  it = pars.find("epolarity");
+  if ( it != pars.end() )
+    _polarisation[dataSetID] = atof(it->second.c_str());
 
   // Allocate internal arrays:
   _f2u[dataSetID].resize(_npoints[dataSetID]);
