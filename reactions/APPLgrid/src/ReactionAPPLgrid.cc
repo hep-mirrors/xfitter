@@ -60,6 +60,31 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
   if (parsDataset.find("pn") != parsDataset.end() ) {
     _collType = collision::pn;
   }
+  // check if collision settings are provided in the new format key=value
+  map<string,string>::iterator it = pars.find("collision");
+  if (it != pars.end() )
+  {
+    if(it->second == "pp")
+      _collType = collision::pp;
+    else if(it->second == "ppbar")
+      _collType = collision::ppbar;
+    else if(it->second == "pn")
+      _collType = collision::pn;
+    else
+      hf_errlog(17102101, "F: unrecognised collision type = " + it->second);
+  }
+  // bin width normalisation (by default no rescaling)
+  _flagNorm[dataSetID] = false;
+  it = pars.find("norm");
+  if (it != pars.end() )
+  {
+    if(stoi(it->second) == 0)
+      _flagNorm[dataSetID] = false;
+    else if(stoi(it->second) == 1)
+      _flagNorm[dataSetID] = true;
+    else
+      hf_errlog(17102102, "F: unrecognised norm = " + it->second);
+  }
 }
 
 
@@ -81,6 +106,12 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
     }
   for (std::size_t i=0; i<vals.size(); i++) {
     val[i] = vals[i];
+    // scale by bin width if requested
+    if(_flagNorm[dataSetID])
+    {
+      double bw = _grids[dataSetID]->deltaobs(i + 1);
+      val[i] *= bw;
+    }
   }
   return 0;
 }

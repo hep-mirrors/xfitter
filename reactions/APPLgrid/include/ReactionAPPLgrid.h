@@ -38,5 +38,6 @@ class ReactionAPPLgrid : public ReactionTheory
     map<int, std::shared_ptr<appl::grid> > _grids;
     map<int, int> _order;
     map<int, double> _muR, _muF; // !> renormalisation and factorisation scales
+    map<int, bool> _flagNorm; // !> if true, multiply by bin width
 };
 
