@@ -112,13 +112,14 @@ void  ReactionBaseDISCC::setDatasetParamters( int dataSetID, map<string,string> 
 
   // check if settings are provided in the new format key=value
 
-  // type: sigred (no F2, FL implemented so far)
+  // type: sigred, signonred (no F2, FL implemented so far, thus type is defined by bool _isReduced)
+  // HERA data files provide 'signonred' CC cross sections
   map<string,string>::iterator it = pars.find("type");
   if ( it != pars.end() ) {
     if(it->second == "sigred")
-    {
       _isReduced[dataSetID] = 1;
-    }
+    else if(it->second == "signonred")
+      _isReduced[dataSetID] = 0;
     else
     {
       char buffer[256];

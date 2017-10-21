@@ -1,5 +1,6 @@
  !*  File produced by HERAVerager and OT
  !*  Created on 20140725
+ !*  Cross sections are provided as d2sigma/dQ2dx (non-reduced)
 
 &Data 
   Name = "HERA1+2 CCep" 
@@ -10,7 +11,7 @@
   TermName = 'R'
   TermType = 'reaction'
   TermSource = 'use:hf_scheme_DISCC'
-  TermInfo = 'flav=incl:echarge=1:epolarity=0'
+  TermInfo = 'type=signonred:flav=incl:echarge=1:epolarity=0'
   TheorExpr = 'R'
 
   NData =    39
