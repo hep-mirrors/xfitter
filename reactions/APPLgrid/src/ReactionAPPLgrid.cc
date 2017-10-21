@@ -23,7 +23,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
 // Get grid name:
    if ( pars.find("GridName") != pars.end() )  {
      try {
-        std::shared_ptr<appl::grid>  g(new appl::grid(pars["GridName"])); 
+        std::shared_ptr<appl::grid>  g(new appl::grid(pars["GridName"]));
         g->trim();
         _grids[dataSetID] = g;
      }
@@ -53,23 +53,23 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
   if (_muF[dataSetID] == 0) _muF[dataSetID] = 1.0;
 
 // Determine if pp or ppbar
-  _collType = collision::pp;
+  _collType[dataSetID] = collision::pp;
   if (parsDataset.find("ppbar") != parsDataset.end() ) {
-    _collType = collision::ppbar;
+    _collType[dataSetID] = collision::ppbar;
   }
   if (parsDataset.find("pn") != parsDataset.end() ) {
-    _collType = collision::pn;
+    _collType[dataSetID] = collision::pn;
   }
   // check if collision settings are provided in the new format key=value
   map<string,string>::iterator it = pars.find("collision");
   if (it != pars.end() )
   {
     if(it->second == "pp")
-      _collType = collision::pp;
+      _collType[dataSetID] = collision::pp;
     else if(it->second == "ppbar")
-      _collType = collision::ppbar;
+      _collType[dataSetID] = collision::ppbar;
     else if(it->second == "pn")
-      _collType = collision::pn;
+      _collType[dataSetID] = collision::pn;
     else
       hf_errlog(17102101, "F: unrecognised collision type = " + it->second);
   }
@@ -92,7 +92,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
  // Convolute the grid:
   std::vector<double> vals(val.size());
-  switch (_collType) 
+  switch (_collType[dataSetID])
     {
     case collision::pp :  
       vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
