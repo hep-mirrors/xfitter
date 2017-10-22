@@ -117,9 +117,6 @@ class ReactionBaseHVQMNR : public ReactionTheory
     
     // return cross section in provided pT-y bin
     double FindXSecPtYBin(const TH2* histXSec, const double ymin, const double ymax, const double ptmin, const double ptmax, const bool diff_pt, const bool diff_y);
-    
-    // error treatment
-    void error(const int id, const std::string& str);
 
   private:    
     // check equality of float numbers with tolerance

@@ -1,13 +1,14 @@
 #include "xfitter_cpp.h"
 #include <TMath.h>
- 
+#include <string>
+
 /*
    @file ReactionBaseHVQMNR.cc
    @date 2017-01-02
    @author Oleksandr Zenaiev (oleksandr.zenaiev@desy.de)
    Created by  AddReaction.py on 2017-01-02
-   * 
-   This is abstract class from which implementations of HVQMNR 
+   *
+   This is abstract class from which implementations of HVQMNR
    calculations for particular datasets should be derived
 */
 
@@ -17,8 +18,7 @@
 extern "C" ReactionBaseHVQMNR* create() {
   // this is abstract class, no instance should be created
   //return new ReactionBaseHVQMNR();
-  std::string str = "F: can not create ReactionBaseHVQMNR instance: you should implement calculation in a derived class";
-  hf_errlog_(16123000, str.c_str(), str.length());
+  hf_errlog(16123000, "F: can not create ReactionBaseHVQMNR instance: you should implement calculation in a derived class");
   return NULL;
 }
 
@@ -50,43 +50,17 @@ void ReactionBaseHVQMNR::setDatasetParamters(int dataSetID, map<string,string> p
   std::pair<std::map<int, DataSet>::iterator, bool> ret = _dataSets.insert(std::pair<int, DataSet>(dataSetID, dataSet));
   // check if dataset with provided ID already exists
   if(!ret.second)
-  {
-    char buffer[256];
-    sprintf(buffer, "F: dataset with id = %d already exists", dataSetID);
-    error(16123001, buffer);
-  }
+    hf_errlog(16123001, "F: dataset with id = " + std::to_string(dataSetID) + " already exists");
 
   // set parameters for new dataset
-  // TODO this old commented out code to be removed one day
-  /*std::string str = pars.begin()->first;
-  DataSet& ds = ret.first->second;
-  // "FinalState=" must be provided
-  if(readFromTermInfo(str, "FinalState=", ds.FinalState))
-    error(16123002, "F: TermInfo must contain FinalState=...");
-
-  // optional "NormY="
-  if(readFromTermInfo(str, "NormY=", ds.NormY))
-    ds.NormY = 0; // default value is unnormalised absolute cross section
-
-  // optional "FragFrac=" (must be provided for absolute cross section)
-  if(readFromTermInfo(str, "FragFrac=", ds.FragFraction))
-  {
-    if(ds.NormY == 0)
-      error(16123003, "F: for absolute cross section TermInfo must contain FragFrac=...");
-  }
-  else
-  {
-    if(ds.NormY != 0)
-      printf("Warning: FragFrac=%f will be ignored for normalised cross sections\n", ds.FragFraction);
-  }*/
   DataSet& ds = ret.first->second;
   // mandatory "FinalState="
   map<string,string>::iterator it = pars.find("FinalState");
   if(it == pars.end())
-    error(16123002, "F: TermInfo must contain FinalState=...");
+    hf_errlog(16123002, "F: TermInfo must contain FinalState entry");
   else
     ds.FinalState = it->second;
-  
+
   // optional "NormY="
   it = pars.find("NormY");
   if(it == pars.end())
@@ -99,7 +73,7 @@ void ReactionBaseHVQMNR::setDatasetParamters(int dataSetID, map<string,string> p
   if(it == pars.end())
   {
     if(ds.NormY == 0)
-      error(16123003, "F: for absolute cross section TermInfo must contain FragFrac=...");
+      hf_errlog(16123003, "F: for absolute cross section TermInfo must contain FragFrac entry");
   }
   else
   {
@@ -107,23 +81,23 @@ void ReactionBaseHVQMNR::setDatasetParamters(int dataSetID, map<string,string> p
     if(ds.NormY != 0)
       printf("Warning: FragFrac=%f will be ignored for normalised cross sections\n", ds.FragFraction);
   }
-  
+
   // set binning
   ds.BinsYMin  = GetBinValues(dataSetID, "ymin");
   ds.BinsYMax  = GetBinValues(dataSetID, "ymax");
   ds.BinsPtMin = GetBinValues(dataSetID, "pTmin");
   ds.BinsPtMax = GetBinValues(dataSetID, "pTmax");
-  if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL ) 
-    error(16123004, "F: No bins ymin or ymax or ptmin or ptmax");
+  if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL )
+    hf_errlog(16123004, "F: No bins ymin or ymax or ptmin or ptmax");
   // set reference y bins if needed
   if(ds.NormY == 1)
   {
     ds.BinsYMinRef = GetBinValues(dataSetID, "yminREF");
     ds.BinsYMaxRef = GetBinValues(dataSetID, "ymaxREF");
     if(ds.BinsYMinRef == NULL || ds.BinsYMaxRef == NULL)
-      error(16123005, "F: No bins yminREF or ymaxREF for normalised cross section");
+      hf_errlog(16123005, "F: No bins yminREF or ymaxREF for normalised cross section");
   }
-  
+
   if(_debug)
     printf("Added dataset: FinalState = %s  NormY = %d  FragFraction = %f\n", ds.FinalState.c_str(), ds.NormY, ds.FragFraction);
 }
@@ -132,12 +106,6 @@ void ReactionBaseHVQMNR::setDatasetParamters(int dataSetID, map<string,string> p
 // ********************************
 // ***** utility routines *********
 // ********************************
-
-// error treatment
-void ReactionBaseHVQMNR::error(const int id, const std::string& str)
-{
-  hf_errlog_(id, str.c_str(), str.length());
-}
 
 // check equality of float numbers with tolerance
 bool ReactionBaseHVQMNR::IsEqual(const double val1, const double val2, const double eps/* = 1e-6*/)
@@ -187,7 +155,7 @@ double ReactionBaseHVQMNR::FindXSecPtYBin(const TH2* histXSec, const double ymin
   for(int bpt = 0; bpt < histXSec->GetNbinsX(); bpt++)
   {
     //printf("bpt = %d\n", bpt);
-    for(int by = 0; by < histXSec->GetNbinsY(); by++) 
+    for(int by = 0; by < histXSec->GetNbinsY(); by++)
     {
       //printf("by = %d\n", by);
       if(!IsEqual(ymin, histXSec->GetYaxis()->GetBinLowEdge(by + 1))) continue;
@@ -202,16 +170,15 @@ double ReactionBaseHVQMNR::FindXSecPtYBin(const TH2* histXSec, const double ymin
         val = -1000000000.0;
       }
       // divide by bin width if needed
-      if(diff_pt) 
+      if(diff_pt)
         val = val / (ptmax - ptmin);
-      if(diff_y) 
+      if(diff_y)
         val = val / (ymax - ymin);
       return val;
     }
   }
-  char str[256];
-  sprintf(str, "F: ERROR in FindXSPtY(): bin not found y: %f %f, pt: %f %f\n", ymin, ymax, ptmin, ptmax);
-  error(16123006, str);
+  hf_errlog(16123006, "F: ERROR in FindXSPtY(): bin not found y: " + std::to_string(ymin) + " " + std::to_string(ymax) +
+            " , pt: " + std::to_string(ptmin) + " " + std::to_string(ptmax));
   return -1.0;
 }
 
@@ -220,11 +187,7 @@ void ReactionBaseHVQMNR::CheckHFScheme()
 {
   // check HF scheme
   if(steering_.hfscheme != 3 && steering_.hfscheme != 4)
-  {
-    char str[256];
-    sprintf(str, "S: calculation does not support HFSCHEME = %d (only 3, 4 supported)", steering_.hfscheme);
-    error(16123007, str);
-  }
+    hf_errlog(16123007, "S: calculation does not support HFSCHEME = " + std::to_string(steering_.hfscheme) + " (only 3, 4 supported)");
 }
 
 // read parameters for perturbative scales from MINUIT extra parameters
@@ -236,19 +199,19 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
   // mu_r(c)^2 = MNRmr_A_c * pT_c^2 + MNRmr_B_c * m_c^2 + MNRmr_C_c
   // mu_f(b)^2 = MNRmf_A_b * pT_b^2 + MNRmf_B_b * m_b^2 + MNRmf_C_b
   // mu_r(b)^2 = MNRmr_A_b * pT_b^2 + MNRmr_B_b * m_b^2 + MNRmr_C_b
-  // where mu_f(c), mu_r(c), mu_f(b), mu_r(b) are factorisation and renormalisation 
-  // scales for charm and beauty production, respectively, pT is transverse momentum 
+  // where mu_f(c), mu_r(c), mu_f(b), mu_r(b) are factorisation and renormalisation
+  // scales for charm and beauty production, respectively, pT is transverse momentum
   // and m_c, m_b are charm and beauty quark masses.
   //
   // In total, one can provide all 12 parameters (MNRmf_A_c, MNRmf_B_c, MNRmf_C_c,
   // MNRmr_A_c, MNRmr_B_c, MNRmr_C_c, MNRmf_A_b, MNRmf_B_b, MNRmf_C_b,
   // MNRmr_A_b, MNRmr_B_b, MNRmr_C_b), however there are the foolowing rules:
-  // 1) if suffix _c (_b) at the end of variable name is omitted, the parameter is applied 
+  // 1) if suffix _c (_b) at the end of variable name is omitted, the parameter is applied
   //    for both charm and beauty production
-  // 2) instead of providing e.g. MNRmr_A_c and MNRmr_B_c the user can provide one 
+  // 2) instead of providing e.g. MNRmr_A_c and MNRmr_B_c the user can provide one
   //    parameter MNRmr_AB_c so then MNRmr_A_c = MNRmr_B_c = MNRmr_AB_c
   // 3) if parameters *_C_* are not provided, they are set to 0
-  // So e.g. for charm production only it is enough to provide just the following two parameters 
+  // So e.g. for charm production only it is enough to provide just the following two parameters
   // MNRmr_AB and MNRmf_AB.
   // input variables:
   //   mu should be either 'f' or 'r' (for factorisation or renormalisation scale, respectively)
@@ -306,7 +269,7 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
 double ReactionBaseHVQMNR::GetFragPar(const char q)
 {
   // *********************************************************************
-  // Parameters for non-perturbative fragmentation can be provided 
+  // Parameters for non-perturbative fragmentation can be provided
   // as MINUIT extra parameters MNRfrag_c or MNRfrag_b
   // for charm and beauty production, respectively.
   // q should be either 'c' or 'b' (for charm or beauty, respectively)
@@ -316,24 +279,23 @@ double ReactionBaseHVQMNR::GetFragPar(const char q)
   const double defFFc = 4.4;
   const double defFFb = 11.0;
   // ***************************
-  double parvalue;
+  double parvalue = NAN;
   char parname[16];
   sprintf(parname, "MNRfrag_%c", q);
   if(!checkParam(parname))
   {
     // parameter not in ExtraParamMinuit -> using default value
-    if(q == 'c') 
+    if(q == 'c')
       parvalue = defFFc;
     else if(q == 'b')
       parvalue = defFFb;
     else
-      printf("Warning in GetFragPar(): no default value for q = %c\n", q);
-    parvalue = NAN;
+      hf_errlog(17102103, "F: no default value for q = " + std::string(1, q) + " in ReactionBaseHVQMNR::GetFragPar()");
   }
   else
     parvalue = GetParam(parname);
-    
-  // TODO check below
+
+  // TODO check below whether it is still relevant
   /*      ! parameter in ExtraParamMinuit, but not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
         if(st.lt.0) then
           if(q.eq.'c') then
@@ -379,54 +341,3 @@ void ReactionBaseHVQMNR::PrintParameters() const
   printf("MNR fragmentation parameters:\n");
   printf("fragpar_c = %f  fragpar_b = %f\n", _pars.fragpar_c, _pars.fragpar_b);
 }
-
-// TODO this old commented out code to be removed one day
-/*// read string value for provided key
-int ReactionBaseHVQMNR::readFromTermInfo(const std::string& str, const std::string& key, std::string& value)
-{
-  //printf("read str = %s\n", str.c_str());
-  std::size_t pos1 = str.find(key);
-  // key not found
-  if(pos1 == std::string::npos)
-    return 1;
-  pos1 += key.length(); // skip key length
-  std::size_t pos2 = str.find(":", pos1);
-  if(pos2 != std::string::npos)
-    // key=value not in the end
-    value = std::string(str, pos1, pos2 - pos1);
-  else
-    // key=value in the end
-    value = std::string(str, pos1);
-  return 0;
-}
-
-// read int value for provided key
-int ReactionBaseHVQMNR::readFromTermInfo(const std::string& str, const std::string& key, int& value)
-{
-  std::string valueString;
-  readFromTermInfo(str, key, valueString);
-  if(valueString.length() == 0)
-    return 1;
-  value = atoi(valueString.c_str());
-  return 0;
-}
-
-// read float value for provided key
-int ReactionBaseHVQMNR::readFromTermInfo(const std::string& str, const std::string& key, float& value)
-{
-  std::string valueString;
-  readFromTermInfo(str, key, valueString);
-  if(valueString.length() == 0)
-    return 1;
-  value = atof(valueString.c_str());
-  return 0;
-}
-
-// read double value for provided key
-int ReactionBaseHVQMNR::readFromTermInfo(const std::string& str, const std::string& key, double& value)
-{
-  float value_float = 0.0;
-  int status = readFromTermInfo(str, key, value_float);
-  value = value_float;
-  return status;
-}*/

@@ -138,7 +138,7 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::compute(int dataSetID, valarray<double> &va
   else if(ds.FinalState == "bs")
     histXSec = _hCalculatedXSec[2];
   else
-    error(16123005, "F: in HVQMNR_LHCb_7tev_beauty(): unknown FinalState" + ds.FinalState);
+    hf_errlog(16123005, "F: in HVQMNR_LHCb_7tev_beauty(): unknown FinalState" + ds.FinalState);
 
   // match bins and fill cross section array
   bool diffPt = true;

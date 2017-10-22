@@ -148,7 +148,7 @@ int ReactionHVQMNR_LHCb_7TeV_charm::compute(int dataSetID, valarray<double> &val
   else if(ds.FinalState == "lambdac" && ds.NormY == 0)
     histXSec = _hCalculatedXSec[5];
   else
-    error(16123005, "F: in HVQMNR_LHCb_7tev_charm(): unknown FinalState" + ds.FinalState);
+    hf_errlog(16123005, "F: in HVQMNR_LHCb_7tev_charm(): unknown FinalState" + ds.FinalState);
 
   // match bins and fill cross section array
   bool diffPt = false;
