@@ -11,3 +11,4 @@ FFABM_DISNC libffabm_disnc_xfitter.so
 BaseDISCC libbasediscc_xfitter.so
 Fractal_DISNC libfractal_disnc_xfitter.so
 FFABM_DISCC libffabm_discc_xfitter.so
+KFactor libkfactor_xfitter.so

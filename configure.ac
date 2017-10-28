@@ -558,6 +558,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 reactions/KFactor/src/Makefile
 		 reactions/BaseDISCC/src/Makefile
 		 reactions/FFABM_DISCC/src/Makefile
 		 reactions/BaseDISNC/src/Makefile
