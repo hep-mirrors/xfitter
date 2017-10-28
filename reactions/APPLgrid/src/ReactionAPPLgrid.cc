@@ -23,12 +23,19 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
 // Get grid name:
    if ( pars.find("GridName") != pars.end() )  {
      try {
-        std::shared_ptr<appl::grid>  g(new appl::grid(pars["GridName"]));
-        g->trim();
-        _grids[dataSetID] = g;
+       std::istringstream ss(pars["GridName"]);
+       //std::cout << pars["GridName"] << '\n';
+       std::string token;
+       while(std::getline(ss, token, ','))
+       {
+         //std::cout << token << '\n';
+         std::shared_ptr<appl::grid>  g(new appl::grid(token));
+         g->trim();
+         _grids[dataSetID].push_back(g);
+       }
      }
      catch ( const std::exception& e ) {
-        std::string text = "F:Failed to read APPLgrid file"+pars["GridName"];
+        std::string text = "F:Failed to read APPLgrid file(s) "+pars["GridName"];
         hf_errlog_(17032802,text.c_str(),text.size());
      }
    }
@@ -90,28 +97,31 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
 
  // Main function to compute results at an iteration
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
- // Convolute the grid:
-  std::vector<double> vals(val.size());
-  switch (_collType[dataSetID])
+  // iterate over grids
+  int pos = 0;
+  for(const auto& grid : _grids[dataSetID])
+  {
+    std::vector<double> gridVals(grid->Nobs());
+    // Convolute the grid:
+    switch (_collType[dataSetID])
     {
-    case collision::pp :  
-      vals =  _grids[dataSetID]->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
-      break; 
-    case collision::ppbar :  
-      vals =  _grids[dataSetID]->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
-      break;
-    case collision::pn :
-      vals =  _grids[dataSetID]->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
-      break;
+      case collision::pp :
+        gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+        break;
+      case collision::ppbar :
+        gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+        break;
+      case collision::pn :
+        gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+        break;
     }
-  for (std::size_t i=0; i<vals.size(); i++) {
-    val[i] = vals[i];
     // scale by bin width if requested
     if(_flagNorm[dataSetID])
-    {
-      double bw = _grids[dataSetID]->deltaobs(i + 1);
-      val[i] *= bw;
-    }
+      for (std::size_t i=0; i<gridVals.size(); i++)
+        gridVals[i] *= grid->deltaobs(i);
+    // insert values from this grid into output array
+    std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
+    pos += grid->Nobs();
   }
   return 0;
 }
