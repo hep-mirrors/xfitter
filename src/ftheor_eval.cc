@@ -64,7 +64,7 @@ extern struct thexpr_cb {
   int nterms;
   char termname[16][8];
   char termtype[16][80];
-  char terminfo[16][256];
+  char terminfo[16][2048];
   char termsource[16][256];
   char theorexpr[1000];
   int ppbar_collisions;
