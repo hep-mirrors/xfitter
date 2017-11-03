@@ -100,7 +100,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
       hf_errlog(17102102, "F: unrecognised norm = " + it->second);
   }
   // use reference histogram to calculate predictions (for tests or grids validation)
-  it = pars.find("usereference");
+  it = pars.find("useReference");
   if (it != pars.end() )
   {
     if(stoi(it->second) == 0)
@@ -114,7 +114,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
           hf_errlog(17033000, "W: no reference histogram is available");
     }
     else
-      hf_errlog(17102102, "F: unrecognised usereference = " + it->second);
+      hf_errlog(17102102, "F: unrecognised useReference = " + it->second);
   }
 }
 
