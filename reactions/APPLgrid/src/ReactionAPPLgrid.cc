@@ -126,7 +126,13 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
       if(_flagUseReferece[dataSetID])
         hf_errlog(17110300, "W: can not apply energy scaling when using predictions from reference histogram");
       else
-        eScale = _grids[dataSetID][i]->getCMSScale() / stof(it->second);
+      {
+        double eStored = _grids[dataSetID][i]->getCMSScale();
+        if(eStored < 1e-3)
+          hf_errlog(17110301, "W: can not apply energy scaling because stored getCMSScale = 0");
+        else
+          eScale = _grids[dataSetID][i]->getCMSScale() / stof(it->second);
+      }
     }
     _eScale[dataSetID].push_back(eScale);
   }
