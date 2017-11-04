@@ -92,6 +92,13 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
     else
       hf_errlog(17102102, "F: unrecognised norm = " + it->second);
   }
+  // CMS energy (by default the one used to create the grid is used)
+  it = pars.find("energy");
+  for(unsigned int i = 0; i < _grids[dataSetID].size(); i++)
+    if (it != pars.end())
+      _eScale[dataSetID].push_back(_grids[dataSetID][i]->getCMSScale() / stof(it->second));
+    else
+      _eScale[dataSetID].push_back(1.0);
 }
 
 
@@ -99,20 +106,21 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
   // iterate over grids
   int pos = 0;
-  for(const auto& grid : _grids[dataSetID])
+  for(unsigned int i = 0; i < _grids[dataSetID].size(); i++)
   {
+    auto& grid  = _grids[dataSetID][i];
     std::vector<double> gridVals(grid->Nobs());
     // Convolute the grid:
     switch (_collType[dataSetID])
     {
       case collision::pp :
-        gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+        gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][i] );
         break;
       case collision::ppbar :
-        gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+        gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][i] );
         break;
       case collision::pn :
-        gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+        gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][i] );
         break;
     }
     // scale by bin width if requested

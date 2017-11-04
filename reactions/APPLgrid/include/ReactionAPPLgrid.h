@@ -40,5 +40,6 @@ class ReactionAPPLgrid : public ReactionTheory
     map<int, int> _order;
     map<int, double> _muR, _muF; // !> renormalisation and factorisation scales
     map<int, bool> _flagNorm; // !> if true, multiply by bin width
+    map<int, std::vector<double> > _eScale; // !> CMS energy
 };
 
