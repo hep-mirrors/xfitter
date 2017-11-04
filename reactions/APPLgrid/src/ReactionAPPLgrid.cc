@@ -116,6 +116,20 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
     else
       hf_errlog(17102102, "F: unrecognised useReference = " + it->second);
   }
+  // CMS energy (by default the one used to create the grid is used)
+  it = pars.find("energy");
+  for(unsigned int i = 0; i < _grids[dataSetID].size(); i++)
+  {
+    double eScale = 1.0;
+    if (it != pars.end())
+    {
+      if(_flagUseReferece[dataSetID])
+        hf_errlog(17110300, "W: can not apply energy scaling when using predictions from reference histogram");
+      else
+        eScale = _grids[dataSetID][i]->getCMSScale() / stof(it->second);
+    }
+    _eScale[dataSetID].push_back(eScale);
+  }
 }
 
 
@@ -125,7 +139,7 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
   int pos = 0;
   for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
   {
-    const auto& grid = _grids[dataSetID][g];
+    auto grid = _grids[dataSetID][g];
     std::vector<double> gridVals(grid->Nobs());
     if(!_flagUseReferece[dataSetID])
     {
@@ -133,13 +147,13 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
       switch (_collType[dataSetID])
       {
         case collision::pp :
-          gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+          gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
           break;
         case collision::ppbar :
-          gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+          gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
           break;
         case collision::pn :
-          gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID] );
+          gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
           break;
       }
     }
@@ -159,4 +173,3 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
   }
   return 0;
 }
-
