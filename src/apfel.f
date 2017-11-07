@@ -55,7 +55,7 @@
 *
       if(HF_SCHEME(9:12).eq."NLLx")then
          call SetSmallxResummation(.true.,"NLL")
-         call SetQLimits(1.65d0,300d0)
+         call SetQLimits(1.6d0,300d0)
       endif
 *
 *     Initialize APFEL

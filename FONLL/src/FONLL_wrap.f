@@ -82,7 +82,7 @@ c      call SetDampingPowerFONLL(-1,2,2)
 *
       if(Smallx)then
          call SetSmallxResummation(.true.,"NLL")
-         call SetQLimits(1.65d0,300d0)
+         call SetQLimits(1.6d0,300d0)
       endif
 *
 *     Initialize the APFEL DIS module
