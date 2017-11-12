@@ -38,6 +38,11 @@ void ReactionKFactor::setDatasetParamters(int dataSetID, map<string,string> pars
     if(pars.find("FileColumn") != pars.end())
       column = atoi(pars["FileColumn"].c_str());
 
+    // requested starting line from file (by default 1st)
+    int lineStart = 1;
+    if(pars.find("FileLine") != pars.end())
+      lineStart = atoi(pars["FileLine"].c_str());
+
     // check that the column is reasonable
     if(column < 1)
       hf_errlog(17102800, "F: wrong column = " + std::to_string(column));
@@ -48,7 +53,15 @@ void ReactionKFactor::setDatasetParamters(int dataSetID, map<string,string> pars
     if (!file.is_open())
       hf_errlog(17102802, "F: error opening kfactor file = " + fileName);
 
-    while (1)
+    // skip lineStart lines
+    for(int l = 1; l < lineStart; l++)
+      getline(file, line);
+
+    // TODO: how to get number of data points?
+    // not very elegant way below
+    int np = _dsBins[dataSetID]->begin()->second.size();
+    for(int p = 0; p < np; p++)
+    //while (1)
     {
       // read new line
       getline(file, line);
