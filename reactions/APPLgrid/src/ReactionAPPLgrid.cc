@@ -6,6 +6,7 @@
 */
 
 #include "ReactionAPPLgrid.h"
+#include "TFile.h"
 
  // the class factories
 extern "C" ReactionAPPLgrid* create() {
@@ -32,6 +33,12 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
          std::shared_ptr<appl::grid>  g(new appl::grid(token));
          g->trim();
          _grids[dataSetID].push_back(g);
+         TFile file(token.c_str());
+         _references[dataSetID].push_back((TH1D*)file.Get("grid/reference"));
+         if(!_references[dataSetID].back())
+           hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
+         else
+           _references[dataSetID].back()->SetDirectory(0);
        }
      }
      catch ( const std::exception& e ) {
@@ -92,13 +99,43 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
     else
       hf_errlog(17102102, "F: unrecognised norm = " + it->second);
   }
+  // use reference histogram to calculate predictions (for tests or grids validation)
+  it = pars.find("useReference");
+  if (it != pars.end() )
+  {
+    if(stoi(it->second) == 0)
+      _flagUseReferece[dataSetID] = false;
+    else if(stoi(it->second) == 1)
+    {
+      _flagUseReferece[dataSetID] = true;
+      // check that reference histogram is available
+      for(std::size_t i=0; i<_references[dataSetID].size(); i++)
+        if(!_references[dataSetID][i])
+          hf_errlog(17033000, "W: no reference histogram is available");
+    }
+    else
+      hf_errlog(17102102, "F: unrecognised useReference = " + it->second);
+  }
   // CMS energy (by default the one used to create the grid is used)
   it = pars.find("energy");
   for(unsigned int i = 0; i < _grids[dataSetID].size(); i++)
+  {
+    double eScale = 1.0;
     if (it != pars.end())
-      _eScale[dataSetID].push_back(_grids[dataSetID][i]->getCMSScale() / stof(it->second));
-    else
-      _eScale[dataSetID].push_back(1.0);
+    {
+      if(_flagUseReferece[dataSetID])
+        hf_errlog(17110300, "W: can not apply energy scaling when using predictions from reference histogram");
+      else
+      {
+        double eStored = _grids[dataSetID][i]->getCMSScale();
+        if(eStored < 1e-3)
+          hf_errlog(17110301, "W: can not apply energy scaling because stored getCMSScale = 0");
+        else
+          eScale = _grids[dataSetID][i]->getCMSScale() / stof(it->second);
+      }
+    }
+    _eScale[dataSetID].push_back(eScale);
+  }
 }
 
 
@@ -106,22 +143,31 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
   // iterate over grids
   int pos = 0;
-  for(unsigned int i = 0; i < _grids[dataSetID].size(); i++)
+  for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
   {
-    auto& grid  = _grids[dataSetID][i];
+    auto grid = _grids[dataSetID][g];
     std::vector<double> gridVals(grid->Nobs());
-    // Convolute the grid:
-    switch (_collType[dataSetID])
+    if(!_flagUseReferece[dataSetID])
     {
-      case collision::pp :
-        gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][i] );
-        break;
-      case collision::ppbar :
-        gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][i] );
-        break;
-      case collision::pn :
-        gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][i] );
-        break;
+      // Convolute the grid:
+      switch (_collType[dataSetID])
+      {
+        case collision::pp :
+          gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
+          break;
+        case collision::ppbar :
+          gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
+          break;
+        case collision::pn :
+          gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
+          break;
+      }
+    }
+    else
+    {
+      // use reference histogram
+      for(std::size_t i=0; i<gridVals.size(); i++)
+        gridVals[i] = _references[dataSetID][g]->GetBinContent(i + 1);
     }
     // scale by bin width if requested
     if(_flagNorm[dataSetID])
@@ -133,4 +179,3 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
   }
   return 0;
 }
-
