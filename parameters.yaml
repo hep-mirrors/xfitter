@@ -43,7 +43,12 @@ NFlavour : 5
 # RT DIS scheme settings:
 #-------------------------
 include : yaml/reactions/RT_DISNC/parameters.yaml
+
+#
+# FONLL scheme settings:
+#-------------------------
 include : yaml/reactions/FONLL_DISNC/parameters.yaml
+include : yaml/reactions/FONLL_DISCC/parameters.yaml
 
 # FF ABM scheme
 # runm: 0 for pole mass (default); 1 for MSbar running mass
@@ -66,6 +71,7 @@ FFABM_DISCC:
 #
 hf_scheme_DISNC : 
   value : 'RT_DISNC'        # global specification 
+#  value : 'FONLL_DISNC'        # global specification 
 #  value : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC'  # datafile specific (based on name)
 #  1 : BaseDISNC  
@@ -76,6 +82,7 @@ hf_scheme_DISNC :
 #
 hf_scheme_DISCC :
   value : 'BaseDISCC'  # this is zero mass scheme
+#  value : 'FONLL_DISCC'        # global specification 
 #  value : 'FFABM_DISCC'
 
 #
