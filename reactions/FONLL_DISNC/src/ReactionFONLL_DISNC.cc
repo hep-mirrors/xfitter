@@ -17,12 +17,6 @@ extern "C" ReactionFONLL_DISNC* create()
   return new ReactionFONLL_DISNC();
 }
 
-// PDF function to be called by APFEL
-//extern "C" void externalsetapfel1_(double* x, double* q, double* xf) 
-extern "C" void externalsetapfel1_(double const& x, double const& Q, double* xf) { std::cout << "entro qui???" << std::endl; };
-//extern "C" void externalsetapfel1_(double x, double Q, double* xf) { std::cout << "entro qui???" << std::endl; return; }
-//extern "C" void externalsetapfelrep_(double x, double Q, int irep, double* xf)  { std::cout << "entro qui???" << std::endl; return; }
-
 // Initialize at the start of the computation
 int ReactionFONLL_DISNC::initAtStart(const string &s)
 {
@@ -48,9 +42,10 @@ int ReactionFONLL_DISNC::initAtStart(const string &s)
   const double Alphas_ref = GetParam("alphas");
 
   // FONLL-specific settings
-  const string scheme     = "ZM-VFNS";//"FONLL-C";// + GetParamS("FONLLVariant");
-  const string MassScheme = "Pole";//GetParamS("MassScheme");
-  const bool   runm       = false;
+  const string scheme     = "FONLL-" + GetParamS("FONLLVariant");
+  const string MassScheme = GetParamS("MassScheme");
+  const bool   runm       = ( GetParamI("Running") == 0 ? false : true);
+
   if (PtOrder == 0)
     {
       const string msg = "F: FONLL at LO not available. Use the ZM-VFNS instead.";
@@ -136,16 +131,24 @@ int ReactionFONLL_DISNC::initAtStart(const string &s)
 // by the specific functions.
 void ReactionFONLL_DISNC::initAtIteration()
 {
-  APFEL::SetProcessDIS("NC");
+  // VB: With the following command, APFEL will be calling the "ExternalSetAPFEL1"
+  // routine in FONLL/src/FONLL_wrap.f. This is not optimal but until that routine is
+  // there, I cannot find a way to override it.
   APFEL::SetPDFSet("external1");
+  APFEL::SetProcessDIS("NC");
   // Loop over the data sets.
   for ( auto dataSetID : _dsIDs)
     {
       // Charge of the projectile.
-      if (GetCharge(dataSetID) < 0)
-	APFEL::SetProjectileDIS("electron");
+      // This does not have any impact because the difference between
+      // "electron" and "positron" for a NC cross section is relevant
+      // only when constructing the reduced cross section. But we keep
+      // it here for clarity.
+      const double charge = GetCharge(dataSetID);
+      if (charge < 0)
+      	APFEL::SetProjectileDIS("electron");
       else
-	APFEL::SetProjectileDIS("positron");
+       	APFEL::SetProjectileDIS("positron");
 
       // Get x,Q2 arrays.
       auto *q2p = GetBinValues(dataSetID,"Q2");
@@ -166,7 +169,8 @@ void ReactionFONLL_DISNC::initAtIteration()
 	  if (q2[i] < 1)
 	    continue;
 
-	  // Recompute structure functions only if the value of Q2 changed.
+	  // Recompute structure functions only if the value of Q2
+	  // changes.
 	  if (q2[i] != Q2save)
 	    {
 	      const double Q = sqrt(q2[i]);
@@ -180,17 +184,17 @@ void ReactionFONLL_DISNC::initAtIteration()
 	    case dataFlav::incl:
 	      _f2fonll[dataSetID][i] = APFEL::F2total(x[i]);
 	      _flfonll[dataSetID][i] = APFEL::FLtotal(x[i]);
-	      _f3fonll[dataSetID][i] = APFEL::F3total(x[i]);
+	      _f3fonll[dataSetID][i] = - charge * APFEL::F3total(x[i]);
 	      break;
 	    case dataFlav::c:
 	      _f2fonll[dataSetID][i] = APFEL::F2charm(x[i]);
 	      _flfonll[dataSetID][i] = APFEL::FLcharm(x[i]);
-	      _f3fonll[dataSetID][i] = APFEL::F3charm(x[i]);
+	      _f3fonll[dataSetID][i] = - charge * APFEL::F3charm(x[i]);
 	      break;
 	    case dataFlav::b:
 	      _f2fonll[dataSetID][i] = APFEL::F2bottom(x[i]);
 	      _flfonll[dataSetID][i] = APFEL::FLbottom(x[i]);
-	      _f3fonll[dataSetID][i] = APFEL::F3bottom(x[i]);
+	      _f3fonll[dataSetID][i] = - charge * APFEL::F3bottom(x[i]);
 	      break;
 	    }
 	  Q2save = q2[i];
@@ -198,7 +202,7 @@ void ReactionFONLL_DISNC::initAtIteration()
     }
 }
 
-// FONLL structure function
+// FONLL structure functions
 void ReactionFONLL_DISNC::F2 BASE_PARS 
 {
   val = _f2fonll[dataSetID];
@@ -213,15 +217,3 @@ void ReactionFONLL_DISNC::xF3 BASE_PARS
 {
   val = _f3fonll[dataSetID];
 }
-
-/*
-void externalsetapfel1_(double* x, double* q, double* xf)
-{
-  std::cout << "entro qui???" << std::endl;
-  double f[14];
-  //this->xfx(*x, *q, f);
-  for (int i = 0; i < 13; i++)
-    xf[i] = 0;//f[i];
-  xf[13] = 0;
-}
-*/

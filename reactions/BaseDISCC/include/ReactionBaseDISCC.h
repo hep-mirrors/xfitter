@@ -67,6 +67,8 @@ class ReactionBaseDISCC : public ReactionTheory
     map <int,valarray<double> > _fld; //!< FL for d-type quarks
     map <int,valarray<double> > _xf3u; 
     map <int,valarray<double> > _xf3d;
+
+ protected:
     double _MW;
     double _Gf;
     double _convfac;
