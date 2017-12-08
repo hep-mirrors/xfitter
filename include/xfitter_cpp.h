@@ -75,7 +75,7 @@ extern"C" {
     int lhascaleprofile;
   } clhapdf_;
 
-  //aplhas
+  //alphas
   extern struct {
     double alphas;
   } c_alphas_;

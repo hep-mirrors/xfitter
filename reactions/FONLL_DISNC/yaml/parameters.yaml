@@ -1,0 +1,3 @@
+FONLL_DISNC:               # Reaction-specific settings
+  FONLLVariant : 'C'
+  MassScheme   : 'Pole'

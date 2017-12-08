@@ -87,7 +87,7 @@ AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
-CXXFLAGS="$CXXFLAGS -std=c++11"
+CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++"
 
 # check for lapack and blas
 AC_MSG_CHECKING([for blas])
@@ -572,6 +572,8 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
 		 reactions/testZMVFNS/src/Makefile
 		 reactions/fastNLO/src/Makefile
+		 reactions/FONLL_DISCC/src/Makefile
+		 reactions/FONLL_DISNC/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then

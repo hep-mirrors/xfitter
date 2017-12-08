@@ -200,35 +200,33 @@ namespace XFITTER_PARS {
     FortAssignD(Wh,widths_)
     FortAssignD(Wtp,widths_)
 
-      // EW couplings
-      FortAssignD(Alphaem,ew_couplings_)
-      FortAssignD(sin2thW,ew_couplings_)
-      FortAssignD(cos2thW,ew_couplings_)
+    // EW couplings
+    FortAssignD(Alphaem,ew_couplings_)
+    FortAssignD(sin2thW,ew_couplings_)
+    FortAssignD(cos2thW,ew_couplings_)
 
-      // constants
-      FortAssignD(Gf,constants_)
-      FortAssignD(ConvFac,constants_)
+    // constants
+    FortAssignD(Gf,constants_)
+    FortAssignD(ConvFac,constants_)
 
-      //Fermion masses:
-      FortAssignD(men,fermion_masses_)  // electron neutrino
-      FortAssignD(mel,fermion_masses_)
-      FortAssignD(mmn,fermion_masses_)
-      FortAssignD(mmo,fermion_masses_)
-      FortAssignD(mtn,fermion_masses_)
-      FortAssignD(mta,fermion_masses_)
-      FortAssignD(mup,fermion_masses_)
-      FortAssignD(mdn,fermion_masses_)
-      FortAssignD(mch,fermion_masses_)
-      FortAssignD(mst,fermion_masses_)
-      FortAssignD(mtp,fermion_masses_)
-      FortAssignD(mbt,fermion_masses_)
+    //Fermion masses:
+    FortAssignD(men,fermion_masses_)  // electron neutrino
+    FortAssignD(mel,fermion_masses_)
+    FortAssignD(mmn,fermion_masses_)
+    FortAssignD(mmo,fermion_masses_)
+    FortAssignD(mtn,fermion_masses_)
+    FortAssignD(mta,fermion_masses_)
+    FortAssignD(mup,fermion_masses_)
+    FortAssignD(mdn,fermion_masses_)
+    FortAssignD(mch,fermion_masses_)
+    FortAssignD(mst,fermion_masses_)
+    FortAssignD(mtp,fermion_masses_)
+    FortAssignD(mbt,fermion_masses_)
 
-      // Steering
-      FortAssignS(hf_scheme,steering_)
-  
-      }
+    // Steering
+    FortAssignS(hf_scheme,steering_)
 
-  
+  }  
 }
 
 void parse_params_(){

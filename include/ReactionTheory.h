@@ -96,7 +96,7 @@ class ReactionTheory
   virtual void printInfo(){};
 
   //! Helper function to emmulate LHAPDF6 calls to get PDFs
-   void xfx(const double& x, const double& q, double* results) const { (_xfx.at("p"))(x,q,results); };
+  void xfx(const double& x, const double& q, double* results) const { (_xfx.at("p"))(x,q,results); };
   
   //!  Helper function to emmulate LHAPDF6 calls to get PDFs
   double xfx(double x, double q, int iPDF) const { double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};

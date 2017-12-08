@@ -378,12 +378,10 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string term_info =  _termInfos.at(iterm);
 //  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
   
-
   // Re-define term-source if "use:" string is found:
   if ( term_source.find("use:") != std::string::npos ) {
     term_source =  GetParamDS(term_source.substr(4),GetDSname(),_dsPars["FileIndex"]);
   }
-
 
   string libname = gReactionLibs[term_source];
   if (libname == "") {
