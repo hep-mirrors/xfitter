@@ -1,6 +1,6 @@
 
 # Created by AddReaction.py on 2017-11-29
-if ENABLE_APPLGRID
+if ENABLE_APFEL
    AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include $(APFEL_CPPFLAGS) -I$(srcdir)/../../../reactions/BaseDISCC/include -Wall -fPIC -Wno-deprecated 
 
    lib_LTLIBRARIES = libfonll_discc_xfitter.la
