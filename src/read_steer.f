@@ -1415,7 +1415,7 @@ C
          do i=1,maxExtra
             if (name(i).ne.' ') then
                call AddExternalParam(name(i),value(i), step(i), min(i), max(i)
-     $              ,ConstrVal(i),ConstrUnc(i))
+     $              ,ConstrVal(i),ConstrUnc(i),.true.,0.0D0)
             endif
          enddo
       enddo
@@ -1439,17 +1439,23 @@ C
 !> @param min, max range of allowed values in case of fitting
 !> @param constrval constrain to this value in case of fitting
 !> @param construnc uncertainty on constrain in case of fitting
+!> @param to_gparam send to gParameters or not
 C-----------------------------------------------
       Subroutine AddExternalParam(name, value, step, min, max, 
-     $                            constrval, construnc)
+     $                            constrval, construnc, to_gParam
+     $     ,gParam)
 
       implicit none
 #include "extrapars.inc"
       character*(*) name
       double precision value, step, min, max, constrval, construnc
+      double precision gParam
+      logical to_gParam
+      integer iglobal
 C---------------------------------------------
 C Add extra param
 C
+
       nExtraParam = nExtraParam + 1
       if (nExtraParam.gt. nExtraParamMax) then
          print *,'Number of extra parameters exceeds the limit'
@@ -1467,6 +1473,18 @@ C
       ExtraParamMax  (nExtraParam) = max
       ExtraParamConstrVal  (nExtraParam) = constrval
       ExtraParamConstrUnc  (nExtraParam) = construnc
+
+      iglobal = 0
+      if ( gParam.eq.0.0) then
+         iglobal = 1
+      endif
+
+C Also add it to c++ map ...
+      if (to_gParam) then
+         call add_To_Param_Map( gParam, ExtraParamValue(nExtraParam) 
+     $        ,  iglobal, ExtraParamNames(nExtraParam)//char(0))
+      endif
+
       end
 
 
@@ -1844,7 +1862,7 @@ C
 C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then
          call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0
-     $                         ,0.0D0,0.0D0)
+     $                         ,0.0D0,0.0D0,.false.,0.0D0)
       endif
 
       end

@@ -1,0 +1,106 @@
+#
+# File to store parameters for theory modules. Overwrites fortran-based ewparam.txt.
+#
+
+#include : test.yaml  # Can include any file
+
+#
+# EW parameters
+#---------------------------
+Mz : 91.1876
+Mw : 80.384
+gf : 1.16638e-5
+convFac : 0.389379338e9
+
+sin2thW : 
+  value : 0.23127
+  step  : 0.0
+
+Vud : 0.97427
+Vus : 0.2254
+Vub : 0.00358
+Vcd : 0.22520
+Vcs : 0.97344
+Vcb : 0.04156
+Vtd : 0.00872
+Vts : 0.04076
+Vtb : 0.999133
+
+#
+# quark masses:
+#------------------
+mch : 1.43 
+mbt : 4.5
+mtp : 175.0
+
+#
+# QCD parameters
+#------------------------
+Order : NNLO
+NFlavour : 5
+
+#
+# RT DIS scheme settings:
+#-------------------------
+include : yaml/reactions/RT_DISNC/parameters.yaml
+
+#
+# FONLL scheme settings:
+#-------------------------
+include : yaml/reactions/FONLL_DISNC/parameters.yaml
+include : yaml/reactions/FONLL_DISCC/parameters.yaml
+
+# FF ABM scheme
+# runm: 0 for pole mass (default); 1 for MSbar running mass
+# ordfl: 1 for O(alpha_S) in F_L = O(alpha_S) + 1 in F_2 (default); 0 for O(alpha_S) in F_L = O(alpha_S) in F_2
+# renormalisation and factorisation scale for HQs set via parameters:  mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
+FFABM_DISNC:
+  runm: 1
+  ordfl: 1
+  scalea1: 1.0
+  scaleb1: 1.0
+
+FFABM_DISCC:
+  runm: 1
+  ordfl: 1
+  scalea1: 1.0
+  scaleb1: 1.0
+
+#
+# speficify HF scheme used for DIS NC processes:
+#
+hf_scheme_DISNC : 
+  value : 'RT_DISNC'        # global specification 
+#  value : 'FONLL_DISNC'        # global specification 
+#  value : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC'  # datafile specific (based on name)
+#  1 : BaseDISNC  
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see below)
+
+#
+# HF scheme for DIS CC:
+#
+hf_scheme_DISCC :
+  value : 'BaseDISCC'  # this is zero mass scheme
+#  value : 'FONLL_DISCC'        # global specification 
+#  value : 'FFABM_DISCC'
+
+#
+# AlphaS, incuding options to fit it:
+#
+alphaS: 
+  value: 0.118
+  step:  0.0
+  prior: 0.118  
+  priorUnc: 0.1
+  min: 0.1
+  max: 0.3
+
+#
+# APPLgrid settings:
+include : yaml/reactions/APPLgrid/parameters.yaml
+
+#
+# (optional) Fractal module parameters:
+#----------------------
+# include : yaml/reactions/Fractal_DISNC/parameters.yaml

@@ -1,4 +1,4 @@
-      subroutine sf_abkm_wrap(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,
+       subroutine sf_abkm_wrap(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,
      $   flcabkm,f3cabkm,f2babkm,flbabkm,f3babkm,ncflag,charge,
      $   polar,sin2thw,cos2thw,MZ)
 C-------------------------------------------------------------------------
@@ -112,7 +112,7 @@ c b quark
       end
 
       Subroutine ABKM_Set_Input(kschemepdfin,kordpdfin,rmass8in,
-     $      rmass10in,msbarmin,hqscale1in,hqscale2in) 
+     $      rmass10in,msbarmin,hqscale1in,hqscale2in,flagthinterface) 
 C---------------------------------------------------------------------------
 C  Wraper for INPUT common, set parameters
 C---------------------------------------------------------------------------
@@ -136,6 +136,14 @@ c      common /forpdfset/ kschemepdf,kordpdf
       double precision hqscale2
       integer nfeff,kordalps,kfeff,kordhq,kordf2,kordfl,kordf3
       logical alsmz 
+      
+C OZ 17.10.17 Flags to check that this routine is called only once.
+C In the future it should be removed, now it is needed to avoid 
+C interference with legacy call from init_theory.f
+      integer flagthinterface
+      integer flaginit
+      data flaginit /0/
+      save flaginit
 
       common /FORALPSRENORM/ q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
      , ,alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1,hqscale2
@@ -148,6 +156,18 @@ c      common /forpdfset/ kschemepdf,kordpdf
       common /forschemedef/ ddnnlohq,msbarm,hqnons
      ,  ,bmsnfopt,bmsnnlo,vloop
 C-------------------------------      
+
+C OZ 17.10.17 TODO avoid this in the future
+C (or stop execution if called not from theory interface)
+      if(flagthinterface.eq.0 .and. flaginit.eq.1) then
+        return
+      endif
+      if(flagthinterface.eq.1) then
+        print *,'ABKM_init called from theory interface'
+        flaginit = 1
+      else
+        print *,'ABKM_init called not from theory interface'
+      endif
 
       rmass(8)  = rmass8in
       rmass(10) = rmass10in
@@ -168,4 +188,28 @@ c run in running m scheme
        
 C--------------------------------------------------------------------------
       end
+      
+      Subroutine ABKM_Set_Input_OrderFl(flordin)
+C  OZ 1.10.2017 set O(alpha_S) for F_L
+C---------------------------------------------------------------------------
+      implicit none
+C Input variables:
+      integer flordin
+      
+C Common variables:
+      double precision q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+      double precision alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1
+      double precision hqscale2
+      integer nfeff,kordalps,kfeff,kordhq,kordf2,kordfl,kordf3
+      logical alsmz 
 
+      common /FORALPSRENORM/ q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+     , ,alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1,hqscale2
+     , ,nfeff,kordalps,kfeff
+     , ,kordhq,kordf2,kordfl,kordf3
+     , ,alsmz
+      
+C-------------------------------      
+      kordfl = kordf2+flordin
+C-------------------------------      
+      end

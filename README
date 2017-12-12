@@ -64,6 +64,9 @@ For support information, please visit https://wiki-zeuthen.desy.de/xFitter/xFitt
 
       ewparam.txt    --  controls electroweak parameters.
 
+      parameters.yaml -- new unified parameter file, to control parameters transfered to the
+                         reaction interfaces. 
+
 
   b) Inclusion of data files
 -------------------------------

@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 noinst_LIBRARIES = libcasutil.a
-pkginclude_HEADERS = SMallx.inc cascade-util_nbx.inc
+dist_noinst_HEADERS = SMallx.inc cascade-util_nbx.inc
 if ENABLE_UPDF
   libcasutil_a_SOURCES = cascade-util.F cascade-misc.F evolve_tmd.F  
 else

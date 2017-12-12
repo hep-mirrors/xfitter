@@ -28,13 +28,15 @@
 #include <valarray>
 #include <vector>
 
-#include "CommonGrid.h"
-//#include "appl_grid/appl_grid.h"
+
+class CommonGrid;
+class ReactionTheory;
 
 using std::valarray;
 using std::vector;
 using std::string;
 using std::map;
+using std::list;
 
 //! Arithmetic token struct
 /**
@@ -118,9 +120,11 @@ class TheorEval{
   const vector<int> *getBinFlags() const { return &_binFlags; }
   //! Selects if we have a proton-antiproton collision
   void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
+  //! Add parameters global for a dataset such as collision energy, polarisation etc
+  void AddDSParameter(const string& name, double value) {_dsPars[name] = value;};
   void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-   void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
+  void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
   void SetOrdScales(int iord, double mur, double muf) { _iOrd=iord; _xmur=mur; _xmuf=muf;}; //!< set order and scale factors
   void GetOrdScales(int &iord, double &mur, double &muf) { iord=_iOrd; mur=_xmur; muf=_xmuf;}; //!< get order and scale factors
   void ChangeTheorySource(string term, string source);
@@ -149,10 +153,16 @@ class TheorEval{
    Initializes the applgrid-based grids and associates the term valarrays with them. 
   */
   int initGridTerm(int iterm, valarray<double> *val);
+  //! Initialise reaction term
+  int initReactionTerm(int iterm, valarray<double> *val);
   //! Initialise K-factor term
   int initKfTerm(int, valarray<double> *);
   //! Get current grid values into the tokens
   int getGridValues();
+  //! Update the reaction values into the tokens
+  int getReactionValues();
+  //! 
+  map<string, string> SplitTermInfo(const string& term_info);
 
  private:
   int _dsId;
@@ -173,6 +183,7 @@ class TheorEval{
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
   map<CommonGrid*, valarray<double>* > _mapGridToken;
+  map< std::pair<ReactionTheory*,int> , valarray<double>* > _mapReactionToken;
   map<string, valarray<double>* > _mapInitdTerms;
 
   /// Normalised theory
@@ -187,11 +198,43 @@ class TheorEval{
 
   /// bin-by-bin dynamic scale
   float _dynamicscale;
+
+  /// also keep DS pars, which are valid for all terms 
+  map <string, double> _dsPars;
+
+  /// Name !
+  std::string _ds_name;
+ public:
+  void SetDSname(std::string& name) { _ds_name = name;}
+ protected:
+  const std::string GetDSname() { return _ds_name; };
 };
 
 typedef map <int, TheorEval* > tTEmap;
+typedef map <string, string> tReactionLibsmap;
+typedef map <string, ReactionTheory *> tNameReactionmap;
+
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// Host here also global list of bins:
+typedef map <int, map<string, valarray <double> > > tDataBins;
+
+
+// and list of 2-par functions
+
+
+typedef double (*pTwoParFunc)(const double&, const double&);
+// using pTwoParFunc  = std::function< double(const double&, const double&) >;
+typedef map <string, pTwoParFunc> t2Dfunctions;
 
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
+extern tReactionLibsmap gReactionLibs;
+extern tNameReactionmap gNameReaction;
+extern tDataBins gDataBins;
+extern t2Dfunctions g2Dfunctions;
+
+/// Helper function to determine scope-specific parameter value for complex parameters
+const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex);
+
 
 #endif

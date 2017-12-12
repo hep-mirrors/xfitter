@@ -1,4 +1,4 @@
-      program xFitter 
+      subroutine xFitter 
 C--------------------------------------------------------
 C
 C> HERA PDF Fit Program
@@ -53,11 +53,23 @@ C-----------------------------------------------------
 *     ------------------------------------------------ 
       call read_steer
 
+
 * Init random numbers 
       call init_rnd_seeds()
 
       call hf_errlog(12020501,
      +     'I: steering.txt has been read successfully') 
+
+
+*
+*  Read parameters:
+*
+      call parse_params() 
+
+*     ------------------------------------------------
+*     Init new theory modules
+*     ------------------------------------------------
+      call read_reactions()
 
 *     ------------------------------------------------
 *     Read the measured data points
@@ -66,9 +78,14 @@ C-----------------------------------------------------
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
 
+*  
+      call init_func_map()
+
+
 *     ------------------------------------------------
 *     Initialise theory modules
 *     ------------------------------------------------
+
       call init_theory_modules
       call hf_errlog(12020503,
      +     'I: theory modules initialised successfully') 
@@ -184,7 +201,7 @@ c ..........................................................
 *     ------------------------------------------------
 *     Done
 *     ------------------------------------------------
-      stop
+*     stop
       end
 
 C-----------------------------------------------------

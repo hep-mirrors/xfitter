@@ -130,6 +130,10 @@ C Get omega (quadratic term coefficient):
      $     StatNew,StatConstNew,UncorPoissonNew) ! covariance to nuicance parameters, if needed.
 
 
+      call reduce_nui(UncorNew,UncorConstNew
+     $     ,UncorPoissonNew) ! We can also reduce number of nuisance parameters 
+
+
       if (LDebug) then
 C
 C Dump beta matrix
@@ -217,9 +221,8 @@ C------------------------------------------------------------------------
 
       character *(*) CFile
 C Namelist  variables:    
-      integer ndataMax,ninfomax,nsystMax,ncolumnMax
+      integer ndataMax,nsystMax,ncolumnMax
       parameter (ndataMax=ntot)
-      parameter (ninfoMax=100)
       parameter (nsystMax=nsysmax)
 
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
@@ -227,13 +230,12 @@ C Namelist  variables:
       character *80 Name
       integer  NData
       integer  NUncert
-      integer  NInfo
       integer  NBinDimension
 
       
       character *80 BinName(NBinDimensionMax)
-      double precision datainfo(ninfoMax)
-      character *80 CInfo(ninfoMax)
+c      double precision datainfo(ninfoMax)
+c      character *80 CInfo(ninfoMax)
       character *80 Reaction
 
       double precision buffer(ncolumnMax)
@@ -483,6 +485,9 @@ C Extra info:
          DATASETInfoNames(i,NDATASETS) = CInfo(i)
          DATASETInfo(i,NDATASETS) =      DataInfo(i)
       enddo
+
+      dsname = name
+      ds_index = IndexDataset 
 
 C Prepare systematics:
       do i=1,NUncert
@@ -1009,11 +1014,11 @@ c but firest check that there are two columns per each bin dimension
           print *, 'Problem reading data from ', CFile
           print *, 'There must be two bin columns per each bin dimension'
           print *, 'for applgrid based fits.'
-          call hf_stop
+C          call hf_stop
         endif
       
         call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 
-     &    binFlags, allbins )
+     &    binFlags, allbins, binname )
 
         idxUnit = GetInfoIndex(NDATASETS,'theoryunit')
         if (idxUnit.gt.0) then
