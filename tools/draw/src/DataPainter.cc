@@ -793,8 +793,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       delta = 0;
     }
 
-  r_templ->SetMaximum(mx + delta * 0.2);
-  r_templ->SetMinimum(mn - delta * 0.2);
+  //r_templ->SetMaximum(mx + delta * 0.2);
+  //r_templ->SetMinimum(mn - delta * 0.2);
+  r_templ->SetMaximum(mx + delta * 0.16);  //For "large" font option
+  r_templ->SetMinimum(mn - delta * 0.16);
 
   //draw axis
   r_templ->DrawCopy("AXIS");
