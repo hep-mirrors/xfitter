@@ -1,3 +1,3 @@
 AUTOMAKE_OPTIONS = foreign
 
-pkginclude_HEADERS = get_pdfs.h
+dist_noinst_HEADERS = get_pdfs.h

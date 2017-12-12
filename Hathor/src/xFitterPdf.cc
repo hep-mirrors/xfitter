@@ -46,7 +46,7 @@ xFitterPdf::GetPdf(double x, double muf, double h[13]){
 double
 xFitterPdf::GetAlphas(double mu){
   double mu2 = mu*mu;
-  return HF_GET_ALPHAS_WRAP(&mu2); 
+  return HF_GET_ALPHAS_WRAP(mu2);
 }
 
 void

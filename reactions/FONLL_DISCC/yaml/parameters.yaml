@@ -1,0 +1,4 @@
+FONLL_DISCC:               # Reaction-specific settings
+  FONLLVariant : 'C'
+  MassScheme   : 'Pole'
+  Running      : 0

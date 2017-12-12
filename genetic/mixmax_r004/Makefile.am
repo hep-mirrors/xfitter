@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-pkginclude_HEADERS = mixmax2008.h
+dist_noinst_HEADERS = mixmax2008.h
 noinst_LIBRARIES = libmixmax.a
 
 EXTRA_DIST = README.txt

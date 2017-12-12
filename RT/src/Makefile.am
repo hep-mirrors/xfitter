@@ -1,10 +1,11 @@
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libmyrt.a
+lib_LTLIBRARIES = libmyrt.la
 
-libmyrt_a_SOURCES = mstw2008.f mstw2008_wrap.f 
+libmyrt_la_SOURCES = mstw2008.f mstw2008_wrap.f ext_pdfs.cc ext_pdfs_qcdnum.cc
 AM_FFLAGS = -I$(srcdir)/../../include -ffixed-line-length-132
-#AM_FFLAGS = -I$(srcdir)/../../include -fno-automatic -finit-local-zero -ffixed-line-length-132
+AM_CXXFLAGS = -I$(srcdir)/../../include -I$(srcdir)/../../interfaces/include
+
 if ENABLE_OPENMP
 AM_FFLAGS+= -fopenmp
 endif

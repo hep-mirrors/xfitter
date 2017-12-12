@@ -113,8 +113,8 @@ void get_lhapdferrors_()
 
   
   //Start program
-  int npoints = cndatapoints_.npoints_;
-  int nsysloc = systema_.nsys_;
+  int npoints = cndatapoints_.npoints;
+  int nsysloc = systema_.nsys;
 
   //Number of systematic uncertainties
   //cout << " NSYST = " << nsysloc << "\n";
@@ -128,14 +128,14 @@ void get_lhapdferrors_()
   map <int, point> pointsmap;
   vector <double> chi2;
 
-  string lhapdfset = string(clhapdf_.lhapdfset_, 128);
+  string lhapdfset = string(clhapdf_.lhapdfset, 128);
   lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
-  string lhapdfvarset = string(clhapdf_.lhapdfvarset_, 128);
+  string lhapdfvarset = string(clhapdf_.lhapdfvarset, 128);
   lhapdfvarset = lhapdfvarset.erase(lhapdfvarset.find_last_not_of(" ")+1, string::npos);
-  bool pdfprofile = clhapdf_.lhapdfprofile_;
-  bool scaleprofile = clhapdf_.lhascaleprofile_;
+  bool pdfprofile = clhapdf_.lhapdfprofile;
+  bool scaleprofile = clhapdf_.lhascaleprofile;
 
-  string outdirname = string(coutdirname_.outdirname_, 256);
+  string outdirname = string(coutdirname_.outdirname, 256);
   outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
 
   /*****************************************************/
@@ -149,18 +149,18 @@ void get_lhapdferrors_()
   if (pdfprofile)
     central_pdfmember = 0;
   else
-    central_pdfmember = clhapdf_.ilhapdfset_;
-  clhapdf_.ilhapdfset_ = central_pdfmember;
-  LHAPDF::initPDF(clhapdf_.ilhapdfset_);
+    central_pdfmember = clhapdf_.ilhapdfset;
+  clhapdf_.ilhapdfset = central_pdfmember;
+  LHAPDF::initPDF(clhapdf_.ilhapdfset);
 
   //set alphas from LHAPDF
-  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+  c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
 
 #if LHAPDF_FAMILY == LHAPDF6
   //set also mc, mb and mt from LHAPDF
-  steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
-  steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
-  steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+  steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+  steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+  steering_.hf_mass[2] = LHAPDF::getThreshold(6);
 #endif
 
   //Evaluate chi2 for the central PDF member
@@ -177,7 +177,7 @@ void get_lhapdferrors_()
   sprintf(chi2c, "%.2f", chi2tot);
 
   cout << setw(20) << "PDF set number: " << setw(5) << central_pdfmember
-       << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+       << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
        << endl;
 
   //Write results of chi2 calculation in the fittedresults.txt file
@@ -194,11 +194,11 @@ void get_lhapdferrors_()
   store_pdfs_(filename.c_str(), filename.size());
       
   //Save the input PDFs in LHAPDF6 format
-  if ( strstr(coutdirname_.lhapdf6outdir_ ,"xfitter_pdf") != NULL) { 
+  if ( strstr(coutdirname_.lhapdf6outdir ,"xfitter_pdf") != NULL) { 
     // Overwrite default name with the PDF name
-    string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset_;
+    string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset;
     hf_errlog_(15051301,msg.c_str(), msg.size());
-    strncpy(coutdirname_.lhapdf6outdir_, clhapdf_.lhapdfset_, 256);
+    strncpy(coutdirname_.lhapdf6outdir, clhapdf_.lhapdfset, 256);
   }  
   fill_c_common_(); //set the PDF name and the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
   print_lhapdf6_();
@@ -206,7 +206,7 @@ void get_lhapdferrors_()
 
   //Store the central theory prediction
   for (int i = 0; i < npoints; i++)
-    pointsmap[i].thc = c_theo_.theo_[i];
+    pointsmap[i].thc = c_theo_.theo[i];
   /*****************************************************/
 
 #if LHAPDF_FAMILY == LHAPDF6
@@ -235,7 +235,7 @@ void get_lhapdferrors_()
 	msg = (string) "S: Error determining PDF errors approach for: " + lhapdfset;
       hf_errlog_(14012701, msg.c_str(), msg.size());
 
-      if (clhapdf_.scale68_)
+      if (clhapdf_.scale68)
 	{
 	  msg = (string) "I: Scale Errors from 90cl to 68cl for: " + lhapdfset;
 	  hf_errlog_(23051401, msg.c_str(), msg.size());
@@ -276,8 +276,8 @@ void get_lhapdferrors_()
 	    {
 	      char mod[10];
 	      char par[10];
-	      sprintf (par, "%d", clhapdf_.nparvar_);
-	      sprintf (mod, "%d", nsets - clhapdf_.nparvar_);
+	      sprintf (par, "%d", clhapdf_.nparvar);
+	      sprintf (mod, "%d", nsets - clhapdf_.nparvar);
 	      msg = (string) "I: Add " + mod + " model and " + par + " parametrisation uncertainties from " + lhapdfvarset;
 	      hf_errlog_(14012702, msg.c_str(), msg.size());
 	    }
@@ -290,14 +290,14 @@ void get_lhapdferrors_()
 	      
 	      //Init PDF member and alphas(MZ)
 	      LHAPDF::initPDF(iset);
-	      clhapdf_.ilhapdfset_ = iset;
-	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+	      clhapdf_.ilhapdfset = iset;
+	      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
 	  
 #if LHAPDF_FAMILY == LHAPDF6
 	      //set also mc, mb and mt from LHAPDF
-	      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
-	      steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
-	      steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+	      steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+	      steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+	      steering_.hf_mass[2] = LHAPDF::getThreshold(6);
 #endif
 
 	      //set the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
@@ -311,7 +311,7 @@ void get_lhapdferrors_()
 		  SymmHessPDFErr = 0;
 		  ParPDFErr = 0;
 		  ModPDFErr = 0;
-		  if (iset > (nsets - clhapdf_.nparvar_))
+		  if (iset > (nsets - clhapdf_.nparvar))
 		    ParPDFErr = true;
 		  else
 		    ModPDFErr = true;
@@ -335,7 +335,7 @@ void get_lhapdferrors_()
 	      sprintf(chi2c, "%.2f", chi2tot);
 
 	      cout << setw(20) << "PDF set number: " << setw(5) << iset 
-		   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+		   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 		   << endl;
 
 	      chi2.push_back(chi2tot) ;
@@ -379,21 +379,21 @@ void get_lhapdferrors_()
 	      for (int i = 0; i < npoints; i++)
 		{
 		  if (MonteCarloPDFErr)
-		    pointsmap[i].th_mc.push_back(c_theo_.theo_[i]);
+		    pointsmap[i].th_mc.push_back(c_theo_.theo[i]);
 		  else if (SymmHessPDFErr)
-		    pointsmap[i].th_hess_s.push_back(c_theo_.theo_[i]);
+		    pointsmap[i].th_hess_s.push_back(c_theo_.theo[i]);
 		  else if (AsymHessPDFErr)
 		    if ((cset%2) == 1)
-		      pointsmap[i].th_asym_p.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_p.push_back(c_theo_.theo[i]);
 		    else
-		      pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_m.push_back(c_theo_.theo[i]);
 		  else if (ModPDFErr)
 		    if ((cset%2) == 1)
-		      pointsmap[i].th_asym_p.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_p.push_back(c_theo_.theo[i]);
 		    else
-		      pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_m.push_back(c_theo_.theo[i]);
 		  else if (ParPDFErr)
-		    pointsmap[i].th_par.push_back(c_theo_.theo_[i]);
+		    pointsmap[i].th_par.push_back(c_theo_.theo[i]);
 		}
 	  
 	      if (MonteCarloPDFErr || SymmHessPDFErr || ParPDFErr)
@@ -407,12 +407,12 @@ void get_lhapdferrors_()
       // Reset the central PDF set:
       LHAPDF::initPDFSet(lhapdfset.c_str());
       LHAPDF::initPDF(central_pdfmember);
-      clhapdf_.ilhapdfset_ = central_pdfmember;
-      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+      clhapdf_.ilhapdfset = central_pdfmember;
+      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
 #if LHAPDF_FAMILY == LHAPDF6
-      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
-      steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
-      steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+      steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+      steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+      steering_.hf_mass[2] = LHAPDF::getThreshold(6);
 #endif
 
     }//End of pdfprofile
@@ -427,12 +427,12 @@ void get_lhapdferrors_()
       //Set the central PDF
       LHAPDF::initPDFSet(lhapdfset.c_str());
       LHAPDF::initPDF(central_pdfmember);
-      clhapdf_.ilhapdfset_ = central_pdfmember;
-      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+      clhapdf_.ilhapdfset = central_pdfmember;
+      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
 #if LHAPDF_FAMILY == LHAPDF6
-      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
-      steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
-      steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+      steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+      steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+      steering_.hf_mass[2] = LHAPDF::getThreshold(6);
 #endif
 
       //Store current values of scales
@@ -463,13 +463,13 @@ void get_lhapdferrors_()
       char chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mur = 2.0: "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       char tag[10]; sprintf (tag, "_%04d", cset);
       writefittedpoints_(); //write out fittedresults.txt file
       bool mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
       cset++;
 
       //mur*0.5
@@ -479,13 +479,13 @@ void get_lhapdferrors_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mur = 0.5: "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
       cset++;
 
       //muf*2
@@ -495,13 +495,13 @@ void get_lhapdferrors_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "muf = 2.0: "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
       cset++;
 
       //muf*0.5
@@ -511,13 +511,13 @@ void get_lhapdferrors_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "muf = 0.5: "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", cset);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
       cset++;
 
       //restore nominal scale
@@ -624,12 +624,12 @@ void get_lhapdferrors_()
 	{
 	  for (int i = 0; i < npoints; i++)
 	    {
-	      systema_.beta_[i][nsysloc] = beta_from_covmx[i*dim+j]/pointsmap[i].th_mc_mean;
-	      systasym_.omega_[i][nsysloc] = 0;
-	      if (clhapdf_.scale68_)
+	      systema_.beta[i][nsysloc] = beta_from_covmx[i*dim+j]/pointsmap[i].th_mc_mean;
+	      systasym_.omega[i][nsysloc] = 0;
+	      if (clhapdf_.scale68)
 		{
-                  systema_.beta_[i][nsysloc] /= 1.64;
-		  systasym_.omega_[i][nsysloc] /= 1.64;
+                  systema_.beta[i][nsysloc] /= 1.64;
+		  systasym_.omega[i][nsysloc] /= 1.64;
 		}
 	    }
 	  nsysloc += 1;
@@ -660,21 +660,21 @@ void get_lhapdferrors_()
       for (int i = 0; i < npoints; i++)
 	{
 	  //account for the sign flip due to applying a theory variation as a shift to the data
-	  systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	  systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	  systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
-	  systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
+	  systasym_.betaasym[i][0][nsysloc] = -(pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  systasym_.betaasym[i][1][nsysloc] = -(pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  systema_.beta[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] - systasym_.betaasym[i][1][nsysloc]);
+	  systasym_.omega[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] + systasym_.betaasym[i][1][nsysloc]);
 	  
 	  //systema_.beta_[i][nsysloc] = (pointsmap[i].th_asym_p[j] - pointsmap[i].th_asym_m[j]) / 2. / pointsmap[i].thc;
 	  //systasym_.betaasym_[i][1][nsysloc] = (pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
 	  //systasym_.betaasym_[i][0][nsysloc] = (pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
 	  //systasym_.omega_[i][nsysloc] = (pointsmap[i].th_asym_p[j] + pointsmap[i].th_asym_m[j] - 2*pointsmap[i].thc) / 2. / pointsmap[i].thc;
-	  if (clhapdf_.scale68_)
+	  if (clhapdf_.scale68)
 	    {
-	      systema_.beta_[i][nsysloc]  /= 1.64;
-	      systasym_.betaasym_[i][1][nsysloc] /= 1.64;
-	      systasym_.betaasym_[i][0][nsysloc] /= 1.64;
-	      systasym_.omega_[i][nsysloc] /= 1.64;
+	      systema_.beta[i][nsysloc]  /= 1.64;
+	      systasym_.betaasym[i][1][nsysloc] /= 1.64;
+	      systasym_.betaasym[i][0][nsysloc] /= 1.64;
+	      systasym_.omega[i][nsysloc] /= 1.64;
 	    }
 	}
       nsysloc += 1;
@@ -695,12 +695,12 @@ void get_lhapdferrors_()
     {
       for (int i = 0; i < npoints; i++)
 	{
-	  systema_.beta_[i][nsysloc] = - (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;  // negative sign here, opposite to data
-	  systasym_.omega_[i][nsysloc] = 0;
-	  if (clhapdf_.scale68_)
+	  systema_.beta[i][nsysloc] = - (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;  // negative sign here, opposite to data
+	  systasym_.omega[i][nsysloc] = 0;
+	  if (clhapdf_.scale68)
 	    {
-	      systema_.beta_[i][nsysloc]  /= 1.64;
-	      systasym_.omega_[i][nsysloc] /= 1.64;
+	      systema_.beta[i][nsysloc]  /= 1.64;
+	      systasym_.omega[i][nsysloc] /= 1.64;
 	    }
 	}
       nsysloc += 1;
@@ -736,10 +736,10 @@ void get_lhapdferrors_()
       for (int i = 0; i < npoints; i++)
 	{
 	  //account for the sign flip due to applying a theory variation as a shift to the data
-	  systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].thc) / pointsmap[i].thc;
-	  systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_env_m - pointsmap[i].thc) / pointsmap[i].thc;
-	  systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
-	  systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
+	  systasym_.betaasym[i][0][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].thc) / pointsmap[i].thc;
+	  systasym_.betaasym[i][1][nsysloc] = -(pointsmap[i].th_env_m - pointsmap[i].thc) / pointsmap[i].thc;
+	  systema_.beta[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] - systasym_.betaasym[i][1][nsysloc]);
+	  systasym_.omega[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] + systasym_.betaasym[i][1][nsysloc]);
 
 	  //treat as symmetric
 	  //systema_.beta_[i][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].th_env_m) / 2./ pointsmap[i].thc;
@@ -749,12 +749,12 @@ void get_lhapdferrors_()
 	  //systasym_.betaasym_[i][1][nsysloc] = pointsmap[i].th_env_m;
 	  //systasym_.betaasym_[i][0][nsysloc] = pointsmap[i].th_env_p;
 	  //systasym_.omega_[i][nsysloc] = (pointsmap[i].th_env_p + pointsmap[i].th_env_m) / 2.;
-	  if (clhapdf_.scale68_)
+	  if (clhapdf_.scale68)
 	    {
-	      systema_.beta_[i][nsysloc]  /= 1.64;
-	      systasym_.betaasym_[i][1][nsysloc] /= 1.64;
-	      systasym_.betaasym_[i][0][nsysloc] /= 1.64;
-	      systasym_.omega_[i][nsysloc] /= 1.64;
+	      systema_.beta[i][nsysloc]  /= 1.64;
+	      systasym_.betaasym[i][1][nsysloc] /= 1.64;
+	      systasym_.betaasym[i][0][nsysloc] /= 1.64;
+	      systasym_.omega[i][nsysloc] /= 1.64;
 	    }
 	}
       nsysloc += 1;
@@ -787,29 +787,29 @@ void get_lhapdferrors_()
       for (int i = 0; i < npoints; i++)
 	{
 	  //account for the sign flip due to applying a theory variation as a shift to the data
-	  systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_scale_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	  systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_scale_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	  systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
-	  systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
-	  if (clhapdf_.scale68_)
+	  systasym_.betaasym[i][0][nsysloc] = -(pointsmap[i].th_scale_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  systasym_.betaasym[i][1][nsysloc] = -(pointsmap[i].th_scale_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	  systema_.beta[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] - systasym_.betaasym[i][1][nsysloc]);
+	  systasym_.omega[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] + systasym_.betaasym[i][1][nsysloc]);
+	  if (clhapdf_.scale68)
 	    {
-	      systema_.beta_[i][nsysloc]  /= 1.64;
-	      systasym_.betaasym_[i][1][nsysloc] /= 1.64;
-	      systasym_.betaasym_[i][0][nsysloc] /= 1.64;
-	      systasym_.omega_[i][nsysloc] /= 1.64;
+	      systema_.beta[i][nsysloc]  /= 1.64;
+	      systasym_.betaasym[i][1][nsysloc] /= 1.64;
+	      systasym_.betaasym[i][0][nsysloc] /= 1.64;
+	      systasym_.omega[i][nsysloc] /= 1.64;
 	    }
 	}
       nsysloc += 1;
     }
 
   // Set PDF nuisance parameter name
-  for (int j = systema_.nsys_; j < nsyspdf; j++)
+  for (int j = systema_.nsys; j < nsyspdf; j++)
     {
       char nuispar[64];
-      sprintf (nuispar, "PDF_nuisance_param_%02d", j+1 - systema_.nsys_);
+      sprintf (nuispar, "PDF_nuisance_param_%02d", j+1 - systema_.nsys);
       int len = strlen(nuispar);
       memset (nuispar+len,' ',64-len);
-      strcpy(systema_.system_[j],nuispar);
+      strcpy(systema_.system[j],nuispar);
     }
 
   // Set scale nuisance parameter name
@@ -819,7 +819,7 @@ void get_lhapdferrors_()
       sprintf (nuispar, "scale_nuisance_param_%02d", j+1 - nsyspdf);
       int len = strlen(nuispar);
       memset (nuispar+len,' ',64-len);
-      strcpy(systema_.system_[j],nuispar);
+      strcpy(systema_.system[j],nuispar);
     }
 
   
@@ -830,7 +830,7 @@ void get_lhapdferrors_()
   bool symm = false;
   if (totmc || tothess_s)
     symm = true;
-  writetheoryfiles_(nsysloc-systema_.nsys_, theo_cent, symm);
+  writetheoryfiles_(nsysloc-systema_.nsys, theo_cent, symm);
 
   //Calculate total theory error to be stored in fittedresults.txt for plots
   for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
@@ -897,12 +897,12 @@ void get_lhapdferrors_()
   //Set Error in fortran common block
   for (map <int, point>::iterator pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
     {
-      c_theo_.theo_tot_up_[pit->first] = pit->second.th_err_up;
-      c_theo_.theo_tot_down_[pit->first] = pit->second.th_err_dn;
-      if (clhapdf_.scale68_)
+      c_theo_.theo_tot_up[pit->first] = pit->second.th_err_up;
+      c_theo_.theo_tot_down[pit->first] = pit->second.th_err_dn;
+      if (clhapdf_.scale68)
 	{
-	  c_theo_.theo_tot_up_[pit->first] /= 1.64;
-	  c_theo_.theo_tot_down_[pit->first] /= 1.64;
+	  c_theo_.theo_tot_up[pit->first] /= 1.64;
+	  c_theo_.theo_tot_down[pit->first] /= 1.64;
 	}
     }
   
@@ -912,32 +912,32 @@ void get_lhapdferrors_()
       cout << "Chi2 test on central prediction with PDF and/or scale uncertainties:" << endl;
 
       // Add PDF nuisance parameters
-      for (int i = systema_.nsys_; i < nsyspdf; i++)
+      for (int i = systema_.nsys; i < nsyspdf; i++)
 	{
-	  sysmeas_.n_syst_meas_[i] = npoints; //PDF systematic uncertainties apply to all points
+	  sysmeas_.n_syst_meas[i] = npoints; //PDF systematic uncertainties apply to all points
 	  for (int j = 0; j < npoints; j++)
-	    sysmeas_.syst_meas_idx_[i][j] = j + 1;
-	  systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to PDF uncertainties
+	    sysmeas_.syst_meas_idx[i][j] = j + 1;
+	  systscal_.sysscalingtype[i] = 1;  //Apply linear scaling to PDF uncertainties
 	  //      systscal_.sysscalingtype_[i] = 0;  //No scaling for PDF uncertainties
-	  if ((nsyspdf-i) <= clhapdf_.nremovepriors_)
+	  if ((nsyspdf-i) <= clhapdf_.nremovepriors)
 	    {
 	      char nuispar[64];
-	      sprintf (nuispar, "PDF_nuisance_param_%02d", i+1 - systema_.nsys_);
+	      sprintf (nuispar, "PDF_nuisance_param_%02d", i+1 - systema_.nsys);
 	      cout << "Remove prior for syst " << nuispar << endl;
 	      string msg = (string) "I: Remove prior for systematic " + nuispar;
 	      hf_errlog_(15082401, msg.c_str(), msg.size());
-	      csystprior_.syspriorscale_[i] = 0.;
+	      csystprior_.syspriorscale[i] = 0.;
 	    }
-	  csysttype_.isysttype_[i] = 2; // THEORY
+	  csysttype_.isysttype[i] = 2; // THEORY
 	}
 
       // Add QCD scale nuisance parameters
       for (int i = nsyspdf; i < nsysloc; i++)
 	{
-	  sysmeas_.n_syst_meas_[i] = npoints; //QCD scale systematic uncertainties apply to all points
+	  sysmeas_.n_syst_meas[i] = npoints; //QCD scale systematic uncertainties apply to all points
 	  for (int j = 0; j < npoints; j++)
-	    sysmeas_.syst_meas_idx_[i][j] = j + 1;
-	  systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to QCD scale uncertainties
+	    sysmeas_.syst_meas_idx[i][j] = j + 1;
+	  systscal_.sysscalingtype[i] = 1;  //Apply linear scaling to QCD scale uncertainties
 	  //      systscal_.sysscalingtype_[i] = 0;  //No scaling
 	  //To remove the prior on the scale uncertainties parameters, uncomment the following lines
 	  /*
@@ -948,14 +948,14 @@ void get_lhapdferrors_()
 	  hf_errlog_(15082401, msg.c_str(), msg.size());
 	  csystprior_.syspriorscale_[i] = 0.;
 	  */
-	  csysttype_.isysttype_[i] = 2; // THEORY
+	  csysttype_.isysttype[i] = 2; // THEORY
 	}
 
       //Add the PDF and/or scale uncertainties to the total number of systematic uncertainties
-      systema_.nsys_ = nsysloc;
-      systematicsflags_.resetcommonsyst_ = true;
+      systema_.nsys = nsysloc;
+      systematicsflags_.resetcommonsyst = true;
 
-      cout << "Total Number of systematic uncertainties: " << systema_.nsys_ << endl;
+      cout << "Total Number of systematic uncertainties: " << systema_.nsys << endl;
       fname = outdirname + "/Results.txt";
       fopen_(85, fname.c_str(), fname.size());
       chi2tot = chi2data_theory_(3);

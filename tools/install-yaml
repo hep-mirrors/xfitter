@@ -1,0 +1,76 @@
+#
+# Helper script to install yaml for C and C++. 
+# Copies and installs files from the web-sources into deps/yaml-c and 
+# deps/yaml-cpp directories. Generates setup_yaml.sh file
+#
+
+# Package versions:
+yamlver=0.1.6
+yamlppver=0.5.3
+
+#Check for dummies
+if [[ $0 == bash || $0 = csh ]]
+then
+    echo "Please don't source me, I am an executable!"
+    echo "Give me attributes with:"
+    echo "chmod +x install-yaml"
+    echo "and run me with:"
+    echo "./install-yaml"
+    return 2
+fi
+
+
+
+
+CURRENTDIR=`pwd`
+
+echo "Get yaml++"
+mkdir -p deps
+cd deps
+
+wget https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-${yamlppver}.tar.gz > $CURRENTDIR/install_yam.log  2>&1
+tar xfz yaml-cpp-${yamlppver}.tar.gz
+cd yaml-cpp-yaml-cpp-${yamlppver}
+mkdir build
+cd build
+cmake  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
+make -j 12 install >> $CURRENTDIR/install_yam.log 2>&1 
+
+if [[ $? != 0 ]]
+then
+  echo "Error, check install_yam.log for details"
+  exit
+fi
+
+
+cd  $CURRENTDIR/deps
+
+echo "Get yaml"
+wget http://pyyaml.org/download/libyaml/yaml-${yamlver}.tar.gz >> $CURRENTDIR/install_yam.log  2>&1
+tar xfz yaml-${yamlver}.tar.gz >> $CURRENTDIR/install_yam.log  2>&1
+cd yaml-${yamlver}  >> $CURRENTDIR/install_yam.log 
+./configure --prefix=$CURRENTDIR/deps/yaml >> $CURRENTDIR/install_yam.log
+make >> $CURRENTDIR/install_yam.log 2>&1
+make install >> $CURRENTDIR/install_yam.log 2>&1
+
+if [[ $? != 0 ]]
+then
+  echo "Error, check install_yam.log for details"
+  exit
+fi
+
+
+cd $CURRENTDIR
+
+libspp=`pkg-config --libs deps/yaml-cpp/lib/pkgconfig/yaml-cpp.pc`
+incspp=`pkg-config --cflags deps/yaml-cpp/lib/pkgconfig/yaml-cpp.pc`
+
+
+echo "Make setup_yaml.sh file"
+echo "export CURRENTDIR=`pwd`" > setup_yaml.sh
+echo export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CURRENTDIR/deps/yaml/lib/:\$CURRENTDIR/deps/yaml-cpp/lib >> setup_yaml.sh
+echo export CFLAGS=\"\$CFLAGS -I\$CURRENTDIR/deps/yaml/include -L\$CURRENTDIR/deps/yaml/lib\" >> setup_yaml.sh
+echo export CPPFLAGS=\"\$CPPGLAGS -I\$CURRENTDIR/deps/yaml/include -L\$CURRENTDIR/deps/yaml/lib $incspp $libspp \" >> setup_yaml.sh
+echo export CXXFLAGS=\"\$CXXFLAGS -I\$CURRENTDIR/deps/yaml/include -L\$CURRENTDIR/deps/yaml/lib $incspp $libspp \" >> setup_yaml.sh
+
+chmod +x setup_yaml.sh

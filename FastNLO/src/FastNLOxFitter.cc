@@ -31,7 +31,7 @@ double FastNLOxFitter::EvolveAlphas(double Q) const {
   // factorization scale [and alphas(Mz)].
   // here we access the getter method from xfitter
    double mu2 = Q*Q;
-   return HF_GET_ALPHAS_WRAP( &mu2 );
+   return HF_GET_ALPHAS_WRAP( mu2 );
 }
 
 
@@ -61,7 +61,7 @@ vector<double> FastNLOxFitter::GetXFX(double xp, double muf) const {
    //
    double muf2 = muf*muf;
    vector < double > xfx(14);// 13+1 for photon
-   HF_GET_PDFS_WRAP(&xp, &muf2, &xfx[0]);
+   HF_GET_PDFS_WRAP(xp, muf2, &xfx[0]);
    return xfx;
 }
 

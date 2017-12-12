@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-pkginclude_HEADERS = xsect_dipole_proton.h
+dist_noinst_HEADERS = xsect_dipole_proton.h
 #
 # The name of the library
 noinst_LIBRARIES = libmydipole.a

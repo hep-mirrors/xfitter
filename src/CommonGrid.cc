@@ -168,13 +168,13 @@ CommonGrid::readAPFELgrid(const string &grid_source)
     double MTop    = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MTop")).c_str());
     int    PtOrd   = atoi((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "PerturbativeOrder")).c_str());
 
-    double dAsRef   = abs( AsRef / c_alphas_.alphas_ - 1 );
-    double dQRef    = abs( QRef / boson_masses_.mz_ - 1 );
-    double dQ0      = abs( Q0 / sqrt(steering_.starting_scale_) - 1 );
-    double dMCharm  = abs( MCharm / fermion_masses_.mch_ - 1);
-    double dMBottom = abs( MBottom / fermion_masses_.mbt_ - 1);
-    double dMTop    = abs( MTop / fermion_masses_.mtp_ - 1);
-    int    dPtOrd   = abs( PtOrd + 1 - steering_.i_fit_order_);
+    double dAsRef   = abs( AsRef / c_alphas_.alphas - 1 );
+    double dQRef    = abs( QRef / boson_masses_.Mz - 1 );
+    double dQ0      = abs( Q0 / sqrt(steering_.starting_scale) - 1 );
+    double dMCharm  = abs( MCharm / fermion_masses_.mch - 1);
+    double dMBottom = abs( MBottom / fermion_masses_.mbt - 1);
+    double dMTop    = abs( MTop / fermion_masses_.mtp - 1);
+    int    dPtOrd   = abs( PtOrd + 1 - steering_.i_fit_order);
 
     double toll = 1e-5;
     if( dAsRef > toll || dQRef > toll || dQ0 > toll || dMCharm > toll || dMBottom > toll || dMTop > toll || dPtOrd > 0 ) {
@@ -187,10 +187,10 @@ CommonGrid::readAPFELgrid(const string &grid_source)
       rename(grid_source.c_str(), (grid_source + "-old").c_str());
 
       // Generate FK table is absent
-      APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale_),
-      			       fermion_masses_.mch_, fermion_masses_.mbt_, fermion_masses_.mtp_,
-			       c_alphas_.alphas_, boson_masses_.mz_,
-			       steering_.i_fit_order_ - 1);
+      APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale),
+      			       fermion_masses_.mch, fermion_masses_.mbt, fermion_masses_.mtp,
+			       c_alphas_.alphas, boson_masses_.Mz,
+			       steering_.i_fit_order - 1);
 
       // Reread FK table
       ifstream infile1;
@@ -204,10 +204,10 @@ CommonGrid::readAPFELgrid(const string &grid_source)
     cout << endl;
 
     // Generate FK table is absent
-    APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale_),
-			     fermion_masses_.mch_, fermion_masses_.mbt_, fermion_masses_.mtp_,
-			     c_alphas_.alphas_, boson_masses_.mz_,
-			     steering_.i_fit_order_ - 1);
+    APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale),
+			     fermion_masses_.mch, fermion_masses_.mbt, fermion_masses_.mtp,
+			     c_alphas_.alphas, boson_masses_.Mz,
+			     steering_.i_fit_order - 1);
 
     // Read FK table
     ifstream infile1;
