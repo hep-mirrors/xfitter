@@ -9,7 +9,7 @@ bin_PROGRAMS = xfitter-process
 # source files for the xfitter-process executable
 xfitter_process_SOURCES = xfitter-process.c utils.c profile.c rotate.c custom.c symmetrize.c reweight.c 
 
-pkginclude_HEADERS = rotate.h  utils.h  xfitter-process.h
+dist_noinst_HEADERS = rotate.h  utils.h  xfitter-process.h
 
 xfitter_process_CFLAGS = -I$(srcdir)/../../include
 xfitter_process_CFLAGS += -Wall

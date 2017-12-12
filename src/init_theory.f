@@ -508,6 +508,10 @@ C------------------------------------
       endif
 
       print*,' ---------------------------------------------'
+
+      !!!  Additional call to set PDF and alphaS interface 
+      call set_qcdnum_pdfs_rt
+
 C-
          call RT_Set_Input(varin,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
@@ -676,7 +680,7 @@ cc        rscale=1d0
 
       call ABKM_Set_Input(
      $     kschemepdfin,kordpdfin,rmass8in,rmass10in,msbarmin,
-     $     hqscale1in,hqscale2in)
+     $     hqscale1in,hqscale2in,0)
       end
 
       Subroutine init_theory_datasets
@@ -715,6 +719,8 @@ C
          elseif (DATASETREACTION(IDataSet).eq.'pp jets APPLGRID') then
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets fastNLO') then
+            Call InitJetsPPApplGridDataSet(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'reaction') then
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.   
      $           DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then ! for backward compatibility

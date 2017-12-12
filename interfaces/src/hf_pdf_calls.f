@@ -1,3 +1,52 @@
+C> @brief PDF for p (vs Q)
+
+      subroutine HF_Get_PDFsQ(x,q,PDFSF)
+      double precision x,q,PDFSF(*)
+      call HF_Get_PDFs(x,q*q,PDFSF)
+      end
+
+C> @brief PDF for pbar  (vs Q)
+
+      subroutine HF_Get_PDFsQ_bar(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      do ifl =1,N_CHARGE_PDF
+         xft=xf(ifl)
+         xf(ifl) = xf(-ifl)
+         xf(-ifl)=xft
+      enddo
+
+      end subroutine
+
+C> @brief PDF for n  (vs Q)
+      subroutine HF_Get_PDFsQ_n(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      ! switch up and down
+      xft=xf(1)
+      xf(1) = xf(2)
+      xf(2) = xft
+      ! switch anti-up and anti-down
+      xft=xf(-1)
+      xf(-1) = xf(-2)
+      xf(-2) = xft
+
+      end subroutine
+
+
+
       subroutine HF_Get_PDFs(x,q2,PDFSF)
 C----------------------------------------------------------------------
 C Interface to PDF 
@@ -133,6 +182,34 @@ C----------------------------------------------------
       endif
 C----------------------------------------------------
       end
+
+
+      double precision Function HF_Get_alphasQ(Q)
+C----------------------------------------------------
+C
+C  Return alpha_S value for a given Q
+C
+C----------------------------------------------------
+      implicit none
+#include "steering.inc" 
+      double precision Q
+      integer nf,ierr
+      double precision ASFUNC,alphaQCD
+      double precision alphaspdf
+
+C----------------------------------------------------
+      if (PDFStyle.eq.'LHAPDFNATIVE') then
+         HF_Get_alphasQ = alphaspdf(Q)
+      else
+      if (itheory.eq.10) then
+         HF_Get_alphasQ = alphaQCD(Q)
+      else
+         HF_Get_alphasQ = ASFUNC(Q*Q,nf,ierr) 
+      endif
+      endif
+C----------------------------------------------------
+      end
+
 
 
       double precision function hf_get_mur(iDataSet)

@@ -17,9 +17,14 @@
 -- Link to recent Root libraries (e.g. version 5.34). This is optional, but recommended to enable drawing tools, APPLgrid.
 
 -- xFitter has been tested on various 64bit platforms: 
-   SL6,CenOS7, Ubuntu 14.04,16.04 MacOXS
+   SL6,CenOS7, Ubuntu 14.04,16.04 MacOSx
 
--- Optional: APPLgrid, LHAPDF, APFEL, MELA
+-- libyaml (required for xfitter-process) and libyaml-cpp (required for xFitter itself). If not installed on the system,
+   they can be installed using tools/install-yaml script
+
+-- libblas and liblapack. These libraries can be also compiled using tools/install-lapack, however central installation is recommended.
+
+-- Optional: APPLgrid, LHAPDF, APFEL, APFELgrid, MELA
 
 
 1) INSTALLATION (basic installation)
@@ -27,6 +32,10 @@
 
   a) Run:
 
+    (
+       when using master version, first run
+       autoreconf --install
+    )
     ./configure (--prefix=/your/installation/path/)
     make 
     make install

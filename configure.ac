@@ -87,17 +87,35 @@ AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
+CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++"
 
 # check for lapack and blas
+AC_MSG_CHECKING([for blas])
 AX_BLAS
 if test "$ax_blas_ok" = "no"; then
-   AC_MSG_ERROR([Cannot find BLAS libraries])
+   AC_MSG_ERROR([Cannot find BLAS libraries. Consider using tools/install-lapack to install.])
 fi
 
+AC_MSG_CHECKING([for lapack])
 AX_LAPACK
 if test "$ax_lapack_ok" = "no"; then
-   AC_MSG_ERROR([Cannot find LAPACK libraries])
+   AC_MSG_ERROR([Cannot find LAPACK libraries. Consider using tools/install-lapack to install.])
 fi
+
+
+AC_MSG_CHECKING([for yaml-cpp])
+AC_LANG_PUSH(C++)
+AC_LINK_IFELSE(
+ [AC_LANG_PROGRAM([#include <yaml-cpp/yaml.h>],[YAML::Node node;])],
+ [AC_MSG_RESULT([yes])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[true])],
+ [AC_MSG_RESULT([no])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[false])]
+ [AC_MSG_ERROR([yaml-cpp is not installed. Install manually, or use tools/install-yaml helper script.])]
+ )
+AC_LANG_POP(C++)
+
+
 
 AC_ARG_ENABLE([process],
                  [AS_HELP_STRING([--enable-process],[enable xfitter-process tool])])
@@ -114,7 +132,7 @@ AS_IF([test "$enable_process" = "yes"], [
                                 [AM_CONDITIONAL([HAVE_YAML],[true])],
                                 [AC_MSG_RESULT([no])]
                                 [AM_CONDITIONAL([HAVE_YAML],[false])]
-                                [AC_MSG_WARN([libyaml is not installed, xfitter-process tool is not available.])]
+                                [AC_MSG_WARN([libyaml is not installed, xfitter-process tool is not available. Consider installing using tools/install-yaml helper script.])]
                                 )
                 LIBS=$SAVED_LIBS
         AC_LANG_POP(C)],
@@ -154,7 +172,7 @@ fi
 
 
 # Checks for sources.
-AC_CONFIG_SRCDIR([src/main.f])
+AC_CONFIG_SRCDIR([xfitter/cmain.cxx])
 
 ## Checks for libraries.
 #AC_MSG_CHECKING([for CERN libraries])
@@ -349,6 +367,17 @@ if test x$enable_hathor == xyes; then
     AC_MSG_ERROR([HATHOR_ROOT environment variable is not set!.])
   else 
     AC_MSG_RESULT([Using $HATHOR_ROOT])
+    AC_CHECK_FILE([$HATHOR_ROOT/libHathor.a],,[AC_MSG_ERROR([HATHOR_ROOT must contain libHathor.a])])
+    # check which hathor libraries are available:
+    # (1) Hathor-1.5 contains one library libHathor.a,
+    # (2) Hathor-2.0 contains two libraries libHathor.a and libff.a, both have to be used
+    HATHOR_LIBS="$HATHOR_ROOT/libHathor.a"
+    AC_CHECK_FILE([$HATHOR_ROOT/libff.a],HATHOR_LIBS+=" $HATHOR_ROOT/libff.a",)
+    echo "Found Hathor libraries $HATHOR_LIBS"
+    AC_SUBST(HATHOR_LIBS)
+  fi
+  if test ! $enable_lhapdf; then
+    AC_MSG_ERROR([Hathor-2.0 requires LHAPDF: please configure with --enable-lhapdf])
   fi
 fi
 AM_CONDITIONAL(ENABLE_HATHOR, [test x$enable_hathor == xyes])
@@ -481,6 +510,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 # Output
 AC_CONFIG_FILES([include/Makefile 
                  src/Makefile
+                 xfitter/Makefile
                  common/Makefile
                  common/linalg/Makefile
                  common/num_utils/Makefile
@@ -528,6 +558,22 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 reactions/KFactor/src/Makefile
+		 reactions/BaseDISCC/src/Makefile
+		 reactions/FFABM_DISCC/src/Makefile
+		 reactions/BaseDISNC/src/Makefile
+		 reactions/FFABM_DISNC/src/Makefile
+		 reactions/Hathor/src/Makefile
+		 reactions/Fractal_DISNC/src/Makefile
+		 reactions/RT_DISNC/src/Makefile
+		 reactions/APPLgrid/src/Makefile
+		 reactions/BaseHVQMNR/src/Makefile
+		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
+		 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+		 reactions/testZMVFNS/src/Makefile
+		 reactions/fastNLO/src/Makefile
+		 reactions/FONLL_DISCC/src/Makefile
+		 reactions/FONLL_DISNC/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then

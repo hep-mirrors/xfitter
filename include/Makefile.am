@@ -3,9 +3,11 @@ AUTOMAKE_OPTIONS = foreign
 #noinst_HEADERS = ntot.inc theo.inc pdfparam.inc alphas.inc systematics.inc \
 #                 steering.inc pdflength.inc for_debug.inc indata.inc couplings.inc \
 #                 thresholds.inc datasets.inc  endmini.inc  dipole.inc
-pkginclude_HEADERS = \
- alphas.inc             chi2scan.inc     covar.inc     endmini.inc    fractal.inc   list.h         pdfparam.inc      steering.inc     theorexpr.inc\
- APFELgridGeneration.h  c_interface.inc  datasets.inc  extrapars.inc  g_offset.inc  ntot.inc       polarity.inc      systematics.inc  thresholds.inc\
- applgrid_fastpdf.inc   CommonGrid.h     dimensions.h  fcn.inc        indata.inc    pdf2yaml.h     qcdnumhelper.inc  theo.inc         xfitter_cpp.h\
- c2yaml.h               couplings.inc    dipole.inc    for_debug.inc  iofnames.inc  pdflength.inc  scales.inc        TheorEval.h
 
+
+dist_noinst_HEADERS = alphas.inc             CommonGrid.h   endmini.inc    indata.inc    ntot.inc                      theo.inc    \
+APFELgridGeneration.h  couplings.inc  extrapars.inc  iofnames.inc  pdf2yaml.h        TheorEval.h \
+applgrid_fastpdf.inc   covar.inc      fcn.inc        list.h        pdflength.inc     ReactionTheory.h            theorexpr.inc \
+c2yaml.h               datasets.inc   for_debug.inc    pdfparam.inc      scales.inc                  thresholds.inc \
+chi2scan.inc           dimensions.h   fractal.inc     polarity.inc      steering.inc \
+c_interface.inc        dipole.inc     g_offset.inc   Makefile.in   qcdnumhelper.inc  systematics.inc             xfitter_cpp.h xfitter_cpp_base.h

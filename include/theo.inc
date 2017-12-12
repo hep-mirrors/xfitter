@@ -10,3 +10,8 @@
      $ Theo_stat(NTOT)                ! Stat. theo uncertainty 
       common/c_theo/theo,theo_mod, theo_fix,theo_unc,theo_tot_up,
      $     theo_tot_down, theo_stat
+
+      double precision TheoFCN3(NTOT)
+      double precision TheoModFCN3(NTOT)
+      double precision Alphamodfcn3(NTOT)
+      common/c_theo3/TheoFCN3, TheoModFCN3, Alphamodfcn3

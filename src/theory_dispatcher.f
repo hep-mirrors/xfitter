@@ -47,6 +47,11 @@ c         call usepar(vIPDFSET)
 C-------------------------------------------------------------------
       if ( UseFixedTheory(IDataSet)) then
          Call UseFixedTheoryXsection(IDataSet) 
+      elseif ( DATASETTheoryType(IDataSet).eq.'expression' ) then  ! 6/04/17 This has priority
+
+         call get_theor_eval(IDataSet, 
+     $        NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
+
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
          if(Itheory.lt.100.) then
             Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
@@ -142,6 +147,10 @@ c
            write(6,*) 'pp jets APPLGRID: invalid dataset for ithory>100'
             call hf_stop
          Endif
+      elseif (DATASETREACTION(IDataSet).eq.'reaction') then
+         call get_theor_eval(IDataSet, 
+     $         NDATAPOINTS(IDataSet), DATASETIDX(IDataset,1))
+
       elseif (DATASETREACTION(IDataSet).eq.'pp jets fastNLO') then
          if(Itheory.lt.100) then
            if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
@@ -265,6 +274,8 @@ C Drell-Yan:
          call DDIS_FixModelParams(parminuitsave)
       endif
 
+C Also for reactions:
+      call init_at_iteration
 
       end
 

@@ -454,6 +454,11 @@ c             call fillvfngrid
          if (dobands) then
             print *,'SAVE PDF values'
          endif
+
+         TheoFCN3 = Theo  ! save 
+         TheoModFCN3 = Theo_Mod
+         ALphaModFCN3 = ALPHA_Mod
+
 *     ---------------------------------------------------------
 *     write out data points with fitted theory
 *     ---------------------------------------------------------
@@ -560,17 +565,15 @@ c     $           ,chi2_cont/NControlPoints
 
 
       if (iflag.eq.3) then
-!          if(itheory.eq.0) then      
-!          endif
          
-      if (doOffset) then
-        fcorchi2 = 0d0
-        do h1iset=1,nset
-          pchi2(h1iset) = pchi2offs(h1iset)
-          fcorchi2 = fcorchi2 + pchi2offs(h1iset)
-        enddo
-!         fcorchi2 = chi2out+OffsDchi2
-      endif
+         if (doOffset) then
+            fcorchi2 = 0d0
+            do h1iset=1,nset
+               pchi2(h1iset) = pchi2offs(h1iset)
+               fcorchi2 = fcorchi2 + pchi2offs(h1iset)
+            enddo
+!     fcorchi2 = chi2out+OffsDchi2
+         endif
       
 ! ----------------  RESULTS OUTPUT ---------------------------------
          write(85,*) ' Partial chi2s '
@@ -613,101 +616,104 @@ c     $           ,chi2_cont/NControlPoints
             write(85,*) 'Log penalty Chi2 ', chi2_log
          endif
 
-       base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
+         base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
 
-       if (ITheory.ne.2) then
+         if (ITheory.ne.2) then
 
-          IF((Itheory.ge.100).or.(Itheory.eq.50)) then
-              auh(1) = parminuitsave(1)
-              auh(2) = parminuitsave(2)
-              auh(3) = parminuitsave(3)
-              auh(4) = parminuitsave(4)
-              auh(5) = parminuitsave(5)
-              auh(6) = parminuitsave(6)
-              auh(7) = parminuitsave(7)
-              auh(8) = parminuitsave(8)
-              auh(9) = parminuitsave(9)
-              if(Itheory.ge.103) then
-              idx = index(ccfmfile,' ')-1
-                 if(idx.gt.2) then
-                   filename=ccfmfile(1:idx)//'.dat'
-                   firsth=.true.
-                   call calcglu
-                 endif
-              endif         
-              open(91,file=TRIM(OutDirName)//'/params.txt')
-              write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
-
+            IF((Itheory.ge.100).or.(Itheory.eq.50)) then
+               auh(1) = parminuitsave(1)
+               auh(2) = parminuitsave(2)
+               auh(3) = parminuitsave(3)
+               auh(4) = parminuitsave(4)
+               auh(5) = parminuitsave(5)
+               auh(6) = parminuitsave(6)
+               auh(7) = parminuitsave(7)
+               auh(8) = parminuitsave(8)
+               auh(9) = parminuitsave(9)
+               if(Itheory.ge.103) then
+                  idx = index(ccfmfile,' ')-1
+                  if(idx.gt.2) then
+                     filename=ccfmfile(1:idx)//'.dat'
+                     firsth=.true.
+                     call calcglu
+                  endif
+               endif         
+               open(91,file=TRIM(OutDirName)//'/params.txt')
+               write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
+               
              
 
-          else
+            else
 C  Hardwire:
-             if ( ReadParsFromFile .and. DoBandsSym) then
-                call ReadPars(ParsFileName, pkeep)
-                call PDF_param_iteration(pkeep,2)
-                kflag = 0
-                call SumRules(kflag)
-             endif
-             
-             call Evolution
+               if ( ReadParsFromFile .and. DoBandsSym) then
+                  call ReadPars(ParsFileName, pkeep)
+                  call PDF_param_iteration(pkeep,2)
+                  kflag = 0
+                  call SumRules(kflag)
+               endif
+               
+               call Evolution
 
 C LHAPDF output:
 c WS: for the Offset method save central fit only
-            if (CorSysIndex.eq.0) then
-              open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
+               if (CorSysIndex.eq.0) then
+                  open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
 
-              call store_pdfs(base_pdfname)
-              call fill_c_common
-              call print_lhapdf6
+                  call store_pdfs(base_pdfname)
+                  call fill_c_common
+                  call print_lhapdf6
+               endif
             endif
-          endif
-       endif
+         endif
 
 c WS: print NSYS --- needed for batch Offset runs
-       write(85,*) 'Systematic shifts ',NSYS
-       write(85,*) ' '
-       write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)')
-     $         ' ', 'Name     ', 'Shift','Error',' ','Type'
-       do jsys=1,nsys
-C !> Store also type of systematic source info
-          if ( SysForm(jsys) .eq. isNuisance ) then
-             FormC = ':N'
-          elseif ( SysForm(jsys) .eq. isMatrix ) then
-             FormC = ':C'
-          elseif ( SysForm(jsys) .eq. isOffset ) then
-             FormC = ':O'
-          elseif ( SysForm(jsys) .eq. isExternal ) then
-             FormC = ':E'
-          endif
+         write(85,*) 'Systematic shifts ',NSYS
+         write(85,*) ' '
+         write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)')
+     $        ' ', 'Name     ', 'Shift','Error',' ','Type'
+         do jsys=1,nsys
+C     !> Store also type of systematic source info
+            if ( SysForm(jsys) .eq. isNuisance ) then
+               FormC = ':N'
+            elseif ( SysForm(jsys) .eq. isMatrix ) then
+               FormC = ':C'
+            elseif ( SysForm(jsys) .eq. isOffset ) then
+               FormC = ':O'
+            elseif ( SysForm(jsys) .eq. isExternal ) then
+               FormC = ':E'
+            endif
 
-          if ( SysScalingType(jsys) .eq. isPoisson ) then
-             TypeC = ':P'
-          elseif ( SysScalingType(jsys) .eq. isNoRescale ) then
-             TypeC = ':A'
-          elseif ( SysScalingType(jsys) .eq. isLinear ) then
-             TypeC = ':M'
-          endif
+            if ( SysScalingType(jsys) .eq. isPoisson ) then
+               TypeC = ':P'
+            elseif ( SysScalingType(jsys) .eq. isNoRescale ) then
+               TypeC = ':A'
+            elseif ( SysScalingType(jsys) .eq. isLinear ) then
+               TypeC = ':M'
+            endif
 
-          if (ISystType(jsys).eq. iDataSyst) then
-             TypeD = ':D'
-          elseif (ISystType(jsys).eq. iTheorySyst ) then
-             TypeD = ':T'
-          endif
+            if (ISystType(jsys).eq. iDataSyst) then
+               TypeD = ':D'
+            elseif (ISystType(jsys).eq. iTheorySyst ) then
+               TypeD = ':T'
+            endif
 
-          write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
-     $         jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, 
-     $         TypeC,TypeD
-       enddo
+            write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
+     $           jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, 
+     $           TypeC,TypeD
+         enddo
+
+C Trigger reactions:
+         call fcn3action
 
 c AS release applgrids
 c AS applgrid example
-       if ( useapplg ) then
-          call ag_releasegrids
-       endif
-       call cpu_time(time2)
-       print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
+         if ( useapplg ) then
+            call ag_releasegrids
+         endif
+         call cpu_time(time2)
+         print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
 
-       
+         
       endif
 
       
