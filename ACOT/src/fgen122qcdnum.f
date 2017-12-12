@@ -153,6 +153,7 @@ c      Common /Iacot/  nord  !*** pass nord to ACOT module from Subroutine SetHF
       data ifirst /.true./
       save ifirst
 #include "steering.inc"
+      nord=nordAcot  !*** Passed "nordAcot" via common block in "steering.inc"
 
 C-----------------------------------------------------------------------------
 C     DATA SINW2, XMW, XMZ   / 0.23D0,   80.4D0,  91.2D0 /
