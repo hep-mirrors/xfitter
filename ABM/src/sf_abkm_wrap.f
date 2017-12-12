@@ -1,3 +1,32 @@
+C
+C OZ 10.10.17 updated to openqcdrad-2.1
+C New user routines for PDFs and alpha_S have to be provided in this version
+
+      FUNCTION useralphas(q2,kschemepdf,kordpdf,kpdfset)
+
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'APSCOM6.'
+
+      useralphas = HF_Get_alphas(q2)
+      !print*,'useralphas = ',useralphas
+
+      RETURN
+      END
+
+
+      FUNCTION userpdfs(xb,q2,i,kschemepdf,kordpdf,kpdfset)
+
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      integer i
+      dimension pdfsff(-6:6)
+
+      CALL HF_Get_PDFs(xb,q2,PDFSFF)
+      userpdfs = PDFSFF(i)
+
+      RETURN
+      END
+      
+      
       subroutine sf_abkm_wrap(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,
      $   flcabkm,f3cabkm,f2babkm,flbabkm,f3babkm,ncflag,charge,
      $   polar,sin2thw,cos2thw,MZ)
@@ -165,6 +194,13 @@ c run in running m scheme
       msbarm    = msbarmin 
       hqscale1  = hqscale1in
       hqscale2  = hqscale2in
+      
+c 10.10.2017 Discussion with Sergey Alekhin:
+c The parameter HQNONS drives the nonsinglet contribution to the charm production. 
+c It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user. 
+c In ABMP16 fit it was set to .false.
+c (makes small difference which reaches few % only at highest Q2 of the charm HERA data and is negligible for practical purposes)
+      hqnons = .false.
        
 C--------------------------------------------------------------------------
       end
