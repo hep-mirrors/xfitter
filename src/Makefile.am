@@ -60,9 +60,11 @@ endif
 if ENABLE_APFELGRID
   libxfmain_la_SOURCES+= APFELgridGeneration.cc
 endif
-if ENABLE_LHAPDF
+
+if ENABLE_LHAPDF 
+  libxfitter_a_SOURCES+= CheckForPDF.cxx
 else
-  libxfmain_la_SOURCES+= lhapdf_dum.f
+  libxfitter_a_SOURCES+= lhapdf_dum.f 
 endif
 if ENABLE_HATHOR
   libxfmain_la_SOURCES+= ttbar_hathor.f
