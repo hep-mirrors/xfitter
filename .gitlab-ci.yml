@@ -9,7 +9,7 @@ stages:
   - nightly
 
 before_script:
-  - yum -y install which
+  - yum -y install which yaml-cpp
   - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 
