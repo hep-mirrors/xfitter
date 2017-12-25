@@ -38,7 +38,23 @@
 *add for mixed CTEQHERA
       double precision SumRuleCTEQ, SumRuleCTEQhera
 
+      double precision uvalSumRule
+      data uvalSumRule/2.0/
+      namelist/sumrule/uvalSumRule 
+      logical lfirst
+      data lfirst /.true./
 C-----------------------------------------
+
+      if (lfirst) then
+         lfirst = .false.
+         open (51,file='steering.txt',status='old')
+         read(51, nml=sumrule, end=1717)
+ 1717    continue
+
+         close(51)
+      endif
+
+      
       kflag=0
       zero = 1d-10
 
@@ -94,7 +110,7 @@ C**********************************************************
 C*     -- sum rule : U - Ubar = 2   :  gives AUval
 C*
          if (paruval(1).eq.0) then
-            paruval(1) = 2.0D0/CalcIntPdf(paruval)
+            paruval(1) = uvalSumRule/CalcIntPdf(paruval)
          else
             uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
          endif

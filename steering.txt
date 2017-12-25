@@ -45,6 +45,10 @@
   useBlas = .false.
 &End
 
+&sumrule
+  uvalSumRule = 1.
+&end
+
 &CovarToNuisance
    ! Global switch for using nuisance param representation for covariance mat.
   LConvertCovToNui = .False.
