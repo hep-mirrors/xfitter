@@ -9,7 +9,8 @@ c----------------------------------------------------------
       return
       end
 
-      subroutine checkforpdf()                                                                                                        end           
+      subroutine checkforpdf
+      end           
       
       subroutine initpdfsetbyname(a)
       call print_lhapdf_messg
