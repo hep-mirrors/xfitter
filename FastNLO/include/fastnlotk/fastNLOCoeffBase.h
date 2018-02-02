@@ -11,23 +11,30 @@
 #include "fastNLOConstants.h"
 #include "speaker.h"
 
-using namespace std;
-using namespace fastNLO;
 
 class fastNLOCoeffBase : public PrimalScream {
 
    friend class fastNLOTable;
 
 public:
+   fastNLOCoeffBase() = delete;
    fastNLOCoeffBase(int NObsBin);                                               //! Use this constructor
-   virtual ~fastNLOCoeffBase(){;};                                              //! destructor
-   //fastNLOCoeffBase(const fastNLOCoeffBase& coeff);                           //! Use compiler-default
+   // deletes instance of derived classes through pointer to base class
+   virtual ~fastNLOCoeffBase(){};                                              //! destructor
    virtual fastNLOCoeffBase* Clone() const;                                     //!< returns 'new' copy of this instance.
 
-   virtual void Read(istream& table);
-   virtual void Write(ostream& table);
-   //void Add(fastNLOCoeffBase* other);
-   virtual void Print() const;
+   virtual void Read(std::istream& table);
+   virtual void Write(std::ostream& table, int ITabVersionWrite);
+   virtual void Print(int iprint) const;
+
+   // Erase or multiply observable bin; iObsIdx is the C++ array index to be removed and
+   // not the observable bin no. running from 1 to fNObsBins
+   virtual void EraseBin(unsigned int iObsIdx);
+   virtual void MultiplyBin(unsigned int iObsIdx, double fact);
+   // Catenate observable to table
+   virtual void CatBin(const fastNLOCoeffBase& other, unsigned int iObsIdx);
+
+   bool IsCatenable(const fastNLOCoeffBase& other) const;
 
    void SetCoeffAddDefaults();
 
@@ -50,26 +57,26 @@ public:
    void SetIXsectUnits(int n){IXsectUnits = n;}
 
    int GetNObsBin() const { return fNObsBins;}
+   void SetNObsBin(unsigned int nObs) { fNObsBins = nObs;}
 
    bool GetIsFlexibleScale() const { return (NScaleDep>=3) && (IAddMultFlag==0); }
 
-   vector<string > GetContributionDescription() const { return CtrbDescript; }
-   void SetContributionDescription(vector<string > descr ) { CtrbDescript = descr; };           //! Set contribution description
-   vector<string > GetCodeDescription() const { return CodeDescript; }
-
+   std::vector<std::string > GetContributionDescription() const { return CtrbDescript; }
+   void SetContributionDescription(std::vector<std::string > descr ) { CtrbDescript = descr; };           //! Set contribution description
+   std::vector<std::string > GetCodeDescription() const { return CodeDescript; }
 
    bool IsLO() const {return IContrFlag1==1 && IContrFlag2==1;}
    bool IsNLO() const {return IContrFlag1==1 && IContrFlag2==2;}
    bool IsNNLO() const {return IContrFlag1==1 && IContrFlag2==3;}
-
    bool IsCompatible(const fastNLOCoeffBase& other) const;
-   //bool operator==(const fastNLOCoeffBase& other) const { return IsCompatible(other); }
 
+   bool IsEnabled() const {return enabled;}
+   void Enable() {enabled = true;}
+   void Enable(bool on) {enabled = on;}
 
 protected:
-   fastNLOCoeffBase();
-   void ReadBase(istream& table);
-   void EndReadCoeff(istream& table);
+   void ReadBase(std::istream& table);
+   void EndReadCoeff(std::istream& table);
 
    int fNObsBins; // obtained from Scenario
 
@@ -79,9 +86,11 @@ protected:
    int IContrFlag1;
    int IContrFlag2;
    int NScaleDep;
-   vector < string > CtrbDescript;
-   vector < string > CodeDescript;
+   int fVersionRead = 23000;
+   std::vector < std::string > CtrbDescript;
+   std::vector < std::string > CodeDescript;
 
+   bool enabled = false;
 };
 
 
