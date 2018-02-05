@@ -3,9 +3,10 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.1.6
+lhapdfver=6.2.1
 hoppetver=1.2.0
 applgridver=1.4.70
+# move to 17-01-14 ?
 qcdnumver=17-01-13
 apfelver=3.0.0
 melaver=2.0.1
@@ -149,7 +150,8 @@ then
 	then
 	    echo "Detected SL6 Linux distribution"
 	    MODE=cern
-	    gccv=4.8
+	    gccv=4.9
+	    echo "Using gcc version = ${gccv}"
 	    os=slc6
 	    arch=x86_64
 	    rootversion=5.34.36
@@ -297,7 +299,7 @@ else
     fi
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd ${lhapdf}-${lhapdfver} 
-    ./configure --prefix=$CURRENTDIR/deps/lhapdf $withboost >> $CURRENTDIR/install.log  2>&1
+    ./configure --prefix=$CURRENTDIR/deps/lhapdf  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
 	echo "Error, check install.log for details"
