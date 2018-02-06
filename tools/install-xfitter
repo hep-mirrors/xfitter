@@ -3,9 +3,10 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.1.6
+lhapdfver=6.2.1
 hoppetver=1.2.0
 applgridver=1.4.70
+# move to 17-01-14 ?
 qcdnumver=17-01-13
 apfelver=3.0.0
 melaver=2.0.1
@@ -149,7 +150,8 @@ then
 	then
 	    echo "Detected SL6 Linux distribution"
 	    MODE=cern
-	    gccv=4.8
+	    gccv=4.9
+	    echo "Using gcc version = ${gccv}"
 	    os=slc6
 	    arch=x86_64
 	    rootversion=5.34.36
@@ -201,7 +203,7 @@ if [[ $MODE == "cern" ]]
 	echo
 	echo "/cvmfs/sft.cern.ch not mounted, forcing local MODE"
 	echo "Fasten you seat belt"
-	echo "I hope you have root, gcc >= 4.3, python and boost libraries"
+	echo "I hope you have root, gcc >= 4.8, python and boost libraries"
 	echo "all installed in your system"
 	echo
 	MODE="local"
@@ -297,7 +299,7 @@ else
     fi
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd ${lhapdf}-${lhapdfver} 
-    ./configure --prefix=$CURRENTDIR/deps/lhapdf $withboost >> $CURRENTDIR/install.log  2>&1
+    ./configure --prefix=$CURRENTDIR/deps/lhapdf  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
 	echo "Error, check install.log for details"
@@ -338,6 +340,10 @@ else
  # setup paths for applgrid:
     export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
     export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
+    export LD_LIBRARY_PATH=$CURRENTDIR/deps/lhapdf/lib/:$LD_LIBRARY_PATH
+    echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
+    export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a`
+    rm /tmp/xf_py1234_a
 
  #applgrid:
     echo "Installing APPLGRID $applgridver..."
@@ -518,6 +524,11 @@ echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
+
+echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
+echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
+rm /tmp/xf_py1234_a
+
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh

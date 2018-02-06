@@ -1152,10 +1152,13 @@ cv         iparam = 301
          call HF_stop
       endif
 
-      call checkforpdf(LHAPDFSET)
-
+      
       if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')
      $     .or.(PDFStyle.eq.'LHAPDFNATIVE')) then
+
+         call checkforpdf(LHAPDFSET)
+
+
          INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
          if(lhapdffile_exists) then
             call InitPDFset(LHAPDFSET)
