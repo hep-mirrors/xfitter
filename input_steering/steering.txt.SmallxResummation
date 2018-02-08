@@ -7,14 +7,14 @@
  
   ! Input files:
 
-    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/MOD_HERA1+2_NCep_920.dat'
-    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/MOD_HERA1+2_NCep_820.dat'
-    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/MOD_HERA1+2_NCep_575.dat'
-    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/MOD_HERA1+2_NCep_460.dat'
-    InputFileNames(5) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/MOD_HERA1+2_NCem.dat'
-    InputFileNames(6) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/MOD_HERA1+2_CCep.dat'
-    InputFileNames(7) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/MOD_HERA1+2_CCem.dat'
-    InputFileNames(8) = 'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/MOD_H1ZEUS_Charm_combined.dat'
+    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
+    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
+    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
+    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
+    InputFileNames(5) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
+    InputFileNames(6) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat'
+    InputFileNames(7) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat'
+    InputFileNames(8) = 'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined.dat'
     InputFileNames(9) = 'datafiles/lhc/atlas/wzProduction/1612.03016/zylow_cc.dat'
     InputFileNames(10) = 'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass.dat'		
     InputFileNames(11) = 'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass_extended.dat'
