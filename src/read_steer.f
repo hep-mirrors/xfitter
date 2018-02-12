@@ -1262,18 +1262,24 @@ C---------------------------------
          HFSCHEME = 1005
       elseif (HF_SCHEME.eq.'FONLL-A RUNM ON') then
          HFSCHEME = 2005
+      elseif (HF_SCHEME.eq.'FONLL-A NLLx') then
+         HFSCHEME = 3005
       elseif (HF_SCHEME.eq.'FONLL-B') then
          HFSCHEME = 55
       elseif (HF_SCHEME.eq.'FONLL-B RUNM OFF') then
          HFSCHEME = 1055
       elseif (HF_SCHEME.eq.'FONLL-B RUNM ON') then
          HFSCHEME = 2055
+      elseif (HF_SCHEME.eq.'FONLL-B NLLx') then
+         HFSCHEME = 3055
       elseif (HF_SCHEME.eq.'FONLL-C') then
          HFSCHEME = 555
       elseif (HF_SCHEME.eq.'FONLL-C RUNM OFF') then
          HFSCHEME = 1555
       elseif (HF_SCHEME.eq.'FONLL-C RUNM ON') then
          HFSCHEME = 2555
+      elseif (HF_SCHEME.eq.'FONLL-C NLLx') then
+         HFSCHEME = 3555
       elseif (HF_SCHEME.eq.'S-ACOT Chi') then
           HFSCHEME = 17
       elseif (HF_SCHEME.eq.'S-ACOT Chi RC') then
