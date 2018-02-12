@@ -44,7 +44,7 @@
 &QCDNUM
    ! do not re-compute QCDNUM tables if they are present and match grid definition
   Read_QCDNUM_Tables = .true.
-  kmuc = 1.12
+  kmuc = 1.2
   kmub = 1.0
   kmut = 1.0
 &End 
@@ -106,7 +106,7 @@
 
   Order  = 'NNLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
 
-  Q02     = 2.56 ! Evolution starting scale		
+  Q02     = 2.8 ! Evolution starting scale		
 
  ! --- Scheme for heavy flavors 
  ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless) from QCDNUM,
@@ -216,7 +216,7 @@
   DoBandsSym = False     ! symmetric bands ( HESSE )
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 2.56, 2.8, 3.0, 4.0, 5., 10., 100., 6464, 8317 
+  Q2VAL = 2.8, 3.0, 4.0, 5., 10., 100., 6464, 8317 
 
   ! How many x points to write (standard = 101)
   OUTNX = 101
