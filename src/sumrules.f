@@ -38,19 +38,19 @@
 *add for mixed CTEQHERA
       double precision SumRuleCTEQ, SumRuleCTEQhera
 
-      double precision uvalSumRule
-      data uvalSumRule/2.0/
-      namelist/sumrule/uvalSumRule 
+      double precision::uvalSum=2D0
+      double precision::dvalSum=1D0
+      double precision::svalSum=0D0
+      namelist/sumrule_sums/uvalSum,dvalSum,svalSum
       logical lfirst
       data lfirst /.true./
 C-----------------------------------------
 
-      if (lfirst) then
-         lfirst = .false.
+      if(lfirst)then
+         lfirst=.false.
          open (51,file='steering.txt',status='old')
-         read(51, nml=sumrule, end=1717)
+         read(51,nml=sumrule_sums,end=1717)
  1717    continue
-
          close(51)
       endif
 
@@ -101,19 +101,20 @@ C*     -- sum rule : D - Dbar = 1   :  gives ADval
 C*
 
          if (pardval(1).eq.0) then
-            pardval(1) = 1.0d0/CalcIntPdf(pardval)
+            pardval(1)=dvalSum/CalcIntPdf(pardval)
          else
-            dv_sum = pardval(1)*CalcIntPdf(pardval)
+            dv_sum = pardval(1)*CalcIntPdf(pardval)!Why? --ivnoviko
          endif
             
 C**********************************************************
 C*     -- sum rule : U - Ubar = 2   :  gives AUval
 C*
          if (paruval(1).eq.0) then
-            paruval(1) = uvalSumRule/CalcIntPdf(paruval)
+            paruval(1) = uvalSum/CalcIntPdf(paruval)
          else
             uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
          endif
+C*     --TODO: cvalSum sumrule here? 
             
 C Also integrate momenta, for momentum sum rule:
          tUv = paruval(1)*CalcIntXpdf(paruval)

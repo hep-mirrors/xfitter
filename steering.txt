@@ -45,8 +45,10 @@
   useBlas = .false.
 &End
 
-&sumrule
-  uvalSumRule = 1.
+&sumrule_sums
+  uvalSum=2.
+  dvalSum=1.
+  svalSum=0.
 &end
 
 &CovarToNuisance
