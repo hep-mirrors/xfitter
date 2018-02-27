@@ -493,10 +493,12 @@ c             call fillvfngrid
       endif
       
       
-c Penalty from MINUIT extra parameters constraints
-      call getextraparsconstrchi2(extraparsconstrchi2)
-      fchi2 = fchi2 + extraparsconstrchi2
-
+c Penalty from MINUIT extra parameters constraints (only for fits) 
+C However when/if LHAPDFErrors mode will be combined with minuit, this will need modification.
+      if (.not. LHAPDFErrors) then
+         call getextraparsconstrchi2(extraparsconstrchi2)
+         fchi2 = fchi2 + extraparsconstrchi2
+      endif
 
       chi2out = fchi2+
      $     shift_polRHp**2+shift_polRHm**2+
