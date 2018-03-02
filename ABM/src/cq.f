@@ -227,3 +227,8 @@ c  heavy quark distributions
 
       return 
       end
+
+      double precision function xqgx1(i,k,e,j)
+      xqgx1 = 0.
+      print *,'CALLING DUMMY FUNCTION xqgx1'
+      end
