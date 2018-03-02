@@ -3,16 +3,7 @@ dist_noinst_HEADERS = offset.h
 # Explicit depence for all files:
 *.o: ../include/*.inc 
 
-# # the main target, i.e. the executable to build
-# bin_PROGRAMS = xfitter
-# noinst_LIBRARIES = libxfitter.a
-# 
-# xfitter_SOURCES = main.f
-# xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src -lxfmain -lxffnlo
-# #xfitter_LDADD = 
-# # all source files which go into the main target
-# libxfitter_a_SOURCES = 
-# 
+
 
 
 # the main shared library
@@ -89,6 +80,12 @@ endif
 libxfmain_la_LDFLAGS = -ldl
 # libxfmain_la_LDFLAGS = -ldl  -L./ -lfortran_thunking -L/usr/local/cuda/lib64 -lcudart -lcublas
 
+# FORTRAN compiler flags to be used for the main target
+AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include $(NOAUTOFCFLAG) -I$(srcdir)/../minuit/src
+
+# 
+AM_CPPFLAGS = -I$(srcdir)/../include 
+
 if ENABLE_APPLGRID 
   libxfmain_la_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
 endif
@@ -104,15 +101,13 @@ if ENABLE_APFELGRID
 endif
 
 # xFitter main library:
-LDADD = libxfitter.a
-###################LDADD += libxfitter.a
+LDADD = libxfmain.la
 
 # libraries to be linked to the main target
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
 
 # separate list for python: 
-F2PYLIBS = 
-###########F2PYLIBS += libxfitter.a 
+F2PYLIBS = libxfmain.la 
 F2PYLIBS +=  $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS) $(LIBS) $(FLIBS)
 
 if ENABLE_LHAPDF 
@@ -137,10 +132,10 @@ if ENABLE_LHAPDF
   libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
-# LDADD += ../Cascade/src/libcasutil.a
-# LDADD += ../common/libHFcommon.a
-# F2PYLIBS += ../Cascade/src/libcasutil.a
-# F2PYLIBS += ../common/libHFcommon.a
+# LDADD += ../Cascade/src/libcasutil.la
+# LDADD += ../common/libHFcommon.la
+# F2PYLIBS += ../Cascade/src/libcasutil.la
+# F2PYLIBS += ../common/libHFcommon.la
 
 if ENABLE_UPDF
    LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 
@@ -148,37 +143,36 @@ if ENABLE_UPDF
 endif
 
 if ENABLE_HATHOR
-  LDADD+= ../Hathor/src/libHathor.a \
+  LDADD+= ../Hathor/src/libHathor.la \
   $(HATHOR_LIBS)
 endif
 
 # Link with HVQMNR library, otherwise with dummy stub
 if ENABLE_HVQMNR
-  LDADD += ../HVQMNR/src/libHVQMNR.a $(ROOT_LIBS)
-#  libxfitter_a_SOURCES += hvqmnr_dum.f	need more
+  LDADD += ../HVQMNR/src/libHVQMNR.la $(ROOT_LIBS)
 else
-#  libxfitter_a_SOURCES += hvqmnr_dum.f
   libxfmain_la_SOURCES += hvqmnr_dum.f	
 endif
 
-XFLIBS =  ../DY/src/libmydy.a\
- ../Cascade/src/libcasutil.a \
- ../common/libHFcommon.a \
- ../RT/src/libmyrt.a \
- ../ACOT/src/libmyacot.a \
- ../SACOT/src/libmysacot.a \
- ../FONLL/src/libmyfonll.a \
- ../EW/src/libmyew.a \
- ../ABM/src/libmyabm.a \
- ../FastNLO/src/libFastNLO.a \
- ../DIPOLE/src/libmydipole.a \
+XFLIBS =  ../DY/src/libmydy.la\
+ ../Cascade/src/libcasutil.la \
+ ../common/libHFcommon.la \
+ ../RT/src/libmyrt.la \
+ ../ACOT/src/libmyacot.la \
+ ../SACOT/src/libmysacot.la \
+ ../FONLL/src/libmyfonll.la \
+ ../EW/src/libmyew.la \
+ ../ABM/src/libmyabm.la \
+ ../FastNLO/src/libxffnlo.la \
+ ../DIPOLE/src/libmydipole.la \
  ../DiffDIS/src/libDiffDIS.a\
- ../interfaces/src/libinterfaces.a\
- ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
- ../genetic/src/libgenetic.a \
- ../QEDevol/src/libQEDevol.a \
- ../common/num_utils/libnum_utils.a \
- ../tools/draw/src/pdferrors.o
+ ../interfaces/src/libinterfaces.la\
+ ../minuit/src/libmyminuit.la $(CERNLIBS) @FLIBS@ \
+  -lstdc++ \
+ ../genetic/src/libgenetic.la \
+ ../QEDevol/src/libQEDevol.la \
+ ../common/num_utils/libnum_utils.la \
+ ../tools/draw/src/libpdferrors.la
 
 
 LDADD += $(XFLIBS)
@@ -212,10 +206,14 @@ if ENABLE_MELA
 endif
 
 if ENABLE_GENETIC
-  LDADD+= ../genetic/mixmax_r004/libmixmax.a
+  LDADD+= ../genetic/mixmax_r004/libmixmax.la
 endif
 
-EXTRA_DIST = xfitter_py.F
-python:
-	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
+
+if HAVE_BOOST
+   lib_LTLIBRARIES += libxfitter_fit.la
+   libxfitter_fit_la_SOURCES = xFitter_fit.cc
+   libxfitter_fit_la_CPPFLAGS = $(BOOST_PYTHON_CPPFLAGS) 
+   libxfitter_fit_la_LDFLAGS = $(BOOST_PYTHON_LIBS)  $(F2PYLIBS) 
+endif
 

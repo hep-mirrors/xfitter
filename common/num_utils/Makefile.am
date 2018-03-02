@@ -1,9 +1,12 @@
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libnum_utils.a
-dist_noinst_HEADERS = c205body.inc  d107rd.inc  fact.inc  feqn.inc  finv.inc
 
-libnum_utils_a_SOURCES = dchpws.F ddilog.F dgammf.F ranlux.F rnorml.F rnormx.F \
+dist_noinst_HEADERS = c205body.inc  d107rd.inc  fact.inc  feqn.inc  finv.inc
+noinst_LTLIBRARIES = libnum_utils.la
+
+
+
+libnum_utils_la_SOURCES = dchpws.F ddilog.F dgammf.F ranlux.F rnorml.F rnormx.F \
                          rnpssn.F snleq64.F dbesk0.F dgquad.F d107d1.F \
 			 ranmar.F \
 			 dfact.F dinv.F deqinv.F dfeqn.F deqn.F dfinv.F \

@@ -1,10 +1,10 @@
 AUTOMAKE_OPTIONS = foreign
 
 # The name of the library
-noinst_LIBRARIES = libHathor.a
+noinst_LTLIBRARIES = libHathor.la
 
 # Next files will be processed by g77 (and automatically gcc for *.c) compiler
-libHathor_a_SOURCES = xFitterPdf.cc HathorInterface.cc
+libHathor_la_SOURCES = xFitterPdf.cc HathorInterface.cc
 
 # HATHOR_ROOT points to the directory containing libHathor.a:
 #   (1) in Hathor-1.5 this is the same common directory which contains all headers and sources,

@@ -6,10 +6,10 @@ if ENABLE_HVQMNR
 if HAVE_ROOT
 
 # The name of the library
-  noinst_LIBRARIES = libHVQMNR.a
+  noinst_LTLIBRARIES = libHVQMNR.la
 
 # Next files will be processed by g77 (and automatically gcc for *.c, g++ for *.cxx) compiler
-  libHVQMNR_a_SOURCES = hvqcrsx.f hvqmnr.f hvqmnr_calculation.cxx hvqmnr_grid.cxx hvqmnr_mnr.cxx hvqmnr_frag.cxx
+  libHVQMNR_la_SOURCES = hvqcrsx.f hvqmnr.f hvqmnr_calculation.cxx hvqmnr_grid.cxx hvqmnr_mnr.cxx hvqmnr_frag.cxx
 
 # C++ compiler flags
   AM_CXXFLAGS = -I$(srcdir)/../../include -I$(srcdir)/../include $(ROOT_CFLAGS) $(LHAPDF_CPPFLAGS)
