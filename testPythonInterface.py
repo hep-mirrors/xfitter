@@ -10,6 +10,7 @@ import libxfitter_fit as xfitter
 # execute using standard steering files:
 xfitter.logo()
 xfitter.read_steer()
+xfitter.init_pars()
 xfitter.read_data()
 xfitter.init_theory()
 xfitter.fit()
