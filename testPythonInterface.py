@@ -2,6 +2,8 @@
 
 import sys
 
+sys.setdlopenflags(256|1)   # MAGIC !!!
+
 # at the moment xfitter.so file is  located in ./src directory:
 sys.path.append("./lib")
 
