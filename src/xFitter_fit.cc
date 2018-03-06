@@ -1,5 +1,8 @@
 #include <boost/python.hpp>
 #include <iostream>
+
+#include "../include/xfitter_cpp.h"
+
 using boost::python::object;
 
 
@@ -41,6 +44,16 @@ void init_theo() {
   init_theory_modules_();
 }
 
+// print theory
+
+double theo(int ibin) {
+  return c_theo_.theo[ibin];
+}
+
+int ndata() {
+  return cndatapoints_.npoints;
+}
+
 // Python interface
 BOOST_PYTHON_MODULE(libxfitter_fit)
 {
@@ -51,4 +64,7 @@ BOOST_PYTHON_MODULE(libxfitter_fit)
     def("init_theory",init_theory_modules_);
     def("init_pars",init_pars);
     def("fit",fit);
+    def("theo",theo);
+    def("ndata",ndata);
+    // Some vars:
 }
