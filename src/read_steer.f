@@ -763,16 +763,46 @@ C-------------------------------------------------------
 #include "steering.inc"
 #include "scales.inc"
 C---
-      integer i
+      integer i, nf
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
+
+      character*(80) cMsg
+      
+C reset defaults:
+      NInputFiles = 0
+      do i = 1,NSET
+         InputFileNames(i) = ''
+      enddo
 C-------------------------------------------------
 C  Read the data namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=InFiles,END=71,ERR=72)
-      print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+
+C Determine how many files to process. First count them:
+      nf = 0
+      do i =1, NSET
+         if (InputFileNames(i).ne.'') then
+            nf = nf + 1
+         endif
+      enddo
+
+      if ( NInputFiles.eq.0) then
+         NInputFiles = nf       ! by default use all files
+      else
+         if (NInputFiles.gt.nf) then
+            write (cMsg,
+     $ '(''W: NInputFiles='',i4
+     $ ,'' exceeds actual number of files='',i4,'', reset'')')
+     $           NInputFiles, nf
+            call hf_errlog(18030601,cMsg)
+     $           
+            NInputFiles = nf
+         endif
+      endif
+      print '(''Will read '',I4,'' data files'')',NInputFiles
 C---------------------
 C
 C  Data-set dependent scales. First set defaults
