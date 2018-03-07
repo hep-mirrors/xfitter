@@ -331,7 +331,7 @@ C Variables for plotting
       character *256 PlotOptions(ncolumnMax)
       integer PlotDefColIdx, PreviousPlots
       double precision tempD
-
+      
 C Functions
       logical FailSelectionCuts
       integer GetBinIndex
@@ -552,7 +552,12 @@ C Count theory expression terms
             endif
          enddo
       endif
-      
+
+      if (TheoryType(1).ne. 'expression') then
+         call hf_errlog(18030710+NDATASETS,
+     $        'W: Using obsolete theory calculation for data file '
+     $        //trim(CFile) )
+      endif
 
 C Theory file if present:
       DATASETTheoryType(NDATASETS) = ' '
