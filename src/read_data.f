@@ -257,7 +257,7 @@ C Reference table
       integer IndexDataset
       double precision SystScales(nsystMax)
 C Extra info about k-factors, applegrid file(s):
-      character*1000 TheoryInfoFile(2)
+      character*1000 TheoryInfoFile(NKFactMax)
       character*80  TheoryType(2)
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
@@ -402,6 +402,7 @@ C Reset scales to 1.0
          read(51,NML=Data,err=98)
       endif   
 
+      
 C
 C Check dimensions
 C
@@ -411,6 +412,7 @@ C
      $        ,ncolumnmax
          call HF_stop
       endif
+
 C
 C Store 
 C
@@ -535,8 +537,22 @@ C Count theory expression terms
         CTmp = TermSource(i)
         TermSource(i) = trim(CTmp)
       enddo
-
  88   continue 
+
+      if (Reaction .eq. ' ') then
+         if (TheoryType(1) .eq. ' ') then
+            TheoryType(1) = 'expression'
+         endif
+      endif
+
+      if ( TheoryType(1) .eq. 'expression') then
+         do i =1, NTerms
+            if (TermType(i) .eq. ' ') then
+               TermType(i) = 'reaction'
+            endif
+         enddo
+      endif
+      
 
 C Theory file if present:
       DATASETTheoryType(NDATASETS) = ' '
@@ -1010,12 +1026,12 @@ C Store k-factors:
 C Set data binning information in theory evaluations
 c but firest check that there are two columns per each bin dimension
       if ( DATASETTheoryType(NDATASETS).eq.'expression' ) then
-        if ( mod(NBinDimension,2) .ne. 0 ) then
-          print *, 'Problem reading data from ', CFile
-          print *, 'There must be two bin columns per each bin dimension'
-          print *, 'for applgrid based fits.'
+c        if ( mod(NBinDimension,2) .ne. 0 ) then
+c          print *, 'Problem reading data from ', CFile
+c          print *, 'There must be two bin columns per each bin dimension'
+c          print *, 'for applgrid based fits.'
 C          call hf_stop
-        endif
+c        endif
       
         call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 
      &    binFlags, allbins, binname )
