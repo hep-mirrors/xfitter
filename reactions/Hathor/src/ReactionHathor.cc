@@ -105,7 +105,7 @@ int ReactionHathor::initAtStart(const string &s)
   return 0;
 }
 
-void ReactionHathor::setDatasetParamters(int dataSetID, map<std::string, std::string> pars, map<std::string, double> dsPars)
+void ReactionHathor::setDatasetParameters(int dataSetID, map<std::string, std::string> pars, map<std::string, double> dsPars)
 {
   // check if dataset with provided ID already exists
   if(_hathorArray.find(dataSetID) != _hathorArray.end())

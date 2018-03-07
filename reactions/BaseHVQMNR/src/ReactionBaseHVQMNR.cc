@@ -43,7 +43,7 @@ ReactionBaseHVQMNR::~ReactionBaseHVQMNR()
 }
 
 
-void ReactionBaseHVQMNR::setDatasetParamters(int dataSetID, map<string,string> pars, map<string,double> dsPars)
+void ReactionBaseHVQMNR::setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars)
 {
   // add new dataset
   DataSet dataSet;

@@ -26,7 +26,7 @@ extern "C" ReactionHVQMNR_LHCb_7TeV_charm* create() {
 int ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(const string &s)
 {
   // ignore provided terminfo (s): all needed information has been set already 
-  // via setDatasetParamters(int dataSetID, map<string,string> pars)
+  // via setDatasetParameters(int dataSetID, map<string,string> pars)
   
   // ******************************************************************
   // perform initialisation and pre-calculation
