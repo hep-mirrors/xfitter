@@ -125,6 +125,7 @@ lib'''+ name.lower()+'''_xfitter_la_SOURCES = Reaction'''+name+'''.cc
 datadir = ${prefix}/yaml/reactions/'''+name+'''
 data_DATA = ../yaml/parameters.yaml
 
+dist_noinst_HEADERS = ../include ../yaml
  ''')
 
 

@@ -26,3 +26,5 @@ if ENABLE_LHAPDF
 endif
 
 endif
+
+dist_noinst_HEADERS = ../include ../yaml

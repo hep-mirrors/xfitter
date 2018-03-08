@@ -11,4 +11,4 @@ libkfactor_xfitter_la_SOURCES = ReactionKFactor.cc
 datadir = ${prefix}/yaml/reactions/KFactor
 data_DATA = ../yaml/parameters.yaml
 
- 
+dist_noinst_HEADERS = ../include ../yaml

@@ -11,4 +11,5 @@ libffabm_discc_xfitter_la_LDFLAGS =  -lbasediscc_xfitter -L$(top_srcdir)/reactio
 datadir = ${prefix}/yaml/reactions/FFABM_DISCC
 data_DATA = ../yaml/parameters.yaml
 
- 
+dist_noinst_HEADERS = ../include ../yaml
+

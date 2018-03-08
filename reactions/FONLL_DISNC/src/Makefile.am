@@ -12,3 +12,4 @@ endif
 
 datadir = ${prefix}/yaml/reactions/FONLL_DISNC
 data_DATA = ../yaml/parameters.yaml
+dist_noinst_HEADERS = ../include ../yaml
