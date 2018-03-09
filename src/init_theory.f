@@ -1343,10 +1343,16 @@ C
 C-----------------------------------------------------
       implicit none
 #include "couplings.inc"
-C
+#include "steering.inc"
+C     
 C set derived values
 C
       cos2thw = 1.d0 - sin2thw
+
+       ! move initialzation of the thresholds from read_steer:
+      HF_MASS(1) = mch 
+      HF_MASS(2) = mbt
+      HF_MASS(3) = mtp
 
 C
 C set same values for DY calculations
