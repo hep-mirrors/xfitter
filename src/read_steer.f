@@ -29,7 +29,6 @@ C Special branch for rotation
       endif
 
       call read_infilesnml   ! Read data file names THIRD
-      call read_ewparsnml   ! electroweak parameters
       call read_outputnml   ! output options
       call read_outdirnml   ! output dir 
 
@@ -387,61 +386,6 @@ C Print the namelist:
       call HF_stop
       end
 
-C---------------------------------------- 
-!> Read electroweak parameters
-C-----------------------------------------
-      subroutine read_ewparsnml
-
-      implicit none
-C Namelist for EW parameters:
-#include "couplings.inc"
-#include "steering.inc"
-
-      namelist/EWpars/alphaem, gf, sin2thw, convfac,
-     $ Mz, Mw, Mh, wz, ww, wh, wtp,
-     $ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb,
-     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
-     $ mch, mst, mtp, mbt
-C--------------------------------------------------
-      open (51,file='ewparam.txt',status='old')
-      read (51,NML=EWpars,END=43,ERR=44)
-      close (51)
-
-      HF_MASS(1) = mch
-      HF_MASS(2) = mbt
-      HF_MASS(3) = mtp
-
-* --- Check the consistency of the steering file
-
-      if (HFSCHEME.eq.1.and.HF_MASS(2)**2.lt.starting_scale) then
-       write(6,*)
-       write(6,*) 'Bottom thres. has to be larger than starting scale'
-       write(6,*)
-       call HF_stop
-      endif
-
-      if (HFSCHEME.eq.1.and.HF_MASS(2).lt.HF_MASS(1)) then
-       write(6,*)
-       write(6,*) 'Bottom thres. has to be larger than charm thres.'
-       write(6,*)
-       call HF_stop
-      endif
-
-      if (LDebug) then
-C Print the namelist:
-         print EWpars
-      endif
-
-      return
-
- 43   continue
-      print '(''Namelist @EWPars NOT found, STOP'')'
-      call HF_stop
-
- 44   continue
-      print '(''Error reading namelist @EWPars, STOP'')'
-      call HF_stop
-      end
 
 C-------------------------------------------------------
 !> Read InCorr namelist
