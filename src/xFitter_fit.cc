@@ -1,5 +1,7 @@
 #include <boost/python.hpp>
 #include <iostream>
+#include <list>
+#include <typeinfo>
 
 #include "../include/xfitter_cpp.h"
 
@@ -54,6 +56,92 @@ int ndata() {
   return cndatapoints_.npoints;
 }
 
+// some test object
+
+
+struct Base
+{
+    virtual ~Base() {}
+    virtual int f() { return 0; }
+};
+
+struct BaseWrap : Base, boost::python::wrapper<Base>
+{
+    int f()
+    {
+        if (boost::python::override f = this->get_override("f"))
+            return f(); // *note*
+        return Base::f();
+    }
+
+    int default_f() { return this->Base::f(); }
+};
+
+int calls_f(Base& b) { return b.f(); }
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct Action
+{
+  Action(){}
+  virtual ~Action() {}
+  virtual void Initialize() { }
+  virtual void AtIteration() {std::cout << "At Iter " << std::endl;}
+};
+
+struct ActionWrap : Action, boost::python::wrapper<Action>
+{
+    void Initialize()
+    {
+      if (boost::python::override Initialize = this->get_override("Initialize")) {
+	Initialize();
+	return; // *note*
+      }
+      else {
+	Action::Initialize();
+        return;
+      }
+    }
+  
+    void AtIteration()
+    {
+      if (boost::python::override AtIteration = this->get_override("AtIteration")) {
+	AtIteration();
+	return; // *note*
+      }
+      else {
+	Action::AtIteration();
+        return;
+      }
+    }
+
+    void default_Initialize() { return this->Action::Initialize(); }
+    void default_AtIteration() { return this->Action::AtIteration(); }
+};
+
+void calls_action_iteration(Action& a) {
+  a.AtIteration();
+  std::cout << typeid(a).name() << std::endl;
+}
+
+// a list to store actions
+std::list<Action> _actionList_;
+
+
+void actionIterate() {
+  for ( auto  &action : _actionList_) {
+    action.AtIteration();
+    std::cout << typeid(action).name() << std::endl;
+  }
+}
+
+void addAction(Action& a) {
+  std::cout << typeid(a).name() << std::endl;
+  _actionList_.push_back(a);
+  actionIterate();
+}
+
+
 // Python interface
 BOOST_PYTHON_MODULE(libxfitter_fit)
 {
@@ -66,5 +154,19 @@ BOOST_PYTHON_MODULE(libxfitter_fit)
     def("fit",fit);
     def("theo",theo);
     def("ndata",ndata);
-    // Some vars:
+
+
+    class_<BaseWrap, boost::noncopyable>("Base")
+      .def("f", &Base::f, &BaseWrap::default_f)
+      ;
+    def("calls_f",calls_f);
+
+
+    class_<ActionWrap, boost::noncopyable>("Action")
+      .def("Initialize", &Action::Initialize, &ActionWrap::default_Initialize)
+      .def("AtIteration", &Action::AtIteration, &ActionWrap::default_AtIteration)
+      ;
+    def("addAction",addAction);
+    def("actionIteration",calls_action_iteration);
+    def("actionIterate",actionIterate);
 }
