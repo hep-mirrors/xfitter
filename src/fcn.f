@@ -358,7 +358,8 @@ c             call fillvfngrid
             call GetTheoryForDataset(idataset)
          else 
              write (Msg,
-     $  '(''W: Data set '',i2,'' contains no data points, will be ignored'')') idataset
+     $  '(''W: Data set '',i2,'' contains no data points, 
+     $  will be ignored'')') idataset
            call hf_errlog(29052013,Msg)
          endif
       enddo
@@ -519,6 +520,9 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
 
       endif ! end  lprint
 
+Cxxxxxxxx Trigger actions update:
+      call actions_at_iteration()
+      
 ! ----------------  RESULTS OUTPUT ---------------------------------
       if (iflag.eq.1) then
          write(85,*) 'First iteration ',chi2out,ndf,chi2out/ndf
@@ -721,7 +725,8 @@ c AS applgrid example
       
 C Return the chi2 value:
       chi2data_theory = chi2out
-
+      chi2_tot = chi2out
+      
       end
 
 

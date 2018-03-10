@@ -253,6 +253,12 @@ extern"C" {
   } chi2scan_;
 
   extern struct {
+    double chi2_fit;
+    double chi2_control;
+    double chi2_tot;
+  } chi2fit_;
+  
+  extern struct {
     int isysttype[NSYSMAX_C];
   } csysttype_;
 

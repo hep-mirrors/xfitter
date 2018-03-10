@@ -3,6 +3,8 @@
 #include <list>
 #include <typeinfo>
 
+#include "../include/action.h"
+#include "../include/actions.h"
 #include "../include/xfitter_cpp.h"
 
 using boost::python::object;
@@ -46,100 +48,81 @@ void init_theo() {
   init_theory_modules_();
 }
 
-// print theory
+// Full connection
+void run() {
+  hfbanner_();
+  read_steer_();
+  init_pars();
+  read_data_();
+  init_theory_modules_();
+  fit();
+}
 
+// print theory
 double theo(int ibin) {
   return c_theo_.theo[ibin];
+}
+
+double getChi2() {
+  return chi2fit_.chi2_tot;
 }
 
 int ndata() {
   return cndatapoints_.npoints;
 }
 
-// some test object
+// Python wrap for the actions class:
 
-
-struct Base
+class ActionWrap : public Action, public boost::python::wrapper<Action>
 {
-    virtual ~Base() {}
-    virtual int f() { return 0; }
-};
-
-struct BaseWrap : Base, boost::python::wrapper<Base>
-{
-    int f()
-    {
-        if (boost::python::override f = this->get_override("f"))
-            return f(); // *note*
-        return Base::f();
+public:
+  virtual void Initialize() override final
+  {
+    if (boost::python::override Initialize = this->get_override("Initialize")) {
+      Initialize();
+      return; // *note*
     }
-
-    int default_f() { return this->Base::f(); }
-};
-
-int calls_f(Base& b) { return b.f(); }
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct Action
-{
-  Action(){}
-  virtual ~Action() {}
-  virtual void Initialize() { }
-  virtual void AtIteration() {std::cout << "At Iter " << std::endl;}
-};
-
-struct ActionWrap : Action, boost::python::wrapper<Action>
-{
-    void Initialize()
-    {
-      if (boost::python::override Initialize = this->get_override("Initialize")) {
-	Initialize();
-	return; // *note*
-      }
-      else {
-	Action::Initialize();
-        return;
-      }
+    else {
+      Action::Initialize();
+      return;
     }
+  }
   
-    void AtIteration()
-    {
-      if (boost::python::override AtIteration = this->get_override("AtIteration")) {
-	AtIteration();
-	return; // *note*
-      }
-      else {
-	Action::AtIteration();
-        return;
-      }
+  virtual void AtIteration() override final
+  {
+    if (boost::python::override AtIteration = this->get_override("AtIteration")) {
+      AtIteration();
+      return; // *note*
     }
+    else {
+      Action::AtIteration();
+      return;
+    }
+  }
 
-    void default_Initialize() { return this->Action::Initialize(); }
-    void default_AtIteration() { return this->Action::AtIteration(); }
+  virtual void Finalize() override final
+  {
+    if (boost::python::override Finalize = this->get_override("Finalize")) {
+      Finalize();
+      return; // *note*
+    }
+    else {
+      Action::Finalize();
+      return;
+    }
+  }
+  void default_Initialize() { return this->Action::Initialize(); }
+  void default_AtIteration() { return this->Action::AtIteration(); }
+  void default_Finalize() { return this->Action::Finalize(); }
 };
+
+///////////////////////////////////////////////////
+
 
 void calls_action_iteration(Action& a) {
   a.AtIteration();
-  std::cout << typeid(a).name() << std::endl;
 }
 
-// a list to store actions
-std::list<Action> _actionList_;
-
-
-void actionIterate() {
-  for ( auto  &action : _actionList_) {
-    action.AtIteration();
-    std::cout << typeid(action).name() << std::endl;
-  }
-}
-
-void addAction(Action& a) {
-  std::cout << typeid(a).name() << std::endl;
-  _actionList_.push_back(a);
-  actionIterate();
-}
 
 
 // Python interface
@@ -152,21 +135,22 @@ BOOST_PYTHON_MODULE(libxfitter_fit)
     def("init_theory",init_theory_modules_);
     def("init_pars",init_pars);
     def("fit",fit);
+    def("run",&run);    
     def("theo",theo);
     def("ndata",ndata);
-
-
-    class_<BaseWrap, boost::noncopyable>("Base")
-      .def("f", &Base::f, &BaseWrap::default_f)
-      ;
-    def("calls_f",calls_f);
-
-
-    class_<ActionWrap, boost::noncopyable>("Action")
+    def("chi2",getChi2);
+    
+    // Actions
+    class_<ActionWrap,boost::noncopyable>("Action")
       .def("Initialize", &Action::Initialize, &ActionWrap::default_Initialize)
       .def("AtIteration", &Action::AtIteration, &ActionWrap::default_AtIteration)
+      .def("Finalize", &Action::Finalize, &ActionWrap::default_Finalize)
       ;
-    def("addAction",addAction);
+    def("addAction",&addAction);
+
+    // For debugging
     def("actionIteration",calls_action_iteration);
-    def("actionIterate",actionIterate);
+    def("actionIterate",&actions_at_iteration_);
+
+    //    register_ptr_to_python<ActionPtr>();
 }
