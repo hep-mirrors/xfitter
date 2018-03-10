@@ -20,7 +20,7 @@ with open("Reactions.txt","r+") as f:
     for l in f:
         a = l.split()
         if a[0] == name:
-            print "Interface for reaction "+name+" already exist, exit"
+            print "Interface for reaction "+name+" already exists, exit"
             exit(0)
 
 # Not present, add new line to the Reactions.txt file
@@ -65,7 +65,7 @@ class Reaction'''+name+''' : public ReactionTheory
 
 //    ~Reaction'''+name+'''(){};
 //    ~Reaction'''+name+'''(const Reaction'''+name+''' &){};
-//    Reaction'''+name+''' & operator =(const ReactionA'''+name+''' &r){return *(new Reaction'''+name+'''(r));};
+//    Reaction'''+name+''' & operator =(const Reaction'''+name+''' &r){return *(new Reaction'''+name+'''(r));};
 
   public:
     virtual string getReactionName() const { return  "'''+name+ '''" ;};
