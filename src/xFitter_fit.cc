@@ -30,6 +30,7 @@ extern "C" {
 // Some c connection:
 void fit() {
   do_fit_();
+  actions_finalize_();
   close_theor_eval_();
   int io = 6;
   hf_errsum_(io);
@@ -57,6 +58,8 @@ void run() {
   init_theory_modules_();
   fit();
 }
+
+///////////   Methods to access information
 
 // print theory
 double theo(int ibin) {

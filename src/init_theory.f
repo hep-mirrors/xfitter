@@ -5,6 +5,12 @@
 #include "ntot.inc"
 #include "steering.inc"
 
+
+*
+*     Init python/c++ actions 
+*
+      call actions_initialize()
+      
 *     ------------------------------------------------
 *     Initialise EW parameters
 *     ------------------------------------------------

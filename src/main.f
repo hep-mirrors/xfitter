@@ -136,8 +136,7 @@ c ..........................................................
         enddo
       else
         call Do_Fit
-      endif
-      
+      endif      
       
       if (doOffset) then
         call Offset_Finalize(icond)
@@ -191,6 +190,8 @@ c ..........................................................
 
  36   continue
 
+
+      call actions_finalize
       call close_theor_eval
 
 *     ------------------------------------------------
