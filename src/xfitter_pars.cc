@@ -45,6 +45,10 @@ namespace XFITTER_PARS {
     return infile.good();
   }
 
+  double getParDouble(const string& name){
+    return *gParameters[name];
+  }
+  
   void parse_file(const std::string& name)
   {
     try {    

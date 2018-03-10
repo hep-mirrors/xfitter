@@ -6,6 +6,7 @@
 #include "../include/action.h"
 #include "../include/actions.h"
 #include "../include/xfitter_cpp.h"
+#include "../include/xfitter_pars.h"
 
 using boost::python::object;
 
@@ -142,7 +143,7 @@ BOOST_PYTHON_MODULE(libxfitter_fit)
     def("theo",theo);
     def("ndata",ndata);
     def("chi2",getChi2);
-    
+    def("getParamD",XFITTER_PARS::getParDouble);
     // Actions
     class_<ActionWrap,boost::noncopyable>("Action")
       .def("Initialize", &Action::Initialize, &ActionWrap::default_Initialize)

@@ -27,6 +27,10 @@ namespace XFITTER_PARS {
   extern map<string,vector<double> > gParametersV;
   extern map<string,YAML::Node> gParametersY;
 
+
+  // Helper functions
+  double getParDouble(const string& name);
+  
   /// Parse yaml file @param name
   void parse_file(const std::string& name);
 
