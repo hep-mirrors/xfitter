@@ -63,12 +63,13 @@ vector<double > fastNLOPDFLinearCombinations::CalcPDFLCOneHadron(const fastNLOCo
    bool IsDIS    = ( c->GetIPDFdef1() == 2 );
    bool IsNCDIS  = ( c->GetIPDFdef2() == 1 );
    bool IsProton = ( c->GetPDFPDG(0) == 2212 );
-   if ( IsDIS && IsONEPDF && IsNCDIS && IsProton ) return CalcPDFDIS(c,pdfx1);
+   if ( IsDIS && c->GetIPDFdef2()==0 ) return CalcPDFDISFromTable(c,pdfx1);
+   else if ( IsDIS && IsONEPDF && IsNCDIS && IsProton ) return CalcPDFDIS(c,pdfx1);
    // ---- unknown process ---- //
    else {
       //error["CalcPDFLCDIS"]<<"Could not identify process. Printing and exiting"<<endl;
       say::error<<"Error. Could not identify process. Printing and exiting"<<endl;
-      c->Print();
+      c->Print(-1);
       exit(1);
       return vector<double >();
    }
@@ -117,7 +118,7 @@ vector<double > fastNLOPDFLinearCombinations::CalcPDFLCTwoHadrons(const fastNLOC
       say::error<<"PDFFlag1="<<c->GetIPDFdef1()<<endl;
       say::error<<"PDFFlag2="<<c->GetIPDFdef2()<<endl;
       say::error<<"PDFFlag3="<<c->GetIPDFdef3()<<endl;
-      c->Print();
+      c->Print(-1);
       exit(1);
       return vector<double >();
    }
@@ -205,8 +206,6 @@ vector<double> fastNLOPDFLinearCombinations::CalcDefaultPDFLiCos(const fastNLOCo
 
 
 //______________________________________________________________________________
-
-
 vector<double> fastNLOPDFLinearCombinations::CalcPDFHHCFromTable(const fastNLOCoeffAddBase* c, const vector<double>& pdfx1 , const vector<double>& pdfx2) const {
    // calculate PDF linear combinations as stored in table
    if ( c->GetNSubproc() != c->GetIPDFdef3() || c->GetIPDFdef3() != (int)c->GetPDFCoeff().size()) {
@@ -219,6 +218,25 @@ vector<double> fastNLOPDFLinearCombinations::CalcPDFHHCFromTable(const fastNLOCo
    for ( unsigned int k = 0 ; k<PDFCoeff.size() ; k++ ){
       for ( unsigned int i = 0 ; i<PDFCoeff[k].size() ; i++ ){
          pdflc[k] += pdfx1[PDFCoeff[k][i].first+6] * pdfx2[PDFCoeff[k][i].second+6];
+      }
+   }
+   return pdflc;
+}
+
+
+//______________________________________________________________________________
+vector<double> fastNLOPDFLinearCombinations::CalcPDFDISFromTable(const fastNLOCoeffAddBase* c, const vector<double>& pdfx1 ) const {
+   // calculate PDF linear combinations as stored in table
+   if ( c->GetNSubproc() != c->GetIPDFdef3() || c->GetIPDFdef3() != (int)c->GetPDFCoeff().size()) {
+      say::error["fastNLOPDFLinearCombinations::CalcPDFDISFromTable"]
+         <<"IPDFdef3 must be equal to NSubproc. (IPDFdef3="<<c->GetIPDFdef3()<<", NSubproc="<<c->GetNSubproc()<<"). Exiting."<<endl;
+      exit(1);
+   }
+   const vector<vector<pair<int,int> > >& PDFCoeff = c->GetPDFCoeff();
+   vector < double > pdflc(PDFCoeff.size());
+   for ( unsigned int k = 0 ; k<PDFCoeff.size() ; k++ ){
+      for ( unsigned int i = 0 ; i<PDFCoeff[k].size() ; i++ ){
+         pdflc[k] += pdfx1[PDFCoeff[k][i].first+6];
       }
    }
    return pdflc;

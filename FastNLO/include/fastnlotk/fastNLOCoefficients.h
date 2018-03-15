@@ -10,7 +10,6 @@
 
 #include "fastNLOConstants.h"
 
-using namespace std;
 
 class fastNLOCoefficients {
 
@@ -20,59 +19,59 @@ class fastNLOCoefficients {
 public:
    fastNLOCoefficients();
    fastNLOCoefficients(int NObsBin, int iLOord);
-   int Read(istream *table);
-   int Write(ostream *table, int option = 0);
+   int Read(std::istream *table);
+   int Write(std::ostream *table, int option = 0);
    int Copy(fastNLOCoefficients* other);
 
-   void StripWhitespace(string& s) const;
+   void StripWhitespace(std::string& s) const;
 
-   //    template<typename T> void ResizeFlexibleVector(vector<T>* v, vector<T>* nom);
-   //    void ResizeFlexibleVector(vector<double >* v, vector<double >*nom ){ v->resize(nom->size());};
+   //    template<typename T> void ResizeFlexibleVector(std::vector<T>* v, std::vector<T>* nom);
+   //    void ResizeFlexibleVector(std::vector<double >* v, std::vector<double >*nom ){ v->resize(nom->size());};
 
-   void ResizeTable( vector<double >* v, int dim0 );
-   void ResizeTable( vector<vector<double > >*  v, int dim0 , int dim1 );
-   void ResizeTable( vector<vector<double > >*  v, int dim0 , int* dim1GetNxmaxFromDimI );
-   void ResizeTable( vector<vector<vector<double > > >* v, int dim0 , int* dim1GetNxmaxFromDimI, int dim2 );
-   void ResizeTable( vector<vector<vector<double > > >* v, int dim0 , int dim1, int dim2 );
-   void ResizeTable( vector<vector<vector<vector<double > > > >* v, int dim0 , int dim1, int dim2, int dim3 );
-   void ResizeTable( vector<vector<vector<vector<double > > > >* v, int dim0 , int dim1, int* dim2GetNxmaxFromDimI, int dim3 );
-   void ResizeTable( vector<vector<vector<vector<vector<double > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4 );
-   void ResizeTable( vector<vector<vector<vector<vector<double > > > > >* v, int dim0 , int dim1, int dim2, int* dim3GetNxmaxFromDimI, int dim4 );
-   void ResizeTable( vector<vector<vector<vector<vector<double > > > > >* v, int dim0 , int* dim1GetNxmaxFromDimI, int dim2, int dim3, int dim4 );
-   void ResizeTable( vector<vector<vector<vector<vector<vector<double > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int dim5 );
-   void ResizeTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int dim5, int dim6 );
-   void ResizeTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int* dim5GetNxmaxFromDimI , int dim6 );
+   void ResizeTable( std::vector<double >* v, int dim0 );
+   void ResizeTable( std::vector<std::vector<double > >*  v, int dim0 , int dim1 );
+   void ResizeTable( std::vector<std::vector<double > >*  v, int dim0 , int* dim1GetNxmaxFromDimI );
+   void ResizeTable( std::vector<std::vector<std::vector<double > > >* v, int dim0 , int* dim1GetNxmaxFromDimI, int dim2 );
+   void ResizeTable( std::vector<std::vector<std::vector<double > > >* v, int dim0 , int dim1, int dim2 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<double > > > >* v, int dim0 , int dim1, int dim2, int dim3 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<double > > > >* v, int dim0 , int dim1, int* dim2GetNxmaxFromDimI, int dim3 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > >* v, int dim0 , int dim1, int dim2, int* dim3GetNxmaxFromDimI, int dim4 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > >* v, int dim0 , int* dim1GetNxmaxFromDimI, int dim2, int dim3, int dim4 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int dim5 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int dim5, int dim6 );
+   void ResizeTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > >* v, int dim0 , int dim1, int dim2, int dim3, int dim4, int* dim5GetNxmaxFromDimI , int dim6 );
 
 
-   template<typename T> int ReadTable( vector<T>* v, istream *table );
-   int ReadTable( vector<double>* v, istream *table );
+   template<typename T> int ReadTable( std::vector<T>* v, std::istream *table );
+   int ReadTable( std::vector<double>* v, std::istream *table );
 
-   template<typename T>  int ReadFlexibleVector(vector<T>* v, istream* table, bool nProcLast=false);
-   int ReadFlexibleVector( vector<double >* v, istream *table , bool nProcLast = false );
+   template<typename T>  int ReadFlexibleVector(std::vector<T>* v, std::istream* table, bool nProcLast=false);
+   int ReadFlexibleVector( std::vector<double >* v, std::istream *table , bool nProcLast = false );
 
-   int WriteTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, ostream *table , bool DivByNevt=false , int Nevt=1 );
-   int WriteTable( vector<vector<vector<vector<vector<vector<double > > > > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 );
-   int WriteTable( vector<vector<vector<vector<vector<double > > > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 );
-   int WriteTable( vector<vector<vector<vector<double > > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 );
-   int WriteTable( vector<vector<vector<double > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 );
-   int WriteTable( vector<vector<double > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 );
-   int WriteTable( vector<double >* v, ostream *table , bool DivByNevt=false, int Nevt=1 );
+   int WriteTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > >* v, std::ostream *table , bool DivByNevt=false , int Nevt=1 );
+   int WriteTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 );
+   int WriteTable( std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 );
+   int WriteTable( std::vector<std::vector<std::vector<std::vector<double > > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 );
+   int WriteTable( std::vector<std::vector<std::vector<double > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 );
+   int WriteTable( std::vector<std::vector<double > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 );
+   int WriteTable( std::vector<double >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 );
 
-   int WriteFlexibleTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* v, ostream *table , bool DivByNevt=false , int Nevt=1 , bool nProcLast = false );
-   int WriteFlexibleTable( vector<vector<vector<vector<vector<vector<double > > > > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
-   int WriteFlexibleTable( vector<vector<vector<vector<vector<double > > > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
-   int WriteFlexibleTable( vector<vector<vector<vector<double > > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
-   int WriteFlexibleTable( vector<vector<vector<double > > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
-   int WriteFlexibleTable( vector<vector<double > >* v, ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
-   int WriteFlexibleTable( vector<double >* v, ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
+   int WriteFlexibleTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > >* v, std::ostream *table , bool DivByNevt=false , int Nevt=1 , bool nProcLast = false );
+   int WriteFlexibleTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
+   int WriteFlexibleTable( std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
+   int WriteFlexibleTable( std::vector<std::vector<std::vector<std::vector<double > > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
+   int WriteFlexibleTable( std::vector<std::vector<std::vector<double > > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
+   int WriteFlexibleTable( std::vector<std::vector<double > >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
+   int WriteFlexibleTable( std::vector<double >* v, std::ostream *table , bool DivByNevt=false, int Nevt=1 , bool nProcLast = false );
 
-   void AddTableToAnotherTable( vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* vSum, vector<vector<vector<vector<vector<vector<vector<double > > > > > > >* vAdd, double w1 = 0, double w2 = 0 );
-   void AddTableToAnotherTable( vector<vector<vector<vector<vector<vector<double > > > > > >* vSum, vector<vector<vector<vector<vector<vector<double > > > > > >* vAdd, double w1 = 1, double w2 = 1 );
-   void AddTableToAnotherTable( vector<vector<vector<vector<vector<double > > > > >* vSum, vector<vector<vector<vector<vector<double > > > > >* vAdd, double w1 = 1, double w2 = 1 );
-   void AddTableToAnotherTable( vector<vector<vector<vector<double > > > >* vSum, vector<vector<vector<vector<double > > > >* vAdd, double w1 = 1, double w2 = 1 );
-   void AddTableToAnotherTable( vector<vector<vector<double > > >* vSum, vector<vector<vector<double > > >* vAdd, double w1 = 1, double w2 = 1 );
-   void AddTableToAnotherTable( vector<vector<double > >* vSum, vector<vector<double > >* vAdd, double w1 = 1, double w2 = 1 );
-   void AddTableToAnotherTable( vector<double >* vSum, vector<double >* vAdd, double w1 = 1, double w2 = 1 );
+   void AddTableToAnotherTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > >* vSum, std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > >* vAdd, double w1 = 0, double w2 = 0 );
+   void AddTableToAnotherTable( std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > >* vSum, std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > >* vAdd, double w1 = 1, double w2 = 1 );
+   void AddTableToAnotherTable( std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > >* vSum, std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > >* vAdd, double w1 = 1, double w2 = 1 );
+   void AddTableToAnotherTable( std::vector<std::vector<std::vector<std::vector<double > > > >* vSum, std::vector<std::vector<std::vector<std::vector<double > > > >* vAdd, double w1 = 1, double w2 = 1 );
+   void AddTableToAnotherTable( std::vector<std::vector<std::vector<double > > >* vSum, std::vector<std::vector<std::vector<double > > >* vAdd, double w1 = 1, double w2 = 1 );
+   void AddTableToAnotherTable( std::vector<std::vector<double > >* vSum, std::vector<std::vector<double > >* vAdd, double w1 = 1, double w2 = 1 );
+   void AddTableToAnotherTable( std::vector<double >* vSum, std::vector<double >* vAdd, double w1 = 1, double w2 = 1 );
 
    void Print() const;
 
@@ -126,84 +125,84 @@ protected:
    int IContrFlag2;
    int NScaleDep;
    // obsolete int NContrDescr;
-   vector < string > CtrbDescript;
+   std::vector < std::string > CtrbDescript;
    // obsolete   int NCodeDescr;
-   vector < string > CodeDescript;
+   std::vector < std::string > CodeDescript;
    int Nuncorrel;
-   vector < string > UncDescr;
+   std::vector < std::string > UncDescr;
    int Ncorrel;
-   vector < string > CorDescr;
-   vector < double > Xcenter;
-   vector < double > Value;
-   vector < vector < double > > UncorLo;
-   vector < vector < double > > UncorHi;
-   vector < vector < double > > CorrLo;
-   vector < vector < double > > CorrHi;
+   std::vector < std::string > CorDescr;
+   std::vector < double > Xcenter;
+   std::vector < double > Value;
+   std::vector < std::vector < double > > UncorLo;
+   std::vector < std::vector < double > > UncorHi;
+   std::vector < std::vector < double > > CorrLo;
+   std::vector < std::vector < double > > CorrHi;
    int NErrMatrix;
-   vector < vector < double > > matrixelement;
-   vector < double > fact;
+   std::vector < std::vector < double > > matrixelement;
+   std::vector < double > fact;
    int IRef;
    int IScaleDep;
    unsigned long long int Nevt;
    int Npow;
    int NPDF;
-   vector < int > NPDFPDG;
+   std::vector < int > NPDFPDG;
    int NPDFDim;
    int NFragFunc;
-   vector < int > NFFPDG;
+   std::vector < int > NFFPDG;
    int NFFDim;
    int NSubproc;
    int IPDFdef1;
    int IPDFdef2;
    int IPDFdef3;
    // Missing: linear PDF combinations for IPDFdef1=0
-   //vector < int > Nxtot1;
-   vector < double > Hxlim1;
-   vector < vector < double > > XNode1;
-   //vector < int >  Nxtot2;
-   vector < double > Hxlim2;
-   vector < vector < double > > XNode2;
-   vector < int > Nztot;
-   vector < double > Hzlim;
-   vector < vector < double > > ZNode;
+   //std::vector < int > Nxtot1;
+   std::vector < double > Hxlim1;
+   std::vector < std::vector < double > > XNode1;
+   //std::vector < int >  Nxtot2;
+   std::vector < double > Hxlim2;
+   std::vector < std::vector < double > > XNode2;
+   std::vector < int > Nztot;
+   std::vector < double > Hzlim;
+   std::vector < std::vector < double > > ZNode;
    int NScales;
    int NScaleDim;
-   vector < int > Iscale;
-   // obsolete vector < int > NscaleDescript;
-   vector < vector < string > > ScaleDescript;
+   std::vector < int > Iscale;
+   // obsolete std::vector < int > NscaleDescript;
+   std::vector < std::vector < std::string > > ScaleDescript;
 
 
    // ------------------------ not flexible scale --------------------------- //
-   vector < int > Nscalevar;
-   vector < int > Nscalenode;
-   vector < vector < double > > ScaleFac;
-   vector < vector < vector < vector < double > > > > ScaleNode;
-   //vector < vector < vector < vector < double > > > > HScaleNode;
-   vector < vector < vector < vector < vector < double > > > > > SigmaTilde;
+   std::vector < int > Nscalevar;
+   std::vector < int > Nscalenode;
+   std::vector < std::vector < double > > ScaleFac;
+   std::vector < std::vector < std::vector < std::vector < double > > > > ScaleNode;
+   //std::vector < std::vector < std::vector < std::vector < double > > > > HScaleNode;
+   std::vector < std::vector < std::vector < std::vector < std::vector < double > > > > > SigmaTilde;
 
    // --------------------------- flexible scale --------------------------- //
    // ---- members to write to disc ---- //
    // SigmaTilde [NObsBins] ['n' x-nodes] [n s1-Nodes] [n s2-Nodes] [nsubproc]
-   vector < vector < vector < vector < vector < double > > > > > SigmaTildeMuIndep; 
-   vector < vector < vector < vector < vector < double > > > > > SigmaTildeMuFDep; 
-   vector < vector < vector < vector < vector < double > > > > > SigmaTildeMuRDep; 
+   std::vector < std::vector < std::vector < std::vector < std::vector < double > > > > > SigmaTildeMuIndep; 
+   std::vector < std::vector < std::vector < std::vector < std::vector < double > > > > > SigmaTildeMuFDep; 
+   std::vector < std::vector < std::vector < std::vector < std::vector < double > > > > > SigmaTildeMuRDep; 
    // SigmaRef [NObsBins] [nsubproc]
-   vector < vector < double > > SigmaRefMixed; 
-   vector < vector < double > > SigmaRef_s1; 
-   vector < vector < double > > SigmaRef_s2; 
+   std::vector < std::vector < double > > SigmaRefMixed; 
+   std::vector < std::vector < double > > SigmaRef_s1; 
+   std::vector < std::vector < double > > SigmaRef_s2; 
    int NscalenodeScale1;
    int NscalenodeScale2;
    // ScaleNodeXY [ObsBin] [NscalenodeScaleX]  
-   vector < vector < double > > ScaleNode1;
-   vector < vector < double > > ScaleNode2;
-   //    vector < vector < double > > HScaleNode1;
-   //    vector < vector < double > > HScaleNode2;
+   std::vector < std::vector < double > > ScaleNode1;
+   std::vector < std::vector < double > > ScaleNode2;
+   //    std::vector < std::vector < double > > HScaleNode1;
+   //    std::vector < std::vector < double > > HScaleNode2;
 
 };
 
 
 template<typename T>
-int fastNLOCoefficients::ReadFlexibleVector(vector<T>* v, istream* table, bool nProcLast){
+int fastNLOCoefficients::ReadFlexibleVector(std::vector<T>* v, std::istream* table, bool nProcLast){
    int nn = 0;
    int size = 0;
    *table >> size; nn++;
@@ -216,14 +215,14 @@ int fastNLOCoefficients::ReadFlexibleVector(vector<T>* v, istream* table, bool n
 
 
 // template<typename T>
-// void fastNLOCoefficients::ResizeFlexibleVector(vector<T>* v, vector<T>* nom){
+// void fastNLOCoefficients::ResizeFlexibleVector(std::vector<T>* v, std::vector<T>* nom){
 //    v->resize(nom->size());
 //    for ( unsigned int i = 0 ; i<v->size() ; i++ ){
 //       ResizeFlexibleVector(&((*v)[i]),&((*nom)[i]));
 //    }
 // };
 
-template<typename T> int fastNLOCoefficients::ReadTable( vector<T>* v, istream *table ){
+template<typename T> int fastNLOCoefficients::ReadTable( std::vector<T>* v, std::istream *table ){
    int nn = 0;
    for(unsigned int i0=0;i0<v->size();i0++){
       nn+= ReadTable(&(*v)[i0],table);
