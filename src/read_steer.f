@@ -1399,6 +1399,12 @@ C
             name(i) = ' '
          enddo
          read (51,NML=ExtraMinimisationParameters,END=71,ERR=72)
+
+         call hf_errlog(18031501,
+     $        'W: Reading parameters from'//achar(27)
+     $        //'[31m obsolete ExtraMinimisationParameters'
+     $        //' namelist.    Consider using parameters.yaml instead'
+     $         //achar(27)//'[34m')    
          
          do i=1,maxExtra
             if (name(i).ne.' ') then
