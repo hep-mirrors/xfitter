@@ -9,6 +9,21 @@ using namespace std;
 using namespace fastNLO;
 
 //________________________________________________________________________________________________________________ //
+fastNLOCoeffAddBase::fastNLOCoeffAddBase(int NObsBin)
+   : fastNLOCoeffBase(NObsBin), IRef(), IScaleDep(), Nevt(), Npow(), NPDFPDG(),
+     NPDFDim(), NFFPDG(), NFFDim(), NSubproc(), IPDFdef1(), IPDFdef2(), IPDFdef3(),
+     fPDFCoeff(), Hxlim1(), XNode1(), Hxlim2(), XNode2(), Nztot(), Hzlim(), ZNode(),
+     NScales(), NScaleDim(), Iscale(), ScaleDescript() {
+
+}
+
+
+//________________________________________________________________________________________________________________ //
+fastNLOCoeffAddBase::fastNLOCoeffAddBase(const fastNLOCoeffBase& base ) : fastNLOCoeffBase(base) {
+}
+
+
+//________________________________________________________________________________________________________________ //
 bool fastNLOCoeffAddBase::CheckCoeffConstants(const fastNLOCoeffBase* c, bool quiet) {
    if ( c->GetIAddMultFlag()==0 && c->GetIDataFlag()==0 ) {
       // Additive contribution
@@ -29,27 +44,10 @@ bool fastNLOCoeffAddBase::CheckCoeffConstants(const fastNLOCoeffBase* c, bool qu
    }
 }
 
-
 //________________________________________________________________________________________________________________ //
-fastNLOCoeffAddBase::fastNLOCoeffAddBase(){
-}
-
-
-//________________________________________________________________________________________________________________ //
-fastNLOCoeffAddBase::fastNLOCoeffAddBase(int NObsBin) : fastNLOCoeffBase(NObsBin) {
-   NScaleDep = 0;
-}
-
-
-//________________________________________________________________________________________________________________ //
-fastNLOCoeffAddBase::fastNLOCoeffAddBase(const fastNLOCoeffBase& base ) : fastNLOCoeffBase(base) {
-}
-
-
-//________________________________________________________________________________________________________________ //
-fastNLOCoeffBase* fastNLOCoeffAddBase::Clone() const {
+fastNLOCoeffAddBase* fastNLOCoeffAddBase::Clone() const {
    //! Use has to take care to delete this object later
-   return static_cast<fastNLOCoeffBase*>(new fastNLOCoeffAddBase(*this));
+   return new fastNLOCoeffAddBase(*this);
 }
 
 
@@ -66,9 +64,41 @@ void fastNLOCoeffAddBase::Read(istream& table){
 void fastNLOCoeffAddBase::ReadCoeffAddBase(istream& table){
    CheckCoeffConstants(this);
    char buffer[5257];
+   string stest;
+   if ( fVersionRead>=24000 ) table >> stest; //"fastNLO_CoeffAddBase"
+   if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
    table >> IRef;
    table >> IScaleDep;
-   table >> Nevt;
+   if ( fVersionRead >= 24000 ) {
+      table >> Nevt;
+      table >> fWgt.WgtNevt;
+      table >> fWgt.NumTable;
+      table >> fWgt.WgtNumEv;
+      table >> fWgt.WgtSumW2;
+      table >> fWgt.SigSumW2;
+      table >> fWgt.SigSum;
+      fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsSumW2, table );
+      fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSumW2, table );
+      fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSum, table );
+      fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsNumEv, table );
+   }
+   else {
+      table >> Nevt;
+      double readNevt = Nevt;
+      if ( Nevt <= 0 ) { // v2300
+         table >> Nevt;
+         table >> fWgt.WgtNevt;
+         if ( readNevt<=-2 ) table >> fWgt.NumTable;
+         table >> fWgt.WgtNumEv;
+         table >> fWgt.WgtSumW2;
+         table >> fWgt.SigSumW2;
+         table >> fWgt.SigSum;
+         fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsSumW2, table );
+         fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSumW2, table );
+         fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSum, table );
+         fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsNumEv, table );
+      }
+   }
    table >> Npow;
    int NPDF;
    table >> NPDF;
@@ -92,7 +122,9 @@ void fastNLOCoeffAddBase::ReadCoeffAddBase(istream& table){
    table >> IPDFdef1;
    table >> IPDFdef2;
    table >> IPDFdef3;
-   //printf("  *  fastNLOCoeffAddBase::Read(). IRef : %d, IScaleDep: %d, Nevt: %d, Npow: %d, NPDF: %d, NPDFDim: %d\n", IRef ,IScaleDep  ,Nevt  , Npow ,NPDF , NPDFDim  );
+
+   sub_enabled.clear();
+   sub_enabled.resize(NSubproc, true); // enable all subprocesses by default
 
    if(IPDFdef2==0){ // PDF linear combinations are stored herewith
       if ( IPDFdef3 != NSubproc ){
@@ -112,7 +144,7 @@ void fastNLOCoeffAddBase::ReadCoeffAddBase(istream& table){
                   table >> PDF1Flavor;
                   table >> PDF2Flavor;
                }
-               else if ( IPDFdef1>=3 ) {
+               else if ( IPDFdef1==2 ) {
                   table >> PDF1Flavor;
                   PDF2Flavor = PDF1Flavor;
                }
@@ -132,7 +164,7 @@ void fastNLOCoeffAddBase::ReadCoeffAddBase(istream& table){
          }else{
             if(NPDF==2){
             }
-         }
+        }
       }
    }
    //Nxtot1.resize(fNObsBins);
@@ -188,55 +220,92 @@ void fastNLOCoeffAddBase::ReadCoeffAddBase(istream& table){
       for(int j=0;j<NscaleDescript;j++){
          table.getline(buffer,256);
          ScaleDescript[i][j] = buffer;
-         //            StripWhitespace(ScaleDescript[i][j]);
+      //            StripWhitespace(ScaleDescript[i][j]);
       }
    }
+
+   if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
+   if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffAddBase::Write(ostream& table) {
+void fastNLOCoeffAddBase::Write(ostream& table, int itabversion) {
    debug["Write"]<<"Calling fastNLOCoeffBase::Write()"<<endl;
-   fastNLOCoeffBase::Write(table);
+   fastNLOCoeffBase::Write(table,itabversion);
    CheckCoeffConstants(this);
-   table << IRef << endl;
-   table << IScaleDep << endl;
-   table << Nevt << endl;
-   table << Npow << endl;
-   table << NPDFPDG.size() << endl;
-   for(unsigned int i=0;i<NPDFPDG.size();i++){
-      table <<  NPDFPDG[i] << endl;
+   if ( itabversion >= 24000 ) table << "fastNLO_CoeffAddBase" << sep;
+   if ( itabversion >= 24000 ) table << 0 << sep; // v2.4, but yet unused
+   table << IRef << sep;
+   table << IScaleDep << sep;
+   // table << Nevt << sep;
+   if ( itabversion==23000 || itabversion==23500 || itabversion==23600 ) { // detailed storage of weights
+      if ( itabversion==23000 || itabversion==23500 ) table << -1 << sep; // -1: read the values below
+      else table << -2 << sep; // -1: read the values below
+      table << Nevt << sep;
+      table << fWgt.WgtNevt << sep;
+      if ( itabversion >= 23600 ) table << fWgt.NumTable << sep;
+      table << fWgt.WgtNumEv << sep;
+      table << fWgt.WgtSumW2 << sep;
+      table << fWgt.SigSumW2 << sep;
+      table << fWgt.SigSum << sep;
+      fastNLOTools::WriteFlexibleVector ( fWgt.WgtObsSumW2, table );
+      fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSumW2, table );
+      fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSum, table );
+      fastNLOTools::WriteFlexibleVector ( fWgt.WgtObsNumEv, table );
    }
-   table << NPDFDim << endl;
+   else if ( itabversion>=24000 ) { // detailed storage of weights
+      table << Nevt << sep;
+      table << fWgt.WgtNevt << sep;
+      table << fWgt.NumTable << sep;
+      table << fWgt.WgtNumEv << sep;
+      table << fWgt.WgtSumW2 << sep;
+      table << fWgt.SigSumW2 << sep;
+      table << fWgt.SigSum << sep;
+      fastNLOTools::WriteFlexibleVector ( fWgt.WgtObsSumW2, table );
+      fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSumW2, table );
+      fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSum, table );
+      fastNLOTools::WriteFlexibleVector ( fWgt.WgtObsNumEv, table );
+   }
+   else {
+      table << Nevt << sep;
+   }
+   table << Npow << sep;
+   table << NPDFPDG.size() << sep;
+   for(unsigned int i=0;i<NPDFPDG.size();i++){
+      table <<  NPDFPDG[i] << sep;
+   }
+   table << NPDFDim << sep;
    int NFragFunc = NFFPDG.size();
-   table << NFragFunc << endl;
+   table << NFragFunc << sep;
    if(NFragFunc>0){
       for(int i=0;i<NFragFunc;i++){
-         table <<  NFFPDG[i] << endl;
+         table <<  NFFPDG[i] << sep;
       }
    }
-   table << NFFDim << endl;
-   table << NSubproc << endl;
-   table << IPDFdef1 << endl;
-   table << IPDFdef2 << endl;
-   table << IPDFdef3 << endl;
+   table << NFFDim << sep;
+   table << NSubproc << sep;
+   table << IPDFdef1 << sep;
+   table << IPDFdef2 << sep;
+   table << IPDFdef3 << sep;
 
    if(IPDFdef2==0){ // PDF linear combinations are stored herewith
+      cout<<"Writing PDF coefficients into table."<<endl;
       if ( IPDFdef3 != NSubproc ){
          error["Write"]<<"IPDFdef3 must be equal to NSubproc. (IPDFdef3="<<IPDFdef3<<", NSubproc="<<NSubproc<<"). Exiting."<<endl;
          exit(1);
       }
       int IPDFCoeffFormat = 0 ; // this is format style 0
-      table <<  IPDFCoeffFormat << endl;
+      table <<  IPDFCoeffFormat << sep;
       for(int k=0;k<NSubproc;k++){
-         table << fPDFCoeff[k].size() <<endl; // NPartonParis
+         table << fPDFCoeff[k].size() <<sep; // NPartonParis
          for( unsigned int n=0;n<fPDFCoeff[k].size();n++){
             if ( IPDFdef1>=3 ) {
-               table << fPDFCoeff[k][n].first << endl;
-               table << fPDFCoeff[k][n].second << endl;
+               table << fPDFCoeff[k][n].first << sep;
+               table << fPDFCoeff[k][n].second << sep;
             }
-            else if ( IPDFdef1>=3 ) {
-               table << fPDFCoeff[k][n].first << endl;
+            else if ( IPDFdef1==2 ) {
+               table << fPDFCoeff[k][n].first << sep;
             }
          }
       }
@@ -253,47 +322,116 @@ void fastNLOCoeffAddBase::Write(ostream& table) {
       }
    }
    for(int i=0;i<fNObsBins;i++){
-      table << XNode1[i].size() << endl;
+      table << XNode1[i].size() << sep;
       for(unsigned int j=0;j<XNode1[i].size();j++){
-         table << XNode1[i][j] << endl;
+         table << XNode1[i][j] << sep;
       }
    }
    if(NPDFDim==2){
       for(int i=0;i<fNObsBins;i++){
-         table << XNode2[i].size() << endl;
+         table << XNode2[i].size() << sep;
          for(unsigned int j=0;j<XNode2[i].size();j++){
-            table << XNode2[i][j] << endl;
+            table << XNode2[i][j] << sep;
          }
       }
    }
    if(NFragFunc>0){
       for(int i=0;i<fNObsBins;i++){
-         table << Nztot[i] << endl;
+         table << Nztot[i] << sep;
          for(int j=0;j<Nztot[i];j++){
-            table << ZNode[i][j] << endl;
+            table << ZNode[i][j] << sep;
          }
       }
    }
    int NScales = Iscale.size();
-   table << NScales << endl;
-   table << NScaleDim << endl;
+   table << NScales << sep;
+   table << NScaleDim << sep;
    for(int i=0;i<NScales;i++){
-      table << Iscale[i] << endl;
+      table << Iscale[i] << sep;
    }
    for(int i=0;i<NScaleDim;i++){
-      table << ScaleDescript[i].size() << endl;
+      table << ScaleDescript[i].size() << sep;
       for(unsigned int j=0;j<ScaleDescript[i].size();j++){
-         table << ScaleDescript[i][j] << endl;
+         table << ScaleDescript[i][j] << sep;
       }
    }
+   if ( itabversion>=24000 ) table << 0 << sep; // v2.4, but yet unused
+   if ( itabversion>=24000 ) table << 0 << sep; // v2.4, but yet unused
+
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffAddBase::Add(const fastNLOCoeffAddBase& other){
+void fastNLOCoeffAddBase::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge moption){
    //    double w1 = (double)Nevt / (Nevt+other.Nevt);
    //    double w2 = (double)other.Nevt / (Nevt+other.Nevt);
-   Nevt += other.Nevt;
+   if ( Nevt==1 || other.GetNevt()==1 ) {
+      if ( moption != fastNLO::kAdd && moption != fastNLO::kUnweighted && moption != fastNLO::kAttach ) {
+         error["Add"]<<"Table has weight 1, which is invalid for mergeing purposes."<<endl;
+         error["Add"]<<"Possibly, the table is a result from a previous 'append' or 'unweighted' mergeing."<<endl;
+         exit(4);
+      }
+   }
+
+
+   if ( moption==fastNLO::kAttach ) {
+      //Nevt = Nevt;// stays!
+      fWgt.WgtNevt  = 1;
+      fWgt.NumTable += other.fWgt.NumTable;
+      fWgt.WgtNumEv += other.fWgt.WgtNumEv;
+      fWgt.WgtSumW2 += other.fWgt.WgtSumW2;
+      fWgt.SigSumW2 += other.fWgt.SigSumW2;
+      fWgt.SigSum   += other.fWgt.SigSum;
+      for ( unsigned int iAddProc = 0 ; iAddProc<other.fWgt.WgtObsSumW2.size() ; iAddProc++ ) {
+         fWgt.WgtObsSumW2.push_back(other.fWgt.WgtObsSumW2[iAddProc]);
+         fWgt.SigObsSumW2.push_back(other.fWgt.SigObsSumW2[iAddProc]);
+         fWgt.SigObsSum.  push_back(other.fWgt.SigObsSum[iAddProc]);
+         fWgt.WgtObsNumEv.push_back(other.fWgt.WgtObsNumEv[iAddProc]);
+      }
+      if ( other.GetPDFCoeff().size() ==0  || this->GetPDFCoeff().size()==0 ) {
+         error["Add"]<<"Mergeing option 'kAttach' requires that PDF coefficients are stored in table.!"<<endl;
+      }
+      for ( unsigned int iAddProc = 0 ; iAddProc<other.GetPDFCoeff().size() ;iAddProc++ ) {
+         fPDFCoeff.push_back(other.GetPDFCoeff()[iAddProc]);
+      }
+      NSubproc += other.GetNSubproc();
+      IPDFdef3 += other.GetIPDFdef3();
+   }
+   else {
+      Nevt += other.Nevt;
+      fWgt.WgtNevt  += other.fWgt.WgtNevt;
+      fWgt.NumTable += other.fWgt.NumTable;
+      fWgt.WgtNumEv += other.fWgt.WgtNumEv;
+      fWgt.WgtSumW2 += other.fWgt.WgtSumW2;
+      fWgt.SigSumW2 += other.fWgt.SigSumW2;
+      fWgt.SigSum   += other.fWgt.SigSum;
+      fastNLOTools::AddVectors( fWgt.WgtObsSumW2, other.fWgt.WgtObsSumW2 );
+      fastNLOTools::AddVectors( fWgt.SigObsSumW2, other.fWgt.SigObsSumW2 );
+      fastNLOTools::AddVectors( fWgt.SigObsSum,   other.fWgt.SigObsSum );
+      fastNLOTools::AddVectors( fWgt.WgtObsNumEv, other.fWgt.WgtObsNumEv );
+   }
+
+}
+
+
+//________________________________________________________________________________________________________________ //
+double fastNLOCoeffAddBase::GetMergeWeight(fastNLO::EMerge moption, int proc, int bin) const {
+
+   //!< Get a bin and subprocess dependent weight for merging puprposes.
+   if      ( moption == kMerge    )   return fWgt.WgtNevt; // Nevt
+   else if ( moption == kUnweighted ) return fWgt.NumTable;
+   else if ( moption == kAdd )     return 1;
+   else if ( moption == kNumEvent )   return double(fWgt.WgtNumEv);
+   else if ( moption == kSumW2    )   return fWgt.WgtSumW2;
+   else if ( moption == kSumSig2  )   return fWgt.SigSumW2;
+   else if ( moption == kSumUser  )   return fWgt.SigSum;
+   else if ( moption == kNumEventBinProc ) return double(fWgt.WgtObsNumEv[proc][bin]);
+   else if ( moption == kSumW2BinProc    ) return fWgt.WgtObsSumW2[proc][bin];
+   else if ( moption == kSumSig2BinProc  ) return fWgt.SigObsSumW2[proc][bin];
+   else if ( moption == kSumUserBinProc  ) return fWgt.SigObsSum[proc][bin];
+   error["GetMergeWeight"]<<"Weighting option not recognized: "<<moption<<endl;
+   exit(4);
+   return 0;
 }
 
 
@@ -301,56 +439,60 @@ void fastNLOCoeffAddBase::Add(const fastNLOCoeffAddBase& other){
 bool fastNLOCoeffAddBase::IsCompatible(const fastNLOCoeffAddBase& other) const {
    // chek CoeffBase variables
    if ( ! ((fastNLOCoeffBase*)this)->IsCompatible(other)) {
-      say::debug["fastNLOCoeffAddBase::IsCompatible"]<<"fastNLOCoeffBase not compatible."<<endl;
+      debug["IsCompatible"]<<"fastNLOCoeffBase not compatible."<<endl;
       return false;
    }
    if ( IRef != other.GetIRef() ) {
       //warn["IsCompatible"]<<""<<endl;
-      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of IRef detected."<<endl;
+      warn["IsCompatible"]<<"Different number of IRef detected."<<endl;
+      return false;
+   }
+   if ( Nevt * other.Nevt < 0 ) {
+      // skip, if the two tables store the event weights in different formats
+      // If this is needed, simple solutions are thinkable
+      warn["IsCompatible"]<<"Tables use different format for normalisation."<<endl;
       return false;
    }
    if ( IScaleDep != other.GetIScaleDep() ) {
-      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of IScaleDep detected."<<endl;
+      warn["IsCompatible"]<<"Different number of IScaleDep detected."<<endl;
       return false;
    }
    if ( Npow != other.GetNpow() ) {
-      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of NPow detected."<<endl;
-      //warn["IsCompatible"]<<""<<endl;
+      warn["IsCompatible"]<<"Different number of NPow detected."<<endl;
       return false;
    }
    if ( GetNPDF() != other.GetNPDF() ) {
-      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of NPDF detected."<<endl;
-      //warn["IsCompatible"]<<""<<endl;
+      warn["IsCompatible"]<<"Different number of NPDF detected."<<endl;
       return false;
    }
    if ( NSubproc != other.GetNSubproc() ) {
-      say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different numbers for NSubproc detected."<<endl;
-      //warn["IsCompatible"]<<""<<endl;
-      return false;
+      warn["IsCompatible"]<<"Different numbers for NSubproc detected."<<endl;
+      //return false;
+      warn["IsCompatible"]<<"Continuing! (experimental: This is needed for kAttach, but may causes bugs otherwise. Please report!)"<<endl;
    }
    // check x-nodes briefly
    if ( fNObsBins != other.GetNObsBin() ){
-      say::warn["IsCompatible"]<<"Different number of bins detected."<<endl;
+      warn["IsCompatible"]<<"Different number of bins detected."<<endl;
       return false;
    }
    // check x-nodes briefly
    for ( int i = 0 ; i< fNObsBins ;i++ ){
       if ( GetNxmax(i) != other.GetNxmax(i) ){
-	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of x-nodes detected."<<endl;
-	 return false;
+         error["IsCompatible"]<<"Different number of x-nodes detected: "<<GetNxmax(i)<<" <-> "<<other.GetNxmax(i)<<endl;
+         return false;
       }
       if ( GetNxtot1(i) != other.GetNxtot1(i) ){
-	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different number of x-nodes detected."<<endl;
-	 return false;
+         error["IsCompatible"]<<"Different number of x-nodes detected: "<<GetNxtot1(i)<<" <-> "<<other.GetNxtot1(i)<<endl;
+         return false;
       }
       if ( GetXNode1(i,0) != other.GetXNode1(i,0) ){
-	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different values for x-nodes detected."<<endl;
-	 return false;
+         warn["IsCompatible"]<<"Different values for x-nodes detected. Lowest x-node: "<<GetXNode1(i,0)<<" <-> "<<other.GetXNode1(i,0)<<endl;
+         return false;
       }
-      if ( GetXNode1(i,1) != other.GetXNode1(i,1) ){
-	 say::warn["fastNLOCoeffAddBase::IsCompatible"]<<"Different values for x-nodes detected."<<endl;
-	 return false;
-      }
+      // if ( GetXNode1(i,1) != other.GetXNode1(i,1) ){
+      //    warn["IsCompatible"]<<"Different values for x-nodes detected."<<endl;
+      //    return false;
+      // }
    }
    // succesful!
    return true;
@@ -358,15 +500,122 @@ bool fastNLOCoeffAddBase::IsCompatible(const fastNLOCoeffAddBase& other) const {
 
 
 //________________________________________________________________________________________________________________ //
+bool fastNLOCoeffAddBase::IsCatenable(const fastNLOCoeffAddBase& other) const {
+   // check CoeffBase variables
+   if ( ! ((fastNLOCoeffBase*)this)->IsCatenable(other)) {
+      debug["IsCatenable"]<<"fastNLOCoeffBase not compatible. Skipped."<<endl;
+      return false;
+   }
+   if ( Nevt * other.Nevt < 0 ) {
+      // skip, if the two tables store the event weights in different formats
+      // If this is needed, simple solutions are thinkable
+      debug["IsCatenable"]<<"Tables use different format for table normalisation. Skipped."<<endl;
+      return false;
+   }
+   if ( IRef != other.GetIRef() ) {
+      debug["IsCatenable"]<<"Different number of IRef detected. Skipped."<<endl;
+      return false;
+   }
+   if ( IScaleDep != other.GetIScaleDep() ) {
+      debug["IsCatenable"]<<"Different number of IScaleDep detected. Skipped."<<endl;
+      return false;
+   }
+   if ( Npow != other.GetNpow() ) {
+      debug["IsCatenable"]<<"Different number of NPow detected. Skipped."<<endl;
+      return false;
+   }
+   if ( GetNPDF() != other.GetNPDF() ) {
+      debug["IsCatenable"]<<"Different number of NPDF detected. Skipped."<<endl;
+      return false;
+   }
+   if ( NSubproc != other.GetNSubproc() ) {
+      debug["IsCatenable"]<<"Different numbers for NSubproc detected. Skipped."<<endl;
+      return false;
+   }
+   // check x-nodes briefly
+   // for ( int i = 0 ; i< fNObsBins ;i++ ){
+   //    if ( GetNxmax(i) != other.GetNxmax(i) ){
+   //       debug["IsCatenable"]<<"Different number of x-nodes detected."<<endl;
+   //       return false;
+   //    }
+   //    if ( GetNxtot1(i) != other.GetNxtot1(i) ){
+   //       debug["IsCatenable"]<<"Different number of x-nodes detected."<<endl;
+   //       return false;
+   //    }
+   //    if ( GetXNode1(i,0) != other.GetXNode1(i,0) ){
+   //       debug["IsCatenable"]<<"Different values for x-nodes detected."<<endl;
+   //       return false;
+   //    }
+   //    if ( GetXNode1(i,1) != other.GetXNode1(i,1) ){
+   //       debug["IsCatenable"]<<"Different values for x-nodes detected."<<endl;
+   //       return false;
+   //    }
+   // }
+   info["IsCatenable"]<<"Base parameters of additive contribution allow catenation"<<endl;
+   return true;
+}
+
+//________________________________________________________________________________________________________________
+bool fastNLOCoeffAddBase::SubSelect( vector< pair<int,int> > processes, bool on ) {
+   vector<int> s;
+   s.clear();
+   for ( unsigned int k=0; k<processes.size(); k++ ) {
+      pair<int,int> p = processes[k];
+      // search for selected process in fPDFCoeff
+      bool fff = false;
+      for ( unsigned int i = 0; i<fPDFCoeff.size(); i++ ) {
+         for ( unsigned int j = 0; j<fPDFCoeff[i].size(); j++ ) {
+	    if ( p == fPDFCoeff[i][j] ) {
+	       // found! now check if the other proesses in this subcontribution are also to be selected
+	       vector< pair<int,int> > p_list = fPDFCoeff[i];
+	       bool f = true;
+	       for ( unsigned int n = 0; n<p_list.size(); n++ ) {
+		  bool ff = false;
+		  for ( unsigned int m = 0; m<processes.size(); m++ )
+		     if ( p_list[n] == processes[m] )
+			ff = true;
+	       	  f &= ff;
+	       }	       
+	       if (!f)
+		  return false;
+	       s.push_back(i);
+	       fff = true;
+	    }
+	 }
+      }
+      if (!fff)
+	 return false;
+   }
+   // now activate the selected subcontributions and return succes (true)
+   for ( unsigned int k = 0; k<s.size(); k++ )
+      SubEnable(s[k], on);
+
+   return true;
+}
+	          
+
+
+//________________________________________________________________________________________________________________ //
 void fastNLOCoeffAddBase::Clear() {
    //! Clear all coefficients and event counts
    Nevt = 0;
+   fWgt.WgtNevt = 0;
+   fWgt.NumTable = 1;
+   fWgt.WgtNumEv = 0;
+   fWgt.WgtSumW2 = 0;
+   fWgt.SigSumW2 = 0;
+   fWgt.SigSum   = 0;
+   fastNLOTools::ClearVector(fWgt.WgtObsSumW2);
+   fastNLOTools::ClearVector(fWgt.SigObsSumW2);
+   fastNLOTools::ClearVector(fWgt.SigObsSum);
+   fastNLOTools::ClearVector(fWgt.WgtObsNumEv);
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffAddBase::NormalizeCoefficients() {
-   Nevt = 1;
+void fastNLOCoeffAddBase::NormalizeCoefficients(double wgt) {
+   Nevt = wgt;
+   // Don't touch other weights.
 }
 
 
@@ -404,54 +653,164 @@ int fastNLOCoeffAddBase::GetXIndex(int Obsbin,int x1bin,int x2bin) const {
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffAddBase::Print() const {
-   fastNLOCoeffBase::Print();
-   printf(" **************** FastNLO Table: fastNLOCoeffAddBase ****************\n");
-   printf(" B   IRef                          %d\n",IRef);
-   printf(" B   NScaleDep                     %d\n",NScaleDep);
-   printf(" B   IScaleDep                     %d\n",IScaleDep);
-   printf(" B   Nevt                          %f\n",Nevt);
-   printf(" B   Npow                          %d\n",Npow);
-   printf(" B   NPDF                          %lu\n",NPDFPDG.size());
-   for(unsigned int i=0;i<NPDFPDG.size();i++){
-      printf(" B    - NPDFPDG[%d]                 %d\n",i,NPDFPDG[i]);
+double fastNLOCoeffAddBase::GetX1(int iObsBin, int iXnode) const {
+   // return x-value of PDF1 at node iXnode
+   switch (NPDFDim) {
+   case 0:
+      return GetXNode1(iObsBin,iXnode);
+   case 1:
+      //
+      // cout<<"GetX1 not implemented for half-matrix notation!"<<endl;
+      //
+      return 1;
+   case 2:
+      return GetXNode1(iObsBin, iXnode % GetNxtot1(iObsBin) );
+   default: return 1;
    }
-   printf(" B   NPDFDim                       %d\n",NPDFDim);
-   printf(" B   NFragFunc                     %lu\n",NFFPDG.size());
-   for(unsigned int i=0;i<NFFPDG.size();i++){
-      printf(" B    - NFFPDG[%d]               %d\n",i,NFFPDG[i]);
+   return 1;
+}
+
+//________________________________________________________________________________________________________________ //
+double fastNLOCoeffAddBase::GetX2(int iObsBin, int iXnode) const {
+   // return x-value of PDF1 at node iXnode
+   switch (NPDFDim) {
+   case 0:
+      return 1;
+   case 1:
+      //
+      //cout<<"GetX2 not implemented for half-matrix notation!"<<endl;
+      //
+      return 1;
+   case 2:
+      return GetXNode2(iObsBin, iXnode / GetNxtot1(iObsBin) );
+   default: return 1;
    }
-   printf(" B   NFFDim                        %d\n",NFFDim);
-   printf(" B   NSubproc                      %d\n",NSubproc);
-   printf(" B   IPDFdef1                      %d\n",IPDFdef1);
-   printf(" B   IPDFdef2                      %d\n",IPDFdef2);
-   printf(" B   IPDFdef3                      %d\n",IPDFdef3);
-   printf(" B   Nxtot1[0-%d]             ",fNObsBins);
-   for(int i=0;i<fNObsBins;i++){
-      printf("%lu ,",XNode1[i].size());
-   }
-   printf("\n");
-   //     for(int i=0;i<fNObsBins;i++){
-   //       printf(" B    XNode1[%d]             ",i);
-   //       for(int j=0;j<Nxtot1[i];j++){
-   //   printf(" B   %8.4f ,",XNode1[i][j]);
-   //       }
-   //       printf(" B   \n");
-   //     }
-   printf(" B   if (NPDFDim==2), you could print xnodes2 here. (NPDFDim = %d)\n",NPDFDim);
-   printf(" B   if (NFragFunc>0), you could print xnodes2 here. (NFragFunc = %lu)\n",NFFPDG.size());
-   printf(" B   NScales                       %lu\n",Iscale.size());
-   for(unsigned int i=0;i<Iscale.size();i++){
-      printf(" B    - Iscale[%d]                  %d\n",i,Iscale[i]);
-   }
-   printf(" B   NScaleDim                     %d\n",NScaleDim);
-   for(int i=0;i<NScaleDim;i++){
-      for(unsigned int j=0;j<ScaleDescript[i].size();j++){
-         printf(" B    -  - ScaleDescript[%d][%d]     %s\n",i,j,ScaleDescript[i][j].data());
-      }
-   }
-   printf(" *******************************************************\n");
+   return 1;
 }
 
 
 //________________________________________________________________________________________________________________ //
+void fastNLOCoeffAddBase::Print(int iprint) const {
+   if ( !(iprint < 0) ) {
+      fastNLOCoeffBase::Print(iprint);
+      cout << fastNLO::_DSEP20C << " fastNLO Table: CoeffAddBase " << fastNLO::_DSEP20 << endl;
+   } else {
+      cout << endl << fastNLO::_CSEP20C << " fastNLO Table: CoeffAddBase " << fastNLO::_CSEP20 << endl;
+   }
+   printf(" # No. of events (Nevt)                %f\n",Nevt);
+   if ( fWgt.WgtNevt!= 0 || fWgt.WgtSumW2!= 0 ) {
+      printf(" # Weight of table [=Nevt] (fWgtNevt)  %f\n",fWgt.WgtNevt);
+      printf(" # Number of tables merged together    %d\n",fWgt.NumTable);
+      printf(" # No. of filled events (WgtNumEv)     %llu\n",fWgt.WgtNumEv);
+      printf(" # Sum of weights squared (WgtSumW2)   %f\n",fWgt.WgtSumW2);
+      printf(" # Sum of sigma squared (SigSumW2)     %f\n",fWgt.SigSumW2);
+      printf(" # Sum of sigma (SigSum)               %f\n",fWgt.SigSum);
+      printf(" # Sigma / Nevt (SigSum/WgtNevt)       %f\n",fWgt.SigSum/fWgt.WgtNevt);
+   }
+
+   printf(" # Abs. order in a_s (Npow)            %d\n",Npow);
+   printf(" # No. of hadrons involved (NPDF)      %lu\n",NPDFPDG.size());
+   fastNLOTools::PrintVector(NPDFPDG,"Type(s) of hadrons (NPDFPDG)","#");
+
+   printf(" # PDF storage format (NPDFDim)        %d\n",NPDFDim);
+   if ( NPDFDim == 0 ) {
+      printf(" #   --> x-interpolation storage format: Linear\n");
+   } else if ( NPDFDim == 1 ) {
+      printf(" #   --> x-interpolation storage format: Half-Matrix\n");
+   } else if ( NPDFDim == 2 ) {
+      printf(" #   --> x-interpolation storage format: Full-Matrix\n");
+   } else {
+      error["Print"] << "Unknown interpolation storage structure, aborting! "
+                                          << " NPDFDim = " << NPDFDim << endl;
+   }
+
+   for (int i=0; i<fNObsBins; i++) {
+      // Print only for first and last observable bin
+      if (i==0 || i==fNObsBins-1) {
+         printf(" # Observable bin no. %d\n",i+1);
+         printf(" #   No. of X1 nodes (XNode1[i].size())          %d\n",(int)GetXNodes1(i).size());
+      }
+   }
+   printf(" # No. of scales involved (NScales)    %lu\n",Iscale.size());
+   for(int i=0;i<NScaleDim;i++){
+      fastNLOTools::PrintVector(ScaleDescript[i],"Scale descriptions (ScaleDescript)","#");
+   }
+   if ( abs(iprint) > 0 ) {
+      cout << fastNLO::_SSEP20C << " Extended information (iprint > 0) " << fastNLO::_SSEP20 << endl;
+      if ( NScales > 0 ) {fastNLOTools::PrintVector(Iscale,"Iscale (Unused, always 0) (Iscale)","#  ");}
+      printf(" #   IRef                              %d\n",IRef);
+      printf(" #   IScaleDep (Unused, always 0)      %d\n",IScaleDep);
+      printf(" #   NFragFunc                         %lu\n",NFFPDG.size());
+      if ( NFFPDG.size() > 0 ) {fastNLOTools::PrintVector(NFFPDG,"Type(s) of hadrons (NFFPDG)","#");}
+      printf(" #   NFFDim                            %d\n",NFFDim);
+      printf(" #   NScaleDim                         %d\n",NScaleDim);
+      printf(" #   NSubproc                          %d\n",NSubproc);
+      printf(" #   IPDFdef1                          %d\n",IPDFdef1);
+      printf(" #   IPDFdef2                          %d\n",IPDFdef2);
+      printf(" #   IPDFdef3                          %d\n",IPDFdef3);
+      char buffer[1024];
+      for (int i=0; i<fNObsBins; i++) {
+         // Print only for first and last observable bin
+         if (i==0 || i==fNObsBins-1) {
+            printf(" #   Observable bin no. %d\n",i+1);
+            snprintf(buffer, sizeof(buffer), "X1 nodes (XNode1[%d][])",i);
+            fastNLOTools::PrintVector(GetXNodes1(i),buffer,"#    ");
+            if ( NPDFDim == 2 ) {
+               snprintf(buffer, sizeof(buffer), "X2 nodes (XNode2[%d][])",i);
+               fastNLOTools::PrintVector(GetXNodes2(i),buffer,"#    ");
+            }
+         }
+      }
+   }
+   if ( iprint < 0 ) {
+      cout << fastNLO::_CSEPSC << endl;
+   } else {
+      //      cout << fastNLO::_DSEPSC << endl;
+   }
+}
+
+
+//________________________________________________________________________________________________________________ //
+
+// Erase observable bin
+void fastNLOCoeffAddBase::EraseBin(unsigned int iObsIdx) {
+   debug["EraseBin"]<<"Erasing table entries in CoeffAddBase for bin index " << iObsIdx << endl;
+   if ( XNode1.size() == 0 ) {
+      error["EraseBin"]<<"All additive contribution bins deleted already. Aborted!" << endl;
+      exit(1);
+   }
+   if ( XNode1.size() != 0 ) XNode1.erase(XNode1.begin()+iObsIdx);
+   if ( NPDFDim==2 && XNode2.size() != 0 ) XNode2.erase(XNode2.begin()+iObsIdx);
+   for ( unsigned int ip = 0 ; ip<fWgt.WgtObsSumW2.size() ; ip++ ) {
+      fWgt.WgtObsSumW2[ip].erase(fWgt.WgtObsSumW2[ip].begin()+iObsIdx);
+      fWgt.SigObsSumW2[ip].erase(fWgt.SigObsSumW2[ip].begin()+iObsIdx);
+      fWgt.SigObsSum[ip].  erase(fWgt.SigObsSum  [ip].begin()+iObsIdx);
+      fWgt.WgtObsNumEv[ip].erase(fWgt.WgtObsNumEv[ip].begin()+iObsIdx);
+   }
+   fastNLOCoeffBase::EraseBin(iObsIdx);
+}
+
+// Catenate observable bin
+void fastNLOCoeffAddBase::CatBin(const fastNLOCoeffAddBase& other, unsigned int iObsIdx) {
+   debug["CatBin"]<<"Catenating observable bin in CoeffAddBase corresponding to bin index " << iObsIdx << endl;
+   if ( XNode1.size() == 0 ) {
+      error["CatBin"]<<"Initial additive table is empty. Aborted!" << endl;
+      exit(1);
+   }
+   //unsigned int nold = XNode1.size();
+   if ( XNode1.size() != 0 ) {
+      XNode1.push_back(other.XNode1[iObsIdx]);
+      // XNode1.resize(nold+1);
+      // XNode1[nold] = other.XNode1[iObsIdx];
+   }
+   if ( NPDFDim==2 &&  XNode2.size() != 0 ) {
+      XNode2.push_back(other.XNode2[iObsIdx]);
+   }
+   for ( unsigned int ip = 0 ; ip<fWgt.WgtObsSumW2.size() ; ip++ ) {
+      fWgt.WgtObsSumW2[ip].push_back(other.fWgt.WgtObsSumW2[ip][iObsIdx]);
+      fWgt.SigObsSumW2[ip].push_back(other.fWgt.SigObsSumW2[ip][iObsIdx]);
+      fWgt.SigObsSum[ip].  push_back(other.fWgt.SigObsSum  [ip][iObsIdx]);
+      fWgt.WgtObsNumEv[ip].push_back(other.fWgt.WgtObsNumEv[ip][iObsIdx]);
+   }
+   fastNLOCoeffBase::CatBin(other, iObsIdx);
+}
