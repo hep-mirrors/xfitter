@@ -54,9 +54,9 @@ mst : 0.150
 #
 # Heavy quark masses:
 #------------------
-mch : 1.643 
-mbt : 4.5
-mtp : 175.0
+mch : 1.43 
+mbt : 4.50
+mtp : 173.0
 
 #
 # QCD parameters
