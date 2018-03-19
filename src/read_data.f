@@ -539,7 +539,9 @@ C Count theory expression terms
       enddo
  88   continue 
 
-      if (Reaction .eq. ' ') then
+      if (Reaction .eq. ' '
+     $     .or.TermType(1).eq.'reaction'
+     $     .or.TermSource(1).ne.' ') then
          if (TheoryType(1) .eq. ' ') then
             TheoryType(1) = 'expression'
          endif
