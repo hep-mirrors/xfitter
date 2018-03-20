@@ -49,7 +49,11 @@ namespace XFITTER_PARS {
 
   void parse_file(const std::string& name)
   {
-    try {    
+    try {
+      if ( ! std::ifstream(name).good()) {
+	string text = "F: Problems opening parameters file " + name;
+	hf_errlog_(18032001,text.c_str(), text.size());
+      }
       YAML::Node node = YAML::LoadFile(name);
       parse_node(node, gParameters, gParametersI, gParametersS, gParametersV, gParametersY);
     }
