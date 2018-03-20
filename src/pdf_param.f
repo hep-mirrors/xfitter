@@ -111,8 +111,8 @@ C Get from extra pars:
       cvu_ew=GetParamD('vuEW')
       cvd_ew=GetParamD('vdEW')
 
-! Update Vcs
-      Vcs = GetParamD('Vcs')
+! Update EWK / QCD parameters:
+      call update_pars_fortran()
 
  ! special for polarisation fits:
 
