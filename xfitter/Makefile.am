@@ -96,22 +96,22 @@ else
 #  libxfmain_la_SOURCES += hvqmnr_dum.f	
 endif
 
-XFLIBS =  ../DY/src/libmydy.a\
- ../Cascade/src/libcasutil.a \
- ../common/libHFcommon.a \
- ../ACOT/src/libmyacot.a \
- ../SACOT/src/libmysacot.a \
- ../FONLL/src/libmyfonll.a \
- ../EW/src/libmyew.a \
- ../ABM/src/libmyabm.a \
- ../DIPOLE/src/libmydipole.a \
- ../DiffDIS/src/libDiffDIS.a\
- ../interfaces/src/libinterfaces.a\
- ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
+XFLIBS =  ../DY/src/libmydy.la\
+ ../Cascade/src/libcasutil.la \
+ ../common/libHFcommon.la \
+ ../ACOT/src/libmyacot.la \
+ ../SACOT/src/libmysacot.la \
+ ../FONLL/src/libmyfonll.la \
+ ../EW/src/libmyew.la \
+ ../ABM/src/libmyabm.la \
+ ../DIPOLE/src/libmydipole.la \
+ ../DiffDIS/src/libDiffDIS.la\
+ ../interfaces/src/libinterfaces.la\
+ ../minuit/src/libmyminuit.la $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
- ../genetic/src/libgenetic.a \
- ../QEDevol/src/libQEDevol.a \
- ../common/num_utils/libnum_utils.a \
+ ../genetic/src/libgenetic.la \
+ ../QEDevol/src/libQEDevol.la \
+ ../common/num_utils/libnum_utils.la \
  ../tools/draw/src/pdferrors.o
 
 # ../FastNLO/src/libFastNLO.a 
