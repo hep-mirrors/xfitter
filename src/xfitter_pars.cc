@@ -25,6 +25,8 @@ extern "C" {
 			 map<std::string,double*> *map,
 			 int len);
   void add_to_param_map_(map<std::string,double*>* map,double &value, int& global, char *name, int len);
+  // Get parameters in fortran, for backward compatibility:
+  double getparamd_(const char* name, int len);
 }
 
 
@@ -247,3 +249,15 @@ void add_to_param_map_(map<std::string,double*> *map, double &value, int& global
   }
 }
 
+double getparamd_(const char* name,int len){
+  char buff[128];
+  memcpy( buff, &name[0], len);
+  buff[len] = '\0';
+  std::string key(buff);  
+  if (XFITTER_PARS::gParameters.find(key) != XFITTER_PARS::gParameters.end()) {
+    return *XFITTER_PARS::gParameters[key];
+  }
+  else {
+    return 0;
+  }
+}

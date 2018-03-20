@@ -1443,7 +1443,7 @@ c#include "steering.inc"
       integer PtOrder
       integer GetParameterIndex
       double precision MCharm,MBottom,MTop
-      double precision Q_ref,Alphas_ref
+      double precision Q_ref,Alphas_ref, getparamd
       character*7 Scheme
       character*5 MassScheme
       logical runm,Smallx
@@ -1453,7 +1453,7 @@ c#include "steering.inc"
       MTop    = mtp
 *
       Q_ref      = mz
-      Alphas_ref = ExtraParamValue(GetParameterIndex('alphas'))
+      Alphas_ref = getParamD('alphas')
 *
       PtOrder = I_FIT_ORDER - 1
 *

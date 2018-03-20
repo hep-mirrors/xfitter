@@ -26,7 +26,7 @@ C--------------------------------------------------------
       double precision alphasPDF, StepAlphaS, StepFs
       double precision Aph, Bph, Cph, Dph, Eph
       double precision StepAph, StepBph, StepCph, StepDph, StepEph
-      	
+      
 C-------------------------------------------------------
       logical LFirstTime
       data LFirstTime /.true./
@@ -59,6 +59,8 @@ C-------------------------------------------------------
 
       logical LPolFits       !> Logical to init polarisation fits
       data LPolFits/.false./
+      
+      double precision getParamD
 
 C-------------------------------------------------------
 
@@ -110,14 +112,20 @@ C make sure that par values are updated
             
          endif
 
+C Get from extra pars:
+         alphas=getParamD('alphas')
+
+         if (alphas.eq.0) then
+            call hf_errlog(2018031901,
+     $  'S: AlphaS is not set or set to zero. Check parameters.yaml')
+         endif
+         
          idxAlphaS = GetParameterIndex('alphas')     
-         if (idxAlphaS.eq.0) then
-            print *,'Did not find alpha_S parameter'
-            print *,'Add to ExtraParamters with the name alphas'
-            call HF_stop
-         else
+         if (idxAlphaS.ne.0) then
             StepAlphaS=ExtraParamStep(idxAlphaS)
             idxAlphaS = iExtraParamMinuit(idxAlphaS)
+         else
+            StepAlphaS = 0.0
          endif
 
          idxFS = GetParameterIndex('fs')
@@ -244,9 +252,6 @@ C "Temperature"
       endif
 
 
-C Get from extra pars:
-      alphas=p(idxAlphaS)      
-      
       if (idxFS.ne.0) then
          fstrange=p(idxFS)
       elseif (idxRS.ne.0) then

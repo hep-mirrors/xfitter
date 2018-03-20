@@ -1384,7 +1384,7 @@ C-------------------------------------
       namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
      $                                     ,ConstrVal,ConstrUnc
       integer i
-      integer GetParameterIndex
+      double precision getparamd
 C----------------------------------------
       
       open (51,file='steering.txt',status='old')
@@ -1417,7 +1417,7 @@ C
       print '(''Got '',i5,'' extra minuit parameters'')',nExtraParam
       close (51)
 C --- Set value of alphas
-      alphas = ExtraParamValue(GetParameterIndex('alphas'))
+      alphas = getParamD('alphas')
       return
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'
