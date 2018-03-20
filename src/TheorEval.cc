@@ -463,7 +463,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   map<string, string> pars = SplitTermInfo(term_info);
 
   // and transfer to the module
-  rt->setDatasetParamters(_dsId*1000+iterm, pars, _dsPars);
+  rt->setDatasetParameters(_dsId*1000+iterm, pars, _dsPars);
 
   _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
 }
@@ -800,8 +800,8 @@ const std::string GetParamDS(const std::string& ParName, const std::string& DSna
     YAML::Node Node = XFITTER_PARS::gParametersY[ParName];
 
     // Default:
-    if ( Node["value"]) {
-      std::string Val = Node["value"].as<string>();
+    if ( Node["defaultValue"]) {
+      std::string Val = Node["defaultValue"].as<string>();
 
       if (Node[DSname]) {
 	Val = Node[DSname].as<string>();

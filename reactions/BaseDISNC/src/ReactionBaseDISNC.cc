@@ -91,7 +91,7 @@ void ReactionBaseDISNC::initAtIteration() {
 }
 
 // 
-void  ReactionBaseDISNC::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) 
+void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) 
 {
   auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");  
   if (q2p == nullptr || xp == nullptr || yp == nullptr ) {

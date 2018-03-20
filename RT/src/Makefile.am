@@ -10,3 +10,4 @@ if ENABLE_OPENMP
 AM_FFLAGS+= -fopenmp
 endif
 
+dist_noinst_HEADERS = ext_pdfs.h

@@ -64,17 +64,25 @@ C      print *,'ERROR: Could not find index for information ',cname
       implicit none
 #include "extrapars.inc"
       character*(*) CName
-      integer i
+      integer i,n
 C--------------------------------------------------
+
+      GetParameterIndex = 0
+      n = 0
+      ! loop over all params, to make sure only one is present:
       do i=1,nExtraParam
          if (ExtraParamNames(i).eq.cName) then
-            GetParameterIndex = i
-            Return
+            GetParameterIndex = i  ! return the last
+            n = n + 1
          endif
       enddo
-
-C Not found
-      GetParameterIndex = 0
+      if (n .gt.1) then
+         call hf_errlog(18031500+i,
+     $        'W: '//achar(27)//'[31m'//
+     $        'Several parameters with the name '//Cname
+     $        //' found. Check your ExtraMinimisationParameters'
+     $        //' and parameters.yaml files'//achar(27)//'[34m')
+      endif
 C--------------------------------------------------
       end
 

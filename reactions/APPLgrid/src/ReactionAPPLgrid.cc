@@ -20,7 +20,7 @@ int ReactionAPPLgrid::initAtStart(const string &s )
 }
 
  // Initialisze for a given dataset:
-void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
+void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
 // Get grid name:
    if ( pars.find("GridName") != pars.end() )  {
      try {

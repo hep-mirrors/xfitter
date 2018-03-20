@@ -8,4 +8,4 @@ libbasedisnc_xfitter_la_SOURCES = ReactionBaseDISNC.cc
 
 # libbasedisnc_xfitter_la_LDFLAGS = place_if_needed  
 
- 
+dist_noinst_HEADERS = ../include ../yaml

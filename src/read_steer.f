@@ -29,7 +29,6 @@ C Special branch for rotation
       endif
 
       call read_infilesnml   ! Read data file names THIRD
-      call read_ewparsnml   ! electroweak parameters
       call read_outputnml   ! output options
       call read_outdirnml   ! output dir 
 
@@ -387,61 +386,6 @@ C Print the namelist:
       call HF_stop
       end
 
-C---------------------------------------- 
-!> Read electroweak parameters
-C-----------------------------------------
-      subroutine read_ewparsnml
-
-      implicit none
-C Namelist for EW parameters:
-#include "couplings.inc"
-#include "steering.inc"
-
-      namelist/EWpars/alphaem, gf, sin2thw, convfac,
-     $ Mz, Mw, Mh, wz, ww, wh, wtp,
-     $ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb,
-     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
-     $ mch, mst, mtp, mbt
-C--------------------------------------------------
-      open (51,file='ewparam.txt',status='old')
-      read (51,NML=EWpars,END=43,ERR=44)
-      close (51)
-
-      HF_MASS(1) = mch
-      HF_MASS(2) = mbt
-      HF_MASS(3) = mtp
-
-* --- Check the consistency of the steering file
-
-      if (HFSCHEME.eq.1.and.HF_MASS(2)**2.lt.starting_scale) then
-       write(6,*)
-       write(6,*) 'Bottom thres. has to be larger than starting scale'
-       write(6,*)
-       call HF_stop
-      endif
-
-      if (HFSCHEME.eq.1.and.HF_MASS(2).lt.HF_MASS(1)) then
-       write(6,*)
-       write(6,*) 'Bottom thres. has to be larger than charm thres.'
-       write(6,*)
-       call HF_stop
-      endif
-
-      if (LDebug) then
-C Print the namelist:
-         print EWpars
-      endif
-
-      return
-
- 43   continue
-      print '(''Namelist @EWPars NOT found, STOP'')'
-      call HF_stop
-
- 44   continue
-      print '(''Error reading namelist @EWPars, STOP'')'
-      call HF_stop
-      end
 
 C-------------------------------------------------------
 !> Read InCorr namelist
@@ -763,16 +707,46 @@ C-------------------------------------------------------
 #include "steering.inc"
 #include "scales.inc"
 C---
-      integer i
+      integer i, nf
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
+
+      character*(80) cMsg
+      
+C reset defaults:
+      NInputFiles = 0
+      do i = 1,NSET
+         InputFileNames(i) = ''
+      enddo
 C-------------------------------------------------
 C  Read the data namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=InFiles,END=71,ERR=72)
-      print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+
+C Determine how many files to process. First count them:
+      nf = 0
+      do i =1, NSET
+         if (InputFileNames(i).ne.'') then
+            nf = nf + 1
+         endif
+      enddo
+
+      if ( NInputFiles.eq.0) then
+         NInputFiles = nf       ! by default use all files
+      else
+         if (NInputFiles.gt.nf) then
+            write (cMsg,
+     $ '(''W: NInputFiles='',i4
+     $ ,'' exceeds actual number of files='',i4,'', reset'')')
+     $           NInputFiles, nf
+            call hf_errlog(18030601,cMsg)
+     $           
+            NInputFiles = nf
+         endif
+      endif
+      print '(''Will read '',I4,'' data files'')',NInputFiles
 C---------------------
 C
 C  Data-set dependent scales. First set defaults
@@ -1410,7 +1384,7 @@ C-------------------------------------
       namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
      $                                     ,ConstrVal,ConstrUnc
       integer i
-      integer GetParameterIndex
+      double precision getparamd
 C----------------------------------------
       
       open (51,file='steering.txt',status='old')
@@ -1425,6 +1399,12 @@ C
             name(i) = ' '
          enddo
          read (51,NML=ExtraMinimisationParameters,END=71,ERR=72)
+
+         call hf_errlog(18031501,
+     $        'W: Reading parameters from'//achar(27)
+     $        //'[31m obsolete ExtraMinimisationParameters'
+     $        //' namelist.    Consider using parameters.yaml instead'
+     $         //achar(27)//'[34m')    
          
          do i=1,maxExtra
             if (name(i).ne.' ') then
@@ -1437,7 +1417,7 @@ C
       print '(''Got '',i5,'' extra minuit parameters'')',nExtraParam
       close (51)
 C --- Set value of alphas
-      alphas = ExtraParamValue(GetParameterIndex('alphas'))
+      alphas = getParamD('alphas')
       return
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'

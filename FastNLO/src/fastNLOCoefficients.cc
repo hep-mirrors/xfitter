@@ -367,14 +367,14 @@ int fastNLOCoefficients::Read(istream *table){
 }
 
 int fastNLOCoefficients::Write(ostream *table, int option){
-   *table << tablemagicno << endl;
-   *table << IXsectUnits << endl;
-   *table << IDataFlag << endl;
-   *table << IAddMultFlag << endl;
-   *table << IContrFlag1 << endl;
-   *table << IContrFlag2 << endl;
+   *table << tablemagicno << sep;
+   *table << IXsectUnits << sep;
+   *table << IDataFlag << sep;
+   *table << IAddMultFlag << sep;
+   *table << IContrFlag1 << sep;
+   *table << IContrFlag2 << sep;
    //KR: IContrFlag3 replaced by NScaleDep
-   //*table << IContrFlag3 << endl;     // v2.0+. for v2.1 write IContrFlag3 here, but NScaleDep only later
+   //*table << IContrFlag3 << sep;     // v2.0+. for v2.1 write IContrFlag3 here, but NScaleDep only later
    if ( NScaleDep==3 ) {
       if ( Npow==fILOord) {
          cout<<" * Increase NScaleDep from 3 to 4, because LO!"<<endl;
@@ -385,93 +385,93 @@ int fastNLOCoefficients::Write(ostream *table, int option){
          NScaleDep=5;
       }
    }
-   *table << NScaleDep << endl;
-   *table << CtrbDescript.size() << endl;
+   *table << NScaleDep << sep;
+   *table << CtrbDescript.size() << sep;
    //printf("  *  fastNLOCoefficients::Write().  IDataFlag: %d, IAddMultFlag: %d, IContrFlag1: %d, IContrFlag2: %d, NScaleDep: %d\n",
    //IDataFlag,IAddMultFlag,IContrFlag1,IContrFlag2,NScaleDep);
    for(unsigned int i=0;i<CtrbDescript.size();i++){
-      *table << CtrbDescript[i] << endl;
+      *table << CtrbDescript[i] << sep;
    }
-   *table << CodeDescript.size() << endl;
+   *table << CodeDescript.size() << sep;
    for(unsigned int i=0;i<CodeDescript.size();i++){
-      *table << CodeDescript[i] << endl;
+      *table << CodeDescript[i] << sep;
    }
 
    if(IDataFlag==1){
-      *table << Nuncorrel << endl;
+      *table << Nuncorrel << sep;
       for(int i=0;i<Nuncorrel;i++){
-         *table << UncDescr[i] << endl;
+         *table << UncDescr[i] << sep;
       }
-      *table << Ncorrel << endl;
+      *table << Ncorrel << sep;
       for(int i=0;i<Ncorrel;i++){
-         *table << CorDescr[i]  << endl;
+         *table << CorDescr[i]  << sep;
       }
       for(int i=0;i<fNObsBins;i++){
-         *table << Xcenter[i] << endl;
-         *table << Value[i] << endl;
+         *table << Xcenter[i] << sep;
+         *table << Value[i] << sep;
          for(int j=0;j<Nuncorrel;j++){
-            *table << UncorLo[i][j] << endl;
-            *table << UncorHi[i][j] << endl;
+            *table << UncorLo[i][j] << sep;
+            *table << UncorHi[i][j] << sep;
          }
          for(int j=0;j<Ncorrel;j++){
-            *table << CorrLo[i][j] << endl;
-            *table << CorrHi[i][j] << endl;
+            *table << CorrLo[i][j] << sep;
+            *table << CorrHi[i][j] << sep;
          }
       }
-      *table << NErrMatrix << endl;
+      *table << NErrMatrix << sep;
       for(int i=0;i<NErrMatrix;i++){
          for(int j=0;j<(int)pow((double)fNObsBins,2);j++){
-            *table << matrixelement[i][j] << endl;
+            *table << matrixelement[i][j] << sep;
          }
       }
    }// end of IDataFlag==1
 
    cout<<" 3"<<endl;
    if(IAddMultFlag==1){
-      *table << Nuncorrel << endl;
+      *table << Nuncorrel << sep;
       for(int i=0;i<Nuncorrel;i++){
-         *table << UncDescr[i]  << endl;
+         *table << UncDescr[i]  << sep;
       }
-      *table << Ncorrel << endl;
+      *table << Ncorrel << sep;
       for(int i=0;i<Ncorrel;i++){
-         *table << CorDescr[i]  << endl;
+         *table << CorDescr[i]  << sep;
       }
       for(int i=0;i<fNObsBins;i++){
-         *table << fact[i] << endl;
+         *table << fact[i] << sep;
          for(int j=0;j<Nuncorrel;j++){
-            *table << UncorLo[i][j] << endl;
-            *table << UncorHi[i][j] << endl;
+            *table << UncorLo[i][j] << sep;
+            *table << UncorHi[i][j] << sep;
          }
          for(int j=0;j<Ncorrel;j++){
-            *table << CorrLo[i][j] << endl;
-            *table << CorrHi[i][j] << endl;
+            *table << CorrLo[i][j] << sep;
+            *table << CorrHi[i][j] << sep;
          }
       }
    }// end of IAddMultFlag==1
 
    if(!(IDataFlag==1) && !(IAddMultFlag==1)){
-      *table << IRef << endl;
-      *table << IScaleDep << endl;
-      *table << Nevt << endl;
-      *table << Npow << endl;
-      *table << NPDF << endl;
+      *table << IRef << sep;
+      *table << IScaleDep << sep;
+      *table << Nevt << sep;
+      *table << Npow << sep;
+      *table << NPDF << sep;
       if(NPDF>0){
          for(int i=0;i<NPDF;i++){
-            *table <<  NPDFPDG[i] << endl;
+            *table <<  NPDFPDG[i] << sep;
          }
       }
-      *table << NPDFDim << endl;
-      *table << NFragFunc << endl;
+      *table << NPDFDim << sep;
+      *table << NFragFunc << sep;
     if(NFragFunc>0){
          for(int i=0;i<NFragFunc;i++){
-            *table <<  NFFPDG[i] << endl;
+            *table <<  NFFPDG[i] << sep;
          }
       }
-      *table << NFFDim << endl;
-      *table << NSubproc << endl;
-      *table << IPDFdef1 << endl;
-      *table << IPDFdef2 << endl;
-      *table << IPDFdef3 << endl;
+      *table << NFFDim << sep;
+      *table << NSubproc << sep;
+      *table << IPDFdef1 << sep;
+      *table << IPDFdef2 << sep;
+      *table << IPDFdef3 << sep;
      if(IPDFdef1==0){
          for(int i=0;i<NSubproc;i++){
             // Missing: linear PDF combinations for IPDFdef1=0
@@ -483,52 +483,52 @@ int fastNLOCoefficients::Write(ostream *table, int option){
          }
       }
       for(int i=0;i<fNObsBins;i++){
-         *table << XNode1[i].size() << endl;
+         *table << XNode1[i].size() << sep;
          for(unsigned int j=0;j<XNode1[i].size();j++){
-            *table << XNode1[i][j] << endl;
+            *table << XNode1[i][j] << sep;
          }
       }
       if(NPDFDim==2){
          for(int i=0;i<fNObsBins;i++){
-            *table << XNode2[i].size() << endl;
+            *table << XNode2[i].size() << sep;
             for(unsigned int j=0;j<XNode2[i].size();j++){
-               *table << XNode2[i][j] << endl;
+               *table << XNode2[i][j] << sep;
             }
          }
       }
       cout<<" 10"<<endl;
      if(NFragFunc>0){
          for(int i=0;i<fNObsBins;i++){
-            *table << Nztot[i] << endl;
+            *table << Nztot[i] << sep;
             for(int j=0;j<Nztot[i];j++){
-               *table << ZNode[i][j] << endl;
+               *table << ZNode[i][j] << sep;
             }
          }
       }
-      *table << NScales << endl;
-      *table << NScaleDim << endl;
+      *table << NScales << sep;
+      *table << NScaleDim << sep;
       for(int i=0;i<NScales;i++){
-         *table << Iscale[i] << endl;
+         *table << Iscale[i] << sep;
       }
      for(int i=0;i<NScaleDim;i++){
-         *table << ScaleDescript[i].size() << endl;
+         *table << ScaleDescript[i].size() << sep;
          for(unsigned int j=0;j<ScaleDescript[i].size();j++){
-            *table << ScaleDescript[i][j] << endl;
+            *table << ScaleDescript[i][j] << sep;
          }
       }
 
       //! v2.1 store NScaleDep here
-      //! *table << NScaleDep << endl;
+      //! *table << NScaleDep << sep;
       cout<<"fastNLOCoefficients. Writing coefficients."<<endl;
 
       if ( NScaleDep<3 ){
          for(int i=0;i<NScaleDim;i++){
-            *table << Nscalevar[i] << endl;
-            *table << Nscalenode[i] << endl;
+            *table << Nscalevar[i] << sep;
+            *table << Nscalenode[i] << sep;
          }
          for(int i=0;i<NScaleDim;i++){
             for(int j=0;j<Nscalevar[i];j++){
-               *table << ScaleFac[i][j] << endl;
+               *table << ScaleFac[i][j] << sep;
             }
          }
 
@@ -557,10 +557,10 @@ int fastNLOCoefficients::Write(ostream *table, int option){
          nn3 += WriteFlexibleTable( &SigmaRef_s1        , table , (bool)(option & DividebyNevt) , Nevt , true );
          nn3 += WriteFlexibleTable( &SigmaRef_s2        , table , (bool)(option & DividebyNevt) , Nevt , true );
 
-//       *table << NscalenodeScale1 << endl;
+//       *table << NscalenodeScale1 << sep;
 //       nn3 += WriteTable( &ScaleNode1 , table );
 
-//       *table << NscalenodeScale2 << endl;
+//       *table << NscalenodeScale2 << sep;
 //       nn3 += WriteTable( &ScaleNode2 , table );
 
 //       nn3 += WriteTable( &SigmaTildeMuIndep, table , (bool)(option & DividebyNevt) , Nevt );
@@ -917,9 +917,9 @@ int fastNLOCoefficients::WriteTable(vector<vector<vector<vector<vector<vector<ve
             for(unsigned int i5=0;i5<v->at(i0)[i1][i2][i3][i4].size();i5++){
               for(unsigned int i6=0;i6<v->at(i0)[i1][i2][i3][i4][i5].size();i6++){
                 if( DivByNevt && Nevt>0){
-                  *table << v->at(i0)[i1][i2][i3][i4][i5][i6] / Nevt << endl;
+                  *table << v->at(i0)[i1][i2][i3][i4][i5][i6] / Nevt << sep;
                 }else{
-                  *table << v->at(i0)[i1][i2][i3][i4][i5][i6] << endl;
+                  *table << v->at(i0)[i1][i2][i3][i4][i5][i6] << sep;
                 }
                 nn++;
               }
@@ -942,9 +942,9 @@ int fastNLOCoefficients::WriteTable(vector<vector<vector<vector<vector<vector<do
           for(unsigned int i4=0;i4<v->at(i0)[i1][i2][i3].size();i4++){
             for(unsigned int i5=0;i5<v->at(i0)[i1][i2][i3][i4].size();i5++){
               if( DivByNevt && Nevt>0){
-                *table << v->at(i0)[i1][i2][i3][i4][i5] / Nevt << endl;
+                *table << v->at(i0)[i1][i2][i3][i4][i5] / Nevt << sep;
               }else{
-                *table << v->at(i0)[i1][i2][i3][i4][i5] << endl;
+                *table << v->at(i0)[i1][i2][i3][i4][i5] << sep;
               }
               nn++;
             }
@@ -965,9 +965,9 @@ int fastNLOCoefficients::WriteTable(vector<vector<vector<vector<vector<double > 
         for(unsigned int i3=0;i3<v->at(i0)[i1][i2].size();i3++){
           for(unsigned int i4=0;i4<v->at(i0)[i1][i2][i3].size();i4++){
             if( DivByNevt && Nevt>0){
-              *table << v->at(i0)[i1][i2][i3][i4] / Nevt << endl;
+              *table << v->at(i0)[i1][i2][i3][i4] / Nevt << sep;
                 }else{
-              *table << v->at(i0)[i1][i2][i3][i4] << endl;
+              *table << v->at(i0)[i1][i2][i3][i4] << sep;
             }
             nn++;
           }
@@ -986,9 +986,9 @@ int fastNLOCoefficients::WriteTable(vector<vector<vector<vector<double > > > >* 
       for(unsigned int i2=0;i2<v->at(i0)[i1].size();i2++){
         for(unsigned int i3=0;i3<v->at(i0)[i1][i2].size();i3++){
           if( DivByNevt && Nevt>0){
-            *table << v->at(i0)[i1][i2][i3] / Nevt << endl;
+            *table << v->at(i0)[i1][i2][i3] / Nevt << sep;
           }else{
-            *table << v->at(i0)[i1][i2][i3] << endl;
+            *table << v->at(i0)[i1][i2][i3] << sep;
           }
           nn++;
         }
@@ -1005,9 +1005,9 @@ int fastNLOCoefficients::WriteTable(vector<vector<vector<double > > >* v, ostrea
     for(unsigned int i1=0;i1<v->at(i0).size();i1++){
       for(unsigned int i2=0;i2<v->at(i0)[i1].size();i2++){
         if( DivByNevt && Nevt>0){
-          *table << v->at(i0)[i1][i2] / Nevt << endl;
+          *table << v->at(i0)[i1][i2] / Nevt << sep;
         }else{
-          *table << v->at(i0)[i1][i2] << endl;
+          *table << v->at(i0)[i1][i2] << sep;
         }
         nn++;
       }
@@ -1022,9 +1022,9 @@ int fastNLOCoefficients::WriteTable(vector<vector<double > >* v, ostream *table 
   for(unsigned int i0=0;i0<v->size();i0++){
     for(unsigned int i1=0;i1<v->at(i0).size();i1++){
       if( DivByNevt && Nevt>0){
-        *table << v->at(i0)[i1] / Nevt << endl;
+        *table << v->at(i0)[i1] / Nevt << sep;
       }else{
-        *table << v->at(i0)[i1] << endl;
+        *table << v->at(i0)[i1] << sep;
       }
       nn++;
     }
@@ -1039,9 +1039,9 @@ int fastNLOCoefficients::WriteTable(vector<double >* v, ostream *table , bool Di
   int nn = 0;
   for(unsigned int i0=0;i0<v->size();i0++){
     if( DivByNevt && Nevt>0){
-      *table << v->at(i0) / Nevt << endl;
+      *table << v->at(i0) / Nevt << sep;
     }else{
-      *table << v->at(i0) << endl;
+      *table << v->at(i0) << sep;
     }
     nn++;
   }
@@ -1052,7 +1052,7 @@ int fastNLOCoefficients::WriteTable(vector<double >* v, ostream *table , bool Di
 //________________________________________________________________________________________________________________ //
 int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<vector<vector<vector< double > > > > > > >* v, ostream *table , bool DivByNevt , int Nevt , bool nProcLast ){
    int nn = 1;
-   *table << v->size() << endl;
+   *table << v->size() << sep;
    for(unsigned int i0=0;i0<v->size();i0++){
       nn += WriteFlexibleTable( &(v->at(i0)) , table , DivByNevt, Nevt , nProcLast );
    }
@@ -1061,7 +1061,7 @@ int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<vector<v
 //________________________________________________________________________________________________________________ //
 int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<vector<vector<double > > > > > >* v, ostream *table , bool DivByNevt , int Nevt , bool nProcLast ){
    int nn = 1;
-   *table << v->size() << endl;
+   *table << v->size() << sep;
    for(unsigned int i0=0;i0<v->size();i0++){
       nn += WriteFlexibleTable( &(v->at(i0)) , table , DivByNevt, Nevt , nProcLast );
    }
@@ -1070,7 +1070,7 @@ int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<vector<v
 //________________________________________________________________________________________________________________ //
 int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<vector<double > > > >  >* v, ostream *table , bool DivByNevt , int Nevt , bool nProcLast ){
    int nn = 1;
-   *table << v->size() << endl;
+   *table << v->size() << sep;
    for(unsigned int i0=0;i0<v->size();i0++){
       nn += WriteFlexibleTable( &(v->at(i0)) , table , DivByNevt, Nevt , nProcLast );
    }
@@ -1079,7 +1079,7 @@ int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<vector<d
 //________________________________________________________________________________________________________________ //
 int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<double > >  > >* v, ostream *table , bool DivByNevt , int Nevt , bool nProcLast ){
    int nn = 1;
-   *table << v->size() << endl;
+   *table << v->size() << sep;
    for(unsigned int i0=0;i0<v->size();i0++){
       nn += WriteFlexibleTable( &(v->at(i0)) , table , DivByNevt, Nevt , nProcLast );
    }
@@ -1088,7 +1088,7 @@ int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<vector<double >
 //________________________________________________________________________________________________________________ //
 int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<double > > >* v, ostream *table , bool DivByNevt , int Nevt , bool nProcLast ){
    int nn = 1;
-   *table << v->size() << endl;
+   *table << v->size() << sep;
    for(unsigned int i0=0;i0<v->size();i0++){
       nn += WriteFlexibleTable( &(v->at(i0)) , table , DivByNevt, Nevt , nProcLast );
    }
@@ -1097,7 +1097,7 @@ int fastNLOCoefficients::WriteFlexibleTable(vector<vector<vector<double > > >* v
 //________________________________________________________________________________________________________________ //
 int fastNLOCoefficients::WriteFlexibleTable(vector<vector<double > >* v, ostream *table , bool DivByNevt , int Nevt , bool nProcLast ){
    int nn = 1;
-   *table << v->size() << endl;
+   *table << v->size() << sep;
    for(unsigned int i0=0;i0<v->size();i0++){
       nn += WriteFlexibleTable( &(v->at(i0)) , table , DivByNevt, Nevt , nProcLast );
    }
@@ -1107,10 +1107,10 @@ int fastNLOCoefficients::WriteFlexibleTable(vector<vector<double > >* v, ostream
 //________________________________________________________________________________________________________________ //
 int fastNLOCoefficients::WriteFlexibleTable(vector<double >* v, ostream *table , bool DivByNevt , int Nevt , bool nProcLast ){
    int nn = 1;
-   if ( !nProcLast )*table << v->size() << endl;
+   if ( !nProcLast )*table << v->size() << sep;
    for(unsigned int i0=0;i0<v->size();i0++){
-      if( DivByNevt && Nevt>0)  *table << v->at(i0) / Nevt << endl;
-      else                      *table << v->at(i0) << endl;
+      if( DivByNevt && Nevt>0)  *table << v->at(i0) / Nevt << sep;
+      else                      *table << v->at(i0) << sep;
       nn++;
    }
    return nn;
