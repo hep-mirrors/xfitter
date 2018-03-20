@@ -165,7 +165,7 @@ XFLIBS =  ../DY/src/libmydy.la\
  ../ABM/src/libmyabm.la \
  ../FastNLO/src/libxffnlo.la \
  ../DIPOLE/src/libmydipole.la \
- ../DiffDIS/src/libDiffDIS.a\
+ ../DiffDIS/src/libDiffDIS.la\
  ../interfaces/src/libinterfaces.la\
  ../minuit/src/libmyminuit.la $(CERNLIBS) @FLIBS@ \
   -lstdc++ \
