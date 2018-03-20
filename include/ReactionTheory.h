@@ -87,7 +87,7 @@ class ReactionTheory
   virtual void errorBandAction(int ivector) {};
 
   //! Set dataset @param dataSetID parameters which can be term- and dataset-specific
-  virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
+  virtual void setDatasetParameters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
 
   //! Main function to compute predictions for @param dataSetID 
   virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;  

@@ -11,3 +11,5 @@ libbasehvqmnr_xfitter_la_SOURCES = ReactionBaseHVQMNR.cc MNR.cc MNRFrag.cc MNRGr
 # libbasehvqmnr_xfitter_la_LDFLAGS = place_if_needed  
 
 endif 
+
+dist_noinst_HEADERS = ../include ../yaml

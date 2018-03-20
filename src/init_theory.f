@@ -1343,10 +1343,16 @@ C
 C-----------------------------------------------------
       implicit none
 #include "couplings.inc"
-C
+#include "steering.inc"
+C     
 C set derived values
 C
       cos2thw = 1.d0 - sin2thw
+
+       ! move initialzation of the thresholds from read_steer:
+      HF_MASS(1) = mch 
+      HF_MASS(2) = mbt
+      HF_MASS(3) = mtp
 
 C
 C set same values for DY calculations
@@ -1437,7 +1443,7 @@ c#include "steering.inc"
       integer PtOrder
       integer GetParameterIndex
       double precision MCharm,MBottom,MTop
-      double precision Q_ref,Alphas_ref
+      double precision Q_ref,Alphas_ref, getparamd
       character*7 Scheme
       character*5 MassScheme
       logical runm,Smallx
@@ -1447,7 +1453,7 @@ c#include "steering.inc"
       MTop    = mtp
 *
       Q_ref      = mz
-      Alphas_ref = ExtraParamValue(GetParameterIndex('alphas'))
+      Alphas_ref = getParamD('alphas')
 *
       PtOrder = I_FIT_ORDER - 1
 *

@@ -25,6 +25,10 @@ extern "C" {
 			 map<std::string,double*> *map,
 			 int len);
   void add_to_param_map_(map<std::string,double*>* map,double &value, int& global, char *name, int len);
+  // Get parameters in fortran, for backward compatibility:
+  double getparamd_(const char* name, int len);
+  // Update of EWK/QCD parameters, can be fitted at each iteration.
+  void update_pars_fortran_(); 
 }
 
 
@@ -47,7 +51,11 @@ namespace XFITTER_PARS {
 
   void parse_file(const std::string& name)
   {
-    try {    
+    try {
+      if ( ! std::ifstream(name).good()) {
+	string text = "F: Problems opening parameters file " + name;
+	hf_errlog_(18032001,text.c_str(), text.size());
+      }
       YAML::Node node = YAML::LoadFile(name);
       parse_node(node, gParameters, gParametersI, gParametersS, gParametersV, gParametersY);
     }
@@ -127,7 +135,7 @@ namespace XFITTER_PARS {
 	if (value.IsMap()) {
 
 	  // Check if this is a minimisation block, true if step is present
-	  if (value["step"]) {  
+	  if (value["step"] || value["value"]) {  
 	    // Defaults
 	    double val = 0;
 	    double step = 0;
@@ -154,7 +162,7 @@ namespace XFITTER_PARS {
 			      priorVal, priorUnc, add, &dMap, p_name.size());
 	  }
 	  else {
-	    // no step, store as it is as a yaml node:
+	    // no step or value, store as it is as a yaml node:
 	    yMap[p_name] = value;
 	  }
 	}
@@ -247,3 +255,19 @@ void add_to_param_map_(map<std::string,double*> *map, double &value, int& global
   }
 }
 
+double getparamd_(const char* name,int len){
+  char buff[128];
+  memcpy( buff, &name[0], len);
+  buff[len] = '\0';
+  std::string key(buff);  
+  if (XFITTER_PARS::gParameters.find(key) != XFITTER_PARS::gParameters.end()) {
+    return *XFITTER_PARS::gParameters[key];
+  }
+  else {
+    return 0;
+  }
+}
+
+void update_pars_fortran_() {
+  XFITTER_PARS::ParsToFortran();
+}

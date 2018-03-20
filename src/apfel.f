@@ -13,11 +13,11 @@
 #include "extrapars.inc"
 *
       integer GetParameterIndex
-      double precision alphas
+      double precision alphas, getParamD
 *
 *     Reference value of alphas taken from the extraparameters
 *
-      alphas = ExtraParamValue(GetParameterIndex('alphas'))
+      alphas = getParamD('alphas')
 *
 *     Define basic settings
 *

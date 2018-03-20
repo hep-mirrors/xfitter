@@ -18,7 +18,7 @@ extern "C" ReactionfastNLO* create() {
 
 //______________________________________________________________________________
 // Initialise for a given dataset:
-void ReactionfastNLO::setDatasetParamters(int ID, map<string,string> pars, map<string, double> parsDataset) {
+void ReactionfastNLO::setDatasetParameters(int ID, map<string,string> pars, map<string, double> parsDataset) {
    // ID=dataSetID
    if ( pars.count("Filename") ) {
       // --- Read file and instantiate fastNLO

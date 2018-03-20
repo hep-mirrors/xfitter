@@ -31,7 +31,7 @@ class ReactionHathor : public ReactionTheory
   public:
     virtual string getReactionName() const { return  "Hathor" ;};
     virtual int initAtStart(const string &);
-    virtual void setDatasetParamters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
+    virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
     virtual int parseOptions(){ return 0;};

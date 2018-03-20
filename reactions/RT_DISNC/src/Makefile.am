@@ -11,3 +11,4 @@ librt_disnc_xfitter_la_LDFLAGS =  -lbasedisnc_xfitter -L$(top_srcdir)/reactions/
 datadir = ${prefix}/yaml/reactions/RT_DISNC
 data_DATA = ../yaml/parameters.yaml
 
+dist_noinst_HEADERS = ../include ../yaml
