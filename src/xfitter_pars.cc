@@ -135,7 +135,7 @@ namespace XFITTER_PARS {
 	if (value.IsMap()) {
 
 	  // Check if this is a minimisation block, true if step is present
-	  if (value["step"]) {  
+	  if (value["step"] || value["value"]) {  
 	    // Defaults
 	    double val = 0;
 	    double step = 0;
@@ -162,7 +162,7 @@ namespace XFITTER_PARS {
 			      priorVal, priorUnc, add, &dMap, p_name.size());
 	  }
 	  else {
-	    // no step, store as it is as a yaml node:
+	    // no step or value, store as it is as a yaml node:
 	    yMap[p_name] = value;
 	  }
 	}

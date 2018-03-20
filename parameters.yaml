@@ -90,9 +90,9 @@ FFABM_DISCC:
 # speficify HF scheme used for DIS NC processes:
 #
 hf_scheme_DISNC : 
-  value : 'RT_DISNC'        # global specification 
-#  value : 'FONLL_DISNC'        # global specification 
-#  value : 'FFABM_DISNC'
+  defaultValue : 'RT_DISNC'        # global specification 
+#  defaultValue : 'FONLL_DISNC'        # global specification 
+#  defaultValue : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC'  # datafile specific (based on name)
 #  1 : BaseDISNC  
 #  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see below)
@@ -101,9 +101,9 @@ hf_scheme_DISNC :
 # HF scheme for DIS CC:
 #
 hf_scheme_DISCC :
-  value : 'BaseDISCC'  # this is zero mass scheme
-#  value : 'FONLL_DISCC'        # global specification 
-#  value : 'FFABM_DISCC'
+  defaultValue : 'BaseDISCC'  # this is zero mass scheme
+#  defaultValue : 'FONLL_DISCC'        # global specification 
+#  defaultValue : 'FFABM_DISCC'
 
 #
 # AlphaS, incuding options to fit it:

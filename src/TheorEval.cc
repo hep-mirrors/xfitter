@@ -800,8 +800,8 @@ const std::string GetParamDS(const std::string& ParName, const std::string& DSna
     YAML::Node Node = XFITTER_PARS::gParametersY[ParName];
 
     // Default:
-    if ( Node["value"]) {
-      std::string Val = Node["value"].as<string>();
+    if ( Node["defaultValue"]) {
+      std::string Val = Node["defaultValue"].as<string>();
 
       if (Node[DSname]) {
 	Val = Node[DSname].as<string>();
