@@ -29,7 +29,6 @@
 #include <vector>
 
 
-class CommonGrid;
 class ReactionTheory;
 
 using std::valarray;
@@ -89,15 +88,6 @@ class TheorEval{
    */
   int Evaluate(valarray<double> &vte );
 
-  //! Set custom CKM matrix for APPLgrid
-  /*!
-    \param v_ckm the 3x3 CMK matrix to be set in the APPLgrid
-
-    The CKM matrix values used in APPLgrids calculations can be updated
-    here.
-   */
-  int setCKM(const vector<double> &v_ckm);
-
   //! Set dataset bins
   /*!
     \param nBinDim the binning dimension (only 1d is supported at the moment)
@@ -145,20 +135,8 @@ class TheorEval{
   */
   int initTerm(int, valarray<double> *);
 
-  //! Initialise applgrid-based term
-  /*!
-   \param iterm expression term index
-   \param val valarray pointer which should be associated with the term
-
-   Initializes the applgrid-based grids and associates the term valarrays with them. 
-  */
-  int initGridTerm(int iterm, valarray<double> *val);
   //! Initialise reaction term
   int initReactionTerm(int iterm, valarray<double> *val);
-  //! Initialise K-factor term
-  int initKfTerm(int, valarray<double> *);
-  //! Get current grid values into the tokens
-  int getGridValues();
   //! Update the reaction values into the tokens
   int getReactionValues();
   //! 
@@ -182,7 +160,6 @@ class TheorEval{
 
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
-  map<CommonGrid*, valarray<double>* > _mapGridToken;
   map< std::pair<ReactionTheory*,int> , valarray<double>* > _mapReactionToken;
   map<string, valarray<double>* > _mapInitdTerms;
 

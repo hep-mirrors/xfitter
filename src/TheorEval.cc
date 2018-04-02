@@ -15,7 +15,6 @@
 #include <dlfcn.h>
 
 #include "TheorEval.h"
-#include "CommonGrid.h"
 #include "ReactionTheory.h"
 #include "xfitter_cpp.h"
 #include "get_pdfs.h"
@@ -53,10 +52,6 @@ TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string>
 
 TheorEval::~TheorEval()
 {
-  map<CommonGrid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
-  for (; itm!= _mapGridToken.end(); itm++){
-    delete itm->first;
-  }
 
   vector<tToken>::iterator it = _exprRPN.begin();
   for (; it!=_exprRPN.end(); it++){
@@ -242,12 +237,8 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
 {
    
   string term_type =  _termTypes.at(iterm);
-  if ( term_type.find("grid") != string::npos || term_type.find("ast") != string::npos ){ //appl'grid' or f'ast'NLO
-    this->initGridTerm(iterm, val);
-  } else if ( term_type == string("reaction")) {
+  if ( term_type == string("reaction")) {
     this->initReactionTerm(iterm, val);
-  } else if ( term_type == string("kfactor")) {
-    this->initKfTerm(iterm, val);
   } else {
     int id = 15102301;
     char text[] = "S: Unknown term type in expression for term";
@@ -258,120 +249,6 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
   }
 }
 
-int
-TheorEval::initGridTerm(int iterm, valarray<double> *val)
-{
-  string term_source = _termSources.at(iterm);
-  string term_type =  _termTypes.at(iterm);
-  string term_info =  _termInfos.at(iterm);
-  CommonGrid *g = new CommonGrid(term_type, term_source); 
-  if (  term_type.find("grid") != string::npos && !(term_type.find("apfel") != string::npos) ) {
-     // set the collision for the grid term
-     string collision ("pp"); // default is pp
-
-     // this is to have backward-compatibility with Tevatron datasets
-     if ( _ppbar ) collision.assign(string("ppbar"));
-     // otherwise we check beams in the TermInfo lines
-     else {
-       size_t beams_pos = term_info.find(string("beams"));
-       if ( beams_pos != string::npos ){
-         size_t semicol_pos = term_info.find(';', beams_pos);
-         size_t eq_pos = term_info.find('=', beams_pos);
-	 collision.assign(term_info.substr(eq_pos+1, semicol_pos - eq_pos-1));
-       }
-     }
-
-     // strip blanks
-     collision.erase(std::remove(collision.begin(), collision.end(), ' '), collision.end());
-
-     // and set the collision
-     g->SetCollisions(collision);
-     g->SetDynamicScale( _dynamicscale );
-     
-     // check the binning with the grids, will be ignored for normalisation grids
-     g->checkBins(_binFlags, _dsBins);
-  }
-  else if ( term_type.find("ast") != string::npos ){
-     bool PublicationUnits = true; // todo: take from new steering flag 'TermNorm'
-     //FastNLOReader* fnlo = g->getHBins().back().f;
-     FastNLOxFitter* fnlo = g->getHBins().back().f; 
-     if(PublicationUnits)
-	fnlo->SetUnits(fastNLO::kPublicationUnits);
-     else 
-	fnlo->SetUnits(fastNLO::kAbsoluteUnits);
-     
-  // OZ 9.05.2017
-  if(term_type.find("norm") != string::npos)
-    fnlo->SetUnits(fastNLO::kAbsoluteUnits);
-
-     // --- set scales
-     if(_MurDef>=0)
-	fnlo->SetMuRFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MurDef)));
-     if(_MufDef>=0)
-	fnlo->SetMuFFunctionalForm((fastNLO::EScaleFunctionalForm) ((int) (_MufDef)));
-     if ( _xmur!=1 || _xmuf!=1 )
-	fnlo->SetScaleFactorsMuRMuF(_xmur, _xmuf);
-
-     // --- set order  
-     if ( _iOrd == 1 ) {
-	fnlo->SetContributionON(fastNLO::kFixedOrder,1,false); // switch 'off' NLO
-     }
-     else if (_iOrd==2) {
-	// that's fastNLO default
-     }
-     else if (_iOrd==3) {
-	fnlo->SetContributionON(fastNLO::kFixedOrder,2,true); // switch 'on' NNLO
-     }
-     else {
-	printf("fastNLO pert. order is not defined, ordercalc = %d:\n",_iOrd);
-	exit(1);
-     }
-  }
-  else if ( term_type.find("apfel") != string::npos ){
-    // set the collision for the grid term                                                                                                                                                  
-    string collision ("pp"); // default is pp                                                                                                                                               
-
-    // this is to have backward-compatibility with Tevatron datasets                                                                                                                        
-    if ( _ppbar ) collision.assign(string("ppbar"));
-    // otherwise we check beams in the TermInfo lines                                                                                                                                       
-    else {
-      size_t beams_pos = term_info.find(string("beams"));
-      if ( beams_pos != string::npos ){
-	size_t semicol_pos = term_info.find(';', beams_pos);
-	size_t eq_pos = term_info.find('=', beams_pos);
-	collision.assign(term_info.substr(eq_pos+1, semicol_pos - eq_pos-1));
-      }
-    }
-
-    // strip blanks                                                                                                                                                                         
-    collision.erase(std::remove(collision.begin(), collision.end(), ' '), collision.end());
-
-    // and set the collision                                                                                                                                                                
-    g->SetCollisions(collision);
-
-    //g->SetCollisions("pp");
-  }
-  /*
-  appl::grid *g = new appl::grid(term_source);
-  if (_dynamicscale != 0)
-    {
-#ifdef APPLGRID_DYNSCALE
-      g->setDynamicScale( _dynamicscale );
-#else
-      int id = 2204201401;
-      char text[] = "S: Cannot use dynamic scale emulation in Applgrid, use v1.4.43 or higher";
-      int textlen = strlen(text);
-      hf_errlog_(id, text, textlen);
-#endif
-    }
-
-  g->trim();
-
-  */
-
-  // associate grid and valarray pointers in token
-  _mapGridToken[g] = val;
-}
 
 int
 TheorEval::initReactionTerm(int iterm, valarray<double> *val)
@@ -468,87 +345,6 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
 }
 
-int
-TheorEval::initKfTerm(int iterm, valarray<double> *val)
-{
-  string term_source(_termSources.at(iterm));
-  // read k-Factor table and compare it's binning to the data
-  cout << "reading k-factor table from " << term_source << endl;
-  vector<double> tv;
-  vector<vector<double> > bkf(_dsBins.size(),tv);
-  vector<double> vkf;
-  ifstream kff(term_source.c_str());
-  string line;
-  if (kff.is_open()){
-    while (1) {
-      getline(kff,line);
-      if (true == kff.eof()) break;
-      if (line.at(0) == '#' ) continue; //ignore comments
-      line.erase(line.find_last_not_of(" \n\r\t")+1); // trim trailing whitespaces
-      stringstream sl(line);
-      // first count words
-      int nw(0);
-      while (sl.good()) {
-        string ts;
-	sl >> ts;
-	nw++;
-      }
-      // check that we have even number of bins (low and high columns)
-      if (0!=(nw-1)%2) {
-        int id = 14040340;
-        char text[] = "S: Bad number of bins in k-factor file. Each bin must have low and high value.";
-        int textlen = strlen(text);
-        hf_errlog_(id, text, textlen);
-      }
-      // check that the number of bins is equal to data binning dimension
-      if ((nw-1) != _dsBins.size()) {
-        int id = 14040341;
-        char text[] = "S: Bad number of bins in k-factor file. Must be equal to data binning dimension.";
-        int textlen = strlen(text);
-        hf_errlog_(id, text, textlen);
-      }
-
-      // now read bins
-      sl.clear();
-      sl.seekg(0);
-      sl.str(line);
-      double tb(0);
-      for (int iw=0; iw<nw-1; iw++) {
-        sl >> tb;
-	bkf.at(iw).push_back(tb);
-      }
-      
-      // and k-factor
-      sl>>tb;
-      vkf.push_back(tb);
-    }
-    kff.close();
-  } else {
-    int id = 14040339;
-    char text[] = "S: Error reading k-factor file.";
-    int textlen = strlen(text);
-    hf_errlog_(id, text, textlen);
-  }
-
-  // check that k-factor file binning is compatible with data
-  for (int iv = 0; iv<_dsBins.size(); iv++){
-    for (int ib = 0; ib<_dsBins.at(iv).size(); ib++){
-      if ( _binFlags.at(ib) == 0 ) continue;
-      if ( 0 == (_binFlags.at(ib) & 2) ) {
-        if (fabs(bkf[iv][ib] - _dsBins[iv][ib]) > 100*DBL_MIN) { 
-          int id = 14040338;
-          char text[] = "S: Data and grid bins don't match.";
-          int textlen = strlen(text);
-          hf_errlog_(id, text, textlen);
-          return -1;
-        }
-      }
-    }
-  }
-
-  // write k-factor array to the token valarray
-  *val = valarray<double>(vkf.data(), vkf.size());
-}  
 
 int
 TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
@@ -569,27 +365,11 @@ TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
   return _dsBins.size();
 }
 
-int 
-TheorEval::setCKM(const vector<double> &v_ckm)
-{
-#ifdef APPLGRID_CKM
-  map<CommonGrid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
-  for(; itm != _mapGridToken.end(); itm++){
-    itm->first->setCKM(v_ckm);
-  }
-#else
-   int id = 611201320;
-   char text[] = "S: Cannot set CKM in Applgrid, use v1.4.33 or higher";
-   int textlen = strlen(text);
-   hf_errlog_(id, text, textlen);
-#endif
-}
 
 int
 TheorEval::Evaluate(valarray<double> &vte )
 {
   // get values from grids
-  this->getGridValues();
   this->getReactionValues();
 
   // calculate expression result
@@ -652,29 +432,6 @@ TheorEval::Evaluate(valarray<double> &vte )
   }
 }
 
-int
-TheorEval::getGridValues()
-{
-  map<CommonGrid*, valarray<double>*>::iterator itm;
-  for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
-    CommonGrid* g = itm->first;
-    vector<double> xs;
-    std::vector< std::vector<double> > result = g->vconvolute(_iOrd, _xmur, _xmuf);        
-    for(int i = 0; i < result.size(); i++)
-      for(int j = 0; j < result[i].size(); j++)
-        xs.push_back(result[i][j]);
-
-    (itm->second)->resize(xs.size());
-    *(itm->second) = valarray<double>(xs.data(), xs.size());
-    /*
-    for (int i = 0; i<xs.size(); i++){
-      cout << xs[i] << endl;
-    }
-    */
-    
-    
-  }
-}
 
 int
 TheorEval::getReactionValues()
@@ -714,18 +471,6 @@ void TheorEval::ChangeTheorySource(string term, string source)
   int iterm = int(found_term-_termNames.begin());
   //  cout << "switch " << _termSources[iterm] << " to " << source << endl;
   _termSources[iterm] = source;
-
-  //delete old applgrid
-  map<CommonGrid*, valarray<double>* >::iterator itm = _mapGridToken.begin();
-  for (; itm!= _mapGridToken.end(); itm++)
-    {
-      if (itm->second == _mapInitdTerms[term])
-	{
-	  delete itm->first;
-	  _mapGridToken.erase(itm);
-	  break;
-	}
-    }
 
   initTerm(int(found_term-_termNames.begin()), _mapInitdTerms[term]);
 }

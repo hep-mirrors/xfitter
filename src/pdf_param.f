@@ -42,10 +42,6 @@ C make sure that par values are updated
       enddo
 
       if(ITheory.ge.100) return 
-      if(Itheory.eq.50) then
-         call DecodeFractal(p) 
-         return
-      endif
 
       if (ITheory.eq.11.or.ITheory.eq.35) then
 
@@ -189,12 +185,6 @@ C  Offset is now steering parameter (default = 70, params start from 41)
 
       if (NChebGlu.gt.0 .or. NChebSea.gt.0) then
          call ChebToPoly
-      endif
-
-
-C  22 Nov 2011: dipole model parameters
-      if (DipoleModel.gt.0) then
-         call DecodeDipolePar(p)
       endif
 
       end

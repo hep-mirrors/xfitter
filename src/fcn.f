@@ -277,13 +277,6 @@ c        write(6,*) ' fcn npoint ',npoints
          enddo
       endif
 
-C
-C     Call a subrotine which vanishes nonvalence DGLAP contribution
-C     for dipole model fits.
-C
-      if (DipoleModel.eq.3.or.DipoleModel.eq.4) then
-         call LeaveOnlyValenceQuarks
-      endif
 
 *     ---------------------------------------------------------  	 
 *     Call evolution
@@ -295,42 +288,7 @@ C
      1    itheory.eq.35) then         
          call Evolution
       elseif(Itheory.ge.100) then
-          if(itheory.eq.101) then 
-             Iglu=1112 
-             filename='ccfm-test.dat'
-             call calcglu
-c iglu is set in sigcalc to iglu=1111
-          elseif(itheory.eq.102) then 
-c iglu in sigcalc is set by steer-ep 
-          elseif(itheory.eq.103) then 
-c iglu is set in sigcalc to iglu=1113
-             Iglu = 1113
-          elseif(itheory.eq.104) then 
-             Iglu=1112            
-c call evolution to generate grid file
-             evolfname='Cascade/updfGrids/ccfm-grid.dat'
-             if(iflag.eq.1) call evolve_tmd
-c iglu is set in sigcalc to iglu=1111
-          elseif(itheory.eq.105) then 
-c call evolution to generate grid file
-             evolfname='ccfm-test.dat'
-             if(iflag.eq.1) call evolve_tmd
-c iglu is set in sigcalc to iglu=1111
-          endif 
           firsth=.false.
-      endif
-
-c fill PDFs for ABKM scheme
-      if (mod(HFSCHEME,10).eq.4) then 
-c update heavy-quark masses (for FF ABM and FF ABM RUNM schemes)
-        if (HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
-          call UpdateHQMasses()
-          rmass(8)  = HF_MASS(1)
-          rmass(10) = HF_MASS(2)
-        endif
-        call PDFFILLGRID
-c this will need to BMSN             
-c             call fillvfngrid
       endif
 
       if (Debug) then
@@ -343,8 +301,6 @@ c             call fillvfngrid
 *     Initialise theory calculation per iteration
 *     ---------------------------------------------------------  	 
       call GetTheoryIteration
-      if(itheory.ge.103) call GetGridkt
-
 
       if (Debug) then
          print*,'after GetTheoryIteration'
@@ -632,14 +588,7 @@ c     $           ,chi2_cont/NControlPoints
                auh(7) = parminuitsave(7)
                auh(8) = parminuitsave(8)
                auh(9) = parminuitsave(9)
-               if(Itheory.ge.103) then
-                  idx = index(ccfmfile,' ')-1
-                  if(idx.gt.2) then
-                     filename=ccfmfile(1:idx)//'.dat'
-                     firsth=.true.
-                     call calcglu
-                  endif
-               endif         
+
                open(91,file=TRIM(OutDirName)//'/params.txt')
                write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
                
@@ -707,11 +656,6 @@ C     !> Store also type of systematic source info
 C Trigger reactions:
          call fcn3action
 
-c AS release applgrids
-c AS applgrid example
-         if ( useapplg ) then
-            call ag_releasegrids
-         endif
          call cpu_time(time2)
          print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
 

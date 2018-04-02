@@ -72,14 +72,6 @@ C
       endif ! Itheory > 100
 
     
-C 07/06/2016: fits with and without saturation
-C     DipCS saturation 
-      call SetDipCsType
-
-C 07/12/2011 Dipole 
-      call SetDipoleType
-
-
 
 C 09/01/2013 Check consistency of the input
       call CheckInputs

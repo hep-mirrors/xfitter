@@ -219,22 +219,6 @@ int init_theor_eval_(int *dsId)
 }
 
 /*!
- Updates the CKM matrix to all the initialized appl grids
- */
-int update_theor_ckm_()
-{
-  double a_ckm[] = { ckm_matrix_.Vud, ckm_matrix_.Vus, ckm_matrix_.Vub,
-                                  ckm_matrix_.Vcd, ckm_matrix_.Vcs, ckm_matrix_.Vcb,
-                                  ckm_matrix_.Vtd, ckm_matrix_.Vts, ckm_matrix_.Vtb};
-  vector<double> v_ckm (a_ckm, a_ckm+sizeof(a_ckm)/sizeof(a_ckm[0]));
-  tTEmap::iterator it = gTEmap.begin();
-  for (; it!= gTEmap.end(); it++){
-    it->second->setCKM(v_ckm);
-  }
-  
-}
-
-/*!
  Evaluates theory for requested dataset and writes it to the global THEO array.
  */
 int get_theor_eval_(int *dsId, int *np, int*idx)
