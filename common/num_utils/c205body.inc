@@ -23,7 +23,7 @@
       FA=F(XA,1)
       FB=F(XB,2)
       IF(FA*FB .GT. 0) THEN
-        CALL hf_errlog(14072408, 'E: RZERO ERROR')
+        CALL hf_errlog(14072408, 'S: RZERO ERROR')
 	GOTO 5
       ENDIF
       MC=0
