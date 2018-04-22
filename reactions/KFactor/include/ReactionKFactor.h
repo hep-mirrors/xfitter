@@ -27,10 +27,12 @@ class ReactionKFactor : public ReactionTheory
     virtual string getReactionName() const { return  "KFactor" ;};
     int initAtStart(const string &);
     virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+    virtual void initAtIteration() override;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
     virtual int parseOptions(){ return 0;};
   private:
     map<int, std::vector<double> > _values;
+    map<int, std::pair<std::string, double> > _parameterNames;
 };
 
