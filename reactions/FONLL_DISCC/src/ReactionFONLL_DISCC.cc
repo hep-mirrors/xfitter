@@ -193,7 +193,6 @@ void ReactionFONLL_DISCC::initAtIteration()
 	      _f3fonll[dataSetID][i] = APFEL::F3charm(x[i]) / 2;
 	      break;
 	    }
-	  printf("%.2e  %.2e  %.2e\n", APFEL::F2total(x[i]), APFEL::F2charm(x[i]), APFEL::F2bottom(x[i]));
 
 	  Q2save = q2[i];
 	}
