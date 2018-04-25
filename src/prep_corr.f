@@ -13,7 +13,7 @@
 
       integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax,NCorrMax
 
-      parameter (NIdMax = 5)
+      parameter (NIdMax = 6)
       character *80 Name1
       character *80 Name2
       character *80 MatrixType
