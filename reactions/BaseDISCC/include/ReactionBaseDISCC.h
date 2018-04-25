@@ -34,6 +34,8 @@ class ReactionBaseDISCC : public ReactionTheory
     
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
+    enum class dataFlav { incl, c} ;      //!< Define final state.
+
     virtual int parseOptions(){ return 0;};
 
     virtual void F2 BASE_PARS;
@@ -45,12 +47,14 @@ class ReactionBaseDISCC : public ReactionTheory
     map <int, double>  _polarisation ;      //!< longitudinal polarisation
     map <int, double>  _charge;             //!< lepton beam charge
     map <int, int>    _isReduced;          //!< reduced cross section
+    map <int, dataFlav> _dataFlav;          //!< flavour (incl, c, b)
   protected:
     const int GetNpoint(int dataSetID) {return _npoints[dataSetID];}
     const double GetPolarisation (int dataSetID) {return _polarisation[dataSetID];}
     const double GetCharge(int dataSetID) {return _charge[dataSetID]; }
     const int IsReduced(int dataSetID){ return _isReduced[dataSetID] > 0; }
-    
+    const dataFlav GetDataFlav(int dataSetID) {return _dataFlav[dataSetID]; }
+
     // Another decomposition:
     virtual void GetF2u( int dataSetID, valarray<double>& f2u);
     virtual void GetFLu( int dataSetID, valarray<double>& flu);

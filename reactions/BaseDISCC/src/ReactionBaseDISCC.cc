@@ -10,11 +10,20 @@
 #include <iostream>
 
 // Helpers for QCDNUM (CC): 
+
+//! full
 const double  CCEP2F[] = {0.,0.,1.,0.,1.,0.,0.,1.,0.,1.,0.,0.,0.} ; 
 const double  CCEM2F[] = {0.,0.,0.,1.,0.,1.,0.,0.,1.,0.,1.,0.,0.} ;
 
 const double  CCEP3F[] = {0.,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.,0.};
 const double  CCEM3F[] = {0.,0. ,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.};
+
+//! c
+const double  CCEP2Fc[] = {0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.} ;
+const double  CCEM2Fc[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.} ;
+
+const double  CCEP3Fc[] = {0.,0.,-1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+const double  CCEM3Fc[] = {0.,0. ,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.};
 
 // define QCDNUM function:
 extern "C" {
@@ -114,12 +123,21 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
 
   // type: sigred, signonred (no F2, FL implemented so far, thus type is defined by bool _isReduced)
   // HERA data files provide 'signonred' CC cross sections
+  // Inclusive "non-reduced" cross section by default.
+  _dataFlav[dataSetID] = dataFlav::incl;
+  string msg = "I: Calculating DIS CC reduced cross section";
   map<string,string>::iterator it = pars.find("type");
   if ( it != pars.end() ) {
-    if(it->second == "sigred")
+    if(it->second == "sigred") 
+    {
       _isReduced[dataSetID] = 1;
+      msg = "I: Calculating DIS CC reduced cross section";
+    }
     else if(it->second == "signonred")
+    {
       _isReduced[dataSetID] = 0;
+      msg = "I: Calculating DIS CC non-reduced cross section";
+    }
     else
     {
       char buffer[256];
@@ -128,6 +146,37 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
       hf_errlog_(17101903, str.c_str(), str.length());
     }
   }
+
+  // flav: incl, c, b
+  it = pars.find("flav");
+  if ( it != pars.end() ) {
+    if(it->second == "incl")
+    {
+      _dataFlav[dataSetID] = dataFlav::incl;
+      msg += " inclusive";
+    }
+    else if(it->second == "c")
+    {
+      _dataFlav[dataSetID] = dataFlav::c;
+      msg += " charm";
+    }
+    // no beauty
+    else if(it->second == "b")
+    {
+      char buffer[256];
+      sprintf(buffer, "F: predictions for beauty in CC are not available (dataset id = %d)", dataSetID);
+      string str = buffer;
+      hf_errlog_(18042501, str.c_str(), str.length());
+    }
+    else
+    {
+      char buffer[256];
+      sprintf(buffer, "F: dataset with id = %d has unknown flav = %s", dataSetID, it->second.c_str());
+      string str = buffer;
+      hf_errlog_(18042502, str.c_str(), str.length());
+    }
+  }
+  hf_errlog_(17041001, msg.c_str(), msg.size());
 
   // e charge: double
   it = pars.find("echarge");
@@ -200,11 +249,17 @@ void ReactionBaseDISCC::GetF2u(int dataSetID, valarray<double>& f2u)
     
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    zmstfun_(id,CCEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
-    //  zmstfun_(id,CCEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);    
+    switch ( GetDataFlav(dataSetID) )
+      {
+      case dataFlav::incl :
+        zmstfun_(id,CCEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
+        break;
+      case dataFlav::c :
+        zmstfun_(id,CCEP2Fc[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
+        break ;
+      }
   }
   f2u = _f2u[dataSetID];
-  //  f2d = _f2d[dataSetID];
 }
 
 void ReactionBaseDISCC::GetFLu(int dataSetID, valarray<double>& flu)
@@ -217,11 +272,17 @@ void ReactionBaseDISCC::GetFLu(int dataSetID, valarray<double>& flu)
     
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    zmstfun_(id,CCEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-    //    zmstfun_(id,CCEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
+    switch ( GetDataFlav(dataSetID) )
+      {
+      case dataFlav::incl :
+        zmstfun_(id,CCEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
+        break;
+      case dataFlav::c :
+        zmstfun_(id,CCEP2Fc[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
+        break ;
+      }
   }
   flu = _flu[dataSetID];
-  // fld = _fld[dataSetID];
 
 }
 
@@ -235,12 +296,17 @@ void ReactionBaseDISCC::GetxF3u( int dataSetID, valarray<double>& xf3u )
     
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-
-    zmstfun_(id,CCEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
-    //    zmstfun_(id,CCEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
+    switch ( GetDataFlav(dataSetID) )
+      {
+      case dataFlav::incl :
+        zmstfun_(id,CCEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
+        break;
+      case dataFlav::c :
+        zmstfun_(id,CCEP3Fc[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
+        break;
+      }
   }
   xf3u = _xf3u[dataSetID];
-  //xf3d = _xf3d[dataSetID];
 }
 
 
@@ -254,10 +320,16 @@ void ReactionBaseDISCC::GetF2d(int dataSetID, valarray<double>& f2d)
     
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    // zmstfun_(id,CCEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
-    zmstfun_(id,CCEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);    
+    switch ( GetDataFlav(dataSetID) )
+      {
+      case dataFlav::incl :
+        zmstfun_(id,CCEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
+        break;
+      case dataFlav::c :
+        zmstfun_(id,CCEM2Fc[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
+        break ;
+      }
   }
-  //f2u = _f2u[dataSetID];
   f2d = _f2d[dataSetID];
 }
 
@@ -271,10 +343,16 @@ void ReactionBaseDISCC::GetFLd(int dataSetID, valarray<double>& fld)
     
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    // zmstfun_(id,CCEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-    zmstfun_(id,CCEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
+    switch ( GetDataFlav(dataSetID) )
+      {
+      case dataFlav::incl :
+        zmstfun_(id,CCEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
+        break;
+      case dataFlav::c :
+        zmstfun_(id,CCEM2Fc[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
+        break ;
+      }
   }
-  // flu = _flu[dataSetID];
   fld = _fld[dataSetID];
 
 }
@@ -289,11 +367,8 @@ void ReactionBaseDISCC::GetxF3d( int dataSetID, valarray<double>& xf3d )
     
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-
-    // zmstfun_(id,CCEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
     zmstfun_(id,CCEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
   }
-  //xf3u = _xf3u[dataSetID];
   xf3d = _xf3d[dataSetID];
 }
 
