@@ -178,10 +178,22 @@ void ReactionFONLL_DISCC::initAtIteration()
 	      APFEL::ComputeStructureFunctionsAPFEL(Q,Q);
 	    }
 
-	  // Compute structure functions by interpolation in x.
-	  _f2fonll[dataSetID][i] = APFEL::F2total(x[i]) / 2;
-	  _flfonll[dataSetID][i] = APFEL::FLtotal(x[i]) / 2;
-	  _f3fonll[dataSetID][i] = APFEL::F3total(x[i]) / 2;
+	  // Compute structure functions by interpolation in x for the
+	  // appropriate component (total, charm, or bottom).
+	  switch (GetDataFlav(dataSetID))
+	    {
+	    case dataFlav::incl:
+	      _f2fonll[dataSetID][i] = APFEL::F2total(x[i]) / 2;
+	      _flfonll[dataSetID][i] = APFEL::FLtotal(x[i]) / 2;
+	      _f3fonll[dataSetID][i] = APFEL::F3total(x[i]) / 2;
+	      break;
+	    case dataFlav::c:
+	      _f2fonll[dataSetID][i] = APFEL::F2charm(x[i]) / 2;
+	      _flfonll[dataSetID][i] = APFEL::FLcharm(x[i]) / 2;
+	      _f3fonll[dataSetID][i] = APFEL::F3charm(x[i]) / 2;
+	      break;
+	    }
+	  printf("%.2e  %.2e  %.2e\n", APFEL::F2total(x[i]), APFEL::F2charm(x[i]), APFEL::F2bottom(x[i]));
 
 	  Q2save = q2[i];
 	}
