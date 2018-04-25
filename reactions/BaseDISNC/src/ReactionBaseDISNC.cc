@@ -94,6 +94,21 @@ void ReactionBaseDISNC::initAtIteration() {
 void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) 
 {
   auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");  
+
+  // if Q2 and x bins and centre-of-mass energy provided, calculate y = Q2 / (s * x)
+  if(yp == nullptr && q2p != nullptr && xp != nullptr)
+  {
+    map<string,string>::iterator it = pars.find("energy");
+    if ( it != pars.end() )
+    {
+      double s = pow(stof(it->second), 2.0);
+      valarray<double> y = (*q2p) / (s * (*xp));
+      std::pair<string,valarray<double>* > dsBin = std::make_pair("y", &y);
+      AddBinning(dataSetID, &dsBin);
+      yp = GetBinValues(dataSetID, "y");
+    }
+  }
+
   if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
     string msg = "F: Q2, x or Y bins are missing for NC DIS reaction for dataset " + std::to_string(dataSetID);
     hf_errlog_(17040801,msg.c_str(), msg.size());
