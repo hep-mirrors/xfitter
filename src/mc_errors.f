@@ -113,7 +113,7 @@ C ! Introduce asymmetric errors, for Gaussian case only:
                if (beta(isys,n0).ne.0) then
                   lsig=beta(isys,n0) 
                   lmu=1.
-                  lrunif=r_sh_fl(isys)
+                  lrunif=r_sh_fl(isys)/f_un + 0.5  ! Expect random number between 0 and 1.
                   s=s*logshift(lmu,lsig,lrunif)
 c                  print*,'log...', n0,isys,
 c     $                 lrunif, beta(isys,n0), 
