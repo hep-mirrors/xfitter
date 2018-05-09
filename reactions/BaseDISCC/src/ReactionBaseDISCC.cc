@@ -12,18 +12,36 @@
 // Helpers for QCDNUM (CC): 
 
 //! full
-const double  CCEP2F[] = {0.,0.,1.,0.,1.,0.,0.,1.,0.,1.,0.,0.,0.} ; 
-const double  CCEM2F[] = {0.,0.,0.,1.,0.,1.,0.,0.,1.,0.,1.,0.,0.} ;
+const double  CCEP2F[] = {0.,0.,1.,0.,1.,0., 0. ,1.,0.,1.,0.,0.,0.} ;
+const double  CCEM2F[] = {0.,0.,0.,1.,0.,1., 0. ,0.,1.,0.,1.,0.,0.} ;
 
 const double  CCEP3F[] = {0.,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.,0.};
 const double  CCEM3F[] = {0.,0. ,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.};
 
 //! c
-const double  CCEP2Fc[] = {0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.} ;
-const double  CCEM2Fc[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.} ;
+// work in progress: according to 1001.2312 section 5,
+// in ZM only the sum of contributions s + c makes sense
+// three different options are below for checks, uncommented one is for s + c
+//
+// only c
+//const double  CCEP2Fc[] = {0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.} ;
+//const double  CCEM2Fc[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.} ;
+// only s
+//const double  CCEP2Fc[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.} ;
+//const double  CCEM2Fc[] = {0.,0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.} ;
+// only s,c
+const double  CCEP2Fc[] = {0.,0.,1.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.} ;
+const double  CCEM2Fc[] = {0.,0.,0.,1.,0.,0.,0.,0.,0.,0.,1.,0.,0.} ;
 
-const double  CCEP3Fc[] = {0.,0.,-1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-const double  CCEM3Fc[] = {0.,0. ,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.};
+// only c
+//const double  CCEP3Fc[] = {0.,0.,-1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+//const double  CCEM3Fc[] = {0.,0. ,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.};
+// only s
+//const double  CCEP3Fc[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.};
+//const double  CCEM3Fc[] = {0.,0.,0.,-1.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+// only s,c
+const double  CCEP3Fc[] = {0.,0.,-1.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.};
+const double  CCEM3Fc[] = {0.,0.,0.,-1.,0.,0.,0.,0.,0.,0.,1.,0.,0.};
 
 // define QCDNUM function:
 extern "C" {
@@ -382,7 +400,15 @@ void ReactionBaseDISCC::GetxF3d( int dataSetID, valarray<double>& xf3d )
     
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    zmstfun_(id,CCEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
+    switch ( GetDataFlav(dataSetID) )
+      {
+      case dataFlav::incl :
+        zmstfun_(id,CCEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);
+        break;
+      case dataFlav::c :
+        zmstfun_(id,CCEM3Fc[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);
+        break;
+    }
   }
   xf3d = _xf3d[dataSetID];
 }

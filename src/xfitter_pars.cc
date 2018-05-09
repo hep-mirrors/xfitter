@@ -216,6 +216,13 @@ namespace XFITTER_PARS {
     // constants
     FortAssignD(Gf,constants_)
     FortAssignD(ConvFac,constants_)
+    // OZ 26.04.18 the two lines above do not do what expected because it is gf and convFac in parameters.yaml, not Gf and ConvFac
+    // as a result CC DIS cross section with old interface are always zero
+    // temporary fix: set these parameters manually
+    if(gParameters.find("gf") != gParameters.end())
+      constants_.Gf = *gParameters["gf"];
+    if(gParameters.find("convFac") != gParameters.end())
+      constants_.ConvFac = *gParameters["convFac"];
 
     //Fermion masses:
     FortAssignD(men,fermion_masses_)  // electron neutrino
