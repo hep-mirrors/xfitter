@@ -115,8 +115,8 @@ std::valarray<double> IntegrateDIS::compute(const std::valarray<double>& val)
           continue;
         double dxsec = val[i] * _deltaq2[i] * _deltax[i];
         xsec += dxsec;
-        printf("%f %f: %f += %f [ %f * %f * %f ]\n", _q2[i], _x[i],
-               xsec, dxsec, val[i], _deltaq2[i], _deltax[i]);
+        //printf("%f %f: %f += %f [ %f * %f * %f ]\n", _q2[i], _x[i],
+        //       xsec, dxsec, val[i], _deltaq2[i], _deltax[i]);
       }
       valIntegrated[nBins] = xsec;
       // increase number of processed bins
