@@ -175,7 +175,7 @@ class ReactionTheory
 
 
   // Helper function to get bin values for a given data set, bin name. Returns null if not found
-  valarray<double> *GetBinValues(int idDS, const string& binName)
+  virtual valarray<double> *GetBinValues(int idDS, const string& binName)
   { 
     map<string, valarray<double> >* mapBins =  _dsBins[idDS];
     if (mapBins == nullptr ) {
