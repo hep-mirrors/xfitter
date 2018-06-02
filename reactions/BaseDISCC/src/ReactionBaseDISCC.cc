@@ -8,6 +8,7 @@
 
 #include "ReactionBaseDISCC.h"
 #include <iostream>
+#include <IntegrateDIS.h>
 
 // Helpers for QCDNUM (CC): 
 
@@ -15,8 +16,8 @@
 const double  CCEP2F[] = {0.,0.,1.,0.,1.,0., 0. ,1.,0.,1.,0.,0.,0.} ;
 const double  CCEM2F[] = {0.,0.,0.,1.,0.,1., 0. ,0.,1.,0.,1.,0.,0.} ;
 
-const double  CCEP3F[] = {0.,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.,0.};
-const double  CCEM3F[] = {0.,0. ,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.};
+const double  CCEP3F[] = {0.,0.,-1.,0.,-1.,0., 0., 1.,0.,1.,0.,0.,0.};
+const double  CCEM3F[] = {0.,0. ,0.,-1.,0.,-1., 0., 0.,1.,0.,1.,0.,0.};
 
 //! c
 // work in progress: according to 1001.2312 section 5,
@@ -65,8 +66,11 @@ int ReactionBaseDISCC::initAtStart(const string &s)
 }
 
 // Main function to compute results at an iteration
-int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
+int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal)
 {
+  valarray<double> val;
+  map<string, valarray<double> > err;
+
   // Basic formulat for CC cross section:
 
   auto *yp  = GetBinValues(dataSetID,"y");
@@ -84,6 +88,7 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &val, map<string,
   FL (dataSetID,fl,err);
   xF3(dataSetID,xf3,err);
 
+
   double polarity = GetPolarisation(dataSetID);
   
   if ( GetCharge(dataSetID) > 0) {
@@ -95,6 +100,9 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &val, map<string,
     val *= (1-polarity);
   }
 
+  //for(size_t i = 0; i < f2.size(); i++)
+  //  printf("%f %f    %f    %f    %f  =  %f\n", (*GetBinValues(dataSetID,"Q2"))[i], (*GetBinValues(dataSetID,"x"))[i], f2[i], fl[i], xf3[i], val[i]);
+
   if (! IsReduced(dataSetID)) {
     // extra factor for non-reduced cross section
     auto *xp  = GetBinValues(dataSetID,"x");
@@ -104,6 +112,20 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &val, map<string,
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (_MW*_MW*_MW*_MW/pow((q2+_MW*_MW),2))*_Gf*_Gf/(2*pi*x)*_convfac;
     val *= factor;
+  }
+
+  if(_integrated.find(dataSetID) == _integrated.end())
+  {
+    // usual cross section at (q2,x) points
+    valExternal = val;
+    errExternal = err;
+  }
+  else
+  {
+    // integrated cross sections
+    valExternal = _integrated[dataSetID]->compute(val);
+    // no idea how error could be treated: for now do nothing
+    errExternal = err;
   }
   
   return 0;
@@ -127,33 +149,11 @@ void ReactionBaseDISCC::initAtIteration() {
 // 
 void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) 
 {
-  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");
-
-  // if Q2 and x bins and centre-of-mass energy provided, calculate y = Q2 / (s * x)
-  if(yp == nullptr && q2p != nullptr && xp != nullptr)
-  {
-    map<string,string>::iterator it = pars.find("energy");
-    if ( it != pars.end() )
-    {
-      double s = pow(stof(it->second), 2.0);
-      valarray<double> y = (*q2p) / (s * (*xp));
-      std::pair<string,valarray<double>* > dsBin = std::make_pair("y", &y);
-      AddBinning(dataSetID, &dsBin);
-      yp = GetBinValues(dataSetID, "y");
-    }
-  }
-
-  if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
-    string msg = "F: Q2, x or Y bins are missing for CC DIS reaction for dataset " + std::to_string(dataSetID);
-    hf_errlog_(17100801,msg.c_str(), msg.size());
-  }
-  _npoints[dataSetID] = (*q2p).size();
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
   _isReduced[dataSetID]    =  (parsDataset.find("reduced")       != parsDataset.end()) ? parsDataset["reduced"] : 0;
 
   // check if settings are provided in the new format key=value
-
   // type: sigred, signonred (no F2, FL implemented so far, thus type is defined by bool _isReduced)
   // HERA data files provide 'signonred' CC cross sections
   // Inclusive "non-reduced" cross section by default.
@@ -161,7 +161,7 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
   string msg = "I: Calculating DIS CC reduced cross section";
   map<string,string>::iterator it = pars.find("type");
   if ( it != pars.end() ) {
-    if(it->second == "sigred") 
+    if(it->second == "sigred")
     {
       _isReduced[dataSetID] = 1;
       msg = "I: Calculating DIS CC reduced cross section";
@@ -209,7 +209,6 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
       hf_errlog_(18042502, str.c_str(), str.length());
     }
   }
-  hf_errlog_(17041001, msg.c_str(), msg.size());
 
   // e charge: double
   it = pars.find("echarge");
@@ -221,6 +220,65 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
   if ( it != pars.end() )
     _polarisation[dataSetID] = atof(it->second.c_str());
 
+  // check if centre-of-mass energy is provided
+  double s = -1.0;
+  map<string,string>::iterator itEnergy = pars.find("energy");
+  if ( itEnergy != pars.end() )
+    s = pow(stof(itEnergy->second), 2.0);
+
+  // bins
+  // if Q2min, Q2max, ymin and ymax (and optionally xmin, xmax) are provided, integrated cross sections are calculated
+  auto *q2minp  = GetBinValues(dataSetID,"Q2min");
+  auto *q2maxp  = GetBinValues(dataSetID,"Q2max");
+  // also try small first letter for Q2 (for backward compatibility)
+  if(!q2minp)
+    q2minp  = GetBinValues(dataSetID,"q2min");
+  if(!q2maxp)
+    q2maxp  = GetBinValues(dataSetID,"q2max");
+  auto *yminp  = GetBinValues(dataSetID,"ymin");
+  auto *ymaxp  = GetBinValues(dataSetID,"ymax");
+  // optional xmin, xmax for integrated cross sections
+  auto *xminp  = GetBinValues(dataSetID,"xmin");
+  auto *xmaxp  = GetBinValues(dataSetID,"xmax");
+
+  if(q2minp && q2maxp && yminp && ymaxp)
+  {
+    // integrated cross section
+    if(s < 0)
+      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS dataset " + std::to_string(dataSetID));
+    if(IsReduced(dataSetID))
+      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(dataSetID));
+    IntegrateDIS* iDIS = new IntegrateDIS();
+    _npoints[dataSetID] = iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
+    _integrated[dataSetID] = iDIS;
+    msg += " (integrated)";
+  }
+  else
+  {
+    // cross section at (Q2,x) points
+    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");
+
+    // if Q2 and x bins and centre-of-mass energy provided, calculate y = Q2 / (s * x)
+    if(yp == nullptr && q2p != nullptr && xp != nullptr)
+    {
+      if ( s > 0.0 )
+      {
+        valarray<double> y = (*q2p) / (s * (*xp));
+        std::pair<string,valarray<double>* > dsBin = std::make_pair("y", &y);
+        AddBinning(dataSetID, &dsBin);
+        yp = GetBinValues(dataSetID, "y");
+      }
+    }
+
+    if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
+      string msg = "F: Q2, x or Y bins are missing for CC DIS reaction for dataset " + std::to_string(dataSetID);
+      hf_errlog_(17100801,msg.c_str(), msg.size());
+    }
+    _npoints[dataSetID] = (*q2p).size();
+  }
+
+  hf_errlog_(17041001, msg.c_str(), msg.size());
+
   // Allocate internal arrays:
   _f2u[dataSetID].resize(_npoints[dataSetID]);
   _f2d[dataSetID].resize(_npoints[dataSetID]);
@@ -229,6 +287,23 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
   _xf3u[dataSetID].resize(_npoints[dataSetID]);
   _xf3d[dataSetID].resize(_npoints[dataSetID]);
 }
+
+valarray<double> *ReactionBaseDISCC::GetBinValues(int idDS, const string& binName)
+{
+  if(_integrated.find(idDS) == _integrated.end())
+    return ReactionTheory::GetBinValues(idDS, binName);
+  else
+  {
+    if(binName == "Q2")
+      return _integrated[idDS]->getBinValuesQ2();
+    else if(binName == "x")
+      return _integrated[idDS]->getBinValuesX();
+    else if(binName == "y")
+      return _integrated[idDS]->getBinValuesY();
+    else
+      return ReactionTheory::GetBinValues(idDS, binName);
+  }
+};
 
 
 // Get SF
@@ -291,6 +366,8 @@ void ReactionBaseDISCC::GetF2u(int dataSetID, valarray<double>& f2u)
         zmstfun_(id,CCEP2Fc[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
         break ;
       }
+    //for(int i = 0; i < Npnt; i++)
+    //  printf("%f %f    %f\n", q2[i], x[i], (_f2u[dataSetID])[i]);
   }
   f2u = _f2u[dataSetID];
 }
@@ -335,10 +412,14 @@ void ReactionBaseDISCC::GetxF3u( int dataSetID, valarray<double>& xf3u )
         zmstfun_(id,CCEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
         break;
       case dataFlav::c :
+        //printf("before XF3u: %f\n", (_xf3u[dataSetID])[_xf3u[dataSetID].size() - 1]);
         zmstfun_(id,CCEP3Fc[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
+        //printf("after XF3u: %f\n", (_xf3u[dataSetID])[_xf3u[dataSetID].size() - 1]);
         break;
       }
+    //_xf3u[dataSetID] = _xf3u[dataSetID] * x;
   }
+  //printf("XF3u: %f\n", (_xf3u[dataSetID])[_xf3u[dataSetID].size() - 1]);
   xf3u = _xf3u[dataSetID];
 }
 
@@ -409,6 +490,7 @@ void ReactionBaseDISCC::GetxF3d( int dataSetID, valarray<double>& xf3d )
         zmstfun_(id,CCEM3Fc[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);
         break;
     }
+    //_xf3d[dataSetID] = _xf3d[dataSetID] * x;
   }
   xf3d = _xf3d[dataSetID];
 }

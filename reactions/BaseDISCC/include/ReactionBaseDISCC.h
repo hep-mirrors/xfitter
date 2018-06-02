@@ -17,6 +17,8 @@
 // Define standard parameters used by SF and x-sections:
 #define BASE_PARS (int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 
+class IntegrateDIS;
+
 class ReactionBaseDISCC : public ReactionTheory
 {
   public:
@@ -32,7 +34,7 @@ class ReactionBaseDISCC : public ReactionTheory
     virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual void initAtIteration() override;
     
-    virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
+    virtual int compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal);
   protected:
     enum class dataFlav { incl, c} ;      //!< Define final state.
 
@@ -71,6 +73,12 @@ class ReactionBaseDISCC : public ReactionTheory
     map <int,valarray<double> > _fld; //!< FL for d-type quarks
     map <int,valarray<double> > _xf3u; 
     map <int,valarray<double> > _xf3d;
+
+  protected:
+    // for integrated cross sections
+    // method is based on legacy subroutine GetIntegratedDisXsection
+    map<int,IntegrateDIS*> _integrated;
+    virtual valarray<double> *GetBinValues(int idDS, const string& binName);
 
  protected:
     double _MW;
