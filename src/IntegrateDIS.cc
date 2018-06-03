@@ -22,7 +22,7 @@ int IntegrateDIS::init(const double s,
   {
     const double q2min = (*q2minp)[i];
     const double q2max = (*q2maxp)[i];
-    const double ymin = (*yminp)[i];
+    double ymin = (*yminp)[i];
     const double ymax = (*ymaxp)[i];
 
     // prevent 0 because there is division by y
