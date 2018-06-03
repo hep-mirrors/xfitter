@@ -131,6 +131,7 @@ int ReactionFONLL_DISNC::initAtStart(const string &s)
 // by the specific functions.
 void ReactionFONLL_DISNC::initAtIteration()
 {
+  ReactionBaseDISNC::initAtIteration ();
   // VB: With the following command, APFEL will be calling the "ExternalSetAPFEL1"
   // routine in FONLL/src/FONLL_wrap.f. This is not optimal but until that routine is
   // there, I cannot find a way to override it.
