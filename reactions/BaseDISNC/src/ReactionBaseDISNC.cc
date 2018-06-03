@@ -105,6 +105,7 @@ int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &valExternal, map
 }
 
 void ReactionBaseDISNC::initAtIteration() {
+  _convfac = GetParam("convFac");
   _alphaem = GetParam("alphaem");
   _Mz = GetParam("Mz");
   _Mw = GetParam("Mw");
