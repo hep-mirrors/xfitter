@@ -25,7 +25,9 @@ int IntegrateDIS::init(const double s,
     const double ymin = (*yminp)[i];
     const double ymax = (*ymaxp)[i];
 
-    //if(ymin == 0.)
+    // prevent 0 because there is division by y
+    if(ymin == 0.)
+      ymin = 1e-6;
 
     // just copy previous entry, if binning is the same
     //bool flagCopyValue = false;
