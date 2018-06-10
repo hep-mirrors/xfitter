@@ -1288,6 +1288,7 @@ C
 
 C Reference table
       integer CompressIdx(nsystMax)
+      integer iFlag
 
       namelist/Data/Name, NData, NColumn, ColumnType, ColumnName, Percent
 C Function:
@@ -1298,6 +1299,7 @@ C---------------------------------------------------------------------
       NUncert = 0
       NData = 0
 
+      
       UseFixedTheory(idxdataset) = .True.
 
       open (52,file=FileName,err=101)
@@ -1307,7 +1309,7 @@ C Basic consistency check:
          if (NData.ne.NDATAPOINTS(IdxDataSet)) then
             print *,ndata,NDATAPOINTS(IdxDataSet),IdxDataSet
             call hf_errlog(4,
-     $           'F:Mismatch for number of points in theory file '
+     $           'W:Mismatch for number of points in theory file '
      $           //trim(FileName))
          endif
       else
@@ -1316,8 +1318,11 @@ C Basic consistency check:
          Datasetlabel(idxdataset) = Name
       endif
 
-       do i=1,NColumn
-         if (ColumnType(i).eq.'Bin') then
+      do i=1,NColumn
+         if (ColumnType(i).eq.'Flag') then
+            iFlag = i
+            continue
+         elseif (ColumnType(i).eq.'Bin') then
             NBinDimension = NBinDimension + 1
          elseif (ColumnType(i).eq.'Theory') then
             idxSigma = i
@@ -1403,7 +1408,9 @@ C--- Add new source
 
 C Read the predictions:
       ipoint = 0
+      print *,'NDATA'
       do j=1,NDATA
+         print *,j
  89      read (52,'(A)',err=1017,end=1018) ctmp
          if (ctmp(1:1).eq.'*') then
 C     Comment line, read another one
@@ -1415,7 +1422,11 @@ C Read the colums
 
          read (ctmp,*,err=1019)(buffer(i),i=1,NColumn)
 
-
+C     check flag:
+         if ( buffer(iFlag).eq.0) then
+            goto 7881             ! skip line
+         endif
+         
 C Store:
          if (pdfrotate) then
             NPoints = NPoints + 1
@@ -1551,7 +1562,7 @@ C--- Add data point to the syst. list (this will help to speedup loops):
                theo_unc(idx) =  Syst(i)
             endif
          enddo
-
+ 7881    continue
       enddo
 
 c      do i=1,NData

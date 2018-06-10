@@ -3,11 +3,22 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 7
- 
+    NInputFiles = 5
   ! Input files:
 
-     InputFileNames = 
+     InputFileNames =
+       'z3d/massBinCF0.dat',
+       'z3d/massBinCF1.dat',
+       'z3d/massBinCF2.dat',
+       'z3d/massBinCF3.dat',
+       'z3d/massBinCF4.dat',
+       'z3d/massBin0.dat',
+       'z3d/massBin1.dat',
+       'z3d/massBin2.dat',
+       'z3d/massBin3.dat',
+       'z3d/massBin4.dat',
+       'z3d/massBin5.dat',
+       'z3d/massBin6.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
@@ -26,6 +37,10 @@
     ! 'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
     ! 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
 
+&End
+
+&InTheory
+ ! InputTheoNames = 'theo_bla'
 &End
 
 &InCorr
@@ -68,7 +83,7 @@
 
 &OutDir
   ! Name of the directory where output will be stored (max 255 characters)
-    OutDirName = 'output'
+    OutDirName = 'output_nnpdf31_hess_CF'
 &End
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
@@ -77,7 +92,8 @@
 &Scales 
     DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
     DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
- !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
+    DataSetTheoryOrder = 7*'NLO',"NLO",'NNLO'
+ !   DataSetTheoryOrder = 7*'LO',"NLO",'NNLO'
  !   DataSetMaxNF(2) = 4    ! Enable the H-VFNS (requires APFEL)
  !   DataSetMaxNF = 9*5
 &End
@@ -99,7 +115,7 @@
 * Main steering cards
 *
 &xFitter 
-  RunningMode = 'Fit'  
+  RunningMode =   'LHAPDF Analysis'
                 ! 'Fit'             -- standard MINUIT-minimization of PDF and other parameters
                 ! 'LHAPDF Analysis' -- Evalutate input LHAPDF set uncertaitnies, chi2, profiling or reweighting
                 !                      Requires &LHAPDF namelist to specify the set name. If PDFSTYLE is not
@@ -171,7 +187,7 @@
  !  'DDIS'        -- use Diffractive DIS 
  !  'BiLog'       -- bi-lognormal parametrisation 
 
-  PDFStyle = 'HERAPDF'
+  PDFStyle = 'LHAPDFNATIVE'
 
  ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  !
@@ -382,7 +398,7 @@
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'CT10nlo'               ! LHAPDF grid file 
+  LHAPDFSET  = 'NNPDF31_nnlo_hessian_pdfas'               ! LHAPDF grid file 
   ILHAPDFSET = 0                       ! Set a PDF member of the PDF set (use together with LHAPDFPROFILE = False)
   ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
   ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set

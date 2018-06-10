@@ -1439,7 +1439,6 @@ C Diagonal part:
          enddo
 C Chi2 per point:
          chi2 = (d - t + Sum)**2 * ScaledErrors(i)
-
 C Sums:
          if ( FitSample(i) ) then
             chi2_fit  = chi2_fit  + chi2

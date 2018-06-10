@@ -660,7 +660,7 @@ C---------------------------------------------------------
      $        + DATASETBinningDimension(iset)
 
             write (51,
-     $'(''   ColumnType = '',I1,''*"Bin","Theory",'',i3,''*"Error"'')')
+     $'(''   ColumnType = '',I1,''*"Bin", "Theory",'',i3,''*"Error"'')')
      $       DATASETBinningDimension(iset), NNuisance
 
             write (51,'(''   ColumnName = '',200(''"'',A,''",''))'
@@ -675,7 +675,7 @@ C---------------------------------------------------------
             write (51,'(''   NColumn = '',I5)') NNuisance*2+1 
      $        + DATASETBinningDimension(iset)
             write (51,
-     $'(''   ColumnType = '',I1,''*"Bin","Theory",'',i3,''*"Error"'')')
+     $'(''   ColumnType = '',I1,''*"Bin", "Theory",'',i3,''*"Error"'')')
      $       DATASETBinningDimension(iset), NNuisance*2
             write (51,'(''   ColumnName = '',200(''"'',A,''",''))'
      $           ,advance='no' )

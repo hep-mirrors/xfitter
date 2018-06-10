@@ -823,4 +823,20 @@ C---------------------------------------------------------
         mtp=par
       endif
       end
-      
+
+C------------------------------------------------------------
+C      C> @brief Test function for external use by ceres
+      subroutine FCN_WRAP(npar, residuals)
+      implicit none
+      integer npar
+      double precision residuals(*)
+      integer ifcn
+      logical lfirst/.true./
+C------------------------------------------------------
+      if (lfirst) then
+         lfirst = .false.
+         ifcn = 1
+      else
+         ifcn = 3
+      endif
+      end
