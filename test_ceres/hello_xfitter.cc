@@ -59,6 +59,10 @@ extern "C" {
   void init_rnd_seeds_();
   void close_theor_eval_();
   void hf_errsum_(const int &i);
+
+  void fill_c_common_();
+  void print_lhapdf6_();
+  
   // FCN
   void fcn_(const int& npar, const double& dummy, double& chi2out, const double* pars, const int& iflag, const double& dummy2);
 }
@@ -223,5 +227,8 @@ int main(int argc, char** argv) {
   */
   close_theor_eval_();
   hf_errsum_(6);
+  fill_c_common_();
+  print_lhapdf6_();
+  
   return 0;
 }
