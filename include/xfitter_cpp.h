@@ -271,6 +271,11 @@ extern"C" {
     double mtp;
     double mbt;
   } fermion_masses_;
+
+
+  extern struct {
+    double residuals_[NTOT_C];
+  } c_resid_;
 }
 
 

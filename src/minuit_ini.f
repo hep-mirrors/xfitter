@@ -1,3 +1,13 @@
+      subroutine IOFileNamesMini()
+#include "steering.inc"
+#include "ntot.inc"
+#include "systematics.inc"
+#include "iofnames.inc"
+      ResultsFile = TRIM(OutDirName)//'/Results.txt'
+      OPEN(85,file=ResultsFile,form='formatted',status='replace')
+      end
+      
+      
       subroutine Generate_IO_FileNames
 C======================================================================
 C

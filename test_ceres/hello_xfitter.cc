@@ -36,6 +36,8 @@
 #include "ceres/ceres.h"
 #include "glog/logging.h"
 #include "ceres/dynamic_numeric_diff_cost_function.h"
+#include "dimensions.h"
+#include "xfitter_cpp.h"
 
 using ceres::AutoDiffCostFunction;
 using ceres::CostFunction;
@@ -48,18 +50,15 @@ using ceres::EvaluationCallback;
 
 extern "C" {
   void hfbanner_();
-  void xfitter_();
+  void iofilenamesmini_();
   void read_steer_();
   void read_data_();
   void init_theory_modules_();
-  void do_fit_();
-  void close_theor_eval_();
-  void hf_errsum_(const int& io);
-  void init_func_map_();
   int read_reactions_();
   void parse_params_();
   void init_rnd_seeds_();
-  void init_func_map_();
+  void close_theor_eval_();
+  void hf_errsum_(const int &i);
   // FCN
   void fcn_(const int& npar, const double& dummy, double& chi2out, const double* pars, const int& iflag, const double& dummy2);
 }
@@ -99,63 +98,15 @@ void init_pars() {
   int i = read_reactions_();
 }
 
-void init_theo() {
-  init_func_map_();
-  init_theory_modules_();
-}
-
 // Full connection
 void startXF() {
   hfbanner_();
   read_steer_();
+  iofilenamesmini_();
   init_pars();
   read_data_();
   init_theory_modules_();
 }
-
-
-#ifndef NSYSMAX_C
-#define NSYSMAX_C 750
-#endif
-#ifndef NTOT_C
-#define NTOT_C 2700
-#endif
-#ifndef NCHI2POINTS_C
-#define NCHI2POINTS_C 100
-#endif
-#ifndef NEXTRAPARAMMAX
-#define NEXTRAPARAMMAX_C 150
-#endif
-#ifndef NSET_C
-#define NSET_C 150
-#endif
-
-extern struct {
-  double theo_[NTOT_C];          // Theory predictions, filled for each iteration
-  double theo_mod_[NTOT_C];      // Theory predictions, filled for each iteration
-  double theo_fix_[NTOT_C];      // Fixed theory prediction (if given by &InTheory namelist)
-  double theo_unc_[NTOT_C];      // Uncorrelated uncertainty on theory predictions 
-  double theo_tot_up_[NTOT_C];         // Total up uncertainty on theory predictions 
-  double theo_tot_down_[NTOT_C]; // Total down uncertainty on theory predictions
-} c_theo_;
-
-
-extern struct {
-  double alpha[NTOT_C];       // Total uncorrelated errors
-  double alpha_mod[NTOT_C];   // Total uncorrelated errors modified
-  double beta[NTOT_C][NSYSMAX_C];   // Influence of systematic errors on measurements
-  double sysa[NSYSMAX_C][NSYSMAX_C];    // Correlation matrix of systematics
-  char system[NSYSMAX_C][64];     // Names of correlated systematic errors
-  int nsys;                 // Actual number of correlated systematic sources
-} systema_;
-
-extern struct {
-  int npoints_;       // Actual number of data points
-} cndatapoints_;
-
-extern struct {
-  double residuals_[NTOT_C];
-} c_resid_;
 
 
 
@@ -173,7 +124,7 @@ struct CostFunctiorData
     myFCN(NPars, chi2, parameters[0], 2);
     std::cout << " Call again " << counter << " chi2=" << chi2;
     chi2 = 0;
-    for (int i = 0; i< cndatapoints_.npoints_  + systema_.nsys; i++) {
+    for (int i = 0; i< cndatapoints_.npoints  + systema_.nsys; i++) {
       residuals[i] = c_resid_.residuals_[i];
       chi2 += residuals[i]*residuals[i];
     }
@@ -201,7 +152,7 @@ int main(int argc, char** argv) {
 
 
   startXF();
-  int nData = cndatapoints_.npoints_;
+  int nData = cndatapoints_.npoints;
   int nSyst = systema_.nsys;
   
   // Cost function:
@@ -237,7 +188,12 @@ int main(int argc, char** argv) {
   for (int i =0; i<NPars; i++){
     std::cout << "Parameter " << i << " value " << pars[i] << std::endl;
   }
+  
+  // FCN with flag 3, extra print:
+  myFCN(NPars, chi2, pars, 3);
 
+
+  
   /*
   std::cout << " \n \n \n Get Covariance \n \n \n";
 
@@ -265,5 +221,7 @@ int main(int argc, char** argv) {
     std::cout << "Parameter " << i << " value " << pars[i] << " +- " << sqrt(cov_result[i+i*14]) << std::endl;
   }
   */
+  close_theor_eval_();
+  hf_errsum_(6);
   return 0;
 }
