@@ -1,0 +1,6 @@
+CERES_DIR="../../../ceres/"
+QCDNUM_DIR="../../../deps/qcdnum/lib/"
+
+g++ -c -I${CERES_DIR}/include/  -I/usr/include/eigen3 hello_xfitter.cc
+
+/usr/bin/c++    -fopenmp -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-missing-field-initializers -O3 -DNDEBUG    hello_xfitter.o  -o ./hello_xfitter -rdynamic -L${CERES_DIR}/lib  -L${QCDNUM_DIR} -L../lib/ -lceres -lxfmain -lmyrt -lpdferrors -lxffnlo -lQCDNUM -lQEDevol -lQCDNUM -lmyminuit -lgenetic -linterfaces -lHFcommon -lnum_utils -lgfortran -lglog -lgflags -lpthread -lspqr -lcholmod -lccolamd -lcamd -lcolamd -lamd -llapack -lblas -lsuitesparseconfig -lrt -lcxsparse -lgomp -lpthread -lspqr -lcholmod -lccolamd -lcamd -lcolamd -lamd -llapack -lblas -lsuitesparseconfig -lrt -lcxsparse -lgomp  -lmyew

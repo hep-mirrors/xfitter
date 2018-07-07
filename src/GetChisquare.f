@@ -1439,8 +1439,8 @@ C Diagonal part:
          enddo
 C Chi2 per point:
          chi2 = (d - t + Sum)**2 * ScaledErrors(i)
-
-C Sums:
+         residuals(i) = (d - t + Sum)*sqrt(ScaledErrors(i))
+C     Sums:
          if ( FitSample(i) ) then
             chi2_fit  = chi2_fit  + chi2
             fchi2_in  = fchi2_in  + chi2
@@ -1475,7 +1475,8 @@ C 2) Actual chi2 calculation:
      $           .and. (ScaledTotMatrix(i1,j1) .ne. 0d0 ) ) then
                if ( offdiag .eq. 0 ) then
                   call hf_errlog(15090916,
-     $                 'I: Offdiag. elements in inverse covariance. Partial chisq values are set to zero')
+     $                 'I: Offdiag. elements in
+     $ inverse covariance. Partial chisq values are set to zero')
                endif
                offdiag = offdiag+1
             endif
@@ -1507,6 +1508,8 @@ C Correlated chi2 part:
       do k=1,NSys
          fcorchi2_in = fcorchi2_in 
      $        + rsys_in(k)**2 * SysPriorScale(k)
+C Also, store as residuals:
+         residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
       enddo
       fchi2_in = fchi2_in + fcorchi2_in
 
