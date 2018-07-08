@@ -46,9 +46,10 @@
 &End
 
 &sumrule_sums
+	! Constant number of valence u- and d- quarks to be used in sum rules
+	! Change for hadrons other than proton
   uvalSum=2.
   dvalSum=1.
-  svalSum=0.
 &end
 
 &CovarToNuisance
