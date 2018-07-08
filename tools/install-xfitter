@@ -600,6 +600,7 @@ then
     cp  xfitter-${version}/steering.txt \
 	xfitter-${version}/minuit.in.txt \
 	xfitter-${version}/ewparam.txt \
+	xfitter-${version}/parameters.yaml \
 	run
     rsync -a --exclude=".*" xfitter-${version}/datafiles run/
     rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
@@ -617,7 +618,7 @@ then
     echo "cd run          #enter your run directory" >> quickstart-readme.txt
     echo "xfitter          #run your fit" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
-    echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
+    echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt (parameters.yaml)" >> quickstart-readme.txt
     echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
     echo "After the fit, display you results with:" >> quickstart-readme.txt
