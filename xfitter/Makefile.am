@@ -9,7 +9,7 @@ bin_PROGRAMS = xfitter
 xfitter_SOURCES = cmain.cxx
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew -lmyminuit -lgenetic -lQEDevol -lnum_utils -linterfaces
+xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew ../minuit/src/.libs/mnread.o -lmyminuit -lgenetic -lQEDevol -lnum_utils -linterfaces
 
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include

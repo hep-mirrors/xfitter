@@ -17,6 +17,6 @@ xfitter_draw_SOURCES = xfitter-draw.cc PdfsPainter.cc CommandParser.cc DataPaint
 # libraries to be linked to the main target
 xfitter_draw_LDADD = $(ROOT_LIBS) $(srcdir)/../../../common/.libs/libHFcommon.a libpdferrors.la 
 
-xfitter_draw_CPPFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../../common $(ROOT_CFLAGS) -w --unresolved-symbols=ignore-in-object-files
+xfitter_draw_CPPFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../../common $(ROOT_CFLAGS) -w 
 
 endif
