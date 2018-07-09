@@ -8,9 +8,9 @@ bin_PROGRAMS = xfitter
 
 xfitter_SOURCES = cmain.cxx
 
-xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src  -L${top_srcdir}/RT/src -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew -lmyminuit -lgenetic -lQEDevol -lnum_utils -linterfaces
-#xfitter_LDADD = 
-# all source files which go into the main target
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew ../minuit/src/.libs/mnread.o -lmyminuit -lgenetic -lQEDevol -lnum_utils -linterfaces
+
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg

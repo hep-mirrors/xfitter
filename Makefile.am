@@ -12,7 +12,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
 	reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src reactions/testZMVFNS/src reactions/fastNLO/src/ \
 	reactions/FONLL_DISCC/src reactions/FONLL_DISNC/src 
 
-DIST_SUBDIRS = $(SUBDIRS)  Hathor/src  HVQMNR/src doc/tex/manual  ACOT SACOT datafiles QEDevol/include \
+DIST_SUBDIRS = $(SUBDIRS)  Hathor/src  HVQMNR/src   ACOT SACOT datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
            FONLL HVQMNR HVQMNR/include/ python/ input_steering/ tools/
 
@@ -24,7 +24,6 @@ if ENABLE_HVQMNR
   SUBDIRS+= HVQMNR/src
 endif
 
-SUBDIRS+= common
 if BUILD_DOCS
   DOCS=doc/tex/manual doc/tex/paper
 endif

@@ -1,7 +1,7 @@
 #AUTOMAKE_OPTIONS = foreign
 
 if HAVE_YAML
-SUBDIRS = ../../pdf2yaml
+# SUBDIRS = ../../pdf2yaml
 
 # the main target, i.e. the executable to build
 bin_PROGRAMS = xfitter-process
