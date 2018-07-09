@@ -8,7 +8,7 @@ bin_PROGRAMS = xfitter
 
 xfitter_SOURCES = cmain.cxx
 
-xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src  -L${top_srcdir}/RT/src -lxfmain -lxffnlo -lmyrt
+xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src  -L${top_srcdir}/RT/src -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew -lmyminuit -lgenetic -lQEDevol -lnum_utils -linterfaces
 #xfitter_LDADD = 
 # all source files which go into the main target
 
@@ -90,16 +90,15 @@ else
 #  libxfmain_la_SOURCES += hvqmnr_dum.f	
 endif
 
-XFLIBS =   ../common/libHFcommon.a \
-  ../EW/src/libmyew.a \
-  ../interfaces/src/libinterfaces.a\
- ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
-  -lstdc++ \
- ../genetic/src/libgenetic.a \
- ../QEDevol/src/libQEDevol.a \
- ../common/num_utils/libnum_utils.a \
- ../tools/draw/src/pdferrors.o
+XFLIBS =  -lstdc++  ../tools/draw/src/pdferrors.o
 
+#  ../common/libHFcommon.a \
+#  ../EW/src/libmyew.a \
+#  ../interfaces/src/libinterfaces.a\
+#  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
+# ../genetic/src/libgenetic.a \
+# ../QEDevol/src/libQEDevol.a \
+# ../common/num_utils/libnum_utils.a 
 # ../FastNLO/src/libFastNLO.a 
 
 
