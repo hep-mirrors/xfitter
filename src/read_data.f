@@ -893,6 +893,8 @@ C Reset:
      $           ) then
 
 
+               
+               
                BETA(CompressIdx(i),npoints) = syst(i)
      $              *SysScaleFactor(CompressIdx(i))
 
@@ -1444,7 +1446,7 @@ C Store:
                iError = iError + 1
                syst(iError) = buffer(i)    
                if (.not. Percent(iError)) then
-                  syst(iError) = syst(iError)/buffer(idxSigma)*100.
+                  syst(iError) = syst(iError)/daten(idx)*100. ! BUG buffer(idxSigma)*100.
                endif
             elseif (ColumnType(i).eq.'Bin') then
                iBin  = iBin + 1

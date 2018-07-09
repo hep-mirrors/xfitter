@@ -533,6 +533,13 @@ C-----------------------------------------------------
             ScaledOmega(k,i) = omega(k,i)*scale
          enddo
       enddo
+
+      open (53,file='BETA.DAT',status='unknown')
+      do i=1,nsys
+         write (53,'(E14.5)') ( beta(i,j),j=1,npoints) 
+      enddo
+      close (53)
+
 C-----------------------------------------------------
       end
 
@@ -1126,7 +1133,7 @@ c                     do j = 1, n0_in
                endif
             enddo
 C Now A:
-
+            
             do i=1,n0_in
                do k=l,NSys
 C
@@ -1200,9 +1207,31 @@ C Ready to invert
             enddo
          endif
 
+         open (53,file='A.DAT',status='unknown')
+         do i=1,nsys
+            write (53,'(E14.5)') ( A(i,j),j=1,nsys) 
+         enddo
+         close (53)
+
+         open (53,file='G.DAT',status='unknown')
+         do i=1,nsys
+            write (53,'(E14.5)') ( ScaledGamma(i,j),j=1,n0_in) 
+         enddo
+         close (53)
+
+         
+         open(53,file='E.DAT',status='unknown')
+         write (53,'(E14.5)') ( ScaledErrors(i),i=1,n0_in)
+         close(53)
+
          
          if (iflag.eq.3) then
             Call DEQInv(Nsys,A,NsysMax,IR, IFail, 1, C)
+            open (53,file='AINV.DAT',status='unknown')
+            do i=1,nsys
+               write (53,'(E14.5)') ( A(i,j),j=1,nsys) 
+            enddo
+            close (53)
          else
             Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
          endif

@@ -34,11 +34,9 @@ C--------------------------------------------------------------
       double precision xnu, xrho, Qsimple      
       double precision F123(3)
 
-      character*48 name
-      character*48 h1name
+      character*256 name
+      character*256 h1name
       character*(*) base
-      character*25 fsfc
-      character*25 namefsfc
 
 * base = pdfs_q2val_
       character tag(NBANDS)*2
