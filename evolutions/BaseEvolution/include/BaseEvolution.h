@@ -39,13 +39,13 @@ namespace xfitter
      * @brief Function to be called at the begining to initialise the
      * evolution code.
      */
-    virtual void initAtStart() const = 0;
+    virtual void initAtStart() = 0;
 
     /**
      * @brief Function to be call at each iteration to update the
      * relevant evolution parameters.
-     */ 
-    virtual void initAtIteration() const = 0;
+     */
+    virtual void initAtIteration() = 0;
 
     /**
      * @name Setters
