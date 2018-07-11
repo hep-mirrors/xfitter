@@ -272,7 +272,7 @@ if test $enable_apfelxx; then
     APFELXXVERS=`apfelxx-config --version`
     APFELXX_CPPFLAGS=`apfelxx-config --cppflags`
     APFELXX_LDFLAGS=`apfelxx-config --ldflags`
-    AC_MSG_RESULT([Using $apfelxx_config version $APFELVERSXX])
+    AC_MSG_RESULT([Using $apfelxx_config version $APFELXXVERS])
     AC_SUBST(APFELXX_CPPFLAGS)
     AC_SUBST(APFELXX_LDFLAGS)
     AC_DEFINE([APFELXX_ENABLED],[1],[Define if APFEL++ is enabled])
@@ -598,6 +598,7 @@ AC_CONFIG_FILES([include/Makefile
 		 pdfparams/BasePdfParam/src/Makefile
 		 pdfdecompositions/BasePdfDecomposition/src/Makefile
 		 evolutions/BaseEvolution/src/Makefile
+		 evolutions/APFELxx/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then
