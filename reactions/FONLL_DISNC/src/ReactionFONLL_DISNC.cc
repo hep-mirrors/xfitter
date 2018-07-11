@@ -22,7 +22,6 @@ extern "C" {
   void APFEL_set_pdfs( pXFXlike xfx);  //! Set PDFs
 }
 
-
 // Initialize at the start of the computation
 int ReactionFONLL_DISNC::initAtStart(const string &s)
 {
