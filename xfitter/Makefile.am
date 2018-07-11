@@ -9,7 +9,7 @@ bin_PROGRAMS = xfitter
 xfitter_SOURCES = cmain.cxx
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew ../minuit/src/.libs/mnread.o -lmyminuit -lgenetic -lQEDevol -lnum_utils -linterfaces
+xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew ../minuit/src/.libs/minuit.o -lmyminuit -lgenetic -lQEDevol -lnum_utils -linterfaces
 
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
@@ -120,7 +120,7 @@ if ENABLE_APFELGRID
 endif
 
 if ENABLE_APFEL
-  LDADD+=$(APFEL_LDFLAGS)
+  LDADD+=$(APFEL_LDFLAGS) -lmyfonll
 endif
 
 if ENABLE_MELA
