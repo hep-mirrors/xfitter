@@ -39,8 +39,6 @@ with open(hFile,"w+") as f:
 
   @brief A class for {:s} pdf parameterisation
 
-  Based on the ReactionTheory class. Reads options produces 3d cross section.
-
   @version 0.1
   @date {:s}
   */
