@@ -22,7 +22,7 @@ class BasePdfDecomposition {
   BasePdfDecomposition(const std::string& inName){name = inName;}
 
   /// Compute PDF in a physical base in LHAPDF format for given x and Q
-  virtual std::map<int,double> compute ( const double& x, const double& Q) const = 0; 
+  virtual std::map<int,double> compute(const double& x, const double& Q) const;
 
  private:
 

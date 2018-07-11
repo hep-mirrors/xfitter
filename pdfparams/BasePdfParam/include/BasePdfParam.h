@@ -7,7 +7,7 @@
 /**
   @class BasePdfParam
 
-  @brief Base clase to deveop PDF parameterisations
+  @brief Base class to develop PDF parameterisations
 
   Contains methods to compute PDF value at given x as well as integrals
 
