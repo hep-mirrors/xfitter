@@ -574,6 +574,7 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/fastNLO/src/Makefile
 		 reactions/FONLL_DISCC/src/Makefile
 		 reactions/FONLL_DISNC/src/Makefile
+		 pdfparams/BasePdfParam/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then
