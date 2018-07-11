@@ -17,6 +17,11 @@ extern "C" ReactionFONLL_DISCC* create()
   return new ReactionFONLL_DISCC();
 }
 
+extern "C" {
+  void APFEL_set_pdfs( pXFXlike xfx);  //! Set PDFs
+}
+
+
 // Initialize at the start of the computation
 int ReactionFONLL_DISCC::initAtStart(const string &s)
 {
@@ -140,6 +145,10 @@ void ReactionFONLL_DISCC::initAtIteration()
   // routine in FONLL/src/FONLL_wrap.f. This is not optimal but until that routine is
   // there, I cannot find a way to override it.
   APFEL::SetPDFSet("external1");
+
+  // Also make sure that proper PDFs are taken by external1 function which is located in FONLL/src directory
+  APFEL_set_pdfs( getXFX() );
+  
   APFEL::SetProcessDIS("CC");
   // Loop over the data sets.
   for ( auto dataSetID : _dsIDs)
