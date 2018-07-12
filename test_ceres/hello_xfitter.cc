@@ -39,6 +39,7 @@
 #include "dimensions.h"
 #include "xfitter_cpp.h"
 #include "EvolutionAPFELxx.h"
+#include "LHAPDFDecomposition.h"
 #include "LHAPDF/LHAPDF.h"
 
 using ceres::AutoDiffCostFunction;
@@ -110,14 +111,26 @@ void startXF() {
   iofilenamesmini_();
   init_pars();
 
-  // Open LHAPDF set
+  /**
+   * Feed the DGLAP evolution class directly with an LHAPDF set.
+   */
   LHAPDF::PDF* dist = LHAPDF::mkPDF("CT14nlo");
   const auto f0 = [=] (double const& x)->std::map<int, double>{ return dist->xfxQ(x, 1); };
-  xfitter::EvolutionAPFELxx pippo{f0};
-  pippo.initAtStart();
-  pippo.initAtIteration();
-  const auto f = pippo.xfxQDouble();
-  std::cout << "Gluon = " << f(0, 0.00001, 100) << std::endl;
+  xfitter::EvolutionAPFELxx evol{f0};
+  evol.initAtStart();
+  evol.initAtIteration();
+  const auto f = evol.xfxQDouble();
+  std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
+
+  /**
+   * Feed the DGLAP evolution class with PdfDecomposition class.
+   */
+  xfitter::LHAPDFDecomposition pdec{"CT14nlo"};
+  xfitter::EvolutionAPFELxx evol2{pdec.f0()};
+  evol2.initAtStart();
+  evol2.initAtIteration();
+  const auto f2 = evol2.xfxQDouble();
+  std::cout << "Gluon(2) = " << f2(0, 0.00001, 100) << std::endl;
 
   read_data_();
   init_theory_modules_();
