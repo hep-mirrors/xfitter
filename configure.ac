@@ -260,6 +260,27 @@ if test $enable_apfel; then
 fi
 AM_CONDITIONAL(ENABLE_APFEL, [test $enable_apfel])
 
+# check for apfelxx installation
+AC_ARG_ENABLE([apfelxx],
+  [AC_HELP_STRING(--enable-apfelxx, [use apfelxx (default=no)])])
+if test $enable_apfelxx; then
+  AC_MSG_CHECKING([for apfelxx installation])
+  apfelxx_config=`which apfelxx-config`
+  if test x$apfelxx_config == x; then
+    AC_MSG_ERROR([Unable to find apfelxx-config.])
+  else
+    APFELXXVERS=`apfelxx-config --version`
+    APFELXX_CPPFLAGS=`apfelxx-config --cppflags`
+    APFELXX_LDFLAGS=`apfelxx-config --ldflags`
+    AC_MSG_RESULT([Using $apfelxx_config version $APFELXXVERS])
+    AC_SUBST(APFELXX_CPPFLAGS)
+    AC_SUBST(APFELXX_LDFLAGS)
+    AC_DEFINE([APFELXX_ENABLED],[1],[Define if APFEL++ is enabled])
+    AX_COMPARE_VERSION([4.0.0],[gt],[$APFELXXVERS],[AC_MSG_ERROR([APFEL++ version outdated (4.0.0 or later needed).])],[])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_APFELXX, [test $enable_apfelxx])
+
 # check for mela installation
 AC_ARG_ENABLE([mela],
   [AC_HELP_STRING(--enable-mela, [use mela (default=no)])])
@@ -578,6 +599,8 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/FONLL_DISNC/src/Makefile
 		 pdfparams/BasePdfParam/src/Makefile
 		 pdfdecompositions/BasePdfDecomposition/src/Makefile
+		 evolutions/BaseEvolution/src/Makefile
+		 evolutions/APFELxx/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then

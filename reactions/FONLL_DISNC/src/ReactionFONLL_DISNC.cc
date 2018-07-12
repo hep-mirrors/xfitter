@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "ReactionFONLL_DISNC.h"
+#include "xfitter_cpp.h"
 
 // APFEL C++ interface header
 #include "APFEL/APFEL.h"
@@ -17,10 +18,10 @@ extern "C" ReactionFONLL_DISNC* create()
   return new ReactionFONLL_DISNC();
 }
 
+// Set PDFs
 extern "C" {
-  void APFEL_set_pdfs( pXFXlike xfx);  //! Set PDFs
+  void APFEL_set_pdfs(pXFXlike xfx);
 }
-
 
 // Initialize at the start of the computation
 int ReactionFONLL_DISNC::initAtStart(const string &s)
@@ -142,8 +143,8 @@ void ReactionFONLL_DISNC::initAtIteration()
   APFEL::SetPDFSet("external1");
 
   // Also make sure that proper PDFs are taken by external1 function which is located in FONLL/src directory
-  APFEL_set_pdfs( getXFX());
-  
+  APFEL_set_pdfs(getXFX());
+
   APFEL::SetProcessDIS("NC");
   // Loop over the data sets.
   for ( auto dataSetID : _dsIDs)
@@ -154,6 +155,7 @@ void ReactionFONLL_DISNC::initAtIteration()
       // only when constructing the reduced cross section. But we keep
       // it here for clarity.
       const double charge = GetCharge(dataSetID);
+
       if (charge < 0)
       	APFEL::SetProjectileDIS("electron");
       else
@@ -164,7 +166,7 @@ void ReactionFONLL_DISNC::initAtIteration()
       auto *xp  = GetBinValues(dataSetID,"x");
       auto q2   = *q2p;
       auto x    = *xp;
-  
+
       const size_t Np = GetNpoint(dataSetID);
       // Resize arrays.
       _f2fonll[dataSetID].resize(Np);
