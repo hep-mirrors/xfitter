@@ -119,3 +119,8 @@ hf_scheme_DISCC :
   defaultValue : 'BaseDISCC'       # global specification
 #  defaultValue : 'FONLL_DISCC'     # global specification
 #  defaultValue : 'FFABM_DISCC'     # global specification
+
+#
+# Load APFEL++
+#---------------------------
+include : yaml/evolutions/APFELxx/parameters.yaml

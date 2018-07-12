@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <functional>
 
 #include "BasePdfDecomposition.h"
 
@@ -63,19 +64,33 @@ namespace xfitter
      */
     ///@{
     /**
-     * @brief Function to get evolved distributions
-     * @param x: value of Bjorken n
-     * @param Q: value of of the factorisation scale in GeV
-     * @return a map of int to double containing the relevant distributions at x and Q.
+     * @brief Function that returns a std::function that in turns
+     * returns a map<int, double> as a function of x and Q.
+     * @return map<int, double>-valued function of x and Q.
      */
-    virtual std::map<int, double> const& GetDistributions(double const& x, double const& Q) const = 0;
+    virtual std::function<std::map<int,double>(double const& x, double const& Q)> xfxQMap() = 0;
+
+    /**
+     * @brief Function that returns a std::function that in turns
+     * returns a double as a function of the pdf index i, x and Q.
+     * @return double-valued function of i, x and Q.
+     */
+    virtual std::function<double(int const& i, double const& x, double const& Q)> xfxQDouble() = 0;
+
+    /**
+     * @brief Function that returns a std::function that in turns
+     * returns a void as a function of the pdf index x, Q, and pdfs,
+     * where pdfs is the array of PDFs.
+     * @return void-valued function of x, Q and pdfs.
+     */
+    virtual std::function<void(double const& x, double const& Q, double* pdfs)> xfxQArray() = 0;
 
     /**
      * @brief Purely virtual function to get the strong coupling
      * @param Q: value of of the renormalisation scale in GeV
      * @return the strong coupling at Q.
      */
-    virtual double const& GetAlphaQCD(double const& Q) const = 0;
+    virtual std::function<double(double const& Q)> AlphaQCD() = 0;
     ///@}
 
   private:
