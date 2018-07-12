@@ -19,10 +19,12 @@ class BasePdfDecomposition {
  public:
 
   /// Default constructor. Name is the PDF name
-  BasePdfDecomposition(const std::string& inName){name = inName;}
+  BasePdfDecomposition(const std::string& inName);
+
+  ~BasePdfDecomposition();
 
   /// Optional initialization at the first call
-  virtual void initAtStart(const std::string & pars) {}
+  virtual void initAtStart(const std::string & pars) {};
   
   /// Compute PDF in a physical base in LHAPDF format for given x and Q
   virtual std::map<int,double> compute(const double& x, const double& Q) const;
