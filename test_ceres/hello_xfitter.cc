@@ -38,6 +38,7 @@
 #include "ceres/dynamic_numeric_diff_cost_function.h"
 #include "dimensions.h"
 #include "xfitter_cpp.h"
+#include "EvolutionAPFELxx.h"
 
 using ceres::AutoDiffCostFunction;
 using ceres::CostFunction;
@@ -92,7 +93,6 @@ void myFCN(const int& npar,double& chi2out, const double* pars, const int& iflag
   parsXF[43-1] = pars[13];
   parsXF[101] = 0.118;
 
-
   fcn_(npar, 0, chi2out, parsXF, iflag, 0);
 };
 
@@ -108,6 +108,11 @@ void startXF() {
   read_steer_();
   iofilenamesmini_();
   init_pars();
+  xfitter::EvolutionAPFELxx pippo{};
+  pippo.initAtStart();
+  pippo.initAtIteration();
+  const auto f = pippo.xfxQDouble();
+  std::cout << "!!!!!!!!!!!!!" << f(0, 0.00001, 100) << std::endl;
   read_data_();
   init_theory_modules_();
 }
@@ -154,11 +159,10 @@ struct MyDynamicNumericDiffCostFunction : DynamicNumericDiffCostFunction<CostFun
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
 
-
   startXF();
   int nData = cndatapoints_.npoints;
   int nSyst = systema_.nsys;
-  
+
   // Cost function:
   DynamicNumericDiffCostFunction<CostFunctiorData>* dynamic_cost_function =
     new DynamicNumericDiffCostFunction<CostFunctiorData>(new CostFunctiorData);
