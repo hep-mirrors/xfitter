@@ -10,10 +10,10 @@
  */
 
 // Function to emulate LHAPDF xfx behavior:
-typedef void   (*pXFXlike)(const double&, const double&, double*);
+typedef void (*pXFXlike)(const double&, const double&, double*);
 
 extern "C" {
   void externalsetapfel1_(const double&, const double&, double*);  //!< Return PDFs
-  void APFEL_set_pdfs( pXFXlike xfx);  //! Set PDFs
+  void APFEL_set_pdfs(pXFXlike xfx);  //! Set PDFs
 }
 

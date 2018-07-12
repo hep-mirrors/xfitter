@@ -18,8 +18,9 @@ extern "C" ReactionFONLL_DISNC* create()
   return new ReactionFONLL_DISNC();
 }
 
+// Set PDFs
 extern "C" {
-  void APFEL_set_pdfs( pXFXlike xfx);  //! Set PDFs
+  void APFEL_set_pdfs(pXFXlike xfx);
 }
 
 // Initialize at the start of the computation
@@ -142,7 +143,7 @@ void ReactionFONLL_DISNC::initAtIteration()
   APFEL::SetPDFSet("external1");
 
   // Also make sure that proper PDFs are taken by external1 function which is located in FONLL/src directory
-  APFEL_set_pdfs( getXFX() );
+  APFEL_set_pdfs(getXFX());
 
   APFEL::SetProcessDIS("NC");
   // Loop over the data sets.

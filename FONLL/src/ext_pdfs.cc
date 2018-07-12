@@ -4,15 +4,12 @@
 
 // Store global pointers here
 
-pXFXlike     gAPFEL_XFX = nullptr;
+pXFXlike gAPFEL_XFX = nullptr;
 
 void externalsetapfel1_(const double& x, const double& q, double* pdfs) {
-
   (*gAPFEL_XFX) (x,q,pdfs);
 }
 
-
-
-void APFEL_set_pdfs( pXFXlike xfx) {
+void APFEL_set_pdfs(pXFXlike xfx) {
   gAPFEL_XFX = xfx;
 }

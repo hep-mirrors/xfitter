@@ -39,9 +39,7 @@ namespace xfitter
   private:
     std::vector<double>                                                     _Masses;
     std::vector<double>                                                     _Thresholds;
-    std::unique_ptr<const apfel::Grid>                                      _Grid;
     std::map<int,apfel::DglapObjects>                                       _DglapObj;
-    std::unique_ptr<apfel::Dglap<apfel::Distribution>>                      _Dglap;
     std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>> _TabulatedPDFs;
   };
 }
