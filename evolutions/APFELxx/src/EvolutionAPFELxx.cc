@@ -4,7 +4,7 @@
 
 #include <apfel/alphaqcd.h>
 #include <apfel/messages.h>
-#include <apfel/lhtoypdfs.h>
+#include <apfel/rotations.h>
 
 namespace xfitter
 {
@@ -41,6 +41,7 @@ namespace xfitter
   {
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::gParametersS.at("Order")) - 1;
+    const double* Q0         = XFITTER_PARS::gParameters.at("Q0");
     const double* Q_ref      = XFITTER_PARS::gParameters.at("Mz");
     const double* Alphas_ref = XFITTER_PARS::gParameters.at("alphas");
     const YAML::Node QGrid   = XFITTER_PARS::gParametersY.at("APFELxx")["QGrid"];
@@ -53,7 +54,9 @@ namespace xfitter
     _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
 
     // Construct the DGLAP objects
-    const auto Dglap = BuildDglap(_DglapObj, apfel::LHToyPDFs, sqrt(2), PtOrder, _AlphaQCD);
+    const auto Dglap = BuildDglap(_DglapObj,
+				  [=] (double const& x, double const&)->std::map<int,double>{ return apfel::PhysToQCDEv(this->_inPDFs(x)); },
+				  *Q0, PtOrder, _AlphaQCD);
 
     // Tabulate PDFs (ideally the parameters of the tabulation should
     // be read from parameters.yaml).

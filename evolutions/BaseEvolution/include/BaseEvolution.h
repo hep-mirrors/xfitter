@@ -4,8 +4,6 @@
 #include <map>
 #include <functional>
 
-#include "BasePdfDecomposition.h"
-
 namespace xfitter
 {
   /**
@@ -27,14 +25,7 @@ namespace xfitter
      * @brief The BaseEvolution default constructor.
      * @param name: the name assignet to the instance
      */
-    BaseEvolution(const std::string& name): _name(name), _PdfDecomp(nullptr) { }
-    
-    /**
-     * @brief The BaseEvolution default constructor.
-     * @param name: the name assignet to the instance
-     * @param PdfDecomp: the BasePdfDecomposition object that contains distributions at the initial scale
-     */
-    BaseEvolution(const std::string& name, const BasePdfDecomposition& PdfDecomp): _name(name), _PdfDecomp(PdfDecomp) { }
+    BaseEvolution(const std::string& name, std::function<std::map<int,double>(double const& x)> const& inPDFs): _name(name), _inPDFs(inPDFs) { }
 
     /**
      * @brief Function to be called at the begining to initialise the
@@ -56,7 +47,7 @@ namespace xfitter
      * @brief Function to set the PdfDecomposition object to be used
      * as initial scale distributions.
      */
-    void SetPdfDecompositionObject(BasePdfDecomposition const& PdfDecomp) { _PdfDecomp = PdfDecomp; }
+    void SetInitialPDFs(std::function<std::map<int,double>(double const& x)> const& inPDFs) { _inPDFs = inPDFs; }
     ///@}
 
     /**
@@ -93,11 +84,8 @@ namespace xfitter
     virtual std::function<double(double const& Q)> AlphaQCD() = 0;
     ///@}
 
-  private:
-    /// Name of the evolution object
-    const std::string _name;
-
-    /// Input PDF set
-    BasePdfDecomposition _PdfDecomp;
+  protected:
+    const std::string                                    _name;
+    std::function<std::map<int,double>(double const& x)> _inPDFs;
   };
 }

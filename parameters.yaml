@@ -2,6 +2,11 @@
 # fortran-based ewparam.txt.
 
 #
+# Initial scale
+#---------------------------
+Q0 : 1.0
+
+#
 # EW parameters
 #---------------------------
 Mz : 91.1876

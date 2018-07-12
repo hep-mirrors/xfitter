@@ -39,6 +39,7 @@
 #include "dimensions.h"
 #include "xfitter_cpp.h"
 #include "EvolutionAPFELxx.h"
+#include "LHAPDF/LHAPDF.h"
 
 using ceres::AutoDiffCostFunction;
 using ceres::CostFunction;
@@ -108,11 +109,16 @@ void startXF() {
   read_steer_();
   iofilenamesmini_();
   init_pars();
-  xfitter::EvolutionAPFELxx pippo{};
+
+  // Open LHAPDF set
+  LHAPDF::PDF* dist = LHAPDF::mkPDF("CT14nlo");
+  const auto f0 = [=] (double const& x)->std::map<int, double>{ return dist->xfxQ(x, 1); };
+  xfitter::EvolutionAPFELxx pippo{f0};
   pippo.initAtStart();
   pippo.initAtIteration();
   const auto f = pippo.xfxQDouble();
-  std::cout << "!!!!!!!!!!!!!" << f(0, 0.00001, 100) << std::endl;
+  std::cout << "Gluon = " << f(0, 0.00001, 100) << std::endl;
+
   read_data_();
   init_theory_modules_();
 }

@@ -24,7 +24,7 @@ namespace xfitter
   class EvolutionAPFELxx: public BaseEvolution
   {
   public:
-    EvolutionAPFELxx(): BaseEvolution("APFELxx") {}
+    EvolutionAPFELxx(std::function<std::map<int,double>(double const& x)> const& inPDFs): BaseEvolution{"APFELxx", inPDFs} {}
 
     /**
      * @brief Function that initialise the evolution in APFEL++.
