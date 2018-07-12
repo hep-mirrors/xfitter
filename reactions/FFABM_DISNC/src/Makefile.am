@@ -8,5 +8,8 @@ libffabm_disnc_xfitter_la_SOURCES = ReactionFFABM_DISNC.cc
 
 libffabm_disnc_xfitter_la_LDFLAGS =  -lbasedisnc_xfitter -L$(top_srcdir)/reactions/BaseDISNC/src/.libs   
 
+datadir = ${prefix}/yaml/reactions/FFABM_DISNC
+data_DATA = ../yaml/parameters.yaml
+
 dist_noinst_HEADERS = ../include ../yaml
 
