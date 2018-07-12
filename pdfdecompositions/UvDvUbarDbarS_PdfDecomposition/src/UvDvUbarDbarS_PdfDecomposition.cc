@@ -7,6 +7,7 @@
 */
 
 #include "UvDvUbarDbarS_PdfDecomposition.h"
+#include "HERAPDF_PdfParam.h"
 
 // Constructor
 UvDvUbarDbarS_PdfDecomposition::UvDvUbarDbarS_PdfDecomposition(const std::string& inName) : BasePdfDecomposition(inName) {
@@ -17,7 +18,8 @@ UvDvUbarDbarS_PdfDecomposition::UvDvUbarDbarS_PdfDecomposition(const std::string
 void UvDvUbarDbarS_PdfDecomposition::initAtStart(const std::string & pars) {
 
   // Get PDFs for uv, dv, ubar, dbar and s:
-  
+
+  // For testing, hardwire fixed param
   
   return;
 }
