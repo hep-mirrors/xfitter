@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <yaml-cpp/yaml.h>
+#include <functional>
 
 
 using std::map;
@@ -21,11 +22,23 @@ using std::vector;
 
 namespace XFITTER_PARS {
 
+  /// Global map of double parameters. They can be used by the minimizer. Initialized based on parameters.yaml
   extern map<string,double*> gParameters;
+
+  /// Global map of integer parameters. Initialized based on parameters.yaml.
   extern map<string,int>    gParametersI;
+
+  /// Global map of string parameters. Initialized based on parameters.yaml.
   extern map<string,string> gParametersS;
+
+  /// Global map of vector parameters. Initialized based on parameters.yaml.
   extern map<string,vector<double> > gParametersV;
+
+  /// Global map of Yaml nodes parameters.. Initialized based on parameters.yaml.
   extern map<string,YAML::Node> gParametersY;
+
+  /// Global map of PDF functions produced by evolutions. 
+  extern map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
 
   /// Parse yaml file @param name
   void parse_file(const std::string& name);
@@ -37,6 +50,12 @@ namespace XFITTER_PARS {
 		  std::map<string,string>& sMap, 
 		  std::map<string,vector<double> >& vMap,
 		  std::map<string,YAML::Node> & yMap );
-  
+
+
+  /// Helper function to register PDFs on the map
+  void registerXfxQArray(const string& name, std::function<void(double const& x, double const& Q, double* pdfs)>  xfxArray);
+
+  /// Helper function to retrieve PDFs from the map
+  const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name);
 }
 

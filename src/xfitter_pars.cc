@@ -41,6 +41,7 @@ namespace XFITTER_PARS {
   map <string, vector<double> > gParametersV; ///< Vectors of double parameters
   map <string, YAML::Node > gParametersY;      ///< Store complete nodes for complex cases
 
+  map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
 
 // Helper function
   bool is_file_exist(const char *fileName)
@@ -234,7 +235,15 @@ namespace XFITTER_PARS {
     // Steering
     FortAssignS(hf_scheme,steering_)
 
-  }  
+  }
+
+  void registerXfxQArray(const string& name, std::function<void(double const& x, double const& Q, double* pdfs)>  xfxArray) {
+    gXfxQArrays[name] = xfxArray;
+  }
+
+  const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name) {
+    return gXfxQArrays.at(name);
+  }
 }
 
 void parse_params_(){
