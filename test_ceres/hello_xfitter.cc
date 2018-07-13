@@ -38,6 +38,7 @@
 #include "ceres/dynamic_numeric_diff_cost_function.h"
 #include "dimensions.h"
 #include "xfitter_cpp.h"
+#include "xfitter_pars.h"
 #include "EvolutionAPFELxx.h"
 #include "LHAPDFDecomposition.h"
 #include "LHAPDF/LHAPDF.h"
@@ -116,22 +117,29 @@ void startXF() {
    */
   LHAPDF::PDF* dist = LHAPDF::mkPDF("CT14nlo");
   const auto f0 = [=] (double const& x)->std::map<int, double>{ return dist->xfxQ(x, 1); };
-  xfitter::EvolutionAPFELxx evol{f0};
-  evol.initAtStart();
-  evol.initAtIteration();
-  const auto f = evol.xfxQDouble();
+  xfitter::EvolutionAPFELxx *evol = new xfitter::EvolutionAPFELxx{f0};
+  evol->initAtStart();
+  evol->initAtIteration();
+  const auto f = evol->xfxQDouble();
   std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
 
-  /**
-   * Feed the DGLAP evolution class with PdfDecomposition class.
-   */
-  xfitter::LHAPDFDecomposition pdec{"CT14nlo"};
-  xfitter::EvolutionAPFELxx evol2{pdec.f0()};
-  evol2.initAtStart();
-  evol2.initAtIteration();
-  const auto f2 = evol2.xfxQDouble();
-  std::cout << "Gluon(2) = " << f2(0, 0.00001, 100) << std::endl;
+  const std::string evolName = evol->getName() +":p";
+  
+  XFITTER_PARS::registerXfxQArray(evolName,evol->xfxQArray());
 
+  auto bla = XFITTER_PARS::retrieveXfxQArray(evolName);
+
+  double dd[13];
+  bla(0.00001, 100,dd);
+  double dd0[13];
+  evol->xfxQArray()(0.00001, 100,dd0);
+
+  for (int i=0; i<13; i++){
+    std::cout << "PDF = " << dd[i] << std::endl;
+    std::cout << "PDF0 = " << dd0[i] << std::endl;
+  }
+  
+    
   read_data_();
   init_theory_modules_();
 }
