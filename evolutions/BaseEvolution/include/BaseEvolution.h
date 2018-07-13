@@ -82,8 +82,12 @@ namespace xfitter
      * @return the strong coupling at Q.
      */
     virtual std::function<double(double const& Q)> AlphaQCD() = 0;
-    ///@}
 
+    const std::string getName() const { return _name; }
+    
+    ///@}
+   
+    
   protected:
     const std::string                                    _name;
     std::function<std::map<int,double>(double const& x)> _inPDFs;
