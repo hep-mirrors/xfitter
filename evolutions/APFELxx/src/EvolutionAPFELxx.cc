@@ -92,8 +92,8 @@ namespace xfitter
 	const std::map<int,double> fset = _TabulatedPDFs->EvaluateMapxQ(x, Q);
 
 	// Fill in array of PDFs to be returned
-	int counter = -1;
-	for(auto const& f : fset)
+	int counter = 0;
+	for(auto const& f : fset) 
 	  pdfs[counter++] = f.second;
       };
   }
