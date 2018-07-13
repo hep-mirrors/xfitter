@@ -15,6 +15,15 @@
 using std::list;
 using std::string;
 
+// Global variable to hold current function
+
+std::function<void(double const& x, double const& Q, double* pdfs)> gProtonPdf;
+
+void protonPDF(double const& x, double const& Q, double* pdfs) {
+  gProtonPdf(x,Q,pdfs);
+}
+
+
 ReactionTheory::ReactionTheory(const ReactionTheory &rt)
 {
   _val = new valarray<double>(rt._val->size());
@@ -33,6 +42,25 @@ ReactionTheory::operator=(const ReactionTheory &rt)
   */
 
   return *this;
+}
+
+void ReactionTheory::initAtIteration() {
+  // do some magic
+  gProtonPdf = XFITTER_PARS::retrieveXfxQArray("APFELxx:p");
+}
+
+const pXFXlike  ReactionTheory::getXFX(const string& type) {
+  //  gProtonPdf = XFITTER_PARS::retrieveXfxQArray("APFELxx:p");
+
+  // return _xfx[type];
+  std::cout << " here "   <<std::endl;
+  double dd[13];
+  gProtonPdf(0.01,1.,dd);
+  std::cout << " ho " << dd[6] << std::endl;
+
+
+  
+  return &protonPDF;
 }
 
 bool ReactionTheory::notMasked(int DSID, int Bin) {
