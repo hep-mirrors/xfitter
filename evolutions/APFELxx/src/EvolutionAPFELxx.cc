@@ -89,12 +89,26 @@ namespace xfitter
     return [=] (double const& x, double const& Q, double* pdfs) -> void
       {
 	// Get map of PDFs
-	const std::map<int,double> fset = _TabulatedPDFs->EvaluateMapxQ(x, Q);
+	const std::map<int,double> fset = apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x, Q));
 
 	// Fill in array of PDFs to be returned
-	int counter = 0;
-	for(auto const& f : fset) 
-	  pdfs[counter++] = f.second;
+	//       	int counter = 0;
+	//for(auto const& f : fset) 
+	//  pdfs[counter++] = f.second;
+
+	pdfs[0] = fset.at(-6);
+	pdfs[1] = fset.at(-5);
+	pdfs[2] = fset.at(-4);
+	pdfs[3] = fset.at(-3);
+	pdfs[4] = fset.at(-2);
+	pdfs[5] = fset.at(-1);
+	pdfs[6] = fset.at(0);
+	pdfs[7] = fset.at(1);
+	pdfs[8] = fset.at(2);
+	pdfs[9] = fset.at(3);
+	pdfs[10] = fset.at(4);
+	pdfs[11] = fset.at(5);
+	pdfs[12] = fset.at(6);
       };
   }
 }
