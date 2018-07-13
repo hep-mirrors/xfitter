@@ -83,6 +83,9 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &val, map<string,
 }
 
 void ReactionBaseDISCC::initAtIteration() {
+  // Make sure to call the parent class initialization:
+  super::initAtIteration(); 
+
   // Get some basic parameters:
   _MW = GetParam("Mw");
   

@@ -69,6 +69,9 @@ int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &val, map<string,
 }
 
 void ReactionBaseDISNC::initAtIteration() {
+  // Make sure to call the parent class initialization:
+  super::initAtIteration(); 
+
   _Mz = GetParam("Mz");
   _Mw = GetParam("Mw");
   _sin2thetaW = GetParam("sin2thW");
