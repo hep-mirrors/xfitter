@@ -56,6 +56,9 @@ class ReactionTheory
   ReactionTheory & operator =(const ReactionTheory &);
 
  public:
+
+  using super = ReactionTheory;
+  
   virtual string getReactionName() const =0;  ///< Should return expected reaction name. Normally generated automatically by AddReaction.py
   virtual int  initAtStart(const string &) =0; ///< Initialization first time ReactionTheory implementation is called
 
@@ -77,8 +80,8 @@ class ReactionTheory
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
 
 
-  //! Perform optional re-initialization for a given iteration
-  virtual void initAtIteration() {};
+  /// Perform optional re-initialization for a given iteration. Interface for old-style pdf functions 
+  virtual void initAtIteration(); 
 
   //! Perform optional action when minuit fcn 3 is called (normally after fit)
   virtual void actionAtFCN3() {};
@@ -108,7 +111,7 @@ class ReactionTheory
   double alphaS(double q) const { return _alpha_S(q); }
 
   //! Return pointer-function to XFX for external use
-  const pXFXlike getXFX(const string& type="p") { return _xfx[type];};
+  const pXFXlike getXFX(const string& type="p");
 
   //!  Return pointer-function to alphaS for external use
   const pOneParFunc getAlphaS() { return _alpha_S;}
