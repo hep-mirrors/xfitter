@@ -7,7 +7,5 @@ lib_LTLIBRARIES = libbasediscc_xfitter.la
 libbasediscc_xfitter_la_SOURCES = ReactionBaseDISCC.cc
 
 # libbasediscc_xfitter_la_LDFLAGS = place_if_needed  
-# link to main xFitter library (for IntegrateDIS)
-libbasediscc_xfitter_la_LDFLAGS = -lxfmain -L$(srcdir)/../../../src/.libs
 
 dist_noinst_HEADERS = ../include ../yaml
