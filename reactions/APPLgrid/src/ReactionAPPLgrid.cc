@@ -141,6 +141,8 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
 
  // Main function to compute results at an iteration
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
+  //
+
   // iterate over grids
   int pos = 0;
   for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
@@ -173,9 +175,16 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
     if(_flagNorm[dataSetID])
       for (std::size_t i=0; i<gridVals.size(); i++)
         gridVals[i] *= grid->deltaobs(i);
+
+    
     // insert values from this grid into output array
     std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
     pos += grid->Nobs();
   }
+
+  if ( val.size() != pos ) {
+    hf_errlog(18072311,"F: Sum of grid sizes does not correspond to the size of the datafile ");
+  }
+  
   return 0;
 }
