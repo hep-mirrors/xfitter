@@ -125,6 +125,12 @@ class ReactionTheory
     hf_errlog_(17040701,message.c_str(),message.size());
   } 
 
+  /// Set evolution name
+  void setEvolution(std::string& evolution) { _evolution = evolution; }
+
+  /// Retrieve evolition
+  const std::string  getEvolution() const { return _evolution; }  
+  
  protected:
   map<string, pTwoParFunc> *PDFs;
 
@@ -218,7 +224,12 @@ class ReactionTheory
   map< string, YAML::Node > _xfitter_pars_node;
 
  private:
+  /// Default evolution:
+  string _evolution;
+  
+  /// list of xfx-like PDFs (using pointer function)
   map<string,pXFXlike> _xfx;
+  /// list of alphaS  (using pointer function)
   pOneParFunc _alpha_S;
 
 };

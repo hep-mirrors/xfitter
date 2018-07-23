@@ -9,6 +9,7 @@
 
 #include "xfitter_pars.h"
 #include "xfitter_cpp.h"
+#include "xfitter_cpp_base.h"
 #include <fstream>
 #include <string.h>
 
@@ -43,6 +44,17 @@ namespace XFITTER_PARS {
 
   map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
 
+  std::string getParameterS(std::string name) {
+    auto search = gParametersS.find(name);
+    if ( search != gParametersS.end() ) {
+      return search->second;
+    }
+    else {
+      hf_errlog(18071301,"W: string parameter "+name+" not found"); 
+      return ""; // not found
+    }
+  }
+  
 // Helper function
   bool is_file_exist(const char *fileName)
   {

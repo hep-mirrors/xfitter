@@ -311,6 +311,9 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
       rt->resetParameters(XFITTER_PARS::gParametersY[term_source]);
     }
 
+    // Set the evolution:
+    rt->setEvolution(XFITTER_PARS::gParametersS.at("Evolution"));
+    
     // set alpha_S, pdfs:
     rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
 

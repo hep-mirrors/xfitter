@@ -24,7 +24,7 @@ evolution.f mc_errors.f  difftop_fastnlo.f store_h1qcdfunc.f\
 dataset_tools.f theory_dispatcher.f  error_logging.f \
 GetDummyXsection.f main.f \
 prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
-ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.cc
+ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.cc xfitter_steer.cc
 
 # WS 2013-01-19 for the Offset method
 libxfmain_la_SOURCES += offset_fns.f g_offset.cc
@@ -63,7 +63,7 @@ endif
 # flags for libfxmain
 #
 libxfmain_la_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include 
-libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
+libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg -I$(srcdir)/../evolutions/BaseEvolution/include
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 libxfmain_la_CFLAGS=
 libxfmain_la_CPPFLAGS= -I$(srcdir)/../include -DPREFIX="\"$(prefix)\""

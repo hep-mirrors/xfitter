@@ -205,8 +205,13 @@ typedef map <string, pTwoParFunc> t2Dfunctions;
 
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
+
+/// global map of reaction libraries
 extern tReactionLibsmap gReactionLibs;
+
+/// global map of reaction names
 extern tNameReactionmap gNameReaction;
+
 extern tDataBins gDataBins;
 extern t2Dfunctions g2Dfunctions;
 

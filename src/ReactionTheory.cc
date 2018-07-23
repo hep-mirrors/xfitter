@@ -46,13 +46,14 @@ ReactionTheory::operator=(const ReactionTheory &rt)
 
 void ReactionTheory::initAtIteration() {
   // do some magic
-  gProtonPdf = XFITTER_PARS::retrieveXfxQArray("APFELxx:p");
+  std::string evolName = getEvolution();
+  gProtonPdf = XFITTER_PARS::retrieveXfxQArray(evolName+":p");
 }
 
 const pXFXlike  ReactionTheory::getXFX(const string& type) {
   //  gProtonPdf = XFITTER_PARS::retrieveXfxQArray("APFELxx:p");
 
-  // return _xfx[type];
+  return _xfx[type];
   std::cout << " here "   <<std::endl;
   double dd[13];
   gProtonPdf(0.01,1.,dd);

@@ -40,6 +40,9 @@ namespace XFITTER_PARS {
   /// Global map of PDF functions produced by evolutions. 
   extern map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
 
+  /// Helper function to get string parameters
+  std::string getParameterS(std::string name);
+  
   /// Parse yaml file @param name
   void parse_file(const std::string& name);
 
