@@ -142,7 +142,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
  // Main function to compute results at an iteration
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
   // iterate over grids
-  int pos = 0;
+  unsigned int pos = 0;
   for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
   {
     auto grid = _grids[dataSetID][g];
@@ -176,6 +176,11 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
     // insert values from this grid into output array
     std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
     pos += grid->Nobs();
+  }
+  if(val.size()!=pos){
+    std::ostringstream s;
+    s<<"F: Number of data points ("<<val.size()<<") in dataset (ID="<<dataSetID<<") does not match total grid size ("<<pos<<")";
+    hf_errlog(18072311,s.str().c_str());
   }
   return 0;
 }
