@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(srcdir)/../include  -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -Wall -fPIC -Wno-deprecated  -I$(srcdir)/../../../pdfparams/BasePdfParam/include/
 
 lib_LTLIBRARIES = libbasepdfdecomposition_xfitter.la
 

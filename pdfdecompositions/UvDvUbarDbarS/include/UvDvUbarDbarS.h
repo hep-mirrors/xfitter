@@ -22,7 +22,7 @@ namespace xfitter
     UvDvUbarDbarS();
 
     /// Optional initialization at the first call
-    virtual void initAtStart(const std::string& pars) const override final;
+    virtual void initAtStart(const std::string& pars) override final;
 
     /// Compute PDF in a physical base in LHAPDF format at the initial scale
     virtual std::function<std::map<int,double>(const double& x)> f0() const override final;

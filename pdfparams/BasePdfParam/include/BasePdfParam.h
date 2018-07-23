@@ -2,7 +2,7 @@
 
 
 #include <string>
-
+#include <yaml-cpp/yaml.h>
 
 /**
   @class BasePdfParam
@@ -36,6 +36,9 @@ class BasePdfParam {
   /// Get name of the PDF object
   const std::string getName() const {return _name;} 
 
+  /// Get initial values from a yaml node. Uses node[getName] as the basis
+  void initFromYaml(const YAML::Node& node, double* pars) ;
+  
  private:
   /// Name of the PDF object (e.g. uv, dv ...)
   std::string _name;

@@ -21,7 +21,7 @@ namespace xfitter
     }
 
   //_________________________________________________________________________________
-  void LHAPDFDecomposition::initAtStart(const std::string & pars) const
+  void LHAPDFDecomposition::initAtStart(const std::string & pars) 
   {
   }
 
