@@ -9,6 +9,7 @@
 #include "UvDvUbarDbarS.h"
 #include "HERAPDF_PdfParam.h"
 #include "xfitter_pars.h"
+#include <iostream>
 
 namespace xfitter
 {
@@ -25,7 +26,7 @@ namespace xfitter
       BasePdfParam* pParam = new HERAPDF_PdfParam(pdfName);
       // read its parameters:
       double *parValues;
-      pParam->initFromYaml(pdf,parValues);
+      pParam->initFromYaml(pdf,parValues);     
       addParameterisation(pParam);
     }
   }
