@@ -14,4 +14,6 @@ namespace xfitter
 {
   /// Load named evolution code.  
   void load_evolution(std::string name="");  
+  /// Load named pdfDecomposition code.  
+  void load_pdfDecomposition(std::string name="");  
 }
