@@ -24,6 +24,10 @@ namespace xfitter
   class EvolutionAPFELxx: public BaseEvolution
   {
   public:
+    /// Empty constructor (needed for the dynamic loading)
+    EvolutionAPFELxx():  BaseEvolution{"APFELxx",nullptr} {}
+
+    /// Constructor wit PDF decomposition
     EvolutionAPFELxx(std::function<std::map<int,double>(double const& x)> const& inPDFs): BaseEvolution{"APFELxx", inPDFs} {}
 
     /**

@@ -92,4 +92,8 @@ namespace xfitter
     const std::string                                    _name;
     std::function<std::map<int,double>(double const& x)> _inPDFs;
   };
+
+  /// For dynamic loader
+  typedef BaseEvolution* create_evolution();
 }
+

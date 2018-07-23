@@ -6,8 +6,15 @@
 #include <apfel/messages.h>
 #include <apfel/rotations.h>
 
+
 namespace xfitter
 {
+  // the class factories
+  extern "C" EvolutionAPFELxx* create() {
+    return new EvolutionAPFELxx();
+  }
+
+
   //_________________________________________________________________________________
   void EvolutionAPFELxx::initAtStart()
   {
