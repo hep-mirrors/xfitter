@@ -27,7 +27,16 @@ namespace xfitter {
       std::cout  << dlerror() << std::endl;      
       hf_errlog(18071303,"F: Evolution shared library ./lib/"  + libname  +  " not present for evolution" + name + ". Check Reactions.txt file");
     }
-  
+
+     // reset errors
+    dlerror();
+
+    create_evolution *dispatch_ev = (create_evolution*) dlsym(evolution_handler, "create");
+   
+    BaseEvolution *evolution = dispatch_ev();
+
+    /// now we want to store it somewhere XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    
   }
   void load_pdfDecomposition(std::string name) {
     if (name == "") {
