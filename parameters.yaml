@@ -6,6 +6,11 @@
 # default evolution:
 #
 Evolution : APFELxx
+#
+# default PDF decomposition 
+#
+PDFDecomposition : UvDvubardbars
+
 
 #
 # Initial scale
