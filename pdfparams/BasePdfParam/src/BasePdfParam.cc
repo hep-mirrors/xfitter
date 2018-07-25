@@ -1,6 +1,7 @@
 #include "BasePdfParam.h"
 #include <cmath>
 #include <memory>
+#include <iostream>
 
 /// Implement numeric integration
 double BasePdfParam::moment( double const* pars, int const iMoment) {
@@ -38,18 +39,22 @@ double BasePdfParam::moment( double const* pars, int const iMoment) {
 }
 
 
-void BasePdfParam::initFromYaml(const YAML::Node& node, double* pars) {
-  const YAML::Node value = node[getName()];
+double*  BasePdfParam::initFromYaml(YAML::Node value) {
+  std::cout << " here here " << value << std::endl;
   if ( value.IsSequence() ) {
     size_t len = value.size();
 
+    std::cout << len << std::endl;
     SetNPar(len);
-    pars = new double[len];
+    double *pars = new double[len];
 
     for (size_t i=0; i<len; i++) {
       pars[i] = value[i].as<double>();
     }
+    return pars;
   }
-  
+  else {
+    return nullptr;
+  }
 }
 

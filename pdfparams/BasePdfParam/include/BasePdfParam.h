@@ -37,7 +37,7 @@ class BasePdfParam {
   const std::string getName() const {return _name;} 
 
   /// Get initial values from a yaml node. Uses node[getName] as the basis
-  void initFromYaml(const YAML::Node& node, double* pars) ;
+  double* initFromYaml(YAML::Node value) ;
   
  private:
   /// Name of the PDF object (e.g. uv, dv ...)
