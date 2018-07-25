@@ -12,8 +12,11 @@
 
 namespace xfitter
 {
+  class BaseEvolution;
+  class BasePdfDecomposition;
+  
   /// Load named evolution code.  
-  void load_evolution(std::string name="");  
+  BaseEvolution* get_evolution(std::string name="");  
   /// Load named pdfDecomposition code.  
-  void load_pdfDecomposition(std::string name="");  
+  BasePdfDecomposition* get_pdfDecomposition(std::string name="");  
 }
