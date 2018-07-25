@@ -57,7 +57,8 @@ with open("evolutions/"+name+"/include/Evolution"+name+".h","w+") as f:
 class Evolution'''+name+'''
 {
   public:
-    Evolution'''+name+'''(){};
+    /// Empty constructor (needed for the dynamic loading)
+    Evolution'''+name+'''():  BaseEvolution{'''+name+''',nullptr}{};
 
 //    ~Evolution'''+name+'''(){};
 //    ~Evolution'''+name+'''(const Evolution'''+name+''' &){};
