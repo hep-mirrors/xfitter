@@ -1,7 +1,10 @@
 
 # Created by AddPdfDecomposition.py on 2018-07-12
 if ENABLE_LHAPDF
-   AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include $(LHAPDF_CPPFLAGS) -I$(srcdir)/../../BasePdfDecomposition/include -Wall -fPIC -Wno-deprecated 
+   AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include $(LHAPDF_CPPFLAGS) \
+                 -I$(srcdir)/../../BasePdfDecomposition/include \
+                 -I$(srcdir)/../../../pdfparams/BasePdfParam/include \
+                 -Wall -fPIC -Wno-deprecated 
 
    lib_LTLIBRARIES = liblhapdfdecomposition_xfitter.la
    liblhapdfdecomposition_xfitter_la_SOURCES = LHAPDFDecomposition.cc
