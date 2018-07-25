@@ -24,6 +24,22 @@ namespace xfitter
     /// Optional initialization at the first call
     virtual void initAtStart(const std::string& pars) override final;
 
+    /// Get uv, apply sum-rule
+    double uv(double x) const;
+
+    /// Get dv, apply sum-rule
+    double dv(double x) const;    
+
+    /// Get dbar
+    double dbar(double x) const;
+
+    /// Get ubar
+    double ubar(double x) const;
+
+    /// Get s
+    double s(double x) const;
+
+    
     /// Compute PDF in a physical base in LHAPDF format at the initial scale
     virtual std::function<std::map<int,double>(const double& x)> f0() const override final;
 
