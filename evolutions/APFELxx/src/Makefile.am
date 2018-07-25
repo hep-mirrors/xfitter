@@ -9,7 +9,7 @@ if ENABLE_APFELXX
    lib_LTLIBRARIES = libapfelxx_xfitter.la
    libapfelxx_xfitter_la_SOURCES = EvolutionAPFELxx.cc
 
-   libapfelxx_xfitter_la_LDFLAGS = #-L$(top_srcdir)/evolutions/BaseEvolution/src/.libs -lbaseevolution_xfitter
+   libapfelxx_xfitter_la_LDFLAGS = $(APFELXX_LDFLAGS)  #-L$(top_srcdir)/evolutions/BaseEvolution/src/.libs -lbaseevolution_xfitter
 endif
 
 datadir = ${prefix}/yaml/evolutions/APFELxx
