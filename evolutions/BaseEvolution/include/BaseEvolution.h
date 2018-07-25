@@ -27,6 +27,9 @@ namespace xfitter
      */
     BaseEvolution(const std::string& name, std::function<std::map<int,double>(double const& x)> const& inPDFs): _name(name), _inPDFs(inPDFs) { }
 
+    /// Explicitly set PDF decomposition
+    void SetPdfDecomposition(  std::function<std::map<int,double>(double const& x)> const& inPDFs) { _inPDFs = inPDFs;}
+    
     /**
      * @brief Function to be called at the begining to initialise the
      * evolution code.
