@@ -20,6 +20,13 @@ using std::vector;
  global maps to store parameters,  and fortran interface functions.
 */
 
+namespace xfitter{
+  // to be defined in evolutions/
+  class  BaseEvolution;
+  // to be defined in pdfdecompositions/
+  class  BasePdfDecomposition;
+}
+
 namespace XFITTER_PARS {
 
   /// Global map of double parameters. They can be used by the minimizer. Initialized based on parameters.yaml
@@ -39,6 +46,12 @@ namespace XFITTER_PARS {
 
   /// Global map of PDF functions produced by evolutions. 
   extern map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
+
+  /// Global map to store evolutions
+  extern map<string,xfitter::BaseEvolution*> gEvolutions;
+
+  /// Global map to store evolutions
+  extern map<string,xfitter::BasePdfDecomposition*> gPdfDecompositions;
 
   /// Helper function to get string parameters
   std::string getParameterS(std::string name);

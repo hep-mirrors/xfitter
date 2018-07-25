@@ -12,6 +12,8 @@
 #include "xfitter_cpp_base.h"
 #include <fstream>
 #include <string.h>
+#include "BaseEvolution.h"
+#include "BasePdfDecomposition.h"
 
 
 // Fortran bindings:
@@ -41,9 +43,14 @@ namespace XFITTER_PARS {
   map <string, string> gParametersS;
   map <string, vector<double> > gParametersV; ///< Vectors of double parameters
   map <string, YAML::Node > gParametersY;      ///< Store complete nodes for complex cases
-
+  
   map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
 
+  // Also keep list of loaded evolutions here:
+  map<string,xfitter::BaseEvolution*> gEvolutions;
+  // Also keep list of loaded evolutions here:
+  map<string,xfitter::BasePdfDecomposition*> gPdfDecompositions;
+  
   std::string getParameterS(std::string name) {
     auto search = gParametersS.find(name);
     if ( search != gParametersS.end() ) {
