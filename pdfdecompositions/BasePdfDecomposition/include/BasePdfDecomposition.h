@@ -47,4 +47,7 @@ namespace xfitter
     std::string _name;
 
   };
+
+  /// For dynamic loader
+  typedef BasePdfDecomposition* create_pdfDecomposition();
 }
