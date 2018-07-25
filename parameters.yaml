@@ -6,10 +6,12 @@
 # default evolution:
 #
 Evolution : APFELxx
+
 #
 # default PDF decomposition 
 #
 PDFDecomposition : UvDvubardbars
+include : "yaml/pdfdecompositions/UvDvUbarDbarS/parameters.yaml"
 
 
 #
