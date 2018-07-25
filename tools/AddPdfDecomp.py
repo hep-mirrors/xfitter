@@ -16,6 +16,19 @@ name = sys.argv[1]
 
 # First check if the name is already used
 
+with open("Reactions.txt","r+") as f:
+    for l in f:
+        a = l.split()
+        if a[0] == name:
+            print "Interface for reaction "+name+" already exists, exit"
+            exit(0)
+
+# Not present, add new line to the Reactions.txt file
+
+with  open("Reactions.txt","a") as f:
+    f.write(name+" "+"lib"+name.lower()+"_xfitter.so\n")
+
+
 print "Creating directories in pdfdecompositions/"+name+"PdfDecomposition"
 
 os.system("mkdir -p pdfdecompositions/"+name+"PdfDecomposition/include")
@@ -44,20 +57,26 @@ with open(hFile,"w+") as f:
   @date {:s}
   */
 
+namespace xfitter {{
+
 class {:s}PdfDecomposition : public BasePdfDecomposition
 {{
   public:
+     /// Default constructor. 
+    {:s}PdfDecomposition ();
+
      /// Default constructor. Name is the PDF name
     {:s}PdfDecomposition (const std::string& inName);
 
     /// Optional initialization at the first call
     virtual void initAtStart(const std::string & pars) override final;
 
-     /// Compute PDF in a physical base in LHAPDF format for given x and Q
-    virtual std::map<int,double> compute ( const double& x, const double& Q) const override final; 
+    /// Compute PDF in a physical base in LHAPDF format for given x and Q
+    virtual std::function<std::map<int,double>(const double& x)> f0() const  override final; 
     
 }};
-'''.format( name, name, datetime.date.today().isoformat(),name,name)
+}}
+'''.format( name, name, datetime.date.today().isoformat(),name,name,name)
 )
 
 
@@ -76,9 +95,20 @@ with open(sFile,"w+") as f:
 
 #include "{:s}PdfDecomposition.h"
 
+namespace xfitter {{
+  
+/// the class factories, for dynamic loading
+extern "C" {:s}PdfDecomposition* create() {{
+    return new {:s}PdfDecomposition();
+}}
+
+
 // Constructor
-{:s}PdfDecomposition::{:s}PdfDecomposition(const std::string& inName) : BasePdfDecomposition(inName) {{
-    
+    {:s}PdfDecomposition::{:s}PdfDecomposition() : BasePdfDecomposition("{:s}") {{  
+}}
+
+// Constructor
+{:s}PdfDecomposition::{:s}PdfDecomposition(const std::string& inName) : BasePdfDecomposition(inName) {{  
 }}
 
 // Init at start:
@@ -87,15 +117,32 @@ void {:s}PdfDecomposition::initAtStart(const std::string & pars) {{
 }}
 
 // Compute PDF in a physical base in LHAPDF format for given x and Q
-std::map<int,double>  {:s}PdfDecomposition::compute ( const double& x, const double& Q) const
+std::function<std::map<int,double>(const double& x)>  {:s}PdfDecomposition::f0() const
 {{
-  std::map<int,double> out;
-  return out;
+  const auto f_ = [=](double const& x)->std::map<int, double> {{
+      std::map<int, double> res_  = {{
+	{{-6,0}},	
+	{{-5,0}},
+	{{-4,0}},
+	{{-3,0}},
+	{{-2,0}},
+	{{-1,0}},
+	{{ 1,0}},
+	{{ 2,0}},
+	{{ 3,0}},
+	{{ 4,0}},
+	{{ 5,0}},
+	{{ 6,0}},
+        {{22,0}}
+      }};
+      return res_;
+  }};
+  return f_;
 }}
 
-
-
-'''.format(name,datetime.date.today().isoformat(),datetime.date.today().isoformat(),name,name,name,name,name)
+}}
+'''.format(name,datetime.date.today().isoformat(),datetime.date.today().isoformat()
+           ,name,name,name,name,name,name,name,name,name,name)
 )
 
     
@@ -108,7 +155,7 @@ with open(aFile,"w+") as f:
     f.write('''
 # Created by AddPdfDecomposition.py on {:s}
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../BasePdfDecomposition/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../pdfparams/BasePdfParam/include/   -I$(srcdir)/../../BasePdfDecomposition/include -Wall -fPIC -Wno-deprecated 
 
 lib_LTLIBRARIES = lib{:s}PdfDecomposition_xfitter.la
 lib{:s}PdfDecomposition_xfitter_la_SOURCES = {:s}PdfDecomposition.cc
