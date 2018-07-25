@@ -63,7 +63,9 @@ endif
 # flags for libfxmain
 #
 libxfmain_la_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include 
-libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg -I$(srcdir)/../evolutions/BaseEvolution/include
+libxfmain_la_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg -I$(srcdir)/../evolutions/BaseEvolution/include \
+   -I$(srcdir)/../pdfdecompositions/BasePdfDecomposition/include \
+   -I$(srcdir)/../pdfparams/BasePdfParam/include 
 libxfmain_la_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 libxfmain_la_CFLAGS=
 libxfmain_la_CPPFLAGS= -I$(srcdir)/../include -DPREFIX="\"$(prefix)\""
