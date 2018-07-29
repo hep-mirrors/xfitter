@@ -59,9 +59,9 @@ int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &valExternal, map
   map<string, valarray<double> > err;
 
   sred(dataSetID, val, err);
-  if(!IsReduced(dataSetID))
+  if(!IsReduced(dataSetID) && _stFun[dataSetID] == stFun::all)
   {
-    // transform reduced -> non-reduced cross sections
+    // transform reduced -> non-reduced (double-differential) cross sections
     auto *xp  = GetBinValues(dataSetID,"x");
     auto x = *xp;
     auto *Q2p  = GetBinValues(dataSetID,"Q2");
@@ -127,7 +127,14 @@ void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string>
   string msg = "I: Calculating DIS NC reduced cross section";
 
   // check if settings are provided in the new format key=value
-  // type: signonred, sigred (F2, FL, F3 can be specified with 'stfun')
+  // type: signonred, sigred
+  // stfun: all (default), f2, fl, xf3
+  // NOTE: for sigred = 0, if stfun = all then double-diff. cross sections is calculated,
+  // but if stfun = f2, fl and xf3 then structure function is calculated
+  // example: sigred = 1, stfun = all -> calculate reduced cross section
+  // example: sigred = 0, stfun = all -> calculate double-differential (non-reduced) cross section
+  // example: sigred = 0, stfun = f3 -> calculate xF3
+  // example: sigred = 1, stfun = f3 -> calculate xF3 contribution to reduced cross section, i.e. (yminus/yplus)*xf3
   map<string,string>::iterator it = pars.find("type");
   if ( it != pars.end() ) {
     if(it->second == "sigred")

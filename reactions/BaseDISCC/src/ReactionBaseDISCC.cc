@@ -144,11 +144,9 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &valExternal, map
     val *= (1-polarity);
   }
 
-  //for(size_t i = 0; i < f2.size(); i++)
-  //  printf("%f %f    %f    %f    %f  =  %f\n", (*GetBinValues(dataSetID,"Q2"))[i], (*GetBinValues(dataSetID,"x"))[i], f2[i], fl[i], xf3[i], val[i]);
-
-  if (! IsReduced(dataSetID)) {
-    // extra factor for non-reduced cross section
+  if(!IsReduced(dataSetID) && _stFun[dataSetID] == stFun::all)
+  {
+    // transform reduced -> non-reduced (double-differential) cross sections
     auto *xp  = GetBinValues(dataSetID,"x");
     auto x = *xp;
     auto *Q2p  = GetBinValues(dataSetID,"Q2");
@@ -198,9 +196,14 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
   _isReduced[dataSetID]    =  (parsDataset.find("reduced")       != parsDataset.end()) ? parsDataset["reduced"] : 0;
 
   // check if settings are provided in the new format key=value
-  // type: sigred, signonred (F2, FL, F3 can be specified with 'stfun')
-  // HERA data files provide 'signonred' CC cross sections
-  // Inclusive "non-reduced" cross section by default.
+  // type: signonred, sigred
+  // stfun: all (default), f2, fl, xf3
+  // NOTE: for sigred = 0, if stfun = all then double-diff. cross sections is calculated,
+  // but if stfun = f2, fl and xf3 then structure function is calculated
+  // example: sigred = 1, stfun = all -> calculate reduced cross section
+  // example: sigred = 0, stfun = all -> calculate double-differential (non-reduced) cross section
+  // example: sigred = 0, stfun = f3 -> calculate xF3
+  // example: sigred = 1, stfun = f3 -> calculate xF3 contribution to reduced cross section, i.e. (yminus/yplus)*xf3
   _dataFlav[dataSetID] = dataFlav::incl;
   string msg = "I: Calculating DIS CC reduced cross section";
   map<string,string>::iterator it = pars.find("type");
