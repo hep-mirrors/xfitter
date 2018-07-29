@@ -75,6 +75,20 @@ C photon is present !
          else
             call evolvePDF(x, sqrt(q2), pdfsf)
          endif
+
+          ! OZ
+          !print*,'PartonNotZero = ',PartonNotZero
+          if(PartonNotZero.ne.999) then
+            do i=-6,6
+              if(i.ne.PartonNotZero.and.i.ne.(-1*PartonNotZero)) then  ! g
+              !if(i.ne.-1.and.i.ne.1) then  ! d
+              !if(i.ne.-3.and.i.ne.3) then  ! s
+              !if(i.ne.-4.and.i.ne.4) then  ! c
+                PDFSF(i)=1d-12
+              endif
+            enddo
+          endif
+
          return
       endif
 
@@ -126,7 +140,6 @@ C----     For full cross setion on lead, multiply by A
           
 
       endif
-
 
 C----------------------------------------------------------------------
       end

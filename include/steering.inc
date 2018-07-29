@@ -193,6 +193,9 @@ C     Value for selection of a dipole model fit
 
       character*32 RunningMode
       common/CRunningMode/RunningMode
+      
+      integer PartonNotZero
+      common/CPartonNotZero/PartonNotZero
 
 C Define number of charged+gluon and addtional neutral PDFs:
       integer N_CHARGE_PDF

@@ -272,7 +272,7 @@ C Main steering parameters namelist
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate, RunningMode
+     $     AsymErrorsIterations, pdfRotate, RunningMode, PartonNotZero
 
 C--------------------------------------------------------------
 
@@ -280,6 +280,7 @@ C Some defaults
       Order     = ' '
       TheoryType = ' '
       RunningMode = ' '
+      PartonNotZero = 999
       HF_SCHEME = 'ZMVFNS'
       Chi2SettingsName(1) = 'undefined' ! triggering the old style chi2 settings
       do i=1, 8
