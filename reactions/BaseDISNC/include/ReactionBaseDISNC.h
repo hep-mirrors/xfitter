@@ -31,8 +31,8 @@ class ReactionBaseDISNC : public ReactionTheory
     virtual void initAtIteration() override; 
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) override ;
  protected:
-    enum class dataType { signonred, sigred, f2, fl} ;  //!< Define compute output.
     enum class dataFlav { incl, c, b} ;      //!< Define final state.
+    enum class stFun { all, f2, fl, xf3 } ;      //!< Define structure function contribution.
 
     /* 
        A few methods specific for DIS NC process. 
@@ -68,8 +68,9 @@ class ReactionBaseDISNC : public ReactionTheory
     map <int, int>     _npoints ;           //!< Number of points in a dataset.
     map <int, double>  _polarisation ;      //!< longitudinal polarisation
     map <int, double>  _charge;             //!< lepton beam charge
-    map <int, dataType> _dataType;          //!< cross section (reduced, F2, FL)
+    map <int, int>    _isReduced;          //!< reduced cross section
     map <int, dataFlav> _dataFlav;          //!< flavour (incl, c, b)
+    map <int, stFun> _stFun;          //!< structure function (all, f2, fl, xf3)
 
  protected:
     // some parameters which may change from iteration to iteration:
@@ -88,7 +89,7 @@ class ReactionBaseDISNC : public ReactionTheory
     const int GetNpoint(int dataSetID) {return _npoints[dataSetID];}
     const double GetPolarisation (int dataSetID) {return _polarisation[dataSetID];}
     const double GetCharge(int dataSetID) {return _charge[dataSetID]; }
-    const dataType GetDataType(int dataSetID) {return _dataType[dataSetID]; }
+    const int IsReduced(int dataSetID){ return _isReduced[dataSetID] > 0; }
     const dataFlav GetDataFlav(int dataSetID) {return _dataFlav[dataSetID]; }
 
     // Another decomposition:

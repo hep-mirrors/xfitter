@@ -92,11 +92,55 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &valExternal, map
   double polarity = GetPolarisation(dataSetID);
   
   if ( GetCharge(dataSetID) > 0) {
-    val = 0.5*(yplus*f2 - yminus*xf3 - y*y*fl);
+    if(_stFun[dataSetID] == stFun::all)
+      val = 0.5*(yplus*f2 - yminus*xf3 - y*y*fl);
+    else if(_stFun[dataSetID] == stFun::f2)
+    {
+      if(IsReduced(dataSetID))
+        val = 0.5*(yplus*f2);
+      else
+        val = f2;
+    }
+    else if(_stFun[dataSetID] == stFun::fl)
+    {
+      if(IsReduced(dataSetID))
+        val = 0.5*( - y*y*fl);
+      else
+        val = fl;
+    }
+    else if(_stFun[dataSetID] == stFun::xf3)
+    {
+      if(IsReduced(dataSetID))
+        val = 0.5*( - yminus*xf3);
+      else
+        val = xf3;
+    }
     val *= (1+polarity);
   }
   else {
-    val = 0.5*(yplus*f2 + yminus*xf3 - y*y*fl);
+    if(_stFun[dataSetID] == stFun::all)
+      val = 0.5*(yplus*f2 + yminus*xf3 - y*y*fl);
+    else if(_stFun[dataSetID] == stFun::f2)
+    {
+      if(IsReduced(dataSetID))
+        val = 0.5*(yplus*f2);
+      else
+        val = f2;
+    }
+    else if(_stFun[dataSetID] == stFun::fl)
+    {
+      if(IsReduced(dataSetID))
+        val = 0.5*( - y*y*fl);
+      else
+        val = fl;
+    }
+    else if(_stFun[dataSetID] == stFun::xf3)
+    {
+      if(IsReduced(dataSetID))
+        val = 0.5*(yminus*xf3);
+      else
+        val = xf3;
+    }
     val *= (1-polarity);
   }
 
@@ -154,7 +198,7 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
   _isReduced[dataSetID]    =  (parsDataset.find("reduced")       != parsDataset.end()) ? parsDataset["reduced"] : 0;
 
   // check if settings are provided in the new format key=value
-  // type: sigred, signonred (no F2, FL implemented so far, thus type is defined by bool _isReduced)
+  // type: sigred, signonred (F2, FL, F3 can be specified with 'stfun')
   // HERA data files provide 'signonred' CC cross sections
   // Inclusive "non-reduced" cross section by default.
   _dataFlav[dataSetID] = dataFlav::incl;
@@ -205,6 +249,39 @@ void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string>
     {
       char buffer[256];
       sprintf(buffer, "F: dataset with id = %d has unknown flav = %s", dataSetID, it->second.c_str());
+      string str = buffer;
+      hf_errlog_(18042502, str.c_str(), str.length());
+    }
+  }
+
+  // structrure function contrbution: all (default), f2, fl, f3
+  _stFun[dataSetID] = stFun::all;
+  it = pars.find("stfun");
+  if ( it != pars.end() )
+  {
+    if(it->second == "f2")
+    {
+      _stFun[dataSetID] = stFun::f2;
+      msg += " (F2)";
+    }
+    else if(it->second == "fl")
+    {
+      _stFun[dataSetID] = stFun::fl;
+      msg += " (FL)";
+    }
+    else if(it->second == "xf3")
+    {
+      _stFun[dataSetID] = stFun::xf3;
+      msg += " (F3)";
+    }
+    else if(it->second == "all")
+    {
+      // do notinng: default option
+    }
+    else
+    {
+      char buffer[256];
+      sprintf(buffer, "F: dataset with id = %d has unknown stfun = %s", dataSetID, it->second.c_str());
       string str = buffer;
       hf_errlog_(18042502, str.c_str(), str.length());
     }

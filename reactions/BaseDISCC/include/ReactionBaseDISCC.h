@@ -37,6 +37,7 @@ class ReactionBaseDISCC : public ReactionTheory
     virtual int compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal);
   protected:
     enum class dataFlav { incl, c} ;      //!< Define final state.
+    enum class stFun { all, f2, fl, xf3 } ;      //!< Define structure function contribution.
 
     virtual int parseOptions(){ return 0;};
 
@@ -50,6 +51,7 @@ class ReactionBaseDISCC : public ReactionTheory
     map <int, double>  _charge;             //!< lepton beam charge
     map <int, int>    _isReduced;          //!< reduced cross section
     map <int, dataFlav> _dataFlav;          //!< flavour (incl, c, b)
+    map <int, stFun> _stFun;          //!< structure function (all, f2, fl, xf3)
   protected:
     const int GetNpoint(int dataSetID) {return _npoints[dataSetID];}
     const double GetPolarisation (int dataSetID) {return _polarisation[dataSetID];}

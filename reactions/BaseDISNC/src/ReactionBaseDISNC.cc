@@ -58,34 +58,21 @@ int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &valExternal, map
   valarray<double> val;
   map<string, valarray<double> > err;
 
-  switch ( GetDataType(dataSetID) )
-    {
-    case dataType::signonred :
-      {
-        sred(dataSetID, val, err) ;
-        // transform reduced -> non-reduced cross sections
-        auto *xp  = GetBinValues(dataSetID,"x");
-        auto x = *xp;
-        auto *Q2p  = GetBinValues(dataSetID,"Q2");
-        auto q2 = *Q2p;
-        auto *yp  = GetBinValues(dataSetID,"y");
-        auto y = *yp;
-        const double pi = 3.1415926535897932384626433832795029;
-        valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
-        valarray<double> factor = 2 * pi * _alphaem * _alphaem * yplus / (q2 * q2 * x) * _convfac;
-        val *= factor;
-        break ;
-      }
-    case dataType::sigred :
-      sred(dataSetID, val, err) ;
-      break ;
-    case dataType::f2 :
-      F2(dataSetID, val, err) ;
-      break ;
-    case dataType::fl :
-      FL(dataSetID, val, err) ;
-      break ;
-    }
+  sred(dataSetID, val, err);
+  if(!IsReduced(dataSetID))
+  {
+    // transform reduced -> non-reduced cross sections
+    auto *xp  = GetBinValues(dataSetID,"x");
+    auto x = *xp;
+    auto *Q2p  = GetBinValues(dataSetID,"Q2");
+    auto q2 = *Q2p;
+    auto *yp  = GetBinValues(dataSetID,"y");
+    auto y = *yp;
+    const double pi = 3.1415926535897932384626433832795029;
+    valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
+    valarray<double> factor = 2 * pi * _alphaem * _alphaem * yplus / (q2 * q2 * x) * _convfac;
+    val *= factor;
+  }
 
   if(_integrated.find(dataSetID) == _integrated.end())
   {
@@ -133,47 +120,25 @@ void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string>
 {
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
+  _isReduced[dataSetID]    =  (parsDataset.find("reduced")       != parsDataset.end()) ? parsDataset["reduced"] : 0;
 
   // Inclusive reduced cross section by default.
-  _dataType[dataSetID] = dataType::sigred;
   _dataFlav[dataSetID] = dataFlav::incl;
   string msg = "I: Calculating DIS NC reduced cross section";
-  if ( parsDataset.find("F2") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::f2;
-    msg = "I: Calculating DIS NC F2";
-  }
-  if ( parsDataset.find("FL") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::fl;
-    msg = "I: Calculating DIS NC FL";
-  }
-  if ( parsDataset.find("reduced") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::sigred;
-    msg = "I: Calculating DIS NC reduced cross section";
-  }
 
   // check if settings are provided in the new format key=value
-  // type: signonred, sigred, F2, FL
+  // type: signonred, sigred (F2, FL, F3 can be specified with 'stfun')
   map<string,string>::iterator it = pars.find("type");
   if ( it != pars.end() ) {
-    if(it->second == "signonred")
+    if(it->second == "sigred")
     {
-      _dataType[dataSetID] = dataType::signonred;
-      msg = "I: Calculating DIS NC double-differential (non-reduced) cross section";
-    }
-    else if(it->second == "sigred")
-    {
-      _dataType[dataSetID] = dataType::sigred;
+      _isReduced[dataSetID] = 1;
       msg = "I: Calculating DIS NC reduced cross section";
     }
-    else if(it->second == "F2")
+    else if(it->second == "signonred")
     {
-      _dataType[dataSetID] = dataType::f2;
-      msg = "I: Calculating DIS NC F2";
-    }
-    else if(it->second == "FL")
-    {
-      _dataType[dataSetID] = dataType::fl;
-      msg = "I: Calculating DIS NC FL";
+      _isReduced[dataSetID] = 0;
+      msg = "I: Calculating DIS NC non-reduced cross section";
     }
     else
     {
@@ -208,6 +173,39 @@ void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string>
       sprintf(buffer, "F: dataset with id = %d has unknown flav = %s", dataSetID, it->second.c_str());
       string str = buffer;
       hf_errlog_(17101902, str.c_str(), str.length());
+    }
+  }
+
+  // structrure function contrbution: all (default), f2, fl, f3
+  _stFun[dataSetID] = stFun::all;
+  it = pars.find("stfun");
+  if ( it != pars.end() )
+  {
+    if(it->second == "f2")
+    {
+      _stFun[dataSetID] = stFun::f2;
+      msg += " (F2)";
+    }
+    else if(it->second == "fl")
+    {
+      _stFun[dataSetID] = stFun::fl;
+      msg += " (FL)";
+    }
+    else if(it->second == "xf3")
+    {
+      _stFun[dataSetID] = stFun::xf3;
+      msg += " (F3)";
+    }
+    else if(it->second == "all")
+    {
+      // do notinng: default option
+    }
+    else
+    {
+      char buffer[256];
+      sprintf(buffer, "F: dataset with id = %d has unknown stfun = %s", dataSetID, it->second.c_str());
+      string str = buffer;
+      hf_errlog_(18042502, str.c_str(), str.length());
     }
   }
 
@@ -247,7 +245,7 @@ void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string>
     // integrated cross section
     if(s < 0)
       hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS dataset " + std::to_string(dataSetID));
-    if(_dataType[dataSetID] != dataType::signonred)
+    if(IsReduced(dataSetID))
       hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(dataSetID));
     IntegrateDIS* iDIS = new IntegrateDIS();
     _npoints[dataSetID] = iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
@@ -428,20 +426,42 @@ void ReactionBaseDISNC::sred BASE_PARS
   auto y = *yp;
 
   valarray<double> f2(_npoints[dataSetID]);
-  F2(dataSetID, f2, err);
+  if(_stFun[dataSetID] == stFun::all || _stFun[dataSetID] == stFun::f2)
+    F2(dataSetID, f2, err);
 
   valarray<double> fl(_npoints[dataSetID]);
-  FL(dataSetID, fl, err);
+  if(_stFun[dataSetID] == stFun::all || _stFun[dataSetID] == stFun::fl)
+    FL(dataSetID, fl, err);
 
   valarray<double> xf3(_npoints[dataSetID]);
-  xF3(dataSetID, xf3, err);
+  if(_stFun[dataSetID] == stFun::all || _stFun[dataSetID] == stFun::xf3)
+    xF3(dataSetID, xf3, err);
 
 //  double charge = GetCharge(dataSetID);   xF3 is alredy charge-dependent.
 
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
 
-  val = f2 - y*y/yplus*fl + (yminus/yplus)*xf3 ;  
+  if(_stFun[dataSetID] == stFun::all)
+    val = f2 - y*y/yplus*fl + (yminus/yplus)*xf3;
+  else if(_stFun[dataSetID] == stFun::f2)
+  {
+    val = f2;
+  }
+  else if(_stFun[dataSetID] == stFun::fl)
+  {
+    if(IsReduced(dataSetID))
+      val =  - y*y/yplus*fl;
+    else
+      val =  fl;
+  }
+  else if(_stFun[dataSetID] == stFun::xf3)
+  {
+    if(IsReduced(dataSetID))
+      val = (yminus/yplus)*xf3;
+    else
+      val = xf3;
+  }
 }
 
 
@@ -513,7 +533,6 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     // OZ 19.10.2017 TODO: F3 is 0 in VFNS for heavy quarks?
-    //if ( GetDataType(dataSetID) == dataType::sigred ) {
     if ( GetDataFlav(dataSetID) == dataFlav::incl ) {
       zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
       zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
