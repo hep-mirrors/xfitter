@@ -25,7 +25,7 @@ int ReactionKFactor::initAtStart(const string &s)
 }
 
 // Initialisze for a given dataset:
-void ReactionKFactor::setDatasetParamters(int dataSetID, map<string,string> pars, map<string, double> parsDataset)
+void ReactionKFactor::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset)
 {
   // check if kfactors should be read from separate file
   if (pars.find("FileName") != pars.end())

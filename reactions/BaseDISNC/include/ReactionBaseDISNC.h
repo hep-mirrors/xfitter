@@ -23,7 +23,7 @@ class ReactionBaseDISNC : public ReactionTheory
  public:
     virtual string getReactionName() const { return  "BaseDISNC" ;};
     int initAtStart(const string &); 
-    virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+    virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
 
     //!< Initialize all EWK couplings here:
     virtual void initAtIteration() override; 

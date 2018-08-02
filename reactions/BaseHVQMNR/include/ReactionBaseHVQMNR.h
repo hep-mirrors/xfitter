@@ -35,7 +35,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
     virtual int initAtStart(const string &) = 0; 
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
     virtual void initAtIteration() = 0;
-    virtual void setDatasetParamters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
+    virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
   protected:
     virtual int parseOptions(){ return 0;};
     

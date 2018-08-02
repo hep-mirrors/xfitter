@@ -100,8 +100,8 @@ int ReactionFFABM_DISCC::initAtStart(const string &s)
   return isout;
 }
 
-void ReactionFFABM_DISCC::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
-  Super::setDatasetParamters(dataSetID, pars, parsDataset);
+void ReactionFFABM_DISCC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
+  Super::setDatasetParameters(dataSetID, pars, parsDataset);
   // Allocate internal arrays:
   _f2abm[dataSetID].resize(GetNpoint(dataSetID));
   _flabm[dataSetID].resize(GetNpoint(dataSetID));

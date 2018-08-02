@@ -23,7 +23,7 @@ class ReactionFFABM_DISNC : public ReactionBaseDISNC
   public:
     virtual string getReactionName() const { return  "FFABM_DISNC" ;};
     int initAtStart(const string &);
-    virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+    virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual void initAtIteration() override;
 
   protected:

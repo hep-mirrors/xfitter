@@ -37,8 +37,8 @@ int ReactionRT_DISNC::initAtStart(const string &s)
   return isout;
 }
 
-void ReactionRT_DISNC::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
-  Super::setDatasetParamters(dataSetID, pars, parsDataset);
+void ReactionRT_DISNC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
+  Super::setDatasetParameters(dataSetID, pars, parsDataset);
   // Allocate internal arrays:
   _f2rt[dataSetID].resize(GetNpoint(dataSetID));
   _flrt[dataSetID].resize(GetNpoint(dataSetID));

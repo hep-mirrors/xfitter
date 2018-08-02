@@ -22,7 +22,7 @@ class ReactionFFABM_DISCC : public ReactionBaseDISCC
     ReactionFFABM_DISCC(){};
     virtual string getReactionName() const { return  "FFABM_DISCC" ;};
     int initAtStart(const string &); 
-    virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+    virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual void initAtIteration() override;
 
   protected:
