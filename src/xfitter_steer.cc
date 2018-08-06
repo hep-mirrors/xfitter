@@ -63,6 +63,10 @@ namespace xfitter {
     // Get corresponding PDF decomposition:
     BasePdfDecomposition* pdfD = get_pdfDecomposition(pdfDecomp);
     evolution->SetPdfDecomposition( pdfD->f0() );
+
+    // Init it:
+    evolution->initAtStart();
+    
     // Store on the map
     XFITTER_PARS::gEvolutions[name] = evolution;
     return evolution;
@@ -104,4 +108,14 @@ namespace xfitter {
 
     return pdfDecomp;
   }
+}
+
+
+/// Temporary interface for fortran
+extern "C" {
+  void init_evolution_(); 
+}
+
+void init_evolution_() {
+  auto evol = xfitter::get_evolution();
 }
