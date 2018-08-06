@@ -61,6 +61,7 @@ C-----------------------------------------------------
      +     'I: steering.txt has been read successfully') 
 
 
+
 *
 *  Read parameters:
 *
@@ -70,6 +71,11 @@ C-----------------------------------------------------
 *     Init new theory modules
 *     ------------------------------------------------
       call read_reactions()
+
+*
+*     Init evolution
+*
+      call init_evolution()
 
 *     ------------------------------------------------
 *     Read the measured data points
