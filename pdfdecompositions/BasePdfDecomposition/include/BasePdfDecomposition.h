@@ -25,9 +25,12 @@ namespace xfitter
   BasePdfDecomposition(const std::string& inName): _name(inName)  { };
     virtual ~BasePdfDecomposition() {};
     
-    /// Optional initialization at the first call
+    /// Initialization at the first call
     virtual void initAtStart(const std::string& pars) = 0;
-  
+
+    /// Optional initialization at each iteration. Can be used to compute sum-rules
+    virtual void initAtIteration() {}
+    
     /// Compute PDF in a physical base in LHAPDF format for given x and Q
     virtual std::function<std::map<int,double>(const double& x)> f0() const = 0;
 
@@ -38,6 +41,8 @@ namespace xfitter
     BasePdfParam* getPdfParam(std::string const& name) const {
       return _pdfParams.at(name);
     }
+
+    const std::string& getName() const { return _name; }
     
   protected:
     /// PDF parameters
