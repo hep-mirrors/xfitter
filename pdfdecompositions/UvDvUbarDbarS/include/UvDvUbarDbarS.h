@@ -3,6 +3,7 @@
 
 #include "BasePdfDecomposition.h"
 #include "BasePdfParam.h"
+#include <memory>
 
 namespace xfitter
 {
@@ -24,6 +25,23 @@ namespace xfitter
     /// Optional initialization at the first call
     virtual void initAtStart(const std::string& pars) override final;
 
+    /// Compute sum-rules
+    virtual void initAtIteration() override final;
+    
+    /// Compute PDF in a physical base in LHAPDF format at the initial scale
+    virtual std::function<std::map<int,double>(const double& x)> f0() const override final;
+
+
+  private:
+    /// Get parameter values from the minimizer
+    std::unique_ptr<double[]> getParValues(BasePdfParam const* param) const;
+
+    /// Get valence
+    double valence(double x, std::string const& name, double sum) const;
+
+    /// Get sea
+    double sea(double x, std::string const& name) const;
+    
     /// Get uv, apply sum-rule
     double uv(double x) const;
 
@@ -39,11 +57,12 @@ namespace xfitter
     /// Get s
     double s(double x) const;
 
-    
-    /// Compute PDF in a physical base in LHAPDF format at the initial scale
-    virtual std::function<std::map<int,double>(const double& x)> f0() const override final;
+    /// Get g
+    double g(double x) const;
 
   private:
-    std::map<std::string,BasePdfParam*> pdf_pars;
+    /// sum-rule fixed parameters
+    double _uSum,  _dSum, _gSum;
+    
   };
 }

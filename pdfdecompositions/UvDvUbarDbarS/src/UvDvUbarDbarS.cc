@@ -11,6 +11,19 @@
 #include "xfitter_pars.h"
 #include <iostream>
 
+/// TEMPORARY XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+extern "C" {
+  /// Interface to minuit parameters
+  void addexternalparam_(const char name[],  const double &val, 
+                         const double  &step,
+                         const double &min, const double &max, 
+                         const double &prior, const double &priorUnc,
+                         const int &add, 
+                         map<std::string,double*> *map,
+                         int len);
+}
+
+
 namespace xfitter
 {
   /// the class factories
@@ -33,34 +46,127 @@ namespace xfitter
       BasePdfParam* pParam = new HERAPDF_PdfParam(pdfName);
       // read its parameters:
       double *parValues = pParam->initFromYaml(pdf.second);
-      std::cout << " Pars: " << parValues[0] <<std::endl;
+
+
+      /// HARDWIRE old-way for now:  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      for (int i = 0; i< pParam->getNPar(); i++) {
+	// get a good name
+	const std::string pnam = getName() + "_"+ pdfName + "_p" +  std::to_string(i) ;
+	std::cout << pnam ;
+	std::cout << " Pars: " << parValues[i] <<std::endl;
+
+	double val = parValues[i];
+	double step = 0;
+	double minv  = 0;
+	double maxv  = 0;
+	double priorVal = 0;
+	double priorUnc = 0;
+	int add = true;
+
+	
+	/// Here it goes to minuit:
+	addexternalparam_(pnam.c_str(), val, step, minv, maxv, priorVal, priorUnc, add, &XFITTER_PARS::gParameters,  pnam.size() );
+      }
+      
       addParameterisation(pdfName,pParam);
     }
   }
 
+  void UvDvUbarDbarS::initAtIteration() {
+    // counting sum-rules for uv and dv
+    const BasePdfParam* pdfParam = getPdfParam("xuv");
+    std::unique_ptr<double[]> pars = getParValues(pdfParam);  
+    pars[0] = 1.;
+    double sum0 = pdfParam->moment(pars.get(),-1);
+    _uSum = 2.0 / sum0;
+
+    pdfParam = getPdfParam("xdv");
+    pars = getParValues(pdfParam);  
+    pars[0] = 1.;
+    sum0 = pdfParam->moment(pars.get(),-1);
+    _dSum = 1.0 / sum0;
+
+    // momentum sum-rule
+
+    // quark part
+    double xsumq = 0;
+    const std::vector<std::string> nameS{"ubar","dbar","s","xuv","xdv"};
+    for ( auto const& name : nameS ) {
+      const BasePdfParam* pdfParam = getPdfParam(name);
+      std::unique_ptr<double[]> pars = getParValues(pdfParam);
+      if ( name == "xuv") {
+	pars[0] = _uSum;
+      }
+      if (name == "xdv" ) {
+	pars[0] = _dSum;
+      }
+      xsumq += pdfParam->moment(pars.get(),0);
+    }
+    
+    // gluon part
+    pdfParam = getPdfParam("xg");
+    pars = getParValues(pdfParam);
+    pars[0] = 1.;
+    double xsumg = pdfParam->moment(pars.get(),0);
+    
+    _gSum = (1. - xsumq)/xsumg;
+  }
+  
+  std::unique_ptr<double[]> UvDvUbarDbarS::getParValues(BasePdfParam const* param) const {
+    std::unique_ptr<double[]> pars( new double[param->getNPar()] );
+    for (int i=0; i<param->getNPar(); i++) {
+      const std::string pnam = getName() + "_" + param->getName() + "_p" +  std::to_string(i) ;
+      pars[i] = *XFITTER_PARS::gParameters[pnam];
+    }
+    return pars;
+  }
+  
+  
+  double UvDvUbarDbarS::valence(double x, std::string const& name, double sum) const {
+    const BasePdfParam* pdfParam = getPdfParam(name);
+    // get parameters
+    std::unique_ptr<double[]> pars = getParValues(pdfParam);  
+
+    pars[0] = sum;
+    
+    return pdfParam->compute(x,pars.get());
+  }
+
+  double UvDvUbarDbarS::sea(double x, std::string const& name) const {
+    const BasePdfParam* pdfParam = getPdfParam(name);
+    // get parameters
+    std::unique_ptr<double[]> pars = getParValues(pdfParam);  
+    
+    return pdfParam->compute(x,pars.get());
+  }
+
   
   double UvDvUbarDbarS::uv(double x) const {
-    // need to fix normalization by sum-rules
-    BasePdfParam* pdfParam = getPdfParam("uv");
-    //    double sum0 = pdfParam->moment
-    
-    return 0;
+    return valence(x,"xuv",_uSum); 
   }
 
   double UvDvUbarDbarS::dv(double x) const {
-    return 0;
-  }
-
-  double UvDvUbarDbarS::dbar(double x) const {
-    return 0;
+    return valence(x,"xdv",_dSum); 
   }
 
   double UvDvUbarDbarS::ubar(double x) const {
-    return 0;
+    return sea(x,"xubar");
+  }
+
+  double UvDvUbarDbarS::dbar(double x) const {
+    return sea(x,"xdbar"); // XXXXXXXXXXXXX HARDWIRE
   }
   
   double UvDvUbarDbarS::s(double x) const {
-    return 0;
+    return sea(x,"xs");
+  }
+
+  double UvDvUbarDbarS::g(double x) const {
+    const BasePdfParam* pdfParam = getPdfParam("xg");
+    // get parameters
+    std::unique_ptr<double[]> pars = getParValues(pdfParam);  
+    pars[0] = _gSum;
+    return pdfParam->compute(x,pars.get());
   }
 
   
@@ -69,24 +175,20 @@ namespace xfitter
   {
     // lambda function
     const auto _f0 = [=] (double const& x)->std::map<int, double> {
-      double ubar_ = ubar(x);
-      double dbar_ = dbar(x);
-      double u_ = ubar_+uv(x);
-      double d_ = dbar_+dv(x);
-      double s_ = s(x);
       std::map<int, double> res  = {
 	{-6,0},	
 	{-5,0},
 	{-4,0},
-	{-3,s_},
-	{-2,dbar_},
-	{-1,ubar_},
-	{ 1,u_},
-	{ 2,d_},
-	{ 3,s_},
+	{-3,s(x)},
+	{-2,dbar(x)},
+	{-1,ubar(x)},
+	{ 1,ubar(x)+uv(x)},
+	{ 2,dbar(x)+dv(x)},
+	{ 3,s(x)},
 	{ 4,0.},
 	{ 5,0.},
-	{ 6,0.}
+	{ 6,0.},
+	{21,g(x)}
       };
       return res;
     };
