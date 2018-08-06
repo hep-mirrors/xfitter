@@ -32,8 +32,8 @@ class ReactionKMatrix : public ReactionTheory
     virtual int parseOptions(){ return 0;};
   private:
     map<int, std::vector<std::vector<double>> > _values2D;
-    map<int, std::vector<std::vector<double>> > _values;
-    map<int, std::pair<std::string, double> > _parameterNames
+    map<int, std::vector<double> > _values;
+    map<int, std::pair<std::string, double> > _parameterNames;
 
 	
 };

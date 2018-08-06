@@ -51,7 +51,7 @@ void ReactionKMatrix::setDatasetParameters(int dataSetID, map<string,string> par
 
       // check that the column is reasonable//TODO ERROR-log numbering
       if(column_start < 1){
-        hf_errlog(17102800, "F: wrong starting column = " + std::to_string(column));
+        hf_errlog(17102800, "F: wrong starting column = " + std::to_string(column_start));
       }
       if(column_start > column_finish){
         hf_errlog(17102800, "F:  starting column greater than finishing column ");
@@ -114,7 +114,7 @@ void ReactionKMatrix::setDatasetParameters(int dataSetID, map<string,string> par
 // Main function to compute results at an iteration
 int ReactionKMatrix::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-      const auto& it = _parameterNames.find(dataSetID);
+      //const auto& it = _parameterNames.find(dataSetID);
 
       // kmatrix is constant value read in setDatasetParameters()
       val = std::valarray<double>(_values[dataSetID].data(), _values[dataSetID].size());

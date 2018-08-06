@@ -639,7 +639,7 @@ TheorEval::Evaluate(valarray<double> &vte )
           valarray<double> a(stk.top());
           int size_a = a.size();
           stk.pop();
-          valarray<double> b(stk.top);
+          valarray<double> b(stk.top());
           int size_b = b.size();
 
           if(size_a % size_b == 0){  // Matrix * Vector
@@ -647,22 +647,24 @@ TheorEval::Evaluate(valarray<double> &vte )
               result.resize(size_return);
               for ( int n = 0; n < size_b; n++){
                   temp.resize(size_return);
-                  temp = M.slice(n, size_return, size_b); //creating nth column vector
+                  temp = a[std::slice(n, size_return, size_b)]; //creating nth colum vector
                   temp *= b[n];
                   result += temp;
               }
               stk.top() = result;
-          }else if(size_b % size_a == 0){  //  Transposed(Vector)*Matrix
+          }else if(size_b % size_a == 0){  //  Transposed(Vector)*Matrix -> Transposed(Matrix) vector
               int size_return = size_b / size_a;
               result.resize(size_return);
               for ( int n = 0; n < size_a; n++){
                   temp.resize(size_return);
-                  temp = M.slice(n* size_return, size_return, 1); // creating nth row vector
+                  temp = a[std::slice(n*size_return, size_return, 1)]; // creating nth row vector -> nth colum vector
                   temp *= b[n];
                   result += temp;
               }
               stk.top() = result;
-          }else{cout<<"ERROR: Dimensions do not match for "<<it<<" and "<< it+1<<endl;}
+          }else{
+		char error[] = "ERROR: Dimensions do not match ";
+		cout<<error<<endl;}
 
 
           /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
