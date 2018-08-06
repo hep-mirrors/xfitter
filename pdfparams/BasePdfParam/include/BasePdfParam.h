@@ -25,10 +25,10 @@ class BasePdfParam {
   void SetNPar(int npar) { _npar = npar;}
   
   /// Compute xf(x,pars). Pure virtual method
-  virtual double compute( double const x, double const* pars) = 0;
+  virtual double compute( double const x, double const* pars) const = 0;
 
-  /// Compute moments of xf(x) ( for i=-1  of f(x) ), needed for sun-rules
-  virtual double moment( double const* pars, int const iMoment = 0) ;
+  /// Compute moments of xf(x) ( for i=-1  of f(x) ), needed for sum-rules
+  virtual double moment( double const* pars, int const iMoment = 0) const ;
 
   /// Return number of parameters
   const int getNPar() const {return _npar;} 

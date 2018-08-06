@@ -4,7 +4,7 @@
 #include <iostream>
 
 /// Implement numeric integration
-double BasePdfParam::moment( double const* pars, int const iMoment) {
+double BasePdfParam::moment( double const* pars, int const iMoment) const {
   /// Simple rule, split log/lin spacing at xsplit=0.1
 
   const double xsplit = 0.1;

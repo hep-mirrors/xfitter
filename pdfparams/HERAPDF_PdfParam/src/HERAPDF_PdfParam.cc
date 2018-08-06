@@ -9,7 +9,7 @@
 #include <cmath>
 
 // Main function to compute PDF
-double HERAPDF_PdfParam::compute(double const x, double const* pars)
+double HERAPDF_PdfParam::compute(double const x, double const* pars) const
 {
   const int npar = getNPar();
   if (npar<3) {

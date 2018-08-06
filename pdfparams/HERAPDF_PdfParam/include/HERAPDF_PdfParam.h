@@ -20,7 +20,7 @@ class HERAPDF_PdfParam : public BasePdfParam
      /// Default constructor. Name is the PDF name
      HERAPDF_PdfParam (const std::string& inName) : BasePdfParam(inName) {}
      /// Compute xf(x,pars). Pure virtual method
-     virtual double compute( double const x, double const* pars) override final;
+     virtual double compute( double const x, double const* pars) const override final;
     
      /// (optionally) compute moments:
      // virtual double moment( double const* pars, int const iMoment = 1) override final;
