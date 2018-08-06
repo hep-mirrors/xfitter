@@ -39,6 +39,7 @@
 #include "dimensions.h"
 #include "xfitter_cpp.h"
 #include "xfitter_pars.h"
+#include "xfitter_steer.h"
 #include "EvolutionAPFELxx.h"
 #include "LHAPDFDecomposition.h"
 #include "LHAPDF/LHAPDF.h"
@@ -112,13 +113,18 @@ void startXF() {
   iofilenamesmini_();
   init_pars();
 
+
+  auto evol = xfitter::get_evolution();
+
+
+  
   /**
    * Feed the DGLAP evolution class directly with an LHAPDF set.
    */
-  LHAPDF::PDF* dist = LHAPDF::mkPDF("CT14nlo");
-  const auto f0 = [=] (double const& x)->std::map<int, double>{ return dist->xfxQ(x, 1); };
-  xfitter::EvolutionAPFELxx *evol = new xfitter::EvolutionAPFELxx{f0};
-  evol->initAtStart();
+  //  LHAPDF::PDF* dist = LHAPDF::mkPDF("CT14nlo");
+  //const auto f0 = [=] (double const& x)->std::map<int, double>{ return dist->xfxQ(x, 1.295); };
+  ///xfitter::EvolutionAPFELxx *evol = new xfitter::EvolutionAPFELxx{f0};
+  // evol->initAtStart();  !!! already done
   evol->initAtIteration();
   const auto f = evol->xfxQDouble();
   std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
