@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <vector>
 
 /**
   @class BaseMinimizer
@@ -16,12 +16,20 @@
 
 namespace xfitter
 {
+  const unsigned int isFreePar  = 1;
+  const unsigned int isFixedPar = 2;
+  const unsigned int isBoundOar = 3;
+    
+
+  
   class BaseMinimizer {
   public:
     /// default constructor
     BaseMinimizer(const std::string& name) :        _name(name),
-      _fitParameters(nullptr),
-      _allParameters(nullptr) {}
+      _allParameters(),
+      _allParameterNames(),
+      _fitParameters()
+	{}
 
     /// Initialization
     virtual void initAtStart() = 0;
@@ -30,7 +38,10 @@ namespace xfitter
     virtual void printInfo(){};
 
     /// Add parameter blocks with Npar parameters. Optional flags and bounds can be used for fixed/bounded parameters.
-    virtual void addParameterBlock(int Npar, double const* pars, unsigned int const* flags = nullptr, double const* const* bounds = nullptr );
+    virtual void addParameterBlock(int Npar, double const* pars, std::string const* names,  unsigned int const* flags = nullptr, double const* const* bounds = nullptr );
+
+    /// Add single parameter. Optional flags and bounds can be used for fixed/bounded parameters.
+    virtual void addParameter(double par, std::string const &name,  unsigned int flag = 0, double  const* bounds = nullptr );
     
     /// Action at each iteration
     virtual void initAtIteration(){};
@@ -43,18 +54,26 @@ namespace xfitter
 
     /// Perform post-fit error analysis
     virtual void errorAnalysis(){};
+
+    /// Number of parameters:
+    unsigned int getNAllpars() const { return _allParameters.size(); }
+
+    /// Number of fitted parameters:
+    unsigned int getNFitpars() const { return _fitParameters.size(); }
     
-  private:
+  protected:
     /// name to ID minimizer
     std::string _name;
 
-    /// list of minimized parameter blocks
-    double** _fitParameters;
+    /// list of all parameters
+    std::vector<double> _allParameters;
 
-    /// list of all parameter blocs
-    double** _allParameters;
+    /// names of the parameters
+    std::vector<std::string> _allParameterNames;
+    
+    /// list of minimized parameters. Points to sub-set of all parameters
+    std::vector<double*> _fitParameters;
 
-    /// maping from fitted parameters to all parameters
   };
 
   /// For dynamic loader
