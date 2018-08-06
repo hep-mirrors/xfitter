@@ -90,34 +90,35 @@ void ReactionKMatrix::setDatasetParameters(int dataSetID, map<string,string> par
               }
               current_col++;
           }
-          _values[dataSetID].push_back(temp);
+          _values2D[dataSetID].push_back(temp);
           temp.clear();
           sline.clear();
 
           }
       file.close();
-    }
 
-
-    /*// check if KMatrixs should be read from data file (soecifying column is mandatory)
-    else if (pars.find("DataColumn") != pars.end())
-    {
-      std::string columnName = pars["DataColumn"];
-      valarray<double>* vals = this->GetBinValues(dataSetID, columnName);
-      if(!vals)
-        hf_errlog(17102803, "F: no column = " + columnName + " in data file");
-      // store KMatrix values
-      _values[dataSetID].resize(vals->size());
-      _values[dataSetID].assign(std::begin(*vals), std::end(*vals));
-    }
-    else
-      hf_errlog(17102804, "F: FileName or DataColumn or Parameter must be provided for KMatrix");
-  }*/
+      //mapping 2d matrix (m x n) to 1d vector (m*n): list of row vectors, mapping with vec(i*n + j) = mat(i,j)
+      int m = _values2D[dataSetID].size();
+      int n = _values2D[dataSetID].at(0).size();
+      _values[dataSetID].resize(n*m);
+      for(int i = 0; i < m; i++){
+          for(int j = 0; j < n; j++){
+              _values[dataSetID].at(i*n+j)=_values2D[dataSetID].at(i).at(j);
+          }
+      }
+    }else{
+      hf_errlog(17102804, "F: FileName must be provided for KMatrix");
+  }
 }
 
 // Main function to compute results at an iteration
 int ReactionKMatrix::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  return 0;
+      const auto& it = _parameterNames.find(dataSetID);
+
+      // kmatrix is constant value read in setDatasetParameters()
+      val = std::valarray<double>(_values[dataSetID].data(), _values[dataSetID].size());
+
+      return 0;
 }
 
