@@ -69,23 +69,47 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
      hf_errlog_(17032801,text.c_str(),text.size());
    }
 
-	it=pars.find("LHAPDF_SetName");
-	if(it!=pars.end()){
+//Initialize for LHAPDF
+//To be used when PDF of second particle is static and of LHAPDF
+//Parameters are passed via TermInfo in theory expression in datafile:
+//*LHAPDF_SetName
+//*LHAPDF_MemberID --- defaults to 0
 #ifdef LHAPDF_ENABLED
-		//To be used when PDF of second particle is static and of LHAPDF
+	{
+	it=pars.find("LHAPDF_SetName");
+	auto itMemberID=pars.find("LHAPDF_MemberID");
+	if(it!=pars.end()){
+		int member_id=0;
+		try{
+			if(itMemberID!=pars.end())member_id=std::stoi(itMemberID->second);
+		}catch(const std::exception&ex){
+			std::ostringstream s;
+			s<<"F:Failed to read PDF memberID for LHAPDF set \""<<it->second<<"\" for use with APPLgrid; dataSetID="<<dataSetID;
+			s<<"; Exception:"<<ex.what();
+			hf_errlog(3081810,s.str().c_str());
+		}
 		//Make sure to set collision=LHAPDF
 		//std::cout<<"DEBUG LHAPDF_SetName="<<it->second<<std::endl;
-		LHAPDF::PDF*p=LHAPDF::mkPDF(it->second,0);
+		LHAPDF::PDF*p=LHAPDF::mkPDF(it->second,member_id);
 		if(!p){
 			std::ostringstream s;
 			s<<"F:LHAPDF failed to load PDF set \""<<it->second<<"\" for use with APPLgrid; dataSetID="<<dataSetID;
 			hf_errlog(28071810,s.str().c_str());
 		}
 		lhapdf_pdf[dataSetID]=p;
-#else
-		hf_errlog(25071812,"F:LHAPDF Set specified for APPLgrid reaction, but xFitter has been compiled without LHAPDF. Use --enable-lhapdf at configure to enable.")
-#endif
+	}else{
+		if(itMemberID!=pars.end()){
+			std::ostringstream s;
+			s<<"W: In APPLgrid reaction parameters (dataSetID="<<dataSetID<<") memberID="<<itMemberID->second<<" is given, but set itself is not";
+			hf_errlog(3081811,s.str().c_str());
+		}
 	}
+	}
+#else
+	if(pars.find("LHAPDF_SetName")!=pars.end()||pars.find("LHAPDF_MemberID")!=pars.end()){
+		hf_errlog(25071812,"F:LHAPDF parameter specified for APPLgrid reaction, but xFitter has been compiled without LHAPDF. Use --enable-lhapdf at configure to enable.")
+	}
+#endif
 
 // Determine order
    int order = OrderMap( GetParamS("Order"));  // Global order
@@ -119,7 +143,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
     else if(it->second=="pn")    _collType[dataSetID]=collision::pn;
 		else if(it->second=="LHAPDF"){
 			_collType[dataSetID]=collision::LHAPDF;
-			if(lhapdf_pdf.find(dataSetID)==lhapdf_pdf.end())hf_errlog(24071810,"F: collision type=LHAPDF but no LHAPDF set was loaded");
+			if(lhapdf_pdf.find(dataSetID)==lhapdf_pdf.end())hf_errlog(24071810,"W: collision type=LHAPDF but no LHAPDF set was loaded");
 		}
     else
       hf_errlog(17102101, "F: unrecognised collision type = " + it->second);
