@@ -34,11 +34,16 @@ namespace xfitter
       // read its parameters:
       double *parValues = pParam->initFromYaml(pdf.second);
       std::cout << " Pars: " << parValues[0] <<std::endl;
-      addParameterisation(pParam);
+      addParameterisation(pdfName,pParam);
     }
   }
 
+  
   double UvDvUbarDbarS::uv(double x) const {
+    // need to fix normalization by sum-rules
+    BasePdfParam* pdfParam = getPdfParam("uv");
+    //    double sum0 = pdfParam->moment
+    
     return 0;
   }
 

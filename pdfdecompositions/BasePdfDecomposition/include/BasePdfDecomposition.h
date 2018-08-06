@@ -3,7 +3,6 @@
 #include <string>
 #include <map>
 #include <functional>
-#include <vector>
 #include "BasePdfParam.h"
 
 /**
@@ -32,13 +31,17 @@ namespace xfitter
     /// Compute PDF in a physical base in LHAPDF format for given x and Q
     virtual std::function<std::map<int,double>(const double& x)> f0() const = 0;
 
-    void addParameterisation(BasePdfParam* pdfParam) {
-      _pdfParams.push_back(pdfParam);
+    void addParameterisation(const std::string& pname, BasePdfParam* pdfParam) {
+      _pdfParams[pname] = pdfParam;
+    }
+    
+    BasePdfParam* getPdfParam(std::string const& name) const {
+      return _pdfParams.at(name);
     }
     
   protected:
     /// PDF parameters
-    std::vector<BasePdfParam*> _pdfParams;
+      std::map<std::string,BasePdfParam*> _pdfParams;
 
     
     

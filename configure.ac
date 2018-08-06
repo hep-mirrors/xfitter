@@ -579,9 +579,11 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 pdfparams/BasePdfParam/src/Makefile
+		 pdfparams/HERAPDF_PdfParam/src/Makefile
 		 pdfdecompositions/LHAPDFDecomposition/src/Makefile
 		 pdfdecompositions/UvDvUbarDbarS/src/Makefile
-		 pdfparams/HERAPDF_PdfParam/src/Makefile
+		 pdfdecompositions/BasePdfDecomposition/src/Makefile
 		 reactions/KFactor/src/Makefile
 		 reactions/BaseDISCC/src/Makefile
 		 reactions/FFABM_DISCC/src/Makefile
@@ -598,10 +600,9 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/fastNLO/src/Makefile
 		 reactions/FONLL_DISCC/src/Makefile
 		 reactions/FONLL_DISNC/src/Makefile
-		 pdfparams/BasePdfParam/src/Makefile
-		 pdfdecompositions/BasePdfDecomposition/src/Makefile
 		 evolutions/BaseEvolution/src/Makefile
 		 evolutions/APFELxx/src/Makefile
+		 minimizers/BaseMinimizer/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then
