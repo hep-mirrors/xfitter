@@ -17,7 +17,7 @@ include : "yaml/pdfdecompositions/UvDvUbarDbarS/parameters.yaml"
 #
 # Initial scale
 #---------------------------
-Q0 : 1.0
+Q0 : 1.378
 
 #
 # EW parameters
@@ -122,8 +122,8 @@ include : yaml/reactions/APPLgrid/parameters.yaml
 # Speficify HF scheme used for DIS NC processes:
 #---------------------------
 hf_scheme_DISNC :
-  defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+  defaultValue : 'RT_DISNC'        # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
