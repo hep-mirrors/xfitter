@@ -647,7 +647,7 @@ TheorEval::Evaluate(valarray<double> &vte )
               result.resize(size_return);
               for ( int n = 0; n < size_b; n++){
                   temp.resize(size_return);
-                  temp = a[std::slice(n, size_return, size_b)]; //creating nth colum vector
+                  temp = a[std::slice(n*size_return, size_return, 1)]; //creating nth colum vector
                   temp *= b[n];
                   result += temp;
               }
@@ -657,8 +657,8 @@ TheorEval::Evaluate(valarray<double> &vte )
               result.resize(size_return);
               for ( int n = 0; n < size_a; n++){
                   temp.resize(size_return);
-                  temp = a[std::slice(n*size_return, size_return, 1)]; // creating nth row vector -> nth colum vector
-                  temp *= b[n];
+                  temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector, n*size_return, size_return, 1
+                  temp *= a[n];
                   result += temp;
               }
               stk.top() = result;

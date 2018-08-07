@@ -97,7 +97,7 @@ void ReactionKMatrix::setDatasetParameters(int dataSetID, map<string,string> par
           }
       file.close();
 
-      //mapping 2d matrix (m x n) to 1d vector (m*n): list of row vectors, mapping with vec(i*n + j) = mat(i,j)
+      //mapping 2d matrix (m x n) to 1d vector (m*n): list of column vectors, mapping with vec(i*n + j) = mat(j,i)
       int m = _values2D[dataSetID].size();
       int n = _values2D[dataSetID].at(0).size();
       _values[dataSetID].resize(n*m);
