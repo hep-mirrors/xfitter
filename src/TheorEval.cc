@@ -657,7 +657,7 @@ TheorEval::Evaluate(valarray<double> &vte )
               result.resize(size_return);
               for ( int n = 0; n < size_a; n++){
                   temp.resize(size_return);
-                  temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector, n*size_return, size_return, 1
+                  temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector
                   temp *= a[n];
                   result += temp;
               }
