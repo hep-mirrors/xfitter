@@ -19,6 +19,11 @@
 //#include "datasets.icc"
 #include <yaml-cpp/yaml.h>
 #include "ReactionTheory.h"
+#include "xfitter_pars.h"
+
+#include "BaseEvolution.h"
+#include "BasePdfDecomposition.h"
+
 
 using namespace std;
 
@@ -304,9 +309,28 @@ void init_func_map_() {
 }
 
 void init_at_iteration_() {
-  for ( auto reaction : gNameReaction ) {
+  
+  for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
+    pdfdecomposition.second->initAtIteration();
+  }
+
+  
+  for ( auto evolution : XFITTER_PARS::gEvolutions) {
+    evolution.second->initAtIteration();
+
+    // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    const auto f = evolution.second->xfxQDouble();
+    std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
+    const std::string evolName = evolution.second->getName() +":p";
+    
+    XFITTER_PARS::registerXfxQArray(evolName,evolution.second->xfxQArray());
+  }
+
+
+ for ( auto reaction : gNameReaction ) {
     reaction.second->initAtIteration();
   }
+
 }
 
 void fcn3action_()
