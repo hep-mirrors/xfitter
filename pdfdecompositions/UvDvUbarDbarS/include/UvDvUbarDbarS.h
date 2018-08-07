@@ -27,6 +27,9 @@ namespace xfitter
 
     /// Compute sum-rules
     virtual void initAtIteration() override final;
+
+    /// print parameters
+    virtual void printParams() override final;
     
     /// Compute PDF in a physical base in LHAPDF format at the initial scale
     virtual std::function<std::map<int,double>(const double& x)> f0() const override final;

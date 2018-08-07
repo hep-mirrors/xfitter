@@ -10,6 +10,8 @@
 #include "HERAPDF_PdfParam.h"
 #include "xfitter_pars.h"
 #include <iostream>
+#include <iomanip>
+#include <cmath>
 
 /// TEMPORARY XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 extern "C" {
@@ -56,7 +58,9 @@ namespace xfitter
 	std::cout << " Pars: " << parValues[i] <<std::endl;
 
 	double val = parValues[i];
-	double step = 0;
+	double step = std::fabs(val)/100.;       /// if 0, parameter is fixed !!! 
+
+	
 	double minv  = 0;
 	double maxv  = 0;
 	double priorVal = 0;
@@ -90,10 +94,11 @@ namespace xfitter
 
     // quark part
     double xsumq = 0;
-    const std::vector<std::string> nameS{"ubar","dbar","s","xuv","xdv"};
+    const std::vector<std::string> nameS{"xubar","xdbar","xs","xuv","xdv"};
     for ( auto const& name : nameS ) {
       const BasePdfParam* pdfParam = getPdfParam(name);
       std::unique_ptr<double[]> pars = getParValues(pdfParam);
+
       if ( name == "xuv") {
 	pars[0] = _uSum;
       }
@@ -110,6 +115,39 @@ namespace xfitter
     double xsumg = pdfParam->moment(pars.get(),0);
     
     _gSum = (1. - xsumq)/xsumg;
+
+    printParams();
+  }
+
+  void UvDvUbarDbarS::printParams() {
+    std::cout << "\n" << std::left<< std::setw(8) << " Name " << std::right;
+    for ( int i =0 ; i<6; i++) {
+      std::cout << std::setw(12) << " par"+std::to_string(i) ;
+    }
+    std::cout << "\n";
+    for ( auto p : _pdfParams) {
+      auto pdfParam = p.second;
+      auto name = p.first;
+      auto pars = getParValues(pdfParam);
+      int  npar = pdfParam->getNPar();
+
+      if (name == "xg") {
+	pars[0] = _gSum;
+      }
+      if (name == "xuv") {
+	pars[0] = _uSum;
+      }
+      if (name == "xdv") {
+	pars[0] = _dSum;
+      }
+      //      std::cout << "name :" << name << " npar: " << npar << "\n";
+      std::cout << std::left<< std::setw(8) << name << std::right;
+      for ( int i =0 ; i<npar; i++) {
+	std::cout << std::setw(12) << pars[i];
+      }
+      std::cout << "\n";
+    }
+    std::cout << "\n";
   }
   
   std::unique_ptr<double[]> UvDvUbarDbarS::getParValues(BasePdfParam const* param) const {
