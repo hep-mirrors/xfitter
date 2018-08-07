@@ -11,7 +11,7 @@
 
   @brief Base class to develop PDF decompositions
 
-  Contains methods to tranform from parameterisation to phyiscal basis
+  Contains methods to tranform from parameterisation to physical basis
 
   @version 0.1
   @date 2018-07-11
@@ -35,7 +35,7 @@ namespace xfitter
     /// Print pdf parameters
     virtual void printParams() {}
     
-    /// Compute PDF in a physical base in LHAPDF format for given x and Q
+    /// Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
     virtual std::function<std::map<int,double>(const double& x)> f0() const = 0;
 
     void addParameterisation(const std::string& pname, BasePdfParam* pdfParam) {
@@ -49,7 +49,7 @@ namespace xfitter
     const std::string& getName() const { return _name; }
     
   protected:
-    /// PDF parameters
+    /// PDF parameterisations
       std::map<std::string,BasePdfParam*> _pdfParams;
 
     

@@ -31,13 +31,13 @@ namespace xfitter
     EvolutionAPFELxx(std::function<std::map<int,double>(double const& x)> const& inPDFs): BaseEvolution{"APFELxx", inPDFs} {}
 
     /**
-     * @brief Function that initialise the evolution in APFEL++.
+     * @brief Function that initialises the evolution in APFEL++.
      */
     void initAtStart();
 
     /**
      * @brief Function that updates the relevant parameters of the
-     * evolution at each of the fitting procedure.
+     * evolution at each iteration of the fitting procedure.
      */
     void initAtIteration();
 

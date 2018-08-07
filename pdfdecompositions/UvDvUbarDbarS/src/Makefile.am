@@ -13,4 +13,3 @@ dist_noinst_HEADERS = ../include ../yaml
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx  HERAPDF is temporary 
 libuvdvubardbars_xfitter_la_LDFLAGS = -lHERAPDF_PdfParam_xfitter -lBasePdfParam_xfitter -L$(libdir)
-
