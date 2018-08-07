@@ -49,12 +49,12 @@ void ReactionKMatrix::setDatasetParameters(int dataSetID, map<string,string> par
         column_finish = atoi(pars["FileColumnFinish"].c_str());
       }
 
-      // check that the column is reasonable//TODO ERROR-log numbering
+      // check that the column is reasonable
       if(column_start < 1){
-        hf_errlog(17102800, "F: wrong starting column = " + std::to_string(column_start));
+        hf_errlog(18080700, "F: wrong starting column = " + std::to_string(column_start));
       }
       if(column_start > column_finish){
-        hf_errlog(17102800, "F:  starting column greater than finishing column ");
+        hf_errlog(18080701, "F:  starting column greater than finishing column ");
       }
 
       // requested starting line from file (by default 1st)
@@ -67,7 +67,7 @@ void ReactionKMatrix::setDatasetParameters(int dataSetID, map<string,string> par
       std::ifstream file(fileName.c_str());
       string line;
       if (!file.is_open()){
-        hf_errlog(17102802, "F: error opening KMatrix file = " + fileName);
+        hf_errlog(18080702, "F: error opening KMatrix file = " + fileName);
       }
 
       // skip lineStart lines
@@ -107,15 +107,13 @@ void ReactionKMatrix::setDatasetParameters(int dataSetID, map<string,string> par
           }
       }
     }else{
-      hf_errlog(17102804, "F: FileName must be provided for KMatrix");
+      hf_errlog(18080703, "F: FileName must be provided for KMatrix");
   }
 }
 
 // Main function to compute results at an iteration
 int ReactionKMatrix::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-      //const auto& it = _parameterNames.find(dataSetID);
-
       // kmatrix is constant value read in setDatasetParameters()
       val = std::valarray<double>(_values[dataSetID].data(), _values[dataSetID].size());
 
