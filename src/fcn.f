@@ -23,7 +23,6 @@ C---------------------------------------------------------
 #include "fcn.inc"
 #include "endmini.inc"
 #include "for_debug.inc"
-      
       integer i
 
 C function:
@@ -67,7 +66,7 @@ C !> Also store for each fcn=3 call:
 
       call HF_errlog(12020515,'I: FCN is called')
 
-C Print MINUIT extra parameters
+C     Print MINUIT extra parameters
       call printminuitextrapars
 
 *     ---------------------------------------------------------
@@ -463,8 +462,8 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
 
       
 
-
-      if (lprint) then
+      
+       ! if (lprint) then
          call cpu_time(time3)
          print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
          write(6,'(A20,i6,F12.2,i6,F12.2)') '
@@ -473,7 +472,7 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
 
 
 
-      endif ! end  lprint
+        ! endif ! end  lprint
 
 ! ----------------  RESULTS OUTPUT ---------------------------------
       if (iflag.eq.1) then
