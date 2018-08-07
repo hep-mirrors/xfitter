@@ -928,7 +928,7 @@ C---------------------------------------------------------------
       double precision SumRuleASpar,splogn
       double precision ubar,dbar,uval,dval,gluon
       integer IDebug
-      data IDebug/1/
+      data IDebug/0/
 
 C---------------------------------------------------------------
 
@@ -1144,7 +1144,7 @@ C---------------------------------------------------------------
       double precision CalcIntegral
       
       integer IDebug
-      data IDebug/1/
+      data IDebug/0/
 
 C---------------------------------------------------------------
 
@@ -1222,7 +1222,7 @@ C---------------------------------------------------------------
       double precision CalcIntegral
       
       integer IDebug
-      data IDebug/1/
+      data IDebug/0/
 
 C---------------------------------------------------------------
 
