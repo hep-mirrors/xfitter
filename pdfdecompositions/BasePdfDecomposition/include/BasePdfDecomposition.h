@@ -4,6 +4,7 @@
 #include <map>
 #include <functional>
 #include "BasePdfParam.h"
+// #include <iostream>
 
 /**
   @class BasePdfDecomposition
@@ -30,6 +31,9 @@ namespace xfitter
 
     /// Optional initialization at each iteration. Can be used to compute sum-rules
     virtual void initAtIteration() {}
+
+    /// Print pdf parameters
+    virtual void printParams() {}
     
     /// Compute PDF in a physical base in LHAPDF format for given x and Q
     virtual std::function<std::map<int,double>(const double& x)> f0() const = 0;
