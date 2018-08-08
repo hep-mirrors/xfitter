@@ -19,7 +19,7 @@ namespace xfitter
   void EvolutionAPFELxx::initAtStart()
   {
     // APFEL++ banner
-    //apfel::Banner();
+    apfel::Banner();
 
     // Retrieve parameters needed to initialize APFEL++.
     const double* MCharm   = XFITTER_PARS::gParameters.at("mch");
