@@ -116,7 +116,7 @@ void {:s}PdfDecomposition::initAtStart(const std::string & pars) {{
   return;
 }}
 
-// Compute PDF in a physical base in LHAPDF format for given x and Q
+// Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
 std::function<std::map<int,double>(const double& x)>  {:s}PdfDecomposition::f0() const
 {{
   const auto f_ = [=](double const& x)->std::map<int, double> {{
