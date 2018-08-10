@@ -130,6 +130,18 @@ int ReactionFONLL_DISCC::initAtStart(const string &s)
 	}
     }
 
+  // set the ratio muR / Q (default 1), muF / Q (default 1)
+  if(checkParam("muRoverQ"))
+  {
+    printf("SetRenQRatio(%f)\n", GetParam("muRoverQ"));
+    APFEL::SetRenQRatio(GetParam("muRoverQ"));
+  }
+  if(checkParam("muFoverQ"))
+  {
+    printf("SetFacQRatio(%f)\n", GetParam("muFoverQ"));
+    APFEL::SetFacQRatio(GetParam("muFoverQ"));
+  }
+     
   // Initialize the APFEL DIS module
   APFEL::InitializeAPFEL_DIS();
 
