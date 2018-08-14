@@ -35,26 +35,28 @@ with open(hFile,"w+") as f:
 #include "BasePdfParam.h"
 
 /**
-  @class {:s}PdfParam 
+  @class {name:s}PdfParam 
 
-  @brief A class for {:s} pdf parameterisation
+  @brief A class for {name:s} pdf parameterisation
 
   @version 0.1
-  @date {:s}
+  @date {date:s}
   */
 
-class {:s}PdfParam : public BasePdfParam
-{{
+class {name:s}PdfParam:public BasePdfParam{{
   public:
-     /// Default constructor. Name is the PDF name
-    {:s}PdfParam (const std::string& inName) : BasePdfParam(inName) {{}}
-     /// Compute xf(x,pars). Pure virtual method
-     virtual double compute( double const x, double const* pars) override final;
-    
-     /// (optionally) compute moments:
-     // virtual double moment( double const* pars, int const iMoment = 1) override final;
+     {name:s}PdfParam(const std::string&inName):BasePdfParam(inName){{}}
+     //Evaluate xf(x) at given x with current parameters
+     virtual double operator()(double x)const override final;
+     // (Optional) compute moments:
+     // virtual double  moment(int nMoment=-1)const override final;
+     // (Optional) set moments:
+     // virtual void setMoment(int nMoment,double value)override final;
+     // (Optional)
+     //Initialize from a yaml node. Uses node[getName] as the basis
+     // virtual void initFromYaml(YAML::Node value)override final;
 }};
-'''.format( name, name, datetime.date.today().isoformat(),name,name)
+'''.format(name=name,date=datetime.date.today().isoformat())
 )
 
 
@@ -65,29 +67,18 @@ print "Creating source file "+sFile
 with open(sFile,"w+") as f:
     f.write(''' 
 /*
-   @file {:s}PdfParam.cc
-   @date {:s}
-   @author  AddPdfParam.py
-   Created by  AddPdfParam.py on {:s}
+   @file {name:s}PdfParam.cc
+   @date {date:s}
+   @author AddPdfParam.py
+   Created by AddPdfParam.py on {date:s}
 */
 
-#include "{:s}PdfParam.h"
+#include "{name:s}PdfParam.h"
 
-
-// Main function to compute PDF
-double {:s}PdfParam::compute( double const x, double const* pars)
-{{
-  return 0;
+double {name:s}PdfParam::operator()(double x){{
+  //Your code here
 }}
-
-// Optional function to compute integrals:
-
-// double {:s}PdfParam::moment( double const* pars, int const iMoment)
-// {{
-//   return 0
-// }}
-
-'''.format(name,datetime.date.today().isoformat(),datetime.date.today().isoformat(),name,name,name)
+'''.format(name=name,date=datetime.date.today().isoformat())
 )
 
 aFile = "pdfparams/{:s}PdfParam/src/Makefile.am".format(name)

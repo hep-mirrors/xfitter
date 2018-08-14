@@ -7,37 +7,15 @@
 #include"GRV_PionPdfDecomposition.h"
 using uint=unsigned int;
 using namespace std;
+void initParameterisation(BasePdfParam*prm,const string&decompositionName){
+	const uint N=prm->getNPar();
+	prm->pars=new double*[N];
+	const string prefix=decompositionName+"_"+prm->getName()+"_p";
+	for(uint i=0;i<N;++i){
+		prm->pars[i]=XFITTER_PARS::gParameters[prefix+to_string(i)];
+	}
+}
 namespace xfitter{
-class ParameterisationWrapper{
-public:
-	ParameterisationWrapper(BasePdfParam*base,const string decompositionName):base{base}{
-		const uint N=base->getNPar();
-		pars=new double[N];
-		const string prefix=decompositionName+"_"+base->getName()+"_p";
-		for(uint i=0;i<N;++i){
-			pars[i]=XFITTER_PARS::gParameters[prefix+to_string(i)];
-		}
-	}
-	~ParameterisationWrapper(){delete[]pars;}
-	double operator(double x){
-		std::unique_ptr<double[]>p(new double[N]);
-		for(uint i=0;i<N;++i)p[i]=*pars[i];
-		return base->compute(x,p);
-	}
-	double moment(int i){//return \int_0^1 x^i*f(x) dx
-		const uint N=base->getNPar();
-		std::unique_ptr<double[]>p(new double[N]);
-		for(uint i=0;i<N;++i)p[i]=*pars[i];
-		return base->moment(p,i);
-	}
-	void setMoment(int i,double S){
-		*pars[0]=1;
-		*pars[0]=S/moment(i);
-	}
-private:
-	BasePdfParam*base;
-	double**pars;
-};
 //For dynamic loading:
 extern "C" GRV_PionPdfDecomposition*create(){
 	return new GRV_PionPdfDecomposition();
@@ -79,16 +57,17 @@ void GRV_PionPdfDecomposition::initAtStart(const std::string & pars){
 		}
     addParameterisation(pdfName,pParam);
   }
-	par_v   =new ParameterisationWrapper(getPdfParam("v   "),getName());
-	par_qbar=new ParameterisationWrapper(getPdfParam("qbar"),getName());
-	par_g   =new ParameterisationWrapper(getPdfParam("g   "),getName());
+//The following is not very nice: Decomposition should not create or initialize parameterisations
+	par_v   =initParameterisation(getPdfParam("v   "),getName());
+	par_qbar=initParameterisation(getPdfParam("qbar"),getName());
+	par_g   =initParameterisation(getPdfParam("g   "),getName());
 }
 void GRV_PionPdfDecomposition:initAtIteration() {
 	//Enforce sum rules
 	//Valence sum
-	par_v->setMoment(0,2);
+	par_v->setMoment(-1,2);
 	//Momentum sum
-	par_g->setMoment(1,1-4*par_qbar->moment(1));
+	par_g->setMoment(0,1-4*par_qbar->moment(0));
 }
 // Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
 std::function<std::map<int,double>(const double& x)>GRV_PionPdfDecomposition::f0()const{

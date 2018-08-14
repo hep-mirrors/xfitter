@@ -1,15 +1,12 @@
-
 #pragma once
-
 #include "BasePdfDecomposition.h"
-
 /**
   @class GRV_PionPdfDecomposition 
 
   @brief A class for GRV_Pion pdf decomposition
 
-  @version 0.1
-  @date 2018-08-07
+  @version 0.2
+  @date 2018-08-14
   */
 
 /*
@@ -32,19 +29,15 @@ And sum rules for pi- are:
 	\int_0^1 x*(4*qbar+g) dx=1
 */
 
-namespace xfitter {
-class ParameterisationWrapper;
+namespace xfitter{
 class GRV_PionPdfDecomposition:public BasePdfDecomposition{
 	public:
 		GRV_PionPdfDecomposition();
-		 /// Default constructor. Name is the PDF name
 		GRV_PionPdfDecomposition(const std::string& inName);
 		~GRV_PionPdfDecomposition();
-		/// Optional initialization at the first call
 		virtual void initAtStart(const std::string & pars) override final;
-		/// Compute PDF in a physical base in LHAPDF format for given x and Q
 		virtual std::function<std::map<int,double>(const double& x)>f0()const override final; 
 	private:
-		ParameterisationWrapper*par_v,*par_qbar,*par_g;
+		BasePdfParam*par_v,*par_qbar,*par_g;
 	};
 }
