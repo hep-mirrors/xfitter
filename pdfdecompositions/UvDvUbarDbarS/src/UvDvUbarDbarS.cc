@@ -214,19 +214,19 @@ namespace xfitter
     // lambda function
     const auto _f0 = [=] (double const& x)->std::map<int, double> {
       std::map<int, double> res  = {
-	{-6,0},	
-	{-5,0},
-	{-4,0},
-	{-3,s(x)},
-	{-2,dbar(x)},
-	{-1,ubar(x)},
-	{ 1,ubar(x)+uv(x)},
-	{ 2,dbar(x)+dv(x)},
-	{ 3,s(x)},
-	{ 4,0.},
-	{ 5,0.},
-	{ 6,0.},
-	{21,g(x)}
+        {-6,0},
+        {-5,0},
+        {-4,0},
+        {-3,s(x)},
+        {-2,ubar(x)},
+        {-1,dbar(x)},
+        { 1,dbar(x)+dv(x)},
+        { 2,ubar(x)+uv(x)},
+        { 3,s(x)},
+        { 4,0},
+        { 5,0},
+        { 6,0},
+        {21,g(x)}
       };
       return res;
     };
