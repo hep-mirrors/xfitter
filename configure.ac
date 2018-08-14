@@ -208,8 +208,10 @@ if test x$qcdnum_config == x; then
 else 
   QCDNUMVERS=`qcdnum-config --version`
   QCDNUMLIBS=`qcdnum-config --ldflags`
+  QCDNUM_CPPFLAGS=`qcdnum-config --cppflags`
   AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
+  AC_SUBST(QCDNUM_CPPFLAGS)
   AX_COMPARE_VERSION([17-01-13],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-13 or later needed).])],[])
 fi
 
@@ -579,6 +581,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 evolutions/QCDNUM/src/Makefile
 		 pdfparams/BasePdfParam/src/Makefile
 		 pdfparams/HERAPDF_PdfParam/src/Makefile
 		 pdfdecompositions/LHAPDFDecomposition/src/Makefile

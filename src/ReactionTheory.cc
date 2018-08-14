@@ -51,14 +51,17 @@ void ReactionTheory::initAtIteration() {
 }
 
 const pXFXlike  ReactionTheory::getXFX(const string& type) {
-  gProtonPdf = XFITTER_PARS::retrieveXfxQArray("APFELxx:p");
+
+  // XXXXXXXXXXXXXXXXXXXXXX  default evolution
+  std::string evName = XFITTER_PARS::getParameterS("Evolution");
+  gProtonPdf = XFITTER_PARS::retrieveXfxQArray(evName+":p");
 
   // return _xfx[type];
-  std::cout << " here "   <<std::endl;
   double dd[13];
-  gProtonPdf(0.01,1.,dd);
-  std::cout << " ho " << dd[6] << std::endl;
-
+  gProtonPdf(0.01,5.,dd);
+  for (int i=1; i<12; i++) {
+    std::cout << " pdf at x=0.01, q=5: " << i << " val =" << dd[i] << std::endl;
+  }
 
   
   return &protonPDF;
