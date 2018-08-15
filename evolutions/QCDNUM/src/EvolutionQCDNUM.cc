@@ -10,6 +10,7 @@
 #include "QCDNUM/QCDNUM.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
+#include <algorithm>
 
 // Global var to hold current pdfDecomposition
 std::function<std::map<int,double>(double const& x)> gPdfDecomp; 
@@ -20,19 +21,17 @@ double funcPDF(int *ipdf, double *x) {
   return gPdfDecomp(*x)[ip.at(*ipdf)];
 }
 
-// PDF type
-
-int const itype = 1;
-
-// Check or not outside boundaries
-int icheck = 0;
-
-// Number of extra pdfs ( e.g. photon, etc.
-int nEXT = 0;
-
-//
-double epsi = 1e-5;
-
+// helper to parse yaml sequences of uniform type
+template <class T>
+vector<T> getSeq(std::string name) {
+  const  YAML::Node node   = XFITTER_PARS::gParametersY.at("QCDNUM")[name];
+  size_t len = node.size();
+  vector<T> v(len);
+  for (size_t i=0; i<len; i++) {
+    v[i] = node[i].as<T>();
+  }
+  return v;
+}
 
 //
 double static   qcdnumDef[] = {
@@ -89,12 +88,95 @@ namespace xfitter
 
     // Evolution order:
     const int     PtOrder    = OrderMap(XFITTER_PARS::gParametersS.at("Order")) ;
-    QCDNUM::setord(PtOrder);
-    
-    const double* Q0         = XFITTER_PARS::gParameters.at("Q0");
-    const double* Q_ref      = XFITTER_PARS::gParameters.at("Mz");
-    const double* Alphas_ref = XFITTER_PARS::gParameters.at("alphas");
 
+    const double* Q0         = XFITTER_PARS::gParameters.at("Q0");
+    double q20 = (*Q0) * (*Q0);
+
+    const double* Mz      = XFITTER_PARS::gParameters.at("Mz");
+    double mZ2 = (*Mz) * (*Mz);
+
+    const double* mch     = XFITTER_PARS::gParameters.at("mch");
+    const double* mbt     = XFITTER_PARS::gParameters.at("mbt");
+    const double* mtp     = XFITTER_PARS::gParameters.at("mtp");
+    
+    const double* Alphas_ref = XFITTER_PARS::gParameters.at("alphas");
+    const YAML::Node yQCDNUM =  XFITTER_PARS::gParametersY.at("QCDNUM");
+
+    _icheck      = yQCDNUM["ICheck"].as<int>();
+    _splineOrder = yQCDNUM["SplineOrder"].as<int>();
+    _readTables  = yQCDNUM["Read_QCDNUM_Tables"].as<int>();
+
+    // Get grids
+    vector<double> xGrid   = getSeq<double>("xGrid");
+    vector<int>    xGridW  = getSeq<int>("xGridW");
+    vector<double> Q2Grid  = getSeq<double>("Q2Grid");
+    vector<double> Q2GridW = getSeq<double>("Q2GridW");
+
+    int nxgrid             = yQCDNUM["NXbins"].as<int>();
+    int nxout = 0;
+    
+    QCDNUM::setord(PtOrder);
+    std::cout << "Set evolution order "<<PtOrder <<"\n";
+    QCDNUM::gxmake(xGrid.data(),xGridW.data(),xGrid.size(),nxgrid,nxout,_splineOrder); // x-grid
+    std::cout << "Requested (actual) number of x  grid points: "<<nxgrid << "(" << nxout << ")\n";
+
+    // for Q2 grid, add matching points and starting scale
+    Q2Grid.push_back(q20);
+    Q2GridW.push_back(4.0);
+
+    Q2Grid.push_back( (*mch)*(*mch) );
+    Q2GridW.push_back(2.0);
+
+    Q2Grid.push_back( (*mbt)*(*mbt) );
+    Q2GridW.push_back(1.3);
+
+    Q2Grid.push_back( mZ2 );
+    Q2GridW.push_back(1.1);
+
+    //    for (size_t i = 0; i<Q2Grid.size(); i++) {
+    //  std::cout << " Q2= " << Q2Grid[i] << " weight = " << Q2GridW[i] << "\n";
+    //}
+    // sort
+    std::vector < pair<double,double> > tmp;
+    for ( size_t i = 0; i<Q2Grid.size(); i++) {
+      tmp.push_back({Q2Grid[i],Q2GridW[i]});
+    }
+    std::sort(tmp.begin(),tmp.end(), []( pair<double,double> a, pair<double,double> b) {return a.first<b.first;} );
+
+    for ( size_t i = 0; i<Q2Grid.size(); i++) {
+      Q2Grid[i]  = tmp[i].first;
+      Q2GridW[i] = tmp[i].second;
+    }
+    
+    //for (size_t i = 0; i<Q2Grid.size(); i++) {
+    //  std::cout << " Q2= " << Q2Grid[i] << " weight = " << Q2GridW[i] << "\n";
+    //}
+
+    int nq2grid             = yQCDNUM["NQ2bins"].as<int>();
+    int nq2out = 0;
+    
+    QCDNUM::gqmake(Q2Grid.data(), Q2GridW.data(), Q2Grid.size(), nq2grid, nq2out);
+    std::cout << "Requested (actual) number of Q2 grid points: "<<nq2grid << "(" << nq2out << ")\n";
+
+    // set VFNS thresholds
+    int iqc = QCDNUM::iqfrmq( (*mch)*(*mch) + 1.e-6 );
+    int iqb = QCDNUM::iqfrmq( (*mbt)*(*mbt) + 1.e-6 );
+    int iqt = 0;  // top off for now
+
+    // For now VFNS only
+    QCDNUM::setcbt(0,iqc,iqb,iqt);
+    
+    // Init SF
+    int id1=0;      int id2=0;      int nw=0;      int ierr=1;
+    if (_readTables>0 ) {
+      QCDNUM::readwt(22,"unpolarised.wgt",id1,id2,nw,ierr);
+    }
+    // Fill the tables if did not read correctly
+    if (ierr != 0) {
+      QCDNUM::fillwt(0,id1,id2,nw);
+      QCDNUM::dmpwgt(1,22,"unpolarised.wgt");
+    }
+       
     return ;
   }
 
@@ -106,7 +188,13 @@ namespace xfitter
     const double* q0 = XFITTER_PARS::gParameters.at("Q0");
     int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );  
 
-    QCDNUM::evolfg(itype,funcPDF,qcdnumDef,iq0,epsi);
+    const double* Mz      = XFITTER_PARS::gParameters.at("Mz");
+    const double* alphas  = XFITTER_PARS::gParameters.at("alphas");
+    
+    double epsi = 0;
+
+    QCDNUM::setalf(*alphas,(*Mz)*(*Mz));
+    QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
     return ;
   }
 
@@ -116,7 +204,7 @@ namespace xfitter
       std::map<int, double> res;
       for (int ipdf =-6; ipdf<7; ipdf++) {
 	int ii = ( ipdf == 0 ) ? 21 : ipdf ;
-	res[ii] = QCDNUM::fvalxq(itype,ipdf,x,Q*Q,icheck);
+	res[ii] = QCDNUM::fvalxq(_itype,ipdf,x,Q*Q,_icheck);
       }
       return res;
     };
@@ -125,14 +213,14 @@ namespace xfitter
 
   std::function<void(double const& x, double const& Q, double* pdfs)> EvolutionQCDNUM::xfxQArray() {
     const auto _f0 = [=] (double const& x, double const& Q, double* pdfs) {
-      QCDNUM::allfxq(itype,x,Q*Q,pdfs,nEXT,icheck);
+      QCDNUM::allfxq(_itype,x,Q*Q,pdfs,_nExt,_icheck);
     };
     return _f0;
   }
 
   std::function<double(int const& i, double const& x, double const& Q)> EvolutionQCDNUM::xfxQDouble() {
     const auto _f0 = [=] (int const& i, double const& x, double const& Q) -> double {
-      return  QCDNUM::fvalxq(itype,i,x,Q*Q,icheck);
+      return  QCDNUM::fvalxq(_itype,i,x,Q*Q,_icheck);
     };
     return _f0;
   }

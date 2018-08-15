@@ -17,7 +17,7 @@
       if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
      $.or.itheory.eq.35) then
 C Init evolution code:
-         call qcdnum_ini
+ccCC         call qcdnum_ini
 C Init APFEL if needed
          if(itheory.eq.10.or.itheory.eq.35) call apfel_ini
 C Init QEDEVOL if needed

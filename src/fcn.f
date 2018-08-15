@@ -194,7 +194,14 @@ c updf stuff
 
 C Penalty from MINUIT extra parameters constraints
       double precision extraparsconstrchi2
+C---------------------------------------------------
 
+      ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx to be removed
+      if (kmuc .eq. 0) then
+         kmuc = 1.
+         kmub = 1.
+         kmut = 1.
+      endif
 
 C--OZ 21.04.2016 Increment IfcnCount here instead of fcn routine
       IfcnCount=IfcnCount+1
@@ -280,19 +287,19 @@ c        write(6,*) ' fcn npoint ',npoints
 *     ---------------------------------------------------------  	 
 *     Call evolution
 *     ---------------------------------------------------------  	 
-      if (Debug) then
-         print*,'before evolution'
-      endif
-      if (itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
-     1    itheory.eq.35) then         
-         call Evolution
-      elseif(Itheory.ge.100) then
-          firsth=.false.
-      endif
+cc      if (Debug) then
+cc        print*,'before evolution'
+cc      endif
+cc      if (itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
+cc     1    itheory.eq.35) then         
+cc         call Evolution
+cc      elseif(Itheory.ge.100) then
+cc          firsth=.false.
+cc      endif
 
-      if (Debug) then
-         print*,'after evolution'
-      endif
+cc      if (Debug) then
+cc         print*,'after evolution'
+cc      endif
 
 
 	
@@ -601,8 +608,9 @@ C  Hardwire:
                   kflag = 0
                   call SumRules(kflag)
                endif
-               
-               call Evolution
+
+C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX              
+c               call Evolution
 
 C LHAPDF output:
 c WS: for the Offset method save central fit only

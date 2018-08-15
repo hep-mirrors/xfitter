@@ -36,6 +36,22 @@ namespace xfitter
     virtual std::function<double(double const& Q)> AlphaQCD() override final;
   protected:
     virtual int parseOptions(){ return 0;};
+  private:
+    /// PDFs called outside boundaries check:
+    int _icheck{0};
+
+    /// Number of external PDFs
+    int _nExt{0};
+
+    /// PDF type (1 -- unpolorized internal)
+    int _itype{1};
+
+    /// Spline order for interpolation
+    int _splineOrder{2};
+
+    /// Read or not QCDNUM pre-stored tables (makes init faster)
+    int _readTables{0};
+    
   };
 };
 
