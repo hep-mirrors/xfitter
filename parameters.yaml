@@ -2,36 +2,56 @@
 # File to store parameters for theory modules. Overwrites fortran-based ewparam.txt.
 #
 
-#include : test.yaml  # Can include any file
-
 #
 # EW parameters
 #---------------------------
 Mz : 91.1876
-Mw : 80.384
+Mw : 80.385
+Mh : 125.9
+
+Wz : 2.4952
+Ww : 2.085
+Wh : 1d-3
+Wtp : 2.0d0
+
 gf : 1.16638e-5
 convFac : 0.389379338e9
+alphaem : 7.29735e-3
 
-sin2thW : 
-  value : 0.23127
-  step  : 0.0
-
+sin2thW :  0.23127
 Vud : 0.97427
 Vus : 0.2254
 Vub : 0.00358
 Vcd : 0.22520
-Vcs : 0.97344
+Vcs : 0.97344 
 Vcb : 0.04156
 Vtd : 0.00872
 Vts : 0.04076
 Vtb : 0.999133
 
 #
-# quark masses:
+# lepton masses:
+#
+men : 1e-10
+mel : 0.510998928e-3
+mmn : 1e-10
+mmo : 0.1056583715
+mtn : 1e-10
+mta : 1.77682
+
+#
+# Light quark masses:
+#
+mup : 0.06983
+mdn : 0.06983
+mst : 0.150
+
+#
+# Heavy quark masses:
 #------------------
 mch : 1.43 
-mbt : 4.5
-mtp : 175.0
+mbt : 4.50
+mtp : 173.0
 
 #
 # QCD parameters
@@ -70,9 +90,9 @@ FFABM_DISCC:
 # speficify HF scheme used for DIS NC processes:
 #
 hf_scheme_DISNC : 
-  value : 'RT_DISNC'        # global specification 
-#  value : 'FONLL_DISNC'        # global specification 
-#  value : 'FFABM_DISNC'
+  defaultValue : 'RT_DISNC'        # global specification 
+#  defaultValue : 'FONLL_DISNC'        # global specification 
+#  defaultValue : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC'  # datafile specific (based on name)
 #  1 : BaseDISNC  
 #  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see below)
@@ -81,14 +101,14 @@ hf_scheme_DISNC :
 # HF scheme for DIS CC:
 #
 hf_scheme_DISCC :
-  value : 'BaseDISCC'  # this is zero mass scheme
-#  value : 'FONLL_DISCC'        # global specification 
-#  value : 'FFABM_DISCC'
+  defaultValue : 'BaseDISCC'  # this is zero mass scheme
+#  defaultValue : 'FONLL_DISCC'        # global specification 
+#  defaultValue : 'FFABM_DISCC'
 
 #
 # AlphaS, incuding options to fit it:
 #
-alphaS: 
+alphas: 
   value: 0.118
   step:  0.0
   prior: 0.118  
@@ -96,6 +116,10 @@ alphaS:
   min: 0.1
   max: 0.3
 
+# Strange and charm fractions:
+fs: 0.4
+fcharm: 0.
+  
 #
 # APPLgrid settings:
 include : yaml/reactions/APPLgrid/parameters.yaml

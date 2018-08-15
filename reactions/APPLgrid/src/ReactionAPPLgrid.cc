@@ -20,7 +20,7 @@ int ReactionAPPLgrid::initAtStart(const string &s )
 }
 
  // Initialisze for a given dataset:
-void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
+void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
 // Get grid name:
    if ( pars.find("GridName") != pars.end() )  {
      try {
@@ -104,10 +104,10 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
   if (it != pars.end() )
   {
     if(stoi(it->second) == 0)
-      _flagUseReferece[dataSetID] = false;
+      _flagUseReference[dataSetID] = false;
     else if(stoi(it->second) == 1)
     {
-      _flagUseReferece[dataSetID] = true;
+      _flagUseReference[dataSetID] = true;
       // check that reference histogram is available
       for(std::size_t i=0; i<_references[dataSetID].size(); i++)
         if(!_references[dataSetID][i])
@@ -123,7 +123,7 @@ void ReactionAPPLgrid::setDatasetParamters(int dataSetID, map<string,string> par
     double eScale = 1.0;
     if (it != pars.end())
     {
-      if(_flagUseReferece[dataSetID])
+      if(_flagUseReference[dataSetID])
         hf_errlog(17110300, "W: can not apply energy scaling when using predictions from reference histogram");
       else
       {
@@ -147,7 +147,7 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
   {
     auto grid = _grids[dataSetID][g];
     std::vector<double> gridVals(grid->Nobs());
-    if(!_flagUseReferece[dataSetID])
+    if(!_flagUseReference[dataSetID])
     {
       // Convolute the grid:
       switch (_collType[dataSetID])

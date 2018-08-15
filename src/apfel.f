@@ -13,21 +13,20 @@
 #include "extrapars.inc"
 *
       integer GetParameterIndex
-      double precision alphas
+      double precision alphas, getParamD
 *
 *     Reference value of alphas taken from the extraparameters
 *
-      alphas = ExtraParamValue(GetParameterIndex('alphas'))
+      alphas = getParamD('alphas')
 *
 *     Define basic settings
 *
       if(iTheory.eq.35)then
          call SetTheory("QUniD")                 ! Set QCD+QED evolution (default)
-         call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of muF
       else
          call SetTheory("QCD")                   ! Set QCD evolution (default)
-         call SetPDFEvolution("exactalpha")      ! Use DGLAP evolution in terms of alphas (rather than muF => faster for short steps)
       endif
+      call SetPDFEvolution("exactalpha")         ! Use DGLAP evolution in terms of alphas (rather than muF => faster for short steps)
       call SetFastEvolution(.true.)              ! Use fast evolution (default)
       call SetAlphaEvolution("exact")            ! Use exact solution on the beta functions (default)
       call SetQLimits(0.5d0,20000d0)             ! Evolution limits
@@ -51,6 +50,13 @@
          call SetPoleMasses(mch,mbt,mtp)  ! Heavy-quark thresholds in the Pole scheme
       endif
       call SetMassMatchingScales(kmuc,kmub,kmut)
+*
+*     Small-x resummation
+*
+      if(HF_SCHEME(9:12).eq."NLLx")then
+         call SetSmallxResummation(.true.,"NLL")
+         call SetQLimits(1.6d0,4550d0)
+      endif
 *
 *     Initialize APFEL
 *

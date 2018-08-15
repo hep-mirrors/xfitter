@@ -76,7 +76,6 @@ class ReactionTheory
   
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
 
-
   //! Perform optional re-initialization for a given iteration
   virtual void initAtIteration() {};
 
@@ -87,7 +86,7 @@ class ReactionTheory
   virtual void errorBandAction(int ivector) {};
 
   //! Set dataset @param dataSetID parameters which can be term- and dataset-specific
-  virtual void setDatasetParamters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
+  virtual void setDatasetParameters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
 
   //! Main function to compute predictions for @param dataSetID 
   virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;  
@@ -176,7 +175,7 @@ class ReactionTheory
 
 
   // Helper function to get bin values for a given data set, bin name. Returns null if not found
-  valarray<double> *GetBinValues(int idDS, const string& binName)
+  virtual valarray<double> *GetBinValues(int idDS, const string& binName)
   { 
     map<string, valarray<double> >* mapBins =  _dsBins[idDS];
     if (mapBins == nullptr ) {
@@ -192,6 +191,9 @@ class ReactionTheory
       }
     }
   };
+
+  // Add one more array of bins which can be calculated using another provided arrays, but suitable to store and use in caluclations (e.g. in DIS y = Q2 / sx)
+  virtual void AddBinning(int dataSetID, std::pair<string,valarray<double>* >* dsBin){ (*_dsBins[dataSetID])[dsBin->first] = *dsBin->second; } ;
 
  protected:
   string _subtype;

@@ -26,12 +26,12 @@
 class FastNLOxFitter : public fastNLOReader {
 
 public:
-   FastNLOxFitter(string name);
+   FastNLOxFitter(std::string name);
 
 protected:
    // inherited functions
    double EvolveAlphas(double Q ) const ;
    bool InitPDF();
-   vector<double> GetXFX(double xp, double muf) const ;
+   std::vector<double> GetXFX(double xp, double muf) const ;
 };
 #endif

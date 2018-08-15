@@ -43,7 +43,7 @@ public:
 public:
    virtual string getReactionName() const { return  "fastNLO" ;};
    int  initAtStart(const string &) { return 0; } //< nothing todo
-   virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+   virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
    virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
 protected:
    virtual int parseOptions(){ return 0;};

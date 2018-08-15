@@ -100,8 +100,8 @@ int ReactionFFABM_DISCC::initAtStart(const string &s)
   return isout;
 }
 
-void ReactionFFABM_DISCC::setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
-  Super::setDatasetParamters(dataSetID, pars, parsDataset);
+void ReactionFFABM_DISCC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
+  Super::setDatasetParameters(dataSetID, pars, parsDataset);
   // Allocate internal arrays:
   _f2abm[dataSetID].resize(GetNpoint(dataSetID));
   _flabm[dataSetID].resize(GetNpoint(dataSetID));
@@ -162,24 +162,19 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
             }
 
 
-          /*switch ( GetDataType(dataSetID) )
+          switch ( GetDataFlav(dataSetID) )
             {
-            case dataType::sigred :*/
+            case dataFlav::incl :
               _f2abm[dataSetID][i] = f2 + f2c + f2b;
               _flabm[dataSetID][i] = fl + flc + flb;
               _f3abm[dataSetID][i] = x[i] * (f3 + f3c + f3b);
-              /*break;
-            case dataType::f2c :
+              break;
+            case dataFlav::c :
               _f2abm[dataSetID][i] = f2c;
               _flabm[dataSetID][i] = flc;
               _f3abm[dataSetID][i] = x[i] * f3c;
-              break ;
-            case dataType::f2b :
-              _f2abm[dataSetID][i] = f2b;
-              _flabm[dataSetID][i] = flb;
-              _f3abm[dataSetID][i] = x[i] * f3b;
-              break ;
-            }*/
+              break;
+            }
         }
   }
 }

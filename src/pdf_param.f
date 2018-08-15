@@ -23,42 +23,14 @@ C--------------------------------------------------------
 
       double precision fs,rs
       double precision fshermes
-      double precision alphasPDF, StepAlphaS, StepFs
-      double precision Aph, Bph, Cph, Dph, Eph
-      double precision StepAph, StepBph, StepCph, StepDph, StepEph
-      	
+      double precision alphasPDF, StepAlphaS
+      
 C-------------------------------------------------------
-      logical LFirstTime
-      data LFirstTime /.true./
-      integer idxAlphaS, idxRS, idxFCharm, idxFS   !> indices for alphas and fs
-      integer idphA, idphB, idphC, idphD, idphE !> indices for photon Pdf
-      data idphA/0/
-      data idphB/0/
-      data idphC/0/
-      data idphD/0/
-      data idphE/0/
-
+      integer idxAlphaS  !> index for alphas
       integer GetParameterIndex  !> function to read parameter index
 C-------------------------------------------------------
-      integer idxShiftPolLHp   !> indices shiftpol
-      integer idxShiftPolRHp   !> indices shiftpol
-      integer idxShiftPolLHm   !> indices shiftpol
-      integer idxShiftPolRHm    !> indices shiftpol
-      integer idxShiftPolT   !> indices shiftpol
-      integer idxShiftPolL   !> indices shiftpol
       
-C-------------------------------------------------------
-      !> Additional scaling parameter "temperature"
-      integer idxTemperature
-      data idxTemperature/0/
-
-C-------------------------------------------------------
-      integer idxAuEW, idxAdEW, idxVuEW, idxVdEW !> indices for EW param
-      
-      integer idxVcs
-
-      logical LPolFits       !> Logical to init polarisation fits
-      data LPolFits/.false./
+      double precision getParamD
 
 C-------------------------------------------------------
 
@@ -75,183 +47,82 @@ C make sure that par values are updated
          return
       endif
 
-      if (LFirstTime) then    
-         LFirstTime = .false.
-         if (ITheory.eq.11.or.ITheory.eq.35) then
-            idphA = GetParameterIndex('Aph')
-            idphB = GetParameterIndex('Bph')
-            idphC = GetParameterIndex('Cph')
-            idphD = GetParameterIndex('Dph')
-            idphE = GetParameterIndex('Eph')
+      if (ITheory.eq.11.or.ITheory.eq.35) then
 
-            if ((idphA.eq.0).and.(idphB.eq.0).and.(idphC.eq.0).and.
-     $           (idphD.eq.0).and.(idphE.eq.0)) then
-               if( PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0') then
-
-                  print *,'Did not find photon parameters'
-                  print *,'Add to ExtraParamters: Aph,Bph,Cph,Dph,Eph'
-                  Call HF_errlog(15052700,
-     $                 'W: Add to ExtraParamters: Aph,Bph,Cph,Dph,Eph')
-               endif
-
-            else
-               idphA = iExtraParamMinuit(idphA)
-               idphB = iExtraParamMinuit(idphB)
-               idphC = iExtraParamMinuit(idphC)
-               idphD = iExtraParamMinuit(idphD)
-               idphE = iExtraParamMinuit(idphE)
-
-               StepAph=ExtraParamStep(idphA)
-               StepBph=ExtraParamStep(idphB)
-               StepCph=ExtraParamStep(idphC)
-               StepDph=ExtraParamStep(idphD)
-               StepEph=ExtraParamStep(idphE)
-            endif
+         parphoton(1) = GetParamD('Aph')
+         parphoton(2) = GetParamD('Bph')
+         parphoton(3) = GetParamD('Cph')
+         parphoton(4) = GetParamD('Dph')
+         parphoton(5) = GetParamD('Eph')
             
+         if (parphoton(1).eq.0) then
+            if( PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0') then
+               
+               print *,'Did not find photon parameters'
+               print *,'Add to parameters.yanl: Aph,Bph,Cph,Dph,Eph'
+               Call HF_errlog(15052700,
+     $              'W: Add to parameters.yaml: Aph,Bph,Cph,Dph,Eph')
+            endif
          endif
-
-         idxAlphaS = GetParameterIndex('alphas')     
-         if (idxAlphaS.eq.0) then
-            print *,'Did not find alpha_S parameter'
-            print *,'Add to ExtraParamters with the name alphas'
-            call HF_stop
-         else
-            StepAlphaS=ExtraParamStep(idxAlphaS)
-            idxAlphaS = iExtraParamMinuit(idxAlphaS)
-         endif
-
-         idxFS = GetParameterIndex('fs')
-         idxRS = GetParameterIndex('rs')
-
-         if ((idxRS.eq.0).and.(idxFS.eq.0)) then
-            print *,'Did not find fs nor rs parameter'
-            print *,'Add to ExtraParamters with the name rs or fs'
-            Call HF_errlog(13050800,
-     $           'S: Add to ExtraParamters with the name rs or fs')
-         elseif ((idxRS.ne.0).and.(idxFS.ne.0)) then
-            print *,'Use either rs or fs, NOT both:
-     $           Both rs and fs are defined' 
-            Call HF_errlog(13050801,
-     $           'S: Use either rs or fs, NOT both')
-         elseif (idxFS.ne.0) then
-c            print*,'idxFs', idxFs, ExtraParamStep(idxFS),ExtraParamValue(idxFS)
-            idxFS = iExtraParamMinuit(idxFS)
-!            StepFs = ExtraParamStep(idxFS)
-         elseif (idxRS.ne.0) then
-            idxRS = iExtraParamMinuit(idxRS)
-!            StepFs = ExtraParamStep(idxRS)
-         endif
-
-
-         idxFCharm = GetParameterIndex('fcharm')
-         if (idxFCharm.gt.0) then
-            idxFCharm = iExtraParamMinuit(idxFCharm)
-         endif
-
-         idxTemperature = GetParameterIndex('Temperature')
-         if (idxTemperature.gt.0) then
-            idxTemperature = iExtraParamMinuit(idxTemperature)
-         endif
-
-         idxAuEW = GetParameterIndex('auEW')
-         idxAdEW = GetParameterIndex('adEW')
-         idxVuEW = GetParameterIndex('vuEW')
-         idxVdEW = GetParameterIndex('vdEW')
-
-         if (idxAuEW.eq.0.or.idxAdEW.eq.0.or.
-     $        idxVuEW.eq.0.or.idxVdEW.eq.0) then
-         else
-            idxAuEW = iExtraParamMinuit(idxAuEW)
-            idxAdEW = iExtraParamMinuit(idxAdEW)
-            idxVuEW = iExtraParamMinuit(idxVuEW)
-            idxVdEW = iExtraParamMinuit(idxVdEW)
-         endif
-
-         idxVcs = GetParameterIndex('Vcs')
-         if (idxVcs.gt.0) then
-            idxVcs = iExtraParamMinuit(idxVcs)
-            call hf_errlog(20112013,'I:Float Vcs')
-         endif
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-         idxShiftPolLHp = GetParameterIndex('shiftpolLHp')
-         idxShiftPolRHp = GetParameterIndex('shiftpolRHp')
-         idxShiftPolLHm = GetParameterIndex('shiftpolLHm')
-         idxShiftPolRHm = GetParameterIndex('shiftpolRHm')
-         idxShiftPolL = GetParameterIndex('shiftpolL')
-         idxShiftPolT = GetParameterIndex('shiftpolT')
- 
-        if (idxShiftPoLRHm.eq.0.or.
-     $        idxShiftPolRHm.eq.0.or.
-     $        idxShiftPolLHm.eq.0.or.
-     $        idxShiftPolL.eq.0.or.
-     $        idxShiftPolT.eq.0.or.
-     $        idxShiftPolLHp.eq.0) then
-         else
-            idxShiftPolRHm = iExtraParamMinuit(idxShiftPolRHm)
-            idxShiftPolLHm = iExtraParamMinuit(idxShiftPolLHm)
-            idxShiftPolRHp = iExtraParamMinuit(idxShiftPolRHp)
-            idxShiftPolLHp = iExtraParamMinuit(idxShiftPolLHp)
-            idxShiftPolT = iExtraParamMinuit(idxShiftPolT)
-            idxShiftPolL = iExtraParamMinuit(idxShiftPolL)
-            LPolFits = .true.
-         endif
-
-
-
-      endif
-
-C Polarisation shifts extra param
-
-      if (LPolFits) then
-         shift_polRHp=p(idxShiftPolRHp)
-         shift_polLHp=p(idxShiftPolLHp)
-         shift_polLHm=p(idxShiftPolLHm)
-         shift_polRHm=p(idxShiftPolRHm)
-         shift_polL=p(idxShiftPolL)
-         shift_polT=p(idxShiftPolT)
       else
-         shift_polRHp=0.0
-         shift_polLHp=0.0
-         shift_polLHm=0.0
-         shift_polRHm=0.0
-         shift_polL  =0.0
-         shift_polT  =0.0
+         do i=1,5
+            parphoton(i) = 0.
+         enddo
       endif
-
-
-
-
-C EW extra param
-      IF (idxAuEw.gt.0) then
-         cau_ew=p(idxAuEW)
-         cad_ew=p(idxAdEW)
-         cvu_ew=p(idxVuEW)
-         cvd_ew=p(idxVdEW)
-      else
-         cau_ew = 0.
-         cad_ew = 0.
-         cvu_ew = 0.
-         cvd_ew = 0.
-      endif
-
-
-C "Temperature"
-      if (idxTemperature.gt.0) then
-         Temperature = p(idxTemperature)
-         print *,'Temperature=',Temperature
-      endif
-
 
 C Get from extra pars:
-      alphas=p(idxAlphaS)      
-      
-      if (idxFS.ne.0) then
-         fstrange=p(idxFS)
-      elseif (idxRS.ne.0) then
-         fstrange=p(idxRS)/(p(idxRS)+1)
+      alphas=getParamD('alphas')
+
+      if (alphas.eq.0) then
+         call hf_errlog(2018031901,
+     $   'S: AlphaS is not set or set to zero. Check parameters.yaml')
       endif
+         
+      idxAlphaS = GetParameterIndex('alphas')     
+      if (idxAlphaS.ne.0) then
+         StepAlphaS=ExtraParamStep(idxAlphaS)
+         idxAlphaS = iExtraParamMinuit(idxAlphaS)
+      else
+         StepAlphaS = 0.0
+      endif
+         
+      fstrange=GetParamD('fs')
+      if (fstrange.eq.0) then
+         rs = GetParamD('rs')
+         fstrange=rs/(rs+1)
+      endif
+
+      if (fstrange.eq.0) then
+         print *,'Did not find fs nor rs parameter'
+         print *,'Add to parameters.yaml with the name rs or fs'
+         Call HF_errlog(13050800,
+     $        'S: Add to parameters.yaml with the name rs or fs')
+      endif
+! Temperature
+      fcharm = GetParamD('fcharm')
+      temperature = GetParamD('Temperature')
+      if (temperature.ne.0) then
+         print *,'Temperature=',Temperature
+      endif
+         
+! EW parameters
+      cau_ew=GetParamD('auEW')
+      cad_ew=GetParamD('adEW')
+      cvu_ew=GetParamD('vuEW')
+      cvd_ew=GetParamD('vdEW')
+
+! Update EWK / QCD parameters:
+      call update_pars_fortran()
+
+ ! special for polarisation fits:
+
+      shift_polRHp=GetParamD('shiftpolLHp')
+      shift_polLHp=GetParamD('shiftpolRHp')
+      shift_polLHm=GetParamD('shiftpolLHm')
+      shift_polRHm=GetParamD('shiftpolRHm')
+      shift_polL=GetParamD('shiftpolL')
+      shift_polT=GetParamD('shiftpolT')
+      
 C In case PDF and alphas needs to be read from LHAPDF (iparam=0, ipdfset=5)
 C maybe instead warning message should be issued
       
@@ -266,40 +137,13 @@ C maybe instead warning message should be issued
          endif
       endif
          
-
-
 C Hermes strange prepare:
       if (ifsttype.eq.0) then
          fs = fstrange
       else
          fs = fshermes(0.D0)
       endif
-     
 
-      if (q0.ge.qc.and.idxfcharm.gt.0) then
-         fcharm=p(idxFCharm)
-      else
-         fcharm=0.
-      endif
-
-
-      if (idxVcs.gt.0) then
-         Vcs = p(idxVcs)
-      endif
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!
-
-C 10 Aug 2011: Standard parametrisation:
-      if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0).or. 
-     $    (idphD.ne.0).or.(idphE.ne.0))then
-         parphoton(1)= p(idphA)
-         parphoton(2)= p(idphB)
-         parphoton(3)= p(idphC)
-         parphoton(4)= p(idphD)
-         parphoton(5)= p(idphE)
-      endif
       Call DecodePara(p)
 
 
@@ -311,16 +155,11 @@ C  25 Jan 2011: Poly params for valence:
 C  22 Apr 2011: CT parameterisation:
       if (PDFStyle.eq.'CTEQ'.or.PDFStyle.eq.'CTEQHERA') then
          Call DecodeCtPara(p)
-         if ((idphA.ne.0).or.(idphB.ne.0).or.(idphC.ne.0).or.
-     $    (idphD.ne.0).or.(idphE.ne.0))then
-         ctphoton(1)= p(idphA)
-         ctphoton(2)= p(idphB)
-         ctphoton(3)= p(idphC)
-         ctphoton(4)= p(idphD)
-         ctphoton(5)= p(idphE)
-
-         endif
-
+         ctphoton(1)=  GetParamD('Aph')
+         ctphoton(2)=  GetParamD('Bph')
+         ctphoton(3)=  GetParamD('Cph')
+         ctphoton(4)=  GetParamD('Dph')
+         ctphoton(5)=  GetParamD('Eph')
       endif
 
 C  22 Sep 2011: AS parameterisation:
