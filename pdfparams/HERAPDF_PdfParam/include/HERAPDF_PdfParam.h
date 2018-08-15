@@ -8,7 +8,14 @@
 
   @brief A class for HERAPDF_ pdf parameterisation
 
-  Based on the ReactionTheory class. Reads options produces 3d cross section.
+  HERAPDF - style parameterisation:
+  xf(x)=A*x^B*(1-x)^C*(1+P(x))
+  where P(x) is a polynomial with other parameters as coefficients
+
+  Number of parameters may vary, but at least 3, corresponding to A,B,C
+
+  In terms of indexed parameters:
+  xf(x)=par_0*x^par_1*(1-x)^par_2*(1+sum_{i=3}^{N}{par_i*x^(i-2)})
 
   @version 0.2
   @date 2018-08-14

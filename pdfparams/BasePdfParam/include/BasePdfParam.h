@@ -26,30 +26,29 @@
 
 class BasePdfParam{
 public:
-  //Default constructor. Name is the unique name of instance
   BasePdfParam(const std::string&instance_name):_name(instance_name),pars{nullptr},Npars(0){}
   ~BasePdfParam(){if(pars)delete[]pars;}
   void               setNPar(unsigned int N){Npars=N;}
   const unsigned int getNPar()const{return Npars;}
-  //Evaluate xf(x) at given x with current parameters, pure virtual
+  //!Evaluate xf(x) at given x with current parameters, pure virtual
   virtual double operator()(double x)const=0;
-  //Calculate n-th moment, e.g. \int_0^1 x^n*xf(x) dx
-  //Note that we parametrise xf(x), not f(x)
-  //Therefore, moment(-1) should be used for valence sums, and moment(0) for momentum sum
+  //!Calculate n-th moment, e.g. \int_0^1 x^n*xf(x) dx
+  //!Note that we parameterise xf(x), not f(x)
+  //!Therefore, moment(-1) should be used for valence sums, and moment(0) for momentum sum
   virtual double  moment(int nMoment=-1)const;
-  //Rescale some parameters so that the n-th moment has a given value
-  //A typical implementation will probably do this by setting *pars[0]
+  //!Rescale some parameters so that the n-th moment has a given value
+  //!A typical implementation will probably do this by setting *pars[0]
   virtual void setMoment(int nMoment,double value);
-  //Get name of the instance
+  //!Get name of the instance
   const std::string getName()const{return _name;} 
-  //Initialize from a yaml node. Uses node[getName] as the basis
+  //!Initialize from a yaml node. Uses node[getName] as the basis
   virtual void initFromYaml(YAML::Node value);
 protected:
-  //Unique name of instance
+  //!Unique name of instance
   std::string _name;
-  //Array of pointers to some global locations where minimization parameters are stored
+  //!Array of pointers to some global locations where minimization parameters are stored
   //TODO: Implement proper pars initialization from YAML
   double**pars;
-  //Number of parameters, which is also the size of the array **parameters defined above
+  //!Number of parameters, which is also the size of the array **parameters defined above
   unsigned int Npars;
 };
