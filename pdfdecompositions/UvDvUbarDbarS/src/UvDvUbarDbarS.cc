@@ -83,8 +83,8 @@ namespace xfitter
   std::unique_ptr<double[]> UvDvUbarDbarS::getParValues(BasePdfParam const* param) const {
     std::unique_ptr<double[]> pars( new double[param->getNPar()] );
     for (unsigned int i=0; i<param->getNPar(); i++) {
-      const std::string pnam = getName() + "_" + param->getName() + "_p" +  std::to_string(i) ;
-      pars[i] = *XFITTER_PARS::gParameters[pnam];
+      const std::string pnam=param->getName()+ "_p" +  std::to_string(i) ;
+      pars[i] = *XFITTER_PARS::gParameters.at(pnam);
     }
     return pars;
   }

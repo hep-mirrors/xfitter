@@ -74,9 +74,9 @@ void BasePdfParam::initFromYaml(YAML::Node value) {
       double priorVal=0;
       double priorUnc=0;
       int add = true;
-      (*pars[i])=val;
       addexternalparam_(pnam.c_str(),val,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,pnam.size());
-      cout<<pnam<<"="<<val<<endl;
+			pars[i]=XFITTER_PARS::gParameters.at(pnam);
+      cout<<pnam<<"="<<(*pars[i])<<endl;
     }
   }else{
     cout<<"ERROR["<<_name<<"]: initFromYaml: parameter is not a sequence!"<<endl;
