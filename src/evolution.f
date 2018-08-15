@@ -182,21 +182,21 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
 
 C ---- LHAPDF ----
       if(IPDFSET.eq.5) then
-         call PDFEXT(LHAPDFsubr,IPDFSET,NextraSets,dble(0.001),epsi)
+         call EXTPDF(LHAPDFsubr,IPDFSET,NextraSets,dble(0.001),epsi)
          return
 C ---- APFEL ----
       elseif (IPDFSET.eq.7) then
          if(itheory.eq.35)then
             q2p = starting_scale
             call SetPDFSet("external")
-            call PDFEXT(APFELsubrPhoton,IPDFSET,1,dble(0.001),epsi)
+            call EXTPDF(APFELsubrPhoton,IPDFSET,1,dble(0.001),epsi)
          else
 *     6 flavours (default)
             q2p = starting_scale
             call SetPDFSet("external")
             call SetMaxFlavourPDFs(6)
             call SetMaxFlavourAlpha(6)
-            call PDFEXT(APFELsubr,IPDFSET,0,dble(0.001),epsi)
+            call EXTPDF(APFELsubr,IPDFSET,0,dble(0.001),epsi)
 C
 C     If the use of the H-VFNS is required, enable the evolutions
 C     with different values of NFmax
@@ -207,26 +207,26 @@ C
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(5)
                call SetMaxFlavourAlpha(5)
-               call PDFEXT(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
+               call EXTPDF(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
 *     4 flavours (redefine alphas)
                q2p   = starting_scale
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(4)
                call SetMaxFlavourAlpha(4)
-               call PDFEXT(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
+               call EXTPDF(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
 *     3 flavours (redefine alphas)
                q2p   = starting_scale
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(3)
                call SetMaxFlavourAlpha(3)
-               call PDFEXT(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
+               call EXTPDF(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
             endif
          endif
          return
 C ---- QEDEVOL ----
       elseif (IPDFSET.eq.8) then
          call qedevol_main
-CC         call PDFEXT(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
+CC         call EXTPDF(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
          return
       endif
 
@@ -482,24 +482,44 @@ c         q0 = sqrt(starting_scale)
       return
       end
 
-      Subroutine LHAPDFsubr(x, qmu2, xf)
-C-------------------------------------------------------
+
+      double precision function LHAPDFsubr(ipdf,x, qmu2,first)
+C--------H-A-----------------------------------------------
 C
 C External PDF reading for QCDNUM
 C
 C--------------------------------------------------------
-      implicit none
-#include "steering.inc"
 
-      double precision x,qmu2
-      double precision xf(-6:7)
+      implicit double precision (a-h,o-z)
+      dimension xf(-6:7)
+#include "steering.inc"
+      logical first
       if ( ExtraPdfs ) then
          call evolvePDFphoton(x, sqrt(qmu2), xf, xf(7))
       else
          call evolvePDF(x, sqrt(qmu2), xf)
-      endif      
+
+      endif
+      if(first) func = 0.D0
+      if(ipdf.eq. 0) func = xf(0)
+      if(ipdf.eq. 1) func = xf(2)
+      if(ipdf.eq. 2) func = xf(1)
+      if(ipdf.eq. 3) func = xf(3)
+      if(ipdf.eq. 4) func = xf(-2)
+      if(ipdf.eq. 5) func = xf(-1)
+      if(ipdf.eq. 6) func = xf(-3)
+      if(ipdf.eq. 7) func = 0.D0
+      if(ipdf.eq. 8) func = 0.D0
+      if(ipdf.eq. 9) func = 0.D0
+      if(ipdf.eq.10) func = 0.D0
+      if(ipdf.eq.11) func = 0.D0
+      if(ipdf.eq.12) func = 0.D0
+      if(ipdf.eq.13) func = xf(7)
+
+      return
       end
 
+c --------------------------
       Subroutine APFELsubr(x, qmu2, xf)
 C-------------------------------------------------------
 C
