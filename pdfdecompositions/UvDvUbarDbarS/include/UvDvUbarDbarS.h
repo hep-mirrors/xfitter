@@ -40,7 +40,7 @@ namespace xfitter
     std::unique_ptr<double[]> getParValues(BasePdfParam const* param) const;
 
     /// Get valence
-    double valence(double x, std::string const& name, double sum) const;
+    double valence(double x,const std::string&name)const;
 
     /// Get sea
     double sea(double x, std::string const& name) const;
@@ -62,10 +62,5 @@ namespace xfitter
 
     /// Get g
     double g(double x) const;
-
-  private:
-    /// sum-rule fixed parameters
-    double _uSum,  _dSum, _gSum;
-    
   };
 }

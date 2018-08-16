@@ -1,10 +1,22 @@
-#include "BasePdfParam.h"
-#include <cmath>
-#include <memory>
-#include <iostream>
+#include"BasePdfParam.h"
+#include"xfitter_pars.h"
+#include<cmath>
+#include<memory>
+#include<iostream>
 
+/// TEMPORARY XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+extern "C" {
+  /// Interface to minuit parameters
+  void addexternalparam_(const char name[],  const double &val, 
+                         const double  &step,
+                         const double &min, const double &max, 
+                         const double &prior, const double &priorUnc,
+                         const int &add, 
+                         map<std::string,double*> *map,
+                         int len);
+}
 /// Implement numeric integration
-double BasePdfParam::moment( double const* pars, int const iMoment) const {
+double BasePdfParam::moment(int iMoment)const{
   /// Simple rule, split log/lin spacing at xsplit=0.1
 
   const double xsplit = 0.1;
@@ -23,38 +35,52 @@ double BasePdfParam::moment( double const* pars, int const iMoment) const {
   // log x part:
   for (int i=0; i<nlog; i++) {
     double dx = pow(10,xminlog+(i+1)*xsteplog) - pow(10,xminlog+i*xsteplog);
-    double val = compute(x+dx/2.,pars)*pow(x+dx/2.,iMoment);
+    double val = (*this)(x+dx/2.)*pow(x+dx/2.,iMoment);
     x += dx;
     sum += dx*val;
   }
   // lin x part:
   for (int i=0; i<nlin; i++) {
     double dx = xsteplin;
-    double val = compute(x+dx/2.,pars)*pow(x+dx/2.,iMoment);
+    double val = (*this)(x+dx/2.)*pow(x+dx/2.,iMoment);
     x += dx;
     sum += dx*val;
   }
   
   return sum;
 }
-
-
-double*  BasePdfParam::initFromYaml(YAML::Node value) {
-  std::cout << " here here " << value << std::endl;
-  if ( value.IsSequence() ) {
-    size_t len = value.size();
-
-    std::cout << len << std::endl;
-    SetNPar(len);
-    double *pars = new double[len];
-
-    for (size_t i=0; i<len; i++) {
-      pars[i] = value[i].as<double>();
+void BasePdfParam::setMoment(int nMoment,double value){
+  *pars[0]=1;
+  *pars[0]=value/moment(nMoment);
+}
+void BasePdfParam::initFromYaml(YAML::Node value) {
+  // HARDWIRE A BIT FOR NOW XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  //TODO rewrite this for a different, new YAML format
+  using namespace std;
+  using uint=unsigned int;
+  cout<<"DEBUG["<<_name<<"]: initFromYaml: value="<<value<<endl;
+  if(value.IsSequence()){
+    Npars=value.size();
+    cout<<Npars<<endl;
+    pars=new double*[Npars];
+    // HARDWIRE old-way for now:  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    for(uint i=0;i<Npars;++i){
+      // get a good name
+      const std::string pnam=_name+"_p"+std::to_string(i);
+      double val     =value[i].as<double>();
+      double step    =fabs(val)/100.;       /// if 0, parameter is fixed !!! 
+      double minv    =0;
+      double maxv    =0;
+      double priorVal=0;
+      double priorUnc=0;
+      int add = true;
+      addexternalparam_(pnam.c_str(),val,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,pnam.size());
+			pars[i]=XFITTER_PARS::gParameters.at(pnam);
+      cout<<pnam<<"="<<(*pars[i])<<endl;
     }
-    return pars;
+  }else{
+    cout<<"ERROR["<<_name<<"]: initFromYaml: parameter is not a sequence!"<<endl;
   }
-  else {
-    return nullptr;
-  }
+  //TODO: Handle possible errors
 }
 

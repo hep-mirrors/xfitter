@@ -7,43 +7,48 @@
 /**
   @class BasePdfParam
 
-  @brief Base class to develop PDF parameterisations
+  @brief Base class for PDF parameterisations
 
-  Contains methods to compute PDF value at given x as well as integrals
+  Represents a function xf(x) that depends on x and some external parameters --- xf(x,A,B,C,...)
+  Has methods to
+  *Evaluate the function at given x and current (globally stored) parameters
+  *Calculate n-th moment, e.g. \int_0^1 x^n*xf(x) dx
+  *Rescale some parameters so that the n-th moment has a given value
 
-  @version 0.1
-  @date 2018-07-11
+  Parameterisations keeps pointers to its parameters.
+
+  Parameterisations are initialised by parsing instance-specific YAML nodes
+  Concrete implementations of BasePdfParam must be able to get their parameters and any/all additional options
+
+  @version 0.2
+  @date 2018-08-13
   */
 
-class BasePdfParam {
- public:
-
-  /// Default constructor. Name is the PDF name
-  BasePdfParam(const std::string& inName): _name(inName),_npar(0) {}
-
-  /// Set number of parameters
-  void SetNPar(int npar) { _npar = npar;}
-  
-  /// Compute xf(x,pars). Pure virtual method
-  virtual double compute( double const x, double const* pars) const = 0;
-
-  /// Compute moments of xf(x) ( for i=-1  of f(x) ), needed for sum-rules
-  virtual double moment( double const* pars, int const iMoment = 0) const ;
-
-  /// Return number of parameters
-  const int getNPar() const {return _npar;} 
-
-  /// Get name of the PDF object
-  const std::string getName() const {return _name;} 
-
-  /// Get initial values from a yaml node. Uses node[getName] as the basis
-  double* initFromYaml(YAML::Node value) ;
-  
- private:
-  /// Name of the PDF object (e.g. uv, dv ...)
+class BasePdfParam{
+public:
+  BasePdfParam(const std::string&instance_name):_name(instance_name),pars{nullptr},Npars(0){}
+  ~BasePdfParam(){if(pars)delete[]pars;}
+  void               setNPar(unsigned int N){Npars=N;}
+  const unsigned int getNPar()const{return Npars;}
+  //!Evaluate xf(x) at given x with current parameters, pure virtual
+  virtual double operator()(double x)const=0;
+  //!Calculate n-th moment, e.g. \int_0^1 x^n*xf(x) dx
+  //!Note that we parameterise xf(x), not f(x)
+  //!Therefore, moment(-1) should be used for valence sums, and moment(0) for momentum sum
+  virtual double  moment(int nMoment=-1)const;
+  //!Rescale some parameters so that the n-th moment has a given value
+  //!A typical implementation will probably do this by setting *pars[0]
+  virtual void setMoment(int nMoment,double value);
+  //!Get name of the instance
+  const std::string getName()const{return _name;} 
+  //!Initialize from a yaml node. Uses node[getName] as the basis
+  virtual void initFromYaml(YAML::Node value);
+protected:
+  //!Unique name of instance
   std::string _name;
-  /// Number of parameters
-  int _npar;
-  
-  /// Vector of parameters. Parameters are pointers to doubles
+  //!Array of pointers to some global locations where minimization parameters are stored
+  //TODO: Implement proper pars initialization from YAML
+  double**pars;
+  //!Number of parameters, which is also the size of the array **parameters defined above
+  unsigned int Npars;
 };
