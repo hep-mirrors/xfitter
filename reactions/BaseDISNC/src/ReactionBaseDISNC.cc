@@ -9,6 +9,7 @@
 #include "ReactionBaseDISNC.h"
 #include <iostream>
 #include <cstdio>
+#include "QCDNUM/QCDNUM.h"
 
 template <typename T>
 void print(T d) {
@@ -47,6 +48,9 @@ extern "C" ReactionBaseDISNC* create() {
 // Initialize at the start of the computation
 int ReactionBaseDISNC::initAtStart(const string &s)
 {
+  ///
+  int nwords;
+  QCDNUM::zmfillw(nwords);
   return 0;
 }
 
