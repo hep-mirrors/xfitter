@@ -45,6 +45,7 @@ C
          call SetPDFStyle
       endif   ! Itheory < 100
 
+      call read_sumrules
       call read_mcerrorsnml  ! MC uncertainties
       call read_chebnml      ! chebyshev parameterisation extra pars
       call read_polynml
@@ -115,8 +116,10 @@ C------------------------------------------------------
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
 
-      PDFStyle  = 'HERAPDF'
+      PDFStyle = 'HERAPDF'
       PDFType  = 'proton'
+      uvalSum  = 2D0
+      dvalSum  = 1D0
 
       H1QCDFUNC= .False.
 C=================================================
@@ -583,7 +586,22 @@ C---
       call HF_stop
 
       end
-
+C
+!> Read number of valence up and down quarks for sum rules
+C-------------------------------------------------------
+      subroutine read_sumrules
+        implicit none
+#include "pdfparam.inc"
+        namelist/sumrule_sums/uvalSum,dvalSum
+        open(51,file='steering.txt',status='old')
+        read(51,nml=sumrule_sums,ERR=1718,end=1717)
+ 1717   continue
+        close(51)
+        return
+ 1718   continue
+        print '(''Error reading namelist &sumrule_sums, STOP'')'
+        call HF_stop
+      end
 C
 !> Read MC errors namelist
 C-------------------------------------------------------

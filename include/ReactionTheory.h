@@ -24,7 +24,7 @@ typedef double (*pTwoParFunc)(const double&, const double& );
 typedef void   (*pThreeParSub)(const double& , const double&, const double&);  
 
 // Function to emulate LHAPDF xfx behavior:
-typedef void   (*pXFXlike)(const double&, const double&, double*);
+typedef void   (*pXFXlike)(const double&x,const double&Q,double*results);
 
 //using pZeroParFunc = std::function< double() >;
 //using pOneParFunc  = std::function< double(const double&) >;

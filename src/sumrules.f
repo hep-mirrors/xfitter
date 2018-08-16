@@ -37,8 +37,8 @@
       double precision tstr,tNoGlue,tPho
 *add for mixed CTEQHERA
       double precision SumRuleCTEQ, SumRuleCTEQhera
-
 C-----------------------------------------
+      
       kflag=0
       zero = 1d-10
 
@@ -85,7 +85,7 @@ C*     -- sum rule : D - Dbar = 1   :  gives ADval
 C*
 
          if (pardval(1).eq.0) then
-            pardval(1) = 1.0d0/CalcIntPdf(pardval)
+            pardval(1)=dvalSum/CalcIntPdf(pardval)
          else
             dv_sum = pardval(1)*CalcIntPdf(pardval)
          endif
@@ -94,10 +94,11 @@ C**********************************************************
 C*     -- sum rule : U - Ubar = 2   :  gives AUval
 C*
          if (paruval(1).eq.0) then
-            paruval(1) = 2.0D0/CalcIntPdf(paruval)
+            paruval(1)=uvalSum/CalcIntPdf(paruval)
          else
             uv_sum = paruval(1)*CalcIntPdf(paruval)/2.
          endif
+C*     --TODO: cvalSum sumrule here? 
             
 C Also integrate momenta, for momentum sum rule:
          tUv = paruval(1)*CalcIntXpdf(paruval)
@@ -934,11 +935,11 @@ C---------------------------------------------------------------
 
 C Counting sum-rule for uv:
       sumUv = SumRuleASpar(-1,asuval)
-      asuval(1) = 2.0D0 / sumUv
+      asuval(1) = uvalSum / sumUv
 
 C Counting sum-rule for dv:
       sumDv = SumRuleASpar(-1,asdval)
-      asdval(1) = 1.0D0 / sumDv
+      asdval(1) = dvalSum / sumDv
 
 C Momentum sum rule:
       sumMom = 2.D0*asubar(1)*SumRuleASpar(0,asubar) +
@@ -1150,11 +1151,11 @@ C---------------------------------------------------------------
 
 C Counting sum-rule for uv:
       sumUv = SumRuleCTEQ(-1,ctuval)
-      ctuval(1) = 2.0D0 / sumUv
+      ctuval(1) = uvalSum / sumUv
 
 C Counting sum-rule for dv:
       sumDv = SumRuleCTEQ(-1,ctdval)
-      ctdval(1) = 1.0D0 / sumDv
+      ctdval(1) = dvalSum / sumDv
 
 C Momentum sum rule:
 C----------------
@@ -1166,7 +1167,6 @@ C Sea:
       else
          tStr = 0               ! Strange already included in Dbar
       endif
-
 
       sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
      $     2.D0*ctdbar(1)*SumRuleCTEQ(0,ctdbar) +
@@ -1228,11 +1228,11 @@ C---------------------------------------------------------------
 
 C Counting sum-rule for uv:
       sumUv = SumRuleCTEQhera(-1,ctuval)
-      ctuval(1) = 2.0D0 / sumUv
+      ctuval(1) = uvalSum / sumUv
 
 C Counting sum-rule for dv:
       sumDv = SumRuleCTEQhera(-1,ctdval)
-      ctdval(1) = 1.0D0 / sumDv
+      ctdval(1) = dvalSum / sumDv
 
 C Momentum sum rule:
 C----------------
