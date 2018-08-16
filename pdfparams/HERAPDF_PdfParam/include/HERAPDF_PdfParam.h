@@ -8,20 +8,21 @@
 
   @brief A class for HERAPDF_ pdf parameterisation
 
-  Based on the ReactionTheory class. Reads options produces 3d cross section.
+  HERAPDF - style parameterisation:
+  xf(x)=A*x^B*(1-x)^C*(1+P(x))
+  where P(x) is a polynomial with other parameters as coefficients
 
-  @version 0.1
-  @date 2018-07-11
+  Number of parameters may vary, but at least 3, corresponding to A,B,C
+
+  In terms of indexed parameters:
+  xf(x)=par_0*x^par_1*(1-x)^par_2*(1+sum_{i=3}^{N}{par_i*x^(i-2)})
+
+  @version 0.2
+  @date 2018-08-14
   */
 
-class HERAPDF_PdfParam : public BasePdfParam
-{
+class HERAPDF_PdfParam:public BasePdfParam{
   public:
-     /// Default constructor. Name is the PDF name
-     HERAPDF_PdfParam (const std::string& inName) : BasePdfParam(inName) {}
-     /// Compute xf(x,pars). Pure virtual method
-     virtual double compute( double const x, double const* pars) const override final;
-    
-     /// (optionally) compute moments:
-     // virtual double moment( double const* pars, int const iMoment = 1) override final;
+    HERAPDF_PdfParam(const std::string&inName):BasePdfParam(inName){}
+    virtual double operator()(double x)const override final;
 };

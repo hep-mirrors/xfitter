@@ -9,18 +9,17 @@
 #include <cmath>
 
 // Main function to compute PDF
-double HERAPDF_PdfParam::compute(double const x, double const* pars) const
-{
+double HERAPDF_PdfParam::operator()(double x)const{
   const int npar = getNPar();
   if (npar<3) {
     return NAN;
   }
-  double power = pars[0]*pow(x,pars[1])*pow((1-x),pars[2]);
+  double power=(*pars[0])*pow(x,(*pars[1]))*pow((1-x),(*pars[2]));
   double poly = 1;
   double xx = 1;
   for (int i = 3; i<npar; i++) {
     xx *= x;
-    poly += pars[i]*xx;
+    poly+=(*pars[i])*xx;
   }
   return power*poly;
 }
