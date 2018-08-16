@@ -97,9 +97,9 @@ namespace xfitter
 
     const double* mch     = XFITTER_PARS::gParameters.at("mch");
     const double* mbt     = XFITTER_PARS::gParameters.at("mbt");
-    const double* mtp     = XFITTER_PARS::gParameters.at("mtp");
+
+    //  const double* mtp     = XFITTER_PARS::gParameters.at("mtp");   // no top PDF treatment yet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     
-    const double* Alphas_ref = XFITTER_PARS::gParameters.at("alphas");
     const YAML::Node yQCDNUM =  XFITTER_PARS::gParametersY.at("QCDNUM");
 
     _icheck      = yQCDNUM["ICheck"].as<int>();
@@ -186,7 +186,7 @@ namespace xfitter
     gPdfDecomp = _inPDFs;
     // XXXXXXXXXXXXXX
     const double* q0 = XFITTER_PARS::gParameters.at("Q0");
-    int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );  
+    int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
 
     const double* Mz      = XFITTER_PARS::gParameters.at("Mz");
     const double* alphas  = XFITTER_PARS::gParameters.at("alphas");
@@ -226,5 +226,11 @@ namespace xfitter
   }
 
   std::function<double(double const& Q)> EvolutionQCDNUM::AlphaQCD() {
+    const auto _f0 = [=] (double  const& Q) -> double {
+      int nfout;
+      int ierr;
+      return QCDNUM::asfunc(Q*Q,nfout,ierr);
+    };
+    return _f0;
   }
 }
