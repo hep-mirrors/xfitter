@@ -53,7 +53,7 @@ namespace xfitter
     xsumq+=2*getPdfParam("xdbar")->moment(0);
     xsumq+=2*getPdfParam("xs"   )->moment(0);
     // gluon part
-    getPdfParam("xg")->setMoment(0,xsumq);
+    getPdfParam("xg")->setMoment(0,1-xsumq);
 
     printParams();
   }
