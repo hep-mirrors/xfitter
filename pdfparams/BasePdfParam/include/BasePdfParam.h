@@ -27,7 +27,7 @@
 class BasePdfParam{
 public:
   BasePdfParam(const std::string&instance_name):_name(instance_name),pars{nullptr},Npars(0){}
-  ~BasePdfParam(){if(pars)delete[]pars;}
+  virtual~BasePdfParam(){if(pars)delete[]pars;}
   void               setNPar(unsigned int N){Npars=N;}
   const unsigned int getNPar()const{return Npars;}
   //!Evaluate xf(x) at given x with current parameters, pure virtual

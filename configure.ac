@@ -583,6 +583,7 @@ AC_CONFIG_FILES([include/Makefile
 		 pdfparams/HERAPDF_PdfParam/src/Makefile
 		 pdfdecompositions/LHAPDFDecomposition/src/Makefile
 		 pdfdecompositions/UvDvUbarDbarS/src/Makefile
+		 pdfdecompositions/GRV_PionPdfDecomposition/src/Makefile
 		 pdfdecompositions/BasePdfDecomposition/src/Makefile
 		 reactions/KFactor/src/Makefile
 		 reactions/BaseDISCC/src/Makefile

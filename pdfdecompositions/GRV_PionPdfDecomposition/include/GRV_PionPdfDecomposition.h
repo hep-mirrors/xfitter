@@ -32,6 +32,7 @@ class GRV_PionPdfDecomposition:public BasePdfDecomposition{
 		GRV_PionPdfDecomposition(const std::string& inName);
 		~GRV_PionPdfDecomposition();
 		virtual void initAtStart(const std::string & pars) override final;
+		virtual void initAtIteration()override final;
 		virtual std::function<std::map<int,double>(const double& x)>f0()const override final; 
 	private:
 		BasePdfParam*par_v,*par_qbar,*par_g;
