@@ -16,5 +16,6 @@ FONLL_DISNC libfonll_disnc_xfitter.so
 FONLL_DISCC libfonll_discc_xfitter.so
 BaseEvolution libbaseevolution_xfitter.so
 APFELxx libapfelxx_xfitter.so
+QCDNUM libqcdnum_xfitter.so
 UvDvubardbars libuvdvubardbars_xfitter.so
 GRV_PionPdfDecomposition libGRV_PionPdfDecomposition_xfitter.so

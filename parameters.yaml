@@ -5,7 +5,7 @@
 #
 # default evolution:
 #
-Evolution : APFELxx
+Evolution :   QCDNUM
 
 #
 # default PDF decomposition 
@@ -17,7 +17,7 @@ include : "yaml/pdfdecompositions/UvDvUbarDbarS/parameters.yaml"
 #
 # Initial scale
 #---------------------------
-Q0 : 1.378
+Q0 : 1.378404875209
 
 #
 # EW parameters
@@ -142,3 +142,8 @@ hf_scheme_DISCC :
 # Load APFEL++
 #---------------------------
 include : yaml/evolutions/APFELxx/parameters.yaml
+
+#
+# Load QCDNUM
+#---------------------------
+include : yaml/evolutions/QCDNUM/parameters.yaml

@@ -320,7 +320,7 @@ void init_at_iteration_() {
 
     // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     const auto f = evolution.second->xfxQDouble();
-    std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
+    //    std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
     const std::string evolName = evolution.second->getName() +":p";
     
     XFITTER_PARS::registerXfxQArray(evolName,evolution.second->xfxQArray());

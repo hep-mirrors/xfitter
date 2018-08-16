@@ -8,6 +8,7 @@
 
 #include "ReactionBaseDISCC.h"
 #include <iostream>
+#include  "QCDNUM/QCDNUM.h"
 
 // Helpers for QCDNUM (CC): 
 const double  CCEP2F[] = {0.,0.,1.,0.,1.,0.,0.,1.,0.,1.,0.,0.,0.} ; 
@@ -34,6 +35,10 @@ int ReactionBaseDISCC::initAtStart(const string &s)
   // This we do not want to fit:
   _Gf = GetParam("gf");
   _convfac = GetParam("convFac");
+    ///
+  int nwords;
+  QCDNUM::zmfillw(nwords);
+
   return 0;
 }
 
