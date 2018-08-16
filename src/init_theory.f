@@ -23,7 +23,7 @@ C Init APFEL if needed
 C Init QEDEVOL if needed
          if(itheory.eq.11) call qedevol_ini
 
-         call Init_heavy_flavours
+ccxxx         call Init_heavy_flavours
 
          if (ewfit.gt.0) call eprc_init(.true.)
       elseif(itheory.ge.100) then       
