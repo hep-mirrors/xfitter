@@ -65,6 +65,11 @@ void MINUITMinimizer::doMimimization()
 /// Action at last iteration 
 void MINUITMinimizer::actionAtFCN3() 
 {
+  double**p = getPars();
+  for (size_t i=0; i<getNpars(); i++) {
+    std::cout << i << " " << *p[i] << "\n"; 
+  }
+  //  exit(0);
   return;
 }
 

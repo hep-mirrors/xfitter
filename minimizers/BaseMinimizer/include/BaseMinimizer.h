@@ -55,9 +55,12 @@ namespace xfitter
     /// Number of parameters:
     unsigned int getNpars() const { return _allParameterNames.size(); }
 
-  protected:
-    /// Retrieve 
+    /// Retrieve parameters:
     double** getPars() const ;
+
+    /// Set parameters:
+    void setPars(double const* pars) const;
+  protected:
     
     /// name to ID minimizer
     std::string _name;

@@ -1,6 +1,7 @@
 #include "BaseMinimizer.h"
 #include "xfitter_pars.h"
 #include <memory>
+#include <iostream>
 
 namespace xfitter {
 
@@ -24,18 +25,26 @@ namespace xfitter {
     }
     
     // store it on the global map too. Will replace pointer if already present. 
-    std::unique_ptr<double[]> parval( new double );
-    *parval.get() = par;    
-    XFITTER_PARS::gParameters[name] = parval.get();
+    //    std::unique_ptr<double[]> parval( new double );
+    double*parval = new double;
+    *parval = par;    
+    XFITTER_PARS::gParameters[name] = parval;
   }
 
   double** BaseMinimizer::getPars() const
   {
-    std::unique_ptr<double*[]>  out( new double*[getNpars()]) ;
+    double**   out =  new double*[getNpars()] ;
     for (size_t i = 0; i<_allParameterNames.size(); i++) {      
-      out.get()[i] = XFITTER_PARS::gParameters.at( _allParameterNames[i] );
+      out[i] = XFITTER_PARS::gParameters.at( _allParameterNames[i] );
     }
-    return out.get();
+    return out;
+  }
+
+  void BaseMinimizer::setPars(double const* pars) const {
+    for (size_t i = 0; i<_allParameterNames.size(); i++) {
+      std::cout << i << " parval = " << pars[i] << std::endl;
+      *XFITTER_PARS::gParameters.at( _allParameterNames[i]) = pars[i];
+    }
   }
 }
 
