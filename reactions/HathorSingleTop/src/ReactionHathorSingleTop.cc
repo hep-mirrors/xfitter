@@ -407,7 +407,7 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
       std::cout << "CALCULATING RATIO" << std::endl;
       std::cout << "m = " << _mtop << std::endl;
       double crsttop;
-      double crst;
+      double crst = 0.0;
       int i;
       for (i = 0; i<2; i++) {
         if (i == 0)
