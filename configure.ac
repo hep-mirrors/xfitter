@@ -283,6 +283,24 @@ if test $enable_apfelxx; then
 fi
 AM_CONDITIONAL(ENABLE_APFELXX, [test $enable_apfelxx])
 
+# basic check for CERES installation
+AC_ARG_ENABLE([ceres],
+  [AC_HELP_STRING(--enable-ceres, [use ceres (default=no)])])
+if test $enable_ceres; then
+  AC_MSG_CHECKING([for ceres installation])
+  ceresDir=`ls  $CERES_DIR`
+  if test x$ceresDir == x; then
+    AC_MSG_ERROR([Unable to find CERES_DIR])
+  else
+    CERES_CPPFLAGS="-I${CERES_DIR}/include/  -I/usr/include/eigen3"
+    CERES_LDFLAGS="-L${CERES_DIR}/lib  -lceres -lglog -lgflags -lpthread -lspqr -lcholmod -lccolamd -lcamd -lcolamd -lamd -llapack -lblas -lsuitesparseconfig -lrt -lcxsparse -lrt -lcxsparse -lgomp"
+    AC_SUBST(CERES_CPPFLAGS)
+    AC_SUBST(CERES_LDFLAGS)
+    AC_DEFINE([CERES_ENABLED],[1],[Define if APFEL++ is enabled])    
+  fi
+fi
+AM_CONDITIONAL(ENABLE_CERES, [test $enable_ceres])
+
 # check for mela installation
 AC_ARG_ENABLE([mela],
   [AC_HELP_STRING(--enable-mela, [use mela (default=no)])])
@@ -581,6 +599,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 minimizers/CERESMinimizer/src/Makefile
 		 minimizers/MINUITMinimizer/src/Makefile
 		 evolutions/QCDNUM/src/Makefile
 		 pdfparams/BasePdfParam/src/Makefile

@@ -4,7 +4,7 @@
 #
 # default minimizer:
 #
-Minimizer :  MINUIT
+Minimizer : CERES # MINUIT
 
 #
 # default evolution:

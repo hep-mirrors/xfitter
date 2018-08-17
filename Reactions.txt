@@ -20,3 +20,4 @@ QCDNUM libqcdnum_xfitter.so
 UvDvubardbars libuvdvubardbars_xfitter.so
 GRV_PionPdfDecomposition libgrv_pionpdfdecomposition_xfitter.so
 MINUIT libMINUITMinimizer_xfitter.so
+CERES libCERESMinimizer_xfitter.so
