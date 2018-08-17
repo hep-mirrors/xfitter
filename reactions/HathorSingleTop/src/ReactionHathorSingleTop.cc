@@ -82,7 +82,7 @@ int ReactionHathorSingleTop::initAtStart(const string &s)
   if(!checkParam(mtopName))
   {
     std::string str = "F: no top quark mass (\"" + mtopName + "\" parameter) for Hathor";
-    hf_errlog_(17081101, str.c_str(), strlen(str.c_str()));
+    hf_errlog_(18081701, str.c_str(), strlen(str.c_str()));
   }
   _mtop = GetParam("mtp");
 
@@ -123,7 +123,7 @@ void ReactionHathorSingleTop::setDatasetParameters(int dataSetID, map<std::strin
   {
     char str[256];
     sprintf(str, "F: no SqrtS for dataset with id = %d", dataSetID);
-    hf_errlog_(17080702, str, strlen(str));
+    hf_errlog_(18081702, str, strlen(str));
   }
   double sqrtS = atof(it->second.c_str());
 
@@ -145,7 +145,7 @@ void ReactionHathorSingleTop::setDatasetParameters(int dataSetID, map<std::strin
     {
       char str[256];
       sprintf(str, "F: provided precision level = %d not supported by Hathor", precisionLevel);
-      hf_errlog_(17081102, str, strlen(str));
+      hf_errlog_(18081702, str, strlen(str));
     }
   }
 
