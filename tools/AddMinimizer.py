@@ -80,6 +80,8 @@ class {NAME:s}Minimizer : public BaseMinimizer
     /// Error analysis
     virtual void errorAnalysis() override final;
 
+    /// Parameter transfer
+    virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr , double  const* priors  = nullptr ) override final;
 }};
 }}
 '''.format( NAME=name, DATE= datetime.date.today().isoformat() )
@@ -125,21 +127,29 @@ void {NAME:s}Minimizer::initAtStart() {{
 }}
 
 /// Miniminzation loop
-void {NAME:s}}Minimizer::doMimimization() 
+void {NAME:s}Minimizer::doMimimization() 
 {{
     return;
 }}
 
 /// Action at last iteration 
-void {NAME:s}}Minimizer::actionAtFCN3() 
+void {NAME:s}Minimizer::actionAtFCN3() 
 {{
     return;
 }}
 
 /// Error analysis
-void {NAME:s}}Minimizer::errorAnalysis() 
+void {NAME:s}Minimizer::errorAnalysis() 
 {{
     return;
+}}
+
+/// Parameter transfer
+void {NAME:s}Minimizer::addParameter(double par, std::string const &name, double step, double const* bounds , double  const* priors  )
+{{
+  BaseMinimizer::addParameter(par,name,step,bounds,priors);
+
+  return; 
 }}
 
 }}
