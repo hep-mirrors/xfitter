@@ -1,6 +1,10 @@
 # File to store parameters for theory modules. Overwrites
 # fortran-based ewparam.txt.
 
+#
+# default minimizer:
+#
+Minimizer :  MINUIT
 
 #
 # default evolution:

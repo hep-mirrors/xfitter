@@ -581,6 +581,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 minimizers/MINUITMinimizer/src/Makefile
 		 evolutions/QCDNUM/src/Makefile
 		 pdfparams/BasePdfParam/src/Makefile
 		 pdfparams/HERAPDF_PdfParam/src/Makefile

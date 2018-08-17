@@ -29,7 +29,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
         pdfdecompositions/UvDvUbarDbarS/src \
         evolutions/BaseEvolution/src \
         evolutions/APFELxx/src \
-        minimizers/BaseMinimizer/src
+        minimizers/BaseMinimizer/src minimizers/MINUITMinimizer/src
 
 DIST_SUBDIRS = $(SUBDIRS) Hathor/src HVQMNR/src ACOT SACOT datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
