@@ -110,7 +110,8 @@ extern "C" {NAME:s}Minimizer* create() {{
 
 
 // Constructor
-    {NAME:s}Minimizer::{NAME:s}Minimizer() : BaseMinimizer("{NAME:s}") {{  
+{NAME:s}Minimizer::{NAME:s}Minimizer() : BaseMinimizer("{NAME:s}") 
+{{  
 }}
 
 // Constructor
@@ -124,19 +125,19 @@ void {NAME:s}Minimizer::initAtStart() {{
 }}
 
 /// Miniminzation loop
-void {NAME:s}doMimimization() 
+void {NAME:s}}Minimizer::doMimimization() 
 {{
     return;
 }}
 
 /// Action at last iteration 
-void {NAME:s}actionAtFCN3() 
+void {NAME:s}}Minimizer::actionAtFCN3() 
 {{
     return;
 }}
 
 /// Error analysis
-void {NAME:s}errorAnalysis() 
+void {NAME:s}}Minimizer::errorAnalysis() 
 {{
     return;
 }}
@@ -165,6 +166,9 @@ datadir = ${{prefix}}/yaml/minimizers/{NAME:s}
 data_DATA = ../yaml/parameters.yaml
 
 dist_noinst_HEADERS = ../include ../yaml
+
+lib{NAME:s}Minimizer_xfitter_la_LDFLAGS = -lbaseminimizer_xfitter -L$(libdir)
+
 '''.format(DATE=datetime.date.today().isoformat(),NAME=name)
 )
 

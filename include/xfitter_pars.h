@@ -25,10 +25,14 @@ namespace xfitter{
   class  BaseEvolution;
   // to be defined in pdfdecompositions/
   class  BasePdfDecomposition;
+  // to be defined in minimizers/
+  class BaseMinimizer;
 }
 
 namespace XFITTER_PARS {
-
+  /// Global pointer to the mimimizer
+  extern xfitter::BaseMinimizer* gMinimizer;
+  
   /// Global map of double parameters. They can be used by the minimizer. Initialized based on parameters.yaml
   extern map<string,double*> gParameters;
 

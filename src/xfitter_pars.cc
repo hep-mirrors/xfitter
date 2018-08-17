@@ -14,7 +14,7 @@
 #include <string.h>
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
-
+#include "BaseMinimizer.h"
 
 // Fortran bindings:
 extern "C" {
@@ -38,6 +38,7 @@ extern "C" {
 namespace XFITTER_PARS {
 
   // Global vars:
+  xfitter::BaseMinimizer* gMinimizer(nullptr);
   map <string, double*> gParameters;
   map <string, int>    gParametersI;
   map <string, string> gParametersS;

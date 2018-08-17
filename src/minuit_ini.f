@@ -138,6 +138,9 @@ C----------------------------------------------------------------------
       integer IERFLG
       ! .......................................
 
+      ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      return
+      
       Call Generate_IO_FileNames
       
       if(UsePrevFit.eq.2 .and. FileExists(ResultsFile)) then

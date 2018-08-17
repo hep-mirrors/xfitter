@@ -23,7 +23,7 @@
 
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
-
+#include "BaseMinimizer.h"
 
 using namespace std;
 
@@ -335,6 +335,11 @@ void init_at_iteration_() {
 
 void fcn3action_()
 {
+  // Minimizer action:
+  if (XFITTER_PARS::gMinimizer != nullptr ) {
+    XFITTER_PARS::gMinimizer->actionAtFCN3();
+  }
+  
   for ( auto reaction : gNameReaction ) {
     reaction.second->actionAtFCN3();
   }
