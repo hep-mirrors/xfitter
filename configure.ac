@@ -584,6 +584,7 @@ AC_CONFIG_FILES([include/Makefile
 		 evolutions/QCDNUM/src/Makefile
 		 pdfparams/BasePdfParam/src/Makefile
 		 pdfparams/HERAPDF_PdfParam/src/Makefile
+		 pdfparams/PolySqrtPdfParam/src/Makefile
 		 pdfdecompositions/LHAPDFDecomposition/src/Makefile
 		 pdfdecompositions/UvDvUbarDbarS/src/Makefile
 		 pdfdecompositions/GRV_PionPdfDecomposition/src/Makefile

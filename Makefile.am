@@ -24,6 +24,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
         reactions/FONLL_DISNC/src \
         pdfparams/BasePdfParam/src \
         pdfparams/HERAPDF_PdfParam/src \
+        pdfparams/PolySqrtPdfParam/src \
         pdfdecompositions/BasePdfDecomposition/src \
         pdfdecompositions/LHAPDFDecomposition/src \
         pdfdecompositions/UvDvUbarDbarS/src \
