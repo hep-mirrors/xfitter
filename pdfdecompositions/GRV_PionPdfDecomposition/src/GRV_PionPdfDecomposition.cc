@@ -5,7 +5,7 @@
    Created by  AddPdfDecomposition.py on GRV_Pion
 */
 #include"GRV_PionPdfDecomposition.h"
-#include"HERAPDF_PdfParam.h" //This is for hacks, remove later
+#include"PolySqrtPdfParam.h" //This is for hacks, remove later
 #include"xfitter_pars.h"
 using uint=unsigned int;
 using namespace std;
@@ -30,9 +30,9 @@ void GRV_PionPdfDecomposition::initAtStart(const std::string & pars){
 	//HARDCODE copied from UvDvUbarDbarS, then modified
 	//The following is not very nice: Decomposition should not create or initialize parameterisations
 	//Create and initialize paramterisations
-	for(const auto&node:XFITTER_PARS::gParametersY.at("GRV_PionPdfDecomposition")["HERAPDF_pdfparam"]){
+	for(const auto&node:XFITTER_PARS::gParametersY.at("GRV_PionPdfDecomposition")["HARDWIRED_PolySqrt"]){
 		const string prmzName=node.first.as<string>();//Name of parameterisation
-		BasePdfParam*pParam=new HERAPDF_PdfParam(prmzName);
+		BasePdfParam*pParam=new PolySqrtPdfParam(prmzName);
 		pParam->initFromYaml(node.second);
 		addParameterisation(prmzName,pParam);
 	}
@@ -45,7 +45,7 @@ void GRV_PionPdfDecomposition::initAtIteration() {
 	//Valence sum
 	par_v->setMoment(-1,2);
 	//Momentum sum
-	par_g->setMoment(0,1-4*par_qbar->moment(0));
+	par_g->setMoment(0,1-4*par_qbar->moment(0)-par_v->moment(0));
 }
 // Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
 std::function<std::map<int,double>(const double& x)>GRV_PionPdfDecomposition::f0()const{
@@ -53,8 +53,8 @@ std::function<std::map<int,double>(const double& x)>GRV_PionPdfDecomposition::f0
 		double v   =(*par_v)(x);
 		double qbar=(*par_qbar)(x);
 		double g   =(*par_g)(x);
-		double u=qbar-v/4;
-		double d=qbar+v/4;
+		double u=qbar;
+		double d=qbar+v/2;
 		std::map<int,double>res_={
 			{-6,0},
 			{-5,0},
