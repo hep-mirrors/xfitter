@@ -18,6 +18,9 @@ extern "C" {
   // FCN
   void fcn_(const int& npar, const double& dummy, double& chi2out, const double* pars, const int& iflag, const double& dummy2);  
 
+  void mncomd_(void fcn(const int&, const double&, double&, const double*, const int& , const double& ),
+	       const char command[], int& icond, int const& iin, int);
+  
   /// Interface to minuit parameters
   void addexternalparam_(const char name[],  const double &val, 
                          const double  &step,
@@ -27,7 +30,8 @@ extern "C" {
                          map<std::string,double*> *map,
                          int len);
 
-
+  ///
+  void extraparam_();
 }
 
 namespace xfitter {
@@ -58,17 +62,27 @@ void MINUITMinimizer::initAtStart() {
 /// Miniminzation loop
 void MINUITMinimizer::doMimimization() 
 {
-  minuit_(fcn_,0);  // let fortran run ...
+  extraparam_();
+  auto text = XFITTER_PARS::gParametersY["MINUIT"]["Commands"];
+  std::string cmds = text.as<string>();
+  std::istringstream lineStream(cmds);
+  std::string line;
+  //  minuit_(fcn_,0);  // let fortran run ...
+  while (std::getline(lineStream, line,'\n'))
+    {
+      int ires; 
+      mncomd_(fcn_,line.c_str(),ires,0,line.size());
+    }
   return;
 }
 
 /// Action at last iteration 
 void MINUITMinimizer::actionAtFCN3() 
 {
-  double**p = getPars();
-  for (size_t i=0; i<getNpars(); i++) {
-    std::cout << i << " " << *p[i] << "\n"; 
-  }
+  //  double**p = getPars();
+  //for (size_t i=0; i<getNpars(); i++) {
+  //  std::cout << i << " " << *p[i] << "\n"; 
+  //}
   //  exit(0);
   return;
 }
@@ -93,7 +107,10 @@ void MINUITMinimizer::addParameter(double par, std::string const &name, double s
     minv = bounds[0];
     maxv = bounds[1];
   }
-  
+  if ( priors != nullptr ) {
+    priorVal = priors[0];
+    priorUnc = priors[1];
+  }
   addexternalparam_(name.c_str(),par,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,name.size());
   
   return;
