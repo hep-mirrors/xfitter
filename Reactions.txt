@@ -14,3 +14,4 @@ FFABM_DISCC libffabm_discc_xfitter.so
 KFactor libkfactor_xfitter.so
 FONLL_DISNC libfonll_disnc_xfitter.so
 FONLL_DISCC libfonll_discc_xfitter.so
+AFB libafb_xfitter.so
