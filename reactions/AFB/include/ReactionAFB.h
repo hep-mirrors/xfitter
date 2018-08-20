@@ -33,57 +33,42 @@ class ReactionAFB : public ReactionTheory
 
   private:
     static double *propagators (double);
+
     static double uubarEF_funct (double *, size_t, void *);
-//     double uubarEF_funct (double *, size_t, void *);
-    
     double integration_uubarEF (double, double);
+    static double uubarEB_funct (double *, size_t, void *);
+    double integration_uubarEB (double, double);
+    static double uubarOF_funct (double *, size_t, void *);
+    double integration_uubarOF (double, double);
+    static double uubarOB_funct (double *, size_t, void *);
+    double integration_uubarOB (double, double);
+
+    static double ubaruEF_funct (double *, size_t, void *);
+    double integration_ubaruEF (double, double);
+    static double ubaruEB_funct (double *, size_t, void *);
+    double integration_ubaruEB (double, double);
+    static double ubaruOF_funct (double *, size_t, void *);
+    double integration_ubaruOF (double, double);
+    static double ubaruOB_funct (double *, size_t, void *);
+    double integration_ubaruOB (double, double);
+
+    static double ddbarEF_funct (double *, size_t, void *);
+    double integration_ddbarEF (double, double);
+    static double ddbarEB_funct (double *, size_t, void *);
+    double integration_ddbarEB (double, double);
+    static double ddbarOF_funct (double *, size_t, void *);
+    double integration_ddbarOF (double, double);
+    static double ddbarOB_funct (double *, size_t, void *);
+    double integration_ddbarOB (double, double);
+
+    static double dbardEF_funct (double *, size_t, void *);
+    double integration_dbardEF (double, double);
+    static double dbardEB_funct (double *, size_t, void *);
+    double integration_dbardEB (double, double);
+    static double dbardOF_funct (double *, size_t, void *);
+    double integration_dbardOF (double, double);
+    static double dbardOB_funct (double *, size_t, void *);
+    double integration_dbardOB (double, double);
+
     double *observables (double, double);
-    
-    
-//   public:
-//     double *propagators (double Minv);
-//     double uubarEF_funct (double *entries, size_t dim, void *params);
-//     double integration_uubarEF (double Minv_inf, double Minv_sup);
-    
-    
-//     double uubarEB_funct (double *entries, size_t dim, void *params);
-//     double integration_uubarEB (double Minv_inf, double Minv_sup);
-//     double uubarOF_funct (double *entries, size_t dim, void *params);
-//     double integration_uubarOF (double Minv_inf, double Minv_sup);
-//     double uubarOB_funct (double *entries, size_t dim, void *params);
-//     double integration_uubarOB (double Minv_inf, double Minv_sup);
-// 
-//     double ubaruEF_funct (double *entries, size_t dim, void *params);
-//     double integration_ubaruEF (double Minv_inf, double Minv_sup);
-//     double ubaruEB_funct (double *entries, size_t dim, void *params);
-//     double integration_ubaruEB (double Minv_inf, double Minv_sup);
-//     double ubaruOF_funct (double *entries, size_t dim, void *params);
-//     double integration_ubaruOF (double Minv_inf, double Minv_sup);
-//     double ubaruOB_funct (double *entries, size_t dim, void *params);
-//     double integration_ubaruOB (double Minv_inf, double Minv_sup);
-// 
-//     double ddbarEF_funct (double *entries, size_t dim, void *params);
-//     double integration_ddbarEF (double Minv_inf, double Minv_sup);
-//     double ddbarEB_funct (double *entries, size_t dim, void *params);
-//     double integration_ddbarEB (double Minv_inf, double Minv_sup);
-//     double ddbarOF_funct (double *entries, size_t dim, void *params);
-//     double integration_ddbarOF (double Minv_inf, double Minv_sup);
-//     double ddbarOB_funct (double *entries, size_t dim, void *params);
-//     double integration_ddbarOB (double Minv_inf, double Minv_sup);
-// 
-//     double dbardEF_funct (double *entries, size_t dim, void *params);
-//     double integration_dbardEF (double Minv_inf, double Minv_sup);
-//     double dbardEB_funct (double *entries, size_t dim, void *params);
-//     double integration_dbardEB (double Minv_inf, double Minv_sup);
-//     double dbardOF_funct (double *entries, size_t dim, void *params);
-//     double integration_dbardOF (double Minv_inf, double Minv_sup);
-//     double dbardOB_funct (double *entries, size_t dim, void *params);
-//     double integration_dbardOB (double Minv_inf, double Minv_sup);
-// 
-//     double observables (double Minv_inf, double Minv_sup);
-
 };
-
-
-
-
