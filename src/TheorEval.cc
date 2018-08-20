@@ -22,6 +22,8 @@
 
 #include <yaml-cpp/yaml.h>
 #include "xfitter_pars.h"
+#include "xfitter_steer.h"
+#include "BaseEvolution.h"
 
 using namespace std;
 
@@ -31,6 +33,12 @@ using namespace std;
 //    int datasetiorder[150];
 // } cscales_;
 
+// Global variable to hold current alphaS
+std::function<double(double const& Q)>  gAlphaS;
+
+double alphaS(double const& Q) {
+  return gAlphaS(Q); 
+}
 
 
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
@@ -312,10 +320,16 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     }
 
     // Set the evolution:
-    rt->setEvolution(XFITTER_PARS::gParametersS.at("Evolution"));
-    
-    // set alpha_S, pdfs:
-    rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
+    std::string evoName = XFITTER_PARS::gParametersS.at("Evolution"); 
+    rt->setEvolution(evoName);
+
+    //Retrieve evolution
+
+    xfitter::BaseEvolution* evo = xfitter::get_evolution(evoName);     
+    //    rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
+    /// XXX
+    gAlphaS = evo-> AlphaQCD();
+    rt->setEvolFunctions( &alphaS, &g2Dfunctions);
 
     // simplify interfaces to LHAPDF:
     rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton

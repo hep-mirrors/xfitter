@@ -599,6 +599,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 evolutions/LHAPDF/src/Makefile
 		 minimizers/CERESMinimizer/src/Makefile
 		 minimizers/MINUITMinimizer/src/Makefile
 		 evolutions/QCDNUM/src/Makefile
