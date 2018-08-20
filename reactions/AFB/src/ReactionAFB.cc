@@ -113,6 +113,14 @@ double *ReactionAFB::propagators (double Minv)
 ////UUBAR EVEN FORWARD Matrix element
 double ReactionAFB::uubarEF_funct (double *entries, size_t dim, void *params)
 {
+    // access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) params;
+    //std::valarray<double> pdfV(13);
+    //ptr->xfx(0.001, 100.0, &pdfV[0]);
+    //std::cout << " xg(100,0.001) (meth 2) = " << pdfV[6] << std::endl;
+    //std::cout << " xg(100,0.001) (meth 3) = " << ptr->xfx(0.001, 100.0 ,0) << std::endl;
+    
+  
     (void)(dim); /* avoid unused parameter warnings */
     double yreduced = entries[0];
     double Minv = entries[1];
@@ -129,10 +137,10 @@ double ReactionAFB::uubarEF_funct (double *entries, size_t dim, void *params)
     
     
     // Call the PDFs
-    double f1u = (ReactionTheory::xfx(x1,Q,2)) / x1;
-    double f1c = (ReactionTheory::xfx(x1,Q,4)) / x1;
-    double f2ubar = (ReactionTheory::xfx(x2,Q,-2)) / x2;
-    double f2cbar = (ReactionTheory::xfx(x2,Q,-4)) / x2;
+    double f1u = (ptr->xfx(x1,Q,2)) / x1;
+    double f1c = (ptr->xfx(x1,Q,4)) / x1;
+    double f2ubar = (ptr->xfx(x2,Q,-2)) / x2;
+    double f2cbar = (ptr->xfx(x2,Q,-4)) / x2;
 
     // PDF combinations    
     double uubar_PDF = f1u*f2ubar + f1c*f2cbar;
@@ -164,7 +172,8 @@ double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup)
     
     // Initialization of the integration (quite a black box)
     
-    gsl_monte_function Integrate_uubarEF = { &(ReactionAFB::uubarEF_funct), dim_integration, 0 };
+    //gsl_monte_function Integrate_uubarEF = { &(ReactionAFB::uubarEF_funct), dim_integration, 0 };
+    gsl_monte_function Integrate_uubarEF = { &(ReactionAFB::uubarEF_funct), dim_integration, this };
     const gsl_rng_type *T;
     gsl_rng *r;
     gsl_rng_env_setup ();
