@@ -42,29 +42,32 @@ void GRV_PionPdfDecomposition::initAtStart(const std::string & pars){
 }
 void GRV_PionPdfDecomposition::initAtIteration() {
 	//Enforce sum rules
+	double fs=*XFITTER_PARS::gParameters.at("fs");
 	//Valence sum
 	par_v->setMoment(-1,2);
 	//Momentum sum
-	par_g->setMoment(0,1-4*par_qbar->moment(0)-par_v->moment(0));
+	par_g->setMoment(0,1-4*par_qbar->moment(0)/(1-fs)-par_v->moment(0));
 }
 // Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
 std::function<std::map<int,double>(const double& x)>GRV_PionPdfDecomposition::f0()const{
 	return [=](double const& x)->std::map<int, double>{
+		double fs=*XFITTER_PARS::gParameters.at("fs");
 		double v   =(*par_v)(x);
 		double qbar=(*par_qbar)(x);
 		double g   =(*par_g)(x);
 		double u=qbar;
 		double d=qbar+v/2;
+		double s=2*fs/(1-fs)*qbar;
 		std::map<int,double>res_={
 			{-6,0},
 			{-5,0},
 			{-4,0},
-			{-3,0},
+			{-3,s},//sbar
 			{-2,d},//ubar
 			{-1,u},//dbar
 			{ 1,d},
 			{ 2,u},
-			{ 3,0},
+			{ 3,s},
 			{ 4,0},
 			{ 5,0},
 			{ 6,0},
