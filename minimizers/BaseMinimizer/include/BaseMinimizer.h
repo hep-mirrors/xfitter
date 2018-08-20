@@ -16,19 +16,12 @@
 
 namespace xfitter
 {
-  const unsigned int isFreePar  = 1;
-  const unsigned int isFixedPar = 2;
-  const unsigned int isBoundOar = 3;
-    
-
   
   class BaseMinimizer {
   public:
     /// default constructor
     BaseMinimizer(const std::string& name) :        _name(name),
-      _allParameters(),
-      _allParameterNames(),
-      _fitParameters()
+      _allParameterNames()
 	{}
 
     /// Initialization
@@ -37,11 +30,15 @@ namespace xfitter
     /// Provide some information
     virtual void printInfo(){};
 
-    /// Add parameter blocks with Npar parameters. Optional flags and bounds can be used for fixed/bounded parameters.
-    virtual void addParameterBlock(int Npar, double const* pars, std::string const* names,  unsigned int const* flags = nullptr, double const* const* bounds = nullptr );
+    /// Add parameter blocks with Npar parameters. Optional steps bounds and priors can be used for fixed/bounded parameters.
+    virtual void addParameterBlock(int Npar, double const* pars
+				   , std::string const* names
+				   , double const* steps   = nullptr
+				   , double const* const* bounds = nullptr
+				   , double const* const* priors = nullptr );
 
     /// Add single parameter. Optional flags and bounds can be used for fixed/bounded parameters.
-    virtual void addParameter(double par, std::string const &name,  unsigned int flag = 0, double  const* bounds = nullptr );
+    virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr, double  const* priors = nullptr );
     
     /// Action at each iteration
     virtual void initAtIteration(){};
@@ -56,24 +53,21 @@ namespace xfitter
     virtual void errorAnalysis(){};
 
     /// Number of parameters:
-    unsigned int getNAllpars() const { return _allParameters.size(); }
+    unsigned int getNpars() const { return _allParameterNames.size(); }
 
-    /// Number of fitted parameters:
-    unsigned int getNFitpars() const { return _fitParameters.size(); }
-    
+    /// Retrieve parameters:
+    double** getPars() const ;
+
+    /// Set parameters:
+    void setPars(double const* pars) const;
   protected:
+    
     /// name to ID minimizer
     std::string _name;
-
-    /// list of all parameters
-    std::vector<double> _allParameters;
 
     /// names of the parameters
     std::vector<std::string> _allParameterNames;
     
-    /// list of minimized parameters. Points to sub-set of all parameters
-    std::vector<double*> _fitParameters;
-
   };
 
   /// For dynamic loader

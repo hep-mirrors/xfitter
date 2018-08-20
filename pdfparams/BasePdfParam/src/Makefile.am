@@ -1,4 +1,4 @@
-AM_CXXFLAGS =-O0 -g -I$(srcdir)/../include -I$(srcdir)/../../../include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS =-O0 -g -I$(srcdir)/../include  -I$(srcdir)/../../../minimizers/BaseMinimizer/include  -I$(srcdir)/../../../include -Wall -fPIC -Wno-deprecated 
 
 lib_LTLIBRARIES = libBasePdfParam_xfitter.la
 

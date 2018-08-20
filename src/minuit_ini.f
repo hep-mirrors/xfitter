@@ -44,7 +44,12 @@ C----------------------------------------------------------------------
       MinuitOut = TRIM(OutDirName)//'/minuit.out'//Suffix
       MinuitSave = TRIM(OutDirName)//'/minuit.save'//Suffix
 
-      MinuitIn='minuit.in.txt' 
+      OPEN(85,file=ResultsFile,form='formatted',status='replace')
+
+      return
+CXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      MinuitIn='minuit.in.txt'
+
 ! [--- WS 2015-10-03
       ! UsePrevFit 0 is default
       Call MntInpRead(MinuitIn,"tpc",1)
@@ -92,13 +97,9 @@ C----------------------------------------------------------------------
 
       open ( 25, file=MinuitOut )
       
-      write(6,*) ' read minuit input params from file ',MinuitIn
-      call HF_errlog(12020504, 'I: read minuit input params from file '//MinuitIn)
-      open ( 24, file=MinuitIn )
-
       open (  7, file=MinuitSave)
       
-      call mintio(24,25,7)
+      call mninit(5,25,7)
       
       return
       end
@@ -138,6 +139,9 @@ C----------------------------------------------------------------------
       integer IERFLG
       ! .......................................
 
+      ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      return
+      
       Call Generate_IO_FileNames
       
       if(UsePrevFit.eq.2 .and. FileExists(ResultsFile)) then
@@ -174,7 +178,6 @@ C----------------------------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------
 
-      OPEN(85,file=ResultsFile,form='formatted',status='replace')
       ! write(*,*) 'ResultsFile: ',ResultsFile
       call minuit_ini  ! opens Minuit i/o files
       lprint = .false.

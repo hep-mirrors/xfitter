@@ -1,5 +1,7 @@
 #include"BasePdfParam.h"
+#include"BaseMinimizer.h"
 #include"xfitter_pars.h"
+#include"xfitter_steer.h"
 #include<cmath>
 #include<memory>
 #include<iostream>
@@ -69,13 +71,17 @@ void BasePdfParam::initFromYaml(YAML::Node value) {
       const std::string pnam=_name+"_p"+std::to_string(i);
       double val     =value[i].as<double>();
       double step    =fabs(val)/100.;       /// if 0, parameter is fixed !!! 
-      double minv    =0;
-      double maxv    =0;
-      double priorVal=0;
-      double priorUnc=0;
-      int add = true;
-      addexternalparam_(pnam.c_str(),val,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,pnam.size());
-			pars[i]=XFITTER_PARS::gParameters.at(pnam);
+      //double minv    =0;
+      //double maxv    =0;
+      //double priorVal=0;
+      //double priorUnc=0;
+      //int add = true;
+      //      addexternalparam_(pnam.c_str(),val,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,pnam.size());
+
+      xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+      minimizer->addParameter(val,pnam,step,nullptr,nullptr);
+      
+      pars[i]=XFITTER_PARS::gParameters.at(pnam);
       cout<<pnam<<"="<<(*pars[i])<<endl;
     }
   }else{

@@ -94,7 +94,7 @@ class TextReader_t {
 
     //================================================================
     int Find (const string& gpat, int start=0, bool case_sensitive = true) {
-      for(int j=start; j < M_text.size(); j++) if(M_text[j].Match(gpat, case_sensitive)) return j;
+      for(size_t j=start; j < M_text.size(); j++) if(M_text[j].Match(gpat, case_sensitive)) return j;
       return -1;
     } 
 

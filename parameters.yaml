@@ -1,6 +1,16 @@
 # File to store parameters for theory modules. Overwrites
 # fortran-based ewparam.txt.
 
+#
+# default minimizer:
+#
+Minimizer :  CERES # MINUIT
+
+MINUIT :
+  Commands : |
+    fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
+    minimize 
+    call fcn 3
 
 #
 # default evolution:
@@ -79,9 +89,9 @@ NFlavour : 5
 #
 # AlphaS, incuding options to fit it:
 #---------------------------
-alphas: 0.118
+alphas : 0.118
 #  value: 0.118
-#  step:  0.0
+#  step:  0.01
 #  prior: 0.118
 #  priorUnc: 0.1
 #  min: 0.1

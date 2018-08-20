@@ -4,6 +4,7 @@
 
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
+#include "BaseMinimizer.h"
 #include <dlfcn.h>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
@@ -79,7 +80,6 @@ namespace xfitter {
     }
     // Check if already present
     if (XFITTER_PARS::gPdfDecompositions.count(name) == 1) {
-      std::cout << " already present " << std::endl;
       return  XFITTER_PARS::gPdfDecompositions[name];  //already loaded
     }
     
@@ -108,14 +108,56 @@ namespace xfitter {
 
     return pdfDecomp;
   }
+
+
+  BaseMinimizer* get_minimizer() {
+    std::string name = XFITTER_PARS::getParameterS("Minimizer");
+    
+    // Check if already present
+    if (XFITTER_PARS::gMinimizer != nullptr ) {
+      return  XFITTER_PARS::gMinimizer;  //already loaded
+    }
+    
+    // Load corresponding shared library:
+    string libname = gReactionLibs[name];
+    if ( libname == "") {
+      hf_errlog(18081701,"F: Shared library for minimizer "+name+" not found");
+    }
+
+    // load the library:
+    void *lib_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
+    if ( lib_handler == nullptr )  { 
+      std::cout  << dlerror() << std::endl;      
+      hf_errlog(18081702,"F: Minimizer shared library ./lib/"  + libname  +  " not present for minimizer" + name + ". Check Reactions.txt file");
+    }
+
+         // reset errors
+    dlerror();
+
+    create_minimizer *dispatch_minimizer = (create_minimizer*) dlsym(lib_handler, "create");
+    BaseMinimizer *minimizer = dispatch_minimizer();
+    minimizer->initAtStart();
+
+    // store on the map
+    XFITTER_PARS::gMinimizer = minimizer;
+
+    return XFITTER_PARS::gMinimizer;
+  }
+
 }
 
 
 /// Temporary interface for fortran
 extern "C" {
   void init_evolution_(); 
+  void init_minimizer_(); 
 }
 
 void init_evolution_() {
   auto evol = xfitter::get_evolution();
+}
+
+void init_minimizer_() {
+  auto mini = xfitter::get_minimizer();
+  mini->doMimimization();
 }
