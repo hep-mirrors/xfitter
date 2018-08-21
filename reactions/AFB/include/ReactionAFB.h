@@ -70,5 +70,5 @@ class ReactionAFB : public ReactionTheory
     static double dbardOB_funct (double *, size_t, void *);
     double integration_dbardOB (double, double);
 
-    double *observables (double, double);
+    double AFB (double, double);
 };
