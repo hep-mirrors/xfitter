@@ -558,6 +558,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 
 		 reactions/KFactor/src/Makefile
 		 reactions/BaseDISCC/src/Makefile
 		 reactions/FFABM_DISCC/src/Makefile
@@ -574,6 +575,7 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/fastNLO/src/Makefile
 		 reactions/FONLL_DISCC/src/Makefile
 		 reactions/FONLL_DISNC/src/Makefile
+                 reactions/KMatrix/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then

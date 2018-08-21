@@ -43,6 +43,17 @@ void ReactionKFactor::setDatasetParameters(int dataSetID, map<string,string> par
     if(pars.find("FileLine") != pars.end())
       lineStart = atoi(pars["FileLine"].c_str());
 
+    // requested last line -> how many values to read (by default the same as number of data points)
+    // TODO: how to get number of data points?
+    // not very elegant way below
+    int np = _dsBins[dataSetID]->begin()->second.size();
+    int lineFinish = lineStart + np - 1;
+    if(pars.find("FileLineFinish") != pars.end())
+    {
+      lineFinish = atoi(pars["FileLineFinish"].c_str());
+      np = lineFinish - lineStart + 1;
+    }
+
     // check that the column is reasonable
     if(column < 1)
       hf_errlog(17102800, "F: wrong column = " + std::to_string(column));
@@ -57,9 +68,6 @@ void ReactionKFactor::setDatasetParameters(int dataSetID, map<string,string> par
     for(int l = 1; l < lineStart; l++)
       getline(file, line);
 
-    // TODO: how to get number of data points?
-    // not very elegant way below
-    int np = _dsBins[dataSetID]->begin()->second.size();
     for(int p = 0; p < np; p++)
     //while (1)
     {

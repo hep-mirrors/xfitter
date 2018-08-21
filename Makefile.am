@@ -5,12 +5,11 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/draw/include \
-          pdf2yaml tools/process \
+          DY/include tools/draw/include \          
 	reactions/KFactor/src reactions/Fractal_DISNC/src reactions/BaseDISCC/src reactions/Hathor/src reactions/BaseDISNC/src \
 	reactions/RT_DISNC/src reactions/FFABM_DISNC/src reactions/FFABM_DISCC/src reactions/APPLgrid/src reactions/BaseHVQMNR/src \
 	reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src reactions/testZMVFNS/src reactions/fastNLO/src/ \
-	reactions/FONLL_DISCC/src reactions/FONLL_DISNC/src 
+	reactions/FONLL_DISCC/src reactions/FONLL_DISNC/src reactions/KMatrix/src
 
 DIST_SUBDIRS = $(SUBDIRS)  Hathor/src  HVQMNR/src doc/tex/manual  ACOT SACOT datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
