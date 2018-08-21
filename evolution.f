@@ -233,6 +233,7 @@ CC         call EXTPDF(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
 cv ===
       if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
          call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
+
       elseif (PDF_DECOMPOSITION.eq.'QCDNUM_GRID') then
          call evolfg(1,func22text,def22,iq0,eps)
 
@@ -497,24 +498,24 @@ C--------------------------------------------------------
          call evolvePDFphoton(x, sqrt(qmu2), xf, xf(7))
       else
          call evolvePDF(x, sqrt(qmu2), xf)
-!         print*,"test PDF",x, sqrt(qmu2), xf(0)
-      endif
-      if(first) LHAPDFsubr = 0.D0
-      if(ipdf.eq. 0) LHAPDFsubr = xf(0)
-      if(ipdf.eq. 1) LHAPDFsubr = xf(1)
-      if(ipdf.eq. 2) LHAPDFsubr = xf(2)
-      if(ipdf.eq. 3) LHAPDFsubr = xf(3)
-      if(ipdf.eq. 4) LHAPDFsubr = xf(4)
-      if(ipdf.eq. 5) LHAPDFsubr = xf(5)
-      if(ipdf.eq. 6) LHAPDFsubr = xf(6)
-      if(ipdf.eq. -1) LHAPDFsubr = xf(-1)
-      if(ipdf.eq. -2) LHAPDFsubr = xf(-2)
-      if(ipdf.eq. -3) LHAPDFsubr = xf(-3)    
-      if(ipdf.eq. -4) LHAPDFsubr = xf(-4)
-      if(ipdf.eq. -5) LHAPDFsubr = xf(-5)
-      if(ipdf.eq. -6) LHAPDFsubr = xf(-6)
 
-!      end if
+      endif
+      if(first) func = 0.D0
+      if(ipdf.eq. 0) func = xf(0)
+      if(ipdf.eq. 1) func = xf(2)
+      if(ipdf.eq. 2) func = xf(1)
+      if(ipdf.eq. 3) func = xf(3)
+      if(ipdf.eq. 4) func = xf(-2)
+      if(ipdf.eq. 5) func = xf(-1)
+      if(ipdf.eq. 6) func = xf(-3)
+      if(ipdf.eq. 7) func = 0.D0
+      if(ipdf.eq. 8) func = 0.D0
+      if(ipdf.eq. 9) func = 0.D0
+      if(ipdf.eq.10) func = 0.D0
+      if(ipdf.eq.11) func = 0.D0
+      if(ipdf.eq.12) func = 0.D0
+      if(ipdf.eq.13) func = xf(7)
+
       return
       end
 
