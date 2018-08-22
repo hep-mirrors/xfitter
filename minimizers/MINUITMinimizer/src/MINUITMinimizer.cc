@@ -9,6 +9,7 @@
 #include "MINUITMinimizer.h"
 #include "FTNFitPars.h"          // tools to handle fortran minuit
 #include "xfitter_pars.h"
+#include "xfitter_cpp_base.h"
 
 /// Fortran interfaces:
 extern "C" {
@@ -32,6 +33,12 @@ extern "C" {
 
   ///
   void extraparam_();
+
+  ///
+  void  write_pars_(int const& i);
+  void  error_bands_pumplin_();
+
+  void  errbandssym_();
 }
 
 namespace xfitter {
@@ -90,7 +97,34 @@ void MINUITMinimizer::actionAtFCN3()
 /// Error analysis
 void MINUITMinimizer::errorAnalysis() 
 {
-    return;
+  auto errNode = XFITTER_PARS::gParametersY["MINUIT"]["doErrors"];
+  if ( errNode ) {
+    std::string bandType = errNode.as<std::string>();
+    if ( bandType == "Pumplin" ) {
+      hf_errlog(12020506, "I: Calculation of error bands required");
+      std::string cmd = "ITERATE 10";
+      int ires;
+      mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+      cmd = "MYSTUFF 1000";
+      mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+      cmd = "MYSTUFF 2000";
+      mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+
+      write_pars_(0);
+      error_bands_pumplin_();
+    }
+    else if ( bandType == "Hesse" ) {
+      hf_errlog(12020506, "I: Calculation of symmetric error bands required");
+      errbandssym_();
+    }
+    else if ( bandType == "None" ) {
+      return;
+    }
+    else {
+      hf_errlog(2018092201,"W: Unknown to MINUITminimizer error type requested: " + bandType);
+    }
+  }
+  return;
 }
 
 /// parameters  

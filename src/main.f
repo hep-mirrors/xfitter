@@ -136,6 +136,10 @@ c ..........................................................
       
       call init_minimizer()
 
+      call run_minimizer()
+
+      call run_error_analysis()
+      
       
       if (doOffset .and. CorSysIndex .gt. NSYSMAX) then
         do CorSysIndex = 0,nOffset
