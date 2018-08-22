@@ -35,6 +35,22 @@ unpolarised.wgt
 zmstf.wgt
 SACOT/src/mdispac.mod
 doc/html/
+WHATIDID
+bak/
+constants.yaml
+datafiles/E615/
+deps/
+install.log
+install_yam.log
+make.log
+myconfigure.sh
+output*
+setup.sh
+tmp.sh
+version
+xfitter-master/
+yaml/
+plots/
 
 # vim swap file
 *.swp
