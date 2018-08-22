@@ -39,7 +39,38 @@ extern "C" {
   void  error_bands_pumplin_();
 
   void  errbandssym_();
+
+  int getparameterindex_(const char name[], int len);
 }
+
+
+std::string parseFix(std::string const& fixCommand ) {
+  std::istringstream buf(fixCommand);
+  std::istream_iterator<std::string> beg(buf), end;
+  std::vector<std::string> tokens(beg, end); // done!
+
+  std::string out = "fix ";
+  
+  for(auto& s: tokens) {
+    if (s == "fix") continue;    
+    try {
+      std::stoi(s);  // if ok, this is parameter index
+      out += " " + s; 
+    }
+    catch (...) {
+      // maybe par name
+      int i = getparameterindex_(s.c_str(), s.size());
+      if (i>0) {
+	out += " " + std::to_string(i); 
+      }
+      else {
+	hf_errlog(2018092210,"W: Unknown parameter name for MINUIT fix : " + s);
+      }
+    }
+  }
+  return out;
+}
+
 
 namespace xfitter {
   
@@ -49,6 +80,7 @@ extern "C" MINUITMinimizer* create() {
 }
 
 
+  
 // Constructor
 MINUITMinimizer::MINUITMinimizer() : BaseMinimizer("MINUIT") {  
 }
@@ -77,7 +109,14 @@ void MINUITMinimizer::doMimimization()
   //  minuit_(fcn_,0);  // let fortran run ...
   while (std::getline(lineStream, line,'\n'))
     {
-      int ires; 
+      for ( char& ch : line)
+	ch = (char)std::tolower(ch);
+
+      if (line.find("fix") != std::string::npos) {
+	line = parseFix(line);
+      }
+      
+      int ires;
       mncomd_(fcn_,line.c_str(),ires,0,line.size());
     }
   return;
