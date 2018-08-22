@@ -178,6 +178,9 @@ TheorEval::assignTokens(list<tToken> &sl)
         case '-': t.opr = 1; break;
         case '*': t.opr = 3; break;
         case '/': t.opr = 3; break;
+
+        case '.': t.opr = 5; break; //change
+
         default: cout << "Unknown operator "<< c << " in expression " << _expr << endl;
       }
       t.name.assign(1,c);
@@ -463,7 +466,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   map<string, string> pars = SplitTermInfo(term_info);
 
   // and transfer to the module
-  rt->setDatasetParamters(_dsId*1000+iterm, pars, _dsPars);
+  rt->setDatasetParameters(_dsId*1000+iterm, pars, _dsPars);
 
   _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
 }
@@ -548,7 +551,8 @@ TheorEval::initKfTerm(int iterm, valarray<double> *val)
 
   // write k-factor array to the token valarray
   *val = valarray<double>(vkf.data(), vkf.size());
-}  
+}
+
 
 int
 TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
@@ -627,6 +631,61 @@ TheorEval::Evaluate(valarray<double> &vte )
       valarray<double> a(stk.top());
       stk.pop();
       stk.top() /= a;
+    }
+    else if ( it->name == string(".") ){
+          valarray<double> temp;
+          valarray<double> result;
+
+          valarray<double> a(stk.top());
+          int size_a = a.size();
+          stk.pop();
+          valarray<double> b(stk.top());
+          int size_b = b.size();
+
+          if(size_a % size_b == 0){  // Matrix * Vector
+              int size_return = size_a / size_b;
+              result.resize(size_return);
+              for ( int n = 0; n < size_b; n++){
+                  temp.resize(size_return);
+                  temp = a[std::slice(n*size_return, size_return, 1)]; //creating nth colum vector
+                  temp *= b[n];
+                  result += temp;
+              }
+              stk.top() = result;
+          }else if(size_b % size_a == 0){  //  Transposed(Vector)*Matrix -> Transposed(Matrix) vector
+              int size_return = size_b / size_a;
+              result.resize(size_return);
+              for ( int n = 0; n < size_a; n++){
+                  temp.resize(size_return);
+                  temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector
+                  temp *= a[n];
+                  result += temp;
+              }
+              stk.top() = result;
+          }else{
+		char error[] = "ERROR: Dimensions do not match ";
+		cout<<error<<endl;}
+
+
+          /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
+              int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
+              int mb1 = ?;
+              int nb2 = ?;
+              int mb2 = ?;
+              result.resize(mb1*nb2);
+              for(int m = 0; m < mb1; m++){
+                  for(int n = 0; n < nb2; n++){
+                      temp.resize(nb1);
+                      temp = M.slize(m*nb1,1, nb);
+                      temp *= M2.slize(n, mb2, nb2);
+                      result[m*nb1 + n] = temp.sum();
+                  }
+              }
+          }*/
+
+
+
+
     }
 
     it++;
@@ -800,8 +859,8 @@ const std::string GetParamDS(const std::string& ParName, const std::string& DSna
     YAML::Node Node = XFITTER_PARS::gParametersY[ParName];
 
     // Default:
-    if ( Node["value"]) {
-      std::string Val = Node["value"].as<string>();
+    if ( Node["defaultValue"]) {
+      std::string Val = Node["defaultValue"].as<string>();
 
       if (Node[DSname]) {
 	Val = Node[DSname].as<string>();

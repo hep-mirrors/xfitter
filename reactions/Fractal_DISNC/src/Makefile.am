@@ -10,3 +10,5 @@ libfractal_disnc_xfitter_la_SOURCES = ReactionFractal_DISNC.cc
 
 datadir = ${prefix}/yaml/reactions/Fractal_DISNC
 data_DATA = ../yaml/parameters.yaml
+
+dist_noinst_HEADERS = ../include ../yaml

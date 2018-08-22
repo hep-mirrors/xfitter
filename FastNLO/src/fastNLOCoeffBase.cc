@@ -3,23 +3,21 @@
 #include <cmath>
 
 #include "fastnlotk/fastNLOCoeffBase.h"
+#include "fastnlotk/fastNLOConstants.h"
 #include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
+using namespace fastNLO;
 
 //________________________________________________________________________________________________________________ //
-fastNLOCoeffBase::fastNLOCoeffBase() : PrimalScream("fastNLOCoeffBase"){
-}
-
-
-//________________________________________________________________________________________________________________ //
-fastNLOCoeffBase::fastNLOCoeffBase(int NObsBin) : PrimalScream("fastNLOCoeffBase") {
-   fNObsBins = NObsBin;
-}
+fastNLOCoeffBase::fastNLOCoeffBase(int NObsBin)
+   : PrimalScream("fastNLOCoeffBase"), fNObsBins(NObsBin), IXsectUnits(),
+     IDataFlag(), IAddMultFlag(), IContrFlag1(), IContrFlag2(), NScaleDep(),
+     CtrbDescript(), CodeDescript() {}
 
 //________________________________________________________________________________________________________________ //
 fastNLOCoeffBase* fastNLOCoeffBase::Clone() const {
-   //! Use has to take care to delete this object later
+   //! User has to take care to delete this object later
    return new fastNLOCoeffBase(*this);
 }
 
@@ -37,17 +35,15 @@ void fastNLOCoeffBase::Read(istream& table){
 //________________________________________________________________________________________________________________ //
 void fastNLOCoeffBase::ReadBase(istream& table){
    debug["ReadBase"]<<endl;
-   table.peek();
-   if (table.eof()){
-      //printf("fastNLOCoeffBase::Read: Cannot read from file.\n");
-      error["ReadBase"]<<"Cannot read from file."<<endl;
-   }
+   //table.peek();
 
-   if (!fastNLOTools::ReadMagicNo(table)) {
-      say::error["ReadBase"]<<"Did not find initial magic number, aborting!"<<endl;
-      say::error["ReadBase"]<<"Please check compatibility of tables and program version!"<<endl;
-      exit(1);
-   }
+   table >> fVersionRead;
+   if ( fVersionRead == fastNLO::tablemagicno )
+      fVersionRead = 22000 ;
+   //fastNLOTools::ReadMagicNo(table);
+   std::string stest;
+   if ( fVersionRead>=24000 ) table >> stest; //"fastNLO_CoeffAddBase"
+   if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
 
    table >> IXsectUnits;
    table >> IDataFlag;
@@ -55,61 +51,63 @@ void fastNLOCoeffBase::ReadBase(istream& table){
    table >> IContrFlag1;
    table >> IContrFlag2;
    table >> NScaleDep;
-   int NContrDescr;
-   table >> NContrDescr;
-   //   printf("  *  fastNLOCoeffBase::Read().  IDataFlag: %d, IAddMultFlag: %d, IContrFlag1: %d, IContrFlag2: %d,, NScaleDep: %d\n",IDataFlag,IAddMultFlag,IContrFlag1,IContrFlag2,NScaleDep );
-   CtrbDescript.resize(NContrDescr);
-   char buffer[5257];
-   table.getline(buffer,5256);
-   for(int i=0;i<NContrDescr;i++){
-      table.getline(buffer,256);
-      CtrbDescript[i] = buffer;
-      //      StripWhitespace(CtrbDescript[i]);
-   }
-   int NCodeDescr;
-   table >> NCodeDescr;
-   CodeDescript.resize(NCodeDescr);
-   table.getline(buffer,256);
-   for(int i=0;i<NCodeDescr;i++){
-      table.getline(buffer,256);
-      CodeDescript[i] = buffer;
-      //      StripWhitespace(CodeDescript[i]);
-   }
+   fastNLOTools::ReadFlexibleVector(CtrbDescript,table);
+   fastNLOTools::ReadFlexibleVector(CodeDescript,table);
+   //printf("  *  fastNLOCoeffBase::Read().  IDataFlag: %d, IAddMultFlag: %d, IContrFlag1: %d, IContrFlag2: %d,, NScaleDep: %d\n",IDataFlag,IAddMultFlag,IContrFlag1,IContrFlag2,NScaleDep );
+   // int NContrDescr;
+   // table >> NContrDescr;
+   // CtrbDescript.resize(NContrDescr);
+   // char buffer[5257];
+   // table.getline(buffer,5256);
+   // for(int i=0;i<NContrDescr;i++){
+   //    table.getline(buffer,256);
+   //    CtrbDescript[i] = buffer;
+   //    //      StripWhitespace(CtrbDescript[i]);
+   // }
+   // int NCodeDescr;
+   // table >> NCodeDescr;
+   // CodeDescript.resize(NCodeDescr);
+   // table.getline(buffer,256);
+   // for(int i=0;i<NCodeDescr;i++){
+   //    table.getline(buffer,256);
+   //    CodeDescript[i] = buffer;
+   //    //      StripWhitespace(CodeDescript[i]);
+   // }
+   if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
 }
 
 
 //________________________________________________________________________________________________________________ //
 void fastNLOCoeffBase::EndReadCoeff(istream& table){
-   if (!fastNLOTools::ReadMagicNo(table)) {
-      say::error["ReadBase"]<<"Did not find final magic number, aborting!"<<endl;
-      say::error["ReadBase"]<<"Please check compatibility of tables and program version!"<<endl;
-      say::error["ReadBase"]<<"This might also be provoked by lines with unexpected non-numeric content like 'inf' or 'nan'!"<<endl;
-      exit(1);
-   }
+   fastNLOTools::ReadMagicNo(table);
+   // if (!fastNLOTools::ReadMagicNo(table)) {
+   //    say::error["ReadBase"]<<"Did not find final magic number, aborting!"<<endl;
+   //    say::error["ReadBase"]<<"Please check compatibility of tables and program version!"<<endl;
+   //    say::error["ReadBase"]<<"This might also be provoked by lines with unexpected non-numeric content like 'inf' or 'nan'!"<<endl;
+   //    exit(1);
+   // }
    fastNLOTools::PutBackMagicNo(table);
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffBase::Write(ostream& table) {
-   say::debug["Write"]<<"Writing fastNLOCoeffBase."<<endl;
-   table << tablemagicno << endl;
-   table << IXsectUnits << endl;
-   table << IDataFlag << endl;
-   table << IAddMultFlag << endl;
-   table << IContrFlag1 << endl;
-   table << IContrFlag2 << endl;
-   table << NScaleDep << endl;
-   table << CtrbDescript.size() << endl;
+void fastNLOCoeffBase::Write(ostream& table, int itabversion) {
+   say::debug["Write"]<<"Writing fastNLOCoeffBase for table version " << itabversion << "." << endl;
+   table << fastNLO::tablemagicno << sep;
+   if ( itabversion >= 24000 ) table << fastNLO::tabversion << sep;
+   if ( itabversion >= 24000 ) table << "fastNLO_CoeffAddBase" << sep;
+   if ( itabversion >= 24000 ) table << 0 << sep; // v2.4, but yet unused
+   table << IXsectUnits << sep;
+   table << IDataFlag << sep;
+   table << IAddMultFlag << sep;
+   table << IContrFlag1 << sep;
+   table << IContrFlag2 << sep;
+   table << NScaleDep << sep;
    //printf("  *  fastNLOCoeffBase::Write().  IDataFlag: %d, IAddMultFlag: %d, IContrFlag1: %d, IContrFlag2: %d, NScaleDep: %d\n",
    //IDataFlag,IAddMultFlag,IContrFlag1,IContrFlag2,NScaleDep);
-   for(unsigned int i=0;i<CtrbDescript.size();i++){
-      table << CtrbDescript[i] << endl;
-   }
-   table << CodeDescript.size() << endl;
-   for(unsigned int i=0;i<CodeDescript.size();i++){
-      table << CodeDescript[i] << endl;
-   }
+   fastNLOTools::WriteFlexibleVector(CtrbDescript,table);
+   fastNLOTools::WriteFlexibleVector(CodeDescript,table);
+   if ( itabversion >= 24000 ) table << 0 << sep; // v2.4, but yet unuse
 }
 
 
@@ -146,8 +144,8 @@ bool fastNLOCoeffBase::IsCompatible(const fastNLOCoeffBase& other) const {
          // continue;
       }
       else {
-	 warn["IsCompatible"]<<"Incompatible NScaleDep found!()"<<endl;
-	 return false;
+         warn["IsCompatible"]<<"Incompatible NScaleDep found!()"<<endl;
+         return false;
       }
    }
    debug["IsCompatible"]<<"Both tables are compatible"<<endl;
@@ -158,6 +156,40 @@ bool fastNLOCoeffBase::IsCompatible(const fastNLOCoeffBase& other) const {
    return true;
 }
 
+
+//________________________________________________________________________________________________________________ //
+bool fastNLOCoeffBase::IsCatenable(const fastNLOCoeffBase& other) const {
+   if( IXsectUnits != other.GetIXsectUnits() ){
+      debug["IsCatenable"]<<"IXsectUnits != other.GetIXsectUnits(). Skipped."<<endl;
+      return false;
+   }
+   if( IDataFlag != other.GetIDataFlag() ){
+      debug["IsCatenable"]<<"IDataFlag != other.GetIDataFlag(). Skipped."<<endl;
+      return false;
+   }
+   if( IAddMultFlag != other.GetIAddMultFlag() ){
+      debug["IsCatenable"]<<"IAddMultFlag != other.GetIAddMultFlag(). Skipped."<<endl;
+      return false;
+   }
+   if( IContrFlag1 != other.GetIContrFlag1() ){
+      debug["IsCatenable"]<<"IContrFlag1 != other.GetIContrFlag1(). Skipped."<<endl;
+      return false;
+   }
+   if( IContrFlag2 != other.GetIContrFlag2() ){
+      debug["IsCatenable"]<<"IContrFlag2 != other.GetIContrFlag2(). Skipped."<<endl;
+      return false;
+   }
+   if( NScaleDep != other.GetNScaleDep() ){
+      debug["IsCatenable"]<<"NScaleDep != other.GetNScaleDep(). Skipped."<<endl;
+      return false;
+   }
+   info["IsCatenable"]<<"Base parameters of contribution allow catenation"<<endl;
+   // check descripts here ?!
+   //bool potentialcompatible = true;
+   //vector < string > CtrbDescript;
+   //vector < string > CodeDescript;
+   return true;
+}
 
 //________________________________________________________________________________________________________________ //
 
@@ -172,22 +204,46 @@ void fastNLOCoeffBase::SetCoeffAddDefaults(){
 };
 
 //________________________________________________________________________________________________________________ //
-
-
-void fastNLOCoeffBase::Print() const {
-  printf("\n **************** FastNLO Table: CoeffBase ****************\n");
-  printf(" B   Scenario::GetNObsBin()        %d\n",fNObsBins);
-  printf(" B   IXsectUnits                   %d\n",IXsectUnits);
-  printf(" B   IDataFlag                     %d\n",IDataFlag);
-  printf(" B   IAddMultFlag                  %d\n",IAddMultFlag);
-  printf(" B   IContrFlag1                   %d\n",IContrFlag1);
-  printf(" B   IContrFlag2                   %d\n",IContrFlag2);
-  printf(" B   NScaleDep                     %d\n",NScaleDep);
-  fastNLOTools::PrintVector(CtrbDescript,"CtrbDescript","B");
-  fastNLOTools::PrintVector(CodeDescript,"CodeDescript","B");
-  printf(" *******************************************************\n");
-
+void fastNLOCoeffBase::Print(int iprint) const {
+   if ( !(iprint < 0) ) {
+      cout << fastNLO::_DSEP20C << " fastNLO Table: CoeffBase " << fastNLO::_DSEP20 << endl;
+   } else {
+      cout << endl << fastNLO::_CSEP20C << " fastNLO Table: CoeffBase " << fastNLO::_CSEP20 << endl;
+   }
+   fastNLOTools::PrintVector(CtrbDescript,"Contribution description (CtrbDescript)","#");
+   fastNLOTools::PrintVector(CodeDescript,"Code description (CodeDescript)","#");
+   if ( abs(iprint) > 0 ) {
+      cout << fastNLO::_SSEP20C << " Extended information (iprint > 0) " << fastNLO::_SSEP20 << endl;
+      printf(" #   IXsectUnits                       %d\n",IXsectUnits);
+      printf(" #   IDataFlag                         %d\n",IDataFlag);
+      printf(" #   IAddMultFlag                      %d\n",IAddMultFlag);
+      printf(" #   IContrFlag1                       %d\n",IContrFlag1);
+      printf(" #   IContrFlag2                       %d\n",IContrFlag2);
+      printf(" #   NScaleDep                         %d\n",NScaleDep);
+   }
+   if ( iprint < 0 ) {
+      cout << fastNLO::_CSEPSC << endl;
+   } else {
+      //      cout << fastNLO::_DSEPSC << endl;
+   }
 }
 
 
 //________________________________________________________________________________________________________________ //
+
+// Erase observable bin
+void fastNLOCoeffBase::EraseBin(unsigned int iObsIdx) {
+   debug["fastNLOCoeffBase::EraseBin"]<<"Erasing table entries in CoeffBase for bin index " << iObsIdx << endl;
+   SetNObsBin(GetNObsBin()-1);
+}
+
+// Catenate observable bin
+void fastNLOCoeffBase::CatBin(const fastNLOCoeffBase& other, unsigned int iObsIdx) {
+   debug["fastNLOCoeffBase::CatBin"]<<"Catenating observable bin in CoeffBase corresponding to bin index " << iObsIdx << endl;
+   SetNObsBin(GetNObsBin()+1);
+}
+
+// Multiply observable bin
+void fastNLOCoeffBase::MultiplyBin(unsigned int iObsIdx, double nfact) {
+   debug["fastNLOCoeffBase::MultiplyBin"]<<"Multiplying table entries. Nothing to be done in CoeffBase." << endl;
+}

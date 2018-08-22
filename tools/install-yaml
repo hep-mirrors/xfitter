@@ -5,8 +5,8 @@
 #
 
 # Package versions:
-yamlver=0.1.6
-yamlppver=0.5.3
+yamlver=0.1.7
+yamlppver=0.6.1
 
 #Check for dummies
 if [[ $0 == bash || $0 = csh ]]

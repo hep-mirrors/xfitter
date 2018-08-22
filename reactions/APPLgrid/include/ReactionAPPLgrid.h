@@ -28,7 +28,7 @@ class ReactionAPPLgrid : public ReactionTheory
  public:
     virtual string getReactionName() const { return  "APPLgrid" ;};
     int initAtStart(const string &); 
-    virtual void setDatasetParamters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+    virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
  protected:
     virtual int parseOptions(){ return 0;};    
@@ -40,7 +40,7 @@ class ReactionAPPLgrid : public ReactionTheory
     map<int, int> _order;
     map<int, double> _muR, _muF; // !> renormalisation and factorisation scales
     map<int, bool> _flagNorm; // !> if true, multiply by bin width
-    map<int, bool> _flagUseReferece; // !> if true, prediction will be calculated from reference histogram (for tests and grids validation)
+    map<int, bool> _flagUseReference; // !> if true, prediction will be calculated from reference histogram (for tests and grids validation)
     map<int, std::vector<TH1D*> > _references;
     map<int, std::vector<double> > _eScale; // !> CMS energy
 };

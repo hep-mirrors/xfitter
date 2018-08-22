@@ -25,7 +25,7 @@ int ReactionKFactor::initAtStart(const string &s)
 }
 
 // Initialisze for a given dataset:
-void ReactionKFactor::setDatasetParamters(int dataSetID, map<string,string> pars, map<string, double> parsDataset)
+void ReactionKFactor::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset)
 {
   // check if kfactors should be read from separate file
   if (pars.find("FileName") != pars.end())
@@ -43,6 +43,17 @@ void ReactionKFactor::setDatasetParamters(int dataSetID, map<string,string> pars
     if(pars.find("FileLine") != pars.end())
       lineStart = atoi(pars["FileLine"].c_str());
 
+    // requested last line -> how many values to read (by default the same as number of data points)
+    // TODO: how to get number of data points?
+    // not very elegant way below
+    int np = _dsBins[dataSetID]->begin()->second.size();
+    int lineFinish = lineStart + np - 1;
+    if(pars.find("FileLineFinish") != pars.end())
+    {
+      lineFinish = atoi(pars["FileLineFinish"].c_str());
+      np = lineFinish - lineStart + 1;
+    }
+
     // check that the column is reasonable
     if(column < 1)
       hf_errlog(17102800, "F: wrong column = " + std::to_string(column));
@@ -57,9 +68,6 @@ void ReactionKFactor::setDatasetParamters(int dataSetID, map<string,string> pars
     for(int l = 1; l < lineStart; l++)
       getline(file, line);
 
-    // TODO: how to get number of data points?
-    // not very elegant way below
-    int np = _dsBins[dataSetID]->begin()->second.size();
     for(int p = 0; p < np; p++)
     //while (1)
     {
@@ -107,13 +115,33 @@ void ReactionKFactor::setDatasetParamters(int dataSetID, map<string,string> pars
     _values[dataSetID].resize(vals->size());
     _values[dataSetID].assign(std::begin(*vals), std::end(*vals));
   }
+  // check if kfactor is a parameter (possibly free); the value of this parameter will be used for all bins in data set
+  else  if (pars.find("Parameter") != pars.end())
+  {
+    _parameterNames[dataSetID] = std::make_pair(pars["Parameter"], 0.0);
+  }
   else
-    hf_errlog(17102804, "F: either FileName or DataColumn must be provided for KFactor");
+    hf_errlog(17102804, "F: FileName or DataColumn or Parameter must be provided for KFactor");
 }
+
+void ReactionKFactor::initAtIteration() {
+  for(auto& it : _parameterNames)
+    it.second.second = GetParam(it.second.first);
+}
+
 // Main function to compute results at an iteration
 int ReactionKFactor::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  val = std::valarray<double>(_values[dataSetID].data(), _values[dataSetID].size());
+  const auto& it = _parameterNames.find(dataSetID);
+  if(it != _parameterNames.end())
+  {
+    // kfactor given as a fit parameter read in initAtIteration()
+    int np = _dsBins[dataSetID]->begin()->second.size(); // number of data points
+    val = std::valarray<double>(it->second.second, np);
+  }
+  else
+    // kfactor is constant value read in setDatasetParameters()
+    val = std::valarray<double>(_values[dataSetID].data(), _values[dataSetID].size());
   return 0;
 }
 

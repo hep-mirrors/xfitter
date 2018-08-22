@@ -11,3 +11,5 @@ libhvqmnr_lhcb_7tev_beauty_xfitter_la_SOURCES = ReactionHVQMNR_LHCb_7TeV_beauty.
 libhvqmnr_lhcb_7tev_beauty_xfitter_la_LDFLAGS = -lbasehvqmnr_xfitter -L$(srcdir)/../../../reactions/BaseHVQMNR/src/.libs  
 
 endif 
+
+dist_noinst_HEADERS = ../include ../yaml
