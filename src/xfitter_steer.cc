@@ -150,7 +150,9 @@ namespace xfitter {
 /// Temporary interface for fortran
 extern "C" {
   void init_evolution_(); 
-  void init_minimizer_(); 
+  void init_minimizer_();
+  void run_minimizer_();
+  void run_error_analysis_();
 }
 
 void init_evolution_() {
@@ -158,6 +160,17 @@ void init_evolution_() {
 }
 
 void init_minimizer_() {
+  /// initAtStart is called inside
   auto mini = xfitter::get_minimizer();
-  mini->doMimimization();
 }
+
+void run_minimizer_() {
+  auto mini = xfitter::get_minimizer();
+  mini->doMimimization();    
+}
+
+void run_error_analysis_() {
+  auto mini = xfitter::get_minimizer();
+  mini->errorAnalysis();    
+}
+

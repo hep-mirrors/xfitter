@@ -4,18 +4,24 @@
 #
 # default minimizer:
 #
-Minimizer :  CERES # MINUIT
+Minimizer : MINUIT # CERES
 
 MINUIT :
   Commands : |
-    fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
-    minimize 
+    fix 106 107 109 111 112 113 114 115 116 117 118 119 120 122
+    minimize
     call fcn 3
+  doErrors : Pumplin # Hesse # None
 
 #
 # default evolution:
 #
-Evolution :   QCDNUM
+Evolution :  QCDNUM
+
+LHAPDF :
+  set : "CT10"
+  member : 0
+
 
 #
 # default PDF decomposition 
@@ -132,8 +138,8 @@ include : yaml/reactions/APPLgrid/parameters.yaml
 # Speficify HF scheme used for DIS NC processes:
 #---------------------------
 hf_scheme_DISNC :
-#  defaultValue : 'BaseDISNC'       # global specification
-  defaultValue : 'RT_DISNC'        # global specification
+  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'RT_DISNC'        # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
