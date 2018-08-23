@@ -198,5 +198,6 @@ bool Chi2scanUnc()
     + opts.outdir + "unc_summary.toc ";
   system(clean.c_str());
 
-  return latexcmd;
+  //return latexcmd;
+  return false;
 }

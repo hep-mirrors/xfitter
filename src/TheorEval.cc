@@ -611,9 +611,10 @@ TheorEval::getGridValues()
     (itm->second)->resize(xs.size());
     *(itm->second) = valarray<double>(xs.data(), xs.size());
 
-    //    for (int i = 0; i<xs.size(); i++){
-    //      cout << xs[i] << endl;
-    //    }
+//    //        for (int i = 0; i<xs.size(); i++){
+//            for (int i = 0; i<10; i++){
+//              cout << xs[i] << endl;
+//            }
 
     
     

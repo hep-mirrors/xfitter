@@ -19,6 +19,7 @@ C-------------------------------------------------------
 #include "covar.inc"
 #include "theorexpr.inc"
 #include "chi2scan.inc"
+#include "alphasscan.inc"
 
       integer icond
       integer nOffset
@@ -84,6 +85,11 @@ c      call qcdnum_ini
          goto 36
       endif
 
+      if (ASSCAN) then  ! alphas scan
+         call alphas_scan
+         goto 36
+      endif
+      
 *     ------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------

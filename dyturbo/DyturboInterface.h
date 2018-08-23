@@ -27,6 +27,9 @@ class Dyturbo
   int proc;
   string infile;
   int order;
+
+  static string pdfname;
+  static int pdfmember;
 };
 
 

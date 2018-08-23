@@ -9,12 +9,14 @@ using namespace std;
 
 extern"C" {
   void chi2_scan_();
+  void alphas_scan_();
 
   void mc_method_();
 
   //LHAPDFErrors functions
   void get_lhapdferrors_();
   void getpdfunctype_heraf_(int& lmontecarlo, int& lasymhess, int& lsymmhess, const char name[], int len);
+  void getpdfunctype_heraf_lhapdf6_(int& lmontecarlo, int& lasymhess, int& lsymmhess, const char name[], int len);
 
   //Error logging function
   void hf_errlog_(const int &id, const char text[], int);
@@ -261,6 +263,17 @@ extern"C" {
 
   } chi2scan_;
 
+  extern struct {
+    int alphasscan_;
+    int aspdfprofile_;
+    int asscaleprofile_;
+    char alphaslhapdf_[128];
+    char aslhapdfset_[128];
+    char aslhapdfvarset_[128];
+    int asnparvar_;
+    char aslhapdfref_[128];
+  } alphasscan_;
+  
   extern struct {
     int isysttype_[NSYSMAX_C];
   } csysttype_;

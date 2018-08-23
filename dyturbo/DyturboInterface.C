@@ -25,6 +25,7 @@
 #include "dyturbo/switch.h"
 #include "dyturbo/gaussrules.h"
 #include "dyturbo/resconst.h"
+#include "dyturbo/abint.h"
 
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
@@ -37,6 +38,9 @@
 
 using namespace std;
 
+string Dyturbo::pdfname;
+int Dyturbo::pdfmember;
+
 //Constructor
 Dyturbo::Dyturbo(string file): infile(file)
 {
@@ -47,7 +51,9 @@ Dyturbo::Dyturbo(string file): infile(file)
   gaussinit_();             //initialisation of fortran gaussian quadrature nodes and weights
   coupling::SMparameters(); //initialisation of unused MCFM parameters
   // parsing options from input file
-  opts.readfromfile      (file);
+  opts.readfromfile(file);
+  bins.readfromfile(file);
+  opts.check_consitency();
   DYTurbo::init_params();
 
 
@@ -88,7 +94,8 @@ void Dyturbo::SetBins(vector <double> ledge, vector <double> uedge, double ylow,
 
 void Dyturbo::SetOrdScales(int iord, double kmuren, double kmufac, double kmures, double muC3)
 {
-  order = iord-1;
+  //order = iord-1;
+  order = (iord-1)+1; //when running with applgrid V+jet, the order of applgrid is one order less
   
   opts.order = order;
   nnlo_.order_ = opts.order;
@@ -105,19 +112,25 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   //re-read input file
   opts.readfromfile(infile.c_str());
 
-  //restore overwritten settings
+  //restore settings which are set in the data file INFO
   opts.order = order;
   opts.nproc = proc;
   //opts.mlow = ml;
   //opts.mhigh = mh;
-  string lhapdfset = string(clhapdf_.lhapdfset_, 128);
 
+  //restore LHAPDF settings (needed to read g from LHAPDF)
+  opts.LHAPDFset = pdfname;
+  opts.LHAPDFmember = pdfmember;
+  
+  // string lhapdfset = string(clhapdf_.lhapdfset_, 128);
   //issue with deleting last character from the PDF name
-  lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos); //--> use this for LHAPDF analysis
+  //if (RunningMode == "LHAPDF Analysis")
+  //lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos); //--> use this for LHAPDF analysis
+  //else if (RunningMode == "Chi2 Scan")
   //lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" "), string::npos); //--> use this for chi2scan analysis
-  int member = clhapdf_.ilhapdfset_;
-  opts.LHAPDFset = lhapdfset;
-  opts.LHAPDFmember = member;
+  //int member = clhapdf_.ilhapdfset_;
+  //opts.LHAPDFset = lhapdfset;
+  //opts.LHAPDFmember = member;
 
   //set scales
   opts.kmuren = muren;
@@ -131,46 +144,52 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   mcfm::init();
   iniflavreduce_();
   coupling::initscales();
+
+  //recompute PDF moments
+  pdfevol::init();
+  pegasus::init();
+
+  resint::init();
   */
 
   //Full reinitialisation
   //cout << "Start reinit" << endl;
   //DYTurbo::init_params();
 
+    // init filling
     dofill_.doFill_ = 0;
     dyres::init();
-    mcfm::init();
-    iniflavreduce_(); //need to call this after nproc_.nproc_ is set
+    mcfm::init();               //This functions calls coupling::init()
+    //pdf::init();                //Set up PDFs from LHAPDF, set alphas, and read g from the PDF
+    iniflavreduce_();           //need to call this after nproc_.nproc_ is set
     coupling::initscales();
-    //C++ resum
-    //initialise all the C modules
-    //gr::init(); //nodes and weights of gaussian quadrature rules --> skip this to speed up
-    mellinint::initgauss(); //gaussian quadrature for mellin inversion
-    mesq::init(); //EW couplings for born amplitudes
-    rapint::init(); //allocate memory for the rapidity quadrature
-    resconst::init(); //calculate beta, A and B coefficients
+    //cc::init();                 //nodes and weights of Clenshaw-Curtis quadrature rules        --> skip this to speed up
+    //gr::init();                 //nodes and weights of gaussian quadrature rules               --> skip this to speed up
+    mellinint::initgauss();     //gaussian quadrature for mellin inversion
+    mesq::init();               //EW couplings for born amplitudes
+    rapint::init();             //allocate memory for the rapidity quadrature
+    resconst::init();           //calculate beta, A and B coefficients
+    anomalous::init();          //calculate anomalous dimensions, C1, C2 and gamma coefficients
+    pdfevol::init();            //transform the PDF from x- to N-space at the factorisation scale
     if (!opts.fixedorder)
       {
-	anomalous::init(); //calculate anomalous dimensions, C1, C2 and gamma coefficients
-	pdfevol::init(); //transform the PDF from x- to N-space at the factorisation scale
-	pegasus::init(); //initialise Pegasus QCD and transform the PDF from x- to N-space at the starting scale
-	resint::init(); //initialise dequad integration for the bessel integral
+	pegasus::init();        //initialise Pegasus QCD and transform the PDF from x- to N-space at the starting scale
+	resint::init();         //initialise dequad integration for the bessel integral
       }
-    //end C++ resum
-    //V+j fixed order initialisation
     vjint::init();
     vjloint::init();
-    //
-    //loint::init(); //Born term initialisation
-    switching::init(); //switching function initialisation
+    abint::init();              //alfa beta integration initialisation
+    switching::init();          //switching function initialisation
+    //itilde::init();             //itilde dequad initialisation
     rescinit_();
 
   //cout << "End reinit" << endl;
   //End reinitialisation
 
-  setg();
-  setalphas();
-
+  //setup g and alphas from the current PDF set
+  pdf::setg();
+  pdf::setalphas();
+    
   int mode = 0;
   double costh = 0.1; double m = 91; double qt = 5; double y = 0.2;
   resumm_(costh,m,qt,y,mode);
@@ -187,30 +206,21 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
   setalphas();
 #endif
   */
-  
-  //recompute PDF moments
-  if (!opts.fixedorder)
-    if (opts.resumcpp)
-      {
-	pdfevol::init();
-	pegasus::init();
-	resint::init();
-      }
-    else
-      initmoments_();
 
   vector<double>::iterator itl = lowedge.begin();
   vector<double>::iterator itu = upedge.begin();
   //cout << "xw " << opts.xw << endl;  
-  //  cout << "scale_.scale_ " << scale_.scale_ << endl;  
+  //cout << "scale_.scale_ " << scale_.scale_ << endl;  
   for (vector<double>::iterator it = values.begin(); it != values.end(); it++, itl++, itu++)
     {
       //Setbounds
+      //cout << "bounds" << endl;
       //cout << yl << "  " << yh << "  " << ml << "  " << mh << "  " << opts.nproc << endl;
       //cout << yl << "  " << yh << "  " << *itl << "  " << *itu << "  " << opts.costhmin << "  " << opts.costhmax << "  " << opts.nproc << endl;
+      //cout << "order: " << opts.order << endl;
 
-      //phasespace::setbounds(ml, mh, *itl, *itu, yl, yh); //pt bins
-      phasespace::setbounds(*itl, *itu, 0, 4000, yl, yh); //m bins
+      phasespace::setbounds(ml, mh, *itl, *itu, yl, yh); //pt bins
+      //phasespace::setbounds(*itl, *itu, 0, 4000, yl, yh); //m bins
       //phasespace::setbounds(ml, mh, 0, 4000, *itl, *itu); //y bins
       phasespace::setcthbounds(opts.costhmin, opts.costhmax);
 
@@ -225,34 +235,38 @@ void Dyturbo::Calculate(const double muren, const double mufac, const double mur
 	  //end C++ resum
 	  else	    
 	    cacheyrapint_(phasespace::ymin, phasespace::ymax);
-	  resintegr2d(vals, error);
-	  //cout << "RES result " << vals[0] << "  " << error << endl;
+	  //resintegr2d(vals, error);
+	  resintegr1d(vals, error);
+	  //if (it - values.begin() < 10)
+	  //cout << "RES result " << vals[0]/(*itu - *itl) << "  " << error << endl;
 	  *it = vals[0];
-	  ctintegr2d(vals, error);
-	  //cout << "CT result " << vals[0] << "  " << error << endl;
+	  ctintegr1d(vals, error);
+	  //if (it - values.begin() < 10)
+	  //cout << "CT result " << vals[0]/(*itu - *itl) << "  " << error << endl;
 	  *it += vals[0];
-	  vjlointegr5d(vals, error);
+	  //	  vjlointegr5d(vals, error);
 	  //	  vjintegr3d(vals, error);
-	  //cout << "V+J result " << vals[0] << "  " << error << endl;
-	  *it += vals[0];
+	  //	  cout << "V+J result " << vals[0]/(*itu - *itl) << "  " << error << endl;
+	  //	  *it += vals[0];
 	}
       else
 	{
 	  //vjlointegr5d(vals, error);
 	  bornintegr2d(vals, error);
 	  *it = vals[0];
-	  //cout << "BORN result " << vals[0] << "  " << error << endl;
+	  cout << "BORN result " << vals[0] << "  " << error << endl;
 	  if (opts.order > 0)
 	    {
 	      ctintegr2d(vals, error);
-	      //cout << "CT result " << vals[0] << "  " << error << endl;
+	      cout << "CT result " << vals[0] << "  " << error << endl;
 	      *it += vals[0];
 	      vjlointegr5d(vals, error);
-	      //cout << "V+J result " << vals[0] << "  " << error << endl;
+	      cout << "V+J result " << vals[0] << "  " << error << endl;
 	      *it += vals[0];
 	    }
 	}
       *it /= (*itu - *itl);
+      //if ((it-values.begin()) < 10)
       //cout << "TOT result " << *itl << "  " << *itu << "  " << *it *(*itu - *itl) << endl;
     }
   return;

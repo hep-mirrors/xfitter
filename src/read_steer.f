@@ -34,6 +34,7 @@ C Special branch for rotation
       if(Itheory.lt.100) then
          call read_lhapdfnml    ! read lhapdf 
          call read_chi2scan     ! read chi2scan
+         call read_alphasscan   ! read alphasscan
 C
 C Decode PDF type:
 C      
@@ -238,6 +239,7 @@ C----------------------------------------------
 #include "indata.inc"
 #include "theorexpr.inc"
 #include "chi2scan.inc"
+#include "alphasscan.inc"
 #include "for_debug.inc"
 C-----------------------------------------------
 
@@ -300,18 +302,22 @@ C Decode Running Mode:
          Call hf_errlog(15072201,
      $        'I: RunningMode not set,check LHAPDFERRors'
      $        //' and SCAN for backward compatibility')
+         asscan = .false.
          scan = .false.
          lhapdferrors = .false.
          pdfrotate = .false.
       else if  ( RunningMode .eq. 'Fit') then
+         asscan = .false.
          scan = .false.
          lhapdferrors = .false.
          pdfrotate = .false.
       else if  ( RunningMode .eq. 'PDF Rotate') then
+         asscan = .false.
          scan = .false.
          lhapdferrors = .false.
          pdfrotate = .true. 
       else if  ( RunningMode .eq. 'LHAPDF Analysis') then
+         asscan = .false.
          scan = .false.
          lhapdferrors = .true. 
          if ( index(pdfstyle,'LHAPDF').eq.0) then
@@ -320,7 +326,13 @@ C Decode Running Mode:
          endif
          pdfrotate = .false.
       else if  ( RunningMode .eq. 'Chi2 Scan') then
+         asscan = .false.
          scan = .true.
+         lhapdferrors = .false.
+         pdfrotate = .false. 
+      else if  ( RunningMode .eq. 'Alphas Scan') then
+         asscan = .true.
+         scan = .false.
          lhapdferrors = .false.
          pdfrotate = .false. 
       else
@@ -635,6 +647,52 @@ C---
 
       end
 
+      subroutine read_alphasscan
+
+      implicit none
+#include "steering.inc"
+#include "ntot.inc"
+#include "theorexpr.inc"
+#include "alphasscan.inc"
+C------------------------------------
+C (Optional) Chi2Scan steering card
+      namelist/alphasscan/asscan,
+     $     aspdfprofile,asscaleprofile,
+     $	   alphaslhapdf,
+     $     aslhapdfset,aslhapdfvarset,asnparvar,
+     $     aslhapdfref
+
+C Chi2Scan default
+      asscan = .false.
+      aspdfprofile = .false.
+      asscaleprofile = .false.
+      alphaslhapdf = ''
+      aslhapdfset = ''
+      aslhapdfvarset = ''
+      asnparvar = 0
+      aslhapdfref = ''
+
+C
+C  Read the chi2scan namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=alphasscan,ERR=70,end=69)
+ 69   continue
+      close (51)
+
+      if (LDebug) then
+C Print the namelist:
+         print alphasscan
+      endif
+
+      return
+C---
+ 70   continue
+      print '(''Error reading namelist &alphasscan, STOP'')'
+      call HF_stop
+
+      end
+      
 C
 !> Read MC errors namelist
 C-------------------------------------------------------

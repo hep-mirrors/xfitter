@@ -2,6 +2,7 @@
 
 #include "pdferrors.h"
 #include "dimensions.h"
+#include "DyturboInterface.h"
 
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
@@ -112,15 +113,19 @@ void get_lhapdferrors_()
   vector <double> chi2;
 
   string lhapdfset = string(clhapdf_.lhapdfset_, 128);
-  lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
   string lhapdfvarset = string(clhapdf_.lhapdfvarset_, 128);
-  lhapdfvarset = lhapdfvarset.erase(lhapdfvarset.find_last_not_of(" ")+1, string::npos);
+  //  lhapdfset = lhapdfset.erase(lhapdfset.find_last_not_of(" ")+1, string::npos);
+  //  lhapdfvarset = lhapdfvarset.erase(lhapdfvarset.find_last_not_of(" ")+1, string::npos);
+  lhapdfset = lhapdfset.erase(lhapdfset.find_first_of(" "), string::npos);
+  lhapdfvarset = lhapdfvarset.erase(lhapdfvarset.find_first_of(" "), string::npos);
+
   bool pdfprofile = clhapdf_.lhapdfprofile_;
   bool scaleprofile = clhapdf_.lhascaleprofile_;
   double scalefactor = clhapdf_.scalefactor_;
   
   string outdirname = string(coutdirname_.outdirname_, 128);
-  outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
+  //outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
+  outdirname = outdirname.erase(outdirname.find_first_of(" "), string::npos);
 
   /*****************************************************/
   // Central PDF
@@ -128,6 +133,7 @@ void get_lhapdferrors_()
   cout << "Chi2 test on central prediction:" << endl;
   
   LHAPDF::initPDFSet(lhapdfset.c_str());
+  Dyturbo::pdfname = lhapdfset;
 
   int central_pdfmember;
   if (pdfprofile)
@@ -136,6 +142,7 @@ void get_lhapdferrors_()
     central_pdfmember = clhapdf_.ilhapdfset_;
   clhapdf_.ilhapdfset_ = central_pdfmember;
   LHAPDF::initPDF(clhapdf_.ilhapdfset_);
+  Dyturbo::pdfmember = clhapdf_.ilhapdfset_;
 
   //set alphas from LHAPDF
   c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
@@ -203,7 +210,8 @@ void get_lhapdferrors_()
     {
       cout << "-------------------------------------------" << endl;
       cout << "Chi2 test on PDF variations" << endl;
-      getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+      //getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+      getpdfunctype_heraf_lhapdf6_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
       string msg = "";
       if (MonteCarloPDFErr)
 	msg = (string) "I: Use Monte Carlo errors approach for: " + lhapdfset;
@@ -233,16 +241,19 @@ void get_lhapdferrors_()
 	{
 	  if (pdfset ==  0)
 	    {
+	      //LHAPDF::initPDFSetByName(lhapdfset.c_str());
 	      LHAPDF::initPDFSet(lhapdfset.c_str());
-	      //	  LHAPDF::initPDFSetByName(lhapdfset.c_str());
+	      Dyturbo::pdfname = lhapdfset;
 	      cout << "PDF set: " << lhapdfset;
-	      getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+	      //getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+	      getpdfunctype_heraf_lhapdf6_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
 	    }
 	  else if (pdfset ==  1)
 	    {
 	      if (lhapdfvarset == "")
 		continue;
 	      LHAPDF::initPDFSet(lhapdfvarset.c_str());
+	      Dyturbo::pdfname = lhapdfvarset;
 	    }
 	  //Number of PDF members
 	  int nsets = LHAPDF::numberPDF();
@@ -272,6 +283,7 @@ void get_lhapdferrors_()
 	      LHAPDF::initPDF(iset);
 	      clhapdf_.ilhapdfset_ = iset;
 	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+	      Dyturbo::pdfmember = iset;
 	  
 	      //set also mc, mb and mt from LHAPDF
 	      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
@@ -412,6 +424,8 @@ void get_lhapdferrors_()
       steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
       steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
       steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+      Dyturbo::pdfname = lhapdfset;
+      Dyturbo::pdfmember = central_pdfmember;
 
     }//End of pdfprofile
 
@@ -430,6 +444,8 @@ void get_lhapdferrors_()
       steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
       steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
       steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+      Dyturbo::pdfname = lhapdfset;
+      Dyturbo::pdfmember = central_pdfmember;
 
       //Store current values of scales
       map <int, int> iordmap;
