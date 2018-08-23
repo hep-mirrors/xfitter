@@ -8,6 +8,7 @@
 
 #include "EvolutionLHAPDF.h"
 #include "xfitter_pars.h"
+#include "CheckForPDF.h"
 
 namespace xfitter
 {
@@ -21,12 +22,6 @@ extern "C" EvolutionLHAPDF* create() {
 /// Global initialization
   void EvolutionLHAPDF::initAtStart() {
 
-    auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
-
-    _set_name = pars["set"].as<std::string>();
-    _member   = pars["member"].as<int>();
-    
-    _pdf      = LHAPDF::mkPDF(_set_name,_member);
     return ;
  };
     
@@ -34,6 +29,15 @@ extern "C" EvolutionLHAPDF* create() {
   void EvolutionLHAPDF::initAtIteration() {
 
     // Initialize LHAPDF
+    auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
+
+    _set_name = pars["set"].as<std::string>();
+    _member   = pars["member"].as<int>();
+
+    // check if exists first
+    CheckForPDF(_set_name.c_str());
+    
+    _pdf      = LHAPDF::mkPDF(_set_name,_member);
     return ;
   };
 
