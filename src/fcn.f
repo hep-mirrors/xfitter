@@ -100,8 +100,31 @@ C     Print MINUIT extra parameters
       
       return
       end
+C------------------------------------------------------
+C> @brief Helper for C++
+C------------------------------------------------------      
+      subroutine update_theory_iteration
+      implicit none
+#include "ntot.inc"
+#include "datasets.inc"
+      integer idataset
+      character*128 Msg
+      
+      call gettheoryiteration
+      do idataset=1,Ndatasets
+         if(NDATAPOINTS(idataset).gt.0) then
+            call GetTheoryForDataset(idataset)
+         else 
+             write (Msg,
+     $           '(''W: Data set '',i2
+     $,'' contains no data points, will be ignored'')') 
+     $           idataset
+           call hf_errlog(29052013,Msg)
+         endif
+      enddo
 
-
+      end
+      
 C------------------------------------------------------------------------------
 C> @brief     Calculate predictions for the data samples and return total chi2.
 C> @details   Created by splitting original fcn() function
@@ -320,7 +343,8 @@ cc      endif
             call GetTheoryForDataset(idataset)
          else 
              write (Msg,
-     $  '(''W: Data set '',i2,'' contains no data points, will be ignored'')') idataset
+     $  '(''W: Data set '',i2,
+     $           '' contains no data points, will be ignored'')') idataset
            call hf_errlog(29052013,Msg)
          endif
       enddo

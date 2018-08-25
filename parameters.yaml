@@ -8,15 +8,22 @@ Minimizer : MINUIT # CERES
 
 MINUIT :
   Commands : |
-    fix 6 7 9 11 12 13 14 15 16 17   18 19 20 22 xg_p1   xg_p2
+    fix 6 7 9 11 12 13 14 15 16 17   18 19 20 22 
     call fcn 3
-#    minimize
 #  doErrors :  Hesse # None
+
+
+Profiler:
+   alphas : [ 0.118, 0.119, 0.117 ]
+   evolutions :
+     proton :
+       sets :    [  NNPDF31_nnlo_as_0118, CT10  ]
+       members : [ [ 0, 1, end ], [0, 1, end] ]
 
 #
 # default evolution:
 #
-Evolution :  QCDNUM
+Evolution : LHAPDF
 
 LHAPDF :
   set : "CT10"
@@ -89,7 +96,7 @@ mtp : 173.0
 #
 # QCD parameters
 #---------------------------
-Order : NNLO
+Order :   NNLO
 NFlavour : 5
 
 #
@@ -128,6 +135,7 @@ include : yaml/reactions/FFABM_DISCC/parameters.yaml
 # APPLgrid settings:
 #---------------------------
 include : yaml/reactions/APPLgrid/parameters.yaml
+
 
 #
 # (optional) Fractal module settings:

@@ -9,6 +9,7 @@
 #include "EvolutionLHAPDF.h"
 #include "xfitter_pars.h"
 #include "CheckForPDF.h"
+#include "xfitter_cpp_base.h"
 
 namespace xfitter
 {
@@ -22,22 +23,27 @@ extern "C" EvolutionLHAPDF* create() {
 /// Global initialization
   void EvolutionLHAPDF::initAtStart() {
 
+    // Initialize LHAPDF XXXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxx
+    auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
+
+    _set_name = pars["set"].as<std::string>();
+
+    // check if exists first
+    CheckForPDF(_set_name.c_str());
     return ;
  };
     
   /// Init at each iteration
   void EvolutionLHAPDF::initAtIteration() {
 
-    // Initialize LHAPDF
+    // Initialize LHAPDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
 
     _set_name = pars["set"].as<std::string>();
     _member   = pars["member"].as<int>();
 
-    // check if exists first
-    CheckForPDF(_set_name.c_str());
-    
     _pdf      = LHAPDF::mkPDF(_set_name,_member);
+
     return ;
   };
 
@@ -73,5 +79,23 @@ extern "C" EvolutionLHAPDF* create() {
     };
     return f0;
   };
+
+  /// Get property
+  std::string EvolutionLHAPDF::getPropertyS(std::string const& propertyName) const {
+    if ( _pdf->info().has_key(propertyName) ) {
+      return _pdf->info().get_entry(propertyName);
+    }
+    else {
+      hf_errlog(2018082421,"S: Missing PDF information for property "+propertyName);
+      return "";
+    };
+  }
+
+  /// Get property
+  int EvolutionLHAPDF::getPropertyI(std::string const& propertyName) const {
+    std::string sVal = getPropertyS(propertyName);
+    return std::stoi(sVal);
+  }
+
 }
  

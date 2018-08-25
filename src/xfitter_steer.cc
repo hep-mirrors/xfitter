@@ -8,6 +8,7 @@
 #include <dlfcn.h>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
+#include <Profiler.h>
 
 extern std::map<string,string> gReactionLibs;
 
@@ -166,6 +167,11 @@ void init_minimizer_() {
 
 void run_minimizer_() {
   auto mini = xfitter::get_minimizer();
+  /// get profiler too
+  auto *prof = new xfitter::Profiler();
+
+  prof->doProfiling();
+  
   mini->doMimimization();    
 }
 
