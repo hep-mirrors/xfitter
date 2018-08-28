@@ -247,7 +247,7 @@ C----------------------------------------------------------------------
 C Add extra parameter:
 
       do i = 1,nExtraParam
-         call mnparm(100+i,ExtraParamNames(i)
+         call mnparm(i,ExtraParamNames(i)
      $        ,ExtraParamValue(i)
      $        ,ExtraParamStep(i)
      $        ,ExtraParamMin(i)
@@ -264,7 +264,7 @@ C Add extra parameter:
             print *,'Error code=',ierrf
             call HF_errlog(12020505,'F: Error in ExtraParam')
          else
-            iExtraParamMinuit(i) = 100+i
+            iExtraParamMinuit(i) = i
          endif
       enddo
       end

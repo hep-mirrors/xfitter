@@ -18,6 +18,9 @@ namespace xfitter
      @date 2018-07-11
   */
 
+
+      
+
   class BaseEvolution
   {
   public:
@@ -86,7 +89,17 @@ namespace xfitter
      */
     virtual std::function<double(double const& Q)> AlphaQCD() = 0;
 
+    /// Get name 
     const std::string getName() const { return _name; }
+
+    /// Get generic property of the evolution
+    virtual std::string getPropertyS(std::string const& propertyName ) const { return "" ; }
+
+    /// Get generic property of the evolution
+    virtual int  getPropertyI(std::string const& propertyName ) const { return 0; }
+
+    /// Get generic property of the evolution
+    virtual double  getPropertyD(std::string const& propertyName ) const { return 0.; }
     
     ///@}
    

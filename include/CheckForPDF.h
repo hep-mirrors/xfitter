@@ -1,14 +1,8 @@
 #ifndef __CHECKFORPDF_H
 #define __CHECKFORPDF_H
-#include "LHAPDF/Paths.h"
-#include <iostream>
-#include <algorithm>
 
-
-void CheckForPDF(char *pdfname);
-
-
-// for Fortran calling
+/// for Fortran calling, check presense of PDF file.
+void CheckForPDF(char const*pdfname);
 
 
 

@@ -3,12 +3,9 @@ Minimizer: MINUIT
 PDFDecomposition: GRV_PionPdfDecomposition
 GRV_PionPdfDecomposition:
   HARDWIRED_PolySqrt: #=A*x^B*(1-x)^C*(1+D*sqrt(x)+E*x)
-    v   : [0    ,0.67881,0.97958, 0.,0.]
-    qbar: [0    ,0.     ,0] # 13.143 ]
+    v   : [0    ,0.67881,0.97958]
+    qbar: [0    ,0.     ,0]
     g   : [0    ,0.     ,5.56   ]
-#    v   : [0    ,0.6561,0.9690, 0.,0.]
-#    qbar: [0.417,0.   , 9    ] #,-2.466,3.855]
-#    g   : [0    ,0.   , 5.56 ] #,-2.074] #,1.824]
 
 Q0: 1.378404875209022   #=sqrt(1.9)
 alphas: 0.118 #0.100
@@ -33,11 +30,21 @@ QCDNUM:
   Read_QCDNUM_Tables : 1
   SplineOrder : 2
   ICheck  :   0
+LHAPDF :
+  set : "CT10"
+  member : 0
 
 APPLgrid:  # APPLgrid specific
   muF: 1.0
   muR: 1.0
   Order: NLO   # APPLgrids are at max. NLO for now
+
+Profiler:
+   alphas : [ 0.118, 0.119, 0.117 ]
+   evolutions :
+     proton :
+       sets :    [  NNPDF31_nnlo_as_0118, CT10  ]
+       members : [ [ 0, 1, end ], [0, 1, end] ]
 
 Mz: 91.1876
 Mw: 80.385

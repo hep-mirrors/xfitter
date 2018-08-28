@@ -40,6 +40,14 @@ double alphaS(double const& Q) {
   return gAlphaS(Q); 
 }
 
+// also fortran interface
+
+extern "C" {
+  double alphasdef_(double const& Q) {
+    return gAlphaS(Q); 
+  }
+}
+
 
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)

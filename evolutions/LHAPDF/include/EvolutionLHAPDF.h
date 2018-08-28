@@ -42,6 +42,11 @@ class EvolutionLHAPDF : BaseEvolution
   /// Returns alphaS
     virtual std::function<double(double const& Q)> AlphaQCD() override final;
 
+  /// Get property
+    virtual std::string getPropertyS(std::string const& propertyName ) const override final;
+
+  /// Get property
+    virtual int  getPropertyI(std::string const& propertyName ) const override final;
 
  private:
     std::string _set_name{""};

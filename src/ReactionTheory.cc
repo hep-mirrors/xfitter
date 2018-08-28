@@ -23,6 +23,13 @@ void protonPDF(double const& x, double const& Q, double* pdfs) {
   gProtonPdf(x,Q,pdfs);
 }
 
+// Also fortran interface
+extern "C" {
+  void proton_pdf_(double const& x, double const& Q, double* pdfs) {
+    gProtonPdf(x,Q,pdfs);
+  };
+}
+
 
 ReactionTheory::ReactionTheory(const ReactionTheory &rt)
 {
