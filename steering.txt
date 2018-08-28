@@ -18,6 +18,9 @@
 			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-15.dat',
 			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-16.dat',
 			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-17.dat',
+!		  '/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-10.dat',
+!		  '/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-11.dat',
+!		  '/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-12.dat',
 &End
 
 &InCorr
@@ -203,7 +206,7 @@
   DoBandsSym = False     ! symmetric bands ( HESSE )
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 0.4,1.9, 3.0, 4.0, 5., 10.
+  Q2VAL = 1.9, 3.0, 4.0, 5., 10.
 !  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
 
   ! How many x points to write (standard = 101)

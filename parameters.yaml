@@ -3,23 +3,23 @@ Minimizer: MINUIT
 PDFDecomposition: GRV_PionPdfDecomposition
 GRV_PionPdfDecomposition:
   HARDWIRED_PolySqrt: #=A*x^B*(1-x)^C*(1+D*sqrt(x)+E*x)
-    v   : [0    ,0.67881,0.97958]
-    qbar: [0    ,0.     ,0]
-    g   : [0    ,0.     ,5.56   ]
+    v: [0.    , 0.6817,0.9794]
+    S: [0.0818,-0.2 ,8]
+    g: [0.    , 0   ,9]
 
 Q0: 1.378404875209022   #=sqrt(1.9)
 alphas: 0.118 #0.100
-fs:     0.3333333333333
 
-MINUIT :
-  Commands : |
-    fix 111
-    minimize
-    hesse
+MINUIT:
+  doErrors: None #Pumplin #Hesse
+  Commands: |
+    fix 106 107 108 109
     call fcn 3
-#    fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
+    #minimize
+    #hesse
+    #fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
 
-Evolution: QCDNUM
+Evolution: QCDNUM #QCDNUM LHAPDF
 QCDNUM:
   xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
   xGridW  :   [1,       2,     4,   8,  16]
@@ -30,21 +30,25 @@ QCDNUM:
   Read_QCDNUM_Tables : 1
   SplineOrder : 2
   ICheck  :   0
-LHAPDF :
-  set : "CT10"
-  member : 0
+LHAPDF:
+  set: "GRVPI0"
+  member: 0
 
 APPLgrid:  # APPLgrid specific
+  #LHAPDF_SetName: nCTEQ15FullNuc_184_74
+  #LHAPDF_MemberID: '0'
   muF: 1.0
   muR: 1.0
-  Order: NLO   # APPLgrids are at max. NLO for now
+  Order: NLO
+
+fs: 0.333333333333333
 
 Profiler:
-   alphas : [ 0.118, 0.119, 0.117 ]
-   evolutions :
-     proton :
-       sets :    [  NNPDF31_nnlo_as_0118, CT10  ]
-       members : [ [ 0, 1, end ], [0, 1, end] ]
+  alphas: [ 0.118, 0.119, 0.117 ]
+  evolutions:
+    proton:
+      sets:    [  NNPDF31_nnlo_as_0118, CT10  ]
+      members: [ [ 0, 1, end ], [0, 1, end] ]
 
 Mz: 91.1876
 Mw: 80.385
@@ -89,5 +93,5 @@ mbt: 4.50
 mtp: 173.0
 
 # QCD parameters
-Order : NLO
-NFlavour : 5
+Order: NLO
+NFlavour: 5

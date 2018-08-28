@@ -4,32 +4,23 @@
   @class GRV_PionPdfDecomposition 
 
   @brief A class for GRV_Pion pdf decomposition
-HACKS for s fraction
 
   Used for pi-
   Assumes that at starting scale:
     ubar=d
-    dbar=u
-    s=sbar
-		u_sea=u   =f_u*sea
-		d_sea=dbar=f_d*sea
-		s_sea=s   =f_s*sea
-		f_u=f_d
-		f_u+f_d+f_s=1
-		=> s=2*f_s/(1-f_s)*u
+    dbar=u=s=sbar
   Parametrised distributions are:
-    v   := dval-uval=2*(d-u)
-    qbar:=(u+dbar)/2=u
+    v:=(dval-uval)/2=d-u
+    S:=(u   +dbar)/2=u
     g
   Therefore, transformations to physical basis:
-    u=dbar=qbar
-    d=ubar=qbar+v/2
+    d=ubar=v+S
+    u=dbar=s=sbar=S
     g=g
-    s=sbar=qbar*2f_s/(1-f_s)
     others=0
   And sum rules for pi- are:
-    \int_0^1 v dx=2
-    \int_0^1 x*(4*qbar/(1-f_s)+v+g) dx=1
+    \int_0^1 v dx=1
+    \int_0^1 x*(6S+2v+g) dx=1
   @version 0.2
   @date 2018-08-14
   */
@@ -43,6 +34,6 @@ class GRV_PionPdfDecomposition:public BasePdfDecomposition{
 		virtual void initAtIteration()override final;
 		virtual std::function<std::map<int,double>(const double& x)>f0()const override final; 
 	private:
-		BasePdfParam*par_v,*par_qbar,*par_g;
+		BasePdfParam*par_v,*par_S,*par_g;
 	};
 }

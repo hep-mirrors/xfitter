@@ -225,16 +225,16 @@ C-----------------------------------------------------
 #include "steering.inc"
       double precision fmin, fedm, errdef
       integer npari, nparx, istat
-C----------------------------------------------------------      
+C----------------------------------------------------------
       call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
       if (istat.eq.0) then
          call hf_errlog(16042801,'I: No minimization has run')
       else if (istat.eq.3) then
          call hf_errlog(16042802,'I: Successful run')
       else if (istat.eq.1) then
-         call hf_errlog(16042803,'E: Error matrix not accurate')         
+         call hf_errlog(16042803,'E: Error matrix not accurate')
       else if (istat.eq.2) then
-         call hf_errlog(16042804,'E: Error matrix forced positive')         
+         call hf_errlog(16042804,'E: Error matrix forced positive')
       endif
 C Save in output file
       open (51,file=Trim(OutDirName)//'/Status.out',status='unknown')
