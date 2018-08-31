@@ -60,10 +60,10 @@ void BasePdfParam::initFromYaml(YAML::Node value) {
   //TODO rewrite this for a different, new YAML format
   using namespace std;
   using uint=unsigned int;
-  cout<<"DEBUG["<<_name<<"]: initFromYaml: value="<<value<<endl;
+  //cout<<"DEBUG["<<_name<<"]: initFromYaml: value="<<value<<endl;
   if(value.IsSequence()){
     Npars=value.size();
-    cout<<Npars<<endl;
+    //cout<<Npars<<endl;
     pars=new double*[Npars];
     // HARDWIRE old-way for now:  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     for(uint i=0;i<Npars;++i){
@@ -82,7 +82,7 @@ void BasePdfParam::initFromYaml(YAML::Node value) {
       minimizer->addParameter(val,pnam,step,nullptr,nullptr);
       
       pars[i]=XFITTER_PARS::gParameters.at(pnam);
-      cout<<pnam<<"="<<(*pars[i])<<endl;
+      //cout<<pnam<<"="<<(*pars[i])<<endl;
     }
   }else{
     cout<<"ERROR["<<_name<<"]: initFromYaml: parameter is not a sequence!"<<endl;

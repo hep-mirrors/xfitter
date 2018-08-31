@@ -265,7 +265,28 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
   }
 }
 
-
+void LoadParametersFromYAML(std::map<std::string,std::string>&pars,const std::string&reactionName){
+  using std::string;
+  //add to pars all parameters given in YAML file, but do not overwrite any parameters already in pars
+  auto it=XFITTER_PARS::gParametersY.find(reactionName);
+  if(it==XFITTER_PARS::gParametersY.end()){
+    hf_errlog(18090300,"W: No parameters for reaction \""+reactionName+"\" found in YAML steering file");
+    return;
+  }
+  YAML::Node&reactionNode=it->second;
+  try{
+    for(YAML::const_iterator it=reactionNode.begin();it!=reactionNode.end();++it){
+      string key=it->first.as<string>();
+      auto pit=pars.find(key);
+      if(pit==pars.end())pars[key]=it->second.as<string>();
+    }
+  }catch(YAML::TypedBadConversion<string>ex){
+    cerr<<"[ERROR] In LoadParametersFromYAML(pars,reactionName="<<reactionName<<"):\n"
+        <<"  YAML failed to convert to string while parsing node:\n"
+        <<reactionNode<<"\n[/ERROR]"<<endl;
+    hf_errlog(18090301,"F: YAML error in LoadParametersFromYAML, details written to stderr");
+  }
+}
 int
 TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 {
@@ -327,8 +348,8 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
       rt->resetParameters(XFITTER_PARS::gParametersY[term_source]);
     }
 
+    std::string evoName =XFITTER_PARS::getDefaultEvolutionName();
     // Set the evolution:
-    std::string evoName = XFITTER_PARS::gParametersS.at("Evolution"); 
     rt->setEvolution(evoName);
 
     //Retrieve evolution
@@ -363,6 +384,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   
   // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
   map<string, string> pars = SplitTermInfo(term_info);
+  LoadParametersFromYAML(pars,rt->getReactionName());
 
   // and transfer to the module
   rt->setDatasetParameters(_dsId*1000+iterm, pars, _dsPars);

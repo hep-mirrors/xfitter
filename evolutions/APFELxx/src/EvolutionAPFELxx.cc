@@ -10,22 +10,23 @@
 namespace xfitter
 {
   // the class factories
-  extern "C" EvolutionAPFELxx* create() {
-    return new EvolutionAPFELxx();
+  extern "C" EvolutionAPFELxx*create(const char*name){
+    return new EvolutionAPFELxx(name);
   }
 
 
   //_________________________________________________________________________________
-  void EvolutionAPFELxx::initAtStart()
+  void EvolutionAPFELxx::initFromYaml(const YAML::Node yamlNode)
   {
     // APFEL++ banner
     apfel::Banner();
 
+		_inPDFs=XFITTER_PARS::getInputFunctionFromYaml(yamlNode);
     // Retrieve parameters needed to initialize APFEL++.
     const double* MCharm   = XFITTER_PARS::gParameters.at("mch");
     const double* MBottom  = XFITTER_PARS::gParameters.at("mbt");
     const double* MTop     = XFITTER_PARS::gParameters.at("mtp");
-    const YAML::Node xGrid = XFITTER_PARS::gParametersY.at("APFELxx")["xGrid"];
+    const YAML::Node xGrid = yamlNode["xGrid"];
 
     vector<apfel::SubGrid> sgv;
     for(auto const& sg : xGrid)
@@ -51,6 +52,10 @@ namespace xfitter
     const double* Q0         = XFITTER_PARS::gParameters.at("Q0");
     const double* Q_ref      = XFITTER_PARS::gParameters.at("Mz");
     const double* Alphas_ref = XFITTER_PARS::gParameters.at("alphas");
+		//XXX HACKS XXX
+		//I do not understand how QGrid is supposed to change between iterations --Ivan
+		//This will not work with the new parameters.yaml syntax
+		//TODO
     const YAML::Node QGrid   = XFITTER_PARS::gParametersY.at("APFELxx")["QGrid"];
 
     // Reinitialise and tabulate the running coupling at every

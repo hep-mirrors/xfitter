@@ -5,44 +5,48 @@
   Created by  AddReaction.py on 2017-03-28
 */
 
-#include "ReactionAPPLgrid.h"
-#include "TFile.h"
-
-#ifdef LHAPDF_ENABLED
-LHAPDF::PDF*active_pdf;
-void xfxLHAPDF_wrapper(const double&x,const double&Q,double*results){
-	vector<double>rtn;
-	active_pdf->xfxQ(x,Q,rtn);
-	std::copy(rtn.begin(),rtn.end(),results);
-}
-#endif
-
+#include"ReactionAPPLgrid.h"
+#include"TFile.h"
+#include"xfitter_pars.h"
+#include"xfitter_steer.h"
+using namespace std;
+using namespace xfitter;
  // the class factories
 extern "C" ReactionAPPLgrid* create() {
   return new ReactionAPPLgrid();
 }
-ReactionAPPLgrid::ReactionAPPLgrid(){}
-ReactionAPPLgrid::~ReactionAPPLgrid(){
-#ifdef LHAPDF_ENABLED
-	for(auto it=lhapdf_pdf.begin();it!=lhapdf_pdf.end();++it){
-		LHAPDF::PDF*p=it->second;
-		if(p)delete p;
-	}
-#endif
+function<void(double const&x,double const&Q,double*pdfs)>active_xfxQ_functions[2];
+void xfxWrapper0(const double&x,const double&Q,double*results){active_xfxQ_functions[0](x,Q,results);}
+void xfxWrapper1(const double&x,const double&Q,double*results){active_xfxQ_functions[1](x,Q,results);}
+ReactionAPPLgrid::ReactionAPPLgrid(){
+  evolutions[0]=nullptr;
+  evolutions[1]=nullptr;
 }
+ReactionAPPLgrid::~ReactionAPPLgrid(){}
  // Initialize at the start of the computation
-int ReactionAPPLgrid::initAtStart(const string &s )
-{
-   return 0;
-}
+int ReactionAPPLgrid::initAtStart(const string &s){return 0;}
 
  // Initialize for a given dataset:
 void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
+  //<DEBUG
+  cerr<<"[DEBUG]ReactionAPPLgrid::setDatasetParameters(dataSetID="<<dataSetID<<",pars,parsDataset):\n"
+      <<"pars={\n";
+  for(map<string,string>::const_iterator it=pars.begin();it!=pars.end();++it){
+    cerr<<"  \""<<it->first<<"\":\""<<it->second<<"\"\n";
+  }
+  cerr<<"}"<<endl;
+  cerr<<"parsDataset={\n";
+  for(map<string,double>::const_iterator it=parsDataset.begin();it!=parsDataset.end();++it){
+    cerr<<"  \""<<it->first<<"\":"<<it->second<<'\n';
+  }
+  cerr<<"}"<<endl;
+  //DEBUG>
 	map<string,string>::iterator it;
 	// Get grid name:
-   if ( pars.find("GridName") != pars.end() )  {
-     try {
-       std::istringstream ss(pars["GridName"]);
+  it=pars.find("GridName");
+  if(it!=pars.end()){
+    try{
+      std::istringstream ss(it->second);
        //std::cout << pars["GridName"] << '\n';
        std::string token;
        while(std::getline(ss, token, ','))
@@ -68,49 +72,14 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
      std::string text = "F:GridName must be specified for the Reaction APPLgrid";
      hf_errlog_(17032801,text.c_str(),text.size());
    }
-
-//Initialize for LHAPDF
-//To be used when PDF of second particle is static and of LHAPDF
-//Parameters are passed via TermInfo in theory expression in datafile:
-//*LHAPDF_SetName
-//*LHAPDF_MemberID --- defaults to 0
-#ifdef LHAPDF_ENABLED
-	{
-	it=pars.find("LHAPDF_SetName");
-	auto itMemberID=pars.find("LHAPDF_MemberID");
-	if(it!=pars.end()){
-		int member_id=0;
-		try{
-			if(itMemberID!=pars.end())member_id=std::stoi(itMemberID->second);
-		}catch(const std::exception&ex){
-			std::ostringstream s;
-			s<<"F:Failed to read PDF memberID for LHAPDF set \""<<it->second<<"\" for use with APPLgrid; dataSetID="<<dataSetID;
-			s<<"; Exception:"<<ex.what();
-			hf_errlog(3081810,s.str().c_str());
-		}
-		//Make sure to set collision=LHAPDF
-		//std::cout<<"DEBUG LHAPDF_SetName="<<it->second<<std::endl;
-		LHAPDF::PDF*p=LHAPDF::mkPDF(it->second,member_id);
-		if(!p){
-			std::ostringstream s;
-			s<<"F:LHAPDF failed to load PDF set \""<<it->second<<"\" for use with APPLgrid; dataSetID="<<dataSetID;
-			hf_errlog(28071810,s.str().c_str());
-		}
-		lhapdf_pdf[dataSetID]=p;
-	}else{
-		if(itMemberID!=pars.end()){
-			std::ostringstream s;
-			s<<"W: In APPLgrid reaction parameters (dataSetID="<<dataSetID<<") memberID="<<itMemberID->second<<" is given, but set itself is not";
-			hf_errlog(3081811,s.str().c_str());
-		}
-	}
-	}
-#else
-	if(pars.find("LHAPDF_SetName")!=pars.end()||pars.find("LHAPDF_MemberID")!=pars.end()){
-		hf_errlog(25071812,"F:LHAPDF parameter specified for APPLgrid reaction, but xFitter has been compiled without LHAPDF. Use --enable-lhapdf at configure to enable.")
-	}
-#endif
-
+// Get pointers to evolutions
+  for(int i=0;i<2;++i){
+    string evolutionName="";
+    it=pars.find("evolution"+to_string(i+1));
+    if(it!=pars.end())evolutionName=it->second;//else default evolution name will be used
+    cerr<<"[DEBUG]APPLgrid: use evolution \""<<evolutionName<<'\"'<<endl;
+    evolutions[i]=get_evolution(evolutionName);
+  }
 // Determine order
    int order = OrderMap( GetParamS("Order"));  // Global order
    if (pars.find("Order") != pars.end() ) { // Local order
@@ -125,29 +94,6 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
 
   if (_muR[dataSetID] == 0) _muR[dataSetID] = 1.0; 
   if (_muF[dataSetID] == 0) _muF[dataSetID] = 1.0;
-
-// Determine if pp or ppbar
-  _collType[dataSetID] = collision::pp;
-  if (parsDataset.find("ppbar") != parsDataset.end() ) {
-    _collType[dataSetID] = collision::ppbar;
-  }
-  if (parsDataset.find("pn") != parsDataset.end() ) {
-    _collType[dataSetID] = collision::pn;
-  }
-  // check if collision settings are provided in the new format key=value
-  it=pars.find("collision");
-  if (it != pars.end() )
-  {
-    if     (it->second=="pp")    _collType[dataSetID]=collision::pp;
-    else if(it->second=="ppbar") _collType[dataSetID]=collision::ppbar;
-    else if(it->second=="pn")    _collType[dataSetID]=collision::pn;
-		else if(it->second=="LHAPDF"){
-			_collType[dataSetID]=collision::LHAPDF;
-			if(lhapdf_pdf.find(dataSetID)==lhapdf_pdf.end())hf_errlog(24071810,"W: collision type=LHAPDF but no LHAPDF set was loaded");
-		}
-    else
-      hf_errlog(17102101, "F: unrecognised collision type = " + it->second);
-  }
   // bin width normalisation (by default no rescaling)
   _flagNorm[dataSetID] = false;
   it = pars.find("norm");
@@ -202,35 +148,18 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
 
  // Main function to compute results at an iteration
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
-  //
-
   // iterate over grids
   unsigned int pos = 0;
   for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
   {
     auto grid = _grids[dataSetID][g];
     std::vector<double> gridVals(grid->Nobs());
-    if(!_flagUseReference[dataSetID])
-    {
-      // Convolute the grid:
-      switch (_collType[dataSetID])
-      {
-        case collision::pp :
-          gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
-          break;
-        case collision::ppbar :
-          gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
-          break;
-        case collision::pn :
-          gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
-          break;
-#ifdef LHAPDF_ENABLED
-        case collision::LHAPDF:
-					active_pdf=lhapdf_pdf.find(dataSetID)->second;
-          gridVals=grid->vconvolute(getXFX(),xfxLHAPDF_wrapper,getAlphaS(),_order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
-          break;
-#endif
-      }
+    if(!_flagUseReference[dataSetID]){
+      //For some reason we do not take alphaS from evolutions?
+      active_xfxQ_functions[0]=evolutions[0]->xfxQArray();
+      active_xfxQ_functions[1]=evolutions[1]->xfxQArray();
+      gridVals=grid->vconvolute(xfxWrapper0,xfxWrapper1,getAlphaS(),_order[dataSetID]-1,_muR[dataSetID],_muF[dataSetID],_eScale[dataSetID][g]);
+      //TODO: call specialized vconvolute when the two evolutions are the same
     }
     else
     {

@@ -11,7 +11,12 @@
   */
 
 #include "BaseEvolution.h"
+//Try to suppress unused-local-typedef warning from boost 1.53.0 for gcc
+//Apparently these warnings have been fixed in later versions of boost
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 #include "LHAPDF/LHAPDF.h"
+#pragma GCC diagnostic pop
 
 namespace xfitter 
 {
@@ -20,13 +25,11 @@ class EvolutionLHAPDF : BaseEvolution
 {
   public:
     /// Empty constructor (needed for the dynamic loading)
-    EvolutionLHAPDF():  BaseEvolution("LHAPDF",nullptr) {};
+    EvolutionLHAPDF(const char*name):BaseEvolution(name){};
 
   public:
-  /// Constructor setting the name
-    virtual std::string getEvolutionName() const { return  "LHAPDF" ;};
   /// Global initialization
-    virtual void initAtStart() override final;
+    virtual void initFromYaml(const YAML::Node) override final;
   /// Init at each iteration
     virtual void initAtIteration() override final;  
 

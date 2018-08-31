@@ -82,7 +82,9 @@ CERESMinimizer::CERESMinimizer(const std::string& inName) : BaseMinimizer(inName
 
 // Init at start:
 void CERESMinimizer::initAtStart() {
-  google::InitGoogleLogging("");
+	//There's a suppressed warning here
+	//warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+  google::InitGoogleLogging((char*)"");
   return;
 }
 

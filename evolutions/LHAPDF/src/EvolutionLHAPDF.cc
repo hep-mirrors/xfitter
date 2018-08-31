@@ -15,21 +15,24 @@ namespace xfitter
 {
 
 // the class factories
-extern "C" EvolutionLHAPDF* create() {
-  return new EvolutionLHAPDF();
+extern "C" EvolutionLHAPDF*create(const char*name){
+  return new EvolutionLHAPDF(name);
 }
 
     
 /// Global initialization
-  void EvolutionLHAPDF::initAtStart() {
-
-    // Initialize LHAPDF XXXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxx
-    auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
-
-    _set_name = pars["set"].as<std::string>();
+  void EvolutionLHAPDF::initFromYaml(const YAML::Node pars) {
+    try{
+      _set_name = pars["set"].as<std::string>();
+    }catch(YAML::TypedBadConversion<std::string>&ex){
+      hf_errlog(18090310,"F: In EvolutionLHAPDF::initFromYaml: failed to convert YAML node \"set\" to string; printing node to stderr");
+      std::cerr<<pars<<std::endl;
+    }
 
     // check if exists first
     CheckForPDF(_set_name.c_str());
+    _member   = pars["member"].as<int>();
+    _pdf      = LHAPDF::mkPDF(_set_name,_member);//Doesn't one need to delete _pdf then later? --Ivan
     return ;
  };
     
@@ -37,12 +40,12 @@ extern "C" EvolutionLHAPDF* create() {
   void EvolutionLHAPDF::initAtIteration() {
 
     // Initialize LHAPDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
+    //auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
 
-    _set_name = pars["set"].as<std::string>();
-    _member   = pars["member"].as<int>();
+    //_set_name = pars["set"].as<std::string>();
+    //_member   = pars["member"].as<int>();
 
-    _pdf      = LHAPDF::mkPDF(_set_name,_member);
+    //_pdf      = LHAPDF::mkPDF(_set_name,_member);//Doesn't one need to delete _pdf then later? --Ivan
 
     return ;
   };

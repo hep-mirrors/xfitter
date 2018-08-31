@@ -21,7 +21,6 @@ aclocal.m4
 autom4te.cache/
 *.m4
 config.guess
-config.log
 config.status
 config.sub
 configure
@@ -40,9 +39,6 @@ bak/
 constants.yaml
 datafiles/E615/
 deps/
-install.log
-install_yam.log
-make.log
 myconfigure.sh
 output*
 setup.sh
@@ -51,6 +47,8 @@ version
 xfitter-master/
 yaml/
 plots/
+outs/
+*.log
 
 # vim swap file
 *.swp

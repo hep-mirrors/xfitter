@@ -18,22 +18,18 @@ namespace xfitter
 
      @brief Derived class of BaseEvolution for using APFEL++ as an evolution code.
 
-     @version 0.1
-     @date 2018-07-11
+     @version 0.2
+     @date 2018-09-29
   */
   class EvolutionAPFELxx: public BaseEvolution
   {
   public:
-    /// Empty constructor (needed for the dynamic loading)
-    EvolutionAPFELxx():  BaseEvolution{"APFELxx",nullptr} {}
-
-    /// Constructor wit PDF decomposition
-    EvolutionAPFELxx(std::function<std::map<int,double>(double const& x)> const& inPDFs): BaseEvolution{"APFELxx", inPDFs} {}
+    EvolutionAPFELxx(const char*name):BaseEvolution{name}{}
 
     /**
      * @brief Function that initialises the evolution in APFEL++.
      */
-    void initAtStart();
+    void initFromYaml(const YAML::Node);
 
     /**
      * @brief Function that updates the relevant parameters of the
@@ -76,6 +72,7 @@ namespace xfitter
     ///@}
 
   private:
+		std::function<std::map<int,double>(const double& x)>                    _inPDFs;
     std::vector<double>                                                     _Masses;
     std::vector<double>                                                     _Thresholds;
     std::unique_ptr<const apfel::Grid>                                      _Grid;

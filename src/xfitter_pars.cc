@@ -8,6 +8,7 @@
  */
 
 #include "xfitter_pars.h"
+#include "xfitter_steer.h"
 #include "xfitter_cpp.h"
 #include "xfitter_cpp_base.h"
 #include <fstream>
@@ -51,7 +52,36 @@ namespace XFITTER_PARS {
   map<string,xfitter::BaseEvolution*> gEvolutions;
   // Also keep list of loaded evolutions here:
   map<string,xfitter::BasePdfDecomposition*> gPdfDecompositions;
-  
+
+  using namespace xfitter;
+  xfitter::InitialPDFfunction getInputFunctionFromYaml(const YAML::Node&rootNode){
+    YAML::Node node=rootNode["decomposition"];
+    string name;
+    try{
+      name=node.as<string>();
+    }catch(YAML::TypedBadConversion<string>ex){
+      ostringstream s;s<<"W: YAML exception: "<<ex.what()<<"; while trying to extract decomposition name from node: "<<node<<"; using default decomposition name";
+      hf_errlog(18082930,s.str().c_str()); 
+      name=getDefaultDecompositionName();
+    }
+    return xfitter::get_pdfDecomposition(name)->f0();
+  }
+	YAML::Node getEvolutionNode(const std::string&name){
+    auto it=gParametersY.find("Evolutions");
+    if(it==gParametersY.end()){
+      hf_errlog(18082900,"F:Failed to get evolution "+name+": Evolutions node not found in parameters.yaml");
+    }
+    YAML::Node instanceNode=it->second[name];
+    if(!instanceNode.IsMap()){
+			std::ostringstream s;
+			s<<"F:Failed to get evolution \""<<name<<"\": ";
+      if(!instanceNode)s<<"no subnode with this name under the node Evolutions";
+      else s<<"corresponding subnode is not of type Map";
+			hf_errlog(18082901,s.str().c_str());
+    }
+		return instanceNode;
+	}
+
   std::string getParameterS(std::string name) {
     auto search = gParametersS.find(name);
     if ( search != gParametersS.end() ) {
@@ -62,7 +92,17 @@ namespace XFITTER_PARS {
       return ""; // not found
     }
   }
-  
+
+  string getDefaultEvolutionName(){
+    auto it=gParametersS.find("DefaultEvolution");
+    if(it!=gParametersS.end()) return it->second;
+    return "default";
+  }
+  string getDefaultDecompositionName(){
+    auto it=gParametersS.find("DefaultDecomposition");
+    if(it!=gParametersS.end())return it->second;
+    return "default";
+  }
 // Helper function
   bool is_file_exist(const char *fileName)
   {
@@ -74,8 +114,8 @@ namespace XFITTER_PARS {
   {
     try {
       if ( ! std::ifstream(name).good()) {
-	string text = "F: Problems opening parameters file " + name;
-	hf_errlog_(18032001,text.c_str(), text.size());
+        string text = "F: Problems opening parameters file " + name;
+        hf_errlog_(18032001,text.c_str(), text.size());
       }
       YAML::Node node = YAML::LoadFile(name);
       parse_node(node, gParameters, gParametersI, gParametersS, gParametersV, gParametersY);
@@ -93,11 +133,11 @@ namespace XFITTER_PARS {
 
   // Parse @param node and return maps
   void parse_node(const YAML::Node& node, 
-		  std::map<string,double*>& dMap, 
-		  std::map<string,int>& iMap, 
-		  std::map<string,string>& sMap, 
-		  std::map<string,vector<double> >& vMap,
-		  std::map<string,YAML::Node> & yMap )
+                  std::map<string,double*>& dMap, 
+                  std::map<string,int>& iMap, 
+                  std::map<string,string>& sMap, 
+                  std::map<string,vector<double> >& vMap,
+                  std::map<string,YAML::Node> & yMap )
   {
     for ( YAML::const_iterator it = node.begin(); it != node.end(); ++it) {
       YAML::Node key = it->first;

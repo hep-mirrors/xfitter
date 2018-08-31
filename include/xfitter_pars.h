@@ -22,11 +22,13 @@ using std::vector;
 
 namespace xfitter{
   // to be defined in evolutions/
-  class  BaseEvolution;
+  class BaseEvolution;
   // to be defined in pdfdecompositions/
-  class  BasePdfDecomposition;
+  class BasePdfDecomposition;
   // to be defined in minimizers/
   class BaseMinimizer;
+	using InitialPDFfunction=std::function<std::map<int,double>(const double&x)>;
+	using EvolvedPDFfunction=std::function<void(double const&x,double const&Q,double*pdfs)>;
 }
 
 namespace XFITTER_PARS {
@@ -49,16 +51,28 @@ namespace XFITTER_PARS {
   extern map<string,YAML::Node> gParametersY;
 
   /// Global map of PDF functions produced by evolutions. 
-  extern map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
+  extern map<string,xfitter::EvolvedPDFfunction> gXfxQArrays;
 
   /// Global map to store evolutions
   extern map<string,xfitter::BaseEvolution*> gEvolutions;
 
-  /// Global map to store evolutions
+  /// Global map to store decompositions
   extern map<string,xfitter::BasePdfDecomposition*> gPdfDecompositions;
+	/// Helper function to get input function from a yaml node
+	///
+  /// It finds a "decomposition" subnode in given node, extracts a decomposition name from it, finds this decomposition and returns its output function
+  /// This function will either return a valid function, or issue a fatal error and never return
+  /// This is used in evolution initialization
+  xfitter::InitialPDFfunction getInputFunctionFromYaml(const YAML::Node&);
+  /// Helper function to get a yaml node corresponding to an evolution, by this evolutions's instance name
+	YAML::Node getEvolutionNode(const std::string&name="");
 
   /// Helper function to get string parameters
   std::string getParameterS(std::string name);
+
+  /// Helper functions
+	string getDefaultEvolutionName();
+	string getDefaultDecompositionName();
   
   /// Parse yaml file @param name
   void parse_file(const std::string& name);

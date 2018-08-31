@@ -4,10 +4,7 @@
 #include "ReactionTheory.h"
 #include "appl_grid/appl_grid.h"
 #include <memory>
-
-#ifdef LHAPDF_ENABLED
-#include<LHAPDF/LHAPDF.h>
-#endif
+#include "BaseEvolution.h"
 
 /**
   @class' ReactionAPPLgrid
@@ -37,8 +34,9 @@ class ReactionAPPLgrid : public ReactionTheory
     virtual int parseOptions(){ return 0;};    
 
  private:
-    enum class collision {pp,ppbar,pn,LHAPDF};
-    map<int, collision> _collType;
+    enum class collision {pp,ppbar,pn,LHAPDF};//TODO: deprecated, remove this
+    //TODO: make this into a data structure
+    map<int, collision> _collType;//TODO:deprecated
     map<int, std::vector<std::shared_ptr<appl::grid> > > _grids;
     map<int, int> _order;
     map<int, double> _muR, _muF; // !> renormalisation and factorisation scales
@@ -46,8 +44,6 @@ class ReactionAPPLgrid : public ReactionTheory
     map<int, bool> _flagUseReference; // !> if true, prediction will be calculated from reference histogram (for tests and grids validation)
     map<int, std::vector<TH1D*> > _references;
     map<int, std::vector<double> > _eScale; // !> CMS energy
-#ifdef LHAPDF_ENABLED
-		map<int,LHAPDF::PDF*>lhapdf_pdf;
-#endif
+    xfitter::BaseEvolution*evolutions[2];//TODO these per dataset
 };
 

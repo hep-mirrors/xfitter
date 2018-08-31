@@ -23,8 +23,11 @@ double funcPDF(int *ipdf, double *x) {
 
 // helper to parse yaml sequences of uniform type
 template <class T>
-vector<T> getSeq(std::string name) {
-  const  YAML::Node node   = XFITTER_PARS::gParametersY.at("QCDNUM")[name];
+vector<T> getSeq(const YAML::Node node) {
+	if(!node.IsSequence()){
+		std::cerr<<"[DEBUG]getSeq: node=\n"<<node<<std::endl;
+    hf_errlog(180829150,"F: In QCDNUM in function getSeq: wrong node type, expected sequence");
+	}
   size_t len = node.size();
   vector<T> v(len);
   for (size_t i=0; i<len; i++) {
@@ -55,14 +58,12 @@ namespace xfitter
 {
 
 // the class factories
-  extern "C" EvolutionQCDNUM* create() {
-    return new EvolutionQCDNUM();
+  extern "C" EvolutionQCDNUM* create(const char*name) {
+    return new EvolutionQCDNUM(name);
   }
 
-
-
   // Initialize at the start of the computation
-  void EvolutionQCDNUM::initAtStart()
+  void EvolutionQCDNUM::initFromYaml(const YAML::Node yQCDNUM)
   {
     QCDNUM::qcinit(6," ");
 
@@ -81,9 +82,9 @@ namespace xfitter
       QCDNUM::getint(memT[i].c_str(),itest);
 
       if (itest < siz[i]) {
-	std::string mess = "F: QCDNUM memory allocation insufficient. Recompile QCDNUM with at least "+memT[i] + " = " + std::to_string(siz[i]) + " in qcdnum.inc.";
-	hf_errlog(231020152,mess.c_str());
-      }      
+        std::string mess = "F: QCDNUM memory allocation insufficient. Recompile QCDNUM with at least "+memT[i] + " = " + std::to_string(siz[i]) + " in qcdnum.inc.";
+        hf_errlog(231020152,mess.c_str());
+      }
     }
 
     // Evolution order:
@@ -100,17 +101,15 @@ namespace xfitter
 
     //  const double* mtp     = XFITTER_PARS::gParameters.at("mtp");   // no top PDF treatment yet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     
-    const YAML::Node yQCDNUM =  XFITTER_PARS::gParametersY.at("QCDNUM");
-
     _icheck      = yQCDNUM["ICheck"].as<int>();
     _splineOrder = yQCDNUM["SplineOrder"].as<int>();
     _readTables  = yQCDNUM["Read_QCDNUM_Tables"].as<int>();
 
     // Get grids
-    vector<double> xGrid   = getSeq<double>("xGrid");
-    vector<int>    xGridW  = getSeq<int>("xGridW");
-    vector<double> Q2Grid  = getSeq<double>("Q2Grid");
-    vector<double> Q2GridW = getSeq<double>("Q2GridW");
+    vector<double> xGrid   = getSeq<double>(yQCDNUM["xGrid"]);
+    vector<int>    xGridW  = getSeq<int>   (yQCDNUM["xGridW"]);
+    vector<double> Q2Grid  = getSeq<double>(yQCDNUM["Q2Grid"]);
+    vector<double> Q2GridW = getSeq<double>(yQCDNUM["Q2GridW"]);
 
     int nxgrid             = yQCDNUM["NXbins"].as<int>();
     int nxout = 0;
@@ -177,13 +176,14 @@ namespace xfitter
       QCDNUM::dmpwgt(1,22,"unpolarised.wgt");
     }
        
-    return ;
+		//Evolution gets its decomposition from YAML
+    gPdfDecomp=XFITTER_PARS::getInputFunctionFromYaml(yQCDNUM);
   }
 
   // Initialize at 
   void EvolutionQCDNUM::initAtIteration()
   {
-    gPdfDecomp = _inPDFs;
+		//TODO: reload decompositions?? --Ivan
     // XXXXXXXXXXXXXX
     const double* q0 = XFITTER_PARS::gParameters.at("Q0");
     int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
@@ -195,7 +195,6 @@ namespace xfitter
 
     QCDNUM::setalf(*alphas,(*Mz)*(*Mz));
     QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
-    return ;
   }
 
   std::function<std::map<int,double>(double const& x, double const& Q)> EvolutionQCDNUM::xfxQMap() {
@@ -203,8 +202,8 @@ namespace xfitter
     const auto _f0 =  [=] (double const& x, double const& Q) -> std::map<int, double> {
       std::map<int, double> res;
       for (int ipdf =-6; ipdf<7; ipdf++) {
-	int ii = ( ipdf == 0 ) ? 21 : ipdf ;
-	res[ii] = QCDNUM::fvalxq(_itype,ipdf,x,Q*Q,_icheck);
+        int ii = ( ipdf == 0 ) ? 21 : ipdf ;
+        res[ii] = QCDNUM::fvalxq(_itype,ipdf,x,Q*Q,_icheck);
       }
       return res;
     };

@@ -1,6 +1,5 @@
 Minimizer: MINUIT
 
-PDFDecomposition: SU3_PionPdfDecomposition
 SU3_PionPdfDecomposition:
   HARDWIRED_PolySqrt: #=A*x^B*(1-x)^C*(1+D*sqrt(x)+E*x)
     v: [0.    , 0.6817,0.9794]
@@ -19,24 +18,35 @@ MINUIT:
     #hesse
     #fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
 
-Evolution: LHAPDF #QCDNUM LHAPDF
-QCDNUM:
-  xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
-  xGridW  :   [1,       2,     4,   8,  16]
-  Q2Grid  :   [1.,  2.05e8 ]
-  Q2GridW :   [1.,     1.]  
-  NQ2bins :   120
-  NXbins  :   200
-  Read_QCDNUM_Tables : 1
-  SplineOrder : 2
-  ICheck  :   0
-LHAPDF:
-  set: "GRVPI0"
-  member: 0
+#New syntax
+#DefaultDecomposition: SU3_PionPdfDecomposition
+DefaultEvolution: pion #if this is not set, default evolution's name is "default"
 
-APPLgrid:  # APPLgrid specific
-  #LHAPDF_SetName: nCTEQ15FullNuc_184_74
-  #LHAPDF_MemberID: '0'
+Evolutions:
+  pion:
+    class: QCDNUM
+    decomposition: SU3_PionPdfDecomposition #this could be omitted, as the default decomposition is set
+    xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
+    xGridW  :   [1,       2,     4,   8,  16]
+    Q2Grid  :   [1.,  2.05e8 ]
+    Q2GridW :   [1.,     1.]  
+    NQ2bins :   120
+    NXbins  :   200
+    Read_QCDNUM_Tables : 1
+    SplineOrder : 2
+    ICheck  :   0
+  tungsten_target:
+    class: LHAPDF
+    set:   nCTEQ15FullNuc_184_74
+    member: 0
+  reference_pion:
+    class: LHAPDF
+    set:   GRVPI0
+    member: 0
+APPLgrid:
+#Error: these parameters are not read yet
+  evolution1: pion #this can be overwritten in the datafile
+  evolution2: tungsten_target
   muF: 1.0
   muR: 1.0
   Order: NLO
