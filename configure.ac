@@ -608,7 +608,7 @@ AC_CONFIG_FILES([include/Makefile
 		 pdfparams/PolySqrtPdfParam/src/Makefile
 		 pdfdecompositions/LHAPDFDecomposition/src/Makefile
 		 pdfdecompositions/UvDvUbarDbarS/src/Makefile
-		 pdfdecompositions/GRV_PionPdfDecomposition/src/Makefile
+		 pdfdecompositions/SU3_PionPdfDecomposition/src/Makefile
 		 pdfdecompositions/BasePdfDecomposition/src/Makefile
 		 reactions/KFactor/src/Makefile
 		 reactions/BaseDISCC/src/Makefile

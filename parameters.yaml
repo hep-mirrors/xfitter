@@ -1,7 +1,7 @@
 Minimizer: MINUIT
 
-PDFDecomposition: GRV_PionPdfDecomposition
-GRV_PionPdfDecomposition:
+PDFDecomposition: SU3_PionPdfDecomposition
+SU3_PionPdfDecomposition:
   HARDWIRED_PolySqrt: #=A*x^B*(1-x)^C*(1+D*sqrt(x)+E*x)
     v: [0.    , 0.6817,0.9794]
     S: [0.0818,-0.2 ,8]
@@ -19,7 +19,7 @@ MINUIT:
     #hesse
     #fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
 
-Evolution: QCDNUM #QCDNUM LHAPDF
+Evolution: LHAPDF #QCDNUM LHAPDF
 QCDNUM:
   xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
   xGridW  :   [1,       2,     4,   8,  16]
@@ -43,12 +43,12 @@ APPLgrid:  # APPLgrid specific
 
 fs: 0.333333333333333
 
-Profiler:
-  alphas: [ 0.118, 0.119, 0.117 ]
-  evolutions:
-    proton:
-      sets:    [  NNPDF31_nnlo_as_0118, CT10  ]
-      members: [ [ 0, 1, end ], [0, 1, end] ]
+#Profiler:
+#  alphas: [ 0.118, 0.119, 0.117 ]
+#  evolutions:
+#    proton:
+#      sets:    [  NNPDF31_nnlo_as_0118, CT10  ]
+#      members: [ [ 0, 1, end ], [0, 1, end] ]
 
 Mz: 91.1876
 Mw: 80.385

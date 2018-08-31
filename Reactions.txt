@@ -18,7 +18,7 @@ BaseEvolution libbaseevolution_xfitter.so
 APFELxx libapfelxx_xfitter.so
 QCDNUM libqcdnum_xfitter.so
 UvDvubardbars libuvdvubardbars_xfitter.so
-GRV_PionPdfDecomposition libGRV_PionPdfDecomposition_xfitter.so
+SU3_PionPdfDecomposition libSU3_PionPdfDecomposition_xfitter.so
 MINUIT libMINUITMinimizer_xfitter.so
 CERES libCERESMinimizer_xfitter.so
 LHAPDF liblhapdf_xfitter.so

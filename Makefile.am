@@ -29,7 +29,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
         pdfdecompositions/BasePdfDecomposition/src \
         pdfdecompositions/LHAPDFDecomposition/src \
         pdfdecompositions/UvDvUbarDbarS/src \
-        pdfdecompositions/GRV_PionPdfDecomposition/src \
+        pdfdecompositions/SU3_PionPdfDecomposition/src \
         evolutions/BaseEvolution/src \
         evolutions/APFELxx/src \
         minimizers/BaseMinimizer/src minimizers/CERESMinimizer/src minimizers/MINUITMinimizer/src

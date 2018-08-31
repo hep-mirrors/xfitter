@@ -1,9 +1,9 @@
 #pragma once
 #include "BasePdfDecomposition.h"
 /**
-  @class GRV_PionPdfDecomposition 
+  @class SU3_PionPdfDecomposition 
 
-  @brief A class for GRV_Pion pdf decomposition
+  @brief A class for pdf decomposition for the pion with SU3-symmetric sea
 
   Used for pi-
   Assumes that at starting scale:
@@ -25,11 +25,11 @@
   @date 2018-08-14
   */
 namespace xfitter{
-class GRV_PionPdfDecomposition:public BasePdfDecomposition{
+class SU3_PionPdfDecomposition:public BasePdfDecomposition{
 	public:
-		GRV_PionPdfDecomposition();
-		GRV_PionPdfDecomposition(const std::string& inName);
-		~GRV_PionPdfDecomposition();
+		SU3_PionPdfDecomposition();
+		SU3_PionPdfDecomposition(const std::string& inName);
+		~SU3_PionPdfDecomposition();
 		virtual void initAtStart(const std::string & pars) override final;
 		virtual void initAtIteration()override final;
 		virtual std::function<std::map<int,double>(const double& x)>f0()const override final; 
