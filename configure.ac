@@ -293,7 +293,7 @@ if test $enable_ceres; then
     AC_MSG_ERROR([Unable to find CERES_DIR])
   else
     CERES_CPPFLAGS="-I${CERES_DIR}/include/  -I/usr/include/eigen3"
-    CERES_LDFLAGS="-L${CERES_DIR}/lib -lceres -lpthread -llapack -lblas -lrt -lgomp"
+    CERES_LDFLAGS="-L${CERES_DIR}/lib  -lceres -lglog -lgflags -lpthread -lspqr -lcholmod -lccolamd -lcamd -lcolamd -lamd -llapack -lblas -lsuitesparseconfig -lrt -lcxsparse -lrt -lcxsparse -lgomp"
     AC_SUBST(CERES_CPPFLAGS)
     AC_SUBST(CERES_LDFLAGS)
     AC_DEFINE([CERES_ENABLED],[1],[Define if APFEL++ is enabled])    

@@ -32,7 +32,7 @@ C-----------------------------------------------------
 *     ------------------------------------------------
 *     Print HFitter banner
 *     ------------------------------------------------
-*     call hfbanner
+      call hfbanner
 
       narg = command_argument_count()
       if (narg.gt.0) then

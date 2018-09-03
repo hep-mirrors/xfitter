@@ -21,6 +21,7 @@ aclocal.m4
 autom4te.cache/
 *.m4
 config.guess
+config.log
 config.status
 config.sub
 configure
@@ -32,23 +33,6 @@ libtool
 ltmain.sh
 unpolarised.wgt
 zmstf.wgt
-SACOT/src/mdispac.mod
-doc/html/
-WHATIDID
-bak/
-constants.yaml
-datafiles/E615/
-deps/
-myconfigure.sh
-output*
-setup.sh
-tmp.sh
-version
-xfitter-master/
-yaml/
-plots/
-outs/
-*.log
 
 # vim swap file
 *.swp

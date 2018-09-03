@@ -1,48 +1,61 @@
+*  Namelist to control input data
+*
+
 &InFiles
   ! Number of intput files
-    NInputFiles = 15
+    NInputFiles = 7
+ 
   ! Input files:
-    InputFileNames = 
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-0.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-1.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-2.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-3.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-4.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-5.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-6.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-7.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-8.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-9.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-13.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-14.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-15.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-16.dat',
-			'/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-17.dat',
-!		  '/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-10.dat',
-!		  '/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-11.dat',
-!		  '/afs/desy.de/user/n/novikovi/xfitter/datafiles/E615/thexp-12.dat',
+
+     InputFileNames = 
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
+
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat',
+    ! 'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
+    ! 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
+
 &End
 
 &InCorr
+  ! Number of correlation (statistical, systematical or full) files
     NCorrFiles = 0
+ 
+  ! Correlation files:
+  !  CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 
 &ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
   do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
   tolerance = 0.0
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
   useBlas = .false.
 &End
 
-&sumrule_sums
-  uvalSum=-1.
-  dvalSum=1.
-  !svalSum=0.!not implemented
-&end
-
 &CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
   LConvertCovToNui = .False.
+
+   ! Tolerance -- zero means exact transformation
   Tolerance = 0.0
+
+   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
   LSubtractStat = .false.
+
+   ! The following lines allow to adjust error scaling properties (default: :M)
   DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
   DataSystType = ':A', ':A'
 &End
@@ -105,9 +118,9 @@
                                 !uPDF4 fit calculating kernel on fly, grid of sigma_hat
 
 
-  Order  = 'LO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
+  Order  = 'NNLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
 
-  Q02     = 0.4 ! Evolution starting scale
+  Q02     = 1.9 ! Evolution starting scale
 
  ! --- Scheme for heavy flavors 
  ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless) from QCDNUM,
@@ -158,7 +171,7 @@
  !  'DDIS'        -- use Diffractive DIS 
  !  'BiLog'       -- bi-lognormal parametrisation 
 
-  PDFStyle='HERAPDF'
+  PDFStyle = 'HERAPDF'
 
  ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  !
@@ -180,10 +193,8 @@
  !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
 
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
- !  Chi2Settings     = 'Poisson' , 'Linear',  'Linear'  , 'Diagonal' , 'Hessian'
-    Chi2Settings     = 'Poisson' , 'Poisson',  'Linear'  , 'Diagonal' , 'Hessian'
- !  Chi2Settings     = 'NoRescale'  , 'NoRescale',        'NoRescale'     , 'Diagonal'     , 'Hessian'
-    Chi2ExtraParam = 'PoissonCorr'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2ExtraParam = 'PoissonCorr'
 
  ! Flag to define if native APPLgrid CKM values should be kept.
  LUseAPPLgridCKM = True
@@ -206,7 +217,7 @@
   DoBandsSym = False     ! symmetric bands ( HESSE )
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 1.9, 3.0, 4.0, 5., 10.
+  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
 !  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
 
   ! How many x points to write (standard = 101)
@@ -216,10 +227,10 @@
   OUTXRANGE = 1E-4, 0.9999
 
   ! Do not write out LHAPDF6 output
-   WriteLHAPDF6 = false
+  ! WriteLHAPDF6 = false
 
   ! Write out LHAPDF5 output
-   WriteLHAPDF5 = false
+  ! WriteLHAPDF5 = false
 &End
 
 
@@ -368,10 +379,10 @@
 &End
 
 *
-* (Optional) LHAPDF steering card
+* (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET='GRVPI0'                  ! LHAPDF grid file 
+  LHAPDFSET  = 'CT10nlo'               ! LHAPDF grid file 
   ILHAPDFSET = 0                       ! Set a PDF member of the PDF set (use together with LHAPDFPROFILE = False)
   ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
   ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set

@@ -11,15 +11,15 @@
 using namespace std;
 using uint=unsigned int;
 double PolySqrtPdfParam::operator()(double x)const{
-	const uint N=getNPar();
-	double pol=1;
-	double mulx=1;
-	double sqrtx=sqrt(x);
-	for(uint i=3;i<N;++i){
-		mulx*=sqrtx;
-		pol+=(*pars[i])*mulx;
-	}
-	return(*pars[0])*pow(x,(*pars[1]))*pow((1-x),(*pars[2]))*pol;
+  const uint N=getNPar();
+  double pol=1;
+  double mulx=1;
+  double sqrtx=sqrt(x);
+  for(uint i=3;i<N;++i){
+    mulx*=sqrtx;
+    pol+=(*pars[i])*mulx;
+  }
+  return(*pars[0])*pow(x,(*pars[1]))*pow((1-x),(*pars[2]))*pol;
 }
 double PolySqrtPdfParam::moment(int n)const{
   //Integral of PolySqrtPdfParam-style function is expressed in terms of Euler beta function:
@@ -48,19 +48,19 @@ double PolySqrtPdfParam::moment(int n)const{
     a++;
     b++;
   }
-	double lgammaC=lgamma(C);
-	double ret=exp(lgamma(B)+lgammaC-lgamma(B+C))*sum;
-	sum=0;
-	prod=1;
-	a=B+0.5;
-	b=a+C;
+  double lgammaC=lgamma(C);
+  double ret=exp(lgamma(B)+lgammaC-lgamma(B+C))*sum;
+  sum=0;
+  prod=1;
+  a=B+0.5;
+  b=a+C;
   for(uint i=3;i<N;i+=2){
     sum+=(*pars[i])*prod;
     prod=prod*a/b;
     a++;
     b++;
   }
-	ret+=exp(lgamma(B+0.5)+lgammaC-lgamma(B+C+0.5))*sum;
-	ret*=(*pars[0]);
+  ret+=exp(lgamma(B+0.5)+lgammaC-lgamma(B+C+0.5))*sum;
+  ret*=(*pars[0]);
   return ret;
 }
