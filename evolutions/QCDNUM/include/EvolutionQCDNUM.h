@@ -25,8 +25,9 @@ namespace xfitter
   public:
     EvolutionQCDNUM(const char*name):BaseEvolution{name}{};
 
-    virtual void initFromYaml(const YAML::Node) override final;
-    virtual void initAtIteration() override final;
+    virtual void initAtStart()override final;
+    virtual void initAtIteration()override final;
+    virtual void initAtParameterChange()override final;
     virtual std::function<std::map<int,double>(double const& x, double const& Q)> xfxQMap()  override final;
     virtual std::function<void(double const& x, double const& Q, double* pdfs)> xfxQArray() override final;
     virtual std::function<double(int const& i, double const& x, double const& Q)> xfxQDouble() override final;

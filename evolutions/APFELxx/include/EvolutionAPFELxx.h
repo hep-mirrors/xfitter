@@ -29,13 +29,8 @@ namespace xfitter
     /**
      * @brief Function that initialises the evolution in APFEL++.
      */
-    void initFromYaml(const YAML::Node);
-
-    /**
-     * @brief Function that updates the relevant parameters of the
-     * evolution at each iteration of the fitting procedure.
-     */
-    void initAtIteration();
+    void initAtStart();
+    void initAtParameterChange();
 
     /**
      * @name Getters

@@ -31,15 +31,21 @@ namespace xfitter
     
     /**
      * @brief Function to be called at the begining to initialise the
-     * evolution code.
+     * evolution code based on its YAML node
+     *
+     * This function is called only once
      */
-    virtual void initFromYaml(const YAML::Node) = 0;
+    virtual void initAtStart(){};
 
     /**
-     * @brief Function to be call at each iteration to update the
-     * relevant evolution parameters.
+     * @brief Function to be called at each iteration
      */
-    virtual void initAtIteration() = 0;
+    virtual void initAtIteration(){};
+
+    /**
+     * @brief This function should be called when at least one parameter in the YAML node of given evolution changes
+     */
+    virtual void initAtParameterChange(){};
 
     /**
      * @name Getters

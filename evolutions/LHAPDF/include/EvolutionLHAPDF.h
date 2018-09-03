@@ -25,13 +25,13 @@ class EvolutionLHAPDF : BaseEvolution
 {
   public:
     /// Empty constructor (needed for the dynamic loading)
-    EvolutionLHAPDF(const char*name):BaseEvolution(name){};
+    EvolutionLHAPDF(const char*name);
 
   public:
   /// Global initialization
-    virtual void initFromYaml(const YAML::Node) override final;
-  /// Init at each iteration
-    virtual void initAtIteration() override final;  
+    virtual void initAtStart() override final;
+  /// Init at each change of at least one parameter
+    virtual void initAtParameterChange() override final;  
 
   /// Return PDFs as a map <int,double> where int is PDF ID (-6, ... 6, 21)   
     virtual std::function<std::map<int,double>(double const& x, double const& Q)> xfxQMap() override final;

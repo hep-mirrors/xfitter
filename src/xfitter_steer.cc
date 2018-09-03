@@ -53,9 +53,9 @@ namespace xfitter {
     BaseEvolution*evolution=((create_evolution*)dlsym(shared_library,"create"))(name.c_str());
 
     //Note that unlike in the pervious version of this function, we do not set decompositions for evolutions
-    //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during initFromYaml
+    //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during initAtStart
 
-    evolution->initFromYaml(instanceNode);
+    evolution->initAtStart();
     // Store the newly created evolution on the global map
     XFITTER_PARS::gEvolutions[name] = evolution;
     return evolution;

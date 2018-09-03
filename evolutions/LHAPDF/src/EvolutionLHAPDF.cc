@@ -18,10 +18,14 @@ namespace xfitter
 extern "C" EvolutionLHAPDF*create(const char*name){
   return new EvolutionLHAPDF(name);
 }
+EvolutionLHAPDF::EvolutionLHAPDF(const char*name):BaseEvolution(name){
+  _pdf=nullptr;
+}
 
     
 /// Global initialization
-  void EvolutionLHAPDF::initFromYaml(const YAML::Node pars) {
+  void EvolutionLHAPDF::initAtStart() {
+    YAML::Node pars=XFITTER_PARS::getEvolutionNode(_name);
     try{
       _set_name = pars["set"].as<std::string>();
     }catch(YAML::TypedBadConversion<std::string>&ex){
@@ -32,20 +36,20 @@ extern "C" EvolutionLHAPDF*create(const char*name){
     // check if exists first
     CheckForPDF(_set_name.c_str());
     _member   = pars["member"].as<int>();
-    _pdf      = LHAPDF::mkPDF(_set_name,_member);//Doesn't one need to delete _pdf then later? --Ivan
+    if(_pdf)delete _pdf;
+    _pdf      = LHAPDF::mkPDF(_set_name,_member);
     return ;
  };
     
   /// Init at each iteration
-  void EvolutionLHAPDF::initAtIteration() {
+  void EvolutionLHAPDF::initAtParameterChange() {
+    YAML::Node pars=XFITTER_PARS::getEvolutionNode(_name);
+    //TODO: check for errors while parsing YAML
+    _set_name = pars["set"].as<std::string>();
+    _member   = pars["member"].as<int>();
 
-    // Initialize LHAPDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    //auto pars = XFITTER_PARS::gParametersY["LHAPDF"];
-
-    //_set_name = pars["set"].as<std::string>();
-    //_member   = pars["member"].as<int>();
-
-    //_pdf      = LHAPDF::mkPDF(_set_name,_member);//Doesn't one need to delete _pdf then later? --Ivan
+    if(_pdf)delete _pdf;
+    _pdf=LHAPDF::mkPDF(_set_name,_member);
 
     return ;
   };

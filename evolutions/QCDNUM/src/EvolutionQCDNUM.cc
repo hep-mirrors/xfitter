@@ -63,7 +63,7 @@ namespace xfitter
   }
 
   // Initialize at the start of the computation
-  void EvolutionQCDNUM::initFromYaml(const YAML::Node yQCDNUM)
+  void EvolutionQCDNUM::initAtStart()
   {
     QCDNUM::qcinit(6," ");
 
@@ -101,6 +101,7 @@ namespace xfitter
 
     //  const double* mtp     = XFITTER_PARS::gParameters.at("mtp");   // no top PDF treatment yet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     
+    YAML::Node yQCDNUM=XFITTER_PARS::getEvolutionNode(_name);
     _icheck      = yQCDNUM["ICheck"].as<int>();
     _splineOrder = yQCDNUM["SplineOrder"].as<int>();
     _readTables  = yQCDNUM["Read_QCDNUM_Tables"].as<int>();
@@ -178,22 +179,22 @@ namespace xfitter
        
 		//Evolution gets its decomposition from YAML
     gPdfDecomp=XFITTER_PARS::getInputFunctionFromYaml(yQCDNUM);
+    initAtParameterChange();
   }
 
-  // Initialize at 
-  void EvolutionQCDNUM::initAtIteration()
+  void EvolutionQCDNUM::initAtParameterChange()
   {
-		//TODO: reload decompositions?? --Ivan
     // XXXXXXXXXXXXXX
-    const double* q0 = XFITTER_PARS::gParameters.at("Q0");
-    int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
 
     const double* Mz      = XFITTER_PARS::gParameters.at("Mz");
     const double* alphas  = XFITTER_PARS::gParameters.at("alphas");
     
-    double epsi = 0;
-
     QCDNUM::setalf(*alphas,(*Mz)*(*Mz));
+  }
+  void EvolutionQCDNUM::initAtIteration(){
+    const double* q0 = XFITTER_PARS::gParameters.at("Q0");
+    int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
+    double epsi = 0;
     QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
   }
 
