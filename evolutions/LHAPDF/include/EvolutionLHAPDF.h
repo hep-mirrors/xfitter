@@ -26,6 +26,7 @@ class EvolutionLHAPDF : BaseEvolution
   public:
     /// Empty constructor (needed for the dynamic loading)
     EvolutionLHAPDF(const char*name);
+    virtual const char*getClassName()const override final;
 
   public:
   /// Global initialization

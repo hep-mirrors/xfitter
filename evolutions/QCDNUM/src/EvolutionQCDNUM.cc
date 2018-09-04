@@ -24,10 +24,10 @@ double funcPDF(int *ipdf, double *x) {
 // helper to parse yaml sequences of uniform type
 template <class T>
 vector<T> getSeq(const YAML::Node node) {
-	if(!node.IsSequence()){
-		std::cerr<<"[DEBUG]getSeq: node=\n"<<node<<std::endl;
+  if(!node.IsSequence()){
+    std::cerr<<"[ERROR]getSeq: node=\n"<<node<<std::endl;
     hf_errlog(180829150,"F: In QCDNUM in function getSeq: wrong node type, expected sequence");
-	}
+  }
   size_t len = node.size();
   vector<T> v(len);
   for (size_t i=0; i<len; i++) {
@@ -61,6 +61,7 @@ namespace xfitter
   extern "C" EvolutionQCDNUM* create(const char*name) {
     return new EvolutionQCDNUM(name);
   }
+  const char*EvolutionQCDNUM::getClassName()const{return "QCDNUM";}
 
   // Initialize at the start of the computation
   void EvolutionQCDNUM::initAtStart()
@@ -177,7 +178,7 @@ namespace xfitter
       QCDNUM::dmpwgt(1,22,"unpolarised.wgt");
     }
        
-		//Evolution gets its decomposition from YAML
+    //Evolution gets its decomposition from YAML
     gPdfDecomp=XFITTER_PARS::getInputFunctionFromYaml(yQCDNUM);
     initAtParameterChange();
   }

@@ -25,6 +25,7 @@ namespace xfitter
   public:
     EvolutionQCDNUM(const char*name):BaseEvolution{name}{};
 
+    virtual const char*getClassName()const override final;
     virtual void initAtStart()override final;
     virtual void initAtIteration()override final;
     virtual void initAtParameterChange()override final;

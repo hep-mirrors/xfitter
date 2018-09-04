@@ -89,6 +89,8 @@ namespace xfitter
     /// Get generic property of the evolution
     virtual double  getPropertyD(std::string const& propertyName ) const { return 0.; }
     
+    /// Get class name, can be used to verify that the correct concrete class is being used
+    virtual const char*getClassName()const=0;
     ///@}
    
     

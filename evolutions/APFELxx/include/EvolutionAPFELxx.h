@@ -25,12 +25,13 @@ namespace xfitter
   {
   public:
     EvolutionAPFELxx(const char*name):BaseEvolution{name}{}
+    virtual const char*getClassName()const final override;
 
     /**
      * @brief Function that initialises the evolution in APFEL++.
      */
-    void initAtStart();
-    void initAtParameterChange();
+    virtual void initAtStart()override final;
+    virtual void initAtParameterChange()override final;
 
     /**
      * @name Getters

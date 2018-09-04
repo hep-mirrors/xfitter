@@ -13,6 +13,7 @@ namespace xfitter
   extern "C" EvolutionAPFELxx*create(const char*name){
     return new EvolutionAPFELxx(name);
   }
+  const char*EvolutionAPFELxx::getClassName()const{return "APFELxx";}
 
 
   //_________________________________________________________________________________

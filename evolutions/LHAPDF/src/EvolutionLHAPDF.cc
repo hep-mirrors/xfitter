@@ -21,6 +21,7 @@ extern "C" EvolutionLHAPDF*create(const char*name){
 EvolutionLHAPDF::EvolutionLHAPDF(const char*name):BaseEvolution(name){
   _pdf=nullptr;
 }
+const char*EvolutionLHAPDF::getClassName()const{return "LHAPDF";}
 
     
 /// Global initialization
