@@ -71,10 +71,10 @@ int ReactionHathorSingleTop::initAtStart(const string &s)
     _scheme = _scheme | Hathor::NLO;
   if(pertubOrder > 2)
     _scheme = _scheme | Hathor::NNLO;
-  int msMass = 0; // pole mass by default
-  if(checkParam("MS_MASS"))
+   int msMass = 0; // pole mass by default
+   if(checkParam("MS_MASS"))
     msMass = GetParamI("MS_MASS");
-  if(msMass)
+   if(msMass)
     _scheme = _scheme | Hathor::MS_MASS;
 
   // top quark mass
@@ -171,10 +171,10 @@ void ReactionHathorSingleTop::setDatasetParameters(int dataSetID, map<std::strin
   if(it != pars.end())
   {
     antitopquark = atoi(it->second.c_str());
-    if(antitopquark !=  0 && antitopquark != 1 && antitopquark != 2)
+    if(antitopquark !=  0 && antitopquark != 1)
     {
       char str[256];
-      sprintf(str, "F: provided antitopquark = %d not recognised (must be 0, 1 or 2)", antitopquark);
+      sprintf(str, "F: provided antitopquark = %d not recognised (must be 0 or 1)", antitopquark);
       hf_errlog_(17081103, str, strlen(str));
     }
       
@@ -197,17 +197,12 @@ void ReactionHathorSingleTop::setDatasetParameters(int dataSetID, map<std::strin
   hathor->setSqrtShad(sqrtS);
   std::cout << "ReactionHathorSingleTop: center of mass energy set to " << sqrtS << std::endl;
   
-  // choose TOPQUARK, ANTITOPQUARK or BOTH
-  std::cout << "ReactionHathorSingleTop: start looking for antitopquark" << std::endl;
-  if(antitopquark == 1)
+  // choose TOPQUARK/ANTITOPQUARK
+  std::cout << "ReactionHathorSingleTop: TOPQUARK/ANTITOPQUARK se to " << antitopquark << std::endl;
+  if(antitopquark)
   {
     std::cout << " Antitopquark is set" << std::endl;
     hathor->setParticle(SgTop::ANTITOPQUARK);
-  }
-  else if (antitopquark == 2)
-  { 
-    std::cout << "Sum of antitopquark and top quark is set" << std::endl;
-    hathor->setParticle(SgTop::BOTH);
   }  
   else
   {
@@ -217,7 +212,7 @@ void ReactionHathorSingleTop::setDatasetParameters(int dataSetID, map<std::strin
 
   // set scheme
   hathor->setScheme(_scheme);
- std::cout << "ReactionHathorSingleTop: Setting the scheme" << std::endl;
+  std::cout << "ReactionHathorSingleTop: Setting the scheme" << std::endl;
   // set precision level
   hathor->setPrecision(precisionLevel);
 
@@ -233,7 +228,7 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
   rlxd_reset(_rndStore);
 
   HathorSgTopT* hathor = _hathorArray.at(dataSetID);
-  
+
   int msMass = 0; // pole mass by default
   if(checkParam("MS_MASS"))
     msMass = GetParamI("MS_MASS");
@@ -267,184 +262,72 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
     d2dec = ( 307./32. + 2.*z2 + 2./3.*z2*ln2 - z3/6.
              + 509./72.*Lrbar + 47./24.*pow(Lrbar,2)
              - nfl*(71./144. + z2/3. + 13./36.*Lrbar + pow(Lrbar,2)/12.) );
-    int ratio = 0; 
-    if(checkParam("RATIO"))
-      ratio = GetParamI("RATIO");
-    if(ratio){
-      std::cout << "CALCULATING RATIO" << std::endl;
-      std::cout << "m = " << _mtop << std::endl;
-      double crsttop;
-      int i;
-      for (i = 0; i<2; i++) {
-        if (i == 0)
-	  hathor->setParticle(SgTop::TOPQUARK);
-        else {
-	  crsttop=crst;
-	  hathor->setParticle(SgTop::ANTITOPQUARK);
-	}
-	_scheme = Hathor::LO;
-	hathor->setScheme(_scheme);
+   
     
-	// LO
-	hathor->getXsection(_mtop,_mr,_mf);
-	hathor->getResult(0,valtclo,err1,chi1);
-    
-	std::cout << "LO value xsec = " << valtclo << std::endl;
-    
-	// LO derivatives
-	hathor->getXsection(_mtop+dmtms,_mr,_mf);
-	hathor->getResult(0,valtclop,err1,chi1);
-    
-	std::cout << "LO value derivativep xsec = " << valtclop << std::endl;
-    
-	hathor->getXsection(_mtop-dmtms,_mr,_mf);
-	hathor->getResult(0,valtclom,err1,chi1);
+    _scheme = Hathor::LO;
+    hathor->setScheme(_scheme);
 
-	std::cout << "LO value derivativem  xsec = " << valtclom << std::endl;
+    // LO
+    hathor->getXsection(_mtop,_mr,_mf);
+    hathor->getResult(0,valtclo,err1,chi1);
     
-	_scheme = Hathor::LO | Hathor::NLO;
-	hathor->setScheme(_scheme) ;
+    std::cout << "LO value xsec = " << valtclo << std::endl;
+    
+    // LO derivatives
+    hathor->getXsection(_mtop+dmtms,_mr,_mf);
+    hathor->getResult(0,valtclop,err1,chi1);
+    
+    std::cout << "LO value derivativep xsec = " << valtclop << std::endl;
+    
+    hathor->getXsection(_mtop-dmtms,_mr,_mf);
+    hathor->getResult(0,valtclom,err1,chi1);
+
+    std::cout << "LO value derivativem  xsec = " << valtclom << std::endl;
+    
+    _scheme = Hathor::LO | Hathor::NLO;
+    hathor->setScheme(_scheme) ;
   
-	// NLO
-	hathor->getXsection(_mtop,_mr,_mf);
-        hathor->getResult(0,valtcnlo,err1,chi1);
+    // NLO
+    hathor->getXsection(_mtop,_mr,_mf);
+    hathor->getResult(0,valtcnlo,err1,chi1);
 
-	std::cout << "NLO value xsec = " << valtcnlo << std::endl;
+    std::cout << "NLO value xsec = " << valtcnlo << std::endl;
     
-        // NLO derivatives
-        hathor->getXsection(_mtop+dmtms,_mr,_mf);
-        hathor->getResult(0,valtcnlop,err1,chi1);
+    // NLO derivatives
+    hathor->getXsection(_mtop+dmtms,_mr,_mf);
+    hathor->getResult(0,valtcnlop,err1,chi1);
 
-        std::cout << "NLO value derivativep xsec = " << valtcnlop << std::endl;
-    
-        hathor->getXsection(_mtop-dmtms,_mr,_mf);
-        hathor->getResult(0,valtcnlom,err1,chi1);
-
-        std::cout << "LO value derivativem  xsec = " << valtcnlom << std::endl;
- 
-
-	// add things up
-        crst = valtcnlo
-          + aspi* d1dec*_mtop/(2.*dmtms)* (valtcnlop-valtcnlom)
-          + pow(aspi,2)* d2dec*_mtop/(2.*dmtms)* (valtclop-valtclom)
-          + pow(aspi*d1dec*_mtop/dmtms,2)/2.* (valtclop-2.*valtclo+valtclom);
-	
-	if (i == 0)
-	  std::cout << "xfitter cross section top quark = " << crst << std::endl;
-        else 
-	  std::cout << "xfitter cross section antitop quark = " << crst << std::endl;
-      }
-    
-      double Ratio = crsttop/crst;
-      
-      std::cout << "Ratio = " << Ratio << std::endl;
-      std::cout << std::endl;
-
-    }      
-    else{
-      _scheme = Hathor::LO;
-      hathor->setScheme(_scheme);
-    
-      // LO
-      hathor->getXsection(_mtop,_mr,_mf);
-      hathor->getResult(0,valtclo,err1,chi1);
-    
-      std::cout << "LO value xsec = " << valtclo << std::endl;
-    
-      // LO derivatives
-      hathor->getXsection(_mtop+dmtms,_mr,_mf);
-      hathor->getResult(0,valtclop,err1,chi1);
-    
-      std::cout << "LO value derivativep xsec = " << valtclop << std::endl;
-    
-      hathor->getXsection(_mtop-dmtms,_mr,_mf);
-      hathor->getResult(0,valtclom,err1,chi1);
-
-      std::cout << "LO value derivativem  xsec = " << valtclom << std::endl;
-    
-      _scheme = Hathor::LO | Hathor::NLO;
-      hathor->setScheme(_scheme) ;
-  
-      // NLO
-      hathor->getXsection(_mtop,_mr,_mf);
-      hathor->getResult(0,valtcnlo,err1,chi1);
-
-      std::cout << "NLO value xsec = " << valtcnlo << std::endl;
-    
-      // NLO derivatives
-      hathor->getXsection(_mtop+dmtms,_mr,_mf);
-      hathor->getResult(0,valtcnlop,err1,chi1);
-
-      std::cout << "NLO value derivativep xsec = " << valtcnlop << std::endl;
+    std::cout << "NLO value derivativep xsec = " << valtcnlop << std::endl;
      
-      hathor->getXsection(_mtop-dmtms,_mr,_mf);
-      hathor->getResult(0,valtcnlom,err1,chi1);
+    hathor->getXsection(_mtop-dmtms,_mr,_mf);
+    hathor->getResult(0,valtcnlom,err1,chi1);
 
-      std::cout << "LO value derivativem  xsec = " << valtcnlom << std::endl;
+    std::cout << "LO value derivativem  xsec = " << valtcnlom << std::endl;
  
 
-      // add things up
-      crst = valtcnlo
-        + aspi* d1dec*_mtop/(2.*dmtms)* (valtcnlop-valtcnlom)
-        + pow(aspi,2)* d2dec*_mtop/(2.*dmtms)* (valtclop-valtclom)
-        + pow(aspi*d1dec*_mtop/dmtms,2)/2.* (valtclop-2.*valtclo+valtclom);
+    // add things up
+    crst = valtcnlo
+      + aspi* d1dec*_mtop/(2.*dmtms)* (valtcnlop-valtcnlom)
+      + pow(aspi,2)* d2dec*_mtop/(2.*dmtms)* (valtclop-valtclom)
+      + pow(aspi*d1dec*_mtop/dmtms,2)/2.* (valtclop-2.*valtclo+valtclom);
 
-      std::cout << "MSbar mass " << "  " << _mtop << "GeV" << std::endl;
-      std::cout << std::endl;  
+    std::cout << "MSbar mass " << "  " << _mtop << "GeV" << std::endl;
+    std::cout << std::endl;  
 
-      val[0]=crst;
-      std::cout << "xfitter cross section = " << val[0] << std::endl;
-      std::cout << std::endl;
-
-    } 
+    val[0]=crst;
+    std::cout << "xfitter cross section = " << val[0] << std::endl;
+    std::cout << std::endl; 
   }
   else{
-    
-    int ratio = 0; 
-    if(checkParam("RATIO"))
-      ratio = GetParamI("RATIO");
-    if(ratio){
-      std::cout << "CALCULATING RATIO" << std::endl;
-      std::cout << "m = " << _mtop << std::endl;
-      double crsttop;
-      double crst = 0.0;
-      int i;
-      for (i = 0; i<2; i++) {
-        if (i == 0)
-	  hathor->setParticle(SgTop::TOPQUARK);
-        else {
-	  crsttop=crst;
-	  hathor->setParticle(SgTop::ANTITOPQUARK);
-	}	
-
-	hathor->getXsection(_mtop, _mr, _mf);
-	double dum = 0.0;
-	hathor->getResult(0, crst, dum);
-	if (i == 0)
-	  std::cout << "xfitter cross section top quark = " << crst << std::endl;
-        else 
-	  std::cout << "xfitter cross section antitop quark = " << crst << std::endl;
-      }
-    
-      double Ratio = crsttop/crst;
-      
-      std::cout << "Ratio = " << Ratio << std::endl;
-      std::cout << std::endl;
-       
-    }      
-    else{
   
-      hathor->getXsection(_mtop, _mr, _mf);
-      double dum = 0.0;
-      val[0] = 0.0;
-      hathor->getResult(0, val[0], dum);
+    hathor->getXsection(_mtop, _mr, _mf);
+    double dum = 0.0;
+    val[0] = 0.0;
+    hathor->getResult(0, val[0], dum);
     
-      std::cout << "xfitter cross section = " << val[0] << std::endl;
-      std::cout << std::endl;
-
-    } 
+    std::cout << "xfitter cross section = " << val[0] << std::endl;
+    std::cout << std::endl;
   }
-
    return 0;
 }
 
