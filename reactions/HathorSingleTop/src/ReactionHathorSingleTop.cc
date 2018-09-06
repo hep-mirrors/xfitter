@@ -233,7 +233,6 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
   if(checkParam("MS_MASS"))
     msMass = GetParamI("MS_MASS");
   if(msMass){
-    std::cout << "compute: STARTING MS_MAS" << std::endl;
 
     double dmtms;
     double Lrbar,nfl;
@@ -247,16 +246,12 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
     double valtclo, valtclop, valtclom, valtcnlo, valtcnlop, valtcnlom;
     double err1, chi1;
  
-
     aspi = hathor->getAlphas(_mr)/(pi);
-    // check here for pole mass
-    // aspi = 0.;
     dmtms = _mtop/100.;
 
     // decoupling coefficients
     nfl = 5.;
-    // fix here m(mu=m) as in option MS_MASS
-    // Lrbar = log(pow(mur,2)/pow(mtms,2));
+
     Lrbar = 0.;
     d1dec = ( 4./3. + Lrbar );
     d2dec = ( 307./32. + 2.*z2 + 2./3.*z2*ln2 - z3/6.
@@ -271,18 +266,13 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
     hathor->getXsection(_mtop,_mr,_mf);
     hathor->getResult(0,valtclo,err1,chi1);
     
-    std::cout << "LO value xsec = " << valtclo << std::endl;
-    
     // LO derivatives
     hathor->getXsection(_mtop+dmtms,_mr,_mf);
     hathor->getResult(0,valtclop,err1,chi1);
     
-    std::cout << "LO value derivativep xsec = " << valtclop << std::endl;
-    
     hathor->getXsection(_mtop-dmtms,_mr,_mf);
     hathor->getResult(0,valtclom,err1,chi1);
 
-    std::cout << "LO value derivativem  xsec = " << valtclom << std::endl;
     
     _scheme = Hathor::LO | Hathor::NLO;
     hathor->setScheme(_scheme) ;
@@ -290,33 +280,22 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
     // NLO
     hathor->getXsection(_mtop,_mr,_mf);
     hathor->getResult(0,valtcnlo,err1,chi1);
-
-    std::cout << "NLO value xsec = " << valtcnlo << std::endl;
     
     // NLO derivatives
     hathor->getXsection(_mtop+dmtms,_mr,_mf);
     hathor->getResult(0,valtcnlop,err1,chi1);
-
-    std::cout << "NLO value derivativep xsec = " << valtcnlop << std::endl;
      
     hathor->getXsection(_mtop-dmtms,_mr,_mf);
     hathor->getResult(0,valtcnlom,err1,chi1);
-
-    std::cout << "LO value derivativem  xsec = " << valtcnlom << std::endl;
  
-
     // add things up
     crst = valtcnlo
       + aspi* d1dec*_mtop/(2.*dmtms)* (valtcnlop-valtcnlom)
       + pow(aspi,2)* d2dec*_mtop/(2.*dmtms)* (valtclop-valtclom)
       + pow(aspi*d1dec*_mtop/dmtms,2)/2.* (valtclop-2.*valtclo+valtclom);
 
-    std::cout << "MSbar mass " << "  " << _mtop << "GeV" << std::endl;
-    std::cout << std::endl;  
-
     val[0]=crst;
-    std::cout << "xfitter cross section = " << val[0] << std::endl;
-    std::cout << std::endl; 
+ 
   }
   else{
   
@@ -325,8 +304,6 @@ int ReactionHathorSingleTop::compute(int dataSetID, valarray<double> &val, map<s
     val[0] = 0.0;
     hathor->getResult(0, val[0], dum);
     
-    std::cout << "xfitter cross section = " << val[0] << std::endl;
-    std::cout << std::endl;
   }
    return 0;
 }
