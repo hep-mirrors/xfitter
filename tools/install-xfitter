@@ -163,10 +163,10 @@ then
         then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
-            gccv=4.8
+            gccv=4.9
             os=centos7
             arch=x86_64
-            rootversion=6.08.04
+            rootversion=6.06.08
             boostver=1.53.0
             pyth=2.7
 	elif [[ $SYS == Scientific* && $ver == 5.* ]]
