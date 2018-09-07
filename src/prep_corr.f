@@ -12,6 +12,7 @@
 
 
       integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax,NCorrMax
+      integer NCorrMaxBins
 
       parameter (NIdMax = 6)
       character *80 Name1
@@ -32,7 +33,9 @@ C     Temporary buffer to read the data (allows for comments starting with *)
 
 c     matrix buffer
       parameter (NCorrMax = 100*100)
-      double precision matrixbuffer(NCorrMax,NCorrMax)
+      parameter (NCorrMaxBins = 300)
+      !double precision matrixbuffer(NCorrMax,NCorrMax)
+      double precision matrixbuffer(NCorrMaxBins,NCorrMaxBins)
       double precision CovRescale(NCorrMax)
       logical MatrixFormatIsTable
 
@@ -193,10 +196,10 @@ c     Check the number of bin ids does not exceed maximum allowed
          endif
 
 c     Check the number of correlation entries does not exceed maximum allowed
-         if(NCorr.gt.NCorrMax) then
-            Call HF_ERRLOG(13012501,
-     $           'S: NCorrMax parameter in prep_corr.f too small')
-         endif
+!         if(NCorr.gt.NCorrMax) then
+!            Call HF_ERRLOG(13012501,
+!     $           'S: NCorrMax parameter in prep_corr.f too small')
+!         endif
 
 c     Check that the corresponding datasets exist 
          if((idataset1.lt.1).or.(idataset2.lt.1)) then

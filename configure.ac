@@ -210,7 +210,7 @@ else
   QCDNUMLIBS=`qcdnum-config --ldflags`
   AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
-  AX_COMPARE_VERSION([17-01-13],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-13 or later needed).])],[])
+  AX_COMPARE_VERSION([17-01-14],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-14 or later needed).])],[])
 fi
 
 # check for lhapdf installation
@@ -575,6 +575,7 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/fastNLO/src/Makefile
 		 reactions/FONLL_DISCC/src/Makefile
 		 reactions/FONLL_DISNC/src/Makefile
+                 reactions/KMatrix/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then
