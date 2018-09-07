@@ -8,135 +8,83 @@
 
 #include "ReactionAFB.h"
 #include "iostream"
-#include <gsl/gsl_monte_miser.h>
-#include <gsl/gsl_monte_vegas.h>
+#include <gsl/gsl_integration.h>
 
 using namespace std;
 
-// Constants
-#define PI 3.14159265
-#define GeVtofb 0.38937966e+12
+// Declaration of static parameters
+double ReactionAFB::PI;
+double ReactionAFB::GeVtofb_param, ReactionAFB::alphaEM_param, ReactionAFB::stheta2W_param, ReactionAFB::MZ_param, ReactionAFB::GammaZ_param;
+double ReactionAFB::energy_param, ReactionAFB::eta_cut_param, ReactionAFB::pT_cut_param, ReactionAFB::y_min_param, ReactionAFB::y_max_param;
 
-// SM parameters
-#define MZ 91.19
-#define GammaZ 2.5
-#define alphaEM 0.0078125
-#define sthetaW 0.4817
+double ReactionAFB::e_param, ReactionAFB::gsm_param, ReactionAFB::smangle_param;
+double ReactionAFB::foton_Vu, ReactionAFB::foton_Au, ReactionAFB::foton_Vd, ReactionAFB::foton_Ad, ReactionAFB::foton_Vl, ReactionAFB::foton_Al, ReactionAFB::foton_Vnu, ReactionAFB::foton_Anu;
+double ReactionAFB::Z_Vu, ReactionAFB::Z_Au, ReactionAFB::Z_Vd, ReactionAFB::Z_Ad, ReactionAFB::Z_Vl, ReactionAFB::Z_Al, ReactionAFB::Z_Vnu, ReactionAFB::Z_Anu;
+double ReactionAFB::even_foton_up, ReactionAFB::even_foton_down, ReactionAFB::even_interf_up, ReactionAFB::even_interf_down, ReactionAFB::even_Z_up, ReactionAFB::even_Z_down;
+double ReactionAFB::odd_foton_up, ReactionAFB::odd_foton_down, ReactionAFB::odd_interf_up, ReactionAFB::odd_interf_down, ReactionAFB::odd_Z_up, ReactionAFB::odd_Z_down;
 
-// set collider energy
-#define energy 13000
+const double epsabs = 0;
+const double epsrel = 1e-2;
 
-// define acceptance cuts
-#define eta_cut 2.5
-#define pT_cut 20
-
-// kinematic cuts
-#define ycut 1
-
-// PDF set and check
-const int   iset = 1;
-const int   ichk = 0;
-
-// Setting of the integration
-const int dim_integration = 2; // Integration on yreduced and Minv
-// Integration extremes
-double yreducedmin = 0;
-double yreducedmax = ycut;
-
-// Integration number of calls 
-size_t calls = 10000;
+size_t calls;
 
 
 //// Function returning the combination of propagators
 double *ReactionAFB::propagators (double Minv)
 {
-    const double e = sqrt(4*PI*alphaEM);
-    const double gsm = (e/(sthetaW*sqrt(1-pow(sthetaW,2))))*sqrt(1+pow(sthetaW,4));
-    
-    const double smangle = atan(-pow(sthetaW,2));
-    
-    // SM couplings
-    static double *couplings_foton = new double[8];
-    couplings_foton[0] = e*(2.0/3.0);
-    couplings_foton[1] = 0;
-    couplings_foton[2] = e*(-1.0/3.0);
-    couplings_foton[3] = 0;
-    couplings_foton[4] = e*(-1.0);
-    couplings_foton[5] = 0;
-    couplings_foton[6] = 0;
-    couplings_foton[7] = 0;
-    
-    static double *couplings_Z = new double[8];
-    couplings_Z[0] = (1.0/2.0)*gsm*(1.0/6.0)*(3*cos(smangle)+8*sin(smangle));
-    couplings_Z[1] = (1.0/2.0)*gsm*(cos(smangle)/2.0);
-    couplings_Z[2] = (1.0/2.0)*gsm*(1.0/6.0)*(-3*cos(smangle)-4*sin(smangle));
-    couplings_Z[3] = (1.0/2.0)*gsm*(-cos(smangle)/2.0);
-    couplings_Z[4] = (1.0/2.0)*gsm*((-cos(smangle)/2.0)+(-2*sin(smangle)));
-    couplings_Z[5] = (1.0/2.0)*gsm*(-cos(smangle)/2.0);
-    couplings_Z[6] = (1.0/2.0)*gsm*(cos(smangle)/2.0);
-    couplings_Z[7] = (1.0/2.0)*gsm*(cos(smangle)/2.0);
-        
-    // Even combination of couplings
-    double even_foton_up = (pow(couplings_foton[0],2)+pow(couplings_foton[1],2))*(pow(couplings_foton[4],2)+pow(couplings_foton[5],2));
-    double even_foton_down = (pow(couplings_foton[2],2)+pow(couplings_foton[3],2))*(pow(couplings_foton[4],2)+pow(couplings_foton[5],2));
-    double even_interf_up = ((couplings_foton[0]*couplings_Z[0])+(couplings_foton[1]*couplings_Z[1]))*((couplings_foton[4]*couplings_Z[4])+(couplings_foton[5]*couplings_Z[5]));
-    double even_interf_down = ((couplings_foton[2]*couplings_Z[2])+(couplings_foton[3]*couplings_Z[3]))*((couplings_foton[4]*couplings_Z[4])+(couplings_foton[5]*couplings_Z[5]));
-    double even_Z_up = (pow(couplings_Z[0],2)+pow(couplings_Z[1],2))*(pow(couplings_Z[4],2)+pow(couplings_Z[5],2));
-    double even_Z_down = (pow(couplings_Z[2],2)+pow(couplings_Z[3],2))*(pow(couplings_Z[4],2)+pow(couplings_Z[5],2));
-    
-    // Odd combination of couplings
-    double odd_foton_up = 4*couplings_foton[0]*couplings_foton[1]*couplings_foton[4]*couplings_foton[5];
-    double odd_foton_down = 4*couplings_foton[2]*couplings_foton[3]*couplings_foton[4]*couplings_foton[5];
-    double odd_interf_up = (couplings_foton[0]*couplings_Z[1]+couplings_foton[1]*couplings_Z[0])*(couplings_foton[4]*couplings_Z[5]+couplings_foton[5]*couplings_Z[4]);
-    double odd_interf_down = (couplings_foton[2]*couplings_Z[3]+couplings_foton[3]*couplings_Z[2])*(couplings_foton[4]*couplings_Z[5]+couplings_foton[5]*couplings_Z[4]);
-    double odd_Z_up = 4*couplings_Z[0]*couplings_Z[1]*couplings_Z[4]*couplings_Z[5];
-    double odd_Z_down = 4*couplings_Z[2]*couplings_Z[3]*couplings_Z[4]*couplings_Z[5];
-    
     // Propagators squared and interference
     double foton_squared = 1.0/pow(Minv,4);
-    double interference = 2.0*(-pow(Minv,2)*(pow(MZ,2)-pow(Minv,2)))/(pow(Minv,4)*((pow(pow(MZ,2)-pow(Minv,2),2))+pow(MZ,2)*pow(GammaZ,2)));
-    double Z_squared = 1.0/(pow(pow(MZ,2)-pow(Minv,2),2)+pow(MZ,2)*pow(GammaZ,2));
+    double interference = 2.0*(-pow(Minv,2)*(pow(MZ_param,2)-pow(Minv,2)))/(pow(Minv,4)*((pow(pow(MZ_param,2)-pow(Minv,2),2))+pow(MZ_param,2)*pow(GammaZ_param,2)));
+    double Z_squared = 1.0/(pow(pow(MZ_param,2)-pow(Minv,2),2)+pow(MZ_param,2)*pow(GammaZ_param,2));
     
-    static double *propagators = new double[4];
-    
-    propagators[0] = (even_foton_up * foton_squared)+(even_interf_up * interference) + (even_Z_up * Z_squared);
-    propagators[1] = (odd_foton_up * foton_squared)+(odd_interf_up * interference) + (odd_Z_up * Z_squared);
-    propagators[2] = (even_foton_down * foton_squared)+(even_interf_down * interference) + (even_Z_down * Z_squared);
-    propagators[3] = (odd_foton_down * foton_squared)+(odd_interf_down * interference) + (odd_Z_down * Z_squared);
+    static double propagators[4];    
+    propagators[0] = (even_foton_up * foton_squared) + (even_interf_up * interference) + (even_Z_up * Z_squared);
+    propagators[1] = (odd_foton_up * foton_squared) + (odd_interf_up * interference) + (odd_Z_up * Z_squared);
+    propagators[2] = (even_foton_down * foton_squared) + (even_interf_down * interference) + (even_Z_down * Z_squared);
+    propagators[3] = (odd_foton_down * foton_squared) + (odd_interf_down * interference) + (odd_Z_down * Z_squared);
         
     return propagators;
 }
 
+// Define a structure to pass the parameters
+struct integration_params {
+    double Minv;
+    ReactionTheory* ptr;
+    
+};
+
 ////UUBAR EVEN FORWARD Matrix element
-double ReactionAFB::uubarEF_funct (double *entries, size_t dim, void *params)
-{
+double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
+    
     // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;    
-  
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
-        
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
+    
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1u = (ptr->xfx(x1,Q,2)) / x1;
-    double f1c = (ptr->xfx(x1,Q,4)) / x1;
-    double f2ubar = (ptr->xfx(x2,Q,-2)) / x2;
-    double f2cbar = (ptr->xfx(x2,Q,-4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1u = pdfx1[8] / x1;
+    double f1c = pdfx1[10] / x1;
+    double f2ubar = pdfx2[4] / x2;
+    double f2cbar = pdfx2[2] / x2;
 
     // PDF combinations    
     double uubar_PDF = f1u*f2ubar + f1c*f2cbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -153,69 +101,83 @@ double ReactionAFB::uubarEF_funct (double *entries, size_t dim, void *params)
     return uubarEF * propagator[0]; // Multiply the PDFs combination with the correct propagator.
 }
 
-////UUBAR EVEN FORWARD Integration
-double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
-    double uubarEF, error_uubarEF;
+////UUBAR EVEN FORWARD Integration in rapidity
+double ReactionAFB::integration_uubarEF_y (double Minv, void * ptr) {
     
-    // Initialization of the integration
-    gsl_monte_function Integrate_uubarEF = { &(ReactionAFB::uubarEF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_uubarEF, integration_inf, integration_sup, dim_integration, calls, r, s, &uubarEF, &error_uubarEF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_uubarEF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &uubarEF, &error_uubarEF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarEF_funct);
+    F.params = &integrationParams;
     
-    return 2*uubarEF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
 }
 
+////UUBAR EVEN FORWARD Integration in invariant mass
+double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_uubarEF_y);
+    F.params = ptr;
+
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
+}
 
 ////UUBAR EVEN BACKWARD Matrix element
-double ReactionAFB::uubarEB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params; 
+double ReactionAFB::uubarEB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1u = (ptr->xfx(x1,Q,2)) / x1;
-    double f1c = (ptr->xfx(x1,Q,4)) / x1;
-    double f2ubar = (ptr->xfx(x2,Q,-2)) / x2;
-    double f2cbar = (ptr->xfx(x2,Q,-4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1u = pdfx1[8] / x1;
+    double f1c = pdfx1[10] / x1;
+    double f2ubar = pdfx2[4] / x2;
+    double f2cbar = pdfx2[2] / x2;
 
     // PDF combinations    
     double uubar_PDF = f1u*f2ubar + f1c*f2cbar;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -227,71 +189,85 @@ double ReactionAFB::uubarEB_funct (double *entries, size_t dim, void *params)
     double uubarEB = uubar_PDF*dsigma_EB;
   
     double *propagator = propagators (Minv);
-    
-    return uubarEB * propagator[0]; // Multiply the PDFs combination with the correct propagator.
+    return uubarEB * propagator[0];
 }
 
-////UUBAR EVEN BACKWARD Integration
-double ReactionAFB::integration_uubarEB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////UUBAR EVEN BACKWARD Integration in rapidity
+double ReactionAFB::integration_uubarEB_y (double Minv, void * ptr) {
     
-    double uubarEB, error_uubarEB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_uubarEB = { &(ReactionAFB::uubarEB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_uubarEB, integration_inf, integration_sup, dim_integration, calls, r, s, &uubarEB, &error_uubarEB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_uubarEB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &uubarEB, &error_uubarEB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarEB_funct);
+    F.params = &integrationParams;
     
-    return 2*uubarEB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////UUBAR EVEN BACKWARD Integration in invariant mass
+double ReactionAFB::integration_uubarEB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_uubarEB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////UUBAR ODD FORWARD Matrix element
-double ReactionAFB::uubarOF_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1u = (ptr->xfx(x1,Q,2)) / x1;
-    double f1c = (ptr->xfx(x1,Q,4)) / x1;
-    double f2ubar = (ptr->xfx(x2,Q,-2)) / x2;
-    double f2cbar = (ptr->xfx(x2,Q,-4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1u = pdfx1[8] / x1;
+    double f1c = pdfx1[10] / x1;
+    double f2ubar = pdfx2[4] / x2;
+    double f2cbar = pdfx2[2] / x2;
 
     // PDF combinations    
     double uubar_PDF = f1u*f2ubar + f1c*f2cbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -305,71 +281,86 @@ double ReactionAFB::uubarOF_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return uubarOF * propagator[1]; // Multiply the PDFs combination with the correct propagator.
+    return uubarOF * propagator[1];
 }
 
-////UUBAR ODD FORWARD Integration
-double ReactionAFB::integration_uubarOF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
-       
-    double uubarOF, error_uubarOF;
-    // Initialization of the integration
-    gsl_monte_function Integrate_uubarOF = { &(ReactionAFB::uubarOF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_uubarOF, integration_inf, integration_sup, dim_integration, calls, r, s, &uubarOF, &error_uubarOF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_uubarOF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &uubarOF, &error_uubarOF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
-
-    gsl_rng_free (r);
+////UUBAR ODD FORWARD Integration in rapidity
+double ReactionAFB::integration_uubarOF_y (double Minv, void * ptr) {
     
-    return 2*uubarOF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarOF_funct);
+    F.params = &integrationParams;
+    
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////UUBAR ODD FORWARD Integration in invariant mass
+double ReactionAFB::integration_uubarOF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_uubarOF_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////UUBAR ODD BACKWARD Matrix element
-double ReactionAFB::uubarOB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::uubarOB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1u = (ptr->xfx(x1,Q,2)) / x1;
-    double f1c = (ptr->xfx(x1,Q,4)) / x1;
-    double f2ubar = (ptr->xfx(x2,Q,-2)) / x2;
-    double f2cbar = (ptr->xfx(x2,Q,-4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1u = pdfx1[8] / x1;
+    double f1c = pdfx1[10] / x1;
+    double f2ubar = pdfx2[4] / x2;
+    double f2cbar = pdfx2[2] / x2;
 
     // PDF combinations    
     double uubar_PDF = f1u*f2ubar + f1c*f2cbar;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -382,71 +373,86 @@ double ReactionAFB::uubarOB_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return uubarOB * propagator[1]; // Multiply the PDFs combination with the correct propagator.
+    return uubarOB * propagator[1];
 }
 
-////UUBAR ODD BACKWARD Integration
-double ReactionAFB::integration_uubarOB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////UUBAR ODD BACKWARD Integration in rapidity
+double ReactionAFB::integration_uubarOB_y (double Minv, void * ptr) {
     
-    double uubarOB, error_uubarOB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_uubarOB = { &(ReactionAFB::uubarOB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_uubarOB, integration_inf, integration_sup, dim_integration, calls, r, s, &uubarOB, &error_uubarOB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_uubarOB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &uubarOB, &error_uubarOB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarOB_funct);
+    F.params = &integrationParams;
     
-    return 2*uubarOB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////UUBAR ODD BACKWARD Integration in invariant mass
+double ReactionAFB::integration_uubarOB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_uubarOB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////UBARU EVEN FORWARD Matrix element
-double ReactionAFB::ubaruEF_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::ubaruEF_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1ubar = (ptr->xfx(x1,Q,-2)) / x1;
-    double f1cbar = (ptr->xfx(x1,Q,-4)) / x1;
-    double f2u = (ptr->xfx(x2,Q,2)) / x2;
-    double f2c = (ptr->xfx(x2,Q,4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1ubar = pdfx1[4] / x1;
+    double f1cbar = pdfx1[2] / x1;
+    double f2u = pdfx2[8] / x2;
+    double f2c = pdfx2[10] / x2;
 
     // PDF combinations    
     double ubaru_PDF = f1ubar*f2u + f1cbar*f2c;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -459,70 +465,85 @@ double ReactionAFB::ubaruEF_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ubaruEF * propagator[0]; // Multiply the PDFs combination with the correct propagator.
+    return ubaruEF * propagator[0];
 }
 
-////UBARU EVEN FORWARD Integration
-double ReactionAFB::integration_ubaruEF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////UBARU EVEN FORWARD Integration in rapidity
+double ReactionAFB::integration_ubaruEF_y (double Minv, void * ptr) {
     
-    double ubaruEF, error_ubaruEF;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ubaruEF = { &(ReactionAFB::ubaruEF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ubaruEF, integration_inf, integration_sup, dim_integration, calls, r, s, &ubaruEF, &error_ubaruEF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ubaruEF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ubaruEF, &error_ubaruEF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruEF_funct);
+    F.params = &integrationParams;
     
-    return 2*ubaruEF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////UBARU EVEN FORWARD Integration in invariant mass
+double ReactionAFB::integration_ubaruEF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ubaruEF_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////UBARU EVEN BACKWARD Matrix element
-double ReactionAFB::ubaruEB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::ubaruEB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1ubar = (ptr->xfx(x1,Q,-2)) / x1;
-    double f1cbar = (ptr->xfx(x1,Q,-4)) / x1;
-    double f2u = (ptr->xfx(x2,Q,2)) / x2;
-    double f2c = (ptr->xfx(x2,Q,4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1ubar = pdfx1[4] / x1;
+    double f1cbar = pdfx1[2] / x1;
+    double f2u = pdfx2[8] / x2;
+    double f2c = pdfx2[10] / x2;
 
     // PDF combinations    
     double ubaru_PDF = f1ubar*f2u + f1cbar*f2c;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -536,71 +557,86 @@ double ReactionAFB::ubaruEB_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ubaruEB * propagator[0]; // Multiply the PDFs combination with the correct propagator.
+    return ubaruEB * propagator[0];
 }
 
-////UUBAR EVEN BACKWARD Integration
-double ReactionAFB::integration_ubaruEB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////UBARU EVEN BACKWARD Integration in rapidity
+double ReactionAFB::integration_ubaruEB_y (double Minv, void * ptr) {
     
-    double ubaruEB, error_ubaruEB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ubaruEB = { &(ReactionAFB::ubaruEB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ubaruEB, integration_inf, integration_sup, dim_integration, calls, r, s, &ubaruEB, &error_ubaruEB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ubaruEB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ubaruEB, &error_ubaruEB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruEB_funct);
+    F.params = &integrationParams;
     
-    return 2*ubaruEB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////UBARU EVEN BACKWARD Integration in invariant mass
+double ReactionAFB::integration_ubaruEB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ubaruEB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////UBARU ODD FORWARD Matrix element
-double ReactionAFB::ubaruOF_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::ubaruOF_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1ubar = (ptr->xfx(x1,Q,-2)) / x1;
-    double f1cbar = (ptr->xfx(x1,Q,-4)) / x1;
-    double f2u = (ptr->xfx(x2,Q,2)) / x2;
-    double f2c = (ptr->xfx(x2,Q,4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1ubar = pdfx1[4] / x1;
+    double f1cbar = pdfx1[2] / x1;
+    double f2u = pdfx2[8] / x2;
+    double f2c = pdfx2[10] / x2;
 
     // PDF combinations    
     double ubaru_PDF = f1ubar*f2u + f1cbar*f2c;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -613,70 +649,85 @@ double ReactionAFB::ubaruOF_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ubaruOF * propagator[1]; // Multiply the PDFs combination with the correct propagator.
+    return ubaruOF * propagator[1];
 }
 
-////UBARU ODD FORWARD Integration
-double ReactionAFB::integration_ubaruOF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
-       
-    double ubaruOF, error_ubaruOF;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ubaruOF = { &(ReactionAFB::ubaruOF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ubaruOF, integration_inf, integration_sup, dim_integration, calls, r, s, &ubaruOF, &error_ubaruOF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ubaruOF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ubaruOF, &error_ubaruOF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
-
-    gsl_rng_free (r);
+////UBARU ODD FORWARD Integration in rapidity
+double ReactionAFB::integration_ubaruOF_y (double Minv, void * ptr) {
     
-    return 2*ubaruOF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruOF_funct);
+    F.params = &integrationParams;
+    
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////UBARU ODD FORWARD Integration in invariant mass
+double ReactionAFB::integration_ubaruOF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ubaruOF_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////UBARU ODD BACKWARD Matrix element
-double ReactionAFB::ubaruOB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::ubaruOB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1ubar = (ptr->xfx(x1,Q,-2)) / x1;
-    double f1cbar = (ptr->xfx(x1,Q,-4)) / x1;
-    double f2u = (ptr->xfx(x2,Q,2)) / x2;
-    double f2c = (ptr->xfx(x2,Q,4)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1ubar = pdfx1[4] / x1;
+    double f1cbar = pdfx1[2] / x1;
+    double f2u = pdfx2[8] / x2;
+    double f2c = pdfx2[10] / x2;
 
     // PDF combinations    
     double ubaru_PDF = f1ubar*f2u + f1cbar*f2c;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0; 
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -690,72 +741,87 @@ double ReactionAFB::ubaruOB_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ubaruOB * propagator[1]; // Multiply the PDFs combination with the correct propagator.
+    return ubaruOB * propagator[1];
 }
 
-////UBARU ODD BACKWARD Integration
-double ReactionAFB::integration_ubaruOB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////UBARU ODD BACKWARD Integration in rapidity
+double ReactionAFB::integration_ubaruOB_y (double Minv, void * ptr) {
     
-    double ubaruOB, error_ubaruOB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ubaruOB = { &(ReactionAFB::ubaruOB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ubaruOB, integration_inf, integration_sup, dim_integration, calls, r, s, &ubaruOB, &error_ubaruOB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ubaruOB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ubaruOB, &error_ubaruOB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruOB_funct);
+    F.params = &integrationParams;
     
-    return 2*ubaruOB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////UBARU ODD BACKWARD Integration in invariant mass
+double ReactionAFB::integration_ubaruOB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ubaruOB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DDBAR EVEN FORWARD Matrix element
-double ReactionAFB::ddbarEF_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::ddbarEF_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1d = (ptr->xfx(x1,Q,1)) / x1;
-    double f1s = (ptr->xfx(x1,Q,3)) / x1;
-    double f1b = (ptr->xfx(x1,Q,5)) / x1;
-    double f2dbar = (ptr->xfx(x2,Q,-1)) / x2;
-    double f2sbar = (ptr->xfx(x2,Q,-3)) / x2;
-    double f2bbar = (ptr->xfx(x2,Q,-5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1d = pdfx1[7] / x1;
+    double f1s = pdfx1[9] / x1;
+    double f1b = pdfx1[11] / x1;
+    double f2dbar = pdfx2[5] / x2;
+    double f2sbar = pdfx2[3] / x2;
+    double f2bbar = pdfx2[1] / x2;
 
     // PDF combinations    
     double ddbar_PDF = f1d*f2dbar + f1s*f2sbar + f1b*f2bbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -769,73 +835,88 @@ double ReactionAFB::ddbarEF_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ddbarEF * propagator[2]; // Multiply the PDFs combination with the correct propagator.
+    return ddbarEF * propagator[2];
 }
 
-////DDBAR EVEN FORWARD Integration
-double ReactionAFB::integration_ddbarEF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////DDBAR EVEN FORWARD Integration in rapidity
+double ReactionAFB::integration_ddbarEF_y (double Minv, void * ptr) {
     
-    double ddbarEF, error_ddbarEF;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ddbarEF = { &(ReactionAFB::ddbarEF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ddbarEF, integration_inf, integration_sup, dim_integration, calls, r, s, &ddbarEF, &error_ddbarEF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ddbarEF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ddbarEF, &error_ddbarEF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarEF_funct);
+    F.params = &integrationParams;
     
-    return 2*ddbarEF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////DDBAR EVEN FORWARD Integration in invariant mass
+double ReactionAFB::integration_ddbarEF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ddbarEF_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DDBAR EVEN BACKWARD Matrix element
-double ReactionAFB::ddbarEB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::ddbarEB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1d = (ptr->xfx(x1,Q,1)) / x1;
-    double f1s = (ptr->xfx(x1,Q,3)) / x1;
-    double f1b = (ptr->xfx(x1,Q,5)) / x1;
-    double f2dbar = (ptr->xfx(x2,Q,-1)) / x2;
-    double f2sbar = (ptr->xfx(x2,Q,-3)) / x2;
-    double f2bbar = (ptr->xfx(x2,Q,-5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1d = pdfx1[7] / x1;
+    double f1s = pdfx1[9] / x1;
+    double f1b = pdfx1[11] / x1;
+    double f2dbar = pdfx2[5] / x2;
+    double f2sbar = pdfx2[3] / x2;
+    double f2bbar = pdfx2[1] / x2;
 
     // PDF combinations    
     double ddbar_PDF = f1d*f2dbar + f1s*f2sbar + f1b*f2bbar;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -848,72 +929,87 @@ double ReactionAFB::ddbarEB_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ddbarEB * propagator[2]; // Multiply the PDFs combination with the correct propagator.
+    return ddbarEB * propagator[2];
 }
 
-////DDBAR EVEN BACKWARD Integration
-double ReactionAFB::integration_ddbarEB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////DDBAR EVEN BACKWARD Integration in rapidity
+double ReactionAFB::integration_ddbarEB_y (double Minv, void * ptr) {
     
-    double ddbarEB, error_ddbarEB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ddbarEB = { &(ReactionAFB::ddbarEB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ddbarEB, integration_inf, integration_sup, dim_integration, calls, r, s, &ddbarEB, &error_ddbarEB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ddbarEB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ddbarEB, &error_ddbarEB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarEB_funct);
+    F.params = &integrationParams;
     
-    return 2*ddbarEB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////DDBAR EVEN BACKWARD Integration in invariant mass
+double ReactionAFB::integration_ddbarEB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ddbarEB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DDBAR ODD FORWARD Matrix element
-double ReactionAFB::ddbarOF_funct (double *entries, size_t dim, void *params)
-{
+double ReactionAFB::ddbarOF_funct (double yreduced, void * params) {
+    
     // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
-
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1d = (ptr->xfx(x1,Q,1)) / x1;
-    double f1s = (ptr->xfx(x1,Q,3)) / x1;
-    double f1b = (ptr->xfx(x1,Q,5)) / x1;
-    double f2dbar = (ptr->xfx(x2,Q,-1)) / x2;
-    double f2sbar = (ptr->xfx(x2,Q,-3)) / x2;
-    double f2bbar = (ptr->xfx(x2,Q,-5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1d = pdfx1[7] / x1;
+    double f1s = pdfx1[9] / x1;
+    double f1b = pdfx1[11] / x1;
+    double f2dbar = pdfx2[5] / x2;
+    double f2sbar = pdfx2[3] / x2;
+    double f2bbar = pdfx2[1] / x2;
 
     // PDF combinations    
     double ddbar_PDF = f1d*f2dbar + f1s*f2sbar + f1b*f2bbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -927,73 +1023,88 @@ double ReactionAFB::ddbarOF_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ddbarOF * propagator[3]; // Multiply the PDFs combination with the correct propagator.
+    return ddbarOF * propagator[3];
 }
 
-////DDBAR ODD FORWARD Integration
-double ReactionAFB::integration_ddbarOF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
-       
-    double ddbarOF, error_ddbarOF;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ddbarOF = { &(ReactionAFB::ddbarOF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ddbarOF, integration_inf, integration_sup, dim_integration, calls, r, s, &ddbarOF, &error_ddbarOF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ddbarOF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ddbarOF, &error_ddbarOF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
-
-    gsl_rng_free (r);
+////DDBAR ODD FORWARD Integration in rapidity
+double ReactionAFB::integration_ddbarOF_y (double Minv, void * ptr) {
     
-    return 2*ddbarOF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarOF_funct);
+    F.params = &integrationParams;
+    
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////DDBAR ODD FORWARD Integration in invariant mass
+double ReactionAFB::integration_ddbarOF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ddbarOF_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DDBAR ODD BACKWARD Matrix element
-double ReactionAFB::ddbarOB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::ddbarOB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1d = (ptr->xfx(x1,Q,1)) / x1;
-    double f1s = (ptr->xfx(x1,Q,3)) / x1;
-    double f1b = (ptr->xfx(x1,Q,5)) / x1;
-    double f2dbar = (ptr->xfx(x2,Q,-1)) / x2;
-    double f2sbar = (ptr->xfx(x2,Q,-3)) / x2;
-    double f2bbar = (ptr->xfx(x2,Q,-5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1d = pdfx1[7] / x1;
+    double f1s = pdfx1[9] / x1;
+    double f1b = pdfx1[11] / x1;
+    double f2dbar = pdfx2[5] / x2;
+    double f2sbar = pdfx2[3] / x2;
+    double f2bbar = pdfx2[1] / x2;
 
     // PDF combinations    
     double ddbar_PDF = f1d*f2dbar + f1s*f2sbar + f1b*f2bbar;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -1006,73 +1117,88 @@ double ReactionAFB::ddbarOB_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return ddbarOB * propagator[3]; // Multiply the PDFs combination with the correct propagator.
+    return ddbarOB * propagator[3];
 }
 
-////DDBAR ODD BACKWARD Integration
-double ReactionAFB::integration_ddbarOB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////DDBAR ODD BACKWARD Integration in rapidity
+double ReactionAFB::integration_ddbarOB_y (double Minv, void * ptr) {
     
-    double ddbarOB, error_ddbarOB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_ddbarOB = { &(ReactionAFB::ddbarOB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_ddbarOB, integration_inf, integration_sup, dim_integration, calls, r, s, &ddbarOB, &error_ddbarOB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_ddbarOB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &ddbarOB, &error_ddbarOB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarOB_funct);
+    F.params = &integrationParams;
     
-    return 2*ddbarOB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////DDBAR ODD BACKWARD Integration in invariant mass
+double ReactionAFB::integration_ddbarOB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_ddbarOB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DBARD EVEN FORWARD Matrix element
-double ReactionAFB::dbardEF_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::dbardEF_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1dbar = (ptr->xfx(x1,Q,-1)) / x1;
-    double f1sbar = (ptr->xfx(x1,Q,-3)) / x1;
-    double f1bbar = (ptr->xfx(x1,Q,-5)) / x1;
-    double f2d = (ptr->xfx(x2,Q,1)) / x2;
-    double f2s = (ptr->xfx(x2,Q,3)) / x2;
-    double f2b = (ptr->xfx(x2,Q,5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1dbar = pdfx1[5] / x1;
+    double f1sbar = pdfx1[3] / x1;
+    double f1bbar = pdfx1[1] / x1;
+    double f2d = pdfx2[7] / x2;
+    double f2s = pdfx2[9] / x2;
+    double f2b = pdfx2[11] / x2;
 
     // PDF combinations    
     double dbard_PDF = f1dbar*f2d + f1sbar*f2s + f1bbar*f2b;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -1085,72 +1211,87 @@ double ReactionAFB::dbardEF_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return dbardEF * propagator[2]; // Multiply the PDFs combination with the correct propagator.
+    return dbardEF * propagator[2];
 }
 
-////DBARD EVEN FORWARD Integration
-double ReactionAFB::integration_dbardEF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////DBARD EVEN FORWARD Integration in rapidity
+double ReactionAFB::integration_dbardEF_y (double Minv, void * ptr) {
     
-    double dbardEF, error_dbardEF;
-    // Initialization of the integration
-    gsl_monte_function Integrate_dbardEF = { &(ReactionAFB::dbardEF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_dbardEF, integration_inf, integration_sup, dim_integration, calls, r, s, &dbardEF, &error_dbardEF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_dbardEF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &dbardEF, &error_dbardEF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardEF_funct);
+    F.params = &integrationParams;
     
-    return 2*dbardEF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////DBARD EVEN FORWARD Integration in invariant mass
+double ReactionAFB::integration_dbardEF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_dbardEF_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DBARD EVEN BACKWARD Matrix element
-double ReactionAFB::dbardEB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::dbardEB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1dbar = (ptr->xfx(x1,Q,-1)) / x1;
-    double f1sbar = (ptr->xfx(x1,Q,-3)) / x1;
-    double f1bbar = (ptr->xfx(x1,Q,-5)) / x1;
-    double f2d = (ptr->xfx(x2,Q,1)) / x2;
-    double f2s = (ptr->xfx(x2,Q,3)) / x2;
-    double f2b = (ptr->xfx(x2,Q,5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1dbar = pdfx1[5] / x1;
+    double f1sbar = pdfx1[3] / x1;
+    double f1bbar = pdfx1[1] / x1;
+    double f2d = pdfx2[7] / x2;
+    double f2s = pdfx2[9] / x2;
+    double f2b = pdfx2[11] / x2;
 
     // PDF combinations    
     double dbard_PDF = f1dbar*f2d + f1sbar*f2s + f1bbar*f2b;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -1164,73 +1305,88 @@ double ReactionAFB::dbardEB_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return dbardEB * propagator[2]; // Multiply the PDFs combination with the correct propagator.
+    return dbardEB * propagator[2];
 }
 
-////DBARD EVEN BACKWARD Integration
-double ReactionAFB::integration_dbardEB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////DBARD EVEN BACKWARD Integration in rapidity
+double ReactionAFB::integration_dbardEB_y (double Minv, void * ptr) {
     
-    double dbardEB, error_dbardEB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_dbardEB = { &(ReactionAFB::dbardEB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_dbardEB, integration_inf, integration_sup, dim_integration, calls, r, s, &dbardEB, &error_dbardEB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_dbardEB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &dbardEB, &error_dbardEB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardEB_funct);
+    F.params = &integrationParams;
     
-    return 2*dbardEB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////DBARD EVEN BACKWARD Integration in invariant mass
+double ReactionAFB::integration_dbardEB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_dbardEB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DBARD ODD FORWARD Matrix element
-double ReactionAFB::dbardOF_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::dbardOF_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1dbar = (ptr->xfx(x1,Q,-1)) / x1;
-    double f1sbar = (ptr->xfx(x1,Q,-3)) / x1;
-    double f1bbar = (ptr->xfx(x1,Q,-5)) / x1;
-    double f2d = (ptr->xfx(x2,Q,1)) / x2;
-    double f2s = (ptr->xfx(x2,Q,3)) / x2;
-    double f2b = (ptr->xfx(x2,Q,5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1dbar = pdfx1[5] / x1;
+    double f1sbar = pdfx1[3] / x1;
+    double f1bbar = pdfx1[1] / x1;
+    double f2d = pdfx2[7] / x2;
+    double f2s = pdfx2[9] / x2;
+    double f2b = pdfx2[11] / x2;
 
     // PDF combinations    
     double dbard_PDF = f1dbar*f2d + f1sbar*f2s + f1bbar*f2b;
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut-y))),-sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -1243,72 +1399,87 @@ double ReactionAFB::dbardOF_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return dbardOF * propagator[3]; // Multiply the PDFs combination with the correct propagator.
+    return dbardOF * propagator[3];
 }
 
-////DBARD ODD FORWARD Integration
-double ReactionAFB::integration_dbardOF (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
-       
-    double dbardOF, error_dbardOF;
-    // Initialization of the integration
-    gsl_monte_function Integrate_dbardOF = { &(ReactionAFB::dbardOF_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_dbardOF, integration_inf, integration_sup, dim_integration, calls, r, s, &dbardOF, &error_dbardOF);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_dbardOF, integration_inf, integration_sup, dim_integration, calls/5, r, s, &dbardOF, &error_dbardOF);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
-
-    gsl_rng_free (r);
+////DBARD ODD FORWARD Integration in rapidity
+double ReactionAFB::integration_dbardOF_y (double Minv, void * ptr) {
     
-    return 2*dbardOF; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardOF_funct);
+    F.params = &integrationParams;
+    
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
+}
+
+////DBARD ODD FORWARD Integration in invariant mass
+double ReactionAFB::integration_dbardOF (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_dbardOF_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
 }
 
 ////DBARD ODD BACKWARD Matrix element
-double ReactionAFB::dbardOB_funct (double *entries, size_t dim, void *params)
-{
-    // Pointer to access PDFs
-    ReactionTheory* ptr = (ReactionTheory*) params;
+double ReactionAFB::dbardOB_funct (double yreduced, void * params) {
     
-    (void)(dim); /* avoid unused parameter warnings */
-    double yreduced = entries[0];
-    double Minv = entries[1];
+    // Pointer to access PDFs
+    ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;    
+    // Pass the invariant mass as parameter
+    double Minv = ((integration_params*)params)-> Minv;
         
     // Partonic cross section parameters
     double Q = Minv;
-    double z = pow(Minv,2)/pow(energy,2);
+    double z = pow(Minv,2)/pow(energy_param,2);
     double y = -(1.0/2.0)*log(z)*(yreduced);
     double x1 = sqrt(z)*exp(y);
     double x2 = sqrt(z)*exp(-y);
     double dsigma_temp = pow(Minv,2)/(96*PI);
-    double dsigma = GeVtofb*dsigma_temp*(2*Minv/pow(energy,2))*(-(1.0/2.0)*log(z));
+    double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
-    // Call the PDFs
-    double f1dbar = (ptr->xfx(x1,Q,-1)) / x1;
-    double f1sbar = (ptr->xfx(x1,Q,-3)) / x1;
-    double f1bbar = (ptr->xfx(x1,Q,-5)) / x1;
-    double f2d = (ptr->xfx(x2,Q,1)) / x2;
-    double f2s = (ptr->xfx(x2,Q,3)) / x2;
-    double f2b = (ptr->xfx(x2,Q,5)) / x2;
+    // Partons PDFs
+    std::valarray<double> pdfx1(13);
+    std::valarray<double> pdfx2(13);
+    (ptr->xfx(x1,Q,&pdfx1[0]));
+    (ptr->xfx(x2,Q,&pdfx2[0]));
+    double f1dbar = pdfx1[5] / x1;
+    double f1sbar = pdfx1[3] / x1;
+    double f1bbar = pdfx1[1] / x1;
+    double f2d = pdfx2[7] / x2;
+    double f2s = pdfx2[9] / x2;
+    double f2b = pdfx2[11] / x2;
 
     // PDF combinations    
     double dbard_PDF = f1dbar*f2d + f1sbar*f2s + f1bbar*f2b;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut-y))),sqrt(1-4*(pow(pT_cut,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0; 
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -1322,62 +1493,74 @@ double ReactionAFB::dbardOB_funct (double *entries, size_t dim, void *params)
   
     double *propagator = propagators (Minv);
     
-    return dbardOB * propagator[3]; // Multiply the PDFs combination with the correct propagator.
+    return dbardOB * propagator[3];
 }
 
-////DBARD ODD BACKWARD Integration
-double ReactionAFB::integration_dbardOB (double Minv_inf, double Minv_sup)
-{
-    double integration_inf[2] = {yreducedmin, Minv_inf};
-    double integration_sup[2] = {yreducedmax, Minv_sup};
+////DBARD ODD BACKWARD Integration in rapidity
+double ReactionAFB::integration_dbardOB_y (double Minv, void * ptr) {
     
-    double dbardOB, error_dbardOB;
-    // Initialization of the integration
-    gsl_monte_function Integrate_dbardOB = { &(ReactionAFB::dbardOB_funct), dim_integration, this };
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup ();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);   
-    // Integration
-    {
-    gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (dim_integration);
-    gsl_monte_vegas_integrate (&Integrate_dbardOB, integration_inf, integration_sup, dim_integration, calls, r, s, &dbardOB, &error_dbardOB);
-    do
-    {
-        gsl_monte_vegas_integrate (&Integrate_dbardOB, integration_inf, integration_sup, dim_integration, calls/5, r, s, &dbardOB, &error_dbardOB);
-    }
-    while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    gsl_monte_vegas_free (s);
-    }
+    // Pass the necessary parameters (pointer to the PDFs and Minv)
+    integration_params integrationParams;
+    integrationParams.Minv = Minv;
+    integrationParams.ptr = (ReactionTheory*) ptr;
+    
+    double result, error;
 
-    gsl_rng_free (r);
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardOB_funct);
+    F.params = &integrationParams;
     
-    return 2*dbardOB; // Factor 2 for the symmetric integration over yreduced: int_-1^1 dyreduced = 2 int_0^1 dyreduced.
+    double inf = y_min_param / log(energy_param/Minv);
+    double sup;
+    if (y_max_param == 0.0) {
+        sup = 1;
+    } else {
+        sup = y_max_param / log(energy_param/Minv);
+    }
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return 2*result;
 }
 
+////DBARD ODD BACKWARD Integration in invariant mass
+double ReactionAFB::integration_dbardOB (double Minv_inf, double Minv_sup, void* ptr) {
+    
+    double result, error;
+
+    gsl_function F;
+    F.function = &(ReactionAFB::integration_dbardOB_y);
+    F.params = ptr;
+    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
+    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+
+    return result;
+}
 
 double ReactionAFB::AFB (double Minv_inf, double Minv_sup)
 {
-    double uubarEF = integration_uubarEF (Minv_inf, Minv_sup);
-    double uubarEB = integration_uubarEB (Minv_inf, Minv_sup);
-    double uubarOF = integration_uubarOF (Minv_inf, Minv_sup);
-    double uubarOB = integration_uubarOB (Minv_inf, Minv_sup);
+    double uubarEF = integration_uubarEF (Minv_inf, Minv_sup, this);
+    double uubarEB = integration_uubarEB (Minv_inf, Minv_sup, this);
+    double uubarOF = integration_uubarOF (Minv_inf, Minv_sup, this);
+    double uubarOB = integration_uubarOB (Minv_inf, Minv_sup, this);
     
-    double ubaruEF = integration_ubaruEF (Minv_inf, Minv_sup);
-    double ubaruEB = integration_ubaruEB (Minv_inf, Minv_sup);
-    double ubaruOF = integration_ubaruOF (Minv_inf, Minv_sup);
-    double ubaruOB = integration_ubaruOB (Minv_inf, Minv_sup);
+    double ubaruEF = integration_ubaruEF (Minv_inf, Minv_sup, this);
+    double ubaruEB = integration_ubaruEB (Minv_inf, Minv_sup, this);
+    double ubaruOF = integration_ubaruOF (Minv_inf, Minv_sup, this);
+    double ubaruOB = integration_ubaruOB (Minv_inf, Minv_sup, this);
     
-    double ddbarEF = integration_ddbarEF (Minv_inf, Minv_sup);
-    double ddbarEB = integration_ddbarEB (Minv_inf, Minv_sup);
-    double ddbarOF = integration_ddbarOF (Minv_inf, Minv_sup);
-    double ddbarOB = integration_ddbarOB (Minv_inf, Minv_sup);
+    double ddbarEF = integration_ddbarEF (Minv_inf, Minv_sup, this);
+    double ddbarEB = integration_ddbarEB (Minv_inf, Minv_sup, this);
+    double ddbarOF = integration_ddbarOF (Minv_inf, Minv_sup, this);
+    double ddbarOB = integration_ddbarOB (Minv_inf, Minv_sup, this);
         
-    double dbardEF = integration_dbardEF (Minv_inf, Minv_sup); 
-    double dbardEB = integration_dbardEB (Minv_inf, Minv_sup);
-    double dbardOF = integration_dbardOF (Minv_inf, Minv_sup);
-    double dbardOB = integration_dbardOB (Minv_inf, Minv_sup);
+    double dbardEF = integration_dbardEF (Minv_inf, Minv_sup, this); 
+    double dbardEB = integration_dbardEB (Minv_inf, Minv_sup, this);
+    double dbardOF = integration_dbardOF (Minv_inf, Minv_sup, this);
+    double dbardOB = integration_dbardOB (Minv_inf, Minv_sup, this);
     
     // Reconstructed Forward and Backward
     double Forward = uubarEF+ubaruEF+ddbarEF+dbardEF+uubarOF+ubaruOF+ddbarOF+dbardOF;
@@ -1396,10 +1579,100 @@ extern "C" ReactionAFB* create() {
 
 // Initialize at the start of the computation
 int ReactionAFB::initAtStart(const string &s)
-{
-  return 0;
-}
+{    
+    // Parameters from "/reactions/AFB/yaml/parameters.yaml"
+    // Check energy parameter:
+    std::cout << checkParam("energy") << std::endl;
+    if ( ! checkParam("energy") ) {
+        std::cout << "\n\n FATAL ERROR: collider energy (energy) is not defined !!! \n\n" <<std::endl;
+        return 1;
+    }
+    // Check eta parameter:
+    std::cout << checkParam("eta_cut") << std::endl;
+    if ( ! checkParam("eta_cut") ) {
+        std::cout << "\n\n FATAL ERROR: lepton pseudorapidity cut (eta_cut_param) is not defined !!! \n\n" <<std::endl;
+        return 1;
+    }
+    // Check pT parameter:
+    std::cout << checkParam("pT_cut") << std::endl;
+    if ( ! checkParam("eta_cut") ) {
+        std::cout << "\n\n FATAL ERROR: lepton transverse momentum cut (pT_cut_param) is not defined !!! \n\n" <<std::endl;
+        return 1;
+    }
+    // Check rapidity lower cut parameter:
+    std::cout << checkParam("y_min") << std::endl;
+    if ( ! checkParam("y_min") ) {
+        std::cout << "\n\n FATAL ERROR: di-lepton rapidity lower cut (y_min) is not defined !!! \n\n" <<std::endl;
+        return 1;
+    }
+    
+    // Check rapidity upper cut parameter:
+    std::cout << checkParam("y_max") << std::endl;
+    if ( ! checkParam("y_max") ) {
+        std::cout << "\n\n FATAL ERROR: di-lepton rapidity upper cut (y_max) is not defined !!! \n\n" <<std::endl;
+        return 1;
+    }
+    
+    // Constant
+    PI = 3.14159265;
+    
+    // Read default parameters
+    GeVtofb_param = pow(10, -3) * GetParam("convFac");
+    alphaEM_param = GetParam("alphaem");
+    stheta2W_param = GetParam("sin2thW");
+    MZ_param = GetParam("Mz");
+    GammaZ_param = GetParam("Wz");
 
+    // Read "reactions/AFB/yaml/params.yaml"
+    energy_param = GetParam("energy");
+    eta_cut_param = GetParam("eta_cut");
+    pT_cut_param = GetParam("pT_cut");
+    y_min_param = GetParam("y_min"); // not implemented yet
+    y_max_param = GetParam("y_max"); // not implemented yet
+    
+    // Calculate fixed parameters
+    e_param = sqrt(4*PI*alphaEM_param);
+    gsm_param = (e_param/(sqrt(stheta2W_param)*sqrt(1-stheta2W_param)))*sqrt(1+pow(stheta2W_param,2));
+    smangle_param = atan(-stheta2W_param);
+    
+    // Foton couplings
+    foton_Vu = e_param*(2.0/3.0);
+    foton_Au = 0;
+    foton_Vd = e_param*(-1.0/3.0);
+    foton_Ad = 0;
+    foton_Vl = e_param*(-1.0);
+    foton_Al = 0;
+    foton_Vnu = 0;
+    foton_Anu = 0;
+
+    // Z-boson couplings
+    Z_Vu = (1.0/2.0)*gsm_param*(1.0/6.0)*(3*cos(smangle_param)+8*sin(smangle_param));
+    Z_Au = (1.0/2.0)*gsm_param*(cos(smangle_param)/2.0);
+    Z_Vd = (1.0/2.0)*gsm_param*(1.0/6.0)*(-3*cos(smangle_param)-4*sin(smangle_param));
+    Z_Ad = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
+    Z_Vl = (1.0/2.0)*gsm_param*((-cos(smangle_param)/2.0)+(-2*sin(smangle_param)));
+    Z_Al = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
+    Z_Vnu = (1.0/2.0)*gsm_param*(cos(smangle_param)/2.0);
+    Z_Anu = (1.0/2.0)*gsm_param*(cos(smangle_param)/2.0);
+    
+    // Even combination of couplings
+    even_foton_up = (pow(foton_Vu,2)+pow(foton_Au,2))*(pow(foton_Vl,2)+pow(foton_Al,2));
+    even_foton_down = (pow(foton_Vd,2)+pow(foton_Ad,2))*(pow(foton_Vl,2)+pow(foton_Al,2));
+    even_interf_up = ((foton_Vu*Z_Vu)+(foton_Au*Z_Au))*((foton_Vl*Z_Vl)+(foton_Al*Z_Al));
+    even_interf_down = ((foton_Vd*Z_Vd)+(foton_Ad*Z_Ad))*((foton_Vl*Z_Vl)+(foton_Al*Z_Al));
+    even_Z_up = (pow(Z_Vu,2)+pow(Z_Au,2))*(pow(Z_Vl,2)+pow(Z_Al,2));
+    even_Z_down = (pow(Z_Vd,2)+pow(Z_Ad,2))*(pow(Z_Vl,2)+pow(Z_Al,2));
+
+    // Odd combination of couplings
+    odd_foton_up = 4*foton_Vu*foton_Au*foton_Vl*foton_Al;
+    odd_foton_down = 4*foton_Vd*foton_Ad*foton_Vl*foton_Al;
+    odd_interf_up = (foton_Vu*Z_Au+foton_Au*Z_Vu)*(foton_Vl*Z_Al+foton_Al*Z_Vl);
+    odd_interf_down = (foton_Vd*Z_Ad+foton_Ad*Z_Vd)*(foton_Vl*Z_Al+foton_Al*Z_Vl);
+    odd_Z_up = 4*Z_Vu*Z_Au*Z_Vl*Z_Al;
+    odd_Z_down = 4*Z_Vd*Z_Ad*Z_Vl*Z_Al;
+
+    return 0;
+}
 
 // Main function to compute results at an iteration
 int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
@@ -1409,18 +1682,18 @@ int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valar
     std::cout << "\n\nFATAL ERROR: AFB code requires Invariant mass bins to be present !!!" << std::endl;
     std::cout << "CHECK THE DATAFILE !!!" << std::endl;
     return 1;
-  }
-    
+    }
+
     auto min = *Minv_min, max = *Minv_max;
-    
+
     int Npnt_min = min.size();
     int Npnt_max = max.size();
-    
+
     if (Npnt_min != Npnt_max) {
         std::cout << "\n\nFATAL ERROR: uneven number of Invariant mass min and max !!!" << std::endl;
         std::cout << "CHECK THE DATAFILE !!!" << std::endl;
         return 1;
-    }
+    }    
     
     // Fill the array "val[i]" with the result of the AFB function
     for (int i = 0; i < Npnt_min; i++) {
@@ -1428,6 +1701,5 @@ int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valar
     val[i] = AFB_result;
     }
 
-    
-  return 0;
+    return 0;
 }
