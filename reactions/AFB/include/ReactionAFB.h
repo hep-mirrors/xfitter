@@ -32,6 +32,15 @@ class ReactionAFB : public ReactionTheory
     virtual int parseOptions(){ return 0;};
 
   private:
+    // Define a structure to pass the parameters
+    struct integration_params {
+        double Minv;
+        ReactionTheory* ptr;        
+    };
+
+    static size_t calls;
+    static double epsabs;
+    static double epsrel;
     static double PI;
     static double GeVtofb_param, alphaEM_param, stheta2W_param, MZ_param, GammaZ_param;
     static double energy_param, eta_cut_param, pT_cut_param, y_min_param, y_max_param;

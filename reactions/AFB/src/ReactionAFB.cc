@@ -23,10 +23,10 @@ double ReactionAFB::Z_Vu, ReactionAFB::Z_Au, ReactionAFB::Z_Vd, ReactionAFB::Z_A
 double ReactionAFB::even_foton_up, ReactionAFB::even_foton_down, ReactionAFB::even_interf_up, ReactionAFB::even_interf_down, ReactionAFB::even_Z_up, ReactionAFB::even_Z_down;
 double ReactionAFB::odd_foton_up, ReactionAFB::odd_foton_down, ReactionAFB::odd_interf_up, ReactionAFB::odd_interf_down, ReactionAFB::odd_Z_up, ReactionAFB::odd_Z_down;
 
-const double epsabs = 0;
-const double epsrel = 1e-2;
+double ReactionAFB::epsabs = 0;
+double ReactionAFB::epsrel = 1e-2;
 
-size_t calls;
+size_t ReactionAFB::calls;
 
 
 //// Function returning the combination of propagators
@@ -45,13 +45,6 @@ double *ReactionAFB::propagators (double Minv)
         
     return propagators;
 }
-
-// Define a structure to pass the parameters
-struct integration_params {
-    double Minv;
-    ReactionTheory* ptr;
-    
-};
 
 ////UUBAR EVEN FORWARD Matrix element
 double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
