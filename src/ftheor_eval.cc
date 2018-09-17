@@ -320,13 +320,9 @@ void init_at_iteration_() {
     evolution->initAtIteration();
 
     // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		//Wait, do they get updated between iterations? Is this here even necessary? --Ivan
-
-    //const auto f = it.second->xfxQDouble();
-    //    std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
-    const std::string evolName=evolution->_name+":p"; //Not sure why we need ":p" here --Ivan
+		//Wait, do they even get updated between iterations? Is this here even necessary? --Ivan
     
-    XFITTER_PARS::registerXfxQArray(evolName,evolution->xfxQArray());
+    XFITTER_PARS::registerXfxQArray(evolution->_name,evolution->xfxQArray());
   }
 
 

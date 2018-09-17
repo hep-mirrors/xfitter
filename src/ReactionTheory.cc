@@ -17,7 +17,7 @@ using std::string;
 
 // Global variable to hold current function
 
-std::function<void(double const& x, double const& Q, double* pdfs)> gProtonPdf;
+std::function<void(double const& x, double const& Q, double* pdfs)> gProtonPdf; //The name is misleading, this doesn't actually have to be a proton
 
 void protonPDF(double const& x, double const& Q, double* pdfs) {
   gProtonPdf(x,Q,pdfs);
@@ -52,16 +52,25 @@ ReactionTheory::operator=(const ReactionTheory &rt)
 }
 
 void ReactionTheory::initAtIteration() {
-  // do some magic
-  std::string evolName = getEvolution();
-  gProtonPdf = XFITTER_PARS::retrieveXfxQArray(evolName+":p");
+  try{
+    gProtonPdf = XFITTER_PARS::retrieveXfxQArray(_evolution);
+  }catch(std::out_of_range&ex){
+    std::cerr<<"Exception in "<<__func__<<": index \""<<_evolution<<"\" not present in gXfxQArrays map\n";
+    std::cerr<<ex.what();
+    hf_errlog(18091400,"F: Exception in retrieveXfxQArray, details written to stderr");
+  }
 }
 
 const pXFXlike  ReactionTheory::getXFX(const string& type) {
+  //How is this different from initAtIteration?
 
-  // XXXXXXXXXXXXXXXXXXXXXX  default evolution
-  std::string evName = XFITTER_PARS::getParameterS("Evolution");
-  gProtonPdf = XFITTER_PARS::retrieveXfxQArray(evName+":p");
+  try{
+    gProtonPdf = XFITTER_PARS::retrieveXfxQArray(_evolution);
+  }catch(std::out_of_range&ex){
+    std::cerr<<"Exception in "<<__func__<<": index \""<<_evolution<<"\" not present in gXfxQArrays map\n";
+    std::cerr<<ex.what();
+    hf_errlog(18091400,"F: Exception in retrieveXfxQArray, details written to stderr");
+  }
 
   // return _xfx[type];
   //  double dd[13];

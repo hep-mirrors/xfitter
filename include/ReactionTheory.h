@@ -128,7 +128,7 @@ class ReactionTheory
   /// Set evolution name
   void setEvolution(std::string& evolution) { _evolution = evolution; }
 
-  /// Retrieve evolition
+  /// Retrieve evolution name //A better name would be "getEvolutionName" -- Ivan
   const std::string  getEvolution() const { return _evolution; }  
   
  protected:
