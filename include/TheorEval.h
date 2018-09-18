@@ -54,6 +54,7 @@ struct tToken {
   short int opr;  // operator flag, includes precedence
   string name;     // string token
   valarray<double> *val; // value token
+  int narg;
 };
 
 class TheorEval{

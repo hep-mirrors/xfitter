@@ -24,6 +24,8 @@
 #include <yaml-cpp/yaml.h>
 #include "xfitter_pars.h"
 
+#include "linalg/NaturalCubicSpline.h"
+
 using namespace std;
 
 // extern struct ord_scales {
@@ -141,7 +143,99 @@ TheorEval::assignTokens(list<tToken> &sl)
 	sl.push_back(t);
 	continue;
       }
-        
+      if ( term == string("spline") || term == string("spline_derivative") )
+      {
+        // special case for natural cubic spline interpolation
+        if ( term == string("spline"))
+        {
+          t.opr = 6;
+          t.name = "spline";
+        }
+        else if ( term == string("spline_derivative"))
+        {
+          t.opr = 7;
+          t.name = "spline";
+        }
+        // push spline
+        sl.push_back(t);
+        int& narg_spline = sl.back().narg;
+
+        // process arguments
+        t.val = new valarray<double>(0., nb);
+        t.narg = 0;
+        t.opr = 0;
+        // format: spline[x1,y1,x2,y2,x3,y3,x4,y4,...,x]
+        strexpr.get(c);
+        if(c != '[')
+          hf_errlog(18090900, "F: Theory expression syntax error: expected [");
+        narg_spline = 0;
+        bool flagDone = false;
+        while(true)
+        {
+          strexpr.get(c);
+          int nsymbols = 0;
+          term.assign(1,c);
+          while(strexpr.get(c))
+          {
+            if(c == ',' || c == ']')
+            {
+              if(nsymbols == 0)
+                hf_errlog(18090903, "F: Theory expression syntax error: error reading arguments");
+              if(c == ']')
+                flagDone = true;
+              break;
+            }
+            if (!isalnum(c))
+              hf_errlog(18090903, "F: Theory expression syntax error: error reading arguments");
+            term.append(1,c);
+            nsymbols++;
+          }
+
+          // have read new argument: push it
+          if(nsymbols > 0)
+          {
+            vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
+            if ( found_term == _termNames.end() ) {
+              cout << "Undeclared term " << term << " in expression " << _expr << endl;
+              return -1;
+            } else {
+              t.opr = 0;
+              t.name = term;
+              if ( _mapInitdTerms.find(term) != _mapInitdTerms.end()){
+                t.val = _mapInitdTerms[term];
+              } else {
+                t.val = new valarray<double>(0.,nb);
+                this->initTerm(int(found_term-_termNames.begin()), t.val);
+                _mapInitdTerms[term] = t.val;
+              }
+            }
+            sl.push_back(t);
+            narg_spline++;
+          }
+          else
+          {
+            if(!flagDone)
+              // should not be here
+              assert(0);
+            if(narg_spline % 2 == 0)
+              hf_errlog(18090901, "F: Theory expression syntax error: spline expected odd number of arguments");
+            if(narg_spline < 9)
+              hf_errlog(18090902, "F: Theory expression syntax error: spline expected at least 9 arguments");
+            break;
+          }
+        }
+        continue;
+      }
+      if ( term == string("norm") )
+      {
+        // special case for normalised expression: norm(A)=A/sum(A)
+        // (A is coomputed once)
+        t.opr = 8;
+        t.name = "norm";
+        t.val = new valarray<double>(0., nb);
+        sl.push_back(t);
+        continue;
+      }
       /*
       if ( term == string("avg") ) { // special case for avg() function
         t.opr = 4;
@@ -179,7 +273,7 @@ TheorEval::assignTokens(list<tToken> &sl)
         case '*': t.opr = 3; break;
         case '/': t.opr = 3; break;
 
-        case '.': t.opr = 5; break; //change
+        case '.': t.opr = 5; break;
 
         default: cout << "Unknown operator "<< c << " in expression " << _expr << endl;
       }
@@ -615,7 +709,51 @@ TheorEval::Evaluate(valarray<double> &vte )
       }
       double avg = stk.top().sum()/stk.top().size();
       stk.top() = avg;*/
-    } else if ( it->name == string("+") ){
+    } else if ( it->name == string("spline") || it->name == string("spline_derivative") )
+    {
+      // load all arguments
+      int narg = it->narg;
+      for(int arg = 0; arg < narg; arg++)
+      {
+        //it++;
+        //stk.push(*(it->val));
+      }
+      std::valarray<double> x0 = stk.top();
+      stk.pop();
+      int nsections = (it->narg - 1) / 2;
+      std::valarray<std::valarray<double> > x(nsections);
+      std::valarray<std::valarray<double> > y(nsections);
+      for(int sect = nsections - 1; sect >= 0; sect--)
+      {
+        y[sect] = stk.top();
+        stk.pop();
+        x[sect] = stk.top();
+        stk.pop();
+      }
+      for(int p = 0; p < x0.size(); p++)
+      {
+        std::vector<double> xSpline(nsections);
+        std::vector<double> ySpline(nsections);
+        for(int sect = 0; sect < nsections; sect++)
+        {
+          xSpline[sect] = x[sect][p];
+          ySpline[sect] = y[sect][p];
+        }
+        NaturalCubicSpline spline = NaturalCubicSpline(xSpline, ySpline);
+        auto result = x0;
+        if(it->name == string("spline"))
+          result[p] = spline.Eval(x0[p]);
+        else if(it->name == string("spline_derivative"))
+          result[p] = spline.Eval(x0[p], 1);
+        stk.push(result);
+      }
+    }
+    else if ( it->name == string("norm") )
+    {
+      double sum = stk.top().sum();
+      stk.top() = stk.top() / sum;
+    }
+    else if ( it->name == string("+") ){
       valarray<double> a(stk.top());
       stk.pop();
       stk.top() += a;
