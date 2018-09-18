@@ -186,7 +186,7 @@ TheorEval::assignTokens(list<tToken> &sl)
               break;
             }
             if (!isalnum(c))
-              hf_errlog(18090903, "F: Theory expression syntax error: error reading arguments");
+              hf_errlog(18090904, "F: Theory expression syntax error: error reading arguments");
             term.append(1,c);
             nsymbols++;
           }
@@ -211,6 +211,9 @@ TheorEval::assignTokens(list<tToken> &sl)
             }
             sl.push_back(t);
             narg_spline++;
+            // finish reading spline arguments
+            if(flagDone)
+              break;
           }
           else
           {

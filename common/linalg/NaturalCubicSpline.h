@@ -25,7 +25,7 @@ class NaturalCubicSpline
       {
         if(_vectorSplineSet[i].x > x || i == (_vectorSplineSet.size() - 1))
         {
-          printf("Eval: x = %f in section %lu [%f %f]\n", x, i, _vectorSplineSet[i - 1].x, _vectorSplineSet[i].x);
+          //printf("Eval: x = %f in section %lu [%f %f]\n", x, i, _vectorSplineSet[i - 1].x, _vectorSplineSet[i].x);
           if( (i == 1 && x < _vectorSplineSet[0].x) || (i == (_vectorSplineSet.size() - 1) && x > _vectorSplineSet[_vectorSplineSet.size() - 1].x) )
             printf("Warning: x = %f outside spline range [%f %f]\n", x, _vectorSplineSet[0].x, _vectorSplineSet[_vectorSplineSet.size() - 1].x);
           const SplineSet& s = _vectorSplineSet[i - 1];
@@ -35,7 +35,7 @@ class NaturalCubicSpline
             y = 3 * s.d * dx * dx + 2 * s.c * dx + s.b;
           else
             y = s.d * dx * dx * dx + s.c * dx * dx + s.b * dx + s.a;
-          printf("y = %f\n", y);
+          //printf("y = %f\n", y);
           return y;
         }
       }
