@@ -216,7 +216,8 @@ TheorEval::assignTokens(list<tToken> &sl)
           {
             if(!flagDone)
               // should not be here
-              assert(0);
+              //assert(0);
+              hf_errlog(18090901, "F: Theory expression syntax error reading spline arguments");
             if(narg_spline % 2 == 0)
               hf_errlog(18090901, "F: Theory expression syntax error: spline expected odd number of arguments");
             if(narg_spline < 9)
