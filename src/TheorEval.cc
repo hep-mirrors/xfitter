@@ -731,6 +731,7 @@ TheorEval::Evaluate(valarray<double> &vte )
         x[sect] = stk.top();
         stk.pop();
       }
+      auto result = x0;
       for(int p = 0; p < x0.size(); p++)
       {
         std::vector<double> xSpline(nsections);
@@ -741,13 +742,12 @@ TheorEval::Evaluate(valarray<double> &vte )
           ySpline[sect] = y[sect][p];
         }
         NaturalCubicSpline spline = NaturalCubicSpline(xSpline, ySpline);
-        auto result = x0;
         if(it->name == string("spline"))
           result[p] = spline.Eval(x0[p]);
         else if(it->name == string("spline_derivative"))
           result[p] = spline.Eval(x0[p], 1);
-        stk.push(result);
       }
+      stk.push(result);
     }
     else if ( it->name == string("norm") )
     {
