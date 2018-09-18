@@ -1,6 +1,6 @@
 C> Common block for theory expression
       integer NTermsMax
-      parameter (NTermsMax = 16)
+      parameter (NTermsMax = 32)
 
       double precision dynscale
       integer NTerms

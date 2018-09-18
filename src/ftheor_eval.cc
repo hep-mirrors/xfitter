@@ -59,13 +59,14 @@ tDataBins gDataBins;
 
 t2Dfunctions g2Dfunctions;
 
+#define NTERMMAX 32
 extern struct thexpr_cb {
   double dynscale;
   int nterms;
-  char termname[16][8];
-  char termtype[16][80];
-  char terminfo[16][2048];
-  char termsource[16][256];
+  char termname[NTERMMAX][8];
+  char termtype[NTERMMAX][80];
+  char terminfo[NTERMMAX][2048];
+  char termsource[NTERMMAX][256];
   char theorexpr[1000];
   int ppbar_collisions;
   int normalised;
