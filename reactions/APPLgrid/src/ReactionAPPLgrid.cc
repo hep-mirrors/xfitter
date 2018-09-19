@@ -30,15 +30,28 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
        while(std::getline(ss, token, ','))
        {
          //std::cout << token << '\n';
-         std::shared_ptr<appl::grid>  g(new appl::grid(token));
-         g->trim();
-         _grids[dataSetID].push_back(g);
-         TFile file(token.c_str());
-         _references[dataSetID].push_back((TH1D*)file.Get("grid/reference"));
-         if(!_references[dataSetID].back())
-           hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
+         // dummy empty points (for bin manipulations etc.)
+         // GridName=DUMMYX where X is number of bins (e.g. GridName=DUMMY12)
+         if(std::string(token.c_str(), 5) == std::string("DUMMY"))
+         {
+           int nb = atoi(token.c_str() + 5);
+           _emptyPoints[dataSetID].push_back(nb);
+           _grids[dataSetID].push_back(NULL);
+         }
+         // normal grids
          else
-           _references[dataSetID].back()->SetDirectory(0);
+         {
+           std::shared_ptr<appl::grid>  g(new appl::grid(token));
+           g->trim();
+           _grids[dataSetID].push_back(g);
+           TFile file(token.c_str());
+           _references[dataSetID].push_back((TH1D*)file.Get("grid/reference"));
+           if(!_references[dataSetID].back())
+             hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
+           else
+             _references[dataSetID].back()->SetDirectory(0);
+           _emptyPoints[dataSetID].push_back(-1);
+         }
        }
      }
      catch ( const std::exception& e ) {
@@ -147,42 +160,57 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
   //val.resize(0);
   int np = 0;
   for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
-    np += _grids[dataSetID][g]->Nobs();
+  {
+    // dummy points
+    if(_emptyPoints[dataSetID][g] > 0)
+      np += _emptyPoints[dataSetID][g];
+    // grids or reference histograms
+    else
+      np += _grids[dataSetID][g]->Nobs();
+  }
   val.resize(np);
   for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
   {
-    auto grid = _grids[dataSetID][g];
-    std::vector<double> gridVals(grid->Nobs());
-    if(!_flagUseReference[dataSetID])
-    {
-      // Convolute the grid:
-      switch (_collType[dataSetID])
-      {
-        case collision::pp :
-          gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
-          break;
-        case collision::ppbar :
-          gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
-          break;
-        case collision::pn :
-          gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
-          break;
-      }
-    }
+    std::vector<double> gridVals;
+    // dummy points
+    if(_emptyPoints[dataSetID][g] > 0)
+      gridVals = std::vector<double>(_emptyPoints[dataSetID][g], 0.0);
+    // grids or reference histograms
     else
     {
-      // use reference histogram
-      for(std::size_t i=0; i<gridVals.size(); i++)
-        gridVals[i] = _references[dataSetID][g]->GetBinContent(i + 1);
+      auto grid = _grids[dataSetID][g];
+      gridVals = std::vector<double>(grid->Nobs());
+      if(!_flagUseReference[dataSetID])
+      {
+        // Convolute the grid:
+        switch (_collType[dataSetID])
+        {
+          case collision::pp :
+            gridVals =  grid->vconvolute( getXFX(), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
+            break;
+          case collision::ppbar :
+            gridVals =  grid->vconvolute( getXFX(), getXFX("pbar"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
+            break;
+          case collision::pn :
+            gridVals =  grid->vconvolute( getXFX(), getXFX("n"), getAlphaS(), _order[dataSetID]-1, _muR[dataSetID], _muF[dataSetID], _eScale[dataSetID][g] );
+            break;
+        }
+      }
+      else
+      {
+        // use reference histogram
+        for(std::size_t i=0; i<gridVals.size(); i++)
+          gridVals[i] = _references[dataSetID][g]->GetBinContent(i + 1);
+      }
+      // scale by bin width if requested
+      if(_flagNorm[dataSetID])
+        for (std::size_t i=0; i<gridVals.size(); i++)
+          gridVals[i] *= grid->deltaobs(i);
     }
-    // scale by bin width if requested
-    if(_flagNorm[dataSetID])
-      for (std::size_t i=0; i<gridVals.size(); i++)
-        gridVals[i] *= grid->deltaobs(i);
     // insert values from this grid into output array
     //val.resize(val.size() + grid->Nobs());
     std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
-    pos += grid->Nobs();
+    pos += gridVals.size();
   }
   //printf("2val.size() = %d\n", val.size());
   return 0;
