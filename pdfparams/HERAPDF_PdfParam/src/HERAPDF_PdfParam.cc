@@ -8,6 +8,11 @@
 #include "HERAPDF_PdfParam.h"
 #include <cmath>
 
+namespace xfitter{
+//for dynamic loading
+extern"C" HERAPDF_PdfParam*create(const char*name){
+  return new HERAPDF_PdfParam(name);
+}
 // Main function to compute PDF
 double HERAPDF_PdfParam::operator()(double x)const{
   const int npar = getNPar();
@@ -50,4 +55,5 @@ double HERAPDF_PdfParam::moment(int n)const{
     b++;
   }
   return (*pars[0])*exp(lgamma(B)+lgamma(C)-lgamma(B+C))*sum;
+}
 }

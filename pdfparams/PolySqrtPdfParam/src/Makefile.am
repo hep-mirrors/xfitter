@@ -10,3 +10,4 @@ datadir = ${prefix}/yaml/pdfparams/PolySqrt
 data_DATA = ../yaml/parameters.yaml
 
 dist_noinst_HEADERS = ../include ../yaml
+libPolySqrtPdfParam_xfitter_la_LDFLAGS=-lBasePdfParam_xfitter -L$(libdir)

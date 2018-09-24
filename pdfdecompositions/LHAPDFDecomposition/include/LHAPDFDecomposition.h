@@ -2,8 +2,13 @@
 #pragma once
 
 #include "BasePdfDecomposition.h"
-
+//Try to suppress unused-local-typedef warning from boost 1.53.0 for gcc
+//Apparently these warnings have been fixed in later versions of boost
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 #include "LHAPDF/LHAPDF.h"
+#pragma GCC diagnostic pop
+
 
 /**
   @class LHAPDFDecomposition
@@ -19,17 +24,17 @@ namespace xfitter
   class LHAPDFDecomposition : public BasePdfDecomposition
   {
   public:
-    /// Default constructor. Name is the PDF name
-    LHAPDFDecomposition(const std::string& PDFset, const int& mem = 0);
+    LHAPDFDecomposition(const char*name);
+    ~LHAPDFDecomposition();
+    virtual const char*getClassName()const override final;
 
     /// Optional initialization at the first call
-    virtual void initAtStart(const std::string& pars) override final;
+    virtual void initAtStart()override final;
 
-    /// Compute PDF in a physical base in LHAPDF format at the initial scale
+    /// Compute PDF in a physical basis in LHAPDF format at the initial scale
     virtual std::function<std::map<int,double>(const double& x)> f0() const override final;
 
   private:
-    const int                 _mem;
-    std::vector<LHAPDF::PDF*> _dist;
+    LHAPDF::PDF*_pdf{nullptr};
   };
 }

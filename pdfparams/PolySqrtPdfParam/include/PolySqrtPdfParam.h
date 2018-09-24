@@ -21,6 +21,7 @@
   @date 2018-08-16
   */
 
+namespace xfitter{
 class PolySqrtPdfParam:public BasePdfParam{
   public:
     PolySqrtPdfParam(const std::string&inName):BasePdfParam(inName){}
@@ -32,3 +33,4 @@ class PolySqrtPdfParam:public BasePdfParam{
     //Initialize from a yaml node. Uses node[getName] as the basis
     // virtual void initFromYaml(YAML::Node value)override final;
 };
+}

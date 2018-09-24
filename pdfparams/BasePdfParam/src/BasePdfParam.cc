@@ -2,6 +2,7 @@
 #include"BaseMinimizer.h"
 #include"xfitter_pars.h"
 #include"xfitter_steer.h"
+#include"xfitter_cpp_base.h"
 #include<cmath>
 #include<memory>
 #include<iostream>
@@ -17,7 +18,9 @@ extern "C" {
                          map<std::string,double*> *map,
                          int len);
 }
+namespace xfitter{
 /// Implement numeric integration
+BasePdfParam::~BasePdfParam(){if(pars)delete[]pars;}
 double BasePdfParam::moment(int iMoment)const{
   /// Simple rule, split log/lin spacing at xsplit=0.1
 
@@ -55,10 +58,32 @@ void BasePdfParam::setMoment(int nMoment,double value){
   *pars[0]=1;
   *pars[0]=value/moment(nMoment);
 }
-void BasePdfParam::initFromYaml(YAML::Node value) {
-  // HARDWIRE A BIT FOR NOW XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  //TODO rewrite this for a different, new YAML format
+void BasePdfParam::initAtStart(){
   using namespace std;
+  YAML::Node node=XFITTER_PARS::getParameterisationNode(_name);
+  YAML::Node parsNode=node["parameters"];
+  if(!parsNode.IsSequence()){
+    cerr<<"[ERROR] Bad \"parameters\" for parameterisation \""<<_name<<"\", expected sequence"<<endl;
+    hf_errlog(18092420,"F: Bad parameters in parameterisation, see stderr");
+  }
+  Npars=parsNode.size();
+  pars=new double*[Npars];
+  //TODO: destructor
+  for(unsigned int i=0;i<Npars;++i){
+    try{
+      pars[i]=XFITTER_PARS::gParameters.at(parsNode[i].as<string>());
+    }catch(const YAML::BadConversion&ex){
+      cerr<<"[ERROR] Bad name of parameter "<<i<<" for parameterisation \""<<_name<<"\": "<<ex.what()<<endl;
+      hf_errlog(18092421,"F: Bad parameter name in parameterisation definition, see stderr");
+    }catch(const out_of_range&ex){
+      string parname=parsNode[i].as<string>();
+      if(XFITTER_PARS::gParameters.count(parname)==0){
+        cerr<<"[ERROR] Unknown parameter \""<<parname<<"\" in parameterisation \""<<_name<<"\""<<endl;
+        hf_errlog(18092422,"F: Unknown parameter in parameterisation definition, see stderr");
+      }
+    }
+  }
+  /*
   using uint=unsigned int;
   //cout<<"DEBUG["<<_name<<"]: initFromYaml: value="<<value<<endl;
   if(value.IsSequence()){
@@ -78,15 +103,10 @@ void BasePdfParam::initFromYaml(YAML::Node value) {
       //int add = true;
       //      addexternalparam_(pnam.c_str(),val,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,pnam.size());
 
-      xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
-      minimizer->addParameter(val,pnam,step,nullptr,nullptr);
-      
-      pars[i]=XFITTER_PARS::gParameters.at(pnam);
-      //cout<<pnam<<"="<<(*pars[i])<<endl;
     }
   }else{
     cout<<"ERROR["<<_name<<"]: initFromYaml: parameter is not a sequence!"<<endl;
   }
-  //TODO: Handle possible errors
+  */
 }
-
+}

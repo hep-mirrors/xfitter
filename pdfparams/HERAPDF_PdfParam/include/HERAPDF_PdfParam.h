@@ -21,9 +21,11 @@
   @date 2018-08-14
   */
 
+namespace xfitter{
 class HERAPDF_PdfParam:public BasePdfParam{
   public:
     HERAPDF_PdfParam(const std::string&inName):BasePdfParam(inName){}
     virtual double operator()(double x)const override final;
     virtual double moment(int nMoment=-1)const override final;
 };
+}

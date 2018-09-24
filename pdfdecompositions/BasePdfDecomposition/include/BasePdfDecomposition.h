@@ -21,45 +21,35 @@ namespace xfitter
 {
   class BasePdfDecomposition {
   public:
+		const std::string _name;//Unique name used to identify this decomposition instance
 
-    /// Default constructor. Name is the PDF name
-  BasePdfDecomposition(const std::string& inName): _name(inName)  { };
-    virtual ~BasePdfDecomposition() {};
+    /// Default constructor. 
+    BasePdfDecomposition(const char*name):_name(name){}
+    virtual ~BasePdfDecomposition(){}
     
     /// Initialization at the first call
-    virtual void initAtStart(const std::string& pars) = 0;
-
+    virtual void initAtStart(){}
     /// Optional initialization at each iteration. Can be used to compute sum-rules
-    virtual void initAtIteration() {}
+    virtual void initAtIteration(){}
+    /// This function should be called when at least one parameter in the YAML node of given decomposition changes
+    virtual void initAtParameterChange(){}
 
     /// Print pdf parameters
-    virtual void printParams() {}
-    
+    //This shouldn't be here, printing parameters should be just a global function --Ivan
+    virtual void printParams(){}
+
     /// Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
     virtual std::function<std::map<int,double>(const double& x)> f0() const = 0;
-
-    void addParameterisation(const std::string& pname, BasePdfParam* pdfParam) {
-      _pdfParams[pname] = pdfParam;
-    }
-    
-    BasePdfParam* getPdfParam(std::string const& name) const {
-      return _pdfParams.at(name);
-    }
-
-    const std::string& getName() const { return _name; }
+    /// Get class name, can be used to verify that the correct concrete class is being used
+    virtual const char*getClassName()const=0;
     
   protected:
     /// PDF parameterisations
+    //Not really needed in this form --Ivan
       std::map<std::string,BasePdfParam*> _pdfParams;
-
-    
-    
-  private:
-    /// Name of PDF decomposition 
-    std::string _name;
-
   };
 
   /// For dynamic loader
+  //Wait, is this even used anywhere? --Ivan
   typedef BasePdfDecomposition* create_pdfDecomposition();
 }

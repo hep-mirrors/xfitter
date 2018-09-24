@@ -25,7 +25,7 @@ namespace xfitter
 		const std::string _name;
     /**
      * @brief The BaseEvolution default constructor.
-     * @param name: the name assignet to the instance
+     * @param name: the unique name used to identify the instance
      */
     BaseEvolution(const char*name):_name(name){}
     

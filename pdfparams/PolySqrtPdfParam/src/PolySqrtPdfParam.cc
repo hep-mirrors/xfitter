@@ -10,6 +10,11 @@
 #include<cmath>
 using namespace std;
 using uint=unsigned int;
+namespace xfitter{
+//for dynamic loading
+extern"C" PolySqrtPdfParam*create(const char*name){
+  return new PolySqrtPdfParam(name);
+}
 double PolySqrtPdfParam::operator()(double x)const{
   const uint N=getNPar();
   double pol=1;
@@ -63,4 +68,5 @@ double PolySqrtPdfParam::moment(int n)const{
   ret+=exp(lgamma(B+0.5)+lgammaC-lgamma(B+C+0.5))*sum;
   ret*=(*pars[0]);
   return ret;
+}
 }
