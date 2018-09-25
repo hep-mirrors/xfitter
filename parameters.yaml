@@ -1,31 +1,75 @@
-Minimizer: MINUIT
-
-SU3_PionPdfDecomposition:
-  HARDWIRED_PolySqrt: #=A*x^B*(1-x)^C*(1+D*sqrt(x)+E*x)
-    v: [0.    , 0.6817,0.9794]
-    S: [0.0818,-0.2 ,8]
-    g: [0.    , 0   ,9]
-
-Q0: 1.378404875209022   #=sqrt(1.9)
-alphas: 0.118 #0.100
-
+Minimizer: MINUIT # CERES
 MINUIT:
-  doErrors: None #Pumplin #Hesse
   Commands: |
-    fix 106 107 108 109
+    fix 6 7 9 11 12 13 14 15 16 17 18 19 20 22 
     call fcn 3
-    #minimize
-    #hesse
-    #fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
+#  doErrors :  Hesse # None
+ #value    step    min     max       priors
+Parameters:
+  Ag   :  DEPENDENT
+  Bg   : [-0.061953]
+  Cg   : [ 5.562367,  0.55]
+  Auv  :  DEPENDENT
+  Buv  : [ 0.810476]
+  Cuv  : [ 4.823512]
+  Duv  : [    0    ]
+  Euv  : [ 9.921366]
+  Adv  :  DEPENDENT
+  Bdv  : [ 1.029995]
+  Cdv  : [ 4.846279]
+  Aubar: [ 0.27    ]
+  Bubar: [-0.13    ]
+  Cubar: [ 7.059694]
+  Dubar: [ 1.548098]
+  Adbar: [ 0.27    ]
+  Bdbar: [-0.13    ]
+  Cdbar:
+    value: 9.586246
+    step: 1.2345
+    #min
+    #max
+    #pr_mean
+    #pr_sigma
+  As   : [ 0.13    ]
+  Bs   : [ 0       ]
+  Cs   : [10.0     ]
 
-#New syntax
-#DefaultDecomposition: SU3_PionPdfDecomposition
-DefaultEvolution: pion #if this is not set, default evolution's name is "default"
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv]
+  par_ubar:
+    class: HERAPDF
+    parameters: [Aubar,Bubar,Cubar,Dubar]
+  par_dbar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s:
+    class: HERAPDF
+    parameters: [As,Bs,Cs]
+  par_g:
+    class: HERAPDF
+    parameters: [Ag,Bg,Cg]
 
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvubardbars
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
 Evolutions:
-  pion:
+  proton-QCDNUM:
     class: QCDNUM
-    decomposition: SU3_PionPdfDecomposition #this could be omitted, as the default decomposition is set
+    decomposition: proton #this could be omitted, as the default decomposition is set
     xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
     xGridW  :   [1,       2,     4,   8,  16]
     Q2Grid  :   [1.,  2.05e8 ]
@@ -35,73 +79,141 @@ Evolutions:
     Read_QCDNUM_Tables : 1
     SplineOrder : 2
     ICheck  :   0
-  tungsten_target:
+  proton-LHAPDF:
     class: LHAPDF
-    set:   nCTEQ15FullNuc_184_74
+    set: "CT10"
     member: 0
-  reference_pion:
-    class: LHAPDF
-    set:   GRVPI0
-    member: 0
-APPLgrid:
-#Error: these parameters are not read yet
-  evolution1: pion #this can be overwritten in the datafile
-  evolution2: tungsten_target
-  muF: 1.0
-  muR: 1.0
-  Order: NLO
 
-fs: 0.333333333333333
+#
+# Initial scale
+#---------------------------
+Q0 : 1.378404875209
 
-#Profiler:
-#  alphas: [ 0.118, 0.119, 0.117 ]
-#  evolutions:
-#    proton:
-#      sets:    [  NNPDF31_nnlo_as_0118, CT10  ]
-#      members: [ [ 0, 1, end ], [0, 1, end] ]
-
-Mz: 91.1876
-Mw: 80.385
-Mh: 125.9
+#
+# EW parameters
+#---------------------------
+Mz : 91.1876
+Mw : 80.385
+Mh : 125.9
 
 Wz : 2.4952
 Ww : 2.085
 Wh : 1d-3
-Wtp: 2.0d0
+Wtp : 2.0d0
 
-gf: 1.16638e-5
-convFac: 0.389379338e9
-alphaem: 7.29735e-3
+gf : 1.16638e-5
+convFac : 0.389379338e9
+alphaem : 7.29735e-3
 
-sin2thW:  0.23127
-Vud: 0.97427
-Vus: 0.2254
-Vub: 0.00358
-Vcd: 0.22520
-Vcs: 0.97344 
-Vcb: 0.04156
-Vtd: 0.00872
-Vts: 0.04076
-Vtb: 0.999133
+sin2thW :  0.23127
+Vud : 0.97427
+Vus : 0.2254
+Vub : 0.00358
+Vcd : 0.22520
+Vcs : 0.97344 
+Vcb : 0.04156
+Vtd : 0.00872
+Vts : 0.04076
+Vtb : 0.999133
 
+#
 # lepton masses:
-men: 1e-10
-mel: 0.510998928e-3
-mmn: 1e-10
-mmo: 0.1056583715
-mtn: 1e-10
-mta: 1.77682
+#---------------------------
+men : 1e-10
+mel : 0.510998928e-3
+mmn : 1e-10
+mmo : 0.1056583715
+mtn : 1e-10
+mta : 1.77682
 
+#
 # Light quark masses:
-mup: 0.06983
-mdn: 0.06983
-mst: 0.150
+#---------------------------
+mup : 0.06983
+mdn : 0.06983
+mst : 0.150
 
+#
 # Heavy quark masses:
-mch: 1.43 
-mbt: 4.50
-mtp: 173.0
+#---------------------------
+mch : 1.43 
+mbt : 4.50
+mtp : 173.0
 
+#
 # QCD parameters
-Order: NLO
-NFlavour: 5
+#---------------------------
+Order :   NNLO
+NFlavour : 5
+
+#
+# AlphaS, incuding options to fit it:
+#---------------------------
+alphas : 0.118
+#  value: 0.118
+#  step:  0.01
+#  prior: 0.118
+#  priorUnc: 0.1
+#  min: 0.1
+#  max: 0.3
+
+# Strange and charm fractions:
+#---------------------------
+fs: 0.4
+fcharm: 0.
+
+#
+# RT DIS scheme settings:
+#---------------------------
+include : yaml/reactions/RT_DISNC/parameters.yaml
+#
+# FONLL scheme settings:
+#---------------------------
+include : yaml/reactions/FONLL_DISNC/parameters.yaml
+include : yaml/reactions/FONLL_DISCC/parameters.yaml
+
+#
+# FF ABM scheme settings:
+#---------------------------
+include : yaml/reactions/FFABM_DISNC/parameters.yaml
+include : yaml/reactions/FFABM_DISCC/parameters.yaml
+
+#
+# APPLgrid settings:
+#---------------------------
+include : yaml/reactions/APPLgrid/parameters.yaml
+
+#
+# (optional) Fractal module settings:
+#---------------------------
+# include : yaml/reactions/Fractal_DISNC/parameters.yaml
+
+#
+# Speficify HF scheme used for DIS NC processes:
+#---------------------------
+hf_scheme_DISNC :
+#  defaultValue : 'BaseDISNC'       # global specification
+  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+#  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+#
+# Speficify HF scheme used for DIS CC processes:
+#---------------------------
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+#  defaultValue : 'FONLL_DISCC'     # global specification
+#  defaultValue : 'FFABM_DISCC'     # global specification
+
+#
+# Load APFEL++
+#---------------------------
+include : yaml/evolutions/APFELxx/parameters.yaml
+
+#
+# Load QCDNUM
+#---------------------------
+include : yaml/evolutions/QCDNUM/parameters.yaml

@@ -343,7 +343,7 @@ namespace XFITTER_PARS {
   void createParameters(){
     using namespace std;
     try{
-      YAML::Node parsNode=rootNode["Parameters"];
+      YAML::Node parsNode=gParametersY["Parameters"];
       if(!parsNode.IsMap()){
         hf_errlog(18091710,"F: Failed to create parameters: bad \"Parameters\" YAML node");
       }
