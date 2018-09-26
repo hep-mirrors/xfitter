@@ -6,8 +6,7 @@
 lhapdfver=6.2.1
 hoppetver=1.2.0
 applgridver=1.4.70
-# move to 17-01-14 ?
-qcdnumver=17-01-13
+qcdnumver=17-01-14
 apfelver=3.0.0
 melaver=2.0.1
 apfelgridver=1.0.1
@@ -86,6 +85,9 @@ stripversion=`echo $version |sed "s/\.//g"`
 #check that requested version exists
 if [[ $version != "master" ]]
     then
+    # use older QCDNUM (newer is not compatible with master in LHAPDF mode)
+    # in the future need to check for specific xfitter release: > 2.0.0 should be ok
+    qcdnumver=17-01-13
     exist=0
     for ver in ``
     do
@@ -161,10 +163,10 @@ then
         then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
-            gccv=4.8
+            gccv=4.9
             os=centos7
             arch=x86_64
-            rootversion=6.08.04
+            rootversion=6.06.08
             boostver=1.53.0
             pyth=2.7
 	elif [[ $SYS == Scientific* && $ver == 5.* ]]
@@ -293,9 +295,11 @@ else
 
     if [[ $http == "curl" ]]
     then
-	curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+#	curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+	curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-	wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+#	wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+	wget https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd ${lhapdf}-${lhapdfver} 
@@ -349,9 +353,11 @@ else
     echo "Installing APPLGRID $applgridver..."
     if [[ $http == "curl" ]]
     then
-	curl https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
+#	curl https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
+	curl https://applgrid.hepforge.org/downloads/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
     else
-	wget https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
+#	wget https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
+	wget https://applgrid.hepforge.org/downloads/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
@@ -408,11 +414,15 @@ else
  #apfelgrid
     lhapdf get NNPDF30_nlo_as_0118
     echo "Installing APFELgrid $apfelgridver..."
+    # tmp solution is to use fork @zenaiev
+    apfelgridver=1.0.5
     if [[ $http == "curl" ]]
     then
-	curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+#	curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+	curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-	wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+#	wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+	wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
     tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
@@ -499,11 +509,13 @@ then
 	if [[ $http == "curl" ]]
 	then
 #	    curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
-	    curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
+#	    curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
+	    curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
 	else
 #	    wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
 #	    mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
-	    wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
+#	    wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
+	    wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
 	fi
        # unpack nicely:
 	rm -fr xfitter-${version} 
@@ -600,6 +612,7 @@ then
     cp  xfitter-${version}/steering.txt \
 	xfitter-${version}/minuit.in.txt \
 	xfitter-${version}/ewparam.txt \
+	xfitter-${version}/parameters.yaml \
 	run
     rsync -a --exclude=".*" xfitter-${version}/datafiles run/
     rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
@@ -617,7 +630,7 @@ then
     echo "cd run          #enter your run directory" >> quickstart-readme.txt
     echo "xfitter          #run your fit" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
-    echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt" >> quickstart-readme.txt
+    echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt (parameters.yaml)" >> quickstart-readme.txt
     echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
     echo >> quickstart-readme.txt
     echo "After the fit, display you results with:" >> quickstart-readme.txt

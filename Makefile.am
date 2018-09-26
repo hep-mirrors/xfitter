@@ -23,6 +23,8 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
         reactions/fastNLO/src/ \
         reactions/FONLL_DISCC/src \
         reactions/FONLL_DISNC/src \
+        reactions/AFB/src \
+        reactions/KMatrix/src \
         pdfparams/BasePdfParam/src \
         pdfparams/HERAPDF_PdfParam/src \
         pdfparams/PolySqrtPdfParam/src \

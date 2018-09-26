@@ -217,3 +217,11 @@ include : yaml/evolutions/APFELxx/parameters.yaml
 # Load QCDNUM
 #---------------------------
 include : yaml/evolutions/QCDNUM/parameters.yaml
+
+# AFB settings:
+include : yaml/reactions/AFB/parameters.yaml
+
+#
+# (optional) Fractal module parameters:
+#----------------------
+# include : yaml/reactions/Fractal_DISNC/parameters.yaml
