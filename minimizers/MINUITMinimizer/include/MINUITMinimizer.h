@@ -24,7 +24,7 @@ class MINUITMinimizer : public BaseMinimizer
     MINUITMinimizer (const std::string& inName);
 
     /// Optional initialization at the first call
-    virtual void initAtStart() override final;
+    virtual void atStart() override final;
 
     /// Miniminzation loop
     virtual void doMimimization() override final;

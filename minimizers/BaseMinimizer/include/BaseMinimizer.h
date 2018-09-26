@@ -25,7 +25,7 @@ namespace xfitter
 	{}
 
     /// Initialization
-    virtual void initAtStart() = 0;
+    virtual void atStart() = 0;
 
     /// Provide some information
     virtual void printInfo(){};
@@ -41,7 +41,7 @@ namespace xfitter
     virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr, double  const* priors = nullptr );
     
     /// Action at each iteration
-    virtual void initAtIteration(){};
+    virtual void atIteration(){};
 
     /// Miniminzation loop
     virtual void doMimimization() = 0;

@@ -24,10 +24,11 @@
   @date 2018-08-13
   */
 
+namespace xfitter{
 class BasePdfParam{
 public:
-  BasePdfParam(const std::string&instance_name):_name(instance_name),pars{nullptr},Npars(0){}
-  ~BasePdfParam(){if(pars)delete[]pars;}
+  BasePdfParam(const std::string&instance_name):_name(instance_name){}
+  virtual~BasePdfParam();
   void               setNPar(unsigned int N){Npars=N;}
   const unsigned int getNPar()const{return Npars;}
   //!Evaluate xf(x) at given x with current parameters, pure virtual
@@ -41,14 +42,13 @@ public:
   virtual void setMoment(int nMoment,double value);
   //!Get name of the instance
   const std::string getName()const{return _name;} 
-  //!Initialize from a yaml node. Uses node[getName] as the basis
-  virtual void initFromYaml(YAML::Node value);
+  virtual void atStart();
 protected:
   //!Unique name of instance
-  std::string _name;
+  const std::string _name;
   //!Array of pointers to some global locations where minimization parameters are stored
-  //TODO: Implement proper pars initialization from YAML
-  double**pars;
+  double**pars{nullptr};
   //!Number of parameters, which is also the size of the array **parameters defined above
-  unsigned int Npars;
+  unsigned int Npars{0};
 };
+}

@@ -14,12 +14,14 @@ namespace xfitter
 {
   class BaseEvolution;
   class BasePdfDecomposition;
+  class BasePdfParam;
   class BaseMinimizer;
 
   /// Load named evolution code.  
   BaseEvolution* get_evolution(std::string name="");  
   /// Load named pdfDecomposition code.  
   BasePdfDecomposition* get_pdfDecomposition(std::string name="");
+  BasePdfParam*getParameterisation(const std::string&name="");
   /// Load the minimizer
   BaseMinimizer* get_minimizer();
 }
