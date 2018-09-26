@@ -27,10 +27,5 @@ class PolySqrtPdfParam:public BasePdfParam{
     PolySqrtPdfParam(const std::string&inName):BasePdfParam(inName){}
     virtual double operator()(double x)const override final;
     virtual double moment(int nMoment=-1)const override final;
-    // (Optional) set moments:
-    // virtual void setMoment(int nMoment,double value)override final;
-    // (Optional)
-    //Initialize from a yaml node. Uses node[getName] as the basis
-    // virtual void initFromYaml(YAML::Node value)override final;
 };
 }

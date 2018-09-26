@@ -168,111 +168,94 @@ namespace XFITTER_PARS {
 
 
   // Parse @param node and return maps
-  void parse_node(const YAML::Node& node, 
-                  std::map<string,double*>& dMap, 
-                  std::map<string,int>& iMap, 
-                  std::map<string,string>& sMap, 
+  void parse_node(const YAML::Node& node,
+                  std::map<string,double*>& dMap,
+                  std::map<string,int>& iMap,
+                  std::map<string,string>& sMap,
                   std::map<string,vector<double> >& vMap,
-                  std::map<string,YAML::Node> & yMap )
-  {
+                  std::map<string,YAML::Node> & yMap ){
     for ( YAML::const_iterator it = node.begin(); it != node.end(); ++it) {
       YAML::Node key = it->first;
       YAML::Node value = it->second;
-      
       // parameter name
       string p_name = key.as<string>();
-    
       //  Check if asked to read another file:
       if ( p_name == "include" ) {
-  auto fileName =  value.as<string>();
-  if (is_file_exist(fileName.c_str())) {
-    parse_file( fileName );
-  }
-  else {
-    // Now try default location:
-    if (is_file_exist((PREFIX +string("/")+fileName).c_str())) {
-      parse_file( PREFIX +string("/")+fileName );
-    }
-    else {
-      string msg = "F: Include Yaml parameters file "+fileName+" not found";
-      hf_errlog_(17041601,msg.c_str(), msg.size());
-    }
-  }
+        auto fileName =  value.as<string>();
+        if (is_file_exist(fileName.c_str())) {
+          parse_file( fileName );
+        } else {
+          // Now try default location:
+          if (is_file_exist((PREFIX +string("/")+fileName).c_str())) {
+            parse_file( PREFIX +string("/")+fileName );
+          } else {
+            string msg = "F: Include Yaml parameters file "+fileName+" not found";
+            hf_errlog_(17041601,msg.c_str(), msg.size());
+          }
+        }
       }
-      
       if (value.IsScalar()) {
-  // Alright, store directly
-  // Try to read as int, float, string:
-  try {
-    int i = value.as<int>();
-    iMap[p_name] = i;
-    continue;
-  }
-  catch (const std::exception& e) {
-  }
-  
-  try {
-    double f = value.as<double>();
-    dMap[p_name] = new double(f);
-    continue;
-  }
-  catch (const std::exception& e) {
-  }
-  
-  try {
-    std::string s = value.as<std::string>();
-    sMap[p_name] = s;
-    continue;
-  }
-  catch (const std::exception& e) {
-  }      
+        // Alright, store directly
+        // Try to read as int, float, string:
+        try {
+          int i = value.as<int>();
+          iMap[p_name] = i;
+          continue;
+        }
+        catch (const std::exception& e){} //Why do we so intentionally ignore possible exceptions here? --Ivan
+        try {
+          double f = value.as<double>();
+          dMap[p_name] = new double(f);
+          continue;
+        }
+        catch (const std::exception& e){}
+        try {
+          std::string s = value.as<std::string>();
+          sMap[p_name] = s;
+          continue;
+        }
+        catch (const std::exception& e) {}
+      } else { // Potentially this may go to minuit, if step is not zero.
+        if (value.IsMap()) { //This is probably not how it should work --Ivan
+          // Check if this is a minimisation block, true if step is present
+          if (value["step"] || value["value"]) {  
+            // Defaults
+            double val = 0;
+            double step = 0;
+            double minv  = 0;
+            double maxv  = 0;
+            double priorVal = 0;
+            double priorUnc = 0;
+            int add = true;
+            
+            if (value["value"]) {
+              val = value["value"].as<double>();
+            }
+            else {
+              string text = "F: missing value field for parameter " + p_name;
+              hf_errlog_(17032401,text.c_str(),text.size());       
+            }
+            if (value["step"]) step = value["step"].as<double>();
+            if (value["prior"]) priorVal = value["prior"].as<double>();
+            if (value["priorUnc"]) priorUnc = value["priorUnc"].as<double>();
+            if (value["min"]) minv = value["min"].as<double>();
+            if (value["max"]) maxv = value["max"].as<double>();
+            // Goes to fortran
+            addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
+                  priorVal, priorUnc, add, &dMap, p_name.size());
+          } else {
+            // no step or value, store as it is as a yaml node:
+            yMap[p_name] = value;
+          }
+        } else if (value.IsSequence() ) {
+          size_t len = value.size();
+          vector<double> v(len);
+          for (size_t i=0; i<len; i++) {
+            v[i] = value[i].as<double>();
+          }
+          vMap[p_name] = v;
+        }
       }
-      else { // Potentially this may go to minuit, if step is not zero.
-  
-  if (value.IsMap()) {
-
-    // Check if this is a minimisation block, true if step is present
-    if (value["step"] || value["value"]) {  
-      // Defaults
-      double val = 0;
-      double step = 0;
-      double minv  = 0;
-      double maxv  = 0;
-      double priorVal = 0;
-      double priorUnc = 0;
-      int add = true;
-      
-      if (value["value"]) {
-        val = value["value"].as<double>();
-      }
-      else {
-        string text = "F: missing value field for parameter " + p_name;
-        hf_errlog_(17032401,text.c_str(),text.size());       
-      }
-      if (value["step"]) step = value["step"].as<double>();
-      if (value["prior"]) priorVal = value["prior"].as<double>();
-      if (value["priorUnc"]) priorUnc = value["priorUnc"].as<double>();
-      if (value["min"]) minv = value["min"].as<double>();
-      if (value["max"]) maxv = value["max"].as<double>();
-      // Goes to fortran
-      addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
-            priorVal, priorUnc, add, &dMap, p_name.size());
-    }
-    else {
-      // no step or value, store as it is as a yaml node:
-      yMap[p_name] = value;
-    }
-  }
-  
-  else if (value.IsSequence() ) {
-    size_t len = value.size();
-    vector<double> v(len);
-    for (size_t i=0; i<len; i++) {
-      v[i] = value[i].as<double>();
-    }
-    vMap[p_name] = v;
-  }
-      }   
     }
   }
 
@@ -356,18 +339,17 @@ namespace XFITTER_PARS {
         double max=nan("");
         double pr_mean=nan("");
         double pr_sigma=nan("");
-        //TODO: bounds and priors
         YAML::Node pNode=it->second;
         switch(pNode.Type()){
           case YAML::NodeType::Scalar:{//Should be a special string DEPENDENT
             string key=pNode.as<string>();
-            if(key=="DEPENDENT"){
+            if(key=="DEPENDENT"){//This means that this parameter will be calculated using sum rules
               value=1;
-              step=0;//This means that this parameter will be calculated using sum rules
+              step=0;
             }
             else hf_errlog(18091712,"F: Bad parameter definition");
             break;}
-          case YAML::NodeType::Sequence:{// interpret sequence as [value,step,min,max]
+          case YAML::NodeType::Sequence:{// interpret sequence as [value,step,min,max,priorVal,priorUnc]
             int size=pNode.size();
             if(size>0)value=pNode[0].as<double>();
             else break;
@@ -389,11 +371,11 @@ namespace XFITTER_PARS {
           case YAML::NodeType::Map:{
             for(YAML::const_iterator it=pNode.begin();it!=pNode.end();++it){
               string key=it->first.as<string>();
-              if   (key=="value")value=it->second.as<double>();
-              else if(key=="step")step=it->second.as<double>();
-              else if(key=="min")min=it->second.as<double>();
-              else if(key=="max")max=it->second.as<double>();
-              else if(key=="pr_mean")pr_mean=it->second.as<double>();
+              if     (key=="value")   value   =it->second.as<double>();
+              else if(key=="step")    step    =it->second.as<double>();
+              else if(key=="min")     min     =it->second.as<double>();
+              else if(key=="max")     max     =it->second.as<double>();
+              else if(key=="pr_mean") pr_mean =it->second.as<double>();
               else if(key=="pr_sigma")pr_sigma=it->second.as<double>();
               else{
                 cerr<<"[ERROR] Unknown key "<<key<<" in definition of parameter "<<parameterName<<endl;
