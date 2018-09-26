@@ -47,6 +47,7 @@ using std::list;
   1 -- operators +, -
   3 -- operators *, /
   4 -- functions sum, avg 
+  5 -- Matrix . Vector / vector . Matrix
  */
 struct tToken {
   short int opr;  // operator flag, includes precedence

@@ -181,6 +181,7 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
 
     
     // insert values from this grid into output array
+    //val.resize(val.size() + grid->Nobs());
     std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
     pos += grid->Nobs();
   }

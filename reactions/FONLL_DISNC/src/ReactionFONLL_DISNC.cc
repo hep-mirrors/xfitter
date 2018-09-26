@@ -54,8 +54,8 @@ int ReactionFONLL_DISNC::initAtStart(const string &s)
 
   if (PtOrder == 0)
     {
-      const string msg = "F: FONLL at LO not available. Use the ZM-VFNS instead.";
-      hf_errlog_(17120601,msg.c_str(), msg.size());
+      //const string msg = "F: FONLL at LO not available. Use the ZM-VFNS instead.";
+      //hf_errlog_(17120601,msg.c_str(), msg.size());
     }
   else if (PtOrder == 1 && scheme == "FONLL-C")
     {
@@ -67,13 +67,18 @@ int ReactionFONLL_DISNC::initAtStart(const string &s)
       const string msg = "F: At NNLO only the FONLL-C scheme is possible";
       hf_errlog_(17120603,msg.c_str(), msg.size());
     }
+  else
+  {
+    APFEL::SetMassScheme(scheme);
+  }
 
   // If the MSbar masses are being used check that APFEL is used also
   // for the evolution.
   if (MassScheme == "MSbar")
     {
-      const string msg = "F: When using MSbar heavy quark masses it is necessarey to use APFEL for the DGLAP evolution";
-      hf_errlog_(17120604,msg.c_str(), msg.size());
+      // TODO check properly that APFEL is used for evolution
+      //const string msg = "F: When using MSbar heavy quark masses it is necessarey to use APFEL for the DGLAP evolution";
+      //hf_errlog_(17120604,msg.c_str(), msg.size());
     }
 
   // Set Parameters
@@ -94,7 +99,6 @@ int ReactionFONLL_DISNC::initAtStart(const string &s)
     }
   APFEL::SetAlphaQCDRef(Alphas_ref, Q_ref);
   APFEL::SetPerturbativeOrder(PtOrder);
-  APFEL::SetMassScheme(scheme);
   APFEL::SetNumberOfGrids(3);
   APFEL::SetGridParameters(1, 50, 3, 9.8e-7);
   APFEL::SetGridParameters(2, 40, 3, 1e-2);
@@ -137,6 +141,7 @@ int ReactionFONLL_DISNC::initAtStart(const string &s)
 // by the specific functions.
 void ReactionFONLL_DISNC::initAtIteration()
 {
+  ReactionBaseDISNC::initAtIteration ();
   // VB: With the following command, APFEL will be calling the "ExternalSetAPFEL1"
   // routine in FONLL/src/FONLL_wrap.f. This is not optimal but until that routine is
   // there, I cannot find a way to override it.

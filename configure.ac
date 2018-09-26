@@ -212,7 +212,7 @@ else
   AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
   AC_SUBST(QCDNUM_CPPFLAGS)
-  AX_COMPARE_VERSION([17-01-13],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-13 or later needed).])],[])
+  AX_COMPARE_VERSION([17-01-14],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-14 or later needed).])],[])
 fi
 
 # check for lhapdf installation
@@ -610,6 +610,7 @@ AC_CONFIG_FILES([include/Makefile
 		 pdfdecompositions/UvDvUbarDbarS/src/Makefile
 		 pdfdecompositions/SU3_PionPdfDecomposition/src/Makefile
 		 pdfdecompositions/BasePdfDecomposition/src/Makefile
+		 reactions/AFB/src/Makefile
 		 reactions/KFactor/src/Makefile
 		 reactions/BaseDISCC/src/Makefile
 		 reactions/FFABM_DISCC/src/Makefile
@@ -629,6 +630,7 @@ AC_CONFIG_FILES([include/Makefile
 		 evolutions/BaseEvolution/src/Makefile
 		 evolutions/APFELxx/src/Makefile
 		 minimizers/BaseMinimizer/src/Makefile
+                 reactions/KMatrix/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then

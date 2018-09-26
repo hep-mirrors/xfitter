@@ -4,6 +4,34 @@
 # author: RP, OZ, March 2017                                            #
 #########################################################################
 #
+
+# hepforge base link
+hepforge='xfitter.hepforge.org/downloads'
+
+# function to retrieve collider/experiment/process for preprint number
+function getPath()
+{
+  lynx --dump http://xfitter.hepforge.org/data.html > o
+  # remove all lines above References AND remove README lines 
+  cat o | sed  -e '1,/References/d' -e '/README/d' > o1
+  # remove all lines below References 
+  cat o | sed  -e '/References/q' > o2
+  # loop over arxiv numbers and retrieve additional inforamtion
+  # print only text after last slash AND remove tar.gz at the end of string
+  for num in `awk '{gsub(".tar.gz", " ", $0); print $NF}' FS=/ o1`; do
+    #echo $num;
+    preprint=`cat o2 | grep $num | sed -e 's/\[\([^]]*\)\]//g' | awk '{printf "%s\n", $5}'`
+    if [[ $preprint != $1 ]]; then continue; fi
+    cat o2 | grep $num | sed -e 's/\[\([^]]*\)\]//g' | awk '{printf "%s/%s/%s\n", $2, $3, $4}'
+    rm o o1 o2
+    return
+  done
+  # should not be there, unless preprint not found: return empty string
+  echo ""
+  rm o o1 o2
+  exit 0
+}
+
 if [ $# -eq 0 ]
   then
       echo "no argument supplied, please type ./xfitter-getdata.sh -h for help"
@@ -63,14 +91,15 @@ if [[ "$1" = "-p" ]] || [[ "$1" = "--print" ]] ; then
     exit 0
 fi
 
-
 # first dowload all data if requested:
 if [[ $1 = "ALL" ]] ; then
-    if wget -q --spider www.hepforge.org/archive/xfitter/data_files/ALL.tar.gz > /dev/null; then
+    #if wget -q --spider www.hepforge.org/archive/xfitter/data_files/ALL.tar.gz > /dev/null; then
+    if wget -q --spider ${hepforge}/ALL.tar.gz > /dev/null; then
        echo " ----------------------------------------------------------- "
        echo "ALL.tar.gz file found on hepforge, will proceed with the download "
        echo ""
-       wget www.hepforge.org/archive/xfitter/data_files/ALL.tar.gz
+       #wget www.hepforge.org/archive/xfitter/data_files/ALL.tar.gz
+       wget ${hepforge}/ALL.tar.gz
        #option -k does not allow to overwrite existing diretory/files
        tar -k -zxvf ALL.tar.gz
        if [ $? -ne 0 ]; then
@@ -98,28 +127,40 @@ if [[ $1 = "ALL" ]] ; then
         echo "ALL.tar.gz file does not exist, please send email to xfitter-help@desy.de"
         exit
     fi
-# now dowload separate files rif equested:
+# now dowload separate files if requested:
 elif [[ $1 != "ALL" ]] ; then
     for arg in "$@"; do
-        if wget -q --spider www.hepforge.org/archive/xfitter/data_files/$arg.tar.gz > /dev/null; then
+        #if wget -q --spider www.hepforge.org/archive/xfitter/data_files/$arg.tar.gz > /dev/null; then
+        if wget -q --spider ${hepforge}/$arg.tar.gz > /dev/null; then
            echo " ----------------------------------------------------------- "
            echo "$arg found on hepforge, will proceed with the download "
            echo ""
-           wget www.hepforge.org/archive/xfitter/data_files/$arg.tar.gz
-           #option -k does not allow to overwrite existing diretory/files
-           tar -k -zxvf $arg.tar.gz 
-           if [ $? -ne 0 ]; then
+           #wget www.hepforge.org/archive/xfitter/data_files/$arg.tar.gz
+           rm -f $arg.tar.gz
+           wget ${hepforge}/$arg.tar.gz
+           tar xvzpf $arg.tar.gz
+           datafolder=`getPath $arg`
+           if [ -z $datafolder ]; then
+             >&2 echo "Error: unknown preprint $1"
+             continue
+           fi
+           datafolder='datafiles/'`getPath $arg`
+           if [ ! -d $datafolder ]; then
+               mkdir -p $datafolder
+               mv $arg $datafolder
+           else
                 echo " ------------------------------------------------------ "
                 echo -e "\033[92m File you trying to extract already exists, do you want to overwrite it? (y/n) \e[0m"
                 read answer
                 # of user wants to overwrite existing files, let him/her
                 if echo "$answer" | grep -iq "^y" ;then
                    echo " overwriting  existing file $arg ..."
-                   tar -zxvf $arg.tar.gz
+                   rm -rf $datafolder/*
+                   mv $arg $datafolder
                 else 
                     echo " exiting... (no data were extracted) "
                 fi
-           fi
+           fi            
            # ask if user wants to remove tar.gz file (needed?)       
            echo -e "\033[92m do you want to remove $arg.tar.gz? (y/n) \e[0m"
            read answer
