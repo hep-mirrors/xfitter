@@ -7,16 +7,19 @@ MINUIT:
  #value    step    min     max       priors
 Parameters:
   Ag   :  DEPENDENT
-  Bg   : [-0.061953]
-  Cg   : [ 5.562367,  0.55]
+  Bg   : [ -0.061953]
+  Cg   : [  5.562367 ,  0.55]
+  Agp  : [  0.166118]  # negative gluon ....
+  Bgp  : [ -0.383100 ]
+  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
   Auv  :  DEPENDENT
-  Buv  : [ 0.810476]
-  Cuv  : [ 4.823512]
-  Duv  : [    0    ]
-  Euv  : [ 9.921366]
+  Buv  : [ 0.810476 ]
+  Cuv  : [ 4.823512 ]
+  Duv  : [    0     ]
+  Euv  : [ 9.921366 ]
   Adv  :  DEPENDENT
-  Bdv  : [ 1.029995]
-  Cdv  : [ 4.846279]
+  Bdv  : [ 1.029995 ]
+  Cdv  : [ 4.846279 ]
   Aubar: [ 0.27    ]
   Bubar: [-0.13    ]
   Cubar: [ 7.059694]
@@ -34,6 +37,7 @@ Parameters:
   Bs   : [ 0       ]
   Cs   : [10.0     ]
 
+  ZERO : [ 0. ]          # zero
 Parameterisations:
   par_uv:
     class: HERAPDF
@@ -51,8 +55,8 @@ Parameterisations:
     class: HERAPDF
     parameters: [As,Bs,Cs]
   par_g:
-    class: HERAPDF
-    parameters: [Ag,Bg,Cg]
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
 
 DefaultDecomposition: proton
 Decompositions:
