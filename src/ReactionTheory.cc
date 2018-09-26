@@ -62,7 +62,7 @@ void ReactionTheory::initAtIteration() {
 }
 
 const pXFXlike  ReactionTheory::getXFX(const string& type) {
-  //How is this different from initAtIteration?
+  //How is this different from atIteration?
 
   try{
     gProtonPdf = XFITTER_PARS::retrieveXfxQArray(_evolution);

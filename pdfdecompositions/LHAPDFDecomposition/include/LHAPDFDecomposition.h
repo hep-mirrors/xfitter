@@ -29,7 +29,7 @@ namespace xfitter
     virtual const char*getClassName()const override final;
 
     /// Optional initialization at the first call
-    virtual void initAtStart()override final;
+    virtual void atStart()override final;
 
     /// Compute PDF in a physical basis in LHAPDF format at the initial scale
     virtual std::function<std::map<int,double>(const double& x)> f0() const override final;

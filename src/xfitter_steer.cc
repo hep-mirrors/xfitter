@@ -63,8 +63,8 @@ namespace xfitter {
     string classname=classnameNode.as<string>();
     BaseEvolution*evolution=(BaseEvolution*)createDynamicObject(classname,name);
     //Note that unlike in the pervious version of this function, we do not set decompositions for evolutions
-    //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during initAtStart
-    evolution->initAtStart();
+    //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during atStart
+    evolution->atStart();
     // Store the newly created evolution on the global map
     XFITTER_PARS::gEvolutions[name] = evolution;
     return evolution;
@@ -76,7 +76,7 @@ namespace xfitter {
       if(it!=XFITTER_PARS::gPdfDecompositions.end())return it->second;
       string classname=XFITTER_PARS::getDecompositionNode(name)["class"].as<string>();
       BasePdfDecomposition*ret=(BasePdfDecomposition*)createDynamicObject(classname,name);
-      ret->initAtStart();
+      ret->atStart();
       XFITTER_PARS::gPdfDecompositions[name]=ret;
       return ret;
     }catch(YAML::InvalidNode&ex){
@@ -107,7 +107,7 @@ namespace xfitter {
       //Else create a new instance
       string classname=XFITTER_PARS::getParameterisationNode(name)["class"].as<string>();
       BasePdfParam*ret=(BasePdfParam*)createDynamicObject(classname,name);
-      ret->initAtStart();
+      ret->atStart();
       XFITTER_PARS::gParameterisations[name]=ret;
       return ret;
     }catch(YAML::InvalidNode&ex){
@@ -159,7 +159,7 @@ namespace xfitter {
 
     create_minimizer *dispatch_minimizer = (create_minimizer*) dlsym(lib_handler, "create");
     BaseMinimizer *minimizer = dispatch_minimizer();
-    minimizer->initAtStart();
+    minimizer->atStart();
 
     // store on the map
     XFITTER_PARS::gMinimizer = minimizer;
@@ -184,7 +184,7 @@ void init_evolution_() {
 }
 
 void init_minimizer_() {
-  /// initAtStart is called inside
+  /// atStart is called inside
   auto mini = xfitter::get_minimizer();
 }
 

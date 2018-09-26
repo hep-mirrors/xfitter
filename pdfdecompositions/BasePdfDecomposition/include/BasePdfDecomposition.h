@@ -28,11 +28,11 @@ namespace xfitter
     virtual ~BasePdfDecomposition(){}
     
     /// Initialization at the first call
-    virtual void initAtStart(){}
+    virtual void atStart(){}
     /// Optional initialization at each iteration. Can be used to compute sum-rules
-    virtual void initAtIteration(){}
+    virtual void atIteration(){}
     /// This function should be called when at least one parameter in the YAML node of given decomposition changes
-    virtual void initAtParameterChange(){}
+    virtual void atConfigurationChange(){}
 
     /// Print pdf parameters
     //This shouldn't be here, printing parameters should be just a global function --Ivan

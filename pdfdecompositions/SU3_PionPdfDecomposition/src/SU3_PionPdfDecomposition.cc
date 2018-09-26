@@ -33,14 +33,14 @@ BasePdfParam*getParam(const BasePdfDecomposition*self,const YAML::Node&node,cons
   return nullptr;//unreachable, suppress warning
 }
 // Init at start:
-void SU3_PionPdfDecomposition::initAtStart(){
+void SU3_PionPdfDecomposition::atStart(){
   const YAML::Node node=XFITTER_PARS::getDecompositionNode(_name);
   //get parameterisation usually doesn't throw
   par_v=getParam(this,node,"valence");
   par_S=getParam(this,node,"sea");
   par_g=getParam(this,node,"gluon");
 }
-void SU3_PionPdfDecomposition::initAtIteration() {
+void SU3_PionPdfDecomposition::atIteration() {
   //Enforce sum rules
   //Valence sum
   par_v->setMoment(-1,1);

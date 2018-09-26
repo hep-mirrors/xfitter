@@ -64,7 +64,7 @@ namespace xfitter
   const char*EvolutionQCDNUM::getClassName()const{return "QCDNUM";}
 
   // Initialize at the start of the computation
-  void EvolutionQCDNUM::initAtStart()
+  void EvolutionQCDNUM::atStart()
   {
     QCDNUM::qcinit(6," ");
 
@@ -180,10 +180,10 @@ namespace xfitter
        
     //Evolution gets its decomposition from YAML
     gPdfDecomp=XFITTER_PARS::getInputFunctionFromYaml(yQCDNUM);
-    initAtParameterChange();
+    atConfigurationChange();
   }
 
-  void EvolutionQCDNUM::initAtParameterChange()
+  void EvolutionQCDNUM::atConfigurationChange()
   {
     // XXXXXXXXXXXXXX
 
@@ -192,7 +192,7 @@ namespace xfitter
     
     QCDNUM::setalf(*alphas,(*Mz)*(*Mz));
   }
-  void EvolutionQCDNUM::initAtIteration(){
+  void EvolutionQCDNUM::atIteration(){
     const double* q0 = XFITTER_PARS::gParameters.at("Q0");
     int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
     double epsi = 0;

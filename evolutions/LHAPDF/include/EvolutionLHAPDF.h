@@ -30,9 +30,9 @@ class EvolutionLHAPDF : BaseEvolution
 
   public:
   /// Global initialization
-    virtual void initAtStart() override final;
+    virtual void atStart() override final;
   /// Init at each change of at least one parameter
-    virtual void initAtParameterChange() override final;  
+    virtual void atConfigurationChange() override final;  
 
   /// Return PDFs as a map <int,double> where int is PDF ID (-6, ... 6, 21)   
     virtual std::function<std::map<int,double>(double const& x, double const& Q)> xfxQMap() override final;

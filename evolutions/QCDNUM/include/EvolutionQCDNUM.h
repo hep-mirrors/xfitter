@@ -26,9 +26,9 @@ namespace xfitter
     EvolutionQCDNUM(const char*name):BaseEvolution{name}{};
 
     virtual const char*getClassName()const override final;
-    virtual void initAtStart()override final;
-    virtual void initAtIteration()override final;
-    virtual void initAtParameterChange()override final;
+    virtual void atStart()override final;
+    virtual void atIteration()override final;
+    virtual void atConfigurationChange()override final;
     virtual std::function<std::map<int,double>(double const& x, double const& Q)> xfxQMap()  override final;
     virtual std::function<void(double const& x, double const& Q, double* pdfs)> xfxQArray() override final;
     virtual std::function<double(int const& i, double const& x, double const& Q)> xfxQDouble() override final;

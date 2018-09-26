@@ -25,12 +25,12 @@ const char*EvolutionLHAPDF::getClassName()const{return "LHAPDF";}
 
     
 /// Global initialization
-  void EvolutionLHAPDF::initAtStart() {
+  void EvolutionLHAPDF::atStart() {
     YAML::Node pars=XFITTER_PARS::getEvolutionNode(_name);
     try{
       _set_name = pars["set"].as<std::string>();
     }catch(YAML::TypedBadConversion<std::string>&ex){
-      hf_errlog(18090310,"F: In EvolutionLHAPDF::initAtStart: failed to convert YAML node \"set\" to string; printing node to stderr");
+      hf_errlog(18090310,"F: In EvolutionLHAPDF::atStart: failed to convert YAML node \"set\" to string; printing node to stderr");
       std::cerr<<pars<<std::endl;
     }
 
@@ -42,7 +42,7 @@ const char*EvolutionLHAPDF::getClassName()const{return "LHAPDF";}
  };
     
   /// Init at each iteration
-  void EvolutionLHAPDF::initAtParameterChange() {
+  void EvolutionLHAPDF::atConfigurationChange() {
     YAML::Node pars=XFITTER_PARS::getEvolutionNode(_name);
     //TODO: check for errors while parsing YAML
     _set_name = pars["set"].as<std::string>();

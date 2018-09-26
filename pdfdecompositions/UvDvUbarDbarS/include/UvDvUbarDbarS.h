@@ -24,10 +24,10 @@ namespace xfitter
     virtual const char*getClassName()const override final;
 
     /// Optional initialization at the first call
-    virtual void initAtStart()override final;
+    virtual void atStart()override final;
 
     /// Compute sum-rules
-    virtual void initAtIteration() override final;
+    virtual void atIteration() override final;
 
     /// print parameters
     virtual void printParams() override final;

@@ -20,14 +20,14 @@ namespace xfitter {
   LHAPDFDecomposition::LHAPDFDecomposition(const char*name):BasePdfDecomposition{name}{}
   LHAPDFDecomposition::~LHAPDFDecomposition(){if(_pdf)delete _pdf;}
   const char*LHAPDFDecomposition::getClassName()const{return"LHAPDF";}
-  void LHAPDFDecomposition::initAtStart(){
+  void LHAPDFDecomposition::atStart(){
     YAML::Node pars=XFITTER_PARS::getDecompositionNode(_name);
     string setName;
     int member;
     try{
       setName=pars["set"].as<std::string>();
     }catch(YAML::TypedBadConversion<std::string>&ex){
-      hf_errlog(18090310,"F: In LHAPDFDecomposition::initAtStart: failed to convert YAML node \"set\" to string; printing node to stderr");
+      hf_errlog(18090310,"F: In LHAPDFDecomposition::atStart: failed to convert YAML node \"set\" to string; printing node to stderr");
       std::cerr<<pars<<std::endl;
     }
 

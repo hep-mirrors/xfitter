@@ -17,7 +17,7 @@ namespace xfitter
 
 
   //_________________________________________________________________________________
-  void EvolutionAPFELxx::initAtStart()
+  void EvolutionAPFELxx::atStart()
   {
     // APFEL++ banner
     apfel::Banner();
@@ -44,11 +44,11 @@ namespace xfitter
 
     // Initialize QCD evolution objects
     _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
-    initAtParameterChange();
+    atConfigurationChange();
   }
 
   //_________________________________________________________________________________
-  void EvolutionAPFELxx::initAtParameterChange()
+  void EvolutionAPFELxx::atConfigurationChange()
   {
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions

@@ -26,7 +26,7 @@ namespace xfitter
   const char*UvDvUbarDbarS::getClassName()const{return"UvDvUbarDbarS";}
 
   //_________________________________________________________________________________
-  void UvDvUbarDbarS::initAtStart(){
+  void UvDvUbarDbarS::atStart(){
     const YAML::Node node=XFITTER_PARS::getDecompositionNode(_name);
     //TODO: handle errors
     par_xuv  =getParameterisation(node["xuv"].as<string>());
@@ -37,7 +37,7 @@ namespace xfitter
     par_xg   =getParameterisation(node["xg"].as<string>());
   }
 
-  void UvDvUbarDbarS::initAtIteration() {
+  void UvDvUbarDbarS::atIteration() {
     //Enforce sum rules
     // counting sum-rules for uv and dv
     par_xuv->setMoment(-1,2.0);

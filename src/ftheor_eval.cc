@@ -311,13 +311,13 @@ void init_func_map_() {
 void init_at_iteration_() {
   
   for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
-    pdfdecomposition.second->initAtIteration();
+    pdfdecomposition.second->atIteration();
   }
 
   
   for(auto it:XFITTER_PARS::gEvolutions) {
 		xfitter::BaseEvolution*evolution=it.second;
-    evolution->initAtIteration();
+    evolution->atIteration();
 
     // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		//Wait, do they even get updated between iterations? Is this here even necessary? --Ivan

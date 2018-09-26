@@ -35,17 +35,17 @@ namespace xfitter
      *
      * This function is called only once
      */
-    virtual void initAtStart(){};
+    virtual void atStart(){};
 
     /**
      * @brief Function to be called at each iteration
      */
-    virtual void initAtIteration(){};
+    virtual void atIteration(){};
 
     /**
      * @brief This function should be called when at least one parameter in the YAML node of given evolution changes
      */
-    virtual void initAtParameterChange(){};
+    virtual void atConfigurationChange(){};
 
     /**
      * @name Getters

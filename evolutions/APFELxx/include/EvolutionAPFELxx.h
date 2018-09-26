@@ -30,8 +30,8 @@ namespace xfitter
     /**
      * @brief Function that initialises the evolution in APFEL++.
      */
-    virtual void initAtStart()override final;
-    virtual void initAtParameterChange()override final;
+    virtual void atStart()override final;
+    virtual void atConfigurationChange()override final;
 
     /**
      * @name Getters

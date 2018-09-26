@@ -60,6 +60,7 @@ class ReactionTheory
   using super = ReactionTheory;
   
   virtual string getReactionName() const =0;  ///< Should return expected reaction name. Normally generated automatically by AddReaction.py
+  //A better name would be atStart
   virtual int  initAtStart(const string &) =0; ///< Initialization first time ReactionTheory implementation is called
 
   virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map for doubles
@@ -81,6 +82,7 @@ class ReactionTheory
 
 
   /// Perform optional re-initialization for a given iteration. Interface for old-style pdf functions 
+  //A better name would be atIteration
   virtual void initAtIteration(); 
 
   //! Perform optional action when minuit fcn 3 is called (normally after fit)

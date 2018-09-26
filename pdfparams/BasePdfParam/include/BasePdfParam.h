@@ -42,7 +42,7 @@ public:
   virtual void setMoment(int nMoment,double value);
   //!Get name of the instance
   const std::string getName()const{return _name;} 
-  virtual void initAtStart();
+  virtual void atStart();
 protected:
   //!Unique name of instance
   const std::string _name;

@@ -91,7 +91,7 @@ MINUITMinimizer::MINUITMinimizer(const std::string& inName) : BaseMinimizer(inNa
 }
 
 // Init at start:
-void MINUITMinimizer::initAtStart() {
+void MINUITMinimizer::atStart() {
   // Call fortran interface
   generate_io_filenames_();
   minuit_ini_();

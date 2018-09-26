@@ -29,8 +29,8 @@ class SU3_PionPdfDecomposition:public BasePdfDecomposition{
   public:
     SU3_PionPdfDecomposition(const char*name);
     virtual const char*getClassName()const override final;
-    virtual void initAtStart()override final;
-    virtual void initAtIteration()override final;
+    virtual void atStart()override final;
+    virtual void atIteration()override final;
     virtual std::function<std::map<int,double>(const double& x)>f0()const override final;
   private:
     BasePdfParam*par_v{nullptr},*par_S{nullptr},*par_g{nullptr};

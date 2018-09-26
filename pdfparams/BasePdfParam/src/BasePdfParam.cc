@@ -58,7 +58,7 @@ void BasePdfParam::setMoment(int nMoment,double value){
   *pars[0]=1;
   *pars[0]=value/moment(nMoment);
 }
-void BasePdfParam::initAtStart(){
+void BasePdfParam::atStart(){
   using namespace std;
   YAML::Node node=XFITTER_PARS::getParameterisationNode(_name);
   YAML::Node parsNode=node["parameters"];
