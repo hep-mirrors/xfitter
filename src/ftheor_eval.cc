@@ -311,19 +311,18 @@ void init_func_map_() {
 void init_at_iteration_() {
   
   for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
-    pdfdecomposition.second->initAtIteration();
+    pdfdecomposition.second->atIteration();
   }
 
   
-  for ( auto evolution : XFITTER_PARS::gEvolutions) {
-    evolution.second->initAtIteration();
+  for(auto it:XFITTER_PARS::gEvolutions) {
+		xfitter::BaseEvolution*evolution=it.second;
+    evolution->atIteration();
 
     // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    const auto f = evolution.second->xfxQDouble();
-    //    std::cout << "Gluon(1) = " << f(0, 0.00001, 100) << std::endl;
-    const std::string evolName = evolution.second->getName() +":p";
+		//Wait, do they even get updated between iterations? Is this here even necessary? --Ivan
     
-    XFITTER_PARS::registerXfxQArray(evolName,evolution.second->xfxQArray());
+    XFITTER_PARS::registerXfxQArray(evolution->_name,evolution->xfxQArray());
   }
 
 

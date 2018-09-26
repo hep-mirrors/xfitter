@@ -1,41 +1,88 @@
-# File to store parameters for theory modules. Overwrites
-# fortran-based ewparam.txt.
-
-#
-# default minimizer:
-#
-Minimizer : MINUIT # CERES
-
-MINUIT :
-  Commands : |
-    fix 6 7 9 11 12 13 14 15 16 17   18 19 20 22 
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    fix 6 7 9 11 12 13 14 15 16 17 18 19 20 22 
     call fcn 3
 #  doErrors :  Hesse # None
+ #value    step    min     max       priors
+Parameters:
+  Ag   :  DEPENDENT
+  Bg   : [-0.061953]
+  Cg   : [ 5.562367,  0.55]
+  Auv  :  DEPENDENT
+  Buv  : [ 0.810476]
+  Cuv  : [ 4.823512]
+  Duv  : [    0    ]
+  Euv  : [ 9.921366]
+  Adv  :  DEPENDENT
+  Bdv  : [ 1.029995]
+  Cdv  : [ 4.846279]
+  Aubar: [ 0.27    ]
+  Bubar: [-0.13    ]
+  Cubar: [ 7.059694]
+  Dubar: [ 1.548098]
+  Adbar: [ 0.27    ]
+  Bdbar: [-0.13    ]
+  Cdbar:
+    value: 9.586246
+    step: 1.2345
+    #min
+    #max
+    #pr_mean
+    #pr_sigma
+  As   : [ 0.13    ]
+  Bs   : [ 0       ]
+  Cs   : [10.0     ]
 
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv]
+  par_ubar:
+    class: HERAPDF
+    parameters: [Aubar,Bubar,Cubar,Dubar]
+  par_dbar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s:
+    class: HERAPDF
+    parameters: [As,Bs,Cs]
+  par_g:
+    class: HERAPDF
+    parameters: [Ag,Bg,Cg]
 
-Profiler:
-   alphas : [ 0.118, 0.119, 0.117 ]
-   evolutions :
-     proton :
-       sets :    [  NNPDF31_nnlo_as_0118, CT10  ]
-       members : [ [ 0, 1, end ], [0, 1, end] ]
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvubardbars
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
 
-#
-# default evolution:
-#
-Evolution : LHAPDF
-
-LHAPDF :
-  set : "CT10"
-  member : 0
-
-
-#
-# default PDF decomposition 
-#
-PDFDecomposition : UvDvubardbars
-include : "yaml/pdfdecompositions/UvDvUbarDbarS/parameters.yaml"
-
+DefaultEvolution: proton-QCDNUM
+Evolutions:
+  proton-QCDNUM:
+    class: QCDNUM
+    decomposition: proton #this could be omitted, as the default decomposition is set
+    xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
+    xGridW  :   [1,       2,     4,   8,  16]
+    Q2Grid  :   [1.,  2.05e8 ]
+    Q2GridW :   [1.,     1.]  
+    NQ2bins :   120
+    NXbins  :   200
+    Read_QCDNUM_Tables : 1
+    SplineOrder : 2
+    ICheck  :   0
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "CT10"
+    member: 0
 
 #
 # Initial scale
@@ -119,13 +166,13 @@ fcharm: 0.
 # RT DIS scheme settings:
 #---------------------------
 include : yaml/reactions/RT_DISNC/parameters.yaml
-
 #
 # FONLL scheme settings:
 #---------------------------
 include : yaml/reactions/FONLL_DISNC/parameters.yaml
 include : yaml/reactions/FONLL_DISCC/parameters.yaml
 
+#
 # FF ABM scheme settings:
 #---------------------------
 include : yaml/reactions/FFABM_DISNC/parameters.yaml
@@ -136,7 +183,6 @@ include : yaml/reactions/FFABM_DISCC/parameters.yaml
 #---------------------------
 include : yaml/reactions/APPLgrid/parameters.yaml
 
-
 #
 # (optional) Fractal module settings:
 #---------------------------
@@ -146,8 +192,8 @@ include : yaml/reactions/APPLgrid/parameters.yaml
 # Speficify HF scheme used for DIS NC processes:
 #---------------------------
 hf_scheme_DISNC :
-  defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+  defaultValue : 'RT_DISNC'        # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)

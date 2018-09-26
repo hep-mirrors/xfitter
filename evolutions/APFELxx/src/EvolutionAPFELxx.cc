@@ -10,22 +10,25 @@
 namespace xfitter
 {
   // the class factories
-  extern "C" EvolutionAPFELxx* create() {
-    return new EvolutionAPFELxx();
+  extern "C" EvolutionAPFELxx*create(const char*name){
+    return new EvolutionAPFELxx(name);
   }
+  const char*EvolutionAPFELxx::getClassName()const{return "APFELxx";}
 
 
   //_________________________________________________________________________________
-  void EvolutionAPFELxx::initAtStart()
+  void EvolutionAPFELxx::atStart()
   {
     // APFEL++ banner
     apfel::Banner();
 
+    const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
+    _inPDFs=XFITTER_PARS::getInputFunctionFromYaml(yamlNode);
     // Retrieve parameters needed to initialize APFEL++.
     const double* MCharm   = XFITTER_PARS::gParameters.at("mch");
     const double* MBottom  = XFITTER_PARS::gParameters.at("mbt");
     const double* MTop     = XFITTER_PARS::gParameters.at("mtp");
-    const YAML::Node xGrid = XFITTER_PARS::gParametersY.at("APFELxx")["xGrid"];
+    const YAML::Node xGrid = yamlNode["xGrid"];
 
     vector<apfel::SubGrid> sgv;
     for(auto const& sg : xGrid)
@@ -41,17 +44,19 @@ namespace xfitter
 
     // Initialize QCD evolution objects
     _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
+    atConfigurationChange();
   }
 
   //_________________________________________________________________________________
-  void EvolutionAPFELxx::initAtIteration()
+  void EvolutionAPFELxx::atConfigurationChange()
   {
+    const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::gParametersS.at("Order")) - 1;
     const double* Q0         = XFITTER_PARS::gParameters.at("Q0");
     const double* Q_ref      = XFITTER_PARS::gParameters.at("Mz");
     const double* Alphas_ref = XFITTER_PARS::gParameters.at("alphas");
-    const YAML::Node QGrid   = XFITTER_PARS::gParametersY.at("APFELxx")["QGrid"];
+    const YAML::Node QGrid   = yamlNode["QGrid"];
 
     // Reinitialise and tabulate the running coupling at every
     // iteration. This is fast enough and allows for the reference
@@ -62,17 +67,17 @@ namespace xfitter
 
     // Construct the DGLAP objects
     const auto Dglap = BuildDglap(_DglapObj,
-				  [=] (double const& x, double const&)->std::map<int,double>{ return apfel::PhysToQCDEv(this->_inPDFs(x)); },
-				  *Q0, PtOrder, _AlphaQCD);
+                                  [=] (double const& x, double const&)->std::map<int,double>{ return apfel::PhysToQCDEv(this->_inPDFs(x)); },
+                                  *Q0, PtOrder, _AlphaQCD);
 
     // Tabulate PDFs (ideally the parameters of the tabulation should
     // be read from parameters.yaml).
     _TabulatedPDFs = std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>>
       (new apfel::TabulateObject<apfel::Set<apfel::Distribution>>{*Dglap,
-	  QGrid[0].as<int>(),
-	  QGrid[1].as<double>(),
-	  QGrid[2].as<double>(),
-	  QGrid[3].as<int>()});
+          QGrid[0].as<int>(),
+          QGrid[1].as<double>(),
+          QGrid[2].as<double>(),
+          QGrid[3].as<int>()});
   }
 
   //_________________________________________________________________________________

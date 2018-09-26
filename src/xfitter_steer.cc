@@ -9,105 +9,127 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 #include <Profiler.h>
+using std::string;
 
 extern std::map<string,string> gReactionLibs;
 
+void*createDynamicObject(const string&classname,const string&instanceName){
+  //instantiate an object from a shared library
+  //Used to create evolution, decomposition, parameterisation, could be used to create minimizer
+  string libpath;
+  try{
+    libpath=PREFIX+string("/lib/")+gReactionLibs.at(classname);
+  }catch(const std::out_of_range&ex){
+    std::cerr<<"[ERROR] out_of_range in function "<<__func__<<":\n"<<ex.what()<<"\n[/ERROR]\n";
+    std::ostringstream s;
+    if(gReactionLibs.count(classname)==0){
+      s<<"F: Unknown dynamically loaded class \""<<classname<<"\"";
+      hf_errlog(18091901,s.str().c_str());
+    }
+    s<<"F: Unknown out_of_range exception in "<<__func__;
+    hf_errlog(18091902,s.str().c_str());
+  }
+  void*shared_library=dlopen(libpath.c_str(),RTLD_NOW);
+  //By the way, do we ever call dlclose? I don't think so... Maybe we should call it eventually. --Ivan Novikov
+  if(shared_library==NULL){
+    std::cerr<<"[ERROR] dlopen() error while trying to open shared library for class \""<<classname<<"\":\n"<<dlerror()<<"\n[/ERROR]"<<std::endl;
+    hf_errlog(18091900,"F:dlopen() error, see stderr");
+  }
+  //reset errors
+  dlerror();
+  void*create=dlsym(shared_library,"create");
+  if(create==NULL){
+    std::cerr<<"[ERROR] dlsym() failed to find \"create\" function for class \""<<classname<<"\":\n"<<dlerror()<<"\n[/ERROR]"<<std::endl;
+    hf_errlog(18091902,"F:dlsym() error, see stderr");
+  }
+  return((void*(*)(const char*))create)(instanceName.c_str());
+}
+
 namespace xfitter {
-
-  BaseEvolution* get_evolution(std::string name) {
-    if (name == "") {
-      // get the name from the map
-      name = XFITTER_PARS::getParameterS("Evolution");
-    }
-    
+  BaseEvolution*get_evolution(string name){
+    if(name=="")name=XFITTER_PARS::getDefaultEvolutionName();
     // Check if already present
-    if (XFITTER_PARS::gEvolutions.count(name) == 1) {
-      return XFITTER_PARS::gEvolutions[name];  //already loaded
+    if(XFITTER_PARS::gEvolutions.count(name)==1){
+      return XFITTER_PARS::gEvolutions.at(name);
     }
-
-
-    // Load corresponding shared library:
-    string libname = gReactionLibs[name];
-    if ( libname == "") {
-      hf_errlog(18071302,"F: Shared library for evolution "+name+" not found");
+    // Else create a new instance of evolution
+    YAML::Node instanceNode=XFITTER_PARS::getEvolutionNode(name);
+    YAML::Node classnameNode=instanceNode["class"];
+    if(!classnameNode.IsScalar()){
+      std::ostringstream s;
+      s<<"F:Failed to get evolution \""<<name<<"\": evolution must have a node \"class\" with the class name as a string";
+      hf_errlog(18082902,s.str().c_str());
     }
-
-    // load the library:
-    void *evolution_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
-    if (evolution_handler == NULL)  { 
-      std::cout  << dlerror() << std::endl;      
-      hf_errlog(18071303,"F: Evolution shared library ./lib/"  + libname  +  " not present for evolution" + name + ". Check Reactions.txt file");
-    }
-
-     // reset errors
-    dlerror();
-
-    create_evolution *dispatch_ev = (create_evolution*) dlsym(evolution_handler, "create");   
-    BaseEvolution *evolution = dispatch_ev();
-
-    // Now we attach corresponding PDFdecomposition. First try specific, next: global
-    std::string pdfDecomp =  XFITTER_PARS::getParameterS("PDFDecomposition");
-
-    // XXXXXXXXXXXXXXXXXXXXXXXX
-    if ( XFITTER_PARS::gParametersY.count(name) > 0 ) {
-      auto evolNode = XFITTER_PARS::gParametersY[name];
-      if ( evolNode["PDFDecomposition"] ) {
-	pdfDecomp = evolNode["PDFDecomposition"].as<std::string>();
-	std::cout << " here here \n";
-      }
-      else {
-	std::cout << " ho here \n";	
-      }
-    }
-
-    std::cout << "PDF decomp=" << pdfDecomp << "\n";
-
-    // Get corresponding PDF decomposition:
-    BasePdfDecomposition* pdfD = get_pdfDecomposition(pdfDecomp);
-    evolution->SetPdfDecomposition( pdfD->f0() );
-
-    // Init it:
-    evolution->initAtStart();
-    
-    // Store on the map
+    string classname=classnameNode.as<string>();
+    BaseEvolution*evolution=(BaseEvolution*)createDynamicObject(classname,name);
+    //Note that unlike in the pervious version of this function, we do not set decompositions for evolutions
+    //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during atStart
+    evolution->atStart();
+    // Store the newly created evolution on the global map
     XFITTER_PARS::gEvolutions[name] = evolution;
     return evolution;
   }
-
-  BasePdfDecomposition* get_pdfDecomposition(std::string name) {
-    if (name == "") {
-      // get the name from the map
-      name = XFITTER_PARS::getParameterS("PDFDecomposition");
+  BasePdfDecomposition*get_pdfDecomposition(string name){
+    try{
+      if(name=="")name=XFITTER_PARS::getDefaultDecompositionName();
+      auto it=XFITTER_PARS::gPdfDecompositions.find(name);
+      if(it!=XFITTER_PARS::gPdfDecompositions.end())return it->second;
+      string classname=XFITTER_PARS::getDecompositionNode(name)["class"].as<string>();
+      BasePdfDecomposition*ret=(BasePdfDecomposition*)createDynamicObject(classname,name);
+      ret->atStart();
+      XFITTER_PARS::gPdfDecompositions[name]=ret;
+      return ret;
+    }catch(YAML::InvalidNode&ex){
+      const int errcode=18092401;
+      const char*errmsg="F: YAML::InvalidNode exception while creating decomposition, details written to stderr";
+      using namespace std;
+      cerr<<"[ERROR]"<<__func__<<'('<<name<<')'<<endl;
+      YAML::Node node=XFITTER_PARS::getDecompositionNode(name);
+      if(!node.IsMap()){
+        cerr<<"Invalid node Decompositions/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
+        hf_errlog(errcode,errmsg);
+      }
+      YAML::Node node_class=node["class"];
+      if(!node_class.IsScalar()){
+        if(node_class.IsNull())cerr<<"Missing node Decompositions/"<<name<<"/class";
+        else cerr<<"Invalid node Decompositions/"<<name<<"/class\nnode is not a scalar";
+        cerr<<"\n[/ERROR]"<<endl;
+        hf_errlog(errcode,errmsg);
+      }
+      cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
+      hf_errlog(errcode,errmsg);
     }
-    // Check if already present
-    if (XFITTER_PARS::gPdfDecompositions.count(name) == 1) {
-      return  XFITTER_PARS::gPdfDecompositions[name];  //already loaded
+  }
+  BasePdfParam*getParameterisation(const string&name){
+    try{
+      auto it=XFITTER_PARS::gParameterisations.find(name);
+      if(it!=XFITTER_PARS::gParameterisations.end())return it->second;
+      //Else create a new instance
+      string classname=XFITTER_PARS::getParameterisationNode(name)["class"].as<string>();
+      BasePdfParam*ret=(BasePdfParam*)createDynamicObject(classname,name);
+      ret->atStart();
+      XFITTER_PARS::gParameterisations[name]=ret;
+      return ret;
+    }catch(YAML::InvalidNode&ex){
+      const int errcode=18092400;
+      const char*errmsg="F: YAML::InvalidNode exception while creating parameterisation, details written to stderr";
+      using namespace std;
+      cerr<<"[ERROR]"<<__func__<<'('<<name<<')'<<endl;
+      YAML::Node node=XFITTER_PARS::getParameterisationNode(name);
+      if(!node.IsMap()){
+        cerr<<"Invalid node Parameterisations/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
+        hf_errlog(errcode,errmsg);
+      }
+      YAML::Node node_class=node["class"];
+      if(!node_class.IsScalar()){
+        if(node_class.IsNull())cerr<<"Missing node Parameterisations/"<<name<<"/class";
+        else cerr<<"Invalid node Parameterisations/"<<name<<"/class\nnode is not a scalar";
+        cerr<<"\n[/ERROR]"<<endl;
+        hf_errlog(errcode,errmsg);
+      }
+      cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
+      hf_errlog(errcode,errmsg);
     }
-    
-    // Load corresponding shared library:
-    string libname = gReactionLibs[name];
-    if ( libname == "") {
-      hf_errlog(18072302,"F: Shared library for pdf decomposition "+name+" not found");
-    }
-
-    // load the library:
-    void *pdfDecomposition_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
-    if (pdfDecomposition_handler == NULL)  { 
-      std::cout  << dlerror() << std::endl;      
-      hf_errlog(18072303,"F: PdfDecomposition shared library ./lib/"  + libname  +  " not present for pdfDecomposition" + name + ". Check Reactions.txt file");
-    }
-
-         // reset errors
-    dlerror();
-
-    create_pdfDecomposition *dispatch_decomp = (create_pdfDecomposition*) dlsym(pdfDecomposition_handler, "create");
-    BasePdfDecomposition *pdfDecomp = dispatch_decomp();
-    pdfDecomp->initAtStart("");
-
-    // store on the map
-    XFITTER_PARS::gPdfDecompositions[name] = pdfDecomp;
-
-    return pdfDecomp;
   }
 
 
@@ -137,7 +159,7 @@ namespace xfitter {
 
     create_minimizer *dispatch_minimizer = (create_minimizer*) dlsym(lib_handler, "create");
     BaseMinimizer *minimizer = dispatch_minimizer();
-    minimizer->initAtStart();
+    minimizer->atStart();
 
     // store on the map
     XFITTER_PARS::gMinimizer = minimizer;
@@ -157,11 +179,12 @@ extern "C" {
 }
 
 void init_evolution_() {
-  auto evol = xfitter::get_evolution();
+  //TODO: reimplement for new interface with multiple evolutions
+  //auto evol = xfitter::get_evolution();
 }
 
 void init_minimizer_() {
-  /// initAtStart is called inside
+  /// atStart is called inside
   auto mini = xfitter::get_minimizer();
 }
 

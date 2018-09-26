@@ -1,6 +1,10 @@
  !> PDF parameterisations
 
 
+C !> Common parameters for sumrules
+      double precision::uvalSum
+      double precision::dvalSum
+      common/sumrule_sums_common/uvalSum,dvalSum
 C !> Standard parameterisation
 
        double precision paruval(1:10), pardval(1:10)

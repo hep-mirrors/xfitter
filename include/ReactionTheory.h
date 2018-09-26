@@ -24,7 +24,7 @@ typedef double (*pTwoParFunc)(const double&, const double& );
 typedef void   (*pThreeParSub)(const double& , const double&, const double&);  
 
 // Function to emulate LHAPDF xfx behavior:
-typedef void   (*pXFXlike)(const double&, const double&, double*);
+typedef void   (*pXFXlike)(const double&x,const double&Q,double*results);
 
 //using pZeroParFunc = std::function< double() >;
 //using pOneParFunc  = std::function< double(const double&) >;
@@ -60,6 +60,7 @@ class ReactionTheory
   using super = ReactionTheory;
   
   virtual string getReactionName() const =0;  ///< Should return expected reaction name. Normally generated automatically by AddReaction.py
+  //A better name would be atStart
   virtual int  initAtStart(const string &) =0; ///< Initialization first time ReactionTheory implementation is called
 
   virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map for doubles
@@ -81,6 +82,7 @@ class ReactionTheory
 
 
   /// Perform optional re-initialization for a given iteration. Interface for old-style pdf functions 
+  //A better name would be atIteration
   virtual void initAtIteration(); 
 
   //! Perform optional action when minuit fcn 3 is called (normally after fit)
@@ -128,7 +130,7 @@ class ReactionTheory
   /// Set evolution name
   void setEvolution(std::string& evolution) { _evolution = evolution; }
 
-  /// Retrieve evolition
+  /// Retrieve evolution name //A better name would be "getEvolutionName" -- Ivan
   const std::string  getEvolution() const { return _evolution; }  
   
  protected:

@@ -20,13 +20,14 @@ namespace xfitter
   {
   public:
     /// Default constructor. Name is the PDF name
-    UvDvUbarDbarS();
+    UvDvUbarDbarS(const char*name);
+    virtual const char*getClassName()const override final;
 
     /// Optional initialization at the first call
-    virtual void initAtStart(const std::string& pars) override final;
+    virtual void atStart()override final;
 
     /// Compute sum-rules
-    virtual void initAtIteration() override final;
+    virtual void atIteration() override final;
 
     /// print parameters
     virtual void printParams() override final;
@@ -36,31 +37,11 @@ namespace xfitter
 
 
   private:
-    /// Get parameter values from the minimizer
-    std::unique_ptr<double[]> getParValues(BasePdfParam const* param) const;
-
-    /// Get valence
-    double valence(double x,const std::string&name)const;
-
-    /// Get sea
-    double sea(double x, std::string const& name) const;
-    
-    /// Get uv, apply sum-rule
-    double uv(double x) const;
-
-    /// Get dv, apply sum-rule
-    double dv(double x) const;    
-
-    /// Get dbar
-    double dbar(double x) const;
-
-    /// Get ubar
-    double ubar(double x) const;
-
-    /// Get s
-    double s(double x) const;
-
-    /// Get g
-    double g(double x) const;
+    BasePdfParam*par_xuv{nullptr},
+                *par_xdv{nullptr},
+                *par_xubar{nullptr},
+                *par_xdbar{nullptr},
+                *par_xs{nullptr},
+                *par_xg{nullptr};
   };
 }
