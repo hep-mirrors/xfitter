@@ -144,6 +144,7 @@ namespace XFITTER_PARS {
     return infile.good();
   }
 
+/*
   void parse_file(const std::string& name)
   {
     try {
@@ -164,9 +165,60 @@ namespace XFITTER_PARS {
     
     return;
   }
-  
-
-
+*/
+YAML::Node loadYamlFile(const string&filename){
+  YAML::Node node;
+  try{
+    node=YAML::LoadFile(filename);
+  }catch(const YAML::BadFile&ex){
+    cerr<<"[ERROR] Failed to open yaml file "<<filename<<endl;
+    hf_errlog(18092600,"F: Failed to open yaml file, see stderr");
+  }
+  return node;
+}
+void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
+  if(recursionLimit==0){
+    hf_errlog(18092605,"F: Recursion limit reached while handling includes");
+  }
+  if(!node.IsMap())return;//maybe this should even be an error
+  vector<YAML::Node>include_keys;
+  for(YAML::iterator it=node.begin();it!=node.end();++it){
+    YAML::Node&key=it->first;
+    YAML::Node&val=it->second;
+    if(key.Tag()=="!include"){
+      if(!it->second.IsNull()){
+        cerr<<"[ERROR] Value given after include key "<<key<<" (make sure there is no \":\" after the filename)"<<endl;
+        hf_errlog(18092602,"F: Value after include key, see stderr");
+      }
+      include_keys.push_back(key);
+    }else if(val.IsMap()){
+      expandIncludes(val,recursionLimit-1);
+    }
+  }
+  //Load and merge 
+  for(vector<YAML::Node>::const_iterator kit=include_keys.begin();kit!=include_keys.end();++kit){
+    node.remove(*kit);
+    string filename=(*kit).as<string>("");
+    if(filename==""){
+      cerr<<"[ERROR] Failed to parse include filename, node:\n"<<node<<"\n[/ERROR]"<<endl;
+      hf_errlog(18092601,"F: Failed to parse include filename, see stderr");
+    }
+    YAML::Node include=loadYamlFile(filename);
+    if(!include.IsMap()){
+      cerr<<"[ERROR] Root node in included file "<<filename<<" is not a map"<<endl;
+      hf_errlog(18092603,"F: Trying to include something other than a map, see stderr");
+    }
+    expandIncludes(include,recursionLimit-1);
+    for(YAML::const_iterator it=include.begin();it!=include.end();++it){
+      const YAML::Node&key=it->first;
+      if(node[key]){
+        clog<<"[WARN] Option "<<key<<" included from file "<<filename<<" is overridden by locally defined option"<<endl;
+        hf_errlog(18092604,"W: locally defined setting overrides included, see stdlog");
+      }
+      node[key]=it->second;
+    }
+  }
+}
   // Parse @param node and return maps
   void parse_node(const YAML::Node& node,
                   std::map<string,double*>& dMap,
@@ -179,6 +231,7 @@ namespace XFITTER_PARS {
       YAML::Node value = it->second;
       // parameter name
       string p_name = key.as<string>();
+      /* OBSOLETE
       //  Check if asked to read another file:
       if ( p_name == "include" ) {
         auto fileName =  value.as<string>();
@@ -194,6 +247,7 @@ namespace XFITTER_PARS {
           }
         }
       }
+      */
       if (value.IsScalar()) {
         // Alright, store directly
         // Try to read as int, float, string:
@@ -202,7 +256,7 @@ namespace XFITTER_PARS {
           iMap[p_name] = i;
           continue;
         }
-        catch (const std::exception& e){} //Why do we so intentionally ignore possible exceptions here? --Ivan
+        catch (const std::exception& e){}
         try {
           double f = value.as<double>();
           dMap[p_name] = new double(f);
@@ -337,7 +391,7 @@ namespace XFITTER_PARS {
   void createParameters(){
     using namespace std;
     try{
-      YAML::Node parsNode=gParametersY["Parameters"];
+      YAML::Node parsNode=XFITTER_PARS::rootNode["Parameters"];
       if(!parsNode.IsMap()){
         hf_errlog(18091710,"F: Failed to create parameters: bad \"Parameters\" YAML node");
       }
@@ -441,9 +495,12 @@ namespace XFITTER_PARS {
 }
 
 void parse_params_(){
-  XFITTER_PARS::parse_file("parameters.yaml");
-  XFITTER_PARS::createParameters();
-  XFITTER_PARS::ParsToFortran();
+  using namespace XFITTER_PARS;
+  rootNode=loadYamlFile("parameters.yaml");
+  expandIncludes(rootNode);
+  parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
+  createParameters();
+  ParsToFortran();
 }
 
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:

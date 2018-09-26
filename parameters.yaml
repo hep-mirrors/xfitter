@@ -4,8 +4,8 @@ MINUIT:
     fix 6 7 9 11 12 13 14 15 16 17 18 19 20 22 
     call fcn 3
 #  doErrors :  Hesse # None
- #value    step    min     max       priors
 Parameters:
+ #value    step    min     max       priors
   Ag   :  DEPENDENT
   Bg   : [-0.061953]
   Cg   : [ 5.562367,  0.55]
@@ -68,17 +68,8 @@ Decompositions:
 DefaultEvolution: proton-QCDNUM
 Evolutions:
   proton-QCDNUM:
-    class: QCDNUM
+    ? !include yaml/evolutions/QCDNUM/parameters.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
-    xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
-    xGridW  :   [1,       2,     4,   8,  16]
-    Q2Grid  :   [1.,  2.05e8 ]
-    Q2GridW :   [1.,     1.]  
-    NQ2bins :   120
-    NXbins  :   200
-    Read_QCDNUM_Tables : 1
-    SplineOrder : 2
-    ICheck  :   0
   proton-LHAPDF:
     class: LHAPDF
     set: "CT10"
@@ -89,62 +80,7 @@ Evolutions:
 #---------------------------
 Q0 : 1.378404875209
 
-#
-# EW parameters
-#---------------------------
-Mz : 91.1876
-Mw : 80.385
-Mh : 125.9
-
-Wz : 2.4952
-Ww : 2.085
-Wh : 1d-3
-Wtp : 2.0d0
-
-gf : 1.16638e-5
-convFac : 0.389379338e9
-alphaem : 7.29735e-3
-
-sin2thW :  0.23127
-Vud : 0.97427
-Vus : 0.2254
-Vub : 0.00358
-Vcd : 0.22520
-Vcs : 0.97344 
-Vcb : 0.04156
-Vtd : 0.00872
-Vts : 0.04076
-Vtb : 0.999133
-
-#
-# lepton masses:
-#---------------------------
-men : 1e-10
-mel : 0.510998928e-3
-mmn : 1e-10
-mmo : 0.1056583715
-mtn : 1e-10
-mta : 1.77682
-
-#
-# Light quark masses:
-#---------------------------
-mup : 0.06983
-mdn : 0.06983
-mst : 0.150
-
-#
-# Heavy quark masses:
-#---------------------------
-mch : 1.43 
-mbt : 4.50
-mtp : 173.0
-
-#
-# QCD parameters
-#---------------------------
-Order :   NNLO
-NFlavour : 5
+? !include constants.yaml
 
 #
 # AlphaS, incuding options to fit it:
@@ -165,28 +101,28 @@ fcharm: 0.
 #
 # RT DIS scheme settings:
 #---------------------------
-include : yaml/reactions/RT_DISNC/parameters.yaml
+? !include yaml/reactions/RT_DISNC/parameters.yaml
 #
 # FONLL scheme settings:
 #---------------------------
-include : yaml/reactions/FONLL_DISNC/parameters.yaml
-include : yaml/reactions/FONLL_DISCC/parameters.yaml
+? !include yaml/reactions/FONLL_DISNC/parameters.yaml
+? !include yaml/reactions/FONLL_DISCC/parameters.yaml
 
 #
 # FF ABM scheme settings:
 #---------------------------
-include : yaml/reactions/FFABM_DISNC/parameters.yaml
-include : yaml/reactions/FFABM_DISCC/parameters.yaml
+? !include yaml/reactions/FFABM_DISNC/parameters.yaml
+? !include yaml/reactions/FFABM_DISCC/parameters.yaml
 
 #
 # APPLgrid settings:
 #---------------------------
-include : yaml/reactions/APPLgrid/parameters.yaml
+? !include yaml/reactions/APPLgrid/parameters.yaml
 
 #
 # (optional) Fractal module settings:
 #---------------------------
-# include : yaml/reactions/Fractal_DISNC/parameters.yaml
+# ? !include yaml/reactions/Fractal_DISNC/parameters.yaml
 
 #
 # Speficify HF scheme used for DIS NC processes:
@@ -211,17 +147,17 @@ hf_scheme_DISCC :
 #
 # Load APFEL++
 #---------------------------
-include : yaml/evolutions/APFELxx/parameters.yaml
+? !include yaml/evolutions/APFELxx/parameters.yaml
 
 #
 # Load QCDNUM
 #---------------------------
-include : yaml/evolutions/QCDNUM/parameters.yaml
+? !include yaml/evolutions/QCDNUM/parameters.yaml
 
 # AFB settings:
-include : yaml/reactions/AFB/parameters.yaml
+? !include yaml/reactions/AFB/parameters.yaml
 
 #
 # (optional) Fractal module parameters:
 #----------------------
-# include : yaml/reactions/Fractal_DISNC/parameters.yaml
+# ? !include yaml/reactions/Fractal_DISNC/parameters.yaml

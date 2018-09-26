@@ -60,6 +60,14 @@ void ReactionTheory::initAtIteration() {
     hf_errlog(18091400,"F: Exception in retrieveXfxQArray, details written to stderr");
   }
 }
+vector<double>ReactionTheory::GetParamV(const string& name)const{
+  try{
+    return _xfitter_pars_vec.at(name);
+  }catch(std::out_of_range&){
+    std::cerr<<"[ERROR] Reaction theory "<<getReactionName()<<": vector parameter "<<name<<" not found"<<std::endl;
+    hf_errlog(18092650,"F: Reaction Theory failed to get a vector parameter, see stderr");
+  }
+}
 
 const pXFXlike  ReactionTheory::getXFX(const string& type) {
   //How is this different from atIteration?
