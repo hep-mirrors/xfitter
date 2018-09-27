@@ -9,7 +9,7 @@ Parameters:
   Ag   :  DEPENDENT
   Bg   : [ -0.061953]
   Cg   : [  5.562367 ,  0.55]
-  Agp  : [  0.166118]  # negative gluon ....
+  Agp  : [ 0.07311  ]  # negative gluon ....
   Bgp  : [ -0.383100 ]
   Cgp  : [ 25.0, 0.]  # fix C of negative gluon
   Auv  :  DEPENDENT
@@ -20,12 +20,12 @@ Parameters:
   Adv  :  DEPENDENT
   Bdv  : [ 1.029995 ]
   Cdv  : [ 4.846279 ]
-  Aubar: [ 0.27    ]
-  Bubar: [-0.13    ]
+  Aubar: [ 0.1613    ]
+  Bubar: [ -0.1273   ]
   Cubar: [ 7.059694]
   Dubar: [ 1.548098]
-  Adbar: [ 0.27    ]
-  Bdbar: [-0.13    ]
+  Adbar: [ 0.1613    ]
+  Bdbar: [ -0.1273  ]
   Cdbar:
     value: 9.586246
     step: 1.2345
@@ -33,9 +33,9 @@ Parameters:
     #max
     #pr_mean
     #pr_sigma
-  As   : [ 0.13    ]
-  Bs   : [ 0       ]
-  Cs   : [10.0     ]
+  As   : [ 0.1075    ]
+  Bs   : [  -0.1273  ]
+  Cs   : [ 9.586246  ]
 
   ZERO : [ 0. ]          # zero
 Parameterisations:
