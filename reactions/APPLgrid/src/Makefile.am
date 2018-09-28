@@ -5,6 +5,8 @@ if ENABLE_APPLGRID
   libapplgrid_xfitter_la_SOURCES = ReactionAPPLgrid.cc
 
   libapplgrid_xfitter_la_CPPFLAGS = $(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
+
+  libapplgrid_xfitter_la_LDFLAGS = $(APPLGRID_LDFLAGS)
 endif
 
 datadir = ${prefix}/yaml/reactions/APPLgrid
