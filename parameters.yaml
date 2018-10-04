@@ -125,6 +125,10 @@ fcharm: 0.
 include : yaml/reactions/APPLgrid/parameters.yaml
 
 #
+# AFB settings:
+include : yaml/reactions/AFB/parameters.yaml
+
+#
 # (optional) Fractal module parameters:
 #----------------------
 # include : yaml/reactions/Fractal_DISNC/parameters.yaml

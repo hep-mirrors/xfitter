@@ -38,6 +38,8 @@ libxfmain_la_SOURCES += fortran_io.f lhapdferrors.cc
 libxfmain_la_SOURCES += chi2scan.cc
 # ReactionTheory
 libxfmain_la_SOURCES += ReactionTheory.cc
+# IntegrateDIS
+libxfmain_la_SOURCES += IntegrateDIS.cc
 # optional sources
 # these should be moved to indiviual shared libraries in the future
 if ENABLE_APFEL

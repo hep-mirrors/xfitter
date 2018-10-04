@@ -143,6 +143,12 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
   // iterate over grids
   int pos = 0;
+  //printf("1val.size() = %d\n", val.size());
+  //val.resize(0);
+  int np = 0;
+  for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
+    np += _grids[dataSetID][g]->Nobs();
+  val.resize(np);
   for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
   {
     auto grid = _grids[dataSetID][g];
@@ -174,8 +180,10 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
       for (std::size_t i=0; i<gridVals.size(); i++)
         gridVals[i] *= grid->deltaobs(i);
     // insert values from this grid into output array
+    //val.resize(val.size() + grid->Nobs());
     std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
     pos += grid->Nobs();
   }
+  //printf("2val.size() = %d\n", val.size());
   return 0;
 }
