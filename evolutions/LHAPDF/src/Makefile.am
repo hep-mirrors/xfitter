@@ -1,7 +1,4 @@
 
-# Created by AddEvolution.py on 2018-08-20
-
-
 #ifdef LHAPDF_ENABLED
 
   AM_CXXFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../BaseEvolution/include -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated $(LHAPDF_CPPFLAGS)
@@ -14,7 +11,5 @@
 #endif
 
 datadir = ${prefix}/yaml/evolutions/LHAPDF
-data_DATA = ../yaml/parameters.yaml
-
-dist_noinst_HEADERS = ../include ../yaml
+dist_noinst_HEADERS=../include
  
