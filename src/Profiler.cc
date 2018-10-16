@@ -66,76 +66,64 @@ namespace xfitter
     
     return;
   }
-
-  
-    /// parse yaml, perform profiling
   void Profiler::doProfiling(){
-
-    const  YAML::Node node   = XFITTER_PARS::gParametersY["Profiler"];
-
-    if ( node )  {
-      for ( auto const& term : node ) {
-        std::string name = term.first.as<string>();
-        // check if present on the global list
-        if ( XFITTER_PARS::gParameters.find(name) != XFITTER_PARS::gParameters.end() ) {
-          profileParameter(name, term.second);
+    using namespace std;
+    const YAML::Node node=XFITTER_PARS::rootNode["Profiler"];
+    if(!node)return;
+    if(!node.IsMap())hf_errlog(2018101201,"F: Cannot do profiling: Profiler node is not a YAML map");
+    for(auto const&term:node){
+      string name=term.first.as<string>();
+      if(name=="Evolutions"){
+        for(auto const&evol:term.second){
+          profilePDF(evol.first.as<string>(),evol.second);
         }
-        
-        else if ( name == "evolutions") {
-          for ( auto const& evol : term.second ) {
-            std::string const name = term.first.as<string>();
-            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            profilePDF("",evol.second );
-          }
+      }else{
+        if(XFITTER_PARS::gParameters.count(name)==0){
+          cerr<<"[ERROR] Failed to profile parameter \""<<name<<"\": no such parameter"<<endl;
+          hf_errlog(2018101202,"F: Failed to profile some parameter, see stderr");
         }
-        
-      };
-    }      
-    return;
+        profileParameter(name,term.second);
+      }
+    };
   }
 
   void Profiler::profileParameter( std::string const& name, YAML::Node const& node) {
-    // try sequence firsts
-    if ( node.IsSequence() ) {
-      size_t len = node.size();
-      if ( (len != 2) && (len != 3)  ) {
-        hf_errlog( 2018082301,"S: Expected 2 or 3 parameters for a profiled variable. Check variable "+name);
-      }
+    using namespace std;
+    if(!node.IsSequence()){
+      cerr<<"[ERROR] Failed to profile parameter \""<<name<<"\": corresponding Profiler entry is not a sequence"<<endl;
+      hf_errlog(2018101220,"F: Failed to profile some parameter, see stderr");
+    }
+    size_t len = node.size();
+    if ( (len != 2) && (len != 3)  ) {
+      hf_errlog( 2018082301,"S: Expected 2 or 3 parameters for a profiled variable. Check variable "+name);
+    }
 
-      // Evaluate varied predictions:
-      std::vector< std::valarray<double> > preds;      
-      double *ppar = XFITTER_PARS::gParameters.at(name);
+    // Evaluate varied predictions:
+    std::vector< std::valarray<double> > preds;
+    double *ppar = XFITTER_PARS::gParameters.at(name);
 
-      double save = *ppar;
-      for ( size_t i=0; i<len; i++) {
-        double val = node[i].as<double>();
-        *ppar = val;
-        preds.push_back( evaluatePredictions() );       
-      }
-      *ppar = save;
+    double save = *ppar;
+    for ( size_t i=0; i<len; i++) {
+      double val = node[i].as<double>();
+      *ppar = val;
+      preds.push_back( evaluatePredictions() );
+    }
+    *ppar = save;
 
-      // Add to systematics list:
-      if ( len == 2) {
-        addSystematics(name+":T",(preds[1]-preds[0])/preds[0]);
-      }
-      else {
-        addSystematics(name+":T",(preds[1]-preds[0])/preds[0], (preds[2]-preds[0])/preds[0]);
-      }
+    // Add to systematics list:
+    if ( len == 2) {
+      addSystematics(name+":T",(preds[1]-preds[0])/preds[0]);
+    }
+    else {
+      addSystematics(name+":T",(preds[1]-preds[0])/preds[0], (preds[2]-preds[0])/preds[0]);
     }
   }
 
   void Profiler::profilePDF( std::string const& evolName, YAML::Node const& node) {
     // get evolution
-
-
-    auto *evol = get_evolution(evolName);
+    auto evol=get_evolution(evolName);
     // get corresponding yaml node:
     YAML::Node gNode=XFITTER_PARS::getEvolutionNode(evolName);
-
-    //std::cout << "DEBUG: " << evolName << "\n" << (*gNode) << std::endl;
-    //std::cout << "DEBUG3: " << node << std::endl;
-
-    
     YAML::Node const sets = node["sets"];
     YAML::Node const members = node["members"];
     //Sanity checks
@@ -173,12 +161,12 @@ namespace xfitter
         }
           
         // save original
-        auto oSet   =gNode["set"];
-        auto oMember=gNode["member"];
+        auto oSet   =Clone(gNode["set"]);
+        auto oMember=Clone(gNode["member"]);
 
         if ( ! oSet  || ! oMember ) {
           hf_errlog(2018082410,"S: No set or member variables for evolution : "+evolName);
-        }
+        }//This should be evolution's problem, not Profiler's --Ivan
 
         // all predictions
         std::vector< std::valarray<double> > preds;
@@ -186,6 +174,7 @@ namespace xfitter
         // Set central PDF and init 
         gNode["set"]   =pName;
         gNode["member"]=central;
+        evol->atConfigurationChange();
         preds.push_back(evaluatePredictions() );
 
 
@@ -214,6 +203,7 @@ namespace xfitter
         // loop over all
         for (int imember = first; imember<=last; imember++) {
           gNode["member"] = imember;
+          evol->atConfigurationChange();
           preds.push_back( evaluatePredictions() );
           //              for ( double th : preds[imember] ) {
           //std::cout << th << std::endl;
@@ -225,6 +215,7 @@ namespace xfitter
 
         gNode["set"]   =oSet;
         gNode["member"]=oMember;
+        evol->atConfigurationChange();
 
 
         // Depending on error type, do nuisance parameters addition

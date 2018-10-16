@@ -58,7 +58,7 @@ namespace xfitter {
     if(!classnameNode.IsScalar()){
       std::ostringstream s;
       s<<"F:Failed to get evolution \""<<name<<"\": evolution must have a node \"class\" with the class name as a string";
-      hf_errlog(18082902,s.str().c_str());
+      hf_errlog(18082950,s.str().c_str());
     }
     string classname=classnameNode.as<string>();
     BaseEvolution*evolution=(BaseEvolution*)createDynamicObject(classname,name);
