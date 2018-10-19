@@ -23,10 +23,15 @@ double ReactionAFB::Z_Vu, ReactionAFB::Z_Au, ReactionAFB::Z_Vd, ReactionAFB::Z_A
 double ReactionAFB::even_foton_up, ReactionAFB::even_foton_down, ReactionAFB::even_interf_up, ReactionAFB::even_interf_down, ReactionAFB::even_Z_up, ReactionAFB::even_Z_down;
 double ReactionAFB::odd_foton_up, ReactionAFB::odd_foton_down, ReactionAFB::odd_interf_up, ReactionAFB::odd_interf_down, ReactionAFB::odd_Z_up, ReactionAFB::odd_Z_down;
 
+// Integration parameters
+size_t ReactionAFB::alloc_space = 1000;
+// gsl_integration_workspace * w = gsl_integration_workspace_alloc(ReactionAFB::alloc_space);
+// Integration option
+int ReactionAFB::key = 6;
+// Error of the integration
 double ReactionAFB::epsabs = 0;
 double ReactionAFB::epsrel = 1e-2;
 
-size_t ReactionAFB::calls;
 
 
 //// Function returning the combination of propagators
@@ -108,6 +113,8 @@ double ReactionAFB::integration_uubarEF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::uubarEF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -116,7 +123,9 @@ double ReactionAFB::integration_uubarEF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -129,11 +138,15 @@ double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup, void*
     gsl_function F;
     F.function = &(ReactionAFB::integration_uubarEF_y);
     F.params = ptr;
+    
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
 
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -199,6 +212,8 @@ double ReactionAFB::integration_uubarEB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::uubarEB_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -207,7 +222,9 @@ double ReactionAFB::integration_uubarEB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -221,10 +238,14 @@ double ReactionAFB::integration_uubarEB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_uubarEB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -291,6 +312,8 @@ double ReactionAFB::integration_uubarOF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::uubarOF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -299,7 +322,9 @@ double ReactionAFB::integration_uubarOF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -313,10 +338,14 @@ double ReactionAFB::integration_uubarOF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_uubarOF_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -383,6 +412,8 @@ double ReactionAFB::integration_uubarOB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::uubarOB_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -391,7 +422,9 @@ double ReactionAFB::integration_uubarOB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -405,10 +438,14 @@ double ReactionAFB::integration_uubarOB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_uubarOB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -475,6 +512,8 @@ double ReactionAFB::integration_ubaruEF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruEF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -483,7 +522,9 @@ double ReactionAFB::integration_ubaruEF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -497,10 +538,14 @@ double ReactionAFB::integration_ubaruEF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ubaruEF_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -567,6 +612,8 @@ double ReactionAFB::integration_ubaruEB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruEB_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -575,7 +622,9 @@ double ReactionAFB::integration_ubaruEB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -589,10 +638,14 @@ double ReactionAFB::integration_ubaruEB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ubaruEB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -659,6 +712,8 @@ double ReactionAFB::integration_ubaruOF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruOF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -667,7 +722,9 @@ double ReactionAFB::integration_ubaruOF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -681,10 +738,14 @@ double ReactionAFB::integration_ubaruOF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ubaruOF_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -751,6 +812,8 @@ double ReactionAFB::integration_ubaruOB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruOB_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -759,7 +822,9 @@ double ReactionAFB::integration_ubaruOB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -773,10 +838,14 @@ double ReactionAFB::integration_ubaruOB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ubaruOB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -845,6 +914,8 @@ double ReactionAFB::integration_ddbarEF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ddbarEF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -853,7 +924,9 @@ double ReactionAFB::integration_ddbarEF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -867,10 +940,14 @@ double ReactionAFB::integration_ddbarEF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ddbarEF_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -939,6 +1016,8 @@ double ReactionAFB::integration_ddbarEB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ddbarEB_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -947,7 +1026,9 @@ double ReactionAFB::integration_ddbarEB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -961,10 +1042,14 @@ double ReactionAFB::integration_ddbarEB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ddbarEB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -1033,6 +1118,8 @@ double ReactionAFB::integration_ddbarOF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ddbarOF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -1041,7 +1128,9 @@ double ReactionAFB::integration_ddbarOF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -1055,10 +1144,14 @@ double ReactionAFB::integration_ddbarOF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ddbarOF_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -1127,6 +1220,8 @@ double ReactionAFB::integration_ddbarOB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ddbarOB_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -1135,7 +1230,9 @@ double ReactionAFB::integration_ddbarOB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -1149,10 +1246,14 @@ double ReactionAFB::integration_ddbarOB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ddbarOB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -1221,6 +1322,8 @@ double ReactionAFB::integration_dbardEF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::dbardEF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -1229,7 +1332,9 @@ double ReactionAFB::integration_dbardEF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -1243,10 +1348,14 @@ double ReactionAFB::integration_dbardEF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_dbardEF_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -1315,6 +1424,8 @@ double ReactionAFB::integration_dbardEB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::dbardEB_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -1323,7 +1434,9 @@ double ReactionAFB::integration_dbardEB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -1337,10 +1450,14 @@ double ReactionAFB::integration_dbardEB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_dbardEB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -1409,6 +1526,8 @@ double ReactionAFB::integration_dbardOF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::dbardOF_funct);
     F.params = &integrationParams;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
     if (y_max_param == 0.0) {
@@ -1417,7 +1536,9 @@ double ReactionAFB::integration_dbardOF_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -1431,10 +1552,14 @@ double ReactionAFB::integration_dbardOF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_dbardOF_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return result;
 }
@@ -1497,6 +1622,8 @@ double ReactionAFB::integration_dbardOB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double result, error;
 
     gsl_function F;
@@ -1511,7 +1638,9 @@ double ReactionAFB::integration_dbardOB_y (double Minv, void * ptr) {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w); 
 
     return 2*result;
 }
@@ -1525,10 +1654,14 @@ double ReactionAFB::integration_dbardOB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_dbardOB_y);
     F.params = ptr;
     
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key, w, &result, &error);
+    
+    gsl_integration_workspace_free (w);
 
     return result;
 }
@@ -1694,11 +1827,15 @@ int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valar
         return 1;
     }    
     
+//     gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    
     // Fill the array "val[i]" with the result of the AFB function
     for (int i = 0; i < Npnt_min; i++) {
     double AFB_result = AFB (min[i], max[i]);
     val[i] = AFB_result;
     }
+    
+//     gsl_integration_workspace_free (w);
 
     return 0;
 }
