@@ -1620,8 +1620,8 @@ int ReactionAFB::initAtStart(const string &s)
     energy_param = GetParam("energy");
     eta_cut_param = GetParam("eta_cut");
     pT_cut_param = GetParam("pT_cut");
-    y_min_param = GetParam("y_min"); // not implemented yet
-    y_max_param = GetParam("y_max"); // not implemented yet
+    y_min_param = GetParam("y_min");
+    y_max_param = GetParam("y_max");
     
     // Calculate fixed parameters
     e_param = sqrt(4*PI*alphaEM_param);
