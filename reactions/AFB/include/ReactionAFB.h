@@ -38,7 +38,12 @@ class ReactionAFB : public ReactionTheory
         ReactionTheory* ptr;        
     };
 
+    static string integration_param;
+    static int integration_switch;
+    static int key_param;
+    static size_t alloc_space;
     static size_t calls;
+    
     static double epsabs;
     static double epsrel;
     static double PI;
