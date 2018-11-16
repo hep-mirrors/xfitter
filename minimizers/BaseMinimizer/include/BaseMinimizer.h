@@ -16,7 +16,7 @@
 
 namespace xfitter
 {
-  
+
   class BaseMinimizer {
   public:
     /// default constructor
@@ -39,13 +39,13 @@ namespace xfitter
 
     /// Add single parameter. Optional flags and bounds can be used for fixed/bounded parameters.
     virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr, double  const* priors = nullptr );
-    
+
     /// Action at each iteration
     virtual void atIteration(){};
 
-    /// Miniminzation loop
-    virtual void doMimimization() = 0;
-    
+    /// Minimization loop
+    virtual void doMinimization() = 0;
+
     /// Perform optional action when equivalent to minuit fcn3 is called (normally after fit)
     virtual void actionAtFCN3(){};
 
@@ -61,13 +61,13 @@ namespace xfitter
     /// Set parameters:
     void setPars(double const* pars) const;
   protected:
-    
+
     /// name to ID minimizer
     std::string _name;
 
     /// names of the parameters
     std::vector<std::string> _allParameterNames;
-    
+
   };
 
   /// For dynamic loader

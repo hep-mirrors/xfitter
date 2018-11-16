@@ -194,8 +194,8 @@ void run_minimizer_() {
   auto *prof = new xfitter::Profiler();
 
   prof->doProfiling();
-  
-  mini->doMimimization();    
+
+  mini->doMinimization();
 }
 
 void run_error_analysis_() {

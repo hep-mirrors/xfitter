@@ -1,4 +1,4 @@
- 
+
 /*
    @file CERESMinimizer.cc
    @date 2018-08-17
@@ -22,7 +22,7 @@ extern "C" {
 }
 
 namespace xfitter {
-  
+
 /// the class factories, for dynamic loading
 extern "C" CERESMinimizer* create() {
     return new CERESMinimizer();
@@ -35,15 +35,15 @@ extern "C" CERESMinimizer* create() {
     counter++;
     BaseMinimizer* mini = xfitter::get_minimizer();
     mini->setPars(par);
-    
+
     int npar = mini->getNpars();
-    
+
     double pp[200];  // 200 is needed for fcn ...
     for (int i=0; i<npar; i++) {
       pp[i] = par[i];
     }
-    
-     
+
+
     fcn_(npar, 0, chi2, pp, iflag, 0);
     std::cout << " Call again " << counter << " chi2=" << chi2;
     return;
@@ -68,16 +68,16 @@ struct CostFunctiorData
    }
 };
 
-  
+
 
 // Constructor
-CERESMinimizer::CERESMinimizer() : BaseMinimizer("CERES") 
-{  
+CERESMinimizer::CERESMinimizer() : BaseMinimizer("CERES")
+{
 }
 
 // Constructor
-CERESMinimizer::CERESMinimizer(const std::string& inName) : BaseMinimizer(inName) 
-{  
+CERESMinimizer::CERESMinimizer(const std::string& inName) : BaseMinimizer(inName)
+{
 }
 
 // Init at start:
@@ -88,8 +88,8 @@ void CERESMinimizer::atStart() {
   return;
 }
 
-/// Miniminzation loop
-void CERESMinimizer::doMimimization() 
+/// Minimization loop
+void CERESMinimizer::doMinimization()
 {
   int nData = cndatapoints_.npoints;
   int nSyst = systema_.nsys;
@@ -100,7 +100,7 @@ void CERESMinimizer::doMimimization()
   ceres::DynamicNumericDiffCostFunction<CostFunctiorData>* dynamic_cost_function =
     new ceres::DynamicNumericDiffCostFunction<CostFunctiorData>(new CostFunctiorData);
 
-  dynamic_cost_function->AddParameterBlock(npars); 
+  dynamic_cost_function->AddParameterBlock(npars);
 
   double parVals[npars];
   double**pars = getPars();
@@ -108,7 +108,7 @@ void CERESMinimizer::doMimimization()
     parVals[i] = *pars[i];
     std::cout << " par " <<  parVals[i] << std::endl;
   }
-  
+
   dynamic_cost_function->SetNumResiduals(nData+nSyst);
 
   ceres::Problem myProblem;
@@ -119,24 +119,24 @@ void CERESMinimizer::doMimimization()
 
   ceres::Solver::Summary mySummary;
 
-  ceres::Solve(myOptions, &myProblem, &mySummary); 
+  ceres::Solve(myOptions, &myProblem, &mySummary);
 
   // after mini actions
   double chi2;
   myFCN(chi2, parVals, 3);
-  
+
   std::cout << mySummary.FullReport() << "\n";
   return;
 }
 
-/// Action at last iteration 
-void CERESMinimizer::actionAtFCN3() 
+/// Action at last iteration
+void CERESMinimizer::actionAtFCN3()
 {
     return;
 }
 
 /// Error analysis
-void CERESMinimizer::errorAnalysis() 
+void CERESMinimizer::errorAnalysis()
 {
     return;
 }
@@ -145,9 +145,9 @@ void CERESMinimizer::errorAnalysis()
 void CERESMinimizer::addParameter(double par, std::string const &name, double step, double const* bounds , double  const* priors  )
 {
   BaseMinimizer::addParameter(par,name,step,bounds,priors);
-  return; 
+  return;
 }
 
-  
+
 }
 
