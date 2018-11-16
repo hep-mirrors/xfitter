@@ -41,6 +41,7 @@ extern "C" {
   void  errbandssym_();
 
   int getparameterindex_(const char name[], int len);
+  void mnstat_(double&fmin,double&fedm,double&errdef,int&npari,int&nparx,int&istat);
 }
 
 
@@ -164,6 +165,13 @@ void MINUITMinimizer::errorAnalysis()
     }
   }
   return;
+}
+ConvergenceStatus MINUITMinimizer::convergenceStatus(){
+  double d_ignore;
+  int i_ignore,istat;
+  mnstat_(d_ignore,d_ignore,d_ignore,i_ignore,i_ignore,istat);
+  const static ConvergenceStatus statuses[]={ConvergenceStatus::NORUN,ConvergenceStatus::INACCURATE,ConvergenceStatus::FORCED_POSITIVE,ConvergenceStatus::SUCCESS};
+  return statuses[istat];
 }
 
 /// parameters

@@ -16,6 +16,14 @@
 
 namespace xfitter
 {
+  enum class ConvergenceStatus{
+    NORUN=0,
+    INACCURATE=1,
+    FORCED_POSITIVE=2,
+    SUCCESS=3,
+    NO_CONVERGENCE,
+    ERROR
+  };
 
   class BaseMinimizer {
   public:
@@ -51,6 +59,8 @@ namespace xfitter
 
     /// Perform post-fit error analysis
     virtual void errorAnalysis(){};
+
+    virtual ConvergenceStatus convergenceStatus()=0;
 
     /// Number of parameters:
     unsigned int getNpars() const { return _allParameterNames.size(); }

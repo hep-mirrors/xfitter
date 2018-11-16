@@ -126,6 +126,20 @@ void CERESMinimizer::doMinimization()
   myFCN(chi2, parVals, 3);
 
   std::cout << mySummary.FullReport() << "\n";
+  //remember convergence status to report later
+  switch(mySummary.termination_type){
+    case ceres::CONVERGENCE:
+      convergence_status=ConvergenceStatus::SUCCESS;
+      break;
+    case ceres::NO_CONVERGENCE:
+      convergence_status=ConvergenceStatus::NO_CONVERGENCE;
+      break;
+    case ceres::USER_SUCCESS:
+      convergence_status=ConvergenceStatus::SUCCESS;
+      break;
+    default:
+      convergence_status=ConvergenceStatus::ERROR;
+  }
   return;
 }
 
@@ -139,6 +153,10 @@ void CERESMinimizer::actionAtFCN3()
 void CERESMinimizer::errorAnalysis()
 {
     return;
+}
+
+ConvergenceStatus CERESMinimizer::convergenceStatus(){
+  return convergence_status;
 }
 
 /// Parameter transfer

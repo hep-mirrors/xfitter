@@ -35,6 +35,7 @@ class MINUITMinimizer : public BaseMinimizer
     /// Error analysis
     virtual void errorAnalysis() override final;
 
+    virtual ConvergenceStatus convergenceStatus()override final;
     /// parameters
     virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr , double  const* priors  = nullptr ) override final;
 };
