@@ -19,8 +19,6 @@ public:
 private:
   te_expr*expr;//expression object
 };
-//Return a list of all parameter names present in expression, given as string s, excluding duplicates
-//Parameter is defined as string of alphanumeric characters and '_', not beginning with a digit, and not a builtin
 Constraint::Constraint(const string&parameterName,const string&expression,const vector<string>&deps){
   parameter=XFITTER_PARS::gParameters.at(parameterName);
   size_t Ndeps=deps.size();
@@ -51,6 +49,8 @@ Constraint::~Constraint(){
 void Constraint::atIteration(){
   *parameter=te_eval(expr);
 }
+//Return a list of all parameter names present in expression, given as string s, excluding duplicates
+//Parameter is defined as string of alphanumeric characters and '_', not beginning with a digit, and not a builtin
 void extractParameterNames(const string&s,vector<string>&ret){
   //fills ret
   static const vector<string>builtins={"abs","acos","asin","atan","atan2","ceil","cos","cosh","e","exp","fac","floor","ln","log","log10","ncr","npr","pi","pow","sin","sinh","sqrt","tan","tanh"};
