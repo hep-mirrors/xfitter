@@ -17,6 +17,7 @@
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
 #include "BaseMinimizer.h"
+#include"dependent_pars.h"
 
 // Fortran bindings:
 extern "C" {
@@ -388,6 +389,16 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name) {
     return gXfxQArrays.at(name);
   }
+  //Remove leading and trailing whitespace in string
+  void stripString(string&s){
+    const char*p1,*p2;
+    p1=s.c_str();
+    p2=p1+s.size()-1;
+    while(*p1==' ')++p1;
+    while(*p2==' ')--p2;
+    if(p1==s.c_str()&&p2==p1+s.size()-1)return;
+    s=s.substr(size_t(p1-s.c_str()),size_t(p2-p1+1));
+  }
   void createParameters(){
     using namespace std;
     try{
@@ -396,8 +407,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         hf_errlog(18091710,"F: Failed to create parameters: bad \"Parameters\" YAML node");
       }
       xfitter::BaseMinimizer*minimizer=xfitter::get_minimizer();
+      vector<xfitter::DependentParameter>dependentParameters;
       for(YAML::const_iterator it=parsNode.begin();it!=parsNode.end();++it){
         string parameterName=it->first.as<string>();
+        stripString(parameterName);
         double value=nan("");
         double step=nan("");
         double min=nan("");
@@ -407,12 +420,19 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         YAML::Node pNode=it->second;
         switch(pNode.Type()){
           case YAML::NodeType::Scalar:{//Should be a special string DEPENDENT
-            string key=pNode.as<string>();
-            if(key=="DEPENDENT"){//This means that this parameter will be calculated using sum rules
+            string definition=pNode.as<string>();
+            stripString(definition);
+            if(definition=="DEPENDENT"||definition=="SUMRULE"){//This means that this parameter will be calculated using sum rules
               value=1;
               step=0;
+            }else if(definition[0]=='='){//This means that dependence of parameter is given explicitly, e.g. "=2*B+1"
+              value=1;
+              step=0;
+              dependentParameters.push_back({parameterName,definition});
+            }else{
+              cerr<<"[ERROR] Unable to parse definition of parameter \""<<parameterName<<"\": \""<<definition<<"\""<<endl;
+              hf_errlog(18091712,"F: Bad parameter definition, see stderr");
             }
-            else hf_errlog(18091712,"F: Bad parameter definition");
             break;}
           case YAML::NodeType::Sequence:{// interpret sequence as [value,step,min,max,priorVal,priorUnc]
             int size=pNode.size();
@@ -487,6 +507,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         }
         minimizer->addParameter(value,parameterName,step,bounds,priors);
       }
+      xfitter::registerDependentParameters(dependentParameters);
     }catch(YAML::Exception&ex){
       cerr<<"[ERROR] YAML exception:\n"<<ex.what()<<"\n[/ERROR]"<<endl;
       hf_errlog(18091713,"F: YAML exception while creating parameters, details written to stderr");

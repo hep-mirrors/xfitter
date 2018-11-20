@@ -24,7 +24,8 @@ evolution.f mc_errors.f  difftop_fastnlo.f store_h1qcdfunc.f\
 dataset_tools.f theory_dispatcher.f  error_logging.f \
 GetDummyXsection.f main.f \
 prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
-ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.cc xfitter_steer.cc Profiler.cc
+ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.cc xfitter_steer.cc Profiler.cc\
+tinyexpr.c dependent_pars.cc
 
 # WS 2013-01-19 for the Offset method
 libxfmain_la_SOURCES += offset_fns.f g_offset.cc
