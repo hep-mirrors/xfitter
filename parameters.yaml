@@ -1,163 +1,72 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
+  doErrors: None #Pumplin #Hesse
   Commands: |
-    fix 6 7 9 11 12 13 14 15 16 17 18 19 20 22 
+    minimize
     call fcn 3
-#  doErrors :  Hesse # None
-Parameters:
- #value    step    min     max       priors
-  Ag   :  DEPENDENT
-  Bg   : [-0.061953]
-  Cg   : [ 5.562367,  0.55]
-  Auv  :  DEPENDENT
-  Buv  : [ 0.810476]
-  Cuv  : [ 4.823512]
-  Duv  : [    0    ]
-  Euv  : [ 9.921366]
-  Adv  :  DEPENDENT
-  Bdv  : [ 1.029995]
-  Cdv  : [ 4.846279]
-  Aubar: [ 0.27    ]
-  Bubar: [-0.13    ]
-  Cubar: [ 7.059694]
-  Dubar: [ 1.548098]
-  Adbar: [ 0.27    ]
-  Bdbar: [-0.13    ]
-  Cdbar:
-    value: 9.586246
-    step: 1.2345
-    #min
-    #max
-    #pr_mean
-    #pr_sigma
-  As   : [ 0.13    ]
-  Bs   : [ 0       ]
-  Cs   : [10.0     ]
+    #hesse
+    #fix 103 106 107 109 111 112 113 114 115 116 117 118 119 120 122
 
+Parameters:
+  Av: DEPENDENT
+  Bv: [ 0.8015, 0.1]
+  Cv: [ 1.0105, 0.1]
+  As: [ 0.0818, 0]
+  Bs: [-0.2   , 0]
+  Cs: [ 8     , 0]
+  Ag: DEPENDENT
+  Bg: [0,0]
+  Cg: [9,0]
+  M:  [1.225,0] #additional scaling of predictions
 Parameterisations:
-  par_uv:
+  v:
     class: HERAPDF
-    parameters: [Auv,Buv,Cuv,Duv,Euv]
-  par_dv:
-    class: HERAPDF
-    parameters: [Adv,Bdv,Cdv]
-  par_ubar:
-    class: HERAPDF
-    parameters: [Aubar,Bubar,Cubar,Dubar]
-  par_dbar:
-    class: HERAPDF
-    parameters: [Adbar,Bdbar,Cdbar]
-  par_s:
+    parameters: [Av,Bv,Cv]
+  S:
     class: HERAPDF
     parameters: [As,Bs,Cs]
-  par_g:
+  g:
     class: HERAPDF
     parameters: [Ag,Bg,Cg]
 
-DefaultDecomposition: proton
 Decompositions:
-  proton:
-    class: UvDvubardbars
-    xuv: par_uv
-    xdv: par_dv
-    xubar: par_ubar
-    xdbar: par_dbar
-    xs: par_s
-    xg: par_g
+  pion:
+    class: SU3_Pion
+    valence: v
+    sea: S
+    gluon: g
 
-DefaultEvolution: proton-QCDNUM
 Evolutions:
-  proton-QCDNUM:
+  pion:
     ? !include yaml/evolutions/QCDNUM/parameters.yaml
-    decomposition: proton #this could be omitted, as the default decomposition is set
-  proton-LHAPDF:
+    decomposition: pion
+  tungsten_target:
     class: LHAPDF
-    set: "CT10"
+    set:   nCTEQ15FullNuc_184_74
     member: 0
+  GRV:
+    class: LHAPDF
+    set:   GRVPI0
+    member: 0
+DefaultEvolution: pion
 
-#
-# Initial scale
-#---------------------------
-Q0 : 1.378404875209
+Q0: 1.378404875209022   #=sqrt(1.9)
+alphas: 0.118
+fs: 0.3333333 #this is not actually used by decomposition
+
+byReaction:
+  APPLgrid:
+    ? !include yaml/reactions/APPLgrid/parameters.yaml
+    evolution1: pion
+    #evolution1: GRV
+    evolution2: tungsten_target
+    scaleParameter: M
+
+Profiler:
+  alphas: [ 0.118, 0.119, 0.117 ]
+# Evolutions:
+#   tungsten_target:
+#     sets:    [nCTEQ15FullNuc_184_74]
+#     members: [[0,1,end]]
 
 ? !include constants.yaml
-
-#
-# AlphaS, incuding options to fit it:
-#---------------------------
-alphas : 0.118
-#  value: 0.118
-#  step:  0.01
-#  prior: 0.118
-#  priorUnc: 0.1
-#  min: 0.1
-#  max: 0.3
-
-# Strange and charm fractions:
-#---------------------------
-fs: 0.4
-fcharm: 0.
-
-#
-# RT DIS scheme settings:
-#---------------------------
-? !include yaml/reactions/RT_DISNC/parameters.yaml
-#
-# FONLL scheme settings:
-#---------------------------
-? !include yaml/reactions/FONLL_DISNC/parameters.yaml
-? !include yaml/reactions/FONLL_DISCC/parameters.yaml
-
-#
-# FF ABM scheme settings:
-#---------------------------
-? !include yaml/reactions/FFABM_DISNC/parameters.yaml
-? !include yaml/reactions/FFABM_DISCC/parameters.yaml
-
-#
-# APPLgrid settings:
-#---------------------------
-? !include yaml/reactions/APPLgrid/parameters.yaml
-
-#
-# (optional) Fractal module settings:
-#---------------------------
-# ? !include yaml/reactions/Fractal_DISNC/parameters.yaml
-
-#
-# Speficify HF scheme used for DIS NC processes:
-#---------------------------
-hf_scheme_DISNC :
-#  defaultValue : 'BaseDISNC'       # global specification
-  defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
-#  defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
-
-#
-# Speficify HF scheme used for DIS CC processes:
-#---------------------------
-hf_scheme_DISCC :
-  defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
-
-#
-# Load APFEL++
-#---------------------------
-? !include yaml/evolutions/APFELxx/parameters.yaml
-
-#
-# Load QCDNUM
-#---------------------------
-? !include yaml/evolutions/QCDNUM/parameters.yaml
-
-# AFB settings:
-? !include yaml/reactions/AFB/parameters.yaml
-
-#
-# (optional) Fractal module parameters:
-#----------------------
-# ? !include yaml/reactions/Fractal_DISNC/parameters.yaml
