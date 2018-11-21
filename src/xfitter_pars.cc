@@ -232,23 +232,6 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       YAML::Node value = it->second;
       // parameter name
       string p_name = key.as<string>();
-      /* OBSOLETE
-      //  Check if asked to read another file:
-      if ( p_name == "include" ) {
-        auto fileName =  value.as<string>();
-        if (is_file_exist(fileName.c_str())) {
-          parse_file( fileName );
-        } else {
-          // Now try default location:
-          if (is_file_exist((PREFIX +string("/")+fileName).c_str())) {
-            parse_file( PREFIX +string("/")+fileName );
-          } else {
-            string msg = "F: Include Yaml parameters file "+fileName+" not found";
-            hf_errlog_(17041601,msg.c_str(), msg.size());
-          }
-        }
-      }
-      */
       if (value.IsScalar()) {
         // Alright, store directly
         // Try to read as int, float, string:
@@ -305,8 +288,13 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         } else if (value.IsSequence() ) {
           size_t len = value.size();
           vector<double> v(len);
-          for (size_t i=0; i<len; i++) {
-            v[i] = value[i].as<double>();
+          try{
+            for (size_t i=0; i<len; i++) {
+              v[i] = value[i].as<double>();
+            }
+          }catch(const YAML::TypedBadConversion<double>&ex){
+            cerr<<"[ERROR] parse_node_ failed to parse vector-parameter \""<<p_name<<"\":"<<value<<endl;
+            hf_errlog(18112100,"F: parse_node_ failed to parse sequence with non-double elements, see stderr");
           }
           vMap[p_name] = v;
         }

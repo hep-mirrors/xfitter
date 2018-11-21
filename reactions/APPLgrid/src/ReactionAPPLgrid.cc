@@ -167,7 +167,7 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
     double eScale=data.eScale[g];
     std::vector<double> gridVals(grid->Nobs());
     if(!data.flagUseReference){
-      //For some reason we do not take alphaS from evolutions?
+      //For some reason we do not take alphaS from evolutions? --Ivan
       active_xfxQ_functions[0]=evolutions[0]->xfxQArray();
       if(evolutions[0]==evolutions[1]){
         gridVals=grid->vconvolute(xfxWrapper0,getAlphaS(),order-1,muR,muF,eScale);
