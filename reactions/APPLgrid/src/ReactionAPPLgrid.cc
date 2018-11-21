@@ -60,7 +60,12 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
   for(int i=0;i<2;++i){
     string evolutionName="";
     it=pars.find("evolution"+to_string(i+1));
-    if(it!=pars.end())evolutionName=it->second;//else default evolution name will be used
+    if(it!=pars.end())evolutionName=it->second;
+    else{
+      evolutionName=XFITTER_PARS::getDefaultEvolutionName();
+      string s="W: APPLgrid: using default evolution"+to_string(i+1)+"=\""+evolutionName+"\"";
+      hf_errlog(18112110+i,s);
+    }
     evolutions[i]=get_evolution(evolutionName);
   }
 // Determine order
