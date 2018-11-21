@@ -19,6 +19,7 @@
 extern "C" {
   // FCN
   void fcn_(const int& npar, const double& dummy, double& chi2out, const double* pars, const int& iflag, const double& dummy2);
+  void iofilenamesmini_();
 }
 
 namespace xfitter {
@@ -85,6 +86,8 @@ void CERESMinimizer::atStart() {
   //There's a suppressed warning here
   //warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
   google::InitGoogleLogging((char*)"");
+  // also init xfitter logging:
+  iofilenamesmini_();
   return;
 }
 
@@ -117,6 +120,7 @@ void CERESMinimizer::doMinimization()
   ceres::Solver::Options myOptions;
   myOptions.minimizer_progress_to_stdout = true;
 
+  myOptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
   ceres::Solver::Summary mySummary;
 
   ceres::Solve(myOptions, &myProblem, &mySummary);

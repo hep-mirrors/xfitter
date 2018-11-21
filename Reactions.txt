@@ -23,6 +23,7 @@ MINUIT libMINUITMinimizer_xfitter.so
 CERES libCERESMinimizer_xfitter.so
 LHAPDF liblhapdf_xfitter.so
 HERAPDF libHERAPDF_PdfParam_xfitter.so
+NegativeGluon libNegativeGluonPdfParam_xfitter.so
 PolySqrt libPolySqrtPdfParam_xfitter.so
 AFB libafb_xfitter.so
 KMatrix libkmatrix_xfitter.so
