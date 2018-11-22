@@ -66,7 +66,6 @@ endif
 # flags for libfxmain
 #
 libxfmain_la_CXXFLAGS=\
-  -g\
   -I$(srcdir)/../include\
 	-I$(srcdir)/../interfaces/include\
 	-I$(srcdir)/../FastNLO/include\
