@@ -134,11 +134,13 @@ int ReactionFONLL_DISCC::initAtStart(const string &s)
   if(checkParam("muRoverQ"))
   {
     printf("SetRenQRatio(%f)\n", GetParam("muRoverQ"));
+    APFEL::EnableDynamicalScaleVariations(false);
     APFEL::SetRenQRatio(GetParam("muRoverQ"));
   }
   if(checkParam("muFoverQ"))
   {
     printf("SetFacQRatio(%f)\n", GetParam("muFoverQ"));
+    APFEL::EnableDynamicalScaleVariations(false);
     APFEL::SetFacQRatio(GetParam("muFoverQ"));
   }
      
