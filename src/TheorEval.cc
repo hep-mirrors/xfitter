@@ -271,7 +271,7 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
 //Temporary solution, for string parameters only, pending discussion
 //Allows to provide dataset-specific reaction parameters in addition to dataset-provided reaction parameters
 //using byReaction node in parameters.yaml
-//When a parameters is given both in parameters.yaml and datafile, parameters.yaml has priority and a warning iss issued
+//When a parameter is given both in parameters.yaml and datafile, parameters.yaml has priority and a warning is issued
 void LoadParametersFromYAML(std::map<std::string,std::string>&pars,const std::string&reactionName){
   using std::string;
   const char*BY_REACTION="byReaction";

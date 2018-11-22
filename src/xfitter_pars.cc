@@ -17,6 +17,7 @@
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
 #include "BaseMinimizer.h"
+#include"dependent_pars.h"
 
 // Fortran bindings:
 extern "C" {
@@ -144,6 +145,7 @@ namespace XFITTER_PARS {
     return infile.good();
   }
 
+/*
   void parse_file(const std::string& name)
   {
     try {
@@ -164,115 +166,139 @@ namespace XFITTER_PARS {
     
     return;
   }
-  
-
-
+*/
+YAML::Node loadYamlFile(const string&filename){
+  YAML::Node node;
+  try{
+    node=YAML::LoadFile(filename);
+  }catch(const YAML::BadFile&ex){
+    cerr<<"[ERROR] Failed to open yaml file "<<filename<<endl;
+    hf_errlog(18092600,"F: Failed to open yaml file, see stderr");
+  }
+  return node;
+}
+void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
+  if(recursionLimit==0){
+    hf_errlog(18092605,"F: Recursion limit reached while handling includes");
+  }
+  if(!node.IsMap())return;//maybe this should even be an error
+  vector<YAML::Node>include_keys;
+  for(YAML::iterator it=node.begin();it!=node.end();++it){
+    YAML::Node&key=it->first;
+    YAML::Node&val=it->second;
+    if(key.Tag()=="!include"){
+      if(!it->second.IsNull()){
+        cerr<<"[ERROR] Value given after include key "<<key<<" (make sure there is no \":\" after the filename)"<<endl;
+        hf_errlog(18092602,"F: Value after include key, see stderr");
+      }
+      include_keys.push_back(key);
+    }else if(val.IsMap()){
+      expandIncludes(val,recursionLimit-1);
+    }
+  }
+  //Load and merge 
+  for(vector<YAML::Node>::const_iterator kit=include_keys.begin();kit!=include_keys.end();++kit){
+    node.remove(*kit);
+    string filename=(*kit).as<string>("");
+    if(filename==""){
+      cerr<<"[ERROR] Failed to parse include filename, node:\n"<<node<<"\n[/ERROR]"<<endl;
+      hf_errlog(18092601,"F: Failed to parse include filename, see stderr");
+    }
+    YAML::Node include=loadYamlFile(filename);
+    if(!include.IsMap()){
+      cerr<<"[ERROR] Root node in included file "<<filename<<" is not a map"<<endl;
+      hf_errlog(18092603,"F: Trying to include something other than a map, see stderr");
+    }
+    expandIncludes(include,recursionLimit-1);
+    for(YAML::const_iterator it=include.begin();it!=include.end();++it){
+      const YAML::Node&key=it->first;
+      if(node[key]){
+        clog<<"[WARN] Option "<<key<<" included from file "<<filename<<" is overridden by locally defined option"<<endl;
+        hf_errlog(18092604,"W: locally defined setting overrides included, see stdlog");
+      }
+      node[key]=it->second;
+    }
+  }
+}
   // Parse @param node and return maps
-  void parse_node(const YAML::Node& node, 
-                  std::map<string,double*>& dMap, 
-                  std::map<string,int>& iMap, 
-                  std::map<string,string>& sMap, 
+  void parse_node(const YAML::Node& node,
+                  std::map<string,double*>& dMap,
+                  std::map<string,int>& iMap,
+                  std::map<string,string>& sMap,
                   std::map<string,vector<double> >& vMap,
-                  std::map<string,YAML::Node> & yMap )
-  {
+                  std::map<string,YAML::Node> & yMap ){
     for ( YAML::const_iterator it = node.begin(); it != node.end(); ++it) {
       YAML::Node key = it->first;
       YAML::Node value = it->second;
-      
       // parameter name
       string p_name = key.as<string>();
-    
-      //  Check if asked to read another file:
-      if ( p_name == "include" ) {
-  auto fileName =  value.as<string>();
-  if (is_file_exist(fileName.c_str())) {
-    parse_file( fileName );
-  }
-  else {
-    // Now try default location:
-    if (is_file_exist((PREFIX +string("/")+fileName).c_str())) {
-      parse_file( PREFIX +string("/")+fileName );
-    }
-    else {
-      string msg = "F: Include Yaml parameters file "+fileName+" not found";
-      hf_errlog_(17041601,msg.c_str(), msg.size());
-    }
-  }
-      }
-      
       if (value.IsScalar()) {
-  // Alright, store directly
-  // Try to read as int, float, string:
-  try {
-    int i = value.as<int>();
-    iMap[p_name] = i;
-    continue;
-  }
-  catch (const std::exception& e) {
-  }
-  
-  try {
-    double f = value.as<double>();
-    dMap[p_name] = new double(f);
-    continue;
-  }
-  catch (const std::exception& e) {
-  }
-  
-  try {
-    std::string s = value.as<std::string>();
-    sMap[p_name] = s;
-    continue;
-  }
-  catch (const std::exception& e) {
-  }      
+        // Alright, store directly
+        // Try to read as int, float, string:
+        try {
+          int i = value.as<int>();
+          iMap[p_name] = i;
+          continue;
+        }
+        catch (const std::exception& e){}
+        try {
+          double f = value.as<double>();
+          dMap[p_name] = new double(f);
+          continue;
+        }
+        catch (const std::exception& e){}
+        try {
+          std::string s = value.as<std::string>();
+          sMap[p_name] = s;
+          continue;
+        }
+        catch (const std::exception& e) {}
+      } else { // Potentially this may go to minuit, if step is not zero.
+        if (value.IsMap()) { //This is probably not how it should work --Ivan
+          // Check if this is a minimisation block, true if step is present
+          if (value["step"] || value["value"]) {  
+            // Defaults
+            double val = 0;
+            double step = 0;
+            double minv  = 0;
+            double maxv  = 0;
+            double priorVal = 0;
+            double priorUnc = 0;
+            int add = true;
+            
+            if (value["value"]) {
+              val = value["value"].as<double>();
+            }
+            else {
+              string text = "F: missing value field for parameter " + p_name;
+              hf_errlog_(17032401,text.c_str(),text.size());       
+            }
+            if (value["step"]) step = value["step"].as<double>();
+            if (value["prior"]) priorVal = value["prior"].as<double>();
+            if (value["priorUnc"]) priorUnc = value["priorUnc"].as<double>();
+            if (value["min"]) minv = value["min"].as<double>();
+            if (value["max"]) maxv = value["max"].as<double>();
+            // Goes to fortran
+            addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
+                  priorVal, priorUnc, add, &dMap, p_name.size());
+          } else {
+            // no step or value, store as it is as a yaml node:
+            yMap[p_name] = value;
+          }
+        } else if (value.IsSequence() ) {
+          size_t len = value.size();
+          vector<double> v(len);
+          try{
+            for (size_t i=0; i<len; i++) {
+              v[i] = value[i].as<double>();
+            }
+          }catch(const YAML::TypedBadConversion<double>&ex){
+            cerr<<"[ERROR] parse_node_ failed to parse vector-parameter \""<<p_name<<"\":"<<value<<endl;
+            hf_errlog(18112100,"F: parse_node_ failed to parse sequence with non-double elements, see stderr");
+          }
+          vMap[p_name] = v;
+        }
       }
-      else { // Potentially this may go to minuit, if step is not zero.
-  
-  if (value.IsMap()) {
-
-    // Check if this is a minimisation block, true if step is present
-    if (value["step"] || value["value"]) {  
-      // Defaults
-      double val = 0;
-      double step = 0;
-      double minv  = 0;
-      double maxv  = 0;
-      double priorVal = 0;
-      double priorUnc = 0;
-      int add = true;
-      
-      if (value["value"]) {
-        val = value["value"].as<double>();
-      }
-      else {
-        string text = "F: missing value field for parameter " + p_name;
-        hf_errlog_(17032401,text.c_str(),text.size());       
-      }
-      if (value["step"]) step = value["step"].as<double>();
-      if (value["prior"]) priorVal = value["prior"].as<double>();
-      if (value["priorUnc"]) priorUnc = value["priorUnc"].as<double>();
-      if (value["min"]) minv = value["min"].as<double>();
-      if (value["max"]) maxv = value["max"].as<double>();
-      // Goes to fortran
-      addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
-            priorVal, priorUnc, add, &dMap, p_name.size());
-    }
-    else {
-      // no step or value, store as it is as a yaml node:
-      yMap[p_name] = value;
-    }
-  }
-  
-  else if (value.IsSequence() ) {
-    size_t len = value.size();
-    vector<double> v(len);
-    for (size_t i=0; i<len; i++) {
-      v[i] = value[i].as<double>();
-    }
-    vMap[p_name] = v;
-  }
-      }   
     }
   }
 
@@ -351,34 +377,52 @@ namespace XFITTER_PARS {
   const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name) {
     return gXfxQArrays.at(name);
   }
+  //Remove leading and trailing whitespace in string
+  void stripString(string&s){
+    const char*p1,*p2;
+    p1=s.c_str();
+    p2=p1+s.size()-1;
+    while(*p1==' ')++p1;
+    while(*p2==' ')--p2;
+    if(p1==s.c_str()&&p2==p1+s.size()-1)return;
+    s=s.substr(size_t(p1-s.c_str()),size_t(p2-p1+1));
+  }
   void createParameters(){
     using namespace std;
     try{
-      YAML::Node parsNode=gParametersY["Parameters"];
+      YAML::Node parsNode=XFITTER_PARS::rootNode["Parameters"];
       if(!parsNode.IsMap()){
         hf_errlog(18091710,"F: Failed to create parameters: bad \"Parameters\" YAML node");
       }
       xfitter::BaseMinimizer*minimizer=xfitter::get_minimizer();
+      vector<xfitter::DependentParameter>dependentParameters;
       for(YAML::const_iterator it=parsNode.begin();it!=parsNode.end();++it){
         string parameterName=it->first.as<string>();
+        stripString(parameterName);
         double value=nan("");
         double step=nan("");
         double min=nan("");
         double max=nan("");
         double pr_mean=nan("");
         double pr_sigma=nan("");
-        //TODO: bounds and priors
         YAML::Node pNode=it->second;
         switch(pNode.Type()){
           case YAML::NodeType::Scalar:{//Should be a special string DEPENDENT
-            string key=pNode.as<string>();
-            if(key=="DEPENDENT"){
+            string definition=pNode.as<string>();
+            stripString(definition);
+            if(definition=="DEPENDENT"||definition=="SUMRULE"){//This means that this parameter will be calculated using sum rules
               value=1;
-              step=0;//This means that this parameter will be calculated using sum rules
+              step=0;
+            }else if(definition[0]=='='){//This means that dependence of parameter is given explicitly, e.g. "=2*B+1"
+              value=1;
+              step=0;
+              dependentParameters.push_back({parameterName,definition});
+            }else{
+              cerr<<"[ERROR] Unable to parse definition of parameter \""<<parameterName<<"\": \""<<definition<<"\""<<endl;
+              hf_errlog(18091712,"F: Bad parameter definition, see stderr");
             }
-            else hf_errlog(18091712,"F: Bad parameter definition");
             break;}
-          case YAML::NodeType::Sequence:{// interpret sequence as [value,step,min,max]
+          case YAML::NodeType::Sequence:{// interpret sequence as [value,step,min,max,priorVal,priorUnc]
             int size=pNode.size();
             if(size>0)value=pNode[0].as<double>();
             else break;
@@ -400,11 +444,11 @@ namespace XFITTER_PARS {
           case YAML::NodeType::Map:{
             for(YAML::const_iterator it=pNode.begin();it!=pNode.end();++it){
               string key=it->first.as<string>();
-              if   (key=="value")value=it->second.as<double>();
-              else if(key=="step")step=it->second.as<double>();
-              else if(key=="min")min=it->second.as<double>();
-              else if(key=="max")max=it->second.as<double>();
-              else if(key=="pr_mean")pr_mean=it->second.as<double>();
+              if     (key=="value")   value   =it->second.as<double>();
+              else if(key=="step")    step    =it->second.as<double>();
+              else if(key=="min")     min     =it->second.as<double>();
+              else if(key=="max")     max     =it->second.as<double>();
+              else if(key=="pr_mean") pr_mean =it->second.as<double>();
               else if(key=="pr_sigma")pr_sigma=it->second.as<double>();
               else{
                 cerr<<"[ERROR] Unknown key "<<key<<" in definition of parameter "<<parameterName<<endl;
@@ -451,6 +495,7 @@ namespace XFITTER_PARS {
         }
         minimizer->addParameter(value,parameterName,step,bounds,priors);
       }
+      xfitter::registerDependentParameters(dependentParameters);
     }catch(YAML::Exception&ex){
       cerr<<"[ERROR] YAML exception:\n"<<ex.what()<<"\n[/ERROR]"<<endl;
       hf_errlog(18091713,"F: YAML exception while creating parameters, details written to stderr");
@@ -459,9 +504,12 @@ namespace XFITTER_PARS {
 }
 
 void parse_params_(){
-  XFITTER_PARS::parse_file("parameters.yaml");
-  XFITTER_PARS::createParameters();
-  XFITTER_PARS::ParsToFortran();
+  using namespace XFITTER_PARS;
+  rootNode=loadYamlFile("parameters.yaml");
+  expandIncludes(rootNode);
+  parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
+  createParameters();
+  ParsToFortran();
 }
 
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:

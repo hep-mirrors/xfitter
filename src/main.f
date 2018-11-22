@@ -198,9 +198,7 @@ c ..........................................................
        close (25)
       endif
 
-* Check if minuit converged OK
-      call CheckMinuitStatus
-
+      call report_convergence_status()
 
  36   continue
 
@@ -219,6 +217,8 @@ c ..........................................................
 
 C-----------------------------------------------------
 
+C-----DEPRECATED: replaced by report_convergence_status()
+#if 0
       subroutine CheckMinuitStatus
       implicit none
 #include "steering.inc"
@@ -244,3 +244,4 @@ C Save in output file
       endif
       close (51)
       end
+#endif

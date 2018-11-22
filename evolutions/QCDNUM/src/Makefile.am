@@ -5,7 +5,7 @@ AM_CXXFLAGS = $(QCDNUM_CPPFLAGS) \
         -I$(srcdir)/../include  -I$(srcdir)/../../../include \
         -I$(srcdir)/../../BaseEvolution/include \
         -I$(srcdir)/../../../pdfdecompositions/BasePdfDecomposition/include \
-        -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated 
+        -Wall -fPIC -Wno-deprecated 
 
 lib_LTLIBRARIES = libqcdnum_xfitter.la
 libqcdnum_xfitter_la_SOURCES = EvolutionQCDNUM.cc
@@ -16,4 +16,3 @@ datadir = ${prefix}/yaml/evolutions/QCDNUM
 data_DATA = ../yaml/parameters.yaml
 
 dist_noinst_HEADERS = ../include ../yaml
- 

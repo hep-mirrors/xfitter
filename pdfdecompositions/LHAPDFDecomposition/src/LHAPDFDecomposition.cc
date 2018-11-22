@@ -27,8 +27,8 @@ namespace xfitter {
     try{
       setName=pars["set"].as<std::string>();
     }catch(YAML::TypedBadConversion<std::string>&ex){
-      hf_errlog(18090310,"F: In LHAPDFDecomposition::atStart: failed to convert YAML node \"set\" to string; printing node to stderr");
-      std::cerr<<pars<<std::endl;
+      std::cerr<<"[ERROR] Bad set name given for LHAPDF decomposition "<<_name<<": set=\n"<<pars<<"\n[/ERROR]"<<std::endl;
+      hf_errlog(18090310,"F: In LHAPDFDecomposition: failed to convert YAML node \"set\" to string, see stderr");
     }
 
     // check if exists first

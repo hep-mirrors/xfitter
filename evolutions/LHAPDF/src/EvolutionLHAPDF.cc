@@ -26,32 +26,34 @@ const char*EvolutionLHAPDF::getClassName()const{return "LHAPDF";}
     
 /// Global initialization
   void EvolutionLHAPDF::atStart() {
+    atConfigurationChange();
+  };
+  void EvolutionLHAPDF::atConfigurationChange() {
+    using namespace std;
     YAML::Node pars=XFITTER_PARS::getEvolutionNode(_name);
     try{
-      _set_name = pars["set"].as<std::string>();
+      _set_name =pars["set"].as<std::string>();
     }catch(YAML::TypedBadConversion<std::string>&ex){
-      hf_errlog(18090310,"F: In EvolutionLHAPDF::atStart: failed to convert YAML node \"set\" to string; printing node to stderr");
-      std::cerr<<pars<<std::endl;
+      if(!pars["set"]){
+        cerr<<"[ERROR] No set name given for LHAPDF Evolution \""<<_name<<"\""<<endl;
+        hf_errlog(2018101230,"F: No set name given for LHAPDF Evolution, see stderr");
+      }
+      cerr<<"[ERROR] Failed to parse set name for LHAPDF Evolution \""<<_name<<"\""<<endl;
+      hf_errlog(2018101231,"F: Failed to parse set name for LHAPDF Evolution, see stderr");
     }
-
-    // check if exists first
+    try{
+      _member   =pars["member"].as<int>();
+    }catch(YAML::TypedBadConversion<int>&ex){
+      if(!pars["member"]){
+        cerr<<"[ERROR] No member id given for LHAPDF Evolution \""<<_name<<"\""<<endl;
+        hf_errlog(2018101232,"F: No member id given for LHAPDF Evolution, see stderr");
+      }
+      cerr<<"[ERROR] Failed to parse member id for LHAPDF Evolution \""<<_name<<"\""<<endl;
+      hf_errlog(2018101233,"F: Failed to parse member id for LHAPDF Evolution, see stderr");
+    }
     CheckForPDF(_set_name.c_str());
-    _member   = pars["member"].as<int>();
-    if(_pdf)delete _pdf;
-    _pdf      = LHAPDF::mkPDF(_set_name,_member);
- };
-    
-  /// Init at each iteration
-  void EvolutionLHAPDF::atConfigurationChange() {
-    YAML::Node pars=XFITTER_PARS::getEvolutionNode(_name);
-    //TODO: check for errors while parsing YAML
-    _set_name = pars["set"].as<std::string>();
-    _member   = pars["member"].as<int>();
-
     if(_pdf)delete _pdf;
     _pdf=LHAPDF::mkPDF(_set_name,_member);
-
-    return ;
   };
 
   /// Return PDFs as a map <int,double> where int is PDF ID (-6, ... 6, 21)   

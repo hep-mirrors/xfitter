@@ -25,19 +25,6 @@ int ReactionAPPLgrid::initAtStart(const string &s){return 0;}
 
  // Initialize for a given dataset:
 void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
-  /*DEBUG
-  cerr<<"[DEBUG]ReactionAPPLgrid::setDatasetParameters(dataSetID="<<dataSetID<<",pars,parsDataset):\n"
-      <<"pars={\n";
-  for(map<string,string>::const_iterator it=pars.begin();it!=pars.end();++it){
-    cerr<<"  \""<<it->first<<"\":\""<<it->second<<"\"\n";
-  }
-  cerr<<"}"<<endl;
-  cerr<<"parsDataset={\n";
-  for(map<string,double>::const_iterator it=parsDataset.begin();it!=parsDataset.end();++it){
-    cerr<<"  \""<<it->first<<"\":"<<it->second<<'\n';
-  }
-  cerr<<"}"<<endl;
-  DEBUG*/
   DatasetData&data=dataset_data[dataSetID];
   vector<TH1D*>&references=data.references;
   BaseEvolution*(&evolutions)[2]=data.evolutions;
@@ -73,8 +60,12 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
   for(int i=0;i<2;++i){
     string evolutionName="";
     it=pars.find("evolution"+to_string(i+1));
-    if(it!=pars.end())evolutionName=it->second;//else default evolution name will be used
-    //cerr<<"[DEBUG]APPLgrid: use evolution \""<<evolutionName<<'\"'<<endl;
+    if(it!=pars.end())evolutionName=it->second;
+    else{
+      evolutionName=XFITTER_PARS::getDefaultEvolutionName();
+      string s="W: APPLgrid: using default evolution"+to_string(i+1)+"=\""+evolutionName+"\"";
+      hf_errlog(18112110+i,s);
+    }
     evolutions[i]=get_evolution(evolutionName);
   }
 // Determine order
@@ -141,12 +132,34 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
     }
     data.eScale.push_back(eScale);
   }
+  // Additional scaling parameter
+  it=pars.find("scaleParameter");
+  if(it!=pars.end()){
+    try{
+      data.scaleParameter=XFITTER_PARS::gParameters.at(it->second);
+    }catch(out_of_range&ex){
+      cerr<<"[ERROR] Reaction APPLgrid for datasetID="<<dataSetID<<": unknown scaleParameter \""<<it->second<<"\""<<endl;
+      hf_errlog(18100800,"F: Unknown scaleParameter given to APPLgrid, see stderr");
+    }
+  }
+  // Check if there are any extra unknown parameters
+  {
+  const string parnames[]={"GridName","evolution1","evolution2","Order","muR","muF","useReference","scaleParameter"};
+  const size_t N=sizeof(parnames)/sizeof(string);
+  for(it=pars.begin();it!=pars.end();++it){
+    for(size_t i=0;i<N;++i){
+      if(it->first==parnames[i])goto cont;
+    }
+    cerr<<"[ERROR] Reaction APPLgrid for datasetID="<<dataSetID<<": unknown reaction parameter \""<<it->first<<"\""<<endl;
+    hf_errlog(18100801,"F: Unknown reaction parameter given to APPLgrid, see stderr");
+    cont:;
+  }
+  }
 }
 
 
  // Main function to compute results at an iteration
 int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) {
-  // iterate over grids
   DatasetData&data=dataset_data.at(dataSetID);
   const int order=data.order;
   const double muR=data.muR;
@@ -159,7 +172,7 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
     double eScale=data.eScale[g];
     std::vector<double> gridVals(grid->Nobs());
     if(!data.flagUseReference){
-      //For some reason we do not take alphaS from evolutions?
+      //For some reason we do not take alphaS from evolutions? --Ivan
       active_xfxQ_functions[0]=evolutions[0]->xfxQArray();
       if(evolutions[0]==evolutions[1]){
         gridVals=grid->vconvolute(xfxWrapper0,getAlphaS(),order-1,muR,muF,eScale);
@@ -190,5 +203,6 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
     s<<"F: ReactionAPPLgrid: Number of data points ("<<val.size()<<") in dataset (ID="<<dataSetID<<") does not match total grid size ("<<pos<<")";
     hf_errlog(18072311,s.str().c_str());
   }
+  if(data.scaleParameter)val*=*data.scaleParameter;
   return 0;
 }

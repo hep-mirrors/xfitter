@@ -168,7 +168,7 @@ C--------------------------------------------------------------
 *     ---------------------------------------------------------
 
       double precision time1,time2,time3
-
+      logical od !to check if a unit is open with INQUIRE
 
 *     ---------------------------------------------------------
 *     declaration related to others
@@ -325,7 +325,7 @@ cc         print*,'after evolution'
 cc      endif
 
 
-	
+
 *     ---------------------------------------------------------  	 
 *     Initialise theory calculation per iteration
 *     ---------------------------------------------------------  	 
@@ -334,7 +334,7 @@ cc      endif
       if (Debug) then
          print*,'after GetTheoryIteration'
       endif
-		 
+
 *     ---------------------------------------------------------  	       
 *     Calculate theory for datasets:
 *     ---------------------------------------------------------  	 
@@ -356,8 +356,8 @@ cc      endif
 
       call cpu_time(time1)
 
-*     ---------------------------------------------------------  	 
-*     Start of loop over data points: 	 
+*     ---------------------------------------------------------
+*     Start of loop over data points:
 *     ---------------------------------------------------------
 
       do 100 i=1,npoints
@@ -506,6 +506,12 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
         ! endif ! end  lprint
 
 ! ----------------  RESULTS OUTPUT ---------------------------------
+! Reopen "Results.txt" file if it is not open
+! It does not get opened by this point when using CERES
+      INQUIRE(85,OPENED=od)
+      if(.not. od)then
+        call IOFileNamesMini()
+      endif
       if (iflag.eq.1) then
          write(85,*) 'First iteration ',chi2out,ndf,chi2out/ndf
       endif

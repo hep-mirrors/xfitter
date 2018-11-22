@@ -179,11 +179,7 @@ class ReactionTheory
   }
 
   // Helper function to get a parameter (vector)
-  vector<double> GetParamV(const string& name) const
-  {
-    return _xfitter_pars_vec.at(name);
-  }
-
+  vector<double> GetParamV(const string& name)const;
 
   // Helper function to get bin values for a given data set, bin name. Returns null if not found
   virtual valarray<double> *GetBinValues(int idDS, const string& binName)
@@ -195,10 +191,10 @@ class ReactionTheory
     else { 
       map<string, valarray<double> >::iterator binPair = mapBins->find(binName);
       if ( binPair == mapBins->end() ) {
-	return nullptr;
+        return nullptr;
       }
       else {
-	return &binPair->second;
+        return &binPair->second;
       }
     }
   };

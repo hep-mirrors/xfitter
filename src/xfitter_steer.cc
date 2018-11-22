@@ -58,7 +58,7 @@ namespace xfitter {
     if(!classnameNode.IsScalar()){
       std::ostringstream s;
       s<<"F:Failed to get evolution \""<<name<<"\": evolution must have a node \"class\" with the class name as a string";
-      hf_errlog(18082902,s.str().c_str());
+      hf_errlog(18082950,s.str().c_str());
     }
     string classname=classnameNode.as<string>();
     BaseEvolution*evolution=(BaseEvolution*)createDynamicObject(classname,name);
@@ -175,6 +175,7 @@ extern "C" {
   void init_evolution_(); 
   void init_minimizer_();
   void run_minimizer_();
+  void report_convergence_status_();
   void run_error_analysis_();
 }
 
@@ -194,8 +195,33 @@ void run_minimizer_() {
   auto *prof = new xfitter::Profiler();
 
   prof->doProfiling();
-  
-  mini->doMimimization();    
+
+  mini->doMinimization();
+}
+
+void report_convergence_status_(){
+  //Get a status code from current minimizer and log a message
+  using namespace xfitter;
+  switch(get_minimizer()->convergenceStatus()){
+    case ConvergenceStatus::NORUN:
+      hf_errlog(16042801,"I: No minimization has run");
+      break;
+    case ConvergenceStatus::INACCURATE:
+      hf_errlog(16042803,"S: Error matrix not accurate");
+      break;
+    case ConvergenceStatus::FORCED_POSITIVE:
+      hf_errlog(16042804,"S: Error matrix forced positive");
+      break;
+    case ConvergenceStatus::SUCCESS:
+      hf_errlog(16042802,"I: Fit converged");
+      break;
+    case ConvergenceStatus::NO_CONVERGENCE:
+      hf_errlog(16042805,"S: No convergence");
+      break;
+    case ConvergenceStatus::ERROR:
+      hf_errlog(16042806,"F: Minimizer error");
+      break;
+  }
 }
 
 void run_error_analysis_() {

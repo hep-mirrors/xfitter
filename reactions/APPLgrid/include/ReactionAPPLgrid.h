@@ -24,6 +24,7 @@ struct DatasetData{
   bool flagUseReference; // !> if true, prediction will be calculated from reference histogram (for tests and grids validation)
   std::vector<TH1D*>  references;
   std::vector<double> eScale; // !> CMS energy
+  double*scaleParameter=nullptr; // !> pointer to a minimization parameter which by which the predicted cross-section will be additionally multiplied. If this pointer is nullptr, no additional scaling is used.
   xfitter::BaseEvolution*evolutions[2];
 };
 class ReactionAPPLgrid : public ReactionTheory

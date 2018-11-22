@@ -4,7 +4,7 @@
  @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
 
  Contains Fortran interface functions to operate with theoretical
- predictions obtained via fast cross section evaluation methods, 
+ predictions obtained via fast cross section evaluation methods,
  e.g. APPLgrid,  FastNLO and k-Factors.
  */
 
@@ -20,6 +20,7 @@
 #include <yaml-cpp/yaml.h>
 #include "ReactionTheory.h"
 #include "xfitter_pars.h"
+#include"dependent_pars.h"
 
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
@@ -40,9 +41,9 @@ void common_check_(int *i) {
 }
 
 extern "C" {
-  int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType, 
+  int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType,
 //    char **TermSource, char *TermExpr);
-  int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
+  int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
 		      double *allBins, char binNames[10][80]);
 //  int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
@@ -76,7 +77,7 @@ extern struct thexpr_cb {
   int normalised;
   int murdef;
   int mufdef;
-  int ninfo;  // dataset info as well  
+  int ninfo;  // dataset info as well
   double datainfo[100];
   char CInfo[100][80];
   char dsname[80];
@@ -97,11 +98,11 @@ inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
 
 
 /*!
- Creates theory evaluation object and adds it to the global map by 
+ Creates theory evaluation object and adds it to the global map by
  dataset ID.
  write details on argumets
  */
-int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType, 
+int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
 //  char **TermSource, char *TermExpr)
 {
   // convert fortran strings to c++
@@ -125,7 +126,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
     n = n.substr(0,80);
     n.erase(std::remove(n.begin(), n.end(), ' '), n.end());
     te->AddDSParameter(n, theorexpr_.datainfo[i]);
-  } 
+  }
   // Store some other basic info
   theorexpr_.dsname[79] = '\0';
   std::string n(theorexpr_.dsname);
@@ -134,7 +135,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
 
   te->SetDSname(n);
   te->AddDSParameter("Index",theorexpr_.ds_index); // dataset index
-  te->AddDSParameter("FileIndex",*dsId); 
+  te->AddDSParameter("FileIndex",*dsId);
 
   te->SetCollisions(theorexpr_.ppbar_collisions);
   te->SetDynamicScale(theorexpr_.dynscale);
@@ -145,7 +146,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }
   else {
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " already exists." << endl;
     exit(1); // make proper exit later
   }
@@ -157,16 +158,16 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
  Sets datasets bins in theory evaluations.
  write details on argumets
  */
-int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
+int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
 		    double *allBins, char binNames[10][80])
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+  if (it == gTEmap.end() ) {
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " not found!" << endl;
     exit(1);
   }
-  
+
   // Store bin information
 
   map<string, valarray<double> > namedBins;
@@ -174,7 +175,7 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
     string name = binNames[i];
     name.erase(name.find(" "));
     //    cout << name << " " << *dsId <<endl;
-    valarray<double> bins(*nPoints); 
+    valarray<double> bins(*nPoints);
     for ( int j = 0; j<*nPoints; j++) {
       bins[j] = allBins[j*10 + i];
     }
@@ -195,12 +196,12 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
 int set_theor_units_(int *dsId, double *units)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+  if (it == gTEmap.end() ) {
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " not found!" << endl;
     exit(1);
   }
-  
+
   TheorEval *te = gTEmap.at(*dsId);
   te->setUnits(*units);
   return 1;
@@ -213,12 +214,12 @@ int set_theor_units_(int *dsId, double *units)
 int init_theor_eval_(int *dsId)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+  if (it == gTEmap.end() ) {
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " not found!" << endl;
     exit(1);
   }
-  
+
   TheorEval *te = gTEmap.at(*dsId);
   te->initTheory();
 }
@@ -230,12 +231,12 @@ int get_theor_eval_(int *dsId, int *np, int*idx)
 {
 
   tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+  if (it == gTEmap.end() ) {
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " not found!" << endl;
     exit(1);
   }
-  
+
   valarray<double> vte;
   TheorEval *te = gTEmap.at(*dsId);
   vte.resize(te->getNbins());
@@ -296,7 +297,7 @@ int read_reactions_()
 }
 
 
-// a bunch of functions 
+// a bunch of functions
 double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
 double xu(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
 double xub(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
@@ -309,19 +310,18 @@ void init_func_map_() {
 }
 
 void init_at_iteration_() {
-  
+  xfitter::updateDependentParameters();
   for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
     pdfdecomposition.second->atIteration();
   }
 
-  
   for(auto it:XFITTER_PARS::gEvolutions) {
-		xfitter::BaseEvolution*evolution=it.second;
+    xfitter::BaseEvolution*evolution=it.second;
     evolution->atIteration();
 
     // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		//Wait, do they even get updated between iterations? Is this here even necessary? --Ivan
-    
+    //Wait, do they even get updated between iterations? Is this here even necessary? --Ivan
+
     XFITTER_PARS::registerXfxQArray(evolution->_name,evolution->xfxQArray());
   }
 
@@ -338,7 +338,7 @@ void fcn3action_()
   if (XFITTER_PARS::gMinimizer != nullptr ) {
     XFITTER_PARS::gMinimizer->actionAtFCN3();
   }
-  
+
   for ( auto reaction : gNameReaction ) {
     reaction.second->actionAtFCN3();
   }
