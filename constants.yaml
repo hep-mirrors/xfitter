@@ -1,6 +1,4 @@
-#
 # EW parameters
-#---------------------------
 Mz : 91.1876
 Mw : 80.385
 Mh : 125.9
@@ -25,9 +23,7 @@ Vtd : 0.00872
 Vts : 0.04076
 Vtb : 0.999133
 
-#
 # lepton masses:
-#---------------------------
 men : 1e-10
 mel : 0.510998928e-3
 mmn : 1e-10
@@ -35,22 +31,16 @@ mmo : 0.1056583715
 mtn : 1e-10
 mta : 1.77682
 
-#
-# Light quark masses:
-#---------------------------
+# light quark masses:
 mup : 0.06983
 mdn : 0.06983
 mst : 0.150
 
-#
-# Heavy quark masses:
-#---------------------------
+# heavy quark masses:
 mch : 1.43 
 mbt : 4.50
 mtp : 173.0
 
-#
 # QCD parameters
-#---------------------------
-Order : NLO
-NFlavour : 5
+Order: NNLO
+NFlavour: 5
