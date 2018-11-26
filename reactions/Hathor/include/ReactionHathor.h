@@ -6,7 +6,7 @@
 /**
   @class' ReactionHathor
 
-  @brief A wrapper class for Hathor reaction 
+  @brief A wrapper class for Hathor reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -30,7 +30,7 @@ class ReactionHathor : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "Hathor" ;};
-    virtual int initAtStart(const string &);
+    virtual int atStart(const string &);
     virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:

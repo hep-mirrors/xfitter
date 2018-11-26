@@ -19,7 +19,7 @@ extern "C" ReactionKFactor* create()
 
 
 // Initialize at the start of the computation
-int ReactionKFactor::initAtStart(const string &s)
+int ReactionKFactor::atStart(const string &s)
 {
   return 0;
 }

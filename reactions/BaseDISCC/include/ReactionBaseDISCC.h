@@ -6,7 +6,7 @@
 /**
   @class' ReactionBaseDISCC
 
-  @brief A wrapper class for BaseDISCC reaction 
+  @brief A wrapper class for BaseDISCC reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -30,10 +30,10 @@ class ReactionBaseDISCC : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "BaseDISCC" ;};
-    int initAtStart(const string &); 
+    int atStart(const string &);
     virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual void initAtIteration() override;
-    
+
     virtual int compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal);
   protected:
     enum class dataFlav { incl, c} ;      //!< Define final state.
@@ -64,14 +64,14 @@ class ReactionBaseDISCC : public ReactionTheory
     virtual void GetF2d( int dataSetID, valarray<double>& f2d);
     virtual void GetFLd( int dataSetID, valarray<double>& fld);
     virtual void GetxF3d( int dataSetID, valarray<double>& xf3d );
-    
+
   private:
     // Some buffering mechanism to avoid double calls
     map <int,valarray<double> > _f2u; //!< F2 for u-type quarks
     map <int,valarray<double> > _f2d; //!< F2 for d-type quarks
     map <int,valarray<double> > _flu; //!< FL for u-type quarks
     map <int,valarray<double> > _fld; //!< FL for d-type quarks
-    map <int,valarray<double> > _xf3u; 
+    map <int,valarray<double> > _xf3u;
     map <int,valarray<double> > _xf3d;
 
   protected:

@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionBaseDISNC.cc
    @date 2017-04-08
@@ -47,7 +47,7 @@ extern "C" ReactionBaseDISNC* create() {
 
 
 // Initialize at the start of the computation
-int ReactionBaseDISNC::initAtStart(const string &s)
+int ReactionBaseDISNC::atStart(const string &s)
 {
   ///
   int nwords;
@@ -110,20 +110,20 @@ int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &valExternal, map
 
 void ReactionBaseDISNC::initAtIteration() {
   // Make sure to call the parent class initialization:
-  super::initAtIteration(); 
+  super::initAtIteration();
 
   _alphaem = GetParam("alphaem");
   _Mz = GetParam("Mz");
   _Mw = GetParam("Mw");
   _sin2thetaW = GetParam("sin2thW");
-  
+
   _ve =  -0.5 + 2.*_sin2thetaW; // !
   _ae =  -0.5;                  // !
   _au =   0.5;
   _ad =  -0.5;
   _vu =  _au - (4./3.)*_sin2thetaW;
   _vd =  _ad + (2./3.)*_sin2thetaW;
-  
+
   //  print (_Mz);
 
   // Re-set internal maps (faster access):
@@ -134,8 +134,8 @@ void ReactionBaseDISNC::initAtIteration() {
   }
 }
 
-// 
-void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) 
+//
+void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset)
 {
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
@@ -337,21 +337,21 @@ void ReactionBaseDISNC::F2 BASE_PARS
 {
   valarray<double> f2g(_npoints[dataSetID]);
   F2gamma(dataSetID, f2g, err);
-  
+
   valarray<double> f2gZ(_npoints[dataSetID]);
   F2gammaZ(dataSetID, f2gZ, err);
-  
+
   valarray<double> f2Z(_npoints[dataSetID]);
-  F2Z(dataSetID, f2Z, err);      
+  F2Z(dataSetID, f2Z, err);
 
   valarray<double> k(_npoints[dataSetID]);
   kappa(dataSetID, k);
   // combine together:
-  
+
   double pol     = GetPolarisation(dataSetID);
   double charge = GetCharge(dataSetID);
- 
-  val = f2g - (_ve + charge*pol*_ae)*k*f2gZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * f2Z;  
+
+  val = f2g - (_ve + charge*pol*_ae)*k*f2gZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * f2Z;
 }
 
 void ReactionBaseDISNC::FLgamma BASE_PARS
@@ -380,44 +380,44 @@ void ReactionBaseDISNC::FL BASE_PARS
 {
   valarray<double> flg(_npoints[dataSetID]);
   FLgamma(dataSetID, flg, err);
-  
+
   valarray<double> flgZ(_npoints[dataSetID]);
   FLgammaZ(dataSetID, flgZ, err);
-  
+
   valarray<double> flZ(_npoints[dataSetID]);
-  FLZ(dataSetID, flZ, err);      
+  FLZ(dataSetID, flZ, err);
 
   valarray<double> k(_npoints[dataSetID]);
   kappa(dataSetID, k);
   // combine together:
-  
+
   double pol     = GetPolarisation(dataSetID);
   double charge = GetCharge(dataSetID);
- 
-  val = flg - (_ve + charge*pol*_ae)*k*flgZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * flZ;  
+
+  val = flg - (_ve + charge*pol*_ae)*k*flgZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * flZ;
 }
 
-void ReactionBaseDISNC::xF3gammaZ BASE_PARS 
+void ReactionBaseDISNC::xF3gammaZ BASE_PARS
 {
   valarray<double> xf3u, xf3d;
   GetxF3ud(dataSetID, xf3u,  xf3d);
   val = 2.*(2./3. * _au * xf3u - 1./3. * _ad * xf3d) ;
 }
 
-void ReactionBaseDISNC::xF3Z      BASE_PARS 
+void ReactionBaseDISNC::xF3Z      BASE_PARS
 {
   valarray<double> xf3u, xf3d;
   GetxF3ud(dataSetID, xf3u,  xf3d);
   val = 2.*(_vu * _au * xf3u + _vd * _ad * xf3d) ;
 }
 
-void ReactionBaseDISNC::xF3       BASE_PARS 
+void ReactionBaseDISNC::xF3       BASE_PARS
 {
   valarray<double> xf3gZ(_npoints[dataSetID]);
   xF3gammaZ(dataSetID, xf3gZ, err);
-  
+
   valarray<double> xf3Z(_npoints[dataSetID]);
-  xF3Z(dataSetID, xf3Z, err);      
+  xF3Z(dataSetID, xf3Z, err);
 
   valarray<double> k(_npoints[dataSetID]);
   kappa(dataSetID, k);
@@ -447,7 +447,7 @@ void ReactionBaseDISNC::sred BASE_PARS
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
 
-  val = f2 - y*y/yplus*fl + (yminus/yplus)*xf3 ;  
+  val = f2 - y*y/yplus*fl + (yminus/yplus)*xf3 ;
 }
 
 
@@ -458,14 +458,14 @@ void ReactionBaseDISNC::GetF2ud(int dataSetID, valarray<double>& f2u, valarray<d
   // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )
       {
       case dataFlav::incl :
 	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
-	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);    
+	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
 	break ;
       case dataFlav::c :
 	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
@@ -486,21 +486,21 @@ void ReactionBaseDISNC::GetFLud(int dataSetID, valarray<double>& flu, valarray<d
     // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )
       {
       case dataFlav::incl :
 	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
+	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
 	break ;
       case dataFlav::c :
 	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-	break ;     
+	break ;
       case dataFlav::b :
-	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);    
-	break ;      
+	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
+	break ;
       }
   }
   flu = _flu[dataSetID];
@@ -515,14 +515,14 @@ void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarra
     // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     // OZ 19.10.2017 TODO: F3 is 0 in VFNS for heavy quarks?
     //if ( GetDataType(dataSetID) == dataType::sigred ) {
     if ( GetDataFlav(dataSetID) == dataFlav::incl ) {
       zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
-      zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);    
+      zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);
     }
     else
     {
@@ -542,5 +542,5 @@ void ReactionBaseDISNC::kappa(int dataSetID, valarray<double>& k) {
   auto *q2p = GetBinValues(dataSetID,"Q2");
   double cos2thetaW = 1-_sin2thetaW;
 
-  k= 1./(4*_sin2thetaW*cos2thetaW)  * (*q2p)/( (*q2p)+_Mz*_Mz);  
+  k= 1./(4*_sin2thetaW*cos2thetaW)  * (*q2p)/( (*q2p)+_Mz*_Mz);
 }

@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactiontestZMVFNS.cc
    @date 2016-12-08
@@ -22,7 +22,7 @@ extern "C" {
 
 
 // Initialize at the start of the computation
-int ReactiontestZMVFNS::initAtStart(const string &s)
+int ReactiontestZMVFNS::atStart(const string &s)
 {
   // Required for FL tests:
   std::cout << checkParam("FL_fudge") << std::endl;
@@ -42,7 +42,7 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
 
   // Get bin arrays, check that Q2, x and y are present:
 
-  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");  
+  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");
   if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
     std::cout << "\n\nFATAL ERROR: DIS NC requires x,Q2 and y bins to be present !!!" << std::endl;
     std::cout << "CHECK THE DATAFILE !!!" << std::endl;
@@ -86,7 +86,7 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
   double q = 100;
   //std::cout << " alpha_S(100.) = " << (*alpha_S)(&q) << std::endl;
   std::cout << " alpha_S(Q = 100 GeV) = " << alphaS(q) << std::endl;
-  
+
   // look at gluon:
   double xx = 0.001;
   pTwoParFunc xg = (*PDFs)["xg"];
@@ -99,14 +99,14 @@ int ReactiontestZMVFNS::compute(int dataSetID, valarray<double> &val, map<string
   xfx(xx,10.,&pdfV[0]);
   std::cout << " xg(100,0.001) (meth 2) = " << pdfV[6] << std::endl;
   std::cout << " xg(100,0.001) (meth 3) = " << xfx(xx,10.,0) << std::endl;
-  
+
 
   // compute reduced x-section:
   for (int i = 0; i<Npnt; i++) {
     double yplus = 1+(1-y[i])*(1-y[i]);
     double y2    = y[i]*y[i];
     val[i] = f2[i] - y2/yplus * fl[i];
-  }  
+  }
   return 0;
 }
 

@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionFractal_DISNC.cc
    @date 2017-05-15
@@ -20,7 +20,7 @@ int ReactionFractal_DISNC::compute(int dataSetID, valarray<double> &val, map<str
 {
   // Get bin arrays, check that Q2, x and y are present:
 
-  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");  
+  auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");
   if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
     std::cout << "\n\nFATAL ERROR: DIS NC requires x,Q2 and y bins to be present !!!" << std::endl;
     std::cout << "CHECK THE DATAFILE !!!" << std::endl;
@@ -41,7 +41,7 @@ int ReactionFractal_DISNC::compute(int dataSetID, valarray<double> &val, map<str
   double f_R   = GetParam("R");
 
   for (size_t i=0; i<Npnt; i++) {
-  
+
     f2[i] = f_D0 * f_Q02* pow( ( q2[i] / ( q2[i] + f_Q02) ), f_D2-1.0)
     * ( pow(x[i], -f_D2+1.0) ) / ( 1.0 +f_D3 - f_D1 * log (x[i] ))
       * (pow(x[i],-f_D1*log(q2[i]/f_Q02+1.0))
@@ -51,7 +51,7 @@ int ReactionFractal_DISNC::compute(int dataSetID, valarray<double> &val, map<str
   fl = f2*f_R/(1.0+f_R);
 
   val = f2 - y*y/(1.0+(1.0-y)*(1.0-y))*fl;
- 
+
   return 0;
 }
 

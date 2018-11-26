@@ -42,31 +42,31 @@ namespace MNR
   public:
     // Default constructor (one full contrbution: LO+NLO gg+q+qg)
     Grid();
-    
+
     // Construct with specified array of contributions
     Grid(int ncontr, MNRContribution** contr);
-    
+
     // Destructor
     ~Grid();
-    
+
     // Set pT binning (n bins from minpt to maxpt, xm is heavy-quark mass)
     // (internally binning in L = xm^2 / (xm^2 + pT^2))
     void SetL(int n, double minpt, double maxpt, double xm);
-    
+
     // Set y binning (n bins from min to max)
     void SetY(int n, double min, double max);
-    
+
     // Set W (squared energy in parton-parton rest frame), default binning
-    // WARNING: it is known feature that the fit might not converge if n != 1 (i.e. if fragmentation depends 
-    //          on energy in parton-parton rest frame), especially if the heavy-quark mass is released, 
+    // WARNING: it is known feature that the fit might not converge if n != 1 (i.e. if fragmentation depends
+    //          on energy in parton-parton rest frame), especially if the heavy-quark mass is released,
     //          use this with great caution!
     void SetW(int n = 1, double min = 0.0, double max = 500.0);
     // Set W (squared energy in parton-parton rest frame) three bins, separated by b1 and b2 values
     // (corresponds to the fragmentation set-up used for charm in arXiv:1211.1182)
-    // WARNING: it is known feature that the fit might not converge if this option is used, 
+    // WARNING: it is known feature that the fit might not converge if this option is used,
     //          especially if the heavy-quark mass is released, use this with great caution!
     void SetW(double b1, double b2);
-    
+
     // Get cross section (by reference) in specified bin
     inline double& CS(int contr, int bl, int by, int bw=0) { return fCS[contr][bl][by][bw]; };
 
@@ -78,7 +78,7 @@ namespace MNR
 
     // Get number of W bins
     inline int NW() { return fNW; };
-        
+
     // Get L binning
     inline double* LPtr() { return fL; };
 
@@ -87,13 +87,13 @@ namespace MNR
 
     // Get W binning
     inline double* WPtr() { return fW; };
-    
+
     // Fill array with pT values for the specified heavy-quark mass xm
     void FillPt(double* ptall, double xm);
 
     // Get number of contributions
     inline int GetNContr() { return fNContr; };
-    
+
     // Get specified contribution
     inline MNRContribution* GetContr(int c) { return fContr[c]; };
 
@@ -102,13 +102,13 @@ namespace MNR
 
     // Set cross sections in specified pT bin to non-physical values
     void NonPhys(int bpt);
-    
+
     // Set all cross sections to zero
     void Zero();
 
     // Print grid (to console) for the specified heavy-quark mass
     void Print(double xm);
-    
+
     // Find W bin that matches the specified value w
     int FindWBin(double w);
 

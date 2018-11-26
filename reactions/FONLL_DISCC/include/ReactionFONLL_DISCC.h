@@ -5,7 +5,7 @@
 /*
  *   @class' ReactionFONLL_DISCC
  *
- *  @brief A wrapper class for FONLL_DISCC reaction 
+ *  @brief A wrapper class for FONLL_DISCC reaction
  *
  *  Based on the ReactionTheory class. Reads options produces 3d cross section.
  *
@@ -22,14 +22,14 @@ class ReactionFONLL_DISCC : public ReactionBaseDISCC
   //ReactionFONLL_DISCC & operator = (const ReactionAFONLL_DISCC &r) { return *(new ReactionFONLL_DISCC(r)); };
 
   virtual string getReactionName() const { return "FONLL_DISCC"; };
-  int initAtStart(const string &);
+  int atStart(const string &);
   virtual void initAtIteration() override;
 
  protected:
   virtual void F2  BASE_PARS override;
   virtual void FL  BASE_PARS override;
   virtual void xF3 BASE_PARS override;
-  
+
  private:
   map <int,valarray<double>> _f2fonll;
   map <int,valarray<double>> _flfonll;

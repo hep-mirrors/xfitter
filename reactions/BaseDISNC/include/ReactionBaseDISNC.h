@@ -5,7 +5,7 @@
 /**
   @class' ReactionBaseDISNC
 
-  @brief A wrapper class for BaseDISNC reaction 
+  @brief A wrapper class for BaseDISNC reaction
 
   Based on the ReactionTheory class.
 
@@ -24,20 +24,20 @@ class ReactionBaseDISNC : public ReactionTheory
     ReactionBaseDISNC(){};
  public:
     virtual string getReactionName() const { return  "BaseDISNC" ;};
-    int initAtStart(const string &); 
+    int atStart(const string &);
     virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
 
     //!< Initialize all EWK couplings here:
-    virtual void initAtIteration() override; 
+    virtual void initAtIteration() override;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) override ;
  protected:
     enum class dataType { signonred, sigred, f2, fl} ;  //!< Define compute output.
     enum class dataFlav { incl, c, b} ;      //!< Define final state.
 
-    /* 
-       A few methods specific for DIS NC process. 
+    /*
+       A few methods specific for DIS NC process.
     */
-    
+
     virtual void F2gamma  BASE_PARS ;
     virtual void F2gammaZ BASE_PARS ;
     virtual void F2Z      BASE_PARS ;
@@ -54,7 +54,7 @@ class ReactionBaseDISNC : public ReactionTheory
 
     virtual void xF3gammaZ BASE_PARS ;
     virtual void xF3Z      BASE_PARS ;
-    
+
     //!< compute full xF3
     virtual void xF3 BASE_PARS;
 
@@ -102,8 +102,8 @@ class ReactionBaseDISNC : public ReactionTheory
     map <int,valarray<double> > _f2d; //!< F2 for d-type quarks
     map <int,valarray<double> > _flu; //!< FL for u-type quarks
     map <int,valarray<double> > _fld; //!< FL for d-type quarks
-    map <int,valarray<double> > _xf3u; 
-    map <int,valarray<double> > _xf3d; 
+    map <int,valarray<double> > _xf3u;
+    map <int,valarray<double> > _xf3d;
 
   protected:
     // for integrated cross sections

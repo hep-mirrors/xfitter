@@ -5,7 +5,7 @@
 
 namespace MNR
 {
-  Grid::Grid() 
+  Grid::Grid()
   {
     fNL   = 0;
     fNY   = 0;
@@ -22,7 +22,7 @@ namespace MNR
     for(int i = 0; i < fNContr; i++) fCS[i] = NULL;
   }
 
-  Grid::Grid(int ncontr, MNRContribution** contr) 
+  Grid::Grid(int ncontr, MNRContribution** contr)
   {
     fNL   = 0;
     fNY   = 0;
@@ -39,7 +39,7 @@ namespace MNR
     for(int i = 0; i < fNContr; i++) fCS[i] = NULL;
   }
 
-  Grid::~Grid() 
+  Grid::~Grid()
   {
     //printf("OZ Grid::~Grid()\n");
     if(fL) delete fL;
@@ -47,11 +47,11 @@ namespace MNR
     if(fW) delete fW;
     if(fBW) delete fBW;
     if(fCS) {
-      for(int c = 0; c < fNContr; c++) 
+      for(int c = 0; c < fNContr; c++)
       {
-        for(int i = 0; i < fNL; i++) 
+        for(int i = 0; i < fNL; i++)
         {
-          for(int j = 0; j < fNY; j++) 
+          for(int j = 0; j < fNY; j++)
           {
             delete fCS[c][i][j];
           }
@@ -61,7 +61,7 @@ namespace MNR
       }
       delete fCS;
     }
-    if(fContr) 
+    if(fContr)
     {
       for(int i = 0; i < fNContr; i++)
       {
@@ -76,7 +76,7 @@ namespace MNR
     for(int i = 0; i < fNL; i++) this->NonPhys(i);
   }
 
-  void Grid::NonPhys(int bpt) 
+  void Grid::NonPhys(int bpt)
   {
     for(int i = 0; i < fNY; i++)
       for(int j = 0; j < fNW; j++)
@@ -84,7 +84,7 @@ namespace MNR
           this->CS(k, bpt, i, j) = -1.0; // negative non-physical value
   }
 
-  void Grid::Zero() 
+  void Grid::Zero()
   {
     for(int bpt = 0; bpt < fNL; bpt++)
       for(int i = 0; i < fNY; i++)
@@ -93,7 +93,7 @@ namespace MNR
             this->CS(k, bpt, i, j) = 0;
   }
 
-  void Grid::SetL(int n, double minpt, double maxpt, double xm) 
+  void Grid::SetL(int n, double minpt, double maxpt, double xm)
   {
     double power = 0.25;
     fNL = n;
@@ -103,14 +103,14 @@ namespace MNR
     double minpower = TMath::Power(minpt,power);
     double maxpower = TMath::Power(maxpt,power);
     double steppower = (maxpower - minpower) / fNL;
-    for(int i = 0; i < fNL; i++) 
+    for(int i = 0; i < fNL; i++)
     {
       double pt = TMath::Power(minpower + i * steppower, 1.0 / power);
       fL[i] = xm2 / (xm2 + pt * pt);
     }
   }
 
-  void Grid::FillPt(double* ptall, double xm) 
+  void Grid::FillPt(double* ptall, double xm)
   {
     double xm2 = xm * xm;
     for(int i = 0; i < fNL; i++) ptall[i] = TMath::Sqrt(xm2 / fL[i] - xm2);
@@ -132,14 +132,14 @@ namespace MNR
     fY = new double[fNY];
     double step = (max - min) / (n - 1);
     for(int i = 0; i < n; i++) fY[i] = min + step * i;
-    for(int c = 0; c < fNContr; c++) 
+    for(int c = 0; c < fNContr; c++)
     {
       if(fCS[c]) {
         for(int i = 0; i < fNL; i++) if(fCS[c][i]) delete fCS[c][i];
         delete fCS[c];
       }
       fCS[c] = new double**[fNL];
-      for(int i = 0; i < fNL; i++) 
+      for(int i = 0; i < fNL; i++)
       {
         fCS[c][i] = new double*[fNY];
         for(int j = 0; j < fNY; j++) fCS[c][i][j] = NULL;
@@ -147,9 +147,9 @@ namespace MNR
     }
   }
 
-  void Grid::SetW(int n, double min/* = 0.0*/, double max/* = 500.0*/) 
+  void Grid::SetW(int n, double min/* = 0.0*/, double max/* = 500.0*/)
   {
-    if(!fNY || !fY) 
+    if(!fNY || !fY)
     {
       std::string str = "F: ERROR in Grid::SetW(): first call Grid::SetY(), then Grid::SetW()\n";
       hf_errlog_(16123010, str.c_str(), str.length());
@@ -175,7 +175,7 @@ namespace MNR
         }
   }
 
-  void Grid::SetW(double b1, double b2) 
+  void Grid::SetW(double b1, double b2)
   {
     if(!fNY || !fY)
     {
@@ -202,18 +202,18 @@ namespace MNR
           fCS[c][i][j] = new double[fNW];
         }
   }
-  
+
   int Grid::FindWBin(double w)
   {
-    for(int i = 0; i < fNW; i++) 
+    for(int i = 0; i < fNW; i++)
         if(w < fBW[i+1] && w > fBW[i]) return i;
     return fNW - 1;
   }
 
-  void Grid::Print(double xm) 
+  void Grid::Print(double xm)
   {
     double xm2 = xm * xm;
-    for(int c = 0; c < fNContr; c++) 
+    for(int c = 0; c < fNContr; c++)
     {
       for(int bpt = 0; bpt < fNL; bpt++)
       {
@@ -240,14 +240,14 @@ namespace MNR
     int nlorig = gridorig->NL();
     double* lorig = gridorig->LPtr();
     double spline_x[nlorig], spline_y[nlorig];
-    for(int i = 0; i < nlorig; i++) 
+    for(int i = 0; i < nlorig; i++)
       spline_x[nlorig-1-i] = lorig[i];
     // Loop over contributions
-    for(int c = 0; c < gridorig->GetNContr(); c++) 
+    for(int c = 0; c < gridorig->GetNContr(); c++)
       // Loop over y bins
-      for(int y = 0; y < gridorig->NY(); y++) 
+      for(int y = 0; y < gridorig->NY(); y++)
         // Loop over W bins
-        for(int w = 0; w < gridorig->NW(); w++) 
+        for(int w = 0; w < gridorig->NW(); w++)
         {
           // For spline: prepare X-section array of original grid in reversed order
           for(int l = 0; l < nlorig; l++) spline_y[nlorig-1-l] = gridorig->CS(c,l,y,w);

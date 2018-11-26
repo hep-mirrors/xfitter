@@ -7,7 +7,7 @@
 /**
   @class' ReactiontestZMVFNS
 
-  @brief A wrapper class for testZMVFNS reaction 
+  @brief A wrapper class for testZMVFNS reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -26,7 +26,7 @@ class ReactiontestZMVFNS : public ReactionTheory
 
  public:
     virtual string getReactionName() const { return  "testZMVFNS" ;};
-    int initAtStart(const string &); 
+    int atStart(const string &);
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
     virtual void initAtIteration() override { std::cout << " FROM INIT AT ITERATION " << std::endl; };
  protected:

@@ -379,7 +379,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
 
     // initialize
-    if (rt->initAtStart("") != 0) {
+    if (rt->atStart("") != 0) {
       // failed to init, somehow ...
       string text = "F:Failed to init reaction " +term_source  ;
       hf_errlog_(16120803,text.c_str(),text.size());

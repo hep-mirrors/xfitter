@@ -36,11 +36,17 @@ typedef void   (*pXFXlike)(const double&x,const double&Q,double*results);
 
   @brief A base class manages for reaction theories
 
-  It provides an interface which must present in the derived classes
+  It provides an interface which must be present in the derived classes
+  Each concrete instance of ReactionTheory is a singleton
+  ReactionTheory is responsible for:
+  1. Calculating theory predictions for given dataset
+  2. Keeping dataset-specific parameters and other information by datasetID
+  3. Reading and checking sanity of reaction parameters.
 
   @author A.Sapronov <sapronov@ifh.de>
+  Others also contributed???
 
-  @version 0.1
+  @version 0.1, but nobody keeps track of versions anymore
   @date 2016/01/21
   */
 
@@ -58,10 +64,12 @@ class ReactionTheory
  public:
 
   using super = ReactionTheory;
-  
-  virtual string getReactionName() const =0;  ///< Should return expected reaction name. Normally generated automatically by AddReaction.py
-  //A better name would be atStart
-  virtual int  initAtStart(const string &) =0; ///< Initialization first time ReactionTheory implementation is called
+  virtual string getReactionName() const =0; ///< Returns expected reaction name. Normally generated automatically by AddReaction.py
+  /** Called once at start, used by concrete class for initialization
+    @param string ???
+    @return 0 on success, some error code otherwise
+  */
+  virtual int  atStart(const string &) =0;
 
   virtual void setxFitterParameters(map<string,double*> &xfitter_pars) {_xfitter_pars = xfitter_pars; }; ///< Set environment map for doubles
   virtual void setxFitterParametersI(map<string,int> &xfitter_pars) {_xfitter_pars_i = xfitter_pars; }; ///< Set environment map for integers
