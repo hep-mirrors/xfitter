@@ -3,6 +3,7 @@
 using namespace std;
 
 void CheckForPDF(char *pdfname){
+  return;
   bool found= false;
   string spdfname=string(pdfname);
   spdfname.erase(std::remove_if(spdfname.begin(), spdfname.end(), ::isspace),spdfname.end());
