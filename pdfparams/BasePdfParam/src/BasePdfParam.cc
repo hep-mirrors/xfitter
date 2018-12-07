@@ -7,21 +7,10 @@
 #include<memory>
 #include<iostream>
 
-/// TEMPORARY XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-extern "C" {
-  /// Interface to minuit parameters
-  void addexternalparam_(const char name[],  const double &val, 
-                         const double  &step,
-                         const double &min, const double &max, 
-                         const double &prior, const double &priorUnc,
-                         const int &add, 
-                         map<std::string,double*> *map,
-                         int len);
-}
 namespace xfitter{
-/// Implement numeric integration
 BasePdfParam::~BasePdfParam(){if(pars)delete[]pars;}
 double BasePdfParam::moment(int iMoment)const{
+	/// Numeric integration
   /// Simple rule, split log/lin spacing at xsplit=0.1
 
   const double xsplit = 0.1;
@@ -68,7 +57,6 @@ void BasePdfParam::atStart(){
   }
   Npars=parsNode.size();
   pars=new double*[Npars];
-  //TODO: destructor
   for(unsigned int i=0;i<Npars;++i){
     try{
       pars[i]=XFITTER_PARS::gParameters.at(parsNode[i].as<string>());
@@ -83,30 +71,5 @@ void BasePdfParam::atStart(){
       }
     }
   }
-  /*
-  using uint=unsigned int;
-  //cout<<"DEBUG["<<_name<<"]: initFromYaml: value="<<value<<endl;
-  if(value.IsSequence()){
-    Npars=value.size();
-    //cout<<Npars<<endl;
-    pars=new double*[Npars];
-    // HARDWIRE old-way for now:  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    for(uint i=0;i<Npars;++i){
-      // get a good name
-      const std::string pnam=_name+"_p"+std::to_string(i);
-      double val     =value[i].as<double>();
-      double step    =fabs(val)/100.;       /// if 0, parameter is fixed !!! 
-      //double minv    =0;
-      //double maxv    =0;
-      //double priorVal=0;
-      //double priorUnc=0;
-      //int add = true;
-      //      addexternalparam_(pnam.c_str(),val,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,pnam.size());
-
-    }
-  }else{
-    cout<<"ERROR["<<_name<<"]: initFromYaml: parameter is not a sequence!"<<endl;
-  }
-  */
 }
 }
