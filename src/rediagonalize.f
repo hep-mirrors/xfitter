@@ -14,7 +14,7 @@ C#include "datasets.inc"
 #include "theo.inc"
 
       integer Ndata,NSyst
-      integer i,j,k,nsysloc,ifail
+      integer i,j,k,nsysloc, ifail
       double precision theo_err2_loc(Ndata)
       double precision Eigenvalues(Nsyst)  
       double precision RotBeta(Nsyst,Ndata)  ! dynamic 
@@ -116,6 +116,5 @@ c      print *,nsyst,nsysloc
 c      print *,nsyst,nsysloc      
 
       call WriteTheoryFiles(nsysloc,theo_fix,.true.)
-
 C-------------------------------------
       end

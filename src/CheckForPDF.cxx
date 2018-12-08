@@ -1,9 +1,9 @@
 #include "CheckForPDF.h"
 
+
 using namespace std;
 
-void CheckForPDF(char *pdfname){
-  return;
+void CheckForPDF(char const*pdfname){
   bool found= false;
   string spdfname=string(pdfname);
   spdfname.erase(std::remove_if(spdfname.begin(), spdfname.end(), ::isspace),spdfname.end());
@@ -29,6 +29,9 @@ void CheckForPDF(char *pdfname){
 
 extern "C" {
   void checkforpdf_(char *pdfname, long int length){
-    CheckForPDF(pdfname);
+    char tmp[length];
+    memcpy(tmp,pdfname,length);
+    tmp[length] = '\0';
+    CheckForPDF(tmp);
   }
 }
