@@ -1,5 +1,4 @@
 #include "CheckForPDF.h"
-#include <cstdio>
 
 
 using namespace std;
@@ -31,7 +30,7 @@ void CheckForPDF(char const*pdfname){
 extern "C" {
   void checkforpdf_(char *pdfname, long int length){
     char tmp[length];
-    memcpy(tmp,pdfname,length);
+    std::memcpy(tmp,pdfname,length);
     tmp[length] = '\0';
     CheckForPDF(tmp);
   }
