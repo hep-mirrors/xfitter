@@ -1,4 +1,5 @@
 #include "CheckForPDF.h"
+#include <cstdio>
 
 
 using namespace std;
