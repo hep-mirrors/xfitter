@@ -98,7 +98,8 @@ void set_verbosity_(int& i)
 
 void set_verbosity_(int& i)
 {
-  LHAPDF::setVerbosity(i);
+  LHAPDF::Verbosity j=static_cast<LHAPDF::Verbosity>(i);
+  LHAPDF::setVerbosity(j);
 }
 
     

@@ -4,6 +4,4 @@
 /// for Fortran calling, check presence of PDF file.
 void CheckForPDF(char const*pdfname);
 
-
-
 #endif
