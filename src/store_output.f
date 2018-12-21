@@ -453,7 +453,7 @@ C--------------------------------------------------------------------
       implicit none
 #include "endmini.inc"
 #include "steering.inc"
-      integer i,iminCont, kflag
+      integer i,iminCont
       double precision aminCont
 
 
@@ -489,8 +489,6 @@ C-------------------------------------------------------------------
 C
 C Fix some pars by sum-rules:
 C
-      kflag = 0
-      call SumRules(kflag)
       call Evolution
 
 C ! Ready to store: 

@@ -168,10 +168,6 @@ C
 
 C 23 Apr 2017: replace by chi2data_theory(2) (needs checks, potentially)
 C
-c            kflag = 0
-c            call SumRules(kflag)
-c            call Evolution
-c
 C end replace 23 Apr 2017
 
             ifcncount = ifcncount+1

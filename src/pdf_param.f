@@ -83,17 +83,20 @@ C Get from extra pars:
       endif
          
       fstrange=GetParamD('fs')
-      if (fstrange.eq.0) then
-         rs = GetParamD('rs')
-         fstrange=rs/(rs+1)
-      endif
+C fstrange should be handled by decomposition classes now, this here
+C gives errors for no good reason
+C I commented it out --Ivan
+C     if (fstrange.eq.0) then
+C        rs = GetParamD('rs')
+C        fstrange=rs/(rs+1)
+C     endif
 
-      if (fstrange.eq.0) then
-         print *,'Did not find fs nor rs parameter'
-         print *,'Add to parameters.yaml with the name rs or fs'
-         Call HF_errlog(13050800,
-     $        'S: Add to parameters.yaml with the name rs or fs')
-      endif
+C     if (fstrange.eq.0) then
+C        print *,'Did not find fs nor rs parameter'
+C        print *,'Add to parameters.yaml with the name rs or fs'
+C        Call HF_errlog(13050800,
+C    $        'S: Add to parameters.yaml with the name rs or fs')
+C     endif
 ! Temperature
       fcharm = GetParamD('fcharm')
       temperature = GetParamD('Temperature')

@@ -35,17 +35,8 @@ C Special branch for rotation
       if(Itheory.lt.100) then
          call read_lhapdfnml    ! read lhapdf 
          call read_chi2scan     ! read chi2scan
-C
-C Decode PDF type:
-C      
-         call SetPDFType
-C
-C Decode PDF style:
-C      
-         call SetPDFStyle
       endif   ! Itheory < 100
 
-      call read_sumrules
       call read_mcerrorsnml  ! MC uncertainties
       call read_chebnml      ! chebyshev parameterisation extra pars
       call read_polynml
@@ -587,22 +578,6 @@ C---
 
       end
 C
-!> Read number of valence up and down quarks for sum rules
-C-------------------------------------------------------
-      subroutine read_sumrules
-        implicit none
-#include "pdfparam.inc"
-        namelist/sumrule_sums/uvalSum,dvalSum
-        open(51,file='steering.txt',status='old')
-        read(51,nml=sumrule_sums,ERR=1718,end=1717)
- 1717   continue
-        close(51)
-        return
- 1718   continue
-        print '(''Error reading namelist &sumrule_sums, STOP'')'
-        call HF_stop
-      end
-C
 !> Read MC errors namelist
 C-------------------------------------------------------
       subroutine read_mcerrorsnml
@@ -1041,144 +1016,6 @@ C check if limit of 22 char is not exceeded:
       call HF_stop
 
       end
-
-C---------------------------------------
-C
-!>  Set PDF parameterisation type
-C
-C---------------------------------------
-      Subroutine SetPDFType()
-
-      implicit none
-#include "steering.inc"
-
-
-      if (PDFType.eq.'proton'.or. PDFType.eq.'PROTON') then
-         lead = .false.
-         deuteron = .false.
-         print *,'Fitting for PROTON PDFs, PDFType=', PDFType
-      elseif (PDFType.eq.'lead'.or. PDFType.eq.'LEAD') then
-         lead = .true. 
-         deuteron = .false.
-         print *,'Fitting for LEAD PDFs, PDFType=', PDFType
-      elseif (PDFType.eq.'DEUTERON'.or. PDFType.eq.'deuteron') then
-         lead = .true. 
-         deuteron = .true. 
-         print *,'Fitting for DEUTERON PDFs, PDFType=', PDFType
-      else
-         call hf_errlog(300920131,
-     $   'F: Unsupported PDFType used!')
-      endif
-      end
-C---------------------------------
-
-
-C---------------------------------------
-C
-!>  Set PDF parameterisation style
-C
-C---------------------------------------
-      Subroutine SetPDFStyle()
-
-
-      implicit none
-      external CheckForPDF
-      logical lhapdffile_exists
-      integer*1 has_photon
-#include "steering.inc"
-C---------------------------------
-
-      ! --- FlexibleGluon is used in SumRules
-      FlexibleGluon = .false.
-      
-      if (
-     $     PDFStyle.eq. 'HERAPDF'.or.
-     $     PDFStyle.eq. 'strange') then
-         FlexibleGluon = .true.
-         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
- 
-      elseif (PDFStyle.eq.'CTEQHERA') then
-         FlexibleGluon = .true.
-         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
-
-      elseif (PDFStyle.eq.'CTEQ') then
-!         FreeStrange=.false.
-         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar_Str'
-
-
-      elseif ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
-         FreeStrange=.false.
-         PDF_DECOMPOSITION = 'Dv_Uv_Dbar_Ubar'
-
-      elseif (PDFStyle.eq.'CHEB'.or.PDFStyle.eq.'ZEUS Jet') then
-         PDF_DECOMPOSITION = 'Dv_Uv_Sea_Delta'
-
-      elseif (PDFStyle.eq.'LHAPDFQ0') then
-         iparam = 0
-         PDF_DECOMPOSITION = 'LHAPDF'
-
-      elseif (PDFStyle.eq.'LHAPDF') then
-         iparam = 0
-         PDF_DECOMPOSITION = 'LHAPDF'
-
-      elseif (PDFStyle.eq.'LHAPDFNATIVE') then
-         iparam = 0
-         PDF_DECOMPOSITION = 'LHAPDF'
-
-      elseif (PDFStyle.eq.'DDIS') then
-cv         iparam = 301        
-         PDF_DECOMPOSITION = 'Diffractive'
-      elseif (PDFStyle.eq.'QCDNUM_GRID') then
-         PDF_DECOMPOSITION = 'QCDNUM_GRID'
-      else
-         print *,'Unsupported PDFStyle =',PDFStyle
-         print *,'Check value in steering.txt'
-         call HF_stop
-      endif
-
-      
-      if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')
-     $     .or.(PDFStyle.eq.'LHAPDFNATIVE')) then
-
-         call checkforpdf(LHAPDFSET)
-
-
-         INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
-         if(lhapdffile_exists) then
-            call InitPDFset(LHAPDFSET)
-         else
-            call InitPDFsetByName(LHAPDFSET)
-         endif
-
-      ! Get number of sets:
-         call numberPDF(nLHAPDF_Sets)                    
-         call InitPDF(ILHAPDFSET)
-
-      ! avoid extra printout from LHAPDF:
-         call set_verbosity(0)
-
-         if(has_photon().eq.1.) then    
-            ExtraPdfs = .true. 
-         else
-            ExtraPdfs = .false.
-         endif
-
-         if(PDFStyle.eq.'LHAPDFQ0'.and.ExtraPdfs) then
-            call hf_errlog(16060101,
-     $    'S: LHAPDFQ0 option cannot be used with QED (photon) PDFs')
-         endif
-
-
-         if(PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFNATIVE') then
-            IPDFSET = 5
-            vIPDFSET = IPDFSET
-         endif
-      endif
-
-      end
-
-
-
 C---------------------------------------
 C
 !>  Set Heavy Flavour Scheme

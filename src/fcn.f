@@ -179,7 +179,7 @@ C--------------------------------------------------------------
       character*300 base_pdfname
       integer npts(nset)
       double precision f2SM,f1SM,flSM
-      integer i,j,kflag,jsys,ndf,n0,h1iset,jflag,k,pr,nwds
+      integer i,j,jsys,ndf,n0,h1iset,jflag,k,pr,nwds
       logical refresh
       integer isys,ipoint,jpoint
       integer idataset
@@ -279,22 +279,6 @@ c        write(6,*) ' fcn npoint ',npoints
         
       endif
 
-*     ---------------------------------------------------------
-*     Extra constraints on input PDF due to momentum and quark 
-*     counting sum rules:
-*     ---------------------------------------------------------
-
-      kflag=0
-      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.35)  then 
-         call SumRules(kflag)
-      endif
-      if (kflag.eq.1) then
-         write(6,*) ' --- problem in SumRules, kflag = 1'
-         call HF_errlog(12020516,
-     +        'F: FCN - problem in SumRules, kflag = 1')
-      endif
-
       if (iflag.eq.1) then
          open(87,file=TRIM(OutDirName)//'/pulls.first.txt')
       endif
@@ -305,26 +289,6 @@ c        write(6,*) ' fcn npoint ',npoints
             npts(i) = 0
          enddo
       endif
-
-
-*     ---------------------------------------------------------  	 
-*     Call evolution
-*     ---------------------------------------------------------  	 
-cc      if (Debug) then
-cc        print*,'before evolution'
-cc      endif
-cc      if (itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
-cc     1    itheory.eq.35) then         
-cc         call Evolution
-cc      elseif(Itheory.ge.100) then
-cc          firsth=.false.
-cc      endif
-
-cc      if (Debug) then
-cc         print*,'after evolution'
-cc      endif
-
-
 
 *     ---------------------------------------------------------  	 
 *     Initialise theory calculation per iteration
@@ -458,18 +422,6 @@ cc      endif
          endif
 
       endif
-
-*     ---------------------------------------------------------
-*     pdf lenght term -- used for Chebyshev Polynomial
-*     ---------------------------------------------------------
-      if (ILenPdf.gt.0) then
-         call  PDFLength(DeltaLength)      
-         print *,'Chi2 from PDF length:',DeltaLength,fchi2
-      else
-         DeltaLength = 0.
-      endif
-
-      fchi2 = fchi2 + DeltaLength
       
 ! Temperature regularisation:
       if (Temperature.ne.0) then
@@ -491,19 +443,13 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
      $     shift_polLHp**2+shift_polLHm**2+
      $     shift_polL**2+shift_polT**2
 
-      
-
-      
-       ! if (lprint) then
+c Print time, number of calls, chi2
          call cpu_time(time3)
          print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
          write(6,'(A20,i6,F12.2,i6,F12.2)') '
      $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out, 
      $        ndf, chi2out/ndf
 
-
-
-        ! endif ! end  lprint
 
 ! ----------------  RESULTS OUTPUT ---------------------------------
 ! Reopen "Results.txt" file if it is not open
@@ -635,12 +581,7 @@ C  Hardwire:
                if ( ReadParsFromFile .and. DoBandsSym) then
                   call ReadPars(ParsFileName, pkeep)
                   call PDF_param_iteration(pkeep,2)
-                  kflag = 0
-                  call SumRules(kflag)
                endif
-
-C XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX              
-c               call Evolution
 
 C LHAPDF output:
 c WS: for the Offset method save central fit only

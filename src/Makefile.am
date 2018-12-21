@@ -19,7 +19,7 @@ dist_noinst_HEADERS = offset.h
 lib_LTLIBRARIES = libxfmain.la
 
 libxfmain_la_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
-sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
+read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f  difftop_fastnlo.f store_h1qcdfunc.f\
 dataset_tools.f theory_dispatcher.f  error_logging.f \
 GetDummyXsection.f main.f \
