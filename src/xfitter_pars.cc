@@ -399,6 +399,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       for(YAML::const_iterator it=parsNode.begin();it!=parsNode.end();++it){
         string parameterName=it->first.as<string>();
         stripString(parameterName);
+        if(XFITTER_PARS::gParameters.find(parameterName)!=XFITTER_PARS::gParameters.end()){
+          cerr<<"[ERROR] Redefinition of parameter \""<<parameterName<<"\""<<endl;
+          hf_errlog(18112810,"F: Parameter redefinition, see stderr");
+        }
         double value=nan("");
         double step=nan("");
         double min=nan("");
