@@ -21,8 +21,8 @@ namespace xfitter
   class BaseEvolution
   {
   public:
-		/// Unique name of instance
-		const std::string _name;
+    /// Unique name of instance
+    const std::string _name;
     /**
      * @brief The BaseEvolution default constructor.
      * @param name: the unique name used to identify the instance
