@@ -81,6 +81,9 @@ Evolutions:
 #  proton-APFEL:
 #    ? !include yaml/evolutions/APFELxx/parameters.yaml
 #    decomposition: proton
+#  antiproton:
+#    class: FlipCharge
+#    input: proton-QCDNUM
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 

@@ -34,6 +34,7 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
         pdfdecompositions/UvDvUbarDbarS/src \
         pdfdecompositions/SU3_PionPdfDecomposition/src \
         evolutions/BaseEvolution/src \
+        evolutions/FlipCharge/src\
         evolutions/APFELxx/src \
         minimizers/BaseMinimizer/src minimizers/CERESMinimizer/src minimizers/MINUITMinimizer/src
 

@@ -629,6 +629,7 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/FONLL_DISCC/src/Makefile
                  reactions/FONLL_DISNC/src/Makefile
                  evolutions/BaseEvolution/src/Makefile
+                 evolutions/FlipCharge/src/Makefile
                  evolutions/APFELxx/src/Makefile
                  minimizers/BaseMinimizer/src/Makefile
                  reactions/KMatrix/src/Makefile

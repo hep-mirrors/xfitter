@@ -60,7 +60,11 @@ namespace xfitter
 
     /**
      * @brief Function that returns a std::function that in turn
-     * returns a double as a function of the pdf index i, x and Q.
+     * i indexes flavor (QCDNUM convention):
+     *
+     * i -6 -5 -4 -3 -2 -1 0  1  2  3  4  5  6
+     *   tb bb cb sb ub db g  d  u  s  c  b  t
+     *
      * @return double-valued function of i, x and Q.
      */
     virtual std::function<double(int const& i, double const& x, double const& Q)> xfxQDouble() = 0;
@@ -68,8 +72,12 @@ namespace xfitter
     /**
      * @brief Function that returns a std::function that in turn
      * returns a void as a function of the pdf index x, Q, and pdfs,
-     * where pdfs is the array of PDFs.
-     * @return void-valued function of x, Q and pdfs.
+     * where pdfs is the array of PDFs, of size 13 (C++ QCDNUM convention):
+     *
+     *      i  0  1  2  3  4  5  6  7  8  9 10 11 12
+     * pdfs[i] tb bb cb sb ub db g  d  u  s  c  b  t
+     *
+     * @return void-valued function of x, Q, which writes PDF values by pointer pdfs.
      */
     virtual std::function<void(double const& x, double const& Q, double* pdfs)> xfxQArray() = 0;
 
