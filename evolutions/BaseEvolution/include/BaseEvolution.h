@@ -67,7 +67,7 @@ namespace xfitter
      *
      * @return double-valued function of i, x and Q.
      */
-    virtual std::function<double(int const& i, double const& x, double const& Q)> xfxQDouble() = 0;
+    virtual std::function<double(int const& i, double const& x, double const& Q)> xfxQDouble() = 0;//why would you pass int and double by reference??? --Ivan
 
     /**
      * @brief Function that returns a std::function that in turn

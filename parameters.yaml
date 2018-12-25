@@ -84,6 +84,9 @@ Evolutions:
 #  antiproton:
 #    class: FlipCharge
 #    input: proton-QCDNUM
+#  neutron:
+#    class: FlipUD
+#    input: proton-QCDNUM
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
