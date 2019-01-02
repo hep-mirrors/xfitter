@@ -14,7 +14,7 @@ C#include "datasets.inc"
 #include "theo.inc"
 
       integer Ndata,NSyst
-      integer i,j,k,nsysloc
+      integer i,j,k,nsysloc, ifail
       double precision theo_err2_loc(Ndata)
       double precision Eigenvalues(Nsyst)  
       double precision RotBeta(Nsyst,Ndata)  ! dynamic 
@@ -61,7 +61,7 @@ c         print *,'ho',sqrt(theo_err2_loc(k))
          enddo
       enddo
 
-      call MyDSYEVD(Nsyst,Cov,NTot,Eigenvalues)
+      call MyDSYEVD(Nsyst,Cov,NTot,Eigenvalues,ifail)
 
       print '(''Eigenvalues:'')'
       do i=nsyst,1,-1
@@ -116,6 +116,5 @@ c      print *,nsyst,nsysloc
 c      print *,nsyst,nsysloc      
 
       call WriteTheoryFiles(nsysloc,theo_fix,.true.)
-
 C-------------------------------------
       end

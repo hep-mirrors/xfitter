@@ -5,7 +5,7 @@
 #include <algorithm>
 
 
-void CheckForPDF(char *pdfname);
+void CheckForPDF(char const* pdfname);
 
 
 // for Fortran calling
