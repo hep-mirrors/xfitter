@@ -7,6 +7,7 @@
 #include "BaseMinimizer.h"
 #include <dlfcn.h>
 #include <iostream>
+#include<fstream>
 #include <yaml-cpp/yaml.h>
 #include <Profiler.h>
 using std::string;
@@ -200,9 +201,10 @@ void run_minimizer_() {
 }
 
 void report_convergence_status_(){
-  //Get a status code from current minimizer and log a message
+  //Get a status code from current minimizer and log a message, write status to file Status.out
   using namespace xfitter;
-  switch(get_minimizer()->convergenceStatus()){
+  auto status=get_minimizer()->convergenceStatus();
+  switch(status){
     case ConvergenceStatus::NORUN:
       hf_errlog(16042801,"I: No minimization has run");
       break;
@@ -222,6 +224,15 @@ void report_convergence_status_(){
       hf_errlog(16042806,"F: Minimizer error");
       break;
   }
+  std::fstream f;
+  f.open("Status.out");
+  if(!f.is_open()){
+    hf_errlog(16042807,"W: Failed to open Status.out for writing");
+    return;
+  }
+  if(status==ConvergenceStatus::SUCCESS)f<<"OK";
+  else f<<"Failed";
+  f.close();
 }
 
 void run_error_analysis_() {
