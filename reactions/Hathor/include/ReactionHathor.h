@@ -44,6 +44,7 @@ class ReactionHathor : public ReactionTheory
     int* _rndStore;
     int _scheme;
     double _mtop;
+    std::map<int, double*> _mtopPerInstance;
     double _mr;
     double _mf;
 };

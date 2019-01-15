@@ -85,6 +85,12 @@ int ReactionHathor::initAtStart(const string &s)
     hf_errlog_(17081101, str.c_str(), strlen(str.c_str()));
   }
   _mtop = GetParam("mtp");
+  
+  // !!!!
+  for(map<string, double* >::iterator it = _xfitter_pars.begin(); it != _xfitter_pars.end(); it++)
+  {
+    printf("_xfitter_pars[%s] = %f\n", it->first.c_str(), *it->second);
+  }
 
   // renorm. scale
   _mr = _mtop;
@@ -176,12 +182,33 @@ void ReactionHathor::setDatasetParameters(int dataSetID, map<std::string, std::s
   // set centre-of-mass energy
   hathor->setSqrtShad(sqrtS);
 
+  // set mass, if provided as a parameter (for MSbar scheme, calculations with several mass values are needed)
+  // fix memory leak
+  it = pars.find("mtp");
+  if(it != pars.end())
+    //_mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(atof(it->second.c_str())));
+    _mtopPerInstance[dataSetID] = new double(atof(it->second.c_str()));
+  else
+    _mtopPerInstance[dataSetID] = &_mtop;
+
   // set scheme
-  hathor->setScheme(_scheme);
+  // for MSbar scheme, both LO and NLO calculations are needed, therefore determine perturbative order separately for each instance
+  auto scheme = _scheme;
+  it = pars.find("Order");
+  if(it != pars.end())
+  {
+    printf("Order: %s\n", it->second.c_str());
+    scheme = Hathor::LO;
+    if(it->second == "NLO")
+      scheme = scheme | Hathor::NLO;
+    else if(it->second == "NNLO")
+      scheme = scheme | Hathor::NNLO;
+  }
+  hathor->setScheme(scheme);
 
   // set precision level
   hathor->setPrecision(precisionLevel);
-
+  
   // done
   hathor->PrintOptions();
   _hathorArray[dataSetID] = hathor;
@@ -194,7 +221,8 @@ int ReactionHathor::compute(int dataSetID, valarray<double> &val, map<string, va
   rlxd_reset(_rndStore);
 
   Hathor* hathor = _hathorArray.at(dataSetID);
-  hathor->getXsection(_mtop, _mr, _mf);
+  //hathor->getXsection(_mtop, _mr, _mf);
+  hathor->getXsection(*_mtopPerInstance[dataSetID], _mr, _mf);
   double dum = 0.0;
   val[0] = 0.0;
   hathor->getResult(0, val[0], dum);

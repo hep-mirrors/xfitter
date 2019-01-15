@@ -143,7 +143,7 @@ TheorEval::assignTokens(list<tToken> &sl)
 	sl.push_back(t);
 	continue;
       }
-      if ( term == string("spline") || term == string("spline_derivative") )
+      if ( term == string("spline") || term == string("splinederivative") )
       {
         // special case for natural cubic spline interpolation
         if ( term == string("spline"))
@@ -151,10 +151,10 @@ TheorEval::assignTokens(list<tToken> &sl)
           t.opr = 6;
           t.name = "spline";
         }
-        else if ( term == string("spline_derivative"))
+        else if ( term == string("splinederivative"))
         {
           t.opr = 7;
-          t.name = "spline";
+          t.name = "splinederivative";
         }
         // push spline
         sl.push_back(t);
@@ -713,7 +713,7 @@ TheorEval::Evaluate(valarray<double> &vte )
       }
       double avg = stk.top().sum()/stk.top().size();
       stk.top() = avg;*/
-    } else if ( it->name == string("spline") || it->name == string("spline_derivative") )
+    } else if ( it->name == string("spline") || it->name == string("splinederivative") )
     {
       // load all arguments
       int narg = it->narg;
@@ -725,6 +725,7 @@ TheorEval::Evaluate(valarray<double> &vte )
       std::valarray<double> x0 = stk.top();
       stk.pop();
       int nsections = (it->narg - 1) / 2;
+      printf("nsections = %d\n", nsections);
       std::valarray<std::valarray<double> > x(nsections);
       std::valarray<std::valarray<double> > y(nsections);
       for(int sect = nsections - 1; sect >= 0; sect--)
@@ -743,11 +744,12 @@ TheorEval::Evaluate(valarray<double> &vte )
         {
           xSpline[sect] = x[sect][p];
           ySpline[sect] = y[sect][p];
+          printf("sect = %f   x,y = %f,%f\n", sect, xSpline[sect], ySpline[sect]);
         }
         NaturalCubicSpline spline = NaturalCubicSpline(xSpline, ySpline);
         if(it->name == string("spline"))
           result[p] = spline.Eval(x0[p]);
-        else if(it->name == string("spline_derivative"))
+        else if(it->name == string("splinederivative"))
           result[p] = spline.Eval(x0[p], 1);
       }
       stk.push(result);

@@ -16,3 +16,4 @@ FONLL_DISNC libfonll_disnc_xfitter.so
 FONLL_DISCC libfonll_discc_xfitter.so
 AFB libafb_xfitter.so
 KMatrix libkmatrix_xfitter.so
+KRunning libkrunning_xfitter.so
