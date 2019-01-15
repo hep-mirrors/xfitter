@@ -29,7 +29,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
        std::string token;
        while(std::getline(ss, token, ','))
        {
-         //std::cout << token << '\n';
+         std::cout << token << '\n';
          std::shared_ptr<appl::grid>  g(new appl::grid(token));
          g->trim();
          _grids[dataSetID].push_back(g);
