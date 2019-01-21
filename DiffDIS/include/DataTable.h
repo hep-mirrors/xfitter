@@ -307,6 +307,7 @@ class DataTable_t {
       for(ic=0; ic < GetNcols(); ic++) {
         for(ir=0; ir < npt; ir++) Data[ic][ir] = A.Data[ic][ir];
       }
+      return *this;
     }
     
     //@}

@@ -47,11 +47,12 @@ bool ReactionTheory::notMasked(int DSID, int Bin) {
 }
 
 string ReactionTheory::GetParamY(const string& name, int dsID ) const {
-  if ( _xfitter_pars_node.find(name) != _xfitter_pars_node.end() ) {
-  }
-  else {
-    return "";
-  }
+  return "";
+  //if ( _xfitter_pars_node.find(name) != _xfitter_pars_node.end() ) {
+  //}
+  //else {
+  //  return "";
+  //}
 }
 
 void ReactionTheory::resetParameters(const YAML::Node& node) {

@@ -100,7 +100,8 @@ extern "C" void appl_gridids_(int* ids) {
 }
 
 
-void throw_exception( const std::string& msg, int id, const std::string& s="" ) {  
+void throw_exception( const std::string& msg, int id, const std::string& s="" ) __attribute__((noreturn));
+void throw_exception( const std::string& msg, int id, const std::string& s ) {
     std::stringstream s_;
     s_ << msg << id << s;
     throw appl::grid::exception( s_.str() );

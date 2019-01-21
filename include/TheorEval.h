@@ -88,7 +88,7 @@ class TheorEval{
     iteration. It updates the expression components and folds the reverse
     polish notation to calculate the result.
    */
-  int Evaluate(valarray<double> &vte );
+  void Evaluate(valarray<double> &vte );
 
   //! Set custom CKM matrix for APPLgrid
   /*!
@@ -97,7 +97,7 @@ class TheorEval{
     The CKM matrix values used in APPLgrids calculations can be updated
     here.
    */
-  int setCKM(const vector<double> &v_ckm);
+  void setCKM(const vector<double> &v_ckm);
 
   //! Set dataset bins
   /*!
@@ -114,7 +114,7 @@ class TheorEval{
    After the datasets with expressions are read, this method initialises
    terms such as applgrids and k-factor tabels from their sources.
    */
-  int initTheory();
+  void initTheory();
   //! Returns numebr of bins in the current dataset
   int getNbins();
   //! Returs vector with bin flags for current dataset
@@ -137,14 +137,14 @@ class TheorEval{
   //! Tokenize symbolic expression to a list of string tokens
   int tokenize(string &, list<string> &);
   //! The tokens are assigned to corresponding values
-  int assignTokens(list<tToken> &);
+  void assignTokens(list<tToken> &);
   //! The expression of tokens is converted to RPN
-  int convertToRPN(list<tToken> &);
+  void convertToRPN(list<tToken> &);
   //! Initialise terms
   /*!
    Depending on the term type, the corresponding initialization method is called
   */
-  int initTerm(int, valarray<double> *);
+  void initTerm(int, valarray<double> *);
 
   //! Initialise applgrid-based term
   /*!
@@ -153,15 +153,15 @@ class TheorEval{
 
    Initializes the applgrid-based grids and associates the term valarrays with them. 
   */
-  int initGridTerm(int iterm, valarray<double> *val);
+  void initGridTerm(int iterm, valarray<double> *val);
   //! Initialise reaction term
-  int initReactionTerm(int iterm, valarray<double> *val);
+  void initReactionTerm(int iterm, valarray<double> *val);
   //! Initialise K-factor term
-  int initKfTerm(int, valarray<double> *);
+  void initKfTerm(int, valarray<double> *);
   //! Get current grid values into the tokens
-  int getGridValues();
+  void getGridValues();
   //! Update the reaction values into the tokens
-  int getReactionValues();
+  void getReactionValues();
   //! 
   map<string, string> SplitTermInfo(const string& term_info);
 

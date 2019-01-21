@@ -87,7 +87,7 @@ AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
-CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++"
+CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++ -Werror=return-type"
 
 # check for lapack and blas
 AC_MSG_CHECKING([for blas])
