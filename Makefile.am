@@ -62,8 +62,8 @@ include $(top_srcdir)/aminclude.am
 reactiondir = $(prefix)/lib/
 reaction_DATA = Reactions.txt
 
-evolutiondir = $(prefix)/lib/
-evolution_DATA = Evolutions.txt
+#evolutiondir = $(prefix)/lib/
+#evolution_DATA = Evolutions.txt
 
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
