@@ -1,6 +1,7 @@
 #include "xfitter_steer.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
+#include"xfitter_cpp.h"
 
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
@@ -224,8 +225,8 @@ void report_convergence_status_(){
       hf_errlog(16042806,"F: Minimizer error");
       break;
   }
-  std::fstream f;
-  f.open("Status.out");
+  std::ofstream f;
+  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/Status.out");
   if(!f.is_open()){
     hf_errlog(16042807,"W: Failed to open Status.out for writing");
     return;
