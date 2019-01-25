@@ -627,6 +627,12 @@ C Trigger reactions:
 
       
 C Return the chi2 value:
+
+c If for any reason we got chi2==NaN, set it to +inf so that that
+c a minimizer would treat it as very bad
+      if(chi2out/=chi2out)then !x==NaN iff x!=x
+        chi2out=huge(1d0)+1 !huge(1d0) is largest finite double
+      endif
       chi2data_theory = chi2out
 
       end
