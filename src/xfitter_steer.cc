@@ -181,9 +181,12 @@ extern "C" {
   void run_error_analysis_();
 }
 
+namespace xfitter{
+  BaseEvolution*defaultEvolution=nullptr;//declared in xfitter_steer.h
+}
+//Make sure default evolution exists
 void init_evolution_() {
-  //TODO: reimplement for new interface with multiple evolutions
-  //auto evol = xfitter::get_evolution();
+  xfitter::defaultEvolution=xfitter::get_evolution();
 }
 
 void init_minimizer_() {

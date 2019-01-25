@@ -1,11 +1,11 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
+SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
         common/num_utils pdf2yaml tools/process\
         evolutions/LHAPDF/src evolutions/QCDNUM/src\
         tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
         genetic/mixmax_r004 genetic/src QEDevol/src \
-        include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
+        include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
         DY/include tools/draw/include \
         reactions/KFactor/src \
         reactions/Fractal_DISNC/src \

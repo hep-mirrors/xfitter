@@ -51,7 +51,7 @@ extern "C" {
   int get_theor_eval_(int *dsId, int* np, int* idx);
   int read_reactions_();
   int close_theor_eval_();
-  void init_func_map_();
+  //void init_func_map_(); Broken since 2.2.0
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
   void error_band_action_(const int& i); ///< Loop over rections, call error_band_action
@@ -296,18 +296,17 @@ int read_reactions_()
   return 1;
 }
 
-
-// a bunch of functions
+/* Broken since 2.2.0
 double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
 double xu(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
 double xub(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
-
 
 void init_func_map_() {
   g2Dfunctions["xg"] = &xg;
   g2Dfunctions["xu"] = &xu;
   g2Dfunctions["xub"] = &xub;
 }
+*/
 
 void init_at_iteration_() {
   xfitter::updateDependentParameters();

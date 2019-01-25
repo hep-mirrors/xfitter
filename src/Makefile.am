@@ -19,13 +19,14 @@ dist_noinst_HEADERS = offset.h
 lib_LTLIBRARIES = libxfmain.la
 
 libxfmain_la_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
-read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
-evolution.f mc_errors.f  difftop_fastnlo.f store_h1qcdfunc.f\
-dataset_tools.f theory_dispatcher.f  error_logging.f \
-GetDummyXsection.f main.f \
-prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
+read_steer.f error_bands_pumplin.f systematics.f\
+mc_errors.f difftop_fastnlo.f store_h1qcdfunc.f\
+dataset_tools.f theory_dispatcher.f error_logging.f\
+GetDummyXsection.f main.f\
+prep_corr.f GetPDFUncType.f rediagonalize.f\
 ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.cc xfitter_steer.cc Profiler.cc\
-tinyexpr.c dependent_pars.cc
+tinyexpr.c dependent_pars.cc\
+fortran_interface.cc
 
 # WS 2013-01-19 for the Offset method
 libxfmain_la_SOURCES += offset_fns.f g_offset.cc
@@ -43,16 +44,17 @@ libxfmain_la_SOURCES += ReactionTheory.cc
 libxfmain_la_SOURCES += IntegrateDIS.cc
 # optional sources
 # these should be moved to indiviual shared libraries in the future
-if ENABLE_APFEL
-  libxfmain_la_SOURCES+= apfel.f
-else
-  libxfmain_la_SOURCES+= apfel_dum.f
-endif
-if ENABLE_MELA
-  libxfmain_la_SOURCES+= mela.f
-else
-  libxfmain_la_SOURCES+= mela_dum.f
-endif
+##APFEL and MELA commented out because they need to be updated for the new evolutions interface
+#if ENABLE_APFEL
+#  libxfmain_la_SOURCES+= apfel.f
+#else
+#  libxfmain_la_SOURCES+= apfel_dum.f
+#endif
+#if ENABLE_MELA
+#  libxfmain_la_SOURCES+= mela.f
+#else
+#  libxfmain_la_SOURCES+= mela_dum.f
+#endif
 
 
 
@@ -139,9 +141,9 @@ APPLGRID_2 = $(subst -pthread,,$(APPLGRID_1))
 APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 
 
-if ENABLE_MELA
-  LDADD+=$(MELA_LDFLAGS)
-endif
+#if ENABLE_MELA
+#  LDADD+=$(MELA_LDFLAGS)
+#endif
 
 if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a

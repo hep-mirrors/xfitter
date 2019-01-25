@@ -71,9 +71,8 @@ C-----------------------------------------------------
       call read_reactions()
       call parse_params() !read parameters.yaml
 
-*
-*     Init evolution
-*
+*This makes sure that the default evolution exists and is acessible from
+*fortran using hf_get_pdfs(x,Q,pdfs) etc
       call init_evolution()
 
 *     ------------------------------------------------

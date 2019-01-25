@@ -24,4 +24,7 @@ namespace xfitter
   BasePdfParam*getParameterisation(const std::string&name="");
   /// Load the minimizer
   BaseMinimizer* get_minimizer();
+
+  //When fortran code accesses pdfs, it accesses this default evolution
+  extern BaseEvolution*defaultEvolution;
 }
