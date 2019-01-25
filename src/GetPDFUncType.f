@@ -41,7 +41,7 @@ c Adapted from LHAPDF uncertainties.f
 
       character*(*) name
       logical lMonteCarlo,lAsymhess,lSymmhess
-      ! logical variables for lhapdf interface 
+      ! logical variables for lhapdf interface
       logical lhapdf_mc, lhapdf_symmetric
       integer nset
       lMonteCarlo = .false.
@@ -56,7 +56,7 @@ c Adapted from LHAPDF uncertainties.f
       call getnset(nset)
       call getpdfunctypem(nset, lhapdf_mc, lhapdf_symmetric)
 
-              if(lhapdf_symmetric) then 
+              if(lhapdf_symmetric) then
                       lMonteCarlo=.false.
                       lSymmhess=.true.
                       lAsymhess=.false.
@@ -73,10 +73,10 @@ c Adapted from LHAPDF uncertainties.f
                       lAsymhess=.false.
               endif
 #endif
-      
+
 
       end subroutine GetPDFUncType_HERAF_lhapdf6
-      
+
 
 
 

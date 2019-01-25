@@ -16,7 +16,6 @@
 #include "xfitter_cpp.h"
 
 #include "TheorEval.h"
-//#include "datasets.icc"
 #include <yaml-cpp/yaml.h>
 #include "ReactionTheory.h"
 #include "xfitter_pars.h"
@@ -44,7 +43,7 @@ extern "C" {
   int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType,
 //    char **TermSource, char *TermExpr);
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
-		      double *allBins, char binNames[10][80]);
+                      double *allBins, char binNames[10][80]);
 //  int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
@@ -159,7 +158,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
  write details on argumets
  */
 int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
-		    double *allBins, char binNames[10][80])
+                    double *allBins, char binNames[10][80])
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) {
@@ -237,24 +236,23 @@ int get_theor_eval_(int *dsId, int *np, int*idx)
     exit(1);
   }
 
-  valarray<double> vte;
   TheorEval *te = gTEmap.at(*dsId);
-  vte.resize(te->getNbins());
-  te->Evaluate(vte);
-
-  // Get bin flags, and abandon bins flagged 0
-  const vector<int> *binflags = te->getBinFlags();
-  int ip = 0;
-  vector<int>::const_iterator ibf = binflags->begin();
-  for (; ibf!=binflags->end(); ibf++){
-    if ( 0 != *ibf ) {
-      c_theo_.theo[*idx+ip-1]=vte[int(ibf-binflags->begin())];
-      ip++;
-    }
-      //cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
-  }
+  valarray<double>vte(te->getNbins());//vector of theory predictions for this dataset
+  te->Evaluate(vte);//writes into vte
 
   // write the predictions to THEO array
+  const vector<int>*te_binflags=te->getBinFlags();
+  const int*binflags=te_binflags->data();//get pointer to array of bin flags
+  size_t ip=0;
+  size_t offset=*idx-1;
+  size_t endi=te_binflags->size();
+  for(size_t i=0;i<endi;++i){
+    if(binflags[i]!=0){//skip bins flagged 0
+      c_theo_.theo[ip+offset]=vte[i];
+      ++ip;
+    }
+  }
+
   if( ip != *np ){
     cout << "ERROR in get_theor_eval_: number of points mismatch" << endl;
     return -1;
@@ -283,10 +281,9 @@ int read_reactions_()
       frt >> rname >> lib;
       if (frt.eof()) break;
       if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
-	// possible check
+        // possible check
       }
       gReactionLibs[rname] = lib;
-
     }
   }
   else {
@@ -330,7 +327,8 @@ void init_at_iteration_() {
   }
 
 }
-
+//This is called after minimization, after result output
+//Could be named atEnd or something --Ivan
 void fcn3action_()
 {
   // Minimizer action:

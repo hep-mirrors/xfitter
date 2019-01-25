@@ -1,5 +1,5 @@
 C---------------------------------------------------
-C 
+C
 !> Read steering file steering.txt
 C
 C---------------------------------------------------
@@ -21,7 +21,7 @@ C Read various namelists:
       call read_hfitternml  ! main steering FIRST
       call read_systematicsnml ! Read (optional) systematics namelist SECOND
 
-C Special branch for rotation 
+C Special branch for rotation
       if (pdfrotate) then
          call read_theoryfilesNML
          call rediagonalize(NPoints,NSys)
@@ -30,7 +30,7 @@ C Special branch for rotation
 
       call read_infilesnml   ! Read data file names THIRD
       call read_outputnml   ! output options
-      call read_outdirnml   ! output dir 
+      call read_outdirnml   ! output dir
 
 !     if(Itheory.lt.100) then
 !        call read_lhapdfnml    ! read lhapdf
@@ -45,7 +45,7 @@ C Special branch for rotation
       if (itheory.ge.100) then
          call read_ccfmfilesnml
       endif
-      
+
       call Read_InCorrNml   ! Covariance matrix
       call read_scalesnml   ! Read scales namelist
 c WS 2013-01-07 always read CSOffsetNML
@@ -138,7 +138,7 @@ C Add option to change Z of valence PDFs at x=1 from  (1-x) to (1-x)^2
 
 C Square polynom before calculating dv,uv. This forces positivity
       IPOLYSQR = 0
-C  Key for W range 
+C  Key for W range
       WMNlen =  20.
       WMXlen = 320.
 
@@ -153,10 +153,10 @@ C  Cache PDF calls
 ! Do not split the data into fit and control sub-samples:
       ControlFitSplit = .false.
 
-C  Fast applgrid:     
+C  Fast applgrid:
       LFastAPPLGRID = .false.
       LUseAPPLgridCKM = .true.
-* 
+*
 C MC Errors defaults:
       lRAND = .false.
       lRandData = .true.
@@ -208,12 +208,12 @@ C Check variables for common blocks:
 
 C =============================================
 C
-!> Read the main steering namelisit 
+!> Read the main steering namelisit
 C----------------------------------------------
-      subroutine Read_HFitternml  
+      subroutine Read_HFitternml
 
       implicit none
-      
+
 #include "ntot.inc"
 #include "datasets.inc"
 #include "steering.inc"
@@ -230,16 +230,16 @@ C-----------------------------------------------
 
       real*8 Q02       ! Starting scale
       integer IOrder   ! Evolution order
-      character*8 Order  ! 
+      character*8 Order  !
       character*16 TheoryType
       integer i
-      
+
 C Main steering parameters namelist
       namelist/xFitter/
      $     ITheory, IOrder,         ! keep for backward compatibility
      $     Q02, HF_SCHEME,
      $     LDebug, ifsttype,  LFastAPPLGRID, LUseAPPLgridCKM,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
+     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs,
      $     ControlFitSplit,Order,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
      $     AsymErrorsIterations, pdfRotate, RunningMode
@@ -311,11 +311,11 @@ C Decode computation order:
       else
          I_FIT_ORDER = IOrder
       endif
-      
+
 C Decode theory type:
       if (TheoryType.ne.' ') then
          Call DecodeTheoryType(TheoryType)
-      endif 
+      endif
 
 C     set debug flag used elsewhere according to steering
       Debug = lDebug
@@ -323,13 +323,13 @@ C
 C Decode Chi2 style:
 C
 
-      call SetChi2Style(Chi2SettingsName, Chi2Settings, 
+      call SetChi2Style(Chi2SettingsName, Chi2Settings,
      $     Chi2ExtraParam)
 
       if (itheory.lt.100) then
 C
 C Decode HFSCHEME:
-C      
+C
          call SetHFSCHEME
       endif
 
@@ -363,7 +363,7 @@ C-------------------------------------------------------
 C Namelist for statistical correlations to read
       namelist/InCorr/NCorrFiles,CorrFileNames
 C----------------------------------------------------------
-C     
+C
 C  Read statistical correlations namelist:
 C
       open (51,file='steering.txt',status='old')
@@ -371,7 +371,7 @@ C
       print '(''Read '',I4,'' correlation files'')',NCorrFiles
  136  continue
       close (51)
-      
+
       if (LDebug) then
 C Print the namelist:
          print InCorr
@@ -408,30 +408,30 @@ C scale for HQ
 C
 C  Read the HQScale namelist:
 C
-      open (51,file='steering.txt',status='old') 
-      read (51,NML=HQScale,ERR=70,end=69) 
+      open (51,file='steering.txt',status='old')
+      read (51,NML=HQScale,ERR=70,end=69)
  69   continue
       close (51)
 C
 C asign mc or mb to hq scale
-C      
+C
       call SetMHSCALE(MassHQ)
        aq2 = 1/scalea1
        bq2 = -4*scaleb1/scalea1
-       hqscale1in = scalea1  
-       hqscale2in = scaleb1 
+       hqscale1in = scalea1
+       hqscale2in = scaleb1
        if(mod(HFSCHEME,10).eq.1) then
        if(massh.eq.1) then
-       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'   
+       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'
        elseif(massh.eq.2) then
-       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'   
-        endif   
+       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'
+        endif
         endif
       if (LDebug) then
 C Print the namelist:
          print HQScale
       endif
-         
+
       return
 
  70   continue
@@ -461,7 +461,7 @@ C LHAPDFErrors default
 
       lhapdfprofile = .true.
       lhascaleprofile = .false.
-      
+
       Scale68 = .false.
       NPARVAR = 0
       LHAPDFVARSET = ''
@@ -564,7 +564,7 @@ C-------------------------------------------------------
       implicit none
 #include "steering.inc"
 C (Optional) MC method namelist
-      namelist/MCErrors/LRand, ISeeDMC, StaType, SysType, LRandData 
+      namelist/MCErrors/LRand, ISeeDMC, StaType, SysType, LRandData
 C------------------------------------------------------
 C
 C  Read the MC method namelist:
@@ -643,7 +643,7 @@ C (Optional) Polynomial parameterisation for valence
 C-------------------------------------------
 C
       open (51,file='steering.txt',status='old')
-      read (51,NML=Poly,ERR=66,end=65)    
+      read (51,NML=Poly,ERR=66,end=65)
  65   continue
       close (51)
 
@@ -675,7 +675,7 @@ C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
 
       character*(80) cMsg
-      
+
 C reset defaults:
       NInputFiles = 0
       do i = 1,NSET
@@ -705,7 +705,7 @@ C Determine how many files to process. First count them:
      $ ,'' exceeds actual number of files='',i4,'', reset'')')
      $           NInputFiles, nf
             call hf_errlog(18030601,cMsg)
-     $           
+     $
             NInputFiles = nf
          endif
       endif
@@ -748,7 +748,7 @@ C------------------------------------------------------
 
       implicit none
 C updf stuff
-C Namelist for datafiles 
+C Namelist for datafiles
 #include "steering.inc"
 
       character*132 CCFMfilename  !> Names of input files
@@ -769,7 +769,7 @@ C Read the CCFM data file name
       endif
 
       return
-      
+
  71   continue
       print '(''Namelist &CCFMFiles NOT found'')'
       call HF_stop
@@ -931,7 +931,7 @@ C
      $  'F: Both DoBands and DoBandsSym are set: chose one')
       endif
 
-C check if limit of 22 char is not exceeded:      
+C check if limit of 22 char is not exceeded:
       if(LEN(TRIM(OutDirName)).gt.256) then
           call hf_errlog(09092013,
      $   'F: Name of result directory is too long (max is 256 char) ')
@@ -987,7 +987,7 @@ C check if limit of 22 char is not exceeded:
       call hf_errlog(250420132,
      $     'I: Creating directory to store results: '//TRIM(OutDirName))
       CALL system('mkdir -p '//TRIM(OutDirName))
-      
+
       return
  56   continue
       print '(''Error reading namelist &OutDir, STOP'')'
@@ -1007,13 +1007,13 @@ C---------------------------------------
 
 #include "steering.inc"
 C---------------------------------
-      
+
       if (HF_SCHEME.eq.'ZMVFNS') then
           HFSCHEME = 0
       elseif (HF_SCHEME.eq.'ZMVFNS MELA') then
           HFSCHEME = 6
       elseif (HF_SCHEME.eq.'ACOT ZM') then
-          HFSCHEME = 1 
+          HFSCHEME = 1
           nordAcot=1
       elseif (HF_SCHEME.eq.'ACOT ZM +N2LO') then
           HFSCHEME = 1
@@ -1022,7 +1022,7 @@ C---------------------------------
           HFSCHEME = 1
           nordAcot=3
       elseif (HF_SCHEME.eq.'ACOT Full') then
-          HFSCHEME = 11 
+          HFSCHEME = 11
           nordAcot=1
       elseif (HF_SCHEME.eq.'ACOT Full +N2LO') then
           HFSCHEME = 11
@@ -1031,7 +1031,7 @@ C---------------------------------
           HFSCHEME = 11
           nordAcot=3
       elseif (HF_SCHEME.eq.'ACOT Chi') then
-          HFSCHEME = 111 
+          HFSCHEME = 111
           nordAcot=1
       elseif (HF_SCHEME.eq.'ACOT Chi +N2LO') then
           HFSCHEME = 111
@@ -1042,17 +1042,17 @@ C---------------------------------
       elseif (HF_SCHEME.eq.'RT') then
           HFSCHEME = 2
       elseif (HF_SCHEME.eq.'RT FAST') then
-          HFSCHEME = 22 
+          HFSCHEME = 22
       elseif (HF_SCHEME.eq.'RT OPT') then
           HFSCHEME = 202
       elseif (HF_SCHEME.eq.'RT OPT FAST') then
-          HFSCHEME = 222 
+          HFSCHEME = 222
       elseif (HF_SCHEME.eq.'FF') then
-          HFSCHEME = 3 
+          HFSCHEME = 3
       elseif (HF_SCHEME.eq.'FF ABM') then
-         HFSCHEME = 4 
+         HFSCHEME = 4
       elseif (HF_SCHEME.eq.'BMSN ABM') then
-         HFSCHEME = 44 
+         HFSCHEME = 44
       elseif (HF_SCHEME.eq.'FF ABM RUNM') then
          HFSCHEME = 444
       elseif (HF_SCHEME.eq.'FONLL-A') then
@@ -1105,7 +1105,7 @@ C---------------------------------------
 C---------------------------------
 
       if (MassHQ.eq.'mc') then
-          MASSH = 1 
+          MASSH = 1
       elseif (MassHQ.eq.'mb') then
           MASSH = 2
       else
@@ -1121,17 +1121,17 @@ C---------------------------------
 C---------------------------------------
 C
 !>  Set Chi2 style
-!>  @param Chi2SettingsName bias corrections for uncertainties and treatment of systematics in chi2 
+!>  @param Chi2SettingsName bias corrections for uncertainties and treatment of systematics in chi2
 !>  @param Chi2Settings values corresponding to each of Chi2SettingsName parameters
 !>  @param Chi2ExtraParam extra corrections in chi2
 C---------------------------------------
-      Subroutine SetChi2Style(Chi2SettingsName, Chi2Settings, 
+      Subroutine SetChi2Style(Chi2SettingsName, Chi2Settings,
      $     Chi2ExtraParam)
 
       implicit none
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
-      character*32 Chi2ExtraParam(8) 
+      character*32 Chi2ExtraParam(8)
       integer i
 #include "steering.inc"
 C---------------------------------
@@ -1139,7 +1139,7 @@ C---------------------------------
       if (Chi2SettingsName(1).eq.'undefined') then
 C
 C  Reset defaults if Chi2SettingsName parameter is not set.
-C 
+C
          CorrSystByOffset=.false.
          CorSysScale = 'Linear'
          StatScale   = 'Poisson'
@@ -1177,7 +1177,7 @@ C some defaults
                Chi2FirstIterationRescale = .true.
             elseif(Chi2ExtraParam(i).eq.'ExtraSystRescale') then
                Chi2ExtraSystRescale = .true.
-c switch on the log poisson correction if ExtraSysRescale was called              
+c switch on the log poisson correction if ExtraSysRescale was called
                Chi2PoissonCorr = .true.
                call HF_errlog(15012601,
      $    'I: extra log corr (Poisson) activated with ExtraSystRescale')
@@ -1241,7 +1241,7 @@ C
 
 C Also add it to c++ map ...
       if (to_gParam) then
-         call add_To_Param_Map( gParam, ExtraParamValue(nExtraParam) 
+         call add_To_Param_Map( gParam, ExtraParamValue(nExtraParam)
      $        ,  iglobal, ExtraParamNames(nExtraParam)//char(0))
       endif
 
@@ -1315,7 +1315,7 @@ C Initialisation:
          endif
 
       enddo
-      
+
       open (51,file='steering.txt',status='old')
       read (51,NML=Systematics,END=123,ERR=124)
 
@@ -1379,7 +1379,7 @@ C-----------------------------------------
       ! --- Initialisation:
       UsePrevFit = 0   ! Do not use previous fit results
       CorSysIndex = NSYSMAX+1  ! trick to calculate all offsets in one job
-      
+
       open (51,file='steering.txt',status='old')
       read (51,NML=CSOffset,END=123,ERR=124)
 
@@ -1469,10 +1469,10 @@ C------------------------------------------------
       end
 
 C
-!> Check if the systematic source is already on the list. 
+!> Check if the systematic source is already on the list.
 !> Takes care of asymmetric errors and : modifier.
-C     
-      integer Function SystematicsExist(SourceName) 
+C
+      integer Function SystematicsExist(SourceName)
 
       implicit none
       character*(*) SourceName
@@ -1483,7 +1483,7 @@ C
 C----------------------------------------------------------------
       SystematicsExist = 0
 
-C Check for +- signs:      
+C Check for +- signs:
       if ( SourceName( len_trim(Sourcename):len_trim(Sourcename))
      $     .eq.'+' .or.
      $     SourceName( len_trim(Sourcename):len_trim(Sourcename))
@@ -1500,12 +1500,12 @@ C Check for :
          Name = Name(1:i-1)
       endif
 
-      do j=1,NSYS            
+      do j=1,NSYS
          if ( system(j) .eq. Name ) then
             SystematicsExist = j
             Return
          endif
-      enddo    
+      enddo
 C----------------------------------------------------------------
       end
 
@@ -1535,7 +1535,7 @@ C
 !>   :T  - "theory" (not data), default for theory files
 !>
 C
-!> @param SName name of added systematic source. 
+!> @param SName name of added systematic source.
 C-----------------------------------------------------------------------------
       Subroutine AddSystematics(SName)
 
@@ -1545,15 +1545,15 @@ C-----------------------------------------------------------------------------
       character*(*) SName
 
       character*64 SourceName
-      
+
       integer ii,iasym
 C-----------------------------------------
-      
+
       SourceName = SName
 
       nsys = nsys + 1
       if (NSYS.gt.NSysMax) then
-         print 
+         print
      $        '(''ReadDataFile Error: exceeding NSysMax'')'
          print '(''Current NSysMax='',i6)',NSysMax
          print '(''Increase NSYSMAX_C in include/dimensions.h'')'
@@ -1586,7 +1586,7 @@ C
 
       ISystType(nsys) = iDataSyst       ! Default
 
-      do while (ii.gt.0) 
+      do while (ii.gt.0)
          if ( SourceName(ii+1:ii+1) .eq.'A' ) then
             SysScalingType(nsys) = isNoRescale
             Call HF_errlog(12090001,
@@ -1604,7 +1604,7 @@ C
          elseif ( SourceName(ii+1:ii+1) .eq.'E' ) then
             SysForm(nsys) = isExternal
          elseif ( SourceName(ii+1:ii+1) .eq.'D' ) then
-            ISystType(nsys) = iDataSyst            
+            ISystType(nsys) = iDataSyst
          elseif ( SourceName(ii+1:ii+1) .eq.'T' ) then
             ISystType(nsys) = iTheorySyst
          else
@@ -1613,7 +1613,7 @@ C
             Call HF_errlog(12090002,
      $'W:WARNING: wrong form or bias correction for a systematic source')
          endif
-         
+
          SourceName = SourceName(ii+2:)
          ii = index(SourceName,':')
       enddo
@@ -1643,7 +1643,7 @@ C--------------------------------------------------------
       HiTwistSubType = 'lam-sig-x0'
       open (51,file='steering.txt',status='old')
       read (51,NML=HighTwist,ERR=134,end=131)
- 
+
  131  continue
       close (51)
 
@@ -1667,7 +1667,7 @@ C-----------------
 
       implicit none
 #include "steering.inc"
-      character*48 CMess 
+      character*48 CMess
 C----------------------------------------------------------
 !      if ( I_Fit_order .eq. 1 ) then
 !         if ( index(HF_SCHEME,'RT').gt.0 ) then

@@ -17,13 +17,14 @@ namespace xfitter
   class BasePdfParam;
   class BaseMinimizer;
 
-  /// Load named evolution code.  
+  ///Get evolution by its name, creating it if needed
+  //If name=="", returns default evolution
   BaseEvolution* get_evolution(std::string name="");  
-  /// Load named pdfDecomposition code.  
+  ///Get decomposition by its name, creating it if needed
   BasePdfDecomposition* get_pdfDecomposition(std::string name="");
   BasePdfParam*getParameterisation(const std::string&name="");
-  /// Load the minimizer
-  BaseMinimizer* get_minimizer();
+  ///Get minimizer
+  BaseMinimizer*get_minimizer();
 
   //When fortran code accesses pdfs, it accesses this default evolution
   extern BaseEvolution*defaultEvolution;

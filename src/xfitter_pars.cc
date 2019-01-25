@@ -382,7 +382,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         double pr_sigma=nan("");
         YAML::Node pNode=it->second;
         switch(pNode.Type()){
-          case YAML::NodeType::Scalar:{//Should be a special string DEPENDENT
+          case YAML::NodeType::Scalar:{
             string definition=pNode.as<string>();
             stripString(definition);
             if(definition=="DEPENDENT"||definition=="SUMRULE"){//This means that this parameter will be calculated using sum rules

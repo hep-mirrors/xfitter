@@ -24,6 +24,7 @@ C---------------------------------------------------------
 #include "endmini.inc"
 #include "for_debug.inc"
       integer i
+      double precision chi2data_theory !function
 
 C Store FCN flag in a common block:
       IFlagFCN = IFlag
@@ -50,7 +51,7 @@ C Count number of FCN calls:
 C Store only if IFlag eq 3:
       if (iflag.eq.3) then
          do i=1,MNE
-            pkeep(i) = parminuit(i)            
+            pkeep(i) = parminuit(i)
 C !> Also store for each fcn=3 call:
             pkeep3(i,nfcn3) = parminuit(i)
          enddo
@@ -82,34 +83,34 @@ c will take them from
       endif
       call MntShowVValues(chi2out)
 #endif
-      
+
       return
       end
 C------------------------------------------------------
 C> @brief Helper for C++
-C------------------------------------------------------      
+C------------------------------------------------------
       subroutine update_theory_iteration
       implicit none
 #include "ntot.inc"
 #include "datasets.inc"
       integer idataset
       character*128 Msg
-      
+
       call gettheoryiteration
       do idataset=1,Ndatasets
          if(NDATAPOINTS(idataset).gt.0) then
             call GetTheoryForDataset(idataset)
-         else 
+         else
              write (Msg,
      $           '(''W: Data set '',i2
-     $,'' contains no data points, will be ignored'')') 
+     $,'' contains no data points, will be ignored'')')
      $           idataset
            call hf_errlog(29052013,Msg)
          endif
       enddo
 
       end
-      
+
 C------------------------------------------------------------------------------
 C> @brief     Calculate predictions for the data samples and return total chi2.
 C> @details   Created by splitting original fcn() function
@@ -170,14 +171,14 @@ C--------------------------------------------------------------
       double precision TempChi2
       double precision GetTempChi2   ! Temperature penalty for D, E... params.
       double precision OffsDchi2   ! correction for final Offset calculation
-      
+
 C  x-dependent fs:
       double precision fs0
       double precision fshermes
 
 c updf stuff
       logical firsth
-      double precision auh 
+      double precision auh
       common/f2fit/auh(50),firsth
       Logical Firstd,Fccfm1,Fccfm2
       Common/ myfirst/Firstd,Fccfm1,Fccfm2
@@ -195,7 +196,7 @@ c updf stuff
 
       character*2 TypeC, FormC, TypeD
       character*64 Msg
-      
+
       double precision rmass,rmassp,rcharge
       COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)
 
@@ -217,7 +218,7 @@ C--OZ 21.04.2016 Increment IfcnCount here instead of fcn routine
       endif
 C--------------------------------------------------------------
 *     ---------------------------------------------------------
-*     initialise variables 
+*     initialise variables
 *     ---------------------------------------------------------
       chi2out = 0.d0
       fchi2 = 0.d0
@@ -226,7 +227,7 @@ C--------------------------------------------------------------
 
       iflagfcn = iflag
 
-      itheory_ca = itheory      
+      itheory_ca = itheory
 
       do jsys=1,nsys
          bsys(jsys) = 0.d0
@@ -260,7 +261,7 @@ C--------------------------------------------------------------
 c        write(6,*) ' fcn npoint ',npoints
          firsth=.true.
          Fccfm1=.true.
-        
+
       endif
 
       if (iflag.eq.1) then
@@ -274,22 +275,22 @@ c        write(6,*) ' fcn npoint ',npoints
          enddo
       endif
 
-*     ---------------------------------------------------------  	 
+*     ---------------------------------------------------------
 *     Initialise theory calculation per iteration
-*     ---------------------------------------------------------  	 
+*     ---------------------------------------------------------
       call GetTheoryIteration
 
       if (Debug) then
          print*,'after GetTheoryIteration'
       endif
 
-*     ---------------------------------------------------------  	       
+*     ---------------------------------------------------------
 *     Calculate theory for datasets:
-*     ---------------------------------------------------------  	 
+*     ---------------------------------------------------------
       do idataset=1,NDATASETS
          if(NDATAPOINTS(idataset).gt.0) then
             call GetTheoryForDataset(idataset)
-         else 
+         else
              write (Msg,
      $  '(''W: Data set '',i2,
      $           '' contains no data points, will be ignored'')') idataset
@@ -309,16 +310,16 @@ c        write(6,*) ' fcn npoint ',npoints
 *     ---------------------------------------------------------
 
       do 100 i=1,npoints
-         
+
          h1iset = JSET(i)
-         
+
          if (iflag.eq.3) npts(h1iset) = npts(h1iset) + 1
-         
+
          n0 = n0 + 1
          ndf = ndf + 1
 
-         
-         
+
+
  100  continue
 *     ---------------------------------------------------------
 *     end of data loop
@@ -333,8 +334,8 @@ c        write(6,*) ' fcn npoint ',npoints
 * -----------------------------------------------------------
 
       if (IFlag.eq.1 .and. lrand) then
-         call MC_Method()         
-      endif 
+         call MC_Method()
+      endif
 
       if (IFlag.eq.1) then
          NSysData = 0
@@ -359,7 +360,7 @@ c        write(6,*) ' fcn npoint ',npoints
         Chi2OffsRecalc = .true.
         Chi2OffsFinal = .true.
         call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,
-     $       pchi2offs,fcorchi2) 
+     $       pchi2offs,fcorchi2)
       else
         Chi2OffsRecalc = .false.
       endif
@@ -389,7 +390,7 @@ c        write(6,*) ' fcn npoint ',npoints
             print *,'SAVE PDF values'
          endif
 
-         TheoFCN3 = Theo  ! save 
+         TheoFCN3 = Theo  ! save
          TheoModFCN3 = Theo_Mod
          ALphaModFCN3 = ALPHA_Mod
 
@@ -430,12 +431,10 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
 
 c Print time, number of calls, chi2
          call cpu_time(time3)
-         print '(''cpu_time'',3F10.2)', time1, time3, time3-time1 
+         print '(''cpu_time'',3F10.2)', time1, time3, time3-time1
          write(6,'(A20,i6,F12.2,i6,F12.2)') '
-     $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out, 
+     $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out,
      $        ndf, chi2out/ndf
-
-
 ! ----------------  RESULTS OUTPUT ---------------------------------
 ! Reopen "Results.txt" file if it is not open
 ! It does not get opened by this point when using CERES
@@ -454,7 +453,7 @@ c Print time, number of calls, chi2
          if (doOffset)
      $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(85,*)
-         
+
          write(6,*)
          write(6,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
 !          if (doOffset .and. iflag.eq.3)
@@ -467,16 +466,16 @@ c Print time, number of calls, chi2
          call write_pars(nfcn3)
 
          if (ControlFitSplit) then
-            print 
+            print
      $     '(''Fit     chi2/Npoint, after fit = '',F10.4,I4,F10.4)'
      $           ,chi2_fit
      $           , NFitPoints,chi2_fit/NFitPoints
-            print 
+            print
      $     '(''Control chi2/Npoint, after fit = '',F10.4,I4,F10.4)'
      $           ,chi2_cont
-     $           , NControlPoints,chi2_cont/NControlPoints            
+     $           , NControlPoints,chi2_cont/NControlPoints
 
-c            write (71,'(4F10.4)') 
+c            write (71,'(4F10.4)')
 c     $           paruval(4),paruval(5),chi2_fit/NFitPoints
 c     $           ,chi2_cont/NControlPoints
 
@@ -490,7 +489,7 @@ c     $           ,chi2_cont/NControlPoints
 
 
       if (iflag.eq.3) then
-         
+
          if (doOffset) then
             fcorchi2 = 0d0
             do h1iset=1,nset
@@ -499,7 +498,7 @@ c     $           ,chi2_cont/NControlPoints
             enddo
 !     fcorchi2 = chi2out+OffsDchi2
          endif
-      
+
 ! ----------------  RESULTS OUTPUT ---------------------------------
          write(85,*) ' Partial chi2s '
          chi2_log = 0
@@ -558,8 +557,8 @@ c     $           ,chi2_cont/NControlPoints
 
                open(91,file=TRIM(OutDirName)//'/params.txt')
                write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
-               
-             
+
+
 
             else
 C  Hardwire:
@@ -612,7 +611,7 @@ C     !> Store also type of systematic source info
             endif
 
             write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
-     $           jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, 
+     $           jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC,
      $           TypeC,TypeD
          enddo
 
@@ -622,10 +621,9 @@ C Trigger reactions:
          call cpu_time(time2)
          print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
 
-         
+
       endif
 
-      
 C Return the chi2 value:
 
 c If for any reason we got chi2==NaN, set it to +inf so that that
@@ -639,10 +637,10 @@ c a minimizer would treat it as very bad
 
 C Broken since 2.2.0
 C---------------------------------------------------------------------
-!> @brief   Calculate penalty term for higher oder parameters using "temperature" 
+!> @brief   Calculate penalty term for higher oder parameters using "temperature"
 !> @details Currently works only for standard param-types (10p-13p-like)
 C---------------------------------------------------------------------
-      double precision function GetTempChi2()
+c     double precision function GetTempChi2()
 
 c     implicit none
 c     integer i
@@ -665,7 +663,7 @@ c     enddo
 
 c     GetTempChi2 = chi2*Temperature
 C---------------------------------------------------------------------
-      end
+c     end
 
 
 C---------------------------------------------------------
