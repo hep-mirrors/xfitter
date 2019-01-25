@@ -24,7 +24,8 @@
 #include <yaml-cpp/yaml.h>
 #include "xfitter_pars.h"
 
-#include "linalg/NaturalCubicSpline.h"
+//#include <TSpline.h>
+#include <spline.h>
 
 using namespace std;
 
@@ -725,7 +726,6 @@ TheorEval::Evaluate(valarray<double> &vte )
       std::valarray<double> x0 = stk.top();
       stk.pop();
       int nsections = (it->narg - 1) / 2;
-      printf("nsections = %d\n", nsections);
       std::valarray<std::valarray<double> > x(nsections);
       std::valarray<std::valarray<double> > y(nsections);
       for(int sect = nsections - 1; sect >= 0; sect--)
@@ -744,13 +744,20 @@ TheorEval::Evaluate(valarray<double> &vte )
         {
           xSpline[sect] = x[sect][p];
           ySpline[sect] = y[sect][p];
-          printf("sect = %f   x,y = %f,%f\n", sect, xSpline[sect], ySpline[sect]);
         }
-        NaturalCubicSpline spline = NaturalCubicSpline(xSpline, ySpline);
+        //TSpline3 spline("", &xSpline[0], &ySpline[0], ySpline.size());
+        tk::spline spline;
+        spline.set_points(xSpline, ySpline);
         if(it->name == string("spline"))
-          result[p] = spline.Eval(x0[p]);
+        {
+          //result[p] = spline.Eval(x0[p]);
+          result[p] = spline(x0[0]);
+        }
         else if(it->name == string("splinederivative"))
-          result[p] = spline.Eval(x0[p], 1);
+        {
+          //result[p] = spline.Derivative(x0[p]);
+          result[p] = spline(x0[0], 1);
+        }
       }
       stk.push(result);
     }
