@@ -83,26 +83,18 @@ C-----------------------------------------------------
      +     'I: data tables have been read successfully') 
 
 *  
-      call init_func_map()
-
-
-*     ------------------------------------------------
-*     Initialise theory modules
-*     ------------------------------------------------
-
-      call init_theory_modules
-      call hf_errlog(12020503,
-     +     'I: theory modules initialised successfully') 
+!     call init_func_map()
+      call Init_EW_parameters
 
       if (LHAPDFErrors) then  ! PDF errors
          call get_lhapdferrors
          goto 36
       endif
-
-      if (SCAN) then  ! chi2 scan
-         call chi2_scan
-         goto 36
-      endif
+C chi2scan is broken since 2.2.0
+C     if (SCAN) then  ! chi2 scan
+C        call chi2_scan
+C        goto 36
+C     endif
 
 *     ------------------------------------------------
 *     Do the fit

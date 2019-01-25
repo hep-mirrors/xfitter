@@ -173,7 +173,6 @@ extern"C" {
     int writealphastomemberpdf;
     int itheory;
     int i_fit_order;
-    int iparam;
     int hfscheme;
     int lrand;
     int statype;

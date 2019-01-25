@@ -27,12 +27,6 @@
 
 using namespace std;
 
-// extern struct ord_scales {
-//    double datasetmur[150];
-//    double datasetmuf[150];
-//    int datasetiorder[150];
-// } cscales_;
-
 // Global variable to hold current alphaS
 std::function<double(double const& Q)>  gAlphaS;
 
@@ -52,9 +46,6 @@ extern "C" {
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
 {
-  // _iOrd = cscales_.datasetiorder[_dsId-1];
-  // _xmur = cscales_.datasetmur[_dsId-1];
-  // _xmuf = cscales_.datasetmuf[_dsId-1];
   for (int it= 0 ; it<nTerms; it++ ){
     _termNames.push_back(stn[it]);
     _termTypes.push_back(stt[it]);
@@ -373,10 +364,12 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     gAlphaS = evo-> AlphaQCD();
     rt->setEvolFunctions( &alphaS, &g2Dfunctions);
 
+    /* broken since 2.2.0
     // simplify interfaces to LHAPDF:
     rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
     rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
     rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
+    */
 
     // initialize
     if (rt->atStart("") != 0) {

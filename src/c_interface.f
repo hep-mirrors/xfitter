@@ -47,7 +47,8 @@
       integer  npari, nparx, istat
 
       get_nmembers=0
-
+C Broken since 2.2.0
+#if 0
       if(PDF_DECOMPOSITION.eq."LHAPDF") then
 #ifndef LHAPDF_ENABLED
          call hf_errlog(29061521, "S: Call to lhapdf function but"//
@@ -72,4 +73,5 @@
             get_nmembers= npari + 1  ! central + vars
          endif
       endif
+#endif
       end 

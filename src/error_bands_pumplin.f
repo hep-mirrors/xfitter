@@ -4,7 +4,6 @@
       implicit none
 
 #include "steering.inc"
-#include "pdfparam.inc"
 #include "endmini.inc"
 #include "alphas.inc"
 #include "thresholds.inc"
@@ -160,7 +159,8 @@ C
 C
 C Decode "a". 2 stands for IFLag = 2, which is a normal iteration.
 C
-            call PDF_param_iteration(a,2)
+!Broken since 2.2.0
+!           call PDF_param_iteration(a,2)
             
 C
 C Fix some pars by sum-rules:
@@ -418,7 +418,8 @@ C               a(i) = a(i) + GetUmat(iint,j)
 C
 C Decode "a". 2 stands for IFLag = 2, which is a normal iteration.
 C
-         call PDF_param_iteration(a,2)
+!Broken since 2.2.0
+!        call PDF_param_iteration(a,2)
          
          ifcncount = ifcncount+1
          chichi = chi2data_theory(2)  ! sum-rules and evolution are inside

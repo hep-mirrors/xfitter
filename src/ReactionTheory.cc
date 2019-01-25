@@ -23,12 +23,14 @@ void protonPDF(double const& x, double const& Q, double* pdfs) {
   gProtonPdf(x,Q,pdfs);
 }
 
+/* Unused since 2.2.0
 // Also fortran interface
 extern "C" {
   void proton_pdf_(double const& x, double const& Q, double* pdfs) {
     gProtonPdf(x,Q,pdfs);
   };
 }
+*/
 
 
 ReactionTheory::ReactionTheory(const ReactionTheory &rt)
@@ -79,15 +81,6 @@ const pXFXlike  ReactionTheory::getXFX(const string& type) {
     std::cerr<<ex.what();
     hf_errlog(18091400,"F: Exception in retrieveXfxQArray, details written to stderr");
   }
-
-  // return _xfx[type];
-  //  double dd[13];
-  // gProtonPdf(0.01,5.,dd);
-  // for (int i=1; i<12; i++) {
-  //  std::cout << " pdf at x=0.01, q=5: " << i << " val =" << dd[i] << std::endl;
-  //}
-
-  
   return &protonPDF;
 }
 

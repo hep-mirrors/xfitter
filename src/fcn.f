@@ -25,14 +25,6 @@ C---------------------------------------------------------
 #include "for_debug.inc"
       integer i
 
-C function:
-      double precision chi2data_theory
-! [--- WS 2015-10-10
-      double precision XParValueByName
-! ---]
-
-C-----------------------------------------------------------------
-      
 C Store FCN flag in a common block:
       IFlagFCN = IFlag
 
@@ -67,28 +59,21 @@ C !> Also store for each fcn=3 call:
       call HF_errlog(12020515,'I: FCN is called')
 
 C     Print MINUIT extra parameters
+c which are actually all parameters
       call printminuitextrapars
+C Copy new parameter values from MINUIT to whereever parameterisations
+c will take them from
+      call copy_minuit_extrapars(parminuit)
 
-*     ---------------------------------------------------------
-*     PDF parameterisation at the starting scale
-*     ---------------------------------------------------------
-
-      call PDF_Param_Iteration(parminuit,iflag)
-
-! [--- WS 2015-10-10
 #ifdef TRACE_CHISQ
       call MntInpGetparams ! calls MInput.GetMinuitParams();
 #endif
-!       if(doHiTwist) then
-!         print '(''HiTwist:'',6F10.4)',XParValueByName('HT_x0'), XParValueByName('HT_sig0'), XParValueByName('HT_lambda') 
-!       endif
-! ---]
-      
+
 *
 * Evaluate the chi2:
-*     
+*
       chi2out = chi2data_theory(iflag)
-      
+
 #ifdef TRACE_CHISQ
       if (iflag.eq.1) then
         ! print *,'INIT'
@@ -139,7 +124,6 @@ C--------------------------------------------------------------
       integer iflag
 
 #include "steering.inc"
-#include "pdfparam.inc"
 #include "for_debug.inc"
 #include "ntot.inc"
 #include "datasets.inc"
@@ -422,16 +406,17 @@ c        write(6,*) ' fcn npoint ',npoints
          endif
 
       endif
-      
+
+C Broken since 2.2.0
 ! Temperature regularisation:
-      if (Temperature.ne.0) then
-         TempChi2 = GetTempChi2()
-         print *,'Temperature chi2=',TempChi2
-         fchi2 = fchi2 + TempChi2
-      endif
-      
-      
-c Penalty from MINUIT extra parameters constraints (only for fits) 
+c     if (Temperature.ne.0) then
+c        TempChi2 = GetTempChi2()
+c        print *,'Temperature chi2=',TempChi2
+c        fchi2 = fchi2 + TempChi2
+c     endif
+
+
+c Penalty from MINUIT extra parameters constraints (only for fits)
 C However when/if LHAPDFErrors mode will be combined with minuit, this will need modification.
       if (.not. LHAPDFErrors) then
          call getextraparsconstrchi2(extraparsconstrchi2)
@@ -580,7 +565,7 @@ c     $           ,chi2_cont/NControlPoints
 C  Hardwire:
                if ( ReadParsFromFile .and. DoBandsSym) then
                   call ReadPars(ParsFileName, pkeep)
-                  call PDF_param_iteration(pkeep,2)
+!                 call PDF_param_iteration(pkeep,2)!broken since 2.2.0
                endif
 
 C LHAPDF output:
@@ -646,34 +631,33 @@ C Return the chi2 value:
 
       end
 
-
+C Broken since 2.2.0
 C---------------------------------------------------------------------
 !> @brief   Calculate penalty term for higher oder parameters using "temperature" 
 !> @details Currently works only for standard param-types (10p-13p-like)
 C---------------------------------------------------------------------
       double precision function GetTempChi2()
 
-      implicit none
-#include "pdfparam.inc"
-      integer i
-      double precision chi2
-      double precision xscale(3)
-      data xscale/0.01,0.01,0.01/
-      chi2 = 0.
+c     implicit none
+c     integer i
+c     double precision chi2
+c     double precision xscale(3)
+c     data xscale/0.01,0.01,0.01/
+c     chi2 = 0.
 
 C Over d,e and F
-      do i=1,3
-         chi2 = chi2 + (paruval(i+3)*xscale(i))**2 
-         chi2 = chi2 + (pardval(i+3)*xscale(i))**2 
-         chi2 = chi2 + (parubar(i+3)*xscale(i))**2 
-         chi2 = chi2 + (pardbar(i+3)*xscale(i))**2 
-         if (i.le.2) then
-            chi2 = chi2 + (parglue(i+3)*xscale(i))**2 
-         endif
-      enddo
+c     do i=1,3
+c        chi2 = chi2 + (paruval(i+3)*xscale(i))**2
+c        chi2 = chi2 + (pardval(i+3)*xscale(i))**2
+c        chi2 = chi2 + (parubar(i+3)*xscale(i))**2
+c        chi2 = chi2 + (pardbar(i+3)*xscale(i))**2
+c        if (i.le.2) then
+c           chi2 = chi2 + (parglue(i+3)*xscale(i))**2
+c        endif
+c     enddo
 
 
-      GetTempChi2 = chi2*Temperature
+c     GetTempChi2 = chi2*Temperature
 C---------------------------------------------------------------------
       end
 
@@ -740,4 +724,14 @@ C---------------------------------------------------------
         mtp=par
       endif
       end
-      
+C copy parameters from minuit
+      subroutine copy_minuit_extrapars(p)
+      implicit none
+      double precision p(*)
+#include "extrapars.inc"
+      integer i
+      integer GetParameterIndex  !function
+      do i=1,nExtraParam
+        ExtraParamValue(i)=p(iExtraParamMinuit(GetParameterIndex(trim(ExtraParamNames(i)))))
+      enddo
+      end

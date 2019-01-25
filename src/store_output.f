@@ -10,7 +10,6 @@ C--------------------------------------------------------------
       implicit none
 
 #include "steering.inc"
-#include "pdfparam.inc"
 
       integer i,ix,idx,iq2,iflag
       double precision q2,x,gval,sing,umin,dmin
@@ -485,11 +484,14 @@ C-------------------------------------------------------------------
       print *,' '
 
       ! Dump PDFs for this:
-      call PDF_param_iteration(pkeep3(1,iminCont),2) !Decode params.
+!Broken since 2.2.0
+!     call PDF_param_iteration(pkeep3(1,iminCont),2) !Decode params.
 C
 C Fix some pars by sum-rules:
 C
-      call Evolution
+C     call Evolution !I'm commenting this out because it conflicts with
+C     the new evolution interface, but I do not know why it was here
+C     --Ivan
 
 C ! Ready to store: 
 cv      open (76,file='output/lhapdf.block.txt',status='unknown')

@@ -32,14 +32,14 @@ C Special branch for rotation
       call read_outputnml   ! output options
       call read_outdirnml   ! output dir 
 
-      if(Itheory.lt.100) then
-         call read_lhapdfnml    ! read lhapdf 
-         call read_chi2scan     ! read chi2scan
-      endif   ! Itheory < 100
+!     if(Itheory.lt.100) then
+!        call read_lhapdfnml    ! read lhapdf
+!        call read_chi2scan     ! read chi2scan
+!     endif   ! Itheory < 100
 
       call read_mcerrorsnml  ! MC uncertainties
-      call read_chebnml      ! chebyshev parameterisation extra pars
-      call read_polynml
+!     call read_chebnml      ! chebyshev parameterisation extra pars
+!     call read_polynml
       call read_hqscalesnml  ! read HQ scales
 
       if (itheory.ge.100) then
@@ -55,16 +55,6 @@ c WS 2013-01-07 always read CSOffsetNML
 
 C 30/08/2015  KK - Twist analyses
       call read_HigherTwists
-
-      if(Itheory.lt.100) then
-C
-C Also read extra minuit parameters:
-C      
-         call readextraparam
-      endif ! Itheory > 100
-
-    
-
 C 09/01/2013 Check consistency of the input
       call CheckInputs
 
@@ -82,7 +72,6 @@ C -------------------------------------------
 #include "steering.inc"
 #include "couplings.inc"
 #include "pdflength.inc"
-#include "pdfparam.inc"
 #include "datasets.inc"
 #include "systematics.inc"
 #include "scales.inc"
@@ -106,11 +95,6 @@ C------------------------------------------------------
       EWFIT=0
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
-
-      PDFStyle = 'HERAPDF'
-      PDFType  = 'proton'
-      uvalSum  = 2D0
-      dvalSum  = 1D0
 
       H1QCDFUNC= .False.
 C=================================================
@@ -253,7 +237,7 @@ C-----------------------------------------------
 C Main steering parameters namelist
       namelist/xFitter/
      $     ITheory, IOrder,         ! keep for backward compatibility
-     $     Q02, HF_SCHEME, PDFStyle, PDFType, 
+     $     Q02, HF_SCHEME,
      $     LDebug, ifsttype,  LFastAPPLGRID, LUseAPPLgridCKM,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
@@ -277,16 +261,9 @@ C  Read the main xFitter namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=xFitter,END=141,ERR=42)
-      close (51)
-
-
-      goto 142
  141  continue
       close (51)
 
- 142  continue
-
-C 
       if (AsymErrorsIterations .gt. 0) then
          call hf_errlog(13080601,'I: Use asymmetric uncertainties')
       else
@@ -309,19 +286,20 @@ C Decode Running Mode:
       else if  ( RunningMode .eq. 'PDF Rotate') then
          scan = .false.
          lhapdferrors = .false.
-         pdfrotate = .true. 
-      else if  ( RunningMode .eq. 'LHAPDF Analysis') then
-         scan = .false.
-         lhapdferrors = .true. 
-         if ( index(pdfstyle,'LHAPDF').eq.0) then
-            Call hf_errlog(15072203,'I: Set LHAPDF Style.')
-            PDFSTYLE = 'LHAPDF'
-         endif
-         pdfrotate = .false.
+         pdfrotate = .true.
+C Broken since 2.2.0
+c     else if  ( RunningMode .eq. 'LHAPDF Analysis') then
+c        scan = .false.
+c        lhapdferrors = .true.
+c        if ( index(pdfstyle,'LHAPDF').eq.0) then
+c           Call hf_errlog(15072203,'I: Set LHAPDF Style.')
+c           PDFSTYLE = 'LHAPDF'
+c        endif
+c        pdfrotate = .false.
       else if  ( RunningMode .eq. 'Chi2 Scan') then
          scan = .true.
          lhapdferrors = .false.
-         pdfrotate = .false. 
+         pdfrotate = .false.
       else
          call hf_errlog(15072202,'F:Running mode unknonw value: '//
      $        trim(RunningMode))
@@ -505,14 +483,15 @@ C
       endif
 
 C  check if the PDFstyle is indeed Ok
-      if  ( RunningMode .eq. 'LHAPDF Analysis') then
-         if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0' 
-     $        .and. PDFStyle.ne.'LHAPDFNATIVE') then
-            call HF_Errlog(12032303,
-     $           'W:WARNING: Setting PDF style to LHAPDFQ0')
-            PDFStyle = 'LHAPDFQ0'
-         endif
-      endif
+C Broken by recent rewrite
+c     if  ( RunningMode .eq. 'LHAPDF Analysis') then
+c        if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0'
+c    $        .and. PDFStyle.ne.'LHAPDFNATIVE') then
+c           call HF_Errlog(12032303,
+c    $           'W:WARNING: Setting PDF style to LHAPDFQ0')
+c           PDFStyle = 'LHAPDFQ0'
+c        endif
+c     endif
 
       if (LDebug) then
 C Print the namelist:
@@ -606,53 +585,52 @@ C-----------------------------------------------
       call HF_stop
       end
 
-
+C Broken since 2.2.0
 C
 !> Read optional chebyshev namelist
 C--------------------------------------------------------
-      subroutine read_chebnml
-
-      implicit none
-#include "steering.inc"
-#include "pdflength.inc"
-#include "pdfparam.inc"
-C---------------------------------------------
-C (Optional) Chebyshev namelist
-      namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
-     $     ,IOFFSETCHEBSEA,ichebtypeGlu,ichebtypeSea
-     $     ,WMNlen,WMXlen, ChebXMin
-C-------------------------------------------------      
+C      subroutine read_chebnml
 C
-C  Read the Chebyshev namelist:
+C      implicit none
+C#include "steering.inc"
+C#include "pdflength.inc"
+CC---------------------------------------------
+CC (Optional) Chebyshev namelist
+C      namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
+C     $     ,IOFFSETCHEBSEA,ichebtypeGlu,ichebtypeSea
+C     $     ,WMNlen,WMXlen, ChebXMin
+CC-------------------------------------------------
+CC
+CC  Read the Chebyshev namelist:
+CC
+C      open (51,file='steering.txt',status='old')
+C      read (51,NML=Cheb,ERR=64,end=63)
 C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=Cheb,ERR=64,end=63)
- 
- 63   continue
-      close (51)
+C 63   continue
+C      close (51)
+C
+C      chebxminlog = log(chebxmin)
+C      if (NCHEBGLU.ne.0) then
+C         print *,'Use Chebyshev polynoms for gluon with N=',NCHEBGLU
+C      endif
+C
+C      if (NCHEBSEA.ne.0) then
+C         print *,'Use Chebyshev polynoms for sea with N=',NCHEBSEA
+C         print *,'Offset for minuit parameters is',IOFFSETCHEBSEA
+C      endif
+C
+C      if (LDebug) then
+C         print Cheb
+C      endif
+C
+C      return
+CC-----------------
+C 64   continue
+C      print '(''Error reading namelist &Cheb, STOP'')'
+C      call HF_stop
+C      end
 
-      chebxminlog = log(chebxmin)
-      if (NCHEBGLU.ne.0) then
-         print *,'Use Chebyshev polynoms for gluon with N=',NCHEBGLU
-      endif
 
-      if (NCHEBSEA.ne.0) then
-         print *,'Use Chebyshev polynoms for sea with N=',NCHEBSEA
-         print *,'Offset for minuit parameters is',IOFFSETCHEBSEA
-      endif
-
-      if (LDebug) then
-         print Cheb
-      endif
-
-      return
-C-----------------
- 64   continue
-      print '(''Error reading namelist &Cheb, STOP'')'
-      call HF_stop
-      end
-
-      
 C
 !> Optional polynomial parametrisation for valence quarks
 C-------------------------------------------------------------
@@ -1210,69 +1188,7 @@ c switch on the log poisson correction if ExtraSysRescale was called
          enddo
       endif
       end
-      
 
-C
-!> @brief Read ExtraMinimisationParameters namelists.
-!> @details Read as many instances of the namelist as exist.
-C-------------------------------------
-      Subroutine ReadExtraParam
-
-      implicit none
-#include "extrapars.inc"
-#include "alphas.inc"
-      integer maxExtra
-      parameter (maxExtra=50)
-      character*32 name(maxExtra)
-      double precision Value(maxExtra),Step(maxExtra)
-     $     ,Min(maxExtra),Max(maxExtra)
-     $     ,ConstrVal(maxExtra),ConstrUnc(maxExtra)
-
-      namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
-     $                                     ,ConstrVal,ConstrUnc
-      integer i
-      double precision getparamd
-C----------------------------------------
-      
-      open (51,file='steering.txt',status='old')
-C
-C Read as many instances of the namelist as exists:
-C
-      do while (.true.)
-C
-C Reset names
-C
-         do i=1,maxExtra
-            name(i) = ' '
-         enddo
-         read (51,NML=ExtraMinimisationParameters,END=71,ERR=72)
-
-         call hf_errlog(18031501,
-     $        'W: Reading parameters from'//achar(27)
-     $        //'[31m obsolete ExtraMinimisationParameters'
-     $        //' namelist.    Consider using parameters.yaml instead'
-     $         //achar(27)//'[34m')    
-         
-         do i=1,maxExtra
-            if (name(i).ne.' ') then
-               call AddExternalParam(name(i),value(i), step(i), min(i), max(i)
-     $              ,ConstrVal(i),ConstrUnc(i),.true.,0.0D0)
-            endif
-         enddo
-      enddo
- 71   continue
-      print '(''Got '',i5,'' extra minuit parameters'')',nExtraParam
-      close (51)
-C --- Set value of alphas
-      alphas = getParamD('alphas')
-      return
- 72   continue
-      print *,'Problem reading namelist ExtraMinimisationParameters'
-      call HF_stop
-C----------------------------------------
-      end
-
-C
 !> Add extra fitting parameters
 !> @param name of extra parameter
 !> @param value of extra parameter
@@ -1282,7 +1198,10 @@ C
 !> @param construnc uncertainty on constrain in case of fitting
 !> @param to_gparam send to gParameters or not
 C-----------------------------------------------
-      Subroutine AddExternalParam(name, value, step, min, max, 
+C As far as I understand, currently ALL parameters are treated as extra
+C This routine registers a parameter in some array where MINUIT will
+C find them (???)
+      Subroutine AddExternalParam(name, value, step, min, max,
      $                            constrval, construnc, to_gParam
      $     ,gParam)
 
@@ -1757,15 +1676,15 @@ C----------------------------------------------------------
 !         endif
 !      endif
 
-
-      if (LHAPDFErrors) then
-         if(PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0'
-     $        .and.PDFStyle.ne.'LHAPDFNATIVE') then
-            call HF_Errlog(03062013,
-     $ 'W:WARRNING PDFstyle is not LHAPDF, setting PDFErrors to False')
-             LHAPDFErrors = .false.
-         endif
-      endif
+C broken by recent rewrite
+!     if (LHAPDFErrors) then
+!        if(PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0'
+!    $        .and.PDFStyle.ne.'LHAPDFNATIVE') then
+!           call HF_Errlog(03062013,
+!    $ 'W:WARRNING PDFstyle is not LHAPDF, setting PDFErrors to False')
+!            LHAPDFErrors = .false.
+!        endif
+!     endif
 
       return
  998  continue

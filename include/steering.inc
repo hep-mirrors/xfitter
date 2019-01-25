@@ -4,7 +4,6 @@
 
       integer Itheory          !>  Theory type
      $     ,I_FIT_ORDER        !>  Fit order (LO=0, NLO=1, NNLO=2)
-     $     ,IPARAM             !>  Internal flag for parameterisation type
      $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
      $     ,iDH_MOD            !>  Correction factor to the chi2, scaling
                                !>  of statistical errors
@@ -117,7 +116,7 @@ C
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
      &     lDEBUG,DOBANDS,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,WriteAlphaSToMemberPDF,
-     &     Itheory,I_FIT_ORDER,IPARAM,HFSCHEME,
+     &     Itheory,I_FIT_ORDER,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,
      $     nchebSEA,wmnlen,wmxlen
@@ -148,8 +147,8 @@ c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
 
       common/GRIDS/xmin_grid
 
-      character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
-      common/STEERING3/PDF_DECOMPOSITION
+c     character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
+c     common/STEERING3/PDF_DECOMPOSITION
 
 
       common/heavyflav/
@@ -168,11 +167,11 @@ C     Value for selection of a dipole model fit
       common/DipCsModelType/DipCsModel
         
 
-      character*32 PDFStyle           !> PDF style definition
-      common/CPdfStyle/PDFStyle
+c     character*32 PDFStyle           !> PDF style definition
+c     common/CPdfStyle/PDFStyle
 
-      character*32 PDFType           !> PDF type definition
-      common/CPdfStyle/PDFType
+c     character*32 PDFType           !> PDF type definition
+c     common/CPdfStyle/PDFType
 
       character*128  LHAPDFSET        !> LHAPDF set name
       character*128  LHAPDFVARSET     !> LHAPDF VAR set name
