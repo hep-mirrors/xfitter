@@ -412,7 +412,15 @@ else
     export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
 
  #apfelgrid
-    lhapdf get NNPDF30_nlo_as_0118
+    if [ -d /cvmfs ]
+    then
+		lhapdf get NNPDF30_nlo_as_0118
+	else
+		wget wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz
+		tar xvzpf NNPDF30_nlo_as_0118.tar.gz
+		mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir`
+		rm NNPDF30_nlo_as_0118.tar.gz
+	fi
     echo "Installing APFELgrid $apfelgridver..."
     # tmp solution is to use fork @zenaiev
     apfelgridver=1.0.5
