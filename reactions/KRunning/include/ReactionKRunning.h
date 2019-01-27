@@ -34,6 +34,7 @@ class ReactionKRunning : public ReactionTheory
     std::map<int, std::string> _type;
     std::map<int, std::string> _q;
     std::map<int, std::string> _q0;
+    std::map<int, int> _NPoints;
     
     double getAlphaS(double q) { return alphaS(q); }
     double getMassMSbar(const double m0, const double q, const double as, const double as0) 

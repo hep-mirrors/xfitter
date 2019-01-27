@@ -42,6 +42,14 @@ void ReactionKRunning::setDatasetParameters(int dataSetID, map<std::string, std:
   // for type=massMSbarNLO read q0: scale at which m(m) is quoted
   if(_type[dataSetID] == "massMSbarNLO")
     _q0[dataSetID] = pars.find("q0")->second;
+
+  // read optional number of points (if not provided, use the number of data points)
+  it = pars.find("N");
+  if(it == pars.end())
+    _NPoints[dataSetID] = _dsBins[dataSetID]->begin()->second.size();
+  else
+    _NPoints[dataSetID] = atoi(pars["N"].c_str());
+  //printf("npoints: %d\n", _NPoints[dataSetID]);
 }
 
 // Main function to compute results at an iteration
@@ -49,12 +57,13 @@ int ReactionKRunning::compute(int dataSetID, valarray<double> &val, map<string, 
 {
   double q = GetParam(_q[dataSetID]);
   if(_type[dataSetID] == "as")
-    val = getAlphaS(q);
+    val = valarray<double>(getAlphaS(q), _NPoints[dataSetID]);
   else if(_type[dataSetID] == "massMSbarNLO")
   {
     double q0 = GetParam(_q0[dataSetID]);
-    val = getMassMSbar(q0, q, getAlphaS(q0), getAlphaS(q));
+    val = valarray<double>(getMassMSbar(q0, q, getAlphaS(q0), getAlphaS(q)), _NPoints[dataSetID]);
   }
-  for(int i = 0; i < val.size(); i++)
-    printf("val[%d] = %f\n", i, val[i]);
+  //for(int i = 0; i < val.size(); i++)
+  //  printf("val[%d] = %f\n", i, val[i]);
+  return 0;
 }

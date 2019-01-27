@@ -565,6 +565,9 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   map<string, string> pars = SplitTermInfo(term_info);
 
   // and transfer to the module
+    //printf("pars\n");
+    //for(map<string,string>::iterator it = pars.begin(); it != pars.end(); it++)
+    //  printf("%s = %s\n", it->first.c_str(), it->second.c_str());
   rt->setDatasetParameters(_dsId*1000+iterm, pars, _dsPars);
 
   _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
