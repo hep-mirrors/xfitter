@@ -208,7 +208,7 @@ C Check variables for common blocks:
 
 C =============================================
 C
-!> Read the main steering namelisit
+!> Read the main steering namelist
 C----------------------------------------------
       subroutine Read_HFitternml
 
@@ -227,27 +227,27 @@ C-----------------------------------------------
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8)
-
-      real*8 Q02       ! Starting scale
-      integer IOrder   ! Evolution order
-      character*8 Order  !
+!Starting scale and order were moved to YAML since 2.2.0
+!     real*8 Q02       ! Starting scale
+!     integer IOrder   ! Evolution order
+!     character*8 Order  !
       character*16 TheoryType
       integer i
 
 C Main steering parameters namelist
       namelist/xFitter/
-     $     ITheory, IOrder,         ! keep for backward compatibility
-     $     Q02, HF_SCHEME,
+     $     ITheory,         ! keep for backward compatibility
+     $     HF_SCHEME,
      $     LDebug, ifsttype,  LFastAPPLGRID, LUseAPPLgridCKM,
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs,
-     $     ControlFitSplit,Order,TheoryType,
+     $     ControlFitSplit,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
      $     AsymErrorsIterations, pdfRotate, RunningMode
 
 C--------------------------------------------------------------
 
 C Some defaults
-      Order     = ' '
+!     Order     = ' '
       TheoryType = ' '
       RunningMode = ' '
       HF_SCHEME = 'ZMVFNS'
@@ -306,11 +306,11 @@ c        pdfrotate = .false.
       endif
 
 C Decode computation order:
-      if (Order.ne.' ') then
-         Call DecodeOrder(Order)
-      else
-         I_FIT_ORDER = IOrder
-      endif
+!     if (Order.ne.' ') then
+!        Call DecodeOrder(Order)
+!     else
+!        I_FIT_ORDER = IOrder
+!     endif
 
 C Decode theory type:
       if (TheoryType.ne.' ') then
@@ -333,7 +333,7 @@ C
          call SetHFSCHEME
       endif
 
-      starting_scale = Q02
+!     starting_scale = Q02 !broken since 2.2.0
 
       if (LDebug) then
 C Print the namelist:

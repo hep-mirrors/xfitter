@@ -117,11 +117,6 @@
                                 !uPDF3 fit using precalculated grid of sigma_hat
                                 !uPDF4 fit calculating kernel on fly, grid of sigma_hat
 
-
-  Order  = 'NNLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
-
-  Q02     = 1.9 ! Evolution starting scale
-
  ! --- Scheme for heavy flavors 
  ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless) from QCDNUM,
  ! ---  HF_SCHEME = 'ZMVFNS MELA'      : ZM-VFNS (massless) from MELA (N-space),

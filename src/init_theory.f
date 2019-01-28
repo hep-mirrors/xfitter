@@ -110,7 +110,7 @@ C Reduce the Q2 interval if small-x resummation through APFEL is included.
       if(HFSCHEME.eq.3005.or.
      1   HFSCHEME.eq.3055.or.
      2   HFSCHEME.eq.3555)then
-         QARR(1) = starting_scale
+         !QARR(1) = starting_scale !starting_scale is broken since 2.2.0
          QARR(2) = 2.025D7      ! needed for lhapdf grid  
       endif
 c      QARR(2) =  64000000.      ! enough for 8 TeV LHC.
