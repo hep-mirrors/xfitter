@@ -150,7 +150,7 @@ private:
     cout << "\t \t Draw PDF uncertainty bands" << endl;
     cout << "\t --profile" << endl;
     cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
-    cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
+    cout << "\t \t To set this option only for one directory, use the syntax profile:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw profile:output:\"profiled\" output:\"not-profiled\"" << endl;
     cout << "\t --reweight(-BAY/-GK)" << endl;
     cout << "\t \t Draw Reweighted PDF (only for MC replica sets)" << endl;
