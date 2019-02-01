@@ -104,7 +104,7 @@ void ReactionKFactor::setDatasetParameters(int dataSetID, map<string,string> par
     }
     file.close();
   }
-  // check if kfactors should be read from data file (soecifying column is mandatory)
+  // check if kfactors should be read from data file (specifying column is mandatory)
   else if (pars.find("DataColumn") != pars.end())
   {
     std::string columnName = pars["DataColumn"];
@@ -118,26 +118,31 @@ void ReactionKFactor::setDatasetParameters(int dataSetID, map<string,string> par
   // check if kfactor is a parameter (possibly free); the value of this parameter will be used for all bins in data set
   else  if (pars.find("Parameter") != pars.end())
   {
-    _parameterNames[dataSetID] = std::make_pair(pars["Parameter"], 0.0);
+    _parameters[dataSetID].Name = pars["Parameter"];
+    _parameters[dataSetID].Value = 0.0;
+    if (pars.find("N") != pars.end())
+      _parameters[dataSetID].NPoints = atoi(pars["N"].c_str());
+    else
+      _parameters[dataSetID].NPoints = _dsBins[dataSetID]->begin()->second.size();
   }
   else
     hf_errlog(17102804, "F: FileName or DataColumn or Parameter must be provided for KFactor");
 }
 
 void ReactionKFactor::initAtIteration() {
-  for(auto& it : _parameterNames)
-    it.second.second = GetParam(it.second.first);
+  for(auto& it : _parameters)
+    it.second.Value = GetParam(it.second.Name);
 }
 
 // Main function to compute results at an iteration
 int ReactionKFactor::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  const auto& it = _parameterNames.find(dataSetID);
-  if(it != _parameterNames.end())
+  const auto& it = _parameters.find(dataSetID);
+  if(it != _parameters.end())
   {
     // kfactor given as a fit parameter read in initAtIteration()
     int np = _dsBins[dataSetID]->begin()->second.size(); // number of data points
-    val = std::valarray<double>(it->second.second, np);
+    val = std::valarray<double>(it->second.Value, it->second.NPoints);
   }
   else
     // kfactor is constant value read in setDatasetParameters()
