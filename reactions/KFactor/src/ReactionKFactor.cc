@@ -141,7 +141,7 @@ int ReactionKFactor::compute(int dataSetID, valarray<double> &val, map<string, v
   if(it != _parameters.end())
   {
     // kfactor given as a fit parameter read in initAtIteration()
-    int np = _dsBins[dataSetID]->begin()->second.size(); // number of data points
+    //int np = _dsBins[dataSetID]->begin()->second.size(); // number of data points
     val = std::valarray<double>(it->second.Value, it->second.NPoints);
   }
   else
