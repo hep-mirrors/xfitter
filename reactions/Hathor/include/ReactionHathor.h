@@ -43,8 +43,8 @@ class ReactionHathor : public ReactionTheory
     HathorPdfxFitter* _pdf;
     int* _rndStore;
     //double _mtop;
-    std::map<int, double*> _mtopPerInstance;
-    std::map<int, double*> _mrPerInstance;
-    std::map<int, double*> _mfPerInstance;
+    std::map<int, std::shared_ptr<double> > _mtopPerInstance;
+    std::map<int, std::shared_ptr<double> > _mrPerInstance;
+    std::map<int, std::shared_ptr<double> > _mfPerInstance;
 };
 
