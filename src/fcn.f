@@ -428,6 +428,11 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
      $     shift_polRHp**2+shift_polRHm**2+
      $     shift_polLHp**2+shift_polLHm**2+
      $     shift_polL**2+shift_polT**2
+c If for any reason we got chi2==NaN, set it to +inf so that that
+c a minimizer would treat it as very bad
+      if(chi2out/=chi2out)then !if chi2out is NaN
+        chi2out=transfer(z'7FF0000000000000',1d0) !+infinity
+      endif
 
 c Print time, number of calls, chi2
          call cpu_time(time3)
@@ -625,14 +630,7 @@ C Trigger reactions:
       endif
 
 C Return the chi2 value:
-
-c If for any reason we got chi2==NaN, set it to +inf so that that
-c a minimizer would treat it as very bad
-      if(chi2out/=chi2out)then !x==NaN iff x!=x
-        chi2out=huge(1d0)+1 !huge(1d0) is largest finite double
-      endif
       chi2data_theory = chi2out
-
       end
 
 C Broken since 2.2.0
