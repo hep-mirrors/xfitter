@@ -102,6 +102,8 @@ class ReactionBaseHVQMNR : public ReactionTheory
     // status flags
     bool _isInitAtStart;
     //int _ifcncount_last;
+    // heavy-quark mass
+    //std::map
 
     // check if appropriate heavy-flavour scheme is used
     void CheckHFScheme();
@@ -110,7 +112,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
     void UpdateParameters();
     
     // print theory parameters
-    void PrintParameters() const;
+    void PrintParameters(Parameters const* pars = NULL) const;
 
     // initialise calculation with default parameters
     void DefaultInit(const Steering& steer, const double mq, MNR::MNR& mnr, MNR::Frag& frag, MNR::Grid& grid, MNR::Grid& grid_smoothed);
@@ -118,7 +120,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
     // return cross section in provided pT-y bin
     double FindXSecPtYBin(const TH2* histXSec, const double ymin, const double ymax, const double ptmin, const double ptmax, const bool diff_pt, const bool diff_y);
 
-  private:    
+  //private:
     // check equality of float numbers with tolerance
     bool IsEqual(const double val1, const double val2, const double eps = 1e-6);
     

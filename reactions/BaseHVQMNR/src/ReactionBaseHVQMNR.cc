@@ -329,15 +329,17 @@ void ReactionBaseHVQMNR::UpdateParameters()
 }
 
 // print theory parameters
-void ReactionBaseHVQMNR::PrintParameters() const
+void ReactionBaseHVQMNR::PrintParameters(Parameters const* pars) const
 {
+  if(pars == NULL)
+    pars = &(this->_pars);
   printf("MNR scale parameters:\n");
-  printf("%f  %f  %f\n", _pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c);
-  printf("%f  %f  %f\n", _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
-  printf("%f  %f  %f\n", _pars.mf_A_b, _pars.mf_B_b, _pars.mf_C_b);
-  printf("%f  %f  %f\n", _pars.mr_A_b, _pars.mr_B_b, _pars.mr_C_b);
+  printf("%f  %f  %f\n", pars->mf_A_c, pars->mf_B_c, pars->mf_C_c);
+  printf("%f  %f  %f\n", pars->mr_A_c, pars->mr_B_c, pars->mr_C_c);
+  printf("%f  %f  %f\n", pars->mf_A_b, pars->mf_B_b, pars->mf_C_b);
+  printf("%f  %f  %f\n", pars->mr_A_b, pars->mr_B_b, pars->mr_C_b);
   printf("MNR masses:\n");
-  printf("mc = %f  mb = %f\n", _pars.mc, _pars.mb);
+  printf("mc = %f  mb = %f\n", pars->mc, pars->mb);
   printf("MNR fragmentation parameters:\n");
-  printf("fragpar_c = %f  fragpar_b = %f\n", _pars.fragpar_c, _pars.fragpar_b);
+  printf("fragpar_c = %f  fragpar_b = %f\n", pars->fragpar_c, pars->fragpar_b);
 }
