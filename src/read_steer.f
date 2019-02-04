@@ -33,7 +33,7 @@ C Special branch for rotation
       call read_outdirnml   ! output dir
 
 !     if(Itheory.lt.100) then
-!        call read_lhapdfnml    ! read lhapdf
+      call read_lhapdfnml    ! read lhapdf
 !        call read_chi2scan     ! read chi2scan
 !     endif   ! Itheory < 100
 
@@ -108,17 +108,17 @@ C PDF length weight factor:
          pdfLenWeight(i) = 0.
       enddo
 C Chebyshev param. of the gluon:
-      NCHEBGLU = 0
+!     NCHEBGLU = 0
 
 C Chebyshev param. of the Sea:
-      NCHEBSEA = 0
+!     NCHEBSEA = 0
 
 C Offset for the Sea chebyshev parameters (default:20)
-      IOFFSETCHEBSEA = 20
+!     IOFFSETCHEBSEA = 20
 
 C Type of Chebyshev parameterization:
-      ichebtypeGlu = 0
-      ichebtypeSea = 0
+!     ichebtypeGlu = 0
+!     ichebtypeSea = 0
 
       Chi2MaxError = 1.E10  ! turn off.
 
@@ -142,13 +142,14 @@ C  Key for W range
       WMNlen =  20.
       WMXlen = 320.
 
-      chebxmin = 1.E-5
+!     chebxmin = 1.E-5
 
 C  Hermes-like strange (off by default):
       ifsttype = 0
 
 C  Cache PDF calls
-      CachePDFs     = .false.
+!  are currently broken
+!     CachePDFs     = .false.
 
 ! Do not split the data into fit and control sub-samples:
       ControlFitSplit = .false.
@@ -167,8 +168,9 @@ C MC Errors defaults:
 C PDF output options:
 
 c 2012-11-08 WS: set default for DoBands
-      DoBands = .false.
-      DoBandsSym = .false.
+c Moved to Minimizer classes since 2.2.0
+!     DoBands = .false.
+!     DoBandsSym = .false.
       outnx = 101
       do i=1,NBANDS
        Q2VAL(i) = -1.
@@ -239,7 +241,7 @@ C Main steering parameters namelist
      $     ITheory,         ! keep for backward compatibility
      $     HF_SCHEME,
      $     LDebug, ifsttype,  LFastAPPLGRID, LUseAPPLgridCKM,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs,
+     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc,
      $     ControlFitSplit,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
      $     AsymErrorsIterations, pdfRotate, RunningMode
@@ -448,7 +450,7 @@ C----------------------------------------
 #include "steering.inc"
 C------------------------------------
 C (Optional) LHAPDF steering card
-      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,
+      namelist/lhapdf/
      $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
      $     WriteAlphaSToMemberPDF,DataToTheo,nremovepriors,
      $     lhapdfprofile,lhascaleprofile
@@ -477,6 +479,7 @@ C
       read (51,NML=lhapdf,ERR=67,end=68)
  68   continue
       close (51)
+      print*,'DEBUG DataToTheo=',DataToTheo
 
       if ( RunningMode .ne. ' ' ) then
          lhapdferrors = lhapdferrors_save
@@ -634,30 +637,31 @@ C      end
 C
 !> Optional polynomial parametrisation for valence quarks
 C-------------------------------------------------------------
-      subroutine read_polynml
-
-      implicit none
-#include "steering.inc"
-C (Optional) Polynomial parameterisation for valence
-      namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
-C-------------------------------------------
-C
-      open (51,file='steering.txt',status='old')
-      read (51,NML=Poly,ERR=66,end=65)
- 65   continue
-      close (51)
-
-      if (LDebug) then
-         print Poly
-      endif
-
-      return
-C--------------------------------------------------------
- 66   continue
-      print '(''Error reading namelist &Poly, STOP'')'
-      call HF_stop
-
-      end
+C Broken since 2.2.0
+!      subroutine read_polynml
+!
+!      implicit none
+!#include "steering.inc"
+!C (Optional) Polynomial parameterisation for valence
+!      namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
+!C-------------------------------------------
+!C
+!      open (51,file='steering.txt',status='old')
+!      read (51,NML=Poly,ERR=66,end=65)
+! 65   continue
+!      close (51)
+!
+!      if (LDebug) then
+!         print Poly
+!      endif
+!
+!      return
+!C--------------------------------------------------------
+! 66   continue
+!      print '(''Error reading namelist &Poly, STOP'')'
+!      call HF_stop
+!
+!      end
 
 C
 !> Read InFiles namelist
@@ -867,10 +871,9 @@ C------------------------------------------------
       integer i, ilastq2
 
 C Output style namelist
-      namelist/Output/DoBands, Q2VAL, OutNX, OutXRange,
-     $                      UseGridLHAPDF5, WriteLHAPDF6,
-     $     WriteLHAPDF5, DoBandsSym
-     $     ,ReadParsFromFile, ParsFileName, CovFileName
+      namelist/Output/Q2VAL, OutNX, OutXRange,UseGridLHAPDF5,
+     $     WriteLHAPDF5,WriteLHAPDF6,
+     $     ReadParsFromFile, ParsFileName, CovFileName
 
 C--------------------------------------------------------
 C  Read the output namelist:
@@ -926,10 +929,10 @@ C
  152  continue
       close (51)
 
-      if (DoBands .and. DoBandsSym) then
-         Call hf_errlog(16042701,
-     $  'F: Both DoBands and DoBandsSym are set: chose one')
-      endif
+!     if (DoBands .and. DoBandsSym) then
+!        Call hf_errlog(16042701,
+!    $  'F: Both DoBands and DoBandsSym are set: chose one')
+!     endif
 
 C check if limit of 22 char is not exceeded:
       if(LEN(TRIM(OutDirName)).gt.256) then

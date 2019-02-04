@@ -22,7 +22,7 @@
 
         c_itheory = itheory
 
-        c_dobands= dobands
+        !c_dobands= dobands Broken since 2.2.0
         c_hf_mass(1)= hf_mass(1)
         c_hf_mass(2)= hf_mass(2)
         c_hf_mass(3)= hf_mass(3)

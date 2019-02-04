@@ -111,9 +111,9 @@ c     $                "determine error type")
 c                      endif
 c#endif
 c              else
-               if ( DoBandsSym ) then
-                  lSymmhess=.true.
-               else
-                  lAsymhess=.true.
-               endif
+c              if ( DoBandsSym ) then
+c                 lSymmhess=.true.
+c              else
+c                 lAsymhess=.true.
+c              endif
       end subroutine GetPDFUncType_HERAF

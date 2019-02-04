@@ -395,9 +395,10 @@ c        write(6,*) ' fcn npoint ',npoints
       if (iflag.eq.1) close(87)
 
       if (iflag.eq.3) then
-         if (dobands) then
-            print *,'SAVE PDF values'
-         endif
+C Broken since 2.2.0
+!        if (dobands) then
+!           print *,'SAVE PDF values'
+!        endif
 
          TheoFCN3 = Theo  ! save
          TheoModFCN3 = Theo_Mod
@@ -575,11 +576,12 @@ c     $           ,chi2_cont/NControlPoints
 
 
             else
-C  Hardwire:
-               if ( ReadParsFromFile .and. DoBandsSym) then
-                  call ReadPars(ParsFileName, pkeep)
-!                 call PDF_param_iteration(pkeep,2)!broken since 2.2.0
-               endif
+C Broken since 2.2.0
+!C  Hardwire:
+!               if ( ReadParsFromFile .and. DoBandsSym) then
+!                  call ReadPars(ParsFileName, pkeep)
+!!                 call PDF_param_iteration(pkeep,2)!broken since 2.2.0
+!               endif
 
 C LHAPDF output:
 c WS: for the Offset method save central fit only
