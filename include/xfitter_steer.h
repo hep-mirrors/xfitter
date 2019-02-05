@@ -26,6 +26,11 @@ namespace xfitter
   ///Get minimizer
   BaseMinimizer*get_minimizer();
 
+  //Call atConfiguration change for all evolutions and decompositions
+  //Call this after changing some of configuration parameters
+  //Used by Profiler
+  void updateAtConfigurationChange();
+
   //When fortran code accesses pdfs, it accesses this default evolution
   extern BaseEvolution*defaultEvolution;
 }

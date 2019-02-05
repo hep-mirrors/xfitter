@@ -85,7 +85,7 @@ namespace xfitter {
       const int errcode=18092401;
       const char*errmsg="F: YAML::InvalidNode exception while creating decomposition, details written to stderr";
       using namespace std;
-      cerr<<"[ERROR]"<<__func__<<'('<<name<<')'<<endl;
+      cerr<<"[ERROR]"<<__func__<<"(\""<<name<<"\")"<<endl;
       YAML::Node node=XFITTER_PARS::getDecompositionNode(name);
       if(!node.IsMap()){
         cerr<<"Invalid node Decompositions/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
@@ -99,7 +99,8 @@ namespace xfitter {
         hf_errlog(errcode,errmsg);
       }
       cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
-      hf_errlog(errcode,errmsg);
+      throw ex;
+      //hf_errlog(errcode,errmsg);
     }
   }
   BasePdfParam*getParameterisation(const string&name){
@@ -244,3 +245,14 @@ void run_error_analysis_() {
   mini->errorAnalysis();    
 }
 
+namespace xfitter{
+void updateAtConfigurationChange(){
+  //Call atConfigurationChange for each evolution and for each decomposition
+  for(map<string,BaseEvolution*>::const_iterator it=XFITTER_PARS::gEvolutions.begin();it!=XFITTER_PARS::gEvolutions.end();++it){
+    it->second->atConfigurationChange();
+  }
+  for(map<string,BasePdfDecomposition*>::const_iterator it=XFITTER_PARS::gPdfDecompositions.begin();it!=XFITTER_PARS::gPdfDecompositions.end();++it){
+    it->second->atConfigurationChange();
+  }
+}
+}
