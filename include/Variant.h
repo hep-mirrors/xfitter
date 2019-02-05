@@ -18,36 +18,36 @@ namespace XFITTER_PARS{
 */
 class Variant{
 public:
-	enum Type{None=0,DoublePtr=1,String=2,Int=3,Array=4};
-	Variant();
-	Variant(const Variant&);
-	Variant(const double*);
-	Variant(const std::string&);
-	Variant(const char*);
-	Variant(int);
-	Variant(const std::vector<const double*>&);
-	~Variant();
-	Variant&operator=(const Variant&);
-	operator const double*()const;
-	operator std::string()const;
-	operator int()const;
-	operator const std::vector<const double*>&()const;
-	Type type()const;
-	bool isNone()const;
-	bool isDoublePtr()const;
-	bool isString()const;
-	bool isInt()const;
-	bool isArray()const;
+  enum Type{None=0,DoublePtr=1,String=2,Int=3,Array=4};
+  Variant();
+  Variant(const Variant&);
+  Variant(const double*);
+  Variant(const std::string&);
+  Variant(const char*);
+  Variant(int);
+  Variant(const std::vector<const double*>&);
+  ~Variant();
+  Variant&operator=(const Variant&);
+  operator const double*()const;
+  operator std::string()const;
+  operator int()const;
+  operator const std::vector<const double*>&()const;
+  Type type()const;
+  bool isNone()const;
+  bool isDoublePtr()const;
+  bool isString()const;
+  bool isInt()const;
+  bool isArray()const;
   friend std::ostream&operator<<(std::ostream&,const Variant&);
   class bad_cast;
 private:
-	Type _type;
-	union{
-		const double*_ptr;
-		std::string _string;
-		int _int;
-		std::vector<const double*>_array;
-	};
+  Type _type;
+  union{
+    const double*_ptr;
+    std::string _string;
+    int _int;
+    std::vector<const double*>_array;
+  };
 };
 std::ostream&operator<<(std::ostream&,const Variant&);
 std::ostream&operator<<(std::ostream&,Variant::Type);
