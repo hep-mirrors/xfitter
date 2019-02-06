@@ -209,6 +209,19 @@ void report_convergence_status_(){
   //Get a status code from current minimizer and log a message, write status to file Status.out
   using namespace xfitter;
   auto status=get_minimizer()->convergenceStatus();
+  //Write status to Status.out
+  {
+  std::ofstream f;
+  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/Status.out");
+  if(!f.is_open()){
+    hf_errlog(16042807,"W: Failed to open Status.out for writing");
+    return;
+  }
+  if(status==ConvergenceStatus::SUCCESS)f<<"OK";
+  else f<<"Failed";
+  f.close();
+  }
+  //Log status message
   switch(status){
     case ConvergenceStatus::NORUN:
       hf_errlog(16042801,"I: No minimization has run");
@@ -229,15 +242,6 @@ void report_convergence_status_(){
       hf_errlog(16042806,"F: Minimizer error");
       break;
   }
-  std::ofstream f;
-  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/Status.out");
-  if(!f.is_open()){
-    hf_errlog(16042807,"W: Failed to open Status.out for writing");
-    return;
-  }
-  if(status==ConvergenceStatus::SUCCESS)f<<"OK";
-  else f<<"Failed";
-  f.close();
 }
 
 void run_error_analysis_() {
