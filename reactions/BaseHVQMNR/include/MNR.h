@@ -85,7 +85,13 @@ namespace MNR
     // Contrbution flags
     bool bFS_Q; // particle final state
     bool bFS_A; // antiparticle final state
-    
+
+    // PDF range
+    double fSF_min_x;
+    double fSF_max_x;
+    double fSF_min_mf2;
+    double fSF_max_mf2;
+
   // Private fields
   private:
     // Constants
@@ -109,10 +115,6 @@ namespace MNR
 
     // Variables for fast structure functions evaluation
     const static int fSF_npart;
-    const static double fSF_min_x;
-    const static double fSF_max_x;
-    const static double fSF_min_mf2;
-    const static double fSF_max_mf2;
     double fSF_log10_min_x;
     double fSF_log10_max_x;
     double fSF_min_adoptx;

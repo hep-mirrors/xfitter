@@ -150,6 +150,7 @@ namespace MNR
 
   void MNR::PrecalculatePDF(double mf2) 
   {
+    //printf("mf2 = %f\n", mf2);
     if(mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2) 
     {
       printf("WARNING in MNR::PrecalculatePDF(): mf2 %e out of range %e .. %e\n", mf2, fSF_min_mf2, fSF_max_mf2);
@@ -655,8 +656,8 @@ namespace MNR
   const double MNR::fC_vca      = 3.0e0;
   const double MNR::fC_vtf      = 0.5e0;
   const int    MNR::fSF_npart   = 13;
-  const double MNR::fSF_min_x   = 1e-6;
-  const double MNR::fSF_max_x   = 1e0;
-  const double MNR::fSF_min_mf2 = 1e0;
-  const double MNR::fSF_max_mf2 = 8e4;
+  //const double MNR::fSF_min_x   = 1e-6;
+  //const double MNR::fSF_max_x   = 1e0;
+  //const double MNR::fSF_min_mf2 = 1e0;
+  //const double MNR::fSF_max_mf2 = 8e4;
 }

@@ -119,13 +119,19 @@ void ReactionBaseHVQMNR::DefaultInit(const Steering& steer, const double mq, MNR
   // MNR (parton level cross sections)
   mnr.bFS_Q = true;
   mnr.bFS_A = true;
+  // number of light flavours
+  mnr.fC_nl = steer.nf;
   // x3 and x4 binning
   mnr.fBn_x3 = steer.nx3;
   mnr.fBn_x4 = steer.nx4;
   mnr.fSF_nb = steer.nsfnb;
+  // PDF range
+  mnr.fSF_min_x = steer.xmin;
+  mnr.fSF_max_x = steer.xmax;
+  mnr.fSF_min_mf2 = steer.mf2min;
+  mnr.fSF_max_mf2 = steer.mf2max;
+  // precalculation (memory allocation etc.)
   mnr.CalcBinning();
-  // Number of flavours
-  mnr.fC_nl = 3;
   // Parton level pT-y grids
   grid.SetL(steer.npt, steer.ptmin, steer.ptmax, mq);
   grid.SetY(steer.ny, steer.ymin, steer.ymax);
@@ -191,7 +197,7 @@ void ReactionBaseHVQMNR::CheckHFScheme()
 }
 
 // read parameters for perturbative scales from MINUIT extra parameters
-void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double& B, double& C)
+void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double& B, double& C, const map<std::string, std::string> pars)
 {
   // ***********************************************************************************************
   // Scales for charm and beauty production are parametrised as:
@@ -226,39 +232,39 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
   std::string baseParameterName = "MNRm" + std::string(1, mu);
 
   // A and B parameters
-  if(checkParam(baseParameterName + "_AB"))
-    A = B = GetParam(baseParameterName + "_AB");
+  if(GetParamInPriority(baseParameterName + "_AB", pars))
+    A = B = GetParamInPriority(baseParameterName + "_AB", pars);
   else
   {
-    if(checkParam(baseParameterName + "_A") && checkParam(baseParameterName + "_B"))
+    if(checkParamInPriority(baseParameterName + "_A", pars) && checkParamInPriority(baseParameterName + "_B", pars))
     {
-      A = GetParam(baseParameterName + "_A");
-      B = GetParam(baseParameterName + "_B");
+      A = GetParamInPriority(baseParameterName + "_A", pars);
+      B = GetParamInPriority(baseParameterName + "_B", pars);
     }
     else
     {
-      if(checkParam(baseParameterName + "_AB_" + std::string(1, q)))
-        A = B = GetParam(baseParameterName + "_AB_" + std::string(1, q));
+      if(checkParamInPriority(baseParameterName + "_AB_" + std::string(1, q), pars))
+        A = B = GetParamInPriority(baseParameterName + "_AB_" + std::string(1, q), pars);
       else
       {
-        if(checkParam(baseParameterName + "_A_" + std::string(1, q)))
-          A = GetParam(baseParameterName + "_A_" + std::string(1, q));
+        if(checkParamInPriority(baseParameterName + "_A_" + std::string(1, q), pars))
+          A = GetParamInPriority(baseParameterName + "_A_" + std::string(1, q), pars);
         else
           A = defA;
-        if(checkParam(baseParameterName + "_B_" + std::string(1, q)))
-          B = GetParam(baseParameterName + "_B_" + std::string(1, q));
+        if(checkParamInPriority(baseParameterName + "_B_" + std::string(1, q), pars))
+          B = GetParamInPriority(baseParameterName + "_B_" + std::string(1, q), pars);
         else
           B = defB;
       }
     }
   }
   // C parameter
-  if(checkParam(baseParameterName + "_C"))
-    C = GetParam(baseParameterName + "_C");
+  if(checkParamInPriority(baseParameterName + "_C", pars))
+    C = GetParamInPriority(baseParameterName + "_C", pars);
   else
   {
-    if(checkParam(baseParameterName + "_C_" + std::string(1, q)))
-      C = GetParam(baseParameterName + "_C_" + std::string(1, q));
+    if(checkParamInPriority(baseParameterName + "_C_" + std::string(1, q), pars))
+      C = GetParamInPriority(baseParameterName + "_C_" + std::string(1, q), pars);
     else
       C = defC;
   }
@@ -266,7 +272,7 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
 
 
 // read fragmentation parameter from MINUIT extra parameters
-double ReactionBaseHVQMNR::GetFragPar(const char q)
+double ReactionBaseHVQMNR::GetFragPar(const char q, const map<string,string> pars)
 {
   // *********************************************************************
   // Parameters for non-perturbative fragmentation can be provided
@@ -282,7 +288,7 @@ double ReactionBaseHVQMNR::GetFragPar(const char q)
   double parvalue = NAN;
   char parname[16];
   sprintf(parname, "MNRfrag_%c", q);
-  if(!checkParam(parname))
+  if(!checkParamInPriority(parname, pars))
   {
     // parameter not in ExtraParamMinuit -> using default value
     if(q == 'c')
@@ -293,7 +299,7 @@ double ReactionBaseHVQMNR::GetFragPar(const char q)
       hf_errlog(17102103, "F: no default value for q = " + std::string(1, q) + " in ReactionBaseHVQMNR::GetFragPar()");
   }
   else
-    parvalue = GetParam(parname);
+    parvalue = GetParamInPriority(parname, pars);
 
   // TODO check below whether it is still relevant
   /*      ! parameter in ExtraParamMinuit, but not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
