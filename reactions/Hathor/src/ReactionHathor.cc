@@ -117,18 +117,27 @@ void ReactionHathor::setDatasetParameters(int dataSetID, map<std::string, std::s
 
   // set mass
   // here local value is preferred over global one (to allow calculations with several mass values, e.g. for translation into MSbar mass scheme)
-  // the value may change further in iterations, in this case store NULL pointer (will be updated at each iteration and treated as global value)
-  _mtopPerInstance[dataSetID] = (pars.find("mtp") != pars.end()) ? std::shared_ptr<double>(new double(atof(pars.find("mtp")->second.c_str()))) : NULL;
+  _mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(pars.find("mtp") == pars.end() ? GetParam("mtp") : atof(pars.find("mtp")->second.c_str())));
 
   // set renorm. scale
   _mrPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
-  if(_mtopPerInstance[dataSetID] && checkParam("muR"))
-    *_mrPerInstance[dataSetID] *= GetParam("muR");
+  if(checkParam("muR") || pars.find("muR") != pars.end())
+  {
+    if(pars.find("muR") != pars.end())
+      *_mrPerInstance[dataSetID] *= stod(pars["muR"]);
+    else
+      *_mrPerInstance[dataSetID] *= GetParam("muR");
+  }
 
   // set fact. scale
   _mfPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
-  if(_mtopPerInstance[dataSetID] && checkParam("muF"))
-    *_mfPerInstance[dataSetID] *= GetParam("muF");
+  if(checkParam("muF") || pars.find("muF") != pars.end())
+  {
+    if(pars.find("muF") != pars.end())
+      *_mfPerInstance[dataSetID] *= stod(pars["muF"]);
+    else
+      *_mfPerInstance[dataSetID] *= GetParam("muF");
+  }
 
   // set perturbative order
   // here local value is preferred over global one (to allow LO and NLO calculations in one run, e.g. for translation into MSbar mass scheme)
@@ -170,10 +179,10 @@ void ReactionHathor::setDatasetParameters(int dataSetID, map<std::string, std::s
   hathor->setPrecision(precisionLevel);
   
   std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
-  double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : GetParam("mtp");
+  double mt = *_mtopPerInstance[dataSetID];
   std::cout << " mtop = " << mt << "[GeV] " << std::endl;
-  std::cout << " renorm. scale = " << (_mrPerInstance[dataSetID] ? (*_mrPerInstance[dataSetID]) : (mt * GetParam("muR"))) << "[GeV] " << std::endl;
-  std::cout << " factor. scale = " << (_mfPerInstance[dataSetID] ? (*_mfPerInstance[dataSetID]) : (mt * GetParam("muF"))) << "[GeV] " << std::endl;
+  std::cout << " renorm. scale = " << *_mrPerInstance[dataSetID] << "[GeV] " << std::endl;
+  std::cout << " factor. scale = " << *_mfPerInstance[dataSetID] << "[GeV] " << std::endl;
   std::cout << " SqrtS = " << sqrtS << std::endl;
   std::cout << " scheme: " << scheme << std::endl;
   std::cout << " precisionLevel: " << precisionLevel << std::endl;
@@ -193,8 +202,8 @@ int ReactionHathor::compute(int dataSetID, valarray<double> &val, map<string, va
   Hathor* hathor = _hathorArray.at(dataSetID);
   //hathor->getXsection(_mtop, _mr, _mf);
   double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : GetParam("mtp");
-  double mr = _mrPerInstance[dataSetID] ? (*_mrPerInstance[dataSetID]) : (mt * GetParam("muR"));
-  double mf = _mfPerInstance[dataSetID] ? (*_mfPerInstance[dataSetID]) : (mt * GetParam("muF"));
+  double mr = *_mrPerInstance[dataSetID];
+  double mf = *_mfPerInstance[dataSetID];
   hathor->getXsection(mt, mr, mf);
   double dum = 0.0;
   double xsec = 0.0;
