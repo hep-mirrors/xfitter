@@ -62,14 +62,11 @@ include $(top_srcdir)/aminclude.am
 reactiondir = $(prefix)/lib/
 reaction_DATA = Reactions.txt
 
-#evolutiondir = $(prefix)/lib/
-#evolution_DATA = Evolutions.txt
-
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
 #TESTS_ENVIRONMENT = $(SHELL) 
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \
-   minuit.in.txt steering.txt testPythonInterface.py parameters.yaml Reactions.txt Evolutions.txt
+   minuit.in.txt steering.txt testPythonInterface.py parameters.yaml Reactions.txt
 bin_SCRIPTS = xfitter-config tools/xfitter-getdata.sh
