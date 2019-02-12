@@ -96,7 +96,7 @@ C------------------------------------------------------
       integer idataset
       character*128 Msg
 
-      call gettheoryiteration
+      call init_at_iteration
       do idataset=1,Ndatasets
          if(NDATAPOINTS(idataset).gt.0) then
             call GetTheoryForDataset(idataset)
@@ -142,7 +142,7 @@ C--------------------------------------------------------------
 *     ---------------------------------------------------------
       double precision chi2out
       double precision fchi2, fcorchi2
-      double precision DeltaLength
+!     double precision DeltaLength
       double precision BSYS(NSYSMax), RSYS(NSYSMax)
       double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
       double precision pchi2(nset),chi2_log
@@ -237,7 +237,7 @@ C--------------------------------------------------------------
       enddo
 
 
-      do i=1,ntot
+      do i=1,ntot !why for both used and unused points? --Ivan
          THEO(i) = 0.d0
          THEO_MOD(i) = 0.d0
       enddo
@@ -278,12 +278,7 @@ c        write(6,*) ' fcn npoint ',npoints
 *     ---------------------------------------------------------
 *     Initialise theory calculation per iteration
 *     ---------------------------------------------------------
-      call GetTheoryIteration
-
-      if (Debug) then
-         print*,'after GetTheoryIteration'
-      endif
-
+      call init_at_iteration
 *     ---------------------------------------------------------
 *     Calculate theory for datasets:
 *     ---------------------------------------------------------
