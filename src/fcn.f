@@ -222,8 +222,6 @@ C--------------------------------------------------------------
 *     ---------------------------------------------------------
       chi2out = 0.d0
       fchi2 = 0.d0
-      ndf = -nparFCN
-      n0 = 0
 
       iflagfcn = iflag
 
@@ -240,7 +238,7 @@ C--------------------------------------------------------------
       do i=1,ntot !why for both used and unused points? --Ivan
          THEO(i) = 0.d0
          THEO_MOD(i) = 0.d0
-      enddo
+      enddo ! on second thought, why clear these anyway?
 
 
 
@@ -276,7 +274,7 @@ c        write(6,*) ' fcn npoint ',npoints
       endif
 
 *     ---------------------------------------------------------
-*     Initialise theory calculation per iteration
+*     Initialise various c++ code per iteration
 *     ---------------------------------------------------------
       call init_at_iteration
 *     ---------------------------------------------------------
@@ -297,33 +295,17 @@ c        write(6,*) ' fcn npoint ',npoints
          print*,'after GetTheoryfordataset'
       endif
 
-
       call cpu_time(time1)
 
-*     ---------------------------------------------------------
-*     Start of loop over data points:
-*     ---------------------------------------------------------
-
-      do 100 i=1,npoints
-
-         h1iset = JSET(i)
-
-         if (iflag.eq.3) npts(h1iset) = npts(h1iset) + 1
-
-         n0 = n0 + 1
-         ndf = ndf + 1
-
-
-
- 100  continue
-*     ---------------------------------------------------------
-*     end of data loop
-*     ---------------------------------------------------------
-      if (Debug) then
-         print*,'after data loop'
+      !Count datapoints in each dataset?
+      if(iflag.eq.3)then
+        do i=1,npoints
+          h1iset = JSET(i)
+          npts(h1iset)=npts(h1iset)+1
+        enddo
       endif
-
-
+      ndf=npoints-nparFCN !degrees of freedom
+      n0 =npoints
 * -----------------------------------------------------------
 *     Toy MC samples:
 * -----------------------------------------------------------
