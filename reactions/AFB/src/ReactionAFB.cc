@@ -18,35 +18,31 @@ double ReactionAFB::PI;
 double ReactionAFB::GeVtofb_param, ReactionAFB::alphaEM_param, ReactionAFB::stheta2W_param, ReactionAFB::MZ_param, ReactionAFB::GammaZ_param;
 double ReactionAFB::energy_param, ReactionAFB::eta_cut_param, ReactionAFB::pT_cut_param, ReactionAFB::y_min_param, ReactionAFB::y_max_param;
 
-int ReactionAFB::integration_switch; 
-string ReactionAFB::integration_param;
-int ReactionAFB::key_param;
-
 double ReactionAFB::e_param, ReactionAFB::gsm_param, ReactionAFB::smangle_param;
-double ReactionAFB::foton_Vu, ReactionAFB::foton_Au, ReactionAFB::foton_Vd, ReactionAFB::foton_Ad, ReactionAFB::foton_Vl, ReactionAFB::foton_Al, ReactionAFB::foton_Vnu, ReactionAFB::foton_Anu;
-double ReactionAFB::Z_Vu, ReactionAFB::Z_Au, ReactionAFB::Z_Vd, ReactionAFB::Z_Ad, ReactionAFB::Z_Vl, ReactionAFB::Z_Al, ReactionAFB::Z_Vnu, ReactionAFB::Z_Anu;
-double ReactionAFB::even_foton_up, ReactionAFB::even_foton_down, ReactionAFB::even_interf_up, ReactionAFB::even_interf_down, ReactionAFB::even_Z_up, ReactionAFB::even_Z_down;
-double ReactionAFB::odd_foton_up, ReactionAFB::odd_foton_down, ReactionAFB::odd_interf_up, ReactionAFB::odd_interf_down, ReactionAFB::odd_Z_up, ReactionAFB::odd_Z_down;
+double ReactionAFB::photon_Vu, ReactionAFB::photon_Au, ReactionAFB::photon_Vd, ReactionAFB::photon_Ad, ReactionAFB::photon_Vl, ReactionAFB::photon_Al;
+double ReactionAFB::Z_Vu, ReactionAFB::Z_Au, ReactionAFB::Z_Vd, ReactionAFB::Z_Ad, ReactionAFB::Z_Vl, ReactionAFB::Z_Al;
+double ReactionAFB::even_photon_up, ReactionAFB::even_photon_down, ReactionAFB::even_interf_up, ReactionAFB::even_interf_down, ReactionAFB::even_Z_up, ReactionAFB::even_Z_down;
+double ReactionAFB::odd_photon_up, ReactionAFB::odd_photon_down, ReactionAFB::odd_interf_up, ReactionAFB::odd_interf_down, ReactionAFB::odd_Z_up, ReactionAFB::odd_Z_down;
 
 double ReactionAFB::epsabs = 0;
 double ReactionAFB::epsrel = 1e-2;
 
-size_t ReactionAFB::calls;
 size_t ReactionAFB::alloc_space = 1000;
+int ReactionAFB::key_param = 6;
 
 //// Function returning the combination of propagators
 double *ReactionAFB::propagators (double Minv)
 {
     // Propagators squared and interference
-    double foton_squared = 1.0/pow(Minv,4);
+    double photon_squared = 1.0/pow(Minv,4);
     double interference = 2.0*(-pow(Minv,2)*(pow(MZ_param,2)-pow(Minv,2)))/(pow(Minv,4)*((pow(pow(MZ_param,2)-pow(Minv,2),2))+pow(MZ_param,2)*pow(GammaZ_param,2)));
     double Z_squared = 1.0/(pow(pow(MZ_param,2)-pow(Minv,2),2)+pow(MZ_param,2)*pow(GammaZ_param,2));
     
     static double propagators[4];    
-    propagators[0] = (even_foton_up * foton_squared) + (even_interf_up * interference) + (even_Z_up * Z_squared);
-    propagators[1] = (odd_foton_up * foton_squared) + (odd_interf_up * interference) + (odd_Z_up * Z_squared);
-    propagators[2] = (even_foton_down * foton_squared) + (even_interf_down * interference) + (even_Z_down * Z_squared);
-    propagators[3] = (odd_foton_down * foton_squared) + (odd_interf_down * interference) + (odd_Z_down * Z_squared);
+    propagators[0] = (even_photon_up * photon_squared) + (even_interf_up * interference) + (even_Z_up * Z_squared);
+    propagators[1] = (odd_photon_up * photon_squared) + (odd_interf_up * interference) + (odd_Z_up * Z_squared);
+    propagators[2] = (even_photon_down * photon_squared) + (even_interf_down * interference) + (even_Z_down * Z_squared);
+    propagators[3] = (odd_photon_down * photon_squared) + (odd_interf_down * interference) + (odd_Z_down * Z_squared);
         
     return propagators;
 }
@@ -82,7 +78,7 @@ double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
     double uubar_PDF = f1u*f2ubar + f1c*f2cbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -121,17 +117,9 @@ double ReactionAFB::integration_uubarEF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::uubarEF_funct);
     F.params = &integrationParams; 
     
-    if (integration_switch == 1) {  
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return 2*result;
 }
@@ -143,22 +131,14 @@ double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup, void*
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-        gsl_function F;
+    gsl_function F;
     F.function = &(ReactionAFB::integration_uubarEF_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {  
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
-
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
+    
     return result;
 }
 
@@ -194,7 +174,7 @@ double ReactionAFB::uubarEB_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -230,18 +210,10 @@ double ReactionAFB::integration_uubarEB_y (double Minv, void * ptr) {
     gsl_function F;
     F.function = &(ReactionAFB::uubarEB_funct);
     F.params = &integrationParams;
-        
-    if (integration_switch == 1) {  
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -257,17 +229,9 @@ double ReactionAFB::integration_uubarEB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_uubarEB_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {  
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -303,7 +267,7 @@ double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
     double uubar_PDF = f1u*f2ubar + f1c*f2cbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -342,17 +306,9 @@ double ReactionAFB::integration_uubarOF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::uubarOF_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -368,17 +324,9 @@ double ReactionAFB::integration_uubarOF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_uubarOF_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return result;
 }
@@ -415,7 +363,7 @@ double ReactionAFB::uubarOB_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -452,18 +400,10 @@ double ReactionAFB::integration_uubarOB_y (double Minv, void * ptr) {
     gsl_function F;
     F.function = &(ReactionAFB::uubarOB_funct);
     F.params = &integrationParams;
-
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -479,17 +419,9 @@ double ReactionAFB::integration_uubarOB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_uubarOB_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return result;
 }
@@ -526,7 +458,7 @@ double ReactionAFB::ubaruEF_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -564,17 +496,9 @@ double ReactionAFB::integration_ubaruEF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruEF_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return 2*result;
 }
@@ -590,17 +514,9 @@ double ReactionAFB::integration_ubaruEF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ubaruEF_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -636,7 +552,7 @@ double ReactionAFB::ubaruEB_funct (double yreduced, void * params) {
     double ubaru_PDF = f1ubar*f2u + f1cbar*f2c;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -675,17 +591,9 @@ double ReactionAFB::integration_ubaruEB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruEB_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return 2*result;
 }
@@ -701,17 +609,9 @@ double ReactionAFB::integration_ubaruEB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ubaruEB_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return result;
 }
@@ -748,7 +648,7 @@ double ReactionAFB::ubaruOF_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -786,17 +686,9 @@ double ReactionAFB::integration_ubaruOF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruOF_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return 2*result;
 }
@@ -810,19 +702,11 @@ double ReactionAFB::integration_ubaruOF (double Minv_inf, double Minv_sup, void*
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ubaruOF_y);
-    F.params = ptr;    
+    F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -858,7 +742,7 @@ double ReactionAFB::ubaruOB_funct (double yreduced, void * params) {
     double ubaru_PDF = f1ubar*f2u + f1cbar*f2c;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0; 
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -897,17 +781,9 @@ double ReactionAFB::integration_ubaruOB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ubaruOB_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -921,19 +797,11 @@ double ReactionAFB::integration_ubaruOB (double Minv_inf, double Minv_sup, void*
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ubaruOB_y);
-    F.params = ptr;    
+    F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -971,7 +839,7 @@ double ReactionAFB::ddbarEF_funct (double yreduced, void * params) {
     double ddbar_PDF = f1d*f2dbar + f1s*f2sbar + f1b*f2bbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -1010,17 +878,9 @@ double ReactionAFB::integration_ddbarEF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ddbarEF_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -1036,17 +896,9 @@ double ReactionAFB::integration_ddbarEF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ddbarEF_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -1085,7 +937,7 @@ double ReactionAFB::ddbarEB_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -1123,17 +975,9 @@ double ReactionAFB::integration_ddbarEB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::ddbarEB_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return 2*result;
 }
@@ -1147,19 +991,11 @@ double ReactionAFB::integration_ddbarEB (double Minv_inf, double Minv_sup, void*
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ddbarEB_y);
-    F.params = ptr;    
+    F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -1197,7 +1033,7 @@ double ReactionAFB::ddbarOF_funct (double yreduced, void * params) {
     double ddbar_PDF = f1d*f2dbar + f1s*f2sbar + f1b*f2bbar;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -1234,19 +1070,11 @@ double ReactionAFB::integration_ddbarOF_y (double Minv, void * ptr) {
 
     gsl_function F;
     F.function = &(ReactionAFB::ddbarOF_funct);
-    F.params = &integrationParams;    
+    F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -1262,17 +1090,9 @@ double ReactionAFB::integration_ddbarOF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ddbarOF_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -1311,7 +1131,7 @@ double ReactionAFB::ddbarOB_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -1347,19 +1167,11 @@ double ReactionAFB::integration_ddbarOB_y (double Minv, void * ptr) {
 
     gsl_function F;
     F.function = &(ReactionAFB::ddbarOB_funct);
-    F.params = &integrationParams;    
+    F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -1375,17 +1187,9 @@ double ReactionAFB::integration_ddbarOB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_ddbarOB_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -1424,7 +1228,7 @@ double ReactionAFB::dbardEF_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));   
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_EB = (qbarq_cos_theta_max-qbarq_cos_theta_min)+(1.0/3.0)*(pow(qbarq_cos_theta_max,3)-pow(qbarq_cos_theta_min,3));
     
@@ -1460,19 +1264,11 @@ double ReactionAFB::integration_dbardEF_y (double Minv, void * ptr) {
 
     gsl_function F;
     F.function = &(ReactionAFB::dbardEF_funct);
-    F.params = &integrationParams;    
+    F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -1488,17 +1284,9 @@ double ReactionAFB::integration_dbardEF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_dbardEF_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
         
     return result;
 }
@@ -1536,7 +1324,7 @@ double ReactionAFB::dbardEB_funct (double yreduced, void * params) {
     double dbard_PDF = f1dbar*f2d + f1sbar*f2s + f1bbar*f2b;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0;  
  
     double angular_integration_EF = (qqbar_cos_theta_max-qqbar_cos_theta_min)+(1.0/3.0)*(pow(qqbar_cos_theta_max,3)-pow(qqbar_cos_theta_min,3));
@@ -1574,18 +1362,10 @@ double ReactionAFB::integration_dbardEB_y (double Minv, void * ptr) {
     gsl_function F;
     F.function = &(ReactionAFB::dbardEB_funct);
     F.params = &integrationParams;
-
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -1600,18 +1380,10 @@ double ReactionAFB::integration_dbardEB (double Minv_inf, double Minv_sup, void*
     gsl_function F;
     F.function = &(ReactionAFB::integration_dbardEB_y);
     F.params = ptr;
-
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -1650,7 +1422,7 @@ double ReactionAFB::dbardOF_funct (double yreduced, void * params) {
     
     // Angular integration limits
     double qbarq_cos_theta_max = 0;
-    double qbarq_cos_theta_min = max(cos(PI - 2*atan(exp(-eta_cut_param-y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2)))); 
+    double qbarq_cos_theta_min = max(min(0., -tanh(eta_cut_param-abs(y))),-sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
  
     double angular_integration_OB = pow(qbarq_cos_theta_max,2) - pow(qbarq_cos_theta_min,2);
     
@@ -1688,17 +1460,9 @@ double ReactionAFB::integration_dbardOF_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::dbardOF_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return 2*result;
 }
@@ -1714,17 +1478,9 @@ double ReactionAFB::integration_dbardOF (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_dbardOF_y);
     F.params = ptr;    
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -1762,7 +1518,7 @@ double ReactionAFB::dbardOB_funct (double yreduced, void * params) {
     double dbard_PDF = f1dbar*f2d + f1sbar*f2s + f1bbar*f2b;
     
     // Angular integration limits
-    double qqbar_cos_theta_max = min(cos(2*atan(exp(-eta_cut_param-y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
+    double qqbar_cos_theta_max = min(max(0., tanh(eta_cut_param-abs(y))),sqrt(1-4*(pow(pT_cut_param,2)/pow(Minv,2))));
     double qqbar_cos_theta_min = 0; 
  
     double angular_integration_OF = pow(qqbar_cos_theta_max,2) - pow(qqbar_cos_theta_min,2);
@@ -1801,17 +1557,9 @@ double ReactionAFB::integration_dbardOB_y (double Minv, void * ptr) {
     F.function = &(ReactionAFB::dbardOB_funct);
     F.params = &integrationParams;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
 
     return 2*result;
 }
@@ -1827,17 +1575,9 @@ double ReactionAFB::integration_dbardOB (double Minv_inf, double Minv_sup, void*
     F.function = &(ReactionAFB::integration_dbardOB_y);
     F.params = ptr;
     
-    if (integration_switch == 1) {
-        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-    }
-    else if (integration_switch == 2) {
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-    }
-    else {
-        result = 0.0;
-    }
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
     
     return result;
 }
@@ -1916,31 +1656,16 @@ int ReactionAFB::initAtStart(const string &s)
         return 1;
     }
     
-    // Check integration routine parameters:
-    std::cout << checkParam("integration") << std::endl;
-    if ( ! checkParam("integration") ) {
-        std::cout << "\n\n FATAL ERROR: integration routine (integration) is not defined !!! \n\n" <<std::endl;
-        return 1;
-    }    
-    integration_param = GetParamS("integration");
-    if (not(integration_param.compare("QNG"))) {
-        integration_switch = 1;
-    }
-    else if (not(integration_param.compare("QAG"))) {
-        integration_switch = 2;
-        if ( ! checkParam("key") ) {
-            std::cout << "\n\n FATAL ERROR: rule for QAG integration is not defined !!! \n\n" <<std::endl;
-            return 1;
-        }
-        key_param = GetParamI("key");
-        if ((key_param < 1) or (key_param > 6)) {
-            std::cout << "\n\n FATAL ERROR: rule for QAG integration has to be between 1 and 6 (1 <= key <= 6) !!! \n\n" <<std::endl;
-            return 1;            
-        }
-    }
-    else {
-        std::cout << "\n\n FATAL ERROR: integration routine supported are QNG and QAG. Please select one of these two options !!! \n\n" <<std::endl;
-    }
+//     // Check integration routine parameters:
+//     if ( ! checkParam("key") ) {
+//         std::cout << "\n\n FATAL ERROR: rule for QAG integration is not defined !!! \n\n" <<std::endl;
+//         return 1;
+//     }
+//     key_param = GetParamI("key");
+//     if ((key_param < 1) or (key_param > 6)) {
+//         std::cout << "\n\n FATAL ERROR: rule for QAG integration has to be between 1 and 6 (1 <= key <= 6) !!! \n\n" <<std::endl;
+//         return 1;            
+//     }
     
     // Constant
     PI = 3.14159265;
@@ -1965,14 +1690,12 @@ int ReactionAFB::initAtStart(const string &s)
     smangle_param = atan(-stheta2W_param);
     
     // Foton couplings
-    foton_Vu = e_param*(2.0/3.0);
-    foton_Au = 0;
-    foton_Vd = e_param*(-1.0/3.0);
-    foton_Ad = 0;
-    foton_Vl = e_param*(-1.0);
-    foton_Al = 0;
-    foton_Vnu = 0;
-    foton_Anu = 0;
+    photon_Vu = e_param*(2.0/3.0);
+    photon_Au = 0;
+    photon_Vd = e_param*(-1.0/3.0);
+    photon_Ad = 0;
+    photon_Vl = e_param*(-1.0);
+    photon_Al = 0;
 
     // Z-boson couplings
     Z_Vu = (1.0/2.0)*gsm_param*(1.0/6.0)*(3*cos(smangle_param)+8*sin(smangle_param));
@@ -1981,22 +1704,20 @@ int ReactionAFB::initAtStart(const string &s)
     Z_Ad = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
     Z_Vl = (1.0/2.0)*gsm_param*((-cos(smangle_param)/2.0)+(-2*sin(smangle_param)));
     Z_Al = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
-    Z_Vnu = (1.0/2.0)*gsm_param*(cos(smangle_param)/2.0);
-    Z_Anu = (1.0/2.0)*gsm_param*(cos(smangle_param)/2.0);
     
     // Even combination of couplings
-    even_foton_up = (pow(foton_Vu,2)+pow(foton_Au,2))*(pow(foton_Vl,2)+pow(foton_Al,2));
-    even_foton_down = (pow(foton_Vd,2)+pow(foton_Ad,2))*(pow(foton_Vl,2)+pow(foton_Al,2));
-    even_interf_up = ((foton_Vu*Z_Vu)+(foton_Au*Z_Au))*((foton_Vl*Z_Vl)+(foton_Al*Z_Al));
-    even_interf_down = ((foton_Vd*Z_Vd)+(foton_Ad*Z_Ad))*((foton_Vl*Z_Vl)+(foton_Al*Z_Al));
+    even_photon_up = (pow(photon_Vu,2)+pow(photon_Au,2))*(pow(photon_Vl,2)+pow(photon_Al,2));
+    even_photon_down = (pow(photon_Vd,2)+pow(photon_Ad,2))*(pow(photon_Vl,2)+pow(photon_Al,2));
+    even_interf_up = ((photon_Vu*Z_Vu)+(photon_Au*Z_Au))*((photon_Vl*Z_Vl)+(photon_Al*Z_Al));
+    even_interf_down = ((photon_Vd*Z_Vd)+(photon_Ad*Z_Ad))*((photon_Vl*Z_Vl)+(photon_Al*Z_Al));
     even_Z_up = (pow(Z_Vu,2)+pow(Z_Au,2))*(pow(Z_Vl,2)+pow(Z_Al,2));
     even_Z_down = (pow(Z_Vd,2)+pow(Z_Ad,2))*(pow(Z_Vl,2)+pow(Z_Al,2));
 
     // Odd combination of couplings
-    odd_foton_up = 4*foton_Vu*foton_Au*foton_Vl*foton_Al;
-    odd_foton_down = 4*foton_Vd*foton_Ad*foton_Vl*foton_Al;
-    odd_interf_up = (foton_Vu*Z_Au+foton_Au*Z_Vu)*(foton_Vl*Z_Al+foton_Al*Z_Vl);
-    odd_interf_down = (foton_Vd*Z_Ad+foton_Ad*Z_Vd)*(foton_Vl*Z_Al+foton_Al*Z_Vl);
+    odd_photon_up = 4*photon_Vu*photon_Au*photon_Vl*photon_Al;
+    odd_photon_down = 4*photon_Vd*photon_Ad*photon_Vl*photon_Al;
+    odd_interf_up = (photon_Vu*Z_Au+photon_Au*Z_Vu)*(photon_Vl*Z_Al+photon_Al*Z_Vl);
+    odd_interf_down = (photon_Vd*Z_Ad+photon_Ad*Z_Vd)*(photon_Vl*Z_Al+photon_Al*Z_Vl);
     odd_Z_up = 4*Z_Vu*Z_Au*Z_Vl*Z_Al;
     odd_Z_down = 4*Z_Vd*Z_Ad*Z_Vl*Z_Al;
 
@@ -2019,6 +1740,10 @@ int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valar
     int Npnt_max = max.size();
     
     // check on the rapidity cut
+    if (y_min_param  >= eta_cut_param) {
+        std::cout << "\n\nThe chosen lower rapidity cut is not compatible with acceptance cuts." << std::endl;
+        return 1;
+    }
     if (y_min_param / log(energy_param/max[Npnt_max-1]) > 1) {
         std::cout << "\n\nThe chosen lower rapidity cut is too high in this invariant mass range." << std::endl;
         return 1;

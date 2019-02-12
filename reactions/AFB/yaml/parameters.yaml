@@ -6,10 +6,3 @@ eta_cut : 2.5
 pT_cut : 20.0
 y_min : 0.0
 y_max : 0.0 # if set to 0 no upper y_cut
-
-
-## Integration routine
-integration : "QNG"
-# "QNG" for non-adaptive Gauss-Kronrod integration (faster, less precise); "QAG" for adaptive Gauss-Kronrod integration (slower, more precise)
-key : 6
-# sets the precision for QAG integration. "1, 2, 3, 4, 5, 6" for increasing precision (corresponds to the 15, 21, 31, 41, 51, 61 point Gauss-Kronrod rule)
