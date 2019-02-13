@@ -44,17 +44,10 @@ C---------------------------------------------------------
 
       integer omegaIteration
       Logical doMatrix, doNuisance, doExternal, LStop
-
-C----------------------------------------------------------------------------
-
-         ! --> WS debug
-         if(LDEBUG) print*,'GetNewChisquare flag_in=',flag_in
-
 c Global initialisation
 
       if (LFirst) then
          LFirst = .false.
-
 
 C    !> Determine which mechanisms for syst. errors should be used:
          Call Init_Chi2_calc(doMatrix, doNuisance, doExternal)
@@ -115,14 +108,6 @@ C !> Store rescaled gamma (important for asymmetric errors ):
                ScaledGammaSav(k,j) = ScaledGamma(k,j)
             enddo
          enddo
-
-
-        ! print *,' --- ScaledGamma'
-        ! do i=1,n0_in
-          ! print *,(ScaledGamma(j,i),j=1,nsys)
-        ! enddo
-
-
 C !> Rebuild syst. covariance matrix
 
          if ( doMatrix ) then
@@ -130,10 +115,6 @@ C !> Rebuild syst. covariance matrix
      $           ,ScaledSystMatrix
      $           ,List_Covar_Inv,n0_in)
          endif
-          ! print *,' --- ScaledSystMatrix'
-          ! do i=1,6
-            ! print *,(ScaledSystMatrix(j,i),j=1,6)
-          ! enddo
       else
 C !> Restore saved gamma:
          do k=1,nsys
@@ -155,24 +136,12 @@ c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
      $           ,ScaledErrorMatrix
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
 
-          ! print *,' --- ScaledErrors'
-            ! print *,(ScaledErrors(j),j=1,6)
-          ! print *,' --- ScaledErrorMatrix'
-          ! do i=1,6
-            ! print *,(ScaledErrorMatrix(j,i),j=1,6)
-          ! enddo
-
 C  !> Sum covariance matricies and invert the total:
 
             if ( doMatrix .or. NCovar .gt. 0 ) then
                Call Chi2_calc_SumCovar(ScaledErrorMatrix,
      $              ScaledSystMatrix,
      $              ScaledTotMatrix, NCovar)
-
-              ! print *,' --- ScaledTotMatrix Inv.'
-              ! do i=1,6
-                ! print *,(ScaledTotMatrix(j,i),j=1,6)
-              ! enddo
             endif
 
 C !> same for diagonal part:
@@ -185,18 +154,7 @@ c     no cov matrix and no ScaledErrors errors, break
                   print*,'(possibly cov matrix forgot to be included?)'
                   call hf_stop
                endif
-
-               if ( .not. is_covariance(i) ) then
-                  ScaledErrors(i) = 1.D0
-     $                 / (ScaledErrors(i)*ScaledErrors(i))
-               else
-                  if (ScaledErrors(i).eq.0.0D0) then
-                     ScaledErrors(i) = 1.D0
-                  else
-                     ScaledErrors(i) = 1.D0
-     $                    / (ScaledErrors(i)*ScaledErrors(i))
-                  endif
-               endif
+               ScaledErrors(i)=ScaledErrors(i)**(-2)
             enddo
 
          endif
@@ -684,8 +642,8 @@ C-----------------------------------------------------------------------
 C
 C> @brief Scale covariance matrix and/or diagonal uncertainties
 C
-C> @param ScaledErrors (output)
-C> @param ScaledErrorMatrix (output)
+C> @param[out] ScaledErrors
+C> @param[out] ScaledErrorMatrix
 C> @param rsys_in
 C> @param n0_in
 C> @param NCovar
@@ -1437,7 +1395,7 @@ C Diagonal part:
          enddo
 C Chi2 per point:
          chi2 = (d - t + Sum)**2 * ScaledErrors(i)
-         residuals(i) = (d - t + Sum)*sqrt(ScaledErrors(i))
+         residuals(i)=sqrt(chi2)
 C     Sums:
          if ( FitSample(i) ) then
             chi2_fit  = chi2_fit  + chi2
