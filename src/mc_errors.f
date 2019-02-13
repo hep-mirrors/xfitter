@@ -24,8 +24,9 @@ C To be used as a seed:
       double precision s,voica,dummy_st,sorig
 
 C Single precision here:
-      real rndsh,ranflat
-C
+      real rndsh(3)  ! additive, poisson, linear
+     $     ,ranflat
+
       double precision rand_shift(NSYS)
       double precision r_sh_fl(NSYS)
       double precision f_un
@@ -41,7 +42,8 @@ C For log normal random shifts:
       double precision estat_in, ecor_in, euncor_in, etot_in !> Input uncertainites
       double precision estat_out,euncor_out  ! recalculated stat. error
 
-      double precision alpha_rel ! original relative alpha (uncertainty)
+      double precision scaleF
+      integer scaling_type
 
 C functions:
       real logshift
@@ -64,7 +66,7 @@ C
          call rnorml(rndsh,1)   ! gauss random number
          call ranlux(ranflat,1) ! uniform random number
 
-         rand_shift(isys) = rndsh
+         rand_shift(isys) = rndsh(1)
          r_sh_fl(isys) = (ranflat-0.5)*f_un
 
          print '(''random numbers: sys, gauss, flat '',2i6,2F8.2)',
@@ -76,11 +78,8 @@ C
 C Loop over the data:
 C
       do n0=1,npoints
-         call rnorml(rndsh,1)
+         call rnorml(rndsh,3)
          call ranlux(ranflat,1)
-
-C Store relative alpha:
-         alpha_rel = alpha(n0)/DATEN(n0)
 
          if (lrandData) then
             s = DATEN(n0)
@@ -127,14 +126,13 @@ c     $                 s,logshift(lmu,lsig,lrunif)
 CV now choose sta (advised gauss OR poisson)
 
          if (statype.eq.1) then ! gauss
-
-            alpha(n0) = sorig * alpha_rel ! adjust alpha0, important for theory-like data.
-            s = s + rndsh * alpha(n0)
-
-c            if (alpha(n0).eq.0) then
-c               s = 0.1
-c               alpha(n0) = 1.e6
-c            endif
+C do separate fluctuations for stat-const, stat-poisson and stat-linear pieces
+            s = s
+     $         + sqrt( e_uncor_const(n0)**2 + e_stat_const(n0)**2)
+     $              * daten(n0)*rndsh(1)
+     $         + sqrt( e_uncor_poisson(n0)**2 + e_stat_poisson(n0)**2)
+     $              * sqrt(abs(daten(n0)*sorig))*rndsh(2)
+     $         + e_uncor_mult(n0)*sorig*rndsh(3)
          elseif (statype.eq.3.) then ! lognormal
             lsig = alpha(n0)
             lmu=1.
@@ -185,7 +183,7 @@ C New absolute uncor:
             euncor_out = euncor_in / data_in * s ! rescale to new value
 
             if (statype.eq.14) then
-               s = s + rndsh*euncor_in
+               s = s + rndsh(1)*euncor_in
             else if (statype.eq.34) then
                lsig = euncor_in
                lmu=1.
@@ -217,7 +215,67 @@ C Store uncor in %:
          print
      $ '(''Original, systematics and stat. shifted data:'',i4,5E12.4)'
      $        , n0,sorig, voica,s,alpha(n0),e_unc(n0)/100.*s
+
+
+         if (s.eq.0) then
+            call hf_errlog(1302201902,
+     $          'S: ToyMC cross section with exact ZERO value, stopOB')
+         endif
+
+C     Scale relative error sources, depending on scaling rule defined in chi2-related section of steering or in data files
+C         For :
+C     - additive        ("NoRescale") keep absolute errors unmodified
+C     - multiplicaitive ("Linear")    keep relative errors unmodified
+C     - poisson         ("Poisson")   keep (relative error)*sqrt(value) unmodified
+
+         scaleF = DATEN(n0)/s !=oldValue/newValue
+
+         if (s .lt. 0) then
+            call hf_errlog(1302201901,
+     $          'W: ToyMC cross section with negative value')
+            e_uncor_const(n0) = sqrt(e_uncor_const(n0)**2
+     $           +e_uncor_poisson(n0)**2 )
+            e_stat_const(n0)  = sqrt(e_stat_const(n0)**2+
+     $           e_stat_poisson(n0)**2)
+            e_stat_poisson(n0)  = 0.
+            e_uncor_poisson(n0) = 0.
+         else
+            e_stat_poisson(n0) = e_stat_poisson(n0)  * sqrt(scaleF)
+            e_uncor_poisson(n0) = e_uncor_poisson(n0)  * sqrt(scaleF)
+         endif
+         e_uncor_mult(n0) = e_uncor_mult(n0) !  NO scale, keep relative
+         e_uncor_const(n0) = e_uncor_const(n0) * scaleF
+         e_stat_const(n0)  = e_stat_const(n0) * scaleF
+         e_tot(n0) = e_tot(n0) * scaleF
+
+C     Also correlated systematicss:
+         do isys=1,nsys
+
+            scaling_type = SysScalingType(isys)
+
+            if (
+     $           (scaling_type .eq. isNoRescale)
+     $           .or. (LForceAdditiveData(n0) )
+     $           ) then         ! additive, keep absolute
+               beta(isys,n0) = beta(isys,n0) * scaleF
+               omega(isys,n0) = omega(isys,n0) * scaleF
+            elseif (scaling_type.eq. isLinear) then  ! mult, do nothing
+               beta(isys,n0) = beta(isys,n0)
+               omega(isys,n0) = omega(isys,n0)
+            elseif (scaling_type.eq. isPoisson) then
+               beta(isys,n0) = beta(isys,n0) * sqrt(scaleF)
+               omega(isys,n0) = omega(isys,n0) * sqrt(scaleF)
+            endif
+         enddo
+
          DATEN(n0) = s
+C update alpha:
+         alpha(n0) =  sqrt(e_uncor_mult(n0)**2
+     $        +e_stat_poisson(n0)**2
+     $        +e_uncor_const(n0)**2
+     $        +e_stat_const(n0)**2
+     $        +e_uncor_poisson(n0)**2)
+     $        *daten(n0)
 
       enddo
       end

@@ -466,6 +466,7 @@ c#include "steering.inc"
       integer i1,j1,i,j,k
       integer scaling_type
       double precision scale
+      logical lfirstPass/.true./
 C-----------------------------------------------------
       do k=1,NSYS
          scaling_type = SysScalingType(k)
@@ -473,8 +474,15 @@ C-----------------------------------------------------
          do i1=1,n_syst_meas(k)
             i = syst_meas_idx(i1,k)
 
-            if (scaling_type.eq. isNoRescale) then
+            if ( (scaling_type.eq. isNoRescale)
+     $           .or. LForceAdditiveData(i) ! force additive scaling for all syst. sources for this datapoint
+     $           ) then
                scale = daten(i)
+               if ( LForceAdditiveData(i) .and. k.eq.1
+     $              .and. lfirstPass) then
+                  call hf_errlog(2018121101,
+     $                 'I: Force additive systematics for a datapoint')
+               endif
             elseif (scaling_type.eq. isLinear) then
                scale = theo(i)
             elseif (scaling_type.eq. isPoisson) then
@@ -491,6 +499,7 @@ C-----------------------------------------------------
             ScaledOmega(k,i) = omega(k,i)*scale
          enddo
       enddo
+      lfirstPass = .false.
 C-----------------------------------------------------
       end
 
