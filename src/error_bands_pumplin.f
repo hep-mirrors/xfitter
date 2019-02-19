@@ -37,7 +37,7 @@ C SG: x-dependent fs:
       double precision fs0
       double precision fshermes
 
-      
+
       character*20 parname
       integer  ind,ind2,jext,iint
 
@@ -46,23 +46,21 @@ C SG: x-dependent fs:
 
       integer  iunint(nparmax)  ! internal param. number
       integer  iexint(nparmax)  ! external param. number
-      double precision 
-     $     parval, parerr,parlolim,parhilim
+      double precision parval,parerr,parlolim,parhilim
 
       integer mpar
       double precision chichi
-      double precision chi2data_theory ! function
+      double precision chi2data_theory !function
 
       double precision shift
-C Function
-      double precision GetUmat
+      double precision GetUmat !function
       ! double precision DecorVarShift
 
 C for theory errors:
       double precision, allocatable :: TheoVars(:,:,:)
 
 C---------------------------------------------------------------
-      
+
 C
 C  Fix relation between internal and external params.
 C
@@ -99,23 +97,17 @@ C
 
       npar = MNE !> npar runs over external parameters.
 
-C
-C Allocate 
-C
       allocate(TheoVars(NTOT,2,mpar))
-
-
-
 C
 C Loop over de-correlated (diagonalised) errors:
 C
       do j=1,mpar
-  
+
          jext = iexint(j)
 
          base = TRIM(OutDirName)//'/pdfs_q2val_'//tag(j)
          idx = index(base,' ')-1
-         
+
          base2 = TRIM(OutDirName)//'/pdfs_'//tag(j)
          idx2  = index(base2,' ')-1
 
@@ -140,10 +132,10 @@ C
 
 
 C
-C Shift variable paramters by the j-th de-correlated error:
+C Shift parameters by the j-th de-correlated error:
 C
             do i=1,npar
-               a(i) = pkeep(i) 
+               a(i) = pkeep(i)
                iint = iunint(i)
                if (iint.gt.0) then
                   if(doOffset) then
@@ -155,20 +147,7 @@ C
                endif
             enddo  ! i
 
-
-C
-C Decode "a". 2 stands for IFLag = 2, which is a normal iteration.
-C
-!Broken since 2.2.0
-!           call PDF_param_iteration(a,2)
-            
-C
-C Fix some pars by sum-rules:
-C
-
-C 23 Apr 2017: replace by chi2data_theory(2) (needs checks, potentially)
-C
-C end replace 23 Apr 2017
+            call copy_minuit_extrapars(a) !Set shifted parameters
 
             ifcncount = ifcncount+1
             chichi = chi2data_theory(2)
@@ -188,8 +167,8 @@ C
               call save_data_lhapdf6(j*2)
               call error_band_action(j*2)
             endif
-            
-            
+
+
          enddo  ! shift_dir
 
       enddo  ! j
@@ -200,24 +179,24 @@ C write out once more (with theory errors filled)
       Theo_mod = TheoModFCN3
       ALPHA_Mod = ALphaModFCN3
 
-      call GetTheoErrorsAsym(TheoVars,ntot,mpar)      
+      call GetTheoErrorsAsym(TheoVars,ntot,mpar)
       call writefittedpoints
 
       deallocate(TheoVars)
-      
+
       return
       end
 
 C-----------------------------------------------------------
 C> @brief Compute asymmetric uncertainties for theory predictions based on eigenvector variations, asymmetric hessian
-C  
+C
 C  @param TheoVars 3-D array of theory variations shaped as ndata, 2, nvector
 C  @param nd number of data points, ndata
 C  @param nv number of eigenvectors, nvector
 C-----------------------------------------------------------
       subroutine GetTheoErrorsAsym(TheoVars,nd,nv)
       implicit none
-      integer nd,nv 
+      integer nd,nv
       double precision TheoVars(nd,2,nv)
 #include "ntot.inc"
 #include "theo.inc"
@@ -244,14 +223,14 @@ C-----------------------------------------
 
 C-----------------------------------------------------------
 C> @brief Compute asymmetric uncertainties for theory predictions based on eigenvector variations, symmetric hessian
-C  
+C
 C  @param TheoVars 3-D array of theory variations shaped as ndata, nvector
 C  @param nd number of data points, ndata
 C  @param nv number of eigenvectors, nvector
 C-----------------------------------------------------------
       subroutine GetTheoErrorsSym(TheoVars,nd,nv)
       implicit none
-      integer nd,nv 
+      integer nd,nv
       double precision TheoVars(nd,nv)
 #include "ntot.inc"
 #include "theo.inc"
@@ -290,9 +269,9 @@ C-----------------------------------------
 C
       integer  iunint(MNE)  ! internal param. number
       integer  iexint(MNE)  ! external param. number
-      double precision 
+      double precision
      $     parval, parerr,parlolim,parhilim
-      
+
       double precision a(MNE)
       integer idx,idx2,iint,kflag
 
@@ -331,7 +310,7 @@ C         call MNCOMD(fcn,'ITERATE 10',icond,0)
 C     Check the covariance matrix:
          call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
          print *,'Covariance matrix status =',istat,npari
-      
+
          if (istat .ne. 3) then
             call hf_errlog(16042702,
      $           'S:Problems with error matrix, can not produce bands')
@@ -362,24 +341,24 @@ C     Check the covariance matrix:
 
       Allocate(Amat(Npari, Npari))
       Allocate(Eigenvalues(Npari))
-      
+
 
       if (ReadParsFromFile) then
          call ReadParCovMatrix(CovFileName, Amat, Npari)
       else
          call MNEMAT( Amat, Npari)
       endif
-      
+
 C Diagonalize:
       call MyDSYEVD( Npari, Amat, Npari, Eigenvalues, ifail)
 
 C scale the matirx
       do i=1,npari
          do j=1,npari
-            Amat(j,i) = Amat(j,i) * sqrt(Eigenvalues(i)) 
+            Amat(j,i) = Amat(j,i) * sqrt(Eigenvalues(i))
          enddo
       enddo
-      
+
       allocate(TheoVars(NTOT,Npari))
 
 C
@@ -389,10 +368,10 @@ C
          jext = iexint(j)
          base = TRIM(OutDirName)//'/pdfs_q2val_'//tag(j)
          idx = index(base,' ')-1
-         
+
          base2 = TRIM(OutDirName)//'/pdfs_'//tag(j)
          idx2  = index(base2,' ')-1
-         
+
          if (idx.gt.0) then
             name  = base(1:idx)//'s_'
             name2 = base2(1:idx2)//'s.lhgrid'
@@ -400,34 +379,28 @@ C
             name = base//'s_'
             name2 = base2//'s.lhgrid'
          endif
-         
-         
-C     
-C Shift variable paramters by the j-th de-correlated error:
+
+
+C
+C Shift parameters by the j-th de-correlated error:
 C
          do i=1,MNE
-            a(i) = pkeep(i) 
+            a(i) = pkeep(i)
             iint = iunint(i)
             if (iint.gt.0) then
                a(i) = a(i) + Amat(iint,j)
-C               a(i) = a(i) + GetUmat(iint,j)               
+C               a(i) = a(i) + GetUmat(iint,j)
             endif
-         enddo                  ! i
+         enddo
 
+         call copy_minuit_extrapars(a) !Set shifted parameters
 
-C
-C Decode "a". 2 stands for IFLag = 2, which is a normal iteration.
-C
-!Broken since 2.2.0
-!        call PDF_param_iteration(a,2)
-         
          ifcncount = ifcncount+1
          chichi = chi2data_theory(2)  ! sum-rules and evolution are inside
-         
+
          TheoVars(:,j) = THEO        ! save for error calc.
 
-
-C     
+C
 C Write results out:
 C
          open (76,file=name2,status='unknown')
@@ -446,13 +419,14 @@ C write out once more (with theory errors filled)
       Theo_mod = TheoModFCN3
       ALPHA_Mod = ALphaModFCN3
 
-      call GetTheoErrorsSym(TheoVars,ntot,Npari)      
+      call GetTheoErrorsSym(TheoVars,ntot,Npari)
       call writefittedpoints
 
       deallocate(TheoVars)
       end
 
 !> read parameter values from the pars out file
+! Probably borken since 2.2.0 --Ivan
       subroutine ReadPars(FileName, pvals)
       implicit none
       character*(*) FileName
@@ -466,9 +440,9 @@ C write out once more (with theory errors filled)
       double precision parval, parerr, parlolim, parhilim
 C------------------------------------------------
       print *,'Reading parameter values from '//trim(FileName)
-      open (51,file=FileName, status='old',err=3) 
+      open (51,file=FileName, status='old',err=3)
  1    read (51,'(A120)',end=2, err=4) buff
-      
+
       call MNPARS(buff,IStatus)
       goto 1
 C Decode
@@ -481,7 +455,7 @@ C Decode
      $        parhilim,ii)
          pvals(ind) = parval
       enddo
-      
+
 
 
       return
@@ -499,12 +473,12 @@ C Decode
       integer i,j
 C---------------------------------------------------
       open (51, file=FileName, status='old', err=1)
-      
+
       print *,npars
       do i=1,NPars
          read (51,*,err=2,end=3) ( Cov(j,i),j=1,NPars )
-         print '(20E10.2)' ,( Cov(j,i),j=1,NPars ) 
-      enddo      
+         print '(20E10.2)' ,( Cov(j,i),j=1,NPars )
+      enddo
       print *,'Read covariance matrix from '//trim(FileName)
       close (51)
       return
