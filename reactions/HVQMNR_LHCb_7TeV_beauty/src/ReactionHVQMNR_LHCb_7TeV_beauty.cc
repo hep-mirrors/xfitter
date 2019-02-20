@@ -46,6 +46,8 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
 
   // stereing parameters for this calculation (modify only if you understand what you are doing)
   Steering steer;
+  steer.q = true;
+  steer.a = true;
   steer.nf = 3;
   steer.ptmin = 0.001;
   steer.ptmax = 70.0;

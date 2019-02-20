@@ -33,6 +33,7 @@ class ReactionKRunning : public ReactionTheory
     
     std::map<int, std::string> _type;
     std::map<int, std::string> _q;
+    std::map<int, double> _qValue;
     std::map<int, std::string> _q0;
     std::map<int, int> _NPoints;
     

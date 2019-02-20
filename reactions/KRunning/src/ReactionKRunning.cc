@@ -37,7 +37,10 @@ void ReactionKRunning::setDatasetParameters(int dataSetID, map<std::string, std:
   
   // read scale
   it = pars.find("q");
-  _q[dataSetID] = it->second;
+  if(!checkParam(it->second)) // value provided
+    _qValue[dataSetID] = stod(it->second);
+  else // parameter name is provided
+    _q[dataSetID] = it->second;
 
   // for type=massMSbarNLO read q0: scale at which m(m) is quoted
   if(_type[dataSetID] == "massMSbarNLO")
@@ -55,7 +58,7 @@ void ReactionKRunning::setDatasetParameters(int dataSetID, map<std::string, std:
 // Main function to compute results at an iteration
 int ReactionKRunning::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  double q = GetParam(_q[dataSetID]);
+  double q = (_qValue.find(dataSetID) != _qValue.end()) ? _qValue[dataSetID] : GetParam(_q[dataSetID]);
   if(_type[dataSetID] == "as")
     val = valarray<double>(getAlphaS(q), _NPoints[dataSetID]);
   else if(_type[dataSetID] == "massMSbarNLO")

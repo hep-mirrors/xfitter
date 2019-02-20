@@ -99,6 +99,8 @@ class ReactionBaseHVQMNR : public ReactionTheory
       double xmax;
       double mf2min;
       double mf2max;
+      bool   q;
+      bool   a;
     };
     
     // all datasets

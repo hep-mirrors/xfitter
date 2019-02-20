@@ -87,8 +87,8 @@ void ReactionBaseHVQMNR::setDatasetParameters(int dataSetID, map<string,string> 
   ds.BinsYMax  = GetBinValues(dataSetID, "ymax");
   ds.BinsPtMin = GetBinValues(dataSetID, "pTmin");
   ds.BinsPtMax = GetBinValues(dataSetID, "pTmax");
-  if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL )
-    hf_errlog(16123004, "F: No bins ymin or ymax or ptmin or ptmax");
+  //if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL )
+  //  hf_errlog(16123004, "F: No bins ymin or ymax or ptmin or ptmax");
   // set reference y bins if needed
   if(ds.NormY == 1)
   {
@@ -116,9 +116,9 @@ bool ReactionBaseHVQMNR::IsEqual(const double val1, const double val2, const dou
 // initialise calculation with default parameters
 void ReactionBaseHVQMNR::DefaultInit(const Steering& steer, const double mq, MNR::MNR& mnr, MNR::Frag& frag, MNR::Grid& grid, MNR::Grid& grid_smoothed)
 {
-  // MNR (parton level cross sections)
-  mnr.bFS_Q = true;
-  mnr.bFS_A = true;
+  // MNR parton level cross sections, quark-antiquark contributions
+  mnr.bFS_Q = steer.q;
+  mnr.bFS_A = steer.a;
   // number of light flavours
   mnr.fC_nl = steer.nf;
   // x3 and x4 binning
