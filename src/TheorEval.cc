@@ -310,11 +310,12 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 
   ReactionTheory * rt;
   if ( gNameReaction.find(term_source) == gNameReaction.end()) {
-    void *theory_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
+    string path_to_lib=PREFIX+string("/lib/")+libname;
+    void *theory_handler = dlopen(path_to_lib.c_str(), RTLD_NOW);
     if (theory_handler == NULL)  {
-      std::cout  << dlerror() << std::endl;
-      string text = "F: Reaction shared library ./lib/"  + libname  +  " not present for " +term_source + ". Check Reactions.txt file" ;
-      hf_errlog_(16120502,text.c_str(),text.size());
+      std::cerr<<"Failed to open shared library "<<path_to_lib<<" for "<<term_source<<"; error:\n"
+               <<dlerror()<<"\n Check that the correct library is given in Reactions.txt"<<std::endl;
+      hf_errlog(16120502,"F: Failed to open reaction shared library, see stderr for details");
     }
 
     // reset errors
