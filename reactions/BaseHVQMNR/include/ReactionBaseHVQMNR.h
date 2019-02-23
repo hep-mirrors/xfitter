@@ -133,7 +133,10 @@ class ReactionBaseHVQMNR : public ReactionTheory
 
     // initialise calculation with default parameters
     void DefaultInit(const Steering& steer, const double mq, MNR::MNR& mnr, MNR::Frag& frag, MNR::Grid& grid, MNR::Grid& grid_smoothed);
-    
+    void DefaultInitMNR(const Steering& steer, const double mq, MNR::MNR& mnr);
+    void DefaultInitGrid(const Steering& steer, const double mq, const int npt, MNR::Grid& grid);
+    void DefaultInitFrag(const Steering& steer, MNR::Frag& frag);
+
     // return cross section in provided pT-y bin
     double FindXSecPtYBin(const TH2* histXSec, const double ymin, const double ymax, const double ptmin, const double ptmax, const bool diff_pt, const bool diff_y);
 
@@ -155,7 +158,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
     double GetFragPar(const char q, const map<string,string> pars = map<string,string>());
 
     // check parameter respecting priority: (1) supplied map (if supplied), (2) global
-    double checkParamInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
+    bool checkParamInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
     {
       if(pars.size() != 0)
         return (pars.find(name) != pars.end());
@@ -173,7 +176,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
     }
 
     // get parameter respecting priority: (1) supplied map (if supplied), (2) global
-    double GetParamIInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
+    int GetParamIInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
     {
       if(pars.find(name) != pars.end())
         return std::stod(pars.at(name));

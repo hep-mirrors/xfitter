@@ -116,6 +116,14 @@ bool ReactionBaseHVQMNR::IsEqual(const double val1, const double val2, const dou
 // initialise calculation with default parameters
 void ReactionBaseHVQMNR::DefaultInit(const Steering& steer, const double mq, MNR::MNR& mnr, MNR::Frag& frag, MNR::Grid& grid, MNR::Grid& grid_smoothed)
 {
+  DefaultInitMNR(steer, mq, mnr);
+  DefaultInitGrid(steer, mq, steer.npt, grid);
+  DefaultInitGrid(steer, mq, steer.nptsm, grid_smoothed);
+  DefaultInitFrag(steer, frag);
+}
+
+void ReactionBaseHVQMNR::DefaultInitMNR(const ReactionBaseHVQMNR::Steering &steer, const double mq, MNR::MNR &mnr)
+{
   // MNR parton level cross sections, quark-antiquark contributions
   mnr.bFS_Q = steer.q;
   mnr.bFS_A = steer.a;
@@ -132,13 +140,18 @@ void ReactionBaseHVQMNR::DefaultInit(const Steering& steer, const double mq, MNR
   mnr.fSF_max_mf2 = steer.mf2max;
   // precalculation (memory allocation etc.)
   mnr.CalcBinning();
+}
+
+void ReactionBaseHVQMNR::DefaultInitGrid(const ReactionBaseHVQMNR::Steering &steer, const double mq, const int npt, MNR::Grid &grid)
+{
   // Parton level pT-y grids
-  grid.SetL(steer.npt, steer.ptmin, steer.ptmax, mq);
+  grid.SetL(npt, steer.ptmin, steer.ptmax, mq);
   grid.SetY(steer.ny, steer.ymin, steer.ymax);
   grid.SetW(1);
-  grid_smoothed.SetL(steer.nptsm, steer.ptmin, steer.ptmax, mq);
-  grid_smoothed.SetY(steer.ny, steer.ymin, steer.ymax);
-  grid_smoothed.SetW(1);
+}
+
+void ReactionBaseHVQMNR::DefaultInitFrag(const ReactionBaseHVQMNR::Steering &steer, MNR::Frag &frag)
+{
   // Fragmentation
   frag.SetNz(steer.nbz);
 }

@@ -507,6 +507,8 @@ namespace MNR
       double as = GetAs(mr2);
       double as2 = as * as;
       double as3 = as2 * as;
+      // store alpha_s in grid
+      grid->AlphaS(c_l) = as;
       // Ratios of scales
       double xmf = TMath::Log(mf2 / xm2);
       double xmr = 4 * fC_pi * fC_b0 * TMath::Log(mr2 / mf2);

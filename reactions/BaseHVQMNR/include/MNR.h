@@ -92,6 +92,14 @@ namespace MNR
     double fSF_min_mf2;
     double fSF_max_mf2;
 
+    // Perturbative scale coefficients
+    double fMf_A;
+    double fMf_B;
+    double fMf_C;
+    double fMr_A;
+    double fMr_B;
+    double fMr_C;
+
   // Private fields
   private:
     // Constants
@@ -105,13 +113,6 @@ namespace MNR
     double fC_sqrt_sh;    
     // Normalisation factor
     double fC_xnorm;
-    // Perturbative scale coefficients
-    double fMf_A;
-    double fMf_B;
-    double fMf_C;
-    double fMr_A;
-    double fMr_B;
-    double fMr_C;
 
     // Variables for fast structure functions evaluation
     const static int fSF_npart;
