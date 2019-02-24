@@ -498,6 +498,7 @@ namespace MNR
       this->PrecalculatePDF(mf2);
       // Renormalisation scale
       double mr2 = this->GetMr2(xm2, pt2);
+      double mr = TMath::Sqrt(mr2);
       if(mr2 <= 0.0) 
       {
         grid->NonPhys(c_l);
@@ -509,6 +510,8 @@ namespace MNR
       double as3 = as2 * as;
       // store alpha_s in grid
       grid->AlphaS(c_l) = as;
+      // store mu_r in grid
+      grid->MuR(c_l) = mr;
       // Ratios of scales
       double xmf = TMath::Log(mf2 / xm2);
       double xmr = 4 * fC_pi * fC_b0 * TMath::Log(mr2 / mf2);

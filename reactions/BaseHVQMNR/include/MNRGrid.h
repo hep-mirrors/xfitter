@@ -73,6 +73,9 @@ namespace MNR
     // Get alpha_s (by reference) in specified bin
     inline double& AlphaS(int bl) { return fAs[bl]; };
 
+    // Get mu_r (by reference) in specified bin
+    inline double& MuR(int bl) { return fMr[bl]; };
+
     // Get number of pT (L) bins
     inline int NL() { return fNL; };
 
@@ -118,7 +121,7 @@ namespace MNR
     // Transformation from original grid (gridorig) to new one (gridtrg)
     // (using cubic spline interpolation)
     static void InterpolateGrid(Grid* gridorig, Grid* gridtrg, double mq);
-    static void InterpolateGrid(Grid* gridorig, Grid* gridtrg, double mq, Grid* gridorig_LO_massUp, double mq_masUp, Grid* gridorig_LO_massDown, double mq_masDown);
+    static void InterpolateGrid(Grid* gridorig, Grid* gridtrg, double mq, Grid* gridorig_LO_massUp, double mq_masUp, Grid* gridorig_LO_massDown, double mq_masDown, int flag = 0);
 
     // Transformation from pole mass scaheme into MSbar mass scheme
     static void TransformGridToMSbarMassScheme(Grid* grid, Grid* gridLOMassUp, Grid* gridLOMassDown, double mq, double mqDiff);
@@ -147,5 +150,7 @@ namespace MNR
     MNRContribution** fContr;
     // alpha_s in pT (L) bins
     double* fAs;
+    // mu_r in pT (L) bins
+    double* fMr;
   };
 }

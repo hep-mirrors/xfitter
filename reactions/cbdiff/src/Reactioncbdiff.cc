@@ -243,7 +243,8 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     mnr->fMf_B = mfB;
     mnr->fMr_B = mrB;
 
-    MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD);
+    int flagMSbarTransformation = 0; // d1=4/3 (no ln)
+    MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, flagMSbarTransformation);
     //MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc);
   }
   else

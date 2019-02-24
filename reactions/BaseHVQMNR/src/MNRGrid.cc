@@ -12,6 +12,7 @@ namespace MNR
     fNW   = 0;
     fL    = NULL;
     fAs   = NULL;
+    fMr   = NULL;
     fY    = NULL;
     fW    = NULL;
     fBW   = NULL;
@@ -30,6 +31,7 @@ namespace MNR
     fNW   = 0;
     fL    = NULL;
     fAs   = NULL;
+    fMr   = NULL;
     fY    = NULL;
     fW    = NULL;
     fBW   = NULL;
@@ -46,6 +48,7 @@ namespace MNR
     //printf("OZ Grid::~Grid()\n");
     if(fL) delete fL;
     if(fAs) delete fAs;
+    if(fMr) delete fMr;
     if(fY) delete fY;
     if(fW) delete fW;
     if(fBW) delete fBW;
@@ -114,6 +117,9 @@ namespace MNR
     // array for alpha_s values
     if(fAs) delete fAs;
     fAs = new double[fNL];
+    // array for mu_r values
+    if(fMr) delete fMr;
+    fMr = new double[fNL];
   }
 
   void Grid::FillPt(double* ptall, double xm) 
@@ -261,16 +267,23 @@ namespace MNR
           TSpline3 spline("", spline_x, spline_y, nlorig);
           for(int l = 0; l < nltrg; l++) gridtrg->CS(c,l,y,w) = spline.Eval(ltrg[l]);
         }
-    // interpolate as
-    double spline_y_as[nlorig];
+    // interpolate as and mu_r
+    double spline_y_as[nlorig], spline_y_mr[nlorig];
     for(int l = 0; l < nlorig; l++)
+    {
       spline_y_as[nlorig-1-l] = gridorig->AlphaS(l);
+      spline_y_mr[nlorig-1-l] = gridorig->MuR(l);
+    }
     TSpline3 spline_as("", spline_x, spline_y_as, nlorig);
+    TSpline3 spline_mr("", spline_x, spline_y_mr, nlorig);
     for(int l = 0; l < nltrg; l++)
+    {
       gridtrg->AlphaS(l) = spline_as.Eval(ltrg[l]);
+      gridtrg->MuR(l) = spline_mr.Eval(ltrg[l]);
+    }
   }
 
-  void Grid::InterpolateGrid(Grid *gridorig, Grid *gridtrg, double mq, Grid *gridorig_LO_massUp, double mq_masUp, Grid *gridorig_LO_massDown, double mq_masDown)
+  void Grid::InterpolateGrid(Grid *gridorig, Grid *gridtrg, double mq, Grid *gridorig_LO_massUp, double mq_masUp, Grid *gridorig_LO_massDown, double mq_masDown, int flag)
   {
     double mqDiff = mq_masUp - mq_masDown;
     // Get pT array of target grid
@@ -288,7 +301,7 @@ namespace MNR
     double* lorig = gridorig->LPtr();
     double* lorig_LO_massUp = gridorig_LO_massUp->LPtr();
     double* lorig_LO_massDown = gridorig_LO_massDown->LPtr();
-    double spline_x[3][nlorig], spline_y[4][nlorig];
+    double spline_x[3][nlorig], spline_y[5][nlorig];
     for(int i = 0; i < nlorig; i++)
     {
       //spline_x[0][nlorig-1-i] = mq2 / lorig[i] - mq2;
@@ -316,6 +329,7 @@ namespace MNR
             spline_y[1][l] = gridorig_LO_massUp->CS(c,l,y,w);
             spline_y[2][l] = gridorig_LO_massDown->CS(c,l,y,w);
             spline_y[3][l] = gridorig->AlphaS(l);
+            spline_y[4][l] = gridorig->MuR(l);
           }
           // Spline interpolation
           TSpline3 spline("", spline_x[0], spline_y[0], nlorig);
@@ -324,6 +338,7 @@ namespace MNR
           //TSpline3 spline_LO_massUp("", spline_x[0], spline_y[1], nlorig);
           //TSpline3 spline_LO_massDown("", spline_x[0], spline_y[2], nlorig);
           TSpline3 spline_as("", spline_x[0], spline_y[3], nlorig);
+          TSpline3 spline_mr("", spline_x[0], spline_y[4], nlorig);
           for(int l = 0; l < nltrg; l++)
           {
             //double pt2 = mq2 / ltrg[l] - mq2;
@@ -337,7 +352,12 @@ namespace MNR
             double xsecOld_LO_massDown = spline_LO_massDown.Eval(pt2);
             double as = spline_as.Eval(pt2);
             //printf("as = %f\n", as);
+            //double d1 = 4.0 / 3.0;
+            double mr = spline_mr.Eval(pt2);
             double d1 = 4.0 / 3.0;
+            if(flag == 1)
+              d1 += 2.0 * TMath::Log(mr / mq);
+            // TODO: check different options for transformation
             double xsecNew = xsecOld + as / TMath::Pi() * d1 * mq * (xsecOld_LO_massUp - xsecOld_LO_massDown) / mqDiff;
             gridtrg->CS(c,l,y,w) = xsecNew;
             //gridtrg->CS(c,l,y,w) = xsecOld;
