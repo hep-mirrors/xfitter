@@ -412,9 +412,18 @@ c             call fillvfngrid
       endif
 
       if ( (IFlag.eq.1).and.(DataToTheo)) then
-         do i=1,npoints
-            daten(i) = theo(i)
-         enddo
+        !Copy theory to data
+        do i=1,npoints
+          daten(i)=theo(i)
+          !Update total uncorrelated uncertainty
+          alpha(i)=daten(i)*sqrt(
+     &      e_stat_poisson(i)**2+
+     &      e_stat_const(i)**2+   !Should I use e_stat_const or e_sta_const or e_sta? I am not sure... --Ivan
+     &      e_uncor_poisson(i)**2+
+     &      e_uncor_const(i)**2+  !or e_unc_const?
+     &      e_uncor_mult(i)**2+
+     &      e_uncor_logNorm(i)**2)
+        enddo
       endif
 
 *     ---------------------------------------------------------
