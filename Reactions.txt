@@ -27,3 +27,4 @@ NegativeGluon libNegativeGluonPdfParam_xfitter.so
 PolySqrt libPolySqrtPdfParam_xfitter.so
 AFB libafb_xfitter.so
 KMatrix libkmatrix_xfitter.so
+UvDvUbarDbarSSbar libuvdvubardbarssbarpdfdecomposition_xfitter.so

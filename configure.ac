@@ -599,6 +599,7 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
+		 pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src/Makefile
 		 pdfparams/NegativeGluonPdfParam/src/Makefile
 		 evolutions/LHAPDF/src/Makefile
 		 minimizers/CERESMinimizer/src/Makefile

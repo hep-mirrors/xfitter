@@ -16,7 +16,7 @@ C--------------------------------------------------------------
       double precision q2,x,gval,sing,umin,dmin
 *new jf
       double precision QPDFXQ,cplus,splus,bplus,uplus,dplus,U,D,sea,DbmUb
-      double precision d_Ubar,d_Dbar,u_sea,d_sea,str,chm,bot, photon
+      double precision d_Ubar,d_Dbar,u_sea,d_sea,str,strbar,chm,bot,photon
       double precision totstr,totDbar,totcha,totUbar,afs,afc,xbelow,delx
       double precision totusea,totdsea,afs_ud
 
@@ -66,7 +66,7 @@ C--------------------------------------------------------------
 
   ! Store how many PDFs are written out:
       integer NPdfs 
-      parameter (NPdfs = 14)
+      parameter (NPdfs = 15)
 
 C---------------------------------------------------------------
 
@@ -93,10 +93,11 @@ c        open(82,file=h1name)
          write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2)
 
          ! Write the names of PDFs
-         write (81,'(15(2x,A12))')
+         write (81,'(16(2x,A12))')
      $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
      $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
-     $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph '
+     $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph ',
+     $        'strbar'
 
          totstr=  0.d0
          totDbar= 0.d0
@@ -158,6 +159,7 @@ c        open(82,file=h1name)
             u_sea=pdf(-2)
             d_sea=pdf(-1)
             str = (pdf(-3)+pdf(3))/2.d0
+            strbar = pdf(-3)
 
 
             chm = 0.0d0
@@ -182,8 +184,8 @@ c        open(82,file=h1name)
 
             write(81,810)
      +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,
-     $           chm,bot,photon
- 810        format(15(2x,G12.6))
+     $           chm,bot,photon,strbar
+ 810        format(16(2x,G12.6))
  811        format(I3,2x,23(2x,G12.6))
 
 

@@ -20,12 +20,17 @@
 #include "FileOpener.h"
 
 //pdf type
-pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue };
+//pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue };
+pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, sbar, Rs, soversbar, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue, uvplusdv, uvplusdvplusSea };
 //pdf labels
-string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", 
-   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g"};
+//string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", 
+//   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g"};
+string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "(s+#bar{s})/2", "#bar{s}", "(s+#bar{s})/(#bar{u}+#bar{d})", "s/#bar{s}", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", 
+   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g","u_{V}+d_{V}", "u_{V}+d_{V}+2#Sigma"};
 //pdf filenames
-string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv","rs","ph","sg","gg"
+//string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv","rs","ph","sg","gg"
+//		   };
+string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "sbar", "Rs", "soversbar", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv","rs","ph","sg","gg","uv+dv","uv+dv+2Sea"
 		   };
 
 vector <pdftype> pdfs(pdfts, pdfts + sizeof(pdfts) / sizeof(pdftype));
@@ -60,6 +65,7 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
       else if (var ==  "u_sea") ipdf = ubar;
       else if (var ==  "d_sea") ipdf = dbar;
       else if (var ==  "str") ipdf = s;
+      else if (var ==  "strbar") ipdf = sbar;
       else if (var ==  "chm") ipdf = c;
       else if (var ==  "bot") ipdf = b;
       else if (var ==  "ph") ipdf = photon;
@@ -70,7 +76,7 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
         }
       PdfTypes.push_back(ipdf);
     }
-
+    
   // Read the table
   double val;
   for (int ix = 0; ix < NxValues; ix++)
@@ -85,10 +91,28 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
         }
     }
 
+  // for backward compatibility: if no strbar, set strbar=-999
+  if(std::find(PdfTypes.begin(), PdfTypes.end(), sbar) == PdfTypes.end())
+  {
+    PdfTypes.push_back(sbar);
+    for (int ix = 0; ix < NxValues; ix++)
+    {
+      tablemap[sbar].push_back(-999);
+    }
+  }
+
+
   //custom pdf types
   PdfTypes.push_back(dbarminubar);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
     tablemap[dbarminubar].push_back(tablemap[dbar][ix] - tablemap[ubar][ix]);
+
+  PdfTypes.push_back(soversbar);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[sbar][ix] != -999)
+      tablemap[soversbar].push_back(2*tablemap[s][ix]/tablemap[sbar][ix]-1);
+    else
+      tablemap[soversbar].push_back(-999);
 
   PdfTypes.push_back(Rs);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
@@ -153,6 +177,27 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
       tablemap[photonOverGlue].push_back(tablemap[photon][ix]/tablemap[g][ix]);
     else
       tablemap[photonOverGlue].push_back(0);
+
+  PdfTypes.push_back(uvplusdv);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[g][ix] != 0)
+      tablemap[uvplusdv].push_back(tablemap[dv][ix]+tablemap[uv][ix]);
+    else
+      tablemap[uvplusdv].push_back(0);
+
+  PdfTypes.push_back(uvplusdvplusSea);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[g][ix] != 0)
+      tablemap[uvplusdvplusSea].push_back(tablemap[dv][ix]+tablemap[uv][ix]+2.0*tablemap[Sea][ix]);
+    else
+      tablemap[uvplusdvplusSea].push_back(0);
+
+  /*PdfTypes.push_back(uvplusdvminSea);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[g][ix] != 0)
+      tablemap[uvplusdvminSea].push_back(tablemap[dv][ix]+tablemap[uv][ix]-2.0*tablemap[Sea][ix]);
+    else
+      tablemap[uvplusdvminSea].push_back(0);*/
 
 
 }
