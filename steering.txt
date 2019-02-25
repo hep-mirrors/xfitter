@@ -68,7 +68,8 @@
 
 &OutDir
   ! Name of the directory where output will be stored (max 255 characters)
-    OutDirName = 'output'
+    !OutDirName = 'output'
+    OutDirName = 'output-ABMP16'
 &End
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
@@ -171,7 +172,8 @@
  !  'DDIS'        -- use Diffractive DIS 
  !  'BiLog'       -- bi-lognormal parametrisation 
 
-  PDFStyle = 'HERAPDF'
+  !PDFStyle = 'HERAPDF'
+  PDFStyle = 'LHAPDFNATIVE'
 
  ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  !
@@ -217,8 +219,8 @@
   DoBandsSym = False     ! symmetric bands ( HESSE )
 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
 !  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
+  Q2VAL = 9.0
 
   ! How many x points to write (standard = 101)
   OUTNX = 101
