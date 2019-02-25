@@ -18,7 +18,7 @@ namespace xfitter{
     if (npar<7) {
       return NAN;
     }
-  double power = (1 + *pars[3]) * (1 + *pars[4] * x + *pars[5] * x * x + *pars[6] * x * x * x);
+  double power = *pars[1] * (1 + *pars[3] * log(x)) * (1 + *pars[4] * x + *pars[5] * x * x + *pars[6] * x * x * x);
   double val = *pars[0] * pow(x, *pars[1]) * pow(1 - x, *pars[2]) * pow(x, power);
   return val;
 }
