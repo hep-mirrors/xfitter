@@ -28,3 +28,4 @@ PolySqrt libPolySqrtPdfParam_xfitter.so
 AFB libafb_xfitter.so
 KMatrix libkmatrix_xfitter.so
 UvDvUbarDbarSSbar libuvdvubardbarssbarpdfdecomposition_xfitter.so
+ABMPPdfParam libABMPPdfParam_xfitter.so
