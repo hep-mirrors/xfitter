@@ -25,7 +25,7 @@ with open("Reactions.txt","r+") as f:
 
 # Not present, add new line to the Reactions.txt file
 
-print "Update Reactions.txt file"
+print "Updating Reactions.txt file"
 with  open("Reactions.txt","a") as f:
     f.write(name+" "+"lib"+name+"PdfDecomposition"+"_xfitter.so\n")
 
@@ -35,7 +35,6 @@ print "Creating directories in pdfdecompositions/"+name+"PdfDecomposition"
 os.system("mkdir -p pdfdecompositions/"+name+"PdfDecomposition/include")
 os.system("mkdir -p pdfdecompositions/"+name+"PdfDecomposition/src")
 os.system("mkdir -p pdfdecompositions/"+name+"PdfDecomposition/yaml")
-os.system("touch pdfdecompositions/"+name+"PdfDecomposition/yaml/parameters.yaml")
 
 hFile = "pdfdecompositions/{:s}PdfDecomposition/include/{:s}PdfDecomposition.h".format(name,name)
 
@@ -172,16 +171,19 @@ dist_noinst_HEADERS = ../include ../yaml
 '''.format(datetime.date.today().isoformat(),name,name,name,name))
 
 
+pFile="pdfdecompositions/"+name+"PdfDecomposition/yaml/parameters.yaml"
+print "Creating (empty) parameter file  "+pFile
+os.system("touch "+pFile)
     
-print "Update configure.ac file"
+print "Updating configure.ac file"
 os.system("sed 's|xfitter-config|xfitter-config\\n		 pdfdecompositions/{:s}PdfDecomposition/src/Makefile|' configure.ac  >/tmp/configure.ac".format(name))
 os.system("cp /tmp/configure.ac configure.ac")
 
-print "Update Makefile.am"
+print "Updating Makefile.am"
 os.system("sed 's|pdfdecompositions/BasePdfDecomposition/src|pdfdecompositions/BasePdfDecomposition/src pdfdecompositions/{:s}PdfDecomposition/src|' Makefile.am > /tmp/Makefile.am".format(name))
 os.system("cp /tmp/Makefile.am Makefile.am")
 
-print "Update doxygen.cfg"
+print "Updating doxygen.cfg"
 os.system("sed 's|pdfdecompositions/BasePdfDecomposition/include|pdfdecompositions/BasePdfDecomposition/include  pdfdecompositions/{:s}PdfDecomposition/include|' doxygen.cfg > /tmp/doxygen.cfg".format(name))
 os.system("cp /tmp/doxygen.cfg  doxygen.cfg")
 

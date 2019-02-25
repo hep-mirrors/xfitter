@@ -25,6 +25,7 @@ with open("Reactions.txt","r+") as f:
 
 # Not present, add new line to the Reactions.txt file
 
+print "Update Reactions.txt file"
 with  open("Reactions.txt","a") as f:
     f.write(name+" "+"lib"+name.lower()+"_xfitter.so\n")
 
@@ -35,7 +36,6 @@ print "Creating directories in reactions/"+name
 os.system("mkdir -p reactions/"+name+"/include")
 os.system("mkdir -p reactions/"+name+"/src")
 os.system("mkdir -p reactions/"+name+"/yaml")
-os.system("touch reactions/"+name+"/yaml/parameters.yaml")
 
 
 print "Creating header file  reactions/"+name+"/include/Reaction"+name+".h"
@@ -128,6 +128,10 @@ data_DATA = ../yaml/parameters.yaml
 dist_noinst_HEADERS = ../include ../yaml
  ''')
 
+
+pFile="reactions/"+name+"/yaml/parameters.yaml"
+print "Creating (empty) parameter file  "+pFile
+os.system("touch "+pFile)
 
 print "Update configure.ac file"
 os.system("sed 's|xfitter-config|xfitter-config\\n		 reactions/" +name +"/src/Makefile|' configure.ac  >/tmp/configure.ac")

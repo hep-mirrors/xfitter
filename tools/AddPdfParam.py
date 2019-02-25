@@ -25,6 +25,7 @@ with open("Reactions.txt","r+") as f:
 
 # Not present, add new line to the Reactions.txt file
 
+print "Update Reactions.txt file"
 with  open("Reactions.txt","a") as f:
     f.write(name+" "+"lib"+name+"PdfParam"+"_xfitter.so\n")
 
@@ -33,7 +34,6 @@ print "Creating directories in pdfparams/"+name
 os.system("mkdir -p pdfparams/"+name+"PdfParam/include")
 os.system("mkdir -p pdfparams/"+name+"PdfParam/src")
 os.system("mkdir -p pdfparams/"+name+"PdfParam/yaml")
-os.system("touch pdfparams/"+name+"PdfParam/yaml/parameters.yaml")
 
 hFile = "pdfparams/{:s}PdfParam/include/{:s}PdfParam.h".format(name,name)
 
@@ -124,6 +124,10 @@ dist_noinst_HEADERS = ../include ../yaml
 lib{:s}PdfParam_xfitter_la_LDFLAGS=-lBasePdfParam_xfitter -L$(libdir)
 '''.format(datetime.date.today().isoformat(),name,name,name,name,name))
 
+
+pFile="pdfparams/"+name+"PdfParam/yaml/parameters.yaml"
+print "Creating (empty) parameter file  "+pFile
+os.system("touch "+pFile)
 
 print "Update configure.ac file"
 os.system("sed 's|xfitter-config|xfitter-config\\n		 pdfparams/{:s}PdfParam/src/Makefile|' configure.ac  >/tmp/configure.ac".format(name))
