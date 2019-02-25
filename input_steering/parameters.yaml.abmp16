@@ -82,40 +82,40 @@ Parameterisations:
   par_uv:
     #class: HERAPDF
     #parameters: [Auv,Buv,Cuv,Duv,Euv]
-    class: ABMPPdfParam
-    parameters: [ABMP_uv_A,ABMP_uv_a,ABMP_uv_b,ZERO,ABMP_uv_g1,ABMP_uv_g2,ABMP_uv_g3]
+    class: ABMPvalence
+    parameters: [ABMP_uv_A, ABMP_uv_a, ABMP_uv_b, ZERO, ABMP_uv_g1, ABMP_uv_g2, ABMP_uv_g3]
   par_dv:
     #class: HERAPDF
     #parameters: [Adv,Bdv,Cdv]
-    class: ABMPPdfParam
-    parameters: [ABMP_dv_A,ABMP_dv_a,ABMP_dv_b,ZERO,ABMP_dv_g1,ABMP_dv_g2,ABMP_dv_g3]
+    class: ABMPvalence
+    parameters: [ABMP_dv_A, ABMP_dv_a, ABMP_dv_b, ZERO, ABMP_dv_g1, ABMP_dv_g2, ABMP_dv_g3]
   par_ubar:
     #class: HERAPDF
     #parameters: [Aubar,Bubar,Cubar,Dubar]
-    class: ABMPPdfParam
-    parameters: [ABMP_us_A,ABMP_us_a,ABMP_us_b,ABMP_us_gm1,ABMP_us_g1,ZERO,ZERO]
+    class: ABMPsea
+    parameters: [ABMP_us_A, ABMP_us_a, ABMP_us_b, ABMP_us_gm1, ABMP_us_g1, ZERO, ZERO]
   par_dbar:
     #class: HERAPDF
     #parameters: [Adbar,Bdbar,Cdbar]
-    class: ABMPPdfParam
-    parameters: [ABMP_ds_A,ABMP_ds_a,ABMP_ds_b,ZERO,ABMP_ds_g1,ZERO,ZERO]
+    class: ABMPsea
+    parameters: [ABMP_ds_A, ABMP_ds_a, ABMP_ds_b, ZERO, ABMP_ds_g1, ZERO, ZERO]
   par_s:
     #class: HERAPDF
     #parameters: [As,Bs,Cs]
-    class: ABMPPdfParam
-    parameters: [ABMP_ss_A,ABMP_ss_a,ABMP_ss_b,ZERO,ZERO,ZERO,ZERO]
+    class: ABMPsea
+    parameters: [ABMP_ss_A, ABMP_ss_a, ABMP_ss_b, ZERO, ZERO, ZERO, ZERO]
   par_sbar:
     #class: HERAPDF
     #parameters: [Asbar,Bsbar,Csbar]
-    class: ABMPPdfParam
-    parameters: [ABMP_ss_A,ABMP_ss_a,ABMP_ss_b,ZERO,ZERO,ZERO,ZERO]
+    class: ABMPsea
+    parameters: [ABMP_ss_A, ABMP_ss_a, ABMP_ss_b, ZERO, ZERO, ZERO, ZERO]
     #class: ABMPPdfParam
-    #parameters: [ABMP_ssbar_A,ABMP_ssbar_a,ABMP_ssbar_b,ZERO,ZERO,ZERO,ZERO]
+    #parameters: [ABMP_ssbar_A, ABMP_ssbar_a, ABMP_ssbar_b, ZERO, ZERO, ZERO, ZERO]
   par_g:
     #class: NegativeGluon
     #parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
-    class: ABMPPdfParam
-    parameters: [ABMP_g_A,ABMP_g_a,ABMP_g_b,ZERO,ABMP_g_g1,ZERO,ZERO]
+    class: ABMPgluon
+    parameters: [ABMP_g_A, ABMP_g_a, ABMP_g_b, ZERO, ABMP_g_g1, ZERO, ZERO]
 
 DefaultDecomposition: proton
 Decompositions:
@@ -129,8 +129,8 @@ Decompositions:
     xsbar: par_sbar
     xg:    par_g
 
-#DefaultEvolution: proton-QCDNUM
-DefaultEvolution: proton-LHAPDF
+DefaultEvolution: proton-QCDNUM
+#DefaultEvolution: proton-LHAPDF
 Evolutions:
   proton-QCDNUM:
     ? !include yaml/evolutions/QCDNUM/parameters.yaml
