@@ -16,6 +16,18 @@ name = sys.argv[1]
 
 # First check if the name is already used
 
+with open("Reactions.txt","r+") as f:
+    for l in f:
+        a = l.split()
+        if a[0] == name:
+            print "Interface for reaction "+name+" already exists, exit"
+            exit(0)
+
+# Not present, add new line to the Reactions.txt file
+
+with  open("Reactions.txt","a") as f:
+    f.write(name+" "+"lib"+name+"PdfParam"+"_xfitter.so\n")
+
 print "Creating directories in pdfparams/"+name
 
 os.system("mkdir -p pdfparams/"+name+"PdfParam/include")
@@ -43,6 +55,7 @@ with open(hFile,"w+") as f:
   @date {date:s}
   */
 
+namespace xfitter{{
 class {name:s}PdfParam:public BasePdfParam{{
   public:
     {name:s}PdfParam(const std::string&inName):BasePdfParam(inName){{}}
@@ -56,6 +69,7 @@ class {name:s}PdfParam:public BasePdfParam{{
     //Initialize from a yaml node. Uses node[getName] as the basis
     // virtual void initFromYaml(YAML::Node value)override final;
 }};
+}}
 '''.format(name=name,date=datetime.date.today().isoformat())
 )
 
@@ -75,8 +89,16 @@ with open(sFile,"w+") as f:
 
 #include "{name:s}PdfParam.h"
 
-double {name:s}PdfParam::operator()(double x){{
+namespace xfitter{{
+//for dynamic loading
+extern"C" {name:s}PdfParam*create(const char*name){{
+  return new {name:s}PdfParam(name);
+}}
+// Main function to compute PDF
+double {name:s}PdfParam::operator()(double x)const{{
   //Your code here
+  return NAN;
+}}
 }}
 '''.format(name=name,date=datetime.date.today().isoformat())
 )
@@ -99,7 +121,8 @@ datadir = ${{prefix}}/yaml/pdfparams/{:s}
 data_DATA = ../yaml/parameters.yaml
 
 dist_noinst_HEADERS = ../include ../yaml
-'''.format(datetime.date.today().isoformat(),name,name,name,name))
+lib{:s}PdfParam_xfitter_la_LDFLAGS=-lBasePdfParam_xfitter -L$(libdir)
+'''.format(datetime.date.today().isoformat(),name,name,name,name,name))
 
 
 print "Update configure.ac file"
