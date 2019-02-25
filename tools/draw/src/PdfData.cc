@@ -20,7 +20,7 @@
 #include "FileOpener.h"
 
 //pdf type
-pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue, };
+pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue};
 //pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue, uvplusdv, uvplusdvplusSea,uvplusdvminSea };
 //pdf labels
 string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", 
