@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ReactionTheory.h"
@@ -13,6 +12,9 @@
   @version 0.1
   @date 2018-07-25
   */
+  
+// Authors: Laia Parets Peris <laia.parets.peris@desy.de>, Katerina Lipka <katerina.lipka@desy.de>
+// transition from pole to MSbar scheme by S. Moch (private communication)
 
 class HathorSgTopT;
 class HathorPdfxFitter;
