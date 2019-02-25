@@ -599,7 +599,9 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
-		 pdfparams/ABMPPdfParam/src/Makefile
+		 pdfparams/ABMPgluonPdfParam/src/Makefile
+		 pdfparams/ABMPseaPdfParam/src/Makefile
+		 pdfparams/ABMPvalencePdfParam/src/Makefile
 		 pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src/Makefile
 		 pdfparams/NegativeGluonPdfParam/src/Makefile
 		 evolutions/LHAPDF/src/Makefile

@@ -4,18 +4,18 @@
 #include "BasePdfParam.h"
 
 /**
-  @class ABMPPdfParam 
+  @class ABMPgluonPdfParam 
 
-  @brief A class for ABMP pdf parameterisation
+  @brief A class for ABMPgluon pdf parameterisation
 
   @version 0.1
   @date 2019-02-25
   */
 
 namespace xfitter{
-class ABMPPdfParam:public BasePdfParam{
+class ABMPgluonPdfParam:public BasePdfParam{
   public:
-    ABMPPdfParam(const std::string&inName):BasePdfParam(inName){}
+    ABMPgluonPdfParam(const std::string&inName):BasePdfParam(inName){}
     //Evaluate xf(x) at given x with current parameters
     virtual double operator()(double x)const override final;
     // (Optional) compute moments:
