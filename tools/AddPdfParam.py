@@ -108,6 +108,7 @@ AM_CXXFLAGS=-I$(srcdir)/../include -I$(srcdir)/../../../include -I$(srcdir)/../.
 lib_LTLIBRARIES=lib{classname}_xfitter.la
 lib{classname}_xfitter_la_SOURCES={classname}.cc
 dist_noinst_HEADERS=../include
+lib{classname}_xfitter_la_LDFLAGS=-lBasePdfParam_xfitter -L$(libdir)
 '''.format(**formatDict))
 
 def insertLine(filename,after,line):
