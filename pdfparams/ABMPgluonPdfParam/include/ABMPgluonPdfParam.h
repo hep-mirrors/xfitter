@@ -4,16 +4,18 @@
 #include "BasePdfParam.h"
 
 /**
-  @class ABMPgluonPdfParam 
+  @class ABMPgluonPdfParam
 
-  @brief A class for ABMPgluon pdf parameterisation
+  @brief A class for ABMPgluon pdf parameterisation according to Eqs. 19-22 from Phys.Rev. D96 (2017) no.1, 014011
+  xg(x) = A * (1 - x)^b * x^[a * (1 + gam_m1 * ln(x)) * (1 + gam_1 * x + gam_2 * x^2 + gam_3 * x^3)]
+  (Note that gam_m1 is zero for gluon in the ABMP16 fitm so it appears for generality with other PDFs.)
 
   @version 0.1
   @date 2019-02-25
   */
 
 namespace xfitter{
-class ABMPgluonPdfParam:public BasePdfParam{
+  class ABMPgluonPdfParam:public BasePdfParam{
   public:
     ABMPgluonPdfParam(const std::string&inName):BasePdfParam(inName){}
     //Evaluate xf(x) at given x with current parameters
@@ -25,5 +27,5 @@ class ABMPgluonPdfParam:public BasePdfParam{
     // (Optional)
     //Initialize from a yaml node. Uses node[getName] as the basis
     // virtual void initFromYaml(YAML::Node value)override final;
-};
+  };
 }

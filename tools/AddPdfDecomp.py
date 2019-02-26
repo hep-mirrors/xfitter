@@ -62,9 +62,6 @@ namespace xfitter {{
 class {:s}PdfDecomposition : public BasePdfDecomposition
 {{
   public:
-     /// Default constructor. 
-    {:s}PdfDecomposition ();
-
      /// Default constructor. Name is the PDF name
     {:s}PdfDecomposition (const char* inName);
 
@@ -102,11 +99,6 @@ namespace xfitter {{
 /// the class factories, for dynamic loading
 extern "C" {:s}PdfDecomposition* create(const char*name) {{
     return new {:s}PdfDecomposition(name);
-}}
-
-
-// Constructor
-    {:s}PdfDecomposition::{:s}PdfDecomposition() : BasePdfDecomposition("{:s}") {{  
 }}
 
 // Constructor

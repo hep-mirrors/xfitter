@@ -4,16 +4,17 @@
 #include "BasePdfParam.h"
 
 /**
-  @class ABMPseaPdfParam 
+  @class ABMPseaPdfParam
 
-  @brief A class for ABMPsea pdf parameterisation
+  @brief A class for ABMPsea pdf parameterisation according to Eqs. 19-22 from Phys.Rev. D96 (2017) no.1, 014011
+  xv(x) = A * (1 - x)^b * x^[a * (1 + gam_m1 * ln(x)) * (1 + gam_1 * x + gam_2 * x^2 + gam_3 * x^3)]
 
   @version 0.1
   @date 2019-02-25
   */
 
 namespace xfitter{
-class ABMPseaPdfParam:public BasePdfParam{
+  class ABMPseaPdfParam:public BasePdfParam{
   public:
     ABMPseaPdfParam(const std::string&inName):BasePdfParam(inName){}
     //Evaluate xf(x) at given x with current parameters
@@ -25,5 +26,5 @@ class ABMPseaPdfParam:public BasePdfParam{
     // (Optional)
     //Initialize from a yaml node. Uses node[getName] as the basis
     // virtual void initFromYaml(YAML::Node value)override final;
-};
+  };
 }

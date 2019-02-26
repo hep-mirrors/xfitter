@@ -4,7 +4,7 @@
 #include "BasePdfDecomposition.h"
 
 /**
-  @class UvDvUbarDbarSSbarPdfDecomposition 
+  @class UvDvUbarDbarSSbarPdfDecomposition
 
   @brief A class for UvDvUbarDbarSSbar pdf decomposition
 
@@ -14,13 +14,10 @@
 
 namespace xfitter {
 
-class UvDvUbarDbarSSbarPdfDecomposition : public BasePdfDecomposition
-{
+  class UvDvUbarDbarSSbarPdfDecomposition : public BasePdfDecomposition
+  {
   public:
-     /// Default constructor. 
-    UvDvUbarDbarSSbarPdfDecomposition ();
-
-     /// Default constructor. Name is the PDF name
+    /// Default constructor. Name is the PDF name
     UvDvUbarDbarSSbarPdfDecomposition (const char *inName);
 
     virtual const char*getClassName()const override final;
@@ -32,15 +29,15 @@ class UvDvUbarDbarSSbarPdfDecomposition : public BasePdfDecomposition
     virtual void atIteration() override final;
 
     /// Compute PDF in a physical base in LHAPDF format for given x and Q
-    virtual std::function<std::map<int,double>(const double& x)> f0() const  override final; 
+    virtual std::function<std::map<int,double>(const double& x)> f0() const  override final;
     
-private:
-  BasePdfParam*par_xuv{nullptr},
-              *par_xdv{nullptr},
-              *par_xubar{nullptr},
-              *par_xdbar{nullptr},
-              *par_xs{nullptr},
-              *par_xsbar{nullptr},
-              *par_xg{nullptr};
-};
+  private:
+    BasePdfParam*par_xuv{nullptr},
+    *par_xdv{nullptr},
+    *par_xubar{nullptr},
+    *par_xdbar{nullptr},
+    *par_xs{nullptr},
+    *par_xsbar{nullptr},
+    *par_xg{nullptr};
+  };
 }

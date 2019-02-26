@@ -41,7 +41,7 @@ Parameters:
   ZERO : [ 0. ]          # zero
   
   ABMP_uv_A   : DEPENDENT
-  ABMP_uv_a   : [  0.623, 0.033 ]
+  ABMP_uv_a   : [  0.613, 0.033 ]
   ABMP_uv_b   : [  3.443, 0.064 ]
   ABMP_uv_g1  : [  -0.22, 0.33  ]
   ABMP_uv_g2  : [  -2.88, 0.46  ]
@@ -55,22 +55,22 @@ Parameters:
   ABMP_dv_g3  : [    0.0, 0.001 ]
 
   ABMP_us_A   : [ 0.0703, 0.0081]
-  ABMP_us_a   : [ -0.415, 0.031 ]
+  ABMP_us_a   : [-0.4155, 0.031 ]
   ABMP_us_b   : [   7.75, 0.39  ]
   ABMP_us_gm1 : [ 0.0373, 0.0032]
   ABMP_us_g1  : [   4.44, 0.95  ]
 
   ABMP_ds_A   : [ 0.1408, 0.0076]
-  ABMP_ds_a   : [  -0.17, 0.011 ]
+  ABMP_ds_a   : [-0.1731, 0.011 ]
   ABMP_ds_b   : [   8.41, 0.34  ]
   ABMP_ds_g1  : [   13.3, 1.7   ]
 
   ABMP_ss_A   : [ 0.0594, 0.0042]
-  ABMP_ss_a   : [ -0.344, 0.019 ]
+  ABMP_ss_a   : [-0.3445, 0.019 ]
   ABMP_ss_b   : [   6.52, 0.27  ]
 
   #ABMP_ssbar_A: [ 0.0594, 0.0042]
-  #ABMP_ssbar_a: [ -0.344, 0.019 ]
+  #ABMP_ssbar_a: [-0.3445, 0.019 ]
   #ABMP_ss_bbar: [   6.52, 0.27  ]
 
   ABMP_g_A    : DEPENDENT
@@ -120,14 +120,7 @@ Parameterisations:
 DefaultDecomposition: proton
 Decompositions:
   proton:
-    class: UvDvUbarDbarSSbar
-    xuv:   par_uv
-    xdv:   par_dv
-    xubar: par_ubar
-    xdbar: par_dbar
-    xs:    par_s
-    xsbar: par_sbar
-    xg:    par_g
+    class: TestD
 
 DefaultEvolution: proton-QCDNUM
 #DefaultEvolution: proton-LHAPDF
