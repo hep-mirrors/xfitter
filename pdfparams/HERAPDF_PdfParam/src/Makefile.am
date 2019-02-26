@@ -10,3 +10,4 @@ datadir = ${prefix}/yaml/pdfparams/HERAPDF_PdfParam
 data_DATA = ../yaml/parameters.yaml
 
 dist_noinst_HEADERS = ../include ../yaml
+libHERAPDF_PdfParam_xfitter_la_LDFLAGS=-lBasePdfParam_xfitter -L$(libdir)
