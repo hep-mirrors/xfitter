@@ -25,7 +25,7 @@ dataset_tools.f theory_dispatcher.f error_logging.f\
 GetDummyXsection.f main.f\
 prep_corr.f GetPDFUncType.f rediagonalize.f\
 ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.cc xfitter_steer.cc Profiler.cc\
-tinyexpr.c dependent_pars.cc\
+tinyexpr.c expression_utils.cc dependent_pars.cc\
 fortran_interface.cc
 
 # WS 2013-01-19 for the Offset method
