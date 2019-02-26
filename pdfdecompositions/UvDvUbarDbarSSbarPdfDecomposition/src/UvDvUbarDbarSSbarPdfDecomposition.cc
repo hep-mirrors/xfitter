@@ -24,7 +24,7 @@ namespace xfitter {
   UvDvUbarDbarSSbarPdfDecomposition::UvDvUbarDbarSSbarPdfDecomposition(const char* inName) : BasePdfDecomposition(inName) {
   }
 
-  const char*UvDvUbarDbarSSbarPdfDecomposition::getClassName()const{return"UvDvUbarDbarS";}
+  const char*UvDvUbarDbarSSbarPdfDecomposition::getClassName()const{return"UvDvUbarDbarSSbar";}
 
   // Init at start:
   void UvDvUbarDbarSSbarPdfDecomposition::atStart() {
