@@ -26,6 +26,7 @@ SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
         reactions/AFB/src \
         reactions/KMatrix/src \
         pdfparams/BasePdfParam/src \
+        pdfparams/Expression/src\
         pdfparams/HERAPDF_PdfParam/src \
         pdfparams/PolySqrtPdfParam/src \
         pdfparams/NegativeGluonPdfParam/src\
