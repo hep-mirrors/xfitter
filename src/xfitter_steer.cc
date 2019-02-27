@@ -12,6 +12,7 @@
 #include <yaml-cpp/yaml.h>
 #include <Profiler.h>
 using std::string;
+using std::cerr;
 
 extern std::map<string,string> gReactionLibs;
 
@@ -22,13 +23,16 @@ void*createDynamicObject(const string&classname,const string&instanceName){
   try{
     libpath=PREFIX+string("/lib/")+gReactionLibs.at(classname);
   }catch(const std::out_of_range&ex){
-    std::cerr<<"[ERROR] out_of_range in function "<<__func__<<":\n"<<ex.what()<<"\n[/ERROR]\n";
     std::ostringstream s;
     if(gReactionLibs.count(classname)==0){
-      s<<"F: Unknown dynamically loaded class \""<<classname<<"\"";
+      cerr<<"[ERROR] Unknown dynamically loaded class \""<<classname<<"\""
+          "\nMake sure that "<<PREFIX<<"/lib/Reactions.txt has an entry for this class"
+          "\n[/ERRROR]"<<endl;
+      s<<"F: Unknown dynamically loaded class \""<<classname<<"\", see stderr";
       hf_errlog(18091901,s.str().c_str());
     }
-    s<<"F: Unknown out_of_range exception in "<<__func__;
+    cerr<<"[ERROR] Unknown out_of_range in function "<<__func__<<":\n"<<ex.what()<<"\n[/ERROR]\n";
+    s<<"F: Unknown out_of_range exception in "<<__func__<<", see stderr";
     hf_errlog(18091902,s.str().c_str());
   }
   void*shared_library=dlopen(libpath.c_str(),RTLD_NOW);
