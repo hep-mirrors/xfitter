@@ -120,7 +120,15 @@ Parameterisations:
 DefaultDecomposition: proton
 Decompositions:
   proton:
-    class: TestD
+    #class: UvDvubardbars
+    class: UvDvUbarDbarSSbar
+    xuv:   par_uv
+    xdv:   par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs:    par_s
+    xsbar: par_sbar
+    xg:    par_g
 
 DefaultEvolution: proton-QCDNUM
 #DefaultEvolution: proton-LHAPDF
