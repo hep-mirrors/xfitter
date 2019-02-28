@@ -7,6 +7,7 @@
 */
 
 #include "ABMPgluonPdfParam.h"
+#include <cmath>
 
 namespace xfitter{
   //for dynamic loading

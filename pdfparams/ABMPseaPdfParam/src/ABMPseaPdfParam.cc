@@ -7,6 +7,7 @@
 */
 
 #include "ABMPseaPdfParam.h"
+#include <cmath>
 
 namespace xfitter{
   //for dynamic loading

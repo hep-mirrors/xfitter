@@ -7,6 +7,7 @@
 */
 
 #include "ABMPvalencePdfParam.h"
+#include <cmath>
 
 namespace xfitter{
   //for dynamic loading
