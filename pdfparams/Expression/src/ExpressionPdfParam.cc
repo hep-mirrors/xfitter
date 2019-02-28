@@ -45,7 +45,7 @@ void ExpressionPdfParam::atStart(){
     expression=node.as<string>();
   //}catch(const YAML::InvalidNode&ex){
   }catch(const YAML::BadConversion&ex){
-    if(node.IsNull()){
+    if(!node){
       cerr<<"[ERROR] No expression given for parameterisation \""<<_name<<"\""<<endl;
       hf_errlog(19022600,"F: No expression given for parameterisation, see stderr");
     }else{

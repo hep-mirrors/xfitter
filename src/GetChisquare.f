@@ -146,19 +146,19 @@ C  !> Sum covariance matricies and invert the total:
 
 C !> same for diagonal part:
             do i=1,n0_in
-
-               if(NCovar.eq.0.and.ScaledErrors(i).eq.0.0d0) then
-c     no cov matrix and no ScaledErrors errors, break
-                  print*,
-     $               'GetNewChisquare: no stat and unc errors in data!'
-                  print*,'(possibly cov matrix forgot to be included?)'
-                  call hf_stop
+               if(ScaledErrors(i)/=0d0)then
+                 ScaledErrors(i)=ScaledErrors(i)**(-2)
+               else
+                 ScaledErrors(i)=1d0 !When is this necessary? --Ivan
+                 if(NCovar==0)then
+                   !no cov matrix and no ScaledErrors errors, break
+                   print*,'GetNewChisquare: no stat and unc errors in
+     $ data! (possibly cov matrix forgot to be included?)'
+                   call hf_stop
+                 endif
                endif
-               ScaledErrors(i)=ScaledErrors(i)**(-2)
             enddo
-
          endif
-
 
 C !> Next determine nuisance parameter shifts
          omegaIteration = 1
@@ -1403,8 +1403,8 @@ C Diagonal part:
             Sum = Sum + ScaledGamma(k,i)*rsys_in(k)
          enddo
 C Chi2 per point:
-         chi2 = (d - t + Sum)**2 * ScaledErrors(i)
-         residuals(i)=sqrt(chi2)
+         residuals(i)=(d-t+Sum)*sqrt(ScaledErrors(i))
+         chi2=residuals(i)**2
 C     Sums:
          if ( FitSample(i) ) then
             chi2_fit  = chi2_fit  + chi2
