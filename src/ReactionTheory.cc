@@ -11,6 +11,9 @@
 #include <string>
 
 #include "ReactionTheory.h"
+//The following two includes are to access the default evolution, remove later
+#include "xfitter_steer.h"
+#include "BaseEvolution.h"
 
 using std::list;
 using std::string;
@@ -83,7 +86,7 @@ const pXFXlike  ReactionTheory::getXFX(const string& type) {
   }
   return &protonPDF;
 }
-
+void ReactionTheory::xfx(const double&x,const double&q,double*r)const{xfitter::defaultEvolution->xfxQArray()(x,q,r);};//To be replaced after TermData rewrite
 bool ReactionTheory::notMasked(int DSID, int Bin) {
   auto bins = _dsBins[DSID];
   auto flag = bins->find("binFlag");

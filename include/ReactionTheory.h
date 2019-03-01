@@ -51,6 +51,7 @@ typedef void   (*pXFXlike)(const double&x,const double&Q,double*results);
   */
 
 //class Evolution;
+//why is this not in namespace xfitter? --Ivan
 
 class ReactionTheory 
 {
@@ -84,7 +85,7 @@ class ReactionTheory
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
 
   //! Set XFX function for different hadrons (proton: p, neutron: n, anti-proton: pbar)
-  virtual void setXFX(pXFXlike xfx, string type="p" ){ _xfx[type] = xfx; };
+  virtual void setXFX(pXFXlike xfx, string type="p" ){ _xfx[type] = xfx; };//DEPRECATED
   
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
 
@@ -108,7 +109,7 @@ class ReactionTheory
   virtual void printInfo(){};
 
   //! Helper function to emmulate LHAPDF6 calls to get PDFs
-  void xfx(const double& x, const double& q, double* results) const { (_xfx.at("p"))(x,q,results); };
+  void xfx(const double& x, const double& q, double* results) const;//Currently accesses default evolution, to be replaced later --Ivan
   
   //!  Helper function to emmulate LHAPDF6 calls to get PDFs
   double xfx(double x, double q, int iPDF) const { double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
