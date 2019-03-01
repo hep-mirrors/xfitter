@@ -250,11 +250,8 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
   if ( term_type == string("reaction")) {
     this->initReactionTerm(iterm, val);
   } else {
-    int id = 15102301;
-    char text[] = "S: Unknown term type in expression for term";
-    std::cout << "Unknown term type in expression for term " << _termNames[iterm] << std::endl;
-    int textlen = strlen(text);
-    hf_errlog_(id, text, textlen);
+    std::cerr<<"[ERROR] Unknown term_type=\""<<term_type<<"\" in expression for term \""<<_termNames[iterm]<<'\"'<<std::endl;
+    hf_errlog(15102301,"S: Unknown term type, see stderr");
     return -1;
   }
 }
