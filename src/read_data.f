@@ -264,6 +264,7 @@ C Extra info about k-factors, applegrid file(s):
 C Infomation for open more than 1 applgrid
 C     character*80 applgridNames(NapplgridMax)
       integer      NTheoryFiles
+      logical ForceAdditive ! force all errors to be treated as additive
 C Namelist definition:
       namelist/Data/Name,NData
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
@@ -271,7 +272,7 @@ C Namelist definition:
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
      $     ,TermName,TermType,TermInfo, TermSource,TheorExpr
      $     ,ColumnName, ColumnType, NColumn
-     $     ,NTheoryFiles 
+     $     ,NTheoryFiles, ForceAdditive 
 
       namelist/PlotDesc/PlotN, PlotDefColumn, PlotDefValue, 
      $     PlotVarColumn, PlotOptions
@@ -377,7 +378,7 @@ c      double precision PlotDefValue(ncolumnMax)
       PlotDefTitle(1)='undefined'
       PlotVarColumn='undefined'
 
-
+      ForceAdditive = .false.
 
 C Reset scales to 1.0
       do i=1,nsysmax
@@ -859,6 +860,7 @@ C XXXXXXXXXXXXXXXXXXXXXXXXX
          Call SetUncorErrors(npoints, StatError,
      $        StatErrorConst,UncorError,UncorConstError)
 
+         LForceAdditiveData(npoints) = ForceAdditive
 
          !  Check total error
          if (TotalErrorRead.ne.0) then
