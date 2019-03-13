@@ -562,7 +562,6 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
 		 xfitter-config
-		 reactions/cbdiff/src/Makefile
 		 reactions/KRunning/src/Makefile
 		 reactions/AFB/src/Makefile
 		 reactions/KFactor/src/Makefile
@@ -577,6 +576,7 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/BaseHVQMNR/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+		 reactions/cbdiff/src/Makefile
 		 reactions/testZMVFNS/src/Makefile
 		 reactions/fastNLO/src/Makefile
 		 reactions/FONLL_DISCC/src/Makefile

@@ -62,6 +62,10 @@ class ReactionBaseHVQMNR : public ReactionTheory
       // heavy-quark masses
       double mc = 0.0;
       double mb = 0.0;
+      // flavour (used by cbdiff reaction)
+      char flav;
+      // flag that mass is taken from global parameters and should be updated at each iteration
+      bool flagMassIsGlobal = false;
       // scale parameters
       double mf_A_c = 0.0;
       double mf_B_c = 0.0;
@@ -78,6 +82,10 @@ class ReactionBaseHVQMNR : public ReactionTheory
       // fragmentation parameters
       double fragpar_c = 0.0;
       double fragpar_b = 0.0;
+      // divide by bin width
+      bool flagDivideBinWidth = false;
+      // verbose output for debugging
+      bool debug = false;
     };
 
     // structure to store steering parameters
@@ -101,6 +109,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
       double mf2max;
       bool   q;
       bool   a;
+      char flav; // c, b or t
     };
     
     // all datasets

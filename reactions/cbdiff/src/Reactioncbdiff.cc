@@ -47,6 +47,11 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
 
   std::shared_ptr<Parameters>& par = _mapPar[dataSetID];
   par = std::shared_ptr<Parameters>(new Parameters);
+  // Flavour
+  if(checkParam("flav") || pars.find("flav") != pars.end())
+    par->flav = GetParamSInPriority("flav", pars).c_str()[0];
+  else
+    par->flav = 'c';
   // Order
   std::string order = GetParamSInPriority("Order", pars);
   MNR::MNRContribution contrNLO = 11111; // NLO
@@ -62,9 +67,20 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   MNR::MNRContribution** ptrContrLO = new MNR::MNRContribution*[ncontr];
   ptrContrLO[0] = new MNR::MNRContribution(contrLO);
   // HQ masses
-  par->mc = GetParamInPriority("mq", pars);
+  if(checkParam("mq") || pars.find("mq") != pars.end())
+    par->mc = GetParamInPriority("mq", pars);
+  else
+  {
+    par->flagMassIsGlobal = true;
+    if(par->flav == 'c')
+      par->mc = GetParam("mch");
+    else if(par->flav == 'b')
+      par->mc = GetParam("mbt");
+    else if(par->flav == 't')
+      par->mc = GetParam("mtp");
+  }
   _mapMassDiff[dataSetID] = 0.001; // for MSbar mass transformation; 1 MeV should work for c, b and t
-  //_mapMassDiff[dataSetID] = 0.150; // for MSbar mass transformation; 1 MeV should work for c, b and t
+  //_mapMassDiff[dataSetID] = 0.150;
   // scale parameters
   //GetMuPar('f', 'q', par->mf_A_c, par->mf_B_c, par->mf_C_c, pars);
   //GetMuPar('r', 'q', par->mr_A_c, par->mr_B_c, par->mr_C_c, pars);
@@ -79,6 +95,12 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   _mapMSbarMass[dataSetID] = 0;
   if(checkParamInPriority("MS_MASS", pars))
     _mapMSbarMass[dataSetID] = GetParamInPriority("MS_MASS", pars);
+  // divide or not by bin width
+  if(checkParam("dividebw") || pars.find("dividebw") != pars.end())
+    par->flagDivideBinWidth = GetParamIInPriority("dividebw", pars);
+  // debug mode
+  if(checkParam("debug") || pars.find("debug") != pars.end())
+    par->debug = GetParamIInPriority("debug", pars);
 
   std::shared_ptr<MNR::MNR>& mnr = _mapMNR[dataSetID];
   mnr = std::shared_ptr<MNR::MNR>(new MNR::MNR(this));
@@ -110,8 +132,6 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   DefaultInitGrid(steer, par->mc, steer.npt, *grid.get());
   DefaultInitGrid(steer, par->mc, steer.npt, *gridLOMassUp.get());
   DefaultInitGrid(steer, par->mc, steer.npt, *gridLOMassDown.get());
-  //DefaultInitGrid(steer, par->mc + _mapMassDiff[dataSetID], steer.npt, *gridLOMassUp.get());
-  //DefaultInitGrid(steer, par->mc - _mapMassDiff[dataSetID], steer.npt, *gridLOMassDown.get());
   DefaultInitGrid(steer, par->mc, steer.nptsm, *gridSm.get());
   DefaultInitGrid(steer, par->mc, steer.nptsm, *gridSmLOMassUp.get());
   DefaultInitGrid(steer, par->mc, steer.nptsm, *gridSmLOMassDown.get());
@@ -126,7 +146,8 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   }
   else
   {
-    frag->AddOut(MNR::Frag::GetFragFunction(0, finalState.c_str(), par->fragpar_c), MNR::Frag::GetHadronMass(finalState.c_str()));
+    int fragType = 0; // Kartvelishvili
+    frag->AddOut(MNR::Frag::GetFragFunction(fragType, finalState.c_str(), par->fragpar_c), MNR::Frag::GetHadronMass(finalState.c_str()));
     frag->GetFF(0)->SetParameter(1, par->fragpar_c);
   }
   _mapFF[dataSetID] = stod(pars["FragFrac"]);
@@ -175,12 +196,9 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
       hf_errlog(19021901, "F: no y binning provided");
     xsec[i]->SetBins(binsPt.size() - 1, &binsPt[0], binsY.size() - 1, &binsY[0]);
   }
-
-  // test
-  //mnr.get()->CalcXS(grid.get(), par->mc);
-  //MNR::Grid::InterpolateGrid(gridSm.get(), gridSm.get(), par->mc);
-  //frag->CalcCS(gridSm.get(), par->mc, xsec);
-  //xsec[0]->Print("all");
+  _mapN[dataSetID] = 1;
+  if(pars.find("N") != pars.end())
+    _mapN[dataSetID] = stod(pars["N"]);
 }
 
 // Initialize at the start of the computation
@@ -205,13 +223,23 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
   std::shared_ptr<MNR::Frag> frag(_mapFrag[dataSetID]);
   std::vector<TH2D*> xsec(_mapXSec[dataSetID]);
 
+  // update mass which may be fitted (scales or frag. par. cannot be fitted with this implementation)
+  if(par->flagMassIsGlobal)
+  {
+    if(par->flav == 'c')
+      par->mc = GetParam("mch");
+    else if(par->flav == 'b')
+      par->mc = GetParam("mbt");
+    else if(par->flav == 't')
+      par->mc = GetParam("mtp");
+  }
+
   mnr->CalcXS(grid.get(), par->mc);
-  //MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc);
 
   // tarnsformation to MSbar mass scheme
   if(_mapMSbarMass[dataSetID])
   {
-    // store original scale B parameters which need to be modify for changed mass
+    // store original scale B parameters which need to be modified for changed mass
     const double mfB = mnr->fMf_B;
     const double mrB = mnr->fMr_B;
 
@@ -221,9 +249,6 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     mnr->fMr_B = mrB * pow(par->mc / massU, 2.0);
     std::shared_ptr<MNR::Grid> gridLOMassU(_mapGridLOMassUp[dataSetID]);
     mnr->CalcXS(gridLOMassU.get(), massU);
-    //std::shared_ptr<MNR::Grid> gridSmLOMassU(_mapGridSmLOMassUp[dataSetID]);
-    //MNR::Grid::InterpolateGrid(gridLOMassU.get(), gridSmLOMassU.get(), massU);
-    //MNR::Grid::InterpolateGrid(gridLOMassU.get(), gridSmLOMassU.get(), par->mc);
 
     // LO mass down variation
     double massD = par->mc - _mapMassDiff[dataSetID];
@@ -231,13 +256,6 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     mnr->fMr_B = mrB * pow(par->mc / massD, 2.0);
     std::shared_ptr<MNR::Grid> gridLOMassD(_mapGridLOMassDown[dataSetID]);
     mnr->CalcXS(gridLOMassD.get(), massD);
-    //std::shared_ptr<MNR::Grid> gridSmLOMassD(_mapGridSmLOMassDown[dataSetID]);
-    //MNR::Grid::InterpolateGrid(gridLOMassD.get(), gridSmLOMassD.get(), massD);
-    //MNR::Grid::InterpolateGrid(gridLOMassD.get(), gridSmLOMassD.get(), par->mc);
-
-    // scheme transformation
-    //MNR::Grid::TransformGridToMSbarMassScheme(grid.get(), gridLOMassU.get(), gridLOMassD.get(), par->mc, _mapMassDiff[dataSetID]);
-    //MNR::Grid::TransformGridToMSbarMassScheme(gridSm.get(), gridSmLOMassU.get(), gridSmLOMassD.get(), par->mc, _mapMassDiff[dataSetID]);
 
     // restore original scales
     mnr->fMf_B = mfB;
@@ -245,28 +263,47 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
 
     int flagMSbarTransformation = 0; // d1=4/3 (no ln)
     MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, flagMSbarTransformation);
-    //MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc);
   }
   else
     MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc);
 
-  //MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc);
   frag->CalcCS(gridSm.get(), par->mc, xsec);
-  //xsec[0]->Print("all");
+  if(par->debug)
+    xsec[0]->Print("all");
 
   DataSet& ds = _dataSets[dataSetID];
+  val.resize(xsec[0]->GetNbinsX() * xsec[0]->GetNbinsY() * _mapN[dataSetID]);
   if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL )
   {
-    // fill results array with cross sections bin by bin
-    int nbx = xsec[0]->GetNbinsX();
-    for(size_t i = 0; i < val.size(); i++)
-      val[i] = xsec[0]->GetBinContent((i % nbx) + 1, (i / nbx) + 1) * _mapFF[dataSetID];
+    // fill results array with cross sections bin by bin, optionally repeat N times
+    for(int in = 0; in < _mapN[dataSetID]; in++)
+    {
+      for(int ix = 1; ix <= xsec[0]->GetNbinsX(); ix++)
+        for(int iy = 1; iy <= xsec[0]->GetNbinsY(); iy++)
+        {
+          int ival = (ix - 1) * xsec[0]->GetNbinsY() + iy - 1 + in * xsec[0]->GetNbinsX() * xsec[0]->GetNbinsY();
+          val[ival] = xsec[0]->GetBinContent(ix, iy) * _mapFF[dataSetID];
+          if(par->flagDivideBinWidth)
+          {
+            val[ival] /= xsec[0]->GetXaxis()->GetBinWidth(ix);
+            val[ival] /= xsec[0]->GetYaxis()->GetBinWidth(iy);
+          }
+        }
+    }
   }
   else
   {
     // fill results array with cross sections by matching bins
+    // make sure number of bins is consistent
+    if(ds.BinsYMin->size() > (size_t)(xsec[0]->GetNbinsX() * xsec[0]->GetNbinsY()))
+      hf_errlog(19021900, "F: inconsistent number of bins");
     for(unsigned int i = 0; i < ds.BinsYMin->size(); i++)
-      val[i] = FindXSecPtYBin(xsec[0], (*ds.BinsYMin)[i], (*ds.BinsYMax)[i], (*ds.BinsPtMin)[i], (*ds.BinsPtMax)[i], false, false) * _mapFF[dataSetID];
+      val[i] = FindXSecPtYBin(xsec[0], (*ds.BinsYMin)[i], (*ds.BinsYMax)[i], (*ds.BinsPtMin)[i], (*ds.BinsPtMax)[i], par->flagDivideBinWidth, par->flagDivideBinWidth) * _mapFF[dataSetID];
+  }
+  if(par->debug)
+  {
+    for(size_t i = 0; i < val.size(); i++)
+      printf("val[%lu] = %f\n", i, val[i]);
   }
 
   return 0;
