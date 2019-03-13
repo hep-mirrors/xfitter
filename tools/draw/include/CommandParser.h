@@ -67,10 +67,14 @@ class CommandParser
   map <string, int> styles;
   map <string, int> lstyles;
   map <string, int> markers;
-  int col[6];
-  int styl[6];
-  int lstyl[6];
-  int mark[6];
+  //int col[6];
+  //int styl[6];
+  //int lstyl[6];
+  //int mark[6];
+  int col[12];
+  int styl[12];
+  int lstyl[12];
+  int mark[12];
   float lwidth;
   float resolution, pagewidth;
   bool nodata;
