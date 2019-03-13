@@ -8,7 +8,7 @@ C> Common block for theory expression
       character*80 TermType(NTermsMax)
       character*4096 TermInfo(NTermsMax)
       character*256 TermSource(NTermsMax)
-      character*1000 TheorExpr
+      character*10000 TheorExpr
       integer ppbar_collisions
       integer normalised
       integer murdef
