@@ -99,14 +99,13 @@ LDADD = libxfitter.a
 # libraries to be linked to the main target
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
 
-
 if ENABLE_LHAPDF 
   LDADD+=$(LHAPDF_LDFLAGS)
 endif
 
 if HAVE_ROOT
   LDADD+=$(ROOT_LIBS)
-  libxfmain_la_CPPFLAGS+=$(ROOT_CFLAGS)
+  libxfmain_la_CXXFLAGS+=$(ROOT_CFLAGS)
 endif
 
 # libraries to be linked to the main target
@@ -122,7 +121,6 @@ if ENABLE_LHAPDF
   libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
-
 XFLIBS =   ../EW/src/libmyew.a \
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
@@ -130,7 +128,6 @@ XFLIBS =   ../EW/src/libmyew.a \
  ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
  ../tools/draw/src/pdferrors.o
-
 
 LDADD += $(XFLIBS)
 
@@ -140,7 +137,6 @@ APPLGRID_1 = $(subst -m64,,$(APPLGRID_LDFLAGS))
 APPLGRID_2 = $(subst -pthread,,$(APPLGRID_1))
 APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 
-
 #if ENABLE_MELA
 #  LDADD+=$(MELA_LDFLAGS)
 #endif
@@ -148,4 +144,3 @@ APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 if ENABLE_GENETIC
   LDADD+= ../genetic/mixmax_r004/libmixmax.a
 endif
-
