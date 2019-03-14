@@ -38,8 +38,6 @@ C Special branch for rotation
 !     endif   ! Itheory < 100
 
       call read_mcerrorsnml  ! MC uncertainties
-!     call read_chebnml      ! chebyshev parameterisation extra pars
-!     call read_polynml
       call read_hqscalesnml  ! read HQ scales
 
       if (itheory.ge.100) then
@@ -107,18 +105,6 @@ C PDF length weight factor:
       do i=1,5
          pdfLenWeight(i) = 0.
       enddo
-C Chebyshev param. of the gluon:
-!     NCHEBGLU = 0
-
-C Chebyshev param. of the Sea:
-!     NCHEBSEA = 0
-
-C Offset for the Sea chebyshev parameters (default:20)
-!     IOFFSETCHEBSEA = 20
-
-C Type of Chebyshev parameterization:
-!     ichebtypeGlu = 0
-!     ichebtypeSea = 0
 
       Chi2MaxError = 1.E10  ! turn off.
 
@@ -142,8 +128,6 @@ C  Key for W range
       WMNlen =  20.
       WMXlen = 320.
 
-!     chebxmin = 1.E-5
-
 C  Hermes-like strange (off by default):
       ifsttype = 0
 
@@ -166,11 +150,6 @@ C MC Errors defaults:
       SYSTYPE = 1
 
 C PDF output options:
-
-c 2012-11-08 WS: set default for DoBands
-c Moved to Minimizer classes since 2.2.0
-!     DoBands = .false.
-!     DoBandsSym = .false.
       outnx = 101
       do i=1,NBANDS
        Q2VAL(i) = -1.
@@ -289,15 +268,6 @@ C Decode Running Mode:
          scan = .false.
          lhapdferrors = .false.
          pdfrotate = .true.
-C Broken since 2.2.0
-c     else if  ( RunningMode .eq. 'LHAPDF Analysis') then
-c        scan = .false.
-c        lhapdferrors = .true.
-c        if ( index(pdfstyle,'LHAPDF').eq.0) then
-c           Call hf_errlog(15072203,'I: Set LHAPDF Style.')
-c           PDFSTYLE = 'LHAPDF'
-c        endif
-c        pdfrotate = .false.
       else if  ( RunningMode .eq. 'Chi2 Scan') then
          scan = .true.
          lhapdferrors = .false.
@@ -479,22 +449,10 @@ C
       read (51,NML=lhapdf,ERR=67,end=68)
  68   continue
       close (51)
-      print*,'DEBUG DataToTheo=',DataToTheo
 
       if ( RunningMode .ne. ' ' ) then
          lhapdferrors = lhapdferrors_save
       endif
-
-C  check if the PDFstyle is indeed Ok
-C Broken by recent rewrite
-c     if  ( RunningMode .eq. 'LHAPDF Analysis') then
-c        if (PDFStyle.ne.'LHAPDF' .and. PDFStyle.ne.'LHAPDFQ0'
-c    $        .and. PDFStyle.ne.'LHAPDFNATIVE') then
-c           call HF_Errlog(12032303,
-c    $           'W:WARNING: Setting PDF style to LHAPDFQ0')
-c           PDFStyle = 'LHAPDFQ0'
-c        endif
-c     endif
 
       if (LDebug) then
 C Print the namelist:
@@ -587,82 +545,6 @@ C-----------------------------------------------
       print '(''Error reading namelist &MCErrors, STOP'')'
       call HF_stop
       end
-
-C Broken since 2.2.0
-C
-!> Read optional chebyshev namelist
-C--------------------------------------------------------
-C      subroutine read_chebnml
-C
-C      implicit none
-C#include "steering.inc"
-C#include "pdflength.inc"
-CC---------------------------------------------
-CC (Optional) Chebyshev namelist
-C      namelist/Cheb/ILENPDF,pdfLenWeight,NCHEBGLU,NCHEBSEA
-C     $     ,IOFFSETCHEBSEA,ichebtypeGlu,ichebtypeSea
-C     $     ,WMNlen,WMXlen, ChebXMin
-CC-------------------------------------------------
-CC
-CC  Read the Chebyshev namelist:
-CC
-C      open (51,file='steering.txt',status='old')
-C      read (51,NML=Cheb,ERR=64,end=63)
-C
-C 63   continue
-C      close (51)
-C
-C      chebxminlog = log(chebxmin)
-C      if (NCHEBGLU.ne.0) then
-C         print *,'Use Chebyshev polynoms for gluon with N=',NCHEBGLU
-C      endif
-C
-C      if (NCHEBSEA.ne.0) then
-C         print *,'Use Chebyshev polynoms for sea with N=',NCHEBSEA
-C         print *,'Offset for minuit parameters is',IOFFSETCHEBSEA
-C      endif
-C
-C      if (LDebug) then
-C         print Cheb
-C      endif
-C
-C      return
-CC-----------------
-C 64   continue
-C      print '(''Error reading namelist &Cheb, STOP'')'
-C      call HF_stop
-C      end
-
-
-C
-!> Optional polynomial parametrisation for valence quarks
-C-------------------------------------------------------------
-C Broken since 2.2.0
-!      subroutine read_polynml
-!
-!      implicit none
-!#include "steering.inc"
-!C (Optional) Polynomial parameterisation for valence
-!      namelist/Poly/NPOLYVAL,IZPOPOLY,IPOLYSQR
-!C-------------------------------------------
-!C
-!      open (51,file='steering.txt',status='old')
-!      read (51,NML=Poly,ERR=66,end=65)
-! 65   continue
-!      close (51)
-!
-!      if (LDebug) then
-!         print Poly
-!      endif
-!
-!      return
-!C--------------------------------------------------------
-! 66   continue
-!      print '(''Error reading namelist &Poly, STOP'')'
-!      call HF_stop
-!
-!      end
-
 C
 !> Read InFiles namelist
 C-------------------------------------------------------
@@ -928,11 +810,6 @@ C
       read (51,NML=OutDir,END=152,ERR=56)
  152  continue
       close (51)
-
-!     if (DoBands .and. DoBandsSym) then
-!        Call hf_errlog(16042701,
-!    $  'F: Both DoBands and DoBandsSym are set: chose one')
-!     endif
 
 C check if limit of 22 char is not exceeded:
       if(LEN(TRIM(OutDirName)).gt.256) then
@@ -1663,34 +1540,10 @@ C-----------------
       call HF_stop
       end
 
-!>
+!> DEPRECATED
 !>  Check consistency of the data input, abort for unsupported combinations
-!>
+!> TODO: remove me
       Subroutine CheckInputs
-
       implicit none
-#include "steering.inc"
-      character*48 CMess
-C----------------------------------------------------------
-!      if ( I_Fit_order .eq. 1 ) then
-!         if ( index(HF_SCHEME,'RT').gt.0 ) then
-!            CMess = 'RT scheme does not support LO evolution'
-!            goto 998
-!         endif
-!      endif
-
-C broken by recent rewrite
-!     if (LHAPDFErrors) then
-!        if(PDFStyle.ne.'LHAPDF'.and.PDFStyle.ne.'LHAPDFQ0'
-!    $        .and.PDFStyle.ne.'LHAPDFNATIVE') then
-!           call HF_Errlog(03062013,
-!    $ 'W:WARRNING PDFstyle is not LHAPDF, setting PDFErrors to False')
-!            LHAPDFErrors = .false.
-!        endif
-!     endif
-
       return
- 998  continue
-      call HF_ERRLOG(13010901,'F: Inconsistent steering: '//CMess)
-      call hf_stop
       end
