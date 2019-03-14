@@ -1,7 +1,9 @@
 #include <TH1F.h>
 #include <TCanvas.h>
 #include <stdlib.h>
+#define Info xfitter_Info
 #include "utils.h"
+#undef Info
 #include <string.h>
 #include <libgen.h>
 #include <iostream>
