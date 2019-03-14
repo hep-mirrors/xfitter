@@ -279,9 +279,11 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     for(int in = 0; in < _mapN[dataSetID]; in++)
     {
       for(int ix = 1; ix <= xsec[0]->GetNbinsX(); ix++)
+      {
         for(int iy = 1; iy <= xsec[0]->GetNbinsY(); iy++)
         {
-          int ival = (ix - 1) * xsec[0]->GetNbinsY() + iy - 1 + in * xsec[0]->GetNbinsX() * xsec[0]->GetNbinsY();
+          //int ival = (ix - 1) * xsec[0]->GetNbinsY() + iy - 1 + in * xsec[0]->GetNbinsX() * xsec[0]->GetNbinsY();
+          int ival = (iy - 1) * xsec[0]->GetNbinsX() + ix - 1 + in * xsec[0]->GetNbinsX() * xsec[0]->GetNbinsY();
           val[ival] = xsec[0]->GetBinContent(ix, iy) * _mapFF[dataSetID];
           if(par->flagDivideBinWidth)
           {
@@ -289,6 +291,7 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
             val[ival] /= xsec[0]->GetYaxis()->GetBinWidth(iy);
           }
         }
+      }
     }
   }
   else
