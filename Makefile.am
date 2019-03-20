@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
         common/num_utils pdf2yaml tools/process\
-        evolutions/LHAPDF/src evolutions/QCDNUM/src\
+        evolutions/QCDNUM/src\
         tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
         genetic/mixmax_r004 genetic/src QEDevol/src \
         include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
@@ -31,7 +31,6 @@ SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
         pdfparams/PolySqrtPdfParam/src \
         pdfparams/NegativeGluonPdfParam/src\
         pdfdecompositions/BasePdfDecomposition/src\
-        pdfdecompositions/LHAPDFDecomposition/src \
         pdfdecompositions/UvDvUbarDbarS/src \
         pdfdecompositions/SU3_PionPdfDecomposition/src \
         evolutions/BaseEvolution/src \
@@ -43,6 +42,11 @@ SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
 DIST_SUBDIRS = $(SUBDIRS) Hathor/src HVQMNR/src ACOT SACOT datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
            FONLL HVQMNR HVQMNR/include/ python/ input_steering/ tools/
+
+if ENABLE_LHAPDF
+  SUBDIRS+= evolutions/LHAPDF/src\
+            pdfdecompositions/LHAPDFDecomposition/src
+endif
 
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
