@@ -3,6 +3,7 @@
 *.lo
 *.a
 *.la
+*.mod
 .deps/
 .libs/
 Makefile.in
