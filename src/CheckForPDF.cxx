@@ -1,4 +1,11 @@
 #include "CheckForPDF.h"
+#include "LHAPDF/Paths.h"
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+
+
+
 
 using namespace std;
 
@@ -8,7 +15,7 @@ void CheckForPDF(char *pdfname){
   spdfname.erase(std::remove_if(spdfname.begin(), spdfname.end(), ::isspace),spdfname.end());
   for (const string& s : LHAPDF::availablePDFSets()){
     if (s==spdfname) found=true;
-  }
+	    }
   if (!found){
     cout << "PDF: " << spdfname << " not found"<< endl;
     cout << "List of available PDFs in this installation:" << endl;
@@ -28,6 +35,9 @@ void CheckForPDF(char *pdfname){
 
 extern "C" {
   void checkforpdf_(char *pdfname, long int length){
-    CheckForPDF(pdfname);
+    char tmp[length];
+    memcpy(tmp,pdfname,length);
+    tmp[length] = '\0';
+    CheckForPDF(tmp);
   }
 }
