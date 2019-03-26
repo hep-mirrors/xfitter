@@ -48,5 +48,6 @@ class Reactioncbdiff : public ReactionBaseHVQMNR
     std::map<int, std::vector<TH2D*> > _mapXSec;
     std::map<int, double> _mapFF;
     std::map<int, int> _mapN;
+    std::map<int, double> _mapPrecision;
 };
 

@@ -45,6 +45,26 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   steer.mf2min = GetParamInPriority("steer_mf2min", pars);
   steer.mf2max = GetParamInPriority("steer_mf2max", pars);
 
+  // precision: 1.0 is default
+  _mapPrecision[dataSetID] = 1.0;
+  printf("precision: %f\n", GetParamInPriority("precision", pars));
+  if(pars.find("precision") != pars.end() || checkParam("precision"))
+  {
+    printf("in if\n");
+    _mapPrecision[dataSetID] = GetParamInPriority("precision", pars);
+    if(_mapPrecision[dataSetID] != 1.0)
+    {
+      printf("Using precision factor %f\n", _mapPrecision[dataSetID]);
+      steer.npt *= _mapPrecision[dataSetID];
+      steer.nptsm *= _mapPrecision[dataSetID];
+      steer.ny *= _mapPrecision[dataSetID];
+      steer.nsfnb *= _mapPrecision[dataSetID];
+      steer.nx3 *= _mapPrecision[dataSetID];
+      steer.nx4 *= _mapPrecision[dataSetID];
+      steer.nbz *= _mapPrecision[dataSetID];
+    }
+  }
+
   std::shared_ptr<Parameters>& par = _mapPar[dataSetID];
   par = std::shared_ptr<Parameters>(new Parameters);
   // Flavour
