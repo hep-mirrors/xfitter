@@ -1,4 +1,4 @@
-// DB 08/2017 
+// DB 08/2017
 /*
    @file ReactionfastNLO.cc
    @date 2016-12-06
@@ -44,10 +44,10 @@ void ReactionfastNLO::setDatasetParameters(int ID, map<string,string> pars, map<
    // fastNLOTable::ffilename = filename;
    // this->ReadTable();
    // this->SetFilename(filename);
-   
+
    for ( fastNLOReaction* fnlo : ffnlo[ID] ) {
-      // --- Set order of calculation 
-      if ( pars.count("Order") ) { // Local order 
+      // --- Set order of calculation
+      if ( pars.count("Order") ) { // Local order
 	 hf_errlog(17090510,"W: Ignoring key 'Order' in .dat file. Only global parameter 'Order' is used.");
       }
       string order = GetParamS("Order");  // Global order
@@ -66,13 +66,13 @@ void ReactionfastNLO::setDatasetParameters(int ID, map<string,string> pars, map<
 	 success &= fnlo->SetContributionON(fastNLO::kThresholdCorrection, iThr, true);
       }
       if (!success)  hf_errlog(17090503,"W: fastNLO. Requested order "+order+" cannot be set.");
-   
+
       // --- Set Units
-      if ( pars.count("Units") ) { // Local order 
+      if ( pars.count("Units") ) { // Local order
 	 string units = pars["Units"] ;
-	 if ( units=="absolute" ) 
+	 if ( units=="absolute" )
 	    fnlo->SetUnits(fastNLO::kAbsoluteUnits);
-	 else if ( units=="publication" ) 
+	 else if ( units=="publication" )
 	    fnlo->SetUnits(fastNLO::kPublicationUnits);
 	 else
 	    hf_errlog(17090514,"E: fastNLO. Unrecognized parameter for key Units");
@@ -88,48 +88,48 @@ void ReactionfastNLO::setDatasetParameters(int ID, map<string,string> pars, map<
 	 hf_errlog(17090505,"I: Setting fastNLO scale factor mu_F: "+pars["ScaleFacMuF"]);
 	 cmuf=std::stod(pars["ScaleFacMuF"]);//GetParam("ScaleFacMuF");
       }
-      if ( cmur!=1 || cmuf!=1 ) 
+      if ( cmur!=1 || cmuf!=1 )
 	 fnlo->SetScaleFactorsMuRMuF(cmur,cmuf);
 
       // --- Set scale choice
-      if ( !fnlo->GetIsFlexibleScaleTable() && 
+      if ( !fnlo->GetIsFlexibleScaleTable() &&
 	   (pars.count("ScaleChoiceMuR") || pars.count("ScaleChoiceMuF") ) ) {
 	 hf_errlog(17090508,"W: fastNLO. Scale choice requested, but this is not a flexible scale table.");
       }
       else {
 	 const std::map<std::string,fastNLO::EScaleFunctionalForm> sclmap{
 	    {"kScale1"              ,fastNLO::kScale1},
-	    {"kScale2"              ,fastNLO::kScale2},              
-	    {"kQuadraticSum"        ,fastNLO::kQuadraticSum},        
-	    {"kQuadraticMean"       ,fastNLO::kQuadraticMean},       
-	    {"kQuadraticSumOver4"   ,fastNLO::kQuadraticSumOver4},   
-	    {"kLinearMean"          ,fastNLO::kLinearMean},          
-	    {"kLinearSum"           ,fastNLO::kLinearSum},           
-	    {"kScaleMax"            ,fastNLO::kScaleMax},            
-	    {"kScaleMin"            ,fastNLO::kScaleMin},            
-	    {"kProd"                ,fastNLO::kProd},                
-	       // {"kS2plusS1half"        ,fastNLO::kS2plusS1half},        
-	       // {"kPow4Sum"             ,fastNLO::kPow4Sum},             
-	       // {"kWgtAvg"              ,fastNLO::kWgtAvg},              
-	       // {"kS2plusS1fourth"      ,fastNLO::kS2plusS1fourth},      
-	       // {"kExpProd2"            ,fastNLO::kExpProd2},            
-	       // {"kExtern"              ,fastNLO::kExtern},              
+	    {"kScale2"              ,fastNLO::kScale2},
+	    {"kQuadraticSum"        ,fastNLO::kQuadraticSum},
+	    {"kQuadraticMean"       ,fastNLO::kQuadraticMean},
+	    {"kQuadraticSumOver4"   ,fastNLO::kQuadraticSumOver4},
+	    {"kLinearMean"          ,fastNLO::kLinearMean},
+	    {"kLinearSum"           ,fastNLO::kLinearSum},
+	    {"kScaleMax"            ,fastNLO::kScaleMax},
+	    {"kScaleMin"            ,fastNLO::kScaleMin},
+	    {"kProd"                ,fastNLO::kProd},
+	       // {"kS2plusS1half"        ,fastNLO::kS2plusS1half},
+	       // {"kPow4Sum"             ,fastNLO::kPow4Sum},
+	       // {"kWgtAvg"              ,fastNLO::kWgtAvg},
+	       // {"kS2plusS1fourth"      ,fastNLO::kS2plusS1fourth},
+	       // {"kExpProd2"            ,fastNLO::kExpProd2},
+	       // {"kExtern"              ,fastNLO::kExtern},
 	       // {"kConst"               ,fastNLO::kConst},
-	       };              
+	       };
 	 // set mu_r
-	 if ( pars.count("ScaleChoiceMuR") ) { // 
+	 if ( pars.count("ScaleChoiceMuR") ) { //
 	    hf_errlog(17090504,"I: Setting fastNLO scale choice mu_R: "+pars["ScaleChoiceMuR"]);
 	    if ( sclmap.count(pars["ScaleChoiceMuR"])==0 )
 	       hf_errlog(17090522,"F: fastNLO. Scale choice for mu_R not available: "+pars["ScaleChoiceMuR"]);
-	    else 
+	    else
 	       fnlo->SetMuRFunctionalForm(sclmap.at(pars["ScaleChoiceMuR"]));
 	 }
 	 // set mu_f
-	 if ( pars.count("ScaleChoiceMuF") ) { // Local order 
+	 if ( pars.count("ScaleChoiceMuF") ) { // Local order
 	    hf_errlog(17090506,"I: Setting fastNLO scale choice mu_F: "+pars["ScaleChoiceMuF"]);
-	    if ( sclmap.count(pars["ScaleChoiceMuF"])==0 ) 
+	    if ( sclmap.count(pars["ScaleChoiceMuF"])==0 )
 	       hf_errlog(17090523,"F: fastNLO. Scale choice for mu_F not available: "+pars["ScaleChoiceMuF"]);
-	    else 
+	    else
 	       fnlo->SetMuFFunctionalForm(sclmap.at(pars["ScaleChoiceMuF"]));
 	 }
       }

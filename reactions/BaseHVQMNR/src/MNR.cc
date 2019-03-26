@@ -6,6 +6,7 @@
 #include <TF1.h>
 
 // Interface to xFitter FORTRAN routines
+/*
 extern "C"
 {
   void hf_stop_();
@@ -13,6 +14,7 @@ extern "C"
 	//void hf_get_pdfs_(double *x, double *q2, double* pdf);
 	//double hf_get_alphas_(double* q2);
 }
+*/
 
 namespace MNR
 {
@@ -60,7 +62,7 @@ namespace MNR
     fNRecalc = 0;
   }
 
-  MNR::~MNR() 
+  MNR::~MNR()
   {
     //printf("OZ MNR::~MNR()\n");
     if(fSF_pdf) delete fSF_pdf;
@@ -71,14 +73,14 @@ namespace MNR
     if(fBw_x4)  delete fBw_x4;
   }
 
-  void MNR::CalcConstants() 
+  void MNR::CalcConstants()
   {
     fC_sqrt_sh = TMath::Sqrt(fC_sh);
     fC_xnorm = fC_hc2 * fC_pi / fC_sh;
     fC_b0 = (11 * fC_vca - 4 * fC_vtf * fC_nl) / (12 * fC_pi);
   }
 
-  void MNR::CalcBinning() 
+  void MNR::CalcBinning()
   {
     // PDFs in x for certain factorisation scale
     fSF_pdf = new double[fSF_nb * fSF_npart];
@@ -95,7 +97,7 @@ namespace MNR
     double minx3 = -6.0;
     double maxx3 = 6.0;
     double stepx3 = (maxx3 - minx3) / fBn_x3;
-    for(int b = 0; b < fBn_x3 + 1; b++) 
+    for(int b = 0; b < fBn_x3 + 1; b++)
     {
       bb_x3[b] = minx3 + stepx3 * b;
       if(b == 0) continue;
@@ -110,7 +112,7 @@ namespace MNR
     double bb_x4[fBn_x4+1];
     fBc_x4 = new double[fBn_x4];
     fBw_x4 = new double[fBn_x4];
-    for(int b = 0; b < fBn_x4 + 1; b++) 
+    for(int b = 0; b < fBn_x4 + 1; b++)
     {
       bb_x4[b] = 1. * b / fBn_x4;
       if(bb_x4[b] <= fbx4_12) bb_x4[b] = fbx4_1.Eval(bb_x4[b]);
@@ -121,9 +123,9 @@ namespace MNR
     }
   }
 
-  void MNR::SetScaleCoef(double mf_a, double mf_b, double mf_c, double mr_a, double mr_b, double mr_c) 
+  void MNR::SetScaleCoef(double mf_a, double mf_b, double mf_c, double mr_a, double mr_b, double mr_c)
   {
-    // Check for possible nan 
+    // Check for possible nan
     // (it happens if corresponding parameters were not provided in steering.txt via ExtraMinimisationParameters)
     if(mf_a != mf_a || mf_b != mf_b || mf_c != mf_c || mr_a != mr_a || mr_b != mr_b || mr_c != mr_c)
     {
@@ -138,38 +140,38 @@ namespace MNR
     fMr_C = mr_c;
   }
 
-  double MNR::GetMf2(double xm2, double pt2) 
+  double MNR::GetMf2(double xm2, double pt2)
   {
     return fMf_A * pt2 + fMf_B * xm2 + fMf_C;
   }
 
-  double MNR::GetMr2(double xm2, double pt2) 
+  double MNR::GetMr2(double xm2, double pt2)
   {
     return fMr_A * pt2 + fMr_B * xm2 + fMr_C;
   }
 
-  void MNR::PrecalculatePDF(double mf2) 
+  void MNR::PrecalculatePDF(double mf2)
   {
-    if(mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2) 
+    if(mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2)
     {
       printf("WARNING in MNR::PrecalculatePDF(): mf2 %e out of range %e .. %e\n", mf2, fSF_min_mf2, fSF_max_mf2);
       printf("PDFs are set to 0\n");
-      for(int b = 0; b < fSF_nb; b++) 
+      for(int b = 0; b < fSF_nb; b++)
         for(int nf = -fC_nl; nf <= fC_nl; nf++) fSF_pdf[b*fSF_npart+nf] = 0.0;
       return;
     }
-    for(int b = 0; b < fSF_nb; b++) 
+    for(int b = 0; b < fSF_nb; b++)
     {
       double log10x = fSF_log10_min_x + b * fSF_step_log10_x;
       this->GetPDF(mf2, TMath::Power(10., log10x), fSF_pdf + fSF_npart * b);
     }
   }
 
-  int MNR::GetSF(double& pdf_gg, double& pdf_qq, double& pdf_qq_a, double& pdf_qg, double& pdf_qg_a, 
-                 double& pdf_qg_r, double& pdf_qg_a_r, double adoptx1, double adoptx2, double mf2/* = -1.0*/) 
+  int MNR::GetSF(double& pdf_gg, double& pdf_qq, double& pdf_qq_a, double& pdf_qg, double& pdf_qg_a,
+                 double& pdf_qg_r, double& pdf_qg_a_r, double adoptx1, double adoptx2, double mf2/* = -1.0*/)
   {
     pdf_gg = pdf_qq = pdf_qq_a = pdf_qg = pdf_qg_a = pdf_qg_r = pdf_qg_a_r = 0.0;
-    if(mf2 > 0.0 && (mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2)) 
+    if(mf2 > 0.0 && (mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2))
     {
       printf("WARNING in MNR::GetSF(): mf2 %e out of range %e .. %e\n", mf2, fSF_min_mf2, fSF_max_mf2);
       return 1;
@@ -178,7 +180,7 @@ namespace MNR
     if(adoptx1<fSF_min_adoptx) adoptx1 = fSF_min_adoptx;
     if(adoptx2<fSF_min_adoptx) adoptx2 = fSF_min_adoptx;
     double pdf1[fSF_npart], pdf2[fSF_npart];
-    if(mf2 < 0.0) 
+    if(mf2 < 0.0)
     {
       double part1, part2;
       double delta1 = modf(adoptx1, &part1);
@@ -189,14 +191,14 @@ namespace MNR
       int offset2 = int(part2) * fSF_npart + 6;
       int one_p_offset1 = offset1 + fSF_npart;
       int one_p_offset2 = offset2 + fSF_npart;
-      for(int nf = -fC_nl; nf <= fC_nl; nf++) 
+      for(int nf = -fC_nl; nf <= fC_nl; nf++)
       {
         int six_p_nf = 6 + nf;
         pdf1[six_p_nf] = fSF_pdf[offset1+nf] * one_m_delta1 + fSF_pdf[one_p_offset1+nf] * delta1;
         pdf2[six_p_nf] = fSF_pdf[offset2+nf] * one_m_delta2 + fSF_pdf[one_p_offset2+nf] * delta2;
       }
     }
-    else 
+    else
     {
       double x1 = TMath::Power(10.0, fSF_step_log10_x * adoptx1 + fSF_log10_min_x);
       double x2 = TMath::Power(10.0, fSF_step_log10_x * adoptx2 + fSF_log10_min_x);
@@ -206,7 +208,7 @@ namespace MNR
     // Calculate gg
     pdf_gg = pdf1[6] * pdf2[6];
     // ... and the rest
-    for(int nf = 1; nf <= fC_nl; nf++) 
+    for(int nf = 1; nf <= fC_nl; nf++)
     {
       int six_p_nf = 6 + nf;
       int six_m_nf = 6 - nf;
@@ -238,7 +240,7 @@ namespace MNR
       pdf[i] = pdfV[i];
   }
 
-  double MNR::GetAs(double mr2) 
+  double MNR::GetAs(double mr2)
   {
     //return hf_get_alphas_(&mr2);
     //return _reactionTheory->alpha_S(&mr2);
@@ -246,7 +248,7 @@ namespace MNR
     return _reactionTheory->alphaS(q);
   }
 
-  void MNR::Precalc(Grid* grid) 
+  void MNR::Precalc(Grid* grid)
   {
     fNRecalc++;
     printf("MNR::Precalc(): recalculation NO %d\n", fNRecalc);
@@ -259,7 +261,7 @@ namespace MNR
     double mb = sizeof(double) * ndouble / (1024. * 1024.);
     printf("MNR::Precalc(): required %.0f MB\n", mb);
 
-    // Allocate memory in one place, because 
+    // Allocate memory in one place, because
     // (1) one call to new is faster than multiple calls
     // (2) it is faster to access memory allocated in one place
     fC_mem = new double[ndouble];
@@ -356,7 +358,7 @@ namespace MNR
     mem_offset += fBn_x3;
 
     // Calculate x3 (binning in parton CMS rapidity) variables
-    for(int c_x3 = 0; c_x3 < fBn_x3; c_x3++) 
+    for(int c_x3 = 0; c_x3 < fBn_x3; c_x3++)
     {
       double yprim = fBc_x3[c_x3];
       fCk_t1t[c_x3] = 0.5 * (1 - TMath::TanH(yprim));
@@ -367,7 +369,7 @@ namespace MNR
     fCk_sum_lntx_o_tx = 0.0;
 
     // Calculate x4 (t3, 3 body variable) variables
-    for(int c_x4 = 0; c_x4 < fBn_x4; c_x4++) 
+    for(int c_x4 = 0; c_x4 < fBn_x4; c_x4++)
     {
       double t3 = fBc_x4[c_x4];
       double t32 = t3 * t3;
@@ -385,12 +387,12 @@ namespace MNR
     }
 
     // Loop over L = xm^2 / (xm^2 + pT^2) bins
-    for(int c_l = 0; c_l < n_l; c_l++) 
+    for(int c_l = 0; c_l < n_l; c_l++)
     {
       if(bDebug) if(c_l % 10 == 0) printf("MNR::Precalc(): 1st dimension: %3d from %3d\n", c_l, n_l);
       double l2 = p_l[c_l];
       // Loop over x3 bins
-      for(int c_x3 = 0; c_x3 < fBn_x3; c_x3++) 
+      for(int c_x3 = 0; c_x3 < fBn_x3; c_x3++)
       {
         double yprim = fBc_x3[c_x3];
         double t1t = 0.5 * (1 - TMath::TanH(yprim));
@@ -421,7 +423,7 @@ namespace MNR
         fCh3c_hqhlqa[n2] = hqhlqa_(&tz, &t1t, &rot);
         fCh3c_a_ashpqa[n2] = ashpqa_(&tz, &t1t, &rot);
         // Loop over x4 bins
-        for(int c_x4 = 0; c_x4 < fBn_x4; c_x4++) 
+        for(int c_x4 = 0; c_x4 < fBn_x4; c_x4++)
         {
           double t3 = fBc_x4[c_x4];
           double t32 = t3 * t3;
@@ -456,7 +458,7 @@ namespace MNR
     }
   }
 
-  void MNR::CalcXS(Grid* grid, double xm) 
+  void MNR::CalcXS(Grid* grid, double xm)
   {
     // First call: precalculate variables
     if(bFirst) {
@@ -464,13 +466,13 @@ namespace MNR
       bFirst = false;
     }
     grid->Zero();
-    
+
     // Check heavy-quark mass for nan
     if(xm != xm) {
       grid->NonPhys();
       return;
     }
-    
+
     int ncontr = grid->GetNContr();
     double xm2 = xm * xm;
     int n_l = grid->NL();
@@ -479,7 +481,7 @@ namespace MNR
     double* p_y = grid->YPtr();
     int nbw = grid->NW();
     // Loop over pT (internally L)
-    for(int c_l = 0; c_l < n_l; c_l++) 
+    for(int c_l = 0; c_l < n_l; c_l++)
     {
       if(bDebug) if( c_l % 10 == 0) printf("MNR::CalcXS(): 1st dimension: %3d from %3d\n", c_l, n_l);
       double l2 = p_l[c_l];
@@ -488,7 +490,7 @@ namespace MNR
       double pt = TMath::Sqrt(pt2);
       // Factorisation scale
       double mf2 = this->GetMf2(xm2, pt2);
-      if(mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2) 
+      if(mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2)
       {
         grid->NonPhys(c_l);
         continue;
@@ -497,7 +499,7 @@ namespace MNR
       this->PrecalculatePDF(mf2);
       // Renormalisation scale
       double mr2 = this->GetMr2(xm2, pt2);
-      if(mr2 <= 0.0) 
+      if(mr2 <= 0.0)
       {
         grid->NonPhys(c_l);
         continue;
@@ -510,11 +512,11 @@ namespace MNR
       double xmf = TMath::Log(mf2 / xm2);
       double xmr = 4 * fC_pi * fC_b0 * TMath::Log(mr2 / mf2);
       // Loop over rapidity
-      for(int c_y = 0; c_y < n_y; c_y++) 
+      for(int c_y = 0; c_y < n_y; c_y++)
       {
         double y = p_y[c_y];
         // Loop over rapidity in parton CMS
-        for(int c_x3 = 0; c_x3 < fBn_x3; c_x3++) 
+        for(int c_x3 = 0; c_x3 < fBn_x3; c_x3++)
         {
           double yprim = fBc_x3[c_x3];
           double chyprim2 = fCk_chyprim2[c_x3];
@@ -541,18 +543,18 @@ namespace MNR
           double w_lo_qq = N * fCh0_hqh0qa[n2] * pdf_qq_t;
           // X-section
           int bw_t = 0;
-          if(nbw != 1) 
+          if(nbw != 1)
           {
             double what_t = taut * fC_sh - 4 * xm2;
             bw_t = grid->FindWBin(what_t);
           }
           // Add all LO contributions
-          for(int c = 0; c < ncontr; c++) 
+          for(int c = 0; c < ncontr; c++)
           {
             double& cs = grid->CS(c, c_l, c_y, bw_t);
             MNRContribution* contr = grid->GetContr(c);
             if(contr->fActive == 0) continue;
-            if(contr->fLO) 
+            if(contr->fLO)
             {
               if(contr->fgg) cs += w_lo_gg;
               if(contr->fqq) cs += w_lo_qq;
@@ -572,7 +574,7 @@ namespace MNR
           if(bFS_A&&!bFS_Q) pdf_qq_a_t *= -1;
           double w_nlo_qq_c = NN * ((me_qq_h2 - me_qq_h3c) * pdf_qq_t + (me_qq_h2_a - me_qq_h3c_a) * pdf_qq_a_t);
           // X-section
-          for(int c = 0; c < ncontr; c++) 
+          for(int c = 0; c < ncontr; c++)
           {
             double& cs_c = grid->CS(c, c_l, c_y, bw_t);
             MNRContribution* contr = grid->GetContr(c);
@@ -583,7 +585,7 @@ namespace MNR
             }
           }
           // Loop over t3 (3 body variable)
-          for(int c_x4 = fBn_x4 - 1; c_x4 >= 0; c_x4--) 
+          for(int c_x4 = fBn_x4 - 1; c_x4 >= 0; c_x4--)
           {
             double px1 = px1t - fCk_pxtcor[c_x4];
             double px2 = px2t - fCk_pxtcor[c_x4];
@@ -607,7 +609,7 @@ namespace MNR
             double me_qg_h3_r   =  kinok ? 0.0 : (fCh3_r_hqhpqg[n3] + xmf * fCh3_r_hqbpqg[n3]) / tx + fCh3_r_hqhlqg[n3] * lntx_o_tx;
             double me_qg_h3_a   =  (kinok || (bFS_Q && bFS_A)) ? 0.0 : fCh3_a_ashpqg[n3] / tx;
             double me_qg_h3_a_r =  (kinok || (bFS_Q && bFS_A)) ? 0.0 : fCh3_a_r_ashpqg[n3] / tx;
-            if(bFS_A && !bFS_Q) 
+            if(bFS_A && !bFS_Q)
             {
               pdf_qg_a *= -1;
               pdf_qg_a_r *= -1;
@@ -616,14 +618,14 @@ namespace MNR
             // X-section
             int bw = 0;
             // Determine W bins, if cross section in mupltiple W bins is needed
-            if(nbw != 1) 
+            if(nbw != 1)
             {
               double tau = taut / t32;
               double what = tau * fC_sh - 4 * xm2;
               bw = grid->FindWBin(what);
             }
             // Add all NLO contributions
-            for(int c = 0; c < ncontr; c++) 
+            for(int c = 0; c < ncontr; c++)
             {
               double& cs = grid->CS(c, c_l, c_y, bw);
               MNRContribution* contr = grid->GetContr(c);
@@ -647,7 +649,7 @@ namespace MNR
             for(int bw = 0; bw < n_w; bw++)
               grid->CS(c, bl, by, bw) *= 2;
   }
-  
+
   // Constants
   const double MNR::fC_pi       = 3.14159265359e0;
   const double MNR::fC_2pi      = 6.28318530718e0;

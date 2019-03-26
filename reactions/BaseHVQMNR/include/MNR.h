@@ -19,10 +19,10 @@ namespace MNR
   public:
     // Constructor
     MNR(ReactionBaseHVQMNR* ptrReactionTheory);
-    
+
     // Destructor
     ~MNR();
-    
+
     // Set perturbative scale coefficients
     //
     // Scales are parametrised as:
@@ -31,20 +31,20 @@ namespace MNR
     // where mu_f, mu_r are factorisation and renormalisation, respectively,
     // pT is transverse momentum and xm is the heavy-quark mass.
     void SetScaleCoef(double mf_a, double mf_b, double mf_c, double mr_a, double mr_b, double mr_c);
-    
+
     // Set debug flag
     void SetDebug(int debug) { bDebug = debug; };
 
     // Calculate constants
     void CalcConstants();
-    
+
     // Calculate binning
     void CalcBinning();
 
     // Calculate cross sections for provided grid and heavy-quark mass xm
     void CalcXS(Grid* grid, double xm);
 
-        
+
   // Private members
   private:
     // Get factorisation scale
@@ -68,7 +68,7 @@ namespace MNR
   // Public fields
   public:
     // Centre-of-mass energy squared
-    double fC_sh;      
+    double fC_sh;
 
     // Number of light flavours
     int fC_nl;
@@ -85,7 +85,7 @@ namespace MNR
     // Contrbution flags
     bool bFS_Q; // particle final state
     bool bFS_A; // antiparticle final state
-    
+
   // Private fields
   private:
     // Constants
@@ -96,7 +96,7 @@ namespace MNR
     const static double fC_vtf;
     double fC_b0;
     // Centre-of-mass energy
-    double fC_sqrt_sh;    
+    double fC_sqrt_sh;
     // Normalisation factor
     double fC_xnorm;
     // Perturbative scale coefficients
@@ -127,7 +127,7 @@ namespace MNR
     // t3 bins (3 body variable)
     double* fBc_x4;
     double* fBw_x4;
-    
+
     // Precalcuated grid variables
     int fNRecalc;
     // Pointer to all allocated memory
@@ -186,7 +186,7 @@ namespace MNR
     // Flags
     bool bFirst; // first run
     bool bDebug; // verbose output
-    
+
     // pointer to instance inherited from ReactionTheory (allow access to alphas and PDF routines)
     ReactionBaseHVQMNR* _reactionTheory;
   };

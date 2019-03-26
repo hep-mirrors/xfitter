@@ -21,7 +21,7 @@ void xfxWrapper1(const double&x,const double&Q,double*results){active_xfxQ_funct
 ReactionAPPLgrid::ReactionAPPLgrid(){}
 ReactionAPPLgrid::~ReactionAPPLgrid(){}
  // Initialize at the start of the computation
-int ReactionAPPLgrid::initAtStart(const string &s){return 0;}
+int ReactionAPPLgrid::atStart(const string &s){return 0;}
 
  // Initialize for a given dataset:
 void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {
@@ -75,11 +75,11 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
       order = localOrder>order ? order : localOrder;
   }
   data.order=order;
-// Determine MuR and MuF.  Use default 
+// Determine MuR and MuF.  Use default
   data.muR=pars.find("muR") == pars.end() ? GetParam("muR") : stod(pars["muR"]);
   data.muF=pars.find("muF") == pars.end() ? GetParam("muF") : stod(pars["muF"]);
 
-  if(data.muR==0)data.muR=1.0; 
+  if(data.muR==0)data.muR=1.0;
   if(data.muF==0)data.muF=1.0;
   // bin width normalisation (by default no rescaling)
   data.flagNorm=false;
@@ -192,7 +192,7 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
       for (std::size_t i=0; i<gridVals.size(); i++)
         gridVals[i] *= grid->deltaobs(i);
 
-    
+
     // insert values from this grid into output array
     //val.resize(val.size() + grid->Nobs());
     std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);

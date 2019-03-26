@@ -71,9 +71,8 @@ C-----------------------------------------------------
       call read_reactions()
       call parse_params() !read parameters.yaml
 
-*
-*     Init evolution
-*
+*This makes sure that the default evolution exists and is acessible from
+*fortran using hf_get_pdfs(x,Q,pdfs) etc
       call init_evolution()
 
 *     ------------------------------------------------
@@ -84,26 +83,18 @@ C-----------------------------------------------------
      +     'I: data tables have been read successfully') 
 
 *  
-      call init_func_map()
-
-
-*     ------------------------------------------------
-*     Initialise theory modules
-*     ------------------------------------------------
-
-      call init_theory_modules
-      call hf_errlog(12020503,
-     +     'I: theory modules initialised successfully') 
+!     call init_func_map()
+      call Init_EW_parameters
 
       if (LHAPDFErrors) then  ! PDF errors
          call get_lhapdferrors
          goto 36
       endif
-
-      if (SCAN) then  ! chi2 scan
-         call chi2_scan
-         goto 36
-      endif
+C chi2scan is broken since 2.2.0
+C     if (SCAN) then  ! chi2 scan
+C        call chi2_scan
+C        goto 36
+C     endif
 
 *     ------------------------------------------------
 *     Do the fit
@@ -157,17 +148,18 @@ c ..........................................................
         call flush(6)
         if(icond .ne. 0) goto 36
         Call RecovCentrPars
-        if (DOBANDS) then
-           write(6,*) 
-     $          ' --- Calculating error bands from Offset errors...'
-           ! --- set the scale by defining delta chi2 value
-           ! --- for MNCOMD(fcn,'ITERATE 10',...) it is set by SET ERRDEF dchi2
-           ! --- with default value of 5
-           Call DecorDiag(5.d0)
-           call Error_Bands_Pumplin
-           ! Error_Bands_Pumplin calls GetUmat(i,j) which needs only umat from common /umatco/
-           ! See minuit/src/iterate.F
-        endif
+! Broken since 2.2.0
+!       if (DOBANDS) then
+!          write(6,*)
+!    $          ' --- Calculating error bands from Offset errors...'
+!          ! --- set the scale by defining delta chi2 value
+!          ! --- for MNCOMD(fcn,'ITERATE 10',...) it is set by SET ERRDEF dchi2
+!          ! --- with default value of 5
+!          Call DecorDiag(5.d0)
+!          call Error_Bands_Pumplin
+!          ! Error_Bands_Pumplin calls GetUmat(i,j) which needs only umat from common /umatco/
+!          ! See minuit/src/iterate.F
+!       endif
       else
         if (ControlFitSplit) then
            Call FindBestFCN3  !> Overfitting protection.
@@ -178,21 +170,22 @@ c ..........................................................
            call write_pars(0)
         endif
 
-        if (DOBANDS) then
-           write(6,*) ' --- Calculate error bands ...'
-           lprint = .false.    
-           call hf_errlog
-     $          (12020506, 'I: Calculation of error bands required')
-           call MNCOMD(fcn,'ITERATE 10',icond,0)
-           call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
-           call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
+! Broken since 2.2.0
+!       if (DOBANDS) then
+!          write(6,*) ' --- Calculate error bands ...'
+!          lprint = .false.
+!          call hf_errlog
+!    $          (12020506, 'I: Calculation of error bands required')
+!          call MNCOMD(fcn,'ITERATE 10',icond,0)
+!          call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
+!          call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
 
-           call write_pars(0)
+!          call write_pars(0)
 
-           call Error_Bands_Pumplin
-        elseif (DoBandsSym) then
-           call ErrBandsSym
-        endif
+!          call Error_Bands_Pumplin
+!       elseif (DoBandsSym) then
+!          call ErrBandsSym
+!       endif
       
        close (24)
        close (25)

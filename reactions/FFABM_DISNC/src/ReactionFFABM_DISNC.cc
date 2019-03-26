@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionFFABM_DISNC.cc
    @date 2017-09-29
@@ -43,9 +43,9 @@ extern "C" {
 
 
 // Initialize at the start of the computation
-int ReactionFFABM_DISNC::initAtStart(const string &s)
+int ReactionFFABM_DISNC::atStart(const string &s)
 {
-  //int isout = Super::initAtStart(s);
+  //int isout = Super::atStart(s);
   int isout = 0;
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)

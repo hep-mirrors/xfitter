@@ -254,37 +254,8 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         }
         catch (const std::exception& e) {}
       } else { // Potentially this may go to minuit, if step is not zero.
-        if (value.IsMap()) { //This is probably not how it should work --Ivan
-          // Check if this is a minimisation block, true if step is present
-          if (value["step"] || value["value"]) {  
-            // Defaults
-            double val = 0;
-            double step = 0;
-            double minv  = 0;
-            double maxv  = 0;
-            double priorVal = 0;
-            double priorUnc = 0;
-            int add = true;
-            
-            if (value["value"]) {
-              val = value["value"].as<double>();
-            }
-            else {
-              string text = "F: missing value field for parameter " + p_name;
-              hf_errlog_(17032401,text.c_str(),text.size());       
-            }
-            if (value["step"]) step = value["step"].as<double>();
-            if (value["prior"]) priorVal = value["prior"].as<double>();
-            if (value["priorUnc"]) priorUnc = value["priorUnc"].as<double>();
-            if (value["min"]) minv = value["min"].as<double>();
-            if (value["max"]) maxv = value["max"].as<double>();
-            // Goes to fortran
-            addexternalparam_(p_name.c_str(),  val, step, minv, maxv,
-                  priorVal, priorUnc, add, &dMap, p_name.size());
-          } else {
-            // no step or value, store as it is as a yaml node:
-            yMap[p_name] = value;
-          }
+        if (value.IsMap()) {
+          yMap[p_name]=value;
         } else if (value.IsSequence() ) {
           size_t len = value.size();
           vector<double> v(len);
@@ -399,6 +370,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       for(YAML::const_iterator it=parsNode.begin();it!=parsNode.end();++it){
         string parameterName=it->first.as<string>();
         stripString(parameterName);
+        if(XFITTER_PARS::gParameters.find(parameterName)!=XFITTER_PARS::gParameters.end()){
+          cerr<<"[ERROR] Redefinition of parameter \""<<parameterName<<"\""<<endl;
+          hf_errlog(18112810,"F: Parameter redefinition, see stderr");
+        }
         double value=nan("");
         double step=nan("");
         double min=nan("");
@@ -407,7 +382,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         double pr_sigma=nan("");
         YAML::Node pNode=it->second;
         switch(pNode.Type()){
-          case YAML::NodeType::Scalar:{//Should be a special string DEPENDENT
+          case YAML::NodeType::Scalar:{
             string definition=pNode.as<string>();
             stripString(definition);
             if(definition=="DEPENDENT"||definition=="SUMRULE"){//This means that this parameter will be calculated using sum rules

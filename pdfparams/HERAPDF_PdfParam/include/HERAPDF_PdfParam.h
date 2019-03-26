@@ -27,5 +27,6 @@ class HERAPDF_PdfParam:public BasePdfParam{
     HERAPDF_PdfParam(const std::string&inName):BasePdfParam(inName){}
     virtual double operator()(double x)const override final;
     virtual double moment(int nMoment=-1)const override final;
+    virtual void atStart()override final;
 };
 }

@@ -57,6 +57,10 @@ Parameterisations:
   par_g:
     class: NegativeGluon
     parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+  #Example for Expression parameterisation
+  #par_g:
+  #  class: Expression
+  #  expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
 DefaultDecomposition: proton
 Decompositions:
@@ -81,6 +85,12 @@ Evolutions:
 #  proton-APFEL:
 #    ? !include yaml/evolutions/APFELxx/parameters.yaml
 #    decomposition: proton
+#  antiproton:
+#    class: FlipCharge
+#    input: proton-QCDNUM
+#  neutron:
+#    class: FlipUD
+#    input: proton-QCDNUM
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 

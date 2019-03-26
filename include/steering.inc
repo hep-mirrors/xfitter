@@ -4,7 +4,6 @@
 
       integer Itheory          !>  Theory type
      $     ,I_FIT_ORDER        !>  Fit order (LO=0, NLO=1, NNLO=2)
-     $     ,IPARAM             !>  Internal flag for parameterisation type
      $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
      $     ,iDH_MOD            !>  Correction factor to the chi2, scaling
                                !>  of statistical errors
@@ -15,8 +14,9 @@
       
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
-      logical DOBANDS            !> Produce PDF error bands 
-      logical DoBandsSym        !> Produce symmetric bands
+! DOBANDS moved to Minimizer class since 2.2.0
+!     logical DOBANDS            !> Produce PDF error bands
+!     logical DoBandsSym        !> Produce symmetric bands
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
       logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
@@ -46,16 +46,16 @@ C-------------------------------------------------
 C Flag for PDF length, chebyshev param. for gluon      
       integer ILENPDF
       real WMNLEN,WMXLEN   ! W range used for pdf length calculation
-
-C Number of checbyshev parameters for gluon and sea (0 - standard param.)
-      integer nchebGLU,nchebSEA,IOFFSETCHEBSEA
-C Type of cheb. parameterization:
-C 0 - default
-C 1 - (1-x) suppression.
-C
-      integer ichebtypeGlu, ichebtypeSea
- 
-      real chebxmin        !> low X-range to map with Cheb. polynoms
+!Chebyshev parameterisation broken since 2.2.0
+!C Number of checbyshev parameters for gluon and sea (0 - standard param.)
+!      integer nchebGLU,nchebSEA,IOFFSETCHEBSEA
+!C Type of cheb. parameterization:
+!C 0 - default
+!C 1 - (1-x) suppression.
+!C
+!      integer ichebtypeGlu, ichebtypeSea
+!
+!      real chebxmin        !> low X-range to map with Cheb. polynoms
 
 C X-dependent fstrange:
       integer ifsttype  !> 0 - default, 1 - hermes-like
@@ -92,7 +92,8 @@ C
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
       logical lead             !> Flag to trigger lead PDF	
       logical deuteron             !> Flag to trigger deuteron PDF	
-      logical CachePDFs        !> Cache PDF calls to speedup
+! Caching PDF calls is currently broken
+!     logical CachePDFs        !> Cache PDF calls to speedup
       logical FLAGRW
       logical DORWONLY
       logical FlexibleGluon    !> Flexible gluon parameterisation
@@ -116,14 +117,13 @@ C
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
-     &     lDEBUG,DOBANDS,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,WriteAlphaSToMemberPDF,
-     &     Itheory,I_FIT_ORDER,IPARAM,HFSCHEME,
+     &     lDEBUG,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,WriteAlphaSToMemberPDF,
+     &     Itheory,I_FIT_ORDER,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
-     $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,
-     $     nchebSEA,wmnlen,wmxlen
-     $     ,ichebtypeGlu, ichebtypeSea
+     $     outxrange,outnx,ILENPDF,
+     $     wmnlen,wmxlen
      $     ,ifsttype,iSeeDmc
-     $     ,IOFFSETCHEBSEA,EWFIT
+     $     ,EWFIT
      $     ,npolyval, lead
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
@@ -133,12 +133,11 @@ C
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
      $     CorChi2Type, hf_scheme, AsymErrorsIterations,
      $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5, 
-     $     DoBandsSym
-     $     , steering_check ! Keep this at the end of the common block 
+     $     steering_check ! Keep this at the end of the common block
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
 
-      common/STEERING2/FLAGRW, DORWONLY, CachePDFs, FlexibleGluon,
+      common/STEERING2/FLAGRW,DORWONLY,FlexibleGluon,
      $     read_qcdnum_tables, FreeStrange
 
 c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
@@ -148,8 +147,8 @@ c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
 
       common/GRIDS/xmin_grid
 
-      character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
-      common/STEERING3/PDF_DECOMPOSITION
+c     character*64 PDF_DECOMPOSITION      !> Style of PDF decompisition, e.g U_D_Ubar_Dbar
+c     common/STEERING3/PDF_DECOMPOSITION
 
 
       common/heavyflav/
@@ -168,11 +167,11 @@ C     Value for selection of a dipole model fit
       common/DipCsModelType/DipCsModel
         
 
-      character*32 PDFStyle           !> PDF style definition
-      common/CPdfStyle/PDFStyle
+c     character*32 PDFStyle           !> PDF style definition
+c     common/CPdfStyle/PDFStyle
 
-      character*32 PDFType           !> PDF type definition
-      common/CPdfStyle/PDFType
+c     character*32 PDFType           !> PDF type definition
+c     common/CPdfStyle/PDFType
 
       character*128  LHAPDFSET        !> LHAPDF set name
       character*128  LHAPDFVARSET     !> LHAPDF VAR set name

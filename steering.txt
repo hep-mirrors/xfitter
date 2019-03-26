@@ -117,11 +117,6 @@
                                 !uPDF3 fit using precalculated grid of sigma_hat
                                 !uPDF4 fit calculating kernel on fly, grid of sigma_hat
 
-
-  Order  = 'NNLO'       ! 'LO', 'NLO' or 'NNLO', used for DGLAP evolution.
-
-  Q02     = 1.9 ! Evolution starting scale
-
  ! --- Scheme for heavy flavors 
  ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless) from QCDNUM,
  ! ---  HF_SCHEME = 'ZMVFNS MELA'      : ZM-VFNS (massless) from MELA (N-space),
@@ -153,25 +148,6 @@
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
   HF_SCHEME = 'RT OPT'
-
- ! PDF type. Possible types are currently available:
- ! 'proton'  -- default (fitting proton data)
- ! 'lead'    -- fitting ONLY lead data (can't be used in combination with proton data)
-
- PDFType = 'proton'
-
- ! PDF parameterisation style. Possible styles are currently available:
- !  'HERAPDF' -- HERAPDF-like with uval, dval, Ubar, Dbar, glu evolved pdfs
- !  'CTEQ'        -- CTEQ-like parameterisation
- !  'CTEQHERA'    -- Hybrid: valence like CTEQ, rest like HERAPDF
- !  'CHEB'        -- CHEBYSHEV parameterisation based on glu,sea, uval,dval evolved pdfs
- !  'LHAPDFQ0'    -- use lhapdf library to define pdfs at starting scale and evolve with local qcdnum parameters
- !  'LHAPDF'      -- use lhapdf library to define pdfs at all scales
- !  'LHAPDFNATIVE'-- use lhapdf library to access pdfs and alphas
- !  'DDIS'        -- use Diffractive DIS 
- !  'BiLog'       -- bi-lognormal parametrisation 
-
-  PDFStyle = 'HERAPDF'
 
  ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  !
@@ -212,10 +188,6 @@
 * Output steering cards
 *
 &Output 
-  ! -- Error bands on parton distributions
-  DoBands = False        ! asymmetric bands (J. Pumplin)
-  DoBandsSym = False     ! symmetric bands ( HESSE )
-
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
   Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
 !  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
@@ -382,8 +354,6 @@
 * (Optional) LHAPDF sttering card
 *
 &lhapdf
-  LHAPDFSET  = 'CT10nlo'               ! LHAPDF grid file 
-  ILHAPDFSET = 0                       ! Set a PDF member of the PDF set (use together with LHAPDFPROFILE = False)
   ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
   ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set
   ! LHAPDFPROFILE = False              ! run only on the set specified by ILHAPDFSET

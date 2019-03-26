@@ -106,6 +106,7 @@ namespace xfitter
     for ( size_t i=0; i<len; i++) {
       double val = node[i].as<double>();
       *ppar = val;
+      updateAtConfigurationChange();
       preds.push_back( evaluatePredictions() );
     }
     *ppar = save;

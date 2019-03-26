@@ -7,13 +7,24 @@
 */
 
 #include"PolySqrtPdfParam.h"
+#include"xfitter_cpp_base.h"
 #include<cmath>
+#include<iostream>
 using namespace std;
 using uint=unsigned int;
 namespace xfitter{
 //for dynamic loading
 extern"C" PolySqrtPdfParam*create(const char*name){
   return new PolySqrtPdfParam(name);
+}
+void PolySqrtPdfParam::atStart(){
+  using namespace std;
+  BasePdfParam::atStart();
+  const size_t n=getNPar();
+  if(n<3){
+    cerr<<"[ERROR] Too few parameters given to parameterisation \""<<_name<<"\", expected at least 3, got "<<n<<endl;
+    hf_errlog(18120700,"F: Wrong number of parameters for a parameterisation, see stderr");
+  }
 }
 double PolySqrtPdfParam::operator()(double x)const{
   const uint N=getNPar();
@@ -42,6 +53,7 @@ double PolySqrtPdfParam::moment(int n)const{
   //=> moment=A*(beta(B,C)*(1+sum(k=1;2+2k<=N;k++){P[2+2k]*product_{i=0}^{k-1}{(B+i)/(B+C+i)}})+beta(B+1/2,C)*sum(k=0;3+2k<=N;k++){P[3+2k]*product_{i=0}^{k-1}{(B+1/2+i)/(B+C+1/2+i)}})
   using uint=unsigned int;
   const double B=(*pars[1])+(n+1),C=(*pars[2])+1;
+  if(B<=0.||C<=0.)return NAN;// integral does not converge
   const uint N=getNPar();
   double sum=1;
   double prod=1;

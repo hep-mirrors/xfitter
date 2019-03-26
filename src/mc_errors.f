@@ -1,6 +1,6 @@
 C------------------------------------------------------------
 C
-!> MC method for propagating of the data uncertainties. 
+!> MC method for propagating of the data uncertainties.
 !> Creat a replica of the data, which fluctuates accoding to their uncertainteis.
 C
 C------------------------------------------------------------
@@ -26,17 +26,17 @@ C To be used as a seed:
 C Single precision here:
       real rndsh(3)  ! additive, poisson, linear
      $     ,ranflat
-C 
+
       double precision rand_shift(NSYS)
       double precision r_sh_fl(NSYS)
       double precision f_un
-      parameter (f_un = 2.0)   ! translate 0.:-1 to -1.:1. 
-      
+      parameter (f_un = 2.0)   ! translate 0.:-1 to -1.:1.
+
       real amu
       integer npoi, ierr
 C For log normal random shifts:
       real lsig, lmu,lrunif
-      
+
       double precision epsilon    ! estimated acceptance/lumi correction
       double precision data_in
       double precision estat_in, ecor_in, euncor_in, etot_in !> Input uncertainites
@@ -44,14 +44,13 @@ C For log normal random shifts:
 
       double precision scaleF
       integer scaling_type
-      
+
 C functions:
       real logshift
       double precision alnorm
-      
 C------------------------------------------------------------
 
-      
+
 
 cv initialise the random shifts
       do isys=1,nsys
@@ -62,7 +61,7 @@ cv initialise the random shifts
 
 C
 C Loop over systematic sources:
-C         
+C
       do isys=1,nsys
          call rnorml(rndsh,1)   ! gauss random number
          call ranlux(ranflat,1) ! uniform random number
@@ -79,7 +78,7 @@ C
 C Loop over the data:
 C
       do n0=1,npoints
-         call rnorml(rndsh,3)   
+         call rnorml(rndsh,3)
          call ranlux(ranflat,1)
 
          if (lrandData) then
@@ -92,7 +91,7 @@ C
          do isys=1,nsys
 
 cv  test different distributions
-cv  first for systematic uncert, then for stat.                    
+cv  first for systematic uncert, then for stat.
 
             if (systype.eq.1) then ! gauss syst
 C ! Introduce asymmetric errors, for Gaussian case only:
@@ -105,41 +104,35 @@ C ! Introduce asymmetric errors, for Gaussian case only:
                      s = s*(1.+ BetaAsym(isys,2,n0) * rand_shift(isys))
                   endif
                endif
-               
+
             elseif (systype.eq.2) then ! uniform
                s = s*(1. + beta(isys,n0) * r_sh_fl(isys))
-               
+
             elseif (systype.eq.3) then ! lognormal
                if (beta(isys,n0).ne.0) then
-                  lsig=beta(isys,n0) 
+                  lsig=beta(isys,n0)
                   lmu=1.
                   lrunif=r_sh_fl(isys)/f_un + 0.5  ! Expect random number between 0 and 1.
                   s=s*logshift(lmu,lsig,lrunif)
 c                  print*,'log...', n0,isys,
-c     $                 lrunif, beta(isys,n0), 
+c     $                 lrunif, beta(isys,n0),
 c     $                 s,logshift(lmu,lsig,lrunif)
                endif
             endif               ! endif (sys for systematic shifts)
          enddo                  ! end loop over the systematic shifts
-            
+
          voica=s                ! save cross section before the stat shift
 
-CV now choose sta (advised gauss OR poisson)  
-              
-         if (statype.eq.1) then ! gauss
+CV now choose sta (advised gauss OR poisson)
 
+         if (statype.eq.1) then ! gauss
 C do separate fluctuations for stat-const, stat-poisson and stat-linear pieces
-            s = s 
+            s = s
      $         + sqrt( e_uncor_const(n0)**2 + e_stat_const(n0)**2)
-     $              * daten(n0)*rndsh(1)            
+     $              * daten(n0)*rndsh(1)
      $         + sqrt( e_uncor_poisson(n0)**2 + e_stat_poisson(n0)**2)
      $              * sqrt(abs(daten(n0)*sorig))*rndsh(2)
      $         + e_uncor_mult(n0)*sorig*rndsh(3)
-            
-c            if (alpha(n0).eq.0) then
-c               s = 0.1
-c               alpha(n0) = 1.e6
-c            endif
          elseif (statype.eq.3.) then ! lognormal
             lsig = alpha(n0)
             lmu=1.
@@ -177,7 +170,7 @@ C Reset uncor:
 
 C Get acceptance/lumi correction, called "epsilon"
             epsilon = data_in/estat_in**2
-            
+
 C Expected number of events:
             amu = epsilon*theo(n0)
             call RNPSSN(amu, Npoi, Ierr)
@@ -185,9 +178,9 @@ C Expected number of events:
             s = (s/THEO(n0)) * Npoi/epsilon
 
 C Also apply fluctuations due to uncorrelated systematics:
-            
+
 C New absolute uncor:
-            euncor_out = euncor_in / data_in * s ! rescale to new value 
+            euncor_out = euncor_in / data_in * s ! rescale to new value
 
             if (statype.eq.14) then
                s = s + rndsh(1)*euncor_in
@@ -217,9 +210,9 @@ C Store uncor in %:
             e_tot(n0) = sqrt(euncor_out**2+estat_out**2+ecor_in**2)
      $           /s*100.0
          endif
-         
- 
-         print 
+
+
+         print
      $ '(''Original, systematics and stat. shifted data:'',i4,5E12.4)'
      $        , n0,sorig, voica,s,alpha(n0),e_unc(n0)/100.*s
 
@@ -229,13 +222,13 @@ C Store uncor in %:
      $          'S: ToyMC cross section with exact ZERO value, stopOB')
          endif
 
-C     Re-scale relative error sources, depending on scaling rule define in chi2 or data files.
+C     Scale relative error sources, depending on scaling rule defined in chi2-related section of steering or in data files
 C         For :
-C        - addivie ("NoRescale") errors keep absolute errors unmodified
-C        - multiplicaiive ("Linear") errors keep relative errors unmodified
-C        - poisson ("Poisson") keep error * sqrt(old/newVal) unmodified
+C     - additive        ("NoRescale") keep absolute errors unmodified
+C     - multiplicaitive ("Linear")    keep relative errors unmodified
+C     - poisson         ("Poisson")   keep (relative error)*sqrt(value) unmodified
 
-         scaleF = DATEN(n0)/s
+         scaleF = DATEN(n0)/s !=oldValue/newValue
 
          if (s .lt. 0) then
             call hf_errlog(1302201901,
@@ -254,29 +247,28 @@ C        - poisson ("Poisson") keep error * sqrt(old/newVal) unmodified
          e_uncor_const(n0) = e_uncor_const(n0) * scaleF
          e_stat_const(n0)  = e_stat_const(n0) * scaleF
          e_tot(n0) = e_tot(n0) * scaleF
-         
+
 C     Also correlated systematicss:
          do isys=1,nsys
 
-            scaling_type = SysScalingType(isys)  
-            
+            scaling_type = SysScalingType(isys)
+
             if (
      $           (scaling_type .eq. isNoRescale)
      $           .or. (LForceAdditiveData(n0) )
-     $           ) then         ! additive, keep absolute 
+     $           ) then         ! additive, keep absolute
                beta(isys,n0) = beta(isys,n0) * scaleF
                omega(isys,n0) = omega(isys,n0) * scaleF
             elseif (scaling_type.eq. isLinear) then  ! mult, do nothing
-               beta(isys,n0) = beta(isys,n0) 
-               omega(isys,n0) = omega(isys,n0)                
-            elseif (scaling_type.eq. isPoisson) then  
+               beta(isys,n0) = beta(isys,n0)
+               omega(isys,n0) = omega(isys,n0)
+            elseif (scaling_type.eq. isPoisson) then
                beta(isys,n0) = beta(isys,n0) * sqrt(scaleF)
-               omega(isys,n0) = omega(isys,n0) * sqrt(scaleF)   
+               omega(isys,n0) = omega(isys,n0) * sqrt(scaleF)
             endif
          enddo
-                  
-         DATEN(n0) = s
 
+         DATEN(n0) = s
 C update alpha:
          alpha(n0) =  sqrt(e_uncor_mult(n0)**2
      $        +e_stat_poisson(n0)**2
@@ -284,20 +276,9 @@ C update alpha:
      $        +e_stat_const(n0)**2
      $        +e_uncor_poisson(n0)**2)
      $        *daten(n0)
-         
-      enddo   
 
-C          call HF_stop
-         
-      
-C------------------------------------------------------------
+      enddo
       end
-
-
-
-*     ---------------------------------------------
-
-cv      Program voica
 C---------------------------------------------------
 C Created by SG, 23 Apr 2008 following
 C
@@ -307,7 +288,7 @@ C
 !> @param[in] am mean value
 !> @param[in] as RMS
 C
-C Input:  am -- mean value 
+C Input:  am -- mean value
 C         as -- RMS
 C----------------------------------------------------
       function alnorm(am,as)
@@ -323,29 +304,29 @@ C----------------------------------------------------
       COMMON/SLATE/IS(40)
 cv     am=1
 cv      as=1
- 
+
 C SG: Comment out initialization of the seed, already done in read_data !
 Csg      call datime(ndate,ntime)
 Csg      ntime = ntime*100+is(6)
 Csg      isrnd = ntime
-      
+
 Csg      call rmarin(isrnd,0,0)
 cv      call rnorml(normrnd1,1)
 cv      call rnorml(normrnd2,1)
       call ranmar(normrnd1,1)
-      call ranmar(normrnd2,1)	
+      call ranmar(normrnd2,1)
 
 cv      r1 = rand()
 cv      r2 = rand()
 
       r1 = normrnd1
       r2 = normrnd2
-      
+
       rr = sqrt(-2*log(r1))*sin(2*pi*r2)
 
       stdlog = sqrt(log(1+(as/am)**2 ) )
       amlog  = log(am) - 0.5 * log(1+(as/am)**2)
- 
+
 
 cv      stdlog=0.548662
 cv      amlog =-0.150515
@@ -353,16 +334,16 @@ cv      amlog =-0.150515
 
       alnorm = dble(exp(rr))
 
-      
+
 cv      print*,'voica gets the lognorml distribution....',alnorm
       end
 
 
 
-c        real function logshift(mu,sig,runif) 
+c        real function logshift(mu,sig,runif)
 C-----------------------------------------------------------------------
 C-
-C-   Purpose and Methods: 
+C-   Purpose and Methods:
 C-
 C-   Inputs  :
 C-   Outputs :
@@ -372,12 +353,12 @@ C-   Created  12-JUN-2008   Voica Radescu
 C-
 C-----------------------------------------------------------------------
 *     -------------------------------------------
-        real function logshift(mmu,ssig,rrunif) 
+        real function logshift(mmu,ssig,rrunif)
 *     -------------------------------------------
 
       IMPLICIT NONE
 
-      
+
       real zeroth, ANS,ex2,runif
       real mu, sig,x2, mu2, sig2,z1,z2
       external zeroth
@@ -401,7 +382,7 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 C-
-C-   Purpose and Methods: 
+C-   Purpose and Methods:
 C-
 C-   Inputs  :
 C-   Outputs :
@@ -426,7 +407,7 @@ C----------------------------------------------------------------------
 
       COMMON/PARAM/mu,sig,runif
 
-cv transform the formula from mean, std of x to log(x) 
+cv transform the formula from mean, std of x to log(x)
       stdlog = sqrt(log(1+(sig/mu)**2 ) )
       amlog  = log(mu) - 0.5 * log(1+(sig/mu)**2)
 
@@ -458,7 +439,7 @@ C Common from CERNLIB datime:
 C-------------------------------------------
       if (iseedmc.ne.0) then
 C Seed from the steering:
-         icount = iseedmc         
+         icount = iseedmc
       else
 C Seed from current time
          call datime(ndate,ntime)

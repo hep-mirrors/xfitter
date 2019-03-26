@@ -2,11 +2,9 @@
 #include"tinyexpr.h"
 #include"xfitter_pars.h"
 #include"xfitter_cpp_base.h"
+#include"expression_utils.h"
 #include<iostream>
-#include<vector>
 #include<map>
-#include<string>
-#include<algorithm>
 using namespace std;
 namespace xfitter{
 //The Constraint class is used for dependent parameters
@@ -48,37 +46,6 @@ Constraint::~Constraint(){
 }
 void Constraint::atIteration(){
   *parameter=te_eval(expr);
-}
-//Return a list of all parameter names present in expression, given as string s, excluding duplicates
-//Parameter is defined as string of alphanumeric characters and '_', not beginning with a digit, and not a builtin
-void extractParameterNames(const string&s,vector<string>&ret){
-  //fills ret
-  static const vector<string>builtins={"abs","acos","asin","atan","atan2","ceil","cos","cosh","e","exp","fac","floor","ln","log","log10","ncr","npr","pi","pow","sin","sinh","sqrt","tan","tanh"};
-  const char*cstr=s.c_str();
-  const char*p=cstr;
-  //p is pointer to next character to be read
-  while(true){
-    while(true){
-      char c=*p;
-      if((c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c=='_'))break;
-      if(c==0)return;
-      ++p;
-    }
-    size_t p0=size_t(p-cstr);//position of first character of parameter name
-    ++p;
-    while((*p>='a'&&*p<='z')||(*p>='A'&&*p<='Z')||(*p=='_')||(*p>='0'&&*p<='9'))++p;
-    string name=s.substr(p0,size_t(p-cstr)-p0);
-    //check if this name is a builtin
-    if(binary_search(builtins.begin(),builtins.end(),name))goto skip_append;
-    //check if this name is already in list
-    for(const string&e:ret)if(e==name)goto skip_append;
-    //else append
-    ret.push_back(name);
-    skip_append:
-    if(*p==0)return;
-    ++p;
-  }
-  //unreachable
 }
 //array of all constraints, sorted in correct order
 vector<Constraint*>constraints;

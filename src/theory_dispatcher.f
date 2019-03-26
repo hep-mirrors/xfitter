@@ -29,20 +29,6 @@ C-------------------------------------------------------------------
       endif
 
       end
-
-      Subroutine GetTheoryIteration
-C---------------------------------------------------------------------
-C
-C Created 24/06/2011. Get theory calculation per iteration, before going into  individual datasets
-C
-C---------------------------------------------------------------------
-      implicit none
-
-C Also for reactions:
-      call init_at_iteration
-
-      end
-
       !> Copy theo_fix to theory for a dataset
       Subroutine UseFixedTheoryXsection(ISet)
       implicit none

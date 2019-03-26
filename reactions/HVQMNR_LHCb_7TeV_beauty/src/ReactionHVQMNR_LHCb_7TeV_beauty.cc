@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionHVQMNR_LHCb_7TeV_beauty.cc
    @date 2017-01-02
@@ -6,7 +6,7 @@
    Created by  AddReaction.py on 2017-01-02
 
    Derived from ReactionBaseHVQMNR where basic stuff for HVQMNR calculation is implemented.
-   This class implements calculation for LHCb beauty measurement at 7 TeV 
+   This class implements calculation for LHCb beauty measurement at 7 TeV
    [JHEP 1308 (2013) 117] [arXiv:1306.3663]
 */
 
@@ -23,11 +23,11 @@ extern "C" ReactionHVQMNR_LHCb_7TeV_beauty* create() {
 
 
 // initialize at the start of the computation
-int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
+int ReactionHVQMNR_LHCb_7TeV_beauty::atStart(const string &s)
 {
-  // ignore provided terminfo (s): all needed information has been set already 
+  // ignore provided terminfo (s): all needed information has been set already
   // via setDatasetParameters(int dataSetID, map<string,string> pars)
-  
+
   // ******************************************************************
   // perform initialisation and pre-calculation
   // ******************************************************************
@@ -35,11 +35,11 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
   if(_isInitAtStart)
     return 0;
   _isInitAtStart = true;
-  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart()\n");
+  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::atStart()\n");
 
   // check HF scheme
   CheckHFScheme();
-    
+
   // read needed theory parameters
   UpdateParameters();
   PrintParameters();
@@ -57,10 +57,10 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
   steer.nx3   = 125;
   steer.nx4   = 125;
   steer.nbz   = 100;
-    
+
   DefaultInit(steer, _pars.mb, _mnr, _frag, _grid, _gridSmoothed);
   //if(_debug)
-    printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(): at initialisation mb = %f\n", _pars.mb);
+  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::atStart(): at initialisation mb = %f\n", _pars.mb);
   // MNR (parton-level calculation)
   _mnr.SetDebug(_debug);
   _mnr.fC_sh = TMath::Power(7000.0, 2.0); // centre-of-mass energy squared
@@ -90,13 +90,13 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
   int nbin_pt_bs = 15;
   double bin_pt_bs[16] = {0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,13.0,15.0,19.0,40.0};
   _hCalculatedXSec[2]->SetBins(nbin_pt_bs, bin_pt_bs, nbin_y, bin_y);
-      
+
   return 0;
 }
 
 
 // perform calculation (this is done once per iteration)
-void ReactionHVQMNR_LHCb_7TeV_beauty::initAtIteration() 
+void ReactionHVQMNR_LHCb_7TeV_beauty::initAtIteration()
 {
   // protection against overdoing
   // TODO: remove this trick
@@ -127,7 +127,7 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::compute(int dataSetID, valarray<double> &va
   // TODO move to core xFitter
   //initAtIteration();
   //printf("ReactionHVQMNR_LHCb_7TeV_beauty::compute() %d\n", dataSetID);
-  
+
   // get histogramm with cross sections for needed dataset
   DataSet& ds = _dataSets[dataSetID];
   TH2D* histXSec = NULL;
@@ -153,6 +153,6 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::compute(int dataSetID, valarray<double> &va
     else
       val[i] = val[i] * ds.FragFraction;
   }
-        
+
   return 0;
 }

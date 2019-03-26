@@ -6,7 +6,7 @@
 /**
   @class' ReactionFFABM_DISCC
 
-  @brief A wrapper class for FFABM_DISCC reaction 
+  @brief A wrapper class for FFABM_DISCC reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -21,7 +21,7 @@ class ReactionFFABM_DISCC : public ReactionBaseDISCC
   public:
     ReactionFFABM_DISCC(){};
     virtual string getReactionName() const { return  "FFABM_DISCC" ;};
-    int initAtStart(const string &); 
+    int atStart(const string &);
     virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual void initAtIteration() override;
 

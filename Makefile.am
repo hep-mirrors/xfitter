@@ -1,11 +1,11 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
+SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
         common/num_utils pdf2yaml tools/process\
         evolutions/QCDNUM/src\
         tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
         genetic/mixmax_r004 genetic/src QEDevol/src \
-        include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
+        include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
         DY/include tools/draw/include \
         reactions/KFactor/src \
         reactions/Fractal_DISNC/src \
@@ -26,12 +26,16 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
         reactions/AFB/src \
         reactions/KMatrix/src \
         pdfparams/BasePdfParam/src \
+        pdfparams/Expression/src\
         pdfparams/HERAPDF_PdfParam/src \
         pdfparams/PolySqrtPdfParam/src \
-        pdfdecompositions/BasePdfDecomposition/src pdfparams/NegativeGluonPdfParam/src \
+        pdfparams/NegativeGluonPdfParam/src\
+        pdfdecompositions/BasePdfDecomposition/src\
         pdfdecompositions/UvDvUbarDbarS/src \
         pdfdecompositions/SU3_PionPdfDecomposition/src \
         evolutions/BaseEvolution/src \
+        evolutions/FlipUD/src\
+        evolutions/FlipCharge/src\
         evolutions/APFELxx/src \
         minimizers/BaseMinimizer/src minimizers/CERESMinimizer/src minimizers/MINUITMinimizer/src
 
@@ -63,14 +67,11 @@ include $(top_srcdir)/aminclude.am
 reactiondir = $(prefix)/lib/
 reaction_DATA = Reactions.txt
 
-evolutiondir = $(prefix)/lib/
-evolution_DATA = Evolutions.txt
-
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
 #TESTS_ENVIRONMENT = $(SHELL) 
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \
-   minuit.in.txt steering.txt testPythonInterface.py parameters.yaml Reactions.txt Evolutions.txt
+   minuit.in.txt steering.txt testPythonInterface.py parameters.yaml Reactions.txt
 bin_SCRIPTS = xfitter-config tools/xfitter-getdata.sh

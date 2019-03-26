@@ -23,7 +23,7 @@ extern "C" {
 
 
 // Initialize at the start of the computation
-int ReactionFONLL_DISCC::initAtStart(const string &s)
+int ReactionFONLL_DISCC::atStart(const string &s)
 {
   // Initialize relevant parameters to be used by the mother class.
   _Gf      = GetParam("gf");
@@ -153,7 +153,7 @@ void ReactionFONLL_DISCC::initAtIteration()
 
   // Also make sure that proper PDFs are taken by external1 function which is located in FONLL/src directory
   APFEL_set_pdfs( getXFX() );
-  
+
   APFEL::SetProcessDIS("CC");
   // Loop over the data sets.
   for ( auto dataSetID : _dsIDs)
@@ -170,7 +170,7 @@ void ReactionFONLL_DISCC::initAtIteration()
       auto *xp  = GetBinValues(dataSetID,"x");
       auto q2   = *q2p;
       auto x    = *xp;
-  
+
       const size_t Np = GetNpoint(dataSetID);
       // Resize arrays.
       _f2fonll[dataSetID].resize(Np);
@@ -214,17 +214,17 @@ void ReactionFONLL_DISCC::initAtIteration()
 }
 
 // FONLL structure functions
-void ReactionFONLL_DISCC::F2 BASE_PARS 
+void ReactionFONLL_DISCC::F2 BASE_PARS
 {
   val = _f2fonll[dataSetID];
 }
 
-void ReactionFONLL_DISCC::FL BASE_PARS 
+void ReactionFONLL_DISCC::FL BASE_PARS
 {
   val = _flfonll[dataSetID];
 }
 
-void ReactionFONLL_DISCC::xF3 BASE_PARS 
+void ReactionFONLL_DISCC::xF3 BASE_PARS
 {
   val = _f3fonll[dataSetID];
 }

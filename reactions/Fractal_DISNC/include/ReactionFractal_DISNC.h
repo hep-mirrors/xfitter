@@ -6,7 +6,7 @@
 /**
   @class' ReactionFractal_DISNC
 
-  @brief A wrapper class for Fractal_DISNC reaction 
+  @brief A wrapper class for Fractal_DISNC reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -25,7 +25,7 @@ class ReactionFractal_DISNC : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "Fractal_DISNC" ;};
-    int initAtStart(const string &){return 0;}; 
+    int atStart(const string &){return 0;};
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
 //    virtual int parseOptions(){ return 0;};

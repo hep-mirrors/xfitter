@@ -1,3 +1,0 @@
-BaseEvolution libbaseevolution_xfitter.dylib
-APFELxx libapfelxx_xfitter.dylib
-QCDNUM libqcdnum_xfitter.so
