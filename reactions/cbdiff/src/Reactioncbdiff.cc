@@ -47,10 +47,8 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
 
   // precision: 1.0 is default
   _mapPrecision[dataSetID] = 1.0;
-  printf("precision: %f\n", GetParamInPriority("precision", pars));
   if(pars.find("precision") != pars.end() || checkParam("precision"))
   {
-    printf("in if\n");
     _mapPrecision[dataSetID] = GetParamInPriority("precision", pars);
     if(_mapPrecision[dataSetID] != 1.0)
     {
@@ -163,11 +161,20 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   if(finalState == "parton")
   {
     frag->AddOut(NULL, par->mc);
+    _mapHadronMass[dataSetID] = 0.0; // hadron mass is irrelevant
   }
   else
   {
     int fragType = 0; // Kartvelishvili
-    frag->AddOut(MNR::Frag::GetFragFunction(fragType, finalState.c_str(), par->fragpar_c), MNR::Frag::GetHadronMass(finalState.c_str()));
+    // read hadron mass (if <0 then PDG values are used)
+    _mapHadronMass[dataSetID] = -1.0;
+    if(pars.find("hadronMass") != pars.end() || checkParam("hadronMass"))
+      _mapHadronMass[dataSetID] = GetParamInPriority("hadronMass", pars);
+    if(_mapHadronMass[dataSetID] < 0.0)
+      _mapHadronMass[dataSetID] = MNR::Frag::GetHadronMass(finalState.c_str());
+    //frag->AddOut(MNR::Frag::GetFragFunction(fragType, finalState.c_str(), par->fragpar_c), MNR::Frag::GetHadronMass(finalState.c_str()));
+    printf("MNRFrag: using Kartvelishvili function with par = %.1f and hadronMass = %.3f\n", par->fragpar_c, _mapHadronMass[dataSetID]);
+    frag->AddOut(MNR::Frag::GetFragFunction(fragType, finalState.c_str(), par->fragpar_c), _mapHadronMass[dataSetID]);
     frag->GetFF(0)->SetParameter(1, par->fragpar_c);
   }
   _mapFF[dataSetID] = stod(pars["FragFrac"]);
