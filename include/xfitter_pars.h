@@ -58,10 +58,13 @@ namespace XFITTER_PARS {
   extern map<string,xfitter::EvolvedPDFfunction> gXfxQArrays;
 
   /// Global map to store evolutions
+  /// Do not access it directly, use xfitter::get_evolution
   extern map<string,xfitter::BaseEvolution*> gEvolutions;
   /// Global map to store decompositions
+  /// Do not access it directly, use xfitter::get_pdfDecomposition
   extern map<string,xfitter::BasePdfDecomposition*> gPdfDecompositions;
   /// Global map to store parameterisations
+  /// Do not access it directly, use xfitter::getParameterisation
   extern map<string,xfitter::BasePdfParam*>gParameterisations;
 	/// Helper function to get input function from a yaml node
 	///

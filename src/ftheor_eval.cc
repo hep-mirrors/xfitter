@@ -16,7 +16,6 @@
 #include "xfitter_cpp.h"
 
 #include "TheorEval.h"
-//#include "datasets.icc"
 #include <yaml-cpp/yaml.h>
 #include "ReactionTheory.h"
 #include "xfitter_pars.h"
@@ -51,7 +50,7 @@ extern "C" {
   int get_theor_eval_(int *dsId, int* np, int* idx);
   int read_reactions_();
   int close_theor_eval_();
-  void init_func_map_();
+  //void init_func_map_(); Broken since 2.2.0
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
   void error_band_action_(const int& i); ///< Loop over rections, call error_band_action
@@ -238,24 +237,23 @@ int get_theor_eval_(int *dsId, int *np, int*idx)
     exit(1);
   }
 
-  valarray<double> vte;
   TheorEval *te = gTEmap.at(*dsId);
-  vte.resize(te->getNbins());
-  te->Evaluate(vte);
-
-  // Get bin flags, and abandon bins flagged 0
-  const vector<int> *binflags = te->getBinFlags();
-  int ip = 0;
-  vector<int>::const_iterator ibf = binflags->begin();
-  for (; ibf!=binflags->end(); ibf++){
-    if ( 0 != *ibf ) {
-      c_theo_.theo[*idx+ip-1]=vte[int(ibf-binflags->begin())];
-      ip++;
-    }
-      //cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
-  }
+  valarray<double>vte(te->getNbins());//vector of theory predictions for this dataset
+  te->Evaluate(vte);//writes into vte
 
   // write the predictions to THEO array
+  const vector<int>*te_binflags=te->getBinFlags();
+  const int*binflags=te_binflags->data();//get pointer to array of bin flags
+  size_t ip=0;
+  size_t offset=*idx-1;
+  size_t endi=te_binflags->size();
+  for(size_t i=0;i<endi;++i){
+    if(binflags[i]!=0){//skip bins flagged 0
+      c_theo_.theo[ip+offset]=vte[i];
+      ++ip;
+    }
+  }
+
   if( ip != *np ){
     cout << "ERROR in get_theor_eval_: number of points mismatch" << endl;
     return -1;
@@ -287,7 +285,6 @@ int read_reactions_()
 	// possible check
       }
       gReactionLibs[rname] = lib;
-
     }
   }
   else {
@@ -297,18 +294,17 @@ int read_reactions_()
   return 1;
 }
 
-
-// a bunch of functions
+/* Broken since 2.2.0
 double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
 double xu(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
 double xub(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
-
 
 void init_func_map_() {
   g2Dfunctions["xg"] = &xg;
   g2Dfunctions["xu"] = &xu;
   g2Dfunctions["xub"] = &xub;
 }
+*/
 
 void init_at_iteration_() {
   xfitter::updateDependentParameters();
@@ -332,7 +328,8 @@ void init_at_iteration_() {
   }
 
 }
-
+//This is called after minimization, after result output
+//Could be named atEnd or something --Ivan
 void fcn3action_()
 {
   // Minimizer action:

@@ -32,7 +32,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "BaseHVQMNR" ;};
-    virtual int initAtStart(const string &) = 0; 
+    virtual int atStart(const string &) = 0;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
     virtual void initAtIteration() = 0;
     virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;

@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionBaseDISCC.cc
    @date 2017-10-05
@@ -12,7 +12,7 @@
 #include <IntegrateDIS.h>
 
 
-// Helpers for QCDNUM (CC): 
+// Helpers for QCDNUM (CC):
 
 //! full
 const double  CCEP2F[] = {0.,0.,1.,0.,1.,0., 0. ,1.,0.,1.,0.,0.,0.} ;
@@ -59,7 +59,7 @@ extern "C" ReactionBaseDISCC* create() {
 
 
 // Initialize at the start of the computation
-int ReactionBaseDISCC::initAtStart(const string &s)
+int ReactionBaseDISCC::atStart(const string &s)
 {
   // This we do not want to fit:
   _Gf = GetParam("gf");
@@ -96,7 +96,7 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &valExternal, map
 
 
   double polarity = GetPolarisation(dataSetID);
-  
+
   if ( GetCharge(dataSetID) > 0) {
     val = 0.5*(yplus*f2 - yminus*xf3 - y*y*fl);
     val *= (1+polarity);
@@ -133,17 +133,17 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &valExternal, map
     // no idea how error could be treated: for now do nothing
     errExternal = err;
   }
-  
+
   return 0;
 }
 
 void ReactionBaseDISCC::initAtIteration() {
   // Make sure to call the parent class initialization:
-  super::initAtIteration(); 
+  super::initAtIteration();
 
   // Get some basic parameters:
   _MW = GetParam("Mw");
-  
+
   // Re-set internal maps (faster access):
   for ( auto ds : _dsIDs)  {
     (_f2u[ds])[0] = -100.;
@@ -155,8 +155,8 @@ void ReactionBaseDISCC::initAtIteration() {
   }
 }
 
-// 
-void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) 
+//
+void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset)
 {
   _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
   _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
@@ -363,7 +363,7 @@ void ReactionBaseDISCC::GetF2u(int dataSetID, valarray<double>& f2u)
   // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )
@@ -388,7 +388,7 @@ void ReactionBaseDISCC::GetFLu(int dataSetID, valarray<double>& flu)
     // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )
@@ -412,7 +412,7 @@ void ReactionBaseDISCC::GetxF3u( int dataSetID, valarray<double>& xf3u )
     // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )
@@ -440,7 +440,7 @@ void ReactionBaseDISCC::GetF2d(int dataSetID, valarray<double>& f2d)
   // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
   // Call QCDNUM
     const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )
@@ -463,7 +463,7 @@ void ReactionBaseDISCC::GetFLd(int dataSetID, valarray<double>& fld)
     // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
     // Call QCDNUM
     const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )
@@ -487,7 +487,7 @@ void ReactionBaseDISCC::GetxF3d( int dataSetID, valarray<double>& xf3d )
     // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
     auto q2 = *q2p, x = *xp;
-    
+
     // Call QCDNUM
     const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
     switch ( GetDataFlav(dataSetID) )

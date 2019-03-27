@@ -23,7 +23,7 @@ extern "C" ReactionHVQMNR_LHCb_7TeV_beauty* create() {
 
 
 // initialize at the start of the computation
-int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
+int ReactionHVQMNR_LHCb_7TeV_beauty::atStart(const string &s)
 {
   // ignore provided terminfo (s): all needed information has been set already 
   // via setDatasetParameters(int dataSetID, map<string,string> pars)
@@ -35,7 +35,7 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
   if(_isInitAtStart)
     return 0;
   _isInitAtStart = true;
-  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart()\n");
+  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::atStart()\n");
 
   // check HF scheme
   CheckHFScheme();
@@ -67,7 +67,7 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
 
   DefaultInit(steer, _pars.mb, _mnr, _frag, _grid, _gridSmoothed);
   //if(_debug)
-    printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(): at initialisation mb = %f\n", _pars.mb);
+  //printf("ReactionHVQMNR_LHCb_7TeV_beauty::atStart(): at initialisation mb = %f\n", _pars.mb);
   // MNR (parton-level calculation)
   _mnr.SetDebug(_debug);
   _mnr.fC_sh = TMath::Power(7000.0, 2.0); // centre-of-mass energy squared

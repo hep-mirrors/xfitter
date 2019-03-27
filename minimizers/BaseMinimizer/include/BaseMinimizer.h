@@ -28,22 +28,17 @@ namespace xfitter
   class BaseMinimizer {
   public:
     /// default constructor
-    BaseMinimizer(const std::string& name) :        _name(name),
-      _allParameterNames()
-	{}
+    BaseMinimizer(const std::string& name):_name(name),_allParameterNames(){}
 
     /// Initialization
     virtual void atStart() = 0;
 
-    /// Provide some information
-    virtual void printInfo(){};
-
-    /// Add parameter blocks with Npar parameters. Optional steps bounds and priors can be used for fixed/bounded parameters.
+    /// Add parameter block with Npar parameters
     virtual void addParameterBlock(int Npar, double const* pars
-				   , std::string const* names
-				   , double const* steps   = nullptr
-				   , double const* const* bounds = nullptr
-				   , double const* const* priors = nullptr );
+                                   , std::string const* names
+                                   , double const*        steps  = nullptr
+                                   , double const* const* bounds = nullptr
+                                   , double const* const* priors = nullptr );
 
     /// Add single parameter. Optional flags and bounds can be used for fixed/bounded parameters.
     virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr, double  const* priors = nullptr );

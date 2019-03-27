@@ -19,7 +19,7 @@ extern "C" ReactionKMatrix* create()
 
 
 // Initialize at the start of the computation
-int ReactionKMatrix::initAtStart(const string &s)
+int ReactionKMatrix::atStart(const string &s)
 {
   return 0;
 }

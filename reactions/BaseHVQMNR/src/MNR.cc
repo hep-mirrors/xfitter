@@ -6,6 +6,7 @@
 #include <TF1.h>
 
 // Interface to xFitter FORTRAN routines
+/*
 extern "C"
 {
   void hf_stop_();
@@ -13,6 +14,7 @@ extern "C"
 	//void hf_get_pdfs_(double *x, double *q2, double* pdf);
 	//double hf_get_alphas_(double* q2);
 }
+*/
 
 namespace MNR
 {

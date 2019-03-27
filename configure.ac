@@ -613,6 +613,7 @@ AC_CONFIG_FILES([include/Makefile
 		 minimizers/MINUITMinimizer/src/Makefile
 		 evolutions/QCDNUM/src/Makefile
 		 pdfparams/BasePdfParam/src/Makefile
+                 pdfparams/Expression/src/Makefile
 		 pdfparams/HERAPDF_PdfParam/src/Makefile
 		 pdfparams/PolySqrtPdfParam/src/Makefile
 		 pdfdecompositions/LHAPDFDecomposition/src/Makefile
@@ -639,6 +640,8 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/FONLL_DISCC/src/Makefile
 		 reactions/FONLL_DISNC/src/Makefile
 		 evolutions/BaseEvolution/src/Makefile
+                 evolutions/FlipUD/src/Makefile
+                 evolutions/FlipCharge/src/Makefile
 		 evolutions/APFELxx/src/Makefile
 		 minimizers/BaseMinimizer/src/Makefile
                  reactions/KMatrix/src/Makefile

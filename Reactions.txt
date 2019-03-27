@@ -15,6 +15,8 @@ KFactor libkfactor_xfitter.so
 FONLL_DISNC libfonll_disnc_xfitter.so
 FONLL_DISCC libfonll_discc_xfitter.so
 BaseEvolution libbaseevolution_xfitter.so
+FlipUD libFlipUD_Evol_xfitter.so
+FlipCharge libFlipChargeEvol_xfitter.so
 APFELxx libapfelxx_xfitter.so
 QCDNUM libqcdnum_xfitter.so
 UvDvubardbars libuvdvubardbars_xfitter.so
@@ -23,6 +25,7 @@ MINUIT libMINUITMinimizer_xfitter.so
 CERES libCERESMinimizer_xfitter.so
 LHAPDF liblhapdf_xfitter.so
 HERAPDF libHERAPDF_PdfParam_xfitter.so
+Expression libExpressionPdfParam_xfitter.so
 NegativeGluon libNegativeGluonPdfParam_xfitter.so
 PolySqrt libPolySqrtPdfParam_xfitter.so
 AFB libafb_xfitter.so

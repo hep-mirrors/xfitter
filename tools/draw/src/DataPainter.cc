@@ -12,6 +12,7 @@
 #include <TLatex.h>
 
 #include <iostream>
+#include <sstream>
 #include <math.h>
 #include <algorithm>
 
@@ -95,20 +96,29 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 {
   vector <Subplot> datahistos;
   vector <string> labels;
-  for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
-    if (datamap[*itl].datamap.find(dataindex) !=  datamap[*itl].datamap.end())
-      if (datamap[*itl].datamap[dataindex].subplots.find(subplotindex) !=  datamap[*itl].datamap[dataindex].subplots.end())
-	if (datamap[*itl].datamap[dataindex].subplots[subplotindex].IsValid())
-	  {
-	    datahistos.push_back(datamap[*itl].datamap[dataindex].subplots[subplotindex]);
-	    labels.push_back(*itl);
+  //Collect all valid sublots in datahistos
+  for(auto const&label:opts.labels){
+    auto&datasetmap=datamap.at(label).datamap;
+    auto dataset_it=datasetmap.find(dataindex);
+    if(dataset_it==datasetmap.end())continue;
+    auto&subplotsmap=dataset_it->second.subplots;
+    auto subplot_it=subplotsmap.find(subplotindex);
+    if(subplot_it==subplotsmap.end())continue;
+    Subplot&subplot=subplot_it->second;
+    if(!subplot.IsValid())continue;
+    datahistos.push_back(subplot);
+    labels.push_back(label);
 	  }
 
   if (datahistos.size() < 1)
     return 0; //Empty dataset vector
 
-  char cnvname[15];
-  sprintf(cnvname, "data_%d-%d",  dataindex, subplotindex);
+  string cnvname;
+  {
+  ostringstream ss;
+  ss<<"data_"<<dataindex<<'-'<<subplotindex;
+  cnvname=ss.str();
+  }
 
   if (opts.multitheory)
     {
@@ -131,16 +141,19 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   
   TCanvas * cnv;
   if (opts.twopanels || opts.threepanels)
-    cnv = new TCanvas(cnvname, "", 0, 0, 2 * opts.resolution, opts.resolution);
+    cnv = new TCanvas(cnvname.c_str(), "", 0, 0, 2 * opts.resolution, opts.resolution);
   else
-    cnv = new TCanvas(cnvname, "", 0, 0, opts.resolution, opts.resolution);
+    cnv = new TCanvas(cnvname.c_str(), "", 0, 0, opts.resolution, opts.resolution);
   cnv->cd();
 
   TH1F * data = datahistos[0].getdata();
   TH1F * datatot = datahistos[0].getdatatot();
-  char dtname[200];
-  sprintf (dtname, "data_%d-%d", dataindex, subplotindex);
-  string dataname = dtname;
+  string dataname;
+  {
+  ostringstream ss;
+  ss<<"data_"<<dataindex<<'-'<<subplotindex;
+  dataname=ss.str();
+  }
 
   //Set the pads geometry
   float dy; //subpanels height
@@ -271,7 +284,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     }
 
   //create template histogram for axis
-  TH1F *up_templ = new TH1F(((string) "up_templ_" + cnvname).c_str(), "", nbins, axmin, axmax);
+  TH1F *up_templ = new TH1F(("up_templ_"+cnvname).c_str(), "", nbins, axmin, axmax);
 
   up_templ->GetYaxis()->SetLabelFont(62);
   up_templ->GetYaxis()->SetTitleFont(62);
@@ -696,7 +709,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
     }
 
   //create template histogram for axis
-  TH1F *r_templ = new TH1F(((string) "r_templ_" + cnvname).c_str(), "", nbins, axmin, axmax);
+  TH1F *r_templ = new TH1F(("r_templ_"+cnvname).c_str(), "", nbins, axmin, axmax);
 
   r_templ->GetYaxis()->SetLabelFont(62);
   r_templ->GetYaxis()->SetTitleFont(62);

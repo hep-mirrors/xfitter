@@ -14,6 +14,7 @@ dist_noinst_HEADERS = rotate.h  utils.h  xfitter-process.h
 xfitter_process_CFLAGS = -I$(srcdir)/../../include
 xfitter_process_CFLAGS += -Wall
 xfitter_process_CPPFLAGS =
+xfitter_process_CXXFLAGS=
 
 if ENABLE_LHAPDF
   xfitter_process_SOURCES += interpolation.cc
@@ -31,9 +32,10 @@ endif
 
 
 if HAVE_ROOT
-   xfitter_process_SOURCES += rootplot.cc 
-   xfitter_process_CPPFLAGS += -I$(srcdir)/../../include  $(ROOT_CFLAGS) -w
-   xfitter_process_LDADD += $(ROOT_LIBS) 
+   xfitter_process_SOURCES+=rootplot.cc
+   xfitter_process_CPPFLAGS+=-I$(srcdir)/../../include
+   xfitter_process_CXXFLAGS+=$(ROOT_CFLAGS)
+   xfitter_process_LDADD+=$(ROOT_LIBS)
 else 
    xfitter_process_SOURCES += rootplot_dummy.cc
 endif

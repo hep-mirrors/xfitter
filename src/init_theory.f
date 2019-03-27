@@ -1,49 +1,3 @@
-      subroutine init_theory_modules
-*     ------------------------------------------------
-
-      implicit none 
-#include "ntot.inc"
-#include "steering.inc"
-
-*     ------------------------------------------------
-*     Initialise EW parameters
-*     ------------------------------------------------
-
-      call Init_EW_parameters
-
-*     ------------------------------------------------
-*     Initialise qcdnum and APFEL
-*     ------------------------------------------------
-      if(itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11
-     $.or.itheory.eq.35) then
-C Init evolution code:
-ccCC         call qcdnum_ini
-C Init APFEL if needed
-         if(itheory.eq.10.or.itheory.eq.35) call apfel_ini
-C Init QEDEVOL if needed
-         if(itheory.eq.11) call qedevol_ini
-
-ccxxx         call Init_heavy_flavours
-
-         if (ewfit.gt.0) call eprc_init(.true.)
-      elseif(itheory.ge.100) then       
-cc           write(6,*) ' in ini_theory for itheory =',itheory
-      endif
-
-*     ------------------------------------------------
-*     Initialise calculations for each dataset:
-*     ------------------------------------------------
-      if(Itheory.ge.100) then
-ccc        write(6,*) ' ini_theory: no data sets initialised for theory ',itheory
-      else
-c      call Init_theory_datasets
-      endif
-
-      return
-      end
-
-
-
       Subroutine Init_heavy_flavours()
 *-----------------------------------------------------
 *
@@ -156,7 +110,7 @@ C Reduce the Q2 interval if small-x resummation through APFEL is included.
       if(HFSCHEME.eq.3005.or.
      1   HFSCHEME.eq.3055.or.
      2   HFSCHEME.eq.3555)then
-         QARR(1) = starting_scale
+         !QARR(1) = starting_scale !starting_scale is broken since 2.2.0
          QARR(2) = 2.025D7      ! needed for lhapdf grid  
       endif
 c      QARR(2) =  64000000.      ! enough for 8 TeV LHC.

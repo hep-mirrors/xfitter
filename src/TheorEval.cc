@@ -30,12 +30,6 @@
 
 using namespace std;
 
-// extern struct ord_scales {
-//    double datasetmur[150];
-//    double datasetmuf[150];
-//    int datasetiorder[150];
-// } cscales_;
-
 // Global variable to hold current alphaS
 std::function<double(double const& Q)>  gAlphaS;
 
@@ -55,9 +49,6 @@ extern "C" {
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
 {
-  // _iOrd = cscales_.datasetiorder[_dsId-1];
-  // _xmur = cscales_.datasetmur[_dsId-1];
-  // _xmuf = cscales_.datasetmuf[_dsId-1];
   for (int it= 0 ; it<nTerms; it++ ){
     _termNames.push_back(stn[it]);
     _termTypes.push_back(stt[it]);
@@ -358,11 +349,8 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
   if ( term_type == string("reaction")) {
     this->initReactionTerm(iterm, val);
   } else {
-    int id = 15102301;
-    char text[] = "S: Unknown term type in expression for term";
-    std::cout << "Unknown term type in expression for term " << _termNames[iterm] << std::endl;
-    int textlen = strlen(text);
-    hf_errlog_(id, text, textlen);
+    std::cerr<<"[ERROR] Unknown term_type=\""<<term_type<<"\" in expression for term \""<<_termNames[iterm]<<'\"'<<std::endl;
+    hf_errlog(15102301,"S: Unknown term type, see stderr");
     return -1;
   }
 }
@@ -405,8 +393,6 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   string term_source = _termSources.at(iterm);
   string term_type =  _termTypes.at(iterm);
   string term_info =  _termInfos.at(iterm);
-//  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
-  
   // Re-define term-source if "use:" string is found:
   if ( term_source.find("use:") != std::string::npos ) {
     term_source =  GetParamDS(term_source.substr(4),GetDSname(),_dsPars["FileIndex"]);
@@ -420,11 +406,12 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 
   ReactionTheory * rt;
   if ( gNameReaction.find(term_source) == gNameReaction.end()) {
-    void *theory_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
+    string path_to_lib=PREFIX+string("/lib/")+libname;
+    void *theory_handler = dlopen(path_to_lib.c_str(), RTLD_NOW);
     if (theory_handler == NULL)  { 
-      std::cout  << dlerror() << std::endl;
-      string text = "F: Reaction shared library ./lib/"  + libname  +  " not present for " +term_source + ". Check Reactions.txt file" ;
-      hf_errlog_(16120502,text.c_str(),text.size());
+      std::cerr<<"Failed to open shared library "<<path_to_lib<<" for "<<term_source<<"; error:\n"
+               <<dlerror()<<"\n Check that the correct library is given in Reactions.txt"<<std::endl;
+      hf_errlog(16120502,"F: Failed to open reaction shared library, see stderr for details");
     }
     
     // reset errors
@@ -468,17 +455,21 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 
     xfitter::BaseEvolution* evo = xfitter::get_evolution(evoName);     
     //    rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
-    /// XXX
+    //This is not how we should pass PDFs and alphas
+    //pending TermData rewrite
+    //--Ivan
     gAlphaS = evo-> AlphaQCD();
     rt->setEvolFunctions( &alphaS, &g2Dfunctions);
 
+    /* broken since 2.2.0
     // simplify interfaces to LHAPDF:
     rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
     rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
     rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
+    */
 
     // initialize
-    if (rt->initAtStart("") != 0) {
+    if (rt->atStart("") != 0) {
       // failed to init, somehow ...
       string text = "F:Failed to init reaction " +term_source  ;
       hf_errlog_(16120803,text.c_str(),text.size());
@@ -655,8 +646,6 @@ TheorEval::Evaluate(valarray<double> &vte )
           }else{
 		char error[] = "ERROR: Dimensions do not match ";
 		cout<<error<<endl;}
-
-
           /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
               int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
               int mb1 = ?;
@@ -672,12 +661,7 @@ TheorEval::Evaluate(valarray<double> &vte )
                   }
               }
           }*/
-
-
-
-
     }
-
     it++;
   }
 

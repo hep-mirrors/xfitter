@@ -6,7 +6,7 @@
 /**
   @class' ReactionKMatrix
 
-  @brief A wrapper class for KMatrix reaction 
+  @brief A wrapper class for KMatrix reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -25,7 +25,7 @@ class ReactionKMatrix : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "KMatrix" ;};
-    int initAtStart(const string &); 
+    int atStart(const string &);
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
     virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) override;
   protected:
@@ -35,6 +35,6 @@ class ReactionKMatrix : public ReactionTheory
     map<int, std::vector<double> > _values;
     map<int, std::pair<std::string, double> > _parameterNames;
 
-	
+
 };
 

@@ -48,7 +48,7 @@ protected:
   const std::string _name;
   //!Array of pointers to some global locations where minimization parameters are stored
   double**pars{nullptr};
-  //!Number of parameters, which is also the size of the array **parameters defined above
+  //!Number of parameters, which is also the size of the array **pars defined above
   unsigned int Npars{0};
 };
 }

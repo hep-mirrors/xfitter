@@ -13,7 +13,7 @@ extern struct { //{{{
         int nx;
         int read_xgrid;
         int dobands;
-        float hf_mass[3];        
+        float hf_mass[3];
         int i_fit_order, ipdfset;
   int lead, useGridLHAPDF5, writeLHAPDF6, WriteAlphaSToMemberPDF,
     c_itheory, c_extrapdfs;
@@ -29,7 +29,7 @@ typedef struct GridQX_s { //{{{
         double *q2,*x;
         enum {QCDNUM_GRID, EXTERNAL_GRID, LHA5_GRID} type;
         //main interface (should include pdf modifications, like lead)
-        double (*pdf_ij)(struct GridQX_s grid, int pid, int ix, int iq2); 
+        double (*pdf_ij)(struct GridQX_s grid, int pid, int ix, int iq2);
         double (*raw_pdf_ij)(struct GridQX_s grid, int pid, int ix, int iq2); //pdf from qcdnum grid
 } GridQX;
 //}}}
@@ -140,20 +140,20 @@ void delete_grid(GridQX grid){ //{{{
 
 
 
-// pdf in grid point (qcdnum grid) 
+// pdf in grid point (qcdnum grid)
 double raw_qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2) { //{{{
         int inull;
         ix+=1;
         iq2+=1;
-	if ( fabs(pid)<=6) {
-	  return fvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
-	}
-	else {
-	  // Hardwire photon for now:
-	  pid = 13;
-	  double val = bvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
-	  return val;	  
-	}
+        if ( fabs(pid)<=6) {
+          return fvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
+        }
+        else {
+          // Hardwire photon for now:
+          pid = 13;
+          double val = bvalij_(&ccommoninterface_.ipdfset,&pid,&ix,&iq2,&inull);
+          return val;
+        }
 }
 
 
@@ -163,19 +163,19 @@ double raw_external_pdf_ij(GridQX grid, int pid, int ix, int iq2) {
         double x,q2;
         x=grid.x[ix];
         q2=grid.q2[iq2];
-	if ( fabs(pid)<=6) {
-	  return fvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
-	}
-	else {
-	  // Hardwire photon for now:
-	  pid = 13;
-	  return bvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
-	}
+        if ( fabs(pid)<=6) {
+          return fvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
+        }
+        else {
+          // Hardwire photon for now:
+          pid = 13;
+          return bvalxq_(&ccommoninterface_.ipdfset,&pid,&x,&q2,&inull);
+        }
 }
 //}}}
 
 
-//wrappers 
+//wrappers
 
 // direct interface
 double qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2) {
@@ -210,7 +210,7 @@ void print_lhapdf6(char *pdf_dir){ //{{{
         save_data_lhapdf6_(&central_set);
         free(outdir);
         free(path);
-} 
+}
 
 
 
@@ -219,7 +219,7 @@ void print_lhapdf6_(){
         char *pdf_dir=sfix(ccommoninterface_.LHAPDF6OutDir,128);
         print_lhapdf6(pdf_dir);
         free(pdf_dir);
-} 
+}
 
 
 
@@ -236,33 +236,33 @@ void print_lhapdf6_opt_(){
 
 
 
-void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, int iSubGrid, int AddTop) { //{{{ 
+void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, int iSubGrid, int AddTop) { //{{{
   // iSubGrid = 4, 5, 6, 7:  below charm, bottom, top, above all: first flavour to cut off.
 
-        int ix, iq2, i; 
+        int ix, iq2, i;
         double val;
         const double OFFSET=1e-3; // see call PDFINP in fcn.f
 
-	// Add top too:
-	int PDG_NoTop[] = { -5,-4,-3,-2,-1,1,2,3,4,5,21,22};
-	int PDG_Top[]   = {-6, -5,-4,-3,-2,-1,1,2,3,4,5,6, 21,22};
-	int QCDNUM_NoTop[] = {-5,-4,-3,-2,-1,1,2,3,4,5,0,7};
-	int QCDNUM_Top[]   = {-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,0,7};
-	
+        // Add top too:
+        int PDG_NoTop[] = { -5,-4,-3,-2,-1,1,2,3,4,5,21,22};
+        int PDG_Top[]   = {-6, -5,-4,-3,-2,-1,1,2,3,4,5,6, 21,22};
+        int QCDNUM_NoTop[] = {-5,-4,-3,-2,-1,1,2,3,4,5,0,7};
+        int QCDNUM_Top[]   = {-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,0,7};
+
 
         int *pdg_flavours = (AddTop >0 ) ? PDG_Top :  PDG_NoTop;
-	int *qcdnum_flavours = (AddTop>0) ? QCDNUM_Top : QCDNUM_NoTop;	
-	int NPDFToStore = (AddTop>0) ? (int) (sizeof(QCDNUM_Top)/sizeof(int)) : (sizeof(QCDNUM_NoTop)/sizeof(int))   ;
+        int *qcdnum_flavours = (AddTop>0) ? QCDNUM_Top : QCDNUM_NoTop;
+        int NPDFToStore = (AddTop>0) ? (int) (sizeof(QCDNUM_Top)/sizeof(int)) : (sizeof(QCDNUM_NoTop)/sizeof(int))   ;
 
-	if ( ! ccommoninterface_.c_extrapdfs ) {
-	  NPDFToStore--;
-	}
+        if ( ! ccommoninterface_.c_extrapdfs ) {
+          NPDFToStore--;
+        }
 
 
 
-        double (*swap_fun)(struct GridQX_s grid, int pid, int ix, int iq2); 
+        double (*swap_fun)(struct GridQX_s grid, int pid, int ix, int iq2);
 
-        for(ix=0;ix<grid.nx;ix++) 
+        for(ix=0;ix<grid.nx;ix++)
                 fprintf(fp, "%e ", grid.x[ix]);
         fprintf(fp, "\n");
 
@@ -270,48 +270,48 @@ void print_q2subgrid(GridQX grid, FILE *fp, int iqmin, int iqmax, int iSubGrid, 
                 fprintf(fp, "%e ", sqrt(grid.q2[iq2]));
         fprintf(fp, "\n");
 
-        for(i=0;i<NPDFToStore ;i++) 
+        for(i=0;i<NPDFToStore ;i++)
                 fprintf(fp, "%i ", pdg_flavours[i]);
         fprintf(fp, "\n");
 
 
         for(ix=0; ix<grid.nx; ix++) {
-	  for(iq2=iqmin; iq2<iqmax; iq2++){
-	    for(i=0;i< NPDFToStore;i++) {
-	      
-	      
-	      val= ( (fabs(qcdnum_flavours[i]) >= iSubGrid) && (fabs(pdg_flavours[i])<7) ) ? 0:  grid.pdf_ij(grid, qcdnum_flavours[i], ix, iq2);
+          for(iq2=iqmin; iq2<iqmax; iq2++){
+            for(i=0;i< NPDFToStore;i++) {
 
-	      if( fabs(val)>2*DBL_EPSILON)
-		fprintf(fp, "%e ", val);
-	      else
-		fprintf(fp, "%e ", 0.0);
-	    }
-	    
 
-	    fprintf(fp, "\n");
-	  }
-	  
-	  //near the threshold
-	  swap_fun=grid.raw_pdf_ij;
-	  grid.raw_pdf_ij=raw_external_pdf_ij;
-	  grid.q2[iqmax]-=OFFSET;
-	  for(i=0;i<NPDFToStore;i++) {
-	    val= ( (fabs(qcdnum_flavours[i]) >= iSubGrid) && (fabs(pdg_flavours[i])<7) ) ? 0 : grid.pdf_ij(grid, qcdnum_flavours[i], ix, iqmax);
-	    
-	    
+              val= ( (fabs(qcdnum_flavours[i]) >= iSubGrid) && (fabs(pdg_flavours[i])<7) ) ? 0:  grid.pdf_ij(grid, qcdnum_flavours[i], ix, iq2);
 
-	    if( fabs(val)>2*DBL_EPSILON)
-	      fprintf(fp, "%e ", val);
-	    else
-	      fprintf(fp, "%e ", 0.0);
-	  }
-	  grid.raw_pdf_ij=swap_fun;
-	  grid.q2[iqmax]+=OFFSET;
-	  
-	  fprintf(fp, "\n");
+              if( fabs(val)>2*DBL_EPSILON)
+                fprintf(fp, "%e ", val);
+              else
+                fprintf(fp, "%e ", 0.0);
+            }
+
+
+            fprintf(fp, "\n");
+          }
+
+          //near the threshold
+          swap_fun=grid.raw_pdf_ij;
+          grid.raw_pdf_ij=raw_external_pdf_ij;
+          grid.q2[iqmax]-=OFFSET;
+          for(i=0;i<NPDFToStore;i++) {
+            val= ( (fabs(qcdnum_flavours[i]) >= iSubGrid) && (fabs(pdg_flavours[i])<7) ) ? 0 : grid.pdf_ij(grid, qcdnum_flavours[i], ix, iqmax);
+
+
+
+            if( fabs(val)>2*DBL_EPSILON)
+              fprintf(fp, "%e ", val);
+            else
+              fprintf(fp, "%e ", 0.0);
+          }
+          grid.raw_pdf_ij=swap_fun;
+          grid.q2[iqmax]+=OFFSET;
+
+          fprintf(fp, "\n");
         }
-	
+
         fprintf(fp, "---\n");
 }
 //}}}
@@ -337,35 +337,35 @@ void save_data_lhapdf6(int *pdf_set,char *pdf_dir){ //{{{
         double mbt2=ccommoninterface_.hf_mass[1]*ccommoninterface_.hf_mass[1];
         double mtp2=ccommoninterface_.hf_mass[2]*ccommoninterface_.hf_mass[2];
 
-	double kmuc=ccommoninterface_.c_kmuc;
-	double kmub=ccommoninterface_.c_kmub;
-	double kmut=ccommoninterface_.c_kmut;
+        double kmuc=ccommoninterface_.c_kmuc;
+        double kmub=ccommoninterface_.c_kmub;
+        double kmut=ccommoninterface_.c_kmut;
 
-	double tiny = 1e-3;
+        double tiny = 1e-3;
 
-	        
+
  //       print_q2subgrid(grid, fp, qfrmiq(0) , qfrmiq(grid.nq2-1));
-	int AddTop = (mtp2 < qfrmiq(grid.nq2-1));
+        int AddTop = (mtp2 < qfrmiq(grid.nq2-1));
 
 
         print_q2subgrid(grid, fp, 0, iqfrmq(mch2*kmuc*kmuc+tiny), 4, AddTop);
         print_q2subgrid(grid, fp, iqfrmq(mch2*kmuc*kmuc+tiny), iqfrmq(mbt2*kmub*kmub+tiny), 5, AddTop);
         if(AddTop>0) {
-	  print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), iqfrmq(mtp2*kmut*kmut+tiny), 6, AddTop);
-	  print_q2subgrid(grid, fp, iqfrmq(mtp2*kmut*kmut+tiny), grid.nq2-1, 7, AddTop);
+          print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), iqfrmq(mtp2*kmut*kmut+tiny), 6, AddTop);
+          print_q2subgrid(grid, fp, iqfrmq(mtp2*kmut*kmut+tiny), grid.nq2-1, 7, AddTop);
         } else {
-	  print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), grid.nq2-1, 6, AddTop);
+          print_q2subgrid(grid, fp, iqfrmq(mbt2*kmub*kmub+tiny), grid.nq2-1, 6, AddTop);
         }
         fclose(fp);
         delete_grid(grid);
         free(outdir);
         free(path);
-} 
+}
 
 
 
 // save to LHAPDF6OutDir, fortran interface
-void save_data_lhapdf6_(int *pdf_set){ 
+void save_data_lhapdf6_(int *pdf_set){
         char *pdf_dir=sfix(ccommoninterface_.LHAPDF6OutDir,128);
         save_data_lhapdf6(pdf_set, pdf_dir);
         free(pdf_dir);
@@ -374,7 +374,7 @@ void save_data_lhapdf6_(int *pdf_set){
 
 
 // use opt_$LHAPDF6OutDir directory, fortran interface
-void save_data_lhapdf6_opt_(int *pdf_set){ 
+void save_data_lhapdf6_opt_(int *pdf_set){
         char *pdf_dir=sfix(ccommoninterface_.LHAPDF6OutDir,128);
         char *opt_pdf_dir=malloc((strlen(pdf_dir)+strlen("opt_")+1)*sizeof(char));
 
@@ -406,24 +406,24 @@ void save_info(char *pdf_dir) { //{{{
         fprintf(fp,"NumMembers: %i\n",get_nmembers_());
 
         double mtp2=ccommoninterface_.hf_mass[2]*ccommoninterface_.hf_mass[2];
-	int addTop = (mtp2 < qfrmiq(grid.nq2-1));
+        int addTop = (mtp2 < qfrmiq(grid.nq2-1));
 
-	if (  ccommoninterface_.c_extrapdfs ) {
-	  if (addTop>0) {
-	    fprintf(fp,"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, 22]\n");
-	  }
-	  else {
-	    fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21, 22]\n");
-	  }
-	}
-	else {
-	  if (addTop>0) {
-	    fprintf(fp,"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21]\n");
-	  }
-	  else {
-	    fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
-	  }
-	}
+        if (  ccommoninterface_.c_extrapdfs ) {
+          if (addTop>0) {
+            fprintf(fp,"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, 22]\n");
+          }
+          else {
+            fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21, 22]\n");
+          }
+        }
+        else {
+          if (addTop>0) {
+            fprintf(fp,"Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21]\n");
+          }
+          else {
+            fprintf(fp,"Flavors: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 21]\n");
+          }
+        }
         fprintf(fp,"OrderQCD: %i\n", ccommoninterface_.i_fit_order-1); // qcdnum notation LO=1,...; LHAPDF6 LO=0,...
         fprintf(fp,"FlavorScheme: %s\n", get_flavor_scheme());
         fprintf(fp,"ErrorType: %s\n", get_error_type());
@@ -453,12 +453,12 @@ void save_alphas_info(FILE* fp, GridQX grid) { //{{{
         double q2;
         double mz2=ccommoninterface_.mz*ccommoninterface_.mz;
 
-	// Also get thresholds info:
-	double ct = ccommoninterface_.hf_mass[0]*ccommoninterface_.c_kmuc;
-	double bt = ccommoninterface_.hf_mass[1]*ccommoninterface_.c_kmub;
-	double tt = ccommoninterface_.hf_mass[2]*ccommoninterface_.c_kmut;
-	
-	
+        // Also get thresholds info:
+        double ct = ccommoninterface_.hf_mass[0]*ccommoninterface_.c_kmuc;
+        double bt = ccommoninterface_.hf_mass[1]*ccommoninterface_.c_kmub;
+        double tt = ccommoninterface_.hf_mass[2]*ccommoninterface_.c_kmut;
+
+
 
 
         getord_(&as_order);
@@ -470,43 +470,43 @@ void save_alphas_info(FILE* fp, GridQX grid) { //{{{
         fprintf(fp,"AlphaS_Qs: [");
         for(iq2=0;iq2<grid.nq2;iq2++) {
 
-	  double q = sqrt(grid.q2[iq2]);
-	  if ( fabs(q-ct) < 0.0001 ) {
-	    fprintf(fp,"%g,",q);  // print threshold twice	  
-	  } 
-	  if ( fabs(q-bt) < 0.0001 ) {
-	    fprintf(fp,"%g,",q);  // print threshold twice	  
-	  } 	 
-	  if ( fabs(q-tt) < 0.0001 ) {
-	    fprintf(fp,"%g,",q);  // print threshold twice	  
-	  } 
+          double q = sqrt(grid.q2[iq2]);
+          if ( fabs(q-ct) < 0.0001 ) {
+            fprintf(fp,"%g,",q);  // print threshold twice
+          }
+          if ( fabs(q-bt) < 0.0001 ) {
+            fprintf(fp,"%g,",q);  // print threshold twice
+          }
+          if ( fabs(q-tt) < 0.0001 ) {
+            fprintf(fp,"%g,",q);  // print threshold twice
+          }
 
-	  fprintf(fp,"%g",q);
-	  if(iq2!=grid.nq2-1) fprintf(fp,", ");
+          fprintf(fp,"%g",q);
+          if(iq2!=grid.nq2-1) fprintf(fp,", ");
         }
         fprintf(fp,"]\n");
 
         fprintf(fp,"AlphaS_Vals: [");
         for(iq2=0;iq2<grid.nq2;iq2++) {
-		double q = sqrt(grid.q2[iq2]);
-		double epsilon = 0;
+                double q = sqrt(grid.q2[iq2]);
+                double epsilon = 0;
 
-		// Thresholds:
-		if ( fabs(q-ct) < 0.0001 ) {
-		  epsilon = 0.0001;
-		  double q2l = q*q-epsilon;
-		  fprintf(fp,"%g,",hf_get_alphas_(&q2l));		  
-		} 
-		if ( fabs(q-bt) < 0.0001 ) {
-		  epsilon = 0.0001;
-		  double q2l = q*q-epsilon;
-		  fprintf(fp,"%g,",hf_get_alphas_(&q2l));		  
-		} 	 
-		if ( fabs(q-tt) < 0.0001 ) {
-		  epsilon = 0.0001;
-		  double q2l = q*q-epsilon;
-		  fprintf(fp,"%g,",hf_get_alphas_(&q2l));		  
-		} 
+                // Thresholds:
+                if ( fabs(q-ct) < 0.0001 ) {
+                  epsilon = 0.0001;
+                  double q2l = q*q-epsilon;
+                  fprintf(fp,"%g,",hf_get_alphas_(&q2l));
+                }
+                if ( fabs(q-bt) < 0.0001 ) {
+                  epsilon = 0.0001;
+                  double q2l = q*q-epsilon;
+                  fprintf(fp,"%g,",hf_get_alphas_(&q2l));
+                }
+                if ( fabs(q-tt) < 0.0001 ) {
+                  epsilon = 0.0001;
+                  double q2l = q*q-epsilon;
+                  fprintf(fp,"%g,",hf_get_alphas_(&q2l));
+                }
 
                 q2=grid.q2[iq2]+epsilon;
                 fprintf(fp,"%g",hf_get_alphas_(&q2));

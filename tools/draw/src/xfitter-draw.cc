@@ -19,7 +19,7 @@
 
 using namespace std;
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
   //--------------------------------------------------
   //parse command line arguments
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
   //Set default out directory
   if (opts.outdir == "")
     opts.outdir = "plots/";
-  
+
   if (opts.outdir.rfind("/") != opts.outdir.size() - 1)
     opts.outdir.append("/");
 
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
             break;
         }
     }
-  
+
   //--------------------------------------------------
   //Data plots
   gStyle->SetEndErrorSize(4);
@@ -315,17 +315,17 @@ int main(int argc, char **argv)
       inputfiles = inputfiles + " " + opts.outdir + "plots_" + pgnum + ".eps";
     }
 
-  //  if (!chi2tab) 
-  if (!opts.notables) 
+  //  if (!chi2tab)
+  if (!opts.notables)
     inputfiles = inputfiles + " " + opts.outdir + "chi2.pdf";
   if (!partab)
     inputfiles = inputfiles + " " + opts.outdir + "par.pdf";
 
   //A4 is /PageSize [842 595]
-  string gscommand = "gs -dBATCH -q -sDEVICE=" + format + "write -sOutputFile=" + opts.outdir + "plots." + format 
-    + " -dNOPAUSE -dEPSFitPage -c \"<< /PageSize [595 595] >> setpagedevice\"  -f " 
+  string gscommand = "gs -dBATCH -q -sDEVICE=" + format + "write -sOutputFile=" + opts.outdir + "plots." + format
+    + " -dNOPAUSE -dEPSFitPage -c \"<< /PageSize [595 595] >> setpagedevice\"  -f "
     + inputfiles;
-  
+
   bool makeplots = system(gscommand.c_str());
   if (!makeplots)
     cout << "Plots saved in: " << (opts.outdir + "plots." + format) << endl;

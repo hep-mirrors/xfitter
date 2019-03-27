@@ -25,9 +25,8 @@ with open("Reactions.txt","r+") as f:
 
 # Not present, add new line to the Reactions.txt file
 
-print "Updating Reactions.txt file"
 with  open("Reactions.txt","a") as f:
-    f.write(name+" "+"lib"+name+"PdfDecomposition"+"_xfitter.so\n")
+    f.write(name+" "+"lib"+name.lower()+"_xfitter.so\n")
 
 
 print "Creating directories in pdfdecompositions/"+name+"PdfDecomposition"
@@ -35,6 +34,7 @@ print "Creating directories in pdfdecompositions/"+name+"PdfDecomposition"
 os.system("mkdir -p pdfdecompositions/"+name+"PdfDecomposition/include")
 os.system("mkdir -p pdfdecompositions/"+name+"PdfDecomposition/src")
 os.system("mkdir -p pdfdecompositions/"+name+"PdfDecomposition/yaml")
+os.system("touch pdfdecompositions/"+name+"PdfDecomposition/yaml/parameters.yaml")
 
 hFile = "pdfdecompositions/{:s}PdfDecomposition/include/{:s}PdfDecomposition.h".format(name,name)
 
@@ -62,13 +62,14 @@ namespace xfitter {{
 class {:s}PdfDecomposition : public BasePdfDecomposition
 {{
   public:
-     /// Default constructor. Name is the PDF name
-    {:s}PdfDecomposition (const char* inName);
+     /// Default constructor. 
+    {:s}PdfDecomposition ();
 
-    virtual const char*getClassName()const override final;
+     /// Default constructor. Name is the PDF name
+    {:s}PdfDecomposition (const std::string& inName);
 
     /// Optional initialization at the first call
-    virtual void atStart() override final;
+    virtual void initAtStart(const std::string & pars) override final;
 
     /// Compute PDF in a physical base in LHAPDF format for given x and Q
     virtual std::function<std::map<int,double>(const double& x)> f0() const  override final; 
@@ -97,18 +98,21 @@ with open(sFile,"w+") as f:
 namespace xfitter {{
   
 /// the class factories, for dynamic loading
-extern "C" {:s}PdfDecomposition* create(const char*name) {{
-    return new {:s}PdfDecomposition(name);
+extern "C" {:s}PdfDecomposition* create() {{
+    return new {:s}PdfDecomposition();
+}}
+
+
+// Constructor
+    {:s}PdfDecomposition::{:s}PdfDecomposition() : BasePdfDecomposition("{:s}") {{  
 }}
 
 // Constructor
-{:s}PdfDecomposition::{:s}PdfDecomposition(const char* inName) : BasePdfDecomposition(inName) {{  
+{:s}PdfDecomposition::{:s}PdfDecomposition(const std::string& inName) : BasePdfDecomposition(inName) {{  
 }}
 
-const char*{:s}PdfDecomposition::getClassName()const{{return"{:s}";}}
-
 // Init at start:
-void {:s}PdfDecomposition::atStart() {{
+void {:s}PdfDecomposition::initAtStart(const std::string & pars) {{
   return;
 }}
 
@@ -138,7 +142,7 @@ std::function<std::map<int,double>(const double& x)>  {:s}PdfDecomposition::f0()
 
 }}
 '''.format(name,datetime.date.today().isoformat(),datetime.date.today().isoformat()
-           ,name,name,name,name,name,name,name,name,name,name,name,name)
+           ,name,name,name,name,name,name,name,name,name,name)
 )
 
     
@@ -163,19 +167,16 @@ dist_noinst_HEADERS = ../include ../yaml
 '''.format(datetime.date.today().isoformat(),name,name,name,name))
 
 
-pFile="pdfdecompositions/"+name+"PdfDecomposition/yaml/parameters.yaml"
-print "Creating (empty) parameter file  "+pFile
-os.system("touch "+pFile)
     
-print "Updating configure.ac file"
+print "Update configure.ac file"
 os.system("sed 's|xfitter-config|xfitter-config\\n		 pdfdecompositions/{:s}PdfDecomposition/src/Makefile|' configure.ac  >/tmp/configure.ac".format(name))
 os.system("cp /tmp/configure.ac configure.ac")
 
-print "Updating Makefile.am"
+print "Update Makefile.am"
 os.system("sed 's|pdfdecompositions/BasePdfDecomposition/src|pdfdecompositions/BasePdfDecomposition/src pdfdecompositions/{:s}PdfDecomposition/src|' Makefile.am > /tmp/Makefile.am".format(name))
 os.system("cp /tmp/Makefile.am Makefile.am")
 
-print "Updating doxygen.cfg"
+print "Update doxygen.cfg"
 os.system("sed 's|pdfdecompositions/BasePdfDecomposition/include|pdfdecompositions/BasePdfDecomposition/include  pdfdecompositions/{:s}PdfDecomposition/include|' doxygen.cfg > /tmp/doxygen.cfg".format(name))
 os.system("cp /tmp/doxygen.cfg  doxygen.cfg")
 

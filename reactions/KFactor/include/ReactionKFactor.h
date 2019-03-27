@@ -25,7 +25,7 @@ class ReactionKFactor : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "KFactor" ;};
-    int initAtStart(const string &);
+    int atStart(const string &);
     virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual void initAtIteration() override;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);

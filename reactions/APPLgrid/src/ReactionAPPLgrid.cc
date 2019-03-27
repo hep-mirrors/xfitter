@@ -21,7 +21,7 @@ void xfxWrapper1(const double&x,const double&Q,double*results){active_xfxQ_funct
 ReactionAPPLgrid::ReactionAPPLgrid(){}
 ReactionAPPLgrid::~ReactionAPPLgrid(){}
  // Initialize at the start of the computation
-int ReactionAPPLgrid::initAtStart(const string &s){return 0;}
+int ReactionAPPLgrid::atStart(const string &s){return 0;}
 
  // Initialize for a given dataset:
 void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pars, map<string, double> parsDataset) {

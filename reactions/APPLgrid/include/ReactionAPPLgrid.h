@@ -33,7 +33,7 @@ class ReactionAPPLgrid : public ReactionTheory
     ReactionAPPLgrid();
     ~ReactionAPPLgrid();
     virtual string getReactionName() const { return  "APPLgrid" ;};
-    int initAtStart(const string &); 
+    int atStart(const string &);
     virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
  protected:

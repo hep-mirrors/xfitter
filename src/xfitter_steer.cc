@@ -1,15 +1,18 @@
 #include "xfitter_steer.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
+#include"xfitter_cpp.h"
 
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
 #include "BaseMinimizer.h"
 #include <dlfcn.h>
 #include <iostream>
+#include<fstream>
 #include <yaml-cpp/yaml.h>
 #include <Profiler.h>
 using std::string;
+using std::cerr;
 
 extern std::map<string,string> gReactionLibs;
 
@@ -20,13 +23,16 @@ void*createDynamicObject(const string&classname,const string&instanceName){
   try{
     libpath=PREFIX+string("/lib/")+gReactionLibs.at(classname);
   }catch(const std::out_of_range&ex){
-    std::cerr<<"[ERROR] out_of_range in function "<<__func__<<":\n"<<ex.what()<<"\n[/ERROR]\n";
     std::ostringstream s;
     if(gReactionLibs.count(classname)==0){
-      s<<"F: Unknown dynamically loaded class \""<<classname<<"\"";
+      cerr<<"[ERROR] Unknown dynamically loaded class \""<<classname<<"\""
+          "\nMake sure that "<<PREFIX<<"/lib/Reactions.txt has an entry for this class"
+          "\n[/ERRROR]"<<endl;
+      s<<"F: Unknown dynamically loaded class \""<<classname<<"\", see stderr";
       hf_errlog(18091901,s.str().c_str());
     }
-    s<<"F: Unknown out_of_range exception in "<<__func__;
+    cerr<<"[ERROR] Unknown out_of_range in function "<<__func__<<":\n"<<ex.what()<<"\n[/ERROR]\n";
+    s<<"F: Unknown out_of_range exception in "<<__func__<<", see stderr";
     hf_errlog(18091902,s.str().c_str());
   }
   void*shared_library=dlopen(libpath.c_str(),RTLD_NOW);
@@ -83,7 +89,7 @@ namespace xfitter {
       const int errcode=18092401;
       const char*errmsg="F: YAML::InvalidNode exception while creating decomposition, details written to stderr";
       using namespace std;
-      cerr<<"[ERROR]"<<__func__<<'('<<name<<')'<<endl;
+      cerr<<"[ERROR]"<<__func__<<"(\""<<name<<"\")"<<endl;
       YAML::Node node=XFITTER_PARS::getDecompositionNode(name);
       if(!node.IsMap()){
         cerr<<"Invalid node Decompositions/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
@@ -97,7 +103,8 @@ namespace xfitter {
         hf_errlog(errcode,errmsg);
       }
       cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
-      hf_errlog(errcode,errmsg);
+      throw ex;
+      //hf_errlog(errcode,errmsg);
     }
   }
   BasePdfParam*getParameterisation(const string&name){
@@ -179,9 +186,12 @@ extern "C" {
   void run_error_analysis_();
 }
 
+namespace xfitter{
+  BaseEvolution*defaultEvolution=nullptr;//declared in xfitter_steer.h
+}
+//Make sure default evolution exists
 void init_evolution_() {
-  //TODO: reimplement for new interface with multiple evolutions
-  //auto evol = xfitter::get_evolution();
+  xfitter::defaultEvolution=xfitter::get_evolution();
 }
 
 void init_minimizer_() {
@@ -200,9 +210,23 @@ void run_minimizer_() {
 }
 
 void report_convergence_status_(){
-  //Get a status code from current minimizer and log a message
+  //Get a status code from current minimizer and log a message, write status to file Status.out
   using namespace xfitter;
-  switch(get_minimizer()->convergenceStatus()){
+  auto status=get_minimizer()->convergenceStatus();
+  //Write status to Status.out
+  {
+  std::ofstream f;
+  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/Status.out");
+  if(!f.is_open()){
+    hf_errlog(16042807,"W: Failed to open Status.out for writing");
+    return;
+  }
+  if(status==ConvergenceStatus::SUCCESS)f<<"OK";
+  else f<<"Failed";
+  f.close();
+  }
+  //Log status message
+  switch(status){
     case ConvergenceStatus::NORUN:
       hf_errlog(16042801,"I: No minimization has run");
       break;
@@ -229,3 +253,14 @@ void run_error_analysis_() {
   mini->errorAnalysis();    
 }
 
+namespace xfitter{
+void updateAtConfigurationChange(){
+  //Call atConfigurationChange for each evolution and for each decomposition
+  for(map<string,BaseEvolution*>::const_iterator it=XFITTER_PARS::gEvolutions.begin();it!=XFITTER_PARS::gEvolutions.end();++it){
+    it->second->atConfigurationChange();
+  }
+  for(map<string,BasePdfDecomposition*>::const_iterator it=XFITTER_PARS::gPdfDecompositions.begin();it!=XFITTER_PARS::gPdfDecompositions.end();++it){
+    it->second->atConfigurationChange();
+  }
+}
+}

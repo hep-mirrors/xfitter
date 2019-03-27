@@ -13,4 +13,4 @@ extern"C" {
 // Some basic other functions
 int OrderMap(std::string ord);
 void hf_errlog(int id, const std::string& message);
-
+std::string stringFromFortran(char*fortran_string,size_t size);

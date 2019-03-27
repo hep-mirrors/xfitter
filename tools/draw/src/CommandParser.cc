@@ -349,8 +349,13 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--xrange")
 	  {
-	    xmin = max(0.000000000000001, atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str()));
-	    xmax = min(1., atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str()));
+            string&s=*(it+1);
+            size_t p=s.find(':');
+            s[p]=0;
+            xmin=atof(s.c_str());
+            xmin=max(1e-15,xmin);
+            xmax=atof(s.c_str()+p+1);
+            xmax=min(1.,xmax);
 	    allargs.erase(it+1);
 	  }
 	else if (*it == "--colorpattern")

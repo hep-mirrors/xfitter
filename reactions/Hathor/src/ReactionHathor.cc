@@ -50,7 +50,7 @@ ReactionHathor::~ReactionHathor()
   //    delete item.second;
 }
 
-int ReactionHathor::initAtStart(const string &s)
+int ReactionHathor::atStart(const string &s)
 {
   // PDFs for Hathor
   _pdf = new HathorPdfxFitter(this);

@@ -24,7 +24,7 @@ extern "C" {
 }
 
 // Initialize at the start of the computation
-int ReactionFONLL_DISNC::initAtStart(const string &s)
+int ReactionFONLL_DISNC::atStart(const string &s)
 {
   // Retrieve parameters needed to initialize APFEL.
   const double MCharm     = GetParam("mch");
@@ -219,17 +219,17 @@ void ReactionFONLL_DISNC::initAtIteration()
 }
 
 // FONLL structure functions
-void ReactionFONLL_DISNC::F2 BASE_PARS 
+void ReactionFONLL_DISNC::F2 BASE_PARS
 {
   val = _f2fonll[dataSetID];
 }
 
-void ReactionFONLL_DISNC::FL BASE_PARS 
+void ReactionFONLL_DISNC::FL BASE_PARS
 {
   val = _flfonll[dataSetID];
 }
 
-void ReactionFONLL_DISNC::xF3 BASE_PARS 
+void ReactionFONLL_DISNC::xF3 BASE_PARS
 {
   val = _f3fonll[dataSetID];
 }

@@ -41,7 +41,7 @@ c Adapted from LHAPDF uncertainties.f
 
       character*(*) name
       logical lMonteCarlo,lAsymhess,lSymmhess
-      ! logical variables for lhapdf interface 
+      ! logical variables for lhapdf interface
       logical lhapdf_mc, lhapdf_symmetric
       integer nset
       lMonteCarlo = .false.
@@ -56,7 +56,7 @@ c Adapted from LHAPDF uncertainties.f
       call getnset(nset)
       call getpdfunctypem(nset, lhapdf_mc, lhapdf_symmetric)
 
-              if(lhapdf_symmetric) then 
+              if(lhapdf_symmetric) then
                       lMonteCarlo=.false.
                       lSymmhess=.true.
                       lAsymhess=.false.
@@ -73,10 +73,10 @@ c Adapted from LHAPDF uncertainties.f
                       lAsymhess=.false.
               endif
 #endif
-      
+
 
       end subroutine GetPDFUncType_HERAF_lhapdf6
-      
+
 
 
 
@@ -92,28 +92,28 @@ c Adapted from LHAPDF uncertainties.f
               lMonteCarlo = .false.
               lAsymhess = .false.
               lSymmhess = .false.
-              if(PDF_DECOMPOSITION.eq."LHAPDF") then
-#ifndef LHAPDF_ENABLED
-             call hf_errlog(26061547, "S: Call to lhapdf function but"//
-     $      "xFitter compiled without --enable-lhapdf switch")
-#else
-                      call getlhapdfversion(version)
-                      if(index(version, '5.').eq.1) then
-                      call GetPDFUncType_HERAF_lhapdf5(lMonteCarlo,
-     $                             lAsymhess, lSymmhess, name)
-                      else if(index(version, '6.').eq.1) then
-                      call GetPDFUncType_HERAF_lhapdf6(lMonteCarlo,
-     $                             lAsymhess, lSymmhess, name)
-                      else 
-                      call hf_errlog(26061518, "S: lhapdf can not"//
-     $                "determine error type")
-                      endif
-#endif
-              else
-                 if ( DoBandsSym ) then
-                    lSymmhess=.true.
-                 else
-                    lAsymhess=.true.
-                 endif
-              endif
+C this part is broken since 2.2.0
+c              if(PDF_DECOMPOSITION.eq."LHAPDF") then
+c#ifndef LHAPDF_ENABLED
+c             call hf_errlog(26061547, "S: Call to lhapdf function but"//
+c     $      "xFitter compiled without --enable-lhapdf switch")
+c#else
+c                      call getlhapdfversion(version)
+c                      if(index(version, '5.').eq.1) then
+c                      call GetPDFUncType_HERAF_lhapdf5(lMonteCarlo,
+c     $                             lAsymhess, lSymmhess, name)
+c                      else if(index(version, '6.').eq.1) then
+c                      call GetPDFUncType_HERAF_lhapdf6(lMonteCarlo,
+c     $                             lAsymhess, lSymmhess, name)
+c                      else
+c                      call hf_errlog(26061518, "S: lhapdf can not"//
+c     $                "determine error type")
+c                      endif
+c#endif
+c              else
+c              if ( DoBandsSym ) then
+c                 lSymmhess=.true.
+c              else
+c                 lAsymhess=.true.
+c              endif
       end subroutine GetPDFUncType_HERAF
