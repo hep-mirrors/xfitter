@@ -46,6 +46,9 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
 
   // stereing parameters for this calculation (modify only if you understand what you are doing)
   Steering steer;
+  steer.q = true;
+  steer.a = true;
+  steer.nf = 3;
   steer.ptmin = 0.001;
   steer.ptmax = 70.0;
   steer.npt   = 35;
@@ -57,7 +60,11 @@ int ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(const string &s)
   steer.nx3   = 125;
   steer.nx4   = 125;
   steer.nbz   = 100;
-    
+  steer.xmin = 1e-6;
+  steer.xmax = 1e0;
+  steer.mf2min = 1e0;
+  steer.mf2max = 8e4;
+
   DefaultInit(steer, _pars.mb, _mnr, _frag, _grid, _gridSmoothed);
   //if(_debug)
     printf("ReactionHVQMNR_LHCb_7TeV_beauty::initAtStart(): at initialisation mb = %f\n", _pars.mb);

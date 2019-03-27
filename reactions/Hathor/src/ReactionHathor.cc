@@ -29,10 +29,9 @@ ReactionHathor::ReactionHathor()
 {
   _pdf = NULL;
   _rndStore = NULL;
-  _scheme = -1;
-  _mtop = -1.0;
-  _mr = -1.0;
-  _mf = -1.0;
+  //_mtop = -1.0;
+  //_mr = -1.0;
+  //_mf = -1.0;
 }
 
 ReactionHathor::~ReactionHathor()
@@ -63,44 +62,20 @@ int ReactionHathor::initAtStart(const string &s)
   _rndStore = new int[nRnd];
   rlxd_get(_rndStore);
 
-  // scheme (perturbative order and pole/MSbar mass treatment)
-  const string order = GetParamS("Order");
-  const int  pertubOrder = OrderMap(order);
-  _scheme = Hathor::LO;
-  if(pertubOrder > 1)
-    _scheme = _scheme | Hathor::NLO;
-  if(pertubOrder > 2)
-    _scheme = _scheme | Hathor::NNLO;
-  int msMass = 0; // pole mass by default
-  if(checkParam("MS_MASS"))
-    msMass = GetParamI("MS_MASS");
-  if(msMass)
-    _scheme = _scheme | Hathor::MS_MASS;
-
   // top quark mass
-  std::string mtopName = "mtp";// shouldn't we distinguish somehow between pole and running masses?
-  if(!checkParam(mtopName))
-  {
-    std::string str = "F: no top quark mass (\"" + mtopName + "\" parameter) for Hathor";
-    hf_errlog_(17081101, str.c_str(), strlen(str.c_str()));
-  }
-  _mtop = GetParam("mtp");
-
-  // renorm. scale
-  _mr = _mtop;
-  if(checkParam("muR"))
-    _mr *= GetParam("muR");
-
-  // fact. scale
-  _mf = _mtop;
-  if(checkParam("muF"))
-    _mf *= GetParam("muF");
-
-  std::cout << " Hathor will use:";
-  std::cout << " mtop = " << _mtop << "[GeV] ";
-  std::cout << " renorm. scale = " << _mr << "[GeV] ";
-  std::cout << " fact. scale = " << _mf << "[GeV]";
-  std::cout << std::endl;
+  //std::string mtopName = "mtp";// shouldn't we distinguish somehow between pole and running masses?
+  //if(!checkParam(mtopName))
+  //{
+  //  std::string str = "F: no top quark mass (\"" + mtopName + "\" parameter) for Hathor";
+  //  hf_errlog_(17081101, str.c_str(), strlen(str.c_str()));
+  //}
+  //_mtop = GetParam("mtp");
+  
+  // !!!!
+  //for(map<string, double* >::iterator it = _xfitter_pars.begin(); it != _xfitter_pars.end(); it++)
+  //{
+  //  printf("_xfitter_pars[%s] = %f\n", it->first.c_str(), *it->second);
+  //}
 
   return 0;
 }
@@ -115,72 +90,103 @@ void ReactionHathor::setDatasetParameters(int dataSetID, map<std::string, std::s
     hf_errlog_(17080701, str, strlen(str));
   }
 
-  // read centre-of-mass energy from provided dataset parameters
-  // (must be provided)
-  auto it = pars.find("SqrtS");
-  if(it == pars.end())
-  {
-    char str[256];
-    sprintf(str, "F: no SqrtS for dataset with id = %d", dataSetID);
-    hf_errlog_(17080702, str, strlen(str));
-  }
-  double sqrtS = atof(it->second.c_str());
-
-  // read precision level from provided dataset parameters
-  // if not specified set to default 2 -> Hathor::MEDIUM
-  int precisionLevel = Hathor::MEDIUM;
-  it = pars.find("precisionLevel");
-  if(it != pars.end())
-  {
-    precisionLevel = std::pow(10, 2 + atoi(it->second.c_str()));
-    // check that this setting is allowed
-    // see in AbstractHathor.h:
-    //   enum ACCURACY { LOW=1000, MEDIUM=10000, HIGH=100000 };
-    // and
-    // precisionLevel = 1 -> Hathor::LOW
-    // precisionLevel = 2 -> Hathor::MEDIUM
-    // precisionLevel = 3 -> Hathor::HIGH
-    if(precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH)
-    {
-      char str[256];
-      sprintf(str, "F: provided precision level = %d not supported by Hathor", precisionLevel);
-      hf_errlog_(17081102, str, strlen(str));
-    }
-  }
-
-  // read ppbar from provided dataset parameters
-  // if not specified assume it is false (pp collisions)
-  int ppbar = false;
-  it = pars.find("ppbar");
-  if(it != pars.end())
-  {
-    ppbar = atoi(it->second.c_str());
-    if(ppbar !=  0 && ppbar != 1)
-    {
-      char str[256];
-      sprintf(str, "F: provided ppbar = %d not recognised (must be 0 or 1)", ppbar);
-      hf_errlog_(17081103, str, strlen(str));
-    }
-  }
-
   // instantiate Hathor
   Hathor* hathor = new Hathor(*_pdf);
   //Hathor* hathor = new Hathor();
 
   // set collision type
+  // read ppbar (0 for pp, 1 for ppbar) from provided dataset parameters
+  // if not specified assume it is 0 (pp collisions)
+  // here local value is preferred over global one (to allow different data sets for different collision types)
+  int ppbar = false;
+  if(pars.find("ppbar") != pars.end())
+    ppbar = atoi(pars.find("ppbar")->second.c_str());
+  else if(checkParam("ppbar"))
+    ppbar = GetParamI("ppbar");
   if(ppbar)
     hathor->setColliderType(Hathor::PPBAR);
   else
     hathor->setColliderType(Hathor::PP);
 
-  // set centre-of-mass energy
+  // read centre-of-mass energy from provided dataset parameters (must be provided)
+  // here local value is preferred over global one (to allow different data sets with difference centre-of-mass energies)
+  double sqrtS = (pars.find("SqrtS") != pars.end()) ? atof(pars.find("SqrtS")->second.c_str()) : GetParam("SqrtS");
+  if(sqrtS == 0.0)
+    hf_errlog(17080702, "F: no SqrtS for dataset with id = " + std::to_string(dataSetID));
   hathor->setSqrtShad(sqrtS);
 
-  // set scheme
-  hathor->setScheme(_scheme);
+  // set mass
+  // here local value is preferred over global one (to allow calculations with several mass values, e.g. for translation into MSbar mass scheme)
+  _mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(pars.find("mtp") == pars.end() ? GetParam("mtp") : atof(pars.find("mtp")->second.c_str())));
+
+  // set renorm. scale
+  _mrPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
+  if(checkParam("muR") || pars.find("muR") != pars.end())
+  {
+    if(pars.find("muR") != pars.end())
+      *_mrPerInstance[dataSetID] *= stod(pars["muR"]);
+    else
+      *_mrPerInstance[dataSetID] *= GetParam("muR");
+  }
+
+  // set fact. scale
+  _mfPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
+  if(checkParam("muF") || pars.find("muF") != pars.end())
+  {
+    if(pars.find("muF") != pars.end())
+      *_mfPerInstance[dataSetID] *= stod(pars["muF"]);
+    else
+      *_mfPerInstance[dataSetID] *= GetParam("muF");
+  }
+
+  // set perturbative order
+  // here local value is preferred over global one (to allow LO and NLO calculations in one run, e.g. for translation into MSbar mass scheme)
+  std::string schemeName = (pars.find("Order") != pars.end()) ? pars.find("Order")->second : GetParamS("Order");
+  int scheme = Hathor::LO;
+  if(schemeName == "NLO")
+    scheme = scheme | Hathor::NLO;
+  else if(schemeName == "NNLO")
+    scheme = scheme | Hathor::NNLO;
+  // set mass scheme (default is pole mass scheme)
+  // here local value is preferred over global one
+  int msMass = 0;
+  if(pars.find("MS_MASS") != pars.end())
+    msMass = atoi(pars.find("MS_MASS")->second.c_str());
+  else if(checkParam("MS_MASS"))
+    msMass = GetParamI("MS_MASS");
+  if(msMass)
+    scheme = scheme | Hathor::MS_MASS;
+  hathor->setScheme(scheme);
 
   // set precision level
+  // read precision level from provided dataset parameters
+  // if not specified set to default 2 -> Hathor::MEDIUM
+  int precisionLevel = 2;
+  if(checkParam("precisionLevel"))
+    precisionLevel = GetParamI("precisionLevel");
+  else if(pars.find("precisionLevel") != pars.end())
+    precisionLevel = atoi(pars.find("precisionLevel")->second.c_str());
+  precisionLevel = std::pow(10, 2 + precisionLevel);
+  // check that this setting is allowed
+  // see in AbstractHathor.h:
+  //   enum ACCURACY { LOW=1000, MEDIUM=10000, HIGH=100000 };
+  // and
+  // precisionLevel = 1 -> Hathor::LOW
+  // precisionLevel = 2 -> Hathor::MEDIUM
+  // precisionLevel = 3 -> Hathor::HIGH
+  if(precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH)
+    hf_errlog(17081102, "F: provided precision level = " + std::to_string(precisionLevel) + " not supported by Hathor");
   hathor->setPrecision(precisionLevel);
+  
+  std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
+  double mt = *_mtopPerInstance[dataSetID];
+  std::cout << " mtop = " << mt << "[GeV] " << std::endl;
+  std::cout << " renorm. scale = " << *_mrPerInstance[dataSetID] << "[GeV] " << std::endl;
+  std::cout << " factor. scale = " << *_mfPerInstance[dataSetID] << "[GeV] " << std::endl;
+  std::cout << " SqrtS = " << sqrtS << std::endl;
+  std::cout << " scheme: " << scheme << std::endl;
+  std::cout << " precisionLevel: " << precisionLevel << std::endl;
+  std::cout << std::endl;
 
   // done
   hathor->PrintOptions();
@@ -194,12 +200,17 @@ int ReactionHathor::compute(int dataSetID, valarray<double> &val, map<string, va
   rlxd_reset(_rndStore);
 
   Hathor* hathor = _hathorArray.at(dataSetID);
-  hathor->getXsection(_mtop, _mr, _mf);
+  //hathor->getXsection(_mtop, _mr, _mf);
+  double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : GetParam("mtp");
+  double mr = *_mrPerInstance[dataSetID];
+  double mf = *_mfPerInstance[dataSetID];
+  hathor->getXsection(mt, mr, mf);
   double dum = 0.0;
-  val[0] = 0.0;
-  hathor->getResult(0, val[0], dum);
+  double xsec = 0.0;
+  hathor->getResult(0, xsec, dum);
+  //printf("mt,mr,mf,xsec: %f %f %f %f\n", mt, mr, mf, xsec);
+  val = xsec;
   //printf("VAL ************ %f\n", val[0]);
 
   return 0;
 }
-

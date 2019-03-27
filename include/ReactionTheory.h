@@ -140,7 +140,7 @@ class ReactionTheory
   /// Generate report on the state of parameters, local for the given reaction.
   std::string  emitReactionLocalPars() const;
 
-  bool checkParam(string name)         ///< Check if a parameter is present on one of the global list
+  bool checkParam(string name) const         ///< Check if a parameter is present on one of the global list
   {
     return (_xfitter_pars.find(name) !=  _xfitter_pars.end()) 
       || (_xfitter_pars_i.find(name) !=  _xfitter_pars_i.end()) 

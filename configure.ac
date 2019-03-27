@@ -5,6 +5,10 @@ m4_esyscmd(git describe --always 2>&1 | awk '/Not a git/  {print "2.0.0\033@<:@1
 [xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
 
+CFLAGS+="-O0 -g"
+CPPFLAGS+="-O0 -g"
+CXXFLAGS+="-O0 -g"
+
 #Suppress verbose output when compiling (use make V=99 for verbose output)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -615,6 +619,7 @@ AC_CONFIG_FILES([include/Makefile
 		 pdfdecompositions/UvDvUbarDbarS/src/Makefile
 		 pdfdecompositions/SU3_PionPdfDecomposition/src/Makefile
 		 pdfdecompositions/BasePdfDecomposition/src/Makefile
+		 reactions/KRunning/src/Makefile
 		 reactions/AFB/src/Makefile
 		 reactions/KFactor/src/Makefile
 		 reactions/BaseDISCC/src/Makefile
@@ -628,6 +633,7 @@ AC_CONFIG_FILES([include/Makefile
 		 reactions/BaseHVQMNR/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
 		 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+		 reactions/cbdiff/src/Makefile
 		 reactions/testZMVFNS/src/Makefile
 		 reactions/fastNLO/src/Makefile
 		 reactions/FONLL_DISCC/src/Makefile

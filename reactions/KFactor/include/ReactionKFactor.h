@@ -33,6 +33,13 @@ class ReactionKFactor : public ReactionTheory
     virtual int parseOptions(){ return 0;};
   private:
     map<int, std::vector<double> > _values;
-    map<int, std::pair<std::string, double> > _parameterNames;
+
+    struct Parameter
+    {
+      std::string Name;
+      double Value;
+      int NPoints;
+    };
+    map<int, Parameter> _parameters;
 };
 

@@ -19,12 +19,14 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
         reactions/BaseHVQMNR/src \
         reactions/HVQMNR_LHCb_7TeV_beauty/src \
         reactions/HVQMNR_LHCb_7TeV_charm/src \
+        reactions/cbdiff/src \
         reactions/testZMVFNS/src \
         reactions/fastNLO/src/ \
         reactions/FONLL_DISCC/src \
         reactions/FONLL_DISNC/src \
         reactions/AFB/src \
         reactions/KMatrix/src \
+        reactions/KRunning/src \
         pdfparams/BasePdfParam/src \
         pdfparams/HERAPDF_PdfParam/src \
         pdfparams/PolySqrtPdfParam/src \

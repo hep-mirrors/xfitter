@@ -31,3 +31,5 @@ UvDvUbarDbarSSbar libuvdvubardbarssbarpdfdecomposition_xfitter.so
 ABMPvalence libABMPvalencePdfParam_xfitter.so
 ABMPsea libABMPseaPdfParam_xfitter.so
 ABMPgluon libABMPgluonPdfParam_xfitter.so
+KRunning libkrunning_xfitter.so
+cbdiff libcbdiff_xfitter.so

@@ -67,10 +67,14 @@ class CommandParser
   map <string, int> styles;
   map <string, int> lstyles;
   map <string, int> markers;
-  int col[6];
-  int styl[6];
-  int lstyl[6];
-  int mark[6];
+  //int col[6];
+  //int styl[6];
+  //int lstyl[6];
+  //int mark[6];
+  int col[12];
+  int styl[12];
+  int lstyl[12];
+  int mark[12];
   float lwidth;
   float resolution, pagewidth;
   bool nodata;
@@ -150,7 +154,7 @@ private:
     cout << "\t \t Draw PDF uncertainty bands" << endl;
     cout << "\t --profile" << endl;
     cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
-    cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
+    cout << "\t \t To set this option only for one directory, use the syntax profile:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw profile:output:\"profiled\" output:\"not-profiled\"" << endl;
     cout << "\t --reweight(-BAY/-GK)" << endl;
     cout << "\t \t Draw Reweighted PDF (only for MC replica sets)" << endl;

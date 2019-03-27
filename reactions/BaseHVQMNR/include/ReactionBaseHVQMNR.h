@@ -60,19 +60,38 @@ class ReactionBaseHVQMNR : public ReactionTheory
     struct Parameters
     {
       // heavy-quark masses
-      double mc, mb;
+      double mc = 0.0;
+      double mb = 0.0;
+      // flavour (used by cbdiff reaction)
+      char flav;
+      // flag that mass is taken from global parameters and should be updated at each iteration
+      bool flagMassIsGlobal = false;
       // scale parameters
-      double mf_A_c, mf_B_c, mf_C_c;
-      double mr_A_c, mr_B_c, mr_C_c;
-      double mf_A_b, mf_B_b, mf_C_b;
-      double mr_A_b, mr_B_b, mr_C_b;
+      double mf_A_c = 0.0;
+      double mf_B_c = 0.0;
+      double mf_C_c = 0.0;
+      double mr_A_c = 0.0;
+      double mr_B_c = 0.0;
+      double mr_C_c = 0.0;
+      double mf_A_b = 0.0;
+      double mf_B_b = 0.0;
+      double mf_C_b = 0.0;
+      double mr_A_b = 0.0;
+      double mr_B_b = 0.0;
+      double mr_C_b = 0.0;
       // fragmentation parameters
-      double fragpar_c, fragpar_b;
+      double fragpar_c = 0.0;
+      double fragpar_b = 0.0;
+      // divide by bin width
+      bool flagDivideBinWidth = false;
+      // verbose output for debugging
+      bool debug = false;
     };
 
     // structure to store steering parameters
     struct Steering
     {
+      int    nf;
       double ptmin;
       double ptmax;
       int    npt;
@@ -84,6 +103,13 @@ class ReactionBaseHVQMNR : public ReactionTheory
       int    nx3;
       int    nx4;
       int    nbz;
+      double xmin;
+      double xmax;
+      double mf2min;
+      double mf2max;
+      bool   q;
+      bool   a;
+      char flav; // c, b or t
     };
     
     // all datasets
@@ -102,6 +128,8 @@ class ReactionBaseHVQMNR : public ReactionTheory
     // status flags
     bool _isInitAtStart;
     //int _ifcncount_last;
+    // heavy-quark mass
+    //std::map
 
     // check if appropriate heavy-flavour scheme is used
     void CheckHFScheme();
@@ -110,15 +138,18 @@ class ReactionBaseHVQMNR : public ReactionTheory
     void UpdateParameters();
     
     // print theory parameters
-    void PrintParameters() const;
+    void PrintParameters(Parameters const* pars = NULL) const;
 
     // initialise calculation with default parameters
     void DefaultInit(const Steering& steer, const double mq, MNR::MNR& mnr, MNR::Frag& frag, MNR::Grid& grid, MNR::Grid& grid_smoothed);
-    
+    void DefaultInitMNR(const Steering& steer, const double mq, MNR::MNR& mnr);
+    void DefaultInitGrid(const Steering& steer, const double mq, const int npt, MNR::Grid& grid);
+    void DefaultInitFrag(const Steering& steer, MNR::Frag& frag);
+
     // return cross section in provided pT-y bin
     double FindXSecPtYBin(const TH2* histXSec, const double ymin, const double ymax, const double ptmin, const double ptmax, const bool diff_pt, const bool diff_y);
 
-  private:    
+  //private:
     // check equality of float numbers with tolerance
     bool IsEqual(const double val1, const double val2, const double eps = 1e-6);
     
@@ -130,9 +161,45 @@ class ReactionBaseHVQMNR : public ReactionTheory
     int readFromTermInfo(const std::string& str, const std::string& key, std::string& value);*/
 
     // read parameters for perturbative scales from MINUIT extra parameters
-    void GetMuPar(const char mu, const char q, double& A, double& B, double& C);
+    void GetMuPar(const char mu, const char q, double& A, double& B, double& C, const map<string,string> pars = map<string,string>());
 
     // read fragmentation parameter from MINUIT extra parameters
-    double GetFragPar(const char q);    
+    double GetFragPar(const char q, const map<string,string> pars = map<string,string>());
+
+    // check parameter respecting priority: (1) supplied map (if supplied), (2) global
+    bool checkParamInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
+    {
+      if(pars.size() != 0)
+        return (pars.find(name) != pars.end());
+      else
+        return checkParam(name);
+    }
+
+    // get parameter respecting priority: (1) supplied map (if supplied), (2) global
+    double GetParamInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
+    {
+      if(pars.find(name) != pars.end())
+        return std::stod(pars.at(name));
+      else
+        return GetParam(name);
+    }
+
+    // get parameter respecting priority: (1) supplied map (if supplied), (2) global
+    int GetParamIInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
+    {
+      if(pars.find(name) != pars.end())
+        return std::stod(pars.at(name));
+      else
+        return GetParamI(name);
+    }
+
+    // get parameter respecting priority: (1) supplied map (if supplied), (2) global
+    std::string GetParamSInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
+    {
+      if(pars.find(name) != pars.end())
+        return pars.at(name);
+      else
+        return GetParamS(name);
+    }
 };
 
