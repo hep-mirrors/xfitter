@@ -96,8 +96,7 @@ LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 
 # separate list for python: 
 F2PYLIBS = libxfitter.a 
-F2PYLIBS +=  $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS) $(LIBS) $(FLIBS)
-
+F2PYLIBS +=  $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
 if ENABLE_LHAPDF 
   LDADD+=$(LHAPDF_LDFLAGS)
   F2PYLIBS +=  $(LHAPDF_LDFLAGS)
@@ -119,11 +118,6 @@ if ENABLE_LHAPDF
   AM_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
   AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
-
-# LDADD += ../Cascade/src/libcasutil.a
-# LDADD += ../common/libHFcommon.a
-# F2PYLIBS += ../Cascade/src/libcasutil.a
-# F2PYLIBS += ../common/libHFcommon.a
 
 if ENABLE_UPDF
    LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 
@@ -161,7 +155,6 @@ XFLIBS =  ../DY/src/libmydy.a\
  ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
  ../tools/draw/src/pdferrors.o
-
 
 LDADD += $(XFLIBS)
 F2PYLIBS += $(XFLIBS)
