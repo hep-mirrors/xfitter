@@ -9,7 +9,8 @@ stages:
   - nightly
 
 before_script:
-  - yum -y install which  yaml-cpp-devel libyaml-devel gsl-devel 
+  - yum -y install yum-plugin-ovl
+  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel
   - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 

@@ -5,7 +5,7 @@
 ## Programs versions
 lhapdfver=6.2.1
 hoppetver=1.2.0
-applgridver=1.4.70
+applgridver=1.5.9
 qcdnumver=17-01-14
 apfelver=3.0.0
 melaver=2.0.1
@@ -412,8 +412,16 @@ else
     export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
 
  #apfelgrid
-    lhapdf get NNPDF30_nlo_as_0118
-    echo "Installing APFELgrid $apfelgridver..."
+    if [ -d /cvmfs ]
+    then
+		lhapdf get NNPDF30_nlo_as_0118  >> $CURRENTDIR/install.log  2>&1
+	else
+		wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+		tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
+		mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir` >> $CURRENTDIR/install.log  2>&1
+		rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+	fi
+	echo "Installing APFELgrid $apfelgridver..."
     # tmp solution is to use fork @zenaiev
     apfelgridver=1.0.5
     if [[ $http == "curl" ]]

@@ -44,11 +44,9 @@ C For log normal random shifts:
 
       double precision scaleF
       integer scaling_type
-      
 C functions:
       real logshift
       double precision alnorm
-      
 C------------------------------------------------------------
 
       
@@ -79,7 +77,7 @@ C
 C Loop over the data:
 C
       do n0=1,npoints
-         call rnorml(rndsh,3)   
+         call rnorml(rndsh,3)
          call ranlux(ranflat,1)
 
          if (lrandData) then
@@ -129,13 +127,12 @@ CV now choose sta (advised gauss OR poisson)
          if (statype.eq.1) then ! gauss
 
 C do separate fluctuations for stat-const, stat-poisson and stat-linear pieces
-            s = s 
+            s = s
      $         + sqrt( e_uncor_const(n0)**2 + e_stat_const(n0)**2)
-     $              * daten(n0)*rndsh(1)            
+     $              * daten(n0)*rndsh(1)
      $         + sqrt( e_uncor_poisson(n0)**2 + e_stat_poisson(n0)**2)
      $              * sqrt(abs(daten(n0)*sorig))*rndsh(2)
      $         + e_uncor_mult(n0)*sorig*rndsh(3)
-            
 c            if (alpha(n0).eq.0) then
 c               s = 0.1
 c               alpha(n0) = 1.e6
@@ -239,42 +236,56 @@ C        - poisson ("Poisson") keep error * sqrt(old/newVal) unmodified
 
          if (s .lt. 0) then
             call hf_errlog(1302201901,
-     $          'W: ToyMC cross section with negative value')
+     $           'W: ToyMC cross section with negative value, ' //
+     $           'reset error scaling to NoRescale')
             e_uncor_const(n0) = sqrt(e_uncor_const(n0)**2
-     $           +e_uncor_poisson(n0)**2 )
+     $           + e_uncor_poisson(n0)**2
+     $           + e_uncor_mult(n0)**2 )
             e_stat_const(n0)  = sqrt(e_stat_const(n0)**2+
      $           e_stat_poisson(n0)**2)
+
             e_stat_poisson(n0)  = 0.
             e_uncor_poisson(n0) = 0.
+            e_uncor_mult(n0) = 0.
          else
             e_stat_poisson(n0) = e_stat_poisson(n0)  * sqrt(scaleF)
             e_uncor_poisson(n0) = e_uncor_poisson(n0)  * sqrt(scaleF)
+            e_uncor_mult(n0) = e_uncor_mult(n0) !  NO scale, keep relative
          endif
-         e_uncor_mult(n0) = e_uncor_mult(n0) !  NO scale, keep relative
          e_uncor_const(n0) = e_uncor_const(n0) * scaleF
          e_stat_const(n0)  = e_stat_const(n0) * scaleF
+C     XXXXX
+C     The following scaling of e_tot assumes constant (no) scaling.
+C     This is not intuitive, since e_tot is a sum in quadrature of
+C     different error sources, with different scaling laws.
+C     However, currently, e_tot is the total uncertainty as given
+C     by experiment. It is used only for printing in fittedresults.txt
+c     and used in xfitter-draw which shows data points with total
+c     experimental uncertainties as given in the experimental publications.
+c     We should introduce a function which computes properly scaled etot,
+C     in addition to the constant etot.
          e_tot(n0) = e_tot(n0) * scaleF
-         
+
 C     Also correlated systematicss:
          do isys=1,nsys
 
-            scaling_type = SysScalingType(isys)  
-            
+            scaling_type = SysScalingType(isys)
+
             if (
      $           (scaling_type .eq. isNoRescale)
      $           .or. (LForceAdditiveData(n0) )
-     $           ) then         ! additive, keep absolute 
+     $           ) then         ! additive, keep absolute
                beta(isys,n0) = beta(isys,n0) * scaleF
                omega(isys,n0) = omega(isys,n0) * scaleF
             elseif (scaling_type.eq. isLinear) then  ! mult, do nothing
-               beta(isys,n0) = beta(isys,n0) 
-               omega(isys,n0) = omega(isys,n0)                
-            elseif (scaling_type.eq. isPoisson) then  
+               beta(isys,n0) = beta(isys,n0)
+               omega(isys,n0) = omega(isys,n0)
+            elseif (scaling_type.eq. isPoisson) then
                beta(isys,n0) = beta(isys,n0) * sqrt(scaleF)
-               omega(isys,n0) = omega(isys,n0) * sqrt(scaleF)   
+               omega(isys,n0) = omega(isys,n0) * sqrt(scaleF)
             endif
          enddo
-                  
+
          DATEN(n0) = s
 
 C update alpha:
@@ -284,12 +295,9 @@ C update alpha:
      $        +e_stat_const(n0)**2
      $        +e_uncor_poisson(n0)**2)
      $        *daten(n0)
-         
       enddo   
 
 C          call HF_stop
-         
-      
 C------------------------------------------------------------
       end
 
