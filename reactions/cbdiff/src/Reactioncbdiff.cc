@@ -261,8 +261,8 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
       par->mc = GetParam("mtp");
   }
 
-  // protection against nan
-  if(par->mc != par->mc)
+  // protection against not positive or nan mass
+  if(par->mc < 0.0 || par->mc != par->mc)
     par->mc = 1000.0; // probably there are no heavy quarks for which mass of 1000 GeV would be reasonable
 
   mnr->CalcXS(grid.get(), par->mc);
