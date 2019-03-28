@@ -345,6 +345,12 @@ void ReactionBaseHVQMNR::UpdateParameters()
   // fragmentation parameters
   _pars.fragpar_c = GetFragPar('c');
   _pars.fragpar_b = GetFragPar('b');
+
+  // protection against nan
+  if(_pars.mc != _pars.mc)
+    _pars.mc = 1000.0;
+  if(_pars.mb != _pars.mb)
+    _pars.mb = 1000.0;
 }
 
 // print theory parameters
