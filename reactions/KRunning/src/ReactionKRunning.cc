@@ -15,7 +15,7 @@ extern "C" ReactionKRunning* create() {
 
 
 // Initialize at the start of the computation
-int ReactionKRunning::initAtStart(const string &s)
+int ReactionKRunning::atStart(const string &s)
 {
   return 0;
 }

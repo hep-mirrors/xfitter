@@ -6,7 +6,7 @@ AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/
 lib_LTLIBRARIES = libffabm_disnc_xfitter.la
 libffabm_disnc_xfitter_la_SOURCES = ReactionFFABM_DISNC.cc
 
-libffabm_disnc_xfitter_la_LDFLAGS =  -lbasedisnc_xfitter -L$(top_srcdir)/reactions/BaseDISNC/src/.libs   
+libffabm_disnc_xfitter_la_LDFLAGS = -lbasedisnc_xfitter -L$(top_srcdir)/reactions/BaseDISNC/src/.libs -l:libmyabm.a -L$(top_srcdir)/ABM/src/.libs
 
 datadir = ${prefix}/yaml/reactions/FFABM_DISNC
 data_DATA = ../yaml/parameters.yaml

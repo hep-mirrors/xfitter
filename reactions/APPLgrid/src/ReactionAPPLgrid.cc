@@ -46,7 +46,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
          if(std::string(token.c_str(), 5) == std::string("DUMMY"))
          {
            int nb = atoi(token.c_str() + 5);
-           _emptyPoints[dataSetID].push_back(nb);
+           data.emptyPoints.push_back(nb);
            data.grids.push_back(NULL);
          }
          else
@@ -60,7 +60,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
           hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
         else
           references.back()->SetDirectory(0);
-        _emptyPoints[dataSetID].push_back(-1);
+        data.emptyPoints.push_back(-1);
         }
       }
     }
@@ -190,19 +190,19 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
   for(unsigned int g = 0; g < data.grids.size(); g++)
   {
     // dummy points
-    if(_emptyPoints[dataSetID][g] > 0)
-      np += _emptyPoints[dataSetID][g];
+    if(data.emptyPoints[g] > 0)
+      np += data.emptyPoints[g];
     // grids or reference histograms
     else
-      np += _grids[dataSetID][g]->Nobs();
+      np += data.grids[g]->Nobs();
   }
   val.resize(np);
-  for(unsigned int g = 0; g < _grids[dataSetID].size(); g++)
+  for(unsigned int g = 0; g < data.grids.size(); g++)
   {
     std::vector<double> gridVals;
     // dummy points
-    if(_emptyPoints[dataSetID][g] > 0)
-      gridVals = std::vector<double>(_emptyPoints[dataSetID][g], 0.0);
+    if(data.emptyPoints[g] > 0)
+      gridVals = std::vector<double>(data.emptyPoints[g], 0.0);
     // grids or reference histograms
     else
     {

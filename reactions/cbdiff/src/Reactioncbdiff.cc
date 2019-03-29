@@ -229,7 +229,7 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
 }
 
 // Initialize at the start of the computation
-int Reactioncbdiff::initAtStart(const string &s)
+int Reactioncbdiff::atStart(const string &s)
 {
   return 0;
 }

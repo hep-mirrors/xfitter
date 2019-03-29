@@ -25,6 +25,13 @@ C New user routines for PDFs and alpha_S have to be provided in this version
 
       RETURN
       END
+
+      DOUBLE PRECISION FUNCTION DiLog(X)
+      double precision x
+      double precision ddilog
+      dilog = ddilog(x)
+      return
+      end
       
       
       subroutine sf_abkm_wrap(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,

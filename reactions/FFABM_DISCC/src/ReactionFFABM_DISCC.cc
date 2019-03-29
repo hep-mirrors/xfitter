@@ -39,7 +39,7 @@ extern "C" {
   struct COMMON_masses
   {
     double rmass[150];
-    double rmassp[150];
+    double rmassp[50];
     double rcharge[150];
   };
   extern COMMON_masses masses_;
@@ -77,9 +77,11 @@ int ReactionFFABM_DISCC::atStart(const string &s)
   // heavy quark masses
   double rmass8in = GetParam("mch");
   masses_.rmass[7] = rmass8in;
+  masses_.rcharge[7] = 0.6666666;
   _mc = rmass8in;
   double rmass10in = GetParam("mbt");
   masses_.rmass[9] = rmass10in;
+  masses_.rcharge[9] = 0.3333333;
   _mb = rmass10in;
 
   printf("---------------------------------------------\n");

@@ -118,6 +118,7 @@ namespace xfitter
     
     QCDNUM::setord(PtOrder);
     std::cout << "Set evolution order "<<PtOrder <<"\n";
+    std::cout << "xGrid[0]: " << xGrid[0] << std::endl;
     QCDNUM::gxmake(xGrid.data(),xGridW.data(),xGrid.size(),nxgrid,nxout,_splineOrder); // x-grid
     std::cout << "Requested (actual) number of x  grid points: "<<nxgrid << "(" << nxout << ")\n";
 
@@ -164,8 +165,22 @@ namespace xfitter
     int iqb = QCDNUM::iqfrmq( (*mbt)*(*mbt) + 1.e-6 );
     int iqt = 0;  // top off for now
 
-    // For now VFNS only
-    QCDNUM::setcbt(0,iqc,iqb,iqt);
+    // For now VFNS only and NFlavour = 3 only
+    int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+    if(nflavour == 3)
+    {
+      std::cout << "Fixed Flavour Number Scheme set with nf=3" << std::endl;
+      QCDNUM::setcbt(3,iqc,iqb,iqt);
+    }
+    else if(nflavour == 5)
+    {
+      std::cout << "Variable Flavour Number Scheme set with nf=5" << std::endl;
+      QCDNUM::setcbt(0,iqc,iqb,iqt);
+    }
+    else
+    {
+      hf_errlog(280320191, "F: Unsupported NFlavour = " + std::to_string(nflavour));
+    }
     
     // Init SF
     int id1=0;      int id2=0;      int nw=0;      int ierr=1;

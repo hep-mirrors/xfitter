@@ -27,7 +27,7 @@ class Reactioncbdiff : public ReactionBaseHVQMNR
 
   public:
     virtual string getReactionName() const { return  "cbdiff" ;};
-    virtual int initAtStart(const string &);
+    virtual int atStart(const string &);
     virtual void initAtIteration();
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
     virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;

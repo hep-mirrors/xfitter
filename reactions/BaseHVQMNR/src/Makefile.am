@@ -9,6 +9,7 @@ lib_LTLIBRARIES = libbasehvqmnr_xfitter.la
 libbasehvqmnr_xfitter_la_SOURCES = ReactionBaseHVQMNR.cc MNR.cc MNRFrag.cc MNRGrid.cc hvqcrsx.f
 
 # libbasehvqmnr_xfitter_la_LDFLAGS = place_if_needed  
+libbasehvqmnr_xfitter_la_LDFLAGS = $(ROOT_LIBS)
 
 endif 
 
