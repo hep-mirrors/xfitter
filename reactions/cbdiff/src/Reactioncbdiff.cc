@@ -111,8 +111,9 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   PrintParameters(par.get());
   // pole or MSbar mass
   _mapMSbarMass[dataSetID] = 0;
-  if(checkParamInPriority("MS_MASS", pars))
-    _mapMSbarMass[dataSetID] = GetParamInPriority("MS_MASS", pars);
+  if(pars.find("MS_MASS") != pars.end() || checkParam("MS_MASS"))
+    _mapMSbarMass[dataSetID] = GetParamIInPriority("MS_MASS", pars);
+  printf("MNR: order = %s MS_MASS = %d\n", order.c_str(), _mapMSbarMass[dataSetID]);
   // divide or not by bin width
   if(checkParam("dividebw") || pars.find("dividebw") != pars.end())
     par->flagDivideBinWidth = GetParamIInPriority("dividebw", pars);
