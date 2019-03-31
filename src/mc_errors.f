@@ -269,21 +269,16 @@ C     in addition to the constant etot.
 C     Also correlated systematicss:
          do isys=1,nsys
 
-            scaling_type = SysScalingType(isys)
+           scaling_type = SysScalingType(isys)
 
-            if (
-     $           (scaling_type .eq. isNoRescale)
-     $           .or. (LForceAdditiveData(n0) )
-     $           ) then         ! additive, keep absolute
-               beta(isys,n0) = beta(isys,n0) * scaleF
-               omega(isys,n0) = omega(isys,n0) * scaleF
-            elseif (scaling_type.eq. isLinear) then  ! mult, do nothing
-               beta(isys,n0) = beta(isys,n0)
-               omega(isys,n0) = omega(isys,n0)
-            elseif (scaling_type.eq. isPoisson) then
-               beta(isys,n0) = beta(isys,n0) * sqrt(scaleF)
-               omega(isys,n0) = omega(isys,n0) * sqrt(scaleF)
-            endif
+           if    (scaling_type.eq.isNoRescale)then ! additive, keep absolute
+             beta(isys,n0) =beta(isys,n0) *scaleF
+             omega(isys,n0)=omega(isys,n0)*scaleF
+           elseif(scaling_type.eq.isLinear)   then ! mult, do nothing
+           elseif(scaling_type.eq.isPoisson)  then
+             beta(isys,n0) =beta(isys,n0) *sqrt(scaleF)
+             omega(isys,n0)=omega(isys,n0)*sqrt(scaleF)
+           endif
          enddo
 
          DATEN(n0) = s

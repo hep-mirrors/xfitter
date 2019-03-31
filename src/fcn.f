@@ -392,38 +392,37 @@ c             call fillvfngrid
       if (Debug) then
          print*,'after data loop'
       endif
+      ndf=npoints-nparFCN !degrees of freedom
+      n0 =npoints
+      if(iflag.eq.1)then !at first iteration
+        if(lrand.and.DataToTheo)then
+          call hf_errlog(2019033100,
+     $'F: DataToTheo and MCError cannot be used at the same time')
+        endif
+        if(lrand)then !MCErrors
+          call MC_Method()
+        endif
 
+        NSysData = 0
+        do i=1,NSys
+          if(ISystType(i).eq.iDataSyst)then
+            NSysData=NSysData+1
+          endif
+        enddo
 
-* -----------------------------------------------------------
-*     Toy MC samples:
-* -----------------------------------------------------------
-
-      if (IFlag.eq.1 .and. lrand) then
-         call MC_Method()         
-      endif 
-
-      if (IFlag.eq.1) then
-         NSysData = 0
-         do i=1,NSys
-            if ( ISystType(i) .eq. iDataSyst) then
-               NSysData = NSysData + 1
-            endif
-         enddo
-      endif
-
-      if ( (IFlag.eq.1).and.(DataToTheo)) then
-        !Copy theory to data
-        do i=1,npoints
-          daten(i)=theo(i)
-          !Update total uncorrelated uncertainty
-          alpha(i)=daten(i)*sqrt(
+        if(DataToTheo)then !Copy theory to data
+          do i=1,npoints
+            daten(i)=theo(i)
+            !Update total uncorrelated uncertainty
+            alpha(i)=daten(i)*sqrt(
      &      e_stat_poisson(i)**2+
      &      e_stat_const(i)**2+   !Should I use e_stat_const or e_sta_const or e_sta? I am not sure... --Ivan
      &      e_uncor_poisson(i)**2+
      &      e_uncor_const(i)**2+  !or e_unc_const?
      &      e_uncor_mult(i)**2+
      &      e_uncor_logNorm(i)**2)
-        enddo
+          enddo
+        endif
       endif
 
 *     ---------------------------------------------------------
