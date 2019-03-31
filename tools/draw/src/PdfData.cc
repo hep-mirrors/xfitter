@@ -65,8 +65,8 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
       else if (var ==  "ph") ipdf = photon;
       else if (var != "x")
         {
-          cout << "Error: pdf " << var << " not recognised" << endl;
-          exit(1);
+          //cout << "Error: pdf " << var << " not recognised" << endl;
+          //exit(1);
         }
       PdfTypes.push_back(ipdf);
     }
