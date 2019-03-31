@@ -211,12 +211,16 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     }
     expandIncludes(include,recursionLimit-1);
     for(YAML::const_iterator it=include.begin();it!=include.end();++it){
-      const YAML::Node&key=it->first;
-      if(node[key]){
-        clog<<"[WARN] Option "<<key<<" included from file "<<filename<<" is overridden by locally defined option"<<endl;
-        hf_errlog(18092604,"W: locally defined setting overrides included, see stdlog");
+      if(it->first.IsScalar()){
+        string key=it->first.Scalar();
+        if(node[key]){
+          clog<<"[WARN] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
+          hf_errlog(18092604,"W: locally defined setting overrides included, see stdlog");
+        }else node[key]=it->second;
+      }else{
+        hf_errlog(19033101,"W: including YAML maps with non-scalar keys is poorly supported and does not handle overriding keys, use at your own risk!");
+        node[it->first]=it->second;
       }
-      node[key]=it->second;
     }
   }
 }
