@@ -511,11 +511,10 @@ C--------------------------------------------------------
       endif
 
       LHAPDFsubr = xf(ipdf)
-      
-      end
-      
 
-       double precision function  APFELsubr(ipdf,x, qmu2,first)
+      end
+
+      double precision function  APFELsubr(ipdf,x, qmu2,first)
 C-------------------------------------------------------
 C
 C External PDF reading for APFEL
@@ -544,12 +543,12 @@ C--------------------------------------------------------
       if ( (xp.ne.x) .or. (qmu2.ne.q2p) ) then
          call xPDFall(x,xf)
       endif
-      
+
       q2p = qmu2
-      xp  = x 
-      
+      xp  = x
+
       APFELsubr =  xf(ipdf)
-      
+
       return
       end
 *
@@ -582,7 +581,7 @@ c         call SetPDFSet("apfel")
       if ( (xp.ne.x) .or. (qmu2.ne.q2p) ) then
          call xPDFallPhoton(x,xf)
       endif
-      
+
       q2p = qmu2
       xp = x
 
