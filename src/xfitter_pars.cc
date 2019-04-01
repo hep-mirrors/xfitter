@@ -396,7 +396,12 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
               value=1;
               step=0;
               dependentParameters.push_back({parameterName,definition});
-            }else{
+            }else{//constant parameter defined by its value
+              try{
+                value=pNode.as<double>();
+                step=0;
+                break;
+              }catch(YAML::TypedBadConversion<double>&ex){}
               cerr<<"[ERROR] Unable to parse definition of parameter \""<<parameterName<<"\": \""<<definition<<"\""<<endl;
               hf_errlog(18091712,"F: Bad parameter definition, see stderr");
             }
