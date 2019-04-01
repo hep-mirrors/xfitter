@@ -162,11 +162,9 @@ namespace XFITTER_PARS {
     return "default";
   }
 // Helper function
-  bool is_file_exist(const char *fileName)
-  {
-    std::ifstream infile(fileName);
-    return infile.good();
-  }
+bool fileExists(const string&fileName){
+  return std::ifstream(fileName).good();
+}
 
 /*
   void parse_file(const std::string& name)
@@ -226,6 +224,23 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     if(filename==""){
       cerr<<"[ERROR] Failed to parse include filename, node:\n"<<node<<"\n[/ERROR]"<<endl;
       hf_errlog(18092601,"F: Failed to parse include filename, see stderr");
+    }
+    //Search for include files first relative to current working directory, then in PREFIX/yaml
+    if(!fileExists(filename)){
+      //if filename starts with '/', it is an absolute path
+      //if filename starts with '.', it is a path relative to current directory
+      //In these two cases, do not search in PREFIX/yaml
+      char c=filename[0];
+      bool file_not_found=(c=='/'||c=='.');
+      if(!file_not_found){
+        string prefix_filename=PREFIX+string("/yaml/")+filename;
+        if(fileExists(prefix_filename))filename=prefix_filename;
+        else file_not_found=true;
+      }
+      if(file_not_found){
+        cerr<<"[ERROR] YAML include file "<<filename<<" not found"<<endl;
+        hf_errlog(19040135,"F: YAML include file not found, see stderr");
+      }
     }
     YAML::Node include=loadYamlFile(filename);
     if(!include.IsMap()){

@@ -76,7 +76,7 @@ Decompositions:
 DefaultEvolution: proton-QCDNUM
 Evolutions:
   proton-QCDNUM:
-    ? !include yaml/evolutions/QCDNUM/parameters.yaml
+    ? !include evolutions/QCDNUM/parameters.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
   proton-LHAPDF:
     class: LHAPDF
@@ -99,19 +99,19 @@ Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 alphas : 0.118
 
 # RT DIS scheme settings:
-? !include yaml/reactions/RT_DISNC/parameters.yaml
+? !include reactions/RT_DISNC/parameters.yaml
 # FONLL scheme settings:
-? !include yaml/reactions/FONLL_DISNC/parameters.yaml
-? !include yaml/reactions/FONLL_DISCC/parameters.yaml
+? !include reactions/FONLL_DISNC/parameters.yaml
+? !include reactions/FONLL_DISCC/parameters.yaml
 # FF ABM scheme settings:
-? !include yaml/reactions/FFABM_DISNC/parameters.yaml
-? !include yaml/reactions/FFABM_DISCC/parameters.yaml
+? !include reactions/FFABM_DISNC/parameters.yaml
+? !include reactions/FFABM_DISCC/parameters.yaml
 # AFB settings:
-? !include yaml/reactions/AFB/parameters.yaml
+? !include reactions/AFB/parameters.yaml
 # APPLgrid settings:
-? !include yaml/reactions/APPLgrid/parameters.yaml
+? !include reactions/APPLgrid/parameters.yaml
 # (optional) Fractal module settings:
-# ? !include yaml/reactions/Fractal_DISNC/parameters.yaml
+# ? !include reactions/Fractal_DISNC/parameters.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
