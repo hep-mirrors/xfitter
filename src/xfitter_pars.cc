@@ -58,6 +58,29 @@ namespace XFITTER_PARS {
   // Also keep list of loaded parameterisations here:
   map<string,xfitter::BasePdfParam*> gParameterisations;
 
+  // Functions to get parameters from corresponding maps but with better reporting of errors
+  double*getParamD(const string&name){
+    try{return gParameters.at(name);}
+    catch(std::out_of_range&ex){
+      cerr<<"[ERROR] Double parameter \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+      throw ex;//rethrow exception: makes it easier to debug who tried to get parameter
+    }
+  }
+  int getParamI(const string&name){
+    try{return gParametersI.at(name);}
+    catch(std::out_of_range&ex){
+      cerr<<"[ERROR] Int parameter \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+      throw ex;//rethrow exception: makes it easier to debug who tried to get parameter
+    }
+  }
+  string getParamS(const string&name){
+    try{return gParametersS.at(name);}
+    catch(std::out_of_range&ex){
+      cerr<<"[ERROR] String parameter \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+      throw ex;//rethrow exception: makes it easier to debug who tried to get parameter
+    }
+  }
+
   using namespace xfitter;
   xfitter::InitialPDFfunction getInputFunctionFromYaml(const YAML::Node&rootNode){
     YAML::Node node=rootNode["decomposition"];
