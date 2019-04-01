@@ -96,7 +96,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
   data.muR=pars.find("muR") == pars.end() ? GetParam("muR") : stod(pars["muR"]);
   data.muF=pars.find("muF") == pars.end() ? GetParam("muF") : stod(pars["muF"]);
 
-  if(data.muR==0)data.muR=1.0; 
+  if(data.muR==0)data.muR=1.0;
   if(data.muF==0)data.muF=1.0;
   // bin width normalisation (by default no rescaling)
   data.flagNorm=false;
@@ -217,7 +217,7 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
           gridVals=grid->vconvolute(xfxWrapper0,getAlphaS(),order-1,muR,muF,eScale);
         }else{
           active_xfxQ_functions[1]=evolutions[1]->xfxQArray();
-          gridVals=grid->vconvolute(xfxWrapper0,xfxWrapper1,getAlphaS(),order-1,muR,muF,eScale);        
+          gridVals=grid->vconvolute(xfxWrapper0,xfxWrapper1,getAlphaS(),order-1,muR,muF,eScale);
         }
       }
       else
