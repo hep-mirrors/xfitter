@@ -12,7 +12,7 @@ libxfitter_a_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_in
 sumrules.f read_steer.f error_bands_pumplin.f pdf_param.f systematics.f\
 evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcdfunc.f\
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
-getncxskt.f Getgridkt.f GetDummyXsection.f \
+getncxskt.f Getgridkt.f GetDummyXsection.f main.f \
 GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
 ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc 
 
@@ -150,7 +150,6 @@ XFLIBS =  ../DY/src/libmydy.a\
  ../DiffDIS/src/libDiffDIS.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
-  -lstdc++ \
  ../genetic/src/libgenetic.a \
  ../QEDevol/src/libQEDevol.a \
  ../common/num_utils/libnum_utils.a \
@@ -191,7 +190,7 @@ endif
 
 EXTRA_DIST = xfitter_py.F
 
-xfitter_SOURCES = main.f
+xfitter_SOURCES = cmain.cxx
 
 python:
 	f2py -I../include  --f77flags="--fixed-line-length-132 -cpp" --quiet -c xfitter_py.F libxfitter.a  -m xfitter $(F2PYLIBS)  --fcompiler=$(F77)
