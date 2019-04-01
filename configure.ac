@@ -436,28 +436,28 @@ AM_CONDITIONAL(ENABLE_HVQMNR, [test x$enable_hvqmnr == xyes])
 AC_ARG_ENABLE([root],[AS_HELP_STRING([--enable-root],[use ROOT libraries])]): ${enable_root=yes}
 
 AS_IF([test "$enable_root" = "yes"], [
-	    AC_MSG_CHECKING([for ROOT installation])
-	    root_config=`which root-config`
-	    if test x$root_config == x; then
-	      AC_MSG_ERROR([Unable to find root-config, install ROOT or configure with --disable-root])
-	    else 
-	      AC_MSG_RESULT([Using $root_config])
-	      root_ok=1
-	      ROOT_CFLAGS=`root-config --cflags`
-	      ROOT_LDFLAGS=`root-config --ldflags`
-	      ROOT_LIBS=`root-config --libs`
-	      AC_SUBST(ROOT_CFLAGS)
-	      AC_SUBST(ROOT_LDFLAGS)
-	      AC_SUBST(ROOT_LIBS)
-	      AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
-	    fi
-	  ],
-	  [
-	    AC_MSG_WARN([ROOT libraries are disabled, xfitter-draw not available])
-	    if test x$enable_applgrid == xyes; then
-	       AC_MSG_ERROR([Root is required for APPLGRID])
-	    fi
-	    ])
+            AC_MSG_CHECKING([for ROOT installation])
+            root_config=`which root-config`
+            if test x$root_config == x; then
+              AC_MSG_ERROR([Unable to find root-config, install ROOT or configure with --disable-root])
+            else
+              AC_MSG_RESULT([Using $root_config])
+              root_ok=1
+              ROOT_CFLAGS=`root-config --cflags`
+              ROOT_LDFLAGS=`root-config --ldflags`
+              ROOT_LIBS=`root-config --libs`
+              AC_SUBST(ROOT_CFLAGS)
+              AC_SUBST(ROOT_LDFLAGS)
+              AC_SUBST(ROOT_LIBS)
+              AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
+            fi
+          ],
+          [
+            AC_MSG_WARN([ROOT libraries are disabled, xfitter-draw not available])
+            if test x$enable_applgrid == xyes; then
+               AC_MSG_ERROR([Root is required for APPLGRID])
+            fi
+            ])
 AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
 
