@@ -509,11 +509,41 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     }
   }
 }
+void ensureMapValidity(const string&nodeName){
+  //Report an error if a YAML map has duplicate keys
+  //This is used for checking redefinition of parameterisations etc
+  YAML::Node node=XFITTER_PARS::rootNode[nodeName];
+  if(!node){
+    cerr<<"[ERROR] Necessary node \""<<nodeName<<"\" does not exist"<<endl;
+    hf_errlog(19040134,"F: Necessary node does not exist, see stderr");
+  }
+  if(!node.IsMap()){
+    cerr<<"[ERROR] Node \""<<nodeName<<"\" is not a map"<<endl;
+    hf_errlog(19040131,"F: Bad map node, see stderr");
+  }
+  set<string>keys;
+  for(YAML::const_iterator it=begin(node);it!=end(node);++it){
+    try{
+      string key=it->first.as<string>();
+      if(keys.count(key)!=0){
+        cerr<<"[ERROR] Duplicate key \""<<key<<"\" in map \""<<nodeName<<'\"'<<endl;
+        hf_errlog(19040132,"F: Duplicate key in a map node, see stderr");
+      }
+      keys.insert(key);
+    }catch(YAML::TypedBadConversion<string>&ex){
+      cerr<<"[ERROR] In map \""<<nodeName<<"\": failed to convert the following key to string:\n"<<it->first<<endl;
+      hf_errlog(19040131,"F: Bad key in a map node, see stderr");
+    }
+  }
+}
 
 void parse_params_(){
   using namespace XFITTER_PARS;
   rootNode=loadYamlFile("parameters.yaml");
   expandIncludes(rootNode);
+  ensureMapValidity("Parameterisations");
+  ensureMapValidity("Decompositions");
+  ensureMapValidity("Evolutions");
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
   createParameters();
   ParsToFortran();
