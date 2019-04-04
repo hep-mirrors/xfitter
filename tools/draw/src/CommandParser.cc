@@ -142,213 +142,213 @@ CommandParser::CommandParser(int argc, char **argv):
   for (vector<string>::iterator it = allargs.begin() + 1; it != allargs.end(); it++)
     if ((*it).find("--") == 0)
       {
-	if (*it == "--help")
-	  {
-	    help();
-	    exit(0);
-	  }
-	else if (*it == "--thicklines")
-	  lwidth = 3;
-	else if (*it == "--largetext")
-	  {
-	    txtsize = 0.05;
-	    lmarg = 0.18;
-	    bmarg = 0.13;
-	    offset = 1.6;
-	  }
-	else if (*it == "--bw")
-	  bw = true;
-	else if (*it == "--lowres")
-	  {
-	    resolution = 400;
-	    //	    pagewidth = 10;
-	  }
-	else if (*it == "--highres")
-	  {
-	    resolution = 2400;
-	    //	    pagewidth = 60;
-	  }
-	else if (*it == "--no-version")
-	  version = false;
-	else if (*it == "--no-logo")
-	  drawlogo = false;
-	else if (*it == "--no-data")
-	  nodata = true;
-	else if (*it == "--no-pdfs")
-	  nopdfs = true;
-	else if (*it == "--no-shifts")
-	  noshifts = true;
-	else if (*it == "--no-tables")
-	  notables = true;
-	else if (*it == "--chi2-nopdf-uncertainties")
-	  chi2nopdf = true;
-	else if (*it == "--partial-log-penalty")
-	  logpenalty = true;
-	else if (*it == "--helvet-fonts")
-	  font = "helvet";
-	else if (*it == "--cmbright-fonts")
-	  font = "modernbright";
-	else if (*it == "--shifts-per-page")
-	  {
-	    adjshift = false;
-	    spp = atoi((*(it+1)).c_str());
-	    spp = max(1, spp);
-	    spp = min(40, spp);
-	    allargs.erase(it+1);
-	  }
-	else if (*it == "--shifts-heigth")
-	  {
-	    adjshift = false;
-	    shgth = atoi((*(it+1)).c_str());
-	    shgth = max(20, shgth);
-	    shgth = min(200, shgth);
-	    allargs.erase(it+1);
-	  }
-	else if (*it == "--cms")
-	  {
-	    cms = true;
-	    drawlogo = false;
-	  }
-	else if (*it == "--cms-preliminary")
-	  {
-	    cmspreliminary = true;
-	    drawlogo = false;
-	  }
-	else if (*it == "--atlas")
-	  {
-	    atlas = true;
-	    drawlogo = false;
-	  }
-	else if (*it == "--atlas-internal")
-	  {
-	    atlasinternal = true;
-	    drawlogo = false;
-	  }
-	else if (*it == "--atlas-preliminary")
-	  {
-	    atlaspreliminary = true;
-	    drawlogo = false;
-	  }
-	else if (*it == "--cdfii-preliminary")
-	  {
-	    cdfiipreliminary = true;
-	    drawlogo = false;
-	  }
-	else if (*it == "--hidden")
-	  {
-	    cout << endl;
-	    cout << "Hidden options" << endl;
-	    cout << "Please use this options only if you are authorised from your collaboration to do so" << endl;
-	    cout <<  "--cms" << endl;
-	    cout <<  "--cms-preliminary" << endl;
-	    cout <<  "--atlas" << endl;
-	    cout <<  "--atlas-internal" << endl;
-	    cout <<  "--atlas-preliminary" << endl;
-	    cout <<  "--cdfii-preliminary" << endl;
-	    cout <<  "--no-logo" << endl;
-	    cout << endl;
-	    exit(-1);
-	  }
-	else if (*it == "--bands")
-	  dobands = true;
-	else if (*it == "--scale68")
-	  scale68 = true;
-	else if (*it == "--profile") {
-	  dobands = true;
-	  profile = true;
-	}
-	else if (*it == "--reweight-BAY") {
-	  dobands = true;
-	  reweight = true;
-	  BAYweight = true;
-	}
-	else if (*it == "--reweight-GK") {
-	  dobands = true;
-	  reweight = true;
-	  GKweight = true;
-	}
-	else if (*it == "--asym")
-	  {
-	    dobands = true;
-	    asym = true;
-	  }
-	else if (*it == "--median")
-	  median = true;
-	else if (*it == "--68cl")
-	  {
-	    if (cl90 == true)
-	      {
-		cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
-		exit(1);
-	      }
-	    cl68 = true;
-	    median = true;
-	  }
-	else if (*it == "--90cl")
-	  {
-	    if (cl68 == true)
-	      {
-		cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
-		exit(1);
-	      }
-	    cl90 = true;
-	    median = true;
-	  }
-	else if (*it == "--absolute-errors")
-	  {
-	    dobands = true;
-	    abserror = true;
-	  }
-	else if (*it == "--relative-errors")
-	  {
-	    dobands = true;
-	    relerror = true;
-	  }
-	else if (*it == "--no-logx")
-	  logx = false;
-	else if (*it == "--q2all")
-	  q2all = true;
-	else if (*it == "--plots-per-page")
-	  {
-	    plotsperpage = atoi((*(it+1)).c_str());
-	    allargs.erase(it+1);
-	  }
-	else if (*it == "--loose-mc-replica-selection")
-	  looseRepSelection = true;
-	else if (*it == "--outdir")
-	  {
-	    outdir = *(it+1);
-	    allargs.erase(it+1);
-	  }
-	else if (*it == "--eps")
-	  format = "eps";
-	else if (*it == "--root")
-	  root = true;
-	else if (*it == "--splitplots-eps")
-	  {
-	    splitplots = true;
-	    ext = "eps";
-	  }
-	else if (*it == "--splitplots-pdf")
-	  {
-	    splitplots = true;
-	    ext = "pdf";
-	  }
-	else if (*it == "--splitplots-png")
-	  {
-	    splitplots = true;
-	    ext = "png";
-	  }
-	else if (*it == "--filledbands")
-	  filledbands = true;
-	else if (*it == "--ratiorange")
-	  {
-	    rmin = atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str());
-	    rmax = atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str());
-	    allargs.erase(it+1);
-	  }
-	else if (*it == "--xrange")
-	  {
+        if (*it == "--help")
+          {
+            help();
+            exit(0);
+          }
+        else if (*it == "--thicklines")
+          lwidth = 3;
+        else if (*it == "--largetext")
+          {
+            txtsize = 0.05;
+            lmarg = 0.18;
+            bmarg = 0.13;
+            offset = 1.6;
+          }
+        else if (*it == "--bw")
+          bw = true;
+        else if (*it == "--lowres")
+          {
+            resolution = 400;
+            //      pagewidth = 10;
+          }
+        else if (*it == "--highres")
+          {
+            resolution = 2400;
+            //      pagewidth = 60;
+          }
+        else if (*it == "--no-version")
+          version = false;
+        else if (*it == "--no-logo")
+          drawlogo = false;
+        else if (*it == "--no-data")
+          nodata = true;
+        else if (*it == "--no-pdfs")
+          nopdfs = true;
+        else if (*it == "--no-shifts")
+          noshifts = true;
+        else if (*it == "--no-tables")
+          notables = true;
+        else if (*it == "--chi2-nopdf-uncertainties")
+          chi2nopdf = true;
+        else if (*it == "--partial-log-penalty")
+          logpenalty = true;
+        else if (*it == "--helvet-fonts")
+          font = "helvet";
+        else if (*it == "--cmbright-fonts")
+          font = "modernbright";
+        else if (*it == "--shifts-per-page")
+          {
+            adjshift = false;
+            spp = atoi((*(it+1)).c_str());
+            spp = max(1, spp);
+            spp = min(40, spp);
+            allargs.erase(it+1);
+          }
+        else if (*it == "--shifts-heigth")
+          {
+            adjshift = false;
+            shgth = atoi((*(it+1)).c_str());
+            shgth = max(20, shgth);
+            shgth = min(200, shgth);
+            allargs.erase(it+1);
+          }
+        else if (*it == "--cms")
+          {
+            cms = true;
+            drawlogo = false;
+          }
+        else if (*it == "--cms-preliminary")
+          {
+            cmspreliminary = true;
+            drawlogo = false;
+          }
+        else if (*it == "--atlas")
+          {
+            atlas = true;
+            drawlogo = false;
+          }
+        else if (*it == "--atlas-internal")
+          {
+            atlasinternal = true;
+            drawlogo = false;
+          }
+        else if (*it == "--atlas-preliminary")
+          {
+            atlaspreliminary = true;
+            drawlogo = false;
+          }
+        else if (*it == "--cdfii-preliminary")
+          {
+            cdfiipreliminary = true;
+            drawlogo = false;
+          }
+        else if (*it == "--hidden")
+          {
+            cout << endl;
+            cout << "Hidden options" << endl;
+            cout << "Please use this options only if you are authorised from your collaboration to do so" << endl;
+            cout <<  "--cms" << endl;
+            cout <<  "--cms-preliminary" << endl;
+            cout <<  "--atlas" << endl;
+            cout <<  "--atlas-internal" << endl;
+            cout <<  "--atlas-preliminary" << endl;
+            cout <<  "--cdfii-preliminary" << endl;
+            cout <<  "--no-logo" << endl;
+            cout << endl;
+            exit(-1);
+          }
+        else if (*it == "--bands")
+          dobands = true;
+        else if (*it == "--scale68")
+          scale68 = true;
+        else if (*it == "--profile") {
+          dobands = true;
+          profile = true;
+        }
+        else if (*it == "--reweight-BAY") {
+          dobands = true;
+          reweight = true;
+          BAYweight = true;
+        }
+        else if (*it == "--reweight-GK") {
+          dobands = true;
+          reweight = true;
+          GKweight = true;
+        }
+        else if (*it == "--asym")
+          {
+            dobands = true;
+            asym = true;
+          }
+        else if (*it == "--median")
+          median = true;
+        else if (*it == "--68cl")
+          {
+            if (cl90 == true)
+              {
+                cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
+                exit(1);
+              }
+            cl68 = true;
+            median = true;
+          }
+        else if (*it == "--90cl")
+          {
+            if (cl68 == true)
+              {
+                cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
+                exit(1);
+              }
+            cl90 = true;
+            median = true;
+          }
+        else if (*it == "--absolute-errors")
+          {
+            dobands = true;
+            abserror = true;
+          }
+        else if (*it == "--relative-errors")
+          {
+            dobands = true;
+            relerror = true;
+          }
+        else if (*it == "--no-logx")
+          logx = false;
+        else if (*it == "--q2all")
+          q2all = true;
+        else if (*it == "--plots-per-page")
+          {
+            plotsperpage = atoi((*(it+1)).c_str());
+            allargs.erase(it+1);
+          }
+        else if (*it == "--loose-mc-replica-selection")
+          looseRepSelection = true;
+        else if (*it == "--outdir")
+          {
+            outdir = *(it+1);
+            allargs.erase(it+1);
+          }
+        else if (*it == "--eps")
+          format = "eps";
+        else if (*it == "--root")
+          root = true;
+        else if (*it == "--splitplots-eps")
+          {
+            splitplots = true;
+            ext = "eps";
+          }
+        else if (*it == "--splitplots-pdf")
+          {
+            splitplots = true;
+            ext = "pdf";
+          }
+        else if (*it == "--splitplots-png")
+          {
+            splitplots = true;
+            ext = "png";
+          }
+        else if (*it == "--filledbands")
+          filledbands = true;
+        else if (*it == "--ratiorange")
+          {
+            rmin = atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str());
+            rmax = atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str());
+            allargs.erase(it+1);
+          }
+        else if (*it == "--xrange")
+          {
             string&s=*(it+1);
             size_t p=s.find(':');
             s[p]=0;
@@ -356,135 +356,135 @@ CommandParser::CommandParser(int argc, char **argv):
             xmin=max(1e-15,xmin);
             xmax=atof(s.c_str()+p+1);
             xmax=min(1.,xmax);
-	    allargs.erase(it+1);
-	  }
-	else if (*it == "--colorpattern")
-	  {
-	    int pattern = atoi((*(it+1)).c_str());
-	    if (pattern == 1)
-	      {
-		col[0] = kBlue + 2;
-		col[1] = kOrange;
-		col[2] = kGreen - 3;
-		col[3] = kRed + 1;
-		col[5] = kOrange + 7;
-		col[5] = kCyan + 1;
-	      }
-	    else if (pattern == 2)
-	      {
-		col[0] = kBlue + 2;
-		col[1] = kRed + 1;
-		col[2] = kYellow - 7;
-		col[3] = kOrange + 7;
-		col[4] = kMagenta + 1;
-		col[5] = kCyan + 1;
-	      }
-	    else if (pattern == 3)
-	      {
-		col[0] = kBlue + 2;
-		col[1] = kMagenta + 1;
-		col[2] = kCyan + 1;
-		col[3] = kRed + 1;
-		col[4] = kGreen + 2;
-		col[5] = kYellow + 1;
-	      }
-	    else if (pattern == 4)
-	      {
-		col[0] = kBlue + 1;
-		col[1] = kAzure - 9;
-		col[2] = kAzure + 3;
-		col[3] = kAzure + 4;
-		col[4] = kAzure + 5;
-		col[5] = kAzure + 6;
-	      }
-	    else if (pattern == 5)
-	      {
-		col[0] = kOrange + 7;
-		col[1] = kYellow;
-		col[2] = kRed - 1;
-		col[3] = kOrange + 4;
-		col[4] = kOrange + 2;
-		col[5] = kOrange -1;
-	      }
-	    else if (pattern == 6)
-	      {
-		col[0] = kGreen + 2;
-		col[1] = kSpring - 9;
-		col[2] = kGreen + 1;
-		col[3] = kSpring + 4;
-		col[4] = kSpring + 2;
-		col[5] = kSpring + 7;
-	      }
-	    else if (pattern == 7)
-	      {
-		col[0] = kRed - 2;
-		col[1] = kAzure - 9;
-		col[2] = kSpring - 9;
-		col[3] = kOrange + 7;
-		col[4] = kSpring + 2;
-		col[5] = kSpring + 7;
-	      }
-	    else if (pattern == 8)
-	      {
-		col[0] = kRed - 2;
-		col[1] = kBlue + 1;
-		col[2] = kGreen + 1;
-		col[3] = kOrange + 7;
-		col[4] = kSpring + 2;
-		col[5] = kSpring + 7;
-	      }
+            allargs.erase(it+1);
+          }
+        else if (*it == "--colorpattern")
+          {
+            int pattern = atoi((*(it+1)).c_str());
+            if (pattern == 1)
+              {
+                col[0] = kBlue + 2;
+                col[1] = kOrange;
+                col[2] = kGreen - 3;
+                col[3] = kRed + 1;
+                col[5] = kOrange + 7;
+                col[5] = kCyan + 1;
+              }
+            else if (pattern == 2)
+              {
+                col[0] = kBlue + 2;
+                col[1] = kRed + 1;
+                col[2] = kYellow - 7;
+                col[3] = kOrange + 7;
+                col[4] = kMagenta + 1;
+                col[5] = kCyan + 1;
+              }
+            else if (pattern == 3)
+              {
+                col[0] = kBlue + 2;
+                col[1] = kMagenta + 1;
+                col[2] = kCyan + 1;
+                col[3] = kRed + 1;
+                col[4] = kGreen + 2;
+                col[5] = kYellow + 1;
+              }
+            else if (pattern == 4)
+              {
+                col[0] = kBlue + 1;
+                col[1] = kAzure - 9;
+                col[2] = kAzure + 3;
+                col[3] = kAzure + 4;
+                col[4] = kAzure + 5;
+                col[5] = kAzure + 6;
+              }
+            else if (pattern == 5)
+              {
+                col[0] = kOrange + 7;
+                col[1] = kYellow;
+                col[2] = kRed - 1;
+                col[3] = kOrange + 4;
+                col[4] = kOrange + 2;
+                col[5] = kOrange -1;
+              }
+            else if (pattern == 6)
+              {
+                col[0] = kGreen + 2;
+                col[1] = kSpring - 9;
+                col[2] = kGreen + 1;
+                col[3] = kSpring + 4;
+                col[4] = kSpring + 2;
+                col[5] = kSpring + 7;
+              }
+            else if (pattern == 7)
+              {
+                col[0] = kRed - 2;
+                col[1] = kAzure - 9;
+                col[2] = kSpring - 9;
+                col[3] = kOrange + 7;
+                col[4] = kSpring + 2;
+                col[5] = kSpring + 7;
+              }
+            else if (pattern == 8)
+              {
+                col[0] = kRed - 2;
+                col[1] = kBlue + 1;
+                col[2] = kGreen + 1;
+                col[3] = kOrange + 7;
+                col[4] = kSpring + 2;
+                col[5] = kSpring + 7;
+              }
 
 
-	      allargs.erase(it+1);
-	  }
-	else if (*it == "--therr")
-	  therr = true;
-	else if (*it == "--noupband")
-	  noupband = true;
-	else if (*it == "--greenband")
-	  errbandcol = kGreen - 3;
-	else if (*it == "--blueband")
-	  errbandcol = kAzure - 9;
-	else if (*it == "--points")
-	  points = true;
-	else if (*it == "--theory")
-	  {
-	    theorylabel = *(it+1);
-	    allargs.erase(it+1);
-	  }
-	else if (*it == "--only-theory")
-	  {
-	    onlytheory = true;
-	    ratiototheory = true;
-	  }
-	else if (*it == "--theory-rel-errors")
-	  {
-	    onlytheory = true;
-	    ratiototheory = true;
-	    threlerr = true;
-	  }
-	else if (*it == "--ratio-to-theory")
-	  ratiototheory = true;
-	else if (*it == "--diff")
-	  diff = true;
-	else if (*it == "--2panels")
-	  twopanels = true;
-	else if (*it == "--3panels")
-	  threepanels = true;
-	else if (*it == "--multitheory")
-	  multitheory = true;
-	else if (*it == "--nothshifts")
-	  nothshifts = true;
-	else
-	  {
-	    cout << endl;
-	    cout << "Invalid option " << *it << endl;
-	    cout << allargs[0] << " --help for help " << endl;
-	    cout << endl;
-	    exit(-1);
-	  }
-	allargs.erase(it);
-	it = allargs.begin();
+              allargs.erase(it+1);
+          }
+        else if (*it == "--therr")
+          therr = true;
+        else if (*it == "--noupband")
+          noupband = true;
+        else if (*it == "--greenband")
+          errbandcol = kGreen - 3;
+        else if (*it == "--blueband")
+          errbandcol = kAzure - 9;
+        else if (*it == "--points")
+          points = true;
+        else if (*it == "--theory")
+          {
+            theorylabel = *(it+1);
+            allargs.erase(it+1);
+          }
+        else if (*it == "--only-theory")
+          {
+            onlytheory = true;
+            ratiototheory = true;
+          }
+        else if (*it == "--theory-rel-errors")
+          {
+            onlytheory = true;
+            ratiototheory = true;
+            threlerr = true;
+          }
+        else if (*it == "--ratio-to-theory")
+          ratiototheory = true;
+        else if (*it == "--diff")
+          diff = true;
+        else if (*it == "--2panels")
+          twopanels = true;
+        else if (*it == "--3panels")
+          threepanels = true;
+        else if (*it == "--multitheory")
+          multitheory = true;
+        else if (*it == "--nothshifts")
+          nothshifts = true;
+        else
+          {
+            cout << endl;
+            cout << "Invalid option " << *it << endl;
+            cout << allargs[0] << " --help for help " << endl;
+            cout << endl;
+            exit(-1);
+          }
+        allargs.erase(it);
+        it = allargs.begin();
       }
 
   for (vector<string>::iterator it = allargs.begin() + 1; it != allargs.end(); it++)

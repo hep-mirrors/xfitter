@@ -26,7 +26,7 @@ C To be used as a seed:
 C Single precision here:
       real rndsh(3)  ! additive, poisson, linear
      $     ,ranflat
-C
+
       double precision rand_shift(NSYS)
       double precision r_sh_fl(NSYS)
       double precision f_un
@@ -48,7 +48,6 @@ C For log normal random shifts:
 C functions:
       real logshift
       double precision alnorm
-
 C------------------------------------------------------------
 
 
@@ -127,7 +126,6 @@ c     $                 s,logshift(lmu,lsig,lrunif)
 CV now choose sta (advised gauss OR poisson)
 
          if (statype.eq.1) then ! gauss
-
 C do separate fluctuations for stat-const, stat-poisson and stat-linear pieces
             s = s
      $         + sqrt( e_uncor_const(n0)**2 + e_stat_const(n0)**2)
@@ -135,11 +133,6 @@ C do separate fluctuations for stat-const, stat-poisson and stat-linear pieces
      $         + sqrt( e_uncor_poisson(n0)**2 + e_stat_poisson(n0)**2)
      $              * sqrt(abs(daten(n0)*sorig))*rndsh(2)
      $         + e_uncor_mult(n0)*sorig*rndsh(3)
-
-c            if (alpha(n0).eq.0) then
-c               s = 0.1
-c               alpha(n0) = 1.e6
-c            endif
          elseif (statype.eq.3.) then ! lognormal
             lsig = alpha(n0)
             lmu=1.
@@ -229,13 +222,13 @@ C Store uncor in %:
      $          'S: ToyMC cross section with exact ZERO value, stopOB')
          endif
 
-C     Re-scale relative error sources, depending on scaling rule define in chi2 or data files.
+C     Scale relative error sources, depending on scaling rule defined in chi2-related section of steering or in data files
 C         For :
-C        - addivie ("NoRescale") errors keep absolute errors unmodified
-C        - multiplicaiive ("Linear") errors keep relative errors unmodified
-C        - poisson ("Poisson") keep error * sqrt(old/newVal) unmodified
+C     - additive        ("NoRescale") keep absolute errors unmodified
+C     - multiplicaitive ("Linear")    keep relative errors unmodified
+C     - poisson         ("Poisson")   keep (relative error)*sqrt(value) unmodified
 
-         scaleF = DATEN(n0)/s
+         scaleF = DATEN(n0)/s !=oldValue/newValue
 
          if (s .lt. 0) then
             call hf_errlog(1302201901,
@@ -276,7 +269,6 @@ C     Also correlated systematicss:
          enddo
 
          DATEN(n0) = s
-
 C update alpha:
          alpha(n0) =  sqrt(e_uncor_mult(n0)**2
      $        +e_stat_poisson(n0)**2
@@ -286,18 +278,7 @@ C update alpha:
      $        *daten(n0)
 
       enddo
-
-C          call HF_stop
-
-
-C------------------------------------------------------------
       end
-
-
-
-*     ---------------------------------------------
-
-cv      Program voica
 C---------------------------------------------------
 C Created by SG, 23 Apr 2008 following
 C
