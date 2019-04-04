@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 ''' Script to generate templates for new PDF parameterisation '''
 
@@ -7,7 +7,7 @@ import os
 import datetime
 
 if len(sys.argv)<2:
-    print ''' 
+    print '''
  Usage: AddPdfParam.py NAME
     '''
     exit(0)
@@ -35,7 +35,7 @@ with open(hFile,"w+") as f:
 #include "BasePdfParam.h"
 
 /**
-  @class {name:s}PdfParam 
+  @class {name:s}PdfParam
 
   @brief A class for {name:s} pdf parameterisation
 
@@ -65,7 +65,7 @@ sFile = "pdfparams/{:s}PdfParam/src/{:s}PdfParam.cc".format(name,name)
 print "Creating source file "+sFile
 
 with open(sFile,"w+") as f:
-    f.write(''' 
+    f.write('''
 /*
    @file {name:s}PdfParam.cc
    @date {date:s}
@@ -90,7 +90,7 @@ with open(aFile,"w+") as f:
     f.write('''
 # Created by AddPdfParam.py on {:s}
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../BasePdfParam/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../BasePdfParam/include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = lib{:s}PdfParam_xfitter.la
 lib{:s}PdfParam_xfitter_la_SOURCES = {:s}PdfParam.cc

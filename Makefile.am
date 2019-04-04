@@ -66,7 +66,7 @@ if BUILD_DOCS
   DOCS=doc/tex/manual doc/tex/paper
 endif
 #$(info ${DOCS})
-SUBDIRS+= src xfitter $(DOCS) 
+SUBDIRS+= src xfitter $(DOCS)
 
 include $(top_srcdir)/aminclude.am
 
@@ -75,7 +75,7 @@ reaction_DATA = Reactions.txt
 
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
-#TESTS_ENVIRONMENT = $(SHELL) 
+#TESTS_ENVIRONMENT = $(SHELL)
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \

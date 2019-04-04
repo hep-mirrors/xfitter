@@ -6,7 +6,7 @@
 /**
   @class' ReactionHathor
 
-  @brief A wrapper class for Hathor reaction 
+  @brief A wrapper class for Hathor reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 

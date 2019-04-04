@@ -7,7 +7,7 @@
 /**
   @class' Reactioncbdiff
 
-  @brief A wrapper class for cbdiff reaction 
+  @brief A wrapper class for cbdiff reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 

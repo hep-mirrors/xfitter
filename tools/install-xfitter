@@ -98,7 +98,7 @@ if [[ $version != "master" ]]
     done
 
     vers=`git ls-remote --tags https://gitlab.cern.ch/fitters/xfitter.git | sed 's|/| |g; s|\^| |' | awk '{print $4}' | uniq`
- 
+
     for ver in $vers
     do
 	if [[ $version == $ver ]]
@@ -261,7 +261,7 @@ else
 	exit
     fi
 fi
-    
+
 #directory:
 CURRENTDIR=`pwd`
 
@@ -278,7 +278,7 @@ installDeps=1
 if [[ $installDeps == 0 ]]
 then
    echo "Skip installation of dependences"
-else    
+else
 #Make all dependencies
     rm -rf deps >& /dev/null
     mkdir deps
@@ -302,7 +302,7 @@ else
 	wget https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-    cd ${lhapdf}-${lhapdfver} 
+    cd ${lhapdf}-${lhapdfver}
     ./configure --prefix=$CURRENTDIR/deps/lhapdf  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
@@ -461,7 +461,7 @@ else
     then
 	echo "Error, check install.log for details"
 	exit
-    fi  
+    fi
     make -j 9 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
@@ -486,12 +486,12 @@ else
 
     ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
-    
+
     if [[ $? != 0 ]]
     then
 	echo "Error, check install.log for details"
 	exit
-    fi 
+    fi
     make -j 9 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
@@ -508,10 +508,10 @@ if [[ $mode != "deps" ]]
 then
     echo "Installing xFitter $version..."
 
-    
+
     if [[ $version == "master" ]]
     then
-	git clone https://gitlab.cern.ch/fitters/xfitter.git >> $CURRENTDIR/install.log  2>&1 
+	git clone https://gitlab.cern.ch/fitters/xfitter.git >> $CURRENTDIR/install.log  2>&1
 	mv xfitter xfitter-master
     else
 	if [[ $http == "curl" ]]
@@ -526,7 +526,7 @@ then
 	    wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
 	fi
        # unpack nicely:
-	rm -fr xfitter-${version} 
+	rm -fr xfitter-${version}
 	mkdir xfitter-${version} ; tar xfz xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
     fi
 else
@@ -648,7 +648,7 @@ then
     echo "-----------------------------------------------------------"
     cat quickstart-readme.txt
     echo "-----------------------------------------------------------"
-    echo 
+    echo
     echo "To read again these instructions, see quickstart-readme.txt"
     echo "Have fun!"
 fi

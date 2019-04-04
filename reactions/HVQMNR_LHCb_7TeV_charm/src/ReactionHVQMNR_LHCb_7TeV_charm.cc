@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionHVQMNR_LHCb_7TeV_charm.cc
    @date 2017-01-02
@@ -6,7 +6,7 @@
    Created by  AddReaction.py on 2017-01-02
 
    Derived from ReactionBaseHVQMNR where basic stuff for HVQMNR calculation is implemented
-   This class implements calculation for LHCb charm measurement at 7 TeV 
+   This class implements calculation for LHCb charm measurement at 7 TeV
    [Nucl. Phys. B 871 (2013), 1] [arXiv:1302.2864]
 */
 
@@ -25,9 +25,9 @@ extern "C" ReactionHVQMNR_LHCb_7TeV_charm* create() {
 // initialize at the start of the computation
 int ReactionHVQMNR_LHCb_7TeV_charm::atStart(const string &s)
 {
-  // ignore provided terminfo (s): all needed information has been set already 
+  // ignore provided terminfo (s): all needed information has been set already
   // via setDatasetParameters(int dataSetID, map<string,string> pars)
-  
+
   // ******************************************************************
   // perform initialisation and pre-calculation
   // ******************************************************************
@@ -39,7 +39,7 @@ int ReactionHVQMNR_LHCb_7TeV_charm::atStart(const string &s)
 
   // check HF scheme
   CheckHFScheme();
-    
+
   // read needed theory parameters
   UpdateParameters();
   PrintParameters();
@@ -91,7 +91,7 @@ int ReactionHVQMNR_LHCb_7TeV_charm::atStart(const string &s)
   double bin_y[6] = { 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 };
   int nbin_pt = 8;
   double bin_pt[9] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 };
-  for(int f = 0; f < 4; f++) 
+  for(int f = 0; f < 4; f++)
     _hCalculatedXSec[f]->SetBins(nbin_pt, bin_pt, nbin_y, bin_y);
   // Lambda_c rapidity differenential (for normalised cross section)
   int nbin_pt_lambdac = 1;
@@ -101,13 +101,13 @@ int ReactionHVQMNR_LHCb_7TeV_charm::atStart(const string &s)
   int nbin_y_lambdac = 1;
   double bin_y_lambdac[2] = { 2.0, 4.5 };
   _hCalculatedXSec[5]->SetBins(nbin_pt, bin_pt, nbin_y_lambdac, bin_y_lambdac);
-      
+
   return 0;
 }
 
 
 // perform calculation (this is done once per iteration)
-void ReactionHVQMNR_LHCb_7TeV_charm::initAtIteration() 
+void ReactionHVQMNR_LHCb_7TeV_charm::initAtIteration()
 {
   // protection against overdoing
   // TODO: remove this trick
@@ -138,7 +138,7 @@ int ReactionHVQMNR_LHCb_7TeV_charm::compute(int dataSetID, valarray<double> &val
   // TODO move to core xFitter
   //initAtIteration();
   //printf("ReactionHVQMNR_LHCb_7TeV_charm::compute() %d\n", dataSetID);
-  
+
   // get histogramm with cross sections for needed dataset
   DataSet& ds = _dataSets[dataSetID];
   TH2D* histXSec = NULL;
@@ -170,6 +170,6 @@ int ReactionHVQMNR_LHCb_7TeV_charm::compute(int dataSetID, valarray<double> &val
     else
       val[i] = val[i] * ds.FragFraction;
   }
-        
+
   return 0;
 }

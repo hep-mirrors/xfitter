@@ -1,7 +1,7 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
 cache:
-  paths: 
+  paths:
     - deps
 
 stages:

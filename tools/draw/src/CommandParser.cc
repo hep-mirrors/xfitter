@@ -129,7 +129,7 @@ CommandParser::CommandParser(int argc, char **argv):
 
   // tight MC replica selection by default:
   looseRepSelection = false;
-  
+
   //Set Hatches style
   gStyle->SetHatchesSpacing(2);
   gStyle->SetHatchesLineWidth(lwidth);
@@ -486,7 +486,7 @@ CommandParser::CommandParser(int argc, char **argv):
 	allargs.erase(it);
 	it = allargs.begin();
       }
-  
+
   for (vector<string>::iterator it = allargs.begin() + 1; it != allargs.end(); it++)
     dirs.push_back(*it);
 
@@ -539,6 +539,6 @@ vector<string> Round(double value, double error, bool sign)
   result.push_back(Numb);
   sprintf (Numb, ((string)"%." + D + "f").c_str(), error);
   result.push_back(Numb);
-  
+
   return result;
 }

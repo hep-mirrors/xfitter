@@ -30,7 +30,7 @@ namespace xfitter {
 
     /// Compute PDF in a physical base in LHAPDF format for given x and Q
     virtual std::function<std::map<int,double>(const double& x)> f0() const  override final;
-    
+
   private:
     BasePdfParam*par_xuv{nullptr},
     *par_xdv{nullptr},

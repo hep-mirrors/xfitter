@@ -40,7 +40,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
          // dummy empty points (for bin manipulations etc.)
          // GridName=DUMMYX where X is number of bins (e.g. GridName=DUMMY12)
          // **********
-         // SZ 27.03.2019 trying to merge the developments in master and test_ceres: 
+         // SZ 27.03.2019 trying to merge the developments in master and test_ceres:
          // probably not yet fully consistent (should emptyPoints be in DatasetData?)
          // **********
          if(std::string(token.c_str(), 5) == std::string("DUMMY"))
@@ -92,7 +92,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
       order = localOrder>order ? order : localOrder;
   }
   data.order=order;
-// Determine MuR and MuF.  Use default 
+// Determine MuR and MuF.  Use default
   data.muR=pars.find("muR") == pars.end() ? GetParam("muR") : stod(pars["muR"]);
   data.muF=pars.find("muF") == pars.end() ? GetParam("muF") : stod(pars["muF"]);
 

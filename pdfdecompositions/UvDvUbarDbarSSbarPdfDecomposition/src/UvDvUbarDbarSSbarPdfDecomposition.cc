@@ -14,7 +14,7 @@
 #include <cmath>
 
 namespace xfitter {
-  
+
   /// the class factories, for dynamic loading
   extern "C" UvDvUbarDbarSSbarPdfDecomposition* create(const char*name) {
     return new UvDvUbarDbarSSbarPdfDecomposition(name);

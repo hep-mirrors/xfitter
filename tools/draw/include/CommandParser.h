@@ -46,7 +46,7 @@ class CommandParser
   bool diff;
   bool noupband;
   int errbandcol;
-  
+
   //shifts options
   int spp, shgth;
   bool adjshift;
@@ -88,7 +88,7 @@ class CommandParser
   bool profile, reweight, BAYweight, GKweight;
   bool bw;
   bool looseRepSelection;
-    
+
 private:
   vector <string> allargs;
   void help(void)
@@ -145,7 +145,7 @@ private:
     cout << "\t \t Number of rows and columns of PDF and data plots per page, default value is 2" << endl;
     cout << "\t --loose-mc-replica-selection" <<endl;
     cout << "\t \t Do not check for fit convergence for MC replica " <<endl;
-    
+
 
     cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
@@ -268,14 +268,14 @@ private:
     cout << "\t    PlotDefColumn = 'y2' ! Variable used to divide the data in SubPlots" << endl;
     cout << "\t    PlotDefValue = 0., 5.! Ranges of PlotDefColumn used to divide the data in SubPlots" << endl;
     cout << "\t    PlotVarColumn = 'x'! Variable providing bin center information (use only if bin edges are missing)" << endl;
-    cout << "\t    PlotOptions(1)  = 'Experiment:ATLAS@Title: pp #rightarrow Z@XTitle: y_{Z} @YTitle: d#sigma/dy_{Z} [pb]  @ExtraLabel:#int L = 100 fb^{-1}@Xmin:0.0@Xmax:2.5@Xlog@Ylog@YminR:0.91@YmaxR:1.09'" 
+    cout << "\t    PlotOptions(1)  = 'Experiment:ATLAS@Title: pp #rightarrow Z@XTitle: y_{Z} @YTitle: d#sigma/dy_{Z} [pb]  @ExtraLabel:#int L = 100 fb^{-1}@Xmin:0.0@Xmax:2.5@Xlog@Ylog@YminR:0.91@YmaxR:1.09'"
 	 << endl;
     cout << "\t &End" << endl;
     cout << endl;
     cout << "Option for 3-band PDF uncertainty bands (HERAPDF style) in PDF plots." << endl;
     cout << "\t --bands 3bands:<dir-full-uncert>" << endl;
     cout << "\t \t draw PDFs with three uncertainty bands: experimental (red), model (yellow) parametrisation (green)." << endl;
-    cout << "\t The model uncertainty originates from variation of model parameters (e.g. masses of heavy quarks, Q^2 cuts on data, etc.),"  << endl; 
+    cout << "\t The model uncertainty originates from variation of model parameters (e.g. masses of heavy quarks, Q^2 cuts on data, etc.),"  << endl;
     cout << "\t parametrisation - from variations of the parameters in the fit and variation of the starting scale Q_0^2."<< endl;
     cout << " \t Directory <dir-full-uncert> should have fit results for experimental, model and parametrisation variations. " << endl;
     cout << " \t The file names for experimental variations should follow convention as follows: " << endl;
@@ -288,7 +288,7 @@ private:
     cout << " \t Finally, p14s stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
     cout << " \t NOTE: if command '--bands <dir-full-uncert>' is used, the total uncertainty in red is drawn." << endl;
     cout << endl;
-  };  
+  };
 };
 
 extern CommandParser opts;

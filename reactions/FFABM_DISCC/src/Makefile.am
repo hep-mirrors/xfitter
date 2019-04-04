@@ -1,7 +1,7 @@
 
 # Created by AddReaction.py on 2017-10-09
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -I$(srcdir)/../../../reactions/BaseDISCC/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -I$(srcdir)/../../../reactions/BaseDISCC/include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = libffabm_discc_xfitter.la
 libffabm_discc_xfitter_la_SOURCES = ReactionFFABM_DISCC.cc

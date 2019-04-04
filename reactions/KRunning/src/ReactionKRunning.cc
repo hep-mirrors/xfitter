@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionKRunning.cc
    @date 2019-01-16
@@ -34,7 +34,7 @@ void ReactionKRunning::setDatasetParameters(int dataSetID, map<std::string, std:
   if(it->second != "as" && it->second != "massMSbarNLO")
     hf_errlog(19011503, "F: unsupported running type = " + it->second);
   _type[dataSetID] = it->second;
-  
+
   // read scale
   it = pars.find("q");
   if(!checkParam(it->second)) // value provided

@@ -1,7 +1,7 @@
 
 # Created by AddPdfParam.py on 2019-02-25
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../BasePdfParam/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../BasePdfParam/include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = libABMPgluonPdfParam_xfitter.la
 libABMPgluonPdfParam_xfitter_la_SOURCES = ABMPgluonPdfParam.cc

@@ -70,7 +70,7 @@ int ReactionHathor::atStart(const string &s)
   //  hf_errlog_(17081101, str.c_str(), strlen(str.c_str()));
   //}
   //_mtop = GetParam("mtp");
-  
+
   // !!!!
   //for(map<string, double* >::iterator it = _xfitter_pars.begin(); it != _xfitter_pars.end(); it++)
   //{
@@ -177,7 +177,7 @@ void ReactionHathor::setDatasetParameters(int dataSetID, map<std::string, std::s
   if(precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH)
     hf_errlog(17081102, "F: provided precision level = " + std::to_string(precisionLevel) + " not supported by Hathor");
   hathor->setPrecision(precisionLevel);
-  
+
   std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
   double mt = *_mtopPerInstance[dataSetID];
   std::cout << " mtop = " << mt << "[GeV] " << std::endl;

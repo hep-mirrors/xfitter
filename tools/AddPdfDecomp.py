@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 ''' Script to generate templates for new PDF decomposition '''
 
@@ -7,7 +7,7 @@ import os
 import datetime
 
 if len(sys.argv)<2:
-    print ''' 
+    print '''
  Usage: AddPdfDecomp.py NAME
     '''
     exit(0)
@@ -49,7 +49,7 @@ with open(hFile,"w+") as f:
 #include "BasePdfDecomposition.h"
 
 /**
-  @class {:s}PdfDecomposition 
+  @class {:s}PdfDecomposition
 
   @brief A class for {:s} pdf decomposition
 
@@ -62,7 +62,7 @@ namespace xfitter {{
 class {:s}PdfDecomposition : public BasePdfDecomposition
 {{
   public:
-     /// Default constructor. 
+     /// Default constructor.
     {:s}PdfDecomposition ();
 
      /// Default constructor. Name is the PDF name
@@ -72,8 +72,8 @@ class {:s}PdfDecomposition : public BasePdfDecomposition
     virtual void initAtStart(const std::string & pars) override final;
 
     /// Compute PDF in a physical base in LHAPDF format for given x and Q
-    virtual std::function<std::map<int,double>(const double& x)> f0() const  override final; 
-    
+    virtual std::function<std::map<int,double>(const double& x)> f0() const  override final;
+
 }};
 }}
 '''.format( name, name, datetime.date.today().isoformat(),name,name,name)
@@ -85,7 +85,7 @@ sFile = "pdfdecompositions/{:s}PdfDecomposition/src/{:s}PdfDecomposition.cc".for
 print "Creating source file "+sFile
 
 with open(sFile,"w+") as f:
-    f.write(''' 
+    f.write('''
 /*
    @file {:s}PdfDecomposition.cc
    @date {:s}
@@ -96,7 +96,7 @@ with open(sFile,"w+") as f:
 #include "{:s}PdfDecomposition.h"
 
 namespace xfitter {{
-  
+
 /// the class factories, for dynamic loading
 extern "C" {:s}PdfDecomposition* create() {{
     return new {:s}PdfDecomposition();
@@ -104,11 +104,11 @@ extern "C" {:s}PdfDecomposition* create() {{
 
 
 // Constructor
-    {:s}PdfDecomposition::{:s}PdfDecomposition() : BasePdfDecomposition("{:s}") {{  
+    {:s}PdfDecomposition::{:s}PdfDecomposition() : BasePdfDecomposition("{:s}") {{
 }}
 
 // Constructor
-{:s}PdfDecomposition::{:s}PdfDecomposition(const std::string& inName) : BasePdfDecomposition(inName) {{  
+{:s}PdfDecomposition::{:s}PdfDecomposition(const std::string& inName) : BasePdfDecomposition(inName) {{
 }}
 
 // Init at start:
@@ -121,7 +121,7 @@ std::function<std::map<int,double>(const double& x)>  {:s}PdfDecomposition::f0()
 {{
   const auto f_ = [=](double const& x)->std::map<int, double> {{
       std::map<int, double> res_  = {{
-	{{-6,0}},	
+	{{-6,0}},
 	{{-5,0}},
 	{{-4,0}},
 	{{-3,0}},
@@ -145,7 +145,7 @@ std::function<std::map<int,double>(const double& x)>  {:s}PdfDecomposition::f0()
            ,name,name,name,name,name,name,name,name,name,name)
 )
 
-    
+
 aFile = "pdfdecompositions/{:s}PdfDecomposition/src/Makefile.am".format(name)
 
 print "Creating autoconf file " + aFile
@@ -155,7 +155,7 @@ with open(aFile,"w+") as f:
     f.write('''
 # Created by AddPdfDecomposition.py on {:s}
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../pdfparams/BasePdfParam/include/   -I$(srcdir)/../../BasePdfDecomposition/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../pdfparams/BasePdfParam/include/   -I$(srcdir)/../../BasePdfDecomposition/include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = lib{:s}PdfDecomposition_xfitter.la
 lib{:s}PdfDecomposition_xfitter_la_SOURCES = {:s}PdfDecomposition.cc
@@ -167,7 +167,7 @@ dist_noinst_HEADERS = ../include ../yaml
 '''.format(datetime.date.today().isoformat(),name,name,name,name))
 
 
-    
+
 print "Update configure.ac file"
 os.system("sed 's|xfitter-config|xfitter-config\\n		 pdfdecompositions/{:s}PdfDecomposition/src/Makefile|' configure.ac  >/tmp/configure.ac".format(name))
 os.system("cp /tmp/configure.ac configure.ac")

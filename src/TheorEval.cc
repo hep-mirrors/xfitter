@@ -18,7 +18,7 @@
 #include "ReactionTheory.h"
 #include "xfitter_cpp.h"
 #include "get_pdfs.h"
-#include <string.h> 
+#include <string.h>
 
 #include <yaml-cpp/yaml.h>
 #include "xfitter_pars.h"
@@ -34,19 +34,19 @@ using namespace std;
 std::function<double(double const& Q)>  gAlphaS;
 
 double alphaS(double const& Q) {
-  return gAlphaS(Q); 
+  return gAlphaS(Q);
 }
 
 // also fortran interface
 
 extern "C" {
   double alphasdef_(double const& Q) {
-    return gAlphaS(Q); 
+    return gAlphaS(Q);
   }
 }
 
 
-TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
+TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt,
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
 {
   for (int it= 0 ; it<nTerms; it++ ){
@@ -87,7 +87,7 @@ TheorEval::initTheory()
   this->convertToRPN(sl);
 }
 
-int 
+int
 TheorEval::assignTokens(list<tToken> &sl)
 {
   stringstream strexpr(_expr);
@@ -99,7 +99,7 @@ TheorEval::assignTokens(list<tToken> &sl)
   while (1){
     strexpr.get(c);
     if ( strexpr.eof() ) break;
-    if ( isspace(c) ) continue; // skip whitespaces. 
+    if ( isspace(c) ) continue; // skip whitespaces.
     // Oh noes! doesn't work after fortran reading expression with spaces :(.
     if ( isdigit(c) ) {  // process numbers
       term.assign(1,c);
@@ -134,7 +134,7 @@ TheorEval::assignTokens(list<tToken> &sl)
       term.assign(1,c);
       while (strexpr.get(c) ) {
         if ( isalnum(c) ) term.append(1,c);
-	else { 
+	else {
 	  strexpr.putback(c);
 	  break;
 	}
@@ -252,9 +252,9 @@ TheorEval::assignTokens(list<tToken> &sl)
 	continue;
       }
       */
-        
+
       vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
-      if ( found_term == _termNames.end() ) { 
+      if ( found_term == _termNames.end() ) {
         cout << "Undeclared term " << term << " in expression " << _expr << endl;
 	return -1;
       } else {
@@ -329,8 +329,8 @@ TheorEval::convertToRPN(list<tToken> &sl)
     _exprRPN.push_back(tknstk.top());
     tknstk.pop();
   }
-  
-  
+
+
   /*
   vector<tToken>::iterator it= _exprRPN.begin();
   for (;it!=_exprRPN.end(); it++){
@@ -338,13 +338,13 @@ TheorEval::convertToRPN(list<tToken> &sl)
   }
   cout << endl;
   */
-  
+
 }
 
 int
 TheorEval::initTerm(int iterm, valarray<double> *val)
 {
-   
+
   string term_type =  _termTypes.at(iterm);
   if ( term_type == string("reaction")) {
     this->initReactionTerm(iterm, val);
@@ -408,15 +408,15 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   if ( gNameReaction.find(term_source) == gNameReaction.end()) {
     string path_to_lib=PREFIX+string("/lib/")+libname;
     void *theory_handler = dlopen(path_to_lib.c_str(), RTLD_NOW);
-    if (theory_handler == NULL)  { 
+    if (theory_handler == NULL)  {
       std::cerr<<"Failed to open shared library "<<path_to_lib<<" for "<<term_source<<"; error:\n"
                <<dlerror()<<"\n Check that the correct library is given in Reactions.txt"<<std::endl;
       hf_errlog(16120502,"F: Failed to open reaction shared library, see stderr for details");
     }
-    
+
     // reset errors
     dlerror();
- 
+
     create_t *dispatch_theory = (create_t*) dlsym(theory_handler, "create");
     rt = dispatch_theory();
     gNameReaction[term_source] = rt;
@@ -441,7 +441,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     rt->setxFitterParametersS(XFITTER_PARS::gParametersS);
     rt->setxFitterparametersVec(XFITTER_PARS::gParametersV);
     rt->setxFitterparametersYaml(XFITTER_PARS::gParametersY);
-  
+
     // Override some global pars for reaction specific:
     if ( XFITTER_PARS::gParametersY[term_source] ) {
       rt->resetParameters(XFITTER_PARS::gParametersY[term_source]);
@@ -453,7 +453,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 
     //Retrieve evolution
 
-    xfitter::BaseEvolution* evo = xfitter::get_evolution(evoName);     
+    xfitter::BaseEvolution* evo = xfitter::get_evolution(evoName);
     //    rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
     //This is not how we should pass PDFs and alphas
     //pending TermData rewrite
@@ -474,7 +474,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
       string text = "F:Failed to init reaction " +term_source  ;
       hf_errlog_(16120803,text.c_str(),text.size());
     };
- 
+
   } else {
     rt = gNameReaction[term_source];
   }
@@ -484,7 +484,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 
   // Set bins
   rt->setBinning(_dsId*1000+iterm, &gDataBins[_dsId]);
-  
+
   // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
   map<string, string> pars = SplitTermInfo(term_info);
   LoadParametersFromYAML(pars,rt->getReactionName());
@@ -506,10 +506,10 @@ TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
     _binFlags.push_back(binFlags[ip]);
   }
 
-  for(int ibd = 0; ibd < nBinDim; ibd++){  
-    vector<double> bins;                   
-    bins.clear();                          
-    for(int ip = 0; ip<nPoints; ip++){     
+  for(int ibd = 0; ibd < nBinDim; ibd++){
+    vector<double> bins;
+    bins.clear();
+    for(int ip = 0; ip<nPoints; ip++){
       bins.push_back(allBins[ip*10 + ibd]);
     }
     _dsBins.push_back(bins);
@@ -694,15 +694,15 @@ TheorEval::getReactionValues()
     ReactionTheory* rt = (itm->first).first;
     int idTerm =  (itm->first).second;
     map<string, valarray<double> > errors;
-     
+
     int result =  rt->compute(_dsId*1000+idTerm, *(itm->second), errors);
-     
+
     if (result != 0) {
       string text = "F:(from TheorEval::getReactionValues)  Failed to compute theory";
       hf_errlog_(16081202,text.c_str(),text.size());
     }
   }
-  
+
   return 1;
 }
 
@@ -812,7 +812,7 @@ const std::string GetParamDS(const std::string& ParName, const std::string& DSna
     }
     else {
       string text = "F: missing value field for parameter " + ParName;
-      hf_errlog_(17041101,text.c_str(),text.size());            
+      hf_errlog_(17041101,text.c_str(),text.size());
       return "";
     }
   }

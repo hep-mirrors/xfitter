@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 ''' Script to generate templates for a new theory module '''
 
@@ -7,7 +7,7 @@ import os
 import datetime
 
 if len(sys.argv)<2:
-    print ''' 
+    print '''
  Usage: AddReaction.py NAME
     '''
     exit(0)
@@ -50,7 +50,7 @@ with open("reactions/"+name+"/include/Reaction"+name+".h","w+") as f:
 /**
   @class' Reaction'''+name+'''
 
-  @brief A wrapper class for '''+name+''' reaction 
+  @brief A wrapper class for '''+name+''' reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -69,7 +69,7 @@ class Reaction'''+name+''' : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "'''+name+ '''" ;};
-    int initAtStart(const string &); 
+    int initAtStart(const string &);
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
     virtual int parseOptions(){ return 0;};
@@ -79,7 +79,7 @@ class Reaction'''+name+''' : public ReactionTheory
 
 print "Creating source file  reactions/"+name+"/src/Reaction"+name+".cc"
 with open("reactions/"+name+"/src/Reaction"+name+".cc","w+") as f:
-    f.write(''' 
+    f.write('''
 /*
    @file Reaction'''+name+'''.cc
    @date ''' + datetime.date.today().isoformat() + '''
@@ -115,12 +115,12 @@ with open("reactions/"+name+"/src/Makefile.am","w+") as f:
     f.write('''
 # Created by AddReaction.py on ''' + datetime.date.today().isoformat() + '''
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = lib'''+ name.lower() + '''_xfitter.la
 lib'''+ name.lower()+'''_xfitter_la_SOURCES = Reaction'''+name+'''.cc
 
-# lib'''+ name.lower()+'''_xfitter_la_LDFLAGS = place_if_needed  
+# lib'''+ name.lower()+'''_xfitter_la_LDFLAGS = place_if_needed
 
 datadir = ${prefix}/yaml/reactions/'''+name+'''
 data_DATA = ../yaml/parameters.yaml

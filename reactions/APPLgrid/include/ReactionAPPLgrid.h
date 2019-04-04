@@ -9,7 +9,7 @@
 /**
   @class' ReactionAPPLgrid
 
-  @brief A wrapper class for APPLgrid reaction 
+  @brief A wrapper class for APPLgrid reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
