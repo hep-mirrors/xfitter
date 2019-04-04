@@ -106,22 +106,22 @@ TheorEval::assignTokens(list<tToken> &sl)
       do {
         strexpr.get(c);
         if ( strexpr.eof() ) break;
-	if ( isdigit(c) || c=='.' )  {
+        if ( isdigit(c) || c=='.' )  {
           term.append(1,c);
-	}  else if ( c=='E' || c=='e' ) { // read mantissa including sign in scientific notation
-	  term.append(1,c);
-	  strexpr.get(c);
+        }  else if ( c=='E' || c=='e' ) { // read mantissa including sign in scientific notation
+          term.append(1,c);
+          strexpr.get(c);
           if ( strexpr.eof() ) break;
-	  if ( isdigit(c) || c == '-' ){
-	    term.append(1,c);
-	  } else {
-	    cout << "Theory expression syntax error: " << _expr << endl;
-	    return -1;
-	  }
-	} else {
-	  strexpr.putback(c);
-	  break;
-	}
+          if ( isdigit(c) || c == '-' ){
+            term.append(1,c);
+          } else {
+            cout << "Theory expression syntax error: " << _expr << endl;
+            return -1;
+          }
+        } else {
+          strexpr.putback(c);
+          break;
+        }
       } while (1);
       double dterm = atof(term.c_str());
 
@@ -134,17 +134,17 @@ TheorEval::assignTokens(list<tToken> &sl)
       term.assign(1,c);
       while (strexpr.get(c) ) {
         if ( isalnum(c) ) term.append(1,c);
-	else {
-	  strexpr.putback(c);
-	  break;
-	}
+        else {
+          strexpr.putback(c);
+          break;
+        }
       }
       if ( term == string("sum") ) { // special case for sum() function
         t.opr = 4;
         t.name = "sum";
-	t.val = new valarray<double>(0., nb);
-	sl.push_back(t);
-	continue;
+        t.val = new valarray<double>(0., nb);
+        sl.push_back(t);
+        continue;
       }
       if ( term == string("spline") || term == string("splinederivative") )
       {
@@ -247,27 +247,27 @@ TheorEval::assignTokens(list<tToken> &sl)
       if ( term == string("avg") ) { // special case for avg() function
         t.opr = 4;
         t.name = "avg";
-	t.val = new valarray<double>(0., nb);
-	sl.push_back(t);
-	continue;
+        t.val = new valarray<double>(0., nb);
+        sl.push_back(t);
+        continue;
       }
       */
 
       vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
       if ( found_term == _termNames.end() ) {
         cout << "Undeclared term " << term << " in expression " << _expr << endl;
-	return -1;
+        return -1;
       } else {
         t.opr = 0;
         t.name = term;
-	if ( _mapInitdTerms.find(term) != _mapInitdTerms.end()){
-	  t.val = _mapInitdTerms[term];
-	} else {
-	  t.val = new valarray<double>(0.,nb);
-	  this->initTerm(int(found_term-_termNames.begin()), t.val);
-	  _mapInitdTerms[term] = t.val;
-	}
-	sl.push_back(t);
+        if ( _mapInitdTerms.find(term) != _mapInitdTerms.end()){
+          t.val = _mapInitdTerms[term];
+        } else {
+          t.val = new valarray<double>(0.,nb);
+          this->initTerm(int(found_term-_termNames.begin()), t.val);
+          _mapInitdTerms[term] = t.val;
+        }
+        sl.push_back(t);
       }
       term.clear();
       continue;
@@ -308,7 +308,7 @@ TheorEval::convertToRPN(list<tToken> &sl)
     if ( t.opr >0 ) {
       while ( tknstk.size() > 0 && t.opr <= tknstk.top().opr ) {
         _exprRPN.push_back(tknstk.top());
-	tknstk.pop();
+        tknstk.pop();
       }
 
       tknstk.push(t);
@@ -316,7 +316,7 @@ TheorEval::convertToRPN(list<tToken> &sl)
     if ( t.opr == -1 ){ tknstk.push(t); delete t.val;} // left parenthesis
     if ( t.opr == -2 ){                   // right parenthesis
       while ( tknstk.top().opr != -1 ) {
-	if ( tknstk.size() == 0 ) cout << "ERROR: Wrong syntax in theoretical expression: "<< _expr << endl;
+        if ( tknstk.size() == 0 ) cout << "ERROR: Wrong syntax in theoretical expression: "<< _expr << endl;
         _exprRPN.push_back(tknstk.top());
         tknstk.pop();
       }
@@ -644,8 +644,8 @@ TheorEval::Evaluate(valarray<double> &vte )
               }
               stk.top() = result;
           }else{
-		char error[] = "ERROR: Dimensions do not match ";
-		cout<<error<<endl;}
+                char error[] = "ERROR: Dimensions do not match ";
+                cout<<error<<endl;}
           /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
               int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
               int mb1 = ?;
@@ -673,13 +673,13 @@ TheorEval::Evaluate(valarray<double> &vte )
     //Normalised cross section
     if (_normalised)
       {
-	double integral = 0;
-	for (int bin = 0; bin < _binFlags.size(); bin++)
-	  if (!(vte[bin] != vte[bin])) //protection against nan
-	    integral += (_dsBins.at(1).at(bin) - _dsBins.at(0).at(bin)) * vte[bin];
-	if (integral != 0)
-	  for (int bin = 0; bin < _binFlags.size(); bin++)
-	    vte[bin] /= integral;
+        double integral = 0;
+        for (int bin = 0; bin < _binFlags.size(); bin++)
+          if (!(vte[bin] != vte[bin])) //protection against nan
+            integral += (_dsBins.at(1).at(bin) - _dsBins.at(0).at(bin)) * vte[bin];
+        if (integral != 0)
+          for (int bin = 0; bin < _binFlags.size(); bin++)
+            vte[bin] /= integral;
       }
     //vte /= _units;
   }
@@ -802,10 +802,10 @@ const std::string GetParamDS(const std::string& ParName, const std::string& DSna
       std::string Val = Node["defaultValue"].as<string>();
 
       if (Node[DSname]) {
-	Val = Node[DSname].as<string>();
+        Val = Node[DSname].as<string>();
       }
       if (Node[DSindex]) {
-	Val = Node[DSindex].as<string>();
+        Val = Node[DSindex].as<string>();
       }
 
       return Val;

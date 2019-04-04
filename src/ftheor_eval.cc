@@ -43,7 +43,7 @@ extern "C" {
   int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType,
 //    char **TermSource, char *TermExpr);
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
-		      double *allBins, char binNames[10][80]);
+                      double *allBins, char binNames[10][80]);
 //  int set_theor_units_(int *dsId, double *units);
   int init_theor_eval_(int *dsId);
   int update_theor_ckm_();
@@ -159,7 +159,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
  write details on argumets
  */
 int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
-		    double *allBins, char binNames[10][80])
+                    double *allBins, char binNames[10][80])
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) {
@@ -282,7 +282,7 @@ int read_reactions_()
       frt >> rname >> lib;
       if (frt.eof()) break;
       if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
-	// possible check
+        // possible check
       }
       gReactionLibs[rname] = lib;
     }
