@@ -14,7 +14,7 @@ evolution.f mc_errors.f ep_jets_fastnlo.f difftop_fastnlo.f dipole.f store_h1qcd
 dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.f error_logging.f \
 getncxskt.f Getgridkt.f GetDummyXsection.f main.f \
 GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
-ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc 
+ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc CheckForPDF.cxx
 
 # WS 2013-01-19 for the Offset method
 libxfitter_a_SOURCES += offset_fns.f g_offset.cc

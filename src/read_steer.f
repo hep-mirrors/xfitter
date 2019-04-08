@@ -1091,6 +1091,7 @@ C---------------------------------------
 
       implicit none
 
+      external CheckForPDF
       logical lhapdffile_exists
       integer*1 has_photon
 #include "steering.inc"
@@ -1146,6 +1147,7 @@ cv         iparam = 301
 
       if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')
      $     .or.(PDFStyle.eq.'LHAPDFNATIVE')) then
+         call checkforpdf(LHAPDFSET)
          INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
          if(lhapdffile_exists) then
             call InitPDFset(LHAPDFSET)
