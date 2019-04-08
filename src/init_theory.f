@@ -319,10 +319,10 @@ C Remove duplicates:
       call getint('mky0',mky)
       call getint('nwf0',nwf)
 *
-      if(ver.lt.170113 )then
+      if(ver.lt.170114 )then
          call HF_errlog(231020151, 'F: '//
      1   'Obsolete version of QCDNUM. '//
-     2   'Install version 17.01.13 or later.')
+     2   'Install version 17.01.14 or 17.01.15.')
       endif
       if(mxg.lt.5      )then
          call HF_errlog(231020152, 'F: '//
