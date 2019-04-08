@@ -52,6 +52,13 @@
     OutDirName = 'output'
 &End
 *
+* (Optional) Input files with theory predictions for PDF re-diagonalization
+*
+&InTheory
+   ! InputTheoNames(1) = 'output/theo_01.dat'
+   ! InputTheoNames(2) = 'output/theo_02.dat'
+&End
+*
 * (Optional) Modify renormalisation/factorisation scales, dataset
 * dependently. The numbering follows sequential numbering of input files
 *
