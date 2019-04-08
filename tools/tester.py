@@ -6,16 +6,17 @@ from glob import glob
 from os import system
 from sys import argv
 
-
 if len(argv)<2:
     print (
 '''Usage:
 to run locally:
   tester.py local
+to analyze locally:
+  tester.py Ana_local
 to submit (only for nafhh-herafitter): 
   tester.py Submit  
 to analyse (only for nafhh-herafitter):
-  tester.py Ana   
+  tester.py Ana 
 '''
     )
     exit(0)
@@ -24,6 +25,10 @@ steerings = glob('input_steering/steering.txt*')
 minuits   = glob('input_steering/minuit.in.txt*')
 ewpars    = glob('input_steering/ewparam.txt*')
 
+
+CRED = '\033[91m'
+CEND = '\033[0m'
+CBLUE = '\033[44m'
 
 # print minuits
 # find what exaclty we can test
@@ -64,6 +69,13 @@ for t in tests:
     elif argv[1] == "Ana":
         system("ls -l  batch_out/UT_"+t+'/0/xfitter.log')
         system("grep 'After'  batch_out/UT_"+t+'/0/xfitter.log')
+    elif argv[1] == "Ana_local":
+        system("ls -l  UT_"+t+".out")
+        a = system("grep 'After'  UT_"+t+".out")
+        if a == 0:
+            print (CBLUE+'OK'+CEND)
+        else:
+            print (CRED+'FAIL'+CEND)
     elif argv[1] == "local":
         print ("Run xfitter...")
         system("bin/xfitter > UT_"+t+".out")
