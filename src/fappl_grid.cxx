@@ -115,7 +115,7 @@ void appl_bookgrid_(int& id, const int& Nobs, const double* binlims)
 									      "nlojet", 1, 3, "f3") ) ) ;									 
     //  _grid->symmetrise(true);
   }
-  else throw appl::grid::exception( std::cerr << "grid with id " << id << " already exists" << std::endl );  
+  ;//else throw appl::grid::exception( std::cerr << "grid with id " << id << " already exists" << std::endl );  
 
 }
 
@@ -131,7 +131,7 @@ void appl_readgrid_(int& id, const char* s) {
   if ( gitr==_grid.end() ) { 
     _grid.insert(  std::map<int,appl::grid*>::value_type( id, new appl::grid(sstr.c_str()) ) );
   }
-  else throw appl::grid::exception( std::cerr << "grid with id " << id << " already exists" << std::endl );  
+  ;//else throw appl::grid::exception( std::cerr << "grid with id " << id << " already exists" << std::endl );  
 }
 
 
@@ -141,7 +141,7 @@ void appl_printgrid_(int& id) {
   if ( gitr!=_grid.end() ) { 
     std::cout << "grid id " << id << "\n" << *gitr->second << std::endl;
   }
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 
@@ -158,7 +158,7 @@ void appl_printgriddoc_(int& id) {
   if ( gitr!=_grid.end() ) { 
     std::cout << "grid id " << id << "\n" << gitr->second->getDocumentation() << std::endl;
   }
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 
@@ -168,7 +168,7 @@ void appl_releasegrid_(int& id) {
     delete gitr->second; 
     _grid.erase(gitr);
   }
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 
@@ -192,7 +192,7 @@ void appl_redefine_(int& id,
 			   NQ2, Q2min, Q2max, 
 			   Nx,   xmin,  xmax); 
   }
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
   
 } 
 
@@ -201,25 +201,25 @@ void appl_redefine_(int& id,
 int appl_getnbins_(int& id) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->Nobs();
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 int appl_getbinnumber_(int& id, double& data) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->obsbin(data);
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 double appl_getbinlowedge_(int& id, int& bin) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->obslow(bin);
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 double appl_getbinwidth_(int& id, int& bin) { 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) return gitr->second->deltaobs(bin);
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 
@@ -235,7 +235,7 @@ void appl_convoluteorder_(int& id, int& nloops, double& muR, double& muF, double
     vector<double> v = g->vconvolute(appl_fnpdf_, appl_fnalphas_, nloops, muR, muF);
     for ( unsigned i=0 ; i<v.size() ; i++ ) data[i] = v[i];      
   }
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 void appl_convolutewrap_(int& id, double* data, 
@@ -247,7 +247,7 @@ void appl_convolutewrap_(int& id, double* data,
     vector<double> v = g->vconvolute( pdf, alphas);
     for ( unsigned i=0 ; i<v.size() ; i++ ) data[i] = v[i];      
   }
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 
@@ -262,7 +262,7 @@ void _appl_writegrid_(int& id, const char* s) {
     //   g->print();
     g->Write(s);
   }
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
 }
 
 
@@ -277,7 +277,7 @@ void appl_fillgrid_(int& id,
   if ( gitr!=_grid.end() ) { 
     gitr->second->fill_index(ix1, ix2, iQ, iobs, w, iorder);
   }  
-  else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
+  ;//else throw appl::grid::exception( std::cerr << "No grid with id " << id << std::endl );
  
 }
 
@@ -303,7 +303,7 @@ void appl_readfastnlogrids_( int* ids, const char* s ) {
       _grid.insert(  std::map<int,appl::grid*>::value_type( id, grids[i] ) );
       // std::cout << grids[i]->getDocumentation() << std::endl;
     }
-    else throw appl::grid::exception( std::cerr << "grid with id " << id << " already exists" << std::endl );
+    ;//else throw appl::grid::exception( std::cerr << "grid with id " << id << " already exists" << std::endl );
     ids[i] = id;
   }  
 
