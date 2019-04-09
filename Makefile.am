@@ -31,11 +31,12 @@ SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
         pdfparams/Expression/src\
         pdfparams/HERAPDF_PdfParam/src \
         pdfparams/PolySqrtPdfParam/src \
-        pdfdecompositions/BasePdfDecomposition/src \
-        pdfparams/ABMPgluonPdfParam/src pdfparams/ABMPseaPdfParam/src \
+        pdfparams/NegativeGluonPdfParam/src\
+        pdfparams/ABMPgluonPdfParam/src\
+        pdfparams/ABMPseaPdfParam/src \
         pdfparams/ABMPvalencePdfParam/src \
+        pdfdecompositions/BasePdfDecomposition/src\
         pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src \
-        pdfparams/NegativeGluonPdfParam/src \
         pdfdecompositions/LHAPDFDecomposition/src \
         pdfdecompositions/UvDvUbarDbarS/src \
         pdfdecompositions/SU3_PionPdfDecomposition/src \

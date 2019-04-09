@@ -422,7 +422,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     gNameReaction[term_source] = rt;
 
 
-  // First make sure the name matches:
+    // First make sure the name matches:
     if ( rt->getReactionName() == term_source) {
       string msg =  "I: Use reaction "+ rt->getReactionName();
       hf_errlog_(17041610+_dsId,msg.c_str(),msg.size());
@@ -595,8 +595,7 @@ TheorEval::Evaluate(valarray<double> &vte )
     {
       double sum = stk.top().sum();
       stk.top() = stk.top() / sum;
-    }
-    else if ( it->name == string("+") ){
+    } else if ( it->name == string("+") ){
       valarray<double> a(stk.top());
       stk.pop();
       stk.top() += a;
@@ -614,53 +613,53 @@ TheorEval::Evaluate(valarray<double> &vte )
       stk.top() /= a;
     }
     else if ( it->name == string(".") ){
-          valarray<double> temp;
-          valarray<double> result;
+      valarray<double> temp;
+      valarray<double> result;
 
-          valarray<double> a(stk.top());
-          int size_a = a.size();
-          stk.pop();
-          valarray<double> b(stk.top());
-          int size_b = b.size();
+      valarray<double> a(stk.top());
+      int size_a = a.size();
+      stk.pop();
+      valarray<double> b(stk.top());
+      int size_b = b.size();
 
-          if(size_a % size_b == 0){  // Matrix * Vector
-              int size_return = size_a / size_b;
-              result.resize(size_return);
-              for ( int n = 0; n < size_b; n++){
-                  temp.resize(size_return);
-                  temp = a[std::slice(n*size_return, size_return, 1)]; //creating nth colum vector
-                  temp *= b[n];
-                  result += temp;
+      if(size_a % size_b == 0){  // Matrix * Vector
+        int size_return = size_a / size_b;
+        result.resize(size_return);
+        for ( int n = 0; n < size_b; n++){
+          temp.resize(size_return);
+          temp = a[std::slice(n*size_return, size_return, 1)]; //creating nth colum vector
+          temp *= b[n];
+          result += temp;
+        }
+        stk.top() = result;
+      }else if(size_b % size_a == 0){  //  Transposed(Vector)*Matrix -> Transposed(Matrix) vector
+        int size_return = size_b / size_a;
+        result.resize(size_return);
+        for ( int n = 0; n < size_a; n++){
+          temp.resize(size_return);
+          temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector
+          temp *= a[n];
+          result += temp;
+        }
+        stk.top() = result;
+      }else{
+        char error[] = "ERROR: Dimensions do not match ";
+        cout<<error<<endl;}
+      /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
+          int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
+          int mb1 = ?;
+          int nb2 = ?;
+          int mb2 = ?;
+          result.resize(mb1*nb2);
+          for(int m = 0; m < mb1; m++){
+              for(int n = 0; n < nb2; n++){
+                  temp.resize(nb1);
+                  temp = M.slize(m*nb1,1, nb);
+                  temp *= M2.slize(n, mb2, nb2);
+                  result[m*nb1 + n] = temp.sum();
               }
-              stk.top() = result;
-          }else if(size_b % size_a == 0){  //  Transposed(Vector)*Matrix -> Transposed(Matrix) vector
-              int size_return = size_b / size_a;
-              result.resize(size_return);
-              for ( int n = 0; n < size_a; n++){
-                  temp.resize(size_return);
-                  temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector
-                  temp *= a[n];
-                  result += temp;
-              }
-              stk.top() = result;
-          }else{
-                char error[] = "ERROR: Dimensions do not match ";
-                cout<<error<<endl;}
-          /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
-              int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
-              int mb1 = ?;
-              int nb2 = ?;
-              int mb2 = ?;
-              result.resize(mb1*nb2);
-              for(int m = 0; m < mb1; m++){
-                  for(int n = 0; n < nb2; n++){
-                      temp.resize(nb1);
-                      temp = M.slize(m*nb1,1, nb);
-                      temp *= M2.slize(n, mb2, nb2);
-                      result[m*nb1 + n] = temp.sum();
-                  }
-              }
-          }*/
+          }
+      }*/
     }
     it++;
   }

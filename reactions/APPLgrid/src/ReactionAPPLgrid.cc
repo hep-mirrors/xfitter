@@ -51,16 +51,16 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
          }
          else
          {
-        std::shared_ptr<appl::grid> g(new appl::grid(token));
-        g->trim();
-        data.grids.push_back(g);
-        TFile file(token.c_str());
-        references.push_back((TH1D*)file.Get("grid/reference"));
-        if(!references.back())
-          hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
-        else
-          references.back()->SetDirectory(0);
-        data.emptyPoints.push_back(-1);
+           std::shared_ptr<appl::grid> g(new appl::grid(token));
+           g->trim();
+           data.grids.push_back(g);
+           TFile file(token.c_str());
+           references.push_back((TH1D*)file.Get("grid/reference"));
+           if(!references.back())
+             hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
+           else
+             references.back()->SetDirectory(0);
+           data.emptyPoints.push_back(-1);
         }
       }
     }

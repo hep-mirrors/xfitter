@@ -35,7 +35,7 @@ namespace xfitter {
     par_xubar=getParameterisation(node["xubar"].as<string>());
     par_xdbar=getParameterisation(node["xdbar"].as<string>());
     par_xs   =getParameterisation(node["xs"].as<string>());
-    par_xsbar   =getParameterisation(node["xsbar"].as<string>());
+    par_xsbar=getParameterisation(node["xsbar"].as<string>());
     par_xg   =getParameterisation(node["xg"].as<string>());
   }
 
@@ -51,8 +51,8 @@ namespace xfitter {
     xsumq+=  par_xdv  ->moment(0);
     xsumq+=2*par_xubar->moment(0);
     xsumq+=2*par_xdbar->moment(0);
-    xsumq+=par_xs     ->moment(0);
-    xsumq+=par_xsbar  ->moment(0);
+    xsumq+=  par_xs   ->moment(0);
+    xsumq+=  par_xsbar->moment(0);
     // gluon part
     par_xg->setMoment(0,1-xsumq);
 
