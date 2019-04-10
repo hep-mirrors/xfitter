@@ -111,6 +111,7 @@ void ReactionTheory::resetParameters(const YAML::Node& node) {
 }
 
 /// Dump local parameters for the reaction. Update to the current state for the fitted parameters.
+//This is probably broken since 2.2.0 --Ivan
 std::string ReactionTheory::emitReactionLocalPars() const {
 
   if ( _xfitter_pars_node.find(getReactionName()) ==  _xfitter_pars_node.end()) {
@@ -127,8 +128,8 @@ std::string ReactionTheory::emitReactionLocalPars() const {
     string name  = (it->first).as<string>();
     if ( value.IsMap() ) {
       if (value["step"]) {
-	// Update:
-	value["value"] = GetParam(name);
+        // Update:
+        value["value"] = GetParam(name);
       }
     }
   }

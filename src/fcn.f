@@ -713,7 +713,10 @@ C---------------------------------------------------------
         mtp=par
       endif
       end
-C copy parameters from minuit
+C copy parameters from minuit to wherever c++ components will read them from
+C @param[in] p - vector of parameter values (I am not sure in what order)
+C this should be called whenever minuit parameters change
+C this replaces old subroutine PDF_param_iteration
       subroutine copy_minuit_extrapars(p)
       implicit none
       double precision p(*)

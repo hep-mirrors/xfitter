@@ -388,7 +388,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 
   // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
   map<string, string> pars = SplitTermInfo(term_info);
-  LoadParametersFromYAML(pars,rt->getReactionName());
+  LoadParametersFromYAML(pars,rt->getReactionName());//HACKS
 
   // and transfer to the module
   rt->setDatasetParameters(_dsId*1000+iterm, pars, _dsPars);

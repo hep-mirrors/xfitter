@@ -1,19 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 dist_noinst_HEADERS = offset.h
 # Explicit depence for all files:
-*.o: ../include/*.inc 
-
-# # the main target, i.e. the executable to build
-# bin_PROGRAMS = xfitter
-# noinst_LIBRARIES = libxfitter.a
-# 
-# xfitter_SOURCES = main.f
-# xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src -lxfmain -lxffnlo
-# #xfitter_LDADD = 
-# # all source files which go into the main target
-# libxfitter_a_SOURCES = 
-# 
-
+*.o: ../include/*.inc
 
 # the main shared library
 lib_LTLIBRARIES = libxfmain.la
@@ -26,22 +14,14 @@ GetDummyXsection.f main.f\
 prep_corr.f GetPDFUncType.f rediagonalize.f\
 ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.cc xfitter_steer.cc Profiler.cc\
 tinyexpr.c expression_utils.cc dependent_pars.cc\
-fortran_interface.cc
-
-# WS 2013-01-19 for the Offset method
-libxfmain_la_SOURCES += offset_fns.f g_offset.cc
-# LHAPDF6 output
-libxfmain_la_SOURCES += lhapdf6_output.c c_interface.f
-# WS 2016-01-13 DIS higher twist contributions
-libxfmain_la_SOURCES += dis_sigma_ht.f
-#LHAPDFErrors
-libxfmain_la_SOURCES += fortran_io.f lhapdferrors.cc
-#Chi2scan
-libxfmain_la_SOURCES += chi2scan.cc
-# ReactionTheory
-libxfmain_la_SOURCES += ReactionTheory.cc
-# IntegrateDIS
-libxfmain_la_SOURCES += IntegrateDIS.cc
+fortran_interface.cc\
+offset_fns.f g_offset.cc\
+lhapdf6_output.c c_interface.f\
+dis_sigma_ht.f\
+fortran_io.f lhapdferrors.cc\
+chi2scan.cc\
+ReactionTheory.cc\
+IntegrateDIS.cc
 # optional sources
 # these should be moved to indiviual shared libraries in the future
 ##APFEL and MELA commented out because they need to be updated for the new evolutions interface
@@ -56,51 +36,36 @@ libxfmain_la_SOURCES += IntegrateDIS.cc
 #  libxfmain_la_SOURCES+= mela_dum.f
 #endif
 
-
-
-if ENABLE_LHAPDF 
-  libxfmain_la_SOURCES+= CheckForPDF.cxx
-else
-  libxfmain_la_SOURCES+= lhapdf_dum.f 
-endif
-
 #
 # flags for libfxmain
 #
 libxfmain_la_CXXFLAGS=\
-  -I$(srcdir)/../include\
-	-I$(srcdir)/../interfaces/include\
-	-I$(srcdir)/../FastNLO/include\
-  -I$(srcdir)/../common\
-	-I$(srcdir)/../common/linalg\
-	-I$(srcdir)/../evolutions/BaseEvolution/include \
-  -I$(srcdir)/../pdfdecompositions/BasePdfDecomposition/include \
-  -I$(srcdir)/../pdfparams/BasePdfParam/include \
-  -I$(srcdir)/../minimizers/BaseMinimizer/include \
-  -I$(srcdir)/../tools/draw/include
+  -I$(top_srcdir)/interfaces/include\
+  -I$(top_srcdir)/FastNLO/include\
+  -I$(top_srcdir)/common\
+  -I$(top_srcdir)/common/linalg\
+  -I$(top_srcdir)/evolutions/BaseEvolution/include \
+  -I$(top_srcdir)/pdfdecompositions/BasePdfDecomposition/include \
+  -I$(top_srcdir)/pdfparams/BasePdfParam/include \
+  -I$(top_srcdir)/minimizers/BaseMinimizer/include \
+  -I$(top_srcdir)/tools/draw/include
 libxfmain_la_CFLAGS=
-libxfmain_la_CPPFLAGS= -I$(srcdir)/../include -DPREFIX="\"$(prefix)\""
-libxfmain_la_FFLAGS= $(DEFS) -cpp -I$(srcdir)/../include  $(NOAUTOFCFLAG)  -I$(srcdir)/../minuit/src
-if ENABLE_LHAPDF
-  libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
-  libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
-endif
-# libraries, where this library depends upon
-libxfmain_la_LDFLAGS = -ldl
-# libxfmain_la_LDFLAGS = -ldl  -L./ -lfortran_thunking -L/usr/local/cuda/lib64 -lcudart -lcublas
-
-
-
+libxfmain_la_CPPFLAGS=-I$(top_srcdir)/include -DPREFIX="\"$(prefix)\""
+libxfmain_la_FFLAGS=$(DEFS) -cpp -I$(top_srcdir)/include  $(NOAUTOFCFLAG) -I$(top_srcdir)/minuit/src
+libxfmain_la_LDFLAGS=-ldl
 
 # xFitter main library:
 LDADD = libxfitter.a
-###################LDADD += libxfitter.a
-
 # libraries to be linked to the main target
-LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) 
+LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 
-if ENABLE_LHAPDF 
+if ENABLE_LHAPDF
   LDADD+=$(LHAPDF_LDFLAGS)
+  libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
+  libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
+  libxfmain_la_SOURCES+=CheckForPDF.cxx
+else
+  libxfmain_la_SOURCES+= lhapdf_dum.f
 endif
 
 if HAVE_ROOT
@@ -109,29 +74,24 @@ if HAVE_ROOT
 endif
 
 # libraries to be linked to the main target
-LDADD+= $(LIBS) $(FLIBS)
+LDADD+=$(LIBS) $(FLIBS)
 
 if ENABLE_OPENMP
   LDADD+= -lgomp
   libxfmain_la_FFLAGS+= -fopenmp
 endif
 
-if ENABLE_LHAPDF 
-  libxfmain_la_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
-  libxfmain_la_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
-endif
-
-XFLIBS =   ../EW/src/libmyew.a \
+XFLIBS=../EW/src/libmyew.a\
  ../interfaces/src/libinterfaces.a\
  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
- ../genetic/src/libgenetic.a \
- ../QEDevol/src/libQEDevol.a \
- ../common/num_utils/libnum_utils.a \
+ ../genetic/src/libgenetic.a\
+ ../QEDevol/src/libQEDevol.a\
+ ../common/num_utils/libnum_utils.a\
  ../tools/draw/src/pdferrors.o
 
-LDADD += $(XFLIBS)
+LDADD+=$(XFLIBS)
 
-GFRTLIB  = -lgfortran
+GFRTLIB=-lgfortran
 
 APPLGRID_1 = $(subst -m64,,$(APPLGRID_LDFLAGS))
 APPLGRID_2 = $(subst -pthread,,$(APPLGRID_1))

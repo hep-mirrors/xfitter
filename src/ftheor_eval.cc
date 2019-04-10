@@ -308,7 +308,7 @@ void init_func_map_() {
 void init_at_iteration_() {
   xfitter::updateDependentParameters();
   for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
-    pdfdecomposition.second->atIteration();
+    pdfdecomposition.second->atIteration();//Among other things, sumrules are handled here
   }
 
   for(auto it:XFITTER_PARS::gEvolutions) {
@@ -317,15 +317,14 @@ void init_at_iteration_() {
 
     // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     //Wait, do they even get updated between iterations? Is this here even necessary? --Ivan
+    //this should be removed
 
     XFITTER_PARS::registerXfxQArray(evolution->_name,evolution->xfxQArray());
   }
 
-
- for ( auto reaction : gNameReaction ) {
+  for(auto reaction:gNameReaction){
     reaction.second->initAtIteration();
   }
-
 }
 //This is called after minimization, after result output
 //Could be named atEnd or something --Ivan
