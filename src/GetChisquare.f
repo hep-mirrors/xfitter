@@ -1499,7 +1499,7 @@ C--------------------------------------------------------------------------
 
       double precision ScaledErrors(Ntot)
       double precision chi2_log
-      integer n0_in !isn't number of points npoints? Why is this needed? --Ivan
+      integer n0_in !FIXME: variable npoints should be used to get number of points
 
 
 #include "indata.inc"
@@ -1560,10 +1560,6 @@ c special case if no scaled errors given, i.e. given total cov matrix
             THEO_MOD(i) = THEO_MOD(i) - ScaledGamma(k,i)*RSys_in(k)
          enddo
       enddo
-
-      ! CALL cvfillgamma(nsys,n0_in,ScaledGamma,NSYSMAX)
-      ! CALL cvfillgamma(ScaledGamma,nsys,n0_in,NTOT)
-
 C------------------------------------------------------------------
       end
 
