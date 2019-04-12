@@ -1,5 +1,5 @@
 if ENABLE_APFELXX
-   AM_CXXFLAGS = $(APFEL_CPPFLAGS) \
+   AM_CPPFLAGS=$(APFELXX_CPPFLAGS)\
 	-I$(srcdir)/../include \
 	-I$(srcdir)/../../BaseEvolution/include \
 	-I$(srcdir)/../../../pdfdecompositions/BasePdfDecomposition/include \
