@@ -8,7 +8,10 @@ c----------------------------------------------------------
       call hf_errlog(14060201, 'S: Call to lhapdf function but xFitter compiled without --enable-lhapdf switch')
       return
       end
-      
+
+      subroutine checkforpdf
+      end
+
       subroutine initpdfsetbyname(a)
       call print_lhapdf_messg
       return 
