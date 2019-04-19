@@ -386,19 +386,17 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   void registerXfxQArray(const string& name, std::function<void(double const& x, double const& Q, double* pdfs)>  xfxArray) {
     gXfxQArrays[name] = xfxArray;
   }
-
+  //TODO: delete this:
   const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name) {
     return gXfxQArrays.at(name);
   }
-  //Remove leading and trailing whitespace in string
-  void stripString(string&s){
-    const char*p1,*p2;
-    p1=s.c_str();
-    p2=p1+s.size()-1;
-    while(*p1==' ')++p1;
-    while(*p2==' ')--p2;
-    if(p1==s.c_str()&&p2==p1+s.size()-1)return;
-    s=s.substr(size_t(p1-s.c_str()),size_t(p2-p1+1));
+  const double*createConstantParameter(const string&n,double val){
+    double*p=new double;
+    *p=val;
+    //TODO: remember these created parameters and delete them
+    //needs to be synchronized with how minimization parameters are deleted
+    gParameters[n]=p;
+    return p;
   }
   void createParameters(){
     using namespace std;

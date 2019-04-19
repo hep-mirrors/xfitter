@@ -104,5 +104,9 @@ namespace XFITTER_PARS {
 
   /// Helper function to retrieve PDFs from the map
   const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name);
+
+  /// Allocate memory for a new double*-typed parameter, record it in gParameters and return it
+  /// This kind of parameter is not passed to minimizer
+  const double*createConstantParameter(const string&name,double value);
 }
 
