@@ -130,7 +130,7 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
   theorexpr_.dsname[79] = '\0';
   std::string n(theorexpr_.dsname);
   // Erase trailing spaces
-  n = rtrim(n)," ";
+  n = rtrim(n)," ";//Because commenting out a line of code is too mainstream, right? (sarcasm) --Ivan
 
   te->SetDSname(n);
   te->AddDSParameter("Index",theorexpr_.ds_index); // dataset index
@@ -154,11 +154,19 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
 }
 
 /*!
- Sets datasets bins in theory evaluations.
- write details on argumets
+ Pass bin information from fortran to instances of TheorEval
+ dsId            - dataset ID. Identifies instance of TheorEval
+ nBinDimension   - number of bin columns
+ nPoints         - number of points in the dataset (=number of rows)
+ binFlags[i]     - flag of point i
+   Flag=1 means the point is enabled
+   Flag=0 means the point is disabled and is excluded from the fit
+ allBins[10*j+i] - value at row (datapoint) j in column i (10 is max value of nBinDimension)
+ binNames[i]     - name of bin column i
  */
+const size_t COLUMN_NAME_LEN=80;
 int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
-                    double *allBins, char binNames[10][80])
+                    double *allBins, char binNames[10][COLUMN_NAME_LEN])
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) {
