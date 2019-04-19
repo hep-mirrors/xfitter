@@ -61,7 +61,7 @@ class InFileOpener_t {
   string GetPath() const {return ind < 0 ? "" : Flist[ind];}
   
   // ==================================
-  int Add(const string& fname) {
+  void Add(const string& fname) {
     Flist.push_back(fname);
   }
 

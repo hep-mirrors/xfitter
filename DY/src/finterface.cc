@@ -137,6 +137,7 @@ int dy_get_res_(const int *ds_id, double *calc_res)
 
 int dy_set_ewpars_(){
   PhysPar::setPhysPar();
+  return 1;
 }
 
 int dy_release_()
