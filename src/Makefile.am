@@ -21,6 +21,7 @@ dis_sigma_ht.f\
 fortran_io.f lhapdferrors.cc\
 chi2scan.cc\
 ReactionTheory.cc\
+TermData.cc\
 IntegrateDIS.cc
 # optional sources
 # these should be moved to indiviual shared libraries in the future

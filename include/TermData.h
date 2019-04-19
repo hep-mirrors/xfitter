@@ -1,6 +1,17 @@
 #pragma once
-#include"ReactionTheory.h"
-#include"Variant.h"
+#include<cstddef>
+using std::size_t;
+#include<string>
+using std::string;
+#include<vector>
+using std::vector;
+#include<map>
+using std::map;
+#include<valarray>
+using std::valarray;
+class ReactionTheory;
+class TheorEval;
+namespace xfitter{class BaseEvolution;}
 /*
 TermData is a class that provides interface to all parameters for a given reaction term
 TermData is responsible for:
@@ -9,39 +20,46 @@ TermData is responsible for:
 *Switch XFXlike and other wrappers
 
 One instance of TermData exists for each reaction term.
-The class TheorEval manages all instances of TermData and passes them to ReactionTheory
+Instances of TheorEval manage all instances of TermData and pass them to ReactionTheory
 
 It is intended to be used by ReactionTheory
 */
-namespace XFITTER_PARS{
 class TermData{
 public:
-  TermData(unsigned id,ReactionTheory*);//add any other parameters TheorEval needs to pass
+  TermData(unsigned id,ReactionTheory*,TheorEval*parent,const char*TermInfo);
   //Unique id of this term
   //In the past this was calculated as 1000*datasetID+number_of_term (see TheorEval::initReactionTerm)
   //In ReactionTheory called it was also incorrectly called dataSetID
   const unsigned id;
-  //Get reaction parameter by its name, taking into account that term-specific parameters overshadow global etc.
-  Variant getParam(string)const;
+  //Return true if parameter with given name exists, false otherwise
+  bool         hasParam (const string&parameterName);
+  //The following 3 methods return reaction parameter by its name, taking into account that term-specific parameters overshadow global etc.
+  //They either return a parameter of the requested type, or issue a fatal error
+  const double*getParamD(const string&parameterName);//returns pointer because double parameters can change at each iteration
+  int          getParamI(const string&parameterName);
+  string       getParamS(const string&parameterName);
   ReactionTheory*reaction;
   void actualizeWrappers();//see wrappers below
-  BaseEvolution*getEvolution()const;//returns first evolution for this term
-  BaseEvolution*getEvolution(int i)const;//i is either 0 for evolution1, or 1 for evolution2
+  xfitter::BaseEvolution*getPDF(int i=0);//i is either 0 for evolution1, or 1 for evolution2
   //The following pointer can be used by ReactionTheory to store some additional data
   //for each reaction term. It should be managed by ReactioTheory only, do not touch it from elsewhere
   void*reactionData=nullptr;
-  //Dataset*dataset()const; //for future, after we decide on a Dataset class
-  //We should consider adding any other getters that could be useful to ReactionTheory
+  //array that the reaction should fill with predictions at compute()
+  //This is intended to be used by TheorEval
+  //val might be moved somewhre else in the future, please do not use it outside of TheorEval
+  //this is a "weak" pointer, the actual valarray is owned by TheorEval
+  valarray<double>*val=nullptr;
 private:
-  //TODO: Implement TermData
-}
+  TheorEval*parent;//The instance of TheorEval that manages this instance of TermData
+  map<string,string>term_info;//Map key->value
+  int getStringFromTermOrReaction(const string&,string*);
+};
 /* Wrappers
-  If a ReacationTheory uses these wrapper, it must call TermData::actualizeWrappers
+  If a ReactionTheory uses these wrapper, it must call TermData::actualizeWrappers
   for each term at each iteration, to make sure the wrappers wrap the correct evolution
 */
-}
 extern "C"{
-void PDF_xfx_wrapper (const double&x,const double&Q,double*results);
-void PDF_xfx_wrapper1(const double&x,const double&Q,double*results);
-void  AlphaS_wrapper (const double&Q);
+void  PDF_xfxQ_wrapper (const double&x,const double&Q,double*results);
+void  PDF_xfxQ_wrapper1(const double&x,const double&Q,double*results);
+double AlphaS_wrapper (const double&Q);
 }
