@@ -557,17 +557,11 @@ AC_CONFIG_FILES([include/Makefile
                  common/num_utils/Makefile
                  interfaces/src/Makefile
                  interfaces/include/Makefile
-                 FastNLO/src/Makefile
-                 FastNLO/include/Makefile
-                 FastNLO/include/fastnlotk/Makefile
                  minuit/src/Makefile
                  EW/src/Makefile
-                 RT/src/Makefile
                  DiffDIS/src/Makefile
                  DiffDIS/include/Makefile
                  DIPOLE/src/Makefile
-                 DY/src/Makefile
-                 DY/include/Makefile
                  Hathor/src/Makefile
                  Hathor/interface/Makefile
                  HVQMNR/Makefile
@@ -636,6 +630,14 @@ AC_CONFIG_FILES([include/Makefile
                  minimizers/BaseMinimizer/src/Makefile
                  reactions/KMatrix/src/Makefile
                  Makefile])
+#
+#                 FastNLO/src/Makefile
+#                 FastNLO/include/Makefile
+#                 FastNLO/include/fastnlotk/Makefile
+#                 RT/src/Makefile
+#                 DY/src/Makefile
+#                 DY/include/Makefile
+#
 
 if test x$enable_doc = xyes; then
 AC_CONFIG_FILES([doc/tex/manual/Makefile

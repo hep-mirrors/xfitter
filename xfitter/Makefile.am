@@ -9,12 +9,13 @@ bin_PROGRAMS = xfitter
 xfitter_SOURCES = cmain.cxx
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew ../minuit/src/.libs/minuit.o -lmyminuit -lgenetic -lQEDevol -lnum_utils
-
+#xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew ../minuit/src/.libs/minuit.o -lmyminuit -lgenetic -lQEDevol -lnum_utils
+xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lHFcommon -lmyew ../minuit/src/.libs/minuit.o -lmyminuit -lgenetic -lQEDevol -lnum_utils ../tools/draw/src/pdferrors.o
+#TODO move stat functions from pdferrors.cc to some place where they make sense
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
-AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
+#AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 
 # FORTRAN compiler flags to be used for the main target
 AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
@@ -90,19 +91,9 @@ else
 #  libxfmain_la_SOURCES += hvqmnr_dum.f	
 endif
 
-XFLIBS =  -lstdc++  ../tools/draw/src/pdferrors.o
+XFLIBS=-lstdc++
 
-#  ../common/libHFcommon.a \
-#  ../EW/src/libmyew.a \
-#  ../interfaces/src/libinterfaces.a\
-#  ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
-# ../genetic/src/libgenetic.a \
-# ../QEDevol/src/libQEDevol.a \
-# ../common/num_utils/libnum_utils.a 
-# ../FastNLO/src/libFastNLO.a 
-
-
-LDADD += $(XFLIBS)
+LDADD+=$(XFLIBS)
 
 GFRTLIB  = -lgfortran
 

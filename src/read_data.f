@@ -760,11 +760,13 @@ C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName,IndexDataset)) then
 	   ! set excluding flag for those bins that were cut
            binFlags(j) = 0
-           if((Reaction.eq.'FastNLO jets').or.
-     $       (Reaction.eq.'FastNLO ep jets').or.
-     $       (Reaction.eq.'FastNLO ep jets normalised')) then
-              call fastnlopointskip(NDataSets, j, NData);
-           endif
+! Since xFitter 2.1 "Reaction" field in dataset is no longer used to select
+! reaction, we have a system with terms and reaction modules now
+!           if((Reaction.eq.'FastNLO jets').or.
+!     $       (Reaction.eq.'FastNLO ep jets').or.
+!     $       (Reaction.eq.'FastNLO ep jets normalised')) then
+!              call fastnlopointskip(NDataSets, j, NData);
+!           endif
            goto 1717
          endif
 

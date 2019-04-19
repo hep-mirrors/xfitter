@@ -8,7 +8,7 @@ lib_LTLIBRARIES = libxfmain.la
 
 libxfmain_la_SOURCES =  hfbanner.cc init_theory.f fcn.f GetChisquare.f minuit_ini.f read_data.f store_output.f\
 read_steer.f error_bands_pumplin.f systematics.f\
-mc_errors.f difftop_fastnlo.f store_h1qcdfunc.f\
+mc_errors.f\
 dataset_tools.f theory_dispatcher.f error_logging.f\
 GetDummyXsection.f main.f\
 prep_corr.f GetPDFUncType.f rediagonalize.f\
@@ -36,6 +36,10 @@ IntegrateDIS.cc
 #else
 #  libxfmain_la_SOURCES+= mela_dum.f
 #endif
+
+#Broken during "TermData" rewrite
+#difftop_fastnlo.f
+#store_h1qcdfunc.f
 
 #
 # flags for libfxmain
