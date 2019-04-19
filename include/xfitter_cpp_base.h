@@ -13,4 +13,9 @@ extern"C" {
 // Some basic other functions
 int OrderMap(std::string ord);
 void hf_errlog(int id, const std::string& message);
+// Some utility functions for working with strings
 std::string stringFromFortran(char*fortran_string,size_t size);
+bool beginsWith(const std::string&str,const std::string&prefix);
+bool beginsWith(const std::string&str,const char*       prefix);
+bool beginsWith(const char*       str,const char*       prefix);
+void stripString(std::string&s);//Remove leading and trailing whitespace in string
