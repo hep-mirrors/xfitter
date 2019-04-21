@@ -420,6 +420,7 @@ void get_lhapdferrors_()
 
   /*************************************************/
   //In QCD scales profiling mode, add two nuisance parameters for the renormalisation and factorisation scales
+/*Broken since "TermData rewrite"
   if (scaleprofile)
     {
       cout << "-------------------------------------------" << endl;
@@ -525,7 +526,7 @@ void get_lhapdferrors_()
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
         tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]);
     }
-  /*************************************************/
+*/
 
 
   //Monte Carlo replica PDF uncertainties
