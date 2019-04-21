@@ -16,33 +16,15 @@
 
 #include "TheorEval.h"
 #include "ReactionTheory.h"
+#include"TermData.h"
 #include "xfitter_cpp.h"
-#include "get_pdfs.h"
 #include <string.h>
 
 #include <yaml-cpp/yaml.h>
 #include "xfitter_pars.h"
 #include "xfitter_steer.h"
-#include "BaseEvolution.h"
 
 using namespace std;
-
-// Global variable to hold current alphaS
-std::function<double(double const& Q)>  gAlphaS;
-
-double alphaS(double const& Q) {
-  return gAlphaS(Q);
-}
-
-// also fortran interface
-
-extern "C" {
-  double alphasdef_(double const& Q) {
-    return gAlphaS(Q);
-  }
-}
-
-
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt,
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
 {
@@ -53,16 +35,15 @@ TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string>
     _termSources.push_back(sts[it]);
   }
   _expr.assign(expr);
-
-  _ppbar = false;
 }
 
 TheorEval::~TheorEval()
 {
-
-  vector<tToken>::iterator it = _exprRPN.begin();
-  for (; it!=_exprRPN.end(); it++){
-    if ( ! it->val ) { delete it->val; it->val = NULL; }
+  for(auto it:_exprRPN){
+    if(it.val){
+      delete it.val;
+      it.val=nullptr;
+    }
   }
 
   // OZ delete reactions
@@ -74,6 +55,9 @@ TheorEval::~TheorEval()
       itt->second = NULL;
     }
   }
+  //Delete all instances of TermData
+  for(const auto it:term_datas)delete it;
+  term_datas.clear();
 }
 
 int
@@ -242,75 +226,25 @@ TheorEval::convertToRPN(list<tToken> &sl)
 
 }
 
-int
-TheorEval::initTerm(int iterm, valarray<double> *val)
+void TheorEval::initTerm(int iterm, valarray<double> *val)
 {
-
-  string term_type =  _termTypes.at(iterm);
-  if ( term_type == string("reaction")) {
-    this->initReactionTerm(iterm, val);
-  } else {
+  string term_type=_termTypes.at(iterm);
+  if(term_type!=string("reaction")) {
     std::cerr<<"[ERROR] Unknown term_type=\""<<term_type<<"\" in expression for term \""<<_termNames[iterm]<<'\"'<<std::endl;
     hf_errlog(15102301,"S: Unknown term type, see stderr");
-    return -1;
   }
+  this->initReactionTerm(iterm, val);
 }
-
-//Temporary solution, for string parameters only, pending discussion
-//Allows to provide dataset-specific reaction parameters in addition to dataset-provided reaction parameters
-//using byReaction node in parameters.yaml
-//When a parameter is given both in parameters.yaml and datafile, parameters.yaml has priority and a warning is issued
-void LoadParametersFromYAML(std::map<std::string,std::string>&pars,const std::string&reactionName){
-  using std::string;
-  const char*BY_REACTION="byReaction";
-  auto it=XFITTER_PARS::gParametersY.find(BY_REACTION);
-  if(it==XFITTER_PARS::gParametersY.end())return;//No overwrites given, nothing to do
-  YAML::Node&overwritesNode=it->second;
-  YAML::Node reactionNode=overwritesNode[reactionName];
-  if(reactionNode.IsNull())return;//No overwrite for this reaction, nothing to do
-  if(!reactionNode.IsMap()){
-    cerr<<"[ERROR] In "<<__func__<<"(pars,reactionName="<<reactionName<<"): expected reaction node to be a YAML Map:\n"
-        <<reactionNode<<"\n[/ERROR]"<<endl;
-    hf_errlog(18090301,"F: YAML error while loading reaction parameters, details written to stderr");
-  }
-  try{
-    for(YAML::const_iterator it=reactionNode.begin();it!=reactionNode.end();++it){
-      string key=it->first.as<string>();
-      auto pit=pars.find(key);
-      if(pit!=pars.end()){
-        hf_errlog(18091700,"W: Reaction parameter in parameters.yaml overwrites dataset parameter");
-      }
-      pars[key]=it->second.as<string>();
-    }
-  }catch(YAML::TypedBadConversion<string>ex){
-    cerr<<"[ERROR] In "<<__func__<<"(pars,reactionName="<<reactionName<<"): YAML failed to convert to string while parsing node:\n"
-        <<reactionNode<<"\n[/ERROR]"<<endl;
-    hf_errlog(18090301,"F: YAML error while loading reaction parameters, details written to stderr");
-  }
-}
-int
-TheorEval::initReactionTerm(int iterm, valarray<double> *val)
-{
-  string term_source = _termSources.at(iterm);
-  string term_type =  _termTypes.at(iterm);
-  string term_info =  _termInfos.at(iterm);
-  // Re-define term-source if "use:" string is found:
-  if ( term_source.find("use:") != std::string::npos ) {
-    term_source =  GetParamDS(term_source.substr(4),GetDSname(),_dsPars["FileIndex"]);
-  }
-
-  string libname = gReactionLibs[term_source];
+ReactionTheory*getReaction(const string&name){
+  string libname = gReactionLibs[name];
   if (libname == "") {
-    string text = "F: Reaction " +term_source + " not present in Reactions.txt file";
-    hf_errlog_(16120501,text.c_str(),text.size());
+    hf_errlog(16120501,"F: Reaction " +name+ " not present in Reactions.txt file");
   }
-
-  ReactionTheory * rt;
-  if ( gNameReaction.find(term_source) == gNameReaction.end()) {
+  if ( gNameReaction.find(name) == gNameReaction.end()) {
     string path_to_lib=PREFIX+string("/lib/")+libname;
     void *theory_handler = dlopen(path_to_lib.c_str(), RTLD_NOW);
     if (theory_handler == NULL)  {
-      std::cerr<<"Failed to open shared library "<<path_to_lib<<" for "<<term_source<<"; error:\n"
+      std::cerr<<"Failed to open shared library "<<path_to_lib<<" for "<<name<<"; error:\n"
                <<dlerror()<<"\n Check that the correct library is given in Reactions.txt"<<std::endl;
       hf_errlog(16120502,"F: Failed to open reaction shared library, see stderr for details");
     }
@@ -318,110 +252,91 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
     // reset errors
     dlerror();
 
-    create_t *dispatch_theory = (create_t*) dlsym(theory_handler, "create");
-    rt = dispatch_theory();
-    gNameReaction[term_source] = rt;
-
-
+    void*dispatch_theory=dlsym(theory_handler, "create");
+    ReactionTheory*rt=(ReactionTheory*)((void*(*)())dispatch_theory)();//Create the ReactionTheory
+    gNameReaction[name] = rt;
     // First make sure the name matches:
-    if ( rt->getReactionName() == term_source) {
-      string msg =  "I: Use reaction "+ rt->getReactionName();
-      hf_errlog_(17041610+_dsId,msg.c_str(),msg.size());
+    if ( rt->getReactionName() == name) {
+      hf_errlog(17041610,"I: Loaded reaction "+name);
+    }else{
+      hf_errlog(16120801,"F: Reaction "+name+" does not match library: "+rt->getReactionName());
     }
-    else {
-      string text = "F: Reaction " +term_source + " does not match with library: "+rt->getReactionName();
-      hf_errlog_(16120801,text.c_str(),text.size());
-    }
-
-
-    // Some initial stuff:
-
-    // transfer the parameters:
-    rt->setxFitterParameters(XFITTER_PARS::gParameters);
-    rt->setxFitterParametersI(XFITTER_PARS::gParametersI);
-    rt->setxFitterParametersS(XFITTER_PARS::gParametersS);
-    rt->setxFitterparametersVec(XFITTER_PARS::gParametersV);
-    rt->setxFitterparametersYaml(XFITTER_PARS::gParametersY);
-
-    // Override some global pars for reaction specific:
-    if ( XFITTER_PARS::gParametersY[term_source] ) {
-      rt->resetParameters(XFITTER_PARS::gParametersY[term_source]);
-    }
-
-    std::string evoName =XFITTER_PARS::getDefaultEvolutionName();
-    // Set the evolution:
-    rt->setEvolution(evoName);
-
-    //Retrieve evolution
-
-    xfitter::BaseEvolution* evo = xfitter::get_evolution(evoName);
-    //    rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
-    //This is not how we should pass PDFs and alphas
-    //pending TermData rewrite
-    //--Ivan
-    gAlphaS = evo-> AlphaQCD();
-    rt->setEvolFunctions( &alphaS, &g2Dfunctions);
-
-    /* broken since 2.2.0
-    // simplify interfaces to LHAPDF:
-    rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
-    rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
-    rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
-    */
-
     // initialize
-    if (rt->atStart("") != 0) {
-      // failed to init, somehow ...
-      string text = "F:Failed to init reaction " +term_source  ;
-      hf_errlog_(16120803,text.c_str(),text.size());
-    };
-
+    rt->atStart();
+    return rt;
   } else {
-    rt = gNameReaction[term_source];
+    return gNameReaction.at(name);
   }
-
-
-  /// Reaction-term / dataset specific:
-
-  // Set bins
-  rt->setBinning(_dsId*1000+iterm, &gDataBins[_dsId]);
-
-  // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
-  map<string, string> pars = SplitTermInfo(term_info);
-  LoadParametersFromYAML(pars,rt->getReactionName());//HACKS
-
-  // and transfer to the module
-  rt->setDatasetParameters(_dsId*1000+iterm, pars, _dsPars);
-
-  _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
 }
-
-
-int
-TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
-{
-  for(int ip = 0; ip<nPoints; ip++){
-    _binFlags.push_back(binFlags[ip]);
+const string GetParamDS(const string&parName,const std::string&dsName,int dsIndex){
+  using XFITTER_PARS::rootNode;
+  //Get option referred to by "use:" from YAML
+  YAML::Node parNode=rootNode[parName];
+  if(!parNode.IsDefined()){
+    cerr<<"[ERROR] Undefined key \""<<parName<<"\" in \"use:\" in dataset \""<<dsName<<"\" (index="<<dsIndex<<"). This key must be defined in YAML steering."<<endl;
+    hf_errlog(19042000,"F: Undefined key in \"use:\", see stderr");
+    std::abort();//unreachable
   }
-
-  for(int ibd = 0; ibd < nBinDim; ibd++){
-    vector<double> bins;
-    bins.clear();
-    for(int ip = 0; ip<nPoints; ip++){
-      bins.push_back(allBins[ip*10 + ibd]);
+  if(parNode.IsScalar())return parNode.as<string>();
+  {
+  YAML::Node nameNode=parNode[dsName];
+  YAML::Node indexNode=parNode[dsIndex];
+  if(nameNode.IsDefined()){
+    if(indexNode.IsDefined()){
+      cerr<<"[WARN] Value for key \""<<parName<<"\" referenced in \"use:\" is given both by dataset name (\""<<dsName<<"\") and by its index ("<<dsIndex<<"). Using the value provided by name and ignoring the value provided by index."<<endl;
+      hf_errlog(19042001,"W: Value for \"use:\" key given both by name and by index, see stderr");
     }
-    _dsBins.push_back(bins);
+    return nameNode.as<string>();
+  }else{
+    return indexNode.as<string>();
+  }
+  }
+  YAML::Node defaultNode=parNode["defaultValue"];//I think "default" would be nicer --Ivan
+  if(defaultNode.IsDefined())return defaultNode.as<string>();
+  cerr<<"[ERROR] No value fiven for key \""<<parName<<"\" referenced in \"use:\" in dataset \""<<dsName<<"\" (index="<<dsIndex<<")"<<endl;
+  hf_errlog(19042002,"F: Key in \"use:\" has no value, see stderr");
+  std::abort();//unreachable
+}
+void TheorEval::initReactionTerm(int iterm, valarray<double> *val){
+  string term_source = _termSources.at(iterm);
+  string term_info =  _termInfos.at(iterm);
+  if(beginsWith(term_source,"use:")){//then redefine term source
+    //I am not sure this works correctly right now --Ivan
+    //Replace dsPars
+    term_source=GetParamDS(term_source.substr(4),_ds_name,_dsIndex);
+  }
+  ReactionTheory*rt=getReaction(term_source);
+  size_t termID=_dsId*1000+iterm;
+  TermData*term_data=new TermData(termID,rt,this,term_info.c_str());
+  term_data->val=val;
+  term_datas.push_back(term_data);
+  //rt->setBinning(termID, &gDataBins[_dsId]);//TODO: What is this?
+  rt->initTerm(term_data);
+}
+
+void TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins){
+  //Copy data to _binFlags and _dsBins
+  _binFlags.resize(nPoints);
+  for(int i=0;i<nPoints;i++){
+    _binFlags[i]=binFlags[i];
   }
 
-  return _dsBins.size();
+  _dsBins.reserve(nBinDim);
+  for(int ibd = 0; ibd < nBinDim; ibd++){
+    _dsBins.push_back(vector<double>());
+    vector<double>&bins=_dsBins.back();
+    bins.resize(nPoints);
+    for(int i=0;i<nPoints;i++){
+      bins[i]=allBins[i*10+ibd];
+    }
+  }
 }
 
 
-int
-TheorEval::Evaluate(valarray<double> &vte )
+void TheorEval::Evaluate(valarray<double> &vte )
 {
   // get values from grids
-  this->getReactionValues();
+  this->updateReactionValues();
 
   // calculate expression result
   stack<valarray<double> > stk;
@@ -429,7 +344,7 @@ TheorEval::Evaluate(valarray<double> &vte )
   while(it!= _exprRPN.end()){
     if ( it->opr < 0 ){
       cout << "ERROR: Expression RPN is wrong" << endl;
-      return -1;
+      return;
     }
     if ( it->opr == 0 ){
       stk.push(*(it->val));
@@ -490,8 +405,8 @@ TheorEval::Evaluate(valarray<double> &vte )
         }
         stk.top() = result;
       }else{
-        char error[] = "ERROR: Dimensions do not match ";
-        cout<<error<<endl;}
+        cout<<"ERROR: Dimensions do not match"<<endl;
+      }
       /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
           int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
           int mb1 = ?;
@@ -513,7 +428,7 @@ TheorEval::Evaluate(valarray<double> &vte )
 
   if (stk.size() != 1 ) {
     cout << "ERROR: Expression RPN calculation error." << endl;
-    return -1;
+    return;
   } else {
     vte = stk.top();
     //Normalised cross section
@@ -527,38 +442,26 @@ TheorEval::Evaluate(valarray<double> &vte )
           for (int bin = 0; bin < _binFlags.size(); bin++)
             vte[bin] /= integral;
       }
-    //vte /= _units;
   }
 }
 
 
-int
-TheorEval::getReactionValues()
-{
-  //  map<ReactionTheory*, valarray<double>*>::iterator itm;
-  for(auto itm = _mapReactionToken.begin(); itm != _mapReactionToken.end(); itm++){
-    ReactionTheory* rt = (itm->first).first;
-    int idTerm =  (itm->first).second;
-    map<string, valarray<double> > errors;
-
-    int result =  rt->compute(_dsId*1000+idTerm, *(itm->second), errors);
-
-    if (result != 0) {
-      string text = "F:(from TheorEval::getReactionValues)  Failed to compute theory";
-      hf_errlog_(16081202,text.c_str(),text.size());
-    }
+void TheorEval::updateReactionValues(){
+  map<string,valarray<double> > errors;//The errors returned by reaction are ignored
+  //TODO: actually use the errors reported by ReactionTheory in chi2 calculation
+  for(const auto td:term_datas){
+    td->reaction->compute(td,*td->val,errors);
   }
-
-  return 1;
 }
-
 
 int
 TheorEval::getNbins()
 {
+  //WIP we need this for bins, somehow?
   return _dsBins[0].size();
 }
 
+/* What are those? They are currently unused, and I am not sure they work correctly now, with TermData. --Ivan
 void TheorEval::ChangeTheorySource(string term, string source)
 {
   vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
@@ -579,90 +482,9 @@ string TheorEval::GetTheorySource(string term)
   vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
   if ( found_term == _termNames.end())
     {
-      string msg = (string) "S: Undeclared term " + term;
-      hf_errlog_(14020603, msg.c_str(), msg.size());
+      hf_errlog(14020603,(string) "S: Undeclared term " + term);
     }
   int iterm = int(found_term-_termNames.begin());
   return _termSources[iterm];
 }
-
-map<string, string> TheorEval::SplitTermInfo(const string& term_info)
-{
-  // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
-  map<string, string> pars;
-  std::size_t pos0 = 0;
-  while(pos0 < term_info.size())
-  {
-    std::size_t pos1 = term_info.find("=", pos0);
-    std::size_t pos2 = term_info.find(":", pos0);
-    if(pos2 == std::string::npos) // last key=value does not have trailing :
-      pos2 = term_info.size();
-    // check for possible wrong format
-    if(pos0 == 0 && pos1 == std::string::npos)
-    { // no = in non empty term_info
-      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
-      hf_errlog_(17020101, text.c_str(), text.size());
-    }
-    if(pos2 < pos1)
-    { // two : : without = between them
-      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
-      hf_errlog_(17020101, text.c_str(), text.size());
-    }
-    std::size_t pos11 = term_info.find("=", pos1 + 1);
-    if(pos11 != std::string::npos && pos11 < pos2)
-    { // two = = without : between them
-      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
-      hf_errlog_(17020101, text.c_str(), text.size());
-    }
-    // split into key value pair
-    std::string key = std::string(term_info, pos0, pos1 - pos0);
-    std::string value = std::string(term_info, pos1 + 1, pos2 - pos1 - 1);
-    // check if this key already exists
-    if(pars.find(key) != pars.end())
-    {
-      string text = "W: Replacing existing key when reading TermInfo";
-      hf_errlog_(17020102, text.c_str(), text.size());
-    }
-    // add to map
-    pars[key] = value;
-    // start next search iteration after current :
-    pos0 = pos2 + 1;
-  }
-  //printf("read term_info %s\n", term_info.c_str());
-  //for(map<string, string>::iterator it = pars.begin(); it != pars.end(); it++)
-  //  printf("  %s=%s\n", (it->first).c_str(), (it->second).c_str());
-  return pars;
-}
-
-const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex) {
-  // First check the list of strings, if present there. If yes, just return
-  if ( XFITTER_PARS::gParametersS.find(ParName) != XFITTER_PARS::gParametersS.end() ) {
-    return XFITTER_PARS::gParametersS[ParName];
-  }
-  // Now check the complex list:
-  if ( XFITTER_PARS::gParametersY.find(ParName) != XFITTER_PARS::gParametersY.end() ) {
-    YAML::Node Node = XFITTER_PARS::gParametersY[ParName];
-
-    // Default:
-    if ( Node["defaultValue"]) {
-      std::string Val = Node["defaultValue"].as<string>();
-
-      if (Node[DSname]) {
-        Val = Node[DSname].as<string>();
-      }
-      if (Node[DSindex]) {
-        Val = Node[DSindex].as<string>();
-      }
-
-      return Val;
-    }
-    else {
-      string text = "F: missing value field for parameter " + ParName;
-      hf_errlog_(17041101,text.c_str(),text.size());
-      return "";
-    }
-  }
-  else {
-    return "";
-  }
-}
+*/

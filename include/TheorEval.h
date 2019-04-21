@@ -30,12 +30,16 @@
 
 
 class ReactionTheory;
+class TermData;
 
 using std::valarray;
 using std::vector;
 using std::string;
 using std::map;
 using std::list;
+
+//TheorEval live in map<int,TheorEval*>gTEmap: datasetID->TheorEval
+//TheorEval are created in set_theor_eval_(dataset id), in src/ftheor_eval.cc
 
 //! Arithmetic token struct
 /**
@@ -87,18 +91,18 @@ class TheorEval{
     iteration. It updates the expression components and folds the reverse
     polish notation to calculate the result.
    */
-  int Evaluate(valarray<double> &vte );
+  void Evaluate(valarray<double> &vte );
 
   //! Set dataset bins
   /*!
     \param nBinDim the binning dimension (only 1d is supported at the moment)
     \param nPoints number of points (bins)
     \param binFlags array with flags for each bin
-    \param allBins array of bin boundaries
+    \param allBins array of bin boundaries (nope --Ivan)
 
     This method sets the binning of the dataset.
    */
-  int setBins(int nBinDim, int nPoints, int *binFlags, double *allBins);
+  void setBins(int nBinDim, int nPoints, int *binFlags, double *allBins);
   //! Initializes sources for theoretical predictions
   /*!
    After the datasets with expressions are read, this method initialises
@@ -109,18 +113,11 @@ class TheorEval{
   int getNbins();
   //! Returs vector with bin flags for current dataset
   const vector<int> *getBinFlags() const { return &_binFlags; }
-  //! Selects if we have a proton-antiproton collision
-  void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
-  //! Add parameters global for a dataset such as collision energy, polarisation etc
-  void AddDSParameter(const string& name, double value) {_dsPars[name] = value;};
-  void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-  void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
-  void SetOrdScales(int iord, double mur, double muf) { _iOrd=iord; _xmur=mur; _xmuf=muf;}; //!< set order and scale factors
-  void GetOrdScales(int &iord, double &mur, double &muf) { iord=_iOrd; mur=_xmur; muf=_xmuf;}; //!< get order and scale factors
+  /*TODO: delete this?
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
-
+  */
  private:
   //! Checks that the bin boundaries in theory sources are complied with data ones.
   int checkBins();
@@ -134,60 +131,36 @@ class TheorEval{
   /*!
    Depending on the term type, the corresponding initialization method is called
   */
-  int initTerm(int, valarray<double> *);
+  void initTerm(int, valarray<double> *);
 
   //! Initialise reaction term
-  int initReactionTerm(int iterm, valarray<double> *val);
+  void initReactionTerm(int iterm,valarray<double>*val);
   //! Update the reaction values into the tokens
-  int getReactionValues();
-  //! 
-  map<string, string> SplitTermInfo(const string& term_info);
+  void updateReactionValues();
 
- private:
-  int _dsId;
-  int _iOrd;
-  double _xmur;
-  double _xmuf;
   int _nTerms;
-  double _units;
   vector<string> _termNames;
-  vector<string> _termTypes;
+  vector<string> _termTypes;//we do not need this anymore, the one and only term type is "reaction"
   vector<string> _termInfos;
   vector<string> _termSources;
   string _expr;
-  vector<int> _binFlags;
-  vector<vector<double> > _dsBins;
-  vector<valarray<double> > _kFactors;
+  vector<int> _binFlags;//_binFlags[i] is flag for bin i. Flag=0 means bin is disabled and excluded from the fit. Flag=1 means enabled.
+  vector<vector<double> > _dsBins;//_dsBins[i][j] is value in 'Bin'-type column i, row j, as provided in datafile
 
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
-  map< std::pair<ReactionTheory*,int> , valarray<double>* > _mapReactionToken;
   map<string, valarray<double>* > _mapInitdTerms;
 
   /// Normalised theory
-  bool _normalised;
-
-  /// ppbar PDF
-  bool _ppbar;
-
-  /// fastNLO flexible-scale defintions
-  int _MurDef;
-  int _MufDef;
-
-  /// bin-by-bin dynamic scale
-  float _dynamicscale;
-
-  /// also keep DS pars, which are valid for all terms 
-  map <string, double> _dsPars;
-
-  /// Name !
-  std::string _ds_name;
- public:
-  void SetDSname(std::string& name) { _ds_name = name;}
- protected:
-  const std::string GetDSname() { return _ds_name; };
+  bool _normalised=false;
+  vector<TermData*>term_datas;
+public:
+  /// also keep some dataset information:
+  string _ds_name;///Name
+  //TODO: Field names could be better --Ivan
+  int _dsId;   //Id of dataset, which is the number of corresponding entry in steering.txt
+  int _dsIndex;//Index of dataset, as given in the datafile
 };
-
 typedef map <int, TheorEval* > tTEmap;
 typedef map <string, string> tReactionLibsmap;
 typedef map <string, ReactionTheory *> tNameReactionmap;
@@ -195,14 +168,6 @@ typedef map <string, ReactionTheory *> tNameReactionmap;
 // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 // Host here also global list of bins:
 typedef map <int, map<string, valarray <double> > > tDataBins;
-
-
-// and list of 2-par functions
-
-
-typedef double (*pTwoParFunc)(const double&, const double&);
-// using pTwoParFunc  = std::function< double(const double&, const double&) >;
-typedef map <string, pTwoParFunc> t2Dfunctions;
 
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
@@ -214,10 +179,4 @@ extern tReactionLibsmap gReactionLibs;
 extern tNameReactionmap gNameReaction;
 
 extern tDataBins gDataBins;
-extern t2Dfunctions g2Dfunctions;
-
-/// Helper function to determine scope-specific parameter value for complex parameters
-const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex);
-
-
 #endif

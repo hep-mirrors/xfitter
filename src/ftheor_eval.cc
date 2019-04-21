@@ -14,6 +14,7 @@
 
 #include "get_pdfs.h"
 #include "xfitter_cpp.h"
+#include "xfitter_cpp_base.h"
 
 #include "TheorEval.h"
 #include <yaml-cpp/yaml.h>
@@ -62,16 +63,19 @@ tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 tDataBins gDataBins;
 
-t2Dfunctions g2Dfunctions;
-
+const size_t TERMNAME_LEN  =8;
+const size_t TERMTYPE_LEN  =80;
+const size_t TERMINFO_LEN  =2048;
+const size_t TERMSOURCE_LEN=256;
+const size_t THEOREXPR_LEN =1000;
 extern struct thexpr_cb {
   double dynscale;
   int nterms;
-  char termname[16][8];
-  char termtype[16][80];
-  char terminfo[16][2048];
-  char termsource[16][256];
-  char theorexpr[1000];
+  char termname[16][TERMNAME_LEN];
+  char termtype[16][TERMTYPE_LEN];
+  char terminfo[16][TERMINFO_LEN];
+  char termsource[16][TERMSOURCE_LEN];
+  char theorexpr[THEOREXPR_LEN];
   int ppbar_collisions;
   int normalised;
   int murdef;
@@ -101,24 +105,22 @@ inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
  dataset ID.
  write details on argumets
  */
-int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
-//  char **TermSource, char *TermExpr)
-{
+int set_theor_eval_(int *dsId){
   // convert fortran strings to c++
   vector<string> stn(theorexpr_.nterms);
   vector<string> stt(theorexpr_.nterms);
   vector<string> sti(theorexpr_.nterms);
   vector<string> sts(theorexpr_.nterms);
   for ( int i = 0; i< theorexpr_.nterms; i++){
-    stn[i].assign(theorexpr_.termname[i], string(theorexpr_.termname[i]).find(' '));
-    stt[i].assign(theorexpr_.termtype[i], string(theorexpr_.termtype[i]).find(' '));
-    sti[i].assign(theorexpr_.terminfo[i], string(theorexpr_.terminfo[i]).find(' '));
-    sts[i].assign(theorexpr_.termsource[i], string(theorexpr_.termsource[i]).find(' '));
+    stn[i]=stringFromFortran(theorexpr_.termname  [i],TERMNAME_LEN);
+    stt[i]=stringFromFortran(theorexpr_.termtype  [i],TERMTYPE_LEN);
+    sti[i]=stringFromFortran(theorexpr_.terminfo  [i],TERMINFO_LEN);
+    sts[i]=stringFromFortran(theorexpr_.termsource[i],TERMSOURCE_LEN);
   }
-  string ste;
-  ste.assign(theorexpr_.theorexpr, string(theorexpr_.theorexpr).find(' '));
+  string ste=stringFromFortran(theorexpr_.theorexpr,THEOREXPR_LEN);
   TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sti, sts, ste);
 
+  /* sometime in xFitter 2.2 CINFO support was dropped
   // Store CINFO
   for (int i=0; i<theorexpr_.ninfo; i++) {
     std::string n(theorexpr_.CInfo[i]);
@@ -126,28 +128,18 @@ int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType,
     n.erase(std::remove(n.begin(), n.end(), ' '), n.end());
     te->AddDSParameter(n, theorexpr_.datainfo[i]);
   }
-  // Store some other basic info
-  theorexpr_.dsname[79] = '\0';
-  std::string n(theorexpr_.dsname);
-  // Erase trailing spaces
-  n = rtrim(n)," ";//Because commenting out a line of code is too mainstream, right? (sarcasm) --Ivan
-
-  te->SetDSname(n);
-  te->AddDSParameter("Index",theorexpr_.ds_index); // dataset index
-  te->AddDSParameter("FileIndex",*dsId);
-
-  te->SetCollisions(theorexpr_.ppbar_collisions);
-  te->SetDynamicScale(theorexpr_.dynscale);
+  */
+  // Store some dataset information
+  te->_ds_name=stringFromFortran(theorexpr_.dsname,80);
+  te->_dsId=*dsId;
+  te->_dsIndex=theorexpr_.ds_index;
   te->SetNormalised(theorexpr_.normalised);
-  te->SetMurMufDef(theorexpr_.murdef,theorexpr_.mufdef);
-  te->SetOrdScales(cscales_.datasetiorder[*dsId-1],cscales_.datasetmur[*dsId-1],cscales_.datasetmuf[*dsId-1]);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }
   else {
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
-    << " already exists." << endl;
-    exit(1); // make proper exit later
+    cerr<<"[ERROR] Theory evaluation for dataset ID "<<*dsId<<" already exists."<<endl;
+    hf_errlog(19042010,"F: Programming error: TheorEval already exists; see stderr");
   }
 
   return 1;
@@ -177,43 +169,19 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
 
   // Store bin information
 
-  map<string, valarray<double> > namedBins;
+  map<string, valarray<double> >&namedBins=gDataBins[*dsId];//map (bin name)->(column of values in that bin)
   for (int i=0; i<*nBinDimension; i++) {
-    string name = binNames[i];
-    name.erase(name.find(" "));
-    //    cout << name << " " << *dsId <<endl;
-    valarray<double> bins(*nPoints);
+    string name=stringFromFortran(binNames[i],COLUMN_NAME_LEN);
+    valarray<double>&bins=namedBins[name]=valarray<double>(*nPoints);
     for ( int j = 0; j<*nPoints; j++) {
       bins[j] = allBins[j*10 + i];
     }
-
-    //namedBins[name] = bins; // OZ 30.012017 this is not legal in C++ < C++11 and does not work with gcc 4.4.7
-    valarray<double>& insertedBins = namedBins[name];
-    insertedBins.resize(bins.size());
-    insertedBins = bins;
   }
-  gDataBins[*dsId] = namedBins;
 
-  TheorEval *te = gTEmap.at(*dsId);
+  TheorEval*te=it->second;
   te->setBins(*nBinDimension, *nPoints, binFlags, allBins);
   return 1;
 }
-
-/*
-int set_theor_units_(int *dsId, double *units)
-{
-  tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) {
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
-    << " not found!" << endl;
-    exit(1);
-  }
-
-  TheorEval *te = gTEmap.at(*dsId);
-  te->setUnits(*units);
-  return 1;
-}
-*/
 
 /*!
  Initializes theory for requested dataset.
@@ -319,19 +287,12 @@ void init_at_iteration_() {
     pdfdecomposition.second->atIteration();//Among other things, sumrules are handled here
   }
 
-  for(auto it:XFITTER_PARS::gEvolutions) {
-    xfitter::BaseEvolution*evolution=it.second;
-    evolution->atIteration();
-
-    // register updated PDF XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    //Wait, do they even get updated between iterations? Is this here even necessary? --Ivan
-    //this should be removed
-
-    XFITTER_PARS::registerXfxQArray(evolution->_name,evolution->xfxQArray());
+  for(const auto it:XFITTER_PARS::gEvolutions){
+    it.second->atIteration();
   }
 
-  for(auto reaction:gNameReaction){
-    reaction.second->initAtIteration();
+  for(const auto reaction:gNameReaction){
+    reaction.second->atIteration();
   }
 }
 //This is called after minimization, after result output
@@ -344,13 +305,13 @@ void fcn3action_()
   }
 
   for ( auto reaction : gNameReaction ) {
-    reaction.second->actionAtFCN3();
+    reaction.second->atFCN3();
   }
 }
 
 void error_band_action_(const int& i) {
   for ( auto reaction : gNameReaction ) {
-    reaction.second->initAtIteration();   // Init parameters first
-    reaction.second->errorBandAction(i);
+    reaction.second->atIteration();
+    reaction.second->atMakeErrorBands(i);
   }
 }
