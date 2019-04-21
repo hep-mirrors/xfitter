@@ -1,4 +1,5 @@
 #!/usr/bin/env python 
+#TODO: needs to be updated for the new ReactionTheory interface
 
 ''' Script to generate templates for a new theory module '''
 
