@@ -9,8 +9,9 @@ C> Common block for theory expression
       character*2048 TermInfo(NTermsMax)
       character*256 TermSource(NTermsMax)
       character*1000 TheorExpr
-      integer ppbar_collisions
       integer normalised
+      !TODO: remove the following 3 variables
+      integer ppbar_collisions
       integer murdef
       integer mufdef
 
