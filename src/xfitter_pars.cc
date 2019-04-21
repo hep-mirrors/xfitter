@@ -391,6 +391,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     return gXfxQArrays.at(name);
   }
   const double*createConstantParameter(const string&n,double val){
+    if(gParameters.count(n)>0){
+      cerr<<"[ERROR] Redefinition of parameter \""<<n<<"\" with a constant parameter"<<endl;
+      hf_errlog(19042101,"F: Parameter redefinition as a constant, see stderr");
+    }
     double*p=new double;
     *p=val;
     //TODO: remember these created parameters and delete them
@@ -413,6 +417,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         if(XFITTER_PARS::gParameters.find(parameterName)!=XFITTER_PARS::gParameters.end()){
           cerr<<"[ERROR] Redefinition of parameter \""<<parameterName<<"\""<<endl;
           hf_errlog(18112810,"F: Parameter redefinition, see stderr");
+        }
+        if(XFITTER_PARS::rootNode[parameterName].IsDefined()){
+          cerr<<"[WARN] Redefinition of minimization parameter \""<<parameterName<<"\" at root of YAML steering. The value under \"Parameters\" will be used, and the one at global scope will be ignored"<<endl;
+          hf_errlog(19042100,"W: Parameter redefinition at global scope, see stderr");
         }
         double value=nan("");
         double step=nan("");
