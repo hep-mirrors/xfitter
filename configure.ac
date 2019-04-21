@@ -272,10 +272,10 @@ if test x$enable_applgrid == xyes; then
     AC_MSG_ERROR([Unable to find applgrid-config.])
   else 
     APPLGRIDVERS=`applgrid-config --version`
-    APPLGRID_CPPFLAGS=`applgrid-config --cxxflags`
+    APPLGRID_CXXFLAGS=`applgrid-config --cxxflags`
     APPLGRID_LDFLAGS=`applgrid-config --ldcflags`
     AC_MSG_RESULT([Using $applgrid_config version $APPLGRIDVERS])
-    AC_SUBST(APPLGRID_CPPFLAGS)
+    AC_SUBST(APPLGRID_CXXFLAGS)
     AC_SUBST(APPLGRID_LDFLAGS)
     AC_DEFINE([APPLGRID_ENABLED],[1],[Define if applgrid is enabled])
   fi
