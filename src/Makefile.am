@@ -76,7 +76,7 @@ AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include $(NOAUTOFCFLAG) -I$(srcdir)/../m
 AM_CPPFLAGS = -I$(srcdir)/../include 
 
 if ENABLE_APPLGRID 
-  AM_CPPFLAGS+=$(APPLGRID_CPPFLAGS) $(ROOT_CFLAGS)
+  AM_CXXFLAGS+=$(APPLGRID_CXXFLAGS) $(ROOT_CFLAGS)
 endif
 
 if ENABLE_APFEL 
