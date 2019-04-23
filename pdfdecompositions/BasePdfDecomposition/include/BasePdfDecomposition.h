@@ -2,9 +2,6 @@
 
 #include <string>
 #include <map>
-#include <functional>
-#include "BasePdfParam.h"
-// #include <iostream>
 
 /**
   @class BasePdfDecomposition
@@ -13,8 +10,8 @@
 
   Contains methods to tranform from parameterisation to physical basis
 
-  @version 0.1
-  @date 2018-07-11
+  @version 0.2
+  @date 2019-04-22
   */
 
 namespace xfitter
@@ -32,8 +29,12 @@ namespace xfitter
     virtual void atIteration(){}
     /// This function should be called when at least one parameter in the YAML node of given decomposition changes
     virtual void atConfigurationChange(){}
-    /// Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
-    virtual std::function<std::map<int,double>(const double& x)> f0() const = 0;
+    /// Returns PDFs in the flavor basis for given x
+    /*Parton codes are LHAPDF convention:
+     *      i  -6 -5 -4 -3 -2 -1 21 1  2  3  4  5  6
+     * pdfs[i] tb bb cb sb ub db g  d  u  s  c  b  t
+     */
+    virtual std::map<int,double>xfxMap(double x)const=0;
     /// Get class name, can be used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
   };

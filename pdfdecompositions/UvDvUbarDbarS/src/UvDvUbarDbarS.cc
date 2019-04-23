@@ -53,32 +53,28 @@ namespace xfitter
     // gluon part
     par_xg->setMoment(0,1-xsumq);
   }
-  std::function<std::map<int,double>(const double& x)> UvDvUbarDbarS::f0() const
+  std::map<int,double>UvDvUbarDbarS::xfxMap(double x)const
   {
-    // lambda function
-    return [=] (double const& x)->std::map<int, double> {
-      double ubar=(*par_xubar)(x);
-      double dbar=(*par_xdbar)(x);
-      double u=(*par_xuv)(x)+ubar;
-      double d=(*par_xdv)(x)+dbar;
-      double s=(*par_xs)(x);
-      double g=(*par_xg)(x);
-      std::map<int, double> res  = {
-        {-6,0},
-        {-5,0},
-        {-4,0},
-        {-3,s},
-        {-2,ubar},
-        {-1,dbar},
-        { 1,d},
-        { 2,u},
-        { 3,s},
-        { 4,0},
-        { 5,0},
-        { 6,0},
-        {21,g}
-      };
-      return res;
+    double ubar=(*par_xubar)(x);
+    double dbar=(*par_xdbar)(x);
+    double u=(*par_xuv)(x)+ubar;
+    double d=(*par_xdv)(x)+dbar;
+    double s=(*par_xs)(x);
+    double g=(*par_xg)(x);
+    return{
+      {-6,0},
+      {-5,0},
+      {-4,0},
+      {-3,s},
+      {-2,ubar},
+      {-1,dbar},
+      { 1,d},
+      { 2,u},
+      { 3,s},
+      { 4,0},
+      { 5,0},
+      { 6,0},
+      {21,g}
     };
   }
 }

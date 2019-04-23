@@ -9,7 +9,6 @@
 #include"SU3_PionPdfDecomposition.h"
 #include"xfitter_pars.h"
 #include"xfitter_steer.h"
-using uint=unsigned int;
 using namespace std;
 //For dynamic loading:
 namespace xfitter{
@@ -47,29 +46,25 @@ void SU3_PionPdfDecomposition::atIteration() {
   //Momentum sum
   par_g->setMoment(0,1-6*par_S->moment(0)-2*par_v->moment(0));
 }
-// Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
-std::function<std::map<int,double>(const double& x)>SU3_PionPdfDecomposition::f0()const{
-  return [=](double const& x)->std::map<int, double>{
-    double v=(*par_v)(x);
-    double S=(*par_S)(x);
-    double g=(*par_g)(x);
-    double d=S+v;
-    std::map<int,double>res_={
-      {-6,0},
-      {-5,0},
-      {-4,0},
-      {-3,S},//sbar
-      {-2,d},//ubar
-      {-1,S},//dbar
-      { 1,d},//d
-      { 2,S},//u
-      { 3,S},//s
-      { 4,0},
-      { 5,0},
-      { 6,0},
-      {21,g}
-    };
-    return res_;
+map<int,double>SU3_PionPdfDecomposition::xfxMap(double x)const{
+  double v=(*par_v)(x);
+  double S=(*par_S)(x);
+  double g=(*par_g)(x);
+  double d=S+v;
+  return{
+    {-6,0},
+    {-5,0},
+    {-4,0},
+    {-3,S},//sbar
+    {-2,d},//ubar
+    {-1,S},//dbar
+    { 1,d},//d
+    { 2,S},//u
+    { 3,S},//s
+    { 4,0},
+    { 5,0},
+    { 6,0},
+    {21,g}
   };
 }
 }

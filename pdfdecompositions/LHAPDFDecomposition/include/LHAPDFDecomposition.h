@@ -32,7 +32,7 @@ namespace xfitter
     virtual void atStart()override final;
 
     /// Compute PDF in a physical basis in LHAPDF format at the initial scale
-    virtual std::function<std::map<int,double>(const double& x)> f0() const override final;
+    virtual std::map<int,double>xfxMap(double x)const override final;
 
   private:
     LHAPDF::PDF*_pdf{nullptr};

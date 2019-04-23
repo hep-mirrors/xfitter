@@ -37,14 +37,8 @@ namespace xfitter {
     if(_pdf)delete _pdf;
     _pdf=LHAPDF::mkPDF(setName,member);
   }
-
-  //_________________________________________________________________________________
-  std::function<std::map<int,double>(const double& x)> LHAPDFDecomposition::f0() const
-  {
-    return [=] (const double& x)->std::map<int,double>
-      {
-        return _pdf->xfxQ(x, *(XFITTER_PARS::gParameters.at("Q0")));
-      };
+  std::map<int,double>LHAPDFDecomposition::xfxMap(double x)const{
+    return _pdf->xfxQ(x, *(XFITTER_PARS::gParameters.at("Q0")));
   }
 }
 

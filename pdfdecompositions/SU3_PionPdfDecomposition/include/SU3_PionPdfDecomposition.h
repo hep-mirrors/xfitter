@@ -1,5 +1,6 @@
 #pragma once
 #include "BasePdfDecomposition.h"
+#include"BasePdfParam.h"
 /**
   @class SU3_PionPdfDecomposition 
 
@@ -31,7 +32,7 @@ class SU3_PionPdfDecomposition:public BasePdfDecomposition{
     virtual const char*getClassName()const override final;
     virtual void atStart()override final;
     virtual void atIteration()override final;
-    virtual std::function<std::map<int,double>(const double& x)>f0()const override final;
+    virtual std::map<int,double>xfxMap(double x)const override final;
   private:
     BasePdfParam*par_v{nullptr},*par_S{nullptr},*par_g{nullptr};
   };
