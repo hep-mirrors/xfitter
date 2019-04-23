@@ -22,11 +22,10 @@ namespace xfitter
   class BasePdfDecomposition {
   public:
 		const std::string _name;//Unique name used to identify this decomposition instance
-
-    /// Default constructor. 
+    /// Default constructor.
     BasePdfDecomposition(const char*name):_name(name){}
     virtual ~BasePdfDecomposition(){}
-    
+
     /// Initialization at the first call
     virtual void atStart(){}
     /// Optional initialization at each iteration. Can be used to compute sum-rules
@@ -38,7 +37,6 @@ namespace xfitter
     /// Get class name, can be used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
   };
-
   /// For dynamic loader
   //Wait, is this even used anywhere? --Ivan
   typedef BasePdfDecomposition* create_pdfDecomposition();
