@@ -2,8 +2,6 @@
 
 #include <string>
 #include <map>
-#include <functional>
-#include <yaml-cpp/yaml.h>
 
 namespace xfitter
 {
@@ -15,8 +13,8 @@ namespace xfitter
      Contains methods to compute the evolution of PDFs, alpha_s, and
      other possible evolving quantites.
 
-     @version 0.2
-     @date 2018-09-29
+     @version 0.3
+     @date 2019-04-22
   */
   class BaseEvolution
   {
@@ -52,41 +50,42 @@ namespace xfitter
      */
     ///@{
     /**
-     * @brief Function that returns a std::function that in turn
-     * returns a map<int, double> as a function of x and Q.
-     * @return map<int, double>-valued function of x and Q.
+     * @brief Get PDFs for given x and Q as a map<int,double>
+     * @return PDF as map<int,double>
+     *Parton codes are LHAPDF convention:
+     *      i  -6 -5 -4 -3 -2 -1 21 1  2  3  4  5  6
+     * pdfs[i] tb bb cb sb ub db g  d  u  s  c  b  t
      */
-    virtual std::function<std::map<int,double>(double const& x, double const& Q)> xfxQMap() = 0;
+    virtual std::map<int,double>xfxQmap(double x,double Q)=0;
 
     /**
-     * @brief Function that returns a std::function that in turn
+     * @brief Get PDF for given x, Q, and flavor i
      * i indexes flavor (QCDNUM convention):
      *
      * i -6 -5 -4 -3 -2 -1 0  1  2  3  4  5  6
      *   tb bb cb sb ub db g  d  u  s  c  b  t
      *
-     * @return double-valued function of i, x and Q.
+     * @return PDF value
      */
-    virtual std::function<double(int const& i, double const& x, double const& Q)> xfxQDouble() = 0;//why would you pass int and double by reference??? --Ivan
+    virtual double xfxQ(int i,double x,double Q)=0;
 
     /**
-     * @brief Function that returns a std::function that in turn
-     * returns a void as a function of the pdf index x, Q, and pdfs,
-     * where pdfs is the array of PDFs, of size 13 (C++ QCDNUM convention):
+     * @brief Get PDF for given x and Q by filling the given array
+     * writes into array pdfs (C++ QCDNUM convention):
      *
      *      i  0  1  2  3  4  5  6  7  8  9 10 11 12
      * pdfs[i] tb bb cb sb ub db g  d  u  s  c  b  t
      *
-     * @return void-valued function of x, Q, which writes PDF values by pointer pdfs.
+     * @return PDFs
      */
-    virtual std::function<void(double const& x, double const& Q, double* pdfs)> xfxQArray() = 0;
+    virtual void xfxQarray(double x,double Q,double*pdfs)=0;
 
     /**
-     * @brief Purely virtual function to get the strong coupling
+     * @brief Get the strong coupling constant at scale Q
      * @param Q: value of of the renormalisation scale in GeV
      * @return the strong coupling at Q.
      */
-    virtual std::function<double(double const& Q)> AlphaQCD() = 0;
+    virtual double getAlphaS(double Q)=0;
 
     /// Get generic property of the evolution
     virtual std::string getPropertyS(std::string const& propertyName ) const { return "" ; }
