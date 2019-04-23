@@ -16,7 +16,7 @@ using std::vector;
  @date Sun 16 April 2017
  @author SG
 
- Contains functions to read parameters.yaml, 
+ Contains functions to read parameters.yaml,
  global maps to store parameters,  and fortran interface functions.
 */
 
@@ -36,7 +36,7 @@ namespace xfitter{
 namespace XFITTER_PARS {
   /// Global pointer to the mimimizer
   extern xfitter::BaseMinimizer* gMinimizer;
-  
+
   /// Globally available YAML node pointing to root of YAML parameters tree, read from parameters.yaml. Might be modified during runtime
   extern YAML::Node rootNode;
   /// Global map of double parameters. They can be used by the minimizer. Initialized based on parameters.yaml
@@ -73,30 +73,30 @@ namespace XFITTER_PARS {
   /// This is used in evolution initialization
   xfitter::InitialPDFfunction getInputFunctionFromYaml(const YAML::Node&);
   /// Helper function to get a yaml node corresponding to an evolution, by this evolutions's instance name
-	YAML::Node getEvolutionNode(const std::string&name="");
+  YAML::Node getEvolutionNode(const std::string&name="");
   /// Helper function to get a yaml node corresponding to a decomposition, by this decomposition's instance name
-	YAML::Node getDecompositionNode(const std::string&name="");
+  YAML::Node getDecompositionNode(const std::string&name="");
   /// Helper function to get a yaml node corresponding to a parameterisation, by this parameterisation's instance name
-	YAML::Node getParameterisationNode(const std::string&name="");
+  YAML::Node getParameterisationNode(const std::string&name="");
 
   /// Helper functions
-	string getDefaultEvolutionName();
-	string getDefaultDecompositionName();
+  string getDefaultEvolutionName();
+  string getDefaultDecompositionName();
   /// Functions to get parameters from corresponding maps but with better reporting of errors
   double*getParamD(const string&name);
   int    getParamI(const string&name);
   string getParamS(const string&name);
-  
+
   /// Parse yaml file @param name
   void parse_file(const std::string& name);
 
   /// Parse @param node and return maps
-  void parse_node(const YAML::Node& node, 
-		  std::map<string,double*>& dMap, 
-		  std::map<string,int>& iMap, 
-		  std::map<string,string>& sMap, 
-		  std::map<string,vector<double> >& vMap,
-		  std::map<string,YAML::Node> & yMap );
+  void parse_node(const YAML::Node& node,
+      std::map<string,double*>& dMap,
+      std::map<string,int>& iMap,
+      std::map<string,string>& sMap,
+      std::map<string,vector<double> >& vMap,
+      std::map<string,YAML::Node> & yMap );
 
 
   /// Helper function to register PDFs on the map
