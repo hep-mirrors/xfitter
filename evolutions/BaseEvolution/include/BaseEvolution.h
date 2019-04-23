@@ -28,7 +28,7 @@ namespace xfitter
      * @param name: the unique name used to identify the instance
      */
     BaseEvolution(const char*name):_name(name){}
-    
+
     /**
      * @brief Function to be called at the begining to initialise the
      * evolution code based on its YAML node
@@ -96,17 +96,10 @@ namespace xfitter
 
     /// Get generic property of the evolution
     virtual double  getPropertyD(std::string const& propertyName ) const { return 0.; }
-    
+
     /// Get class name, can be used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
     ///@}
-   
-    
-  protected:
-    std::function<std::map<int,double>(double const& x)> _inPDFs;
   };
-
-  /// For dynamic loader
-  typedef BaseEvolution*create_evolution(const char*name);
 }
 
