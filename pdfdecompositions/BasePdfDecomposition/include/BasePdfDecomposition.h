@@ -33,20 +33,10 @@ namespace xfitter
     virtual void atIteration(){}
     /// This function should be called when at least one parameter in the YAML node of given decomposition changes
     virtual void atConfigurationChange(){}
-
-    /// Print pdf parameters
-    //This shouldn't be here, printing parameters should be just a global function --Ivan
-    virtual void printParams(){}
-
     /// Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x
     virtual std::function<std::map<int,double>(const double& x)> f0() const = 0;
     /// Get class name, can be used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
-    
-  protected:
-    /// PDF parameterisations
-    //Not really needed in this form --Ivan
-      std::map<std::string,BasePdfParam*> _pdfParams;
   };
 
   /// For dynamic loader

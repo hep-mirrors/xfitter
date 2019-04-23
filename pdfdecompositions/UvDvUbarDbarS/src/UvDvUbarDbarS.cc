@@ -52,35 +52,7 @@ namespace xfitter
     xsumq+=2*par_xs   ->moment(0);
     // gluon part
     par_xg->setMoment(0,1-xsumq);
-
-    printParams();
   }
-
-  void UvDvUbarDbarS::printParams() {
-  //Sorry, I broke this during a rewrite
-  //This should be a global function anyway
-  //--Ivan
-    //std::cout << "\n" << std::left<< std::setw(8) << " Name " << std::right;
-    //for ( int i =0 ; i<6; i++) {
-      //std::cout << std::setw(12) << " par"+std::to_string(i) ;
-    //}
-    //std::cout << "\n";
-    //for ( auto p : _pdfParams) {
-      //auto pdfParam = p.second;
-      //auto name = p.first;
-      //auto pars = getParValues(pdfParam);
-      //int  npar = pdfParam->getNPar();
-
-      ////      std::cout << "name :" << name << " npar: " << npar << "\n";
-      //std::cout << std::left<< std::setw(8) << name << std::right;
-      //for ( int i =0 ; i<npar; i++) {
-        //std::cout << std::setw(12) << pars[i];
-      //}
-      //std::cout << "\n";
-    //}
-    //std::cout << "\n";
-  }
-  //_________________________________________________________________________________
   std::function<std::map<int,double>(const double& x)> UvDvUbarDbarS::f0() const
   {
     // lambda function
