@@ -23,7 +23,7 @@ namespace xfitter
     apfel::Banner();
 
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
-    _inPDFs=XFITTER_PARS::getInputFunctionFromYaml(yamlNode);
+    _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
     // Retrieve parameters needed to initialize APFEL++.
     const double* MCharm   = XFITTER_PARS::getParamD("mch");
     const double* MBottom  = XFITTER_PARS::getParamD("mbt");
@@ -68,7 +68,7 @@ namespace xfitter
     // Construct the DGLAP objects
     const auto Dglap = BuildDglap(_DglapObj,
       [=] (double const& x, double const&)->std::map<int,double>{
-        return apfel::PhysToQCDEv(this->_inPDFs(x));
+        return apfel::PhysToQCDEv(_inPDFs->xfxMap(x));
       },
     *Q0, PtOrder, _AlphaQCD);
 
@@ -81,48 +81,30 @@ namespace xfitter
           QGrid[2].as<double>(),
           QGrid[3].as<int>()});
   }
-
-  //_________________________________________________________________________________
-  std::function<std::map<int,double>(double const& x, double const& Q)> EvolutionAPFELxx::xfxQMap()
-  {
-    // return lambda function straight away.
-    return [=] (double const& x, double const& Q) -> std::map<int,double>{ return _TabulatedPDFs->EvaluateMapxQ(x, Q); };
+  std::map<int,double>EvolutionAPFELxx::xfxQmap(double x,double Q){
+    return _TabulatedPDFs->EvaluateMapxQ(x,Q);
   }
-
-  //_________________________________________________________________________________
-  std::function<double(int const& i, double const& x, double const& Q)> EvolutionAPFELxx::xfxQDouble()
-  {
-    // return lambda function straight away.
-    return [=] (int const& i, double const& x, double const& Q) -> double{ return _TabulatedPDFs->EvaluatexQ(i, x, Q); };
+  double EvolutionAPFELxx::xfxQ(int i,double x,double Q){
+    return _TabulatedPDFs->EvaluatexQ(i,x,Q);
   }
-
-  //_________________________________________________________________________________
-  std::function<void(double const& x, double const& Q, double* pdfs)> EvolutionAPFELxx::xfxQArray()
-  {
-    // return lambda function straight away.
-    return [=] (double const& x, double const& Q, double* pdfs) -> void
-      {
-        // Get map of PDFs
-        const std::map<int,double> fset = apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x, Q));
-
-        // Fill in array of PDFs to be returned
-        //              int counter = 0;
-        //for(auto const& f : fset) 
-        //  pdfs[counter++] = f.second;
-
-        pdfs[0] = fset.at(-6);
-        pdfs[1] = fset.at(-5);
-        pdfs[2] = fset.at(-4);
-        pdfs[3] = fset.at(-3);
-        pdfs[4] = fset.at(-2);
-        pdfs[5] = fset.at(-1);
-        pdfs[6] = fset.at(0);
-        pdfs[7] = fset.at(1);
-        pdfs[8] = fset.at(2);
-        pdfs[9] = fset.at(3);
-        pdfs[10] = fset.at(4);
-        pdfs[11] = fset.at(5);
-        pdfs[12] = fset.at(6);
-      };
+  void EvolutionAPFELxx::xfxQarray(double x,double Q,double*pdfs){
+    // Get map of PDFs
+    const std::map<int,double> fset = apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x, Q));
+    pdfs[0] =fset.at(-6);
+    pdfs[1] =fset.at(-5);
+    pdfs[2] =fset.at(-4);
+    pdfs[3] =fset.at(-3);
+    pdfs[4] =fset.at(-2);
+    pdfs[5] =fset.at(-1);
+    pdfs[6] =fset.at(0);
+    pdfs[7] =fset.at(1);
+    pdfs[8] =fset.at(2);
+    pdfs[9] =fset.at(3);
+    pdfs[10]=fset.at(4);
+    pdfs[11]=fset.at(5);
+    pdfs[12]=fset.at(6);
+  }
+  double EvolutionAPFELxx::getAlphaS(double Q){
+    return _AlphaQCD(Q);
   }
 }
