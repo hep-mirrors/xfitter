@@ -22,34 +22,38 @@ void FlipChargeEvol::atConfigurationChange(){
     hf_errlog(18122501,"F: Bad input to evolution FlipCharge, see stderr");
   }
 }
-function<map<int,double>(double const&,double const&)>FlipChargeEvol::xfxQMap(){
-  auto f=input->xfxQMap();
-  return [f](double const&x,double const&Q)->map<int,double>{
-    map<int,double>M=f(x,Q);//I don't know how to avoid copying a map with current interface --Ivan
-    swap(M.at(1),M.at(-1));
-    swap(M.at(2),M.at(-2));
-    swap(M.at(3),M.at(-3));
-    swap(M.at(4),M.at(-4));
-    swap(M.at(5),M.at(-5));
-    swap(M.at(6),M.at(-6));
-    return M;
+map<int,double>FlipChargeEvol::xfxQmap(double x,double Q){
+  double p[13];
+  input->xfxQarray(x,Q,p);
+  return{
+    {-6,p[12]},
+    {-5,p[11]},
+    {-4,p[10]},
+    {-3,p[ 9]},
+    {-2,p[ 8]},
+    {-1,p[ 7]},
+    {21,p[ 6]},
+    { 1,p[ 5]},
+    { 2,p[ 4]},
+    { 3,p[ 3]},
+    { 4,p[ 2]},
+    { 5,p[ 1]},
+    { 6,p[ 0]}
   };
 }
-function<void(double const&x,double const&Q,double*pdfs)>FlipChargeEvol::xfxQArray(){
-  auto f=input->xfxQArray();
-  return [f](double const&x,double const&Q,double*p){
-    f(x,Q,p);
-    swap(p[0],p[12]);
-    swap(p[1],p[11]);
-    swap(p[2],p[10]);
-    swap(p[3],p[ 9]);
-    swap(p[4],p[ 8]);
-    swap(p[5],p[ 7]);
-  };
+void FlipChargeEvol::xfxQarray(double x,double Q,double*p){
+  input->xfxQarray(x,Q,p);
+  swap(p[0],p[12]);
+  swap(p[1],p[11]);
+  swap(p[2],p[10]);
+  swap(p[3],p[ 9]);
+  swap(p[4],p[ 8]);
+  swap(p[5],p[ 7]);
 }
-function<double(int const&i,double const&x,double const&Q)>FlipChargeEvol::xfxQDouble(){
-  auto f=input->xfxQDouble();
-  return [f](const int&i,const double&x,const double&Q)->double{return f(-i,x,Q);};
+double FlipChargeEvol::xfxQ(int i,double x,double Q){
+  return input->xfxQ(-i,x,Q);
 }
-function<double(double const&Q)>FlipChargeEvol::AlphaQCD(){return input->AlphaQCD();}
+double FlipChargeEvol::getAlphaS(double Q){
+  return input->getAlphaS(Q);
+}
 }
