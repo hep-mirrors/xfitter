@@ -37,7 +37,4 @@ namespace xfitter
     /// Get class name, can be used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
   };
-  /// For dynamic loader
-  //Wait, is this even used anywhere? --Ivan
-  typedef BasePdfDecomposition* create_pdfDecomposition();
 }
