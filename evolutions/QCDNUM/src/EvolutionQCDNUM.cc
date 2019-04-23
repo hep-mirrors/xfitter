@@ -10,15 +10,16 @@
 #include "QCDNUM/QCDNUM.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
+#include"BasePdfDecomposition.h"
 #include <algorithm>
 
 // Global var to hold current pdfDecomposition
-std::function<std::map<int,double>(double const& x)> gPdfDecomp; 
+xfitter::BasePdfDecomposition*gPdfDecomp;
 
 // Wrapper for QCDNUM
 double funcPDF(int *ipdf, double *x) {
   const std::map <int,int> ip = { {1,-3}, {2,-2}, {3,-1}, {4,1}, {5,2}, {6,3}, {0,21} } ;
-  return gPdfDecomp(*x)[ip.at(*ipdf)];
+  return gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)];
 }
 
 // helper to parse yaml sequences of uniform type
@@ -179,7 +180,7 @@ namespace xfitter
     }
        
     //Evolution gets its decomposition from YAML
-    gPdfDecomp=XFITTER_PARS::getInputFunctionFromYaml(yQCDNUM);
+    gPdfDecomp=XFITTER_PARS::getInputDecomposition(yQCDNUM);
     atConfigurationChange();
   }
 
@@ -199,39 +200,25 @@ namespace xfitter
     QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
   }
 
-  std::function<std::map<int,double>(double const& x, double const& Q)> EvolutionQCDNUM::xfxQMap() {
-    
-    const auto _f0 =  [=] (double const& x, double const& Q) -> std::map<int, double> {
-      std::map<int, double> res;
-      for (int ipdf =-6; ipdf<7; ipdf++) {
-        int ii = ( ipdf == 0 ) ? 21 : ipdf ;
-        res[ii] = QCDNUM::fvalxq(_itype,ipdf,x,Q*Q,_icheck);
-      }
-      return res;
-    };
-    return _f0;
+  std::map<int,double>EvolutionQCDNUM::xfxQmap(double x,double Q){
+    std::map<int, double> res;
+    for (int ipdf =-6; ipdf<7; ipdf++) {
+      int ii = ( ipdf == 0 ) ? 21 : ipdf ;
+      res[ii] = QCDNUM::fvalxq(_itype,ipdf,x,Q*Q,_icheck);
+    }
+    return res;
   }
 
-  std::function<void(double const& x, double const& Q, double* pdfs)> EvolutionQCDNUM::xfxQArray() {
-    const auto _f0 = [=] (double const& x, double const& Q, double* pdfs) {
-      QCDNUM::allfxq(_itype,x,Q*Q,pdfs,_nExt,_icheck);
-    };
-    return _f0;
+  void EvolutionQCDNUM::xfxQarray(double x,double Q,double*pdfs){
+    QCDNUM::allfxq(_itype,x,Q*Q,pdfs,_nExt,_icheck);
   }
 
-  std::function<double(int const& i, double const& x, double const& Q)> EvolutionQCDNUM::xfxQDouble() {
-    const auto _f0 = [=] (int const& i, double const& x, double const& Q) -> double {
-      return  QCDNUM::fvalxq(_itype,i,x,Q*Q,_icheck);
-    };
-    return _f0;
+  double EvolutionQCDNUM::xfxQ(int i,double x,double Q){
+    return QCDNUM::fvalxq(_itype,i,x,Q*Q,_icheck);
   }
 
-  std::function<double(double const& Q)> EvolutionQCDNUM::AlphaQCD() {
-    const auto _f0 = [=] (double  const& Q) -> double {
-      int nfout;
-      int ierr;
-      return QCDNUM::asfunc(Q*Q,nfout,ierr);
-    };
-    return _f0;
+  double EvolutionQCDNUM::getAlphaS(double Q){
+    int nfout,ierr;
+    return QCDNUM::asfunc(Q*Q,nfout,ierr);
   }
 }
