@@ -29,8 +29,6 @@ namespace xfitter{
   class BasePdfParam;
   // to be defined in minimizers/
   class BaseMinimizer;
-	using InitialPDFfunction=std::function<std::map<int,double>(const double&x)>;
-	using EvolvedPDFfunction=std::function<void(double const&x,double const&Q,double*pdfs)>;
 }
 
 namespace XFITTER_PARS {
@@ -53,10 +51,6 @@ namespace XFITTER_PARS {
 
   /// Global map of Yaml nodes parameters.. Initialized based on parameters.yaml.
   extern map<string,YAML::Node> gParametersY;
-
-  /// Global map of PDF functions produced by evolutions. 
-  extern map<string,xfitter::EvolvedPDFfunction> gXfxQArrays;
-
   /// Global map to store evolutions
   /// Do not access it directly, use xfitter::get_evolution
   extern map<string,xfitter::BaseEvolution*> gEvolutions;
@@ -97,14 +91,6 @@ namespace XFITTER_PARS {
       std::map<string,string>& sMap,
       std::map<string,vector<double> >& vMap,
       std::map<string,YAML::Node> & yMap );
-
-
-  /// Helper function to register PDFs on the map
-  void registerXfxQArray(const string& name, std::function<void(double const& x, double const& Q, double* pdfs)>  xfxArray);
-
-  /// Helper function to retrieve PDFs from the map
-  const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name);
-
   /// Allocate memory for a new double*-typed parameter, record it in gParameters and return it
   /// This kind of parameter is not passed to minimizer
   const double*createConstantParameter(const string&name,double value);
