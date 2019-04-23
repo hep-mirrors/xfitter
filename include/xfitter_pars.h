@@ -60,12 +60,12 @@ namespace XFITTER_PARS {
   /// Global map to store parameterisations
   /// Do not access it directly, use xfitter::getParameterisation
   extern map<string,xfitter::BasePdfParam*>gParameterisations;
-	/// Helper function to get input function from a yaml node
-	///
-  /// It finds a "decomposition" subnode in given node, extracts a decomposition name from it, finds this decomposition and returns its output function
+  /// Helper function to get input decomposition from a yaml node of evolution
+  ///
+  /// It finds a "decomposition" subnode in given node, extracts a decomposition name from it, finds this decomposition and returns it
   /// This function will either return a valid function, or issue a fatal error and never return
   /// This is used in evolution initialization
-  xfitter::InitialPDFfunction getInputFunctionFromYaml(const YAML::Node&);
+  xfitter::BasePdfDecomposition*getInputDecomposition(const YAML::Node&evolutionNode);
   /// Helper function to get a yaml node corresponding to an evolution, by this evolutions's instance name
   YAML::Node getEvolutionNode(const std::string&name="");
   /// Helper function to get a yaml node corresponding to a decomposition, by this decomposition's instance name

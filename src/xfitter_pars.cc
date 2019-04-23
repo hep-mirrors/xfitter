@@ -82,7 +82,7 @@ namespace XFITTER_PARS {
   }
 
   using namespace xfitter;
-  xfitter::InitialPDFfunction getInputFunctionFromYaml(const YAML::Node&rootNode){
+  xfitter::BasePdfDecomposition*getInputDecomposition(const YAML::Node&rootNode){
     YAML::Node node=rootNode["decomposition"];
     string name;
     try{
@@ -92,7 +92,7 @@ namespace XFITTER_PARS {
       hf_errlog(18082930,s.str()); 
       name=getDefaultDecompositionName();
     }
-    return xfitter::get_pdfDecomposition(name)->f0();
+    return xfitter::get_pdfDecomposition(name);
   }
   YAML::Node getEvolutionNode(const std::string&name){
     auto it=gParametersY.find("Evolutions");
