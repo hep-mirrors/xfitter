@@ -22,34 +22,38 @@ void FlipUD_Evol::atConfigurationChange(){
     hf_errlog(18122511,"F: Bad input to evolution FlipUD, see stderr");
   }
 }
-function<map<int,double>(double const&x,double const&Q)>FlipUD_Evol::xfxQMap(){
-  auto f=input->xfxQMap();
-  return [f](double const&x,double const&Q)->map<int,double>{
-    map<int,double>M=f(x,Q);
-    swap(M.at( 1),M.at( 2));
-    swap(M.at(-1),M.at(-2));
-    return M;
+map<int,double>FlipUD_Evol::xfxQmap(double x,double Q){
+  double p[13];
+  input->xfxQarray(x,Q,p);
+  return{
+    {-6,p[ 0]},
+    {-5,p[ 1]},
+    {-4,p[ 2]},
+    {-3,p[ 3]},
+    {-2,p[ 5]},
+    {-1,p[ 4]},
+    {21,p[ 6]},
+    { 1,p[ 8]},
+    { 2,p[ 7]},
+    { 3,p[ 9]},
+    { 4,p[10]},
+    { 5,p[11]},
+    { 6,p[12]}
   };
 }
-function<void(double const&x,double const&Q,double*pdfs)>FlipUD_Evol::xfxQArray(){
-  auto f=input->xfxQArray();
-  return [f](double const&x,double const&Q,double*p){
-    f(x,Q,p);
-    swap(p[4],p[5]);
-    swap(p[7],p[8]);
-  };
+void FlipUD_Evol::xfxQarray(double x,double Q,double*p){
+  input->xfxQarray(x,Q,p);
+  swap(p[4],p[5]);
+  swap(p[7],p[8]);
 }
-function<double(int const&i,double const&x,double const&Q)>FlipUD_Evol::xfxQDouble(){
-  auto f=input->xfxQDouble();
-  return [f](const int&i,const double&x,const double&Q)->double{
-    switch(i){
-      case  1:return f( 2,x,Q);
-      case -1:return f(-2,x,Q);
-      case  2:return f( 1,x,Q);
-      case -2:return f(-1,x,Q);
-      default:return f(i,x,Q);
-    }
-  };
+double FlipUD_Evol::xfxQ(int i,double x,double Q){
+  switch(i){
+    case  1:return input->xfxQ( 2,x,Q);
+    case -1:return input->xfxQ(-2,x,Q);
+    case  2:return input->xfxQ( 1,x,Q);
+    case -2:return input->xfxQ(-1,x,Q);
+    default:return input->xfxQ( i,x,Q);
+  }
 }
-function<double(double const&Q)>FlipUD_Evol::AlphaQCD(){return input->AlphaQCD();}
+double FlipUD_Evol::getAlphaS(double Q){return input->getAlphaS(Q);}
 }

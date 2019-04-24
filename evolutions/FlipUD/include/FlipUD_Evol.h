@@ -18,10 +18,10 @@ class FlipUD_Evol:public BaseEvolution{
     virtual const char*getClassName()const override final{return"FlipUD";};
     virtual void atStart()override final;
     virtual void atConfigurationChange()override final;
-    virtual std::function<std::map<int,double>(double const&x,double const&Q)>xfxQMap()override final;
-    virtual std::function<void(double const&x,double const&Q,double*pdfs)>xfxQArray()override final;
-    virtual std::function<double(int const&i,double const&x,double const&Q)>xfxQDouble()override final;
-    virtual std::function<double(double const&Q)>AlphaQCD()override final;
+    virtual std::map<int,double>xfxQmap(double x,double Q)override final;
+    virtual double xfxQ(int i,double x,double Q)override final;
+    virtual void xfxQarray(double x,double Q,double*pdfs)override final;
+    virtual double getAlphaS(double Q)override final;
   private:
     BaseEvolution*input;
 };
