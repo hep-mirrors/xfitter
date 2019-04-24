@@ -12,13 +12,13 @@ using xfitter::BaseEvolution;
 BaseEvolution*wrappedPDFs[2];
 extern "C"{
 void PDF_xfxQ_wrapper (const double&x,const double&Q,double*r){
-  wrappedPDFs[0]->xfxQArray()(x,Q,r);
+  wrappedPDFs[0]->xfxQarray(x,Q,r);
 }
 void PDF_xfxQ_wrapper1(const double&x,const double&Q,double*r){
-  wrappedPDFs[1]->xfxQArray()(x,Q,r);
+  wrappedPDFs[1]->xfxQarray(x,Q,r);
 }
 double AlphaS_wrapper(const double&Q){
-  return wrappedPDFs[0]->AlphaQCD()(Q);
+  return wrappedPDFs[0]->getAlphaS(Q);
 }
 }
 
