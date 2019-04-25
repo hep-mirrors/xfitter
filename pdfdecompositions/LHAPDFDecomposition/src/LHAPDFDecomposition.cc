@@ -19,7 +19,7 @@ namespace xfitter {
   //_________________________________________________________________________________
   LHAPDFDecomposition::LHAPDFDecomposition(const char*name):BasePdfDecomposition{name}{}
   LHAPDFDecomposition::~LHAPDFDecomposition(){if(_pdf)delete _pdf;}
-  const char*LHAPDFDecomposition::getClassName()const{return"LHAPDF";}
+  const char*LHAPDFDecomposition::getClassName()const{return"LHAPDF0";}
   void LHAPDFDecomposition::atStart(){
     YAML::Node pars=XFITTER_PARS::getDecompositionNode(_name);
     string setName;
