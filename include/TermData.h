@@ -45,6 +45,7 @@ public:
   size_t getNbins(){return parent->getNbins();}
   bool                   hasBinColumn(const string&columnName){return parent->hasBinColumn(columnName);}
   const valarray<double>&getBinColumn(const string&columnName);
+  const valarray<double>*getBinColumnOrNull(const string&columnName){return parent->getBinColumn(columnName);}//same, but return nullptr instead of issuing an error if the column does not exist
   const vector<int>&     getBinFlags(){return*parent->getBinFlags();}//0 means bin is disabled, 1 means enabled. Disabled bins are excluded from the fit
   //The following pointer can be used by ReactionTheory to store some additional data
   //for each reaction term. It should be managed by ReactioTheory only, do not touch it from elsewhere
