@@ -5,6 +5,7 @@
 
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
+#include "BasePdfParam.h"
 #include "BaseMinimizer.h"
 #include <dlfcn.h>
 #include <iostream>
