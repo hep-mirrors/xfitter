@@ -49,7 +49,6 @@ SUBDIRS=src\
 #  reactions/BaseHVQMNR/src\
 #  reactions/HVQMNR_LHCb_7TeV_beauty/src\
 #  reactions/HVQMNR_LHCb_7TeV_charm/src\
-#  reactions/testZMVFNS/src\
 #  reactions/fastNLO/src/\
 #  reactions/FONLL_DISCC/src\
 #  reactions/FONLL_DISNC/src\
