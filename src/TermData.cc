@@ -382,3 +382,10 @@ void TermData::actualizeWrappers(){
   wrappedPDFs[0]=getPDF(0);
   wrappedPDFs[1]=getPDF(1);
 }
+const valarray<double>&TermData::getBinColumn(const string&n){
+  const valarray<double>*ret=parent->getBinColumn(n);
+  if(ret)return*ret;
+  cerr<<"[ERROR] Reaction \""<<reaction->getReactionName()<<"\" requested bins of nonexistant column \""<<n<<"\""<<endl;
+  hf_errlog(19042700,"F: Reaction requested nonexistant bin column, see stderr");
+  abort();//unreachable
+}

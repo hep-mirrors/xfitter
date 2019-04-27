@@ -310,26 +310,25 @@ void TheorEval::initReactionTerm(int iterm, valarray<double> *val){
   TermData*term_data=new TermData(termID,rt,this,term_info.c_str());
   term_data->val=val;
   term_datas.push_back(term_data);
-  //rt->setBinning(termID, &gDataBins[_dsId]);//TODO: What is this?
   rt->initTerm(term_data);
 }
 
-void TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins){
+void TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins,map<string,size_t>&_columnNameMap){
   //Copy data to _binFlags and _dsBins
   _binFlags.resize(nPoints);
   for(int i=0;i<nPoints;i++){
     _binFlags[i]=binFlags[i];
   }
 
-  _dsBins.reserve(nBinDim);
+  _dsBins.resize(nBinDim);
   for(int ibd = 0; ibd < nBinDim; ibd++){
-    _dsBins.push_back(vector<double>());
-    vector<double>&bins=_dsBins.back();
+    valarray<double>&bins=_dsBins[ibd];
     bins.resize(nPoints);
     for(int i=0;i<nPoints;i++){
       bins[i]=allBins[i*10+ibd];
     }
   }
+  columnNameMap=_columnNameMap;
 }
 
 
@@ -437,7 +436,7 @@ void TheorEval::Evaluate(valarray<double> &vte )
         double integral = 0;
         for (int bin = 0; bin < _binFlags.size(); bin++)
           if (!(vte[bin] != vte[bin])) //protection against nan
-            integral += (_dsBins.at(1).at(bin) - _dsBins.at(0).at(bin)) * vte[bin];
+            integral += (_dsBins[1][bin] - _dsBins[0][bin]) * vte[bin];
         if (integral != 0)
           for (int bin = 0; bin < _binFlags.size(); bin++)
             vte[bin] /= integral;
@@ -453,12 +452,10 @@ void TheorEval::updateReactionValues(){
     td->reaction->compute(td,*td->val,errors);
   }
 }
-
-int
-TheorEval::getNbins()
-{
-  //WIP we need this for bins, somehow?
-  return _dsBins[0].size();
+const valarray<double>*TheorEval::getBinColumn(const string&n)const{
+  auto it=columnNameMap.find(n);
+  if(it==columnNameMap.end())return nullptr;
+  return &_dsBins[it->second];
 }
 
 /* What are those? They are currently unused, and I am not sure they work correctly now, with TermData. --Ivan

@@ -9,8 +9,8 @@ using std::vector;
 using std::map;
 #include<valarray>
 using std::valarray;
+#include"TheorEval.h"
 class ReactionTheory;
-class TheorEval;
 namespace xfitter{class BaseEvolution;}
 /*
 TermData is a class that provides interface to all parameters for a given reaction term
@@ -41,6 +41,11 @@ public:
   ReactionTheory*reaction;
   void actualizeWrappers();//see wrappers below
   xfitter::BaseEvolution*getPDF(int i=0);//i is either 0 for evolution1, or 1 for evolution2
+  //The following methods are used to get binning information for the dataset of this term
+  size_t getNbins(){return parent->getNbins();}
+  bool                   hasBinColumn(const string&columnName){return parent->hasBinColumn(columnName);}
+  const valarray<double>&getBinColumn(const string&columnName);
+  const vector<int>&     getBinFlags(){return*parent->getBinFlags();}//0 means bin is disabled, 1 means enabled. Disabled bins are excluded from the fit
   //The following pointer can be used by ReactionTheory to store some additional data
   //for each reaction term. It should be managed by ReactioTheory only, do not touch it from elsewhere
   void*reactionData=nullptr;

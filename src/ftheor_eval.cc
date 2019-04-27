@@ -61,7 +61,6 @@ extern "C" {
 tTEmap gTEmap;
 tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
-tDataBins gDataBins;
 
 const size_t TERMNAME_LEN  =8;
 const size_t TERMTYPE_LEN  =80;
@@ -169,17 +168,12 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
 
   // Store bin information
 
-  map<string, valarray<double> >&namedBins=gDataBins[*dsId];//map (bin name)->(column of values in that bin)
+  map<string,size_t>columnNameMap;
   for (int i=0; i<*nBinDimension; i++) {
-    string name=stringFromFortran(binNames[i],COLUMN_NAME_LEN);
-    valarray<double>&bins=namedBins[name]=valarray<double>(*nPoints);
-    for ( int j = 0; j<*nPoints; j++) {
-      bins[j] = allBins[j*10 + i];
-    }
+    columnNameMap[stringFromFortran(binNames[i],COLUMN_NAME_LEN)]=i;
   }
-
   TheorEval*te=it->second;
-  te->setBins(*nBinDimension, *nPoints, binFlags, allBins);
+  te->setBins(*nBinDimension, *nPoints, binFlags, allBins,columnNameMap);
   return 1;
 }
 

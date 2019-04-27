@@ -102,17 +102,19 @@ class TheorEval{
 
     This method sets the binning of the dataset.
    */
-  void setBins(int nBinDim, int nPoints, int *binFlags, double *allBins);
+  void setBins(int nBinDim, int nPoints, int *binFlags, double *allBins,map<string,size_t>&columnNameMap);
   //! Initializes sources for theoretical predictions
   /*!
    After the datasets with expressions are read, this method initialises
    terms such as applgrids and k-factor tabels from their sources.
    */
   int initTheory();
-  //! Returns numebr of bins in the current dataset
-  int getNbins();
-  //! Returs vector with bin flags for current dataset
-  const vector<int> *getBinFlags() const { return &_binFlags; }
+  //The following methods provide access to bins of this dataset
+  size_t getNbins()const{return _dsBins[0].size();}//return number of bins (datapoints)
+  bool                   hasBinColumn(const string&columnName)const{return columnNameMap.count(columnName)==1;}
+  const valarray<double>*getBinColumn(const string&columnName)const;//return nullptr if not found
+  const vector<int>*     getBinFlags()const{return&_binFlags;}
+
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
   /*TODO: delete this?
   void ChangeTheorySource(string term, string source);
@@ -145,7 +147,8 @@ class TheorEval{
   vector<string> _termSources;
   string _expr;
   vector<int> _binFlags;//_binFlags[i] is flag for bin i. Flag=0 means bin is disabled and excluded from the fit. Flag=1 means enabled.
-  vector<vector<double> > _dsBins;//_dsBins[i][j] is value in 'Bin'-type column i, row j, as provided in datafile
+  vector<valarray<double> >_dsBins;//_dsBins[i][j] is value in 'Bin'-type column i, row j, as provided in datafile
+  map<string,size_t>columnNameMap;//Map from column name to column number i; _dsBins[i] is corresp. column
 
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
@@ -164,11 +167,6 @@ public:
 typedef map <int, TheorEval* > tTEmap;
 typedef map <string, string> tReactionLibsmap;
 typedef map <string, ReactionTheory *> tNameReactionmap;
-
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// Host here also global list of bins:
-typedef map <int, map<string, valarray <double> > > tDataBins;
-
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
 
@@ -177,6 +175,4 @@ extern tReactionLibsmap gReactionLibs;
 
 /// global map of reaction names
 extern tNameReactionmap gNameReaction;
-
-extern tDataBins gDataBins;
 #endif
