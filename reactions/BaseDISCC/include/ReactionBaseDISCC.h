@@ -15,6 +15,7 @@
   */
 
 // Define standard parameters used by SF and x-sections:
+// What?? --Ivan
 #define BASE_PARS (int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
 
 class IntegrateDIS;
@@ -23,33 +24,19 @@ class ReactionBaseDISCC : public ReactionTheory
 {
   public:
     ReactionBaseDISCC(){};
-
-//    ~ReactionBaseDISCC(){};
-//    ~ReactionBaseDISCC(const ReactionBaseDISCC &){};
-//    ReactionBaseDISCC & operator =(const ReactionABaseDISCC &r){return *(new ReactionBaseDISCC(r));};
-
   public:
     virtual string getReactionName() const { return  "BaseDISCC" ;};
-    int atStart(const string &);
-    virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
-    virtual void initAtIteration() override;
-
-    virtual int compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal);
+    virtual void atStart()override final;
+    virtual void atIteration()override final;
+    virtual void initTerm(TermData*)override final;
+    virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors)override final;
   protected:
-    enum class dataFlav { incl, c} ;      //!< Define final state.
-
-    virtual int parseOptions(){ return 0;};
-
     virtual void F2 BASE_PARS;
     virtual void FL BASE_PARS;
     virtual void xF3 BASE_PARS;
 
  private:
-    map <int, int>     _npoints ;           //!< Number of points in a dataset.
-    map <int, double>  _polarisation ;      //!< longitudinal polarisation
-    map <int, double>  _charge;             //!< lepton beam charge
-    map <int, int>    _isReduced;          //!< reduced cross section
-    map <int, dataFlav> _dataFlav;          //!< flavour (incl, c, b)
+ //All this is deep WIP!! --Ivan
   protected:
     const int GetNpoint(int dataSetID) {return _npoints[dataSetID];}
     const double GetPolarisation (int dataSetID) {return _polarisation[dataSetID];}
@@ -65,19 +52,7 @@ class ReactionBaseDISCC : public ReactionTheory
     virtual void GetFLd( int dataSetID, valarray<double>& fld);
     virtual void GetxF3d( int dataSetID, valarray<double>& xf3d );
 
-  private:
-    // Some buffering mechanism to avoid double calls
-    map <int,valarray<double> > _f2u; //!< F2 for u-type quarks
-    map <int,valarray<double> > _f2d; //!< F2 for d-type quarks
-    map <int,valarray<double> > _flu; //!< FL for u-type quarks
-    map <int,valarray<double> > _fld; //!< FL for d-type quarks
-    map <int,valarray<double> > _xf3u;
-    map <int,valarray<double> > _xf3d;
-
   protected:
-    // for integrated cross sections
-    // method is based on legacy subroutine GetIntegratedDisXsection
-    map<int,IntegrateDIS*> _integrated;
     virtual valarray<double> *GetBinValues(int idDS, const string& binName);
 
  protected:

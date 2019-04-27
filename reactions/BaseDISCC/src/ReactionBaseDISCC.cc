@@ -10,6 +10,7 @@
 #include <iostream>
 #include  "QCDNUM/QCDNUM.h"
 #include <IntegrateDIS.h>
+#include"hf_errlog.h"
 
 
 // Helpers for QCDNUM (CC):
@@ -56,31 +57,46 @@ extern "C" {
 extern "C" ReactionBaseDISCC* create() {
   return new ReactionBaseDISCC();
 }
-
-
+//TODO: move this to base class
+enum class dataFlav{incl,c};        //!< Define final state.
+struct ReactionData{
+  int          _npoints;                //!< Number of points in a dataset.
+  double       _polarisation=0.;        //!< longitudinal polarisation
+  double       _charge=0.;              //!< lepton beam charge
+  bool         _isReduced=false;        //!< reduced cross section
+  dataFlav     _dataFlav=dataFlav::incl;//!< flavour (incl, c, b)
+  // for integrated cross sections
+  // method is based on legacy subroutine GetIntegratedDisXsection
+  IntegrateDIS*_integrated;
+  // Some buffering mechanism to avoid double calls
+  valarray<double>_f2u; //!< F2 for u-type quarks
+  valarray<double>_f2d; //!< F2 for d-type quarks
+  valarray<double>_flu; //!< FL for u-type quarks
+  valarray<double>_fld; //!< FL for d-type quarks
+  valarray<double>_xf3u;
+  valarray<double>_xf3d;
+};
 // Initialize at the start of the computation
-int ReactionBaseDISCC::atStart(const string &s)
+void ReactionBaseDISCC::atStart()
 {
   // This we do not want to fit:
-  _Gf = GetParam("gf");
-  _convfac = GetParam("convFac");
+  _Gf=*XFITTER_PARS::getParamD("gf");
+  _convfac=*XFITTER_PARS::getParamD("convFac");
     ///
   int nwords;
-  QCDNUM::zmfillw(nwords);
-
-  return 0;
+  QCDNUM::zmfillw(nwords);//TODO: will this crash if QCDNUM is not initialized?
 }
 
 // Main function to compute results at an iteration
-int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal)
+void ReactionBaseDISCC::compute(TermData*td,valarray<double>&valExternal,map<string,valarray<double> >&errExternal)
 {
-  valarray<double> val;
-  map<string, valarray<double> > err;
+  valarray<double> val;//TODO Is this needed?
+  map<string, valarray<double> > err;//TODO remove
 
-  // Basic formulat for CC cross section:
+  // Basic formulae for CC cross section:
 
-  auto *yp  = GetBinValues(dataSetID,"y");
-  auto y = *yp;
+ //WIP TermData
+  const valarray<double>&y=td->getBinColumn("y");
 
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
@@ -137,14 +153,13 @@ int ReactionBaseDISCC::compute(int dataSetID, valarray<double> &valExternal, map
   return 0;
 }
 
-void ReactionBaseDISCC::initAtIteration() {
-  // Make sure to call the parent class initialization:
-  super::initAtIteration();
-
+void ReactionBaseDISCC::atIteration() {
   // Get some basic parameters:
+  //huh???
   _MW = GetParam("Mw");
 
   // Re-set internal maps (faster access):
+  // what??? --Ivan
   for ( auto ds : _dsIDs)  {
     (_f2u[ds])[0] = -100.;
     (_flu[ds])[0] = -100.;
@@ -154,147 +169,120 @@ void ReactionBaseDISCC::initAtIteration() {
     (_xf3d[ds])[0] = -100.;
   }
 }
-
-//
-void  ReactionBaseDISCC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset)
-{
-  _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
-  _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
-  _isReduced[dataSetID]    =  (parsDataset.find("reduced")       != parsDataset.end()) ? parsDataset["reduced"] : 0;
-
+void ReactionBaseDISCC::initTerm(TermData*td){
+  ReactionData*rd=new ReactionData();
+  td->reactionData=(void*)rd;
+  auto&_polarisation=rd->_polarisation;
+  auto&_charge      =rd->_charge;
+  auto&_isReduced   =rd->_isReduced;
+  auto&_integrated  =rd->_integrated;
+  if(td->hasParam("epolarity"))_polarisation=*td->getParamD("epolarity");
+  if(td->hasParam("echarge"))  _charge      =*td->getParamD("echarge");
+  if(td->hasParam("reduced"))  _isReduced   = td->getParamI("reduced");
   // check if settings are provided in the new format key=value
   // type: sigred, signonred (no F2, FL implemented so far, thus type is defined by bool _isReduced)
   // HERA data files provide 'signonred' CC cross sections
   // Inclusive "non-reduced" cross section by default.
-  _dataFlav[dataSetID] = dataFlav::incl;
   string msg = "I: Calculating DIS CC reduced cross section";
-  map<string,string>::iterator it = pars.find("type");
-  if ( it != pars.end() ) {
-    if(it->second == "sigred")
-    {
-      _isReduced[dataSetID] = 1;
+  if(td->hasParam("type")){
+    string type=td->getParamS("type");
+    if(type=="sigred"){
+      _isReduced=true;
       msg = "I: Calculating DIS CC reduced cross section";
-    }
-    else if(it->second == "signonred")
-    {
-      _isReduced[dataSetID] = 0;
+    }else if(type=="signonred"){
+      _isReduced=false;
       msg = "I: Calculating DIS CC non-reduced cross section";
-    }
-    else
-    {
-      char buffer[256];
-      sprintf(buffer, "F: dataset with id = %d has unknown type = %s", dataSetID, it->second.c_str());
-      string str = buffer;
-      hf_errlog_(17101903, str.c_str(), str.length());
+    }else{
+      cerr<<"[ERROR] Unknown type=\""<<type<<"\" given to reaction \""<<getReactionName()<<"\"; termID="<<td->id<<endl;
+      hf_errlog(17101903,"F: Unknown \"type\" given to reaction, see stderr");
     }
   }
-
   // flav: incl, c, b
-  it = pars.find("flav");
-  if ( it != pars.end() ) {
-    if(it->second == "incl")
-    {
-      _dataFlav[dataSetID] = dataFlav::incl;
+  if(td->hasParam("flav")){
+    string flavor=td->getParamS("flav");
+    if(flavor=="incl"){
+      _dataFlav=dataFlav::incl;
       msg += " inclusive";
-    }
-    else if(it->second == "c")
-    {
-      _dataFlav[dataSetID] = dataFlav::c;
+    }else if(flavor=="c"){
+      _dataFlav=dataFlav::c;
       msg += " charm";
-    }
-    // no beauty
-    else if(it->second == "b")
-    {
-      char buffer[256];
-      sprintf(buffer, "F: predictions for beauty in CC are not available (dataset id = %d)", dataSetID);
-      string str = buffer;
-      hf_errlog_(18042501, str.c_str(), str.length());
-    }
-    else
-    {
-      char buffer[256];
-      sprintf(buffer, "F: dataset with id = %d has unknown flav = %s", dataSetID, it->second.c_str());
-      string str = buffer;
-      hf_errlog_(18042502, str.c_str(), str.length());
+    }else if(flavor=="b"){//no beauty
+      //NOT IMPLEMENTED
+      hf_errlog(18042501,"F: predictions for beauty in CC are not available (term id = "+to_string(td->id)+")");
+    }else{
+      cerr<<"[ERROR] Unknown flavor=\""<<flavor<<"\" given to reaction \""<<getReactionName()<<"\"; termID="<<td->id<<endl;
+      hf_errlog(18042502,"F: Unknown \"flavor\" given to reaction, see stderr");
     }
   }
-
-  // e charge: double
-  it = pars.find("echarge");
-  if ( it != pars.end() )
-    _charge[dataSetID] = atof(it->second.c_str());
-
-  // e polarity: double
-  it = pars.find("epolarity");
-  if ( it != pars.end() )
-    _polarisation[dataSetID] = atof(it->second.c_str());
-
   // check if centre-of-mass energy is provided
   double s = -1.0;
-  map<string,string>::iterator itEnergy = pars.find("energy");
-  if ( itEnergy != pars.end() )
-    s = pow(stof(itEnergy->second), 2.0);
+  if(td->hasParam("energy")){
+    double energy=*td->getParamD("energy");
+    s=energy*energy;
+  }
+  //TODO: if energy not provided?
 
   // bins
   // if Q2min, Q2max, ymin and ymax (and optionally xmin, xmax) are provided, integrated cross sections are calculated
-  auto *q2minp  = GetBinValues(dataSetID,"Q2min");
-  auto *q2maxp  = GetBinValues(dataSetID,"Q2max");
+  auto*q2minp=td->getBinColumnOrNull("Q2min");
+  auto*q2maxp=td->getBinColumnOrNull("Q2max");
   // also try small first letter for Q2 (for backward compatibility)
   if(!q2minp)
-    q2minp  = GetBinValues(dataSetID,"q2min");
+       q2minp=td->getBinColumnOrNull("q2min");
   if(!q2maxp)
-    q2maxp  = GetBinValues(dataSetID,"q2max");
-  auto *yminp  = GetBinValues(dataSetID,"ymin");
-  auto *ymaxp  = GetBinValues(dataSetID,"ymax");
+       q2maxp=td->getBinColumnOrNull("q2max");
+  auto*yminp =td->getBinColumnOrNull("ymin");
+  auto*ymaxp =td->getBinColumnOrNull("ymax");
   // optional xmin, xmax for integrated cross sections
-  auto *xminp  = GetBinValues(dataSetID,"xmin");
-  auto *xmaxp  = GetBinValues(dataSetID,"xmax");
+  auto*xminp =td->getBinColumnOrNull("xmin");
+  auto*xmaxp =td->getBinColumnOrNull("xmax");
 
   if(q2minp && q2maxp && yminp && ymaxp)
   {
     // integrated cross section
     if(s < 0)
       hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS dataset " + std::to_string(dataSetID));
-    if(IsReduced(dataSetID))
+    if(_isReduced)
       hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(dataSetID));
     IntegrateDIS* iDIS = new IntegrateDIS();
-    _npoints[dataSetID] = iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
-    _integrated[dataSetID] = iDIS;
+    _npoints=iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
+    _integrated=iDIS;
     msg += " (integrated)";
   }
   else
   {
     // cross section at (Q2,x) points
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");
+    //TODO: replace with has?
+    auto*q2p=&td->getBinColumn("Q2");
+    auto*xp =&td->getBinColumn("x");
+    auto*yp = td->getBinColumnOrNull("y");
 
     // if Q2 and x bins and centre-of-mass energy provided, calculate y = Q2 / (s * x)
-    if(yp == nullptr && q2p != nullptr && xp != nullptr)
+    if(!yp)
     {
       if ( s > 0.0 )
       {
         valarray<double> y = (*q2p) / (s * (*xp));
         std::pair<string,valarray<double>* > dsBin = std::make_pair("y", &y);
-        AddBinning(dataSetID, &dsBin);
+        //Oooof, this is not implemented...
+        AddBinning(dataSetID, &dsBin);//TODO: think how to implement this...
+        //skipping for now...
         yp = GetBinValues(dataSetID, "y");
       }
+      //TODO: else? when s<=0?
     }
-
-    if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
-      string msg = "F: Q2, x or Y bins are missing for CC DIS reaction for dataset " + std::to_string(dataSetID);
-      hf_errlog_(17100801,msg.c_str(), msg.size());
-    }
-    _npoints[dataSetID] = (*q2p).size();
+    _npoints=q2p->size();
   }
 
-  hf_errlog_(17041001, msg.c_str(), msg.size());
+  hf_errlog(17041001,msg);
 
   // Allocate internal arrays:
-  _f2u[dataSetID].resize(_npoints[dataSetID]);
-  _f2d[dataSetID].resize(_npoints[dataSetID]);
-  _flu[dataSetID].resize(_npoints[dataSetID]);
-  _fld[dataSetID].resize(_npoints[dataSetID]);
-  _xf3u[dataSetID].resize(_npoints[dataSetID]);
-  _xf3d[dataSetID].resize(_npoints[dataSetID]);
+  rd->_f2u .resize(_npoints);
+  rd->_f2d .resize(_npoints);
+  rd->_flu .resize(_npoints);
+  rd->_fld .resize(_npoints);
+  rd->_xf3u.resize(_npoints);
+  rd->_xf3d.resize(_npoints);
 }
 
 valarray<double> *ReactionBaseDISCC::GetBinValues(int idDS, const string& binName)
@@ -316,7 +304,7 @@ valarray<double> *ReactionBaseDISCC::GetBinValues(int idDS, const string& binNam
 
 
 // Get SF
-
+//TODO: rewrite those
 void ReactionBaseDISCC::F2 BASE_PARS
 {
   valarray<double> f2;
