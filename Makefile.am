@@ -38,6 +38,7 @@ SUBDIRS=src\
   minimizers/BaseMinimizer/src\
   minimizers/MINUITMinimizer/src\
   reactions/APPLgrid/src\
+  reactions/KMatrix/src\
   reactions/KFactor/src
 #  reactions/Fractal_DISNC/src\
 #  reactions/BaseDISCC/src\
@@ -53,7 +54,6 @@ SUBDIRS=src\
 #  reactions/FONLL_DISCC/src\
 #  reactions/FONLL_DISNC/src\
 #  reactions/AFB/src\
-#  reactions/KMatrix/src\
 #
 
 # These seem to be broken because PDF interface has changed

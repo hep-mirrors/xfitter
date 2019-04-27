@@ -607,6 +607,7 @@ AC_CONFIG_FILES([include/Makefile
                  pdfdecompositions/SU3_PionPdfDecomposition/src/Makefile
                  pdfdecompositions/BasePdfDecomposition/src/Makefile
                  reactions/AFB/src/Makefile
+                 reactions/KMatrix/src/Makefile
                  reactions/KFactor/src/Makefile
                  reactions/BaseDISCC/src/Makefile
                  reactions/FFABM_DISCC/src/Makefile
@@ -627,7 +628,6 @@ AC_CONFIG_FILES([include/Makefile
                  evolutions/FlipCharge/src/Makefile
                  evolutions/APFELxx/src/Makefile
                  minimizers/BaseMinimizer/src/Makefile
-                 reactions/KMatrix/src/Makefile
                  Makefile])
 #
 #                 FastNLO/src/Makefile
