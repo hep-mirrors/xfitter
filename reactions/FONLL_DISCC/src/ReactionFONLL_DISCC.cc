@@ -91,8 +91,8 @@ int ReactionFONLL_DISCC::atStart(const string &s)
   APFEL::SetSin2ThetaW(sin2thw);
   APFEL::SetGFermi(gf);
   APFEL::SetCKM(Vud, Vus, Vub,
-		Vcd, Vcs, Vcb,
-		Vtd, Vts, Vtb);
+                Vcd, Vcs, Vcb,
+                Vtd, Vts, Vtb);
   APFEL::EnableDynamicalScaleVariations(true);
   if (MassScheme == "Pole")
     APFEL::SetPoleMasses(MCharm, MBottom, MTop);
@@ -121,18 +121,18 @@ int ReactionFONLL_DISCC::atStart(const string &s)
       double MbQ = Qb;
       double MtQ = Qt;
       if (Qc != MCharm)
-	McQ = APFEL::HeavyQuarkMass(4, Qc);
+        McQ = APFEL::HeavyQuarkMass(4, Qc);
       if(Qb != MBottom)
-	MbQ = APFEL::HeavyQuarkMass(5, Qb);
+        MbQ = APFEL::HeavyQuarkMass(5, Qb);
       if(Qt != MTop)
-	MtQ = APFEL::HeavyQuarkMass(6, Qt);
+        MtQ = APFEL::HeavyQuarkMass(6, Qt);
       if (MassScheme == "Pole")
-	APFEL::SetPoleMasses(McQ, MbQ, MtQ);
+        APFEL::SetPoleMasses(McQ, MbQ, MtQ);
       else if (MassScheme == "MSbar")
-	{
-	  APFEL::SetMSbarMasses(McQ, MbQ, MtQ);
-	  APFEL::SetMassScaleReference(Qc, Qb, Qt);
-	}
+        {
+          APFEL::SetMSbarMasses(McQ, MbQ, MtQ);
+          APFEL::SetMassScaleReference(Qc, Qb, Qt);
+        }
     }
 
   // Initialize the APFEL DIS module
@@ -161,9 +161,9 @@ void ReactionFONLL_DISCC::initAtIteration()
       // Charge of the projectile.
       const double charge = GetCharge(dataSetID);
       if (charge < 0)
-      	APFEL::SetProjectileDIS("electron");
+        APFEL::SetProjectileDIS("electron");
       else
-       	APFEL::SetProjectileDIS("positron");
+        APFEL::SetProjectileDIS("positron");
 
       // Get x,Q2 arrays.
       auto *q2p = GetBinValues(dataSetID,"Q2");
@@ -179,37 +179,37 @@ void ReactionFONLL_DISCC::initAtIteration()
 
       double Q2save = 0;
       for (size_t i = 0; i < Np; i++)
-	{
-	  // Skip all points with Q2 < 1 GeV^2.
-	  if (q2[i] < 1)
-	    continue;
+        {
+          // Skip all points with Q2 < 1 GeV^2.
+          if (q2[i] < 1)
+            continue;
 
-	  // Recompute structure functions only if the value of Q2
-	  // changes.
-	  if (q2[i] != Q2save)
-	    {
-	      const double Q = sqrt(q2[i]);
-	      APFEL::ComputeStructureFunctionsAPFEL(Q,Q);
-	    }
+          // Recompute structure functions only if the value of Q2
+          // changes.
+          if (q2[i] != Q2save)
+            {
+              const double Q = sqrt(q2[i]);
+              APFEL::ComputeStructureFunctionsAPFEL(Q,Q);
+            }
 
-	  // Compute structure functions by interpolation in x for the
-	  // appropriate component (total, charm, or bottom).
-	  switch (GetDataFlav(dataSetID))
-	    {
-	    case dataFlav::incl:
-	      _f2fonll[dataSetID][i] = APFEL::F2total(x[i]) / 2;
-	      _flfonll[dataSetID][i] = APFEL::FLtotal(x[i]) / 2;
-	      _f3fonll[dataSetID][i] = APFEL::F3total(x[i]) / 2;
-	      break;
-	    case dataFlav::c:
-	      _f2fonll[dataSetID][i] = APFEL::F2charm(x[i]) / 2;
-	      _flfonll[dataSetID][i] = APFEL::FLcharm(x[i]) / 2;
-	      _f3fonll[dataSetID][i] = APFEL::F3charm(x[i]) / 2;
-	      break;
-	    }
+          // Compute structure functions by interpolation in x for the
+          // appropriate component (total, charm, or bottom).
+          switch (GetDataFlav(dataSetID))
+            {
+            case dataFlav::incl:
+              _f2fonll[dataSetID][i] = APFEL::F2total(x[i]) / 2;
+              _flfonll[dataSetID][i] = APFEL::FLtotal(x[i]) / 2;
+              _f3fonll[dataSetID][i] = APFEL::F3total(x[i]) / 2;
+              break;
+            case dataFlav::c:
+              _f2fonll[dataSetID][i] = APFEL::F2charm(x[i]) / 2;
+              _flfonll[dataSetID][i] = APFEL::FLcharm(x[i]) / 2;
+              _f3fonll[dataSetID][i] = APFEL::F3charm(x[i]) / 2;
+              break;
+            }
 
-	  Q2save = q2[i];
-	}
+          Q2save = q2[i];
+        }
     }
 }
 
