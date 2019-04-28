@@ -49,6 +49,7 @@ const double  CCEM3Fc[] = {0.,0.,0.,-1.,0.,0.,0.,0.,0.,0.,1.,0.,0.};
 
 // define QCDNUM function:
 extern "C" {
+  //key, x, q2, sf are arrays, better use pointer rather than reference
   void zmstfun_(const int& id, const double& key, double& x, double& q2, double& sf, const int& np, const int &flag);
 }
 
@@ -67,7 +68,7 @@ struct ReactionData{
   dataFlav     _dataFlav=dataFlav::incl;//!< flavour (incl, c, b)
   // for integrated cross sections
   // method is based on legacy subroutine GetIntegratedDisXsection
-  IntegrateDIS*_integrated;
+  IntegrateDIS*_integrated=nullptr;
   // Some buffering mechanism to avoid double calls
   valarray<double>_f2u; //!< F2 for u-type quarks
   valarray<double>_f2d; //!< F2 for d-type quarks
@@ -75,12 +76,18 @@ struct ReactionData{
   valarray<double>_fld; //!< FL for d-type quarks
   valarray<double>_xf3u;
   valarray<double>_xf3d;
+  const double*Mw;//parameter of W mass
+  //pointers to bin arrays
+  //WIP
+  const valarray<double>*q2p;
+  const valarray<double>*xp;
+  const valarray<double>*yp;
+  bool ownYp=false;//true if y-bins were calculated from x and Q2, and *yp was created
 };
 // Initialize at the start of the computation
-void ReactionBaseDISCC::atStart()
-{
+void ReactionBaseDISCC::atStart(){
   // This we do not want to fit:
-  _Gf=*XFITTER_PARS::getParamD("gf");
+  _Gf     =*XFITTER_PARS::getParamD("gf");
   _convfac=*XFITTER_PARS::getParamD("convFac");
     ///
   int nwords;
@@ -90,76 +97,50 @@ void ReactionBaseDISCC::atStart()
 // Main function to compute results at an iteration
 void ReactionBaseDISCC::compute(TermData*td,valarray<double>&valExternal,map<string,valarray<double> >&errExternal)
 {
-  valarray<double> val;//TODO Is this needed?
-  map<string, valarray<double> > err;//TODO remove
+  ReactionData*rd=(ReactionData*)td->reactionData;
+  const double MW=*rd->Mw;
+  size_t _npoints=rd->_npoints;
 
   // Basic formulae for CC cross section:
-
- //WIP TermData
   const valarray<double>&y=td->getBinColumn("y");
 
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
 
+  valarray<double>f2 =F2 (td);
+  valarray<double>fl =FL (td);
+  valarray<double>xf3=xF3(td);
+  double polarity=rd->_polarisation;
+  double charge=  rd->_charge;
 
-  valarray<double> f2(_npoints[dataSetID]);
-  valarray<double> fl(_npoints[dataSetID]);
-  valarray<double> xf3(_npoints[dataSetID]);
+  valarray<double>val;
+  if(charge>0)val=0.5*(1+polarity)*(yplus*f2 - yminus*xf3 - y*y*fl);
+  else        val=0.5*(1-polarity)*(yplus*f2 + yminus*xf3 - y*y*fl);
 
-  F2 (dataSetID,f2,err);
-  FL (dataSetID,fl,err);
-  xF3(dataSetID,xf3,err);
-
-
-  double polarity = GetPolarisation(dataSetID);
-
-  if ( GetCharge(dataSetID) > 0) {
-    val = 0.5*(yplus*f2 - yminus*xf3 - y*y*fl);
-    val *= (1+polarity);
-  }
-  else {
-    val = 0.5*(yplus*f2 + yminus*xf3 - y*y*fl);
-    val *= (1-polarity);
-  }
-
-  //for(size_t i = 0; i < f2.size(); i++)
-  //  printf("%f %f    %f    %f    %f  =  %f\n", (*GetBinValues(dataSetID,"Q2"))[i], (*GetBinValues(dataSetID,"x"))[i], f2[i], fl[i], xf3[i], val[i]);
-
-  if (! IsReduced(dataSetID)) {
+  if(!rd->_isReduced){
     // extra factor for non-reduced cross section
-    auto *xp  = GetBinValues(dataSetID,"x");
-    auto x = *xp;
-    auto *Q2p  = GetBinValues(dataSetID,"Q2");
-    auto q2 = *Q2p;
+    auto&x =td->getBinColumn("x"),
+        &q2=td->getBinColumn("Q2");
     const double pi = 3.1415926535897932384626433832795029;
-    valarray<double> factor = (_MW*_MW*_MW*_MW/pow((q2+_MW*_MW),2))*_Gf*_Gf/(2*pi*x)*_convfac;
+    valarray<double> factor = (MW*MW*MW*MW/pow((q2+MW*MW),2))*_Gf*_Gf/(2*pi*x)*_convfac;
     val *= factor;
   }
 
-  if(_integrated.find(dataSetID) == _integrated.end())
-  {
-    // usual cross section at (q2,x) points
-    valExternal = val;
-    errExternal = err;
-  }
-  else
-  {
+  IntegrateDIS*iDIS=rd->_integrated;
+  if(iDIS){
     // integrated cross sections
-    valExternal = _integrated[dataSetID]->compute(val);
-    // no idea how error could be treated: for now do nothing
-    errExternal = err;
+    valExternal=iDIS->compute(val);
+  }else{
+    // usual cross section at (q2,x) points
+    valExternal=val;
   }
-
-  return 0;
 }
 
+  /*
+   * I do not understand how that could speed up anything
+   * --Ivan
 void ReactionBaseDISCC::atIteration() {
-  // Get some basic parameters:
-  //huh???
-  _MW = GetParam("Mw");
-
   // Re-set internal maps (faster access):
-  // what??? --Ivan
   for ( auto ds : _dsIDs)  {
     (_f2u[ds])[0] = -100.;
     (_flu[ds])[0] = -100.;
@@ -169,17 +150,16 @@ void ReactionBaseDISCC::atIteration() {
     (_xf3d[ds])[0] = -100.;
   }
 }
+  */
 void ReactionBaseDISCC::initTerm(TermData*td){
   ReactionData*rd=new ReactionData();
   td->reactionData=(void*)rd;
-  auto&_polarisation=rd->_polarisation;
-  auto&_charge      =rd->_charge;
   auto&_isReduced   =rd->_isReduced;
-  auto&_integrated  =rd->_integrated;
-  if(td->hasParam("epolarity"))_polarisation=*td->getParamD("epolarity");
-  if(td->hasParam("echarge"))  _charge      =*td->getParamD("echarge");
-  if(td->hasParam("reduced"))  _isReduced   = td->getParamI("reduced");
-  // check if settings are provided in the new format key=value
+  if(td->hasParam("epolarity"))rd->_polarisation=*td->getParamD("epolarity");//cannot be fitted
+  if(td->hasParam("echarge"))  rd->_charge      =*td->getParamD("echarge");  //cannot be fitted
+  if(td->hasParam("reduced"))  _isReduced       = td->getParamI("reduced");
+  rd->Mw=td->getParamD("Mw");
+
   // type: sigred, signonred (no F2, FL implemented so far, thus type is defined by bool _isReduced)
   // HERA data files provide 'signonred' CC cross sections
   // Inclusive "non-reduced" cross section by default.
@@ -246,13 +226,14 @@ void ReactionBaseDISCC::initTerm(TermData*td){
       hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(dataSetID));
     IntegrateDIS* iDIS = new IntegrateDIS();
     _npoints=iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
-    _integrated=iDIS;
+    rd->_integrated=iDIS;
     msg += " (integrated)";
   }
   else
   {
     // cross section at (Q2,x) points
     //TODO: replace with has?
+    //Do not use GetBinValues
     auto*q2p=&td->getBinColumn("Q2");
     auto*xp =&td->getBinColumn("x");
     auto*yp = td->getBinColumnOrNull("y");
@@ -266,8 +247,8 @@ void ReactionBaseDISCC::initTerm(TermData*td){
         std::pair<string,valarray<double>* > dsBin = std::make_pair("y", &y);
         //Oooof, this is not implemented...
         AddBinning(dataSetID, &dsBin);//TODO: think how to implement this...
+        //maybe I should store pointers in ReactionData and create a new valarray there. That would be best
         //skipping for now...
-        yp = GetBinValues(dataSetID, "y");
       }
       //TODO: else? when s<=0?
     }
@@ -285,210 +266,85 @@ void ReactionBaseDISCC::initTerm(TermData*td){
   rd->_xf3d.resize(_npoints);
 }
 
-valarray<double> *ReactionBaseDISCC::GetBinValues(int idDS, const string& binName)
-{
-  if(_integrated.find(idDS) == _integrated.end())
-    return ReactionTheory::GetBinValues(idDS, binName);
-  else
-  {
-    if(binName == "Q2")
-      return _integrated[idDS]->getBinValuesQ2();
-    else if(binName == "x")
-      return _integrated[idDS]->getBinValuesX();
-    else if(binName == "y")
-      return _integrated[idDS]->getBinValuesY();
-    else
-      return ReactionTheory::GetBinValues(idDS, binName);
-  }
+const valarray<double>*GetBinValues(TermData*td,const string&binName){
+  IntegrateDIS*iDIS=((ReactionData*)td->reactionData)->_integrated;
+  if(iDIS==nullptr)return&td->getBinColumn(binName);
+  if     (binName=="Q2")return iDIS->getBinValuesQ2();
+  else if(binName=="x" )return iDIS->getBinValuesX();
+  else if(binName=="y" )return iDIS->getBinValuesY();
+  return&td->getBinColumn(binName);
 };
 
-
-// Get SF
-//TODO: rewrite those
-void ReactionBaseDISCC::F2 BASE_PARS
-{
-  valarray<double> f2;
-  if (GetCharge(dataSetID) > 0) {
-    GetF2u(dataSetID, f2);
+valarray<double>GetF(TermData*td,const int id){
+  //other values are illegal
+  //return through out
+/*F   array id incl   c       isNegative nid
+  FL  _flu  1  CCEP2F CCEP2Fc F          0
+  F2  _f2u  2  CCEP2F CCEP2Fc F          1
+  xF3 _xf3u 3  CCEP3F CCEP3Fc F          2
+  FL  _fld  1  CCEM2F CCEM2Fc T          3
+  F2  _f2d  2  CCEM2F CCEM2Fc T          4
+  xF3 _xf3d 3  CCEM3F CCEM3Fc T          5
+*/
+  ReactionData*rd=(ReactionData*)td->reactionData;
+  bool isNegative=rd->_charge<0;
+  char nid=id-1;
+  if(isNegative)nid+=3;
+  const valarray<double>*f;
+  switch(nid){
+  case 0:
+    f=&rd->_flu;
+    break;
+  case 1:
+    f=&rd->_f2u;
+    break;
+  case 2:
+    f=&rd->_xf3u;
+    break;
+  case 3:
+    f=&rd->_fld;
+    break;
+  case 4:
+    f=&rd->_f2d;
+    break;
+  case 5:
+    f=&rd->_xf3d;
+    break;
+  default:
+    std::abort();//unreachable
   }
-  else {
-    GetF2d(dataSetID, f2);
-  }
-  val = f2;
-}
-
-void ReactionBaseDISCC::FL BASE_PARS
-{
-  valarray<double> fl;
-  if (GetCharge(dataSetID) > 0) {
-    GetFLu(dataSetID, fl);
-  }
-  else {
-    GetFLd(dataSetID, fl);
-  }
-  val = fl;
-}
-
-void ReactionBaseDISCC::xF3 BASE_PARS
-{
-  valarray<double> xf3;
-  if (GetCharge(dataSetID) > 0) {
-    GetxF3u(dataSetID, xf3);
-  }
-  else {
-    GetxF3d(dataSetID, xf3);
-  }
-  val = xf3;
-}
-
-
-//// -------------------------------------
-
-void ReactionBaseDISCC::GetF2u(int dataSetID, valarray<double>& f2u)
-{
-  // Check if already computed:
-  if ( (_f2u[dataSetID])[0] < -99. ) { // compute
-  // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
-    auto q2 = *q2p, x = *xp;
-
-  // Call QCDNUM
-    const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
-      {
-      case dataFlav::incl :
-        zmstfun_(id,CCEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
-        break;
-      case dataFlav::c :
-        zmstfun_(id,CCEP2Fc[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
-        break ;
-      }
-    //for(int i = 0; i < Npnt; i++)
-    //  printf("%f %f    %f\n", q2[i], x[i], (_f2u[dataSetID])[i]);
-  }
-  f2u = _f2u[dataSetID];
-}
-
-void ReactionBaseDISCC::GetFLu(int dataSetID, valarray<double>& flu)
-{
-  // Check if already computed:
-  if ( (_flu[dataSetID])[0] <-99. ) { // compute
-    // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
-    auto q2 = *q2p, x = *xp;
-
-    // Call QCDNUM
-    const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
-      {
-      case dataFlav::incl :
-        zmstfun_(id,CCEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-        break;
-      case dataFlav::c :
-        zmstfun_(id,CCEP2Fc[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-        break ;
-      }
-  }
-  flu = _flu[dataSetID];
-
-}
-
-void ReactionBaseDISCC::GetxF3u( int dataSetID, valarray<double>& xf3u )
-{
-  // Check if already computed:
-  if ( (_xf3u[dataSetID])[0] < -99. ) { // compute
-    // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
-    auto q2 = *q2p, x = *xp;
-
-    // Call QCDNUM
-    const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
-      {
-      case dataFlav::incl :
-        zmstfun_(id,CCEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
-        break;
-      case dataFlav::c :
-        //printf("before XF3u: %f\n", (_xf3u[dataSetID])[_xf3u[dataSetID].size() - 1]);
-        zmstfun_(id,CCEP3Fc[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
-        //printf("after XF3u: %f\n", (_xf3u[dataSetID])[_xf3u[dataSetID].size() - 1]);
-        break;
-      }
-    //_xf3u[dataSetID] = _xf3u[dataSetID] * x;
-  }
-  //printf("XF3u: %f\n", (_xf3u[dataSetID])[_xf3u[dataSetID].size() - 1]);
-  xf3u = _xf3u[dataSetID];
-}
-
-
-void ReactionBaseDISCC::GetF2d(int dataSetID, valarray<double>& f2d)
-{
-  // Check if already computed:
-  if ( (_f2d[dataSetID])[0] < -99. ) { // compute
-  // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
-    auto q2 = *q2p, x = *xp;
-
-  // Call QCDNUM
-    const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
-      {
-      case dataFlav::incl :
-        zmstfun_(id,CCEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
-        break;
-      case dataFlav::c :
-        zmstfun_(id,CCEM2Fc[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
-        break ;
-      }
-  }
-  f2d = _f2d[dataSetID];
-}
-
-void ReactionBaseDISCC::GetFLd(int dataSetID, valarray<double>& fld)
-{
-  // Check if already computed:
-  if ( (_fld[dataSetID])[0] <-99. ) { // compute
-    // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
-    auto q2 = *q2p, x = *xp;
-
-    // Call QCDNUM
-    const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
-      {
-      case dataFlav::incl :
-        zmstfun_(id,CCEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
-        break;
-      case dataFlav::c :
-        zmstfun_(id,CCEM2Fc[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
-        break ;
-      }
-  }
-  fld = _fld[dataSetID];
-
-}
-
-void ReactionBaseDISCC::GetxF3d( int dataSetID, valarray<double>& xf3d )
-{
-  // Check if already computed:
-  if ( (_xf3d[dataSetID])[0] < -99. ) { // compute
-    // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
-    auto q2 = *q2p, x = *xp;
-
-    // Call QCDNUM
-    const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
-      {
-      case dataFlav::incl :
-        zmstfun_(id,CCEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);
-        break;
-      case dataFlav::c :
-        zmstfun_(id,CCEM3Fc[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);
-        break;
+  // Check if already computed://I think I broke it. Wait, how did this work, again? --Ivan
+  if((*f)[0]<-99){//then compute
+    auto&q2=td->getBinColumn("Q2"),
+        &x =td->getBinColumn("x");
+    const double*C;
+    switch(rd->_dataFlav){
+    case dataFlav::incl:
+      if(isNegative){
+        if(id==3)C=CCEM3F;
+        else     C=CCEM2F;
+      }else{
+        if(id==3)C=CCEP3F;
+        else     C=CCEP2F;
+      }break;
+    case dataFlav::c:
+      if(isNegative){
+        if(id==3)C=CCEM3Fc;
+        else     C=CCEM2Fc;
+      }else{
+        if(id==3)C=CCEP3Fc;
+        else     C=CCEP2Fc;
+      }break;
+    default:
+      std::abort();//unreachable
     }
-    //_xf3d[dataSetID] = _xf3d[dataSetID] * x;
+    // Call QCDNUM
+    const int flag=0;
+    const int Npnt=f->size();
+    zmstfun_(id,C[0],x[0],q2[0],(*f)[0],Npnt,flag);
   }
-  xf3d = _xf3d[dataSetID];
+  return*f;
 }
-
+valarray<double> FL(TermData*td){return GetF(td,1);}
+valarray<double> F2(TermData*td){return GetF(td,2);}
+valarray<double>xF3(TermData*td){return GetF(td,3);}
