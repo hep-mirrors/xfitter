@@ -100,7 +100,7 @@ YAML::Node getFromByReaction(const string&parName,const ReactionTheory*const rea
   if(byReactionNode.IsMap()){
     YAML::Node reactionNode=byReactionNode[reaction->getReactionName()];
     if(reactionNode.IsMap())return reactionNode[parName];
-    else{
+    else if(reactionNode.IsDefined()){
       cerr<<"[ERROR] Reaction-specific parameters node "<<BY_REACTION<<'/'<<reaction->getReactionName()<<" is not a YAML map"<<endl;
       hf_errlog(19041301,"F: Reaction parameter node is not a map, see stderr");
     }
