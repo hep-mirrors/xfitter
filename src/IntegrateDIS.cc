@@ -3,9 +3,9 @@
 #include <cassert>
 
 int IntegrateDIS::init(const double s,
-                        std::valarray<double>* q2minp, std::valarray<double>* q2maxp,
-                        std::valarray<double>* yminp, std::valarray<double>* ymaxp,
-                        std::valarray<double>* xminp, std::valarray<double>* xmaxp)
+                        const std::valarray<double>* q2minp, const std::valarray<double>* q2maxp,
+                        const std::valarray<double>* yminp, const std::valarray<double>* ymaxp,
+                        const std::valarray<double>* xminp, const std::valarray<double>* xmaxp)
 {
   // prepare number of bins and arrays
   const int npoints = q2minp->size();
