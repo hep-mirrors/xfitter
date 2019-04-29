@@ -11,6 +11,8 @@
 #include <cstdio>
 #include "QCDNUM/QCDNUM.h"
 #include <IntegrateDIS.h>
+#include "xfitter_pars.h"
+#include "hf_errlog.h"
 
 template <typename T>
 void print(T d) {
@@ -47,33 +49,32 @@ extern "C" ReactionBaseDISNC* create() {
 
 
 // Initialize at the start of the computation
-int ReactionBaseDISNC::atStart(const string &s)
+void ReactionBaseDISNC::atStart()
 {
   ///
   int nwords;
   QCDNUM::zmfillw(nwords);
-  _convfac = GetParam("convFac");
-  return 0;
+  _convfac = *XFITTER_PARS::getParamD("convFac");
 }
 
 // Main function to compute results at an iteration
-int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal)
+void ReactionBaseDISNC::compute(TermData* td, valarray<double> &valExternal, map<string, valarray<double> > &errExternal)
 {
+  unsigned termID = td->id;
+  
   valarray<double> val;
   map<string, valarray<double> > err;
 
-  switch ( GetDataType(dataSetID) )
+  switch ( GetDataType(termID) )
     {
     case dataType::signonred :
       {
-        sred(dataSetID, val, err) ;
+        sred(td, val, err) ;
         // transform reduced -> non-reduced cross sections
-        auto *xp  = GetBinValues(dataSetID,"x");
-        auto x = *xp;
-        auto *Q2p  = GetBinValues(dataSetID,"Q2");
-        auto q2 = *Q2p;
-        auto *yp  = GetBinValues(dataSetID,"y");
-        auto y = *yp;
+        auto *xp  = GetBinValues(td,"x");
+        auto *q2p = GetBinValues(td,"Q2");
+        auto *yp  = GetBinValues(td,"y");
+	auto x = *xp, y = *yp, q2 = *q2p;
         const double pi = 3.1415926535897932384626433832795029;
         valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
         valarray<double> factor = 2 * pi * _alphaem * _alphaem * yplus / (q2 * q2 * x) * _convfac;
@@ -81,17 +82,17 @@ int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &valExternal, map
         break ;
       }
     case dataType::sigred :
-      sred(dataSetID, val, err) ;
+      sred(td, val, err) ;
       break ;
     case dataType::f2 :
-      F2(dataSetID, val, err) ;
+      F2(td, val, err) ;
       break ;
     case dataType::fl :
-      FL(dataSetID, val, err) ;
+      FL(td, val, err) ;
       break ;
     }
 
-  if(_integrated.find(dataSetID) == _integrated.end())
+  if(_integrated.find(termID) == _integrated.end())
   {
     // usual cross section at (q2,x) points
     valExternal = val;
@@ -100,22 +101,20 @@ int ReactionBaseDISNC::compute(int dataSetID, valarray<double> &valExternal, map
   else
   {
     // integrated cross sections
-    valExternal = _integrated[dataSetID]->compute(val);
+    valExternal = _integrated[termID]->compute(val);
     // no idea how error could be treated: for now do nothing
     errExternal = err;
   }
-
-  return 0;
 }
 
-void ReactionBaseDISNC::initAtIteration() {
+void ReactionBaseDISNC::atIteration() {
   // Make sure to call the parent class initialization:
-  super::initAtIteration();
+  super::atIteration();
 
-  _alphaem = GetParam("alphaem");
-  _Mz = GetParam("Mz");
-  _Mw = GetParam("Mw");
-  _sin2thetaW = GetParam("sin2thW");
+  _alphaem = *XFITTER_PARS::getParamD("alphaem");
+  _Mz      = *XFITTER_PARS::getParamD("Mz");
+  _Mw      = *XFITTER_PARS::getParamD("Mw");
+  _sin2thetaW = *XFITTER_PARS::getParamD("sin2thW");
 
   _ve =  -0.5 + 2.*_sin2thetaW; // !
   _ae =  -0.5;                  // !
@@ -135,221 +134,215 @@ void ReactionBaseDISNC::initAtIteration() {
 }
 
 //
-void  ReactionBaseDISNC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset)
+void  ReactionBaseDISNC::initTerm( TermData* td)
 {
-  _polarisation[dataSetID] =  (parsDataset.find("epolarity") != parsDataset.end()) ? parsDataset["epolarity"] : 0;
-  _charge[dataSetID]       =  (parsDataset.find("echarge")       != parsDataset.end()) ? parsDataset["echarge"] : 0;
+  unsigned termID = td->id;
+
+  _dsIDs.push_back(termID);
+  
+  _polarisation[termID] =  ( td->hasParam("epolarity") ) ? *td->getParamD("epolarity") : 0;
+  _charge[termID]       =  ( td->hasParam("echarge")   ) ? *td->getParamD("echarge") : 0;
 
   // Inclusive reduced cross section by default.
-  _dataType[dataSetID] = dataType::sigred;
-  _dataFlav[dataSetID] = dataFlav::incl;
+  _dataType[termID] = dataType::sigred;
+  _dataFlav[termID] = dataFlav::incl;
   string msg = "I: Calculating DIS NC reduced cross section";
-  if ( parsDataset.find("F2") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::f2;
-    msg = "I: Calculating DIS NC F2";
-  }
-  if ( parsDataset.find("FL") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::fl;
-    msg = "I: Calculating DIS NC FL";
-  }
-  if ( parsDataset.find("reduced") != parsDataset.end() ) {
-    _dataType[dataSetID] = dataType::sigred;
-    msg = "I: Calculating DIS NC reduced cross section";
-  }
-
-  // check if settings are provided in the new format key=value
-  // type: signonred, sigred, F2, FL
-  map<string,string>::iterator it = pars.find("type");
-  if ( it != pars.end() ) {
-    if(it->second == "signonred")
+ 
+  if (td->hasParam("type")) {
+    string type=td->getParamS("type");
+    if(type == "signonred")
     {
-      _dataType[dataSetID] = dataType::signonred;
+      _dataType[termID] = dataType::signonred;
       msg = "I: Calculating DIS NC double-differential (non-reduced) cross section";
     }
-    else if(it->second == "sigred")
+    else if(type == "sigred")
     {
-      _dataType[dataSetID] = dataType::sigred;
+      _dataType[termID] = dataType::sigred;
       msg = "I: Calculating DIS NC reduced cross section";
     }
-    else if(it->second == "F2")
+    else if(type == "F2")
     {
-      _dataType[dataSetID] = dataType::f2;
+      _dataType[termID] = dataType::f2;
       msg = "I: Calculating DIS NC F2";
     }
-    else if(it->second == "FL")
+    else if(type == "FL")
     {
-      _dataType[dataSetID] = dataType::fl;
+      _dataType[termID] = dataType::fl;
       msg = "I: Calculating DIS NC FL";
     }
     else
     {
       char buffer[256];
-      sprintf(buffer, "F: dataset with id = %d has unknown type = %s", dataSetID, it->second.c_str());
+      sprintf(buffer, "F: dataset with id = %d has unknown type = %s", termID, type.c_str());
       string str = buffer;
-      hf_errlog_(17101901, str.c_str(), str.length());
+      hf_errlog(17101901, str);
     }
   }
 
   // flav: incl, c, b
-  it = pars.find("flav");
-  if ( it != pars.end() ) {
-    if(it->second == "incl")
+  if ( td->hasParam("flav") ) {
+    string flav = td->getParamS("flav");
+    if(flav == "incl")
     {
-      _dataFlav[dataSetID] = dataFlav::incl;
+      _dataFlav[termID] = dataFlav::incl;
       msg += " inclusive";
     }
-    else if(it->second == "c")
+    else if(flav == "c")
     {
-      _dataFlav[dataSetID] = dataFlav::c;
+      _dataFlav[termID] = dataFlav::c;
       msg += " charm";
     }
-    else if(it->second == "b")
+    else if(flav == "b")
     {
-      _dataFlav[dataSetID] = dataFlav::b;
+      _dataFlav[termID] = dataFlav::b;
       msg += " beauty";
     }
     else
     {
       char buffer[256];
-      sprintf(buffer, "F: dataset with id = %d has unknown flav = %s", dataSetID, it->second.c_str());
+      sprintf(buffer, "F: dataset with id = %d has unknown flav = %s", termID, flav.c_str());
       string str = buffer;
-      hf_errlog_(17101902, str.c_str(), str.length());
+      hf_errlog(17101902, str);
     }
   }
 
-  // e charge: double
-  it = pars.find("echarge");
-  if ( it != pars.end() )
-    _charge[dataSetID] = atof(it->second.c_str());
-
-  // e polarity: double
-  it = pars.find("epolarity");
-  if ( it != pars.end() )
-    _polarisation[dataSetID] = atof(it->second.c_str());
-
   // check if centre-of-mass energy is provided
   double s = -1.0;
-  map<string,string>::iterator itEnergy = pars.find("energy");
-  if ( itEnergy != pars.end() )
-    s = pow(stof(itEnergy->second), 2.0);
+  if ( td->hasParam("energy") )
+    s = pow(*td->getParamD("energy"), 2.0);
 
   // bins
   // if Q2min, Q2max, ymin and ymax (and optionally xmin, xmax) are provided, calculate integrated cross sections
-  auto *q2minp  = GetBinValues(dataSetID,"Q2min");
-  auto *q2maxp  = GetBinValues(dataSetID,"Q2max");
-  // also try small first letter for backward compatibility
+  auto*q2minp=td->getBinColumnOrNull("Q2min");
+  auto*q2maxp=td->getBinColumnOrNull("Q2max");
+  // also try small first letter for Q2 (for backward compatibility)
   if(!q2minp)
-    q2minp  = GetBinValues(dataSetID,"q2min");
+       q2minp=td->getBinColumnOrNull("q2min");
   if(!q2maxp)
-    q2maxp  = GetBinValues(dataSetID,"q2max");
-  auto *yminp  = GetBinValues(dataSetID,"ymin");
-  auto *ymaxp  = GetBinValues(dataSetID,"ymax");
+       q2maxp=td->getBinColumnOrNull("q2max");
+  auto*yminp =td->getBinColumnOrNull("ymin");
+  auto*ymaxp =td->getBinColumnOrNull("ymax");
   // optional xmin, xmax for integrated cross sections
-  auto *xminp  = GetBinValues(dataSetID,"xmin");
-  auto *xmaxp  = GetBinValues(dataSetID,"xmax");
+  auto*xminp =td->getBinColumnOrNull("xmin");
+  auto*xmaxp =td->getBinColumnOrNull("xmax");
 
   if(q2minp && q2maxp && yminp && ymaxp)
   {
     // integrated cross section
     if(s < 0)
-      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS dataset " + std::to_string(dataSetID));
-    if(_dataType[dataSetID] != dataType::signonred)
-      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(dataSetID));
+      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS dataset " + std::to_string(termID));
+    if(_dataType[termID] != dataType::signonred)
+      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(termID));
     IntegrateDIS* iDIS = new IntegrateDIS();
-    _npoints[dataSetID] = iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
-    _integrated[dataSetID] = iDIS;
+    _npoints[termID] = iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
+    _integrated[termID] = iDIS;
     msg += " (integrated)";
   }
   else
   {
     // cross section at (Q2,x) points
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x"), *yp  = GetBinValues(dataSetID,"y");
+    auto *q2p  =td->getBinColumnOrNull("Q2"), *xp  = td->getBinColumnOrNull("x"), *yp  = td->getBinColumnOrNull("y");
 
     // if Q2 and x bins and centre-of-mass energy provided, calculate y = Q2 / (s * x)
+
+    /*
+          DO NOT ALLOW FOR MISSING Y COLUMN
+
     if(yp == nullptr && q2p != nullptr && xp != nullptr)
     {
       if ( s > 0.0 )
       {
         valarray<double> y = (*q2p) / (s * (*xp));
         std::pair<string,valarray<double>* > dsBin = std::make_pair("y", &y);
-        AddBinning(dataSetID, &dsBin);
-        yp = GetBinValues(dataSetID, "y");
+        AddBinning(termID, &dsBin);
+        yp = GetBinValues(termID, "y");
       }
     }
+    */
 
     if (q2p == nullptr || xp == nullptr || yp == nullptr ) {
-      string msg = "F: Q2, x or Y bins are missing for NC DIS reaction for dataset " + std::to_string(dataSetID);
-      hf_errlog_(17040801,msg.c_str(), msg.size());
+      string msg = "F: Q2, x or Y bins are missing for NC DIS reaction for dataset " + std::to_string(termID);
+      hf_errlog(17040801,msg);
     }
-    _npoints[dataSetID] = (*q2p).size();
+    _npoints[termID] = (*q2p).size();
   }
 
-  hf_errlog_(17041001, msg.c_str(), msg.size());
+  hf_errlog(17041001, msg);
 
   // Allocate internal arrays:
-  _f2u[dataSetID].resize(_npoints[dataSetID]);
-  _f2d[dataSetID].resize(_npoints[dataSetID]);
-  _flu[dataSetID].resize(_npoints[dataSetID]);
-  _fld[dataSetID].resize(_npoints[dataSetID]);
-  _xf3u[dataSetID].resize(_npoints[dataSetID]);
-  _xf3d[dataSetID].resize(_npoints[dataSetID]);
+  _f2u[termID].resize(_npoints[termID]);
+  _f2d[termID].resize(_npoints[termID]);
+  _flu[termID].resize(_npoints[termID]);
+  _fld[termID].resize(_npoints[termID]);
+  _xf3u[termID].resize(_npoints[termID]);
+  _xf3d[termID].resize(_npoints[termID]);
 }
 
-valarray<double> *ReactionBaseDISNC::GetBinValues(int idDS, const string& binName)
+void  ReactionBaseDISNC::reinitTerm( TermData* td)
 {
-  if(_integrated.find(idDS) == _integrated.end())
-    return ReactionTheory::GetBinValues(idDS, binName);
+  unsigned termID = td->id;
+  _polarisation[termID] =  ( td->hasParam("epolarity") ) ? *td->getParamD("epolarity") : 0;
+}
+
+const valarray<double> *ReactionBaseDISNC::GetBinValues(TermData* td, const string& binName)
+{
+  unsigned termID = td->id;
+  
+  if(_integrated.find(termID) == _integrated.end())
+    return td->getBinColumnOrNull(binName);
   else
   {
     if(binName == "Q2")
-      return _integrated[idDS]->getBinValuesQ2();
+      return _integrated[termID]->getBinValuesQ2();
     else if(binName == "x")
-      return _integrated[idDS]->getBinValuesX();
+      return _integrated[termID]->getBinValuesX();
     else if(binName == "y")
-      return _integrated[idDS]->getBinValuesY();
+      return _integrated[termID]->getBinValuesY();
     else
-      return ReactionTheory::GetBinValues(idDS, binName);
+      return td->getBinColumnOrNull(binName);
   }
 };
 
 void ReactionBaseDISNC::F2gamma BASE_PARS
 {
   valarray<double> f2u, f2d;
-  GetF2ud(dataSetID, f2u,  f2d);
+  GetF2ud(td, f2u,  f2d);
   val = 4./9. * f2u + 1./9. * f2d;
 }
 
 void ReactionBaseDISNC::F2gammaZ BASE_PARS
 {
   valarray<double> f2u, f2d;
-  GetF2ud(dataSetID, f2u,  f2d);
+  GetF2ud(td, f2u,  f2d);
   val = 2.*( 2./3.*_vu * f2u - 1./3.*_vd * f2d );
 }
 
 void ReactionBaseDISNC::F2Z BASE_PARS
 {
   valarray<double> f2u, f2d;
-  GetF2ud(dataSetID, f2u,  f2d);
+  GetF2ud(td, f2u,  f2d);
   val = (_vu*_vu + _au*_au) * f2u + (_vd*_vd + _ad*_ad) * f2d ;
 }
 
 void ReactionBaseDISNC::F2 BASE_PARS
 {
-  valarray<double> f2g(_npoints[dataSetID]);
-  F2gamma(dataSetID, f2g, err);
+  unsigned termID = td->id; 
 
-  valarray<double> f2gZ(_npoints[dataSetID]);
-  F2gammaZ(dataSetID, f2gZ, err);
+  valarray<double> f2g(_npoints[termID]);
+  F2gamma(td, f2g, err);
 
-  valarray<double> f2Z(_npoints[dataSetID]);
-  F2Z(dataSetID, f2Z, err);
+  valarray<double> f2gZ(_npoints[termID]);
+  F2gammaZ(td, f2gZ, err);
 
-  valarray<double> k(_npoints[dataSetID]);
-  kappa(dataSetID, k);
+  valarray<double> f2Z(_npoints[termID]);
+  F2Z(td, f2Z, err);
+
+  valarray<double> k(_npoints[termID]);
+  kappa(td, k);
   // combine together:
 
-  double pol     = GetPolarisation(dataSetID);
-  double charge = GetCharge(dataSetID);
+  double pol     = GetPolarisation(termID);
+  double charge = GetCharge(termID);
 
   val = f2g - (_ve + charge*pol*_ae)*k*f2gZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * f2Z;
 }
@@ -357,42 +350,44 @@ void ReactionBaseDISNC::F2 BASE_PARS
 void ReactionBaseDISNC::FLgamma BASE_PARS
 {
   valarray<double> flu, fld;
-  GetFLud(dataSetID, flu,  fld);
+  GetFLud(td, flu,  fld);
   val = 4./9. * flu + 1./9. * fld;
 }
 
 void ReactionBaseDISNC::FLgammaZ BASE_PARS
 {
   valarray<double> flu, fld;
-  GetFLud(dataSetID, flu,  fld);
+  GetFLud(td, flu,  fld);
   val = 2.*( 2./3.*_vu * flu - 1./3.*_vd * fld );
 }
 
 void ReactionBaseDISNC::FLZ BASE_PARS
 {
   valarray<double> flu, fld;
-  GetFLud(dataSetID, flu,  fld);
+  GetFLud(td, flu,  fld);
   val = (_vu*_vu + _au*_au) * flu + (_vd*_vd + _ad*_ad) * fld ;
 }
 
 
 void ReactionBaseDISNC::FL BASE_PARS
 {
-  valarray<double> flg(_npoints[dataSetID]);
-  FLgamma(dataSetID, flg, err);
+  unsigned termID = td->id;
 
-  valarray<double> flgZ(_npoints[dataSetID]);
-  FLgammaZ(dataSetID, flgZ, err);
+  valarray<double> flg(_npoints[termID]);
+  FLgamma(td, flg, err);
 
-  valarray<double> flZ(_npoints[dataSetID]);
-  FLZ(dataSetID, flZ, err);
+  valarray<double> flgZ(_npoints[termID]);
+  FLgammaZ(td, flgZ, err);
 
-  valarray<double> k(_npoints[dataSetID]);
-  kappa(dataSetID, k);
+  valarray<double> flZ(_npoints[termID]);
+  FLZ(td, flZ, err);
+
+  valarray<double> k(_npoints[termID]);
+  kappa(td, k);
   // combine together:
 
-  double pol     = GetPolarisation(dataSetID);
-  double charge = GetCharge(dataSetID);
+  double pol     = GetPolarisation(termID);
+  double charge = GetCharge(termID);
 
   val = flg - (_ve + charge*pol*_ae)*k*flgZ  + (_ae*_ae + _ve*_ve + 2*charge*pol*_ae*_ve)*k * k * flZ;
 }
@@ -400,49 +395,52 @@ void ReactionBaseDISNC::FL BASE_PARS
 void ReactionBaseDISNC::xF3gammaZ BASE_PARS
 {
   valarray<double> xf3u, xf3d;
-  GetxF3ud(dataSetID, xf3u,  xf3d);
+  GetxF3ud(td, xf3u,  xf3d);
   val = 2.*(2./3. * _au * xf3u - 1./3. * _ad * xf3d) ;
 }
 
 void ReactionBaseDISNC::xF3Z      BASE_PARS
 {
   valarray<double> xf3u, xf3d;
-  GetxF3ud(dataSetID, xf3u,  xf3d);
+  GetxF3ud(td, xf3u,  xf3d);
   val = 2.*(_vu * _au * xf3u + _vd * _ad * xf3d) ;
 }
 
 void ReactionBaseDISNC::xF3       BASE_PARS
 {
-  valarray<double> xf3gZ(_npoints[dataSetID]);
-  xF3gammaZ(dataSetID, xf3gZ, err);
+  unsigned termID = td->id;
+  valarray<double> xf3gZ(_npoints[termID]);
+  xF3gammaZ(td, xf3gZ, err);
 
-  valarray<double> xf3Z(_npoints[dataSetID]);
-  xF3Z(dataSetID, xf3Z, err);
+  valarray<double> xf3Z(_npoints[termID]);
+  xF3Z(td, xf3Z, err);
 
-  valarray<double> k(_npoints[dataSetID]);
-  kappa(dataSetID, k);
+  valarray<double> k(_npoints[termID]);
+  kappa(td, k);
 
-  double pol     = GetPolarisation(dataSetID);
-  double charge  = GetCharge(dataSetID);
+  double pol     = GetPolarisation(termID);
+  double charge  = GetCharge(termID);
 
   val =  (_ae*charge + pol*_ve)*k * xf3gZ + (-2*_ae*_ve*charge - pol*(_ve*_ve + _ae*_ae))*k*k * xf3Z;
 }
 
 void ReactionBaseDISNC::sred BASE_PARS
 {
-  auto *yp  = GetBinValues(dataSetID,"y");
+  unsigned termID = td->id;
+
+  auto *yp  = GetBinValues(td,"y");
   auto y = *yp;
 
-  valarray<double> f2(_npoints[dataSetID]);
-  F2(dataSetID, f2, err);
+  valarray<double> f2(_npoints[termID]);
+  F2(td, f2, err);
 
-  valarray<double> fl(_npoints[dataSetID]);
-  FL(dataSetID, fl, err);
+  valarray<double> fl(_npoints[termID]);
+  FL(td, fl, err);
 
-  valarray<double> xf3(_npoints[dataSetID]);
-  xF3(dataSetID, xf3, err);
+  valarray<double> xf3(_npoints[termID]);
+  xF3(td, xf3, err);
 
-//  double charge = GetCharge(dataSetID);   xF3 is alredy charge-dependent.
+//  double charge = GetCharge(termID);   xF3 is alredy charge-dependent.
 
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
@@ -451,95 +449,99 @@ void ReactionBaseDISNC::sred BASE_PARS
 }
 
 
-void ReactionBaseDISNC::GetF2ud(int dataSetID, valarray<double>& f2u, valarray<double>& f2d)
+void ReactionBaseDISNC::GetF2ud(TermData*td, valarray<double>& f2u, valarray<double>& f2d)
 {
   // Check if already computed:
-  if ( (_f2u[dataSetID])[0] < -99. ) { // compute
+  unsigned termID = td->id;
+  
+  if ( (_f2u[termID])[0] < -99. ) { // compute
   // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
+    auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
     auto q2 = *q2p, x = *xp;
 
   // Call QCDNUM
-    const int id = 2; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
+    const int id = 2; const int flag = 0; int Npnt = GetNpoint(termID);
+    switch ( GetDataFlav(termID) )
       {
       case dataFlav::incl :
-	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
-	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[termID])[0], Npnt, flag);
+	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[termID])[0], Npnt, flag);
 	break ;
       case dataFlav::c :
-	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_f2u[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_f2u[termID])[0], Npnt, flag);
 	break ;
       case dataFlav::b :
-	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_f2d[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_f2d[termID])[0], Npnt, flag);
 	break ;
       }
   }
-  f2u = _f2u[dataSetID];
-  f2d = _f2d[dataSetID];
+  f2u = _f2u[termID];
+  f2d = _f2d[termID];
 }
 
-void ReactionBaseDISNC::GetFLud(int dataSetID, valarray<double>& flu, valarray<double>& fld)
+void ReactionBaseDISNC::GetFLud(TermData* td, valarray<double>& flu, valarray<double>& fld)
 {
   // Check if already computed:
-  if ( (_flu[dataSetID])[0] <-99. ) { // compute
+  unsigned termID = td->id;
+  if ( (_flu[termID])[0] <-99. ) { // compute
     // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
+    auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
     auto q2 = *q2p, x = *xp;
 
     // Call QCDNUM
-    const int id = 1; const int flag = 0; int Npnt = GetNpoint(dataSetID);
-    switch ( GetDataFlav(dataSetID) )
+    const int id = 1; const int flag = 0; int Npnt = GetNpoint(termID);
+    switch ( GetDataFlav(termID) )
       {
       case dataFlav::incl :
-	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
-	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[termID])[0], Npnt, flag);
+	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[termID])[0], Npnt, flag);
 	break ;
       case dataFlav::c :
-	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_flu[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_flu[termID])[0], Npnt, flag);
 	break ;
       case dataFlav::b :
-	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[dataSetID])[0], Npnt, flag);
+	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[termID])[0], Npnt, flag);
 	break ;
       }
   }
-  flu = _flu[dataSetID];
-  fld = _fld[dataSetID];
+  flu = _flu[termID];
+  fld = _fld[termID];
 
 }
 
-void ReactionBaseDISNC::GetxF3ud( int dataSetID, valarray<double>& xf3u, valarray<double>& xf3d )
+void ReactionBaseDISNC::GetxF3ud( TermData* td, valarray<double>& xf3u, valarray<double>& xf3d )
 {
   // Check if already computed:
-  if ( (_xf3u[dataSetID])[0] < -99. ) { // compute
+  unsigned termID = td->id;
+  if ( (_xf3u[termID])[0] < -99. ) { // compute
     // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
+    auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
     auto q2 = *q2p, x = *xp;
 
     // Call QCDNUM
-    const int id = 3; const int flag = 0; int Npnt = GetNpoint(dataSetID);
+    const int id = 3; const int flag = 0; int Npnt = GetNpoint(termID);
     // OZ 19.10.2017 TODO: F3 is 0 in VFNS for heavy quarks?
-    //if ( GetDataType(dataSetID) == dataType::sigred ) {
-    if ( GetDataFlav(dataSetID) == dataFlav::incl ) {
-      zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[dataSetID])[0], Npnt, flag);
-      zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[dataSetID])[0], Npnt, flag);
+    //if ( GetDataType(termID) == dataType::sigred ) {
+    if ( GetDataFlav(termID) == dataFlav::incl ) {
+      zmstfun_(id,CNEP3F[0], x[0], q2[0], (_xf3u[termID])[0], Npnt, flag);
+      zmstfun_(id,CNEM3F[0], x[0], q2[0], (_xf3d[termID])[0], Npnt, flag);
     }
     else
     {
       for(int p = 0; p < Npnt; p++)
-        _xf3u[dataSetID][p] = _xf3d[dataSetID][p] = 0;
+        _xf3u[termID][p] = _xf3d[termID][p] = 0;
     }
     //else {
     //  NOT_IMPLEMENTED("xF3 c,b");
     //}
   }
-  xf3u = _xf3u[dataSetID];
-  xf3d = _xf3d[dataSetID];
+  xf3u = _xf3u[termID];
+  xf3d = _xf3d[termID];
 }
 
 
-void ReactionBaseDISNC::kappa(int dataSetID, valarray<double>& k) {
-  auto *q2p = GetBinValues(dataSetID,"Q2");
+void ReactionBaseDISNC::kappa(TermData* td, valarray<double>& k) {
+  auto *q2p = GetBinValues(td,"Q2");
   double cos2thetaW = 1-_sin2thetaW;
 
   k= 1./(4*_sin2thetaW*cos2thetaW)  * (*q2p)/( (*q2p)+_Mz*_Mz);
