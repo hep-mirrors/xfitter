@@ -61,7 +61,7 @@ void ReactionBaseDISNC::atStart()
 void ReactionBaseDISNC::compute(TermData* td, valarray<double> &valExternal, map<string, valarray<double> > &errExternal)
 {
   unsigned termID = td->id;
-  
+
   valarray<double> val;
   map<string, valarray<double> > err;
 
@@ -71,10 +71,9 @@ void ReactionBaseDISNC::compute(TermData* td, valarray<double> &valExternal, map
       {
         sred(td, val, err) ;
         // transform reduced -> non-reduced cross sections
-        auto *xp  = GetBinValues(td,"x");
-        auto *q2p = GetBinValues(td,"Q2");
-        auto *yp  = GetBinValues(td,"y");
-	auto x = *xp, y = *yp, q2 = *q2p;
+        auto&x =*GetBinValues(td,"x");
+        auto&q2=*GetBinValues(td,"Q2");
+        auto&y =*GetBinValues(td,"y");
         const double pi = 3.1415926535897932384626433832795029;
         valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
         valarray<double> factor = 2 * pi * _alphaem * _alphaem * yplus / (q2 * q2 * x) * _convfac;
@@ -139,7 +138,7 @@ void  ReactionBaseDISNC::initTerm( TermData* td)
   unsigned termID = td->id;
 
   _dsIDs.push_back(termID);
-  
+
   _polarisation[termID] =  ( td->hasParam("epolarity") ) ? *td->getParamD("epolarity") : 0;
   _charge[termID]       =  ( td->hasParam("echarge")   ) ? *td->getParamD("echarge") : 0;
 
@@ -147,7 +146,7 @@ void  ReactionBaseDISNC::initTerm( TermData* td)
   _dataType[termID] = dataType::sigred;
   _dataFlav[termID] = dataFlav::incl;
   string msg = "I: Calculating DIS NC reduced cross section";
- 
+
   if (td->hasParam("type")) {
     string type=td->getParamS("type");
     if(type == "signonred")
@@ -287,7 +286,7 @@ void  ReactionBaseDISNC::reinitTerm( TermData* td)
 const valarray<double> *ReactionBaseDISNC::GetBinValues(TermData* td, const string& binName)
 {
   unsigned termID = td->id;
-  
+
   if(_integrated.find(termID) == _integrated.end())
     return td->getBinColumnOrNull(binName);
   else
@@ -326,7 +325,7 @@ void ReactionBaseDISNC::F2Z BASE_PARS
 
 void ReactionBaseDISNC::F2 BASE_PARS
 {
-  unsigned termID = td->id; 
+  unsigned termID = td->id;
 
   valarray<double> f2g(_npoints[termID]);
   F2gamma(td, f2g, err);
@@ -453,7 +452,7 @@ void ReactionBaseDISNC::GetF2ud(TermData*td, valarray<double>& f2u, valarray<dou
 {
   // Check if already computed:
   unsigned termID = td->id;
-  
+
   if ( (_f2u[termID])[0] < -99. ) { // compute
   // Get x,Q2 arrays:
     auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
@@ -464,15 +463,15 @@ void ReactionBaseDISNC::GetF2ud(TermData*td, valarray<double>& f2u, valarray<dou
     switch ( GetDataFlav(termID) )
       {
       case dataFlav::incl :
-	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[termID])[0], Npnt, flag);
-	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[termID])[0], Npnt, flag);
-	break ;
+        zmstfun_(id,CNEP2F[0], x[0], q2[0], (_f2u[termID])[0], Npnt, flag);
+        zmstfun_(id,CNEM2F[0], x[0], q2[0], (_f2d[termID])[0], Npnt, flag);
+        break ;
       case dataFlav::c :
-	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_f2u[termID])[0], Npnt, flag);
-	break ;
+        zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_f2u[termID])[0], Npnt, flag);
+        break ;
       case dataFlav::b :
-	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_f2d[termID])[0], Npnt, flag);
-	break ;
+        zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_f2d[termID])[0], Npnt, flag);
+        break ;
       }
   }
   f2u = _f2u[termID];
@@ -493,15 +492,15 @@ void ReactionBaseDISNC::GetFLud(TermData* td, valarray<double>& flu, valarray<do
     switch ( GetDataFlav(termID) )
       {
       case dataFlav::incl :
-	zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[termID])[0], Npnt, flag);
-	zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[termID])[0], Npnt, flag);
-	break ;
+        zmstfun_(id,CNEP2F[0], x[0], q2[0], (_flu[termID])[0], Npnt, flag);
+        zmstfun_(id,CNEM2F[0], x[0], q2[0], (_fld[termID])[0], Npnt, flag);
+        break ;
       case dataFlav::c :
-	zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_flu[termID])[0], Npnt, flag);
-	break ;
+        zmstfun_(id,CNEP2Fc[0], x[0], q2[0], (_flu[termID])[0], Npnt, flag);
+        break ;
       case dataFlav::b :
-	zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[termID])[0], Npnt, flag);
-	break ;
+        zmstfun_(id,CNEM2Fb[0], x[0], q2[0], (_fld[termID])[0], Npnt, flag);
+        break ;
       }
   }
   flu = _flu[termID];
