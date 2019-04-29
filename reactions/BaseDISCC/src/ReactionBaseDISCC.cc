@@ -11,6 +11,7 @@
 #include  "QCDNUM/QCDNUM.h"
 #include <IntegrateDIS.h>
 #include"hf_errlog.h"
+#include"xfitter_pars.h"
 
 
 // Helpers for QCDNUM (CC):
@@ -58,7 +59,7 @@ extern "C" {
 extern "C" ReactionBaseDISCC* create() {
   return new ReactionBaseDISCC();
 }
-//TODO: move this to base class
+//TODO: move this to base class, maybe?
 enum class dataFlav{incl,c};        //!< Define final state.
 struct ReactionData{
   int          _npoints;                //!< Number of points in a dataset.
@@ -77,12 +78,6 @@ struct ReactionData{
   valarray<double>_xf3u;
   valarray<double>_xf3d;
   const double*Mw;//parameter of W mass
-  //pointers to bin arrays
-  //WIP
-  const valarray<double>*q2p;
-  const valarray<double>*xp;
-  const valarray<double>*yp;
-  bool ownYp=false;//true if y-bins were calculated from x and Q2, and *yp was created
 };
 // Initialize at the start of the computation
 void ReactionBaseDISCC::atStart(){
@@ -93,16 +88,66 @@ void ReactionBaseDISCC::atStart(){
   int nwords;
   QCDNUM::zmfillw(nwords);//TODO: will this crash if QCDNUM is not initialized?
 }
-
+const valarray<double>*GetBinValues(TermData*td,const string&binName){
+  IntegrateDIS*iDIS=((ReactionData*)td->reactionData)->_integrated;
+  if(iDIS==nullptr)return&td->getBinColumn(binName);
+  if     (binName=="Q2")return iDIS->getBinValuesQ2();
+  else if(binName=="x" )return iDIS->getBinValuesX();
+  else if(binName=="y" )return iDIS->getBinValuesY();
+  return&td->getBinColumn(binName);
+};
+valarray<double>GetF(TermData*td,const int id){
+/*F   id incl   c       isNegative
+  FL  1  CCEP2F CCEP2Fc F
+  F2  2  CCEP2F CCEP2Fc F
+  xF3 3  CCEP3F CCEP3Fc F
+  FL  1  CCEM2F CCEM2Fc T
+  F2  2  CCEM2F CCEM2Fc T
+  xF3 3  CCEM3F CCEM3Fc T
+*/
+  ReactionData*rd=(ReactionData*)td->reactionData;
+  bool isNegative=rd->_charge<0;
+  auto&q2=*GetBinValues(td,"Q2"),
+      &x =*GetBinValues(td,"x");
+  const double*C;
+  switch(rd->_dataFlav){
+  case dataFlav::incl:
+    if(isNegative){
+      if(id==3)C=CCEM3F;
+      else     C=CCEM2F;
+    }else{
+      if(id==3)C=CCEP3F;
+      else     C=CCEP2F;
+    }break;
+  case dataFlav::c:
+    if(isNegative){
+      if(id==3)C=CCEM3Fc;
+      else     C=CCEM2Fc;
+    }else{
+      if(id==3)C=CCEP3Fc;
+      else     C=CCEP2Fc;
+    }break;
+  default:
+    std::abort();//unreachable
+  }
+  // Call QCDNUM
+  const int flag=0;
+  const int Npnt=x.size();
+  valarray<double>ret(Npnt);
+  zmstfun_(id,C[0],const_cast<double&>(x[0]),const_cast<double&>(q2[0]),ret[0],Npnt,flag);
+  return ret;
+}
+valarray<double> FL(TermData*td){return GetF(td,1);}
+valarray<double> F2(TermData*td){return GetF(td,2);}
+valarray<double>xF3(TermData*td){return GetF(td,3);}
 // Main function to compute results at an iteration
 void ReactionBaseDISCC::compute(TermData*td,valarray<double>&valExternal,map<string,valarray<double> >&errExternal)
 {
   ReactionData*rd=(ReactionData*)td->reactionData;
   const double MW=*rd->Mw;
-  size_t _npoints=rd->_npoints;
 
   // Basic formulae for CC cross section:
-  const valarray<double>&y=td->getBinColumn("y");
+  const valarray<double>&y=*GetBinValues(td,"y");
 
   valarray<double> yplus  = 1.0+(1.0-y)*(1.0-y);
   valarray<double> yminus = 1.0-(1.0-y)*(1.0-y);
@@ -119,8 +164,8 @@ void ReactionBaseDISCC::compute(TermData*td,valarray<double>&valExternal,map<str
 
   if(!rd->_isReduced){
     // extra factor for non-reduced cross section
-    auto&x =td->getBinColumn("x"),
-        &q2=td->getBinColumn("Q2");
+    auto&x =*GetBinValues(td,"x"),
+        &q2=*GetBinValues(td,"Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW*MW*MW*MW/pow((q2+MW*MW),2))*_Gf*_Gf/(2*pi*x)*_convfac;
     val *= factor;
@@ -135,26 +180,12 @@ void ReactionBaseDISCC::compute(TermData*td,valarray<double>&valExternal,map<str
     valExternal=val;
   }
 }
-
-  /*
-   * I do not understand how that could speed up anything
-   * --Ivan
-void ReactionBaseDISCC::atIteration() {
-  // Re-set internal maps (faster access):
-  for ( auto ds : _dsIDs)  {
-    (_f2u[ds])[0] = -100.;
-    (_flu[ds])[0] = -100.;
-    (_xf3u[ds])[0] = -100.;
-    (_f2d[ds])[0] = -100.;
-    (_fld[ds])[0] = -100.;
-    (_xf3d[ds])[0] = -100.;
-  }
-}
-  */
 void ReactionBaseDISCC::initTerm(TermData*td){
   ReactionData*rd=new ReactionData();
   td->reactionData=(void*)rd;
-  auto&_isReduced   =rd->_isReduced;
+  auto&_isReduced=rd->_isReduced;
+  auto&_dataFlav =rd->_dataFlav;
+  auto&_npoints  =rd->_npoints;
   if(td->hasParam("epolarity"))rd->_polarisation=*td->getParamD("epolarity");//cannot be fitted
   if(td->hasParam("echarge"))  rd->_charge      =*td->getParamD("echarge");  //cannot be fitted
   if(td->hasParam("reduced"))  _isReduced       = td->getParamI("reduced");
@@ -200,8 +231,6 @@ void ReactionBaseDISCC::initTerm(TermData*td){
     double energy=*td->getParamD("energy");
     s=energy*energy;
   }
-  //TODO: if energy not provided?
-
   // bins
   // if Q2min, Q2max, ymin and ymax (and optionally xmin, xmax) are provided, integrated cross sections are calculated
   auto*q2minp=td->getBinColumnOrNull("Q2min");
@@ -221,130 +250,13 @@ void ReactionBaseDISCC::initTerm(TermData*td){
   {
     // integrated cross section
     if(s < 0)
-      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS dataset " + std::to_string(dataSetID));
+      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS term " + std::to_string(td->id));
     if(_isReduced)
-      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(dataSetID));
+      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, term " + std::to_string(td->id));
     IntegrateDIS* iDIS = new IntegrateDIS();
     _npoints=iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
     rd->_integrated=iDIS;
     msg += " (integrated)";
-  }
-  else
-  {
-    // cross section at (Q2,x) points
-    //TODO: replace with has?
-    //Do not use GetBinValues
-    auto*q2p=&td->getBinColumn("Q2");
-    auto*xp =&td->getBinColumn("x");
-    auto*yp = td->getBinColumnOrNull("y");
-
-    // if Q2 and x bins and centre-of-mass energy provided, calculate y = Q2 / (s * x)
-    if(!yp)
-    {
-      if ( s > 0.0 )
-      {
-        valarray<double> y = (*q2p) / (s * (*xp));
-        std::pair<string,valarray<double>* > dsBin = std::make_pair("y", &y);
-        //Oooof, this is not implemented...
-        AddBinning(dataSetID, &dsBin);//TODO: think how to implement this...
-        //maybe I should store pointers in ReactionData and create a new valarray there. That would be best
-        //skipping for now...
-      }
-      //TODO: else? when s<=0?
-    }
-    _npoints=q2p->size();
-  }
-
+  }else _npoints=td->getNbins();
   hf_errlog(17041001,msg);
-
-  // Allocate internal arrays:
-  rd->_f2u .resize(_npoints);
-  rd->_f2d .resize(_npoints);
-  rd->_flu .resize(_npoints);
-  rd->_fld .resize(_npoints);
-  rd->_xf3u.resize(_npoints);
-  rd->_xf3d.resize(_npoints);
 }
-
-const valarray<double>*GetBinValues(TermData*td,const string&binName){
-  IntegrateDIS*iDIS=((ReactionData*)td->reactionData)->_integrated;
-  if(iDIS==nullptr)return&td->getBinColumn(binName);
-  if     (binName=="Q2")return iDIS->getBinValuesQ2();
-  else if(binName=="x" )return iDIS->getBinValuesX();
-  else if(binName=="y" )return iDIS->getBinValuesY();
-  return&td->getBinColumn(binName);
-};
-
-valarray<double>GetF(TermData*td,const int id){
-  //other values are illegal
-  //return through out
-/*F   array id incl   c       isNegative nid
-  FL  _flu  1  CCEP2F CCEP2Fc F          0
-  F2  _f2u  2  CCEP2F CCEP2Fc F          1
-  xF3 _xf3u 3  CCEP3F CCEP3Fc F          2
-  FL  _fld  1  CCEM2F CCEM2Fc T          3
-  F2  _f2d  2  CCEM2F CCEM2Fc T          4
-  xF3 _xf3d 3  CCEM3F CCEM3Fc T          5
-*/
-  ReactionData*rd=(ReactionData*)td->reactionData;
-  bool isNegative=rd->_charge<0;
-  char nid=id-1;
-  if(isNegative)nid+=3;
-  const valarray<double>*f;
-  switch(nid){
-  case 0:
-    f=&rd->_flu;
-    break;
-  case 1:
-    f=&rd->_f2u;
-    break;
-  case 2:
-    f=&rd->_xf3u;
-    break;
-  case 3:
-    f=&rd->_fld;
-    break;
-  case 4:
-    f=&rd->_f2d;
-    break;
-  case 5:
-    f=&rd->_xf3d;
-    break;
-  default:
-    std::abort();//unreachable
-  }
-  // Check if already computed://I think I broke it. Wait, how did this work, again? --Ivan
-  if((*f)[0]<-99){//then compute
-    auto&q2=td->getBinColumn("Q2"),
-        &x =td->getBinColumn("x");
-    const double*C;
-    switch(rd->_dataFlav){
-    case dataFlav::incl:
-      if(isNegative){
-        if(id==3)C=CCEM3F;
-        else     C=CCEM2F;
-      }else{
-        if(id==3)C=CCEP3F;
-        else     C=CCEP2F;
-      }break;
-    case dataFlav::c:
-      if(isNegative){
-        if(id==3)C=CCEM3Fc;
-        else     C=CCEM2Fc;
-      }else{
-        if(id==3)C=CCEP3Fc;
-        else     C=CCEP2Fc;
-      }break;
-    default:
-      std::abort();//unreachable
-    }
-    // Call QCDNUM
-    const int flag=0;
-    const int Npnt=f->size();
-    zmstfun_(id,C[0],x[0],q2[0],(*f)[0],Npnt,flag);
-  }
-  return*f;
-}
-valarray<double> FL(TermData*td){return GetF(td,1);}
-valarray<double> F2(TermData*td){return GetF(td,2);}
-valarray<double>xF3(TermData*td){return GetF(td,3);}
