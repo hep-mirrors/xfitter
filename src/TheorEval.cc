@@ -287,7 +287,7 @@ const string GetParamDS(const string&parName,const std::string&dsName,int dsInde
       hf_errlog(19042001,"W: Value for \"use:\" key given both by name and by index, see stderr");
     }
     return nameNode.as<string>();
-  }else{
+  }else if(indexNode.IsDefined()){
     return indexNode.as<string>();
   }
   }
