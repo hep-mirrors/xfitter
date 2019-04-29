@@ -260,7 +260,7 @@ const double*TermData::getParamD(const string&parName){
     if(endp==definition.c_str()){
       reportFailedConversion(parName,Type::DoublePtr,ParamScope::Term,reaction,nullptr,&definition);
     }
-    return createConstantParameter(parName,value);
+    return createConstantParameter(parFullname,value);
   }
   }
   //2. Reaction-specfic from yaml steering
