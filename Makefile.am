@@ -38,12 +38,12 @@ SUBDIRS=src\
   minimizers/BaseMinimizer/src\
   minimizers/MINUITMinimizer/src\
   reactions/APPLgrid/src\
+  reactions/BaseDISNC/src\
   reactions/Fractal_DISNC/src\
   reactions/KMatrix/src\
   reactions/KFactor/src
 #  reactions/BaseDISCC/src\
 #  reactions/Hathor/src\
-#  reactions/BaseDISNC/src\
 #  reactions/RT_DISNC/src\
 #  reactions/FFABM_DISNC/src\
 #  reactions/FFABM_DISCC/src\
