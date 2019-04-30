@@ -71,9 +71,9 @@ class ReactionBaseDISNC : public ReactionTheory
     map <unsigned, double>  _charge;             //!< lepton beam charge
     map <unsigned, dataType> _dataType;          //!< cross section (reduced, F2, FL)
     map <unsigned, dataFlav> _dataFlav;          //!< flavour (incl, c, b)
-    vector<unsigned> _dsIDs;                     //!< list of termIDs managed by the reaction.
  protected:
     // some parameters which may change from iteration to iteration:
+    vector<unsigned> _dsIDs;                     //!< list of termIDs managed by the reaction.
     double _alphaem;
     double _Mz;
     double _Mw;

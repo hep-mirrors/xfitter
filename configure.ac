@@ -616,6 +616,7 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/Hathor/src/Makefile
                  reactions/Fractal_DISNC/src/Makefile
                  reactions/RT_DISNC/src/Makefile
+                 RT/src/Makefile
                  reactions/APPLgrid/src/Makefile
                  reactions/BaseHVQMNR/src/Makefile
                  reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
@@ -633,7 +634,6 @@ AC_CONFIG_FILES([include/Makefile
 #                 FastNLO/src/Makefile
 #                 FastNLO/include/Makefile
 #                 FastNLO/include/fastnlotk/Makefile
-#                 RT/src/Makefile
 #                 DY/src/Makefile
 #                 DY/include/Makefile
 #

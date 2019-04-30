@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include "ReactionRT_DISNC.h"
+#include "xfitter_cpp_base.h"
+#include "ext_pdfs.h"
 
 // the class factories
 extern "C" ReactionRT_DISNC* create() {
@@ -23,73 +25,78 @@ extern "C" {
   void rt_set_input_(const double* varin, const double& mCharmin, const double& mBottomin, const double& alphaSQ0in,
 		     const double& alphaSMZin, const int& alphaSorderin, const double& alphaSnfmaxin, const int& iordin);
   void wate96_();
-  // use external instead of include:
-  void rt_set_pdfs_alphaS( pXFXlike xfx, pOneParFunc aS);    //!< Set PDFs and alphaS
 }
 
 
 // Initialize at the start of the computation
-int ReactionRT_DISNC::atStart(const string &s)
+void ReactionRT_DISNC::atStart()
 {
-  int isout = Super::atStart(s);
-  // Basic init:
-
-  return isout;
+  Super::atStart();
 }
 
-void ReactionRT_DISNC::setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) {
-  Super::setDatasetParameters(dataSetID, pars, parsDataset);
-  // Allocate internal arrays:
-  _f2rt[dataSetID].resize(GetNpoint(dataSetID));
-  _flrt[dataSetID].resize(GetNpoint(dataSetID));
+void ReactionRT_DISNC::initTerm(TermData* td) {
+  Super::initTerm(td);
+
+// Allocate internal arrays:
+  unsigned termID = td->id;
+  _f2rt[termID].resize(GetNpoint(termID));
+  _flrt[termID].resize(GetNpoint(termID));
 }
 
 //
-void ReactionRT_DISNC::initAtIteration() {
+void ReactionRT_DISNC::atIteration() {
+  Super::atIteration ();
+  // Flag for internal arrays
+  for ( auto ds : _dsIDs)  {
+    (_f2rt[ds])[0] = -100.;
+    (_flrt[ds])[0] = -100.;
+  }
+ }
 
-  Super::initAtIteration ();
-  // optimal:
-  vector<double> varin = GetParamV("varin"); // {0.0, 1.0, -2./3., 1.0};
-  const double mc = GetParam("mch");
-  const double mb = GetParam("mbt");
-  const double mZ = GetParam("Mz");
+//
+void ReactionRT_DISNC::compute(TermData* td, valarray<double> &val, map<string, valarray<double> > &err)
+{
+  // First init, then call base class:
+  td->actualizeWrappers();
+  vector<double> varin = {*td->getParamD("varin0"), *td->getParamD("varin1"), *td->getParamD("varin2"), *td->getParamD("varin3") };  // {0.0, 1.0, -2./3., 1.0};
+  const double mc =  *td->getParamD("mch");
+  const double mb =  *td->getParamD("mbt");
+  const double mZ =  *td->getParamD("Mz");
   const double qs0 = 1.0;
-  const double as_q0 = alphaS(sqrt(qs0));
-  const double as_MZ = alphaS(mZ);
+  const double as_q0 = AlphaS_wrapper(sqrt(qs0));
+  const double as_MZ = AlphaS_wrapper(mZ);
 
-  const string order = GetParamS("Order");
+  const string order = td->getParamS("Order");
 
   const int  iord = OrderMap( order) - 1;
   const int  asOrederIn = 0;  // ???
   const int  alphaSnfmaxin = 3;
 
   // set PDFs, alphaS functions:
-  rt_set_pdfs_alphaS( getXFX(), getAlphaS() );
+  rt_set_pdfs_alphaS( PDF_xfxQ_wrapper , AlphaS_wrapper );
 
   rt_set_input_(&varin[0], mc, mb, as_q0, as_MZ,  asOrederIn, alphaSnfmaxin, iord);
   wate96_();
-  // Flag for internal arrays
-  for ( auto ds : _dsIDs)  {
-    (_f2rt[ds])[0] = -100.;
-    (_flrt[ds])[0] = -100.;
-  }
 
- }
+  Super::compute(td,val,err);
+}
 
-// RT
+//
 void ReactionRT_DISNC::F2 BASE_PARS
 {
+  unsigned termID = td->id;
+
   valarray<double> f2base, f2gamma_base;
-  valarray<double> f2gamma_RT(GetNpoint(dataSetID));
+  valarray<double> f2gamma_RT(GetNpoint(termID));
 
   // Get RT F2gamma
-  F2gamma_RT(dataSetID, f2gamma_RT, err);
+  F2gamma_RT(td, f2gamma_RT, err);
 
-  if(GetDataFlav(dataSetID) == dataFlav::incl)
+  if(GetDataFlav(termID) == dataFlav::incl)
   {
     // Get ZMVFNs F2s:
-    Super::F2gamma(dataSetID, f2gamma_base, err);
-    Super::F2(dataSetID, f2base, err);
+    Super::F2gamma(td, f2gamma_base, err);
+    Super::F2(td, f2base, err);
 
     // Re-scale F2:
     val = f2base * f2gamma_RT / f2gamma_base;
@@ -100,18 +107,19 @@ void ReactionRT_DISNC::F2 BASE_PARS
 
 void ReactionRT_DISNC::FL BASE_PARS
 {
+  unsigned termID = td->id;
   valarray<double> flbase, flgamma_base;
-  valarray<double> flgamma_RT(GetNpoint(dataSetID));
+  valarray<double> flgamma_RT(GetNpoint(termID));
 
   // Get RT F2gamma
-  FLgamma_RT(dataSetID, flgamma_RT, err);
+  FLgamma_RT(td, flgamma_RT, err);
 
   // OZ 19.10.2017 TODO: in dis_sigma.f there is no rescaling for FL at order = 1, should it be here?
-  if(GetDataFlav(dataSetID) == dataFlav::incl)
+  if(GetDataFlav(termID) == dataFlav::incl)
   {
     // Get ZMVFNs F2s:
-    Super::FLgamma(dataSetID, flgamma_base, err);
-    Super::FL(dataSetID, flbase, err);
+    Super::FLgamma(td, flgamma_base, err);
+    Super::FL(td, flbase, err);
 
     // Re-scale F2:
     val = flbase * flgamma_RT / flgamma_base;
@@ -122,25 +130,28 @@ void ReactionRT_DISNC::FL BASE_PARS
 
 void ReactionRT_DISNC::F2gamma_RT BASE_PARS
 {
-  calcF2FL(dataSetID);
-  val = _f2rt[dataSetID];
+  auto termID = td->id;
+  calcF2FL(td);
+  val = _f2rt[termID];
 }
 
 void ReactionRT_DISNC::FLgamma_RT BASE_PARS
 {
-  calcF2FL(dataSetID);
-  val = _flrt[dataSetID];
+  auto termID = td->id;
+  calcF2FL(td);
+  val = _flrt[termID];
 }
 
 
 // Place calculations in one function, to optimize calls.
-void ReactionRT_DISNC::calcF2FL(int dataSetID) {
-  if ( (_f2rt[dataSetID][0]< -99.) ) { // compute
+void ReactionRT_DISNC::calcF2FL(TermData* td) {
+  unsigned termID = td->id;
+  if ( (_f2rt[termID][0]< -99.) ) { // compute
   // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(dataSetID,"Q2"), *xp  = GetBinValues(dataSetID,"x");
+    auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
     auto q2 = *q2p, x = *xp;
 
-    const size_t Np = GetNpoint(dataSetID);
+    const size_t Np = GetNpoint(termID);
     int iflag = 1;
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
@@ -154,19 +165,19 @@ void ReactionRT_DISNC::calcF2FL(int dataSetID) {
         }
 
 
-      switch ( GetDataFlav(dataSetID) )
+      switch ( GetDataFlav(termID) )
       {
       case dataFlav::incl :
-	_f2rt[dataSetID][i] = f2;
-	_flrt[dataSetID][i] = fl;
+	_f2rt[termID][i] = f2;
+	_flrt[termID][i] = fl;
 	break;
       case dataFlav::c :
-	_f2rt[dataSetID][i] = f2c;
-	_flrt[dataSetID][i] = flc;
+	_f2rt[termID][i] = f2c;
+	_flrt[termID][i] = flc;
 	break ;
       case dataFlav::b :
-	_f2rt[dataSetID][i] = f2b;
-	_flrt[dataSetID][i] = flb;
+	_f2rt[termID][i] = f2b;
+	_flrt[termID][i] = flb;
 	break ;
       }
     }

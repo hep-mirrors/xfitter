@@ -22,9 +22,11 @@ class ReactionRT_DISNC : public ReactionBaseDISNC
   ReactionRT_DISNC(){};
  public:
   virtual string getReactionName() const { return  "RT_DISNC" ;};
-  int atStart(const string &);
-  virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
-  virtual void initAtIteration() override;
+  virtual void  atStart() override;
+  // virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+  virtual void initTerm(TermData* td) override ;
+  virtual void atIteration() override;
+  virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override ;
 
  protected:
   virtual void F2 BASE_PARS override;
@@ -35,9 +37,9 @@ class ReactionRT_DISNC : public ReactionBaseDISNC
 
 
  private:
-  map <int,valarray<double> > _f2rt;
-  map <int,valarray<double> > _flrt;
+  map <unsigned,valarray<double> > _f2rt;
+  map <unsigned,valarray<double> > _flrt;
 
-  void calcF2FL(int dataSetID);
+  void calcF2FL(TermData* td);
 };
 

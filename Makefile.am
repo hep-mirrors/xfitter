@@ -42,9 +42,10 @@ SUBDIRS=src\
   reactions/BaseDISNC/src\
   reactions/Fractal_DISNC/src\
   reactions/KMatrix/src\
-  reactions/KFactor/src
+  reactions/KFactor/src\
+  RT/src\
+  reactions/RT_DISNC/src
 #  reactions/Hathor/src\
-#  reactions/RT_DISNC/src\
 #  reactions/FFABM_DISNC/src\
 #  reactions/FFABM_DISCC/src\
 #  reactions/BaseHVQMNR/src\
@@ -60,7 +61,6 @@ SUBDIRS=src\
 #  DY/src\
 #  DY/include\
 #  DIPOLE/src\
-#  RT/src\
 #  FastNLO/src\
 #  FastNLO/include\
 #  FastNLO/include/fastnlotk\
