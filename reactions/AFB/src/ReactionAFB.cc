@@ -8,6 +8,7 @@
 
 #include "ReactionAFB.h"
 #include "iostream"
+#include "cstring"
 #include <gsl/gsl_integration.h>
 
 using namespace std;
@@ -16,6 +17,10 @@ using namespace std;
 double ReactionAFB::PI;
 double ReactionAFB::GeVtofb_param, ReactionAFB::alphaEM_param, ReactionAFB::stheta2W_param, ReactionAFB::MZ_param, ReactionAFB::GammaZ_param;
 double ReactionAFB::energy_param, ReactionAFB::eta_cut_param, ReactionAFB::pT_cut_param, ReactionAFB::y_min_param, ReactionAFB::y_max_param;
+
+int ReactionAFB::integration_switch; 
+string ReactionAFB::integration_param;
+int ReactionAFB::key_param;
 
 double ReactionAFB::e_param, ReactionAFB::gsm_param, ReactionAFB::smangle_param;
 double ReactionAFB::foton_Vu, ReactionAFB::foton_Au, ReactionAFB::foton_Vd, ReactionAFB::foton_Ad, ReactionAFB::foton_Vl, ReactionAFB::foton_Al, ReactionAFB::foton_Vnu, ReactionAFB::foton_Anu;
@@ -27,7 +32,7 @@ double ReactionAFB::epsabs = 0;
 double ReactionAFB::epsrel = 1e-2;
 
 size_t ReactionAFB::calls;
-
+size_t ReactionAFB::alloc_space = 1000;
 
 //// Function returning the combination of propagators
 double *ReactionAFB::propagators (double Minv)
@@ -102,21 +107,31 @@ double ReactionAFB::integration_uubarEF_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::uubarEF_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarEF_funct);
+    F.params = &integrationParams; 
+    
+    if (integration_switch == 1) {  
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return 2*result;
 }
@@ -125,15 +140,24 @@ double ReactionAFB::integration_uubarEF_y (double Minv, void * ptr) {
 double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup, void* ptr) {
     
     double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::integration_uubarEF_y);
-    F.params = ptr;
-
     double inf = Minv_inf;
     double sup = Minv_sup;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+        gsl_function F;
+    F.function = &(ReactionAFB::integration_uubarEF_y);
+    F.params = ptr;
+    
+    if (integration_switch == 1) {  
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return result;
 }
@@ -193,39 +217,58 @@ double ReactionAFB::integration_uubarEB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::uubarEB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarEB_funct);
+    F.params = &integrationParams;
+        
+    if (integration_switch == 1) {  
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////UUBAR EVEN BACKWARD Integration in invariant mass
 double ReactionAFB::integration_uubarEB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
-
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
     gsl_function F;
     F.function = &(ReactionAFB::integration_uubarEB_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {  
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -285,22 +328,32 @@ double ReactionAFB::integration_uubarOF_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::uubarOF_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarOF_funct);
+    F.params = &integrationParams;
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
@@ -308,15 +361,24 @@ double ReactionAFB::integration_uubarOF_y (double Minv, void * ptr) {
 double ReactionAFB::integration_uubarOF (double Minv_inf, double Minv_sup, void* ptr) {
     
     double result, error;
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_uubarOF_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return result;
 }
@@ -377,38 +439,57 @@ double ReactionAFB::integration_uubarOB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::uubarOB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::uubarOB_funct);
+    F.params = &integrationParams;
+
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////UUBAR ODD BACKWARD Integration in invariant mass
 double ReactionAFB::integration_uubarOB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_uubarOB_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return result;
 }
@@ -470,20 +551,30 @@ double ReactionAFB::integration_ubaruEF_y (double Minv, void * ptr) {
     integrationParams.ptr = (ReactionTheory*) ptr;
     
     double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ubaruEF_funct);
-    F.params = &integrationParams;
-    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruEF_funct);
+    F.params = &integrationParams;
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return 2*result;
 }
@@ -491,17 +582,26 @@ double ReactionAFB::integration_ubaruEF_y (double Minv, void * ptr) {
 ////UBARU EVEN FORWARD Integration in invariant mass
 double ReactionAFB::integration_ubaruEF (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ubaruEF_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -561,21 +661,31 @@ double ReactionAFB::integration_ubaruEB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ubaruEB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
+
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruEB_funct);
+    F.params = &integrationParams;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return 2*result;
 }
@@ -583,16 +693,25 @@ double ReactionAFB::integration_ubaruEB_y (double Minv, void * ptr) {
 ////UBARU EVEN BACKWARD Integration in invariant mass
 double ReactionAFB::integration_ubaruEB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ubaruEB_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return result;
 }
@@ -653,21 +772,31 @@ double ReactionAFB::integration_ubaruOF_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ubaruOF_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruOF_funct);
+    F.params = &integrationParams;
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return 2*result;
 }
@@ -675,17 +804,26 @@ double ReactionAFB::integration_ubaruOF_y (double Minv, void * ptr) {
 ////UBARU ODD FORWARD Integration in invariant mass
 double ReactionAFB::integration_ubaruOF (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ubaruOF_y);
-    F.params = ptr;
+    F.params = ptr;    
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -745,39 +883,58 @@ double ReactionAFB::integration_ubaruOB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ubaruOB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::ubaruOB_funct);
+    F.params = &integrationParams;
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////UBARU ODD BACKWARD Integration in invariant mass
 double ReactionAFB::integration_ubaruOB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ubaruOB_y);
-    F.params = ptr;
+    F.params = ptr;    
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -839,39 +996,58 @@ double ReactionAFB::integration_ddbarEF_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ddbarEF_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarEF_funct);
+    F.params = &integrationParams;
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////DDBAR EVEN FORWARD Integration in invariant mass
 double ReactionAFB::integration_ddbarEF (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
-
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
+    
     gsl_function F;
     F.function = &(ReactionAFB::integration_ddbarEF_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -933,21 +1109,31 @@ double ReactionAFB::integration_ddbarEB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ddbarEB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
+
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarEB_funct);
+    F.params = &integrationParams;
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return 2*result;
 }
@@ -955,17 +1141,26 @@ double ReactionAFB::integration_ddbarEB_y (double Minv, void * ptr) {
 ////DDBAR EVEN BACKWARD Integration in invariant mass
 double ReactionAFB::integration_ddbarEB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ddbarEB_y);
-    F.params = ptr;
+    F.params = ptr;    
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -1027,39 +1222,58 @@ double ReactionAFB::integration_ddbarOF_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ddbarOF_funct);
-    F.params = &integrationParams;
-    
+    double result, error;   
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarOF_funct);
+    F.params = &integrationParams;    
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////DDBAR ODD FORWARD Integration in invariant mass
 double ReactionAFB::integration_ddbarOF (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ddbarOF_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -1121,39 +1335,58 @@ double ReactionAFB::integration_ddbarOB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::ddbarOB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::ddbarOB_funct);
+    F.params = &integrationParams;    
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////DDBAR ODD BACKWARD Integration in invariant mass
 double ReactionAFB::integration_ddbarOB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_ddbarOB_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -1215,39 +1448,58 @@ double ReactionAFB::integration_dbardEF_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::dbardEF_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardEF_funct);
+    F.params = &integrationParams;    
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////DBARD EVEN FORWARD Integration in invariant mass
 double ReactionAFB::integration_dbardEF (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_dbardEF_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+        
     return result;
 }
 
@@ -1309,39 +1561,58 @@ double ReactionAFB::integration_dbardEB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::dbardEB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardEB_funct);
+    F.params = &integrationParams;
+
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
 ////DBARD EVEN BACKWARD Integration in invariant mass
 double ReactionAFB::integration_dbardEB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_dbardEB_y);
     F.params = ptr;
-    
-    double inf = Minv_inf;
-    double sup = Minv_sup;
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return result;
 }
 
@@ -1403,22 +1674,32 @@ double ReactionAFB::integration_dbardOF_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::dbardOF_funct);
-    F.params = &integrationParams;
-    
+    double result, error;   
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
-    
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
 
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardOF_funct);
+    F.params = &integrationParams;
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
+    
     return 2*result;
 }
 
@@ -1426,16 +1707,25 @@ double ReactionAFB::integration_dbardOF_y (double Minv, void * ptr) {
 double ReactionAFB::integration_dbardOF (double Minv_inf, double Minv_sup, void* ptr) {
     
     double result, error;
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_dbardOF_y);
-    F.params = ptr;
+    F.params = ptr;    
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -1497,21 +1787,31 @@ double ReactionAFB::integration_dbardOB_y (double Minv, void * ptr) {
     integrationParams.Minv = Minv;
     integrationParams.ptr = (ReactionTheory*) ptr;
     
-    double result, error;
-
-    gsl_function F;
-    F.function = &(ReactionAFB::dbardOB_funct);
-    F.params = &integrationParams;
-    
+    double result, error;    
     double inf = y_min_param / log(energy_param/Minv);
     double sup;
+    
     if (y_max_param == 0.0) {
         sup = 1;
     } else {
         sup = y_max_param / log(energy_param/Minv);
     }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    gsl_function F;
+    F.function = &(ReactionAFB::dbardOB_funct);
+    F.params = &integrationParams;
+    
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls);
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
 
     return 2*result;
 }
@@ -1519,17 +1819,26 @@ double ReactionAFB::integration_dbardOB_y (double Minv, void * ptr) {
 ////DBARD ODD BACKWARD Integration in invariant mass
 double ReactionAFB::integration_dbardOB (double Minv_inf, double Minv_sup, void* ptr) {
     
-    double result, error;
+    double result, error;    
+    double inf = Minv_inf;
+    double sup = Minv_sup;
 
     gsl_function F;
     F.function = &(ReactionAFB::integration_dbardOB_y);
     F.params = ptr;
     
-    double inf = Minv_inf;
-    double sup = Minv_sup;
+    if (integration_switch == 1) {
+        gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
+    }
+    else if (integration_switch == 2) {
+        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+        gsl_integration_qag (&F, inf, sup, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+        gsl_integration_workspace_free (w);
+    }
+    else {
+        result = 0.0;
+    }
     
-    gsl_integration_qng (&F, inf, sup, epsabs, epsrel, &result, &error, &calls); 
-
     return result;
 }
 
@@ -1574,6 +1883,7 @@ extern "C" ReactionAFB* create() {
 int ReactionAFB::initAtStart(const string &s)
 {    
     // Parameters from "/reactions/AFB/yaml/parameters.yaml"
+    
     // Check energy parameter:
     std::cout << checkParam("energy") << std::endl;
     if ( ! checkParam("energy") ) {
@@ -1606,6 +1916,32 @@ int ReactionAFB::initAtStart(const string &s)
         return 1;
     }
     
+    // Check integration routine parameters:
+    std::cout << checkParam("integration") << std::endl;
+    if ( ! checkParam("integration") ) {
+        std::cout << "\n\n FATAL ERROR: integration routine (integration) is not defined !!! \n\n" <<std::endl;
+        return 1;
+    }    
+    integration_param = GetParamS("integration");
+    if (not(integration_param.compare("QNG"))) {
+        integration_switch = 1;
+    }
+    else if (not(integration_param.compare("QAG"))) {
+        integration_switch = 2;
+        if ( ! checkParam("key") ) {
+            std::cout << "\n\n FATAL ERROR: rule for QAG integration is not defined !!! \n\n" <<std::endl;
+            return 1;
+        }
+        key_param = GetParamI("key");
+        if ((key_param < 1) or (key_param > 6)) {
+            std::cout << "\n\n FATAL ERROR: rule for QAG integration has to be between 1 and 6 (1 <= key <= 6) !!! \n\n" <<std::endl;
+            return 1;            
+        }
+    }
+    else {
+        std::cout << "\n\n FATAL ERROR: integration routine supported are QNG and QAG. Please select one of these two options !!! \n\n" <<std::endl;
+    }
+    
     // Constant
     PI = 3.14159265;
     
@@ -1620,8 +1956,8 @@ int ReactionAFB::initAtStart(const string &s)
     energy_param = GetParam("energy");
     eta_cut_param = GetParam("eta_cut");
     pT_cut_param = GetParam("pT_cut");
-    y_min_param = GetParam("y_min"); // not implemented yet
-    y_max_param = GetParam("y_max"); // not implemented yet
+    y_min_param = GetParam("y_min");
+    y_max_param = GetParam("y_max");
     
     // Calculate fixed parameters
     e_param = sqrt(4*PI*alphaEM_param);
@@ -1681,12 +2017,18 @@ int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valar
 
     int Npnt_min = min.size();
     int Npnt_max = max.size();
+    
+    // check on the rapidity cut
+    if (y_min_param / log(energy_param/max[Npnt_max-1]) > 1) {
+        std::cout << "\n\nThe chosen lower rapidity cut is too high in this invariant mass range." << std::endl;
+        return 1;
+    }
 
     if (Npnt_min != Npnt_max) {
         std::cout << "\n\nFATAL ERROR: uneven number of Invariant mass min and max !!!" << std::endl;
         std::cout << "CHECK THE DATAFILE !!!" << std::endl;
         return 1;
-    }    
+    }
     
     // Fill the array "val[i]" with the result of the AFB function
     for (int i = 0; i < Npnt_min; i++) {
