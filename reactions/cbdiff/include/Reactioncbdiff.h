@@ -36,7 +36,7 @@ class Reactioncbdiff : public ReactionBaseHVQMNR
 
     std::map<int, std::shared_ptr<MNR::MNR> > _mapMNR;
     std::map<int, std::shared_ptr<MNR::Grid> > _mapGrid;
-    std::map<int, bool> _mapMSbarMass;
+    std::map<int, int> _mapMSbarMass;
     std::map<int, double> _mapMassDiff;
     std::map<int, std::shared_ptr<MNR::Grid> > _mapGridLOMassUp;
     std::map<int, std::shared_ptr<MNR::Grid> > _mapGridLOMassDown;
