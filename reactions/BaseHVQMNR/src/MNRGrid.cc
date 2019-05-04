@@ -304,9 +304,6 @@ namespace MNR
     double spline_x[3][nlorig], spline_y[5][nlorig];
     for(int i = 0; i < nlorig; i++)
     {
-      //spline_x[0][nlorig-1-i] = mq2 / lorig[i] - mq2;
-      //spline_x[1][nlorig-1-i] = mq_masUp2 / lorig_LO_massUp[i] - mq_masUp2;
-      //spline_x[2][nlorig-1-i] = mq_masDown2 / lorig_LO_massDown[i] - mq_masDown2;
       spline_x[0][i] = mq2 / lorig[i] - mq2;
       spline_x[1][i] = mq_masUp2 / lorig_LO_massUp[i] - mq_masUp2;
       spline_x[2][i] = mq_masDown2 / lorig_LO_massDown[i] - mq_masDown2;
@@ -321,10 +318,6 @@ namespace MNR
           // For spline: prepare X-section array of original grid in reversed order
           for(int l = 0; l < nlorig; l++)
           {
-            //spline_y[0][nlorig-1-l] = gridorig->CS(c,l,y,w);
-            //spline_y[1][nlorig-1-l] = gridorig_LO_massUp->CS(c,l,y,w);
-            //spline_y[2][nlorig-1-l] = gridorig_LO_massDown->CS(c,l,y,w);
-            //spline_y[3][nlorig-1-l] = gridorig->AlphaS(l);
             spline_y[0][l] = gridorig->CS(c,l,y,w);
             spline_y[1][l] = gridorig_LO_massUp->CS(c,l,y,w);
             spline_y[2][l] = gridorig_LO_massDown->CS(c,l,y,w);
@@ -335,43 +328,23 @@ namespace MNR
           TSpline3 spline("", spline_x[0], spline_y[0], nlorig);
           TSpline3 spline_LO_massUp("", spline_x[1], spline_y[1], nlorig);
           TSpline3 spline_LO_massDown("", spline_x[2], spline_y[2], nlorig);
-          //TSpline3 spline_LO_massUp("", spline_x[0], spline_y[1], nlorig);
-          //TSpline3 spline_LO_massDown("", spline_x[0], spline_y[2], nlorig);
           TSpline3 spline_as("", spline_x[0], spline_y[3], nlorig);
           TSpline3 spline_mr("", spline_x[0], spline_y[4], nlorig);
           for(int l = 0; l < nltrg; l++)
           {
-            //double pt2 = mq2 / ltrg[l] - mq2;
             double pt2 = pt[l] * pt[l];
-            //double xsecOld = spline.Eval(ltrg[l]);
-            //double xsecOld_LO_massUp = spline_LO_massUp.Eval(ltrg[l]);
-            //double xsecOld_LO_massDown = spline_LO_massDown.Eval(ltrg[l]);
-            //double as = spline_as.Eval(ltrg[l]);
             double xsecOld = spline.Eval(pt2);
             double xsecOld_LO_massUp = spline_LO_massUp.Eval(pt2);
             double xsecOld_LO_massDown = spline_LO_massDown.Eval(pt2);
             double as = spline_as.Eval(pt2);
-            //printf("as = %f\n", as);
-            //double d1 = 4.0 / 3.0;
             double mr = spline_mr.Eval(pt2);
             double d1 = 4.0 / 3.0;
             if(flag == 1)
               d1 += 2.0 * TMath::Log(mr / mq);
-            // TODO: check different options for transformation
             double xsecNew = xsecOld + as / TMath::Pi() * d1 * mq * (xsecOld_LO_massUp - xsecOld_LO_massDown) / mqDiff;
             gridtrg->CS(c,l,y,w) = xsecNew;
-            //gridtrg->CS(c,l,y,w) = xsecOld;
-            //if(y == 20)
-            //  printf("c,y,w,l,g,u,d: %d %d %d %d %f[%f] %f %f  -->  %f [%.2f]\n", c, y, w, l, xsecOld, pt2, xsecOld_LO_massUp, xsecOld_LO_massDown, xsecNew, xsecNew / xsecOld * 100);
           }
         }
-    // interpolate as
-    /*double spline_y_as[nlorig];
-    for(int l = 0; l < nlorig; l++)
-      spline_y_as[nlorig-1-l] = gridorig->AlphaS(l);
-    TSpline3 spline_as("", spline_x[0], spline_y_as, nlorig);
-    for(int l = 0; l < nltrg; l++)
-      gridtrg->AlphaS(l) = spline_as.Eval(ltrg[l]);*/
   }
 
   void Grid::TransformGridToMSbarMassScheme(Grid *grid, Grid *gridLOMassUp, Grid *gridLOMassDown, double mq, double mqDiff)
