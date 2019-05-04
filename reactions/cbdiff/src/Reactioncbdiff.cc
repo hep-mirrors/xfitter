@@ -157,7 +157,6 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   DefaultInitFrag(steer, *frag.get());
   mnr->fC_sh = TMath::Power(stod(pars["energy"]), 2.0); // centre-of-mass energy squared
   mnr->CalcConstants();
-  mnr->SetDebug(_debug);
   std::string finalState = pars["FinalState"];
   if(finalState == "parton")
   {
