@@ -109,7 +109,7 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   // fragmentation parameters
   par->fragpar_c = GetParamInPriority("FragPar", pars);
   PrintParameters(par.get());
-  // pole or MSbar mass
+  // pole, MSbar or MSR mass (0 pole, 1 MSbar, 2 MSR)
   _mapMSbarMass[dataSetID] = 0;
   if(pars.find("MS_MASS") != pars.end() || checkParam("MS_MASS"))
     _mapMSbarMass[dataSetID] = GetParamIInPriority("MS_MASS", pars);
@@ -292,8 +292,17 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     mnr->fMf_B = mfB;
     mnr->fMr_B = mrB;
 
-    int flagMSbarTransformation = 0; // d1=4/3 (no ln)
-    MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, flagMSbarTransformation);
+    if(_mapMSbarMass[dataSetID] == 1)
+    {
+      int flagMSbarTransformation = 0; // d1=4/3 (no ln)
+      MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, flagMSbarTransformation);
+    }
+    else if(_mapMSbarMass[dataSetID] == 2)
+    {
+      double R = 3.0;
+      int nl = mnr->GetNl();
+      MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, 2, &R, &nl);
+    }
   }
   else
     MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc);

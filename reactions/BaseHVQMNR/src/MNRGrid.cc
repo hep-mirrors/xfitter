@@ -283,7 +283,11 @@ namespace MNR
     }
   }
 
-  void Grid::InterpolateGrid(Grid *gridorig, Grid *gridtrg, double mq, Grid *gridorig_LO_massUp, double mq_masUp, Grid *gridorig_LO_massDown, double mq_masDown, int flag)
+  // Different mass schemes:
+  // flag = 0: MSbar mass scheme with mu = mu_R
+  // flag = 1: MSbar mass scheme with mu = mu_R and l != 0
+  // flag = 2: MSR mass scheme with R provided (nf should be provided - number of flavours)
+  void Grid::InterpolateGrid(Grid *gridorig, Grid *gridtrg, double mq, Grid *gridorig_LO_massUp, double mq_masUp, Grid *gridorig_LO_massDown, double mq_masDown, int flag, double* R, int* nf)
   {
     double mqDiff = mq_masUp - mq_masDown;
     // Get pT array of target grid
@@ -336,12 +340,24 @@ namespace MNR
             double xsecOld = spline.Eval(pt2);
             double xsecOld_LO_massUp = spline_LO_massUp.Eval(pt2);
             double xsecOld_LO_massDown = spline_LO_massDown.Eval(pt2);
-            double as = spline_as.Eval(pt2);
-            double mr = spline_mr.Eval(pt2);
-            double d1 = 4.0 / 3.0;
-            if(flag == 1)
-              d1 += 2.0 * TMath::Log(mr / mq);
-            double xsecNew = xsecOld + as / TMath::Pi() * d1 * mq * (xsecOld_LO_massUp - xsecOld_LO_massDown) / mqDiff;
+            double delta = 0.0;
+            if(flag == 0 || flag == 1)
+            {
+              double as = spline_as.Eval(pt2);
+              double mr = spline_mr.Eval(pt2);
+              double d1 = 4.0 / 3.0;
+              if(flag == 1)
+                d1 += 2.0 * TMath::Log(mr / mq);
+              delta = as / TMath::Pi() * d1 * mq * (xsecOld_LO_massUp - xsecOld_LO_massDown) / mqDiff;
+            }
+            else if(flag == 2)
+            {
+              double as = spline_as.Eval(*R);
+              double b0 = 11.0 - 2.0 / 3.0 * (*nf);
+              double a1 = 2 * b0 * 0.348;
+              delta = (*R) * a1 * as / (4.0 * TMath::Pi());
+            }
+            double xsecNew = xsecOld + delta;
             gridtrg->CS(c,l,y,w) = xsecNew;
           }
         }

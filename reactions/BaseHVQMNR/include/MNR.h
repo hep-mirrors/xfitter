@@ -44,6 +44,9 @@ namespace MNR
     // Calculate cross sections for provided grid and heavy-quark mass xm
     void CalcXS(Grid* grid, double xm);
 
+    // Get number of light flavours
+    int GetNl() { return fC_nl; }
+
         
   // Private members
   private:
