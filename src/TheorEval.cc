@@ -24,6 +24,7 @@
 #include <yaml-cpp/yaml.h>
 #include "xfitter_pars.h"
 
+// ROOT spline can be uncommented (here and below in the code) and used e.g. for cross checks (obviously requires ROOT)
 //#include <TSpline.h>
 #include <spline.h>
 

@@ -31,7 +31,7 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
        {
          //std::cout << token << '\n';
          // dummy empty points (for bin manipulations etc.)
-         // GridName=DUMMYX where X is number of bins (e.g. GridName=DUMMY12)
+         // GridName=DUMMYX where X is number of bins (e.g. GridName=DUMMY12 for 12 empty bins)
          if(std::string(token.c_str(), 5) == std::string("DUMMY"))
          {
            int nb = atoi(token.c_str() + 5);
