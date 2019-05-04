@@ -25,9 +25,9 @@ namespace xfitter
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     _inPDFs=XFITTER_PARS::getInputFunctionFromYaml(yamlNode);
     // Retrieve parameters needed to initialize APFEL++.
-    const double* MCharm   = XFITTER_PARS::gParameters.at("mch");
-    const double* MBottom  = XFITTER_PARS::gParameters.at("mbt");
-    const double* MTop     = XFITTER_PARS::gParameters.at("mtp");
+    const double* MCharm   = XFITTER_PARS::getParamD("mch");
+    const double* MBottom  = XFITTER_PARS::getParamD("mbt");
+    const double* MTop     = XFITTER_PARS::getParamD("mtp");
     const YAML::Node xGrid = yamlNode["xGrid"];
 
     vector<apfel::SubGrid> sgv;
@@ -52,10 +52,10 @@ namespace xfitter
   {
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
-    const int     PtOrder    = OrderMap(XFITTER_PARS::gParametersS.at("Order")) - 1;
-    const double* Q0         = XFITTER_PARS::gParameters.at("Q0");
-    const double* Q_ref      = XFITTER_PARS::gParameters.at("Mz");
-    const double* Alphas_ref = XFITTER_PARS::gParameters.at("alphas");
+    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
+    const double* Q0         = XFITTER_PARS::getParamD("Q0");
+    const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
+    const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");
     const YAML::Node QGrid   = yamlNode["QGrid"];
 
     // Reinitialise and tabulate the running coupling at every

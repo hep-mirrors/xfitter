@@ -89,19 +89,19 @@ namespace xfitter
     }
 
     // Evolution order:
-    const int     PtOrder    = OrderMap(XFITTER_PARS::gParametersS.at("Order")) ;
+    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) ;
 
-    const double* Q0         = XFITTER_PARS::gParameters.at("Q0");
+    const double* Q0         = XFITTER_PARS::getParamD("Q0");
     double q20 = (*Q0) * (*Q0);
 
-    const double* Mz      = XFITTER_PARS::gParameters.at("Mz");
+    const double* Mz      = XFITTER_PARS::getParamD("Mz");
     double mZ2 = (*Mz) * (*Mz);
 
-    const double* mch     = XFITTER_PARS::gParameters.at("mch");
-    const double* mbt     = XFITTER_PARS::gParameters.at("mbt");
+    const double* mch     = XFITTER_PARS::getParamD("mch");
+    const double* mbt     = XFITTER_PARS::getParamD("mbt");
 
-    //  const double* mtp     = XFITTER_PARS::gParameters.at("mtp");   // no top PDF treatment yet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
+    //  const double* mtp     = XFITTER_PARS::getParamD("mtp");   // no top PDF treatment yet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    
     YAML::Node yQCDNUM=XFITTER_PARS::getEvolutionNode(_name);
     _icheck      = yQCDNUM["ICheck"].as<int>();
     _splineOrder = yQCDNUM["SplineOrder"].as<int>();
@@ -202,13 +202,13 @@ namespace xfitter
   {
     // XXXXXXXXXXXXXX
 
-    const double* Mz      = XFITTER_PARS::gParameters.at("Mz");
-    const double* alphas  = XFITTER_PARS::gParameters.at("alphas");
-
+    const double* Mz      = XFITTER_PARS::getParamD("Mz");
+    const double* alphas  = XFITTER_PARS::getParamD("alphas");
+    
     QCDNUM::setalf(*alphas,(*Mz)*(*Mz));
   }
   void EvolutionQCDNUM::atIteration(){
-    const double* q0 = XFITTER_PARS::gParameters.at("Q0");
+    const double* q0 = XFITTER_PARS::getParamD("Q0");
     int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
     double epsi = 0;
     QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);

@@ -58,6 +58,29 @@ namespace XFITTER_PARS {
   // Also keep list of loaded parameterisations here:
   map<string,xfitter::BasePdfParam*> gParameterisations;
 
+  // Functions to get parameters from corresponding maps but with better reporting of errors
+  double*getParamD(const string&name){
+    try{return gParameters.at(name);}
+    catch(std::out_of_range&ex){
+      cerr<<"[ERROR] Double parameter \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+      throw ex;//rethrow exception: makes it easier to debug who tried to get parameter
+    }
+  }
+  int getParamI(const string&name){
+    try{return gParametersI.at(name);}
+    catch(std::out_of_range&ex){
+      cerr<<"[ERROR] Int parameter \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+      throw ex;//rethrow exception: makes it easier to debug who tried to get parameter
+    }
+  }
+  string getParamS(const string&name){
+    try{return gParametersS.at(name);}
+    catch(std::out_of_range&ex){
+      cerr<<"[ERROR] String parameter \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+      throw ex;//rethrow exception: makes it easier to debug who tried to get parameter
+    }
+  }
+
   using namespace xfitter;
   xfitter::InitialPDFfunction getInputFunctionFromYaml(const YAML::Node&rootNode){
     YAML::Node node=rootNode["decomposition"];
@@ -139,11 +162,9 @@ namespace XFITTER_PARS {
     return "default";
   }
 // Helper function
-  bool is_file_exist(const char *fileName)
-  {
-    std::ifstream infile(fileName);
-    return infile.good();
-  }
+bool fileExists(const string&fileName){
+  return std::ifstream(fileName).good();
+}
 
 /*
   void parse_file(const std::string& name)
@@ -204,6 +225,23 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       cerr<<"[ERROR] Failed to parse include filename, node:\n"<<node<<"\n[/ERROR]"<<endl;
       hf_errlog(18092601,"F: Failed to parse include filename, see stderr");
     }
+    //Search for include files first relative to current working directory, then in PREFIX/yaml
+    if(!fileExists(filename)){
+      //if filename starts with '/', it is an absolute path
+      //if filename starts with '.', it is a path relative to current directory
+      //In these two cases, do not search in PREFIX/yaml
+      char c=filename[0];
+      bool file_not_found=(c=='/'||c=='.');
+      if(!file_not_found){
+        string prefix_filename=PREFIX+string("/yaml/")+filename;
+        if(fileExists(prefix_filename))filename=prefix_filename;
+        else file_not_found=true;
+      }
+      if(file_not_found){
+        cerr<<"[ERROR] YAML include file "<<filename<<" not found"<<endl;
+        hf_errlog(19040135,"F: YAML include file not found, see stderr");
+      }
+    }
     YAML::Node include=loadYamlFile(filename);
     if(!include.IsMap()){
       cerr<<"[ERROR] Root node in included file "<<filename<<" is not a map"<<endl;
@@ -214,8 +252,8 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       if(it->first.IsScalar()){
         string key=it->first.Scalar();
         if(node[key]){
-          clog<<"[WARN] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
-          hf_errlog(18092604,"W: locally defined setting overrides included, see stdlog");
+          clog<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
+          hf_errlog(18092604,"I: locally defined setting overrides included, see stdlog");
         }else node[key]=it->second;
       }else{
         hf_errlog(19033101,"W: including YAML maps with non-scalar keys is poorly supported and does not handle overriding keys, use at your own risk!");
@@ -396,7 +434,12 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
               value=1;
               step=0;
               dependentParameters.push_back({parameterName,definition});
-            }else{
+            }else{//constant parameter defined by its value
+              try{
+                value=pNode.as<double>();
+                step=0;
+                break;
+              }catch(YAML::TypedBadConversion<double>&ex){}
               cerr<<"[ERROR] Unable to parse definition of parameter \""<<parameterName<<"\": \""<<definition<<"\""<<endl;
               hf_errlog(18091712,"F: Bad parameter definition, see stderr");
             }
@@ -481,11 +524,41 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     }
   }
 }
+void ensureMapValidity(const string&nodeName){
+  //Report an error if a YAML map has duplicate keys
+  //This is used for checking redefinition of parameterisations etc
+  YAML::Node node=XFITTER_PARS::rootNode[nodeName];
+  if(!node){
+    cerr<<"[ERROR] Necessary node \""<<nodeName<<"\" does not exist"<<endl;
+    hf_errlog(19040134,"F: Necessary node does not exist, see stderr");
+  }
+  if(!node.IsMap()){
+    cerr<<"[ERROR] Node \""<<nodeName<<"\" is not a map"<<endl;
+    hf_errlog(19040131,"F: Bad map node, see stderr");
+  }
+  set<string>keys;
+  for(YAML::const_iterator it=begin(node);it!=end(node);++it){
+    try{
+      string key=it->first.as<string>();
+      if(keys.count(key)!=0){
+        cerr<<"[ERROR] Duplicate key \""<<key<<"\" in map \""<<nodeName<<'\"'<<endl;
+        hf_errlog(19040132,"F: Duplicate key in a map node, see stderr");
+      }
+      keys.insert(key);
+    }catch(YAML::TypedBadConversion<string>&ex){
+      cerr<<"[ERROR] In map \""<<nodeName<<"\": failed to convert the following key to string:\n"<<it->first<<endl;
+      hf_errlog(19040131,"F: Bad key in a map node, see stderr");
+    }
+  }
+}
 
 void parse_params_(){
   using namespace XFITTER_PARS;
   rootNode=loadYamlFile("parameters.yaml");
   expandIncludes(rootNode);
+  ensureMapValidity("Parameterisations");
+  ensureMapValidity("Decompositions");
+  ensureMapValidity("Evolutions");
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
   createParameters();
   ParsToFortran();

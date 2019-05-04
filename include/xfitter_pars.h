@@ -79,12 +79,13 @@ namespace XFITTER_PARS {
   /// Helper function to get a yaml node corresponding to a parameterisation, by this parameterisation's instance name
 	YAML::Node getParameterisationNode(const std::string&name="");
 
-  /// Helper function to get string parameters
-  std::string getParameterS(std::string name);
-
   /// Helper functions
 	string getDefaultEvolutionName();
 	string getDefaultDecompositionName();
+  /// Functions to get parameters from corresponding maps but with better reporting of errors
+  double*getParamD(const string&name);
+  int    getParamI(const string&name);
+  string getParamS(const string&name);
   
   /// Parse yaml file @param name
   void parse_file(const std::string& name);

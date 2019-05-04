@@ -141,7 +141,7 @@ namespace xfitter {
 
 
   BaseMinimizer* get_minimizer() {
-    std::string name = XFITTER_PARS::getParameterS("Minimizer");
+    std::string name = XFITTER_PARS::getParamS("Minimizer");
     
     // Check if already present
     if (XFITTER_PARS::gMinimizer != nullptr ) {
