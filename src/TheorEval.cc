@@ -549,11 +549,6 @@ TheorEval::Evaluate(valarray<double> &vte )
     {
       // load all arguments
       int narg = it->narg;
-      for(int arg = 0; arg < narg; arg++)
-      {
-        //it++;
-        //stk.push(*(it->val));
-      }
       std::valarray<double> x0 = stk.top();
       stk.pop();
       int nsections = (it->narg - 1) / 2;
