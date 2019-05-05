@@ -1,4 +1,4 @@
-
+ 
 /*
    @file ReactionFFABM_DISCC.cc
    @date 2017-10-09
@@ -36,28 +36,13 @@ extern "C" {
   void initgridconst_();
   void pdffillgrid_();
 
-  extern struct COMMON_masses
+  struct COMMON_masses
   {
     double rmass[150];
-    double rmassp[50];
+    double rmassp[150];
     double rcharge[150];
-  } masses_;
-
-  extern struct COMMON_constants_abkm
-  {
-    double pi;
-    double alpha;
-    double alphady;
-    double rmpr;
-    double gfer2;
-    double sintc;
-    double sintw2;
-    double rmw;
-    double rmz;
-    double rgz;
-    double ckm[3][3];
-    double ckm2[3][3];
-  } constants_abkm_;
+  };
+  extern COMMON_masses masses_;
 }
 
 
@@ -84,7 +69,6 @@ int ReactionFFABM_DISCC::atStart(const string &s)
   if(checkParam("ordfl"))
     ordfl = GetParamI("ordfl");
 
-  printf("ckm[1][2] = %f\n", constants_abkm_.ckm[1][2]);
   initgridconst_();
 
   // Take the 3-flavour scheme as a default
@@ -93,16 +77,10 @@ int ReactionFFABM_DISCC::atStart(const string &s)
   // heavy quark masses
   double rmass8in = GetParam("mch");
   masses_.rmass[7] = rmass8in;
-  //masses_.rcharge[7] = 0.6666666;
   _mc = rmass8in;
   double rmass10in = GetParam("mbt");
   masses_.rmass[9] = rmass10in;
-  //masses_.rcharge[9] = 0.3333333;
   _mb = rmass10in;
-
-  //constants_abkm_.pi = 0.1;
-  printf("ckm[1][2] = %f\n", constants_abkm_.ckm[1][2]);
-  printf("masses_.rcharge[9] = %f\n", masses_.rcharge[9]);
 
   printf("---------------------------------------------\n");
   printf("INFO from ABKM_init:\n");
