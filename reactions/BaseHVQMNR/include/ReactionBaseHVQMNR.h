@@ -10,11 +10,11 @@
 /**
   @class' ReactionBaseHVQMNR
 
-  @brief A wrapper class for BaseHVQMNR reaction 
+  @brief A wrapper class for BaseHVQMNR reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
-  This is abstract class from which implementations of HVQMNR 
+  This is abstract class from which implementations of HVQMNR
   calculations for particular datasets should be derived.
 
   @version 0.1
@@ -32,14 +32,14 @@ class ReactionBaseHVQMNR : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "BaseHVQMNR" ;};
-    virtual int initAtStart(const string &) = 0; 
+    virtual int atStart(const string &) = 0;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
     virtual void initAtIteration() = 0;
     virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
   protected:
     virtual int parseOptions(){ return 0;};
-    
-// ********** common stuff for MNR calculation  ********** 
+
+// ********** common stuff for MNR calculation  **********
   protected:
     // structure for particular dataset
     struct DataSet
@@ -55,7 +55,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
       std::valarray<double>* BinsYMinRef;
       std::valarray<double>* BinsYMaxRef;
     };
-  
+
     // structure to store theory parameters
     struct Parameters
     {
@@ -111,7 +111,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
       bool   a;
       char flav; // c, b or t
     };
-    
+
     // all datasets
     std::map<int, DataSet> _dataSets;
     // theory parameters
@@ -136,7 +136,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
 
     // read and update theory parameters
     void UpdateParameters();
-    
+
     // print theory parameters
     void PrintParameters(Parameters const* pars = NULL) const;
 
@@ -152,7 +152,7 @@ class ReactionBaseHVQMNR : public ReactionTheory
   //private:
     // check equality of float numbers with tolerance
     bool IsEqual(const double val1, const double val2, const double eps = 1e-6);
-    
+
     // TODO this old commented out code to be removed one day
     /*// read values from terminfo in format key1=value1:key2=value2:...
     int readFromTermInfo(const std::string& str, const std::string& key, int& value);
