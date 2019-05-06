@@ -1,4 +1,4 @@
- 
+
 /*
    @file EvolutionQCDNUM.cc
    @date 2018-08-14
@@ -13,7 +13,7 @@
 #include <algorithm>
 
 // Global var to hold current pdfDecomposition
-std::function<std::map<int,double>(double const& x)> gPdfDecomp; 
+std::function<std::map<int,double>(double const& x)> gPdfDecomp;
 
 // Wrapper for QCDNUM
 double funcPDF(int *ipdf, double *x) {
@@ -45,12 +45,12 @@ double static   qcdnumDef[] = {
   0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.,  // d
   0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.,  // u
   0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.,  // s
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // 
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // 
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // 
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // 
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // 
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.  // 
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.  //
 };
 
 
@@ -115,9 +115,10 @@ namespace xfitter
 
     int nxgrid             = yQCDNUM["NXbins"].as<int>();
     int nxout = 0;
-    
+
     QCDNUM::setord(PtOrder);
     std::cout << "Set evolution order "<<PtOrder <<"\n";
+    std::cout << "xGrid[0]: " << xGrid[0] << std::endl;
     QCDNUM::gxmake(xGrid.data(),xGridW.data(),xGrid.size(),nxgrid,nxout,_splineOrder); // x-grid
     std::cout << "Requested (actual) number of x  grid points: "<<nxgrid << "(" << nxout << ")\n";
 
@@ -148,14 +149,14 @@ namespace xfitter
       Q2Grid[i]  = tmp[i].first;
       Q2GridW[i] = tmp[i].second;
     }
-    
+
     //for (size_t i = 0; i<Q2Grid.size(); i++) {
     //  std::cout << " Q2= " << Q2Grid[i] << " weight = " << Q2GridW[i] << "\n";
     //}
 
     int nq2grid             = yQCDNUM["NQ2bins"].as<int>();
     int nq2out = 0;
-    
+
     QCDNUM::gqmake(Q2Grid.data(), Q2GridW.data(), Q2Grid.size(), nq2grid, nq2out);
     std::cout << "Requested (actual) number of Q2 grid points: "<<nq2grid << "(" << nq2out << ")\n";
 
@@ -164,9 +165,23 @@ namespace xfitter
     int iqb = QCDNUM::iqfrmq( (*mbt)*(*mbt) + 1.e-6 );
     int iqt = 0;  // top off for now
 
-    // For now VFNS only
-    QCDNUM::setcbt(0,iqc,iqb,iqt);
-    
+    // For now VFNS only and NFlavour = 3 only
+    int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+    if(nflavour == 3)
+    {
+      std::cout << "Fixed Flavour Number Scheme set with nf=3" << std::endl;
+      QCDNUM::setcbt(3,iqc,iqb,iqt);
+    }
+    else if(nflavour == 5)
+    {
+      std::cout << "Variable Flavour Number Scheme set with nf=5" << std::endl;
+      QCDNUM::setcbt(0,iqc,iqb,iqt);
+    }
+    else
+    {
+      hf_errlog(280320191, "F: Unsupported NFlavour = " + std::to_string(nflavour));
+    }
+
     // Init SF
     int id1=0;      int id2=0;      int nw=0;      int ierr=1;
     if (_readTables>0 ) {
@@ -177,7 +192,7 @@ namespace xfitter
       QCDNUM::fillwt(0,id1,id2,nw);
       QCDNUM::dmpwgt(1,22,"unpolarised.wgt");
     }
-       
+
     //Evolution gets its decomposition from YAML
     gPdfDecomp=XFITTER_PARS::getInputFunctionFromYaml(yQCDNUM);
     atConfigurationChange();
@@ -200,7 +215,7 @@ namespace xfitter
   }
 
   std::function<std::map<int,double>(double const& x, double const& Q)> EvolutionQCDNUM::xfxQMap() {
-    
+
     const auto _f0 =  [=] (double const& x, double const& Q) -> std::map<int, double> {
       std::map<int, double> res;
       for (int ipdf =-6; ipdf<7; ipdf++) {

@@ -63,7 +63,7 @@ else
    echo "Disabling mcmodel=medium option"
    FCFLAGS="$FCFLAGS   -fPIC -cpp"
    FFLAGS="$FFLAGS     -fPIC -cpp"
-fi    
+fi
 
 
 # fortran detection:
@@ -119,7 +119,7 @@ AC_LANG_POP(C++)
 
 AC_ARG_ENABLE([process],
                  [AS_HELP_STRING([--enable-process],[enable xfitter-process tool])])
-: ${enable_process=yes} 
+: ${enable_process=yes}
 
 AS_IF([test "$enable_process" = "yes"], [
         AC_MSG_CHECKING([for libyaml])
@@ -141,7 +141,7 @@ AS_IF([test "$enable_process" = "yes"], [
 
 AC_ARG_ENABLE([openmp],
                  [AS_HELP_STRING([--enable-openmp],[enable openmp support])])
-: ${enable_openmp=no} 
+: ${enable_openmp=no}
 
 AS_IF([test "$enable_openmp" = "yes"], [
     AX_OPENMP([AM_CONDITIONAL(ENABLE_OPENMP,true)],
@@ -205,7 +205,7 @@ AC_MSG_CHECKING([for QCDNUM installation])
 qcdnum_config=`which qcdnum-config`
 if test x$qcdnum_config == x; then
   AC_MSG_ERROR([Unable to find qcdnum-config.])
-else 
+else
   QCDNUMVERS=`qcdnum-config --version`
   QCDNUMLIBS=`qcdnum-config --ldflags`
   QCDNUM_CPPFLAGS=`qcdnum-config --cppflags`
@@ -223,7 +223,7 @@ if test $enable_lhapdf; then
   lhapdf_config=`which lhapdf-config`
   if test x$lhapdf_config == x; then
     AC_MSG_ERROR([Unable to find lhapdf-config.])
-  else 
+  else
     LHAPDFVERS=`lhapdf-config --version`
     LHAPDF_CPPFLAGS=`lhapdf-config --cppflags`
     LHAPDF_LDFLAGS=`lhapdf-config --ldflags`
@@ -234,7 +234,7 @@ if test $enable_lhapdf; then
     AC_DEFINE([LHAPDF_ENABLED],[1],[Define if LHAPDF is enabled])
 
     lhapdf_family=`lhapdf-config --version | sed 's/\..*$//'`
-    if test "x$lhapdf_family" != "x5"; then 
+    if test "x$lhapdf_family" != "x5"; then
       AC_DEFINE([LHAPDF_FAMILY],[6],[Define value of LHAPDF family])
     fi
   fi
@@ -249,7 +249,7 @@ if test $enable_apfel; then
   apfel_config=`which apfel-config`
   if test x$apfel_config == x; then
     AC_MSG_ERROR([Unable to find apfel-config.])
-  else 
+  else
     APFELVERS=`apfel-config --version`
     APFEL_CPPFLAGS=`apfel-config --cppflags`
     APFEL_LDFLAGS=`apfel-config --ldflags`
@@ -296,7 +296,7 @@ if test $enable_ceres; then
     CERES_LDFLAGS="-L${CERES_DIR}/lib  -lceres -lglog -lgflags -lpthread -lspqr -lcholmod -lccolamd -lcamd -lcolamd -lamd -llapack -lblas -lsuitesparseconfig -lrt -lcxsparse -lrt -lcxsparse -lgomp"
     AC_SUBST(CERES_CPPFLAGS)
     AC_SUBST(CERES_LDFLAGS)
-    AC_DEFINE([CERES_ENABLED],[1],[Define if APFEL++ is enabled])    
+    AC_DEFINE([CERES_ENABLED],[1],[Define if APFEL++ is enabled])
   fi
 fi
 AM_CONDITIONAL(ENABLE_CERES, [test $enable_ceres])
@@ -309,7 +309,7 @@ if test $enable_mela; then
   mela_config=`which mela-config`
   if test x$mela_config == x; then
     AC_MSG_ERROR([Unable to find mela-config.])
-  else 
+  else
     MELAVERS=`mela-config --version`
     MELA_LDFLAGS=`mela-config --ldflags`
     AC_MSG_RESULT([Using $mela_config version $MELAVERS])
@@ -328,7 +328,7 @@ if test x$enable_applgrid == xyes; then
   applgrid_config=`which applgrid-config`
   if test x$applgrid_config == x; then
     AC_MSG_ERROR([Unable to find applgrid-config.])
-  else 
+  else
     APPLGRIDVERS=`applgrid-config --version`
     APPLGRID_CPPFLAGS=`applgrid-config --cxxflags`
     APPLGRID_LDFLAGS=`applgrid-config --ldcflags`
@@ -406,7 +406,7 @@ if test x$enable_hathor == xyes; then
   AC_MSG_CHECKING([for hathor installation])
   if test "x$HATHOR_ROOT" = "x"; then
     AC_MSG_ERROR([HATHOR_ROOT environment variable is not set!.])
-  else 
+  else
     AC_MSG_RESULT([Using $HATHOR_ROOT])
     AC_CHECK_FILE([$HATHOR_ROOT/libHathor.a],,[AC_MSG_ERROR([HATHOR_ROOT must contain libHathor.a])])
     # check which hathor libraries are available:
@@ -470,7 +470,7 @@ AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 #  if test x$enable_nnpdfWeight == xyes; then
 #     AC_MSG_ERROR([Root is required for NNPDF])
 #  fi
-#else 
+#else
 #  AC_MSG_RESULT([Using $root_config])
 #  root_ok=1
 #  ROOT_CFLAGS=`root-config --cflags`
@@ -526,7 +526,7 @@ if test x$enable_doc = xyes; then
   if test -z "$PDFLATEX"; then
     AC_MSG_ERROR([Pdflatex is required to create the user manual.])
   fi
-  
+
   # Check for presence of pdfLaTeX
   AC_CHECK_PROG(BIBTEX, bibtex, bibtex)
   if test -z "$BIBTEX"; then
@@ -549,7 +549,7 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 
 # Output
-AC_CONFIG_FILES([include/Makefile 
+AC_CONFIG_FILES([include/Makefile
                  src/Makefile
                  xfitter/Makefile
                  common/Makefile
@@ -576,7 +576,7 @@ AC_CONFIG_FILES([include/Makefile
                  ACOT/src/Makefile
                  ACOT/Makefile
                  SACOT/src/Makefile
-                 SACOT/Makefile 
+                 SACOT/Makefile
                  ABM/src/Makefile
                  FONLL/src/Makefile
                  FONLL/Makefile
@@ -599,6 +599,10 @@ AC_CONFIG_FILES([include/Makefile
                  examples/Makefile
                  python/Makefile
                  xfitter-config
+                 pdfparams/ABMPgluonPdfParam/src/Makefile
+                 pdfparams/ABMPseaPdfParam/src/Makefile
+                 pdfparams/ABMPvalencePdfParam/src/Makefile
+                 pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src/Makefile
                  pdfparams/NegativeGluonPdfParam/src/Makefile
                  evolutions/LHAPDF/src/Makefile
                  minimizers/CERESMinimizer/src/Makefile
@@ -612,6 +616,7 @@ AC_CONFIG_FILES([include/Makefile
                  pdfdecompositions/UvDvUbarDbarS/src/Makefile
                  pdfdecompositions/SU3_PionPdfDecomposition/src/Makefile
                  pdfdecompositions/BasePdfDecomposition/src/Makefile
+                 reactions/KRunning/src/Makefile
                  reactions/AFB/src/Makefile
                  reactions/KFactor/src/Makefile
                  reactions/BaseDISCC/src/Makefile
@@ -625,6 +630,7 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/BaseHVQMNR/src/Makefile
                  reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
                  reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+                 reactions/cbdiff/src/Makefile
                  reactions/testZMVFNS/src/Makefile
                  reactions/fastNLO/src/Makefile
                  reactions/FONLL_DISCC/src/Makefile

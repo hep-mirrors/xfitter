@@ -36,15 +36,28 @@ void ReactionAPPLgrid::setDatasetParameters(int dataSetID, map<string,string> pa
       std::istringstream ss(it->second);
       std::string token;
       while(std::getline(ss, token, ',')){
-        std::shared_ptr<appl::grid> g(new appl::grid(token));
-        g->trim();
-        data.grids.push_back(g);
-        TFile file(token.c_str());
-        references.push_back((TH1D*)file.Get("grid/reference"));
-        if(!references.back())
-          hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
-        else
-          references.back()->SetDirectory(0);
+         //std::cout << token << '\n';
+         // dummy empty points (for bin manipulations etc.)
+         // GridName=DUMMYX where X is number of bins (e.g. GridName=DUMMY12 for 12 empty bins)
+         if(std::string(token.c_str(), 5) == std::string("DUMMY"))
+         {
+           int nb = atoi(token.c_str() + 5);
+           data.emptyPoints.push_back(nb);
+           data.grids.push_back(NULL);
+         }
+         else
+         {
+           std::shared_ptr<appl::grid> g(new appl::grid(token));
+           g->trim();
+           data.grids.push_back(g);
+           TFile file(token.c_str());
+           references.push_back((TH1D*)file.Get("grid/reference"));
+           if(!references.back())
+             hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
+           else
+             references.back()->SetDirectory(0);
+           data.emptyPoints.push_back(-1);
+        }
       }
     }
     catch ( const std::exception& e ) {
@@ -165,44 +178,67 @@ int ReactionAPPLgrid::compute(int dataSetID, valarray<double> &val, map<string, 
   const double muR=data.muR;
   const double muF=data.muF;
   BaseEvolution*(&evolutions)[2]=data.evolutions;
-  unsigned int pos = 0;
-  for(unsigned int g=0;g<data.grids.size();g++)
+  // iterate over grids
+  int pos = 0;
+  //printf("1val.size() = %d\n", val.size());
+  //val.resize(0);
+  int np = 0;
+  for(unsigned int g = 0; g < data.grids.size(); g++)
   {
-    auto grid=data.grids[g];
-    double eScale=data.eScale[g];
-    std::vector<double> gridVals(grid->Nobs());
-    if(!data.flagUseReference){
-      //For some reason we do not take alphaS from evolutions? --Ivan
-      active_xfxQ_functions[0]=evolutions[0]->xfxQArray();
-      if(evolutions[0]==evolutions[1]){
-        gridVals=grid->vconvolute(xfxWrapper0,getAlphaS(),order-1,muR,muF,eScale);
-      }else{
-        active_xfxQ_functions[1]=evolutions[1]->xfxQArray();
-        gridVals=grid->vconvolute(xfxWrapper0,xfxWrapper1,getAlphaS(),order-1,muR,muF,eScale);
-      }
-    }
+    // dummy points
+    if(data.emptyPoints[g] > 0)
+      np += data.emptyPoints[g];
+    // grids or reference histograms
+    else
+      np += data.grids[g]->Nobs();
+  }
+  val.resize(np);
+  for(unsigned int g = 0; g < data.grids.size(); g++)
+  {
+    std::vector<double> gridVals;
+    // dummy points
+    if(data.emptyPoints[g] > 0)
+      gridVals = std::vector<double>(data.emptyPoints[g], 0.0);
+    // grids or reference histograms
     else
     {
-      // use reference histogram
-      for(std::size_t i=0; i<gridVals.size(); i++)
-        gridVals[i]=data.references[g]->GetBinContent(i + 1);
+      auto grid = data.grids[g];
+      double eScale=data.eScale[g];
+      gridVals = std::vector<double>(grid->Nobs());
+      if(!data.flagUseReference)
+      {
+        //For some reason we do not take alphaS from evolutions? --Ivan
+        active_xfxQ_functions[0]=evolutions[0]->xfxQArray();
+        if(evolutions[0]==evolutions[1]){
+          gridVals=grid->vconvolute(xfxWrapper0,getAlphaS(),order-1,muR,muF,eScale);
+        }else{
+          active_xfxQ_functions[1]=evolutions[1]->xfxQArray();
+          gridVals=grid->vconvolute(xfxWrapper0,xfxWrapper1,getAlphaS(),order-1,muR,muF,eScale);
+        }
+      }
+      else
+      {
+        // use reference histogram
+        for(std::size_t i=0; i<gridVals.size(); i++)
+          gridVals[i]=data.references[g]->GetBinContent(i + 1);
+      }
+      // scale by bin width if requested
+      if(data.flagNorm)
+        for (std::size_t i=0; i<gridVals.size(); i++)
+          gridVals[i] *= grid->deltaobs(i);
     }
-    // scale by bin width if requested
-    if(data.flagNorm)
-      for (std::size_t i=0; i<gridVals.size(); i++)
-        gridVals[i] *= grid->deltaobs(i);
-
 
     // insert values from this grid into output array
     //val.resize(val.size() + grid->Nobs());
     std::copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
-    pos += grid->Nobs();
+    pos += gridVals.size();
   }
-  if(val.size()!=pos){//TODO: number of data points actually doesn't have to match grid size in some cases, so this check should be replaced by something else
-    std::ostringstream s;
-    s<<"F: ReactionAPPLgrid: Number of data points ("<<val.size()<<") in dataset (ID="<<dataSetID<<") does not match total grid size ("<<pos<<")";
-    hf_errlog(18072311,s.str().c_str());
-  }
+  // SZ 27.03.2019 val.size()!=pos should be allowed for bin manipulations
+  //if(val.size()!=pos){//TODO: number of data points actually doesn't have to match grid size in some cases, so this check should be replaced by something else
+  //  std::ostringstream s;
+  //  s<<"F: ReactionAPPLgrid: Number of data points ("<<val.size()<<") in dataset (ID="<<dataSetID<<") does not match total grid size ("<<pos<<")";
+  //  hf_errlog(18072311,s.str().c_str());
+  //}
   if(data.scaleParameter)val*=*data.scaleParameter;
   return 0;
 }

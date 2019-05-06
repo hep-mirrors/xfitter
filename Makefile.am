@@ -19,18 +19,25 @@ SUBDIRS = minuit/src DY/src DIPOLE/src RT/src EW/src common common/linalg \
         reactions/BaseHVQMNR/src \
         reactions/HVQMNR_LHCb_7TeV_beauty/src \
         reactions/HVQMNR_LHCb_7TeV_charm/src \
+        reactions/cbdiff/src \
         reactions/testZMVFNS/src \
         reactions/fastNLO/src/ \
         reactions/FONLL_DISCC/src \
         reactions/FONLL_DISNC/src \
         reactions/AFB/src \
         reactions/KMatrix/src \
+        reactions/KRunning/src \
         pdfparams/BasePdfParam/src \
         pdfparams/Expression/src\
         pdfparams/HERAPDF_PdfParam/src \
         pdfparams/PolySqrtPdfParam/src \
         pdfparams/NegativeGluonPdfParam/src\
+        pdfparams/ABMPgluonPdfParam/src\
+        pdfparams/ABMPseaPdfParam/src \
+        pdfparams/ABMPvalencePdfParam/src \
         pdfdecompositions/BasePdfDecomposition/src\
+        pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src \
+        pdfdecompositions/LHAPDFDecomposition/src \
         pdfdecompositions/UvDvUbarDbarS/src \
         pdfdecompositions/SU3_PionPdfDecomposition/src \
         evolutions/BaseEvolution/src \
@@ -60,7 +67,7 @@ if BUILD_DOCS
   DOCS=doc/tex/manual doc/tex/paper
 endif
 #$(info ${DOCS})
-SUBDIRS+= src xfitter $(DOCS) 
+SUBDIRS+= src xfitter $(DOCS)
 
 include $(top_srcdir)/aminclude.am
 
@@ -69,7 +76,7 @@ reaction_DATA = Reactions.txt
 
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
-#TESTS_ENVIRONMENT = $(SHELL) 
+#TESTS_ENVIRONMENT = $(SHELL)
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \

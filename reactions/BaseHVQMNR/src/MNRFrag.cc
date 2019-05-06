@@ -557,6 +557,29 @@ namespace MNR
     return p[0] * TMath::Power(x[0], -1.) * TMath::Power(1. - 1./x[0] - p[1]/(1.-x[0]), -2.);
   }
 
+  double Frag::GetHadronMass(const char* meson)
+  {
+    if(std::string(meson) == "dzero")
+      return fM_dzero;
+    else if(std::string(meson) == "dch")
+      return fM_dch;
+    else if(std::string(meson) == "dstar")
+      return fM_dstar;
+    else if(std::string(meson) == "ds")
+      return fM_ds;
+    else if(std::string(meson) == "lambdac")
+      return fM_lambdac;
+    else if(std::string(meson) == "bzero")
+      return fM_bzero;
+    else if(std::string(meson) == "bch")
+      return fM_bch;
+    else if(std::string(meson) == "bs")
+      return fM_bs;
+    else
+      return -1.0;
+  }
+
+
   // Values from PDG
   const double Frag::fM_dzero   = 1.865;
   const double Frag::fM_dch     = 1.867;

@@ -22,7 +22,8 @@ struct DatasetData{
   double muR,muF; // !> renormalisation and factorisation scales
   bool flagNorm; // !> if true, multiply by bin width
   bool flagUseReference; // !> if true, prediction will be calculated from reference histogram (for tests and grids validation)
-  std::vector<TH1D*>  references;
+  std::vector<TH1D*>  references; // !> reference predictions
+  std::vector<int> emptyPoints; // !> optional numbers of empty points for manipulation with bins
   std::vector<double> eScale; // !> CMS energy
   double*scaleParameter=nullptr; // !> pointer to a minimization parameter which by which the predicted cross-section will be additionally multiplied. If this pointer is nullptr, no additional scaling is used.
   xfitter::BaseEvolution*evolutions[2];

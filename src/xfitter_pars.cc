@@ -3,7 +3,7 @@
  @date Sun 16 April 2017
  @author SG
 
- Contains functions to read parameters.yaml, 
+ Contains functions to read parameters.yaml,
  global maps to store parameters,  and fortran interface functions.
  */
 
@@ -23,18 +23,18 @@
 extern "C" {
   void parse_params_();  //!< Fortran callable parsing
   /// Interface to minuit parameters
-  void addexternalparam_(const char name[],  const double &val, 
+  void addexternalparam_(const char name[],  const double &val,
        const double  &step,
-       const double &min, const double &max, 
+       const double &min, const double &max,
        const double &prior, const double &priorUnc,
-       const int &add, 
+       const int &add,
        map<std::string,double*> *map,
        int len);
   void add_to_param_map_(map<std::string,double*>* map,double &value, int& global, char *name, int len);
   // Get parameters in fortran, for backward compatibility:
   double getparamd_(const char* name, int len);
   // Update of EWK/QCD parameters, can be fitted at each iteration.
-  void update_pars_fortran_(); 
+  void update_pars_fortran_();
 }
 
 
@@ -48,7 +48,7 @@ namespace XFITTER_PARS {
   map <string, string> gParametersS;
   map <string, vector<double> > gParametersV; ///< Vectors of double parameters
   map <string, YAML::Node > gParametersY;      ///< Store complete nodes for complex cases
-  
+
   map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
 
   // Also keep list of loaded evolutions here:
@@ -89,7 +89,7 @@ namespace XFITTER_PARS {
       name=node.as<string>();
     }catch(YAML::TypedBadConversion<string>ex){
       ostringstream s;s<<"W: YAML exception: "<<ex.what()<<"; while trying to extract decomposition name from node: "<<node<<"; using default decomposition name";
-      hf_errlog(18082930,s.str()); 
+      hf_errlog(18082930,s.str());
       name=getDefaultDecompositionName();
     }
     return xfitter::get_pdfDecomposition(name)->f0();
@@ -146,7 +146,7 @@ namespace XFITTER_PARS {
       return search->second;
     }
     else {
-      hf_errlog(18071301,"W: string parameter "+name+" not found"); 
+      hf_errlog(18071301,"W: string parameter "+name+" not found");
       return ""; // not found
     }
   }
@@ -184,7 +184,7 @@ bool fileExists(const string&fileName){
       string text = "F: Problems reading yaml-parameters file: " + name + " : "+e.what();
       hf_errlog_(17032503,text.c_str(),text.size());
     }
-    
+
     return;
   }
 */
@@ -217,7 +217,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       expandIncludes(val,recursionLimit-1);
     }
   }
-  //Load and merge 
+  //Load and merge
   for(vector<YAML::Node>::const_iterator kit=include_keys.begin();kit!=include_keys.end();++kit){
     node.remove(*kit);
     string filename=(*kit).as<string>("");
@@ -318,9 +318,9 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   void ParsToFortran(){
 
     // helper macros
-#define FortAssignD(NameV,Struc)  if (gParameters.find(#NameV) != gParameters.end()) Struc.NameV = *gParameters[#NameV]; 
+#define FortAssignD(NameV,Struc)  if (gParameters.find(#NameV) != gParameters.end()) Struc.NameV = *gParameters[#NameV];
 #define FortAssignS(NameV,Struc)  if (gParametersS.find(#NameV) != gParametersS.end()) strcpy(Struc.NameV,gParametersS[#NameV].c_str());
-#define FortAssignI(NameV,Struc)  if (gParametersI.find(#NameV) != gParametersI.end()) Struc.NameV = gParametersI[#NameV]; 
+#define FortAssignI(NameV,Struc)  if (gParametersI.find(#NameV) != gParametersI.end()) Struc.NameV = gParametersI[#NameV];
 
     // CKM:
     FortAssignD(Vud,ckm_matrix_)
@@ -355,7 +355,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
 
     // OZ 26.04.18 some lines above do not do what expected because it is gf, convFac and alphaem in parameters.yaml, not Gf, ConvFac and Alphaem
     // as a result CC DIS cross section and integrated NC and CC cross sections are always zero with old interface
-    // temporary fix: set these parameters manually 
+    // temporary fix: set these parameters manually
     // (maybe some other parameters are not assigned as well)
     if(gParameters.find("alphaem") != gParameters.end())
       ew_couplings_.Alphaem = *gParameters["alphaem"];
@@ -581,7 +581,7 @@ double getparamd_(const char* name,int len){
   char buff[128];
   memcpy( buff, &name[0], len);
   buff[len] = '\0';
-  std::string key(buff);  
+  std::string key(buff);
   if (XFITTER_PARS::gParameters.find(key) != XFITTER_PARS::gParameters.end()) {
     return *XFITTER_PARS::gParameters[key];
   }

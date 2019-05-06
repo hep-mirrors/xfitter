@@ -1,7 +1,7 @@
 /**
   @class TheorEval
 
-  @brief Theory expression evaluation 
+  @brief Theory expression evaluation
 
   This class performs evaluation of expression that describes theoretical
   prediction for a given dataset. The expression may contain APPLgrid terms,
@@ -46,13 +46,14 @@ using std::list;
   -1, -2  -- brackets (, )
   1 -- operators +, -
   3 -- operators *, /
-  4 -- functions sum, avg 
+  4 -- functions sum, avg
   5 -- Matrix . Vector / vector . Matrix
  */
 struct tToken {
   short int opr;  // operator flag, includes precedence
   string name;     // string token
   valarray<double> *val; // value token
+  int narg;
 };
 
 class TheorEval{
@@ -62,7 +63,7 @@ class TheorEval{
  public:
   ~TheorEval();
   //! Proper constructor for TheorEval class
-  /*! 
+  /*!
     \param dsID dataset ID for which the expression is evaluated
     \param nTerms the number of terms in the expression
     \param stn array of strings with term names
@@ -75,7 +76,7 @@ class TheorEval{
   */
   TheorEval(const int dsID, const int nTerms, const std::vector<string> stn, const std::vector<string> stt,
             const std::vector<string> sti, const std::vector<string> sts, const string& ste);
-  
+
   //! Evaluates array of predictions for requested expression
   /*!
     \param iorder order for grids evaluation
@@ -140,7 +141,7 @@ class TheorEval{
   int initReactionTerm(int iterm, valarray<double> *val);
   //! Update the reaction values into the tokens
   int getReactionValues();
-  //! 
+  //!
   map<string, string> SplitTermInfo(const string& term_info);
 
  private:
@@ -177,7 +178,7 @@ class TheorEval{
   /// bin-by-bin dynamic scale
   float _dynamicscale;
 
-  /// also keep DS pars, which are valid for all terms 
+  /// also keep DS pars, which are valid for all terms
   map <string, double> _dsPars;
 
   /// Name !

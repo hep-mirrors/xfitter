@@ -21,7 +21,7 @@ using std::valarray;
 typedef double (*pZeroParFunc)();
 typedef double (*pOneParFunc)(const double&);
 typedef double (*pTwoParFunc)(const double&, const double& );
-typedef void   (*pThreeParSub)(const double& , const double&, const double&);  
+typedef void   (*pThreeParSub)(const double& , const double&, const double&);
 
 // Function to emulate LHAPDF xfx behavior:
 typedef void   (*pXFXlike)(const double&x,const double&Q,double*results);
@@ -53,7 +53,7 @@ typedef void   (*pXFXlike)(const double&x,const double&Q,double*results);
 //class Evolution;
 //why is this not in namespace xfitter? --Ivan
 
-class ReactionTheory 
+class ReactionTheory
 {
  public:
   ReactionTheory() {};
@@ -78,20 +78,20 @@ class ReactionTheory
   virtual void setxFitterparametersYaml(map<string,YAML::Node> &xfitter_pars) {_xfitter_pars_node = xfitter_pars; }; ///< Set map for complex parameters
   virtual void setxFitterparametersVec(map<string,vector<double> > &xfitter_pars) {_xfitter_pars_vec = xfitter_pars; }; ///< Set map for vector parameters
 
-  virtual void resetParameters(const YAML::Node& node); ///< Reset reaction-specific parameters 
+  virtual void resetParameters(const YAML::Node& node); ///< Reset reaction-specific parameters
 
-  virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { _alpha_S = palpha_S; PDFs = func2D; }; 
+  virtual void setEvolFunctions(double (*palpha_S)(const double& ), map<string, pTwoParFunc> *func2D  ) { _alpha_S = palpha_S; PDFs = func2D; };
 				///< Set alpha_S and PDF maps
   virtual void setExtraFunctions(map<string, pZeroParFunc>, map<string, pOneParFunc>, map<string, pTwoParFunc>) { };
 
   //! Set XFX function for different hadrons (proton: p, neutron: n, anti-proton: pbar)
   virtual void setXFX(pXFXlike xfx, string type="p" ){ _xfx[type] = xfx; };//DEPRECATED
-  
+
   virtual void setBinning(int dataSetID, map<string,valarray<double> > *dsBins){ _dsIDs.push_back(dataSetID); _dsBins[dataSetID] = dsBins; } ;
 
-  /// Perform optional re-initialization for a given iteration. Interface for old-style pdf functions 
+  /// Perform optional re-initialization for a given iteration. Interface for old-style pdf functions
   //A better name would be atIteration
-  virtual void initAtIteration(); 
+  virtual void initAtIteration();
 
   //! Perform optional action when minuit fcn 3 is called (normally after fit)
   virtual void actionAtFCN3() {};
@@ -102,21 +102,21 @@ class ReactionTheory
   //! Set dataset @param dataSetID parameters which can be term- and dataset-specific
   virtual void setDatasetParameters( int dataSetID, map<string,string> parsReaction,  map<string,double> parsDataset) {} ;
 
-  //! Main function to compute predictions for @param dataSetID 
-  virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;  
- 
+  //! Main function to compute predictions for @param dataSetID
+  virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
+
   //! Provide additional optional information about the reaction
   virtual void printInfo(){};
 
   //! Helper function to emmulate LHAPDF6 calls to get PDFs
   void xfx(const double& x, const double& q, double* results) const;//Currently accesses default evolution, to be replaced later --Ivan
-  
+
   //!  Helper function to emmulate LHAPDF6 calls to get PDFs
   double xfx(double x, double q, int iPDF) const { double pdfs[13]; xfx(x,q,pdfs); return pdfs[iPDF+6];};
-  
+
   //!  Helper function to emmulate LHAPDF6 calls to get PDFs
   std::vector<double> xfx(double x, double q) const { vector<double> pdfs(13); xfx(x,q,&pdfs[0]); return pdfs;};
-  
+
   //! strong coupling at scale q [GeV]
   double alphaS(double q) const { return _alpha_S(q); }
 
@@ -128,19 +128,19 @@ class ReactionTheory
 
   //! Default helper to determine if bin is masked or not
   virtual bool notMasked(int DSID, int Bin);
- 
-  //! Helper function to report not implemented functionality 
+
+  //! Helper function to report not implemented functionality
   void NOT_IMPLEMENTED(const string& functionName) {
     string message = "F: Function "+functionName+" is not implemented for module" + getReactionName();
     hf_errlog_(17040701,message.c_str(),message.size());
-  } 
+  }
 
   /// Set evolution name
   void setEvolution(std::string& evolution) { _evolution = evolution; }
 
   /// Retrieve evolution name //A better name would be "getEvolutionName" -- Ivan
-  const std::string  getEvolution() const { return _evolution; }  
-  
+  const std::string  getEvolution() const { return _evolution; }
+
  protected:
   map<string, pTwoParFunc> *PDFs;
 
@@ -149,20 +149,20 @@ class ReactionTheory
   /// Generate report on the state of parameters, local for the given reaction.
   std::string  emitReactionLocalPars() const;
 
-  bool checkParam(string name)         ///< Check if a parameter is present on one of the global list
+  bool checkParam(string name) const         ///< Check if a parameter is present on one of the global list
   {
-    return (_xfitter_pars.find(name) !=  _xfitter_pars.end()) 
-      || (_xfitter_pars_i.find(name) !=  _xfitter_pars_i.end()) 
-      || (_xfitter_pars_s.find(name) !=  _xfitter_pars_s.end()) 
-      || (_xfitter_pars_vec.find(name) !=  _xfitter_pars_vec.end()) 
-      || (_xfitter_pars_node.find(name) !=  _xfitter_pars_node.end()) 
+    return (_xfitter_pars.find(name) !=  _xfitter_pars.end())
+      || (_xfitter_pars_i.find(name) !=  _xfitter_pars_i.end())
+      || (_xfitter_pars_s.find(name) !=  _xfitter_pars_s.end())
+      || (_xfitter_pars_vec.find(name) !=  _xfitter_pars_vec.end())
+      || (_xfitter_pars_node.find(name) !=  _xfitter_pars_node.end())
       ;
   }
 
   // Helper function to get a parameter (double)
   double GetParam(const string& name) const
-  {    
-    if (_xfitter_pars.find(name) != _xfitter_pars.end() ) 
+  {
+    if (_xfitter_pars.find(name) != _xfitter_pars.end() )
       return *_xfitter_pars.at(name);
     else
       return 0;
@@ -183,7 +183,7 @@ class ReactionTheory
       return _xfitter_pars_s.at(name);
     }
     else {
-      return GetParamY(name, dsID);  // 
+      return GetParamY(name, dsID);  //
     }
   }
 
@@ -192,12 +192,12 @@ class ReactionTheory
 
   // Helper function to get bin values for a given data set, bin name. Returns null if not found
   virtual valarray<double> *GetBinValues(int idDS, const string& binName)
-  { 
+  {
     map<string, valarray<double> >* mapBins =  _dsBins[idDS];
     if (mapBins == nullptr ) {
       return nullptr;
     }
-    else { 
+    else {
       map<string, valarray<double> >::iterator binPair = mapBins->find(binName);
       if ( binPair == mapBins->end() ) {
         return nullptr;
@@ -228,14 +228,14 @@ class ReactionTheory
 
   /// Global vector of double parameters:
   map< string, vector<double> > _xfitter_pars_vec;
-  
+
   /// Global YAML node parameters, for complex cases.
   map< string, YAML::Node > _xfitter_pars_node;
 
  private:
   /// Default evolution:
   string _evolution;
-  
+
   /// list of xfx-like PDFs (using pointer function)
   map<string,pXFXlike> _xfx;
   /// list of alphaS  (using pointer function)
