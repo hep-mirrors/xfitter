@@ -84,8 +84,8 @@ extern "C" {
 		}
     if(iflag == 3)
     {
-      int ndigcomma = 8;
-      printf("----- Parameters in YAML format (can copy paste into parameters.yamp):\n");
+      const int ndigcomma = 8;
+      printf("----- Parameters in YAML format (can copy-paste into parameters.yaml):\n");
       for(int p=0; p<extrapars_.nExtraParam; p++)
       {
         mnpout_(extrapars_.iExtraParamMinuit+p, parname, &par, &unc, &bound_l, &bound_h, &status, len);
@@ -93,12 +93,12 @@ extern "C" {
         parname[std::string(parname).find(' ')]='\0';
         printf("  %s : [ %.*f, %.*f", parname, ndigcomma, par, ndigcomma, unc);
         if(bound_l!=0.0&&bound_h!=0.0) {
-          printf("%.*f%.*f", ndigcomma, bound_l, ndigcomma, bound_h);
+          printf(", %.*f, %.*f", ndigcomma, bound_l, ndigcomma, bound_h);
         }
         if(extrapars_.ConstrUnc[p]!=0.0) {
           double shift=(par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p];
           double reduction=unc/extrapars_.ConstrUnc[p];
-          printf("%.*f%.*f", ndigcomma, shift, ndigcomma, reduction);
+          printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
         }
         printf(" ]\n");
       }
