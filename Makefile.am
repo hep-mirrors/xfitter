@@ -7,7 +7,9 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
           DY/include tools/draw/include \
           pdf2yaml tools/process \
-  reactions/AFB/src \
+          pdf2yaml tools/process \
+	reactions/HathorSingleTop/src \
+	reactions/AFB/src \
 	reactions/KFactor/src reactions/Fractal_DISNC/src reactions/BaseDISCC/src reactions/Hathor/src reactions/BaseDISNC/src \
 	reactions/RT_DISNC/src reactions/FFABM_DISNC/src reactions/FFABM_DISCC/src reactions/APPLgrid/src reactions/BaseHVQMNR/src \
 	reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src reactions/testZMVFNS/src reactions/fastNLO/src/ \
