@@ -31,6 +31,7 @@ SUBDIRS=src\
   pdfdecompositions/UvDvUbarDbarS/src\
   pdfdecompositions/SU3_PionPdfDecomposition/src\
   evolutions/BaseEvolution/src\
+        evolutions/APFEL/src\
   evolutions/QCDNUM/src\
   evolutions/APFELxx/src\
   evolutions/FlipUD/src\

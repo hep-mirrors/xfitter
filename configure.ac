@@ -625,6 +625,7 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/FONLL_DISCC/src/Makefile
                  reactions/FONLL_DISNC/src/Makefile
                  evolutions/BaseEvolution/src/Makefile
+                 evolutions/APFEL/src/Makefile
                  evolutions/FlipUD/src/Makefile
                  evolutions/FlipCharge/src/Makefile
                  evolutions/APFELxx/src/Makefile
