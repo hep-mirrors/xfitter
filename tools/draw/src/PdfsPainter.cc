@@ -77,8 +77,14 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
     for(const auto&graph:pdfgraphs){
       if(!graph)continue;
       TAxis*ax=graph->GetXaxis();
-      opts.xmin=min(opts.xmin,ax->GetXmin());
-      opts.xmax=max(opts.xmax,ax->GetXmax());
+      double xmin = ax->GetXmin();
+      if(xmin < 0.0 || (xmin == 0.0 && opts.logx))
+        xmin = graph->GetX()[0];
+      opts.xmin = min(opts.xmin, xmin);
+      double xmax = ax->GetXmax();
+      if(xmax > 1.0)
+        xmax = graph->GetX()[graph->GetN() - 1];
+      opts.xmax=max(opts.xmax, xmax);
     }
   }
 

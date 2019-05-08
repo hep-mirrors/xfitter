@@ -42,7 +42,7 @@ extern "C" {
 	}
 
 	// actual routine
-	void printminuitextrapars_() {
+	void printminuitextrapars_(int& iflag) {
 
 		int len=1024;
 		char parname[len];
@@ -82,6 +82,28 @@ extern "C" {
 			}
 			printf("\n");
 		}
+    if(iflag == 3)
+    {
+      const int ndigcomma = 8;
+      printf("----- Parameters in YAML format (can copy-paste into parameters.yaml):\n");
+      for(int p=0; p<extrapars_.nExtraParam; p++)
+      {
+        mnpout_(extrapars_.iExtraParamMinuit+p, parname, &par, &unc, &bound_l, &bound_h, &status, len);
+        //if(status<=0) continue;
+        parname[std::string(parname).find(' ')]='\0';
+        printf("  %s : [ %.*f, %.*f", parname, ndigcomma, par, ndigcomma, unc);
+        if(bound_l!=0.0&&bound_h!=0.0) {
+          printf(", %.*f, %.*f", ndigcomma, bound_l, ndigcomma, bound_h);
+        }
+        if(extrapars_.ConstrUnc[p]!=0.0) {
+          double shift=(par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p];
+          double reduction=unc/extrapars_.ConstrUnc[p];
+          printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
+        }
+        printf(" ]\n");
+      }
+      printf("----- End of parameters in YAML format\n");
+    }
 	}
 }
 

@@ -15,7 +15,7 @@ C--------------------------------------------------------------
       double precision q2,x,gval,sing,umin,dmin
 *new jf
       double precision QPDFXQ,cplus,splus,bplus,uplus,dplus,U,D,sea,DbmUb
-      double precision d_Ubar,d_Dbar,u_sea,d_sea,str,chm,bot, photon
+      double precision d_Ubar,d_Dbar,u_sea,d_sea,str,strbar,chm,bot,photon
       double precision totstr,totDbar,totcha,totUbar,afs,afc,xbelow,delx
       double precision totusea,totdsea,afs_ud
 
@@ -30,7 +30,7 @@ C--------------------------------------------------------------
      +     rt_flc,rt_f1c,rt_f2b,
      +     rt_flb,rt_f1b
 
-      double precision xnu, xrho, Qsimple      
+      double precision xnu, xrho, Qsimple
       double precision F123(3)
 
       character*48 name
@@ -64,8 +64,8 @@ C--------------------------------------------------------------
       integer iq,jx,j
 
   ! Store how many PDFs are written out:
-      integer NPdfs 
-      parameter (NPdfs = 14)
+      integer NPdfs
+      parameter (NPdfs = 15)
 
 C---------------------------------------------------------------
 
@@ -78,7 +78,7 @@ C---------------------------------------------------------------
          nf = 5.
          if (q2.lt.qb) nf=4.
          if (q2.lt.qc) nf=3.
-         
+
          if (idx.gt.0) then
             name =base(1:idx)//tag(iq2)//'.txt'
             h1name = base(1:idx)//tag(iq2)//'.txt'
@@ -92,10 +92,11 @@ c        open(82,file=h1name)
          write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2)
 
          ! Write the names of PDFs
-         write (81,'(15(2x,A12))')
+         write (81,'(16(2x,A12))')
      $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
      $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
-     $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph '
+     $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph ',
+     $        'strbar'
 
          totstr=  0.d0
          totDbar= 0.d0
@@ -135,7 +136,7 @@ c        open(82,file=h1name)
             else
                D=pdf(1)+pdf(-3)
             endif
-         
+
             umin=pdf(2)-pdf(-2)
             dmin=pdf(1)-pdf(-1)
 
@@ -144,7 +145,7 @@ c        open(82,file=h1name)
             else
                d_Ubar=pdf(-2)
             endif
-     
+
             if (q2.gt.qb) then
                d_Dbar=pdf(-1)+pdf(-3)+pdf(-5)
             else
@@ -157,13 +158,14 @@ c        open(82,file=h1name)
             u_sea=pdf(-2)
             d_sea=pdf(-1)
             str = (pdf(-3)+pdf(3))/2.d0
+            strbar = pdf(-3)
 
 
             chm = 0.0d0
             if (q2.gt.qc) then
                chm=pdf(-4)
             endif
-      
+
             bot = 0.d0
             if (q2.gt.qb) then
                bot=pdf(-5)
@@ -181,15 +183,15 @@ c        open(82,file=h1name)
 
             write(81,810)
      +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,
-     $           chm,bot,photon
- 810        format(15(2x,G12.6))
+     $           chm,bot,photon,strbar
+ 810        format(16(2x,G12.6))
  811        format(I3,2x,23(2x,G12.6))
 
 
          enddo
 
          close(81)
-      
+
  999  continue
 
 
@@ -197,13 +199,13 @@ c        open(82,file=h1name)
 
 cv store for LHAPDF
 cv HERAPDF in LHAPDF5 format
-cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot 
+cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot
          DO Iq=0,160
             Q2=10**(8.30103/160D0*Iq )
             q2valpdf(iq) = q2
             alphas(iq)=hf_get_alphas(q2)
          enddo
-         
+
 
          DO jx=0,160
             IF(Jx.LE.80)THEN
@@ -213,22 +215,22 @@ cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot
             ENDIF
             xvalpdf(jx) = x
          enddo
-         
+
 C Prepare LHAPDF output
 
 
          do iq2=1,23
             write (76,'(7E12.4)') (q2valpdf((iq2-1)*7+j),j=0,6)
          enddo
-         
+
          do jx=1,23
             write (76,'(7E12.4)') (xvalpdf((jx-1)*7+j),j=0,6)
          enddo
-         
+
          do iq2=1,23
             write (76,'(7E12.4)') (alphas((iq2-1)*7+j),j=0,6)
          enddo
-         
+
 
          DO Iq=0,160
             Q2=10**(8.30103/160D0*Iq )
@@ -245,7 +247,7 @@ c     v       grid(1+jx)=x
                write(76,666) PDFl(0), PDFl(2)-PDFl(-2), PDFl(1)-PDFl(-1),
      $              PDFl(-2), PDFl(-1),
      $              PDFl(3), PDFl(4), PDFl(5)
-               
+
 
             enddo
          ENDDO
@@ -264,22 +266,22 @@ c     v       grid(1+jx)=x
 
 C--------------------------------------------------
 C> \brief Write results of fit
-C> \details Write to a text file binning, 
+C> \details Write to a text file binning,
 C> data points with uncorrelated and total uncertainties,
-C> fitted points and pulls.  
+C> fitted points and pulls.
 C--------------------------------------------------
 
       subroutine WriteFittedPoints
 
       implicit none
-      
+
 #include "steering.inc"
 #include "ntot.inc"
 #include "datasets.inc"
 #include "indata.inc"
 #include "systematics.inc"
 #include "theo.inc"
-      
+
       integer i,j,index,PlotVarColIdx,PreviousPlots
       double precision PlotVar,PullVar
 
@@ -293,7 +295,7 @@ C--------------------------------------------------
       do i=1,ndatasets
          write(90,*)DATASETNUMBER(i)
          write(90,*) DATASETLABEL(i)
-         
+
          do j=1,GNPlots(i)
             PreviousPlots = PreviousPlots + 1
             write(90,16) 'Plot',j,'@',TRIM(GPlotOptions(PreviousPlots))
@@ -317,14 +319,14 @@ c     &        '   +-toterr      theory      pull     dataset  '
             if(PlotVarColIdx.eq.0.and.GNPlots(i).eq.0) then
                if(Gplotvarcol(i).eq.'undefined') then
                   call HF_Errlog(13021000,
-     $                  'W: Plotting options not set for data set: ' 
+     $                  'W: Plotting options not set for data set: '
      $                   //DATASETLABEL(i))
                else
                   call HF_Errlog(13012901,
      $                 'W: Plotting: Can not find one of the columns')
                endif
                PlotVar = 0.
-            else 
+            else
                if ( PlotVarColIdx.eq.0) then
                   PlotVar = 0
                else
@@ -332,14 +334,14 @@ c     &        '   +-toterr      theory      pull     dataset  '
                endif
             endif
 
-c set pull to zero if no unc error 
+c set pull to zero if no unc error
             if(ALPHA_MOD(index).gt.0d0) then
                PullVar = (DATEN(index)-THEO_MOD(index))/ALPHA_MOD(index)
-            else 
+            else
                PullVar = 0d0
             endif
 
-            write(90,'(1X,11(e11.5,1X),i4,i4,A1,E11.5)') 
+            write(90,'(1X,11(e11.5,1X),i4,i4,A1,E11.5)')
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),AbstractBins(3,index),
      &           DATEN(index),ALPHA_MOD(index),
@@ -355,8 +357,8 @@ cv         write(34,*), index,i,DATASETNUMBER(i)
       enddo
   111  format(1X, F10.3, 2X, F12.6, 2X, 3(F12.6,2X))
       close(90)
-   
-      
+
+
       RETURN
       END
 
@@ -388,7 +390,7 @@ C-------------------------------------------------------------
       character*300 fname
 
       double precision, allocatable :: errIterate(:,:)
-      
+
 
 C-------------------------------------------------------------
       if (ifcn3.lt.10) then
@@ -473,7 +475,7 @@ C-------------------------------------------------------------------
       print *,' '
       print *,' '
       print *,'======================================================'
-      print '(''  Use NNPDF overfitting method. 
+      print '(''  Use NNPDF overfitting method.
      $   Prepare output PDF files '')'
       print '(''  Best FCN3 call='',i4,'' out of '',i4,'' calls'')',
      $     iminCont,nfcn3
@@ -493,10 +495,10 @@ C     call Evolution !I'm commenting this out because it conflicts with
 C     the new evolution interface, but I do not know why it was here
 C     --Ivan
 
-C ! Ready to store: 
+C ! Ready to store:
 cv      open (76,file='output/lhapdf.block.txt',status='unknown')
 cv      call store_pdfs('output/pdfs_q2val_')
-C store the optimal values 
+C store the optimal values
 
       open (76,file=TRIM(OutDirName)//'/opt_lhapdf.block.txt',
      &   status='unknown')
@@ -544,7 +546,7 @@ C----------------------------------------------------
 #include "theo.inc"
 
       integer i,j,index,k,reacindx
-      
+
       double precision currEcharge
 
       open(90,file='./'//TRIM(OutDirName)//'/heraverager.dat')
@@ -554,7 +556,7 @@ C      write(90,*)ndatasets
 
 
         write(90,*) '!* '
-        write(90,*) 
+        write(90,*)
      $  '!* Swimming set from XFITTER for the HERAverager'
         write(90,*) '&Data'
         write(90,*) '  Name = ''Swimming'' '
@@ -594,8 +596,8 @@ C      write(90,*)ndatasets
           endif
           do j=1,NDATAPOINTS(i)
              index = DATASETIDX(i,j)
-             
-             write(90,'(1X,i5,1X,4(e11.5,1X),i4)') 
+
+             write(90,'(1X,i5,1X,4(e11.5,1X),i4)')
      $              reacindx,
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),
@@ -615,7 +617,7 @@ C----------------------------------------------------------------
 C> \brief Write theory prediction in format of input data tables.
 C> \param NNuisance number of error sets
 C> \param Theo_cent central value of theory predction
-C> \param SymmetricPDFErr use symmetric or assymmetric errros (beta vs betaasym) 
+C> \param SymmetricPDFErr use symmetric or assymmetric errros (beta vs betaasym)
 C----------------------------------------------------------------
       Subroutine WriteTheoryFiles(NNuisance,Theo_cent,SymmetricPDFErr)
       implicit none
@@ -629,7 +631,7 @@ C----------------------------------------------------------------
       double precision Theo_cent(Ntot)
       logical SymmetricPDFErr
       integer iset, ipoint, j, i
-      
+
       character*2 c
 
 C---------------------------------------------------------
@@ -646,8 +648,8 @@ C---------------------------------------------------------
      $        ,file=Trim(OutDirName)//'/theo_'//c//'.dat'
      $        ,status='unknown')
 
-         ! Write  a header 
-         write (51,'(''* Theory file for '',A)') 
+         ! Write  a header
+         write (51,'(''* Theory file for '',A)')
      $        Trim(DATASETLABEL(iset))
 
          write (51,'(''&Data '')')
@@ -656,7 +658,7 @@ C---------------------------------------------------------
          write (51,'(''   NData = '',I5)') NDATAPOINTS(iset)
 
          if (SymmetricPDFErr) then
-            write (51,'(''   NColumn = '',I5)') NNuisance+1 
+            write (51,'(''   NColumn = '',I5)') NNuisance+1
      $        + DATASETBinningDimension(iset)
 
             write (51,
@@ -668,11 +670,11 @@ C---------------------------------------------------------
      $           ( trim(DATASETBinNames(i,iset)),
      $           i=1,DATASETBinningDimension(iset) ), 'theory',
      $           ( trim(System(nsys+i)),i=1,NNuisance-1)
-            write (51,'(A,''"'')')       
+            write (51,'(A,''"'')')
      $           ( trim(System(nsys+i)),i=NNuisance,NNuisance)
             write (51,'(''   Percent = '',I3,''*True'')') NNuisance
          else
-            write (51,'(''   NColumn = '',I5)') NNuisance*2+1 
+            write (51,'(''   NColumn = '',I5)') NNuisance*2+1
      $        + DATASETBinningDimension(iset)
             write (51,
      $'(''   ColumnType = '',I1,''*"Bin","Theory",'',i3,''*"Error"'')')
@@ -681,12 +683,12 @@ C---------------------------------------------------------
      $           ,advance='no' )
      $           ( trim(DATASETBinNames(i,iset)),
      $           i=1,DATASETBinningDimension(iset) ), 'theory',
-     $           ( trim(System(nsys+i))//'+', 
+     $           ( trim(System(nsys+i))//'+',
      $           trim(System(nsys+i))//'-',i=1,NNuisance-1)
-            write (51,'(A,''",'',''"'',A,''"'')')       
-     $           ( trim(System(nsys+i))//'+', 
+            write (51,'(A,''",'',''"'',A,''"'')')
+     $           ( trim(System(nsys+i))//'+',
      $           trim(System(nsys+i))//'-',i=NNuisance,NNuisance)
-            write (51,'(''   Percent = '',I3,''*True'')') NNuisance*2 
+            write (51,'(''   Percent = '',I3,''*True'')') NNuisance*2
          endif
 
          write (51,'(''&End '')')
@@ -694,19 +696,19 @@ C---------------------------------------------------------
          do i = 1, NDATAPOINTS(iset)
             ipoint = Datasetidx(iset,i)
             if (SymmetricPDFErr) then
-               write (51,'(200E12.4)') 
+               write (51,'(200E12.4)')
      $  ( AbstractBins(j,ipoint),j=1,DATASETBinningDimension(iset)),
      $           theo_cent(ipoint),
      $  ( -Beta(j,ipoint)*100.0,               ! negative sign, since it is inverted in lhapdferrors.cc
      $           j=NSys+1
-     $           ,NSys+NNuisance) 
+     $           ,NSys+NNuisance)
             else
-               write (51,'(200E14.6)') 
+               write (51,'(200E14.6)')
      $  ( AbstractBins(j,ipoint),j=1,DATASETBinningDimension(iset)),
      $           theo_cent(ipoint),
-     $  ( -BetaAsym(j,1,ipoint)*100.0, -BetaAsym(j,2,ipoint)*100., 
+     $  ( -BetaAsym(j,1,ipoint)*100.0, -BetaAsym(j,2,ipoint)*100.,
      $           j=NSys+1
-     $           ,NSys+NNuisance) 
+     $           ,NSys+NNuisance)
             endif
          enddo
          close (51)

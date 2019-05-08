@@ -152,6 +152,7 @@ namespace MNR
 
   void MNR::PrecalculatePDF(double mf2)
   {
+    //printf("mf2 = %f\n", mf2);
     if(mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2)
     {
       printf("WARNING in MNR::PrecalculatePDF(): mf2 %e out of range %e .. %e\n", mf2, fSF_min_mf2, fSF_max_mf2);
@@ -499,6 +500,7 @@ namespace MNR
       this->PrecalculatePDF(mf2);
       // Renormalisation scale
       double mr2 = this->GetMr2(xm2, pt2);
+      double mr = TMath::Sqrt(mr2);
       if(mr2 <= 0.0)
       {
         grid->NonPhys(c_l);
@@ -508,6 +510,10 @@ namespace MNR
       double as = GetAs(mr2);
       double as2 = as * as;
       double as3 = as2 * as;
+      // store alpha_s in grid
+      grid->AlphaS(c_l) = as;
+      // store mu_r in grid
+      grid->MuR(c_l) = mr;
       // Ratios of scales
       double xmf = TMath::Log(mf2 / xm2);
       double xmr = 4 * fC_pi * fC_b0 * TMath::Log(mr2 / mf2);
@@ -657,8 +663,8 @@ namespace MNR
   const double MNR::fC_vca      = 3.0e0;
   const double MNR::fC_vtf      = 0.5e0;
   const int    MNR::fSF_npart   = 13;
-  const double MNR::fSF_min_x   = 1e-6;
-  const double MNR::fSF_max_x   = 1e0;
-  const double MNR::fSF_min_mf2 = 1e0;
-  const double MNR::fSF_max_mf2 = 8e4;
+  //const double MNR::fSF_min_x   = 1e-6;
+  //const double MNR::fSF_max_x   = 1e0;
+  //const double MNR::fSF_min_mf2 = 1e0;
+  //const double MNR::fSF_max_mf2 = 8e4;
 }

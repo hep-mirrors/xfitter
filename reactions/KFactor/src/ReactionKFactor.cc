@@ -26,6 +26,7 @@ struct ReactionData{
    * If FileName is given, values are loaded from that file, and KFactor returns this constant column
    * If DataColumn is given, the constant column is read from the datafile
   */
+  size_t Npoints=0;//if parameter!=nullptr, this is the size of returned array. Usually it is the number of datapoints in the dataset, but can be overridden using option "N"
 };
 // Initialisze for a given dataset:
 void ReactionKFactor::initTerm(TermData*td){
@@ -108,6 +109,16 @@ void ReactionKFactor::initTerm(TermData*td){
   else if(td->hasParam("Parameter"))
   {
     rd->parameter=td->getParamD("Parameter");
+    if(td->hasParam("N")){
+      int Npoints=td->getParamI("N");
+      if(Npoints<=0){
+        cerr<<"[ERROR] Requested nonpositive array size in reaction KFactor, N="<<Npoints<<"; termID="<<td->id<<endl;
+        hf_errlog(19050710, "F: Requested nonpositive array size in reaction KFactor");
+      }
+      rd->Npoints=size_t(Npoints);
+    }else{
+      rd->Npoints=td->getNbins();
+    }
   }
   else
     hf_errlog(17102804, "F: FileName or DataColumn or Parameter must be provided for KFactor");
@@ -119,7 +130,7 @@ void ReactionKFactor::compute(TermData*td, valarray<double> &val, map<string, va
   ReactionData*rd=(ReactionData*)td->reactionData;
   if(rd->parameter){
     double parval=*rd->parameter;
-    for(auto&v:val)v=parval;
+    val=valarray<double>(parval,rd->Npoints);
   }else{ // kfactor is constant value read in setDatasetParameters()
     val=rd->_values;
   }

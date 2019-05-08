@@ -27,8 +27,12 @@ SUBDIRS=src\
   pdfparams/HERAPDF_PdfParam/src\
   pdfparams/PolySqrtPdfParam/src\
   pdfparams/NegativeGluonPdfParam/src\
+  pdfparams/ABMPgluonPdfParam/src\
+  pdfparams/ABMPseaPdfParam/src\
+  pdfparams/ABMPvalencePdfParam/src \
   pdfdecompositions/BasePdfDecomposition/src\
   pdfdecompositions/UvDvUbarDbarS/src\
+  pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src\
   pdfdecompositions/SU3_PionPdfDecomposition/src\
   evolutions/BaseEvolution/src\
   evolutions/QCDNUM/src\
@@ -99,7 +103,7 @@ reaction_DATA = Reactions.txt
 
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
-#TESTS_ENVIRONMENT = $(SHELL) 
+#TESTS_ENVIRONMENT = $(SHELL)
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \

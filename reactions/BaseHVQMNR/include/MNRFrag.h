@@ -95,6 +95,8 @@ namespace MNR
     //          is released, use ff = 10 and ff = 20 with great caution!
     static TF1* GetFragFunction(int ff, const char* meson, double par, double* mean = 0);
 
+    static double GetHadronMass(const char* meson);
+
   // Private methods
   private:
     // Precalculate variables for provided grid and heavy-quark mass xm

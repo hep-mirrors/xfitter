@@ -31,3 +31,9 @@ NegativeGluon libNegativeGluonPdfParam_xfitter.so
 PolySqrt libPolySqrtPdfParam_xfitter.so
 AFB libafb_xfitter.so
 KMatrix libkmatrix_xfitter.so
+UvDvUbarDbarSSbar libuvdvubardbarssbarpdfdecomposition_xfitter.so
+ABMPvalence libABMPvalencePdfParam_xfitter.so
+ABMPsea libABMPseaPdfParam_xfitter.so
+ABMPgluon libABMPgluonPdfParam_xfitter.so
+KRunning libkrunning_xfitter.so
+cbdiff libcbdiff_xfitter.so

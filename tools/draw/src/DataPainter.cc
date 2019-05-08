@@ -543,7 +543,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
                   for (vector<range>::iterator r = thranges.begin(); r != thranges.end(); r++)
                     {
                       (*it).gettherr()->SetAxisRange((*r).lowedge, (*r).upedge);
-                      (*it).Draw((TH1F*)(*it).gettherr()->Clone(), "E3L same");
+                      //(*it).Draw((TH1F*)(*it).gettherr()->Clone(), "E3L same");
+                      (*it).Draw((TH1F*)(*it).gettherr()->Clone(), "E3 same");
                     }
                   (*it).gettherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
                 }
@@ -892,7 +893,8 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
                     {
                       (*it).getrtherr()->SetAxisRange((*r).lowedge, (*r).upedge);
                       if (!opts.multitheory || (it - datahistos.begin() == 0)) //if in multitheory mode, plot only the first theory
-                        (*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
+                        //(*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3L same");
+                        (*it).Draw((TH1F*)(*it).getrtherr()->Clone(), "E3 same");
                     }
                   (*it).getrtherr()->GetXaxis()->SetRange((*it).getlowrange(), (*it).getuprange());
                 }

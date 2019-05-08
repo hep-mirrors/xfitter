@@ -16,9 +16,14 @@
 using namespace std;
 using namespace xfitter;
 struct GridData{
-  unique_ptr<appl::grid>grid;
-  TH1D*reference;//used if flagUseReference=true
+  unique_ptr<appl::grid>grid=nullptr;
+  TH1D*reference=nullptr;//used if flagUseReference=true
   double eScale;// !> CMS energy
+  int Ndummysize=0;
+  //Each grid is either a real APPLgrid or a dummy
+  //For real  grids, grid is a valid pointer, and Ndummysize==0
+  //For dummy grids, grid==nullptr          , and Ndummysize>0 size of grid
+  //Dummy grids return a vector of zeroes of size Ndummysize
 };
 struct DatasetData{
   vector<GridData>grids;
@@ -40,22 +45,31 @@ void ReactionAPPLgrid::initTerm(TermData*td){
     std::istringstream ss(GridName);
     std::string token;
     while(std::getline(ss, token, ',')){
-      appl::grid*g=new appl::grid(token);
-      g->trim();
-      TFile file(token.c_str());
-      TH1D*reference=(TH1D*)file.Get("grid/reference");
-      if(!reference)
-        hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
-      else
-        reference->SetDirectory(0);//detach the reference histogram from the ROOT file
       data->grids.push_back(GridData());
       GridData&gd=data->grids.back();
-      gd.grid.reset(g);
-      gd.reference=reference;
+      if(beginsWith(token,"DUMMY")){//a dummy grid
+        // When GridName=DUMMYX where X is number of bins (e.g. GridName=DUMMY12 for 12 empty bins)
+        // reaction will return zeroes (TODO: really?)
+        // This is sometimes useful
+        //WIP
+        gd.Ndummysize=atoi(token.c_str() + 5);//TODO: handle errors
+      }else{//a real grid
+        appl::grid*g=new appl::grid(token);
+        g->trim();
+        TFile file(token.c_str());
+        TH1D*reference=(TH1D*)file.Get("grid/reference");
+        if(!reference)//TODO: maybe do not load reference histogram when !flagUseReference?
+          hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
+        else
+          reference->SetDirectory(0);//detach the reference histogram from the ROOT file
+        gd.grid.reset(g);
+        gd.reference=reference;
+      }
     }
   }
   catch ( const std::exception& e ) {
-    hf_errlog(17032802,"F: Failed to read APPLgrid file(s) "+GridName);
+    cerr<<"[FATAL] Unhandled exception while trying to read APPLgrid file(s) \""<<GridName<<"\"; rethrowing exception"<<endl;
+    throw e;
   }
   // Get Order
   data->order=OrderMap(td->getParamS("Order"));
@@ -122,32 +136,43 @@ void ReactionAPPLgrid::compute(TermData*td,valarray<double>&val,map<string,valar
   const double muR=*data.muR;
   const double muF=*data.muF;
   unsigned int pos = 0;
-  for(unsigned int g=0;g<data.grids.size();g++)
+  //calculate output array size
   {
-    appl::grid*grid=data.grids[g].grid.get();
-    double eScale=data.grids[g].eScale;
-    std::vector<double> gridVals(grid->Nobs());
-    if(!data.flagUseReference){
-      td->actualizeWrappers();
-      gridVals=grid->vconvolute(PDF_xfxQ_wrapper,PDF_xfxQ_wrapper1,AlphaS_wrapper,order-1,muR,muF,eScale);
+  size_t np=0;
+  for(const GridData&gd:data.grids){
+    if(gd.grid)np+=gd.grid->Nobs();
+    else       np+=gd.Ndummysize;
+  }
+  val.resize(np);
+  }
+  for(const GridData&gd:data.grids){
+    appl::grid*grid=gd.grid.get();
+    vector<double>gridVals;
+    if(grid){//real, non-dummy grid
+      double eScale=gd.eScale;
+      gridVals.resize(grid->Nobs());
+      if(!data.flagUseReference){
+        td->actualizeWrappers();
+        gridVals=grid->vconvolute(PDF_xfxQ_wrapper,PDF_xfxQ_wrapper1,AlphaS_wrapper,order-1,muR,muF,eScale);
+      }else{
+        // use reference histogram
+        TH1D*ref=gd.reference;
+        for(size_t i=0;i<gridVals.size();i++)
+          gridVals[i]=ref->GetBinContent(i + 1);
+      }
+      if(data.flagNorm)//scale by bin width
+        for(size_t i=0; i<gridVals.size(); i++)
+          gridVals[i] *= grid->deltaobs(i);
+    }else{//dummy grid
+      gridVals=vector<double>(gd.Ndummysize,0);
     }
-    else
-    {
-      // use reference histogram
-      TH1D*ref=data.grids[g].reference;
-      for(size_t i=0;i<gridVals.size();i++)
-        gridVals[i]=ref->GetBinContent(i + 1);
-    }
-    // scale by bin width if requested
-    if(data.flagNorm)
-      for(size_t i=0; i<gridVals.size(); i++)
-        gridVals[i] *= grid->deltaobs(i);
     // insert values from this grid into output array
     copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
     pos += grid->Nobs();
   }
-  if(val.size()!=pos){//TODO: number of data points actually doesn't have to match grid size in some cases, so this check should be replaced by something else
-    cerr<<"[ERROR] ReactionAPPLgrid: Number of data points ("<<val.size()<<") in term (ID="<<td->id<<") does not match total grid size ("<<pos<<")";
-    hf_errlog(18072311,"F: ReactionAPPLgrid: number of data points does not match total grid size, see stderr");
-  }
+  // SZ 27.03.2019 val.size()!=pos should be allowed for bin manipulations
+  //if(val.size()!=pos){//TODO: number of data points actually doesn't have to match grid size in some cases, so this check should be replaced by something else
+  //  cerr<<"[ERROR] ReactionAPPLgrid: Number of data points ("<<val.size()<<") in term (ID="<<td->id<<") does not match total grid size ("<<pos<<")";
+  //  hf_errlog(18072311,"F: ReactionAPPLgrid: number of data points does not match total grid size, see stderr");
+  //}
 }

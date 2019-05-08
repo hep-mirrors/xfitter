@@ -24,6 +24,10 @@
 #include "xfitter_pars.h"
 #include "xfitter_steer.h"
 
+// ROOT spline can be uncommented (here and below in the code) and used e.g. for cross checks (obviously requires ROOT)
+//#include <TSpline.h>
+#include <spline.h>
+
 using namespace std;
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt,
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
@@ -127,7 +131,103 @@ TheorEval::assignTokens(list<tToken> &sl)
         sl.push_back(t);
         continue;
       }
+      if ( term == string("spline") || term == string("splinederivative") )
+      {
+        // special case for natural cubic spline interpolation
+        if ( term == string("spline"))
+        {
+          t.opr = 6;
+          t.name = "spline";
+        }
+        else if ( term == string("splinederivative"))
+        {
+          t.opr = 7;
+          t.name = "splinederivative";
+        }
+        // push spline
+        sl.push_back(t);
+        int& narg_spline = sl.back().narg;
 
+        // process arguments
+        t.val = new valarray<double>(0., nb);
+        t.narg = 0;
+        t.opr = 0;
+        // format: spline[x1,y1,x2,y2,x3,y3,x4,y4,...,x]
+        strexpr.get(c);
+        if(c != '[')
+          hf_errlog(18090900, "F: Theory expression syntax error: expected [");
+        narg_spline = 0;
+        bool flagDone = false;
+        while(true)
+        {
+          strexpr.get(c);
+          int nsymbols = 0;
+          term.assign(1,c);
+          while(strexpr.get(c))
+          {
+            if(c == ',' || c == ']')
+            {
+              if(nsymbols == 0)
+                hf_errlog(18090903, "F: Theory expression syntax error: error reading arguments");
+              if(c == ']')
+                flagDone = true;
+              break;
+            }
+            if (!isalnum(c))
+              hf_errlog(18090904, "F: Theory expression syntax error: error reading arguments");
+            term.append(1,c);
+            nsymbols++;
+          }
+
+          // have read new argument: push it
+          if(nsymbols > 0)
+          {
+            vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
+            if ( found_term == _termNames.end() ) {
+              cout << "Undeclared term " << term << " in expression " << _expr << endl;
+              return -1;
+            } else {
+              t.opr = 0;
+              t.name = term;
+              if ( _mapInitdTerms.find(term) != _mapInitdTerms.end()){
+                t.val = _mapInitdTerms[term];
+              } else {
+                t.val = new valarray<double>(0.,nb);
+                this->initTerm(int(found_term-_termNames.begin()), t.val);
+                _mapInitdTerms[term] = t.val;
+              }
+            }
+            sl.push_back(t);
+            narg_spline++;
+            // finish reading spline arguments
+            if(flagDone)
+              break;
+          }
+          else
+          {
+            if(!flagDone)
+              // should not be here
+              //assert(0);
+              hf_errlog(18090901, "F: Theory expression syntax error reading spline arguments");
+            if(narg_spline % 2 == 0)
+              hf_errlog(18090901, "F: Theory expression syntax error: spline expected odd number of arguments");
+            if(narg_spline < 9)
+              hf_errlog(18090902, "F: Theory expression syntax error: spline expected at least 9 arguments");
+            break;
+          }
+        }
+        continue;
+      }
+      if ( term == string("norm") )
+      {
+        // special case for normalised expression: norm(A)=A/sum(A)
+        // (A is coomputed once)
+        t.opr = 8;
+        t.name = "norm";
+        t.val = new valarray<double>(0., nb);
+        sl.push_back(t);
+        continue;
+      }
       /*
       if ( term == string("avg") ) { // special case for avg() function
         t.opr = 4;
@@ -165,7 +265,7 @@ TheorEval::assignTokens(list<tToken> &sl)
         case '*': t.opr = 3; break;
         case '/': t.opr = 3; break;
 
-        case '.': t.opr = 5; break; //change
+        case '.': t.opr = 5; break;
 
         default: cout << "Unknown operator "<< c << " in expression " << _expr << endl;
       }
@@ -356,6 +456,52 @@ void TheorEval::Evaluate(valarray<double> &vte )
       }
       double avg = stk.top().sum()/stk.top().size();
       stk.top() = avg;*/
+    } else if ( it->name == string("spline") || it->name == string("splinederivative") )
+    {
+      // load all arguments
+      int narg = it->narg;
+      std::valarray<double> x0 = stk.top();
+      stk.pop();
+      int nsections = (it->narg - 1) / 2;
+      std::valarray<std::valarray<double> > x(nsections);
+      std::valarray<std::valarray<double> > y(nsections);
+      for(int sect = nsections - 1; sect >= 0; sect--)
+      {
+        y[sect] = stk.top();
+        stk.pop();
+        x[sect] = stk.top();
+        stk.pop();
+      }
+      auto result = x0;
+      for(int p = 0; p < x0.size(); p++)
+      {
+        std::vector<double> xSpline(nsections);
+        std::vector<double> ySpline(nsections);
+        for(int sect = 0; sect < nsections; sect++)
+        {
+          xSpline[sect] = x[sect][p];
+          ySpline[sect] = y[sect][p];
+        }
+        //TSpline3 spline("", &xSpline[0], &ySpline[0], ySpline.size());
+        tk::spline spline;
+        spline.set_points(xSpline, ySpline);
+        if(it->name == string("spline"))
+        {
+          //result[p] = spline.Eval(x0[p]);
+          result[p] = spline(x0[0]);
+        }
+        else if(it->name == string("splinederivative"))
+        {
+          //result[p] = spline.Derivative(x0[p]);
+          result[p] = spline(x0[0], 1);
+        }
+      }
+      stk.push(result);
+    }
+    else if ( it->name == string("norm") )
+    {
+      double sum = stk.top().sum();
+      stk.top() = stk.top() / sum;
     } else if ( it->name == string("+") ){
       valarray<double> a(stk.top());
       stk.pop();

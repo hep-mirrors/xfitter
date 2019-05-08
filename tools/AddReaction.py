@@ -8,7 +8,7 @@ import os
 import datetime
 
 if len(sys.argv)<2:
-    print ''' 
+    print '''
  Usage: AddReaction.py NAME
     '''
     exit(0)
@@ -26,6 +26,7 @@ with open("Reactions.txt","r+") as f:
 
 # Not present, add new line to the Reactions.txt file
 
+print "Update Reactions.txt file"
 with  open("Reactions.txt","a") as f:
     f.write(name+" "+"lib"+name.lower()+"_xfitter.so\n")
 
@@ -36,7 +37,6 @@ print "Creating directories in reactions/"+name
 os.system("mkdir -p reactions/"+name+"/include")
 os.system("mkdir -p reactions/"+name+"/src")
 os.system("mkdir -p reactions/"+name+"/yaml")
-os.system("touch reactions/"+name+"/yaml/parameters.yaml")
 
 
 print "Creating header file  reactions/"+name+"/include/Reaction"+name+".h"
@@ -51,7 +51,7 @@ with open("reactions/"+name+"/include/Reaction"+name+".h","w+") as f:
 /**
   @class' Reaction'''+name+'''
 
-  @brief A wrapper class for '''+name+''' reaction 
+  @brief A wrapper class for '''+name+''' reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
@@ -70,7 +70,7 @@ class Reaction'''+name+''' : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "'''+name+ '''" ;};
-    int initAtStart(const string &); 
+    int initAtStart(const string &);
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
   protected:
     virtual int parseOptions(){ return 0;};
@@ -80,7 +80,7 @@ class Reaction'''+name+''' : public ReactionTheory
 
 print "Creating source file  reactions/"+name+"/src/Reaction"+name+".cc"
 with open("reactions/"+name+"/src/Reaction"+name+".cc","w+") as f:
-    f.write(''' 
+    f.write('''
 /*
    @file Reaction'''+name+'''.cc
    @date ''' + datetime.date.today().isoformat() + '''
@@ -116,12 +116,12 @@ with open("reactions/"+name+"/src/Makefile.am","w+") as f:
     f.write('''
 # Created by AddReaction.py on ''' + datetime.date.today().isoformat() + '''
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = lib'''+ name.lower() + '''_xfitter.la
 lib'''+ name.lower()+'''_xfitter_la_SOURCES = Reaction'''+name+'''.cc
 
-# lib'''+ name.lower()+'''_xfitter_la_LDFLAGS = place_if_needed  
+# lib'''+ name.lower()+'''_xfitter_la_LDFLAGS = place_if_needed
 
 datadir = ${prefix}/yaml/reactions/'''+name+'''
 data_DATA = ../yaml/parameters.yaml
@@ -129,6 +129,10 @@ data_DATA = ../yaml/parameters.yaml
 dist_noinst_HEADERS = ../include ../yaml
  ''')
 
+
+pFile="reactions/"+name+"/yaml/parameters.yaml"
+print "Creating (empty) parameter file  "+pFile
+os.system("touch "+pFile)
 
 print "Update configure.ac file"
 os.system("sed 's|xfitter-config|xfitter-config\\n		 reactions/" +name +"/src/Makefile|' configure.ac  >/tmp/configure.ac")
