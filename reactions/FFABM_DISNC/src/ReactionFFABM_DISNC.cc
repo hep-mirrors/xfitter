@@ -73,10 +73,14 @@ int ReactionFFABM_DISNC::atStart(const string &s)
 
   // heavy quark masses
   double rmass8in = GetParam("mch");
+  if(XFITTER_PARS::gParameters.find("mchfit") != XFITTER_PARS::gParameters.end())
+    rmass8in = *XFITTER_PARS::gParameters["mchfit"];  
   masses_.rmass[7] = rmass8in;
   masses_.rcharge[7] = 0.6666666;
   _mc = rmass8in;
   double rmass10in = GetParam("mbt");
+  if(XFITTER_PARS::gParameters.find("mbtfit") != XFITTER_PARS::gParameters.end())
+    rmass10in = *XFITTER_PARS::gParameters["mbtfit"];
   masses_.rmass[9] = rmass10in;
   masses_.rcharge[9] = 0.3333333;
   _mb = rmass10in;
@@ -113,8 +117,12 @@ void ReactionFFABM_DISNC::initAtIteration() {
   Super::initAtIteration ();
 
   _mc = GetParam("mch");
+  if(XFITTER_PARS::gParameters.find("mchfit") != XFITTER_PARS::gParameters.end())
+    _mc = *XFITTER_PARS::gParameters["mchfit"];
   masses_.rmass[7] = _mc;
   _mb = GetParam("mbt");
+  if(XFITTER_PARS::gParameters.find("mbtfit") != XFITTER_PARS::gParameters.end())
+    _mb = *XFITTER_PARS::gParameters["mbtfit"];
   masses_.rmass[9] = _mb;
 
   //_asmz = alphaS(_mz);

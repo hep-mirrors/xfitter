@@ -91,11 +91,23 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   {
     par->flagMassIsGlobal = true;
     if(par->flav == 'c')
+    {
       par->mc = GetParam("mch");
+      if(XFITTER_PARS::gParameters.find("mchfit") != XFITTER_PARS::gParameters.end())
+        par->mc = *XFITTER_PARS::gParameters["mchfit"];
+    }
     else if(par->flav == 'b')
+    {
       par->mc = GetParam("mbt");
+      if(XFITTER_PARS::gParameters.find("mbtfit") != XFITTER_PARS::gParameters.end())
+        par->mc = *XFITTER_PARS::gParameters["mbtfit"];
+    }
     else if(par->flav == 't')
+    {
       par->mc = GetParam("mtp");
+      if(XFITTER_PARS::gParameters.find("mtpfit") != XFITTER_PARS::gParameters.end())
+        par->mc = *XFITTER_PARS::gParameters["mtpfit"];
+    }
   }
   _mapMassDiff[dataSetID] = 0.001; // for MSbar mass transformation; 1 MeV should work for c, b and t
   //_mapMassDiff[dataSetID] = 0.150;
@@ -254,11 +266,23 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
   if(par->flagMassIsGlobal)
   {
     if(par->flav == 'c')
+    {
       par->mc = GetParam("mch");
+      if(XFITTER_PARS::gParameters.find("mchfit") != XFITTER_PARS::gParameters.end())
+        par->mc = *XFITTER_PARS::gParameters["mchfit"];      
+    }
     else if(par->flav == 'b')
+    {
       par->mc = GetParam("mbt");
+      if(XFITTER_PARS::gParameters.find("mbtfit") != XFITTER_PARS::gParameters.end())
+        par->mc = *XFITTER_PARS::gParameters["mbtfit"];
+    }
     else if(par->flav == 't')
+    {
       par->mc = GetParam("mtp");
+      if(XFITTER_PARS::gParameters.find("mtpfit") != XFITTER_PARS::gParameters.end())
+        par->mc = *XFITTER_PARS::gParameters["mtpfit"];
+    }
   }
 
   // protection against not positive or nan mass
