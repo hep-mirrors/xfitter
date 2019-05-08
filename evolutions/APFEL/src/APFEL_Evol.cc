@@ -51,7 +51,7 @@ vector<T> getSeq(const YAML::Node node)
   {
     std::cerr << "[ERROR]getSeq: node=\n"
               << node << std::endl;
-    hf_errlog(180829150, "F: In QCDNUM in function getSeq: wrong node type, expected sequence");
+    hf_errlog(190508150, "F: In APFEL evolution in function getSeq: wrong node type, expected sequence");
   }
   size_t len = node.size();
   vector<T> v(len);
@@ -87,7 +87,7 @@ void APFEL_Evol::atStart()
 
   if (nxGrid.size() != xGrid.size())
   {
-    hf_errlog(2019050502, "S:APFEL evolution YAML setup error: nxGrid and xGrid sizes not the same");
+    hf_errlog(2019050502, "S: APFEL evolution YAML setup error: nxGrid and xGrid sizes not the same");
   }
 
   vector<double> qLimits = getSeq<double>(_yAPFEL["qLimits"]);
@@ -106,7 +106,7 @@ void APFEL_Evol::atStart()
   }
   else
   {
-    hf_errlog(2019050601, "S:Unknown APFEL evolution theoryType, QCD or QUniD exected got " + theoryType);
+    hf_errlog(2019050601, "S: Unknown APFEL evolution theoryType, QCD or QUniD exected got " + theoryType);
   }
   APFEL::SetTheory(theoryType);
   // following 3 lines are copied from the fortran steering:
