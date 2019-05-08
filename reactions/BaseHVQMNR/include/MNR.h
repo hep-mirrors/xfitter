@@ -44,6 +44,9 @@ namespace MNR
     // Calculate cross sections for provided grid and heavy-quark mass xm
     void CalcXS(Grid* grid, double xm);
 
+    // Get number of light flavours
+    int GetNl() { return fC_nl; }
+
 
   // Private members
   private:
@@ -86,6 +89,20 @@ namespace MNR
     bool bFS_Q; // particle final state
     bool bFS_A; // antiparticle final state
 
+    // PDF range
+    double fSF_min_x;
+    double fSF_max_x;
+    double fSF_min_mf2;
+    double fSF_max_mf2;
+
+    // Perturbative scale coefficients
+    double fMf_A;
+    double fMf_B;
+    double fMf_C;
+    double fMr_A;
+    double fMr_B;
+    double fMr_C;
+
   // Private fields
   private:
     // Constants
@@ -99,20 +116,9 @@ namespace MNR
     double fC_sqrt_sh;
     // Normalisation factor
     double fC_xnorm;
-    // Perturbative scale coefficients
-    double fMf_A;
-    double fMf_B;
-    double fMf_C;
-    double fMr_A;
-    double fMr_B;
-    double fMr_C;
 
     // Variables for fast structure functions evaluation
     const static int fSF_npart;
-    const static double fSF_min_x;
-    const static double fSF_max_x;
-    const static double fSF_min_mf2;
-    const static double fSF_max_mf2;
     double fSF_log10_min_x;
     double fSF_log10_max_x;
     double fSF_min_adoptx;

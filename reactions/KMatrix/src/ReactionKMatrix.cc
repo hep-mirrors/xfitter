@@ -44,8 +44,14 @@ void ReactionKMatrix::initTerm(TermData*td){
   }
   // requested starting line from file (by default 1st)
   int lineStart = 1;
-  if(td->hasParam("FileLine")){
-    lineStart=td->getParamI("FileLine");
+  if(td->hasParam("FileLineStart")){
+    lineStart=td->getParamI("FileLineStart");
+    if(lineStart<0)hf_errlog(19050720,"F: Negative FileLineStart");
+  }
+  int lineFinish=-1;
+  if(td->hasParam("FileLineFinish")){
+    lineFinish=td->getParamI("FileLineFinish");
+    if(lineFinish<lineStart)hf_errlog(19050721,"F: FileLineFinish<FileLineStart");
   }
 
   // file name to read KMatrix
@@ -58,13 +64,17 @@ void ReactionKMatrix::initTerm(TermData*td){
 
   string line;
   // skip lineStart lines
+  int readLines=0;//number of next line
   for(int l = 1; l < lineStart; l++){
+    readLines++;
     getline(file, line);
   }
 
   double var;
   vector<vector<double>>_values2D;
   while(getline(file,line)){
+    readLines++;
+    if(lineFinish!=-1&&readLines>lineFinish)break;
     if(line.at(0) == '#') continue; //ignore comments
     line.erase(line.find_last_not_of(" \n\r\t")+1); // trim trailing whitespaces
     _values2D.push_back(vector<double>());

@@ -61,7 +61,7 @@ C !> Also store for each fcn=3 call:
 
 C     Print MINUIT extra parameters
 c which are actually all parameters
-      call printminuitextrapars
+      call printminuitextrapars(iflag)
 C Copy new parameter values from MINUIT to whereever parameterisations
 c will take them from
       call copy_minuit_extrapars(parminuit)

@@ -62,18 +62,19 @@ tTEmap gTEmap;
 tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 
-const size_t TERMNAME_LEN  =8;
+const size_t NTERMMAX      =128;
+const size_t TERMNAME_LEN  =32;
 const size_t TERMTYPE_LEN  =80;
-const size_t TERMINFO_LEN  =2048;
+const size_t TERMINFO_LEN  =4096;
 const size_t TERMSOURCE_LEN=256;
-const size_t THEOREXPR_LEN =1000;
+const size_t THEOREXPR_LEN =10000;
 extern struct thexpr_cb {
   double dynscale;
   int nterms;
-  char termname[16][TERMNAME_LEN];
-  char termtype[16][TERMTYPE_LEN];
-  char terminfo[16][TERMINFO_LEN];
-  char termsource[16][TERMSOURCE_LEN];
+  char termname  [NTERMMAX][TERMNAME_LEN];
+  char termtype  [NTERMMAX][TERMTYPE_LEN];
+  char terminfo  [NTERMMAX][TERMINFO_LEN];
+  char termsource[NTERMMAX][TERMSOURCE_LEN];
   char theorexpr[THEOREXPR_LEN];
   int ppbar_collisions;
   int normalised;

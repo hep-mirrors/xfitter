@@ -12,4 +12,4 @@ public:
   virtual void freeTerm(TermData*)override final;
   virtual void compute(TermData*,valarray<double>&,map<string,valarray<double> >&)override final;
 };
-//NOTE: parameter "energy" is only read at start, once, and threrefore cannot be fitted
+//NOTE: parameter "energy" is only read at start, once, and therefore cannot be fitted
