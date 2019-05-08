@@ -602,10 +602,14 @@ AC_CONFIG_FILES([include/Makefile
                  pdfparams/Expression/src/Makefile
                  pdfparams/HERAPDF_PdfParam/src/Makefile
                  pdfparams/PolySqrtPdfParam/src/Makefile
+		 pdfparams/ABMPgluonPdfParam/src/Makefile
+		 pdfparams/ABMPseaPdfParam/src/Makefile
+		 pdfparams/ABMPvalencePdfParam/src/Makefile
                  pdfdecompositions/LHAPDFDecomposition/src/Makefile
                  pdfdecompositions/UvDvUbarDbarS/src/Makefile
                  pdfdecompositions/SU3_PionPdfDecomposition/src/Makefile
                  pdfdecompositions/BasePdfDecomposition/src/Makefile
+		 pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src/Makefile
                  reactions/AFB/src/Makefile
                  reactions/KMatrix/src/Makefile
                  reactions/KFactor/src/Makefile
