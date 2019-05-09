@@ -20,12 +20,15 @@
 #include "FileOpener.h"
 
 //pdf type
-pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue, uvplusdv, uvplusdvplusSea,uvplusdvminSea };
+pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue};
+//pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue, uvplusdv, uvplusdvplusSea,uvplusdvminSea };
 //pdf labels
 string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", 
-   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g","uv+dv","uv+dv+2#Sigma","uv+dv-2#Sigma"};
+   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g"};
+//   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g","uv+dv","uv+dv+2#Sigma","uv+dv-2#Sigma"};
 //pdf filenames
-string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv","rs","ph","sg","gg","uv+dv","uv+dv+2Sea","uv+dv-2Sea"
+string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv","rs","ph","sg","gg"
+//string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", //"dvoveruv","rs","ph","sg","gg","uv+dv","uv+dv+2Sea","uv+dv-2Sea"
 		   };
 
 vector <pdftype> pdfs(pdfts, pdfts + sizeof(pdfts) / sizeof(pdftype));
@@ -154,7 +157,7 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
     else
       tablemap[photonOverGlue].push_back(0);
 
-  PdfTypes.push_back(uvplusdv);  NPdfs++;
+  /*PdfTypes.push_back(uvplusdv);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
     if (tablemap[g][ix] != 0)
       tablemap[uvplusdv].push_back(tablemap[dv][ix]+tablemap[uv][ix]);
@@ -173,7 +176,7 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
     if (tablemap[g][ix] != 0)
       tablemap[uvplusdvminSea].push_back(tablemap[dv][ix]+tablemap[uv][ix]-2.0*tablemap[Sea][ix]);
     else
-      tablemap[uvplusdvminSea].push_back(0);
+      tablemap[uvplusdvminSea].push_back(0);*/
 
 
 }

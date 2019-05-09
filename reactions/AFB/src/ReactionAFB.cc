@@ -65,8 +65,8 @@ double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1u = pdfx1[8] / x1;
@@ -160,8 +160,8 @@ double ReactionAFB::uubarEB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1u = pdfx1[8] / x1;
@@ -254,8 +254,8 @@ double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1u = pdfx1[8] / x1;
@@ -349,8 +349,8 @@ double ReactionAFB::uubarOB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1u = pdfx1[8] / x1;
@@ -444,8 +444,8 @@ double ReactionAFB::ubaruEF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1ubar = pdfx1[4] / x1;
@@ -539,8 +539,8 @@ double ReactionAFB::ubaruEB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1ubar = pdfx1[4] / x1;
@@ -634,8 +634,8 @@ double ReactionAFB::ubaruOF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1ubar = pdfx1[4] / x1;
@@ -729,8 +729,8 @@ double ReactionAFB::ubaruOB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1ubar = pdfx1[4] / x1;
@@ -824,8 +824,8 @@ double ReactionAFB::ddbarEF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1d = pdfx1[7] / x1;
@@ -921,8 +921,8 @@ double ReactionAFB::ddbarEB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1d = pdfx1[7] / x1;
@@ -1018,8 +1018,8 @@ double ReactionAFB::ddbarOF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1d = pdfx1[7] / x1;
@@ -1115,8 +1115,8 @@ double ReactionAFB::ddbarOB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1d = pdfx1[7] / x1;
@@ -1212,8 +1212,8 @@ double ReactionAFB::dbardEF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1dbar = pdfx1[5] / x1;
@@ -1309,8 +1309,8 @@ double ReactionAFB::dbardEB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1dbar = pdfx1[5] / x1;
@@ -1406,8 +1406,8 @@ double ReactionAFB::dbardOF_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1dbar = pdfx1[5] / x1;
@@ -1503,8 +1503,8 @@ double ReactionAFB::dbardOB_funct (double yreduced, void * params) {
     double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
     
     // Partons PDFs
-    std::valarray<double> pdfx1(13);
-    std::valarray<double> pdfx2(13);
+    std::valarray<double> pdfx1(14);
+    std::valarray<double> pdfx2(14);
     (ptr->xfx(x1,Q,&pdfx1[0]));
     (ptr->xfx(x2,Q,&pdfx2[0]));
     double f1dbar = pdfx1[5] / x1;
