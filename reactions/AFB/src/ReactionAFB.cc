@@ -1638,7 +1638,7 @@ int ReactionAFB::initAtStart(const string &s)
     }
     // Check pT parameter:
     std::cout << checkParam("pT_cut") << std::endl;
-    if ( ! checkParam("eta_cut") ) {
+    if ( ! checkParam("pT_cut") ) {
         std::cout << "\n\n FATAL ERROR: lepton transverse momentum cut (pT_cut_param) is not defined !!! \n\n" <<std::endl;
         return 1;
     }
