@@ -390,10 +390,9 @@ C Reset scales to 1.0
 
       open(51,file=CFile,status='old',err=99)
 
-      if(DEBUG)then
-        print *,'Reading data file ...'
-        print *,CFile
-      endif
+cc      if(DEBUG)then
+        print *,'Reading data file',trim(CFile)
+cc      endif
       read(51,NML=Data,err=98)
 
       PlotN = -1
@@ -1066,14 +1065,14 @@ c        endif
          close (53)
       endif
 
-      if(DEBUG)then
+c      if(DEBUG)then
         print '(''Read'',i8,'' data points for '',A80)',NData,Name
-        print '(''Printing first'',i5,'' data points'')',min(Ndata,5)
+        print '(''Printing first'',i5,'' data points'')',min(Ndata,3)
         print '(20A14)',(BinName(i),i=1,NBinDimension),' sigma'
-        do j=1,min(NData,5)
+        do j=1,min(NData,3)
            print '(20E14.4)',(Allbins(i,j),i=1,NBinDimension),XSections(j)
         enddo
-      endif
+c      endif
       return
 
  97   continue
