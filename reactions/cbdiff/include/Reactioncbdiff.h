@@ -27,16 +27,16 @@ class Reactioncbdiff : public ReactionBaseHVQMNR
 
   public:
     virtual string getReactionName() const { return  "cbdiff" ;};
-    virtual int atStart(const string &);
-    virtual void initAtIteration();
+    virtual void atStart() override final;
+    virtual void initTerm(TermData *td) override final;
+    virtual void atIteration() override final;
     virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
-    virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
   protected:
     virtual int parseOptions(){ return 0;};
 
     std::map<int, std::shared_ptr<MNR::MNR> > _mapMNR;
     std::map<int, std::shared_ptr<MNR::Grid> > _mapGrid;
-    std::map<int, int> _mapMSbarMass;
+    std::map<int, int> _mapMassScheme;
     std::map<int, double> _mapMassDiff;
     std::map<int, std::shared_ptr<MNR::Grid> > _mapGridLOMassUp;
     std::map<int, std::shared_ptr<MNR::Grid> > _mapGridLOMassDown;
