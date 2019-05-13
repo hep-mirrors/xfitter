@@ -51,10 +51,10 @@ SUBDIRS=src\
   RT/src\
   reactions/RT_DISNC/src\
   reactions/FONLL_DISNC/src\
-  reactions/FONLL_DISCC/src
+  reactions/FONLL_DISCC/src\
+  reactions/FFABM_DISNC/src
+#  reactions/FFABM_DISCC/src
 #  reactions/Hathor/src\
-#  reactions/FFABM_DISNC/src\
-#  reactions/FFABM_DISCC/src\
 #  reactions/BaseHVQMNR/src\
 #  reactions/HVQMNR_LHCb_7TeV_beauty/src\
 #  reactions/HVQMNR_LHCb_7TeV_charm/src\

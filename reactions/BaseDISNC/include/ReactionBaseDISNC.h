@@ -84,11 +84,11 @@ private:
    map<unsigned, double> _charge;       //!< lepton beam charge
    map<unsigned, dataType> _dataType;   //!< cross section (reduced, F2, FL)
    map<unsigned, dataFlav> _dataFlav;   //!< flavour (incl, c, b)
-   map<unsigned, TermData*> _tdDS; //! store term data for later access. 
 
 protected:
    // some parameters which may change from iteration to iteration:
    vector<unsigned> _dsIDs; //!< list of termIDs managed by the reaction.
+   map<unsigned, TermData*> _tdDS; //! store term data for later access. 
    double _alphaem;
    double _Mz;
    double _Mw;
