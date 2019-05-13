@@ -406,6 +406,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     using namespace std;
     try{
       YAML::Node parsNode=XFITTER_PARS::rootNode["Parameters"];
+      if(!parsNode)return;//if there is no "Parameters:" node, just do not create any parameters
       if(!parsNode.IsMap()){
         hf_errlog(18091710,"F: Failed to create parameters: bad \"Parameters\" YAML node");
       }
@@ -534,10 +535,7 @@ void ensureMapValidity(const string&nodeName){
   //Report an error if a YAML map has duplicate keys
   //This is used for checking redefinition of parameterisations etc
   YAML::Node node=XFITTER_PARS::rootNode[nodeName];
-  if(!node){
-    cerr<<"[ERROR] Necessary node \""<<nodeName<<"\" does not exist"<<endl;
-    hf_errlog(19040134,"F: Necessary node does not exist, see stderr");
-  }
+  if(!node)return;
   if(!node.IsMap()){
     cerr<<"[ERROR] Node \""<<nodeName<<"\" is not a map"<<endl;
     hf_errlog(19040131,"F: Bad map node, see stderr");
