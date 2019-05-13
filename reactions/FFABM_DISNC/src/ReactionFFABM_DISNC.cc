@@ -124,8 +124,13 @@ void ReactionFFABM_DISNC::atIteration()
   masses_.rmass[7] = _mc;
   //_mb = GetParam("mbt");
   masses_.rmass[9] = _mb;
-
   //_asmz = alphaS(_mz);
+
+  // need any TermData pointer to actualise PDFs and alpha_s
+  // for the pdffillgrid_ call: use 1st one, this works properly
+  // only if all terms have same evolution, decomposition etc.
+  auto td = _tdDS.begin()->second;
+  td->actualizeWrappers();
   pdffillgrid_();
 
   // Flag for internal arrays

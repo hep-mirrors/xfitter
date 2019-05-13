@@ -72,6 +72,7 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
       ! call new way 
 
+      write(*,*)'HF_Get_PDFs is obsolete and should not be used'
       call proton_pdf(x,sqrt(q2),pdfsf)
       return
       ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
@@ -178,6 +179,7 @@ C----------------------------------------------------
       double precision alphaspdf
       double precision alphasdef  ! C++ 
 
+      write(*,*)'HF_Get_alphas is obsolete and should not be used'
 C----------------------------------------------------
       ! c++ interface
       HF_Get_alphas = alphasdef(sqrt(Q2))

@@ -26,14 +26,14 @@ extern "C"
   }
 
   // Add fortran versions:
-  inline void pdf_xfxq_wrapper_(const double &x, const double &Q, double *r) {
+  void pdf_xfxq_wrapper_(const double &x, const double &Q, double *r) {
     PDF_xfxQ_wrapper(x,Q,r);
   }
-  inline void pdf_xfxq_wrapper1_(const double &x, const double &Q, double *r) {
+  void pdf_xfxq_wrapper1_(const double &x, const double &Q, double *r) {
     PDF_xfxQ_wrapper1(x,Q,r);
   }
 
-  inline double alphas_wrapper_(const double &Q) {
+  double alphas_wrapper_(const double &Q) {
     return AlphaS_wrapper(Q);
   }
 }

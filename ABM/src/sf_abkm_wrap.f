@@ -7,7 +7,9 @@ C New user routines for PDFs and alpha_S have to be provided in this version
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INCLUDE 'APSCOM6.'
 
-      useralphas = HF_Get_alphas(q2)
+      !useralphas = HF_Get_alphas(q2)
+      q = dsqrt(q2)
+      useralphas = alphas_wrapper(q)
       !print*,'useralphas = ',useralphas
 
       RETURN
@@ -20,7 +22,9 @@ C New user routines for PDFs and alpha_S have to be provided in this version
       integer i
       dimension pdfsff(-6:6)
 
-      CALL HF_Get_PDFs(xb,q2,PDFSFF)
+      !CALL HF_Get_PDFs(xb,q2,PDFSFF)
+      q = dsqrt(q2)
+      CALL pdf_xfxq_wrapper(xb,q,PDFSFF)
       userpdfs = PDFSFF(i)
 
       RETURN
