@@ -49,8 +49,8 @@ const double CCEM3Fc[] = {0., 0., 0., -1., 0., 0., 0., 0., 0., 0., 1., 0., 0.};
 // define QCDNUM function:
 extern "C"
 {
-  //key, x, q2, sf are arrays, better use pointer rather than reference
-  void zmstfun_(const int &id, const double &key, double &x, double &q2, double &sf, const int &np, const int &flag);
+//key, x, q2, sf are arrays, better use pointer rather than reference
+void zmstfun_(const int &id, const double &key, double &x, double &q2, double &sf, const int &np, const int &flag);
 }
 
 // the class factories
@@ -80,44 +80,44 @@ valarray<double> GetF(TermData *td, const int id)
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   bool isNegative = rd->_charge < 0;
   auto &q2 = *BaseDISCC::GetBinValues(td, "Q2"),
-       &x = *BaseDISCC::GetBinValues(td, "x");
+      &x = *BaseDISCC::GetBinValues(td, "x");
   const double *C;
   switch (rd->_dataFlav)
   {
-  case BaseDISCC::dataFlav::incl:
-    if (isNegative)
-    {
-      if (id == 3)
-        C = CCEM3F;
+    case BaseDISCC::dataFlav::incl:
+      if (isNegative)
+      {
+        if (id == 3)
+          C = CCEM3F;
+        else
+          C = CCEM2F;
+      }
       else
-        C = CCEM2F;
-    }
-    else
-    {
-      if (id == 3)
-        C = CCEP3F;
+      {
+        if (id == 3)
+          C = CCEP3F;
+        else
+          C = CCEP2F;
+      }
+      break;
+    case BaseDISCC::dataFlav::c:
+      if (isNegative)
+      {
+        if (id == 3)
+          C = CCEM3Fc;
+        else
+          C = CCEM2Fc;
+      }
       else
-        C = CCEP2F;
-    }
-    break;
-  case BaseDISCC::dataFlav::c:
-    if (isNegative)
-    {
-      if (id == 3)
-        C = CCEM3Fc;
-      else
-        C = CCEM2Fc;
-    }
-    else
-    {
-      if (id == 3)
-        C = CCEP3Fc;
-      else
-        C = CCEP2Fc;
-    }
-    break;
-  default:
-    std::abort(); //unreachable
+      {
+        if (id == 3)
+          C = CCEP3Fc;
+        else
+          C = CCEP2Fc;
+      }
+      break;
+    default:
+      std::abort(); //unreachable
   }
   // Call QCDNUM
   const int flag = 0;
@@ -159,7 +159,7 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   {
     // extra factor for non-reduced cross section
     auto &x = *BaseDISCC::GetBinValues(td, "x"),
-         &q2 = *BaseDISCC::GetBinValues(td, "Q2");
+        &q2 = *BaseDISCC::GetBinValues(td, "Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * _Gf * _Gf / (2 * pi * x) * _convfac;
     val *= factor;
@@ -179,6 +179,10 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
 }
 void ReactionBaseDISCC::initTerm(TermData *td)
 {
+  unsigned termID = td->id;
+  _dsIDs.push_back(termID);
+  _tdDS[termID] = td;
+
   // This we do not want to fit:
   _Gf = *XFITTER_PARS::getParamD("gf");
   _convfac = *XFITTER_PARS::getParamD("convFac");
@@ -187,7 +191,7 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   td->reactionData = (void *)rd;
   auto &_isReduced = rd->_isReduced;
   auto &_dataFlav = rd->_dataFlav;
-  auto &_npoints = rd->_npoints;
+  auto& _npoints = rd->_npoints;
   if (td->hasParam("epolarity"))
     rd->_polarisation = *td->getParamD("epolarity"); //cannot be fitted
   if (td->hasParam("echarge"))
@@ -281,4 +285,23 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   else
     _npoints = td->getNbins();
   hf_errlog(17041001, msg);
+}
+
+const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const string &binName)
+{
+  unsigned termID = td->id;
+
+  if (_integrated.find(termID) == _integrated.end())
+    return td->getBinColumnOrNull(binName);
+  else
+  {
+    if (binName == "Q2")
+      return _integrated[termID]->getBinValuesQ2();
+    else if (binName == "x")
+      return _integrated[termID]->getBinValuesX();
+    else if (binName == "y")
+      return _integrated[termID]->getBinValuesY();
+    else
+      return td->getBinColumnOrNull(binName);
+  }
 }

@@ -16,33 +16,32 @@
 
 class ReactionFFABM_DISCC : public ReactionBaseDISCC
 {
-  private:
-    typedef ReactionBaseDISCC Super;
-  public:
-    ReactionFFABM_DISCC(){};
-    virtual string getReactionName() const { return  "FFABM_DISCC" ;};
-    int atStart(const string &);
-    virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
-    virtual void initAtIteration() override;
+private:
+  typedef ReactionBaseDISCC Super;
+public:
+  ReactionFFABM_DISCC(){};
+  virtual string getReactionName() const { return  "FFABM_DISCC" ;};
+  void virtual atStart() override final;
+  virtual void initTerm(TermData *td) override final;
+  virtual void atIteration() override final;
 
-  protected:
-    virtual void F2 BASE_PARS override;
-    virtual void FL BASE_PARS override;
-    virtual void xF3 BASE_PARS override;
+protected:
+  virtual valarray<double> F2(TermData *td) override final;
+  virtual valarray<double> FL(TermData *td) override final;
+  virtual valarray<double> xF3(TermData *td) override final;
 
-  private:
-    map <int,valarray<double> > _f2abm;
-    map <int,valarray<double> > _flabm;
-    map <int,valarray<double> > _f3abm;
+private:
+  map <int,valarray<double> > _f2abm;
+  map <int,valarray<double> > _flabm;
+  map <int,valarray<double> > _f3abm;
 
-    // parameters initialised at iteration
-    double _mc;
-    double _mb;
-    double _mz;
-    double _asmz;
-    double _sin2thw;
-    double _cos2thw;
+  // parameters initialised at iteration
+  // (pointers for those parameters which can change at each iteration)
+  const double* _mcPtr;
+  const double* _mbPtr;
+  const double* _mzPtr;
+  const double* _sin2thwPtr;
 
-    void calcF2FL(int dataSetID);
+  void calcF2FL(int dataSetID);
 };
 
