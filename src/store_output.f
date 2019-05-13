@@ -32,6 +32,7 @@ C--------------------------------------------------------------
 
       double precision xnu, xrho, Qsimple
       double precision F123(3)
+      !double precision q, alphas_xfxq_wrapper
 
       character*48 name
       character*48 h1name
@@ -121,6 +122,8 @@ c        open(82,file=h1name)
                delx = x - xbelow
             endif
             call  hf_get_pdfs(x,q2,pdf)
+            !q = dsqrt(q2)
+            !call  pdf_xfxq_wrapper(x,q,pdf)
 
 
             gval=pdf(0)
@@ -204,6 +207,8 @@ cv  PDFs are Glue Uval Dval Ubar Dbar Str Chrm  Bot
             Q2=10**(8.30103/160D0*Iq )
             q2valpdf(iq) = q2
             alphas(iq)=hf_get_alphas(q2)
+            !q = dsqrt(q2)
+            !alphas(iq) = alphas_xfxq_wrapper(x,q,pdf)
          enddo
 
 
@@ -244,6 +249,8 @@ c     v         grid(162+iq)=q2
                ENDIF
 c     v       grid(1+jx)=x
                call  hf_get_pdfs(x,q2,pdfl)
+               !q = dsqrt(q2)
+               !call  pdf_xfxq_wrapper(x,q,pdfl)
                write(76,666) PDFl(0), PDFl(2)-PDFl(-2), PDFl(1)-PDFl(-1),
      $              PDFl(-2), PDFl(-1),
      $              PDFl(3), PDFl(4), PDFl(5)
