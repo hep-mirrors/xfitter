@@ -16,30 +16,30 @@
 
 class ReactionRT_DISNC : public ReactionBaseDISNC
 {
- private:
-  typedef ReactionBaseDISNC Super;
- public:
-  ReactionRT_DISNC(){};
- public:
-  virtual string getReactionName() const { return  "RT_DISNC" ;};
-  virtual void  atStart() override;
-  // virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
-  virtual void initTerm(TermData* td) override ;
-  virtual void atIteration() override;
-  virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override ;
+private:
+   typedef ReactionBaseDISNC Super;
 
- protected:
-  virtual void F2 BASE_PARS override;
-  virtual void FL BASE_PARS override;
+public:
+   ReactionRT_DISNC(){};
 
-  virtual void F2gamma_RT BASE_PARS;
-  virtual void FLgamma_RT BASE_PARS;
+public:
+   virtual string getReactionName() const { return "RT_DISNC"; };
+   virtual void atStart() override;
+   // virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
+   virtual void initTerm(TermData *td) override;
+   virtual void atIteration() override;
+   virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &err) override;
 
+protected:
+   virtual void F2 BASE_PARS override;
+   virtual void FL BASE_PARS override;
 
- private:
-  map <unsigned,valarray<double> > _f2rt;
-  map <unsigned,valarray<double> > _flrt;
+   virtual void F2gamma_RT BASE_PARS;
+   virtual void FLgamma_RT BASE_PARS;
 
-  void calcF2FL(TermData* td);
+private:
+   map<unsigned, valarray<double>> _f2rt;
+   map<unsigned, valarray<double>> _flrt;
+
+   void calcF2FL(TermData *td);
 };
-

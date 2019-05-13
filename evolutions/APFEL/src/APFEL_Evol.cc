@@ -76,6 +76,20 @@ void APFEL_Evol::atStart()
   const double *alphas = XFITTER_PARS::getParamD("alphas");
   _Q0 = *XFITTER_PARS::getParamD("Q0");
 
+  // Retrieve parameters needed to initialize DIS APFEL.
+  const double *sin2thw = XFITTER_PARS::getParamD("sin2thW");
+  const double *Vud = XFITTER_PARS::getParamD("Vud");
+  const double *Vus = XFITTER_PARS::getParamD("Vus");
+  const double *Vub = XFITTER_PARS::getParamD("Vub");
+  const double *Vcd = XFITTER_PARS::getParamD("Vcd");
+  const double *Vcs = XFITTER_PARS::getParamD("Vcs");
+  const double *Vcb = XFITTER_PARS::getParamD("Vcb");
+  const double *Vtd = XFITTER_PARS::getParamD("Vtd");
+  const double *Vts = XFITTER_PARS::getParamD("Vts");
+  const double *Vtb = XFITTER_PARS::getParamD("Vtb");
+  const double *gf = XFITTER_PARS::getParamD("gf");
+  const double *Mw = XFITTER_PARS::getParamD("Mw");
+
   // Read yaml steering
   _yAPFEL = XFITTER_PARS::getEvolutionNode(_name);
   const int iSplineOrder = _yAPFEL["SplineOrder"].as<int>();
@@ -108,6 +122,33 @@ void APFEL_Evol::atStart()
   {
     hf_errlog(2019050601, "S: Unknown APFEL evolution theoryType, QCD or QUniD exected got " + theoryType);
   }
+
+
+  // FONLL-specific settings
+  const string scheme = "FONLL-" + _yAPFEL["FONLLVariant"].as<string>();
+
+  if (PtOrder == 1)
+  {
+    //const string msg = "F: FONLL at LO not available. Use the ZM-VFNS instead.";
+    //hf_errlog_(17120601,msg.c_str(), msg.size());
+  }
+  else if (PtOrder == 2 && scheme == "FONLL-C")
+  {
+    const string msg = "F: At NLO only the FONLL-A and FONLL-B schemes are possible";
+    hf_errlog(17120602, msg);
+  }
+  else if (PtOrder == 3 && (scheme == "FONLL-A" || scheme == "FONLL-B"))
+  {
+    const string msg = "F: At NNLO only the FONLL-C scheme is possible";
+    hf_errlog(17120603, msg);
+  }
+  else
+  {
+    APFEL::SetMassScheme(scheme);
+  }
+
+ 
+
   APFEL::SetTheory(theoryType);
   // following 3 lines are copied from the fortran steering:
   APFEL::SetPDFEvolution("exactalpha"); // faster vs muF
@@ -116,8 +157,18 @@ void APFEL_Evol::atStart()
 
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
-  APFEL::SetQLimits(qLimits[0], qLimits[1]);
+ 
+ // Set Parameters
+  APFEL::SetZMass(*Mz);                 // make fittable at some point
+  APFEL::SetWMass(*Mw);
+  APFEL::SetSin2ThetaW(*sin2thw);
+  APFEL::SetGFermi(*gf);                   
+  APFEL::SetCKM(*Vud, *Vus, *Vub,
+                *Vcd, *Vcs, *Vcb,
+                *Vtd, *Vts, *Vtb);
+  APFEL::EnableDynamicalScaleVariations(true);
 
+  APFEL::SetQLimits(qLimits[0], qLimits[1]);
   // Setup x sub-grids:
   APFEL::SetNumberOfGrids(iNxGrids);
   for (size_t igrid = 0; igrid < iNxGrids; igrid++)
@@ -147,7 +198,10 @@ void APFEL_Evol::atStart()
     APFEL::SetSmallxResummation(true, "NLL");
     APFEL::SetQLimits(1.6, 4550.0); // Hardwire for now.
   }
-  APFEL::InitializeAPFEL();
+ // APFEL::InitializeAPFEL();
+ // Initialize the APFEL DIS module
+  APFEL::InitializeAPFEL_DIS();
+
   APFEL::SetPDFSet("external1");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atStart();

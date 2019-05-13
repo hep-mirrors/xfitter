@@ -22,13 +22,13 @@ class ReactionFONLL_DISNC : public ReactionBaseDISNC
   //ReactionFONLL_DISNC & operator = (const ReactionAFONLL_DISNC &r) { return *(new ReactionFONLL_DISNC(r)); };
 
   virtual string getReactionName() const { return "FONLL_DISNC"; };
-  int atStart(const string &);
-  virtual void initAtIteration() override;
+  virtual void atStart() override final;
+  virtual void atIteration() override final;
 
  protected:
-  virtual void F2  BASE_PARS override;
-  virtual void FL  BASE_PARS override;
-  virtual void xF3 BASE_PARS override;
+  virtual void F2  BASE_PARS override final;
+  virtual void FL  BASE_PARS override final;
+  virtual void xF3 BASE_PARS override final;
 
  private:
   map <int,valarray<double>> _f2fonll;

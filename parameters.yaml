@@ -73,8 +73,13 @@ Decompositions:
     xs: par_s
     xg: par_g
 
+#DefaultEvolution: proton-APFELff
 DefaultEvolution: proton-QCDNUM
+
 Evolutions:
+  proton-APFELff:
+    ? !include evolutions/APFEL/parameters.yaml
+    decomposition: proton
   proton-QCDNUM:
     ? !include evolutions/QCDNUM/parameters.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set

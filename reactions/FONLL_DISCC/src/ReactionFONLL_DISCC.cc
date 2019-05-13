@@ -7,224 +7,113 @@
 
 #include <iostream>
 #include "ReactionFONLL_DISCC.h"
-
+#include "xfitter_pars.h"
 // APFEL C++ interface header
 #include "APFEL/APFEL.h"
 
 // The class factory
-extern "C" ReactionFONLL_DISCC* create()
+extern "C" ReactionFONLL_DISCC *create()
 {
   return new ReactionFONLL_DISCC();
 }
 
-extern "C" {
-  void APFEL_set_pdfs( pXFXlike xfx);  //! Set PDFs
+// Initialize at the start of the computation
+void ReactionFONLL_DISCC::atStart()
+{
+  /// ReactionBaseDISCC::atStart();  # this checks QCDNUM
+  // Check if APFEL evolution is used
 }
 
-
-// Initialize at the start of the computation
-int ReactionFONLL_DISCC::atStart(const string &s)
+void ReactionFONLL_DISCC::initTerm(TermData *td)
 {
-  // Initialize relevant parameters to be used by the mother class.
-  _Gf      = GetParam("gf");
-  _convfac = GetParam("convFac");
-  _MW      = GetParam("Mw");
-
-  // Retrieve parameters needed to initialize APFEL.
-  const double MCharm     = GetParam("mch");
-  const double MBottom    = GetParam("mbt");
-  const double MTop       = GetParam("mtp");
-  const double Mz         = GetParam("Mz");
-  const double Mw         = GetParam("Mw");
-  const int    PtOrder    = OrderMap(GetParamS("Order")) - 1;
-  const double sin2thw    = GetParam("sin2thW");
-  const double Vud        = GetParam("Vud");
-  const double Vus        = GetParam("Vus");
-  const double Vub        = GetParam("Vub");
-  const double Vcd        = GetParam("Vcd");
-  const double Vcs        = GetParam("Vcs");
-  const double Vcb        = GetParam("Vcb");
-  const double Vtd        = GetParam("Vtd");
-  const double Vts        = GetParam("Vts");
-  const double Vtb        = GetParam("Vtb");
-  const double gf         = GetParam("gf");
-  const double Q_ref      = Mz;
-  const double Alphas_ref = GetParam("alphas");
-
-  // FONLL-specific settings
-  const string scheme     = "FONLL-" + GetParamS("FONLLVariant");
-  const string MassScheme = GetParamS("MassScheme");
-  const bool   runm       = ( GetParamI("Running") == 0 ? false : true);
-
-  if (PtOrder == 0)
-    {
-      //const string msg = "F: FONLL at LO not available. Use the ZM-VFNS instead.";
-      //hf_errlog_(17120601,msg.c_str(), msg.size());
-    }
-  else if (PtOrder == 1 && scheme == "FONLL-C")
-    {
-      const string msg = "F: At NLO only the FONLL-A and FONLL-B schemes are possible";
-      hf_errlog_(17120602,msg.c_str(), msg.size());
-    }
-  else if (PtOrder == 3 && (scheme == "FONLL-C" ||  scheme == "FONLL-B"))
-    {
-      const string msg = "F: At NNLO only the FONLL-C scheme is possible";
-      hf_errlog_(17120603,msg.c_str(), msg.size());
-    }
-  else
-  {
-    APFEL::SetMassScheme(scheme);
-  }
-
-  // If the MSbar masses are being used check that APFEL is used also
-  // for the evolution.
-  if (MassScheme == "MSbar")
-    {
-      // TODO check properly that APFEL is used for evolution
-      //const string msg = "F: When using MSbar heavy quark masses it is necessarey to use APFEL for the DGLAP evolution";
-      //hf_errlog_(17120604,msg.c_str(), msg.size());
-    }
-
-  // Set Parameters
-  APFEL::SetZMass(Mz);
-  APFEL::SetWMass(Mw);
-  APFEL::SetSin2ThetaW(sin2thw);
-  APFEL::SetGFermi(gf);
-  APFEL::SetCKM(Vud, Vus, Vub,
-                Vcd, Vcs, Vcb,
-                Vtd, Vts, Vtb);
-  APFEL::EnableDynamicalScaleVariations(true);
-  if (MassScheme == "Pole")
-    APFEL::SetPoleMasses(MCharm, MBottom, MTop);
-  else if (MassScheme == "MSbar")
-    {
-      APFEL::SetMSbarMasses(MCharm, MBottom, MTop);
-      APFEL::EnableMassRunning(runm);
-    }
-  APFEL::SetAlphaQCDRef(Alphas_ref, Q_ref);
-  APFEL::SetPerturbativeOrder(PtOrder);
-  APFEL::SetNumberOfGrids(3);
-  APFEL::SetGridParameters(1, 50, 3, 9.8e-7);
-  APFEL::SetGridParameters(2, 40, 3, 1e-2);
-  APFEL::SetGridParameters(3, 40, 3, 7e-1);
-
-  // MSbar mass settings (Hard-coded for now).
-  // They essentially set the scale at which MSbar masses are set.
-  // The scale scale does not have to do the same of the mass itself.
-  const double Qc = MCharm;
-  const double Qb = MBottom;
-  const double Qt = MTop;
-  if (Qc != MCharm || Qb != MBottom || Qt !=MTop)
-    {
-      APFEL::InitializeAPFEL();
-      double McQ = Qc;
-      double MbQ = Qb;
-      double MtQ = Qt;
-      if (Qc != MCharm)
-        McQ = APFEL::HeavyQuarkMass(4, Qc);
-      if(Qb != MBottom)
-        MbQ = APFEL::HeavyQuarkMass(5, Qb);
-      if(Qt != MTop)
-        MtQ = APFEL::HeavyQuarkMass(6, Qt);
-      if (MassScheme == "Pole")
-        APFEL::SetPoleMasses(McQ, MbQ, MtQ);
-      else if (MassScheme == "MSbar")
-        {
-          APFEL::SetMSbarMasses(McQ, MbQ, MtQ);
-          APFEL::SetMassScaleReference(Qc, Qb, Qt);
-        }
-    }
-
-  // Initialize the APFEL DIS module
-  APFEL::InitializeAPFEL_DIS();
-
-  return 0;
+  ReactionBaseDISCC::initTerm(td);
+  // Also prepeare a map of DS:
+  _dsIDs[td->id] = td;
 }
 
 // Compute all predictions in here and store them to be returned
 // by the specific functions.
-void ReactionFONLL_DISCC::initAtIteration()
+void ReactionFONLL_DISCC::atIteration()
 {
-  ReactionBaseDISCC::initAtIteration ();
-  // VB: With the following command, APFEL will be calling the "ExternalSetAPFEL1"
-  // routine in FONLL/src/FONLL_wrap.f. This is not optimal but until that routine is
-  // there, I cannot find a way to override it.
-  APFEL::SetPDFSet("external1");
-
-  // Also make sure that proper PDFs are taken by external1 function which is located in FONLL/src directory
-  APFEL_set_pdfs( getXFX() );
-
+  ReactionBaseDISCC::atIteration();
   APFEL::SetProcessDIS("CC");
+
+  // Starting scale ...
+  double Q0 = *XFITTER_PARS::getParamD("Q0");
+
   // Loop over the data sets.
-  for ( auto dataSetID : _dsIDs)
+  for (auto tdpair : _dsIDs)
+  {
+    auto termID = tdpair.first;
+    auto td = tdpair.second;
+    auto rd = (BaseDISCC::ReactionData *)td->reactionData;
+    // Charge of the projectile.
+    const double charge = rd->_charge;
+    if (charge < 0)
+      APFEL::SetProjectileDIS("electron");
+    else
+      APFEL::SetProjectileDIS("positron");
+
+    // Get x,Q2 arrays.
+    auto *q2p = BaseDISCC::GetBinValues(td, "Q2");
+    auto *xp = BaseDISCC::GetBinValues(td, "x");
+    auto q2 = *q2p;
+    auto x = *xp;
+
+    const size_t Np = x.size();
+    // Resize arrays.
+    _f2fonll[termID].resize(Np);
+    _flfonll[termID].resize(Np);
+    _f3fonll[termID].resize(Np);
+
+    double Q2save = 0;
+    for (size_t i = 0; i < Np; i++)
     {
-      // Charge of the projectile.
-      const double charge = GetCharge(dataSetID);
-      if (charge < 0)
-        APFEL::SetProjectileDIS("electron");
-      else
-        APFEL::SetProjectileDIS("positron");
+      // Skip all points with Q2 < 1 GeV^2.
+      if (q2[i] < 1)
+        continue;
 
-      // Get x,Q2 arrays.
-      auto *q2p = GetBinValues(dataSetID,"Q2");
-      auto *xp  = GetBinValues(dataSetID,"x");
-      auto q2   = *q2p;
-      auto x    = *xp;
+      // Recompute structure functions only if the value of Q2
+      // changes.
+      if (q2[i] != Q2save)
+      {
+        const double Q = sqrt(q2[i]);
+        APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
+      }
 
-      const size_t Np = GetNpoint(dataSetID);
-      // Resize arrays.
-      _f2fonll[dataSetID].resize(Np);
-      _flfonll[dataSetID].resize(Np);
-      _f3fonll[dataSetID].resize(Np);
+      // Compute structure functions by interpolation in x for the
+      // appropriate component (total, charm, or bottom).
+      switch (rd->_dataFlav)
+      {
+      case BaseDISCC::dataFlav::incl:
+        _f2fonll[termID][i] = APFEL::F2total(x[i]) / 2;
+        _flfonll[termID][i] = APFEL::FLtotal(x[i]) / 2;
+        _f3fonll[termID][i] = APFEL::F3total(x[i]) / 2;
+        break;
+      case BaseDISCC::dataFlav::c:
+        _f2fonll[termID][i] = APFEL::F2charm(x[i]) / 2;
+        _flfonll[termID][i] = APFEL::FLcharm(x[i]) / 2;
+        _f3fonll[termID][i] = APFEL::F3charm(x[i]) / 2;
+        break;
+      }
 
-      double Q2save = 0;
-      for (size_t i = 0; i < Np; i++)
-        {
-          // Skip all points with Q2 < 1 GeV^2.
-          if (q2[i] < 1)
-            continue;
-
-          // Recompute structure functions only if the value of Q2
-          // changes.
-          if (q2[i] != Q2save)
-            {
-              const double Q = sqrt(q2[i]);
-              APFEL::ComputeStructureFunctionsAPFEL(Q,Q);
-            }
-
-          // Compute structure functions by interpolation in x for the
-          // appropriate component (total, charm, or bottom).
-          switch (GetDataFlav(dataSetID))
-            {
-            case dataFlav::incl:
-              _f2fonll[dataSetID][i] = APFEL::F2total(x[i]) / 2;
-              _flfonll[dataSetID][i] = APFEL::FLtotal(x[i]) / 2;
-              _f3fonll[dataSetID][i] = APFEL::F3total(x[i]) / 2;
-              break;
-            case dataFlav::c:
-              _f2fonll[dataSetID][i] = APFEL::F2charm(x[i]) / 2;
-              _flfonll[dataSetID][i] = APFEL::FLcharm(x[i]) / 2;
-              _f3fonll[dataSetID][i] = APFEL::F3charm(x[i]) / 2;
-              break;
-            }
-
-          Q2save = q2[i];
-        }
+      Q2save = q2[i];
     }
+  }
 }
 
 // FONLL structure functions
-void ReactionFONLL_DISCC::F2 BASE_PARS
+valarray<double> ReactionFONLL_DISCC::F2(TermData *td)
 {
-  val = _f2fonll[dataSetID];
+  return _f2fonll[td->id];
 }
 
-void ReactionFONLL_DISCC::FL BASE_PARS
+valarray<double> ReactionFONLL_DISCC::FL(TermData *td)
 {
-  val = _flfonll[dataSetID];
+  return _flfonll[td->id];
 }
 
-void ReactionFONLL_DISCC::xF3 BASE_PARS
+valarray<double> ReactionFONLL_DISCC::xF3(TermData *td)
 {
-  val = _f3fonll[dataSetID];
+  return _f3fonll[td->id];
 }

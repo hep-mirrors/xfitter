@@ -49,7 +49,9 @@ SUBDIRS=src\
   reactions/KMatrix/src\
   reactions/KFactor/src\
   RT/src\
-  reactions/RT_DISNC/src
+  reactions/RT_DISNC/src\
+  reactions/FONLL_DISNC/src\
+  reactions/FONLL_DISCC/src
 #  reactions/Hathor/src\
 #  reactions/FFABM_DISNC/src\
 #  reactions/FFABM_DISCC/src\
@@ -57,8 +59,6 @@ SUBDIRS=src\
 #  reactions/HVQMNR_LHCb_7TeV_beauty/src\
 #  reactions/HVQMNR_LHCb_7TeV_charm/src\
 #  reactions/fastNLO/src/\
-#  reactions/FONLL_DISCC/src\
-#  reactions/FONLL_DISNC/src\
 #  reactions/AFB/src\
 #
 

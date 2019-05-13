@@ -7,7 +7,7 @@ if ENABLE_APFEL
    lib_LTLIBRARIES = libfonll_disnc_xfitter.la
    libfonll_disnc_xfitter_la_SOURCES = ReactionFONLL_DISNC.cc
 
-   libfonll_disnc_xfitter_la_LDFLAGS =  -lbasedisnc_xfitter -L$(top_srcdir)/reactions/BaseDISNC/src/.libs
+   libfonll_disnc_xfitter_la_LDFLAGS =  -lbasedisnc_xfitter  $(APFEL_LDFLAGS) -L$(top_srcdir)/reactions/BaseDISNC/src/.libs
 endif
 
 datadir = ${prefix}/yaml/reactions/FONLL_DISNC
