@@ -22,33 +22,34 @@ extern "C" ReactionFFABM_DISNC *create()
 //  ABM/src/grid.f
 extern "C"
 {
-  void sf_abkm_wrap_(const double &x, const double &q2,
-                     const double &f2abkm, const double &flabkm, const double &f3abkm,
-                     const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
-                     const double &f2babkm, const double &flbabkm, const double &f3babkm,
-                     const int &ncflag, const double &charge, const double &polar,
-                     const double &sin2thw, const double &cos2thw, const double &MZ);
-  void abkm_set_input_(const int &kschemepdfin, const int &kordpdfin,
-                       const double &rmass8in, const double &rmass10in, const int &msbarmin,
-                       double &hqscale1in, const double &hqscale2in, const int &flagthinterface);
-  //void abkm_update_hq_masses_(const double& rmass8in, const double& rmass10in);
-  void abkm_set_input_orderfl_(const int &flord);
-  void initgridconst_();
-  void pdffillgrid_();
+void sf_abkm_wrap_(const double &x, const double &q2,
+                   const double &f2abkm, const double &flabkm, const double &f3abkm,
+                   const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
+                   const double &f2babkm, const double &flbabkm, const double &f3babkm,
+                   const int &ncflag, const double &charge, const double &polar,
+                   const double &sin2thw, const double &cos2thw, const double &MZ);
+void abkm_set_input_(const int &kschemepdfin, const int &kordpdfin,
+                     const double &rmass8in, const double &rmass10in, const int &msbarmin,
+                     double &hqscale1in, const double &hqscale2in, const int &flagthinterface);
+//void abkm_update_hq_masses_(const double& rmass8in, const double& rmass10in);
+void abkm_set_input_orderfl_(const int &flord);
+void initgridconst_();
+void pdffillgrid_();
 
-  struct COMMON_masses
-  {
-    double rmass[150];
-    double rmassp[50];
-    double rcharge[150];
-  };
-  extern COMMON_masses masses_;
+struct COMMON_masses
+{
+  double rmass[150];
+  double rmassp[50];
+  double rcharge[150];
+};
+extern COMMON_masses masses_;
 }
 
 // Initialize at the start of the computation
 void ReactionFFABM_DISNC::atStart()
 {
-  //int isout = Super::atStart(s);
+  // do not call parent atStart(): it initialises QCDNUM
+  // Super::atStart();
 }
 
 void ReactionFFABM_DISNC::initTerm(TermData *td)
@@ -61,7 +62,7 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   if (td->hasParam("scalea1"))
     hqscale1in = *td->getParamD("scalea1");
   if(td->hasParam("scaleb1"))
-  hqscale2in = *td->getParamD("scaleb1");
+    hqscale2in = *td->getParamD("scaleb1");
 
   // pole or MCbar running mass treatment (default pole)
   bool msbarmin = false;
@@ -71,7 +72,7 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   // O(alpha_S) F_L = O(alpha_S) F_2 + ordfl (default ordfl = 1)
   int ordfl = 1;
   if(td->hasParam("ordfl"))
-  ordfl = td->getParamI("ordfl");
+    ordfl = td->getParamI("ordfl");
 
   initgridconst_();
 
@@ -157,8 +158,8 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     const size_t Np = GetNpoint(dataSetID);
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
+    double cos2thw = 1.0 - *_sin2thwPtr;
 
-    double cos2thwPtr = 1.0 - *_sin2thwPtr;
     for (size_t i = 0; i < Np; i++)
     {
       if (q2[i] > 1.0)
@@ -166,26 +167,26 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                      ncflag, charge, polarity, *_sin2thwPtr, cos2thwPtr, *_mzPtr);
+                      ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
       }
 
       switch (GetDataFlav(dataSetID))
       {
-      case dataFlav::incl:
-        _f2abm[dataSetID][i] = f2 + f2c + f2b;
-        _flabm[dataSetID][i] = fl + flc + flb;
-        _f3abm[dataSetID][i] = x[i] * (f3 + f3c + f3b);
-        break;
-      case dataFlav::c:
-        _f2abm[dataSetID][i] = f2c;
-        _flabm[dataSetID][i] = flc;
-        _f3abm[dataSetID][i] = x[i] * f3c;
-        break;
-      case dataFlav::b:
-        _f2abm[dataSetID][i] = f2b;
-        _flabm[dataSetID][i] = flb;
-        _f3abm[dataSetID][i] = x[i] * f3b;
-        break;
+        case dataFlav::incl:
+          _f2abm[dataSetID][i] = f2 + f2c + f2b;
+          _flabm[dataSetID][i] = fl + flc + flb;
+          _f3abm[dataSetID][i] = x[i] * (f3 + f3c + f3b);
+          break;
+        case dataFlav::c:
+          _f2abm[dataSetID][i] = f2c;
+          _flabm[dataSetID][i] = flc;
+          _f3abm[dataSetID][i] = x[i] * f3c;
+          break;
+        case dataFlav::b:
+          _f2abm[dataSetID][i] = f2b;
+          _flabm[dataSetID][i] = flb;
+          _f3abm[dataSetID][i] = x[i] * f3b;
+          break;
       }
     }
   }
