@@ -53,7 +53,9 @@ SUBDIRS=src\
   reactions/FONLL_DISNC/src\
   reactions/FONLL_DISCC/src\
   reactions/FFABM_DISNC/src\
-  reactions/FFABM_DISCC/src
+  reactions/FFABM_DISCC/src\
+  reactions/BaseHVQMNR/src\
+  reactions/cbdiff/src
 #  reactions/Hathor/src\
 #  reactions/BaseHVQMNR/src\
 #  reactions/HVQMNR_LHCb_7TeV_beauty/src\

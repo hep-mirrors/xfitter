@@ -9,47 +9,44 @@
 #include "Reactioncbdiff.h"
 #include <TMath.h>
 #include <TF1.h>
+#include "xfitter_cpp_base.h"
 
 // the class factories
 extern "C" Reactioncbdiff* create() {
   return new Reactioncbdiff();
 }
 
-void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars)
+void Reactioncbdiff::initTerm(TermData *td)
 {
-  ReactionBaseHVQMNR::setDatasetParameters(dataSetID, pars, dsPars);
+  ReactionBaseHVQMNR::initTerm(td);
+  unsigned dataSetID = td->id;
+
   //_debug = 1;
   Steering steer;
-  if(checkParam("steer_q") || pars.find("steer_q") != pars.end())
-    steer.q = GetParamIInPriority("steer_q", pars);
-  else
-    steer.q = true;
-  if(checkParam("steer_a") || pars.find("steer_a") != pars.end())
-    steer.a = GetParamIInPriority("steer_a", pars);
-  else
-    steer.a = true;
-  steer.nf = GetParamIInPriority("steer_nf", pars);
-  steer.ptmin = GetParamInPriority("steer_ptmin", pars);
-  steer.ptmax = GetParamInPriority("steer_ptmax", pars);
-  steer.npt = GetParamIInPriority("steer_npt", pars);
-  steer.nptsm = GetParamIInPriority("steer_nptsm", pars);
-  steer.ymin = GetParamInPriority("steer_ymin", pars);
-  steer.ymax = GetParamInPriority("steer_ymax", pars);
-  steer.ny = GetParamIInPriority("steer_ny", pars);
-  steer.nsfnb = GetParamIInPriority("steer_nsfnb", pars);
-  steer.nx3 = GetParamIInPriority("steer_nx3", pars);
-  steer.nx4 = GetParamIInPriority("steer_nx4", pars);
-  steer.nbz = GetParamIInPriority("steer_nbz", pars);
-  steer.xmin = GetParamInPriority("steer_xmin", pars);
-  steer.xmax = GetParamInPriority("steer_xmax", pars);
-  steer.mf2min = GetParamInPriority("steer_mf2min", pars);
-  steer.mf2max = GetParamInPriority("steer_mf2max", pars);
+  steer.q = td->hasParam("steer_q") ? td->getParamI("steer_q") : true;
+  steer.a = td->hasParam("steer_a") ? td->getParamI("steer_a") : true;
+  steer.nf = td->getParamI("steer_nf");
+  steer.ptmin = *td->getParamD("steer_ptmin");
+  steer.ptmax = *td->getParamD("steer_ptmax");
+  steer.npt = td->getParamI("steer_npt");
+  steer.nptsm = td->getParamI("steer_nptsm");
+  steer.ymin = *td->getParamD("steer_ymin");
+  steer.ymax = *td->getParamD("steer_ymax");
+  steer.ny = td->getParamI("steer_ny");
+  steer.nsfnb = td->getParamI("steer_nsfnb");
+  steer.nx3 = td->getParamI("steer_nx3");
+  steer.nx4 = td->getParamI("steer_nx4");
+  steer.nbz = td->getParamI("steer_nbz");
+  steer.xmin = *td->getParamD("steer_xmin");
+  steer.xmax = *td->getParamD("steer_xmax");
+  steer.mf2min = *td->getParamD("steer_mf2min");
+  steer.mf2max = *td->getParamD("steer_mf2max");
 
   // precision: 1.0 is default
   _mapPrecision[dataSetID] = 1.0;
-  if(pars.find("precision") != pars.end() || checkParam("precision"))
+  if(td->hasParam("precision"))
   {
-    _mapPrecision[dataSetID] = GetParamInPriority("precision", pars);
+    _mapPrecision[dataSetID] = *td->getParamD("precision");
     if(_mapPrecision[dataSetID] != 1.0)
     {
       printf("Using precision factor %f\n", _mapPrecision[dataSetID]);
@@ -66,12 +63,9 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   std::shared_ptr<Parameters>& par = _mapPar[dataSetID];
   par = std::shared_ptr<Parameters>(new Parameters);
   // Flavour
-  if(checkParam("flav") || pars.find("flav") != pars.end())
-    par->flav = GetParamSInPriority("flav", pars).c_str()[0];
-  else
-    par->flav = 'c';
+  par->flav = td->hasParam("flav") ? td->getParamS("flav").c_str()[0] : 'c';
   // Order
-  std::string order = GetParamSInPriority("Order", pars);
+  const string order = td->getParamS("Order");
   MNR::MNRContribution contrNLO = 11111; // NLO
   MNR::MNRContribution contrLO = 10111; // NLO
   MNR::MNRContribution contr = contrNLO;
@@ -85,41 +79,38 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   MNR::MNRContribution** ptrContrLO = new MNR::MNRContribution*[ncontr];
   ptrContrLO[0] = new MNR::MNRContribution(contrLO);
   // HQ masses
-  if(checkParam("mq") || pars.find("mq") != pars.end())
-    par->mc = GetParamInPriority("mq", pars);
+  if(td->hasParam("mq"))
+    par->mc = *td->getParamD("mq");
   else
   {
     par->flagMassIsGlobal = true;
     if(par->flav == 'c')
-      par->mc = GetParam("mch");
+      par->mc = *td->getParamD("mch");
     else if(par->flav == 'b')
-      par->mc = GetParam("mbt");
+      par->mc = *td->getParamD("mbt");
     else if(par->flav == 't')
-      par->mc = GetParam("mtp");
+      par->mc = *td->getParamD("mtp");
   }
   _mapMassDiff[dataSetID] = 0.001; // for MSbar mass transformation; 1 MeV should work for c, b and t
   //_mapMassDiff[dataSetID] = 0.150;
   // scale parameters
   //GetMuPar('f', 'q', par->mf_A_c, par->mf_B_c, par->mf_C_c, pars);
   //GetMuPar('r', 'q', par->mr_A_c, par->mr_B_c, par->mr_C_c, pars);
-  par->mf_A_c = GetParamInPriority("mf_A", pars);
-  par->mf_B_c = GetParamInPriority("mf_B", pars);
-  par->mr_A_c = GetParamInPriority("mr_A", pars);
-  par->mr_B_c = GetParamInPriority("mr_B", pars);
+  par->mf_A_c = *td->getParamD("mf_A");
+  par->mf_B_c = *td->getParamD("mf_B");
+  par->mr_A_c = *td->getParamD("mr_A");
+  par->mr_B_c = *td->getParamD("mr_B");
   // fragmentation parameters
-  par->fragpar_c = GetParamInPriority("FragPar", pars);
+  par->fragpar_c = *td->getParamD("FragPar");
   PrintParameters(par.get());
   // pole, MSbar or MSR mass (0 pole, 1 MSbar, 2 MSR)
-  _mapMSbarMass[dataSetID] = 0;
-  if(pars.find("MS_MASS") != pars.end() || checkParam("MS_MASS"))
-    _mapMSbarMass[dataSetID] = GetParamIInPriority("MS_MASS", pars);
-  printf("MNR: order = %s MS_MASS = %d\n", order.c_str(), _mapMSbarMass[dataSetID]);
+  _mapMassScheme[dataSetID] = td->hasParam("MS_MASS") ? td->getParamI("MS_MASS") : 0;
+  printf("MNR: order = %s MS_MASS = %d\n", order.c_str(), _mapMassScheme[dataSetID]);
   // divide or not by bin width
-  if(checkParam("dividebw") || pars.find("dividebw") != pars.end())
-    par->flagDivideBinWidth = GetParamIInPriority("dividebw", pars);
+  par->flagDivideBinWidth = td->hasParam("dividebw") ? td->getParamI("dividebw") : false;
   // debug mode
-  if(checkParam("debug") || pars.find("debug") != pars.end())
-    par->debug = GetParamIInPriority("debug", pars);
+  if(td->hasParam("debug"))
+  par->debug = td->hasParam("dividebw") ? td->getParamI("debug") : 0;
 
   std::shared_ptr<MNR::MNR>& mnr = _mapMNR[dataSetID];
   mnr = std::shared_ptr<MNR::MNR>(new MNR::MNR(this));
@@ -155,9 +146,9 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   DefaultInitGrid(steer, par->mc, steer.nptsm, *gridSmLOMassUp.get());
   DefaultInitGrid(steer, par->mc, steer.nptsm, *gridSmLOMassDown.get());
   DefaultInitFrag(steer, *frag.get());
-  mnr->fC_sh = TMath::Power(stod(pars["energy"]), 2.0); // centre-of-mass energy squared
+  mnr->fC_sh = TMath::Power(*td->getParamD("energy"), 2.0); // centre-of-mass energy squared
   mnr->CalcConstants();
-  std::string finalState = pars["FinalState"];
+  std::string finalState = td->getParamS("FinalState");
   if(finalState == "parton")
   {
     frag->AddOut(NULL, par->mc);
@@ -167,9 +158,7 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
   {
     int fragType = 0; // Kartvelishvili
     // read hadron mass (if <0 then PDG values are used)
-    _mapHadronMass[dataSetID] = -1.0;
-    if(pars.find("hadronMass") != pars.end() || checkParam("hadronMass"))
-      _mapHadronMass[dataSetID] = GetParamInPriority("hadronMass", pars);
+    _mapHadronMass[dataSetID] = td->hasParam("hadronMass") ? *td->getParamD("hadronMass") : -1.0;
     if(_mapHadronMass[dataSetID] < 0.0)
       _mapHadronMass[dataSetID] = MNR::Frag::GetHadronMass(finalState.c_str());
     //frag->AddOut(MNR::Frag::GetFragFunction(fragType, finalState.c_str(), par->fragpar_c), MNR::Frag::GetHadronMass(finalState.c_str()));
@@ -177,7 +166,7 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
     frag->AddOut(MNR::Frag::GetFragFunction(fragType, finalState.c_str(), par->fragpar_c), _mapHadronMass[dataSetID]);
     frag->GetFF(0)->SetParameter(1, par->fragpar_c);
   }
-  _mapFF[dataSetID] = stod(pars["FragFrac"]);
+  _mapFF[dataSetID] = *td->getParamD("FragFrac");
 
   xsec.resize(1);
   for(size_t i = 0; i < xsec.size(); i++)
@@ -185,17 +174,17 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
     xsec[i] = new TH2D;
     // pT binning
     std::vector<double> binsPt;
-    if(pars.find("pTn") != pars.end() && pars.find("pTmin") != pars.end() && pars.find("pTmax") != pars.end())
+    if(td->hasParam("pTn") && td->hasParam("pTmin") && td->hasParam("pTmax"))
     {
-      int nb = stoi(pars["pTn"]);
+      int nb = td->getParamI("pTn");
       binsPt.resize(nb + 1);
-      double w = (stod(pars["pTmax"]) - stod(pars["pTmin"])) / nb;
+      double w = (*td->getParamD("pTmax") - *td->getParamD("pTmin")) / nb;
       for(int b = 0; b < nb + 1; b++)
-        binsPt[b] = stod(pars["pTmin"]) + w * b;
+        binsPt[b] = *td->getParamD("pTmin") + w * b;
     }
-    else if(pars.find("pT") != pars.end())
+    else if(td->hasParam("pT"))
     {
-      std::istringstream ss(pars["pT"]);
+      std::istringstream ss(td->getParamS("pT"));
       std::string token;
       while(std::getline(ss, token, ','))
         binsPt.push_back(stod(token));
@@ -204,17 +193,17 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
       hf_errlog(19021900, "F: no pT binning provided");
     // y binning
     std::vector<double> binsY;
-    if(pars.find("yn") != pars.end() && pars.find("ymin") != pars.end() && pars.find("ymax") != pars.end())
+    if(td->hasParam("yn") && td->hasParam("ymin") && td->hasParam("ymax"))
     {
-      int nb = stoi(pars["yn"]);
+      int nb = td->getParamI("yn");
       binsY.resize(nb + 1);
-      double w = (stod(pars["ymax"]) - stod(pars["ymin"])) / nb;
+      double w = (*td->getParamD("ymax") - *td->getParamD("ymin")) / nb;
       for(int b = 0; b < nb + 1; b++)
-        binsY[b] = stod(pars["ymin"]) + w * b;
+        binsY[b] = *td->getParamD("ymin") + w * b;
     }
-    else if(pars.find("y") != pars.end())
+    else if(td->hasParam("y"))
     {
-      std::istringstream ss(pars["y"]);
+      std::istringstream ss(td->getParamS("y"));
       std::string token;
       while(std::getline(ss, token, ','))
         binsY.push_back(stod(token));
@@ -224,25 +213,15 @@ void Reactioncbdiff::setDatasetParameters(int dataSetID, map<string,string> pars
     xsec[i]->SetBins(binsPt.size() - 1, &binsPt[0], binsY.size() - 1, &binsY[0]);
   }
   _mapN[dataSetID] = 1;
-  if(pars.find("N") != pars.end())
-    _mapN[dataSetID] = stod(pars["N"]);
-}
-
-// Initialize at the start of the computation
-int Reactioncbdiff::atStart(const string &s)
-{
-  return 0;
-}
-
-void Reactioncbdiff::initAtIteration()
-{
-  ;
+  if(td->hasParam("N"))
+    _mapN[dataSetID] = td->getParamI("N");
 }
 
 // Main function to compute results at an iteration
-int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
+void Reactioncbdiff::compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors)
 {
   //printf("COMPUTE\n");
+  int dataSetID = td->id;
   std::shared_ptr<MNR::MNR> mnr(_mapMNR[dataSetID]);
   std::shared_ptr<Parameters> par(_mapPar[dataSetID]);
   std::shared_ptr<MNR::Grid> grid(_mapGrid[dataSetID]);
@@ -254,11 +233,11 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
   if(par->flagMassIsGlobal)
   {
     if(par->flav == 'c')
-      par->mc = GetParam("mch");
+      par->mc = *td->getParamD("mch");
     else if(par->flav == 'b')
-      par->mc = GetParam("mbt");
+      par->mc = *td->getParamD("mbt");
     else if(par->flav == 't')
-      par->mc = GetParam("mtp");
+      par->mc = *td->getParamD("mtp");
   }
 
   // protection against not positive or nan mass
@@ -268,7 +247,7 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
   mnr->CalcXS(grid.get(), par->mc);
 
   // tarnsformation to MSbar mass scheme
-  if(_mapMSbarMass[dataSetID])
+  if(_mapMassScheme[dataSetID])
   {
     // store original scale B parameters which need to be modified for changed mass
     const double mfB = mnr->fMf_B;
@@ -292,12 +271,12 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     mnr->fMf_B = mfB;
     mnr->fMr_B = mrB;
 
-    if(_mapMSbarMass[dataSetID] == 1)
+    if(_mapMassScheme[dataSetID] == 1)
     {
       int flagMSbarTransformation = 0; // d1=4/3 (no ln)
       MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, flagMSbarTransformation);
     }
-    else if(_mapMSbarMass[dataSetID] == 2)
+    else if(_mapMassScheme[dataSetID] == 2)
     {
       double R = 3.0;
       int nl = mnr->GetNl();
@@ -348,7 +327,5 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     for(size_t i = 0; i < val.size(); i++)
       printf("val[%lu] = %f\n", i, val[i]);
   }
-
-  return 0;
 }
 

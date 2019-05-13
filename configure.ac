@@ -625,6 +625,7 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/BaseHVQMNR/src/Makefile
                  reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
                  reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+                 reactions/cbdiff/src/Makefile
                  reactions/fastNLO/src/Makefile
                  reactions/FONLL_DISCC/src/Makefile
                  reactions/FONLL_DISNC/src/Makefile

@@ -26,7 +26,6 @@ extern "C" ReactionBaseHVQMNR* create() {
 // pass to MNR pointer to instance inherited from ReactionTheory to allow access to alphas and PDF routines
 ReactionBaseHVQMNR::ReactionBaseHVQMNR() : _mnr(MNR::MNR(this))
 {
-  //printf("OZ ReactionBaseHVQMNR::ReactionBaseHVQMNR()\n");
   // set initialisation status flag
   _isInitAtStart = false;
   // set debugging flag
@@ -37,14 +36,16 @@ ReactionBaseHVQMNR::ReactionBaseHVQMNR() : _mnr(MNR::MNR(this))
 
 ReactionBaseHVQMNR::~ReactionBaseHVQMNR()
 {
-  //printf("OZ ReactionBaseHVQMNR::~ReactionBaseHVQMNR()\n");
   for(unsigned int i = 0; i < _hCalculatedXSec.size(); i++)
     delete _hCalculatedXSec[i];
 }
 
 
-void ReactionBaseHVQMNR::setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars)
+void ReactionBaseHVQMNR::initTerm(TermData *td)
 {
+  unsigned dataSetID = td->id;
+  _tdDS[dataSetID] = td;
+
   // add new dataset
   DataSet dataSet;
   std::pair<std::map<int, DataSet>::iterator, bool> ret = _dataSets.insert(std::pair<int, DataSet>(dataSetID, dataSet));
@@ -55,45 +56,42 @@ void ReactionBaseHVQMNR::setDatasetParameters(int dataSetID, map<string,string> 
   // set parameters for new dataset
   DataSet& ds = ret.first->second;
   // mandatory "FinalState="
-  map<string,string>::iterator it = pars.find("FinalState");
-  if(it == pars.end())
+  if(!td->hasParam("FinalState"))
     hf_errlog(16123002, "F: TermInfo must contain FinalState entry");
   else
-    ds.FinalState = it->second;
+    ds.FinalState = td->getParamS("FinalState");
 
   // optional "NormY="
-  it = pars.find("NormY");
-  if(it == pars.end())
+  if(!td->hasParam("NormY"))
     ds.NormY = 0; // default value is unnormalised absolute cross section
   else
-    ds.NormY = atoi(it->second.c_str());
+    ds.NormY = td->getParamI("NormY");
 
   // optional "FragFrac=" (must be provided for absolute cross section)
-  it = pars.find("FragFrac");
-  if(it == pars.end())
+  if(!td->hasParam("FragFrac"))
   {
     if(ds.NormY == 0)
       hf_errlog(16123003, "F: for absolute cross section TermInfo must contain FragFrac entry");
   }
   else
   {
-    ds.FragFraction = atof(it->second.c_str());
+    ds.FragFraction = *td->getParamD("FragFrac");
     if(ds.NormY != 0)
       printf("Warning: FragFrac=%f will be ignored for normalised cross sections\n", ds.FragFraction);
   }
 
   // set binning
-  ds.BinsYMin  = GetBinValues(dataSetID, "ymin");
-  ds.BinsYMax  = GetBinValues(dataSetID, "ymax");
-  ds.BinsPtMin = GetBinValues(dataSetID, "pTmin");
-  ds.BinsPtMax = GetBinValues(dataSetID, "pTmax");
+  ds.BinsYMin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("ymin"));
+  ds.BinsYMax  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("ymax"));
+  ds.BinsPtMin = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("pTmin"));
+  ds.BinsPtMax = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("pTmax"));
   //if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL )
   //  hf_errlog(16123004, "F: No bins ymin or ymax or ptmin or ptmax");
   // set reference y bins if needed
   if(ds.NormY == 1)
   {
-    ds.BinsYMinRef = GetBinValues(dataSetID, "yminREF");
-    ds.BinsYMaxRef = GetBinValues(dataSetID, "ymaxREF");
+    ds.BinsYMinRef = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("yminREF"));
+    ds.BinsYMaxRef = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("ymaxREF"));
     if(ds.BinsYMinRef == NULL || ds.BinsYMaxRef == NULL)
       hf_errlog(16123005, "F: No bins yminREF or ymaxREF for normalised cross section");
   }
@@ -210,7 +208,7 @@ void ReactionBaseHVQMNR::CheckHFScheme()
 }
 
 // read parameters for perturbative scales from MINUIT extra parameters
-void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double& B, double& C, const map<std::string, std::string> pars)
+void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double& B, double& C)
 {
   // ***********************************************************************************************
   // Scales for charm and beauty production are parametrised as:
@@ -244,40 +242,44 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
   // ***************************
   std::string baseParameterName = "MNRm" + std::string(1, mu);
 
+  // need any TermData pointer to access theory parameters
+  //( theory parameters are supposed to be universal for all data sets)
+  TermData* td = _tdDS.begin()->second;
+
   // A and B parameters
-  if(GetParamInPriority(baseParameterName + "_AB", pars))
-    A = B = GetParamInPriority(baseParameterName + "_AB", pars);
+  if(td->hasParam(baseParameterName + "_AB"))
+    A = B = *td->getParamD(baseParameterName + "_AB");
   else
   {
-    if(checkParamInPriority(baseParameterName + "_A", pars) && checkParamInPriority(baseParameterName + "_B", pars))
+    if(td->hasParam(baseParameterName + "_A") && td->hasParam(baseParameterName + "_B"))
     {
-      A = GetParamInPriority(baseParameterName + "_A", pars);
-      B = GetParamInPriority(baseParameterName + "_B", pars);
+      A = *td->getParamD(baseParameterName + "_A");
+      B = *td->getParamD(baseParameterName + "_B");
     }
     else
     {
-      if(checkParamInPriority(baseParameterName + "_AB_" + std::string(1, q), pars))
-        A = B = GetParamInPriority(baseParameterName + "_AB_" + std::string(1, q), pars);
+      if(td->hasParam(baseParameterName + "_AB_" + std::string(1, q)))
+        A = B = *td->getParamD(baseParameterName + "_AB_" + std::string(1, q));
       else
       {
-        if(checkParamInPriority(baseParameterName + "_A_" + std::string(1, q), pars))
-          A = GetParamInPriority(baseParameterName + "_A_" + std::string(1, q), pars);
+        if(td->hasParam(baseParameterName + "_A_" + std::string(1, q)))
+          A = *td->getParamD(baseParameterName + "_A_" + std::string(1, q));
         else
           A = defA;
-        if(checkParamInPriority(baseParameterName + "_B_" + std::string(1, q), pars))
-          B = GetParamInPriority(baseParameterName + "_B_" + std::string(1, q), pars);
+        if(td->hasParam(baseParameterName + "_B_" + std::string(1, q)))
+          B = *td->getParamD(baseParameterName + "_B_" + std::string(1, q));
         else
           B = defB;
       }
     }
   }
   // C parameter
-  if(checkParamInPriority(baseParameterName + "_C", pars))
-    C = GetParamInPriority(baseParameterName + "_C", pars);
+  if(td->hasParam(baseParameterName + "_C"))
+    C = *td->getParamD(baseParameterName + "_C");
   else
   {
-    if(checkParamInPriority(baseParameterName + "_C_" + std::string(1, q), pars))
-      C = GetParamInPriority(baseParameterName + "_C_" + std::string(1, q), pars);
+    if(td->hasParam(baseParameterName + "_C_" + std::string(1, q)))
+      C = *td->getParamD(baseParameterName + "_C_" + std::string(1, q));
     else
       C = defC;
   }
@@ -294,6 +296,10 @@ double ReactionBaseHVQMNR::GetFragPar(const char q, const map<string,string> par
   // q should be either 'c' or 'b' (for charm or beauty, respectively)
   // *********************************************************************
 
+  // need any TermData pointer to access theory parameters
+  //( theory parameters are supposed to be universal for all data sets)
+  TermData* td = _tdDS.begin()->second;
+
   // ***************************
   const double defFFc = 4.4;
   const double defFFb = 11.0;
@@ -301,7 +307,7 @@ double ReactionBaseHVQMNR::GetFragPar(const char q, const map<string,string> par
   double parvalue = NAN;
   char parname[16];
   sprintf(parname, "MNRfrag_%c", q);
-  if(!checkParamInPriority(parname, pars))
+  if(!td->hasParam(parname))
   {
     // parameter not in ExtraParamMinuit -> using default value
     if(q == 'c')
@@ -312,7 +318,7 @@ double ReactionBaseHVQMNR::GetFragPar(const char q, const map<string,string> par
       hf_errlog(17102103, "F: no default value for q = " + std::string(1, q) + " in ReactionBaseHVQMNR::GetFragPar()");
   }
   else
-    parvalue = GetParamInPriority(parname, pars);
+    parvalue = *td->getParamD(parname);
 
   // TODO check below whether it is still relevant
   /*      ! parameter in ExtraParamMinuit, but not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value

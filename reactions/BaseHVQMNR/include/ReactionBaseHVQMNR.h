@@ -32,12 +32,9 @@ class ReactionBaseHVQMNR : public ReactionTheory
 
   public:
     virtual string getReactionName() const { return  "BaseHVQMNR" ;};
-    virtual int atStart(const string &) = 0;
-    virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err) = 0;
-    virtual void initAtIteration() = 0;
-    virtual void setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars) override;
+    virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) = 0;
+    virtual void initTerm(TermData *td) override;
   protected:
-    virtual int parseOptions(){ return 0;};
 
 // ********** common stuff for MNR calculation  **********
   protected:
@@ -118,6 +115,8 @@ class ReactionBaseHVQMNR : public ReactionTheory
     Parameters _pars;
     // debug lebel
     int _debug;
+    // store term data for later access.
+    map<unsigned, TermData*> _tdDS;
 
     // data members for calculation
     MNR::MNR _mnr;
@@ -161,12 +160,12 @@ class ReactionBaseHVQMNR : public ReactionTheory
     int readFromTermInfo(const std::string& str, const std::string& key, std::string& value);*/
 
     // read parameters for perturbative scales from MINUIT extra parameters
-    void GetMuPar(const char mu, const char q, double& A, double& B, double& C, const map<string,string> pars = map<string,string>());
+    void GetMuPar(const char mu, const char q, double& A, double& B, double& C);
 
     // read fragmentation parameter from MINUIT extra parameters
     double GetFragPar(const char q, const map<string,string> pars = map<string,string>());
 
-    // check parameter respecting priority: (1) supplied map (if supplied), (2) global
+    /*// check parameter respecting priority: (1) supplied map (if supplied), (2) global
     bool checkParamInPriority(const string& name, const std::map<string,string> pars = std::map<string,string>()) const
     {
       if(pars.size() != 0)
@@ -200,6 +199,6 @@ class ReactionBaseHVQMNR : public ReactionTheory
         return pars.at(name);
       else
         return GetParamS(name);
-    }
+    }*/
 };
 
