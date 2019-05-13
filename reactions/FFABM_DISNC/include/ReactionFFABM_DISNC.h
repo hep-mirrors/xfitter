@@ -39,12 +39,11 @@ private:
   map<int, valarray<double>> _f3abm;
 
   // parameters initialised at iteration
-  double _mc;
-  double _mb;
-  double _mz;
-  double _asmz;
-  double _sin2thw;
-  double _cos2thw;
+  // (pointers for those parameters which can change at each iteration)
+  const double* _mcPtr;
+  const double* _mbPtr;
+  const double* _mzPtr;
+  const double* _sin2thwPtr;
 
   void calcF2FL(unsigned dataSetID);
 };

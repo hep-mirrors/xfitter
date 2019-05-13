@@ -60,17 +60,17 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   double hqscale2in = 1.0;
   if (td->hasParam("scalea1"))
     hqscale1in = *td->getParamD("scalea1");
-  // if(checkParam("scaleb1"))
+  if(td->hasParam("scaleb1"))
   hqscale2in = *td->getParamD("scaleb1");
 
   // pole or MCbar running mass treatment (default pole)
   bool msbarmin = false;
-  // if(checkParam("runm"))
-  msbarmin = *td->getParamD("runm");
+  if(td->hasParam("runm"))
+    msbarmin = *td->getParamD("runm");
 
   // O(alpha_S) F_L = O(alpha_S) F_2 + ordfl (default ordfl = 1)
   int ordfl = 1;
-  //if(checkParam("ordfl"))
+  if(td->hasParam("ordfl"))
   ordfl = td->getParamI("ordfl");
 
   initgridconst_();
@@ -79,14 +79,12 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   int kschemepdfin = 0;
 
   // heavy quark masses
-  double rmass8in = *td->getParamD("mch");
-  masses_.rmass[7] = rmass8in;
+  _mcPtr = td->getParamD("mch");
+  masses_.rmass[7] = *_mcPtr;
   masses_.rcharge[7] = 0.6666666;
-  _mc = rmass8in;
-  double rmass10in = *td->getParamD("mbt");
-  masses_.rmass[9] = rmass10in;
+  _mbPtr = td->getParamD("mbt");
+  masses_.rmass[9] = *_mbPtr;
   masses_.rcharge[9] = 0.3333333;
-  _mb = rmass10in;
 
   printf("---------------------------------------------\n");
   printf("INFO from ABKM_init:\n");
@@ -100,7 +98,7 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   // this flag will set kordhq,kordalps,kordf2,kordfl,kordfl to same order
   const int kordpdfin = OrderMap(order) - 1;
 
-  abkm_set_input_(kschemepdfin, kordpdfin, rmass8in, rmass10in, msbarmin, hqscale1in, hqscale2in, 1);
+  abkm_set_input_(kschemepdfin, kordpdfin, *_mcPtr, *_mbPtr, msbarmin, hqscale1in, hqscale2in, 1);
   abkm_set_input_orderfl_(ordfl);
 
   unsigned termID = td->id;
@@ -109,9 +107,8 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   _flabm[termID].resize(nBins);
   _f3abm[termID].resize(nBins);
 
-  _mz = *td->getParamD("Mz");
-  _sin2thw = *td->getParamD("sin2thW");
-  _cos2thw = 1.0 - _sin2thw;
+  _mzPtr = td->getParamD("Mz");
+  _sin2thwPtr = td->getParamD("sin2thW");
 }
 
 //
@@ -120,11 +117,8 @@ void ReactionFFABM_DISNC::atIteration()
 
   Super::atIteration();
 
-  //_mc = GetParam("mch");
-  masses_.rmass[7] = _mc;
-  //_mb = GetParam("mbt");
-  masses_.rmass[9] = _mb;
-  //_asmz = alphaS(_mz);
+  masses_.rmass[7] = *_mcPtr;
+  masses_.rmass[9] = *_mbPtr;
 
   // need any TermData pointer to actualise PDFs and alpha_s
   // for the pdffillgrid_ call: use 1st one, this works properly
@@ -164,6 +158,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
 
+    double cos2thwPtr = 1.0 - *_sin2thwPtr;
     for (size_t i = 0; i < Np; i++)
     {
       if (q2[i] > 1.0)
@@ -171,7 +166,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                      ncflag, charge, polarity, _sin2thw, _cos2thw, _mz);
+                      ncflag, charge, polarity, *_sin2thwPtr, cos2thwPtr, *_mzPtr);
       }
 
       switch (GetDataFlav(dataSetID))
