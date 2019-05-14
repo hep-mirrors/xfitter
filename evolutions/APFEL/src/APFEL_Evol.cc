@@ -155,6 +155,11 @@ void APFEL_Evol::atStart()
   APFEL::SetFastEvolution(true);
   APFEL::SetAlphaEvolution("exact");
 
+  // treat number of flavours
+  int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+  APFEL::SetMaxFlavourPDFs(nflavour);
+  APFEL::SetMaxFlavourAlpha(nflavour);
+
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
  
