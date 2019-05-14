@@ -220,7 +220,7 @@ void Reactioncbdiff::initTerm(TermData *td)
 // Main function to compute results at an iteration
 void Reactioncbdiff::compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors)
 {
-  //printf("COMPUTE\n");
+  td->actualizeWrappers();
   int dataSetID = td->id;
   std::shared_ptr<MNR::MNR> mnr(_mapMNR[dataSetID]);
   std::shared_ptr<Parameters> par(_mapPar[dataSetID]);
