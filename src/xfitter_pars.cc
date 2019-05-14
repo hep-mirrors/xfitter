@@ -84,6 +84,7 @@ namespace XFITTER_PARS {
   using namespace xfitter;
   xfitter::BasePdfDecomposition*getInputDecomposition(const YAML::Node&rootNode){
     YAML::Node node=rootNode["decomposition"];
+    if(!node)return xfitter::get_pdfDecomposition("");//return default decomposition
     string name;
     try{
       name=node.as<string>();
