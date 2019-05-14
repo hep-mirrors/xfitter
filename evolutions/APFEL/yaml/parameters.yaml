@@ -9,3 +9,6 @@ heavyQuarkMassScheme : "Pole" # or "MSBar"
 heavyQuarkMassRunning : "Off" # or "On"
 nllxResummation : "Off" # or "On"
 FONLLVariant : "C"
+kmc : 1.0 # ratio between charm quark mass and threshold
+kmb : 1.0 # ratio between bottom quark mass and threshold
+kmt : 1.0 # ratio between top quark mass and threshold
