@@ -198,6 +198,12 @@ void APFEL_Evol::atStart()
       APFEL::EnableMassRunning(false);
     }
   }
+  // heavy-quark thresholds
+  double kmc = _yAPFEL["kmc"] ? _yAPFEL["kmc"].as<double>() : 1.0;
+  double kmb = _yAPFEL["kmb"] ? _yAPFEL["kmb"].as<double>() : 1.0;
+  double kmt = _yAPFEL["kmt"] ? _yAPFEL["kmt"].as<double>() : 1.0;
+  APFEL::SetMassMatchingScales(kmc, kmb, kmt);
+
   if (nllxResummation == "On")
   {
     APFEL::SetSmallxResummation(true, "NLL");
