@@ -44,7 +44,7 @@ TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string>
 TheorEval::~TheorEval()
 {
   for(auto it:_exprRPN){
-    if(it.val){
+    if(it.val and it.ownsVal){
       delete it.val;
       it.val=nullptr;
     }
@@ -70,6 +70,27 @@ TheorEval::initTheory()
   list<tToken> sl;
   this->assignTokens(sl);
   this->convertToRPN(sl);
+}
+
+void TheorEval::initReactionToken(tToken&t,const string&name){
+  const vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), name);
+  if ( found_term == _termNames.end() ) {
+    cerr<<"[ERROR] Undeclared reaction term \""<<name<<"\" in expression \""<<_expr<<'\"'<<endl;
+    hf_errlog(19051430,"F: Undeclared reaction term, see stderr");
+  }
+  int iterm=int(found_term-_termNames.begin());
+  t.opr =0;
+  t.name=name;
+  const auto it=_mapInitdTerms.find(name);
+  if(it!=_mapInitdTerms.end()){
+    t.val=it->second;
+    t.ownsVal=false;
+  }else{
+    t.val=new valarray<double>(0.,getNbins());
+    t.ownsVal=true;
+    initTerm(iterm,t.val);
+    _mapInitdTerms[name]=t.val;
+  }
 }
 
 int
@@ -182,21 +203,7 @@ TheorEval::assignTokens(list<tToken> &sl)
           // have read new argument: push it
           if(nsymbols > 0)
           {
-            vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
-            if ( found_term == _termNames.end() ) {
-              cout << "Undeclared term " << term << " in expression " << _expr << endl;
-              return -1;
-            } else {
-              t.opr = 0;
-              t.name = term;
-              if ( _mapInitdTerms.find(term) != _mapInitdTerms.end()){
-                t.val = _mapInitdTerms[term];
-              } else {
-                t.val = new valarray<double>(0.,nb);
-                this->initTerm(int(found_term-_termNames.begin()), t.val);
-                _mapInitdTerms[term] = t.val;
-              }
-            }
+            initReactionToken(t,term);
             sl.push_back(t);
             narg_spline++;
             // finish reading spline arguments
@@ -238,22 +245,8 @@ TheorEval::assignTokens(list<tToken> &sl)
       }
       */
 
-      vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
-      if ( found_term == _termNames.end() ) {
-        cout << "Undeclared term " << term << " in expression " << _expr << endl;
-        return -1;
-      } else {
-        t.opr = 0;
-        t.name = term;
-        if ( _mapInitdTerms.find(term) != _mapInitdTerms.end()){
-          t.val = _mapInitdTerms[term];
-        } else {
-          t.val = new valarray<double>(0.,nb);
-          this->initTerm(int(found_term-_termNames.begin()), t.val);
-          _mapInitdTerms[term] = t.val;
-        }
-        sl.push_back(t);
-      }
+      initReactionToken(t,term);
+      sl.push_back(t);
       term.clear();
       continue;
     } else {

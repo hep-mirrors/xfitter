@@ -58,6 +58,7 @@ struct tToken {
   string name;     // string token
   valarray<double> *val; // value token
   int narg;
+  bool ownsVal=true;//true if val should be destroyed when this tToken is destroyed
 };
 
 class TheorEval{
@@ -136,6 +137,13 @@ class TheorEval{
   */
   void initTerm(int, valarray<double> *);
 
+  /*!
+   \brief Initializes a token corresponding to a reaction term
+   \param[in,out] token The token to be initialized
+   \param[in]     name  The name of the reaction term. Will be assigned as the name of the token.
+   \details If the reaction with the given \p name does not exist, issues a fatal error
+  */
+  void initReactionToken(tToken& token,const string& name);
   //! Initialise reaction term
   void initReactionTerm(int iterm,valarray<double>*val);
   //! Update the reaction values into the tokens
