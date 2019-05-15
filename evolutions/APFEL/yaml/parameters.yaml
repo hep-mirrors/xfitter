@@ -9,6 +9,8 @@ heavyQuarkMassScheme : "Pole" # or "MSBar"
 heavyQuarkMassRunning : "Off" # or "On"
 nllxResummation : "Off" # or "On"
 FONLLVariant : "C"
+muRoverQ : 1.0 # ratio of renormalisation scale over Q
+muFoverQ : 1.0 # ratio of factorisation scale over Q
 kmc : 1.0 # ratio between charm quark threshold and mass
 kmb : 1.0 # ratio between bottom quark threshold and mass
 kmt : 1.0 # ratio between top quark threshold and mass

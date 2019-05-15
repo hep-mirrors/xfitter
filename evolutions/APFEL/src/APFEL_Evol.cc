@@ -147,7 +147,7 @@ void APFEL_Evol::atStart()
     APFEL::SetMassScheme(scheme);
   }
 
- 
+
 
   APFEL::SetTheory(theoryType);
   // following 3 lines are copied from the fortran steering:
@@ -159,15 +159,24 @@ void APFEL_Evol::atStart()
   int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
   APFEL::SetMaxFlavourPDFs(nflavour);
   APFEL::SetMaxFlavourAlpha(nflavour);
+  //
+  // this seems to be not needed (are two lines above sufficient?)
+  // Another issue: is APFEL::SetFFNS(4) equivavelent to APFEL::SetMaxFlavourPDFs(4)
+  // and APFEL::SetMaxFlavourAlpha(4) below the charm quark threshold?
+  //
+  //if(nflavour == 3 || nflavour == 4)
+  //  APFEL::SetFFNS(nflavour);
+  //else
+  //  APFEL::SetVFNS();
 
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
- 
- // Set Parameters
+
+  // Set Parameters
   APFEL::SetZMass(*Mz);                 // make fittable at some point
   APFEL::SetWMass(*Mw);
   APFEL::SetSin2ThetaW(*sin2thw);
-  APFEL::SetGFermi(*gf);                   
+  APFEL::SetGFermi(*gf);
   APFEL::SetCKM(*Vud, *Vus, *Vub,
                 *Vcd, *Vcs, *Vcb,
                 *Vtd, *Vts, *Vtb);
@@ -209,8 +218,16 @@ void APFEL_Evol::atStart()
     APFEL::SetSmallxResummation(true, "NLL");
     APFEL::SetQLimits(1.6, 4550.0); // Hardwire for now.
   }
- // APFEL::InitializeAPFEL();
- // Initialize the APFEL DIS module
+
+  // set the ratio muR / Q (default 1), muF / Q (default 1)
+  double muRoverQ = _yAPFEL["muRoverQ"].as<double>();
+  double muFoverQ = _yAPFEL["muFoverQ"].as<double>();
+  APFEL::EnableDynamicalScaleVariations(false); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
+  APFEL::SetRenQRatio(muRoverQ);
+  APFEL::SetFacQRatio(muFoverQ);
+
+  // APFEL::InitializeAPFEL();
+  // Initialize the APFEL DIS module
   APFEL::InitializeAPFEL_DIS();
 
   APFEL::SetPDFSet("external1");
