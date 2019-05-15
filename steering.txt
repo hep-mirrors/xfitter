@@ -278,6 +278,18 @@
    CutValueMin(10)     = 0.000001 
    CutValueMax(10)     = 1.0
 
+  !--------------------- by Dataset index ----------------
+
+   ! applied to any (including unspecified) reaction by Dataset indices
+   ! e.g. cut pTmax < 15.0 will be applied to datasets 996 and 996
+   ! ProcessName must be 'DUMMY'
+   !
+   !ProcessName(11)     = 'DUMMY'
+   !Dataset( 1,11)      = 995
+   !Dataset( 1,11)      = 996
+   !Variable(11)        = 'pTmax'
+   !CutValueMin(11)     = 0.0
+   !CutValueMax(11)     = 15.0
    
 &End
 
