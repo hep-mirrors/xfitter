@@ -149,6 +149,22 @@ namespace XFITTER_PARS {
     if(it!=gParametersS.end())return it->second;
     return "default";
   }
+
+double getEvolutionParamD(const string& evName,const string& parName){
+  YAML::Node parNode = getEvolutionNode(evName)[parName];
+  if (!parNode){
+    cerr<<"[ERROR] Missing parameter \""<<parName<<"\" for evolution \""<<evName<<"\""<<endl;
+    hf_errlog(19051630, "F: Missing evolution parameter, see stderr");
+  }
+  try{
+    return parNode.as<double>();
+  }catch (YAML::TypedBadConversion<double>& ex){
+    cerr<<"[ERROR] Failed to convert to double parameter \""<<parName<<"\" of evolution \""<<evName<<"\""<<endl;
+    hf_errlog(19051631, "F: Failed to convert evolution parameter to double, see stderr");
+  }
+  std::abort();//unreachable
+}
+
 // Helper function
 bool fileExists(const string&fileName){
   return std::ifstream(fileName).good();
