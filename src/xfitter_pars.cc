@@ -49,8 +49,6 @@ namespace XFITTER_PARS {
   map <string, vector<double> > gParametersV; ///< Vectors of double parameters
   map <string, YAML::Node > gParametersY;      ///< Store complete nodes for complex cases
 
-  map<string,std::function<void(double const& x, double const& Q, double* pdfs)> > gXfxQArrays;
-
   // Also keep list of loaded evolutions here:
   map<string,xfitter::BaseEvolution*> gEvolutions;
   // Also keep list of loaded decompositions here:
@@ -156,28 +154,6 @@ bool fileExists(const string&fileName){
   return std::ifstream(fileName).good();
 }
 
-/*
-  void parse_file(const std::string& name)
-  {
-    try {
-      if ( ! std::ifstream(name).good()) {
-        string text = "F: Problems opening parameters file " + name;
-        hf_errlog_(18032001,text.c_str(), text.size());
-      }
-      YAML::Node node = YAML::LoadFile(name);
-      parse_node(node, gParameters, gParametersI, gParametersS, gParametersV, gParametersY);
-      //HACKY way to get rootNode, pending include rewrite
-      if(rootNode.IsNull())rootNode=node;
-    }
-    catch (const std::exception& e) {
-      std::cout << e.what() << std::endl;
-      string text = "F: Problems reading yaml-parameters file: " + name + " : "+e.what();
-      hf_errlog_(17032503,text.c_str(),text.size());
-    }
-
-    return;
-  }
-*/
 YAML::Node loadYamlFile(const string&filename){
   YAML::Node node;
   try{
@@ -373,13 +349,6 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
 
   }
 
-  void registerXfxQArray(const string& name, std::function<void(double const& x, double const& Q, double* pdfs)>  xfxArray) {
-    gXfxQArrays[name] = xfxArray;
-  }
-  //TODO: delete this:
-  const std::function<void(double const& x, double const& Q, double* pdfs)>  retrieveXfxQArray(const std::string& name) {
-    return gXfxQArrays.at(name);
-  }
   const double*createConstantParameter(const string&n,double val){
     if(gParameters.count(n)>0){
       cerr<<"[ERROR] Redefinition of parameter \""<<n<<"\" with a constant parameter"<<endl;

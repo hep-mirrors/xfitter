@@ -81,9 +81,6 @@ namespace XFITTER_PARS {
   int    getParamI(const string&name);
   string getParamS(const string&name);
 
-  /// Parse yaml file @param name
-  void parse_file(const std::string& name);
-
   /// Parse @param node and return maps
   void parse_node(const YAML::Node& node,
       std::map<string,double*>& dMap,
