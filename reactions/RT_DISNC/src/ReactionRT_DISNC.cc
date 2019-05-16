@@ -67,8 +67,8 @@ void ReactionRT_DISNC::compute(TermData *td, valarray<double> &val, map<string, 
   const double mb = *td->getParamD("mbt");
   const double mZ = *td->getParamD("Mz");
   const double qs0 = 1.0;
-  const double as_q0 = AlphaS_wrapper(sqrt(qs0));
-  const double as_MZ = AlphaS_wrapper(mZ);
+  const double as_q0 = alphas_wrapper_(sqrt(qs0));
+  const double as_MZ = alphas_wrapper_(mZ);
 
   const string order = td->getParamS("Order");
 
@@ -77,7 +77,7 @@ void ReactionRT_DISNC::compute(TermData *td, valarray<double> &val, map<string, 
   const int alphaSnfmaxin = 3;
 
   // set PDFs, alphaS functions:
-  rt_set_pdfs_alphaS(PDF_xfxQ_wrapper, AlphaS_wrapper);
+  rt_set_pdfs_alphaS(pdf_xfxq_wrapper_, alphas_wrapper_);
 
   rt_set_input_(&varin[0], mc, mb, as_q0, as_MZ, asOrederIn, alphaSnfmaxin, iord);
   wate96_();

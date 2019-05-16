@@ -65,7 +65,8 @@ private:
   for each term at each iteration, to make sure the wrappers wrap the correct evolution
 */
 extern "C"{
-void  PDF_xfxQ_wrapper (const double&x,const double&Q,double*results);
-void  PDF_xfxQ_wrapper1(const double&x,const double&Q,double*results);
-double AlphaS_wrapper (const double&Q);
+void pdf_xfxq_wrapper_ (const double& x, const double& Q,double* results);
+void pdf_xfxq_wrapper1_(const double& x, const double& Q,double* results);
+
+double alphas_wrapper_(const double& Q);
 }

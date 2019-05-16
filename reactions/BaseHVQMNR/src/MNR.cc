@@ -237,7 +237,7 @@ namespace MNR
     double q = TMath::Sqrt(mf2);
     std::valarray<double> pdfV(13);
     //_reactionTheory->xfx(x, q, &pdfV[0]);
-    PDF_xfxQ_wrapper(x, q, &pdfV[0]);
+    pdf_xfxq_wrapper_(x, q, &pdfV[0]);
     for(int i = 0; i < 13; i++)
       pdf[i] = pdfV[i];
   }
@@ -248,7 +248,7 @@ namespace MNR
     //return _reactionTheory->alpha_S(&mr2);
     double q = TMath::Sqrt(mr2);
     //return _reactionTheory->alphaS(q);
-    return AlphaS_wrapper(q);
+    return alphas_wrapper_(q);
   }
 
   void MNR::Precalc(Grid* grid)

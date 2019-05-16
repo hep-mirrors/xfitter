@@ -12,29 +12,15 @@ using xfitter::BaseEvolution;
 BaseEvolution *wrappedPDFs[2];
 extern "C"
 {
-  void PDF_xfxQ_wrapper(const double &x, const double &Q, double *r)
-  {
+  void pdf_xfxq_wrapper_(const double &x, const double &Q, double *r) {
     wrappedPDFs[0]->xfxQarray(x, Q, r);
   }
-  void PDF_xfxQ_wrapper1(const double &x, const double &Q, double *r)
-  {
-    wrappedPDFs[1]->xfxQarray(x, Q, r);
-  }
-  double AlphaS_wrapper(const double &Q)
-  {
-    return wrappedPDFs[0]->getAlphaS(Q);
-  }
-
-  // Add fortran versions:
-  void pdf_xfxq_wrapper_(const double &x, const double &Q, double *r) {
-    PDF_xfxQ_wrapper(x,Q,r);
-  }
   void pdf_xfxq_wrapper1_(const double &x, const double &Q, double *r) {
-    PDF_xfxQ_wrapper1(x,Q,r);
+    wrappedPDFs[1]->xfxQarray(x, Q, r);
   }
 
   double alphas_wrapper_(const double &Q) {
-    return AlphaS_wrapper(Q);
+    return wrappedPDFs[0]->getAlphaS(Q);
   }
 }
 

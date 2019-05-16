@@ -153,7 +153,7 @@ void ReactionAPPLgrid::compute(TermData*td,valarray<double>&val,map<string,valar
       gridVals.resize(grid->Nobs());
       if(!data.flagUseReference){
         td->actualizeWrappers();
-        gridVals=grid->vconvolute(PDF_xfxQ_wrapper,PDF_xfxQ_wrapper1,AlphaS_wrapper,order-1,muR,muF,eScale);
+        gridVals=grid->vconvolute(pdf_xfxq_wrapper_,pdf_xfxq_wrapper1_,alphas_wrapper_,order-1,muR,muF,eScale);
       }else{
         // use reference histogram
         TH1D*ref=gd.reference;
