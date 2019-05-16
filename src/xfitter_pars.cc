@@ -141,17 +141,6 @@ namespace XFITTER_PARS {
     return instanceNode;
   }
 
-  std::string getParameterS(std::string name) {
-    auto search = gParametersS.find(name);
-    if ( search != gParametersS.end() ) {
-      return search->second;
-    }
-    else {
-      hf_errlog(18071301,"W: string parameter "+name+" not found");
-      return ""; // not found
-    }
-  }
-
   string getDefaultEvolutionName(){
     auto it=gParametersS.find("DefaultEvolution");
     if(it!=gParametersS.end()) return it->second;
@@ -485,7 +474,8 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
                 hf_errlog(18091711,"F: Unknown key in parameter definition, see stderr");
               }
             }
-            break;}
+            break;
+          }
           default:
             hf_errlog(18091710,"F: Failed to parse parameters definition node, expected Sequence or Map");
         }
