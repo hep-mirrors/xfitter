@@ -313,7 +313,7 @@ c            DIP_CS = sig0 * (1.0D0 - dexp(-r02))
 C            write(*,*) ' without saturation'
        endif
 C A.L      
-       write(82 ,1043) DIP_CS, r02, r, xx, sig0
+CC       write(82 ,1043) DIP_CS, r02, r, xx, sig0 --- suppress large output
 1043    Format(E16.7, 2E12.4, f9.4, 2E12.4, 2E12.4)
 c=         write(*,*) ' BGK MODEL is working'
 C=         Y = log(1/x)
