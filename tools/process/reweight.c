@@ -21,6 +21,8 @@ static void weights_file_error(void) {
   exit(1);
 }
 
+void FillwHist(double* weights, double* chi2, int ndata, double nrep_old, int method);
+
 int reweight(int argc,char* argv[]) {
 
   int flagc=0;
