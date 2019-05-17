@@ -76,7 +76,7 @@ TPad * DrawLogo(string pos)
 	  string release = ver.substr(ver.find("m ")+2,ver.find("0m")-ver.find("m ")-4);
 	  ver = ver.substr(0,ver.find("[")-1);
 	  // std::cout << release << " " << ver << std::endl;
-	  logo->DrawText(310, 80, release.c_str(), 80, 0, 
+	  logo->DrawText(250, 70, release.c_str(), 80, 0, 
 		       font, TImage::kEmbossed);	  
 	};
 	logo->DrawText(170, 510, ver.c_str(), 80, 0, 
