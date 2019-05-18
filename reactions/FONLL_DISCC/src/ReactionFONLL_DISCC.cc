@@ -10,6 +10,8 @@
 #include "xfitter_pars.h"
 // APFEL C++ interface header
 #include "APFEL/APFEL.h"
+#include "hf_errlog.h"
+#include "BaseEvolution.h"
 
 // The class factory
 extern "C" ReactionFONLL_DISCC *create()
@@ -21,14 +23,19 @@ extern "C" ReactionFONLL_DISCC *create()
 void ReactionFONLL_DISCC::atStart()
 {
   /// ReactionBaseDISCC::atStart();  # this checks QCDNUM
-  // Check if APFEL evolution is used
 }
 
 void ReactionFONLL_DISCC::initTerm(TermData *td)
 {
   ReactionBaseDISCC::initTerm(td);
-  // Also prepeare a map of DS:
+  // Also prepare a map of DS:
   _dsIDs[td->id] = td;
+  // Check if APFEL evolution is used
+  xfitter::BaseEvolution* pdf = td->getPDF();
+  if (pdf->getClassName() != string("APFEL") ) {
+    std::cerr<<"[ERROR] Reaction BaseDISCC only supports APFEL evolution; got evolution named \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<td->id<<std::endl;
+    hf_errlog(19051815,"F: Reaction BaseDISCC can only work with APFEL evolution, see stderr");
+  }
 }
 
 // Compute all predictions in here and store them to be returned
