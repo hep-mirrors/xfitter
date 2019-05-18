@@ -5,7 +5,7 @@
 ## Programs versions
 lhapdfver=6.2.1
 hoppetver=1.2.0
-applgridver=1.5.9
+applgridver=1.5.34
 qcdnumver=17-01-14
 apfelver=3.0.0
 melaver=2.0.1
@@ -351,7 +351,7 @@ else
 
  #applgrid:
     echo "Installing APPLGRID $applgridver..."
-    APPLGRID_URL=https://applgrid.hepforge.org/downloads/older-versions/applgrid-"$applgridver".tgz
+    APPLGRID_URL=https://applgrid.hepforge.org/downloads/applgrid-"$applgridver".tgz
 #   APPLGRID_URL=https://www.hepforge.org/archive/applgrid/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
     then
