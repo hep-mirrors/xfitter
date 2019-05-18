@@ -351,13 +351,13 @@ else
 
  #applgrid:
     echo "Installing APPLGRID $applgridver..."
+    APPLGRID_URL=https://applgrid.hepforge.org/downloads/older-versions/applgrid-"$applgridver".tgz
+#   APPLGRID_URL=https://www.hepforge.org/archive/applgrid/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
     then
-#       curl https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
-        curl https://applgrid.hepforge.org/downloads/applgrid-$applgridver.tgz > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
+        curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
     else
-#       wget https://www.hepforge.org/archive/applgrid/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
-        wget https://applgrid.hepforge.org/downloads/applgrid-$applgridver.tgz >> $CURRENTDIR/install.log 2>&1
+        wget $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
