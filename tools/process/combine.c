@@ -37,7 +37,7 @@ int combine(int argc, char* argv[0]){
   char* out_path=argv[0];
   int n_added_sets=argc-2, n_pdfs, tot_pdf_number=0, size, ipol;
   int i_added_set, i, k;
-  int ig, ix, iq;
+  int ig, ix, iq=0;
   const char* in_path1 =argv[1];    
   const char* args[n_added_sets];    
   PdfSet Set1;
