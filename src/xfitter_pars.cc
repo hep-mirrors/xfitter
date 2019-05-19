@@ -506,6 +506,15 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       hf_errlog(18091713,"F: YAML exception while creating parameters, details written to stderr");
     }
   }
+
+  std::string getParamFromNodeS(const std::string& name, const YAML::Node& node)
+  {
+    if(node[name].IsDefined())
+      return node[name].as<string>();
+    else
+      hf_errlog(19052019, "F: Undefined parameter \"" + name + "\" in node \"" + "\" requested as string");
+  }
+
 }
 void ensureMapValidity(const string&nodeName){
   //Report an error if a YAML map has duplicate keys

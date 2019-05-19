@@ -81,6 +81,9 @@ namespace XFITTER_PARS {
   int    getParamI(const string&name);
   string getParamS(const string&name);
 
+  /// Functions to get parameters from nodes but with better reporting of errors
+  string getParamFromNodeS(const string& name, const YAML::Node& node);
+
   /// Functions to get evolution parameters from YAML steering
   /// They either return the parameter, or report an error and stop the program
   double getEvolutionParamD(const string& evolutionName,const string& parameterName);

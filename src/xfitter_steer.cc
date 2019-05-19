@@ -27,8 +27,8 @@ void*createDynamicObject(const string&classname,const string&instanceName){
     std::ostringstream s;
     if(gReactionLibs.count(classname)==0){
       cerr<<"[ERROR] Unknown dynamically loaded class \""<<classname<<"\""
-          "\nMake sure that "<<PREFIX<<"/lib/Reactions.txt has an entry for this class"
-          "\n[/ERRROR]"<<endl;
+                                                                      "\nMake sure that "<<PREFIX<<"/lib/Reactions.txt has an entry for this class"
+                                                                                                   "\n[/ERRROR]"<<endl;
       s<<"F: Unknown dynamically loaded class \""<<classname<<"\", see stderr";
       hf_errlog(18091901,s.str().c_str());
     }
@@ -53,142 +53,142 @@ void*createDynamicObject(const string&classname,const string&instanceName){
 }
 
 namespace xfitter {
-  BaseEvolution*get_evolution(string name){
-    if(name=="")name=XFITTER_PARS::getDefaultEvolutionName();
-    // Check if already present
-    if(XFITTER_PARS::gEvolutions.count(name)==1){
-      return XFITTER_PARS::gEvolutions.at(name);
-    }
-    // Else create a new instance of evolution
-    YAML::Node instanceNode=XFITTER_PARS::getEvolutionNode(name);
-    YAML::Node classnameNode=instanceNode["class"];
-    if(!classnameNode.IsScalar()){
-      std::ostringstream s;
-      s<<"F:Failed to get evolution \""<<name<<"\": evolution must have a node \"class\" with the class name as a string";
-      hf_errlog(18082950,s.str().c_str());
-    }
-    string classname=classnameNode.as<string>();
-    BaseEvolution*evolution=(BaseEvolution*)createDynamicObject(classname,name);
-    //Note that unlike in the pervious version of this function, we do not set decompositions for evolutions
-    //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during atStart
-    evolution->atStart();
-    // Store the newly created evolution on the global map
-    XFITTER_PARS::gEvolutions[name] = evolution;
-    return evolution;
+BaseEvolution*get_evolution(string name){
+  if(name=="")name=XFITTER_PARS::getDefaultEvolutionName();
+  // Check if already present
+  if(XFITTER_PARS::gEvolutions.count(name)==1){
+    return XFITTER_PARS::gEvolutions.at(name);
   }
-  BasePdfDecomposition*get_pdfDecomposition(string name){
-    try{
-      if(name=="")name=XFITTER_PARS::getDefaultDecompositionName();
-      auto it=XFITTER_PARS::gPdfDecompositions.find(name);
-      if(it!=XFITTER_PARS::gPdfDecompositions.end())return it->second;
-      string classname=XFITTER_PARS::getDecompositionNode(name)["class"].as<string>();
-      BasePdfDecomposition*ret=(BasePdfDecomposition*)createDynamicObject(classname,name);
-      ret->atStart();
-      XFITTER_PARS::gPdfDecompositions[name]=ret;
-      return ret;
-    }catch(YAML::InvalidNode&ex){
-      const int errcode=18092401;
-      const char*errmsg="F: YAML::InvalidNode exception while creating decomposition, details written to stderr";
-      using namespace std;
-      cerr<<"[ERROR]"<<__func__<<"(\""<<name<<"\")"<<endl;
-      YAML::Node node=XFITTER_PARS::getDecompositionNode(name);
-      if(!node.IsMap()){
-        cerr<<"Invalid node Decompositions/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
-        hf_errlog(errcode,errmsg);
-      }
-      YAML::Node node_class=node["class"];
-      if(!node_class.IsScalar()){
-        if(node_class.IsNull())cerr<<"Missing node Decompositions/"<<name<<"/class";
-        else cerr<<"Invalid node Decompositions/"<<name<<"/class\nnode is not a scalar";
-        cerr<<"\n[/ERROR]"<<endl;
-        hf_errlog(errcode,errmsg);
-      }
-      cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
-      throw ex;
-      //hf_errlog(errcode,errmsg);
-    }
+  // Else create a new instance of evolution
+  YAML::Node instanceNode=XFITTER_PARS::getEvolutionNode(name);
+  YAML::Node classnameNode=instanceNode["class"];
+  if(!classnameNode.IsScalar()){
+    std::ostringstream s;
+    s<<"F:Failed to get evolution \""<<name<<"\": evolution must have a node \"class\" with the class name as a string";
+    hf_errlog(18082950,s.str().c_str());
   }
-  BasePdfParam*getParameterisation(const string&name){
-    try{
-      auto it=XFITTER_PARS::gParameterisations.find(name);
-      if(it!=XFITTER_PARS::gParameterisations.end())return it->second;
-      //Else create a new instance
-      string classname=XFITTER_PARS::getParameterisationNode(name)["class"].as<string>();
-      BasePdfParam*ret=(BasePdfParam*)createDynamicObject(classname,name);
-      ret->atStart();
-      XFITTER_PARS::gParameterisations[name]=ret;
-      return ret;
-    }catch(YAML::InvalidNode&ex){
-      const int errcode=18092400;
-      const char*errmsg="F: YAML::InvalidNode exception while creating parameterisation, details written to stderr";
-      using namespace std;
-      cerr<<"[ERROR]"<<__func__<<'('<<name<<')'<<endl;
-      YAML::Node node=XFITTER_PARS::getParameterisationNode(name);
-      if(!node.IsMap()){
-        cerr<<"Invalid node Parameterisations/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
-        hf_errlog(errcode,errmsg);
-      }
-      YAML::Node node_class=node["class"];
-      if(!node_class.IsScalar()){
-        if(node_class.IsNull())cerr<<"Missing node Parameterisations/"<<name<<"/class";
-        else cerr<<"Invalid node Parameterisations/"<<name<<"/class\nnode is not a scalar";
-        cerr<<"\n[/ERROR]"<<endl;
-        hf_errlog(errcode,errmsg);
-      }
-      cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
+  string classname=classnameNode.as<string>();
+  BaseEvolution*evolution=(BaseEvolution*)createDynamicObject(classname,name);
+  //Note that unlike in the pervious version of this function, we do not set decompositions for evolutions
+  //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during atStart
+  evolution->atStart();
+  // Store the newly created evolution on the global map
+  XFITTER_PARS::gEvolutions[name] = evolution;
+  return evolution;
+}
+BasePdfDecomposition*get_pdfDecomposition(string name){
+  try{
+    if(name=="")name=XFITTER_PARS::getDefaultDecompositionName();
+    auto it=XFITTER_PARS::gPdfDecompositions.find(name);
+    if(it!=XFITTER_PARS::gPdfDecompositions.end())return it->second;
+    string classname = XFITTER_PARS::getParamFromNodeS("class", XFITTER_PARS::getDecompositionNode(name));
+    BasePdfDecomposition*ret=(BasePdfDecomposition*)createDynamicObject(classname,name);
+    ret->atStart();
+    XFITTER_PARS::gPdfDecompositions[name]=ret;
+    return ret;
+  }catch(YAML::InvalidNode&ex){
+    const int errcode=18092401;
+    const char*errmsg="F: YAML::InvalidNode exception while creating decomposition, details written to stderr";
+    using namespace std;
+    cerr<<"[ERROR]"<<__func__<<"(\""<<name<<"\")"<<endl;
+    YAML::Node node=XFITTER_PARS::getDecompositionNode(name);
+    if(!node.IsMap()){
+      cerr<<"Invalid node Decompositions/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
       hf_errlog(errcode,errmsg);
     }
+    YAML::Node node_class=node["class"];
+    if(!node_class.IsScalar()){
+      if(node_class.IsNull())cerr<<"Missing node Decompositions/"<<name<<"/class";
+      else cerr<<"Invalid node Decompositions/"<<name<<"/class\nnode is not a scalar";
+      cerr<<"\n[/ERROR]"<<endl;
+      hf_errlog(errcode,errmsg);
+    }
+    cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
+    throw ex;
+    //hf_errlog(errcode,errmsg);
+  }
+}
+BasePdfParam*getParameterisation(const string&name){
+  try{
+    auto it=XFITTER_PARS::gParameterisations.find(name);
+    if(it!=XFITTER_PARS::gParameterisations.end())return it->second;
+    //Else create a new instance
+    string classname=XFITTER_PARS::getParameterisationNode(name)["class"].as<string>();
+    BasePdfParam*ret=(BasePdfParam*)createDynamicObject(classname,name);
+    ret->atStart();
+    XFITTER_PARS::gParameterisations[name]=ret;
+    return ret;
+  }catch(YAML::InvalidNode&ex){
+    const int errcode=18092400;
+    const char*errmsg="F: YAML::InvalidNode exception while creating parameterisation, details written to stderr";
+    using namespace std;
+    cerr<<"[ERROR]"<<__func__<<'('<<name<<')'<<endl;
+    YAML::Node node=XFITTER_PARS::getParameterisationNode(name);
+    if(!node.IsMap()){
+      cerr<<"Invalid node Parameterisations/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
+      hf_errlog(errcode,errmsg);
+    }
+    YAML::Node node_class=node["class"];
+    if(!node_class.IsScalar()){
+      if(node_class.IsNull())cerr<<"Missing node Parameterisations/"<<name<<"/class";
+      else cerr<<"Invalid node Parameterisations/"<<name<<"/class\nnode is not a scalar";
+      cerr<<"\n[/ERROR]"<<endl;
+      hf_errlog(errcode,errmsg);
+    }
+    cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
+    hf_errlog(errcode,errmsg);
+  }
+}
+
+
+BaseMinimizer* get_minimizer() {
+  std::string name = XFITTER_PARS::getParamS("Minimizer");
+
+  // Check if already present
+  if (XFITTER_PARS::gMinimizer != nullptr ) {
+    return  XFITTER_PARS::gMinimizer;  //already loaded
   }
 
-
-  BaseMinimizer* get_minimizer() {
-    std::string name = XFITTER_PARS::getParamS("Minimizer");
-    
-    // Check if already present
-    if (XFITTER_PARS::gMinimizer != nullptr ) {
-      return  XFITTER_PARS::gMinimizer;  //already loaded
-    }
-    
-    // Load corresponding shared library:
-    string libname = gReactionLibs[name];
-    if ( libname == "") {
-      hf_errlog(18081701,"F: Shared library for minimizer "+name+" not found");
-    }
-
-    // load the library:
-    void *lib_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
-    if ( lib_handler == nullptr )  { 
-      std::cout  << dlerror() << std::endl;      
-      hf_errlog(18081702,"F: Minimizer shared library ./lib/"  + libname  +  " not present for minimizer" + name + ". Check Reactions.txt file");
-    }
-
-         // reset errors
-    dlerror();
-
-    create_minimizer *dispatch_minimizer = (create_minimizer*) dlsym(lib_handler, "create");
-    BaseMinimizer *minimizer = dispatch_minimizer();
-    minimizer->atStart();
-
-    // store on the map
-    XFITTER_PARS::gMinimizer = minimizer;
-
-    return XFITTER_PARS::gMinimizer;
+  // Load corresponding shared library:
+  string libname = gReactionLibs[name];
+  if ( libname == "") {
+    hf_errlog(18081701,"F: Shared library for minimizer "+name+" not found");
   }
+
+  // load the library:
+  void *lib_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
+  if ( lib_handler == nullptr )  {
+    std::cout  << dlerror() << std::endl;
+    hf_errlog(18081702,"F: Minimizer shared library ./lib/"  + libname  +  " not present for minimizer" + name + ". Check Reactions.txt file");
+  }
+
+  // reset errors
+  dlerror();
+
+  create_minimizer *dispatch_minimizer = (create_minimizer*) dlsym(lib_handler, "create");
+  BaseMinimizer *minimizer = dispatch_minimizer();
+  minimizer->atStart();
+
+  // store on the map
+  XFITTER_PARS::gMinimizer = minimizer;
+
+  return XFITTER_PARS::gMinimizer;
+}
 
 }
 
 
 /// Temporary interface for fortran
 extern "C" {
-  void init_evolution_(); 
-  void init_minimizer_();
-  void run_minimizer_();
-  void report_convergence_status_();
-  void run_error_analysis_();
+void init_evolution_();
+void init_minimizer_();
+void run_minimizer_();
+void report_convergence_status_();
+void run_error_analysis_();
 }
 
 namespace xfitter{
-  BaseEvolution*defaultEvolution=nullptr;//declared in xfitter_steer.h
+BaseEvolution*defaultEvolution=nullptr;//declared in xfitter_steer.h
 }
 //Make sure default evolution exists
 void init_evolution_() {
@@ -216,15 +216,15 @@ void report_convergence_status_(){
   auto status=get_minimizer()->convergenceStatus();
   //Write status to Status.out
   {
-  std::ofstream f;
-  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/Status.out");
-  if(!f.is_open()){
-    hf_errlog(16042807,"W: Failed to open Status.out for writing");
-    return;
-  }
-  if(status==ConvergenceStatus::SUCCESS)f<<"OK";
-  else f<<"Failed";
-  f.close();
+    std::ofstream f;
+    f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/Status.out");
+    if(!f.is_open()){
+      hf_errlog(16042807,"W: Failed to open Status.out for writing");
+      return;
+    }
+    if(status==ConvergenceStatus::SUCCESS)f<<"OK";
+    else f<<"Failed";
+    f.close();
   }
   //Log status message
   switch(status){
@@ -251,7 +251,7 @@ void report_convergence_status_(){
 
 void run_error_analysis_() {
   auto mini = xfitter::get_minimizer();
-  mini->errorAnalysis();    
+  mini->errorAnalysis();
 }
 
 namespace xfitter{
