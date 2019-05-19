@@ -13,4 +13,7 @@ libcbdiff_xfitter_la_LDFLAGS = -lbasehvqmnr_xfitter -L$(srcdir)/../../../reactio
 
 endif
 
+datadir = ${prefix}/yaml/reactions/cbdiff
+data_DATA = ../yaml/parameters.yaml
+
 dist_noinst_HEADERS = ../include
