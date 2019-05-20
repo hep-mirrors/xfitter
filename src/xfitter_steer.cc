@@ -27,8 +27,8 @@ void*createDynamicObject(const string&classname,const string&instanceName){
     std::ostringstream s;
     if(gReactionLibs.count(classname)==0){
       cerr<<"[ERROR] Unknown dynamically loaded class \""<<classname<<"\""
-                                                                      "\nMake sure that "<<PREFIX<<"/lib/Reactions.txt has an entry for this class"
-                                                                                                   "\n[/ERRROR]"<<endl;
+        "\nMake sure that "<<PREFIX<<"/lib/Reactions.txt has an entry for this class"
+        "\n[/ERRROR]"<<endl;
       s<<"F: Unknown dynamically loaded class \""<<classname<<"\", see stderr";
       hf_errlog(18091901,s.str().c_str());
     }
