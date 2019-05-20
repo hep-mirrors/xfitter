@@ -71,7 +71,12 @@ BaseEvolution*get_evolution(string name){
   BaseEvolution*evolution=(BaseEvolution*)createDynamicObject(classname,name);
   //Note that unlike in the pervious version of this function, we do not set decompositions for evolutions
   //Evolution objects are expected to get their decomposition themselves based on YAML parameters, during atStart
-  evolution->atStart();
+  try{
+    evolution->atStart();
+  }catch(const YAML::Exception&){
+    cerr<<"[ERROR] Unhandled YAML exception during initialization of evolution \""<<name<<"\". Check that the provided parameters are correct. Rethrowing the exception..."<<endl;
+    throw;
+  }
   // Store the newly created evolution on the global map
   XFITTER_PARS::gEvolutions[name] = evolution;
   return evolution;
