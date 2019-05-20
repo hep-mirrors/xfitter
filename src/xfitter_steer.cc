@@ -86,31 +86,23 @@ BasePdfDecomposition*get_pdfDecomposition(string name){
     if(name=="")name=XFITTER_PARS::getDefaultDecompositionName();
     auto it=XFITTER_PARS::gPdfDecompositions.find(name);
     if(it!=XFITTER_PARS::gPdfDecompositions.end())return it->second;
-    string classname = XFITTER_PARS::getParamFromNodeS("class", XFITTER_PARS::getDecompositionNode(name));
+    string classname = XFITTER_PARS::getDecompositionNode(name)["class"].as<string>();
     BasePdfDecomposition*ret=(BasePdfDecomposition*)createDynamicObject(classname,name);
     ret->atStart();
     XFITTER_PARS::gPdfDecompositions[name]=ret;
     return ret;
-  }catch(YAML::InvalidNode&ex){
-    const int errcode=18092401;
-    const char*errmsg="F: YAML::InvalidNode exception while creating decomposition, details written to stderr";
+  }catch(const YAML::TypedBadConversion<string>&ex){
     using namespace std;
-    cerr<<"[ERROR]"<<__func__<<"(\""<<name<<"\")"<<endl;
-    YAML::Node node=XFITTER_PARS::getDecompositionNode(name);
-    if(!node.IsMap()){
-      cerr<<"Invalid node Decompositions/"<<name<<"\nnode is not a map\n[/ERROR]"<<endl;
-      hf_errlog(errcode,errmsg);
+    YAML::Node node = XFITTER_PARS::getDecompositionNode(name)["class"];
+    if (!node){
+      cerr<<"[ERROR] No class specified for decomposition \""<<name<<"\": missing node Decompositions/"<<name<<"/class"<<endl;
+      hf_errlog(18092401, "F: No class specified for a decomposition, see stderr");
     }
-    YAML::Node node_class=node["class"];
-    if(!node_class.IsScalar()){
-      if(node_class.IsNull())cerr<<"Missing node Decompositions/"<<name<<"/class";
-      else cerr<<"Invalid node Decompositions/"<<name<<"/class\nnode is not a scalar";
-      cerr<<"\n[/ERROR]"<<endl;
-      hf_errlog(errcode,errmsg);
-    }
-    cerr<<"Unexpected YAML exception\nNode:\n"<<node<<"\n[/ERROR]"<<endl;
-    throw ex;
-    //hf_errlog(errcode,errmsg);
+    cerr<<"[ERROR] Failed to convert class specification for decomposition \""<<name<<"\" to string, node Decompositions/"<<name<<"/class"<<endl;
+    cerr<<"Trying to print the node:"<<endl;
+    cerr<<node<<endl;
+    cerr<<"[/ERROR]"<<endl;
+    hf_errlog(18092402, "F: Bad class specification for a decomposition, see stderr");
   }
 }
 BasePdfParam*getParameterisation(const string&name){
