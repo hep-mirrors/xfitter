@@ -153,6 +153,7 @@ c      Common /Iacot/  nord  !*** pass nord to ACOT module from Subroutine SetHF
       data ifirst /.true./
       save ifirst
 #include "steering.inc"
+      nord=nordAcot  !*** Match steering.inc notation: (FIO 21 May 2019)
 
 C-----------------------------------------------------------------------------
 C     DATA SINW2, XMW, XMZ   / 0.23D0,   80.4D0,  91.2D0 /
