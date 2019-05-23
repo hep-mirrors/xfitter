@@ -10,9 +10,11 @@
 #include <iostream>
 #include <cstdio>
 #include "QCDNUM/QCDNUM.h"
+#include "QCDNUM_Manager.h"
 #include <IntegrateDIS.h>
 #include "xfitter_pars.h"
 #include "hf_errlog.h"
+#include "BaseEvolution.h"
 
 template <typename T>
 void print(T d)
@@ -51,7 +53,12 @@ extern "C" ReactionBaseDISNC *create()
 // Initialize at the start of the computation
 void ReactionBaseDISNC::atStart()
 {
-  ///
+  //TODO: eventually we want BaseDISNC to work not only with QCDNUM, but with any evolution
+  if (not xfitter::isQCDNUMinitialized) {
+    cerr<<"[ERROR] BaseDISNC requires QCDNUM, but it is not initialized"<<endl;
+    hf_errlog(19052310, "F: BaseDISNC requires QCDNUM");
+  }
+
   int nwords;
   QCDNUM::zmfillw(nwords);
   _convfac = *XFITTER_PARS::getParamD("convFac");
@@ -138,6 +145,12 @@ void ReactionBaseDISNC::atIteration()
 void ReactionBaseDISNC::initTerm(TermData *td)
 {
   unsigned termID = td->id;
+
+  if (td->getPDF()->getClassName() != string("QCDNUM")) {
+    xfitter::BaseEvolution* pdf = td->getPDF();
+    cerr<<"[ERROR] BaseDISNC can only work with QCDNUM evolution; got evolution \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<termID<<endl;
+    hf_errlog(19052311, "F: BaseDISNC can only work with QCDNUM evolution");
+  }
 
   _dsIDs.push_back(termID);
 
