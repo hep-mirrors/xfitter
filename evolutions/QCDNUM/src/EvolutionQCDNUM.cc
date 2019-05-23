@@ -8,6 +8,7 @@
 
 #include "EvolutionQCDNUM.h"
 #include "QCDNUM/QCDNUM.h"
+#include "QCDNUM_Manager.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 #include"BasePdfDecomposition.h"
@@ -67,7 +68,7 @@ namespace xfitter
   // Initialize at the start of the computation
   void EvolutionQCDNUM::atStart()
   {
-    QCDNUM::qcinit(6," ");
+    initQCDNUM();
 
     // check version:
     int ver;

@@ -22,6 +22,7 @@ fortran_io.f lhapdferrors.cc\
 chi2scan.cc\
 ReactionTheory.cc\
 TermData.cc\
+QCDNUM_Manager.cc\
 IntegrateDIS.cc
 # optional sources
 # these should be moved to indiviual shared libraries in the future
@@ -55,7 +56,7 @@ libxfmain_la_CXXFLAGS=\
   -I$(top_srcdir)/minimizers/BaseMinimizer/include \
   -I$(top_srcdir)/tools/draw/include
 libxfmain_la_CFLAGS=
-libxfmain_la_CPPFLAGS=-I$(top_srcdir)/include -DPREFIX="\"$(prefix)\""
+libxfmain_la_CPPFLAGS=$(QCDNUM_CPPFLAGS) -I$(top_srcdir)/include -DPREFIX="\"$(prefix)\""
 libxfmain_la_FFLAGS=$(DEFS) -cpp -I$(top_srcdir)/include  $(NOAUTOFCFLAG) -I$(top_srcdir)/minuit/src
 libxfmain_la_LDFLAGS=-ldl
 
