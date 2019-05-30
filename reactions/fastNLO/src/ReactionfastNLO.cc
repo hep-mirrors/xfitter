@@ -56,7 +56,7 @@ void ReactionfastNLO::setDatasetParameters(int ID, map<string,string> pars, map<
       bool success=true;
       // fastNLO default is 'NLO'
       if (order=="NNLO" ) success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 2, true); // swith NNLO ON
-      else if (order=="NLO" ) {;}
+      else if (order=="NLO" ) success &= fnlo->SetContributionON(fastNLO::kFixedOrder,2,false); // switch 'off' NNLO ;
       else if (order=="LO" )  success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 1, false); // switch NLO OFF
       else    hf_errlog(17090502,"E: fastNLO. Unrecognized order: "+order);
       // --- threshold corrections
