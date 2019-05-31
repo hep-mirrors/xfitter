@@ -46,7 +46,7 @@ class CommandParser
   bool diff;
   bool noupband;
   int errbandcol;
-  string smooththeory;
+  string smooththeoryratios;
   
   //shifts options
   int spp, shgth;
@@ -211,8 +211,8 @@ private:
     cout << "\t \t Do not plot data, use theory as reference for ratio plots, and plot relative theory uncertainties" << endl;
     cout << "\t --diff" << endl;
     cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
-    cout << "\t --smooththeory" << endl;
-    cout << "\t \t Smooth theory predictions: provide ROOT TF1 function to fit, e.g. 'pol1' or 'pol2', or 'smooth' to use TH1::Smooth()" << endl;
+    cout << "\t --smooththeoryratios" << endl;
+    cout << "\t \t Smooth ratios of theory predictions: provide ROOT TF1 function to fit, e.g. 'pol1' or 'pol2', or 'smooth' to use TH1::Smooth()" << endl;
     cout << "\t --greenband" << endl;
     cout << "\t \t The total experimental uncertainty is shown with a green band" << endl;
     cout << "\t --blueband" << endl;

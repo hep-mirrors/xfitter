@@ -10,6 +10,7 @@
 #include <TLegend.h>
 #include <TLine.h>
 #include <TLatex.h>
+#include <TF1.h>
 
 #include <iostream>
 #include <math.h>
@@ -692,7 +693,48 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	(*it).getrtherrup()->SetBinError(b, 0);
       for (int b = 1; b <= (*it).getrtherrdown()->GetNbinsX(); b++)
 	(*it).getrtherrdown()->SetBinError(b, 0);
+
+  // optionally smooth ratios of theory predictions
+  if(opts.smooththeoryratios != "")
+  {
+    TH1F* r_th = (*it).getrth();
+    TH1F* r_thshift = (*it).getrthshift();
+    TH1F* r_therr = (*it).getrtherr();
+    TH1F* r_therrup = (*it).getrtherrup();
+    TH1F* r_therrdown = (*it).getrtherrdown();
+    if(opts.smooththeoryratios == "smooth")
+    {
+      r_th->Smooth();
+      r_thshift->Smooth();
+      r_therr->Smooth();
+      r_therrup->Smooth();
+      r_therrdown->Smooth();
     }
+    else
+    {
+      TF1 *ffit = new TF1("ffit", opts.smooththeoryratios.c_str(), r_th->GetBinCenter(b + 1), r_th->GetBinCenter(r_th->GetNbinsX() + 1));
+      string opts = "Q R WW 0";
+      r_th->Fit("ffit", opts.c_str());
+      for (unsigned int b = 0; b < r_th->GetNbinsX(); b++)
+        r_th->SetBinContent(b + 1, ffit->Eval(r_th->GetBinCenter(b + 1)));
+      r_thshift->Fit("ffit", opts.c_str());
+      for (unsigned int b = 0; b < r_thshift->GetNbinsX(); b++)
+        r_thshift->SetBinContent(b + 1, ffit->Eval(r_thshift->GetBinCenter(b + 1)));
+      r_therr->Fit("ffit", opts.c_str());
+      for (unsigned int b = 0; b < r_therr->GetNbinsX(); b++)
+        r_therr->SetBinContent(b + 1, ffit->Eval(r_therr->GetBinCenter(b + 1)));
+      r_therrup->Fit("ffit", opts.c_str());
+      for (unsigned int b = 0; b < r_therrup->GetNbinsX(); b++)
+        r_therrup->SetBinContent(b + 1, ffit->Eval(r_therrup->GetBinCenter(b + 1)));
+      r_therrdown->Fit("ffit", opts.c_str());
+      for (unsigned int b = 0; b < r_therrdown->GetNbinsX(); b++)
+        r_therrdown->SetBinContent(b + 1, ffit->Eval(r_therrdown->GetBinCenter(b + 1)));
+      delete ffit;
+    }
+  }
+    }
+
+
 
   //create template histogram for axis
   TH1F *r_templ = new TH1F(((string) "r_templ_" + cnvname).c_str(), "", nbins, axmin, axmax);
