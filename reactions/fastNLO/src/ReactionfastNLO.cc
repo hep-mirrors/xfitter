@@ -68,7 +68,7 @@ void ReactionfastNLO::setDatasetParameters(int ID, map<string,string> pars, map<
 	 hf_errlog(17090511,"I: fastNLO. Activate threshold corrections.");
 	 success &= fnlo->SetContributionON(fastNLO::kThresholdCorrection, iThr, true);
       }
-      if (!success)  hf_errlog(17090503,"W: fastNLO. Requested order "+order+" cannot be set.");
+      //if (!success)  hf_errlog(17090503,"W: fastNLO. Requested order "+order+" cannot be set.");
    
       // --- Set Units
       if ( pars.count("Units") ) { // Local order 
