@@ -5,6 +5,7 @@
 
 #include <TObjArray.h>
 #include <TObjString.h>
+#include <TF1.h>
 
 #include <fstream>
 #include <sstream>
@@ -296,6 +297,38 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
       else
 	hpull->SetBinContent(b + 1, pulls[b]);
       hpull->SetBinError(b + 1, 0);
+    }
+    if(opts.smooththeory != "")
+    {
+      if(opts.smooththeory == "smooth")
+      {
+        hth->Smooth();
+        hthshift->Smooth();
+        htherr->Smooth();
+        htherrup->Smooth();
+        htherrdown->Smooth();
+      }
+      else
+      {
+        TF1 *ffit = new TF1("ffit", opts.smooththeory.c_str(), hth->GetBinCenter(b + 1), hth->GetBinCenter(hth->GetNbinsX() + 1));
+        string opts = "Q R WW 0";
+        hth->Fit("ffit", opts.c_str());
+        for (unsigned int b = 0; b < data.size(); b++)
+          hth->SetBinContent(b + 1, ffit->Eval(hth->GetBinCenter(b + 1)));
+        hthshift->Fit("ffit", opts.c_str());
+        for (unsigned int b = 0; b < data.size(); b++)
+          hthshift->SetBinContent(b + 1, ffit->Eval(hthshift->GetBinCenter(b + 1)));
+        htherr->Fit("ffit", opts.c_str());
+        for (unsigned int b = 0; b < data.size(); b++)
+          htherr->SetBinContent(b + 1, ffit->Eval(htherr->GetBinCenter(b + 1)));
+        htherrup->Fit("ffit", opts.c_str());
+        for (unsigned int b = 0; b < data.size(); b++)
+          htherrup->SetBinContent(b + 1, ffit->Eval(htherrup->GetBinCenter(b + 1)));
+        htherrdown->Fit("ffit", opts.c_str());
+        for (unsigned int b = 0; b < data.size(); b++)
+          htherrdown->SetBinContent(b + 1, ffit->Eval(htherrdown->GetBinCenter(b + 1)));
+        delete ffit;
+      }
     }
   
   for (unsigned int b = 0; b < data.size(); b++)

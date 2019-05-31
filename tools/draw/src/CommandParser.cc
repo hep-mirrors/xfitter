@@ -75,6 +75,7 @@ CommandParser::CommandParser(int argc, char **argv):
   atlaspreliminary(false),
   atlasinternal(false),
   cdfiipreliminary(false),
+  smooththeory(""),
   outdir("")
 {
   //initialise colors and styles
@@ -449,6 +450,11 @@ CommandParser::CommandParser(int argc, char **argv):
 	  multitheory = true;
 	else if (*it == "--nothshifts")
 	  nothshifts = true;
+	else if (*it == "--smooththeory")
+  {
+    smooththeory = *(it + 1);
+    allargs.erase(it + 1);
+  }
 	else
 	  {
 	    cout << endl;
