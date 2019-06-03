@@ -108,7 +108,8 @@ void ReactionKFactor::initTerm(TermData*td){
   // check if kfactor is a parameter (possibly free); the value of this parameter will be used for all bins in data set
   else if(td->hasParam("Parameter"))
   {
-    rd->parameter=td->getParamD("Parameter");
+    std::string parameterName = td->getParamS("Parameter");
+    rd->parameter=td->getParamD(parameterName);
     if(td->hasParam("N")){
       int Npoints=td->getParamI("N");
       if(Npoints<=0){
