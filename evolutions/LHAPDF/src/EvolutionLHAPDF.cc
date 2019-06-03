@@ -66,6 +66,13 @@ const char*EvolutionLHAPDF::getClassName()const{return "LHAPDF";}
 
   /// Returns PDFs as double pdfs* --> double[13] from -6 to 6.
   void EvolutionLHAPDF::xfxQarray(double x, double Q, double* pdfs){
+    // some APPLgrids have values x = 0 or x = 1, LHAPDF throws LHAPDF::RangeError
+    /*if(x <= 0.0 || x >= 1.0)
+    {
+      for(int i=0; i<13; i++)
+        pdfs[i] = 0.0;
+      return;
+    }*/
     std::vector<double> vpdfs{13};
     _pdf->xfxQ(x, Q, vpdfs);
     for(int i=0; i<13; i++)
