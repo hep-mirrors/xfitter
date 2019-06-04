@@ -78,8 +78,9 @@ if ENABLE_UPDF
 endif
 
 if ENABLE_HATHOR
-  LDADD+= ../Hathor/src/libHathor.a \
-  $(HATHOR_LIBS)
+# this is obsolete: code is in reactions/Hathor now
+#  LDADD+= ../Hathor/src/libHathor.a \
+  LDADD+= $(HATHOR_LIBS)
 endif
 
 # Link with HVQMNR library, otherwise with dummy stub

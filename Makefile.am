@@ -59,8 +59,8 @@ SUBDIRS=src\
   reactions/fastNLO/src\
   reactions/BaseHVQMNR/src\
   reactions/HVQMNR_LHCb_7TeV_charm/src\
-  reactions/HVQMNR_LHCb_7TeV_beauty/src
-#  reactions/Hathor/src\
+  reactions/HVQMNR_LHCb_7TeV_beauty/src\
+  reactions/Hathor/src
 #  reactions/AFB/src\
 #
 
@@ -77,8 +77,8 @@ if ENABLE_CERES
   SUBDIRS+=minimizers/CERESMinimizer/src
 endif
 
-DIST_SUBDIRS = $(SUBDIRS) Hathor/src HVQMNR/src ACOT SACOT datafiles QEDevol/include \
-           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
+DIST_SUBDIRS = $(SUBDIRS) HVQMNR/src ACOT SACOT datafiles QEDevol/include \
+           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples \
            FONLL HVQMNR HVQMNR/include/ python/ input_steering/ tools/
 
 if ENABLE_LHAPDF
@@ -86,9 +86,10 @@ if ENABLE_LHAPDF
             pdfdecompositions/LHAPDFDecomposition/src
 endif
 
-if ENABLE_HATHOR
-  SUBDIRS+= Hathor/src
-endif
+# this is obsolete: code is in reactions/Hathor now
+#if ENABLE_HATHOR
+#  SUBDIRS+= Hathor/src
+#endif
 
 if ENABLE_HVQMNR
   SUBDIRS+= HVQMNR/src
