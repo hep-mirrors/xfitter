@@ -46,6 +46,11 @@ void ReactionBaseHVQMNR::initTerm(TermData *td)
   unsigned dataSetID = td->id;
   _tdDS[dataSetID] = td;
 
+  // Order
+  const string order = td->getParamS("Order");
+  if(order != "NLO")
+    hf_errlog(19020301, "F: order " + order + " not supported");
+
   // add new dataset
   DataSet dataSet;
   std::pair<std::map<int, DataSet>::iterator, bool> ret = _dataSets.insert(std::pair<int, DataSet>(dataSetID, dataSet));
