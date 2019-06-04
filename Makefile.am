@@ -19,7 +19,7 @@ SUBDIRS=src\
   include\
   DiffDIS/include\
   tools/draw/include\
-  tools/process\
+  tools/process reactions/HathorSingleTop/src\
   tools/draw\
   tools/MakeLHAPDF\
   pdfparams/BasePdfParam/src\
@@ -60,7 +60,8 @@ SUBDIRS=src\
   reactions/BaseHVQMNR/src\
   reactions/HVQMNR_LHCb_7TeV_charm/src\
   reactions/HVQMNR_LHCb_7TeV_beauty/src\
-  reactions/Hathor/src
+  reactions/Hathor/src\
+  reactions/HathorSingleTop/src
 #  reactions/AFB/src\
 #
 
@@ -77,9 +78,9 @@ if ENABLE_CERES
   SUBDIRS+=minimizers/CERESMinimizer/src
 endif
 
-DIST_SUBDIRS = $(SUBDIRS) HVQMNR/src ACOT SACOT datafiles QEDevol/include \
+DIST_SUBDIRS = $(SUBDIRS) ACOT SACOT datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples \
-           FONLL HVQMNR HVQMNR/include/ python/ input_steering/ tools/
+           FONLL python/ input_steering/ tools/
 
 if ENABLE_LHAPDF
   SUBDIRS+= evolutions/LHAPDF/src\
@@ -91,9 +92,10 @@ endif
 #  SUBDIRS+= Hathor/src
 #endif
 
-if ENABLE_HVQMNR
-  SUBDIRS+= HVQMNR/src
-endif
+# this is obsolete: code is in reactions/BaseHVQMNR now
+#if ENABLE_HVQMNR
+#  SUBDIRS+= HVQMNR/src
+#sendif
 
 if BUILD_DOCS
   DOCS=doc/tex/manual doc/tex/paper

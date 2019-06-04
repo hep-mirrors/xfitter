@@ -38,3 +38,4 @@ ABMPsea libABMPseaPdfParam_xfitter.so
 ABMPgluon libABMPgluonPdfParam_xfitter.so
 KRunning libkrunning_xfitter.so
 cbdiff libcbdiff_xfitter.so
+HathorSingleTop libhathorsingletop_xfitter.so
