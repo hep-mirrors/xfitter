@@ -203,12 +203,12 @@ double ReactionBaseHVQMNR::FindXSecPtYBin(const TH2* histXSec, const double ymin
 void ReactionBaseHVQMNR::CheckHFScheme()
 {
   // check HF scheme
-  if(steering_.hfscheme != 3 && steering_.hfscheme != 4)
-    hf_errlog(16123007, "S: calculation does not support HFSCHEME = " + std::to_string(steering_.hfscheme) + " (only 3, 4 supported)");
+  //if(steering_.hfscheme != 3 && steering_.hfscheme != 4)
+  //  hf_errlog(16123007, "S: calculation does not support HFSCHEME = " + std::to_string(steering_.hfscheme) + " (only 3, 4 supported)");
 }
 
 // read parameters for perturbative scales from MINUIT extra parameters
-void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double& B, double& C)
+void ReactionBaseHVQMNR::GetMuPar(TermData* td, const char mu, const char q, double& A, double& B, double& C)
 {
   // ***********************************************************************************************
   // Scales for charm and beauty production are parametrised as:
@@ -241,10 +241,6 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
   const double defC = 0.0;
   // ***************************
   std::string baseParameterName = "MNRm" + std::string(1, mu);
-
-  // need any TermData pointer to access theory parameters
-  //( theory parameters are supposed to be universal for all data sets)
-  TermData* td = _tdDS.begin()->second;
 
   // A and B parameters
   if(td->hasParam(baseParameterName + "_AB"))
@@ -287,7 +283,7 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
 
 
 // read fragmentation parameter from MINUIT extra parameters
-double ReactionBaseHVQMNR::GetFragPar(const char q, const map<string,string> pars)
+double ReactionBaseHVQMNR::GetFragPar(TermData* td, const char q, const map<string,string> pars)
 {
   // *********************************************************************
   // Parameters for non-perturbative fragmentation can be provided
@@ -295,10 +291,6 @@ double ReactionBaseHVQMNR::GetFragPar(const char q, const map<string,string> par
   // for charm and beauty production, respectively.
   // q should be either 'c' or 'b' (for charm or beauty, respectively)
   // *********************************************************************
-
-  // need any TermData pointer to access theory parameters
-  //( theory parameters are supposed to be universal for all data sets)
-  TermData* td = _tdDS.begin()->second;
 
   // ***************************
   const double defFFc = 4.4;
@@ -319,38 +311,28 @@ double ReactionBaseHVQMNR::GetFragPar(const char q, const map<string,string> par
   }
   else
     parvalue = *td->getParamD(parname);
-
-  // TODO check below whether it is still relevant
-  /*      ! parameter in ExtraParamMinuit, but not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
-        if(st.lt.0) then
-          if(q.eq.'c') then
-            FFpar=defFFc
-          else if(q.eq.'b') then
-            FFpar=defFFb
-          else
-            write(*,*)'Warning in GetFPar(): no default value for q = ',q
-            call makenan(FFpar)
-          endif
-        endif
-      endif
-      end*/
   return parvalue;
 }
 
 // read and update theory parameters
-void ReactionBaseHVQMNR::UpdateParameters()
+void ReactionBaseHVQMNR::UpdateParameters(TermData *td)
 {
+  // if not TermData provided, take any TermData pointer to access theory parameters
+  // (theory parameters are supposed to be universal for all data sets in this case)
+  if(!td)
+    td = _tdDS.begin()->second;
+
   // heavy-quark masses
-  _pars.mc = fermion_masses_.mch;
-  _pars.mb = fermion_masses_.mbt;
+  _pars.mc = *td->getParamD("mch");
+  _pars.mb = *td->getParamD("mbt");
   // scale parameters
-  GetMuPar('f', 'c', _pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c);
-  GetMuPar('r', 'c', _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
-  GetMuPar('f', 'b', _pars.mf_A_b, _pars.mf_B_b, _pars.mf_C_b);
-  GetMuPar('r', 'b', _pars.mr_A_b, _pars.mr_B_b, _pars.mr_C_b);
+  GetMuPar(td, 'f', 'c', _pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c);
+  GetMuPar(td, 'r', 'c', _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
+  GetMuPar(td, 'f', 'b', _pars.mf_A_b, _pars.mf_B_b, _pars.mf_C_b);
+  GetMuPar(td, 'r', 'b', _pars.mr_A_b, _pars.mr_B_b, _pars.mr_C_b);
   // fragmentation parameters
-  _pars.fragpar_c = GetFragPar('c');
-  _pars.fragpar_b = GetFragPar('b');
+  _pars.fragpar_c = GetFragPar(td, 'c');
+  _pars.fragpar_b = GetFragPar(td, 'b');
 
   // protection against not positive or nan masses
   if(_pars.mc <= 0.0 || _pars.mc != _pars.mc)

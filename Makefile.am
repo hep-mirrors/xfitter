@@ -56,11 +56,11 @@ SUBDIRS=src\
   reactions/FFABM_DISCC/src\
   reactions/BaseHVQMNR/src\
   reactions/cbdiff/src\
-  reactions/fastNLO/src
+  reactions/fastNLO/src\
+  reactions/BaseHVQMNR/src\
+  reactions/HVQMNR_LHCb_7TeV_charm/src\
+  reactions/HVQMNR_LHCb_7TeV_beauty/src
 #  reactions/Hathor/src\
-#  reactions/BaseHVQMNR/src\
-#  reactions/HVQMNR_LHCb_7TeV_beauty/src\
-#  reactions/HVQMNR_LHCb_7TeV_charm/src\
 #  reactions/AFB/src\
 #
 

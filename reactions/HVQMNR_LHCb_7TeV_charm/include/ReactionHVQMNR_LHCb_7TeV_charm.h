@@ -20,15 +20,15 @@
 
 class ReactionHVQMNR_LHCb_7TeV_charm : public ReactionBaseHVQMNR
 {
-  public:
-    ReactionHVQMNR_LHCb_7TeV_charm(){};
+public:
+  ReactionHVQMNR_LHCb_7TeV_charm(){};
 
-  public:
-    virtual string getReactionName() const { return  "HVQMNR_LHCb_7TeV_charm" ;};
-    virtual int atStart(const string &);
-    virtual void initAtIteration();
-    virtual int compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err);
-  protected:
-    virtual int parseOptions(){ return 0;};
+public:
+  virtual string getReactionName() const { return  "HVQMNR_LHCb_7TeV_charm" ;};
+  virtual void initTerm(TermData *td) override final;
+  virtual void atIteration();        //called in the beginning of each chi2 evaluation
+  virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors) override final;
+protected:
+  virtual int parseOptions(){ return 0;};
 };
 
