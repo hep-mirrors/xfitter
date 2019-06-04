@@ -33,6 +33,7 @@ class CommandParser
   bool cl68, cl90, median;
   int plotsperpage;
   bool scale68;
+  string q2label;
 
   //data pulls options
   bool therr, points;
@@ -189,6 +190,8 @@ private:
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "\t --q2all" << endl;
     cout << "\t \t Plot PDF at all stored values of Q2. By default PDF are plotted only at the starting scale Q0" << endl;
+    cout << "\t --q2label <string>" << endl;
+    cout << "\t \t Change scale \"Q^2\" in PDF plots to the specified label" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --no-data" << endl;
     cout << "\t \t Data plots are not produced" << endl;

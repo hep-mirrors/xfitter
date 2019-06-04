@@ -18,6 +18,7 @@ float marg0 = 0.003;
 CommandParser::CommandParser(int argc, char **argv):
   dobands(false),
   scale68(false),
+  q2label("Q^{2}"),
   profile(false),
   reweight(false),
   GKweight(false),
@@ -253,6 +254,11 @@ CommandParser::CommandParser(int argc, char **argv):
           dobands = true;
         else if (*it == "--scale68")
           scale68 = true;
+        else if (*it == "--q2label")
+        {
+          q2label = *(it + 1);
+          allargs.erase(it + 1);
+        }
         else if (*it == "--profile") {
           dobands = true;
           profile = true;

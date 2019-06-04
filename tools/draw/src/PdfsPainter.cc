@@ -290,7 +290,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   cnv->SetTopMargin(tmarg);
 
   //graphical settings
-  mg->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x,Q^{2})").c_str());
+  mg->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x," + opts.q2label + ")").c_str());
 
   mg->Draw("AXIS"); //need to draw with A option to create axis
 
@@ -329,8 +329,8 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
-  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
-  leg->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - " + opts.q2label + " = " + q2str + " GeV^{2}").c_str(), "");
+  leg->AddEntry((TObject*)0, (opts.q2label + " = " + q2str + " GeV^{2}").c_str(), "");
 
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
@@ -642,7 +642,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
     }
 
   mg_ratio->GetXaxis()->SetTitle(" x  ");
-  mg_ratio->GetYaxis()->SetTitle(((string)" x" + pdflabels[ipdf] + "(x,Q^{2})/x" + pdflabels[ipdf] + "(x,Q^{2})_{ref}").c_str());
+  mg_ratio->GetYaxis()->SetTitle(((string)" x" + pdflabels[ipdf] + "(x," + opts.q2label + ")/x" + pdflabels[ipdf] + "(x," + opts.q2label + ")_{ref}").c_str());
   if (opts.relerror)
     mg_ratio->GetYaxis()->SetTitle(((string)" #deltax" + pdflabels[ipdf] + "/x" + pdflabels[ipdf]).c_str());
   if (opts.abserror)
@@ -681,7 +681,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   leg2->SetFillColor(0);
   leg2->SetFillStyle(0);
   leg2->SetBorderSize(0);
-  leg2->AddEntry((TObject*)0, ((string)"Q^{2} = " + q2str + " GeV^{2}").c_str(), "");
+  leg2->AddEntry((TObject*)0, (opts.q2label + " = " + q2str + " GeV^{2}").c_str(), "");
 
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
