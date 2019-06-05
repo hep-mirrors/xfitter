@@ -55,9 +55,26 @@ void ReactionfastNLO::setDatasetParameters(int ID, map<string,string> pars, map<
       //hf_errlog(17090501,"I: Setting fastNLO order: "+order);
       bool success=true;
       // fastNLO default is 'NLO'
-      if (order=="NNLO" ) success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 2, true); // swith NNLO ON
-      else if (order=="NLO" ) {;}
-      else if (order=="LO" )  success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 1, false); // switch NLO OFF
+      if (order=="NNLO" ) {
+        if(fnlo->ContrId(fastNLO::kFixedOrder,fastNLO::kNextToNextToLeading) < 0)
+          hf_errlog(19053100,"F: fastNLO. Requested order "+order+" cannot be set.");
+        else
+          success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 2, true); // swith NNLO ON
+      }
+      else if (order=="NLO" ) {
+        if(fnlo->ContrId(fastNLO::kFixedOrder,fastNLO::kNextToLeading) < 0)
+          hf_errlog(19053100,"F: fastNLO. Requested order "+order+" cannot be set.");
+        if(fnlo->ContrId(fastNLO::kFixedOrder,fastNLO::kNextToNextToLeading) >= 0)
+          success &= fnlo->SetContributionON(fastNLO::kFixedOrder,2,false); // switch NNLO OFF ;
+      }
+      else if (order=="LO" ) {
+        if(fnlo->ContrId(fastNLO::kFixedOrder,fastNLO::kLeading) < 0)
+          hf_errlog(19053100,"F: fastNLO. Requested order "+order+" cannot be set.");
+        if(fnlo->ContrId(fastNLO::kFixedOrder,fastNLO::kNextToLeading) >= 0)
+          success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 1, false); // switch NLO OFF
+        if(fnlo->ContrId(fastNLO::kFixedOrder,fastNLO::kNextToNextToLeading) >= 0)
+          success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 2, false); // switch NNLO OFF
+      }
       else    hf_errlog(17090502,"E: fastNLO. Unrecognized order: "+order);
       // --- threshold corrections
       if ( pars.count("ThresholdCorrection")) {

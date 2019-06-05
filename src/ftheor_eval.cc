@@ -40,11 +40,11 @@ extern "C" {
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
 		      double *allBins, char binNames[10][80]);
 //  int set_theor_units_(int *dsId, double *units);
-  int init_theor_eval_(int *dsId);
-  int update_theor_ckm_();
-  int get_theor_eval_(int *dsId, int* np, int* idx);
+  void init_theor_eval_(int *dsId);
+  void update_theor_ckm_();
+  void get_theor_eval_(int *dsId, int* np, int* idx);
   int read_reactions_();
-  int close_theor_eval_();
+  void close_theor_eval_();
   void init_func_map_();
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
@@ -205,7 +205,7 @@ int set_theor_units_(int *dsId, double *units)
 /*!
  Initializes theory for requested dataset.
  */
-int init_theor_eval_(int *dsId)
+void init_theor_eval_(int *dsId)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { 
@@ -221,7 +221,7 @@ int init_theor_eval_(int *dsId)
 /*!
  Updates the CKM matrix to all the initialized appl grids
  */
-int update_theor_ckm_()
+void update_theor_ckm_()
 {
   double a_ckm[] = { ckm_matrix_.Vud, ckm_matrix_.Vus, ckm_matrix_.Vub,
                                   ckm_matrix_.Vcd, ckm_matrix_.Vcs, ckm_matrix_.Vcb,
@@ -237,7 +237,7 @@ int update_theor_ckm_()
 /*!
  Evaluates theory for requested dataset and writes it to the global THEO array.
  */
-int get_theor_eval_(int *dsId, int *np, int*idx)
+void get_theor_eval_(int *dsId, int *np, int*idx)
 {
 
   tTEmap::iterator it = gTEmap.find(*dsId);
@@ -267,11 +267,11 @@ int get_theor_eval_(int *dsId, int *np, int*idx)
   // write the predictions to THEO array
   if( ip != *np ){
     cout << "ERROR in get_theor_eval_: number of points mismatch" << endl;
-    return -1;
+    return;
   }
 }
 
-int close_theor_eval_()
+void close_theor_eval_()
 {
   tTEmap::iterator it = gTEmap.begin();
   for (; it!= gTEmap.end(); it++){

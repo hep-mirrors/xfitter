@@ -74,7 +74,7 @@ TheorEval::~TheorEval()
   }
 }
 
-int
+void
 TheorEval::initTheory()
 {
   list<tToken> sl;
@@ -82,7 +82,7 @@ TheorEval::initTheory()
   this->convertToRPN(sl);
 }
 
-int 
+void
 TheorEval::assignTokens(list<tToken> &sl)
 {
   stringstream strexpr(_expr);
@@ -111,7 +111,7 @@ TheorEval::assignTokens(list<tToken> &sl)
 	    term.append(1,c);
 	  } else {
 	    cout << "Theory expression syntax error: " << _expr << endl;
-	    return -1;
+	    return;
 	  }
 	} else {
 	  strexpr.putback(c);
@@ -155,7 +155,7 @@ TheorEval::assignTokens(list<tToken> &sl)
       vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
       if ( found_term == _termNames.end() ) { 
         cout << "Undeclared term " << term << " in expression " << _expr << endl;
-	return -1;
+	return;
       } else {
         t.opr = 0;
         t.name = term;
@@ -190,7 +190,7 @@ TheorEval::assignTokens(list<tToken> &sl)
   }
 }
 
-int
+void
 TheorEval::convertToRPN(list<tToken> &sl)
 {
   stack<tToken> tknstk;
@@ -240,7 +240,7 @@ TheorEval::convertToRPN(list<tToken> &sl)
   
 }
 
-int
+void
 TheorEval::initTerm(int iterm, valarray<double> *val)
 {
    
@@ -257,11 +257,11 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
     std::cout << "Unknown term type in expression for term " << _termNames[iterm] << std::endl;
     int textlen = strlen(text);
     hf_errlog_(id, text, textlen);
-    return -1;
+    return;
   }
 }
 
-int
+void
 TheorEval::initGridTerm(int iterm, valarray<double> *val)
 {
   string term_source = _termSources.at(iterm);
@@ -376,7 +376,7 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
   _mapGridToken[g] = val;
 }
 
-int
+void
 TheorEval::initReactionTerm(int iterm, valarray<double> *val)
 {
   string term_source = _termSources.at(iterm);
@@ -471,7 +471,7 @@ TheorEval::initReactionTerm(int iterm, valarray<double> *val)
   _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
 }
 
-int
+void
 TheorEval::initKfTerm(int iterm, valarray<double> *val)
 {
   string term_source(_termSources.at(iterm));
@@ -543,7 +543,7 @@ TheorEval::initKfTerm(int iterm, valarray<double> *val)
           char text[] = "S: Data and grid bins don't match.";
           int textlen = strlen(text);
           hf_errlog_(id, text, textlen);
-          return -1;
+          return;
         }
       }
     }
@@ -573,7 +573,7 @@ TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
   return _dsBins.size();
 }
 
-int 
+void
 TheorEval::setCKM(const vector<double> &v_ckm)
 {
 #ifdef APPLGRID_CKM
@@ -589,7 +589,7 @@ TheorEval::setCKM(const vector<double> &v_ckm)
 #endif
 }
 
-int
+void
 TheorEval::Evaluate(valarray<double> &vte )
 {
   // get values from grids
@@ -602,7 +602,7 @@ TheorEval::Evaluate(valarray<double> &vte )
   while(it!= _exprRPN.end()){
     if ( it->opr < 0 ){
       cout << "ERROR: Expression RPN is wrong" << endl;
-      return -1;
+      return;
     }
     if ( it->opr == 0 ){
       stk.push(*(it->val));
@@ -693,7 +693,7 @@ TheorEval::Evaluate(valarray<double> &vte )
 
   if (stk.size() != 1 ) {
     cout << "ERROR: Expression RPN calculation error." << endl;
-    return -1;
+    return;
   } else {
     vte = stk.top();
     //Normalised cross section
@@ -711,7 +711,7 @@ TheorEval::Evaluate(valarray<double> &vte )
   }
 }
 
-int
+void
 TheorEval::getGridValues()
 {
   map<CommonGrid*, valarray<double>*>::iterator itm;
@@ -735,7 +735,8 @@ TheorEval::getGridValues()
   }
 }
 
-int
+
+void
 TheorEval::getReactionValues()
 {
   //  map<ReactionTheory*, valarray<double>*>::iterator itm;
@@ -751,8 +752,6 @@ TheorEval::getReactionValues()
       hf_errlog_(16081202,text.c_str(),text.size());
     }
   }
-  
-  return 1;
 }
 
 
