@@ -30,7 +30,6 @@ public:
 public:
   virtual string getReactionName() const { return  "AFB" ;};
   virtual void initTerm(TermData *td) override final;
-  virtual void atStart();
   virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err);
 protected:
   virtual int parseOptions(){ return 0;};

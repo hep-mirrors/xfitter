@@ -61,8 +61,8 @@ SUBDIRS=src\
   reactions/HVQMNR_LHCb_7TeV_charm/src\
   reactions/HVQMNR_LHCb_7TeV_beauty/src\
   reactions/Hathor/src\
-  reactions/HathorSingleTop/src
-#  reactions/AFB/src\
+  reactions/HathorSingleTop/src\
+  reactions/AFB/src
 #
 
 # These seem to be broken because PDF interface has changed

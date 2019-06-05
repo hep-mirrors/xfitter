@@ -1926,29 +1926,29 @@ void ReactionAFB::initTerm(TermData *td)
 
   // Check energy parameter:
   if ( ! td->hasParam("energy") ) {
-    hf_errlog_(19050501, "F: collider energy (energy) is not defined.");
+    hf_errlog(19050501, "F: collider energy (energy) is not defined.");
   }
   // Check eta parameter:
   if ( ! td->hasParam("eta_cut") ) {
-    hf_errlog_(19050502, "F: lepton pseudorapidity cut (eta_cut_param) is not defined.");
+    hf_errlog(19050502, "F: lepton pseudorapidity cut (eta_cut_param) is not defined.");
   }
   // Check pT parameter:
   if ( ! td->hasParam("eta_cut") ) {
-    hf_errlog_(19050503, "F: lepton transverse momentum cut (pT_cut_param) is not defined.");
+    hf_errlog(19050503, "F: lepton transverse momentum cut (pT_cut_param) is not defined.");
   }
   // Check rapidity lower cut parameter:
   if ( ! td->hasParam("y_min") ) {
-    hf_errlog_(19050504, "F: di-lepton rapidity lower cut (y_min) is not defined.");
+    hf_errlog(19050504, "F: di-lepton rapidity lower cut (y_min) is not defined.");
   }
 
   // Check rapidity upper cut parameter:
   if ( ! td->hasParam("y_max") ) {
-    hf_errlog_(19050505, "F: di-lepton rapidity upper cut (y_max) is not defined.");
+    hf_errlog(19050505, "F: di-lepton rapidity upper cut (y_max) is not defined.");
   }
 
   // Check integration routine parameters:
   if ( ! td->hasParam("integration") ) {
-    hf_errlog_(19050506, "F: integration routine (integration) is not defined.");
+    hf_errlog(19050506, "F: integration routine (integration) is not defined.");
   }
   integration_param = td->getParamS("integration");
   if (not(integration_param.compare("QNG"))) {
@@ -1957,17 +1957,15 @@ void ReactionAFB::initTerm(TermData *td)
   else if (not(integration_param.compare("QAG"))) {
     integration_switch = 2;
     if ( ! td->hasParam("key") ) {
-      std::cout << "\n\n FATAL ERROR: rule for QAG integration is not defined !!! \n\n" <<std::endl;
-      return 1;
+      hf_errlog(19050506, "F: rule for QAG integration is not defined");
     }
     key_param = td->getParamI("key");
     if ((key_param < 1) or (key_param > 6)) {
-      std::cout << "\n\n FATAL ERROR: rule for QAG integration has to be between 1 and 6 (1 <= key <= 6) !!! \n\n" <<std::endl;
-      return 1;
+      hf_errlog(19050506, "F: rule for QAG integration has to be between 1 and 6 (1 <= key <= 6)");
     }
   }
   else {
-    std::cout << "\n\n FATAL ERROR: integration routine supported are QNG and QAG. Please select one of these two options !!! \n\n" <<std::endl;
+    hf_errlog(19050506, "F: integration routine supported are QNG and QAG. Please select one of these two options");
   }
 
   // Constant
@@ -2029,14 +2027,6 @@ void ReactionAFB::initTerm(TermData *td)
   odd_Z_down = 4*Z_Vd*Z_Ad*Z_Vl*Z_Al;
 }
 
-// Initialize at the start of the computation
-int ReactionAFB::initAtStart(const string &s)
-{
-
-
-  return 0;
-}
-
 // Main function to compute results at an iteration
 void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
 {
@@ -2045,7 +2035,7 @@ void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valar
   auto *Minv_min  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_min"));
   auto *Minv_max  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_max"));
   if (Minv_min == nullptr || Minv_max == nullptr) {
-    hf_errlog_(19050500, "F: AFB code requires Invariant mass bins to be present, CHECK THE DATAFILE.");
+    hf_errlog(19050500, "F: AFB code requires Invariant mass bins to be present, CHECK THE DATAFILE.");
   }
 
   auto min = *Minv_min, max = *Minv_max;
@@ -2055,11 +2045,11 @@ void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valar
 
   // check on the rapidity cut
   if (y_min_param / log(energy_param/max[Npnt_max-1]) > 1) {
-    hf_errlog_(19050502, "F: The chosen lower rapidity cut is too high in this invariant mass range");
+    hf_errlog(19050502, "F: The chosen lower rapidity cut is too high in this invariant mass range");
   }
 
   if (Npnt_min != Npnt_max) {
-    hf_errlog_(19050503, "F: uneven number of Invariant mass min and max: CHECK THE DATAFILE.");
+    hf_errlog(19050503, "F: uneven number of Invariant mass min and max: CHECK THE DATAFILE.");
   }
 
   // Fill the array "val[i]" with the result of the AFB function
