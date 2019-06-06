@@ -68,6 +68,7 @@ namespace BaseDISCC
     valarray<double> _xf3u;
     valarray<double> _xf3d;
     const double *Mw; //parameter of W mass
+    int ipdfSet; /// PDF set used in the QCDNUM evolution
   };
 
   /// Helper function to get bin values, including integrated sigma:

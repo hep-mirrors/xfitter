@@ -13,6 +13,7 @@
 #include "xfitter_pars.h"
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
+#include "EvolutionQCDNUM.h"
 
 // Helpers for QCDNUM (CC):
 
@@ -123,6 +124,8 @@ valarray<double> GetF(TermData *td, const int id)
           C = CCEP2Fc;
       }
       break;
+    case BaseDISCC::dataFlav::b:
+      hf_errlog(2019060601,"F:Flavor b is not implemented in BaseDISCC");
     default:
       std::abort(); //unreachable
   }
@@ -143,6 +146,9 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
 {
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   const double MW = *rd->Mw;
+
+  // Set PDF in QCDNUM:
+  QCDNUM::zswitch(rd->ipdfSet);
 
   // Basic formulae for CC cross section:
   const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
@@ -212,6 +218,9 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   if (td->hasParam("reduced"))
     _isReduced = td->getParamI("reduced");
   rd->Mw = td->getParamD("Mw");
+
+  // Store QCDNUM evolution
+  rd->ipdfSet = static_cast<xfitter::EvolutionQCDNUM*> (td->getPDF())->getPdfType();
 
   // type: sigred, signonred (no F2, FL implemented so far, thus type is defined by bool _isReduced)
   // HERA data files provide 'signonred' CC cross sections
