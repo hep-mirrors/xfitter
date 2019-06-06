@@ -83,6 +83,8 @@ Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM/parameters.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
+    # The following allows QCDNUM to read PDFs from other evolutions:
+    # EvolutionCopy: "proton-LHAPDF"
   proton-LHAPDF:
     class: LHAPDF
     set: "CT10"

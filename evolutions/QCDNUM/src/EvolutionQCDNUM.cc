@@ -11,17 +11,32 @@
 #include "QCDNUM_Manager.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
+#include "xfitter_steer.h"
 #include"BasePdfDecomposition.h"
 #include <algorithm>
+#include <math.h>
 
 // Global var to hold current pdfDecomposition
-xfitter::BasePdfDecomposition*gPdfDecomp;
+xfitter::BasePdfDecomposition* gPdfDecomp;
+xfitter::BaseEvolution* gExtrernalEvolution;
 
 // Wrapper for QCDNUM
 double funcPDF(int *ipdf, double *x) {
   const std::map <int,int> ip = { {1,-3}, {2,-2}, {3,-1}, {4,1}, {5,2}, {6,3}, {0,21} } ;
   return gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)];
 }
+
+// Wrapper for QCDNUM
+double funcPDFext(int* ipdf, double* x,  double* q2, bool* first){
+  const std::map <int,int> ip =
+  {
+    {-6,-6}, {-5,-5}, {-4,-4}, {-3,-3}, {-2,-2}, {-1,-1}, {1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6},
+    {0,21},{7,22}
+  };
+  double q = sqrt(*q2);
+  return gExtrernalEvolution->xfxQmap(*x, q)[ip.at(*ipdf)];
+}
+
 
 // helper to parse yaml sequences of uniform type
 template <class T>
@@ -56,8 +71,7 @@ double static   qcdnumDef[] = {
 };
 
 
-namespace xfitter
-{
+namespace xfitter {
 
 // the class factories
   extern "C" EvolutionQCDNUM* create(const char*name) {
@@ -195,8 +209,16 @@ namespace xfitter
       QCDNUM::dmpwgt(1,22,"unpolarised.wgt");
     }
 
+    //Special case for QCDNUM, allow for external PDFs
+    if (yQCDNUM["EvolutionCopy"]) {
+      auto evolCopyName = yQCDNUM["EvolutionCopy"].as<string>();
+      gExtrernalEvolution = xfitter::get_evolution(evolCopyName);
+      _itype = 5; // external
+    }
+    else {
     //Evolution gets its decomposition from YAML
-    gPdfDecomp=XFITTER_PARS::getInputDecomposition(yQCDNUM);
+      gPdfDecomp=XFITTER_PARS::getInputDecomposition(yQCDNUM);
+    }
     atConfigurationChange();
   }
 
@@ -210,10 +232,17 @@ namespace xfitter
     QCDNUM::setalf(*alphas,(*Mz)*(*Mz));
   }
   void EvolutionQCDNUM::atIteration(){
-    const double* q0 = XFITTER_PARS::getParamD("Q0");
-    int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
-    double epsi = 0;
-    QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
+    if (_itype <5 ) {
+      const double* q0 = XFITTER_PARS::getParamD("Q0");
+      int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
+      double epsi = 0;
+      QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
+    }
+    else if (_itype == 5) {
+      // External evolution
+      double epsi = 0;
+      QCDNUM::extpdf(funcPDFext,_itype,_nExt,0.001,epsi);
+    }
   }
 
   std::map<int,double>EvolutionQCDNUM::xfxQmap(double x,double Q){

@@ -15,6 +15,7 @@
 #include "xfitter_pars.h"
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
+#include "EvolutionQCDNUM.h"
 
 template <typename T>
 void print(T d)
@@ -71,6 +72,7 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
 
   valarray<double> val;
   map<string, valarray<double>> err;
+  QCDNUM::zswitch(_ipdfSet[termID]);       // This sets proper PDF set for the computations below
 
   switch (GetDataType(termID))
   {
@@ -294,6 +296,9 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   _fld[termID].resize(_npoints[termID]);
   _xf3u[termID].resize(_npoints[termID]);
   _xf3d[termID].resize(_npoints[termID]);
+
+  // Get PDF id
+  _ipdfSet[termID] = static_cast<xfitter::EvolutionQCDNUM*> (td->getPDF())->getPdfType();
 }
 
 void ReactionBaseDISNC::reinitTerm(TermData *td)

@@ -121,7 +121,8 @@ private:
    map<unsigned, valarray<double>> _fld; //!< FL for d-type quarks
    map<unsigned, valarray<double>> _xf3u;
    map<unsigned, valarray<double>> _xf3d;
-
+   // Store QCDNUM PDF ID
+   map<unsigned,int> _ipdfSet;
 protected:
    // for integrated cross sections
    // method is based on legacy subroutine GetIntegratedDisXsection

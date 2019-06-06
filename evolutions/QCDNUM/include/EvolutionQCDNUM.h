@@ -19,21 +19,25 @@ namespace xfitter
   class EvolutionQCDNUM: public BaseEvolution
   {
   public:
-    EvolutionQCDNUM(const char*name):BaseEvolution{name}{};
+    EvolutionQCDNUM(const char* name):BaseEvolution{name}{};
 
-    virtual const char*getClassName()const override final;
-    virtual void atStart()override final;
-    virtual void atIteration()override final;
-    virtual void atConfigurationChange()override final;
-    virtual std::map<int,double>xfxQmap(double x,double Q)override final;
-    virtual double xfxQ(int i,double x,double Q)override final;
-    virtual void xfxQarray(double x,double Q,double*pdfs)override final;
-    virtual double getAlphaS(double Q)override final;
+    virtual const char* getClassName() const override final;
+    virtual void atStart() override final;
+    virtual void atIteration() override final;
+    virtual void atConfigurationChange() override final;
+    virtual std::map<int,double>xfxQmap(double x, double Q) override final;
+    virtual double xfxQ(int i, double x, double Q) override final;
+    virtual void xfxQarray(double x, double Q, double*pdfs) override final;
+    virtual double getAlphaS(double Q) override final;
+
+    /// Helper to get PDF type
+    const int getPdfType() const {return _itype;}
+
   private:
     /// PDFs called outside boundaries check:
     int _icheck{0};
 
-    /// Number of external PDFs
+    /// Number of additional to quark PDFs (e.g. photon)
     int _nExt{0};
 
     /// PDF type (1 -- unpolorized internal)
