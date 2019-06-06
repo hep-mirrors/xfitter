@@ -148,7 +148,8 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   const double MW = *rd->Mw;
 
   // Set PDF in QCDNUM:
-  QCDNUM::zswitch(rd->ipdfSet);
+  if (this->getReactionName() == "BaseDISCC")
+    QCDNUM::zswitch(rd->ipdfSet);
 
   // Basic formulae for CC cross section:
   const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
@@ -196,7 +197,7 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   _dsIDs.push_back(termID);
   _tdDS[termID] = td;
 
-  if (this->getReactionName() == "BaseDSICC" && td->getPDF()->getClassName() != string("QCDNUM")) {
+  if (this->getReactionName() == "BaseDISCC" && td->getPDF()->getClassName() != string("QCDNUM")) {
     xfitter::BaseEvolution* pdf = td->getPDF();
     cerr<<"[ERROR] BaseDISCC can only work with QCDNUM evolution; got evolution \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<termID<<endl;
     hf_errlog(19052301, "F: BaseDISCC can only work with QCDNUM evolution");

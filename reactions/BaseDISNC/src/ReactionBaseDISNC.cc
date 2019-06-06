@@ -72,7 +72,8 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
 
   valarray<double> val;
   map<string, valarray<double>> err;
-  QCDNUM::zswitch(_ipdfSet[termID]);       // This sets proper PDF set for the computations below
+  if (this->getReactionName() == "BaseDISNC")
+    QCDNUM::zswitch(_ipdfSet[termID]);       // This sets proper PDF set for the computations below
 
   switch (GetDataType(termID))
   {
@@ -148,7 +149,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
 {
   unsigned termID = td->id;
 
-  if (this->getReactionName() == "BaseDSINC" && td->getPDF()->getClassName() != string("QCDNUM")) {
+  if (this->getReactionName() == "BaseDISNC" && td->getPDF()->getClassName() != string("QCDNUM")) {
     xfitter::BaseEvolution* pdf = td->getPDF();
     cerr<<"[ERROR] BaseDISNC can only work with QCDNUM evolution; got evolution \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<termID<<endl;
     hf_errlog(19052311, "F: BaseDISNC can only work with QCDNUM evolution");
