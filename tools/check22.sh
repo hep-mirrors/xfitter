@@ -44,18 +44,18 @@ diff temp/out.txt temp/def.txt
 
 exitcode=$?
 
+flagAllFine=1
 if [ $exitcode = 0 ]; then
 echo "========================================"
 echo "Check of chi^2 is fine"
 echo "========================================"
 else
 echo "========================================"
-echo -e "Failed validation with default steering"
+echo "Failed validation with default steering"
 echo "========================================"
-exit 1
+flagAllFine=0
 fi 
 echo "Checking all output files ..."
-flagAllFine=1
 for file in `find output -type f`; do
   out=`checkFile $file ${EXAMPLEDIR}/${file}`
   echo $out
@@ -74,4 +74,7 @@ echo "========================================"
 
 rm -rf temp
 
+if [ $flagAllFine = 0 ]; then
+  exit 1
+fi
 
