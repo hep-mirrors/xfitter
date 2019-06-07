@@ -72,8 +72,6 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
 
   valarray<double> val;
   map<string, valarray<double>> err;
-  if (this->getReactionName() == "BaseDISNC")
-    QCDNUM::zswitch(_ipdfSet[termID]);       // This sets proper PDF set for the computations below
 
   switch (GetDataType(termID))
   {
@@ -483,6 +481,8 @@ void ReactionBaseDISNC::GetF2ud(TermData *td, valarray<double> &f2u, valarray<do
     auto q2 = *q2p, x = *xp;
 
     // Call QCDNUM
+    QCDNUM::zswitch(_ipdfSet[termID]);       // This sets proper PDF set for the computations below
+
     const int id = 2;
     const int flag = 0;
     int Npnt = GetNpoint(termID);
@@ -515,6 +515,7 @@ void ReactionBaseDISNC::GetFLud(TermData *td, valarray<double> &flu, valarray<do
     auto q2 = *q2p, x = *xp;
 
     // Call QCDNUM
+    QCDNUM::zswitch(_ipdfSet[termID]);       // This sets proper PDF set for the computations below
     const int id = 1;
     const int flag = 0;
     int Npnt = GetNpoint(termID);
@@ -547,6 +548,7 @@ void ReactionBaseDISNC::GetxF3ud(TermData *td, valarray<double> &xf3u, valarray<
     auto q2 = *q2p, x = *xp;
 
     // Call QCDNUM
+    QCDNUM::zswitch(_ipdfSet[termID]);       // This sets proper PDF set for the computations below
     const int id = 3;
     const int flag = 0;
     int Npnt = GetNpoint(termID);

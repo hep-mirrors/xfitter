@@ -130,6 +130,7 @@ valarray<double> GetF(TermData *td, const int id)
       std::abort(); //unreachable
   }
   // Call QCDNUM
+  QCDNUM::zswitch(rd->ipdfSet); // Set PDF in QCDNUM:
   const int flag = 0;
   const int Npnt = x.size();
   valarray<double> ret(Npnt);
@@ -146,10 +147,6 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
 {
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   const double MW = *rd->Mw;
-
-  // Set PDF in QCDNUM:
-  if (this->getReactionName() == "BaseDISCC")
-    QCDNUM::zswitch(rd->ipdfSet);
 
   // Basic formulae for CC cross section:
   const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
