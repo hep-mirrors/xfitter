@@ -16,28 +16,66 @@ checkFile()
   fi 
 }
 
+# This is SUFFIX for input file names in $INPUTDIR: could be e.g. 'def' (by default), 'dipole', etc.
+SUFFIX=$1
+SUFFIXDEF='def'
+if [ -z $SUFFIX ]; then
+  SUFFIX=$SUFFIXDEF
+fi
+
 rm -rf temp
 mkdir temp
 
 echo "========================================"
 echo "Running checks"
 echo "========================================"
-echo "validation test: "
-echo "PASS if code runs properly DIS code and produces HERAPDF2.0"
-echo "FAIL if code fails to reproduce HERAPDF2.0"
+echo "validation test: $SUFFIX"
+echo "PASS if code runs properly"
+echo "FAIL if code fails to reproduce expected results"
 echo "========================================"
 
-INPUTDIR='input_steering_22'
-EXAMPLEDIR='examples_22'
+INPUTDIR="input_steering_22"
+EXAMPLEDIR="examples_22/output-$SUFFIX"
 
-cp ${INPUTDIR}/steering.txt.def steering.txt
-cp ${INPUTDIR}/parameters.yaml.def parameters.yaml
-cp ${INPUTDIR}/constants.yaml.def constants.yaml
+FlagUnique=0
+STEERING=${INPUTDIR}/steering.txt.${SUFFIX}
+if [ ! -f $STEERING ]; then
+  STEERING=${INPUTDIR}/steering.txt.${SUFFIXDEF}
+else
+  FlagUnique=1
+fi
+cp ${STEERING} steering.txt
+
+PARAMETERS=${INPUTDIR}/parameters.yaml.${SUFFIX}
+if [ ! -f $PARAMETERS ]; then
+  PARAMETERS=${INPUTDIR}/parameters.yaml.${SUFFIXDEF}
+else
+  FlagUnique=1
+fi
+cp ${PARAMETERS} parameters.yaml
+
+CONSTANTS=${INPUTDIR}/constants.yaml.${SUFFIX}
+if [ ! -f $CONSTANTS ]; then
+  CONSTANTS=${INPUTDIR}/constants.yaml.${SUFFIXDEF}
+else
+  FlagUnique=1
+fi
+cp ${CONSTANTS} constants.yaml
+
+if [ $FlagUnique = 0 ] && [ $SUFFIX != "def" ]; then
+  echo "Failed to find input files for test \"$SUFFIX\""
+  exit 1
+fi
+
+echo "Using ${STEERING}"
+echo "Using ${PARAMETERS}"
+echo "Using ${CONSTANTS}"
+echo "========================================"
 
 bin/xfitter >/dev/null
 
 grep  'After' output/Results.txt > temp/out.txt
-grep  'After' ${EXAMPLEDIR}/output/Results.txt > temp/def.txt
+grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
 
 cat temp/out.txt
 diff temp/out.txt temp/def.txt 
@@ -57,7 +95,13 @@ flagAllFine=0
 fi 
 echo "Checking all output files ..."
 for file in `find output -type f`; do
-  out=`checkFile $file ${EXAMPLEDIR}/${file}`
+  targetfile=${EXAMPLEDIR}/`echo ${file} | sed -e 's/output//'`
+  if [ ! -f $targetfile ]; then
+    echo "No reference $targetfile"
+    flagAllFine=0
+    continue
+  fi
+  out=`checkFile $file $targetfile`
   echo $out
   echo $out | grep FAILED > /dev/null
   if [ $exitcode = 1 ]; then
@@ -65,7 +109,7 @@ for file in `find output -type f`; do
   fi
 done
 echo "========================================"
-if [ $flagAllFine = 1 ]; then
+if [ $flagAllFine != 0 ]; then
   echo "Everything is fine"
 else
   echo "Something failed: see above for details"
