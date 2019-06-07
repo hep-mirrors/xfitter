@@ -3,6 +3,14 @@
 #   Turn on Verbose Mode
 #set -x
 
+if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
+  echo "Usage: check.sh <TEST> [OPTION]"
+  echo "OPTION:"
+  echo "  --copy to copy results and make them reference"
+  echo "  --help to see this message"
+  exit 1
+fi
+
 checkFile()
 {
   printf "diff $1 $2 ... "
@@ -23,19 +31,34 @@ if [ -z $SUFFIX ]; then
   SUFFIX=$SUFFIXDEF
 fi
 
+# Optionally copy results and make them reference
+COPYRESULTS=0
+if [ "$2" = "--copy" ]; then
+  COPYRESULTS=1
+fi
+
 rm -rf temp
 mkdir temp
 
 echo "========================================"
-echo "Running checks"
+echo "Running checks: $SUFFIX"
 echo "========================================"
-echo "validation test: $SUFFIX"
-echo "PASS if code runs properly"
-echo "FAIL if code fails to reproduce expected results"
-echo "========================================"
+if [ $COPYRESULTS -eq 0 ]; then
+  echo "validation test:"
+  echo "PASS if code runs properly"
+  echo "FAIL if code fails to reproduce expected results"
+  echo "========================================"
+fi
 
 INPUTDIR="input_steering_22"
 EXAMPLEDIR="examples_22/output-$SUFFIX"
+if [ $COPYRESULTS -eq 1 ]; then
+  rm -rf $EXAMPLEDIR
+  mkdir -p $EXAMPLEDIR
+  mkdir -p $EXAMPLEDIR'/xfitter_pdf'
+  echo "Results will be stored as reference in $EXAMPLEDIR"
+  echo "========================================"
+fi
 
 FlagUnique=0
 STEERING=${INPUTDIR}/steering.txt.${SUFFIX}
@@ -74,28 +97,38 @@ echo "========================================"
 
 bin/xfitter >/dev/null
 
-grep  'After' output/Results.txt > temp/out.txt
-grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
-
-cat temp/out.txt
-diff temp/out.txt temp/def.txt 
-
-exitcode=$?
-
-flagAllFine=1
-if [ $exitcode = 0 ]; then
-echo "========================================"
-echo "Check of chi^2 is fine"
-echo "========================================"
-else
-echo "========================================"
-echo "Failed validation with default steering"
-echo "========================================"
 flagAllFine=0
-fi 
+if [ $COPYRESULTS -eq 0 ]; then
+  grep  'After' output/Results.txt > temp/out.txt
+  grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
+
+  cat temp/out.txt
+  diff temp/out.txt temp/def.txt 
+
+  exitcode=$?
+
+  flagAllFine=1
+  if [ $exitcode = 0 ]; then
+    echo "========================================"
+    echo "Check of chi^2 is fine"
+    echo "========================================"
+    flagAllFine=1
+  else
+    echo "========================================"
+    echo "Failed validation with default steering"
+    echo "========================================"
+    flagAllFine=0
+  fi
+fi
+
 echo "Checking all output files ..."
 for file in `find output -type f`; do
   targetfile=${EXAMPLEDIR}/`echo ${file} | sed -e 's/output//'`
+  if [ $COPYRESULTS -eq 1 ]; then
+    echo "storing $file as $targetfile"
+    cp $file $targetfile
+    continue
+  fi
   if [ ! -f $targetfile ]; then
     echo "No reference $targetfile"
     flagAllFine=0
@@ -109,12 +142,14 @@ for file in `find output -type f`; do
   fi
 done
 echo "========================================"
-if [ $flagAllFine != 0 ]; then
-  echo "Everything is fine"
-else
-  echo "Something failed: see above for details"
+if [ $COPYRESULTS -eq 0 ]; then
+  if [ $flagAllFine != 0 ]; then
+    echo "Everything is fine"
+  else
+    echo "Something failed: see above for details"
+  fi
+  echo "========================================"
 fi
-echo "========================================"
 
 rm -rf temp
 
