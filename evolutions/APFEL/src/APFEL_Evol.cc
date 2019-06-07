@@ -265,7 +265,7 @@ std::map<int, double> APFEL_Evol::xfxQmap(double x, double Q)
     // photon PDF:
     if (ipdf == 7)
       ii = 22;
-    res[ii] = pdfs[ipdf];
+    res[ii] = pdfs[ipdf+6];
   }
   return res;
 }
