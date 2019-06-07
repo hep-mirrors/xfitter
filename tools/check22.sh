@@ -3,14 +3,7 @@
 #   Turn on Verbose Mode
 #set -x
 
-if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
-  echo "Usage: check.sh <TEST> [OPTION]"
-  echo "OPTION:"
-  echo "  --copy to copy results and make them reference"
-  echo "  --help to see this message"
-  exit 1
-fi
-
+# function to check if $1 and $2 are identical
 checkFile()
 {
   printf "diff $1 $2 ... "
@@ -23,6 +16,15 @@ checkFile()
   echo "FAILED"
   fi 
 }
+
+# the scrpit starts here
+if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
+  echo "Usage: check.sh <TEST> [OPTION]"
+  echo "OPTION:"
+  echo "  --copy to copy results and make them reference"
+  echo "  --help to see this message"
+  exit 1
+fi
 
 # This is SUFFIX for input file names in $INPUTDIR: could be e.g. 'def' (by default), 'dipole', etc.
 SUFFIX=$1
@@ -156,4 +158,3 @@ rm -rf temp
 if [ $flagAllFine = 0 ]; then
   exit 1
 fi
-

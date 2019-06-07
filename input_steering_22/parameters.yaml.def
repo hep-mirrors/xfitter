@@ -25,8 +25,8 @@ Parameters:
   Adv  :  DEPENDENT
   Bdv  : [ 1.029995, 0.06 ]
   Cdv  : [ 4.846279, 0.3 ]
-  Aubar: [ 0.1613, 0.0 ] # not used (Aubar=Adbar)
-  Bubar: [ -0.1273, 0.0  ] # not used (Bubar=Bdbar)
+  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
+  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
   Cubar: [ 7.059694, 0.8 ]
   Dubar: [ 1.548098, 1.0 ]
   Adbar: [ 0.1613, 0.01 ]
@@ -38,9 +38,6 @@ Parameters:
     #max
     #pr_mean
     #pr_sigma
-#  As   : [ 0.1075, 0.0    ]
-#  Bs   : [  -0.1273, 0.0  ]
-#  Cs   : [ 9.586246, 0.0  ]
   ZERO : [ 0. ]          # zero
   fs : [ 0.4, 0.0 ]
 
