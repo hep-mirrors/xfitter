@@ -273,7 +273,7 @@
 
    ProcessName(9)     = 'NC e+-p charm'
    Variable(9)        = 'Q2'
-   CutValueMin(9)     = 3.5 
+   CutValueMin(9)     = 1.5 
    CutValueMax(9)     = 10000.0
 
    ProcessName(10)     = 'NC e+-p charm'
