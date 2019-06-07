@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #   Turn on Verbose Mode
 #set -x
@@ -39,8 +39,8 @@ if [ "$2" = "--copy" ]; then
   COPYRESULTS=1
 fi
 
-rm -rf temp
-mkdir temp
+rm -rf temp/$SUFFIX
+mkdir -p temp/$SUFFIX
 
 echo "========================================"
 echo "Running checks: $SUFFIX"
@@ -59,6 +59,9 @@ if [ $COPYRESULTS -eq 1 ]; then
   mkdir -p $EXAMPLEDIR
   mkdir -p $EXAMPLEDIR'/xfitter_pdf'
   echo "Results will be stored as reference in $EXAMPLEDIR"
+  echo "========================================"
+else
+  echo "Output will be stored in temp/$SUFFIX/xfitter.txt"
   echo "========================================"
 fi
 
@@ -97,7 +100,7 @@ echo "Using ${PARAMETERS}"
 echo "Using ${CONSTANTS}"
 echo "========================================"
 
-bin/xfitter >/dev/null
+bin/xfitter >& temp/$SUFFIX/xfitter.txt
 
 flagAllFine=0
 if [ $COPYRESULTS -eq 0 ]; then
@@ -108,6 +111,7 @@ if [ $COPYRESULTS -eq 0 ]; then
   diff temp/out.txt temp/def.txt 
 
   exitcode=$?
+  rm -f temp/out.txt temp/def.txt
 
   flagAllFine=1
   if [ $exitcode = 0 ]; then
@@ -139,7 +143,7 @@ for file in `find output -type f`; do
   out=`checkFile $file $targetfile`
   echo $out
   echo $out | grep FAILED > /dev/null
-  if [ $exitcode = 1 ]; then
+  if [ $exitcode = 0 ]; then
     flagAllFine=0
   fi
 done
@@ -152,8 +156,6 @@ if [ $COPYRESULTS -eq 0 ]; then
   fi
   echo "========================================"
 fi
-
-rm -rf temp
 
 if [ $flagAllFine = 0 ]; then
   exit 1
