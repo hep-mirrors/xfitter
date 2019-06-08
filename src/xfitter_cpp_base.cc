@@ -55,3 +55,14 @@ void stripString(string&s){
   if(p1==s.c_str()&&p2==p1+s.size()-1)return;
   s=s.substr(size_t(p1-s.c_str()),size_t(p2-p1+1));
 }
+
+extern "C"{
+  extern struct {
+    char outdirname[256]; // outout dir name
+    char lhapdf6outdir[256]; // DEPRECATED
+  } coutdirname_;
+}
+
+string xfitter::getOutDirName(){
+  return stringFromFortran(coutdirname_.outdirname,256);
+}

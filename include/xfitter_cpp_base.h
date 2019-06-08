@@ -16,3 +16,11 @@ bool beginsWith(const std::string&str,const std::string&prefix);
 bool beginsWith(const std::string&str,const char*       prefix);
 bool beginsWith(const char*       str,const char*       prefix);
 void stripString(std::string&s);//Remove leading and trailing whitespace in string
+
+namespace xfitter{
+/*!
+\brief Returns path to directory in which all xfitter output should be stored
+\details The output directory is determined by setting OutDirName in steering.txt
+*/
+std::string getOutDirName();
+}
