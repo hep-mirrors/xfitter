@@ -1,7 +1,6 @@
 Minimizer: MINUIT # CERES
 MINUIT:
   Commands: |
-    fix 6 7 9 11 12 13 14 15 16 17 18 19 20 22 
     call fcn 3
 #  doErrors :  Hesse # None
 
@@ -136,3 +135,17 @@ hf_scheme_DISCC :
   defaultValue : 'BaseDISCC'       # global specification
 #  defaultValue : 'FONLL_DISCC'     # global specification
 #  defaultValue : 'FFABM_DISCC'     # global specification
+
+
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  Parameters:
+    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
+  Evolutions:
+    proton-LHAPDF:
+      sets:    [CT10]
+      members: [[0,1,end]]
+  Status: "Off"               # "Off" to turn off profiler
+  WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)

@@ -36,14 +36,14 @@ namespace xfitter
     for (int j = 0; j < npt; j++) {
       sysmeas_.syst_meas_idx[nsys][j] = j + 1;
       systema_.beta[j][nsys] =  -uncertainties[j];
+      // also store asymmetric errors:
+      systasym_.betaasym[j][0][nsys] = -uncertainties[j];
+      systasym_.betaasym[j][1][nsys] =  uncertainties[j];
       systasym_.omega[j][nsys] = 0.0;
     }
     systscal_.sysscalingtype[nsys] = 1;  //Apply linear scaling
-
-    
     return;
   }
-
 
   void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertaintiesP,   std::valarray<double> uncertaintiesM) {
 
@@ -62,29 +62,48 @@ namespace xfitter
       systasym_.omega[j][nsys] = 0.5*(systasym_.betaasym[j][0][nsys] + systasym_.betaasym[j][1][nsys]);
     };
     systscal_.sysscalingtype[nsys] = 1;  //Apply linear scaling
-
-    
     return;
   }
+
   void Profiler::doProfiling(){
     using namespace std;
     const YAML::Node node=XFITTER_PARS::rootNode["Profiler"];
     if(!node)return;
     if(!node.IsMap())hf_errlog(2018101201,"F: Cannot do profiling: Profiler node is not a YAML map");
+    if (node["Status"]) {
+      if (node["Status"].as<string>() == "Off") return;
+    }
+    int nsysloc = systema_.nsys;
+
     for(auto const&term:node){
       string name=term.first.as<string>();
       if(name=="Evolutions"){
         for(auto const&evol:term.second){
           profilePDF(evol.first.as<string>(),evol.second);
         }
-      }else{
-        if(XFITTER_PARS::gParameters.count(name)==0){
-          cerr<<"[ERROR] Failed to profile parameter \""<<name<<"\": no such parameter"<<endl;
-          hf_errlog(2018101202,"F: Failed to profile some parameter, see stderr");
+      }
+      else if (name=="Parameters") {
+        for(auto const&param:term.second){
+          string name = param.first.as<string>();
+          if(XFITTER_PARS::gParameters.count(name)==0){
+            cerr<<"[ERROR] Failed to profile parameter \""<<name<<"\": no such parameter"<<endl;
+            hf_errlog(2018101202,"F: Failed to profile some parameter, see stderr");
+          }
+          profileParameter(name,param.second);
         }
-        profileParameter(name,term.second);
       }
     };
+
+    // Store theo file:
+    if (node["WriteTheo"]) {
+      if (node["WriteTheo"].as<string>() != "Off") {
+        auto cent = evaluatePredictions();
+        int ntot = systema_.nsys;
+        systema_.nsys = nsysloc;
+        writetheoryfiles_(ntot-nsysloc, &cent[0], node["WriteTheo"].as<string>() != "Asymmetric");
+        systema_.nsys = ntot;
+      }
+    }
   }
 
   void Profiler::profileParameter( std::string const& name, YAML::Node const& node) {
