@@ -12,6 +12,8 @@
 
 // APFEL C++ interface header
 #include "APFEL/APFEL.h"
+#include "hf_errlog.h"
+#include "BaseEvolution.h"
 
 // The class factory
 extern "C" ReactionFONLL_DISNC *create()
@@ -20,9 +22,17 @@ extern "C" ReactionFONLL_DISNC *create()
 }
 
 // Initialize at the start of the computation
-void ReactionFONLL_DISNC::atStart()
+void ReactionFONLL_DISNC::atStart(){}
+
+void ReactionFONLL_DISNC::initTerm(TermData* td)
 {
-  // check if APFEL is present.
+  ReactionBaseDISNC::initTerm(td);
+  // Check if APFEL evolution is used
+  xfitter::BaseEvolution* pdf = td->getPDF();
+  if (pdf->getClassName() != string("APFEL") ) {
+    std::cerr<<"[ERROR] Reaction "<<getReactionName()<<" only supports APFEL evolution; got evolution named \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<td->id<<std::endl;
+    hf_errlog(19051815,"F: Reaction " + getReactionName() + " can only work with APFEL evolution, see stderr");
+  }
 }
 
 // Compute all predictions in here and store them to be returned
