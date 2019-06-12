@@ -48,7 +48,7 @@ namespace xfitter
   }
 
   //_________________________________________________________________________________
-  void EvolutionAPFELxx::atConfigurationChange()
+  void EvolutionAPFELxx::atIteration()
   {
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
