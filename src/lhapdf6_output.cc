@@ -11,8 +11,14 @@
 #include"BaseMinimizer.h"
 using namespace std;
 using xfitter::BaseEvolution;
-//TODO: Document all this stuff
 
+/*!
+\brief Clip points to a given range
+\param a      Lower edge of range
+\param b      Upper edge of range
+\param points Sorted array of points
+\return Sorted array containing a, b and all points from input array that are >a and <b
+*/
 vector<double> clipPoints(double a, double b, const vector<double>& points){
   vector<double> ret;
   ret.push_back(a);
@@ -30,6 +36,18 @@ vector<double> clipPoints(double a, double b, const vector<double>& points){
 }
 
 //Webster's method
+/*
+\brief Proportionally distribute a given number of points between bins
+\details
+  Divide a given number of points between some bins, proportionally to weights assigned to the bins, using Webster's method.
+  Let N --- total number of points to distribute; W --- array of weights assigned to each bin; then, according to Webster's method, bin i gets
+  R[i]=round(x*W[i])
+  where x --- some value common for all bins, which is determined from condition that the total number of points assigned to all bins is equal to N.
+  This function is used to distribute grid points between subintervals.
+\param[in] W Array of weights assigned to bins, len(W) is number of bins, W[i] is weight assigned to bin i
+\param[in] N Number of points to distribute
+\return Integer array R, where R[i] is number of points assigned to bin i, which is proportional to its weight W[i]. It is guaranteed that sum(R)=N.
+*/
 vector<size_t> apportionWebsters(const vector<double>& W, const size_t N){
   size_t size = W.size();
   double Wsum = accumulate(W.begin(), W.end(), double(0));//Wsum=sum of elements of W
@@ -64,7 +82,19 @@ vector<size_t> apportionWebsters(const vector<double>& W, const size_t N){
   }
 }
 
-//TODO document
+/*!
+\brief Make a grid of Q points
+\details
+  The points are picked according to the spacing function f(Q).
+  That means that if one applies the spacing function to each point in Q grid, the resulting numbers would be (roughly) equally spaced.
+  In the regular case the spacing function is f(Q)=ln(ln(Q/Lambda)).
+  In case Qmin<=Lambda this spacing function cannot be used, so makeQgrid will fall back to logarithmic spacing function f(Q)=ln(Q) and issue a warning.
+  The algorithm makes sure that quark mass thresholds and Z-boson mass are included as points in the returned grid, if these points are between Qmin and Qmax.
+\param min Lower edge of grid, included in the grid
+\param max Upper edge of grid, included in the grid
+\param N total number of points in the grid
+\return Array of size N, containing the Q points
+*/
 vector<double> makeQgrid(const double min, const double max, const size_t N){
   const static size_t MAX_POINTS = 1000000;//Protection against overflow
   if (N > MAX_POINTS) abort();//TODO make error message
@@ -119,11 +149,15 @@ double Xspacing(double x){
   return log(x) + X_SPACING_CONSTANT*x;
 }
 
-//Newton's method
+//The inverse of Xspacing
+//let a=X_SPACING_CONSTANT
+//Then X spacing function is y=ln(x)+ax
+//Its inverse is found by solving transcendental equation exp(y)=x*exp(a*x) with respect to x
+//The equation is solved numerically using Newton's method
 double invXspacing(double y){
   const double EPSILON = 1e-10;
   const double a = X_SPACING_CONSTANT;
-  const size_t MAX_ITERATIONS = 100;//usually ~10 iterations is enough
+  const size_t MAX_ITERATIONS = 100;//usually 1--10 iterations is enough
   if (std::isnan(y)) return NAN;
   double x;
   if (y>0.1) x = y/a;//initial approximation
@@ -137,6 +171,17 @@ double invXspacing(double y){
   abort();//TODO proper error: too many iterations
 }
 
+/*!
+\brief Make a grid of X points
+\details
+  The points are picked according to the spacing function f(x)=ln(x)+5*x
+  That means that if one applies the spacing function to each point in X grid, the resulting numbers would be equally spaced.
+\param min Lower edge of grid, included in the grid
+\param max Upper edge of grid, included in the grid
+\param N total number of points in the grid
+\return Array of size N, containing the X points
+\see Xspacing invXspacing
+*/
 vector<double> makeXgrid(const double xmin, const double xmax, const size_t N){
   const size_t MAX_POINTS = 1000000;//Protection against overflow
   if (N > MAX_POINTS) abort();//TODO make error message
@@ -153,9 +198,11 @@ vector<double> makeXgrid(const double xmin, const double xmax, const size_t N){
 }
 
 struct Q_Subgrid{
-  double* begin;
-  double* end;
-  int nflavors;
+  double* begin;//pointer to start of array of Q points
+  double* end;  //pointer to just after the end of array of Q points
+  int nflavors; //number of active flavors in this Q-subrange, usually between 3 (u,d,s) and 6 (u,d,s,c,b,t)
+  //Offsets are applied to first and last points in the Q array
+  //This is used to sample Q points just above or just below mass thresholds
   double offset_first = 0;
   double offset_last  = 0;
 };
@@ -296,6 +343,7 @@ struct LHAPDF6_Options{
   static LHAPDF6_Options fromYAML(YAML::Node);
 };
 
+//Returns "hessian" or "symmhessian" for PDF error type
 const char* getErrorType(){
   //PLACEHOLDER: I am not sure right now how to get error type in the general case
   //for example when CERES is used instead of MINUIT
@@ -339,6 +387,7 @@ size_t getNmembers(){
   return 1;
 }
 
+//Parse control block in YAML steering and fill LHAPDF6_Options
 LHAPDF6_Options LHAPDF6_Options::fromYAML(YAML::Node node){
   LHAPDF6_Options info;
   BaseEvolution*pdf = xfitter::get_evolution(node["evolution"].as<string>(""));
