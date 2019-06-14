@@ -79,7 +79,7 @@ endif
 
 DIST_SUBDIRS = $(SUBDIRS) ACOT SACOT datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples \
-           FONLL python/ input_steering/ tools/
+           python/ input_steering/ tools/
 
 if ENABLE_LHAPDF
   SUBDIRS+= evolutions/LHAPDF/src\
