@@ -16,7 +16,8 @@ ExtraParConstr.cc TheorEval.cc ftheor_eval.cc  xfitter_cpp_base.cc xfitter_pars.
 tinyexpr.c expression_utils.cc dependent_pars.cc\
 fortran_interface.cc\
 offset_fns.f g_offset.cc\
-lhapdf6_output.c c_interface.f\
+c_interface.f\
+lhapdf6_output.cc\
 dis_sigma_ht.f\
 fortran_io.f lhapdferrors.cc\
 chi2scan.cc\

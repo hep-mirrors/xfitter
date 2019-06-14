@@ -119,7 +119,7 @@ extern"C" {
 
   extern struct {
     char outdirname[256]; // outout dir name
-    char lhapdf6outdir[256];
+    char lhapdf6outdir[256]; //DEPRECATED
   } coutdirname_;
 
   extern struct {
