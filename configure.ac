@@ -549,7 +549,7 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 
 # Output
-AC_CONFIG_FILES([include/Makefile 
+AC_CONFIG_FILES([include/Makefile
                  src/Makefile
                  xfitter/Makefile
                  common/Makefile
