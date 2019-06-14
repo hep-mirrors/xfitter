@@ -33,6 +33,7 @@ class CommandParser
   bool cl68, cl90, median;
   int plotsperpage;
   bool scale68;
+  string q2label;
 
   //data pulls options
   bool therr, points;
@@ -46,6 +47,7 @@ class CommandParser
   bool diff;
   bool noupband;
   int errbandcol;
+  string smooththeoryratios;
   
   //shifts options
   int spp, shgth;
@@ -185,6 +187,8 @@ private:
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "\t --q2all" << endl;
     cout << "\t \t Plot PDF at all stored values of Q2. By default PDF are plotted only at the starting scale Q0" << endl;
+    cout << "\t --q2label <string>" << endl;
+    cout << "\t \t Change scale \"Q^2\" in PDF plots to the specified label" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --no-data" << endl;
     cout << "\t \t Data plots are not produced" << endl;
@@ -210,6 +214,8 @@ private:
     cout << "\t \t Do not plot data, use theory as reference for ratio plots, and plot relative theory uncertainties" << endl;
     cout << "\t --diff" << endl;
     cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
+    cout << "\t --smooththeoryratios" << endl;
+    cout << "\t \t Smooth ratios of theory predictions: provide ROOT TF1 function to fit, e.g. 'pol1' or 'pol2', or 'smooth' to use TH1::Smooth()" << endl;
     cout << "\t --greenband" << endl;
     cout << "\t \t The total experimental uncertainty is shown with a green band" << endl;
     cout << "\t --blueband" << endl;
