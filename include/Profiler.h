@@ -50,6 +50,9 @@ namespace xfitter
 
     /// continuous nuisance parameter number for PDFs (if several are used)
     int _ipdf{0};
+
+    /// compute chi2 for each variation
+    bool _getChi2{false};
   };
   
 } //namespace xfitter
