@@ -572,8 +572,6 @@ AC_CONFIG_FILES([include/Makefile
                  SACOT/src/Makefile
                  SACOT/Makefile 
                  ABM/src/Makefile
-                 FONLL/src/Makefile
-                 FONLL/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
