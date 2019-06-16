@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 namespace xfitter
 {
@@ -98,6 +99,18 @@ namespace xfitter
 
     /// Get class name, can be used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
+
+    /**
+     * @brief Get x points of internal grid
+     * @return A sorted array of x points, or an empty array if such grid information is not available
+     */
+    virtual std::vector<double> getXgrid(){return std::vector<double>();}
+
+    /**
+     * @brief Get Q points of internal grid
+     * @return A sorted array of Q points, or an empty array if such grid information is not available
+     */
+    virtual std::vector<double> getQgrid(){return std::vector<double>();}
     ///@}
   };
 }
