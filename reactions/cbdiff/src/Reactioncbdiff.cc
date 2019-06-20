@@ -300,6 +300,8 @@ int Reactioncbdiff::compute(int dataSetID, valarray<double> &val, map<string, va
     else if(_mapMSbarMass[dataSetID] == 2)
     {
       double R = 3.0;
+      if(par->flav == 'c')
+        R = 1.0;
       int nl = mnr->GetNl();
       MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, 2, &R, &nl);
     }
