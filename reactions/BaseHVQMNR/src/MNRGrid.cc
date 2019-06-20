@@ -355,7 +355,7 @@ namespace MNR
               double as = spline_as.Eval(*R);
               double b0 = 11.0 - 2.0 / 3.0 * (*nf);
               double a1 = 2 * b0 * 0.348;
-              delta = (*R) * a1 * as / (4.0 * TMath::Pi());
+              delta = (*R) * a1 * as / (4.0 * TMath::Pi()) * (xsecOld_LO_massUp - xsecOld_LO_massDown) / mqDiff;
             }
             double xsecNew = xsecOld + delta;
             gridtrg->CS(c,l,y,w) = xsecNew;
