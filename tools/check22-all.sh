@@ -12,28 +12,28 @@ echo "====================================================="
 
 rm -rf temp/
 flagAllFine=1
+COPY=''
+# uncomment if you want to copy results and make them reference
+#COPY=' --copy'
 
 # chi2 iteration NNLO RTOPT QCDNUM (default) [HERAPDF2.0 arXiv:1506.06042 ]
-./tools/check22.sh def
+./tools/check22.sh defaultNNLO $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration NLO RTOPT QCDNUM [HERAPDF2.0 arXiv:1506.06042 ]
-./tools/check22.sh defNLO
+./tools/check22.sh defaultNLO $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration NLO FFABM QCDNUM [HERAPDF-HVQMASS arXiv:1804.01019]
-./tools/check22.sh FFABM
+./tools/check22.sh FFABM $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration FONLL APFEL
-./tools/check22.sh FONLL
+./tools/check22.sh FONLL $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # full fir ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
-#./tools/check22.sh ZMVFNS-fit
-if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
-
-#./tools/check22.sh def
+./tools/check22.sh ZMVFNS-fit $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 echo "====================================================="

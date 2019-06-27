@@ -3,6 +3,10 @@
 #   Turn on Verbose Mode
 #set -x
 
+# output style
+FAILED="\e[31m\e[1mFAILED\e[0m" # bold red
+OK="\e[32m\e[1mOK\e[0m" # bold green
+
 # function to check if $1 and $2 are identical
 checkFile()
 {
@@ -11,26 +15,26 @@ checkFile()
   exitcode=$?
 
   if [ $exitcode = 0 ]; then
-  echo "OK"
+  echo -e "$OK"
   else
-  echo "FAILED"
+  echo -e "$FAILED"
   fi 
 }
 
 # the scrpit starts here
 if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
   echo "Usage: check.sh <TEST> [OPTION]"
-  echo "OPTION:"
+  echo "OPTION could be:"
   echo "  --copy to copy results and make them reference"
   echo "  --help to see this message"
   exit 1
 fi
 
-# This is SUFFIX for input file names in $INPUTDIR: could be e.g. 'def' (by default), 'dipole', etc.
-SUFFIX=$1
-SUFFIXDEF='def'
-if [ -z $SUFFIX ]; then
-  SUFFIX=$SUFFIXDEF
+# TESTNAME is the name of directory in examples_22/
+TESTNAME=$1
+TESTNAMEDEF='defaultNNLO'
+if [ -z $TESTNAME ]; then
+  TESTNAME=$TESTNAMEDEF
 fi
 
 # Optionally copy results and make them reference
@@ -39,70 +43,47 @@ if [ "$2" = "--copy" ]; then
   COPYRESULTS=1
 fi
 
-rm -rf temp/$SUFFIX
-mkdir -p temp/$SUFFIX
+rm -rf temp/$TESTNAME
+mkdir -p temp/$TESTNAME
 
 echo "========================================"
-echo "Running checks: $SUFFIX"
+echo "Running checks: $TESTNAME"
 echo "========================================"
 if [ $COPYRESULTS -eq 0 ]; then
   echo "validation test:"
-  echo "PASS if code runs properly"
-  echo "FAIL if code fails to reproduce expected results"
+  echo "OK if code runs properly"
+  echo "FAILED if code fails to reproduce expected results"
   echo "========================================"
 fi
 
-INPUTDIR="input_steering_22"
-EXAMPLEDIR="examples_22/output-$SUFFIX"
+INPUTDIR="examples_22/$TESTNAME"
+EXAMPLEDIR="examples_22/$TESTNAME/output"
 if [ $COPYRESULTS -eq 1 ]; then
   rm -rf $EXAMPLEDIR
   mkdir -p $EXAMPLEDIR
-  mkdir -p $EXAMPLEDIR'/xfitter_pdf'
+  #mkdir -p $EXAMPLEDIR'/xfitter_pdf'
   echo "Results will be stored as reference in $EXAMPLEDIR"
   echo "========================================"
 else
-  echo "Output will be stored in temp/$SUFFIX/xfitter.txt"
+  echo "Output will be stored in temp/$TESTNAME/xfitter.txt"
   echo "========================================"
 fi
 
-FlagUnique=0
-STEERING=${INPUTDIR}/steering.txt.${SUFFIX}
-if [ ! -f $STEERING ]; then
-  STEERING=${INPUTDIR}/steering.txt.${SUFFIXDEF}
-else
-  FlagUnique=1
-fi
-cp ${STEERING} steering.txt
-
-PARAMETERS=${INPUTDIR}/parameters.yaml.${SUFFIX}
-if [ ! -f $PARAMETERS ]; then
-  PARAMETERS=${INPUTDIR}/parameters.yaml.${SUFFIXDEF}
-else
-  FlagUnique=1
-fi
-cp ${PARAMETERS} parameters.yaml
-
-CONSTANTS=${INPUTDIR}/constants.yaml.${SUFFIX}
-if [ ! -f $CONSTANTS ]; then
-  CONSTANTS=${INPUTDIR}/constants.yaml.${SUFFIXDEF}
-else
-  FlagUnique=1
-fi
-cp ${CONSTANTS} constants.yaml
-
-if [ $FlagUnique = 0 ] && [ $SUFFIX != "def" ]; then
-  echo "Failed to find input files for test \"$SUFFIX\""
+if [ ! -d $INPUTDIR ]; then
+  echo "Failed to find input files for test \"$TESTNAME\""
+  echo "expected directory $INPUTDIR"
   exit 1
 fi
-
-echo "Using ${STEERING}"
-echo "Using ${PARAMETERS}"
-echo "Using ${CONSTANTS}"
+echo "Using input files from ${INPUTDIR}"
 echo "========================================"
 
-bin/xfitter >& temp/$SUFFIX/xfitter.txt
+cp ${INPUTDIR}/steering.txt ./
+cp ${INPUTDIR}/parameters.yaml ./
+cp ${INPUTDIR}/constants.yaml ./
 
-flagAllFine=0
+bin/xfitter >& temp/$TESTNAME/xfitter.txt
+
+flagBAD=0
 if [ $COPYRESULTS -eq 0 ]; then
   grep  'After' output/Results.txt > temp/out.txt
   grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
@@ -113,17 +94,15 @@ if [ $COPYRESULTS -eq 0 ]; then
   exitcode=$?
   rm -f temp/out.txt temp/def.txt
 
-  flagAllFine=1
   if [ $exitcode = 0 ]; then
     echo "========================================"
-    echo "Check of chi^2 is fine"
+    echo -e "Check of chi^2 is $OK"
     echo "========================================"
-    flagAllFine=1
   else
     echo "========================================"
-    echo "Failed validation with default steering"
+    echo -e "$FAILED validation with default steering"
     echo "========================================"
-    flagAllFine=0
+    flagBAD=1
   fi
 fi
 
@@ -132,31 +111,33 @@ for file in `find output -type f`; do
   targetfile=${EXAMPLEDIR}/`echo ${file} | sed -e 's/output//'`
   if [ $COPYRESULTS -eq 1 ]; then
     echo "storing $file as $targetfile"
+    if [ ! -d `dirname $targetfile` ]; then
+      mkdir `dirname $targetfile`
+    fi
     cp $file $targetfile
     continue
   fi
   if [ ! -f $targetfile ]; then
     echo "No reference $targetfile"
-    flagAllFine=0
+    flagBAD=1
     continue
   fi
   out=`checkFile $file $targetfile`
   echo $out
   echo $out | grep FAILED > /dev/null
-  if [ $exitcode = 0 ]; then
-    flagAllFine=0
+  exitcode=$?
+  if [ $exitcode == 0 ]; then
+    flagBAD=1
   fi
 done
 echo "========================================"
 if [ $COPYRESULTS -eq 0 ]; then
-  if [ $flagAllFine != 0 ]; then
-    echo "Everything is fine"
+  if [ $flagBAD == 0 ]; then
+    echo -e "Everything is $OK"
   else
-    echo "Something failed: see above for details"
+    echo -e "Something $FAILED: see above for details"
   fi
   echo "========================================"
 fi
 
-if [ $flagAllFine = 0 ]; then
-  exit 1
-fi
+exit $flagBAD

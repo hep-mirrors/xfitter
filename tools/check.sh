@@ -1,3 +1,7 @@
+# SZ 27.06.2019
+# THIS IS OBSOLETE NOW
+#
+
 #!/bin/sh
 #
 #   Turn on Verbose Mode
