@@ -198,9 +198,6 @@
   ! x-range of output (standard = 1E-4 1.0)
   OUTXRANGE = 1E-4, 0.9999
 
-  ! Do not write out LHAPDF6 output
-  ! WriteLHAPDF6 = false
-
   ! Write out LHAPDF5 output
   ! WriteLHAPDF5 = false
 &End
