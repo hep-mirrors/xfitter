@@ -32,7 +32,11 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh FONLL $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
-# full fir ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
+# chi2 iteration for ALL data using NLO RTOPT LHAPDF=CT10nlo
+./tools/check22.sh ALLDATA $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# full fit ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
 ./tools/check22.sh ZMVFNS-fit $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
