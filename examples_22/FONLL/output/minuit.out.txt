@@ -2,15 +2,15 @@
 
  PARAMETER DEFINITIONS:
     NO.   NAME         VALUE      STEP SIZE      LIMITS
-     1 'Euv       '    9.9214      0.80000         no limits
-     2 'Ag        '    1.0000      constant
-     3 'Bg        '  -0.61953E-01  0.27000         no limits
-     4 'Agp       '   0.73110E-01  0.10000E-01     no limits
+     1 'Ag        '    1.0000      constant
+     2 'Bg        '  -0.61953E-01  0.27000         no limits
+     3 'Duv       '    0.0000      constant
+     4 'ZERO      '    0.0000      constant
      5 'Cg        '    5.5624      0.32000         no limits
-     6 'Duv       '    0.0000      constant
-     7 'Bgp       '  -0.38310      0.10000E-01     no limits
-     8 'ZERO      '    0.0000      constant
-     9 'Cgp       '    25.000      constant
+     6 'Bgp       '  -0.38310      0.10000E-01     no limits
+     7 'Agp       '   0.73110E-01  0.10000E-01     no limits
+     8 'Cgp       '    25.000      constant
+     9 'Euv       '    9.9214      0.80000         no limits
     10 'Auv       '    1.0000      constant
     11 'Buv       '   0.81048      0.16000E-01     no limits
     12 'Cuv       '    4.8235      0.60000E-01     no limits

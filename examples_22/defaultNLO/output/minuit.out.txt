@@ -4,11 +4,11 @@
     NO.   NAME         VALUE      STEP SIZE      LIMITS
      1 'Ag        '    1.0000      constant
      2 'Bg        '  -0.14834E-01  0.27000         no limits
-     3 'Agp       '   0.24046      0.10000E-01     no limits
-     4 'Cg        '    9.1068      0.32000         no limits
-     5 'Duv       '    0.0000      constant
+     3 'Duv       '    0.0000      constant
+     4 'ZERO      '    0.0000      constant
+     5 'Cg        '    9.1068      0.32000         no limits
      6 'Bgp       '  -0.16640      0.10000E-01     no limits
-     7 'ZERO      '    0.0000      constant
+     7 'Agp       '   0.24046      0.10000E-01     no limits
      8 'Cgp       '    25.000      constant
      9 'Euv       '    13.405      0.80000         no limits
     10 'Auv       '    1.0000      constant
@@ -42,11 +42,11 @@
   NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
    1    Ag          1.0000       constant   
    2    Bg        -0.14834E-01   0.27000    
-   3    Agp        0.24046       0.10000E-01
-   4    Cg          9.1068       0.32000    
-   5    Duv         0.0000       constant   
+   3    Duv         0.0000       constant   
+   4    ZERO        0.0000       constant   
+   5    Cg          9.1068       0.32000    
    6    Bgp       -0.16640       0.10000E-01
-   7    ZERO        0.0000       constant   
+   7    Agp        0.24046       0.10000E-01
    8    Cgp         25.000       constant   
    9    Euv         13.405       0.80000    
   10    Auv         1.0000       constant   
