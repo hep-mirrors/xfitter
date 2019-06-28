@@ -26,6 +26,7 @@ CommandParser::CommandParser(int argc, char **argv):
   asym(false),
   logx(true),
   filledbands(false),
+  transparentbands(false),
   rmin(0),
   rmax(0),
   xmin(-1),
@@ -58,6 +59,7 @@ CommandParser::CommandParser(int argc, char **argv):
   threepanels(false),
   multitheory(false),
   nothshifts(false),
+  nouncorrerr(false),
   version(true),
   drawlogo(true),
   nodata(false),
@@ -330,6 +332,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  }
 	else if (*it == "--filledbands")
 	  filledbands = true;
+	else if (*it == "--transparentbands")
+	  transparentbands = true;
 	else if (*it == "--ratiorange")
 	  {
 	    rmin = atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str());
@@ -403,7 +407,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	      {
 		col[0] = kRed - 2;
 		col[1] = kAzure - 9;
-		col[2] = kSpring - 9;
+		//col[2] = kSpring - 9;
+		col[2] = kGreen - 2;
 		col[3] = kOrange + 7;
 		col[4] = kSpring + 2;
 		col[5] = kSpring + 7;
@@ -469,6 +474,8 @@ CommandParser::CommandParser(int argc, char **argv):
 	  multitheory = true;
 	else if (*it == "--nothshifts")
 	  nothshifts = true;
+	else if (*it == "--nouncorrerr")
+	  nouncorrerr = true;
 	else
 	  {
 	    cout << endl;
