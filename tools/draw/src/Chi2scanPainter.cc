@@ -19,7 +19,7 @@ vector<TCanvas*> Chi2scanPainter()
     return cnvs;
 
   //Plot of Chi2 scan on central PDF
-  for (vector<string>::iterator it = list.begin(); it != list.end(); it++)//loop on chi2 scan labels
+  for (vector<string>::iterator it = list.begin(); it != list.end(); it++)//loop on chi2 scan labels (usually one)
     {
       //Set Canvas name and margins
       char cnvname[100];
@@ -49,7 +49,8 @@ vector<TCanvas*> Chi2scanPainter()
       vector <TF1*> chi2f;
       for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
 	if (chi2scanmap[*itl].label == *it)
-	  {
+	  if (chi2scanmap[*itl].min2_mc.size() == 0)
+	    {
 	    //Symmetric (pol2) or asymmetric (pol4) error treatment
 	    if (!outdirs[*itl].IsAsym())
 	      {
@@ -93,6 +94,17 @@ vector<TCanvas*> Chi2scanPainter()
 		parfit->SetParameter(2,chi2scanmap[*itl].c4);
 		parfit->SetParameter(3,chi2scanmap[*itl].b4);
 		parfit->SetParameter(4,chi2scanmap[*itl].a4);
+		double min4 = parfit->GetMinimumX(chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
+		double chi2min4 = parfit->Eval(min4);
+		TF1 *fs4 = new TF1("fs4", "abs([4]*x**4 + [3]*x**3 +[2]*x**2 + [1]*x + [0])");
+		fs4->SetParameter(4,parfit->GetParameter(4));
+		fs4->SetParameter(3,parfit->GetParameter(3));
+		fs4->SetParameter(2,parfit->GetParameter(2));
+		fs4->SetParameter(1,parfit->GetParameter(1));
+		fs4->SetParameter(0,parfit->GetParameter(0)-(chi2min4+1.));
+		double deltap4 = fs4->GetMinimumX(min4,chi2graph->GetX()[chi2graph->GetN()-1]+10.)-min4;
+		double deltam4 = min4-fs4->GetMinimumX(chi2graph->GetX()[0],min4);
+		cout << deltap4 << "  " << deltam4 << endl;
 	      }
 	    else
 	      {
