@@ -365,7 +365,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 	datahistos[0].Draw((TH1F*)datatot->Clone(), "PE3 same");
     }
   if (!opts.onlytheory)
-    datahistos[0].Draw(data, "PE1 same");
+    if (!opts.nouncorrerr)
+      datahistos[0].Draw(data, "P same");
+    else
+      datahistos[0].Draw(data, "PE1 same");
+  
   //reset axis range
   datatot->GetXaxis()->SetRange(datahistos[0].getlowrange(), datahistos[0].getuprange());
 
@@ -429,8 +433,13 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       if (!opts.onlytheory)
 	{
 	  leg->AddEntry(data, datalab.c_str(), "pl");
-	  leg->AddEntry(data, "#delta uncorrelated", "pe");
-	  leg->AddEntry(datatot, "#delta total", "f");
+	  if (!opts.nouncorrerr)
+	    {
+	      leg->AddEntry(data, "#delta uncorrelated", "pe");
+	      leg->AddEntry(datatot, "#delta total", "f");
+	    }
+	  else
+	    leg->AddEntry(datatot, "Total uncertainty", "f");
 	}
       TH1 *mark = (TH1F*)datahistos[0].getth()->Clone();
       mark->SetMarkerStyle(opts.markers[labels[0]]);
@@ -623,7 +632,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   data->SetMarkerStyle(20);
   data->SetMarkerSize(2 * opts.resolution / 1200);
   if (!opts.onlytheory)
-    datahistos[0].Draw(data, "PE1 same");
+    if (!opts.nouncorrerr)
+      datahistos[0].Draw(data, "P same");
+    else
+      datahistos[0].Draw(data, "PE1 same");
 
   leg1->Draw();
   leg2->Draw();
@@ -963,7 +975,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 
   //Draw data points
   if (!opts.onlytheory)
-    datahistos[0].Draw(r_data, "PE1 same");
+    if (!opts.nouncorrerr)
+      datahistos[0].Draw(r_data, "P same");
+    else
+      datahistos[0].Draw(r_data, "PE1 same");
 
   if (opts.multitheory)
     {
