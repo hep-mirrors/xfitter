@@ -25,7 +25,7 @@ class CommandParser
   CommandParser(int argc, char **argv);
 
   //pdf options
-  bool dobands, filledbands, asym, logx;
+  bool dobands, filledbands, transparentbands, asym, logx;
   float rmin, rmax;
   double xmin, xmax;
   bool abserror, relerror;
@@ -40,6 +40,7 @@ class CommandParser
   bool twopanels,threepanels;
   bool multitheory;
   bool nothshifts;
+  bool nouncorrerr;
   bool onlytheory;
   bool threlerr;
   bool ratiototheory;
@@ -187,6 +188,8 @@ private:
     cout << "\t \t Do not plot theory uncertainties in the upper panel" << endl;
     cout << "\t --nothshifts" << endl;
     cout << "\t \t Do not plot theory+shifts lines" << endl;
+    cout << "\t --nouncorrerr" << endl;
+    cout << "\t \t Do not plot uncorrelated error bars" << endl;
     cout << "\t --points" << endl;
     cout << "\t \t Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
     cout << "\t --theory <label>" << endl;
