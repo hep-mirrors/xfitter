@@ -7,6 +7,9 @@
 FAILED="\e[31m\e[1mFAILED\e[0m" # bold red
 OK="\e[32m\e[1mOK\e[0m" # bold green
 
+# xfitter binary
+xfitter=`pwd`/'bin/xfitter'
+
 # function to check if $1 and $2 are identical
 checkFile()
 {
@@ -43,14 +46,15 @@ if [ "$2" = "--copy" ]; then
   COPYRESULTS=1
 fi
 
-rm -rf temp/$TESTNAME
-mkdir -p temp/$TESTNAME
+rundir=temp/$TESTNAME
+rm -rf $rundir
+mkdir -p $rundir
 
 echo "========================================"
 echo "Running checks: $TESTNAME"
 echo "========================================"
 if [ $COPYRESULTS -eq 0 ]; then
-  echo "validation test:"
+  echo "This is validation test:"
   echo "OK if code runs properly"
   echo "FAILED if code fails to reproduce expected results"
   echo "========================================"
@@ -59,13 +63,10 @@ fi
 INPUTDIR="examples_22/$TESTNAME"
 EXAMPLEDIR="examples_22/$TESTNAME/output"
 if [ $COPYRESULTS -eq 1 ]; then
-  rm -rf $EXAMPLEDIR
-  mkdir -p $EXAMPLEDIR
-  #mkdir -p $EXAMPLEDIR'/xfitter_pdf'
   echo "Results will be stored as reference in $EXAMPLEDIR"
   echo "========================================"
 else
-  echo "Output will be stored in temp/$TESTNAME/xfitter.txt"
+  echo "Running in temp/$TESTNAME, output stored in temp/$TESTNAME/xfitter.txt"
   echo "========================================"
 fi
 
@@ -77,15 +78,18 @@ fi
 echo "Using input files from ${INPUTDIR}"
 echo "========================================"
 
-cp ${INPUTDIR}/steering.txt ./
-cp ${INPUTDIR}/parameters.yaml ./
-cp ${INPUTDIR}/constants.yaml ./
+cp ${INPUTDIR}/steering.txt $rundir
+cp ${INPUTDIR}/parameters.yaml $rundir
+cp ${INPUTDIR}/constants.yaml $rundir
+ln -s `pwd`/datafiles $rundir/datafiles
 
-bin/xfitter >& temp/$TESTNAME/xfitter.txt
+cd $rundir
+${xfitter} >& xfitter.txt
+cd - > /dev/null
 
 flagBAD=0
 if [ $COPYRESULTS -eq 0 ]; then
-  grep  'After' output/Results.txt > temp/out.txt
+  grep  'After' $rundir/output/Results.txt > temp/out.txt
   grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
 
   cat temp/out.txt
@@ -106,37 +110,34 @@ if [ $COPYRESULTS -eq 0 ]; then
   fi
 fi
 
-echo "Checking all output files ..."
-for file in `find output -type f`; do
-  targetfile=${EXAMPLEDIR}/`echo ${file} | sed -e 's/output//'`
-  if [ $COPYRESULTS -eq 1 ]; then
-    echo "storing $file as $targetfile"
-    if [ ! -d `dirname $targetfile` ]; then
-      mkdir `dirname $targetfile`
-    fi
-    cp $file $targetfile
-    continue
-  fi
-  if [ ! -f $targetfile ]; then
-    echo "No reference $targetfile"
-    flagBAD=1
-    continue
-  fi
-  out=`checkFile $file $targetfile`
-  echo $out
-  echo $out | grep FAILED > /dev/null
-  exitcode=$?
-  if [ $exitcode == 0 ]; then
-    flagBAD=1
-  fi
-done
-echo "========================================"
 if [ $COPYRESULTS -eq 0 ]; then
+  echo "Checking all output files ..."
+  for targetfile in `find ${EXAMPLEDIR} -type f`; do
+    file=`echo ${targetfile} | sed -e 's@${EXAMPLEDIR}@${rundir}@'`
+    if [ ! -f $file ]; then
+      echo "No expected file $file"
+      flagBAD=1
+      continue
+    fi
+    out=`checkFile $file $targetfile`
+    echo $out
+    echo $out | grep FAILED > /dev/null
+    exitcode=$?
+    if [ $exitcode == 0 ]; then
+      flagBAD=1
+    fi
+  done
+  echo "========================================"
   if [ $flagBAD == 0 ]; then
     echo -e "Everything is $OK"
   else
     echo -e "Something $FAILED: see above for details"
   fi
+  echo "========================================"
+else
+  rm -rf $EXAMPLEDIR
+  cp -r $rundir/output $EXAMPLEDIR
+  echo "Output copied"
   echo "========================================"
 fi
 
