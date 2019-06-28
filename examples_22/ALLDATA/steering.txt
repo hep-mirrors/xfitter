@@ -3,8 +3,8 @@
 
 &InFiles
   ! Number of intput files
-    !NInputFiles = 51
-    NInputFiles = 45
+    NInputFiles = 51
+    !NInputFiles = 45
     !NInputFiles = 1
 
    InputFileNames =
@@ -33,9 +33,10 @@
           'datafiles/hera/h1/jets/0706.3722/H1_InclJets_HighQ2_99-00-thexp.dat',
           'datafiles/hera/h1/jets/0911.5678/H1_InclJets_LowQ2_99-00-thexp.dat',
 
-!	  'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
-!	  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
-!	  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
+    ! normalised jets commented out: theory expression not implemented
+	  !'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
+	  !'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
+	  !'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
 
   ! ZEUS Jets:
           'datafiles/hera/zeus/jets/0208037/ZEUS_InclJets_HighQ2_96-97-thexp.dat',
@@ -61,14 +62,14 @@
  ! Tevatron
   ! CDF Jets, W, Z production:
           'datafiles/tevatron/cdf/jets/0807.2204/CDF_JETS2008-thexp.dat',
- 	  !!'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry-thexp.dat',
-    !!      'datafiles/tevatron/cdf/wzProduction/0908.3914/CDF_Z_Boson_Rapidity-thexp.dat',
+ 	  'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry-thexp.dat',
+          'datafiles/tevatron/cdf/wzProduction/0908.3914/CDF_Z_Boson_Rapidity-thexp.dat',
   ! D0  Jets, W, Z production:    
           'datafiles/tevatron/d0/jets/0802.2400/D0_JETS-thexp.dat',
-   !! 	  'datafiles/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity-thexp.dat',
- 	 !! 'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry-thexp.dat',
- 	 !! 'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
- 	 !! 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
+    	  'datafiles/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity-thexp.dat',
+ 	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry-thexp.dat',
+ 	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
+ 	  'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
   ! CDF and D0 combined Top production:
   ! NOTE: need Hathor package
    !       'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT.dat',
@@ -126,8 +127,8 @@
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    !NCorrFiles = 5
-    NCorrFiles = 4
+    NCorrFiles = 5
+    !NCorrFiles = 4
     !NCorrFiles = 0
 
  
@@ -139,12 +140,12 @@
     CorrFileNames(4) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
     CorrFileNames(5) = 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
 
-!  CorrFileNames(6) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-!  CorrFileNames(7) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-!  CorrFileNames(8) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-!  CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
-!  CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-!  CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  !CorrFileNames(6) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  !CorrFileNames(7) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  !CorrFileNames(8) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  !CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
+  !CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  !CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
 
 &End
 

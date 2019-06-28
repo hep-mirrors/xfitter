@@ -99,9 +99,10 @@ Evolutions:
 #  proton-APFEL:
 #    ? !include yaml/evolutions/APFELxx/parameters.yaml
 #    decomposition: proton
-#  antiproton:
-#    class: FlipCharge
-#    input: proton-QCDNUM
+  antiproton:
+    class: FlipCharge
+    #input: proton-QCDNUM
+    input: proton-LHAPDF
 #  neutron:
 #    class: FlipUD
 #    input: proton-QCDNUM
