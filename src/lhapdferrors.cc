@@ -6,6 +6,7 @@
 #ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
 #endif
+#define LHAPDF6 6
 
 #include "TheorEval.h"
 
@@ -139,10 +140,12 @@ void get_lhapdferrors_()
   //set alphas from LHAPDF
   c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 
+#if LHAPDF_FAMILY == LHAPDF6
   //set also mc, mb and mt from LHAPDF
   steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
   steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
   steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+#endif
 
   //Evaluate chi2 for the central PDF member
   double chi2tot;
@@ -190,9 +193,11 @@ void get_lhapdferrors_()
     pointsmap[i].thc = c_theo_.theo_[i];
   /*****************************************************/
 
+#if LHAPDF_FAMILY == LHAPDF6
   //Reduce LHAPDF verbosity
   LHAPDF::Info& cfg = LHAPDF::getConfig();
   cfg.set_entry("Verbosity", 0);
+#endif
   
   
   /*****************************************************/
@@ -272,10 +277,12 @@ void get_lhapdferrors_()
 	      clhapdf_.ilhapdfset_ = iset;
 	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
 	  
+#if LHAPDF_FAMILY == LHAPDF6
 	      //set also mc, mb and mt from LHAPDF
 	      steering_.hf_mass_[0] = LHAPDF::getThreshold(4);
 	      steering_.hf_mass_[1] = LHAPDF::getThreshold(5);
 	      steering_.hf_mass_[2] = LHAPDF::getThreshold(6);
+#endif
 
 	      //set the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
 	      fill_c_common_();

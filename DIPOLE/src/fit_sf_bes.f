@@ -299,10 +299,22 @@ C=         r02 = R_02_sat(r,xx)
 C=         DIP_CS2 = SIGMA0 * (1.0D0 - dexp(-r02))
 C=         print *,'1',dip_cs,dip_cs2,xx,r,y
       elseif (DipoleModel.eq.5) then 
-C=== BGK dipole model:
-c      print *,'BGK parameters ',cBGK,eBGK
-      r02 = R_02_evol(r,xx)
-      DIP_CS = sig0 * (1.0D0 - dexp(-r02))
+C       BGK dipole model:
+C      print *,'BGK parameters ',cBGK,eBGK
+       r02 = R_02_evol(r,xx)
+C 7/06/2016  
+      if (DipCsModel.eq.1) then
+        DIP_CS = sig0 * (1.0D0 - dexp(-r02))
+c      write(82 ,1043)  DIP_CS,r02,r,xx,sig0
+C            write(*,*) ' with saturation'
+       else
+         DIP_CS = sig0 * r02   
+c            DIP_CS = sig0 * (1.0D0 - dexp(-r02))
+C            write(*,*) ' without saturation'
+       endif
+C A.L      
+       write(82 ,1043) DIP_CS, r02, r, xx, sig0
+1043    Format(E16.7, 2E12.4, f9.4, 2E12.4, 2E12.4)
 c=         write(*,*) ' BGK MODEL is working'
 C=         Y = log(1/x)
 C=         DIP_CS = sigma_proton(r,y) * SIGMA0
