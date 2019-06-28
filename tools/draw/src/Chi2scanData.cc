@@ -30,6 +30,11 @@ Chi2scanData::Chi2scanData(string dirname, string dirlabel)
 	  f >> dummy >> A >> B >> C >> D;
 	  f >> min4 >> deltap4 >> deltam4 >> chi2min4;
 	  f >> dummy >> a4 >> b4 >> c4 >> d4 >> e4;
+
+	  double val, c2;
+	  while (f >> val >> c2)
+	    chi2[val] = c2;
+	  
 	  min2_mc.push_back(min2);
 	  delta2_mc.push_back(delta2);
 	  min3_mc.push_back(min2);
