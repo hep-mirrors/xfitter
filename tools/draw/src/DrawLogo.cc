@@ -105,7 +105,7 @@ void ATLASpreliminary()
 {
   TLatex p; 
   p.SetNDC();
-  p.SetTextFont(42);
+  p.SetTextFont(62);
   p.SetTextSize(ratio*0.04);
   p.DrawLatex(ratio*(labx+0.19), laby-0.05, "Preliminary");
 }
@@ -138,9 +138,9 @@ void DrawLabels(string pos)
   laby = 1-tmarg;
   if (pos.find("ur") != string::npos)
     if (opts.atlas)
-      labx = 1. - rmarg - 0.19;
+      labx = 1. - rmarg - 0.19 - 0.25;
     else
-      labx = 1. - rmarg - 0.19 - 0.20;
+      labx = 1. - rmarg - 0.19 - 0.20 - 0.25;
 
   if (pos.find("bc") != string::npos)
     {
