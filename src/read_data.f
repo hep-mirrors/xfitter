@@ -921,7 +921,6 @@ C  Store:
                   BetaAsym(CompressIdx(i),2,npoints) = syst(i)
      $                 *SysScaleFactor(CompressIdx(i))                
                endif
-
 C  Symmetrise:
                if (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
@@ -929,10 +928,23 @@ C  Symmetrise:
                   BETA(CompressIdx(i),npoints) = 
      $                 0.5*( BetaAsym(CompressIdx(i),1,npoints)-
      $                        BetaAsym(CompressIdx(i),2,npoints))
-
+                  
                   LAsymSyst(CompressIdx(i)) = .true.
                endif
 
+C     Correct total error
+               if (NAsymPlus(CompressIdx(i)).eq.1
+     $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
+                  E_TOT(npoints)  = sqrt(E_TOT(npoints)**2
+     $                 -(BetaAsym(CompressIdx(i),1,npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2
+     $                 -(BetaAsym(CompressIdx(i),2,npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2
+     $                 +(BETA(CompressIdx(i),npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2)
+               endif
+
+               
                if ( (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1)
      $              .or. 
