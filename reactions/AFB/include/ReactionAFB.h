@@ -35,17 +35,16 @@ protected:
   virtual int parseOptions(){ return 0;};
 
 private:
+  bool flagInit;
+
   // Define a structure to pass the parameters
   struct integration_params {
     double Minv;
     ReactionTheory* ptr;
   };
 
-  static string integration_param;
-  static int integration_switch;
   static int key_param;
   static size_t alloc_space;
-  static size_t calls;
 
   static double epsabs;
   static double epsrel;
@@ -54,12 +53,10 @@ private:
   static double energy_param, eta_cut_param, pT_cut_param, y_min_param, y_max_param;
 
   static double e_param, gsm_param, smangle_param;
-  static double foton_Vu, foton_Au, foton_Vd, foton_Ad, foton_Vl, foton_Al, foton_Vnu, foton_Anu;
-  static double Z_Vu, Z_Au, Z_Vd, Z_Ad, Z_Vl, Z_Al, Z_Vnu, Z_Anu;
-  static double even_foton_up, even_foton_down, even_interf_up, even_interf_down, even_Z_up, even_Z_down;
-  static double odd_foton_up, odd_foton_down, odd_interf_up, odd_interf_down, odd_Z_up, odd_Z_down;
-
-  bool flagInit;
+  static double photon_Vu, photon_Au, photon_Vd, photon_Ad, photon_Vl, photon_Al;
+  static double Z_Vu, Z_Au, Z_Vd, Z_Ad, Z_Vl, Z_Al;
+  static double even_photon_up, even_photon_down, even_interf_up, even_interf_down, even_Z_up, even_Z_down;
+  static double odd_photon_up, odd_photon_down, odd_interf_up, odd_interf_down, odd_Z_up, odd_Z_down;
 
   static double *propagators (double);
 
