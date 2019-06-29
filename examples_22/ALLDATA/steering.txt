@@ -3,14 +3,15 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 51
-    !NInputFiles = 45
-    !NInputFiles = 1
+    !NInputFiles = 51
+    NInputFiles = 73
+    !NInputFiles = 65
+    !NInputFiles = 2
 
    InputFileNames =
  !
  ! HERA I+II 
- !'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry-thexp.dat',
+ !'datafiles/tevatron/cdf/wzProduction/0908.3914/CDF_Z_Boson_Rapidity-thexp.dat',
 
 
     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
@@ -46,11 +47,14 @@
   ! H1 Inclusive DIS low Ep: (included in HERA I+II combination, comment)
     !      'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',  ! superseded
 
-  ! H1 and ZEUS combined Charm production:
-          'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined-thexp.dat', 
-  ! beaty:
-          'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex-thexp.dat',
-	  'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty-thexp.dat',
+  ! H1 and ZEUS combined Charm production (superseded):
+          !'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined-thexp.dat', 
+  ! beaty (superseded):
+          !'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex-thexp.dat',
+          !'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty-thexp.dat',
+  ! H1 and ZEUS combined charm and beauty
+      'datafiles/hera/h1zeusCombined/charmbeautyProduction/1804.01019/H1ZEUS_Charm_combined-thexp.dat', 
+      'datafiles/hera/h1zeusCombined/charmbeautyProduction/1804.01019/H1ZEUS_Beauty_combined-thexp.dat', 
  !
  ! Fixed Target
   ! BCDMS F2 proton:
@@ -70,9 +74,17 @@
  	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry-thexp.dat',
  	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
  	  'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
-  ! CDF and D0 combined Top production:
+  
+  ! LHC and Tevatron ttbar and single top production:
   ! NOTE: need Hathor package
-   !       'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT.dat',
+     'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT-thexp.dat',
+     'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT-Hathor-thexp.dat',
+     'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT-Hathor-thexp.dat',
+     'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_quark-thexp.dat',
+     'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_antiquark-thexp.dat',
+     'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_quark-thexp.dat',
+     'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_antiquark-thexp.dat',
+ 
  !
  ! LHC
   ! CMS W, Z production:
@@ -113,22 +125,52 @@
        'datafiles/lhc/atlas/wzProduction/1612.03016/zylow_cc-thexp.dat',
        'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cc-thexp.dat',
        'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cf-thexp.dat',
-  ! LHCb:  need fixed flavour scheme, see steering.txt.hvqmnr.abs (and .norm)
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty.dat',  
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dch_pty.dat',
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dstar_pty.dat',
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Ds_pty.dat',
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Lambdac_pt.dat',
 
-  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bch_pty.dat',
-  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bzero_pty.dat',
-  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bs_pty.dat',
+   ! new files (not in xfitter-2.0.1)
+  ! LHCb charm and beauty (in principle need fixed flavour scheme with nf=3, see also steering.txt.hvqmnr.abs and .norm)
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty_Normy-thexp.dat',  
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dch_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dstar_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Ds_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Lambdac_y_Normy-thexp.dat',
+
+    'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bch_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bzero_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bs_pty_Normy-thexp.dat',
+    
+    ! CMS double-differential ttbar Run 1: include only one of these files, not all
+    'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_ytt-thexp.dat',
+    !'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_yt-thexp.dat',
+    !'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_yt_ptt-thexp.dat',
+
+  ! CMS W+c
+  'datafiles/lhc/cms/wzProduction/1310.1138/CMS_W_plus_c_SPM_12_002-thexp.dat',
+  
+  ! CMS W asymmetry 8 TeV (with NNLO Kfactors enabled)
+  'datafiles/lhc/cms/wzProduction/1603.01803/CMS_mAsymmetry_SMP_14_022_Kfactors-thexp.dat',
+  
+  ! D0 electron charge asymmetry
+  'datafiles/tevatron/d0/wzProduction/1412.2862/D0_Wel_pt25_asymmetry-thexp.dat',
+  
+  ! NuSea
+  'datafiles/tevatron/e866/dy/0103030/x2-low-mass-thexp.dat',
+  'datafiles/tevatron/e866/dy/0103030/x2-mid-mass-thexp.dat',
+  'datafiles/tevatron/e866/dy/0103030/x2-hi-mass-thexp.dat',
+
+  ! CMS 8 TeV jets
+  !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1-thexp.dat',
+  !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2-thexp.dat',
+  !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3-thexp.dat',
+  !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4-thexp.dat',
+  !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5-thexp.dat',
+  !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6-thexp.dat',
+
 &End
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 5
-    !NCorrFiles = 4
+    NCorrFiles = 8
+    !NCorrFiles = 11
     !NCorrFiles = 0
 
  
@@ -146,6 +188,21 @@
   !CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
   !CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
   !CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+
+   ! new files (not in xfitter-2.0.1)
+    CorrFileNames(6) = 'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_ytt__CMS_8TeV_ttbar_DoubleDiff_mtt_ytt.dat'
+    !CorrFileNames(6) = 'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_yt__CMS_8TeV_ttbar_DoubleDiff_mtt_yt.dat'
+    !CorrFileNames(6) = 'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_yt_ptt__CMS_8TeV_ttbar_DoubleDiff_yt_ptt.dat'
+
+    CorrFileNames(7) = 'datafiles/lhc/cms/wzProduction/1310.1138/CMS_W_plus_c_SPM_12_002___CMS_W_plus_c_SPM_12_002.cov'
+    CorrFileNames(8) = 'datafiles/lhc/cms/wzProduction/1603.01803/CMS_mAsymmetry_SMP_14_022___CMS_mAsymmetry_SMP_14_022.corr'
+
+    !CorrFileNames(7) = 'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1___CMS_8TeV_jets_Ybin1.dat'
+    !CorrFileNames(8) = 'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2___CMS_8TeV_jets_Ybin2.dat'
+    !CorrFileNames(9) = 'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3___CMS_8TeV_jets_Ybin3.dat'
+    !CorrFileNames(10) = 'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4___CMS_8TeV_jets_Ybin4.dat'
+    !CorrFileNames(11) = 'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5___CMS_8TeV_jets_Ybin5.dat'
+    !CorrFileNames(12) = 'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6___CMS_8TeV_jets_Ybin6.dat'
 
 &End
 
