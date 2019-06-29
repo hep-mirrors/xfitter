@@ -40,6 +40,10 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh ZMVFNS-fit $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
+# chi2 iteration for AFB pseudodata, checks AFB (LO) and APPLgrid (NLO) reactions
+./tools/check22.sh AFB $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
 echo "====================================================="
 if [ $flagAllFine -eq 1 ]; then
   echo " -> All tests are fine"
