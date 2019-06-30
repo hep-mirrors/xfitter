@@ -1,3 +1,6 @@
+C--------------------------------------------------------------------------
+C OZ 7.10.17 call user alpha_S and PDF routines (provided in sf_abkm_wrap.F)
+#define USER
 C-----------------
       SUBROUTINE PDFFILLGRID
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -8,9 +11,8 @@ C-----------------
 
       real*8 fsp(nxtot),bs(nxtot),cs(nxtot),ds(nxtot),xx(nxtot)
       real*8 pdfs(0:8),dpdfs(0:8,27)
-c RP      
-      dimension pdfsff(-6:6)
 
+      character name*80
       real*8 f(-6:6)
 
 !  Setup of the PDF grid
@@ -28,7 +30,6 @@ c RP
       do i=0,nxpgrid-1
         xgrid(i)=1-exp(log(1-xbmax)+delx3*(i-nxpgrid+1))
       end do
-c 
       xgrid(nxpgrid)=1.
 ! Mapping with log(x) at small x
       do i=-nxmgrid,0
@@ -43,6 +44,169 @@ c
         SGRID(I,kschemepdf)=DELS2(kschemepdf)*I
       END DO
 
+!  Here we fill the PDFs grid to be used elsewhere
+
+!  Select the PDF set from the LHAPDF library
+      name=' '
+#ifdef ABMP16
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.2) name='ABMP16_5_nnlo.LHgrid'   
+      end if
+      if (kschemepdf.eq.1) then 
+        if (kordpdf.eq.2) name='ABMP16_4_nnlo.LHgrid'   
+      end if
+      if (kschemepdf.eq.0) then 
+        if (kordpdf.eq.2) name='ABMP16_3_nnlo.LHgrid'   
+      end if
+#endif 
+#ifdef ABM12
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.2) name='abm12lhc_5_nnlo.LHgrid'    
+        if (kordpdf.eq.1) name='abm12lhc_5_nlo.LHgrid'    
+      end if
+      if (kschemepdf.eq.1) then 
+        if (kordpdf.eq.2) name='abm12lhc_4_nnlo.LHgrid'    
+      end if
+      if (kschemepdf.eq.0) then 
+        if (kordpdf.eq.2) name='abm12lhc_3_nnlo.LHgrid'    
+      end if
+#endif 
+#ifdef ABM11
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.2) name='abm11_5n_nnlo.LHgrid'    
+        if (kordpdf.eq.1) name='abm11_5n_nlo.LHgrid'    
+      end if
+      if (kschemepdf.eq.1) then 
+        if (kordpdf.eq.2) name='abm11_4n_nnlo.LHgrid'    
+        if (kordpdf.eq.1) name='abm11_4n_nlo.LHgrid'    
+      end if
+      if (kschemepdf.eq.0) then 
+        if (kordpdf.eq.2) name='abm11_3n_nnlo.LHgrid'    
+        if (kordpdf.eq.1) name='abm11_3n_nlo.LHgrid'    
+      end if
+#endif 
+#ifdef ABKM09
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.2) name='abkm09_5_nnlo.LHgrid'    
+        if (kordpdf.eq.1) name='abkm09_5_nlo.LHgrid'    
+      end if
+      if (kschemepdf.eq.1) then 
+        if (kordpdf.eq.2) name='abkm09_4_nnlo.LHgrid'    
+        if (kordpdf.eq.1) name='abkm09_4_nlo.LHgrid'    
+      end if
+      if (kschemepdf.eq.0) then 
+        if (kordpdf.eq.2) name='abkm09_3_nnlo.LHgrid'    
+        if (kordpdf.eq.1) name='abkm09_3_nlo.LHgrid'    
+      end if
+#endif 
+#ifdef JR09
+      if (kordpdf.eq.2) then
+        if (kschemepdf.eq.2) name='JR09VFnnloE.LHgrid'    
+        if (kschemepdf.eq.1) name='JR09VFnnloE.LHgrid'    
+        if (kschemepdf.eq.0) name='JR09FFnnloE.LHgrid'    
+      end if
+#endif
+#ifdef CT14
+      if (kordpdf.eq.1) then 
+        if (kschemepdf.eq.2) name='CT14nlo.LHgrid'    
+       end if
+      if (kordpdf.eq.2) then 
+        if (kschemepdf.eq.2) name='CT14nnlo.LHgrid'    
+      end if
+#endif
+#ifdef CT10
+      if (kordpdf.eq.1) then 
+        if (kschemepdf.eq.2) name='CT10nlo.LHgrid'    
+        if (kschemepdf.eq.1) name='CT10nlo_nf4.LHgrid'   
+        if (kschemepdf.eq.0) name='CT10nlo_nf3.LHgrid'    
+       end if
+      if (kordpdf.eq.2) then 
+        if (kschemepdf.eq.2) name='CT10nnlo.LHgrid'    
+      end if
+#endif
+#ifdef NN30
+      if (kordpdf.eq.1) then
+        if (kschemepdf.eq.2) name='NNPDF30_nnlo_as_0118.LHgrid'
+      end if
+      if (kordpdf.eq.2) then
+        if (kschemepdf.eq.2) name='NNPDF30_nnlo_as_0118.LHgrid'
+      end if
+#endif
+#ifdef NN23
+      if (kordpdf.eq.1) then
+        if (kschemepdf.eq.2) name='NNPDF23_nlo_FFN_NF5_as_0119.LHgrid'
+        if (kschemepdf.eq.1) name='NNPDF23_nlo_FFN_NF4_as_0119.LHgrid'
+        if (kschemepdf.eq.0) name='NNPDF23_nlo_as_0119.LHgrid'
+      end if
+      if (kordpdf.eq.2) then
+        if (kschemepdf.eq.2) name='NNPDF23_nnlo_FFN_NF5_as_0119.LHgrid'
+        if (kschemepdf.eq.1) name='NNPDF23_nnlo_FFN_NF4_as_0119.LHgrid'
+        if (kschemepdf.eq.0) name='NNPDF23_nnlo_as_0119.LHgrid'
+      end if
+#endif
+#ifdef NN21
+      if (kordpdf.eq.1) then
+        if (kschemepdf.eq.2) name='NNPDF21_FFN_NF5_100.LHgrid'
+        if (kschemepdf.eq.1) name='NNPDF21_FFN_NF4_100.LHgrid'
+        if (kschemepdf.eq.0) name='NNPDF21_FFN_NF3_100.LHgrid'
+      end if
+      if (kordpdf.eq.2) then
+        name='NNPDF21_nnlo_100.LHgrid'
+      end if
+#endif
+#ifdef MSTW08
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.2) name='MSTW2008nnlo68cl.LHgrid'    
+        if (kordpdf.eq.1) name='MSTW2008nlo68cl.LHgrid'    
+      end if
+      if (kschemepdf.eq.1) then 
+        if (kordpdf.eq.2) name='MSTW2008nnlo68cl_nf4.LHgrid'    
+        if (kordpdf.eq.1) name='MSTW2008nlo68cl_nf4.LHgrid'    
+      end if
+      if (kschemepdf.eq.0) then 
+        if (kordpdf.eq.2) name='MSTW2008nnlo68cl_nf3.LHgrid'    
+        if (kordpdf.eq.1) name='MSTW2008nlo68cl_nf3.LHgrid'    
+      end if
+#endif
+#ifdef MMHT14
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.1) name='MMHT2014nlo68cl.LHgrid'!//char(0)    
+        if (kordpdf.eq.2) name='MMHT2014nnlo68cl.LHgrid'!//char(0)     
+      end if
+#endif
+#ifdef CJ15
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.1) name='CJ15nlo.LHgrid'!//char(0)    
+      end if
+#endif
+#ifdef HERAPDF1
+      if (kschemepdf.eq.2) then 
+        if (kordpdf.eq.1) name='HERAPDF10_EIG.LHgrid'
+      end if
+#endif
+!  The NNLO toy LH PDFs 
+#ifdef TOYLH
+      CALL GETENV( 'GRIDS', name ) 
+      name=name(:LNBLNK(name))//'pdfs/toylh/toyLH_NNLO_nf3.grid'
+      call InitNNPDFwrap(name,NREP)
+      call InitPDF(kpdfset)
+#endif
+
+! Set the PDF set for the case of LHAPDF interface  
+#if defined(MSTW08)||defined(MMHT14)||defined(JR09)||defined(HERAPDF1)||defined(ABKM09)||defined(ABM11)||defined(ABM12)||defined(ABMP16)||defined(CT10)||defined(CT14)||defined(CJ15)||defined(NN21)||defined(NN23)||defined(NN30)  
+      if (name.eq.' ') then 
+        print *,'WARNING: the PDF set requested is not available'
+        stop
+      else
+        call initPDFSetByName(name)
+        call InitPDF(kpdfset)
+c        do ii=1,10
+c        kpdfset=ii
+c        call initlha6(name,kpdfset)
+c        end do
+c        stop
+      end if
+#endif
 
 ! ...then fill the PDF grid....
 
@@ -51,54 +215,104 @@ c
      *        *log(q2ini(kschemepdf)/0.04))*0.04
         DO IX=-nxmgrid,nxpgrid
           xb=xgrid(ix)
-
-
-c get PDFs ...    
-          CALL HF_Get_PDFs(xb,q2,PDFSFF)
-
-c ... and alpha_s
-          an = HF_Get_alphas(q2)
-
+#if defined(MSTW08)||defined(MMHT14)||defined(JR09)||defined(HERAPDF1)||defined(ABKM09)||defined(ABM11)||defined(ABM12)||defined(ABMP16)||defined(CT10)||defined(CT14)||defined(CJ15)||defined(NN21)||defined(NN23)||defined(NN30)||defined(TOYLH)  
+! LHAPDF interface
+!        call NumberPDF(kkk)
+!        print *,kkk
+#ifdef TOYLH
+! A special case for the toy LH PDFs
+           call NNPDFINTevolveLHA(xb,sqrt(q2),f,1)
+           q20alphas=rmass(8)**2
+           alphas0=0.35d0
+           an=alphas_ffn(q2)
+#else
+           an=alphasPDF(sqrt(q2))
+c           qq=sqrt(q2)
+c           an=alpslha6(qq)      !    C++ interface to LHAPDF
+#endif
+c  \alpha_s  
+           Y(kschemepdf,0,IX,is)=an
+c  PDFs
+           call evolvePDF(xb,sqrt(q2),f)
+c           do ipdf=-5,5
+c             f(ipdf) = xqglha6(ipdf, xb, qq)  !    C++ interface to LHAPDF
+c           end do
+c  gluon
+           Y(kschemepdf,1,IX,is)=f(0)
+c  d
+           Y(kschemepdf,2,IX,is)=f(1)
+c  dbar
+           Y(kschemepdf,3,IX,is)=f(-1)
+c  u
+           Y(kschemepdf,4,IX,is)=f(2)
+c  ubar
+           Y(kschemepdf,5,IX,is)=f(-2)
+c  s,sbar
+           Y(kschemepdf,6,IX,is)=f(3)
+           Y(kschemepdf,7,IX,is)=f(-3)
+           Y(kschemepdf,8,IX,is)=0.
+           Y(kschemepdf,9,IX,is)=0.
+           Y(kschemepdf,10,IX,is)=0.
+           Y(kschemepdf,11,IX,is)=0.
+c  c,cbar
+           if (kschemepdf.ge.1) then 
+             Y(kschemepdf,8,IX,is)=f(-4)
+             Y(kschemepdf,9,IX,is)=f(-4)
+             Y(kschemepdf,10,IX,is)=0.
+             Y(kschemepdf,11,IX,is)=0.
+           end if
+c  b,bbar
+           if (kschemepdf.ge.2) then 
+             Y(kschemepdf,10,IX,is)=f(-5)
+             Y(kschemepdf,11,IX,is)=f(-5)
+           end if
+#endif
+#ifdef USER
+! A user PDF input
 !  \alpha_s  
-          Y(kschemepdf,0,IX,is)=an
-
+           Y(kschemepdf,0,IX,is)=useralphas(q2
+     ,           ,kschemepdf,kordpdf,kpdfset)
 !  gluon
-          Y(kschemepdf,1,IX,is)=pdfsff(0)
-!      write(6,*)'RP as,q2,g',an,q2,Y(kschemepdf,1,IX,is)
-!          write(6,*)'gluon:',Y(kschemepdf,1,IX,is)
-          
-!         if(q2.lt.5.) then
-!      print*,'x,q2',xb,q2     
-!      write(6,*)'RP alpha,g',Y(kschemepdf,0,IX,is),Y(kschemepdf,1,IX,is) 
-!         endif
+           Y(kschemepdf,1,IX,is)=userpdfs(xb,q2,0
+     ,           ,kschemepdf,kordpdf,kpdfset)
 !  d
-          Y(kschemepdf,2,IX,is)=pdfsff(1)
+           Y(kschemepdf,2,IX,is)=userpdfs(xb,q2,1
+     ,           ,kschemepdf,kordpdf,kpdfset)
 !  dbar
-          Y(kschemepdf,3,IX,is)=pdfsff(-1)
+           Y(kschemepdf,3,IX,is)=userpdfs(xb,q2,-1
+     ,           ,kschemepdf,kordpdf,kpdfset)
 !  u
-          Y(kschemepdf,4,IX,is)=pdfsff(2)
+           Y(kschemepdf,4,IX,is)=userpdfs(xb,q2,2
+     ,           ,kschemepdf,kordpdf,kpdfset)
 !  ubar
-          Y(kschemepdf,5,IX,is)=pdfsff(-2)
+           Y(kschemepdf,5,IX,is)=userpdfs(xb,q2,-2
+     ,           ,kschemepdf,kordpdf,kpdfset)
 !  s,sbar
-          Y(kschemepdf,6,IX,is)=pdfsff(3)
-          Y(kschemepdf,7,IX,is)=pdfsff(-3)
-          Y(kschemepdf,8,IX,is)=0.
-          Y(kschemepdf,9,IX,is)=0.
-          Y(kschemepdf,10,IX,is)=0.
-          Y(kschemepdf,11,IX,is)=0.
+           Y(kschemepdf,6,IX,is)=userpdfs(xb,q2,3
+     ,           ,kschemepdf,kordpdf,kpdfset)
+           Y(kschemepdf,7,IX,is)=userpdfs(xb,q2,-3
+     ,           ,kschemepdf,kordpdf,kpdfset)
+           Y(kschemepdf,8,IX,is)=0.
+           Y(kschemepdf,9,IX,is)=0.
+           Y(kschemepdf,10,IX,is)=0.
+           Y(kschemepdf,11,IX,is)=0.
 !  c,cbar
-          if (kschemepdf.ge.1) then
-            Y(kschemepdf,8,IX,is)=pdfsff(-4)          
-            Y(kschemepdf,9,IX,is)=pdfsff(-4)          
-            Y(kschemepdf,10,IX,is)=0.
-            Y(kschemepdf,11,IX,is)=0.
-          end if
+           if (kschemepdf.ge.1) then 
+             Y(kschemepdf,8,IX,is)=userpdfs(xb,q2,-4
+     ,           ,kschemepdf,kordpdf,kpdfset)
+             Y(kschemepdf,9,IX,is)=userpdfs(xb,q2,-4
+     ,           ,kschemepdf,kordpdf,kpdfset)
+             Y(kschemepdf,10,IX,is)=0.
+             Y(kschemepdf,11,IX,is)=0.
+           end if
 !  b,bbar
-          if (kschemepdf.ge.2) then
-            Y(kschemepdf,10,IX,is)=pdfsff(-5)          
-            Y(kschemepdf,11,IX,is)=pdfsff(-5)          
-          end if
-
+           if (kschemepdf.ge.2) then 
+             Y(kschemepdf,10,IX,is)=userpdfs(xb,q2,-5
+     ,           ,kschemepdf,kordpdf,kpdfset)
+             Y(kschemepdf,11,IX,is)=userpdfs(xb,q2,-5
+     ,          ,kschemepdf,kordpdf,kpdfset)
+           end if
+#endif
         end do
 
 ! ...and finally, construct the spline interpolation coefficients for the grid.
@@ -128,7 +342,7 @@ C------------------
       data xbsav/-1./
       save xbsav,q2sav,is,q,ix,p
 
-      xb=xx               
+      xb=min(xx,xbmax)
 
       if(q2.gt.q2max.or.q2.lt.q2min)
      -            print*,'q2 out of range in xqg:',q2,q2min,q2max
@@ -143,7 +357,7 @@ C------------------
       q=(s-sgrid(is,kp))/(sgrid(is+1,kp)-sgrid(is,kp))
 
       if(xb.ne.xbsav) then 
-        if (xb.gt.1d0+1d-8.or.xb.lt.xbmin)
+        if (xb.lt.xbmin)
      -              print *,'xb out of range in xqg:',xb
 
         do ix=-nxmgrid,nxpgrid-1

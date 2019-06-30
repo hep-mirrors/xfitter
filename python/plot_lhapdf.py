@@ -13,7 +13,7 @@ def status():
     print ("Installed")
 
 
-def loadPDF(outDir="output", lhapdfDir='hf_pdf'):
+def loadPDF(outDir="output", lhapdfDir='xfitter_pdf'):
     lhapdf.pathsAppend(outDir)
     pdf = lhapdf.mkPDF(lhapdfDir)
     return pdf

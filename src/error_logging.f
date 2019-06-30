@@ -213,6 +213,16 @@ C-----------------------------------------------------------------------
       DO 100 ISEVER=1,4
 
 * for each severity level loop over all messages and
+         if (ISEVER.eq.2) then
+C Set color on
+            write (LL,'(A10)',advance='no') achar(27)//'[34m'
+         endif
+
+         if (ISEVER.ge.3) then
+C Set color on
+            write (LL,'(A10)',advance='no') achar(27)//'[31m'
+         endif
+
 
         FIRMES=.TRUE.
         DO 110 IMESS=1,NEN
@@ -254,6 +264,9 @@ C-----------------------------------------------------------------------
 110     CONTINUE
 
 100   CONTINUE
+
+      write (LL,'(A10)',advance='no') achar(27)//'[0m'
+
       WRITE(LL,905)
 
 *     reset error tables
@@ -266,19 +279,19 @@ C-----------------------------------------------------------------------
 
 999   RETURN
 
-900   FORMAT(// 12X,33('*')/12X,3('*'),7X,'Error Summary',7X,3('*')/
-     +       12X,33('*')/' '
-     +       /' Total number of logged errors:      ',I6,
-     +       /' Total number of errors not recorded:',I8)
-901   FORMAT(//,' List of errors sorted by severity level:'//
+900   FORMAT(// 12X,36('*')/12X,3('*'),7X,'Messages Summary',7X,3('*')/
+     +       12X,36('*')/' '
+     +       /' Total number of logged messages:      ',I6,
+     +       /' Total number of messages not recorded:',I8)
+901   FORMAT(//,' List of messages sorted by severity level:'//
      + ' *',78('-')/
-     + ' *','   Module   |   Error | Error |'/
-     + ' *','     Name   |    Type | Count |   Error Description'/
+     + ' *','   Module   | Message |Message|'/
+     + ' *','     Name   |    Type | Count | Message Description'/
      + ' *',78('-'))
 902   FORMAT(2X,A12,I10,I8,1X,A)
 903   FORMAT(31X,A)
 904   FORMAT(/2X,A/1X,'*',23('-'))
-905   FORMAT(/' *',78('-')//'  End of Error Summary'/)
+905   FORMAT(/' *',78('-')//'  End of Message Summary'/)
       END
 
 *--------------------------------------------

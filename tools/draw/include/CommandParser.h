@@ -33,6 +33,7 @@ class CommandParser
   bool cl68, cl90, median;
   int plotsperpage;
   bool scale68;
+  string q2label;
 
   //data pulls options
   bool therr, points;
@@ -48,6 +49,7 @@ class CommandParser
   bool noupband;
   int errbandcol;
   int rootfont;
+  string smooththeoryratios;
   
   //shifts options
   int spp, shgth;
@@ -159,12 +161,22 @@ private:
     cout << "\t \t To set this option only for one directory, use the syntax reweight-BAY:directory[:label]" << endl;
     cout << "\t \t To use the Giele-Keller weights instead of Bayesian weights, use the syntax reweight-GK:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw reweight-BAY:output:\"reweighted\" output:\"not-reweighted\"" << endl;
+
     cout << "\t options for rotation:" << endl;
     cout << "\t \t Draw Rotated PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option, use the syntax rotate:<n>:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw rotate:5:output:\"rotated-5\" output:\"not-rotated\"" << endl;
+
+    cout << "\t options for individual eigen sets:" << endl;
+    cout << "\t \t Draw individual eigen (or MC replica) set from a complete run" << endl;
+    cout << "\t \t To set this option, use the syntax set:<n>:directory[:label]" << endl;
+    cout << "\t Example: xfitter-draw --bands set:5:output:\"set 5\" output:\"Total Band\"" << endl;
+
+
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
+    cout << "\t --transparentbands" << endl;
+    cout << "\t \t Transparent uncertainty bands" << endl;
     cout << "\t --ratiorange min:max" << endl;
     cout << "\t \t Specify y axis range in PDF ratio plots" << endl;
     cout << "\t --xrange min:max" << endl;
@@ -179,6 +191,8 @@ private:
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "\t --q2all" << endl;
     cout << "\t \t Plot PDF at all stored values of Q2. By default PDF are plotted only at the starting scale Q0" << endl;
+    cout << "\t --q2label <string>" << endl;
+    cout << "\t \t Change scale \"Q^2\" in PDF plots to the specified label" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --no-data" << endl;
     cout << "\t \t Data plots are not produced" << endl;
@@ -206,6 +220,8 @@ private:
     cout << "\t \t Do not plot data, use theory as reference for ratio plots, and plot relative theory uncertainties" << endl;
     cout << "\t --diff" << endl;
     cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
+    cout << "\t --smooththeoryratios" << endl;
+    cout << "\t \t Smooth ratios of theory predictions: provide ROOT TF1 function to fit, e.g. 'pol1' or 'pol2', or 'smooth' to use TH1::Smooth()" << endl;
     cout << "\t --greenband" << endl;
     cout << "\t \t The total experimental uncertainty is shown with a green band" << endl;
     cout << "\t --blueband" << endl;
@@ -277,7 +293,7 @@ private:
     cout << " \t where s01m stands for experimental error (s), number of fitted parameters (01 to N) and minus (m) or plus (p) variation; " << endl;
     cout << " \t the last number stands for the index of the Q^2 value at which PDFs are drawn (defined in Q2VAL in steering.txt). " << endl;
     cout << " \t Similarly, m11m stands for model uncertainty and the number should start from N+1 (here assuming that N=10 for exp errors)." << endl;
-    cout << " \t Finally, p14m stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
+    cout << " \t Finally, p14s stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
     cout << " \t NOTE: if command '--bands <dir-full-uncert>' is used, the total uncertainty in red is drawn." << endl;
     cout << endl;
   };  

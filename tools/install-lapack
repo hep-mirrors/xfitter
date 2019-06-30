@@ -1,0 +1,58 @@
+#
+# Helper script to install blas and lapack 
+# Copies and installs files from the web-sources into deps/lapack and directory. 
+# Generates setup_lapack.sh file
+#
+
+# Package versions:
+
+lapackver=3.7.0
+
+#Check for dummies
+if [[ $0 == bash || $0 = csh ]]
+then
+    echo "Please don't source me, I am an executable!"
+    echo "Give me attributes with:"
+    echo "chmod +x install-lapack"
+    echo "and run me with:"
+    echo "./install-lapack"
+    return 2
+fi
+
+CURRENTDIR=`pwd`
+
+echo "Get lapack"
+mkdir -p deps
+cd deps
+wget http://www.netlib.org/lapack/lapack-${lapackver}.tgz > $CURRENTDIR/install_lapack.log 2>&1
+tar xfz lapack-${lapackver}.tgz >> $CURRENTDIR/install_lapack.log 2>&1
+cd  lapack-${lapackver}
+mkdir -p build
+cd build
+rm -fr $CURRENTDIR/deps/lapack
+cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/lapack .. >> $CURRENTDIR/install_lapack.log 2>&1
+make -j 12 install >> $CURRENTDIR/install_lapack.log 2>&1
+
+if [[ $? != 0 ]]
+then
+  echo "Error, check install_lapack.log for details"
+  exit
+fi
+
+cd $CURRENTDIR
+
+# do a bit of tricks to see where the things are installed:
+a=`grep pkgconfig/lapack.pc install_lapack.log | awk '{print $3}'`
+b=`dirname $a`
+
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$b
+
+
+libs=`pkg-config --libs  blas lapack`
+
+echo "Make setup_lapack.sh file"
+
+echo export LDFLAGS=\"\$LDFLAGS $libs\" > setup_lapack.sh
+
+
+

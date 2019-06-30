@@ -26,6 +26,10 @@ C !> New definition of stat. and uncor uncertainties:
       common/CUncErrors/e_stat_poisson,e_stat_const,
      $     e_uncor_poisson, e_uncor_const, e_uncor_mult, e_uncor_logNorm
 
+C     !> Force additive errors for a given data point:
+      logical LForceAdditiveData(NTOT)
+      common/cForceAdditive/LForceAdditiveData
+      
 C SG: Abstract binning:
       double precision  AbstractBins(NBinDimensionMax,NTOT)
 

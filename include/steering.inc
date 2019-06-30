@@ -88,6 +88,7 @@ C
 
       integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
       integer vIPDFSET         !>  value of IPDFSET for each dataset
+      integer cIDataSet        !>  dataset index to be used to dermine the number of active flavour in the H-VFNS
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
       logical lead             !> Flag to trigger lead PDF	
       logical deuteron             !> Flag to trigger deuteron PDF	
@@ -110,6 +111,8 @@ C
 
 
       integer AsymErrorsIterations !> Number of iterations for asymmetric errors. 0 -- off 
+
+      integer steering_check
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
@@ -124,14 +127,14 @@ C
      $     ,npolyval, lead
      $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
      $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, vIPDFSET, ICHECK_QCDNUM
+     $     ,IPDFSET, vIPDFSET, cIDataSet, ICHECK_QCDNUM
      $     ,UsePrevFit
      $     ,CorrSystByOffset,CorSysIndex
      $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
      $     CorChi2Type, hf_scheme, AsymErrorsIterations,
      $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5, 
      $     DoBandsSym
-      
+     $     , steering_check ! Keep this at the end of the common block 
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
 
@@ -184,8 +187,8 @@ C     Value for selection of a dipole model fit
       common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,
      $	 LHAPDFErrors,Scale68,nremovepriors,lhapdfprofile,lhascaleprofile
 
-      character*128 OutDirName   !> outout dir name
-      character*128 LHAPDF6OutDir
+      character*256 OutDirName   !> outout dir name
+      character*256 LHAPDF6OutDir
       common/COutDirName/OutDirName, LHAPDF6OutDir
 
       character*32 RunningMode

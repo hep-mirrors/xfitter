@@ -112,7 +112,7 @@ csm  1/2*m d/dm log(r) = - 1
       include 'CONSTCOM.'
 
       dome_g_1= - 4*tr*(z**2+(1-z)**2)
-
+ 
       return
       end
 csm new end

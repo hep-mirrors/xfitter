@@ -10,6 +10,7 @@
 #include "steering.inc"
 #include "alphas.inc"
 #include "couplings.inc"
+#include "thresholds.inc"
 
       dimension xf(-6:7)
 
@@ -24,7 +25,7 @@ C     Evolution parameters
 C     ------------------------------------------------------------------
 C     Declarations for the nxn evolution toolbox
 C     ------------------------------------------------------------------
-      parameter (nstoru = 20000000)                 !size of local store
+      parameter (nstoru = 1000000)                 !size of local store
       dimension storu(nstoru)                               !local store
       dimension iqlim(2)
 
@@ -75,9 +76,13 @@ C     Set evolution parameters
       call grpars(nx, xmi, xma, nq, qmi, qma, iord)
 
       q0 = starting_scale
-      q2c = hf_mass(1)**2
-      q2b = hf_mass(2)**2
-      q2t = hf_mass(3)**2
+
+C also add threshold values:
+
+      q2c = qc
+      q2b = qb
+      q2t = qt
+
       iqc  = iqfrmq(q2c)                          !charm threshold
       iqb  = iqfrmq(q2b)                          !bottom threshold
       iqt  = iqfrmq(q2t)                          !top threshold
@@ -221,14 +226,16 @@ C     PDF table identifiers
         call EvDglap(storu,idw8,ida3,idf8,start8,1,1,iqlim,nf,eps)
       enddo
 
-      do ix = 1,nx
-        start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
-     $                 +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
-     $                 -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
-        start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
-     $                  +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
-     $                  -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
-      enddo
+      if (iqt.gt.0) then
+         do ix = 1,nx
+            start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
+            start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
+         enddo
+      endif
 
       iqlim(1) = iqb
       iqlim(2) = iqb
@@ -240,15 +247,18 @@ C     PDF table identifiers
         call EvDglap(storu,idw9,ida3,idf9,start9,1,1,iqlim,nf,eps)
       enddo
 
-      iqlim(1) = iqt
-      iqlim(2) = iqt
-      nf = 1
-      do while (nf.gt.0)
-        iqlim(1) = iqlim(2)
-        iqlim(2) = 99999
-        call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
-        call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
-      enddo
+
+      if (iqt.gt.0) then
+         iqlim(1) = iqt
+         iqlim(2) = iqt
+         nf = 1
+         do while (nf.gt.0)
+            iqlim(1) = iqlim(2)
+            iqlim(2) = 99999
+            call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
+            call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
+         enddo
+      endif
 
 c      call dumptab(storu,isetw,11,'qcdweights.wt','')
 c      call dumptab(storu,isetw1,12,'qedweights.wt','')
@@ -268,6 +278,7 @@ c      call dumptab(storu,isetw1,12,'qedweights.wt','')
 #include "steering.inc"
 #include "alphas.inc"
 #include "couplings.inc"
+#include "thresholds.inc"
 
       dimension xf(-6:7)
 
@@ -285,7 +296,7 @@ c      data ichk/1/                                  !yes/no check limits
 C     ------------------------------------------------------------------
 C     Declarations for the nxn evolution toolbox
 C     ------------------------------------------------------------------
-      parameter (nstoru = 20000000)                 !size of local store
+      parameter (nstoru = 1000000)                 !size of local store
       dimension storu(nstoru)                               !local store
       dimension iqlim(2)
 
@@ -300,6 +311,7 @@ C     ------------------------------------------------------------------
       dimension idw8(1,1,4),idf8(1)
       dimension idw9(1,1,4),idf9(1)
       dimension idw10(1,1,4),idf10(1)
+      dimension idf(0:13)
       dimension itypes(6)                                   !table types
       dimension itypes1(6)                                  !table types
       dimension start1(4,1000)
@@ -312,7 +324,22 @@ C     ------------------------------------------------------------------
       dimension start8(1,1000)
       dimension start9(1,1000)
       dimension start10(1,1000)
-
+      dimension def(-6:6,12)
+      data def /
+C--   tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
+C--   -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6..
+     + 1.,-1., 1.,-1., 1.,-1., 0.,-1., 1.,-1., 1.,-1., 1.,   !Delta_S
+     + 1., 1., 1., 1., 1., 1., 0., 1., 1., 1., 1., 1., 1.,   !Sigma
+     +-1., 1.,-1., 1.,-1., 1., 0.,-1., 1.,-1., 1.,-1., 1.,   !Delta_V
+     +-1.,-1.,-1.,-1.,-1.,-1., 0., 1., 1., 1., 1., 1., 1.,   !V
+     + 0., 0., 0.,-1., 0., 1., 0., 1., 0.,-1., 0., 0., 0.,   !Delta_ds
+     + 0., 0., 0., 1., 0.,-1., 0., 1., 0.,-1., 0., 0., 0.,   !V_ds
+     + 0., 0.,-1., 0., 1., 0., 0., 0., 1., 0.,-1., 0., 0.,   !Delta_uc
+     + 0., 0., 1., 0.,-1., 0., 0., 0., 1., 0.,-1., 0., 0.,   !V_uc
+     + 0.,-1., 0., 1., 0., 0., 0., 0., 0., 1., 0.,-1., 0.,   !Delta_sb
+     + 0., 1., 0.,-1., 0., 0., 0., 0., 0., 1., 0.,-1., 0.,   !V_sb
+     +-1., 0., 1., 0., 0., 0., 0., 0., 0., 0., 1., 0.,-1.,   !Delta_ct
+     + 1., 0.,-1., 0., 0., 0., 0., 0., 0., 0., 1., 0.,-1. /  !V_ct
       data itypes/6*0/                                 !initialise types
       data itypes1/6*0/                                !initialise types
 
@@ -323,6 +350,20 @@ C     ------------------------------------------------------------------
      $idw3,ida3,idf3,idw4,idf4,idw5,idf5,idw6,idf6,idw7,idf7,idw8,idf8,
      $idw9,idf9,idw10,idf10
 
+      idf(0) = idf1(3)     !gluon
+      idf(1) = idf1(1)     !Delta_S
+      idf(2) = idf1(2)     !Sigma
+      idf(3) = idf2(1)     !Delta_V
+      idf(4) = idf2(2)     !V
+      idf(5) = idf3(1)     !Delta_ds
+      idf(6) = idf7(1)     !V_ds
+      idf(7) = idf4(1)     !Delta_uc
+      idf(8) = idf8(1)     !V_uc
+      idf(9) = idf5(1)     !Delta_sb
+      idf(10) = idf9(1)    !V_sb
+      idf(11) = idf6(1)    !Delta_ct
+      idf(12) = idf10(1)   !V_ct
+      idf(13) = idf1(4)    !photon
 
       lun = 6 !stdout, -6 stdout w/out banner page
 
@@ -336,9 +377,9 @@ c      alphas = hf_get_alphas(mz*mz)
       call grpars(nx, xmi, xma, nq, qmi, qma, iord)
 c      call setalf(alphas,mz*mz)
       q0 = starting_scale
-      q2c = hf_mass(1)**2
-      q2b = hf_mass(2)**2
-      q2t = hf_mass(3)**2
+      q2c = qc
+      q2b = qb
+      q2t = qt
       iqc  = iqfrmq(q2c)                           !charm threshold
       iqb  = iqfrmq(q2b)                          !bottom threshold
       iqt  = iqfrmq(q2t)                          !top threshold
@@ -408,16 +449,18 @@ C     Put 14 pdf and 4 alpha tables in the store
         call EvDglap(storu,idw8,ida3,idf8,start8,1,1,iqlim,nf,eps)
       enddo
 
-      do ix = 1,nx
-        start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
-     $                 +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
-     $                 -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
-        start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
-     $                  +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
-     $                  -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
-      enddo
 
-
+      if (iqt.gt.0) then
+         do ix = 1,nx
+            start6(1,ix) = +0.25D0*EvPdfij(storu,idf1(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf1(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf4(1),ix,iqt,1)
+            start10(1,ix) = +0.25D0*EvPdfij(storu,idf2(1),ix,iqt,1)
+     $           +0.25D0*EvPdfij(storu,idf2(2),ix,iqt,1)
+     $           -0.5D0*EvPdfij(storu,idf8(1),ix,iqt,1)
+         enddo
+      endif
+ 
       iqlim(1) = iqb
       iqlim(2) = iqb
       nf = 1
@@ -428,15 +471,20 @@ C     Put 14 pdf and 4 alpha tables in the store
         call EvDglap(storu,idw9,ida3,idf9,start9,1,1,iqlim,nf,eps)
       enddo
 
-      iqlim(1) = iqt
-      iqlim(2) = iqt
-      nf = 1
-      do while (nf.gt.0)
-        iqlim(1) = iqlim(2)
-        iqlim(2) = 99999
-        call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
-        call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
-      enddo
+
+      if (iqt.gt.0) then
+         iqlim(1) = iqt
+         iqlim(2) = iqt
+         nf = 1
+         do while (nf.gt.0)
+            iqlim(1) = iqlim(2)
+            iqlim(2) = 99999
+            call EvDglap(storu,idw6,ida3,idf6,start6,1,1,iqlim,nf,eps)
+            call EvDglap(storu,idw10,ida3,idf10,start10,1,1,iqlim,nf,eps)
+         enddo
+      endif
+
+      call EVPCOPY (storu, idf, def, 1, 8)
 
       return
       end
@@ -450,12 +498,13 @@ C--------------------------------------------------------
       implicit double precision (a-h,o-z)
 *
 #include "steering.inc"
+#include "thresholds.inc"
       double precision x,qmu2
       double precision xdelta,xsigma,xgluon,xphoton,xdeltav,xv,xdeltads,
      $ xdeltauc,xdeltasb,xvds,xvuc,xvsb
       dimension xf(-6:7)
 
-      parameter (nstoru = 20000000)                 !size of local store
+      parameter (nstoru = 1000000)                 !size of local store
       dimension storu(nstoru)
       dimension idw1(4,4,4),idf1(4),ida1(4,4,4)
       dimension idw2(2,2,4),idf2(2),ida2(2,2,4)
@@ -481,11 +530,21 @@ C--------------------------------------------------------
       call evtable(storu,idf3(1),x,1,qmu2,1,xdeltads,1)
       call evtable(storu,idf4(1),x,1,qmu2,1,xdeltauc,1)
       call evtable(storu,idf5(1),x,1,qmu2,1,xdeltasb,1)
-      call evtable(storu,idf6(1),x,1,qmu2,1,xdeltact,1)
+
+
+      iqt  = iqfrmq(qt)                          !top threshold
+
+      if (iqt.gt.0) then
+         call evtable(storu,idf6(1),x,1,qmu2,1,xdeltact,1)
+      endif
       call evtable(storu,idf7(1),x,1,qmu2,1,xvds,1)
       call evtable(storu,idf8(1),x,1,qmu2,1,xvuc,1)
       call evtable(storu,idf9(1),x,1,qmu2,1,xvsb,1)
-      call evtable(storu,idf10(1),x,1,qmu2,1,xvct,1)
+
+
+      if (iqt.gt.0) then
+         call evtable(storu,idf10(1),x,1,qmu2,1,xvct,1)
+      endif
 
       do i = -6,7
         xf(i) = 0d0

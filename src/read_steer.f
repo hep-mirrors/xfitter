@@ -7,6 +7,8 @@ C---------------------------------------------------
 
       implicit none
 
+
+
 #include "steering.inc"
 #include "ntot.inc"
 #include "indata.inc"
@@ -27,7 +29,6 @@ C Special branch for rotation
       endif
 
       call read_infilesnml   ! Read data file names THIRD
-      call read_ewparsnml   ! electroweak parameters
       call read_outputnml   ! output options
       call read_outdirnml   ! output dir 
 
@@ -227,6 +228,11 @@ C
       do i=1,NSYS
          System(i) = ' '
       enddo
+
+C Check variables for common blocks:
+      steering_check = 171717
+      call common_check(steering_check)
+
       end
 
 
@@ -380,61 +386,6 @@ C Print the namelist:
       call HF_stop
       end
 
-C---------------------------------------- 
-!> Read electroweak parameters
-C-----------------------------------------
-      subroutine read_ewparsnml
-
-      implicit none
-C Namelist for EW parameters:
-#include "couplings.inc"
-#include "steering.inc"
-
-      namelist/EWpars/alphaem, gf, sin2thw, convfac,
-     $ Mz, Mw, Mh, wz, ww, wh, wtp,
-     $ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb,
-     $ men, mel, mmn, mmo, mtn, mta, mup, mdn,
-     $ mch, mst, mtp, mbt
-C--------------------------------------------------
-      open (51,file='ewparam.txt',status='old')
-      read (51,NML=EWpars,END=43,ERR=44)
-      close (51)
-
-      HF_MASS(1) = mch
-      HF_MASS(2) = mbt
-      HF_MASS(3) = mtp
-
-* --- Check the consistency of the steering file
-
-      if (HFSCHEME.eq.1.and.HF_MASS(2)**2.lt.starting_scale) then
-       write(6,*)
-       write(6,*) 'Bottom thres. has to be larger than starting scale'
-       write(6,*)
-       call HF_stop
-      endif
-
-      if (HFSCHEME.eq.1.and.HF_MASS(2).lt.HF_MASS(1)) then
-       write(6,*)
-       write(6,*) 'Bottom thres. has to be larger than charm thres.'
-       write(6,*)
-       call HF_stop
-      endif
-
-      if (LDebug) then
-C Print the namelist:
-         print EWpars
-      endif
-
-      return
-
- 43   continue
-      print '(''Namelist @EWPars NOT found, STOP'')'
-      call HF_stop
-
- 44   continue
-      print '(''Error reading namelist @EWPars, STOP'')'
-      call HF_stop
-      end
 
 C-------------------------------------------------------
 !> Read InCorr namelist
@@ -756,25 +707,58 @@ C-------------------------------------------------------
 #include "steering.inc"
 #include "scales.inc"
 C---
-      integer i
+      integer i, nf
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
+
+      character*(80) cMsg
+      
+C reset defaults:
+      NInputFiles = 0
+      do i = 1,NSET
+         InputFileNames(i) = ''
+      enddo
 C-------------------------------------------------
 C  Read the data namelist:
 C
       open (51,file='steering.txt',status='old')
       read (51,NML=InFiles,END=71,ERR=72)
-      print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+
+C Determine how many files to process. First count them:
+      nf = 0
+      do i =1, NSET
+         if (InputFileNames(i).ne.'') then
+            nf = nf + 1
+         endif
+      enddo
+
+      if ( NInputFiles.eq.0) then
+         NInputFiles = nf       ! by default use all files
+      else
+         if (NInputFiles.gt.nf) then
+            write (cMsg,
+     $ '(''W: NInputFiles='',i4
+     $ ,'' exceeds actual number of files='',i4,'', reset'')')
+     $           NInputFiles, nf
+            call hf_errlog(18030601,cMsg)
+     $           
+            NInputFiles = nf
+         endif
+      endif
+      print '(''Will read '',I4,'' data files'')',NInputFiles
 C---------------------
 C
 C  Data-set dependent scales. First set defaults
 C
       do i=1,NInputFiles
-         DataSetMuR(i)    = 1.0D0
-         DataSetMuF(i)    = 1.0D0
-         DataSetIOrder(i) = I_Fit_Order
-         DataSetMaxNF(i)  = 0
+         DataSetMuR(i)            = 1.0D0
+         DataSetMuF(i)            = 1.0D0
+         DataSetIOrder(i)         = I_Fit_Order
+         DataSetMaxNF(i)          = 0
+         DataSetSwitchScales(4,i) = 0d0
+         DataSetSwitchScales(5,i) = 0d0
+         DataSetSwitchScales(6,i) = 0d0
       enddo
       UseHVFNS = .false.
 C---------------------
@@ -843,11 +827,12 @@ C---------------------------------------------------------
 #include "scales.inc"
 #include "steering.inc"
 #include "datasets.inc"
+#include "couplings.inc"
 C (Optional) Data-set dependent scales
-      integer i_fit_order_save,i
+      integer i_fit_order_save,i,ihq
       character*8 DataSetTheoryOrder(NSet)
       namelist/Scales/DataSetMuR,DataSetMuF,DataSetIOrder,
-     $     DataSetTheoryOrder,DataSetMaxNF
+     $     DataSetTheoryOrder,DataSetMaxNF,DataSetSwitchScales
 C---------------------------------------------
       do i=1,NSet
          DataSetTheoryOrder(i) = ''
@@ -865,14 +850,35 @@ C Check datasetorder
             call DecodeOrder(DataSetTheoryOrder(i))
             DataSetIOrder(i) = I_Fit_Order
          endif
-C Check if the H-VFNS has to be used
+C Check if the H-VFNS has to be used because some dataset
+C has "DataSetMaxNF" different from zero (default).
          if(DataSetMaxNF(i).ne.0)then
 C Check that MaxNF is between 3 and 6
             if(DataSetMaxNF(i).lt.3.or.
      1         DataSetMaxNF(i).gt.6) call hf_errlog(2105201601,
      2              'F: DataSetMaxNF must be between 3 and 6')
             UseHVFNS = .true.
+         else
+            DataSetMaxNF(i) = 6
          endif
+C Check if the H-VFNS has to be used because some dataset
+C has "DataSetSwitchScales" different from zero (default).
+         do ihq=4,6
+            if(DataSetSwitchScales(ihq,i).ne.0d0)then
+               UseHVFNS = .true.
+            else
+               if(ihq.eq.4) DataSetSwitchScales(ihq,i) = mch
+               if(ihq.eq.5) DataSetSwitchScales(ihq,i) = mbt
+               if(ihq.eq.6) DataSetSwitchScales(ihq,i) = mtp
+            endif
+C Check that the switching scales are ordered
+            if(ihq.gt.4)then
+               if(DataSetSwitchScales(ihq,i).lt.
+     1              DataSetSwitchScales(ihq-1,i))
+     2              call hf_errlog(24081601,
+     3              'F: DataSetSwitchScales must be ordered')
+            endif
+         enddo
       enddo
       I_Fit_Order = I_Fit_Order_Save
 
@@ -951,7 +957,7 @@ C------------------------------------------------
 C--------------------------------------------------------
 C  Read the OutDir namelist:
 C
-      LHAPDF6OutDir='hf_pdf'
+      LHAPDF6OutDir='xfitter_pdf'
       open (51,file='steering.txt',status='old')
       read (51,NML=OutDir,END=152,ERR=56)
  152  continue
@@ -963,20 +969,10 @@ C
       endif
 
 C check if limit of 22 char is not exceeded:      
-      if(LEN(TRIM(OutDirName)).gt.22) then
+      if(LEN(TRIM(OutDirName)).gt.256) then
           call hf_errlog(09092013,
-     $   'F: Name of result directory is too long (max is 22 char) ')
+     $   'F: Name of result directory is too long (max is 256 char) ')
           call hf_stop
-      endif
-
-      inquire(FILE=TRIM(OutDirName),EXIST=ex)
-      if(ex) then
-          call hf_errlog(250420131,
-     $   'I: Results written to existing directory: '//TRIM(OutDirName))
-      else 
-          call hf_errlog(250420132,
-     $     'I: Creating directory to store results: '//TRIM(OutDirName))
-          CALL system('mkdir -p '//TRIM(OutDirName))
       endif
 
 
@@ -984,9 +980,51 @@ C check if limit of 22 char is not exceeded:
          print OutDir
       endif
 
-C make sure that the status file is not  present in the directory:
-      call system("rm -f "//trim(OutDirName)//"/Status.out")
+#if ifort==1
+      inquire(directory=TRIM(OutDirName),EXIST=ex)
+#else
+      inquire(file=TRIM(OutDirName),EXIST=ex)
+#endif
+      if(ex) then
+#if ifort==1
+         inquire(directory=TRIM(OutDirName)//"_OLD",EXIST=ex)
+#else
+         inquire(file=TRIM(OutDirName)//"_OLD",EXIST=ex)
+#endif
+         if (ex) then
+            call hf_errlog(1303201701,
+     $           'W: Removing directory to backup results: '
+     $           //TRIM(OutDirName)//"_OLD")
+            call system("rm -fr "//trim(OutDirName)//"_OLD")
 
+            print *,achar(27)//'[31m'//
+     $           'W: Removing directory to backup results: '
+     $           //TRIM(OutDirName)//"_OLD"
+     $           //achar(27)//'[0m'
+
+
+         endif
+
+         call hf_errlog(1303201702,
+     $        'W: Backup '//TRIM(OutDirName)//' to '
+     $        //TRIM(OutDirName)//"_OLD"
+     $        )
+
+            print *,achar(27)//'[31m'//
+     $        'W: Backup '//TRIM(OutDirName)//' to '
+     $        //TRIM(OutDirName)//"_OLD"
+     $           //achar(27)//'[0m'
+
+
+
+         call system("mv "//trim(OutDirName)//" "
+     $        //trim(OutDirName)//"_OLD")
+      endif
+
+      call hf_errlog(250420132,
+     $     'I: Creating directory to store results: '//TRIM(OutDirName))
+      CALL system('mkdir -p '//TRIM(OutDirName))
+      
       return
  56   continue
       print '(''Error reading namelist &OutDir, STOP'')'
@@ -1032,8 +1070,9 @@ C
 C---------------------------------------
       Subroutine SetPDFStyle()
 
-      implicit none
 
+      implicit none
+      external CheckForPDF
       logical lhapdffile_exists
       integer*1 has_photon
 #include "steering.inc"
@@ -1042,8 +1081,7 @@ C---------------------------------
       ! --- FlexibleGluon is used in SumRules
       FlexibleGluon = .false.
       
-      if (PDFStyle.eq.'10p HERAPDF'.or.
-     $     PDFStyle.eq.'13p HERAPDF'.or.
+      if (
      $     PDFStyle.eq. 'HERAPDF'.or.
      $     PDFStyle.eq. 'strange') then
          FlexibleGluon = .true.
@@ -1088,8 +1126,13 @@ cv         iparam = 301
          call HF_stop
       endif
 
+      
       if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')
      $     .or.(PDFStyle.eq.'LHAPDFNATIVE')) then
+
+         call checkforpdf(LHAPDFSET)
+
+
          INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
          if(lhapdffile_exists) then
             call InitPDFset(LHAPDFSET)
@@ -1100,6 +1143,9 @@ cv         iparam = 301
       ! Get number of sets:
          call numberPDF(nLHAPDF_Sets)                    
          call InitPDF(ILHAPDFSET)
+
+      ! avoid extra printout from LHAPDF:
+         call set_verbosity(0)
 
          if(has_photon().eq.1.) then    
             ExtraPdfs = .true. 
@@ -1190,18 +1236,24 @@ C---------------------------------
          HFSCHEME = 1005
       elseif (HF_SCHEME.eq.'FONLL-A RUNM ON') then
          HFSCHEME = 2005
+      elseif (HF_SCHEME.eq.'FONLL-A NLLx') then
+         HFSCHEME = 3005
       elseif (HF_SCHEME.eq.'FONLL-B') then
          HFSCHEME = 55
       elseif (HF_SCHEME.eq.'FONLL-B RUNM OFF') then
          HFSCHEME = 1055
       elseif (HF_SCHEME.eq.'FONLL-B RUNM ON') then
          HFSCHEME = 2055
+      elseif (HF_SCHEME.eq.'FONLL-B NLLx') then
+         HFSCHEME = 3055
       elseif (HF_SCHEME.eq.'FONLL-C') then
          HFSCHEME = 555
       elseif (HF_SCHEME.eq.'FONLL-C RUNM OFF') then
          HFSCHEME = 1555
       elseif (HF_SCHEME.eq.'FONLL-C RUNM ON') then
          HFSCHEME = 2555
+      elseif (HF_SCHEME.eq.'FONLL-C NLLx') then
+         HFSCHEME = 3555
       elseif (HF_SCHEME.eq.'S-ACOT Chi') then
           HFSCHEME = 17
       elseif (HF_SCHEME.eq.'S-ACOT Chi RC') then
@@ -1332,7 +1384,7 @@ C-------------------------------------
       namelist/ExtraMinimisationParameters/Name,Value,Step,Min,Max
      $                                     ,ConstrVal,ConstrUnc
       integer i
-      integer GetParameterIndex
+      double precision getparamd
 C----------------------------------------
       
       open (51,file='steering.txt',status='old')
@@ -1347,11 +1399,17 @@ C
             name(i) = ' '
          enddo
          read (51,NML=ExtraMinimisationParameters,END=71,ERR=72)
+
+         call hf_errlog(18031501,
+     $        'W: Reading parameters from'//achar(27)
+     $        //'[31m obsolete ExtraMinimisationParameters'
+     $        //' namelist.    Consider using parameters.yaml instead'
+     $         //achar(27)//'[34m')    
          
          do i=1,maxExtra
             if (name(i).ne.' ') then
                call AddExternalParam(name(i),value(i), step(i), min(i), max(i)
-     $              ,ConstrVal(i),ConstrUnc(i))
+     $              ,ConstrVal(i),ConstrUnc(i),.true.,0.0D0)
             endif
          enddo
       enddo
@@ -1359,7 +1417,7 @@ C
       print '(''Got '',i5,'' extra minuit parameters'')',nExtraParam
       close (51)
 C --- Set value of alphas
-      alphas = ExtraParamValue(GetParameterIndex('alphas'))
+      alphas = getParamD('alphas')
       return
  72   continue
       print *,'Problem reading namelist ExtraMinimisationParameters'
@@ -1375,17 +1433,23 @@ C
 !> @param min, max range of allowed values in case of fitting
 !> @param constrval constrain to this value in case of fitting
 !> @param construnc uncertainty on constrain in case of fitting
+!> @param to_gparam send to gParameters or not
 C-----------------------------------------------
       Subroutine AddExternalParam(name, value, step, min, max, 
-     $                            constrval, construnc)
+     $                            constrval, construnc, to_gParam
+     $     ,gParam)
 
       implicit none
 #include "extrapars.inc"
       character*(*) name
       double precision value, step, min, max, constrval, construnc
+      double precision gParam
+      logical to_gParam
+      integer iglobal
 C---------------------------------------------
 C Add extra param
 C
+
       nExtraParam = nExtraParam + 1
       if (nExtraParam.gt. nExtraParamMax) then
          print *,'Number of extra parameters exceeds the limit'
@@ -1403,6 +1467,18 @@ C
       ExtraParamMax  (nExtraParam) = max
       ExtraParamConstrVal  (nExtraParam) = constrval
       ExtraParamConstrUnc  (nExtraParam) = construnc
+
+      iglobal = 0
+      if ( gParam.eq.0.0) then
+         iglobal = 1
+      endif
+
+C Also add it to c++ map ...
+      if (to_gParam) then
+         call add_To_Param_Map( gParam, ExtraParamValue(nExtraParam) 
+     $        ,  iglobal, ExtraParamNames(nExtraParam)//char(0))
+      endif
+
       end
 
 
@@ -1780,7 +1856,7 @@ C
 C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then
          call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0
-     $                         ,0.0D0,0.0D0)
+     $                         ,0.0D0,0.0D0,.false.,0.0D0)
       endif
 
       end

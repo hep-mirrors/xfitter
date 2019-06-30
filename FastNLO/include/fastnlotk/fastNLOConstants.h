@@ -3,26 +3,27 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #ifndef FNLO_NAME
 #define FNLO_NAME       "fastNLO_toolkit"
 #define FNLO_SUBPROJECT "toolkit"
 #define FNLO_VERSION    "2.3.1pre"
-#define FNLO_SVNREV     "2163"
+#define FNLO_SVNREV     "@SVNREV@"
 #define FNLO_AUTHORS    "D. Britzger, T. Kluge, K. Rabbertz, F. Stober, G. Sieber, M. Wobisch"
 #define FNLO_WEBPAGE    "http://projects.hepforge.org/fastnlo"
 #define FNLO_AUTHORSv14 "T. Kluge, K. Rabbertz, M. Wobisch"
 #define FNLO_QUOTEv14   "hep-ph/0609285"
 #define FNLO_AUTHORSv2  "D. Britzger, T. Kluge, K. Rabbertz, F. Stober, M. Wobisch"
 #define FNLO_QUOTEv2    "arXiv:1109.1310"
-#define FNLO_YEARS      "2005-2015"
+#define FNLO_YEARS      "2005-2018"
 #endif
 
 // Define variables fixed by precompiler for optional parts.
 // Compilers like gcc usually drop unreachable statements
 // anyway such that unnecessary if-else-endif calls or
 // "unresolved symbol" errors are avoided.
-#define FNLO_HOPPET     ""
+//#define FNLO_HOPPET     ""
 #define FNLO_QCDNUM     ""
 #define FNLO_ROOT       "@ROOT@"
 
@@ -32,15 +33,15 @@ const double TWOPISQR = 39.47841760435743447533796;
 const double TOCL90   =  1.64485362695147271486385; // SQRT(2.D0)*InvERF(0.9D0)
 //#define TWOPI (2.*M_PI)
 //#define TWOPISQR (4.*M_PI*M_PI)
-// PDG values 2012/2013
-#define PDG_MU   (0.0023)
-#define PDG_MD   (0.0048)
-#define PDG_MS   (0.095)
-#define PDG_MC   (1.275)
+// PDG values 2017, MSbar except MT
+#define PDG_MU   (0.0022)
+#define PDG_MD   (0.0047)
+#define PDG_MS   (0.096)
+#define PDG_MC   (1.28)
 #define PDG_MB   (4.18)
-#define PDG_MT   (173.07)
+#define PDG_MT   (173.1)
 #define PDG_MZ   (91.1876)
-#define PDG_ASMZ (0.1184)
+#define PDG_ASMZ (0.1182)
 
 namespace fastNLO {
 
@@ -54,8 +55,11 @@ namespace fastNLO {
    typedef std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > > v7d;
 
    // ---- constants ---- //
-   const int tabversion   = 20000;
+   static const std::set<int> CompatibleVersions{20000,21000,22000,23000,23500,23600,24000};
+   const int tabversion   = 23600;
    const int tablemagicno = 1234567890;
+   // separating character between entries in table
+   const char sep[] = "\n";
    //   const double TWOPI = 6.28318530717958647692528;
 
 
@@ -76,8 +80,13 @@ namespace fastNLO {
       kScaleMax                 = 7,    // e.g. mu^2 = max( Q^2, pt^2)
       kScaleMin                 = 8,    // e.g. mu^2 = min( Q^2, pt^2)
       kProd                     = 9,    // e.g. mu^2 = (scale1 * scale2) ^2
-      kExpProd2                 = 10,   // e.g. mu^2 = (scale1 * exp(0.3 * scale2)) ^2
-      kExtern                   = 11    // define an external function for your scale
+      kS2plusS1half             = 10,   // e.g. mu^2 = (scale1^1/2 + scale2^2)
+      kPow4Sum                  = 11,   // e.g. mu^2 = sqrt((scale1^4 + scale2^4))
+      kWgtAvg                   = 12,   // e.g. mu^2 = sqrt( (scale1^4 + scale2^4)/(scale1^2 + scale2^2)) [weighted average]
+      kS2plusS1fourth           = 13,   // e.g. mu^2 = (scale1^1/4 + scale2^2)
+      kExpProd2                 = 14,   // e.g. mu^2 = (scale1 * exp(0.3 * scale2)) ^2
+      kExtern                   = 15,   // define an external function for your scale
+      kConst                    = 16,   // e.g. mu^2 = c, while c is a constant and could be for instance the top-mass
    };
 
    enum ESMCalculation {
@@ -117,6 +126,25 @@ namespace fastNLO {
       kHeraPDF10                = 7     // HERAPDF 1.0 uncertainties
    };
 
+   enum EAsUncertaintyStyle {
+      kAsNone                   = 0,    // no a_s uncertainty
+      kAsGRV                    = 1,    // a_s(M_Z) uncertainty with GRV evolution
+   };
+
+   enum EMerge {  //!< mergeing options.
+      kMerge, //!< Calculate weighted average (default. Nevt usually set externally by generator code).
+      kAdd, //!< Add (Append)! Do not merge, but add two tables together (fully unweighted) (1+1=2).
+      kUnweighted, //!< Calculated unweighted average (usually better: take kNumEvent).
+      kAttach, //!< Add (Append)! Same functionality as 'add' but subprocesses are attached and file size increases.
+      kNumEvent, kNumEventBinProc, //!< Calculate weighted average, using w = num entries
+      kSumW2,    kSumW2BinProc, //!< Calculate weighted average , using w = sum(weight**2)
+      kSumSig2,  kSumSig2BinProc, //!< Calculate weighted average, using w = sum(sig**2) [sig ~ wgt*as*pdf]
+      kSumUser,  kSumUserBinProc, //!< Calculate weighted average, using w = sum(sig) [sig ~ wgt*as*pdf], or 'user-specified' weights
+      kMedian, kMean, //!< build median or median value of many tables (option not applicable to member function, because many tables are needed as input).
+      kUndefined //!< Error
+   };
+
+
    // ---- some names for nice output ---- //
    const std::string _ContrName[20] = {
       "Fixed order calculation", "Threshold corrections", "Electroweak corrections", "Non-perturbative corrections",
@@ -136,12 +164,18 @@ namespace fastNLO {
    // ---- Some shapes for nice output ---- //
    //
 #ifndef SWIG
-   const std::string _CSEP40("########################################");
-   const std::string _DSEP40("========================================");
-   const std::string _SSEP40("----------------------------------------");
-   const std::string _CSEP40C(" ##########################################");
-   const std::string _DSEP40C(" #=========================================");
-   const std::string _SSEP40C(" #-----------------------------------------");
+   const std::string _CSEP20("####################");
+   const std::string _DSEP20("====================");
+   const std::string _SSEP20("--------------------");
+   const std::string _CSEP20C(" ######################");
+   const std::string _DSEP20C(" #=====================");
+   const std::string _SSEP20C(" #---------------------");
+   const std::string _CSEP40  = _CSEP20  + _CSEP20;
+   const std::string _DSEP40  = _DSEP20  + _DSEP20;
+   const std::string _SSEP40  = _SSEP20  + _SSEP20;
+   const std::string _CSEP40C = _CSEP20C + _CSEP20;
+   const std::string _DSEP40C = _DSEP20C + _DSEP20;
+   const std::string _SSEP40C = _SSEP20C + _SSEP20;
    const std::string _CSEPS  = _CSEP40  + _CSEP40;
    const std::string _DSEPS  = _DSEP40  + _DSEP40;
    const std::string _SSEPS  = _SSEP40  + _SSEP40;

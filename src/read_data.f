@@ -130,6 +130,10 @@ C Get omega (quadratic term coefficient):
      $     StatNew,StatConstNew,UncorPoissonNew) ! covariance to nuicance parameters, if needed.
 
 
+      call reduce_nui(UncorNew,UncorConstNew
+     $     ,UncorPoissonNew) ! We can also reduce number of nuisance parameters 
+
+
       if (LDebug) then
 C
 C Dump beta matrix
@@ -219,9 +223,8 @@ C------------------------------------------------------------------------
 
       character *(*) CFile
 C Namelist  variables:    
-      integer ndataMax,ninfomax,nsystMax,ncolumnMax
+      integer ndataMax,nsystMax,ncolumnMax
       parameter (ndataMax=ntot)
-      parameter (ninfoMax=100)
       parameter (nsystMax=nsysmax)
 
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
@@ -229,13 +232,12 @@ C Namelist  variables:
       character *80 Name
       integer  NData
       integer  NUncert
-      integer  NInfo
       integer  NBinDimension
 
       
       character *80 BinName(NBinDimensionMax)
-      double precision datainfo(ninfoMax)
-      character *80 CInfo(ninfoMax)
+c      double precision datainfo(ninfoMax)
+c      character *80 CInfo(ninfoMax)
       character *80 Reaction
 
       double precision buffer(ncolumnMax)
@@ -257,13 +259,14 @@ C Reference table
       integer IndexDataset
       double precision SystScales(nsystMax)
 C Extra info about k-factors, applegrid file(s):
-      character*1000 TheoryInfoFile(2)
+      character*1000 TheoryInfoFile(NKFactMax)
       character*80  TheoryType(2)
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
 C Infomation for open more than 1 applgrid
 C     character*80 applgridNames(NapplgridMax)
       integer      NTheoryFiles
+      logical ForceAdditive ! force all errors to be treated as additive
 C Namelist definition:
       namelist/Data/Name,NData
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
@@ -271,7 +274,7 @@ C Namelist definition:
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
      $     ,TermName,TermType,TermInfo, TermSource,TheorExpr
      $     ,ColumnName, ColumnType, NColumn
-     $     ,NTheoryFiles 
+     $     ,NTheoryFiles, ForceAdditive 
 
       namelist/PlotDesc/PlotN, PlotDefColumn, PlotDefValue, 
      $     PlotVarColumn, PlotOptions
@@ -331,7 +334,7 @@ C Variables for plotting
       character *256 PlotOptions(ncolumnMax)
       integer PlotDefColIdx, PreviousPlots
       double precision tempD
-
+      
 C Functions
       logical FailSelectionCuts
       integer GetBinIndex
@@ -377,7 +380,7 @@ c      double precision PlotDefValue(ncolumnMax)
       PlotDefTitle(1)='undefined'
       PlotVarColumn='undefined'
 
-
+      ForceAdditive = .false.
 
 C Reset scales to 1.0
       do i=1,nsysmax
@@ -402,6 +405,7 @@ C Reset scales to 1.0
          read(51,NML=Data,err=98)
       endif   
 
+      
 C
 C Check dimensions
 C
@@ -411,6 +415,7 @@ C
      $        ,ncolumnmax
          call HF_stop
       endif
+
 C
 C Store 
 C
@@ -486,6 +491,9 @@ C Extra info:
          DATASETInfo(i,NDATASETS) =      DataInfo(i)
       enddo
 
+      dsname = name
+      ds_index = IndexDataset 
+
 C Prepare systematics:
       do i=1,NUncert
 C--- Statistical: special case
@@ -532,8 +540,29 @@ C Count theory expression terms
         CTmp = TermSource(i)
         TermSource(i) = trim(CTmp)
       enddo
-
  88   continue 
+
+      if (Reaction .eq. ' '
+     $     .or.TermType(1).eq.'reaction'
+     $     .or.TermSource(1).ne.' ') then
+         if (TheoryType(1) .eq. ' ') then
+            TheoryType(1) = 'expression'
+         endif
+      endif
+
+      if ( TheoryType(1) .eq. 'expression') then
+         do i =1, NTerms
+            if (TermType(i) .eq. ' ') then
+               TermType(i) = 'reaction'
+            endif
+         enddo
+      endif
+
+      if (TheoryType(1).ne. 'expression') then
+         call hf_errlog(18030710+NDATASETS,
+     $        'W: Using obsolete theory calculation for data file '
+     $        //trim(CFile) )
+      endif
 
 C Theory file if present:
       DATASETTheoryType(NDATASETS) = ' '
@@ -833,7 +862,8 @@ C XXXXXXXXXXXXXXXXXXXXXXXXX
          Call SetUncorErrors(npoints, StatError,
      $        StatErrorConst,UncorError,UncorConstError)
 
-
+         LForceAdditiveData(npoints) = ForceAdditive
+         
          !  Check total error
          if (TotalErrorRead.ne.0) then
             if ( abs(TotalError -TotalErrorRead)/TotalErrorRead.gt.0.01) then
@@ -1019,15 +1049,15 @@ C Store k-factors:
 C Set data binning information in theory evaluations
 c but firest check that there are two columns per each bin dimension
       if ( DATASETTheoryType(NDATASETS).eq.'expression' ) then
-        if ( mod(NBinDimension,2) .ne. 0 ) then
-          print *, 'Problem reading data from ', CFile
-          print *, 'There must be two bin columns per each bin dimension'
-          print *, 'for applgrid based fits.'
-          call hf_stop
-        endif
+c        if ( mod(NBinDimension,2) .ne. 0 ) then
+c          print *, 'Problem reading data from ', CFile
+c          print *, 'There must be two bin columns per each bin dimension'
+c          print *, 'for applgrid based fits.'
+C          call hf_stop
+c        endif
       
         call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 
-     &    binFlags, allbins )
+     &    binFlags, allbins, binname )
 
         idxUnit = GetInfoIndex(NDATASETS,'theoryunit')
         if (idxUnit.gt.0) then

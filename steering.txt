@@ -7,14 +7,24 @@
  
   ! Input files:
 
-    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
-    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
-    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
-    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
-    InputFileNames(5) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
-    InputFileNames(6) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat'
-    InputFileNames(7) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat'
+     InputFileNames = 
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
 
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat',
+    ! 'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
+    ! 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
 
 &End
 
@@ -26,9 +36,18 @@
   !  CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 
+&ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
+  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
+  tolerance = 0.0
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
+  useBlas = .false.
+&End
+
 &CovarToNuisance
    ! Global switch for using nuisance param representation for covariance mat.
-  LConvertCovToNui = .false.
+  LConvertCovToNui = .False.
 
    ! Tolerance -- zero means exact transformation
   Tolerance = 0.0
@@ -48,7 +67,7 @@
 
 
 &OutDir
-  ! Name of the directory where output will be stored (max 22 characters)
+  ! Name of the directory where output will be stored (max 255 characters)
     OutDirName = 'output'
 &End
 *
@@ -123,12 +142,12 @@
  ! ---  HF_SCHEME = 'FF'               : Fixed Flavour Number Scheme (qcdnum)
  ! ---  HF_SCHEME = 'FF ABM'           : Fixed Flavour Number Scheme (ABM)
  ! ---  HF_SCHEME = 'FF ABM RUNM'      : Fixed Flavour Number Scheme (ABM) using run mass def
- ! ---  HF_SCHEME = 'FONLL-A'          : FONLL-A mass scheme provided by APFEL with pole masses (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-A RUNM OFF' : FONLL-A mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-A RUNM ON'  : FONLL-A mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-B'          : FONLL-B mass scheme provided by APFEL with pole masses (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-B RUNM OFF' : FONLL-B mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-B RUNM ON'  : FONLL-B mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A'          : FONLL-A mass scheme provided by APFEL with pole masses (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM OFF' : FONLL-A mass scheme provided by APFEL with MSbar masses running OFF (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM ON'  : FONLL-A mass scheme provided by APFEL with MSbar masses running ON (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B'          : FONLL-B mass scheme provided by APFEL with pole masses (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM OFF' : FONLL-B mass scheme provided by APFEL with MSbar masses running OFF (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM ON'  : FONLL-B mass scheme provided by APFEL with MSbar masses running ON (available at NLO)
  ! ---  HF_SCHEME = 'FONLL-C'          : FONLL-C mass scheme provided by APFEL with pole masses (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
  ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
@@ -183,19 +202,9 @@
  ! Debug flag
   LDEBUG     = False
 
+
  ! Quadratic approximation for asymmetric uncertainties
  ! AsymErrorsIterations = 10
-&End
-
-
-
-*
-* Add extra to minuit parameters. These MUST include alpha_S and fs
-*
-&ExtraMinimisationParameters
-   name  = 'alphas',   'fs',   'fcharm'
-   value =  0.118 ,   0.4,      0.
-   step  =  0.0    ,   0.0 ,      0.     ! set to 0 to avoid minimisation 
 &End
 
 

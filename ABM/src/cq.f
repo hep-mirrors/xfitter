@@ -13,7 +13,7 @@ c-------------
 !  stored in the grid   
         alphas0=xqg(0,0.1d0,vfnth(4)**2,0)
         q20alphas=vfnth(4)**2
-
+ 
       do is=-nsmgrid,nspgrid
 !  Take the 3-flavour PDFs as an input for the matching conditions
         isch0=0
@@ -65,7 +65,7 @@ c-------------
       do ix=-nxmgrid,nxpgrid
         xx(ix+nxmgrid+1)=xgrid(ix)
       end do
-
+ 
       do IX=-nxmgrid,nxpgrid-1
 ! FOPT matching 
         Y(ischem,0,IX,is)=an*4*pi

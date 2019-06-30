@@ -5,8 +5,20 @@ SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src common commo
           tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
           genetic/mixmax_r004 genetic/src QEDevol/src \
           include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/draw/include input_steering \
-          pdf2yaml tools/process/
+          DY/include tools/draw/include \
+          pdf2yaml tools/process \
+          pdf2yaml tools/process \
+	reactions/HathorSingleTop/src \
+	reactions/AFB/src \
+	reactions/KFactor/src reactions/Fractal_DISNC/src reactions/BaseDISCC/src reactions/Hathor/src reactions/BaseDISNC/src \
+	reactions/RT_DISNC/src reactions/FFABM_DISNC/src reactions/FFABM_DISCC/src reactions/APPLgrid/src reactions/BaseHVQMNR/src \
+	reactions/HVQMNR_LHCb_7TeV_beauty/src reactions/HVQMNR_LHCb_7TeV_charm/src reactions/testZMVFNS/src reactions/fastNLO/src/ \
+	reactions/FONLL_DISCC/src reactions/FONLL_DISNC/src reactions/KMatrix/src
+
+DIST_SUBDIRS = $(SUBDIRS)  Hathor/src  HVQMNR/src doc/tex/manual  ACOT SACOT datafiles QEDevol/include \
+           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples Hathor/interface \
+           FONLL HVQMNR HVQMNR/include/ python/ input_steering/ tools/
+
 if ENABLE_HATHOR
   SUBDIRS+= Hathor/src
 endif
@@ -20,27 +32,18 @@ if BUILD_DOCS
   DOCS=doc/tex/manual doc/tex/paper
 endif
 #$(info ${DOCS})
-SUBDIRS+= src $(DOCS)
+SUBDIRS+= src xfitter $(DOCS) 
 
 include $(top_srcdir)/aminclude.am
 
-# Specify which SUBDIRS to distribute:
-DIST_SUBDIRS = minuit/src interfaces/src DY/src DIPOLE/src RT/src EW/src \
-          tools/draw tools/MakeLHAPDF FastNLO/src DiffDIS/src ACOT/src SACOT/src ABM/src FONLL/src Cascade/src \
-          genetic/mixmax_r004 genetic/src common/num_utils \
-          include interfaces/include FastNLO/include FastNLO/include/fastnlotk DiffDIS/include \
-          DY/include tools/draw/include input_steering \
-          common common/linalg Hathor/src pdf2yaml tools/process src
-
-
-# DOXYGEN SUPPORT
-# ensure the distribution of the doxygen configuration file
-#EXTRA_DIST = doxygen.cfg
+reactiondir = $(prefix)/lib/
+reaction_DATA = Reactions.txt
 
 # Tell which program should run the .sh scripts.
 #SH_LOG_COMPILER = $(SHELL) -ex
 #TESTS_ENVIRONMENT = $(SHELL) 
 #TESTS= ./tools/check.sh
 
-EXTRA_DIST= README README-MacOSX LICENCE REFERENCES ewparam.txt minuit.in.txt steering.txt 
-bin_SCRIPTS = xfitter-config
+EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \
+   minuit.in.txt steering.txt testPythonInterface.py parameters.yaml Reactions.txt
+bin_SCRIPTS = xfitter-config tools/xfitter-getdata.sh

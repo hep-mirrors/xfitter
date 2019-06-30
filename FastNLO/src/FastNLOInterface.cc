@@ -39,14 +39,14 @@ void gauleg(double x1,double x2,double *x,double *w, int n);
 
 
 extern "C" {
-  int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale);
+  int fastnloinit_(const char *s, const int *idataset, const char *thfile, int *I_FIT_ORDER, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale);
   int fastnlocalc_(const int *idataset, double *xsec);
-  int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *tot, int *Npt, int *I_FIT_ORDER);
+  int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *tot, int *Npt);
   int fastnlopointskip_(const int *idataset, int *point, int *npoints);
   int hf_errlog_(const int* ID, const char* TEXT, long length);
   int hf_stop_();
   double interp_(double *A, double *xx1, double *x, int *NGrid1, double *res);
-
+  int setfastnlotoppar_(const int *idataset);
 }
 
 
@@ -58,7 +58,7 @@ map<int, FastNLOxFitter*> gFastNLO_array;
 map<int, BoolArray*>     gUsedPoints_array;
 int CreateUsedPointsArray(int idataset, int npoints);
 
-int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale) {
+int fastnloinit_(const char *s, const int *idataset, const char *thfile, int *I_FIT_ORDER, bool *PublicationUnits , double* murdef, double* murscale, double *mufdef, double* mufscale) {
 
   
    map<int, FastNLOxFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
@@ -70,7 +70,6 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
      return 1;
    }
    
-  
    FastNLOxFitter* fnloreader = new FastNLOxFitter( thfile );  
    
    if(*PublicationUnits)
@@ -86,11 +85,54 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, bool *P
    fnloreader->SetScaleFactorsMuRMuF(  *murscale, *mufscale);
     
    
+   int ordercalc = *I_FIT_ORDER;
 
+   if (ordercalc==3)  {
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,0,true);
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,1,true);
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,2,true);
+      printf("DiffTop pert. order = NNLO O(alphas^4) ordercalc = %d\n",ordercalc);
+   }
+   else if (ordercalc==2) {
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,0,true);
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,1,true);
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,2,false);
+      printf("DiffTop pert. order = NLO O(alphas^3) ordercalc = %d\n",ordercalc);
+
+   }
+   else if (ordercalc==1) {
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,0,true);
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,1,false);
+      fnloreader->SetContributionON(fastNLO::kFixedOrder,2,false);
+      printf("DiffTop pert. order = LO O(alphas^2) ordercalc = %d\n",ordercalc);
+   }
+   else {
+      printf("DiffTop pert. order is not defined, ordercalc = %d:\n",ordercalc);
+      exit(1);
+   }
+   
    gFastNLO_array.insert(pair<int, FastNLOxFitter*>(*idataset, fnloreader) );
    return 0;
 }
 
+int setfastnlotoppar_(const int *idataset) {
+   //!< Dedicated settings for difftop
+   map<int, FastNLOxFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
+   map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
+   if(FastNLOIterator == gFastNLO_array.end( )) {
+     int id = 12032303;
+     char text[256];
+     sprintf(text, "S: Can not find FastnloReader for DataSet: %d", *idataset);
+     hf_errlog_(&id, text, (long)strlen(text)); // this terminates the program by default
+   }
+   
+   FastNLOxFitter* fnloreader = FastNLOIterator->second;   
+   fnloreader->SetExternalFuncForMuF( &Function_Mu );
+   fnloreader->SetExternalFuncForMuR( &Function_Mu);
+   //fnloreader->SetScaleFactorsMuRMuF(1.0,1.0); //Be reminded that muR and muF scales are hard coded (that's not true!)
+
+   return 0;
+}
 
 int fastnlocalc_(const int *idataset, double *xsec) {
   
@@ -140,7 +182,7 @@ int fastnlocalc_(const int *idataset, double *xsec) {
 }
 
 //MK14 New function for Difftop calculation: it is called in trunk/src/difftop_fastnlo.f
-int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *tot, int *Npt, int *I_FIT_ORDER){
+int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *tot, int *Npt){
   
    map<int, FastNLOxFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
    map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
@@ -166,51 +208,7 @@ int fastnlocalctop_(const int *idataset, double *xsec, double *thbin, double *to
 
    BoolArray*     usedpoints = UsedPointsIterator->second;
 
-   //MK14->
-   fnloreader->SetExternalFuncForMuF( &Function_Mu );
-   //The scale mt is hardcoded in the FastNLO tables
-   //MK14<-
-
-
    //Perturbative order of the Calculation/Fit: LO, NLO, NNLO => 1,2,3
-   int ordercalc;
-   ordercalc=*I_FIT_ORDER;
-
-
-   
-   if (ordercalc==3)
-     {
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,0,true);
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,1,true);
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,2,true);
-       printf("DiffTop pert. order = NNLO O(alphas^4) ordercalc = %d\n",ordercalc);
-     }
-   else if (ordercalc==2)
-     {
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,0,true);
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,1,true);
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,2,false);
-       printf("DiffTop pert. order = NLO O(alphas^3) ordercalc = %d\n",ordercalc);
-
-     }
-   else if (ordercalc==1)
-     {
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,0,true);
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,1,false);
-       fnloreader->SetContributionON(fastNLO::kFixedOrder,2,false);
-       printf("DiffTop pert. order = LO O(alphas^2) ordercalc = %d\n",ordercalc);
-     }
-   else
-     {
-       printf("DiffTop pert. order is not defined, ordercalc = %d:\n",ordercalc);
-       exit(1);
-     }
-
-
-
-   fnloreader->SetExternalFuncForMuR( &Function_Mu);
-   fnloreader->SetScaleFactorsMuRMuF(1.0,1.0); //Be reminded that muR and muF scales are hard coded
-   
 
    fnloreader->FillAlphasCache();
    fnloreader->FillPDFCache();	  // pdf is 'external'! you always have to call FillPDFCache();

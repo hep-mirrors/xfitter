@@ -1,3 +1,52 @@
+C> @brief PDF for p (vs Q)
+
+      subroutine HF_Get_PDFsQ(x,q,PDFSF)
+      double precision x,q,PDFSF(*)
+      call HF_Get_PDFs(x,q*q,PDFSF)
+      end
+
+C> @brief PDF for pbar  (vs Q)
+
+      subroutine HF_Get_PDFsQ_bar(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      do ifl =1,N_CHARGE_PDF
+         xft=xf(ifl)
+         xf(ifl) = xf(-ifl)
+         xf(-ifl)=xft
+      enddo
+
+      end subroutine
+
+C> @brief PDF for n  (vs Q)
+      subroutine HF_Get_PDFsQ_n(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      ! switch up and down
+      xft=xf(1)
+      xf(1) = xf(2)
+      xf(2) = xft
+      ! switch anti-up and anti-down
+      xft=xf(-1)
+      xf(-1) = xf(-2)
+      xf(-2) = xft
+
+      end subroutine
+
+
+
       subroutine HF_Get_PDFs(x,q2,PDFSF)
 C----------------------------------------------------------------------
 C Interface to PDF 
@@ -13,11 +62,11 @@ C----------------------------------------------------------------------
       double precision x,q2
      $     ,pdfsf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
 
-      integer i
+      integer i,Q2vIPDFSET
       double precision A,Z, tmpU,tmpD,tmpUb,tmpDb
       data A,Z /207,82/
 
-      double precision FSNSXQ
+
 C----------------------------------------------------------------------
       if (PDFStyle.eq.'LHAPDFNATIVE') then
          if (ExtraPdfs) then
@@ -31,8 +80,9 @@ C photon is present !
 
       if ( ExtraPdfs ) then
 C QED evolution:
-         call FPDFXQ(viPDFSET,x,q2,PDFSF,ICheck_QCDNUM)         
-         PDFSF(N_CHARGE_PDF+N_NEUTRAL_PDF) = FSNSXQ(viPDFSET,13,x,q2,ICheck_QCDNUM)
+C         call FPDFXQ(Q2viPDFSET(Q2),x,q2,PDFSF,ICheck_QCDNUM)         
+         call ALLFXQ(Q2viPDFSET(Q2),x,q2,PDFSF,N_NEUTRAL_PDF,ICheck_QCDNUM)         
+C         PDFSF(N_CHARGE_PDF+N_NEUTRAL_PDF) = FSNSXQ(Q2viPDFSET(Q2),13,x,q2,ICheck_QCDNUM)
 c         print *,vipdfset,x,q2, PDFSF(N_CHARGE_PDF+1), PDFSF(0)
          return
       endif
@@ -96,8 +146,15 @@ C----------------------------------------------------------------------
       integer icheck
       data icheck/1/  ! Force PDF checks
 C----------------------------------------------------------------------
-      call mypdflist
-     $     (vIPDFSET,pdfdef,Xarray,Q2ARRAY,PDFout,Npoints,Icheck)
+
+      if (pdfdef(7).eq.1.0) then  ! gluon
+         call fflist(vIPDFSET,pdfdef,0,XArray,Q2ARRAY, 
+     $        PDFout,Npoints,Icheck)
+      else
+         call fflist(vIPDFSET,pdfdef,1,XArray,Q2ARRAY, 
+     $        PDFout,Npoints,Icheck)
+      endif
+
       end
 
       double precision Function HF_Get_alphas(q2)
@@ -125,6 +182,34 @@ C----------------------------------------------------
       endif
 C----------------------------------------------------
       end
+
+
+      double precision Function HF_Get_alphasQ(Q)
+C----------------------------------------------------
+C
+C  Return alpha_S value for a given Q
+C
+C----------------------------------------------------
+      implicit none
+#include "steering.inc" 
+      double precision Q
+      integer nf,ierr
+      double precision ASFUNC,alphaQCD
+      double precision alphaspdf
+
+C----------------------------------------------------
+      if (PDFStyle.eq.'LHAPDFNATIVE') then
+         HF_Get_alphasQ = alphaspdf(Q)
+      else
+      if (itheory.eq.10) then
+         HF_Get_alphasQ = alphaQCD(Q)
+      else
+         HF_Get_alphasQ = ASFUNC(Q*Q,nf,ierr) 
+      endif
+      endif
+C----------------------------------------------------
+      end
+
 
 
       double precision function hf_get_mur(iDataSet)
@@ -180,99 +265,64 @@ C----------------------------------------------------------------------
       implicit none
 C----------------------------------------------------------------------
 #include "steering.inc"
+      integer Q2vIPDFSET
       double precision x,q2,pdfsf(-6:6)
 C----------------------------------------------------------------------
 !$OMP CRITICAL
-      call FPDFXQ(viPDFSET,x,q2,PDFSF,ICheck_QCDNUM)
+      call ALLFXQ(Q2viPDFSET(q2),x,q2,PDFSF,0,ICheck_QCDNUM)
 !$OMP END CRITICAL
 C----------------------------------------------------------------------
       end
 
-C     ===========================================      
-      subroutine mypdflist(iset,def,x,q,f,n,ichk)
-C     ===========================================
-
-C--   Interpolation of linear combination of pdfs using fast engine.
-C--   The number of interpolations can be larger than mpt0 since
-C--   this routine autmatically buffers in chunks of mpt0 words.
-C--
-C--   iset       (in)   pdf set [1-9]
-C--   def(-6:6)  (in)   coefficients, ..., sb, ub, db, g, d, u, s, ...
-C--                     for gluon  set def(0) = non-zero
-C--                     for quarks set def(0) = 0.D0   
-C--   x          (in)   list of x-points
-C--   q          (in)   list of mu2 points
-C--   f          (out)  list of interpolated pdfs
-C--   n          (in)   number of items in the list
-C--   ichk       (in)   0/1  no/yes check grid boundary  
-      
-      implicit double precision (a-h,o-z)      
-      
-      parameter(nmax = 5000)    !should be set to mpt0, or less
-      
-      dimension xx(nmax),qq(nmax)
-      dimension def(-6:6), coef(0:12,3:6)
-      dimension x(*), q(*), f(*)
-      
-C--   Fatal error that cannot be caught by QCDNUM
-      if(n.le.0) stop 'MYPDFLIST: n.le.0 --> STOP'      
-      
-      call setUmsg('MYPDFLIST') !QCDNUM will catch all further errors
-
-C--   Translate the coefficients def(-6:6) from flavour space to 
-C--   singlet/non-siglet space. These coefs are n_f dependent.
-       
-      if(def(0).eq.0.D0) then                !quarks
-        do nf = 3,6
-          coef(0,nf) = 0.D0                  
-          call efromqq(def, coef(1,nf), nf) 
-        enddo
-      else                                   !gluon
-        do nf = 3,6
-          coef(0,nf) = def(0)
-          do i = 1,12
-            coef(i,nf) = 0.D0 
-          enddo  
-        enddo
-      endif  
-      
-C--   Fill output array f in batches of nmax words
-      ipt = 0
-      jj  = 0      
-
-      qmax =0
-      qmin =10000
-      xmax =0
-      xmin =1
-      do i = 1,n
-        ipt     = ipt+1
-        xx(ipt) = x(i)
-        qq(ipt) = q(i)
-
-        xmin = min(x(i),xmin)
-        xmax = max(x(i),xmax)
-        qmin = min(q(i),qmin)
-        qmax = max(q(i),qmax)
-
-        if(ipt.eq.nmax) then
-c           print *,xmin,xmax,qmin,qmax
-
-          call fastini(xx,qq,nmax,ichk)
-          call fastsum(iset,coef,-1)         !fill sparse buffer 1
-          call fastfxq(1,f(jj*nmax+1),nmax)
-          ipt = 0
-          jj  = jj+1
-        endif
-      enddo
-C--   Flush remaining ipt points
-      if(ipt.ne.0) then
-        call fastini(xx,qq,ipt,ichk)
-        call fastsum(iset,coef,-1)           !fill sparse buffer 1
-        call fastfxq(1,f(jj*nmax+1),ipt)          
+*
+************************************************************************
+*
+*     Function needed to pick the PDF table with the correct number of
+*     active flavours.
+*
+************************************************************************
+      function Q2vIPDFSET(Q2)
+*
+      implicit none
+*
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+**
+*     Input variables
+*
+      double precision Q2
+**
+*     Internal variables
+*
+      double precision Q
+      double precision HF_Get_alphas
+**
+*     Output variables
+*
+      integer Q2viPDFSET
+*
+      Q2viPDFSET = vIPDFSET
+      if(.not.UseHVFNS) return
+*
+      Q = dsqrt(Q2)
+      if(Q.gt.DataSetSwitchScales(6,cIDataSet))then
+         Q2viPDFSET = max(IPDFSET,vIPDFSET)
+         call SetMaxFlavourPDFs(min(6,DataSetMaxNF(cIDataSet)))
+         call SetMaxFlavourAlpha(min(6,DataSetMaxNF(cIDataSet)))
+      elseif(Q.gt.DataSetSwitchScales(5,cIDataSet))then
+         Q2viPDFSET = max(IPDFSET+1,vIPDFSET)
+         call SetMaxFlavourPDFs(min(5,DataSetMaxNF(cIDataSet)))
+         call SetMaxFlavourAlpha(min(5,DataSetMaxNF(cIDataSet)))
+      elseif(Q.gt.DataSetSwitchScales(4,cIDataSet))then
+         Q2viPDFSET = max(IPDFSET+2,vIPDFSET)
+         call SetMaxFlavourPDFs(min(4,DataSetMaxNF(cIDataSet)))
+         call SetMaxFlavourAlpha(min(4,DataSetMaxNF(cIDataSet)))
+      else
+         Q2viPDFSET = max(IPDFSET+3,vIPDFSET)
+         call SetMaxFlavourPDFs(min(3,DataSetMaxNF(cIDataSet)))
+         call SetMaxFlavourAlpha(min(3,DataSetMaxNF(cIDataSet)))
       endif
-        
-      call clrUmsg
-      
+*
       return
       end
-      

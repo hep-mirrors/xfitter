@@ -3,7 +3,7 @@
 *
 &InFiles
   ! Number of intput files
-    NInputFiles = 55
+    NInputFiles = 58
 
    InputFileNames =
  !
@@ -17,15 +17,16 @@
     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat',
     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat',
     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat',
- ! HERA I
-  ! H1 and ZEUS combined Inclusive DIS:
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
-          'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
+
+ ! HERA I (commented out, I+II replaces the samples)
+  ! H1 and ZEUS combined Inclusive DIS: 
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',  superseded
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
+     !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
 
   ! H1 Jets:
-          'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat',
+     !>     'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat',  ! superseded.
           'datafiles/hera/h1/jets/0706.3722/H1_InclJets_HighQ2_99-00.dat',
           'datafiles/hera/h1/jets/0911.5678/H1_InclJets_LowQ2_99-00.dat',
 
@@ -33,15 +34,19 @@
 	  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
 	  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
 
-
   ! ZEUS Jets:
           'datafiles/hera/zeus/jets/0208037/ZEUS_InclJets_HighQ2_96-97.dat',
           'datafiles/hera/zeus/jets/0608048/ZEUS_InclJets_HighQ2_98-00.dat',
           'datafiles/hera/zeus/jets/1010.6167/ZEUS_dijet_98-07.dat',
-  ! H1 Inclusive DIS low Ep:
-          'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',
+
+  ! H1 Inclusive DIS low Ep: (included in HERA I+II combination, comment)
+    !      'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',  ! superseded
+
   ! H1 and ZEUS combined Charm production:
           'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined.dat', 
+  ! beaty:
+          'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex.dat',
+	  'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty.dat',
  !
  ! Fixed Target
   ! BCDMS F2 proton:
@@ -93,30 +98,51 @@
           'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_28_36.dat',
           'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_36_44.dat',
   ! ATLAS Top:
-          'datafiles/lhc/atlas/topProduction/atlas-conf-2012-024/Diff_ttbar_ATL_7TeV_TOT.dat',
-          'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat'
+          'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT.dat',
+          'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
+
+  ! Dec 2016 ATLAS W,Z:
+       'datafiles/lhc/atlas/wzProduction/1612.03016/wminus.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/wplus.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cc.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cf.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zylow_cc.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cc.dat',
+       'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cf.dat',
+  ! LHCb:  need fixed flavour scheme, see steering.txt.hvqmnr.abs (and .norm)
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty.dat',  
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dch_pty.dat',
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dstar_pty.dat',
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Ds_pty.dat',
+  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Lambdac_pt.dat',
+
+  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bch_pty.dat',
+  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bzero_pty.dat',
+  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bs_pty.dat',
+&End
+       
 
 &End
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 12
+    NCorrFiles = 11
 
  
   ! Correlation files:
-    CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
-    CorrFileNames(2) = 'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
-    CorrFileNames(3) = 'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
-    CorrFileNames(4) = 'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
-    CorrFileNames(5) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
-    CorrFileNames(6) = 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
+  !   CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+    CorrFileNames(1) = 'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
+    CorrFileNames(2) = 'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
+    CorrFileNames(3) = 'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
+    CorrFileNames(4) = 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
+    CorrFileNames(5) = 'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
 
-  CorrFileNames(7) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-  CorrFileNames(8) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-  CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-  CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
-  CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-  CorrFileNames(12) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(6) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  CorrFileNames(7) = 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(8) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+  CorrFileNames(9) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
+  CorrFileNames(10) = 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+  CorrFileNames(11) = 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
 
 &End
 
@@ -125,7 +151,7 @@
   LConvertCovToNui = .false.
 
    ! Tolerance -- zero means exact transformation
-  Tolerance = 0.0
+  Tolerance = 0.9
 
    ! The following lines allow to adjust error scaling properties (default: :M)
   DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
@@ -139,7 +165,7 @@
 
 
 &OutDir
-  ! Name of the directory where output will be stored (max 22 characters)
+  ! Name of the directory where output will be stored (max 255 characters)
     OutDirName = 'output'
 &End
 *
@@ -205,15 +231,15 @@
  ! ---  HF_SCHEME = 'FF'               : Fixed Flavour Number Scheme (qcdnum)
  ! ---  HF_SCHEME = 'FF ABM'           : Fixed Flavour Number Scheme (ABM)
  ! ---  HF_SCHEME = 'FF ABM RUNM'      : Fixed Flavour Number Scheme (ABM) using run mass def
- ! ---  HF_SCHEME = 'FONLL-A'          : FONLL-A mass scheme provided by APFEL with pole masses (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-A RUNM OFF' : FONLL-A mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-A RUNM ON'  : FONLL-A mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-B'          : FONLL-B mass scheme provided by APFEL with pole masses (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-B RUNM OFF' : FONLL-B mass scheme provided by APFEL with MSbar masses running OFF (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-B RUNM ON'  : FONLL-B mass scheme provided by APFEL with MSbar masses running ON (available only at NLO)
- ! ---  HF_SCHEME = 'FONLL-C'          : FONLL-C mass scheme provided by APFEL with pole masses (available only at NNLO)
- ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
- ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-A'          : FONLL-A mass scheme provided by APFEL with pole masses (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM OFF' : FONLL-A mass scheme provided by APFEL with MSbar masses running OFF (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM ON'  : FONLL-A mass scheme provided by APFEL with MSbar masses running ON (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B'          : FONLL-B mass scheme provided by APFEL with pole masses (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM OFF' : FONLL-B mass scheme provided by APFEL with MSbar masses running OFF (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM ON'  : FONLL-B mass scheme provided by APFEL with MSbar masses running ON (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-C'          : FONLL-C mass scheme provided by APFEL with pole masses (available at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available at NNLO)
                                        ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
 
   HF_SCHEME = 'RT'

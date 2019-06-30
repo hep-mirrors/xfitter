@@ -1,20 +1,38 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([XFitter],[1.2.0],[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
+
+AC_INIT([XFitter],
+m4_esyscmd(git describe --always 2>&1 | awk '/Not a git/  {print "2.0.0\033@<:@1;32m FrozenFrog\033@<:@0m"}; !/Not a git/ {print $0}'  | tr -d '\n'),
+[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
-	
+
 #Suppress verbose output when compiling (use make V=99 for verbose output)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-AM_INIT_AUTOMAKE
+#Make sure long file names are saved by make dist:
+AM_INIT_AUTOMAKE([1.9 tar-ustar])
 AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
-AC_PROG_FC([gfortran])
-AC_PROG_F77([gfortran])
+
+# Try to respect users' Fortran compiler variables
+if test "x$FC" == "x"; then
+  if test "x$F77" == "x"; then
+    FC="$GFORTRAN"
+  else
+    FC="$F77"
+  fi
+fi
+
+# Reset F77:
+F77=$FC
+
+AC_PROG_FC
+AC_PROG_F77
 
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+
 
 AM_PROG_CC_C_O
 # Fortran configures
@@ -39,27 +57,65 @@ m4_include([m4/ax_openmp.m4])
 # A lot of code written with 132 char. strings.
 #
 if test "uname -m" = "64"; then
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
+   FCFLAGS="$FCFLAGS  -cpp  -fPIC -mcmodel=medium"
+   FFLAGS="$FFLAGS    -cpp  -fPIC -mcmodel=medium"
 else
    echo "Disabling mcmodel=medium option"
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132  -fPIC -cpp"
-   FFLAGS="$FFLAGS -ffixed-line-length-132  -fPIC -cpp"
+   FCFLAGS="$FCFLAGS   -fPIC -cpp"
+   FFLAGS="$FFLAGS     -fPIC -cpp"
 fi    
+
+
+# fortran detection:
+testtest=`echo $FC  | awk '/ifort/ {print "yes"}'`
+
+if test "$testtest" = "yes"; then
+# ifortran:
+  AC_MSG_WARN([Intel compiler detected, setting options])
+  FCFLAGS="$FCFLAGS -132 -Difort=1"
+  FFLAGS="$FFLAGS -132 -Difort=1"
+  NOAUTOFCFLAG="-noauto"
+else
+# gfortran most likely:
+  AC_MSG_NOTICE([gfortran compiler options])
+  FCFLAGS="$FCFLAGS  -ffixed-line-length-132 -Difort=0"
+  FFLAGS="$FFLAGS  -ffixed-line-length-132 -Difort=0"
+  NOAUTOFCFLAG="-fno-automatic"
+fi
+
+AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
+CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++"
 
 # check for lapack and blas
+AC_MSG_CHECKING([for blas])
 AX_BLAS
 if test "$ax_blas_ok" = "no"; then
-   AC_MSG_ERROR([Cannot find BLAS libraries])
+   AC_MSG_ERROR([Cannot find BLAS libraries. Consider using tools/install-lapack to install.])
 fi
 
+AC_MSG_CHECKING([for lapack])
 AX_LAPACK
 if test "$ax_lapack_ok" = "no"; then
-   AC_MSG_ERROR([Cannot find LAPACK libraries])
+   AC_MSG_ERROR([Cannot find LAPACK libraries. Consider using tools/install-lapack to install.])
 fi
+
+
+AC_MSG_CHECKING([for yaml-cpp])
+AC_LANG_PUSH(C++)
+AC_LINK_IFELSE(
+ [AC_LANG_PROGRAM([#include <yaml-cpp/yaml.h>],[YAML::Node node;])],
+ [AC_MSG_RESULT([yes])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[true])],
+ [AC_MSG_RESULT([no])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[false])]
+ [AC_MSG_ERROR([yaml-cpp is not installed. Install manually, or use tools/install-yaml helper script.])]
+ )
+AC_LANG_POP(C++)
+
+
 
 AC_ARG_ENABLE([process],
                  [AS_HELP_STRING([--enable-process],[enable xfitter-process tool])])
@@ -76,7 +132,7 @@ AS_IF([test "$enable_process" = "yes"], [
                                 [AM_CONDITIONAL([HAVE_YAML],[true])],
                                 [AC_MSG_RESULT([no])]
                                 [AM_CONDITIONAL([HAVE_YAML],[false])]
-                                [AC_MSG_WARN([libyaml is not installed, xfitter-process tool is not available.])]
+                                [AC_MSG_WARN([libyaml is not installed, xfitter-process tool is not available. Consider installing using tools/install-yaml helper script.])]
                                 )
                 LIBS=$SAVED_LIBS
         AC_LANG_POP(C)],
@@ -116,7 +172,7 @@ fi
 
 
 # Checks for sources.
-AC_CONFIG_SRCDIR([src/main.f])
+AC_CONFIG_SRCDIR([xfitter/cmain.cxx])
 
 ## Checks for libraries.
 #AC_MSG_CHECKING([for CERN libraries])
@@ -154,7 +210,7 @@ else
   QCDNUMLIBS=`qcdnum-config --ldflags`
   AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
-  AX_COMPARE_VERSION([17-01-11],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-11 or later needed).])],[])
+  AX_COMPARE_VERSION([17-01-14],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-14 or later needed).])],[])
 fi
 
 # check for lhapdf installation
@@ -311,6 +367,17 @@ if test x$enable_hathor == xyes; then
     AC_MSG_ERROR([HATHOR_ROOT environment variable is not set!.])
   else 
     AC_MSG_RESULT([Using $HATHOR_ROOT])
+    AC_CHECK_FILE([$HATHOR_ROOT/libHathor.a],,[AC_MSG_ERROR([HATHOR_ROOT must contain libHathor.a])])
+    # check which hathor libraries are available:
+    # (1) Hathor-1.5 contains one library libHathor.a,
+    # (2) Hathor-2.0 contains two libraries libHathor.a and libff.a, both have to be used
+    HATHOR_LIBS="$HATHOR_ROOT/libHathor.a"
+    AC_CHECK_FILE([$HATHOR_ROOT/libff.a],HATHOR_LIBS+=" $HATHOR_ROOT/libff.a",)
+    echo "Found Hathor libraries $HATHOR_LIBS"
+    AC_SUBST(HATHOR_LIBS)
+  fi
+  if test ! $enable_lhapdf; then
+    AC_MSG_ERROR([Hathor-2.0 requires LHAPDF: please configure with --enable-lhapdf])
   fi
 fi
 AM_CONDITIONAL(ENABLE_HATHOR, [test x$enable_hathor == xyes])
@@ -443,6 +510,7 @@ DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 # Output
 AC_CONFIG_FILES([include/Makefile 
                  src/Makefile
+                 xfitter/Makefile
                  common/Makefile
                  common/linalg/Makefile
                  common/num_utils/Makefile
@@ -460,15 +528,22 @@ AC_CONFIG_FILES([include/Makefile
                  DY/src/Makefile
                  DY/include/Makefile
                  Hathor/src/Makefile
+                 Hathor/interface/Makefile
+                 HVQMNR/Makefile
                  HVQMNR/src/Makefile
+                 HVQMNR/include/Makefile
                  ACOT/src/Makefile
-                 SACOT/src/Makefile 
+                 ACOT/Makefile
+                 SACOT/src/Makefile
+                 SACOT/Makefile 
                  ABM/src/Makefile
 		 FONLL/src/Makefile
+                 FONLL/Makefile
                  Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
+                 QEDevol/include/Makefile
                  pdf2yaml/Makefile
                  tools/process/Makefile
                  tools/draw/Makefile
@@ -476,7 +551,32 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
                  input_steering/Makefile
+                 tools/Makefile
+                 datafiles/Makefile
+                 datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/Makefile
+                 doc/logo/Makefile
+                 examples/Makefile
+                 python/Makefile
 		 xfitter-config
+		 reactions/HathorSingleTop/src/Makefile
+		 reactions/AFB/src/Makefile
+		 reactions/KFactor/src/Makefile
+		 reactions/BaseDISCC/src/Makefile
+		 reactions/FFABM_DISCC/src/Makefile
+		 reactions/BaseDISNC/src/Makefile
+		 reactions/FFABM_DISNC/src/Makefile
+		 reactions/Hathor/src/Makefile
+		 reactions/Fractal_DISNC/src/Makefile
+		 reactions/RT_DISNC/src/Makefile
+		 reactions/APPLgrid/src/Makefile
+		 reactions/BaseHVQMNR/src/Makefile
+		 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
+		 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+		 reactions/testZMVFNS/src/Makefile
+		 reactions/fastNLO/src/Makefile
+		 reactions/FONLL_DISCC/src/Makefile
+		 reactions/FONLL_DISNC/src/Makefile
+                 reactions/KMatrix/src/Makefile
                  Makefile])
 
 if test x$enable_doc = xyes; then

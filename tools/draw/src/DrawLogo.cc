@@ -16,9 +16,32 @@
 //label position
 float labx;
 float laby;
-float ratio;
+float xratio;
 
 using namespace std;
+
+// Function to find standard font to be used
+string FontToUse() {
+  FILE *process;
+  char buff[1024];
+
+  process = popen("fc-match --format=%{file} LiberationSans-Regular.ttf", "r");
+  if (process != NULL) {
+    fgets(buff, sizeof(buff), process);
+  }
+  pclose(process);
+  // Reprot if found other font
+  static bool reported = false;
+  if ( ! reported ) {
+    if ( string(buff).find("LiberationSans-Regular.ttf") == string::npos ) {
+      cout << "Could not find LiberationSans-Regular.ttf; using font " << string(buff) << endl;
+      reported = true;
+    }
+  }
+  return string(buff);
+}
+
+
 TPad * DrawLogo(string pos)
 {
   string ver = VERSION;
@@ -37,19 +60,26 @@ TPad * DrawLogo(string pos)
   //Draw xFitter version on logo
   if (opts.version)
     {
-      TString fp = gEnv->GetValue("Root.TTFontPath", "");
-      TString font = fp + "/BlackChancery.ttf";
-      //Check the font file exists
+
+      TString font = FontToUse();
       struct stat st;
-      if (stat(font,&st) != 0) //backup, arial font
-	font = fp + "/arial.ttf";
+      //      cout << font << endl;
+
       if (stat(font,&st) != 0)
 	{
 	  cout << "Warning, cannot find font: " << font << "; xFitter version cannot be drawn on logo "<<endl;
 	  opts.version = false;
 	}
-      else
-	logo->DrawText(500, 600, ver.c_str(), 200, 0, 
+      else 
+	// first see if there is an escale character [ to indicate color. If yes, that is a sign of the release name. Draw it separately
+	if ( ver.find("[") !=std::string::npos ) {
+	  string release = ver.substr(ver.find("m ")+2,ver.find("0m")-ver.find("m ")-4);
+	  ver = ver.substr(0,ver.find("[")-1);
+	  // std::cout << release << " " << ver << std::endl;
+	  logo->DrawText(310, 80, release.c_str(), 80, 0, 
+		       font, TImage::kEmbossed);	  
+	};
+	logo->DrawText(170, 510, ver.c_str(), 80, 0, 
 		       font, TImage::kShadeBelow);
     }
 
@@ -79,8 +109,8 @@ void CMS()
   TLatex l; //l.SetTextAlign(12);
   l.SetNDC();
   l.SetTextFont(42);
-  l.SetTextSize(ratio*0.04);
-  l.DrawLatex(ratio*(lmarg+0.05), 1-tmarg+0.01, "CMS");
+  l.SetTextSize(xratio*0.04);
+  l.DrawLatex(xratio*(lmarg+0.05), 1-tmarg+0.01, "CMS");
 }
 
 void CMSpreliminary()
@@ -88,8 +118,8 @@ void CMSpreliminary()
   TLatex l; //l.SetTextAlign(12);
   l.SetNDC();
   l.SetTextFont(42);
-  l.SetTextSize(ratio*0.04);
-  l.DrawLatex(ratio*(lmarg+0.05), 1-tmarg+0.01, "CMS Preliminary");
+  l.SetTextSize(xratio*0.04);
+  l.DrawLatex(xratio*(lmarg+0.05), 1-tmarg+0.01, "CMS Preliminary");
 }
 
 void ATLAS()
@@ -97,8 +127,8 @@ void ATLAS()
   TLatex l; //l.SetTextAlign(12);
   l.SetNDC();
   l.SetTextFont(72);
-  l.SetTextSize(ratio*0.04);
-  l.DrawLatex(ratio*(labx+0.05), laby-0.05, "ATLAS");
+  l.SetTextSize(xratio*0.04);
+  l.DrawLatex(xratio*(labx+0.05), laby-0.05, "ATLAS");
 }
 
 void ATLASpreliminary()
@@ -106,8 +136,8 @@ void ATLASpreliminary()
   TLatex p; 
   p.SetNDC();
   p.SetTextFont(62);
-  p.SetTextSize(ratio*0.04);
-  p.DrawLatex(ratio*(labx+0.19), laby-0.05, "Preliminary");
+  p.SetTextSize(xratio*0.04);
+  p.DrawLatex(xratio*(labx+0.19), laby-0.05, "Preliminary");
 }
 
 void ATLASinternal()
@@ -115,18 +145,18 @@ void ATLASinternal()
   TLatex p; 
   p.SetNDC();
   p.SetTextFont(42);
-  p.SetTextSize(ratio*0.04);
-  p.DrawLatex(ratio*(labx+0.19), laby-0.05, "Internal");
+  p.SetTextSize(xratio*0.04);
+  p.DrawLatex(xratio*(labx+0.19), laby-0.05, "Internal");
 }
 
 //CDF Run II Preliminary
 TPaveText * CDFIIpreliminary()
 {
-  TPaveText *cdfii = new TPaveText(ratio*0.45, 1-tmarg+0.02, ratio*0.95, 0.96, "NDC");
+  TPaveText *cdfii = new TPaveText(xratio*0.45, 1-tmarg+0.02, xratio*0.95, 0.96, "NDC");
   cdfii->AddText("CDF Run II Preliminary");
   cdfii->SetTextAlign(12);
   cdfii->SetTextFont(62);
-  cdfii->SetTextSize(ratio*0.04);
+  cdfii->SetTextSize(xratio*0.04);
   cdfii->SetBorderSize(0);
   cdfii->SetFillColor(0);
   return cdfii;
@@ -148,9 +178,9 @@ void DrawLabels(string pos)
       laby = bmarg + 0.05 + 0.03;
     }
 
-  ratio = 1.;
+  xratio = 1.;
   if (pos.find("half") != string::npos)
-    ratio = 0.5;
+    xratio = 0.5;
     
   if (opts.cms)
     CMS();

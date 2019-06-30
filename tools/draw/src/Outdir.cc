@@ -21,7 +21,7 @@ map <string, int> ndatamap;
 vector <TGraphAsymmErrors*> allgraphs;
 
 //Constructor, load all the directory data
-Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym), bands3(false), profiled(opts.profile), reweighted(opts.reweight), GK(opts.GKweight), BAY(opts.BAYweight), scale68(opts.scale68), RotatedSet(0), rotated(false)
+Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median), cl68(opts.cl68), cl90(opts.cl90), asym(opts.asym), bands3(false), profiled(opts.profile), reweighted(opts.reweight), GK(opts.GKweight), BAY(opts.BAYweight), scale68(opts.scale68), RotatedSet(0), rotated(false), singlePDF(false),singlePDFlabel(0)
 {
   //parse dirs for flags and labels
   string pattern = "";
@@ -101,6 +101,16 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
 	  dirname.erase(0, dirname.find(":")+1);
 	  prefix = dirname.substr(0,dirname.find(":"));
 	  RotatedSet = atoi(prefix.c_str());
+	  // std::cout << RotatedSet << "\n";
+	  dirname.erase(0, dirname.find(":")+1);
+	}
+      if (prefix == "set") 
+	{
+	  doprefix = true;
+	  singlePDF = true;
+	  dirname.erase(0, dirname.find(":")+1);
+	  prefix = dirname.substr(0,dirname.find(":"));
+	  singlePDFlabel = atoi(prefix.c_str());
 	  // std::cout << RotatedSet << "\n";
 	  dirname.erase(0, dirname.find(":")+1);
 	}

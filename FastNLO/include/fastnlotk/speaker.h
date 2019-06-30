@@ -9,7 +9,7 @@
 #include <map>
 
 namespace say {
-enum Verbosity {DEBUG=-1000, MANUAL=-1, INFO=0, WARNING=1, ERROR=2, SILENT=1000};
+   enum Verbosity {DEBUG=-1000, MANUAL=2, INFO=0, WARNING=1, ERROR=2, SILENT=1000};
 }
 
 class speaker {
@@ -82,13 +82,14 @@ protected:
 };
 
 namespace say {
-extern speaker debug;
-extern speaker man;
-extern speaker info;
-extern speaker warn;
-extern speaker error;
-extern speaker shout; // same as error but streamed to cout
-extern int SetGlobalVerbosity(Verbosity verbosity);
+   extern speaker debug;
+   extern speaker man;   //
+   extern speaker info;
+   extern speaker warn;
+   extern speaker error;
+   extern speaker shout; // same as error but streamed to cout
+   extern speaker yell;  // same as error but streamed to cout without prefix
+   extern int SetGlobalVerbosity(Verbosity verbosity);
 }
 
 
@@ -103,6 +104,7 @@ public:
    speaker warn;
    speaker error;
    speaker shout;
+   speaker yell;
 private:
    std::string ___cn;
 };

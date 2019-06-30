@@ -15,11 +15,15 @@
 #include "xfitter_cpp.h"
 #include "CommonGrid.h"
 
+#ifdef APPLGRID_ENABLED
 #include "appl_grid/appl_grid.h"
+#endif
+
 #include <FastNLOxFitter.h>
+#include <string.h>
 
 using namespace std;
-using namespace appl;
+// using namespace appl;
 
 // external pdf functions
 extern "C" void appl_fnpdf_(const double& x, const double& Q, double* f);
@@ -88,20 +92,26 @@ CommonGrid::CommonGrid(const string & grid_type, const string &grid_source): _dy
 }
 
 CommonGrid::~CommonGrid(){
-  vector<tHyperBin>::iterator ihb;
-  for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
-    delete[] ihb->b;
-    if ( ihb->g  )  delete ihb->g;
-    if ( ihb->f  )  delete ihb->f;
-#ifdef APFELGRID_ENABLED
-    if ( ihb->fk )  delete ihb->fk;
+    vector<tHyperBin>::iterator ihb;
+    for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
+        delete[] ihb->b;
+        if ( ihb->f  )  delete ihb->f;
+        
+#ifdef APPLGRID_ENABLED
+        if ( ihb->g  )  delete ihb->g;
 #endif
-  }
+    
+#ifdef APFELGRID_ENABLED
+        if ( ihb->fk )  delete ihb->fk;
+#endif
+    }
 }
 
 int
 CommonGrid::readAPPLgrid(const string &grid_source)
 {
+
+#ifdef APPLGRID_ENABLED
   double *b = new double;
   appl::grid *g = new appl::grid(grid_source);
   if (_dynamicscale != 0)
@@ -127,6 +137,12 @@ CommonGrid::readAPPLgrid(const string &grid_source)
   _hbins.push_back(hb);
   _ndim = 2;
   return _hbins.size();
+#else
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
+  int textlen = strlen(text);
+  hf_errlog_(id, text, textlen);
+#endif
 }
 
 
@@ -152,13 +168,13 @@ CommonGrid::readAPFELgrid(const string &grid_source)
     double MTop    = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MTop")).c_str());
     int    PtOrd   = atoi((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "PerturbativeOrder")).c_str());
 
-    double dAsRef   = abs( AsRef / c_alphas_.alphas_ - 1 );
-    double dQRef    = abs( QRef / boson_masses_.mz_ - 1 );
-    double dQ0      = abs( Q0 / sqrt(steering_.starting_scale_) - 1 );
-    double dMCharm  = abs( MCharm / fermion_masses_.mch_ - 1);
-    double dMBottom = abs( MBottom / fermion_masses_.mbt_ - 1);
-    double dMTop    = abs( MTop / fermion_masses_.mtp_ - 1);
-    int    dPtOrd   = abs( PtOrd + 1 - steering_.i_fit_order_);
+    double dAsRef   = abs( AsRef / c_alphas_.alphas - 1 );
+    double dQRef    = abs( QRef / boson_masses_.Mz - 1 );
+    double dQ0      = abs( Q0 / sqrt(steering_.starting_scale) - 1 );
+    double dMCharm  = abs( MCharm / fermion_masses_.mch - 1);
+    double dMBottom = abs( MBottom / fermion_masses_.mbt - 1);
+    double dMTop    = abs( MTop / fermion_masses_.mtp - 1);
+    int    dPtOrd   = abs( PtOrd + 1 - steering_.i_fit_order);
 
     double toll = 1e-5;
     if( dAsRef > toll || dQRef > toll || dQ0 > toll || dMCharm > toll || dMBottom > toll || dMTop > toll || dPtOrd > 0 ) {
@@ -171,10 +187,10 @@ CommonGrid::readAPFELgrid(const string &grid_source)
       rename(grid_source.c_str(), (grid_source + "-old").c_str());
 
       // Generate FK table is absent
-      APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale_),
-      			       fermion_masses_.mch_, fermion_masses_.mbt_, fermion_masses_.mtp_,
-			       c_alphas_.alphas_, boson_masses_.mz_,
-			       steering_.i_fit_order_ - 1);
+      APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale),
+      			       fermion_masses_.mch, fermion_masses_.mbt, fermion_masses_.mtp,
+			       c_alphas_.alphas, boson_masses_.Mz,
+			       steering_.i_fit_order - 1);
 
       // Reread FK table
       ifstream infile1;
@@ -188,10 +204,10 @@ CommonGrid::readAPFELgrid(const string &grid_source)
     cout << endl;
 
     // Generate FK table is absent
-    APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale_),
-			     fermion_masses_.mch_, fermion_masses_.mbt_, fermion_masses_.mtp_,
-			     c_alphas_.alphas_, boson_masses_.mz_,
-			     steering_.i_fit_order_ - 1);
+    APFELgridGen::generateFK(grid_source, sqrt(steering_.starting_scale),
+			     fermion_masses_.mch, fermion_masses_.mbt, fermion_masses_.mtp,
+			     c_alphas_.alphas, boson_masses_.Mz,
+			     steering_.i_fit_order - 1);
 
     // Read FK table
     ifstream infile1;
@@ -237,6 +253,9 @@ CommonGrid::initfastNLO(const string &grid_source)
 int
 CommonGrid::readVirtGrid(const string &grid_source)
 {
+
+#ifdef APPLGRID_ENABLED
+
   cout << "reading virtual grid from " << grid_source << endl;
   ifstream vg(grid_source.c_str());
   string line;
@@ -288,6 +307,13 @@ CommonGrid::readVirtGrid(const string &grid_source)
     vg.close();
   }
   return _hbins.size();
+#else
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
+  int textlen = strlen(text);
+  return 0;
+#endif
+
 }
 
 std::vector< std::vector<double> >
@@ -330,6 +356,7 @@ CommonGrid::vconvolute_fastnlo(const int iorder, const double mur, const double 
 std::vector<double> 
 CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf, tHyperBin* ihb)
 {
+#ifdef APPLGRID_ENABLED
   vector<double> xs;
   vector<double> gxs;
   appl::grid *g = ihb->g;
@@ -372,6 +399,11 @@ CommonGrid::vconvolute_appl(const int iorder, const double mur, const double muf
 
   xs.insert(xs.end(), gxs.begin(), gxs.begin()+ihb->ngb);
   return xs;
+#else
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
+  int textlen = strlen(text);
+#endif
 }
 
 std::vector<double> 
@@ -402,6 +434,7 @@ CommonGrid::vconvolute_apfelg(tHyperBin* ihb)
 int
 CommonGrid::checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins)
 {
+#ifdef APPLGRID_ENABLED
   // do not check bins for normalization grids
   if ( 0 != (_flag & 1) || _flag > 3 ) return 0;
 
@@ -459,6 +492,14 @@ CommonGrid::checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins
   }
   
   return 0;
+#else
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
+  int textlen = strlen(text);
+  hf_errlog_(id, text, textlen);
+  return 0;
+#endif
+
 }
 
 void
@@ -482,7 +523,14 @@ CommonGrid::SetCollisions(const string &collision)
 int 
 CommonGrid::setCKM(const vector<double> &v_ckm)
 {
+#ifdef APPLGRID_ENABLED
   _hbins.at(0).g->setckm(v_ckm);
-
   return 0;
+#else
+  int id = 16102401;
+  char text[] = "S: APPLgrid must be present. Recompile with --enable-applgrid to use this option.";
+  int textlen = strlen(text);
+  hf_errlog_(id, text, textlen);
+#endif
+
 }

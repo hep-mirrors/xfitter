@@ -1,4 +1,3 @@
-
       subroutine init_theory_modules
 *     ------------------------------------------------
 
@@ -116,7 +115,7 @@ c set-up of the constants
       data as0/0.364/, r20/2.D0/!, nfin/0/ !alphas, NNLO, VFNS
       integer I,ndum,ierr,j
 
-      double precision a,b,qt, qmz
+      double precision a,b, qmz
       
       integer id1,id2
       integer nw,nwords,nx
@@ -165,7 +164,14 @@ C Q2 grid weights
       WGT_q2(2) = 1.d0
 C Basic Q2 grid:
       QARR(1) = 1.
-      QARR(2) = 2.05D8 ! needed for lhapdf grid  
+      QARR(2) = 2.05D8 ! needed for lhapdf grid
+C Reduce the Q2 interval if small-x resummation through APFEL is included.
+      if(HFSCHEME.eq.3005.or.
+     1   HFSCHEME.eq.3055.or.
+     2   HFSCHEME.eq.3555)then
+         QARR(1) = starting_scale
+         QARR(2) = 2.025D7      ! needed for lhapdf grid  
+      endif
 c      QARR(2) =  64000000.      ! enough for 8 TeV LHC.
 
 C Default sizes
@@ -246,12 +252,19 @@ C Add extra points:
       Q2Grid(NQGrid+2) = qc
       Q2Grid(NQGrid+3) = qb
       Q2Grid(NQGrid+4) = qmz
-      Q2Grid(NQGrid+5) = qt
       WQGrid(NQGrid+1) = 4.D0
       WQGrid(NQGrid+2) = 2.D0
       WQGrid(NQGrid+3) = 1.3D0
       WQGrid(NQGrid+4) = 1.1D0
-      WQGrid(NQGrid+5) = 1.D0
+
+      if (qt.lt.qarr(2)) then
+         WQGrid(NQGrid+5) = 1.D0
+         Q2Grid(NQGrid+5) = qt
+      else
+         ! no top
+         WQGrid(NQGrid+5) = 0.
+         Q2Grid(NQGrid+5) = qb
+      endif
 
 C Sort the Q2Grid:
       do i=1,NQGridHF
@@ -273,8 +286,9 @@ C Sort the Q2Grid:
 C Remove duplicates:
       i = 1
       do while (i.lt.NQAll)
-         if (  abs(Q2Grid(i)-Q2Grid(i+1)).lt.1.D-5 ) then
-            do j=i+1,NQAll
+         if (  abs(Q2Grid(i)-Q2Grid(i+1)).lt.1.D-5 .or. 
+     $        ( Q2Grid(i).eq.0 ) ) then
+            do j=i+1,NQAll-1               
                Q2Grid(j) = Q2Grid(j+1)
                WQGrid(j) = WQGrid(j+1)
             enddo
@@ -287,8 +301,8 @@ C Remove duplicates:
       print *,' '
       print *,'Info FROM QCDNUM_INI'
       print '('' Init Q2 grid with number of nodes='',i5)',NQALL      
-      print '('' Q2 values at:'',20F11.1)',(Q2grid(i),i=1,NQALL)
-      print '('' Weights are :'',20F11.1)',(WQgrid(i),i=1,NQALL)
+      print '('' Q2 values at:'',20F14.1)',(Q2grid(i),i=1,NQALL)
+      print '('' Weights are :'',20F14.1)',(WQgrid(i),i=1,NQALL)
       print *,' '
       print '('' Init X  grid with number of nodes='',i5)',NMXGRID
       print '('' X  values at:'',20E11.2)',(xmin_grid(i),i=1,NMXGRID),1.0
@@ -311,10 +325,10 @@ C Remove duplicates:
       call getint('mky0',mky)
       call getint('nwf0',nwf)
 *
-      if(ver.lt.170110 )then
+      if(ver.lt.170113 )then
          call HF_errlog(231020151, 'F: '//
      1   'Obsolete version of QCDNUM. '//
-     2   'Install version 17.01.10 or later.')
+     2   'Install version 17.01.13 or later.')
       endif
       if(mxg.lt.5      )then
          call HF_errlog(231020152, 'F: '//
@@ -359,15 +373,7 @@ C Remove duplicates:
 *
       call setord(I_FIT_ORDER)         !LO, NLO, NNLO
 
-      print *,"gxmake xmingrid: ",xmin_grid
-      print *,"gxmake iwgt    : ",iwt_xgrid
-      print *,"gxmake nx: ",nmxgrid
-      print *,"gxmake nxb: ",nxbins
       call gxmake(xmin_grid,iwt_xgrid,nmxgrid,NXBINS,nx,iosp) !x-grid
-      print *,"qqmake xmingrid: ",Q2Grid
-      print *,"gqmake iwgt    : ",WQGrid
-      print *,"gqmake nx: ",NQALL
-      print *,"gqmake nxb: ",NQ2bins
       call gqmake(Q2Grid,WQGrid,NQAll,NQ2bins,nqout)             !mu2-grid
 
       print '(''Requested, actual number of x bins are: '',2i5)', 
@@ -394,6 +400,14 @@ C         stop
       iqc =iqfrmq(qc+tiny)  !> Charm                                                                                                                                                                    
       iqb =iqfrmq(qb+tiny)  !> Bottom  
       iqt =iqfrmq(qt+tiny)  !> Top            
+
+C 7/10/16 Reset top threshold if beyond kinematic limit: 
+      if (qt.gt.QARR(2)) then
+         iqt = 0.
+         call hf_errlog(2016100701,
+     $  'I: Top threshold beyond kinematic limit: turn off top PDF')
+      endif
+      
 
       if ((mod(HFSCHEME,10).eq.3).or.HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
          call setcbt(3,iqc,iqb,iqt) !thesholds in the ffns
@@ -500,6 +514,10 @@ C------------------------------------
       endif
 
       print*,' ---------------------------------------------'
+
+      !!!  Additional call to set PDF and alphaS interface 
+      call set_qcdnum_pdfs_rt
+
 C-
          call RT_Set_Input(varin,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
@@ -668,7 +686,7 @@ cc        rscale=1d0
 
       call ABKM_Set_Input(
      $     kschemepdfin,kordpdfin,rmass8in,rmass10in,msbarmin,
-     $     hqscale1in,hqscale2in)
+     $     hqscale1in,hqscale2in,0)
       end
 
       Subroutine init_theory_datasets
@@ -708,18 +726,18 @@ C
             Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'pp jets fastNLO') then
             Call InitJetsPPApplGridDataSet(IDataSet)
+         elseif (DATASETREACTION(IDataSet).eq.'reaction') then
+            Call InitJetsPPApplGridDataSet(IDataSet)
          elseif (DATASETREACTION(IDataSet).eq.'FastNLO jets' .or.   
      $           DATASETREACTION(IDataSet).eq.'FastNLO ep jets') then ! for backward compatibility
             Call InitJetsFastNLODataSet(IDataSet)
-CMK14: the function InitJetsFastNLODataSet initiates fastNLO without process specification
-CMK14: for details see FastNLOInterface.cc (fcn fnloreader)
         elseif (DATASETREACTION(IDataSet).eq.'FastNLO ttbar') then 
             Call InitJetsFastNLODataSet(IDataSet)
+            Call setfastnlotoppar(IDataSet)
           elseif (DATASETREACTION(IDataSet).eq
      >        .'FastNLO ttbar normalised') then 
-
             Call InitJetsFastNLODataSet(IDataSet)
-CMK14end
+            Call setfastnlotoppar(IDataSet)
          elseif (DATASETREACTION(IDataSet)
      $           .eq.'FastNLO ep jets normalised') then
             Call InitIntegratedNCXsectionDataset(IDataSet)
@@ -1199,13 +1217,14 @@ C------------------------------------------------------------
       subroutine InitJetsFastNLODataSet(IDataSet)
 C------------------------------------------------------------
 C
-C Initialize FastNLO reader
+C Initialize fastNLO
 C
 C------------------------------------------------------------
       implicit none
       integer IDataSet
 #include "ntot.inc"
 #include "datasets.inc"
+#include "steering.inc"
 
       integer GetInfoIndex
 
@@ -1231,7 +1250,9 @@ C------------------------------------------------------------
 
       call fastnloinit(DATASETLABEL(IDataSet),IDataSet
      >  ,DATASETTheoryFile(IDataSet)(1:Index(DATASETTheoryFile(IDataSet)
-     >  ,' ')-1)//char(0),PubUnits, MurDef, MurScale, MufDef, MufScale);
+     >  ,' ')-1)//char(0)
+     >  ,I_FIT_ORDER
+     >  ,PubUnits, MurDef, MurScale, MufDef, MufScale);
       end
 
       subroutine InitHathorDataSet(IDataSet)
@@ -1322,10 +1343,16 @@ C
 C-----------------------------------------------------
       implicit none
 #include "couplings.inc"
-C
+#include "steering.inc"
+C     
 C set derived values
 C
       cos2thw = 1.d0 - sin2thw
+
+       ! move initialzation of the thresholds from read_steer:
+      HF_MASS(1) = mch 
+      HF_MASS(2) = mbt
+      HF_MASS(3) = mtp
 
 C
 C set same values for DY calculations
@@ -1416,17 +1443,17 @@ c#include "steering.inc"
       integer PtOrder
       integer GetParameterIndex
       double precision MCharm,MBottom,MTop
-      double precision Q_ref,Alphas_ref
+      double precision Q_ref,Alphas_ref, getparamd
       character*7 Scheme
       character*5 MassScheme
-      logical runm
+      logical runm,Smallx
 *
       MCharm  = mch
       MBottom = mbt
       MTop    = mtp
 *
       Q_ref      = mz
-      Alphas_ref = ExtraParamValue(GetParameterIndex('alphas'))
+      Alphas_ref = getParamD('alphas')
 *
       PtOrder = I_FIT_ORDER - 1
 *
@@ -1435,6 +1462,7 @@ c#include "steering.inc"
 *
       MassScheme = "Pole"
       runm       = .false.
+      Smallx     = .false.
       if (I_FIT_order.eq.1) then
          write(6,*) 'You have selected the FONLL scheme at LO'
          write(6,*) '*****************************************'
@@ -1457,6 +1485,11 @@ c#include "steering.inc"
             Scheme     = "FONLL-A"
             MassScheme = "MSbar"
             runm       = .true.
+         elseif(HFSCHEME.eq.3005)then
+            write(6,*) "You have selected the FONLL-A scheme",
+     1                 " with small-x resummation at NLL"
+            Scheme     = "FONLL-A"
+            Smallx     = .true.
          elseif(HFSCHEME.eq.55)then
             write(6,*) "You have selected the FONLL-B scheme",
      1                 " with poles masses"
@@ -1472,6 +1505,11 @@ c#include "steering.inc"
             Scheme     = "FONLL-B"
             MassScheme = "MSbar"
             runm       = .true.
+         elseif(HFSCHEME.eq.3055)then
+            write(6,*) "You have selected the FONLL-B scheme",
+     1                 " with small-x resummation at NLL"
+            Scheme     = "FONLL-B"
+            Smallx     = .true.
          else
             call HF_errlog(310320151, 'F: '//
      1                    'At NLO only the FONLL-A and FONLL-B '//
@@ -1493,6 +1531,11 @@ c#include "steering.inc"
             Scheme     = "FONLL-C"
             MassScheme = "MSbar"
             runm       = .true.
+         elseif(HFSCHEME.eq.3555)then
+            write(6,*) "You have selected the FONLL-C scheme",
+     1                 " with small-x resummation at NLL"
+            Scheme     = "FONLL-C"
+            Smallx     = .true.
          else
             call HF_errlog(310320152, 'F: '//
      1                    'At NNLO only the FONLL-C scheme '//
@@ -1513,8 +1556,22 @@ c#include "steering.inc"
          endif
       endif
 *
+*     If the small-x resummation is included check that APFEL is used also
+*     for the evolution.
+*
+      if(Smallx)then
+         if(iTheory.ne.10.and.iTheory.ne.35)then
+            call HF_errlog(20102017, 'F: '//
+     1                'When using the FONLL scheme with small-x '//
+     2                'resummation, APFEL must be used for the '//
+     3                'evolution. '//
+     4                'Please set TheoryType = "DGLAP_APFEL" in the '//
+     5                'steering.txt card.')
+         endif
+      endif
+*
       call FONLL_Set_Input(MassScheme,runm,Mcharm,MBottom,MTop,
-     1                     Q_ref,Alphas_ref,PtOrder,Scheme)
+     1                     Q_ref,Alphas_ref,PtOrder,Scheme,Smallx)
 *
       return
       end

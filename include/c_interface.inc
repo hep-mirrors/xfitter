@@ -8,8 +8,8 @@ C
 
       double precision c_Mz
 
-      character*128 c_LHAPDF6OutDir
-      character*128 c_OutDirName
+      character*256 c_LHAPDF6OutDir
+      character*256 c_OutDirName
       character*128 c_LHAPDFSET
 
       double precision c_xgrid(NXGridMax)

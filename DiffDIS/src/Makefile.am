@@ -1,7 +1,10 @@
 AUTOMAKE_OPTIONS = foreign
-pkginclude_HEADERS = JScif.h TRc.h trs.h
+
+dist_noinst_HEADERS = JScif.h TRc.h trs.h 
+# defparams.inc DDIS.coca xdr.c
 # The name of the library
 noinst_LIBRARIES = libDiffDIS.a
+
 
 # Next files will be processed by g77 (and automatically gcc for *.c) compiler
 libDiffDIS_a_SOURCES = Coca.cc   GrdHeader.cc  Param.cc    ddis.cc   fileut.cc  hdpdf.cc     qcdpars.cc     tblipol.cc\

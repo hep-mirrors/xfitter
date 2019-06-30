@@ -39,7 +39,7 @@ C             Either print warning or put in buffer
      +              ' ============== ',CMES
 C
 C>SL      store it in hf_error_logger
-          CALL HF_ERRLOG(1,'W: MINUIT warnings')
+          CALL HF_ERRLOG(1,'W: MINUIT warning:  '//CMES)
 
           RETURN
         ENDIF

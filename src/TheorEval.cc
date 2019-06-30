@@ -12,10 +12,17 @@
 #include <stack>
 #include <float.h>
 #include <valarray>
+#include <dlfcn.h>
 
 #include "TheorEval.h"
 #include "CommonGrid.h"
+#include "ReactionTheory.h"
 #include "xfitter_cpp.h"
+#include "get_pdfs.h"
+#include <string.h> 
+
+#include <yaml-cpp/yaml.h>
+#include "xfitter_pars.h"
 
 using namespace std;
 
@@ -24,6 +31,8 @@ using namespace std;
 //    double datasetmuf[150];
 //    int datasetiorder[150];
 // } cscales_;
+
+
 
 TheorEval::TheorEval(const int dsId, const int nTerms, const std::vector<string> stn, const std::vector<string> stt, 
                      const std::vector<string> sti, const std::vector<string> sts, const string& expr) : _dsId(dsId), _nTerms(nTerms)
@@ -53,9 +62,19 @@ TheorEval::~TheorEval()
   for (; it!=_exprRPN.end(); it++){
     if ( ! it->val ) { delete it->val; it->val = NULL; }
   }
+
+  // OZ delete reactions
+  for (tNameReactionmap::iterator itt = gNameReaction.begin(); itt!=gNameReaction.end(); itt++)
+  {
+    if(itt->second)
+    {
+      delete itt->second;
+      itt->second = NULL;
+    }
+  }
 }
 
-int
+void
 TheorEval::initTheory()
 {
   list<tToken> sl;
@@ -63,7 +82,7 @@ TheorEval::initTheory()
   this->convertToRPN(sl);
 }
 
-int 
+void
 TheorEval::assignTokens(list<tToken> &sl)
 {
   stringstream strexpr(_expr);
@@ -92,7 +111,7 @@ TheorEval::assignTokens(list<tToken> &sl)
 	    term.append(1,c);
 	  } else {
 	    cout << "Theory expression syntax error: " << _expr << endl;
-	    return -1;
+	    return;
 	  }
 	} else {
 	  strexpr.putback(c);
@@ -136,7 +155,7 @@ TheorEval::assignTokens(list<tToken> &sl)
       vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
       if ( found_term == _termNames.end() ) { 
         cout << "Undeclared term " << term << " in expression " << _expr << endl;
-	return -1;
+	return;
       } else {
         t.opr = 0;
         t.name = term;
@@ -159,6 +178,9 @@ TheorEval::assignTokens(list<tToken> &sl)
         case '-': t.opr = 1; break;
         case '*': t.opr = 3; break;
         case '/': t.opr = 3; break;
+
+        case '.': t.opr = 5; break; //change
+
         default: cout << "Unknown operator "<< c << " in expression " << _expr << endl;
       }
       t.name.assign(1,c);
@@ -168,7 +190,7 @@ TheorEval::assignTokens(list<tToken> &sl)
   }
 }
 
-int
+void
 TheorEval::convertToRPN(list<tToken> &sl)
 {
   stack<tToken> tknstk;
@@ -218,13 +240,15 @@ TheorEval::convertToRPN(list<tToken> &sl)
   
 }
 
-int
+void
 TheorEval::initTerm(int iterm, valarray<double> *val)
 {
    
   string term_type =  _termTypes.at(iterm);
   if ( term_type.find("grid") != string::npos || term_type.find("ast") != string::npos ){ //appl'grid' or f'ast'NLO
     this->initGridTerm(iterm, val);
+  } else if ( term_type == string("reaction")) {
+    this->initReactionTerm(iterm, val);
   } else if ( term_type == string("kfactor")) {
     this->initKfTerm(iterm, val);
   } else {
@@ -233,11 +257,11 @@ TheorEval::initTerm(int iterm, valarray<double> *val)
     std::cout << "Unknown term type in expression for term " << _termNames[iterm] << std::endl;
     int textlen = strlen(text);
     hf_errlog_(id, text, textlen);
-    return -1;
+    return;
   }
 }
 
-int
+void
 TheorEval::initGridTerm(int iterm, valarray<double> *val)
 {
   string term_source = _termSources.at(iterm);
@@ -279,6 +303,9 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
      else 
 	fnlo->SetUnits(fastNLO::kAbsoluteUnits);
      
+  // OZ 9.05.2017
+  if(term_type.find("norm") != string::npos)
+    fnlo->SetUnits(fastNLO::kAbsoluteUnits);
 
      // --- set scales
      if(_MurDef>=0)
@@ -349,7 +376,102 @@ TheorEval::initGridTerm(int iterm, valarray<double> *val)
   _mapGridToken[g] = val;
 }
 
-int
+void
+TheorEval::initReactionTerm(int iterm, valarray<double> *val)
+{
+  string term_source = _termSources.at(iterm);
+  string term_type =  _termTypes.at(iterm);
+  string term_info =  _termInfos.at(iterm);
+//  ReactionTheory *rt = ReactionTheoryDispatcher::getInstance().getReactionTheory(_termSources.at(iterm)); 
+  
+  // Re-define term-source if "use:" string is found:
+  if ( term_source.find("use:") != std::string::npos ) {
+    term_source =  GetParamDS(term_source.substr(4),GetDSname(),_dsPars["FileIndex"]);
+  }
+
+  string libname = gReactionLibs[term_source];
+  if (libname == "") {
+    string text = "F: Reaction " +term_source + " not present in Reactions.txt file";
+    hf_errlog_(16120501,text.c_str(),text.size());
+  }
+
+  ReactionTheory * rt;
+  if ( gNameReaction.find(term_source) == gNameReaction.end()) {
+    void *theory_handler = dlopen((PREFIX+string("/lib/")+libname).c_str(), RTLD_NOW);
+    if (theory_handler == NULL)  { 
+      std::cout  << dlerror() << std::endl;
+      string text = "F: Reaction shared library ./lib/"  + libname  +  " not present for " +term_source + ". Check Reactions.txt file" ;
+      hf_errlog_(16120502,text.c_str(),text.size());
+    }
+    
+    // reset errors
+    dlerror();
+ 
+    create_t *dispatch_theory = (create_t*) dlsym(theory_handler, "create");
+    rt = dispatch_theory();
+    gNameReaction[term_source] = rt;
+
+
+  // First make sure the name matches:
+    if ( rt->getReactionName() == term_source) {
+      string msg =  "I: Use reaction "+ rt->getReactionName();
+      hf_errlog_(17041610+_dsId,msg.c_str(),msg.size());
+    }
+    else {
+      string text = "F: Reaction " +term_source + " does not match with library: "+rt->getReactionName();
+      hf_errlog_(16120801,text.c_str(),text.size());
+    }
+
+
+    // Some initial stuff:
+
+    // transfer the parameters:
+    rt->setxFitterParameters(XFITTER_PARS::gParameters);
+    rt->setxFitterParametersI(XFITTER_PARS::gParametersI);
+    rt->setxFitterParametersS(XFITTER_PARS::gParametersS);
+    rt->setxFitterparametersVec(XFITTER_PARS::gParametersV);
+    rt->setxFitterparametersYaml(XFITTER_PARS::gParametersY);
+  
+    // Override some global pars for reaction specific:
+    if ( XFITTER_PARS::gParametersY[term_source] ) {
+      rt->resetParameters(XFITTER_PARS::gParametersY[term_source]);
+    }
+
+    // set alpha_S, pdfs:
+    rt->setEvolFunctions( &HF_GET_ALPHASQ_WRAP, &g2Dfunctions);
+
+    // simplify interfaces to LHAPDF:
+    rt->setXFX(&HF_GET_PDFSQ_WRAP);           // proton
+    rt->setXFX(&HF_GET_PDFSQ_BAR_WRAP,"pbar"); // anti-proton
+    rt->setXFX(&HF_GET_PDFSQ_N_WRAP,"n");   // neutron
+
+    // initialize
+    if (rt->initAtStart("") != 0) {
+      // failed to init, somehow ...
+      string text = "F:Failed to init reaction " +term_source  ;
+      hf_errlog_(16120803,text.c_str(),text.size());
+    };
+ 
+  } else {
+    rt = gNameReaction[term_source];
+  }
+
+
+  /// Reaction-term / dataset specific:
+
+  // Set bins
+  rt->setBinning(_dsId*1000+iterm, &gDataBins[_dsId]);
+  
+  // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
+  map<string, string> pars = SplitTermInfo(term_info);
+
+  // and transfer to the module
+  rt->setDatasetParameters(_dsId*1000+iterm, pars, _dsPars);
+
+  _mapReactionToken[ std::pair<ReactionTheory*,int>(rt,iterm) ] = val;
+}
+
+void
 TheorEval::initKfTerm(int iterm, valarray<double> *val)
 {
   string term_source(_termSources.at(iterm));
@@ -421,7 +543,7 @@ TheorEval::initKfTerm(int iterm, valarray<double> *val)
           char text[] = "S: Data and grid bins don't match.";
           int textlen = strlen(text);
           hf_errlog_(id, text, textlen);
-          return -1;
+          return;
         }
       }
     }
@@ -429,7 +551,8 @@ TheorEval::initKfTerm(int iterm, valarray<double> *val)
 
   // write k-factor array to the token valarray
   *val = valarray<double>(vkf.data(), vkf.size());
-}  
+}
+
 
 int
 TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
@@ -450,7 +573,7 @@ TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins)
   return _dsBins.size();
 }
 
-int 
+void
 TheorEval::setCKM(const vector<double> &v_ckm)
 {
 #ifdef APPLGRID_CKM
@@ -466,11 +589,12 @@ TheorEval::setCKM(const vector<double> &v_ckm)
 #endif
 }
 
-int
+void
 TheorEval::Evaluate(valarray<double> &vte )
 {
   // get values from grids
-   this->getGridValues();
+  this->getGridValues();
+  this->getReactionValues();
 
   // calculate expression result
   stack<valarray<double> > stk;
@@ -478,7 +602,7 @@ TheorEval::Evaluate(valarray<double> &vte )
   while(it!= _exprRPN.end()){
     if ( it->opr < 0 ){
       cout << "ERROR: Expression RPN is wrong" << endl;
-      return -1;
+      return;
     }
     if ( it->opr == 0 ){
       stk.push(*(it->val));
@@ -508,13 +632,68 @@ TheorEval::Evaluate(valarray<double> &vte )
       stk.pop();
       stk.top() /= a;
     }
+    else if ( it->name == string(".") ){
+          valarray<double> temp;
+          valarray<double> result;
+
+          valarray<double> a(stk.top());
+          int size_a = a.size();
+          stk.pop();
+          valarray<double> b(stk.top());
+          int size_b = b.size();
+
+          if(size_a % size_b == 0){  // Matrix * Vector
+              int size_return = size_a / size_b;
+              result.resize(size_return);
+              for ( int n = 0; n < size_b; n++){
+                  temp.resize(size_return);
+                  temp = a[std::slice(n*size_return, size_return, 1)]; //creating nth colum vector
+                  temp *= b[n];
+                  result += temp;
+              }
+              stk.top() = result;
+          }else if(size_b % size_a == 0){  //  Transposed(Vector)*Matrix -> Transposed(Matrix) vector
+              int size_return = size_b / size_a;
+              result.resize(size_return);
+              for ( int n = 0; n < size_a; n++){
+                  temp.resize(size_return);
+                  temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector
+                  temp *= a[n];
+                  result += temp;
+              }
+              stk.top() = result;
+          }else{
+		char error[] = "ERROR: Dimensions do not match ";
+		cout<<error<<endl;}
+
+
+          /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
+              int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
+              int mb1 = ?;
+              int nb2 = ?;
+              int mb2 = ?;
+              result.resize(mb1*nb2);
+              for(int m = 0; m < mb1; m++){
+                  for(int n = 0; n < nb2; n++){
+                      temp.resize(nb1);
+                      temp = M.slize(m*nb1,1, nb);
+                      temp *= M2.slize(n, mb2, nb2);
+                      result[m*nb1 + n] = temp.sum();
+                  }
+              }
+          }*/
+
+
+
+
+    }
 
     it++;
   }
 
   if (stk.size() != 1 ) {
     cout << "ERROR: Expression RPN calculation error." << endl;
-    return -1;
+    return;
   } else {
     vte = stk.top();
     //Normalised cross section
@@ -532,14 +711,14 @@ TheorEval::Evaluate(valarray<double> &vte )
   }
 }
 
-int
+void
 TheorEval::getGridValues()
 {
   map<CommonGrid*, valarray<double>*>::iterator itm;
   for(itm = _mapGridToken.begin(); itm != _mapGridToken.end(); itm++){
     CommonGrid* g = itm->first;
     vector<double> xs;
-    std::vector< std::vector<double> > result = g->vconvolute(_iOrd, _xmur, _xmuf);
+    std::vector< std::vector<double> > result = g->vconvolute(_iOrd, _xmur, _xmuf);        
     for(int i = 0; i < result.size(); i++)
       for(int j = 0; j < result[i].size(); j++)
         xs.push_back(result[i][j]);
@@ -555,6 +734,26 @@ TheorEval::getGridValues()
     
   }
 }
+
+
+void
+TheorEval::getReactionValues()
+{
+  //  map<ReactionTheory*, valarray<double>*>::iterator itm;
+  for(auto itm = _mapReactionToken.begin(); itm != _mapReactionToken.end(); itm++){
+    ReactionTheory* rt = (itm->first).first;
+    int idTerm =  (itm->first).second;
+    map<string, valarray<double> > errors;
+     
+    int result =  rt->compute(_dsId*1000+idTerm, *(itm->second), errors);
+     
+    if (result != 0) {
+      string text = "F:(from TheorEval::getReactionValues)  Failed to compute theory";
+      hf_errlog_(16081202,text.c_str(),text.size());
+    }
+  }
+}
+
 
 int
 TheorEval::getNbins()
@@ -599,4 +798,85 @@ string TheorEval::GetTheorySource(string term)
     }
   int iterm = int(found_term-_termNames.begin());
   return _termSources[iterm];
+}
+
+map<string, string> TheorEval::SplitTermInfo(const string& term_info)
+{
+  // split term_info into map<string, string> according to key1=value1:key2=value2:key=value3...
+  map<string, string> pars;
+  std::size_t pos0 = 0;
+  while(pos0 < term_info.size())
+  {
+    std::size_t pos1 = term_info.find("=", pos0);
+    std::size_t pos2 = term_info.find(":", pos0);
+    if(pos2 == std::string::npos) // last key=value does not have trailing :
+      pos2 = term_info.size();
+    // check for possible wrong format
+    if(pos0 == 0 && pos1 == std::string::npos)
+    { // no = in non empty term_info
+      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
+      hf_errlog_(17020101, text.c_str(), text.size());
+    }
+    if(pos2 < pos1)
+    { // two : : without = between them
+      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
+      hf_errlog_(17020101, text.c_str(), text.size());
+    }
+    std::size_t pos11 = term_info.find("=", pos1 + 1);
+    if(pos11 != std::string::npos && pos11 < pos2)
+    { // two = = without : between them
+      string text = "W: Wrong TermInfo format. The correct format is key1=value1:key2=value2:...";
+      hf_errlog_(17020101, text.c_str(), text.size());
+    }
+    // split into key value pair
+    std::string key = std::string(term_info, pos0, pos1 - pos0);
+    std::string value = std::string(term_info, pos1 + 1, pos2 - pos1 - 1);
+    // check if this key already exists
+    if(pars.find(key) != pars.end())
+    {
+      string text = "W: Replacing existing key when reading TermInfo";
+      hf_errlog_(17020102, text.c_str(), text.size());
+    }
+    // add to map
+    pars[key] = value;
+    // start next search iteration after current :
+    pos0 = pos2 + 1;
+  }
+  //printf("read term_info %s\n", term_info.c_str());
+  //for(map<string, string>::iterator it = pars.begin(); it != pars.end(); it++)
+  //  printf("  %s=%s\n", (it->first).c_str(), (it->second).c_str());
+  return pars;
+}
+
+const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex) {
+  // First check the list of strings, if present there. If yes, just return
+  if ( XFITTER_PARS::gParametersS.find(ParName) != XFITTER_PARS::gParametersS.end() ) {
+    return XFITTER_PARS::gParametersS[ParName];
+  }
+  // Now check the complex list:
+  if ( XFITTER_PARS::gParametersY.find(ParName) != XFITTER_PARS::gParametersY.end() ) {
+    YAML::Node Node = XFITTER_PARS::gParametersY[ParName];
+
+    // Default:
+    if ( Node["defaultValue"]) {
+      std::string Val = Node["defaultValue"].as<string>();
+
+      if (Node[DSname]) {
+	Val = Node[DSname].as<string>();
+      }
+      if (Node[DSindex]) {
+	Val = Node[DSindex].as<string>();
+      }
+
+      return Val;
+    }
+    else {
+      string text = "F: missing value field for parameter " + ParName;
+      hf_errlog_(17041101,text.c_str(),text.size());            
+      return "";
+    }
+  }
+  else {
+    return "";
+  }
 }
