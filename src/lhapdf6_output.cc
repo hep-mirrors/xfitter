@@ -312,14 +312,6 @@ struct QX_Grid{
   vector<Q_Subgrid> subgrids;
 };
 
-QX_Grid makeQX_Grid(double xmin, double xmax, size_t Nx, double qmin, double qmax, size_t Nq) {
-  QX_Grid ret;
-  ret.X = makeXgrid(xmin, xmax, Nx);
-  ret.Q = makeQgrid(qmin, qmax, Nq);
-  ret.subgrids = makeQ_Subgrids(ret.Q);
-  return ret;
-}
-
 void WriteLHAPDF6(FILE* f, BaseEvolution* ev, const QX_Grid& qx_grid, const char*const PdfType = "central"){
   fprintf(f, "PdfType: %s\n", PdfType);
   fprintf(f, "Format: lhagrid1\n---\n");
@@ -338,10 +330,23 @@ struct LHAPDF6_Options{
     flavor_scheme = "",
     error_type = "";
   double qmin, qmax, xmin, xmax;
-  size_t Nx, Nq;
+  size_t Nx=0, Nq=0;
   int nmembers = 1;
+  bool prefer_internal_grid; //if true, try to use internal grid of evolution, if it can provide one
   static LHAPDF6_Options fromYAML(YAML::Node);
 };
+
+QX_Grid makeQX_Grid(LHAPDF6_Options options) {
+  QX_Grid ret;
+  if (options.prefer_internal_grid) {
+    ret.X = options.pdf->getXgrid();
+    ret.Q = options.pdf->getQgrid();
+  }
+  if (ret.X.empty()) ret.X = makeXgrid(options.xmin, options.xmax, options.Nx);
+  if (ret.Q.empty()) ret.Q = makeQgrid(options.qmin, options.qmax, options.Nq);
+  ret.subgrids = makeQ_Subgrids(ret.Q);
+  return ret;
+}
 
 //Returns "hessian" or "symmhessian" for PDF error type
 const char* getErrorType(){
@@ -390,154 +395,144 @@ size_t getNmembers(){
 //Parse control block in YAML steering and fill LHAPDF6_Options
 LHAPDF6_Options LHAPDF6_Options::fromYAML(YAML::Node node){
   LHAPDF6_Options info;
+
+  //ranges are uninitialized before reading options
+  info.xmin = info.xmax = info.qmin = info.qmax = nan("");
+  //assert(info.Nx==0)
+  //assert(info.Nq==0)
+  info.prefer_internal_grid = false;
+
+  //Process option "evolution" first to be able to use its name in errors
   BaseEvolution*pdf = xfitter::get_evolution(node["evolution"].as<string>(""));
   info.pdf = pdf;
-  {
-  YAML::Node n = node["name"];
-  if (n.IsDefined()) {
-    try{
-      info.name = n.as<string>();
-    }catch(YAML::TypedBadConversion<string>()){
-      cerr<<"[ERROR] WriteLHAPDF6 failed to convert name to string when trying to output PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
-  }
-  }
-  {
-  YAML::Node n = node["description"];
-  if (n.IsDefined()) {
-    try{
-      info.description = n.as<string>();
-    }catch(YAML::TypedBadConversion<string>()){
-      cerr<<"[ERROR] WriteLHAPDF6 failed to convert description to string when trying to output PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
-  }
-  }
-  {
-  YAML::Node n = node["authors"];
-  if (n.IsDefined()) {
-    try{
-      info.authors = n.as<string>();
-    }catch(YAML::TypedBadConversion<string>()){
-      cerr<<"[ERROR] WriteLHAPDF6 failed to convert authors to string when trying to output PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
-  }
-  }
-  {
-  YAML::Node n = node["reference"];
-  if(n.IsDefined()){
-    try{
-      info.reference = n.as<string>();
-    }catch(YAML::TypedBadConversion<string>()){
-      cerr<<"[ERROR] WriteLHAPDF6 failed to convert reference to string when trying to output PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
-  }
-  }
+
   info.error_type = getErrorType();
   info.flavor_scheme = getFlavorScheme();
-  {
-  YAML::Node n = node["Xrange"];
-  if (n.IsDefined()) {
-    if (!n.IsSequence() or n.size()!=2) {
-      cerr<<"[ERROR] WriteLHAPDF6: Xrange must be given as [min, max]; error when trying to output PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
+
+  bool grid_provided = false;//true iff any of Xrange, Qrange, Xnpoints, Qnpoints is provided
+  //If grid_provided==true and option "preferInternalGrid" is not given, internal grid or evolution will not be used.
+  //This is useful, for example, when one wants to reduce LHAPDF6 grid density, or use a smaller Q range
+
+  for (const auto it:node){//Iterate over options as key:value pairs
+    string key;
     try{
-      info.xmin = n[0].as<double>();
-      info.xmax = n[1].as<double>();
-    }catch(YAML::Exception){
-      cerr<<"[ERROR] WriteLHAPDF6: Failed to interpret Xrange for PDF \""<<pdf->_name<<"\""<<endl;
+      key = it.first.as<string>();
+    }catch(YAML::TypedBadConversion<string>){
+      cerr<<"[ERROR] WriteLHAPDF6 failed to convert key to string when trying to output PDF \""<<pdf->_name<<"\"; trying to print key:"<<endl;
+      cerr<<it.first<<endl;
       hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
       abort();
     }
-    if ( not ( info.xmin < info.xmax ) ) {
-      cerr<<"[ERROR] WriteLHAPDF6: In Xrange=[min, max] min must be smaller than max; for PDF \""<<pdf->_name<<"\""<<endl;
+
+    try{ //catch YAML::TypedBadConversion<string> exceptions
+      //From now on we assume that it.second can be converted to string
+      if (key=="name") {
+        info.name = it.second.as<string>();
+      } else if (key=="evolution") {
+        continue; //already handled, see above
+      } else if (key=="description") {
+        info.description = it.second.as<string>();
+      } else if (key=="authors") {
+        info.authors = it.second.as<string>();
+      } else if (key=="reference") {
+        info.reference = it.second.as<string>();
+      } else if (key=="Xrange" or key=="Qrange") {
+        YAML::Node n=it.second;
+        if (!n.IsSequence() or n.size()!=2) {
+          cerr<<"[ERROR] WriteLHAPDF6: "<<key<<" must be given as [min, max]; error when trying to output PDF \""<<pdf->_name<<"\""<<endl;
+          hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
+          abort();
+        }
+        double min,max;
+        try{
+          min = n[0].as<double>();
+          max = n[1].as<double>();
+        }catch(YAML::Exception){
+          cerr<<"[ERROR] WriteLHAPDF6: Failed to interpret "<<key<<" for PDF \""<<pdf->_name<<"\""<<endl;
+          hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
+          abort();
+        }
+        if ( not ( min < max ) ) {
+          cerr<<"[ERROR] WriteLHAPDF6: In "<<key<<"=[min, max] min must be smaller than max; got "<<key<<"=["<<min<<", "<<max<<"] ; for PDF \""<<pdf->_name<<"\""<<endl;
+          hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
+          abort();
+        }
+        if (key[0]=='X') { //key=="Xrange"
+          info.xmin = min;
+          info.xmax = max;
+        } else { //key=="Qrange"
+          info.qmin = min;
+          info.qmax = max;
+        }
+        grid_provided = true;
+      } else if (key=="Xnpoints" or key=="Qnpoints"){
+        int N;
+        try{
+          N = it.second.as<int>();
+        }catch(YAML::TypedBadConversion<int>){
+          cerr<<"[ERROR] WriteLHAPDF6: Failed to interpret "<<key<<" for PDF \""<<pdf->_name<<"\", expected number of points"<<endl;
+          hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
+          abort();
+        }
+        if ( N <= 0) {
+          cerr<<"[ERROR] WriteLHAPDF6: "<<key<<"="<<N<<" is not positive; PDF \""<<pdf->_name<<"\""<<endl;
+          hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
+          abort();
+        }
+        if (key[0]=='X') { //key=="Xnpoints"
+          info.Nx = N;
+        } else { //key=="Qnpoints"
+          info.Nq = N;
+        }
+        grid_provided = true;
+      } else if (key=="preferInternalGrid") {
+        info.prefer_internal_grid = true;
+        if (not it.second.IsNull()) {
+          cerr<<"[WARN] WriteLHAPDF6: Ignoring value of option "<<key<<": "<<it.second<<"; internal grid will be used if possible; remove this option if you want to use grid parameters provided in YAML steering under WriteLHAPDF6"<<endl;
+          hf_errlog(19063001, "W: WriteLHAPDF6: ignoring value of option preferInternalGrid, see stderr");
+        }
+      } else {
+        cerr<<"[WARN] WriteLHAPDF6: Ignoring unknown option \""<<key<<": "<<it.second<<"\""<<endl;
+        hf_errlog(19063000, "W: WriteLHAPDF6: ignoring unknown option, see stderr");
+      }
+    }catch(YAML::TypedBadConversion<string>()){
+      cerr<<"[ERROR] WriteLHAPDF6 failed to convert value of key \""<<key<<"\" to string when trying to output PDF \""<<pdf->_name<<"\"; trying to print value"<<endl;
+      cerr<<it.second<<endl;
       hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
       abort();
     }
-    YAML::Node nodeNx = node["Xnpoints"];
-    if (nodeNx.IsDefined()) {
-      int Nx;
-      try{
-        Nx = nodeNx.as<int>();
-      }catch(YAML::TypedBadConversion<int>){
-        cerr<<"[ERROR] WriteLHAPDF6: Failed to interpret Xnpoints for PDF \""<<pdf->_name<<"\", expected number of points"<<endl;
-        hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-        abort();
-      }
-      if ( Nx <= 0) {
-        cerr<<"[ERROR] WriteLHAPDF6: Nonpositive number of X points for PDF \""<<pdf->_name<<"\""<<endl;
-        hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-        abort();
-      }
-      info.Nx = Nx;
-    }else{
-      cerr<<"[WARN] WriteLHAPDF6: for PDF \""<<pdf->_name<<"\" Xrange is provided, but not Xnpoints; using Xnpoints=200"<<endl;
-      hf_errlog(19060701, "W: Xnpoints not provided, using Xnpoints=200, see stderr");
-      info.Nx = 200;
-    }
-  }else{//Use default X parameters
+  }
+
+  //If some options were omitted, use defaults
+  if (std::isnan(info.xmin) or std::isnan(info.xmax)) {
     info.xmin = 1e-6;
     info.xmax = 1;
-    info.Nx = 200;
+    if (grid_provided) {
+      cerr<<"[INFO] WriteLHAPDF6: using default Xrange=["<<info.xmin<<", "<<info.xmax<<"] for PDF \""<<pdf->_name<<"\""<<endl;
+    }
   }
-  }
-  {
-  YAML::Node n = node["Qrange"];
-  if(n.IsDefined()){
-    if (!n.IsSequence() or n.size()!=2) {
-      cerr<<"[ERROR] WriteLHAPDF6: Qrange must be given as [min, max]; error when trying to output PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
-    try{
-      info.qmin = n[0].as<double>();
-      info.qmax = n[1].as<double>();
-    }catch(YAML::Exception){
-      cerr<<"[ERROR] WriteLHAPDF6: Failed to interpret Qrange for PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
-    if ( not ( info.qmin < info.qmax ) ) {
-      cerr<<"[ERROR] WriteLHAPDF6: In Qrange=[min, max] min must be smaller than max; for PDF \""<<pdf->_name<<"\""<<endl;
-      hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-      abort();
-    }
-    YAML::Node nodeNq = node["Qnpoints"];
-    if (n.IsDefined()) {
-      int Nq;
-      try{
-        Nq = nodeNq.as<int>();
-      }catch(YAML::TypedBadConversion<int>){
-        cerr<<"[ERROR] WriteLHAPDF6: Failed to interpret Qnpoints for PDF \""<<pdf->_name<<"\", expected number of points"<<endl;
-        hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-        abort();
-      }
-      if ( Nq <= 0 ) {
-        cerr<<"[ERROR] WriteLHAPDF6: Nonpositive number of Q points for PDF \""<<pdf->_name<<"\""<<endl;
-        hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
-        abort();
-      }
-      info.Nq = Nq;
-    }else{
-      info.Nq = 120;
-      cerr<<"[WARN] WriteLHAPDF6: for PDF \""<<pdf->_name<<"\" Qrange is provided, but not Qnpoints; using Qnpoints="<<info.Nq<<endl;
-      hf_errlog(19060703, "W: Qnpoints not provided, using Qnpoints=120, see stderr");
-    }
-  }else{//Use default Q parameters
+  if (std::isnan(info.qmin) or std::isnan(info.qmax)) {
     info.qmin = 1;
     info.qmax = 1e4;
+    if (grid_provided) {
+      cerr<<"[INFO] WriteLHAPDF6: using default Qrange=["<<info.qmin<<", "<<info.qmax<<"] for PDF \""<<pdf->_name<<"\""<<endl;
+    }
+  }
+  if (info.Nx==0) {
+    info.Nx = 200;
+    if (grid_provided) {
+      cerr<<"[INFO] WriteLHAPDF6: using default Xnpoints="<<info.Nx<<" for PDF \""<<pdf->_name<<"\""<<endl;
+    }
+  }
+  if (info.Nq==0) {
     info.Nq = 120;
+    if (grid_provided) {
+      cerr<<"[INFO] WriteLHAPDF6: using default Xnpoints="<<info.Nx<<" for PDF \""<<pdf->_name<<"\""<<endl;
+    }
   }
-  }
+
+  if (not grid_provided) info.prefer_internal_grid = true;
+
   return info;
 }
 
@@ -646,8 +641,7 @@ void save_data_lhapdf6_(const int& memberID){//This is called when building band
   if (it != cached_QXgrids.end()) {
     qx_grid = &(it->second);
   }else{
-    //TODO: If options.pdf->getClassName()=="QCDNUM" use QCDNUM's grid to avoid double interpolation
-    cached_QXgrids[name] = makeQX_Grid(options.xmin, options.xmax, options.Nx, options.qmin, options.qmax, options.Nq);
+    cached_QXgrids[name] = makeQX_Grid(options);
     qx_grid = &(cached_QXgrids.at(name));
   }
   string outdir = xfitter::getOutDirName() + '/' + name;
