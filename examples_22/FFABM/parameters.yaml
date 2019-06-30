@@ -128,16 +128,12 @@ byReaction:
   ? !include reactions/APPLgrid/parameters.yaml
   # (optional) Fractal module settings:
   ? !include reactions/Fractal_DISNC/parameters.yaml
-  FFABM_DISNC: # need to redefine all arameters from reactions/FFABM_DISNC/parameters.yaml, though changing only 'ordfl'
+  FFABM_DISNC:
     ordfl: 0 # O(alpha_S) in F_L = O(alpha_S) in F_2
     runm: 1
-    scalea1: 1.0
-    scaleb1: 1.0
-  FFABM_DISCC: # need to redefine all arameters from reactions/FFABM_DISCC/parameters.yaml, though changing only 'ordfl'
+  FFABM_DISCC:
     ordfl: 0 # O(alpha_S) in F_L = O(alpha_S) in F_2
     runm: 1
-    scalea1: 1.0
-    scaleb1: 1.0
 
 
 # Specify HF scheme used for DIS NC processes:
@@ -158,11 +154,15 @@ hf_scheme_DISCC :
   
 WriteLHAPDF6:
   name: "proton"
-  evolution: proton-QCDNUM
-  Xrange: [1e-4, 1]
-  Qrange: [1,1000]
-  Xnpoints: 200
-  Qnpoints: 120
   description: "..."
   authors: "..."
   reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120
