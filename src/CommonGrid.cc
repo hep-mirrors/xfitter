@@ -94,7 +94,7 @@ CommonGrid::CommonGrid(const string & grid_type, const string &grid_source): _dy
 CommonGrid::~CommonGrid(){
     vector<tHyperBin>::iterator ihb;
     for (ihb = _hbins.begin(); ihb != _hbins.end(); ihb++){
-        delete[] ihb->b;
+        delete ihb->b;
         if ( ihb->f  )  delete ihb->f;
         
 #ifdef APPLGRID_ENABLED

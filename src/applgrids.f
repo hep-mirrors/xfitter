@@ -69,7 +69,7 @@ c     Return zero if x range falls below qcdnum grid xmin values (to avoid large
               xf(ifl)=xfe(ifl)
             enddo
          else
-            call Retrive_pdf_applgrid_fast(xf)
+            call Retrive_pdf_applgrid_fast(xfe)
          endif
       else
          call hf_get_pdfs( x, Q2, xfe)

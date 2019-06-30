@@ -31,7 +31,7 @@ extern "C" {
   void checkforpdf_(char *pdfname, long int length){
     char tmp[length];
     memcpy(tmp,pdfname,length);
-    tmp[length] = '\0';
+    tmp[length-1] = '\0';
     CheckForPDF(tmp);
   }
 }
