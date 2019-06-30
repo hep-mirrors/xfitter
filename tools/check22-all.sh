@@ -44,6 +44,10 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh AFB $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
+# chi2 iteration for LHeC pseudodata
+./tools/check22.sh LHeC $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
 echo "====================================================="
 if [ $flagAllFine -eq 1 ]; then
   echo " -> All tests are fine"

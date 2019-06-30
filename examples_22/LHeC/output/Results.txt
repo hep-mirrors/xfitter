@@ -1,0 +1,34 @@
+After minimisation 1685465.87  1620  1040.411
+
+  Partial chi2s 
+Dataset    11080881.34    49  Fcc CC ele neg pol cross section                
+Dataset    2 124245.02    81  Fcc NC ele neg pol cross section                
+Dataset    3  66529.95    82  LHEC CC DEUT cross section                      
+Dataset    4  17970.55   114  LHEC CC DEUT cross section                      
+Dataset    5  17674.80    90  LHEC CC ele pm cross section                    
+Dataset    6  10393.21   135  LHEC NC ele pm cross section                    
+Dataset    7  14999.97    89  LHEC CC ele pp cross section                    
+Dataset    8  11806.17   135  LHEC NC ele pp cross section                    
+Dataset    9  13073.49    86  LHEC CC pos pm cross section                    
+Dataset   10  11935.61   135  LHEC NC pos pm cross section                    
+Dataset   11  15649.74    86  LHEC CC pos pp cross section                    
+Dataset   12  10637.31   135  LHEC NC pos pp cross section                    
+Dataset   13 122697.94    88  LHEC CC ele neg pol cross section               
+Dataset   14  46978.82   124  LHEC NC ele neg pol cross section               
+Dataset   15  71083.64    84  LHEC CC ele pos pol cross section               
+Dataset   16  44711.26   121  LHEC NC ele pos pol cross section               
+
+ Correlated Chi2    4197.0615149282730     
+ Systematic shifts           10
+  
+                                Name          Shift   +/-    Error          Type
+    1  ccsys                                  1.9562   +/-   0.0557        :N:M:D
+    2  xlum                                 -33.2719   +/-   0.1270        :N:M:D
+    3  eelen                                -23.2615   +/-   0.8978        :N:M:D
+    4  ethee                                 -2.9987   +/-   0.2257        :N:M:D
+    5  ehadr                                  3.3703   +/-   0.1950        :N:M:D
+    6  radco                                 27.9869   +/-   0.7253        :N:M:D
+    7  egamp                                  2.0944   +/-   0.0800        :N:M:D
+    8  effic                                 27.9869   +/-   0.7253        :N:M:D
+    9  enois                                 -1.9729   +/-   0.0300        :N:M:D
+   10  corlum                                30.8214   +/-   0.0847        :N:M:D
