@@ -153,10 +153,3 @@ Profiler:
 WriteLHAPDF6:
   name: "proton"
   evolution: proton-QCDNUM
-  Xrange: [1e-4, 1]
-  Qrange: [1,1000]
-  Xnpoints: 200
-  Qnpoints: 120
-  description: "..."
-  authors: "..."
-  reference: "..."
