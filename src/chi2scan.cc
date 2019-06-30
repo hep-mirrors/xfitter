@@ -5,6 +5,9 @@
 #include <iomanip>
 
 #include <TError.h>
+//#include <TFitResult.h>
+//#include <TBackCompFitter.h>
+//#include <TVirtualFitter.h>
 
 //return error if LHAPDF is not enabled
 #if !defined LHAPDF_ENABLED
@@ -74,6 +77,10 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   double a = cf->GetParameter(2);
   double b = cf->GetParameter(1);
   double c = cf->GetParameter(0);
+  delete cf;
+  //TVirtualFitter * lastFitter = TVirtualFitter::GetFitter();
+  //TBackCompFitter * lastBCFitter = dynamic_cast<TBackCompFitter *> (lastFitter);
+  //lastBCFitter->SetBit(TBackCompFitter::kCanDeleteLast, false);
   double xc = 0;
   double sigma = 1;
   if (a > 0)
@@ -81,7 +88,7 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
       xc = -b / (2*a);
       sigma = 1. / sqrt(a);
     }
-  TF1 *parfit = new TF1("ParFit", "[0]+(x-[2])**2/[1]**2");
+  TF1 *parfit = new TF1("ParFit2", "[0]+(x-[2])**2/[1]**2");
   parfit->SetParameter(0,c);
   parfit->SetParameter(1,sigma);
   parfit->SetParameter(2,xc);
@@ -89,6 +96,10 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   double min2 = parfit->GetParameter(2);
   double delta2 = parfit->GetParameter(1);
   double chi2min2 = parfit->GetParameter(0);
+  delete parfit;
+  //double min2 = xc;
+  //double delta2 = sigma;
+  //double chi2min2 = c;
 
   //3rd order fit
   TF1 *parfit3 = new TF1("ParFit3", "pol3");
@@ -96,20 +107,23 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   parfit3->SetParameter(2,a);
   parfit3->SetParameter(1,b);
   parfit3->SetParameter(0,c);
+  parfit3->SetParameter(3,0);
   double a3 = parfit3->GetParameter(3);
   double b3 = parfit3->GetParameter(2);
   double c3 = parfit3->GetParameter(1);
   double d3 = parfit3->GetParameter(0);
   double min3 = parfit3->GetMinimumX(chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
   double chi2min3 = parfit3->Eval(min3);
-  TF1 *fs = new TF1("fs", "abs([3]*x**3 +[2]*x**2 + [1]*x + [0])");
+  delete parfit3;
+  TF1 *fs = new TF1("fs", "[3]*x**3 +[2]*x**2 + [1]*x + [0]");
   fs->SetParameter(3,a3);
   fs->SetParameter(2,b3);
   fs->SetParameter(1,c3);
   fs->SetParameter(0,d3-(chi2min3+1.));
   double deltap3 = fs->GetMinimumX(min3,chi2graph->GetX()[chi2graph->GetN()-1])-min3;
   double deltam3 = min3-fs->GetMinimumX(chi2graph->GetX()[0],min3);
-
+  delete fs;
+  
   //4th order fit
   TF1 *parfit4 = new TF1("ParFit4", "pol4");
   parfit4->SetParameter(3,a3);
@@ -124,6 +138,7 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   double e4 = parfit4->GetParameter(0);
   double min4 = parfit4->GetMinimumX(chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
   double chi2min4 = parfit4->Eval(min4);
+  delete parfit4;
   TF1 *fs4 = new TF1("fs4", "abs([4]*x**4 + [3]*x**3 +[2]*x**2 + [1]*x + [0])");
   fs4->SetParameter(4,parfit4->GetParameter(4));
   fs4->SetParameter(3,parfit4->GetParameter(3));
@@ -132,8 +147,10 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   fs4->SetParameter(0,parfit4->GetParameter(0)-(chi2min4+1.));
   double deltap4 = fs4->GetMinimumX(min4,chi2graph->GetX()[chi2graph->GetN()-1])-min4;
   double deltam4 = min4-fs4->GetMinimumX(chi2graph->GetX()[0],min4);
+  delete fs4;
 
   //5th order fit
+  /*
   TF1 *parfit5 = new TF1("ParFit5", "pol5");
   chi2graph->Fit(parfit5, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
   double min5 = parfit5->GetMinimumX(chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
@@ -147,6 +164,7 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   fs5->SetParameter(0,parfit5->GetParameter(0)-(chi2min5+1.));
   double deltap5 = fs5->GetMinimumX(min5,chi2graph->GetX()[chi2graph->GetN()-1])-min5;
   double deltam5 = min5-fs5->GetMinimumX(chi2graph->GetX()[0],min5);
+  */
   
   /*
   cout << "2th order" <<endl;
@@ -163,6 +181,12 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   cout << "chi2 " << chi2min5 << endl;
   */
 
+  /*
+  min = min2;
+  chi2min = chi2min2;
+  deltap = delta2;
+  deltam = delta2;
+  */
   /*
   min = min3;
   chi2min = chi2min3;
@@ -197,6 +221,7 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
     fchi2 << it->first << "\t" << it->second << endl;
 
   fchi2.close();
+  delete chi2graph;
 }
 
 
@@ -290,6 +315,7 @@ void chi2_scan_()
   bool lhapdfprofile = chi2scan_.pdfprofile;
   bool scaleprofile = chi2scan_.scaleprofile;
   bool decomposition = true;
+  //bool decomposition = false;
 
   string outdir = string(coutdirname_.outdirname, 256);
   outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
@@ -967,12 +993,12 @@ void chi2_scan_()
 	    {
 	      sysmeas_.n_syst_meas[i] = npoints; //PDF systematic uncertainties apply to all points
 	      for (int j = 0; j < npoints; j++)
-		sysmeas_.syst_meas_idx_[i][j] = j + 1;
-	      systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to PDF uncertainties
-	      //systscal_.sysscalingtype_[i] = 0;  //No scaling for PDF uncertainties
-	      csysttype_.isysttype_[i] = 2; // THEORY
-	      //systscal_.sysform_[i] = 4; //External (Minuit Fit)
-	      //systscal_.sysform_[i] = 3; //Offset (Minuit Fit)
+		sysmeas_.syst_meas_idx[i][j] = j + 1;
+	      systscal_.sysscalingtype[i] = 1;  //Apply linear scaling to PDF uncertainties
+	      //systscal_.sysscalingtype[i] = 0;  //No scaling for PDF uncertainties
+	      csysttype_.isysttype[i] = 2; // THEORY
+	      //systscal_.sysform[i] = 4; //External (Minuit Fit)
+	      //systscal_.sysform[i] = 3; //Offset (Minuit Fit)
 	    }
 	  
 	  //Add the PDF uncertainties to the total number of systematic uncertainties
@@ -1161,6 +1187,7 @@ void chi2_scan_()
   cout << "Chi2 at minimum: " << chi2min << "  "  << "ndf=" << (cfcn_.ndfmini-1) << endl;
   if (lhapdferror && ! lhapdfprofile)
     cout << "PDF uncertainties: " <<  central << "+" << eplus << "-" << eminus << endl;
+
   if (decomposition)
     {
       //uncertainties decomposition
@@ -1172,10 +1199,11 @@ void chi2_scan_()
       double PDFm= 0;
       double scalesp = 0;
       double scalesm = 0;
-      for (int s = 0; s < systema_.nsys_; s++)
+      for (int s = 0; s < systema_.nsys; s++)
 	{
 	  char nuispar[64];
-	  strcpy(nuispar,systema_.system_[s]);
+	  //strcpy(nuispar,systema_.system[s]);
+	  memcpy(nuispar,systema_.system[s],64);
 	  nuispar[63] = '\0';
 	  string nuislabel = string(nuispar);
 	  nuislabel.erase(nuislabel.find_last_not_of(" \n\r\t")+1); // trim trailing whitespaces
@@ -1209,10 +1237,10 @@ void chi2_scan_()
 	    }
 	}
       //Loop on statistical uncertainties
-      int npoints = cndatapoints_.npoints_;
+      int npoints = cndatapoints_.npoints;
       for (int p = 0; p < npoints; p++)
 	{
-	  int idx = p+systema_.nsys_;
+	  int idx = p+systema_.nsys;
 	  char statname[100];
 	  sprintf(statname, "stat_%d", p);
 
@@ -1249,7 +1277,7 @@ void chi2_scan_()
       func << "Total (from fit)" << "\t+" << deltap << "\t-" << deltam << endl;
       func.close();
     }
-      
+
   cout << endl;
 }
 #endif
@@ -1257,7 +1285,7 @@ void chi2_scan_()
 void decompose(map <int, map <int, map <double, double> > > &systchi2, double value)
 {
   cout << "Start uncertainty decomposition" << endl;
-  int npoints = cndatapoints_.npoints_;
+  int npoints = cndatapoints_.npoints;
   /********************** Technique 1 *******************************
    //remove one-by-one each uncertainty from the chi2 and recalculate chi2 (should apply shift)
 	  
@@ -1332,7 +1360,7 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
   /********************** Technique 2 *******************************/
   //offset the data one by one
 
-  int totsyst = systema_.nsys_;
+  int totsyst = systema_.nsys;
   //theory and data
   double savetheo[npoints];
   double savedata[npoints];
@@ -1350,13 +1378,13 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	      
   for (int p = 0; p < npoints; p++)
     {
-      for (int s = 0; s < systema_.nsys_; s++)
+      for (int s = 0; s < systema_.nsys; s++)
 	{
 	  //save current uncertainty
-	  savebetaasym[p][0][s] = systasym_.betaasym_[p][0][s];
-	  savebetaasym[p][1][s] = systasym_.betaasym_[p][1][s];
-	  savebeta[p][s] = systema_.beta_[p][s];
-	  saveomega[p][s] = systasym_.omega_[p][s];
+	  savebetaasym[p][0][s] = systasym_.betaasym[p][0][s];
+	  savebetaasym[p][1][s] = systasym_.betaasym[p][1][s];
+	  savebeta[p][s] = systema_.beta[p][s];
+	  saveomega[p][s] = systasym_.omega[p][s];
 
 	  //save current scaled gamma and omega
 	  savescgamma[p][s] = systexport_.scgamma_[p][s];
@@ -1364,15 +1392,15 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	}
 	      
       //save current theory
-      savetheo[p] = c_theo_.theo_[p];
+      savetheo[p] = c_theo_.theo[p];
       //save current data
       savedata[p] = indata2_.daten_[p];
 	      
       //save current stat uncertainties
-      savestatpoi[p] = cuncerrors_.e_stat_poisson_[p];
-      savestatconst[p] = cuncerrors_.e_stat_const_[p];
-      saveuncorpoi[p] = cuncerrors_.e_uncor_poisson_[p];
-      saveuncorconst[p] = cuncerrors_.e_uncor_const_[p];
+      savestatpoi[p] = cuncerrors_.e_stat_poisson[p];
+      savestatconst[p] = cuncerrors_.e_stat_const[p];
+      saveuncorpoi[p] = cuncerrors_.e_uncor_poisson[p];
+      saveuncorconst[p] = cuncerrors_.e_uncor_const[p];
     }
 	  
   //loop on systematic uncertainties
@@ -1414,24 +1442,24 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	    for (int s2 = 0; s2 < totsyst; s2++)
 	      {
 		double fac = 1;
-		if (systscal_.sysscalingtype_[s2] == 0) //additive uncertainty
+		if (systscal_.sysscalingtype[s2] == 0) //additive uncertainty
 		  fac = savedata[p]/indata2_.daten_[p]; 
-		else if (systscal_.sysscalingtype_[s2] == 1) //multiplicative uncertainty
+		else if (systscal_.sysscalingtype[s2] == 1) //multiplicative uncertainty
 		  fac = 1.;
-		else if (systscal_.sysscalingtype_[s2] == 2) //poissonian uncertainty
+		else if (systscal_.sysscalingtype[s2] == 2) //poissonian uncertainty
 		  fac = sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 			
-		systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2]*fac;
-		systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2]*fac;
-		systema_.beta_[p][s2] = savebeta[p][s2]*fac;
-		systasym_.omega_[p][s2] = saveomega[p][s2]*fac;
+		systasym_.betaasym[p][0][s2] = savebetaasym[p][0][s2]*fac;
+		systasym_.betaasym[p][1][s2] = savebetaasym[p][1][s2]*fac;
+		systema_.beta[p][s2] = savebeta[p][s2]*fac;
+		systasym_.omega[p][s2] = saveomega[p][s2]*fac;
 	      }
-	    cuncerrors_.e_stat_const_[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
-	    cuncerrors_.e_uncor_const_[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
-	    if (cuncerrors_.e_stat_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	      cuncerrors_.e_stat_poisson_[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
-	    if (cuncerrors_.e_uncor_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	      cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	    cuncerrors_.e_stat_const[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
+	    cuncerrors_.e_uncor_const[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
+	    if (cuncerrors_.e_stat_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	      cuncerrors_.e_stat_poisson[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	    if (cuncerrors_.e_uncor_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	      cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 	  } //end loop on points
 		
 	//calculate chi2
@@ -1465,22 +1493,22 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	    //restore uncertainty
 	    for (int s2 = 0; s2 < totsyst; s2++)
 	      {
-		systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2];
-		systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2];
-		systema_.beta_[p][s2] = savebeta[p][s2];
-		systasym_.omega_[p][s2] = saveomega[p][s2];
+		systasym_.betaasym[p][0][s2] = savebetaasym[p][0][s2];
+		systasym_.betaasym[p][1][s2] = savebetaasym[p][1][s2];
+		systema_.beta[p][s2] = savebeta[p][s2];
+		systasym_.omega[p][s2] = saveomega[p][s2];
 	      }
 
 	    //restore theory
-	    c_theo_.theo_[p] = savetheo[p];
+	    c_theo_.theo[p] = savetheo[p];
 	    //restore data
 	    indata2_.daten_[p] = savedata[p];
 		    
 	    //restore stat uncertainties
-	    cuncerrors_.e_stat_poisson_[p] = savestatpoi[p];
-	    cuncerrors_.e_stat_const_[p] = savestatconst[p];
-	    cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p];
-	    cuncerrors_.e_uncor_const_[p] = saveuncorconst[p];
+	    cuncerrors_.e_stat_poisson[p] = savestatpoi[p];
+	    cuncerrors_.e_stat_const[p] = savestatconst[p];
+	    cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p];
+	    cuncerrors_.e_uncor_const[p] = saveuncorconst[p];
 	  } //end loop on points
       }//end loop on systematic uncertainties and plus/minus
 	
@@ -1500,24 +1528,24 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	for (int s2 = 0; s2 < totsyst; s2++)
 	  {
 	    double fac = 1.;
-	    if (systscal_.sysscalingtype_[s2] == 0) //additive uncertainty
+	    if (systscal_.sysscalingtype[s2] == 0) //additive uncertainty
 	      fac = savedata[p]/indata2_.daten_[p];
-	    else if (systscal_.sysscalingtype_[s2] == 1)
+	    else if (systscal_.sysscalingtype[s2] == 1)
 	      fac = 1.;
-	    else if (systscal_.sysscalingtype_[s2] == 2)
+	    else if (systscal_.sysscalingtype[s2] == 2)
 	      fac = sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 			
-	    systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2]*fac;
-	    systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2]*fac;
-	    systema_.beta_[p][s2] = savebeta[p][s2]*fac;
-	    systasym_.omega_[p][s2] = saveomega[p][s2]*fac;
+	    systasym_.betaasym[p][0][s2] = savebetaasym[p][0][s2]*fac;
+	    systasym_.betaasym[p][1][s2] = savebetaasym[p][1][s2]*fac;
+	    systema_.beta[p][s2] = savebeta[p][s2]*fac;
+	    systasym_.omega[p][s2] = saveomega[p][s2]*fac;
 	  }
-	cuncerrors_.e_stat_const_[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
-	cuncerrors_.e_uncor_const_[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
-	if (cuncerrors_.e_stat_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	  cuncerrors_.e_stat_poisson_[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
-	if (cuncerrors_.e_uncor_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	  cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	cuncerrors_.e_stat_const[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
+	cuncerrors_.e_uncor_const[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
+	if (cuncerrors_.e_stat_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	  cuncerrors_.e_stat_poisson[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	if (cuncerrors_.e_uncor_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	  cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 
 	//calculate chi2
 	//systchi2[sign][p+totsyst][value] = chi2data_theory_(2);
@@ -1548,29 +1576,29 @@ void decompose(map <int, map <int, map <double, double> > > &systchi2, double va
 	//restore uncertainty
 	for (int s = 0; s < totsyst; s++)
 	  {
-	    systasym_.betaasym_[p][0][s] = savebetaasym[p][0][s];
-	    systasym_.betaasym_[p][1][s] = savebetaasym[p][1][s];
-	    systema_.beta_[p][s] = savebeta[p][s];
-	    systasym_.omega_[p][s] = saveomega[p][s];
+	    systasym_.betaasym[p][0][s] = savebetaasym[p][0][s];
+	    systasym_.betaasym[p][1][s] = savebetaasym[p][1][s];
+	    systema_.beta[p][s] = savebeta[p][s];
+	    systasym_.omega[p][s] = saveomega[p][s];
 	  }
 
 	//restore theory
-	c_theo_.theo_[p] = savetheo[p];
+	c_theo_.theo[p] = savetheo[p];
 	//restore data
 	indata2_.daten_[p] = savedata[p];
 
 	//restore stat uncertainties
-	cuncerrors_.e_stat_poisson_[p] = savestatpoi[p];
-	cuncerrors_.e_stat_const_[p] = savestatconst[p];
-	cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p];
-	cuncerrors_.e_uncor_const_[p] = saveuncorconst[p];
+	cuncerrors_.e_stat_poisson[p] = savestatpoi[p];
+	cuncerrors_.e_stat_const[p] = savestatconst[p];
+	cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p];
+	cuncerrors_.e_uncor_const[p] = saveuncorconst[p];
       } //end loop on stat uncertainties and plus/minus
   /***************************************************/
 }
 
 void decompose_fits(map <int, map <int, map <double, double> > > systchi2, double min, vector <double> &deltapi, vector <double> &deltami)
 {
-  int npoints = cndatapoints_.npoints_;
+  int npoints = cndatapoints_.npoints;
   /***************** Technique 1 ******************/
   /*
   //Loop on uncertainties
@@ -1592,10 +1620,10 @@ void decompose_fits(map <int, map <int, map <double, double> > > systchi2, doubl
 
   /***************** Technique 2 ******************/
   //Loop on systematic uncertainties
-  for (int s = 0; s < systema_.nsys_; s++)
+  for (int s = 0; s < systema_.nsys; s++)
     {
       double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
-      char chi2name[100];
+      char chi2name[200];
       sprintf(chi2name, "chi2scan_syst_%d_p.txt", s);
       fitchi2_and_store (systchi2[0][s], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
 
@@ -1611,9 +1639,9 @@ void decompose_fits(map <int, map <int, map <double, double> > > systchi2, doubl
   //Loop on statistical uncertainties
   for (int p = 0; p < npoints; p++)
     {
-      int idx = p+systema_.nsys_;
+      int idx = p+systema_.nsys;
       double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
-      char chi2name[100];
+      char chi2name[200];
       sprintf(chi2name, "chi2scan_syst_%d_p.txt", idx);
       fitchi2_and_store (systchi2[0][idx], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
 
