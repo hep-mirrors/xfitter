@@ -266,4 +266,28 @@ namespace xfitter {
     int nfout,ierr;
     return QCDNUM::asfunc(Q*Q,nfout,ierr);
   }
+
+vector<double> EvolutionQCDNUM::getXgrid(){
+  int Nx;
+  {// get Nx
+  int i_ignore;
+  double d_ignore;
+  QCDNUM::grpars(Nx,d_ignore,d_ignore,i_ignore,d_ignore,d_ignore,i_ignore);
+  }
+  vector<double> xgrid(Nx);
+  for (int i=0;i<Nx;++i) xgrid[i] = QCDNUM::xfrmix(i+1);
+  return xgrid;
+}
+
+vector<double> EvolutionQCDNUM::getQgrid(){
+  int Nq;
+  {// get Nq
+  int i_ignore;
+  double d_ignore;
+  QCDNUM::grpars(i_ignore,d_ignore,d_ignore,Nq,d_ignore,d_ignore,i_ignore);
+  }
+  vector<double> qgrid(Nq);
+  for (int i=0;i<Nq;++i) qgrid[i] = sqrt( QCDNUM::qfrmiq(i+1) );
+  return qgrid;
+}
 }
