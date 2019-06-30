@@ -29,6 +29,8 @@ namespace xfitter
     virtual double xfxQ(int i, double x, double Q) override final;
     virtual void xfxQarray(double x, double Q, double*pdfs) override final;
     virtual double getAlphaS(double Q) override final;
+    virtual std::vector<double> getXgrid() override final;
+    virtual std::vector<double> getQgrid() override final;
 
     /// Helper to get PDF type
     const int getPdfType() const {return _itype;}
