@@ -48,6 +48,14 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh LHeC $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
+# chi2 iteration for PROSA analysis 1503.04581 (absolute variant)
+./tools/check22.sh HVQMNR-abs $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# chi2 iteration for PROSA analysis 1503.04581 (normalised variant)
+./tools/check22.sh HVQMNR-norm $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
 echo "====================================================="
 if [ $flagAllFine -eq 1 ]; then
   echo " -> All tests are fine"
