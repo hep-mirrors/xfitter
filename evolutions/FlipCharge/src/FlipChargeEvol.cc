@@ -12,14 +12,15 @@ void FlipChargeEvol::atConfigurationChange(){
   const YAML::Node node=XFITTER_PARS::getEvolutionNode(_name)["input"];
   try{
     input=get_evolution(node.as<string>());
-  }catch(const YAML::InvalidNode&ex){
-    if(node.IsNull()){
-      cerr<<"[ERROR] In evolution "<<_name<<" of class "<<getClassName()<<": no input evolution"<<endl;
-      hf_errlog(18122500,"F: No input to evolution FlipCharge, see stderr");
-    }else throw ex;
   }catch(const YAML::BadConversion&ex){
-    cerr<<"[ERROR] In evolution "<<_name<<" of class "<<getClassName()<<": failed to convert input to string, YAML node:"<<node<<endl;
-    hf_errlog(18122501,"F: Bad input to evolution FlipCharge, see stderr");
+    if(!node){
+      //If no input is provided, use default evolution
+      input=defaultEvolution;
+      cerr<<"[INFO] Evolution \""<<_name<<"\" of class "<<getClassName()<<": \"input\" not provided; using default evolution \""<<input->_name<<"\""<<endl;
+    }else{
+      cerr<<"[ERROR] In evolution "<<_name<<" of class "<<getClassName()<<": failed to convert input to string, YAML node:"<<node<<endl;
+      hf_errlog(18122501,"F: Bad input to evolution FlipCharge, see stderr");
+    }
   }
 }
 map<int,double>FlipChargeEvol::xfxQmap(double x,double Q){
