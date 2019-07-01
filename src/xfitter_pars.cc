@@ -385,10 +385,25 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       if(!parsNode.IsMap()){
         hf_errlog(18091710,"F: Failed to create parameters: bad \"Parameters\" YAML node");
       }
+      //Process parameters in alphabetical order
+      //This is needed for MINUIT-assigned parameter IDs to be deterministic
+      vector<string> parameterNames;
+      for (const auto it:parsNode){
+        try{
+          parameterNames.push_back(it.first.as<string>());
+        }catch(YAML::TypedBadConversion<string>){
+          cerr<<"[ERROR] Failed to convert parameter name to string; trying to print it"<<endl;
+          cerr<<it.first<<endl;
+          hf_errlog(19063010, "F: Failed to convert parameter name to string, see stderr");
+        }
+      }
+      sort(parameterNames.begin(),parameterNames.end());
+
       xfitter::BaseMinimizer*minimizer=xfitter::get_minimizer();
       vector<xfitter::DependentParameter>dependentParameters;
-      for(YAML::const_iterator it=parsNode.begin();it!=parsNode.end();++it){
-        string parameterName=it->first.as<string>();
+
+      for (auto it:parameterNames){
+        string parameterName=it;
         stripString(parameterName);
         if(XFITTER_PARS::gParameters.find(parameterName)!=XFITTER_PARS::gParameters.end()){
           cerr<<"[ERROR] Redefinition of parameter \""<<parameterName<<"\""<<endl;
@@ -404,7 +419,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         double max=nan("");
         double pr_mean=nan("");
         double pr_sigma=nan("");
-        YAML::Node pNode=it->second;
+        YAML::Node pNode=parsNode[it];
         switch(pNode.Type()){
           case YAML::NodeType::Scalar:{
             string definition=pNode.as<string>();
