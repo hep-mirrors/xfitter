@@ -47,9 +47,6 @@ void ReactionfastNLO::initTerm(TermData *td)
 
   for ( fastNLOReaction* fnlo : ffnlo[ID] ) {
     // --- Set order of calculation
-    if ( td->hasParam("Order") ) { // Local order
-      hf_errlog(17090510,"W: Ignoring key 'Order' in .dat file. Only global parameter 'Order' is used.");
-    }
     string order = td->getParamS("Order");  // Global order
     //hf_errlog(17090501,"I: Setting fastNLO order: "+order);
     //hf_errlog(17090501,"I: Setting fastNLO order: "+order);
