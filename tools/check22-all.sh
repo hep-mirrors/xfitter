@@ -14,7 +14,7 @@ rm -rf temp/
 flagAllFine=1
 COPY=''
 # uncomment if you want to copy results and make them reference
-#COPY=' --copy'
+COPY=' --copy'
 
 # chi2 iteration NNLO RTOPT QCDNUM (default) [HERAPDF2.0 arXiv:1506.06042 ]
 ./tools/check22.sh defaultNNLO $COPY
@@ -36,10 +36,6 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh ALLDATA $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
-# full fit ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
-./tools/check22.sh ZMVFNS-fit $COPY
-if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
-
 # chi2 iteration for AFB pseudodata, checks AFB (LO) and APPLgrid (NLO) reactions
 ./tools/check22.sh AFB $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
@@ -54,6 +50,10 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration for PROSA analysis 1503.04581 (normalised variant)
 ./tools/check22.sh HVQMNR-norm $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# full fit ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
+./tools/check22.sh ZMVFNS-fit $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 echo "====================================================="
