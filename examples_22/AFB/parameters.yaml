@@ -14,9 +14,9 @@ DefaultEvolution: proton-LHAPDF
 Evolutions:
   proton-LHAPDF:
     class: LHAPDF
-    set: "HERAPDF20_NNLO_EIG"
+#    set: "HERAPDF20_NNLO_EIG"
 #    set: "CT14nnlo"
-#    set: "NNPDF31_nnlo_as_0118"
+    set: "NNPDF30_nlo_as_0118"
     member: 0
 
 ? !include constants.yaml

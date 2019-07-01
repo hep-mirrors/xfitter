@@ -19,7 +19,7 @@ Evolutions:
     EvolutionCopy: "proton-LHAPDF"
   proton-LHAPDF:
     class: LHAPDF
-    set: "CT14nlo"
+    set: "NNPDF30_nlo_as_0118"
     member: 0
   antiproton:
     class: FlipCharge

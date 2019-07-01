@@ -65,7 +65,11 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 echo "====================================================="
 if [ $flagAllFine -eq 1 ]; then
-  echo " -> All tests are fine"
+  if [ -z $COPY ]; then
+    echo " -> All tests are fine"
+  else
+    echo " -> All output copied"
+  fi
 else
   echo " -> Something failed: see above for details (logs are in /temp)"
 fi
