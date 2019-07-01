@@ -14,7 +14,7 @@ DefaultEvolution: proton-LHAPDF
 Evolutions:
   proton-LHAPDF:
     class: LHAPDF
-#    set: "HERAPDF20_NNLO_EIG"
+#    set: "HERAPDF20_NNLO_EIG" # activate this to get chi2=0 at LO
 #    set: "CT14nnlo"
     set: "NNPDF30_nlo_as_0118"
     member: 0
