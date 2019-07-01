@@ -1,10 +1,15 @@
 #!/bin/bash
 #
-# Collection of all tests (slow tests are commented out)
+# Collection of all tests (slow tests might be commented out)
 #
 # If output for some tests needs to be updated, add '--copy', e.g.:
-# ./tools/check22.sh def --copy
+# ./tools/check22-all.sh --copy
 #
+
+COPY=''
+if [ "$1" = "--copy" ]; then
+  COPY=' --copy'
+fi
 
 echo "====================================================="
 echo "Running all tests ... output will be stored in temp/"
@@ -12,9 +17,6 @@ echo "====================================================="
 
 rm -rf temp/
 flagAllFine=1
-COPY=''
-# uncomment if you want to copy results and make them reference
-COPY=' --copy'
 
 # chi2 iteration NNLO RTOPT QCDNUM (default) [HERAPDF2.0 arXiv:1506.06042 ]
 # it tests also storing NNLO PDF from QCDNUM evolution in LHAPDF6 format

@@ -64,11 +64,9 @@ INPUTDIR="examples_22/$TESTNAME"
 EXAMPLEDIR="examples_22/$TESTNAME/output"
 if [ $COPYRESULTS -eq 1 ]; then
   echo "Results will be stored as reference in $EXAMPLEDIR"
-  echo "========================================"
-else
-  echo "Running in temp/$TESTNAME, output stored in temp/$TESTNAME/xfitter.txt"
-  echo "========================================"
 fi
+echo "Running in temp/$TESTNAME, output stored in temp/$TESTNAME/xfitter.txt"
+echo "========================================"
 
 if [ ! -d $INPUTDIR ]; then
   echo "Failed to find input files for test \"$TESTNAME\""
