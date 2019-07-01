@@ -1,7 +1,10 @@
-After minimisation     412.63   110     3.751
+After minimisation     412.63   124     3.328
 
   Partial chi2s 
 Dataset    1      0.00    62  DY AFB                                          
 Dataset    2    412.63    62  DY AFB                                          
 
  Correlated Chi2    0.0000000000000000     
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

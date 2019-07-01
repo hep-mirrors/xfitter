@@ -2335,40 +2335,6 @@ Plot1@Experiment:D0@ExtraLabel:p#bar{p} #rightarrow W #rightarrow e#nu; #sqrt{s}
  0.22000E+01 0.24000E+01 0.00000E+00 0.47610E+00 0.69192E-02 0.72802E-02 0.47700E+00 0.47683E+00 0.00000E+00 0.00000E+00 -.10485E+00   86   1/0.00000E+00
  0.24000E+01 0.27000E+01 0.00000E+00 0.58960E+00 0.70633E-02 0.78489E-02 0.54486E+00 0.54745E+00 0.00000E+00 0.00000E+00 0.59680E+01   86   1/0.00000E+00
  0.27000E+01 0.32000E+01 0.00000E+00 0.77200E+00 0.11329E-01 0.11442E-01 0.59486E+00 0.59644E+00 0.00000E+00 0.00000E+00 0.15496E+02   86   1/0.00000E+00
-          81
- Combined CDF D0 inclusive ttbar cross section                                   
- a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.00000E+00 0.00000E+00 0.76000E+01 0.37167E+00 0.41012E+00 0.67920E+01 0.67920E+01 0.00000E+00 0.00000E+00 0.21741E+01   81 999/0.00000E+00
-         207
- CMS total ttbar 7TeV mt=173.3 GeV                                               
-Plot1@Experiment:CMS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
- ptlow       pthigh      m_t            data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.40000E+03 0.17330E+03 0.16090E+03 0.62497E+01 0.66774E+01 0.14984E+03 0.14984E+03 0.00000E+00 0.00000E+00 0.17704E+01  207   1/0.17330E+03
-         209
- ATLAS total ttbar 7TeV mt=173.3 GeV                                             
-Plot1@Experiment:ATLAS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
- ptlow       pthigh      m_t            data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.40000E+03 0.17330E+03 0.18290E+03 0.59764E+01 0.71484E+01 0.14984E+03 0.14984E+03 0.00000E+00 0.00000E+00 0.55325E+01  209   1/0.17330E+03
-         251
- ATLAS 7 TeV single top t-channel, top quark                                     
-Plot1@Experiment:ATLAS@ExtraLabel:single top(t-ch,t) 7 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
- a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.46000E+02 0.94397E+00 0.60828E+01 0.40989E+02 0.45536E+02 0.00000E+00 0.00000E+00 0.49133E+00  251   1/0.20000E+03
-         250
- ATLAS 7 TeV single top t-channel, top antiquark                                 
-Plot1@Experiment:ATLAS@ExtraLabel:single top(t-ch, t-bar) 7 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
- a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.23000E+02 0.96195E+00 0.31623E+01 0.21283E+02 0.23644E+02 0.00000E+00 0.00000E+00 -.66958E+00  250   1/0.20000E+03
-         252
- CMS 8 TeV single top t-channel, top quark                                       
-Plot1@Experiment:CMS@ExtraLabel:single top(t-ch,t) 8 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
- a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.53800E+02 0.15008E+01 0.46487E+01 0.53854E+02 0.53200E+02 0.00000E+00 0.00000E+00 0.39995E+00  252   1/0.20000E+03
-         253
- CMS 8 TeV single top t-channel, top antiquark                                   
-Plot1@Experiment:CMS@ExtraLabel:single top(t-ch, t-bar) 8 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
- a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.27600E+02 0.13274E+01 0.39217E+01 0.28777E+02 0.28204E+02 0.00000E+00 0.00000E+00 -.45499E+00  253   1/0.20000E+03
          244
  CMS Boson rapidity                                                              
 Plot1@Experiment:CMS@ExtraLabel: Z boson rapidity at #sqrt{s} = 7 TeV@Title: 2010 @XTitle: |y| @YTitle:(1/#sigma) d#sigma/d|y|
@@ -3447,3 +3413,37 @@ Plot1@Experiment:E866@ExtraLabel:pp, pd->#mu#mu high mass; E_0= 800GeV; high mas
  0.22500E+00 0.25000E+00 0.00000E+00 0.10280E+01 0.68054E-01 0.69715E-01 0.10000E+01 0.10777E+01 0.00000E+00 0.00000E+00 -.73060E+00  241   1/0.00000E+00
  0.25000E+00 0.30000E+00 0.00000E+00 0.94300E+00 0.73114E-01 0.71585E-01 0.10000E+01 0.10777E+01 0.00000E+00 0.00000E+00 -.18426E+01  241   1/0.00000E+00
  0.30000E+00 0.35000E+00 0.00000E+00 0.72900E+00 0.14523E+00 0.12420E+00 0.10000E+01 0.10777E+01 0.00000E+00 0.00000E+00 -.24011E+01  241   1/0.00000E+00
+          81
+ Combined CDF D0 inclusive ttbar cross section                                   
+ a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
+ 0.00000E+00 0.00000E+00 0.00000E+00 0.76000E+01 0.37167E+00 0.41012E+00 0.67920E+01 0.67920E+01 0.00000E+00 0.00000E+00 0.21741E+01   81 999/0.00000E+00
+         207
+ CMS total ttbar 7TeV mt=173.3 GeV                                               
+Plot1@Experiment:CMS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
+ ptlow       pthigh      m_t            data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
+ 0.00000E+00 0.40000E+03 0.17330E+03 0.16090E+03 0.62497E+01 0.66774E+01 0.14984E+03 0.14984E+03 0.00000E+00 0.00000E+00 0.17704E+01  207   1/0.17330E+03
+         209
+ ATLAS total ttbar 7TeV mt=173.3 GeV                                             
+Plot1@Experiment:ATLAS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
+ ptlow       pthigh      m_t            data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
+ 0.00000E+00 0.40000E+03 0.17330E+03 0.18290E+03 0.59764E+01 0.71484E+01 0.14984E+03 0.14984E+03 0.00000E+00 0.00000E+00 0.55325E+01  209   1/0.17330E+03
+         251
+ ATLAS 7 TeV single top t-channel, top quark                                     
+Plot1@Experiment:ATLAS@ExtraLabel:single top(t-ch,t) 7 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
+ a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.46000E+02 0.94397E+00 0.60828E+01 0.40989E+02 0.45536E+02 0.00000E+00 0.00000E+00 0.49133E+00  251   1/0.20000E+03
+         250
+ ATLAS 7 TeV single top t-channel, top antiquark                                 
+Plot1@Experiment:ATLAS@ExtraLabel:single top(t-ch, t-bar) 7 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
+ a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.23000E+02 0.96195E+00 0.31623E+01 0.21283E+02 0.23644E+02 0.00000E+00 0.00000E+00 -.66958E+00  250   1/0.20000E+03
+         252
+ CMS 8 TeV single top t-channel, top quark                                       
+Plot1@Experiment:CMS@ExtraLabel:single top(t-ch,t) 8 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
+ a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.53800E+02 0.15008E+01 0.46487E+01 0.53854E+02 0.53200E+02 0.00000E+00 0.00000E+00 0.39995E+00  252   1/0.20000E+03
+         253
+ CMS 8 TeV single top t-channel, top antiquark                                   
+Plot1@Experiment:CMS@ExtraLabel:single top(t-ch, t-bar) 8 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
+ a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.27600E+02 0.13274E+01 0.39217E+01 0.28777E+02 0.28204E+02 0.00000E+00 0.00000E+00 -.45499E+00  253   1/0.20000E+03

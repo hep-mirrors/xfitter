@@ -5,6 +5,7 @@
   ! Number of intput files
     !NInputFiles = 51
     NInputFiles = 73
+    !NInputFiles = 66
     !NInputFiles = 65
     !NInputFiles = 2
 
@@ -75,16 +76,6 @@
  	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
  	  'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
   
-  ! LHC and Tevatron ttbar and single top production:
-  ! NOTE: need Hathor package
-     'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT-thexp.dat',
-     'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT-Hathor-thexp.dat',
-     'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT-Hathor-thexp.dat',
-     'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_quark-thexp.dat',
-     'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_antiquark-thexp.dat',
-     'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_quark-thexp.dat',
-     'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_antiquark-thexp.dat',
- 
  !
  ! LHC
   ! CMS W, Z production:
@@ -164,6 +155,18 @@
   !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4-thexp.dat',
   !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5-thexp.dat',
   !'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6-thexp.dat',
+
+  ! LHC and Tevatron ttbar and single top production:
+  ! NOTE: need Hathor package
+     'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT-thexp.dat',
+     'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT-Hathor-thexp.dat',
+     'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT-Hathor-thexp.dat',
+     'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_quark-thexp.dat',
+     'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_antiquark-thexp.dat',
+     'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_quark-thexp.dat',
+     'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_antiquark-thexp.dat',
+     ! these data partially overlap with other data
+     !'datafiles/lhc/cms/topProduction/cms-pas-top-11-024/CMS-TOP-11-024_prelim.dat'
 
 &End
 

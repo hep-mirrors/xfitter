@@ -2,28 +2,28 @@
 
  PARAMETER DEFINITIONS:
     NO.   NAME         VALUE      STEP SIZE      LIMITS
-     1 'Ag        '    1.0000      constant
-     2 'Bg        '  -0.61953E-01  0.27000         no limits
-     3 'Duv       '    0.0000      constant
-     4 'ZERO      '    0.0000      constant
-     5 'Cg        '    5.5624      0.32000         no limits
-     6 'Bgp       '  -0.38310      0.10000E-01     no limits
-     7 'Agp       '   0.73110E-01  0.10000E-01     no limits
-     8 'Cgp       '    25.000      constant
-     9 'Euv       '    9.9214      0.80000         no limits
-    10 'Auv       '    1.0000      constant
-    11 'Buv       '   0.81048      0.16000E-01     no limits
-    12 'Cuv       '    4.8235      0.60000E-01     no limits
-    13 'Adv       '    1.0000      constant
-    14 'Aubar     '    0.0000      constant
-    15 'Bdv       '    1.0300      0.60000E-01     no limits
-    16 'Cdv       '    4.8463      0.30000         no limits
-    17 'Bubar     '    0.0000      constant
-    18 'Cubar     '    7.0597      0.80000         no limits
+     1 'Adbar     '   0.16130      0.10000E-01     no limits
+     2 'Adv       '    1.0000      constant
+     3 'Ag        '    1.0000      constant
+     4 'Agp       '   0.73110E-01  0.10000E-01     no limits
+     5 'Aubar     '    0.0000      constant
+     6 'Auv       '    1.0000      constant
+     7 'Bdbar     '  -0.12730      0.40000E-02     no limits
+     8 'Bdv       '    1.0300      0.60000E-01     no limits
+     9 'Bg        '  -0.61953E-01  0.27000         no limits
+    10 'Bgp       '  -0.38310      0.10000E-01     no limits
+    11 'Bubar     '    0.0000      constant
+    12 'Buv       '   0.81048      0.16000E-01     no limits
+    13 'Cdbar     '    9.5862       1.2345         no limits
+    14 'Cdv       '    4.8463      0.30000         no limits
+    15 'Cg        '    5.5624      0.32000         no limits
+    16 'Cgp       '    25.000      constant
+    17 'Cubar     '    7.0597      0.80000         no limits
+    18 'Cuv       '    4.8235      0.60000E-01     no limits
     19 'Dubar     '    1.5481       1.0000         no limits
-    20 'Adbar     '   0.16130      0.10000E-01     no limits
-    21 'Bdbar     '  -0.12730      0.40000E-02     no limits
-    22 'Cdbar     '    9.5862       1.2345         no limits
+    20 'Duv       '    0.0000      constant
+    21 'Euv       '    9.9214      0.80000         no limits
+    22 'ZERO      '    0.0000      constant
     23 'fs        '   0.40000      constant
  **********
  **    1 **SET STR    2.000    
@@ -40,26 +40,26 @@
 
   EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
   NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
-   1    Ag          1.0000       constant   
-   2    Bg        -0.61953E-01   0.27000    
-   3    Duv         0.0000       constant   
-   4    ZERO        0.0000       constant   
-   5    Cg          5.5624       0.32000    
-   6    Bgp       -0.38310       0.10000E-01
-   7    Agp        0.73110E-01   0.10000E-01
-   8    Cgp         25.000       constant   
-   9    Euv         9.9214       0.80000    
-  10    Auv         1.0000       constant   
-  11    Buv        0.81048       0.16000E-01
-  12    Cuv         4.8235       0.60000E-01
-  13    Adv         1.0000       constant   
-  14    Aubar       0.0000       constant   
-  15    Bdv         1.0300       0.60000E-01
-  16    Cdv         4.8463       0.30000    
-  17    Bubar       0.0000       constant   
-  18    Cubar       7.0597       0.80000    
+   1    Adbar      0.16130       0.10000E-01
+   2    Adv         1.0000       constant   
+   3    Ag          1.0000       constant   
+   4    Agp        0.73110E-01   0.10000E-01
+   5    Aubar       0.0000       constant   
+   6    Auv         1.0000       constant   
+   7    Bdbar     -0.12730       0.40000E-02
+   8    Bdv         1.0300       0.60000E-01
+   9    Bg        -0.61953E-01   0.27000    
+  10    Bgp       -0.38310       0.10000E-01
+  11    Bubar       0.0000       constant   
+  12    Buv        0.81048       0.16000E-01
+  13    Cdbar       9.5862        1.2345    
+  14    Cdv         4.8463       0.30000    
+  15    Cg          5.5624       0.32000    
+  16    Cgp         25.000       constant   
+  17    Cubar       7.0597       0.80000    
+  18    Cuv         4.8235       0.60000E-01
   19    Dubar       1.5481        1.0000    
-  20    Adbar      0.16130       0.10000E-01
-  21    Bdbar     -0.12730       0.40000E-02
-  22    Cdbar       9.5862        1.2345    
+  20    Duv         0.0000       constant   
+  21    Euv         9.9214       0.80000    
+  22    ZERO        0.0000       constant   
   23    fs         0.40000       constant   
