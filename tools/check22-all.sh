@@ -17,10 +17,12 @@ COPY=''
 COPY=' --copy'
 
 # chi2 iteration NNLO RTOPT QCDNUM (default) [HERAPDF2.0 arXiv:1506.06042 ]
+# it tests also storing NNLO PDF from QCDNUM evolution in LHAPDF6 format
 ./tools/check22.sh defaultNNLO $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration NLO RTOPT QCDNUM [HERAPDF2.0 arXiv:1506.06042 ]
+# it tests also storing NLO PDF from QCDNUM evolution in LHAPDF6 format
 ./tools/check22.sh defaultNLO $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
@@ -29,10 +31,12 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration FONLL APFEL
+# it tests also storing PDF from APFEL evolution in LHAPDF6 format
 ./tools/check22.sh FONLL $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration for ALL data using NLO RTOPT LHAPDF=CT10nlo
+# it tests also storing NNLO PDF from LHAPDF evolution in LHAPDF6 format
 ./tools/check22.sh ALLDATA $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
@@ -53,6 +57,7 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # full fit ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
+# it tests also storing PDF eigenvectors in LHAPDF6 format
 ./tools/check22.sh ZMVFNS-fit $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
