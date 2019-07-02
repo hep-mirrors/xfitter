@@ -4,6 +4,7 @@
 
 ## Programs versions
 lhapdfver=6.2.1
+hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.34
 qcdnumver=17-01-14
@@ -317,6 +318,27 @@ else
     fi
     cd - >& /dev/null
 
+#Hathor:
+    echo "Installing Hathor $hathorver..."
+    hathor="Hathor"
+    if [[ $http == "curl" ]]
+    then
+        # alternative link https://www-zeuthen.desy.de/~moch/hathor/Hathor-2.0.tar.gz
+        curl https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
+    else
+        wget https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
+    tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    cd Hathor-${hathorver}/lib
+    # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC' -j9 >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+        echo "Error, check install.log for details"
+        exit
+    fi
+    cd - >& /dev/null
+
  #hoppet:
     echo "Installing HOPPET $hoppetver..."
     if [[ $http == "curl" ]]
@@ -344,6 +366,7 @@ else
  # setup paths for applgrid:
     export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
     export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
+    export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib
     export LD_LIBRARY_PATH=$CURRENTDIR/deps/lhapdf/lib/:$LD_LIBRARY_PATH
     echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
     export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a`
@@ -361,7 +384,8 @@ else
     fi
     tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
-    ./configure --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
+    # need to supply c++11 flag explicitly
+    ./configure CXXFLAGS='--std=c++11' --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -551,6 +575,7 @@ rm /tmp/xf_py1234_a
 
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
+echo export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
@@ -574,6 +599,7 @@ fi
 echo source ./setup.sh > compile
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
+echo export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
@@ -582,7 +608,7 @@ echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 echo cd xfitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
 
-echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela  --enable-apfelgrid     >> compile
+echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-mela  --enable-apfelgrid     >> compile
 
 echo make -j 9 install                                    >> compile
 
