@@ -93,7 +93,7 @@ DefaultEvolution: proton-APFELff
 
 Evolutions:
   proton-APFELff:
-    ? !include yaml/evolutions/APFEL/parameters.yaml
+    ? !include evolutions/APFEL/parameters.yaml
     decomposition: proton
     kmc : 2.0 # ratio between charm quark threshold and mass
     kmb : 1.5 # ratio between bottom quark threshold and mass
