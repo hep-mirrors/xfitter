@@ -51,7 +51,7 @@ rm -rf $rundir
 mkdir -p $rundir
 
 echo "========================================"
-echo "Running checks: $TESTNAME"
+echo "Running check: $TESTNAME"
 echo "========================================"
 if [ $COPYRESULTS -eq 0 ]; then
   echo "This is validation test:"
@@ -65,8 +65,8 @@ EXAMPLEDIR="examples_22/$TESTNAME/output"
 if [ $COPYRESULTS -eq 1 ]; then
   echo "Results will be stored as reference in $EXAMPLEDIR"
 fi
-echo "Running in temp/$TESTNAME, output stored in temp/$TESTNAME/xfitter.txt"
-echo "========================================"
+echo "Running in temp/$TESTNAME"
+echo "Log file stored in temp/$TESTNAME/xfitter.txt"
 
 if [ ! -d $INPUTDIR ]; then
   echo "Failed to find input files for test \"$TESTNAME\""
@@ -88,24 +88,28 @@ cd - > /dev/null
 flagBAD=0
 if [ $COPYRESULTS -eq 0 ]; then
   grep  'After' $rundir/output/Results.txt > temp/out.txt
-  grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
-
-  cat temp/out.txt
-  diff temp/out.txt temp/def.txt 
-
   exitcode=$?
-  rm -f temp/out.txt temp/def.txt
-
   if [ $exitcode = 0 ]; then
-    echo "========================================"
-    echo -e "Check of chi^2 is $OK"
-    echo "========================================"
+    grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
+    cat temp/out.txt
+    diff temp/out.txt temp/def.txt 
+    exitcode=$?
+    if [ $exitcode = 0 ]; then
+      echo "========================================"
+      echo -e "Check of chi^2 is $OK"
+      echo "========================================"
+    else
+      echo "========================================"
+      echo -e "$FAILED validation with default steering"
+      echo "========================================"
+      flagBAD=1
+    fi
   else
-    echo "========================================"
-    echo -e "$FAILED validation with default steering"
-    echo "========================================"
-    flagBAD=1
+      echo "========================================"
+      echo -e "$FAILED no chi2 calculated: check temp/$TESTNAME/xfitter.txt"
+      echo "========================================"
   fi
+  rm -f temp/out.txt temp/def.txt
 fi
 
 if [ $COPYRESULTS -eq 0 ]; then
