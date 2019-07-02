@@ -8,7 +8,7 @@ hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.34
 qcdnumver=17-01-14
-apfelver=3.0.0
+apfelver=3.0.4
 melaver=2.0.1
 apfelgridver=1.0.1
 
@@ -434,6 +434,21 @@ else
     cd - >& /dev/null
  # setup paths for apfel:
     export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
+
+#Importing tables for Small-x resummation studies
+    if [[ $http == "curl" ]]
+    then
+      curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz > HELLx.v3.0.tgz 2 >> $CURRENTDIR/install.log
+      curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz > HELLx-data.v3.tgz 2 >> $CURRENTDIR/install.log
+    else
+      wget https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
+      wget https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
+    fi
+
+    tar xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
+    tar xzf HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
+
+    cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
 
  #apfelgrid
     if [ -d /cvmfs ]
