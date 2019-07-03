@@ -147,6 +147,20 @@ hf_scheme_DISCC :
 #  defaultValue : 'FONLL_DISCC'     # global specification
 #  defaultValue : 'FFABM_DISCC'     # global specification
 
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  Parameters:
+    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
+  #Evolutions:
+  #  proton-LHAPDF:
+  #    sets:    [CT10]
+  #    members: [[0,1,end]]
+  Status: "Off"               # "Off" to turn off profiler
+  WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "Off"              # determine and report chi2 for each variation
+
 WriteLHAPDF6:
   name: "proton"
   description: "..."
