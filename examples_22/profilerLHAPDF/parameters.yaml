@@ -1,0 +1,76 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+#    call fcn 3
+#    call fcn 1
+#    migrad
+#    hesse
+#    call fcn 3
+#  doErrors :  Hesse # None
+
+DefaultEvolution: proton-QCDNUM
+#DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM/parameters.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+    # The following allows QCDNUM to read PDFs from other evolutions:
+    EvolutionCopy: "proton-LHAPDF"
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "NNPDF30_nlo_as_0118"
+    member: 0
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+? !include constants.yaml
+
+alphas : 0.118
+
+byReaction:
+  # RT DIS scheme settings:
+  ? !include reactions/RT_DISNC/parameters.yaml
+  # FONLL scheme settings:
+  ? !include reactions/FONLL_DISNC/parameters.yaml
+  ? !include reactions/FONLL_DISCC/parameters.yaml
+  # FF ABM scheme settings:
+  ? !include reactions/FFABM_DISNC/parameters.yaml
+  ? !include reactions/FFABM_DISCC/parameters.yaml
+  # AFB settings:
+  ? !include reactions/AFB/parameters.yaml
+  # APPLgrid settings:
+  ? !include reactions/APPLgrid/parameters.yaml
+  # (optional) Fractal module settings:
+  ? !include reactions/Fractal_DISNC/parameters.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+#  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+#  defaultValue : 'FONLL_DISCC'     # global specification
+#  defaultValue : 'FFABM_DISCC'     # global specification
+
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  #Parameters:
+  #  alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
+  Evolutions:
+    proton-LHAPDF:
+      sets:    [NNPDF30_nlo_as_0118]
+      members: [[0,1,end]]
+  Status: "On"               # "Off" to turn off profiler
+  WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "Off"              # determine and report chi2 for each variation
