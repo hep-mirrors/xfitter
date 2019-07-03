@@ -93,7 +93,7 @@ DefaultEvolution: proton-APFELff
 
 Evolutions:
   proton-APFELff:
-    ? !include yaml/evolutions/APFEL/parameters.yaml
+    ? !include evolutions/APFEL/parameters.yaml
     decomposition: proton
     kmc : 1.2 # ratio between charm quark threshold and mass
     nllxResummation : "On"
@@ -121,7 +121,6 @@ Q0 : 1.6733200531 # Initial scale =sqrt(2.8)
 ? !include constants.yaml
 
 alphas : 0.118
-mch : 1.46
 
 byReaction:
   # RT DIS scheme settings:

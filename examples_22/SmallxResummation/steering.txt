@@ -68,7 +68,7 @@
 
 &OutDir
   ! Name of the directory where output will be stored (max 255 characters)
-    OutDirName = 'output_Smallx'
+    OutDirName = 'output'
 &End
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
