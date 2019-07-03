@@ -37,8 +37,9 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh FONLL $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
-# chi2 iteration for ALL data using NLO RTOPT LHAPDF=CT10nlo
-# it tests also storing NNLO PDF from LHAPDF evolution in LHAPDF6 format
+# chi2 iteration for ALL data using NLO RTOPT LHAPDF=NNPDF30_nlo_as_0118
+# it tests also FlipCharge and FlipUD evolutions
+# it tests also storing PDF from LHAPDF evolution in LHAPDF6 format
 ./tools/check22.sh ALLDATA $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
