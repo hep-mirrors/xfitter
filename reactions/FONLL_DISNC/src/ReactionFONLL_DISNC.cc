@@ -81,7 +81,8 @@ void ReactionFONLL_DISNC::atIteration()
     for (size_t i = 0; i < Np; i++)
     {
       // Skip all points with Q2 < 1 GeV^2.
-      if (q2[i] < 1)
+      //if (q2[i] < 1)
+      if (q2[i] < Q0*Q0)
         continue;
 
       // Recompute structure functions only if the value of Q2

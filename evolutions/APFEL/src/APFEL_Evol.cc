@@ -281,6 +281,7 @@ double APFEL_Evol::xfxQ(int i, double x, double Q)
 void APFEL_Evol::xfxQarray(double x, double Q, double *pdfs)
 {
   gQCDevol = (_evolType == evolType::QCD);
+
   if (Q != _Qlast)
   {
     APFEL::EvolveAPFEL(_Q0, Q);
