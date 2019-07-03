@@ -5,7 +5,7 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 #include <functional>
-
+#include <algorithm>
 
 using std::map;
 using std::string;
