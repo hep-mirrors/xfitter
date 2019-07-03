@@ -58,6 +58,18 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh HVQMNR-norm $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
+# chi2 iteration for small x resummation xfitter analysis 1802.00064 
+./tools/check22.sh SmallxResummation $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# profiler alpha_s
+./tools/check22.sh profilerAs $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# profiler PDF eigenvectors (LHAPDF)
+./tools/check22.sh profilerLHAPDF $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
 # full fit ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
 # it tests also storing PDF eigenvectors in LHAPDF6 format
 ./tools/check22.sh ZMVFNS-fit $COPY
