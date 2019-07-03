@@ -25,6 +25,10 @@ Evolutions:
     class: FlipCharge
     #input: proton-QCDNUM
     input: proton-LHAPDF
+  neutron:
+    class: FlipUD
+    #input: proton-QCDNUM
+    input: proton-LHAPDF
 
 ? !include constants.yaml
 

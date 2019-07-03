@@ -1,4 +1,4 @@
-After minimisation    5399.51  2970     1.818
+After minimisation    5286.47  2970     1.780
 
   Partial chi2s 
 Dataset    1    548.66   377  HERA1+2 NCep 920                                
@@ -19,9 +19,9 @@ Dataset   15    107.53    83  BCDMS F2p 100GeV
 Dataset   16     86.89    91  BCDMS F2p 120GeV                                
 Dataset   17    114.39    79  BCDMS F2p 200GeV                                
 Dataset   18     78.19    75  BCDMS F2p 280GeV                                
-Dataset   19     19.33    10  E866, low mass                                  
-Dataset   20     24.51    14  E866, mid mass                                  
-Dataset   21     64.17    15  E866, high mass                                 
+Dataset   19     19.15    10  E866, low mass                                  
+Dataset   20     17.72    14  E866, mid mass                                  
+Dataset   21     27.57    15  E866, high mass                                 
 Dataset   22    133.83    72  CDF inclusive jets                              
 Dataset   23     59.38    13  CDF W asymmetry 2009                            
 Dataset   24     28.44    28  CDF Z rapidity 2010                             
@@ -80,7 +80,7 @@ Dataset   76      1.56     1  ATLAS 7 TeV single top t-channel, top antiquark
 Dataset   77      0.02     1  CMS 8 TeV single top t-channel, top quark       
 Dataset   78      0.16     1  CMS 8 TeV single top t-channel, top antiquark   
 
- Correlated Chi2    861.59439809610831     
+ Correlated Chi2    792.12201714825824     
  Systematic shifts          904
   
                                 Name          Shift   +/-    Error          Type
@@ -446,11 +446,11 @@ Dataset   78      0.16     1  CMS 8 TeV single top t-channel, top antiquark
   360  bcdms_nr2                              0.5959   +/-   0.3029        :N:M:D
   361  bcdms_nr3                             -0.0775   +/-   0.3239        :N:M:D
   362  bcdms_sh                              -0.3713   +/-   0.2827        :N:M:D
-  363  rate_dependence                       -7.2982   +/-   0.5741        :N:M:D
-  364  target_length                         -1.9135   +/-   0.9792        :N:M:D
-  365  beam_intensity                        -0.9567   +/-   0.9948        :N:M:D
-  366  att/acc                               -1.9135   +/-   0.9792        :N:M:D
-  367  deuterium_composition                 -3.0740   +/-   0.7921        :N:M:D
+  363  rate_dependence                       -1.1020   +/-   0.5649        :N:M:D
+  364  target_length                         -0.3202   +/-   0.9789        :N:M:D
+  365  beam_intensity                        -0.1601   +/-   0.9948        :N:M:D
+  366  att/acc                               -0.3202   +/-   0.9789        :N:M:D
+  367  deuterium_composition                 -0.1851   +/-   0.7809        :N:M:D
   368  CDF_Jets2008_sys1                      1.6460   +/-   0.4991        :N:M:D
   369  CDF_Jets2008_sys2                      1.8500   +/-   0.8494        :N:M:D
   370  CDF_Jets2008_sys3                      1.7163   +/-   0.8241        :N:M:D
