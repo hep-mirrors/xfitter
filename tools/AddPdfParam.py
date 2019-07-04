@@ -119,7 +119,7 @@ def insertLine(filename,after,line):
 print "Updating configure.ac"
 insertLine("configure.ac","pdfparams/BasePdfParam/src/Makefile","                 {}/src/Makefile".format(prefix))
 print "Updating Makefile.am"
-insertLine("Makefile.am","pdfparams/BasePdfParam/src","        {}/src\\\\".format(prefix))
+insertLine("Makefile.am","pdfparams/BasePdfParam/src","  {}/src\\\\".format(prefix))
 print "Updating doxygen.cfg"
 insertLine("doxygen.cfg","pdfparams/BasePdfParam/include","                         {}/include\\\\".format(prefix))
 print "Updating Reactions.txt"
