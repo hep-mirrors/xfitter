@@ -57,4 +57,12 @@ double FlipChargeEvol::xfxQ(int i,double x,double Q){
 double FlipChargeEvol::getAlphaS(double Q){
   return input->getAlphaS(Q);
 }
+
+vector<double> FlipChargeEvol::getXgrid(){
+  return input->getXgrid();
+}
+
+vector<double> FlipChargeEvol::getQgrid(){
+  return input->getQgrid();
+}
 }
