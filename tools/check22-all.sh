@@ -63,6 +63,10 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh SmallxResummation $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
+# chi2 iteration for HERA data using PDF parametrisation from arXiv:1902.11125
+./tools/check22.sh paramBG $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
 # profiler alpha_s
 ./tools/check22.sh profilerAs $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
