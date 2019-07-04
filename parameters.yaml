@@ -39,7 +39,8 @@ Parameters:
     #pr_mean
     #pr_sigma
   ZERO : [ 0. ]          # zero
-  fs : [ 0.4, 0.0 ]
+  fs   :   0.4   #no step means fixed
+  DbarToS: "=fs/(1-fs)"
 
 Parameterisations:
   par_uv:
@@ -54,19 +55,23 @@ Parameterisations:
   par_dbar:
     class: HERAPDF
     parameters: [Adbar,Bdbar,Cdbar]
-  par_s:
-    #class: HERAPDF
-    #parameters: [As,Bs,Cs]
-    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
-    class: Expression
-    expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
+  par_s: # s=fs/(1-fs) * Dbar
+    class: Factor
+    factor: DbarToS #name of parameter
+    input: par_dbar
   par_g:
     class: NegativeGluon
     parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+  #par_s:
+    #class: HERAPDF
+    #parameters: [As,Bs,Cs]
+  #par_s:
+    #class: Expression
+    #expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
   # Another example for Expression parameterisation
   #par_g:
-  #  class: Expression
-  #  expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
+    #class: Expression
+    #expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
 DefaultDecomposition: proton
 Decompositions:
