@@ -54,15 +54,15 @@
 
   ! CDF Jets, W, Z production:
     'datafiles/tevatron/cdf/jets/0807.2204/CDF_JETS2008-thexp.dat',
- 	  'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry-thexp.dat',
+    'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry-thexp.dat',
     'datafiles/tevatron/cdf/wzProduction/0908.3914/CDF_Z_Boson_Rapidity-thexp.dat',
 
   ! D0 Jets, W, Z production:
     'datafiles/tevatron/d0/jets/0802.2400/D0_JETS-thexp.dat',
- 	  'datafiles/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity-thexp.dat',
- 	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry-thexp.dat',
- 	  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
- 	  'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
     'datafiles/tevatron/d0/wzProduction/1412.2862/D0_Wel_pt25_asymmetry-thexp.dat',
   
   ! Do and CDF combined ttbar production (NOTE: need Hathor package):
@@ -175,9 +175,9 @@
     !> 'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
 
   ! normalised jets: theory expression not implemented, not supported since xfitter-2.2
-	  !> 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
-	  !> 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
-	  !> 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
+    !> 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
+    !> 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
+    !> 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
 
 &End
 
