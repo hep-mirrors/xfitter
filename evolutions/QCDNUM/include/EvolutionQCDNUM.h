@@ -51,5 +51,7 @@ namespace xfitter
     /// Read or not QCDNUM pre-stored tables (makes init faster)
     int _readTables{0};
 
+    const double* Mz;/// Z-boson mass
+    const double* alphas;/// alphaS(Mz^2)
   };
 };

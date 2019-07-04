@@ -110,8 +110,8 @@ namespace xfitter {
     const double* Q0         = XFITTER_PARS::getParamD("Q0");
     double q20 = (*Q0) * (*Q0);
 
-    const double* Mz      = XFITTER_PARS::getParamD("Mz");
-    double mZ2 = (*Mz) * (*Mz);
+    Mz = XFITTER_PARS::getParamD("Mz");
+    alphas = XFITTER_PARS::getParamD("alphas");
 
     const double* mch     = XFITTER_PARS::getParamD("mch");
     const double* mbt     = XFITTER_PARS::getParamD("mbt");
@@ -148,7 +148,7 @@ namespace xfitter {
     Q2Grid.push_back( (*mbt)*(*mbt) );
     Q2GridW.push_back(1.3);
 
-    Q2Grid.push_back( mZ2 );
+    Q2Grid.push_back( (*Mz) * (*Mz) );
     Q2GridW.push_back(1.1);
 
     //    for (size_t i = 0; i<Q2Grid.size(); i++) {
@@ -219,23 +219,20 @@ namespace xfitter {
     //Evolution gets its decomposition from YAML
       gPdfDecomp=XFITTER_PARS::getInputDecomposition(yQCDNUM);
     }
-    atConfigurationChange();
   }
 
-  void EvolutionQCDNUM::atConfigurationChange()
-  {
-    // XXXXXXXXXXXXXX
+  void EvolutionQCDNUM::atConfigurationChange(){}
 
-    const double* Mz      = XFITTER_PARS::getParamD("Mz");
-    const double* alphas  = XFITTER_PARS::getParamD("alphas");
-    
-    QCDNUM::setalf(*alphas,(*Mz)*(*Mz));
-  }
   void EvolutionQCDNUM::atIteration(){
     if (_itype <5 ) {
       const double* q0 = XFITTER_PARS::getParamD("Q0");
       int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
       double epsi = 0;
+
+      //Re-read Mz and alphas at each iteration so that they can be fitted
+      const double MZ = *Mz;
+      QCDNUM::setalf( *alphas, MZ * MZ );
+
       QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
     }
     else if (_itype == 5) {
