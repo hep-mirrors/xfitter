@@ -86,36 +86,42 @@ ${xfitter} >& xfitter.txt
 cd - > /dev/null
 
 flagBAD=0
+# check chi2 in Results.txt ("After minimisation ...")
 if [ $COPYRESULTS -eq 0 ]; then
-  grep  'After' $rundir/output/Results.txt > temp/out.txt
+  # some tests do not call 'fcn 3' and there is no chi2 stored in Results.txt
+  grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
   exitcode=$?
   if [ $exitcode = 0 ]; then
-    grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
-    cat temp/out.txt
-    diff temp/out.txt temp/def.txt 
+    grep  'After' $rundir/output/Results.txt > temp/out.txt
     exitcode=$?
     if [ $exitcode = 0 ]; then
-      echo "========================================"
-      echo -e "Check of chi^2 is $OK"
-      echo "========================================"
+      cat temp/out.txt
+      diff temp/out.txt temp/def.txt 
+      exitcode=$?
+      if [ $exitcode = 0 ]; then
+        echo "========================================"
+        echo -e "Check of chi^2 is $OK"
+        echo "========================================"
+      else
+        echo "========================================"
+        echo -e "$FAILED validation with default steering"
+        echo "========================================"
+        flagBAD=1
+      fi
     else
-      echo "========================================"
-      echo -e "$FAILED validation with default steering"
-      echo "========================================"
-      flagBAD=1
+        echo "========================================"
+        echo -e "$FAILED no chi2 calculated: check temp/$TESTNAME/xfitter.txt"
+        echo "========================================"
     fi
-  else
-      echo "========================================"
-      echo -e "$FAILED no chi2 calculated: check temp/$TESTNAME/xfitter.txt"
-      echo "========================================"
   fi
   rm -f temp/out.txt temp/def.txt
 fi
 
+# check all output files
 if [ $COPYRESULTS -eq 0 ]; then
   echo "Checking all output files ..."
   for targetfile in `find ${EXAMPLEDIR} -type f`; do
-    file=`echo ${targetfile} | sed -e 's@${EXAMPLEDIR}@${rundir}@'`
+    file=`echo ${targetfile} | sed -e s@${EXAMPLEDIR}@${rundir}/output@`
     if [ ! -f $file ]; then
       echo "No expected file $file"
       flagBAD=1

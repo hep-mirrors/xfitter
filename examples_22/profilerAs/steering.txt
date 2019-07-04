@@ -189,7 +189,7 @@
 *
 &Output 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 2.8, 3.0, 4.0, 5., 10., 100., 6464, 8317 
+  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
 !  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
 
   ! How many x points to write (standard = 101)

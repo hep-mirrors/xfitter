@@ -37,8 +37,9 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh FONLL $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
-# chi2 iteration for ALL data using NLO RTOPT LHAPDF=CT10nlo
-# it tests also storing NNLO PDF from LHAPDF evolution in LHAPDF6 format
+# chi2 iteration for ALL data using NLO RTOPT LHAPDF=NNPDF30_nlo_as_0118
+# it tests also FlipCharge and FlipUD evolutions
+# it tests also storing PDF from LHAPDF evolution in LHAPDF6 format
 ./tools/check22.sh ALLDATA $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
@@ -56,6 +57,18 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # chi2 iteration for PROSA analysis 1503.04581 (normalised variant)
 ./tools/check22.sh HVQMNR-norm $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# chi2 iteration for small x resummation xfitter analysis 1802.00064 
+./tools/check22.sh SmallxResummation $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# profiler alpha_s
+./tools/check22.sh profilerAs $COPY
+if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
+
+# profiler PDF eigenvectors (LHAPDF)
+./tools/check22.sh profilerLHAPDF $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
 # full fit ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)

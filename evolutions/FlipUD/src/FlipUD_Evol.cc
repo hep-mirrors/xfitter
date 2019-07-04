@@ -57,4 +57,12 @@ double FlipUD_Evol::xfxQ(int i,double x,double Q){
   }
 }
 double FlipUD_Evol::getAlphaS(double Q){return input->getAlphaS(Q);}
+
+vector<double> FlipUD_Evol::getXgrid(){
+  return input->getXgrid();
+}
+
+vector<double> FlipUD_Evol::getQgrid(){
+  return input->getQgrid();
+}
 }

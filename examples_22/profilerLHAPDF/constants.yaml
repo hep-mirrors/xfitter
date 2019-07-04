@@ -37,10 +37,10 @@ mdn : 0.06983
 mst : 0.150
 
 # heavy quark masses:
-mch : 1.46
+mch : 1.47
 mbt : 4.50
 mtp : 173.0
 
 # QCD parameters
-Order: NNLO
+Order: NLO
 NFlavour: 5

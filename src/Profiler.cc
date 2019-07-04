@@ -1,6 +1,7 @@
 #include "Profiler.h"
 #include "xfitter_cpp_base.h"
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include "xfitter_cpp.h"
 #include "xfitter_steer.h"
@@ -18,7 +19,7 @@ namespace xfitter
 
     if (_getChi2) {
       double chi2 = chi2data_theory_(2);
-      std::cout << "Chi2 = " << chi2 << std::endl;
+      std::cout << std::fixed << std::setprecision(2) << "Chi2 = " << chi2 << std::endl;
     }
 
     int ndata =  cndatapoints_.npoints;
