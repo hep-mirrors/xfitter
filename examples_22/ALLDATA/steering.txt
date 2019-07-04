@@ -149,35 +149,35 @@
   !******************************************!
 
   ! HERA I (commented out, I+II replaces the samples)
-    !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',  superseded
-    !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
-    !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
-    !>     'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',  superseded
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
   
   ! H1 Jets (superseded):
-    !>     'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat'
+    !>  'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat'
   
   ! H1 Inclusive DIS low Ep: (included in HERA I+II combination)
-    !> 'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',  ! superseded
+    !>  'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',  ! superseded
 
   ! H1 and ZEUS combined charm and beauty production (superseded by charm+beauty combination 1804.01019):
-    !> 'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined-thexp.dat', 
-    !> 'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex-thexp.dat',
-    !> 'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty-thexp.dat',
+    !>  'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined-thexp.dat', 
+    !>  'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex-thexp.dat',
+    !>  'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty-thexp.dat',
 
   ! these CMS ttbar data partially overlap with other data
-    !> 'datafiles/lhc/cms/topProduction/cms-pas-top-11-024/CMS-TOP-11-024_prelim.dat'
+    !>  'datafiles/lhc/cms/topProduction/cms-pas-top-11-024/CMS-TOP-11-024_prelim.dat'
 
   ! CMS and ATLAS differential ttbar production (requires DiffTop fastNLO with some custom interface, not supported from xfitter-2.2):
-    !> 'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT.dat',
-    !> 'datafiles/lhc/cms/topProduction/1211.2220/Diff_ttbar_7TeV_pt.dat',
-    !> 'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT.dat',
-    !> 'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
+    !>  'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT.dat',
+    !>  'datafiles/lhc/cms/topProduction/1211.2220/Diff_ttbar_7TeV_pt.dat',
+    !>  'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT.dat',
+    !>  'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
 
   ! normalised jets: theory expression not implemented, not supported since xfitter-2.2
-    !> 'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
-    !> 'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
-    !> 'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
 
 &End
 
@@ -203,13 +203,13 @@
       'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6___CMS_8TeV_jets_Ybin6.dat'
 
   ! for superseeded or not supported anymore data
-    !'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
-    !'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-    !'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-    !'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
-    !'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
-    !'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
-    !'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
 &End
 
 
