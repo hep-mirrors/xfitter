@@ -22,6 +22,7 @@ SUBDIRS=src\
   tools/draw\
   tools/MakeLHAPDF\
   pdfparams/BasePdfParam/src\
+  pdfparams/Factor/src\
   pdfparams/Expression/src\
   pdfparams/HERAPDF_PdfParam/src\
   pdfparams/PolySqrtPdfParam/src\

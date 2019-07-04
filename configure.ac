@@ -598,6 +598,7 @@ AC_CONFIG_FILES([include/Makefile
                  minimizers/MINUITMinimizer/src/Makefile
                  evolutions/QCDNUM/src/Makefile
                  pdfparams/BasePdfParam/src/Makefile
+                 pdfparams/Factor/src/Makefile
                  pdfparams/Expression/src/Makefile
                  pdfparams/HERAPDF_PdfParam/src/Makefile
                  pdfparams/PolySqrtPdfParam/src/Makefile

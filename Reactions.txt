@@ -27,6 +27,7 @@ CERES libCERESMinimizer_xfitter.so
 LHAPDF liblhapdf_xfitter.so
 LHAPDF0 liblhapdfdecomposition_xfitter.so
 HERAPDF libHERAPDF_PdfParam_xfitter.so
+Factor libFactorPdfParam_xfitter.so
 Expression libExpressionPdfParam_xfitter.so
 NegativeGluon libNegativeGluonPdfParam_xfitter.so
 PolySqrt libPolySqrtPdfParam_xfitter.so
