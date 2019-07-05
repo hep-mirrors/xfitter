@@ -242,11 +242,13 @@ namespace xfitter {
 
       QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
     }
-    else if (_itype == 5) {
-      // External evolution
-      double epsi = 0;
-      QCDNUM::extpdf(funcPDFext,_itype,_nExt,0.001,epsi);
-    }
+  }
+
+  void EvolutionQCDNUM::afterIteration(){
+    if (_itype != 5) return;
+    // External evolution
+    double epsi = 0;
+    QCDNUM::extpdf(funcPDFext,_itype,_nExt,0.001,epsi);
   }
 
   std::map<int,double>EvolutionQCDNUM::xfxQmap(double x,double Q){

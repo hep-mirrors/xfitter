@@ -24,6 +24,7 @@ namespace xfitter
     virtual const char* getClassName() const override final;
     virtual void atStart() override final;
     virtual void atIteration() override final;
+    virtual void afterIteration() override final;
     virtual void atConfigurationChange() override final;
     virtual std::map<int,double>xfxQmap(double x, double Q) override final;
     virtual double xfxQ(int i, double x, double Q) override final;
