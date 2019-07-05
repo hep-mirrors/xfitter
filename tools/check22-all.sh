@@ -75,7 +75,7 @@ if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 ./tools/check22.sh profilerLHAPDF $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
 
-# full fit ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
+# full fit (PDF+alpha_s) ZMVFNS NNLO QCDNUM, with error bands (takes ~ 10 min)
 # it tests also storing PDF eigenvectors in LHAPDF6 format
 ./tools/check22.sh ZMVFNS-fit $COPY
 if [ `echo $?` -ne 0 ]; then flagAllFine=0; fi
