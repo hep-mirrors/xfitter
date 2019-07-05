@@ -9,8 +9,8 @@ MINUIT:
 #    call fcn 3    
 #  doErrors :  Hesse # None
 
-DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
+#DefaultEvolution: proton-QCDNUM
+DefaultEvolution: proton-LHAPDF
 
 Evolutions:
   proton-QCDNUM:
@@ -23,12 +23,8 @@ Evolutions:
     member: 0
   antiproton:
     class: FlipCharge
-    #input: proton-QCDNUM
-    input: proton-LHAPDF
   neutron:
     class: FlipUD
-    #input: proton-QCDNUM
-    input: proton-LHAPDF
 
 ? !include constants.yaml
 
@@ -39,6 +35,14 @@ alphas : 0.118
 byReaction:
   # RT DIS scheme settings:
   ? !include reactions/RT_DISNC/parameters.yaml
+  RT_DISNC:
+    varin0 : 0.0
+    varin1 : 1.0
+    varin2 : -0.666666666667
+    varin3 : 1.0        # recommended RT OPT settings
+    evolution: proton-QCDNUM
+  BaseDISCC:
+    evolution: proton-QCDNUM
   # FONLL scheme settings:
   ? !include reactions/FONLL_DISNC/parameters.yaml
   ? !include reactions/FONLL_DISCC/parameters.yaml
