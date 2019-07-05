@@ -184,6 +184,8 @@ for arg in "$@"; do
 done
 if [ -z "$listOfTests" ]; then
   for dir in `ls -1d examples/*`; do
+    # skip possible files: only directories contain tests
+    if [ ! -d $dir ]; then continue; fi
     dir=`basename $dir`;
     containsElement $dir "${omitTests[@]}"
     if [ `echo $?` -eq 1 ]; then
@@ -198,6 +200,7 @@ fi
 testsPassed=0
 testsFailed=0
 for arg in `echo $listOfTests`; do
+  echo $arg; continue;
   dir=temp/$arg
   rm -rf $dir
   mkdir -p $dir
