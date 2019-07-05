@@ -60,7 +60,18 @@ namespace XFITTER_PARS {
   double*getParamD(const string&name){
     try{return gParameters.at(name);}
     catch(std::out_of_range&ex){
-      cerr<<"[ERROR] Double parameter \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+      cerr<<"[ERROR] Double parameter \""<<name<<"\" does not exist"<<flush;
+      //Check for a potential incorrect definition of a fit parameter
+      YAML::Node node = rootNode[name];
+      if (node.IsSequence() or node.IsMap() and node["value"]) {
+        cerr<<", but there is something that looks like a definition of this parameter at global scape."
+        " It is possible that you wanted to fit this parameter, but did not define it correctly."
+        "\nAll fitted parameters must be provided in YAML steering under the \"Parameters\" node and not in any other place."
+        "\nBefore fitting theory parameters, it is also important to make sure that the used evolutions"
+        " and reaction modules re-read the updated parameter value at each iteration, and not only at initialization."
+        "\nxFitter will now crash";
+      }
+      cerr<<"; rethrowing out_of_range"<<endl;
       throw ex;//rethrow exception: makes it easier to debug who tried to get parameter
     }
   }
