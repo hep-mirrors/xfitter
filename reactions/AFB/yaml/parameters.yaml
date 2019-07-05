@@ -1,5 +1,5 @@
 ### Parameters for DY AFB
-AFB:
+#AFB:
   energy : 13000.0
   eta_cut : 2.5
   pT_cut : 20.0

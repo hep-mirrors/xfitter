@@ -23,4 +23,5 @@ Evolutions:
 
 byReaction:
   # AFB settings:
-  ? !include reactions/AFB/parameters.yaml
+  AFB:
+    ? !include reactions/AFB/parameters.yaml

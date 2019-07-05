@@ -115,26 +115,29 @@ alphas : 0.106
 
 byReaction:
   # RT DIS scheme settings:
-  ? !include reactions/RT_DISNC/parameters.yaml
+  RT_DISNC:
+    ? !include reactions/RT_DISNC/parameters.yaml
   # FONLL scheme settings:
-  ? !include reactions/FONLL_DISNC/parameters.yaml
-  ? !include reactions/FONLL_DISCC/parameters.yaml
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC/parameters.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC/parameters.yaml
   # FF ABM scheme settings:
-  ? !include reactions/FFABM_DISNC/parameters.yaml
-  ? !include reactions/FFABM_DISCC/parameters.yaml
-  # AFB settings:
-#  ? !include reactions/AFB/parameters.yaml
-  # APPLgrid settings:
-  ? !include reactions/APPLgrid/parameters.yaml
-  # (optional) Fractal module settings:
-  ? !include reactions/Fractal_DISNC/parameters.yaml
   FFABM_DISNC:
-    ordfl: 0 # O(alpha_S) in F_L = O(alpha_S) in F_2
-    runm: 1
+    ? !include reactions/FFABM_DISNC/parameters.yaml
+    ordfl: 0
   FFABM_DISCC:
-    ordfl: 0 # O(alpha_S) in F_L = O(alpha_S) in F_2
-    runm: 1
-
+    ? !include reactions/FFABM_DISCC/parameters.yaml
+    ordfl: 0
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB/parameters.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid/parameters.yaml
+  # (optional) Fractal module settings:
+  Fractal_DISNC:
+    ? !include reactions/Fractal_DISNC/parameters.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
