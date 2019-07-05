@@ -54,14 +54,6 @@ extern "C" ReactionBaseDISNC *create()
 // Initialize at the start of the computation
 void ReactionBaseDISNC::atStart()
 {
-  //TODO: eventually we want BaseDISNC to work not only with QCDNUM, but with any evolution
-  if (not xfitter::isQCDNUMinitialized) {
-    cerr<<"[ERROR] BaseDISNC requires QCDNUM, but it is not initialized"<<endl;
-    hf_errlog(19052310, "F: BaseDISNC requires QCDNUM");
-  }
-
-  int nwords;
-  QCDNUM::zmfillw(nwords);
   _convfac = *XFITTER_PARS::getParamD("convFac");
 }
 
@@ -147,10 +139,18 @@ void ReactionBaseDISNC::initTerm(TermData *td)
 {
   unsigned termID = td->id;
 
-  if (this->getReactionName() == "BaseDISNC" && td->getPDF()->getClassName() != string("QCDNUM")) {
+  {
+  const string& name = getReactionName();
+  if (name == "BaseDISNC" or name == "RT_DISNC") {
+    //Reaction requires QCDNUM, make sure it is used
     xfitter::BaseEvolution* pdf = td->getPDF();
-    cerr<<"[ERROR] BaseDISNC can only work with QCDNUM evolution; got evolution \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<termID<<endl;
-    hf_errlog(19052311, "F: BaseDISNC can only work with QCDNUM evolution");
+    if ( pdf->getClassName() != string("QCDNUM") ){
+      cerr<<"[ERROR] "<<getReactionName()<<" can only work with QCDNUM evolution; got evolution \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<termID<<endl;
+      hf_errlog(19052311, "F: Chosen DISNC reaction can only work with QCDNUM evolution, see stderr for details");
+    }
+
+    xfitter::requireZMSTF();
+  }
   }
 
   _dsIDs.push_back(termID);

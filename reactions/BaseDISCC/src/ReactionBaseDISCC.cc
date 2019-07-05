@@ -65,14 +65,6 @@ extern "C" ReactionBaseDISCC *create()
 // Initialize at the start of the computation
 void ReactionBaseDISCC::atStart()
 {
-  //TODO: eventually we want BaseDISCC to work not only with QCDNUM, but with any evolution
-  if (not xfitter::isQCDNUMinitialized) {
-    cerr<<"[ERROR] BaseDISCC requires QCDNUM, but it is not initialized"<<endl;
-    hf_errlog(19052300, "F: BaseDISCC requires QCDNUM");
-  }
-
-  int nwords;
-  QCDNUM::zmfillw(nwords);
 }
 
 valarray<double> GetF(TermData *td, const int id)
@@ -194,10 +186,18 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   _dsIDs.push_back(termID);
   _tdDS[termID] = td;
 
-  if (this->getReactionName() == "BaseDISCC" && td->getPDF()->getClassName() != string("QCDNUM")) {
+  {
+  const string& name = getReactionName();
+  if (name == "BaseDISCC") {
+    //Reaction requires QCDNUM, make sure it is used
     xfitter::BaseEvolution* pdf = td->getPDF();
-    cerr<<"[ERROR] BaseDISCC can only work with QCDNUM evolution; got evolution \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<termID<<endl;
-    hf_errlog(19052301, "F: BaseDISCC can only work with QCDNUM evolution");
+    if ( pdf->getClassName() != string("QCDNUM") ){
+      cerr<<"[ERROR] "<<getReactionName()<<" can only work with QCDNUM evolution; got evolution \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<termID<<endl;
+      hf_errlog(19052312, "F: Chosen DISCC reaction can only work with QCDNUM evolution, see stderr for details");
+    }
+
+    xfitter::requireZMSTF();
+  }
   }
 
   // This we do not want to fit:

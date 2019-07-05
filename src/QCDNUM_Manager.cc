@@ -9,4 +9,16 @@ void initQCDNUM(){
   QCDNUM::qcinit(-6," ");
   isQCDNUMinitialized = true;
 }
+
+bool isZMSTFinitialized = false;
+
+void requireZMSTF(){
+  if (isZMSTFinitialized) return;
+  initQCDNUM();
+
+  int nwords;
+  QCDNUM::zmfillw(nwords);
+
+  isZMSTFinitialized = true;
+}
 }
