@@ -588,7 +588,7 @@ AC_CONFIG_FILES([include/Makefile
                  datafiles/Makefile
                  datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/Makefile
                  doc/logo/Makefile
-                 examples/Makefile
+                 examples-OLD/Makefile
                  python/Makefile
                  xfitter-config
 		 reactions/HathorSingleTop/src/Makefile

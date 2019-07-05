@@ -79,7 +79,7 @@ if ENABLE_CERES
 endif
 
 DIST_SUBDIRS = $(SUBDIRS) ACOT SACOT datafiles QEDevol/include \
-           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples \
+           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples-OLD \
            python/ input_steering/ tools/
 
 if ENABLE_LHAPDF
