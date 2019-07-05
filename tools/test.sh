@@ -28,7 +28,7 @@ containsElement () {
 # function to check if $1 and $2 are identical
 checkFile()
 {
-  printf "diff $1 $2 ... "x
+  printf "diff $1 $2 ... "
   diff $1 $2 > /dev/null
   exitcode=$?
 
