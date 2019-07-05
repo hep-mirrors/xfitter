@@ -18,7 +18,7 @@
 
 // Global var to hold current pdfDecomposition
 xfitter::BasePdfDecomposition* gPdfDecomp;
-xfitter::BaseEvolution* gExtrernalEvolution;
+xfitter::BaseEvolution* gExternalEvolution;
 
 // Wrapper for QCDNUM
 double funcPDF(int *ipdf, double *x) {
@@ -34,7 +34,7 @@ double funcPDFext(int* ipdf, double* x,  double* q2, bool* first){
     {0,21},{7,22}
   };
   double q = sqrt(*q2);
-  return gExtrernalEvolution->xfxQmap(*x, q)[ip.at(*ipdf)];
+  return gExternalEvolution->xfxQmap(*x, q)[ip.at(*ipdf)];
 }
 
 
@@ -212,7 +212,7 @@ namespace xfitter {
     //Special case for QCDNUM, allow for external PDFs
     if (yQCDNUM["EvolutionCopy"]) {
       auto evolCopyName = yQCDNUM["EvolutionCopy"].as<string>();
-      gExtrernalEvolution = xfitter::get_evolution(evolCopyName);
+      gExternalEvolution = xfitter::get_evolution(evolCopyName);
       _itype = 5; // external
     }
     else {
