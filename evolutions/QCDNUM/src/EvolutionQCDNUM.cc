@@ -230,8 +230,15 @@ namespace xfitter {
       double epsi = 0;
 
       //Re-read Mz and alphas at each iteration so that they can be fitted
+      double alS = *alphas;
+      if ( std::isnan(alS) ) {
+        alS = 0.0001; //this should make chi2 bad and force minimizer to an earlier, valid, value of alphas
+        cerr<<"[WARN] QCDNUM got alphas = NaN; using alphas = "<<alS<<" instead"<<endl;
+        hf_errlog(19070500, "W: alphas = NaN in QCDNUM, see stderr");
+      }
+
       const double MZ = *Mz;
-      QCDNUM::setalf( *alphas, MZ * MZ );
+      QCDNUM::setalf( alS, MZ * MZ );
 
       QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
     }
