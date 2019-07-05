@@ -1,3 +1,7 @@
+One chi2 iteration for ALL data using NLO RTOPT LHAPDF=NNPDF30_nlo_as_0118
+it tests also FlipCharge and FlipUD evolutions
+it tests also storing PDF from LHAPDF evolution in LHAPDF6 format
+
 This tests aims to enable all data available in xFitter datafiles.
 As of 2.07.2019 only these datasets are not covered by this test:
 
