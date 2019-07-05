@@ -41,6 +41,9 @@ checkFile()
 
 runTest()
 {
+  # test status
+  flagBAD=0
+
   # TESTNAME is the name of directory in examples/
   TESTNAME=$1
   TESTNAMEDEF='defaultNNLO'
@@ -68,6 +71,11 @@ runTest()
   EXAMPLEDIR="examples/$TESTNAME/output"
   if [ $COPYRESULTS -eq 1 ]; then
     echo "Results will be stored as reference in $EXAMPLEDIR"
+  else
+    if [ ! -d $EXAMPLEDIR ]; then
+      echo "Warning: no reference output directory -> test will be considered FAILED"
+      flagBAD=1
+    fi
   fi
   echo "Running in temp/$TESTNAME"
   echo "Log file stored in temp/$TESTNAME/$xflogfile"
@@ -89,7 +97,6 @@ runTest()
   ${xfitter} >& ${xflogfile}
   cd - > /dev/null
 
-  flagBAD=0
   # check chi2 in Results.txt ("After minimisation ...")
   if [ $COPYRESULTS -eq 0 ]; then
     # some tests do not call 'fcn 3' and there is no chi2 stored in Results.txt
@@ -200,7 +207,6 @@ fi
 testsPassed=0
 testsFailed=0
 for arg in `echo $listOfTests`; do
-  echo $arg; continue;
   dir=temp/$arg
   rm -rf $dir
   mkdir -p $dir
