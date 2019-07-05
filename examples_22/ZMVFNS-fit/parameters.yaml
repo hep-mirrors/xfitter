@@ -42,6 +42,7 @@ Parameters:
 #  Cs   : [ 9.586246, 0.0  ] # this is not used: use f_s instead
   ZERO : [ 0.00000000, 0.00000000 ]
   fs : [ 0.40000000, 0.00000000 ]
+  alphas : [0.118, 0.001]
 
 Parameterisations:
   par_uv:
@@ -111,7 +112,7 @@ Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
 ? !include constants.yaml
 
-alphas : 0.118
+#alphas : 0.118
 
 byReaction:
   # RT DIS scheme settings:
