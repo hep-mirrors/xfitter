@@ -27,6 +27,7 @@ public:
   virtual double xfxQ(int i, double x, double Q) override final;
   virtual void xfxQarray(double x, double Q, double *pdfs) override final;
   virtual double getAlphaS(double Q) override final;
+  virtual std::vector<double> getXgrid() override final;
 private:
   /// Class to keep track of evolution types (QCD, QCD+QED)
   enum class evolType {

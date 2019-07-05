@@ -301,4 +301,13 @@ double APFEL_Evol::getAlphaS(double Q)
 {
   return APFEL::AlphaQCD(Q);
 }
+
+vector<double> APFEL_Evol::getXgrid() {
+  vector<double> xGrid;
+  int Nx = APFEL::nIntervals() + 1;
+  xGrid.resize(Nx);
+  for (int i=0; i<Nx; ++i) xGrid[i] = APFEL::xGrid(i);
+  return xGrid;
+}
+
 } // namespace xfitter
