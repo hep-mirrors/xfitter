@@ -107,4 +107,8 @@ namespace xfitter
   double EvolutionAPFELxx::getAlphaS(double Q){
     return _AlphaQCD(Q);
   }
+
+  vector<double> EvolutionAPFELxx::getQgrid() {
+    return _TabulatedPDFs->GetQGrid();
+  }
 }
