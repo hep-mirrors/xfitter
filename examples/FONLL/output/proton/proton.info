@@ -8,7 +8,7 @@ Flavors: [-6, -5, -4, -3, -2, -1, 21, 1, 2, 3, 4, 5, 6]
 OrderQCD: 2
 FlavorScheme: variable
 ErrorType: symmhessian
-XMin: 1e-06
+XMin: 8e-07
 XMax: 1
 QMin: 1
 QMax: 10000

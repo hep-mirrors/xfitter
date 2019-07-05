@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # list of tests to omit (if commented out, no tests are omitted)
-omitTest=('ZMVFNS-fit', 'SmallxResummation')
+#omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
 
 # xfitter binary
 xfitter=`pwd`/'bin/xfitter'
@@ -33,9 +33,9 @@ checkFile()
   exitcode=$?
 
   if [ $exitcode = 0 ]; then
-  echo -e "PASSED"
+  echo "PASSED"
   else
-  echo -e "FAILED"
+  echo "FAILED"
   fi 
 }
 
@@ -104,17 +104,17 @@ runTest()
         exitcode=$?
         if [ $exitcode = 0 ]; then
           echo "========================================"
-          echo -e "Check of chi^2 is PASSED"
+          echo "Check of chi^2 is PASSED"
           echo "========================================"
         else
           echo "========================================"
-          echo -e "FAILED validation with default steering"
+          echo "FAILED validation with default steering"
           echo "========================================"
           flagBAD=1
         fi
       else
           echo "========================================"
-          echo -e "FAILED no chi2 calculated: check temp/$TESTNAME/$xflogfile"
+          echo "FAILED no chi2 calculated: check temp/$TESTNAME/$xflogfile"
           echo "========================================"
       fi
     fi
@@ -141,9 +141,9 @@ runTest()
     done
     echo "========================================"
     if [ $flagBAD == 0 ]; then
-      echo -e "Everything is PASSED"
+      echo "Everything is PASSED"
     else
-      echo -e "Something FAILED: see above for details"
+      echo "Something FAILED: see above for details"
     fi
     echo "========================================"
   else
@@ -159,17 +159,17 @@ runTest()
 ##########################
 # the script starts here #
 ##########################
-if [ "$#" -eq 0 ] || [ "${@: -1}" = "--help" ]; then
+if [ $# -ne 0 ] && [ "${@: -1}" = "--help" ]; then
   echo "Usage: test.sh <TEST1> <TEST2> ... [OPTION]"
   echo "OPTION could be:"
   echo "  --copy to copy results and make them reference"
   echo "  --help to see this message"
-  echo "If no test names are provided, all tests in directory examples/ will run, except those specified in \'omitTest\'"
+  echo "If no test names are provided, all tests in directory examples/ will run, except those specified in 'omitTests' list"
   exit 1
 fi
 
 COPY=0
-if [ "${@: -1}" = "--copy" ]; then
+if [ $# -ne 0 ] && [ "${@: -1}" = "--copy" ]; then
   COPY=1
   echo "==========================================================================="
   echo "Running in COPY mode: output of tests will be copied and saved as reference"
@@ -182,15 +182,17 @@ for arg in "$@"; do
     listOfTests="$listOfTests $arg"
   fi
 done
-
-if [ -z $listOfTests ]; then
+if [ -z "$listOfTests" ]; then
   for dir in `ls -1d examples/*`; do
     dir=`basename $dir`;
-    containsElement $dir $omitTest
+    containsElement $dir "${omitTests[@]}"
     if [ `echo $?` -eq 1 ]; then
       listOfTests="$listOfTests $dir"
     fi
   done
+fi
+if [ -z "$listOfTests" ]; then
+  echo "No tests to run"
 fi
 
 testsPassed=0
