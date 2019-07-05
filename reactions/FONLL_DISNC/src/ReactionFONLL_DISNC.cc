@@ -80,8 +80,7 @@ void ReactionFONLL_DISNC::atIteration()
     double Q2save = 0;
     for (size_t i = 0; i < Np; i++)
     {
-      // Skip all points with Q2 < 1 GeV^2.
-      //if (q2[i] < 1)
+      // Skip all points with Q2 below starting scale
       if (q2[i] < Q0*Q0)
         continue;
 
