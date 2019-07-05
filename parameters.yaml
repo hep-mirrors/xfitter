@@ -99,9 +99,8 @@ Evolutions:
     #EvolutionCopy: "proton-LHAPDF"
   proton-LHAPDF:
     class: LHAPDF
-    set: "CT10nlo"
-#    set: "CT14nlo"
-#    set: "NNPDF31_nlo_as_0118"
+    set: "NNPDF30_nlo_as_0118"
+    #set: "CT10nlo"
     member: 0
 #  proton-APFEL:
 #    ? !include yaml/evolutions/APFELxx/parameters.yaml
@@ -124,6 +123,11 @@ byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
     ? !include reactions/RT_DISNC/parameters.yaml
+    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
+    #evolution: proton-QCDNUM
+  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
+  #BaseDISCC:
+  #  evolution: proton-QCDNUM
   # FONLL scheme settings:
   FONLL_DISNC:
     ? !include reactions/FONLL_DISNC/parameters.yaml
