@@ -42,6 +42,11 @@ namespace xfitter
     virtual void atIteration(){};
 
     /**
+     * @brief Function to be called at each iteration, after atIteration() has been called for all evolutions, but before theory predictions are computed
+     */
+    virtual void afterIteration(){};
+
+    /**
      * @brief This function should be called when at least one parameter in the YAML node of given evolution changes
      */
     virtual void atConfigurationChange(){};

@@ -286,6 +286,10 @@ void init_at_iteration_() {
     it.second->atIteration();
   }
 
+  for(const auto it:XFITTER_PARS::gEvolutions){
+    it.second->afterIteration();
+  }
+
   for(const auto reaction:gNameReaction){
     reaction.second->atIteration();
   }
