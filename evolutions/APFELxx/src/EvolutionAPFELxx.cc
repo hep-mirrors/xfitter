@@ -108,6 +108,10 @@ namespace xfitter
     return _AlphaQCD(Q);
   }
 
+  vector<double> EvolutionAPFELxx::getXgrid() {
+    return _Grid->GetJointGrid().GetGrid();
+  }
+
   vector<double> EvolutionAPFELxx::getQgrid() {
     return _TabulatedPDFs->GetQGrid();
   }
