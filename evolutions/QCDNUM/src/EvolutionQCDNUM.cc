@@ -267,8 +267,12 @@ namespace xfitter {
   }
 
   double EvolutionQCDNUM::getAlphaS(double Q){
-    int nfout,ierr;
-    return QCDNUM::asfunc(Q*Q,nfout,ierr);
+    if (_itype == 5 ) { //if external evolution is used
+      return gExternalEvolution->getAlphaS(Q);
+    } else {
+      int nfout,ierr;
+      return QCDNUM::asfunc(Q*Q,nfout,ierr);
+    }
   }
 
 vector<double> EvolutionQCDNUM::getXgrid(){
