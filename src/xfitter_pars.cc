@@ -574,6 +574,7 @@ void parse_params_(){
   ensureMapValidity("Parameterisations");
   ensureMapValidity("Decompositions");
   ensureMapValidity("Evolutions");
+  ensureMapValidity("byReaction");
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
   createParameters();
   ParsToFortran();
