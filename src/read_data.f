@@ -460,6 +460,11 @@ C Parse ColumnType, count systematics, etc
                SystematicType(NUncert) = 'uncor'
                iUncorTypesBitMask(NDATASETS) = 
      $              IOR(iUncorTypesBitMask(NDATASETS), ibLinear)
+            ! Special case: add Lumi
+            elseif (index(ColumnName(i),'Lumi').gt.0) then
+               SystematicType(NUncert) = 'Lumi'
+               iUncorTypesBitMask(NDATASETS) = 
+     $              IOR(iUncorTypesBitMask(NDATASETS), ibLinear)
             elseif (ColumnName(i).eq.'stat') then
                SystematicType(NUncert) = 'stat'
                iStatTypesBitMask(NDATASETS) = 
@@ -509,6 +514,8 @@ C--- Uncorrelated: special case
 C--- Uncorrelated: special case
          else if (SystematicType(i).eq.'uncor') then
 c            Call HF_ERRLOG(14030506,'I: Uncor Error type used')
+C--- Lumi: special case
+         else if (SystematicType(i).eq.'Lumi') then
 C--- Total error: special case
          else if (SystematicType(i).eq.'total') then
             Call HF_ERRLOG(14030507,'I: Total error used in: '//Name)
@@ -835,7 +842,6 @@ C Uncorrelated error:
 c Lumi error:
                LumiError = LumiError +  Syst(i)**2
             endif
-
             if (SystematicType(i).eq.'stat') then
 C Stat error:
                StatError = StatError +  Syst(i)**2
@@ -910,8 +916,7 @@ C Reset:
      $           SystematicType(i).ne.'ignore'.and.
      $           SystematicType(i).ne.'stat'.and.
      $           SystematicType(i).ne.'total'.and.
-     $           SystematicType(i).ne.'stat const'.and.
-     $           SystematicType(i).ne.'Lumi'
+     $           SystematicType(i).ne.'stat const'
      $           ) then
 
 
@@ -985,7 +990,8 @@ C check my update
      $                        BetaAsym(CompressIdx(i),2,npoints))
 
 
-	TotalError = TotalError + BETA(CompressIdx(i),npoints)**2
+     	          TotalError = TotalError + BETA(CompressIdx(i),npoints)**2
+               
 
 C Tota afer sysmetisation
 
