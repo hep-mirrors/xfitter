@@ -20,6 +20,7 @@ C----------------------------------------------------
 
       double precision ECM     
       double precision fac
+      double precision LumiError
 
       double precision UncorNew(NTot),UncorConstNew(NTot),
      $     StatNew(NTot), StatConstNew(NTot),UncorPoissonNew(Ntot)
@@ -336,6 +337,9 @@ C Variables for plotting
 C Functions
       logical FailSelectionCuts
       integer GetBinIndex
+
+C Lumi
+      double precision LumiError
       
 C-------------------------------------------------------      
 
@@ -390,6 +394,7 @@ C Reset scales to 1.0
       open(51,file=CFile,status='old',err=99)
 
       print *,'Reading data file ...'
+
       print *,CFile
       read(51,NML=Data,err=98)
 
@@ -721,13 +726,14 @@ C Check coherence of the table info
 
 C Read the colums
          read (ctmp,*,err=1019)(buffer(i),i=1,NColumn)
+   
 
 C Decode the columns
          iBin   = 0
          iError = 0
          do i=1,NColumn
             if (ColumnType(i).eq.'Flag') then
-               binFlags(j) = nint(buffer(i))
+               binFlags(j) = nint(buffer(i))    
             elseif (ColumnType(i).eq.'Bin') then
                iBin = iBin + 1
                allbins(iBin,j) = buffer(i)
@@ -751,7 +757,7 @@ C Scale the syst. erros:
             read (53,*) (akfact(i),i=1,NKFactor)
          endif
 
-         nDSbins = nDSbins +1
+         nDSbins = nDSbins +1        
 
 C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName,IndexDataset)) then
@@ -786,7 +792,7 @@ C By default it is fitted:
 
          NDATAPOINTS(NDATASETS) = NDATAPOINTS(NDATASETS) + 1
          DATASETIDX(NDATASETS,NDATAPOINTS(NDATASETS)) = npoints
-
+c 1tnourji
 C Translate errors in %:
          TotalError = 0.
          UncorError = 0.
@@ -794,14 +800,12 @@ C Translate errors in %:
          StatError = 0.
          StatErrorConst = 0.
          TotalErrorRead = 0.
-
+         LumiError = 0.
 
          do i=1,NUncert
             if (.not.Percent(i)) then
                syst(i) = syst(i)/XSections(j)*100.
             endif
-
-
 
             if (SystematicType(i).eq.'total') then
                TotalErrorRead = Syst(i)
@@ -826,6 +830,12 @@ C Uncor const:
 C Uncorrelated error:
                UncorError = UncorError +  Syst(i)**2
             endif
+
+            if (SystematicType(i).eq.'Lumi') then
+c Lumi error:
+               LumiError = LumiError +  Syst(i)**2
+            endif
+
             if (SystematicType(i).eq.'stat') then
 C Stat error:
                StatError = StatError +  Syst(i)**2
@@ -835,14 +845,19 @@ C Stat error:
 C Stat error:
                StatErrorConst = StatErrorConst +  Syst(i)**2
             endif
-
          enddo
+
+C            if (SystematicType(i).eq.'stat const') then
+C Stat error:
+C               StatErrorConst = StatErrorConst +  Syst(i)**2
+C            endif
 
          StatError = sqrt(StatError)
          StatErrorConst = sqrt(StatErrorConst)
          UncorConstError = sqrt(UncorConstError)
          UncorError = sqrt(UncorError)
          TotalError = sqrt(TotalError)
+         LumiError  = sqrt(LumiError)
 
          DATEN(npoints) = XSections(j)
 
@@ -855,10 +870,11 @@ C  XXXXXXXXXXXXXXXXXXXXXXXXX START to become obsolete !!!
          
 C  XXXXXXXXXXXXXXXXXXXXXXXXX END to become obsolete !!!
 
-
 C XXXXXXXXXXXXXXXXXXXXXXXXX
          Call SetUncorErrors(npoints, StatError,
      $        StatErrorConst,UncorError,UncorConstError)
+	
+	 TotalError =  StatError**2 + StatErrorConst**2 + UncorError**2 + UncorConstError**2 + LumiError**2
 
          LForceAdditiveData(npoints) = ForceAdditive
          
@@ -874,16 +890,19 @@ C XXXXXXXXXXXXXXXXXXXXXXXXX
 
          do i=1,NBinDimension
             AbstractBins(i,npoints) = allbins(i,j)
+
          enddo
 
 
 C Reset:
+
          do i=1,NUncert
-            if ( CompressIdx(i).gt.0 ) then
+            if (CompressIdx(i).gt.0 ) then
                NAsymPlus(CompressIdx(i))     =  0
                NAsymMinus(CompressIdx(i))    =  0
             endif
          enddo
+
 
          do i=1,NUncert
             if (SystematicType(i).ne.'uncor' .and. 
@@ -891,7 +910,8 @@ C Reset:
      $           SystematicType(i).ne.'ignore'.and.
      $           SystematicType(i).ne.'stat'.and.
      $           SystematicType(i).ne.'total'.and.
-     $           SystematicType(i).ne.'stat const'
+     $           SystematicType(i).ne.'stat const'.and.
+     $           SystematicType(i).ne.'Lumi'
      $           ) then
 
 
@@ -907,6 +927,7 @@ C     Store also asymmetric errors:
                if (isPlus) then
                   NAsymPlus(CompressIdx(i)) = NAsymPlus(CompressIdx(i)) 
      $                 + 1
+
 
 C Too many pluses and minuses !
                   if (NAsymPlus(CompressIdx(i)).gt.1) then
@@ -924,12 +945,14 @@ C Too many pluses and minuses !
                   endif
 C Store:
                   BetaAsym(CompressIdx(i),1,npoints) = syst(i)
-     $                 *SysScaleFactor(CompressIdx(i))                
+     $                 *SysScaleFactor(CompressIdx(i))  
+                         
                endif
 
                if (isMinus) then
                   NAsymMinus(CompressIdx(i)) = NAsymMinus(CompressIdx(i)) 
      $                 + 1
+
 
 C  Too many pluses and minuses !
                   if (NAsymMinus(CompressIdx(i)).gt.1) then
@@ -947,16 +970,24 @@ C  Too many pluses and minuses !
                   endif
 C  Store:
                   BetaAsym(CompressIdx(i),2,npoints) = syst(i)
-     $                 *SysScaleFactor(CompressIdx(i))                
+     $                 *SysScaleFactor(CompressIdx(i))  
+             
                endif
 
 C  Symmetrise:
                if (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
+
+C check my update 
                   
                   BETA(CompressIdx(i),npoints) = 
      $                 0.5*( BetaAsym(CompressIdx(i),1,npoints)-
      $                        BetaAsym(CompressIdx(i),2,npoints))
+
+
+	TotalError = TotalError + BETA(CompressIdx(i),npoints)**2
+
+C Tota afer sysmetisation
 
                   LAsymSyst(CompressIdx(i)) = .true.
                endif
@@ -981,6 +1012,7 @@ C--- Add data point to the syst. list (this will help to speedup loops):
 
 
          JSET(npoints) = NDATASETS ! IndexDataset  
+	 E_TOT(npoints) = sqrt(TotalError)
          GPlotVarCol(NDATASETS) = PlotVarColumn
          GNPlots(NDATASETS) = PlotN
          PreviousPlots = 0
