@@ -3,7 +3,8 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 78
+    !NInputFiles = 78 ! no LHCb data
+    NInputFiles = 85
 
    InputFileNames =
 
@@ -98,6 +99,13 @@
     'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_21_28-thexp.dat',
     'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_28_36-thexp.dat',
     'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_36_44-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_00_03-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_03_08-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_08_12-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_12_21-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_21_28-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_28_36-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_36_44-thexp.dat',
 
   ! ATLAS Dec 2016 W,Z:
     'datafiles/lhc/atlas/wzProduction/1612.03016/wminus-thexp.dat',
