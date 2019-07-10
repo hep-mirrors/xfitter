@@ -565,7 +565,7 @@ then
 #           mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
 #           wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
 #            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
-            wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz
+            wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
        # unpack nicely:
         rm -fr xfitter-${version}
@@ -667,7 +667,7 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
   echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-mela --enable-process    >> compile
 else
-  echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-mela  --enable-apfelgrid --enable-process    >> compile
+  echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela  --enable-apfelgrid --enable-process    >> compile
 fi
 
 echo make -j 9 install                                    >> compile
