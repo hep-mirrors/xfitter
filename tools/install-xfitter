@@ -86,9 +86,10 @@ stripversion=`echo $version |sed "s/\.//g"`
 #check that requested version exists
 if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]
     then
-    # use older QCDNUM (newer is not compatible with master in LHAPDF mode)
-    # in the future need to check for specific xfitter release: > 2.0.0 should be ok
-    qcdnumver=17-01-13
+    # use older QCDNUM for xfitter-2.0.0
+    if [[ $version == "2.0.0" ]]; then
+      qcdnumver=17-01-13
+    fi
     exist=0
     for ver in ``
     do
@@ -557,12 +558,14 @@ then
         then
 #           curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
 #           curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
-            curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
+#            curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
+            curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
 #           wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
 #           mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
 #           wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
-            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
+#            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
+            wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
        # unpack nicely:
         rm -fr xfitter-${version}
@@ -624,40 +627,48 @@ echo cd xfitter-\$version                                        >> compile
 echo autoreconf --install                                 >> compile
 
 # check for YAML
-HAVEYAML=0
-rm -f test-tmp.cc
-echo "#include <yaml.h>" >> test-tmp.cc
-echo "yaml_document_t doc;" >> test-tmp.cc
-g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
-if [ `echo $?` -eq 0 ]; then
-  echo "YAML yes" >> $CURRENTDIR/install.log
-  HAVEYAML=1
-else
-  echo "YAML no" >> $CURRENTDIR/install.log
-fi
-HAVEYAMLCPP=0
-rm -f test-tmp.cc
-echo "#include <yaml-cpp/yaml.h>" >> test-tmp.cc
-echo "YAML::Node node;" >> test-tmp.cc
-g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
-if [ `echo $?` -eq 0 ]; then
-  echo "YAMLCPP yes" >> $CURRENTDIR/install.log
-  HAVEYAMLCPP=1
-else
-  echo "YAMLCPP no" >> $CURRENTDIR/install.log
-fi
-#rm -f test-tmp.cc
-rm -f test-tmp.o
+# xfitter 2.0.0 and 2.0.1 do not need YAML
+if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
+  HAVEYAML=0
+  rm -f test-tmp.cc
+  echo "#include <yaml.h>" >> test-tmp.cc
+  echo "yaml_document_t doc;" >> test-tmp.cc
+  g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
+  if [ `echo $?` -eq 0 ]; then
+    echo "YAML yes" >> $CURRENTDIR/install.log
+    HAVEYAML=1
+  else
+    echo "YAML no" >> $CURRENTDIR/install.log
+  fi
+  HAVEYAMLCPP=0
+  rm -f test-tmp.cc
+  echo "#include <yaml-cpp/yaml.h>" >> test-tmp.cc
+  echo "YAML::Node node;" >> test-tmp.cc
+  g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
+  if [ `echo $?` -eq 0 ]; then
+    echo "YAMLCPP yes" >> $CURRENTDIR/install.log
+    HAVEYAMLCPP=1
+  else
+    echo "YAMLCPP no" >> $CURRENTDIR/install.log
+  fi
+  #rm -f test-tmp.cc
+  rm -f test-tmp.o
 
-if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
-  #echo "Installing YAML"
-  xfitter-${version}/tools/install-yaml
-  echo source $CURRENTDIR/setup_yaml.sh >> compile
-  echo source $CURRENTDIR/setup_yaml.sh >> setup.sh
+  if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
+    #echo "Installing YAML"
+    xfitter-${version}/tools/install-yaml
+    echo source $CURRENTDIR/setup_yaml.sh >> compile
+    echo source $CURRENTDIR/setup_yaml.sh >> setup.sh
+  fi
 fi
 
 # configure
-echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-mela  --enable-apfelgrid --enable-process    >> compile
+if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
+  # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
+  echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-mela --enable-process    >> compile
+else
+  echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela  --enable-apfelgrid --enable-process    >> compile
+fi
 
 echo make -j 9 install                                    >> compile
 
