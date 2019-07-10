@@ -165,12 +165,12 @@ TheorEval::assignTokens(list<tToken> &sl)
           t.opr = 7;
           t.name = "splinederivative";
         }
+        t.ownsVal = false;
         // push spline
         sl.push_back(t);
         int& narg_spline = sl.back().narg;
 
         // process arguments
-        t.val = new valarray<double>(0., nb);
         t.narg = 0;
         t.opr = 0;
         // format: spline[x1,y1,x2,y2,x3,y3,x4,y4,...,x]
