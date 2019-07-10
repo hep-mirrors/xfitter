@@ -558,14 +558,13 @@ then
 #           curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
 #           curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
 #            curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
-            curl https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=view&target=xfitter-$version.tgz
+            curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
 #           wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
 #           mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
 #           wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
 #            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
-            wget https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=view&target=xfitter-$version.tgz
-            mv xfitter-$version.tgz xfitter-$version.tar.gz
+            wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz
         fi
        # unpack nicely:
         rm -fr xfitter-${version}
