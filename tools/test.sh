@@ -25,17 +25,51 @@ containsElement () {
   return 1
 }
 
+# tolerate small differences in terms of maximum fraction of different lines
+# some PDF values in files output/pdfs_q2val_ and LHAPDF output files could differ,
+# but typically there are very few different lines output/pdfs_q2val_* and */*_*.dat (LHAPDF files)
+# differences are allowed only in files 
+function tolerateDiff()
+{
+  if [[ $1 != *"output/pdfs_q2val_"* ]] && [[ $1 != *".dat" ]]; then
+    return 1;
+  fi
+  maxFractionDiff=$3
+  # make sure two files have the same number of lines
+  nl1=`cat $1 | wc -l`
+  nl2=`cat $2 | wc -l`
+  if [ $nl1 -ne $nl2 ]; then 
+    return 1;
+  fi
+  # calculate which fraction of lines is different
+  nldiff=`diff $1 $2 | grep "^>" | wc -l`
+  fractionDiff=`echo $nldiff/$nl1 | bc -l`
+  #echo "tolerateDiff $1 $fractionDiff"
+  status=`echo "$fractionDiff>$maxFractionDiff" | bc -l` # will be 1 if difference is too large and test not passed
+  return $status
+}
+
 # function to check if $1 and $2 are identical
 checkFile()
 {
   printf "diff $1 $2 ... "
   diff $1 $2 > /dev/null
   exitcode=$?
-
+  
+  if [ $exitcode = 1 ]; then
+    # check if we can tolerate small differences in some tests
+    # allow not more than 2% of different lines in some output files of ZMVFNS-fit test
+    # (see tolerateDiff for details which files could be different)
+    if [[ $1 = *"ZMVFNS-fit"* ]]; then
+      tolerateDiff $1 $2 0.02
+      exitcode=$?
+    fi
+  fi
+  
   if [ $exitcode = 0 ]; then
-  echo "PASSED"
+    echo "PASSED"
   else
-  echo "FAILED"
+    echo "FAILED"
   fi 
 }
 
