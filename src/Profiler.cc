@@ -15,11 +15,11 @@ extern "C" {
 namespace xfitter
 {
   std::valarray<double> Profiler::evaluatePredictions() {
-    update_theory_iteration_();
-
     if (_getChi2) {
       double chi2 = chi2data_theory_(2);
       std::cout << std::fixed << std::setprecision(2) << "Chi2 = " << chi2 << std::endl;
+    }else{
+      update_theory_iteration_();
     }
 
     int ndata =  cndatapoints_.npoints;
