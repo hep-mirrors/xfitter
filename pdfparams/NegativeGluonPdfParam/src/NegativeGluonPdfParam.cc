@@ -27,7 +27,7 @@ namespace xfitter{
     }
   }
   double NegativeGluonPdfParam::operator()(double x)const{
-    double Pos = pow(x,(*pars[1]))*pow((1-x),(*pars[2])) * ( 1 + x * (*pars[3]) + x*x * (*pars[4])*(*pars[4]));
+    double Pos = pow(x,(*pars[1]))*pow((1-x),(*pars[2])) * ( 1 + x * (*pars[3]) + x*x *(*pars[4]));
     double Neg = (*pars[5])*pow(x,(*pars[6]))*pow((1-x),(*pars[7])) ;
     return (*pars[0])*(Pos-Neg);
   }
