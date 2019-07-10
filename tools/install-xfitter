@@ -437,7 +437,7 @@ else
     export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
 
 #Importing tables for Small-x resummation studies
-    echo "Installing HELL tables"
+    echo "Installing HELL tables..."
     if [[ $http == "curl" ]]
     then
       curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz > HELLx.v3.0.tgz 2 >> $CURRENTDIR/install.log
