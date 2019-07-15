@@ -295,8 +295,7 @@ C Update theory errors, sum up what is already in and theory sources
       do i=1,NPoints
          do j=1,NSys
             if (ISystType(j).eq.iTheorySyst) then
-               print *,'HERE',LAsymSyst(j)
-               if (LAsymSyst(j)) then
+                if (LAsymSyst(j)) then
                   THEO_TOT_DOWN(i) = sqrt(THEO_TOT_DOWN(i)**2 +
      +                    (THEO(i)*MAX(MAX(BetaAsym(j,1,i),
      +                    BetaAsym(j,2,i)),
