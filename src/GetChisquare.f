@@ -978,14 +978,19 @@ C
       integer IR(2*NSysMax), Ifail,  Npdf
 
       integer nsystheo, itheoisys(NSysMax)
+      integer nsys_sav, n0_in_sav
 
       logical lfirst
       data lfirst /.true./
-      save lfirst
+      data nsys_sav,n0_in_sav/0,0/
+      save lfirst,nsys_sav,n0_in_sav
 C-
       logical HaveCommonData(NsysMax, NsysMax)
 C--------------------------------------------------------
-
+C Check if number of sources/data points change:
+      ResetCommonSyst = (nsys.ne.nsys_sav) .or. (n0_in.ne.n0_in_sav)
+      nsys_sav = nsys
+      n0_in_sav = n0_in 
 C Determine pairs of syst. uncertainties which share  data
 
 
