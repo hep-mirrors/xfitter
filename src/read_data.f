@@ -990,7 +990,10 @@ C check my update
      $                        BetaAsym(CompressIdx(i),2,npoints))
 
 
-     	          TotalError = TotalError + BETA(CompressIdx(i),npoints)**2
+     	          TotalError = TotalError + BETA(CompressIdx(i),npoints)**2$
+
+C Calculat the total error for asymtric case 
+	          E_TOT(npoints) = sqrt(TotalError)
                
 
 C Tota afer sysmetisation
@@ -1018,7 +1021,7 @@ C--- Add data point to the syst. list (this will help to speedup loops):
 
 
          JSET(npoints) = NDATASETS ! IndexDataset  
-	 E_TOT(npoints) = sqrt(TotalError)
+
          GPlotVarCol(NDATASETS) = PlotVarColumn
          GNPlots(NDATASETS) = PlotN
          PreviousPlots = 0
