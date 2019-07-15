@@ -990,9 +990,9 @@ C check my update
      $                        BetaAsym(CompressIdx(i),2,npoints))
 
 
-     	          TotalError = TotalError + BETA(CompressIdx(i),npoints)**2$
+     	          TotalError = TotalError + BETA(CompressIdx(i),npoints)**2
 
-C Calculat the total error for asymtric case 
+C Calculat the total error for asymmetric case 
 	          E_TOT(npoints) = sqrt(TotalError)
                
 
