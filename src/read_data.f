@@ -1573,22 +1573,6 @@ c         do j=1,NUncert
                   if (j.gt.0) then
                   idx = DATASETIDX(idxdataset,i)
                   
-                  if (NAsymPlus(j).eq.1
-     +                 .and. NAsymMinus(j).eq.1 ) then !Asymmetric errors (flip up and down errors because assigned to theory)
-                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) +
-     +                    MAX(MAX(BetaAsym(j,1,idx), 
-     +                    BetaAsym(j,2,idx)),
-     +                    0d0) ** 2
-                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) +
-     +                    MAX(MAX(-BetaAsym(j,1,idx), 
-     +                    -BetaAsym(j,2,idx)),
-     +                    0d0) ** 2
-                  else          !Symmetric errors
-                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) 
-     +                    + Beta(j, idx) ** 2
-                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) 
-     +                    + Beta(j, idx) ** 2
-                  endif
                endif
             enddo
          endif
@@ -1596,9 +1580,9 @@ c         do j=1,NUncert
 
       do i=1,Npoints
          idx = DATASETIDX(idxdataset,i)
-         THEO_TOT_UP(idx) = SQRT(THEO_ERR2_UP(idx))*theo_fix(idx)
+         THEO_TOT_UP(idx) = 0.0 !SQRT(THEO_ERR2_UP(idx))*theo_fix(idx)
      +        /100d0
-         THEO_TOT_DOWN(idx) = SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
+         THEO_TOT_DOWN(idx) = 0.0 ! SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
      +        /100d0
       enddo
 

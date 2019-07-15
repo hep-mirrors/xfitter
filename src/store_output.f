@@ -291,7 +291,29 @@ C--------------------------------------------------
       write(90,*)ndatasets
 
       PreviousPlots = 0
-
+C Update theory errors, sum up what is already in and theory sources
+      do i=1,NPoints
+         do j=1,NSys
+            if (ISystType(j).eq.iTheorySyst) then
+               print *,'HERE',LAsymSyst(j)
+               if (LAsymSyst(j)) then
+                  THEO_TOT_DOWN(i) = sqrt(THEO_TOT_DOWN(i)**2 +
+     +                    (THEO(i)*MAX(MAX(BetaAsym(j,1,i),
+     +                    BetaAsym(j,2,i)),
+     +                    0d0)) ** 2)
+                  THEO_TOT_UP(i) = sqrt(THEO_TOT_UP(i)**2 +
+     +                    (THEO(i)*MAX(MAX(-BetaAsym(j,1,i),
+     +                    -BetaAsym(j,2,i)),
+     +                    0d0)) ** 2)
+               else          !Symmetric errors
+                  THEO_TOT_UP(i) = sqrt(THEO_TOT_UP(i)**2
+     +                    + (THEO(i)*Beta(j, i)) ** 2)
+                  THEO_TOT_DOWN(i) = sqrt(THEO_TOT_DOWN(i)**2
+     +                    + (THEO(i)*Beta(j, i)) ** 2)
+               endif
+            endif
+         enddo
+      enddo
       do i=1,ndatasets
          write(90,*)DATASETNUMBER(i)
          write(90,*) DATASETLABEL(i)

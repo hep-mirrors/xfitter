@@ -47,6 +47,7 @@ namespace xfitter
       systasym_.betaasym[j][1][nsys] =  uncertainties[j];
       systasym_.omega[j][nsys] = 0.0;
     }
+    systasym_.lasymsyst[nsys] = false;
     systscal_.sysscalingtype[nsys] = 1;  //Apply linear scaling
     return;
   }
@@ -67,6 +68,7 @@ namespace xfitter
       systema_.beta[j][nsys] = 0.5*(systasym_.betaasym[j][0][nsys] - systasym_.betaasym[j][1][nsys]);
       systasym_.omega[j][nsys] = 0.5*(systasym_.betaasym[j][0][nsys] + systasym_.betaasym[j][1][nsys]);
     };
+    systasym_.lasymsyst[nsys] = true;
     systscal_.sysscalingtype[nsys] = 1;  //Apply linear scaling
     return;
   }
