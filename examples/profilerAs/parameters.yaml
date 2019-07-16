@@ -2,7 +2,7 @@ Minimizer: MINUIT # CERES
 MINUIT:
   Commands: |
     set str 2
-#    call fcn 3
+    call fcn 3
 #    call fcn 1
 #    migrad
 #    hesse
