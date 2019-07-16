@@ -53,6 +53,9 @@ namespace xfitter
 
     /// compute chi2 for each variation
     bool _getChi2{false};
+
+    /// keep info of the number of input syst. sources
+    int _nSourcesOrig{0};
   };
   
 } //namespace xfitter

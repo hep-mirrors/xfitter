@@ -16,14 +16,16 @@ namespace xfitter
 {
   std::valarray<double> Profiler::evaluatePredictions() {
     if (_getChi2) {
+      int save_nsys = systema_.nsys;
+      systema_.nsys = _nSourcesOrig; // reset to the original sources
       double chi2 = chi2data_theory_(2);
+      systema_.nsys = save_nsys;
       std::cout << std::fixed << std::setprecision(2) << "Chi2 = " << chi2 << std::endl;
     }else{
       update_theory_iteration_();
     }
 
     int ndata =  cndatapoints_.npoints;
-    
     std::valarray<double> out(ndata);
 
     for (int i =0; i<ndata; i++) {
@@ -86,6 +88,7 @@ namespace xfitter
     }
 
     int nsysloc = systema_.nsys;
+    _nSourcesOrig = nsysloc;
 
     for(auto const&term:node){
       string name=term.first.as<string>();
