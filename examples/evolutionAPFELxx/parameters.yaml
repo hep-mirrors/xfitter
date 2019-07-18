@@ -85,8 +85,10 @@ Decompositions:
     xg: par_g
 
 #DefaultEvolution: proton-APFELff
-DefaultEvolution: proton-QCDNUM
+#DefaultEvolution: proton-QCDNUM
 #DefaultEvolution: proton-LHAPDF
+
+DefaultEvolution: proton-APFEL
 
 Evolutions:
   proton-APFELff:
@@ -102,9 +104,9 @@ Evolutions:
     set: "NNPDF30_nlo_as_0118"
     #set: "CT10nlo"
     member: 0
-#  proton-APFEL:
-#    ? !include evolutions/APFELxx/parameters.yaml
-#    decomposition: proton
+  proton-APFEL:
+    ? !include evolutions/APFELxx/parameters.yaml
+    decomposition: proton
   antiproton:
     class: FlipCharge
     #input: proton-QCDNUM

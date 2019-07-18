@@ -1,4 +1,4 @@
-Minimizer: MINUIT # CERES
+Minimizer: CERES
 MINUIT:
   Commands: |
     set str 2
@@ -103,7 +103,7 @@ Evolutions:
     #set: "CT10nlo"
     member: 0
 #  proton-APFEL:
-#    ? !include evolutions/APFELxx/parameters.yaml
+#    ? !include yaml/evolutions/APFELxx/parameters.yaml
 #    decomposition: proton
   antiproton:
     class: FlipCharge
@@ -150,8 +150,8 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-  defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'RT_DISNC'        # global specification
+  defaultValue : 'BaseDISNC'       # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'
 #  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)

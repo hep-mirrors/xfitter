@@ -68,14 +68,9 @@ if ENABLE_LHAPDF
   AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
-# LDADD += ../Cascade/src/libcasutil.a
 # LDADD += ../common/libHFcommon.a
-# F2PYLIBS += ../Cascade/src/libcasutil.a
 # F2PYLIBS += ../common/libHFcommon.a
 
-if ENABLE_UPDF
-   LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 
-endif
 
 if ENABLE_HATHOR
 # this is obsolete: code is in reactions/Hathor now
