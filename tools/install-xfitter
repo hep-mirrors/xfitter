@@ -11,6 +11,7 @@ qcdnumver=17-01-14
 apfelver=3.0.4
 melaver=2.0.1
 apfelgridver=1.0.1
+apfelxxver=4.0.0
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -513,6 +514,23 @@ else
  # setup paths for mela:
     export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
 
+ #apfel
+    echo "Installing APFELxx $apfelxxver..."
+    if [[ $http == "curl" ]]
+    then
+        curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
+    else
+        wget https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    fi
+    mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
+    tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+
+    cd apfelxx-${apfelxxver}
+    cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
+    make >> $CURRENTDIR/install.log  2>&1
+    make install >> $CURRENTDIR/install.log  2>&1
+    
+    export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
@@ -587,6 +605,7 @@ echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
