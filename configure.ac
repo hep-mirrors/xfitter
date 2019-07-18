@@ -484,37 +484,6 @@ AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 #AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
 
-# UPDFs
-
-AC_ARG_ENABLE([updf],
-  [AC_HELP_STRING(--enable-updf, [use uPDF evolution (default=no)])])
-AM_CONDITIONAL(ENABLE_UPDF, [test x$enable_updf == xyes])
-
-if test x$enable_updf == xyes; then
-
-   AC_MSG_CHECKING([for CASCADE libraries])
-   if test "x$CASCADE_ROOT" = "x"; then
-      AC_MSG_ERROR([CASCADE enviroment not set ! CASCADE_ROOT/lib must point to libbases.als.  Check Cascade/README for more details.])
-   else
-      AC_SUBST([CASCADE_SOURCE], ["$CASCADE_ROOT"])
-      AC_SUBST([CASCADELIBS], ["-L$CASCADE_ROOT/lib -lbases"])
-      AC_MSG_RESULT([Using -L$CASCADE_ROOT/lib  -lbases])
-   fi
-
-   AC_MSG_CHECKING([for PYTHIA libraries])
-   if test "x$PYTHIA_ROOT" = "x"; then
-      AC_MSG_ERROR([PYTHIA enviroment not set ! PYTHIA_ROOT/lib must point to ....])
-   else
-      AC_SUBST([PYTHIA_SOURCE], ["$PYTHIA_ROOT"])
-      AC_SUBST([PYTHIALIBS], ["-L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o "])
-      AC_MSG_RESULT([Using -L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o ])
-   fi
-      AC_SUBST([CASCADE_SOURCE], ["$CASCADE_ROOT"])
-      AC_SUBST([CASCADELIBS], ["-L$CASCADE_ROOT/lib -lbases"])
-      AC_SUBST([PYTHIA_SOURCE], ["$PYTHIA_ROOT"])
-      AC_SUBST([PYTHIALIBS], ["-L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o "])
-fi
-
 #AC_F77_LIBRARY_LDFLAGS
 
 # Check if we need to build documentation
@@ -572,7 +541,6 @@ AC_CONFIG_FILES([include/Makefile
                  SACOT/src/Makefile
                  SACOT/Makefile 
                  ABM/src/Makefile
-                 Cascade/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
