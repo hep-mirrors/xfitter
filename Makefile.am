@@ -63,9 +63,6 @@ SUBDIRS=src\
 #
 
 # These seem to be broken because PDF interface has changed
-#  DY/src\
-#  DY/include\
-#  DIPOLE/src\
 #  FastNLO/src\
 #  FastNLO/include\
 #  FastNLO/include/fastnlotk\

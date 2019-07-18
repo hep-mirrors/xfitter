@@ -530,7 +530,6 @@ AC_CONFIG_FILES([include/Makefile
                  EW/src/Makefile
                  DiffDIS/src/Makefile
                  DiffDIS/include/Makefile
-                 DIPOLE/src/Makefile
                  Hathor/src/Makefile
                  Hathor/interface/Makefile
                  HVQMNR/Makefile
@@ -604,9 +603,7 @@ AC_CONFIG_FILES([include/Makefile
 #                 FastNLO/src/Makefile
 #                 FastNLO/include/Makefile
 #                 FastNLO/include/fastnlotk/Makefile
-#                 DY/src/Makefile
-#                 DY/include/Makefile
-#
+
 
 if test x$enable_doc = xyes; then
 AC_CONFIG_FILES([doc/tex/manual/Makefile
