@@ -8,8 +8,6 @@ SUBDIRS=src\
   common/num_utils\
   pdf2yaml\
   DiffDIS/src\
-  ACOT/src\
-  SACOT/src\
   ABM/src\
   genetic/mixmax_r004\
   genetic/src\
@@ -77,7 +75,7 @@ if ENABLE_CERES
   SUBDIRS+=minimizers/CERESMinimizer/src
 endif
 
-DIST_SUBDIRS = $(SUBDIRS) ACOT SACOT datafiles QEDevol/include \
+DIST_SUBDIRS = $(SUBDIRS)  datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples-OLD \
            python/ input_steering/ tools/
 

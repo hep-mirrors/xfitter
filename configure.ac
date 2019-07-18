@@ -536,10 +536,6 @@ AC_CONFIG_FILES([include/Makefile
                  HVQMNR/Makefile
                  HVQMNR/src/Makefile
                  HVQMNR/include/Makefile
-                 ACOT/src/Makefile
-                 ACOT/Makefile
-                 SACOT/src/Makefile
-                 SACOT/Makefile 
                  ABM/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
