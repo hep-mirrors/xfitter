@@ -339,7 +339,7 @@ ReactionTheory* getReaction(const string& name){
     string path_to_lib=PREFIX+string("/lib/")+libname;
     void *theory_handler = dlopen(path_to_lib.c_str(), RTLD_NOW);
     if (theory_handler == NULL)  {
-      std::cerr<<"Failed to open shared library "<<path_to_lib<<" for "<<name<<"; error:\n"
+      std::cerr<<"[ERROR] Failed to open shared library "<<path_to_lib<<" for "<<name<<"; error:\n"
                <<dlerror()<<"\n Check that the correct library is given in Reactions.txt"<<std::endl;
       hf_errlog(16120502,"F: Failed to open reaction shared library, see stderr for details");
     }
