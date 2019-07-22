@@ -44,12 +44,9 @@ void ReactionfastNLO::initTerm(TermData *td)
   // fastNLOTable::ffilename = filename;
   // this->ReadTable();
   // this->SetFilename(filename);
-
   for ( fastNLOReaction* fnlo : ffnlo[ID] ) {
     // --- Set order of calculation
-    string order = td->getParamS("Order");  // Global order
-    //hf_errlog(17090501,"I: Setting fastNLO order: "+order);
-    //hf_errlog(17090501,"I: Setting fastNLO order: "+order);
+    string order = td->getParamS("Order");
     bool success=true;
     // fastNLO default is 'NLO'
     if (order=="NNLO" ) {

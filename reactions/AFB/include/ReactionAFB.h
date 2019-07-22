@@ -18,16 +18,6 @@
 class ReactionAFB : public ReactionTheory
 {
 public:
-  ReactionAFB()
-  {
-    flagInit = false;
-  }
-
-  //    ~ReactionAFB(){};
-  //    ~ReactionAFB(const ReactionAFB &){};
-  //    ReactionAFB & operator =(const ReactionAFB &r){return *(new ReactionAFB(r));};
-
-public:
   virtual string getReactionName() const { return  "AFB" ;};
   virtual void initTerm(TermData *td) override final;
   virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err);
@@ -35,8 +25,7 @@ protected:
   virtual int parseOptions(){ return 0;};
 
 private:
-  bool flagInit;
-
+  bool flagInit = false;
   // Define a structure to pass the parameters
   struct integration_params {
     double Minv;

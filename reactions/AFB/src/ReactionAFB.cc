@@ -50,8 +50,6 @@ double *ReactionAFB::propagators (double Minv)
 
 ////UUBAR EVEN FORWARD Matrix element
 double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -67,8 +65,6 @@ double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
@@ -146,8 +142,6 @@ double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup, void*
 
 ////UUBAR EVEN BACKWARD Matrix element
 double ReactionAFB::uubarEB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -163,8 +157,6 @@ double ReactionAFB::uubarEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
@@ -241,8 +233,6 @@ double ReactionAFB::integration_uubarEB (double Minv_inf, double Minv_sup, void*
 
 ////UUBAR ODD FORWARD Matrix element
 double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -258,8 +248,6 @@ double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
@@ -337,8 +325,6 @@ double ReactionAFB::integration_uubarOF (double Minv_inf, double Minv_sup, void*
 
 ////UUBAR ODD BACKWARD Matrix element
 double ReactionAFB::uubarOB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -354,8 +340,6 @@ double ReactionAFB::uubarOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
@@ -433,8 +417,6 @@ double ReactionAFB::integration_uubarOB (double Minv_inf, double Minv_sup, void*
 
 ////UBARU EVEN FORWARD Matrix element
 double ReactionAFB::ubaruEF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -450,8 +432,6 @@ double ReactionAFB::ubaruEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
@@ -529,8 +509,6 @@ double ReactionAFB::integration_ubaruEF (double Minv_inf, double Minv_sup, void*
 
 ////UBARU EVEN BACKWARD Matrix element
 double ReactionAFB::ubaruEB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -546,8 +524,6 @@ double ReactionAFB::ubaruEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
@@ -625,8 +601,6 @@ double ReactionAFB::integration_ubaruEB (double Minv_inf, double Minv_sup, void*
 
 ////UBARU ODD FORWARD Matrix element
 double ReactionAFB::ubaruOF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -642,8 +616,6 @@ double ReactionAFB::ubaruOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
@@ -721,8 +693,6 @@ double ReactionAFB::integration_ubaruOF (double Minv_inf, double Minv_sup, void*
 
 ////UBARU ODD BACKWARD Matrix element
 double ReactionAFB::ubaruOB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -738,8 +708,6 @@ double ReactionAFB::ubaruOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
@@ -817,8 +785,6 @@ double ReactionAFB::integration_ubaruOB (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR EVEN FORWARD Matrix element
 double ReactionAFB::ddbarEF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -834,8 +800,6 @@ double ReactionAFB::ddbarEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
@@ -915,8 +879,6 @@ double ReactionAFB::integration_ddbarEF (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR EVEN BACKWARD Matrix element
 double ReactionAFB::ddbarEB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -932,8 +894,6 @@ double ReactionAFB::ddbarEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
@@ -1013,8 +973,6 @@ double ReactionAFB::integration_ddbarEB (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR ODD FORWARD Matrix element
 double ReactionAFB::ddbarOF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1030,8 +988,6 @@ double ReactionAFB::ddbarOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
@@ -1111,8 +1067,6 @@ double ReactionAFB::integration_ddbarOF (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR ODD BACKWARD Matrix element
 double ReactionAFB::ddbarOB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1128,8 +1082,6 @@ double ReactionAFB::ddbarOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
@@ -1209,8 +1161,6 @@ double ReactionAFB::integration_ddbarOB (double Minv_inf, double Minv_sup, void*
 
 ////DBARD EVEN FORWARD Matrix element
 double ReactionAFB::dbardEF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1226,8 +1176,6 @@ double ReactionAFB::dbardEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
@@ -1307,8 +1255,6 @@ double ReactionAFB::integration_dbardEF (double Minv_inf, double Minv_sup, void*
 
 ////DBARD EVEN BACKWARD Matrix element
 double ReactionAFB::dbardEB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1324,8 +1270,6 @@ double ReactionAFB::dbardEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
@@ -1405,8 +1349,6 @@ double ReactionAFB::integration_dbardEB (double Minv_inf, double Minv_sup, void*
 
 ////DBARD ODD FORWARD Matrix element
 double ReactionAFB::dbardOF_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1422,8 +1364,6 @@ double ReactionAFB::dbardOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
@@ -1503,8 +1443,6 @@ double ReactionAFB::integration_dbardOF (double Minv_inf, double Minv_sup, void*
 
 ////DBARD ODD BACKWARD Matrix element
 double ReactionAFB::dbardOB_funct (double yreduced, void * params) {
-
-
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1520,8 +1458,6 @@ double ReactionAFB::dbardOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  //(ptr->xfx(x1,Q,&pdfx1[0]));
-  //(ptr->xfx(x2,Q,&pdfx2[0]));
   pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
   pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
@@ -1668,7 +1604,6 @@ void ReactionAFB::initTerm(TermData *td)
     if ( ! td->hasParam("y_max") ) {
       hf_errlog(19050505, "F: di-lepton rapidity upper cut (y_max) is not defined.");
     }
-
 
   // Constant
   PI = 3.14159265;

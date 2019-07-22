@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ReactionTheory.h"
@@ -12,6 +11,8 @@
 
   @version 0.1
   @date 2019-06-04
+// Authors: Laia Parets Peris <laia.parets.peris@desy.de>, Katerina Lipka <katerina.lipka@desy.de>
+// transition from pole to MSbar scheme by S. Moch (private communication)
   */
 
 class HathorSgTopT;
@@ -22,7 +23,6 @@ public:
   ReactionHathorSingleTop();
   ~ReactionHathorSingleTop();
 
-public:
   virtual string getReactionName() const { return  "HathorSingleTop" ;};
   virtual void initTerm(TermData *td) override final;
   virtual void atStart();

@@ -46,12 +46,11 @@ extern "C" {
   int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
                       double *allBins, char binNames[10][80]);
 //  int set_theor_units_(int *dsId, double *units);
-  int init_theor_eval_(int *dsId);
-  int update_theor_ckm_();
-  int get_theor_eval_(int *dsId, int* np, int* idx);
+  void init_theor_eval_(int *dsId);
+  void update_theor_ckm_();
+  void get_theor_eval_(int *dsId, int* np, int* idx);
   int read_reactions_();
-  int close_theor_eval_();
-  //void init_func_map_(); Broken since 2.2.0
+  void close_theor_eval_();
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
   void error_band_action_(const int& i); ///< Loop over rections, call error_band_action
@@ -181,7 +180,7 @@ int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
 /*!
  Initializes theory for requested dataset.
  */
-int init_theor_eval_(int *dsId)
+void init_theor_eval_(int *dsId)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) {
@@ -197,7 +196,7 @@ int init_theor_eval_(int *dsId)
 /*!
  Evaluates theory for requested dataset and writes it to the global THEO array.
  */
-int get_theor_eval_(int *dsId, int *np, int*idx)
+void get_theor_eval_(int *dsId, int *np, int*idx)
 {
 
   tTEmap::iterator it = gTEmap.find(*dsId);
@@ -226,11 +225,11 @@ int get_theor_eval_(int *dsId, int *np, int*idx)
 
   if( ip != *np ){
     cout << "ERROR in get_theor_eval_: number of points mismatch" << endl;
-    return -1;
+    return;
   }
 }
 
-int close_theor_eval_()
+void close_theor_eval_()
 {
   tTEmap::iterator it = gTEmap.begin();
   for (; it!= gTEmap.end(); it++){

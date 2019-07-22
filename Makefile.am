@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS=src\
+  include\
   minuit/src\
   EW/src\
   common\
@@ -9,10 +10,10 @@ SUBDIRS=src\
   pdf2yaml\
   DiffDIS/src\
   ABM/src\
+  RT/src\
   genetic/mixmax_r004\
   genetic/src\
   QEDevol/src\
-  include\
   DiffDIS/include\
   tools/draw/include\
   tools/process reactions/HathorSingleTop/src\
@@ -45,7 +46,6 @@ SUBDIRS=src\
   reactions/Fractal_DISNC/src\
   reactions/KMatrix/src\
   reactions/KFactor/src\
-  RT/src\
   reactions/RT_DISNC/src\
   reactions/FONLL_DISNC/src\
   reactions/FONLL_DISCC/src\

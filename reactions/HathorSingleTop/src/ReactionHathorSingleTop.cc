@@ -118,12 +118,10 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
       sprintf(str, "F: provided antitopquark = %d not recognised (must be 0 or 1)", antitopquark);
       hf_errlog_(17081103, str, strlen(str));
     }
-
   }
 
   // instantiate Hathor
   HathorSgTopT* hathor = new HathorSgTopT(*_pdf);
-
   hathor->sethc2(0.38937911e9);
 
   // set collision type
@@ -137,7 +135,6 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
   // set centre-of-mass energy
   hathor->setSqrtShad(sqrtS);
   std::cout << "ReactionHathorSingleTop: center of mass energy set to " << sqrtS << std::endl;
-
   // choose TOPQUARK/ANTITOPQUARK
   std::cout << "ReactionHathorSingleTop: TOPQUARK/ANTITOPQUARK set to " << antitopquark << std::endl;
   if(antitopquark)
@@ -205,8 +202,6 @@ void ReactionHathorSingleTop::atStart()
   _rndStore = new int[nRnd];
   rlxd_get(_rndStore);
 }
-
-// Main function to compute results at an iteration
 void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
 {
   td->actualizeWrappers();
@@ -229,7 +224,6 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
     double crst;
     double valtclo, valtclop, valtclom, valtcnlo, valtcnlop, valtcnlom;
     double err1, chi1;
-
     aspi = hathor->getAlphas(_mr[dataSetID])/(pi);
     dmtms = _mtop[dataSetID]/100.;
 

@@ -14,7 +14,6 @@ FFABM_DISCC libffabm_discc_xfitter.so
 KFactor libkfactor_xfitter.so
 FONLL_DISNC libfonll_disnc_xfitter.so
 FONLL_DISCC libfonll_discc_xfitter.so
-BaseEvolution libbaseevolution_xfitter.so
 APFEL libAPFEL_Evol_xfitter.so
 FlipUD libFlipUD_Evol_xfitter.so
 FlipCharge libFlipChargeEvol_xfitter.so

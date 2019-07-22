@@ -536,6 +536,7 @@ AC_CONFIG_FILES([include/Makefile
                  HVQMNR/src/Makefile
                  HVQMNR/include/Makefile
                  ABM/src/Makefile
+                 RT/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
@@ -554,12 +555,17 @@ AC_CONFIG_FILES([include/Makefile
                  examples-OLD/Makefile
                  python/Makefile
                  xfitter-config
-		 reactions/HathorSingleTop/src/Makefile
-                 pdfparams/NegativeGluonPdfParam/src/Makefile
+                 evolutions/BaseEvolution/src/Makefile
+                 evolutions/APFEL/src/Makefile
+                 evolutions/FlipUD/src/Makefile
+                 evolutions/FlipCharge/src/Makefile
+                 evolutions/APFELxx/src/Makefile
                  evolutions/LHAPDF/src/Makefile
+                 evolutions/QCDNUM/src/Makefile
+                 minimizers/BaseMinimizer/src/Makefile
                  minimizers/CERESMinimizer/src/Makefile
                  minimizers/MINUITMinimizer/src/Makefile
-                 evolutions/QCDNUM/src/Makefile
+                 pdfparams/NegativeGluonPdfParam/src/Makefile
                  pdfparams/BasePdfParam/src/Makefile
                  pdfparams/Factor/src/Makefile
                  pdfparams/Expression/src/Makefile
@@ -574,30 +580,22 @@ AC_CONFIG_FILES([include/Makefile
                  pdfdecompositions/BasePdfDecomposition/src/Makefile
                  pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src/Makefile
                  reactions/AFB/src/Makefile
-                 reactions/KMatrix/src/Makefile
-                 reactions/KFactor/src/Makefile
-                 reactions/BaseDISCC/src/Makefile
-                 reactions/FFABM_DISCC/src/Makefile
-                 reactions/BaseDISNC/src/Makefile
-                 reactions/FFABM_DISNC/src/Makefile
-                 reactions/Hathor/src/Makefile
-                 reactions/Fractal_DISNC/src/Makefile
-                 reactions/RT_DISNC/src/Makefile
-                 RT/src/Makefile
                  reactions/APPLgrid/src/Makefile
+                 reactions/BaseDISCC/src/Makefile
+                 reactions/BaseDISNC/src/Makefile
                  reactions/BaseHVQMNR/src/Makefile
-                 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
-                 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
                  reactions/cbdiff/src/Makefile
                  reactions/fastNLO/src/Makefile
+                 reactions/FFABM_DISCC/src/Makefile
                  reactions/FONLL_DISCC/src/Makefile
-                 reactions/FONLL_DISNC/src/Makefile
-                 evolutions/BaseEvolution/src/Makefile
-                 evolutions/APFEL/src/Makefile
-                 evolutions/FlipUD/src/Makefile
-                 evolutions/FlipCharge/src/Makefile
-                 evolutions/APFELxx/src/Makefile
-                 minimizers/BaseMinimizer/src/Makefile
+                 reactions/Fractal_DISNC/src/Makefile
+                 reactions/HathorSingleTop/src/Makefile
+                 reactions/Hathor/src/Makefile
+                 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
+                 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+                 reactions/KFactor/src/Makefile
+                 reactions/KMatrix/src/Makefile
+                 reactions/RT_DISNC/src/Makefile
                  Makefile])
 #
 #                 FastNLO/src/Makefile

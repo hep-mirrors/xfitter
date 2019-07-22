@@ -64,7 +64,7 @@ TheorEval::~TheorEval()
   term_datas.clear();
 }
 
-int
+void
 TheorEval::initTheory()
 {
   list<tToken> sl;
@@ -72,28 +72,29 @@ TheorEval::initTheory()
   this->convertToRPN(sl);
 }
 
-void TheorEval::initReactionToken(tToken&t,const string&name){
+void
+TheorEval::initReactionToken(tToken& t,const string& name){
   const vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), name);
   if ( found_term == _termNames.end() ) {
     cerr<<"[ERROR] Undeclared reaction term \""<<name<<"\" in expression \""<<_expr<<'\"'<<endl;
     hf_errlog(19051430,"F: Undeclared reaction term, see stderr");
   }
-  int iterm=int(found_term-_termNames.begin());
-  t.opr =0;
-  t.name=name;
+  int iterm = int(found_term-_termNames.begin());
+  t.opr  = 0;
+  t.name = name;
   const auto it=_mapInitdTerms.find(name);
   if(it!=_mapInitdTerms.end()){
-    t.val=it->second;
-    t.ownsVal=false;
+    t.val = it->second;
+    t.ownsVal = false;
   }else{
-    t.val=new valarray<double>(0.,getNbins());
-    t.ownsVal=true;
+    t.val = new valarray<double>(0.,getNbins());
+    t.ownsVal = true;
     initTerm(iterm,t.val);
-    _mapInitdTerms[name]=t.val;
+    _mapInitdTerms[name] = t.val;
   }
 }
 
-int
+void
 TheorEval::assignTokens(list<tToken> &sl)
 {
   stringstream strexpr(_expr);
@@ -121,8 +122,9 @@ TheorEval::assignTokens(list<tToken> &sl)
           if ( isdigit(c) || c == '-' ){
             term.append(1,c);
           } else {
-            cout << "Theory expression syntax error: " << _expr << endl;
-            return -1;
+            cerr << "Theory expression syntax error: " << _expr << endl;
+            hf_errlog(19072200, "F: Syntax error in theory expression, see stderr");
+            return;
           }
         } else {
           strexpr.putback(c);
@@ -269,7 +271,7 @@ TheorEval::assignTokens(list<tToken> &sl)
   }
 }
 
-int
+void
 TheorEval::convertToRPN(list<tToken> &sl)
 {
   stack<tToken> tknstk;
@@ -316,19 +318,19 @@ TheorEval::convertToRPN(list<tToken> &sl)
   }
   cout << endl;
   */
-
 }
 
 void TheorEval::initTerm(int iterm, valarray<double> *val)
 {
-  string term_type=_termTypes.at(iterm);
-  if(term_type!=string("reaction")) {
+  string term_type = _termTypes.at(iterm);
+  if(term_type != string("reaction")) {
     std::cerr<<"[ERROR] Unknown term_type=\""<<term_type<<"\" in expression for term \""<<_termNames[iterm]<<'\"'<<std::endl;
     hf_errlog(15102301,"S: Unknown term type, see stderr");
   }
   this->initReactionTerm(iterm, val);
 }
-ReactionTheory*getReaction(const string&name){
+
+ReactionTheory* getReaction(const string& name){
   string libname = gReactionLibs[name];
   if (libname == "") {
     hf_errlog(16120501,"F: Reaction " +name+ " not present in Reactions.txt file");
@@ -361,6 +363,7 @@ ReactionTheory*getReaction(const string&name){
     return gNameReaction.at(name);
   }
 }
+
 const string GetParamDS(const string&parName,const std::string&dsName,int dsIndex){
   using XFITTER_PARS::rootNode;
   //Get option referred to by "use:" from YAML
@@ -423,7 +426,6 @@ void TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins
   }
   columnNameMap=_columnNameMap;
 }
-
 
 void TheorEval::Evaluate(valarray<double> &vte )
 {
@@ -582,7 +584,6 @@ void TheorEval::Evaluate(valarray<double> &vte )
       }
   }
 }
-
 
 void TheorEval::updateReactionValues(){
   map<string,valarray<double> > errors;//The errors returned by reaction are ignored

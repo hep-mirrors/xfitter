@@ -19,7 +19,6 @@ void HathorPdfxFitter::GetPdf(double x, double muf, double h[13])
     return;
 
   std::valarray<double> pdf(0.0, 13);
-  //_reactionTheory->xfx(x, muf, &pdf[0]);
   pdf_xfxq_wrapper_(x, muf, &pdf[0]);
   for(auto& val : pdf)
     val /= x;
@@ -50,7 +49,6 @@ double HathorPdfxFitter::GetAlphas(double mu)
   if(!IsValid)
     return 0.0;
 
-  //return _reactionTheory->alphaS(mu);
   return alphas_wrapper_(mu);
 }
 

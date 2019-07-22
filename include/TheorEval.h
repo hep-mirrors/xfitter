@@ -110,13 +110,12 @@ class TheorEval{
    After the datasets with expressions are read, this method initialises
    terms such as applgrids and k-factor tabels from their sources.
    */
-  int initTheory();
+  void initTheory();
   //The following methods provide access to bins of this dataset
   size_t getNbins()const{return _dsBins[0].size();}//return number of bins (datapoints)
-  bool                   hasBinColumn(const string&columnName)const{return columnNameMap.count(columnName)==1;}
-  const valarray<double>*getBinColumn(const string&columnName)const;//return nullptr if not found
-  const vector<int>*     getBinFlags()const{return&_binFlags;}
-
+  bool hasBinColumn(const string&columnName)const{return columnNameMap.count(columnName)==1;}
+  const valarray<double>* getBinColumn(const string& columnName)const;//return nullptr if not found
+  const vector<int>* getBinFlags()const{return&_binFlags;}
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
   /*TODO: delete this?
   void ChangeTheorySource(string term, string source);
@@ -128,9 +127,9 @@ class TheorEval{
   //! Tokenize symbolic expression to a list of string tokens
   int tokenize(string &, list<string> &);
   //! The tokens are assigned to corresponding values
-  int assignTokens(list<tToken> &);
+  void assignTokens(list<tToken> &);
   //! The expression of tokens is converted to RPN
-  int convertToRPN(list<tToken> &);
+  void convertToRPN(list<tToken> &);
   //! Initialise terms
   /*!
    Depending on the term type, the corresponding initialization method is called
@@ -145,7 +144,7 @@ class TheorEval{
   */
   void initReactionToken(tToken& token,const string& name);
   //! Initialise reaction term
-  void initReactionTerm(int iterm,valarray<double>*val);
+  void initReactionTerm(int iterm, valarray<double>* val);
   //! Update the reaction values into the tokens
   void updateReactionValues();
 
