@@ -530,11 +530,6 @@ AC_CONFIG_FILES([include/Makefile
                  EW/src/Makefile
                  DiffDIS/src/Makefile
                  DiffDIS/include/Makefile
-                 Hathor/src/Makefile
-                 Hathor/interface/Makefile
-                 HVQMNR/Makefile
-                 HVQMNR/src/Makefile
-                 HVQMNR/include/Makefile
                  ABM/src/Makefile
                  RT/src/Makefile
                  genetic/mixmax_r004/Makefile
