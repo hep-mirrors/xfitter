@@ -87,20 +87,16 @@ CommandParser::CommandParser(int argc, char **argv):
   col[4] = kAzure + 1;
   col[5] = kMagenta + 1;*/
 
-  //static int cols[NCOLSXYZ] = {kBlack, kBlue, kRed, kMagenta, kGreen + 2, kYellow + 1, kAzure + 4, kSpring + 4, kOrange + 2, kRed - 7, kBlue - 9, kRed + 3, kViolet - 7};
   col[0] = kRed + 2;
   col[1] = kBlue + 2;
-  //col[0] = kBlack;
-  //col[1] = kBlue;
-  //col[2] = kRed;
-  col[2] = kMagenta;
-  col[3] = kGreen + 2;
-  col[4] = kYellow + 1;
-  col[5] = kAzure + 4;
-  col[6] = kOrange + 2;
-  col[7] = kRed - 7;
+  col[2] = kGreen + 3;
+  col[3] = kOrange + 7;
+  col[4] = kAzure + 1;
+  col[5] = kMagenta + 1;
+  col[6] = kBlack;
+  col[7] = kRed - 10;
   col[8] = kBlue - 9;
-  col[9] = kRed + 3;
+  col[9] = kAzure + 4;
   col[10] = kViolet - 7;
   col[11] = kBlue - 2;
 
@@ -110,6 +106,8 @@ CommandParser::CommandParser(int argc, char **argv):
   styl[3] = 3350;
   styl[4] = 3016;
   styl[5] = 3020;
+  for(int i = 6; i < 12; i++)
+    styl[i] = 3020;
 
   mark[0] = 24;
   mark[1] = 25;
@@ -117,8 +115,8 @@ CommandParser::CommandParser(int argc, char **argv):
   mark[3] = 32;
   mark[4] = 31;
   mark[5] = 27;
-  //for(int i = 6; i < 12; i++)
-  //  mark[i] = 27;
+  for(int i = 6; i < 12; i++)
+    mark[i] = 27;
 
   lstyl[0] = 1;
   lstyl[1] = 2;
@@ -126,8 +124,8 @@ CommandParser::CommandParser(int argc, char **argv):
   lstyl[3] = 4;
   lstyl[4] = 5;
   lstyl[5] = 6;
-  //for(int i = 6; i < 12; i++)
-  //  lstyl[i] = 6;
+  for(int i = 6; i < 12; i++)
+    lstyl[i] = 6;
 
   // tight MC replica selection by default:
   looseRepSelection = false;
