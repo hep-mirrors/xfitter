@@ -582,7 +582,9 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/cbdiff/src/Makefile
                  reactions/fastNLO/src/Makefile
                  reactions/FFABM_DISCC/src/Makefile
+                 reactions/FFABM_DISNC/src/Makefile
                  reactions/FONLL_DISCC/src/Makefile
+                 reactions/FONLL_DISNC/src/Makefile
                  reactions/Fractal_DISNC/src/Makefile
                  reactions/HathorSingleTop/src/Makefile
                  reactions/Hathor/src/Makefile
@@ -590,6 +592,7 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
                  reactions/KFactor/src/Makefile
                  reactions/KMatrix/src/Makefile
+                 reactions/KRunning/src/Makefile
                  reactions/RT_DISNC/src/Makefile
                  Makefile])
 #
