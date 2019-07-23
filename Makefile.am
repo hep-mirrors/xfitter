@@ -81,16 +81,6 @@ if ENABLE_LHAPDF
             pdfdecompositions/LHAPDFDecomposition/src
 endif
 
-# this is obsolete: code is in reactions/Hathor now
-#if ENABLE_HATHOR
-#  SUBDIRS+= Hathor/src
-#endif
-
-# this is obsolete: code is in reactions/BaseHVQMNR now
-#if ENABLE_HVQMNR
-#  SUBDIRS+= HVQMNR/src
-#sendif
-
 if BUILD_DOCS
   DOCS=doc/tex/manual doc/tex/paper
 endif
