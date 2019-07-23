@@ -25,13 +25,8 @@ namespace xfitter
       update_theory_iteration_();
     }
 
-    int ndata =  cndatapoints_.npoints;
-    std::valarray<double> out(ndata);
-
-    for (int i =0; i<ndata; i++) {
-      out[i] = c_theo_.theo[i];
-    }
-    return out;
+    //Return theory predictions
+    return valarray<double>(c_theo_.theo, cndatapoints_.npoints);
   }
 
   void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertainties ) {
@@ -107,7 +102,7 @@ namespace xfitter
           profileParameter(name,param.second);
         }
       }
-    };
+    }
 
     // Store theo file:
     if (node["WriteTheo"]) {
@@ -138,8 +133,7 @@ namespace xfitter
 
     double save = *ppar;
     for ( size_t i=0; i<len; i++) {
-      double val = node[i].as<double>();
-      *ppar = val;
+      *ppar = node[i].as<double>();
       updateAtConfigurationChange();
       preds.push_back( evaluatePredictions() );
     }
