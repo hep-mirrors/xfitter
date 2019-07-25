@@ -43,79 +43,79 @@ Subplot::Subplot(string plotoptions) :  xmin(0), xmax(0), yminr(0), ymaxr(0), ym
   //Rewrite in standard C parsing, avoid Root string parsing
   TString popt(plotoptions.c_str());
   TObjArray* array = popt.Tokenize("@");
-  
+
   // first loop to detect x axis
-  for (int i=0; i<array->GetEntries(); i++) 
+  for (int i=0; i<array->GetEntries(); i++)
     {
       TString str( ((TObjString*)array->At(i))->GetString().Data());
-      if(str.BeginsWith("Xmin:")) 
-	{
-	  str.ReplaceAll("Xmin:","");
-	  xmin = str.Atof();
-	}
-      else if(str.BeginsWith("Xmax:")) 
-	{
-	  str.ReplaceAll("Xmax:","");
-	  xmax = str.Atof();
-	}
+      if(str.BeginsWith("Xmin:"))
+        {
+          str.ReplaceAll("Xmin:","");
+          xmin = str.Atof();
+        }
+      else if(str.BeginsWith("Xmax:"))
+        {
+          str.ReplaceAll("Xmax:","");
+          xmax = str.Atof();
+        }
     }
-  for(int i=0; i<array->GetEntries(); i++) 
+  for(int i=0; i<array->GetEntries(); i++)
     {
       TString str( ((TObjString*)array->At(i))->GetString().Data());
-      if(str.BeginsWith("ExtraLabel:")) 
-	{
-	  str.ReplaceAll("ExtraLabel:","");
-	  extralabel = str.Data();
-	}
-      if(str.BeginsWith("Experiment:")) 
-	{
-	  str.ReplaceAll("Experiment:","");
-	  experiment = str.Data();
-	}
-      if(str.BeginsWith("Lumi:")) 
-	{
-	  str.ReplaceAll("Lumi:","");
-	  lumilabel = str.Data();
-	}
-      if(str.BeginsWith("Title:")) 
-	{
-	  str.ReplaceAll("Title:","");
-	  title = str.Data();
-	}
-      else if(str.BeginsWith("XTitle:")) 
-	{
-	  str.ReplaceAll("XTitle:","");
-	  xlabel = str.Data();
-	}
-      else if(str.BeginsWith("YTitle:")) 
-	{
-	  str.ReplaceAll("YTitle:","");
-	  ylabel = str.Data();
-	}
-      else if(str.BeginsWith("YminR:")) 
-	{
-	  str.ReplaceAll("YminR:","");
-	  yminr = str.Atof();
-	}
-      else if(str.BeginsWith("YmaxR:")) 
-	{
-	  str.ReplaceAll("YmaxR:","");
-	  ymaxr = str.Atof();
-	}
-      else if(str.BeginsWith("Ymin:")) 
-	{
-	  str.ReplaceAll("Ymin:","");
-	  ymin = str.Atof();
-	}
-      else if(str.BeginsWith("Ymax:")) 
-	{
-	  str.ReplaceAll("Ymax:","");
-	  ymax = str.Atof();
-	}
+      if(str.BeginsWith("ExtraLabel:"))
+        {
+          str.ReplaceAll("ExtraLabel:","");
+          extralabel = str.Data();
+        }
+      if(str.BeginsWith("Experiment:"))
+        {
+          str.ReplaceAll("Experiment:","");
+          experiment = str.Data();
+        }
+      if(str.BeginsWith("Lumi:"))
+        {
+          str.ReplaceAll("Lumi:","");
+          lumilabel = str.Data();
+        }
+      if(str.BeginsWith("Title:"))
+        {
+          str.ReplaceAll("Title:","");
+          title = str.Data();
+        }
+      else if(str.BeginsWith("XTitle:"))
+        {
+          str.ReplaceAll("XTitle:","");
+          xlabel = str.Data();
+        }
+      else if(str.BeginsWith("YTitle:"))
+        {
+          str.ReplaceAll("YTitle:","");
+          ylabel = str.Data();
+        }
+      else if(str.BeginsWith("YminR:"))
+        {
+          str.ReplaceAll("YminR:","");
+          yminr = str.Atof();
+        }
+      else if(str.BeginsWith("YmaxR:"))
+        {
+          str.ReplaceAll("YmaxR:","");
+          ymaxr = str.Atof();
+        }
+      else if(str.BeginsWith("Ymin:"))
+        {
+          str.ReplaceAll("Ymin:","");
+          ymin = str.Atof();
+        }
+      else if(str.BeginsWith("Ymax:"))
+        {
+          str.ReplaceAll("Ymax:","");
+          ymax = str.Atof();
+        }
       else if(str.BeginsWith("Xlog"))
-	logx = true;
+        logx = true;
       else if(str.BeginsWith("Ylog"))
-	logy = true;
+        logy = true;
     }
   delete array;
 }
@@ -143,11 +143,11 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   if (skip)
     {
       if (!maketgraph)
-	{
-	  cout << "bin inconsistency for " << label << ", dataset: " << dataindex << ", subplot: " << subplotindex << ". skipping..." << endl;
-	  cout << "Cannot plot data, skipping" << endl;
-	  return;
-	}
+        {
+          cout << "bin inconsistency for " << label << ", dataset: " << dataindex << ", subplot: " << subplotindex << ". skipping..." << endl;
+          cout << "Cannot plot data, skipping" << endl;
+          return;
+        }
     }
 
 
@@ -160,42 +160,42 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
       //make arbitrary bin edges
       vector <double> temp;
       for (vector <float>::iterator it = valx.begin(); it != valx.end(); it++)
-	temp.push_back(*it);
-      
+        temp.push_back(*it);
+
       sort(temp.begin(), temp.end());
 
       //adjust x axis
       double xaxmin = *(temp.begin());
       double xaxmax = *(temp.end()-1);
       if (valx.size() > 1 && (*(temp.end()-1) - *(temp.begin()) > 0))
-	{
-	  if (logx)
-	    {
-	      double axislength = *(temp.end()-1) / *(temp.begin());
-	      xaxmin = xaxmin / pow(axislength,1./20);
-	      xaxmax = xaxmax * pow(axislength,1./20);
-	    }
-	  else
-	    {
-	      double axislength = *(temp.end()-1) - *(temp.begin());
-	      xaxmin = xaxmin - axislength/20.;
-	      xaxmax = xaxmax + axislength/20.;
-	    }
-	}
+        {
+          if (logx)
+            {
+              double axislength = *(temp.end()-1) / *(temp.begin());
+              xaxmin = xaxmin / pow(axislength,1./20);
+              xaxmax = xaxmax * pow(axislength,1./20);
+            }
+          else
+            {
+              double axislength = *(temp.end()-1) - *(temp.begin());
+              xaxmin = xaxmin - axislength/20.;
+              xaxmax = xaxmax + axislength/20.;
+            }
+        }
       else
-	{
-	  xaxmin *= 0.9999;
-	  xaxmax *= 1.0001;
-	}
+        {
+          xaxmin *= 0.9999;
+          xaxmax *= 1.0001;
+        }
       bins.push_back(xaxmin);
       if (valx.size() > 1)
-	for (vector<double>::iterator it = temp.begin()+1; it != temp.end(); it++)
-	  bins.push_back((*it + *(it-1))/2);
+        for (vector<double>::iterator it = temp.begin()+1; it != temp.end(); it++)
+          bins.push_back((*it + *(it-1))/2);
       bins.push_back(xaxmax);
 
 
       for (vector<double>::iterator it = bins.begin(); it != bins.end(); it++)
-	bin[it-bins.begin()] = *it;
+        bin[it-bins.begin()] = *it;
     }
   else
     {
@@ -203,52 +203,52 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
       int pos = 0;
       float bmin, bmax;
       while (pos != -1)
-	{
-	  pos = -1;
-	  vector<float>::iterator it1 = bins1.begin();
-	  vector<float>::iterator it2 = bins2.begin();
-	  for (; (it1+1) != bins1.end(); it1++, it2++)
-	    if (*(it1+1) != *it2 && *it2 < *(it1+1))
-	      {
-		pos = (it1 - bins1.begin()) + 1;
-		bmin = *it2;
-		bmax = *(it1+1);
-	      }
-	  if (pos != -1)
-	    {
-	      bins1.insert(bins1.begin()+pos, bmin);
-	      bins2.insert(bins2.begin()+pos, bmax);
-	      data.insert(data.begin()+pos, 0);
-	      uncorerr.insert(uncorerr.begin()+pos, 0); 
-	      toterr.insert(toterr.begin()+pos, 0); 
-	      theory.insert(theory.begin()+pos, 0); 
-	      theoryshifted.insert(theoryshifted.begin() +pos, 0); 
-	      therrup.insert(therrup.begin()+pos, 0); 
-	      therrdown.insert(therrdown.begin()+pos, 0); 
-	      pulls.insert(pulls.begin()+pos, 0);
-	    }
-	}
+        {
+          pos = -1;
+          vector<float>::iterator it1 = bins1.begin();
+          vector<float>::iterator it2 = bins2.begin();
+          for (; (it1+1) != bins1.end(); it1++, it2++)
+            if (*(it1+1) != *it2 && *it2 < *(it1+1))
+              {
+                pos = (it1 - bins1.begin()) + 1;
+                bmin = *it2;
+                bmax = *(it1+1);
+              }
+          if (pos != -1)
+            {
+              bins1.insert(bins1.begin()+pos, bmin);
+              bins2.insert(bins2.begin()+pos, bmax);
+              data.insert(data.begin()+pos, 0);
+              uncorerr.insert(uncorerr.begin()+pos, 0);
+              toterr.insert(toterr.begin()+pos, 0);
+              theory.insert(theory.begin()+pos, 0);
+              theoryshifted.insert(theoryshifted.begin() +pos, 0);
+              therrup.insert(therrup.begin()+pos, 0);
+              therrdown.insert(therrdown.begin()+pos, 0);
+              pulls.insert(pulls.begin()+pos, 0);
+            }
+        }
 
       //make bins array
       int i = 0;
       for (vector<float>::iterator it = bins1.begin(); it != bins1.end(); it++)
-	{
-	  bin[i] = *it;
-	  i++;
-	}
+        {
+          bin[i] = *it;
+          i++;
+        }
       bin[i] = *(bins2.end()-1);
     }
   char hnm[300];
   sprintf (hnm, "data_%s_%d-%d", label.c_str(), dataindex, subplotindex);
   string hname = hnm;
-  hdata = new TH1F((hname +"_data").c_str(), "", bins1.size(),  bin);
-  hdatatot = new TH1F((hname + "_datatot").c_str(), "", bins1.size(),  bin);
-  hth = new TH1F((hname + "_th").c_str(), "", bins1.size(),  bin);
-  hthshift = new TH1F((hname + "_thshift").c_str(), "", bins1.size(),  bin);
-  htherr = new TH1F((hname + "_therr").c_str(), "", bins1.size(),  bin);
-  htherrup = new TH1F((hname + "_therrup").c_str(), "", bins1.size(),  bin);
-  htherrdown = new TH1F((hname + "_therrdown").c_str(), "", bins1.size(),  bin);
-  hpull = new TH1F((hname + "_pull").c_str(), "", bins1.size(),  bin);
+  hdata      = new TH1F((hname + "_data"     ).c_str(), "", bins1.size(), bin);
+  hdatatot   = new TH1F((hname + "_datatot"  ).c_str(), "", bins1.size(), bin);
+  hth        = new TH1F((hname + "_th"       ).c_str(), "", bins1.size(), bin);
+  hthshift   = new TH1F((hname + "_thshift"  ).c_str(), "", bins1.size(), bin);
+  htherr     = new TH1F((hname + "_therr"    ).c_str(), "", bins1.size(), bin);
+  htherrup   = new TH1F((hname + "_therrup"  ).c_str(), "", bins1.size(), bin);
+  htherrdown = new TH1F((hname + "_therrdown").c_str(), "", bins1.size(), bin);
+  hpull      = new TH1F((hname + "_pull"     ).c_str(), "", bins1.size(), bin);
 
   if (xmin == 0 && xmax == 0)
     {
@@ -266,7 +266,7 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
   htherrup->GetXaxis()->SetRange(lowrange, uprange);
   htherrdown->GetXaxis()->SetRange(lowrange, uprange);
   hpull->GetXaxis()->SetRange(lowrange, uprange);
-      
+
   hdata->SetXTitle(xlabel.c_str());
   hdata->SetYTitle(ylabel.c_str());
 
@@ -292,12 +292,12 @@ void Subplot::Init(string label, int dataindex, int subplotindex)
       htherrdown->SetBinContent(b + 1, theory[b] - therrdown[b]);
       //invert pulls -> (theory - data)
       if (!opts.ratiototheory)
-	hpull->SetBinContent(b + 1, -pulls[b]);
+        hpull->SetBinContent(b + 1, -pulls[b]);
       else
-	hpull->SetBinContent(b + 1, pulls[b]);
+        hpull->SetBinContent(b + 1, pulls[b]);
       hpull->SetBinError(b + 1, 0);
     }
-  
+
   for (unsigned int b = 0; b < data.size(); b++)
     if (therrup[b] != 0 || therrdown[b] != 0)
       hastherr = true;
@@ -340,11 +340,11 @@ void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_m
 {
   // Decode string thing
   int N = ( err == AsymHess ) ? 2*pdfshifts.size()+1 : pdfshifts.size()+1;
-  
+
   if (N == 1) return;
-  
+
   vector <double> val;
-  
+
   for (int i=0; i<N; i++) {
     istringstream iss(lines[i]);
     // Hardwire !!! //
@@ -361,45 +361,45 @@ void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_m
   if ( err == AsymHess )
     {
       for ( int i = 0; i<pdfshifts.size(); i++ )
-	{
-	  double plus, minus;
-	  if (scale68)
-	    {
-	      plus  = (val[i*2+1] - cent) / 1.645;
-	      minus = (val[i*2+2] - cent) / 1.645;
-	    }
-	  else
-	    {
-	      plus  = val[i*2+1] - cent;
-	      minus = val[i*2+2] - cent;
-	    }
-	  double valShift = pdfshifts[i].val;
-	  double errShift = pdfshifts[i].err;
-	  //compute shifted central value
-	  double cor = 0.5*(plus - minus)*valShift + 0.5*(plus+minus)*valShift*valShift;
-	  corSum += cor;
-	  //compute reduced uncertainties
-	  xi.push_back(plus*errShift+cent);
-	  xi.push_back(minus*errShift+cent);
-	}
-      ahessdeltaasym(xi, errplus, errminus, cor_matrix);            
+        {
+          double plus, minus;
+          if (scale68)
+            {
+              plus  = (val[i*2+1] - cent) / 1.645;
+              minus = (val[i*2+2] - cent) / 1.645;
+            }
+          else
+            {
+              plus  = val[i*2+1] - cent;
+              minus = val[i*2+2] - cent;
+            }
+          double valShift = pdfshifts[i].val;
+          double errShift = pdfshifts[i].err;
+          //compute shifted central value
+          double cor = 0.5*(plus - minus)*valShift + 0.5*(plus+minus)*valShift*valShift;
+          corSum += cor;
+          //compute reduced uncertainties
+          xi.push_back(plus*errShift+cent);
+          xi.push_back(minus*errShift+cent);
+        }
+      ahessdeltaasym(xi, errplus, errminus, cor_matrix);
     }
   else if ( err = SymHess )
     {
       for ( int i = 0; i < pdfshifts.size(); i++ )
-	{
-	  double plus  = val[i+1] - cent;
-	  double valShift = pdfshifts[i].val;
-	  double errShift = pdfshifts[i].err;
-	  //compute shifted central value
-	  double cor = plus*valShift;
-	  corSum += cor;
-	  //compute reduced uncertainties
-	  xi.push_back(plus*errShift+cent);
-	}
+        {
+          double plus  = val[i+1] - cent;
+          double valShift = pdfshifts[i].val;
+          double errShift = pdfshifts[i].err;
+          //compute shifted central value
+          double cor = plus*valShift;
+          corSum += cor;
+          //compute reduced uncertainties
+          xi.push_back(plus*errShift+cent);
+        }
       errplus = errminus = shessdelta(xi, cor_matrix);
     }
-}       
+}
 
 void getTheoryReweight (vector<double> weights, vector <string> lines, double& val, double& err)
 {
@@ -408,12 +408,12 @@ void getTheoryReweight (vector<double> weights, vector <string> lines, double& v
 
   // Decode string thing
   int N = lines.size();
-  
+
   if (N == 0)
     return;
-  
+
   vector <double> xi;
-  
+
   for (int i = 0; i < N; i++) {
     istringstream iss(lines[i]);
     // Hardwire !!! //
@@ -425,7 +425,7 @@ void getTheoryReweight (vector<double> weights, vector <string> lines, double& v
 
   val = mean(xi, weights);
   err = rms(xi, weights);
-}       
+}
 
 Data::Data(string dirname, string label)
 {
@@ -449,14 +449,14 @@ Data::Data(string dirname, string label)
   if (outdirs[label].IsProfiled())
     {
       if (err == AsymHess)
-	nfiles = pdfmap[label].pdfshifts.size()*2+1;
+        nfiles = pdfmap[label].pdfshifts.size()*2+1;
       else if (err == SymHess)
-	nfiles = pdfmap[label].pdfshifts.size()+1;
+        nfiles = pdfmap[label].pdfshifts.size()+1;
     }
   if (outdirs[label].IsReweighted())
     if (err == MC)
       nfiles = pdfmap[label].mcw.size();
-  
+
   // reset if shifts is empty.
   if (nfiles == 1) {nfiles = 0;}
 
@@ -466,26 +466,26 @@ Data::Data(string dirname, string label)
       sprintf (filename, "%s/fittedresults.txt_set_%04i", dirname.c_str(), i);
       infiles.push_back(new ifstream(filename));
       if (!infiles[i]->is_open())
-	{
-	  cout << "Error " << filename << " not found " << endl;
-	  return;
-	}
+        {
+          cout << "Error " << filename << " not found " << endl;
+          return;
+        }
     }
-  
+
   if (outdirs[label].IsMCreplica())
     for (vector <string>::iterator it = outdirs[label].dirlist.begin(); it != outdirs[label].dirlist.end(); it++)
       {
-	string fname = (*it) + "/fittedresults.txt";
-	infiles.push_back(new ifstream(fname.c_str()));
-	if (!infiles[infiles.size()-1]->is_open())
-	  {
-	    cout << "Error " << filename << " not found " << endl;
-	    return;
-	  }
+        string fname = (*it) + "/fittedresults.txt";
+        infiles.push_back(new ifstream(fname.c_str()));
+        if (!infiles[infiles.size()-1]->is_open())
+          {
+            cout << "Error " << filename << " not found " << endl;
+            return;
+          }
       }
 
   //Read datasets
-  string line;  
+  string line;
   vector <string> lines;
   lines.reserve(nfiles);
 
@@ -509,35 +509,35 @@ Data::Data(string dirname, string label)
   issdi >> nextdtindex;  //Dataset index
 
   //Loop on datasets
-  while(!infile.eof()) 
+  while(!infile.eof())
     {
       dtindex = nextdtindex;
 
       //Read dataset name
       getline(infile, name); lines = readLineFiles(infiles);
-      
+
       //Initialise new dataset
       Dataset dtset(dtindex, name);
 
       getline(infile, line); lines = readLineFiles(infiles);
       //Read plot options
       while(!infile.eof())
-	{
-	  if (line.find("Plot") == string::npos)
-	    break;
+        {
+          if (line.find("Plot") == string::npos)
+            break;
 
-	  //Read subplot index
-	  TString temp(line.c_str());
-	  TObjArray* array = temp.Tokenize("@");
-	  temp.Form(((TObjString*)  array->At(0))->GetString().Data());
-	  delete array;
-	  temp.ReplaceAll("Plot","");
-	  int iplot = temp.Atoi();
-	  //End of reading subplotindex
+          //Read subplot index
+          TString temp(line.c_str());
+          TObjArray* array = temp.Tokenize("@");
+          temp.Form(((TObjString*)  array->At(0))->GetString().Data());
+          delete array;
+          temp.ReplaceAll("Plot","");
+          int iplot = temp.Atoi();
+          //End of reading subplotindex
 
-	  dtset.subplots[iplot] = Subplot(line);
-	  getline(infile, line); lines = readLineFiles(infiles);
-	}
+          dtset.subplots[iplot] = Subplot(line);
+          getline(infile, line); lines = readLineFiles(infiles);
+        }
 
       //Read columns tags
       string col;
@@ -545,10 +545,10 @@ Data::Data(string dirname, string label)
       istringstream iss(line);
 
       while (iss >> col)
-	{
-	  //	  coltag[i] = col;
-	  //	  i++;
-	}
+        {
+          //      coltag[i] = col;
+          //      i++;
+        }
 
       //hard coded patch, until the fittedresults.txt format is improved
       coltag[0] = "lbin";
@@ -570,88 +570,88 @@ Data::Data(string dirname, string label)
       getline(infile, line);  lines = readLineFiles(infiles);
       //Loop on data points
       while(!infile.eof())
-	{
-	  istringstream iss(line);
-	  
-	  //Read a line of data
-	  int iplot;
-	  map <string, float> fline;
-	  int i = 0;
-	  while (iss >> buffer)
-	    {
-	      if (coltag[i] == "iplot")
-		iplot = (int) buffer;
-	      else
-		fline[coltag[i]] = buffer;
-	      i++;
-	      //patch, to be cleaned up when the fittedresults.txt format is improved
-	      if (i == 12)
-		{
-		  string s;
-		  iss >> s;		  
-		  TString str(s.c_str());
-		  TObjArray* array = str.Tokenize("/");
-		  iplot = ((TObjString*) array->At(0))->GetString().Atoi();
-		  fline["x"] = ((TObjString*) array->At(1))->GetString().Atof();
-	  
-		  break;		  
-		}
-	      //end of patch
-	    }
-	  if (i == 1) //New dataset
-	    {
-	      //Set dataset index for the incoming dataset
-	      nextdtindex = (int) buffer;
-	      break; 
-	    }
+        {
+          istringstream iss(line);
 
-	  //Plain 90cl -> 68cl scaling
-	  if (outdirs[label].Scale68())
-	    {
-	      fline["therr+"] = fline["therr+"]/1.645;
-	      fline["therr-"] = fline["therr-"]/1.645;
-	    }
+          //Read a line of data
+          int iplot;
+          map <string, float> fline;
+          int i = 0;
+          while (iss >> buffer)
+            {
+              if (coltag[i] == "iplot")
+                iplot = (int) buffer;
+              else
+                fline[coltag[i]] = buffer;
+              i++;
+              //patch, to be cleaned up when the fittedresults.txt format is improved
+              if (i == 12)
+                {
+                  string s;
+                  iss >> s;
+                  TString str(s.c_str());
+                  TObjArray* array = str.Tokenize("/");
+                  iplot = ((TObjString*) array->At(0))->GetString().Atoi();
+                  fline["x"] = ((TObjString*) array->At(1))->GetString().Atof();
 
-	  //Hessian profile the theory prediction
-	  if (outdirs[label].IsProfiled())
-	    {
-	      double cor, eplus, eminus;
-	      getTheoryShift(pdfmap[label].pdfshifts, pdfmap[label].cor_matrix, err, lines, outdirs[label].Scale68(), cor, eplus, eminus);
-	      fline["thorig"] += cor;
-	      fline["therr+"] = eplus;
-	      fline["therr-"] = eminus;
-	    }
-	  
-	  //Bayesian reweight the theory prediction
-	  if (outdirs[label].IsReweighted())
-	    {
-	      double value, error;
-	      getTheoryReweight(pdfmap[label].mcw, lines, value, error);
-	      fline["thorig"] = value;
-	      fline["therr+"] = error;
-	      fline["therr-"] = error;
-	    }
+                  break;
+                }
+              //end of patch
+            }
+          if (i == 1) //New dataset
+            {
+              //Set dataset index for the incoming dataset
+              nextdtindex = (int) buffer;
+              break;
+            }
 
-	  //Cumulative theory predictions for MC replica runs
-	  if (outdirs[label].IsMCreplica())
-	    {
-	      double value, error;
-	      vector <double> w;
-	      getTheoryReweight(w, lines, value, error);
-	      fline["thorig"] = value;
-	      fline["therr+"] = error;
-	      fline["therr-"] = error;
-	      fline["thmod"] = value;
-	      fline["pull"] = 0.;
-	    }
+          //Plain 90cl -> 68cl scaling
+          if (outdirs[label].Scale68())
+            {
+              fline["therr+"] = fline["therr+"]/1.645;
+              fline["therr-"] = fline["therr-"]/1.645;
+            }
 
-	  //Add point to subplot
-	  dtset.subplots[iplot].AddPoint(fline);
-	  getline(infile, line); lines = readLineFiles(infiles);
+          //Hessian profile the theory prediction
+          if (outdirs[label].IsProfiled())
+            {
+              double cor, eplus, eminus;
+              getTheoryShift(pdfmap[label].pdfshifts, pdfmap[label].cor_matrix, err, lines, outdirs[label].Scale68(), cor, eplus, eminus);
+              fline["thorig"] += cor;
+              fline["therr+"] = eplus;
+              fline["therr-"] = eminus;
+            }
 
-	}//End loop on data points
+          //Bayesian reweight the theory prediction
+          if (outdirs[label].IsReweighted())
+            {
+              double value, error;
+              getTheoryReweight(pdfmap[label].mcw, lines, value, error);
+              fline["thorig"] = value;
+              fline["therr+"] = error;
+              fline["therr-"] = error;
+            }
+
+          //Cumulative theory predictions for MC replica runs
+          if (outdirs[label].IsMCreplica())
+            {
+              double value, error;
+              vector <double> w;
+              getTheoryReweight(w, lines, value, error);
+              fline["thorig"] = value;
+              fline["therr+"] = error;
+              fline["therr-"] = error;
+              fline["thmod"] = value;
+              fline["pull"] = 0.;
+            }
+
+          //Add point to subplot
+          dtset.subplots[iplot].AddPoint(fline);
+          getline(infile, line); lines = readLineFiles(infiles);
+
+        }//End loop on data points
       for (map <int, Subplot>::iterator sit = dtset.subplots.begin(); sit != dtset.subplots.end(); sit++)
-	(*sit).second.Init(label, dtindex, (*sit).first);
+        (*sit).second.Init(label, dtindex, (*sit).first);
 
       datamap[dtindex] = dtset;
     }//End loop on datasets

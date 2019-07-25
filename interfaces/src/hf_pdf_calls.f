@@ -2,7 +2,8 @@ C> @brief PDF for p (vs Q)
 
       subroutine HF_Get_PDFsQ(x,q,PDFSF)
       double precision x,q,PDFSF(*)
-      call HF_Get_PDFs(x,q*q,PDFSF)
+C     Call C++
+      call proton_pdf(x,q,pdfsf)
       end
 
 C> @brief PDF for pbar  (vs Q)
@@ -14,7 +15,7 @@ C> @brief PDF for pbar  (vs Q)
      $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
       integer ifl
 C-----
-      call HF_Get_PDFs(x,q*q,xf)
+      call HF_Get_PDFsQ(x,q,xf)
 
       do ifl =1,N_CHARGE_PDF
          xft=xf(ifl)
@@ -32,7 +33,7 @@ C> @brief PDF for n  (vs Q)
      $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
       integer ifl
 C-----
-      call HF_Get_PDFs(x,q*q,xf)
+      call HF_Get_PDFsQ(x,q,xf)
 
       ! switch up and down
       xft=xf(1)
@@ -55,6 +56,7 @@ C  Input:  x, Q2 values
 C  Output: 13 PDF values
 C----------------------------------------------------------------------
       implicit none
+
 C----------------------------------------------------------------------
 #include "steering.inc"
 #include "fcn.inc"
@@ -68,6 +70,12 @@ C----------------------------------------------------------------------
 
 
 C----------------------------------------------------------------------
+      ! call new way 
+
+      write(*,*)'HF_Get_PDFs is obsolete and should not be used'
+      call proton_pdf(x,sqrt(q2),pdfsf)
+      return
+      ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
       if (PDFStyle.eq.'LHAPDFNATIVE') then
          if (ExtraPdfs) then
 C photon is present !
@@ -169,8 +177,14 @@ C----------------------------------------------------
       integer nf,ierr
       double precision ASFUNC,alphaQCD
       double precision alphaspdf
+      double precision alphasdef  ! C++ 
 
+      write(*,*)'HF_Get_alphas is obsolete and should not be used'
 C----------------------------------------------------
+      ! c++ interface
+      HF_Get_alphas = alphasdef(sqrt(Q2))
+      return
+
       if (PDFStyle.eq.'LHAPDFNATIVE') then
          HF_Get_alphas = alphaspdf(dsqrt(q2))
       else
@@ -197,7 +211,12 @@ C----------------------------------------------------
       double precision ASFUNC,alphaQCD
       double precision alphaspdf
 
+      double precision alphasdef  ! C++ 
 C----------------------------------------------------
+      ! c++ interface
+      HF_Get_alphasQ = alphasdef(Q)
+      return
+      
       if (PDFStyle.eq.'LHAPDFNATIVE') then
          HF_Get_alphasQ = alphaspdf(Q)
       else

@@ -1,4 +1,5 @@
-#ifndef get_pdfs_h
+//DISABLED
+#ifdef get_pdfs_h
 #define get_pdfs_h
 
 // Define interfaces to PDF calls

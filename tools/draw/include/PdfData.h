@@ -10,7 +10,7 @@
 using namespace std;
 
 enum pdferr {None, AsymHess, SymHess, MC};
-enum pdftype{uv=0, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv, rs, photon, SeaOverGlue, photonOverGlue, uvplusdv, uvplusdvplusSea,uvplusdvminSea};
+enum pdftype{uv=0, dv, g, Sea, ubar, dbar, s, sbar, Rs, soversbar, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv, rs, photon, SeaOverGlue, photonOverGlue, uvplusdv, uvplusdvplusSea};
 
 extern vector <pdftype> pdfs;
 extern vector <string> pdflabels;
@@ -70,7 +70,7 @@ class Pdf
   vector <double> xpoints;
 };
 
-struct pdfshift 
+struct pdfshift
 {
   double val;
   double err;
@@ -88,7 +88,7 @@ class PdfData
   //PdfData(const PdfData &Prior, string dirname, string label);
   void profile(string dirname, string label);  //profile PDF uncertainty bands
   void pdfRotate(string dirname, string label);  //rotate PDF
-  void pdfSet(string dirname, string label);  // get single set 
+  void pdfSet(string dirname, string label);  // get single set
   pdferr err;   //Type of PDF uncertainties
   bool model;   //Model PDF uncertainties
   bool par;   //Parametrisation PDF uncertainties

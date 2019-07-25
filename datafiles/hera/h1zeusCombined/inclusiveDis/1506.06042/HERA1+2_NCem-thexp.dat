@@ -6,9 +6,7 @@
   IndexDataset = 103
   Reaction = "NC e+-p"
 
-  TheoryType = 'expression'
   TermName = 'R'
-  TermType = 'reaction'
   TermSource = 'use:hf_scheme_DISNC'
   TermInfo = 'type=sigred:flav=incl:echarge=-1:epolarity=0'
   TheorExpr = 'R'

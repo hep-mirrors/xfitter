@@ -1,7 +1,13 @@
 
 # Created by AddReaction.py on 2017-10-05
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = $(QCDNUM_CPPFLAGS)\
+  -I$(srcdir)/../include\
+  -I$(srcdir)/../../../include\
+  -I$(srcdir)/../../../interfaces/include\
+  -I$(srcdir)/../../../evolutions/BaseEvolution/include\
+  -I$(srcdir)/../../../evolutions/QCDNUM/include\
+  -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = libbasediscc_xfitter.la
 libbasediscc_xfitter_la_SOURCES = ReactionBaseDISCC.cc

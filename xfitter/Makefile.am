@@ -8,13 +8,14 @@ bin_PROGRAMS = xfitter
 
 xfitter_SOURCES = cmain.cxx
 
-xfitter_LDFLAGS = -L${pkglibdir} -L${srcdir}/../src -L${top_builddir}/src -L${top_srcdir}/src -L${top_srcdir}/FastNLO/src  -L${top_srcdir}/RT/src -lxfmain -lxffnlo -lmyrt
-#xfitter_LDADD = 
-# all source files which go into the main target
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+#xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lxffnlo -lmyrt -lHFcommon -lmyew ../minuit/src/.libs/minuit.o -lmyminuit -lgenetic -lQEDevol -lnum_utils
+xfitter_LDFLAGS = -L${srcdir}/../lib -lxfmain -lHFcommon -lmyew ../minuit/src/.libs/minuit.o -lmyminuit -lgenetic -lQEDevol -lnum_utils ../tools/draw/src/pdferrors.o
+#TODO move stat functions from pdferrors.cc to some place where they make sense
 
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
-AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
+#AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
 
 # FORTRAN compiler flags to be used for the main target
 AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include -fno-automatic -I$(srcdir)/../minuit/src
@@ -45,14 +46,9 @@ LDADD = #libxfitter.a
 # libraries to be linked to the main target
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) -lyaml-cpp
 
-# separate list for python: 
-F2PYLIBS = 
-###########F2PYLIBS += libxfitter.a 
-F2PYLIBS +=  $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS) $(LIBS) $(FLIBS)
 
 if ENABLE_LHAPDF 
   LDADD+=$(LHAPDF_LDFLAGS)
-  F2PYLIBS +=  $(LHAPDF_LDFLAGS)
 endif
 
 if HAVE_ROOT
@@ -72,19 +68,14 @@ if ENABLE_LHAPDF
   AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
 
-# LDADD += ../Cascade/src/libcasutil.a
 # LDADD += ../common/libHFcommon.a
-# F2PYLIBS += ../Cascade/src/libcasutil.a
 # F2PYLIBS += ../common/libHFcommon.a
 
-if ENABLE_UPDF
-   LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 
-   F2PYLIBS +=  $(CASCADELIBS)  $(PYTHIALIBS) 
-endif
 
 if ENABLE_HATHOR
-  LDADD+= ../Hathor/src/libHathor.a \
-  $(HATHOR_LIBS)
+# this is obsolete: code is in reactions/Hathor now
+#  LDADD+= ../Hathor/src/libHathor.a \
+  LDADD+= $(HATHOR_LIBS)
 endif
 
 # Link with HVQMNR library, otherwise with dummy stub
@@ -96,29 +87,9 @@ else
 #  libxfmain_la_SOURCES += hvqmnr_dum.f	
 endif
 
-XFLIBS =  ../DY/src/libmydy.a\
- ../Cascade/src/libcasutil.a \
- ../common/libHFcommon.a \
- ../ACOT/src/libmyacot.a \
- ../SACOT/src/libmysacot.a \
- ../FONLL/src/libmyfonll.a \
- ../EW/src/libmyew.a \
- ../ABM/src/libmyabm.a \
- ../DIPOLE/src/libmydipole.a \
- ../DiffDIS/src/libDiffDIS.a\
- ../interfaces/src/libinterfaces.a\
- ../minuit/src/libmyminuit.a $(CERNLIBS) @FLIBS@ \
-  -lstdc++ \
- ../genetic/src/libgenetic.a \
- ../QEDevol/src/libQEDevol.a \
- ../common/num_utils/libnum_utils.a \
- ../tools/draw/src/pdferrors.o
+XFLIBS=-lstdc++
 
-# ../FastNLO/src/libFastNLO.a 
-
-
-LDADD += $(XFLIBS)
-F2PYLIBS += $(XFLIBS)
+LDADD+=$(XFLIBS)
 
 GFRTLIB  = -lgfortran
 
@@ -129,22 +100,19 @@ APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 if ENABLE_APPLGRID 
   LDADD+=$(APPLGRID_LDFLAGS) $(GFRTLIB)
 #  libagtheory_la_LDFLAGS= $(APPLGRID_LDFLAGS) $(GFRTLIB)
-  F2PYLIBS +=  $(APPLGRID_3)
 endif
+
+#if ENABLE_APFEL
+#  LDADD+=$(APFEL_LDFLAGS)
+#endif
 
 if ENABLE_APFELGRID 
   LDADD+=$(APFELGRID_LDFLAGS)
-  F2PYLIBS+=$(APFELGRID_LDFLAGS) 
 endif
 
-if ENABLE_APFEL
-  LDADD+=$(APFEL_LDFLAGS)
-  F2PYLIBS +=  $(APFEL_LDFLAGS)
-endif
 
 if ENABLE_MELA
   LDADD+=$(MELA_LDFLAGS)
-  F2PYLIBS +=  $(MELA_LDFLAGS)
 endif
 
 if ENABLE_GENETIC

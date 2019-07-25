@@ -30,4 +30,4 @@ private:
   ReactionHathor* _reactionTheory;
 };
 
-#endif 
+#endif

@@ -1,3 +1,10 @@
+/*
+The whole chi2scan seems to be broken since 2.2.0
+I commented everything out, maybe we could recover this code later
+Chi2scan should probably work similar to Profiler
+--Ivan
+*/
+#if 0
 #include "xfitter_cpp.h"
 #include "dimensions.h"
 
@@ -1130,4 +1137,5 @@ void chi2_scan_()
     cout << "PDF uncertainties: " <<  central << "+" << eplus << "-" << eminus << endl;
   cout << endl;
 }
+#endif
 #endif

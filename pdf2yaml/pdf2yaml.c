@@ -133,7 +133,7 @@ void info_save(const Info *info, FILE *output) {
         yaml_document_delete(&doc);
 }
 
-Info_Node *info_node_where(Info *info, char *key) {
+Info_Node* info_node_where(const Info* info, char* key) {
         Info_Node *info_node;
         while(info) {
                 info_node=info->data;

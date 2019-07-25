@@ -381,7 +381,7 @@ c     Check that bin_i and bin_j are identified
                      cycle
                   else 
                      Call HF_ERRLOG(10040005,
-     $ 'W: Unable to find a identify points for correlation entry')
+     $ 'W: Unable to find a identify points for correlation entry'//ndataTmp)
                      cycle
                   endif
                endif

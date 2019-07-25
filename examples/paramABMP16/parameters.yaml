@@ -1,0 +1,160 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+#    call fcn 1
+#    migrad
+#    hesse
+#    call fcn 3
+    
+#  doErrors :  Hesse # None
+
+Parameters:
+  ZERO : [ 0. ]          # zero
+  # u valence
+  ABMP_uv_A   : DEPENDENT
+  ABMP_uv_a   : [  0.613, 0.033 ]
+  ABMP_uv_b   : [  3.443, 0.064 ]
+  ABMP_uv_g1  : [  -0.22, 0.33  ]
+  ABMP_uv_g2  : [  -2.88, 0.46  ]
+  ABMP_uv_g3  : [   2.67, 0.80  ]
+  # d valence
+  ABMP_dv_A   : DEPENDENT
+  ABMP_dv_a   : [  0.372, 0.068 ]
+  ABMP_dv_b   : [   4.47, 0.55  ]
+  ABMP_dv_g1  : [  -3.20, 0.77  ]
+  ABMP_dv_g2  : [  -0.61, 1.96  ]
+  ABMP_dv_g3  : [    0.0, 0.001 ]
+  # u sea
+  ABMP_us_A   : [ 0.0703, 0.0081]
+  ABMP_us_a   : [-0.4155, 0.031 ]
+  ABMP_us_b   : [   7.75, 0.39  ]
+  ABMP_us_gm1 : [ 0.0373, 0.0032]
+  ABMP_us_g1  : [   4.44, 0.95  ]
+  # d sea
+  ABMP_ds_A   : [ 0.1408, 0.0076]
+  ABMP_ds_a   : [-0.1731, 0.011 ]
+  ABMP_ds_b   : [   8.41, 0.34  ]
+  ABMP_ds_g1  : [   13.3, 1.7   ]
+  # strange sea
+  ABMP_ss_A   : [ 0.0594, 0.0042]
+  ABMP_ss_a   : [-0.3445, 0.019 ]
+  ABMP_ss_b   : [   6.52, 0.27  ]
+  # antistrange sea: uncomment these parameters and activate them under Parameterisations: par_sbar: to have s!=sbar
+  #ABMP_ssbar_A: [ 0.0594, 0.0042]
+  #ABMP_ssbar_a: [-0.3445, 0.019 ]
+  #ABMP_ss_bbar: [   6.52, 0.27  ]
+  # gluon
+  ABMP_g_A    : DEPENDENT
+  ABMP_g_a    : [-0.1534, 0.0094]
+  ABMP_g_b    : [   6.42, 0.83  ]
+  ABMP_g_g1   : [  -11.8, 3.7   ]
+
+Parameterisations:
+  par_uv:
+    class: ABMPvalence
+    parameters: [ABMP_uv_A, ABMP_uv_a, ABMP_uv_b, ZERO, ABMP_uv_g1, ABMP_uv_g2, ABMP_uv_g3]
+  par_dv:
+    class: ABMPvalence
+    parameters: [ABMP_dv_A, ABMP_dv_a, ABMP_dv_b, ZERO, ABMP_dv_g1, ABMP_dv_g2, ABMP_dv_g3]
+  par_ubar:
+    class: ABMPsea
+    parameters: [ABMP_us_A, ABMP_us_a, ABMP_us_b, ABMP_us_gm1, ABMP_us_g1, ZERO, ZERO]
+  par_dbar:
+    class: ABMPsea
+    parameters: [ABMP_ds_A, ABMP_ds_a, ABMP_ds_b, ZERO, ABMP_ds_g1, ZERO, ZERO]
+  par_s:
+    class: ABMPsea
+    parameters: [ABMP_ss_A, ABMP_ss_a, ABMP_ss_b, ZERO, ZERO, ZERO, ZERO]
+  par_sbar:
+    class: ABMPsea
+    parameters: [ABMP_ss_A, ABMP_ss_a, ABMP_ss_b, ZERO, ZERO, ZERO, ZERO]
+    #class: ABMPPdfParam
+    #parameters: [ABMP_ssbar_A, ABMP_ssbar_a, ABMP_ssbar_b, ZERO, ZERO, ZERO, ZERO]
+  par_g:
+    class: ABMPgluon
+    parameters: [ABMP_g_A, ABMP_g_a, ABMP_g_b, ZERO, ABMP_g_g1, ZERO, ZERO]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvubardbars
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+#DefaultEvolution: proton-APFELff
+DefaultEvolution: proton-QCDNUM
+
+Evolutions:
+  proton-APFELff:
+    ? !include evolutions/APFEL/parameters.yaml
+    decomposition: proton
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM/parameters.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+    # The following allows QCDNUM to read PDFs from other evolutions:
+    # EvolutionCopy: "proton-LHAPDF"
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "CT10"
+    member: 0
+#  proton-APFEL:
+#    ? !include yaml/evolutions/APFELxx/parameters.yaml
+#    decomposition: proton
+#  antiproton:
+#    class: FlipCharge
+#    input: proton-QCDNUM
+#  neutron:
+#    class: FlipUD
+#    input: proton-QCDNUM
+
+Q0 : 3.0 # Initial scale =sqrt(9)
+
+? !include constants.yaml
+
+alphas : 0.106
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC/parameters.yaml
+  # FONLL scheme settings:
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC/parameters.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC/parameters.yaml
+  # FF ABM scheme settings:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC/parameters.yaml
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC/parameters.yaml
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB/parameters.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid/parameters.yaml
+  # (optional) Fractal module settings:
+  Fractal_DISNC:
+    ? !include reactions/Fractal_DISNC/parameters.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+#  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+#  defaultValue : 'BaseDISCC'       # global specification
+#  defaultValue : 'FONLL_DISCC'     # global specification
+  defaultValue : 'FFABM_DISCC'     # global specification
