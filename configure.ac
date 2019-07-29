@@ -596,9 +596,6 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/RT_DISNC/src/Makefile
                  Makefile])
 #
-#                 FastNLO/src/Makefile
-#                 FastNLO/include/Makefile
-#                 FastNLO/include/fastnlotk/Makefile
 
 
 if test x$enable_doc = xyes; then
