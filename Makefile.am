@@ -62,11 +62,6 @@ SUBDIRS=src\
   reactions/AFB/src
 #
 
-# These seem to be broken because PDF interface has changed
-#  FastNLO/src\
-#  FastNLO/include\
-#  FastNLO/include/fastnlotk\
-#
 SUBDIRS+=xfitter
 if ENABLE_CERES
   SUBDIRS+=minimizers/CERESMinimizer/src
