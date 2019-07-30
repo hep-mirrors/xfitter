@@ -114,7 +114,6 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   double d3 = parfit3->GetParameter(0);
   double min3 = parfit3->GetMinimumX(chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
   double chi2min3 = parfit3->Eval(min3);
-  delete parfit3;
   TF1 *fs = new TF1("fs", "[3]*x**3 +[2]*x**2 + [1]*x + [0]");
   fs->SetParameter(3,a3);
   fs->SetParameter(2,b3);
@@ -122,6 +121,7 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   fs->SetParameter(0,d3-(chi2min3+1.));
   double deltap3 = fs->GetMinimumX(min3,chi2graph->GetX()[chi2graph->GetN()-1])-min3;
   double deltam3 = min3-fs->GetMinimumX(chi2graph->GetX()[0],min3);
+  delete parfit3;
   delete fs;
   
   //4th order fit
@@ -138,7 +138,6 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   double e4 = parfit4->GetParameter(0);
   double min4 = parfit4->GetMinimumX(chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
   double chi2min4 = parfit4->Eval(min4);
-  delete parfit4;
   TF1 *fs4 = new TF1("fs4", "abs([4]*x**4 + [3]*x**3 +[2]*x**2 + [1]*x + [0])");
   fs4->SetParameter(4,parfit4->GetParameter(4));
   fs4->SetParameter(3,parfit4->GetParameter(3));
@@ -147,6 +146,7 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   fs4->SetParameter(0,parfit4->GetParameter(0)-(chi2min4+1.));
   double deltap4 = fs4->GetMinimumX(min4,chi2graph->GetX()[chi2graph->GetN()-1])-min4;
   double deltam4 = min4-fs4->GetMinimumX(chi2graph->GetX()[0],min4);
+  delete parfit4;
   delete fs4;
 
   //5th order fit
