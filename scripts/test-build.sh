@@ -62,7 +62,7 @@ function run_make_install () {
   run_autotools
   echo "Running ./configure $conf_args"
   run_configure $conf_args
-  run_make
+#  run_make
   run_make_install
   if [[ ${_RESULT} -eq 0 ]]; then
     echo "Basic compile test OK."
