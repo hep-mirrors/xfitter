@@ -1,8 +1,0 @@
-This old code will not be built, and is left for reference
-
-There is some sort of PDF caching and some fortran interfaces
-As of xfitter version 2.2.0, they no longer work
-Some functions have been reimplemented for 2.2.0, see src/fortran_interface.cc
-
-I leave the files here for now, but remove this directory from Makefiles.
---Ivan Novikov
