@@ -524,8 +524,6 @@ AC_CONFIG_FILES([include/Makefile
                  common/Makefile
                  common/linalg/Makefile
                  common/num_utils/Makefile
-                 interfaces/src/Makefile
-                 interfaces/include/Makefile
                  minuit/src/Makefile
                  EW/src/Makefile
                  DiffDIS/src/Makefile
@@ -542,12 +540,10 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/src/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
-                 input_steering/Makefile
                  tools/Makefile
                  datafiles/Makefile
                  datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/Makefile
                  doc/logo/Makefile
-                 examples-OLD/Makefile
                  python/Makefile
                  xfitter-config
                  evolutions/BaseEvolution/src/Makefile
@@ -592,10 +588,10 @@ AC_CONFIG_FILES([include/Makefile
                  reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
                  reactions/KFactor/src/Makefile
                  reactions/KMatrix/src/Makefile
-                 reactions/KRunning/src/Makefile
                  reactions/RT_DISNC/src/Makefile
                  Makefile])
 #
+#                 reactions/KRunning/src/Makefile
 
 
 if test x$enable_doc = xyes; then
