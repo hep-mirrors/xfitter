@@ -1,7 +1,5 @@
 #include "HathorPdfxFitter.h"
 #include "ReactionHathorSingleTop.h"
-
-#include "get_pdfs.h"
 #include <iostream>
 #include <valarray>
 
