@@ -524,7 +524,8 @@ int
 CommonGrid::setCKM(const vector<double> &v_ckm)
 {
 #ifdef APPLGRID_ENABLED
-  _hbins.at(0).g->setckm(v_ckm);
+  if (_hbins.at(0).g != NULL)
+    _hbins.at(0).g->setckm(v_ckm);
   return 0;
 #else
   int id = 16102401;
