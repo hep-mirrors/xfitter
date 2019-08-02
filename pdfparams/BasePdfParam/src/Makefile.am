@@ -1,4 +1,4 @@
-AM_CXXFLAGS =-I$(srcdir)/../include  -I$(srcdir)/../../../minimizers/BaseMinimizer/include  -I$(srcdir)/../../../include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS =-I$(srcdir)/../../../minimizers/BaseMinimizer/include  -I$(srcdir)/../../../include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = libBasePdfParam_xfitter.la
 
@@ -8,4 +8,4 @@ datadir = ${prefix}/yaml/pdfparams/BasePdfParam
 data_DATA = ../yaml/parameters.yaml
 
 
-dist_noinst_HEADERS = ../include ../yaml
+dist_noinst_HEADERS = ../yaml

@@ -1,7 +1,7 @@
 
 # Created by AddPdfDecomposition.py on 2018-07-11
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include -I$(srcdir)/../../../pdfparams/BasePdfParam/include/ -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = libuvdvubardbars_xfitter.la
 libuvdvubardbars_xfitter_la_SOURCES = UvDvUbarDbarS.cc

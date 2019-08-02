@@ -41,7 +41,7 @@ public:
   //!A typical implementation will probably do this by setting *pars[0]
   virtual void setMoment(int nMoment,double value);
   //!Get name of the instance
-  const std::string getName()const{return _name;} 
+  const std::string getName()const{return _name;}
   virtual void atStart();
 protected:
   //!Unique name of instance

@@ -1,7 +1,7 @@
 
 # Created by AddPdfParam.py on 2018-09-26
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../BasePdfParam/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = libNegativeGluonPdfParam_xfitter.la
 libNegativeGluonPdfParam_xfitter_la_SOURCES = NegativeGluonPdfParam.cc
