@@ -11,6 +11,17 @@ using namespace fastNLO;
 namespace fastNLOTools {
 
    //________________________________________________________________________________________________________________ //
+   void PrintFastnloVersion() {
+      char fnlo[100];
+      sprintf(fnlo,"%c[%d;%dmfast%c[%d;%dmNLO\033[0m",27,0,31,27,0,34);
+      char subproject[100]      = FNLO_SUBPROJECT;
+      char package_version[100] = FNLO_VERSION;
+      char gitrev[100]          = FNLO_GITREV;
+      cout << fnlo << "_" << subproject << " Version " << package_version << "_" << gitrev << endl;
+      return;
+   }
+
+   //________________________________________________________________________________________________________________ //
    bool CheckVersion(int version ){
       if ( fastNLO::CompatibleVersions.count(version) == 0 ) {
          error["fastNLOTools::CheckVersion"]<<"This table version ("<<version<<") is incompatible with this fastNLO code."<<endl;
@@ -29,13 +40,24 @@ namespace fastNLOTools {
    int ReadVector(vector<double >& v, istream& table , double nevts ){
       //! Read values according to the size() of the given vector
       //! from table (v2.0 format).
-      for( unsigned int i=0 ; i<v.size() ; i++){
-         table >> v[i];
-         v[i] *= nevts;
-         if ( !isfinite(v[i]) ) {
-            error["ReadVector"]<<"Non-finite number read from table, aborted! value = " << v[i] << endl;
-            error["ReadVector"]<<"Please check the table content." << endl;
-            exit(1);
+      const bool ReadBinary = false;
+      if ( !ReadBinary ) {
+         for( unsigned int i=0 ; i<v.size() ; i++){
+            table >> v[i];
+            v[i] *= nevts;
+            if ( !isfinite(v[i]) ) {
+               error["ReadVector"]<<"Non-finite number read from table, aborted! value = " << v[i] << endl;
+               error["ReadVector"]<<"Please check the table content." << endl;
+               exit(1);
+            }
+         }
+      }
+      else {
+         table.get();
+         float f;
+         for ( unsigned int k = 0; k < v.size(); ++k ) {
+            table.read(reinterpret_cast<char *>(&f), sizeof(f));
+            v[k] = f*nevts;
          }
       }
       return v.size();

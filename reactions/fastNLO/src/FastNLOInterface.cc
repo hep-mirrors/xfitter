@@ -118,7 +118,7 @@ int fastnloinit_(const char *s, const int *idataset, const char *thfile, int *I_
 int setfastnlotoppar_(const int *idataset) {
    //!< Dedicated settings for difftop
    map<int, FastNLOxFitter*>::const_iterator FastNLOIterator = gFastNLO_array.find(*idataset);
-   map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
+   //map<int, BoolArray*>::const_iterator UsedPointsIterator = gUsedPoints_array.find(*idataset);
    if(FastNLOIterator == gFastNLO_array.end( )) {
      int id = 12032303;
      char text[256];

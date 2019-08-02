@@ -8,6 +8,7 @@
 
 namespace fastNLOTools {
 
+   const bool binary = false;
 
    //! - Reading std::vectors from disk
    template<typename T> int ReadVector( std::vector<T>& v, std::istream& table , double nevts = 1);
@@ -73,6 +74,7 @@ namespace fastNLOTools {
    template<typename T> void PrintVector( const std::vector<T>& v, std::string name, std::string prefix="");
 
    //! - useful i/o
+   void PrintFastnloVersion(); //!< Print out fastNLO version
    bool CheckVersion(int version); //!< check version and exit if failed.
    //bool CheckVersion(const std::string& version) {return CheckVersion((int)std::stoi(version));} ; //!< check version and exit if failed.
    bool ReadMagicNo(std::istream& table);                                       //!< Read and check magic number from table.
@@ -173,15 +175,37 @@ int fastNLOTools::WriteVector( const std::vector<T>& v, std::ostream& table , do
 template<typename T>
 int fastNLOTools::_Write1DVectorByN( const std::vector<T>& v, std::ostream& table , double nevts) {
    if( nevts == 0) return -1000;
-   for(unsigned int i0=0;i0<v.size();i0++)
-      table << v[i0] / nevts << fastNLO::sep;
+   // --- ascii
+   if ( !fastNLOTools::binary ) {
+      for(unsigned int i0=0;i0<v.size();i0++)
+         table << v[i0] / nevts << fastNLO::sep;
+   }
+   else {
+      // --- binary as float
+      std::vector<float> ff;
+      ff.reserve(v.size());
+      for ( auto val : v ) ff.push_back(val/nevts);
+      table << 'b';
+      //table.flush();
+      table.write(reinterpret_cast<const char *>(&ff[0]), ff.size()*sizeof(float));
+      //table << std::endl;
+   }
+   /* static int bb = 0; */
+   /* if ( bb++ > 3 )  exit(1); */
+   /* std::cout<<"size: " <<v.size() <<std::endl; */
+   /* for ( auto val : v ) std::cout<<"\t"<<val; */
+   /* std::cout<<std::endl; */
+
    return v.size();
 }
 
 template<typename T>
 int fastNLOTools::_Write1DVector( const std::vector<T>& v, std::ostream& table ) {
-   for(unsigned int i0=0;i0<v.size();i0++)
-      table << v[i0] << fastNLO::sep;
+   //if ( !fastNLOTools::binary ) {
+      for(unsigned int i0=0;i0<v.size();i0++)
+         table << v[i0] << fastNLO::sep;
+//   else
+//      table.write(reinterpret_cast<const char *>(&v[0]), v.size()*sizeof(T));
    return v.size();
 }
 

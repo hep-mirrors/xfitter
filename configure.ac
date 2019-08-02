@@ -103,7 +103,10 @@ if test "$ax_lapack_ok" = "no"; then
 fi
 
 
-
+# libz used by fastNLO (optional)
+AX_CHECK_ZLIB
+AM_CONDITIONAL([HAVE_LIBZ],[test "x$HAVE_LIBZ" == "xtrue"])
+AC_DEFINE([WITH_LIBZ],[1],[Define if LIBZ is available])
 
 
 

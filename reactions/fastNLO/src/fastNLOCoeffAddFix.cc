@@ -73,15 +73,23 @@ void fastNLOCoeffAddFix::ReadCoeffAddFix(istream& table){
    }
    // printf("  *  fastNLOCoeffAddFix::Read().bins %d, NScalevar[0] %d, Nscalenode[0] %d,  NScaleDim %d  \n",
    // 	  fNObsBins, Nscalevar[0] , Nscalenode[0] , NScaleDim );
+   // pre-binary
+   // ScaleFac.resize(NScaleDim);
+   // for(int i=0;i<NScaleDim;i++){
+   //    ScaleFac[i].resize(Nscalevar[i]);
+   //    for(int j=0;j<Nscalevar[i];j++){
+   //       table >> ScaleFac[i][j];
+   //    }
+   // }
+
    ScaleFac.resize(NScaleDim);
    for(int i=0;i<NScaleDim;i++){
       ScaleFac[i].resize(Nscalevar[i]);
-      for(int j=0;j<Nscalevar[i];j++){
-         table >> ScaleFac[i][j];
-      }
    }
+   fastNLOTools::ReadVector( ScaleFac , table , 1);
+
    // printf("  *  fastNLOCoeffAddFix::Read().bins %d, NScalevar[0] %d, Nscalenode[0] %d, ScaleFac[0][0] %d,  NScaleDim %d  \n",
-   // 	  fNObsBins, Nscalevar[0] , Nscalenode[0] , ScaleFac[0][0], NScaleDim );
+   //     fNObsBins, Nscalevar[0] , Nscalenode[0] , ScaleFac[0][0], NScaleDim );
    fastNLOTools::ResizeVector( ScaleNode , fNObsBins, 1 , Nscalevar[0] , Nscalenode[0] );
    int nsn = fastNLOTools::ReadVector( ScaleNode , table );
    debug["fastNLOCoeffAddFix::Read()"]<<"Read "<<nsn<<" lines of ScaleNode."<<endl;
@@ -183,42 +191,42 @@ void fastNLOCoeffAddFix::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge m
    if ( moption==fastNLO::kMerge )  fastNLOTools::AddVectors( SigmaTilde , othfix.SigmaTilde);
    else if ( moption==fastNLO::kAttach ) {
       for( int i=0 ; i<fNObsBins ; i++ ){
-	 int nxmax = GetNxmax(i);
-	 for( int k=0 ; k<GetTotalScalevars() ; k++ ){
-	    for( int l=0 ; l<GetTotalScalenodes() ; l++ ){
-	       for( int m=0 ; m<nxmax ; m++ ){
-		  for( int n=0 ; n<other.GetNSubproc() ; n++ ){ // attach all other subprocesses
-		     double s2  = othfix.SigmaTilde[i][k][l][m][n];
-		     s2 *= this->Nevt/other.GetNevt();
-		     this->SigmaTilde[i][k][l][m].push_back(s2);
-		  }
-	       }
-	    }
-	 }
+         int nxmax = GetNxmax(i);
+         for( int k=0 ; k<GetTotalScalevars() ; k++ ){
+            for( int l=0 ; l<GetTotalScalenodes() ; l++ ){
+               for( int m=0 ; m<nxmax ; m++ ){
+                  for( int n=0 ; n<other.GetNSubproc() ; n++ ){ // attach all other subprocesses
+                     double s2  = othfix.SigmaTilde[i][k][l][m][n];
+                     s2 *= this->Nevt/other.GetNevt();
+                     this->SigmaTilde[i][k][l][m].push_back(s2);
+                  }
+               }
+            }
+         }
       }
    }
    else {
       for( int i=0 ; i<fNObsBins ; i++ ){
-	 int nxmax = GetNxmax(i);
-	 for( int k=0 ; k<GetTotalScalevars() ; k++ ){
-	    for( int l=0 ; l<GetTotalScalenodes() ; l++ ){
-	       for( int m=0 ; m<nxmax ; m++ ){
-		  for( int n=0 ; n<NSubproc ; n++ ){
-		     double w1  = this->GetMergeWeight(moption,n,i);
-		     double w2  = other.GetMergeWeight(moption,n,i);
-		     double& s1 = this->SigmaTilde[i][k][l][m][n];
-		     double s2  = othfix.SigmaTilde[i][k][l][m][n];
-		     if ( s1!=0 || s2!=0 ) {
-			if ( w1==0 || w2==0 ) {
-			   error["fastNLOCoeffAddFix"]<<"Mergeing weight is 0, but sigma tilde is non-zero. Cannot proceed!"<<endl;
-			   exit(3);
-			}
-			s1 = ( w1*s1/Nevt + w2*s2/other.GetNevt() ) / (w1 + w2 ) * ( Nevt + other.GetNevt() ) ;
-		     }
-		  }
-	       }
-	    }
-	 }
+         int nxmax = GetNxmax(i);
+         for( int k=0 ; k<GetTotalScalevars() ; k++ ){
+            for( int l=0 ; l<GetTotalScalenodes() ; l++ ){
+               for( int m=0 ; m<nxmax ; m++ ){
+                  for( int n=0 ; n<NSubproc ; n++ ){
+                     double w1  = this->GetMergeWeight(moption,n,i);
+                     double w2  = other.GetMergeWeight(moption,n,i);
+                     double& s1 = this->SigmaTilde[i][k][l][m][n];
+                     double s2  = othfix.SigmaTilde[i][k][l][m][n];
+                     if ( s1!=0 || s2!=0 ) {
+                        if ( w1==0 || w2==0 ) {
+                           error["fastNLOCoeffAddFix"]<<"Mergeing weight is 0, but sigma tilde is non-zero. Cannot proceed!"<<endl;
+                           exit(3);
+                        }
+                        s1 = ( w1*s1/Nevt + w2*s2/other.GetNevt() ) / (w1 + w2 ) * ( Nevt + other.GetNevt() ) ;
+                     }
+                  }
+               }
+            }
+         }
       }
    }
    //Nevt += othfix.Nevt;
@@ -342,7 +350,7 @@ void fastNLOCoeffAddFix::NormalizeCoefficients(const std::vector<std::vector<dou
    for ( int iProc = 0 ; iProc<GetNSubproc(); iProc++ ) {
       if ( int(wgtProcBin[iProc].size()) != GetNObsBin() ) {
          error["NormalizeCoefficients"]<<"Dimension of weights (iProc) incompatible with table (wgtProcBin must have dimension [iProc][iBin])."<<endl;
-	 exit(4);
+         exit(4);
       }
       for ( int iObs = 0 ; iObs<GetNObsBin(); iObs++ ) {
          MultiplyBinProc(iObs, iProc, wgtProcBin[iProc][iObs]/Nevt);
@@ -373,8 +381,8 @@ void fastNLOCoeffAddFix::MultiplyBinProc(unsigned int iObsIdx, unsigned int iPro
    for (unsigned int s=0 ; s<SigmaTilde[iObsIdx].size() ; s++) {
       for (unsigned int x=0 ; x<SigmaTilde[iObsIdx][s].size() ; x++) {
          for (unsigned int l=0 ; l<SigmaTilde[iObsIdx][s][x].size() ; l++) {
-	    SigmaTilde[iObsIdx][s][x][l][iProc] *= fact;
-	 }
+            SigmaTilde[iObsIdx][s][x][l][iProc] *= fact;
+         }
       }
    }
    fastNLOCoeffAddBase::MultiplyBinProc(iObsIdx, iProc, fact);
@@ -394,7 +402,7 @@ void fastNLOCoeffAddFix::Print(int iprint) const {
       fastNLOTools::PrintVector(GetAvailableScaleFactors(),"Scale factors (ScaleFac[0][])","#");
       printf(" # No. of scale nodes (Nscalenode)     %d\n",GetNScaleNode());
    }
-   if ( abs(iprint) > 0 ) {
+   if ( std::abs(iprint) > 0 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 0) " << fastNLO::_SSEP20 << endl;
       char buffer[1024];
       for (int i=0; i<fNObsBins; i++) {
@@ -406,7 +414,7 @@ void fastNLOCoeffAddFix::Print(int iprint) const {
          }
       }
    }
-   if ( abs(iprint) > 1 ) {
+   if ( std::abs(iprint) > 1 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 1) " << fastNLO::_SSEP20 << endl;
       printf(" #   Printing of SigmaTilde not yet implemented.\n");
    }

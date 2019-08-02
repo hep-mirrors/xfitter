@@ -483,7 +483,7 @@ void fastNLOCoeffAddFlex::Print(int iprint) const {
    }
    printf(" # No. of scale1 nodes (Nscalenode1)   %d\n",(int)ScaleNode1[0].size());
    printf(" # No. of scale2 nodes (Nscalenode2)   %d\n",(int)ScaleNode2[0].size());
-   if ( abs(iprint) > 0 ) {
+   if ( std::abs(iprint) > 0 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 0) " << fastNLO::_SSEP20 << endl;
       char buffer[1024];
       for (int i=0; i<fNObsBins; i++) {
