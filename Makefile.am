@@ -69,7 +69,7 @@ endif
 
 DIST_SUBDIRS = $(SUBDIRS)  datafiles QEDevol/include \
            datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples-OLD \
-           python/ input_steering/ tools/
+           python/ tools/
 
 if ENABLE_LHAPDF
   SUBDIRS+= evolutions/LHAPDF/src\

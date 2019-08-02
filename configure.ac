@@ -87,7 +87,7 @@ AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
-CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++"
+CXXFLAGS="$CXXFLAGS -std=c++1z -lstdc++"
 
 # check for lapack and blas
 AC_MSG_CHECKING([for blas])
@@ -103,15 +103,61 @@ if test "$ax_lapack_ok" = "no"; then
 fi
 
 
-AC_MSG_CHECKING([for yaml-cpp])
+
+
+
+
+###########################################################################################################
+# check for yamlcpp
+AC_MSG_CHECKING([for yamlcpp])
+AC_ARG_ENABLE([yamlcpp],
+  [AC_HELP_STRING(--enable-yamlcpp[=PATH], [specify non-default yamlcpp path (default=yes)])],
+  [if test "x$enableval" != "xyes"; then
+     AC_CHECK_FILE([$enableval/include/yaml-cpp/yaml.h],
+       YAMLCPP_PATH=$enableval,
+       AC_MSG_ERROR([Unable to find include/yaml-cpp/yaml.h in given --enable-yamlcpp path: $enable_yamlcpp])
+     )
+  fi
+  ],
+  [if test "x$YAMLCPP_ROOT" != "x"; then
+     YAMLCPP_PATH=$YAMLCPP_ROOT
+   fi
+   if test "x$YAMLCPP_HOME" != "x"; then
+     YAMLCPP_PATH=$YAMLCPP_HOME
+   fi
+   if test "x$YAMLCPP__HOME" != "x"; then
+     YAMLCPP_PATH=$YAMLCPP__HOME
+   fi
+   if test "x$YAMLCPP_PATH" == "x"; then
+     AC_CHECK_FILE([$PWD/deps/yaml-cpp/yaml-cpp/yaml.h],
+        YAMLCPP_PATH=$PWD/deps/yaml-cpp,
+        [])
+   fi
+  ]
+)
+#     AC_CHECK_HEADER([yaml-cpp/yaml.h],[],[AC_MSG_ERROR([Unable to find include files for yaml-cpp.])])
+#     AC_CHECK_LIB([yaml-cpp],[yaml],[],[AC_MSG_ERROR([Unable to find library yaml-cpp.])])
+
+if test "x$YAMLCPP_PATH" != "x"; then
+     CFLAGS="-L$YAMLCPP_PATH/lib $CFLAGS"
+     CPPFLAGS="-I$YAMLCPP_PATH/include $CPPFLAGS"
+     CXXFLAGS="-I$YAMLCPP_PATH/include $CXXFLAGS"
+     LDFLAGS="-L$YAMLCPP_PATH/lib $LDFLAGS"       
+else
+     AC_MSG_RESULT([yaml-cpp was not found as extra environment variable. Trying system defaults...])
+     AC_CHECK_HEADER([yaml-cpp/yaml.h],[],[AC_MSG_ERROR([Unable to find include files for yaml-cpp.])])
+     AC_CHECK_LIB([yaml-cpp],[yaml],[],[AC_MSG_ERROR([Unable to find library yaml-cpp.])])
+fi
+
 AC_LANG_PUSH(C++)
+AC_MSG_CHECKING([compilation of yaml-cpp test program. Successful... ])
 AC_LINK_IFELSE(
  [AC_LANG_PROGRAM([#include <yaml-cpp/yaml.h>],[YAML::Node node;])],
  [AC_MSG_RESULT([yes])]
  [AM_CONDITIONAL([HAVE_YAMLPP],[true])],
  [AC_MSG_RESULT([no])]
  [AM_CONDITIONAL([HAVE_YAMLPP],[false])]
- [AC_MSG_ERROR([yaml-cpp is not installed. Install manually, or use tools/install-yaml helper script.])]
+ [AC_MSG_ERROR([yaml-cpp is not accessible. Install manually, or use tools/install-yaml helper script.])]
  )
 AC_LANG_POP(C++)
 
@@ -192,29 +238,39 @@ AC_CONFIG_SRCDIR([xfitter/cmain.cxx])
 ##  AC_MSG_RESULT([Using -L$CERN_ROOT/lib -lmathlib   -lkernlib -lpacklib  -llapack -lblas])
 #fi
 
-#AC_MSG_CHECKING([for QCDNUM libraries])
-#if test "x$QCDNUM_ROOT" = "x"; then
-#   AC_MSG_ERROR([QCDNUM enviroment not set ! QCDNUM_ROOT/lib must point to libhqstf.a  libmbutil.a  libqcdnum.a  libzmstf.a])
-#else
-#  AC_SUBST([QCDNUMLIBS], ["-L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil"])
-#  AC_MSG_RESULT([Using -L$QCDNUM_ROOT/lib -lhqstf -lzmstf -lqcdnum -lmbutil])
-#fi
-
+###########################################################################################################
 # check for QCDNUM installation
-AC_MSG_CHECKING([for QCDNUM installation])
-qcdnum_config=`which qcdnum-config`
-if test x$qcdnum_config == x; then
-  AC_MSG_ERROR([Unable to find qcdnum-config.])
-else 
-  QCDNUMVERS=`qcdnum-config --version`
-  QCDNUMLIBS=`qcdnum-config --ldflags`
-  QCDNUM_CPPFLAGS=`qcdnum-config --cppflags`
-  AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
-  AC_SUBST(QCDNUMLIBS)
-  AC_SUBST(QCDNUM_CPPFLAGS)
-  AX_COMPARE_VERSION([17-01-14],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-14 or later needed).])],[])
-fi
+AC_ARG_ENABLE([qcdnum],
+  [AC_HELP_STRING(--enable-qcdnum[=PATH], [specify non-default QCDNUM path (default=yes)])],
+  #  look for qcdnum-config (explicitly and only!) in $enable_qcdnum
+  [if test "x$enableval" != "xyes"; then
+      AC_PATH_PROG([QCDNUM_CONFIG], [qcdnum-config], ["error"],[$enableval/bin])
+      if test "x$QCDNUM_CONFIG" == "xerror"; then
+         AC_MSG_ERROR([Unable to find ./bin/qcdnum-config in path given with --enable-qcdnum=$enable_qcdnum])    
+      fi
+   fi
+  ],
+  #     AC_MSG_NOTICE([Using given path $enableval as location of $TMPNAM installation.])
+  #  look for qcdnum-config everywhere
+     [AC_PATH_PROG([QCDNUM_CONFIG], [qcdnum-config], ["error"],
+        [$enable_qcdnum/bin:$QCDNUM_HOME/bin:$QCDNUM__HOME/bin:$QCDNUM_ROOT/bin:$PWD/deps/qcdnum/bin:$prefix/bin:$PATH])]
+     if test "x$QCDNUM_CONFIG" == "xerror"; then 
+        #  QCDNUM_HOME, QCDNUM__HOME, QCDNUM_ROOT, ./deps/qcdnum, prefix-path or PATH.
+        AC_MSG_ERROR([Unable to find ./bin/qcdnum-config in any default path.])    
+     fi
+)
+# qcdnum-config found...
+# AC_MSG_RESULT([Using qcdnum-config from: $QCDNUM_CONFIG])
+QCDNUM_VERS=`$QCDNUM_CONFIG --version`
+QCDNUM_LIBS=`$QCDNUM_CONFIG --ldflags`
+QCDNUM_CPPFLAGS=`$QCDNUM_CONFIG --cppflags`
+AC_SUBST(QCDNUM_LIBS)
+AC_SUBST(QCDNUM_CPPFLAGS)
+AX_COMPARE_VERSION([17-01-14],[gt],[$QCDNUM_VERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-14 or later needed). You are using: $QCDNUM_VERS])],[])
+AC_MSG_RESULT([Using QCDNUM version $QCDNUM_VERS])
 
+
+###########################################################################################################
 # check for lhapdf installation
 AC_ARG_ENABLE([lhapdf],
   [AC_HELP_STRING(--enable-lhapdf, [use lhapdf (default=no)])])
@@ -542,7 +598,6 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/src/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
-                 input_steering/Makefile
                  tools/Makefile
                  datafiles/Makefile
                  datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/Makefile
