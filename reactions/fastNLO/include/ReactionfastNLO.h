@@ -9,6 +9,9 @@
 #include "fastnlotk/fastNLOReader.h"
 #include <map>
 #include <vector>
+#include "../../../evolutions/BaseEvolution/include/BaseEvolution.h"
+#include "xfitter_steer.h"
+//../../../evolutions/BaseEvolution/include/BaseEvolution.h
 
 /**
   @class' ReactionfastNLO
@@ -27,9 +30,17 @@ class fastNLOReaction : public fastNLOReader {
   protected:
     fastNLOReaction(string name) : fastNLOReader(name) {}; // not public!
     ReactionTheory* fReaction=NULL;
-    double EvolveAlphas(double q ) const { return alphas_wrapper_(q); } //!< provide alpha_s to fastNLO
+    double EvolveAlphas(double q ) const { 
+       return xfitter::defaultEvolution->getAlphaS(q);
+       //return alphas_wrapper_(q);  //old fortran
+    } //!< provide alpha_s to fastNLO
     bool InitPDF() { return true;}; //!< required by fastNLO
-    vector<double> GetXFX(double xp, double muf) const { std::vector<double> pdfV(13); pdf_xfxq_wrapper_(xp, muf, &pdfV[0]); return pdfV; }//!< provide PDFs to fastNLO
+    vector<double> GetXFX(double xp, double muf) const { 
+       std::vector<double> pdfV(14); 
+       // pdf_xfxq_wrapper_(xp, muf, &pdfV[0]); // old fortran wrapper
+       xfitter::defaultEvolution->xfxQarray(xp,muf,&pdfV[0]);
+       return pdfV; 
+    }//!< provide PDFs to fastNLO
 };
 
 class ReactionfastNLO : public ReactionTheory {

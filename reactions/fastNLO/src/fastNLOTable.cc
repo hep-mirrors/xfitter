@@ -2409,19 +2409,6 @@ std::istream* fastNLOTable::OpenFileRead() {
       exit(1);
    }
 
-#ifdef HAVE_LIBZ
-   cout<<" HOOORAY! HAVE_LIBZ"<<endl;
-#else 
-   cout<<" HOOORAY! DO NOTE HAVE_LIBZ"<<endl;
-#endif
-#ifdef WITH_LIBZ
-   cout<<" HOOORAY! WITH_LIBZ"<<endl;
-#else 
-   cout<<" HOOORAY! DO NOTE WITH_LIBZ"<<endl;
-#endif
-
-   exit(1);
-
    // check if filename ends with .gz
 #ifdef HAVE_LIBZ
    std::istream* strm = (istream*)(new zstr::ifstream(ffilename.c_str(),ios::in | std::ifstream::binary));
