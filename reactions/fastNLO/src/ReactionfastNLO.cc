@@ -51,7 +51,7 @@ void ReactionfastNLO::initTerm(TermData *td)
     // fastNLO default is 'NLO'
     if (order=="NNLO" ) {
       if(fnlo->ContrId(fastNLO::kFixedOrder,fastNLO::kNextToNextToLeading) < 0)
-        hf_errlog(19053100,"F: fastNLO. Requested order "+order+" cannot be set.");
+        hf_errlog(19073100,"W: fastNLO. Requested order "+order+" cannot be set. Using NLO only!");
       else
         success &= fnlo->SetContributionON(fastNLO::kFixedOrder, 2, true); // swith NNLO ON
     }
