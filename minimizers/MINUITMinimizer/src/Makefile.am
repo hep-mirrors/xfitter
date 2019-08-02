@@ -1,7 +1,7 @@
 
 # Created by AddMinimizer.py on 2018-08-17
 
-AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include   -I$(srcdir)/../../../common  -I$(srcdir)/../../BaseMinimizer/include -Wall -fPIC -Wno-deprecated 
+AM_CXXFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../../include -I$(srcdir)/../../../common -Wall -fPIC -Wno-deprecated
 
 lib_LTLIBRARIES = libMINUITMinimizer_xfitter.la
 libMINUITMinimizer_xfitter_la_SOURCES = MINUITMinimizer.cc

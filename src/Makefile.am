@@ -51,7 +51,6 @@ libxfmain_la_CXXFLAGS=\
   -I$(top_srcdir)/FastNLO/include\
   -I$(top_srcdir)/common\
   -I$(top_srcdir)/common/linalg\
-  -I$(top_srcdir)/minimizers/BaseMinimizer/include \
   -I$(top_srcdir)/tools/draw/include
 libxfmain_la_CFLAGS=
 libxfmain_la_CPPFLAGS=$(QCDNUM_CPPFLAGS) -I$(top_srcdir)/include -DPREFIX="\"$(prefix)\""
