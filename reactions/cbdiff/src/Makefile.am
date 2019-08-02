@@ -16,4 +16,5 @@ endif
 datadir = ${prefix}/yaml/reactions/cbdiff
 data_DATA = ../yaml/parameters.yaml
 
-dist_noinst_HEADERS = ../include
+dist_noinst_HEADERS = ../include ../yaml
+

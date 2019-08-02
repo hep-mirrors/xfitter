@@ -1,2 +1,2 @@
-EXTRA_DIST = check.sh install-xfitter  tester.py  tolhapdf.cmd parse_minuit.perl xfitter-getdata.sh ToAppfelGrid.py
+EXTRA_DIST = install-xfitter  test.sh  tolhapdf.cmd ToAppfelGrid.py
 

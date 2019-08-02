@@ -68,8 +68,8 @@ if ENABLE_CERES
 endif
 
 DIST_SUBDIRS = $(SUBDIRS)  datafiles QEDevol/include \
-           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo examples-OLD \
-           python/ input_steering/ tools/
+           datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042 doc/logo  \
+           python/  tools/
 
 if ENABLE_LHAPDF
   SUBDIRS+= evolutions/LHAPDF/src\
@@ -92,5 +92,5 @@ reaction_DATA = Reactions.txt
 #TESTS= ./tools/check.sh
 
 EXTRA_DIST= README INSTALLATION LICENCE REFERENCES \
-   minuit.in.txt steering.txt testPythonInterface.py parameters.yaml Reactions.txt
-bin_SCRIPTS = xfitter-config tools/xfitter-getdata.sh
+    steering.txt  parameters.yaml Reactions.txt constants.yaml
+bin_SCRIPTS = xfitter-config
