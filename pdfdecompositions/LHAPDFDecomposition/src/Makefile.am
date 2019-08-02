@@ -2,7 +2,6 @@
 # Created by AddPdfDecomposition.py on 2018-07-12
 if ENABLE_LHAPDF
    AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include $(LHAPDF_CPPFLAGS) \
-                 -I$(srcdir)/../../BasePdfDecomposition/include \
                  -I$(srcdir)/../../../pdfparams/BasePdfParam/include \
                  -Wall -fPIC -Wno-deprecated 
 

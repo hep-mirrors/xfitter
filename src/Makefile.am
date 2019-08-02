@@ -51,7 +51,6 @@ libxfmain_la_CXXFLAGS=\
   -I$(top_srcdir)/FastNLO/include\
   -I$(top_srcdir)/common\
   -I$(top_srcdir)/common/linalg\
-  -I$(top_srcdir)/pdfdecompositions/BasePdfDecomposition/include \
   -I$(top_srcdir)/pdfparams/BasePdfParam/include \
   -I$(top_srcdir)/minimizers/BaseMinimizer/include \
   -I$(top_srcdir)/tools/draw/include

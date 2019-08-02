@@ -1,7 +1,6 @@
 if ENABLE_APFELXX
    AM_CPPFLAGS=$(APFELXX_CPPFLAGS)\
 	-I$(srcdir)/../include \
-	-I$(srcdir)/../../../pdfdecompositions/BasePdfDecomposition/include \
 	-I$(srcdir)/../../../include \
 	-Wall -fPIC -Wno-deprecated 
 

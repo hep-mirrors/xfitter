@@ -18,7 +18,7 @@ namespace xfitter
 {
   class BasePdfDecomposition {
   public:
-		const std::string _name;//Unique name used to identify this decomposition instance
+    const std::string _name;//Unique name used to identify this decomposition instance
     /// Default constructor.
     BasePdfDecomposition(const char*name):_name(name){}
     virtual ~BasePdfDecomposition(){}

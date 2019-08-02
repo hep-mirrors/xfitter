@@ -3,7 +3,6 @@ if ENABLE_APFEL
     AM_CXXFLAGS=$(APFEL_CPPFLAGS)\
     -I$(srcdir)/../include\
     -I$(srcdir)/../../../include \
-    -I$(srcdir)/../../../pdfdecompositions/BasePdfDecomposition/include \
     -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated
 
     lib_LTLIBRARIES=libAPFEL_Evol_xfitter.la

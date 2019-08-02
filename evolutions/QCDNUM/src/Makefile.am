@@ -3,7 +3,6 @@
 
 AM_CXXFLAGS = $(QCDNUM_CPPFLAGS) \
         -I$(srcdir)/../include  -I$(srcdir)/../../../include \
-        -I$(srcdir)/../../../pdfdecompositions/BasePdfDecomposition/include \
         -Wall -fPIC -Wno-deprecated 
 
 lib_LTLIBRARIES = libqcdnum_xfitter.la
