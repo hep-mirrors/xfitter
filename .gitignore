@@ -1,12 +1,4 @@
 *~
-*.o
-*.lo
-*.a
-*.la
-.deps/
-.libs/
-Makefile.in
-Makefile
 bin/
 xfitter/xfitter
 tools/MakeLHAPDF/tolhapdf
@@ -17,24 +9,24 @@ xfitter-config
 lib/
 share/
 include/xfitter
-aclocal.m4
-autom4te.cache/
 *.m4
-config.guess
-config.log
-config.status
-config.sub
-configure
-compile
-depcomp
-missing
-install-sh
-libtool
-ltmain.sh
-unpolarised.wgt
-zmstf.wgt
 SACOT/src/mdispac.mod
 doc/html/
+build/
+
+#Automake generated files
+*.o
+*.lo
+*.a
+*.la
+Makefile
+Makefile.in
+.deps
+.libs
+
+#QCDNUM cached tables
+unpolarised.wgt
+zmstf.wgt
 
 # vim swap file
 *.swp

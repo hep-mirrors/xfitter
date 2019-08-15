@@ -1,7 +1,7 @@
       subroutine xFitter 
 C--------------------------------------------------------
 C
-C> HERA PDF Fit Program
+C> xFitter PDF Fit Program
 C
 C-------------------------------------------------------
 
@@ -32,7 +32,7 @@ C-----------------------------------------------------
 *     ------------------------------------------------
 *     Print HFitter banner
 *     ------------------------------------------------
-      call hfbanner
+C      call hfbanner
 
       narg = command_argument_count()
       if (narg.gt.0) then
@@ -83,13 +83,12 @@ C-----------------------------------------------------
      +     'I: data tables have been read successfully') 
 
 *  
-!     call init_func_map()
       call Init_EW_parameters
-
-      if (LHAPDFErrors) then  ! PDF errors
-         call get_lhapdferrors
-         goto 36
-      endif
+C LHAPDFErrors is broken since 2.2.0
+C      if (LHAPDFErrors) then  ! PDF errors
+C         call get_lhapdferrors
+C         goto 36
+C      endif
 C chi2scan is broken since 2.2.0
 C     if (SCAN) then  ! chi2 scan
 C        call chi2_scan
@@ -142,24 +141,24 @@ c ..........................................................
         call Do_Fit
       endif
       
-      
-      if (doOffset) then
-        call Offset_Finalize(icond)
-        call flush(6)
-        if(icond .ne. 0) goto 36
-        Call RecovCentrPars
-      else
-        if (ControlFitSplit) then
-           Call FindBestFCN3  !> Overfitting protection.
-        else
-*
-* Write out central parameters
-*
-           call write_pars(0)
-        endif
-        close(24)
-        close(25)
-      endif
+*Offset is broken in 2.2.1      
+*      if (doOffset) then
+*        call Offset_Finalize(icond)
+*        call flush(6)
+*        if(icond .ne. 0) goto 36
+*        Call RecovCentrPars
+*      else
+*        if (ControlFitSplit) then
+*           Call FindBestFCN3  !> Overfitting protection.
+*        else
+**
+** Write out central parameters
+**
+*           call write_pars(0)
+*        endif
+*        close(24)
+*        close(25)
+*      endif
 
       call report_convergence_status()
 

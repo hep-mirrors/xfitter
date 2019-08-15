@@ -6,10 +6,7 @@
 #include "couplings.inc"
 #include "thresholds.inc"
 
-        c_mz= mz
-
-        c_LHAPDF6OutDir= LHAPDF6OutDir
-        c_OutDirName= OutDirName
+        c_OutDirName=OutDirName
         c_lhapdfset=lhapdfset
         c_WriteAlphaSToMemberPDF= WriteAlphaSToMemberPDF
 

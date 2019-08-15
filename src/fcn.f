@@ -565,7 +565,8 @@ c WS: for the Offset method save central fit only
                   open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
 
                   call store_pdfs(base_pdfname)
-                  call fill_c_common
+                  !call fill_c_common !I think fill_c_common no longer
+                  !needed since xFitter 2.2
                   call print_lhapdf6
                endif
             endif

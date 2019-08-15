@@ -435,8 +435,9 @@ c new commands added by J. Pumplin 8/2000
  3100 CALL MYSTUFF(FCN,FUTIL)
       GOTO 5000
 c =======================================================================
+C DISABLED IN XFITTER 2.2.1
 C A "genetic search" method for a global minima determination
- 3200 CALL genetic_search(fcn)
+ 3200 continue!CALL genetic_search(fcn)
       GOTO 5000
 C                                      . . . . . . . . . . blank line
  3300 CONTINUE

@@ -20,11 +20,11 @@ add_library(xfitter SHARED
   init_theory.f
   IntegrateDIS.cc
   lhapdf6_output.cc
-  lhapdferrors.cc
-  #main.f
+  #lhapdferrors.cc
+  main.f
   mc_errors.f
   minuit_ini.f
-  offset_fns.f
+  #offset_fns.f
   prep_corr.f
   Profiler.cc
   QCDNUM_Manager.cc
@@ -41,9 +41,33 @@ add_library(xfitter SHARED
   xfitter_cpp_base.cc
   xfitter_pars.cc
   xfitter_steer.cc
+  num_utils/ranlux.f
+  num_utils/rnpssn.f
+  num_utils/dinv.f
+  num_utils/dfact.f
+  num_utils/deqinv.f
+  num_utils/ranmar.f
+  num_utils/rnormx.f
+  num_utils/deqn.f
+  num_utils/dfeqn.f
+  num_utils/dfinv.f
+  num_utils/rzero.f
+  num_utils/rnorml.f
+  num_utils/datime.f #placeholder for datetime
+  Xstring.cc
+  FitPars_base.cc
+  FTNFitPars.cc
 )
-target_include_directories(xfitter PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_compile_definitions(xfitter PRIVATE -DDLOPEN_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}")
+target_include_directories(xfitter PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/linalg)
+#TODO: remove "PREFIX" define
+target_compile_definitions(xfitter PRIVATE -DXFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}" -DPREFIX="${CMAKE_INSTALL_PREFIX}")
+target_link_libraries(xfitter PRIVATE
+  MINUIT
+  QCDNUM
+  yaml-cpp
+  ${CMAKE_DL_LIBS} #for dlopen
+  ${LAPACK_LIBRARIES}
+)
 install(TARGETS xfitter DESTINATION ${DEST_LIB})
 
 #Executable
@@ -51,3 +75,5 @@ add_executable(xfitter-bin main.cc)
 set_target_properties(xfitter-bin PROPERTIES OUTPUT_NAME xfitter)
 target_link_libraries(xfitter-bin xfitter)
 install(TARGETS xfitter-bin DESTINATION ${DEST_BIN})
+
+add_subdirectory(minuit)
