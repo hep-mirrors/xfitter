@@ -2,26 +2,18 @@
       integer NBANDS
       parameter (NBANDS=40)
 
-      integer Itheory          !>  Theory type
-     $     ,I_FIT_ORDER        !>  Fit order (LO=0, NLO=1, NNLO=2)
-     $     ,EWFIT              !>  EWfit (=0 NO EWFIT)
-     $     ,iDH_MOD            !>  Correction factor to the chi2, scaling
-                               !>  of statistical errors
-      character*32 HF_SCHEME      
-      integer HFSCHEME          !>  Heavy flavour scheme (0 - zero mass, 2 - RT, 3 - FFNS)
+      integer I_FIT_ORDER        !>  Fit order (LO=0, NLO=1, NNLO=2)
+      integer iDH_MOD            !>  Correction factor to the chi2, scaling
+                                 !>  of statistical errors
 
       double precision Chi2MaxError !> Switch to Poisson stat. for larger errros
       
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
-! DOBANDS moved to Minimizer class since 2.2.0
-!     logical DOBANDS            !> Produce PDF error bands
-!     logical DoBandsSym        !> Produce symmetric bands
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
       logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
       logical UseGridLHAPDF5     !> store PDFs in LHAPDF5 format
-      logical WriteLHAPDF6     !> store PDFs in LHAPDF6 format
       logical WriteLHAPDF5     
       real*4 
      $     starting_scale,     !> Evolution starting scale
@@ -57,9 +49,6 @@ C Flag for PDF length, chebyshev param. for gluon
 !
 !      real chebxmin        !> low X-range to map with Cheb. polynoms
 
-C X-dependent fstrange:
-      integer ifsttype  !> 0 - default, 1 - hermes-like
-
 C Random number seed for lRand = true
       integer iSeeDmc
 
@@ -84,22 +73,12 @@ C Applgrid flags
 C
 C Fast/slow mode for APPLGRID PDF convolution. 
 C
-      logical LFastAPPLGRID
-
       integer IPDFSET          !>  QCDNUM PDF set 5-for LHAPDF 
       integer vIPDFSET         !>  value of IPDFSET for each dataset
       integer cIDataSet        !>  dataset index to be used to dermine the number of active flavour in the H-VFNS
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
-      logical lead             !> Flag to trigger lead PDF	
-      logical deuteron             !> Flag to trigger deuteron PDF	
-! Caching PDF calls is currently broken
-!     logical CachePDFs        !> Cache PDF calls to speedup
       logical FLAGRW
       logical DORWONLY
-      logical FlexibleGluon    !> Flexible gluon parameterisation
-      logical FreeStrange    !> Free strange parameterisation
-      logical Read_QCDNUM_Tables
-      logical WriteAlphaSToMemberPDF    !> write alphas header to LHAPDF6 member files
       logical pdfrotate   ! Special branch to perform PDF re-diagonalization
       
       logical ExtraPdfs   ! additional PDFs (e.g. photon)
@@ -115,30 +94,30 @@ C
 
       integer steering_check
       common/STEERING/
-     &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
+     &     Q2VAL,
+     $     Chi2MaxError,
      $     HF_MASS,charm_frac,
-     &     lDEBUG,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,WriteAlphaSToMemberPDF,
-     &     Itheory,I_FIT_ORDER,HFSCHEME,
+     $     lDEBUG,
+     $     UseGridLHAPDF5,
+     $     h1qcdfunc,
+     $     I_FIT_ORDER,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange,outnx,ILENPDF,
-     $     wmnlen,wmxlen
-     $     ,ifsttype,iSeeDmc
-     $     ,EWFIT
-     $     ,npolyval, lead
-     $     ,IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy
-     $     ,LFastAPPLGRID,Lranddata,iDH_MOD
-     $     ,IPDFSET, vIPDFSET, cIDataSet, ICHECK_QCDNUM
-     $     ,UsePrevFit
-     $     ,CorrSystByOffset,CorSysIndex
-     $     ,StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
-     $     CorChi2Type, hf_scheme, AsymErrorsIterations,
-     $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5, 
+     $     wmnlen,wmxlen,
+     $     iSeedMc,
+     $     IZPOPOLY,IPOLYSQR, useapplg, napplgrids,lfitdy,
+     $     Lranddata,iDH_MOD,
+     $     IPDFSET, vIPDFSET, cIDataSet, ICHECK_QCDNUM,
+     $     UsePrevFit,
+     $     CorrSystByOffset,CorSysIndex,
+     $     StatScale, UncorSysScale, CorSysScale,UncorChi2Type,
+     $     CorChi2Type, AsymErrorsIterations,
+     $     pdfrotate, ExtraPdfs, WriteLHAPDF5, 
      $     steering_check ! Keep this at the end of the common block
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
 
-      common/STEERING2/FLAGRW,DORWONLY,FlexibleGluon,
-     $     read_qcdnum_tables, FreeStrange
+      common/STEERING2/FLAGRW,DORWONLY
 
 c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
       integer NMXGRID           !> Total number of X-grid sub-ranges
@@ -186,9 +165,8 @@ c     common/CPdfStyle/PDFType
       common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,
      $	 LHAPDFErrors,Scale68,nremovepriors,lhapdfprofile,lhascaleprofile
 
-      character*256 OutDirName   !> outout dir name
-      character*256 LHAPDF6OutDir
-      common/COutDirName/OutDirName, LHAPDF6OutDir
+      character*256 OutDirName   !> output dir name
+      common/COutDirName/OutDirName
 
       character*32 RunningMode
       common/CRunningMode/RunningMode

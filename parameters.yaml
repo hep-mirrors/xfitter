@@ -178,6 +178,8 @@ Profiler:
   WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
   getChi2: "Off"              # determine and report chi2 for each variation
 
+OutputDirectory: "output" #Can be omitted, default is "output"
+
 WriteLHAPDF6:
   name: "proton"
   description: "..."

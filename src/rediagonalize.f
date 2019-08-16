@@ -27,7 +27,6 @@ C-------------------------------------
       nsysloc = nsys*2 - nsys  ! that is ugly fix of the Fortran optimization problem
       print *,'sys',nsysloc
 C      print *,'ndata=',ndata
-      call read_outdirnml
       call read_lhapdfnml
 
       lreset = .false.

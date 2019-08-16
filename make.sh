@@ -12,7 +12,7 @@
 #main library             goes to ./lib
 #dynamically loaded modules go to ./lib/xfitter
 
-cmake=$(which cmake)
+cmake="$(which cmake) -DCMAKE_BUILD_TYPE=Release"
 SOURCE_DIR=$(dirname $(readlink -e $0)) #absolute path to directory of this script
 BUILD_DIR=$SOURCE_DIR/build
 INSTALL_DIR=$SOURCE_DIR

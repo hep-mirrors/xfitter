@@ -11,13 +11,17 @@
 #include "xfitter_steer.h"
 #include "xfitter_cpp.h"
 #include "xfitter_cpp_base.h"
-#include <fstream>
 #include <string.h>
 #include <cmath>
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
 #include "BaseMinimizer.h"
-#include"dependent_pars.h"
+#include "dependent_pars.h"
+#include "ansi_codes.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 // Fortran bindings:
 extern "C" {
@@ -176,11 +180,6 @@ double getEvolutionParamD(const string& evName,const string& parName){
   std::abort();//unreachable
 }
 
-// Helper function
-bool fileExists(const string&fileName){
-  return std::ifstream(fileName).good();
-}
-
 YAML::Node loadYamlFile(const string&filename){
   YAML::Node node;
   try{
@@ -306,6 +305,28 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         }
       }
     }
+  }
+
+  void createOutputDir(){
+    string outputDir="output";//default
+    if(rootNode["OutputDirectory"]){
+      outputDir = rootNode["OutputDirectory"].as<string>();
+    }
+    stringToFortran(coutdirname_.outdirname, 256, outputDir);
+
+    //create the output directory
+    //if that directory already exists, presumably from the previous run, rename it to output_OLD first
+    //if output_OLD also exists, delete it
+    if(fileExists(outputDir)){
+      string oldOutputDir=outputDir+"_OLD";
+      if(fileExists(oldOutputDir)){
+        hf_errlog(1303201701, string(ANSI_RED)+"W: Removing old results directory "+oldOutputDir+ANSI_RESET);
+        system(("rm -rf "+oldOutputDir).c_str());
+      }
+      hf_errlog(1303201702, string(ANSI_RED)+"W: Backing up previous results to "+oldOutputDir+ANSI_RESET);
+      rename(outputDir.c_str(), oldOutputDir.c_str());
+    }
+    mkdir(outputDir.c_str(),0755);
   }
 
   void ParsToFortran(){
@@ -577,6 +598,7 @@ void parse_params_(){
   ensureMapValidity("byReaction");
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
   createParameters();
+  createOutputDir();
   ParsToFortran();
 }
 
