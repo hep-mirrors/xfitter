@@ -49,7 +49,6 @@ extern "C" {
   void init_theor_eval_(int *dsId);
   void update_theor_ckm_();
   void get_theor_eval_(int *dsId, int* np, int* idx);
-  int read_reactions_();
   void close_theor_eval_();
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
@@ -58,7 +57,6 @@ extern "C" {
 
 /// global dataset to theory evaluation pointer map
 tTEmap gTEmap;
-tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 
 const size_t NTERMMAX      =128;
@@ -239,29 +237,6 @@ void close_theor_eval_()
   gTEmap.clear();
 }
 
-
-/*!
- */
-int read_reactions_()
-{
-  ifstream frt((PREFIX+string("/lib/Reactions.txt")).c_str());
-  if ( frt.is_open() ) {
-    while (1){
-      string rname, lib;
-      frt >> rname >> lib;
-      if (frt.eof()) break;
-      if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
-        // possible check
-      }
-      gReactionLibs[rname] = lib;
-    }
-  }
-  else {
-    string text = string("F: can not open Reactions.txt file. Check your ")+PREFIX+string("/lib directory");
-    hf_errlog_(16121401,text.c_str(),text.size());
-  }
-  return 1;
-}
 
 /* Broken since 2.2.0
 double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }

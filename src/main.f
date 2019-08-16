@@ -65,10 +65,6 @@ C      call hfbanner
 *
 *  Read parameters:
 *
-*Read the list of dynamically loaded objects from Reactions.txt
-*Confusingly, this is used not only for reactions, but also for
-*minimizers, decompositions, parameterisations and evolutions
-      call read_reactions()
       call parse_params() !read parameters.yaml
 
 *This makes sure that the default evolution exists and is acessible from
