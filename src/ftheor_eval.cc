@@ -237,19 +237,6 @@ void close_theor_eval_()
   gTEmap.clear();
 }
 
-
-/* Broken since 2.2.0
-double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
-double xu(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
-double xub(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
-
-void init_func_map_() {
-  g2Dfunctions["xg"] = &xg;
-  g2Dfunctions["xu"] = &xu;
-  g2Dfunctions["xub"] = &xub;
-}
-*/
-
 void init_at_iteration_() {
   xfitter::updateDependentParameters();
   for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {

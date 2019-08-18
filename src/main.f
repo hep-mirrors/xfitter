@@ -53,14 +53,11 @@ C      call hfbanner
 *     ------------------------------------------------ 
       call read_steer
 
+      call hf_errlog(12020501,
+     +  'I: steering.txt has been read successfully')
 
 * Init random numbers 
       call init_rnd_seeds()
-
-      call hf_errlog(12020501,
-     +     'I: steering.txt has been read successfully') 
-
-
 
 *
 *  Read parameters:
@@ -77,19 +74,6 @@ C      call hfbanner
       call read_data
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
-
-*  
-      call Init_EW_parameters
-C LHAPDFErrors is broken since 2.2.0
-C      if (LHAPDFErrors) then  ! PDF errors
-C         call get_lhapdferrors
-C         goto 36
-C      endif
-C chi2scan is broken since 2.2.0
-C     if (SCAN) then  ! chi2 scan
-C        call chi2_scan
-C        goto 36
-C     endif
 
 *     ------------------------------------------------
 *     Do the fit
@@ -118,7 +102,6 @@ c ..........................................................
         CorSysIndex = 0
       endif
 
-      
       call init_minimizer()
 
       call run_minimizer()
@@ -167,4 +150,3 @@ c ..........................................................
 *     ------------------------------------------------
       call HF_errsum(6)
       end
-
