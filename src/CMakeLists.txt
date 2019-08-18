@@ -64,6 +64,7 @@ target_include_directories(xfitter PUBLIC
 )
 target_compile_definitions(xfitter PRIVATE
   -DXFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}"
+  -DXFITTER_YAML_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_YAML}/"
   -DPREFIX="${CMAKE_INSTALL_PREFIX}"
 )
 target_link_libraries(xfitter PRIVATE

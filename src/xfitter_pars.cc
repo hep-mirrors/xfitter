@@ -190,6 +190,29 @@ YAML::Node loadYamlFile(const string&filename){
   }
   return node;
 }
+/*
+\brief Process "? !include" directives in the YAML steering
+\details
+  For each "? !include" directive in the loaded YAML tree,
+  open the included file and insert its contents in place of the !include,
+  possibly ignoring some keys if they are already defined locally.
+
+  When looking for the included file, search relative to current working directory first.
+  If the included file is not found there,
+  AND the given path is not absolute (absolute paths begin with '/'),
+  AND the given path is not explicitly relative to working dir (begin with '.'),
+  then look in the system directory for standard xfitter YAML files,
+  which is XFITTER_YAML_PATH=INSTALL_PREFIX/share/xfitter/
+
+  This function operates on YAML maps, looking for "include" tag on key of each entry.
+
+  Include expansion is recursive, which means that "!include" statements will be expanded in sub-maps too
+  (on any indentation level of the YAML steering).
+
+  Included files can also contain "!include" directives
+
+  The recursionLimit is meant to protect from circular includes.
+*/
 void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   if(recursionLimit==0){
     hf_errlog(18092605,"F: Recursion limit reached while handling includes");
@@ -225,7 +248,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       char c=filename[0];
       bool file_not_found=(c=='/'||c=='.');
       if(!file_not_found){
-        string prefix_filename=PREFIX+string("/yaml/")+filename;
+        string prefix_filename=XFITTER_YAML_PATH+filename;
         if(fileExists(prefix_filename))filename=prefix_filename;
         else file_not_found=true;
       }
