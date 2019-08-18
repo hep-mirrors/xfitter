@@ -44,8 +44,13 @@ else()
 endif()
 
 add_subdirectory(src)
+
+#Dynamically-loaded modules
+#Minimizers
 add_subdirectory(minimizers/MINUIT)
 if(CERES_FOUND)
   add_subdirectory(minimizers/CERES)
 endif()
+#Evolutions
+add_subdirectory(evolutions/QCDNUM)
 #add_subdirectory(pdfparams/HERAPDF)
