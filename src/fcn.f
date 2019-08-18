@@ -190,8 +190,6 @@ c updf stuff
       Common/CCFMout/CCFMfile
       CHARACTER   evolfNAME*132
       Common/gludatf/evolfname
-      Integer Itheory_ca
-      Common/theory/Itheory_ca
       Integer idx
 
       character*2 TypeC, FormC, TypeD
@@ -225,8 +223,6 @@ C--------------------------------------------------------------
 
       iflagfcn = iflag
 
-      itheory_ca = itheory
-
       do jsys=1,nsys
          bsys(jsys) = 0.d0
          rsys(jsys) = 0.d0
@@ -239,28 +235,6 @@ C--------------------------------------------------------------
          THEO(i) = 0.d0
          THEO_MOD(i) = 0.d0
       enddo ! on second thought, why clear these anyway?
-
-
-
-      if (Itheory.eq.3) then
-        Itheory = 0
-      endif
-
-      if(Itheory.ge.100) then
-        auh(1) = parminuitsave(1)
-        auh(2) = parminuitsave(2)
-        auh(3) = parminuitsave(3)
-        auh(4) = parminuitsave(4)
-        auh(5) = parminuitsave(5)
-        auh(6) = parminuitsave(6)
-        auh(7) = parminuitsave(7)
-        auh(8) = parminuitsave(8)
-        auh(9) = parminuitsave(9)
-c        write(6,*) ' fcn npoint ',npoints
-         firsth=.true.
-         Fccfm1=.true.
-
-      endif
 
       if (iflag.eq.1) then
          open(87,file=TRIM(OutDirName)//'/pulls.first.txt')
@@ -533,45 +507,6 @@ c     $           ,chi2_cont/NControlPoints
 
          base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
 
-         if (ITheory.ne.2) then
-
-            IF((Itheory.ge.100).or.(Itheory.eq.50)) then
-               auh(1) = parminuitsave(1)
-               auh(2) = parminuitsave(2)
-               auh(3) = parminuitsave(3)
-               auh(4) = parminuitsave(4)
-               auh(5) = parminuitsave(5)
-               auh(6) = parminuitsave(6)
-               auh(7) = parminuitsave(7)
-               auh(8) = parminuitsave(8)
-               auh(9) = parminuitsave(9)
-
-               open(91,file=TRIM(OutDirName)//'/params.txt')
-               write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
-
-
-
-            else
-C Broken since 2.2.0
-!C  Hardwire:
-!               if ( ReadParsFromFile .and. DoBandsSym) then
-!                  call ReadPars(ParsFileName, pkeep)
-!!                 call PDF_param_iteration(pkeep,2)!broken since 2.2.0
-!               endif
-
-C LHAPDF output:
-c WS: for the Offset method save central fit only
-               if (CorSysIndex.eq.0) then
-                  open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
-
-                  call store_pdfs(base_pdfname)
-                  !call fill_c_common !I think fill_c_common no longer
-                  !needed since xFitter 2.2
-                  call print_lhapdf6
-               endif
-            endif
-         endif
-
 c WS: print NSYS --- needed for batch Offset runs
          write(85,*) 'Systematic shifts ',NSYS
          write(85,*) ' '
@@ -619,100 +554,6 @@ C Trigger reactions:
 
 C Return the chi2 value:
       chi2data_theory = chi2out
-      end
-
-C Broken since 2.2.0
-C---------------------------------------------------------------------
-!> @brief   Calculate penalty term for higher oder parameters using "temperature"
-!> @details Currently works only for standard param-types (10p-13p-like)
-C---------------------------------------------------------------------
-c     double precision function GetTempChi2()
-
-c     implicit none
-c     integer i
-c     double precision chi2
-c     double precision xscale(3)
-c     data xscale/0.01,0.01,0.01/
-c     chi2 = 0.
-
-C Over d,e and F
-c     do i=1,3
-c        chi2 = chi2 + (paruval(i+3)*xscale(i))**2
-c        chi2 = chi2 + (pardval(i+3)*xscale(i))**2
-c        chi2 = chi2 + (parubar(i+3)*xscale(i))**2
-c        chi2 = chi2 + (pardbar(i+3)*xscale(i))**2
-c        if (i.le.2) then
-c           chi2 = chi2 + (parglue(i+3)*xscale(i))**2
-c        endif
-c     enddo
-
-
-c     GetTempChi2 = chi2*Temperature
-C---------------------------------------------------------------------
-c     end
-
-
-C---------------------------------------------------------
-C Update heavy-quark mass values for FF ABM RUNM or FF ABM
-C---------------------------------------------------------
-      subroutine UpdateHQMasses
-      implicit none
-#include "couplings.inc"
-#include "steering.inc"
-#include "extrapars.inc"
-      integer imc,imb,imt
-      data imc,imb,imt /0,0,0/
-      save imc,imb,imt
-      integer GetParameterIndex
-      character*256 parname
-      double precision par,unc,ll,ul
-      integer st
-      ! check scheme
-      if (HFSCHEME.ne.4.and.HFSCHEME.ne.444) then
-        continue
-      endif
-      ! mc
-      if(imc.eq.0) then
-        imc=GetParameterIndex('mc')
-        if(imc.eq.0) then
-          imc=-1
-        else
-          imc=iExtraParamMinuit(imc)
-        endif
-      endif
-      if(imc.gt.0) then
-        call MNPOUT(imc,parname,par,unc,ll,ul,st)
-        HF_MASS(1)=par
-        mch=par
-      endif
-      ! mb
-      if(imb.eq.0) then
-        imb=GetParameterIndex('mb')
-        if(imb.eq.0) then
-          imb=-1
-        else
-          imb=iExtraParamMinuit(imb)
-        endif
-      endif
-      if(imb.gt.0) then
-        call MNPOUT(imb,parname,par,unc,ll,ul,st)
-        HF_MASS(2)=par
-        mbt=par
-      endif
-      ! mt
-      if(imt.eq.0) then
-        imt=GetParameterIndex('mt')
-        if(imt.eq.0) then
-          imt=-1
-        else
-          imt=iExtraParamMinuit(imt)
-        endif
-      endif
-      if(imt.gt.0) then
-        call MNPOUT(imt,parname,par,unc,ll,ul,st)
-        HF_MASS(3)=par
-        mtp=par
-      endif
       end
 C copy parameters from minuit to wherever c++ components will read them from
 C @param[in] p - vector of parameter values (I am not sure in what order)

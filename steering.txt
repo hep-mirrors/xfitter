@@ -60,15 +60,10 @@
   DataSystType = ':A', ':A'
 &End
 
-&QCDNUM
-   ! do not re-compute QCDNUM tables if they are present and match grid definition
-  Read_QCDNUM_Tables = .true.
-&End 
-
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
 * dependently. The numbering follows sequential numbering of input files
-*
+* Does this still work? --Ivan
 &Scales 
     DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
     DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
@@ -116,9 +111,6 @@
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
    Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
    Chi2ExtraParam = 'PoissonCorr'
-
- ! Flag to define if native APPLgrid CKM values should be kept.
- LUseAPPLgridCKM = True
 
  ! Debug flag
   LDEBUG     = False

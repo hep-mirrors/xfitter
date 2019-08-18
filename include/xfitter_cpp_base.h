@@ -23,7 +23,7 @@ bool fileExists(const std::string& fileName);
 namespace xfitter{
 /*!
 \brief Returns path to directory in which all xfitter output should be stored
-\details The output directory is determined by setting OutDirName in steering.txt
+\details The output directory is determined by "OutputDirectory:" in parameters.yaml
 */
 std::string getOutDirName();
 }

@@ -31,17 +31,11 @@ C Special branch for rotation
       call read_infilesnml   ! Read data file names THIRD
       call read_outputnml   ! output options
 
-!     if(Itheory.lt.100) then
       call read_lhapdfnml    ! read lhapdf
 !        call read_chi2scan     ! read chi2scan
-!     endif   ! Itheory < 100
 
       call read_mcerrorsnml  ! MC uncertainties
       call read_hqscalesnml  ! read HQ scales
-
-      if (itheory.ge.100) then
-         call read_ccfmfilesnml
-      endif
 
       call Read_InCorrNml   ! Covariance matrix
       call read_scalesnml   ! Read scales namelist
@@ -83,11 +77,7 @@ C------------------------------------------------------
 
       nExtraParam = 0
 
-      Itheory = 0
-
       ExtraPdfs = .false.
-
-      EWFIT=0
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
 
@@ -111,33 +101,11 @@ C     Initialise LHAPDF parameters
       IPDFSET = 1
       vIPDFSET = IPDFSET
 
-C 25 Jan 2011
-C     Pure polynomial param for the valence quarks:
-C     by default starting from N=61 for Uv and N=71 for Dv
-      NPOLYVAL = 0
-
-C Add option to change Z of valence PDFs at x=1 from  (1-x) to (1-x)^2
-      IZPOPOLY = 1
-
-C Square polynom before calculating dv,uv. This forces positivity
-      IPOLYSQR = 0
 C  Key for W range
       WMNlen =  20.
       WMXlen = 320.
-
-C  Hermes-like strange (off by default):
-      ifsttype = 0
-
-C  Cache PDF calls
-!  are currently broken
-!     CachePDFs     = .false.
-
 ! Do not split the data into fit and control sub-samples:
       ControlFitSplit = .false.
-
-C  Fast applgrid:
-      LFastAPPLGRID = .false.
-      LUseAPPLgridCKM = .true.
 *
 C MC Errors defaults:
       lRAND = .false.
@@ -154,17 +122,11 @@ C PDF output options:
       outxrange(1) = 1e-4
       outxrange(2) = 1.0
 
-      strange_frac = 0.31
-      charm_frac = 0.00
-
       mch        = 1.4D0
       mbt        = 4.75D0
       mtp        = 174.D0
 
-      HFSCHEME = 0
-
       OutDirName  = 'output'
-      UseGridLHAPDF5=.false.
 
       Debug = .false.
 
@@ -192,12 +154,8 @@ C----------------------------------------------
       implicit none
 
 #include "ntot.inc"
-#include "datasets.inc"
 #include "steering.inc"
-#include "scales.inc"
 #include "indata.inc"
-#include "theorexpr.inc"
-#include "chi2scan.inc"
 #include "for_debug.inc"
 C-----------------------------------------------
 
@@ -209,7 +167,7 @@ C-----------------------------------------------
 C Main steering parameters namelist
       namelist/xFitter/
      $     LDebug,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc,
+     $     Chi2MaxError, iDH_MOD, H1qcdfunc,
      $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
      $     AsymErrorsIterations, pdfRotate
@@ -331,13 +289,6 @@ C
        bq2 = -4*scaleb1/scalea1
        hqscale1in = scalea1
        hqscale2in = scaleb1
-       if(mod(HFSCHEME,10).eq.1) then
-       if(massh.eq.1) then
-       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'
-       elseif(massh.eq.2) then
-       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'
-        endif
-        endif
       if (LDebug) then
 C Print the namelist:
          print HQScale
@@ -690,7 +641,7 @@ C------------------------------------------------
       integer i, ilastq2
 
 C Output style namelist
-      namelist/Output/Q2VAL, OutNX, OutXRange,UseGridLHAPDF5,
+      namelist/Output/Q2VAL, OutNX, OutXRange,
      $     WriteLHAPDF5,
      $     ReadParsFromFile, ParsFileName, CovFileName
 

@@ -8,10 +8,11 @@ set(xFitter_VERSION_PATCH 1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-#Install paths
-set(DEST_BIN bin)
-set(DEST_LIB lib)
-set(DEST_MODULE lib/xfitter)
+#Install paths, relative to install prefix
+set(DEST_BIN bin) #executables
+set(DEST_LIB lib) #main library
+set(DEST_MODULE lib/xfitter) #dynamically-loaded libraries
+set(DEST_YAML share/xfitter) #YAML configuration files
 
 #Find packages
 #see cmake/FindXXX.cmake for find scripts
@@ -31,14 +32,20 @@ endif()
 #Use c preprocessor with fortran
 set(CMAKE_Fortran_FLAGS "-cpp")
 
-#For Fortran, set max line length to 132
+#For Fortran
+#set max line length to 132
+#and treat all local variables as static by default (as if SAVE was specified) (without this hf_errlog will crash)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffixed-line-length-132")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffixed-line-length-132 -fno-automatic")
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132 -noauto")
 else()
   message(FATAL_ERROR "Unknown Fortran compiler ${CMAKE_Fortran_COMPILER_ID}")
 endif()
 
 add_subdirectory(src)
+add_subdirectory(minimizers/MINUIT)
+if(CERES_FOUND)
+  add_subdirectory(minimizers/CERES)
+endif()
 #add_subdirectory(pdfparams/HERAPDF)

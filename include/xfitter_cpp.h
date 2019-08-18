@@ -161,12 +161,9 @@ extern"C" {
     float q2val[40];
     double chi2maxerror;
     float hf_mass[3];
-    float charm_frac;
     int ldebug;
-    int usegridlhapdf5;
     int h1qcdfunc;
     int i_fit_order;
-    int hfscheme;
     int lrand;
     int statype;
     int systype;
@@ -176,10 +173,6 @@ extern"C" {
     float wmnlen;
     float wmxlen;
     int iseedmc;
-    int npolyval;
-    int lead;
-    int izpopoly;
-    int ipolysqr;
     int useapplg;
     int napplgrids;
     int lfitdy;

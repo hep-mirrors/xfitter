@@ -1,4 +1,5 @@
 add_library(xfitter SHARED
+  BaseMinimizer.cc
   chi2scan.cc
   #c_interface.f
   dataset_tools.f
@@ -14,7 +15,6 @@ add_library(xfitter SHARED
   ftheor_eval.cc
   GetChisquare.f
   GetDummyXsection.f
-  GetPDFUncType.f
   g_offset.cc
   #hfbanner.cc
   init_theory.f
@@ -58,9 +58,14 @@ add_library(xfitter SHARED
   FitPars_base.cc
   FTNFitPars.cc
 )
-target_include_directories(xfitter PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/linalg)
-#TODO: remove "PREFIX" define
-target_compile_definitions(xfitter PRIVATE -DXFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}" -DPREFIX="${CMAKE_INSTALL_PREFIX}")
+target_include_directories(xfitter PUBLIC
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/include/linalg
+)
+target_compile_definitions(xfitter PRIVATE
+  -DXFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}"
+  -DPREFIX="${CMAKE_INSTALL_PREFIX}"
+)
 target_link_libraries(xfitter PRIVATE
   MINUIT
   QCDNUM

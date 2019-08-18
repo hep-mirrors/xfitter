@@ -308,7 +308,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   }
 
   void createOutputDir(){
-    string outputDir="output";//default
+    string outputDir = "output";//default
     if(rootNode["OutputDirectory"]){
       outputDir = rootNode["OutputDirectory"].as<string>();
     }
@@ -320,10 +320,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     if(fileExists(outputDir)){
       string oldOutputDir=outputDir+"_OLD";
       if(fileExists(oldOutputDir)){
-        hf_errlog(1303201701, string(ANSI_RED)+"W: Removing old results directory "+oldOutputDir+ANSI_RESET);
+        hf_errlog(1303201701, "W: Removing old results directory "+oldOutputDir);
         system(("rm -rf "+oldOutputDir).c_str());
       }
-      hf_errlog(1303201702, string(ANSI_RED)+"W: Backing up previous results to "+oldOutputDir+ANSI_RESET);
+      hf_errlog(1303201702, "W: Backing up previous results to "+oldOutputDir);
       rename(outputDir.c_str(), oldOutputDir.c_str());
     }
     mkdir(outputDir.c_str(),0755);
@@ -391,10 +391,6 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     FortAssignD(mst,fermion_masses_)
     FortAssignD(mtp,fermion_masses_)
     FortAssignD(mbt,fermion_masses_)
-
-    // Steering
-    FortAssignS(hf_scheme,steering_)
-
   }
 
   const double*createConstantParameter(const string&n,double val){
@@ -590,6 +586,7 @@ void ensureMapValidity(const string&nodeName){
 
 void parse_params_(){
   using namespace XFITTER_PARS;
+  createOutputDir();
   rootNode=loadYamlFile("parameters.yaml");
   expandIncludes(rootNode);
   ensureMapValidity("Parameterisations");
@@ -598,7 +595,6 @@ void parse_params_(){
   ensureMapValidity("byReaction");
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
   createParameters();
-  createOutputDir();
   ParsToFortran();
 }
 

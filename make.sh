@@ -12,7 +12,7 @@
 #main library             goes to ./lib
 #dynamically loaded modules go to ./lib/xfitter
 
-cmake="$(which cmake) -DCMAKE_BUILD_TYPE=Release"
+cmake="$(which cmake) -DCMAKE_BUILD_TYPE=Debug"
 SOURCE_DIR=$(dirname $(readlink -e $0)) #absolute path to directory of this script
 BUILD_DIR=$SOURCE_DIR/build
 INSTALL_DIR=$SOURCE_DIR
@@ -45,7 +45,7 @@ elif [ "$1" == "install" ] || [ "$1" == "run" ] || [ -z "$1" ];then
   else
     make #-j$(nproc) #DEBUG
   fi
-  if [ "$1" == "run" ];then
+  if [ "$?" -eq 0 ] && [ "$1" == "run" ];then
     cd $SOURCE_DIR #cd to where steering files are
     LD_LIBRARY_PATH=$INSTALL_DIR/lib/:$LD_LIBRARY_PATH $INSTALL_DIR/bin/xfitter
   fi
