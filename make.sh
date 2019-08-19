@@ -27,7 +27,7 @@ elif [ "$1" == "uninstall" ];then
   #Delete the installed exeuctable and libraries
   if [ $INSTALL_DIR == $SOURCE_DIR ];then #if xFitter is installed in-source
     #then only remove lib and bin
-    rm -r lib bin
+    rm -r lib bin share
   else
     #else remove the whole install dir
     rm -r $INSTALL_DIR
@@ -43,7 +43,7 @@ elif [ "$1" == "install" ] || [ "$1" == "run" ] || [ -z "$1" ];then
   if [ "$1" == "install" ] || [ "$1" == "run" ];then
     make -j$(nproc) install
   else
-    make #-j$(nproc) #DEBUG
+    make -j$(nproc)
   fi
   if [ "$?" -eq 0 ] && [ "$1" == "run" ];then
     cd $SOURCE_DIR #cd to where steering files are
