@@ -62,3 +62,5 @@ else()
   message(STATUS "Skipping optional APFEL evolution because APFEL library was not found")
 endif()
 #add_subdirectory(pdfparams/HERAPDF)
+#Reactions
+add_subdirectory(reactions/BaseDISNC)

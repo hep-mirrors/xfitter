@@ -1,0 +1,7 @@
+set(TARGET reactionBaseDISNC)
+add_library(${TARGET} MODULE ReactionBaseDISNC.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter QCDNUM)
+get_target_property(evolutionQCDNUM_INCLUDE_DIRECTORIES evolutionQCDNUM INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(${TARGET} PRIVATE ${evolutionQCDNUM_INCLUDE_DIRECTORIES})
+target_include_directories(${TARGET} PUBLIC .)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
