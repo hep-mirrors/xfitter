@@ -1,0 +1,5 @@
+set(TARGET evolutionAPFEL)
+add_library(${TARGET} MODULE APFEL_Evol.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter yaml-cpp APFEL)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES APFEL.yaml DESTINATION ${DEST_YAML}/evolutions)
