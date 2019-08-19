@@ -20,6 +20,7 @@ find_package(LAPACK REQUIRED)
 find_package(QCDNUM REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(LHAPDF)
+find_package(APFEL)
 
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
@@ -53,4 +54,7 @@ if(CERES_FOUND)
 endif()
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
+if(APFEL_FOUND)
+  add_subdirectory(evolutions/APFEL)
+endif()
 #add_subdirectory(pdfparams/HERAPDF)
