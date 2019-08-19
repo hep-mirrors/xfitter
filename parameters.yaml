@@ -135,7 +135,7 @@ byReaction:
     ? !include reactions/FONLL_DISCC/parameters.yaml
   # FF ABM scheme settings:
   FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC/parameters.yaml
+    ? !include reactions/FFABM_DISNC.yaml
   FFABM_DISCC:
     ? !include reactions/FFABM_DISCC/parameters.yaml
   # AFB settings:

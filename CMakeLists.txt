@@ -46,7 +46,8 @@ endif()
 
 add_subdirectory(src)
 
-#Dynamically-loaded modules
+#==Dynamically-loaded modules==
+
 #Minimizers
 add_subdirectory(minimizers/MINUIT)
 if(CERES_FOUND)
@@ -54,6 +55,7 @@ if(CERES_FOUND)
 else()
   message(STATUS "Skipping optional CERES minimizer because CERES library was not found")
 endif()
+
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
 if(APFEL_FOUND)
@@ -61,6 +63,7 @@ if(APFEL_FOUND)
 else()
   message(STATUS "Skipping optional APFEL evolution because APFEL library was not found")
 endif()
-#add_subdirectory(pdfparams/HERAPDF)
+
 #Reactions
 add_subdirectory(reactions/BaseDISNC)
+add_subdirectory(reactions/FFABM_DISNC)
