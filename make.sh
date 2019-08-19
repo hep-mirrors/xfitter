@@ -12,7 +12,12 @@
 #main library             goes to ./lib
 #dynamically loaded modules go to ./lib/xfitter
 
-cmake="$(which cmake) -DCMAKE_BUILD_TYPE=Debug"
+CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug"
+
+#Uncommect to disable some some of the optional packages
+#CMAKE_OPTIONS=$CMAKE_OPTIONS" -DCMAKE_DISABLE_FIND_PACKAGE_APFEL=TRUE"
+#CMAKE_OPTIONS=$CMAKE_OPTIONS" -DCMAKE_DISABLE_FIND_PACKAGE_LHAPDF=TRUE"
+
 SOURCE_DIR=$(dirname $(readlink -e $0)) #absolute path to directory of this script
 BUILD_DIR=$SOURCE_DIR/build
 INSTALL_DIR=$SOURCE_DIR
@@ -38,7 +43,7 @@ elif [ "$1" == "install" ] || [ "$1" == "run" ] || [ -z "$1" ];then
   #cd to build directory and invoke cmake theere
   cd $BUILD_DIR
   if [ ! -f Makefile ];then
-    $cmake $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR
+    cmake $CMAKE_OPTIONS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR
   fi
   if [ "$1" == "install" ] || [ "$1" == "run" ];then
     make -j$(nproc) install
