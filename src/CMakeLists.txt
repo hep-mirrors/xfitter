@@ -70,9 +70,11 @@ target_compile_definitions(xfitter PRIVATE
 target_link_libraries(xfitter PRIVATE
   MINUIT
   QCDNUM
-  yaml-cpp
   ${CMAKE_DL_LIBS} #for dlopen
   ${LAPACK_LIBRARIES}
+)
+target_link_libraries(xfitter PUBLIC
+  yaml-cpp
 )
 install(TARGETS xfitter DESTINATION ${DEST_LIB})
 

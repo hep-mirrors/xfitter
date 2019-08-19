@@ -1,5 +1,6 @@
 set(TARGET evolutionQCDNUM)
 add_library(${TARGET} MODULE EvolutionQCDNUM.cc)
-target_link_libraries(${TARGET} PRIVATE xfitter yaml-cpp QCDNUM)
+target_link_libraries(${TARGET} PRIVATE xfitter QCDNUM)
+target_include_directories(${TARGET} PUBLIC .)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 install(FILES parameters.yaml DESTINATION ${DEST_YAML}/evolutions RENAME QCDNUM.yaml)
