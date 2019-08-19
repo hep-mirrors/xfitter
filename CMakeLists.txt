@@ -21,6 +21,7 @@ find_package(QCDNUM REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(LHAPDF)
 find_package(APFEL)
+find_package(Ceres)
 
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
@@ -53,7 +54,8 @@ add_subdirectory(minimizers/MINUIT)
 if(CERES_FOUND)
   add_subdirectory(minimizers/CERES)
 else()
-  message(STATUS "Skipping optional CERES minimizer because CERES library was not found")
+  message(STATUS "Skipping optional CERES minimizer because Ceres library was not found
+(If Ceres is actually installed, set Ceres_DIR environment variable the its install prefix)")
 endif()
 
 #Evolutions

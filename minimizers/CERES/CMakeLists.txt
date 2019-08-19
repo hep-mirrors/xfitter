@@ -1,0 +1,5 @@
+set(TARGET minimizerCERES)
+add_library(${TARGET} MODULE CERESMinimizer.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter ${CERES_LIBRARIES})
+target_include_directories(${TARGET} PRIVATE ${CERES_INCLUDE_DIRS})
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
