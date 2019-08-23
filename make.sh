@@ -52,7 +52,7 @@ elif [ "$1" == "install" ] || [ "$1" == "run" ] || [ -z "$1" ];then
   fi
   if [ "$?" -eq 0 ] && [ "$1" == "run" ];then
     cd $SOURCE_DIR #cd to where steering files are
-    LD_LIBRARY_PATH=$INSTALL_DIR/lib/:$LD_LIBRARY_PATH $INSTALL_DIR/bin/xfitter
+    LD_LIBRARY_PATH=$INSTALL_DIR/lib/xfitter/:$INSTALL_DIR/lib/:$LD_LIBRARY_PATH $INSTALL_DIR/bin/xfitter
   fi
 else
   echo "Unknown command \"$1\""
