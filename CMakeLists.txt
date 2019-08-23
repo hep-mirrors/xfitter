@@ -68,6 +68,7 @@ add_subdirectory(evolutions/APFEL)
 
 #Reactions
 add_subdirectory(reactions/BaseDISNC)
+add_subdirectory(reactions/BaseDISCC)
 add_subdirectory(reactions/FFABM_DISNC)
 add_subdirectory(reactions/RT_DISNC)
 add_subdirectory(reactions/FONLL_DISNC)
