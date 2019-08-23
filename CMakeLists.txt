@@ -55,12 +55,7 @@ add_subdirectory(src)
 
 #Minimizers
 add_subdirectory(minimizers/MINUIT)
-if(CERES_FOUND)
-  add_subdirectory(minimizers/CERES)
-else()
-  message(STATUS "Skipping optional CERES minimizer because Ceres library was not found
-(If Ceres is actually installed, set Ceres_DIR environment variable the its install prefix)")
-endif()
+add_subdirectory(minimizers/CERES)
 
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
