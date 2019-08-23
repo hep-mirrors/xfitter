@@ -253,7 +253,8 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         else file_not_found=true;
       }
       if(file_not_found){
-        cerr<<"[ERROR] YAML include file "<<filename<<" not found"<<endl;
+        cerr<<"[ERROR] YAML include file "<<filename<<" not found\n"
+        "Default search prefix is "<<XFITTER_YAML_PATH<<'\n'<<endl;
         hf_errlog(19040135,"F: YAML include file not found, see stderr");
       }
     }
