@@ -1,0 +1,10 @@
+if(NOT APFEL_FOUND)
+  message(STATUS "Skipping optional reaction FONLL_DISCC because APFEL library was not found")
+  return()
+endif()
+
+set(TARGET reactionFONLL_DISCC)
+add_library(${TARGET} MODULE ReactionFONLL_DISCC.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISCC APFEL)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES FONLL_DISCC.yaml DESTINATION ${DEST_YAML}/reactions)
