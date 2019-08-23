@@ -73,3 +73,4 @@ endif()
 #Reactions
 add_subdirectory(reactions/BaseDISNC)
 add_subdirectory(reactions/FFABM_DISNC)
+add_subdirectory(reactions/RT_DISNC)

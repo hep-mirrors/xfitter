@@ -122,7 +122,7 @@ alphas : 0.118
 byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
-    ? !include reactions/RT_DISNC/parameters.yaml
+    ? !include reactions/RT_DISNC.yaml
     # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
     #evolution: proton-QCDNUM
   # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
