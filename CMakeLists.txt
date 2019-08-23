@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.8.12.2)
 
 project(xFitter CXX C Fortran)
 
+if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+  message(SEND_ERROR "In-source builds are not allowed. The recommended way to use cmake is:\nmkdir build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX=../install")
+endif()
+
 set(xFitter_VERSION_MAJOR 2)
 set(xFitter_VERSION_MINOR 2)
 set(xFitter_VERSION_PATCH 1)
