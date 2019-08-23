@@ -1,3 +1,7 @@
+if(NOT APFEL_FOUND)
+  message(STATUS "Skipping optional APFEL evolution because APFEL library was not found")
+  return()
+endif()
 set(TARGET evolutionAPFEL)
 add_library(${TARGET} MODULE APFEL_Evol.cc)
 target_link_libraries(${TARGET} PRIVATE xfitter yaml-cpp APFEL)

@@ -64,11 +64,7 @@ endif()
 
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
-if(APFEL_FOUND)
-  add_subdirectory(evolutions/APFEL)
-else()
-  message(STATUS "Skipping optional APFEL evolution because APFEL library was not found")
-endif()
+add_subdirectory(evolutions/APFEL)
 
 #Reactions
 add_subdirectory(reactions/BaseDISNC)
