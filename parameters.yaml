@@ -130,7 +130,7 @@ byReaction:
   #  evolution: proton-QCDNUM
   # FONLL scheme settings:
   FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC/parameters.yaml
+    ? !include reactions/FONLL_DISNC.yaml
   FONLL_DISCC:
     ? !include reactions/FONLL_DISCC/parameters.yaml
   # FF ABM scheme settings:
