@@ -140,7 +140,7 @@ byReaction:
     ? !include reactions/FFABM_DISCC.yaml
   # AFB settings:
   AFB:
-    ? !include reactions/AFB/parameters.yaml
+    ? !include reactions/AFB.yaml
   # APPLgrid settings:
   APPLgrid:
     ? !include reactions/APPLgrid/parameters.yaml
