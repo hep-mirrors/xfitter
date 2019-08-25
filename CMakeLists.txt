@@ -50,6 +50,8 @@ else()
 endif()
 
 add_subdirectory(src)
+#ABM is a shared library used by the FFABM_DISNC and FFABM_DISCC reactions
+add_subdirectory(src/ABM)
 
 #==Dynamically-loaded modules==
 
