@@ -74,6 +74,7 @@ add_subdirectory(pdfparams/PolySqrt)
 
 #Decompositions
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
+add_subdirectory(pdfdecomps/LHAPDF)
 
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
