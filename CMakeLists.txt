@@ -63,6 +63,7 @@ add_subdirectory(minimizers/CERES)
 
 #Parameterisations
 add_subdirectory(pdfparams/HERAPDF)
+add_subdirectory(pdfparams/Factor)
 
 #Decompositions
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
