@@ -146,7 +146,7 @@ byReaction:
     ? !include reactions/APPLgrid.yaml
   # (optional) Fractal module settings:
   Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC/parameters.yaml
+    ? !include reactions/Fractal_DISNC.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
