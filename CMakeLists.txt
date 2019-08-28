@@ -26,6 +26,7 @@ find_package(yaml-cpp REQUIRED)
 find_package(LHAPDF)
 find_package(APPLgrid)
 find_package(APFEL)
+find_package(APFELxx)
 find_package(Ceres)
 
 #Use c++11
@@ -72,6 +73,7 @@ add_subdirectory(pdfdecomps/UvDvUbarDbarS)
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
 add_subdirectory(evolutions/APFEL)
+add_subdirectory(evolutions/APFELxx)
 
 #Reactions
 add_subdirectory(reactions/BaseDISNC)

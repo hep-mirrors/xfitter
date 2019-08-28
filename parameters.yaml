@@ -103,7 +103,7 @@ Evolutions:
     #set: "CT10nlo"
     member: 0
 #  proton-APFEL:
-#    ? !include evolutions/APFELxx/parameters.yaml
+#    ? !include evolutions/APFELxx.yaml
 #    decomposition: proton
   antiproton:
     class: FlipCharge
