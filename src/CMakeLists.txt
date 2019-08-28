@@ -1,5 +1,6 @@
 add_library(xfitter SHARED
   BaseMinimizer.cc
+  BasePdfParam.cc
   chi2scan.cc
   #c_interface.f
   dataset_tools.f
