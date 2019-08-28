@@ -4,8 +4,12 @@
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
 omitTests=('ceresZMVFNSfastChi2')
 
+install_dir=$(pwd)
 # xfitter binary
-xfitter=`pwd`/'bin/xfitter'
+xfitter=$install_dir/'bin/xfitter'
+
+# xfitter libs
+export LD_LIBRARY_PATH=$install_dir/lib:$install_dir/lib/xfitter:$LD_LIBRARY_PATH
 
 # log file for xfitter output
 xflogfile='xfitter.log'
