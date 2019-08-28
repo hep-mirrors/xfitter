@@ -3,7 +3,7 @@
 
 if ENABLE_CERES
 
-  AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include $(CERES_CPPFLAGS)  -I$(srcdir)/../../BaseMinimizer/include -Wall -fPIC -Wno-deprecated 
+  AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../../../include $(CERES_CPPFLAGS) -Wall -fPIC -Wno-deprecated
 
   lib_LTLIBRARIES = libCERESMinimizer_xfitter.la
   libCERESMinimizer_xfitter_la_SOURCES = CERESMinimizer.cc

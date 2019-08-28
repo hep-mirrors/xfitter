@@ -6,7 +6,6 @@ if ENABLE_APFEL
      -I$(srcdir)/../include\
      -I$(srcdir)/../../../include\
      -I$(srcdir)/../../../interfaces/include\
-     -I$(srcdir)/../../../evolutions/BaseEvolution/include\
      -I$(srcdir)/../../../reactions/BaseDISNC/include\
      $(APFEL_CPPFLAGS)\
      -Wall -fPIC -Wno-deprecated
