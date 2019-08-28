@@ -75,6 +75,7 @@ add_subdirectory(evolutions/QCDNUM)
 add_subdirectory(evolutions/APFEL)
 add_subdirectory(evolutions/APFELxx)
 add_subdirectory(evolutions/FlipCharge)
+add_subdirectory(evolutions/FlipUD)
 
 #Reactions
 add_subdirectory(reactions/BaseDISNC)
