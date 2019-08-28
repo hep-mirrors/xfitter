@@ -70,6 +70,7 @@ add_subdirectory(pdfparams/ABMPgluon)
 add_subdirectory(pdfparams/ABMPsea)
 add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
+add_subdirectory(pdfparams/PolySqrt)
 
 #Decompositions
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
