@@ -74,6 +74,7 @@ add_subdirectory(pdfdecomps/UvDvUbarDbarS)
 add_subdirectory(evolutions/QCDNUM)
 add_subdirectory(evolutions/APFEL)
 add_subdirectory(evolutions/APFELxx)
+add_subdirectory(evolutions/FlipCharge)
 
 #Reactions
 add_subdirectory(reactions/BaseDISNC)
