@@ -67,6 +67,7 @@ add_subdirectory(pdfparams/HERAPDF)
 add_subdirectory(pdfparams/Factor)
 add_subdirectory(pdfparams/NegativeGluon)
 add_subdirectory(pdfparams/ABMPgluon)
+add_subdirectory(pdfparams/ABMPsea)
 
 #Decompositions
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
