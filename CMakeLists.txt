@@ -61,6 +61,9 @@ add_subdirectory(src/ABM)
 add_subdirectory(minimizers/MINUIT)
 add_subdirectory(minimizers/CERES)
 
+#Decompositions
+add_subdirectory(pdfdecomps/UvDvUbarDbarS)
+
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
 add_subdirectory(evolutions/APFEL)

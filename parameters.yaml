@@ -76,7 +76,7 @@ Parameterisations:
 DefaultDecomposition: proton
 Decompositions:
   proton:
-    class: UvDvubardbars
+    class: UvDvUbarDbarS
     xuv: par_uv
     xdv: par_dv
     xubar: par_ubar
