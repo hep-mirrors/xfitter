@@ -61,6 +61,9 @@ add_subdirectory(src/ABM)
 add_subdirectory(minimizers/MINUIT)
 add_subdirectory(minimizers/CERES)
 
+#Parameterisations
+add_subdirectory(pdfparams/HERAPDF)
+
 #Decompositions
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
 
