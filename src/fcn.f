@@ -506,6 +506,12 @@ c     $           ,chi2_cont/NControlPoints
          endif
 
          base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
+         if (CorSysIndex.eq.0) then
+            open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
+
+            call store_pdfs(base_pdfname)
+            call print_lhapdf6
+         endif
 
 c WS: print NSYS --- needed for batch Offset runs
          write(85,*) 'Systematic shifts ',NSYS
