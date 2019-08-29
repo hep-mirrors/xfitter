@@ -99,3 +99,4 @@ add_subdirectory(reactions/AFB)
 add_subdirectory(reactions/APPLgrid)
 add_subdirectory(reactions/Fractal_DISNC)
 add_subdirectory(reactions/KFactor)
+#add_subdirectory(reactions/KRunning)  KRunning needs to be rewritten
