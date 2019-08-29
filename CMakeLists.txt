@@ -104,3 +104,4 @@ add_subdirectory(reactions/KFactor)
 add_subdirectory(reactions/KMatrix)
 #add_subdirectory(reactions/KRunning)  KRunning needs to be rewritten
 add_subdirectory(reactions/BaseHVQMNR)
+add_subdirectory(reactions/cbdiff)
