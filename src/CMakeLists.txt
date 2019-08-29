@@ -1,4 +1,4 @@
-add_library(xfitter SHARED
+set(xfitter_SOURCES
   BaseMinimizer.cc
   BasePdfParam.cc
   chi2scan.cc
@@ -59,6 +59,13 @@ add_library(xfitter SHARED
   FitPars_base.cc
   FTNFitPars.cc
 )
+if(LHAPDF_FOUND)
+  list(APPEND xfitter_SOURCES CheckForPDF.cxx)
+else()
+  list(APPEND xfitter_SOURCES lhapdf_dum.f)
+endif()
+
+add_library(xfitter SHARED ${xfitter_SOURCES})
 target_include_directories(xfitter PUBLIC
   ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/include/linalg
@@ -74,6 +81,9 @@ target_link_libraries(xfitter PRIVATE
   ${CMAKE_DL_LIBS} #for dlopen
   ${LAPACK_LIBRARIES}
 )
+if(LHAPDF_FOUND)
+  target_link_libraries(xfitter PRIVATE LHAPDF)
+endif()
 target_link_libraries(xfitter PUBLIC
   yaml-cpp
 )
