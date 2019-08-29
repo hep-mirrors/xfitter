@@ -120,24 +120,23 @@ c ..........................................................
         call Do_Fit
       endif
       
-*Offset is broken in 2.2.1      
+*Offset is broken in 2.2.1
 *      if (doOffset) then
 *        call Offset_Finalize(icond)
 *        call flush(6)
 *        if(icond .ne. 0) goto 36
 *        Call RecovCentrPars
 *      else
-*        if (ControlFitSplit) then
-*           Call FindBestFCN3  !> Overfitting protection.
-*        else
-**
-** Write out central parameters
-**
-*           call write_pars(0)
-*        endif
-*        close(24)
-*        close(25)
-*      endif
+      if (ControlFitSplit) then
+         Call FindBestFCN3  !> Overfitting protection.
+      else
+*
+* Write out central parameters
+*
+        call write_pars(0)
+      endif
+      close(24)
+      close(25)
 
       call report_convergence_status()
 
