@@ -29,6 +29,8 @@ find_package(APPLgrid)
 find_package(APFEL)
 find_package(APFELxx)
 find_package(Ceres)
+find_package(ROOT)
+include(importROOTtarget)
 
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
