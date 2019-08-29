@@ -20,6 +20,7 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 
 #Find packages
 #see cmake/FindXXX.cmake for find scripts
+find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(QCDNUM REQUIRED)
 find_package(yaml-cpp REQUIRED)
