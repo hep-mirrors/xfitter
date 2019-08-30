@@ -31,6 +31,7 @@ find_package(APFELxx)
 find_package(Ceres)
 find_package(ROOT)
 include(importROOTtarget)
+find_package(Hathor)
 
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
@@ -107,3 +108,4 @@ add_subdirectory(reactions/BaseHVQMNR)
 add_subdirectory(reactions/cbdiff)
 add_subdirectory(reactions/HVQMNR_LHCb_7TeV_beauty)
 add_subdirectory(reactions/HVQMNR_LHCb_7TeV_charm)
+add_subdirectory(reactions/Hathor)
