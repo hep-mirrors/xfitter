@@ -55,6 +55,8 @@ set(xfitter_SOURCES
   num_utils/rzero.f
   num_utils/rnorml.f
   num_utils/datime.f #placeholder for datetime
+  num_utils/ddilog.f
+  num_utils/snleq64.f
   Xstring.cc
   FitPars_base.cc
   FTNFitPars.cc
