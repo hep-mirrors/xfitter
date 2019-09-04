@@ -21,9 +21,6 @@ extern "C" ReactionFONLL_DISNC *create()
   return new ReactionFONLL_DISNC();
 }
 
-// Initialize at the start of the computation
-void ReactionFONLL_DISNC::atStart(){}
-
 void ReactionFONLL_DISNC::initTerm(TermData* td)
 {
   ReactionBaseDISNC::initTerm(td);
@@ -39,6 +36,7 @@ void ReactionFONLL_DISNC::initTerm(TermData* td)
 // by the specific functions.
 void ReactionFONLL_DISNC::atIteration()
 {
+  ReactionBaseDISNC::atIteration();
   // VB: With the following command, APFEL will be calling the "ExternalSetAPFEL1"
   // routine in FONLL/src/FONLL_wrap.f. This is not optimal but until that routine is
   // there, I cannot find a way to override it.
