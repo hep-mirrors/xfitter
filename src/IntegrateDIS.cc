@@ -25,20 +25,25 @@ int IntegrateDIS::init(const double s,
     double ymin = (*yminp)[i];
     const double ymax = (*ymaxp)[i];
 
-    // prevent 0 because there is division by y
-    if(ymin == 0.)
-      ymin = 1e-6;
-
     // just copy previous entry, if binning is the same
-    //bool flagCopyValue = false;
-    if(i > 0 && q2min == (*q2minp)[i - 1] && q2max == (*q2maxp)[i - 1] && ymin == (*yminp)[i - 1] && ymax == (*ymaxp)[i - 1])
-      //flagCopyValue = true;
-      //if(flagCopyValue)
+    // Actually, what is the point of having two points with the same binning? Why do we have this check? --Ivan
+    if(i > 0
+      && q2min == (*q2minp)[i - 1]
+      && q2max == (*q2maxp)[i - 1]
+      && ymin == (*yminp)[i - 1]
+      && ymax == (*ymaxp)[i - 1]
+      && (*xminp)[i] == (*xminp)[i - 1]
+      && (*xmaxp)[i] == (*xminp)[i - 1]
+      )
     {
       // -1 means that the value from previous bin will be copied in compute()
       _nSubBins[i] = -1;
       continue;
     }
+
+    // prevent 0 because there is division by y
+    if(ymin == 0.)
+      ymin = 1e-6;
 
     // determine x range
     double xmin = q2min / (s * ymax);
