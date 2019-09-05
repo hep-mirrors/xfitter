@@ -42,7 +42,7 @@ elif [ "$1" == "install" ] || [ "$1" == "run" ] || [ -z "$1" ];then
   mkdir -p $BUILD_DIR
   #cd to build directory and invoke cmake theere
   cd $BUILD_DIR
-  if [ ! -f Makefile ];then
+  if [ ! -f Makefile ] || [ ! -f CMakeCache.txt ];then
     cmake $CMAKE_OPTIONS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR
   fi
   if [ "$1" == "install" ] || [ "$1" == "run" ];then
