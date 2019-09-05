@@ -98,3 +98,14 @@ target_link_libraries(xfitter-bin xfitter)
 install(TARGETS xfitter-bin DESTINATION ${DEST_BIN})
 
 add_subdirectory(minuit)
+
+#Use -fno-automatic flag for fortran
+#It means to treat all local variables as static by default (as if SAVE was specified)
+#Without this flag hf_errlog will crash, and some other code will also work incorrectly
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-automatic")
+elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -noauto")
+else()
+  message(FATAL_ERROR "Unknown Fortran compiler ${CMAKE_Fortran_COMPILER_ID}")
+endif()

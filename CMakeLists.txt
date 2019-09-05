@@ -47,11 +47,10 @@ set(CMAKE_Fortran_FLAGS "-cpp")
 
 #For Fortran
 #set max line length to 132
-#and treat all local variables as static by default (as if SAVE was specified) (without this hf_errlog will crash)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffixed-line-length-132 -fno-automatic")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffixed-line-length-132")
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132 -noauto")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132")
 else()
   message(FATAL_ERROR "Unknown Fortran compiler ${CMAKE_Fortran_COMPILER_ID}")
 endif()
