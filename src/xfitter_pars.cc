@@ -384,8 +384,14 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
 
     // EW couplings
     FortAssignD(Alphaem,ew_couplings_)
-    FortAssignD(sin2thW,ew_couplings_)
-    FortAssignD(cos2thW,ew_couplings_)
+
+    //Weinberg angle
+    if( rootNode["cos2thW"] or !rootNode["sin2thW"] ) {
+      cerr<<"[ERROR] Weinberg angle must be given as sin2thW, not as cos2thW. Make sure sin2thW is specified in YAML steering and cos2thW is not."<<endl;
+      hf_errlog(19090500, "F: Bad Weinberg angle: need sin2thW, not cos2thW, see stderr");
+    }
+    ew_couplings_.sin2thW = rootNode["sin2thW"].as<double>();
+    ew_couplings_.cos2thW = 1. - ew_couplings_.sin2thW;
 
     // constants
     FortAssignD(Gf,constants_)
