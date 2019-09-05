@@ -160,7 +160,6 @@ extern"C" {
   extern struct {
     float q2val[40];
     double chi2maxerror;
-    float hf_mass[3];
     int ldebug;
     int h1qcdfunc;
     int i_fit_order;

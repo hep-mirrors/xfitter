@@ -14,8 +14,6 @@
       logical lrandData        !>  MC method using data (true) or prediction (false)
       logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
       logical WriteLHAPDF5     
-      real*4 
-     $     HF_MASS(3)          !> masses of charm, bottom and top
 
       real*4 outxrange(2),     !> x-range for PDF text output 
      $     Q2VAL(NBANDS)       !> Q2 values for PDF printout
@@ -87,7 +85,6 @@ C
       common/STEERING/
      &     Q2VAL,
      $     Chi2MaxError,
-     $     HF_MASS,
      $     lDEBUG,
      $     h1qcdfunc,
      $     I_FIT_ORDER,
