@@ -546,6 +546,7 @@ AC_CONFIG_FILES([include/Makefile
                  doc/logo/Makefile
                  python/Makefile
                  xfitter-config
+		 reactions/UbarDbar/src/Makefile
                  evolutions/BaseEvolution/src/Makefile
                  evolutions/APFEL/src/Makefile
                  evolutions/FlipUD/src/Makefile

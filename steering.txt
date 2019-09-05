@@ -3,11 +3,13 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 7
+    NInputFiles = 1
  
   ! Input files:
 
-     InputFileNames = 
+     InputFileNames =
+     'dbarubar.dat'
+
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
@@ -169,8 +171,8 @@
  !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
 
    CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
-   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
-   Chi2ExtraParam = 'PoissonCorr'
+   Chi2Settings     = 'NoRescale'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+ !  Chi2ExtraParam = 'PoissonCorr'
 
  ! Flag to define if native APPLgrid CKM values should be kept.
  LUseAPPLgridCKM = True
@@ -359,16 +361,3 @@
    MassHQ = 'mc' ! (available: mc, mb), relevant for 'FF', 'ZMVFNS', 'ACOT Full' and  'ACOT chi'
 &End
 
-*
-* (Optional) LHAPDF sttering card
-*
-&lhapdf
-  ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
-  ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set
-  ! LHAPDFPROFILE = False              ! run only on the set specified by ILHAPDFSET
-  ! LHASCALEPROFILE = True             ! Add QCD scale variations as nuisance parameters
-  ! SCALE68 = false                    ! Scale PDF uncertainties by a factor 1/1.645
-  ! WriteAlphaSToMemberPDF = false
-  ! NREMOVEPRIORS = 0                  ! Remove prior from the last n PDF nuisance parameters
-  ! DataToTheo = True                  ! reset data to predictions corresponding to member 0, for sensitivity studies
-&End

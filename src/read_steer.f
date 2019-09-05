@@ -109,7 +109,7 @@ C PDF length weight factor:
       Chi2MaxError = 1.E10  ! turn off.
 
 C     Initialise LHAPDF parameters
-      LHAPDFSET = 'cteq65.LHgrid'
+      LHAPDFSET = 'NNPDF31_nnlo_as_0118_hessian'
       ILHAPDFSET = 0
       IPDFSET = 1
       vIPDFSET = IPDFSET

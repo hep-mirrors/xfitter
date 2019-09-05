@@ -16,7 +16,7 @@ SUBDIRS=src\
   QEDevol/src\
   DiffDIS/include\
   tools/draw/include\
-  tools/process reactions/HathorSingleTop/src\
+  tools/process reactions/UbarDbar/src reactions/HathorSingleTop/src\
   tools/draw\
   tools/MakeLHAPDF\
   pdfparams/BasePdfParam/src\

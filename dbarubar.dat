@@ -1,0 +1,23 @@
+ !*  File produced by HERAVerager and OT
+ !*  Created on 20140725
+ !*  Cross sections are provided as d2sigma/dQ2dx (non-reduced)
+
+&Data 
+  Name = "DBARUBAR" 
+  IndexDataset = 102
+  Reaction = "DBARUBAR"
+
+  TermName = 'R'
+  TermSource = 'UbarDbar'
+  TheorExpr = 'R'
+
+  NData =    3
+  NColumn =   4
+  ColumnType = 2*"Bin","Sigma", "Error"
+  ColumnName = "q","x","Sigma", "stat"
+  Percent = 172*False
+&End 
+*      q  x val err  
+10. 0.0001  1.e-20 0.0001
+10. 0.001 1.e-20 0.0002
+10. 0.01 1.e-20 0.001
