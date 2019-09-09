@@ -1,0 +1,143 @@
+After minimisation    1075.11  1093     0.984
+
+  Partial chi2s 
+Dataset    1     26.27( -1.71)    34  CC cross section HERA-I H1-ZEUS combined e-p.   
+Dataset    2     39.45( -0.97)    34  CC cross section HERA-I H1-ZEUS combined e+p.   
+Dataset    3    105.82( +2.07)   145  NC cross section HERA-I H1-ZEUS combined e-p.   
+Dataset    4    420.90( +2.02)   379  NC cross section HERA-I H1-ZEUS combined e+p.   
+Dataset    5     78.18( -6.33)    52  Charm cross section H1-ZEUS combined            
+Dataset    6     15.73( -0.93)    17  Beauty cross section ZEUS Vertex                
+Dataset    7     67.90(-14.24)    38  LHCb 7TeV Dzero pT-y cross section              
+Dataset    8     53.73(-13.57)    37  LHCb 7TeV Dch pT-y cross section                
+Dataset    9     49.30( -9.86)    31  LHCb 7TeV Dstar pT-y cross section              
+Dataset   10     23.75( -4.02)    28  LHCb 7TeV Ds pT-y cross section                 
+Dataset   11      5.23( -5.17)     6  LHCb 7TeV Lambdac pT cross section              
+Dataset   12     98.21(-32.65)   135  LHCb 7TeV Bch pT-y cross section                
+Dataset   13     64.82(-19.87)    95  LHCb 7TeV Bzero pT-y cross section              
+Dataset   14     76.83(-16.89)    75  LHCb 7TeV Bs pT-y cross section                 
+
+ Correlated Chi2    71.129538729771525     
+ Log penalty Chi2   -122.13031619279792     
+ Systematic shifts          120
+  
+                                Name          Shift   +/-    Error          Type
+    1  HERA_Charm_Source_01                   0.1399   +/-   0.9995        :N:M:D
+    2  HERA_Charm_Source_02                  -0.0981   +/-   0.9998        :N:M:D
+    3  HERA_Charm_Source_03                  -1.4382   +/-   0.9479        :N:M:D
+    4  HERA_Charm_Source_04                  -0.3372   +/-   0.9924        :N:M:D
+    5  HERA_Charm_Source_05                   0.2273   +/-   0.9886        :N:M:D
+    6  HERA_Charm_Source_06                  -0.1761   +/-   0.9928        :N:M:D
+    7  HERA_Charm_Source_07                   0.4425   +/-   0.9851        :N:M:D
+    8  HERA_Charm_Source_08                   1.1174   +/-   0.9683        :N:M:D
+    9  HERA_Charm_Source_09                   0.5755   +/-   0.9846        :N:M:D
+   10  HERA_Charm_Source_10                   0.4539   +/-   0.9892        :N:M:D
+   11  HERA_Charm_Source_11                  -0.0614   +/-   0.9778        :N:M:D
+   12  HERA_Charm_Source_12                   0.2408   +/-   0.9730        :N:M:D
+   13  HERA_Charm_Source_13                   0.0796   +/-   0.9732        :N:M:D
+   14  HERA_Charm_Source_14                   2.2285   +/-   0.9363        :N:M:D
+   15  HERA_Charm_Source_15                   0.6885   +/-   0.9549        :N:M:D
+   16  HERA_Charm_Source_16                  -1.7221   +/-   0.9457        :N:M:D
+   17  HERA_Charm_Source_17                   1.9240   +/-   0.9286        :N:M:D
+   18  HERA_Charm_Source_18                   1.6045   +/-   0.9378        :N:M:D
+   19  HERA_Charm_Source_19                   0.8212   +/-   0.9052        :N:M:D
+   20  HERA_Charm_Source_20                  -1.0950   +/-   0.9359        :N:M:D
+   21  HERA_Charm_Source_21                   0.5513   +/-   0.9606        :N:M:D
+   22  HERA_Charm_Source_22                  -0.9577   +/-   0.8782        :N:M:D
+   23  HERA_Charm_Source_23                   0.1038   +/-   0.8952        :N:M:D
+   24  HERA_Charm_Source_24                   0.8909   +/-   0.9314        :N:M:D
+   25  HERA_Charm_Source_25                   2.9082   +/-   0.8335        :N:M:D
+   26  HERA_Charm_Source_26                   0.7450   +/-   0.9274        :N:M:D
+   27  HERA_Charm_Source_27                  -0.6224   +/-   0.9589        :N:M:D
+   28  HERA_Charm_Source_28                   1.4059   +/-   0.9306        :N:M:D
+   29  HERA_Charm_Source_29                   0.4154   +/-   0.9358        :N:M:D
+   30  HERA_Charm_Source_30                   1.0600   +/-   0.9215        :N:M:D
+   31  HERA_Charm_Source_31                  -0.2796   +/-   0.8895        :N:M:D
+   32  HERA_Charm_Source_32                  -1.0859   +/-   0.8248        :N:M:D
+   33  HERA_Charm_Source_33                   1.7675   +/-   0.8248        :N:M:D
+   34  HERA_Charm_Source_34                  -0.2537   +/-   0.8523        :N:M:D
+   35  HERA_Charm_Source_35                   0.2206   +/-   0.8728        :N:M:D
+   36  HERA_Charm_Source_36                   0.1890   +/-   0.9622        :N:M:D
+   37  HERA_Charm_Source_37                   0.4791   +/-   0.9476        :N:M:D
+   38  HERA_Charm_Source_38                  -0.1670   +/-   0.8991        :N:M:D
+   39  HERA_Charm_Source_39                  -0.0981   +/-   0.7894        :N:M:D
+   40  HERA_Charm_Source_40                  -0.5870   +/-   0.9223        :N:M:D
+   41  HERA_Charm_Source_41                   0.2688   +/-   0.9375        :N:M:D
+   42  HERA_Charm_Source_42                   0.3508   +/-   0.8814        :N:M:D
+   43  HERA_Charm_Proced_01                   0.5447   +/-   0.9084        :N:M:D
+   44  HERA_Charm_Proced_02                   0.2333   +/-   0.8745        :N:M:D
+   45  zbv_trackingef                        -0.1524   +/-   0.9626        :N:M:D
+   46  zbv_core                              -0.2023   +/-   0.9504        :N:M:D
+   47  zbv_jetenscale                        -0.1635   +/-   0.9891        :N:M:D
+   48  zbv_emscale                            0.0092   +/-   0.7768        :N:M:D
+   49  zbv_MCmodelq2b                        -0.0537   +/-   0.9979        :N:M:D
+   50  zbv_MCmodetab                         -0.0869   +/-   0.9916        :N:M:D
+   51  zbv_MCmodelenjetc                      0.1811   +/-   0.9868        :N:M:D
+   52  zbv_MCmodelenjetb                      1.1548   +/-   0.8212        :N:M:D
+   53  zbv_lfas                               0.4764   +/-   0.8723        :N:M:D
+   54  zbv_beauty ff                          0.5526   +/-   0.9117        :N:M:D
+   55  zbv_fragfrac                          -0.0049   +/-   0.8978        :N:M:D
+   56  zbv_lumi                              -0.0362   +/-   0.9986        :N:M:D
+   57  zbv_renfacscale                       -0.3401   +/-   0.9696        :N:M:D
+   58  zbv_asvar                              0.1907   +/-   0.9557        :N:M:D
+   59  zbv_mbeauty                            0.0721   +/-   0.9960        :N:M:D
+   60  lhcb7_dz_slrc                         -0.9097   +/-   0.9525        :N:M:D
+   61  lhcb7_dz_yidt                         -1.4215   +/-   0.8796        :N:M:D
+   62  lhcb7_dz_prid                         -0.5686   +/-   0.9817        :N:M:D
+   63  lhcb7_c_trac                          -2.3935   +/-   0.4651        :N:M:D
+   64  brat_dzkapi                           -0.7392   +/-   0.9689        :N:M:D
+   65  lhcb7_lumi                            -2.4589   +/-   0.8363        :N:M:D
+   66  ffrc_cdz                              -1.5352   +/-   0.8579        :N:M:D
+   67  lhcb7_dc_slrc                         -0.3128   +/-   0.8849        :N:M:D
+   68  lhcb7_dc_yidt                         -0.0364   +/-   0.9985        :N:M:D
+   69  lhcb7_dc_prid                         -0.4365   +/-   0.7600        :N:M:D
+   70  brat_dckapipi                         -0.1528   +/-   0.9738        :N:M:D
+   71  ffrc_cdc                              -0.2474   +/-   0.9297        :N:M:D
+   72  lhcb7_dt_slrc                          0.3396   +/-   0.9296        :N:M:D
+   73  lhcb7_dt_yidt                          0.3265   +/-   0.9351        :N:M:D
+   74  lhcb7_dt_prid                          0.1306   +/-   0.9899        :N:M:D
+   75  brat_dtdzkapips                        0.1959   +/-   0.9771        :N:M:D
+   76  ffrc_cdt                               0.3134   +/-   0.9404        :N:M:D
+   77  lhcb7_ds_slrc                          0.6163   +/-   0.8846        :N:M:D
+   78  lhcb7_ds_yidt                          0.1163   +/-   0.9961        :N:M:D
+   79  lhcb7_ds_prid                          0.1163   +/-   0.9961        :N:M:D
+   80  brat_dsphkakapi                        0.6744   +/-   0.8600        :N:M:D
+   81  ffrc_cds                               0.6512   +/-   0.8702        :N:M:D
+   82  lhcb7_lc_slrc                         -0.0302   +/-   0.9999        :N:M:D
+   83  lhcb7_lc_yidt                         -0.2266   +/-   0.9951        :N:M:D
+   84  lhcb7_lc_prid                         -0.3777   +/-   0.9863        :N:M:D
+   85  brat_lcprkapi                         -1.9638   +/-   0.5161        :N:M:D
+   86  ffrc_clc                              -0.6345   +/-   0.9610        :N:M:D
+   87  lhcb7_bc_fitm                         -0.4086   +/-   0.9521        :N:M:D
+   88  lhcb7_bc_fitr                         -0.0163   +/-   0.9999        :N:M:D
+   89  lhcb7_bc_cobk                         -0.0981   +/-   0.9973        :N:M:D
+   90  lhcb7_bc_bins                         -0.0163   +/-   0.9999        :N:M:D
+   91  lhcb7_bc_trig                         -0.3922   +/-   0.9560        :N:M:D
+   92  lhcb7_b_trac                          -0.6964   +/-   0.9183        :N:M:D
+   93  lhcb7_bc_vtxq                         -0.1634   +/-   0.9925        :N:M:D
+   94  lhcb7_bc_muid                         -0.1144   +/-   0.9963        :N:M:D
+   95  brat_bcjpmumuka                       -0.5393   +/-   0.9149        :N:M:D
+   96  ffrc_bbcz                             -1.0429   +/-   0.6842        :N:M:D
+   97  lhcb7_bz_fitm                          0.0039   +/-   0.9958        :N:M:D
+   98  lhcb7_bz_fitr                          0.0030   +/-   0.9975        :N:M:D
+   99  lhcb7_bz_nrbk                          0.0065   +/-   0.9880        :N:M:D
+  100  lhcb7_bz_cobk                          0.0024   +/-   0.9984        :N:M:D
+  101  lhcb7_bz_bins                          0.0003   +/-   1.0000        :N:M:D
+  102  lhcb7_bz_dcnd                          0.0092   +/-   0.9760        :N:M:D
+  103  lhcb7_bz_trig                          0.0077   +/-   0.9832        :N:M:D
+  104  lhcb7_bz_vtxq                          0.0027   +/-   0.9980        :N:M:D
+  105  lhcb7_bz_muid                          0.0024   +/-   0.9984        :N:M:D
+  106  lhcb7_bz_hdid                          0.0030   +/-   0.9975        :N:M:D
+  107  lhcb7_bz_angd                          0.0003   +/-   1.0000        :N:M:D
+  108  brat_bzjpmumukskapi                    0.0366   +/-   0.5048        :N:M:D
+  109  lhcb7_bs_fitm                         -0.0865   +/-   0.9970        :N:M:D
+  110  lhcb7_bs_fitr                         -0.0288   +/-   0.9997        :N:M:D
+  111  lhcb7_bs_nrbk                         -0.1370   +/-   0.9925        :N:M:D
+  112  lhcb7_bs_cobk                         -0.0216   +/-   0.9998        :N:M:D
+  113  lhcb7_bs_bins                         -0.0072   +/-   1.0000        :N:M:D
+  114  lhcb7_bs_trig                         -0.1875   +/-   0.9859        :N:M:D
+  115  lhcb7_bs_vtxq                         -0.0144   +/-   0.9999        :N:M:D
+  116  lhcb7_bs_muid                         -0.0577   +/-   0.9987        :N:M:D
+  117  lhcb7_bs_hdid                         -0.0577   +/-   0.9987        :N:M:D
+  118  lhcb7_bs_angd                         -0.0072   +/-   1.0000        :N:M:D
+  119  brat_bsjpmumuphkaka                   -0.7211   +/-   0.7653        :N:M:D
+  120  ffrc_bbs                              -0.7211   +/-   0.7653        :N:M:D

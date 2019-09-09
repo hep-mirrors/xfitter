@@ -20,13 +20,98 @@
 #include "FileOpener.h"
 
 //pdf type
-pdftype pdfts[] = {uv, dv, g, Sea, ubar, dbar, s, Rs, c, b, dbarminubar, uvmindv, U, D, Ubar, Dbar, goversea, doveru, dbaroverubar, dvoveruv,rs,photon,SeaOverGlue, photonOverGlue, uvplusdv, uvplusdvplusSea,uvplusdvminSea };
+pdftype pdfts[]={
+  uv,
+  dv,
+  g,
+  Sea,
+  ubar,
+  dbar,
+  s,
+  sbar,
+  Rs,
+  soversbar,
+  c,
+  b,
+  dbarminubar,
+  uvmindv,
+  U,
+  D,
+  Ubar,
+  Dbar,
+  goversea,
+  doveru,
+  dbaroverubar,
+  dvoveruv,
+  rs,
+  photon,
+  SeaOverGlue,
+  photonOverGlue,
+  uvplusdv,
+  uvplusdvplusSea
+};
 //pdf labels
-string pdflab[] = {"u_{V}", "d_{V}", "g", "#Sigma", "#bar{u}", "#bar{d}", "s", "(s+#bar{s})/(#bar{u}+#bar{d})", "c", "b", "#bar{d}-#bar{u}", "d_{V}-u_{V}", "U", "D", "#bar{U}", "#bar{D}", "g/#Sigma", 
-   "d/u", "#bar{d}/#bar{u}", "d_{V}/u_{V}","rs","#gamma","#Sigma/g","#gamma/g","uv+dv","uv+dv+2#Sigma","uv+dv-2#Sigma"};
+string pdflab[]={
+  "u_{V}",
+  "d_{V}",
+  "g",
+  "#Sigma",
+  "#bar{u}",
+  "#bar{d}",
+  "s",
+  "#bar{s}",
+  "(s+#bar{s})/(#bar{u}+#bar{d})",
+  "s/#bar{s}",
+  "c",
+  "b",
+  "#bar{d}-#bar{u}",
+  "d_{V}-u_{V}",
+  "U",
+  "D",
+  "#bar{U}",
+  "#bar{D}",
+  "g/#Sigma",
+  "d/u",
+  "#bar{d}/#bar{u}",
+  "d_{V}/u_{V}",
+  "rs",
+  "#gamma",
+  "#Sigma/g",
+  "#gamma/g",
+  "u_{V}+d_{V}",
+  "u_{V}+d_{V}+2#Sigma"
+};
 //pdf filenames
-string pdffil[] = {"uv", "dv", "g", "Sea", "ubar", "dbar", "s", "Rs", "c", "b", "dbar-ubar", "uv-dv", "U", "D", "UBar", "DBar", "goversea",  "doveru", "dbaroverubar", "dvoveruv","rs","ph","sg","gg","uv+dv","uv+dv+2Sea","uv+dv-2Sea"
-		   };
+string pdffil[]={
+  "uv",
+  "dv",
+  "g",
+  "Sea",
+  "ubar",
+  "dbar",
+  "s",
+  "sbar",
+  "Rs",
+  "soversbar",
+  "c",
+  "b",
+  "dbar-ubar",
+  "uv-dv",
+  "U",
+  "D",
+  "UBar",
+  "DBar",
+  "goversea",
+  "doveru",
+  "dbaroverubar",
+  "dvoveruv",
+  "rs",
+  "ph",
+  "sg",
+  "gg",
+  "uv+dv",
+  "uv+dv+2Sea"
+};
 
 vector <pdftype> pdfs(pdfts, pdfts + sizeof(pdfts) / sizeof(pdftype));
 vector <string> pdflabels(pdflab, pdflab + sizeof(pdflab) / sizeof(string));
@@ -60,6 +145,7 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
       else if (var ==  "u_sea") ipdf = ubar;
       else if (var ==  "d_sea") ipdf = dbar;
       else if (var ==  "str") ipdf = s;
+      else if (var ==  "strbar") ipdf = sbar;
       else if (var ==  "chm") ipdf = c;
       else if (var ==  "bot") ipdf = b;
       else if (var ==  "ph") ipdf = photon;
@@ -85,10 +171,28 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
         }
     }
 
+  // for backward compatibility: if no strbar, set strbar=-999
+  if(std::find(PdfTypes.begin(), PdfTypes.end(), sbar) == PdfTypes.end())
+  {
+    PdfTypes.push_back(sbar);
+    for (int ix = 0; ix < NxValues; ix++)
+    {
+      tablemap[sbar].push_back(-999);
+    }
+  }
+
+
   //custom pdf types
   PdfTypes.push_back(dbarminubar);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
     tablemap[dbarminubar].push_back(tablemap[dbar][ix] - tablemap[ubar][ix]);
+
+  PdfTypes.push_back(soversbar);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[sbar][ix] != -999)
+      tablemap[soversbar].push_back(2*tablemap[s][ix]/tablemap[sbar][ix]-1);
+    else
+      tablemap[soversbar].push_back(-999);
 
   PdfTypes.push_back(Rs);  NPdfs++;
   for (int ix = 0; ix < NxValues; ix++)
@@ -167,15 +271,6 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
       tablemap[uvplusdvplusSea].push_back(tablemap[dv][ix]+tablemap[uv][ix]+2.0*tablemap[Sea][ix]);
     else
       tablemap[uvplusdvplusSea].push_back(0);
-
-  PdfTypes.push_back(uvplusdvminSea);  NPdfs++;
-  for (int ix = 0; ix < NxValues; ix++)
-    if (tablemap[g][ix] != 0)
-      tablemap[uvplusdvminSea].push_back(tablemap[dv][ix]+tablemap[uv][ix]-2.0*tablemap[Sea][ix]);
-    else
-      tablemap[uvplusdvminSea].push_back(0);
-
-
 }
 
 TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf, int iunctype)
@@ -289,10 +384,10 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 
           Central[temppdf.GetQ2()] = temppdf;
 
-	  //Get Pdf errors if requested
-	  if (!opts.dobands && !outdirs[label].IsProfiled() && !outdirs[label].IsRotated() && !outdirs[label].IsReweighted()  && !outdirs[label].IsSingleSet())
-	    continue;
-  
+          //Get Pdf errors if requested
+          if (!opts.dobands && !outdirs[label].IsProfiled() && !outdirs[label].IsRotated() && !outdirs[label].IsReweighted()  && !outdirs[label].IsSingleSet())
+            continue;
+
           //Load PDF error sets
           int iband = 1;
           if (err == MC)
@@ -407,12 +502,12 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
       getline (mcwfile,line);
       getline (mcwfile, line);
       getline (mcwfile, line);
-      line.erase(line.begin(),line.begin()+8);    
+      line.erase(line.begin(),line.begin()+8);
      ndata=atoi( line.c_str() );
       getline (mcwfile, line);
      while (mcwfile >> n >> chi2 >> w) {
-	mcchi2.push_back(chi2);
-	mcw.push_back(w);
+        mcchi2.push_back(chi2);
+        mcw.push_back(w);
       }
    }
   //Remake central PDF
@@ -425,11 +520,11 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
             {
               vector <double> xi;
               for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
-		xi.push_back((*eit).GetTable(*pit)[ix]);
+                xi.push_back((*eit).GetTable(*pit)[ix]);
               double val;
-	      if (outdirs[label].IsReweighted())
+              if (outdirs[label].IsReweighted())
                 val = mean(xi, mcw);
-	      else if (outdirs[label].IsMedian())
+              else if (outdirs[label].IsMedian())
                 val = median(xi);
               else
                 val = mean(xi);
@@ -470,14 +565,14 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
                   for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
                     xi.push_back((*eit).GetTable(*pit)[ix]);
 
-		  if (outdirs[label].IsReweighted())
+                  if (outdirs[label].IsReweighted())
                     val = mean(xi, mcw);
                   else if (outdirs[label].IsMedian())
                     val = median(xi);
                   else
                     val = mean(xi);
 
-		  if (outdirs[label].IsReweighted())
+                  if (outdirs[label].IsReweighted())
                     eminus = eplus = rms(xi, mcw);
                   else if (outdirs[label].Is68cl())
                     {
@@ -503,30 +598,30 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
                   for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
                     xi.push_back((*eit).GetTable(*pit)[ix]);
 
-		  if (!outdirs[label].IsAsym()) //symmetrise errors
-		    eplus = eminus = ahessdelta(xi);
-		  else //asymmetric errors
-		    ahessdeltaasym(xi, eplus, eminus);
-		  if (outdirs[label].Scale68())
-		    {
-		      eplus = eplus/1.645;
-		      eminus = eminus/1.645;
-		    }
-		}
+                  if (!outdirs[label].IsAsym()) //symmetrise errors
+                    eplus = eminus = ahessdelta(xi);
+                  else //asymmetric errors
+                    ahessdeltaasym(xi, eplus, eminus);
+                  if (outdirs[label].Scale68())
+                    {
+                      eplus = eplus/1.645;
+                      eminus = eminus/1.645;
+                    }
+                }
               else if (err == SymHess)
                 {
                   vector <double> xi;
                   xi.push_back(val);
                   for (vector <Pdf>::iterator eit = Errors[q2].begin(); eit != Errors[q2].end(); eit++)
-		    xi.push_back((*eit).GetTable(*pit)[ix]);
+                    xi.push_back((*eit).GetTable(*pit)[ix]);
 
-		  eplus = eminus = shessdelta(xi);
-		  if (outdirs[label].Scale68())
-		    {
-		      eplus = eplus/1.645;
-		      eminus = eminus/1.645;
-		    }
-		}
+                  eplus = eminus = shessdelta(xi);
+                  if (outdirs[label].Scale68())
+                    {
+                      eplus = eplus/1.645;
+                      eminus = eminus/1.645;
+                    }
+                }
 
               UpExp[q2].SetPoint(*pit, ix, val+eplus);
               DownExp[q2].SetPoint(*pit, ix, val-eminus);
@@ -542,7 +637,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 
                   for (vector <Pdf>::iterator eit = ModelErrors[q2].begin(); eit != ModelErrors[q2].end(); eit++)
                     xi.push_back((*eit).GetTable(*pit)[ix]);
-                  
+
                   double modeplus, modeminus;
                   if (!outdirs[label].IsAsym()) //symmetrise errors
                     modeplus = modeminus = ahessdelta(xi);
@@ -589,7 +684,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
     profile(dirname, label);
   if (outdirs[label].IsRotated() )
     pdfRotate(dirname, label);
-  
+
   if (outdirs[label].IsSingleSet() )
     pdfSet(dirname,label);
 
@@ -597,7 +692,7 @@ PdfData::PdfData(string dirname, string label) : model(false), par(false)
 
 
 void PdfData::pdfRotate(string dirname, string label)
-{ 
+{
   // Extra rotations from rot.dat file
   string fname = dirname + "/pdf_rotation.dat";
   ifstream f(fname.c_str());
@@ -615,18 +710,18 @@ void PdfData::pdfRotate(string dirname, string label)
   int N;
   iss >> N;
   int idx1 = 0;
-  while ( getline (f,line) ) 
+  while ( getline (f,line) )
     {
-	vector <double> aline;
-	istringstream iss(line);
-	int idx2;
-	iss >> idx2;
-	for ( int i = 0; i<N; i++) {
-	  double val;
-	  iss >> val;
-	  aline.push_back(val);
-	}
-	rotation.push_back(aline);
+        vector <double> aline;
+        istringstream iss(line);
+        int idx2;
+        iss >> idx2;
+        for ( int i = 0; i<N; i++) {
+          double val;
+          iss >> val;
+          aline.push_back(val);
+        }
+        rotation.push_back(aline);
     }
   f.close();
 
@@ -638,47 +733,47 @@ void PdfData::pdfRotate(string dirname, string label)
   for ( map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) {
     float q2 = pdfit->first;
     Pdf Cent = pdfit->second;
-    
+
 
     // loop over pdf types
     for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++) {
       //Loop on x points
       for (int ix = 0; ix < Cent.GetNx(); ix++)
-	{
-	  double val = Cent.GetTable(*pit)[ix];
-	  double corsum = 0;
-	  double eminus = 0; // also  errors
-	  double eplus = 0;  
-	
-	  // For now CT10 only:
-	  for ( int id=0; id<N; id++) {
-	    Pdf Up = Errors[q2].at(2*(id));
-	    Pdf Dn = Errors[q2].at(2*(id)+1);
-	    double plus  = Up.GetTable(*pit)[ix] - val;
-	    double minus = Dn.GetTable(*pit)[ix] - val;
+        {
+          double val = Cent.GetTable(*pit)[ix];
+          double corsum = 0;
+          double eminus = 0; // also  errors
+          double eplus = 0;
+
+          // For now CT10 only:
+          for ( int id=0; id<N; id++) {
+            Pdf Up = Errors[q2].at(2*(id));
+            Pdf Dn = Errors[q2].at(2*(id)+1);
+            double plus  = Up.GetTable(*pit)[ix] - val;
+            double minus = Dn.GetTable(*pit)[ix] - val;
 
 
-	    corsum += 0.5*(plus-minus)*rotation[iRotation][id];
+            corsum += 0.5*(plus-minus)*rotation[iRotation][id];
 
-	    //	    corsum += 0.5*(plus-minus)*rotation[iRotation][id];
-	  }
-	  
-	  Cent.SetPoint(*pit, ix, val+corsum);
-	  Cent.SetErrUp(*pit, ix, eplus);
-	  Cent.SetErrDn(*pit, ix, eminus);
-	  
+            //      corsum += 0.5*(plus-minus)*rotation[iRotation][id];
+          }
 
-	  Up[q2].SetPoint(*pit, ix, val+corsum+eplus);
-	  Down[q2].SetPoint(*pit, ix, val+corsum-eminus);
-	}
+          Cent.SetPoint(*pit, ix, val+corsum);
+          Cent.SetErrUp(*pit, ix, eplus);
+          Cent.SetErrDn(*pit, ix, eminus);
+
+
+          Up[q2].SetPoint(*pit, ix, val+corsum+eplus);
+          Down[q2].SetPoint(*pit, ix, val+corsum-eminus);
+        }
     }
     pdfit->second = Cent;
   }
-  
+
 }
 
 void PdfData::pdfSet(string dirname, string label)
-{ 
+{
 
   int id = outdirs[label].pdfSet()-1;
 
@@ -686,28 +781,28 @@ void PdfData::pdfSet(string dirname, string label)
     float q2 = pdfit->first;
     Pdf Cent = pdfit->second;
     Pdf Pset = Errors[q2].at(id);
-    
+
     double eminus = 0; // also  errors
-    double eplus = 0;  
+    double eplus = 0;
 
     // loop over pdf types
     for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++) {
       //Loop on x points
       for (int ix = 0; ix < Cent.GetNx(); ix++)
-	{
-	  double val = Pset.GetTable(*pit)[ix];
-		  
-	  Cent.SetPoint(*pit, ix, val);
-	  Cent.SetErrUp(*pit, ix, eplus);
-	  Cent.SetErrDn(*pit, ix, eminus);	  
+        {
+          double val = Pset.GetTable(*pit)[ix];
 
-	  Up[q2].SetPoint(*pit, ix, val+eplus);
-	  Down[q2].SetPoint(*pit, ix, val-eminus);
-	}
+          Cent.SetPoint(*pit, ix, val);
+          Cent.SetErrUp(*pit, ix, eplus);
+          Cent.SetErrDn(*pit, ix, eminus);
+
+          Up[q2].SetPoint(*pit, ix, val+eplus);
+          Down[q2].SetPoint(*pit, ix, val-eminus);
+        }
     }
     pdfit->second = Cent;
   }
-  
+
 }
 
 void PdfData::profile(string dirname, string label)
@@ -722,7 +817,7 @@ void PdfData::profile(string dirname, string label)
     // cout << "File " << fname << " is empty (or io error)" << endl;
     // return;
   // }
-  
+
   InFileOpener_t fo;
   fo.Add(dirname + "/Results.txt");
   fo.Add(dirname + "/Results_0.txt");
@@ -736,7 +831,7 @@ void PdfData::profile(string dirname, string label)
     {
       getline(f, line);
       istringstream iss(line);
-      iss >> buffer; 
+      iss >> buffer;
     }
   string systlabel, dummy;
   float systindex, value, error;
@@ -744,7 +839,7 @@ void PdfData::profile(string dirname, string label)
   while (getline(f, line))
     {
       istringstream iss(line);
-      iss >> systindex >> systlabel  >> value  >> dummy  >> error;       
+      iss >> systindex >> systlabel  >> value  >> dummy  >> error;
       if ( systlabel.find("PDF_nuisance_param") == 0 ) {
         ++counter;
         pdfshift shift;
@@ -768,7 +863,7 @@ void PdfData::profile(string dirname, string label)
     int N;
     iss >> N;
     int idx1 = 0;
-    while ( getline (ff,line) ) 
+    while ( getline (ff,line) )
       {
         vector <double> aline;
         istringstream iss(line);
@@ -787,7 +882,7 @@ void PdfData::profile(string dirname, string label)
   for ( map<float, Pdf>::iterator pdfit = Central.begin(); pdfit != Central.end(); pdfit++) {
     float q2 = pdfit->first;
     Pdf Cent = pdfit->second;
-    
+
 
     // loop over pdf types
     for (vector <pdftype>::iterator pit = pdfs.begin(); pit != pdfs.end(); pit++) {
@@ -799,11 +894,11 @@ void PdfData::profile(string dirname, string label)
           double t2 = Down[q2].GetTable(*pit)[ix];
           double corsum = 0;
           double eminus = 0; // also  errors
-          double eplus = 0;  
+          double eplus = 0;
           vector <double> xi;
           xi.push_back(val);
 
-          for ( vector<pdfshift>::iterator shift = pdfshifts.begin(); shift != pdfshifts.end(); shift++) {      
+          for ( vector<pdfshift>::iterator shift = pdfshifts.begin(); shift != pdfshifts.end(); shift++) {
 
             int id = shift->id;
             double valShift = shift->val;
@@ -816,10 +911,10 @@ void PdfData::profile(string dirname, string label)
 
               double plus  = Up.GetTable(*pit)[ix] - val;
               double minus = Dn.GetTable(*pit)[ix] - val;
-              
+
 
               double cor = 0.5*(plus - minus)*valShift   + 0.5*(plus+minus)*valShift*valShift;
-              
+
               xi.push_back(plus*errShift+val);
               xi.push_back(minus*errShift+val);
 
@@ -828,11 +923,11 @@ void PdfData::profile(string dirname, string label)
             else if (err == SymHess) {
               Pdf Up = Errors[q2].at(id-1);
               double plus =  Up.GetTable(*pit)[ix] - val;
-              double cor =  plus*valShift;              
+              double cor =  plus*valShift;
               xi.push_back(plus*errShift+val);
 
               corsum += cor;
-            }                
+            }
           }
 
           if ( err == AsymHess ) {
@@ -840,17 +935,17 @@ void PdfData::profile(string dirname, string label)
             if (!outdirs[label].IsAsym()) //symmetrise errors
               eplus = eminus = ahessdelta(xi, cor_matrix);
             else //asymmetric errors
-              ahessdeltaasym(xi, eplus, eminus, cor_matrix);            
+              ahessdeltaasym(xi, eplus, eminus, cor_matrix);
           }
 
           else if (err == SymHess) {
             eplus = eminus = shessdelta(xi, cor_matrix );
-          }                
-	  if (outdirs[label].Scale68())
-	    {
-	      eplus = eplus/1.645;
-	      eminus = eminus/1.645;
-	    }
+          }
+          if (outdirs[label].Scale68())
+            {
+              eplus = eplus/1.645;
+              eminus = eminus/1.645;
+            }
           Cent.SetPoint(*pit, ix, val+corsum);
           Cent.SetErrUp(*pit, ix, eplus);
           Cent.SetErrDn(*pit, ix, eminus);

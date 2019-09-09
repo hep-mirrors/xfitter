@@ -32,7 +32,7 @@ namespace MNR
     fNRecalc = 0;
   }
 
-  Frag::~Frag() 
+  Frag::~Frag()
   {
     //printf("OZ Frag::~Frag()\n");
     this->ClearZ();
@@ -40,15 +40,15 @@ namespace MNR
     for(unsigned int f = 0; f < fFFrag.size(); f++) if(fFFrag[f]) delete fFFrag[f];
   }
 
-  void Frag::ClearZ() 
+  void Frag::ClearZ()
   {
-    if(fBnz) 
+    if(fBnz)
     {
       delete fZc;
       fZc = NULL;
       delete fZw;
       fZw = NULL;
-      for(int f = 0; f < fNout; f++) 
+      for(int f = 0; f < fNout; f++)
       {
         delete fWz[f];
         fWz[f] = NULL;
@@ -57,9 +57,9 @@ namespace MNR
     fBnz = 0;
   }
 
-  void Frag::ClearPrecalc() 
+  void Frag::ClearPrecalc()
   {
-    if(fCGnpt && fCGny) 
+    if(fCGnpt && fCGny)
     {
       delete fCGpt;
       fCGpt = NULL;
@@ -71,7 +71,7 @@ namespace MNR
         fCGptf[bpt] = NULL;
         for(int by = 0; by < fCGny; by++)
         {
-          for(int bz = 0; bz < fBnz; bz++) 
+          for(int bz = 0; bz < fBnz; bz++)
           {
             delete fCGyf[bpt][by][bz];
             fCGyf[bpt][by][bz] = NULL;
@@ -90,9 +90,9 @@ namespace MNR
     fCGnpt = fCGny = 0;
   }
 
-  void Frag::SetNz(int nz) 
+  void Frag::SetNz(int nz)
   {
-    if(nz < 1) 
+    if(nz < 1)
     {
       char str[256];
       sprintf(str, "F: ERROR in Frag::SetNz(): nz %d < 1\n", nz);
@@ -104,7 +104,7 @@ namespace MNR
     fZw = new double[fBnz];
     double zprev, znext;
     zprev = 0.0;
-    for(int bz = 0; bz < fBnz+1; bz++) 
+    for(int bz = 0; bz < fBnz+1; bz++)
     {
       znext = 1. * bz / fBnz;
       znext = TMath::Power(znext, 0.75);
@@ -115,9 +115,9 @@ namespace MNR
     }
   }
 
-  void Frag::AddOut(TF1* ffrag, double M) 
+  void Frag::AddOut(TF1* ffrag, double M)
   {
-    if(!fBnz) 
+    if(!fBnz)
     {
       std::string str = "F: ERROR in Frag::AddOut(): first call Frag::SetNz()\n";
       hf_errlog_(16123010, str.c_str(), str.length());
@@ -130,7 +130,7 @@ namespace MNR
     fNout++;
   }
 
-  void Frag::Precalc(Grid* grid, double xm) 
+  void Frag::Precalc(Grid* grid, double xm)
   {
     fNRecalc++;
     // Fast variables
@@ -145,19 +145,19 @@ namespace MNR
     fCGyf = new double***[fCGnpt];
     double xm2 = xm * xm;
     double M2[fNout];
-    for(int f = 0; f < fNout; f++) 
+    for(int f = 0; f < fNout; f++)
     {
       M2[f] = fMh2[f];
       if(fMh2[f] < 0.0) M2[f]=xm2;
     }
     double shy[fCGny];
-    for(int by = 0; by < fCGny; by++) 
+    for(int by = 0; by < fCGny; by++)
     {
       fCGy[by] = p_y[by];
       shy[by] = TMath::SinH(fCGy[by]);
     }
     // Loop over pT (internally L)
-    for(int bpt = 0; bpt < fCGnpt; bpt++) 
+    for(int bpt = 0; bpt < fCGnpt; bpt++)
     {
       double l2 = p_l[bpt];
       double mt2 = xm2 / l2;
@@ -168,18 +168,18 @@ namespace MNR
       fCGptf[bpt] = new double[fBnz];
       fCGyf[bpt] = new double**[fCGny];
       // Loop over y
-      for(int by = 0; by < fCGny; by++) 
+      for(int by = 0; by < fCGny; by++)
       {
         double pl = mt * shy[by];
         fCGyf[bpt][by] = new double*[fBnz];
         // Loop over z
-        for(int bz = 0; bz < fBnz; bz++) 
+        for(int bz = 0; bz < fBnz; bz++)
         {
           if(by == 0) fCGptf[bpt][bz] = fCGpt[bpt] * fZc[bz];
           fCGyf[bpt][by][bz] = new double[fNout];
           double plf = pl * fZc[bz];
           // Loop over final states
-          for(int f = 0; f < fNout; f++) 
+          for(int f = 0; f < fNout; f++)
           {
             double Mt = TMath::Sqrt(M2[f] + fCGptf[bpt][bz] * fCGptf[bpt][bz]);
             fCGyf[bpt][by][bz][f] = TMath::ASinH(plf / Mt);
@@ -189,16 +189,16 @@ namespace MNR
     }
   }
 
-  void Frag::CalcCS(Grid* grid, double xm, std::vector<TH2D*> hcs) 
+  void Frag::CalcCS(Grid* grid, double xm, std::vector<TH2D*> hcs)
   {
     // If it is first run or heavy-quark mass changed, recalculation is needed
-    if(bFirst || fLastxm != xm) 
+    if(bFirst || fLastxm != xm)
     {
       this->Precalc(grid, xm);
       fLastxm = xm;
     }
     if(bFirst) bFirst=0;
-      
+
     // Prepare output histograms and fast variables
     int ncontr = grid->GetNContr();
     MNRContribution* contr[ncontr];
@@ -206,10 +206,10 @@ namespace MNR
     double* p_w = grid->WPtr();
     double wgrid[ncontr][fCGnpt][fCGny][nw];
     double* harray[ncontr][fNout];
-    for(int c = 0; c < ncontr; c++) 
+    for(int c = 0; c < ncontr; c++)
     {
       contr[c] = grid->GetContr(c);
-      for(int f = 0; f < fNout; f++) 
+      for(int f = 0; f < fNout; f++)
       {
         TH2D* h = hcs[f * ncontr + c];
         h->Reset();
@@ -220,19 +220,19 @@ namespace MNR
           for(int bw = 0; bw < nw; bw++)
             wgrid[c][bpt][by][bw] = grid->CS(c, bpt, by, bw);
     }
-    
+
     // Check heavy-quark mass for nan
     if(xm != xm) return;
     double wfz[fNout][fBnz][nw];
-    for(int f = 0; f < fNout; f++) 
+    for(int f = 0; f < fNout; f++)
     {
       // Parton level
       if(fFFrag[f] == 0) continue;
       // 1D fragmentation function
-      if(fFFrag[f]->ClassName() == TString("TF1")) 
+      if(fFFrag[f]->ClassName() == TString("TF1"))
       {
         double norm = 0.0;
-        for(int bz = 0; bz < fBnz; bz++) 
+        for(int bz = 0; bz < fBnz; bz++)
         {
           double z = fZc[bz];
           double wz = fZw[bz] * fFFrag[f]->Eval(z);
@@ -244,13 +244,13 @@ namespace MNR
             wfz[f][bz][bw] /= norm;
       }
       // 2D fragmentation function
-      else if(fFFrag[f]->ClassName() == TString("TF2")) 
+      else if(fFFrag[f]->ClassName() == TString("TF2"))
       {
-        for(int bw = 0; bw < nw; bw++) 
+        for(int bw = 0; bw < nw; bw++)
         {
           double w = p_w[bw];
           double norm = 0.0;
-          for(int bz = 0; bz < fBnz; bz++) 
+          for(int bz = 0; bz < fBnz; bz++)
           {
             double z = fZc[bz];
             double zw = fZw[bz];
@@ -260,7 +260,7 @@ namespace MNR
           for(int bz = 0; bz < fBnz; bz++) wfz[f][bz][bw] /= norm;
         }
       }
-      else 
+      else
       {
         char str[256];
         sprintf(str, "F: ERROR in Frag::CalcCS(): ff[%d] does not belong to TF1 or TF2\n", f);
@@ -278,7 +278,7 @@ namespace MNR
       double pt2 = fCGpt[bptn];
       double pt_w = pt2 - pt1;
       // Loop over y
-      for(int by = 0; by < fCGny - 1; by++) 
+      for(int by = 0; by < fCGny - 1; by++)
       {
         int byn = by + 1;
         double y1 = fCGy[by];
@@ -286,13 +286,13 @@ namespace MNR
         double y_w = y2 - y1;
         double pty_w = pt_w * y_w;
         // Loop over z
-        for(int bz = 0; bz < fBnz; bz++) 
+        for(int bz = 0; bz < fBnz; bz++)
         {
           // Loop over final states
-          for(int f = 0; f < fNout; f++) 
+          for(int f = 0; f < fNout; f++)
           {
             double wf, pth1, pth2, yh11, yh12, yh21, yh22;
-            if(!fFFrag[f]) 
+            if(!fFFrag[f])
             { // parton level: no rescaling
               if(bz != 0) continue;
               wf = 1.0;
@@ -301,7 +301,7 @@ namespace MNR
               yh11 = yh21 = y1;
               yh12 = yh22 = y2;
             }
-            else 
+            else
             {
               wf = 0.0;
               pth1 = fCGptf[bpt][bz];
@@ -312,7 +312,7 @@ namespace MNR
               yh22 = fCGyf[bptn][byn][bz][f];
             }
             // Loop over contributions
-            for(int c = 0; c < ncontr; c++) 
+            for(int c = 0; c < ncontr; c++)
             {
               if(contr[c]->fActive == 0) continue;
               int offset = f * ncontr + c;
@@ -326,7 +326,7 @@ namespace MNR
               int baynb = ay->GetNbins();
               double xw = pth2 - pth1;
               // Loop over hadron pT bins
-              for(int bax = bax1; bax <= bax2; bax++) 
+              for(int bax = bax1; bax <= bax2; bax++)
               {
                 double xl = pth1;
                 double xh = pth2;
@@ -345,7 +345,7 @@ namespace MNR
                 int bay2 = ay->FindBin(yh2);
                 if(bay2 == 0 || bay1 == baynb + 1) continue;
                 // Loop over hadron y bins
-                for(int bay = bay1; bay <= bay2; bay++) 
+                for(int bay = bay1; bay <= bay2; bay++)
                 {
                   double yl = yh1;
                   double yh = yh2;
@@ -357,13 +357,13 @@ namespace MNR
                   double dyr = (yh2 - yc) * ywcoef;
                   int binxy = h->GetBin(bax, bay);
                   // Loop over W
-                  for(int bw = 0; bw < nw; bw++) 
+                  for(int bw = 0; bw < nw; bw++)
                   {
                     if(fFFrag[f]) wf = wfz[f][bz][bw]; // not parton level
                     // Smooth final contrbution as linear 2D function
-                    double w_parton = pty_w * (wgrid[c][bpt][by][bw] * dxr * dyr + 
-                                               wgrid[c][bpt][byn][bw] * dxr * dy + 
-                                               wgrid[c][bptn][by][bw] * dx * dyr + 
+                    double w_parton = pty_w * (wgrid[c][bpt][by][bw] * dxr * dyr +
+                                               wgrid[c][bpt][byn][bw] * dxr * dy +
+                                               wgrid[c][bptn][by][bw] * dx * dyr +
                                                wgrid[c][bptn][byn][bw] * dx * dy);
                     harray[c][f][binxy] += w_parton * wf;
                   } // W
@@ -383,7 +383,7 @@ namespace MNR
     int f2 = f % 10;
     if(f1 == 0)
     {
-      if(f2 == 0) 
+      if(f2 == 0)
       { // Kartvelishvili
         if(TString(meson) == TString("dzero")) f_meson = new TF1("f_kar_dzero", Frag::kar_dzero, 0., 1., 2);
         else if(TString(meson) == TString("dch")) f_meson = new TF1("f_kar_dch", Frag::kar_dch, 0., 1., 2);
@@ -395,30 +395,30 @@ namespace MNR
         else if(TString(meson)==TString("dch")) f_meson = new TF1("f_bcfy_dch", Frag::bcfy_dch, 0., 1., 2);
         else f_meson = new TF1("f_bcfy", Frag::bcfy_v, 0., 1., 2);
       }
-      else if(f2==2) 
+      else if(f2==2)
       { // Peterson
         f_meson = new TF1("f_pet", Frag::pet, 0., 1., 2);
       }
     }
-    else if(f1 == 1) 
+    else if(f1 == 1)
     {
-      if(f2 == 0) 
+      if(f2 == 0)
       { // Kartvelishvili "Misha-style"
         if(TString(meson) == TString("dzero")) f_meson = new TF2("f_karw_dzero", Frag::karw_dzero, 0., 1., 0., 10000., 3);
         else if(TString(meson) == TString("dch")) f_meson = new TF2("f_karw_dch", Frag::karw_dch, 0., 1., 0., 10000., 3);
         else f_meson = new TF2("f_karw", Frag::karw, 0., 1., 0., 10000., 3);
       }
     }
-    else if(f1 == 2) 
+    else if(f1 == 2)
     {
-      if(f2 == 0) 
+      if(f2 == 0)
       { // Kartvelishvili step
         if(TString(meson) == TString("dzero")) f_meson = new TF2("f_karstep_dzero", Frag::karstep_dzero, 0., 1., 0., 10000., 3);
         else if(TString(meson) == TString("dch")) f_meson = new TF2("f_karstep_dch", Frag::karstep_dch, 0., 1., 0., 10000., 3);
         else f_meson = new TF2("f_karstep", Frag::karstep, 0., 1., 0., 10000., 3);
       }
     }
-    if(!f_meson) 
+    if(!f_meson)
     {
       char str[256];
       sprintf(str, "F: ERROR in Frag::GetFragFunction(): unknown f %d\n", f);
@@ -435,56 +435,56 @@ namespace MNR
     }
     return f_meson;
   }
-  
-  double Frag::bcfy_v(double* x, double* p) 
+
+  double Frag::bcfy_v(double* x, double* p)
   {
-    return 3.0 * p[0] * (p[1] * x[0] * TMath::Power((1. - x[0]), 2.) * TMath::Power((1. - (1. - p[1]) * x[0]), -6.) * 
-           (2. - 2. * (3. - 2 * p[1]) * x[0] + 3. * (3. - 2. * p[1] + 4. * p[1] * p[1]) * x[0] * x[0] - 2. * (1. - p[1]) * 
-           (4. - p[1] + 2 * p[1] * p[1]) * x[0] * x[0] * x[0] + (1. - p[1]) * (1. - p[1]) * (3. - 2. * p[1] + 
+    return 3.0 * p[0] * (p[1] * x[0] * TMath::Power((1. - x[0]), 2.) * TMath::Power((1. - (1. - p[1]) * x[0]), -6.) *
+           (2. - 2. * (3. - 2 * p[1]) * x[0] + 3. * (3. - 2. * p[1] + 4. * p[1] * p[1]) * x[0] * x[0] - 2. * (1. - p[1]) *
+           (4. - p[1] + 2 * p[1] * p[1]) * x[0] * x[0] * x[0] + (1. - p[1]) * (1. - p[1]) * (3. - 2. * p[1] +
            2. * p[1] * p[1]) * x[0] * x[0] * x[0] * x[0]));
   }
 
-  double Frag::bcfy_v_prim(double* x, double* p) 
+  double Frag::bcfy_v_prim(double* x, double* p)
   {
     if(x[0] > (fM_dzero / fM_dstar)) return 0.;
     double newx = fM_dstar /fM_dzero * x[0];
     return (fM_dstar / fM_dzero) * bcfy_v(&newx, p);
   }
 
-  double Frag::bcfy_p(double* x, double* p) 
+  double Frag::bcfy_p(double* x, double* p)
   {
-    return p[0] * (p[1] *x[0] * TMath::Power((1. - x[0]), 2.) * TMath::Power((1. - (1. - p[1]) * x[0]), -6.) * 
-           (6. - 18. * (1. - 2 * p[1]) * x[0] + (21. - 74. * p[1] + 68. * p[1] * p[1]) * x[0] * x[0] - 2. * 
-           (1. - p[1]) * (6. - 19. * p[1] + 18. * p[1] *p[1]) * x[0] * x[0] * x[0] + 3. * (1. - p[1]) * (1. - p[1]) * 
+    return p[0] * (p[1] *x[0] * TMath::Power((1. - x[0]), 2.) * TMath::Power((1. - (1. - p[1]) * x[0]), -6.) *
+           (6. - 18. * (1. - 2 * p[1]) * x[0] + (21. - 74. * p[1] + 68. * p[1] * p[1]) * x[0] * x[0] - 2. *
+           (1. - p[1]) * (6. - 19. * p[1] + 18. * p[1] *p[1]) * x[0] * x[0] * x[0] + 3. * (1. - p[1]) * (1. - p[1]) *
            (1. - 2. * p[1] + 2. * p[1] * p[1]) * x[0] * x[0] * x[0] * x[0]));
   }
 
-  double Frag::bcfy_dzero(double* x, double* p) 
+  double Frag::bcfy_dzero(double* x, double* p)
   {
     return p[0] * (0.168 * bcfy_p(x, p) + 0.390 * bcfy_v_prim(x, p));
   }
 
-  double Frag::kar_dzero(double* x, double* p) 
+  double Frag::kar_dzero(double* x, double* p)
   {
     return p[0] * (0.168 * kar(x, p) + 0.390 * kar_prim(x, p));
   }
 
-  double Frag::karw_dzero(double* x, double* p) 
+  double Frag::karw_dzero(double* x, double* p)
   {
     return p[0] * (0.168 * karw(x, p) + 0.390 * karw_prim(x, p));
   }
 
-  double Frag::karstep_dzero(double* x, double* p) 
+  double Frag::karstep_dzero(double* x, double* p)
   {
     return p[0] * (0.168 * karstep(x, p) + 0.390 * karstep_prim(x, p));
   }
 
-  double Frag::bcfy_dch(double* x, double* p) 
+  double Frag::bcfy_dch(double* x, double* p)
   {
     return p[0] * (0.162 * bcfy_p(x, p) + 0.07153 * bcfy_v_prim(x, p));
   }
 
-  double Frag::kar_dch(double* x, double* p) 
+  double Frag::kar_dch(double* x, double* p)
   {
     return p[0] * (0.162 * kar(x, p) + 0.07153 * kar_prim(x, p));
   }
@@ -494,24 +494,24 @@ namespace MNR
     return p[0] * (0.162 * karw(x, p) + 0.07153 * karw_prim(x,p));
   }
 
-  double Frag::karstep_dch(double* x, double* p) 
+  double Frag::karstep_dch(double* x, double* p)
   {
     return p[0] * (0.162 * karstep(x, p) + 0.07153 * karstep_prim(x, p));
   }
 
-  double Frag::kar(double* x, double* p) 
+  double Frag::kar(double* x, double* p)
   {
     return p[0] * TMath::Power(x[0], p[1]) * (1 - x[0]);
   }
 
-  double Frag::kar_prim(double* x, double* p) 
+  double Frag::kar_prim(double* x, double* p)
   {
     if(x[0] > (fM_dzero / fM_dstar)) return 0.;
     double newx = fM_dstar / fM_dzero * x[0];
     return (fM_dstar / fM_dzero) * kar(&newx, p);
   }
 
-  double Frag::karw(double* x, double* p) 
+  double Frag::karw(double* x, double* p)
   {
     double alpha = p[1] + p[2] / x[1];
     // prevent very hard form (may lead to numerical problems)
@@ -522,7 +522,7 @@ namespace MNR
     return kar(x, newp);
   }
 
-  double Frag::karw_prim(double* x, double* p) 
+  double Frag::karw_prim(double* x, double* p)
   {
     if(x[0] > (fM_dzero / fM_dstar)) return 0.;
     double newx[2] = { fM_dstar / fM_dzero * x[0], x[1] };
@@ -556,6 +556,29 @@ namespace MNR
   {
     return p[0] * TMath::Power(x[0], -1.) * TMath::Power(1. - 1./x[0] - p[1]/(1.-x[0]), -2.);
   }
+
+  double Frag::GetHadronMass(const char* meson)
+  {
+    if(std::string(meson) == "dzero")
+      return fM_dzero;
+    else if(std::string(meson) == "dch")
+      return fM_dch;
+    else if(std::string(meson) == "dstar")
+      return fM_dstar;
+    else if(std::string(meson) == "ds")
+      return fM_ds;
+    else if(std::string(meson) == "lambdac")
+      return fM_lambdac;
+    else if(std::string(meson) == "bzero")
+      return fM_bzero;
+    else if(std::string(meson) == "bch")
+      return fM_bch;
+    else if(std::string(meson) == "bs")
+      return fM_bs;
+    else
+      return -1.0;
+  }
+
 
   // Values from PDG
   const double Frag::fM_dzero   = 1.865;

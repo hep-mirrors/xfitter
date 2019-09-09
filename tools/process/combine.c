@@ -24,7 +24,7 @@ extern double alphas_ipol(double q, char * setname, int pdf_number);
 extern void interpolation(double x, double Q, char* setname,
     int n_flavours, int *pdf_flavours, int pdf_number, double* values);
 
-Member_List ** arg_parser(int n_added_sets, char ** args);
+Member_List ** arg_parser(int n_added_sets,const char** args);
 void add_grids(Pdf * pdf, Pdf * grid_pdf);
 int pdf_update_info(Pdf * pdf, const Info * base_info);
 void member_lists_free(Member_List *** member_lists_p, int n_lists);
@@ -36,8 +36,8 @@ int combine(int argc, char* argv[0]){
 
   char* out_path=argv[0];
   int n_added_sets=argc-2, n_pdfs, tot_pdf_number=0, size, ipol;
-  int i_added_set, i, k, ic;
-  int ig, ix, iq, ifl;
+  int i_added_set, i, k;
+  int ig, ix, iq=0;
   const char* in_path1 =argv[1];    
   const char* args[n_added_sets];    
   PdfSet Set1;
@@ -53,7 +53,7 @@ int combine(int argc, char* argv[0]){
 
   member_lists = arg_parser (n_added_sets, args);
   
-  if(load_lhapdf6_set(&Set1, in_path1)) return 1; 
+  if (load_lhapdf6_set(&Set1,(char*)in_path1)) return 1;
   Pdf grid_pdf=Set1.members[0];
   SetOut = pdf_set_dup(&Set1);
   Pdf* out_pdfs[n_added_sets];
@@ -65,7 +65,7 @@ int combine(int argc, char* argv[0]){
     if (load_lhapdf6_set(&Set2, member_lists[i_added_set]->in_path)) return 1;    
 
     Info_Node* FP_par = info_node_where(Set2.info, "ForcePositive");
-    if (FP_par == NULL || FP_par->value.string == "0") {
+    if (FP_par == NULL || strcmp(FP_par->value.string,"0") == 0) {
       forcepositive = 0;
     }
 
@@ -137,7 +137,7 @@ int combine(int argc, char* argv[0]){
     pdf_set_free(&Set2);
   }
 
-  char* tot_pdf_number_str[10]; 
+  char tot_pdf_number_str[10];
   sprintf(tot_pdf_number_str, "%d", Set1.n_members+tot_pdf_number);
   
   info_node_update_str(info_node_where(SetOut->info, "NumMembers"), tot_pdf_number_str);  
@@ -173,12 +173,12 @@ int combine(int argc, char* argv[0]){
 }   
 
 
-Member_List ** arg_parser(int n_added_sets, char ** args) {
+Member_List ** arg_parser(int n_added_sets,const char ** args) {
  
   char* colon=NULL;
   char* comma1=NULL;
   char* comma2=NULL;
-  int ic,i=0, i_added_set;
+  int i=0, i_added_set;
   int length;
   char pdf_number[10];
   Member_List **member_lists;
@@ -265,7 +265,6 @@ int pdf_update_info(Pdf * pdf, const Info * base_info){
   int  j, ipol;
   Info_Node* param; 
   Info_Node* base_param;
-  Info_Node* grid_param;
   for(j=0; j<npars; j++){
     base_param = info_node_where(base_info, set_parameters[j]);
     param = info_node_where(pdf->info, set_parameters[j]);

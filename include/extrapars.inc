@@ -4,7 +4,7 @@
       parameter (nExtraParamMax=NEXTRAPARAMMAX_C)
 
       integer nExtraParam      !> Actual number of parameters
-      character*32 ExtraParamNames(nExtraParamMax)     !> Names of extra pars
+      character*128 ExtraParamNames(nExtraParamMax)     !> Names of extra pars
       double precision ExtraParamValue(nExtraParamMax) !> Initial values
       double precision ExtraParamStep (nExtraParamMax) !> Initial step size
       double precision ExtraParamMin  (nExtraParamMax) !> Min value 

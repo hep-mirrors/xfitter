@@ -1,88 +1,88 @@
-
 #pragma once
-
 #include "ReactionTheory.h"
+#include <IntegrateDIS.h>
 
 /**
   @class' ReactionBaseDISCC
 
-  @brief A wrapper class for BaseDISCC reaction 
+  @brief A wrapper class for BaseDISCC reaction
 
   Based on the ReactionTheory class. Reads options produces 3d cross section.
 
   @version 0.1
   @date 2017-10-05
   */
-
-// Define standard parameters used by SF and x-sections:
-#define BASE_PARS (int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
-
-class IntegrateDIS;
-
 class ReactionBaseDISCC : public ReactionTheory
 {
-  public:
-    ReactionBaseDISCC(){};
+public:
+  ReactionBaseDISCC(){};
 
-//    ~ReactionBaseDISCC(){};
-//    ~ReactionBaseDISCC(const ReactionBaseDISCC &){};
-//    ReactionBaseDISCC & operator =(const ReactionABaseDISCC &r){return *(new ReactionBaseDISCC(r));};
+public:
+  virtual string getReactionName() const { return "BaseDISCC"; };
+  virtual void atStart() override;
+  virtual void initTerm(TermData *) override;
+  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
 
-  public:
-    virtual string getReactionName() const { return  "BaseDISCC" ;};
-    int initAtStart(const string &); 
-    virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
-    virtual void initAtIteration() override;
-    
-    virtual int compute(int dataSetID, valarray<double> &valExternal, map<string, valarray<double> > &errExternal);
-  protected:
-    enum class dataFlav { incl, c} ;      //!< Define final state.
+protected:
 
-    virtual int parseOptions(){ return 0;};
+  virtual valarray<double> FL(TermData *td);
+  virtual valarray<double> F2(TermData *td);
+  virtual valarray<double> xF3(TermData *td);
 
-    virtual void F2 BASE_PARS;
-    virtual void FL BASE_PARS;
-    virtual void xF3 BASE_PARS;
+  double _Gf;
+  double _convfac;
 
- private:
-    map <int, int>     _npoints ;           //!< Number of points in a dataset.
-    map <int, double>  _polarisation ;      //!< longitudinal polarisation
-    map <int, double>  _charge;             //!< lepton beam charge
-    map <int, int>    _isReduced;          //!< reduced cross section
-    map <int, dataFlav> _dataFlav;          //!< flavour (incl, c, b)
-  protected:
-    const int GetNpoint(int dataSetID) {return _npoints[dataSetID];}
-    const double GetPolarisation (int dataSetID) {return _polarisation[dataSetID];}
-    const double GetCharge(int dataSetID) {return _charge[dataSetID]; }
-    const int IsReduced(int dataSetID){ return _isReduced[dataSetID] > 0; }
-    const dataFlav GetDataFlav(int dataSetID) {return _dataFlav[dataSetID]; }
+  vector<unsigned> _dsIDs; //!< list of termIDs managed by the reaction.
+  map<unsigned, TermData*> _tdDS; //! store term data for later access.
 
-    // Another decomposition:
-    virtual void GetF2u( int dataSetID, valarray<double>& f2u);
-    virtual void GetFLu( int dataSetID, valarray<double>& flu);
-    virtual void GetxF3u( int dataSetID, valarray<double>& xf3u );
-    virtual void GetF2d( int dataSetID, valarray<double>& f2d);
-    virtual void GetFLd( int dataSetID, valarray<double>& fld);
-    virtual void GetxF3d( int dataSetID, valarray<double>& xf3d );
-    
-  private:
-    // Some buffering mechanism to avoid double calls
-    map <int,valarray<double> > _f2u; //!< F2 for u-type quarks
-    map <int,valarray<double> > _f2d; //!< F2 for d-type quarks
-    map <int,valarray<double> > _flu; //!< FL for u-type quarks
-    map <int,valarray<double> > _fld; //!< FL for d-type quarks
-    map <int,valarray<double> > _xf3u; 
-    map <int,valarray<double> > _xf3d;
-
-  protected:
-    // for integrated cross sections
-    // method is based on legacy subroutine GetIntegratedDisXsection
-    map<int,IntegrateDIS*> _integrated;
-    virtual valarray<double> *GetBinValues(int idDS, const string& binName);
-
- protected:
-    double _MW;
-    double _Gf;
-    double _convfac;
+  // for integrated cross sections
+  // method is based on legacy subroutine GetIntegratedDisXsection
+  map<unsigned, IntegrateDIS *> _integrated;
+  virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
 };
 
+/// Helper classes and functions:
+namespace BaseDISCC
+{
+  enum class dataFlav
+  {
+    incl,
+    c,
+    b
+  }; //!< Define final state.
+  struct ReactionData
+  {
+    int _npoints;                        //!< Number of points in a dataset.
+    double _polarisation = 0.;           //!< longitudinal polarisation
+    double _charge = 0.;                 //!< lepton beam charge
+    bool _isReduced = false;             //!< reduced cross section
+    dataFlav _dataFlav = dataFlav::incl; //!< flavour (incl, c, b)
+    // for integrated cross sections
+    // method is based on legacy subroutine GetIntegratedDisXsection
+    IntegrateDIS *_integrated = nullptr;
+    // Some buffering mechanism to avoid double calls
+    valarray<double> _f2u; //!< F2 for u-type quarks
+    valarray<double> _f2d; //!< F2 for d-type quarks
+    valarray<double> _flu; //!< FL for u-type quarks
+    valarray<double> _fld; //!< FL for d-type quarks
+    valarray<double> _xf3u;
+    valarray<double> _xf3d;
+    const double *Mw; //parameter of W mass
+    int ipdfSet; /// PDF set used in the QCDNUM evolution
+  };
+
+  /// Helper function to get bin values, including integrated sigma:
+  const valarray<double> *GetBinValues(TermData *td, const string &binName)
+  {
+    IntegrateDIS *iDIS = ((BaseDISCC::ReactionData *)td->reactionData)->_integrated;
+    if (iDIS == nullptr)
+      return &td->getBinColumn(binName);
+    if (binName == "Q2")
+      return iDIS->getBinValuesQ2();
+    else if (binName == "x")
+      return iDIS->getBinValuesX();
+    else if (binName == "y")
+      return iDIS->getBinValuesY();
+    return &td->getBinColumn(binName);
+  };
+} // namespace BaseDISCC

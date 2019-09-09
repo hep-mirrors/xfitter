@@ -1,7 +1,7 @@
 /**
   @class TheorEval
 
-  @brief Theory expression evaluation 
+  @brief Theory expression evaluation
 
   This class performs evaluation of expression that describes theoretical
   prediction for a given dataset. The expression may contain APPLgrid terms,
@@ -29,14 +29,17 @@
 #include <vector>
 
 
-class CommonGrid;
 class ReactionTheory;
+class TermData;
 
 using std::valarray;
 using std::vector;
 using std::string;
 using std::map;
 using std::list;
+
+//TheorEval live in map<int,TheorEval*>gTEmap: datasetID->TheorEval
+//TheorEval are created in set_theor_eval_(dataset id), in src/ftheor_eval.cc
 
 //! Arithmetic token struct
 /**
@@ -47,13 +50,15 @@ using std::list;
   -1, -2  -- brackets (, )
   1 -- operators +, -
   3 -- operators *, /
-  4 -- functions sum, avg 
+  4 -- functions sum, avg
   5 -- Matrix . Vector / vector . Matrix
  */
 struct tToken {
   short int opr;  // operator flag, includes precedence
   string name;     // string token
   valarray<double> *val; // value token
+  int narg;
+  bool ownsVal=true;//true if val should be destroyed when this tToken is destroyed
 };
 
 class TheorEval{
@@ -63,7 +68,7 @@ class TheorEval{
  public:
   ~TheorEval();
   //! Proper constructor for TheorEval class
-  /*! 
+  /*!
     \param dsID dataset ID for which the expression is evaluated
     \param nTerms the number of terms in the expression
     \param stn array of strings with term names
@@ -76,7 +81,7 @@ class TheorEval{
   */
   TheorEval(const int dsID, const int nTerms, const std::vector<string> stn, const std::vector<string> stt,
             const std::vector<string> sti, const std::vector<string> sts, const string& ste);
-  
+
   //! Evaluates array of predictions for requested expression
   /*!
     \param iorder order for grids evaluation
@@ -90,47 +95,32 @@ class TheorEval{
    */
   void Evaluate(valarray<double> &vte );
 
-  //! Set custom CKM matrix for APPLgrid
-  /*!
-    \param v_ckm the 3x3 CMK matrix to be set in the APPLgrid
-
-    The CKM matrix values used in APPLgrids calculations can be updated
-    here.
-   */
-  void setCKM(const vector<double> &v_ckm);
-
   //! Set dataset bins
   /*!
     \param nBinDim the binning dimension (only 1d is supported at the moment)
     \param nPoints number of points (bins)
     \param binFlags array with flags for each bin
-    \param allBins array of bin boundaries
+    \param allBins array of bin boundaries (nope --Ivan)
 
     This method sets the binning of the dataset.
    */
-  int setBins(int nBinDim, int nPoints, int *binFlags, double *allBins);
+  void setBins(int nBinDim, int nPoints, int *binFlags, double *allBins,map<string,size_t>&columnNameMap);
   //! Initializes sources for theoretical predictions
   /*!
    After the datasets with expressions are read, this method initialises
    terms such as applgrids and k-factor tabels from their sources.
    */
   void initTheory();
-  //! Returns numebr of bins in the current dataset
-  int getNbins();
-  //! Returs vector with bin flags for current dataset
-  const vector<int> *getBinFlags() const { return &_binFlags; }
-  //! Selects if we have a proton-antiproton collision
-  void SetCollisions(int ppbar) {_ppbar = (ppbar == 1);};
-  //! Add parameters global for a dataset such as collision energy, polarisation etc
-  void AddDSParameter(const string& name, double value) {_dsPars[name] = value;};
-  void SetDynamicScale(float dynscale) {_dynamicscale = dynscale;};
+  //The following methods provide access to bins of this dataset
+  size_t getNbins()const{return _dsBins[0].size();}//return number of bins (datapoints)
+  bool hasBinColumn(const string&columnName)const{return columnNameMap.count(columnName)==1;}
+  const valarray<double>* getBinColumn(const string& columnName)const;//return nullptr if not found
+  const vector<int>* getBinFlags()const{return&_binFlags;}
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-  void SetMurMufDef(int MurDef, int MufDef) { _MurDef = MurDef; _MufDef = MufDef;}; //!< Set mur and muf definition for fastNLO flexible-scale tables
-  void SetOrdScales(int iord, double mur, double muf) { _iOrd=iord; _xmur=mur; _xmuf=muf;}; //!< set order and scale factors
-  void GetOrdScales(int &iord, double &mur, double &muf) { iord=_iOrd; mur=_xmur; muf=_xmuf;}; //!< get order and scale factors
+  /*TODO: delete this?
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
-
+  */
  private:
   //! Checks that the bin boundaries in theory sources are complied with data ones.
   int checkBins();
@@ -146,96 +136,51 @@ class TheorEval{
   */
   void initTerm(int, valarray<double> *);
 
-  //! Initialise applgrid-based term
   /*!
-   \param iterm expression term index
-   \param val valarray pointer which should be associated with the term
-
-   Initializes the applgrid-based grids and associates the term valarrays with them. 
+   \brief Initializes a token corresponding to a reaction term
+   \param[in,out] token The token to be initialized
+   \param[in]     name  The name of the reaction term. Will be assigned as the name of the token.
+   \details If the reaction with the given \p name does not exist, issues a fatal error
   */
-  void initGridTerm(int iterm, valarray<double> *val);
+  void initReactionToken(tToken& token,const string& name);
   //! Initialise reaction term
-  void initReactionTerm(int iterm, valarray<double> *val);
-  //! Initialise K-factor term
-  void initKfTerm(int, valarray<double> *);
-  //! Get current grid values into the tokens
-  void getGridValues();
+  void initReactionTerm(int iterm, valarray<double>* val);
   //! Update the reaction values into the tokens
-  void getReactionValues();
-  //! 
-  map<string, string> SplitTermInfo(const string& term_info);
+  void updateReactionValues();
 
- private:
-  int _dsId;
-  int _iOrd;
-  double _xmur;
-  double _xmuf;
   int _nTerms;
-  double _units;
   vector<string> _termNames;
-  vector<string> _termTypes;
+  vector<string> _termTypes;//we do not need this anymore, the one and only term type is "reaction"
   vector<string> _termInfos;
   vector<string> _termSources;
   string _expr;
-  vector<int> _binFlags;
-  vector<vector<double> > _dsBins;
-  vector<valarray<double> > _kFactors;
+  vector<int> _binFlags;//_binFlags[i] is flag for bin i. Flag=0 means bin is disabled and excluded from the fit. Flag=1 means enabled.
+  vector<valarray<double> >_dsBins;//_dsBins[i][j] is value in 'Bin'-type column i, row j, as provided in datafile
+  map<string,size_t>columnNameMap;//Map from column name to column number i; _dsBins[i] is corresp. column
 
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
-  map<CommonGrid*, valarray<double>* > _mapGridToken;
-  map< std::pair<ReactionTheory*,int> , valarray<double>* > _mapReactionToken;
   map<string, valarray<double>* > _mapInitdTerms;
 
   /// Normalised theory
-  bool _normalised;
-
-  /// ppbar PDF
-  bool _ppbar;
-
-  /// fastNLO flexible-scale defintions
-  int _MurDef;
-  int _MufDef;
-
-  /// bin-by-bin dynamic scale
-  float _dynamicscale;
-
-  /// also keep DS pars, which are valid for all terms 
-  map <string, double> _dsPars;
-
-  /// Name !
-  std::string _ds_name;
- public:
-  void SetDSname(std::string& name) { _ds_name = name;}
- protected:
-  const std::string GetDSname() { return _ds_name; };
+  bool _normalised=false;
+  vector<TermData*>term_datas;
+public:
+  /// also keep some dataset information:
+  string _ds_name;///Name
+  //TODO: Field names could be better --Ivan
+  int _dsId;   //Id of dataset, which is the number of corresponding entry in steering.txt
+  int _dsIndex;//Index of dataset, as given in the datafile
 };
-
 typedef map <int, TheorEval* > tTEmap;
 typedef map <string, string> tReactionLibsmap;
 typedef map <string, ReactionTheory *> tNameReactionmap;
-
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// Host here also global list of bins:
-typedef map <int, map<string, valarray <double> > > tDataBins;
-
-
-// and list of 2-par functions
-
-
-typedef double (*pTwoParFunc)(const double&, const double&);
-// using pTwoParFunc  = std::function< double(const double&, const double&) >;
-typedef map <string, pTwoParFunc> t2Dfunctions;
-
 /// global dataset to theory evaluation pointer map
 extern tTEmap gTEmap;
+
+/// global map of reaction libraries
 extern tReactionLibsmap gReactionLibs;
+
+/// global map of reaction names
 extern tNameReactionmap gNameReaction;
-extern tDataBins gDataBins;
-extern t2Dfunctions g2Dfunctions;
-
-/// Helper function to determine scope-specific parameter value for complex parameters
-const std::string GetParamDS(const std::string& ParName, const std::string& DSname, int DSindex);
-
-
 #endif

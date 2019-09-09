@@ -26,7 +26,6 @@ extern "C" ReactionBaseHVQMNR* create() {
 // pass to MNR pointer to instance inherited from ReactionTheory to allow access to alphas and PDF routines
 ReactionBaseHVQMNR::ReactionBaseHVQMNR() : _mnr(MNR::MNR(this))
 {
-  //printf("OZ ReactionBaseHVQMNR::ReactionBaseHVQMNR()\n");
   // set initialisation status flag
   _isInitAtStart = false;
   // set debugging flag
@@ -37,14 +36,21 @@ ReactionBaseHVQMNR::ReactionBaseHVQMNR() : _mnr(MNR::MNR(this))
 
 ReactionBaseHVQMNR::~ReactionBaseHVQMNR()
 {
-  //printf("OZ ReactionBaseHVQMNR::~ReactionBaseHVQMNR()\n");
   for(unsigned int i = 0; i < _hCalculatedXSec.size(); i++)
     delete _hCalculatedXSec[i];
 }
 
 
-void ReactionBaseHVQMNR::setDatasetParameters(int dataSetID, map<string,string> pars, map<string,double> dsPars)
+void ReactionBaseHVQMNR::initTerm(TermData *td)
 {
+  unsigned dataSetID = td->id;
+  _tdDS[dataSetID] = td;
+
+  // Order
+  const string order = td->getParamS("Order");
+  if(order != "NLO")
+    hf_errlog(19020301, "F: order " + order + " not supported");
+
   // add new dataset
   DataSet dataSet;
   std::pair<std::map<int, DataSet>::iterator, bool> ret = _dataSets.insert(std::pair<int, DataSet>(dataSetID, dataSet));
@@ -55,45 +61,42 @@ void ReactionBaseHVQMNR::setDatasetParameters(int dataSetID, map<string,string> 
   // set parameters for new dataset
   DataSet& ds = ret.first->second;
   // mandatory "FinalState="
-  map<string,string>::iterator it = pars.find("FinalState");
-  if(it == pars.end())
+  if(!td->hasParam("FinalState"))
     hf_errlog(16123002, "F: TermInfo must contain FinalState entry");
   else
-    ds.FinalState = it->second;
+    ds.FinalState = td->getParamS("FinalState");
 
   // optional "NormY="
-  it = pars.find("NormY");
-  if(it == pars.end())
+  if(!td->hasParam("NormY"))
     ds.NormY = 0; // default value is unnormalised absolute cross section
   else
-    ds.NormY = atoi(it->second.c_str());
+    ds.NormY = td->getParamI("NormY");
 
   // optional "FragFrac=" (must be provided for absolute cross section)
-  it = pars.find("FragFrac");
-  if(it == pars.end())
+  if(!td->hasParam("FragFrac"))
   {
     if(ds.NormY == 0)
       hf_errlog(16123003, "F: for absolute cross section TermInfo must contain FragFrac entry");
   }
   else
   {
-    ds.FragFraction = atof(it->second.c_str());
+    ds.FragFraction = *td->getParamD("FragFrac");
     if(ds.NormY != 0)
       printf("Warning: FragFrac=%f will be ignored for normalised cross sections\n", ds.FragFraction);
   }
 
   // set binning
-  ds.BinsYMin  = GetBinValues(dataSetID, "ymin");
-  ds.BinsYMax  = GetBinValues(dataSetID, "ymax");
-  ds.BinsPtMin = GetBinValues(dataSetID, "pTmin");
-  ds.BinsPtMax = GetBinValues(dataSetID, "pTmax");
-  if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL )
-    hf_errlog(16123004, "F: No bins ymin or ymax or ptmin or ptmax");
+  ds.BinsYMin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("ymin"));
+  ds.BinsYMax  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("ymax"));
+  ds.BinsPtMin = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("pTmin"));
+  ds.BinsPtMax = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("pTmax"));
+  //if (ds.BinsYMin == NULL || ds.BinsYMax == NULL || ds.BinsPtMin == NULL || ds.BinsPtMax == NULL )
+  //  hf_errlog(16123004, "F: No bins ymin or ymax or ptmin or ptmax");
   // set reference y bins if needed
   if(ds.NormY == 1)
   {
-    ds.BinsYMinRef = GetBinValues(dataSetID, "yminREF");
-    ds.BinsYMaxRef = GetBinValues(dataSetID, "ymaxREF");
+    ds.BinsYMinRef = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("yminREF"));
+    ds.BinsYMaxRef = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("ymaxREF"));
     if(ds.BinsYMinRef == NULL || ds.BinsYMaxRef == NULL)
       hf_errlog(16123005, "F: No bins yminREF or ymaxREF for normalised cross section");
   }
@@ -116,23 +119,42 @@ bool ReactionBaseHVQMNR::IsEqual(const double val1, const double val2, const dou
 // initialise calculation with default parameters
 void ReactionBaseHVQMNR::DefaultInit(const Steering& steer, const double mq, MNR::MNR& mnr, MNR::Frag& frag, MNR::Grid& grid, MNR::Grid& grid_smoothed)
 {
-  // MNR (parton level cross sections)
-  mnr.bFS_Q = true;
-  mnr.bFS_A = true;
+  DefaultInitMNR(steer, mq, mnr);
+  DefaultInitGrid(steer, mq, steer.npt, grid);
+  DefaultInitGrid(steer, mq, steer.nptsm, grid_smoothed);
+  DefaultInitFrag(steer, frag);
+}
+
+void ReactionBaseHVQMNR::DefaultInitMNR(const ReactionBaseHVQMNR::Steering &steer, const double mq, MNR::MNR &mnr)
+{
+  // MNR parton level cross sections, quark-antiquark contributions
+  mnr.bFS_Q = steer.q;
+  mnr.bFS_A = steer.a;
+  // number of light flavours
+  mnr.fC_nl = steer.nf;
   // x3 and x4 binning
   mnr.fBn_x3 = steer.nx3;
   mnr.fBn_x4 = steer.nx4;
   mnr.fSF_nb = steer.nsfnb;
+  // PDF range
+  mnr.fSF_min_x = steer.xmin;
+  mnr.fSF_max_x = steer.xmax;
+  mnr.fSF_min_mf2 = steer.mf2min;
+  mnr.fSF_max_mf2 = steer.mf2max;
+  // precalculation (memory allocation etc.)
   mnr.CalcBinning();
-  // Number of flavours
-  mnr.fC_nl = 3;
+}
+
+void ReactionBaseHVQMNR::DefaultInitGrid(const ReactionBaseHVQMNR::Steering &steer, const double mq, const int npt, MNR::Grid &grid)
+{
   // Parton level pT-y grids
-  grid.SetL(steer.npt, steer.ptmin, steer.ptmax, mq);
+  grid.SetL(npt, steer.ptmin, steer.ptmax, mq);
   grid.SetY(steer.ny, steer.ymin, steer.ymax);
   grid.SetW(1);
-  grid_smoothed.SetL(steer.nptsm, steer.ptmin, steer.ptmax, mq);
-  grid_smoothed.SetY(steer.ny, steer.ymin, steer.ymax);
-  grid_smoothed.SetW(1);
+}
+
+void ReactionBaseHVQMNR::DefaultInitFrag(const ReactionBaseHVQMNR::Steering &steer, MNR::Frag &frag)
+{
   // Fragmentation
   frag.SetNz(steer.nbz);
 }
@@ -186,12 +208,12 @@ double ReactionBaseHVQMNR::FindXSecPtYBin(const TH2* histXSec, const double ymin
 void ReactionBaseHVQMNR::CheckHFScheme()
 {
   // check HF scheme
-  if(steering_.hfscheme != 3 && steering_.hfscheme != 4)
-    hf_errlog(16123007, "S: calculation does not support HFSCHEME = " + std::to_string(steering_.hfscheme) + " (only 3, 4 supported)");
+  //if(steering_.hfscheme != 3 && steering_.hfscheme != 4)
+  //  hf_errlog(16123007, "S: calculation does not support HFSCHEME = " + std::to_string(steering_.hfscheme) + " (only 3, 4 supported)");
 }
 
 // read parameters for perturbative scales from MINUIT extra parameters
-void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double& B, double& C)
+void ReactionBaseHVQMNR::GetMuPar(TermData* td, const char mu, const char q, double& A, double& B, double& C)
 {
   // ***********************************************************************************************
   // Scales for charm and beauty production are parametrised as:
@@ -226,39 +248,39 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
   std::string baseParameterName = "MNRm" + std::string(1, mu);
 
   // A and B parameters
-  if(checkParam(baseParameterName + "_AB"))
-    A = B = GetParam(baseParameterName + "_AB");
+  if(td->hasParam(baseParameterName + "_AB"))
+    A = B = *td->getParamD(baseParameterName + "_AB");
   else
   {
-    if(checkParam(baseParameterName + "_A") && checkParam(baseParameterName + "_B"))
+    if(td->hasParam(baseParameterName + "_A") && td->hasParam(baseParameterName + "_B"))
     {
-      A = GetParam(baseParameterName + "_A");
-      B = GetParam(baseParameterName + "_B");
+      A = *td->getParamD(baseParameterName + "_A");
+      B = *td->getParamD(baseParameterName + "_B");
     }
     else
     {
-      if(checkParam(baseParameterName + "_AB_" + std::string(1, q)))
-        A = B = GetParam(baseParameterName + "_AB_" + std::string(1, q));
+      if(td->hasParam(baseParameterName + "_AB_" + std::string(1, q)))
+        A = B = *td->getParamD(baseParameterName + "_AB_" + std::string(1, q));
       else
       {
-        if(checkParam(baseParameterName + "_A_" + std::string(1, q)))
-          A = GetParam(baseParameterName + "_A_" + std::string(1, q));
+        if(td->hasParam(baseParameterName + "_A_" + std::string(1, q)))
+          A = *td->getParamD(baseParameterName + "_A_" + std::string(1, q));
         else
           A = defA;
-        if(checkParam(baseParameterName + "_B_" + std::string(1, q)))
-          B = GetParam(baseParameterName + "_B_" + std::string(1, q));
+        if(td->hasParam(baseParameterName + "_B_" + std::string(1, q)))
+          B = *td->getParamD(baseParameterName + "_B_" + std::string(1, q));
         else
           B = defB;
       }
     }
   }
   // C parameter
-  if(checkParam(baseParameterName + "_C"))
-    C = GetParam(baseParameterName + "_C");
+  if(td->hasParam(baseParameterName + "_C"))
+    C = *td->getParamD(baseParameterName + "_C");
   else
   {
-    if(checkParam(baseParameterName + "_C_" + std::string(1, q)))
-      C = GetParam(baseParameterName + "_C_" + std::string(1, q));
+    if(td->hasParam(baseParameterName + "_C_" + std::string(1, q)))
+      C = *td->getParamD(baseParameterName + "_C_" + std::string(1, q));
     else
       C = defC;
   }
@@ -266,7 +288,7 @@ void ReactionBaseHVQMNR::GetMuPar(const char mu, const char q, double& A, double
 
 
 // read fragmentation parameter from MINUIT extra parameters
-double ReactionBaseHVQMNR::GetFragPar(const char q)
+double ReactionBaseHVQMNR::GetFragPar(TermData* td, const char q, const map<string,string> pars)
 {
   // *********************************************************************
   // Parameters for non-perturbative fragmentation can be provided
@@ -282,7 +304,7 @@ double ReactionBaseHVQMNR::GetFragPar(const char q)
   double parvalue = NAN;
   char parname[16];
   sprintf(parname, "MNRfrag_%c", q);
-  if(!checkParam(parname))
+  if(!td->hasParam(parname))
   {
     // parameter not in ExtraParamMinuit -> using default value
     if(q == 'c')
@@ -293,51 +315,49 @@ double ReactionBaseHVQMNR::GetFragPar(const char q)
       hf_errlog(17102103, "F: no default value for q = " + std::string(1, q) + " in ReactionBaseHVQMNR::GetFragPar()");
   }
   else
-    parvalue = GetParam(parname);
-
-  // TODO check below whether it is still relevant
-  /*      ! parameter in ExtraParamMinuit, but not in MINUIT: this happens, if we are not in 'Fit' mode -> using default value
-        if(st.lt.0) then
-          if(q.eq.'c') then
-            FFpar=defFFc
-          else if(q.eq.'b') then
-            FFpar=defFFb
-          else
-            write(*,*)'Warning in GetFPar(): no default value for q = ',q
-            call makenan(FFpar)
-          endif
-        endif
-      endif
-      end*/
+    parvalue = *td->getParamD(parname);
   return parvalue;
 }
 
 // read and update theory parameters
-void ReactionBaseHVQMNR::UpdateParameters()
+void ReactionBaseHVQMNR::UpdateParameters(TermData *td)
 {
+  // if not TermData provided, take any TermData pointer to access theory parameters
+  // (theory parameters are supposed to be universal for all data sets in this case)
+  if(!td)
+    td = _tdDS.begin()->second;
+
   // heavy-quark masses
-  _pars.mc = fermion_masses_.mch;
-  _pars.mb = fermion_masses_.mbt;
+  _pars.mc = *td->getParamD("mch");
+  _pars.mb = *td->getParamD("mbt");
   // scale parameters
-  GetMuPar('f', 'c', _pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c);
-  GetMuPar('r', 'c', _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
-  GetMuPar('f', 'b', _pars.mf_A_b, _pars.mf_B_b, _pars.mf_C_b);
-  GetMuPar('r', 'b', _pars.mr_A_b, _pars.mr_B_b, _pars.mr_C_b);
+  GetMuPar(td, 'f', 'c', _pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c);
+  GetMuPar(td, 'r', 'c', _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
+  GetMuPar(td, 'f', 'b', _pars.mf_A_b, _pars.mf_B_b, _pars.mf_C_b);
+  GetMuPar(td, 'r', 'b', _pars.mr_A_b, _pars.mr_B_b, _pars.mr_C_b);
   // fragmentation parameters
-  _pars.fragpar_c = GetFragPar('c');
-  _pars.fragpar_b = GetFragPar('b');
+  _pars.fragpar_c = GetFragPar(td, 'c');
+  _pars.fragpar_b = GetFragPar(td, 'b');
+
+  // protection against not positive or nan masses
+  if(_pars.mc <= 0.0 || _pars.mc != _pars.mc)
+    _pars.mc = 1000.0;
+  if(_pars.mb <= 0.0 || _pars.mb != _pars.mb)
+    _pars.mb = 1000.0;
 }
 
 // print theory parameters
-void ReactionBaseHVQMNR::PrintParameters() const
+void ReactionBaseHVQMNR::PrintParameters(Parameters const* pars) const
 {
+  if(pars == NULL)
+    pars = &(this->_pars);
   printf("MNR scale parameters:\n");
-  printf("%f  %f  %f\n", _pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c);
-  printf("%f  %f  %f\n", _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
-  printf("%f  %f  %f\n", _pars.mf_A_b, _pars.mf_B_b, _pars.mf_C_b);
-  printf("%f  %f  %f\n", _pars.mr_A_b, _pars.mr_B_b, _pars.mr_C_b);
+  printf("%f  %f  %f\n", pars->mf_A_c, pars->mf_B_c, pars->mf_C_c);
+  printf("%f  %f  %f\n", pars->mr_A_c, pars->mr_B_c, pars->mr_C_c);
+  printf("%f  %f  %f\n", pars->mf_A_b, pars->mf_B_b, pars->mf_C_b);
+  printf("%f  %f  %f\n", pars->mr_A_b, pars->mr_B_b, pars->mr_C_b);
   printf("MNR masses:\n");
-  printf("mc = %f  mb = %f\n", _pars.mc, _pars.mb);
+  printf("mc = %f  mb = %f\n", pars->mc, pars->mb);
   printf("MNR fragmentation parameters:\n");
-  printf("fragpar_c = %f  fragpar_b = %f\n", _pars.fragpar_c, _pars.fragpar_b);
+  printf("fragpar_c = %f  fragpar_b = %f\n", pars->fragpar_c, pars->fragpar_b);
 }

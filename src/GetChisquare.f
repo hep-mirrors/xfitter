@@ -1,4 +1,4 @@
-C--------------------------------------------------------  	 
+C--------------------------------------------------------
 C> @Brief Calculate chisquare
 C
 C>      - first get error matrix
@@ -16,7 +16,7 @@ C---------------------------------------------------------
 #include "steering.inc"
 #include "systematics.inc"
 #include "indata.inc"
-      
+
       integer n0_in, flag_in
       double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
       double precision pchi2_in(nset), fcorchi2_in
@@ -28,7 +28,7 @@ C---------------------------------------------------------
       double precision ScaledGammaSav(NSysMax,Ntot) ! Scaled Gamma matrix, saved
 
       double precision ScaledOmega(NSysMax,Ntot) ! Scaled Omega matrix
-      
+
       double precision ScaledErrors(Ntot)  ! uncorrelated uncertainties, diagonal
 
       double precision ScaledErrorMatrix(NCovarMax,NCovarMax) ! stat+uncor error matrix
@@ -42,22 +42,15 @@ C---------------------------------------------------------
       logical LFirst
       data LFirst /.true./
 
-      integer omegaIteration 
+      integer omegaIteration
       Logical doMatrix, doNuisance, doExternal, LStop
-      
-C----------------------------------------------------------------------------
-
-         ! --> WS debug
-         if(LDEBUG) print*,'GetNewChisquare flag_in=',flag_in
-         
-c Global initialisation 
+c Global initialisation
 
       if (LFirst) then
          LFirst = .false.
 
-
 C    !> Determine which mechanisms for syst. errors should be used:
-         Call Init_Chi2_calc(doMatrix, doNuisance, doExternal) 
+         Call Init_Chi2_calc(doMatrix, doNuisance, doExternal)
 
 C    !> Determine which errors are diagonal and which are using covariance matrix
          Call init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
@@ -72,8 +65,8 @@ C    !> Determine which errors are diagonal and which are using covariance matri
             enddo
          enddo
       endif  ! LFirst
-      
-C 
+
+C
       do jsys=1,nsys
          rsys_in(jsys) = 0.d0
          ersys_in(jsys) = 0.d0
@@ -82,7 +75,7 @@ C
       do i=1,nset
          pchi2_in(i)=0.d0
       enddo
-      
+
       fchi2_in = 0.d0
       fcorchi2_in = 0.d0
 
@@ -107,34 +100,22 @@ C !> Read external (minuit) systematic sources if present:
       if (.not. Chi2FirstIterationRescale  .or. flag_in.eq.1) then
 C !> Calculated scaled syst. uncertainties:
          call Chi2_calc_GetGamma(ScaledGamma, ScaledOmega)
-         
+
 C !> Store rescaled gamma (important for asymmetric errors ):
          do k=1,nsys
             do i=1,n_syst_meas(k)
                j =  syst_meas_idx(i,k)
                ScaledGammaSav(k,j) = ScaledGamma(k,j)
             enddo
-         enddo            
-
-
-        ! print *,' --- ScaledGamma'
-        ! do i=1,n0_in
-          ! print *,(ScaledGamma(j,i),j=1,nsys)
-        ! enddo
-
-
-C !> Rebuild syst. covariance matrix 
+         enddo
+C !> Rebuild syst. covariance matrix
 
          if ( doMatrix ) then
             Call Chi2_calc_covar(ScaledGamma
      $           ,ScaledSystMatrix
      $           ,List_Covar_Inv,n0_in)
          endif
-          ! print *,' --- ScaledSystMatrix'
-          ! do i=1,6
-            ! print *,(ScaledSystMatrix(j,i),j=1,6)
-          ! enddo
-      else 
+      else
 C !> Restore saved gamma:
          do k=1,nsys
             do i=1,n_syst_meas(k)
@@ -154,58 +135,35 @@ c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
             Call Chi2_calc_stat_uncor(ScaledErrors
      $           ,ScaledErrorMatrix
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
-     
-          ! print *,' --- ScaledErrors'
-            ! print *,(ScaledErrors(j),j=1,6)
-          ! print *,' --- ScaledErrorMatrix'
-          ! do i=1,6
-            ! print *,(ScaledErrorMatrix(j,i),j=1,6)
-          ! enddo
 
 C  !> Sum covariance matricies and invert the total:
 
             if ( doMatrix .or. NCovar .gt. 0 ) then
-               Call Chi2_calc_SumCovar(ScaledErrorMatrix, 
-     $              ScaledSystMatrix, 
+               Call Chi2_calc_SumCovar(ScaledErrorMatrix,
+     $              ScaledSystMatrix,
      $              ScaledTotMatrix, NCovar)
-     
-              ! print *,' --- ScaledTotMatrix Inv.'
-              ! do i=1,6
-                ! print *,(ScaledTotMatrix(j,i),j=1,6)
-              ! enddo
             endif
 
 C !> same for diagonal part:
             do i=1,n0_in
-
-               if(NCovar.eq.0.and.ScaledErrors(i).eq.0.0d0) then
-c     no cov matrix and no ScaledErrors errors, break                
-                  print*,
-     $               'GetNewChisquare: no stat and unc errors in data!'
-                  print*,'(possibly cov matrix forgot to be included?)'
-                  call hf_stop
-               endif
-
-               if ( .not. is_covariance(i) ) then
-                  ScaledErrors(i) = 1.D0 
-     $                 / (ScaledErrors(i)*ScaledErrors(i))
+               if(ScaledErrors(i)/=0d0)then
+                 ScaledErrors(i)=ScaledErrors(i)**(-2)
                else
-                  if (ScaledErrors(i).eq.0.0D0) then
-                     ScaledErrors(i) = 1.D0
-                  else
-                     ScaledErrors(i) = 1.D0 
-     $                    / (ScaledErrors(i)*ScaledErrors(i))                     
-                  endif
+                 ScaledErrors(i)=1d0 !When is this necessary? --Ivan
+                 if(NCovar==0)then
+                   !no cov matrix and no ScaledErrors errors, break
+                   print*,'GetNewChisquare: no stat and unc errors in
+     $ data! (possibly cov matrix forgot to be included?)'
+                   call hf_stop
+                 endif
                endif
             enddo
-            
          endif
-
 
 C !> Next determine nuisance parameter shifts
          omegaIteration = 1
-         do 
-            if ( LConvertCovToNui .and. do_reduce 
+         do
+            if ( LConvertCovToNui .and. do_reduce
      $           .and. flag_in .ne. 3 ) then
                   ! use simplified (slightly) faster version of the code
                call chi2_calc_syst_shifts_simple(
@@ -230,10 +188,10 @@ C !> Asymmetric errors loop:
      $           ,ScaledOmega
      $           ,rsys_in
      $           ,omegaIteration,
-     $           LStop)         
-            if (LStop) Exit 
+     $           LStop)
+            if (LStop) Exit
             omegaIteration = omegaIteration + 1
-         enddo 
+         enddo
 
 
 C !> See if we want to use asymmetric errors
@@ -294,7 +252,7 @@ c         print *,i,1./sqrt(ScaledErrors(i))
       enddo
 
 
-      return 
+      return
       end
 
 
@@ -307,7 +265,7 @@ C> @param doNuisance switch on hessian method
 C> @param doExternal switch on external (minuit) method
 C
 C------------------------------------------------------------------
-      subroutine Init_Chi2_calc(doMatrix, doNuisance, doExternal) 
+      subroutine Init_Chi2_calc(doMatrix, doNuisance, doExternal)
 
       implicit none
       logical doMatrix, doNuisance, doExternal
@@ -392,7 +350,7 @@ C> @param List_Covar_inv inverted list of covariance input data
 C> @param n0_in total number of input data
 C
 C------------------------------------------------------------------------------------------
-      subroutine Init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar, 
+      subroutine Init_chi2_stat(NDiag, NCovar, List_Diag, List_Covar,
      $     List_Covar_inv, n0_in)
 
       implicit none
@@ -400,7 +358,7 @@ C-------------------------------------------------------------------------------
 #include "indata.inc"
 #include "systematics.inc"
 #include "steering.inc"
-      integer NDiag, NCovar, List_Diag(NTOT), List_Covar(NTOT), 
+      integer NDiag, NCovar, List_Diag(NTOT), List_Covar(NTOT),
      $     List_Covar_inv(NTOT), n0_in
       integer i,k,l
       logical isCov
@@ -412,7 +370,7 @@ C-----------------------------------------------------------------------
          List_Covar_Inv(i) = 0   ! Reset inverted list
          isCov = .false.
 
-C Check if already requested to be 
+C Check if already requested to be
          if ( is_covariance(i) ) then
             isCov = .true.
          else
@@ -424,7 +382,7 @@ C Check systematic sources, if a matrix source point to point i
                          isCov = .true.
                       endif
                    enddo
-                endif 
+                endif
              enddo
          endif
 
@@ -447,7 +405,7 @@ C Check systematic sources, if a matrix source point to point i
             NDiag = NDiag + 1
             List_Diag(NDiag) = i
          endif
-         
+
       enddo
 
       if (lDebug) then
@@ -459,7 +417,7 @@ C Check systematic sources, if a matrix source point to point i
 
 C----------------------------------------------------------
 C
-C> @brief Get external (minuit) parameters 
+C> @brief Get external (minuit) parameters
 C
 C> @param rsys_in
 C> @param ersys_in
@@ -489,7 +447,7 @@ C-------------------------------------------------
                print *,'External systematics ',system(i),' not found'
                print *,'on the list of external parameters'
                print *,'Contact herafiter-help@desy.de with ! Stop.'
-               print *,' ' 
+               print *,' '
                call HF_stop
             endif
             rsys_in(i) = parminuitsave( iExtraParamMinuit(idx) )
@@ -532,7 +490,7 @@ c#include "steering.inc"
       logical lfirstPass/.true./
 C-----------------------------------------------------
       do k=1,NSYS
-         scaling_type = SysScalingType(k) 
+         scaling_type = SysScalingType(k)
 
          do i1=1,n_syst_meas(k)
             i = syst_meas_idx(i1,k)
@@ -598,19 +556,19 @@ C----------------------------------------------------------------------
       enddo
 
       do k=1,nsys
-         if (SysForm(k).eq.isMatrix) then            
+         if (SysForm(k).eq.isMatrix) then
 
 ! The covariance matrix:
             do i2=1,n_syst_meas(k)
                i1 = syst_meas_idx(i2,k)  ! data point index
-               i = list_covar_inv(i1)    ! cov. matrix index 
+               i = list_covar_inv(i1)    ! cov. matrix index
 
                do j2=i2,n_syst_meas(k)
                   j1 = syst_meas_idx(j2,k)  ! data point idx
                   j = list_covar_inv(j1)    ! cov. matrix idx
 
-                  ScaledSystMatrix(i,j) =  
-     $                 ScaledSystMatrix(i,j) 
+                  ScaledSystMatrix(i,j) =
+     $                 ScaledSystMatrix(i,j)
      $                 + ScaledGamma(k,i1)*ScaledGamma(k,j1)
 
                enddo
@@ -621,7 +579,7 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
       end
 
-      
+
 C===========================================================
 C
 C> @brief      Get uncertainties
@@ -676,7 +634,7 @@ C> @param ScaledTotMatrix
 C> @param NCovar
 C
 C----------------------------------------------------------------------------
-      Subroutine Chi2_calc_SumCovar(ScaledErrorMatrix, ScaledSystMatrix, 
+      Subroutine Chi2_calc_SumCovar(ScaledErrorMatrix, ScaledSystMatrix,
      $              ScaledTotMatrix, NCovar)
 
       implicit none
@@ -693,29 +651,29 @@ C----------------------------------------------------------------------------
 C-----------------------------
       do i=1,NCovar
          do j=i,NCovar
-            ScaledTotMatrix(i,j) = ScaledErrorMatrix(i,j) 
+            ScaledTotMatrix(i,j) = ScaledErrorMatrix(i,j)
      $           + ScaledSystMatrix(i,j)
             ScaledTotMatrix(j,i) = ScaledTotMatrix(i,j)
          enddo
       enddo
-      
+
         ! print *,' --- ScaledTotMatrix'
         ! do i=1,6
           ! print *,(ScaledTotMatrix(j,i),j=1,6)
         ! enddo
 
-C-----------------------------   
+C-----------------------------
       Call DInv(NCovar,ScaledTotMatrix,NCovarMax,Array,IFail)
 C      print *,IFail,NCovar
-   
+
       end
 
 C-----------------------------------------------------------------------
 C
 C> @brief Scale covariance matrix and/or diagonal uncertainties
-C 
-C> @param ScaledErrors
-C> @param ScaledErrorMatrix
+C
+C> @param[out] ScaledErrors
+C> @param[out] ScaledErrorMatrix
 C> @param rsys_in
 C> @param n0_in
 C> @param NCovar
@@ -723,7 +681,7 @@ C> @param List_Covar
 C> @param Iterate
 C
 C-----------------------------------------------------------------------
-      subroutine chi2_calc_stat_uncor(ScaledErrors, ScaledErrorMatrix, 
+      subroutine chi2_calc_stat_uncor(ScaledErrors, ScaledErrorMatrix,
      $     rsys_in,n0_in, NCovar, List_Covar, Iterate)
 
       implicit none
@@ -741,8 +699,8 @@ C-----------------------------------------------------------------------
 
       integer i,j,i1,j1
       double precision Stat, StatConst, Unc, Sum
-c       
-      
+c
+
 #include "indata.inc"
       double precision Offs
 C-------------------------------------------------------
@@ -752,9 +710,9 @@ C Start with diagonal part
 C
       do i=1,n0_in
          Call GetPointErrors(i, Stat, StatConst, Unc)
-         sum = 1.
+         sum=0.
          if (Chi2ExtraSystRescale .and. Iterate.eq.0) then
-C Re-scale for systematic shifts:            
+C Re-scale for systematic shifts:
             do j=1,NSYS
                if ( (SysForm(j) .eq. isNuisance)
      $              .and. (SysScalingType(j) .eq. isLinear ) ) then
@@ -771,12 +729,10 @@ C Re-scale for systematic shifts:
             enddo
          endif
 
-c protection against negative sum term for ExtraSystRescale case        
-         Sum = exp(Sum-1.)
-
-         ScaledErrors(i) = sqrt((Stat*sqrt(Sum))**2+StatConst**2+Unc**2+Offs*daten(i)**2)
-         ScaledErrorsStat(i) = sqrt((Stat*sqrt(Sum))**2+StatConst**2)
-         ScaledErrorsSyst(i) = sqrt(Unc**2+Offs*daten(i)**2)
+         sum=exp(sum)
+         ScaledErrorsStat(i)=sqrt(Stat**2*sum+StatConst**2)
+         ScaledErrorsSyst(i)=sqrt(Unc**2+Offs*daten(i)**2)
+         ScaledErrors(i)=sqrt(ScaledErrorsStat(i)**2+ScaledErrorsSyst(i)**2)
       enddo
 
 C
@@ -785,13 +741,13 @@ C
       do i1=1,NCovar
          i = List_Covar(i1)
          do j1=i1,NCovar
-            j = List_Covar(j1) 
+            j = List_Covar(j1)
 
-            ScaledErrorMatrix(i1,j1) = 
+            ScaledErrorMatrix(i1,j1) =
      $          ScaledErrorsStat(i)*ScaledErrorsStat(j)*corr_stat(i,j) +
      $          ScaledErrorsSyst(i)*ScaledErrorsSyst(j)*corr_syst(i,j) +
      $          ScaledErrors(i)*ScaledErrors(j)*corr(i,j) +
-     $          cov(i,j) 
+     $          cov(i,j)
          enddo
       enddo
 C--------------------------------------------------------
@@ -814,7 +770,7 @@ C-------------------------------------------------
       do l=1,nsys
          n = n_syst_meas(l)
          j1 = 1
-         
+
          do while ( j1 .le. n)
             flag = .false.
 C loop over all data, find non-zero correlations
@@ -847,14 +803,14 @@ c                        print *,'EXPAND LIST',l,i
             endif
          enddo
 
-         n_syst_meas(l) = n 
+         n_syst_meas(l) = n
 
       enddo
 C-------------------------------------------------
       end
 
 
-      
+
       subroutine chi2_calc_syst_shifts_simple(
      $     ScaledErrors
      $     ,ScaledGamma
@@ -870,11 +826,11 @@ C
       double precision ScaledErrors(NTOT)
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
       double precision rsys_in(NSYSMax)
-      double precision A(NSYSMax,NSYSMax), C(NSysMax)      
+      double precision A(NSYSMax,NSYSMax), C(NSysMax)
 
       double precision AS(n0_in,NSysMax)  ! automatic, scaled sys.
 
-      double precision ASp(n0_in*(NsysMax+1)/2), 
+      double precision ASp(n0_in*(NsysMax+1)/2),
      $     SGp(n0_in*(NsysMax+1)/2)
 
       double precision d_minus_t1
@@ -895,12 +851,12 @@ C Reset the matricies:
 
       do i=1,n0_in
          do j=1,nsys
-            AS(i,j) = 
+            AS(i,j) =
      $           ScaledErrors(i)
      $           *ScaledGamma(j,i)
          enddo
       enddo
-      
+
 
       do l=1,nsys
 C Start with "C"
@@ -908,13 +864,13 @@ C Start with "C"
          do i1=1,n_syst_meas(l) ! loop over all data affected by this source
             i = syst_meas_idx(i1,l) ! i -> index of the data
 c         do i=1,n0_in
- 
+
             d_minus_t1 = daten(i) - theo(i)
 
 C  Diagonal error:
             C(l) = C(l) +  AS(i,l)
      $           *( d_minus_t1 )
-            
+
          enddo
       enddo
 
@@ -924,7 +880,7 @@ C  Diagonal error:
       if ( .not. UseBlas ) then
 
 !$OMP PARALLEL DO
-         
+
          do i=1,n0_in
             do l=1,nsys
                do k=l,NSys
@@ -958,12 +914,12 @@ C         call cublas_dgemm('N','N',nsys,nsys, n0_in, 1.0D0
      $     , 0.D0, A, nsysmax)
 
       endif
-         
+
 C Penalty term, unity by default
       do i=1,nsys
          A(i,i) = A(i,i) + SysPriorScale(i)
       enddo
-      
+
 c      print *,A(1,1),A(nsys,nsys)
 
       call cpu_time(time2)
@@ -979,9 +935,9 @@ C
 
 C Ready to invert
       if (nsys.gt.0) then
-         
+
          Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
-         
+
          do l=1,nsys
             rsys_in(l) = - C(l)
          enddo
@@ -1034,29 +990,34 @@ C
 
       double precision, allocatable :: AA(:,:)
       double precision, allocatable :: AA2(:,:)
-      double precision, allocatable :: RR(:,:)      
+      double precision, allocatable :: RR(:,:)
 
       double precision d_minus_t1, d_minus_t2,add
       double precision ShiftExternal(NTOT)
-      
+
       integer com_list(NTot),n_com_list  !> List of affected data, common for two sources.
       integer IR(2*NSysMax), Ifail,  Npdf
-      
+
       integer nsystheo, itheoisys(NSysMax)
+      integer nsys_sav, n0_in_sav
 
       logical lfirst
       data lfirst /.true./
-      save lfirst
+      data nsys_sav,n0_in_sav/0,0/
+      save lfirst,nsys_sav,n0_in_sav
 C-
       logical HaveCommonData(NsysMax, NsysMax)
 C--------------------------------------------------------
-
+C Check if number of sources/data points change:
+      ResetCommonSyst = (nsys.ne.nsys_sav) .or. (n0_in.ne.n0_in_sav)
+      nsys_sav = nsys
+      n0_in_sav = n0_in 
 C Determine pairs of syst. uncertainties which share  data
 
 
       if (LFirst .or. ResetCommonSyst) then
          LFirst = .false.
-         ResetCommonSyst = .false. 
+         ResetCommonSyst = .false.
 
 
          call expand_syst_lists(scaledtotmatrix,list_covar_inv,n0_in)
@@ -1084,10 +1045,10 @@ C Get extra piece, from external systematics:
                i  = syst_meas_idx(i1,l)
   ! Consider asymmetric uncertainties:
                if (AsymErrorsIterations.eq.0) then
-                  ShiftExternal(i) = ShiftExternal(i) 
+                  ShiftExternal(i) = ShiftExternal(i)
      $                 + ScaledGamma(l,i)*rsys_in(l)
                else
-                  ShiftExternal(i) = ShiftExternal(i) 
+                  ShiftExternal(i) = ShiftExternal(i)
      $                 + ScaledGamma(l,i)*rsys_in(l)
      $                 + ScaledOmega(l,i)*rsys_in(l)*rsys_in(l)
                endif
@@ -1108,7 +1069,7 @@ C Reset the matricies:
             A(i,j) = 0.0D0
          enddo
 C Penalty term, unity by default
-         A(i,i)  =  SysPriorScale(i) 
+         A(i,i)  =  SysPriorScale(i)
       enddo
 
 !$OMP PARALLEL DO
@@ -1121,7 +1082,7 @@ C Start with "C"
                i = syst_meas_idx(i1,l)     ! i -> index of the data
 c            do i=1,n0_in
                if (FitSample(i) ) then
-                  
+
                   d_minus_t1 = daten(i) - theo(i) + ShiftExternal(i)
 
                   if ( list_covar_inv(i) .eq. 0) then
@@ -1130,18 +1091,18 @@ C Diagonal error:
      $                    *ScaledGamma(l,i)*( d_minus_t1 )
                   else
 C Covariance matrix, need more complex sum:
-                     i2 = list_covar_inv(i)  ! i2 -> covar. matrix index for i. 
-                     do j1=1,n_syst_meas(l)   
-                        j = syst_meas_idx(j1,l) ! j -> index of the data 
+                     i2 = list_covar_inv(i)  ! i2 -> covar. matrix index for i.
+                     do j1=1,n_syst_meas(l)
+                        j = syst_meas_idx(j1,l) ! j -> index of the data
 c                     do j = 1, n0_in
                         if (j.ge.i) then
                            if (FitSample(j)) then
-                              d_minus_t2 = daten(j) - theo(j) 
+                              d_minus_t2 = daten(j) - theo(j)
      $                             + ShiftExternal(j)
-                              j2 = list_covar_inv(j) 
+                              j2 = list_covar_inv(j)
                               if (j2 .gt. 0) then
                                  add =  ScaledTotMatrix(i2,j2)
-     $                                *( ScaledGamma(l,i)*d_minus_t2 
+     $                                *( ScaledGamma(l,i)*d_minus_t2
      $                                + ScaledGamma(l,j)*d_minus_t1 )
                                  if (i.ne.j) then
                                     C(l) = C(l) + add
@@ -1183,7 +1144,7 @@ C                            do j=i,n0_in
                               if ( j.ge.i .and. FitSample(j) ) then
                                  j2 = list_covar_inv(j)
                                  if (j2 .gt. 0) then
-                                    add = 
+                                    add =
      $                                   ScaledTotMatrix(i2,j2)
      $                             *( ScaledGamma(l,i)*ScaledGamma(k,j)
      $                               +ScaledGamma(l,j)*ScaledGamma(k,i))
@@ -1200,7 +1161,7 @@ C                            do j=i,n0_in
                      endif
 c                  enddo
 
-                  endif               
+                  endif
                enddo
             enddo
          endif
@@ -1230,7 +1191,7 @@ C Ready to invert
             enddo
          endif
 
-         
+
          if (iflag.eq.3) then
             Call DEQInv(Nsys,A,NsysMax,IR, IFail, 1, C)
          else
@@ -1262,18 +1223,18 @@ C Loop over all sources, find theory sources, count them.
             if (nsystheo.gt.0) then
 
                npdf = nsystheo
-               
+
                Allocate(AA(npdf,npdf))
 
                open (52,file=trim(OutDirName)//'/pdf_shifts.dat',
      $              status='unknown')
-               write (52,'(''LHAPDF set='',A32)') 
+               write (52,'(''LHAPDF set='',A32)')
      $              trim(adjustl(LHAPDFSET))
                write (52,'(i3)') npdf
-               
+
                do l=1,npdf
                   write (52,'(i3,2F8.4)') l,
-     $                 rsys_in(itheoisys(l)), 
+     $                 rsys_in(itheoisys(l)),
      $                 ersys_in(itheoisys(l))
                enddo
                close (52)
@@ -1296,7 +1257,7 @@ C Loop over all sources, find theory sources, count them.
 
 C Also rotation matrix:
                Call MyDSYEVD(Npdf,AA,Npdf,C,ifail)
-               
+
 C scale to take into account error reduction
                do i=1,Npdf
                   do j=1,Npdf
@@ -1322,7 +1283,7 @@ C We want to preserve original directions as much as possible
 
                      enddo
                   enddo
-               
+
 
                   Call MyDSYEVD(k,RR,Npdf,C,ifail)
 C rotate rotation matrix:
@@ -1333,7 +1294,7 @@ C rotate rotation matrix:
                            AA2(i,j) = AA2(i,j) + AA(i,l)*RR(l,j)
                         enddo
                      enddo
-                  enddo               
+                  enddo
 
 
                   do i=1,k
@@ -1355,7 +1316,7 @@ C Last loop to keep the direction of the original vectors
 
                open (52,file=trim(OutDirName)//'/pdf_rotate.dat'
      $              ,status='unknown')
-               write (52,'(''LHAPDF set='',A32)') 
+               write (52,'(''LHAPDF set='',A32)')
      $              trim(adjustl(LHAPDFSET))
                write (52,'(i4)') Npdf
                do i=1,Npdf
@@ -1364,9 +1325,9 @@ C                  print *,'haha',i,C(i),ifail
      $                 (AA(j,i),j=1,Npdf)
                enddo
                close (52)
-               
+
                DeAllocate(AA,AA2,RR)
-   
+
             endif
          endif
       endif
@@ -1394,10 +1355,10 @@ C---------------------------------------------------------------
       n_list = 0
       do i1=1,n_syst_meas(isys1)
          i = syst_meas_idx(i1,isys1)
-         do j1=1,n_syst_meas(isys2) 
+         do j1=1,n_syst_meas(isys2)
             j = syst_meas_idx(j1,isys2)
             if ( i.eq.j ) then
-               n_list = n_list + 1 
+               n_list = n_list + 1
                i_list(n_list) = i
                goto 17
             endif
@@ -1407,7 +1368,7 @@ C---------------------------------------------------------------
 C---------------------------------------------------------------
 
       end
-      
+
 
 C----------------------------------------------------------------------
 C
@@ -1439,7 +1400,7 @@ C----------------------------------------------------------------------
 #include "steering.inc"
 
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
-      double precision ScaledErrors(Ntot)  ! uncorrelated uncertainties, diagonal
+      double precision ScaledErrors(Ntot)  !1/d^2, where d is scaled uncorrelated uncertainty, for each datapoint
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
       double precision rsys_in(NSysMax)
       integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
@@ -1448,7 +1409,7 @@ C----------------------------------------------------------------------
       integer i,j, i1, j1, k
       double precision d,t, chi2, sum
       integer offdiag
-      
+
       double precision SumCov(NCovarMax)
 
 C---------------------------------------------------------------------------
@@ -1468,9 +1429,9 @@ C Diagonal part:
             Sum = Sum + ScaledGamma(k,i)*rsys_in(k)
          enddo
 C Chi2 per point:
-         chi2 = (d - t + Sum)**2 * ScaledErrors(i)
-
-C Sums:
+         residuals(i)=(d-t+Sum)*sqrt(ScaledErrors(i))
+         chi2=residuals(i)**2
+C     Sums:
          if ( FitSample(i) ) then
             chi2_fit  = chi2_fit  + chi2
             fchi2_in  = fchi2_in  + chi2
@@ -1481,16 +1442,16 @@ C Sums:
       enddo
 
        ! print*,'chi2_calc1: ',fchi2_in
-      
+
 C Covariance matrix part
 
 C 1) Pre-compute sums of systematic shifts:
       do i1=1,NCovar
-         i = list_covar(i1) 
+         i = list_covar(i1)
          sumcov(i1) = Daten(i) - Theo(i)
          do k = 1,NSys
             SumCov(i1) = SumCov(i1) + ScaledGamma(k,i)*rsys_in(k)
-         enddo        
+         enddo
       enddo
 
 C 2) Actual chi2 calculation:
@@ -1501,11 +1462,12 @@ C 2) Actual chi2 calculation:
          do j1 = 1, NCovar
             j = list_covar(j1)
             Chi2 = Chi2 + SumCov(i1)*SumCov(j1)*ScaledTotMatrix(i1,j1)
-            if ( ( JSET(i) .ne. JSET(j) ) 
+            if ( ( JSET(i) .ne. JSET(j) )
      $           .and. (ScaledTotMatrix(i1,j1) .ne. 0d0 ) ) then
                if ( offdiag .eq. 0 ) then
                   call hf_errlog(15090916,
-     $                 'I: Offdiag. elements in inverse covariance. Partial chisq values are set to zero')
+     $                 'I: Offdiag. elements in
+     $ inverse covariance. Partial chisq values are set to zero')
                endif
                offdiag = offdiag+1
             endif
@@ -1517,7 +1479,7 @@ C Sums:
             pchi2_in(JSET(i)) = pchi2_in(JSET(i)) + chi2
          else
             chi2_cont = chi2_cont + chi2
-         endif         
+         endif
 
       enddo
 
@@ -1535,8 +1497,10 @@ c partial chisq are not reasonably defined
 C Correlated chi2 part:
       fcorchi2_in = 0.d0
       do k=1,NSys
-         fcorchi2_in = fcorchi2_in 
+         fcorchi2_in = fcorchi2_in
      $        + rsys_in(k)**2 * SysPriorScale(k)
+C Also, store as residuals:
+         residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
       enddo
       fchi2_in = fchi2_in + fcorchi2_in
 
@@ -1549,9 +1513,10 @@ C--------------------------------------------------------------------------
 C
 C> @brief Calculate additional log correction factor
 C> @param ScaledErrors uncertainties
-C> @param chi2_log log correction
+C> @param[out] chi2_log log correction
 C> @param n0_in number of points
 C
+C Fills vector chi2_poi -- log corrections for each dataset
 C--------------------------------------------------------------------------
       subroutine chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
 
@@ -1560,7 +1525,7 @@ C--------------------------------------------------------------------------
 
       double precision ScaledErrors(Ntot)
       double precision chi2_log
-      integer n0_in
+      integer n0_in !FIXME: variable npoints should be used to get number of points
 
 
 #include "indata.inc"
@@ -1577,11 +1542,7 @@ C-------------------------------------------------------------------------
       do i=1,n0_in
          if (FitSample(i)) then
             if ( alpha(i).gt.0 ) then
-               dchi2 = - log( alpha(i)*alpha(i) 
-     $              * ScaledErrors(i))
-
-               
-
+               dchi2=-log(alpha(i)*alpha(i)*ScaledErrors(i))
                chi2_log = chi2_log + dchi2
                chi2_poi(JSET(i)) = chi2_poi(JSET(i)) + dchi2
             endif
@@ -1616,8 +1577,8 @@ C------------------------------------------------------------------
       do i=1,n0_in
          if(ScaledErrors(i).ne.1.0D0) then
            ALPHA_MOD(i) =  1.D0/sqrt(ScaledErrors(i))
-        else 
-c special case if no scaled errors given, i.e. given total cov matrix            
+        else
+c special case if no scaled errors given, i.e. given total cov matrix
             ALPHA_MOD(i) =  0.0D0
         endif
          THEO_MOD(i)  = THEO(i)
@@ -1625,17 +1586,13 @@ c special case if no scaled errors given, i.e. given total cov matrix
             THEO_MOD(i) = THEO_MOD(i) - ScaledGamma(k,i)*RSys_in(k)
          enddo
       enddo
-      
-      ! CALL cvfillgamma(nsys,n0_in,ScaledGamma,NSYSMAX)
-      ! CALL cvfillgamma(ScaledGamma,nsys,n0_in,NTOT)
-
 C------------------------------------------------------------------
       end
 
-      
+
 C---------------------------------------------------------------------
 C
-C> @brief 
+C> @brief
 C> @param ScaledGamma scaled Gamma matrix
 C> @param ScaledGammaSav scaled Gamma matrix
 C> @param ScaledOmega scaled Omega matrix
@@ -1645,8 +1602,8 @@ C> @param LStop
 C
 C---------------------------------------------------------------------
       subroutine UseOmegaScale(ScaledGamma,ScaledGammaSav,ScaledOmega,
-     $     rsys_in,Iteration,LStop) 
-      
+     $     rsys_in,Iteration,LStop)
+
       implicit none
 #include "ntot.inc"
 #include "steering.inc"
@@ -1658,7 +1615,7 @@ C---------------------------------------------------------------------
       double precision rsys_save(NSYSMax)
       integer Iteration
       logical LStop
-      integer i,j,k, iter 
+      integer i,j,k, iter
       double precision shift
 
       integer iterMax
@@ -1697,12 +1654,12 @@ C recalulate
          if (SysForm(k) .ne. isExternal) then
             do i=1,n_syst_meas(k)
                j =  syst_meas_idx(i,k)
-               ScaledGamma(k,j) = ScaledGammaSav(k,j) 
+               ScaledGamma(k,j) = ScaledGammaSav(k,j)
      $              + ScaledOmega(k,j)*rsys_in(k)
             enddo
          endif
-      enddo            
-      
+      enddo
+
       if (LDebug) then
          print *,'shift',iteration, shift,nsys
       endif
@@ -1748,7 +1705,7 @@ C----
          if ( SysForm(l) .eq. isExternal) then
             do i=1,n_syst_meas(l)
                j = syst_meas_idx(i,l)
-               ScaledGamma(l,j) =  ScaledGamma(l,j) 
+               ScaledGamma(l,j) =  ScaledGamma(l,j)
      $              +  ScaledOmega(l,j)*rsys_in(l)
             enddo
          endif
@@ -1766,12 +1723,12 @@ C> @param Covar  -- Input covariance matrix. Output: nuisance parameters.
 C> @param ANuisance -- Output nuisance parameter representation
 C> @param Tolerance -- fractional sum of eigenvalues for the sourced treated as uncorrelated uncertainty. 0: NCorrelated = NCovar, 1: NCorrelated = 0.
 C> @param Ncorrelated -- Output number of correlated nuisance parameters
-C> @param Uncor      -- Output uncorrelated uncertainty 
+C> @param Uncor      -- Output uncorrelated uncertainty
 C  @param LSepDiag   -- Separate diagonal part
 C
 C--------------------------------------------------------------------------------
       subroutine GetNuisanceFromCovar( NDimCovar, NDimSyst, NCovar,
-     $     Covar, ANuisance, Tolerance, 
+     $     Covar, ANuisance, Tolerance,
      $     Ncorrelated, Uncor, LSepDiag)
       implicit none
 C--------------------------------------------------------------------------------
@@ -1782,7 +1739,7 @@ C-------------------------------------------------------------------------------
       integer Ncorrelated
       double precision Uncor(NDimCovar)
       logical LSepDiag
-      
+
       double precision Eigenvalues(NDimCovar)
       integer ifail
 
@@ -1793,7 +1750,7 @@ C-------------------------------------------------------------------------------
       integer i,j,k
 
 C--------------------------------------------------------------------------------
-      
+
 C Try to remove diagonal term first:
 
       if ( LSepDiag ) then
@@ -1805,7 +1762,7 @@ C Try to remove diagonal term first:
          facMin = 0.0D0
 
 C First check if the matrix positive definite
-         
+
          do i=1,NCovar
             do j=1,NCovar
                testm(i,j) = Covar(i,j)
@@ -1814,7 +1771,7 @@ C First check if the matrix positive definite
          Call MyDSYEVD(NCovar,testm,NCovar, EigenValues,IFail)
 
          if (EigenValues(1).lt.0) then
-            print 
+            print
      $   '(''Negative eigenvalue for the covariance matrix '',G12.3)',
      $           Eigenvalues(1)
             print *,'List of eigenvalues'
@@ -1860,9 +1817,9 @@ C First check if the matrix positive definite
          DeAllocate(testm)
 
       endif
-      
+
       Call MyDSYEVD(NCovar,Covar,NDimCovar, EigenValues,IFail)
-      
+
       Sum = 0
       do i=1,NCovar
 c         print *,'Eig',i,EigenValues(i)
@@ -1969,9 +1926,9 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
       enddo
       print '(''Maximum deviation from the original correlation = ''
      $     ,F10.2,''%'')',devmax
-      
+
       return
- 91   call hf_errlog(1,'F:Can not open covar.in file')      
+ 91   call hf_errlog(1,'F:Can not open covar.in file')
  92   call hf_errlog(2,'F:Can not read Covar namelist')
  93   call hf_errlog(3,'F:Can not find Covar namelist')
  99   call hf_errlog(3,'F:Error reading cov. matrix')
@@ -1998,7 +1955,7 @@ C
       double precision, allocatable :: C(:,:)    ! covariance matrix
       double precision, allocatable :: S(:,:,:)  ! nuisance param representation of it.
 
-      double precision uncor_loc(NTOT, 0:n_sys_scaling_max-1) 
+      double precision uncor_loc(NTOT, 0:n_sys_scaling_max-1)
       integer nui_cor(0:n_sys_scaling_max-1)
       logical l_present(0:n_sys_scaling_max-1)
 
@@ -2013,7 +1970,7 @@ C
       logical lfirst
       data lfirst/.true./
       namelist/ReduceSyst/do_reduce,tolerance, useBlas
-      
+
 C------------------------------------------------
       useBlas = .false.
       if (lfirst) then
@@ -2052,11 +2009,11 @@ C------------------------------------------------
                enddo
             endif
          enddo
-         ! translate to 
+         ! translate to
          if (l_present(isys_scaling)) then
-            call GetNuisanceFromCovar(NPoints,NPoints,NPoints, 
-     $           C, S(1,1,isys_scaling+1), tolerance, 
-     $           Nui_cor(isys_scaling), 
+            call GetNuisanceFromCovar(NPoints,NPoints,NPoints,
+     $           C, S(1,1,isys_scaling+1), tolerance,
+     $           Nui_cor(isys_scaling),
      $           Uncor_loc(1, isys_scaling), .false.)
          else
             Nui_cor(isys_scaling) = 0
@@ -2070,9 +2027,9 @@ C------------------------------------------------
       N_Syst_Meas = 0
 
       UncorNew = sqrt( UncorNew**2 + Uncor_loc(:,isLinear)**2)
-      UncorPoissonNew = sqrt( UncorPoissonNew**2 
+      UncorPoissonNew = sqrt( UncorPoissonNew**2
      $     + Uncor_loc(:,isPoisson)**2)
-      UncorConstNew = sqrt( UncorConstNew**2 
+      UncorConstNew = sqrt( UncorConstNew**2
      $     + Uncor_loc(:,isNoRescale)**2)
 
 
@@ -2094,16 +2051,16 @@ c         endif
             do i=1,NPoints
                n_syst_meas(NSYS) = n_syst_meas(NSYS) + 1
                syst_meas_idx(n_syst_meas(NSYS),NSYS) = i
-               beta(NSYS,i) =  S(isys,i,isys_scaling+1) /daten(i)               
+               beta(NSYS,i) =  S(isys,i,isys_scaling+1) /daten(i)
             enddo
          enddo
       enddo
 
       Deallocate(C)
       Deallocate(S)
-      
+
       goto 18
- 17   continue      
+ 17   continue
       call hf_errlog(1,
      $     'F:Error reading ReduceSyst Namelist ! Stop')
  18   continue
@@ -2160,7 +2117,7 @@ C---------------------------------------------------------------
 
       character*8 sys_prefix(NCovTypeMax)
       data sys_prefix/'CTot_','CTot_','CSyst_','CStat_','CSyst_'/
-      
+
       character*80 name_s
       character*3  name_n, name_t
       integer imaskSta, imaskUnc
@@ -2184,10 +2141,10 @@ C--------------------------------------------------------
 
 
       endif
-      
+
 
       do i=1,Npoints
-         theo(i) = daten(i) ! Set theory = data for error scaling         
+         theo(i) = daten(i) ! Set theory = data for error scaling
          call GetPointErrors(i, Stat, StatConst, Unc(i))
          Sta(i) = sqrt(Stat**2+StatConst**2)
 
@@ -2220,7 +2177,7 @@ c         print *,iCovType,Icovbit,NCovar
             cycle   ! nothing to be done
          endif
 
-C Generate compact matrix:         
+C Generate compact matrix:
          do i1=1,NCovar
             i = List_Covar(i1)
             do j1=1,NCovar
@@ -2229,9 +2186,9 @@ C Use proper source:
                if (iCovBit .eq. iCovSyst) then
                   cov_loc(i1,j1) = cov(i,j)
                elseif (iCovBit .eq. iCovSystCorr) then
-                  cov_loc(i1,j1) = corr_syst(i,j)*Unc(i)*Unc(j)                                    
+                  cov_loc(i1,j1) = corr_syst(i,j)*Unc(i)*Unc(j)
                elseif (iCovBit .eq. iCovStatCorr) then
-                  cov_loc(i1,j1) = corr_stat(i,j)*Sta(i)*Sta(j)                                    
+                  cov_loc(i1,j1) = corr_stat(i,j)*Sta(i)*Sta(j)
 
                elseif (iCovBit .eq. iCovTotal) then
                   cov_loc(i1,j1) = cov(i,j)
@@ -2239,18 +2196,18 @@ C Use proper source:
                   tot1 = sqrt(sta(i)**2+unc(i)**2)
                   tot2 = sqrt(sta(j)**2+unc(j)**2)
                   cov_loc(i1,j1) = corr(i,j)*tot1*tot2
-                   
+
                endif
             enddo
          enddo
 c      endif
-         
+
          do j=1,NCovar
             Uncor(j) = 0.D0
             UncorSt(j) = 0.D0
          enddo
 
-         if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) ) 
+         if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) )
      $        then
 C Direct diagonalisation:
             Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
@@ -2279,7 +2236,7 @@ C Subtract diagonal as much as possible:
          endif
 
 C         print *,'hihi',Nui_cor,tolerance, ncovar
-         
+
 
 C Define the scaling property based on the first point:
          imaskSta = iStatTypesBitMask(JSet(List_Covar(1)))
@@ -2295,7 +2252,7 @@ C Define the scaling property based on the first point:
                name_t = ':M'
             elseif (iAnd(imaskUnc,ibConst).eq.imaskUnc) then
                name_t = ':A'
-            else              
+            else
                Call hf_errlog(14090401,
      $ 'W: inconsistent use of uncor and '//
      $ 'uncor const for dataset: "'//
@@ -2304,7 +2261,7 @@ C Define the scaling property based on the first point:
             endif
 
          elseif ( (iCovBit.eq.iCovStatCorr) ) then
-                  ! Poisson is default for stat. 
+                  ! Poisson is default for stat.
             name_t = ':P'
 
             ! Check bits
@@ -2312,7 +2269,7 @@ C Define the scaling property based on the first point:
                name_t = ':P'
             elseif (iAnd(imaskSta,ibConst).eq.imaskSta) then
                name_t = ':A'
-            else              
+            else
                Call hf_errlog(14090402,
      $ 'W: inconsistent use of stat and '//
      $ 'stat const for dataset "'//
@@ -2325,7 +2282,7 @@ C Define the scaling property based on the first point:
          endif
 
          do i=1,NSET
-            if ( DataName(i).eq.DataSetLabel(JSet(List_Covar(1)))) 
+            if ( DataName(i).eq.DataSetLabel(JSet(List_Covar(1))))
      $           then
                name_t = DataSystType(i)
             endif
@@ -2340,7 +2297,7 @@ C Define the scaling property based on the first point:
                write (name_n,'(i3)') j1
             endif
             name_s = trim(Sys_prefix(icovtype))
-     $           // name_n // '_' 
+     $           // name_n // '_'
      $           // DataSetLabel( JSet(List_Covar(1)) )
 
 
@@ -2352,12 +2309,12 @@ C Define the scaling property based on the first point:
                beta(NSYS,i) =  anui_loc(j1,i1)/daten(i)
             enddo
          enddo
-         
+
          do i1=1,NCovar
             i = List_Covar(i1)
-            if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) ) 
+            if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) )
      $           then
-C Re-set uncorrelated systematics:                   
+C Re-set uncorrelated systematics:
                if (name_t .eq. ':M') then
                   UncorNew(i) = Uncor(i1)/daten(i)
                   UncorPoissonNew(i) = 0.0D0
@@ -2408,7 +2365,7 @@ C Re-set uncorrelated systematics:
 
       enddo
       goto 18
- 17   continue      
+ 17   continue
       call hf_errlog(1,
      $     'F:Error reading CovarToNuisance Namelist ! Stop')
  18   continue
@@ -2454,8 +2411,8 @@ C First check if this is possible:
       end
 
 
-C--------------------------------------------------------  	 
-C> @Brief Interface to lapack, to dynamically allocate work arrays 
+C--------------------------------------------------------
+C> @Brief Interface to lapack, to dynamically allocate work arrays
       subroutine MyDSYEVD(NCovar,Covar,NDimCovar, EigenValues,ifail)
       implicit none
       integer NCovar, NDimCovar
@@ -2465,7 +2422,7 @@ C> @Brief Interface to lapack, to dynamically allocate work arrays
       integer IWork
       Character*80 msg
 C---------------------------------------------------------------
-C Determine optimal size of the work array:                                                                                                             
+C Determine optimal size of the work array:
       Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work,
      $     -1, IWork, -1, IFail)
 
@@ -2485,10 +2442,10 @@ C Determine optimal size of the work array:
       integer NCovar, NDimCovar
       double precision Covar(NDimCovar,NDimCovar), EigenValues(NCovar)
       integer nwork, nlwork
-      double precision Work(nwork)  ! Dynamic array                                                                                                     
-      integer IWork(nlwork)         ! Dynamic array                                                                                                     
+      double precision Work(nwork)  ! Dynamic array
+      integer IWork(nlwork)         ! Dynamic array
       integer IFail
-C---------------------------------------------------------------------                                                                                  
+C---------------------------------------------------------------------
       Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work,
      $     nwork, IWork, nlwork, IFail)
 

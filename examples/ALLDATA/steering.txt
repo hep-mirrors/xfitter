@@ -1,0 +1,559 @@
+*  Namelist to control input data
+*
+
+&InFiles
+  ! Number of intput files
+    !NInputFiles = 78 ! no LHCb data
+    NInputFiles = 85
+
+   InputFileNames =
+
+  !********!
+  !  HERA  !
+  !********!
+
+  ! HERA I+II combined inclusive DIS:
+    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
+
+  ! H1 Jets:
+    'datafiles/hera/h1/jets/0706.3722/H1_InclJets_HighQ2_99-00-thexp.dat',
+    'datafiles/hera/h1/jets/0911.5678/H1_InclJets_LowQ2_99-00-thexp.dat',
+
+  ! ZEUS Jets:
+    'datafiles/hera/zeus/jets/0208037/ZEUS_InclJets_HighQ2_96-97-thexp.dat',
+    'datafiles/hera/zeus/jets/0608048/ZEUS_InclJets_HighQ2_98-00-thexp.dat',
+    'datafiles/hera/zeus/jets/1010.6167/ZEUS_dijet_98-07-thexp.dat',
+
+  ! H1 and ZEUS combined charm and beauty
+    'datafiles/hera/h1zeusCombined/charmbeautyProduction/1804.01019/H1ZEUS_Charm_combined-thexp.dat', 
+    'datafiles/hera/h1zeusCombined/charmbeautyProduction/1804.01019/H1ZEUS_Beauty_combined-thexp.dat', 
+
+  !****************!
+  !  Fixed Target  !
+  !****************!
+
+  ! BCDMS F2 proton:
+    'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.100gev-thexp.dat',
+    'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.120gev-thexp.dat',
+    'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.200gev-thexp.dat',
+    'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.280gev-thexp.dat',
+
+  ! NuSea DY
+    'datafiles/tevatron/e866/dy/0103030/x2-low-mass-thexp.dat',
+    'datafiles/tevatron/e866/dy/0103030/x2-mid-mass-thexp.dat',
+    'datafiles/tevatron/e866/dy/0103030/x2-hi-mass-thexp.dat',
+
+  !************!
+  !  Tevatron  !
+  !************!
+
+  ! CDF Jets, W, Z production:
+    'datafiles/tevatron/cdf/jets/0807.2204/CDF_JETS2008-thexp.dat',
+    'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry-thexp.dat',
+    'datafiles/tevatron/cdf/wzProduction/0908.3914/CDF_Z_Boson_Rapidity-thexp.dat',
+
+  ! D0 Jets, W, Z production:
+    'datafiles/tevatron/d0/jets/0802.2400/D0_JETS-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
+    'datafiles/tevatron/d0/wzProduction/1412.2862/D0_Wel_pt25_asymmetry-thexp.dat',
+  
+  ! Do and CDF combined ttbar production (NOTE: need Hathor package):
+    'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT-thexp.dat',
+
+  !*******!
+  !  LHC  !
+  !*******!
+
+  ! CMS W, Z production:
+    'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity-thexp.dat',
+    'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001-thexp.dat',
+    'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021-thexp.dat',
+  
+  ! CMS Jets:
+    'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004-thexp.dat',
+
+  ! ATLAS W, Z production:
+    'datafiles/lhc/atlas/wzProduction/1203.4051/WP_applgrid_nnlo-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1203.4051/WM_applgrid_nnlo-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo-thexp.dat',
+  
+  ! ATLAS Drell-Yann:
+    'datafiles/lhc/atlas/drellYan/1305.4192/dy_highmass-thexp.dat', 
+    'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass-thexp.dat',
+    'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass_extended-thexp.dat',
+  
+  ! ATLAS Jets (NOTE: use R06 or R04 data, but never both at the same time!):
+    'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_00_03-thexp.dat',
+    'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_03_08-thexp.dat',
+    'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_08_12-thexp.dat',
+    'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_12_21-thexp.dat',
+    'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_21_28-thexp.dat',
+    'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_28_36-thexp.dat',
+    'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_36_44-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_00_03-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_03_08-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_08_12-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_12_21-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_21_28-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_28_36-thexp.dat',
+    'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_36_44-thexp.dat',
+
+  ! ATLAS Dec 2016 W,Z:
+    'datafiles/lhc/atlas/wzProduction/1612.03016/wminus-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1612.03016/wplus-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cc-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cf-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1612.03016/zylow_cc-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cc-thexp.dat',
+    'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cf-thexp.dat',
+
+  ! LHCb charm and beauty (in principle need fixed flavour scheme with nf=3, see also steering.txt.hvqmnr.abs and .norm)
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty_Normy-thexp.dat',  
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dch_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dstar_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Ds_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Lambdac_y_Normy-thexp.dat',
+
+    'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bch_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bzero_pty_Normy-thexp.dat',
+    'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bs_pty_Normy-thexp.dat',
+    
+  ! CMS W+c
+    'datafiles/lhc/cms/wzProduction/1310.1138/CMS_W_plus_c_SPM_12_002-thexp.dat',
+  
+  ! CMS W asymmetry 8 TeV (with NNLO Kfactors enabled)
+    'datafiles/lhc/cms/wzProduction/1603.01803/CMS_mAsymmetry_SMP_14_022_Kfactors-thexp.dat',
+  
+  ! CMS 8 TeV jets
+    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1-thexp.dat',
+    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2-thexp.dat',
+    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3-thexp.dat',
+    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4-thexp.dat',
+    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5-thexp.dat',
+    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6-thexp.dat',
+
+  ! CMS double-differential ttbar Run 1 (include only one file, not all from directory datafiles/lhc/cms/topProduction/1703.01630):
+    'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_ytt-thexp.dat',
+
+  ! CMS and ATLAS ttbar and single top production (NOTE: need Hathor package):
+    'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT-Hathor-thexp.dat',
+    'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT-Hathor-thexp.dat',
+    'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_quark-thexp.dat',
+    'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_antiquark-thexp.dat',
+    'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_quark-thexp.dat',
+    'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_antiquark-thexp.dat',
+
+  !******************************************!
+  !  obsolete or not supported anymore data  !
+  !******************************************!
+
+  ! HERA I (commented out, I+II replaces the samples)
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',  superseded
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
+    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
+  
+  ! H1 Jets (superseded):
+    !>  'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat'
+  
+  ! H1 Inclusive DIS low Ep: (included in HERA I+II combination)
+    !>  'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',  ! superseded
+
+  ! H1 and ZEUS combined charm and beauty production (superseded by charm+beauty combination 1804.01019):
+    !>  'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined-thexp.dat', 
+    !>  'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex-thexp.dat',
+    !>  'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty-thexp.dat',
+
+  ! these CMS ttbar data partially overlap with other data
+    !>  'datafiles/lhc/cms/topProduction/cms-pas-top-11-024/CMS-TOP-11-024_prelim.dat'
+
+  ! CMS and ATLAS differential ttbar production (requires DiffTop fastNLO with some custom interface, not supported from xfitter-2.2):
+    !>  'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT.dat',
+    !>  'datafiles/lhc/cms/topProduction/1211.2220/Diff_ttbar_7TeV_pt.dat',
+    !>  'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT.dat',
+    !>  'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
+
+  ! normalised jets: theory expression not implemented, not supported since xfitter-2.2
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
+
+&End
+
+&InCorr
+  ! Number of correlation (statistical, systematical or full) files
+    NCorrFiles = 14
+ 
+  ! Correlation files:
+    CorrFileNames = 
+      'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
+      'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
+      'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
+      'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
+      'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
+      'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_ytt__CMS_8TeV_ttbar_DoubleDiff_mtt_ytt.dat'
+      'datafiles/lhc/cms/wzProduction/1310.1138/CMS_W_plus_c_SPM_12_002___CMS_W_plus_c_SPM_12_002.cov'
+      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_mAsymmetry_SMP_14_022___CMS_mAsymmetry_SMP_14_022.corr'
+      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1___CMS_8TeV_jets_Ybin1.dat'
+      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2___CMS_8TeV_jets_Ybin2.dat'
+      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3___CMS_8TeV_jets_Ybin3.dat'
+      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4___CMS_8TeV_jets_Ybin4.dat'
+      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5___CMS_8TeV_jets_Ybin5.dat'
+      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6___CMS_8TeV_jets_Ybin6.dat'
+
+  ! for superseeded or not supported anymore data
+    !>  'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormDijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormInclJets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07___H1_NormTrijets_HighQ2_03-07.corr'
+&End
+
+
+&ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
+  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
+  tolerance = 0.9
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
+  useBlas = .false.
+&End
+
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .False.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.9
+
+   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
+  LSubtractStat = .false.
+
+   ! The following lines allow to adjust error scaling properties (default: :M)
+  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
+  DataSystType = ':A', ':A'
+&End
+
+&QCDNUM
+   ! do not re-compute QCDNUM tables if they are present and match grid definition
+  Read_QCDNUM_Tables = .true.
+&End 
+
+
+&OutDir
+  ! Name of the directory where output will be stored (max 255 characters)
+    OutDirName = 'output'
+&End
+*
+* (Optional) Modify renormalisation/factorisation scales, dataset
+* dependently. The numbering follows sequential numbering of input files
+*
+&Scales 
+    DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
+    DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
+ !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
+ !   DataSetMaxNF(2) = 4    ! Enable the H-VFNS (requires APFEL)
+ !   DataSetMaxNF = 9*5
+&End
+
+*
+* (Optional) List systematic sources, modify their scaling properties:
+*
+&Systematics
+ !C      List sources, Results.txt file would list them first. Use the usual :A, :P, 
+ !C      qualifiers to change the scalling properties
+ !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
+ !C      Modify the prior in chi2 definition (1.0 is default):
+ !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
+ !  PriorScaleFactor = 0.0, 0.0 
+&End
+
+
+*
+* Main steering cards
+*
+&xFitter 
+  RunningMode = 'Fit'  
+                ! 'Fit'             -- standard MINUIT-minimization of PDF and other parameters
+                ! 'LHAPDF Analysis' -- Evalutate input LHAPDF set uncertaitnies, chi2, profiling or reweighting
+                !                      Requires &LHAPDF namelist to specify the set name. If PDFSTYLE is not
+                !                      set to LHAPDFQ0, LHAPDF or LHAPDFNATIVE, sets it to LHAPDF
+                ! 'PDF Rotate'      -- performs PDF re-diagonalization. Requires theo.in files to operate properly  
+
+  TheoryType = 'DGLAP' ! 'DGLAP'  -- colinear evolution
+                       ! 'DGLAP_APFEL'      -- collinear evolution with APFEL
+                       ! 'DGLAP_QEDEVOL'    -- collinear evolution with QEDEVOL
+                       ! 'DGLAP_APFEL_QED'  -- collinear evolution with APFEL with QED corrections
+                       ! 'DIPOLE' -- dipole model 
+                       ! 'uPDF'   -- un-integrated PDFs
+                                !uPDF1 fit with kernel ccfm-grid.dat file
+                                !uPDF2 fit evolved uPDF, fit just normalisation
+                                !uPDF3 fit using precalculated grid of sigma_hat
+                                !uPDF4 fit calculating kernel on fly, grid of sigma_hat
+
+ ! --- Scheme for heavy flavors 
+ ! ---  HF_SCHEME = 'ZMVFNS'           : ZM-VFNS (massless) from QCDNUM,
+ ! ---  HF_SCHEME = 'ZMVFNS MELA'      : ZM-VFNS (massless) from MELA (N-space),
+ ! ---  HF_SCHEME = 'RT'               : Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT FAST'          : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'RT OPT'           : Thorne-Roberts VFNS (massive)
+ ! ---  HF_SCHEME = 'RT OPT FAST'      : Fast approximate TR VFNS scheme, usign k-factor
+ ! ---  HF_SCHEME = 'ACOT Full'        : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Full +N2LO'  : ACOT - F.Olness Version (massive) adding N2LO approx, using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Full +N3LO'  : ACOT - F.Olness Version (massive) adding N3LO approx, using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi'         : ACOT - F.Olness Version (massive), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi +N2LO'   : ACOT - F.Olness Version (massive) adding N2LO approx, using k-factors  
+ ! ---  HF_SCHEME = 'ACOT Chi +N3LO'   : ACOT - F.Olness Version (massive) adding N3LO approx, using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM'          : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM +N2LO'    : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'ACOT ZM +N3LO'    : ACOT - F.Olness Version (massless), using k-factors  
+ ! ---  HF_SCHEME = 'S-ACOT Chi RC'    : S-ACOT-chi scheme - CTEQ-TEA Version, using reduced cross section
+ ! ---  HF_SCHEME = 'FF'               : Fixed Flavour Number Scheme (qcdnum)
+ ! ---  HF_SCHEME = 'FF ABM'           : Fixed Flavour Number Scheme (ABM)
+ ! ---  HF_SCHEME = 'FF ABM RUNM'      : Fixed Flavour Number Scheme (ABM) using run mass def
+ ! ---  HF_SCHEME = 'FONLL-A'          : FONLL-A mass scheme provided by APFEL with pole masses (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM OFF' : FONLL-A mass scheme provided by APFEL with MSbar masses running OFF (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-A RUNM ON'  : FONLL-A mass scheme provided by APFEL with MSbar masses running ON (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B'          : FONLL-B mass scheme provided by APFEL with pole masses (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM OFF' : FONLL-B mass scheme provided by APFEL with MSbar masses running OFF (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-B RUNM ON'  : FONLL-B mass scheme provided by APFEL with MSbar masses running ON (available at NLO)
+ ! ---  HF_SCHEME = 'FONLL-C'          : FONLL-C mass scheme provided by APFEL with pole masses (available only at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM OFF' : FONLL-C mass scheme provided by APFEL with MSbar masses running OFF (available only at NNLO)
+ ! ---  HF_SCHEME = 'FONLL-C RUNM ON'  : FONLL-C mass scheme provided by APFEL with MSbar masses running ON (available only at NNLO)
+                                       ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
+  HF_SCHEME = 'RT OPT'
+
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
+
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   !Chi2ExtraParam = 'PoissonCorr'
+
+ ! Flag to define if native APPLgrid CKM values should be kept.
+ LUseAPPLgridCKM = True
+
+ ! Debug flag
+  LDEBUG     = False
+
+
+ ! Quadratic approximation for asymmetric uncertainties
+ ! AsymErrorsIterations = 10
+&End
+
+
+*
+* Output steering cards
+*
+&Output 
+  ! -- Q2 values at which the pdfs & errors are done (up to 20)
+  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
+!  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
+
+  ! How many x points to write (standard = 101)
+  OUTNX = 101
+
+  ! x-range of output (standard = 1E-4 1.0)
+  OUTXRANGE = 1E-4, 0.9999
+
+  ! Write out LHAPDF5 output
+  ! WriteLHAPDF5 = false
+&End
+
+
+
+*
+* Process dependent cuts
+*
+&Cuts
+
+  !--------------------- NC ep  --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 3.5
+   CutValueMax(1)     = 1000000.0
+
+  ! Rule #2: x cuts
+   ProcessName(2)     = 'NC e+-p'
+   Variable(2)        = 'x'
+   CutValueMin(2)     = 0.000001 
+   CutValueMax(2)     = 1.0
+
+  !---------------------  CC ep  ------------------
+
+   ProcessName(3)     = 'CC e+-p'
+   Variable(3)        = 'Q2'
+   CutValueMin(3)     = 3.5
+   CutValueMax(3)     = 1000000.0
+
+   ProcessName(4)     = 'CC e+-p'
+   Variable(4)        = 'x'
+   CutValueMin(4)     = 0.000001 
+   CutValueMax(4)     = 1.0
+
+  !-------------------- DY pp  ----------------------
+
+   ProcessName(5)     = 'CC pp'
+   Variable(5)        = 'eta1'
+   CutValueMin(5)     = -1.
+   CutValueMax(5)     = 100.
+
+  !------------------- Jets ---------------------------
+   
+   ProcessName(6)     = 'pp jets APPLGRID'
+   Variable(6)        = 'pt1'
+   CutValueMin(6)     = 20.
+   CutValueMax(6)     = 1000000.
+
+  !--------------------- Fixed target --------------------------
+
+  ! Rule #7: Whad2 cut
+   ProcessName(7)     = 'muon p'
+   Variable(7)        = 'Whad2'
+   CutValueMin(7)     = 15.   
+
+  !--------------------- Fastnlo jets ----------------------
+
+   ProcessName(8)     = 'FastNLO ep jets'
+   Variable(8)        = 'kfac'
+   CutValueMin(8)     = 0.0
+   CutValueMax(8)     = 2.5
+
+  !--------------------- NC ep charm ----------------
+
+   ProcessName(9)     = 'NC e+-p charm'
+   Variable(9)        = 'Q2'
+   CutValueMin(9)     = 3.5 
+   CutValueMax(9)     = 10000.0
+
+   ProcessName(10)     = 'NC e+-p charm'
+   Variable(10)        = 'x'
+   CutValueMin(10)     = 0.000001 
+   CutValueMax(10)     = 1.0
+
+  !--------------------- by Dataset index ----------------
+
+   ! applied to any (including unspecified) reaction by Dataset indices
+   ! e.g. cut pTmax < 15.0 will be applied to datasets 996 and 996
+   ! ProcessName must be 'DUMMY'
+   !
+   !ProcessName(11)     = 'DUMMY'
+   !Dataset( 1,11)      = 995
+   !Dataset( 1,11)      = 996
+   !Variable(11)        = 'pTmax'
+   !CutValueMin(11)     = 0.0
+   !CutValueMax(11)     = 15.0
+   
+&End
+
+*
+* (Optional) MC errors steering cards
+*
+&MCErrors
+  ! Activate MC method for error estimation if lRand = True
+  lRAND   = False
+  
+  ! Use data (true, default) or theory (false) for the central values of the MC replica
+  lRANDDATA = True
+
+  ! MC method Seed
+  ISeedMC = 123456 
+
+  ! --- Choose what distribution for the random number generator 
+  ! STATYPE (SYS_TYPE)  =   1  gauss
+  ! STATYPE (SYS_TYPE)  =   2  uniform
+  ! STATYPE (SYS_TYPE)  =   3  lognormal
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  STATYPE =  1
+  SYSTYPE =  1
+&End
+
+*
+* (Optional) Chebyshev study namelist
+*
+&Cheb
+  ! Set following > 0 to turn on:
+   NCHEBGLU = 0   ! number of parameters for the gluon (max 15)
+   NCHEBSEA = 0   ! number of parameters for the sea   (max 15)
+
+  ! Cheb. polynomial type: multiply by (1-x) (1) or not (0)  
+   ichebtypeGlu = 1 
+   ichebtypeSea = 1 
+
+  ! Starting point in x:
+   chebxmin = 1.E-5
+
+   ILENPDF  = 0   ! use pdf length constraint
+
+  ! PDF length constraint strength for different PDFs:
+   PDFLenWeight = 1., 1., 1., 1., 1.     
+
+  ! Range in W where length constraint is applied:
+   WMNLen =  20.
+   WMXLen = 320.
+
+&End
+
+*
+* (Optional) pure polynomial parameterisation for valence quarks
+*
+&Poly
+  ! Set to > zero to activate
+  NPolyVal = 0 
+  IZPOPOLY = 1  ! ( times (1-x) for 0 and (1-x)^2 for 1) 
+  IPOLYSQR = 0  ! ( ensure positivity of PDFs by squaring them )
+&End
+
+*
+* (Optional) choose the factorisation scale for HQs
+* tuned via parameters:    mu_f^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2
+* Available for 'FF', 'FF ABM' options (heavy quarks scale)
+* Also defines scale for 'ZMVFNS'.'ACOT Full' and 'ACOT Chi' options ( for these options scale is being set for heavy quarks and light quarks).  
+&HQScale
+   scalea1    =  1. 
+   scaleb1    =  0.  
+   MassHQ = 'mc' ! (available: mc, mb), relevant for 'FF', 'ZMVFNS', 'ACOT Full' and  'ACOT chi'
+&End
+
+*
+* (Optional) LHAPDF sttering card
+*
+&lhapdf
+  ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
+  ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set
+  ! LHAPDFPROFILE = False              ! run only on the set specified by ILHAPDFSET
+  ! LHASCALEPROFILE = True             ! Add QCD scale variations as nuisance parameters
+  ! SCALE68 = false                    ! Scale PDF uncertainties by a factor 1/1.645
+  ! WriteAlphaSToMemberPDF = false
+  ! NREMOVEPRIORS = 0                  ! Remove prior from the last n PDF nuisance parameters
+  ! DataToTheo = True                  ! reset data to predictions corresponding to member 0, for sensitivity studies
+&End

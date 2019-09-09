@@ -19,10 +19,10 @@ namespace MNR
   public:
     // Constructor
     MNR(ReactionBaseHVQMNR* ptrReactionTheory);
-    
+
     // Destructor
     ~MNR();
-    
+
     // Set perturbative scale coefficients
     //
     // Scales are parametrised as:
@@ -31,20 +31,23 @@ namespace MNR
     // where mu_f, mu_r are factorisation and renormalisation, respectively,
     // pT is transverse momentum and xm is the heavy-quark mass.
     void SetScaleCoef(double mf_a, double mf_b, double mf_c, double mr_a, double mr_b, double mr_c);
-    
+
     // Set debug flag
     void SetDebug(int debug) { bDebug = debug; };
 
     // Calculate constants
     void CalcConstants();
-    
+
     // Calculate binning
     void CalcBinning();
 
     // Calculate cross sections for provided grid and heavy-quark mass xm
     void CalcXS(Grid* grid, double xm);
 
-        
+    // Get number of light flavours
+    int GetNl() { return fC_nl; }
+
+
   // Private members
   private:
     // Get factorisation scale
@@ -68,7 +71,7 @@ namespace MNR
   // Public fields
   public:
     // Centre-of-mass energy squared
-    double fC_sh;      
+    double fC_sh;
 
     // Number of light flavours
     int fC_nl;
@@ -85,7 +88,21 @@ namespace MNR
     // Contrbution flags
     bool bFS_Q; // particle final state
     bool bFS_A; // antiparticle final state
-    
+
+    // PDF range
+    double fSF_min_x;
+    double fSF_max_x;
+    double fSF_min_mf2;
+    double fSF_max_mf2;
+
+    // Perturbative scale coefficients
+    double fMf_A;
+    double fMf_B;
+    double fMf_C;
+    double fMr_A;
+    double fMr_B;
+    double fMr_C;
+
   // Private fields
   private:
     // Constants
@@ -96,23 +113,12 @@ namespace MNR
     const static double fC_vtf;
     double fC_b0;
     // Centre-of-mass energy
-    double fC_sqrt_sh;    
+    double fC_sqrt_sh;
     // Normalisation factor
     double fC_xnorm;
-    // Perturbative scale coefficients
-    double fMf_A;
-    double fMf_B;
-    double fMf_C;
-    double fMr_A;
-    double fMr_B;
-    double fMr_C;
 
     // Variables for fast structure functions evaluation
     const static int fSF_npart;
-    const static double fSF_min_x;
-    const static double fSF_max_x;
-    const static double fSF_min_mf2;
-    const static double fSF_max_mf2;
     double fSF_log10_min_x;
     double fSF_log10_max_x;
     double fSF_min_adoptx;
@@ -127,7 +133,7 @@ namespace MNR
     // t3 bins (3 body variable)
     double* fBc_x4;
     double* fBw_x4;
-    
+
     // Precalcuated grid variables
     int fNRecalc;
     // Pointer to all allocated memory
@@ -186,7 +192,7 @@ namespace MNR
     // Flags
     bool bFirst; // first run
     bool bDebug; // verbose output
-    
+
     // pointer to instance inherited from ReactionTheory (allow access to alphas and PDF routines)
     ReactionBaseHVQMNR* _reactionTheory;
   };

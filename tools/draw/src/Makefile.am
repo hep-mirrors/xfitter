@@ -15,8 +15,8 @@ bin_PROGRAMS = xfitter-draw
 xfitter_draw_SOURCES = xfitter-draw.cc PdfsPainter.cc CommandParser.cc DataPainter.cc DrawLogo.cc ShiftPainter.cc FitPainter.cc ParPainter.cc Chi2scanPainter.cc Outdir.cc PdfData.cc Dataset.cc Chi2.cc Par.cc Chi2scanData.cc Chi2scanUnc.cc Chi2scanGauss.cc pdferrors.cc
 
 # libraries to be linked to the main target
-xfitter_draw_LDADD = $(ROOT_LIBS)  ../../../common/libHFcommon.a libpdferrors.la
+xfitter_draw_LDADD = $(ROOT_LIBS) $(srcdir)/../../../common/.libs/libHFcommon.a libpdferrors.la 
 
-xfitter_draw_CPPFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../../common $(ROOT_CFLAGS) -w
+xfitter_draw_CPPFLAGS = -I$(srcdir)/../include -I$(srcdir)/../../../common $(ROOT_CFLAGS) -w 
 
 endif

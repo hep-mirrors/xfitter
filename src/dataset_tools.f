@@ -174,7 +174,7 @@ C Namelist variables:
       double precision CutValueMin(NRulesMax)   !> Min. value of the cut
       double precision CutValueMax(NRulesMax)   !> Max. value of the cut
       integer NDatasetMax
-      parameter (NDatasetMax = 10)
+      parameter (NDatasetMax = 100)
       integer NDataset(NRulesMax)               !> actual number of provided dataset indices
       save NDataset                             
       integer Dataset(NDatasetMax,NRulesMax)    !> dataset indices
@@ -232,7 +232,7 @@ C Count number of dataset indices
 
 C-- Run over all rules, check for appropriate process/variable
       do j=1,NRules
-         if (reaction .eq. processname(j)) then
+         if (reaction.eq.processname(j).or.processname(j).eq.'DUMMY') then
             if (Variable(j).eq.'Whad2') then
                FailSelectionCuts = FailDISSelection(nbin,bins,
      $              BinNames,CutValueMin(j))

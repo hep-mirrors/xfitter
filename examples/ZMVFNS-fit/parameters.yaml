@@ -1,0 +1,170 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 1
+    migrad
+    hesse
+    call fcn 3
+    
+  doErrors :  Hesse # None
+
+Parameters:
+  Ag : [ 1.00000000, 0.00000000 ]
+  Agp : [ 0.07391202, 0.01374756 ]
+  Bg : [ -0.06259990, 0.02046388 ]
+  Cg : [ 5.55406009, 0.30548916 ]
+  Duv : [ 0.00000000, 0.00000000 ]
+  Buv : [ 0.81077351, 0.01553414 ]
+  Bgp : [ -0.38249475, 0.01016472 ]
+  Cgp : [ 25.00000000, 0.00000000 ]
+  Euv : [ 9.90725354, 0.81247008 ]
+  Auv : [ 1.00000000, 0.00000000 ]
+  Cuv : [ 4.82324868, 0.06309405 ]
+  Adv : [ 1.00000000, 0.00000000 ]
+  Aubar : [ 0.16130000, 0.00000000 ]
+  Bdv : [ 1.03015347, 0.06078129 ]
+  Cdv : [ 4.84667091, 0.29433410 ]
+  Bubar : [ -0.12730000, 0.00000000 ]
+  Cubar : [ 7.04306971, 0.79809932 ]
+  Dubar : [ 1.51341566, 1.08122915 ]
+  Adbar : [ 0.16132089, 0.00472137 ]
+  Bdbar : [ -0.12727344, 0.00354001 ]
+  Cdbar: # another example of providing value, step etc.
+    value: 9.58732874
+    step: 1.47520864
+    #min
+    #max
+    #pr_mean
+    #pr_sigma
+#  As   : [ 0.1075, 0.0    ] # this is not used: use f_s instead
+#  Bs   : [  -0.1273, 0.0  ] # this is not used: use f_s instead
+#  Cs   : [ 9.586246, 0.0  ] # this is not used: use f_s instead
+  ZERO : [ 0.00000000, 0.00000000 ]
+  fs : [ 0.40000000, 0.00000000 ]
+  alphas : [0.118, 0.001]
+
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv]
+  par_ubar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cubar,Dubar]
+  par_dbar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s:
+    #class: HERAPDF
+    #parameters: [As,Bs,Cs]
+    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
+    class: Expression
+    expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+  # Another example for Expression parameterisation
+  #par_g:
+  #  class: Expression
+  #  expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvubardbars
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+#DefaultEvolution: proton-APFELff
+DefaultEvolution: proton-QCDNUM
+
+Evolutions:
+  proton-APFELff:
+    ? !include evolutions/APFEL/parameters.yaml
+    decomposition: proton
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM/parameters.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+    # The following allows QCDNUM to read PDFs from other evolutions:
+    # EvolutionCopy: "proton-LHAPDF"
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "CT10"
+    member: 0
+#  proton-APFEL:
+#    ? !include yaml/evolutions/APFELxx/parameters.yaml
+#    decomposition: proton
+#  antiproton:
+#    class: FlipCharge
+#    input: proton-QCDNUM
+#  neutron:
+#    class: FlipUD
+#    input: proton-QCDNUM
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+? !include constants.yaml
+
+#alphas : 0.118
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC/parameters.yaml
+  # FONLL scheme settings:
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC/parameters.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC/parameters.yaml
+  # FF ABM scheme settings:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC/parameters.yaml
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC/parameters.yaml
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB/parameters.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid/parameters.yaml
+  # (optional) Fractal module settings:
+  Fractal_DISNC:
+    ? !include reactions/Fractal_DISNC/parameters.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+#  defaultValue : 'RT_DISNC'        # global specification
+  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+#  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+#  defaultValue : 'FONLL_DISCC'     # global specification
+#  defaultValue : 'FFABM_DISCC'     # global specification
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120

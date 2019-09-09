@@ -1,4 +1,4 @@
- 
+
 /*
    @file ReactionHVQMNR_LHCb_7TeV_charm.cc
    @date 2017-01-02
@@ -6,7 +6,7 @@
    Created by  AddReaction.py on 2017-01-02
 
    Derived from ReactionBaseHVQMNR where basic stuff for HVQMNR calculation is implemented
-   This class implements calculation for LHCb charm measurement at 7 TeV 
+   This class implements calculation for LHCb charm measurement at 7 TeV
    [Nucl. Phys. B 871 (2013), 1] [arXiv:1302.2864]
 */
 
@@ -21,31 +21,26 @@ extern "C" ReactionHVQMNR_LHCb_7TeV_charm* create() {
   return new ReactionHVQMNR_LHCb_7TeV_charm();
 }
 
-
-// initialize at the start of the computation
-int ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(const string &s)
+void ReactionHVQMNR_LHCb_7TeV_charm::initTerm(TermData *td)
 {
-  // ignore provided terminfo (s): all needed information has been set already 
-  // via setDatasetParameters(int dataSetID, map<string,string> pars)
-  
-  // ******************************************************************
-  // perform initialisation and pre-calculation
-  // ******************************************************************
-  // protection against overdoing
-  if(_isInitAtStart)
-    return 0;
-  _isInitAtStart = true;
-  //printf("ReactionHVQMNR_LHCb_7TeV_charm::initAtStart()\n");
+  ReactionBaseHVQMNR::initTerm(td);
+  _tdDS[td->id] = td;
 
-  // check HF scheme
-  CheckHFScheme();
-    
-  // read needed theory parameters
+  // this code needs to be executed only once (theory parameters
+  // must be the same for all terms in this reaction)
+  if(_isInitAtStart)
+    return;
+  _isInitAtStart = true;
+
   UpdateParameters();
-  PrintParameters();
+  // check HF scheme (since 4.06.19 does not work anymore)
+  CheckHFScheme();
 
   // stereing parameters for this calculation (modify only if you understand what you are doing)
   Steering steer;
+  steer.q = true;
+  steer.a = true;
+  steer.nf = 3;
   steer.ptmin = 0.001;
   steer.ptmax = 20.0;
   steer.npt   = 25;
@@ -57,10 +52,14 @@ int ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(const string &s)
   steer.nx3   = 25;
   steer.nx4   = 125;
   steer.nbz   = 50;
-    
+  steer.xmin = 1e-6;
+  steer.xmax = 1e0;
+  steer.mf2min = 1e0;
+  steer.mf2max = 8e4;
+
   DefaultInit(steer, _pars.mc, _mnr, _frag, _grid, _gridSmoothed);
   //if(_debug)
-    printf("ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(): at initialisation mc = %f\n", _pars.mc);
+  //printf("ReactionHVQMNR_LHCb_7TeV_charm::atStart(): at initialisation mc = %f\n", _pars.mc);
   // MNR (parton-level calculation)
   _mnr.SetDebug(_debug);
   _mnr.fC_sh = TMath::Power(7000.0, 2.0); // centre-of-mass energy squared
@@ -84,7 +83,7 @@ int ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(const string &s)
   double bin_y[6] = { 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 };
   int nbin_pt = 8;
   double bin_pt[9] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 };
-  for(int f = 0; f < 4; f++) 
+  for(int f = 0; f < 4; f++)
     _hCalculatedXSec[f]->SetBins(nbin_pt, bin_pt, nbin_y, bin_y);
   // Lambda_c rapidity differenential (for normalised cross section)
   int nbin_pt_lambdac = 1;
@@ -94,29 +93,21 @@ int ReactionHVQMNR_LHCb_7TeV_charm::initAtStart(const string &s)
   int nbin_y_lambdac = 1;
   double bin_y_lambdac[2] = { 2.0, 4.5 };
   _hCalculatedXSec[5]->SetBins(nbin_pt, bin_pt, nbin_y_lambdac, bin_y_lambdac);
-      
-  return 0;
 }
 
-
 // perform calculation (this is done once per iteration)
-void ReactionHVQMNR_LHCb_7TeV_charm::initAtIteration() 
+void ReactionHVQMNR_LHCb_7TeV_charm::atIteration()
 {
-  // protection against overdoing
-  // TODO: remove this trick
-  //if(_ifcncount_last == cfcn_.ifcncount)
-  //  return;
-  //_ifcncount_last = cfcn_.ifcncount;
-
-  //printf("ReactionHVQMNR_LHCb_7TeV_charm::initAtIteration() %d\n", cfcn_.ifcncount);
-
-  // read needed MINUIT parameters (enough to be done once per iteration)
+  // read updated theory parameters (enough to be done once per iteration)
   UpdateParameters();
   if(_debug)
     PrintParameters();
 
   // update parameters and perform calculation
   _mnr.SetScaleCoef(_pars.mf_A_c, _pars.mf_B_c, _pars.mf_C_c, _pars.mr_A_c, _pars.mr_B_c, _pars.mr_C_c);
+  // take any TermData pointer to access theory parameters, they are supposed to be universal for all data sets
+  TermData* td = _tdDS.begin()->second;
+  td->actualizeWrappers();
   _mnr.CalcXS(&_grid, _pars.mc);
   MNR::Grid::InterpolateGrid(&_grid, &_gridSmoothed, _pars.mc);
   for(int f = 0; f < 6; f++)
@@ -126,12 +117,9 @@ void ReactionHVQMNR_LHCb_7TeV_charm::initAtIteration()
 
 
 // main function to compute results at an iteration
-int ReactionHVQMNR_LHCb_7TeV_charm::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
+void ReactionHVQMNR_LHCb_7TeV_charm::compute(TermData* td, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  // TODO move to core xFitter
-  //initAtIteration();
-  //printf("ReactionHVQMNR_LHCb_7TeV_charm::compute() %d\n", dataSetID);
-  
+  int dataSetID = td->id;
   // get histogramm with cross sections for needed dataset
   DataSet& ds = _dataSets[dataSetID];
   TH2D* histXSec = NULL;
@@ -163,6 +151,4 @@ int ReactionHVQMNR_LHCb_7TeV_charm::compute(int dataSetID, valarray<double> &val
     else
       val[i] = val[i] * ds.FragFraction;
   }
-        
-  return 0;
 }

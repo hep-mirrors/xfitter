@@ -10,6 +10,7 @@
 #include "iostream"
 #include "cstring"
 #include <gsl/gsl_integration.h>
+#include "xfitter_cpp.h"
 
 using namespace std;
 
@@ -49,9 +50,6 @@ double *ReactionAFB::propagators (double Minv)
 
 ////UUBAR EVEN FORWARD Matrix element
 double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -67,8 +65,8 @@ double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
   double f1c = pdfx1[10] / x1;
   double f2ubar = pdfx2[4] / x2;
@@ -144,9 +142,6 @@ double ReactionAFB::integration_uubarEF (double Minv_inf, double Minv_sup, void*
 
 ////UUBAR EVEN BACKWARD Matrix element
 double ReactionAFB::uubarEB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -162,8 +157,8 @@ double ReactionAFB::uubarEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
   double f1c = pdfx1[10] / x1;
   double f2ubar = pdfx2[4] / x2;
@@ -238,9 +233,6 @@ double ReactionAFB::integration_uubarEB (double Minv_inf, double Minv_sup, void*
 
 ////UUBAR ODD FORWARD Matrix element
 double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -256,8 +248,8 @@ double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
   double f1c = pdfx1[10] / x1;
   double f2ubar = pdfx2[4] / x2;
@@ -333,9 +325,6 @@ double ReactionAFB::integration_uubarOF (double Minv_inf, double Minv_sup, void*
 
 ////UUBAR ODD BACKWARD Matrix element
 double ReactionAFB::uubarOB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -351,8 +340,8 @@ double ReactionAFB::uubarOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1u = pdfx1[8] / x1;
   double f1c = pdfx1[10] / x1;
   double f2ubar = pdfx2[4] / x2;
@@ -428,9 +417,6 @@ double ReactionAFB::integration_uubarOB (double Minv_inf, double Minv_sup, void*
 
 ////UBARU EVEN FORWARD Matrix element
 double ReactionAFB::ubaruEF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -446,8 +432,8 @@ double ReactionAFB::ubaruEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
   double f1cbar = pdfx1[2] / x1;
   double f2u = pdfx2[8] / x2;
@@ -523,9 +509,6 @@ double ReactionAFB::integration_ubaruEF (double Minv_inf, double Minv_sup, void*
 
 ////UBARU EVEN BACKWARD Matrix element
 double ReactionAFB::ubaruEB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -541,8 +524,8 @@ double ReactionAFB::ubaruEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
   double f1cbar = pdfx1[2] / x1;
   double f2u = pdfx2[8] / x2;
@@ -618,9 +601,6 @@ double ReactionAFB::integration_ubaruEB (double Minv_inf, double Minv_sup, void*
 
 ////UBARU ODD FORWARD Matrix element
 double ReactionAFB::ubaruOF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -636,8 +616,8 @@ double ReactionAFB::ubaruOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
   double f1cbar = pdfx1[2] / x1;
   double f2u = pdfx2[8] / x2;
@@ -713,9 +693,6 @@ double ReactionAFB::integration_ubaruOF (double Minv_inf, double Minv_sup, void*
 
 ////UBARU ODD BACKWARD Matrix element
 double ReactionAFB::ubaruOB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -731,8 +708,8 @@ double ReactionAFB::ubaruOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1ubar = pdfx1[4] / x1;
   double f1cbar = pdfx1[2] / x1;
   double f2u = pdfx2[8] / x2;
@@ -808,9 +785,6 @@ double ReactionAFB::integration_ubaruOB (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR EVEN FORWARD Matrix element
 double ReactionAFB::ddbarEF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -826,8 +800,8 @@ double ReactionAFB::ddbarEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
   double f1s = pdfx1[9] / x1;
   double f1b = pdfx1[11] / x1;
@@ -905,9 +879,6 @@ double ReactionAFB::integration_ddbarEF (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR EVEN BACKWARD Matrix element
 double ReactionAFB::ddbarEB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -923,8 +894,8 @@ double ReactionAFB::ddbarEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
   double f1s = pdfx1[9] / x1;
   double f1b = pdfx1[11] / x1;
@@ -1002,9 +973,6 @@ double ReactionAFB::integration_ddbarEB (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR ODD FORWARD Matrix element
 double ReactionAFB::ddbarOF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1020,8 +988,8 @@ double ReactionAFB::ddbarOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
   double f1s = pdfx1[9] / x1;
   double f1b = pdfx1[11] / x1;
@@ -1099,9 +1067,6 @@ double ReactionAFB::integration_ddbarOF (double Minv_inf, double Minv_sup, void*
 
 ////DDBAR ODD BACKWARD Matrix element
 double ReactionAFB::ddbarOB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1117,8 +1082,8 @@ double ReactionAFB::ddbarOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1d = pdfx1[7] / x1;
   double f1s = pdfx1[9] / x1;
   double f1b = pdfx1[11] / x1;
@@ -1196,9 +1161,6 @@ double ReactionAFB::integration_ddbarOB (double Minv_inf, double Minv_sup, void*
 
 ////DBARD EVEN FORWARD Matrix element
 double ReactionAFB::dbardEF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1214,8 +1176,8 @@ double ReactionAFB::dbardEF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
   double f1sbar = pdfx1[3] / x1;
   double f1bbar = pdfx1[1] / x1;
@@ -1293,9 +1255,6 @@ double ReactionAFB::integration_dbardEF (double Minv_inf, double Minv_sup, void*
 
 ////DBARD EVEN BACKWARD Matrix element
 double ReactionAFB::dbardEB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1311,8 +1270,8 @@ double ReactionAFB::dbardEB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
   double f1sbar = pdfx1[3] / x1;
   double f1bbar = pdfx1[1] / x1;
@@ -1390,9 +1349,6 @@ double ReactionAFB::integration_dbardEB (double Minv_inf, double Minv_sup, void*
 
 ////DBARD ODD FORWARD Matrix element
 double ReactionAFB::dbardOF_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1408,8 +1364,8 @@ double ReactionAFB::dbardOF_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
   double f1sbar = pdfx1[3] / x1;
   double f1bbar = pdfx1[1] / x1;
@@ -1487,9 +1443,6 @@ double ReactionAFB::integration_dbardOF (double Minv_inf, double Minv_sup, void*
 
 ////DBARD ODD BACKWARD Matrix element
 double ReactionAFB::dbardOB_funct (double yreduced, void * params) {
-
-  // Pointer to access PDFs
-  ReactionTheory* ptr = (ReactionTheory*) ((integration_params*)params)->ptr;
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1505,8 +1458,8 @@ double ReactionAFB::dbardOB_funct (double yreduced, void * params) {
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
-  (ptr->xfx(x1,Q,&pdfx1[0]));
-  (ptr->xfx(x2,Q,&pdfx2[0]));
+  pdf_xfxq_wrapper_(x1, Q, &pdfx1[0]);
+  pdf_xfxq_wrapper_(x2, Q, &pdfx2[0]);
   double f1dbar = pdfx1[5] / x1;
   double f1sbar = pdfx1[3] / x1;
   double f1bbar = pdfx1[1] / x1;
@@ -1619,70 +1572,55 @@ extern "C" ReactionAFB* create() {
   return new ReactionAFB();
 }
 
-// Initialize at the start of the computation
-int ReactionAFB::initAtStart(const string &s)
+void ReactionAFB::initTerm(TermData *td)
 {
-  // Parameters from "/reactions/AFB/yaml/parameters.yaml"
+  ReactionTheory::initTerm(td);
+
+  // theory parameters must be identical for all data sets
+  // (no check of this is done)
+  // this could be improved in the future
+  if(flagInit)
+    return;
+  flagInit = true;
 
   // Check energy parameter:
-  std::cout << checkParam("energy") << std::endl;
-  if ( ! checkParam("energy") ) {
-    std::cout << "\n\n FATAL ERROR: collider energy (energy) is not defined !!! \n\n" <<std::endl;
-    return 1;
-  }
-  // Check eta parameter:
-  std::cout << checkParam("eta_cut") << std::endl;
-  if ( ! checkParam("eta_cut") ) {
-    std::cout << "\n\n FATAL ERROR: lepton pseudorapidity cut (eta_cut_param) is not defined !!! \n\n" <<std::endl;
-    return 1;
-  }
-  // Check pT parameter:
-  std::cout << checkParam("pT_cut") << std::endl;
-  if ( ! checkParam("pT_cut") ) {
-    std::cout << "\n\n FATAL ERROR: lepton transverse momentum cut (pT_cut_param) is not defined !!! \n\n" <<std::endl;
-    return 1;
-  }
-  // Check rapidity lower cut parameter:
-  std::cout << checkParam("y_min") << std::endl;
-  if ( ! checkParam("y_min") ) {
-    std::cout << "\n\n FATAL ERROR: di-lepton rapidity lower cut (y_min) is not defined !!! \n\n" <<std::endl;
-    return 1;
-  }
+    if ( ! td->hasParam("energy") ) {
+      hf_errlog(19050501, "F: collider energy (energy) is not defined.");
+    }
+    // Check eta parameter:
+    if ( ! td->hasParam("eta_cut") ) {
+      hf_errlog(19050502, "F: lepton pseudorapidity cut (eta_cut) is not defined.");
+    }
+    // Check pT parameter:
+    if ( ! td->hasParam("pT_cut") ) {
+      hf_errlog(19050503, "F: lepton transverse momentum cut (pT_cut) is not defined.");
+    }
+    // Check rapidity lower cut parameter:
+    if ( ! td->hasParam("y_min") ) {
+      hf_errlog(19050504, "F: di-lepton rapidity lower cut (y_min) is not defined.");
+    }
 
-  // Check rapidity upper cut parameter:
-  std::cout << checkParam("y_max") << std::endl;
-  if ( ! checkParam("y_max") ) {
-    std::cout << "\n\n FATAL ERROR: di-lepton rapidity upper cut (y_max) is not defined !!! \n\n" <<std::endl;
-    return 1;
-  }
-
-  //     // Check integration routine parameters:
-  //     if ( ! checkParam("key") ) {
-  //         std::cout << "\n\n FATAL ERROR: rule for QAG integration is not defined !!! \n\n" <<std::endl;
-  //         return 1;
-  //     }
-  //     key_param = GetParamI("key");
-  //     if ((key_param < 1) or (key_param > 6)) {
-  //         std::cout << "\n\n FATAL ERROR: rule for QAG integration has to be between 1 and 6 (1 <= key <= 6) !!! \n\n" <<std::endl;
-  //         return 1;
-  //     }
+    // Check rapidity upper cut parameter:
+    if ( ! td->hasParam("y_max") ) {
+      hf_errlog(19050505, "F: di-lepton rapidity upper cut (y_max) is not defined.");
+    }
 
   // Constant
   PI = 3.14159265;
 
   // Read default parameters
-  GeVtofb_param = pow(10, -3) * GetParam("convFac");
-  alphaEM_param = GetParam("alphaem");
-  stheta2W_param = GetParam("sin2thW");
-  MZ_param = GetParam("Mz");
-  GammaZ_param = GetParam("Wz");
+  GeVtofb_param = pow(10, -3) * *td->getParamD("convFac");
+  alphaEM_param = *td->getParamD("alphaem");
+  stheta2W_param = *td->getParamD("sin2thW");
+  MZ_param = *td->getParamD("Mz");
+  GammaZ_param = *td->getParamD("Wz");
 
   // Read "reactions/AFB/yaml/params.yaml"
-  energy_param = GetParam("energy");
-  eta_cut_param = GetParam("eta_cut");
-  pT_cut_param = GetParam("pT_cut");
-  y_min_param = GetParam("y_min");
-  y_max_param = GetParam("y_max");
+  energy_param = *td->getParamD("energy");
+  eta_cut_param = *td->getParamD("eta_cut");
+  pT_cut_param = *td->getParamD("pT_cut");
+  y_min_param = *td->getParamD("y_min");
+  y_max_param = *td->getParamD("y_max");
 
   // Calculate fixed parameters
   e_param = sqrt(4*PI*alphaEM_param);
@@ -1720,18 +1658,18 @@ int ReactionAFB::initAtStart(const string &s)
   odd_interf_down = (photon_Vd*Z_Ad+photon_Ad*Z_Vd)*(photon_Vl*Z_Al+photon_Al*Z_Vl);
   odd_Z_up = 4*Z_Vu*Z_Au*Z_Vl*Z_Al;
   odd_Z_down = 4*Z_Vd*Z_Ad*Z_Vl*Z_Al;
-
-  return 0;
 }
 
 // Main function to compute results at an iteration
-int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valarray<double> > &err)
+void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
 {
-  auto *Minv_min  = GetBinValues(dataSetID,"Minv_min"), *Minv_max  = GetBinValues(dataSetID,"Minv_max");
+  td->actualizeWrappers();
+  
+  auto *Minv_min  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_min"));
+  auto *Minv_max  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_max"));
+  
   if (Minv_min == nullptr || Minv_max == nullptr) {
-    std::cout << "\n\nFATAL ERROR: AFB code requires Invariant mass bins to be present !!!" << std::endl;
-    std::cout << "CHECK THE DATAFILE !!!" << std::endl;
-    return 1;
+    hf_errlog(19050500, "F: AFB code requires Invariant mass bins to be present");
   }
 
   auto min = *Minv_min, max = *Minv_max;
@@ -1741,18 +1679,14 @@ int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valar
 
   // check on the rapidity cut
   if (y_min_param  >= eta_cut_param) {
-    std::cout << "\n\nThe chosen lower rapidity cut is not compatible with acceptance cuts." << std::endl;
-    return 1;
+    hf_errlog(19050500, "F: The chosen lower rapidity cut is not compatible with acceptance cuts");
   }
   if (y_min_param / log(energy_param/max[Npnt_max-1]) > 1) {
-    std::cout << "\n\nThe chosen lower rapidity cut is too high in this invariant mass range." << std::endl;
-    return 1;
+    hf_errlog(19050500, "F: The chosen lower rapidity cut is too high in this invariant mass range");
   }
 
   if (Npnt_min != Npnt_max) {
-    std::cout << "\n\nFATAL ERROR: uneven number of Invariant mass min and max !!!" << std::endl;
-    std::cout << "CHECK THE DATAFILE !!!" << std::endl;
-    return 1;
+    hf_errlog(19050500, "F: uneven number of Invariant mass min and max");
   }
 
   // Fill the array "val[i]" with the result of the AFB function
@@ -1760,6 +1694,4 @@ int ReactionAFB::compute(int dataSetID, valarray<double> &val, map<string, valar
     double AFB_result = AFB (min[i], max[i]);
     val[i] = AFB_result;
   }
-
-  return 0;
 }

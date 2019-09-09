@@ -15,3 +15,6 @@
       double precision TheoModFCN3(NTOT)
       double precision Alphamodfcn3(NTOT)
       common/c_theo3/TheoFCN3, TheoModFCN3, Alphamodfcn3
+
+      double precision residuals(NTOT+1000+1) ! residuals for data vs theory
+      common/c_resid/residuals 

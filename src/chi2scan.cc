@@ -1,3 +1,9 @@
+/*
+The whole chi2scan seems to be broken since 2.2.0
+I commented everything out, maybe we could recover this code later
+Chi2scan should probably work similar to Profiler
+--Ivan
+*/
 #include "xfitter_cpp.h"
 #include "dimensions.h"
 

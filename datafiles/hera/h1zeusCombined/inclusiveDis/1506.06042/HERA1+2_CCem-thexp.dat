@@ -7,9 +7,7 @@
   IndexDataset = 102
   Reaction = "CC e+-p"
 
-  TheoryType = 'expression'
   TermName = 'R'
-  TermType = 'reaction'
   TermSource = 'use:hf_scheme_DISCC'
   TermInfo = 'type=signonred:flav=incl:echarge=-1:epolarity=0'
   TheorExpr = 'R'

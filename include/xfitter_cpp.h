@@ -140,7 +140,7 @@ extern"C" {
 
   extern struct {
     char outdirname[256]; // outout dir name
-    char lhapdf6outdir[256];
+    char lhapdf6outdir[256]; //DEPRECATED
   } coutdirname_;
 
   extern struct {
@@ -187,14 +187,12 @@ extern"C" {
     float hf_mass[3];
     float charm_frac;
     int ldebug;
-    int dobands;
     int usegridlhapdf5;
     int writelhapdf6;
     int h1qcdfunc;
     int writealphastomemberpdf;
     int itheory;
     int i_fit_order;
-    int iparam;
     int hfscheme;
     int lrand;
     int statype;
@@ -202,16 +200,10 @@ extern"C" {
     float outxrange[2];
     int outnx;
     int ilenpdf;
-    int nchebglu;
-    float chebxmin;
-    int nchebsea;
     float wmnlen;
     float wmxlen;
-    int ichebtypeglu;
-    int ichebtypesea;
     int ifsttype;
     int iseedmc;
-    int ioffsetchebsea;
     int ewfit;
     int npolyval;
     int lead;
@@ -241,7 +233,6 @@ extern"C" {
     int pdfrotate;
     int ExtraPdfs;
     int WriteLHAPDF5;
-    int DoBandsSym;
     int steering_check;   // Keep this always last
   } steering_;
 
@@ -292,6 +283,11 @@ extern"C" {
     double mtp;
     double mbt;
   } fermion_masses_;
+
+
+  extern struct {
+    double residuals_[NTOT_C];
+  } c_resid_;
 }
 
 

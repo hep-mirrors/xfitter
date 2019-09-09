@@ -220,6 +220,7 @@ C------------------------------------------------------------------------
 #include "systematics.inc"
 #include "theorexpr.inc"
 #include "scales.inc"
+#include "for_debug.inc"
 
       character *(*) CFile
 C Namelist  variables:    
@@ -259,7 +260,7 @@ C Reference table
       integer IndexDataset
       double precision SystScales(nsystMax)
 C Extra info about k-factors, applegrid file(s):
-      character*1000 TheoryInfoFile(NKFactMax)
+      character*1000 TheoryInfoFile(NKFactMax) !Is this used anymore?  --Ivan
       character*80  TheoryType(2)
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
@@ -391,8 +392,9 @@ C Reset scales to 1.0
 
       open(51,file=CFile,status='old',err=99)
 
-      print *,'Reading data file ...'
-      print *,CFile
+cc      if(DEBUG)then
+        print *,'Reading data file',trim(CFile)
+cc      endif
       read(51,NML=Data,err=98)
 
       PlotN = -1
@@ -759,11 +761,13 @@ C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName,IndexDataset)) then
 	   ! set excluding flag for those bins that were cut
            binFlags(j) = 0
-           if((Reaction.eq.'FastNLO jets').or.
-     $       (Reaction.eq.'FastNLO ep jets').or.
-     $       (Reaction.eq.'FastNLO ep jets normalised')) then
-              call fastnlopointskip(NDataSets, j, NData);
-           endif
+! Since xFitter 2.1 "Reaction" field in dataset is no longer used to select
+! reaction, we have a system with terms and reaction modules now
+!           if((Reaction.eq.'FastNLO jets').or.
+!     $       (Reaction.eq.'FastNLO ep jets').or.
+!     $       (Reaction.eq.'FastNLO ep jets normalised')) then
+!              call fastnlopointskip(NDataSets, j, NData);
+!           endif
            goto 1717
          endif
 
@@ -1075,15 +1079,14 @@ c        endif
          close (53)
       endif
 
-
-      print '(''Read'',i8,'' data points for '',A80)',NData,Name
-      print '(''Printing first'',i5,'' data points'')',min(Ndata,5)
-      print '(20A14)',(BinName(i),i=1,NBinDimension),' sigma'
-    
-      do j=1,min(NData,5)
-         print '(20E14.4)',(Allbins(i,j),i=1,NBinDimension),XSections(j)
-    
-      enddo
+c      if(DEBUG)then
+        print '(''Read'',i8,'' data points for '',A80)',NData,Name
+        print '(''Printing first'',i5,'' data points'')',min(Ndata,3)
+        print '(20A14)',(BinName(i),i=1,NBinDimension),' sigma'
+        do j=1,min(NData,3)
+           print '(20E14.4)',(Allbins(i,j),i=1,NBinDimension),XSections(j)
+        enddo
+c      endif
       return
 
  97   continue
@@ -1584,22 +1587,6 @@ c         do j=1,NUncert
                   if (j.gt.0) then
                   idx = DATASETIDX(idxdataset,i)
                   
-                  if (NAsymPlus(j).eq.1
-     +                 .and. NAsymMinus(j).eq.1 ) then !Asymmetric errors (flip up and down errors because assigned to theory)
-                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) +
-     +                    MAX(MAX(BetaAsym(j,1,idx), 
-     +                    BetaAsym(j,2,idx)),
-     +                    0d0) ** 2
-                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) +
-     +                    MAX(MAX(-BetaAsym(j,1,idx), 
-     +                    -BetaAsym(j,2,idx)),
-     +                    0d0) ** 2
-                  else          !Symmetric errors
-                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) 
-     +                    + Beta(j, idx) ** 2
-                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) 
-     +                    + Beta(j, idx) ** 2
-                  endif
                endif
             enddo
          endif
@@ -1607,9 +1594,9 @@ c         do j=1,NUncert
 
       do i=1,Npoints
          idx = DATASETIDX(idxdataset,i)
-         THEO_TOT_UP(idx) = SQRT(THEO_ERR2_UP(idx))*theo_fix(idx)
+         THEO_TOT_UP(idx) = 0.0 !SQRT(THEO_ERR2_UP(idx))*theo_fix(idx)
      +        /100d0
-         THEO_TOT_DOWN(idx) = SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
+         THEO_TOT_DOWN(idx) = 0.0 ! SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
      +        /100d0
       enddo
 

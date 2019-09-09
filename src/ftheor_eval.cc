@@ -4,7 +4,7 @@
  @author Andrey Sapronov <Andrey.Sapronov@cern.ch>
 
  Contains Fortran interface functions to operate with theoretical
- predictions obtained via fast cross section evaluation methods, 
+ predictions obtained via fast cross section evaluation methods,
  e.g. APPLgrid,  FastNLO and k-Factors.
  */
 
@@ -12,13 +12,19 @@
 #include <fstream>
 #include <valarray>
 
-#include "get_pdfs.h"
+// #include "get_pdfs.h"
 #include "xfitter_cpp.h"
+#include "xfitter_cpp_base.h"
 
 #include "TheorEval.h"
-//#include "datasets.icc"
 #include <yaml-cpp/yaml.h>
 #include "ReactionTheory.h"
+#include "xfitter_pars.h"
+#include"dependent_pars.h"
+
+#include "BaseEvolution.h"
+#include "BasePdfDecomposition.h"
+#include "BaseMinimizer.h"
 
 using namespace std;
 
@@ -35,17 +41,16 @@ void common_check_(int *i) {
 }
 
 extern "C" {
-  int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType, 
+  int set_theor_eval_(int *dsId);//, int *nTerms, char **TermName, char **TermType,
 //    char **TermSource, char *TermExpr);
-  int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
-		      double *allBins, char binNames[10][80]);
+  int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
+                      double *allBins, char binNames[10][80]);
 //  int set_theor_units_(int *dsId, double *units);
   void init_theor_eval_(int *dsId);
   void update_theor_ckm_();
   void get_theor_eval_(int *dsId, int* np, int* idx);
   int read_reactions_();
   void close_theor_eval_();
-  void init_func_map_();
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
   void error_band_action_(const int& i); ///< Loop over rections, call error_band_action
@@ -55,23 +60,26 @@ extern "C" {
 tTEmap gTEmap;
 tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
-tDataBins gDataBins;
 
-t2Dfunctions g2Dfunctions;
-
+const size_t NTERMMAX      =128;
+const size_t TERMNAME_LEN  =32;
+const size_t TERMTYPE_LEN  =80;
+const size_t TERMINFO_LEN  =4096;
+const size_t TERMSOURCE_LEN=256;
+const size_t THEOREXPR_LEN =10000;
 extern struct thexpr_cb {
   double dynscale;
   int nterms;
-  char termname[16][8];
-  char termtype[16][80];
-  char terminfo[16][2048];
-  char termsource[16][256];
-  char theorexpr[1000];
+  char termname  [NTERMMAX][TERMNAME_LEN];
+  char termtype  [NTERMMAX][TERMTYPE_LEN];
+  char terminfo  [NTERMMAX][TERMINFO_LEN];
+  char termsource[NTERMMAX][TERMSOURCE_LEN];
+  char theorexpr[THEOREXPR_LEN];
   int ppbar_collisions;
   int normalised;
   int murdef;
   int mufdef;
-  int ninfo;  // dataset info as well  
+  int ninfo;  // dataset info as well
   double datainfo[100];
   char CInfo[100][80];
   char dsname[80];
@@ -92,115 +100,82 @@ inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
 
 
 /*!
- Creates theory evaluation object and adds it to the global map by 
+ Creates theory evaluation object and adds it to the global map by
  dataset ID.
  write details on argumets
  */
-int set_theor_eval_(int *dsId)//, int *nTerms, char **TermName, char **TermType, 
-//  char **TermSource, char *TermExpr)
-{
+int set_theor_eval_(int *dsId){
   // convert fortran strings to c++
   vector<string> stn(theorexpr_.nterms);
   vector<string> stt(theorexpr_.nterms);
   vector<string> sti(theorexpr_.nterms);
   vector<string> sts(theorexpr_.nterms);
   for ( int i = 0; i< theorexpr_.nterms; i++){
-    stn[i].assign(theorexpr_.termname[i], string(theorexpr_.termname[i]).find(' '));
-    stt[i].assign(theorexpr_.termtype[i], string(theorexpr_.termtype[i]).find(' '));
-    sti[i].assign(theorexpr_.terminfo[i], string(theorexpr_.terminfo[i]).find(' '));
-    sts[i].assign(theorexpr_.termsource[i], string(theorexpr_.termsource[i]).find(' '));
+    stn[i]=stringFromFortran(theorexpr_.termname  [i],TERMNAME_LEN);
+    stt[i]=stringFromFortran(theorexpr_.termtype  [i],TERMTYPE_LEN);
+    sti[i]=stringFromFortran(theorexpr_.terminfo  [i],TERMINFO_LEN);
+    sts[i]=stringFromFortran(theorexpr_.termsource[i],TERMSOURCE_LEN);
   }
-  string ste;
-  ste.assign(theorexpr_.theorexpr, string(theorexpr_.theorexpr).find(' '));
+  string ste=stringFromFortran(theorexpr_.theorexpr,THEOREXPR_LEN);
   TheorEval *te = new TheorEval(*dsId, theorexpr_.nterms, stn, stt, sti, sts, ste);
 
+  /* sometime in xFitter 2.2 CINFO support was dropped
   // Store CINFO
   for (int i=0; i<theorexpr_.ninfo; i++) {
     std::string n(theorexpr_.CInfo[i]);
     n = n.substr(0,80);
     n.erase(std::remove(n.begin(), n.end(), ' '), n.end());
     te->AddDSParameter(n, theorexpr_.datainfo[i]);
-  } 
-  // Store some other basic info
-  theorexpr_.dsname[79] = '\0';
-  std::string n(theorexpr_.dsname);
-  // Erase trailing spaces
-  n = rtrim(n)," ";
-
-  te->SetDSname(n);
-  te->AddDSParameter("Index",theorexpr_.ds_index); // dataset index
-  te->AddDSParameter("FileIndex",*dsId); 
-
-  te->SetCollisions(theorexpr_.ppbar_collisions);
-  te->SetDynamicScale(theorexpr_.dynscale);
+  }
+  */
+  // Store some dataset information
+  te->_ds_name=stringFromFortran(theorexpr_.dsname,80);
+  te->_dsId=*dsId;
+  te->_dsIndex=theorexpr_.ds_index;
   te->SetNormalised(theorexpr_.normalised);
-  te->SetMurMufDef(theorexpr_.murdef,theorexpr_.mufdef);
-  te->SetOrdScales(cscales_.datasetiorder[*dsId-1],cscales_.datasetmur[*dsId-1],cscales_.datasetmuf[*dsId-1]);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }
   else {
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
-    << " already exists." << endl;
-    exit(1); // make proper exit later
+    cerr<<"[ERROR] Theory evaluation for dataset ID "<<*dsId<<" already exists."<<endl;
+    hf_errlog(19042010,"F: Programming error: TheorEval already exists; see stderr");
   }
 
   return 1;
 }
 
 /*!
- Sets datasets bins in theory evaluations.
- write details on argumets
+ Pass bin information from fortran to instances of TheorEval
+ dsId            - dataset ID. Identifies instance of TheorEval
+ nBinDimension   - number of bin columns
+ nPoints         - number of points in the dataset (=number of rows)
+ binFlags[i]     - flag of point i
+   Flag=1 means the point is enabled
+   Flag=0 means the point is disabled and is excluded from the fit
+ allBins[10*j+i] - value at row (datapoint) j in column i (10 is max value of nBinDimension)
+ binNames[i]     - name of bin column i
  */
-int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags, 
-		    double *allBins, char binNames[10][80])
+const size_t COLUMN_NAME_LEN=80;
+int set_theor_bins_(int *dsId, int *nBinDimension, int *nPoints, int *binFlags,
+                    double *allBins, char binNames[10][COLUMN_NAME_LEN])
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+  if (it == gTEmap.end() ) {
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " not found!" << endl;
     exit(1);
   }
-  
+
   // Store bin information
 
-  map<string, valarray<double> > namedBins;
+  map<string,size_t>columnNameMap;
   for (int i=0; i<*nBinDimension; i++) {
-    string name = binNames[i];
-    name.erase(name.find(" "));
-    //    cout << name << " " << *dsId <<endl;
-    valarray<double> bins(*nPoints); 
-    for ( int j = 0; j<*nPoints; j++) {
-      bins[j] = allBins[j*10 + i];
-    }
-
-    //namedBins[name] = bins; // OZ 30.012017 this is not legal in C++ < C++11 and does not work with gcc 4.4.7
-    valarray<double>& insertedBins = namedBins[name];
-    insertedBins.resize(bins.size());
-    insertedBins = bins;
+    columnNameMap[stringFromFortran(binNames[i],COLUMN_NAME_LEN)]=i;
   }
-  gDataBins[*dsId] = namedBins;
-
-  TheorEval *te = gTEmap.at(*dsId);
-  te->setBins(*nBinDimension, *nPoints, binFlags, allBins);
+  TheorEval*te=it->second;
+  te->setBins(*nBinDimension, *nPoints, binFlags, allBins,columnNameMap);
   return 1;
 }
-
-/*
-int set_theor_units_(int *dsId, double *units)
-{
-  tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
-    << " not found!" << endl;
-    exit(1);
-  }
-  
-  TheorEval *te = gTEmap.at(*dsId);
-  te->setUnits(*units);
-  return 1;
-}
-*/
 
 /*!
  Initializes theory for requested dataset.
@@ -208,30 +183,14 @@ int set_theor_units_(int *dsId, double *units)
 void init_theor_eval_(int *dsId)
 {
   tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+  if (it == gTEmap.end() ) {
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " not found!" << endl;
     exit(1);
   }
-  
+
   TheorEval *te = gTEmap.at(*dsId);
   te->initTheory();
-}
-
-/*!
- Updates the CKM matrix to all the initialized appl grids
- */
-void update_theor_ckm_()
-{
-  double a_ckm[] = { ckm_matrix_.Vud, ckm_matrix_.Vus, ckm_matrix_.Vub,
-                                  ckm_matrix_.Vcd, ckm_matrix_.Vcs, ckm_matrix_.Vcb,
-                                  ckm_matrix_.Vtd, ckm_matrix_.Vts, ckm_matrix_.Vtb};
-  vector<double> v_ckm (a_ckm, a_ckm+sizeof(a_ckm)/sizeof(a_ckm[0]));
-  tTEmap::iterator it = gTEmap.begin();
-  for (; it!= gTEmap.end(); it++){
-    it->second->setCKM(v_ckm);
-  }
-  
 }
 
 /*!
@@ -241,30 +200,29 @@ void get_theor_eval_(int *dsId, int *np, int*idx)
 {
 
   tTEmap::iterator it = gTEmap.find(*dsId);
-  if (it == gTEmap.end() ) { 
-    cout << "ERROR: Theory evaluation for dataset ID " << *dsId 
+  if (it == gTEmap.end() ) {
+    cout << "ERROR: Theory evaluation for dataset ID " << *dsId
     << " not found!" << endl;
     exit(1);
   }
-  
-  valarray<double> vte;
-  TheorEval *te = gTEmap.at(*dsId);
-  vte.resize(te->getNbins());
-  te->Evaluate(vte);
 
-  // Get bin flags, and abandon bins flagged 0
-  const vector<int> *binflags = te->getBinFlags();
-  int ip = 0;
-  vector<int>::const_iterator ibf = binflags->begin();
-  for (; ibf!=binflags->end(); ibf++){
-    if ( 0 != *ibf ) {
-      c_theo_.theo[*idx+ip-1]=vte[int(ibf-binflags->begin())];
-      ip++;
-    }
-      //cout << *ibf << "\t" << vte[int(ibf-binflags->begin())] << endl;
-  }
+  TheorEval *te = gTEmap.at(*dsId);
+  valarray<double>vte(te->getNbins());//vector of theory predictions for this dataset
+  te->Evaluate(vte);//writes into vte
 
   // write the predictions to THEO array
+  const vector<int>*te_binflags=te->getBinFlags();
+  const int*binflags=te_binflags->data();//get pointer to array of bin flags
+  size_t ip=0;
+  size_t offset=*idx-1;
+  size_t endi=te_binflags->size();
+  for(size_t i=0;i<endi;++i){
+    if(binflags[i]!=0){//skip bins flagged 0
+      c_theo_.theo[ip+offset]=vte[i];
+      ++ip;
+    }
+  }
+
   if( ip != *np ){
     cout << "ERROR in get_theor_eval_: number of points mismatch" << endl;
     return;
@@ -293,10 +251,9 @@ int read_reactions_()
       frt >> rname >> lib;
       if (frt.eof()) break;
       if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
-	// possible check
+        // possible check
       }
       gReactionLibs[rname] = lib;
-
     }
   }
   else {
@@ -306,35 +263,53 @@ int read_reactions_()
   return 1;
 }
 
-
-// a bunch of functions 
+/* Broken since 2.2.0
 double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
 double xu(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
 double xub(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
-
 
 void init_func_map_() {
   g2Dfunctions["xg"] = &xg;
   g2Dfunctions["xu"] = &xu;
   g2Dfunctions["xub"] = &xub;
 }
+*/
 
 void init_at_iteration_() {
-  for ( auto reaction : gNameReaction ) {
-    reaction.second->initAtIteration();
+  xfitter::updateDependentParameters();
+  for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
+    pdfdecomposition.second->atIteration();//Among other things, sumrules are handled here
+  }
+
+  for(const auto it:XFITTER_PARS::gEvolutions){
+    it.second->atIteration();
+  }
+
+  for(const auto it:XFITTER_PARS::gEvolutions){
+    it.second->afterIteration();
+  }
+
+  for(const auto reaction:gNameReaction){
+    reaction.second->atIteration();
   }
 }
-
+//This is called after minimization, after result output
+//Could be named atEnd or something --Ivan
 void fcn3action_()
 {
+  // Minimizer action:
+  if (XFITTER_PARS::gMinimizer != nullptr ) {
+    XFITTER_PARS::gMinimizer->actionAtFCN3();
+  }
+
   for ( auto reaction : gNameReaction ) {
-    reaction.second->actionAtFCN3();
+    reaction.second->atFCN3();
   }
 }
 
 void error_band_action_(const int& i) {
   for ( auto reaction : gNameReaction ) {
-    reaction.second->initAtIteration();   // Init parameters first
-    reaction.second->errorBandAction(i);
+    reaction.second->atIteration();
+    reaction.second->atMakeErrorBands(i);
   }
 }

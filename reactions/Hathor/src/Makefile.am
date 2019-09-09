@@ -15,7 +15,7 @@ if ENABLE_LHAPDF
   # Hathor-2.0 requires LHAPDF
   HATHOR_CXXFLAGS += $(LHAPDF_CPPFLAGS)
 
-  AM_CXXFLAGS = $(HATHOR_CXXFLAGS) -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated -O0
+  AM_CXXFLAGS = $(HATHOR_CXXFLAGS) -I$(srcdir)/../include  -I$(srcdir)/../../../include  -I$(srcdir)/../../../interfaces/include -Wall -fPIC -Wno-deprecated
 
   lib_LTLIBRARIES = libhathor_xfitter.la
   libhathor_xfitter_la_SOURCES = ReactionHathor.cc HathorPdfxFitter.cc

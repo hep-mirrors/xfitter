@@ -83,12 +83,25 @@ CommandParser::CommandParser(int argc, char **argv):
   outdir("")
 {
   //initialise colors and styles
+  /*col[0] = kRed + 2;
+  col[1] = kBlue + 2;
+  col[2] = kGreen + 3;
+  col[3] = kOrange + 7;
+  col[4] = kAzure + 1;
+  col[5] = kMagenta + 1;*/
+
   col[0] = kRed + 2;
   col[1] = kBlue + 2;
   col[2] = kGreen + 3;
   col[3] = kOrange + 7;
   col[4] = kAzure + 1;
   col[5] = kMagenta + 1;
+  col[6] = kBlack;
+  col[7] = kRed - 10;
+  col[8] = kBlue - 9;
+  col[9] = kAzure + 4;
+  col[10] = kViolet - 7;
+  col[11] = kBlue - 2;
 
   styl[0] = 3354;
   styl[1] = 3345;
@@ -96,6 +109,8 @@ CommandParser::CommandParser(int argc, char **argv):
   styl[3] = 3350;
   styl[4] = 3016;
   styl[5] = 3020;
+  for(int i = 6; i < 12; i++)
+    styl[i] = 3020;
 
   mark[0] = 24;
   mark[1] = 25;
@@ -103,6 +118,8 @@ CommandParser::CommandParser(int argc, char **argv):
   mark[3] = 32;
   mark[4] = 31;
   mark[5] = 27;
+  for(int i = 6; i < 12; i++)
+    mark[i] = 27;
 
   lstyl[0] = 1;
   lstyl[1] = 2;
@@ -110,10 +127,12 @@ CommandParser::CommandParser(int argc, char **argv):
   lstyl[3] = 4;
   lstyl[4] = 5;
   lstyl[5] = 6;
+  for(int i = 6; i < 12; i++)
+    lstyl[i] = 6;
 
   // tight MC replica selection by default:
   looseRepSelection = false;
-  
+
   //Set Hatches style
   gStyle->SetHatchesSpacing(2);
   gStyle->SetHatchesLineWidth(lwidth);
@@ -124,6 +143,7 @@ CommandParser::CommandParser(int argc, char **argv):
 
   //search for options
   for (vector<string>::iterator it = allargs.begin() + 1; it != allargs.end(); it++)
+  {
     if ((*it).find("--") == 0)
     {
       if (*it == "--help")
@@ -180,7 +200,7 @@ CommandParser::CommandParser(int argc, char **argv):
         spp = min(40, spp);
         allargs.erase(it+1);
       }
-      else if (*it == "--shifts-heigth")
+      else if (*it == "--shifts-height")
       {
         adjshift = false;
         shgth = atoi((*(it+1)).c_str());
@@ -285,10 +305,10 @@ CommandParser::CommandParser(int argc, char **argv):
       else if (*it == "--90cl")
       {
         if (cl68 == true)
-        {
-          cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
-          exit(1);
-        }
+          {
+            cout << "Options --68cl and --90cl are mutually exclusive, cannot use both" << endl;
+            exit(1);
+          }
         cl90 = true;
         median = true;
       }
@@ -349,8 +369,13 @@ CommandParser::CommandParser(int argc, char **argv):
       }
       else if (*it == "--xrange")
       {
-        xmin = max(0.000000000000001, atof((*(it+1)).substr(0, (*(it+1)).find(":")).c_str()));
-        xmax = min(1., atof((*(it+1)).substr((*(it+1)).find(":") + 1, (*(it+1)).size() - (*(it+1)).find(":") - 1).c_str()));
+        string&s=*(it+1);
+        size_t p=s.find(':');
+        s[p]=0;
+        xmin=atof(s.c_str());
+        xmin=max(1e-15,xmin);
+        xmax=atof(s.c_str()+p+1);
+        xmax=min(1.,xmax);
         allargs.erase(it+1);
       }
       else if (*it == "--colorpattern")
@@ -495,7 +520,7 @@ CommandParser::CommandParser(int argc, char **argv):
       allargs.erase(it);
       it = allargs.begin();
     }
-  
+  }
   for (vector<string>::iterator it = allargs.begin() + 1; it != allargs.end(); it++)
     dirs.push_back(*it);
 
@@ -508,10 +533,10 @@ CommandParser::CommandParser(int argc, char **argv):
     exit(-1);
   }
 
-  if (dirs.size() > 6)
+  if (dirs.size() > 12)
   {
     cout << endl;
-    cout << "Maximum number of directories is 6" << endl;
+    cout << "Maximum number of directories is 12" << endl;
     cout << allargs[0] << " --help for help " << endl;
     cout << endl;
     exit(-1);
@@ -547,6 +572,6 @@ vector<string> Round(double value, double error, bool sign)
   result.push_back(Numb);
   sprintf (Numb, ((string)"%." + D + "f").c_str(), error);
   result.push_back(Numb);
-  
+
   return result;
 }

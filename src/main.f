@@ -61,15 +61,19 @@ C-----------------------------------------------------
      +     'I: steering.txt has been read successfully') 
 
 
+
 *
 *  Read parameters:
 *
-      call parse_params() 
-
-*     ------------------------------------------------
-*     Init new theory modules
-*     ------------------------------------------------
+*Read the list of dynamically loaded objects from Reactions.txt
+*Confusingly, this is used not only for reactions, but also for
+*minimizers, decompositions, parameterisations and evolutions
       call read_reactions()
+      call parse_params() !read parameters.yaml
+
+*This makes sure that the default evolution exists and is acessible from
+*fortran using hf_get_pdfs(x,Q,pdfs) etc
+      call init_evolution()
 
 *     ------------------------------------------------
 *     Read the measured data points
@@ -79,26 +83,18 @@ C-----------------------------------------------------
      +     'I: data tables have been read successfully') 
 
 *  
-      call init_func_map()
-
-
-*     ------------------------------------------------
-*     Initialise theory modules
-*     ------------------------------------------------
-
-      call init_theory_modules
-      call hf_errlog(12020503,
-     +     'I: theory modules initialised successfully') 
+!     call init_func_map()
+      call Init_EW_parameters
 
       if (LHAPDFErrors) then  ! PDF errors
          call get_lhapdferrors
          goto 36
       endif
-
-      if (SCAN) then  ! chi2 scan
-         call chi2_scan
-         goto 36
-      endif
+C chi2scan is broken since 2.2.0
+C     if (SCAN) then  ! chi2 scan
+C        call chi2_scan
+C        goto 36
+C     endif
 
 *     ------------------------------------------------
 *     Do the fit
@@ -126,6 +122,14 @@ c ..........................................................
       else
         CorSysIndex = 0
       endif
+
+      
+      call init_minimizer()
+
+      call run_minimizer()
+
+      call run_error_analysis()
+      
       
       if (doOffset .and. CorSysIndex .gt. NSYSMAX) then
         do CorSysIndex = 0,nOffset
@@ -144,17 +148,6 @@ c ..........................................................
         call flush(6)
         if(icond .ne. 0) goto 36
         Call RecovCentrPars
-        if (DOBANDS) then
-           write(6,*) 
-     $          ' --- Calculating error bands from Offset errors...'
-           ! --- set the scale by defining delta chi2 value
-           ! --- for MNCOMD(fcn,'ITERATE 10',...) it is set by SET ERRDEF dchi2
-           ! --- with default value of 5
-           Call DecorDiag(5.d0)
-           call Error_Bands_Pumplin
-           ! Error_Bands_Pumplin calls GetUmat(i,j) which needs only umat from common /umatco/
-           ! See minuit/src/iterate.F
-        endif
       else
         if (ControlFitSplit) then
            Call FindBestFCN3  !> Overfitting protection.
@@ -164,30 +157,11 @@ c ..........................................................
 *
            call write_pars(0)
         endif
-
-        if (DOBANDS) then
-           write(6,*) ' --- Calculate error bands ...'
-           lprint = .false.    
-           call hf_errlog
-     $          (12020506, 'I: Calculation of error bands required')
-           call MNCOMD(fcn,'ITERATE 10',icond,0)
-           call MNCOMD(fcn,'MYSTUFF 1000',icond,0)
-           call MNCOMD(fcn,'MYSTUFF 2000',icond,0)
-
-           call write_pars(0)
-
-           call Error_Bands_Pumplin
-        elseif (DoBandsSym) then
-           call ErrBandsSym
-        endif
-      
-       close (24)
-       close (25)
+        close(24)
+        close(25)
       endif
 
-* Check if minuit converged OK
-      call CheckMinuitStatus
-
+      call report_convergence_status()
 
  36   continue
 
@@ -206,21 +180,23 @@ c ..........................................................
 
 C-----------------------------------------------------
 
+C-----DEPRECATED: replaced by report_convergence_status()
+#if 0
       subroutine CheckMinuitStatus
       implicit none
 #include "steering.inc"
       double precision fmin, fedm, errdef
       integer npari, nparx, istat
-C----------------------------------------------------------      
+C----------------------------------------------------------
       call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
       if (istat.eq.0) then
          call hf_errlog(16042801,'I: No minimization has run')
       else if (istat.eq.3) then
          call hf_errlog(16042802,'I: Successful run')
       else if (istat.eq.1) then
-         call hf_errlog(16042803,'E: Error matrix not accurate')         
+         call hf_errlog(16042803,'E: Error matrix not accurate')
       else if (istat.eq.2) then
-         call hf_errlog(16042804,'E: Error matrix forced positive')         
+         call hf_errlog(16042804,'E: Error matrix forced positive')
       endif
 C Save in output file
       open (51,file=Trim(OutDirName)//'/Status.out',status='unknown')
@@ -231,3 +207,4 @@ C Save in output file
       endif
       close (51)
       end
+#endif

@@ -69,8 +69,9 @@ incspp=`pkg-config --cflags deps/yaml-cpp/lib/pkgconfig/yaml-cpp.pc`
 echo "Make setup_yaml.sh file"
 echo "export CURRENTDIR=`pwd`" > setup_yaml.sh
 echo export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CURRENTDIR/deps/yaml/lib/:\$CURRENTDIR/deps/yaml-cpp/lib >> setup_yaml.sh
-echo export CFLAGS=\"\$CFLAGS -I\$CURRENTDIR/deps/yaml/include -L\$CURRENTDIR/deps/yaml/lib\" >> setup_yaml.sh
-echo export CPPFLAGS=\"\$CPPGLAGS -I\$CURRENTDIR/deps/yaml/include -L\$CURRENTDIR/deps/yaml/lib $incspp $libspp \" >> setup_yaml.sh
-echo export CXXFLAGS=\"\$CXXFLAGS -I\$CURRENTDIR/deps/yaml/include -L\$CURRENTDIR/deps/yaml/lib $incspp $libspp \" >> setup_yaml.sh
+echo export CFLAGS=\"\$CFLAGS -I\$CURRENTDIR/deps/yaml/include\" >> setup_yaml.sh
+echo export CPPFLAGS=\"\$CPPGLAGS -I\$CURRENTDIR/deps/yaml/include $incspp\" >> setup_yaml.sh
+echo export CXXFLAGS=\"\$CXXFLAGS -I\$CURRENTDIR/deps/yaml/include $incspp\" >> setup_yaml.sh
+echo export LDFLAGS=\"\$LDFLAGS -L\$CURRENTDIR/deps/yaml/lib $libspp\" >> setup_yaml.sh
 
 chmod +x setup_yaml.sh
