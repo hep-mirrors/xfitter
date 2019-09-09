@@ -2273,8 +2273,8 @@ void fastNLOReader::FillBlockBPDFLCsDISv21(fastNLOCoeffAddFlex* c, fastNLOCoeffA
 
    // we take the PDF coefficients from the first contributions if compatible
    // this avoids repetive access to LHAPDF
-   //   static const bool SpeedUp = false;
-   static const bool SpeedUp = BBlocksSMCalc[0][0] != NULL;
+   static const bool SpeedUp = false;
+   //static const bool SpeedUp = BBlocksSMCalc[0][0] != NULL;
    bool IsCompatible = false;
    if (SpeedUp) {
       if (c0 != NULL && c0 != c && fCoeff.size()>1) {
