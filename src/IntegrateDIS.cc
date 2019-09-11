@@ -1,6 +1,9 @@
 #include <IntegrateDIS.h>
 #include <xfitter_cpp_base.h>
 #include <cassert>
+#include <iostream>
+using std::cerr;
+using std::endl;
 
 int IntegrateDIS::init(const double s,
                         const std::valarray<double>* q2minp, const std::valarray<double>* q2maxp,
@@ -32,18 +35,35 @@ int IntegrateDIS::init(const double s,
       && q2max == (*q2maxp)[i - 1]
       && ymin == (*yminp)[i - 1]
       && ymax == (*ymaxp)[i - 1]
-      && (*xminp)[i] == (*xminp)[i - 1]
-      && (*xmaxp)[i] == (*xminp)[i - 1]
+      //Check that xmin and xmax are the same as in previous bin
+      //But only if xmin and xmax columns exist
+      && (
+        xminp==nullptr ||
+        ( (*xminp)[i] == (*xminp)[i - 1] )
       )
+      && (
+        xmaxp==nullptr ||
+        ( (*xmaxp)[i] == (*xmaxp)[i - 1] )
+      )
+    )
     {
       // -1 means that the value from previous bin will be copied in compute()
       _nSubBins[i] = -1;
+      hf_errlog(19091101, "I: IntegrateDIS: two datapoints have identical bin, will only calculate cross-section once for both");
       continue;
     }
 
-    // prevent 0 because there is division by y
-    if(ymin == 0.)
-      ymin = 1e-6;
+    // avoid division by zero
+    if (ymin == 0.) {
+      cerr<<"[ERROR] In IntegrateDIS: ymin==0 would lead to division by zero, please edit your datafile."
+      " Bin id="<<i<<"; q2min="<<q2min<<"; q2max="<<q2max<<"; ymax="<<ymax<<";";
+      if(xminp)cerr<<" xmin="<<(*xminp)[i]<<";";
+      else cerr<<" no xmin given;";
+      if(xmaxp)cerr<<" xmax="<<(*xmaxp)[i]<<";";
+      else cerr<<" no xmax given;";
+      cerr<<" s="<<s<<";"<<endl;
+      hf_errlog(19091100, "F: ymin==0 in IntegrateDIS leads to division by zero, see stderr");
+    }
 
     // determine x range
     double xmin = q2min / (s * ymax);
