@@ -927,10 +927,16 @@ void chi2_scan_()
 	    }
 	  for (int j = 0; j < tothess_s; j++)
 	    {
+	      sysmeas_.n_syst_meas[nsysloc] = npoints;
 	      for (int i = 0; i < npoints; i++)
 		{
+		  sysmeas_.syst_meas_idx[nsysloc][i] = i + 1;
+
 		  systema_.beta[i][nsysloc] = (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
 		  systasym_.omega[i][nsysloc] = 0;
+
+		  systasym_.lasymsyst[nsysloc] = false;
+
 		  if (clhapdf_.scale68)
 		    {
 		      systema_.beta[i][nsysloc]  /= 1.64;
@@ -967,13 +973,18 @@ void chi2_scan_()
 	    }
 	  if (totpar > 0)
 	    {
+	      sysmeas_.n_syst_meas[nsysloc] = npoints;
 	      for (int i = 0; i < npoints; i++)
 		{
+		  sysmeas_.syst_meas_idx[nsysloc][i] = i + 1;
+
 		  //account for the sign flip due to applying a theory variation as a shift to the data
 		  systasym_.betaasym[i][0][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].thc) / pointsmap[i].thc;
 		  systasym_.betaasym[i][1][nsysloc] = -(pointsmap[i].th_env_m - pointsmap[i].thc) / pointsmap[i].thc;
 		  systema_.beta[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] - systasym_.betaasym[i][1][nsysloc]);
 		  systasym_.omega[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] + systasym_.betaasym[i][1][nsysloc]);
+
+		  systasym_.lasymsyst[nsysloc] = true;
 
 		  //treat as symmetric
 		  //systema_.beta_[i][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].th_env_m) / 2./ pointsmap[i].thc;
