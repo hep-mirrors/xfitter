@@ -2,6 +2,7 @@
 #include<vector>
 #include<algorithm>
 #include<cmath>
+//#include<numeric>
 #include<sys/stat.h>
 #include<sys/types.h>
 #include"xfitter_pars.h"
