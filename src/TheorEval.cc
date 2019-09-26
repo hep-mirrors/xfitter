@@ -598,7 +598,7 @@ const valarray<double>*TheorEval::getBinColumn(const string&n)const{
   return &_dsBins[it->second];
 }
 
-/* What are those? They are currently unused, and I am not sure they work correctly now, with TermData. --Ivan
+//This method is used by chi2scan to change the theory input file
 void TheorEval::ChangeTheorySource(string term, string source)
 {
   vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
@@ -608,12 +608,26 @@ void TheorEval::ChangeTheorySource(string term, string source)
       hf_errlog_(14020603, msg.c_str(), msg.size());
     }
   int iterm = int(found_term-_termNames.begin());
-  //  cout << "switch " << _termSources[iterm] << " to " << source << endl;
-  _termSources[iterm] = source;
+  //  cout << "switch " << _termInfos[iterm] << " to " << source << endl;
+  _termInfos[iterm] = source;
 
-  initTerm(int(found_term-_termNames.begin()), _mapInitdTerms[term]);
+  string term_source = _termSources.at(iterm);
+  string term_info =  _termInfos.at(iterm);
+  if(beginsWith(term_source,"use:")){//then redefine term source
+    //I am not sure this works correctly right now --Ivan
+    //Replace dsPars
+    term_source=GetParamDS(term_source.substr(4),_ds_name,_dsIndex);
+  }
+  ReactionTheory*rt=getReaction(term_source);
+  size_t termID=_dsId*1000+iterm;
+  TermData*term_data=new TermData(termID,rt,this,term_info.c_str());
+  term_data->val=_mapInitdTerms[term];
+  delete term_datas[iterm];
+  term_datas[iterm] = term_data;
+  rt->initTerm(term_data);
 }
 
+//This method is used by chi2scan to get the theory input file for the central prediction
 string TheorEval::GetTheorySource(string term)
 {
   vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
@@ -622,6 +636,5 @@ string TheorEval::GetTheorySource(string term)
       hf_errlog(14020603,(string) "S: Undeclared term " + term);
     }
   int iterm = int(found_term-_termNames.begin());
-  return _termSources[iterm];
+  return _termInfos.at(iterm);
 }
-*/
