@@ -90,11 +90,12 @@ C-----------------------------------------------------
          call get_lhapdferrors
          goto 36
       endif
+      
 C chi2scan is broken since 2.2.0
-C     if (SCAN) then  ! chi2 scan
-C        call chi2_scan
-C        goto 36
-C     endif
+      if (SCAN) then            ! chi2 scan
+         call chi2_scan
+         goto 36
+      endif
 
 *     ------------------------------------------------
 *     Do the fit
