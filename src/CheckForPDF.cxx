@@ -1,4 +1,5 @@
 #include "CheckForPDF.h"
+#include "xfitter_cpp.h"
 #include "LHAPDF/Paths.h"
 #include <iostream>
 #include <algorithm>
@@ -23,7 +24,8 @@ void CheckForPDF(char const*pdfname){
 
     exit(0);
   } else {
-    cout << "PDF: " << spdfname << " found in this installation" << endl;
+    string msg = "I: PDF: " + spdfname + " found in this installation";
+    hf_errlog_(19092501, msg.c_str(), msg.size());
   }
 }
 
