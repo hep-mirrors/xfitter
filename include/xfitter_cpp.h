@@ -250,8 +250,8 @@ extern"C" {
     double central;
     double values[NCHI2POINTS_C];
     int dataid[NSET_C];
-    char term[NSET_C][16][8];
-    char theorysources[NSET_C][16][NCHI2POINTS_C][1000];
+    char term[NSET_C][NTERMSMAX_C][8];
+    char theorysources[NSET_C][NTERMSMAX_C][NCHI2POINTS_C][1000];
     int scan;
     int pdferrors;
     int pdfprofile;
