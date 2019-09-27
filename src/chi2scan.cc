@@ -417,6 +417,7 @@ void chi2_scan_()
       //Loop on parameters points
       for (vector <double>::iterator vit = values.begin(); vit != values.end(); vit++)
 	{
+	  cout << "------------------------------ " << label << " = " << *vit << " ------------------------------" << endl;
 	  for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
 	    for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
 	      gTEmap[*dit]->ChangeTheorySource(*tit, sources[*vit][*dit][*tit]);
@@ -468,6 +469,8 @@ void chi2_scan_()
       //Loop on parameters values
       for (vector <double>::iterator vit = values.begin(); vit != values.end(); vit++)
 	{
+	  cout << "------------------------------ " << label << " = " << *vit << " ------------------------------" << endl;
+
 	  //change Theory source to the current parameter value
 	  for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
 	    for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
