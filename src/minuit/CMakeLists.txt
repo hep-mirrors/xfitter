@@ -6,9 +6,6 @@ add_library(MINUIT STATIC
   iterate.F
   libmyminuit.a
   libmyminuit.la
-  Makefile
-  Makefile.am
-  Makefile.in
   minuit.F
   mnamin.F
   mnbins.F
