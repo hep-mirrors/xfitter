@@ -9,6 +9,8 @@ endif()
 set(xFitter_VERSION_MAJOR 2)
 set(xFitter_VERSION_MINOR 2)
 set(xFitter_VERSION_PATCH 1)
+set(xFitter_VERSION "${xFitter_VERSION_MAJOR}.${xFitter_VERSION_MINOR}.${xFitter_VERSION_PATCH}")
+message(STATUS "Configuring xFitter ${xFitter_VERSION}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -109,3 +111,6 @@ add_subdirectory(reactions/HVQMNR_LHCb_7TeV_beauty)
 add_subdirectory(reactions/HVQMNR_LHCb_7TeV_charm)
 add_subdirectory(reactions/Hathor)
 add_subdirectory(reactions/HathorSingleTop)
+
+#Tools
+add_subdirectory(tools/draw/src)
