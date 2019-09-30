@@ -6,7 +6,6 @@ endif()
 set(TARGET reactionBaseHVQMNR)
 add_library(${TARGET} SHARED
   src/hvqcrsx.f
-  src/Makefile.am
   src/MNR.cc
   src/MNRFrag.cc
   src/MNRGrid.cc
