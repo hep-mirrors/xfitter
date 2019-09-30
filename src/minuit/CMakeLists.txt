@@ -4,8 +4,6 @@ add_library(MINUIT STATIC
   evplot.F
   intrac.F
   iterate.F
-  libmyminuit.a
-  libmyminuit.la
   minuit.F
   mnamin.F
   mnbins.F
