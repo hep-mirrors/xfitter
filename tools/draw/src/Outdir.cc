@@ -263,7 +263,7 @@ Outdir::Outdir(string dir) : dirname(dir), MCreplica(false), median(opts.median)
   outdirs[label] = *this;
 
   //Load PDF data
-  if (!opts.nopdfs)
+  if (!opts.nopdfs || IsProfiled()) //Load PDF data for profiling, since shifts are used to profile theory predictions
     {
       PdfData pdf(dirname, label);
       pdfmap[label] = pdf;
