@@ -338,7 +338,7 @@ void chi2_scan_()
   string lhapdfref = stringFromFortran(chi2scan_.chi2lhapdfref, 128);
   string lhapdfset = stringFromFortran(chi2scan_.chi2lhapdfset, 128);
   string lhapdfvarset = stringFromFortran(chi2scan_.chi2lhapdfvarset, 128);
-  
+
   bool lhapdferror = chi2scan_.pdferrors;
   bool lhapdfprofile = chi2scan_.pdfprofile;
   bool scaleprofile = chi2scan_.scaleprofile;
@@ -490,6 +490,9 @@ void chi2_scan_()
 		  //LHAPDF::initPDFSet(lhapdfvarset.c_str());
 		  gNode["set"] = lhapdfvarset;
 		}
+	      gNode["member"] = 0;
+	      evol->atConfigurationChange();
+
 	      //Number of PDF members
 	      //int nsets = LHAPDF::numberPDF();
 	      int nsets = evol->getPropertyI("NumMembers")-1;
@@ -656,6 +659,9 @@ void chi2_scan_()
 		  //LHAPDF::initPDFSet(lhapdfvarset.c_str());
 		  gNode["set"] = lhapdfvarset;
 		}
+	      gNode["member"] = 0;
+	      evol->atConfigurationChange();
+	      
 	      //Number of PDF members
 	      //int nsets = LHAPDF::numberPDF();
 	      int nsets = evol->getPropertyI("NumMembers")-1;
@@ -1138,46 +1144,19 @@ void chi2_scan_()
 	decompose_fits(systchi2, min, deltapi, deltami);
     }
   
+  //******************************************//
+
   //Pick up the value closest to the minimum
   double closestval = *(values.begin());
   for (vector <double>::iterator vit = values.begin(); vit != values.end(); vit++)
     if (abs(*vit - min) < abs(closestval - min))
       closestval = *vit;
 
-  char vl[10];
-  sprintf(vl, "%.3f", closestval);
-  bool cp = system(((string)"cp " + outdir + "/fittedresults_" + vl + ".txt "
-		    + outdir + "/fittedresults.txt").c_str());
-  cp = system(((string)"cp " + outdir + "/Results_" + vl + ".txt "
-	       + outdir + "/Results.txt").c_str());
-
-  /*
   //load theory sources corresponding to the closest value
   for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
     for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
       gTEmap[*dit]->ChangeTheorySource(*tit, sources[closestval][*dit][*tit]);
-  */
 
-  /*
-  //load theory sources corresponding to the initial value
-  for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
-    for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
-      gTEmap[*dit]->ChangeTheorySource(*tit, centralsources[*dit][*tit]);
-  */
-
-  //print fittedresults.txt and Results.txt with nominal grid and test PDF
-  /*
-  LHAPDF::initPDFSet(lhapdfset.c_str());
-  LHAPDF::initPDF(0);
-  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
-  string fname = outdir + "/Results.txt";
-  fopen_(85, fname.c_str(), fname.size());
-  double chi2tot = chi2data_theory_(3);
-  fclose_(85);
-  */
-
-
-  //******************************************//
   //Store PDF members for plots
   if (lhapdferror)
     {
@@ -1207,6 +1186,9 @@ void chi2_scan_()
 	      //LHAPDF::initPDFSet(lhapdfvarset.c_str());
 	      gNode["set"] = lhapdfvarset;
 	    }
+	  gNode["member"] = 0;
+	  evol->atConfigurationChange();
+	  
 	  //Number of PDF members
 	  //int nsets = LHAPDF::numberPDF();
 	  int nsets = evol->getPropertyI("NumMembers")-1;
@@ -1228,7 +1210,14 @@ void chi2_scan_()
 	      gNode["member"] = iset;
 	      evol->atConfigurationChange();
 	      c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
-	      
+
+	      double chi2tot = chi2data_theory_(2);
+              char tag[10];
+              sprintf (tag, "%04d", cset);
+	      writefittedpoints_(); //write out fittedresults.txt file
+              bool mv = system(((string)"mv " + outdir + "/fittedresults.txt "
+                                + outdir + "/fittedresults.txt_set_" + tag).c_str());
+	  	      
 	      //In VAR PDF set determine if it is a model or parametrisation variation
 	      if (pdfset == 1)
 		{
@@ -1243,7 +1232,6 @@ void chi2_scan_()
 		    ModPDFErr = true;
 		}
 
-	      char tag[10];
 	      sprintf (tag, "_%04d", cset);
 	      string filename = outdir + "/pdfs_q2val_";
 	      if (iset != 0)
@@ -1289,6 +1277,39 @@ void chi2_scan_()
 	}
     }
   //******************************************//
+
+  //Pick up the value closest to the minimum
+  char vl[10];
+  sprintf(vl, "%.3f", closestval);
+  bool cp = system(((string)"cp " + outdir + "/fittedresults_" + vl + ".txt "
+		    + outdir + "/fittedresults.txt").c_str());
+  cp = system(((string)"cp " + outdir + "/Results_" + vl + ".txt "
+	       + outdir + "/Results.txt").c_str());
+
+  /*
+  //load theory sources corresponding to the closest value
+  for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
+    for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
+      gTEmap[*dit]->ChangeTheorySource(*tit, sources[closestval][*dit][*tit]);
+  */
+
+  /*
+  //load theory sources corresponding to the initial value
+  for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
+    for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
+      gTEmap[*dit]->ChangeTheorySource(*tit, centralsources[*dit][*tit]);
+  */
+
+  //print fittedresults.txt and Results.txt with nominal grid and test PDF
+  /*
+  LHAPDF::initPDFSet(lhapdfset.c_str());
+  LHAPDF::initPDF(0);
+  c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+  string fname = outdir + "/Results.txt";
+  fopen_(85, fname.c_str(), fname.size());
+  double chi2tot = chi2data_theory_(3);
+  fclose_(85);
+  */
 
   cout << endl;
   cout << "Results of the chi2 scan: " << endl;
