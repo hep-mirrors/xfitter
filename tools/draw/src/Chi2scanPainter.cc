@@ -104,7 +104,7 @@ vector<TCanvas*> Chi2scanPainter()
 		fs4->SetParameter(0,parfit->GetParameter(0)-(chi2min4+1.));
 		double deltap4 = fs4->GetMinimumX(min4,chi2graph->GetX()[chi2graph->GetN()-1]+10.)-min4;
 		double deltam4 = min4-fs4->GetMinimumX(chi2graph->GetX()[0],min4);
-		cout << deltap4 << "  " << deltam4 << endl;
+		//cout << deltap4 << "  " << deltam4 << endl;
 	      }
 	    else
 	      {
