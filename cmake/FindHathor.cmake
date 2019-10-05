@@ -31,14 +31,14 @@ endif()
 #if HATHOR_DIR is not provided, or if we failed to find Hathor there, search for libHathor.a in standard paths
 if(NOT HATHOR_FOUND)
   find_library(HATHOR_IMPORTED_LOCATION "libHathor.a")
-  if(EXISTS HATHOR_IMPORTED_LOCATION)
+  if(EXISTS ${HATHOR_IMPORTED_LOCATION})
     get_filename_component(HATHOR_LIBDIR "${HATHOR_IMPORTED_LOCATION}" DIRECTORY)
     if(EXISTS "${HATHOR_LIBDIR}/libff.a")
       #this is probably Hathor-2.0
       get_filename_component(HATHOR_DIR "${HATHOR_LIBDIR}" DIRECTORY) #HATHOR_DIR=$HATHOR_LIBDIR/..
       #Search for Hathor.h
       find_path(HATHOR_HEADER "Hathor.h" HINTS "${HATHOR_DIR}/include")
-      if(EXISTS HATHOR_HEADER)
+      if(EXISTS ${HATHOR_HEADER})
         set(HATHOR_FOUND 1)
         set(HATHOR_VERSION "2.0")
         add_library(HATHOR STATIC IMPORTED)
@@ -50,7 +50,7 @@ if(NOT HATHOR_FOUND)
       #Search for Hathor.h
       get_filename_component(HATHOR_DIR "${HATHOR_IMPORTED_LOCATION}" DIRECTORY)
       find_path(HATHOR_HEADER "Hathor.h" HINTS "${HATHOR_DIR}")
-      if(EXISTS HATHOR_HEADER)
+      if(EXISTS ${HATHOR_HEADER})
         set(HATHOR_FOUND 1)
         set(HATHOR_VERSION "1.5")
         add_library(HATHOR STATIC IMPORTED)
