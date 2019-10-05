@@ -455,12 +455,6 @@ void chi2_scan_()
       int sets = 1;
       if (lhapdfvarset != "")
 	sets = 2;
-      int MonteCarloPDFErr = 0;
-      int AsymHessPDFErr = 0;
-      int SymmHessPDFErr = 0;
-      int ModPDFErr = 0;
-      int ParPDFErr = 0;
-      getpdfunctype(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, evol);
       
       //Build the chi2 map
       map <double, double> chi2; //central PDF map of parameters value and chi2 values
@@ -471,6 +465,17 @@ void chi2_scan_()
 	{
 	  cout << "------------------------------ " << label << " = " << *vit << " ------------------------------" << endl;
 
+	  gNode["set"] = lhapdfset;
+	  gNode["member"] = 0;
+	  evol->atConfigurationChange();
+	  c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
+	  int MonteCarloPDFErr = 0;
+	  int AsymHessPDFErr = 0;
+	  int SymmHessPDFErr = 0;
+	  int ModPDFErr = 0;
+	  int ParPDFErr = 0;
+	  getpdfunctype(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, evol);
+	  
 	  //change Theory source to the current parameter value
 	  for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
 	    for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
@@ -599,7 +604,6 @@ void chi2_scan_()
   else if(lhapdfprofile) //lhapdferror profile mode
     {
       int npoints = cndatapoints_.npoints;
-
       int nsysexp = systema_.nsys; //initial number of systematic uncertainties, before addition of PDF uncertainties
       
       map <int, point> pointsmap;
@@ -620,7 +624,11 @@ void chi2_scan_()
 	  systema_.nsys = nsysexp;
 	  systematicsflags_.resetcommonsyst = true;
 	  
-	  int MonteCarloPDFErr = 0;
+	  gNode["set"] = lhapdfset;
+	  gNode["member"] = 0;
+	  evol->atConfigurationChange();
+	  c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
+     	  int MonteCarloPDFErr = 0;
 	  int AsymHessPDFErr = 0;
 	  int SymmHessPDFErr = 0;
 	  int ModPDFErr = 0;
