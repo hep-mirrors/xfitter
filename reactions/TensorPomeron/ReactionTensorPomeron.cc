@@ -156,20 +156,20 @@ void  ReactionTensorPomeron::initTerm(TermData* td)
 
   toLog(_s0bn,_m02); toLog(_s1bn,_m12); toLog(_s0rn,0.0); toLog(_s1rn,0.0);
 
-  _alpha_em = *XFITTER_PARS::getParamD("alphaEM");
+  _alpha_em = *td->getParamD("alphaEM");
 
-  _alphaP = *XFITTER_PARS::getParamD("alphaP");
-  _beta   = *XFITTER_PARS::getParamD("beta");
+  _alphaP = *td->getParamD("alphaP");
+  _beta   = *td->getParamD("beta");
 
-  _splineR = XFITTER_PARS::getParamI("SplineForR"); 
+  _splineR = td->getParamI("SplineForR"); 
 
   if (_splineR) {
     hf_errlog(17042201,"I: Unsing spline param. for R in TensorPomeron model");
   }
-  _mr = *XFITTER_PARS::getParamD("mr");
+  _mr = *td->getParamD("mr");
 
-  _alphaR = *XFITTER_PARS::getParamD("alphaR");
-  _betaR  = *XFITTER_PARS::getParamD("betaR");
+  _alphaR = *td->getParamD("alphaR");
+  _betaR  = *td->getParamD("betaR");
 
   _pq[dataSetID] = 0.5*(_W2[dataSetID]+_q2[dataSetID]-_mp*_mp);
   _delta[dataSetID] = 0.5*_mp*_mp*_q2[dataSetID]/(_pq[dataSetID]*_pq[dataSetID]);
