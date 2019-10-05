@@ -31,7 +31,7 @@ C------------------------------------
 #include "fcn.inc"
 #include "steering.inc"
       double precision x, Q, Q2
-      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF)
+      double precision xf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
       double precision xfe(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
       integer iqnset, iqnchk,ifl
       
