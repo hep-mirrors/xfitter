@@ -181,9 +181,8 @@ namespace asscan
     string outdir = string(coutdirname_.outdirname_, 128);
     outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
 
-    string label = string(chi2scan_.label_, 64);
-    if (label.find_first_of(" ") != 0)
-      label.erase(label.find_last_not_of(" ")+1, string::npos);
+    //label assigned to the scan parameter
+    string label = "#alpha_{s}";
 
     ofstream fchi2((outdir + "/" + name).c_str());
 
@@ -747,9 +746,9 @@ void alphas_scan_()
 	}
     }
 
+  int nsyspdf = nsysloc;
   if (scaleprofile)
     {
-      int nsyspdf = nsysloc;
       //Asymmetric scale variations
       int totscale = 0;
       for (map <int, point>::iterator  pit = pointsmap.begin(); pit != pointsmap.end(); pit++)
@@ -828,6 +827,32 @@ void alphas_scan_()
 	  csysttype_.isysttype_[i] = 2; // THEORY
 	  //systscal_.sysform_[i] = 4; //External (Minuit Fit)
 	  //systscal_.sysform_[i] = 3; //Offset (Minuit Fit)
+	  if (((nsyspdf-i) <= clhapdf_.nremovepriors_) && ((nsyspdf-i) > 0))
+	    {
+	      char nuispar[64];
+	      sprintf (nuispar, "PDF_nuisance_param_%02d", i+1 - systema_.nsys_);
+	      cout << "Remove prior for syst " << nuispar << endl;
+	      string msg = (string) "I: Remove prior for systematic " + nuispar;
+	      hf_errlog_(15082401, msg.c_str(), msg.size());
+	      csystprior_.syspriorscale_[i] = 0.;
+	    }
+
+	  //Remove priors for scale variations
+	  if (i >= nsyspdf)
+	    {
+	      /*
+	      char nuispar[64];
+	      sprintf (nuispar, "scale_nuisance_param_%02d", i+1 - nsyspdf);
+	      cout << "Remove prior for syst " << nuispar << endl;
+	      string msg = (string) "I: Remove prior for systematic " + nuispar;
+	      hf_errlog_(15082401, msg.c_str(), msg.size());
+	      csystprior_.syspriorscale_[i] = 0.;
+	      */
+
+	      systscal_.sysform_[i] = 4; //External (Minuit Fit)
+	      //systscal_.sysform_[i] = 3; //Offset (Minuit Fit)
+	    }
+	  
 	}
 	  
       //Add the PDF uncertainties to the total number of systematic uncertainties
