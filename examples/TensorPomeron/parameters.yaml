@@ -1,0 +1,218 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    call fcn 3
+#    set str 2
+#    migrad
+    
+#  doErrors :  Hesse # None
+
+Parameters:
+  s0bv0 :
+    value : -11.6
+    step  : 0.01
+  s0bv1 :
+    value : -6.11
+    step  : 0.01
+  s0bv2 :
+    value : -4.67
+    step  : 0.01
+  s0bv3 :
+    value : -5.07
+    step  : 0.01
+  s0bv4 :
+    value : -6.324
+    step  : 0.01
+  s0bv5 :
+    value : -6.954
+    step  : 0.01
+
+# spline b1:
+
+  s1bv0 : 
+    value : -0.945
+    step  :  0.01
+  s1bv1 : 
+    value : -0.91
+    step  :  0.01
+  s1bv2 : 
+    value : -1.378
+    step  :  0.01
+  s1bv3 : 
+    value : -2.603
+    step  :  0.01
+  s1bv4 : 
+    value : -4.597
+    step  :  0.01
+  s1bv5 : 
+    value : -7.62
+    step  :  0.01
+
+### Fix splines for r0 and r1
+
+# spline r0:
+  s0rv0 : 
+    value : -1.12 
+    step  : 0.0
+  s0rv1 : 
+    value : -1.226
+    step  : 0.0
+  s0rv2 : 
+    value : -2.30 
+    step  : 0.0
+
+# spline r1:
+  s1rv0 : 
+    value : -3.42 
+    step  : 0.0
+  s1rv1 : 
+    value : -1.86
+    step  : 0.0
+  s1rv2 : 
+    value : -6.1
+    step  : 0.0
+
+# exp. param for r0, r1:
+  r0 :
+    value : 6.4
+    step  : 0.01
+  r1:
+    value : 0.58
+    step  : 0.01  
+
+  delta0 :
+    value : -0.86
+    step :  0.01
+  delta1 :
+    value : -1.8
+    step :  0.01
+
+# pomeron slopes:
+
+  epsilon0 : 
+    value : 0.310
+    step  : 0.01
+
+  epsilon1 : 
+    value : 0.079
+    step  : 0.01
+
+# reggeon param:
+  c0ir :
+    value : -0.99
+    step  :  0.01
+  c1ir :
+    value :  0.25
+    step  :  0.01
+
+  alphaIR :
+    value : 0.38
+    step  : 0.0
+
+
+
+? !include constants.yaml
+
+# matched to first non-zero knots:
+s0bn : [0., 0.3,  1.0, 3.0, 25.0, 50. ]
+s1bn : [0., 0.03, 0.3, 1.5, 10.0, 50. ]
+# used only if SplineForR is non-zero:
+s0rn : [1.2,  8.5,  45.0 ]
+s1rn : [0.25,  1.2,  8.5]
+
+byReaction:
+  TensorPomeron:
+    m02     : 0.3
+    m12     : 0.03
+  # Spline for R or not
+    SplineForR : 0
+  # non-spline R params:
+    mr : 1.0
+    mP      : 0.938272
+    alphaEM : 0.0072973525664
+    alphaP  : 0.25
+    beta    : 1.87
+
+  # Region:
+    alphaR   : 0.9
+    betaR    : 3.68
+
+# conversion factor:
+    ubarnFromGeV  : 389.4
+
+
+# RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
+    #evolution: proton-QCDNUM
+  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
+  #BaseDISCC:
+  #  evolution: proton-QCDNUM
+  # FONLL scheme settings:
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC.yaml
+  # FF ABM scheme settings:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC.yaml
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid.yaml
+  # (optional) Fractal module settings:
+  Fractal_DISNC:
+    ? !include reactions/Fractal_DISNC.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'TensorPomeron'
+#  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+#  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+#  defaultValue : 'FONLL_DISCC'     # global specification
+#  defaultValue : 'FFABM_DISCC'     # global specification
+
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  Parameters:
+    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
+  #Evolutions:
+  #  proton-LHAPDF:
+  #    sets:    [CT10]
+  #    members: [[0,1,end]]
+  Status: "Off"               # "Off" to turn off profiler
+  WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "Off"              # determine and report chi2 for each variation
+
+OutputDirectory: "output" #Can be omitted, default is "output"
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120

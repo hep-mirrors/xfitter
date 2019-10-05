@@ -1,0 +1,10 @@
+After minimisation     604.43   505     1.197
+
+  Partial chi2s 
+Dataset    1    254.69( -1.06)   245  HERA1+2 NCep 920                                
+Dataset    2     61.52( -3.60)    71  HERA1+2 NCep 820                                
+Dataset    3    110.66( -2.54)   118  HERA1+2 NCep 575                                
+Dataset    4    115.92( -4.08)    91  HERA1+2 NCep 460                                
+
+ Correlated Chi2    72.925181564660789     
+ Log penalty Chi2   -11.286121432780099     
