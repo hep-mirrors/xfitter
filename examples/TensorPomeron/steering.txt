@@ -3,15 +3,15 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 4
+    NInputFiles = 8
  
   ! Input files:
 
      InputFileNames = 
- !    'h1_gammap.dat',
- !    'zeus_gammap.dat',
- !    'slac_gammap.dat',
- !    'cosm_gammap.dat',
+     'datafiles/hera/h1/inclusiveDis/9509001/h1_gammap.dat',
+     'datafiles/hera/zeus/inclusiveDis/0202034/zeus_gammap.dat',
+     'datafiles/fixedTarget/slac/inclusiveDis/PRL_40_1978_1222/slac_gammap.dat',
+     'datafiles/fixedTarget/baksan/Yad_Fiz_66_2003_591/baksan_gammap.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
@@ -114,19 +114,7 @@
 *
 * Output steering cards
 *
-&Output 
-  ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
-!  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
-
-  ! How many x points to write (standard = 101)
-  OUTNX = 101
-
-  ! x-range of output (standard = 1E-4 1.0)
-  OUTXRANGE = 1E-4, 0.9999
-
-  ! Write out LHAPDF5 output
-  ! WriteLHAPDF5 = false
+&Output
 &End
 
 

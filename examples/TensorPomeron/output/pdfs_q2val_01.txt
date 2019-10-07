@@ -1,2 +1,0 @@
-   1.89999998             101          15   9.99999975E-05  0.999899983    
-            x          g             U             D          Ubar          Dbar         u_val         d_val           sea         u_sea         d_sea           str           chm           bot               ph         strbar
