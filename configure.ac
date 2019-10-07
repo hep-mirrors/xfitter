@@ -373,30 +373,6 @@ if test x$enable_applgrid == xyes; then
 fi
 AM_CONDITIONAL(APPLGRID_DYNSCALE, [test x$ag_dynscale == xyes])
 
-# check for enable cute
-AC_ARG_ENABLE([cute],
-  [AC_HELP_STRING(--enable-cute, [use cute (default=no)])])
-if test x$enable_cute == xyes; then
-   AC_DEFINE([ENABLE_CUTE],[1],[Define ENABLE_CUTE to enable CuTe calculations])
-   AC_MSG_NOTICE([***** Check for gsl  *****])
-   AC_MSG_CHECKING([for gsl installation])
-  GSL_CONFIG=`which gsl-config`
-  if test x$GSL_CONFIG == x; then
-      AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],[AC_MSG_ERROR([cannot find library gslcblas])])
-      AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[],[AC_MSG_ERROR([cannot find library gsl])])
-      AC_SUBST([LIB_GSL],[""])
-      AC_SUBST([INC_GSL],[""])
-      AC_SUBST([IDD_GSL],[""])
-      AC_MSG_ERROR([Unable to find gsl-config.])
-  else 
-    AC_MSG_RESULT([Using $GSL_CONFIG])
-    AC_SUBST([LIB_GSL],`$GSL_CONFIG --libs`)
-    AC_SUBST([INC_GSL],`$GSL_CONFIG --cflags`)
-    AC_SUBST([LDD_GSL],["-Xlinker -R`$GSL_CONFIG --prefix`/lib"])
-  fi
-fi
-AM_CONDITIONAL(ENABLE_CUTE, [test x$enable_cute == xyes])
-
 # check for enable dyturbo
 AC_ARG_ENABLE([dyturbo],
   [AC_HELP_STRING(--enable-dyturbo, [use dyturbo (default=no)])])
@@ -444,32 +420,6 @@ else
   AC_SUBST(CUBA_LDFLAGS)
   cubadir="${PWD}/Cuba-4.2"
   AC_MSG_RESULT([Using $cubadir])
-
-# check for Chaplin installation, and install it if missing                                                                                                                                                                                  
-AC_MSG_CHECKING([for chaplin library installation])
-AC_SEARCH_LIBS([hpl2],[hpl3],[
-        AC_MSG_RESULT([Using -lchaplin from system installation])
-        CHAPLIN_LDFLAGS=-lchaplin],
-        [
-        CHAPLIN_VERSION=1.2
-        AC_SUBST(CHAPLIN_VERSION)
-        # search for local istallation of chaplin-1.2                                                                                                                                                                                        
-        chaplinlib=`ls ${PWD}/chaplin-${CHAPLIN_VERSION}/lib/libchaplin.a`
-        if test x$chaplinlib == x; then
-          # if not found, install it                                                                                                                                                                                                         
-           AC_MSG_RESULT([Install chaplin ${CHAPLIN_VERSION}])
-           ${srcdir}/install-chaplin
-        fi
-        chaplinlib=`ls ${PWD}/chaplin-${CHAPLIN_VERSION}/lib/libchaplin.a`
-        if test x$chaplinlib == x; then
-           AC_MSG_ERROR([Failed to install chaplin ${CHAPLIN_VERSION}.])
-        fi
-
-        CHAPLIN_LDFLAGS="-L${PWD}/chaplin-${CHAPLIN_VERSION}/lib -lchaplin"
-        AC_MSG_RESULT([Using -lchaplin from local installation ${PWD}/chaplin-${CHAPLIN_VERSION}])
-        ])
-
-AC_SUBST(CHAPLIN_LDFLAGS)
 
 
 fi
@@ -642,10 +592,6 @@ AC_CONFIG_FILES([include/Makefile
                  QEDevol/src/Makefile
                  QEDevol/include/Makefile
                  pdf2yaml/Makefile
-                 cute/src/Makefile
-                 cute/include/Makefile
-                 cute/CuTe-1.1.0/Makefile
-                 cute/CuTe-1.1.0/src/Makefile
                  dyturbo/Makefile
                  tools/process/Makefile
                  tools/draw/Makefile
