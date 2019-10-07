@@ -159,8 +159,6 @@ class TheorEval{
   vector<valarray<double> >_dsBins;//_dsBins[i][j] is value in 'Bin'-type column i, row j, as provided in datafile
   map<string,size_t>columnNameMap;//Map from column name to column number i; _dsBins[i] is corresp. column
 
-  //_exprRPN is the vector of all the terms, in tToken format
-
   /// Reverse polish notation of the expression
   vector<tToken> _exprRPN;
   map<string, valarray<double>* > _mapInitdTerms;
