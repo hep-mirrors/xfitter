@@ -5,7 +5,7 @@ C Math constants:
       parameter (pi = 3.14159265358979323846d0)
       ! 35 digits --- gnuC standard for quad M_PIq
       ! parameter (pi = 3.1415926535897932384626433832795029d0)
-
+      
       ! --- the Euler constant gamma_E
       double precision gammaEuler
       parameter (gammaEuler = 0.577215664901532860607d0)
