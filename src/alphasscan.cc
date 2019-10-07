@@ -178,7 +178,7 @@ namespace asscan
     deltam = deltam4;
   
     //store chi2
-    string outdir = string(coutdirname_.outdirname_, 128);
+    string outdir = string(coutdirname_.outdirname, 128);
     outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
 
     //label assigned to the scan parameter
@@ -262,12 +262,12 @@ void alphas_scan_()
     {
       //Init PDF member
       LHAPDF::initPDF(iset);
-      double as = LHAPDF::alphasPDF(boson_masses_.mz_);
+      double as = LHAPDF::alphasPDF(boson_masses_.Mz);
       values.push_back(as);
     }
   cout << "Found " << values.size() << " alphas variations" << alphaslhapdf << endl;
   
-  string outdir = string(coutdirname_.outdirname_, 128);
+  string outdir = string(coutdirname_.outdirname, 128);
   outdir.erase(outdir.find_last_not_of(" ")+1, string::npos);
 
   //Set reference PDF set if specified, and initialise theory as pseudo data if requested in MCErrors namelist
@@ -275,8 +275,8 @@ void alphas_scan_()
     {
       LHAPDF::initPDFSet(lhapdfref.c_str());
       LHAPDF::initPDF(0);
-      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
-      clhapdf_.ilhapdfset_ = 0;
+      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+      clhapdf_.ilhapdfset = 0;
       Dyturbo::pdfname = lhapdfref;
       Dyturbo::pdfmember = 0;
     }
@@ -284,8 +284,8 @@ void alphas_scan_()
   chi2data_theory_(1);
 
   map <int, point> pointsmap;               //This map store PDF variations for all data points
-  int npoints = cndatapoints_.npoints_;     //number of data points
-  int nsysexp = systema_.nsys_;             //initial number of systematic uncertainties, before addition of PDF and scale uncertainties
+  int npoints = cndatapoints_.npoints;     //number of data points
+  int nsysexp = systema_.nsys;             //initial number of systematic uncertainties, before addition of PDF and scale uncertainties
   int nsysloc = nsysexp;                              //current number of systematic uncertainties
 
   //Save the central theory
@@ -294,8 +294,8 @@ void alphas_scan_()
       //Set up the central PDF set for PDF and/or scale variations
       LHAPDF::initPDFSet(lhapdfset.c_str());
       LHAPDF::initPDF(0);
-      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
-      clhapdf_.ilhapdfset_ = 0;
+      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+      clhapdf_.ilhapdfset = 0;
       Dyturbo::pdfname = lhapdfset;
       Dyturbo::pdfmember = 0;
 
@@ -304,12 +304,12 @@ void alphas_scan_()
       char chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "Central PDF set: "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
 	      
       //Store the central theory for each data point
       for (int i = 0; i < npoints; i++)
-	pointsmap[i].thc = c_theo_.theo_[i];
+	pointsmap[i].thc = c_theo_.theo[i];
     }
   
   //If requested, add PDF uncertainties from the uncertainty-PDF-set 
@@ -328,7 +328,7 @@ void alphas_scan_()
       int SymmHessPDFErr = 0;
       int ModPDFErr = 0;
       int ParPDFErr = 0;
-      getpdfunctype_heraf_lhapdf6_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+      getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
 
       //Start loop on PDF sets and members
       int cset = 1; //counter on pdf variations;
@@ -340,7 +340,7 @@ void alphas_scan_()
 	      if (lhapdfvarset == "")
 		continue;
 	      LHAPDF::initPDFSet(lhapdfvarset.c_str());
-	      strcpy(clhapdf_.lhapdfset_,lhapdfvarset.c_str());
+	      strcpy(clhapdf_.lhapdfset,lhapdfvarset.c_str());
 	      Dyturbo::pdfname = lhapdfvarset;
 	    }
 	  //Number of PDF members
@@ -353,8 +353,8 @@ void alphas_scan_()
 	    {
 	      //Init PDF member and alphas(MZ)
 	      LHAPDF::initPDF(iset);
-	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
-	      clhapdf_.ilhapdfset_ = iset;
+	      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+	      clhapdf_.ilhapdfset = iset;
 	      Dyturbo::pdfmember = iset;
 		  
 	      //In VAR PDF set determine if it is a model or parametrisation variation
@@ -365,7 +365,7 @@ void alphas_scan_()
 		  SymmHessPDFErr = 0;
 		  ParPDFErr = 0;
 		  ModPDFErr = 0;
-		  if (iset > (nsets - chi2scan_.chi2nparvar_))
+		  if (iset > (nsets - chi2scan_.chi2nparvar))
 		    ParPDFErr = true;
 		  else
 		    ModPDFErr = true;
@@ -376,28 +376,28 @@ void alphas_scan_()
 	      char chi2c[500];
 	      sprintf(chi2c, "%.2f", chi2tot);
 	      cout << setw(20) << "PDF set number: " << setw(5) << iset 
-		   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+		   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 		   << endl;
 	      
 	      //Store all PDF variations for each data point
 	      for (int i = 0; i < npoints; i++)
 		{
 		  if (MonteCarloPDFErr)
-		    pointsmap[i].th_mc.push_back(c_theo_.theo_[i]);
+		    pointsmap[i].th_mc.push_back(c_theo_.theo[i]);
 		  else if (SymmHessPDFErr)
-		    pointsmap[i].th_hess_s.push_back(c_theo_.theo_[i]);
+		    pointsmap[i].th_hess_s.push_back(c_theo_.theo[i]);
 		  else if (AsymHessPDFErr)
 		    if ((cset%2) == 1)
-		      pointsmap[i].th_asym_p.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_p.push_back(c_theo_.theo[i]);
 		    else
-		      pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_m.push_back(c_theo_.theo[i]);
 		  else if (ModPDFErr)
 		    if ((cset%2) == 1)
-		      pointsmap[i].th_asym_p.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_p.push_back(c_theo_.theo[i]);
 		    else
-		      pointsmap[i].th_asym_m.push_back(c_theo_.theo_[i]);
+		      pointsmap[i].th_asym_m.push_back(c_theo_.theo[i]);
 		  else if (ParPDFErr)
-		    pointsmap[i].th_par.push_back(c_theo_.theo_[i]);
+		    pointsmap[i].th_par.push_back(c_theo_.theo[i]);
 		}
 	  
 	      if (MonteCarloPDFErr || SymmHessPDFErr || ParPDFErr)
@@ -411,13 +411,14 @@ void alphas_scan_()
     }
   
   //In QCD scales profiling mode, add nuisance parameters for the renormalisation, factorisation, and resummation scales
+  /*
   if (scaleprofile)
     {
       //Set up the central PDF set for scale variations (same set as for PDF uncertainties)
       LHAPDF::initPDFSet(lhapdfset.c_str());
       LHAPDF::initPDF(0);
-      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
-      clhapdf_.ilhapdfset_ = 0;
+      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+      clhapdf_.ilhapdfset = 0;
       Dyturbo::pdfname = lhapdfset;
       Dyturbo::pdfmember = 0;
       
@@ -451,13 +452,13 @@ void alphas_scan_()
       char chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mur = " << factor << ": "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       char tag[10]; sprintf (tag, "_%04d", nvar);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdir + "/fittedresults.txt " + outdir + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
       nvar++;
       //mur*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
@@ -466,13 +467,13 @@ void alphas_scan_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mur = " << 1./factor << ": "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", nvar);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdir + "/fittedresults.txt " + outdir + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
       nvar++;
       
       //muf*2
@@ -482,13 +483,13 @@ void alphas_scan_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "muf = " << factor << ": "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", nvar);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdir + "/fittedresults.txt " + outdir + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
       nvar++;
       //muf*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
@@ -497,13 +498,13 @@ void alphas_scan_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "muf = " << 1./factor << ": "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", nvar);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdir + "/fittedresults.txt " + outdir + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
       nvar++;
       
       //mures*2
@@ -513,13 +514,13 @@ void alphas_scan_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mures = " << factor << ": "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", nvar);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdir + "/fittedresults.txt " + outdir + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_p.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
       nvar++;
       //mures*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
@@ -528,19 +529,20 @@ void alphas_scan_()
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mures = " << 1./factor << ": "
-	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini_
+	   << setw(15) << "chi2/ndf = " << chi2c << "/" << cfcn_.ndfmini
 	   << endl;
       tag[10]; sprintf (tag, "_%04d", nvar);
       writefittedpoints_(); //write out fittedresults.txt file
       mv = system(((string)"mv " + outdir + "/fittedresults.txt " + outdir + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
-	pointsmap[i].th_scale_m.push_back(c_theo_.theo_[i]);
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
       nvar++;
       
       //restore nominal scale
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first], muresmap[tit->first]);
     }
+  */
   
 
   //Add PDF uncertainties as nuisance parameters to the chi2
@@ -606,12 +608,12 @@ void alphas_scan_()
 	    {
 	      for (int i = 0; i < npoints; i++)
 		{
-		  systema_.beta_[i][nsysloc] = beta_from_covmx[i*dim+j]/pointsmap[i].th_mc_mean;
-		  systasym_.omega_[i][nsysloc] = 0;
-		  if (clhapdf_.scale68_)
+		  systema_.beta[i][nsysloc] = beta_from_covmx[i*dim+j]/pointsmap[i].th_mc_mean;
+		  systasym_.omega[i][nsysloc] = 0;
+		  if (clhapdf_.scale68)
 		    {
-		      systema_.beta_[i][nsysloc] /= 1.64;
-		      systasym_.omega_[i][nsysloc] /= 1.64;
+		      systema_.beta[i][nsysloc] /= 1.64;
+		      systasym_.omega[i][nsysloc] /= 1.64;
 		    }
 		}
 	      nsysloc += 1;
@@ -643,17 +645,17 @@ void alphas_scan_()
 	  for (int i = 0; i < npoints; i++)
 	    {
 	      //account for the sign flip due to applying a theory variation as a shift to the data
-	      systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	      systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	      systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
-	      systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
+	      systasym_.betaasym[i][0][nsysloc] = -(pointsmap[i].th_asym_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	      systasym_.betaasym[i][1][nsysloc] = -(pointsmap[i].th_asym_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	      systema_.beta[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] - systasym_.betaasym[i][1][nsysloc]);
+	      systasym_.omega[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] + systasym_.betaasym[i][1][nsysloc]);
 		  
-	      if (clhapdf_.scale68_)
+	      if (clhapdf_.scale68)
 		{
-		  systema_.beta_[i][nsysloc]  /= 1.64;
-		  systasym_.betaasym_[i][1][nsysloc] /= 1.64;
-		  systasym_.betaasym_[i][0][nsysloc] /= 1.64;
-		  systasym_.omega_[i][nsysloc] /= 1.64;
+		  systema_.beta[i][nsysloc]  /= 1.64;
+		  systasym_.betaasym[i][1][nsysloc] /= 1.64;
+		  systasym_.betaasym[i][0][nsysloc] /= 1.64;
+		  systasym_.omega[i][nsysloc] /= 1.64;
 		}
 	    }
 	  nsysloc += 1;
@@ -674,12 +676,12 @@ void alphas_scan_()
 	{
 	  for (int i = 0; i < npoints; i++)
 	    {
-	      systema_.beta_[i][nsysloc] = (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	      systasym_.omega_[i][nsysloc] = 0;
-	      if (clhapdf_.scale68_)
+	      systema_.beta[i][nsysloc] = (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	      systasym_.omega[i][nsysloc] = 0;
+	      if (clhapdf_.scale68)
 		{
-		  systema_.beta_[i][nsysloc]  /= 1.64;
-		  systasym_.omega_[i][nsysloc] /= 1.64;
+		  systema_.beta[i][nsysloc]  /= 1.64;
+		  systasym_.omega[i][nsysloc] /= 1.64;
 		}
 	    }
 	  nsysloc += 1;
@@ -715,34 +717,34 @@ void alphas_scan_()
 	  for (int i = 0; i < npoints; i++)
 	    {
 	      //account for the sign flip due to applying a theory variation as a shift to the data
-	      systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].thc) / pointsmap[i].thc;
-	      systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_env_m - pointsmap[i].thc) / pointsmap[i].thc;
-	      systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
-	      systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
+	      systasym_.betaasym[i][0][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].thc) / pointsmap[i].thc;
+	      systasym_.betaasym[i][1][nsysloc] = -(pointsmap[i].th_env_m - pointsmap[i].thc) / pointsmap[i].thc;
+	      systema_.beta[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] - systasym_.betaasym[i][1][nsysloc]);
+	      systasym_.omega[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] + systasym_.betaasym[i][1][nsysloc]);
 
 	      //treat as symmetric
-	      //systema_.beta_[i][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].th_env_m) / 2./ pointsmap[i].thc;
-	      //systasym_.omega_[i][nsysloc] = 0;
+	      //systema_.beta[i][nsysloc] = -(pointsmap[i].th_env_p - pointsmap[i].th_env_m) / 2./ pointsmap[i].thc;
+	      //systasym_.omega[i][nsysloc] = 0;
 
-	      if (clhapdf_.scale68_)
+	      if (clhapdf_.scale68)
 		{
-		  systema_.beta_[i][nsysloc]  /= 1.64;
-		  systasym_.betaasym_[i][1][nsysloc] /= 1.64;
-		  systasym_.betaasym_[i][0][nsysloc] /= 1.64;
-		  systasym_.omega_[i][nsysloc] /= 1.64;
+		  systema_.beta[i][nsysloc]  /= 1.64;
+		  systasym_.betaasym[i][1][nsysloc] /= 1.64;
+		  systasym_.betaasym[i][0][nsysloc] /= 1.64;
+		  systasym_.omega[i][nsysloc] /= 1.64;
 		}
 	    }
 	  nsysloc += 1;
 	}
 
       // Set PDF nuisance parameter name
-      for (int j = systema_.nsys_; j < nsysloc; j++)
+      for (int j = systema_.nsys; j < nsysloc; j++)
 	{
 	  char nuispar[64];
-	  sprintf (nuispar, "PDF_nuisance_param_%02d", j+1 - systema_.nsys_);
+	  sprintf (nuispar, "PDF_nuisance_param_%02d", j+1 - systema_.nsys);
 	  int len = strlen(nuispar);
 	  memset (nuispar+len,' ',64-len);
-	  strcpy(systema_.system_[j],nuispar);
+	  strcpy(systema_.system[j],nuispar);
 	}
     }
 
@@ -772,16 +774,16 @@ void alphas_scan_()
 	  for (int i = 0; i < npoints; i++)
 	    {
 	      //account for the sign flip due to applying a theory variation as a shift to the data
-	      systasym_.betaasym_[i][0][nsysloc] = -(pointsmap[i].th_scale_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	      systasym_.betaasym_[i][1][nsysloc] = -(pointsmap[i].th_scale_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
-	      systema_.beta_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] - systasym_.betaasym_[i][1][nsysloc]);
-	      systasym_.omega_[i][nsysloc] = 0.5*(systasym_.betaasym_[i][0][nsysloc] + systasym_.betaasym_[i][1][nsysloc]);
-	      if (clhapdf_.scale68_)
+	      systasym_.betaasym[i][0][nsysloc] = -(pointsmap[i].th_scale_p[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	      systasym_.betaasym[i][1][nsysloc] = -(pointsmap[i].th_scale_m[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	      systema_.beta[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] - systasym_.betaasym[i][1][nsysloc]);
+	      systasym_.omega[i][nsysloc] = 0.5*(systasym_.betaasym[i][0][nsysloc] + systasym_.betaasym[i][1][nsysloc]);
+	      if (clhapdf_.scale68)
 		{
-		  systema_.beta_[i][nsysloc]  /= 1.64;
-		  systasym_.betaasym_[i][1][nsysloc] /= 1.64;
-		  systasym_.betaasym_[i][0][nsysloc] /= 1.64;
-		  systasym_.omega_[i][nsysloc] /= 1.64;
+		  systema_.beta[i][nsysloc]  /= 1.64;
+		  systasym_.betaasym[i][1][nsysloc] /= 1.64;
+		  systasym_.betaasym[i][0][nsysloc] /= 1.64;
+		  systasym_.omega[i][nsysloc] /= 1.64;
 		}
 	    }
 	  nsysloc += 1;
@@ -794,7 +796,7 @@ void alphas_scan_()
 	  sprintf (nuispar, "scale_nuisance_param_%02d", j+1 - nsyspdf);
 	  int len = strlen(nuispar);
 	  memset (nuispar+len,' ',64-len);
-	  strcpy(systema_.system_[j],nuispar);
+	  strcpy(systema_.system[j],nuispar);
 	}
     }
 
@@ -807,34 +809,34 @@ void alphas_scan_()
       bool symm = false;
       //	  if (totmc || tothess_s)
       //	    symm = true;
-      writetheoryfiles_(nsysloc-systema_.nsys_, theo_cent, symm);
+      writetheoryfiles_(nsysloc-systema_.nsys, theo_cent, symm);
 
       cout << "-------------------------------------------" << endl;
       cout << "Add PDF and scale uncertainties and compute chi-square test on the central prediction:" << endl;
 
       LHAPDF::initPDF(0);
-      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
-      clhapdf_.ilhapdfset_ = 0;
+      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+      clhapdf_.ilhapdfset = 0;
       Dyturbo::pdfmember = 0;
 
-      for (int i = systema_.nsys_; i < nsysloc; i++)
+      for (int i = systema_.nsys; i < nsysloc; i++)
 	{
-	  sysmeas_.n_syst_meas_[i] = npoints; //PDF systematic uncertainties apply to all points
+	  sysmeas_.n_syst_meas[i] = npoints; //PDF systematic uncertainties apply to all points
 	  for (int j = 0; j < npoints; j++)
-	    sysmeas_.syst_meas_idx_[i][j] = j + 1;
-	  systscal_.sysscalingtype_[i] = 1;  //Apply linear scaling to PDF uncertainties
-	  //systscal_.sysscalingtype_[i] = 0;  //No scaling for PDF uncertainties
-	  csysttype_.isysttype_[i] = 2; // THEORY
-	  //systscal_.sysform_[i] = 4; //External (Minuit Fit)
-	  //systscal_.sysform_[i] = 3; //Offset (Minuit Fit)
-	  if (((nsyspdf-i) <= clhapdf_.nremovepriors_) && ((nsyspdf-i) > 0))
+	    sysmeas_.syst_meas_idx[i][j] = j + 1;
+	  systscal_.sysscalingtype[i] = 1;  //Apply linear scaling to PDF uncertainties
+	  //systscal_.sysscalingtype[i] = 0;  //No scaling for PDF uncertainties
+	  csysttype_.isysttype[i] = 2; // THEORY
+	  //systscal_.sysform[i] = 4; //External (Minuit Fit)
+	  //systscal_.sysform[i] = 3; //Offset (Minuit Fit)
+	  if (((nsyspdf-i) <= clhapdf_.nremovepriors) && ((nsyspdf-i) > 0))
 	    {
 	      char nuispar[64];
-	      sprintf (nuispar, "PDF_nuisance_param_%02d", i+1 - systema_.nsys_);
+	      sprintf (nuispar, "PDF_nuisance_param_%02d", i+1 - systema_.nsys);
 	      cout << "Remove prior for syst " << nuispar << endl;
 	      string msg = (string) "I: Remove prior for systematic " + nuispar;
 	      hf_errlog_(15082401, msg.c_str(), msg.size());
-	      csystprior_.syspriorscale_[i] = 0.;
+	      csystprior_.syspriorscale[i] = 0.;
 	    }
 
 	  //Remove priors for scale variations
@@ -846,18 +848,18 @@ void alphas_scan_()
 	      cout << "Remove prior for syst " << nuispar << endl;
 	      string msg = (string) "I: Remove prior for systematic " + nuispar;
 	      hf_errlog_(15082401, msg.c_str(), msg.size());
-	      csystprior_.syspriorscale_[i] = 0.;
+	      csystprior_.syspriorscale[i] = 0.;
 	      */
 
-	      systscal_.sysform_[i] = 4; //External (Minuit Fit)
-	      //systscal_.sysform_[i] = 3; //Offset (Minuit Fit)
+	      systscal_.sysform[i] = 4; //External (Minuit Fit)
+	      //systscal_.sysform[i] = 3; //Offset (Minuit Fit)
 	    }
 	  
 	}
 	  
       //Add the PDF uncertainties to the total number of systematic uncertainties
-      systema_.nsys_ = nsysloc;
-      systematicsflags_.resetcommonsyst_ = true;
+      systema_.nsys = nsysloc;
+      systematicsflags_.resetcommonsyst = true;
 
       //double chi2tot = chi2data_theory_(2);
       string fname = outdir + "/Results_000.txt";
@@ -871,7 +873,7 @@ void alphas_scan_()
       char chi2c[20];
       sprintf(chi2c, "%.1f", chi2tot);
       cout << setw(15) << "chi2=" << chi2c 
-	   << setw(15) << "ndf=" << cfcn_.ndfmini_ 
+	   << setw(15) << "ndf=" << cfcn_.ndfmini 
 	   << endl;
     }
 
@@ -886,7 +888,7 @@ void alphas_scan_()
   
   if (lhapdfset.size() == 0)
     {
-      string msg = "S: Call to alphas_scan but lhapdfset is not specified";
+      string msg = "S: Call to.alphasscan but lhapdfset is not specified";
       hf_errlog_(18082001, msg.c_str(), msg.size());
     }
 
@@ -904,8 +906,8 @@ void alphas_scan_()
   for (vector <double>::iterator vit = values.begin(); vit != values.end(); vit++)
     {
       LHAPDF::initPDF(iset);
-      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
-      clhapdf_.ilhapdfset_ = iset;
+      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+      clhapdf_.ilhapdfset = iset;
       Dyturbo::pdfmember = iset;
 
       //double chi2tot = chi2data_theory_(2);
@@ -923,7 +925,7 @@ void alphas_scan_()
       sprintf(chi2c, "%.1f", chi2tot);
       cout << setw(15) << (label + "=") << *vit
 	   << setw(15) << "chi2=" << chi2c 
-	   << setw(15) << "ndf=" << cfcn_.ndfmini_ 
+	   << setw(15) << "ndf=" << cfcn_.ndfmini 
 	   << endl;
       chi2[*vit] = chi2tot;
 
@@ -963,7 +965,7 @@ void alphas_scan_()
       int SymmHessPDFErr = 0;
       int ModPDFErr = 0;
       int ParPDFErr = 0;
-      getpdfunctype_heraf_lhapdf6_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+      getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
       
       //Start loop on PDF sets and members
       int cset = 0; //counter on pdf variations;
@@ -973,14 +975,14 @@ void alphas_scan_()
 	  if (pdfset ==  0)
 	    {
 	      LHAPDF::initPDFSet(lhapdfset.c_str());
-	      strcpy(clhapdf_.lhapdfset_,lhapdfset.c_str());
+	      strcpy(clhapdf_.lhapdfset,lhapdfset.c_str());
 	    }
 	  else if (pdfset ==  1)
 	    {
 	      if (lhapdfvarset == "")
 		continue;
 	      LHAPDF::initPDFSet(lhapdfvarset.c_str());
-	      strcpy(clhapdf_.lhapdfset_,lhapdfvarset.c_str());
+	      strcpy(clhapdf_.lhapdfset,lhapdfvarset.c_str());
 	    }
 	  //Number of PDF members
 	  int nsets = LHAPDF::numberPDF();
@@ -996,8 +998,8 @@ void alphas_scan_()
 	      
 	      //Init PDF member and alphas(MZ)
 	      LHAPDF::initPDF(iset);
-	      clhapdf_.ilhapdfset_ = iset;
-	      c_alphas_.alphas_ = LHAPDF::alphasPDF(boson_masses_.mz_);
+	      clhapdf_.ilhapdfset = iset;
+	      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
 	      
 	      //In VAR PDF set determine if it is a model or parametrisation variation
 	      if (pdfset == 1)
@@ -1007,7 +1009,7 @@ void alphas_scan_()
 		  SymmHessPDFErr = 0;
 		  ParPDFErr = 0;
 		  ModPDFErr = 0;
-		  if (iset > (nsets - chi2scan_.chi2nparvar_))
+		  if (iset > (nsets - chi2scan_.chi2nparvar))
 		    ParPDFErr = true;
 		  else
 		    ModPDFErr = true;
@@ -1063,7 +1065,7 @@ void alphas_scan_()
   cout << endl;
   cout << "Results of the chi2 scan: " << endl;
   cout << label << " = " << min << " +" << deltap << " -" << deltam << endl;
-  cout << "Chi2 at minimum: " << chi2min << "  "  << "ndf=" << (cfcn_.ndfmini_-1) << endl;
+  cout << "Chi2 at minimum: " << chi2min << "  "  << "ndf=" << (cfcn_.ndfmini-1) << endl;
   if (decomposition)
     {
       //uncertainties decomposition
@@ -1075,9 +1077,9 @@ void alphas_scan_()
       double PDFm= 0;
       double scalesp = 0;
       double scalesm = 0;
-      for (int s = 0; s < systema_.nsys_; s++)
+      for (int s = 0; s < systema_.nsys; s++)
 	{
-	  string nuislabel = string(systema_.system_[s]);
+	  string nuislabel = string(systema_.system[s]);
 	  nuislabel.erase(nuislabel.find_first_of(" "), string::npos); // trim trailing whitespaces
 	  
 	  //cout << nuislabel << "\t+" << deltapi[s] << "\t-" << deltami[s] << endl;
@@ -1109,10 +1111,10 @@ void alphas_scan_()
 	    }
 	}
       //Loop on statistical uncertainties
-      int npoints = cndatapoints_.npoints_;
+      int npoints = cndatapoints_.npoints;
       for (int p = 0; p < npoints; p++)
 	{
-	  int idx = p+systema_.nsys_;
+	  int idx = p+systema_.nsys;
 	  char statname[100];
 	  sprintf(statname, "stat_%d", p);
 
@@ -1157,12 +1159,12 @@ void alphas_scan_()
 void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, double value)
 {
   cout << "Start uncertainty decomposition" << endl;
-  int npoints = cndatapoints_.npoints_;
+  int npoints = cndatapoints_.npoints;
   /********************** Technique 1 *******************************
    //remove one-by-one each uncertainty from the chi2 and recalculate chi2 (should apply shift)
 	  
    //loop on systematic uncertainties
-	  int totsyst = systema_.nsys_;
+	  int totsyst = systema_.nsys;
 	  for (int s = 0; s < totsyst; s++)
 	    {
 	      double savebetaasym[npoints][2][totsyst];
@@ -1173,29 +1175,29 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	      for (int p = 0; p < npoints; p++)
 		{
 		//save current uncertainty
-		  savebetaasym[p][0][s] = systasym_.betaasym_[p][0][s];
-		  savebetaasym[p][1][s] = systasym_.betaasym_[p][1][s];
-		  savebeta[p][s] = systema_.beta_[p][s];
-		  saveomega[p][s] = systasym_.omega_[p][s];
+		  savebetaasym[p][0][s] = systasym_.betaasym[p][0][s];
+		  savebetaasym[p][1][s] = systasym_.betaasym[p][1][s];
+		  savebeta[p][s] = systema_.beta[p][s];
+		  saveomega[p][s] = systasym_.omega[p][s];
 
 		  //save current theory
-		  savetheo[p] = c_theo_.theo_[p];
+		  savetheo[p] = c_theo_.theo[p];
 		  //save current data
 		  savedata[p] = indata2_.daten_[p];
 
 		  //remove uncertainty
-		  systasym_.betaasym_[p][0][s] = 0;
-		  systasym_.betaasym_[p][1][s] = 0;
-		  systema_.beta_[p][s] = 0;
-		  systasym_.omega_[p][s] = 0;
+		  systasym_.betaasym[p][0][s] = 0;
+		  systasym_.betaasym[p][1][s] = 0;
+		  systema_.beta[p][s] = 0;
+		  systasym_.omega[p][s] = 0;
 
 		  //shift the data (should know the shift at the chi2 minimum, need two iterations for that)
 		  //indata2_.daten_[p] = indata2_.daten_[p]
 		  //+ systexport_.sysshift_[s]*systexport_.scgamma_[p][s]
-		  //+ systexport_.sysshift_[s]*systexport_.sysshift_[s]*systexport_.scomega_[p][s];
+		  //+ systexport_.sysshift_[s]*systexport_.sysshift_[s]*systexport_.s.omega[p][s];
 
 		  //offset the data
-		  //indata2_.daten_[p] = indata2_.daten_[p] + systexport_.scgamma_[p][s] + systexport_.scomega_[p][s];
+		  //indata2_.daten_[p] = indata2_.daten_[p] + systexport_.scgamma_[p][s] + systexport_.s.omega[p][s];
 		  //indata2_.daten_[p] = indata2_.daten_[p] + savebeta[p][s]*savetheo[p] + saveomega[p][s]*savetheo[p];
 		} //end loop on points
 
@@ -1205,22 +1207,22 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	      //char chi2c[20];
 	      //sprintf(chi2c, "%.8f", systchi2[s][value]);
 	      //cout << setw(15) << (label + "=") << value
-	      //	   << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system_[s]
+	      //	   << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system[s]
 	      //	   << setw(15) << "chi2=" << chi2c 
-	      //	   << setw(15) << "ndf=" << cfcn_.ndfmini_ 
+	      //	   << setw(15) << "ndf=" << cfcn_.ndfmini 
 	      //     << endl;
 
 	      for (int p = 0; p < npoints; p++)
 		{
 		//restore uncertainty
-		  systasym_.betaasym_[p][0][s] = savebetaasym[p][0][s];
-		  systasym_.betaasym_[p][1][s] = savebetaasym[p][1][s];
-		  systema_.beta_[p][s] = savebeta[p][s];
-		  systasym_.omega_[p][s] = saveomega[p][s];
+		  systasym_.betaasym[p][0][s] = savebetaasym[p][0][s];
+		  systasym_.betaasym[p][1][s] = savebetaasym[p][1][s];
+		  systema_.beta[p][s] = savebeta[p][s];
+		  systasym_.omega[p][s] = saveomega[p][s];
 
 
 		  ////restore theory
-		  //c_theo_.theo_[p] = savetheo[p];
+		  //c_theo_.theo[p] = savetheo[p];
 		  ////restore data
 		  //indata2_.daten_[p] = savedata[p];
 
@@ -1232,7 +1234,7 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
   /********************** Technique 2 *******************************/
   //offset the data one by one
 
-  int totsyst = systema_.nsys_;
+  int totsyst = systema_.nsys;
   //theory and data
   double savetheo[npoints];
   double savedata[npoints];
@@ -1250,13 +1252,13 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	      
   for (int p = 0; p < npoints; p++)
     {
-      for (int s = 0; s < systema_.nsys_; s++)
+      for (int s = 0; s < systema_.nsys; s++)
 	{
 	  //save current uncertainty
-	  savebetaasym[p][0][s] = systasym_.betaasym_[p][0][s];
-	  savebetaasym[p][1][s] = systasym_.betaasym_[p][1][s];
-	  savebeta[p][s] = systema_.beta_[p][s];
-	  saveomega[p][s] = systasym_.omega_[p][s];
+	  savebetaasym[p][0][s] = systasym_.betaasym[p][0][s];
+	  savebetaasym[p][1][s] = systasym_.betaasym[p][1][s];
+	  savebeta[p][s] = systema_.beta[p][s];
+	  saveomega[p][s] = systasym_.omega[p][s];
 
 	  //save current scaled gamma and omega
 	  savescgamma[p][s] = systexport_.scgamma_[p][s];
@@ -1264,15 +1266,15 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	}
 	      
       //save current theory
-      savetheo[p] = c_theo_.theo_[p];
+      savetheo[p] = c_theo_.theo[p];
       //save current data
       savedata[p] = indata2_.daten_[p];
 	      
       //save current stat uncertainties
-      savestatpoi[p] = cuncerrors_.e_stat_poisson_[p];
-      savestatconst[p] = cuncerrors_.e_stat_const_[p];
-      saveuncorpoi[p] = cuncerrors_.e_uncor_poisson_[p];
-      saveuncorconst[p] = cuncerrors_.e_uncor_const_[p];
+      savestatpoi[p] = cuncerrors_.e_stat_poisson[p];
+      savestatconst[p] = cuncerrors_.e_stat_const[p];
+      saveuncorpoi[p] = cuncerrors_.e_uncor_poisson[p];
+      saveuncorconst[p] = cuncerrors_.e_uncor_const[p];
     }
 	  
   //loop on systematic uncertainties
@@ -1286,21 +1288,21 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	    if (sign == 0)
 	      {
 		indata2_.daten_[p] = savedata[p] + savescgamma[p][s] + savescomega[p][s];                     //These are the Gamma eventually scaled to the theory
-		//if (systscal_.sysscalingtype_[s] == 0) //data-like uncertainty, scaled to the data
+		//if (systscal_.sysscalingtype[s] == 0) //data-like uncertainty, scaled to the data
 		//  indata2_.daten_[p] = savedata[p] + savebeta[p][s]*savedata[p] + saveomega[p][s]*savedata[p];    //These are the original unscaled Gamma
-		//else if (systscal_.sysscalingtype_[s] == 1) //theory-like uncertainty, scaled to the theory
+		//else if (systscal_.sysscalingtype[s] == 1) //theory-like uncertainty, scaled to the theory
 		//  indata2_.daten_[p] = savedata[p] + savebeta[p][s]*savetheo[p] + saveomega[p][s]*savetheo[p];  //These are the original Gamma scaled to the theory
-		//else if (systscal_.sysscalingtype_[s] == 2) //poissonian
+		//else if (systscal_.sysscalingtype[s] == 2) //poissonian
 		//  indata2_.daten_[p] = savedata[p] + savebeta[p][s]*sqrt(savetheo[p]*savedata[p]) + saveomega[p][s]*sqrt(savetheo[p]*savedata[p]);
 	      }
 	    else
 	      {
 		indata2_.daten_[p] = savedata[p] - savescgamma[p][s] + savescomega[p][s];                     //These are the Gamma eventually scaled to the theory
-		//if (systscal_.sysscalingtype_[s] == 0) //data-like uncertainty, scaled to the data
+		//if (systscal_.sysscalingtype[s] == 0) //data-like uncertainty, scaled to the data
 		//  indata2_.daten_[p] = savedata[p] - savebeta[p][s]*savedata[p] + saveomega[p][s]*savedata[p];    //These are the original unscaled Gamma
-		//else if (systscal_.sysscalingtype_[s] == 1) //theory-like uncertainty, scaled to the theory
+		//else if (systscal_.sysscalingtype[s] == 1) //theory-like uncertainty, scaled to the theory
 		//  indata2_.daten_[p] = savedata[p] - savebeta[p][s]*savetheo[p] + saveomega[p][s]*savetheo[p];  //These are the original Gamma scaled to the theory
-		//else if (systscal_.sysscalingtype_[s] == 2) //poissonian
+		//else if (systscal_.sysscalingtype[s] == 2) //poissonian
 		//  indata2_.daten_[p] = savedata[p] - savebeta[p][s]*sqrt(savetheo[p]*savedata[p]) + saveomega[p][s]*sqrt(savetheo[p]*savedata[p]);
 	      }
 	    //cout << p << " daten " << indata2_.daten_[p] << " savedata " <<  savedata[p] << " savegamma " <<  savescgamma[p][s] << " saveomega " << savescomega[p][s] << endl;
@@ -1314,24 +1316,24 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	    for (int s2 = 0; s2 < totsyst; s2++)
 	      {
 		double fac = 1;
-		if (systscal_.sysscalingtype_[s2] == 0) //additive uncertainty
+		if (systscal_.sysscalingtype[s2] == 0) //additive uncertainty
 		  fac = savedata[p]/indata2_.daten_[p]; 
-		else if (systscal_.sysscalingtype_[s2] == 1) //multiplicative uncertainty
+		else if (systscal_.sysscalingtype[s2] == 1) //multiplicative uncertainty
 		  fac = 1.;
-		else if (systscal_.sysscalingtype_[s2] == 2) //poissonian uncertainty
+		else if (systscal_.sysscalingtype[s2] == 2) //poissonian uncertainty
 		  fac = sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 			
-		systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2]*fac;
-		systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2]*fac;
-		systema_.beta_[p][s2] = savebeta[p][s2]*fac;
-		systasym_.omega_[p][s2] = saveomega[p][s2]*fac;
+		systasym_.betaasym[p][0][s2] = savebetaasym[p][0][s2]*fac;
+		systasym_.betaasym[p][1][s2] = savebetaasym[p][1][s2]*fac;
+		systema_.beta[p][s2] = savebeta[p][s2]*fac;
+		systasym_.omega[p][s2] = saveomega[p][s2]*fac;
 	      }
-	    cuncerrors_.e_stat_const_[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
-	    cuncerrors_.e_uncor_const_[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
-	    if (cuncerrors_.e_stat_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	      cuncerrors_.e_stat_poisson_[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
-	    if (cuncerrors_.e_uncor_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	      cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	    cuncerrors_.e_stat_const[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
+	    cuncerrors_.e_uncor_const[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
+	    if (cuncerrors_.e_stat_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	      cuncerrors_.e_stat_poisson[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	    if (cuncerrors_.e_uncor_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	      cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 	  } //end loop on points
 		
 	//calculate chi2
@@ -1355,9 +1357,9 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	//char chi2c[20];
 	//sprintf(chi2c, "%.8f", systchi2[sign][s][value]);
 	//cout << setw(15) << value
-	//     << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system_[s]
+	//     << setw(6) << "syst" << setw(4) << s // << setw(20) << systema_.system[s]
 	//     << setw(15) << "chi2=" << chi2c 
-	//     << setw(15) << "ndf=" << cfcn_.ndfmini_
+	//     << setw(15) << "ndf=" << cfcn_.ndfmini
 	//     << endl;
 		
 	for (int p = 0; p < npoints; p++)
@@ -1365,22 +1367,22 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	    //restore uncertainty
 	    for (int s2 = 0; s2 < totsyst; s2++)
 	      {
-		systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2];
-		systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2];
-		systema_.beta_[p][s2] = savebeta[p][s2];
-		systasym_.omega_[p][s2] = saveomega[p][s2];
+		systasym_.betaasym[p][0][s2] = savebetaasym[p][0][s2];
+		systasym_.betaasym[p][1][s2] = savebetaasym[p][1][s2];
+		systema_.beta[p][s2] = savebeta[p][s2];
+		systasym_.omega[p][s2] = saveomega[p][s2];
 	      }
 
 	    //restore theory
-	    c_theo_.theo_[p] = savetheo[p];
+	    c_theo_.theo[p] = savetheo[p];
 	    //restore data
 	    indata2_.daten_[p] = savedata[p];
 		    
 	    //restore stat uncertainties
-	    cuncerrors_.e_stat_poisson_[p] = savestatpoi[p];
-	    cuncerrors_.e_stat_const_[p] = savestatconst[p];
-	    cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p];
-	    cuncerrors_.e_uncor_const_[p] = saveuncorconst[p];
+	    cuncerrors_.e_stat_poisson[p] = savestatpoi[p];
+	    cuncerrors_.e_stat_const[p] = savestatconst[p];
+	    cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p];
+	    cuncerrors_.e_uncor_const[p] = saveuncorconst[p];
 	  } //end loop on points
       }//end loop on systematic uncertainties and plus/minus
 	
@@ -1400,24 +1402,24 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	for (int s2 = 0; s2 < totsyst; s2++)
 	  {
 	    double fac = 1.;
-	    if (systscal_.sysscalingtype_[s2] == 0) //additive uncertainty
+	    if (systscal_.sysscalingtype[s2] == 0) //additive uncertainty
 	      fac = savedata[p]/indata2_.daten_[p];
-	    else if (systscal_.sysscalingtype_[s2] == 1)
+	    else if (systscal_.sysscalingtype[s2] == 1)
 	      fac = 1.;
-	    else if (systscal_.sysscalingtype_[s2] == 2)
+	    else if (systscal_.sysscalingtype[s2] == 2)
 	      fac = sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 			
-	    systasym_.betaasym_[p][0][s2] = savebetaasym[p][0][s2]*fac;
-	    systasym_.betaasym_[p][1][s2] = savebetaasym[p][1][s2]*fac;
-	    systema_.beta_[p][s2] = savebeta[p][s2]*fac;
-	    systasym_.omega_[p][s2] = saveomega[p][s2]*fac;
+	    systasym_.betaasym[p][0][s2] = savebetaasym[p][0][s2]*fac;
+	    systasym_.betaasym[p][1][s2] = savebetaasym[p][1][s2]*fac;
+	    systema_.beta[p][s2] = savebeta[p][s2]*fac;
+	    systasym_.omega[p][s2] = saveomega[p][s2]*fac;
 	  }
-	cuncerrors_.e_stat_const_[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
-	cuncerrors_.e_uncor_const_[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
-	if (cuncerrors_.e_stat_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	  cuncerrors_.e_stat_poisson_[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
-	if (cuncerrors_.e_uncor_poisson_[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
-	  cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	cuncerrors_.e_stat_const[p]    = savestatconst[p]*savedata[p]/indata2_.daten_[p];
+	cuncerrors_.e_uncor_const[p]   = saveuncorconst[p]*savedata[p]/indata2_.daten_[p];
+	if (cuncerrors_.e_stat_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	  cuncerrors_.e_stat_poisson[p]  = savestatpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
+	if (cuncerrors_.e_uncor_poisson[p] > 0 && indata2_.daten_[p]*savetheo[p] > 0)
+	  cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p]*sqrt(savetheo[p]*savedata[p])/sqrt(indata2_.daten_[p]*savetheo[p]);
 
 	//calculate chi2
 	//systchi2[sign][p+totsyst][value] = chi2data_theory_(2);
@@ -1440,43 +1442,43 @@ void asscan::decompose(map <int, map <int, map <double, double> > > &systchi2, d
 	//char chi2c[20];
 	//sprintf(chi2c, "%.8f", systchi2[sign][p+totsyst][value]);
 	//cout << setw(15) << value
-	//     << setw(6) << "stat" << setw(4) << p // << setw(20) << systema_.system_[s]
+	//     << setw(6) << "stat" << setw(4) << p // << setw(20) << systema_.system[s]
 	//     << setw(15) << "chi2=" << chi2c 
-	//     << setw(15) << "ndf=" << cfcn_.ndfmini_ 
+	//     << setw(15) << "ndf=" << cfcn_.ndfmini 
 	//     << endl;
 		  
 	//restore uncertainty
 	for (int s = 0; s < totsyst; s++)
 	  {
-	    systasym_.betaasym_[p][0][s] = savebetaasym[p][0][s];
-	    systasym_.betaasym_[p][1][s] = savebetaasym[p][1][s];
-	    systema_.beta_[p][s] = savebeta[p][s];
-	    systasym_.omega_[p][s] = saveomega[p][s];
+	    systasym_.betaasym[p][0][s] = savebetaasym[p][0][s];
+	    systasym_.betaasym[p][1][s] = savebetaasym[p][1][s];
+	    systema_.beta[p][s] = savebeta[p][s];
+	    systasym_.omega[p][s] = saveomega[p][s];
 	  }
 
 	//restore theory
-	c_theo_.theo_[p] = savetheo[p];
+	c_theo_.theo[p] = savetheo[p];
 	//restore data
 	indata2_.daten_[p] = savedata[p];
 
 	//restore stat uncertainties
-	cuncerrors_.e_stat_poisson_[p] = savestatpoi[p];
-	cuncerrors_.e_stat_const_[p] = savestatconst[p];
-	cuncerrors_.e_uncor_poisson_[p] = saveuncorpoi[p];
-	cuncerrors_.e_uncor_const_[p] = saveuncorconst[p];
+	cuncerrors_.e_stat_poisson[p] = savestatpoi[p];
+	cuncerrors_.e_stat_const[p] = savestatconst[p];
+	cuncerrors_.e_uncor_poisson[p] = saveuncorpoi[p];
+	cuncerrors_.e_uncor_const[p] = saveuncorconst[p];
       } //end loop on stat uncertainties and plus/minus
   /***************************************************/
 }
 
 void asscan::decompose_fits(map <int, map <int, map <double, double> > > systchi2, double min, vector <double> &deltapi, vector <double> &deltami)
 {
-  int npoints = cndatapoints_.npoints_;
+  int npoints = cndatapoints_.npoints;
   /***************** Technique 1 ******************/
   /*
   //Loop on uncertainties
   double deltap2_tot = 0;
   double deltam2_tot = 0;
-  for (int s = 0; s < systema_.nsys_; s++)
+  for (int s = 0; s < systema_.nsys; s++)
   {
   double min_i, deltap_i, deltam_i, chi2min_i;
   char chi2name[100];
@@ -1492,7 +1494,7 @@ void asscan::decompose_fits(map <int, map <int, map <double, double> > > systchi
 
   /***************** Technique 2 ******************/
   //Loop on systematic uncertainties
-  for (int s = 0; s < systema_.nsys_; s++)
+  for (int s = 0; s < systema_.nsys; s++)
     {
       double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
       char chi2name[100];
@@ -1511,7 +1513,7 @@ void asscan::decompose_fits(map <int, map <int, map <double, double> > > systchi
   //Loop on statistical uncertainties
   for (int p = 0; p < npoints; p++)
     {
-      int idx = p+systema_.nsys_;
+      int idx = p+systema_.nsys;
       double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
       char chi2name[100];
       sprintf(chi2name, "chi2scan_syst_%d_p.txt", idx);

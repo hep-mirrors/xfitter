@@ -226,8 +226,7 @@ void get_lhapdferrors_()
     {
       cout << "-------------------------------------------" << endl;
       cout << "Chi2 test on PDF variations" << endl;
-      //getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
-      getpdfunctype_heraf_lhapdf6_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+      getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
       string msg = "";
       if (MonteCarloPDFErr)
         msg = (string) "I: Use Monte Carlo errors approach for: " + lhapdfset;
@@ -527,7 +526,6 @@ void get_lhapdferrors_()
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
         pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
       cset++;
-//      */
 
       //restore nominal scale
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)

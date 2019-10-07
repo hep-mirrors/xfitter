@@ -53,7 +53,8 @@ libxfmain_la_CXXFLAGS=\
   -I$(top_srcdir)/FastNLO/include\
   -I$(top_srcdir)/common\
   -I$(top_srcdir)/common/linalg\
-  -I$(top_srcdir)/tools/draw/include
+  -I$(top_srcdir)/tools/draw/include\
+  -I$(top_srcdir)/dyturbo
 libxfmain_la_CFLAGS=
 libxfmain_la_CPPFLAGS=$(QCDNUM_CPPFLAGS) -I$(top_srcdir)/include -DPREFIX="\"$(prefix)\""
 libxfmain_la_FFLAGS=$(DEFS) -cpp -I$(top_srcdir)/include  $(NOAUTOFCFLAG) -I$(top_srcdir)/minuit/src
@@ -65,7 +66,7 @@ LDADD = libxfitter.a
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 
 if ENABLE_DYTURBO
-  AM_CPPFLAGS += -I$(srcdir)/../dyturbo $(DYTURBO_CPPFLAGS)
+  AM_CPPFLAGS = -I$(srcdir)/../dyturbo $(DYTURBO_CPPFLAGS)
 endif
 
 if ENABLE_LHAPDF

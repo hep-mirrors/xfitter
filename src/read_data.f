@@ -672,17 +672,6 @@ c            call HF_stop
            call HF_errlog(14042001,trim(Msg))
         endif
 
-        idxReaction = GetInfoIndex(NDATASETS,'bindensity')
-        bindensity = 1               ! defaults to applgrid scale
-        if ( idxReaction .ne. 0 ) then
-           bindensity = DATASETInfo(idxReaction, NDATASETS)
-
-      write (Msg,'(''I: Set bindensity for resummed calculations: ''
-     .      ,A20,'' '')')
-     $        Name
-           call HF_errlog(14042701,trim(Msg))
-        endif
-
         idxReaction = GetInfoIndex(NDATASETS,'ylow')
         ylow = -5d0
         if ( idxReaction .ne. 0 ) then
