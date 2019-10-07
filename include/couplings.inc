@@ -5,7 +5,7 @@ C Math constants:
       parameter (pi = 3.14159265358979323846d0)
       ! 35 digits --- gnuC standard for quad M_PIq
       ! parameter (pi = 3.1415926535897932384626433832795029d0)
-      
+
       ! --- the Euler constant gamma_E
       double precision gammaEuler
       parameter (gammaEuler = 0.577215664901532860607d0)
@@ -38,8 +38,3 @@ C Electroweak common blocks
       common/ckm_matrix/ Vud, Vus, Vub, Vcd, Vcs, Vcb, Vtd, Vts, Vtb
       common/fermion_masses/men, mel, mmn, mmo, mtn, mta, mup, mdn,
      + mch, mst, mtp, mbt
-      
-C Lambda non-perturbative cut-off
-
-      double precision lambdanp
-      common/c_lambda/lambdanp
